@@ -4792,6 +4792,84 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
 
+##### UPDATE S-23z — **⚠⚠⚠ HANDOFF FOR A SUCCESSOR WHO KNOWS NOTHING. FLEET KILL IMMINENT. `SO-3` SURVIVES IT — pid `1077784`, DETACHED, SIX OF SEVEN ARMS `rc=0`, `FE-P` IN FLIGHT. READ THIS BLOCK BEFORE TOUCHING ANYTHING** (2026-09-01T04:05:16Z, `date -u` at write)
+
+##### 0. THE FIRST THING TO DO, AND THE TRAP THAT WILL FOOL YOU
+
+**`SO-3` IS RUNNING AND MUST NOT BE RESTARTED.** `[MEASURED 04:05:16Z]` driver **pid `1077784`**, parent `1077783` whose **PPID is `1`** — it is reparented to init, so **it survives the fleet kill and keeps running with nobody alive.**
+
+**⚠⚠ THE TRAP, AND I FELL INTO IT MYSELF TONIGHT: `verification/queue/LAUNCH_LOG.tsv` RECORDS pid `1077782`, WHICH IS THE WRAPPER AND IS ALREADY GONE.** `ps -p 1077782` returns **empty**, which reads exactly like a dead run. **IT IS NOT DEAD.** The real chain is `1077783` → `1077784` (driver) → `so3_run_arm.sh` children. **A LAUNCH_LOG pid that is gone is NOT evidence the run is gone.** This family has mistaken a live run for a dead one four times; do not make it five.
+
+**THE AUTHORITY ON PROGRESS IS `STATUS.chain`, NOT `ps`.** Read:
+`/home/ubuntu/certonomous-runs/CURRICULUM-SO3-a1-naca0012-alpha-multipoint-optimisation/STATUS.chain`
+One line per arm as it lands. At this write: **`MESH O-S XE-S FE-S O-P XE-P` all `rc=0`; `FE-P` is the seventh and last and was running 159 s at 04:05:16Z.** Its sibling `FE-S` took **267 s**, so **expect `FE-P` to land about 04:07–04:08Z.** When the chain ends the driver writes its own terminal line — **look for `chain=` with a completion token, and do not infer completion from the process being gone.**
+
+##### 1. HOW TO READ THE COST — AND THE READER THAT WILL LIE TO YOU
+
+**NEVER use `grep -o "core_min=[0-9.]*"` on `ledger.txt`.** It **also matches the tail of `enforced_core_min=`**, which is a **CAP, not a spend**. That reader produced **530.434 core-min against a 595.0 ceiling** and looked like a near-overrun; **520.0 of it was cap values counted as spend.** **PARSE FIELD BY FIELD.**
+
+`[MEASURED, field-by-field, 04:0xZ]` six arms landed, **TRUE TOTAL 24.367 core-min**:
+
+| arm | row | rc | wall s | core-min | cap |
+|---|---|---|---|---|---|
+| MESH | SHIPPED | 0 | 10 | 0.167 | 5.0 |
+| O-S | SHIPPED | 0 | 475 | 7.917 | 240.0 |
+| XE-S | SHIPPED | 0 | 141 | 2.350 | 15.0 |
+| FE-S | SHIPPED | 0 | 267 | 4.450 | 40.0 |
+| O-P | PATCHED | 0 | 417 | 6.950 | 240.0 |
+| XE-P | PATCHED | 0 | 152 | 2.533 | 15.0 |
+
+**Every arm `rc=0` and every arm inside its cap.** `FE-P` should add ~4.5, giving **~28.8 core-min** against a registered point of **228.59**.
+
+##### 2. WHAT TO DO WHEN `FE-P` LANDS — AND WHAT NOT TO CLAIM
+
+**GRADE IT.** Grading path is **pinned and verified three ways**: `cases/dafoam/ladder-a/A1/curriculum_SO3/so3_grade.py`, **md5 `0ac111ef144a62111e36f676e8114af1`** — agreeing on disk, at HEAD, and in the freeze tree. **Pre-registration `PREREGISTRATION.md` in the same directory; `prereg_commit` is `ab27dff7`, NOT the add-commit `7f7d0fb1`** (see §6).
+
+**⚠ `P_COST` IS HEADING FOR `MISS` LOW AND THAT IS THE REGISTERED OUTCOME, NOT A FAILURE.** Band `[60.0, 300.0]`; projected ~28.8. **Its registered falsifier named exactly this: "both optimisers converge in far fewer majors than the single-point precedent, or the per-major rate is well under the C-24 anchor." BOTH FIRED.** `O-S` converged in **11 majors**, `O-P` in **10**, against `MAX_MAJORS 50`.
+
+**DO NOT "correct" the band back.** `[14.0, 60.0]` was struck because under this item's own registered cost model it **had no reachable HIT** and carried zero information. That ~28.8 falls inside it is **two errors cancelling** — a band that could not hit, and an O-arm extrapolation high by ~13× on majors × rate. **A band right by accident is not a working prediction.**
+
+**THE REAL FINDING IS THE COST MODEL, AND IT BELONGS IN THE CALIBRATION ROW:** *the anchor is the predictor, not the factor.* C-188's **1.6308** multipoint factor is from **D6 — A2, 3-D, np=4** — and neither it nor the naive ×3 transfers to **A1, 2-D, np=1**. **`O-S` is this lab's FIRST MEASURED multipoint-major anchor on this ground: 0.7197 core-min/major, 0.57× the naive 1.2638 — the multipoint penalty here is BELOW the single-point ×3, not 1.63× above it.** Rule 12 requires the estimate-versus-actual row at item completion; **file it with that lesson as its content.**
+
+**AND THE TWO ROWS ARE THE POINT.** `O-P` (patched, 10 majors, 6.95) and `O-S` (shipped, 11 majors, 7.917) cost almost the same — **so the rotation defect does NOT materially change the optimisation's COST on this case. Whether it changes the ANSWER is what the grade decides, and nothing above pre-empts it.** The charter's bright line stands: **two rows or it is not a verdict about DAFoam.**
+
+##### 3. `D19R2` = `NOT A RESULT` — AND THE COMPRESSIBLE GATE IS SHUT FOR A NAMED REASON
+
+Grader refused `rc=2`, no grade JSON: **`REFUSE G19R-1h / MANIFEST_ENTRY_MUTATED`**, arm `X2`, path `system/decomposeParDict`. **0.00096 core-min, ZERO solver core-min.** Record `cases/dafoam/ladder-a/A1/curriculum_D19R2/RESULTS.md`, commit `944e40a8`.
+
+**THE REPAIR HELD** — it refused at `G19R-1h`, **thirty lines past** where `D19R` died at `G-PROV`. **And that corrects my own diagnosis: had `D19R`'s provenance wiring been right, it would have refused HERE too. `:482` was A blocker, not THE blocker; the successor was necessary and is not sufficient.**
+
+**MECHANISM, measured by me and SHARPER than the lane's report:** it is **not** "the np=2 arms" — **all six arms declare `numberOfSubdomains 2` and `method scotch`.** The discriminator is **whether `decomposePar` ACTUALLY RAN**: `X2/S8/N2` have **2 processor dirs** and a dict rewritten mid-run; `MESH/S1/R1` have **0** and a dict untouched since staging. **OpenFOAM writes its default coefficient sub-dicts back when `decomposePar` executes — it wrote `kahipCoeffs` while the selected method is `scotch`, i.e. it emits blocks for methods it is not using.** 151 of 152 manifest entries across six arms are byte-identical after five days.
+
+**THREE ROUTES, NONE TAKEN, AND ROUTE 1 IS NOT A SUPERVISOR'S:** (1) rule `system/decomposeParDict` a write target for `G19R-1h` — **gate design, which `D19R` §5 reserves to Sanaa in terms**; (2) re-run the three decomposing arms with the dict pre-normalised — **NEW COMPUTE, and FRAGILE**, because it chases a version-dependent default set the binary writes for methods it is not using; (3) accept `NOT A RESULT` and leave the gate shut. **The measurement is complete; the ruling is hers.**
+
+##### 4. ⚠ STILL OWED TO SANAA — THE COMPRESSIBLE MULTIPOINT LAUNCH ANSWER
+
+**Give her this, verbatim, if nothing has changed:** *compressible multipoint has no launch time, because its precondition is a verified compressible gradient and that verification does not exist — the compressible gate is shut because one file, `system/decomposeParDict`, is rewritten by OpenFOAM itself in every arm that runs `decomposePar` and is not on the manifest's write-target exclusion list. Opening it is a gate-design decision reserved to her. Cost to settle: zero solver core-minutes on route 1 or 3; new compute on route 2.*
+
+**Do NOT queue compressible multipoint to look responsive.** Incompressible could launch because `SO-3aR2`'s **PATCHED row PASSED**; compressible has **no such pass**, and the charter's bright line is that **a gradient is not a result until an FD table stands beside it at a step proved to lie in the plateau.** `D19`'s plateau did not close (`all_two_sided=False`, score 21.63 %), and `shape[7]` is a **near-null component 35–70× smaller than its siblings that changes sign at 1e-5**. Four of five components have a clean plateau.
+
+##### 5. ACT D — WIRED, DRIVEN, AND WHAT IS LEFT
+
+**`e3964db0`: nine stages in order, 347 events, 168 publications, clock 20:00 with parts 18:25 + 1:35, counter 47 of 100, 23/23 drive checks with a four-way mutation control, 2,371 camera strings / 0 hits / 15/15 planted.** Never "converged", never "optimum". Earlier: sections lead the act (`4e363de2`), the decomposition table is on screen reading from the frozen grader (`a1cab154`), Sanaa's figure/header standard applied with the solver line **measured** as `DARhoSimpleFoam` + **Spalart-Allmaras** (`b18a438a`), the caption's em dash traded for a semicolon by chief ruling (`7717e6d7`), and the GUI sheet built at `ACT_D_reference_wing_sheet.tex` — **now two pages, carried on the chief's ruling**.
+
+**FOR cfd, NOT US, AND ONE IS A SAFETY HOLE:** the shared `demo_sequencer.py` guards **one** publication site (`:320`) and leaves **four raw** (`:278`, `:335`, `:351`, `:354`) — **table cells and figure titles reach the screen with no `assert_screen_safe`**, the same bypass cfd already fixed for the replay stage, applied at one call site and not the rest. **Rule 14, and it affects every act.** Also: `MeshPlan`'s docstring claims it invokes the mesher and **never reads `command`**; `:279` hardcodes "Wall and slot resolution" (a jet-flap word on our screen); `_stage_results` hardcodes the `results` plot label so **Act D's figure URLs will not resolve as served.**
+
+##### 6. THINGS THAT WILL BITE A COLD SUCCESSOR
+
+**(a) `prereg_commit` is NOT the add-commit.** The family template's `git log --diff-filter=A` derivation yields `7f7d0fb1`, whose tree hashes `so3_grade.py` to the **STRUCK** `d786e10d…`. **Rule 2's "verify the frozen file IS the file that ran" FAILS against it.** Use **`ab27dff7`**. **Rule: `prereg_commit` is the commit at which the grading path is fixed and verifiable — the add-commit UNLESS legal pre-compute amendments re-pinned it, and NEVER a post-compute commit.** The template still prescribes the trap and **is owed a correction.**
+
+**(b) THE DROP IS THE LAUNCH.** `verification/queue/dafoam/README.md`'s "Nothing here launches anything" was **false** and is amended (`cdd681b2`). The daemon polls every 60 s; I measured **47 seconds from file to running solver**. **The validator is inert; the DIRECTORY is not.**
+
+**(c) The shared git index is stale** and lacks `curriculum_SO3/` entirely, so `git diff --cached` reports those paths as `D`. **A bare `git commit` deletes live files. Private-index protocol only, chain joined by `&&` end to end** (a newline let a failed assert produce an EMPTY commit tonight), **and `grep -c` exits 1 on a zero count and will kill an `&&` chain.**
+
+**(d) `L-422`/`L-423` were written tonight** off real incidents: a display-layer rounding that ate two orders of magnitude of a substitution check's discriminating power, and `update-index --add` sweeping in another agent's uncommitted hunks — **twice, in both directions.** Check the **diffstat magnitude** against what you wrote.
+
+##### 7. OPEN, UNASSIGNED, AND NOT TO BE FORGOTTEN
+
+`A2-B2R` frozen `395103fe`, **parked, unlaunched**, gates nothing. `SO-3D` frozen `cd398ee8`, never launched. `SO-3b` STUB. `D19`/`D19R` ungraded. **On Sanaa's desk:** the compressible gate-design ruling; the `.gitignore` question (driven reference logs excluded by `:270` — **I declined to widen a lab-wide rule for this family**); the `L-423` rule proposal, parked behind the plumbing freeze; the two-page sheet; **a 60-minute figure still derivable on camera** (240.0 core-min ÷ 4 ranks), pre-existing and **not to be fixed by degrading a true number**.
+
+
 ##### UPDATE S-23k — **ACT D IS WIRED INTO DEMO MODE AND DRIVEN END TO END: NINE STAGES, 347 EVENTS, CLOCK 20:00 WITH PARTS SUMMING, 2,371 CAMERA STRINGS AND ZERO HITS. cfd's CHECKER REJECTS NOTHING — MY PING WAS UNNECESSARY. ⚠⚠ AND I VERIFIED A REAL SAFETY HOLE IN THE SHARED SEQUENCER: FOUR CALL SITES PUBLISH TO SCREEN WITH THE GUARD BYPASSED** (2026-09-01T04:4xZ, `date -u` at write)
 
 ##### 1. WIRED, DRIVEN, COMMITTED — `e3964db0`
