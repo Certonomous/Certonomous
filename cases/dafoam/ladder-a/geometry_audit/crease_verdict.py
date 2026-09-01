@@ -1,15 +1,28 @@
 #!/usr/bin/env python3
 """Crease or not: the like-for-like comparison, plus the section plot.
 
-The first pass found that the sharpest edges on the wing (100-112 deg) sit on
-the LEADING EDGE and the TIP CAP, and that the BASELINE wing already carries
-edges of 105.7 deg in the same places. Those are the panelling of a small nose
-radius and of the tip closure -- they are not something the optimizer made.
+CORRECTION, 2026-09-01. The first version of this docstring said the sharpest
+edges (100-112 deg) sit on the LEADING EDGE and the TIP CAP and that "the
+BASELINE wing already carries edges of 105.7 deg in the same places", and
+concluded that neither is something the optimizer made. THE SECOND HALF OF
+THAT IS TRUE OF THE TIP CAP ONLY, and this script's own output says so:
 
-So the honest comparison excludes them, and asks: away from the nose and the
-tip, does the surface turn more sharply where the painted field changes sign
-than it does anywhere else? That is the question "is the blue/red line a
-crease" actually reduces to.
+    tip band          optimized max 105.682 deg   baseline max 105.727 deg
+    leading-edge band optimized max 112.537 deg   baseline max  70.054 deg
+
+The tip cap is unchanged to four decimal places. The leading edge is not: it
+went from 70.1 deg to 112.5 deg. Reading the tip's innocence onto the nose was
+a real error and it drove the verdict, so the nose is now measured on its own
+terms rather than excluded as panelling.
+
+A panel-to-panel angle is partly a property of the mesh, so the nose gets a
+SECOND measurement that a mesh cannot fake: the included angle between the
+upper and lower surface over the first 5% of chord, read off the section
+outline itself. That is a property of the shape at any resolution.
+
+The interior question stands and its answer is unchanged: away from the nose
+and the tip, does the surface turn more sharply where the painted field
+changes sign than it does anywhere else? It does not.
 """
 import json
 import math
@@ -144,7 +157,118 @@ def main():
     station = round(zz[len(zz) // 2], 2)
     print(f"\n  -> section plotted at z = {station} m, the median span "
           f"station of the line")
+
+    # ---- WHY THE BOUNDARY IS WHERE IT IS ---------------------------------
+    # The painted field is signed, so red and blue are push-out and pull-in.
+    # If every face on one side of the wing has one sign and every face on the
+    # other side has the other, then the "blue/red line" is not a contour
+    # crossing the wing at all: it is the seam where the two surfaces meet,
+    # which on a wing is the leading and trailing edges.
+    #
+    # Upper and lower are read off the BASELINE surface, not the optimized
+    # one. The optimized section is strongly cambered, so on it the sign of y
+    # is not a side: faces that belong to the lower surface have been carried
+    # above y = 0 and would be counted as upper. Classifying on the baseline,
+    # which is close to symmetric about y = 0, is the classification that
+    # means what it says. (Measured: on the final surface the same test reads
+    # 812/196, on the baseline it reads 555/453.)
+    bcent = [[sum(base[i][k] for i in t) / 3.0 for k in range(3)]
+             for t in tris]
+    up = [i for i in range(len(dn)) if bcent[2 * i][1] > 0]
+    lo = [i for i in range(len(dn)) if bcent[2 * i][1] <= 0]
+    print("\nWHY THE BOUNDARY IS WHERE IT IS")
+    print("-" * 72)
+    print("  (upper and lower read off the BASELINE surface; see the note in "
+          "the source)")
+    for lab, sel in (("upper surface (y > 0)", up), ("lower surface (y <= 0)", lo)):
+        pos = sum(1 for i in sel if dn[i] > 0)
+        print(f"  {lab:24s} n={len(sel):5d}  moved OUT {pos:5d}  "
+              f"moved IN {len(sel) - pos:5d}")
+
+    # ---- THE NOSE, MEASURED OFF THE SHAPE RATHER THAN OFF THE PANELS -----
+    print("\nLEADING-EDGE INCLUDED ANGLE, from the section outline")
+    print("  (upper against lower tangent over the first 5% of chord; a")
+    print("   property of the shape, not of how finely it is panelled)")
+    print(f"  {'z (m)':>8} {'baseline deg':>14} {'optimised deg':>15}")
+    le_rows = []
+    for z in (0.5, 3.0, 5.2, 7.2, 9.1, 10.9, 13.5):
+        a = le_included(tris, base, z)
+        b = le_included(tris, final, z)
+        if a is not None and b is not None:
+            print(f"  {z:8.2f} {a:14.2f} {b:15.2f}")
+            le_rows.append({"z_m": z, "baseline_deg": a, "optimised_deg": b})
+
+    # The record Act D reads. The act states this finding in one line and must
+    # not carry the numbers as its own constants: they belong to this
+    # measurement, so they are written here and read there.
+    record = {
+        "_what": "Is the blue/red boundary on the A2 wing a geometric crease? "
+                 "Measured, not reasoned from the colour map.",
+        "_measured_by": str(Path(__file__).resolve()),
+        "_source": str(DOC), "_figure": str(OUT / "actD_crease_section.png"),
+        "boundary_is_the_upper_lower_seam": {
+            "upper_faces": len(up), "upper_moved_out": sum(1 for i in up if dn[i] > 0),
+            "lower_faces": len(lo), "lower_moved_out": sum(1 for i in lo if dn[i] > 0),
+            "note": "sides read off the BASELINE surface"},
+        "leading_edge_included_angle_deg": le_rows,
+        "leading_edge_included_angle_baseline_mean":
+            round(sum(r["baseline_deg"] for r in le_rows) / len(le_rows), 1)
+            if le_rows else None,
+        "leading_edge_included_angle_optimised_mean":
+            round(sum(r["optimised_deg"] for r in le_rows) / len(le_rows), 1)
+            if le_rows else None,
+        "interior_line_max_turn_deg": round(x1, 3),
+        "interior_off_line_max_turn_deg": round(x0, 3),
+        "verdict": "At the leading edge YES: the optimised nose is sharper "
+                   "than the baseline's at every station measured. Along the "
+                   "interior NO: the surface turns no more sharply on the "
+                   "sign-change line than off it.",
+    }
+    (DOC.parent / "A2_crease_check.json").write_text(
+        json.dumps(record, indent=1) + "\n", encoding="utf-8")
+    print(f"\n  record: {DOC.parent / 'A2_crease_check.json'}")
     return station, doc, base, final, tris
+
+
+def le_included(tris, verts, z, frac=0.05):
+    """Included angle at the nose, in degrees, from the section outline.
+
+    The section is cut, split into upper and lower about the chord line, and
+    the angle is taken between the two rays from the nose point to the last
+    point of each surface inside the first ``frac`` of chord. Nothing is
+    fitted and no derivative is estimated: it is the angle between two chords
+    of the outline, so it is bounded by the outline itself.
+    """
+    pts = []
+    for s in slice_at(tris, verts, z):
+        pts.extend(s)
+    if len(pts) < 8:
+        return None
+    seen, uniq = set(), []
+    for p in pts:
+        k = (round(p[0], 9), round(p[1], 9))
+        if k not in seen:
+            seen.add(k)
+            uniq.append(p)
+    x0 = min(p[0] for p in uniq)
+    x1 = max(p[0] for p in uniq)
+    if x1 <= x0:
+        return None
+    nose = min(uniq, key=lambda p: p[0])
+    y1 = next(p[1] for p in uniq if p[0] == x1)
+
+    def above(p):
+        return p[1] >= nose[1] + (p[0] - x0) / (x1 - x0) * (y1 - nose[1])
+
+    band = [p for p in uniq if p[0] - x0 <= frac * (x1 - x0)]
+    hi = [p for p in band if above(p)]
+    lw = [p for p in band if not above(p)]
+    if not hi or not lw:
+        return None
+    a = max(hi, key=lambda p: p[0])
+    b = max(lw, key=lambda p: p[0])
+    return (math.degrees(math.atan2(a[1] - nose[1], a[0] - nose[0]))
+            - math.degrees(math.atan2(b[1] - nose[1], b[0] - nose[0])))
 
 
 def slice_at(tris, verts, z):

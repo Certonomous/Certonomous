@@ -1,0 +1,55 @@
+{
+ "_what": "Is the blue/red boundary on the A2 wing a geometric crease? Measured, not reasoned from the colour map.",
+ "_measured_by": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/geometry_audit/crease_verdict.py",
+ "_source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+ "_figure": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/figures/actD_crease_section.png",
+ "boundary_is_the_upper_lower_seam": {
+  "upper_faces": 561,
+  "upper_moved_out": 437,
+  "lower_faces": 447,
+  "lower_moved_out": 0,
+  "note": "sides read off the BASELINE surface"
+ },
+ "leading_edge_included_angle_deg": [
+  {
+   "z_m": 0.5,
+   "baseline_deg": 69.92593729783748,
+   "optimised_deg": 41.43889192907028
+  },
+  {
+   "z_m": 3.0,
+   "baseline_deg": 73.34344360713607,
+   "optimised_deg": 41.87523841798066
+  },
+  {
+   "z_m": 5.2,
+   "baseline_deg": 62.641316818670674,
+   "optimised_deg": 35.999810630320745
+  },
+  {
+   "z_m": 7.2,
+   "baseline_deg": 64.60114550175162,
+   "optimised_deg": 36.61979252382343
+  },
+  {
+   "z_m": 9.1,
+   "baseline_deg": 59.700049733920956,
+   "optimised_deg": 33.92195956150874
+  },
+  {
+   "z_m": 10.9,
+   "baseline_deg": 62.363774544894085,
+   "optimised_deg": 34.70669331636966
+  },
+  {
+   "z_m": 13.5,
+   "baseline_deg": 64.67606354846725,
+   "optimised_deg": 44.27269508355936
+  }
+ ],
+ "leading_edge_included_angle_baseline_mean": 65.3,
+ "leading_edge_included_angle_optimised_mean": 38.4,
+ "interior_line_max_turn_deg": 4.41,
+ "interior_off_line_max_turn_deg": 7.221,
+ "verdict": "At the leading edge YES: the optimised nose is sharper than the baseline's at every station measured. Along the interior NO: the surface turns no more sharply on the sign-change line than off it."
+}

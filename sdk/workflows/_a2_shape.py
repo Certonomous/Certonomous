@@ -90,8 +90,37 @@ SECTION_Z = (0.0, 3.0, 7.2, 10.9, 13.5)
 # Every three-dimensional frame carries this, verbatim, so that no still taken
 # from the act can travel without the mesh it belongs to. The wording is fixed:
 # it names the mesh, says why it was chosen, and says what was NOT done.
-MESH_CAPTION = ("38,304-cell mesh, chosen for speed - grid independence not "
-                "assessed; result relative to this mesh.")
+#
+# THE CHARACTERS ARE THE OWNER'S OWN, em dash included (2026-09-01, captured
+# at etc/sessions/2026-09-01T0043Z_sanaa_actD_visuals.md): "caption every 3D
+# frame '38,304-cell mesh, chosen for speed - grid independence not assessed;
+# result relative to this mesh.'" This string carried a hyphen where she
+# dictated an em dash. It is cosmetic and it was still wrong: a directive
+# quoted verbatim is quoted exactly or it is not quoted.
+MESH_CAPTION = ("38,304-cell mesh, chosen for speed — grid independence "
+                "not assessed; result relative to this mesh.")
+
+# VISUALS ITEM 1 (owner, 2026-09-01): "Confirm the surface render is the
+# computational surface (1,008 faces)."
+#
+# CONFIRMED BY COUNTING, not by reading the artifact's own description of
+# itself. The run's own constant/polyMesh/boundary declares
+#
+#     wing { type wall; nFaces 1008; startFace 113068; }
+#
+# and those 1008 faces are all four-sided over 1031 unique points. The surface
+# this module streams carries the same 1031 points and 2016 triangles, exactly
+# two per solver face, and its bounding box agrees with the mesh patch's to
+# better than 4e-7 m on every axis. The check is
+# cases/dafoam/ladder-a/geometry_audit/mesh_surface_check.py, run against
+# /home/ubuntu/certonomous-runs/A2-mach-wing/constant/polyMesh.
+#
+# The assert below is what stops that from silently ceasing to be true. A
+# decimated, re-meshed or capped surface would still draw perfectly well and
+# would no longer be the thing the numbers were computed on, which is the
+# whole substance of the owner's question.
+SURFACE_QUAD_FACES = 1008
+SURFACE_POINTS = 1031
 
 # The axis roles of THIS act's wing, fixed by the mesh it was extracted from:
 # chord along x, span along z, thickness along y. Stated as data rather than
@@ -130,11 +159,37 @@ CLOSEUP_PX = 23.6
 
 
 def load() -> dict[str, Any] | None:
-    """The baked shape history, or None if this host does not carry it."""
+    """The baked shape history, or None if this host does not carry it.
+
+    THE SOLE FUNNEL, and therefore where the computational-surface check
+    belongs. Every consumer in this act reaches the shape history through
+    here, so an assertion here is one every call site inherits rather than
+    one each call site has to remember (the standing rule: a lesson is not
+    applied until every call site asserts it).
+
+    A missing file is a host without the data and returns None, which the act
+    already handles by playing without the viewport. A file that is PRESENT
+    but is not the solver's own wing patch is a different thing entirely and
+    RAISES: drawing a decimated or re-meshed surface while the act says the
+    numbers belong to it is a silent substitution, and this act exists partly
+    because of one.
+    """
     try:
-        return json.loads(FRAMES_FILE.read_text(encoding="utf-8"))
+        doc = json.loads(FRAMES_FILE.read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return None
+    n_quad = doc.get("n_quad_faces")
+    n_tri = len(doc.get("faces") or ())
+    n_pts = len(doc.get("base_vertices") or ())
+    if (n_quad != SURFACE_QUAD_FACES or n_tri != 2 * SURFACE_QUAD_FACES
+            or n_pts != SURFACE_POINTS):
+        raise ValueError(
+            f"{FRAMES_FILE} is not the computational wing patch: "
+            f"{n_quad} quad faces, {n_tri} display triangles, {n_pts} points, "
+            f"against the solver's {SURFACE_QUAD_FACES} / "
+            f"{2 * SURFACE_QUAD_FACES} / {SURFACE_POINTS} counted from "
+            f"constant/polyMesh/boundary. Refusing to draw it.")
+    return doc
 
 
 def dimensions(vertices: list, *, axes_hint: tuple | None = None

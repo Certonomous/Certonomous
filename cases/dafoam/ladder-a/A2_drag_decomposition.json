@@ -1,0 +1,115 @@
+{
+ "_what": "The lift-matched decomposition of the A2 drag reduction, as printed by the frozen grader. Act D reads this file; it does not recompute any of it.",
+ "_derived_from": "grade_a2_decomposition.py stdout, parsed. The only values not printed by the grader are the four keys ending _DERIVED, which are ratios of grader-printed CD and CL.",
+ "_grader": "/home/ubuntu/Certonomous/cases/dafoam/grade_a2_decomposition.py",
+ "_grader_sha256": "531a8ee531c7d67bce8e70ed97a52fb62fb1a0cfbaa227fd57bda2ac6f9f632b",
+ "_rows_spec_sha256": "7a3ec1b34f72fd38e040f8abc8e47adf184045c8f0faf390dda49bd46cb0655b",
+ "_preregistration": "/home/ubuntu/Certonomous/cases/dafoam/A2_DRAG_DECOMPOSITION_PREREGISTRATION.md",
+ "_preregistration_sha256": "7adab5a25e81cef2dd8fe2ddbae426f5a57d568fe0083f1c45d920a6670fa17f",
+ "_run_dir": "/home/ubuntu/certonomous-runs/ACTD-a2-decomposition",
+ "_G5_status": "UNGRADED. The registered independent falsifier row B2_twist_shape_CL05 did not run: its primal diverged, so it is NOT A RESULT and gate G5 has no verdict. The zero angle-of-attack share therefore rests on G6 (both endpoints measured at CL 0.500 to better than 1e-3) and on lift being an equality constraint of the problem, and its independent cross-check did not run.",
+ "rows": {
+  "A0_baseline": {
+   "CD": 0.02962051221,
+   "CL": 0.49999960578,
+   "AoA_deg": 4.32613,
+   "thickness_min": 1.0,
+   "thickness_max": 1.0,
+   "final_residual": 4.219e-07
+  },
+  "A1_twist_only": {
+   "CD": 0.02639394999,
+   "CL": 0.45966586124,
+   "AoA_deg": 4.32613,
+   "thickness_min": 0.99986,
+   "thickness_max": 1.0,
+   "final_residual": 4.414e-07
+  },
+  "A2_twist_shape": {
+   "CD": 0.03721004402,
+   "CL": 0.72193449611,
+   "AoA_deg": 4.32613,
+   "thickness_min": 0.500101,
+   "thickness_max": 1.727944,
+   "final_residual": 4.466e-07
+  },
+  "A3_aoa_only": {
+   "CD": 0.01640870103,
+   "CL": 0.25705454116,
+   "AoA_deg": 1.10766,
+   "thickness_min": 1.0,
+   "thickness_max": 1.0,
+   "final_residual": 5.341e-07
+  },
+  "A4_final": {
+   "CD": 0.02124478277,
+   "CL": 0.49994884178,
+   "AoA_deg": 1.10766,
+   "thickness_min": 0.500101,
+   "thickness_max": 1.727944,
+   "final_residual": 6.02e-07
+  },
+  "B1_twist_only_CL05": {
+   "CD": 0.02969750247,
+   "CL": 0.49999947121,
+   "AoA_deg": 4.90933,
+   "thickness_min": 0.99986,
+   "thickness_max": 1.0,
+   "final_residual": 4.153e-07
+  }
+ },
+ "lift_matched": {
+  "baseline": {
+   "CD": 0.02962051221,
+   "CL": 0.5
+  },
+  "twist_only_at_CL05": {
+   "CD": 0.02969750247,
+   "CL": 0.499999,
+   "AoA_deg": 4.90933
+  },
+  "twist_and_shape_at_CL05": {
+   "CD": 0.02124478277,
+   "CL": 0.499949,
+   "AoA_deg": 1.10766
+  }
+ },
+ "total_reduction_pct": 28.2768,
+ "shares": {
+  "twist": {
+   "pct_of_drop": -0.92,
+   "pct_of_baseline_drag": -0.2599
+  },
+  "shape": {
+   "pct_of_drop": 100.92,
+   "pct_of_baseline_drag": 28.5367
+  }
+ },
+ "gates": {
+  "G1": "PASS",
+  "G2": "PASS",
+  "G6": "PASS",
+  "G3": "PASS"
+ },
+ "planted_control_1": {
+  "rows": 7,
+  "max_deviation": 0.0,
+  "verdict": "PASS"
+ },
+ "counter_examples": {
+  "unmodified_wing_at_final_incidence": {
+   "CD": 0.01640870103,
+   "CL": 0.25705454116,
+   "AoA_deg": 1.10766,
+   "apparent_drag_reduction_pct_DERIVED": 44.6036,
+   "lift_given_up_pct_DERIVED": 48.5891
+  },
+  "twist_and_shape_at_original_incidence": {
+   "CD": 0.03721004402,
+   "CL": 0.72193449611,
+   "AoA_deg": 4.32613,
+   "apparent_drag_change_pct_DERIVED": 25.6226,
+   "lift_gained_pct_DERIVED": 44.387
+  }
+ }
+}

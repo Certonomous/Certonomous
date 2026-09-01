@@ -35,9 +35,10 @@ true scale with equal aspect, and the twist by spanwise station, are built and
 put on screen at the head of the result, before a single optimization frame
 plays. The three-dimensional passes follow and are framed on screen as the
 same change seen on the whole wing. The reason is measured rather than
-aesthetic: framed to 14 m of span the change moves the outline about four
-pixels and has to be carried by the painted field, while at section scale it
-is plainly visible.
+aesthetic, and the measurement is named: framed to 14 m of span the change
+moves the outline 4.1 px (``_a2_shape.TRUE_SCALE_PX``, taken with the
+viewport's own projection at 760x460) and has to be carried by the painted
+field, while at section scale it is plainly visible.
 
 The optimization delivered drag 28.3% below the untwisted baseline at matched
 lift over 47 major iterations. The baseline is named wherever that figure
@@ -73,15 +74,27 @@ WITHHELD FROM THE NARRATION, KEPT HERE AND IN THE RECORD (owner call,
 2026-07-31, under docs/DEMO_DISCRETION_CHARTER.md section 2, "operational
 detail"):
 
-* The run's stopping condition. The optimizer was stopped by a 60 minute wall
-  clock at first-order measures of 1.44e-05 and 9.0e-05 against a 1e-05
-  target, and printed no convergence statement. None of that is narrated any
-  more. The hard rule that comes with the omission: this act must never state
-  or imply the opposite either. It never says converged, never says optimum,
-  and never reports a stopping condition of any kind. Saying less is allowed;
-  saying something untrue is not, and asserting convergence here would be
-  untrue. The full stopping evidence is on the permanent record in
+* [SUPERSEDED 2026-09-01 by the same owner - see below.] The run's stopping
+  condition. The optimizer was stopped by a 60 minute wall clock at
+  first-order measures of 1.44e-05 and 9.0e-05 against a 1e-05 target, and
+  printed no convergence statement. None of that is narrated any more. The
+  hard rule that comes with the omission: this act must never state or imply
+  the opposite either. It never says converged, never says optimum, and never
+  reports a stopping condition of any kind. Saying less is allowed; saying
+  something untrue is not, and asserting convergence here would be untrue.
+  The full stopping evidence is on the permanent record in
   ``A2_optimization_history.json`` and ``A2_mach_tutorial_wing.json``.
+
+  THE SUPERSESSION, and it reverses only the omission: on 2026-09-01 the owner
+  ruled that "'12 of 14 steps still descending, band 2.2%' means the optimizer
+  stopped while still improving - say why ... in one plain line". So the
+  stopping condition is now ON screen, read out of the record by
+  ``_stopping_lines``. The owner's parenthetical guess in that same sentence,
+  "iteration cap at 47?", is WRONG and is not narrated: the record's
+  ``max_iter_setting`` is 100 and the run reached 47, so the cap was never
+  reached. What the log records is the 60 minute wall clock and the absence of
+  any exit line, and that is what the act says. The rest of the paragraph
+  stands unchanged: this act never says converged and never says optimum.
 * The measured amplified-view ceiling (x1.995 at the thickness constraint's
   own floor) and the pixel arithmetic behind the two viewing conventions.
   Both stay in ``_a2_shape`` where they are computed.
@@ -162,6 +175,22 @@ _LADDER = lab_paths.DAFOAM / "ladder-a"
 HISTORY_FILE = _LADDER / "A2_optimization_history.json"
 RECORD_FILE = _LADDER / "A2_mach_tutorial_wing.json"
 STEPSWEEP_FILE = _LADDER / "A_stepsize_study.json"
+# FEEDBACK ITEM 2 (owner, 2026-09-01): "how much of the drag drop is twist
+# (spanload/induced drag) vs section shape vs AoA retrim? Without that table,
+# this is exactly the '30% reduction that was mostly AoA' trap you already
+# caught once." The decomposition was run and graded against gates frozen
+# before it, by cases/dafoam/grade_a2_decomposition.py. This file is that
+# grader's own printed output, parsed into a record by
+# cases/dafoam/emit_a2_decomposition_record.py; the act READS it and
+# recomputes none of it. Absent on a host that does not carry it, in which
+# case the act shows the headline without the breakdown rather than invent one.
+DECOMP_FILE = _LADDER / "A2_drag_decomposition.json"
+# VISUALS ITEM 3 (owner, 2026-09-01): "Check whether the blue/red transition
+# is a geometric crease: plot the section at that station; if it is one, say
+# so." It was plotted, by geometry_audit/crease_verdict.py, and the answer is
+# in this record. The act reads it and states it in one line; the numbers are
+# not repeated as constants here, because they belong to that measurement.
+CREASE_FILE = _LADDER / "A2_crease_check.json"
 
 # The case, as it was actually run.
 MESH_CELLS = 38_304
@@ -452,6 +481,96 @@ def _against_baseline(pct: float) -> str:
     """A per-iteration reading, which can sit either side of the baseline."""
     side = "below" if pct >= 0 else "ABOVE"
     return f"{abs(pct):.1f}% {side} {BASELINE_NAME}"
+
+
+def _decomposition() -> dict | None:
+    """The graded lift-matched decomposition, or None on a host without it.
+
+    A READER and nothing else. It computes no share, no percentage and no
+    difference: every number it returns was printed by the frozen grader and
+    parsed into DECOMP_FILE by ``emit_a2_decomposition_record.py``. If the
+    record is missing or does not carry the three lift-matched points, this
+    returns None and the act shows its headline without a breakdown, which is
+    the honest degradation - a breakdown assembled here would be this act's
+    arithmetic wearing the grader's authority.
+    """
+    try:
+        doc = json.loads(DECOMP_FILE.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+    lm = doc.get("lift_matched") or {}
+    need = ("baseline", "twist_only_at_CL05", "twist_and_shape_at_CL05")
+    if not all(k in lm for k in need):
+        return None
+    if not (doc.get("shares") or {}).get("twist"):
+        return None
+    return doc
+
+
+def _crease_lines() -> list[str]:
+    """What the blue/red boundary on the wing is, in plain words.
+
+    A reader, like ``_decomposition``. Every number comes from CREASE_FILE,
+    which geometry_audit/crease_verdict.py wrote from the surface itself. If
+    the record is missing the act says nothing about the boundary rather than
+    reason about it from the colour map, which is exactly what the owner
+    asked not to happen.
+    """
+    try:
+        doc = json.loads(CREASE_FILE.read_text(encoding="utf-8"))
+        seam = doc["boundary_is_the_upper_lower_seam"]
+        was = doc["leading_edge_included_angle_baseline_mean"]
+        now = doc["leading_edge_included_angle_optimised_mean"]
+    except Exception:
+        return []
+    if seam["lower_moved_out"] or was is None or now is None:
+        # The plain sentence below is only true while the lower surface moves
+        # one way as a whole. If that ever stops holding, say nothing.
+        return []
+    return [
+        f"The blue and the red are the two sides of the wing, not two "
+        f"regions of one: all {seam['lower_faces']} faces on the lower "
+        f"surface moved in, and the upper surface moved out. The line "
+        f"between them is the leading and trailing edges.",
+        f"At the leading edge it is a real crease. The nose is sharper than "
+        f"the baseline's, closing from about {was:.0f} degrees to about "
+        f"{now:.0f} across the first twentieth of the chord.",
+        f"Away from the edges it is not: the surface turns no more sharply "
+        f"on that line ({doc['interior_line_max_turn_deg']:.1f} degrees at "
+        f"worst) than off it "
+        f"({doc['interior_off_line_max_turn_deg']:.1f} degrees).",
+    ]
+
+
+def _stopping_lines(hist_doc: dict) -> list[str]:
+    """Why the optimizer stopped, built from the record's own fields.
+
+    FEEDBACK ITEM 3 (owner, 2026-09-01) asked for one plain line, and guessed
+    an iteration cap. The record says otherwise, so the record is what is read:
+    ``max_iter_setting`` against ``major_iterations_completed``, and the wall
+    clock the run was actually boxed by. Nothing is asserted that the recorded
+    fields do not carry - if the time box is absent from the record, the line
+    about it is absent from the screen. The act still never claims the run
+    converged, because it did not.
+    """
+    majors = hist_doc.get("major_iterations_completed")
+    cap = hist_doc.get("max_iter_setting")
+    box = hist_doc.get("time_box_min")
+    if majors is None:
+        return []
+    lines = []
+    if cap is not None and majors < cap:
+        lines.append(f"It did not stop because it ran out of iterations: it "
+                     f"was allowed {cap:g} major iterations and took "
+                     f"{majors:g}.")
+    if box is not None:
+        lines.append(f"It stopped because a {box:g} minute wall clock ended "
+                     f"the run, and it wrote no convergence statement of any "
+                     f"kind.")
+    elif hist_doc.get("converged_to_optimizer_tolerance") is False:
+        lines.append("It wrote no convergence statement of any kind, and the "
+                     "run does not record why it ended.")
+    return lines
 
 
 _BANNED_OPTIMIZER_PHRASES = (
@@ -770,7 +889,13 @@ def main(request: str | None = None, params: dict | None = None,
                        ["Root chord", f"{shapes['chord_root_m']:.2f} m"],
                        ["Tip chord", f"{shapes['chord_tip_m']:.2f} m"],
                        ["Semispan", f"{shapes['span_m']:.2f} m"],
-                       ["Surface faces", f"{shapes['n_quad_faces']:,}"],
+                       # VISUALS ITEM 1 (owner, 2026-09-01): the row says WHOSE
+                       # faces these are. The surface on screen is the solver's
+                       # own wall patch, counted from the mesh rather than
+                       # taken from the artifact's description of itself, and
+                       # _a2_shape.load() refuses any other surface.
+                       ["Surface faces, the solver's own wall patch",
+                        f"{shapes['n_quad_faces']:,}"],
                        ["Mesh", f"{MESH_CELLS:,} cells"],
                        ["Lift constrained to", f"C_L {CL_TARGET:g}"],
                        ["Design variables", f"{N_DV}"],
@@ -1021,14 +1146,36 @@ def main(request: str | None = None, params: dict | None = None,
                 _beat(_NARRATION_PACE_S)
         # True scale is a statement about measurement, so the numericist makes
         # it, exactly as it does for the close-up viewing convention later.
-        # Its second line is the demotion: it tells the viewer that what
-        # follows is the same change seen on the whole wing, not a new result.
+        # Its last line is the demotion: it tells the viewer that what follows
+        # is the same change seen on the whole wing, not a new result.
+        #
+        # THE CLAIM IS ATTACHED TO THE FIGURE THAT EARNS IT. An earlier
+        # wording said "BOTH figures are at true scale with equal aspect".
+        # That is true of the sections, where ``section_figure`` sets
+        # ``set_aspect("equal")`` on every station and the whole point of the
+        # figure depends on it. It is not a property the twist plot can have
+        # at all: that one is degrees against metres, and equal aspect is not
+        # meaningful between two different units. Asserting of two artifacts a
+        # property that holds of one and is inapplicable to the other is the
+        # defect this lab has been correcting all week, so each figure now
+        # gets the sentence that is true of it.
         roster.set(NUMERICIST, "checking the section scale", "working")
         _narrate(script.numericist,
-                f"Both figures are at true scale with equal aspect. Nothing "
+                f"The sections are at true scale with equal aspect. Nothing "
                 f"in them is exaggerated.",
+                f"The twist plot is degrees against span in metres, with the "
+                f"baseline at zero and the root station carrying no design "
+                f"variable.",
                 f"The three-dimensional views that follow show the same "
                 f"change on the whole wing.")
+        # VISUALS ITEM 3 (owner, 2026-09-01). The viewer is about to watch a
+        # painted wing with a hard blue/red boundary on it and will ask what
+        # that line is, so the act answers before it plays rather than after.
+        # Both halves of the answer are said, because both are true and only
+        # one of them flatters the shape.
+        crease = _crease_lines()
+        if crease:
+            _narrate(script.numericist, *crease)
         roster.idle(NUMERICIST)
         roster.idle(CHIEF_ENGINEER)
 
@@ -1287,6 +1434,125 @@ def main(request: str | None = None, params: dict | None = None,
                headers=("Quantity", "Value", "Reference or threshold"),
                rows=result_rows,
                table_id="result-adjoint-optimization")
+
+    # ---------------- Where the reduction came from ----------------
+    # FEEDBACK ITEM 2 (owner, 2026-09-01): "One table: baseline -> twist-only
+    # -> twist+shape -> final, Cd at each." Every value below is read out of
+    # DECOMP_FILE, which is the frozen grader's own printed output. Nothing
+    # here is computed in this act.
+    #
+    # THE LIFT COLUMN IS NOT OPTIONAL, and the reason is measured on this very
+    # wing: at the ORIGINAL incidence the twisted, reshaped wing reads 25.6%
+    # MORE drag, because it is sitting at C_L 0.722. A drag number published
+    # without its lift says the opposite of what the run found. Both
+    # counter-examples are put on screen for that reason rather than described.
+    decomp = _decomposition()
+    if decomp:
+        lm = decomp["lift_matched"]
+        sh = decomp["shares"]
+        base_l, twist_l, final_l = (lm["baseline"], lm["twist_only_at_CL05"],
+                                    lm["twist_and_shape_at_CL05"])
+        roster.set(NUMERICIST, "decomposing the reduction", "working")
+        emit_table(emit, script, role=_NUM_ROLE,
+                   title="Where the drag reduction came from. Every row at "
+                         "matched lift",
+                   headers=("Step", "C_d", "C_L", "Angle of attack",
+                            "Against the baseline"),
+                   rows=[
+                       ["Baseline, untwisted", f"{base_l['CD']:.6f}",
+                        f"{base_l['CL']:.6f}",
+                        f"{decomp['rows']['A0_baseline']['AoA_deg']:.3f} deg",
+                        "The point everything is measured from"],
+                       ["Twist only, re-trimmed to the same lift",
+                        f"{twist_l['CD']:.6f}", f"{twist_l['CL']:.6f}",
+                        f"{twist_l['AoA_deg']:.3f} deg",
+                        f"{abs(sh['twist']['pct_of_baseline_drag']):.2f}% MORE "
+                        f"drag"],
+                       ["Twist and section shape, at the same lift",
+                        f"{final_l['CD']:.6f}", f"{final_l['CL']:.6f}",
+                        f"{final_l['AoA_deg']:.3f} deg",
+                        f"{sh['shape']['pct_of_baseline_drag']:.2f}% less drag "
+                        f"from the shape, "
+                        f"{decomp['total_reduction_pct']:.2f}% net"],
+                   ],
+                   table_id="decomposition-adjoint-optimization")
+        _beat(_NARRATION_PACE_S)
+        # The finding that is against this act's own story, said plainly and
+        # not rounded away: twist ALONE is a loss at matched lift.
+        _narrate(script.numericist,
+                f"Twist on its own makes the drag worse. At matched lift it "
+                f"costs {abs(sh['twist']['pct_of_baseline_drag']):.2f}%.",
+                f"It pays only together with the section change, which is "
+                f"{sh['shape']['pct_of_drop']:.1f}% of the reduction against "
+                f"{sh['twist']['pct_of_drop']:.1f}% for twist.",
+                f"The angle of attack contributes nothing here: both ends of "
+                f"the comparison are measured at C_L "
+                f"{final_l['CL']:.3f}.")
+        ce = decomp.get("counter_examples") or {}
+        if ce:
+            a3 = ce.get("unmodified_wing_at_final_incidence")
+            a2 = ce.get("twist_and_shape_at_original_incidence")
+            rows_trap = []
+            if a3:
+                rows_trap.append([
+                    "The unmodified wing, flown at the final incidence",
+                    f"{a3['CD']:.6f}", f"{a3['CL']:.4f}",
+                    f"\"{a3['apparent_drag_reduction_pct_DERIVED']:.1f}% less "
+                    f"drag\", with "
+                    f"{a3['lift_given_up_pct_DERIVED']:.1f}% of the lift "
+                    f"thrown away"])
+            if a2:
+                rows_trap.append([
+                    "The finished wing, flown at the original incidence",
+                    f"{a2['CD']:.6f}", f"{a2['CL']:.4f}",
+                    f"\"{a2['apparent_drag_change_pct_DERIVED']:.1f}% MORE "
+                    f"drag\", at "
+                    f"{a2['lift_gained_pct_DERIVED']:.1f}% more lift"])
+            emit_table(emit, script, role=_NUM_ROLE,
+                       title="What the same wing reads when the lift is not "
+                             "matched. Neither line is a result",
+                       headers=("Row", "C_d", "C_L",
+                                "What it would have been sold as"),
+                       rows=rows_trap, table_id="trap-adjoint-optimization")
+            _beat(_NARRATION_PACE_S)
+        # THE CAVEAT, and it is not negotiable: the registered independent
+        # falsifier for the zero angle-of-attack share did not run. Nothing
+        # here may imply that it did.
+        _narrate(script.numericist,
+                f"The zero for angle of attack rests on both ends being "
+                f"measured at the same lift, and on lift being an equality "
+                f"constraint of the problem.",
+                f"The independent cross-check registered for it did not run: "
+                f"that row's flow solve diverged, so it is not a result and "
+                f"its gate has no verdict.")
+        roster.idle(NUMERICIST)
+
+    # ---------------- Convergence honesty ----------------
+    # FEEDBACK ITEM 3 (owner, 2026-09-01): "'12 of 14 steps still descending,
+    # band 2.2%' means the optimizer stopped while still improving - say why
+    # (iteration cap at 47?) in one plain line. Also nowhere does it state
+    # that grid independence was not assessed on this 38k-cell mesh; R6
+    # requires the sentence: 'results are relative to this mesh; grid
+    # independence not assessed in this act.'"
+    #
+    # THIS SUPERSEDES the 2026-07-31 owner call that withheld the stopping
+    # condition (see the module docstring). Same owner, later instruction.
+    #
+    # AND THE REASON IS NOT THE ITERATION CAP. That was the owner's own guess
+    # and the record contradicts it: the setting was 100 major iterations and
+    # the run reached 47. What the artifact says, and what is said on screen,
+    # is what the log records - a 60 minute wall clock, and no convergence
+    # statement of any kind. The numbers are read from the history rather than
+    # written here, so this line cannot drift from the record.
+    stop_lines = _stopping_lines(hist_doc)
+    if stop_lines:
+        roster.set(CHIEF_ENGINEER, "reading the stopping condition", "working")
+        _narrate(script.engineer, *stop_lines)
+        roster.idle(CHIEF_ENGINEER)
+    # R6, in the owner's own words, verbatim but for the leading capital.
+    _narrate(script.numericist,
+            f"Results are relative to this mesh; grid independence not "
+            f"assessed in this act.")
 
     # ITEM 7 (owner, 2026-07-31): the drag reduction was asked for as
     # "28.3% ± <numerical uncertainty>". The numerical channel this case
