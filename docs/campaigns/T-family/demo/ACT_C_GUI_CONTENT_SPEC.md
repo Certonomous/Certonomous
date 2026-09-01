@@ -524,3 +524,98 @@ work. **Raised as a desk item; option 1 avoids needing it.**
 **Not missing, confirmed present:** the module STL, the four T25R2 level
 directories, `MESH_VERIFICATION.txt`, `OC_GATE.json`, the gate sheet, all three
 gate figures, the guard, and the pre-written limitations box.
+
+---
+
+# AMENDMENT 1 — 2026-09-01. THE VISION FRAME, THE SHOOTING PROTOCOL, AND A BUILT ACT.
+
+*Appended, not rewritten. Nothing above this line is edited; the passages this
+amendment supersedes are named and struck below. Lines whose number changed
+above this section: 0.*
+
+**Authorities, all later than the body of this document:**
+
+- **The demo vision frame**, `etc/sessions/2026-09-01T1945Z_sanaa_demo_vision_frame.md`.
+  The demos depict the FUTURE platform's user experience, in its best light, to
+  gauge interest before years are committed. Narration carries no film-time-truth
+  condition. What stays real: geometry, meshes, fields, numbers and figures come
+  from real solved runs, and the lab's internal records stay under the full
+  honesty regime, unchanged.
+- **"battery: approved."**, `etc/sessions/2026-09-01T2010Z_sanaa_battery_approved.md`,
+  commit **`0fe482c4`**.
+- **The demo shooting protocol**, `etc/sessions/2026-09-01T2030Z_sanaa_demo_shooting_protocol.md`,
+  commit **`cfcf766f`**, whose battery beat is: *"the run completes, the gate
+  refuses it, the platform says so and schedules the corrected run. The feature
+  is the refusal."*
+
+## A1.1 WHAT THIS DOCUMENT SAID, AND WHAT IT NOW SAYS
+
+> ~~§0: "There are two Act C artefacts in the tree… This specification is for
+> (2), the honest-refusal act. Act C's subject is not a cooling result."~~
+>
+> ~~§4: "Recommendation: do not build a small-multiple component for Act C."~~
+>
+> ~~§3.1: "Act C does not run the nine-stage `demo_mode.STAGES` walk — it is not
+> a registered demo-mode act."~~
+
+**Superseded.** Act C is now a full future-experience act built against the
+nine-stage contract, with the refusal as its **climax** rather than as its
+substitute for content: real geometry, real mesh, expert discussion, an
+assumptions table, live monitors as small multiples over the two arms, results
+tables, a conclusion, the compute line, and a Report tab. The module is
+`actC_battery_module_act.py` and `validate_act` returns **no problems**.
+
+What is **not** superseded and still binds: the 0.4 K run and all five of its
+figures stay barred (§0), `T25R2_L1`'s temperatures stay barred, no certificate
+is issued (§5.3), and `workers` and `cycle` are not displayed (§3.2).
+
+## A1.2 THE WITHHOLDING GUARD IS RE-SCOPED — SEE ITS OWN RECORD
+
+> ~~§C: "Guard: `check_actC_gate_screen.py`. **Not modified by this work.**"~~
+>
+> ~~§C.3: "The guard builds its target list at lines 263–266."~~
+
+Amendment 1 to the guard admits a numeric token in the previously-banned bands
+**only** when it matches a value the corrected run actually graded, derived from
+that run's committed graded artefact and empty until it exists. The bands and
+`KELVIN_MAX = 0.1` are unchanged; the adiabatic bounds stay refused
+unconditionally; Celsius and the eight claim phrases stay banned outright.
+
+The full record, including the old behaviour struck, the reason it is an
+allowlist and not a wider threshold, and both drive directions with their
+numbers, is **`ACT_C_WITHHOLDING_POLICY_CHANGE.md`**.
+
+The line citation above is **superseded**: the target list is now built in
+`sweep_targets()`. A new rule, `BARRED-FIGURE`, refuses the five barred figures
+by filename, closing §0's own admission that only a written rule stopped them.
+
+## A1.3 ⛔ §C.4's COVERAGE GAP — CLOSED FOR THIS ACT, OPEN FOR THE PAGE
+
+§C.4 said the guard reads PDFs and cannot see a GUI surface, and listed option 1
+(the tabs render the sheet) as the recommendation. That gap is **still real for
+arbitrary control-room markup**.
+
+It is **no longer real for this act's own content.** `check_actC_act_screen.py`
+enumerates every string the act module produces — all nine stages, the geometry
+and assumptions tables, the discussion beats, the banner words and every field
+of the Report tab, table rows included — and applies the same rules, imported
+from the PDF guard rather than copied. Measured: **359 screen strings, 103
+numeric tokens, 25 surface groups**, with a planted control tripping four rules
+and a floor beneath which a sweep that read almost nothing cannot pass.
+
+**Run BOTH sweeps before capture and treat a non-zero exit as blocking:**
+
+```
+python3 docs/campaigns/T-family/demo/check_actC_gate_screen.py     # the sheet and figures
+python3 docs/campaigns/T-family/demo/check_actC_act_screen.py      # the act's own strings
+python3 docs/campaigns/T-family/demo/drive_actC_allowlist.py       # the loosening, both ways
+```
+
+## A1.4 WHAT IS STILL OPEN
+
+Every dependency on the cfd team, every beat that could not be built, and
+Sanaa's own nine-box shooting checklist ticked or not, are in
+**`ACT_C_REGISTRATION_NOTE.md`**. Two capture blockers stand there: the shared
+contract's cost sentence carries a word this campaign's checker bans (**D-C4**,
+not ours to reword), and the three gate figures carry the word "Agreement" in
+their rendered in-figure titles, now on her never-list (**D-C8**, ours to fix).

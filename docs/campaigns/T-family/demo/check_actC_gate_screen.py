@@ -63,6 +63,69 @@ against a later edit rather than decoration.
 
 Exit 0 = clean.  Exit 2 = a thermal result reached a screen, a banned phrase
 reached a screen, a figure is not latexified, or a control failed.
+
+==========================================================================
+AMENDMENT 1 -- 2026-09-01.  THE WITHHOLDING IS RE-SCOPED, AS A RECORDED
+POLICY CHANGE.  Authority: Sanaa, "battery: approved.", captured verbatim at
+`etc/sessions/2026-09-01T2010Z_sanaa_battery_approved.md`, commit `0fe482c4`;
+and her demo shooting protocol at `cfcf766f`, whose battery beat is "the run
+completes, the gate refuses it, the platform says so and schedules the
+corrected run. The feature is the refusal."
+==========================================================================
+
+THE BEHAVIOUR THIS AMENDMENT REPLACES, STATED AND STRUCK RATHER THAN
+REWRITTEN, so a reader who finds the two knows which is current and why:
+
+    ~~Every decimal in [200, 500] and every kelvin quantity at or above
+    0.1 K is a thermal result and is refused, unconditionally, on every Act C
+    surface.~~
+
+WHAT IT BECOMES.  The bands are UNCHANGED and every value in them is still
+refused, with ONE exception: a numeric token that matches a value the
+corrected run ACTUALLY GRADED, to the token's own printed precision.  That set
+is DERIVED from the corrected run's committed graded artefact by
+`actC_graded_admission.py`; it is never written here and never written by hand.
+
+WHY NOT SIMPLY A WIDER BAND, which is what "admit T25R4's numbers" sounds like
+it means.  A widened band admits EVERY value inside it -- a number nobody
+graded, a number typed into a sheet, and the adiabatic bounds this guard has
+withheld since it was written.  A band cannot tell a graded value from a
+plausible one.  An allowlist can, and one derived from the artefact cannot be
+quietly widened by an author, because widening it would mean editing a graded
+result.
+
+THE PROPERTY THAT MAKES THIS SELF-ENFORCING, AND IT IS WHY THE DESIGN IS THIS
+DESIGN.  If the corrected run has not graded, the derived set is EMPTY, and
+this guard's behaviour is BIT-IDENTICAL to its behaviour before the amendment:
+every temperature refused, no exception reachable.  Sanaa's own battery beat is
+that refusal, and her screen 8 permits exactly two endings -- the convergence
+study shown done, or shown automatically underway.  So the instrument does not
+merely PERMIT the fallback ending; while the corrected run is ungraded IT
+ENFORCES IT.  Nobody has to remember.  The fallback is the DEFAULT and the
+reporting ending is the exception a graded artefact has to earn.
+
+WHAT THE AMENDMENT DOES NOT TOUCH:
+  * the adiabatic bounds (2.400 / 10.800 / 10.7950 K) stay refused
+    UNCONDITIONALLY -- they are analytic consequences of the registered heat
+    input, not outputs of any solve, and no allowlist reaches them;
+  * Celsius stays banned outright;
+  * the eight thermal-claim phrases stay banned outright.  The approval put to
+    Sanaa was about T25R4's NUMBERS; widening the phrase ban is a separate
+    policy question and is not taken here;
+  * every existing control keeps driving the RAW rules, unfiltered, so a live
+    allowlist can never make a control arm look dead.
+
+ADDED IN THE SAME AMENDMENT -- BARRED-FIGURE.  The content specification's
+section 0 records that nothing mechanical stopped the five figures of the
+barred 0.4 K run reaching a screen; only a written rule did.  A written rule is
+not an instrument, so the sweep now refuses if any of those five files appears
+in a swept directory.  A barred run's figure is barred by provenance and no
+numeric test recovers that.
+
+LINE-CITATION NOTE.  The Act C content specification cites this file's target
+list "at lines 263-266".  This amendment inserts code above it and that
+citation is superseded; the target list is now built in `sweep_targets()` and
+the specification is re-cited in the same commit.
 """
 import os
 import re
@@ -74,9 +137,25 @@ import check_demo_language as LANG                              # noqa: E402
 sys.path.insert(0, os.path.abspath(
     os.path.join(HERE, "..", "..", "..", "..", "scripts")))
 import check_thermal_latexified as TEX                          # noqa: E402
+import actC_graded_admission as ADMIT                           # noqa: E402
 
 SHEET = os.path.join(HERE, "ACT_C_GATE_sheet.pdf")
 FIGDIR = os.path.join(HERE, "figures_actC_gate")
+
+#: The only two rules an allowlist may reach.  CELSIUS and THERMAL-CLAIM are
+#: absent deliberately: the approval was about numbers, and a phrase is not a
+#: number.  Naming the set here rather than testing rule ids inline means a
+#: rule added later is NOT allowlisted by default, which is the safe direction.
+ALLOWLISTED_RULES = frozenset({"ABS-TEMP", "KELVIN-UNIT"})
+
+#: A hit's numeric token.  ABS-TEMP returns the bare decimal; KELVIN-UNIT
+#: returns it with its unit attached, and the unit is not part of the value.
+_LEADING_NUMBER = re.compile(r"^-?\d[\d,]*(?:\.\d+)?")
+
+
+def hit_token(phrase):
+    m = _LEADING_NUMBER.match(str(phrase).strip())
+    return m.group(0) if m else ""
 
 # Below this, a kelvin quantity is a convergence difference; at or above it, it
 # is a thermal result.  The nearest admissible value is 2.4e-02 and the nearest
@@ -234,6 +313,99 @@ def control():
     return n_pos, n_neg
 
 
+def allowlist_control():
+    """Drive the amendment BOTH WAYS, and refuse unless both arms hold.
+
+    A loosening that has not been shown to still refuse is not a guard, so this
+    runs on every invocation rather than living in a separate selftest nobody
+    runs before a shoot.  It is pure arithmetic over hand-written strings and
+    touches no artifact.
+
+    ARM 1 -- THE EMPTY SET.  With nothing graded, every one of the raw rules'
+    own thermal plants must still be refused.  This is the arm that proves the
+    amendment's central claim: no grading, no change in behaviour.
+
+    ARM 2 -- A PLANTED GRADED SET.  With two values planted, exactly those two
+    must be admitted, and a neighbour that was NOT graded must still be
+    refused.  The plants here are written INDEPENDENTLY of the ones in
+    `actC_graded_admission`, per the L-425 discipline: a control derived from
+    the thing it controls reproduces its typos and survives its own bugs.
+    """
+    dead, loud = [], []
+
+    # ARM 1 -- empty.
+    for token in ("298.873", "293.000", "376.7578", "2.384", "10.8", "0.420"):
+        if ADMIT.token_admissible(token, ()):
+            loud.append(("EMPTY-SET", token))
+
+    # ARM 2 -- planted.  Values chosen by hand, not lifted from the module.
+    planted = (301.4409, 0.2537)
+    for token in ("301.4409", "301.441", "301.4", "0.2537", "0.254"):
+        if not ADMIT.token_admissible(token, planted):
+            dead.append(("PLANTED", token))
+    for token in ("301.5409", "301.3", "302.4409", "0.3537", "0.26",
+                  "293.0", "298.873"):
+        if ADMIT.token_admissible(token, planted):
+            loud.append(("PLANTED-NEIGHBOUR", token))
+
+    # ARM 3 -- the barred set, reachable by no allowlist.
+    for token in ("2.400", "2.4", "10.800", "10.8", "10.7950"):
+        if ADMIT.token_admissible(token, (2.400, 10.800, 10.7950, 301.4409)):
+            loud.append(("BARRED", token))
+
+    # ARM 4 -- an integer kelvin token carries too little precision to match.
+    if ADMIT.token_admissible("301", planted):
+        loud.append(("INTEGER", "301"))
+
+    if dead:
+        sys.stderr.write(
+            "REFUSE: %d allowlist arm(s) refuse a value that WAS graded. The "
+            "amendment cannot admit its own plant, so it would refuse a real "
+            "result on camera.\n" % len(dead))
+        for rid, tok in dead:
+            sys.stderr.write("  %-20s %r\n" % (rid, tok))
+        raise SystemExit(2)
+    if loud:
+        sys.stderr.write(
+            "REFUSE: %d allowlist arm(s) admit a value that was NOT graded. A "
+            "loosening not shown to still refuse is not a guard.\n" % len(loud))
+        for rid, tok in loud:
+            sys.stderr.write("  %-20s %r\n" % (rid, tok))
+        raise SystemExit(2)
+    return 6, 12
+
+
+def sweep_targets():
+    """Every surface this sweep covers.
+
+    The sheet plus every PDF in the gate figure directory.  A surface placed
+    anywhere else is invisible here -- that is the coverage boundary and it is
+    stated in the content specification rather than left to be discovered.
+    """
+    targets = [SHEET]
+    if os.path.isdir(FIGDIR):
+        targets += [os.path.join(FIGDIR, f) for f in sorted(os.listdir(FIGDIR))
+                    if f.endswith(".pdf")]
+    return targets
+
+
+def barred_figures_present():
+    """The five figures of the barred run, if any reached a swept directory.
+
+    Barred by PROVENANCE, not by content: they are the run the owner ruled off
+    screen, and no numeric test recovers that fact from the pixels.  Refusing
+    the FILE is the only mechanical form the rule has.
+    """
+    found = []
+    for directory in (HERE, FIGDIR):
+        if not os.path.isdir(directory):
+            continue
+        for name in sorted(os.listdir(directory)):
+            if name in ADMIT.BARRED_FIGURE_BASENAMES:
+                found.append(os.path.join(directory, name))
+    return found
+
+
 def latexified(path):
     """Classify with the COMMITTED reader, not a local copy.
 
@@ -258,12 +430,38 @@ def main():
           "plants, %d negative arms stay silent" % (n_pos, n_neg))
     n_alt = LANG.control()
     print("language control (reused, not copied): %d alternatives, each fires "
-          "on its own plant\n" % n_alt)
+          "on its own plant" % n_alt)
+    n_adm, n_ref = allowlist_control()
+    print("allowlist control (Amendment 1, both directions): %d planted graded "
+          "values admitted, %d non-graded values still refused" % (n_adm, n_ref))
 
-    targets = [SHEET]
-    if os.path.isdir(FIGDIR):
-        targets += [os.path.join(FIGDIR, f) for f in sorted(os.listdir(FIGDIR))
-                    if f.endswith(".pdf")]
+    # THE ADMISSIBILITY SOURCE, PRINTED EVERY RUN.  A reader must never have to
+    # infer which regime this sweep ran in from a hit count.
+    try:
+        admissible, note = ADMIT.derive()
+    except ADMIT.AdmissionRefused as exc:
+        sys.stderr.write("REFUSE: %s\n" % exc)
+        return 2
+    print("admissibility source: %s" % note)
+    if not admissible:
+        print("  -> the derived set is EMPTY, so every temperature is refused "
+              "and this sweep is bit-identical to the sweep before Amendment "
+              "1. The convergence-study ending is what plays.\n")
+    else:
+        print("  -> %d value(s) admitted, and only at their own printed "
+              "precision. Everything else in the bands still refuses.\n"
+              % len(admissible))
+
+    barred = barred_figures_present()
+    if barred:
+        sys.stderr.write(
+            "REFUSE: %d figure(s) of the barred run are sitting in a swept "
+            "directory: %s. They are barred by provenance and no formatting "
+            "fix cures that.\n"
+            % (len(barred), [os.path.basename(b) for b in barred]))
+        return 2
+
+    targets = sweep_targets()
     missing = [t for t in targets if not os.path.exists(t)]
     if missing:
         sys.stderr.write("REFUSE: not built: %s\n"
@@ -274,6 +472,7 @@ def main():
     per_rule = {r["id"]: 0 for r in NUMERIC_RULES}
     per_cand = {r["id"]: 0 for r in NUMERIC_RULES}
     per_rule["LANGUAGE"] = 0
+    per_admitted = {r["id"]: 0 for r in NUMERIC_RULES}
     tokens_seen = 0
 
     for path in targets:
@@ -290,6 +489,16 @@ def main():
         for rule in NUMERIC_RULES:
             per_cand[rule["id"]] += rule["cand"](text)
             for phrase, _pos in rule["fn"](text):
+                # AMENDMENT 1.  The RAW rule is unchanged and still fires on
+                # everything it ever fired on; the only thing that has changed
+                # is that a hit whose token matches a GRADED value is released
+                # rather than refused. With an empty derived set this branch is
+                # never taken and the loop is what it was.
+                if (rule["id"] in ALLOWLISTED_RULES
+                        and ADMIT.token_admissible(hit_token(phrase),
+                                                   admissible)):
+                    per_admitted[rule["id"]] += 1
+                    continue
                 per_rule[rule["id"]] += 1
                 hits.append((rule["id"], phrase, rule["why"]))
         for rule in LANG.RULES:
@@ -327,8 +536,10 @@ def main():
     for rid in sorted(per_cand):
         note = ("  <-- NOTHING TO LOOK AT on these artifacts; its plant above "
                 "proves it fires when there is" if per_cand[rid] == 0 else "")
-        print("   %-14s %d hit(s) / %d candidate(s)%s"
-              % (rid, per_rule[rid], per_cand[rid], note))
+        released = ("  <-- %d token(s) RELEASED by the graded allowlist"
+                    % per_admitted[rid] if per_admitted.get(rid) else "")
+        print("   %-14s %d hit(s) / %d candidate(s)%s%s"
+              % (rid, per_rule[rid], per_cand[rid], note, released))
     print("   %-14s %d hit(s)" % ("LANGUAGE", per_rule["LANGUAGE"]))
     print("(a rule reporting 0 hits over 0 candidates has SEEN NOTHING, which "
           "is different evidence from 0 hits over many, and is printed as "

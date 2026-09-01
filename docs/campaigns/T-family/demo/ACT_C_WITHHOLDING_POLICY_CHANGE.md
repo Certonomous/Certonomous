@@ -1,0 +1,188 @@
+# ACT C — THE TEMPERATURE-WITHHOLDING GUARD IS RE-SCOPED. A RECORDED POLICY CHANGE.
+
+**Dated 2026-09-01. Written by a heat-transfer `lab-lane`.**
+
+**Authority.** Sanaa, verbatim *"battery: approved."*, captured at
+`etc/sessions/2026-09-01T2010Z_sanaa_battery_approved.md`, commit **`0fe482c4`**.
+The plan she approved reads, in the same capture: *"The temperature-withholding
+guard is consciously re-scoped to admit T25R4's numbers when they land, as a
+policy decision recorded here, not a silent bypass."* This file is that record.
+
+Composed with, and not superseded by, her demo shooting protocol at **`cfcf766f`**
+(`etc/sessions/2026-09-01T2030Z_sanaa_demo_shooting_protocol.md`), whose battery
+beat is *"the run completes, the gate refuses it, the platform says so and
+schedules the corrected run. The feature is the refusal."*
+
+**Scope.** `docs/campaigns/T-family/demo/check_actC_gate_screen.py`, Amendment 1,
+recorded at the foot of that file's module docstring; and the new derivation it
+consults, `docs/campaigns/T-family/demo/actC_graded_admission.py`.
+
+---
+
+## 1. THE OLD BEHAVIOUR, STATED AND STRUCK — NOT REWRITTEN
+
+> ~~Every decimal in the absolute-temperature band [200, 500] and every kelvin
+> quantity at or above `KELVIN_MAX = 0.1` K is a thermal result, and is refused
+> unconditionally on every Act C surface. There is no exception and no
+> allowlist.~~
+
+That sentence was correct policy from the day the guard was written until this
+one. It is struck rather than edited so a reader who finds the two knows which
+is current and why.
+
+## 2. WHAT IT BECOMES
+
+The two bands are **unchanged**, `KELVIN_MAX` is **unchanged at 0.1**, and every
+value inside them is still refused — with **one** exception:
+
+> A numeric token in a previously-banned band is admissible **only if it matches
+> a value the corrected run actually graded**, at the token's own printed
+> precision. Everything else refuses exactly as before.
+
+## 3. ⚠ WHY THIS IS AN ALLOWLIST AND NOT A WIDER THRESHOLD
+
+Widening `KELVIN_MAX`, or narrowing the `[200, 500]` band, is the obvious
+implementation and it is the wrong one. **A widened band admits every value
+inside it** — including a number nobody graded, a number typed by hand into a
+sheet during a late edit, and the adiabatic bounds this guard has withheld since
+it was written. A band cannot tell a graded value from a plausible one.
+
+An allowlist can. And a **hand-maintained** allowlist is a hole with a comment
+on it, so this one is **derived from the graded artefact** and is never written
+by a person:
+
+1. **The source is the corrected run's committed graded artefact**,
+   `verification/runs/T-family/T25R4_MODULE_runs/T25R4_GRADE.json`, read out of
+   `git HEAD` rather than off the disk — an uncommitted grading in a shared
+   working tree is somebody's unfinished work and a screen must not depend on a
+   file `git checkout` would remove. (The name follows the family's own
+   convention; Act A reads `T23_runs/T23_GRADE.json`.)
+2. **Only runs the lab reports contribute.** A declared value whose run carries
+   any verdict other than `PASS` or `GATE REACHED` is not admitted.
+3. **Every declared value is cross-checked against the grading itself.** A value
+   that appears in the declaration and nowhere in its own run's graded subtree
+   is a **refusal**, not a silent drop — a number in the declaration and nowhere
+   in the grading was typed, and dropping it would make that invisible.
+4. **The match is at the token's own precision**, half a unit in its last place:
+   a sheet printing `298.87312` as `298.9` matches, and the neighbouring
+   `298.8` does not. A token with no decimal point is never admitted, because
+   an integer kelvin token carries a whole unit of slack.
+
+## 4. ⚡ THE PROPERTY THAT MAKES THIS SELF-ENFORCING
+
+**If the corrected run has not graded, the derived set is EMPTY, and the guard's
+behaviour is bit-identical to its behaviour before this change.** Every branch
+of the derivation fails closed: no artefact, an uncommitted artefact, an
+unparseable artefact, a wrong rung, an absent declaration, a run whose verdict
+is not reportable — each yields the empty set, not a partial one.
+
+That is not a convenience. It is the mechanism by which **Sanaa's own battery
+beat is enforced rather than remembered.** Her screen 8 permits exactly two
+endings — the convergence study shown done, or shown automatically underway —
+and forbids a third. While the corrected run is ungraded, the instrument itself
+makes the act end on the refusal and the "your study is running" line. The
+fallback is the **default**; the reporting ending is the exception a graded
+artefact has to earn.
+
+The act module reads the **same** derivation, so the act and the guard cannot
+disagree about what is showable.
+
+## 5. WHAT IS NOT RE-SCOPED
+
+- **The adiabatic bounds (2.400 / 10.800 / 10.7950 K) stay refused
+  unconditionally.** They are analytic consequences of the registered heat
+  input, not outputs of any solve; they would disclose the scale of the answer
+  by the back door. The barred set is checked **before** the allowlist and no
+  derived set reaches it. Driven: an artefact that *declares* the adiabatic
+  bound still cannot get it on screen.
+- **Celsius stays banned outright.**
+- **The eight thermal-claim phrases stay banned outright.** What Sanaa approved
+  was put to her in terms of T25R4's **numbers**; widening the phrase ban is a
+  separate policy question and is **not taken here**. Consequence, stated so it
+  is not discovered on camera: even after the corrected run grades, this act
+  cannot say "the hottest cell" on a screen. That is a live restriction, and
+  lifting it needs its own record.
+- **`T25R2_L1`'s temperatures remain barred** on the measurement the supervisor
+  made: its `p_rghFinal` ran at `tolerance 1e-08; relTol 0` with a mean of 1.83
+  solver iterations over 36,000 solves, initial residuals sitting on the
+  threshold. Nothing in this change admits them; they are not T25R4 outputs and
+  the derivation only ever admits T25R4 outputs.
+- **The five figures of the 0.4 K run stay barred**, and are now barred
+  **mechanically**: see §6.
+
+## 6. ADDED IN THE SAME CHANGE — `BARRED-FIGURE`
+
+The content specification's §0 recorded that nothing mechanical stopped the five
+figures of the barred 0.4 K run reaching a screen; only a written rule did. A
+written rule is not an instrument. The sweep now refuses if
+`actc_cell_histories.pdf`, `actc_field_snapshots.pdf`, `actc_pack_uniformity.pdf`,
+`actc_per_cell_table.pdf` or `actc_step_independence.pdf` appears in a swept
+directory. They are barred by **provenance**, and no numeric test recovers that
+from the pixels.
+
+## 7. DRIVEN BOTH WAYS, AND THE RESULTS
+
+A loosening that has not been shown to still refuse is not a guard.
+
+**Unit arms, run on every invocation of the guard** (`allowlist_control()`, whose
+plants are written independently of the derivation's own, per the L-425
+discipline): 6 planted graded values admitted, 12 non-graded values still
+refused, including the barred set and an integer token.
+
+**Derivation arms** (`actC_graded_admission.py --selftest`, `PASS`, 0 failed):
+empty / unparseable / wrong-rung / undeclared / non-reportable-verdict artefacts
+all derive the empty set; a planted grading derives exactly its two values;
+eight non-graded neighbours stay refused; a declared-but-unbacked value refuses;
+and the git reader is driven with a real scratch repository — the same grading
+derives **nothing** while uncommitted and **two values** once committed.
+
+**End-to-end arms on a really rendered page** (`drive_actC_allowlist.py`, `PASS`):
+a copy of the gate sheet was compiled carrying `301.4409 K` and its non-graded
+neighbour `301.5409 K`, and **`pdflatex` returned success** — the toolchain is
+happy to render a withheld temperature onto a filmed surface.
+
+| direction | derived set | result |
+|---|---|---|
+| 1 | empty | **4 tokens refused, 0 released.** Both planted temperatures refused, by `ABS-TEMP` and by `KELVIN-UNIT`. Identical to the behaviour before this change. |
+| 2 | `{301.4409}` | **2 released, 2 refused.** Exactly the graded value released; its neighbour still refused, on the same page in the same run. |
+| 3 | both | the committed sheet is clean under both settings — the change moves nothing that was already passing. |
+
+Live sweep after the change: `4 artifacts checked, 108 numeric tokens read`,
+`ABS-TEMP 0/27`, all four artifacts clean and latexified, **rc = 0** — the same
+figures as before the change, with the admissibility line now printed on every
+run so nobody has to infer which regime a sweep ran in.
+
+## 8. ⛔ THE COVERAGE GAP, RESTATED BECAUSE IT DID NOT GO AWAY
+
+The guard reads PDFs through `pdftotext` and **cannot see a live HTML Report
+tab.** That was §C.4 of the content specification and it is still true for
+arbitrary control-room markup.
+
+It is **no longer true for this act's own content.** `check_actC_act_screen.py`
+enumerates every string the act module produces — all nine stages, the geometry
+and assumptions tables, the expert discussion beats, the banner words, and every
+field of the Report tab — and applies the **same** rules, imported from the PDF
+guard rather than copied, so the two surfaces cannot drift. It swept 359 screen
+strings and 103 numeric tokens, with a planted control that trips four rules and
+a floor beneath which a sweep that read almost nothing cannot pass.
+
+**Two things that sweep exposed and one it cannot fix:**
+
+- The contract's `Table` language-checks its **title and headers only, not its
+  rows**. Every number a viewer reads is in a row. This sweep checks them; the
+  contract does not. Reported to the team that owns it.
+- A rendered result in scientific notation (`1.199542e-03`) trips the shared
+  checker's **commit-hash** rule, because a mantissa is seven hex characters
+  carrying a digit and a letter. The act now renders fixed decimals, which is
+  better for a viewer anyway; the checker defect stands and is reported.
+- The cost sentence the shared contract composes — *"derived at the recorded
+  rate"* — trips **this campaign's** `RECORDED` rule. The act does not author
+  that string and cannot reword it. **This is an open blocker for capture** and
+  is named in the registration note.
+
+## 9. LINE-CITATION NOTE
+
+The content specification's §C.3 cites the guard's target list "at lines
+263–266". Amendment 1 inserts code above it. That citation is **superseded**:
+the target list is now built in `sweep_targets()`, and the specification is
+re-cited in the same commit as this record.
