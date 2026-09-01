@@ -1585,8 +1585,15 @@ def hard_gate_readings(gates):
             "gate_fail": sorted(k for k, v in out.items() if v == "GATE FAIL"),
             "_can_emit_not_a_result": ["G-M2_mesh_identity", "G-ALPHA",
                                        "G-MP-STRUCT[SHIPPED]", "G-MP-STRUCT[PATCHED]"],
-            "_note": "Swept by reading every hard gate's returns: three of them can "
-                     "emit NOT A RESULT; the other eight emit only PASS or GATE FAIL."}
+            "_note": "UNITS ARE STATED BECAUSE THREE DIFFERENT ONES APPLY HERE AND AN "
+                     "EARLIER VERSION OF THIS FIELD MIXED THEM. `readings` holds ELEVEN "
+                     "entries -- nine named gates plus G-MP-STRUCT once PER ROW -- drawn "
+                     "from TEN distinct gates. Of the ELEVEN READINGS, FOUR can emit "
+                     "NOT A RESULT and the other SEVEN emit only PASS or GATE FAIL. Of "
+                     "the TEN GATES, THREE can and the other SEVEN cannot. SEVEN EITHER "
+                     "WAY; the earlier text said EIGHT, which is wrong in both units. "
+                     "Counted in code, not by hand, and swept by READING every gate's "
+                     "returns rather than assuming G-ALPHA was the only one."}
 
 
 def grade(root):

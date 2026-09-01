@@ -460,3 +460,46 @@ I told the supervisor *"the freeze commit's own tree carries the STRUCK value."*
 ### A2.7 STATUS
 
 **Still not cleared to launch.** The run root is absent; the freeze window closes at the first arm.
+
+---
+
+## AMENDMENT 3 — 2026-09-01, BEFORE FIRST COMPUTE. **A PUBLISHED COUNT WAS WRONG IN BOTH UNITS**
+
+**lines whose number changed above this section: 0.** Before the append: **45115 bytes**, md5 `fc551d10d5a036dc7a01b0155685b30c`, byte-identical to the committed blob at `HEAD`.
+
+**THE RULE-2 CONDITION.** No compute has happened; `/home/ubuntu/certonomous-runs/CURRICULUM-D19M-a1-naca0012-subsonic-multipoint` **DOES NOT EXIST**, re-asserted in this amendment's invocation against the positive control D19O's root, which the same reader returns as **EXISTS**.
+
+### A3.1 THE DEFECT — `D19M-COUNT-DEF-1`
+
+`hard_gate_readings()`'s `_note` — **a field published on EVERY graded record** — read *"three of them can emit NOT A RESULT; the other eight emit only PASS or GATE FAIL."*
+
+**"EIGHT" IS WRONG IN BOTH UNITS, AND THERE ARE THREE UNITS IN PLAY:**
+
+| unit | total | can emit `NOT A RESULT` | the others |
+|---|---|---|---|
+| **readings** in the `hard` list | **11** | **4** | **7** |
+| **distinct gates** contributing | **10** | **3** | **7** |
+| **code sites** that return it | — | **5** | — |
+
+**Seven either way; never eight.** And the sentence said "three" (a *gate* count) about `readings` (an *eleven*-entry list) while `_can_emit_not_a_result` listed **four** entries — consistent only if one counts gates and the other counts readings, **which the note did not say**.
+
+> **THIS IS THIS ITEM'S OWN SENTENCE LANDING ON ITS AUTHOR: "a number nobody measured has no place in a freeze".** I wrote that into D19O's Amendment 1 after inventing a byte count, and then published an unmeasured count in a field that propagates into **every record this grader writes**. The counts above were produced **in code**, not by hand.
+>
+> **AND THE REPAIR OF THIS PARAGRAPH IS ITSELF A FINDING — `L-405`, ON THIS DOCUMENT, TONIGHT.** The first append of §A3 used an **unquoted** shell heredoc, so the backticked phrase above was **command-substituted out of existence** and the sentence landed as `LANDING ON ITS AUTHOR: .` — the exact failure `DAFOAM_CHARTER.md` §18 names, where an unquoted heredoc deleted a verdict from `docs/LAB_STATE.md` at `e779bdc7`. It was caught by reading the appended bytes back rather than by trusting the append. **This paragraph was repaired by a Python write that never lets a shell see the text**, and no later edit to this document uses a shell heredoc.
+
+### A3.2 THE CHANGE, AND ITS EXACT EXTENT
+
+**The diff against the superseded grader blob `f7a4ffd5d85ea0b10644488fca1c828d` is ONE HUNK: 2 lines removed, 9 added, and ZERO non-string code lines changed.** Only the `_note` string moved. **No gate, threshold, cap, band, label, prediction or line of logic is touched**, and `compose_item` is byte-identical to the version the supervisor verified.
+
+### A3.3 THE RE-PIN
+
+| file | md5 |
+|---|---|
+| `d19m_grade.py` | `1893fc078fb5d0997d4f1c9c4a917bfe` |
+| `d19m_chain_driver.sh` | `64f4e69463c14dc283a799f8296f5b08` |
+
+**`d19m_grade.py` `1893fc078fb5d0997d4f1c9c4a917bfe` IS THE GRADING PATH.** It supersedes §A2.5's `f7a4ffd5d85ea0b10644488fca1c828d`, which superseded `94b72950d795c28bfa3a2a7ca17febb5`, which superseded `f1f78bf4e78072057dc13e25cf1ffda9`. **All three earlier values are STRUCK and name nothing.**
+
+### A3.4 STATUS
+
+**This is the last amendment before the first arm.** The supervisor authorised launch conditional on this correction and on the diff being exactly the note string, which §A3.2 asserts and which is verifiable against the `f7a4ffd5` blob. The freeze window closes at the first arm.
