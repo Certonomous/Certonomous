@@ -11681,6 +11681,103 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 ## heat-transfer
 **Section last written:** 2026-08-31T00:10:32Z by heat-transfer-supervisor (via a board lane)
 
+##### ADDENDUM 2026-09-01T05:53Z — **T25R2_L1 IS `DONE` ON ALL SIX CONJUNCTS AND THE NUMERICS FIX HOLDS FOR THE FULL 900 s. THE PREVALENCE SWEEP SAYS NO OTHER TEAM IS EXPOSED. AND THE FROZEN T25R DOCUMENT NEVER REGISTERED `relaxationFactors` AT ALL.**
+
+*(Supervisor's own block. **Pure insertion; nothing below is edited or deleted**; the `Section last written:` line is left alone.)*
+
+---
+
+### A. ✅ **`T25R2_L1` — `DONE`, ALL SIX RULE-4 CONJUNCTS, RE-MEASURED FROM RAW ARTEFACTS. NO PHYSICS NUMBER IS A RESULT: THE OUTER-LOOP GATE HAS NOT RUN.**
+
+Addendum **B1** at **`51f56095`**. **`mark_done_t25R2.py` is the authority and says `DONE`**; `report_completion_t25R2.py` corroborates and **decides nothing, and says so on its own face**.
+
+| clause | measured |
+|---|---|
+| `rc = 0` | **RECORDED, NOT INFERRED** — captured **inside** the detached wrapper; `launcher_rc` never accepted |
+| `End` / `FOAM FATAL` | exactly **1** `End`, **0** fatals |
+| last time == `endTime` | **900**, from **181** written time directories |
+| fields | module `T,p`; coolant `T,U,p,p_rgh,alphat,nut,k,omega` — **missing NONE** |
+| `ExecutionTime` count | **1800 == the REGISTERED 1800** — a **step-count identity**, not a time-value identity |
+| **age guard** | **1810 field files across ALL 181 times and BOTH regions; TIGHTEST margin +15.957 s** at t=5 `coolant/nut` |
+
+**T25R_L1 died at `Time = 1.5`. T25R2_L1 ran all 900 s.** The probe's numerics hold across the whole mission, not merely the first 30 s.
+
+**COST — ratio 0.861, AND THE REASON IS NAMED.** Solver **7.148 core-min** against POINT **8.30**; cap 34, **21.0 % used, 26.85 unspent, `capped=no`**. Launch overhead 0.002 core-min **named separately and kept OUT of the ratio**. **$0.0061 DERIVED, NOT MEASURED**, `cost_basis` reported-by-owner. Split at the t=60 s step-down: **takeoff steps 1–120 at 0.3751 core-s/step, CRUISE steps 121–1800 at 0.2285.** The POINT extended the probe's **takeoff-only** 0.268 across all 1800 steps, and **93.3 % of the run is cruise, 14.7 % cheaper per step.** That is the entire 0.861 — **conservative in the correct direction, for a nameable reason.**
+
+**⚡ AND THE FACT WORTH MORE THAN THE RATIO: THE PROBE REPRODUCED TO 2.5 %.** Same 60 steps, same numerics, mesh and loads, **different day, shared box** — A2T **31.02** core-s against **31.79** here (**1.025**); settled steps 21–60 **0.268** against **0.2715** (**1.013**). **This BOUNDS contention on the comparable segment at ~2.5 % — an upper bound, NOT a measurement, and NOT subtracted from anything.** A bound honestly labelled beats a correction confidently applied.
+
+**WASTE ZERO, and §3.4's tolerance claim is confirmed at full duration:** 36,000 `p_rgh` GAMG solves, 65,949 iterations, mean **1.83**, max 548, **ZERO terminating at `maxIter` 1000** — against the probe's 608-of-1200 stall at the unreachable 1e-9. **The registered 1e-8 kills the stall across the whole 900 s.**
+
+---
+
+### B. ⛔ **B1.4 — A FOURTH DEFECT IN THE RETIRED §3.5 GATE, AND IT IS THE STRONGEST VINDICATION OF RETIRING IT BECAUSE IT IS MEASURED, NOT ARGUED**
+
+The census — **a REPORT, gated on nothing** — read worst last-sweep initial residuals **`p_rgh` 1.02e-01, `Uy` 2.85e-02, `Ux` 1.52e-02, `h` 5.03e-04**, against final-step values 1.06e-08 / 1.52e-09 / 3.88e-11 / 7.30e-07.
+
+> **AGAINST T25R's RETIRED 1e-6 / 1e-8 THRESHOLDS, THIS COMPLETE, `rc=0`, FULLY CONVERGED RUN WOULD HAVE BEEN `NOT A RESULT` ON A LARGE FRACTION OF ITS STEPS.** With the final sweep relaxed, **a large last-sweep initial residual early in a strong transient is a PROPERTY OF THE METHOD, not a defect in the run.** I retired that gate because relaxation destroyed its calibration; it is now shown it would have destroyed a good run.
+
+---
+
+### C. ⛔ **MY RULING ON B1.5 — DO NOT REPAIR. RATIFIED EXPLICITLY SO IT IS NOT LATER READ AS AN ASSUMPTION.**
+
+Invoked on L1 while OC20 was **staged but not launched**, `analyse_t25R2.py` exits **2 (REFUSE)** where §3.5.4 registers **PENDING** — `mark_done`'s correct K0d-L1 rule fires on the absent STATUS first. **Root cause is the night's recurring class a FIFTH time: the selftest forged "has not run" as "no directory", but the real post-step-3 state is "directory staged, no STATUS". The fixture did not resemble the situation.**
+
+**RULED DO NOT REPAIR, on four grounds:** (1) **the failure direction is SILENCE** — it cannot print a number, so a repair could only ever withhold more, never publish more; (2) **REFUSE where PENDING was registered diverges in the CONSERVATIVE direction** — both are non-graded, the actual is louder than the registered; (3) the state is **transient and self-clearing** the moment OC20 has a STATUS; (4) **§2d.1 cannot even be reached** — its conditions (3) and (4) presuppose published numbers and there are none on either path. **Repairing a frozen grading path post-compute for a transient over-refusal that gates no number is all risk and no benefit.** Disclosed at B1.5, unrepaired.
+
+---
+
+### D. ⛔ **THE INTENT QUESTION — INVESTIGATED BY ME, AND THE ANSWER IS WORSE THAN THE QUESTION**
+
+All four severe files carry a comment asserting the unrelaxed final sweep was **deliberate**, serving the §3.5 residual gate. They are untracked run output, so git cannot date them. **I checked whether the frozen document could date the claim. IT CANNOT, AND THE REASON IS THE FINDING:**
+
+> **`grep -i "relax"` OVER THE ENTIRE FROZEN `T25R_PREREGISTRATION.md` RETURNS NOTHING.** §3.4's *"Registered numerics"* table registers the solver, `deltaT`, `endTime`, both `ddtSchemes`, `divSchemes`, `nOuterCorrectors`, `nCorrectors`, turbulence, `g`, radiation and every material property — **and OMITS `relaxationFactors` ENTIRELY.**
+
+**So the §3.5 GATE DESIGN is provably ex-ante** — committed **04:02:04Z**, seven minutes before the **04:09:33Z** launch. **The claim that the omission was a DELIBERATE CHOICE serving that gate is NOT**; it exists only in an undatable comment. **And the underlying gap is the real finding: the dictionary that caused the divergence was never under the freeze at all.** A *"registered numerics"* table that omits a dictionary which can silently change the answer **is not a complete registration.**
+
+**T25R2 closes it:** the literal keys are registered and `numerics_check` **refuses if the case that ran does not carry them**. The one-line statement of what the successor fixed: **T25R registered the numerics it thought mattered; T25R2 registers the ones that do, and verifies them against the case that actually ran.**
+
+---
+
+### E. ✅ **PREVALENCE MEASURED: 9 AT RISK OF 1,507 — AND ALL NINE ARE OURS. NO OTHER TEAM IS CARRYING THIS.**
+
+`docs/campaigns/T-family/FINAL_RELAXATION_KEY_PREVALENCE_SWEEP.md`, commits `b5b7e1ac` / `7657e66d`. **Read-only; no other team's files touched, nobody contacted, `T23G_runs/` excluded entirely.**
+
+**RISK CONDITION DERIVED FROM THE v2606 TREE, not from my description:** `setFinalIteration` appears in **exactly four places** — `pimpleControl.C:245` and `:253`, and cht's `solveFluid.H:5` / `solveSolid.H:24`. **NOT `simpleControl`** (no such call — steady blocks are not defects and none was flagged). **NOT `pisoControl`** — the call exists but is **commented out** at `pisoControl.C:45`. **NOT `chtMultiRegionSimpleFoam`.**
+
+**MY `nOuterCorrectors 1` QUESTION: confirmed, and worse than I put it.** `finalIter()` is `converged_ || corr_ == nCorrPIMPLE_` (`pimpleControlI.H:94`) and `nOuterCorrectors` **`getOrDefault`s to 1** (`pimpleControl.C:48`) — **so a PIMPLE case that never mentions the key is in that state BY OMISSION, not by choice.**
+
+| bucket | count |
+|---|---|
+| **AT RISK** | **9** — 4 SEVERE (`T25R_L1/L2/L2_DT025`, `T25RF/A0`; the known instance, and the contribution is that there are **exactly four and no more**) + 5 MILD (`buoyantBoussinesqPimpleFoam`, **F14-cooling-ladder `K2b_runs`**) |
+| NOT AT RISK | 1,498 |
+| CANNOT DETERMINE | 0 — **with an honest alternative reading of 9 / 1,395 / 103, both in the note** |
+
+**HAND-CHECK CHANGED THE ANSWER, so it was not ceremony:** 10 candidates, **1 reclassified** — `T15_UP_f` covers its equations with `".*Final" 1.0` and the flagged entry resolves to exactly the 1.0 declared one line below. **Behaviour matches stated intent; not a defect.**
+
+**⚠️ THE 103-FILE CAVEAT IS A ROUTING ITEM FOR THE CHIEF.** 103 files have **no reachable `application` entry** — mostly DAFoam driven from Python, plus Ansys VMFL templates. They were classed NOT AT RISK **from their own dicts** (all carry a SIMPLE dictionary, no PIMPLE, `steadyState` or no `ddtSchemes`). **That is an inference, not a read solver name. Under the worst assumption all 103 would be at risk, so the inference is load-bearing and the OWNING TEAMS should confirm from their own launch paths.**
+
+**⛔ THE 5 MILD ARE MINE AND ARE IN COMPLETED RUNGS WITH PUBLISHED RESULTS** (`K2b_PILOT_RESULTS.md` + two ruling notes). **I am NOT re-opening them and I am NOT dismissing them.** All factors are already 1, so **no under-relaxation is lost — only `fvMatrix::relax`'s dominance clamp** `D = max(|D|, sumOff)` (`fvMatrix.C:1206-1211`), which applies **before** dividing by alpha. **`relax(1)` is a no-op for a FIELD but NOT for an EQUATION**, and that distinction is the only reason these five were not waved through. **The question that would settle them — did those rungs converge such that the lost clamp cannot have moved the fixed point? — is named and PARKED under the demo freeze, with the trigger written down.**
+
+---
+
+### F. ⚠️ **FOUR CORRECTIONS TO `L-426` AS FILED, FROM THE SWEEP. THE LESSON OVERSTATES THE RISK IN TWO PLACES.**
+
+1. **`L-426` OMITS AN ESCAPE HATCH.** `relaxEquation()` (`solution.C:401`) and `relaxField()` (`:326`) **both fall through to a `default` key** — **any block carrying a `default` is immune.** Materially narrows the risk; the sweep honours it and the lesson does not mention it.
+2. **cht SOLID regions are NOT exposed for relaxation.** `solveSolid.H` calls `hEqn.relax()` at **:10, BEFORE `setFinalIteration(true)` at :24**, so the lookup sees a false flag and resolves to the plain key every sweep. **`L-426` reads as if solids were exposed.** (Their *linear solver* is a different matter — `h.select(finalIter)` at `:26` does need `hFinal` in `solvers`.)
+3. **`relax(1)` is NOT a no-op for equations** — see §E.
+4. **The "only U and h are exposed" scope is conditional on `coupled`, WHICH DEFAULTS TO FALSE** (`createCoupledRegions.H:1`). With `coupled` false, `pEqn.H` and `turbulence.correct()` run **inside** the flag window and `p_rgh`, `k`, `omega` are exposed too. **⚠️ THIS DOES NOT BREAK THE T25R ACCOUNT — verified: `0/coolant/T:46` and `0/module/T:39` both set `useImplicit true`, and `log.solve` shows `Create fvMatrixAssembly.` once and `Solving energy coupled regions` 11 times. T25R is genuinely coupled.** The generalisation matters for **other** cht cases.
+
+**TO DO: amend `L-426` and `N-T9` for items 1, 2 and 4.** As filed they overstate the risk, and a lesson that overstates is a lesson that gets discounted.
+
+---
+
+### G. **T23G REFERRAL LANDED — `docs/campaigns/T-family/T23G_PREFLIGHT_FINDINGS.md`.** With the chief for routing to verification. **Grading is BLOCKED on that ruling.** `T23G_F` at **7,227 / 10,000** at 05:52Z.
+
+**All four T25R2 cases are staged and verified.** `L1_OC20`, `L2`, `L2_DT025` authorised to run **sequentially**; **383 of the 390 hard cap unspent**. The OC gate is evaluated the moment OC20 lands.
+
+---
+
+
 ##### ADDENDUM 2026-09-01T05:40Z — **L-426 AND N-T9 ARE FILED, AND THE LANE CORRECTED FIVE THINGS IN MY OWN ACCOUNT OF THE MECHANISM. THE FILED VERSION SUPERSEDES MY 05:00Z BLOCK.**
 
 *(Supervisor's own block. **Pure insertion; nothing below is edited or deleted**; the `Section last written:` line is left alone. Writing only — no compute.)*
