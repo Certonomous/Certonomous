@@ -434,10 +434,35 @@ decomposePar -force > log.decomposePar 2>&1
 dec_rc=$?
 [ "$dec_rc" = "0" ] || abort "decomposePar rc=$dec_rc"
 
+# ---------------------------------------------------------------------------
+# LAB-WIDE FINDING, 2026-09-01, measured by heat-transfer with taskset/mpstat:
+# CONCURRENT INDEPENDENT `mpirun` INVOCATIONS EACH NUMBER FROM CORE 0.  Six
+# mpiruns pinned all twelve ranks onto CPUs 0-1 at six processes per core while
+# FOURTEEN CORES SAT IDLE.  `--bind-to none` fixes it.
+#
+# IT CHANGES NO NUMBER.  It changes wall time, and therefore the core-minutes a
+# run is costed at -- in the favourable direction against the registered cap.
+# Left unfixed, a run whose ranks piled onto two cores would inflate its
+# measured core-minutes for a reason that is INFRASTRUCTURE, NOT PHYSICS, and
+# under COMPUTE_BUDGET_CHARTER section 6 that waste would have to be named
+# separately rather than absorbed into the estimate-versus-actual ratio.
+#
+# CLAUDE.md rule 14 (L-221/L-222): a lesson is not applied until EVERY call
+# site ASSERTS it.  The option is therefore carried in a variable and the
+# variable is CHECKED HERE, at the call site, immediately before the launch --
+# so an edit that drops it aborts the run instead of quietly halving the box.
+MPI_OPTS="--bind-to none"
+case "$MPI_OPTS" in
+  *"--bind-to none"*) ;;
+  *) abort "MPI_OPTS does not carry --bind-to none.  Concurrent mpiruns
+  otherwise pile every rank onto CPU 0-1 while the rest of the box idles, and
+  the run's measured core-minutes become an infrastructure artifact rather
+  than a cost." ;;
+esac
 # THE rc IS TAKEN HERE, ON THIS LINE, INSIDE THIS PROCESS.  It is NOT taken
 # around a `setsid` line: `setsid timeout cmd` exits 0 for every outcome of its
 # child and would certify a corpse as a completion.
-mpirun -np "$RANKS" simpleFoam -parallel > log.simpleFoam 2>&1
+mpirun $MPI_OPTS -np "$RANKS" simpleFoam -parallel > log.simpleFoam 2>&1
 SOLVER_RC=$?
 
 reconstructPar -latestTime > log.reconstructPar 2>&1 || true
