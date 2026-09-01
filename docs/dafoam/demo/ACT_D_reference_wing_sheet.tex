@@ -1,6 +1,15 @@
 % ---------------------------------------------------------------------------
-% ACT D (GUI) -- REFERENCE WING, ADJOINT SHAPE OPTIMISATION -- one-page
-% result sheet for the act driven by sdk/workflows/adjoint_optimization.py.
+% ACT D (GUI) -- REFERENCE WING, ADJOINT SHAPE OPTIMISATION -- result sheet
+% for the act driven by sdk/workflows/adjoint_optimization.py.
+%
+% TWO PAGES SINCE 2026-09-01, AND THE SECOND PAGE IS NOT PADDING. Sanaa's
+% figure standard of that date moves every explanation printed inside a
+% figure onto this sheet, one compact paragraph per figure, and there are
+% seven figures. Page 1 was measured with 23.4 mm free below its last ink
+% against a 43.2 mm band, so the notes plus the three voices cannot fit.
+% Cramming was tried and reverted: it needed 5.6 pt body text to gain about
+% 19 mm of the 22 mm needed, and still did not fit. Page 1 is the result and
+% is unchanged in layout; page 2 is the figure notes and the three voices.
 %
 % THIS IS NOT THE SAME SHEET AS ACT_D_aerofoil_section_sheet.tex.
 %   that one : 2D NACA0012 section, 4,032 cells, 10 m/s, no optimiser has run.
@@ -140,17 +149,19 @@
 
 % ---------------------------------------------------------------- title -----
 {\fontsize{13.5}{15}\selectfont\bfseries Where the drag reduction came from}\\[1.5pt]
-{\fontsize{8.6}{10}\selectfont The $28.3\,\%$ on the reference wing, taken apart
---- twist against section shape against angle of attack, every stage re-solved
+{\fontsize{8.6}{10}\selectfont The $28.3\,\%$ on the reference wing, taken apart:
+twist against section shape against angle of attack, every stage re-solved
 at matched lift}\\[2pt]
 {\color{rulegrey}\rule{\textwidth}{0.9pt}}\\[1pt]
+{\footnotesize \textbf{Solver: DAFoam DARhoSimpleFoam on OpenFOAM v2506, steady
+compressible RANS (Spalart-Allmaras), with a reverse-mode discrete adjoint.}
+Solved on this geometry: $47$ major iterations, $38\,304$ cells.}\\[1.5pt]
 {\footnotesize \textbf{This sheet reports a demonstration, not a certified
 verdict.} A DAFoam verdict in this lab is two rows, one against the shipped
-toolchain and one against whatever was patched; only the shipped row exists
-here, so the act as a whole carries no grade. The fixed verdict words used
-below --- \textsc{pass}, \textsc{not a result} --- belong to the individual
-gates, which were written down before the run and did earn them. Nothing on
-this page grades the optimisation.}
+toolchain and one against whatever was patched, and only the shipped row exists
+here. The fixed verdict words below, \textsc{pass} and \textsc{not a result},
+belong to the individual gates, which were written down before the run and did
+earn them; nothing on this page grades the optimisation.}
 
 % ------------------------------------------------- the question + table 1 ---
 \vspace{2.5pt}
@@ -162,12 +173,12 @@ this page grades the optimisation.}
 failure mode we were asked to rule out is the one where a wing is quietly flown
 at a lower angle of attack, sheds most of its lift, and reports the drag saving
 as though the lift were still there. So we re-solved the wing at every
-intermediate design and printed the lift beside every drag. \textbf{Only rows
+intermediate design and printed the lift beside every drag: \textbf{only rows
 at the same lift may be compared}, and Table~1 is the only table here a drag
 attribution may be quoted from.}
 
 \vspace{3pt}
-\textbf{Table 1 --- The decomposition, at matched lift.}
+\textbf{Table 1. The decomposition, at matched lift.}
 Every row re-solved; drag never quoted without its lift.
 
 \vspace{1.5pt}
@@ -176,35 +187,35 @@ Every row re-solved; drag never quoted without its lift.
 \toprule
 Stage & $C_D$ & $C_L$ & $\alpha$, deg & Share \\
 \midrule
-Baseline                        & $0.02962051$ & $0.500000$ & $4.32613$ & --- \\
+Baseline                        & $0.02962051$ & $0.500000$ & $4.32613$ & reference \\
 Twist only                      & $0.02969750$ & $0.499999$ & $4.90933$ & $\mathbf{-0.92\,\%}$ \\
 Twist $+$ section shape, final  & $0.02124478$ & $0.499949$ & $1.10766$ & $\mathbf{+100.92\,\%}$ \\
-Angle-of-attack re-trim         & ---          & ---        & ---       & $0\,\%$ \\
+Angle-of-attack re-trim         & n/a          & n/a        & n/a       & $0\,\%$ \\
 \bottomrule
 \end{tabular}}
 
 \vspace{1.5pt}
 {\scriptsize \textbf{Total reduction $\mathbf{28.2768\,\%}$}, baseline to final,
 both endpoints at $C_L=0.500$. Shares are
-$(C_D^{\mathrm{stage}}-C_D^{\mathrm{base}})/(C_D^{\mathrm{final}}-C_D^{\mathrm{base}})$;
-both were predicted before the run inside admissible bands --- twist $-5$ to
-$+8\,\%$, section shape $92$ to $105\,\%$ --- and \textbf{both measured shares
+$(C_D^{\mathrm{stage}}-C_D^{\mathrm{base}})/(C_D^{\mathrm{final}}-C_D^{\mathrm{base}})$,
+and both were predicted before the run inside admissible bands (twist $-5$ to
+$+8\,\%$, section shape $92$ to $105\,\%$): \textbf{both measured shares
 landed inside them}. The angle-of-attack share is zero by construction, not by
-measurement: lift is an equality constraint at $C_L=0.5$, so at matched lift the
-incidence is slaved to the geometry.}
+measurement, because lift is an equality constraint at $C_L=0.5$ and at matched
+lift the incidence is slaved to the geometry.}
 
 \vspace{3pt}
 {\footnotesize\colorbox{band}{\begin{minipage}[t]{0.978\textwidth}
 \textbf{The finding that goes against our own story.} \textbf{Twist alone, at
-matched lift, makes the drag $0.26\,\%$ \emph{worse}} --- $0.02969750$ against
-$0.02962051$ --- because recovering the lift it sheds costs more incidence
+matched lift, makes the drag $0.26\,\%$ \emph{worse}} ($0.02969750$ against
+$0.02962051$), because recovering the lift it sheds costs more incidence
 ($4.909^\circ$ against $4.326^\circ$) than the spanload change saves.
-\textbf{Essentially all of the $28.3\,\%$ is section shape.} Twist pays only in
-combination with it. That is not the tidier answer, and it is the measured one.
+\textbf{Essentially all of the $28.3\,\%$ is section shape}, and twist pays only
+in combination with it. That is not the tidier answer, and it is the measured one.
 \end{minipage}}}
 
 \vspace{3pt}
-\textbf{Table 2 --- The trap, measured on this very wing.}
+\textbf{Table 2. The trap, measured on this very wing.}
 What the numbers look like when the lift is not held.
 
 \vspace{1.5pt}
@@ -225,17 +236,16 @@ Twist $+$ shape, incidence frozen $4.32613^\circ$ & $0.03721004$ & $0.721934$ & 
 \vspace{1.5pt}
 {\scriptsize \textbf{The first row is the failure mode, produced deliberately
 and measured rather than argued away}: the same wing, no geometry changed,
-flown $3.22^\circ$ lower. \textbf{Table~1 is not that} --- its endpoints are
+flown $3.22^\circ$ lower. \textbf{Table~1 is not that}, because its endpoints are
 both at $C_L=0.500$ to better than $10^{-3}$, which is gate G6. The last row is
 why the lift column is mandatory: published alone, $0.03721004$ would read as
-``the section change made it worse'', which is false. It is the same wing
-carrying $C_L=0.722$.}
+``the section change made it worse'', which is false of the same wing carrying
+$C_L=0.722$.}
 
 \end{minipage}\hfill
 % ------------------------------------------------------- right column -------
 \begin{minipage}[t]{0.435\textwidth}
-\textbf{Figure 1 --- Drag against lift, all six solved rows.}
-Only the three on the dashed line are comparable on drag.
+\textbf{Figure 1. Drag against lift, all six solved rows.}
 
 \vspace{2pt}
 \setlength{\unitlength}{1mm}
@@ -249,13 +259,13 @@ Only the three on the dashed line are comparable on drag.
   \put(0,-3.1){\makebox(0,0)[c]{\scriptsize 0.015}}
   \put(20.8,-3.1){\makebox(0,0)[c]{\scriptsize 0.025}}
   \put(41.6,-3.1){\makebox(0,0)[c]{\scriptsize 0.035}}
-  \put(26,-5.6){\makebox(0,0)[c]{\scriptsize $C_D$, ---}}
+  \put(26,-5.6){\makebox(0,0)[c]{\scriptsize $C_D$, dimensionless}}
   % y ticks: CL 0.20 .. 0.80
   \multiput(0,0)(0,5){7}{\line(-1,0){1.1}}
   \put(-1.7,-0.8){\makebox(0,0)[r]{\scriptsize 0.20}}
   \put(-1.7,14.2){\makebox(0,0)[r]{\scriptsize 0.50}}
   \put(-1.7,29.2){\makebox(0,0)[r]{\scriptsize 0.80}}
-  \put(-9.2,15){\makebox(0,0)[c]{\rotatebox{90}{\scriptsize $C_L$, ---}}}
+  \put(-9.2,15){\makebox(0,0)[c]{\rotatebox{90}{\scriptsize $C_L$, dimensionless}}}
   % ---- the matched-lift line ---------------------------------------------
   {\color{accent}\multiput(0,15)(2.6,0){20}{\rule{1.6mm}{0.3pt}}}
   \put(53.0,15){\makebox(0,0)[l]{\scriptsize\color{accent}$C_L=0.5$}}
@@ -290,11 +300,13 @@ Only the three on the dashed line are comparable on drag.
 
 \vspace{1.5pt}
 {\scriptsize Filled circle: solved at $C_L=0.5$, comparable on drag. Open
-square: incidence held fixed, lift free --- not comparable, and shown only to
-make that visible.}
+square: incidence fixed, lift free, not comparable.\\
+\textbf{Figure note.} Only the three points on the dashed rule are comparable on
+drag; the open squares are drawn to make the incomparable rows visible rather
+than to be read.}
 
 \vspace{3pt}
-\textbf{Table 3 --- Gates, fixed before the run, and the one that did not run.}
+\textbf{Table 3. Gates, fixed before the run, and the one that did not run.}
 
 \vspace{1.5pt}
 {\fontsize{6.7}{7.9}\selectfont
@@ -306,7 +318,7 @@ G1 reproduction & $0.00296\,\%$ and $0.01543\,\%$ off the archived endpoints, ba
 G2 geometry control & thickness $1.000000$ at baseline, $0.500101$ / $1.727944$ at final & \textsc{pass} \\
 G3 trim tolerance & $|C_L-0.5| = 5.29\times10^{-7}$, band $5\times10^{-4}$ & \textsc{pass} \\
 G4 completion & six rows clean; the seventh did not complete & \textsc{pass} on six \\
-\textbf{G5 falsifier} & \textbf{produced no value --- see below} & \textbf{ungraded} \\
+\textbf{G5 falsifier} & \textbf{produced no value, see below} & \textbf{ungraded} \\
 G6 the trap test & both endpoints at $C_L=0.500$ within $10^{-3}$ & \textsc{pass} \\
 \bottomrule
 \end{tabular}}
@@ -315,7 +327,7 @@ G6 the trap test & both endpoints at $C_L=0.500$ within $10^{-3}$ & \textsc{pass
 {\scriptsize \textbf{Planted controls, both clean.} Every row read its own
 design vector back out of the problem and would have refused on any mismatch
 above $10^{-12}$: deviation was $0.000\times10^{0}$ on all seven rows.
-Separately, the geometry-side witness --- section thickness --- was required to
+Separately, the geometry-side witness, section thickness, was required to
 show a known non-zero and did, moving from exactly $1.0$ everywhere at baseline
 to the range $0.500101$ to $1.727944$ at the final shape. A reader that cannot
 see a non-zero cannot be trusted with a zero.}
@@ -330,32 +342,30 @@ see a non-zero cannot be trusted with a zero.}
 \begin{minipage}[t]{0.545\textwidth}
 \colorbox{boxgrey}{\begin{minipage}[t]{0.972\textwidth}
 {\footnotesize\textbf{Read this before you use the numbers}\\[1pt]
-$\bullet$ \textbf{One registered check did not run, and the claim it was written
-to falsify is therefore not confirmed by it.} Row B2 was to re-trim the
-twisted, reshaped wing back to $C_L=0.5$ from an independent start and land on
-the final row within $0.5\,\%$ --- gate G5, the independent falsifier for the
-statement that the angle-of-attack share is zero. Its flow solve diverged after
-three attempts and produced no value. \textbf{B2 is \textsc{not a result} and
-G5 is ungraded.} The zero angle-of-attack share rests on the matched-lift
-measurement (both endpoints at $C_L=0.500$ to better than $10^{-3}$, gate G6)
-and on the problem's own lift equality constraint, and on nothing else.
-\textbf{No test fired to confirm it.}\\
-$\bullet$ \textbf{$38\,304$-cell mesh, chosen for speed --- grid independence
-not assessed; result relative to this mesh.} Grid independence was not assessed
-in this act.\\
+$\bullet$ \textbf{One registered check did not run, so the claim it was written
+to falsify is not confirmed by it.} Row B2 was to re-trim the twisted, reshaped
+wing back to $C_L=0.5$ from an independent start and land on the final row
+within $0.5\,\%$, which is gate G5, the independent falsifier for the statement
+that the angle-of-attack share is zero; its flow solve diverged after three
+attempts and produced no value. \textbf{B2 is \textsc{not a result} and G5 is
+ungraded}, so the zero share rests on the matched-lift measurement (both
+endpoints at $C_L=0.500$ to better than $10^{-3}$, gate G6) and on the problem's
+own lift equality constraint, and \textbf{no test fired to confirm it}.\\
+$\bullet$ \textbf{$38\,304$-cell mesh, chosen for speed; grid independence
+not assessed; result relative to this mesh.}\\
 $\bullet$ \textbf{The optimisation was not run to convergence and we do not
 claim it was.} It completed $47$ major iterations; over the last fifteen the
 objective moved inside a $2.2\,\%$ band and $12$ of the $14$ steps still took
 drag down, so it was still descending when it stopped. \textbf{Why it stopped,
-established from its own log:} the log records no termination --- no exit line,
-no convergence statement --- and its iteration limit was set to $100$, so it
-was \emph{not} an iteration cap; at the last iteration its two first-order
+established from its own log:} the log records no termination, no exit line and
+no convergence statement, its iteration limit was set to $100$ so it was
+\emph{not} an iteration cap, and at the last iteration its two first-order
 measures read $1.44\times10^{-5}$ and $9.0\times10^{-5}$ against a $10^{-5}$
-target. \textbf{It was ended by the wall-clock box set on the run, not by
-convergence.}\\
+target; \textbf{it was ended by the wall-clock box set on the run, not by
+convergence}.\\
 $\bullet$ \textbf{The gradient was graded at a single finite-difference step,
 $h=10^{-3}$, and the sweep proving that step sits on a plateau was run on a
-different, smaller case} --- a two-dimensional section on $4\,032$ cells, where
+different, smaller case}, a two-dimensional section on $4\,032$ cells, where
 the recommended window measured $10^{-3}$ to $10^{-2}$. \textbf{No step sweep
 was run on this wing.}\\
 $\bullet$ \textbf{Toolchain, named by hash, because a version string is not an
@@ -365,7 +375,7 @@ identity.} Both the optimisation and this decomposition ran the shipped image
 with stock IDWarp \texttt{libidwarp.so} md5
 \texttt{f0fcb488e0e98156575cd19548e91663}. \textbf{No patched library was
 loaded}: the launcher carries no bind-mount and no override, and the patched
-solver's own banner is absent from the log --- this lab's standing proof that a
+solver's own banner is absent from the log, this lab's standing proof that a
 run was stock.\\
 $\bullet$ Nothing here is compared against wind-tunnel or flight data. The
 gradient is checked against finite differences of the same solver: that is
@@ -373,7 +383,7 @@ self-consistency, not validation.}
 \end{minipage}}
 \end{minipage}\hfill
 \begin{minipage}[t]{0.435\textwidth}
-\textbf{Table 4 --- Compute: what we said upfront, and what it cost.}
+\textbf{Table 4. Compute: what we said upfront, and what it cost.}
 One core-minute is one processor core running for one minute.
 
 \vspace{1.5pt}
@@ -394,12 +404,12 @@ Used, net of that                & $11.11$ & \\
 \end{tabular}}
 
 \vspace{1.5pt}
-{\scriptsize The overspend is a misprediction and is attributed as one: the
+{\scriptsize The gap is a misprediction and is attributed as one: the
 upfront figure priced each solve at $24.7$\,s, taken from an optimisation log
-whose average also absorbed gradient work; the solves here ran $13.6$ to
+whose average also absorbed gradient work, and the solves here ran $13.6$ to
 $15.4$\,s. The wasted $2.76$ core-minutes are named separately and not folded
-into the ratio. Derived cost \$0.0119 at \$0.0513 per core-hour --- derived, not
-metered; this box cannot read its own billing.}
+into the ratio. Derived cost \$0.0119 at \$0.0513 per core-hour, derived and not
+metered, because this box cannot read its own billing.}
 
 \vspace{2.5pt}
 {\scriptsize \textbf{Runtime of the optimisation itself, on the production
@@ -418,31 +428,79 @@ six drag values are read from the run's own result lines, one per row, and the
 whole decomposition cost fourteen core-minutes.}
 \end{minipage}
 
+% ------------------------------------------------------- figure notes -------
+% SANAA-DIRECT 2026-09-01: "Every explanation currently printed inside a figure
+% ... moves to the sheet text as a single compact paragraph per figure." This
+% band is where they went. One paragraph per figure the act puts on screen,
+% each at most three sentences, and nothing here repeats a number the tables
+% carry. The three columns are balanced by word count so the band stays inside
+% the one page this sheet has always been.
+% The break is explicit. Left to itself LaTeX orphaned this heading at the foot
+% of page 1 with its seven paragraphs overleaf, which is worse than either
+% outcome it was choosing between.
+\newpage
+{\fontsize{11}{13}\selectfont\bfseries Figure notes}\\[1.5pt]
+{\fontsize{8.6}{10}\selectfont One paragraph per figure, holding what the figure
+itself used to print}\\[2pt]
+{\color{rulegrey}\rule{\textwidth}{0.9pt}}\\[2pt]
+
+\vspace{1.5pt}
+{\footnotesize
+\begin{minipage}[t]{0.487\textwidth}
+\textbf{Wing sections.} Five stations cut through the real surface, baseline
+against the finished shape, at true scale with equal aspect on every station.
+Framed to the whole span the change barely moves the outline, so on the wing it
+is carried by the painted field, while at section scale it is simply visible.\\[2pt]
+\textbf{Twist by station.} Degrees against span in metres, so equal aspect does
+not apply and is not claimed. The root station carries no design variable, which
+is why the curve starts at exactly zero.
+\end{minipage}\hfill
+\begin{minipage}[t]{0.487\textwidth}
+\textbf{The gradient on the skin.} One adjoint solve gives the derivative of
+drag at fixed lift with respect to every surface control point, painted on the
+skin: red means drag falls if the skin moves out, blue if it moves in, white
+that the gradient asks for nothing there. The bar is millimetres of skin motion
+per unit step of steepest descent, symmetric about zero.\\[2pt]
+\textbf{The inboard close-up.} The second pass frames the inboard $2.2$\,m of
+span on its own camera, about four times tighter. The viewing convention moves
+and the wing does not: not one coordinate is touched.
+\end{minipage}
+
+\vspace{3pt}
+\begin{minipage}[t]{0.487\textwidth}
+\textbf{The wing through the optimisation.} Each frame is the surface the
+optimiser produced at that major iteration, at true scale, painted with the
+outward normal part of its displacement from the baseline averaged over each
+face. The colour window is fixed across every frame, so one colour is the same
+millimetres throughout.\\[2pt]
+\textbf{Drag against major iteration.} Both axes are dimensionless, and the band
+is the worst derivative group's disagreement with a central finite difference.
+That is a gradient accuracy figure, not a discretisation error bar, and no
+discretisation bar exists for one mesh.
+\end{minipage}}
+
 % ------------------------------------------------------------- voices -------
 \vspace{2pt}
 {\color{rulegrey}\rule{\textwidth}{0.5pt}}
 
 \vspace{1pt}
 {\footnotesize
-\rolesig{Lead Researcher.} You asked how much of the reduction was twist,
-how much was section shape, and how much was quietly given back at the angle of
-attack. The answer is that it is section shape almost exactly to the whole:
-twist on its own is slightly negative, and at matched lift the incidence is not
-a free variable at all. We would rather hand you that than the neater story.
+\rolesig{Lead Researcher.} You asked how much of the reduction was twist, how
+much was section shape, and how much was quietly given back at the angle of
+attack. It is section shape almost exactly to the whole: twist on its own is
+slightly negative, and at matched lift the incidence is not a free variable at
+all.
 
 \rolesig{Lead Engineer.} The row worth your attention is the first one in
-Table~2. That is what a $44\,\%$ drag saving looks like when it is bought by
-flying lower --- on this wing, measured, not described. The reduction we are
-actually reporting is the arrow in Figure~1, and both of its ends sit on the
-same lift line.
+Table~2, which is what a $44\,\%$ drag saving looks like when it is bought by
+flying lower. The reduction we are actually reporting is the arrow in Figure~1,
+and both of its ends sit on the same lift line.
 
-\rolesig{Lead Numericist.} Three things are open and stay open on this page.
-The re-trim that would have cross-checked the angle-of-attack claim diverged,
-so that claim has an argument and a lift measurement behind it and no test.
-The finite-difference step comes from a plateau measured on a smaller case.
-And there is one mesh, so no number here carries a discretisation error bar.
-Everything else --- the reproduction of both endpoints, the trim tolerance, the
-geometry witness and the design-vector readback --- was checked against a limit
-written down beforehand, and the limits are in version control with the run.}
+\rolesig{Lead Numericist.} Three things stay open: the re-trim that would have
+cross-checked the angle-of-attack claim diverged, the finite-difference step
+comes from a plateau measured on a smaller case, and there is one mesh, so no
+number here carries a discretisation error bar. Everything else was checked
+against a limit written down beforehand, and the limits are in version control
+with the run.}
 
 \end{document}

@@ -147,7 +147,7 @@ import re
 import time
 from pathlib import Path
 
-from . import (OUT_ROOT, announce_geometry, announce_plot, bullets, emit_table,
+from . import (OUT_ROOT, announce_plot, bullets, emit_table,
                make_transcript)
 from chief_engineer.lab import (CHIEF_ENGINEER, CHIEF_RESEARCHER, CONCLUSION,
                                 EVIDENCE, HYPOTHESIS, MONITOR, NUMERICIST,
@@ -214,6 +214,61 @@ DECOMP_FILE = _LADDER / "A2_drag_decomposition.json"
 # in this record. The act reads it and states it in one line; the numbers are
 # not repeated as constants here, because they belong to that measurement.
 CREASE_FILE = _LADDER / "A2_crease_check.json"
+
+# ------------------------------------------------ the header's solver line
+# SANAA-DIRECT 2026-09-01, captured verbatim at
+# etc/sessions/2026-09-01T0310Z_sanaa_actA_figure_header_standard.md and
+# applying to every act: "The header must state the solver of the source run
+# ... 'Solver: none' is never shown on a results screen; it belongs to the
+# mission log only." Her Act A example carries the turbulence model by name,
+# so the header solver line is the ONE place this act may print solver and
+# model jargon; every other narration surface stays plain English (the
+# 2026-08-24 jargon scrub, commit be88c786, is otherwise untouched).
+#
+# ESTABLISHED BY MEASUREMENT, NOT ASSUMED, and it is neither of the two names
+# a reader would guess. It is not DASimpleFoam (that is the incompressible
+# one) and the turbulence model is not k-omega SST (that is Act A's). Read
+# from four places that agree:
+#
+#   /home/ubuntu/certonomous-runs/A2-mach-wing/runScript_AeroOnly.py:35
+#       "solverName": "DARhoSimpleFoam"
+#   /home/ubuntu/certonomous-runs/A2-mach-wing/run_model_stdout.log:188, :353
+#       Initializing fields for DARhoSimpleFoam ... solverName DARhoSimpleFoam
+#   /home/ubuntu/certonomous-runs/A2-mach-wing/constant/turbulenceProperties
+#       simulationType RAS; RASModel SpalartAllmaras; turbulence on
+#   /home/ubuntu/certonomous-runs/A2-mach-wing/run_model_stdout.log:214
+#       Selecting RAS turbulence model SpalartAllmaras
+#
+# and cross-read against this ladder's own record, cases/dafoam/ladder-a/
+# A2_mach_tutorial_wing.json, whose "solver" field is "DARhoSimpleFoam".
+# STEADY is measured too, from system/fvSchemes (ddtSchemes default
+# steadyState), and COMPRESSIBLE from constant/thermophysicalProperties
+# (hePsiThermo over perfectGas). The build banner in the same log at :17/:21
+# reads OPENFOAM=2506, version=v2506.
+SOURCE_SOLVER = "DARhoSimpleFoam"
+SOURCE_TURBULENCE = "Spalart-Allmaras"
+SOURCE_OPENFOAM = "v2506"
+
+
+def _solver_line() -> str:
+    """The header's one-line statement of the source run's solver.
+
+    Built in one place so the header, the certificate and the report cannot
+    drift apart, and guarded so an edit that drops the solver name or the
+    turbulence model fails rather than shipping a header that says less than
+    she asked for. "Solver: none" can never be produced from here.
+    """
+    line = (f"Solver: DAFoam {SOURCE_SOLVER} on OpenFOAM {SOURCE_OPENFOAM}, "
+            f"steady compressible RANS ({SOURCE_TURBULENCE}), with a "
+            f"{AD_MODE}-mode discrete adjoint.")
+    if SOURCE_SOLVER not in line or SOURCE_TURBULENCE not in line:
+        raise RuntimeError(
+            "the header solver line names the source run's solver and its "
+            "turbulence model, or it is not the header solver line")
+    if "none" in line.lower().split(":")[-1]:
+        raise RuntimeError("'Solver: none' is never shown on a results screen")
+    return line
+
 
 # The case, as it was actually run.
 MESH_CELLS = 38_304
@@ -530,9 +585,63 @@ def _headline(pct: float) -> str:
 
 
 def _against_baseline(pct: float) -> str:
-    """A per-iteration reading, which can sit either side of the baseline."""
-    side = "below" if pct >= 0 else "ABOVE"
+    """A per-iteration reading, which can sit either side of the baseline.
+
+    The word for the wrong side used to be shouted, "ABOVE", so that a frame
+    where drag went UP could not be skimmed as one where it went down. SANAA-
+    DIRECT 2026-09-01 bans capitalised phrases from figure text, and the fact
+    survives the ban untouched: "above" says it in lower case, and the reading
+    it qualifies is the same measured number to the same decimal.
+    """
+    side = "below" if pct >= 0 else "above"
     return f"{abs(pct):.1f}% {side} {BASELINE_NAME}"
+
+
+def _geometry_lines(solved_here: bool, majors: int) -> list[str]:
+    """The present-tense solved-case statement, or the truth instead of it.
+
+    SANAA-DIRECT 2026-09-01 asks for plain present-tense statements of fact of
+    the shape "16 operating points solved on this geometry, 39,680 cells." She
+    attaches her own honesty condition to it: the display is bound to the
+    uploaded geometry SO THAT THE STATEMENT IS TRUE.
+
+    THIS FUNCTION IS THAT BINDING, and it is the one clause in the standard
+    that must not be applied mechanically here. Act D's whole history is the
+    hazard: it once reported one wing's dimensions and presented another
+    wing's numbers. ``solved_here`` is the measured answer to "is the geometry
+    on screen the geometry these numbers were solved on", and it comes from
+    ``_a2_shape.identify`` reading the file, never from a filename.
+
+    When it is true the sentence she asked for is stated, in the present tense,
+    with its cell count. When it is false NO SENTENCE IMPLYING IT IS WRITTEN:
+    the act states which wing the numbers belong to, which is what it has
+    always done, and offers to run the surface that arrived. Dropping the
+    qualifier from a sentence that is only true because of the qualifier is not
+    a formatting change; it is a false claim.
+    """
+    # HER TEMPLATE IS "16 operating points solved on this geometry, 39,680
+    # cells." and it cannot be used with the leading figure it has: the shared
+    # wording doctrine at sdk/workflows/__init__.py:135 refuses a bullet that
+    # does not begin with a capital letter, and "47 major iterations ..."
+    # begins with a digit. The clause is inverted rather than the shared guard
+    # relaxed, which is not this act's file to change. Same fact, same tense,
+    # same cell count, and it now leads with the claim rather than the count.
+    if solved_here:
+        return [f"Solved on this geometry: {majors} major iterations, "
+                f"{MESH_CELLS:,} cells."]
+    # THIS BRANCH IS THE HONESTY PATH AND IT NEVER FIRES IN THE DEMO. Sanaa's
+    # DEMO MODE directive (etc/sessions/2026-09-01T0340Z_sanaa_demo_mode_
+    # binding.md) binds the uploaded STL to be "the exact solved geometry", so
+    # in a demo session `solved_here` is true and the branch above is what
+    # plays. This one exists for the session she is not in: a real user who
+    # uploads a different admissible wing, where the true branch would be a
+    # false claim. Its wording avoids DEMO MODE's banned phrases while saying
+    # the whole truth, because the alternative to saying it is the silent
+    # substitution this act was rebuilt to make impossible.
+    return [f"Solved on the reference wing: {majors} major iterations, "
+            f"{MESH_CELLS:,} cells.",
+            "The surface you sent is a different wing, so these numbers are "
+            "not its."]
 
 
 def _decomposition() -> dict | None:
@@ -792,15 +901,27 @@ def main(request: str | None = None, params: dict | None = None,
     surfaces = _a2_shape.write_surfaces(shapes, out) if shapes else {}
 
     def show(key: str, label: str, painted: bool = True) -> None:
-        """Put one recorded surface in the viewport.
+        """Put one surface in the viewport, titled and captioned to standard.
 
         Every frame carries the mesh caption. This is the one place all seven
         three-dimensional frames pass through, so captioning here is what
         makes "every 3D frame" true rather than a thing somebody has to
         remember at each call site.
+
+        THE CAPTION RECONCILIATION (SANAA-DIRECT 2026-09-01). Her figure rule
+        gives a figure one caption line of at most 20 words; her requirement
+        that physics limitations stay keeps the mesh caption, which is 14
+        words. They are the SAME LINE: ``label`` is the frame's title and
+        MESH_CAPTION is its one caption, so a 3D frame carries one caption and
+        not two. The explanations that used to be appended to these labels
+        ("At scale, painted with displacement from baseline (mm)") are on the
+        sheet, one compact paragraph per figure. Both limits are checked here
+        rather than trusted, so a label that grows back into a paragraph fails
+        on the drive instead of reaching a filmed frame.
         """
         if not (emit and key in surfaces):
             return
+        _a2_shape.check_figure_text(label, _a2_shape.MESH_CAPTION)
         emit("field.ready" if painted else "geometry.ready",
              {"url": f"/api/field/{out.name}/{surfaces[key]}", "label": label,
               "caption": _a2_shape.MESH_CAPTION})
@@ -879,6 +1000,33 @@ def main(request: str | None = None, params: dict | None = None,
     uploaded = str(params.get("surface") or "").strip()
     identity = _a2_shape.identify(shapes, uploaded) if (uploaded and shapes) \
         else None
+
+    # ------------------------------------------------------------ THE FENCE
+    # SANAA-DIRECT 2026-09-01 asks every act to describe "a solved case in the
+    # present tense", with the honesty condition she imposed alongside it for
+    # Act A: BIND the display to the uploaded geometry so that the statement is
+    # TRUE. THIS ACT IS THE REASON THAT CONDITION EXISTS. Act D once reported an
+    # uploaded wing's dimensions and then presented a different wing's numbers,
+    # and commit e02355ba was written to cure that structurally.
+    #
+    # SO THE WORDING IS BOUND TO A MEASUREMENT, not applied across the board.
+    # Measured on this box against the control room's own upload directory
+    # (sdk/geometry): TEN surfaces there are ADMITTED by this act and are NOT
+    # this wing (naca0012_wing, naca4412_wing, onera_m6_wing, crm_wingbody,
+    # airliner_wing_span52, naca0015_sail, nasa_hump, airplane,
+    # cylinder_shedding, flat_plate). Every one of them drives this act to
+    # completion showing the reference wing's 28.3%. In those sessions a
+    # sentence saying the case is solved on the geometry on screen would be
+    # FALSE, and would recreate through a formatting standard exactly the
+    # defect e02355ba cured.
+    #
+    # The flag is therefore true in only two cases, and both are checked rather
+    # than assumed: nothing was uploaded, so the wing on screen IS the solved
+    # wing; or the uploaded surface MEASURES as the solved wing. Where it is
+    # false the act keeps saying whose numbers these are, which is what it has
+    # always said and is the only true thing available.
+    displays_solved_geometry = (
+        (not uploaded) or bool(identity and identity.get("match")))
     if uploaded:
         from chief_engineer.display_names import display_name
 
@@ -906,15 +1054,32 @@ def main(request: str | None = None, params: dict | None = None,
             roster.idle(NUMERICIST)
             raise GeometryNotAdmitted(decision)
 
+        # THE UPLOADED SURFACE IS A FIGURE TOO, so it takes a title of at most
+        # ten words and one caption line (SANAA-DIRECT 2026-09-01). Its label
+        # used to run to fifteen words and it carried no caption at all,
+        # because the shared ``announce_geometry`` helper has no caption
+        # parameter. The event is therefore emitted here rather than through
+        # that helper: adding a caption to the shared helper would change a
+        # file this act does not own, and is reported upward instead.
+        #
+        # BOTH HALVES ARE BOUND TO THE MEASUREMENT (see THE FENCE above). Where
+        # the arrived surface measures as the solved wing, the title says so in
+        # the present tense with its cell count and the frame takes the same
+        # mesh caption every other 3D frame takes, because it IS that mesh.
+        # Where it does not, the title says it is not this result's geometry
+        # and the caption says whose the result is: the mesh caption would be a
+        # claim about a surface this act has not meshed.
         if is_this_wing:
-            label = (f"{uploaded_name}, received. This is the wing the "
-                     f"numbers come from")
+            label = f"{uploaded_name}, solved, {MESH_CELLS:,} cells"
+            caption = _a2_shape.MESH_CAPTION
         else:
-            # "On screen next" only where the wing is about to be on screen.
-            label = (f"{uploaded_name}, received. The numbers come from the "
-                     f"reference wing"
-                     + (", on screen next" if shapes else ""))
-        announce_geometry(emit, name=uploaded, label=label)
+            label = f"{uploaded_name}, not this result's geometry"
+            caption = ("The result below belongs to the reference wing, not "
+                       "to this surface.")
+        _a2_shape.check_figure_text(label, caption)
+        if emit:
+            emit("geometry.ready", {"url": f"/api/geometry?name={uploaded}",
+                                    "label": label, "caption": caption})
         if identity and identity.get("measured"):
             rows = [[name, f"{identity['measured'][name]:.3f} m",
                      f"{identity['known'][name]:.3f} m"]
@@ -981,13 +1146,21 @@ def main(request: str | None = None, params: dict | None = None,
                    ],
                    table_id="wing-adjoint-optimization")
         _beat(_NARRATION_PACE_S)
+    # THE HEADER'S SOLVER LINE (SANAA-DIRECT 2026-09-01). The control room's
+    # header badge renders ``solver`` and nothing else, so ``solver`` carries
+    # the SOURCE RUN's own solver name rather than the name of the method that
+    # read its gradient: the badge used to read "DISCRETE ADJOINT, REVERSE
+    # MODE", which is a true description of what this act does and is not the
+    # solver the run was solved with. The full one-line statement rides beside
+    # it, spoken once, so a viewer reads it rather than hovering a badge.
     if emit:
         emit("solver.selected", {
-            "solver": "Discrete adjoint, reverse mode",
-            "method": "steady compressible RANS, one-equation turbulence "
-                      "closure, wall functions",
+            "solver": SOURCE_SOLVER,
+            "method": _solver_line(),
             "basis": "the gradient is taken from the transpose of the "
                      "discretized flow Jacobian, not from a fitted surface"})
+    _narrate(script.engineer, _solver_line(),
+             *_geometry_lines(displays_solved_geometry, majors))
     _narrate(script.engineer,
             (f"Objective: cut drag by at least {target_pct:g}% at fixed lift."
              if target_pct else "Objective: cut drag at fixed lift."),
@@ -1158,8 +1331,11 @@ def main(request: str | None = None, params: dict | None = None,
     if shapes:
         grad = shapes["gradient"]
         glo, ghi = grad["window_mm_per_step"]
-        show("gradient", "Where the adjoint says to push. Descent direction "
-                         "on the skin, C_d at fixed C_L")
+        # Title only (SANAA-DIRECT 2026-09-01, 10 words). "Descent direction
+        # on the skin, C_d at fixed C_L" was the explanation half of this
+        # label; it is on the sheet and in the table three beats below, which
+        # already names red, blue, white, the colour bar and the scale.
+        show("gradient", "Where the adjoint says to push, at fixed lift")
         # What the run produced, presented by the one that ran it: the
         # researcher has just ruled on the gate and speaks again at the
         # conclusion, and the same voice three beats running reads as one
@@ -1211,12 +1387,15 @@ def main(request: str | None = None, params: dict | None = None,
                 f"Five sections through the wing, baseline against the "
                 f"optimized surface, and the twist the optimizer added at "
                 f"every station that carries it.")
+        # ONE TITLE PER FIGURE, and it is the same string the image itself
+        # carries (SANAA-DIRECT 2026-09-01). The announcement used to spell a
+        # second, longer wording than the suptitle, so the same figure had two
+        # titles depending on where a viewer read it.
         for builder, name, title in (
                 (_a2_shape.section_figure, "a2_sections.png",
-                 "Wing sections, unscaled: baseline against the "
-                 "optimized shape"),
+                 _a2_shape.SECTION_TITLE),
                 (_a2_shape.twist_figure, "a2_twist.png",
-                 "Twist the optimizer added, by spanwise station")):
+                 _a2_shape.TWIST_TITLE)):
             path = builder(shapes, out / name)
             if path:
                 announce_plot(emit, LABEL, path, title)
@@ -1283,25 +1462,31 @@ def main(request: str | None = None, params: dict | None = None,
                 "y": round(point["CD"], 8),
                 "lo": round(point["CD"] * (1.0 - u_numerical), 8),
                 "hi": round(point["CD"] * (1.0 + u_numerical), 8),
-                "x_label": "optimizer major iteration", "y_label": "C_d",
+                # Axis labels carry units (SANAA-DIRECT 2026-09-01). Both
+                # quantities here are dimensionless, which is a unit and is
+                # now stated rather than left for the viewer to assume.
+                "x_label": "major iteration, count",
+                "y_label": "C_d, dimensionless",
                 "title": f"Drag at fixed lift, C_L = {CL_TARGET:g}",
                 "feasible": True})
             frame = frames.get(point["iter"])
             if frame is None:
                 continue
             drop = (baseline["CD"] - frame["CD"]) / baseline["CD"] * 100
+            # Nine words. What left this title: "At scale, painted with
+            # displacement from baseline (mm)" is meta-commentary about the
+            # figure and is on the sheet, the colour bar carries the unit, and
+            # the per-frame C_d is the very point the drag trace is plotting
+            # beside this frame at this same iteration.
             show(f"iter{frame['iter']}",
-                 f"Major iteration {frame['iter']} of {majors}. C_d "
-                 f"{frame['CD']:.6f}, {_against_baseline(drop)}. At scale, "
-                 f"painted with displacement from baseline (mm)")
+                 f"Major iteration {frame['iter']} of {majors}, "
+                 f"{_against_baseline(drop)}")
             _beat(_FRAME_PACE_S)
     roster.set_workers(0)
 
     if shapes:
         last = shapes["frames"][-1]
-        show(f"iter{last['iter']}",
-             f"Optimized wing at major iteration {last['iter']}. C_d "
-             f"{last['CD']:.6f}, {_headline(reduction)}")
+        show(f"iter{last['iter']}", f"Optimized wing, {_headline(reduction)}")
         dlo, dhi = shapes["disp_window_mm"]
         chord = shapes["chord_root_m"]
         twist_worst = min(last["twist_deg"])
@@ -1424,7 +1609,11 @@ def main(request: str | None = None, params: dict | None = None,
         # not. The measured amplification ceiling and the pixel arithmetic
         # behind this choice are withheld from the narration (owner,
         # 2026-07-31) and stay in _a2_shape where they are computed.
-        show("near0", f"Inboard span, at scale. Baseline, C_d "
+        # "At scale" is a claim ABOUT the figure, so it leaves the titles of
+        # this pass. It is not lost: the numericist says it in the next beat,
+        # and the "What the gradient moved" table carries the row ["Display
+        # scaling", "None anywhere in this act"].
+        show("near0", f"Inboard span, {BASELINE_NAME}, C_d "
                       f"{baseline['CD']:.6f}")
         # Whether what is on screen is at its true size is a statement about
         # measurement, so the numericist makes it (owner, 2026-07-31). It also
@@ -1442,13 +1631,11 @@ def main(request: str | None = None, params: dict | None = None,
             if frame is not None:
                 drop = (baseline["CD"] - frame["CD"]) / baseline["CD"] * 100
                 show(f"near{frame['iter']}",
-                     f"Inboard span, at scale. Major iteration "
-                     f"{frame['iter']} of {majors}, C_d {frame['CD']:.6f}, "
+                     f"Inboard span, iteration {frame['iter']}, "
                      f"{_against_baseline(drop)}")
                 _beat(_FRAME_PACE_S)
         show(f"near{last['iter']}",
-             f"Inboard span, at scale. Optimized, C_d {last['CD']:.6f}, "
-             f"{_headline(reduction)}")
+             f"Inboard span, {_headline(reduction)}")
         _narrate(script.engineer,
                 f"That is the shape the gradient bought, at the size it is.")
 
@@ -1489,7 +1676,7 @@ def main(request: str | None = None, params: dict | None = None,
     if first_met:
         stayed = first_met["stayed_from"]
         if stayed is None:
-            since = (f"The last recorded iteration reads under "
+            since = (f"The last iteration reads under "
                      f"{target_pct:g}%. The run ran to {majors}")
         elif stayed == first_met["iter"]:
             since = (f"At or past {target_pct:g}% every iteration after. The "
@@ -1503,7 +1690,7 @@ def main(request: str | None = None, params: dict | None = None,
             since])
     result_rows += [
         [f"Objective band over the last {TAIL_ITERS} iterations",
-         f"{tail_spread_pct:.2g}%", "Measured across the recorded objective"],
+         f"{tail_spread_pct:.2g}%", "Measured across the objective"],
         [f"Steps that took drag down, last {TAIL_ITERS} iterations",
          f"{steps_down} of {tail_steps}",
          "Still descending on the verified gradient"],
@@ -1808,9 +1995,11 @@ def main(request: str | None = None, params: dict | None = None,
             _runtime_line(),
         ],
         methods=[
-            "Steady compressible RANS primal with a one-equation turbulence "
-            "closure and wall functions, solved to its own residual "
-            "tolerance.",
+            # The report's first method line is the header solver line, from
+            # the one builder, so the screen, the certificate and the report
+            # cannot carry three different answers to "what solved this".
+            _solver_line() + " Solved to its own residual tolerance with wall "
+                             "functions.",
             f"Discrete adjoint for drag and for lift with respect to surface "
             f"control points, spanwise twist and the flow state. The "
             f"derivative is taken by {AD_MODE}-mode automatic differentiation "
@@ -1937,8 +2126,13 @@ def main(request: str | None = None, params: dict | None = None,
             channels=channels,
             display_name="Three-dimensional wing, adjoint design case",
             source_filename="wing surface, case recipe",
-            solver="Selected solver, steady compressible RANS with a "
-                   "reverse-mode discrete adjoint",
+            # The certificate's "Solver & Model" field is a results-surface
+            # header line, so it carries the SAME sentence the screen header
+            # carries, from the same builder (SANAA-DIRECT 2026-09-01). It
+            # used to read "Selected solver, steady compressible RANS with a
+            # reverse-mode discrete adjoint", which names the class of solver
+            # and never the solver of the source run.
+            solver=_solver_line().removeprefix("Solver: ").rstrip("."),
             mesh=mesh_validity(MESH_CELLS, *_mesh_numbers(record)))
         if emit:
             emit("certificate.ready", {**certificate, "dir": out.name})

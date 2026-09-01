@@ -113,6 +113,66 @@ SECTION_Z = (0.0, 3.0, 7.2, 10.9, 13.5)
 MESH_CAPTION = ("38,304-cell mesh, chosen for speed; grid independence "
                 "not assessed; result relative to this mesh.")
 
+# ------------------------------------------------------- the figure standard
+# SANAA-DIRECT 2026-09-01, captured verbatim at
+# etc/sessions/2026-09-01T0310Z_sanaa_actA_figure_header_standard.md. Issued
+# about Act A, and she says it applies to EVERY act:
+#
+#   "Figures carry no paragraphs. Each figure has: a title of at most 10
+#    words, axis labels with units, a colour bar with numeric ticks and the
+#    unit only, a legend inside the axes, and one caption line of at most 20
+#    words. Every explanation currently printed inside a figure ... moves to
+#    the sheet text as a single compact paragraph per figure. No capitalised
+#    phrases, no 'top of scale / bottom of scale' ... no meta-commentary about
+#    the figure itself. Min and max appear as the colour bar's end ticks and
+#    nowhere else."
+#
+# THE RECONCILIATION WITH MESH_CAPTION, AND IT IS NOT A CONFLICT. The mesh
+# caption above is mandated on every three-dimensional frame and is a PHYSICS
+# LIMITATION, which her requirement 5 keeps. It is 14 words, inside the 20 the
+# caption rule allows. So it IS the one caption line of a three-dimensional
+# frame: such a frame carries a title in its `label` and MESH_CAPTION in its
+# `caption`, one caption line and no second one. Nothing else is added to a
+# 3D frame's caption slot, and the explanations that used to ride in the label
+# ("At scale, painted with displacement from baseline") move to the sheet.
+# Its wording is untouched here; the em-dash trade recorded above still holds.
+FIGURE_TITLE_MAX_WORDS = 10
+FIGURE_CAPTION_MAX_WORDS = 20
+
+
+def _words(text: str) -> int:
+    """Whitespace-separated word count, the same count the standard is in."""
+    return len([w for w in str(text or "").split() if w])
+
+
+def check_figure_text(title: str, caption: str) -> tuple[str, str]:
+    """Refuse a figure title or caption that breaks the standard.
+
+    A GUARD, not a convention. The two limits are enforced where the strings
+    are actually used, so an edit that grows a caption back into the paragraph
+    it used to be fails on the first drive rather than reaching a filmed
+    surface. Presentation only: it reads no data and computes no value.
+    """
+    if _words(title) > FIGURE_TITLE_MAX_WORDS:
+        raise ValueError(
+            f"figure title is {_words(title)} words against a "
+            f"{FIGURE_TITLE_MAX_WORDS}-word limit: {title!r}")
+    if _words(caption) > FIGURE_CAPTION_MAX_WORDS:
+        raise ValueError(
+            f"figure caption is {_words(caption)} words against a "
+            f"{FIGURE_CAPTION_MAX_WORDS}-word limit: {caption!r}")
+    return title, caption
+
+
+# The one caption line each of the two built figures carries, at the foot of
+# the image. Both are physics statements about the measurement, which is the
+# only register the caption rule leaves room for; the explanations that used
+# to be printed inside these figures are on the sheet.
+SECTION_CAPTION = ("True scale, equal aspect on every station. Nothing in "
+                   "the outlines is exaggerated.")
+TWIST_CAPTION = ("Degrees against span. Negative is nose down; the root "
+                 "station carries no design variable.")
+
 # VISUALS ITEM 1 (owner, 2026-09-01): "Confirm the surface render is the
 # computational surface (1,008 faces)."
 #
@@ -346,6 +406,27 @@ def closeup_index(doc: dict) -> tuple[list[int], list[list[int]], list[int]]:
     return ids, [[remap[i] for i in doc["faces"][k]] for k in keep], keep
 
 
+def _assert_inside_window(values, lo: float, hi: float, what: str) -> None:
+    """Refuse to drop ``min``/``max`` from a field whose window clips it.
+
+    MEASUREMENT-BEARING, and it is the whole licence for the missing keys.
+    The colour bar's end ticks are the ONLY place a minimum or a maximum is
+    allowed to appear (the figure standard), so the field payloads carry no
+    ``min``/``max``. That is only honest while the window is the data's own
+    envelope: if a value ever fell outside it the viewport would clip it to
+    the end of the ramp with nothing on screen saying so, which is the defect
+    the removed line existed to prevent. So the condition is checked instead of
+    assumed, and a breach RAISES rather than degrading.
+    """
+    out = [v for v in values if v < lo or v > hi]
+    if out:
+        raise ValueError(
+            f"{what}: {len(out)} of {len(values)} values lie outside the "
+            f"colour window [{lo:g}, {hi:g}] (worst "
+            f"{max(abs(v) for v in out):g}). The window would clip them and "
+            f"the frame carries no extremes of its own to say so. Refusing.")
+
+
 def _normalise(values, lo: float, hi: float) -> list[float]:
     """0..1 per DRAWN face against a FIXED window.
 
@@ -427,10 +508,25 @@ def write_surfaces(doc: dict, out: Path) -> dict[str, str]:
     # Symmetric about zero so the colour map's white sits exactly on "the
     # gradient asks for nothing here", and red/blue mean push out / pull in.
     gmax = max(abs(glo), abs(ghi))
+    _assert_inside_window(grad["values_mm_per_step"], -gmax, gmax, "gradient")
     (out / "a2_wing_gradient.json").write_text(
         json.dumps(_surface(doc, base, {
-            "name": "adjoint descent step, outward normal (mm per unit step)",
-            "min": glo, "max": ghi,
+            # THE COLOUR BAR CARRIES NUMERIC TICKS AND THE UNIT, NOTHING ELSE
+            # (the figure standard above). This legend used to read "adjoint
+            # descent step, outward normal (mm per unit step)", which is an
+            # explanation printed on a figure; the explanation is on the sheet
+            # and what stays here is the unit the ticks are in.
+            "name": "mm per unit step",
+            # NO `min`/`max` KEYS, AND THE ASSERT ABOVE IS WHAT MAKES THAT
+            # HONEST. The viewport prints "physical range (solver extremes)"
+            # below the bar whenever both are present, which puts a minimum
+            # and a maximum somewhere other than the bar's end ticks and is
+            # the one thing her rule names. They can be dropped here only
+            # because the window is the data's own envelope: measured, zero of
+            # 1,008 gradient faces and zero of 48,384 painted face values over
+            # every frame lie outside it, so nothing is clipped and nothing is
+            # hidden. The assert refuses rather than silently hiding a clip the
+            # day the artifact changes.
             "color_min": round(-gmax, 2), "color_max": round(gmax, 2),
             "display_min": round(-gmax, 2), "display_max": round(gmax, 2),
             "values": _normalise(grad["values_mm_per_step"], -gmax, gmax),
@@ -444,20 +540,31 @@ def write_surfaces(doc: dict, out: Path) -> dict[str, str]:
         # Two passes over the same iteration, both at true scale: the whole
         # wing, then the inboard span on its own camera. Same surface, same
         # millimetres, same fixed colour window; only the framing differs.
+        _assert_inside_window(frame["disp_n_mm"], -dmax, dmax,
+                              f"iteration {frame['iter']}")
         values = _normalise(frame["disp_n_mm"], -dmax, dmax)
         field = {
-            # ITEM 2 (owner, 2026-07-31): the legend names the quantity it is
-            # painting, down to the averaging. This field is the outward
-            # NORMAL COMPONENT of the displacement, averaged over each
-            # quadrilateral face, so its extremes sit inside the reference
-            # (which is the largest TOTAL motion of any single point). Without
-            # "per face" on the legend the two read as the same measurement
-            # disagreeing, when they are two measurements agreeing.
-            "name": "displacement from baseline, outward normal per face (mm)",
+            # THE COLOUR BAR CARRIES NUMERIC TICKS AND THE UNIT, NOTHING ELSE
+            # (the figure standard above; SANAA-DIRECT 2026-09-01).
+            #
+            # ITEM 2 (owner, 2026-07-31) put the quantity and its averaging on
+            # this legend -- "displacement from baseline, outward normal per
+            # face (mm)" -- so that the legend's extremes and the 186 mm
+            # reference could not read as one measurement disagreeing with
+            # itself. THAT REASON IS INTACT AND IS NOW CARRIED SOMEWHERE ELSE:
+            # her later directive takes the extremes off the screen entirely
+            # (no `min`/`max` below), so there is nothing left on the legend to
+            # be misread against the reference, and the three quantities are
+            # still named in full, as numbers, in the act's "What the gradient
+            # moved" table, which is where she says numbers belong. What
+            # remains here is the unit the ticks are in.
+            "name": "mm",
             # The convention rides with the payload so the legend and the act
-            # cannot drift apart about what a millimetre on this bar means.
+            # cannot drift apart about what a millimetre on this bar means. Not
+            # rendered anywhere; it documents the payload.
             "reference": DISP_REFERENCE,
-            "min": min(frame["disp_n_mm"]), "max": max(frame["disp_n_mm"]),
+            # NO `min`/`max` KEYS. See _assert_inside_window: the window is the
+            # data's own envelope, measured, so removing them hides no clip.
             "color_min": round(-dmax, 1), "color_max": round(dmax, 1),
             "display_min": round(-dmax, 1), "display_max": round(dmax, 1),
             "values": values,
@@ -507,6 +614,18 @@ def slice_at(doc: dict, verts: list, z: float) -> list[tuple]:
     return segs
 
 
+def _caption(fig, text: str) -> None:
+    """The one caption line, at the foot of the image. One per figure."""
+    from chief_engineer import plot_theme as t
+
+    fig.text(0.012, 0.012, text, color=t.MUTED, fontsize=9, ha="left",
+             va="bottom")
+
+
+SECTION_TITLE = "Wing sections, baseline against the optimized shape"
+TWIST_TITLE = "Twist added by the optimizer, by spanwise station"
+
+
 def section_figure(doc: dict, out_png: Path) -> str | None:
     """Baseline against the optimized shape, at true scale, equal aspect.
 
@@ -514,6 +633,12 @@ def section_figure(doc: dict, out_png: Path) -> str | None:
     any amplification: at section scale a change of a few percent of chord
     is plainly visible, where on the whole three-dimensional wing it is a
     few pixels.
+
+    FIGURE STANDARD (SANAA-DIRECT 2026-09-01): the title is the eight-word
+    line above, the axis labels carry metres, the legend sits INSIDE the top
+    axes rather than floating over the figure corner, and there is exactly one
+    caption line. The measured pixel arithmetic that used to justify the choice
+    of figure is on the sheet, not on the image.
     """
     from chief_engineer import plot_theme as t
 
@@ -522,6 +647,7 @@ def section_figure(doc: dict, out_png: Path) -> str | None:
         return None
     from matplotlib.collections import LineCollection
 
+    title, caption = check_figure_text(SECTION_TITLE, SECTION_CAPTION)
     base = [list(v) for v in doc["base_vertices"]]
     final = frame_vertices(doc, doc["frames"][-1])
     fig, axes = plt.subplots(len(SECTION_Z), 1, figsize=(11.4, 10.4), dpi=150)
@@ -537,28 +663,50 @@ def section_figure(doc: dict, out_png: Path) -> str | None:
         ax.set_aspect("equal")     # true scale: the claim depends on this
         t.style_axes(ax, r"$x$, chordwise (m)" if z == SECTION_Z[-1] else "",
                      r"$y$ (m)", f"span station $z$ = {z:g} m")
-    handles, labels = axes[0].get_legend_handles_labels()
-    leg = fig.legend(handles, labels, frameon=False, fontsize=10,
-                     labelcolor=t.INK, loc="upper right",
-                     bbox_to_anchor=(0.995, 0.995))
+    # THE LEGEND SITS INSIDE THE AXES. It used to be a figure-level legend
+    # pinned to the top-right corner of the image, which is outside every set
+    # of axes; the standard puts it in.
+    #
+    # It goes in the TOP axes with room made for it, not on top of the wing.
+    # Placed at "upper right" it landed across the z = 0 outline, and a legend
+    # over the shape is worse than a legend outside the axes. The room is made
+    # by widening that one axes' x range, which adds empty canvas and touches
+    # no coordinate and no aspect ratio: equal aspect still holds, the outline
+    # is still true scale, and the section simply sits left of the key.
+    x0, x1 = axes[0].get_xlim()
+    axes[0].set_xlim(x0, x1 + 0.42 * (x1 - x0))
+    leg = axes[0].legend(frameon=False, fontsize=10, labelcolor=t.INK,
+                         loc="center right")
     for text in leg.get_texts():
         text.set_color(t.INK)
-    fig.suptitle("Wing sections, unscaled, no exaggeration applied",
-                 color=t.INK, fontsize=14, x=0.012, y=0.985, ha="left",
-                 va="top", weight="bold")
-    fig.tight_layout(rect=(0, 0, 1, 0.93))
+    fig.suptitle(title, color=t.INK, fontsize=14, x=0.012, y=0.985,
+                 ha="left", va="top", weight="bold")
+    fig.tight_layout(rect=(0, 0.028, 1, 0.93))
+    _caption(fig, caption)
     fig.savefig(out_png)
     plt.close(fig)
     return str(out_png)
 
 
 def twist_figure(doc: dict, out_png: Path) -> str | None:
-    """The twist the optimizer put into the wing, station by station."""
+    """The twist the optimizer put into the wing, station by station.
+
+    FIGURE STANDARD (SANAA-DIRECT 2026-09-01). Three things left this image
+    and none of them was lost. Its axes title was a two-sentence paragraph
+    ("Twist the optimizer added, read from the recorded design variables.
+    Negative is nose down") and is now an eight-word title. The arrow
+    annotation reading "root station carries no design variable" was an
+    explanation printed inside a figure; it is in the caption line and in the
+    sheet paragraph for this figure. And the word "recorded" is gone from a
+    user-visible surface, which her wording block asks for and which is true
+    here either way: the twist plotted is the twist this wing carries.
+    """
     from chief_engineer import plot_theme as t
 
     plt = t._pyplot()
     if plt is None:
         return None
+    title, caption = check_figure_text(TWIST_TITLE, TWIST_CAPTION)
     z = doc["refaxis_z_m"]
     final = doc["frames"][-1]["twist_deg"]
     fig, ax = plt.subplots(figsize=(11.4, 4.0), dpi=150)
@@ -567,17 +715,13 @@ def twist_figure(doc: dict, out_png: Path) -> str | None:
     ax.plot(z, [0.0] + list(final), color=t.LIVE, linewidth=2.0, marker="o",
             markersize=7, markeredgecolor=t.INK, markeredgewidth=0.8,
             label=f"optimized, major iteration {doc['frames'][-1]['iter']}")
-    ax.annotate("root station carries no design variable",
-                xy=(z[0], 0.0), xytext=(z[0] + 0.8, -0.45), color=t.MUTED,
-                fontsize=9, arrowprops={"arrowstyle": "-", "color": t.DIM})
     t.style_axes(ax, r"Spanwise position of the reference-axis station, $z$ (m)",
-                 "Twist, quarter chord (deg)",
-                 "Twist the optimizer added, read from the recorded design "
-                 "variables. Negative is nose down")
+                 "Twist, quarter chord (deg)", title)
     leg = ax.legend(frameon=False, fontsize=10, labelcolor=t.INK, loc="best")
     for text in leg.get_texts():
         text.set_color(t.INK)
-    fig.tight_layout()
+    fig.tight_layout(rect=(0, 0.07, 1, 1))
+    _caption(fig, caption)
     fig.savefig(out_png)
     plt.close(fig)
     return str(out_png)
