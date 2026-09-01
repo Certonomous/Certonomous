@@ -189,10 +189,85 @@ NEVER_PHRASES: tuple[tuple[str, str], ...] = (
     (r"\bL-\d+\b", "a lesson id is never user-visible"),
     (r"\bD-?\d{3,}\b", "a docket id is never user-visible"),
     (r"\btier[-\s]?\d\b", "tier words are never user-visible"),
-    (r"\b(GATE\s+REACHED|GATE\s+FAIL|NOT\s+A\s+RESULT|BLOCKED-GPU)\b",
-     "translate the verdict per R5, e.g. 'verified against X within Y percent'"),
+    (r"\bBLOCKED-GPU\b", "say what could not run, in plain words"),
     (r"\bpre-?registration\b", "say 'success criteria fixed before running'"),
 )
+
+#: The gate vocabulary. R5 bans the verdict vocabulary appearing AS A VERDICT
+#: on a customer surface; it does not ban the English language. "NOT A RESULT"
+#: as a token or a label is the lab's gate word and must never appear; "it is
+#: not a result" inside a sentence is the honest way to say the thing, and a
+#: checker that cannot tell them apart forces an act to choose between the
+#: rule and the truth.
+#:
+#: Multi-word gate phrases are refused in upper case, in title case, and as a
+#: standalone label. Single words (PASS, BLOCKED, PENDING) are refused in
+#: upper case and as a standalone label ONLY: "blocked" and "pending" are
+#: ordinary English, and "Pass 1 of 2" starts a sentence in title case for
+#: reasons that have nothing to do with a gate.
+_GATE_PHRASES: tuple[str, ...] = (
+    "NOT A RESULT", "GATE REACHED", "GATE FAIL", "PASS", "BLOCKED", "PENDING",
+)
+
+
+def _check_gate_words(text: str) -> None:
+    """Refuse the gate vocabulary used as a verdict; allow it as English."""
+    stripped = text.strip().strip(".:;,").strip()
+    for phrase in _GATE_PHRASES:
+        words = phrase.split()
+        pattern = r"\b" + r"\s+".join(words) + r"\b"
+        # The token itself, in the case the ledger writes it.
+        if re.search(pattern, text):
+            raise DemoContractError(
+                f"the gate word {phrase!r} is the lab's verdict vocabulary and "
+                f"is never user-visible; translate it per R5, or say the same "
+                f"thing in ordinary lower-case English inside a sentence")
+        # A label wearing a hat: the whole string IS the phrase.
+        if stripped.lower() == phrase.lower():
+            raise DemoContractError(
+                f"{text!r} is the gate word {phrase!r} used as a label; "
+                f"translate it per R5")
+        # Title case, for multi-word phrases only.
+        if len(words) > 1:
+            title = r"\b" + r"\s+".join(w.capitalize() for w in words) + r"\b"
+            if re.search(title, text):
+                raise DemoContractError(
+                    f"{phrase!r} in title case is the gate word wearing a hat; "
+                    f"translate it per R5")
+
+
+#: The fidelity chips, and what each one MEANS in plain English. Taken from
+#: the definitions written beside them at ``chief_engineer.lab`` lines 181-186,
+#: not composed here: a paraphrase invented at the display layer would drift
+#: from what the chip is awarded for.
+#:
+#: TRANSLATED, NEVER STRIPPED. The chip is real information about how well a
+#: number is backed, and deleting it makes the screen say less than the lab
+#: knows. The record keeps the token verbatim; the screen carries its meaning.
+CHIP_TRANSLATIONS: Mapping[str, str] = {
+    "VALIDATED": ("checked against a published experiment and inside its "
+                  "band"),
+    "SOLVER-BACKED": ("produced by a full solve; no experimental comparison "
+                      "is available for this configuration"),
+    "RESEARCH MODEL": "from a fast sizing model rather than a full solve",
+    "UNCONVERGED": ("the solve did not settle, so this number is not evidence "
+                    "yet"),
+}
+
+
+def translate_chips(text: str) -> str:
+    """Replace any fidelity chip with its plain-English meaning.
+
+    Applied by the sequencer before a payload is guarded, so an act does not
+    have to reimplement the translation and cannot ship a raw chip. Longest
+    token first, so "RESEARCH MODEL" is not half-matched.
+    """
+    if not isinstance(text, str):
+        return text
+    for token in sorted(CHIP_TRANSLATIONS, key=len, reverse=True):
+        if token in text:
+            text = text.replace(token, CHIP_TRANSLATIONS[token])
+    return text
 
 #: A path is anything with a filesystem root, a repository root segment, or a
 #: recognised extension. "lift/drag" and "2D/axisymmetric" are not paths and do
@@ -246,6 +321,8 @@ def check_demo_language(text: str, *, zone: str = "screen") -> None:
                 raise DemoContractError(
                     f"a path is never on screen: {hit.group(0)!r} in {text!r}")
 
+    _check_gate_words(text)
+
     if zone == "screen" and re.search(_FINER_GRID, text, flags=re.IGNORECASE):
         raise DemoContractError(
             f"'finer companion grid' belongs in the limitations box and "
@@ -255,7 +332,14 @@ def check_demo_language(text: str, *, zone: str = "screen") -> None:
     # no dash characters, no banned register, bullets start capitalised.
     from . import check_wording
 
-    check_wording(text)
+    try:
+        check_wording(text)
+    except ValueError as exc:
+        # One guard, one exception type. The older doctrine raises ValueError;
+        # letting that escape would mean a caller who correctly handles a
+        # refusal still crashes on half the refusals, which is how a guard
+        # ends up wrapped in a bare except.
+        raise DemoContractError(str(exc)) from exc
 
 
 #: A running line is progressive. Sanaa: 'Progressive tense while running

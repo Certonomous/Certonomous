@@ -422,3 +422,84 @@ def test_a_missing_constant_is_refused_not_defaulted():
         GM.from_module("chord", _jf1_geometry, solved_attr="NO_SUCH_CONSTANT",
                        tolerance_attr="SOLVED_GEOMETRY_TOL", supplied=1.0,
                        source=HERE)
+
+
+# -- the gate vocabulary: ban the token, allow the language -----------------
+#
+# R5 bans the verdict vocabulary appearing AS A VERDICT on a customer surface.
+# It does not ban the English language. A checker that cannot tell those apart
+# forces an act to choose between the rule and the truth.
+
+GATE_TOKENS = [
+    "NOT A RESULT",
+    "Row verdict: NOT A RESULT.",
+    "Not A Result",
+    "Gate Fail on the second row",
+    "GATE FAIL",
+    "GATE REACHED",
+    "PASS",
+    "BLOCKED",
+    "PENDING",
+    "not a result",          # standalone label: the token wearing a hat
+    "pass",
+]
+
+
+@pytest.mark.parametrize("text", GATE_TOKENS)
+def test_a_gate_word_used_as_a_verdict_is_refused(text):
+    with pytest.raises(DemoContractError):
+        check_demo_language(text)
+
+
+GATE_WORDS_AS_ENGLISH = [
+    # dafoam's ACTUAL narration, which the first cut of this checker rejected.
+    "The high-blowing point diverged, so it is not a result.",
+    "The first pass of the pressure solve is the one read.",
+    "The slot is blocked in the unblown calculation.",
+    "Two operating points are pending further data.",
+    "Pass 1 of 2 is the value taken.",
+    "The sweep passes through five blowing settings.",
+]
+
+
+@pytest.mark.parametrize("text", GATE_WORDS_AS_ENGLISH)
+def test_the_same_words_as_ordinary_english_pass(text):
+    check_demo_language(text)
+
+
+# -- fidelity chips: translated, never stripped -----------------------------
+
+def test_every_chip_has_an_honest_paraphrase():
+    """Taken from the definitions written beside them in chief_engineer.lab,
+    not composed at the display layer, so the paraphrase cannot drift from
+    what the chip is awarded for."""
+    from chief_engineer import lab
+    from workflows.demo_mode import CHIP_TRANSLATIONS
+
+    for token in (lab.VALIDATED, lab.SOLVER_BACKED, lab.CONCEPTUAL,
+                  lab.UNCONVERGED):
+        assert token in CHIP_TRANSLATIONS, f"{token} has no paraphrase"
+        check_demo_language(CHIP_TRANSLATIONS[token])
+
+
+def test_a_chip_is_translated_not_deleted():
+    from workflows.demo_mode import translate_chips
+
+    out = translate_chips("Confidence: SOLVER-BACKED.")
+    assert "SOLVER-BACKED" not in out
+    assert "full solve" in out
+    check_demo_language(out)
+
+
+def test_the_longest_chip_is_matched_whole():
+    from workflows.demo_mode import translate_chips
+
+    assert "MODEL" not in translate_chips("RESEARCH MODEL")
+
+
+def test_a_raw_chip_would_not_reach_a_screen():
+    """check_wording already refuses the solver-backed register; the point of
+    the translation is that the act does not have to choose between the chip
+    and the rule."""
+    with pytest.raises(DemoContractError):
+        check_demo_language("Confidence: SOLVER-BACKED.")

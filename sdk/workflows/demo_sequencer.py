@@ -53,7 +53,26 @@ from typing import Callable
 
 from .demo_mode import (BANNERS, STAGES, DemoAct, DemoContractError,
                         assert_screen_safe, check_running_line, cost_line,
-                        registered_acts, validate_act)
+                        registered_acts, translate_chips, validate_act)
+
+
+def _translated(node):
+    """Render every fidelity chip in a payload as its plain-English meaning.
+
+    TRANSLATE, NEVER STRIP, and note the deliberate asymmetry with the case
+    ids the guard refuses outright. A chip carries real information about how
+    well a number is backed, so deleting it makes the screen say less than the
+    lab knows and the honest move is to say what it means. A case id carries
+    no meaning a viewer can use, so rewriting it here would only hide a defect
+    that belongs to the stage that minted it.
+    """
+    if isinstance(node, dict):
+        return {k: _translated(v) for k, v in node.items()}
+    if isinstance(node, list):
+        return [_translated(v) for v in node]
+    if isinstance(node, tuple):
+        return tuple(_translated(v) for v in node)
+    return translate_chips(node)
 
 __all__ = ["Sequencer", "run_act", "banner_for_stage", "SequencerRefused"]
 
@@ -115,7 +134,7 @@ class Sequencer:
         invariants hold by construction rather than by each stage remembering
         them.
         """
-        stamped = dict(payload)
+        stamped = _translated(dict(payload))
         stamped["banner"] = banner_for_stage(stamped)
         assert_screen_safe(stamped)
         banner_payload = {"stage": stamped.get("stage"),
@@ -153,6 +172,7 @@ class Sequencer:
             return None
 
         def guarded(name, payload):
+            payload = _translated(payload)
             assert_screen_safe(payload)
             emit(name, payload)
 
