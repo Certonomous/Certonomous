@@ -33,9 +33,10 @@ from dataclasses import dataclass
 
 from .router import (ADJOINT_OPTIMIZATION, AHMED_BODY, AIRCRAFT_OPTIMIZATION,
                      CRM_WINGBODY, CYLINDER_VORTEX_SHEDDING, DIAMOND_AIRFOIL,
-                     GEOMETRY_STUDY, HYPERSONIC_CYLINDER, NASA_HUMP, ONERA_M6,
+                     GEOMETRY_STUDY, HYPERSONIC_CYLINDER, JET_FLAP_DISPLAY,
+                     NASA_HUMP, ONERA_M6,
                      SHAPE_OPTIMIZATION, SUPERSONIC_CONE, SUPERSONIC_WEDGE,
-                     VALVE_STUDY)
+                     THERMAL_DISPLAY, VALVE_STUDY)
 
 # Capability tags. One per thing a prompt can ask for that a run either can or
 # cannot do. Kept few on purpose: each one is a promise the lab has to keep.
@@ -100,11 +101,49 @@ CAPABILITIES: dict[str, frozenset[str]] = {
     # Time-resolved by construction.
     CYLINDER_VORTEX_SHEDDING: frozenset({UNSTEADY}),
     VALVE_STUDY: frozenset({UNSTEADY}),
+    # The one route that really does blow. Declaring it here is the promise
+    # that a blowing prompt reaching this screen is answered rather than
+    # scoped down, and it is the only entry in this table that makes that
+    # promise.
+    JET_FLAP_DISPLAY: frozenset({BLOWING}),
     # Steady compressible bodies graded against exact theory.
     SUPERSONIC_WEDGE: frozenset(),
     SUPERSONIC_CONE: frozenset(),
     DIAMOND_AIRFOIL: frozenset(),
     HYPERSONIC_CYLINDER: frozenset(),
+    # The thermal display act. It presents two landed conjugate thermal
+    # runs and starts no solver, so the honest declaration is the union of
+    # what those two runs did: one of them resolves temperature and the
+    # other resolves temperature through time. Neither searches a design,
+    # and neither has a jet boundary condition, so a prompt asking this act
+    # to optimise a duct or to blow a slot is scoped down before it starts.
+    #
+    # KNOWN COARSENESS, recorded rather than papered over: this table is
+    # keyed on the intent and the two acts behind that intent do not have
+    # the same capabilities. Act C is a transient; Act A is a set of steady
+    # points. UNSTEADY is declared because withholding it would put a FALSE
+    # scope-down on Act C -- telling a viewer that a run which solved 900
+    # seconds of history 'solves a single steady state' -- and a false
+    # scope-down on a matched prompt is the failure this module's own
+    # docstring warns against. The cost is that a request for a time
+    # history of the motor is not scoped down here; the act names its own
+    # missing beats on screen instead, from its per-act not-available
+    # table. Splitting the key per act is the repair and belongs to
+    # whoever owns this module.
+    #
+    # RULED 2026-09-01, heat-transfer supervisor: this declaration STANDS as
+    # {THERMAL, UNSTEADY} and is not to be narrowed to {THERMAL}. Narrowing
+    # would fire a false scope-down on Act C's OWN REGISTERED PROMPT, on
+    # camera, telling a viewer that a run which solved 900 seconds of history
+    # solves a single steady state. Keeping UNSTEADY leaves the Act A
+    # over-claim, which fires only OFF the two registered prompts. A false
+    # statement on the filmed path is worse than a latent one off it. The
+    # over-claim is no longer SILENT: Act A carries a not_available row in
+    # ``workflows.thermal_display`` stating that it holds sixteen separate
+    # steady points and no time history at all. Splitting the key per act
+    # remains the proper repair and is REFERRED to whoever owns scope.py; it
+    # is not withdrawn by this ruling, only deferred past the shoot.
+    THERMAL_DISPLAY: frozenset({THERMAL, UNSTEADY}),
 }
 
 

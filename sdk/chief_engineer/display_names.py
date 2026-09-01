@@ -29,6 +29,8 @@ _DISPLAY_NAMES: dict[str, str] = {
     "naca0012": "NACA 0012 finite wing",
     "naca0012_wing": "NACA 0012 finite wing",
     "mach_tutorial_wing": "Reference wing",
+    "airfoil_blown_slot": "Wing section with a blown trailing-edge slot",
+    "jet_flap": "Wing section with a blown trailing-edge slot",
     "naca0015": "NACA 0015 sail",
     "naca0015_sail": "NACA 0015 sail",
     "valve": "Idealized trileaflet aortic valve, systolic configuration",

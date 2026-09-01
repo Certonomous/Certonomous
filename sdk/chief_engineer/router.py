@@ -25,6 +25,11 @@ routes exist today:
     A surface is named, or a body is to be taken through the whole chain:
     intake, surface check, meshing, solving, and a reported force with its
     envelope. The expensive path, measured in minutes rather than seconds.
+``thermal-display``
+    A thermal question about a body whose run has already landed. The ONLY
+    route here that starts no solver and produces no new number: it presents
+    the landed fields, tables and checks. A thermal question about any other
+    body does not reach it, and keeps the route it has today.
 
 Routing is keyword-and-pattern based and fully inspectable: every decision
 carries the evidence that produced it, so the interpretation can be argued
@@ -85,6 +90,13 @@ NASA_HUMP = "nasa-hump"
 ONERA_M6 = "onera-m6"
 CRM_WINGBODY = "crm-wingbody"
 
+# The blown trailing edge. A presentation route: the calculations it shows
+# are already finished and it starts no solver. It is declared as its own
+# intent rather than folded into the single-body study because the single-
+# body study has no jet boundary condition at all, and routing a blowing
+# prompt there is the failure this intent exists to end.
+JET_FLAP_DISPLAY = "jet-flap-display"
+
 # The gradient act. Distinct from the cylinder shape sweep in the one way that
 # matters technically: the sweep descends on a differentiable response surface
 # fitted to a handful of solves, while this one descends on a discrete adjoint
@@ -143,6 +155,19 @@ _AHMED_SLANT_SURFACES = {25: "ahmed_25.stl", 35: "ahmed_35.stl"}
 _NASA_HUMP_NAME = re.compile(
     r"\bnasa\b.{0,20}\bhump\b|\bwall[\s-]?mounted\s+hump\b|"
     r"\b(?:glauert[\s-]?goldschmied)\b.{0,10}\bhump\b|\b2d\s*wmh\b", re.I)
+# Blowing physics AND a section to blow over. Both are required. The lab
+# has landed blown-slot calculations for exactly one body and has no
+# general blowing chain to point at an arbitrary shape, so a prompt that
+# names the physics without a section keeps whatever route it had and, if
+# that route cannot blow, is scoped down by chief_engineer.scope instead.
+_JET_FLAP_PHYSICS = re.compile(
+    r"\bjet[\s-]?flap(?:ped|s)?\b|\bblown\s+(?:slot|flap|wing|trailing)\b|"
+    r"\bslot[\s-]?blow(?:n|ing)\b|\bblowing\s+slot\b|"
+    r"\bcirculation\s+control\b|\bjet\s+momentum\s+coefficient\b|"
+    r"\btrailing[\s-]?edge\s+blowing\b|\bsupercirculation\b", re.I)
+_JET_FLAP_SECTION = re.compile(
+    r"\b(?:aerofoil|airfoil|wing|section|blade|flap|slot|aerofoils|wings)\b",
+    re.I)
 _ONERA_M6_NAME = re.compile(
     r"\bonera\b.{0,10}\bm6\b|\bm6\s+wing\b|\bonera[\s-]?m6\b", re.I)
 _CRM_WINGBODY_NAME = re.compile(
@@ -181,6 +206,74 @@ _SOBOL_METHOD = re.compile(
     r"\bpick[\s-]?and[\s-]?freeze\b|\b(?:main|first[\s-]?order|total)[\s-]?"
     r"effect\s+ind(?:ex|ices)\b|\bsensitivity\s+ind(?:ex|ices)\b|"
     r"\bsaltelli\b|\bjansen\b", re.I)
+
+# The thermal display act. THIS ROUTE PRESENTS AND NEVER SOLVES.
+#
+# The lab holds landed conjugate thermal runs for exactly two bodies, and it
+# holds no general thermal solver chain the control room may point at an
+# arbitrary body. Those are two different capabilities and the router has to
+# tell them apart, because the honest answer to "run conjugate heat transfer
+# on my rocket nozzle" is still a refusal while the honest answer to "show me
+# the battery module thermal result" is a screen built from numbers already
+# on disk.
+#
+# The distinguisher is THE BODY, not the physics word. A thermal request that
+# names one of the bodies below is answered from that body's landed run; a
+# thermal request that names anything else keeps the route it has today and,
+# where that route is the general planner, keeps today's out-of-scope refusal
+# untouched. That is why this change adds NOTHING to and removes NOTHING from
+# ``_OUT_OF_SCOPE_DOMAINS``: the refusal list is consulted only on the
+# no-workflow fallback path (``server._explain_unparsed``), so a request that
+# routes to an act never reaches it, exactly as the supersonic wedge act
+# already routes past the "compressible or supersonic flow" entry.
+#
+# Adding a third body when its run lands is ONE ROW in the table below plus
+# its screen set in ``workflows.thermal_display``. Nothing else moves.
+THERMAL_DISPLAY = "thermal-display"
+# The physics vocabulary. Deliberately WIDER than the out-of-scope entry it
+# sits beside, because these are the words the operator actually types, and
+# narrowing happens on the body instead.
+_THERMAL_FRAME = re.compile(
+    r"\b(heat\s+transfer|conjugate\s+heat|thermal\s+(?:analysis|management|"
+    r"map|load|field|study|result|results|screen|screens|behaviour|behavior|"
+    r"performance|stress)|conduction|convective\s+heat|nusselt|"
+    r"temperature\s+(?:map|field|rise|history|histories)|peak\s+temperature|"
+    r"cell\s+temperature|hot\s*spot|overheat\w*|how\s+hot|stay\s+under\s+"
+    r"\d+\s*(?:c|k|deg))\b", re.I)
+# The bodies whose runs have landed, most specific first. Each entry is
+# (pattern, screen set) and the screen set names the act the display mission
+# presents. ``motor`` cannot match inside ``motorbike`` or ``motorcycle``
+# because there is no word boundary there, and the lookahead covers the
+# hyphenated spellings the named-body table already owns.
+_THERMAL_LANDED_BODIES: tuple[tuple["re.Pattern[str]", str], ...] = (
+    (re.compile(
+        r"\bmotor(?![\s-]?(?:bike|cycle))\b[^.?!]{0,60}\b(?:duct|enclosure|"
+        r"housing|cowling)\b|"
+        r"\b(?:duct|enclosure|housing|cowling)\b[^.?!]{0,60}"
+        r"\bmotor(?![\s-]?(?:bike|cycle))\b|"
+        r"\bmotor[\s-]*in[\s-]*(?:a\s+)?duct\b", re.I), "A"),
+    (re.compile(
+        r"\bbatter(?:y|ies)\b|\bcell\s+pack\b|\bpack\s+uniformity\b|"
+        r"\bmodule\s+of\s+cells\b|\bbattery\s+module\b", re.I), "C"),
+)
+
+
+def thermal_landed_body(text: str) -> tuple[str | None, str | None]:
+    """Name the landed thermal act a request asks for, or nothing.
+
+    Returns ``(screen_set, matched_phrase)``. Both are ``None`` when the
+    request is thermal but names no body this lab has actually run, which is
+    the case the router must NOT capture: that request keeps whatever route it
+    has today, refusal included.
+    """
+    if not _THERMAL_FRAME.search(text or ""):
+        return None, None
+    for pattern, screen_set in _THERMAL_LANDED_BODIES:
+        match = pattern.search(text or "")
+        if match:
+            return screen_set, match.group(0)
+    return None, None
+
 
 _OPTIMIZE = re.compile(
     r"\b(minimi[sz]e|maximi[sz]e|optimi[sz]e|reduce|lower|improve|increase|"
@@ -467,6 +560,10 @@ def classify(request: str) -> Route:
     if _NASA_HUMP_NAME.search(text):
         add(NASA_HUMP, 2.0,
             "names the NASA wall-mounted hump validation case")
+    if _JET_FLAP_PHYSICS.search(text) and _JET_FLAP_SECTION.search(text):
+        add(JET_FLAP_DISPLAY, 2.0,
+            "names blowing out of a slot over a section, which is the one "
+            "blown body this lab has finished calculations for")
     # ONERA M6 is deliberately NOT routed from the control room. Its primal
     # plateaus above the solver's own convergence tolerance and the act
     # honestly reports itself unconverged. The control room is a promotional
@@ -551,6 +648,17 @@ def classify(request: str) -> Route:
             add(SOBOL_SENSITIVITY, 0.6,
                 "names the pick-and-freeze design and the main and "
                 "total-effect indices it produces")
+    # --- the thermal display act: a thermal question about a body whose run
+    # has already landed. It outranks every other score because it is the most
+    # specific reading available, naming both the physics and a body this lab
+    # has actually solved. A thermal question about ANY OTHER body scores
+    # nothing here and keeps the route it has today. ---
+    thermal_screens, thermal_body = thermal_landed_body(text)
+    if thermal_screens:
+        add(THERMAL_DISPLAY, 2.4,
+            f"asks a thermal question about {thermal_body!r}, a body whose "
+            f"run has already landed, so the answer is presented from that "
+            f"run rather than solved again")
 
     if not scores:
         return Route(
@@ -597,6 +705,9 @@ def classify(request: str) -> Route:
             elif not staged:
                 params["surface_unavailable"] = (
                     f"an Ahmed body with a {asked:g} degree slant")
+    if thermal_screens and intent == THERMAL_DISPLAY:
+        params["thermal_screens"] = thermal_screens
+        params["thermal_body"] = thermal_body
     if solver_setup:
         params["solver_setup"] = solver_setup.group(0)
     if geometry:
@@ -640,6 +751,14 @@ def classify(request: str) -> Route:
         CRM_WINGBODY: (
             "Reading this as the CRM wing. I will solve the staged case and "
             "grade the converged drag against its published reference value."),
+        JET_FLAP_DISPLAY: (
+            "Reading this as a wing with air blown out of a slot at the "
+            "trailing edge. The calculations for that wing are finished, so "
+            "I will present them rather than start anything: the grid at the "
+            "wall and across the slot, the surface pressure along the chord, "
+            "and lift against blowing beside the published curve. They are "
+            "exploratory and I will say so, with how far each one was still "
+            "moving when it stopped."),
         CYLINDER_VORTEX_SHEDDING: (
             "Reading this as the unsteady cylinder wake. I will solve the "
             "periodic shedding end to end and grade the measured Strouhal "
@@ -701,6 +820,14 @@ def classify(request: str) -> Route:
             "This is a question about confidence itself. I will quantify the "
             "current envelope, decide whether it is reducible, and spend "
             "samples until only irreducible uncertainty remains."),
+        THERMAL_DISPLAY: (
+            "Reading this as a thermal question about a body this lab has "
+            "already run. No solver starts and no new number is produced: I "
+            "will put the screens up from that run's own fields and read the "
+            "quantities off them, with the source case, the mesh, and the "
+            "instrument checks named beside every figure. "
+            "Where a quantity the run cannot define was asked for, the screen "
+            "will say so instead of showing something adjacent."),
         SOBOL_SENSITIVITY: (
             "Reading this as a variance apportionment. An envelope says how "
             "wide the answer is and never says which input made it wide, so "
@@ -719,9 +846,31 @@ def classify(request: str) -> Route:
 # Intents that keep their route when a surface is uploaded with the prompt:
 # each of these acts accepts the surface honestly on its own terms (starting
 # geometry, raced wing, reference body) rather than being rerouted.
+#
+# THERMAL_DISPLAY is in this tuple and has to be. The thermal acts open with an
+# upload, and without this entry the uploaded surface would convert the route
+# into a geometry study, which would put the incompressible aerodynamic chain
+# on a body the operator asked a thermal question about. The display mission
+# takes the surface as the reference body, announces it to the viewport, and
+# states on the record that the screens come from the landed run rather than
+# from the uploaded file.
+#
+# The jet-flap screen is on this list for the opposite reason to the others:
+# not because it can take the uploaded surface, but because rerouting it to
+# the single-body study is precisely the wrong answer for a blowing prompt.
+# It keeps its route and states in its opening beat that the uploaded
+# surface was not meshed or solved and that the pages shown belong to the
+# section already on file.
+#
+# MERGE NOTE 2026-09-01 (cfd integration lane). The thermal and jet-flap
+# patches were cut independently against the same blob and BOTH append a
+# member here. git could not merge them and neither could be taken whole:
+# taking one side silently drops the other act's entry, and the failure is
+# invisible until an operator uploads a surface on camera and the act
+# reroutes to a geometry study. The union below is the hand resolution.
 _SURFACE_KEEPS_ROUTE = (AIRCRAFT_OPTIMIZATION, RACE_COMPARISON, VALVE_STUDY,
                         SHAPE_OPTIMIZATION, ADJOINT_OPTIMIZATION, NASA_HUMP,
-                        AHMED_BODY)
+                        AHMED_BODY, THERMAL_DISPLAY, JET_FLAP_DISPLAY)
 
 
 def apply_surface(route: Route, surface: str | None) -> Route:
@@ -766,6 +915,8 @@ WORKFLOWS: dict[str, dict[str, Any]] = {
                             "output": "uncertainty-reduction"},
     SOBOL_SENSITIVITY: {"module": "workflows.sobol_sensitivity",
                         "output": "sobol-sensitivity"},
+    THERMAL_DISPLAY: {"module": "workflows.thermal_display",
+                      "output": "thermal-display"},
     AHMED_BODY: {"module": "workflows.ahmed_body", "output": "ahmed-body"},
     NASA_HUMP: {"module": "workflows.nasa_hump", "output": "nasa-hump"},
     ONERA_M6: {"module": "workflows.onera_m6", "output": "onera-m6"},
@@ -781,4 +932,6 @@ WORKFLOWS: dict[str, dict[str, Any]] = {
                       "output": "diamond-airfoil"},
     HYPERSONIC_CYLINDER: {"module": "workflows.hypersonic_cylinder",
                           "output": "hypersonic-cylinder"},
+    JET_FLAP_DISPLAY: {"module": "workflows.jet_flap_display",
+                       "output": "jet-flap-display"},
 }
