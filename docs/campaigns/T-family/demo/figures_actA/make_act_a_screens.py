@@ -449,14 +449,30 @@ def check_anchors(rows):
 
 
 MAP_TITLE = "Peak core temperature, 16 operating points"
-MAP_CAPTION = ("Core peak shaded; the table carries both solid peaks and the "
-               "margin computed on the core.")
+# The caption must describe the picture that is actually drawn. It used to
+# say "the table carries both solid peaks", which was true while a table sat
+# inside this figure and became false the moment the table moved to the sheet.
+MAP_CAPTION = ("Peak temperature in the motor core at each of the sixteen "
+               "solved operating points.")
 
 
 def fig_map_table(rows):
     """The map shades the CORE peak, which is the body's actual peak, so
-    Sanaa's registered title is true of what is drawn.  The table carries both
-    solid peaks side by side and the margin computed on the core."""
+    Sanaa's registered title is true of what is drawn.
+
+    NO TABLE LIVES IN THIS FIGURE.  Under Sanaa's 2026-09-01 figure standard --
+    "move the measured-values table out of the pressure figure into the sheet"
+    -- a figure carries the picture and the sheet carries the numbers.  This
+    figure previously drew the 4x4 map AND a full sixteen-row table of measured
+    values in a second axes below it, which is exactly the defect she named on
+    the jet flap.
+
+    The sixteen rows were not deleted, they MOVED: they are the results table
+    of the act itself (``motor_thermal_act.results()``, table
+    ``motor_thermal_map``) and they are on disk beside this figure as
+    ``actA_map_table.csv``, which this module still writes.  Nothing measured
+    was lost by the split.
+    """
     powers = sorted({r["power_W"] for r in rows})
     speeds = sorted({r["airspeed_ms"] for r in rows})
     grid = np.full((len(powers), len(speeds)), np.nan)
@@ -467,13 +483,10 @@ def fig_map_table(rows):
     hmin = float(min(r["peak_housing_T_degC"] for r in rows))
     hmax = float(max(r["peak_housing_T_degC"] for r in rows))
 
-    fig = plt.figure(figsize=(9.6, 10.0))
-    gs = fig.add_gridspec(2, 1, height_ratios=[1.0, 1.45], hspace=0.28,
-                          bottom=0.055, top=0.945)
-
-    # --- upper: the map as a shaded grid, colour bar UNCLIPPED, min and max
-    #     carried by the bar's own END TICKS and nowhere else.
-    ax = fig.add_subplot(gs[0])
+    fig = plt.figure(figsize=(9.6, 5.4))
+    # ONE axes. The map, and nothing else: colour bar UNCLIPPED, min and max
+    # carried by the bar's own END TICKS and nowhere else.
+    ax = fig.add_subplot(1, 1, 1)
     norm = mcolors.Normalize(vmin=vmin, vmax=vmax)     # exactly the data range
     im = ax.imshow(grid, cmap="inferno", norm=norm, aspect="auto",
                    origin="lower")
@@ -498,43 +511,8 @@ def fig_map_table(rows):
     cb.set_ticklabels([T_FMT % t for t in [vmin] + list(mid) + [vmax]])
     cb.ax.tick_params(labelsize=8.0)
 
-    # --- lower: the 16 rows, BOTH solid peaks, and the uncertainty column
-    ax2 = fig.add_subplot(gs[1])
-    ax2.axis("off")
-    head = ["Power\n[W]", "Airspeed\n[m s$^{-1}$]",
-            "Peak core\n[$^\\circ$C]", "Peak housing\n[$^\\circ$C]",
-            "Core above\nhousing [K]", "Rise above inlet\n[K]",
-            "Margin to 200 $^\\circ$C\non the core [K]",
-            "Numerical\nuncertainty [K]"]
-    body = []
-    for r in rows:
-        body.append(["%d" % r["power_W"], "%d" % r["airspeed_ms"],
-                     T_FMT % r["peak_core_T_degC"],
-                     T_FMT % r["peak_housing_T_degC"],
-                     "+" + (T_FMT % r["core_above_housing_K"]),
-                     T_FMT % r["rise_above_inlet_K"],
-                     "+" + (T_FMT % r["margin_to_limit_K"]),
-                     "not available"])
-    tb = ax2.table(cellText=body, colLabels=head, cellLoc="center",
-                   bbox=[0.01, 0.02, 0.98, 0.96],
-                   colWidths=[0.085, 0.105, 0.125, 0.135, 0.125, 0.135,
-                              0.155, 0.135])
-    tb.auto_set_font_size(False)
-    tb.set_fontsize(7.8)
-    for (r_i, c_i), cell in tb.get_celld().items():
-        cell.set_linewidth(0.4)
-        if r_i == 0:
-            cell.set_text_props(fontsize=7.2)
-            cell.set_facecolor("#e9e9ee")
-        else:
-            cell.set_facecolor("#ffffff" if r_i % 2 else "#f6f6f8")
-        if c_i == 7 and r_i > 0:
-            cell.set_text_props(color="#7a1f1f", fontsize=7.2)
-    # LaTeX never sees matplotlib's font weight, so the header row and the
-    # peak-temperature column are bolded in the source instead.
-    LS.bold_cells(tb, lambda k: k[0] == 0 or (k[1] == 2 and k[0] > 0))
-    ax2.set_title("The sixteen solved points, with units", fontsize=9.5, pad=6)
-    fig.text(0.5, 0.028, MAP_CAPTION, ha="center", va="top", fontsize=8.2,
+    fig.subplots_adjust(bottom=0.20, top=0.90)
+    fig.text(0.5, 0.075, MAP_CAPTION, ha="center", va="top", fontsize=8.2,
              color="#333333")
     return fig, dict(vmin=vmin, vmax=vmax, powers=powers, speeds=speeds,
                      grid=grid.tolist(), housing_min=hmin, housing_max=hmax)

@@ -1271,3 +1271,93 @@ above, filed under
 
 **D-A12 (cfd):** the viewport display pipe consumes ParaView stills/sequences
 rather than drawing on the retired canvas.
+
+---
+
+# 11. RULINGS RECEIVED, AND ONE CORRECTION TO THE RECORD
+
+## 11.1 The honest-negative verification line is STRUCK
+
+The line drafted at §5.2 item 3 in the first version of this spec — *"A
+three-grid refinement study was run for this body and did not settle"* — is
+**struck and must not be published**, on two independent grounds:
+
+1. **It is a prior-runs confession**, which the 20:30Z never-list bans outright.
+   A sentence whose subject is a previous study that failed is exactly that.
+2. **It is factually superseded.** The study that did not settle was T23G.
+   T23G2 has been solving since 19:11Z on a mesh family whose similarity defect
+   is measurably repaired (§5.2a second reading).
+
+**The only ending is her Screen 8 form**: the study is running; the band lands
+in your inbox with the certificate. The three existing verification lines are
+**KEPT**, in past tense — they are measured physics claims about real solved
+results.
+
+**This is the records/demo split doing work, not being quoted.**
+`T23G_RESULTS.md` keeps `NOT A RESULT`, observed order 0.375 and `STAGNANT`, in
+full, permanently. The demo does not narrate that, because the demo depicts the
+platform's experience and the platform's experience is that the study runs
+automatically. Neither half is dishonest.
+
+## 11.2 Certificate refusal block — APPROVED
+
+As drafted at §5.3: no tier named anywhere (*"tiers"* is on the never-list), no
+certificate number assigned, what was and was not established stated in the
+platform's voice, and the act stays **unwired from `build_certificate_v2`** —
+that function aliases `TREND ONLY` and `REFERENCE REGIME MISMATCH` onto
+`SOLVER-BACKED` and would manufacture a credential out of a refusal.
+
+## 11.3 The `/5` — NOT APPLIED to either thermal act `[lab-attributed]`
+
+Act A shows **578.8 measured core-minutes against a 483.6 forecast, ratio 1.20**;
+dollars derived-not-measured at the recorded rate. Her 117.5 → 23.5 change
+stands for the jet flap untouched — that is her own measured basis. The desk
+item stays on her desk with the reasoning visible so it can be overturned in a
+line; it no longer blocks capture.
+
+### ⚠ Correction to the reasoning as it was relayed to me
+
+The ruling reached me stating *"Act A runs `buoyantBoussinesqSimpleFoam` and Act
+C `chtMultiRegionFoam`"*. **Those are the wrong way round.** Measured: Act A is
+the conjugate motor case and runs **`chtMultiRegionSimpleFoam`** — cross-checked
+by `motor_thermal_act.solver_name()` against both the log header (`Exec:`) and
+`system/controlDict` (`application`), and independently visible in the three
+live T23G2 processes, all `chtMultiRegionSimpleFoam`. Act C is the buoyant one.
+
+**The conclusion is unaffected** — neither solver has a GPU port and neither
+carries the measurement her 5× was taken on, so the `/5` stays unapplied either
+way. But a ruling that names the wrong solver invites someone downstream to
+check the wrong binary for a GPU path, so the record is corrected here.
+
+## 11.4 Box 7 — CLOSED
+
+`actA_map_table.pdf` no longer contains a table. `fig_map_table()` in
+`figures_actA/make_act_a_screens.py` drew a 4×4 `imshow` map **and** a full
+sixteen-row `ax2.table` of measured values beneath it; the table axes are
+removed and the figure is now a single panel.
+
+Nothing measured was lost — the sixteen rows **moved** to where the standard
+puts them: the act's own results table (`motor_thermal_map`) and
+`figures_actA/actA_map_table.csv`, which the same script still writes.
+
+The caption was changed too, and that was not cosmetic: it read *"the table
+carries both solid peaks…"*, which was true while the table was inside the
+figure and became **false** the moment it moved. Verified after regeneration —
+zero table headers in the rendered PDF, six-word title, one caption line.
+
+## 11.5 Boxes 2 and 3 cannot be wired act-side — reported, not worked around
+
+See `patches/PROPOSED_D-A9_actA_never_list_NOTE.md`. The frozen contract
+dataclasses carry no field for a geometry summary table, an expert-discussion
+block, or a USER/LAB assumptions split: `Restatement` has three fields and
+`GeometryMatch` is a per-quantity comparison. Wiring them needs a change to
+`sdk/workflows/demo_mode.py`, which is cfd's file and the same class of change
+as D-A7. The content is drafted and ready at §9.2 and §9.3.
+
+## 11.6 "Any runs whose physics is good can be shot" — applied, not stretched
+
+Her 22:00Z widening makes **eligibility** broader; it does not lower a bar.
+Act A's sixteen points already qualify: completed under the strict completion
+rule, converged, and physics-sound. It changes nothing about Act A's gates —
+the uncertainty column stays empty until T23G2 grades `CONVERGING`, and box 9
+remains a correctness gate on language rather than on physics.
