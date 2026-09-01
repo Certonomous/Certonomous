@@ -1,0 +1,678 @@
+{
+ "alpha": {
+  "registered": [
+   3.13918623195176,
+   5.13918623195176,
+   7.13918623195176
+  ],
+  "source": "gates.G-ALPHA_operating_points",
+  "tolerance_abs": 1e-12,
+  "verdict": "PASS",
+  "weights_registered": [
+   0.3333333333333333,
+   0.3333333333333333,
+   0.3333333333333333
+  ],
+  "worst_abs_deviation": 0.0
+ },
+ "coefficients": {
+  "PATCHED": {
+   "CD_baseline": [
+    0.01723938072177922,
+    0.020910510045267394,
+    0.027268054119716875
+   ],
+   "CD_final": [
+    0.016254689517250072,
+    0.017469887014380677,
+    0.02112501252302095
+   ],
+   "CL_baseline": [
+    0.31189588769251864,
+    0.49876526085592926,
+    0.6639763551107052
+   ],
+   "CL_final": [
+    -0.05675565457564216,
+    0.15320276361213012,
+    0.3611940124520788
+   ],
+   "J_baseline": 0.02180598162892116,
+   "J_final": 0.018283196351550565,
+   "alpha_deg": [
+    3.13918623195176,
+    5.13918623195176,
+    7.13918623195176
+   ],
+   "forbidden_readings": [
+    "grading this row from the SIZE of its improvement",
+    "using the word `converged` of a run whose optimiser printed no convergence statement",
+    "quoting the weighted-drag reduction without CL_baseline and CL_final beside it, because CL is UNCONSTRAINED in this item",
+    "upgrading GATE REACHED to PASS because the endpoint FD passed -- the endpoint FD validates the DESIGN, not the optimiser's convergence"
+   ],
+   "max_iter_registered": 50,
+   "n_majors": 10,
+   "optimiser": "IPOPT",
+   "optimiser_exit_statement": "Optimal Solution Found.",
+   "source": "gates.G-OPT9_optimisation_per_row.PATCHED",
+   "tol_registered": 1e-05,
+   "verdict": "PASS",
+   "weighted_drag_reduction_pct": 16.15513273980908
+  },
+  "SHIPPED": {
+   "CD_baseline": [
+    0.01723938072177922,
+    0.020910510045267394,
+    0.027268054119716875
+   ],
+   "CD_final": [
+    0.016252837924302457,
+    0.017470496645588345,
+    0.02112612670237069
+   ],
+   "CL_baseline": [
+    0.31189588769251864,
+    0.49876526085592926,
+    0.6639763551107052
+   ],
+   "CL_final": [
+    -0.057373254725203056,
+    0.15240511285598504,
+    0.36011850787767585
+   ],
+   "J_baseline": 0.02180598162892116,
+   "J_final": 0.018283153757420498,
+   "alpha_deg": [
+    3.13918623195176,
+    5.13918623195176,
+    7.13918623195176
+   ],
+   "forbidden_readings": [
+    "grading this row from the SIZE of its improvement",
+    "using the word `converged` of a run whose optimiser printed no convergence statement",
+    "quoting the weighted-drag reduction without CL_baseline and CL_final beside it, because CL is UNCONSTRAINED in this item",
+    "upgrading GATE REACHED to PASS because the endpoint FD passed -- the endpoint FD validates the DESIGN, not the optimiser's convergence"
+   ],
+   "max_iter_registered": 50,
+   "n_majors": 12,
+   "optimiser": "IPOPT",
+   "optimiser_exit_statement": "Optimal Solution Found.",
+   "source": "gates.G-OPT9_optimisation_per_row.SHIPPED",
+   "tol_registered": 1e-05,
+   "verdict": "PASS",
+   "weighted_drag_reduction_pct": 16.155328072130235
+  }
+ },
+ "completion": {
+  "declared": 7,
+  "executed": 7,
+  "verdict": "PASS"
+ },
+ "controls": {
+  "ipopt_reader_PATCHED": {
+   "n_majors_real": 10,
+   "negative_leg": "a short-column row is not parsed",
+   "plant": 0.007654321,
+   "read_back": 0.007654321,
+   "seen": true,
+   "unplanted_last_objective": 0.018283197
+  },
+  "ipopt_reader_SHIPPED": {
+   "n_majors_real": 12,
+   "negative_leg": "a short-column row is not parsed",
+   "plant": 0.007654321,
+   "read_back": 0.007654321,
+   "seen": true,
+   "unplanted_last_objective": 0.018283154
+  }
+ },
+ "cost": {
+  "ceiling_core_min": 595.0,
+  "cost_basis": "c7a.4xlarge at $0.0513/core-h, REPORTED-BY-OWNER, NOT MEASURED -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5)",
+  "per_arm": {
+   "FE-P": {
+    "cap": 40.0,
+    "core_min": 4.533,
+    "crossed": false,
+    "predicted": 7.5,
+    "ratio_actual_over_predicted": 0.6044
+   },
+   "FE-S": {
+    "cap": 40.0,
+    "core_min": 4.45,
+    "crossed": false,
+    "predicted": 7.5,
+    "ratio_actual_over_predicted": 0.5933
+   },
+   "MESH": {
+    "cap": 5.0,
+    "core_min": 0.167,
+    "crossed": false,
+    "predicted": 0.19,
+    "ratio_actual_over_predicted": 0.8789
+   },
+   "O-P": {
+    "cap": 240.0,
+    "core_min": 6.95,
+    "crossed": false,
+    "predicted": 103.0,
+    "ratio_actual_over_predicted": 0.0675
+   },
+   "O-S": {
+    "cap": 240.0,
+    "core_min": 7.917,
+    "crossed": false,
+    "predicted": 103.0,
+    "ratio_actual_over_predicted": 0.0769
+   },
+   "XE-P": {
+    "cap": 15.0,
+    "core_min": 2.533,
+    "crossed": false,
+    "predicted": 3.7,
+    "ratio_actual_over_predicted": 0.6846
+   },
+   "XE-S": {
+    "cap": 15.0,
+    "core_min": 2.35,
+    "crossed": false,
+    "predicted": 3.7,
+    "ratio_actual_over_predicted": 0.6351
+   }
+  },
+  "source": "gates.G10_caps",
+  "total_core_min": 28.900000000000002,
+  "usd_derived_not_measured": 0.02471,
+  "verdict": "PASS"
+ },
+ "endpoint_fd": {
+  "PATCHED": {
+   "aggregate_rel_err_pct": 0.06890419283803313,
+   "assembly_identity_tolerance": 1e-10,
+   "assembly_identity_worst_rel_residual": 8.864158539519277e-14,
+   "band_D_pct": 5.0,
+   "harness_floor_status": "BELOW_HARNESS_FLOOR -- a number below 2.5 % on this stack is a claim about the harness (VERIFICATION section 7 step 4), not a tighter verification",
+   "n_graded_pairs": 4,
+   "n_pass": 4,
+   "pairs": [
+    {
+     "adjoint": -0.00558919054767835,
+     "fd": -0.00558114277299758,
+     "fd_ladder": [
+      -0.005582814257176771,
+      -0.00558114277299758,
+      -0.005554958555729211
+     ],
+     "fd_ladder_rel_err_pct": [
+      0.11424704152754818,
+      0.14419582168200673,
+      0.6133509451640962
+     ],
+     "idx": 0,
+     "plateau_neighbour_pct": [
+      0.029948780154458534,
+      0.46915512348208943
+     ],
+     "plateau_proved_against": "the LARGER neighbour",
+     "rel_err_pct": 0.14419582168200673,
+     "steps": [
+      0.01,
+      0.001,
+      0.0001
+     ],
+     "verdict": "PASS"
+    },
+    {
+     "adjoint": 0.0045540908755884926,
+     "fd": 0.00455796217478481,
+     "fd_ladder": [
+      0.004556368327602797,
+      0.00455796217478481,
+      0.004587632072075576
+     ],
+     "fd_ladder_rel_err_pct": [
+      0.04996645270344226,
+      0.08493486887044153,
+      0.7358814136860815
+     ],
+     "idx": 3,
+     "plateau_neighbour_pct": [
+      0.03496841616699929,
+      0.65094654481564
+     ],
+     "plateau_proved_against": "the LARGER neighbour",
+     "rel_err_pct": 0.08493486887044153,
+     "steps": [
+      0.01,
+      0.001,
+      0.0001
+     ],
+     "verdict": "PASS"
+    },
+    {
+     "adjoint": -0.015521078767334174,
+     "fd": -0.015527419390488906,
+     "fd_ladder": [
+      -0.014843710954130437,
+      -0.015527419390488906,
+      -0.015543975100552193
+     ],
+     "fd_ladder_rel_err_pct": [
+      4.362397872879305,
+      -0.040835009316585534,
+      -0.14745742767818615
+     ],
+     "idx": 6,
+     "plateau_neighbour_pct": [
+      4.4032328821958915,
+      0.10662241836160061
+     ],
+     "plateau_proved_against": "the SMALLER neighbour",
+     "rel_err_pct": 0.040835009316585534,
+     "steps": [
+      0.01,
+      0.001,
+      0.0001
+     ],
+     "verdict": "PASS"
+    },
+    {
+     "adjoint": -0.0018004479396249767,
+     "fd": -0.0017958986362320156,
+     "fd_ladder": [
+      -0.0017621180033171313,
+      -0.0017958986362320156,
+      -0.0017617548616656598
+     ],
+     "fd_ladder_rel_err_pct": [
+      2.1343039932512924,
+      0.2533162674763216,
+      2.1545246028194067
+     ],
+     "idx": 7,
+     "plateau_neighbour_pct": [
+      1.880987725774971,
+      1.9012083353430849
+     ],
+     "plateau_proved_against": "the LARGER neighbour",
+     "rel_err_pct": 0.2533162674763216,
+     "steps": [
+      0.01,
+      0.001,
+      0.0001
+     ],
+     "verdict": "PASS"
+    }
+   ],
+   "plateau_tol_pct": 10.0,
+   "source": "gates.G5J.PATCHED",
+   "trivial_baseline_best_rel_err_pct": 73.45007284187415,
+   "trivial_baseline_max_allowed": 1,
+   "trivial_baseline_n_passing": 0,
+   "trivial_baseline_worst_rel_err_pct": 107.89395606977178,
+   "verdict": "PASS",
+   "worst_rel_err_pct": 0.2533162674763216
+  },
+  "SHIPPED": {
+   "aggregate_rel_err_pct": 0.08594454384641227,
+   "assembly_identity_tolerance": 1e-10,
+   "assembly_identity_worst_rel_residual": 1.7571883834280927e-13,
+   "band_D_pct": 5.0,
+   "harness_floor_status": "BELOW_HARNESS_FLOOR -- a number below 2.5 % on this stack is a claim about the harness (VERIFICATION section 7 step 4), not a tighter verification",
+   "n_graded_pairs": 4,
+   "n_pass": 4,
+   "pairs": [
+    {
+     "adjoint": -0.005720024663340183,
+     "fd": -0.005730859425122012,
+     "fd_ladder": [
+      -0.005725532224291376,
+      -0.005730859425122012,
+      -0.005689283275826101
+     ],
+     "fd_ladder_rel_err_pct": [
+      -0.09610357788658266,
+      -0.18905998172513677,
+      0.5364184537370156
+     ],
+     "idx": 0,
+     "plateau_neighbour_pct": [
+      0.09295640383855412,
+      0.7254784354621523
+     ],
+     "plateau_proved_against": "the LARGER neighbour",
+     "rel_err_pct": 0.18905998172513677,
+     "steps": [
+      0.01,
+      0.001,
+      0.0001
+     ],
+     "verdict": "PASS"
+    },
+    {
+     "adjoint": 0.004437533333394495,
+     "fd": 0.0044392774731158435,
+     "fd_ladder": [
+      0.004436543947456371,
+      0.0044392774731158435,
+      0.0044711720460777205
+     ],
+     "fd_ladder_rel_err_pct": [
+      -0.022287093882169377,
+      0.039288819676428104,
+      0.7577519739854273
+     ],
+     "idx": 3,
+     "plateau_neighbour_pct": [
+      0.061575913558597484,
+      0.7184631543089992
+     ],
+     "plateau_proved_against": "the LARGER neighbour",
+     "rel_err_pct": 0.039288819676428104,
+     "steps": [
+      0.01,
+      0.001,
+      0.0001
+     ],
+     "verdict": "PASS"
+    },
+    {
+     "adjoint": -0.015357605404309953,
+     "fd": -0.015347873120552177,
+     "fd_ladder": [
+      -0.014656063270425054,
+      -0.015347873120552177,
+      -0.015376438295081757
+     ],
+     "fd_ladder_rel_err_pct": [
+      4.570940405713097,
+      0.06341128625010392,
+      -0.12270684428961358
+     ],
+     "idx": 6,
+     "plateau_neighbour_pct": [
+      4.507529119462993,
+      0.1861181305397175
+     ],
+     "plateau_proved_against": "the SMALLER neighbour",
+     "rel_err_pct": 0.06341128625010392,
+     "steps": [
+      0.01,
+      0.001,
+      0.0001
+     ],
+     "verdict": "PASS"
+    },
+    {
+     "adjoint": -0.0018689996449674491,
+     "fd": -0.0018694889813517662,
+     "fd_ladder": [
+      -0.0018339832880806886,
+      -0.0018694889813517662,
+      -0.0018302450307226825
+     ],
+     "fd_ladder_rel_err_pct": [
+      1.8730443044088618,
+      -0.02617487394674458,
+      2.0730057588648854
+     ],
+     "idx": 7,
+     "plateau_neighbour_pct": [
+      1.8992191783556063,
+      2.09918063281163
+     ],
+     "plateau_proved_against": "the LARGER neighbour",
+     "rel_err_pct": 0.02617487394674458,
+     "steps": [
+      0.01,
+      0.001,
+      0.0001
+     ],
+     "verdict": "PASS"
+    }
+   ],
+   "plateau_tol_pct": 10.0,
+   "source": "gates.G5J.SHIPPED",
+   "trivial_baseline_best_rel_err_pct": 73.63292557568633,
+   "trivial_baseline_max_allowed": 1,
+   "trivial_baseline_n_passing": 0,
+   "trivial_baseline_worst_rel_err_pct": 116.47208599020995,
+   "verdict": "PASS",
+   "worst_rel_err_pct": 0.18905998172513677
+  }
+ },
+ "grade_file": "/home/ubuntu/certonomous-runs/CURRICULUM-SO3-a1-naca0012-alpha-multipoint-optimisation/SO3_grade_20260901T040709Z.json",
+ "grade_sha256": "6d76e54648002b05c1da9f6792b20cc20b3bcdb7cf36e8f1abbafdbbb434540c",
+ "item": "CURRICULUM-SO3",
+ "item_verdict": "PASS",
+ "majors": {
+  "PATCHED": {
+   "exit_statement": "Optimal Solution Found.",
+   "inf_du": [
+    0.717,
+    0.0196,
+    0.0129,
+    0.000769,
+    0.000308,
+    0.000182,
+    0.000116,
+    3.75e-05,
+    6.23e-05,
+    7.28e-06
+   ],
+   "iter": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "log": "/home/ubuntu/certonomous-runs/CURRICULUM-SO3-a1-naca0012-alpha-multipoint-optimisation/O-P_20260901T035101Z_1094485.log",
+   "log_sha256": "94958f6e5527cad4b0221eafb577d09a1df4caa0b30d07228dbdad153c7fc179",
+   "n_majors": 10,
+   "n_restoration": 0,
+   "objective": [
+    0.021805981,
+    0.021758387,
+    0.019453909,
+    0.018604447,
+    0.018430271,
+    0.01832745,
+    0.018303722,
+    0.018284843,
+    0.018283942,
+    0.018283197
+   ]
+  },
+  "SHIPPED": {
+   "exit_statement": "Optimal Solution Found.",
+   "inf_du": [
+    0.717,
+    0.0196,
+    0.0138,
+    0.00227,
+    0.00121,
+    0.00102,
+    0.000703,
+    0.000616,
+    4.65e-05,
+    4.19e-05,
+    2.6e-05,
+    7.48e-06
+   ],
+   "iter": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+   ],
+   "log": "/home/ubuntu/certonomous-runs/CURRICULUM-SO3-a1-naca0012-alpha-multipoint-optimisation/O-S_20260901T033306Z_1080385.log",
+   "log_sha256": "53bfcc49552f72991cf213d9059645f8a6a00cd6339bdfa50d166cdb46d1e857",
+   "n_majors": 12,
+   "n_restoration": 0,
+   "objective": [
+    0.021805981,
+    0.021758407,
+    0.01929132,
+    0.018618472,
+    0.018504408,
+    0.018347253,
+    0.018311746,
+    0.018290277,
+    0.018283901,
+    0.018283535,
+    0.018283325,
+    0.018283154
+   ]
+  }
+ },
+ "mesh_cells": 4032,
+ "note": "every number in this file is read from the artefact named beside it; nothing here is recomputed or estimated",
+ "planted_controls_from_grade": {
+  "grader_plant_F_PATCHED": {
+   "file": "/home/ubuntu/certonomous-runs/CURRICULUM-SO3-a1-naca0012-alpha-multipoint-optimisation/grader_controls/F_PATCHED_planted.json",
+   "grader_plant_F_seen": true,
+   "n_values": 112,
+   "worst_residual": 1.7932703932910243e-16
+  },
+  "grader_plant_F_SHIPPED": {
+   "file": "/home/ubuntu/certonomous-runs/CURRICULUM-SO3-a1-naca0012-alpha-multipoint-optimisation/grader_controls/F_SHIPPED_planted.json",
+   "grader_plant_F_seen": true,
+   "n_values": 112,
+   "worst_residual": 1.7932703932910243e-16
+  },
+  "grader_plant_X_PATCHED": {
+   "G5J_control": "EXERCISED-PASS -- PASS moved to GATE FAIL under the plant",
+   "G5J_planted": "GATE FAIL",
+   "G5J_unplanted": "PASS",
+   "band_D_pct": 5.0,
+   "before": -0.00558919054767835,
+   "component_index": 0,
+   "d_ref_scale": -0.00558114277299758,
+   "file": "/home/ubuntu/certonomous-runs/CURRICULUM-SO3-a1-naca0012-alpha-multipoint-optimisation/grader_controls/X_PATCHED_planted.json",
+   "g_mp_struct_control": "EXERCISED-PASS -- PASS moved to GATE FAIL under the plant",
+   "g_mp_struct_planted": "GATE FAIL",
+   "g_mp_struct_unplanted": "PASS",
+   "grader_plant_X_seen": true,
+   "n_graded_pairs_available": 4,
+   "note": "the G5J and G-MP-STRUCT flips on this copy are asserted by the caller",
+   "plant": 0.0008371714159496371,
+   "plant_K": 3.0,
+   "plant_sizing": "RELATIVE -- PLANT_K*(band_D/100)*|d_ref|",
+   "planted_rel_err_pct": 15.000000000000002,
+   "read_back": -0.004752019131728713,
+   "target_chosen_from": "the pairs G5J actually graded on the UNPLANTED artefact"
+  },
+  "grader_plant_X_SHIPPED": {
+   "G5J_control": "EXERCISED-PASS -- PASS moved to GATE FAIL under the plant",
+   "G5J_planted": "GATE FAIL",
+   "G5J_unplanted": "PASS",
+   "band_D_pct": 5.0,
+   "before": -0.005720024663340183,
+   "component_index": 0,
+   "d_ref_scale": -0.005730859425122012,
+   "file": "/home/ubuntu/certonomous-runs/CURRICULUM-SO3-a1-naca0012-alpha-multipoint-optimisation/grader_controls/X_SHIPPED_planted.json",
+   "g_mp_struct_control": "EXERCISED-PASS -- PASS moved to GATE FAIL under the plant",
+   "g_mp_struct_planted": "GATE FAIL",
+   "g_mp_struct_unplanted": "PASS",
+   "grader_plant_X_seen": true,
+   "n_graded_pairs_available": 4,
+   "note": "the G5J and G-MP-STRUCT flips on this copy are asserted by the caller",
+   "plant": 0.0008596289137683019,
+   "plant_K": 3.0,
+   "plant_sizing": "RELATIVE -- PLANT_K*(band_D/100)*|d_ref|",
+   "planted_rel_err_pct": 15.000000000000002,
+   "read_back": -0.004860395749571881,
+   "target_chosen_from": "the pairs G5J actually graded on the UNPLANTED artefact"
+  },
+  "grader_plant_c5": {
+   "arm": "O-S",
+   "convergence_discriminator": {
+    "banner_count_real": 12,
+    "moved_by_a_planted_REAL_statement": true,
+    "real_statements": 45,
+    "unmoved_by_a_planted_banner": true
+   },
+   "grader_plant_c5_seen": true,
+   "n_lines_real": 6842,
+   "negative_sites": 0,
+   "positive_sites": 1,
+   "real_log": "O-S_20260901T033306Z_1080385.log"
+  },
+  "grader_plant_cells": {
+   "file": "/home/ubuntu/certonomous-runs/CURRICULUM-SO3-a1-naca0012-alpha-multipoint-optimisation/grader_controls/checkMesh_planted.log",
+   "grader_plant_cells_seen": true,
+   "on_disk_before_plant": 4032,
+   "read_back": 4039,
+   "want": 4039
+  },
+  "instrument_ctrl_PATCHED": {
+   "both_directions": true,
+   "n_zero_entries_read": 7,
+   "note": "seven quantities per side: J and three CD and three CL",
+   "planted_read": {
+    "CD0": 0.6169999999999994,
+    "CD1": 0.6169999999999994,
+    "CD2": 0.6169999999999994,
+    "CL0": 0.6169999999999994,
+    "CL1": 0.6170000000000064,
+    "CL2": 0.6170000000000064,
+    "J": 0.6169999999999994
+   },
+   "want": 0.617
+  },
+  "instrument_ctrl_SHIPPED": {
+   "both_directions": true,
+   "n_zero_entries_read": 7,
+   "note": "seven quantities per side: J and three CD and three CL",
+   "planted_read": {
+    "CD0": 0.6169999999999994,
+    "CD1": 0.6169999999999994,
+    "CD2": 0.6169999999999994,
+    "CL0": 0.6169999999999994,
+    "CL1": 0.6170000000000064,
+    "CL2": 0.6170000000000064,
+    "J": 0.6169999999999994
+   },
+   "want": 0.617
+  }
+ },
+ "predictions": {
+  "P1_cells_4032": "HIT",
+  "P2_CL_at_alpha0_in_band": "MISS",
+  "P3_CD_monotone_increasing_in_alpha": "HIT",
+  "P4_G_MP_STRUCT_PASS_all_components": "HIT",
+  "P5_PATCHED_G5J_PASS_4_of_4": "HIT",
+  "P6_SHIPPED_G5J_GATE_FAIL": "MISS",
+  "P7_G_TB_PASS_at_the_wrong_step": "HIT",
+  "P8_P_EVAL_at_least_one_evaluation_fails_per_F_arm": {
+   "F:PATCHED": "MISS",
+   "F:SHIPPED": "MISS"
+  },
+  "P9_plateau_holds_at_the_WING_angles": {
+   "PATCHED_point0": "HIT",
+   "PATCHED_point2": "HIT",
+   "SHIPPED_point0": "HIT",
+   "SHIPPED_point2": "HIT"
+  },
+  "P_COST_total_core_min_in_band": "MISS"
+ },
+ "rows": {
+  "PATCHED": "PASS",
+  "SHIPPED": "PASS"
+ },
+ "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-SO3-a1-naca0012-alpha-multipoint-optimisation"
+}

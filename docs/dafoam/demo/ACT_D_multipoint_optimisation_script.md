@@ -1,0 +1,291 @@
+# Act D, multipoint optimisation — act script and camera strings
+
+**What this file is.** The stage by stage script for the Act D multipoint
+optimisation act: the NACA0012 section, one shape, three angles of attack. It
+carries the exact strings that go on screen, in the order DEMO MODE fixes, plus
+the figure titles and captions. The companion one page result sheet is
+`ACT_D_multipoint_optimisation_sheet.tex` in this directory.
+
+**Subject discipline.** Three different subjects have been called Act D and
+their numbers must never be merged. This one is the two dimensional NACA0012
+section on 4,032 cells where **the optimiser ran** and the gradient is verified
+**at the final design point**. It is not the reference wing act, and it is not
+the earlier section act where no optimiser ran.
+
+**Every number below is read from the run root of the graded item**
+`CURRICULUM-SO3-a1-naca0012-alpha-multipoint-optimisation`, item verdict
+`PASS`, chain `COMPLETE declared=7 executed=7`, all seven arms `rc=0`. The
+per number provenance is the comment block at the head of the sheet's `.tex`,
+and the extracted series is `cases/dafoam/ladder-a/A1_so3_demo_series.json`,
+produced under a planted reader control by
+`cases/dafoam/build_so3_demo_series.py`. Grid figures come from the run's own
+`polyMesh` via `cases/dafoam/render_so3_mesh_figures.py`, which refuses rather
+than draws if its cell count disagrees with the frozen grade.
+
+**The row on camera is the PATCHED row, and only that row.** The item graded
+two rows on two builds of the mesh deformation library and both are `PASS`.
+Which build produced a run is method, and the demo may withhold method; it may
+never misstate a result, and it does not. The two rows are **not** a
+repeatability pair and must never be shown as one: their gradient components
+diverge by up to 24.17 per cent.
+
+---
+
+## Stage order, and what is on screen at each beat
+
+DEMO MODE fixes the stages and the order. Progressive tense while a stage runs,
+and no past tense anywhere on screen. Short sentences. Results in tables. All
+plots latexified. Real geometry and its real grid only.
+
+### 1. Prompt
+
+Professional wording, what a competent engineer would type.
+
+```
+Minimise the drag of this NACA0012 section averaged over three angles of
+attack, 3.139, 5.139 and 7.139 degrees, weighted equally, at 10 m/s. One shape
+serves all three. Verify the gradient at the final shape.
+```
+
+### 2. Restatement, confidence, cost estimate
+
+```
+Restating: one shared set of eight shape controls, one objective, the equally
+weighted mean drag coefficient over three angles.
+Thickness, enclosed area and leading edge radius are held as constraints.
+Confidence: the gradient path on this section is verified. The optimiser has
+not run this problem before, so the iteration count is a budget, not a
+promise.
+Estimate: 114 core-minutes, about ten cents.
+```
+
+### 3. One user assumption check
+
+The single assumption the act surfaces, and the one the result turns on.
+
+```
+One thing your request does not fix: lift.
+Nothing constrains the lift coefficient here, so the optimiser is free to
+trade lift for drag. It will.
+Say the word and lift is held instead; the lift gradients are verified
+already.
+```
+
+### 4. Falsifier and gate, emitted before any evidence
+
+```
+Hypothesis: the adjoint gradient drives a descent, and it is still the right
+gradient at the shape the optimiser hands back.
+Falsifier: at the final shape, the gradient disagrees with an independent
+finite difference by more than five per cent on any checked control.
+Gate: four controls, three step sizes each, agreement quoted where the result
+stops moving. Five per cent, fixed before the run.
+```
+
+### 5. Geometry
+
+The uploaded surface renders. It is the section the case is solved on.
+
+```
+NACA0012 section, chord 1 m, reference area 0.1 m squared.
+```
+
+### 6. Meshing, live
+
+The real mesher runs on the uploaded surface. The grid draws cell by cell, then
+the wall layer zoom.
+
+```
+Meshing.
+4,032 cells. Far field radius 18.7 m. First layer height 2.06 to 4.07 mm.
+Wall treatment: a continuous wall function, valid across the whole near wall
+range.
+```
+
+Table on screen, wall resolution:
+
+| Quantity | Value |
+|---|---|
+| Cells | 4,032 |
+| Wall faces | 126 |
+| First layer height | 2.06 to 4.07 mm |
+| Far field radius | 18.7 m |
+
+### 7. Check before the budget
+
+```
+Geometry and grid: 10 seconds, before any optimiser time is committed.
+Cost so far, 0.167 core-minutes of a 114 core-minute estimate.
+```
+
+### 8. Solving
+
+Monitors advance at accelerated pace from the run's own series. The iteration
+counter, the objective trace and the three drag and lift traces all move
+together, and the elapsed clock moves with them.
+
+```
+Solving, major iteration 4 of 10.
+Sweep point 2 of 3.
+Objective 0.018430.
+```
+
+The objective trace fills in one major at a time, using the ten values in
+Figure 3 of the sheet. The candidate table grows one row per major and is
+never a run of transcript lines.
+
+```
+Optimal Solution Found.
+Ten majors. The iteration budget is fifty.
+```
+
+### 9. Gates and checks
+
+Tables, not prose. This is the planted control beat.
+
+| Check | Result |
+|---|---|
+| Planted gradient error, 15 % | gate turns |
+| Planted grid count, 4,039 | read back |
+| Planted zero, seven quantities | all seven |
+| Deliberately wrong step, 4 controls | 0 pass |
+| Weighted sum identity, 4 controls | 9e-14 |
+
+```
+Each reader is shown a known false value before it is trusted. Each one sees
+it.
+The gradient check is driven at a deliberately unsuitable step to prove it can
+fail. It fails there on every control, by 73 to 108 per cent.
+```
+
+Operating point statement:
+
+```
+Three angles registered at 1e-12 and read back with zero deviation.
+Weights one third each, read back with zero deviation.
+```
+
+Grid statement:
+
+```
+One grid, 4,032 cells. No coefficient here carries a grid error bar.
+```
+
+### 10. Results
+
+The sheet's tables and figures, in this order: Table 2, Figure 2, Table 3,
+Figure 3, Table 4, Figure 4, Table 5, Table 6, limitations, uncertainty.
+
+The headline, said in this order and never with the drag figure alone:
+
+```
+The weighted drag objective falls 16.2 per cent in ten majors.
+Every lift coefficient falls with it, and at the lowest angle lift goes
+negative.
+This verifies the gradient and the optimiser. It is not a better aerofoil.
+```
+
+Cost line:
+
+```
+This run costs 14.2 minutes on one core, 14.183 core-minutes, about one cent.
+We said 114 core-minutes. We priced the optimiser at its fifty iteration
+budget and it converged in ten.
+```
+
+---
+
+## Figure titles and captions, exactly as they go on screen
+
+Titles at most ten words. Captions one line, at most twenty words. No paragraph
+sits inside a figure; every explanation is in the sheet text beside it.
+
+| Figure | Title | Caption |
+|---|---|---|
+| 1 | The grid the section is solved on | All 4,032 cells are drawn. The left view stops at about 5 m; the far field reaches 18.7 m. |
+| 2 | Drag and lift at three angles of attack | Drag falls at every angle. Lift falls at every angle and turns negative at the lowest. |
+| 3 | Objective against major iteration | Ten majors carry the objective from 0.0218060 to 0.0182832. The iteration budget is fifty. |
+| 4 | Gradient check at the final shape | Every control sits inside the limit at all three steps. Table 4 is the middle step. |
+
+Panel titles inside Figure 1: `Grid near the section` and `Grid at the leading
+edge`.
+
+---
+
+## Numbers the act may quote, and the one rule that binds them
+
+Every figure below is read from the graded run root. The drag reduction is
+**never** quoted without the lift columns beside it: the grade file's own
+`forbidden_readings` list forbids it, because lift is unconstrained in this
+item.
+
+| Angle, deg | C_D start | C_D final | C_L start | C_L final |
+|---|---|---|---|---|
+| 3.139 | 0.017239 | 0.016255 | 0.31190 | **-0.05676** |
+| 5.139 | 0.020911 | 0.017470 | 0.49877 | 0.15320 |
+| 7.139 | 0.027268 | 0.021125 | 0.66398 | 0.36119 |
+| Weighted J | 0.0218060 | 0.0182832 | | |
+
+| Quantity | Value |
+|---|---|
+| Optimiser | IPOPT |
+| Majors taken | 10 |
+| Iteration cap, registered | 50 |
+| Tolerance, registered | 1e-5 |
+| Terminal statement | Optimal Solution Found. |
+| Line search cutbacks | 0 |
+| Restoration iterations | 0 |
+| Dual infeasibility, last major | 7.28e-6 |
+
+| Shape control | Computed | Checked | Difference, % |
+|---|---|---|---|
+| Lower surface, x/c = 0.245 | -0.005589 | -0.005581 | 0.144 |
+| Upper surface, x/c = 0.500 | +0.004554 | +0.004558 | 0.085 |
+| Leading edge pair | -0.015521 | -0.015527 | 0.041 |
+| Trailing edge pair | -0.001800 | -0.001796 | **0.253** |
+| Limit, registered | | | 5.00 |
+
+| Stage | Said, core-min | Cost, core-min | Cost / said |
+|---|---|---|---|
+| Geometry and grid | 0.19 | 0.167 | 0.88 |
+| Optimisation, 10 majors | 103.0 | 6.950 | **0.07** |
+| Endpoint gradient | 3.7 | 2.533 | 0.68 |
+| Independent check of it | 7.5 | 4.533 | 0.60 |
+| Total | 114.4 | 14.183 | 0.12 |
+
+---
+
+## NOT FOR CAMERA — three things a builder of this act must not do
+
+1. **Do not borrow a feasibility probe from another run.** This run's own first
+   stage is the 10 second geometry and grid arm, and that is what the
+   pre-budget beat quotes. A separate 30 second alpha probe exists in a
+   different run root, on a different item; putting its 35 seconds on this act's
+   clock would put another run's number on this run's screen.
+
+2. **Do not present the two graded rows as a repeatability pair.** Their
+   gradient components diverge by up to 24.17 per cent. One row is on camera.
+
+3. **Do not print any elapsed figure other than this run's own.** A standing
+   capture directs the dafoam demo to show 20 minutes rather than 60. That
+   instruction attaches to a 3,601 second figure on the reference wing act, not
+   to this run. This act's measured path is 851 wall seconds, 14.2 minutes, and
+   is therefore already under twenty; nothing here is invented and nothing
+   contradicts that instruction. **Whether the 20 minute display figure is meant
+   to extend to this act is referred upward and is not decided here.**
+
+## NOT FOR CAMERA — the registered predictions that missed
+
+Four of this item's registered predictions scored `MISS`, and each one is a
+finding rather than an embarrassment. None of them changes the item verdict:
+predictions are scored, never composed into a verdict.
+
+| Token | Registered | Measured | What it means |
+|---|---|---|---|
+| `P2_CL_at_alpha0_in_band` | HIT, lift at the middle angle in [0.45, 0.55] | **MISS** | The endpoint arm reads lift at the **final** shape, and it is 0.15320. The miss **is** the lift loss, measured by the instrument rather than argued. |
+| `P6_SHIPPED_G5J_GATE_FAIL` | HIT, the shipped row's gradient gate fails | **MISS** | The shipped row **passed**. The defect this item expected to reproduce at the final design point did not reproduce here. |
+| `P8_P_EVAL_at_least_one_evaluation_fails_per_F_arm` | HIT on both arms | **MISS** on both | 34 of 34 evaluations succeeded on each arm. Zero failures. The item was more robust than registered. |
+| `P_COST_total_core_min_in_band` | band [60, 300] core-min, point 228.59 | **MISS**, 28.900 | The whole item cost an eighth of its estimate. The optimiser was priced at its 50 iteration cap and converged in 10 or 12. |
+
+The cost calibration row for this item is already filed in
+`docs/COST_CALIBRATION.md` and states the same ratio, 0.126.
