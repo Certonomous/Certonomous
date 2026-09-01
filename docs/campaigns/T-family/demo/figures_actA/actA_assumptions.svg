@@ -6,7 +6,7 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-09-01T03:36:47.648555</dc:date>
+    <dc:date>2026-09-01T03:37:57.826650</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
@@ -36,7 +36,7 @@ L 679.0464 40.464
 L 26.5536 40.464 
 L 26.5536 436.068 
 z
-" clip-path="url(#p5ae4dc870c)" style="fill: none; stroke: #999999; stroke-width: 0.8; stroke-linejoin: miter"/>
+" clip-path="url(#p8dfbebe2df)" style="fill: none; stroke: #999999; stroke-width: 0.8; stroke-linejoin: miter"/>
    </g>
    <g id="text_1">
     <text style="font-weight: 700; font-size: 9.6px; font-family: 'DejaVu Serif', 'Bitstream Vera Serif', 'Computer Modern Roman', 'New Century Schoolbook', 'Century Schoolbook L', 'Utopia', 'ITC Bookman', 'Bookman', 'Nimbus Roman No9 L', 'Times New Roman', 'Times', 'Palatino', 'Charter', serif; text-anchor: start; fill: #1a1a1a" x="40.3776" y="69.1425" transform="rotate(-0 40.3776 69.1425)">Single grid</text>
@@ -94,7 +94,7 @@ z
   </g>
  </g>
  <defs>
-  <clipPath id="p5ae4dc870c">
+  <clipPath id="p8dfbebe2df">
    <rect x="7.2" y="7.2" width="691.2" height="475.2"/>
   </clipPath>
  </defs>
