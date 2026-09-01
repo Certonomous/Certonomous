@@ -165,6 +165,55 @@ PROV_CHAIN = [
 
 FATAL_TOKENS = ("Traceback (most recent call last)", "MPI_ABORT", "Segmentation fault",
                 "std::bad_alloc", "PETSC ERROR", "Killed")
+# G-NOOPT: an explicit list of names, never a substring sweep.
+OPTIMISER_EVIDENCE = ("opt_IPOPT.txt", "OptView.hst", "opt_SNOPT_print.txt", "opt_SLSQP.txt")
+
+# ---- THE LIVE PLANTED-ZERO CONTROLS (CLAUDE.md rule 3) ----------------------
+# Sanaa, 2026-08-28: no instrument grades anything until *"was THIS reader ever
+# shown able to see a non-zero THROUGH THE REAL CODE PATH?"* is answered YES,
+# demonstrated.  A selftest on fixtures proves the code COULD see a plant at
+# build time; these controls answer the different question rule 3 actually asks —
+# **was this reader, on THIS run root, against THESE files, shown able to see a
+# non-zero?**  A green suite is a result about the comparator; a plant read back
+# from the actual run root is a result about the reading.
+PLANT_NUM = 1.234e-03          # additive, onto every derivative
+PLANT_CELLS_OFFSET = 7         # offset FROM DISK, never a fixed constant
+PLANT_FATAL = "Traceback (most recent call last)"     # a REAL member of FATAL_TOKENS
+PLANT_MARKER = "opt_IPOPT.txt"                        # a REAL member of OPTIMISER_EVIDENCE
+PLANT_EXIT = "EXIT: Optimal Solution Found."
+
+# ---- THE BIRTH REGISTER -----------------------------------------------------
+# Every reader that produces a graded number, with what it feeds and whether the
+# hazard it carries is that A ZERO PASSES A GATE.
+READERS = {
+    "R1_read_ledger": {
+        "produces": "core_min, rc, ranks, cpuset, digest -> G1/G9/G10/G12/G-NP",
+        "producer": "d19o_run_arm.sh:d19o_ledger_row", "zero_passes_a_gate": False},
+    "R2_read_fatal_tokens": {
+        "produces": "fatal-token list -> G1  (**READS A ZERO AS A PASS**)",
+        "producer": "the arm shell / OpenFOAM / DAFoam, via <ARM>_*.log",
+        "zero_passes_a_gate": True},
+    "R2b_read_benign_counts": {
+        "produces": "benign line counts -> REPORTED, NEVER GATED",
+        "producer": "OpenFOAM, via <ARM>_*.log", "zero_passes_a_gate": False},
+    "R3_read_mesh_cells": {
+        "produces": "cell count -> G-M2", "producer": "checkMesh, via MESH/checkMesh.log",
+        "zero_passes_a_gate": False},
+    "R4_read_optimiser_evidence": {
+        "produces": "optimiser marker list -> G-NOOPT-ENDPOINT  (**READS A ZERO AS A PASS**)",
+        "producer": "pyOptSparse/IPOPT, via the endpoint arm directory",
+        "zero_passes_a_gate": True},
+    "R5_read_X": {
+        "produces": "adjoint totals -> G5_fd, G-TB  (CAN PASS ON A SMALL NUMBER)",
+        "producer": "d19o_xf.py mode XE", "zero_passes_a_gate": True},
+    "R6_read_F": {
+        "produces": "FD derivative table -> G5_fd, G-TB, G-PLAT7",
+        "producer": "d19o_xf.build_fd_step / row_from_fd / build_ctrl_row",
+        "zero_passes_a_gate": True},
+    "R7_read_ipopt": {
+        "produces": "convergence statement, rows, stall -> G-OPT9",
+        "producer": "IPOPT, via <arm>/opt_IPOPT.txt", "zero_passes_a_gate": True},
+}
 # Benign lines that are COUNTED AND NAMED, never silently suppressed.  A
 # suppression a reader cannot see is the same defect wearing the other hat.
 BENIGN = {"simple_no_criteria": "SIMPLE: no convergence criteria found",
@@ -258,6 +307,70 @@ def read_arm_log(root, arm):
     return p, open(p, errors="replace").read()
 
 
+# ---------------------------------------------------------------------------
+# THE NAMED READERS.  Every reader that produces a graded number is a FUNCTION
+# with a name, so the live planted-zero controls below can call THE REAL ONE
+# rather than re-implementing it.  A control that re-implements its reader can
+# agree with itself while disagreeing with the instrument.
+# ---------------------------------------------------------------------------
+def read_mesh_cells(path):
+    """R3 -> G-M2."""
+    if not os.path.isfile(path):
+        return None
+    m = re.search(r"^\s*cells:\s*(\d+)\s*$", open(path, errors="replace").read(), re.M)
+    return int(m.group(1)) if m else None
+
+
+def read_fatal_tokens(text):
+    """R2 -> G1.  **READS A ZERO AS A PASS.**  A reader that silently matches
+    nothing returns the same empty list as a clean run, and every gate behind it
+    stays green.  That is why it carries a live control."""
+    low = text.lower()
+    return [t for t in FATAL_TOKENS if t.lower() in low]
+
+
+def read_benign_counts(text):
+    """R2b -> REPORTED, NEVER GATED."""
+    low = text.lower()
+    return {k: low.count(v.lower()) for k, v in BENIGN.items()}
+
+
+def read_optimiser_evidence(arm_dir, doc):
+    """R4 -> G-NOOPT-ENDPOINT.  **READS A ZERO AS A PASS**, same hazard as R2."""
+    seen = [ev for ev in OPTIMISER_EVIDENCE
+            if os.path.exists(os.path.join(arm_dir, ev))]
+    if doc is not None and doc.get("no_optimiser_ran") is not True:
+        seen.append("artefact_does_not_declare:no_optimiser_ran")
+    return seen
+
+
+def read_X(path):
+    """R5 -> G5_fd, G-TB.  Returns {of_key: {(dv, idx): float}}."""
+    doc = json.load(open(path))
+    return {of: _adj_lookup(doc, of) for of in ("CD", "CL")}
+
+
+def read_F(path):
+    """R6 -> G5_fd, G-TB.  Returns {(dv, idx): {step: {"dCD":…, "dCL":…}}},
+    CTRL excluded (it is the instrument's own control row, not a derivative)."""
+    doc = json.load(open(path))
+    out = {}
+    for r in doc.get("rows", []):
+        if r.get("status") != "MEASURED":
+            continue
+        vals = {}
+        for s, v in (r.get("fd") or {}).items():
+            if v.get("ok"):
+                vals[s] = {"dCD": _f(v.get("dCD")), "dCL": _f(v.get("dCL"))}
+        out[(r.get("dv"), r.get("idx"))] = vals
+    return out
+
+
+def read_ipopt(path):
+    """R7 -> G-OPT9.  The optimiser's own words, through the frozen detector."""
+    return STALL.read_log(path)
+
+
 def load_artefact(root, arm):
     """Returns (doc, path) or (None, path).  An ABSENT artefact is a CENSUS
     reading and returns None; a MALFORMED one REFUSES."""
@@ -271,6 +384,388 @@ def load_artefact(root, arm):
         return json.load(open(p)), p
     except Exception as exc:                                      # noqa: BLE001
         refuse("ARTEFACT_MALFORMED", {"path": p, "error": repr(exc)[:300]})
+
+
+# ============================================================================
+# THE LIVE PLANTED-ZERO CONTROLS
+#
+# Each one: plants a known perturbation into a COPY under `grader_controls/`,
+# reads it back FROM DISK THROUGH THE REAL READER FUNCTION (imported and called,
+# never re-implemented), and REFUSES (exit 2) if the plant is not recovered.
+#
+# EVERY ONE CARRIES A DEGENERACY ARM.  A control whose unplanted value already
+# equals its planted value has demonstrated nothing — it would report itself
+# exercised while the reader was blind.  So each control reads the UNPLANTED
+# artefact first and refuses if the two already agree.
+#
+# WHERE THE TARGET COMES FROM.  A control prefers the REAL artefact on this run
+# root.  Where the arm did not run, the target is built by the INSTRUMENT'S OWN
+# WRITERS (`d19o_xf.build_fd_row` / `build_ctrl_row`) or from the launcher's own
+# terminal strings, and the register records which it was — `target_kind`
+# `REAL` or `WRITER_BUILT`.  A reader must be born either way; what changes is
+# only what it was born against, and that is stated rather than blurred.
+# ============================================================================
+def _plant_dir(root):
+    d = os.path.join(root, "grader_controls")
+    os.makedirs(d, exist_ok=True)
+    return d
+
+
+def _first_arm_with(root, arms_ran, kinds):
+    for a in ARMS_DECLARED:
+        if a in arms_ran and ARM_KIND[a] in kinds:
+            return a
+    return None
+
+
+def ctrl_ledger(root):
+    """R1's birth.  Bump one arm's `core_min` and require the real ledger reader
+    to read the changed number back off disk."""
+    src = os.path.join(root, "ledger.txt")
+    if not os.path.isfile(src):
+        refuse("CONTROL", {"ctrl_ledger_no_target": src})
+    text = open(src, errors="replace").read()
+    before, _ = read_ledger(root)
+    if not before:
+        refuse("CONTROL", {"ctrl_ledger_reader_saw_no_rows": src,
+                           "note": "the reader must be born against a row it can see"})
+    arm = sorted(before)[0]
+    was = before[arm]["core_min"]
+    want = round((was or 0.0) + PLANT_NUM, 6)
+    planted = re.sub(r"(^ARM=%s .*?core_min=)[0-9.]+" % re.escape(arm),
+                     r"\g<1>%s" % want, text, count=1, flags=re.M)
+    if planted == text:
+        refuse("CONTROL", {"ctrl_ledger_no_substitution": {"arm": arm, "was": was}})
+    cd = os.path.join(_plant_dir(root), "ledger_planted")
+    os.makedirs(cd, exist_ok=True)
+    with open(os.path.join(cd, "ledger.txt"), "w") as fh:
+        fh.write(planted)
+    after, _ = read_ledger(cd)
+    got = (after.get(arm) or {}).get("core_min")
+    if got is None or abs(got - want) > 1e-9:
+        refuse("CONTROL", {"ctrl_ledger_not_seen": {"arm": arm, "want": want, "read_back": got}})
+    if was is not None and abs(was - want) < 1e-12:
+        refuse("CONTROL", {"ctrl_ledger_DEGENERATE": {"unplanted": was, "planted": want}})
+    return {"seen": True, "reader": "read_ledger", "target_kind": "REAL", "arm": arm,
+            "unplanted": was, "planted": want, "read_back": got, "file": cd}
+
+
+def ctrl_mesh_cells(root):
+    """R3's birth.  The cells reader must read a DIFFERENT number off a changed
+    real `checkMesh.log`, not merely the expected one off the real log."""
+    src = os.path.join(root, "MESH", "checkMesh.log")
+    kind = "REAL"
+    if not os.path.isfile(src):
+        kind = "WRITER_BUILT"
+        src = os.path.join(_plant_dir(root), "checkMesh_source.log")
+        with open(src, "w") as fh:
+            fh.write("    cells:            %d\n" % MESH_CELLS)
+    was = read_mesh_cells(src)
+    if was is None:
+        refuse("CONTROL", {"ctrl_mesh_no_target": src,
+                           "note": "the plant must land on bytes the reader reads"})
+    want = was + PLANT_CELLS_OFFSET          # OFFSET FROM DISK, never a constant
+    txt = open(src, errors="replace").read()
+    planted = re.sub(r"^(\s*cells:\s*)\d+\s*$", r"\g<1>%d" % want, txt, count=1, flags=re.M)
+    if planted == txt:
+        refuse("CONTROL", {"ctrl_mesh_no_substitution": src})
+    cp = os.path.join(_plant_dir(root), "checkMesh_planted.log")
+    with open(cp, "w") as fh:
+        fh.write(planted)
+    got = read_mesh_cells(cp)
+    if got != want:
+        refuse("CONTROL", {"ctrl_mesh_not_seen": {"read_back": got, "want": want}})
+    if got == was:
+        refuse("CONTROL", {"ctrl_mesh_DEGENERATE": {"unplanted": was, "planted": got}})
+    return {"seen": True, "reader": "read_mesh_cells", "target_kind": kind,
+            "unplanted": was, "planted": want, "read_back": got, "file": cp}
+
+
+def ctrl_fatal_tokens(root, arms_ran):
+    """R2's birth, AND IT IS THE ONE THAT MATTERS MOST.  This reader passes a
+    gate on an EMPTY list, so a silently-broken matcher returns exactly what a
+    clean run returns.  Both directions are driven: the unplanted log must read
+    CLEAN, and the same log with a real fatal token appended must read DIRTY."""
+    arm = sorted(arms_ran)[0] if arms_ran else None
+    kind, text = "REAL", ""
+    if arm:
+        _p, text = read_arm_log(root, arm)
+    if not text:
+        kind, arm = "WRITER_BUILT", arm or "MESH"
+        text = ("D4S_IDWARP_SO_MD5: %s\nSIMPLE: no convergence criteria found\n"
+                "D19O_MESH_IDENTITY_ALL_OK\n" % SO_MD5["SHIPPED"])
+    before = read_fatal_tokens(text)
+    planted_text = text + "\n" + PLANT_FATAL + "\n"
+    cp = os.path.join(_plant_dir(root), "fatal_planted_%s.log" % arm)
+    with open(cp, "w") as fh:
+        fh.write(planted_text)
+    after = read_fatal_tokens(open(cp, errors="replace").read())
+    if PLANT_FATAL not in after:
+        refuse("CONTROL", {"ctrl_fatal_not_seen": {"planted": PLANT_FATAL, "read_back": after,
+                           "note": "the fatal-token reader cannot see a fatal token; every "
+                                   "G1 PASS behind it would be a zero from a blind reader"}})
+    if before == after:
+        refuse("CONTROL", {"ctrl_fatal_DEGENERATE": {"unplanted": before, "planted": after}})
+    return {"seen": True, "reader": "read_fatal_tokens", "target_kind": kind, "arm": arm,
+            "unplanted": before, "planted": after, "zero_passes_a_gate": True, "file": cp}
+
+
+def ctrl_optimiser_evidence(root, arms_ran):
+    """R4's birth.  Same hazard as R2: this reader passes `G-NOOPT-ENDPOINT` on an
+    EMPTY list.  The unplanted endpoint directory must read CLEAN and the same
+    directory with a real marker present must read DIRTY."""
+    arm = _first_arm_with(root, arms_ran, ("XE", "FE"))
+    kind = "REAL"
+    if arm:
+        src_dir = os.path.join(root, arm)
+        doc, _ = load_artefact(root, arm)
+    else:
+        kind, arm = "WRITER_BUILT", "FE-P"
+        src_dir = os.path.join(_plant_dir(root), "noopt_source")
+        os.makedirs(src_dir, exist_ok=True)
+        doc = {"no_optimiser_ran": True}
+    before = read_optimiser_evidence(src_dir, doc)
+    cd = os.path.join(_plant_dir(root), "noopt_planted_%s" % arm)
+    os.makedirs(cd, exist_ok=True)
+    with open(os.path.join(cd, PLANT_MARKER), "w") as fh:
+        fh.write("planted by the grader's own control; not an optimiser run\n")
+    after = read_optimiser_evidence(cd, doc)
+    if PLANT_MARKER not in after:
+        refuse("CONTROL", {"ctrl_optmarker_not_seen": {"planted": PLANT_MARKER,
+                           "read_back": after,
+                           "note": "the optimiser-marker reader cannot see a marker; every "
+                                   "G-NOOPT-ENDPOINT PASS behind it would be a blind zero"}})
+    if before == after:
+        refuse("CONTROL", {"ctrl_optmarker_DEGENERATE": {"unplanted": before, "planted": after}})
+    # The SECOND direction of the same reader: the artefact's own declaration.
+    undeclared = read_optimiser_evidence(src_dir, {"no_optimiser_ran": False})
+    if "artefact_does_not_declare:no_optimiser_ran" not in undeclared:
+        refuse("CONTROL", {"ctrl_optmarker_declaration_leg_failed": undeclared})
+    return {"seen": True, "reader": "read_optimiser_evidence", "target_kind": kind,
+            "arm": arm, "unplanted": before, "planted": after,
+            "declaration_leg": undeclared, "zero_passes_a_gate": True, "file": cd}
+
+
+def ctrl_X(root, arms_ran):
+    """R5's birth.  Add PLANT_NUM to every adjoint component, re-read FROM DISK
+    through the real reader, and require every value to have moved by exactly
+    PLANT_NUM."""
+    arm = _first_arm_with(root, arms_ran, ("XE",))
+    kind = "REAL"
+    if arm:
+        src = os.path.join(root, arm, ARTEFACT["XE"])
+        doc = json.load(open(src))
+    else:
+        kind, arm = "WRITER_BUILT", "XE-P"
+        doc = {"adjoint": {"CD": {"shape": [repr(1.0e-2 * (i + 1)) for i in range(8)],
+                                  "patchV": [repr(1.0e-4), repr(2.0e-3)]},
+                           "CL": {"shape": [repr(1.0 + i) for i in range(8)],
+                                  "patchV": [repr(8.0e-3), repr(1.0e-1)]}}}
+        src = os.path.join(_plant_dir(root), "X_source.json")
+        with open(src, "w") as fh:
+            json.dump(doc, fh, indent=1, sort_keys=True)
+    before = read_X(src)
+    j = json.loads(json.dumps(doc))
+    for of in ("CD", "CL"):
+        for dv in ("shape", "patchV"):
+            arr = dig(j, ("adjoint", of, dv), []) or []
+            j["adjoint"][of][dv] = [repr(float(v) + PLANT_NUM) for v in arr]
+    cp = os.path.join(_plant_dir(root), "X_%s_planted.json" % arm)
+    with open(cp, "w") as fh:
+        json.dump(j, fh, indent=1, sort_keys=True)
+    after = read_X(cp)
+    worst, n = 0.0, 0
+    for of in ("CD", "CL"):
+        for key, a in before[of].items():
+            b = after[of].get(key)
+            if a is None or b is None:
+                refuse("CONTROL", {"ctrl_X_key_lost": {"of": of, "key": list(key)}})
+            worst = max(worst, abs((b - a) - PLANT_NUM))
+            n += 1
+    if n == 0 or worst > 1e-12:
+        refuse("CONTROL", {"ctrl_X_not_seen": {"n_values": n, "worst_residual": worst,
+                                               "plant": PLANT_NUM}})
+    return {"seen": True, "reader": "read_X", "target_kind": kind, "arm": arm,
+            "n_values": n, "worst_residual": worst, "plant": PLANT_NUM, "file": cp}
+
+
+def ctrl_F(root, arms_ran):
+    """R6's birth.  Add PLANT_NUM to every `dCD` and `dCL` at every step —
+    including the trivial-baseline step — re-read FROM DISK through the real
+    reader, and require every value to have moved by exactly PLANT_NUM."""
+    arm = _first_arm_with(root, arms_ran, ("FE",))
+    kind = "REAL"
+    if arm:
+        src = os.path.join(root, arm, ARTEFACT["FE"])
+        doc = json.load(open(src))
+    else:
+        kind, arm = "WRITER_BUILT", "FE-P"
+        rows = []
+        for dv, idx in XF.COMPONENTS:
+            per = {s: (0.0146 + 1e-3 * s, 0.0146 - 1e-3 * s, 0.42 + s, 0.42 - s)
+                   for s in list(XF.FD_STEPS_ENDPOINT[dv]) + [XF.TB_STEP]}
+            rows.append(XF.build_fd_row(dv, idx, per))        # THE REAL WRITER
+        rows.append(XF.build_ctrl_row(0.0146, 0.42))          # THE REAL WRITER
+        doc = {"rows": rows, "n_rows": len(rows)}
+        src = os.path.join(_plant_dir(root), "F_source.json")
+        with open(src, "w") as fh:
+            json.dump(doc, fh, indent=1, sort_keys=True)
+    before = read_F(src)
+    j = json.loads(json.dumps(doc))
+    for r in j.get("rows", []):
+        if r.get("dv") == "CTRL" or r.get("status") != "MEASURED":
+            continue
+        for v in (r.get("fd") or {}).values():
+            if v.get("ok"):
+                v["dCD"] = repr(float(v["dCD"]) + PLANT_NUM)
+                v["dCL"] = repr(float(v["dCL"]) + PLANT_NUM)
+    cp = os.path.join(_plant_dir(root), "F_%s_planted.json" % arm)
+    with open(cp, "w") as fh:
+        json.dump(j, fh, indent=1, sort_keys=True)
+    after = read_F(cp)
+    worst, n, tb = 0.0, 0, 0
+    for key, steps in before.items():
+        for s, v in steps.items():
+            b = (after.get(key) or {}).get(s)
+            if b is None:
+                refuse("CONTROL", {"ctrl_F_key_lost": {"key": list(key), "step": s}})
+            for f in ("dCD", "dCL"):
+                worst = max(worst, abs((b[f] - v[f]) - PLANT_NUM))
+                n += 1
+            if abs(float(s) - XF.TB_STEP) < 1e-30:
+                tb += 1
+    if n == 0 or worst > 1e-12:
+        refuse("CONTROL", {"ctrl_F_not_seen": {"n_values": n, "worst_residual": worst,
+                                               "plant": PLANT_NUM}})
+    if tb == 0:
+        refuse("CONTROL", {"ctrl_F_trivial_baseline_not_traversed":
+                           {"note": "the control must reach the steps G-TB grades, or "
+                                    "G-TB's reader is unborn"}})
+    return {"seen": True, "reader": "read_F", "target_kind": kind, "arm": arm,
+            "n_values": n, "n_trivial_baseline_values": tb,
+            "worst_residual": worst, "plant": PLANT_NUM, "file": cp}
+
+
+def ctrl_ipopt(root, arms_ran):
+    """R7's birth, BOTH DIRECTIONS.  `converged: False` is what a broken parser
+    returns AND what an unconverged run returns, so the reader is required to
+    return True on bytes that carry the statement and False on bytes that do
+    not — on the same log."""
+    arm = _first_arm_with(root, arms_ran, ("O",))
+    kind = "REAL"
+    src = os.path.join(root, arm, "opt_IPOPT.txt") if arm else None
+    if not (src and os.path.isfile(src)):
+        kind, arm = "WRITER_BUILT", arm or "O-P"
+        src = os.path.join(_plant_dir(root), "ipopt_source.txt")
+        with open(src, "w") as fh:
+            fh.write("iter objective inf_pr inf_du lg(mu) ||d|| lg(rg) alpha_du alpha_pr ls\n")
+            for i in range(12):
+                fh.write(" %3d  1.0e-02 1.00e-06 %8.2e  -5.0 1.00e-03  -1.0 1.00e+00 "
+                         "1.00e+00  1\n" % (i, 10.0 ** (-i - 1)))
+    text = open(src, errors="replace").read()
+    # BOTH LEGS ARE BUILT FROM THE SAME STRIPPED BYTES, and that is not a detail.
+    # Planting onto the ORIGINAL text left any pre-existing `EXIT:` line in place,
+    # and `_EXIT.search` takes the FIRST match — so on a log already ending
+    # `EXIT: Maximum Number of Iterations Exceeded.` the positive leg read that
+    # line instead of the plant and the control refused a working reader.  Caught
+    # by driving it; the two legs must differ in the plant and in NOTHING ELSE.
+    stripped = "\n".join(l for l in text.splitlines() if not l.startswith("EXIT:")) + "\n"
+    # NEGATIVE leg: the statement stripped out -> the reader must say NOT converged.
+    neg = os.path.join(_plant_dir(root), "ipopt_%s_stripped.txt" % arm)
+    with open(neg, "w") as fh:
+        fh.write(stripped)
+    r_neg = read_ipopt(neg)
+    if r_neg["convergence"]["converged"]:
+        refuse("CONTROL", {"ctrl_ipopt_negative_leg_failed":
+                           {"note": "the reader reports CONVERGED on bytes carrying no EXIT "
+                                    "line -- this is the A2 failure, where a table that simply "
+                                    "stops was read as a result"}})
+    # POSITIVE leg: the SAME bytes plus the statement -> the reader must SEE it.
+    pos = os.path.join(_plant_dir(root), "ipopt_%s_planted.txt" % arm)
+    with open(pos, "w") as fh:
+        fh.write(stripped.rstrip("\n") + "\n" + PLANT_EXIT + "\n")
+    r_pos = read_ipopt(pos)
+    if not r_pos["convergence"]["converged"]:
+        refuse("CONTROL", {"ctrl_ipopt_positive_leg_failed":
+                           {"planted": PLANT_EXIT, "read_back": r_pos["convergence"],
+                            "note": "the reader cannot see the optimiser's own convergence "
+                                    "statement; every G-OPT9 reading behind it is blind"}})
+    if r_neg["n_rows"] == 0:
+        refuse("CONTROL", {"ctrl_ipopt_no_rows_parsed":
+                           {"note": "the row reader saw zero rows; G-OPT9's major count and "
+                                    "the stall detector would both be reading a blind zero"}})
+    if r_neg["convergence"]["converged"] == r_pos["convergence"]["converged"]:
+        refuse("CONTROL", {"ctrl_ipopt_DEGENERATE":
+                           {"stripped": r_neg["convergence"], "planted": r_pos["convergence"]}})
+    return {"seen": True, "reader": "read_ipopt", "target_kind": kind, "arm": arm,
+            "negative_leg_converged": r_neg["convergence"]["converged"],
+            "positive_leg_converged": r_pos["convergence"]["converged"],
+            "rows_parsed": r_neg["n_rows"], "files": [neg, pos]}
+
+
+def run_live_controls(root, arms_ran):
+    """Every control, on THIS run root.  Any failure REFUSES (exit 2) before a
+    single gate is composed — a comparator whose readers are not shown able to
+    see a non-zero grades nothing."""
+    c = {}
+    c["R1_read_ledger"] = ctrl_ledger(root)
+    c["R2_read_fatal_tokens"] = ctrl_fatal_tokens(root, arms_ran)
+    c["R2b_read_benign_counts"] = ctrl_benign(root, arms_ran)
+    c["R3_read_mesh_cells"] = ctrl_mesh_cells(root)
+    c["R4_read_optimiser_evidence"] = ctrl_optimiser_evidence(root, arms_ran)
+    c["R5_read_X"] = ctrl_X(root, arms_ran)
+    c["R6_read_F"] = ctrl_F(root, arms_ran)
+    c["R7_read_ipopt"] = ctrl_ipopt(root, arms_ran)
+    return c
+
+
+def ctrl_benign(root, arms_ran):
+    """R2b's birth.  Reported, never gated — and still born, because a benign
+    count that silently reads zero would hide the very suppression the count
+    exists to make visible."""
+    arm = sorted(arms_ran)[0] if arms_ran else None
+    kind, text = "REAL", ""
+    if arm:
+        _p, text = read_arm_log(root, arm)
+    if not text:
+        kind, arm = "WRITER_BUILT", arm or "MESH"
+        text = "D19O_MESH_IDENTITY_ALL_OK\n"
+    before = read_benign_counts(text)
+    planted_text = text + "".join("\n%s\n" % v for v in BENIGN.values())
+    cp = os.path.join(_plant_dir(root), "benign_planted_%s.log" % arm)
+    with open(cp, "w") as fh:
+        fh.write(planted_text)
+    after = read_benign_counts(open(cp, errors="replace").read())
+    missed = [k for k in BENIGN if after[k] <= before[k]]
+    if missed:
+        refuse("CONTROL", {"ctrl_benign_not_seen": {"missed": missed, "before": before,
+                                                    "after": after}})
+    return {"seen": True, "reader": "read_benign_counts", "target_kind": kind, "arm": arm,
+            "unplanted": before, "planted": after}
+
+
+def birth_record(controls):
+    """`n_not_born` is computed FROM THE CONTROLS THAT ACTUALLY RAN on this run
+    root, never from a hand-maintained flag."""
+    readers = {}
+    for k, v in READERS.items():
+        c = controls.get(k) or {}
+        readers[k] = {**v, "born": bool(c.get("seen")),
+                      "born_against": c.get("target_kind"), "control": k}
+    not_born = [k for k, v in readers.items() if not v["born"]]
+    return {"requirement": ("Sanaa 2026-08-28: no instrument grades anything until 'was THIS "
+                           "reader ever shown able to see a non-zero THROUGH THE REAL CODE "
+                           "PATH?' is answered YES, demonstrated -- on THIS run root, against "
+                           "THESE files, not on a fixture at build time"),
+            "readers": readers, "n_readers": len(readers),
+            "n_born": sum(1 for v in readers.values() if v["born"]),
+            "n_not_born": len(not_born), "not_born": not_born,
+            "n_readers_whose_zero_passes_a_gate":
+                sum(1 for v in readers.values() if v["zero_passes_a_gate"]),
+            "plant_dir": "grader_controls/",
+            "note": ("The plants NEVER touch a graded artefact: every one is written to a "
+                     "separate copy under grader_controls/ and the item's verdict is composed "
+                     "from the unplanted bytes alone.")}
 
 
 # ============================================================================
@@ -329,11 +824,10 @@ def g_completion(root, arm, led, doc):
     else:
         out["clauses"]["terminal_statement"] = bool(TERMINAL[kind] in text)
         out["clauses"]["artefact_present"] = doc is not None
-    low = text.lower()
-    hits = [t for t in FATAL_TOKENS if t.lower() in low]
+    hits = read_fatal_tokens(text)                        # THE NAMED READER
     out["clauses"]["no_fatal_token"] = not hits
     out["fatal_tokens_seen"] = hits
-    out["benign_counts"] = {k: low.count(v.lower()) for k, v in BENIGN.items()}
+    out["benign_counts"] = read_benign_counts(text)       # THE NAMED READER
     out["_benign_note"] = ("COUNTED AND NAMED, never suppressed.  `SIMPLE: no "
                            "convergence criteria found` is OpenFOAM's banner and is "
                            "NOT evidence: DAFoam applies its own primalMinResTol.  "
@@ -445,8 +939,7 @@ def g_mesh(root):
     if not os.path.isfile(p):
         return {"verdict": "NOT A RESULT", "cells": None, "registered": MESH_CELLS,
                 "note": "no checkMesh.log -- the MESH arm did not run"}
-    m = re.search(r"^\s*cells:\s*(\d+)\s*$", open(p, errors="replace").read(), re.M)
-    cells = int(m.group(1)) if m else None
+    cells = read_mesh_cells(p)                            # THE NAMED READER
     return {"cells": cells, "registered": MESH_CELLS,
             "verdict": "PASS" if cells == MESH_CELLS else "GATE FAIL"}
 
@@ -493,13 +986,14 @@ def g_noopt_endpoint(root, arms_ran):
     for arm in arms_ran:
         if ARM_KIND[arm] not in ("XE", "FE"):
             continue
-        for ev in ("opt_IPOPT.txt", "OptView.hst"):
-            if os.path.exists(os.path.join(root, arm, ev)):
-                bad.append({"arm": arm, "optimiser_evidence": ev})
         doc, _ = load_artefact(root, arm)
-        if doc is not None and doc.get("no_optimiser_ran") is not True:
-            bad.append({"arm": arm, "artefact_does_not_declare": "no_optimiser_ran"})
-    return {"violations": bad, "verdict": "PASS" if not bad else "GATE FAIL"}
+        for ev in read_optimiser_evidence(os.path.join(root, arm), doc):   # THE NAMED READER
+            bad.append({"arm": arm, "optimiser_evidence": ev})
+    return {"violations": bad, "verdict": "PASS" if not bad else "GATE FAIL",
+            "_zero_passes_this_gate": "read_optimiser_evidence returns an EMPTY list for a "
+                                      "clean endpoint arm AND for a reader that matches "
+                                      "nothing.  Its live control (R4) is what separates "
+                                      "the two, and it REFUSES exit 2 if the reader is blind."}
 
 
 def g_evalfail(root, arms_ran):
@@ -834,6 +1328,15 @@ def grade(root):
     led_rows, _order = read_ledger(root)
     arms_ran = [a for a in ARMS_DECLARED if a in led_rows]
 
+    # ---- CLAUDE.md RULE 3, BEFORE A SINGLE GATE IS COMPOSED ------------------
+    # Every reader is shown able to see a non-zero ON THIS RUN ROOT, through the
+    # real reader function, or this comparator refuses and grades nothing.
+    controls = run_live_controls(root, arms_ran)
+    birth = birth_record(controls)
+    if birth["n_not_born"] != 0:
+        refuse("CONTROL", {"unborn_readers": birth["not_born"],
+                           "note": "a reader not shown able to see a non-zero grades nothing"})
+
     gates = {"G-PROV": prov, "G-STAGES": g_stages(arms_ran)}
     gates["G-M2_mesh_identity"] = g_mesh(root)
     gates["G-NP"] = g_np(led_rows)
@@ -896,6 +1399,7 @@ def grade(root):
             % (verdict, "two rows: SHIPPED=%s PATCHED=%s"
                % (rows["SHIPPED"]["verdict"], rows["PATCHED"]["verdict"])),
         "rows": rows, "gates": gates,
+        "controls": controls, "birth_register": birth,
         "vocabulary": list(VOCAB),
         "asserts_in_grader": count_asserts(os.path.abspath(__file__)),
         "submissions": "PARKED -- nothing in this item is filed, sent, uploaded, "

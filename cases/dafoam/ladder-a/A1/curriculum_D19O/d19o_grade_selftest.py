@@ -410,6 +410,83 @@ def main():
         unit("F9-vocab-six", 6, len(G.VOCAB))
         unit("F10-out-mandatory", True, "--out" in open(gp_path).read())
 
+        # ============ G. THE LIVE PLANTED-ZERO CONTROLS ======================
+        print()
+        print("G. THE LIVE CONTROLS -- rule 3 answered ON THE RUN ROOT, not on a fixture")
+        b = g["birth_register"]
+        print("     readers=%d born=%d not_born=%d ; %d of them PASS A GATE ON A ZERO"
+              % (b["n_readers"], b["n_born"], b["n_not_born"],
+                 b["n_readers_whose_zero_passes_a_gate"]))
+        unit("G1-all-born", 0, b["n_not_born"])
+        unit("G2-eight-readers", 8, b["n_readers"])
+        # FIVE, not four: R2 fatal tokens, R4 optimiser markers, R5 X, R6 F, R7
+        # IPOPT.  Written as 4 from memory and corrected DOWN to the driven
+        # count -- the section 9.4 lesson applied to this suite's own figure.
+        unit("G3-five-zero-hazards", 5, b["n_readers_whose_zero_passes_a_gate"])
+        unit("G3b-hazards-named",
+             ["R2_read_fatal_tokens", "R4_read_optimiser_evidence", "R5_read_X",
+              "R6_read_F", "R7_read_ipopt"],
+             sorted(k for k, v in b["readers"].items() if v["zero_passes_a_gate"]))
+        unit("G4-all-seen", [True] * 8,
+             [g["controls"][k]["seen"] for k in sorted(g["controls"])])
+        unit("G5-real-targets", True,
+             all(g["controls"][k]["target_kind"] == "REAL" for k in sorted(g["controls"])),
+             "(on a full run every reader is born against a REAL artefact)")
+        unit("G6-F-reaches-TB", True,
+             g["controls"]["R6_read_F"]["n_trivial_baseline_values"] > 0,
+             "(the F control reaches the steps G-TB grades, or G-TB's reader is unborn)")
+        unit("G7-ipopt-both-legs", (False, True),
+             (g["controls"]["R7_read_ipopt"]["negative_leg_converged"],
+              g["controls"]["R7_read_ipopt"]["positive_leg_converged"]),
+             "(stripped -> NOT converged; planted -> converged; same bytes otherwise)")
+        unit("G8-plants-quarantined", True,
+             all("grader_controls" in str(g["controls"][k].get("file", ""))
+                 or "grader_controls" in str(g["controls"][k].get("files", ""))
+                 or "grader_controls" in str(g["controls"][k].get("arm", "") and
+                                             g["controls"][k].get("file", ""))
+                 for k in ("R3_read_mesh_cells", "R5_read_X", "R6_read_F")),
+             "(the plants NEVER touch a graded artefact)")
+
+        # ---- THE RED HALF: BLIND EACH READER AND REQUIRE A REFUSAL ----------
+        # A control that cannot fail is not a control.  Each leg below monkey-
+        # patches ONE reader to be blind -- exactly the trailing-`\b` failure --
+        # and requires grade() to REFUSE rather than compose a green verdict.
+        print()
+        print("H. BLINDING EACH READER MUST REFUSE, NOT GRADE")
+        rblind = build_root(os.path.join(tmp, "blind"))
+        blinds = [
+            ("H1-blind-fatal", "read_fatal_tokens", lambda *a, **k: [],
+             "ctrl_fatal_not_seen"),
+            ("H2-blind-optmarker", "read_optimiser_evidence", lambda *a, **k: [],
+             "ctrl_optmarker_not_seen"),
+            ("H3-blind-cells", "read_mesh_cells", lambda *a, **k: None,
+             "ctrl_mesh_no_target"),
+            ("H4-blind-X", "read_X", lambda *a, **k: {"CD": {}, "CL": {}},
+             "ctrl_X_not_seen"),
+            ("H5-blind-F", "read_F", lambda *a, **k: {},
+             "ctrl_F_not_seen"),
+            ("H6-blind-ledger", "read_ledger", lambda *a, **k: ({}, []),
+             "ctrl_ledger_reader_saw_no_rows"),
+        ]
+        for name, attr, fake, want_key in blinds:
+            real = getattr(G, attr)
+            setattr(G, attr, fake)
+            try:
+                _gg, ref = _grade(rblind)
+            finally:
+                setattr(G, attr, real)
+            got = ref if ref else "NO REFUSAL -- IT GRADED ANYWAY"
+            unit(name, "CONTROL", got, "(blinded %s)" % attr)
+        # And the register itself must be able to report an unborn reader.
+        real = G.ctrl_X
+        G.ctrl_X = lambda *a, **k: {"seen": False, "target_kind": None}
+        try:
+            _gg2, ref2 = _grade(rblind)
+        finally:
+            G.ctrl_X = real
+        unit("H7-unborn-refuses", "CONTROL", ref2,
+             "(a reader reporting seen=False stops the grade)")
+
         print()
         if FAILED:
             print("D19O COMPARATOR SELFTEST: FAILED -- %d leg(s): %s" % (len(FAILED), FAILED))

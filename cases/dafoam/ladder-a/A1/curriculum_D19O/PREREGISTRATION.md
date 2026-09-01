@@ -625,3 +625,85 @@ Each is named rather than papered over. None is a reason not to freeze; each is 
 * **Nothing is filed, sent, posted, uploaded, registered or commented upstream by any agent, ever.** `CLAUDE.md` rule 7; `DAFOAM_CHARTER.md` §10. **SUBMISSIONS ARE PARKED.**
 
 **Not cleared to launch by this document.** This is a freeze, not an authorisation. The `dafoam-supervisor`'s **pre-registration-committed** check and **grader-read-as-a-diff** check come first, and neither is this lane's to make.
+
+---
+
+## AMENDMENT 1 — 2026-09-01, BEFORE FIRST COMPUTE. THE COMPARATOR GAINS LIVE PLANTED-ZERO CONTROLS, AND THE GRADING PATH IS RE-PINNED TO md5 `c55a0151dc8eab4740ee1169cb9202ae`
+
+**lines whose number changed above this section: 0.** This section is appended at the foot; nothing above it is edited. Proved on bytes (and the figure below is the MEASURED one: this section first carried an invented byte count, 34,972, which `cmp -n` refused; a number nobody measured has no place in a freeze, and the correction is recorded rather than quietly swapped): before the append the file was **68,187 bytes / 627 lines, md5 `baa13638d25437e76f6effb6b1ed34ed`**, verified byte-identical to `git show HEAD:…/PREREGISTRATION.md` by `cmp`, exit 0.
+
+**THE RULE-2 CONDITION, AND HOW IT WAS CHECKED.** **No compute has happened.** The registered run root `/home/ubuntu/certonomous-runs/CURRICULUM-D19O-a1-naca0012-subsonic-optimisation` **DOES NOT EXIST** — re-asserted in the same shell invocation as this amendment, against the same positive control as §11 (`CURRICULUM-D19R-a1-naca0012-subsonic-plateau`, which the same reader returns as **EXISTS**). Zero `d19o_` containers have ever existed. The freeze window is open and **closes at the first arm**.
+
+**Authority.** The `dafoam-supervisor`'s check-1 read of `d19o_grade.py`, 2026-09-01, which found the gap below and withheld launch until it is closed.
+
+### A1.1 THE DEFECT — `D19O-GRADER-DEF-1`: THE COMPARATOR HAD NO LIVE PLANTED-ZERO CONTROLS
+
+**`CLAUDE.md` rule 3 requires that every comparator plants a known perturbation, reads it back from disk, and REFUSES if the reader cannot see it.** The frozen comparator at `396a028f` did **not**. Measured: `grep -cE 'grader_plant' so3_grade.py` returns **50**; the same shape in `d19o_grade.py` returned **0**, and the only two occurrences of "plant" in its 932 lines were docstring prose about the selftest.
+
+**The 51-leg comparator suite is not a substitute, and the distinction is the whole point.** A selftest on fixtures proves the code **could** see a plant *at build time*. Rule 3 asks a different question about the **live** run: *"was THIS reader, on THIS run root, against THESE files, shown able to see a non-zero?"* — Sanaa's 2026-08-28 requirement. **A green suite is a result about the comparator; a plant read back from the actual run root is a result about the reading.**
+
+**AND THIS COMPARATOR HAS FIVE READERS WHOSE ZERO IS A PASS.** `G-NOOPT-ENDPOINT` passed on an optimiser-marker count of **zero**, and `G1` passed on a fatal-token count of **zero**. **A reader that silently matches nothing returns exactly the same zero as a clean run, and every gate behind it stays green.** That is the trailing-`\b` failure with a verdict attached.
+
+### A1.2 THE REPAIR
+
+**Eight named readers**, each a function, so a control can call **the real one** rather than re-implement it — a control that re-implements its reader can agree with itself while disagreeing with the instrument. Three gates were re-routed through them (`G1`'s fatal-token and benign readers, `G-M2`'s cell reader, `G-NOOPT-ENDPOINT`'s marker reader); **no gate logic changed**, only the call site.
+
+| reader | feeds | zero passes a gate? |
+|---|---|---|
+| `read_ledger` | `G1`/`G9`/`G10`/`G12`/`G-NP` | no |
+| `read_fatal_tokens` | `G1` | **YES** |
+| `read_benign_counts` | reported, never gated | no |
+| `read_mesh_cells` | `G-M2` | no |
+| `read_optimiser_evidence` | `G-NOOPT-ENDPOINT` | **YES** |
+| `read_X` | `G5_fd`, `G-TB` | **YES** |
+| `read_F` | `G5_fd`, `G-TB`, `G-PLAT7` | **YES** |
+| `read_ipopt` | `G-OPT9` | **YES** |
+
+**Eight live controls, run BEFORE a single gate is composed.** Each plants into a **copy** under `grader_controls/`, reads it back **from disk through the real reader function**, and **REFUSES (exit 2)** if the plant is not recovered. **The plants never touch a graded artefact**; the verdict is composed from the unplanted bytes alone.
+
+**EVERY CONTROL CARRIES A DEGENERACY ARM** — it refuses if the unplanted value already equals the planted one, so a control cannot pass by coincidence. The cell plant is an **offset from what is on disk** (`+7`), never a fixed constant that a fixture might already carry.
+
+**Two controls are two-directional**, because for them a single direction proves nothing: `read_ipopt` must return **not converged** on bytes with the `EXIT:` line stripped **and converged** on the same bytes with the statement planted; `read_optimiser_evidence` must read clean on an untouched directory and dirty with a real marker present.
+
+**Where an arm did not run**, the control's target is built by the **instrument's own writers** (`d19o_xf.build_fd_row` / `build_ctrl_row`) and the register records `target_kind: WRITER_BUILT` rather than `REAL`. A reader must be born either way; what changes is only what it was born against, and that is stated rather than blurred.
+
+**The register is emitted into the graded JSON** as `birth_register`, with `n_born`, `n_not_born`, `born_against` per reader, and `n_readers_whose_zero_passes_a_gate`. **`n_not_born != 0` REFUSES.**
+
+**A DEFECT IN THE CONTROL ITSELF, FOUND BY DRIVING IT AND DISCLOSED HERE.** `ctrl_ipopt`'s positive leg first planted `EXIT: Optimal Solution Found.` onto the **original** text. On a log already ending `EXIT: Maximum Number of Iterations Exceeded.` the reader's `_EXIT.search` takes the **first** match, so the control read the pre-existing line instead of its own plant and **refused a working reader**. Repaired: **both legs are now built from the same stripped bytes and differ in the plant and in nothing else.**
+
+### A1.3 THE CONTROLS ARE DRIVEN RED — BLINDING EACH READER MUST REFUSE
+
+**A control that cannot fail is not a control.** Seven new selftest legs monkey-patch **one reader at a time** to be blind — exactly the trailing-`\b` failure — and require `grade()` to **REFUSE** rather than compose a green verdict. **All seven fire:** `read_fatal_tokens`, `read_optimiser_evidence`, `read_mesh_cells`, `read_X`, `read_F`, `read_ledger`, and a reader reporting `seen: False`.
+
+On a full seven-arm fixture: **8 readers, 8 born, 0 not born, all against `REAL` targets, 5 carrying the zero-passes-a-gate hazard.** The `read_F` control is additionally required to traverse the **trivial-baseline step**, or `G-TB`'s reader would be unborn.
+
+### A1.4 WHAT MOVED, AND THE PROOF THAT NOTHING ELSE DID
+
+**NO GATE, THRESHOLD, CAP, BAND, LABEL OR PREDICTION MOVES.** Re-read from the amended modules and compared against this document's registered values, **23 of 23 unchanged**: `CAPS`, `ITEM_CEILING_CORE_MIN = 145.0`, `PREDICTED_CORE_MIN` (Σ = 24.10), `CPUSET_REGISTERED = "11"`, `MESH_CELLS = 4032`, **`VERDICT_CEILING = "GATE REACHED"`**, `MIN_DRAG_REDUCTION_PCT = 2.0`, `MIN_MAJORS_TO_HAVE_SEARCHED = 5`, the six-token `VOCAB`, `ARMS_DECLARED`, `ARM_RANKS` (all 1), `FD_BAND_PCT = 5.0`, `AGG_BAND_PCT = 5.0`, `PLATEAU_TOL_PCT = 10.0`, `TB_STEP = 1e-8`, `TB_MAX_PASSING = 1`, `MAX_MAJORS = 40`, `EXPECTED_MAJOR_ROWS = 12`, `S_STAR`, `FD_STEPS_ENDPOINT`, `EXCLUDED_FROM_AGGREGATE = [("shape", 7)]`, `PLANT_K = 5.0`, `NP_REQUIRED = 1`.
+
+**The only lines REMOVED from the comparator are the four inline reader bodies now routed through the named readers** — verified by a non-comment diff against the committed blob. **The amendment is ADDITIVE: it makes MORE runs refusable and makes NONE pass that would previously have failed.**
+
+### A1.5 THE RE-PIN — AND THE OLD PIN IS SHOWN TO FAIL CLOSED
+
+Editing `d19o_grade.py` **rewrote the very bytes every declaration of its md5 pins**, so every such declaration was stale the instant the file was saved. That is what cost SO-2MR its first arm.
+
+| | value |
+|---|---|
+| **STRUCK** | `419ce2363743bd16109826f2bf75d4f2` |
+| **NEW GRADING PATH md5** | **`c55a0151dc8eab4740ee1169cb9202ae`** |
+
+**The assertion was exercised in both directions, on the real bytes, through the driver's own mechanism** (`echo "$MD5_GRADER  $GRADER" | md5sum -c -`): the **new** pin → `d19o_grade.py: OK`; the **struck** pin → `FAILED` / `WARNING: 1 computed checksum did NOT match`. **It fails closed, as it must.** `d19o_repin.sh` reached its fixpoint in 2 passes and `--verify` reports every pin matching its file.
+
+### A1.6 SUPERSEDED-HASH INDEX — EVERY LINE ABOVE THAT STILL CARRIES THE STRUCK md5
+
+Rule 6 forbids editing above an amendment, so §7 row 5, §10 and §16 still **spell** the superseded hash in the body. **A heading is not enough, because the realistic reader is a `grep`.** Swept, not assumed — **there are THREE occurrences above this section, all superseded**: §7 row 5 (the pin a reader takes the pin from), §10's opening (*"`d19o_grade.py`, md5 …"*, the most load-bearing statement in the document), and §16 FREEZE (*"the grading path is fixed at this commit"*). **A reader of §7, §10 or §16 must carry `c55a0151dc8eab4740ee1169cb9202ae` from here, not the value printed there.** The occurrences inside this amendment (§A1.5's `STRUCK` row and this paragraph) are **correct in context** — they are the landing point for that grep.
+
+### A1.7 ALL SUITES RE-DRIVEN AFTER THE REPAIR
+
+`d19o_age_guard.py --selftest`, `d19o_stall.py --selftest`, `d19o_aggregate_memory.py --selftest`, `d19o_xf_selftest.py`, `d19o_grade_selftest.py` (now **59 legs**), `d19o_run_arm_selftest.sh`, `d19o_chain_driver_selftest.sh`, `d19o_repin.sh --verify` — **all OK.**
+
+**One count in this suite was corrected DOWN to its driven value rather than the suite padded up to meet it:** the zero-passes-a-gate hazard count was written as **4** from memory and the driven figure is **5** (`read_fatal_tokens`, `read_optimiser_evidence`, `read_X`, `read_F`, `read_ipopt`). The leg now names all five explicitly. That is §9.4's lesson — a count is cited with its definition or it is not cited — applied to this suite's own figure.
+
+### A1.8 STATUS AFTER THIS AMENDMENT
+
+**Still not cleared to launch.** This amendment closes a rule-3 gap and re-pins a hash; **it authorises nothing.** The run root is absent, the freeze window is open, and it closes at the first arm. The supervisor re-derives the new grading-path hash and authorises the launch, or does not.
