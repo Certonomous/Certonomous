@@ -351,3 +351,25 @@ SO-2MR, and none is invented here** — SO-2MR's is a `QUEUE_ENTRY_DRAFT.json` s
 directory, deliberately **not filed**.
 
 **This note moves no gate, re-grades nothing, and spent zero solver core-minutes.**
+
+---
+
+## Addendum 2026-09-01 (dafoam lane) — `curriculum_D19M` is indexed, and the rest of the D19 family is named as still missing
+
+**Nothing above this line was edited.** No existing row, table, column or section was altered, moved or renamed. **No frozen `PREREGISTRATION.md` was touched and zero compute was spent** — every figure below is read from an artefact already on disk.
+
+**This addendum indexes ONE item**, the one this lane was dispatched to land. The verdict column is a **citation, never a summary**.
+
+| new directory | pair files | run tree (outside the repo) | verdict of record, with the artefact it is read from | CAUSE CLASS |
+|---|---|---|---|---|
+| `ladder-a/A1/curriculum_D19M/` | `PREREGISTRATION.md` (frozen `c7d7bf10`, through Amendment 3), `RESULTS.md`, `QUEUE_ENTRY_DRAFT.json` | `/home/ubuntu/certonomous-runs/CURRICULUM-D19M-a1-naca0012-subsonic-multipoint/` | **`GATE REACHED`**, rows `{"SHIPPED": "GATE REACHED", "PATCHED": "GATE REACHED"}`, both `verdict_before_ceiling: "PASS"` and `capped_by_ceiling: true` — `D19M_grade_20260901T083034Z.json` → `verdict`, `rows`, `rows_capped_by_ceiling`. Chain `COMPLETE`, `chain_rc=0`, `declared=7 executed=7`. **35.166 core-min**, \$0.030067 **derived, not measured** | **CEILING** — the item was **capped, not failed**: every gate returned `PASS`, and the registered `VERDICT_CEILING` binds because the compressible gradient it spends has **no graded verdict** and D19R's plateau never closed. **Nothing in this item is a `GATE FAIL`, and no `PHYSICS-FAIL` or `MODEL-LIMIT` class applies** |
+
+**A NOTE ON THE `capped_by_ceiling` FIELD, because this row would otherwise be checkable against the wrong one.** The grade artefact's **top-level** `capped_by_ceiling` reads `false` while both **rows** read `true`. Both are literally true — the ceiling binds at row level and the item inherits, so item-level capping had nothing left to do. **The fields to quote are `capped_by_ceiling_anywhere: true` and `rows_capped_by_ceiling: ["SHIPPED", "PATCHED"]`**, and `curriculum_D19M/RESULTS.md` §7.1 states why.
+
+### ⚠ THE GAP THIS ADDENDUM DOES NOT CLOSE
+
+**Four other `curriculum_D19*` directories exist on disk and still have NO index row**: `curriculum_D19`, `curriculum_D19R`, `curriculum_D19R2` and `curriculum_D19O`. Three carry run trees (`CURRICULUM-D19-a1-naca0012-subsonic-opt`, `CURRICULUM-D19R-a1-naca0012-subsonic-plateau`, `CURRICULUM-D19O-a1-naca0012-subsonic-optimisation`). **No verdict is stated here for any of them** — this lane's brief covered D19M only, and writing an index row for an item it did not read the artefacts of is exactly the step the 2026-08-31 backfill refused for SO-1bR. **They are named so the count is known: four items, zero index rows.**
+
+**`docs/dafoam/README.md` §3 carried no D19-family row of any kind before today.** This lane added D19M's two rows there; **D19, D19R, D19R2 and D19O remain absent from §3**, and that is `docs/dafoam/GRADING_CHAIN.md` bullet 9 in the live again — *nothing links a graded verdict to `README.md` §3 or to this file*, and the hop is still a person reading a page.
+
+**This note moves no gate, band, threshold, cap or label; it re-grades nothing; it adds no number that is not already written in a cited artefact; and it spent zero solver core-minutes.**
