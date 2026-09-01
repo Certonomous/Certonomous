@@ -4791,9 +4791,70 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-01T19:22:04Z by dafoam-supervisor (TWENTY-SIXTH session, re-formed after the ~15:14Z box reboot; stamp from `date -u` in the committing invocation). Newest block is `S-25h` — the stage-keyed tense rule, a LIVE screen-8 violation on filmable material, the shootable-run eligibility ruling, and my FOURTH characterisation error of the session. `S-25e` is the D19T permission denial, still open on her desk.
+**Section last written:** 2026-09-01T19:46:50Z by dafoam-supervisor (TWENTY-SIXTH session, re-formed after the ~15:14Z box reboot; stamp from `date -u` in the committing invocation). Newest block is `S-25i` — ParaView proved coupled to the case, the act's two drive paths reconciled, and the screen-8 fix I recorded as closed turns out to have reached the sheets and not the wire. `S-25e` is the D19T permission denial, still open on her desk.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-25i — **THE PARAVIEW ENGINE RENDERS ON THIS GPU-LESS BOX AND IS PROVED COUPLED TO THE CASE; THE ACT'S TWO DRIVE PATHS NOW PUBLISH IDENTICALLY (29 EVENTS / 7-OF-9 → 347 / 9-OF-9). ⚠ BUT IT UNBLOCKED **THREE** CHECKS, NOT THE TEN I WAS TOLD AND RELAYED — AND THE SCREEN-8 FIX I RECORDED AS CLOSED WAS APPLIED TO THE SHEETS AND NOT TO THE WIRE, WHICH IS HALF MY MISS** (2026-09-01T19:46:50Z, `date -u` at write)
+
+###### 1. ⚠ TWO CORRECTIONS TO ME, AND ONE OF THEM IS A COMPLIANCE VIOLATION I RECORDED AS FIXED
+
+**(a) "ONE LINE UNBLOCKS TEN" WAS WRONG AND I PASSED IT DOWN WITHOUT MEASURING IT.** The lane measured: **`adjoint-wing` goes `FAIL=10 ok=0` → `FAIL=7 ok=3`. THREE, not ten.** **The remaining seven are CONTENT, not wiring, and no declaration would ever have closed them.**
+
+**(b) ⚠⚠ THE SCREEN-8 FIX WAS APPLIED TO FOUR SHEETS AND NOT TO THE ACT. I RULED IT "FIXED FIRST", TOOK "LANDED" AS CLOSED, AND NEVER ASKED ON WHICH SURFACE.** The convergence-study line is still **absent from the wire**, so the screen a viewer sees does not carry it. **THE GENERAL FORM IS WORTH MORE THAN THE FIX: A COMPLIANCE REPAIR APPLIED TO THE DOCUMENT IS NOT APPLIED TO THE THING THAT RENDERS ON SCREEN. TWO SURFACES, ONE RULE, AND WE EACH CHECKED ONE.** Standing correction for me: **when a lane reports a presentation fix landed, ask WHICH SURFACE before recording it closed.**
+
+###### 2. THE SEQUENCER DECLARATION — `S-24b`'s "HALF-WIRED" FINDING, CLOSED
+
+`a09b1adf`, **one method, 37 lines, `sdk/workflows/adjoint_act.py` only.** `AdjointWingAct` never declared `sequencer()`, so the shared dispatcher built the **base** `Sequencer`, reached the shared solving stage, found `cases` empty and refused — while the act's own `drive()` had named `ActDSequencer` internally all along.
+
+| path | before | after |
+|---|---|---|
+| `run_act` | **29 events, 7 of 9**, then `SequencerRefused "no cases to read"` | **347 events, 9 of 9** |
+| `drive()` | 347 events, 9 of 9 | 347 events, 9 of 9 |
+
+**The two paths now publish identically.** **Three files already documented this defect** — `demo_mode.py:1606` names "the adjoint act" by name, `demo_sequencer.run_act:1523` names it, and **`dmr_act.py:1114` is the sibling that took the same fix and measured the same shape (29/7-of-9 → 208/9).**
+
+**OWNERSHIP RULED AND VERIFIED, NOT TAKEN ON RELAY: `sdk/workflows/adjoint_act.py` IS OURS** — dafoam created it (`e3964db0`, 925 lines) and edited it (`b38e3cde`); cfd has touched it once, for the guard choke point. **`sdk/` is in no team's roster territory and my blanket "do not touch `sdk/`" was a conservative default, not a charter clause. THE BOUNDARY MOVES FOR THIS FILE ONLY — `demo_sequencer.py`, `demo_mode.py` and `router.py` stay cfd's**, and the asks to them remain reports.
+
+**⚠ THE MEASUREMENT METHOD IS THE PART TO COPY LAB-WIDE: the lane A/B'd it by MONKEYPATCHING `sequencer()` to return `None` and re-running the gate — NEVER by reverting the working tree — then restored and re-measured to prove it left nothing behind (`FAIL=7` again). THAT IS HOW A COUNTERFACTUAL IS MEASURED WITHOUT TOUCHING SHARED STATE, and the naive version is a rule-10 violation dressed as diligence.**
+
+###### 3. PARAVIEW: THE ENGINE DRAWS, AND IT DRAWS **THIS RUN**
+
+**Stage 0 `PASS`** (`64b4ea6e`), 0.03 core-min: the registered 5.13.3 EGL build **renders on this GPU-less box** — 480×360, 8,618 distinct colours, modal 0.8105 — with both md5 gates green on the pair I required (**wrapper `82ec8db9…` AND real binary `dc272bb9…`**). **Scope stated honestly: the ENGINE draws; nothing yet about coupling.**
+
+**Coupling `PASS`** (`b3d36ef3`), 0.0882 core-min: ParaView reads **4,032 cells / 8,316 points — the registered mesh**; `G-PV7c` **0.000000** of pixels differ on an unperturbed re-render; `G-PV7b` **0.284490** differ when **2,404 of 8,316 points are scaled 1.30 in y ON DISK**. **The perturbation reaching the FILE rather than the script is what makes it a coupling proof rather than a self-test.**
+
+**⚠ TWO REDS WITH INNOCENT EXPLANATIONS IN ONE ITEM, BOTH THE LANE'S OWN INSTRUMENT, BOTH CAUGHT CHEAPLY BECAUSE OF THE SMOKE-TEST-FIRST TIGHTENING I REQUIRED.**
+1. **Stage 0's first run returned `BLOCKED` AND THE VERDICT WAS WRONG** — `ColorBy(d, None)`, invalid in 5.13.3, in the lane's own script; the engine had loaded perfectly. **Acting on it would have sent us to register the entire 5.11.2 + `xvfb` fallback we do not need.** One frame at 0.03 core-min instead of that misdiagnosis arriving behind 45 core-min of script iteration.
+2. **Coupling's first run returned `NOT A RESULT` at 0.000074** — cause was the **camera**: ParaView overrode `CameraParallelScale` because it was set **before** the first `Render`, so the body was ~10 px wide in an 18.6 m O-grid and a 30 % geometry change moved 74 ppm. **Found by LOOKING at the frame rather than reasoning about the statistic** — a number that would have been easy to rationalise as "the perturbation is subtle".
+
+**⚠⚠ THE TRANSFERABLE SENTENCE, AND IT IS THE BEST THING THIS ITEM HAS PRODUCED: MAKE THE INSTRUMENT STATE WHAT IT DID, NOT WHAT IT WAS ASKED TO DO.** The camera is now set **after** the first `Render` and **READ BACK**, refusing outright if the value did not take. **AN UNREAD-BACK SETTING IS AN ASSUMPTION WEARING AN API CALL'S CLOTHES** — and it is the same principle as the md5-at-render-time gate and as asserting a dictionary key actually took.
+
+**⚠ MY OWN TRIAGE DESIGN WAS WRONG AND THE LANE CORRECTED IT: I SPECIFIED TWO STATES AND THERE ARE THREE.** Keying `BLOCKED` on *"did ParaView import"* labels a plain **syntax error** as a blocked engine, **because a script that never runs never imports anything** — and that misdiagnosis points at the most expensive remedy available. `SENTINEL_PY_OK` before the import plus a required graphics signature in stderr, **5/5 arms both directions.**
+
+###### 4. THE THIRD DEAD LEVER OF THE DAY — DISCLOSED BY ITS OWN AUTHOR, AND MY RULING
+
+**`DISTINCT_COLOURS_MIN = 64` is INERT AGAINST THE MEASURED BLANK, which carries 95 distinct colours.** `G-PV7a` is a conjunction, so the gate is carried entirely by the modal-share clause — which caught the blank at **0.9991 against 0.99**.
+
+**RULED: DISCLOSE, PROCEED, SUCCESSOR AT THE END.** The gate is live and the modal clause binds; separation is wide (**blank 0.9991 / drawn 0.8105**); **rule 2 closed the gates at first compute**, so the alternatives are proceed-and-disclose or stop-and-re-register the whole item, and stopping is disproportionate; and **the failure direction is the safe one** — the inert clause cannot manufacture a false `PASS` on a blank, only falsely refuse a legitimate low-colour frame.
+
+**⚠ ONE CORRECTION TO THE LANE'S WORDING, FOR THE SUCCESSOR'S SAKE: the clause is inert against the MEASURED EGL BLANK, not universally dead** — a frame with genuinely under 64 colours is still caught. **AND THE SUCCESSOR'S LESSON IS NOT "RAISE THE CONSTANT" BUT "SET THE THRESHOLD FROM A MEASURED BLANK": 64 was an intuition, 95 is a measurement, and it exists only because someone rendered a real empty scene. Raising 64 to 128 without re-measuring repeats the original error with a bigger number.**
+
+**THIRD DEAD LEVER TODAY — the item-level ceiling in `d19m_grade.py`, the `continue` no-op, and now this. COMMON CAUSE EVERY TIME: A CONSTANT OR BRANCH REGISTERED FROM INTUITION RATHER THAN FROM A MEASUREMENT OF THE THING IT MUST CATCH. All three were found by someone testing their own instrument TWO-SIDEDLY, and NONE by a gate going red.**
+
+###### 5. THE DIVERGENCE — AND THE LANE'S HALF IS SHARPER THAN MINE
+
+I flagged two sites naming `ActDSequencer`. **The lane is right that they cannot diverge in behaviour** — same symbol, and `run_act` already refuses a non-`Sequencer`. **THE REAL HAZARD IS `screen_seconds = 1200.0` WRITTEN TWICE, in `drive()`'s signature and in the dataclass field, while `run_act` usually passes none. Two defaults for the TWENTY-MINUTE DISPLAY FIGURE SANAA PERSONALLY ORDERED ONTO THAT ACT'S FACE — two paths, two possible clocks, no gate to notice.** Single-source fix authorised; **it is not "beyond the one method" once the number is on camera.**
+
+###### 6. STILL OPEN, AND ALL OF IT IS OURS
+
+**Seven checklist lines, all CONTENT:** one expert voice where stage 4 wants three; **no assumptions TABLE on the wire** (bulleted prose is not a table); no grid; one monitor series where **small multiples** are required; no Conclusion phase; **no `report.ready`, so the Report tab stays empty**; and the **convergence-study line missing from the wire** (§1b). **The act module is ours, so these are ours.**
+
+**`adjoint-wing` reports `CANNOT START` on one problem: its mesher is aimed at a real case directory holding `system/controlDict`, so the live stage correctly SKIPS meshing.** **cfd's guard is RIGHT and Act D does not route around it** — the repair is a `work_dir` repoint to a scratch target the mesher may own. **A wiring fix, not a rendering one.**
+
+**Hazard check after the sequencer landed — RUN, and nothing moved:** drive **24/24, 347 events, all four mutation controls still red**; four face checkers **179/170/182/186 plant arms, FACE HITS 0, TENSE HITS 0/0/1/0** (the 1 is the flagged borderline); language sweep **CAMERA HITS 0**.
+
+**Render item: 0.12 of 90 core-min spent. Nothing filed, sent or posted outside the box.**
 
 ##### UPDATE S-25h — **THE TENSE RULE IS NOW STAGE-KEYED AND I READ THE DIFF MYSELF: 126/126 ARMS, AND RESTORING THE OLD FLAT RULE TURNS 56 OF THEM RED — THE INSTRUMENT DETECTS ITS OWN PREDECESSOR'S DEFECT. ⚠ OUR SHEETS SHOW THE CONVERGENCE STUDY AS **ABSENT** IN FOUR PLACES, WHICH HER PROTOCOL FORBIDS — A LIVE VIOLATION ON FILMABLE MATERIAL. AND MY FOURTH CHARACTERISATION ERROR OF THE SESSION** (2026-09-01T19:22:04Z, `date -u` at write)
 
