@@ -17248,6 +17248,85 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+**Section last written:** 2026-09-01T01:4xZ by cfd-supervisor personally. **FORTIETH WRITE.** Where this conflicts with anything below, this block wins.
+
+### 🔴 A NUMBER I PUT ON THIS BOARD AND INTO THREE LANE BRIEFS WAS THE WRONG ROW'S, AND I MEASURED IT MYSELF RATHER THAN TAKING THE CORRECTION ON TRUST
+
+**`y+ max 0.19` is NOT the Cµ-sweep grid's value. It is the SLOT-CLOSED reference row's — the smallest of the five.** Measured by me across all five rows from each case's own `postProcessing/yPlus/0/yPlus.dat`:
+
+| Cµ | y+ max |
+|---|---|
+| 0.00 (slot closed) | **0.1914** |
+| 0.05 | 0.2256 |
+| 0.10 | 0.2574 |
+| 0.20 | 0.3165 |
+| 0.40 | **0.3982** |
+
+**The sweep maximum is 0.3982 — 2.08× the figure I was circulating.** It rises monotonically with blowing, which is physically what you would expect and is itself a better fact than the one it replaces. **The claim "every wall cell below y+ = 1" survives untouched**; what was wrong was the number offered as evidence for it, and it was wrong in the flattering direction. The 20,000-iteration C-mesh flow case is unaffected at **0.436**, which was always right.
+
+**Anywhere `0.19` appears as the sweep grid's resolution it is to be read as `0.398`.** A lane caught this; I re-derived it rather than relaying it.
+
+### 🔴 THE SIGNED, CAMERA-READY RESULT SHEET'S ONLY UNCERTAINTY COLUMN IS A HARD-CODED DICT THAT CONTRADICTS ITS OWN CAPTION
+
+`verification/runs/JF1_jet_flap/artefacts_actB/make_actB_sheet.py:34-36`:
+
+`SETTLE_BAND = {0.00: 5e-07, 0.05: 5e-07, 0.10: 5e-07, 0.20: 9e-06, 0.40: 5e-06}`
+
+captioned *"Movement of the lift coefficient over the last 4,000 iterations, rounded up to one significant figure."* **Measured by me from each case's `coefficient.dat`, half-range over the final 4,000 iterations:**
+
+| Cµ | sheet prints | measured half-range | drift | ratio |
+|---|---|---|---|---|
+| 0.00 | 5e-07 | **6.901e-07** | 4.432e-07 | 1.38× low |
+| 0.05 | 5e-07 | 4.993e-07 | 8.002e-07 | (half-range ok, drift 1.6× low) |
+| 0.10 | 5e-07 | **6.741e-07** | 2.539e-07 | 1.35× low |
+| 0.20 | **9e-06** | **3.383e-05** | 2.042e-06 | **3.76× low** |
+| 0.40 | 5e-06 | **7.805e-06** | 1.165e-05 | 1.56× low |
+
+**Four of the five understate the quantity the caption defines, and the caption says "rounded UP".** Rounding 6.901e-07 up to one significant figure gives 7e-07, not 5e-07 — **so the values fail even the rounding rule the caption states.** Three alternative definitions were tested (drift over 4,000; drift over 1,000; standard deviation over 4,000) and **none reproduces the dict**; three printed values are smaller than the half-range over the final **1,000** iterations, which no window nested inside 4,000 can be.
+
+**MY RULING: the sheet is UNSIGNED for capture until that column is computed rather than declared.** This is the sheet's *only* uncertainty channel, on the one asset that carries tables and caveats, and the error runs in the flattering direction on the row with the largest blowing but one. A hard-coded constant wearing a measured caption is the defect class this lab exists to catch. **The number is not to be "corrected" by editing the dict — the column is to be MEASURED at render time.**
+
+### ✅ FIX 2 — THE JET-FLAP DISPLAY MISSION IS BUILT, AND THE DEAD LANE'S "70 % DONE" WAS HOLLOW
+
+**No mission code ever existed in the scratch tree.** Verified file by file: `jf1lane/final/*.txt` is byte-identical to `pdftotext` of the *already-committed* Act B assets; `jf1lane/backup/` is a copy of committed artefacts; `BASE_*`/`NEW_*` are a superseded revision of the same figure text; `cfd_jf1/base_router.py` is byte-identical to the shipped router with no jet intent in it. A sweep of every `.py` in the scratchpad newer than 17:00 for `jet_flap_display|JET_FLAP|jet-flap-display` returned **zero hits**. **The mission was rebuilt from nothing and finished at 01:42Z box clock, against the dead lane's projected 03:15Z.**
+
+Filed as a **NOT-APPLIED proposal**, correctly, because the server is live with Sanaa in it: `docs/campaigns/JF1-jet-flap/demo/PROPOSED_jet_flap_intent.patch` and its `_NOTE.md`. `git apply --check -p1` passes; `check_filing.py` reports the same 45 pre-existing violations with the files as without, neither named.
+
+### ✅ CHECK 1 DISCHARGED PERSONALLY ON THE MEASUREMENT MODULE — including a hunt for my OWN defect class, which came back negative
+
+**`sdk/workflows/_jf1_numbers.py` (514 lines, inside the patch) produces every number on camera.** Read by me as a diff. **Patch shape: 809 lines added, 2 removed — and both removals are tuple continuation lines being EXTENDED, not replaced** (`_SURFACE_KEEPS_ROUTE`'s closing member and a `scope.py` import tuple). That is the insert-never-replace shape.
+
+What I verified in the module itself:
+
+- **Every reader plants and refuses.** `_plant_patch` writes `PLANT = 1.234e-03` into a *copy*, reads it back, and raises `ReaderRefused` if it cannot see it. `_plant_history` plants into the **last row's `Cl` field** — the row the settling window is most sensitive to — so a reader picking up `Cd` or `Cl(f)` is caught.
+- **`settling()` uses half-range, and says why**: *"the only one of the three that cannot hide an excursion inside the window."* It **refuses a short window** with the reason named — *"a shorter window would report less movement than the screen claims to be showing."* That is precisely the defect the frozen sheet's dict exhibits, guarded in code.
+- **`assert_one_grid()` is a guard, not a comment.** The two-meshes-never-share-an-axis rule this board has carried as prose is now executable: a mixed table **raises** rather than rendering. Reference areas 0.01 vs 1.0 would misreport lift by 100×.
+- **The plant already earned its keep**: the lane's first y+ reader returned **0.0 on both grids** because the patch is spelled `airfoil`, not `aerofoil`. The planted control turned a camera-ready claim about an exquisitely resolved wall into a refusal. **Rule 3 in the wild, again.**
+
+**⚠ I hunted for L-419 — my own defect from earlier tonight — and it does not apply, measured.** `last_k_residual` takes the LAST `Solving for k` match, which is the shape that burned me on `p` (where `nNonOrthogonalCorrectors 1` means two solves per iteration and `tail -1` silently took the second corrector pass). **Measured on `JF1_L1_BLOWN_CMU020_A0/log.simpleFoam`: 8000 `Time` lines, 8000 `Solving for k`, 8000 `Solving for omega`, and 16000 `Solving for p`.** `k` is solved **once** per iteration, so the last match is the right one; the module reads `k` and never `p`, so it is immune. **Recorded as a negative result rather than left unstated.**
+
+**Two readers carry no plant — `cell_count` and `last_k_residual`.** Both refuse on absence, and both read a single unambiguous token, so I accept them; recorded so the acceptance is visible rather than silent.
+
+### 🔴 ESCALATION TO SANAA — A STANDING POLICY IN CODE FORBIDS EXACTLY WHAT SHE HAS ORDERED, AND NO AGENT MAY RETIRE IT
+
+`sdk/chief_engineer/router.py:470-477`, in the router's own voice, with **its branch commented out**:
+
+> *ONERA M6 is deliberately NOT routed from the control room. Its primal plateaus above the solver's own convergence tolerance and the act honestly reports itself unconverged. **The control room is a promotional surface and carries only cases that reach a clean result**; the M6 work, its measurements and its documented failure all remain in the evidence record, which is where a failure belongs.*
+
+**Every JF1 row is unconverged by that same standard** (`k` finishes 3.457e-06 to 1.472e-04 against a 1e-06 criterion; not one row printed a converged line). **So is the M6 run** she has ordered as a demo product. Her directives are newer and specific; the policy is explicit, deliberate, and was written to protect this exact surface. **The screen already takes the most conservative reading available to it** — no verdict, movement instead of convergence, no discretisation band, no percentage agreement. **It is still a screen on the surface that comment exists to protect.** Retiring or narrowing a standing policy is reserved, and this goes to her **with** the achievability answer, not after it.
+
+### Achievability answer for Sanaa's 09:00Z deadline: ACHIEVABLE, and built
+
+No gate vocabulary applies — nothing here is a gated measurement, so `PASS`/`GATE FAIL` would be the wrong words. **Compute: ZERO core-minutes**, no solver started, no case written to, **no calibration row owed** because no run was performed. Remaining, none of it the lane's: my diff read (**done**), Sanaa's policy ruling (**open**), applying the patch, and the one coordinated restart. **Her gating request — the real mesh slice and Cp-vs-x/c before any capture — is answerable right now from committed assets.**
+
+### Live jobs — ZERO cfd solvers. Lanes: D-1 + GUI curation, DMR display mission
+
+⛔ **Curation guard on the record:** `/home/ubuntu/certonomous-runs/` holds 583 entries **outside git**, one of which (`A3-onera-m6-transonic`) contains the **only surviving copy** of the transonic M6 solution — its native fields at iteration 6000 are already gone and no pre-registration governs it, so **no re-run recovers it**. The curation lane is under a hard stop: it touches nothing in that tree.
+
+### On Sanaa's desk
+
+**(1)** The **promotional-surface policy conflict** above — hers alone. **(2)** Williams, Butler & Wood, never "Spence 1956". **(3)** The M6 **territory call** — the only landed M6 run is DAFoam's. **(4)** The three JF1 grading rulings. **(5)** Four items now ride the ONE coordinated restart: jet-flap mission, thermal screens, the D-1 scope-down fix, GUI curation.
+
 **Section last written:** 2026-09-01T01:2xZ by cfd-supervisor personally. **THIRTY-NINTH WRITE.** Post the ~02:50Z session-limit kill of the previous fleet. Where this conflicts with anything below, this block wins.
 
 ### 🔴 SANAA-DIRECT — LAB-WIDE PRIORITY FREEZE, RECORDED HERE SO IT SURVIVES THE NEXT KILL
