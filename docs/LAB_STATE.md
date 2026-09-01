@@ -4791,9 +4791,55 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-01T20:54:53Z by dafoam-supervisor (TWENTY-SIXTH session, re-formed after the ~15:14Z box reboot; stamp from `date -u` in the committing invocation). Newest block is `S-25m` — a guard keyed to a TOPIC cannot distinguish a claim from its negation, and the stage-8 branch we were not watching would have claimed a convergence band that does not exist. `S-25e` is the D19T permission denial, still open on her desk.
+**Section last written:** 2026-09-01T21:05:38Z by dafoam-supervisor (TWENTY-SIXTH session, re-formed after the ~15:14Z box reboot; stamp from `date -u` in the committing invocation). Newest block is `S-25n` — the declaration-vs-wire disease is LAB-WIDE (3 dafoam + 3 cfd, found independently), and a TORN READ on the shared tree nearly sent a false defect report to another team. `S-25e` is the D19T permission denial, still open on her desk.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-25n — **⚠⚠ THE DECLARATION-VERSUS-WIRE DISEASE IS **LAB-WIDE, NOT OURS**: dafoam HAS FOUND THREE AND cfd HAS INDEPENDENTLY FOUND THREE, NEITHER TEAM TELLING THE OTHER. AND A **TORN READ** ON THE SHARED TREE PRODUCED A COHERENT, SPECIFIC, ENTIRELY FALSE DEFECT REPORT AGAINST ANOTHER TEAM — CAUGHT ONE STEP BEFORE IT WAS SENT. `adjoint-wing` IS `FAIL=1 ok=9`** (2026-09-01T21:05:38Z, `date -u` at write)
+
+###### 1. ⚠⚠ SIX INSTANCES, TWO TEAMS, NO CONTACT — THIS IS STRUCTURAL
+
+**`bf443e99`: `solve_replay()` had declared SIX `SeriesSpec` entries with distinct labels SINCE THE DAY THE ACT WAS WRITTEN, and the solving stage published ONE unlabelled frame per iteration with five channels nested inside it — so the gate saw a single series named `''`. THE DECLARATION WAS THERE AND THE WIRE NEVER CARRIED IT.** Third dafoam instance, after the convergence line and the three expert voices.
+
+**⚠ AND cfd COMMITTED THIS AT 20:59:51, INDEPENDENTLY, WITHOUT EITHER TEAM TELLING THE OTHER:** *"the map an act declares is finally the map that renders — **THIRD DEAD DECLARATION OF THE SAME CLASS**, this one with a planted control so the next one cannot hide."*
+
+**THREE AND THREE. SIX INSTANCES ACROSS TWO TEAMS THAT DISCOVERED IT SEPARATELY. THAT MAKES IT A PROPERTY OF THE ACT/SEQUENCER ARCHITECTURE, NOT A HABIT OF EITHER TEAM** — and it is the strongest evidence yet that the unit-of-consumption class (`S-25l`) is a real defect family rather than a coincidence of three. **Escalated as a lab-wide finding rather than carried as ours.**
+
+###### 2. ⚠ AND OUR OWN PARITY SWEEP HAS THE MATCHING HOLE — NAMED THE DAY AFTER WE BUILT IT
+
+**`check_sheet_wire_parity.py` covers SHEET → WIRE. Small multiples was DECLARATION → WIRE, in CODE, and the sweep COULD NOT HAVE CAUGHT IT.**
+
+**RULED: extend it to declarations — `SeriesSpec`, stage maps, `registered_acts`, anything an act DECLARES IN CODE that the wire must then carry, with the same forcing property: declaring a series must FAIL until the wire publishes it.** That is the last large hole in the parity story and the highest-value item left after the mesh. **`[Note for a successor: we built a sweep for the form of the disease we had just been bitten by, and were bitten by a second form within the hour. A parity sweep is only as wide as the CHANNELS someone thought to enumerate.]`**
+
+###### 3. ⚠⚠ A TORN READ NEARLY SENT A FALSE DEFECT REPORT TO ANOTHER TEAM — **NEW HAZARD, VERIFIED BY ME**
+
+The lane's parity sweep failed with **`'ActDSequencer' object has no attribute '_act_banners'`** and it was **one step from reporting a defect in cfd's sequencer.**
+
+**IT WAS A TORN READ. MEASURED BY ME: cfd committed `sdk/workflows/demo_sequencer.py` at `013c0f1e`, 20:44:01 — while the lane's process was importing it. The CALL at line 301 was flushed and the DEFINITION at line 969 was not.** Re-running cleared it; `_act_banners` is properly defined at 969 and I confirmed both line numbers.
+
+**⚠ WHAT MAKES THIS DANGEROUS IS THAT THE ERROR IS COHERENT, SPECIFIC AND ENTIRELY FALSE: an attribute that exists, reported missing, with a line number, on another team's file.** It reads exactly like a real defect. **THIS IS NOT THE STALE-`git status` HAZARD WE ALREADY CARRY — that one reports the wrong STATE; this one fabricates a wrong DEFECT.**
+
+**THE RULE, IN THE LANE'S WORDS: ON A SHARED TREE WITH CONCURRENT WRITERS, RE-RUN BEFORE YOU ACCUSE.** It would have cost my time and cfd's on a phantom, and it would have arrived carrying a line number, which is exactly what makes a false report persuasive.
+
+###### 4. THE TWO COST BEATS — `8b045610`, AND ACT D DOES **NOT** MAKE HER 5 %
+
+**⚠ MY LIST WAS SHORT AND THAT IS MINE. I sent the lane four pairs as "your acts' real pairs" — SO-3, D19O, D19M, the polar — and THE ACT IT WAS BUILDING NEEDED A FIFTH I DID NOT NAME.** Act D is the **A2 decomposition: 32 predicted, 13.87 gross, 0.43×**, verified by me at the prereg's lines 224/388. **I relayed a list without checking which act consumes which run.**
+
+**On the wire, honestly: "0.43 times the prediction, 57 per cent under it"** — with the named cause (**COUNT predicted well, 16 registered against 14 run; RATE over-priced 1.8× because it came from an optimisation log that also absorbed 47 gradient computations**) and **"2.76 core-minutes of the 13.87 produced no value and are named separately, never folded into the ratio"** — rule 12's waste discipline, on camera.
+
+**THE LANE APPLIED MY POLAR RULING IN MIRROR WITHOUT BEING TOLD: do not dress a lucky cancellation as skill, and do not dress a miss as a hit. "Her 'within 5 %' is a PATTERN FOR THE COMPARISON, NOT A TARGET TO REPORT AS MET." A beat claiming 5 % here would have been a false statement about the ONE DISCIPLINE THESE BEATS EXIST TO SHOW.**
+
+**AND IT CLOSED AN ATTACK I HAD LEFT OPEN.** I ruled the prediction must be read from the frozen document and never recomputed; **the lane HASH-CHECKS the prereg before quoting and REFUSES on mismatch — so a pre-registration edited after the fact cannot supply a friendlier prediction.** That is the half that turns the beat into evidence, and I had not asked for it.
+
+###### 5. TWO SMALLER FINDINGS WORTH CARRYING
+
+**`zip(frames, recorded)`: "A ZIP WHOSE INPUTS CHANGE LENGTH DOES NOT FAIL — IT TRUNCATES AND MISMATCHES QUIETLY."** Extra frames would have silently compared a **trace** against a **major row** while the driver reported green. **The read-alone disease in the COMPARISON rather than in the publication.** Driver filters on label now.
+
+**And the lane asked "would satisfying this gate be cheating?" BEFORE satisfying it** — Act D is not a sweep, so her stage-5 *sweep* reading does not apply; the *traces* reading does, **and the act had already committed to it in its own `SeriesSpec` list, so nothing was synthesised.** That question, asked before the work rather than after, is the habit most worth spreading.
+
+**ACT D: `FAIL=1 ok=9`. ONE LINE REMAINS — THE MESH, `pyHyp`-BLOCKED, HONESTLY NAMED AND NOT WORKED AROUND.** Render item **4.4 of 90 core-min**.
+
+**Nothing filed, sent or posted outside the box.**
 
 ##### UPDATE S-25m — **⚠⚠ A NEW HAZARD CLASS, AND IT IS GENERAL: A GUARD KEYED TO A **TOPIC** CANNOT DISTINGUISH A CLAIM FROM ITS NEGATION. PLUS THE BRANCH WE WERE NOT WATCHING WAS THE DANGEROUS ONE — A PREMATURE "DONE" ABOUT A CONVERGENCE BAND THAT DOES NOT EXIST. `adjoint-wing` IS `FAIL=2 ok=8` AND THE SHEET↔WIRE SWEEP NOW HAS THE FORCING PROPERTY** (2026-09-01T20:54:53Z, `date -u` at write)
 
