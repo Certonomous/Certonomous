@@ -200,8 +200,24 @@ class ReplayStage:
         """Advance the monitors. Returns the stage's own record of what it did.
 
         ``script`` is an optional transcript; when given, the stage speaks the
-        two sentences an engineer would say at the start and end of a solve,
-        in the tense that matches whether it is still running.
+        two sentences an engineer would say at the start and end of a solve.
+        BOTH ARE PRESENT TENSE, and the closing one was not: it read "Solved
+        N sweep points, ...", the third past-tense string found on the filmed
+        surface in one day, and it sat beside a progressive opener so it was
+        inconsistent as well as prohibited. It now reads "N sweep points
+        complete, ...". Sanaa's 04:20Z order is "no past tense" and it is the
+        later and stricter of two directives of hers that disagree; present is
+        the intersection. NO NUMBER MOVED: the count, the iteration total and
+        the core-minutes are the same values formatted the same way.
+
+        IT LEADS WITH "All" AND THAT IS NOT A STYLE CHOICE. The obvious
+        rewrite, "5 sweep points complete, ...", raises in
+        ``workflows.check_wording``: a bullet body must start with a capital,
+        and a digit is not one. The wording checker is only reached when the
+        sentence is actually emitted, so a source read would have passed it
+        and the filmed screen would have thrown at the closing beat of the
+        act. Re-derive this sentence by driving the stage, never by reading
+        the f-string.
         """
         history = self._history or self.prepare()
         points = len(history.points)
@@ -338,7 +354,7 @@ class ReplayStage:
         # Asserted BEFORE the closing event is published, so the record the
         # stage returns and the event the screen receives carry the same
         # figures. A stage that emitted in a burst never reaches its own
-        # "Solved" banner.
+        # "Solve complete" banner.
         payload["progressive"] = self._assert_progressive()
         # The stage returns the SAME dictionary that was published, so a
         # caller reading the return value and a screen reading the event can
@@ -348,9 +364,9 @@ class ReplayStage:
         if script is not None:
             total = sum(p.history_n for p in history.points)
             self._say(script, emit,
-                      f"Solved {len(history.points)} "
-                      f"{self.spec.point_noun}s, {total:,} iterations, at a "
-                      f"cost of {history.core_min_total:.1f} core minutes.")
+                      f"All {len(history.points)} {self.spec.point_noun}s "
+                      f"complete, {total:,} iterations, "
+                      f"{history.core_min_total:.1f} core minutes.")
         return payload
 
     # -- emission ------------------------------------------------------------
