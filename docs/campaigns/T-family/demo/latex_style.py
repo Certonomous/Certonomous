@@ -15,7 +15,7 @@ Verification, not assertion
 An rcParam that silently falls back to DejaVu looks exactly like success, which
 is the false-zero shape this lab refuses.  ``selftest()`` therefore renders a
 throwaway PDF and reads the font names back out of it, refusing unless the
-embedded fonts really are Latin Modern.  ``scripts/check_actA_actC_latexified.py``
+embedded fonts really are Latin Modern.  ``scripts/check_thermal_latexified.py``
 runs the same read-back over every committed figure.
 
 Escaping
