@@ -296,14 +296,36 @@ that actually goes on camera was **added to the checked list**: it was verified
 at build time by its own builder and by nothing afterwards, and a sheet is
 filmed long after it is built.
 
-⚠ Two things worth knowing about that fix, both measured rather than
-anticipated: removal-before-compile opens a brief window in which a concurrent
-reader sees "not compiled", which is what happened once here while a second
-lane rebuilt its sheet — a correct state, not a fault, and preferable to the
-stale file it replaces. And the control's own refusal originally named the real
-sheet's basename, so a passing control printed a line indistinguishable from a
-live failure; the control copy is now renamed, because a control whose success
-output reads like a real failure will be acted on as one.
+⚠ **A correction to what I first wrote here, because I got the cause wrong and
+graded my own mistake as a design property.** I recorded that
+removal-before-compile "opens a brief window in which a concurrent reader sees
+*not compiled*… a correct state, not a fault." That reading was comfortable and
+false. The measured cause was **my own non-atomic edit**: a second lane invoked
+the function between the removal step landing and its `import time` landing, hit
+`NameError: name 'time' is not defined`, and **its sheet PDF was already gone** —
+untracked, so not recoverable from git, only rebuildable. The rebuild succeeded
+moments later and the loss was transient, but calling another lane's deleted
+artifact "a correct state" was wrong twice over: it was not correct, and it was
+caused by how I landed the change rather than by what the change does.
+
+The operational condition now sits in the amendment beside the technical one: **a
+remove-then-compile builder must land atomically, in one commit, and must not be
+edited in place while another consumer builds against it.** Clause 1 deletes a
+consumer's artifact and is only safe because the compile that follows cannot
+fail — and an in-flight edit cannot guarantee that. Until such a step is
+committed whole, every consumer's artifact is collateral, and untracked build
+artifacts have no safety net.
+
+⚠ And the control's own refusal originally named the real sheet's basename, so a
+passing control printed a line indistinguishable from a live failure. The control
+copy is now renamed, because **a control whose success output reads like a real
+failure will be acted on as one.**
+
+**Why this instance is the worst of the set**, adopting the Act A lane's sharper
+framing: the other three returned *nothing* and at least looked empty — a false
+zero, a caption that rendered blank, a glob that found no file. This one returned
+a real, openable, plausible PDF that was simply the wrong one. **An empty answer
+invites suspicion; a confident wrong answer does not.**
 
 ## 8c. PARAVIEW, AND THE ONE SURFACE NO SWEEP CAN READ
 

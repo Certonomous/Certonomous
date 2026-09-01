@@ -243,6 +243,24 @@ def compile_tex(tex_path, workdir):
     compile and pass.  The positive arm is not decoration -- a guard that
     refused every compile would sail through a refusal-only test while making
     every sheet in the lab impossible to build.
+
+    ⚠ AND AN OPERATIONAL CONDITION ON THIS FIX, WHICH IS AS BINDING AS THE
+    TECHNICAL ONE AND WAS PAID FOR THE SAME NIGHT.  **A remove-then-compile
+    builder must land ATOMICALLY, in one commit, and must not be edited in
+    place while another consumer is building against it.**  Clause 1 deletes a
+    consumer's artifact and clause 1 is only safe because the compile that
+    follows it cannot fail -- and AN IN-FLIGHT EDIT CANNOT GUARANTEE THAT.
+    Measured on 2026-09-01: a second lane invoked this function between the
+    removal step landing and its ``import time`` landing, hit
+    ``NameError: name 'time' is not defined``, and ITS SHEET PDF WAS ALREADY
+    GONE.  Untracked, so not recoverable from git, only rebuildable; the
+    rebuild succeeded moments later and the loss was transient.
+
+    The general form, because it outlives this file: **until a
+    delete-then-recreate step is committed whole, every consumer's artifact is
+    collateral, and untracked build artifacts have no safety net.**  The
+    hazard is not in the design -- the design is right and the stale file it
+    replaces is worse -- it is in editing the body live under two consumers.
     """
     pdf = os.path.join(workdir, os.path.basename(tex_path)[:-4] + ".pdf")
     if os.path.exists(pdf):
