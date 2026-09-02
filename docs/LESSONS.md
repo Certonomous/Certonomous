@@ -20077,3 +20077,104 @@ instrument used all evening to prove a patch had not landed; read through a
 pipe it returns 0 whether the patch applies or not. Capture the status
 **unpiped**, or set `pipefail`. A shell idiom everybody uses, silently
 converting a failing check into a passing one.
+
+## L-435 — a selftest fixture bound to a LIVE run artifact couples the control's validity to the run's OUTCOME, so the instrument refuses hardest exactly when the run went worst — and takes the SUCCESSFUL points down with the failed one. This is the INVERSE failure of L-288, produced by obeying L-288
+
+**Measured 2026-09-02, dafoam, item `MAAOA`** (`cases/dafoam/ladder-a/A1/fixed_lift_mach_sweep/`,
+run root `/home/ubuntu/certonomous-runs/MAAOA/`).
+
+The chain completed cleanly — `rc=0 phase=COMPLETE`, all seven points closed,
+664.0 core-min. **The frozen reader then refused at `rc=2` and the item has no
+verdict of record.**
+
+`MAAOA_read_20260902T182040Z.txt` locates it to one line:
+
+```
+  M1   unmodified bytes -> full row, TRIMMED                    *** FAIL ***
+  M2   planted CL=0.612 -> NOT TRIMMED                          PASS
+  M3   parser disabled -> M1 must flip (channel goes blind)     PASS
+  M4   planted y+max 1.71 -> read and >= threshold              PASS
+  M5   G-STALL and G-MDD fire on plants, silent on honest caveats  PASS
+SELFTEST REFUSED -- M1: 5 controls.
+```
+
+**M1's fixture is `MA288/out/trim.log`, a LIVE artifact of the very run being
+graded** (the reader prints its sha256, `ae964c2f…`). `MA288` failed to
+converge — `Primal solution failed!`, sentinel `CL=1.0 CD=1.0`. So the reader,
+handed unmodified `MA288` bytes, correctly did NOT produce a `TRIMMED` row, and
+**M1's premise — "this fixture is a successfully trimmed point" — was falsified
+by the run's own outcome.**
+
+**⚠ THE CONTROL WAS NOT WRONG AND THE READER WAS NOT BLIND. M2–M5 ALL PASSED**:
+the parsers, the blind-channel flip, the y+ `GATE FAIL` path and the
+`G-STALL`/`G-MDD` self-refusals were all demonstrated live, in that run. The
+instrument refused rather than degrading, which is exactly right. **And the
+casualty is the point that WORKED**: `INCOMP` trimmed to `CL = 0.4999987189650539`
+at α = 4.755644949811032°, `|CL − 0.5| = 1.281e-06` — **three orders inside the
+registered `G-TRIM` band of 1.0e-3** — `rc=0`, inside its cap. **A perfect
+fixed-lift result has no graded verdict because a DIFFERENT point failed.**
+
+### Why this is not a duplicate of L-288, but its mirror
+
+**L-288 says: "A comparator selftest that builds its own fixture verifies the
+comparator's BELIEF about the writer, never the writer — run the reader once
+against real solver output before the freeze."** That lesson is correct and this
+reader OBEYED it: it took real solver output as its fixture instead of a
+synthetic one.
+
+**Obeying it introduced a coupling L-288 does not mention.** A fixture that is
+*real* and *live* is real output whose CONTENT the run controls. So:
+
+| fixture | L-288's defect | this defect |
+|---|---|---|
+| synthetic, built by the checker | shares the checker's wrong belief about the writer | absent |
+| **live artifact of the run being graded** | absent | **the control inherits the run's outcome** |
+| **frozen real artifact from a PRIOR run, committed with the instrument** | absent | absent |
+
+**The third row is the resolution, and it costs nothing**: a real solver log,
+from a run that already succeeded, checked in beside the reader and hashed by
+the freeze. It keeps everything L-288 asks for — genuine writer output, real
+parse path — and removes the dependence on how *this* run turns out.
+
+### The general form
+
+**A CONTROL MUST NOT DEPEND ON THE OUTCOME OF THE THING IT IS CONTROLLING.**
+The moment a positive control asserts "this artifact shows a SUCCESS", it stops
+being a test of the instrument and becomes a second assertion about the run —
+and the two are indistinguishable in the refusal. When it fires you cannot tell
+whether the reader broke or the science did, **which is the exact ambiguity a
+planted control exists to remove.**
+
+The asymmetry is the tell: **negative controls (M2–M5: plant a fault, demand it
+be seen) are outcome-independent and all four survived. The positive control
+(M1: demand an unmodified artifact read as good) was the only outcome-dependent
+one and the only one that fell.** Prefer negative controls; where a positive one
+is needed, pin it to a frozen fixture.
+
+### The pattern this completes in one family
+
+**Three of this family's last four graded chains produced NO VERDICT, and not
+one of them died on physics:**
+
+| item | died at | cause class |
+|---|---|---|
+| `D19` | `G1`, the rule-4 age guard, on a premise false for this solver family (`patchV` makes DAFoam rewrite `0/U` mid-run) | `INSTRUMENT` |
+| `D19R` | `G-PROV`, the provenance enforcer called on a literal `{}` thirty lines before composition | `INSTRUMENT` |
+| `MAAOA` | `M1`, a selftest fixture bound to a point the run failed | `INSTRUMENT` |
+
+**Every one refused rather than degrading — which is correct and is why the
+physics survived each time (Sanaa's universal rule: bookkeeping never voids
+physics). But a family whose instruments refuse three times as often as its
+solvers fail is buying compute it cannot grade**, and the shared shape is
+always the same: **a guard enforcing a premise that was true when it was
+written and is not true of this run.**
+
+**`[For a successor: before freezing any guard, ask of each of its premises — "what
+run outcome makes this false?" If the answer is "one this very item might
+produce", the guard is entangled with its subject and will refuse on a good
+run.]`**
+
+**Related:** L-288 (the lesson this one inverts), L-321 (a fixture sharing the
+checker's route carries no information), L-316 (a selftest proves the grader,
+never the case or the launcher), L-399 (a control driven only where it cannot
+fail), L-273 (plant into a file the producer actually wrote).
