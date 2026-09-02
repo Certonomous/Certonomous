@@ -1,0 +1,109 @@
+{
+  "C4_C5_launched": false,
+  "CONFOUND": {
+    "caveat": "Per-iteration cost is NOT equal across configurations -- a DICGaussSeidel sweep is more expensive than a plain GaussSeidel sweep -- so part of the throughput drop is genuine and this lane CANNOT separate the two from these runs. The claim is that the timing comparison is contaminated, not that all of the slowdown is contention.",
+    "evidence": "B0_L2 ran 2-way concurrent with D0, and D0 finished in 42 s of B0's 516 s, so B0 effectively had the box to itself. C1/C2/C3 ran 3-way concurrent against each other for their whole duration plus the ansys and JF1 campaigns. Iteration THROUGHPUT: B0 507,819 iterations in 516.15 s = 984/s; C1 349,280 in 727.56 s = 480/s; C2 277,218 in 700.79 s = 396/s; C3 249,289 in 688.19 s = 362/s. C1 performed 4.15x FEWER iterations per feasible solve than B0 and still took 727 s against B0's 516 s.",
+    "gate_impact": "NONE on the measurement. G-T5 is on iteration counts, which section 3.5 proved bit-for-bit deterministic. AND the feasible population is COMPLETE in every arm including the capped ones: all four arms carry exactly 901 feasible solves, because feasible solves stop occurring around step 30 (section 3.2b). So E3 would discard a COMPLETE and valid gate measurement.",
+    "real_gap": "E4 is NOT a technicality. A capped arm wrote no fields at t=0.8, so its equivalence cannot be checked at all, and without equivalence this lane cannot certify that C2's 5.19x is the same answer rather than a different one.",
+    "what": "C2 and C3 cap-stopped at rc=124 under E3. The cause is contention this lane introduced, not solver slowness.",
+    "whose_fault": "This lane's. Batching 3-way against a baseline that effectively ran alone was a methodological error made after the gates closed."
+  },
+  "G_T5_verdict": "NOT YET EVALUABLE -- C4 and C5 have not run.",
+  "NOT_DECIDED_BY_THIS_LANE": "Whether E3 stands as registered on C2/C3, or whether they are re-run under B0-matched concurrency, is a decision about a registered disqualifier taken after seeing the data. It is the supervisor's, not this lane's. NOTHING has been re-run.",
+  "R_available": false,
+  "R_note": "R = I(C5)/I(C4) per Amendment A2 CANNOT be computed: neither arm has run.",
+  "arms": {
+    "C1": {
+      "clock_time_s": 727.0,
+      "eligible": true,
+      "equivalence": {
+        "alphat": 8.3e-12,
+        "fired": [],
+        "k": 2.045e-08,
+        "max_dT_K": 8.000029e-09,
+        "max_dU_ms": 3.092e-08,
+        "max_dp_rgh_Pa": 2.000001e-06,
+        "nut": 6.917e-12,
+        "omega": 0.001207,
+        "p": 2e-06,
+        "verdict": "EQUIVALENCE HOLDS"
+      },
+      "execution_time_s": 727.56,
+      "factor": 4.15,
+      "feasible_n": 901,
+      "mean_all": 291.067,
+      "mean_feasible": 55.8058,
+      "meets_5x": false,
+      "min_final_residual": 7.0496e-09,
+      "pinned": 334,
+      "rc": 0,
+      "rule4": "PASS (rc=0, End, last t=0.8, 40 ExecutionTime lines, fields present, age guard PASS)",
+      "steps": 40
+    },
+    "C2": {
+      "clock_time_s": 701.0,
+      "eligible": false,
+      "equivalence": "NOT PERFORMED -- no fields at t=0.8 (cap stop before the write)",
+      "execution_time_s": 700.79,
+      "factor": 5.19,
+      "feasible_n": 901,
+      "fired": [
+        "E3",
+        "E4"
+      ],
+      "mean_all": 243.612,
+      "mean_feasible": 44.6504,
+      "meets_5x_if_eligible": true,
+      "min_final_residual": 6.978e-09,
+      "pinned": 270,
+      "rc": 124,
+      "steps": 38
+    },
+    "C3": {
+      "clock_time_s": 688.0,
+      "eligible": false,
+      "equivalence": "NOT PERFORMED -- no fields at t=0.8 (cap stop before the write)",
+      "execution_time_s": 688.19,
+      "factor": 4.94,
+      "feasible_n": 901,
+      "fired": [
+        "E3",
+        "E4"
+      ],
+      "mean_all": 224.994,
+      "mean_feasible": 46.9401,
+      "meets_5x_if_eligible": false,
+      "min_final_residual": 7.119e-09,
+      "pinned": 242,
+      "rc": 124,
+      "steps": 37
+    }
+  },
+  "ceiling": 320,
+  "concurrency": "3 arms x 2 ranks simultaneously",
+  "cost_basis": "REPORTED-BY-OWNER; derived at $0.0513/core-h. The box cannot read its own billing.",
+  "cost_core_min": {
+    "C1": 24.233,
+    "C2": 23.367,
+    "C3": 22.933,
+    "batch1_total": 70.533
+  },
+  "cost_cumulative_core_min": 89.133,
+  "feasible_threshold_L2": 6.5e-07,
+  "gate_denominator_frozen": 231.7636,
+  "gate_factor": 5.0,
+  "gate_threshold": 46.3527,
+  "launched_utc": "2026-09-02T~21:41Z",
+  "planted_zero_control": {
+    "all_seen": true,
+    "note": "PLANT is above the E1 threshold 1.0e-03 K, so the control proves the GATE CAN FIRE",
+    "plants": 4,
+    "recovered": 0.001234,
+    "tolerance_K": 1e-09
+  },
+  "prereg": "docs/campaigns/T-family/T25R5_PREREGISTRATION.md v1.2",
+  "remaining": 230.867,
+  "stage": "1 (batch 1 of 2: C1,C2,C3 -- C4,C5 NOT LAUNCHED)",
+  "stage1_cap": 128.33,
+  "stage1_used": 70.533
+}
