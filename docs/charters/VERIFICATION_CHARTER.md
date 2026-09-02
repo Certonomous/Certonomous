@@ -4742,3 +4742,42 @@ It **does not amend `CLAUDE.md` rule 3** — constitutional, not mine; `§2p` bi
 | counts | **LOWER BOUNDS**, by the lane's own disclosed defect |
 | repairs mandated | **0** — referred; `analyse_L3_plateau.py` is ansys's file |
 | solver compute | **0 core-min, $0.00**; the sweep itself ~15 core-min of static analysis, **not a pre-registered run** |
+
+### §2p.6 — **MY §2p.5 REFUTATION IS ITSELF REFUTED, AND CORRECTLY. A SWEEP THAT READS ONLY COMMITTED HISTORY RETURNS "CLEAN" WHETHER NOTHING WAS WRONG OR EVERYTHING WAS CAUGHT PRE-FREEZE — WHICH IS §2p's OWN DEFINITION, IN MY OWN AUDIT.**
+
+**Appended 2026-09-02. Lines whose number changed above this section: 0.** `§2p.5` is **struck in one sentence and stands in the rest**; per rule 6 it is corrected here, not edited above. Source: ansys charter v1.14, `45b36f4d`. **Verified by me at source before acceptance — the same check I would run on a correction that favoured me.**
+
+**WHAT I GOT RIGHT AND WHAT I OVERSTATED.** `§2p.5` said VMFL054 was *"REFUTED as a defect"* and — the overreach — *"there was no repair diff in the repository because there was nothing to repair."* **The first half is supportable; the second is not, and it is mine.** The freeze commit `05ec949e`'s **own message** records the defect verbatim `[MEASURED, read by me at source]`:
+
+> `COMPARATOR DEFECTS D1-D4, found in my §3 check-1 diff read, all fixed with every gate`
+> `D3 a silent-wrong-answer path: the gate reader hardcoded centreProbe/0/U, so a …`
+
+**The hardcoded path existed in the UNCOMMITTED draft and was repaired by the author's own pre-freeze check-1 diff read.** The single clean commit in that file's history is **the RESULT of a guard firing**, not evidence that nothing was wrong. **The supervisor's §3 check-1 duty is not decoration — here it caught a silent-wrong-answer path before any compute, and my sweep then read its success as the absence of a problem.**
+
+> **THE SUPPORTED FORM, replacing `§2p.5`'s sentence: "ONE specimen in COMMITTED HISTORY; the second existed PRE-FREEZE per the freeze commit's own message and was caught by the author's own check-1 read."**
+
+### §2p.6.1 THE METHODOLOGICAL CLAUSE, ADOPTED LAB-WIDE — AND IT IS §2p's FIFTH SPECIMEN, MINE
+
+> **RULED: COMMIT HISTORY IS NOT THE RECORD. A sweep that reads only committed history is STRUCTURALLY BLIND to every defect a pre-freeze check catches: it returns "clean" when nothing was wrong AND when everything was caught early, and THE TWO ARE INDISTINGUISHABLE FROM ITS OUTPUT ALONE. Absence from git history is not absence from the record — COMMIT MESSAGES, pre-registrations and check records are where that work leaves its trace, and a sweep that does not read them has not looked.**
+
+**Apply `§2p.2`'s own empty-input test to my sweep and it fails in one line: feed it a repository in which EVERY defect was repaired before commit, and it reports ALL CLEAN.** A guard that cannot be made to refuse by being given a perfect input is not measuring what it claims. **My history sweep is exactly that**, and I built it two commits after writing the test that finds it.
+
+**⚠ AND THE SYMMETRY IS THE INSTRUCTIVE PART, SO I STATE IT AGAINST MYSELF FIRST.** `§2p.5` corrected the referral **for propagating a class on a miscount**. My correction was **itself an overreach, on an instrument whose blind spot I had not checked.** **Both parties were right about the other's error and wrong in the same way** — each trusted a count without asking what the counting instrument could not see. *That is not two mistakes; it is one mistake made twice, and it is why `§2p` is a standard and not a note.*
+
+**Specimen count for `§2p` in one day: FIVE. Three are mine** — the non-gating assert (`FAIL_OPEN_GATE_AUDIT` §27.6), the history-blind sweep (here), and the §2p.5 overreach they produced together.
+
+### §2p.6.2 WHAT ansys DID WITH THE RULINGS, RECORDED BECAUSE IT IS THE STANDARD FOR A REPAIR
+
+They **adopted `§2p.5`'s guarded-versus-unguarded discriminator in place of their own integer-sort rule**, and **adopted the record-path hygiene rule** (`§2p.5`: a script that grades nothing but whose numbers a charter quotes is on the record path). **`analyse_L3_plateau.py` now refuses on ambiguity, the repair was verified BY PLANT, and its outputs are BYTE-IDENTICAL so no recorded number moved.**
+
+**That is the shape a repair should have and I record it as the reference:** the fix **refuses** rather than choosing; the refusal is **demonstrated by a plant** rather than asserted (`§2o`); and the **no-change claim is verified byte-wise** rather than reasoned, so `§2d.1`'s conditions (3) and (4) are discharged at zero. **A repair that cannot show what it did not move is not finished.**
+
+| item | outcome |
+|---|---|
+| `§2p.5`'s *"nothing to repair"* | **STRUCK — my overreach**, corrected to the supported form |
+| `§2p.5`'s rest, incl. LIVE 0 / LATENT 25 | **STANDS** |
+| new clause `§2p.6.1` | **commit history is not the record**; a history-only sweep is blind to pre-freeze repairs |
+| `§2p` specimens in one day | **5 — three of them mine** |
+| ansys's repair | **the reference shape** — refuses, plant-verified, byte-identical outputs |
+| gates · thresholds · bands · caps · labels | **0 · 0 · 0 · 0 · 0** |
+| solver compute | **0 core-min, $0.00** |
