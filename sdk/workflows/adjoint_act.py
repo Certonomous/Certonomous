@@ -1291,9 +1291,12 @@ class AdjointWingAct(DemoAct):
         # 1100Z: "for all acts still condense the sentences").
         identity = _load(IDENTITY_FILE)
         verification = [
-            (f"The gradient was graded against {_actd.FD_SOLVES} central "
-             f"finite-difference solves of the full flow before it was "
-             f"used."),
+            # 211 EVERYWHERE (Sanaa 2030Z): the on-screen count is the full
+            # 211 flow solves (the 2x105 central-difference perturbations
+            # plus the one baseline), stated so the sentence stays true.
+            (f"The gradient was graded against {_actd.FD_PRIMAL_SOLVES} "
+             f"flow solves of the full primal, the baseline among them, "
+             f"before it was used."),
             (f"The worst physical group agreed to {worst:.3g}%, inside the "
              f"{_actd.GATE_PASS_PCT:g}% threshold fixed before the check."),
             (f"No sign reversal in any component that could steer it."),

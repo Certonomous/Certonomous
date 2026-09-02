@@ -296,10 +296,13 @@ def report_methods_rows(record: dict,
          f"{ADJOINT_STATE_FIELDS} differentiated state fields rather than "
          f"frozen; the wall distance feeding its source term is the one "
          f"term not differentiated."),
+        # 211 EVERYWHERE (Sanaa 2030Z), her suggested wording: the full
+        # count with the baseline named, so the sentence stays true of 211.
         ("Verification",
          f"{fd_form.capitalize()} finite difference of the full primal at a "
-         f"single absolute step of {fd_step:g}, {FD_SOLVES} perturbation "
-         f"solves covering every one of the {N_DV} design variables. This "
+         f"single absolute step of {fd_step:g}, {FD_PRIMAL_SOLVES} flow "
+         f"solves, the baseline among them, covering every one of the "
+         f"{N_DV} design variables. This "
          f"case was graded at that one step and was not itself swept across "
          f"decades; the step comes from a sweep run on the smaller case at "
          f"the foot of the same ladder."),
@@ -1421,8 +1424,11 @@ def main(request: str | None = None, params: dict | None = None,
             f"The gradient is taken by {AD_MODE}-mode automatic "
             f"differentiation of the residuals, the turbulence model "
             f"included.",
-            f"Plan: take the adjoint gradient, grade it against {FD_SOLVES} "
-            f"primal solves, then optimize on it.")
+            # 211 EVERYWHERE (Sanaa 2030Z): the count spoken is the full
+            # 211 primal solves, the baseline among them.
+            f"Plan: take the adjoint gradient, grade it against "
+            f"{FD_PRIMAL_SOLVES} primal solves, the baseline among them, "
+            f"then optimize on it.")
     # ITEM 3 (owner, 2026-07-31): the one line above says it, and these rows
     # say which residuals carry it, because "frozen turbulence" is the first
     # objection an adjoint-literate reviewer raises and a general claim does
@@ -2173,8 +2179,10 @@ def main(request: str | None = None, params: dict | None = None,
 
     verdict = {
         "tier": SOLVER_BACKED,
-        "reason": (f"gradient verified against {FD_SOLVES} finite-difference "
-                   f"primal solves, worst group {worst:.3g}%, no sign "
+        # 211 EVERYWHERE (Sanaa 2030Z): baseline counted and named.
+        "reason": (f"gradient verified against {FD_PRIMAL_SOLVES} "
+                   f"finite-difference primal solves, the baseline among "
+                   f"them, worst group {worst:.3g}%, no sign "
                    f"reversals that could steer it"),
     }
     # ITEM 4 (owner, 2026-07-31): the conditions the request stated, answered
@@ -2299,8 +2307,10 @@ def main(request: str | None = None, params: dict | None = None,
             f"respect to {N_DV} design variables on a {MESH_CELLS:,} cell "
             f"three-dimensional wing, at a cost independent of the number of "
             f"design variables.",
-            f"The gradient was graded against {FD_SOLVES} central "
-            f"finite-difference primal solves before it was used: worst "
+            # 211 EVERYWHERE (Sanaa 2030Z): baseline counted and named.
+            f"The gradient was graded against {FD_PRIMAL_SOLVES} central "
+            f"finite-difference primal solves, the baseline among them, "
+            f"before it was used: worst "
             f"physical group {worst:.3g}%, best {best:.3g}%, and no sign "
             f"reversal in any component that could steer the optimizer. The "
             f"gate passed. The geometric constraint derivatives all came back "
