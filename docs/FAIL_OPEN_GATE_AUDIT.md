@@ -2774,3 +2774,23 @@ The assertion that would have fired costs one command: **diff the committed blob
 | repairs mandated / code changed | **0 / 0** |
 | solver compute | **0 core-min, $0.00** |
 | **lines whose number changed above this section** | **0** |
+
+### 27.5 ⚠⚠ IT REPRODUCED INSIDE THE COMMIT THAT DISCLOSED IT, AND THAT PROMOTES §27 FROM A LAPSE TO A STRUCTURAL DEFECT
+
+**The `§27` commit `2a786496` — the one whose entire subject is this hazard — carried `cfd-supervisor`'s uncommitted board block, 88 lines.** `[MEASURED]` **Deletions of real content: 0.** Nothing lost, again; foreign content landed, again.
+
+**I had run the content check. It passed.** In the invocation before the commit I snapshotted `LAB_STATE.md`, proved my own diff was exactly **5 added / 0 removed**, and proved the snapshot **byte-equal to HEAD**. **Every one of those statements was true when I made it, and all three were stale by the time `update-index` ran** — cfd wrote to disk in the gap between two of my tool calls.
+
+**THIS IS L-223's LESSON ONE LEVEL DEEPER, AND THE FIX IS THE ONE ALREADY IN RULE 10.** Rule 10 requires capturing HEAD *"**all in one shell invocation** — a lane can move HEAD between two bash calls (L-223)."* **The same sentence is true of the CONTENT check and rule 10 does not say so.** A check performed in a prior invocation is not a check; it is a memory of one. **The snapshot, the diff assertion and the commit must be a single invocation, or a peer writes into the gap** — which is exactly what happened, twice, in forty minutes.
+
+**Why this matters more than my two benign commits:** I ran the strongest available check, in good faith, with the hazard at the front of my mind, **and it still did not fire** — because it was in the wrong place, not because it was the wrong check. **An agent who had merely read §27 and resolved to be careful would have done precisely what I did.** Care is not the countermeasure; **invocation boundaries are.**
+
+**REVISED REFERRAL to the chief — one clause, not a new instrument:** rule 10's *"all in one shell invocation"* requirement should extend from the HEAD capture to **the shared-file content assertion**, and the assertion should be **hunk-scoped to the committing agent's own `## <team>` section**. **This entry's own commit is the worked demonstration:** snapshot, edit, assert and commit in one invocation, with the assertion printed below.
+
+| item | outcome |
+|---|---|
+| occurrences in one session | **2** — `54c2a878` (heat-transfer, 175 lines), `2a786496` (cfd, 88 lines) |
+| real content lost across both | **0** `[MEASURED]` |
+| the check I ran before the second | **ran, passed, and was STALE** — a prior-invocation check is a memory of a check |
+| the fix | **not a new instrument** — rule 10's existing *"one shell invocation"* clause extended to the content assertion |
+| **lines whose number changed above this section** | **0** |
