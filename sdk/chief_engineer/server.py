@@ -163,10 +163,14 @@ def _credentials() -> list[dict]:
         card["certificate"] = certificate
         card["tier"] = lab.credential_tier(tier, certificate)
         if card["tier"] == lab.UNESTABLISHED:
+            # WORDING IS FILMABLE: this card renders on the Lab credentials
+            # tab, and the wall style test bans a word list ("recorded",
+            # "stored", ...) that both earlier spellings of this sentence
+            # tripped. Say the fact without the banned vocabulary.
             card["tier_unestablished_because"] = (
-                "no certificate is recorded for this result"
+                "this result carries no certificate"
                 if certificate is None else
-                f"the stored grade {tier!r} is not a tier this lab ranks")
+                f"the grade {tier!r} is not a tier this lab ranks")
         card["measured"] = (compared if compared is not None
                             else shown["measured"])
         cards.append(card)
