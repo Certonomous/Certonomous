@@ -15,16 +15,29 @@ IDENTICAL to the baseline file.  If one byte anywhere outside those two blocks
 had moved, the splice could not reproduce the baseline.  No dictionary parser is
 trusted, and there is nothing for a regex to miss.
 
-    python3 verify_arm_t25R5.py --arm C4 [--case <dir>]
+    python3 verify_arm_t25R5.py --arm C4 [--case <dir>]     # full E6, needs staging
+    python3 verify_arm_t25R5.py --arm C4 --dicts-only       # partial, exit 3
     python3 verify_arm_t25R5.py --selftest
 
-Exit 0 = the arm is admissible.  Exit 2 = REFUSE.
+EXIT CODES, and the middle one is the point:
+    0  ADMISSIBLE            -- the FULL E6 verdict. Coolant fvSolution
+                               confinement PLUS module fvSolution PLUS both
+                               fvSchemes, all against a staged case.
+    3  ADMISSIBLE-DICTONLY   -- coolant fvSolution confinement ONLY. A PASS, but
+                               NOT E6, and it MAY NOT BE CITED AS E6. Non-zero on
+                               purpose so `verify && run` cannot launch on it.
+    2  REFUSE                -- including: no staged case and no --dicts-only.
+                               This verifier never silently downgrades the check
+                               it was asked for.
 """
 import os, re, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 BASE_CASE = os.path.join(os.path.dirname(HERE), "T25R4_MODULE_runs", "P1")
 EXIT_REFUSE = 2
+# A PASS THAT IS NOT THE E6 PASS. Non-zero on purpose: a launcher writing
+# `verify_arm_t25R5.py --arm X && run` is BLOCKED by a dictionary-only clearance.
+EXIT_DICTONLY = 3
 
 # --- FROZEN AT THE PRE-REGISTRATION (section 1, section 2).  These four values are
 # --- the registered CONVERGENCE CRITERION and no arm may alter them.  A swapped
@@ -50,7 +63,15 @@ def refuse(msg):
 
 
 def span(text):
-    """1-based [lo, hi] line span covering BOTH p_rgh blocks, by brace matching."""
+    """0-BASED, INCLUSIVE [lo, hi] line indices covering BOTH p_rgh blocks.
+
+    ZERO-based, because `enumerate(lines)` starts at 0 and `splice()` slices with
+    these directly.  The convention is stated because a 0-versus-1-based bound
+    error was a live bug in the sibling confinement checker on the day this was
+    written, and a docstring asserting the wrong convention is a trap for the
+    next editor.  Do NOT compare these against unified-diff line numbers, which
+    are 1-based, without adding one.
+    """
     lines = text.split("\n")
     try:
         lo = next(i for i, l in enumerate(lines) if l.strip() == '"p_rgh.*"')
@@ -91,6 +112,13 @@ def block_values(text):
     made this verifier REFUSE a legitimate arm until its own selftest caught it.
     Keys nested deeper than the block itself are deliberately NOT recorded: the
     registered criterion lives at the block's top level and nowhere else.
+
+    A DUPLICATED top-level key REFUSES rather than resolving.  The interior of
+    these two blocks is the one place the splice proof deliberately cannot see,
+    so it is the one place a duplicate could hide; a reader that silently took
+    the first (or the last) would report a value OpenFOAM might not use.  An
+    ambiguous dictionary is one this verifier cannot clear -- which is already
+    its stated philosophy everywhere else.
     """
     out, cur, depth = {}, None, 0
     for ln in text.split("\n"):
@@ -106,17 +134,44 @@ def block_values(text):
         if depth == 1 and s.endswith(";"):
             parts = s[:-1].split()
             if len(parts) == 2:
-                out.setdefault((cur, parts[0]), parts[1])
+                if (cur, parts[0]) in out:
+                    refuse("block %r declares top-level key %r more than once "
+                           "(%r then %r). An ambiguous dictionary is one this "
+                           "verifier cannot clear -- and the interior of the "
+                           "p_rgh blocks is exactly where the splice proof "
+                           "cannot see." % (cur, parts[0],
+                                            out[(cur, parts[0])], parts[1]))
+                out[(cur, parts[0])] = parts[1]
     return out
 
 
-def verify(arm, case=None, base=None, quiet=False):
+def verify(arm, case=None, base=None, quiet=False, dicts_only=False):
+    """Returns 0 for the FULL E6 verdict, EXIT_DICTONLY for the partial one.
+
+    ⚠ TWO VERDICTS, TWO TOKENS, TWO EXIT CODES, DELIBERATELY.  Without a staged
+    case this function can compare only the coolant fvSolution: the module
+    fvSolution and both fvSchemes are not there to compare.  That is STRICTLY
+    LESS than E6, so it must not emit E6's verdict.  A mode that checks less
+    while printing the same word is how a partial check gets cited later as a
+    full one -- and it already did: this lane reported "all seven arms verify
+    ADMISSIBLE" on the strength of a dictionary-only pass.
+
+    Dictionary-only mode must now be ASKED FOR (`--dicts-only`).  Absent a staged
+    case and absent that flag, this REFUSES rather than quietly downgrading.
+    """
     base = base or BASE_CASE
     case = case or os.path.join(HERE, arm)
     say = (lambda *a: None) if quiet else print
 
     b_cool = read(os.path.join(base, "system", "coolant", "fvSolution"))
-    if os.path.isdir(os.path.join(case, "system")):
+    staged = os.path.isdir(os.path.join(case, "system"))
+    if not staged and not dicts_only:
+        refuse("arm %s: no staged case at %s, and --dicts-only was not asked "
+               "for. The FULL E6 verdict requires a staged case: without one "
+               "the module fvSolution and both fvSchemes cannot be compared. "
+               "Default-deny -- this verifier does not silently downgrade the "
+               "check it was asked for." % (arm, case))
+    if staged:
         a_cool = read(os.path.join(case, "system", "coolant", "fvSolution"))
         a_mod = read(os.path.join(case, "system", "module", "fvSolution"))
         b_mod = read(os.path.join(base, "system", "module", "fvSolution"))
@@ -133,7 +188,8 @@ def verify(arm, case=None, base=None, quiet=False):
                        % (arm, reg))
     else:
         a_cool = read(os.path.join(HERE, "arms", "fvSolution.coolant." + arm))
-        say("  (dictionary-only mode: no staged case at %s)" % case)
+        say("  ⚠ DICTIONARY-ONLY MODE: no staged case at %s. The module "
+            "fvSolution and both fvSchemes are NOT checked." % case)
 
     # ---- THE PROOF: splice the baseline's blocks in and demand byte-identity.
     spliced = splice(a_cool, b_cool)
@@ -160,7 +216,12 @@ def verify(arm, case=None, base=None, quiet=False):
                    % (arm, blk, key, got, want))
     say("  ok   tolerance 1e-13 x2 and the registered relTol values: as frozen"
         + ("  (D0's registered relTol 0.5 exception applied)" if arm == "D0" else ""))
-    say("  ADMISSIBLE: %s" % arm)
+    if not staged:
+        say("  ADMISSIBLE-DICTONLY: %s  -- COOLANT fvSolution CONFINEMENT ONLY. "
+            "This is NOT the E6 verdict and may not be cited as one." % arm)
+        return EXIT_DICTONLY
+    say("  ADMISSIBLE: %s  (full E6: coolant + module fvSolution + both "
+        "fvSchemes)" % arm)
     return 0
 
 
@@ -176,7 +237,7 @@ def selftest():
     def run(arm, base):
         try:
             return verify(arm, case=os.path.join(base, "nonexistent_case"),
-                          base=base, quiet=True)
+                          base=base, quiet=True, dicts_only=True)
         except SystemExit as e:
             return e.code
 
@@ -197,7 +258,8 @@ def selftest():
         base = os.path.join(tmp, "base")
         for a in ("B0", "C1", "C2", "C3", "C4", "C5", "D0"):
             put(a, read(os.path.join(keep, "arms", "fvSolution.coolant." + a)))
-            chk("real arm %s is ADMISSIBLE (exit 0)" % a, run(a, base) == 0)
+            chk("real arm %s -> ADMISSIBLE-DICTONLY (exit %d), NOT the E6 pass"
+                % (a, EXIT_DICTONLY), run(a, base) == EXIT_DICTONLY)
 
         # --- PLANTED CONTROLS (rule 3).  Every clearance above is a zero, and a
         # --- zero from a reader not shown able to see a non-zero is not evidence.
@@ -229,12 +291,31 @@ def selftest():
         # --- that cannot see past the nesting would clear it.
         c4 = read(os.path.join(keep, "arms", "fvSolution.coolant.C4"))
         put("NEST_OK", c4)
-        chk("nested sub-dict arm with a GOOD tolerance -> ADMISSIBLE",
-            run("NEST_OK", base) == 0)
+        chk("nested sub-dict arm with a GOOD tolerance -> ADMISSIBLE-DICTONLY",
+            run("NEST_OK", base) == EXIT_DICTONLY)
         put("NEST_BAD", c4.replace("        tolerance       1e-13;",
                                    "        tolerance       1e-11;", 1))
         chk("PLANTED nested sub-dict arm with tolerance 1e-13 -> 1e-11 AFTER "
             "the sub-dict -> REFUSES", run("NEST_BAD", base) == EXIT_REFUSE)
+
+        # --- PLANT: a duplicated top-level key INSIDE a p_rgh block -- the one
+        # --- place the splice proof cannot see.
+        dup = src.replace("        relTol          0.01;\n",
+                          "        relTol          0.01;\n        relTol          0.20;\n", 1)
+        chk("PLANTED duplicate relTol inside \"p_rgh.*\" -> mutant differs", dup != src)
+        put("DUP", dup)
+        chk("PLANTED duplicate top-level key in a p_rgh block -> REFUSES",
+            run("DUP", base) == EXIT_REFUSE)
+
+        # --- CONTROL: no staged case AND no --dicts-only must REFUSE, not
+        # --- silently downgrade to the weaker check.
+        try:
+            r = verify("B0", case=os.path.join(base, "nonexistent_case"),
+                       base=base, quiet=True, dicts_only=False)
+        except SystemExit as e:
+            r = e.code
+        chk("no staged case and no --dicts-only -> REFUSES (no silent downgrade)",
+            r == EXIT_REFUSE)
 
         put("TRUNC", "\n".join(src.split("\n")[:20]))
         chk("a dictionary with NO p_rgh blocks -> REFUSES",
@@ -253,4 +334,4 @@ if __name__ == "__main__":
         sys.exit(selftest())
     i = sys.argv.index("--arm")
     c = sys.argv[sys.argv.index("--case") + 1] if "--case" in sys.argv else None
-    sys.exit(verify(sys.argv[i + 1], case=c))
+    sys.exit(verify(sys.argv[i + 1], case=c, dicts_only="--dicts-only" in sys.argv))
