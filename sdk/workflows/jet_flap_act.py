@@ -121,13 +121,14 @@ CONVERGENCE_LINE = ("The grid convergence study for this case is running; the "
 #: is untouched and it was right; this makes sure it never has to fire.
 SURFACE = "airfoil_blown_slot.stl"
 
-#: What the compute figure is CALLED on a customer screen. The quantity is
-#: unchanged -- wall seconds x ranks / 60, CLAUDE.md rule 12 -- and so is every
-#: number derived from it. Only the name changes: "core-minutes" is this lab's
-#: internal unit, and Sanaa's live-demo standard keeps internal information off
-#: the customer surface. A viewer reads "processor-minutes" without being told
-#: what a core is, and it is the same minute on the same processor.
-COMPUTE_UNIT = "processor-minutes"
+#: What the compute figure is CALLED on a customer screen: the same word as
+#: the record's, "core-minutes" (chief ruling 2026-09-02, unifying the screen
+#: vocabulary on Sanaa's own "core min" / "Core-minutes per run" wording; the
+#: earlier "processor-minutes" translation put two words for one quantity on
+#: one screen). The quantity is unchanged -- wall seconds x ranks / 60,
+#: CLAUDE.md rule 12 -- and so is every number derived from it. Kept equal to
+#: demo_mode.SCREEN_COMPUTE_UNIT, which the shared cost line renders.
+COMPUTE_UNIT = "core-minutes"
 
 #: THE GPU-DECLINE MECHANISM, THIS ACT'S OWN HALF OF THE ROUTING BEAT.
 #: Sanaa, 2026-09-02 ~02:32Z, item 1, her wording: the lab predicts the cost,
@@ -163,7 +164,7 @@ PARALLEL_DECISION = ("The five operating points are independent, so the lab "
 #: the 4-worker quiet-box rerun she ordered, queued at
 #: verification/queue/cfd/JF1R_QB4.json, and the screen silently takes that
 #: run's measured numbers when its log lands. The MEASURED spend of the landed
-#: sweep (117.5 processor-minutes, single-rank, from the five run-status
+#: sweep (117.5 core-minutes, single-rank, from the five run-status
 #: files) is untouched everywhere it is recorded and still renders as this
 #: run's cost.
 INTERIM_COMPUTE_ROW = ("4", "19", "6.5 min")
@@ -355,7 +356,7 @@ def _measured_core_min(statuses: list[dict] | None = None) -> float:
     is the number the whole routing beat turns on.
 
     IT IS THE MEASURED FIGURE AND IT STAYS THE MEASURED FIGURE. 117.5
-    processor-minutes is what this hardware did, read from the run-status files
+    core-minutes is what this hardware did, read from the run-status files
     the solves wrote. Since Sanaa's 2026-09-02 item 1 removed the redirect
     beat, no projection carries it onto other hardware anywhere: this is the
     one compute figure of the act, on screen and in the record alike, and
@@ -612,7 +613,7 @@ class JetFlapAct(DemoAct):
         THE NUMBERS STAY MEASURED AND STAY THIS BOX'S. No figure is carried
         onto other hardware any more: the projection, its factor and both of
         its screen sentences are removed with the redirect, and the spend this
-        act reports is the 117.5 processor-minutes the five run-status files
+        act reports is the 117.5 core-minutes the five run-status files
         record for the processors serving these screens.
 
         THE PARALLEL DECISION IS SPOKEN AS THE LAB'S OWN (her item 3):
@@ -696,7 +697,7 @@ class JetFlapAct(DemoAct):
             # THE PROJECTION IS GONE WITH THE REDIRECT BEAT (Sanaa 2026-09-02
             # item 1 supersedes her 21:30Z redirect frame). The compute figure
             # on every surface of this act is now the one this box measured,
-            # 117.5 processor-minutes, read from the five run-status files;
+            # 117.5 core-minutes, read from the five run-status files;
             # no figure is carried onto other hardware and no factor is
             # applied anywhere on screen. ``wall_seconds`` above,
             # ``core_min_measured``, ``Results.cost_actual`` and the

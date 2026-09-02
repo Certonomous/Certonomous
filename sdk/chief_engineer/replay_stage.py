@@ -545,13 +545,14 @@ class ReplayStage:
         "All", and it is why this is a named method: the offline re-derivation
         can call it, and a test can assert on what actually gets spoken.
 
-        THE UNIT ON SCREEN IS THE SCREEN'S UNIT. This sentence used to say
-        "core minutes", which is the LAB'S INTERNAL name for the quantity --
-        the same figure the results stage two beats later renders as
-        "processor-minutes", so one act stated one number in two vocabularies
-        and the customer surface carried the internal one. The quantity is
-        untouched (wall seconds x ranks / 60, CLAUDE.md rule 12); the word is
-        the one the rest of the screen already uses.
+        THE UNIT ON SCREEN IS THE SCREEN'S UNIT, AND THE SCREEN'S UNIT IS
+        NOW "core-minutes" AGAIN (chief ruling 2026-09-02, off Sanaa's own
+        "core min" / "Core-minutes per run" wording; the interim
+        "processor-minutes" translation had one screen carrying two words for
+        one quantity). The quantity is untouched (wall seconds x ranks / 60,
+        CLAUDE.md rule 12); the word matches demo_mode.SCREEN_COMPUTE_UNIT,
+        kept as a literal here because this layer deliberately does not
+        import the workflows package (see ReplaySpec.cost_projection).
 
         WITH A PROJECTION the number shown is the projected one and the
         sentence names the hardware it describes, because a bare figure this
@@ -562,10 +563,10 @@ class ReplayStage:
         projection = self.spec.cost_projection
         if projection is None:
             return (f"All {points} {self.spec.point_noun}s complete, "
-                    f"{iterations:,} iterations, {cm:.1f} processor-minutes.")
+                    f"{iterations:,} iterations, {cm:.1f} core-minutes.")
         return (f"All {points} {self.spec.point_noun}s complete, "
                 f"{iterations:,} iterations, "
-                f"{projection.apply(cm):.1f} processor-minutes on "
+                f"{projection.apply(cm):.1f} core-minutes on "
                 f"{projection.hardware}.")
 
     # -- emission ------------------------------------------------------------

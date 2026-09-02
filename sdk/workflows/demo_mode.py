@@ -477,15 +477,15 @@ NEVER_PHRASES: tuple[tuple[str, str], ...] = (
     # ----------------------------------------------------------------------
     # CURRENCY, BANNED OUTRIGHT. Sanaa, 2026-09-02 orders, item 4, verbatim:
     # "Compute reporting: no $, no cents, no derived-cost lines." Compute on a
-    # customer screen is processor-minutes and wall time, nothing priced. The
+    # customer screen is core-minutes and wall time, nothing priced. The
     # record keeps its derived dollar figures (rule 12); the screen does not.
     (r"\$\s?\d", "no currency on a customer screen; compute is "
-                 "processor-minutes and wall time"),
+                 "core-minutes and wall time"),
     # "per cent" IS NOT CURRENCY, and the lookbehind is what keeps an honest
     # percentage sentence legal (measured: the motor act's "57 per cent under
     # it" was refused by the first cut of this entry).
     (r"\bdollars?\b|\bUSD\b|(?<!per )\bcents?\b",
-     "no currency on a customer screen; compute is processor-minutes and "
+     "no currency on a customer screen; compute is core-minutes and "
      "wall time"),
     # ----------------------------------------------------------------------
     # SEQUENTIAL PHRASING ON A PARALLEL SWEEP. Sanaa, 2026-09-02 orders, item
@@ -921,14 +921,18 @@ def core_minutes(wall_seconds: float, ranks: int) -> float:
 
 
 #: What the compute figure is CALLED on a customer screen. The quantity is
-#: unchanged and is still CLAUDE.md rule 12's core-minutes -- wall seconds x
-#: ranks / 60 -- and the record, the ledgers and every cost calibration keep
-#: saying core-minutes. Only the screen's word changes: "core-minutes" is this
-#: lab's internal unit, and Sanaa's live-demo standard keeps internal
-#: information off the customer surface. A viewer reads "processor-minutes"
-#: without having to know what a core is, and it is the same minute on the
-#: same processor.
-SCREEN_COMPUTE_UNIT = "processor-minutes"
+#: CLAUDE.md rule 12's core-minutes -- wall seconds x ranks / 60 -- and the
+#: record, the ledgers and every cost calibration say core-minutes.
+#:
+#: THE SCREEN NOW SAYS THE SAME WORD, chief ruling 2026-09-02. This constant
+#: was "processor-minutes", a translation of the internal unit for the
+#: customer surface -- and her latest verbatim orders write the screen's own
+#: vocabulary as "core min" / "Core-minutes per run" (the compute-table
+#: header above is hers word for word), so the translation had one screen
+#: carrying BOTH words for one quantity (measured on a battery screen:
+#: "processor-minutes" beside "Core-minutes"). One quantity, one word,
+#: everywhere: "core-minutes". No number moves.
+SCREEN_COMPUTE_UNIT = "core-minutes"
 
 
 @dataclass(frozen=True)
@@ -1008,7 +1012,7 @@ def cost_line(cm: float, *, gross: bool = True,
     THE DOLLAR CLAUSE IS GONE, on Sanaa's 2026-09-02 order, item 4, verbatim:
     "Compute reporting: no $, no cents, no derived-cost lines." The derived
     dollar figure stays in the RECORD at the recorded rate (rule 12, and it is
-    still labelled derived there); the screen states processor-minutes only,
+    still labelled derived there); the screen states core-minutes only,
     and the never-list above now refuses a currency string mechanically so the
     clause cannot creep back through any act.
 
