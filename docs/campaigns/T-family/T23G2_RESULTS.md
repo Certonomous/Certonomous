@@ -477,7 +477,7 @@ levels).
 | **P3** y+ everywhere else | *"max y+ < 1.0 on every wall patch of every level"* (`:493-494`) | `centrebody_up` **1.8245 / 1.3539 / 1.0047** | **LOST** — §1.2 |
 | **P4** `Q5` | **`DIVERGENT` or `STAGNANT`** (`:496-500`) | **`DIVERGENT`**, order −1.7108 | **HELD** — the failure was called before the run |
 | **P5** similarity repair moves p by < 0.05 | registered as **not isolable by this rung** (`:502-506`) | — | **NOT EVALUABLE**, as registered. It needs the single-variable successor |
-| **P6′** cost | actual inside **[400, 950] core-min**, ratio in **[0.69, 1.64]** (`:992-995`) | **536.77 core-min, ratio 0.9268** | **HELD** — §10 |
+| **P6′** cost | actual inside **[400, 950] core-min**, ratio in **[0.69, 1.64]** (`:992-995`) | **536.77 core-min, ratio 0.9267** *(corrected from 0.9268 — §16)* | **HELD** — §10 |
 
 **A2.2's own forecast is falsified, and it belongs here because the registration
 volunteered it.** A2.2 predicted maxima on `duct_wall` and `fluid_to_housing` —
@@ -529,7 +529,7 @@ each `START` carries `decomposition=NONE  # recorded AS AN ABSENCE`, i.e.
 | `T23G2_L3` | 204,120 | 24,000 | 26,041 | 1 | **434.0167** | 472.6 | 1,100.0 | 0 |
 | **CAMPAIGN** | | | | | **536.77** | **579.2** | **1,365** | **0** |
 
-**Ratio actual/predicted = 0.9268.** **No level was capped; no timeout fired.**
+**Ratio actual/predicted = 0.9267.** *(corrected from 0.9268 — §16)* **No level was capped; no timeout fired.**
 
 **USD — DERIVED, NEVER MEASURED.** 536.77 core-min = 8.9461 core-h ×
 $0.0513/core-h = **$0.4589**. `cost_basis = REPORTED-BY-OWNER`: the rate is
@@ -573,7 +573,7 @@ conservative direction, not waste.**
   cause and NOT as a measurement.** It repeats the calibration lesson already in
   the ledger at row C-4: *record the load average beside any per-iteration cost
   basis, and state the load the basis is being re-applied at.*
-- **P6′ HELD**: 536.77 ∈ [400, 950]; ratio 0.9268 ∈ [0.69, 1.64].
+- **P6′ HELD**: 536.77 ∈ [400, 950]; ratio 0.9267 ∈ [0.69, 1.64] *(corrected from 0.9268 — §16)*.
 
 **A ledger row is landed for this rung** in
 `/home/ubuntu/Certonomous/docs/COST_CALIBRATION.md`. `verification` noted at
@@ -1206,3 +1206,76 @@ files only**, so an untracked file citing this record by line would not be seen.
 **No grading-path file was edited, read for anything but its bytes, or re-run.
 Nothing was re-graded. No verdict, value, order, GCI or gate anywhere in this
 record is changed by this amendment.**
+
+---
+
+## 16. AMENDMENT, 2026-09-02 — AN ARITHMETIC CORRECTION IN §10's RATIO: **0.9267**, NOT 0.9268
+
+**Nothing measured changes. No core-minute, no cap, no prediction, no gate, and
+not the rung verdict.** One derived figure was rounded up by a digit.
+
+**The correction.** 536.7667 / 579.2 = **0.926738087…**, which is **0.9267** to
+four decimals. §9's `P6′` row, §10's ratio sentence and §10's closing `P6′`
+bullet each read `0.9268`; each now reads `0.9267` and carries *(corrected from
+0.9268 — §16)* at the site, so the superseded value stays visible where the
+number is rather than only at the foot.
+
+**Nothing depended on it, and that is exactly why it is recorded rather than
+absorbed.** `P6′` registers the ratio band [0.69, 1.64]
+(`T23G2_PREREGISTRATION.md:992-995`); **both figures sit inside it, so `P6′` HELD
+before the correction and holds after.** No verdict moves in either direction.
+The ratio against cap (**0.393**), the summed **536.7667 core-min**, the predicted
+**579.2** point, the **1,365** cap and every gap-attribution figure in §10 are
+unchanged and were correctly stated. **T23G2's rung verdict remains `NOT A
+RESULT`.**
+
+**Raised by the heat-transfer supervisor against its own figure**, which had been
+reported upward more than once.
+
+### 16.1 The ledger was corrected under ITS rules, not this record's
+
+`docs/COST_CALIBRATION.md` carries the same `0.9268` in row
+**`C-20260902T215932.385336Z-ef920ed2`**. That file's append rule 1 is explicit —
+*"Append-only. New rows land at the foot of the table. An existing row is never
+edited; a correction is a new row naming the row it corrects."* — so **the
+committed row was left byte-identical and a correction row was appended**:
+**`C-20260902T224321.920752Z-1e90052f`**.
+
+### ⚠ 16.2 A rule collision found while doing it, disclosed because it will bite the next person
+
+`scripts/append_record.py` — the only sanctioned producer of tool-allocated ids
+since Sanaa's 2026-08-31 PLUMBING FREEZE — **refuses (exit 9) any rows file
+containing a tool-form id anywhere in its text**, deliberately, and by its own
+words *"for ANY record's prefix rather than only this record's"*
+(`check_allocation`, `:844-852`). Its purpose is to keep a hand-written id out of
+an **id cell**; **its scan cannot tell an id cell from a prose citation.**
+
+**So the ledger's rule 1 and that guard are jointly unsatisfiable for any record
+whose ids are tool-allocated.** The refusal was **reproduced twice**: on the
+calibration correction row, and again on the docket row filed to describe the
+collision, which was refused for citing the id of the correction row it
+describes.
+
+**Nothing was bypassed.** No full tool-form id was written into either guarded
+record: both rows name their target by date, team, subject and its unique 8-hex
+suffix, and **the full ids are written out here, in §16.1**, in a file that tool
+does not append. **This is a workaround and is labelled one — it degrades a
+citation from an exact key to a description, and a reader grepping a full id will
+not find the row that cites it.** Docketed as
+**`D-20260902T224505.958199Z-e02eb14e`**, owned by `verification`:
+`append_record.py` is lab-wide plumbing under a freeze and is not
+heat-transfer's to change.
+
+### 16.3 Scope of the edit
+
+Three inline substitutions above — §9's `P6′` row, §10's ratio sentence, §10's
+closing `P6′` bullet — **each marked at the site with the superseded value; no
+sentence was deleted.** As in §14 and §15, this record cannot assert `lines whose
+number changed above this section: 0`.
+
+**One figure checked and NOT changed, recorded so the absence is deliberate:** a
+`$0.0762` cost figure reported elsewhere as a batch-1 spend (it is in fact a
+cumulative figure, and belongs to `T25R5`, not to this rung) **appears nowhere in
+this record** — `git grep` over `docs/campaigns/T-family/` and
+`verification/runs/T-family/` returns no such cost figure in any T23G2 file
+`[MEASURED]` 2026-09-02. Nothing was propagated and nothing needed correcting.
