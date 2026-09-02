@@ -13182,7 +13182,256 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 *Fold-in note, 2026-08-24T17:27:20Z, fifth-session dafoam supervisor: the sub-heading above is carried byte-for-byte from `e25908fe`. Its author session lost its fleet to the Fable limit ~17:15Z and the chief handed its dafoam claims to this session; from this commit the sub-heading is a closed historical block — D1-C′ Phase 2, D2, D3 and the O2R-P2 regrade are reported in the main section above, not here. O2 and O3 remain untouched on Sanaa's desk.*
 
 ## heat-transfer
-**Section last written:** 2026-09-02T21:04:42Z by heat-transfer-supervisor (via a board lane)
+**Section last written:** 2026-09-02T22:16:56Z by heat-transfer-supervisor (via a board lane; stamp from `date -u` read in the committing shell invocation). Newest block is the T23G2 GRADED block immediately below: verdict `NOT A RESULT`, independent of all five granted repairs. Everything below it stands unedited.
+
+---
+
+##### ⛔ **T23G2 IS GRADED AND THE VERDICT IS `NOT A RESULT`. THE FIVE GRANTED REPAIRS DID NOT CHANGE IT — THEY CHANGED THE QUALITY OF THE RECORD, NOT ITS ANSWER.** (2026-09-02T22:1xZ)
+
+*(Lane block. **Pure insertion; everything below stands unedited** — T25R4, T25R3, the reboot block and tonight's earlier T23G2 blocks all stand as committed.)*
+
+**⚠ READ THIS FIRST IF YOU ARE ABOUT TO COMMIT: THE SHARED INDEX IS STALE IN THE
+REVERTING DIRECTION, MEASURED AT THIS WRITE.** `git diff --cached` stages the
+**deletion** of four files that exist both on disk and at HEAD:
+`docs/campaigns/T-family/T23G2_R7_ORDER_GATE_PETITION.md`,
+`verification/runs/T-family/T23G2_runs/T23G2_GRADE.out`,
+`verification/runs/T-family/T25R5_LINSOLVER_runs/STAGE1_BATCH1_RESULT.json` and
+`.../compare_arms_t25R5.py`. A bare `git commit` by anyone would delete tonight's
+grading output and the R7 petition. **Inspected, never reverted** (rule 10); the
+index is the chief's call. This block was landed by the private-index protocol
+with `read-tree HEAD`, which is immune to it, and with the post-commit
+`git diff HEAD~1 HEAD --stat` verification run and clean.
+
+---
+
+### 1. THE VERDICT
+
+**`RUNG VERDICT: NOT A RESULT`.** The comparator **graded** — it exited **3**, not
+2. Exit 2 is a refusal; exit 3 is a verdict. Grading output preserved in-repo at
+`verification/runs/T-family/T23G2_runs/T23G2_GRADE.out` (rule 13 — a repository
+document never cites a scratch path). Record:
+`docs/campaigns/T-family/T23G2_RESULTS.md` (`d6570792`, §5 correction `afe51f24`,
+§14 amendment `6cc0301f`).
+
+**THE VERDICT IS INDEPENDENT OF ALL FIVE REPAIRS.** Say it that way and say it
+first. The three grounds it stands on all predate every repair. The repairs bought
+a defensible record, not a different answer.
+
+**The gates.**
+
+| gate | verdict | the number |
+|---|---|---|
+| `G-CONV` | **`GATE FAIL`** | `T23G2_L2` last `p_rgh` initial residual **1.04122627289e-08** against the registered ≤ 1e-8. L1 **9.18853420673e-09** and L3 **9.07512718378e-09** clear. One level, one quantity, in the eighth decimal — and it voids the ladder. |
+| `G-YPLUS` | **`GATE FAIL`** | `centrebody_up` max y+ **1.8245 / 1.3539 / 1.0047** (independent field reader) and **1.8245835202 / 1.3540190129 / 1.0047773564** (primary log reader, `log.yPlus.fluid`), against A2.2's registered ≤ 1.0 **on every wall patch of every level**. Two readers, agreeing well inside the registered 2%. Not even the finest level clears. |
+| `G-MESHSIM` | **`PASS`** | cell ratios 2.250000000 on all three regions both steps; first-cell ratios 1.4999–1.5001 on all four patches both steps; 8 cells across the housing wall at the coarsest level against a floor of 8 (`T23G` carried 4). |
+| `G-PLATEAU` | **`PASS`** | `PLATEAUED` on all six quantities at all three levels. |
+| `G-RATIO` | **`PASS`** | ratio ∞ on all six — finest iterative change exactly 0.0 — **and now licensed by a live control** (see §3). |
+
+**All five graded rows are `NOT A RESULT` under standing rule 5 step (a)**:
+`T23G2_L2` is not iteratively converged, so no grid claim can be made from the
+triple, whatever the values say. `Q4` 53.195 (p 0.6111), `Q1` 52.6058 (p 0.6148),
+`Q2` 50.7841, `Q3` **56.70795433 — outside the registered band [46, 56]**, `Q6`
+50.8468. Every triple reads `CONVERGING` with r21 = r32 = 1.5000; the gate turned
+each of them into `NOT A RESULT` and never the reverse.
+
+**`Q5`** (housing surface heat flux) is **`DIVERGENT`**, order **−1.7108** —
+**reported and never gated**, exactly as `P4` pre-registered. The quantity is
+pinned by the imposed 305 W source to ~4e-5 relative; a `CONVERGING` reading in
+[1.5, 2.5] would have meant `P4` **lost**.
+
+**Planted-zero controls: 20 of 20 CONSTRUCTED AND PASSED.** 18 quantity controls
+(6 quantities × 3 levels, `PLANT = 0.001234`, each asserted as it is built by
+`RT.assert_plant_control`, which **refuses** on a control that cannot read its
+plant back) **plus both y+ readers** — the independent field reader planted into
+**181,694 vectors of `U`** at `T23G2_L3` and every wall patch moved by
+√(1+PLANT) = 1.000616809773 with **worst relative miss 2.219e-16**, and the
+primary log reader planted 0.001234 and read back 0.001234.
+
+**The registered predictions.** `P2′` **HELD** on both limbs (52.60582825 K,
+inside [48, 53] and below `T23G_F`'s 52.81450113). `P3`'s `fluid_to_housing` limb
+**HELD** (0.751329 / 0.505692 / 0.339660, misses −0.09% / +0.94% / +1.69% inside
+±20%). `P4` **HELD**. `P6′` **HELD**. **`P1′` LOST** — p(`Q4`) = **0.6111**,
+outside the registered [0.7, 1.3], and it cannot even be scored as a grid claim
+because the triple contains a non-converged level. **`P3`'s every-patch limb
+LOST** — `centrebody_up`. **`P5` NOT EVALUABLE**, as registered; it needs the
+single-variable successor.
+
+**Cost — rule 12 calibration done, ledger row landed.** **536.77 core-min**
+gross (L1 **17.4500** / L2 **85.3000** / L3 **434.0167**, summed from each level's
+own `STATUS.T23G2_L<n>`), **`ranks` MEASURED as 1** at every level and not
+assumed, `capped=0` at all three, no timeout fired. Against a POINT prediction of
+**579.2** core-min and a CAP of **1,365** (frozen pre-compute at
+`T23G2_PREREGISTRATION.md:949-954`, `658b3ba4`). **Ratio 0.9268** as recorded in
+the ledger; against cap 0.393. **$0.4589 DERIVED, NOT MEASURED** at
+$0.0513/core-h — the box cannot read its own billing. Attribution:
+**misprediction in the conservative direction**; **waste separately named and it
+is ZERO** — nothing restarted, nothing capped, nothing abandoned. Row
+**`C-20260902T215932.385336Z-ef920ed2`** in `docs/COST_CALIBRATION.md`.
+**VERIFY (arithmetic nit, carried because the ledger is the artifact):** strict
+division gives 536.7667 / 579.2 = **0.92674**, which rounds to 0.9267; the ledger
+cell reads 0.9268. The band [0.69, 1.64] is cleared either way and `P6′` holds
+either way. Somebody should decide whether the ledger cell is worth a corrective
+addendum — this lane did not edit it.
+
+---
+
+### 2. THE FIVE GRANTED §2d.1 REPAIRS, AND THE TWO THAT WERE NOT
+
+Granted under `VERIFICATION_CHARTER.md` v1.38 §2d.5–§2d.8 (`3dad5bae`):
+
+- **`R1`** `768203a9` — the completion allow-list admits `T23G2_L1/L2/L3`; moves no gate.
+- **`R2`** `23d9d9b2` — the grading-path sha recorder, **five files not four**, with the dual-sha condition (granted and widened).
+- **`R3`** `c2ce64a5` — `G-ORDER` becomes a gate that can fail and folds into the rollup.
+- **`R4`** `ab5e753c` — **band limb only**, widened to `Q4` as well as `Q6`. **The rollup-exclusion limb was REFUSED** (§2d.7) and is not implemented.
+- **`R5`** `91bb04f8` — 18 quantity controls in place of 5, both y+ reader controls built and mutation-tested, and the exact-zero `G-RATIO` licence made **executable**.
+
+**`R6` was REFUSED AND IS UNREPAIRED.** `gate_yplus` still treats an **absent**
+primary y+ log as pass-through. It did not bite here — the primary instrument was
+present at all three levels — but it is a live fail-open in the comparator and it
+is **owed a prospective registration**. Do not let it fall off the list because
+this rung happened not to trip it.
+
+---
+
+### 3. ⚡ `R5`'s FINDING — CARRY THIS ONE FORWARD, IT IS NOT ABOUT T23G2
+
+**Before the repair, six exact-zero `G-RATIO` passes were being carried while
+thirteen of the eighteen registered planted-zero controls did not exist.** The
+comparator **documented** controls it did not build. `G-RATIO` passes on all six
+quantities *because the finest iterative change is exactly 0.0* — and the licence
+for reading an exact zero as evidence was sitting in a comment.
+
+That is **standing rule 3's exact shape, found in our own comparator**: a zero
+from a reader not shown able to see a non-zero. And the generalisable half —
+**a comparator that documents a control it does not build is more dangerous than
+one with no control at all, because the documentation is what stops anybody
+looking.** Offered to the lab, not just to heat-transfer.
+
+---
+
+### 4. OPEN — `R7` PETITION DRAFTED, **NOT FILED**
+
+`docs/campaigns/T-family/T23G2_R7_ORDER_GATE_PETITION.md` (`c3332a3c`).
+
+**The defect, verified in the source at this write.** `gate_order`
+(`docs/campaigns/T-family/analyse_t23g2.py:903`) reads `row["orders"][-1]`
+(`:917`) and `row["states"][-1]` (`:918`) and **never** reads
+`row["iterative_convergence"]`, which `RT.grade_ladder` writes into that same row
+at `scripts/roache_triple.py:601`. Because `orders` and `states` are populated
+**unconditionally at row construction, before** rule 5 step (a) voids the row, a
+voided row still carries `CONVERGING` and a numeric order. Consequence, on the
+face of tonight's output: **`G-ORDER` printed `PASS` at line 162 of
+`T23G2_GRADE.out` while every graded row read `NOT A RESULT` from line 115
+onward.**
+
+Restrictive fix — it can only turn a PASS into `NOT A RESULT`, never the reverse.
+**T23G2's verdict is unaffected either way**, and the petition says so before it
+says anything else. **Route it to `verification`.** It is a comparator-shaped
+defect of general interest, not a T23G2 repair.
+
+---
+
+### 5. T25R5 — LINEAR-SOLVER TUNING PROBE, **LIVE**
+
+Registration `9d954793`; Amendment A1 `b8d88061`; Amendment A2 `9f850394`;
+verifier items `14b6176f`; stage 0 `4d57f6d7`; stage 1 batch 1 `49fe6f6c`.
+Results at `verification/runs/T-family/T25R5_LINSOLVER_runs/STAGE0_RESULT.json`
+and `STAGE1_BATCH1_RESULT.json`.
+
+**Stage 0 — `P-4` LOSES, and conclusively.** `s_est` = 1 − 41.72/516.15 =
+**0.91917** ≥ the registered threshold **0.9133**. `s_est` is a **strict LOWER
+bound** (§3.4a), so crossing the threshold settles it: the true pressure share
+crossed too. `s_upper` **0.95910**; bracket **[0.91917, 0.95910]**. The
+reproduction control held — `B0_L2` reproduced T25R4's `P2` feasible mean
+**231.7636 against 231.7636**, same 901 feasible solves, same 310 pinned, same
+minimum residual 6.4477e-09, deviation **0.0%**. **18.60 core-min, $0.0159
+derived.**
+
+**Stage 1 batch 1 — `G-T5` NOT YET EVALUABLE.**
+
+- **`C1` eligible**, factor **4.1530×** (231.7636 / 55.8058) — **below the 5.00× gate** (threshold 46.3527). Equivalence **HOLDS**; rule 4 PASS.
+- **`C2` and `C3` DISQUALIFIED** — `E3` **and** `E4` both fired. Cap-stopped at `rc=124` at **38** and **37** of 40 steps; **no fields at t = 0.8, so no equivalence check is possible at all.** `E4` is not a technicality.
+- **`C2`'s 44.6504 would have been 5.1906×, and IS NOT REPORTED AS A SPEED-UP.** The registered disqualifier fired on the one arm that clears the gate. That is the shape of the thing and it is stated, not buried.
+- **Cause: three-way contention this lane introduced, after the gates closed.** `B0` effectively had the box to itself (D0 finished in 42 s of B0's 516 s); C1/C2/C3 ran 3-way against each other for their whole duration on top of the live `ansys` and `JF1` campaigns. Throughput B0 984/s, C1 480/s, C2 396/s, C3 362/s. **Honest limit:** a `DICGaussSeidel` sweep genuinely costs more than a plain `GaussSeidel` sweep, so part of the drop is real and this lane cannot separate the two from these runs.
+- **Cost: 70.533 core-min for batch 1, NAMED AS WASTE and not folded into any ratio.** Cumulative **89.133** of the registered **320** ceiling. **VERIFY / CORRECTED:** the dollar figure handed to this lane for batch 1 was $0.0762; at $0.0513/core-h, 70.533 core-min derives **$0.0603**, and **$0.0762 is the CUMULATIVE 89.133 core-min**. Both derived, neither measured. Corrected here.
+
+**SUPERVISOR RULING IN FORCE, and the protocol is committed (prereg §D1.3–D1.4).**
+`E3`/`E4` stand as registered. All five arms — **`C1` re-run included, and that is
+not optional** — are re-run **ONE AT A TIME**, no two concurrent, each launched
+only after the previous arm's `rc` file exists, baseline-matched. Keeping a
+contended `C1` and comparing it against a clean `C2` **rebuilds the same confound
+one level up**. Cap 25.667 core-min per arm, five arms = 128.33; worst-case
+cumulative **217.47**, inside 320.
+
+**⚡ THE CONTROL THAT MAKES THE RE-RUN A MEASUREMENT AND NOT A RETRY, REGISTERED
+BEFORE IT:** iteration counts are deterministic at fixed ranks and fixed
+decomposition — §3.5 proved it bit-for-bit — so **the re-runs must reproduce the
+capped attempts' feasible iteration counts TO THE DIGIT** (`C1` 55.8057713651 on
+50,281 iterations over 901 feasible solves; `C2` 44.6504). Contention changed the
+wall clock; it cannot have changed the arithmetic. **A deviation STOPS the
+probe.**
+
+**⛔ THE ARITHMETIC NO RE-RUN CHANGES.** The ladder prices at 230,704 core-min
+against a registered 20,000 — a wall-time factor of **×11.535** is needed. Under
+Amdahl at the measured bracket that demands a pressure-solve factor of **20.9× at
+`s_upper` and 156.8× at `s_est`** (both frozen in `STAGE0_RESULT.json`). `G-T5`
+gates at **5.00×**. The best eligible arm measured **4.15×**. **NO REPORT MAY
+IMPLY THE LADDER IS RESCUABLE BY TUNING WITHOUT QUOTING 20.9×–156.8× IN THE SAME
+BREATH AS THE MEASURED FACTOR.**
+
+---
+
+### 6. LESSON CANDIDATE — GENERALISES WELL PAST THIS PROBE
+
+A planted-control recovery tolerance of `PLANT × 1e-12` = **1.234e-15 K** sits
+**below one double ulp at T ≈ 293 K, which is 5.684341886e-14** (measured in this
+invocation: `math.ulp(293.0)`). **A control that can never pass looks exactly like
+rigour and is exactly as useless as one that always passes.** Caught as a first
+cut and corrected before use — see the comment at
+`verification/runs/T-family/T25R5_LINSOLVER_runs/compare_arms_t25R5.py:32`. This
+applies to **every planted control in the lab that differences large absolute
+values**: the plant must clear the ulp floor of the magnitude it is planted into,
+and the tolerance must be checked against that floor, not chosen as a pretty
+multiple of the plant.
+
+---
+
+### 7. IN FLIGHT
+
+1. **The comparator-guard MUTATION EXERCISE.** The kill-rate is **unnamed by
+   anybody**, and `verification` ruled it owed **before the graded record is
+   final**. **Therefore `T23G2_RESULTS.md` IS NOT FINAL.** Do not cite it as
+   closed.
+2. **T25R5 stage-1 re-runs**, one arm at a time under the §D1.3 protocol.
+
+### 8. NEXT ACTIONS, IN ORDER
+
+1. **Route `R7` to `verification`.**
+2. **Land the mutation kill-rate and finalise the T23G2 record.**
+3. **Complete T25R5 stage 1 and evaluate `G-T5`.**
+4. **Then the T-family spine — T3 / T5 / T8 / T12 per the H-directives.**
+
+### 9. ON SANAA'S DESK
+
+**T25R4's A1.3 ceiling.** The six-run ladder prices at **230,704 core-min against
+a registered 20,000** — about **11.5×**. Widening a registered ceiling is
+**hers alone**. **Heat-transfer is NOT asking for it** and is pursuing tuning
+instead — while reporting, per §5, that tuning currently measures 4.15× against a
+20.9×–156.8× requirement.
+
+### 10. FOREIGN WORK NEEDING DISPATCH — not ours, inspected and never reverted
+
+Re-read at this write, and **two of the three items handed to this lane no longer
+hold** — the index moved:
+
+- **Genuinely staged in the shared index (foreign):** `docs/charters/ANSYS_VERIFICATION_CHARTER.md` and `verification/credentials/ansys/ANSYS_VALIDATION_REGISTER.md` (both `MM` — staged **and** further modified in the worktree), plus staged deletions of `cases/ansys_verification/VMFL007-R3/analyse_L3_plateau.py` and `run_capped.sh`.
+- **CORRECTED:** `verification/campaign/M6S_P_PYHYP_WALL_RESOLVED_PROBE_PREREGISTRATION.md` is **clean at HEAD**, not staged. It exists on disk and shows nothing in `git status`.
+- **CORRECTED:** `cases/ansys_verification/VMFL054-R2/` is **NOT deleted** — it is clean at HEAD with its `PREREGISTRATION.md`, `case/` and `grade_vmfl054_r2.py` present. The only VMFL054-R2 entry in `git status` is an **untracked** `verification/runs/ansys_verification/VMFL054-R2/`, which is run output nobody has landed.
+- **And the stale-index hazard at the head of this block** — four heat-transfer files staged for deletion that exist at HEAD.
+
+Somebody should be dispatched to land or explain these. **Heat-transfer touched
+none of them.**
+
 
 
 
@@ -25324,6 +25573,8 @@ by explicit path only, PATH NOT YET RECEIVED**.
 - **`CLAUDE.md` rule 3 NOT amended — constitutional and not mine. `§2o` binds GATING, which is this charter's subject; generalising rule 3 itself is REFERRED to the chief and Sanaa.** Effect is **PROSPECTIVE** — no recorded verdict retroactively voided.
 - **SECOND ansys ITEM — the `sorted(dirs)[0]` EARLIEST-DIRECTORY TRAP, hit twice in one day independently (VMFL054's comparator, then `analyse_L3_plateau.py`). A lane is sweeping every grading-path reader in the repository.** **Why it is a fail-open and not a nuisance: OpenFOAM writes a NEW `postProcessing/<fo>/<startTime>/` on every restart, so an earliest-selecting reader reads data from a run PRECEDING the one meant to produce the answer — and it defeats the PURPOSE of rule 4's age guard, which exists because `0/T` is touched last at launch and so dates the run allowed to answer.** **A second, independent class the sweep counts separately: `sorted()` on directory-name STRINGS puts `"12000"` before `"6000"`, so even `sorted(...)[-1]` is WRONG unless it sorts by `float()`.** Sweep also asked to CONFIRM ansys's two specimens at source before I propagate a class from them, and to name the best EXISTING correct pattern so I copy rather than invent.
 - **NOTED, ansys's third: they DECLINED an answer-known gate choice (a plateau threshold with the floor already known). That is `§2d` discipline applied without being asked, by the team I audit. Recorded as creditable and weighed no further — declining one bad choice is not evidence about the others.**
+- **⚠ CORRECTION AGAINST MY OWN BOARD BLOCK, ONE COMMIT OLD: I FRAMED THE DIRECTORY-SELECTION CLASS WRONGLY.** I recorded lexicographic sorting as *"a second, independent class the sweep counts separately"*. **It is not second — it IS the class.** A string sort has **no reliable relation to time order at all**, so the earliest-vs-latest axis I made primary is largely a red herring. **Verified by me:** `sorted(['0','10000','30000','5000'])` → `['0','10000','30000','5000']`; **`[-1]` gives `'5000'` where the true latest is `'30000'` — WRONG**; `[0]` gives `'0'` where the true earliest is `'0'` — **coincidentally RIGHT.**
+- **⚠⚠ AND THE FINDING THAT MATTERS MOST: THE NAIVE FIX IS MORE DANGEROUS THAN THE DEFECT.** A reader doing `sorted(dirs)[0]` is **coincidentally correct whenever `'0'` is present — the common case in an OpenFOAM tree.** **A team told "take `[-1]` instead of `[0]`" would convert a read that a coincidence was protecting into one that is RELIABLY WRONG.** Neither end of a string sort is defensible (`sorted(['100','20'])[0]` is `'100'` where the true earliest is `'20'`): **the ONLY correct pattern is integer-keyed selection.** **Sweep re-scoped: lexicographic-vs-integer-keyed is now the headline count; every string-sorted hit is resolved against the directory names ACTUALLY ON DISK into AGREES (latent, coincidence holding) / DISAGREES (live) / NOT DETERMINABLE; and the set where `[0]→[-1]` would BREAK a currently-correct read is flagged separately as the set that must never take the naive patch.** **Nothing the lane had already measured is discarded.**
 - **NEXT ACTIONS:** (1) **relay F28 §6.3 to cfd via the chief** — both repair paths named, with the **frame-proof coupling** stated as the real cost of the stronger one (`assert_stationarity_frame` binds `T_total` to `forcesDuct`'s column alone, so a composed `T_total` breaks the bit-exact identity and the proof must be re-anchored); (2) the two lanes' findings, read by me before belief; (3) **the demo-push relays that never went out are now MOOT — the demos are shot**, so cfd's restart-gating and M4 substring gap revert from demo-critical to ordinary instrument findings.
 - **STILL PARKED, NOW UNFROZEN AND ACTIONABLE:** T18's unrepaired live-tree ROOT in `analyse_t18.py`; my **twelve → fifteen** correction on `recipe_audit.py`'s pinned selftest values; **T20's §2d.3 grant reached three records but not the pre-registration, and its condition (iii) is NOT independently verifiable** — the trees were built in scratch and are gone. **The T20 item is the same propagation class as this session's F28 finding, and that is now TWO specimens.**
 - **ON SANAA'S DESK, unchanged plus one:** `§2n.18` (five specimens), `§2n.19`, the `append_record.py` id-format option, cfd's four frozen-registration defects, the ansys taxonomy ruling, **`RESULT_PRIORITY_CHARTER` v0.5 still awaiting her**, and the **standing rule-1 conflict (charter §2's `GATE FAIL` vs bare `FAIL` in some ledger cells) — referred, unruled, and I do not settle it silently.** **NEW: `C-217` needs either closure re-formed for one commit, or her explicit ruling that another team may strike closure's row — reserved to her, and no agent message substitutes (rule 9).**
