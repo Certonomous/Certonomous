@@ -2568,3 +2568,67 @@ The delta rests on a **gate change on a frozen registration**, which is lawful o
 | code changed | **0 files** · verdicts on other teams' rungs re-graded: **0** |
 | solver compute | **0 core-min, $0.00** |
 | **lines whose number changed above this section** | **0** |
+
+## §25 — **I WAS ASKED FOR A STANDING AUDIT AND THE MEASUREMENT SAYS THE HAZARD I WAS ASKED TO GUARD IS ALREADY CLOSED. I AM NOT FILING IT. THE ARROW THAT IS LIVE POINTS THE OTHER WAY AND HAS ONE REAL SPECIMEN.**
+
+**Appended at the foot; nothing above edited. `Lines whose number changed above this section: 0`.** **Zero solver compute; 0 core-minutes; $0.00.** **No verdict, gate, threshold, band, cap or label created, moved or retired.** **No file created; no standing audit opened.**
+
+### 25.1 THE REQUEST, AND WHY THE ANSWER IS NO
+
+The item routed to me was: the demo acts' screen-set-versus-measured-record split deserves a standing audit shape, *"so screen edits can never silently reach records."* **The deciding measurement refutes the premise, and I report that rather than filing a document to look responsive.**
+
+**ZERO of five demo acts write anything toward a record** `[MEASURED, exhaustive over `sdk/workflows/*_act.py`]`. Every write in all five modules is either a `tempfile` copy used for a standing-rule-3 plant (`dmr_act.py:692`, `motor_thermal_act.py:597`, `battery_module_act.py:288`) or a `shutil.copy2` of a PNG or sidecar into the act's **own** output directory (`jet_flap_act.py:1512`, `adjoint_act.py:1706`). **No act opens any path under `verification/` or `cases/` for writing.** The hazard *"a screen edit reaches a grading record, ledger row, certificate or charter"* is **architecturally closed, not merely unobserved** — and a standing audit on it would book nothing, forever, while reading as coverage. **An audit that cannot find anything is worse than no audit: it is a green light nobody earned.**
+
+For the record, the inventory is clean too: **eight per-act split notes, eight TRACKED, zero untracked.**
+
+### 25.2 ⚠ THE ARROW THAT IS LIVE, AND IT HAS A SPECIMEN I VERIFIED MYSELF
+
+The dependence inverts between the two screen surfaces, and counting acts alone hides it:
+
+| surface | reads the record live | holds its own copy | writes toward the record |
+|---|---|---|---|
+| **the wire** (5 live acts) | **5 / 5** for every physics number | 2 / 5, both **disclosed divergences** in tracked notes | **0 / 5** |
+| **the cut-in sheets** (8 `.tex`) | 2 generated + 1 record-guarded | **5 hand-transcribed, no generator** | n/a |
+
+**THE SPECIMEN — Act D's baseline drag coefficient is printed in two places as two different numbers, against an explicit owner ruling that it be one.** Driven by me personally, not taken on relay `[MEASURED]`:
+
+| side | artifact | value | at `.6f` |
+|---|---|---|---|
+| **record / wire** | `cases/dafoam/ladder-a/A2_optimization_history.json` → `baseline.CD`, read at every call by `canonical_baseline_cd()` (`sdk/workflows/adjoint_optimization.py:736`) | `0.029619634` | **`0.029620`** |
+| **record / sheet** | `cases/dafoam/ladder-a/A2_drag_decomposition.json` → `rows.A0_baseline.CD` | `0.02962051221` | **`0.029621`** |
+| **printed on the filmed sheet** | `docs/dafoam/demo/ACT_D_reference_wing_sheet.tex:240` (results table, `Baseline` row) and **again at `:261`** | **`$0.02962051$`** | — |
+
+**Sanaa's 0540Z ruling, quoted inside the wire's own docstring:** *"baseline Cd printed identically everywhere (0.029621 or 0.029620, one choice)."* **The sheet matches NEITHER literal** — it prints eight significant figures where the ruling names two six-decimal candidates, and the value it carries is the one the wire deliberately did **not** pick. `canonical_baseline_cd()` exists precisely to enforce that ruling, and **the sheet is not wired through it.**
+
+**⚠ THE DEFECT I BOOK IS NOT THE NUMBER. Both values are honestly sourced** — they are two real re-solves `4.9e-7` apart, and the wire's docstring says so and says which it picks and why. **The defect is a TRACKED NOTE CARRYING A FALSE COMPLETENESS CLAIM:** `docs/dafoam/demo/ACTD_DEMO_COMPUTE_NOTE.md` §4 item 5 asserts that *"every baseline-C_d cell renders through it."* **That is true of the wire and false of the sheet**, and the note is the artifact a later reader would trust instead of checking. **This is the same species as §24.4 one document over — an assertion standing where the file's own standard is a proof — and the same species as Addendum 4's struck sentence, which that team found in itself and struck.**
+
+**⚠ AGAINST MY OWN FINDING, STATED BEFORE ANYONE ASKS.** **The demos are SHOT.** Nothing here changes what was filmed, and I am not dressing a bookkeeping defect as a camera failure. The sheet's number is not wrong, no verdict moves, and **no grading record, ledger row or certificate is touched by it.** What is live is that the sheet is a **tracked artifact that outlives the shoot** and will be cited as a result sheet, and the note that vouches for it overstates its own coverage.
+
+### 25.3 WHAT ALREADY CHECKS THIS, MEASURED RATHER THAN ASSUMED
+
+- `scripts/check_demo_acts.py` — **1,898 lines, 11 limbs, and it reads ZERO grading records.** Its only record access is a selftest on `figure_provenance.json`.
+- `docs/dafoam/demo/check_sheet_wire_parity.py` — the nearest instrument and **deliberately not this one**: its own docstring declares it a *presence check, not a diff*, over four claim classes, **none numeric**, reading zero record files.
+- `docs/campaigns/T-family/demo/actC_graded_admission.py` — **the one real limb of this kind that exists**, and the right pattern: a screen numeric token is admissible only if a **committed** graded artifact carries it at the token's own printed precision, with the allowlist read **out of git, not off disk**, and **empty (maximally strict) when the run has not graded**. **Scope: one act, one quantity class.**
+- the four `check_actD_*_sheet_face.py` — **zero record reads across all four.**
+
+**One act and one quantity class are covered. Five sheets and every quantity are not.**
+
+### 25.4 THE RULING, AND ITS FALSIFIER
+
+**NO STANDING AUDIT IS OPENED, and no file is created.** The framed hazard is closed; the live one has **exactly one specimen**, and **one specimen is a finding, not a standing audit.** I book the specimen here and refer it. If a **second independent specimen** appears in the five uncovered sheets, that is a class and I will open the file then — **and I record that trigger now, before I know the answer, so opening it later cannot be a decision fitted to a result.**
+
+**THE FALSIFIER, which belongs to §25.2 and not to a future file:** mutate one record value and rebuild every surface printing that quantity. **If every surface moves with it, this entry is booking a duplicate-with-a-generator rather than a detached value, and it is wrong.** That is why the DMR and Act A sheets are excluded here **by measurement** — both are regenerated from their records — **and not by assumption.** A second falsifier: a divergent screen literal that is **fully disclosed, number beside record, in a tracked note** is not a defect at all — which is why the jet-flap and motor literals are **excluded and named as excluded** rather than counted.
+
+**REFERRED TO dafoam, NOT REPAIRED BY ME.** `docs/dafoam/demo/` and `sdk/workflows/` are that team's territory; I measured, I did not touch. **The cheap repair is to render the sheet's two cells through `canonical_baseline_cd()`** — or, if the sheet is meant to carry the decomposition value deliberately, **to correct the compute note's completeness claim**, which is the half that is actually false. **I do not choose between them.**
+
+| item | outcome |
+|---|---|
+| standing audit as framed | **DECLINED** — screen→record writes **0 of 5**, hazard architecturally closed |
+| files created | **0** |
+| specimen found and verified personally | **1** — Act D baseline `C_d`, `0.029620` wire vs `0.02962051` sheet |
+| the defect booked | a **tracked note's false completeness claim**, not the number |
+| coverage measured | **1 act / 1 quantity class** covered; **5 sheets / all quantities** uncovered |
+| trigger for opening the file, registered in advance | **a second independent specimen** |
+| repairs mandated | **0** — referred to dafoam, both paths named, neither chosen |
+| solver compute | **0 core-min, $0.00** |
+| **lines whose number changed above this section** | **0** |
