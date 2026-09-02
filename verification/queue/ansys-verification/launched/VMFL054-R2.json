@@ -1,0 +1,45 @@
+{
+  "team": "ansys-verification",
+  "case_id": "VMFL054-R2",
+  "prereg_commit": "489aef1601853e1dab72be13258914cf6fb362af",
+  "prereg_path": "cases/ansys_verification/VMFL054-R2/PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/ansys_verification/VMFL054-R2/run_vmfl054_r2.sh",
+    "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL054-R2"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL054-R2",
+  "ranks": 1,
+  "cost_core_min_estimate": 3,
+  "cost_basis": "derived: estimate 3 core-min (frozen PREREGISTRATION.md sec.4/R1 sec.7 ceiling); scratch feasibility MEASURED 1.07 core-min for the full L1/L2/L3 triple to residual convergence (R1 identical case); cap 40 core-min running total (driver CAP_CORE_MIN). Wall-derived core-min may inflate under box contention (load ~13/16 at filing, dafoam chains); any such inflation is contention WASTE, reported separately per COMPUTE_BUDGET_CHARTER sec.6, not misprediction. ~$0.0026 at the owner-stated $0.0513/core-h, reported-by-owner, not measured (COMPUTE_BUDGET_CHARTER sec.5).",
+  "memory_floor_gb": 1.0,
+  "enqueued_by": "ansys-lane-opus48 (claude-opus-4-8[1m]) filed the entry; the SUPERVISOR holds the section 3 check-4 on freeze commit 489aef16 (diff re-read; the only diff from R1 is run_vmfl054_r2.sh sourcing the OpenFOAM env + command-v asserts + rel path). R2 fixes R1's launcher defect (R1 aborted at blockMesh rc127 under the daemon's bare shell, NOT A RESULT infrastructure class, VMFL064-attempt-1 precedent). Lane verified all 12 frozen files hash-match 489aef1601853e1dab72be13258914cf6fb362af before enqueue; comparator + case inputs byte-identical to R1-frozen 05ec949e; R2 driver proven under a bare shell (blockMesh not on PATH beforehand -> driver self-sourced -> L1 clean). Run root created empty; cwd = run root per charter section 11.4.",
+  "_launch": {
+    "utc": "2026-09-02T21:55:03Z",
+    "pid": 184579,
+    "sid": 184579,
+    "status_file": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL054-R2/STATUS.queue.VMFL054-R2",
+    "wrapper_out": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL054-R2/launcher.queue.out",
+    "started_epoch": 1788386103.1772044,
+    "status_seen_utc": "2026-09-02T21:57:03Z"
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.VMFL054-R2 (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
+}
