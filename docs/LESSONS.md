@@ -436,6 +436,54 @@ Same family as [L-6](#l-6-capture-a-pid-from-the-thing-you-launched-not-from-the
 and [L-9](#l-9-a-directory-count-is-a-sample-not-a-state): a measurement that
 silently includes the observer.
 
+
+#### ADDENDUM — 2026-09-02, heat-transfer — **IT RECURRED, ON THE READ SIDE, AND THE FORM THAT WORKS IS `ps -eo args | grep -c '^…'`**
+
+**Recorded because this lesson's second incident happened again, seven weeks
+later, in a different team, in exactly the shape the body above describes.** The
+T23G2 guard-mutation exercise dispatched its work across parallel worker
+processes and gated each new launch behind
+
+    while pgrep -f "python3 drive.py" >/dev/null; do sleep …; done
+
+**Each waiting shell's own command line contains `python3 drive.py`, so every
+loop matched itself and could never see zero.** Four workers sat unlaunched
+behind loops waiting on a condition that could not occur, while the workers
+already running finished normally. **The tell was the same as in 2026-07: the
+work's own evidence said done and the watcher said running.**
+
+**The form adopted, and why it is safe:**
+
+    ps -eo args | grep -c '^python3 drive'
+
+The `grep`'s own argv is `grep -c ^python3 drive`, which **does not begin with**
+`python3 drive`, so the anchor `^` excludes the observer by construction rather
+than by disguising the pattern. The shell hosting the pipeline is `bash -c …`
+and is excluded for the same reason. This is more robust than the
+bracket-a-character trick of the body above, because bracketing survives a
+careless copy-edit only as long as nobody "fixes" the odd-looking `[p]ython`.
+
+**The two rules this recurrence adds:**
+
+1. **`pgrep -x` is not available when the target is an interpreter.** Every
+   worker here is `python3`, so `pgrep -x python3` matches the whole fleet
+   including unrelated agents' processes — the very reason the `-f` form was
+   reached for. When the distinguishing text is in the *arguments*, use
+   `ps -eo args` with a **line-anchored** match, never `pgrep -f`. This is the
+   same gap `L-428` records from the other end (`pgrep -x` misses our solvers by
+   name because `/proc/PID/comm` truncates at 15 characters).
+2. **A wait loop needs a bound and a report, not only a condition.** A loop that
+   can never see its condition is indistinguishable from a slow job. Cap the
+   iterations and print the matcher's raw count each pass — a printed `1` where
+   `0` was expected names the defect immediately.
+
+*Disclosed:* the surviving evidence for this recurrence is the staggered
+completion of the nine per-worker record files
+(`/home/ubuntu/Certonomous/verification/runs/T-family/T23G2_runs/T23G2_MUTATION_RESULTS.jsonl`
+merges them) and the lane's own report of the stall; **the wait loop's terminal
+output was not captured**, so the count `1` was observed at the time and is not
+citable to an artifact now. The mechanism is not in doubt — it is this lesson's
+own — but the reading is reported, not archived.
 ## L-11. A staged case that passes preflight can still encode an undocumented change of experimental variable
 
 **The rule.** When inheriting a case directory left behind by an interrupted
@@ -13860,6 +13908,80 @@ refusal, then your refusal is a default setting, not a property of the instrumen
 
 ---
 
+
+#### ADDENDUM — 2026-09-02, heat-transfer — **INSTANCE 3, AND THE FIRST ON A REGISTERED GRADING PATH: FOUR BARE `assert`s IN A FILE THE PRE-REGISTRATION NAMES, WITH A MEASURED BEFORE/AFTER PAIR**
+
+**This lesson was landed by `cfd` on 2026-08-25 and it is unmet on the T-family's
+own grading path a week later. Rule 14 is the operative clause: a lesson is not
+applied until EVERY call site asserts it.**
+
+`docs/campaigns/T-family/t23g_readonly_diagnosis.py` carries **bare `assert`
+statements at `:46`, `:57`, `:74` and `:123`** — the mesh and field readers'
+length checks. **That file is one of the five members of T23G2's registered
+grading path** (`T23G2_PREREGISTRATION.md:671`, widened to five by
+`VERIFICATION_CHARTER.md` §2d.7), and its shas are printed on the record's face.
+
+### The measured pair — the same mesh defect, two interpreter invocations
+
+Registered mutations `G2` and `G2O`, records at
+`/home/ubuntu/Certonomous/verification/runs/T-family/T23G2_runs/T23G2_MUTATION_RESULTS.jsonl`:
+
+| arm | interpreter | outcome |
+|---|---|---|
+| `G2` — L2's `polyMesh/owner` corrupted | `python3` | **`AssertionError` at `t23g_readonly_diagnosis.py:46`, `('…/T23G2_L2/constant/fluid/polyMesh/owner', 323208, 323209)`, exit 1** |
+| `G2O` — the identical corruption | `python3 -O` | **ran to completion, exit 3, output BYTE-IDENTICAL to the clean control** |
+| `CLEANO` — no corruption | `python3 -O` | **byte-identical to the clean control** |
+
+The `CLEANO` arm is what makes the pair a measurement rather than an anecdote:
+**`-O` on its own changes nothing in the output**, so the whole of `G2O`'s
+silence is the stripped assert. **A corrupt mesh was read, graded and reported
+with no trace whatever.**
+
+### The honest limit, stated because it is what a reader will want to know
+
+**The exercise demonstrated the GUARD'S REMOVAL. It did not demonstrate a wrong
+graded number.** `G2O`'s output was byte-identical to the control, so no value,
+order, GCI or gate moved — the corruption this particular mutation constructed
+happened to be one the downstream arithmetic did not notice. **What was lost is
+the refusal that would have stopped the file being read at all.** No claim is
+made here about what a different corruption would have done, because none was
+run.
+
+### The grading path is MIXED, and that is the finding
+
+Of the five registered files:
+
+- `scripts/roache_triple.py` **refuses to run under `-O`** (`:1104`,
+  `REFUSE: this instrument does not run under python -O`) — the repair this
+  lesson prescribes, already in place.
+- `t23g_readonly_diagnosis.py` carries **four bare asserts and no refusal**.
+- `docs/campaigns/T-family/analyse_t23g2.py` and
+  `verification/runs/T-family/T23_runs/mark_done_t23.py` carry **no `-O`
+  refusal**. (`mark_done_t23.py:67` records that its *selftest* drives every
+  clause under both `python3` and `python3 -O` — that is a property of the
+  selftest, not a refusal by the module.)
+
+**So the entry points a runner actually types — the comparator and the
+completion instrument — do not refuse, and the one file that does refuse is
+reached only as an import.** An `-O` refusal is only load-bearing at the
+process's own entry point; behind an import it protects nothing the caller has
+already decided.
+
+### A second defect the same arm exposed, filed separately
+
+`G2`'s `AssertionError` arrived as an **uncaught exception at exit 1** — and
+exit 1 is this comparator's code for **a graded non-`PASS`**. Its own closing
+comment says a refusal arriving as an uncaught exception *"is indistinguishable
+from the comparator itself being broken"*, and its `except RT.Refusal` wrapper
+catches only `Refusal`. **A bare assert is therefore not merely strippable; when
+it does fire it fires in the wrong channel**, and a caller reading exit codes
+cannot tell a defect-detected from a gate-failed. Docketed with the other
+exit-contract violations found by this exercise (`E2`, `G2`, `G4b`).
+
+**Nothing here changes T23G2's verdict.** The graded run was executed without
+`-O`, all four asserts were live, and the mesh on disk is intact. This addendum
+records that the protection is a property of how the run was invoked and not of
+the instrument.
 ## L-333 — THE PRIVATE-INDEX PROTOCOL ASSERTS THE **PATH** SET, NOT THE **CONTENT**. A peer's uncommitted edit to the same file rides into your commit, and BOTH path assertions pass
 
 **Measured 2026-08-26, heat-transfer, from commit `8f31acd9` on `main`. Sibling of
@@ -20238,3 +20360,202 @@ Two absolute limbs, **either of which alone would have fired here**:
 **The tell that settles which figure to trust: two INDEPENDENT methods agree on 44** — headings with a trailing period, and distinct `N-` ids — **and the set-difference between those two sets is EMPTY, so they are the same 44 and not two numbers that coincide.** The 48 has no second method agreeing with it, because it is a different quantity. **A count corroborated by a second, differently-constructed method is worth more than a count taken carefully once.**
 
 **A rule-11 illustration noticed in passing:** `LESSONS.md` at this moment holds **438 blocks, 434 distinct ids, and a maximum of 436** — three different figures, and **only the maximum is the right one.**
+
+## L-437 — A SELFTEST THAT DRIVES A CLAUSE ONLY THROUGH THE BRANCH PRODUCTION DOES NOT TAKE IS NOT COVERAGE OF THAT CLAUSE — AND HERE ITS GREEN CAME FROM A REDUNDANT LIMB THAT EXISTS ONLY ON THE OTHER BRANCH
+
+**Found 2026-09-02, heat-transfer, by MUTATING the guard set that had just graded
+T23G2 — not by reading it. The clause left unguarded is `CLAUDE.md` rule 4's
+End-line conjunct, on one of the lab's three standing instruments, on the only
+code path this rung ever takes.**
+
+### The shape
+
+`verification/runs/T-family/T23_runs/mark_done_t23.py` evaluates rule 4's rc
+conjunct through **two mutually exclusive branches**:
+
+- **`READ-FROM-STATUS`** (`:171`) when the `STATUS.` sidecar carries an integer
+  `rc` — it reads it;
+- **`DERIVED-FROM-LOG`** (`:185`) otherwise — it reconstructs rc from `log.solve`.
+
+The derived branch carries a **compound test at `:201`**:
+
+```
+if n_end != 1 or n_fatal != 0 or last is None or abs(last - et) > 1e-9:
+```
+
+which **duplicates conjunct 2 (`:208`, exactly one `End` line) and conjunct 3
+(`:219`, last time == `endTime`)**. Conjuncts 2 and 3 are themselves
+unconditional and stand on their own — **on the read branch they stand ALONE.**
+
+**Every selftest drive of conjuncts 2–6 forges the DERIVED shape.** The
+`--selftest` at `:355-380` passes `want_derived=True` on the `End`, `last time`,
+`FOAM FATAL` and `launcher_rc` drives, and the three drives that do exercise
+`READ-FROM-STATUS` (`:366-372`) vary **only rc** — `rc="0"`, `rc="1"`,
+`rc="124"`. **Conjuncts 2, 3, 4, 5 and 6 are never driven on the read branch at
+all.**
+
+**T23G2's `STATUS.` files carry an integer `rc`. The rung was graded on
+`READ-FROM-STATUS`.**
+
+### The measurement
+
+Two registered mutations, driver and records at
+`/home/ubuntu/Certonomous/verification/runs/T-family/T23G2_runs/mutation_drive_t23g2.py`
+and `.../T23G2_MUTATION_RESULTS.jsonl`:
+
+| id | mutation | detector | outcome |
+|---|---|---|---|
+| `B3` | conjunct 2 neutered: `n_end != 1` → `n_end < 0` | its own `--selftest` | **exit 0, no failure reported** |
+| `B5` | conjunct 3 neutered: `> 1e-9` → `> 1e9` | its own `--selftest` | **exit 0, no failure reported** |
+
+The selftest's green is not an accident and not a bug in the drives: **the
+`end=2` drive really did report `NOT DONE` — from the duplicate at `:201`, on
+the branch the drive forged.** The clause under test was dead and its neighbour
+answered for it.
+
+**Then the confirmation, on the real artifacts through the full comparator, on
+the branch production takes:**
+
+- **`B3x`** — conjunct 2 neutered **and L2's single `End` line actually deleted
+  from `log.solve`**. The comparator exited **3**, printed `RUNG VERDICT: NOT A
+  RESULT`, and its output was **BYTE-IDENTICAL to the clean control**
+  (`T23G2_MUTATION_CONTROL.out`). **An incomplete run was marked `DONE` and
+  graded, and nothing anywhere in the output says so.**
+- **`B5x`** — conjunct 3 neutered and L3's `endTime` directory renamed. It was
+  caught, but **not by rule 4**: the refusal came from the comparator's
+  missing-`U`-at-`endTime` check (`docs/campaigns/T-family/analyse_t23g2.py:159`,
+  fed by `_u_maxima` at `:733`) inside `G-CONV`. **A downstream artifact check
+  happened to need a file the defect had removed.** That is luck about which
+  gate reads which file, not coverage.
+
+**Conjunct 2 has no such downstream luck. It has nothing.**
+
+### The rule
+
+1. **A selftest drive states which BRANCH it forged, and the coverage claim is
+   per (clause × branch), never per clause.** A table of thirteen green drives
+   that all forge one branch is one branch's evidence, thirteen times.
+2. **Before trusting a guard, ask what PRODUCTION's inputs make the code do** —
+   here, one field in a sidecar decides which of two rc branches runs, and the
+   fixture writes that field differently from the launcher. **The fixture's shape
+   is a choice; the run's shape is a fact.**
+3. **A duplicated test is a coverage HAZARD, not a belt-and-braces.** `:201`
+   duplicating `:208` and `:219` is what makes the selftest unable to see their
+   removal. Where two limbs test the same thing, **each needs a drive in which
+   the other cannot fire** — otherwise neither is ever shown load-bearing.
+4. **The mutation that proves a clause is guarded is the one that deletes the
+   clause and leaves the ARTIFACT defect in place**, run through the production
+   entry point. `B3` alone (code only) is not that test; `B3x` is.
+
+### Where it sits in the catalogue
+
+This is **not** `L-316` (a selftest of the grader cannot reach the launcher — a
+different *program*), and **not** `L-320` (a conjunctive control that breaks the
+cheap operand — a different *operand* of one expression). It is a third thing:
+**the right clause, the right expression, driven in the wrong BRANCH of the same
+function** — and unlike both of those, the divergence is decided at runtime by a
+data field, so reading the selftest and reading the guard side by side does not
+reveal it. `L-399`'s warning is the closest kin: a selftest can drive an arm
+repeatedly and never once put it in a position to fail.
+
+**Cost: nothing this time — T23G2's `STATUS` files are intact and its logs each
+carry exactly one `End` line, so the unguarded clause had nothing to miss. The
+exercise measured the instrument, not the run.** The rung verdict, `NOT A
+RESULT`, is untouched by this lesson and by everything in it.
+
+Source:
+`/home/ubuntu/Certonomous/docs/campaigns/T-family/T23G2_RESULTS.md` §15;
+`/home/ubuntu/Certonomous/verification/runs/T-family/T23G2_runs/T23G2_MUTATION_SET_REGISTERED.md`
+(family B, frozen before execution).
+
+---
+
+## L-438 — A PLANTED-CONTROL TOLERANCE MEANS NOTHING UNTIL IT IS QUOTED IN ULP OF THE OPERANDS IT DIFFERENCES. BELOW THE ARITHMETIC NOISE FLOOR IT IS A CONTROL NO WORKING READER CAN EVER PASS — AND IT LOOKS EXACTLY LIKE RIGOUR
+
+**Raised 2026-09-02, heat-transfer, while auditing the T23G2 planted-zero
+controls during the guard-mutation exercise. Nothing failed. That is the point:
+the tolerance in place passes, and the natural way to "tighten" it turns every
+one of the lab's eighteen quantity controls into a guaranteed refusal.**
+
+### The arithmetic, on this lab's own numbers
+
+`scripts/roache_triple.py:175` fixes `PLANT_READBACK_TOL = 1.0e-12`, and `:454` /
+`:484` / `:504` all test **`abs(delta - plant) <= PLANT_READBACK_TOL`** — an
+**ABSOLUTE** tolerance on a difference of two ~53 K doubles read back from disk.
+
+**Measured on T23G2, from the record's own §4:** planted `PLANT = 1.234e-03`,
+read back **`0.0012340000000108375`**. The residual is
+
+    delta - plant = 1.0837e-14
+
+and one ulp at the operand magnitude (53 K) is **7.1054e-15**, so:
+
+| quantity | value | in ulp of 53 |
+|---|---|---|
+| measured readback residual | 1.0837e-14 | **1.53 ulp** |
+| tolerance in force, `1.0e-12` | 1.0e-12 | **140.7 ulp** |
+| the "relative" rewrite `PLANT × 1e-12` | **1.234e-15** | **0.174 ulp** |
+
+**The tolerance in force has ~92× headroom over the measured residual and is
+sound. The relative rewrite sits 8.78× BELOW the residual the working reader
+actually produced — it would have refused all eighteen controls on this very
+run**, and the record would have read `NOT A RESULT` by refusal with no defect
+anywhere in the lab.
+
+**A tolerance below one ulp of its operands is not strict. It is unsatisfiable,
+and a subtraction of two large nearly-equal doubles cannot deliver it at any
+precision the reader could have.**
+
+### Why the failure is invisible to review
+
+`1e-12` and `PLANT * 1e-12` read as the same intent, and the second reads
+*stricter and better scaled*. Nothing in the expression carries the magnitude of
+the operands, so the number that decides whether the control is passable —
+`ulp(53) = 7.1e-15` — appears nowhere near the constant. A reviewer sees a
+tolerance and a plant; the noise floor is off-screen, in the data.
+
+**And an unpassable control cannot be distinguished from a broken reader by its
+own output.** Both produce the same refusal. The rule-3 doctrine says a zero from
+a reader not shown able to see a non-zero is not evidence; **the mirror is that a
+refusal from a control no reader could pass is not evidence either.**
+
+### The rules
+
+1. **Quote every planted-control tolerance in ulp of the operands the control
+   differences**, in a comment beside the constant, with the operand magnitude
+   the case actually carries: `# 1e-12 = 141 ulp at 53 K; measured residual 1.5 ulp`.
+   A tolerance whose ulp count is not written down has not been sized.
+2. **A planted-control tolerance is ABSOLUTE against the operand scale, never
+   relative to the plant** — unless the reader's arithmetic is genuinely
+   relative. Scaling by the plant makes the tolerance shrink exactly as the plant
+   gets small, while the noise floor stays put.
+3. **Assert the floor in the code, not in a review:** before freezing, assert
+   `PLANT_READBACK_TOL > K * math.ulp(typical_operand)` with `K` at least ~10.
+   The check is two lines and it fires at the moment the constant is written.
+4. **This generalises to every control that differences large absolute values** —
+   temperatures in kelvin, absolute pressures, cumulative times, coordinates far
+   from the origin. At 293 K one ulp is **5.684e-14** and the same `1e-12` buys
+   only **17.6 ulp**; a control written for a 53 K quantity and inherited by a
+   293 K one loses a factor of eight of its margin silently. **The T-family
+   quantities sit at 53; the ambient reference sits at 293; nothing in the shared
+   constant knows which is being read.**
+
+### Family
+
+Third member of a family the lab has now met three times, each by a different
+mechanism, all with the same signature — **a control a working reader cannot
+pass**:
+
+- **`L-340`** — dilution: a point plant read by an averaging reader (~1/√N).
+- **`L-399`** — an identity: the expected response sits exactly ON the threshold,
+  so the control is decided by the last ulp and fires ~39 % of the time.
+- **this one** — the noise floor: the threshold sits BELOW one ulp of the
+  operands, so the control fires **always**.
+
+`L-133`'s rule is the diagnostic that catches all three from the outside: when
+independent measurements pile up on the same floor, the floor is the finding.
+
+**Nothing in T23G2 was graded wrongly and no verdict moves.** `PLANT_READBACK_TOL
+= 1.0e-12` is correct as written and all twenty controls constructed and passed.
+This entry exists so the next person who "tightens" it knows what they are
+standing on.
