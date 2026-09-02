@@ -1325,6 +1325,27 @@ class MotorThermalSequencer(Sequencer):
             "points": len(points),
             "labels": labels,
             "iterations_per_point": [replay.total_iterations] * len(points),
+            # THIS ACT'S OWN MONITOR PANELS, DECLARED WHERE THE STAGE OPENS.
+            # The page's act-generic strip (control_room.html solveBegin ->
+            # gsweepReset; contract documented at dmr_act._stage_solving)
+            # renders one ROW per panel and one COLUMN per label above, and
+            # types no row label of its own; without this declaration it
+            # falls back to the jet act's hard-wired Lift boxes, which have
+            # no data in a thermal act and render dark. Each frame feeds the
+            # declared series through its ``monitors`` dict, keyed by these
+            # exact series names.
+            "monitor_panels": [
+                {"title": "Hottest core temperature",
+                 "x_label": "iteration", "y_label": "T, C",
+                 "series": ["Hottest core, C"],
+                 "note": ("every value is a row of each run's own core "
+                          "temperature monitor")},
+                {"title": "Hottest housing temperature",
+                 "x_label": "iteration", "y_label": "T, C",
+                 "series": ["Hottest housing, C"],
+                 "note": ("every value is a row of each run's own housing "
+                          "temperature monitor")},
+            ],
             "controls": [control],
         })
 
@@ -1392,6 +1413,15 @@ class MotorThermalSequencer(Sequencer):
                 "iteration": iteration,
                 "iterations": int(series[index - 1][1][-1][0]),
                 "elapsed_s": clocks[log_row],
+                # ``monitors`` is what the page's declaration-driven strip
+                # reads, keyed by the series names declared on solve.begin;
+                # ``coefficients`` stays for the record and for any consumer
+                # of the older frame shape. One dict, two keys, so the two
+                # cannot disagree.
+                "monitors": {
+                    "Hottest core, C": round(core_k - 273.15, 1),
+                    "Hottest housing, C": round(housing_k - 273.15, 1),
+                },
                 "coefficients": {
                     "Hottest core, C": round(core_k - 273.15, 1),
                     "Hottest housing, C": round(housing_k - 273.15, 1),

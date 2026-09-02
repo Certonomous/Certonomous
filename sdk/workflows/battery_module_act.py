@@ -1040,6 +1040,23 @@ class BatteryModuleSequencer(Sequencer):
             "points": 1,
             "labels": labels,
             "iterations_per_point": [total_steps],
+            # THIS ACT'S OWN MONITOR PANELS, DECLARED WHERE THE STAGE OPENS.
+            # The page's act-generic strip (control_room.html solveBegin ->
+            # gsweepReset; contract documented at dmr_act._stage_solving)
+            # renders one ROW per panel and one COLUMN per label above from
+            # this declaration and types no row label of its own; without it
+            # the fallback is the jet act's hard-wired Lift boxes, dark on a
+            # thermal act. One panel, two declared series; each frame feeds
+            # its own series through its ``monitors`` dict under these exact
+            # names, so the module column and the coolant column advance
+            # together on one shared temperature scale.
+            "monitor_panels": [
+                {"title": "Temperatures through the pulse",
+                 "x_label": "time step", "y_label": "T, C",
+                 "series": labels,
+                 "note": ("every value is a row of the run's own monitors: "
+                          "the module field extrema and the outlet average")},
+            ],
             "controls": [
                 "both monitor readers detected a value planted into a copy "
                 "of their own files before any curve moved",
@@ -1076,6 +1093,13 @@ class BatteryModuleSequencer(Sequencer):
                 "elapsed_s": clocks[step - 1],
                 "time_s": stamp,
                 "value": round(value, 1),
+                # ``monitors`` is what the page's declaration-driven strip
+                # reads, keyed by this frame's own declared series name; the
+                # strip files the frame under the column matching ``label``
+                # and leaves the other series null at this abscissa, which is
+                # the truth: the two monitors are two files sampled on their
+                # own rows. ``coefficients`` stays for the older frame shape.
+                "monitors": {label: round(value, 1)},
                 "coefficients": {label: round(value, 1)},
                 "residuals": {},
             })
