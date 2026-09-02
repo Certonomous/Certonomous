@@ -26678,6 +26678,72 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-09-02T21:03:37Z — **STAND-DOWN LIFTED, TEAM RESUMED. THE CREDENTIAL COUNT IS SETTLED AT LAST — 51 ROWS, 10 `PASS` — AND IT TOOK REPAIRING THE INSTRUMENT THAT HAD BEEN HIDING FOUR OF THEM. FREEZE-AHEAD 0 IS NOT A FILING DEFECT; THIS TEAM HAS RUN EVERY CASE IT EVER BUILT.**
+
+**Written by `ansys-verification-supervisor` personally. Every number below is mine at source unless marked otherwise.**
+
+#### THE ORDER
+Sanaa, relayed at `3e3da44f`: demos are shot, *"all other teams except for the closure team gets back to their schedule."* The stand-down of 2026-09-01T01:3xZ is **LIFTED**. Parked was not cancelled and the work resumed exactly where that entry left it.
+
+#### ⚠ THE VERIFY ITEM THIS BOARD HAS CARRIED FOR TWO SESSIONS IS CLOSED: **10 CREDENTIALS**
+The entry below refused to quote either figure — *"This board has said ten credentials; a lane sweep counted 1 `PASS`. Neither figure is verified."* **Both were adjudicated today, and the board's own "ten" was RIGHT.**
+
+| verdict | rows |
+|---|---|
+| `NOT A RESULT` | **28** |
+| **`PASS`** | **10** |
+| `GATE REACHED` | **8** |
+| `GATE FAIL` | **3** |
+| `PENDING` | 1 |
+| `BLOCKED` | 1 |
+| **total** | **51** |
+
+Totals reconcile exactly to 51, **zero rows unparsed**, and the three problem rows were resolved by hand independently of the instrument and agree with it (#47 VMFL038 `NOT A RESULT`, #48 VMFL033-R2 `PASS`, #49 `NOT A RESULT`). Per Sanaa's ruling that *"anything gate reached for that team means we reached ansys"*, the **8 `GATE REACHED` rows also count as reaching Ansys**, alongside the 10 credentials.
+
+#### HOW FOUR CREDENTIALS WERE HIDDEN — AND THE REGISTER HAD ALREADY DOCUMENTED THE DEFECT
+`check_case_map_glance.py` matched register rows as `| **43** |` only. **Rows #44–#51, appended later, are written `| **#44** |` WITH A HASH.** The instrument read **43 rows / 6 `PASS`** where the register holds **51 / 10**.
+
+> **The register already recorded this exact defect firing, in its own line 758**, in the row that was renumbered *because* of it: a row id *"derived by a scan that matched only the no-hash format, returning max 43 and yielding 44, colliding with a `#44` the scan could not see."* **Documented 2026-08-31. The instrument was never repaired.** A defect written down is not a defect fixed — and this team wrote it down itself.
+
+Two further silent drops, both fixed: struck row **#49** opens `~~formerly 44~~` with no `VMFL`; rows **#47/#48** bold their date cell (`**2026-08-31**`), defeating the date anchor and returning `None` — **VMFL033-R2's `PASS` was among the credentials lost that way.**
+
+**Four new selftest arms, two of them KNOWN-BAD-INPUT plants** — the superseded pattern shown blind to 3 of 4 hash rows, and the coverage-matrix addendum at register lines 193–196 shown to yield zero rows. **This is the planted-FAILURE principle this board raised to Sanaa as item 3 and had not itself been practising:** we prove a reader can see a value; we had not been proving a guard can refuse. All 12 arms pass.
+
+**The guard now REFUSES live (exit 2) on a real drift:** `CASE_MAP.md`'s glance table says **7 runs** against the register's **51** — 44 rows behind. **The refusal is NOT recorded in `verification/campaign/NOT_PASSING_REGISTER.md`** (checked). Both are open items below.
+
+#### FREEZE-AHEAD 0 IS A CASE-**BUILDING** DEFECT, NOT A FILING ONE — MY DIAGNOSIS WAS WRONG
+I briefed a lane to file queue entries and restore freeze-ahead to ≥ 3. **It filed nothing, correctly, and told me why: there are ZERO frozen-and-never-run cases. Every frozen case has already run.** The only never-run pre-registrations are **VMFL007-R3 and VMFL029, both `DRAFT`, and both UNBUILT** — no case inputs, no comparator, no launch script between them. Freezing them would not make them enqueueable.
+
+> **So the queue was not empty because filing was neglected. It was empty because this team has run everything it ever built.** Feeding the daemon requires **building new cases from the manual's never-run set** — which is what a lane is now doing. That reframing is the lane's, not mine.
+
+#### CHARTER v1.8 LANDED — AND A LANE CORRECTED A CHARTER THIS TEAM OWNS
+§11.4's three `queue_runner.py` citations were stale: `STATUS.queue.<case_id>` at **:509** (**the FILENAME changed too** — the R5 collision fix), `launcher.queue.out` at **:510**, `CAP_OVERRUN.txt` at **:639**, not :496 / :522-523 / :611. **I read all three at source myself before amending.** §11.4's cwd-points-at-the-run-root **ruling is reaffirmed verbatim**; only the addresses of its proof moved. §13.3 records the rule: **ownership is not freshness**, and line numbers into a file under other teams' active development are perishable evidence.
+
+#### TWO SUSPICIONS I RAISED, BOTH REFUTED — THE RECORDS WERE BETTER THAN MY SUSPICION
+1. **I suspected a systematic grading defect** across four rows: VMFL038 stopped at 13330 of endTime 30000, VMFL063 at 4177 of 30000 (rule 4 requires last == endTime), and VMFL006/-R2 logged **zero** `ExecutionTime` lines. **All four are DECLARED ADAPTATIONS, frozen in the pre-registrations BEFORE compute**, with the correct reasoning: for a `residualControl`-terminated steady solve, `last == endTime` means it *ran out of clock without converging*, so the graders require `last_time < endTime` — the inverse of the literal clause, and rightly. `scalarTransportFoam` prints no `ExecutionTime` line at all; the preregs declare the `Time = N` count as the substitute. **No defect. Rule 2 worked exactly as designed.**
+2. **VMFL069-R2's "L1 rc=124, the cap fired"** — false. All three levels are **rc=0**; the "124" is explanatory text inside `RUN_RC.txt` saying what a 124 *would* mean. A reader took a note for a value. 549.25 core-min against a 5000 cap; **no `CAP_OVERRUN.txt` exists.**
+
+#### STATE
+**Commits: 1** — `cfbfa79b` charter v1.8 + register instrument. **Verdicts: NONE** — no row graded, promoted, demoted or re-graded; **no register byte changed**; no gate, band, cap, threshold or label moved. The credential count is a **reading** of the register, not a change to it.
+
+**Compute: 0.0 core-minutes, $0.00**, backed by a process listing, not by an instruction having been sent. No ansys solver has run this session. **Estimate-versus-actual (rule 12):** nothing completed, so no calibration row is owed.
+
+**Live reading of the box, and it corrected the brief I was handed:** 16 cores. Load read **3.0**, then **11.0**, then **4.64** within minutes — **my single 3.0 snapshot was wrong and a lane caught it.** The load is non-ansys python, not Foam solvers; ~12 cores genuinely free. Queue daemon **pid 1645** alive since 15:20 and **idle with respect to this team**. Ansys queue top level: **0** launchable entries (the daemon's `*.json` glob is non-recursive — verified at `:291/:439/:611`).
+
+**Next actions:**
+1. **Build + freeze never-run cases** — the only route to feeding the daemon. In flight.
+2. **VMFL007-R3 §12.2:** read the converged 25×25 `nu` field min/max and settle whether the `nuMax` clip binds. Decides whether this case is a `PASS` candidate or caps at `GATE REACHED`. In flight, under a planted-failure control.
+3. **`CASE_MAP.md` glance table** — 44 rows behind; regenerate from the register, which is the authority.
+4. **Record the `check_case_map_glance.py` refusal** in `NOT_PASSING_REGISTER.md`.
+5. **The queue README says *"There is no daemon, no scheduler, no watcher"*** while pid 1645 is a running daemon. It predates the runner and will mislead the next agent who reads it.
+6. `REPAIR_QUEUE.md` still carries the overstated 24/7/4 framing; the six buckets were never reconciled against the register.
+
+**On Sanaa's desk:**
+- **The GPU instance `3.15.199.152` does not answer SSH from this box** (8 s connect timeout). Her last word was that it is up and idle. **I have NOT distinguished instance-down from key/security-group and will not assert which.** Until it answers, the GPU rows stay blocked: register rows #33/#34/#39/#40/#41/#42/#43 and VMFLGPU008/009/010.
+- Carried forward, unacted: the **4 `UNCLASSED`** rows awaiting her taxonomy ruling; **rows 6/9/10/11/12 as ONE repair** needing a frozen-threshold change; the **four-empty-tiers** finding; the **stale `harness/teams.yaml`**, still sending every future ansys supervisor to two archive paths that do not exist and still issuing the long-closed D-6 as an open first action.
+
+**VERIFY — stated, not filled in:** the `e042d09d` sweep artifact behind the 301.5 core-min figure is **still unopened**, and its per-row cost extrapolations remain spot-checked by nobody.
+
 ### 2026-09-01T01:3xZ — **TEAM STOOD DOWN AGAIN ON SANAA'S ORDER, ~25 MINUTES AFTER BEING RESTARTED. THE STAND-DOWN IS SELF-ENFORCING — I VERIFIED WHY. AND THE FIRST NEXT-ACTION ON THIS BOARD WAS A DEFECT THAT DOES NOT EXIST.**
 
 **Written by `ansys-verification-supervisor` personally. Every check below is mine at source unless marked otherwise.**
