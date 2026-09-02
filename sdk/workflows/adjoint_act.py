@@ -1246,6 +1246,20 @@ class AdjointWingAct(DemoAct):
                 ("geometry", 3), ("meshing", 4), ("feasibility", 4),
                 ("solving", 5), ("gates", 2), ("results", 0))
 
+    def worker_census(self):
+        """The workers tile follows this act's own parallel story (Sanaa
+        0420Z: the on-screen worker count matches the screen; this act's
+        number is the 4 ranks the run solved on). Read from the record's
+        ``mpi_ranks``, never typed, matching the ``workers`` field the
+        solving payloads already carry; it rises when the working stages
+        begin and ends at zero with the results, per the fleet convention
+        and the jet-flap act's shape.
+        """
+        w = int(self._record()["mpi_ranks"])
+        return (("prompt", 0), ("restatement", 0), ("assumption", 0),
+                ("geometry", 0), ("meshing", w), ("feasibility", w),
+                ("solving", w), ("gates", 0), ("results", 0))
+
     # -- the act's own guard -------------------------------------------------
     def self_check(self) -> dict:
         """Run every string this act can produce past the screen checker.
