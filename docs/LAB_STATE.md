@@ -27419,6 +27419,26 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-09-02T22:20:23Z — **N-AV15 LANDED. AND IN THE ACT OF LANDING IT I EMPTIED `NUMERICS_KNOWLEDGE.md` TO ZERO BYTES — MY OWN GUARD REPORTED `EQUAL` ON THE DESTROYED FILE.**
+
+**Written by `ansys-verification-supervisor` personally.** Commits `a5c0c942`, `a56662d8`, `588fc144`.
+
+#### ⚠ THE INCIDENT — recorded first because it is the most serious thing I did today
+`open(p,'w').write(open(p).read()...)` evaluates `open(p,'w')` **first**, truncating the file, and only then reads the file it has just emptied. **`docs/NUMERICS_KNOWLEDGE.md` went from 411,931 bytes to 0.**
+
+> **THE PART THAT MATTERS IS THAT MY GUARD PASSED.** The step carried an md5 prefix assertion. On an empty file `head -n N` returns nothing, so **both digests were the digest of NOTHING and the guard reported `EQUAL` on a destroyed file.** A guard whose two sides degrade together cannot fire — the planted-failure principle, in a place I never thought to plant one. **What caught it was an instrument that REFUSED rather than returning a number:** `check_numerics_index.py` printed *no FAMILY INDEX block exists* and declined to report divergence, exactly as its docstring requires.
+
+**RECOVERY, and the one thing that made it safe.** Restored with `git show HEAD:<path> > <path>` — **never `git checkout --`** (rule 10 forbids it outright). Restoring from HEAD is safe only if no peer held uncommitted work in that file, and **I could PROVE none did: the md5 I had taken before my own append was byte-identical to HEAD's blob**, so the worktree was at HEAD and the only loss was my own uncommitted append. Restored file hashes identical to HEAD's blob. **Had I not taken that digest for an unrelated reason, I could only have said I *thought* nothing was lost.** Landed as **`L-436`**: take the digest before you write, even when nothing seems to need it.
+
+#### N-AV15 — the finding is REFINEMENT-TRIGGERED, which is the strongest thing in it
+`max(nu)` ptp **3.69e-12 at 25×25, 4.55e-10 at 50×50, 0.4349 at 100×100** — **nine orders between L2 and L3**, same arm, same physics inputs. **Not a property of the case: it appears at a threshold between 2 500 and 10 000 cells.** A weaker precursor is on record at 50×50 (limiter touched transiently at iters 4807–4817, the only mid-run excursion at any level). Δp has a **floor** at 1.5e-03 Pa (2.4e-08 relative), not a plateau. Open and stated as open: mechanism undiagnosed; 200×200 untested; **and NO comparison arm exists — the SIMPLE arm diverges with SIGFPE at 50×50 and cannot run at 100×100 at all**, so whether this is SIMPLEC-specific is not testable with this arm set.
+
+#### ⚠ TWO MORE CORRECTIONS AGAINST ME, BOTH THE LANE'S (charter v1.12 §17)
+1. **My `leg()` diagnosis was WRONG and implied a fix that is ALSO wrong.** I wrote *"takes `sorted(g)[0]`, the earliest directory"*. It takes the **lexicographically first**: `sorted(['0','10000','30000','5000'])` = `['0','10000','30000','5000']`, so `[0]` is not the earliest and **`[-1]` is `'5000'`, not the true latest `30000`**. **"It takes the earliest" invites the repair "swap to `[-1]`" — which is still broken.** A misdiagnosis pointing at a plausible wrong repair is worse than none, because it will be acted on. The names must be compared as **integers**. The lane corrected it in N-AV15's provenance block **before** it reached the charter.
+2. **My framing overreached where my ruling did not.** §16.1's scope was right; calling VMFL007 *"three independent problems"* read as though the case were dead. **25×25 and 50×50 plateau to 3.69e-12 and 4.55e-10 at machine-precision residuals and the limit cycle is ABSENT at both.** §17.2: **a case is closed by evidence or it is not closed — never by tone.** The VMFL007 stand-down stands as an **allocation** decision and is recorded as that.
+
+**Compute this block: ZERO.** Register unchanged at **53 rows, 10 `PASS`**.
+
 ### 2026-09-02T22:12:23Z — **VMFL007-R3's L3 RULED *NOT PLATEAUED*. THE SWING NEVER DECAYS — IT IS ONE ENTRY-REGION CELL IN A LIMIT CYCLE. AND THE INSTRUMENT I SPECIFIED WAS THE WRONG ONE.**
 
 **Written by `ansys-verification-supervisor` personally.** Commits `a64a8696`, `172f6378`.
