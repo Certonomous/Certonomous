@@ -1,0 +1,224 @@
+{
+  "D1_4_reproduction": {
+    "C1": "EXACT 901/50281",
+    "C2": "EXACT 901/40230",
+    "C3": "EXACT 901/42293",
+    "note": "reproduced to the digit despite reaching 40/39/38 steps under different conditions"
+  },
+  "P2_outcome": {
+    "consequence": "THE STALL FLOOR WAS CONFIGURATIONAL, NOT ARITHMETIC. Section 0.4 attributed it to round-off in a 1/h term and that was WRONG. Both Krylov arms have ZERO pinned solves (B0 has 310) and max iterations 17 and 115 against maxIter 1000. The lane registered P-2's loss as the BETTER outcome and it is: T25R4's criterion is reachable.",
+    "measured": {
+      "C4": 1.1305e-11,
+      "C5": 1.1802e-11
+    },
+    "registered": "no arm's min final residual below 6.4477e-10",
+    "verdict": "P-2 LOSES"
+  },
+  "R": 20.454519286125503,
+  "R_band": "R >= 3.0 -- the coarse-grid correction IS contributing; this is the OPPOSITE finding and section 1.2 is wrong about the mechanism",
+  "arms": {
+    "C1": {
+      "clock_s": 670.0,
+      "eligible": true,
+      "equiv_raw": "PLANTED-ZERO CONTROL (rule 3) -- runs before any real comparison:\n  plant coolant first    -> reader recovered 1.234000e-03  (planted 1.234000e-03)  SEEN\n  plant coolant last     -> reader recovered 1.234000e-03  (planted 1.234000e-03)  SEEN\n  plant module  first    -> reader recovered 1.234000e-03  (planted 1.234000e-03)  SEEN\n  plant module  last     -> reader recovered 1.234000e-03  (planted 1.234000e-03)  SEEN\n  PLANT 1.234000e-03 K is ABOVE the E1 threshold 1.000000e-03 K, so this control proves the GATE CAN FIRE, not merely that the reader can read.\n\n=== C1 vs B0_L2 ===\n  max|dT| (both regions) = 8.000029e-09 K   threshold 1.000e-03  ok\n  max|dp_rgh|            = 2.000001e-06 Pa  threshold 1.000e+00  ok\n  max|dU|                = 3.092000e-08 m/s threshold 1.000e-03  ok\n  reported, gating nothing: k=2.045e-08  omega=1.207e-03  nut=6.917e-12  alphat=8.300e-12  p=2.000e-06\n  DISQUALIFIERS FIRED: none -- equivalence holds\n",
+      "exec_s": 670.61,
+      "factor": 4.1530399872715345,
+      "feasible_n": 901,
+      "fired": [],
+      "iter_sum": 50281,
+      "max_dT_K": 8.000029e-09,
+      "max_dp_rgh_Pa": 2.000001e-06,
+      "mean_all": 291.0675,
+      "mean_feasible": 55.80577136514983,
+      "pinned": 334,
+      "rule4": [],
+      "steps": 40,
+      "wall_factor": 0.7696723878260091
+    },
+    "C2": {
+      "clock_s": 730.0,
+      "eligible": false,
+      "exec_s": 729.28,
+      "factor": 5.190628973402934,
+      "feasible_n": 901,
+      "fired": [
+        "E3/E4"
+      ],
+      "iter_sum": 40230,
+      "mean_all": 255.3892733564014,
+      "mean_feasible": 44.6503884572697,
+      "pinned": 288,
+      "rule4": [
+        "rc != 0 (124)",
+        "no End line",
+        "steps 39 != 40",
+        "t=0.8 field dir: 0 found"
+      ],
+      "steps": 39,
+      "wall_factor": 0.7077528521281263
+    },
+    "C3": {
+      "clock_s": 743.0,
+      "eligible": false,
+      "exec_s": 741.35,
+      "factor": 4.937436540325822,
+      "feasible_n": 901,
+      "fired": [
+        "E3/E4"
+      ],
+      "iter_sum": 42293,
+      "mean_all": 232.61215370866844,
+      "mean_feasible": 46.9400665926748,
+      "pinned": 253,
+      "rule4": [
+        "rc != 0 (124)",
+        "no End line",
+        "steps 38 != 40",
+        "t=0.8 field dir: 0 found"
+      ],
+      "steps": 38,
+      "wall_factor": 0.6962298509475956
+    },
+    "C4": {
+      "clock_s": 46.0,
+      "eligible": true,
+      "equiv_raw": "PLANTED-ZERO CONTROL (rule 3) -- runs before any real comparison:\n  plant coolant first    -> reader recovered 1.234000e-03  (planted 1.234000e-03)  SEEN\n  plant coolant last     -> reader recovered 1.234000e-03  (planted 1.234000e-03)  SEEN\n  plant module  first    -> reader recovered 1.234000e-03  (planted 1.234000e-03)  SEEN\n  plant module  last     -> reader recovered 1.234000e-03  (planted 1.234000e-03)  SEEN\n  PLANT 1.234000e-03 K is ABOVE the E1 threshold 1.000000e-03 K, so this control proves the GATE CAN FIRE, not merely that the reader can read.\n\n=== C4 vs B0_L2 ===\n  max|dT| (both regions) = 2.400003e-08 K   threshold 1.000e-03  ok\n  max|dp_rgh|            = 1.000008e-06 Pa  threshold 1.000e+00  ok\n  max|dU|                = 2.268600e-07 m/s threshold 1.000e-03  ok\n  reported, gating nothing: k=1.445e-07  omega=2.909e-02  nut=3.619e-11  alphat=4.343e-11  p=1.000e-06\n  DISQUALIFIERS FIRED: none -- equivalence holds\n",
+      "exec_s": 45.4,
+      "factor": 60.109097179044326,
+      "feasible_n": 901,
+      "fired": [],
+      "iter_sum": 3474,
+      "max_dT_K": 2.400003e-08,
+      "max_dp_rgh_Pa": 1.000008e-06,
+      "mean_all": 3.658333333333333,
+      "mean_feasible": 3.855715871254162,
+      "pinned": 0,
+      "rule4": [],
+      "steps": 40,
+      "wall_factor": 11.368942731277533
+    },
+    "C5": {
+      "clock_s": 39.0,
+      "eligible": true,
+      "equiv_raw": "PLANTED-ZERO CONTROL (rule 3) -- runs before any real comparison:\n  plant coolant first    -> reader recovered 1.234000e-03  (planted 1.234000e-03)  SEEN\n  plant coolant last     -> reader recovered 1.234000e-03  (planted 1.234000e-03)  SEEN\n  plant module  first    -> reader recovered 1.234000e-03  (planted 1.234000e-03)  SEEN\n  plant module  last     -> reader recovered 1.234000e-03  (planted 1.234000e-03)  SEEN\n  PLANT 1.234000e-03 K is ABOVE the E1 threshold 1.000000e-03 K, so this control proves the GATE CAN FIRE, not merely that the reader can read.\n\n=== C5 vs B0_L2 ===\n  max|dT| (both regions) = 1.699999e-08 K   threshold 1.000e-03  ok\n  max|dp_rgh|            = 2.000001e-06 Pa  threshold 1.000e+00  ok\n  max|dU|                = 6.506000e-08 m/s threshold 1.000e-03  ok\n  reported, gating nothing: k=4.216e-08  omega=1.284e-02  nut=1.105e-11  alphat=1.326e-11  p=2.000e-06\n  DISQUALIFIERS FIRED: none -- equivalence holds\n",
+      "exec_s": 38.07,
+      "factor": 2.938670732771359,
+      "feasible_n": 901,
+      "fired": [],
+      "iter_sum": 71059,
+      "max_dT_K": 1.699999e-08,
+      "max_dp_rgh_Pa": 2.000001e-06,
+      "mean_all": 79.4875,
+      "mean_feasible": 78.86681465038846,
+      "pinned": 0,
+      "rule4": [],
+      "steps": 40,
+      "wall_factor": 13.557919621749408
+    }
+  },
+  "contention_correction": {
+    "claimed": "contention caused the cap-stops",
+    "measured": "C1 contended 727.56s vs alone 670.61s = 1.085x only",
+    "verdict": "the lane's contention attribution was SUBSTANTIALLY WRONG; the re-run the supervisor required is what falsified it"
+  },
+  "cost_core_min": {
+    "ceiling": 320,
+    "cost_basis": "REPORTED-BY-OWNER; derived at $0.0513/core-h",
+    "cumulative": 163.29,
+    "note": "the 70.533 is WASTE CAUSED BY THIS LANE, named and never folded into a ratio",
+    "stage0": 18.6,
+    "stage1_cap": 128.33,
+    "stage1_clean": 74.157,
+    "stage1_contaminated_WASTE": 70.533,
+    "usd_derived": 0.1396
+  },
+  "disqualified": {
+    "C2": {
+      "alone": true,
+      "fired": [
+        "E3",
+        "E4"
+      ],
+      "note": "CAPPED AGAIN RUNNING ALONE -- E3/E4 stand on their own merits, NOT on the lane's staging error. The earlier contention attribution was WRONG.",
+      "rc": 124,
+      "steps": 39
+    },
+    "C3": {
+      "alone": true,
+      "fired": [
+        "E3",
+        "E4"
+      ],
+      "rc": 124,
+      "steps": 38
+    }
+  },
+  "equivalence": {
+    "C1": {
+      "max_dT_K": 8.000029e-09
+    },
+    "C4": {
+      "max_dT_K": 2.400003e-08
+    },
+    "C5": {
+      "max_dT_K": 1.699999e-08
+    },
+    "all": "EQUIVALENCE HOLDS -- five orders of margin",
+    "threshold_K": 0.001
+  },
+  "gate": {
+    "denominator": 231.7636,
+    "factor": 5.0,
+    "threshold": 46.3527,
+    "verdict": "MEETS the ladder requirement"
+  },
+  "ladder": {
+    "C4_measured": 11.37,
+    "C5_measured": 13.56,
+    "CAVEAT": "MEASURED OVER 40 RAMP STEPS ONLY. Extrapolation to the ladder's 11,800-47,200 steps is NOT established by this probe. Inference (NOT a measurement): B0-type configs stall more as the field settles, so C5's advantage would likely GROW over the full run -- stated as an inference, not banked.",
+    "required_wall_factor": 11.5352
+  },
+  "ladder_requirement": [
+    20.9,
+    156.8
+  ],
+  "reproduction_control": "PASS",
+  "stage1_protocol": "Addendum D1.3: five arms ONE AT A TIME, none concurrent",
+  "wall_vs_gate": {
+    "B0": {
+      "exec_s": 516.15,
+      "gate": 1.0,
+      "min_final": 6.4477e-09,
+      "pinned": 310,
+      "tot_iters": 507819,
+      "wall": 1.0
+    },
+    "C1": {
+      "exec_s": 670.61,
+      "gate": 4.15,
+      "min_final": 7.0496e-09,
+      "pinned": 334,
+      "tot_iters": 349281,
+      "wall": 0.77
+    },
+    "C4": {
+      "exec_s": 45.4,
+      "gate": 60.11,
+      "max_it": 17,
+      "min_final": 1.1305e-11,
+      "pinned": 0,
+      "tot_iters": 4390,
+      "wall": 11.37
+    },
+    "C5": {
+      "exec_s": 38.07,
+      "gate": 2.94,
+      "max_it": 115,
+      "min_final": 1.1802e-11,
+      "pinned": 0,
+      "tot_iters": 95385,
+      "wall": 13.56
+    },
+    "FINDING": "THE GATE METRIC IS ANTI-CORRELATED WITH WALL COST. C5 has the WORST eligible gate metric (2.94x) and the BEST wall factor (13.56x) -- the only arm meeting the ladder's 11.535x. C4 scores 60.11x on the gate and is 1.4% SHORT on wall. C1 scores 4.15x on the gate and is 1.30x SLOWER than the baseline. G-T5 as registered rewards the wrong quantity, and that is the lane's error."
+  }
+}

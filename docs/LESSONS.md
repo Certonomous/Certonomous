@@ -20559,3 +20559,67 @@ independent measurements pile up on the same floor, the floor is the finding.
 = 1.0e-12` is correct as written and all twenty controls constructed and passed.
 This entry exists so the next person who "tightens" it knows what they are
 standing on.
+
+---
+
+## L-439 — A planted control whose tolerance sits below the arithmetic noise floor ALWAYS refuses, and that looks exactly like rigour
+
+**2026-09-02, T25R5 `compare_arms_t25R5.py`, heat-transfer.**
+
+Rule 3 says a zero from a reader not shown able to see a non-zero is not
+evidence. The standard remedy is a planted control: perturb a known cell by a
+known amount, read it back from disk, refuse unless the reader recovers it. The
+T25R5 equivalence comparator plants `PLANT = 1.234e-03` K into a copy of the
+baseline `T` field and refuses unless it recovers exactly that.
+
+**It refused. Four plants out of four, in both regions, with the message
+`READER IS BLIND`. The reader was not blind. It had recovered
+`1.23400000001083754e-03` — correct to eleven significant figures.**
+
+The recovery tolerance was written as `abs(seen - PLANT) <= PLANT * 1e-12`, which
+is `1.234e-15` K. But `PLANT` is recovered by **differencing two values of
+magnitude `T ≈ 293 K`**, and one double-precision ulp at 293 is
+**`math.ulp(293.018877) = 5.684342e-14`**. The measured recovery residual was
+`1.084e-14` K — **0.191 of one ulp, i.e. inside the arithmetic noise of the
+subtraction itself.** The tolerance was **0.0217 ulp**.
+
+> **THE TOLERANCE WAS BELOW THE FLOOR OF THE ARITHMETIC IT WAS JUDGING, SO NO
+> READER COULD EVER HAVE PASSED IT. The control was not strict. It was broken in
+> the direction that looks strict.**
+
+**Why this is worse than a control that always passes, not better.** A control
+that always passes is a known failure mode and the lab hunts it (L-399, L-321).
+A control that always *refuses* wears the costume of the thing it has stopped
+being: it produces a red, a red reads as vigilance, and the natural next move is
+to go hunting in the reader — the one component that was working. Here the
+`READER IS BLIND` message accused the correct code and would have sent a
+successor to rewrite it.
+
+**The generalisation, which is what makes this worth a number.** The relative
+tolerance a planted control needs is set by **the magnitude of the values being
+differenced**, not by the magnitude of the plant. Those are the same number only
+when the field's absolute value is of the plant's own order. In this lab they
+routinely are not: temperature fields sit at ~293 K while the signals that matter
+are ~1e-3 K to ~1e-2 K — **five orders apart** — so *every* planted control over
+an absolute-temperature field has this trap in it. `p_rgh` at ~1e5 Pa against
+tolerances of ~1 Pa is the same shape.
+
+**`[For a successor: a planted control's tolerance must be checked against
+`math.ulp(typical_value)` of the field being differenced, not against the plant.
+Put the floor in the source as a number with its measurement beside it. If
+`tol < math.ulp(field_magnitude)` the control can only refuse, and a control that
+can only refuse has the same information content as one that can only pass —
+zero — while being far better disguised.]`**
+
+**And the part that is not a warning but an endorsement:** this defect was found
+**by the control, on its first real invocation, before a single arm was
+cleared** — as was a second, independent bug in the same script, where the plant
+was written into the list *count* line outside the parentheses the reader parses,
+so it landed where the reader structurally could not see it and the control
+correctly reported a true zero. **Two bugs in the comparator, both caught by the
+comparator's own control, neither by the author.** That is the argument for
+planting on every invocation rather than once at selftest time.
+
+**Related:** L-399 (a control driven only where it cannot fail), L-321 (a fixture
+sharing the checker's route carries no information), L-273 (plant into a file the
+producer actually wrote), L-316 (a selftest proves the grader, never the case).
