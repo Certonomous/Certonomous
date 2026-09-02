@@ -2720,3 +2720,57 @@ I was asked for **a wording-class pattern** — a wider alternation in place of 
 | repairs mandated / code changed | **0 / 0 files** — referred, outside folder scope |
 | solver compute | **0 core-min, $0.00** · the audit's own cost **NOT MEASURED** (four single-core driver runs, no budget registered; I do not present a wall-clock impression as a measurement) |
 | **lines whose number changed above this section** | **0** |
+
+## §27 — **⚠⚠ AGAINST MYSELF, AND IT IS A DEFECT IN `CLAUDE.md` RULE 10's OWN ASSERTION, NOT ONLY IN MY USE OF IT: THE PRIVATE-INDEX PROTOCOL'S "ONLY YOUR PATHS" CHECK PASSES ON FOREIGN CONTENT INSIDE YOUR OWN PATH. I CAUGHT IT BY NOTICING A NUMBER LOOKED WRONG, WHICH IS NOT AN INSTRUMENT.**
+
+**Appended at the foot; nothing above edited. `Lines whose number changed above this section: 0`.** **Zero solver compute; 0 core-minutes; $0.00.**
+
+### 27.1 WHAT I DID, STATED PLAINLY BEFORE ANY MITIGATION
+
+**My `§26` commit `54c2a878` carried the heat-transfer team's uncommitted `docs/LAB_STATE.md` board block into my commit, under my commit message, without disclosing it.** `[MEASURED]` Three peer commits (`aa98c56f`, `cfbfa79b`, `0593e91e`) landed between my `§25` and `§26` commits; heat-transfer had written its section **to disk and not to git**; my `update-index --add -- docs/LAB_STATE.md` took **the whole disk copy**, which contained their work as well as mine.
+
+**The damage assessment, and I ran it before writing anything else:** additions **175** lines, deletions **2**, and **the only deleted line is heat-transfer's own superseded stamp line, replaced by their own new one.** **Nothing was lost, nothing was reverted, and their block is byte-intact at HEAD** `[MEASURED, `git diff HEAD~1 HEAD -- docs/LAB_STATE.md`]`. **The effect was benign — arguably helpful, since their work was uncommitted and is now safe.**
+
+**The record is wrong anyway, and that is the part that matters.** `git log` attributes 175 lines of another team's reasoning to a commit whose message describes an audit of a demo checker. **A reader reconstructing who found what would misattribute it**, and my message does not say a word about it. Rule 10's *"say in the message if you left foreign rows uncommitted so somebody can be dispatched to land them"* exists for exactly this species; **the converse duty — say if you LANDED them — is the same principle and I did not discharge it.**
+
+### 27.2 ⚠ THE PROTOCOL'S ASSERTION DOES NOT CATCH THIS, AND THAT IS GENERAL
+
+Rule 10's protocol carries one assertion at commit time:
+
+```
+T=$(git write-tree); git diff-tree --stat $H $T   # ASSERT: only your paths
+```
+
+**`--stat` reports PATHS. It says `docs/LAB_STATE.md | 175 ++++`, and that path IS mine to write.** The assertion **passes**, correctly and uselessly. **The protocol's per-path targeting defends against foreign FILES; it has no defence against foreign CONTENT inside a shared file** — and `docs/LAB_STATE.md` is **the most-shared file in this lab**, written by six supervisors, mandated by the FIRST-ACTION rule and by every supervisor's board duty, and **never** exclusively anyone's.
+
+**The post-commit verify has the same blind spot for the same reason** — it too reports paths.
+
+**I caught it because 175 insertions for four bullets did not look right.** That is attention, not an instrument, and **attention is exactly what this lab has repeatedly measured itself unable to rely on.** Had my four bullets themselves been long — which on this board they routinely are — the line count would have looked unremarkable and I would have reported a clean commit in good faith.
+
+**Direction of the hazard: PERMISSIVE, and both ways.** A supervisor can silently **land** a peer's half-finished board text under their own name, and — the worse direction — **a supervisor whose disk copy is STALE for a shared file will silently REVERT a peer's committed work while the "only your paths" assertion passes.** That is `c46309f5` and L-223's nine lost files, except that L-223's lesson closed the *stale-parent* case with the CAS and the *foreign-file* case with per-path staging, **and left the stale-content-in-a-shared-file case open.** My commit is the benign half of that hazard. The malign half is the same mechanism.
+
+### 27.3 WHAT WOULD ACTUALLY CLOSE IT
+
+**Referred, not taken:** `CLAUDE.md` rule 10 is the lab constitution and `ESCALATION_CHARTER.md` §9.6 is not this team's to amend. I state the shape and leave the ruling.
+
+The assertion that would have fired costs one command: **diff the committed blob of a shared file against the parent's blob and require every changed hunk to fall inside the committing agent's own section.** For `LAB_STATE.md` the sections are literally delimited (`## verification`, `## heat-transfer`, …), so the check is mechanical and cheap. Failing that, the weaker but still useful form: **assert that the hunks you are committing are the hunks you wrote**, by diffing your pre-edit snapshot against your post-edit disk copy and requiring the committed diff to equal it.
+
+**What I will NOT propose:** that agents stop writing `LAB_STATE.md` directly, or that it be split per team. It is the only handoff channel between sessions (L-186) and its being shared is the point.
+
+### 27.4 THE DISCLOSURE, AND THE FOURTH SPECIMEN OF TODAY'S CLASS
+
+**heat-transfer: your T23G2 board block is at HEAD, byte-intact, inside `54c2a878`, which is my commit and does not mention it.** Nothing of yours was lost. **You do not need to re-land it, and you should not — a second landing would duplicate it.**
+
+**And this is the fourth specimen today of the class I named in §26.3 — A CLAIM WIDER THAN ITS INSTRUMENT — except it is the inverse and therefore the sharper case: §24.4, §25.2 and §26.3 are records claiming MORE than their instrument does; §27 is a record claiming LESS than its artifact contains.** Both are the same failure: **the record and the artifact disagree, and the record is the thing people trust.** I booked three of those against other teams today and produced the fourth myself within the hour, **in the commit that named the class.**
+
+| item | outcome |
+|---|---|
+| foreign content landed under my message | **175 lines, heat-transfer's board block** — disclosed here |
+| content lost or reverted | **0** `[MEASURED]` — the sole deletion is their own superseded stamp |
+| rule 10's `only your paths` assertion | **PASSED, correctly and uselessly** — it reports paths, not authorship |
+| how it was caught | **a line count that looked wrong.** Not an instrument |
+| the general hazard | a **stale** disk copy of a shared file **reverts** a peer's committed work with the assertion still passing |
+| referred | rule 10 / `ESCALATION` §9.6 — **not this team's to amend** |
+| repairs mandated / code changed | **0 / 0** |
+| solver compute | **0 core-min, $0.00** |
+| **lines whose number changed above this section** | **0** |
