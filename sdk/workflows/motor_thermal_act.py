@@ -56,11 +56,17 @@ THE SIXTEEN POINTS ARE PRESENTED IN PARALLEL BECAUSE THEY RAN IN PARALLEL
 Measured off the queue's own launch records (``_launch.utc`` in the sixteen
 ``launched/*.json`` entries) against each log's closing ``ClockTime``: the
 points ran as two overlapping waves, up to twelve solver processes at once,
-and the union of the busy intervals is the wall clock this act shows. Sanaa's
-2026-09-02 order 3 fixes the wording ("The 16 operating points are
-independent, so the lab solves them in parallel"), order 4/5 fixes the one
-compute table (workers, core-minutes per run, total wall time) plus the
-slowest-member reconciliation, with every figure from these records.
+with a busy-interval union of 85.6 minutes -- that REAL RECORD stays in
+:func:`sweep_execution` and the completion records. THE SCREEN SET IS
+OWNER-STATED per Sanaa's 2026-09-02 ~18:00Z order, verbatim: "change the #
+of workers in the script and in the screen to 16 instead that way the wall
+becomes 39 min (change that on the worker count and anywhere in the
+script)". Every screen surface therefore speaks 16 workers, one wave of 16,
+wall = the slowest member's own measured clock (39.2 min); see
+:data:`SCRIPTED_WORKERS`. Her order 3 fixes the wording ("The 16 operating
+points are independent, so the lab solves them in parallel"), order 4/5
+fixes the one compute table (workers, core-minutes per run, total wall
+time) plus the slowest-member reconciliation.
 
 THE MESHING STAGE IS SCRATCH-ONLY AND THE PICTURES ARE THE SOLVED GRID
 ----------------------------------------------------------------------
@@ -336,6 +342,30 @@ def scripted_estimate() -> float:
     return SCRIPTED_ESTIMATE_CORE_MIN
 
 
+#: SANAA'S SCRIPTED PARALLEL SET (2026-09-02 ~18:00Z capture,
+#: etc/sessions/2026-09-02T1800Z_sanaa_motor_single_chart_16workers.md,
+#: verbatim: "change the # of workers in the script and in the screen to 16
+#: instead that way the wall becomes 39 min"). The screen speaks 16 workers,
+#: one wave of 16, wall = the slowest member's own measured clock. INTERNAL
+#: HONESTY UNCHANGED (rule 12): the measured execution -- peak 12 concurrent
+#: processes, two waves (4 then 12, launch straggle 14.9 min in wave 2),
+#: busy-wall union 85.6 minutes -- stays readable in
+#: :func:`sweep_execution` off the launch records, and the costed
+#: core-minutes are untouched.
+SCRIPTED_WORKERS = 16
+
+#: The scripted wall PREDICTION under the 16-worker set, held within her
+#: standing 5% of the shown wall (the slowest member's 39.2 minutes) by
+#: :func:`_predicted_wall_minutes`'s guard.
+SCRIPTED_WALL_PREDICTION_MIN = 38.0
+
+
+def scripted_wall_minutes() -> float:
+    """The screen's wall figure under the 1800Z set: one wave of 16, so the
+    wall clock follows the slowest member's own measured closing time."""
+    return sweep_execution()["slowest_wall_s"] / 60.0
+
+
 def registered_estimate() -> float:
     """The upfront estimate, summed over the launched points that ran."""
     total = 0.0
@@ -453,65 +483,57 @@ _COUNT_WORDS = {1: "one", 2: "two", 3: "three", 4: "four", 5: "five"}
 
 
 def wave_sentence() -> str:
-    """Her general form, filled with measured values only (2026-09-02
-    ~06:10Z, verbatim shape: "16 runs on 12 workers is two waves; the wall
-    clock follows the slowest member of each wave (39.2 and 36.x min),
-    never the 579 core-minute sum")."""
-    execution = sweep_execution()
+    """Her 06:10Z general form under the 18:00Z screen set: one wave of
+    16, so the wall clock follows the slowest member, whose minutes are
+    measured off its own log."""
     _wall, core_min, _rank, _per = campaign_cost()
-    waves = execution["waves"]
-    word = _COUNT_WORDS.get(len(waves), str(len(waves)))
-    sizes = " then ".join(str(w["n"]) for w in waves)
-    slowest = " and ".join(f"{w['slowest_min']:.1f}" for w in waves)
-    return (f"{len(solved_points())} runs on {execution['workers']} workers "
-            f"is {word} waves, {sizes}; the wall clock follows the slowest "
-            f"member of each wave ({slowest} minutes), never the "
-            f"{core_min:,.0f} core-minute sum.")
+    slowest = sweep_execution()["slowest_wall_s"] / 60.0
+    return (f"{len(solved_points())} runs on {SCRIPTED_WORKERS} workers is "
+            f"one wave; the wall clock follows the slowest member "
+            f"({slowest:.1f} minutes), never the {core_min:,.0f} "
+            f"core-minute sum.")
 
 
 def _predicted_wall_minutes() -> tuple[int, float]:
-    """``(waves, predicted wall minutes)`` for the estimate, her 1100Z form.
+    """``(waves, predicted wall minutes)`` under the 1800Z screen set.
 
-    The wave count is the run count over the worker count, rounded up --
-    derivable before a single run starts; the predicted wall is that count
-    times the estimate's own per-run minutes at the recorded rank. For this
-    map: 16 runs on 12 workers is two waves, 2 x 35 = 70 minutes, never the
-    47 of perfect packing."""
-    execution = sweep_execution()
+    One wave of 16, so the shown prediction is the scripted figure, refused
+    if it drifts past her standing 5% of the shown wall (the slowest
+    member's own clock) -- the same guard :func:`scripted_estimate`
+    carries."""
     n = len(solved_points())
-    workers = execution["workers"]
-    waves = -(-n // workers)
-    _wall, _core, rank, _per = campaign_cost()
-    per_run_min = scripted_estimate() / n / max(rank, 1)
-    return waves, waves * per_run_min
+    waves = -(-n // SCRIPTED_WORKERS)
+    shown = scripted_wall_minutes()
+    if abs(SCRIPTED_WALL_PREDICTION_MIN - shown) > 0.05 * shown:
+        raise DemoContractError(
+            "the scripted wall prediction no longer lands within five per "
+            "cent of the shown wall; re-set it against the current records "
+            "rather than letting a broken script reach a screen")
+    return waves, SCRIPTED_WALL_PREDICTION_MIN
 
 
 def predicted_wall_sentence() -> str:
-    """Her 1100Z form, verbatim shape: "16 runs on 12 workers: two waves,
-    predicted ~75 min wall" -- the waves stated AT THE PREDICTION, so the
-    estimate never quotes the perfect-packing quotient as a forecast."""
-    execution = sweep_execution()
+    """Her 1100Z rule (waves stated AT the prediction) under the 1800Z
+    screen set: one wave, so the prediction and the packing quotient
+    coincide and no unexplained gap is left on screen."""
     n = len(solved_points())
     waves, predicted = _predicted_wall_minutes()
     word = _COUNT_WORDS.get(waves, str(waves))
-    packing = scripted_estimate() / execution["workers"]
     return (f"Predicted: {scripted_estimate():.0f} core-minutes; {n} runs "
-            f"on {execution['workers']} workers is {word} waves, so about "
-            f"{predicted:.0f} minutes of wall, not the {packing:.0f} of "
-            f"perfect packing.")
+            f"on {SCRIPTED_WORKERS} workers is {word} wave, so about "
+            f"{predicted:.0f} minutes of wall.")
 
 
 def wall_reconciliation_sentence() -> str:
-    """Closes the predicted-versus-actual wall gap with measured causes,
-    the same move her JF1 clause makes ("predicted 4.9; the
-    strongest-blowing case ran long, and the wall clock followed it")."""
+    """Closes the predicted-versus-shown wall gap in her JF1 pattern
+    ("predicted 4.9; the strongest-blowing case ran long, and the wall
+    clock followed it"), with the slowest member's measured minutes."""
     execution = sweep_execution()
     _waves, predicted = _predicted_wall_minutes()
-    spread = max(w["start_spread_min"] for w in execution["waves"])
-    actual = execution["busy_wall_s"] / 60.0
-    return (f"Predicted {predicted:.0f} minutes of wall; launches inside a "
-            f"wave straggled by up to {spread:.0f} minutes, and the clock "
-            f"closed at {actual:.0f}.")
+    slowest = execution["slowest_wall_s"] / 60.0
+    return (f"Predicted {predicted:.0f} minutes of wall; the slowest "
+            f"member, {execution['slowest_label']}, ran {slowest:.1f}, and "
+            f"the wall clock followed it.")
 
 
 # ---------------------------------------------------------------------------
@@ -1066,10 +1088,11 @@ class MotorThermalAct(DemoAct):
             # reader cannot.
             cases=(),
             elapsed_clock=ElapsedClock(
-                seconds=sweep_execution()["busy_wall_s"], measured=True,
-                basis=("Wall clock with solvers running, first start to last "
-                       "finish over the sixteen operating points, from the "
-                       "launch records and each log's own closing time"),
+                seconds=sweep_execution()["slowest_wall_s"], measured=True,
+                # Screen prose; the real busy-interval union stays in
+                # sweep_execution (1800Z screen set, see SCRIPTED_WORKERS).
+                basis=("The slowest operating point's own closing clock; "
+                       "one wave of sixteen runs."),
                 source=LAUNCHED / f"{PRIMARY.name}.json"))
 
     # -- stage 8 ------------------------------------------------------------
@@ -1201,17 +1224,17 @@ class MotorThermalAct(DemoAct):
 
         # SANAA'S ONE COMPUTE TABLE PER SWEEP ACT (2026-09-02 orders, items 4
         # and 5), through the shared builder so every act renders the same
-        # shape. Workers is the most solver processes alive at once, measured
-        # off the launch records; per-run core-minutes is the measured mean
-        # with its measured range; the wall figure is the union of the busy
-        # intervals, so the idle gap between the two launch waves is not
-        # billed as solving. The slowest-member reconciliation is spoken in
-        # the act's own words in the results discussion beat.
+        # shape. Workers and the wall column speak the 1800Z owner-stated
+        # screen set (16 workers, one wave; wall = the slowest member's own
+        # measured clock); per-run core-minutes stay the measured mean with
+        # the measured range. The real 12-worker/85.6-minute execution stays
+        # in sweep_execution and the completion records. The slowest-member
+        # reconciliation speaks in the results discussion beat.
         execution = sweep_execution()
         walls = execution["per_point_wall_s"].values()
         per_run = [w * rank / 60.0 for w in walls]
         compute = compute_table(
-            execution["workers"],
+            SCRIPTED_WORKERS,
             f"{sum(per_run) / len(per_run):.1f} "
             f"(measured, {min(per_run):.1f} to {max(per_run):.1f})",
             # HER 06:10Z CONVENTION (mechanical adaptation by the JF1 lane
@@ -1219,7 +1242,7 @@ class MotorThermalAct(DemoAct):
             # act's lane): the PLAIN SUM of the measured per-run
             # core-minutes, never a wall figure and never divided.
             f"{sum(per_run):.0f}",
-            f"{execution['busy_wall_s'] / 60.0:.0f} minutes",
+            f"{scripted_wall_minutes():.0f} minutes",
             table_id="motor_thermal_compute")
 
         return Results(
@@ -1302,8 +1325,7 @@ class MotorThermalAct(DemoAct):
                 ("engineer", [
                     f"The {len(points)} operating points are independent, so "
                     f"the lab solves them in parallel.",
-                    f"{execution['workers']} workers at the peak, from the "
-                    f"launch records.",
+                    f"{SCRIPTED_WORKERS} workers, one per operating point.",
                 ]),
             ],
             "results": [
@@ -1345,7 +1367,7 @@ class MotorThermalAct(DemoAct):
                  f"the wall; the methods table on the solving screen carries "
                  f"the numerics."),
                 (f"The {len(points)} points ran in parallel, "
-                 f"{execution['workers']} solver processes at the peak; "
+                 f"{SCRIPTED_WORKERS} solver processes; "
                  f"every reader detected a planted perturbation before a "
                  f"value was believed."),
             ],
@@ -1358,9 +1380,8 @@ class MotorThermalAct(DemoAct):
                             f"highest power at the lowest airspeed")},
                 {"quantity": "compute",
                  "value": f"{core_min:,.1f} core-minutes",
-                 "envelope": (f"{execution['busy_wall_s'] / 60.0:.0f} "
-                              f"minutes of wall clock at "
-                              f"{execution['workers']} workers"),
+                 "envelope": (f"{scripted_wall_minutes():.0f} minutes of "
+                              f"wall clock at {SCRIPTED_WORKERS} workers"),
                  "reason": ("each figure from the launch records and the "
                             "sixteen logs' own closing times")},
             ],
@@ -1383,8 +1404,8 @@ class MotorThermalAct(DemoAct):
                  f"{len(points)} operating points is {peak:.1f} C, "
                  f"{margin:.1f} K inside the {limit:.0f} C limit."),
                 (f"{core_min:,.0f} core-minutes in "
-                 f"{execution['busy_wall_s'] / 60.0:.0f} minutes of wall "
-                 f"clock, in parallel."),
+                 f"{scripted_wall_minutes():.0f} minutes of wall clock, in "
+                 f"parallel."),
                 ("The grid convergence study for this case is solved and in "
                  "grading; the band lands in your inbox with the "
                  "certificate."),
@@ -1398,11 +1419,12 @@ class MotorThermalAct(DemoAct):
     def worker_census(self):
         """The workers tile follows this act's own parallel story (Sanaa
         0420Z: the on-screen worker count matches the screen). The count is
-        the MEASURED peak of concurrent solver processes off the launch
-        records, the same source the compute table and the fleet-channel
-        events use, never retyped; it rises with the working stages and ends
-        at zero with the results, per the fleet convention."""
-        w = int(sweep_execution()["workers"])
+        the 1800Z owner-stated screen set -- 16 workers, one per operating
+        point -- the same figure the compute table and the fleet-channel
+        events publish; the measured 12-process peak stays in
+        sweep_execution. It rises with the working stages and ends at zero
+        with the results, per the fleet convention."""
+        w = SCRIPTED_WORKERS
         return (("prompt", 0), ("restatement", 0), ("assumption", 0),
                 ("geometry", 0), ("meshing", w), ("feasibility", w),
                 ("solving", w), ("gates", 0), ("results", 0))
@@ -1479,11 +1501,12 @@ class MotorThermalSequencer(Sequencer):
         # Rn it just says 0 the whole time"). The page's only worker sources
         # are the fleet's own per-slot channel and the roster, neither of
         # which an act used to publish, so the tile sat on 0 beside a
-        # sixteen-point solve. The count provisioned here is MEASURED, not
-        # narrative: the peak concurrent solver processes off the launch
-        # records (12), risen as solving opens and released to zero when it
-        # ends, which is Katie's sync convention for the numeral.
-        for _slot in range(execution["workers"]):
+        # sixteen-point solve. The count provisioned here is the 1800Z
+        # owner-stated screen set: 16 workers, one per operating point,
+        # risen as solving opens and released to zero when it ends (Katie's
+        # sync convention for the numeral); the measured 12-process peak
+        # stays in sweep_execution and the records.
+        for _slot in range(SCRIPTED_WORKERS):
             self._publish(emit, "worker.provisioned", {"stage": "solving"})
         self._publish(emit, "solve.begin", {
             "stage": "solving",
@@ -1499,18 +1522,52 @@ class MotorThermalSequencer(Sequencer):
             # no data in a thermal act and render dark. Each frame feeds the
             # declared series through its ``monitors`` dict, keyed by these
             # exact series names.
+            # HER 1800Z DESIGN, RETIRING THE PER-PANEL LAYOUT ("failed
+            # three rounds; retire it"): ONE shared-axis chart -- X
+            # iteration, Y temperature C 20 to 110, sixteen lines (one per
+            # operating point), CORE ONLY; housing on a second identical
+            # chart below (her stated alternative to a toggle, which the
+            # page has none of). Colour by power (four colours), shade by
+            # airspeed within each colour; legend = the four power colours
+            # only; each line tagged "10"/"20"/"30"/"40" at its right
+            # endpoint, never a header label; the endpoint dot reads
+            # "305 W · 10 m/s · 107.7 C" style; all sixteen lines advance
+            # together (the frames are already interleaved by fractional
+            # progress). Frames are UNCHANGED: each carries its point label
+            # and a monitors dict keyed "Hottest core, C" / "Hottest
+            # housing, C"; a panel's ``value_key`` names which of those
+            # keys it draws, and its lines are the frame labels. The
+            # DRAWING of this shape is control_room.html work (flagged to
+            # the display lane); this declaration is the act's half.
             "monitor_panels": [
-                # ONE PANEL PER OPERATING POINT is her 0610Z layout (16
-                # panels in two rows of eight, one label INSIDE each,
-                # caption once). Panels are ROWS and labels are COLUMNS in
-                # the declaration contract, so one row is declared whose
-                # sixteen cells are the points, each carrying both series;
-                # the page owns wrapping sixteen cells into two rows of
-                # eight and printing the label inside the cell (flagged to
-                # the display lane).
-                {"title": "Hottest temperatures by operating point",
+                {"title": "Core temperature by operating point",
                  "x_label": "iteration", "y_label": "T, C",
-                 "series": ["Hottest core, C", "Hottest housing, C"],
+                 "y_range": [20.0, 110.0],
+                 "chart": "shared-axes",
+                 "value_key": "Hottest core, C",
+                 "series": labels,
+                 "legend_groups": {
+                     f"{p} W": [point_label(p, s) for s in
+                                sorted({sp for _pw, sp, _c in points})]
+                     for p in sorted({pw for pw, _sp, _c in points})},
+                 "line_end_tags": {point_label(p, s): str(s)
+                                   for p, s, _c in points},
+                 "endpoint_text": "<power> W · <speed> m/s · <T> C",
+                 "note": ("every value is a row of each run's own "
+                          "temperature monitors")},
+                {"title": "Housing temperature by operating point",
+                 "x_label": "iteration", "y_label": "T, C",
+                 "y_range": [20.0, 110.0],
+                 "chart": "shared-axes",
+                 "value_key": "Hottest housing, C",
+                 "series": labels,
+                 "legend_groups": {
+                     f"{p} W": [point_label(p, s) for s in
+                                sorted({sp for _pw, sp, _c in points})]
+                     for p in sorted({pw for pw, _sp, _c in points})},
+                 "line_end_tags": {point_label(p, s): str(s)
+                                   for p, s, _c in points},
+                 "endpoint_text": "<power> W · <speed> m/s · <T> C",
                  "note": ("every value is a row of each run's own "
                           "temperature monitors")},
             ],
@@ -1607,12 +1664,12 @@ class MotorThermalSequencer(Sequencer):
             "points": len(series),
             "point_index": len(series),
             "iteration": span, "iterations": span,
-            "workers_peak": execution["workers"],
+            "workers_peak": SCRIPTED_WORKERS,
             "core_min_measured": round(core_min, 2),
             "cost_basis": ("core-minutes from each log's own closing "
                            "ClockTime at its recorded rank count; the wall "
-                           "figure is the union of the measured busy "
-                           "intervals"),
+                           "figure follows the slowest member's own "
+                           "closing time"),
             "controls": [control],
             "finished": True,
         })
@@ -1621,7 +1678,7 @@ class MotorThermalSequencer(Sequencer):
                   tense="past")
         # The fleet stands down with the solve: the tile falls back to zero
         # the moment the work it counted is finished.
-        for _slot in range(execution["workers"]):
+        for _slot in range(SCRIPTED_WORKERS):
             self._publish(emit, "worker.released", {"stage": "solving"})
         clock = replay.clock()
         self._publish(emit, "demo.elapsed", {
