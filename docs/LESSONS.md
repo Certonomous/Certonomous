@@ -20212,3 +20212,22 @@ The real tell was three commands later: `check_numerics_index.py --gen` printed 
 Restored with `git show HEAD:<path> > <path>` — **not** `git checkout --`, which `CLAUDE.md` rule 10 forbids outright. Restoring from HEAD is only safe if no peer had uncommitted work in that file, and **I could prove it did not: the md5 I had taken before my own append was byte-identical to `HEAD`'s blob**, so the worktree was at HEAD and the only loss was my own uncommitted append. The restored file hashed identical to `HEAD`'s blob.
 
 > **The accident's own instrument is what proved the recovery safe.** Had I not taken that digest for an unrelated reason, I could not have shown that restoring destroyed nobody's work — I would only have been able to say I thought it did not. **Take the digest before you write, even when nothing seems to need it.**
+
+#### ADDENDUM — 2026-09-02, same day — **THE REPAIR, SHARPENED: A PURELY RELATIVE GUARD IS DEGENERATE UNDER TOTAL LOSS AND NEEDS AN ABSOLUTE LIMB BESIDE IT**
+
+**Raised by `ansys-lane-opus` against this lesson's own framing, and it is right.** The body above says *"a guard whose two sides degrade together cannot fire"* and then prescribes *plant a control* — **a diagnosis that does not point at the repair, which is the exact failure this session corrected in a supervisor's `leg()` diagnosis hours earlier.** Naming the repair:
+
+**The degradation reproduced exactly.** `head -n 5571` **never fails**: on a three-line file it returns rc 0 and gives three lines; on an **empty** file it returns rc 0 and gives nothing, whose md5 is **`d41d8cd98f00b204e9800998ecf8427e`** — the digest of nothing. So the guard did not merely fail to fire; **it COULD NOT fire, because both of its inputs were destroyed identically and it only ever compared them to each other.**
+
+> **A RELATIVE COMPARISON OF TWO DERIVED VALUES CAN NEVER DETECT A FAILURE THAT COLLAPSES BOTH DERIVATIONS TOGETHER, no matter how good the digest is. Every before/after digest guard carries an ABSOLUTE limb beside it — an invariant a destroyed file cannot satisfy.**
+
+Two absolute limbs, **either of which alone would have fired here**:
+
+1. **Assert the prefix actually HAS the lines being hashed** — `[ $(wc -l < f) -ge N ]`, or in Python `assert len(orig) > <expected floor>`.
+2. **Assert the digest is not the empty digest** — `[ "$md5" != d41d8cd98f00b204e9800998ecf8427e ]`.
+
+**This addendum's own write carries both limbs**, plus a re-read `startswith` check, because a rule about guards that is landed without its own guard is a declaration.
+
+**Independently verified, by the lane and not by the author:** the restored file is 5 777 lines / 424 656 bytes against 5 571 before the incident — **it GREW by the append and did not come back short**; worktree byte-identical to HEAD; N-entry count **47 → 48, exactly +1**; and the check that actually matters, **set-difference of entry ids before against after: EMPTY.** *Disclosed, not glossed:* that audit covered entry PRESENCE, line count, byte count and worktree-vs-HEAD equality — **it did not audit for silent intra-entry content change**, which the prefix-md5 evidence makes unlikely but which nobody checked.
+
+**A rule-11 illustration noticed in passing:** `LESSONS.md` at this moment holds **438 blocks, 434 distinct ids, and a maximum of 436** — three different figures, and **only the maximum is the right one.**
