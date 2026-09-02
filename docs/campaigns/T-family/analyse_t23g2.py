@@ -95,6 +95,37 @@ MESHSIM_MIN_HOUSING_CELLS = 8         # at the COARSEST level; T23G carried 4
 
 NU = 1.8e-05 / 1.2            # fluid kinematic viscosity, m2/s (mu/rho, const)
 
+# --------------------------------------------------------------------------
+# AMENDMENT v1.1, 2026-09-02 -- REPAIR R2 (T23G2_PREREGISTRATION.md:671).
+#
+# GRANTED AND WIDENED: VERIFICATION_CHARTER.md v1.38 section 2d.7, commit
+# 3dad5bae.  The registration at :671 says this comparator will "record its own
+# grading-path shas on the artifact's face"; it recorded none -- a REGISTERED
+# FEATURE NEVER BUILT (section 2d.4.3), not a departure from a registered path.
+#
+# FIVE FILES, NOT THE FOUR PETITIONED.  The ruling refused the petitioned scope:
+# `t23g_readonly_diagnosis` is imported at :46 and used in `yplus_from_fields`,
+# `_first_cell_heights`, `gate_meshsim` and `_u_maxima`, so it is on the grading
+# path for G-YPLUS, G-MESHSIM and G-CONV, and it was in neither the freeze table
+# nor the petition's list.  A sha recorder that leaves a grading-path member
+# silent is the defect it was built to cure.
+#
+# THE DUAL-SHA CONDITION (section 2d.4.3) IS WHY TWO COLUMNS ARE PRINTED AND NOT
+# ONE.  The recorder records this file's sha -- and ADDING the recorder CHANGES
+# that sha.  The registration contemplated provenance present from the FIRST
+# GRADED SOLVE; what this repair can deliver is provenance FROM THE REPAIR
+# FORWARD, carrying a POST-REPAIR sha that is NOT the blob frozen at
+# pre-registration.  The registered intent is UNRECOVERABLE and this recorder
+# does not claim to restore it.
+GRADING_PATH_FREEZE_COMMIT = "976776f4"   # the commit that froze the comparator
+GRADING_PATH = (
+    "docs/campaigns/T-family/T23G2_PREREGISTRATION.md",
+    "docs/campaigns/T-family/analyse_t23g2.py",
+    "docs/campaigns/T-family/t23g_readonly_diagnosis.py",
+    "verification/runs/T-family/T23_runs/mark_done_t23.py",
+    "scripts/roache_triple.py",
+)
+
 
 def note(msg):
     print(msg)
@@ -526,6 +557,64 @@ def plant_control_for(qname, level, series_path_fn):
 
 
 # ==========================================================================
+# REPAIR R2 -- the grading-path sha recorder.  IT GRADES NOTHING.
+# ==========================================================================
+def _git(args):
+    r = subprocess.run(["git"] + args, cwd=REPO, capture_output=True, text=True)
+    return r.stdout.strip() if r.returncode == 0 and r.stdout.strip() else None
+
+
+def grading_path_shas():
+    """(rel, post-repair working-tree blob, pre-registration frozen blob).
+
+    TWO DIFFERENT OBJECTS, labelled as two (section 2d.4.3).  The left column is
+    what is running NOW; the right is what stood in the tree at
+    GRADING_PATH_FREEZE_COMMIT, the commit that froze this comparator.
+    """
+    out = []
+    for rel in GRADING_PATH:
+        p = os.path.join(REPO, rel)
+        if not os.path.isfile(p):
+            refuse("grading-path member %s is not on disk; the path this "
+                   "comparator grades on cannot be recorded" % rel)
+        now = _git(["hash-object", p])
+        frozen = _git(["rev-parse", "%s:%s"
+                       % (GRADING_PATH_FREEZE_COMMIT, rel)])
+        out.append((rel, now or "UNAVAILABLE", frozen or "ABSENT-AT-FREEZE"))
+    return out
+
+
+def print_grading_path_shas():
+    """SANAA'S UNIVERSAL RULE OF 2026-08-26 GOVERNS THE CHOICE NOT TO REFUSE ON
+    AN UNAVAILABLE SHA: bookkeeping never voids physics.  A missing FILE is a
+    refusal above, because a grading-path member that is not on disk cannot have
+    graded anything.  A git query that cannot answer is INFRASTRUCTURE: it is
+    printed as UNAVAILABLE, loudly, and it does not void a solve.  This is the
+    same posture `analyse_t23g.py:grading_path_shas` took under its own
+    section 2d.1 grant (DEAD_LEVER_AUDIT section 27.4)."""
+    note("GRADING-PATH SHAS -- REPAIR R2, registered at "
+         "T23G2_PREREGISTRATION.md:671")
+    note("  THIS RECORDER GRADES NOTHING.  It reads no field and moves no "
+         "comparison.")
+    note("  Frozen column = the blob in %s, the commit that froze this "
+         "comparator." % GRADING_PATH_FREEZE_COMMIT)
+    for rel, now, frozen in grading_path_shas():
+        same = "IDENTICAL" if now == frozen else "DIFFERS"
+        note("  %s" % rel)
+        note("      post-repair (working tree) : %s" % now)
+        note("      pre-registration (frozen)  : %s   %s" % (frozen, same))
+    note("")
+    note("  THE TWO COLUMNS ARE TWO DIFFERENT OBJECTS AND ARE NOT INTERCHANGEABLE.")
+    note("  THIS RECORDER DOES NOT RESTORE THE REGISTERED PROVENANCE AND DOES "
+         "NOT CLAIM TO:")
+    note("  :671 contemplated shas present FROM THE FIRST GRADED SOLVE.  Adding "
+         "the recorder\n  CHANGES this file's sha, so only the forward half is "
+         "available (section 2d.4.3).")
+    note("  NO GRADED SOLVE WAS EVER PRODUCED UNDER A COMPARATOR CARRYING THIS "
+         "RECORDER.\n")
+
+
+# ==========================================================================
 def main(argv):
     note("=" * 74)
     note("T23G2 COMPARATOR -- gates frozen in T23G2_PREREGISTRATION.md v1.2")
@@ -533,6 +622,7 @@ def main(argv):
          "NEVER GATED ON.")
     note("=" * 74 + "\n")
 
+    print_grading_path_shas()          # REPAIR R2, before the first gate
     require_done()
     ms = gate_meshsim()
     cv, it_states = gate_conv()
