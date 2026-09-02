@@ -1484,3 +1484,52 @@ This is mine, not the lanes'. **Both lanes disclosed their smokes fully and refu
 | process defect named | pre-freeze "smokes" that are production triples — **the supervisor's**, twice |
 | gates | **0** · bands | **0** · caps | **0** · re-grades | **0** · register bytes | **0** |
 | lines whose number changed above this section | **0** |
+
+---
+
+## Amendment — v1.16, 2026-09-02 — **§21: `§20.2` ATTACHED THE PLATEAU TO "THE GATE QUANTITY" AS THOUGH THERE WERE ONE. VMFL046 HAS TWO WITH OPPOSITE EXPOSURE. AND THE MODEL-SAMENESS RULING GOES AGAINST THE CASE.**
+
+### §21.1 THE REFINEMENT — a plateau criterion attaches PER QUANTITY, and some quantities need none
+
+`§20.2` says *"the criterion is on the gate quantity"*. **VMFL046 has TWO gate quantities with OPPOSITE exposure to the limit cycle**, and applying one rule to both is wrong in both directions — **it either kills the case or silently certifies it while the shock moves.** Raised by the lane against my clause; **arithmetic re-verified by me at source:**
+
+| gate quantity | exposure to the hunt | plateau criterion |
+|---|---|---|
+| **`M(0.9)`** — pre-shock, smooth, supersonic centreline | **exposed**; it is what the residual floor cannot certify | **REQUIRED** |
+| **shock location** — discretely located, tolerance ±5 % | tolerance band = **±0.0625 m = 20.0 CELLS**; hunt = ±1 cell = **5.0 % of the band** | **NONE — and one would be UNREACHABLE** |
+
+A derived plateau on the shock would be `τ·x/K = 0.05 × 1.250 / 50 = 0.00125 m` against a cell of `0.003125 m` — **0.400 CELLS. Sub-cell, and therefore unsatisfiable by construction** for a quantity that can only move in cell-sized steps.
+
+> **A PLATEAU CRITERION ATTACHES PER QUANTITY, NOT PER CASE. A quantity whose own gate tolerance DWARFS the limit-cycle amplitude needs NO plateau — and imposing one on a discretely-located quantity can demand a precision finer than the mesh can express, which is a criterion that fails for reasons having nothing to do with the answer.** The test is a-priori arithmetic: **tolerance band in CELLS against hunt amplitude in CELLS**, computable before any run.
+
+### §21.2 MODEL-SAMENESS FOR VMFL046 — **RULED `DIFFERENT`. THE CASE IS CAPPED AT `GATE REACHED`.**
+
+The reference is **inviscid quasi-1D Euler + Rankine–Hugoniot**; the solve is **viscous 2-D Navier–Stokes with wall heat transfer**. The argument for sameness is that they coincide on the centreline away from walls and shock, sharing γ = 1.4 and the conservation laws. **I do not accept it.**
+
+A viscous nozzle carries a **boundary-layer displacement thickness that reduces the EFFECTIVE AREA**, and the area–Mach relation is exactly what sets centreline Mach at a station. That is a **systematic model-form difference**, not a numerical one, and it does not vanish on the centreline — it enters through the area the core flow actually sees.
+
+> **SAMENESS OF MODEL IS NOT ASYMPTOTIC AGREEMENT OF SOLUTIONS.** If *"they coincide in this region"* counted as sameness, `§12.2` would collapse into the gate it is supposed to qualify — the gate already measures agreement; `§12.2` asks the prior question of whether the two objects are the same KIND of thing. **A viscous NS model and an inviscid Euler model are not the same model, however close their solutions run.**
+
+**Consequence, taken openly: VMFL046 is CAPPED AT `GATE REACHED` and cannot be a credential this round.** The route to a `PASS` candidate is an **inviscid (Euler) 2-D solve**, where the remaining difference is dimensional rather than model-form — that is a VMFL046-R2, not an amendment here.
+
+### §21.3 THE TWO CONTAMINATED SECONDARY TOLERANCES — retained, but **DEMOTE-ONLY**
+
+The lane disclosed against itself that building the case exposed coarse-smoke Mach numbers (max Mach ≈ 2.0, ~9 % pre-shock deviation at L1) **before** the secondary bands (GCI ≤ 15 %, Mach dev ≤ 10 %) were fixed. Its defence — 10 % is *looser* than the 9 % it saw, so they are not fitted-to-pass — is sound as far as it goes, and **it does not go far enough: a reader cannot distinguish "a-priori" from "convenient" once the numbers are seen.**
+
+**I cannot reset them cleanly either — I now know 9 % too.** So neither striking them (which LOOSENS the gate, the direction rule 5 forbids) nor re-choosing them is available. The ruling:
+
+> **The two secondary limbs are RETAINED but are DEMOTE-ONLY: they may turn a `PASS` into a `GATE FAIL`, and they may NEVER license a `PASS`.** A contaminated threshold is dangerous only when it can permit; one that can only demote has its contamination working AGAINST the case. **And because they are contaminated-loose, a secondary limb that does NOT fire is NOT evidence of quality** — that must be printed beside the verdict, or the silence will be read as a pass.
+
+The primary gate (`CONVERGING` triple on `M(0.9)` + shock location within 5 %) is a-priori-clean and carries the verdict alone.
+
+### §21.4 THE REMAINING ITEMS
+
+**Operating pressure 101.325 kPa and the frozen contour: RATIFIED** — the contour plus back-pressure reproduces analytical max Mach **2.197** and shock at **x = 1.250** a-priori, which is a real check and not a restatement. **First-order scheme: ACCEPTED AS DISCLOSED**, with its consequence named — it forces Roache order ≈ 1 and a grid-smeared shock, and that is already reflected in the a-priori band; a higher-order R2 is future work, not a defect concealed. **`§18`: CLEARED** — the reference is closed-form algebra with the independent path **PERFORMED, not asserted**: an independent Newton path reproducing `M(0.9) = 1.882125` **to the digit** (difference 0) and NACA-1135 published tables at **1.8817** (difference 4.3e-04). That is form (a) of `§18.2`, the strongest available.
+
+| amendment | v1.16 |
+|---|---|
+| clause added | **`§21`** (`§21.1`–`§21.4`) |
+| refined | `§20.2` — a plateau attaches **per quantity**; a quantity whose tolerance dwarfs the hunt needs none |
+| rulings made | model-sameness **`DIFFERENT`** → VMFL046 **capped at `GATE REACHED`**; secondaries **demote-only**; contour/pressure ratified; first-order accepted as disclosed |
+| gates | **0 moved** · bands | **0 moved** · caps | **0** · re-grades | **0** · register bytes | **0** |
+| lines whose number changed above this section | **0** |
