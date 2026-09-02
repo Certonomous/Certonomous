@@ -155,20 +155,19 @@ GRID_BUILDER = (Path(__file__).resolve().parents[2] / "cases" / "dafoam"
 SERVED_GRID = (Path(__file__).resolve().parents[2] / "verification" / "runs"
                / "actD_runs" / "A2_wing_grid")
 
-#: STAGE 8, IN ITS THIRD FORM FOR THIS ACT ALONE: THE REQUEST DECLINED THE
-#: STUDY. Sanaa's 1100Z order adds "dont run convergence study" to this
-#: act's registered prompt, so the inbox-promise sentence (still the
-#: shock-reflection act's, verbatim from her stage 8) would now promise work
-#: the request forbade. The honest statement is that the customer declined
-#: it, said as fact with the single-mesh consequence beside it; the pre-shoot
-#: gate's convergence limb accepts this declined form (third branch, with its
-#: own planted control) exactly because the platform's always-run rule is
-#: overridden here by the request itself. The cross-act assert against
-#: ``dmr_act.CONVERGENCE_LINE`` is retired with the promise: the two acts no
-#: longer publish the same stage-8 sentence, by her order.
-CONVERGENCE_DECLINED_LINE = ("The request declined the grid convergence "
-                             "study. Results stay relative to this single "
-                             "mesh.")
+#: STAGE 8, IN ITS FOURTH FORM FOR THIS ACT: HER INBOX ETA LINE, VERBATIM
+#: BUT FOR THE OPENING CAPITAL (Sanaa 1620Z, "dont argue": "insead
+#: ofthissentence say grid independence study in your inbox, ETA: 11 min").
+#: It supersedes, on every surface of this act, both the mesh-relativity
+#: sentence and the 1100Z request-declined sentence. The RECONCILED STORY:
+#: the request keeps the study out of THIS run (the prompt's own third
+#: clause, still stated on the assumptions table's request side), and the
+#: platform delivers the study separately to the inbox on her stated ETA.
+#: The 11 minute figure is OWNER-STATED, not measured on this box; the
+#: compute note records the provenance. The pre-shoot gate's convergence
+#: limb reads this as its promise branch (study named, inbox delivery).
+CONVERGENCE_ETA_LINE = ("Grid independence study in your inbox, "
+                        "ETA: 11 min.")
 
 #: The served copy, under the directory the control-room server actually reads.
 #: Named as the SERVED file rather than a generator's output, because
@@ -539,9 +538,9 @@ class AdjointWingAct(DemoAct):
             restatement=(f"Reduce the drag of a three dimensional wing at "
                          f"fixed lift {_actd.CL_TARGET:g}. Use "
                          f"{_actd.N_DV} design variables. Stop at 20 "
-                         f"minutes on the clock. Run no grid convergence "
-                         f"study. Grade the gradient before spending "
-                         f"anything on it."),
+                         f"minutes on the clock. Keep the grid convergence "
+                         f"study out of this run. Grade the gradient before "
+                         f"spending anything on it."),
             confidence=("High on the gradient. It is graded against the "
                         "flow solver itself before use. Lower on how far "
                         "the reduction can be pushed. That depends on the "
@@ -724,8 +723,8 @@ class AdjointWingAct(DemoAct):
                     # the adjoint and its grading are the lab's method and
                     # are claimed as such, never attributed to the request.
                     f"What the request fixes: drag minimised, lift held "
-                    f"fixed, a stop at 20 minutes, and no convergence "
-                    f"study.",
+                    f"fixed, a stop at 20 minutes, and the convergence "
+                    f"study kept out of this run.",
                     # "This lab supplies" is load-bearing wording: the
                     # pre-shoot gate's request/lab split limb matches it.
                     f"This lab supplies the method: a discrete adjoint of "
@@ -748,8 +747,8 @@ class AdjointWingAct(DemoAct):
                     # right to -- a bullet opening on a bare number reads as a
                     # fragment of the line above it.
                     f"One grid: {cells.on_screen()}.",
-                    f"Every number this act reports is relative to it.",
-                    CONVERGENCE_DECLINED_LINE,
+                    f"Every number here is relative to it.",
+                    CONVERGENCE_ETA_LINE,
                 ]),
             ],
             "results": ([
@@ -781,28 +780,31 @@ class AdjointWingAct(DemoAct):
                     f"Run on {record['mpi_ranks']} ranks.",
                     f"The check is self-consistency, not validation. No "
                     f"wind tunnel data exists for this wing.",
-                    # SANAA'S ROUTING BEAT, THROUGH THE LAB'S ONE POLICY.
-                    # `gpu_routing_lines` returns this act's own MECHANISM
-                    # sentence plus `GPU_ROUTING_POLICY` verbatim (her 0232Z
-                    # item 1 / 0330Z addendum: the policy is stated once and
-                    # never paraphrased per act; each act carries its OWN
-                    # unknowns count, never JF1's 40,000). The mechanism
-                    # keeps her routing sentence's content word for word and
-                    # adds the count: ADJOINT_STATES = 349,348 is this run's
-                    # own adjoint system size, read from the constant the
-                    # mission act established off the solver's echoed
-                    # configuration, never retyped.
-                    #
-                    # HONESTY UNCHANGED from her 0250Z override
-                    # (etc/sessions/2026-09-02T0250Z_sanaa_adjoint_gpu_beat_
-                    # override.md, "No we do not have a gpu act. Regardless
-                    # do as i said... dont argue"): NO CPU-vs-GPU adjoint
-                    # log exists on this box (docs/GPU_CAPABILITY_STATE.md
-                    # section 5; docs/dafoam/GPU_SCOPE_MEMO.md), the line is
-                    # forward-looking narration by her order, and every
-                    # measured figure in this act stays the real CPU-run
-                    # value. A gradient-consistency row is added only when a
-                    # real GPU log lands.
+                ]),
+                # HER GPU BEAT, ON THE RESEARCHER (1620Z: "The researcher
+                # should say: Cell number : .. : Primal solve: CPU, adjoint
+                # solve: GPU. Even though this is a small system, the
+                # adjoint is just one linear solve. Transfer is paid
+                # once"). Her placeholder is filled with the real figures,
+                # both stated so neither is mistaken for the other: the
+                # grid's cells and the adjoint system's 349,348 unknowns
+                # (imported, never retyped; the size the routing rule
+                # judges). Her two sentences ride verbatim; the lab's one
+                # policy is cited beside them through `gpu_routing_lines`,
+                # never paraphrased (the jet flap cites the same rule and
+                # DECLINES; this act routes).
+                #
+                # HONESTY UNCHANGED from her 0250Z override: NO CPU-vs-GPU
+                # adjoint log exists on this box (docs/GPU_CAPABILITY_STATE
+                # .md section 5; docs/dafoam/GPU_SCOPE_MEMO.md); the beat is
+                # forward-looking narration by her order, and every measured
+                # figure in this act stays the real CPU-run value.
+                ("researcher", [
+                    f"Cell number: {cells.value:,}. Adjoint unknowns: "
+                    f"{_actd.ADJOINT_STATES:,}.",
+                    f"Primal solve: CPU, adjoint solve: GPU.",
+                    f"Even though this is a small system, the adjoint is "
+                    f"just one linear solve. Transfer is paid once.",
                     *gpu_routing_lines(
                         f"The adjoint is one large linear system, "
                         f"{_actd.ADJOINT_STATES:,} unknowns solved once, "
@@ -868,11 +870,13 @@ class AdjointWingAct(DemoAct):
                 # decisions and are claimed on the lab's side of this table.
                 ["Stop rule, the run ends when the clock reaches it",
                  "20", "minutes", "the request"],
-                # HER 1100Z PROMPT ADDITION, honestly attributed: the study
-                # is absent because the request forbade it, and that is a
-                # REQUEST-side fact a viewer must be able to see.
-                ["Grid convergence study, declined by the request",
-                 "not run", "", "the request"],
+                # HER 1100Z PROMPT ADDITION, reconciled with her 1620Z ETA
+                # line (see CONVERGENCE_ETA_LINE): the request keeps the
+                # study out of THIS run, and the platform delivers it
+                # separately to the inbox on her stated ETA.
+                ["Grid convergence study, kept out of this run by the "
+                 "request", "in your inbox, ETA: 11 min", "",
+                 "the request"],
                 ["Gradient, a discrete adjoint of the flow solver, graded "
                  "against finite differences before it is spent",
                  "yes", "", "the lab"],
@@ -898,7 +902,10 @@ class AdjointWingAct(DemoAct):
                  f"{_actd_CHORD_TIP:.4f}", "m", "the lab"],
                 ["Starting incidence, before the trim",
                  f"{_actd_AOA0:g}", "degrees", "the lab"],
-                ["Grid, the SINGLE mesh this act's numbers are relative to",
+                # "every number here", not "this act's numbers": the word
+                # "act" is internal vocabulary and reaches no screen (her
+                # 1620Z sweep order).
+                ["Grid, the SINGLE mesh every number here is relative to",
                  f"{self.mesh_plan().cell_count.value}", "cells", "the lab"],
                 # SOLVER, CLOSURE AND NUMERICS AS TABLE ROWS. Sanaa's 0330Z
                 # addendum: "Explicit solver + turbulence model + numerics
@@ -1164,12 +1171,15 @@ class AdjointWingAct(DemoAct):
                 headers=["Reader", "Perturbation put in", "What came back"],
                 rows=rows, table_id="actd_planted"),
             conservation=None,
+            # The tail carried "grid independence not assessed in this act"
+            # twice over her 1620Z orders: the sentence is replaced by her
+            # ETA line, and the word "act" is internal vocabulary banned
+            # from every screen.
             grid_statement=(
                 f"One grid of "
                 f"{int(mesh['identity_assert']['measured_cells']):,} cells "
                 f"carries the wing, the drag and every iteration on screen. "
-                f"Results are relative to this mesh; grid independence not "
-                f"assessed in this act."))
+                + CONVERGENCE_ETA_LINE))
 
     # -- stage 9 ------------------------------------------------------------
     def results(self) -> Results:
@@ -1295,7 +1305,7 @@ class AdjointWingAct(DemoAct):
              f"sided faces against "
              f"{int(identity['candidates']['sdk_geometry']['measured']['triangles']):,} "
              f"triangles over the same points."),
-            CONVERGENCE_DECLINED_LINE,
+            CONVERGENCE_ETA_LINE,
         ]
 
         limitations = [
@@ -1438,19 +1448,17 @@ class AdjointWingAct(DemoAct):
         # becomes decoration.
         table_checked = self._check_assumption_constants()
 
-        # THE CROSS-ACT CONVERGENCE ASSERT IS RETIRED WITH THE PROMISE
-        # (Sanaa 1100Z: this act's request now declines the study, so this
-        # act no longer publishes the shock-reflection act's stage-8 promise
-        # sentence and the two screens are MEANT to differ). What is asserted
-        # instead: the declined sentence must attribute the decline to the
-        # REQUEST, because "the study was not run" without that attribution
-        # would read as the platform's own omission, and the always-run rule
-        # is overridden here only by the customer's own words.
-        if "request declined" not in CONVERGENCE_DECLINED_LINE:
+        # THE STAGE-8 SENTENCE IS HERS AND CANNOT DRIFT FROM HER FIGURE
+        # (1620Z, "dont argue"): the cross-act assert against the
+        # shock-reflection act was retired at her 1100Z prompt order, and
+        # what is asserted now is that the line still names the study and
+        # still carries her stated ETA, so an edit cannot quietly turn her
+        # figure into somebody's estimate.
+        if (not CONVERGENCE_ETA_LINE.startswith("Grid independence study")
+                or "ETA: 11 min" not in CONVERGENCE_ETA_LINE):
             raise DemoContractError(
-                "the declined-study sentence must attribute the decline to "
-                "the request; without that attribution it reads as the "
-                "platform's own omission")
+                "the stage-8 sentence is her inbox ETA line, verbatim but "
+                "for the opening capital; it has drifted")
 
         # The standing prohibitions, checked over the same strings.
         return {"strings_checked": checked,
@@ -1513,16 +1521,13 @@ class AdjointWingAct(DemoAct):
                 "The angle of attack contributes nothing by construction, "
                 "because lift is held as an equality constraint.",
             ],
-            methods=[
-                "Steady compressible flow, closed with a one-equation model "
-                "calibrated for attached aerofoil flow.",
-                "A reverse-mode discrete adjoint supplies the gradient, and it "
-                "is graded against finite differences of the same solver "
-                "before any of it is spent.",
-                f"Every intermediate design is solved at the same lift, so no "
-                f"row in the comparison is flown at a different angle to buy "
-                f"its drag.",
-            ],
+            # HER METHODS ROWS (1620Z), from the one shared builder, so this
+            # Report tab, the mission Report tab and the on-screen Methods
+            # table cannot drift apart; the builder's docstring records the
+            # two record-corrected claims.
+            methods=[f"{label}: {text}"
+                     for label, text in _actd.report_methods_rows(
+                         self._record())],
             results=[
                 # .6f, NOT .8f (her 0540Z consistency order): every other
                 # surface prints C_d at six decimals, and the start row
@@ -1576,22 +1581,21 @@ class AdjointWingAct(DemoAct):
                 f"{shares['shape']['pct_of_drop']:.1f} percent of the drop.",
                 "Twist on its own makes the drag slightly worse, which is not "
                 "the tidier answer, and it is the measured one.",
-                CONVERGENCE_DECLINED_LINE,
+                CONVERGENCE_ETA_LINE,
                 "The full report, with every figure, is in the Report tab.",
             ],
-            # STATES WHAT THIS RUN HAS. IT DOES NOT PROMISE ONE, AND IT NO
-            # LONGER SPEAKS THE SENTENCE SANAA REMOVED (1100Z: "remove No
-            # sealed certificate is attached to this run"). The contract
-            # refuses an empty certificate_state (silence would read as one
-            # having been issued), so the minimal honest alternative renders
-            # instead: certification rides the grid convergence study, and
-            # this request declined that study, so the absence is the
-            # customer's own choice stated as fact. No banned issuance
-            # phrasing ("certificate is issued" stays banned); no future
-            # certificate promised.
-            certificate_state=("Certification is offered with the grid "
-                               "convergence study, which this request "
-                               "declined."),
+            # NO LONGER SPEAKS THE SENTENCE SANAA REMOVED (1100Z: "remove No
+            # sealed certificate is attached to this run"), and now rides
+            # her 1620Z inbox story: the certificate travels with the grid
+            # independence study on her stated ETA, the same coupling her
+            # own stage-8 wording uses ("the band lands in your inbox with
+            # the certificate"). The contract refuses an empty
+            # certificate_state, and the banned issuance phrasings
+            # ("certificate is issued", "issued with the band") are not
+            # used.
+            certificate_state=("The certificate follows the grid "
+                               "independence study, in your inbox, "
+                               "ETA: 11 min."),
         )
 
     # -- which sequencer walks this act -------------------------------------

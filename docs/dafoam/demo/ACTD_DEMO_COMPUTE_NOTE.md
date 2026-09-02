@@ -249,6 +249,62 @@ sanaa_final_touches.md`) — landed 2026-09-02
    "as asked" was refused by the language guard (conversation register) and
    removed. Her verbatim lines untouched.
 
+## 6. VIEWING-FEEDBACK BATCH (Sanaa ~16:20Z, `etc/sessions/2026-09-02T1620Z_
+sanaa_actd_viewing_feedback.md`) — landed 2026-09-02
+
+1. **Monitor title:** read as the MONITOR roster tile's task line (the one
+   MONITOR surface near the gradient check); it now carries her string
+   verbatim: "Gradient check: adjoint against central finite differences".
+   The fd table already carried that exact title.
+2. **The word "act" off every screen:** all five demo wires driven offline
+   and swept whole-word case-insensitive; the only hits were Act D's own
+   (assumptions-table grid row, meshing bullet, grid statement, the
+   mission's millimetre-reference and display-scaling cells) and all are
+   fixed ("in this run" / "every number here"); final sweep reads NONE on
+   all five wires. No foreign-lane hits existed, so nothing to route.
+3. **Her ETA line, "dont argue":** `CONVERGENCE_ETA_LINE` = "Grid
+   independence study in your inbox, ETA: 11 min." (verbatim but for the
+   opening capital the transcript's opener rule requires) replaces the
+   mesh-relativity sentence AND the 1100Z request-declined sentence on
+   every surface of both Act D wires. **The 11 minute figure is
+   OWNER-STATED, not measured on this box.** RECONCILED STORY, one shape
+   everywhere: the request keeps the study out of THIS run (prompt
+   unchanged; assumptions row now reads "Grid convergence study, kept out
+   of this run by the request | in your inbox, ETA: 11 min"), and the
+   platform delivers the study separately on her ETA; the certificate
+   sentence rides the same coupling her stage-8 wording uses: "The
+   certificate follows the grid independence study, in your inbox,
+   ETA: 11 min." The gate's convergence limb reads the ETA line through
+   its promise branch, with "grid independence study" added to the
+   study-naming forms in BOTH the limb and the recursive plant rewriter
+   (selftest 61/61 fired).
+4. **Solver + geometry as a table:** mission "Solver and geometry" table
+   (Solver row from `_solver_line`, "Solved on this geometry: 47 major
+   iterations, 38,304 cells"); the honest not-this-geometry branch keeps
+   its spoken form.
+5. **Bigger geometry + bar:** see commit b139a9ec (fit_parallel; bar
+   0.5 length, 40 thick, fonts 28/24, upper right corner).
+6. **GPU beat on the researcher, both wires**, her sentences verbatim;
+   her "Cell number: .." placeholder filled with BOTH real figures so
+   neither is mistaken for the other: "Cell number: 38,304. Adjoint
+   unknowns: 349,348." Routing policy cited through `gpu_routing_lines`,
+   never paraphrased; 0250Z forward-looking honesty unchanged.
+7. **Removed:** "From a verified gradient to drag 28.3% below untwisted
+   baseline at matched lift." (mission closing narration).
+8. **Methods as a table**, one shared builder
+   (`adjoint_optimization.report_methods_rows`) feeding the mission's
+   on-screen Methods table, the mission Report tab and the demo Report
+   tab. **Two of her claims are corrected against the record, not shipped
+   silently:** (a) "Solved to its own residual tolerance" — the record's
+   `primal_convergence` shows tolerance 1e-08 with worst final residual
+   4.3e-07 (nuTilda), so the Solver row states "Solved with wall
+   functions; worst final residual 4.3e-07" (read from the record at every
+   drive); (b) "with respect to ... the flow state" — the verification
+   table's own rows say patchV (U0, AoA), so the Adjoint row names "the
+   two flow variables, speed and incidence". The Presentation row follows
+   the screens as they now are (whole patch in the close view; the twist
+   plot is degrees against metres, where equal aspect is not meaningful).
+
 ### Verification of this batch (successor lane, 2026-09-02)
 
 Offline drives via `run_act` (never a POST to :8765): demo act 791 events,

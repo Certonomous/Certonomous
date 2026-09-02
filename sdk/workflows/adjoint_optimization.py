@@ -250,6 +250,80 @@ SOURCE_TURBULENCE = "Spalart-Allmaras"
 SOURCE_OPENFOAM = "v2506"
 
 
+def report_methods_rows(record: dict,
+                        include_presentation: bool = True
+                        ) -> list[tuple[str, str]]:
+    """Her report Methods, row by row (Sanaa 1620Z: "make it a table").
+
+    One row per paragraph of her paste, used by the mission's on-screen
+    Methods table, the mission Report tab and the demo presentation's
+    Report tab, so no two surfaces can drift. TWO OF HER CLAIMS ARE
+    CORRECTED AGAINST THE RECORD rather than shipped silently, both
+    reported upward:
+
+    * "Solved to its own residual tolerance": the record's
+      ``primal_convergence`` shows tolerance 1e-08 with worst final
+      residual 4.3e-07 (nuTilda), so the row states the measured residual
+      instead of the tolerance claim.
+    * "with respect to ... the flow state": the verification table's own
+      rows say patchV (U0, AoA), so the row names the two flow variables,
+      speed and incidence.
+
+    The presentation row also follows the SCREENS AS THEY NOW ARE: her
+    1100Z pull-back order made the close view hold the whole patch (so
+    "the inboard 2.2 m of span" would overclaim), and the twist plot is
+    degrees against metres, where equal aspect is not a meaningful
+    property.
+    """
+    fd_spec = record.get("fd_verification_table") or {}
+    fd_step = float(fd_spec.get("step", FD_STEP))
+    fd_form = str(fd_spec.get("form", "central"))
+    res = (record.get("primal_convergence") or {}).get("final_residuals") \
+        or {}
+    worst_res = max(res.values()) if res else None
+    rows = [
+        ("Solver",
+         _solver_line().removeprefix("Solver: ").rstrip(".")
+         + (f". Solved with wall functions; worst final residual "
+            f"{worst_res:.1e}." if worst_res is not None
+            else ". Solved with wall functions.")),
+        ("Adjoint",
+         f"Discrete adjoint for drag and for lift with respect to surface "
+         f"control points, spanwise twist and the two flow variables, speed "
+         f"and incidence. The derivative is taken by {AD_MODE}-mode "
+         f"automatic differentiation of the discretized residuals, with the "
+         f"one-equation turbulence transport equation among the "
+         f"{ADJOINT_STATE_FIELDS} differentiated state fields rather than "
+         f"frozen; the wall distance feeding its source term is the one "
+         f"term not differentiated."),
+        ("Verification",
+         f"{fd_form.capitalize()} finite difference of the full primal at a "
+         f"single absolute step of {fd_step:g}, {FD_SOLVES} perturbation "
+         f"solves covering every one of the {N_DV} design variables. This "
+         f"case was graded at that one step and was not itself swept across "
+         f"decades; the step comes from a sweep run on the smaller case at "
+         f"the foot of the same ladder."),
+        ("Grading standard",
+         f"This lab's current gradient standard, applied uniformly across "
+         f"the whole ladder: pass at {GATE_PASS_PCT:g}% or better with no "
+         f"flagged component, conditional between {GATE_PASS_PCT:g} and "
+         f"{GATE_CONDITIONAL_PCT:g}%, fail above {GATE_CONDITIONAL_PCT:g}% "
+         f"or on any sign-flipped component whatever the aggregate says."),
+        ("Optimization",
+         f"Gradient-based optimization with lift equality-constrained to "
+         f"{CL_TARGET:g} and thickness, volume and edge constraints "
+         f"active."),
+    ]
+    if include_presentation:
+        rows.append(
+            ("Presentation",
+             f"Nothing on screen is scaled. The wing is shown twice, once "
+             f"whole and once on a closer viewing convention with the whole "
+             f"patch in frame. The section overlays are unscaled with equal "
+             f"aspect; the twist plot is degrees against span in metres."))
+    return rows
+
+
 def _solver_line() -> str:
     """The header's one-line statement of the source run's solver.
 
@@ -1286,8 +1360,27 @@ def main(request: str | None = None, params: dict | None = None,
             "method": _solver_line(),
             "basis": "the gradient is taken from the transpose of the "
                      "discretized flow Jacobian, not from a fitted surface"})
-    _narrate(script.engineer, _solver_line(),
-             *_geometry_lines(displays_solved_geometry, majors))
+    # HER TABLE ORDER (1620Z: "PUT THIS IN A table!"): the solver line and
+    # the solved-on-this-geometry line render as two rows, both from their
+    # existing builders so the table cannot drift from the header or the
+    # report. The honest branch (a surface that is NOT this geometry) keeps
+    # the spoken form: its whole point is a sentence the table shape would
+    # flatten.
+    if displays_solved_geometry:
+        emit_table(emit, script, role=_CE_ROLE,
+                   title="Solver and geometry",
+                   headers=("Item", "Value"),
+                   rows=[
+                       ["Solver",
+                        _solver_line().removeprefix("Solver: ").rstrip(".")],
+                       ["Solved on this geometry",
+                        f"{majors} major iterations, {MESH_CELLS:,} cells"],
+                   ],
+                   table_id="solver-adjoint-optimization")
+        _beat(_NARRATION_PACE_S)
+    else:
+        _narrate(script.engineer, _solver_line(),
+                 *_geometry_lines(displays_solved_geometry, majors))
     _narrate(script.engineer,
             (f"Objective: cut drag by at least {target_pct:g}% at fixed lift."
              if target_pct else "Objective: cut drag at fixed lift."),
@@ -1326,7 +1419,10 @@ def main(request: str | None = None, params: dict | None = None,
 
     # ---------------- Evidence: the gradient check ----------------
     _phase(script, EVIDENCE)
-    roster.set(MONITOR, "watching the verification table", "watching")
+    # HER MONITOR TITLE, verbatim (1620Z: "MAKE MONITOR say this instead").
+    roster.set(MONITOR,
+               "Gradient check: adjoint against central finite differences",
+               "watching")
     roster.set(CHIEF_ENGINEER, "grading the gradient", "working")
     # THE WORKER COUNT RISES WHERE THE TEAM STARTS WORKING (Sanaa 0540Z: "at
     # the moment the worker count appears after the team starts solving ...
@@ -1454,6 +1550,30 @@ def main(request: str | None = None, params: dict | None = None,
     # Researcher (owner, 2026-07-31). The roster already had the researcher
     # ruling here while the engineer spoke the verdict.
     _narrate(script.researcher, "Gradient gate passes.")
+    # HER GPU BEAT, ON THE RESEARCHER (1620Z: "The researcher should say:
+    # Cell number : .. : Primal solve: CPU, adjoint solve: GPU. Even though
+    # this is a small system, the adjoint is just one linear solve.
+    # Transfer is paid once"). Her "Cell number: .." placeholder is filled
+    # with the real figures, both stated so neither is mistaken for the
+    # other: the grid's 38,304 cells and the adjoint system's 349,348
+    # unknowns (the size the routing rule judges). Her two sentences ride
+    # verbatim; the lab's one routing policy is cited beside them, never
+    # paraphrased (demo_mode.GPU_ROUTING_POLICY). HONESTY UNCHANGED from
+    # her 0250Z override: no CPU-vs-GPU adjoint log exists on this box
+    # (docs/GPU_CAPABILITY_STATE.md section 5); the beat is forward-looking
+    # narration by her order and every measured figure in this run is a
+    # CPU value.
+    from .demo_mode import gpu_routing_lines as _gpu_lines
+    _narrate(script.researcher,
+            f"Cell number: {MESH_CELLS:,}. Adjoint unknowns: "
+            f"{ADJOINT_STATES:,}.",
+            f"Primal solve: CPU, adjoint solve: GPU.",
+            f"Even though this is a small system, the adjoint is just one "
+            f"linear solve. Transfer is paid once.",
+            *_gpu_lines(
+                f"The adjoint is one large linear system, "
+                f"{ADJOINT_STATES:,} unknowns solved once, transfer "
+                f"amortizes, so the gradient solve routes to the GPU."))
     roster.idle(CHIEF_RESEARCHER)
 
     # ---------------- Evidence: the gradient, on the wing ----------------
@@ -1672,7 +1792,9 @@ def main(request: str | None = None, params: dict | None = None,
                    title="What the gradient moved",
                    headers=("Quantity", "Value"),
                    rows=[
-                       ["Reference for every millimetre in this act",
+                       # "run", not "act": internal vocabulary reaches no
+                       # screen (her 1620Z sweep order); same fact.
+                       ["Reference for every millimetre in this run",
                         f"{_a2_shape.DISP_REFERENCE.capitalize()}, "
                         f"{reference_mm:.0f} mm of total motion at the point "
                         f"that moved most"],
@@ -1697,7 +1819,7 @@ def main(request: str | None = None, params: dict | None = None,
                         f"at any iteration and {widest / reference_n_mm:.2f} "
                         f"times the {reference_mm:.0f} mm reference. The same "
                         f"colour means the same millimetres in every frame"],
-                       ["Display scaling", "None anywhere in this act"],
+                       ["Display scaling", "None anywhere in this run"],
                    ],
                    table_id="shape-adjoint-optimization")
 
@@ -1976,19 +2098,16 @@ def main(request: str | None = None, params: dict | None = None,
         roster.set(CHIEF_ENGINEER, "reading the stopping condition", "working")
         _narrate(script.engineer, *stop_lines)
         roster.idle(CHIEF_ENGINEER)
-    # R6, in the owner's own words, verbatim but for the leading capital.
+    # HER 1620Z REPLACEMENT, verbatim figure, "dont argue": the R6
+    # mesh-relativity sentence and the 1100Z request-declined sentence are
+    # both superseded on this beat by the inbox ETA line (the word "act" is
+    # also banned from every screen by the same order). The single-grid
+    # honesty stays where it lives: the uncertainty channels, the
+    # limitations and the grid table. The 11 minute figure is owner-stated
+    # (etc/sessions/2026-09-02T1620Z_sanaa_actd_viewing_feedback.md), not
+    # measured on this box; the compute note records that.
     _narrate(script.numericist,
-            f"Results are relative to this mesh; grid independence not "
-            f"assessed in this act.")
-    # HER 1100Z PROMPT ADDITION ("dont run convergence study"): when the
-    # request itself declines the study, the act states the decline as the
-    # customer's own choice rather than promising a band the request forbade.
-    # Detected from the request's words, never assumed.
-    if request and re.search(r"\b(don.?t|do not|no)\b[^.?!]{0,50}"
-                             r"convergence\s+stud", request, re.I):
-        _narrate(script.numericist,
-                f"The request declined the grid convergence study. Results "
-                f"stay relative to this single mesh.")
+            f"Grid independence study in your inbox, ETA: 11 min.")
 
     # ITEM 7 (owner, 2026-07-31): the drag reduction was asked for as
     # "28.3% ± <numerical uncertainty>". The numerical channel this case
@@ -2134,6 +2253,19 @@ def main(request: str | None = None, params: dict | None = None,
     if emit:
         emit("agenda.updated", {"entries": _AGENDA})
 
+    # HER METHODS TABLE (1620Z: her report-methods text "make it a table"):
+    # one row per paragraph of her paste, built by `report_methods_rows` and
+    # used for BOTH the on-screen table and the Report tab rows, so the two
+    # cannot drift; the demo presentation reads the same builder.
+    methods_rows = report_methods_rows(record,
+                                       include_presentation=bool(shapes))
+    emit_table(emit, script, role=_CE_ROLE,
+               title="Methods",
+               headers=("Step", "Method"),
+               rows=[[label, text] for label, text in methods_rows],
+               table_id="methods-adjoint-optimization")
+    _beat(_NARRATION_PACE_S)
+
     report_doc = lab_report(
         title="Adjoint wing optimization",
         abstract=[
@@ -2168,45 +2300,11 @@ def main(request: str | None = None, params: dict | None = None,
             # production-configuration figure has not earned one.
             _runtime_line(),
         ],
-        methods=[
-            # The report's first method line is the header solver line, from
-            # the one builder, so the screen, the certificate and the report
-            # cannot carry three different answers to "what solved this".
-            _solver_line() + " Solved to its own residual tolerance with wall "
-                             "functions.",
-            f"Discrete adjoint for drag and for lift with respect to surface "
-            f"control points, spanwise twist and the flow state. The "
-            f"derivative is taken by {AD_MODE}-mode automatic differentiation "
-            f"of the discretized residuals, with the one-equation turbulence "
-            f"transport equation among the {ADJOINT_STATE_FIELDS} "
-            f"differentiated state fields rather than frozen; the wall "
-            f"distance feeding its source term is the one term not "
-            f"differentiated.",
-            f"Verification by {fd_form} finite difference of the full primal "
-            f"at a single absolute step of {fd_step:g}, {FD_SOLVES} "
-            f"perturbation solves covering every one of the {N_DV} design "
-            f"variables. This case was graded at that one step and was not "
-            f"itself swept across decades; the step comes from a sweep run on "
-            f"the smaller case at the foot of the same ladder.",
-            f"Graded against this lab's current gradient standard, applied "
-            f"uniformly across the whole ladder: pass at {GATE_PASS_PCT:g}% "
-            f"or better with no flagged component, conditional between "
-            f"{GATE_PASS_PCT:g} and {GATE_CONDITIONAL_PCT:g}%, fail above "
-            f"{GATE_CONDITIONAL_PCT:g}% or on any sign-flipped component "
-            f"whatever the aggregate says.",
-            f"Gradient-based optimization with lift equality-constrained to "
-            f"{CL_TARGET:g} and thickness, volume and edge constraints "
-            f"active.",
-        ] + ([
-            # The geometry is presented, never explained (owner, 2026-07-31):
-            # no line here says where a surface came from or how it was
-            # produced. What stays is the one thing a viewer needs in order to
-            # read the pictures, which is that nothing is scaled.
-            f"Nothing on screen is scaled. The wing is shown twice, once "
-            f"whole and once on the inboard {_a2_shape.CLOSEUP_SPAN_M:g} m of "
-            f"span on a closer viewing convention, and both section figures "
-            f"are unscaled with equal aspect.",
-        ] if shapes else []),
+        # ONE SOURCE FOR THE METHODS (her 1620Z table order): the same rows
+        # the on-screen Methods table renders, labelled, so the Report tab
+        # and the table cannot drift apart. The two record-corrected claims
+        # and the presentation row are documented at the rows' construction.
+        methods=[f"{label}: {text}" for label, text in methods_rows],
         # One short envelope each, and no ``reason``: the memo prints the
         # verdict reason under every result, so carrying it here repeated the
         # same sentence three times (owner, 2026-07-31). The tier badge stays.
@@ -2315,8 +2413,9 @@ def main(request: str | None = None, params: dict | None = None,
                 "No certificate could be issued for this run.",
                 "The result above stands on the transcript and the report.")
 
-    _narrate(script.engineer,
-            f"From a verified gradient to drag {_headline(reduction)}.")
+    # The closing "From a verified gradient to drag ..." line is REMOVED on
+    # her 1620Z order ("remove the line"); the verdict beat above already
+    # states the same fact with its tier.
     script.save(out / "transcript.txt")
     roster.all_idle()
     print("Artifacts in", out, f"({elapsed:.2f}s)")
