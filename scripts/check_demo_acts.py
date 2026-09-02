@@ -665,6 +665,46 @@ def _limb_geometry(events, refusal, act) -> list[str]:
     return problems
 
 
+def _limb_no_tessellation(events, refusal, act) -> list[str]:
+    """The tessellated STL canvas NEVER paints on a ParaView act.
+
+    Sanaa, three escalating orders: 04:55Z "make sure ALL runs show the
+    paraview no tesselation pls"; 06:25Z "dont show the first geometry (it
+    shows the tesellation)"; 09:30Z (relayed) the original tessellation plot
+    must not appear AT ALL -- not first-then-replaced, not ever. The page's
+    canvas draws ONLY on a ``geometry.ready`` event (control_room.html
+    ``loadGeometry``), so the enforceable act-side half is: a stream that
+    serves a rendered geometry panel (``mesh.panel`` with panel "geometry")
+    must carry ZERO ``geometry.ready`` events, at any index. One such event
+    is one window in which the triangle canvas can win the viewport.
+
+    Graded from the STREAM first so the selftest (which grades with
+    ``act=None``) exercises the same rule the acts are held to; the act's own
+    ``rendered_panels`` declaration, where available, additionally makes an
+    ABSENT panel loud rather than letting a missing render read as "nothing
+    to check".
+    """
+    panel_at = [i for i, e in enumerate(events)
+                if e.get("event") == "mesh.panel"
+                and (e.get("payload") or {}).get("panel") == "geometry"]
+    tess_at = [i for i, e in enumerate(events)
+               if e.get("event") == "geometry.ready"]
+    declares = "geometry" in tuple(getattr(act, "rendered_panels", ()) or ())
+    problems = []
+    if declares and not panel_at:
+        problems.append(
+            "the act declares a rendered geometry panel and none was "
+            "published, so the page has no ParaView surface to paint and "
+            "the viewport would sit empty or fall back")
+    if (panel_at or declares) and tess_at:
+        problems.append(
+            f"a tessellation-source event (geometry.ready) is published at "
+            f"index {tess_at[0]} of a stream that serves a rendered geometry "
+            f"panel; the client STL canvas must never paint on this act "
+            f"(Sanaa 09:30Z: not first-then-replaced, not ever)")
+    return problems
+
+
 def _limb_stages(events, refusal, act) -> list[str]:
     from workflows.demo_mode import STAGES
 
@@ -1061,6 +1101,18 @@ CHECKLIST: tuple[tuple, ...] = (
      "that the browser actually painted the surface. No WebGL, no viewport, no "
      "paint here -- a human watches the panel fill.",
      _limb_geometry),
+    ("no_tessellation", "Tessellated canvas never paints on a ParaView act",
+     "PARTIALLY ENFORCED",
+     "a stream that serves a rendered geometry panel carries zero "
+     "geometry.ready events at any index, so the page's triangle canvas is "
+     "never given a surface to draw; an act declaring a rendered geometry "
+     "panel that publishes none is refused rather than read as clean",
+     "the PRE-MISSION upload preview: before any act event arrives, "
+     "control_room.html's own upload path may paint the plain surface view, "
+     "and no act stream can forbid what the page does before the act "
+     "exists. That window is page-owned (loadGeometry / paraviewOwned) and "
+     "needs a display-lane fix plus an eye on the recording.",
+     _limb_no_tessellation),
     ("stages", "Header stages advance and match what is on screen",
      "PARTIALLY ENFORCED",
      "the nine stages are published once each in order, and every header "
@@ -1446,6 +1498,28 @@ def _plant_sequential_sweep(events):
     return out
 
 
+def _plant_tessellation(events):
+    """Plant the banned mix: a rendered geometry panel AND a geometry.ready.
+
+    The host act may serve no rendered panel at all, so one is planted first
+    where absent -- the limb's rule is about the MIX, and a plant that could
+    not create the mix on an old-path act would be invisible there.
+    """
+    out = copy.deepcopy(events)
+    has_panel = any(e.get("event") == "mesh.panel"
+                    and (e.get("payload") or {}).get("panel") == "geometry"
+                    for e in out)
+    if not has_panel:
+        out.insert(0, {"sequence": 0, "event": "mesh.panel",
+                       "payload": {"panel": "geometry", "stage": "geometry",
+                                   "url": "/api/plot/planted/surface.png",
+                                   "label": "planted body"}})
+    out.insert(1, {"sequence": 0, "event": "geometry.ready",
+                   "payload": {"stage": "geometry", "label": "planted body",
+                               "url": "/api/geometry?name=planted.stl"}})
+    return out
+
+
 def _plant_no_cost(events):
     out = copy.deepcopy(events)
     for e in out:
@@ -1492,6 +1566,8 @@ STRUCTURAL_PLANTS: tuple[tuple[str, str, object], ...] = (
     ("stl", "the surface is announced after the walk has started",
      _plant_move_geometry_late),
     ("stl", "no surface is announced at all", _plant_drop_surface),
+    ("no_tessellation", "a geometry.ready rides a stream that serves a "
+                        "rendered geometry panel", _plant_tessellation),
     ("stages", "two stages swap places in the header",
      _plant_scramble_stages),
     ("discussion", "one voice speaks instead of a discussion",
