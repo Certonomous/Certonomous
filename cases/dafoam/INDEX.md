@@ -450,3 +450,97 @@ IDWarp image/md5 row, which had already drifted to `:200` before today and to `:
 landed; after these five rows it sits at **`:207`**. The drift is not created here, the anchor's
 content is named so it can be re-found, and **no citing document was edited to chase it** — those are
 their owners' files.
+
+---
+
+## Addendum 2026-09-02 (dafoam lane) — `curriculum_SO3` AND `curriculum_SO3aR2` ARE INDEXED: **A `PASS` HAD NO `RESULTS.md`, NO INDEX ROW AND NO `README.md` §3 ROW, AND A READER OF THE STANDING VERDICT TABLE WOULD HAVE CONCLUDED THE INCOMPRESSIBLE MULTIPOINT WAS NEVER DONE**
+
+**Nothing above this line was edited.** No existing row, table, column, heading or section was
+altered, moved or renamed. **No frozen `PREREGISTRATION.md`, no grade JSON, no grader and no
+`docs/LAB_STATE.md` was touched, and ZERO compute was spent** — every figure below is read from an
+artefact already on disk, and the verdict column is a **citation, never a summary**.
+
+**Why this addendum exists.** `CURRICULUM-SO3` ran to the end on 2026-09-01, graded **`PASS`** on
+both rows, and had a `docs/COST_CALIBRATION.md` row from 04:18Z the same morning — while
+`docs/dafoam/README.md` contained **zero occurrences of `SO3` or `SO-3` anywhere**, `cases/dafoam/INDEX.md`
+carried no row for it, and no `RESULTS.md` existed. That is `docs/dafoam/GRADING_CHAIN.md` bullet 9
+in the live for the third time: *nothing links a graded verdict to `README.md` §3 or to this file*,
+and the hop is a person reading a page. **The companion edits to this addendum are
+`cases/dafoam/ladder-a/A1/curriculum_SO3/RESULTS.md` (new) and four rows appended to
+`docs/dafoam/README.md` §3 after the D19M rows, which are untouched to the byte.**
+
+**Both items are graded, and their two rows are recorded beside each other, never one in place of the
+other** (`FAMILY_SUPERVISION_GUIDELINES.md` R11). The columns are the 2026-08-31 backfill's five, in
+its order. **CAUSE CLASS** is Sanaa's GRADING TRANSPARENCY ORDER of 2026-08-31
+(`etc/sessions/2026-08-31T2055Z_sanaa_grading_transparency_order.md`, `4116024a`): one of exactly
+eight, and **a `PASS` carries none**.
+
+| new directory | pair files | run tree (outside the repo) | verdict of record, with the artefact it is read from | CAUSE CLASS |
+|---|---|---|---|---|
+| `ladder-a/A1/curriculum_SO3aR2/` | `PREREGISTRATION.md` (frozen `181fd627`, arming `ffae7724`), `QUEUE_ENTRY_DRAFT.json`, the nine instruments; **no `RESULTS.md` — none exists on disk or at HEAD** | `/home/ubuntu/certonomous-runs/CURRICULUM-SO3aR2-a1-naca0012-alpha-multipoint-gradient/` (five arms `MESH X-S F-S X-P F-P`, all `rc=0`, `chain=COMPLETE declared=5 executed=5`) | **`GATE FAIL`**, rows `{"SHIPPED": "GATE FAIL", "PATCHED": "PASS"}` — `SO3aR2_grade_20260831T230221Z.json` → `verdict`, `rows`; the `.out` line reads `VERDICT GATE FAIL  rows={'SHIPPED': 'GATE FAIL', 'PATCHED': 'PASS'}  declared=5 executed=5`. SHIPPED `G5J` aggregate **31.498325840045588 %** against a 5.0 % band, **2 of 4 pairs `GATE FAIL`**, worst **47.18912652536565 %** (`shape[6]`), and `G5C` `GATE FAIL` at all three scenarios (worst 36.8983 % at point0). PATCHED `G5J` `PASS`, aggregate **2.6779490823450605 %**, 4 of 4 pairs — **and that number sits INSIDE the 2.5–5 % harness-sound floor of `VERIFICATION_CHARTER.md` §7 step 4, so it may never be described as a sub-percent verification**, and it was **measured at iteration 0 only**. Worst shipped-vs-patched adjoint divergence **118.72578844249743 %**. **14.318 core-min** against **22.1** registered (ratio **0.648×**), \$0.01224 **derived, not measured** — `docs/COST_CALIBRATION.md` row `C-20260831T230621.613076Z-d360c175` | **PHYSICS-FAIL — AGAINST THE SHIPPED TOOLCHAIN.** The SHIPPED row's multipoint objective gradient missed its registered band by more than 6× on this case with every arm `rc=0`, the mesh gate `PASS`, the toolchain gate `PASS` and the trivial-baseline control `PASS` (0 of 4 in band at `h = 1e-8`) — **the instrument is shown able to go red and the failing quantity is the gradient itself.** The class matches `GRADING_CHAIN.md`'s existing shipped-row rows for this family (SO-1aR); it is stated rather than carried, since that page has no SO-3aR2 row, and is the supervisor's to ratify |
+| `ladder-a/A1/curriculum_SO3/` | `PREREGISTRATION.md` (frozen `7f7d0fb1`, through Amendment 1 `b229f0e2` and Amendment 2 `573aae08`/`ab27dff7`, all **before first compute**), **`RESULTS.md` (landed by this addendum's companion commit)**, `QUEUE_ENTRY_DRAFT.json`, `reference/REFERENCE_EVIDENCE_MANIFEST.md`, the nine instruments | `/home/ubuntu/certonomous-runs/CURRICULUM-SO3-a1-naca0012-alpha-multipoint-optimisation/` (seven arms `MESH O-S XE-S FE-S O-P XE-P FE-P`, all `rc=0`, `chain=COMPLETE declared=7 executed=7`, `grader_rc=0`) | **`PASS`**, rows `{"SHIPPED": "PASS", "PATCHED": "PASS"}` — `SO3_grade_20260901T040709Z.json` → `verdict`, `rows`; `.out` reads `VERDICT PASS  rows={'SHIPPED': 'PASS', 'PATCHED': 'PASS'}  declared=7 executed=7`; `SO3_STOP_MARKER.json` carries the same pair with `verdict_source: "COPIED FROM THE COMPARATOR ARTEFACT"`. Both optimisers printed **`Optimal Solution Found.`** (12 majors SHIPPED, 10 PATCHED, `max_iter` 50). Endpoint FD **at the final design point**: `G5J` aggregate **0.08594454384641227 %** / **0.06890419283803313 %**, worst pair 0.18906 % / 0.25332 %, 4 of 4 `PASS` on both rows. **Weighted drag −16.155328072130235 % / −16.15513273980908 % — AND THE LIFT COLLAPSE IS INSEPARABLE FROM THOSE FIGURES: `CL` is UNCONSTRAINED by registration and went [0.31190, 0.49877, 0.66398] → [−0.05737, 0.15241, 0.36012] (SHIPPED) and → [−0.05676, 0.15320, 0.36119] (PATCHED), NEGATIVE at point 0 on both rows.** The artefact's own `forbidden_readings` bars quoting the drag reduction without the `CL` pair beside it. **28.900 core-min** against **228.59** registered (ratio **0.126×**), \$0.02471 **derived, not measured** — `docs/COST_CALIBRATION.md` row `C-20260901T041827.958337Z-26909c1d` | — (**`PASS` carries no class**). But the `PASS` is **narrower than the word**: `G-PROV` refuses to publish it without the travelling chain, and every link — `CURRICULUM-SO3aR2` and `CURRICULUM-SO1a` — is **`GATE FAIL` at item level with a `GATE FAIL` SHIPPED row**. **Both endpoint aggregates read `BELOW_HARNESS_FLOOR`** — *"a number below 2.5 % on this stack is a claim about the harness … not a tighter verification"* — reported, never gated |
+
+### ⚠ FOUR THINGS THIS BACKFILL FOUND AND DID NOT PAPER OVER
+
+**1. SO-3aR2 STILL HAS NO `RESULTS.md`, AND THIS LANE DID NOT MANUFACTURE ONE.** Its verdict of record
+exists only in the grade artefact outside git and in the `COST_CALIBRATION` row. **This lane's brief
+covered SO-3's `RESULTS.md`**; writing a first results record for an item it was not dispatched to
+write up is a supervisor's call and not a lane's — the precedent is the 2026-08-31 backfill's own
+refusal for SO-1bR, and `curriculum_AVWC/RESULTS.md` §10 before it. **The row above is written from
+the grade artefact, which is the authority.**
+
+**2. SO-3's registered `P6` PREDICTED THE SHIPPED ROW WOULD `GATE FAIL`, AND IT PASSED — and `P8`
+MISSED ON BOTH F ARMS.** `P8` registered *"at least one evaluation fails per F arm"*; the census
+measured **34 declared, 34 succeeded, 0 failed** on both. **The multipoint evaluation pathology the
+registration expected did not reproduce**, and the census is shown to have been looking rather than
+blind: `R5_read_F` is in the birth register as born against the real code path, and the F-plant
+control read **112 planted values** back off disk at a worst residual of 1.79e-16. **Both misses are
+recorded as misses in `curriculum_SO3/RESULTS.md` §8 and neither is dressed up.**
+
+**3. A TOKEN-NAMING DEFECT IN SO-3's FROZEN COMPARATOR, DISCLOSED AND NOT REPAIRED.**
+`P2_CL_at_alpha0_in_band` reads `MISS`, while the statement its name makes — *baseline `CL` at
+α₀ = 5.139° lies in [0.45, 0.55]* — **is TRUE of the undeformed baseline**, which measured
+**0.49876526085592926**. `so3_grade.py:2512-2519` reads the **X arm's own** scenario-1 `CL`, and in
+this item the X arms run **at the optimum** by registration, where that value is 0.15320 (PATCHED) /
+0.15241 (SHIPPED). **Neither reading may be quoted against the other**: nobody may say the baseline
+`CL` was out of band, and nobody may say `P2` really hit. The comparator is md5-pinned and the item
+has had first compute, so **this is disclosed, never repaired.** Same shape as the `P5` naming defect
+the pre-registration declared about itself at §13.2.
+
+**4. QUEUE ENTRIES: SO-3 HAS ONE, SO-3aR2 HAS NONE, AND NEITHER HAS A `GRADING_CHAIN.md` ROW.**
+`verification/queue/dafoam/launched/SO3_chain.json` exists and carries `prereg_commit`
+`ab27dff7542a56d47be55435c48e1e00a3eb9f09` — **the Amendment 2 commit, not the original freeze**, and
+its own `_prereg_commit_WHY_NOT_THE_ADD_COMMIT` field explains why in terms: against `7f7d0fb1`'s tree
+`so3_grade.py` hashes to the **struck** `d786e10d…`, so the family template's prescribed derivation
+would have pinned a tree whose grader is not the grader that ran. Its `cost_core_min_estimate` is
+**228.59**, matching this addendum's registered figure. **There is no queue entry for SO-3aR2**, in
+`launched/`, `held/` or `refused/` — consistent with the 2026-08-31 addendum above, which recorded the
+same absence for SO-3a, SO-3aR and SO-2MR. `docs/dafoam/GRADING_CHAIN.md` carries **no row for either
+item** and is the supervisor's page: it was **not edited here**. **Stated so the count is known;
+nothing is filed here.**
+
+**5. FOUR UNTRACKED FILES SIT IN `curriculum_SO3/` AND WERE DELIBERATELY NOT SWEPT.**
+`STATUS.queue.SO3_chain` and `launcher.queue.out` (the queue runner's own launch status and wrapper
+output, written to the case directory by the entry's `_launch` block), `so3_xf_drive_evidence.txt`,
+and the two `reference/*.log` files excluded by `.gitignore:270` (`cases/dafoam/**/*.log`) —
+Amendment 1's residual **R8**, still open. **This lane deleted nothing and committed nothing that is
+not its own**: landing another lane's uncommitted work under cover of one's own path is the L-423
+failure, and the `.gitignore` question is above a lane. **An unexpected file is inspected, never
+reverted.**
+
+### WHAT THIS ADDENDUM DOES NOT DO
+
+It moves no gate, band, threshold, cap or label; it re-grades nothing; it runs nothing; it adds no
+number that is not already written in a cited artefact; it edits no frozen document, no grader, no
+pre-registration and no `docs/LAB_STATE.md`; it files nothing outside this box.
+**Zero solver core-minutes; zero GPU-hours.**
+
+**Placement, disclosed rather than left to be inferred:** the four `README.md` §3 rows are appended
+**after** the D19M rows, at the foot of the A1 block, keeping SO-3aR2 immediately before SO-3 in
+chain order. The D19 family's own grouping is left intact and not interleaved, so **no existing row
+moved**; the SO-3aR2/SO-3 pair is chronologically earlier than D19O and D19M and is placed by chain
+adjacency rather than by timestamp. **Line-number drift in `docs/dafoam/README.md` continues:** the
+IDWarp image/md5 row cited at `:153`/`:154` by four documents, and last recorded at `:207`, now sits
+at **`:211`** — measured after this edit, not predicted from a row count. The drift is not created
+here, the anchor's content is named so it can be re-found, and **no citing document was edited to
+chase it** — those are their owners' files.
