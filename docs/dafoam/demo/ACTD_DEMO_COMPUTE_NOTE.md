@@ -117,38 +117,43 @@ verbatim before resuming).
   value, so the canonical pick must be **0.029620 (history)** unless Sanaa
   rules otherwise.
 
-### Remaining (designs verified against the code, nothing edited yet)
+### Remaining -> ALL LANDED 2026-09-02 (successor lane); status per item
 
-1. **Sync (item 1), mission act** `sdk/workflows/adjoint_optimization.py`:
-   measured on the filmed events (m-8b8899f9ba9f): 48+48 wing frames burst
-   in 3 s (`_FRAME_PACE_S` = 60 ms via CERTONOMOUS_SWEEP_PACE_MS) so the
-   page's paced reveal drains after the act ends; `workers=4` appears in ONE
-   roster.update (set_workers at :1442, cleared :1485). Fix: set_workers(
-   RANKS,...) at the gradient-grading beat (~:1203) through the end of the
-   inboard pass (~:1638); thin the shown frames to iters 0,6,...,42,47 with
-   a ~1.2 s beat so emission paces the display. Demo act already carries
-   worker_census on stage.begin (meshing/feasibility/solving = 4).
-2. **Item 2 publication:** mission `show()` (:903) currently emits canvas
-   JSON tessellations (`field.ready`/`geometry.ready` -> triangle canvas);
-   switch to `mesh.panel` payloads with the pre-rendered PNGs copied into
-   the mission out dir, url `/api/plot/<out.name>/<png>` --
-   `loadMeshPanel` (control_room.html:3029) accepts url/label/caption and
-   null counts, and sets paraviewOwned. Demo act: publish wing-frame panels
-   at the matching majors inside `ActDSequencer._stage_solving`'s schedule
-   loop (adjoint_act.py ~:1660), payload label per iteration, caption
-   verbatim. CAPTION COLLISION to flag: her wall-patch caption vs her
-   "keep exactly as is" MESH_CAPTION ("chosen for speed; ...") on mission
-   frames -- proposal: MESH_CAPTION stays the caption, wall-patch sentence
-   spoken once by the numericist; needs her eye.
-3. **Item 3 volume cut:** `scripts/render_thermal_paraview.py` mesh_panels
-   REFUSES when slice polygons != cell count (built for one-cell-thick
-   meshes; the wing sym-plane slice gives ~1,672 polys vs 38,304 cells).
-   Insert (never replace) `--slice-at FLOAT` + `--expect-slice-polys INT`;
-   sym patch holds 1,672 faces. Render `A2_wing_grid_volume_cut.png`,
-   caption verbatim "the volume mesh at the symmetry plane, wall layers
-   resolved."; declare "volume_cut" in rendered_panels and publish it from
-   an ActDSequencer._stage_meshing override (the generic `_panel` path
-   already resolves `{case}_volume_cut.png`).
+1. **Sync (item 1), mission act: DONE.** `set_workers(RANKS, ...)` now
+   rises at the gradient-grading beat (EVIDENCE phase open) and clears
+   after the inboard pass, so the count spans the whole working stretch;
+   the shown wing frames are thinned to `SHOWN_FRAME_ITERS`
+   (0,6,...,42,47, the strided set the renderer bakes) at
+   `_WING_FRAME_PACE_S` (1.2 s, `CERTONOMOUS_WING_FRAME_PACE_MS` or an
+   explicit `CERTONOMOUS_SWEEP_PACE_MS` overrides for stills). Every
+   iteration still feeds the drag trace; only 3D frames are strided.
+2. **Item 2 publication: DONE, both acts.** Mission `show()` publishes
+   `mesh.panel` payloads (url/label/caption, no counts) from the
+   pre-rendered wall-patch PNGs copied beside the act's own out dir; the
+   tessellation export (`write_surfaces` call, `field.ready`/
+   `geometry.ready` wing views) is retired per her 0540Z. Demo act
+   publishes the same 20 frames from `ActDSequencer._wing_panel`: baseline
+   + gradient at stage open, each strided major AT its major inside the
+   schedule loop, the inboard pass paced before solve.end; sidecar
+   `wall_faces` asserted against the identity record (1,008) at every
+   publish. CAPTION COLLISION resolved the other way round from the
+   predecessor's proposal, per the successor brief ("pick the resolution
+   that keeps her caption verbatim"): the frames carry HER wall-patch
+   caption verbatim from the sidecars ("the solver's wall patch, 1,008
+   faces, drawn face by face."), and MESH_CAPTION (kept byte-identical,
+   her item 6) no longer rides wing frames -- it still reaches the screen
+   on the received-surface beat and the R6 disclosure line. FLAG TO HER:
+   this resolution needs her eye on the next viewing.
+   Inboard frames re-rendered and LOOKED at (parallel scale 0.46 x reach,
+   focal shifted 0.22 x reach screen-down); commit 2630ea45.
+3. **Item 3 volume cut: DONE.** `volume_cut_panel` inserted into
+   `scripts/render_thermal_paraview.py` (`--slice-at` +
+   `--expect-slice-polys`, both required and asserted; mesh_panels
+   untouched); measured z=0.01 cuts exactly the sym patch's 1,672 adjacent
+   cells. `A2_wing_grid_volume_cut.png` rendered (ink 0.0872), inspected
+   (root section, wall layers clustering off the surface), declared in
+   `rendered_panels` and published by `ActDSequencer._stage_meshing`
+   through `_publish_panel`, her caption verbatim; commit 523df4f4.
 4. **Item 4 totals: DONE, on her 0745Z ruling (2026-09-02).** The
    predecessor's 240.1/60.0 template and its refusal to print 80
    core-minutes are SUPERSEDED by the 0745Z capture (see §1's authority
@@ -164,13 +169,36 @@ verbatim before resuming).
    no page accessor read the old key -- measured on control_room.html).
    `Results.cost_actual` stays the measured 240.1 for the record and the
    calibration ledger; COST_OPT 240.4 (run accounting) stays internal.
-5. **Cd canonicalization:** one helper reading history baseline; use it in
-   the decomposition table row (adjoint_act ~:1105), closing rows .8f ->
-   .6f (~:1344-1363), mission :1616 already history. Report the pick.
-6. **GPU routing TODO:** `demo_mode.gpu_routing_lines` HAS landed; replace
-   the local sentence in adjoint_act gates beat with
-   gpu_routing_lines(mechanism) where the mechanism carries THIS act's real
-   system size `_actd.ADJOINT_STATES` = **349,348** unknowns (read, never
-   typed), keeping her sentence's content.
-7. **Item 6 sentence shortening:** not started; longest offenders are the
-   mission `_narrate` lines and adjoint_act assumption/results bullets.
+5. **Cd canonicalization: DONE.** `adjoint_optimization.
+   canonical_baseline_cd()` reads the history baseline (the pick:
+   **0.029620**, history; reason in the helper's docstring) and every
+   baseline-C_d cell renders through it: demo act results table,
+   decomposition table row, closing start row (closing rows .8f -> .6f,
+   trap row included), mission decomposition table row (:1616 was already
+   history). The decomposition grader's own 0.029621 stays in its record
+   and here.
+6. **GPU routing: DONE.** adjoint_act gates beat now speaks
+   `gpu_routing_lines(mechanism)` -- the mechanism carries this act's own
+   `ADJOINT_STATES` = 349,348 unknowns (imported, never retyped), her
+   routing sentence's content kept, `GPU_ROUTING_POLICY` verbatim beside
+   it. The 0250Z honesty block (no CPU-vs-GPU log on this box;
+   forward-looking narration by her order) is preserved in the comment.
+7. **Item 6 sentence shortening: DONE for the flagged offenders** --
+   adjoint_act restatement/confidence, assumption bullets (researcher +
+   numericist), gates bullets, feasibility verdict; mission act sections
+   intro, twist-plot beat, decomposition narration, zero-AoA caveat. Her
+   verbatim lines untouched; "This lab supplies" kept verbatim because the
+   pre-shoot gate's request/lab split limb matches that exact phrase
+   (measured: rewording it to "The lab supplies" turned the limb red).
+
+### Verification of this batch (successor lane, 2026-09-02)
+
+Offline drives via `run_act` (never a POST to :8765): demo act 791 events,
+24 mesh.panels (geometry, mesh, mesh_zoom, volume_cut, 20 wing frames),
+zero em/en dashes, zero double hyphens, zero currency, no 240 compute
+mention (the two classes of residual "240" hits are per-iteration display
+clock coordinates, e.g. elapsed_s 240.362 = 4:00 on the 20-minute clock,
+and residual-digit coincidences -- data, not compute); mission act rc 0,
+23 mesh.panels, zero field.ready/geometry.ready wing views, workers span
+measured across the working stretch. `scripts/check_demo_acts.py`: 5 of 5
+can start, 0 checklist lines failed.

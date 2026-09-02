@@ -108,7 +108,8 @@ from .demo_mode import (Assumption, DemoAct, DemoContractError, ElapsedClock,
                         GeometryMatch, Measured, MeshPlan, Prompt, Restatement,
                         Closing, Results, RunRecord, SeriesSpec, SolveReplay,
                         Table,
-                        check_demo_language, core_minutes, register_act)
+                        check_demo_language, core_minutes, gpu_routing_lines,
+                        register_act)
 from .demo_sequencer import Sequencer
 
 __all__ = ["AdjointWingAct", "ActDSequencer", "ACT", "drive"]
@@ -456,7 +457,15 @@ class AdjointWingAct(DemoAct):
     #: tesselation"): with it declared, the sequencer serves the ParaView
     #: body render and the page's client-side tessellated STL canvas never
     #: runs for this act.
-    rendered_panels = ("geometry", "mesh", "mesh_zoom")
+    #: ``volume_cut`` joined on her 0540Z item 5 ("the symmetry-plane slice
+    #: of the 38,304-cell volume mesh showing the wall layers growing off
+    #: the wing, rendered cell by cell by the same renderer the motor act
+    #: uses"): rendered by ``scripts/render_thermal_paraview.py --panels
+    #: volume_cut --slice-at 0.01 --expect-slice-polys 1672`` (the sym patch
+    #: holds 1,672 faces and the declared plane cuts exactly the 1,672
+    #: adjacent cells, measured), published by
+    #: :meth:`ActDSequencer._stage_meshing`.
+    rendered_panels = ("geometry", "mesh", "mesh_zoom", "volume_cut")
 
     # -- caches: read once per drive, never memoised across drives ----------
     def _replay(self) -> dict:
@@ -518,16 +527,17 @@ class AdjointWingAct(DemoAct):
         budget = _screen_compute(self._replay(),
                                  int(record["mpi_ranks"]))["box_core_min"]
         return Restatement(
-            restatement=(f"Reduce the drag of a three dimensional wing at a "
-                         f"fixed lift coefficient of "
-                         f"{_actd.CL_TARGET:g}, over "
-                         f"{_actd.N_DV} design variables, stopping when the "
-                         f"clock reaches 20 minutes, and grade the gradient "
-                         f"before spending anything on it."),
-            confidence=("High on the gradient, which is graded against the "
-                        "flow solver itself before it is used. Lower on how "
-                        "far the reduction can be pushed, which depends on "
-                        "how long the optimizer is allowed to run."),
+            # One fact per sentence (her repeated shortening order, 0540Z:
+            # "the sentences in the script are still way too long").
+            restatement=(f"Reduce the drag of a three dimensional wing at "
+                         f"fixed lift {_actd.CL_TARGET:g}. Use "
+                         f"{_actd.N_DV} design variables. Stop at 20 "
+                         f"minutes on the clock. Grade the gradient before "
+                         f"spending anything on it."),
+            confidence=("High on the gradient. It is graded against the "
+                        "flow solver itself before use. Lower on how far "
+                        "the reduction can be pushed. That depends on the "
+                        "time the optimizer is given."),
             cost_estimate=Measured(round(budget, 1), "core-minutes",
                                    REPLAY_FILE, "derived"))
 
@@ -692,13 +702,13 @@ class AdjointWingAct(DemoAct):
             ]),
             "assumption": [
                 ("researcher", [
+                    # NO DASHES ON SCREEN (Sanaa 0330Z addendum); one fact
+                    # per sentence (her 0540Z shortening order).
                     f"Steady compressible RANS, closed with Spalart-Allmaras.",
-                    # NO DASHES ON SCREEN (Sanaa 0330Z addendum: "no dashes
-                    # anywhere"); re-punctuated, content unchanged.
-                    f"One equation, calibrated for attached aerofoil flow, "
-                    f"which is the regime this wing is trimmed in.",
-                    f"It is not a separated-flow model and nothing here asks "
-                    f"it to be one.",
+                    f"One equation, calibrated for attached aerofoil flow.",
+                    f"This wing is trimmed in that regime.",
+                    f"Not a separated-flow model. Nothing here asks it to "
+                    f"be one.",
                 ]),
                 ("numericist", [
                     # THE SPLIT FOLLOWS HER 2026-09-02 PROMPT. The request
@@ -707,16 +717,19 @@ class AdjointWingAct(DemoAct):
                     # are claimed as such, never attributed to the request.
                     f"What the request fixes: drag minimised, lift held "
                     f"fixed, and a stop at 20 minutes on the clock.",
+                    # "This lab supplies" is load-bearing wording: the
+                    # pre-shoot gate's request/lab split limb matches it.
                     f"This lab supplies the method: a discrete adjoint of "
-                    f"the flow solver for the gradient, graded against "
-                    f"finite differences before any of it is spent.",
-                    f"This lab supplies the rest: free stream "
-                    f"{_actd_U0:g} m/s, {_actd_P0:g} Pa, {_actd_T0:g} K, "
-                    f"constant viscosity {_actd_MU:g} Pa s, density "
-                    f"{rho:.4f} kg/m3, reference area {_actd_A0:g} m2, and "
-                    f"the lift value {_actd.CL_TARGET:g} itself.",
-                    f"Seven lab numbers, and every one of them moves the "
-                    f"answer. The table beside this says which is which.",
+                    f"the flow solver for the gradient.",
+                    f"It is graded against finite differences before any "
+                    f"of it is spent.",
+                    f"This lab supplies the free stream: {_actd_U0:g} m/s, "
+                    f"{_actd_P0:g} Pa, {_actd_T0:g} K, viscosity "
+                    f"{_actd_MU:g} Pa s, density {rho:.4f} kg/m3.",
+                    f"This lab also sets the reference area, {_actd_A0:g} "
+                    f"m2, and the lift value, {_actd.CL_TARGET:g}.",
+                    f"Seven lab numbers. Every one moves the answer.",
+                    f"The table beside this says which is which.",
                 ]),
             ],
             "meshing": [
@@ -757,41 +770,36 @@ class AdjointWingAct(DemoAct):
                 ("numericist", [
                     f"The gradient is graded against the flow solver itself "
                     f"before any of it is spent.",
-                    f"Run on {record['mpi_ranks']} ranks, and the check is "
-                    f"self-consistency rather than validation: no wind tunnel "
-                    f"data exists for this wing.",
-                    # SANAA'S ROUTING LINE, with two mechanical
-                    # accommodations to her own standing rules and no change
-                    # of wording: the first letter is capitalised for the
-                    # transcript's opener rule, and her em-dashes become
-                    # commas because her 0330Z addendum bans every dash form
-                    # on screen ("no dashes anywhere"; em-dash, en-dash and
-                    # the double hyphen all out). Her 0232Z item 2 gated
-                    # this beat on
-                    # a CPU-vs-GPU adjoint log plus a gradient-consistency
-                    # row; her 0250Z override (etc/sessions/2026-09-02T0250Z_
-                    # sanaa_adjoint_gpu_beat_override.md, her words: "No we do
-                    # not have a gpu act. Regardless do as i said... dont
-                    # argue") waives that gate explicitly. AS OF 2026-09-02 NO
-                    # CPU-VS-GPU ADJOINT LOG EXISTS ON THIS BOX (search:
-                    # docs/GPU_CAPABILITY_STATE.md §5 "OpenFOAM / DAFoam
-                    # solvers: Not GPU-capable here";
-                    # docs/dafoam/GPU_SCOPE_MEMO.md: no GPU-capable PETSc in
-                    # either DAFoam image); the line is forward-looking
-                    # narration by her order, the override file records that,
-                    # and every measured figure in this act stays the real
-                    # CPU-run value. The gradient-consistency row is NOT
-                    # fabricated: it is added when a real GPU log lands.
-                    # TODO(demo_mode.GPU_ROUTING_POLICY): the JF1 lane is
-                    # adding the lab's one routing rule as a shared constant
-                    # in demo_mode, parameterised on the unknowns count. When
-                    # it lands, cite it here with THIS act's own real system
-                    # size read from its own record (her 0330Z addendum: "the
-                    # 40K is jF1 specific, so any other act should use its
-                    # own number of unknowns"), never JF1's 40,000.
-                    f"The adjoint is one large linear system solved once, "
-                    f"transfer amortizes, so the gradient solve routes to "
-                    f"the GPU.",
+                    f"Run on {record['mpi_ranks']} ranks.",
+                    f"The check is self-consistency, not validation. No "
+                    f"wind tunnel data exists for this wing.",
+                    # SANAA'S ROUTING BEAT, THROUGH THE LAB'S ONE POLICY.
+                    # `gpu_routing_lines` returns this act's own MECHANISM
+                    # sentence plus `GPU_ROUTING_POLICY` verbatim (her 0232Z
+                    # item 1 / 0330Z addendum: the policy is stated once and
+                    # never paraphrased per act; each act carries its OWN
+                    # unknowns count, never JF1's 40,000). The mechanism
+                    # keeps her routing sentence's content word for word and
+                    # adds the count: ADJOINT_STATES = 349,348 is this run's
+                    # own adjoint system size, read from the constant the
+                    # mission act established off the solver's echoed
+                    # configuration, never retyped.
+                    #
+                    # HONESTY UNCHANGED from her 0250Z override
+                    # (etc/sessions/2026-09-02T0250Z_sanaa_adjoint_gpu_beat_
+                    # override.md, "No we do not have a gpu act. Regardless
+                    # do as i said... dont argue"): NO CPU-vs-GPU adjoint
+                    # log exists on this box (docs/GPU_CAPABILITY_STATE.md
+                    # section 5; docs/dafoam/GPU_SCOPE_MEMO.md), the line is
+                    # forward-looking narration by her order, and every
+                    # measured figure in this act stays the real CPU-run
+                    # value. A gradient-consistency row is added only when a
+                    # real GPU log lands.
+                    *gpu_routing_lines(
+                        f"The adjoint is one large linear system, "
+                        f"{_actd.ADJOINT_STATES:,} unknowns solved once, "
+                        f"transfer amortizes, so the gradient solve routes "
+                        f"to the GPU."),
                 ]),
             ],
         }
@@ -1071,12 +1079,11 @@ class AdjointWingAct(DemoAct):
                    "drag the whole result will be measured from before any "
                    "budget is committed."),
             result=Measured(round(first["objective_cd"], 6), "", REPLAY_FILE),
-            verdict_for_user=(f"The wing reads a drag coefficient of "
+            verdict_for_user=(f"The wing reads drag "
                               f"{first['objective_cd']:.6f} at lift "
-                              f"{first['lift_cl']:.3f} in under half a minute, "
-                              f"so the reduction has a fixed point to be "
-                              f"measured from and the run is worth "
-                              f"committing."),
+                              f"{first['lift_cl']:.3f}, in under half a "
+                              f"minute. The reduction now has a fixed "
+                              f"point. The run is worth committing."),
             seconds=seconds)
 
     # -- stage 7 ------------------------------------------------------------
@@ -1185,7 +1192,10 @@ class AdjointWingAct(DemoAct):
                 [f"Drag reduction below the {_actd.BASELINE_NAME} at matched "
                  f"lift", f"{reduction:.1f}%",
                  "The two drags below are what it is measured from"],
-                ["Baseline drag coefficient", f"{baseline['CD']:.6f}",
+                # Rendered through the one canonical helper (her 0540Z
+                # one-choice order); it reads this same history record.
+                ["Baseline drag coefficient",
+                 f"{_actd.canonical_baseline_cd():.6f}",
                  f"Lift {_actd.CL_TARGET:g}"],
                 ["Final drag coefficient", f"{final['CD']:.6f}",
                  f"Lift {final['CL']:.6f}"],
@@ -1206,8 +1216,13 @@ class AdjointWingAct(DemoAct):
                 headers=["Step", "Drag coefficient", "Lift coefficient",
                          "Against the baseline"],
                 rows=[
+                    # The C_d cell renders the canonical baseline (Sanaa
+                    # 0540Z: one choice everywhere; the helper's docstring
+                    # carries the pick and its reason). The grader's own
+                    # lift-matched 0.029621 stays in the decomposition
+                    # record; the C_L cell is still that record's.
                     ["Baseline, untwisted",
-                     f"{lift_matched['baseline']['CD']:.6f}",
+                     f"{_actd.canonical_baseline_cd():.6f}",
                      f"{lift_matched['baseline']['CL']:.6f}",
                      "The point everything is measured from"],
                     ["Twist only, re-trimmed to the same lift",
@@ -1476,12 +1491,17 @@ class AdjointWingAct(DemoAct):
                 f"its drag.",
             ],
             results=[
+                # .6f, NOT .8f (her 0540Z consistency order): every other
+                # surface prints C_d at six decimals, and the start row
+                # renders the canonical baseline through the one helper so
+                # "printed identically everywhere" is a construction, not a
+                # coincidence. The record keeps full precision.
                 {"quantity": "drag coefficient at the start, single grid",
-                 "value": f"{base['CD']:.8f}",
+                 "value": f"{_actd.canonical_baseline_cd():.6f}",
                  "envelope": "no discretisation band; one mesh",
                  "reason": f"lift held at {base['CL']:g}"},
                 {"quantity": "drag coefficient at the finish, single grid",
-                 "value": f"{final['CD']:.8f}",
+                 "value": f"{final['CD']:.6f}",
                  "envelope": "no discretisation band; one mesh",
                  "reason": f"lift held at {final['CL']:g}"},
                 {"quantity": "share of the drop from section shape, "
@@ -1495,7 +1515,7 @@ class AdjointWingAct(DemoAct):
                  "envelope": "band fixed beforehand, minus 5 to plus 8 percent",
                  "reason": "twist on its own makes the drag slightly worse"},
                 {"quantity": "the same wing flown lower, lift NOT held",
-                 "value": f"{trap['CD']:.8f}",
+                 "value": f"{trap['CD']:.6f}",
                  "envelope": f"lift falls to {trap['CL']:.6f}",
                  "reason": "shown to make the trap visible, not as a result"},
             ],
@@ -1599,6 +1619,85 @@ class ActDSequencer(Sequencer):
 
     screen_seconds: float = 1200.0
 
+    #: The pre-rendered face-by-face wall-patch frames (Sanaa 0540Z: every
+    #: wing view in this act draws the solver's wall patch, 1,008 quad faces,
+    #: true edges, flat per-face colour). Rendered by
+    #: ``cases/dafoam/actd_render_grid_panels.py --wing-frames`` beside the
+    #: served grid, so the frames and the cell-count citation live in one
+    #: place.
+    WING_FRAMES = SERVED_GRID / "paraview" / "wing"
+
+    def _wing_panel(self, emit, name: str, label: str) -> None:
+        """Publish one wall-patch frame as a mesh panel, with its provenance.
+
+        THE CAPTION IS THE SIDECAR'S, NEVER TYPED HERE: her verbatim
+        wall-patch sentence rides the render's own provenance record, and the
+        sidecar's ``wall_faces`` is asserted against the identity record's
+        solved wall patch, so "1,008 faces" and the picture cannot come
+        apart. ``loadMeshPanel`` takes url, label and caption with no counts;
+        the sidecar is copied beside the served PNG for a reader, not
+        published (it carries paths, and a path never reaches a payload that
+        renders). A missing declared frame is a REFUSAL, not a silent skip:
+        these frames are the act's wing views and an absence must be loud.
+        """
+        import shutil
+        from .demo_sequencer import SequencerRefused
+        from . import OUT_ROOT
+
+        shot = self.WING_FRAMES / f"{name}.png"
+        side = shot.with_suffix(".json")
+        if not (shot.is_file() and side.is_file()):
+            raise SequencerRefused(
+                f"this act draws its wing views from the pre-rendered "
+                f"wall-patch frames and {name!r} is not on disk; the screen "
+                f"stops rather than falling back to a tessellation")
+        record = json.loads(side.read_text(encoding="utf-8"))
+        solved = int(_load(IDENTITY_FILE)["solved_wall"]["faces"])
+        if int(record.get("wall_faces", -1)) != solved:
+            raise SequencerRefused(
+                f"the frame's sidecar records {record.get('wall_faces')} "
+                f"wall faces and the solved patch holds {solved}; the "
+                f"caption and the picture would disagree")
+        caption = str(record.get("caption", ""))
+        if not caption:
+            raise SequencerRefused(
+                "a wall-patch frame with no caption in its provenance does "
+                "not go on camera")
+        store = self._panel_store()
+        out = Path(OUT_ROOT) / store
+        out.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(shot, out / shot.name)
+        shutil.copy2(side, out / side.name)
+        self._publish(emit, "mesh.panel", {
+            "stage": "solving",
+            "url": f"/api/plot/{store}/{shot.name}",
+            "label": label,
+            "caption": caption,
+        })
+
+    #: HER CAPTION, VERBATIM (0540Z item 5). Published with the volume cut
+    #: and never paraphrased; the sidecar carries the same sentence.
+    VOLUME_CUT_CAPTION = ("the volume mesh at the symmetry plane, wall "
+                          "layers resolved.")
+
+    def _stage_meshing(self, emit, script, record) -> dict:
+        """The shared meshing stage, plus the symmetry-plane volume cut.
+
+        Sanaa 0540Z item 5 asks for ONE additional mesh view; the shared
+        stage publishes the declared ``mesh`` and ``mesh_zoom`` panels, and
+        this override publishes the ``volume_cut`` through the same
+        :meth:`_publish_panel` path, so it rides the same three-readings
+        cell-count assertion (printed count, sidecar, ``owner`` on disk) and
+        the same screen guard. Declared in ``rendered_panels``, so its
+        absence on disk is a refusal, never a silent skip.
+        """
+        published = super()._stage_meshing(emit, script, record)
+        self._publish_panel(emit, self.act.mesh_plan(), "volume_cut",
+                            stage="meshing",
+                            label="38,304 cells at the symmetry plane",
+                            caption=self.VOLUME_CUT_CAPTION)
+        return published
+
     def _stage_solving(self, emit, script, record) -> dict:
         replay = self.act.solve_replay()
         doc = self.act._replay()
@@ -1639,6 +1738,16 @@ class ActDSequencer(Sequencer):
             ],
         })
 
+        # THE WING WALKS WITH THE COUNTER (Sanaa 0540Z: geometry changes
+        # appear WITH the team's work, not after it). The reference patch
+        # and the gradient on the skin go up as the stage opens; each strided
+        # frame is published AT its own major inside the schedule loop below,
+        # so the wall-patch views and the trace advance together.
+        self._wing_panel(emit, "wing_baseline",
+                         f"Reference wing, {_actd.BASELINE_NAME}")
+        self._wing_panel(emit, "wing_gradient",
+                         "Where the adjoint says to push, at fixed lift")
+
         # ONE SCHEDULE, TWO MONITORS, AND THEY ARE NOT ON ONE CLOCK. The
         # counter advances on the displayed time axis; the adjoint solves
         # advance on their own ordinal, because their log's clock has a
@@ -1662,6 +1771,15 @@ class ActDSequencer(Sequencer):
             if remaining > 0:
                 self.sleep(remaining)
             if kind == "major":
+                # The wall-patch frame for this major, published AT the
+                # major it belongs to (strided set = the frames the
+                # renderer bakes, `adjoint_optimization.SHOWN_FRAME_ITERS`,
+                # imported never retyped).
+                if payload["iteration"] in _actd.SHOWN_FRAME_ITERS:
+                    self._wing_panel(
+                        emit, f"wing_iter_{payload['iteration']:02d}",
+                        f"Major iteration {payload['iteration']} of "
+                        f"{counter_to}")
                 self._publish(emit, "solve.frame", {
                     "stage": "solving",
                     # THE MAJOR FRAME IS LABELLED so the three trace series
@@ -1754,6 +1872,17 @@ class ActDSequencer(Sequencer):
                                "residual": float(point["residual_norm"])}
                               for point in solve["ksp_trace"]],
                 })
+
+        # THE INBOARD PASS, the same strided surfaces on the closer camera,
+        # after the walk exactly as the mission act plays it. Paced with a
+        # real beat (never a burst: the 48-frame burst is the measured
+        # failure the strided set exists to close), proportionate to this
+        # drive's own screen time so an offline gate drive is not slowed.
+        near_beat = min(1.2, float(self.screen_seconds) / 1000.0)
+        for it in _actd.SHOWN_FRAME_ITERS:
+            self._wing_panel(emit, f"wing_near_{it:02d}",
+                             f"Inboard span, iteration {it} of {counter_to}")
+            self.sleep(near_beat)
 
         published = self._publish(emit, "solve.end", {
             "stage": "solving",

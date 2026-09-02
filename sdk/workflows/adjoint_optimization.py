@@ -555,6 +555,24 @@ _NARRATION_PACE_S = float(
 _FRAME_PACE_S = float(
     os.environ.get("CERTONOMOUS_SWEEP_PACE_MS", "60")) / 1000.0
 
+#: THE WING FRAMES THE ACT SHOWS, AND THE BEAT BETWEEN THEM (Sanaa 0540Z
+#: item 2: worker count, script and geometry changes synchronized). Measured
+#: on the filmed events (m-8b8899f9ba9f): 48+48 frames burst in 3 s of
+#: emission at the 60 ms sweep pace, so the page's paced reveal drained
+#: AFTER the act ended and the morphs played to an empty room. The shown
+#: set is thinned to the strided iterations the renderer bakes (stride 6
+#: plus the last major) and each frame takes a real beat, so emission paces
+#: the display and the wing walks IN STEP with the narration. Every
+#: recorded iteration still reaches the drag trace; only the 3D frames are
+#: strided. `CERTONOMOUS_WING_FRAME_PACE_MS` overrides for a still capture;
+#: an explicit `CERTONOMOUS_SWEEP_PACE_MS` is honoured as the same kind of
+#: capture override.
+SHOWN_FRAME_ITERS = (0, 6, 12, 18, 24, 30, 36, 42, 47)
+_WING_FRAME_PACE_S = float(
+    os.environ.get("CERTONOMOUS_WING_FRAME_PACE_MS",
+                   os.environ.get("CERTONOMOUS_SWEEP_PACE_MS",
+                                  "1200"))) / 1000.0
+
 
 def _beat(seconds: float) -> None:
     """Let the clock move, so the next entry's time is genuinely its own."""
@@ -625,6 +643,23 @@ def _phase(script, name: str):
 # helpers rather than written out, so there is no occurrence to miss and no
 # second wording to drift away from the first.
 BASELINE_NAME = "untwisted baseline"
+
+
+def canonical_baseline_cd() -> float:
+    """THE one baseline drag coefficient every Act D surface prints.
+
+    Sanaa 0540Z, verbatim: "baseline Cd printed identically everywhere
+    (0.029621 or 0.029620, one choice)". The two candidates are two real
+    re-solves 4.9e-7 apart: the optimisation history's baseline (0.029620 at
+    .6f) and the decomposition grader's lift-matched baseline (0.029621).
+    The pick is the HISTORY value, because the sequencer's first solve frame
+    prints it and the results table always has; the decomposition record's
+    own value stays byte-untouched in ``A2_drag_decomposition.json`` and in
+    the internal compute note. Read from the history record at every call,
+    never typed; both acts' every baseline-C_d cell renders through this.
+    """
+    doc = json.loads(HISTORY_FILE.read_text(encoding="utf-8"))
+    return float(doc["baseline"]["CD"])
 
 
 def _headline(pct: float) -> str:
@@ -945,34 +980,78 @@ def main(request: str | None = None, params: dict | None = None,
     # The optimizer's own shape history, baked offline through the run's pyGeo
     # parameterization. Absent on a host that does not carry it, in which case
     # the act plays without the viewport rather than drawing an invented wing.
+    #
+    # THE TESSELLATION EXPORT IS RETIRED FROM THIS ACT'S VISUALS (Sanaa
+    # 0540Z, verbatim: "Wing renders: computational mesh, not tessellation.
+    # ... Retire the STL-triangle export from all Act D visuals").
+    # ``write_surfaces`` is no longer called here; every wing view ``show``
+    # puts up is a pre-rendered ParaView frame of the solver's own wall
+    # patch, published as a mesh panel below.
     shapes = _a2_shape.load()
-    surfaces = _a2_shape.write_surfaces(shapes, out) if shapes else {}
 
     def show(key: str, label: str, painted: bool = True) -> None:
-        """Put one surface in the viewport, titled and captioned to standard.
+        """Put one wall-patch frame in the viewport, titled to standard.
 
-        Every frame carries the mesh caption. This is the one place all seven
-        three-dimensional frames pass through, so captioning here is what
-        makes "every 3D frame" true rather than a thing somebody has to
-        remember at each call site.
+        EVERY WING VIEW IS THE SOLVER'S WALL PATCH, FACE BY FACE (Sanaa
+        0540Z, verbatim: "1,008 quad faces with their true edges, no
+        triangle diagonals anywhere, flat per-face colour, caption 'the
+        solver's wall patch, 1,008 faces, drawn face by face.'"). The frames
+        are pre-rendered by ``cases/dafoam/actd_render_grid_panels.py
+        --wing-frames`` from the patch's own face list plus the stored shape
+        history, and published through ``mesh.panel`` -- the page's
+        ``loadMeshPanel`` takes url, label and caption with no counts -- so
+        the client-side triangle canvas never runs for a wing view.
 
-        THE CAPTION RECONCILIATION (SANAA-DIRECT 2026-09-01). Her figure rule
-        gives a figure one caption line of at most 20 words; her requirement
-        that physics limitations stay keeps the mesh caption, which is 14
-        words. They are the SAME LINE: ``label`` is the frame's title and
-        MESH_CAPTION is its one caption, so a 3D frame carries one caption and
-        not two. The explanations that used to be appended to these labels
-        ("At scale, painted with displacement from baseline (mm)") are on the
-        sheet, one compact paragraph per figure. Both limits are checked here
-        rather than trusted, so a label that grows back into a paragraph fails
-        on the drive instead of reaching a filmed frame.
+        HER CAPTION RIDES THE SIDECAR, NEVER THIS FILE: the caption
+        published is read from the render's own provenance sidecar, whose
+        ``wall_faces`` is asserted against the shape record's face count, so
+        the sentence "1,008 faces" and the picture cannot come apart. The
+        coarse-mesh disclosure (``_a2_shape.MESH_CAPTION``, kept exactly as
+        is by her 0540Z item 6) no longer rides every frame; it reaches the
+        screen where the mesh is the subject: the received-surface beat and
+        the R6 narration line.
+
+        A host without the render directory plays without the viewport, as
+        before. A directory that exists but lacks a mapped frame REFUSES:
+        that is not "no renders here", it is a missing declared frame.
         """
-        if not (emit and key in surfaces):
+        del painted                    # every wing view is the same patch
+        if not emit:
             return
-        _a2_shape.check_figure_text(label, _a2_shape.MESH_CAPTION)
-        emit("field.ready" if painted else "geometry.ready",
-             {"url": f"/api/field/{out.name}/{surfaces[key]}", "label": label,
-              "caption": _a2_shape.MESH_CAPTION})
+        wing_dir = (Path(__file__).resolve().parents[2] / "verification"
+                    / "runs" / "actD_runs" / "A2_wing_grid" / "paraview"
+                    / "wing")
+        if not wing_dir.is_dir():
+            return
+        fixed = {"baseline": "wing_baseline", "gradient": "wing_gradient"}
+        name = fixed.get(key)
+        if name is None:
+            m = re.fullmatch(r"(iter|near)(\d+)", key)
+            if m is None:
+                raise RuntimeError(
+                    f"show() was handed a key it cannot map to a rendered "
+                    f"wall-patch frame: {key!r}")
+            name = f"wing_{m.group(1)}_{int(m.group(2)):02d}"
+        png, side = wing_dir / f"{name}.png", wing_dir / f"{name}.json"
+        if not (png.is_file() and side.is_file()):
+            raise RuntimeError(
+                f"the wall-patch render directory exists but frame {name!r} "
+                f"is not in it; the screen stops rather than falling back "
+                f"to a tessellation")
+        record = json.loads(side.read_text(encoding="utf-8"))
+        faces = shapes.get("n_quad_faces") if shapes else None
+        if faces is not None and int(record["wall_faces"]) != int(faces):
+            raise RuntimeError(
+                f"the frame's sidecar records {record['wall_faces']} wall "
+                f"faces and the shape record holds {faces}; the caption and "
+                f"the picture would disagree")
+        caption = str(record["caption"])
+        _a2_shape.check_figure_text(label, caption)
+        import shutil
+        shutil.copy2(png, out / png.name)
+        shutil.copy2(side, out / side.name)
+        emit("mesh.panel", {"url": f"/api/plot/{out.name}/{png.name}",
+                            "label": label, "caption": caption})
 
     if not shapes:
         _narrate(script.engineer,
@@ -1249,6 +1328,13 @@ def main(request: str | None = None, params: dict | None = None,
     _phase(script, EVIDENCE)
     roster.set(MONITOR, "watching the verification table", "watching")
     roster.set(CHIEF_ENGINEER, "grading the gradient", "working")
+    # THE WORKER COUNT RISES WHERE THE TEAM STARTS WORKING (Sanaa 0540Z: "at
+    # the moment the worker count appears after the team starts solving ...
+    # these things should be synchronized"). The 4 ranks are on the tile
+    # from the gradient-grading beat here through the end of the inboard
+    # pass, not for one roster.update mid-walk; RANKS is the run's own
+    # recorded count, never typed per-site.
+    roster.set_workers(RANKS, "gradient verification and shape optimization")
 
     # ITEM 2 (owner, 2026-07-31): the step comes first, before a single
     # agreement figure. The step, the form, and whether this case was swept.
@@ -1431,10 +1517,12 @@ def main(request: str | None = None, params: dict | None = None,
     if shapes:
         roster.set(CHIEF_ENGINEER, "reading the shape change", "working")
         _narrate(script.engineer,
+                # One fact per sentence (her 0540Z shortening order).
                 f"The shape change first.",
                 f"Five sections through the wing, baseline against the "
-                f"optimized surface, and the twist the optimizer added at "
-                f"every station that carries it.")
+                f"optimized surface.",
+                f"Beside them, the twist the optimizer added at every "
+                f"station that carries it.")
         # ONE TITLE PER FIGURE, and it is the same string the image itself
         # carries (SANAA-DIRECT 2026-09-01). The announcement used to spell a
         # second, longer wording than the suptitle, so the same figure had two
@@ -1469,9 +1557,9 @@ def main(request: str | None = None, params: dict | None = None,
         _narrate(script.numericist,
                 f"The sections are at true scale with equal aspect. Nothing "
                 f"in them is exaggerated.",
-                f"The twist plot is degrees against span in metres, with the "
-                f"baseline at zero and the root station carrying no design "
-                f"variable.",
+                f"The twist plot is degrees against span in metres.",
+                f"The baseline sits at zero. The root station carries no "
+                f"design variable.",
                 f"The three-dimensional views that follow show the same "
                 f"change on the whole wing.")
         # VISUALS ITEM 3 (owner, 2026-09-01). The viewer is about to watch a
@@ -1487,7 +1575,8 @@ def main(request: str | None = None, params: dict | None = None,
 
     # ---------------- Evidence: the optimization ----------------
     roster.set(CHIEF_ENGINEER, "reading the optimization history", "working")
-    roster.set_workers(RANKS, "gradient-driven shape optimization")
+    # set_workers(RANKS) moved UP to the gradient-grading beat (her 0540Z
+    # sync order); the count is already on the tile here.
 
     # The wing walks the optimization while the trace descends beside it. The
     # two streams are interleaved on purpose: iteration by iteration, the
@@ -1518,7 +1607,11 @@ def main(request: str | None = None, params: dict | None = None,
                 "title": f"Drag at fixed lift, C_L = {CL_TARGET:g}",
                 "feasible": True})
             frame = frames.get(point["iter"])
-            if frame is None:
+            # THE SHOWN FRAMES ARE STRIDED AND PACED (see SHOWN_FRAME_ITERS
+            # above): every iteration still feeds the trace emitted above;
+            # only the 3D wall-patch frames are thinned so the page's paced
+            # reveal keeps step with the script.
+            if frame is None or point["iter"] not in SHOWN_FRAME_ITERS:
                 continue
             drop = (baseline["CD"] - frame["CD"]) / baseline["CD"] * 100
             # Nine words. What left this title: "At scale, painted with
@@ -1529,8 +1622,7 @@ def main(request: str | None = None, params: dict | None = None,
             show(f"iter{frame['iter']}",
                  f"Major iteration {frame['iter']} of {majors}, "
                  f"{_against_baseline(drop)}")
-            _beat(_FRAME_PACE_S)
-    roster.set_workers(0)
+            _beat(_WING_FRAME_PACE_S)
 
     if shapes:
         last = shapes["frames"][-1]
@@ -1676,16 +1768,21 @@ def main(request: str | None = None, params: dict | None = None,
         roster.idle(NUMERICIST)
         for point in history:
             frame = frames.get(point["iter"])
-            if frame is not None:
-                drop = (baseline["CD"] - frame["CD"]) / baseline["CD"] * 100
-                show(f"near{frame['iter']}",
-                     f"Inboard span, iteration {frame['iter']}, "
-                     f"{_against_baseline(drop)}")
-                _beat(_FRAME_PACE_S)
+            if frame is None or point["iter"] not in SHOWN_FRAME_ITERS:
+                continue
+            drop = (baseline["CD"] - frame["CD"]) / baseline["CD"] * 100
+            show(f"near{frame['iter']}",
+                 f"Inboard span, iteration {frame['iter']}, "
+                 f"{_against_baseline(drop)}")
+            _beat(_WING_FRAME_PACE_S)
         show(f"near{last['iter']}",
              f"Inboard span, {_headline(reduction)}")
         _narrate(script.engineer,
                 f"That is the shape the gradient bought, at the size it is.")
+    # THE COUNT LEAVES THE TILE WHERE THE TEAM STOPS WORKING: the end of the
+    # inboard pass, not mid-walk (her 0540Z sync order; it was cleared right
+    # after the first pass, so the second pass played over a zero).
+    roster.set_workers(0)
 
     cl_off = abs(final["CL"] - CL_TARGET) / CL_TARGET * 100
     # The settling claim, measured from the recorded history rather than eyeballed.
@@ -1773,7 +1870,13 @@ def main(request: str | None = None, params: dict | None = None,
                    headers=("Step", "C_d", "C_L", "Angle of attack",
                             "Against the baseline"),
                    rows=[
-                       ["Baseline, untwisted", f"{base_l['CD']:.6f}",
+                       # The C_d cell renders the canonical baseline (her
+                       # 0540Z one-choice order; `canonical_baseline_cd`).
+                       # The grader's own lift-matched 0.029621 stays in the
+                       # decomposition record; the C_L and angle cells are
+                       # still that record's.
+                       ["Baseline, untwisted",
+                        f"{canonical_baseline_cd():.6f}",
                         f"{base_l['CL']:.6f}",
                         f"{decomp['rows']['A0_baseline']['AoA_deg']:.3f} deg",
                         "The point everything is measured from"],
@@ -1796,12 +1899,11 @@ def main(request: str | None = None, params: dict | None = None,
         _narrate(script.numericist,
                 f"Twist on its own makes the drag worse. At matched lift it "
                 f"costs {abs(sh['twist']['pct_of_baseline_drag']):.2f}%.",
-                f"It pays only together with the section change, which is "
-                f"{sh['shape']['pct_of_drop']:.1f}% of the reduction against "
-                f"{sh['twist']['pct_of_drop']:.1f}% for twist.",
-                f"The angle of attack contributes nothing here: both ends of "
-                f"the comparison are measured at C_L "
-                f"{final_l['CL']:.3f}.")
+                f"It pays only together with the section change.",
+                f"The shape carries {sh['shape']['pct_of_drop']:.1f}% of "
+                f"the reduction, twist {sh['twist']['pct_of_drop']:.1f}%.",
+                f"The angle of attack contributes nothing here. Both ends "
+                f"are measured at C_L {final_l['CL']:.3f}.")
         ce = decomp.get("counter_examples") or {}
         if ce:
             a3 = ce.get("unmodified_wing_at_final_incidence")
@@ -1833,12 +1935,12 @@ def main(request: str | None = None, params: dict | None = None,
         # falsifier for the zero angle-of-attack share did not run. Nothing
         # here may imply that it did.
         _narrate(script.numericist,
-                f"The zero for angle of attack rests on both ends being "
-                f"measured at the same lift, and on lift being an equality "
-                f"constraint of the problem.",
-                f"The independent cross-check registered for it did not run: "
-                f"that row's flow solve diverged, so it is not a result and "
-                f"its gate has no verdict.")
+                f"The zero for angle of attack rests on two things.",
+                f"Both ends are measured at the same lift, and lift is an "
+                f"equality constraint of the problem.",
+                f"The independent cross-check registered for it did not "
+                f"run. That row's flow solve diverged.",
+                f"So it is not a result and its gate has no verdict.")
         roster.idle(NUMERICIST)
 
     # ---------------- Convergence honesty ----------------
