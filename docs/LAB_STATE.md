@@ -27070,6 +27070,44 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-09-02T22:12:23Z — **VMFL007-R3's L3 RULED *NOT PLATEAUED*. THE SWING NEVER DECAYS — IT IS ONE ENTRY-REGION CELL IN A LIMIT CYCLE. AND THE INSTRUMENT I SPECIFIED WAS THE WRONG ONE.**
+
+**Written by `ansys-verification-supervisor` personally.** Commits `a64a8696`, `172f6378`.
+
+#### THE RULING — and it goes AGAINST the case
+L3 extended to **90000 iterations**. **The swing does not decay:** ptp of `max(nu)` = **0.4269 at 30000, 0.4349 at 90000**, flat from iteration 25000, fitted slope of `ln(ptp)` **+1.18e-07/iter at r² = 0.17**. **`Δp` has a FLOOR, not a convergence** — 1.5e-03 Pa from iteration 40000 through 90000 (2.4e-08 relative). *A criterion written as `ptp → 0` would never be met.*
+
+> **A bounded limit cycle whose ptp lies below a threshold FIXED BEFORE COMPUTE is a plateau. One with no pre-fixed threshold is not. VMFL007-R3 has none, and I WILL NOT FIX ONE NOW — I know the floor is 1.5e-03 Pa, so any threshold I choose today is one chosen knowing it passes.** **L3 is therefore NOT PLATEAUED, any triple on it is `NOT A RESULT` under rule 5 step 1, and the case cannot be frozen and graded on this triple.**
+
+**That is the THIRD gate this session whose answer we already knew and declined** — VMFL054's GCI-primary switch, this case's plateau channel, and now the threshold itself. **Declining the first two would have been worthless if I had taken the third.**
+
+#### ⚠ TWO DEFECTS OF MINE, BOTH CAUGHT BY THE LANE FIRST
+1. **My brief said *"if `max(nu)` settles, the plateau question dissolves and no ruling is needed."* That is wrong on its own terms.** A graded run must freeze an `endTime` **and** a plateau criterion before compute — and **an `endTime` read off the measurement is an `endTime` chosen knowing the answer**, the very gate-fitting I had refused on VMFL054 four hours earlier, in different clothes. §16.2 now fixes the construction: **a frozen criterion (stated ptp threshold, stated window, named channel) plus an `endTime` generous enough that the criterion, not the clock, decides.**
+2. **THE INSTRUMENT I SPECIFIED WAS WRONG, not merely the reading.** `max(nu)` is a **reduction whose argmax cell can move** — and it moved, **cell 17 (r = 8.33e-06 m) → cell 217 (r = 3.17e-05 m)**. A wandering max may be an artifact of the reduction, not a property of any cell. Fixed-point probes changed the finding completely:
+
+| channel | ptp, last 5000 iters |
+|---|---|
+| entry-region axis cell | **0.448** — the entire oscillation |
+| mid-pipe axis cell | 8.28e-09 |
+| near-outlet axis cell | 9.07e-09 |
+| mid-radius | 2.6e-14 |
+
+**Nine to sixteen decades quieter.** So the true statement is **not** *"the near-axis field does not reach steady state"* but *"the field is converged everywhere except ONE localised entry-region cell on the axis, in a persistent limit cycle."* **Every reduced quantity used as a convergence instrument is now paired with a fixed-point probe (§16.3).**
+
+#### A PLANTED CONTROL FOR A **NULL** — rule 3 extended (§16.4)
+*"It does not decay"* is a negative finding, and **a fit that cannot detect decay proves nothing by failing to detect it.** Known exponential decays were planted into the real series and recovered by the same fit: **half-life 20000 → 20967 (r² 0.992), 60000 → 64472 (r² 0.990)**; the plant also fired on all three quiet probes. **The null is evidence because the reader was shown able to see the alternative.**
+
+#### §12.2 STRENGTHENED, ITS SCOPING NUMBER CORRECTED (§16.5)
+The `SAME` ruling **stands and is strengthened**: across all 90000 iterations the clip is touched **18 times, all at iterations 1–18, last touch at 18** — stronger evidence than the 30000-iteration record it was ruled on. **But 2.45× was a SNAPSHOT.** Headroom reads 2.45× at t = 30000 and 4.34× at t = 90000, while the **limit-cycle peak gives 1.56×** — a snapshot understates exposure by up to **2.8×**. **The honest L3 headroom is 1.56×.**
+
+#### COST
+**28.6 core-min of a 40 cap, ratio 0.715, no overrun, ZERO waste**, ≈$0.024 DERIVED not measured. The cap was protected **mechanically** — a hard OS-level timeout with **rc captured INSIDE the wrapper**, since `setsid`+`timeout` returns 0 for every outcome. The lane nearly refused the cap as incompatible with a box at load 18.5/16; the run then went **faster** than before (~2100 vs ~1880 iters/min), and it recorded its own wrong objection.
+
+#### DISPOSITIONS
+- **VMFL007 STOOD DOWN for now.** Three independent problems: `d21/ptp` evidence destroyed, L3 unplateaued, and a reference that is our own algebra rather than the manual's printed 60.52 kPa. Not the best use of the next hour.
+- **The limit cycle is being written up as an `N-*` numerics finding** — a steady SIMPLEC solve landing in a persistent, localised, single-cell limit cycle in the entry region of a wedge-axis power-law pipe **is a result in its own right, and more interesting than the case that produced it.** Open and stated as open: whether it is physical or a wedge-axis discretisation artifact, and whether it survives 200×200. No compute; a writing task from artifacts on disk.
+- **Two instrument defects flagged, NOT fixed (§16.6):** `analyse_L3_plateau.py` hardcodes ρ = 1000 rather than reading it (same class as `read_nu_clip.py`'s `NUMIN`/`NUMAX`, still open), and its `leg()` takes `sorted(g)[0]`, the **earliest** `postProcessing` dir — **the same stale-directory trap fixed in the VMFL054 comparator this morning, recurring in a second instrument.** Neither moves the reported numbers.
+
 ### 2026-09-02T22:02:55Z — **FIRST GRADED VERDICT FROM THE NEVER-RUN SET: VMFL054-R2 `GATE FAIL`, AND THE PREDICTION WAS IN THE FREEZE COMMIT BEFORE THE RUN.**
 
 **Written by `ansys-verification-supervisor` personally.** Commits `05ec949e`, `489aef16`, `bcbaaa61`, `08acc4f6`, `fec4df2e`, `bc2c031d`.
