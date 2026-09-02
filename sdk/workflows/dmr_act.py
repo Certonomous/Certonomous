@@ -81,9 +81,11 @@ SERVED_STL = Path(__file__).resolve().parents[1] / "geometry" / \
 MESH_BUILDER = REPO / "cases" / "DMR_shock_reflection" / "build_dmr_mesh.py"
 MESH_WORK = RUNS / "demo_mesh_work"
 
-#: What the compute figure is CALLED on a customer screen. The quantity is
-#: unchanged and is still core-minutes.
-COMPUTE_UNIT = "processor-minutes"
+#: What the compute figure is CALLED on a customer screen: the chief's
+#: 2026-09-02 ruling closes the one-constant question on Sanaa's own words,
+#: "core min", so this matches demo_mode.SCREEN_COMPUTE_UNIT and every other
+#: act. The QUANTITY is untouched; only the word changed.
+COMPUTE_UNIT = "core-minutes"
 
 #: The two grids, in the order the screen shows them: cheap first, so the
 #: viewer sees the answer arrive twice rather than once.
