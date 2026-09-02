@@ -598,3 +598,200 @@ remain the basis they were.
 | md5 of this file's first 518 lines BEFORE the append | `30ca7cd62031e5d3e7884ba7c0d66d9b` |
 | md5 of this file's first 518 lines AFTER the append | `30ca7cd62031e5d3e7884ba7c0d66d9b` |
 | the two digests | **EQUAL — assertion MEASURED, verified after the write** |
+
+---
+
+## ADDENDUM B — 2026-09-02, POST-COMPUTE: §5's measured cost basis is STRUCK — the per-iteration rate was read from prints that are 100 iterations apart, and is 99× too high
+
+**Dated addendum under CLAUDE.md rule 2. R0 HAS BEEN GRADED (`GATE FAIL`, see
+`verification/runs/M6I_runs/R0_RESULTS.md`), so first compute has occurred and pre-compute
+amendment is NO LONGER AVAILABLE to this registration.** Appended at the foot under rule 6. v1.4.
+
+> **THIS ADDENDUM ALTERS NO GATE, NO THRESHOLD, NO CAP AND NO LABEL.** It corrects a **measured
+> BASIS used for estimating** — not a registered gate, threshold, cap or label. Every gate in §4
+> stands unchanged. **Every estimate in §5.1 and every cap in §5.2 stands exactly as frozen and is
+> NOT restated, NOT lowered and NOT raised.** **NO VERDICT CHANGES.** R0's `GATE FAIL` stands;
+> Gate G remains `PENDING`; Gate P remains unclaimed. **Nothing here makes any gate easier to
+> pass, and nothing here overturns a result.**
+
+### B.0 THE LOAD-BEARING CHECK ON THE CAPS, DONE BEFORE ANYTHING WAS WRITTEN
+
+**The question asked first was whether §5's struck figure is load-bearing for a registered cap**,
+because a correction that moved a cap would be forbidden to this addendum and would have to stop.
+
+**It is not, and the reason is structural rather than a judgement.** §5.2's caps are **absolute
+core-minute integers** — R0 **180**, R1 **310**, R2 **2,500**, R3 **19,800**, ladder total
+**22,790**, L0 contingency **165,000**. **Not one of them is expressed as a function of the
+basis.** Correcting the basis moves none of them, and **they are left exactly as frozen.**
+
+**The dependency that DOES exist is disclosed rather than absorbed.** §5.2's *headroom* column is
+a ratio over §5.1's estimates, and those estimates descend from the struck figure — Addendum A
+§A.1 says so in terms ("from which the whole 14,622 core-min estimate and the 132,180 core-min L0
+contingency descend"). **So the printed headroom multiples of 3.0× / 3.0× / 2.0× / 1.5× understate
+the true headroom on the three solve rungs by a factor of about 99.** The caps are not thereby
+loosened: **a cap that turns out to be generous is still the cap, and rule 12's "an overrun stops
+the run" is untouched.**
+
+### B.1 WHAT IS STRUCK
+
+**STRUCK, §5, "COST BASIS — MEASURED ON THIS BOX, ON THIS GEOMETRY":**
+
+> ~~**60 consecutive `ExecutionTime` deltas: median 20.140 s/iteration, mean 20.101, min 15.610,
+> max 27.680.** At 4 ranks that is **1.3427 core-min per iteration at 399,360 cells** =
+> **3.362e-06 core-min per cell per iteration**.~~
+
+**The struck lines are NOT edited, reordered or deleted.** Under rule 6 the original stands where
+it is and the strike is recorded here. Everything else in §5 — the unit, the derived-dollar
+labelling, the three disclosures, the identification of the log, the rank count and the cell
+count — **survives and is confirmed by the re-derivation below.**
+
+### B.2 THE MECHANISM — MEASURED FROM THE LOG, NOT INFERRED
+
+**The deltas are not per-iteration. They are per HUNDRED iterations.** Read from
+`/home/ubuntu/certonomous-runs/A3-onera-m6-transonic/run_model_run3.log`:
+
+| reading | value |
+|---|---|
+| `printInterval` in the log's own echoed case setup | **`100`** |
+| `Time =` lines in the whole log | **61** |
+| the `Time` values they carry | **1, 100, 200, 300, … , 5900, 6000** |
+| `ExecutionTime` lines | **61** — one per `Time` line, so **60 deltas** |
+| first / last `ExecutionTime` | **15.17 s** / **1221.21 s** |
+| median of the 60 deltas | **20.12 s** — the registered 20.140, and it is **seconds per 100 iterations** |
+
+> **A 6,000-iteration run cannot have 61 per-iteration prints.** The registered figure multiplied
+> a per-100-iteration delta by one iteration's worth of arithmetic.
+
+**The arithmetic that settles it independently of any delta:** the master rank's total
+`ExecutionTime` for the whole 6,000-iteration solve is **1,221.21 s = 20.35 wall-minutes**. The
+struck basis claims **1.3427 core-min per iteration**, which over 6,000 iterations would be
+**8,056 core-min = 2,014 wall-minutes at 4 ranks**. **The run did not take 34 hours; the log's own
+`ClockTime` spans 1,233 s.**
+
+### B.3 THE CORRECTED BASIS
+
+`nProcs = 4` read from the log's own banner (not from the case's present `decomposeParDict`,
+which now reads 2 and post-dates the run); `nCells: 399360` from
+`constant/polyMesh/owner.gz`'s header note, as §5 already records.
+
+| form | window | core-min | cell-iterations | **core-min per cell per iteration** |
+|---|---|---|---|---|
+| span (`Time` 1 → 6000, `ExecutionTime` 15.17 → 1221.21 s) | 5,999 iterations, 1,206.04 s | 80.403 | 2.39564e9 | **3.3560e-08** |
+| whole run (`ExecutionTime` 1221.21 s over 6,000 iterations) | 6,000 iterations | 81.414 | 2.39616e9 | **3.3977e-08** |
+
+**Registered ÷ corrected = 100.18× (span form), 98.95× (whole-run form).** **The registered figure
+is about 99 times too high.**
+
+**Per-iteration, the same correction:** **0.013569 core-min per iteration at 399,360 cells**,
+against the struck **1.3427**.
+
+### B.4 CORROBORATION — TWO INDEPENDENT RUNS AT OTHER MESH SIZES, RE-DERIVED HERE
+
+Both are ONERA M6 `DARhoSimpleCFoam` primals under the same driver, at `nProcs = 4` read from each
+log's own banner, cell counts from each case's `constant/polyMesh/owner.gz`, and both carry
+`printInterval 100` so both were read with the interval in hand:
+
+| run | log | cells | window | **core-min/cell/iteration** |
+|---|---|---|---|---|
+| `A3-onera-m6-sweep-n28_42120` | `run_opt5_onera_n28_42120.log` | **42,120** | `Time` 1 → 1000, `ExecutionTime` 1.90 → 25.40 s | **3.72e-08** span / **4.02e-08** whole-run |
+| `A3-onera-m6-adjoint-probe80k` | `run_opt4_probe80k.log` | **79,560** | `Time` 1 → 1000, `ExecutionTime` 2.67 → 34.70 s | **2.69e-08** span / **2.91e-08** whole-run |
+| `A3-onera-m6-transonic` (§B.3) | `run_model_run3.log` | **399,360** | `Time` 1 → 6000 | **3.36e-08** span / **3.40e-08** whole-run |
+
+**Three runs spanning a 9.5× range of mesh size agree to within 1.5× of one another, and all three
+sit two orders of magnitude below the struck figure.** **The corrected basis is the one that
+reproduces across the family; the struck one reproduces nowhere.**
+
+**Stated as a limit rather than glossed:** these are all `DARhoSimpleCFoam` primals, so §5's
+disclosure 1 (driver overhead, direction unknown) **survives unchanged**, and §5's disclosure 2
+(per-cell cost is NOT constant with mesh size — super-linear, measured by this team at about
+`N^1.46`) **also survives unchanged and still means a linearly scaled fine level is under-priced.**
+**Correcting the basis does not repeal either disclosure.**
+
+### B.5 THE DEFECT CLASS, NAMED
+
+**A number that was right when it was written and was never re-derived — and a rate taken from a
+log without first reading what that log's own print interval was.**
+
+The figure was not a guess. It was computed from a real log, on the right case, at the right rank
+count, with the right cell count, and it was even re-examined once already: **Addendum A §A.1
+interrogated this exact basis, over these exact 61 samples, and cleared it.** It cleared it on the
+axis it was asked about — `ExecutionTime / ClockTime` ∈ [0.9851, 1.0194], so no core-0 pile-up —
+and **that finding stands and is not disturbed here, because a ratio of two quantities printed on
+the same line is immune to how often the line is printed.** **What no reading of it ever asked was
+what the interval between two consecutive prints actually was.** The setting was in the same file,
+seven characters long, and unread.
+
+**This is why a basis is re-derived rather than re-cited.** Every later use of it — §5.1's table,
+§5.2's headroom column, §5's L0 contingency, Addendum A's premise — inherited the error intact,
+because each one cited the number instead of re-measuring it.
+
+### B.6 DIRECTION — THE ERROR IS CONSERVATIVE, AND NOTHING IS OVERTURNED
+
+**It inflated estimates. It could not have endangered a cap, and no run overran because of it.**
+A basis 99× high makes every estimate 99× high, every cap sized off it 99× generous, and every
+"can we afford this?" answer more cautious than the truth. **No solve has ever run under this
+registration** (Gate G is `PENDING`, §4), so no run was stopped, shortened, re-scoped or lost to
+it.
+
+**No verdict changes.** R0 is `GATE FAIL` on mesh admission — non-orthogonality **87.6620 /
+86.4646 / 87.7462°** against the §3.1 gate of 70° — **a mesh-quality measurement that has no cost
+term in it at all.** **Nobody should read this addendum as a result being overturned. It is an
+estimating instrument being corrected, in the direction that costs nothing.**
+
+For completeness: **R0's own 60 core-min estimate is NOT affected**, because it was never built on
+this basis — it was built by analogy with `F13`'s in-house `blockMesh` ladder, and it has already
+been calibrated against its actual **0.3833 core-min** in `docs/COST_CALIBRATION.md`
+(row `C-20260901T173329.123480Z-d483e031`).
+
+### B.7 THE CONSEQUENCE THAT MATTERS — A FUNDING DECISION INFLATED BY TWO ORDERS OF MAGNITUDE
+
+**The cost of a route, not the cost of a run, is what this error actually bought.** The ONERA M6
+option-3 route was costed on this basis at **136,469 core-min = $116.68 derived** at the recorded
+$0.0513/core-h. **Corrected: ≈ 1,362 – 1,380 core-min ≈ $1.17 derived** (the range is the span vs
+whole-run form of §B.3). **A route that reads as a hundred-dollar commitment and is in fact a
+one-dollar one is a different decision**, and it was being weighed against alternatives priced by
+other means.
+
+Applying the corrected basis to §5.1's own rows, **as an illustration and explicitly NOT as a new
+registration** — the same linear model, the same cells and iterations, only the basis replaced:
+
+| rung | registered (STANDS) | on the corrected basis |
+|---|---|---|
+| R1 L3 primal | 103 core-min | **≈ 1.0** |
+| R2 L2 primal | 1,239 core-min | **≈ 12.5** |
+| R3 L1 primal | 13,220 core-min | **≈ 134** |
+| L0 contingency | 132,180 core-min | **≈ 1,336** |
+
+**These four figures are NOT registered, NOT caps, and NOT a re-estimate of this ladder.** They are
+printed so the size of the distortion is visible on the face of the document rather than left to be
+recomputed. **§5.1's registered estimates and §5.2's registered caps are the ones in force.** They
+are also **lower bounds**, because §5's disclosure 2 (super-linear per-cell cost) still applies and
+this table, like §5.1's, scales linearly.
+
+### B.8 WHAT THIS ADDENDUM DOES NOT DO
+
+1. **It does not alter a gate, threshold, cap or label.** §4's gates, §5.1's estimates, §5.2's
+   caps and §3's ladder are untouched and remain in force as frozen.
+2. **It does not revisit R0.** `GATE FAIL` stands, on a measurement with no cost term.
+3. **It does not authorise a solve.** Gate G remains `PENDING` and unreleased.
+4. **It does not disturb Addendum A.** A's contention finding is independent of the print interval
+   and stands; only its inherited premise about the magnitude of the basis is corrected here.
+5. **It does not edit any document outside this file.** Two others carry figures descended from the
+   struck basis — `docs/COST_CALIBRATION.md` (row `C-20260901T173329.123480Z-d483e031`, which
+   restates `1.3427 core-min/iteration` and the `14,622` total) and `docs/LAB_STATE.md` (which
+   compares an option-2 costing against "M6I's registered 14,622"). **Neither is load-bearing for
+   any registered cap, neither is this registration's to amend, and both are flagged rather than
+   touched.**
+
+### Assertions, MEASURED after the write
+
+| assertion | value |
+|---|---|
+| gate, threshold, cap or label altered | **none — a measured estimating basis is corrected, and every registered cap is left as frozen** |
+| any verdict changed | **none — R0 `GATE FAIL` stands, Gate G `PENDING`, Gate P unclaimed** |
+| direction of the corrected error | **CONSERVATIVE — estimates were inflated, no cap endangered, no run overran** |
+| lines edited, reordered, inserted or deleted above this section | **none** |
+| **lines whose number changed above this section** | **0** |
+| md5 of this file's first 600 lines BEFORE the append | `8ac0f4f4b017abc3041accdca0e61158` |
+| md5 of this file's first 600 lines AFTER the append | `8ac0f4f4b017abc3041accdca0e61158` |
+| the two digests | **EQUAL — assertion MEASURED, verified after the write** |
