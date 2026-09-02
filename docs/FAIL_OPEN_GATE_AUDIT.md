@@ -2485,3 +2485,86 @@ grep -oE '^## L-[0-9]+' docs/LESSONS.md | grep -oE '[0-9]+' | sort -n | tail -1
 | verdicts issued | **0** · repairs mandated **0** · code changed **0** |
 | solver compute | **0 core-min, $0.00** |
 | **lines whose number changed above this section** | **0** |
+
+## §24 — **THE F28 CHECK-1 RE-DRIVE I OWED PERSONALLY IS DISCHARGED AND THE INSTALLED DELTA IS SOUND. BUT THE GATE IT LANDED IN GRADES A SYMBOL A LATER ADDENDUM REDEFINED, AND THE TERM IT CANNOT SEE IS A REGISTERED FUNCTION OBJECT SITTING ON DISK.**
+
+**Appended at the foot; nothing above edited. `Lines whose number changed above this section: 0`.** **Zero solver compute; 0 core-minutes; $0.00.** Rule 12's calibration duty does not attach — no pre-registration, no cap, no compute, and I do not invent a ratio where there is no estimate. **No verdict, gate, threshold, band, cap or label created, moved or retired by this section.** Read personally by the verification supervisor, as a diff, under `SUPERVISION_CHARTER.md` §3 check 1; **no part of it was delegated and no agent supplied a token on my behalf.**
+
+### 24.1 THE PIN, AND WHY IT HAD TO FIRE
+
+`FAIL_OPEN_GATE_AUDIT` §17.8 pinned my earlier check-1 read of the F28 comparator to a blob: check 1 transfers to `analyse_f28.py` **iff** its blob is exactly `1c6b9d53…`. **The pin fired.** `[MEASURED at HEAD `3e3da44f`]`
+
+| object | blob | installed by |
+|---|---|---|
+| `analyse_f28.py` at HEAD **and on disk** | `5aff1614aff38ccdad0c33a0be9fb17b313fc167` | `eecb17e4`, 2026-08-31T22:40:00Z |
+| prior comparator | `f496cc7e6c333d223b7970b896cf7e4c77d161af` | `5a851ca1`, 2026-08-31T16:19:13Z |
+| the candidate my read covered | `1c6b9d53…` | **neither file carries it now** |
+
+**`analyse_f28_candidate.py` at HEAD is ALSO `5aff1614`** — the candidate file was brought up to the installed bytes, so the blob my read covered is now reachable only as a loose object. **The transfer condition failed and the delta I owed is `1c6b9d53 → 5aff1614`: 490 insertions, 45 deletions on a grading instrument.** An instrument change without a supervisor's read is an uncalibrated instrument; **that read is now done, in full, and §17.8's pin is DISCHARGED.**
+
+### 24.2 THE DELTA IS SOUND, AND IT IS BETTER THAN THIS LAB'S AVERAGE
+
+The delta wires Addendum 3's floored thrust-stationarity criterion, `ptp <= max(0.001·|T_mean|, T_floor)` over the last 2000 iterations, and strikes the standing refusal that previously stood in `control_6_3`. **Four things carry weight and all four hold on my read:**
+
+- **The floor is DERIVED, and the direction is right.** `assert_floor_derivation` runs at import (`FLOOR_DERIVATION = assert_floor_derivation()`), reproduces the chain from constants frozen above, and asserts the registration's printed figures against the derivation — **never the derivation against the literals**. Three targets from **three different sections** (`A_disk` §4, `42.7257 N` §6.2 control C3, `5.934119457e-04 N` Addendum 3 §4), so one transcription slip cannot satisfy all three. Tolerances are **half the last digit the registration prints** — a stricter test than Addendum 3's own "defensible to 4 s.f.", never a looser one. **A comparator whose floor does not reproduce the registered one is not importable.**
+- **The frame is PROVED, not asserted.** `assert_stationarity_frame` requires `T_total == -(last windowed total_x) · WEDGE_SCALE` **bit-exactly**. The sector-versus-full-annulus slip is a factor of **72 in the PERMISSIVE direction** and would have rescued the zero-source arm (`0.020422 N < 0.042726 N`, Addendum 3 §5). The wrong-frame constant is defined **only so refusals can print it**; no criterion compares against it.
+- **The reader carries its OWN plant (standing rule 3).** `plant_into_stationarity_window` plants into the **first row of the window** — the one row no other control addresses — with a displacement `(max − min) + PLANT_FO` **chosen to guarantee a new maximum**, so the control's visibility does not depend on the data. **Two arms, and the second is the one that matters:** `ptp` must move, **and `T_mean` must move by exactly `delta/window`** — an arithmetic identity a last-row-only or wrong-length reader cannot satisfy. A negative limb requires exact return after a byte-exact restore, the restore sits in a `finally`, and `verify_unchanged` closes it.
+- **The approval's width is enforced IN the criterion.** `FLOORED_QUANTITIES = ("thrust",)` and `stationarity_criterion` **refuses** any other quantity, so the floor cannot reach the unfloored mass-flow row by a caller's copy-paste. **The leak has to defeat a guard, not merely go unnoticed** — `CLAUDE.md` rule 9 applied in the only form that counts.
+
+**And the refusal/verdict boundary is drawn correctly:** an unstationary V(b) is `NOT A RESULT` **through the verdict field**, not through a refusal, because stationarity is a registered criterion with a threshold; the comparator still refuses (exit 2) for **instrument** failures only — blind plant, unprovable frame, floor that does not reproduce, short window. That is standing rule 5's direction constraint respected exactly.
+
+### 24.3 THE LEGALITY CHAIN, VERIFIED AT SOURCE AND NOT ON RELAY
+
+The delta rests on a **gate change on a frozen registration**, which is lawful only by Sanaa's personal approval. **I read her words, not the commit message that describes them** `[MEASURED]`:
+
+| step | artifact | UTC |
+|---|---|---|
+| **Sanaa's own words** — `> About your questions : queue_runner : deploy it," "§2h.3": exact-PDE rule, "F28 floor": approved` | `etc/sessions/2026-08-31T2016Z_sanaa_three_rulings_runner_2h3_f28floor.md` (`5dd94f4f`) | **20:16:10Z** |
+| Addendum 3 registers the floor | `0a62c5c6` | 20:34:29Z |
+| Addendum 4 strikes a false **effect-statement**, altering no gate | preregistration §1825 | 2026-08-31 |
+| comparator installed | `eecb17e4` | 22:40:00Z |
+
+**The approval PRECEDES the addendum, and the addendum precedes the instrument. The order is correct.** Addendum 4 is lawful on its face and on my read: it declares *"This addendum alters NO gate, threshold, cap or label"*, byte-verifies the preceding blob (`cmp -n 104991`, rc 0), carries `Lines whose number changed above this section: 0`, and **strikes a false claim about the criterion's effect rather than the criterion** — disclosing that the floor is the **binding term on every arm on disk** and **relaxes** the criterion by **1.778×** on the loaded arm, which Addendum 3 had wrongly called inert. **That is a team correcting itself against its own interest, and it is recorded here as such.**
+
+### 24.4 ⚠ THE DEFECT, AND IT IS NOT IN THE DELTA — IT IS IN WHAT THE DELTA LANDED INTO
+
+**`control_6_3` grades §6.3's registered `T_total` as `T_duct` ALONE, and Addendum 7 ruled that `T_total = T_duct + T_hub + T_disk`.**
+
+| fact | measurement |
+|---|---|
+| frozen §6.3 (`:533-543`) names **`T_total`** | **3 times**; names `forcesDuct` **0 times** |
+| Addendum 7 (2026-09-01) rules the composition | *"`T_total` IS RULED TO BE `T_duct + T_hub + T_disk`"* — lawful precisely because it **defines a symbol the frozen text already grades** and moves no gate |
+| `forcesHub` is a **registered function object** over patch `(hub)` | `case/system/controlDict.template:74,78` |
+| the centrebody is in **every** arm | preregistration `:2232` — *"§7.1 keeps the centrebody in every arm"* |
+| `analyse_f28.py`'s `FO_GRADED` (`:374-379`) | **NO `forcesHub` entry** — the term is not dropped, it is **unreadable by this comparator** |
+| Addendum 7's **endorsed** implementation `analyse_f28g.py` | references `forcesHub` **4 times** and **REFUSES** on its absence |
+
+**The comparator's own defence is an assertion where this same file's standard is a proof.** `total_thrust`'s docstring says *"on an empty duct with no source the duct force IS the total"* — **that is a claim about `T_hub`'s magnitude, and nobody measured it**, in a file that proves its stationarity frame **bit-exactly** rather than trusting a comment. §6.3 runs at `U_inf` with a solid centrebody in the flow; its x-force is not zero by construction, only by hope.
+
+**Addendum 7 named this exact failure, in its own words, and its parent path is the specimen:** *"A missing `forcesHub` REFUSES — it does not fall back to `T_duct + T_disk` and it does not warn… a missing term is dropped silently only if a comparator lets it be."* **`analyse_f28.py` lets it be.**
+
+**⚠ AGAINST MY OWN FINDING, AND I WILL NOT OVERSTATE IT.** I **cannot** say the verdict was flattered, and I do not. The two §6.3 gates move in **opposite** senses: adding the hub's drag pushes `T_total` **more negative**, making the **sign** gate (*"a positive `T_total` is thrust from nothing"*) **easier**, and the **magnitude** gate (`< 2 %` of the loaded reference) **harder**. **The direction is indeterminate until `T_hub` is measured — and that is precisely the finding.** A registered term of a graded quantity went **unevaluated**, which is the defect class the comparator's own struck refusal named in terms: *"a `GATE REACHED` issued while a REGISTERED channel goes unevaluated is a verdict on a criterion that was never applied."* **The struck refusal was right about the principle and the file then reproduced the principle's violation one symbol over.**
+
+**⚠ AND THIS IS NOT BAD FAITH, WHICH MATTERS TO THE RECORD.** The blob was installed **2026-08-31T22:40Z**; **Addendum 7 landed 2026-09-01** and its §6 endorsed **only** `analyse_f28g.py`. cfd did not install a comparator in defiance of a ruling — **the ruling arrived afterwards and nobody propagated it to the parent path.** That is a **propagation failure**, and it is the same class my own board already carries against T20 (*"§2d.3 grant reached three T20 records but not the pre-registration"*). **A ruling that reaches one of two grading paths has not been applied; it has been half-applied, which reads identically from either path alone.**
+
+### 24.5 THE VERDICT, AND WHAT IT DOES AND DOES NOT DECIDE
+
+**`F28 §6.3 — NOT A RESULT`**, on the ground that a registered term of its graded quantity is unevaluated. **Standing rule 5's direction is respected: this turns a `GATE REACHED` INTO `NOT A RESULT` and could not have turned anything the other way.**
+
+**Two repairs are available and the choice is cfd's, not mine:**
+
+1. **Wire `forcesHub` into `analyse_f28.py`, with a refusal on absence, matching `analyse_f28g.py`.** The stronger path. **It requires re-proving the frame:** `assert_stationarity_frame`'s bit-exact identity binds `T_total` to `forcesDuct`'s column alone, so a composed `T_total` breaks that identity and the stationarity proof must be re-anchored on the duct term explicitly rather than on a symbol whose meaning has moved. **That coupling is the real cost and it is why this is not a one-line fix.**
+2. **A dated addendum scoping Addendum 7's composition away from §6.3.** Legal in shape — but it would have to explain **why one symbol means two things inside one registration**, and I record that as the **weaker** path without forbidding it.
+
+**What this section does NOT do.** It does not amend the registration (not mine), does not touch `analyse_f28.py` (**worktree modified: 0 files**; the blob on disk is byte-identical to HEAD, verified after), does not re-grade any F28 arm, and does not disturb Stage 0 or the F28G child. **It does not disturb the delta of §24.2, which stands as sound** — the defect predates it, was neither introduced nor closed by it, and the two questions are separate.
+
+| item | outcome |
+|---|---|
+| §17.8's blob pin | **FIRED, then DISCHARGED** — check 1 **TRANSFERS** to `5aff1614` on my personal read |
+| Addendum 3/4 legality | **LAWFUL**, verified at Sanaa's own words, not on relay |
+| F28 §6.3 | **`NOT A RESULT`** — a registered term unevaluated |
+| direction of the error | **INDETERMINATE, stated as such** — the two gates move opposite ways |
+| repairs mandated | **0** — referred to cfd with both paths named and their costs |
+| code changed | **0 files** · verdicts on other teams' rungs re-graded: **0** |
+| solver compute | **0 core-min, $0.00** |
+| **lines whose number changed above this section** | **0** |
