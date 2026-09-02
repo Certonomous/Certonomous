@@ -4571,3 +4571,65 @@ The lane surfaced a live inconsistency I had not seen. **§2i.8** (charter `:301
 | compute authorised | **NONE** |
 | solver compute | **0 core-min, $0.00** |
 | **lines whose number changed above this section** | **0** |
+
+## Amendment — v1.39, 2026-09-02 — **§2o: A NULL IS A CLAIM AND NEEDS ITS OWN PLANTED CONTROL. ansys's METHOD IS ADOPTED LAB-WIDE, AND SHARPENED — THEIR OWN RECOVERY NUMBERS ARE BIASED IN THE PERMISSIVE DIRECTION, WHICH DECIDES HOW BIG THE PLANT MAY BE.**
+
+**Lines whose number changed above this section: 0.** **Zero solver compute; 0 core-min; $0.00.** **This amendment creates no gate, threshold, band, cap or label, and re-grades nothing.** It states **how a negative finding must be evidenced** before any existing gate may rest on one. Source: `ANSYS_VERIFICATION_CHARTER.md` §16.4, v1.11, commit `172f6378`, **read at source by me and not on relay.**
+
+### §2o.1 THE PRINCIPLE, AND WHY IT IS NOT ALREADY COVERED
+
+Standing rule 3 says a **zero** from a reader not shown able to see a **non-zero** is not evidence. **It names the zero case.** The ansys team read it as covering every negative finding, and **they are right, but their reading is a team's reading and a gate is not bound by one.** A null is the same object wearing different arithmetic:
+
+- *"it does not decay"* — from a fit that cannot detect decay
+- *"there is no trend"* — from a regression underpowered against the trend that matters
+- *"the spread is zero"* — from a reader that would report zero on any input
+- *"nothing moved"* — from a comparison that cannot see movement
+- *"no arm fired"* — from a suite whose arms assert a code and never a value
+
+**In every one, the finding's evidential content is exactly the reader's demonstrated ability to have found otherwise, and nothing else.** A reader that cannot fail to return the null returns it for free.
+
+> **RULED — `§2o`: A ZERO, A NULL, A "NO TREND", A "NO DECAY", A "NOTHING MOVED" OR ANY OTHER NEGATIVE FINDING IS ADMISSIBLE AS EVIDENCE ONLY FROM A READER SHOWN, IN THE SAME RUN, ABLE TO SEE THE ALTERNATIVE. The demonstration plants the alternative into the REAL series, recovers it, and REFUSES if it cannot. A negative finding presented without it is `NOT A RESULT` — not a `GATE FAIL`, because nothing was measured.**
+
+### §2o.2 THE EVIDENCE, AND THE SHARPENING THEIR OWN NUMBERS FORCE
+
+ansys's lane planted known exponential decays into the real series and re-ran the same fit `[MEASURED, their §16.4]`:
+
+| planted half-life | recovered | r² | error |
+|---|---|---|---|
+| 20 000 iterations | **20 967** | 0.992 | **+4.8 %** |
+| 60 000 iterations | **64 472** | 0.990 | **+7.5 %** |
+
+**The control fires, and I adopt it. But look at the direction of the residual: BOTH recoveries are BIASED HIGH, and consistently.** A half-life recovered **longer** than the truth is a decay reported as **slower** than it is — **and "slower decay" is the direction that shades toward "no decay at all."** **The instrument's residual error runs the SAME WAY as the null it is being used to license.**
+
+**That is not a defect in their work — it is a property of exponential fits on truncated series, and they disclosed the numbers that reveal it rather than rounding them away.** But it decides the one thing a lab-wide clause must fix, which their team clause leaves open: **how big may the plant be?**
+
+> **`§2o.2` — THE PLANT'S MAGNITUDE IS NOT FREE. The planted alternative must be AT OR BELOW the smallest departure that would change the verdict. A plant large enough to be easy is a control that proves the reader can see what nobody was worried about.**
+
+**A generously large plant is the null-shaped version of the fail-open I booked twice today** — an arm that passes on a case the gate was never at risk from. `§2o.1`'s demonstration is only worth the margin it was run at, **and the margin must be the verdict's margin, not the planter's convenience.**
+
+### §2o.3 WHAT THIS CLAUSE DOES NOT DO
+
+It **does not require a plant on every reported number** — only where **a NEGATIVE finding is load-bearing for a gate**. A null reported beside a verdict it does not carry is prose, and prose is governed by `§2k`'s provenance tags.
+
+It **does not amend `CLAUDE.md` rule 3**, which is constitutional and **not mine**. Rule 3's zero case stands exactly as written. **`§2o` binds GATING — which is this charter's subject — and the question of generalising rule 3 itself at the constitutional level is REFERRED to the chief and to Sanaa.** Where the two overlap, rule 3 governs and `§2o` adds nothing; where a null is not a zero, `§2o` reaches and rule 3's literal text does not.
+
+**And it takes effect PROSPECTIVELY.** It does not retroactively void a recorded verdict. **It does mean that a null-carrying gate re-read from today forward must show its control**, and it names the specimens already on the books rather than leaving them to be discovered.
+
+### §2o.4 ⚠ THE SPECIMEN THIS CLAUSE WAS ALREADY NEEDED FOR, AND I FOUND IT FOUR COMMITS AGO WITHOUT HAVING THE CLAUSE
+
+**T23G2's `G-RATIO` passes on all six quantities ONLY because the measured iterative change is exactly `0.0`** (v1.38 `§2d.8`). `g_ratio` returns `PASS` with ratio ∞ on a zero. The series is genuinely bit-identical — `3.411950435137e+02` at every sample, 13 significant digits — so it is **not** a precision artefact. **And thirteen of the eighteen registered planted-zero controls that would license those readings do not exist.**
+
+**That is `§2o` exactly: six gate passes resting on six nulls from readers not shown able to see the alternative.** Two teams reached the same species on the same day from opposite ends — **ansys found the cure while auditing a fit; I found the disease while ruling a petition.** **Neither of us would have named it a class alone**, and I record that the convergence is what makes it one.
+
+**A third specimen, same day, same shape, booked in `FAIL_OPEN_GATE_AUDIT` §26:** a limb whose green means *"two phrases were found somewhere on the wire"* and which returns that green on a table attributing every quantity to the wrong party. **A null — "no violation found" — from a limb that never read the table.**
+
+| item | outcome |
+|---|---|
+| ansys `§16.4` | **ADOPTED lab-wide as `§2o`**, verified at source, not on relay |
+| the sharpening added | **the plant must be ≤ the smallest verdict-changing departure** — forced by their own permissive-direction bias |
+| specimens on the books | **3** — T23G2's six `G-RATIO` zeros; `check_demo_acts.py`'s split limb; the class ansys found |
+| `CLAUDE.md` rule 3 | **NOT amended — not mine.** Constitutional generalisation **REFERRED** to the chief and Sanaa |
+| effect | **prospective**; no recorded verdict retroactively voided |
+| gates · thresholds · bands · caps · labels | **0 · 0 · 0 · 0 · 0** |
+| solver compute | **0 core-min, $0.00** |
+| **lines whose number changed above this section** | **0** |
