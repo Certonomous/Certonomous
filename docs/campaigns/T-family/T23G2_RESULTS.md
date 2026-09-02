@@ -195,7 +195,7 @@ it is visible even though rule 5 then supersedes it: `Q3`'s row verdict is
 | `G-YPLUS` | **`GATE FAIL`** | §1.2 |
 | `G-PLATEAU` | **`PASS`** | `PLATEAUED` on all six quantities at all three levels |
 | `G-RATIO` | **`PASS`** | ratio ∞ on all six (finest iterative change exactly 0.0; smallest inter-level difference 6.66e-01 to 2.65e-05), threshold ≥ 10 — **and now licensed by a live control, see §4** |
-| `G-ORDER` | **`PASS` — as printed by the comparator; ⚠ NOT CITABLE AS A PASSED GATE, §14** | p(`Q4`) = 0.6111, registered band [0.5, 1.5] at `:833-834`, finest triple `CONVERGING` — **but p(`Q4`) = 0.6111 is the observed order of a triple whose grid claim rule 5 step (1) voided, so there is no order to gate and this `PASS` licenses nothing; the gate as implemented never consults the iterative-convergence states (§14)** |
+| `G-ORDER` | **PRE-REPAIR CELL: `PASS`** *(as the comparator printed it on 2026-09-02, and never citable as a passed gate — §14)* → **POST-REPAIR CELL: `NOT A RESULT`** *(repair `R7`, granted and executed — §17)* | p(`Q4`) = 0.6111, registered band [0.5, 1.5] at `:833-834`, finest triple `CONVERGING` — **all three unchanged by the repair and printed in both captures.** p(`Q4`) is the observed order of a triple whose grid claim rule 5 step (1) voided, so there is no order to gate; the gate **as first implemented** never consulted the iterative-convergence states (§14) and **now does** (§17) |
 | **rung rollup** | **`NOT A RESULT`** | `NOT A RESULT` present in the verdict set and tested first |
 
 **⚠ On `G-ORDER`'s `PASS` — and this paragraph is itself amended, because as
@@ -216,9 +216,14 @@ nothing and must not be cited as a passed gate**, neither as evidence about the
 discretisation nor as a gate the rung cleared. A `§2d.1` repair (`R7`) is
 petitioned at
 `/home/ubuntu/Certonomous/docs/campaigns/T-family/T23G2_R7_ORDER_GATE_PETITION.md`;
-until `verification` rules, this record treats the `PASS` as reported, not as
-earned. **The rung verdict is unaffected either way — `NOT A RESULT` on `G-CONV`
-and `G-YPLUS` regardless.**
+~~until `verification` rules, this record treats the `PASS` as reported, not as
+earned.~~ **SUPERSEDED 2026-09-02 — `verification` HAS RULED. `R7` was `GRANTED`
+on all four conditions (`VERIFICATION_CHARTER.md` v1.41 §2d.9.1, commit
+`79bcfd83`) and has been EXECUTED. The comparator now prints `G-ORDER: NOT A
+RESULT` on this data. The superseded sentence is struck above and kept visible
+rather than rewritten away; see §17.** **The rung verdict is unaffected either
+way — `NOT A RESULT` on `G-CONV` and `G-YPLUS` regardless, before the repair and
+after it.**
 
 ---
 
@@ -611,7 +616,13 @@ otherwise assume is settled.
    `/home/ubuntu/Certonomous/docs/campaigns/T-family/analyse_t23g2.py`. The
    grading was performed with the file at the second path. The sha table of §5
    pins **which bytes** ran; it does not reconcile **where they live** against the
-   registration. Referred, not resolved here.
+   registration. ~~Referred, not resolved here.~~ **CLOSED 2026-09-02 (§17.5).
+   `verification` ruled PERMANENTLY that the comparator DOES NOT MOVE
+   (`VERIFICATION_CHARTER.md` v1.41 §2d.9.2, `79bcfd83`): §7's own next words
+   are "It does not exist yet", so §7 was intent about an unwritten file, and
+   relocating now would make the RECORD false rather than the registration true.
+   The repair went to the TEXT — `T23G2_PREREGISTRATION.md` addendum A3, commit
+   `b1d9070c`. The consequence that survives is NOT ours: see §17.6.**
 3. **~~The guards' mutation kill-rate is being measured separately, and this
    record is NOT FINAL until that lands.~~ CLOSED 2026-09-02 — THE CONDITION IS
    SATISFIED AND THIS RECORD IS FINAL. See §15.** The struck text stood, verbatim,
@@ -639,7 +650,10 @@ otherwise assume is settled.
    **cannot repair the gate** — the comparator is post-compute on the grading
    path and a repair is `verification`'s to grant. Petitioned as `R7` at
    `/home/ubuntu/Certonomous/docs/campaigns/T-family/T23G2_R7_ORDER_GATE_PETITION.md`.
-   **Open until ruled.**
+   ~~**Open until ruled.**~~ **CLOSED 2026-09-02 (§17.1–§17.3). `R7` was
+   `GRANTED` on all four conditions and EXECUTED (commit `73f2e51a`): the gate
+   now prints `NOT A RESULT` on this data, the pre- and post-repair cells are
+   published side by side, and the RUNG VERDICT is unchanged.**
 
 ---
 
@@ -790,7 +804,7 @@ not.**
 
 ---
 
-## ⚠ 15. AMENDMENT, 2026-09-02 — THE GUARD-MUTATION KILL-RATE. §11's OPEN ITEM 3 IS SATISFIED AND THIS RECORD IS NOW FINAL
+## ⚠ 15. AMENDMENT, 2026-09-02 — THE GUARD-MUTATION KILL-RATE. §11's OPEN ITEM 3 IS SATISFIED AND THIS RECORD IS NOW FINAL — **AND THIS INSTRUMENT IS NOW CHARTER LAW: `VERIFICATION_CHARTER.md` §2p LIMB (d), READ AS "TEN MEASURED BLIND SPOTS", DISCHARGING §2n.18 — SEE §17.4**
 
 **Nothing measured is changed by this amendment. No value, no order, no GCI, no
 gate verdict as the comparator printed it, and not the rung verdict.** What
@@ -1279,3 +1293,237 @@ cumulative figure, and belongs to `T25R5`, not to this rung) **appears nowhere i
 this record** — `git grep` over `docs/campaigns/T-family/` and
 `verification/runs/T-family/` returns no such cost figure in any T23G2 file
 `[MEASURED]` 2026-09-02. Nothing was propagated and nothing needed correcting.
+
+---
+
+## ⚠ 17. AMENDMENT, 2026-09-02 — **`R7` IS GRANTED AND EXECUTED. `G-ORDER` MOVES `PASS` → `NOT A RESULT`. THE RUNG VERDICT DOES NOT MOVE. THE RELOCATION IS CLOSED PERMANENTLY. AND OUR KILL-RATE INSTRUMENT BECAME CHARTER LAW.**
+
+**Nothing measured is changed by this amendment. Not one value, order, GCI,
+core-minute or cap. `T23G2`'s `RUNG VERDICT` is `NOT A RESULT` before this
+amendment and `NOT A RESULT` after it.** What changes is one **cell**, and what
+is added is the record of three rulings.
+
+**Authority for everything in this section:** `VERIFICATION_CHARTER.md` **v1.41**,
+commit **`79bcfd83`**, 2026-09-02 — §2d.9.1, §2d.9.2 and §2p.7. **The ruling was
+read in full, as a commit, before any of it was acted on.**
+
+**Gates, thresholds, bands, caps and labels created, moved or retired: 0 · 0 · 0 ·
+0 · 0. Solver compute: 0 core-min, $0.00.** `cost_basis = NOT APPLICABLE — no
+solver compute was incurred.`
+
+---
+
+### 17.1 THE CELL, BEFORE AND AFTER — **THE DISCHARGE §2d.9.1 CONDITIONS (3) AND (4) REQUIRE**
+
+§2d.9.1 grants `R7` on the condition that *"the pre-repair `G-ORDER` cell
+(`PASS`) [is published] beside the post-repair cell (`NOT A RESULT`), and … the
+RUNG verdict is UNCHANGED."* **Both, here, side by side:**
+
+| | `G-ORDER` cell | p(`Q4`) | registered band | finest triple | **RUNG VERDICT** | exit code |
+|---|---|---|---|---|---|---|
+| **PRE-REPAIR** `T23G2_GRADE.out:160-162` | **`PASS`** | **0.6111** | **[0.5, 1.5]** | `CONVERGING` | **`NOT A RESULT`** | 3 |
+| **POST-REPAIR** `T23G2_GRADE_POST_R7.out:160-167` | **`NOT A RESULT`** | **0.6111** | **[0.5, 1.5]** | `CONVERGING` | **`NOT A RESULT`** | 3 |
+
+**NO NUMBER MOVED.** p(`Q4`) = 0.6111 is printed in **both** captures; the band
+`[0.5, 1.5]` is printed in **both**; the finest triple reads `CONVERGING` in
+**both**. **What moved is the verdict drawn from them, in the only direction
+`CLAUDE.md` rule 5 permits: `PASS` → `NOT A RESULT`.**
+
+**THE REPAIR MOVES A CELL AND NOT THE RUNG, and §2d.9.1 requires that distinction
+to be stated rather than inferred.** The rollup already carried `NOT A RESULT`
+from **three independent grounds**, every one established before any repair
+existed: `G-CONV` `GATE FAIL` (`T23G2_L2` `p_rgh` 1.041e-08 against a registered
+≤ 1e-8, §1.1); `G-YPLUS` `GATE FAIL` (`centrebody_up` max 1.8245 / 1.3539 /
+1.0047 against a registered ≤ 1.0, §1.2); and five graded rows voided at rule 5
+step (a). **Granting `R7` moved T23G2 by nothing, and the petition said so
+against its own interest before the ruling came.**
+
+### 17.2 WHAT THE CODE NOW DOES, AND WHAT IT DELIBERATELY DOES NOT
+
+`gate_order` (`docs/campaigns/T-family/analyse_t23g2.py`) now applies rule 5 step
+(a) **before** it gates an order. It **mirrors** `RT.grade_ladder`'s step (a)
+exactly, on the same two dicts `grade_ladder` writes onto the row it hands back
+(`scripts/roache_triple.py:601-602`): a **refusal** when iterative states were
+never supplied (mirroring `:609-612`), and **`NOT A RESULT`** when any level is
+not `CONVERGED` or not `PLATEAUED` (mirroring `:613-618`). **No new criterion, no
+new threshold, no new state name, and no reimplementation of anything
+`roache_triple` owns.**
+
+**UNTOUCHED, and stated so it cannot be assumed otherwise:** `ORDER_BAND = (0.5,
+1.5)` and `ORDER_QUANTITY = "Q4"` — both frozen **pre-compute** at
+`T23G2_PREREGISTRATION.md:833-834` — are **byte-unchanged**. The gate is **not
+retired**. **Only the precondition for evaluability moved.**
+
+**Landed at commit `73f2e51a`.**
+
+### 17.3 THE EVIDENCE THAT THE REPAIR MOVED ONE CELL AND NOTHING ELSE
+
+**Three things were done in this order, and the order is the point.**
+
+**(1) A reproduction control, BEFORE the repair.** The **unrepaired** comparator
+was re-run over `verification/runs/T-family/T23G2_runs` and its stdout diffed
+against the retained capture `T23G2_GRADE.out`: **byte-identical, empty diff**
+`[MEASURED]`. Without this, a difference between the two captures could have come
+from the run tree moving underneath us rather than from the repair.
+
+**(2) The pre-versus-post diff is TWO hunks, eleven lines** `[MEASURED]`.
+
+- **Hunk 2 — capture lines 160–162 → 160–167. The `G-ORDER` cell.** This is the
+  repair, and §17.1 is its table.
+- **⚠ Hunk 1 — capture line 13. NOT a `G-ORDER` line, and it moved.** The `R2`
+  recorder's own `post-repair (working tree)` sha for `analyse_t23g2.py`:
+  `fa4e802f…` → `d2187518…`. **Editing the file changes its blob, and the
+  recorder exists to print that blob — its NON-movement would have been the
+  finding.** It carries no verdict, value, gate, band or threshold, and the
+  `pre-registration (frozen)` column beside it is unchanged at `cc723d6f…`, still
+  reading `DIFFERS` exactly as before. **It was predicted in writing before the
+  post-repair run executed. No third line moved.** *This is disclosed at the
+  prominence of the repair itself rather than described away: a reader holding the
+  discharge condition literally should read it as two hunks, one of them
+  mechanical, and not as one.*
+
+**(3) The gate was shown able to say something else — `CLAUDE.md` rule 3's
+principle applied to a VERDICT rather than to a zero.** *A `NOT A RESULT` from a
+gate never shown able to emit a `PASS` is not evidence; it is indistinguishable
+from a gate hard-wired to refuse.* `r7_gate_control_t23g2.py` drives the
+**production** `gate_order` — not a copy of it, per §2p.7 limb (d) — over five
+inputs and requires five different answers: **5 of 5 passed** `[MEASURED]`,
+`T23G2_R7_GATE_CONTROL.out`.
+
+| control | input | required | measured |
+|---|---|---|---|
+| 1 | as measured — `T23G2_L2` `NOT CONVERGED` | `NOT A RESULT` | `NOT A RESULT` |
+| 2 | **PLANT** — same order, every level `CONVERGED`/`PLATEAUED` | **`PASS`** | **`PASS`** |
+| 3 | **PLANT** — converged, order `2.9000` outside `[0.5, 1.5]` | **`GATE FAIL`** | **`GATE FAIL`** |
+| 4 | plateau limb alone — `T23G2_L3` `NOT PLATEAUED` | `NOT A RESULT` | `NOT A RESULT` |
+| 5 | iterative states absent | refusal | refusal |
+
+**Control 2 is the one that matters:** the repaired gate still emits `PASS` when
+the precondition holds, so control 1's `NOT A RESULT` is a reading of the data and
+not a property of the code. **Control 3 shows the registered band is still live
+and still discriminating** — `R7` did not widen it, narrow it or retire it.
+
+**Artifacts, all labelled as captures at
+`verification/runs/T-family/T23G2_runs/T23G2_GRADE_CAPTURES.md`:**
+
+| file | sha256 |
+|---|---|
+| `T23G2_GRADE.out` — **pre-repair, NOT edited** | `40f2fa33f4818cad7834e86257cd9dac8c6b786f24662c87bb0ffe2927261d2b` |
+| `T23G2_GRADE_POST_R7.out` — post-repair | `dc79492b765a5c7a473119a47ec1364303a7cce420ff42098e6a395adfecc99a` |
+| `T23G2_R7_GATE_CONTROL.out` | `71349ceaaab79d177c2d8e64c8c75dbc0830a63017be59e11c5b8b5d57f3df5d` |
+
+**`T23G2_GRADE.out`'s sha256 is the value the petition recorded before this repair
+existed. It was not edited.**
+
+### 17.4 §2p LIMB (d) — **OUR KILL-RATE INSTRUMENT IS NOW CHARTER LAW, AND IT IS READ AS TEN BLIND SPOTS AND NOT AS A PASS MARK**
+
+**Recorded here because §15 is where the kill-rate lives**, and §15's heading now
+points at this subsection.
+
+§2p.7 rules: *"A TEST THAT EXERCISES A REDUNDANT COPY OF THE GUARDED LOGIC TESTS
+NOTHING. A pass is attributable only if the code that produced it is the code that
+runs."* **And `verification` amended its own §2p.2 against itself in the same
+breath:** the empty-input test *"is therefore NECESSARY AND NOT SUFFICIENT"*,
+because feeding a duplicate nothing makes it refuse correctly — *the duplicate is
+fine; the defect is that it is not the code under test.*
+
+> **THE TEST FOR LIMB (d) IS MUTATION OF THE PRODUCTION PATH SPECIFICALLY:
+> mutate the line that RUNS and require the suite to fail.**
+
+**§15's exercise is that instrument, and it was adopted as the charter's.** The
+number is `36/46`. **`verification` states it as `TEN OF FORTY-SIX MUTATIONS
+SURVIVED`, and this record adopts that reading over its own** — *"78 % is not a
+pass mark, it is ten measured blind spots in a suite that now knows where they
+are, which is strictly better than any suite that has never been mutated."*
+**§15.0's warning stands and is strengthened by it:** the kill-rate measures the
+**instrument**, never the verdict, and no sentence of the form "the verdict is
+78 % trustworthy" is a reading this record permits.
+
+**`§2n.18` is DISCHARGED** — `verification`'s own referral, which its T23G2 ruling
+had flagged as **not** satisfied. *We record it as their discharge of their own
+referral, on an instrument we supplied; the adoption is theirs and the ruling is
+theirs.*
+
+**Nothing in §15 is re-measured or re-stated by this subsection.** `36/46`,
+strict `14/15`, the `F2` survivor and every figure in §15 stand exactly as
+written.
+
+### 17.5 THE MISFILED COMPARATOR — **CLOSED PERMANENTLY. THE FILE DOES NOT MOVE, AND THE RECORD WAS REPAIRED INSTEAD.**
+
+**§11 open item 2 is CLOSED.** `§2d.4.2` had forbidden relocation *"while T23G2
+is ungraded"*; that condition is spent, and §2d.9.2 closed the question **the
+other way and permanently**:
+
+> **RULED — PERMANENTLY, not conditionally: THE COMPARATOR DOES NOT MOVE. MOVING
+> IT WOULD NOT MAKE THE REGISTRATION TRUE — IT WOULD MAKE THE RECORD FALSE.** …
+> **A post-hoc relocation converts a DISCLOSED discrepancy into a CONCEALED one,
+> and produces a tree that lies about its own history.**
+
+**The reasoning, which is the part worth carrying to every other rung.**
+`T23G2_PREREGISTRATION.md` §7 registers the comparator at
+`verification/runs/T-family/T23G2_runs/analyse_t23g2.py` — **and §7's own next
+words are `"It does not exist yet."`** §7 was therefore a statement of **intent
+about an unwritten file**, never a description of where the comparator lived while
+it graded. The comparator has never occupied that path. Moving it there now would
+make the registration *read* as though it described the grading-time location,
+which it never did. **You repair the record to match reality, never reality to
+match the record.**
+
+**What was done instead:** a dated addendum, `T23G2_PREREGISTRATION.md` **A3**
+(v1.2 → v1.3), striking §7's path sentence and stating the actual path,
+`docs/campaigns/T-family/analyse_t23g2.py`. **It alters no gate, threshold, cap or
+label, and says so on its face.** Because that document is prose, the rule 6
+assertion **`lines whose number changed above this section: 0` IS achievable
+there and was MACHINE-VERIFIED** — the committed blob's 1,201 lines were diffed
+byte-for-byte against the same range of the worktree file **inside the shell
+invocation that wrote the commit object**, and the diff was empty. **Landed at
+commit `b1d9070c`.** **No file was moved by any commit in this work.**
+
+### ⚠ 17.6 WHAT THIS DOES **NOT** FIX — AND THE ONE REMAINING FIX IS NOT OURS
+
+**`scripts/check_comparator_freeze.py` still returns ZERO rows for T23G2.**
+`POPULATION_ROOTS = ("verification", "cases")` at `:131`, walked by
+`walk_population` at `:411`; **`docs/` is never walked** `[MEASURED]`. The
+instrument `CLAUDE.md` rule 2 names as its enforcement sees **nothing whatever**
+of the file that produced this rung's verdict.
+
+**Before §2d.9.2 that blindness had two conceivable fixes. It now has one.** The
+relocation is permanently closed, so **the only remaining fix is to the checker's
+walk roots** — and `check_comparator_freeze.py` is a **cross-team enforcement
+instrument, not `heat-transfer`'s to change.** The docket item
+`D-20260902T223401.490151Z-41ea39d0` has been amended to say exactly that; owner
+`verification`.
+
+**What T23G2 has instead is weaker and is labelled weaker:** the `R2`
+grading-path sha recorder prints the working-tree blob beside the frozen blob on
+the artifact's face at every run. **It DISCLOSES divergence; nothing ENFORCES
+it.**
+
+### 17.7 SCOPE OF THE EDIT
+
+**Five edits above the foot, each marked at the site**, following the convention
+§14 and §16 set for this record:
+
+1. **§2's `G-ORDER` table row** now carries **both cells**, pre and post.
+2. **§2's paragraph** has its superseded sentence (*"until `verification`
+   rules…"*) **struck in place and kept visible, not rewritten away**.
+3. **§15's heading** gains a pointer to §17.4.
+4. **§11 open item 2** (the misfiled comparator) is **struck and marked CLOSED**,
+   citing §17.5 — with the surviving consequence redirected to §17.6, because
+   closing the filing question did **not** close the freeze-coverage question.
+5. **§11 open item 6** (`G-ORDER`'s unlicensed `PASS`) is **struck and marked
+   CLOSED**, citing §17.1–§17.3.
+
+**No sentence was deleted anywhere; every superseded phrase is struck in place
+and left readable.**
+
+**As in §14, §15 and §16, this record CANNOT assert `lines whose number changed
+above this section: 0`** — line numbers above did shift, and the assertion is not
+made. **Re-verified for this amendment, not carried forward on trust:** a sweep
+for the line-citation form of this filename returns **zero** hits in every
+git-tracked file **and** zero in an untracked sweep of `.md`, `.py` and `.json`
+under the repository `[MEASURED]` 2026-09-02. **No file anywhere cites this
+record by line.**
+
+**Nothing was re-graded. No solver was launched. No measured number in this record
+changed, and the rung verdict is `NOT A RESULT`, exactly as it was.**
