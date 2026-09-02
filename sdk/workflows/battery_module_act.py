@@ -1030,6 +1030,15 @@ class BatteryModuleAct(DemoAct):
                 "pass before a certificate can carry these temperatures."),
         )
 
+    def worker_census(self):
+        """The workers tile follows this act's own story (Sanaa 0420Z). One
+        worker: the run's launcher recorded ranks=1, and that record is the
+        same source the fleet-channel events use. Zero with the results."""
+        w = solver_ranks(PRIMARY)
+        return (("prompt", 0), ("restatement", 0), ("assumption", 0),
+                ("geometry", 0), ("meshing", w), ("feasibility", w),
+                ("solving", w), ("gates", 0), ("results", 0))
+
     # -- which sequencer walks this act --------------------------------------
     def sequencer(self):
         return BatteryModuleSequencer

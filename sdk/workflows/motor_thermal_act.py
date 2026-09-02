@@ -1305,6 +1305,18 @@ class MotorThermalAct(DemoAct):
                 "study's band arrives with one."),
         )
 
+    def worker_census(self):
+        """The workers tile follows this act's own parallel story (Sanaa
+        0420Z: the on-screen worker count matches the screen). The count is
+        the MEASURED peak of concurrent solver processes off the launch
+        records, the same source the compute table and the fleet-channel
+        events use, never retyped; it rises with the working stages and ends
+        at zero with the results, per the fleet convention."""
+        w = int(sweep_execution()["workers"])
+        return (("prompt", 0), ("restatement", 0), ("assumption", 0),
+                ("geometry", 0), ("meshing", w), ("feasibility", w),
+                ("solving", w), ("gates", 0), ("results", 0))
+
     # -- which sequencer walks this act --------------------------------------
     def sequencer(self):
         """This act's own walk: the shared nine stages with the solving stage
