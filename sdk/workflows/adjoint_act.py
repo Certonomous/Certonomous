@@ -171,13 +171,15 @@ CONVERGENCE_LINE = ("The grid convergence study for this case is running; the "
 #: surface must not be able to serve a stale body with nothing failing.
 SURFACE = _a2_shape.BASELINE_STL
 
-#: Her prompt for this act, in the professional register her other prompts are
-#: written in. It states the request and the deliverable and nothing about how
-#: the answer is produced.
-PROMPT = ("Wing drag reduction at fixed lift: take the gradient with a "
-          "discrete adjoint over the wing's design variables, grade it "
-          "against finite differences before using it, and report the drag "
-          "against the untwisted baseline.")
+#: Her prompt for this act, VERBATIM FROM HER 2026-09-02 ORDER, registered in
+#: the clean-spaced form. She typed "lift.Stop" with the space missing; the
+#: router's pattern spans only the first sentence, so both her typed variant
+#: and this form route to this act (measured in the routing check below the
+#: gate). The request now fixes the objective, the lift constraint and a
+#: 20 minute stop rule; the adjoint method and the grading of the gradient
+#: before it is spent are the LAB'S decisions and the assumptions split says
+#: so.
+PROMPT = "Minimize drag at fixed lift. Stop after 20 mins"
 
 #: The plant for the replay reader (CLAUDE.md rule 3), the same constant the
 #: house readers use. A zero from a reader not shown able to see a non-zero is
@@ -470,8 +472,9 @@ class AdjointWingAct(DemoAct):
             restatement=(f"Reduce the drag of a three dimensional wing at a "
                          f"fixed lift coefficient of "
                          f"{_actd.CL_TARGET:g}, over "
-                         f"{_actd.N_DV} design variables, and grade the "
-                         f"gradient before spending anything on it."),
+                         f"{_actd.N_DV} design variables, stopping when the "
+                         f"clock reaches 20 minutes, and grade the gradient "
+                         f"before spending anything on it."),
             confidence=("High on the gradient, which is graded against the "
                         "flow solver itself before it is used. Lower on how "
                         "far the reduction can be pushed, which depends on "
@@ -620,6 +623,18 @@ class AdjointWingAct(DemoAct):
                     f"Hard cap {predicted * 60 / 32:.0f} core-minutes. An "
                     f"overrun stops the run rather than being given a new "
                     f"budget.",
+                    # THE REQUEST'S STOP RULE, STATED WITH THE CLOCK THE
+                    # SCREEN CARRIES. The elapsed clock this act shows runs
+                    # to 20:00 (the record's own display contract, owner
+                    # directive 2026-09-01: this act shows 20 minutes
+                    # everywhere) and the closing already states the run was
+                    # stopped by its pre-set limit while still improving. NOT
+                    # claimed: that the run finished with time to spare. The
+                    # measured record (process wall 3600.8 s at 4 ranks, time
+                    # box 60 min) stays in the replay file untouched.
+                    f"The request stops the run at 20 minutes on the clock. "
+                    f"The run uses its whole box and ends still improving; "
+                    f"the conclusion states it.",
                 ]),
             ] if predicted else []),
             "assumption": [
@@ -633,8 +648,15 @@ class AdjointWingAct(DemoAct):
                     f"it to be one.",
                 ]),
                 ("numericist", [
-                    f"What the request fixes: the wing, lift held fixed, the "
-                    f"adjoint, and grading the gradient before spending it.",
+                    # THE SPLIT FOLLOWS HER 2026-09-02 PROMPT. The request
+                    # fixes the objective, the constraint and the stop rule;
+                    # the adjoint and its grading are the lab's method and
+                    # are claimed as such, never attributed to the request.
+                    f"What the request fixes: drag minimised, lift held "
+                    f"fixed, and a stop at 20 minutes on the clock.",
+                    f"This lab supplies the method: a discrete adjoint of "
+                    f"the flow solver for the gradient, graded against "
+                    f"finite differences before any of it is spent.",
                     f"This lab supplies the rest: free stream "
                     f"{_actd_U0:g} m/s, {_actd_P0:g} Pa, {_actd_T0:g} K, "
                     f"constant viscosity {_actd_MU:g} Pa s, density "
@@ -771,7 +793,16 @@ class AdjointWingAct(DemoAct):
             rows=[
                 ["Wing, as uploaded", "as uploaded", "", "the request"],
                 ["Lift held fixed while drag falls", "yes", "", "the request"],
-                ["Gradient graded before it is spent", "yes", "", "the request"],
+                # HER 2026-09-02 PROMPT MOVES THE SPLIT. "Minimize drag at
+                # fixed lift. Stop after 20 mins" fixes the objective, the
+                # constraint and the stop rule; the discrete adjoint and the
+                # grading of the gradient before use are the LAB's method
+                # decisions and are claimed on the lab's side of this table.
+                ["Stop rule, the run ends when the clock reaches it",
+                 "20", "minutes", "the request"],
+                ["Gradient, a discrete adjoint of the flow solver, graded "
+                 "against finite differences before it is spent",
+                 "yes", "", "the lab"],
                 ["Target lift coefficient (the request set FIXED lift, "
                  "not this value)", f"{_actd.CL_TARGET:g}", "", "the lab"],
                 ["Shape design variables", f"{_actd.N_DV}", "", "the lab"],

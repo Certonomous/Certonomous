@@ -187,6 +187,20 @@ _DRAG_CUT = re.compile(
     r"\b(cut|reduce|lower|minimi[sz]e|shave|trim|drop)\b[^.?!]{0,40}"
     r"\bdrag\b", re.I)
 _WING_BODY = re.compile(r"\bwing\b", re.I)
+# The act's registered prompt since 2026-09-02 is Sanaa's own sentence,
+# "Minimize drag at fixed lift. Stop after 20 mins", which names neither the
+# adjoint nor a wing -- so it reached NEITHER adjoint pattern and classify()
+# returned shape-optimization at 0.99 (measured at the HEAD before this
+# insertion, both with her exact typed variant "lift.Stop" and with the
+# clean-spaced form). Same failure class as the shock benchmark's physics
+# prompt (106da39f): the router only understood how a specialist says it.
+# The pattern spans only the first sentence, so the missing space after
+# "lift." cannot affect the match.
+_DRAG_AT_FIXED_LIFT = re.compile(
+    r"\b(cut|reduce|lower|minimi[sz]e|shave|trim|drop)\b[^.?!]{0,40}"
+    r"\bdrag\b[^.?!]{0,60}"
+    r"(?:\b(?:fixed|held|constant|matched|same)\s+lift\b"
+    r"|\blift\s+(?:held|fixed|constant|matched)\b)", re.I)
 
 # Optimising lift-to-drag for an aircraft against mission requirements is a
 # distinct beat from the OpenFOAM shape sweep: it searches a wing design space.
@@ -791,6 +805,24 @@ def classify(request: str) -> Route:
         add(ADJOINT_OPTIMIZATION, 2.0,
             "asks for the drag on the wing to be cut, which this lab answers "
             "with the verified gradient")
+    elif (_DRAG_AT_FIXED_LIFT.search(text)
+          and not (surface_file or named_phrase or _LIFT_DRAG.search(text)
+                   or _CRM_WINGBODY_NAME.search(text)
+                   or _ONERA_M6_NAME.search(text)
+                   or _AHMED_BODY_NAME.search(text)
+                   or _NASA_HUMP_NAME.search(text))):
+        # ``elif``, NOT a second ``if``, for the reason 106da39f records:
+        # ``add`` ACCUMULATES, so an independent branch would move the
+        # confidence of every prompt already matching a branch above. This
+        # fires only where the two existing adjoint patterns did not, so no
+        # prompt that routes today can have its score changed. The exclusion
+        # list is the branch above's, byte for byte: a named body outranks a
+        # method every time. Same weight, same intent: drag minimised under
+        # a lift held fixed is the one constrained-optimisation act this lab
+        # has finished calculations for.
+        add(ADJOINT_OPTIMIZATION, 2.0,
+            "asks for drag minimised with lift held fixed, which this lab "
+            "answers with the verified gradient")
     # --- optimization ---
     if _OPTIMIZE.search(text):
         add(SHAPE_OPTIMIZATION, 0.7, "asks for an objective to be improved")
