@@ -907,6 +907,46 @@ def gate_order(rows):
     outside -> GATE FAIL".  Where the finest triple is not CONVERGING there is no
     order claim to gate, and an absent measurement is reported as absent, never
     as a pass (VERIFICATION_CHARTER.md section 9).
+
+    AMENDMENT v1.1 -> v1.2, 2026-09-02 -- REPAIR R7.  GRANTED at
+    VERIFICATION_CHARTER.md v1.41 section 2d.9.1, commit 79bcfd83, on
+    heat-transfer's petition at
+    docs/campaigns/T-family/T23G2_R7_ORDER_GATE_PETITION.md.
+
+    THE DEFECT R7 REPAIRS, AND IT WAS SHIPPED BY R3.  As delivered, this
+    function read exactly two fields -- row["orders"][-1] and row["states"][-1]
+    -- and graded on them.  BOTH ARE POPULATED UNCONDITIONALLY AT ROW
+    CONSTRUCTION (scripts/roache_triple.py:597-598), which happens BEFORE rule
+    5 step (a) executes at :604-618 and sets the row's verdict to NOT A RESULT.
+    A row that step (a) has voided therefore STILL CARRIES a CONVERGING finest
+    triple and a numeric order, and this gate read exactly those two.  The
+    2026-09-02 capture is the evidence: "VERDICT: NOT A RESULT -- levels
+    T23G2_L2 are not iteratively converged or not plateaued" once per graded
+    quantity, and then "G-ORDER: PASS" forty-seven lines later, in the same
+    output.
+
+    CLAUDE.md rule 5, verbatim: "The gate can only turn a PASS or GATE FAIL
+    INTO NOT A RESULT, never the reverse."  A PASS emitted on a claim step (a)
+    has already voided is the reverse, and that is the departure R7 repairs.
+
+    THE REPAIR MIRRORS grade_ladder's STEP (a) AND INVENTS NO CRITERION.  The
+    two tests below are the same two tests, applied to the same two dicts, that
+    roache_triple.grade_ladder applies at :605-618 -- the refusal when
+    iterative-convergence states were never supplied, and the void when any
+    level is not "CONVERGED" or not "PLATEAUED".  grade_ladder writes both
+    dicts onto the very row it hands back (:601-602); this function now reads
+    them instead of ignoring them.  No new threshold, no new state name, no
+    reimplementation.
+
+    UNTOUCHED BY R7, AND STATED SO IT CANNOT BE ASSUMED OTHERWISE:
+    ORDER_BAND = (0.5, 1.5) and ORDER_QUANTITY = "Q4", both frozen pre-compute
+    at T23G2_PREREGISTRATION.md:833-834, are unchanged -- not widened, not
+    narrowed, not moved.  The gate is not retired.  What changes is ONLY the
+    precondition under which the gate is evaluable.
+
+    DIRECTION: STRICTLY RESTRICTIVE.  It can only turn a PASS or a GATE FAIL
+    INTO NOT A RESULT -- the one direction rule 5 permits -- and it can never
+    turn a non-PASS into a PASS.
     """
     note("G-ORDER -- A1.2 at T23G2_PREREGISTRATION.md:834, on %s, band %s"
          % (ORDER_QUANTITY, ORDER_BAND))
@@ -916,7 +956,34 @@ def gate_order(rows):
                "unevaluated gate is not a passed one" % ORDER_QUANTITY)
     p = row["orders"][-1]
     state = row["states"][-1]
-    if p is None or state != "CONVERGING":
+
+    # ---- REPAIR R7 -- rule 5 step (a), BEFORE any grid claim is gated -------
+    # The mirror of roache_triple.grade_ladder:605-618, on the dicts that
+    # function wrote onto this row at :601-602.
+    it_states = row.get("iterative_convergence")
+    pl_states = row.get("plateau")
+    if it_states is None:
+        refuse("G-ORDER: no iterative-convergence states are recorded on the "
+               "%s row; step (a) of rule 5 cannot be evaluated for this gate "
+               "and an unevaluated step is not a passed one" % ORDER_QUANTITY)
+    bad_it = sorted(k for k, v in it_states.items() if v != "CONVERGED")
+    bad_pl = sorted(k for k, v in (pl_states or {}).items()
+                    if v != "PLATEAUED")
+
+    if bad_it or bad_pl:
+        verdict = "NOT A RESULT"
+        note("  REPAIR R7 (VERIFICATION_CHARTER.md section 2d.9.1): levels %s "
+             "are not iteratively\n  converged or not plateaued, so rule 5 "
+             "step (a) has ALREADY VOIDED the grid claim\n  this gate would "
+             "otherwise grade.  There is NO ORDER CLAIM to gate."
+             % ",".join(bad_it + bad_pl))
+        note("  The observed order is %s and the finest triple reads %s.  BOTH "
+             "ARE PRINTED because\n  they are exactly what an unlicensed gate "
+             "would have graded, and NEITHER licenses\n  anything: the band "
+             "[%.1f, %.1f] on %s is untouched and remains registered."
+             % ("None" if p is None else "%.4f" % p, state,
+                ORDER_BAND[0], ORDER_BAND[1], ORDER_QUANTITY))
+    elif p is None or state != "CONVERGING":
         verdict = "NOT A RESULT"
         note("  finest triple is %s and the observed order is %s; there is NO "
              "ORDER CLAIM to gate" % (state, "None" if p is None else "%.4f" % p))
@@ -1166,4 +1233,97 @@ if __name__ == "__main__":
 # Every gate, threshold, band, cap and label is untouched: created 0, moved 0,
 # retired 0.  T23G2_PREREGISTRATION.md was NOT edited.  No file was moved
 # (section 2d.4.2 forbids relocating this comparator while T23G2 is ungraded).
+# ==========================================================================
+#
+# ==========================================================================
+# AMENDMENT RECORD -- v1.1 -> v1.2, 2026-09-02.  REPAIR R7, AND ONE OF IT.
+#
+# GRANTED at VERIFICATION_CHARTER.md v1.41 section 2d.9.1, commit 79bcfd83, on
+# heat-transfer's petition at
+# docs/campaigns/T-family/T23G2_R7_ORDER_GATE_PETITION.md.
+#
+#   R7  GRANTED ON ALL FOUR CONDITIONS -- gate_order now applies rule 5 step (a)
+#       BEFORE it gates an order.  Where any level is not iteratively converged
+#       or not plateaued the grid claim is already void and the gate returns
+#       NOT A RESULT instead of PASS or GATE FAIL.  The whole change is in
+#       gate_order and in nothing else.
+#
+# THE ONE THING THIS REPAIR DOES NOT DO, STATED FIRST BECAUSE IT IS THE THING
+# MOST EASILY MISREAD.  ORDER_BAND = (0.5, 1.5) at :65 and ORDER_QUANTITY =
+# "Q4" at :66 are BYTE-UNCHANGED, and both are frozen pre-compute at
+# T23G2_PREREGISTRATION.md:833-834.  The gate is not retired.  Only the
+# PRECONDITION for evaluability moved.  Gates, thresholds, bands, caps and
+# labels created, moved or retired: 0 - 0 - 0 - 0 - 0.
+#
+# CONDITION (2)'s INSTRUMENT, AND IT IS NOT ONE WE BUILT.  The departure was
+# exhibited against CLAUDE.md standing rule 5.  Section 2d.9.1 EXTENDED
+# section 2d.5 a fortiori to reach it: a standing rule is lab-constitutional,
+# predates every rung, grades nothing, and cannot know which direction a verdict
+# wants, so it satisfies condition (2) on the same ground as a frozen
+# registration and with more force.  THAT EXTENSION IS verification's RULING AND
+# NOT THIS LANE's READING -- the petition at section 5 said plainly that the
+# question was not ours to answer, and it was answered against our own interest
+# in the sense that it turned one of our own PASSes into a NOT A RESULT.
+#
+# CONDITIONS (3) AND (4), DISCHARGED AT ZERO AND MEASURED:
+#   * pre-repair cell   G-ORDER: PASS
+#   * post-repair cell  G-ORDER: NOT A RESULT
+#   * RUNG VERDICT      NOT A RESULT, UNCHANGED, exit code 3 in both captures.
+#     The rollup already carried NOT A RESULT on three independent grounds
+#     established before any repair existed.  R7 MOVES A CELL, NOT THE RUNG.
+#   * p(Q4) = 0.6111 and the band [0.5, 1.5] are printed in BOTH captures.
+#     NO VALUE MOVED.
+#   The two captures are labelled, sha256'd and diffed at
+#   verification/runs/T-family/T23G2_runs/T23G2_GRADE_CAPTURES.md, beside
+#   T23G2_GRADE.out (pre-repair, NOT edited by this repair) and
+#   T23G2_GRADE_POST_R7.out (post-repair).
+#
+# THE GATE WAS SHOWN ABLE TO SAY SOMETHING ELSE, WHICH IS RULE 3's PRINCIPLE
+# APPLIED TO A VERDICT.  A NOT A RESULT from a gate never shown able to emit a
+# PASS is indistinguishable from a gate hard-wired to refuse.
+# r7_gate_control_t23g2.py drives THIS function -- the production one, not a
+# copy of it (section 2p.7 limb (d)) -- over five inputs and requires five
+# different answers; 5/5 passed.  Control 2 plants all-CONVERGED and gets PASS
+# back.  Control 3 plants an order of 2.9000 and gets GATE FAIL back, which is
+# what shows the registered band is still live and still discriminating.
+#
+# RULE 6, STATED HONESTLY RATHER THAN ASSERTED FALSELY -- THE SAME POSITION THE
+# v1.1 BLOCK ABOVE TOOK, AND FOR THE SAME REASON.  The assertion "lines whose
+# number changed above this section: 0" IS NOT MADE HERE AND CANNOT BE: R7
+# inserts executable lines into gate_order at :903, so every line number below
+# that point moved.  WHAT IS MEASURED INSTEAD, AND IT IS MEASURED AND NOT
+# ESTIMATED:
+#   * THE EXECUTABLE REPAIR, measured against the blob that produced
+#     T23G2_GRADE.out (fa4e802f9e0eab63e8d4902e1d74e99f11748a8f): 68 lines
+#     inserted, 1 line deleted, ALL OF THEM INSIDE gate_order.  THE ONE
+#     DELETION IS THE `if` OF `if p is None or state != "CONVERGING":`
+#     BECOMING AN `elif`, because rule 5 step (a) now stands in front of it.
+#     No other line was removed anywhere in the file.
+#   * against the FROZEN blob cc723d6f65245674f7d80c51de55fe986549477a at
+#     976776f4, at that same point: 603 inserted, 20 deleted; frozen file 653
+#     lines.
+#   * THIS AMENDMENT BLOCK ITSELF is a pure comment append BELOW the
+#     `if __name__ == "__main__"` guard.  It adds NO executable line and moves
+#     NO executable line: every line above it keeps its number.
+# THIS FILE DELIBERATELY DOES NOT RECORD ITS OWN POST-REPAIR BLOB SHA, BECAUSE
+# WRITING THAT SHA INTO THE FILE CHANGES IT.  The blob is recorded OUTSIDE, at
+# verification/runs/T-family/T23G2_runs/T23G2_GRADE_CAPTURES.md, beside the
+# capture it produced -- and the comparator prints it on the artifact's face at
+# every run through the R2 recorder, which is the check that cannot go stale.
+# CITATIONS INTO THE FROZEN TEXT RESOLVE AGAINST THE FROZEN BLOB AND NOT AGAINST
+# THIS FILE.  THE FROZEN BLOB IS THE ONE TO CITE.
+#
+# THE COMPARATOR DID NOT MOVE, AND NOW NEVER WILL.  Section 2d.9.2 closed the
+# relocation PERMANENTLY, not conditionally: moving this file post-compute would
+# not make T23G2_PREREGISTRATION.md section 7 true, it would make the RECORD
+# false, converting a disclosed discrepancy into a concealed one.  The repair
+# section 2d.1 licenses runs the other way -- a dated addendum correcting
+# section 7's PATH TEXT, which is where the demonstrable error is.  You repair
+# the record to match reality, never reality to match the record.
+#
+# NOTHING WAS GRADED AND NOTHING WAS LAUNCHED BY THE LANE THAT MADE THIS EDIT.
+# The comparator was re-run three times over artifacts already on disk: 0
+# core-min, $0.00.  T23G2_GRADE.out WAS NOT EDITED -- its sha256 is still
+# 40f2fa33f4818cad7834e86257cd9dac8c6b786f24662c87bb0ffe2927261d2b, the value
+# the petition recorded before this repair existed.
 # ==========================================================================

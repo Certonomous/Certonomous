@@ -1,0 +1,50 @@
+--------------------------------------------------------------------------
+CONTROL 1  AS-MEASURED (T23G2_L2 NOT CONVERGED) -- expect NOT A RESULT
+G-ORDER -- A1.2 at T23G2_PREREGISTRATION.md:834, on Q4, band (0.5, 1.5)
+  REPAIR R7 (VERIFICATION_CHARTER.md section 2d.9.1): levels T23G2_L2 are not iteratively
+  converged or not plateaued, so rule 5 step (a) has ALREADY VOIDED the grid claim
+  this gate would otherwise grade.  There is NO ORDER CLAIM to gate.
+  The observed order is 0.6111 and the finest triple reads CONVERGING.  BOTH ARE PRINTED because
+  they are exactly what an unlicensed gate would have graded, and NEITHER licenses
+  anything: the band [0.5, 1.5] on Q4 is untouched and remains registered.
+  G-ORDER: NOT A RESULT
+
+  GOT: NOT A RESULT
+  CONTROL PASSED
+--------------------------------------------------------------------------
+CONTROL 2  PLANT -- all levels CONVERGED/PLATEAUED -- expect PASS
+G-ORDER -- A1.2 at T23G2_PREREGISTRATION.md:834, on Q4, band (0.5, 1.5)
+  p(Q4) = 0.6111, band [0.5, 1.5], finest triple CONVERGING
+  G-ORDER: PASS
+
+  GOT: PASS
+  CONTROL PASSED
+--------------------------------------------------------------------------
+CONTROL 3  PLANT -- converged, order 2.9000 OUTSIDE [0.5, 1.5] -- expect GATE FAIL
+G-ORDER -- A1.2 at T23G2_PREREGISTRATION.md:834, on Q4, band (0.5, 1.5)
+  p(Q4) = 2.9000, band [0.5, 1.5], finest triple CONVERGING
+  G-ORDER: GATE FAIL
+
+  GOT: GATE FAIL
+  CONTROL PASSED
+--------------------------------------------------------------------------
+CONTROL 4  plateau limb alone (L3 NOT PLATEAUED) -- expect NOT A RESULT
+G-ORDER -- A1.2 at T23G2_PREREGISTRATION.md:834, on Q4, band (0.5, 1.5)
+  REPAIR R7 (VERIFICATION_CHARTER.md section 2d.9.1): levels T23G2_L3 are not iteratively
+  converged or not plateaued, so rule 5 step (a) has ALREADY VOIDED the grid claim
+  this gate would otherwise grade.  There is NO ORDER CLAIM to gate.
+  The observed order is 0.6111 and the finest triple reads CONVERGING.  BOTH ARE PRINTED because
+  they are exactly what an unlicensed gate would have graded, and NEITHER licenses
+  anything: the band [0.5, 1.5] on Q4 is untouched and remains registered.
+  G-ORDER: NOT A RESULT
+
+  GOT: NOT A RESULT
+  CONTROL PASSED
+--------------------------------------------------------------------------
+CONTROL 5  iterative states ABSENT -- expect REFUSAL
+G-ORDER -- A1.2 at T23G2_PREREGISTRATION.md:834, on Q4, band (0.5, 1.5)
+  GOT: REFUSED: G-ORDER: no iterative-convergence states are recorded on the Q4 row; step (a) of rule 5 cannot be evaluated for this gate and an unevaluated step is not a passed one
+  CONTROL PASSED
+--------------------------------------------------------------------------
+R7 GATE CONTROL: 5/5 passed
+EXIT_CODE=0
