@@ -175,8 +175,18 @@ _SYMBOL_WORDS = frozenset({
 
 
 def check_wording(text: str) -> None:
-    """Raise if ``text`` breaks the on-camera wording doctrine."""
-    if "—" in text or " - " in text:
+    """Raise if ``text`` breaks the on-camera wording doctrine.
+
+    THE DASH BAN IS NOW THE WHOLE FAMILY. This checked the em-dash and the
+    spaced hyphen only, so the house habit of rendering an em-dash as the
+    double hyphen "--" walked straight through it and reached filmed strings.
+    Sanaa, 2026-09-02 addendum, verbatim: "no dashes anywhere --". So the
+    em-dash, the en-dash, the double hyphen and the spaced hyphen are all
+    refused; re-punctuate with commas, colons or semicolons, content
+    unchanged. A bare hyphen INSIDE a word ("k-omega", "second-order",
+    "trailing-edge") is spelling, not punctuation, and stays legal.
+    """
+    if ("—" in text or "–" in text or "--" in text or " - " in text):
         raise ValueError(f"dash not allowed in transcript prose: {text!r}")
     lowered = text.lower()
     for phrase in _BANNED_PHRASES:

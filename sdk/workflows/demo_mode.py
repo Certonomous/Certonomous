@@ -79,6 +79,8 @@ __all__ = [
     "STAGES", "BANNERS", "NEVER_PHRASES", "RATE_USD_PER_CORE_HOUR",
     "SERVED_GEOMETRY_DIR", "CANONICAL_SURFACE_DIR",
     "register_act", "registered_acts",
+    "GPU_ROUTING_POLICY", "gpu_routing_lines",
+    "COMPUTE_TABLE_HEADERS", "compute_table", "SIG_FIGS_RULE",
 ]
 
 
@@ -203,6 +205,99 @@ CANONICAL_SURFACE_DIR = (Path(__file__).resolve().parents[2]
 #: is DERIVED, never measured: the box cannot read its own billing
 #: (COMPUTE_BUDGET_CHARTER §5).
 RATE_USD_PER_CORE_HOUR = 0.0513
+
+
+# ---------------------------------------------------------------------------
+# The lab's ONE compute-routing rule, stated once as policy
+# ---------------------------------------------------------------------------
+
+#: SANAA'S ROUTING RULE (2026-09-02 ~02:32Z orders, item 1; addendum ~03:30Z).
+#: One policy, one home, cited VERBATIM by every act that shows a routing
+#: decision. Never paraphrased per act: "The threshold cited comes from the
+#: lab's one routing rule (stated once as policy, reused verbatim in every
+#: act), never invented per-act."
+#:
+#: THE SENTENCE CARRIES NO SYSTEM SIZE, DELIBERATELY. Her addendum: "the 40K
+#: is JF1 specific, so any other act should use its own number of unknowns."
+#: The count is an act's own measured fact and travels in the act's MECHANISM
+#: sentence (see :func:`gpu_routing_lines`); the policy is the rule that count
+#: is judged against, and it is the same rule whichever way the decision goes.
+#: The jet-flap act cites it and DECLINES (many ~40,000-unknown systems,
+#: solved iteratively); the adjoint act cites it and ROUTES (one large system,
+#: solved once).
+#:
+#: PUNCTUATION: no dash of any kind (her addendum item 3), and it must pass
+#: :func:`check_demo_language` byte for byte, since acts put it on screen.
+GPU_ROUTING_POLICY = (
+    "Routing rule: a job moves to the graphics processor only when it is one "
+    "large system solved once, so the transfer pays for itself; many small "
+    "systems solved over and over stay on the processors.")
+
+
+def gpu_routing_lines(mechanism: str) -> tuple[str, str]:
+    """An act's routing beat: its OWN mechanism sentence, then the one policy.
+
+    ``mechanism`` is the act's case for its side of the rule, carrying the
+    act's OWN measured system size ("Systems of about 40,000 unknowns ...";
+    "The adjoint is one large linear system solved once ..."). It is checked
+    here so a mechanism sentence that breaks the screen rules fails at
+    authorship, and the policy comes back beside it VERBATIM so no act can
+    cite a paraphrase. Returns ``(mechanism, GPU_ROUTING_POLICY)`` for use as
+    two consecutive spoken lines.
+    """
+    check_demo_language(mechanism)
+    return (mechanism, GPU_ROUTING_POLICY)
+
+
+# ---------------------------------------------------------------------------
+# The one compute-reporting convention every sweep act uses
+# ---------------------------------------------------------------------------
+
+#: SANAA'S COMPUTE TABLE (2026-09-02 orders, item 4; addendum item 4: "All
+#: demo acts use the same convention for the core min/ wall time numbers").
+#: One table per sweep act, these three columns, this order, her words. No
+#: currency anywhere on a screen: dollars, cents and derived-cost lines are on
+#: the never-list below and refused mechanically.
+COMPUTE_TABLE_HEADERS: tuple[str, str, str] = (
+    "Number of workers", "Core-minutes per run", "Total wall time")
+
+
+def compute_table(workers, core_min_per_run, wall_time, *, table_id: str,
+                  role: str = "CHIEF ENGINEER") -> "Table":
+    """The shared compute table, so every sweep act renders the SAME shape.
+
+    The act supplies the three cells as strings it can stand behind; this
+    fixes the headers and the order so two acts cannot drift into two
+    conventions. Beside or beneath it the act states, in its own words, the
+    slowest-member reconciliation ("slowest member: <the case>; wall time
+    follows it") so workers x minutes is visibly reconciled with the wall
+    clock. That sentence is the act's because the slowest member is the act's
+    own measured fact.
+    """
+    return Table(
+        title="Compute",
+        headers=list(COMPUTE_TABLE_HEADERS),
+        rows=[[str(workers), str(core_min_per_run), str(wall_time)]],
+        table_id=table_id, role=role)
+
+
+#: SANAA'S SIGNIFICANT-FIGURES RULE, stated ONCE (addendum, verbatim: "Global
+#: sig-figs rule stated once: no number on any screen carries more decimals
+#: than its uncertainty supports, 0.1-precision until a band exists.").
+#:
+#: A DOCTRINE, NOT A REGEX, and that is not laziness: a checker cannot know a
+#: number's uncertainty from its characters, so mechanical enforcement here
+#: would either pass everything or refuse measured figures whose stated
+#: uncertainty genuinely supports their decimals (a stagnation location
+#: carries half a cell; a percent agreement carries the rows behind it). The
+#: rule binds at AUTHORSHIP: an act states each number to the precision its
+#: own uncertainty channel supports, and where no band exists yet it stops at
+#: one decimal. Where an act's older, more specific directive fixes a table's
+#: exact format (the jet-flap lift table is "kept exactly" by her 2026-09-01
+#: order), the conflict is referred up rather than resolved by either lane.
+SIG_FIGS_RULE = (
+    "No number on a screen carries more decimals than its uncertainty "
+    "supports; until a band exists a figure is stated to 0.1 precision.")
 
 
 # ---------------------------------------------------------------------------
@@ -379,6 +474,36 @@ NEVER_PHRASES: tuple[tuple[str, str], ...] = (
      r"desktop|station|computer|processor)\b",
      "name the hardware by what it is, never by whose it is"),
     (r"\b(?:Sanaa|Katie)\b", "a person is never named on a customer screen"),
+    # ----------------------------------------------------------------------
+    # CURRENCY, BANNED OUTRIGHT. Sanaa, 2026-09-02 orders, item 4, verbatim:
+    # "Compute reporting: no $, no cents, no derived-cost lines." Compute on a
+    # customer screen is processor-minutes and wall time, nothing priced. The
+    # record keeps its derived dollar figures (rule 12); the screen does not.
+    (r"\$\s?\d", "no currency on a customer screen; compute is "
+                 "processor-minutes and wall time"),
+    # "per cent" IS NOT CURRENCY, and the lookbehind is what keeps an honest
+    # percentage sentence legal (measured: the motor act's "57 per cent under
+    # it" was refused by the first cut of this entry).
+    (r"\bdollars?\b|\bUSD\b|(?<!per )\bcents?\b",
+     "no currency on a customer screen; compute is processor-minutes and "
+     "wall time"),
+    # ----------------------------------------------------------------------
+    # SEQUENTIAL PHRASING ON A PARALLEL SWEEP. Sanaa, 2026-09-02 orders, item
+    # 3: the operating points are solved in parallel, all monitors advancing
+    # together, and "sequential language" is banned. These are the phrasings
+    # her order names plus the near family; a per-point counter on the solve
+    # stage is prevented structurally (the concurrent replay path publishes
+    # sweep-wide progress, never "point n of N").
+    (r"\bone\s+after\s+(?:the\s+other|another)\b",
+     "the points are solved in parallel; never narrate them as a sequence"),
+    (r"\bin\s+turn\b",
+     "the points are solved in parallel; never narrate them as a sequence"),
+    (r"\bthen\s+the\s+next\b",
+     "the points are solved in parallel; never narrate them as a sequence"),
+    (r"\bone\s+at\s+a\s+time\b",
+     "the points are solved in parallel; never narrate them as a sequence"),
+    (r"\bsequential(?:ly)?\b",
+     "the points are solved in parallel; never narrate them as a sequence"),
 )
 
 #: The gate vocabulary. R5 bans the verdict vocabulary appearing AS A VERDICT
@@ -878,9 +1003,14 @@ def cost_line(cm: float, *, gross: bool = True,
     """The screen's cost sentence for a run of ``cm`` core-minutes.
 
     Stated as THIS run's cost, because it is: Sanaa, "the run's real cost,
-    shown as this run's cost, because it is". The dollar figure is derived at
-    the recorded rate, and the sentence says so rather than implying the box
-    read a bill.
+    shown as this run's cost, because it is".
+
+    THE DOLLAR CLAUSE IS GONE, on Sanaa's 2026-09-02 order, item 4, verbatim:
+    "Compute reporting: no $, no cents, no derived-cost lines." The derived
+    dollar figure stays in the RECORD at the recorded rate (rule 12, and it is
+    still labelled derived there); the screen states processor-minutes only,
+    and the never-list above now refuses a currency string mechanically so the
+    clause cannot creep back through any act.
 
     The ARGUMENT is core-minutes and the RENDERING is
     :data:`SCREEN_COMPUTE_UNIT`; the number is not touched.
@@ -888,16 +1018,14 @@ def cost_line(cm: float, *, gross: bool = True,
     WITH A ``projection`` the number IS touched, and the sentence says so and
     says on what. See :class:`HardwareProjection`: the projected figure names
     the hardware it describes and carries its basis, and no currency figure is
-    derived for it. Without one, byte-for-byte the sentence it always was.
+    derived for it.
     """
     basis = "gross" if gross else "cleaned"
     if projection is not None:
         shown = projection.apply(cm)
         return (f"Compute used: {shown:,.1f} {SCREEN_COMPUTE_UNIT} ({basis}) "
                 f"on {projection.hardware}. {projection.basis}")
-    usd = cm / 60.0 * RATE_USD_PER_CORE_HOUR
-    return (f"Compute used: {cm:,.1f} {SCREEN_COMPUTE_UNIT} ({basis}), "
-            f"about ${usd:,.2f}, derived at the recorded rate.")
+    return f"Compute used: {cm:,.1f} {SCREEN_COMPUTE_UNIT} ({basis})."
 
 
 # ---------------------------------------------------------------------------
@@ -1397,6 +1525,12 @@ class SolveReplay:
     pace: float = 1.0                # shoot-clock compression, never on screen
     elapsed_clock: ElapsedClock | None = None   # None means the default
     cases: Sequence[tuple[str, Path]] = ()      # -> replay_history.read_run_history
+    #: WHAT THE SOLVE STAGE CALLS A POINT, in the act's own vocabulary. Sanaa's
+    #: 2026-09-02 item 3 fixes the jet-flap progress line as "Solving 5
+    #: operating points in parallel", and "operating point" is her noun for
+    #: that act; the default keeps every other act byte-identical. The
+    #: sequencer threads it into the replay spec; nothing else reads it.
+    point_noun: str = "sweep point"
     #: What the compute figure on screen DESCRIBES, when that is not this box.
     #: Declared by the act, applied by the sequencer and by the replay stage's
     #: closing sentence, so the two surfaces that state a cost state the same
@@ -1902,6 +2036,29 @@ class DemoAct(ABC):
         beat that silently never plays.
         """
         return {}
+
+    def methods_table(self) -> "Table | None":
+        """Solver, turbulence model and numerics, AS A TABLE, or ``None``.
+
+        SANAA'S ADDENDUM (2026-09-02 ~03:30Z), verbatim: "Explicit solver +
+        turbulence model + numerics stated on every act's methods beat (DMR
+        states inviscid Euler rather than leaving the model slot blank). in a
+        table. Also whenevr the lab is listing rules or conventions this can
+        also be tables."
+
+        So the methods beat carries a TABLE naming, at minimum: the solver by
+        name, the turbulence model by name (or the honest word for its absence,
+        "inviscid Euler" for the DMR benchmark), and the numerics that ran
+        (discretisation schemes, correctors, relaxation, convergence target).
+        Every cell is read off the case that ran, never recalled. The
+        sequencer emits it on the feasibility stage, which is where the
+        numerics discussion already sits.
+
+        NOT ABSTRACT, so the acts that have not written theirs yet keep
+        working; an act returning ``None`` states its methods in prose as it
+        did, and says so to its supervisor. New acts implement it.
+        """
+        return None
 
     def closing(self) -> "Closing | None":
         """The report the act ends in, or ``None`` to end on the results stage.
