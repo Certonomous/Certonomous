@@ -1211,3 +1211,114 @@ apparatus of freezing rests on the opposite habit.
 | rulings changed | **0** · gates | **0** · bands | **0** · caps | **0** · re-grades | **0** |
 | register bytes changed | **0** |
 | lines whose number changed above this section | **0** |
+
+---
+
+## Amendment — v1.11, 2026-09-02 — **§16: A PLATEAU CRITERION IS FROZEN BEFORE COMPUTE OR IT IS NOT A CRITERION. VMFL007-R3's L3 IS RULED NOT PLATEAUED. AND A DOMAIN MAX IS A REDUCTION WHOSE ARGMAX CAN MOVE.**
+
+### §16.1 THE RULING ON VMFL007-R3's L3 — and it goes against the case
+
+L3 (100×100, SIMPLEC) was extended to **90000 iterations** to settle whether its near-axis
+viscosity swing decays. **It does not.** Peak-to-peak of `max(nu)` over the last 5000
+iterations: **0.4269 at 30000, 0.4349 at 90000**, flat from iteration 25000 on; fitted slope
+of `ln(ptp)` **+1.18e-07 per iteration, r² = 0.17**. There is no settling iteration, because
+there is no decay. **`Δp` likewise has a FLOOR, not a convergence** — its ptp falls to
+**1.5e-03 Pa** by iteration 40000 and stops improving through 90000 (2.4e-08 relative).
+
+> **THE RULING: A BOUNDED LIMIT CYCLE WHOSE PEAK-TO-PEAK LIES BELOW A THRESHOLD FIXED BEFORE
+> COMPUTE *IS* A PLATEAU. A LIMIT CYCLE WITH NO SUCH PRE-FIXED THRESHOLD IS NOT.** For
+> VMFL007-R3 **no such threshold was pre-fixed**, and I will not fix one now: I know the floor
+> is 1.5e-03 Pa, so any threshold I choose today is a threshold chosen knowing it passes.
+> **Therefore L3 is NOT PLATEAUED for grading purposes, and any triple graded on it is
+> `NOT A RESULT` under `CLAUDE.md` rule 5 step 1.** VMFL007-R3 **cannot be frozen and graded on
+> this triple.** The remedy is a fresh registration, not an amendment.
+
+This is the third time in one session this team has been offered a gate it knew the answer to
+and declined it — VMFL054's GCI-primary switch, VMFL007-R3's plateau channel, and now the
+threshold itself. **Declining the first two would have been worthless if we took the third.**
+
+### §16.2 WHY "RUN IT LONGER AND SEE" WAS THE WRONG INSTRUCTION — a supervisor's reasoning defect
+
+The supervisor's brief said: *"If `max(nu)` settles, the plateau question dissolves and no
+ruling is needed."* **That is wrong on its own terms, and the lane said so first.** A graded
+run must freeze **an `endTime` AND a plateau criterion** before compute. Learning that a swing
+settles at iteration N does not remove the need for a criterion — **and an `endTime` read off
+that measurement is an `endTime` CHOSEN KNOWING THE ANSWER**, the same gate-fitting refused
+hours earlier on VMFL054.
+
+> **THE CONSTRUCTION THIS TEAM USES FROM NOW ON: freeze a CRITERION — a stated peak-to-peak
+> threshold on a stated window, on a NAMED channel — together with an `endTime` GENEROUS ENOUGH
+> THAT THE CRITERION, NOT THE CLOCK, DECIDES.** A criterion written as `ptp → 0` is
+> unsatisfiable against a limit cycle and must never be written; the threshold is a number, and
+> it is justified from the **gate tolerance** (iteration noise must not be able to move the
+> verdict), never from an observed floor.
+
+### §16.3 A DOMAIN MAX IS A REDUCTION WHOSE ARGMAX CAN MOVE — the instrument was wrong, not just the reading
+
+The supervisor specified `max(nu)` as the plateau instrument. **A domain max is a REDUCTION, and
+its argmax cell can move between samples, so a "wandering max" may be an artifact of the
+reduction rather than a property of any cell.** That is not hypothetical here: the argmax moved
+from **cell 17 at r = 8.33e-06 m** at iteration 30000 to **cell 217 at r = 3.17e-05 m** at 90000.
+
+The lane added fixed-point `probes`, **and the finding's character changed completely**:
+
+| channel | ptp, last 5000 iters |
+|---|---|
+| entry-region axis cell | **0.448** — the entire oscillation |
+| mid-pipe axis cell | 8.28e-09 |
+| near-outlet axis cell | 9.07e-09 |
+| mid-radius | 2.6e-14 |
+
+**Nine to sixteen decades quieter.** So the honest statement is **not** *"the near-axis field
+does not reach steady state at this refinement"* but *"the field is converged everywhere except
+a single localised entry-region cell on the axis, which sits in a persistent limit cycle."*
+**Every reduced quantity used as a convergence instrument is paired with a fixed-point probe.**
+
+### §16.4 A NULL RESULT NEEDS ITS OWN PLANTED CONTROL — rule 3, extended
+
+*"It does not decay"* is a **null**, and `CLAUDE.md` rule 3's logic applies with full force: **a
+fit that cannot detect decay proves nothing by failing to detect it.** The lane planted known
+exponential decays into the real series and re-ran the same fit: a planted half-life of **20000
+iterations was recovered as 20967** (r² 0.992) and **60000 as 64472** (r² 0.990). The plant also
+fired on all three quiet probes.
+
+> **A zero, a null, or a "no trend" is reported ONLY from a reader shown able to see the
+> non-zero, the trend, or the decay.** Rule 3 names the zero case; this team reads it as
+> covering every negative finding.
+
+### §16.5 CORRECTION TO THE §12.2 SCOPING NUMBER — 2.45× IS A SNAPSHOT; THE HONEST FIGURE IS 1.56×
+
+`§12.2`'s ruling (**`SAME`**, this session) is **NOT disturbed and is in fact strengthened**:
+across all 90000 iterations the `nuMax` clip is touched **18 times, all at iterations 1–18, last
+touch at iteration 18** — far stronger evidence than the 30000-iteration record it was ruled on.
+
+**But its scoping number was a snapshot and is corrected here.** L3 headroom to `nuMax` reads
+**2.45× at t = 30000** and **4.34× at t = 90000**, while the **limit-cycle peak gives 1.56×**. A
+single snapshot understates the exposure by up to **2.8×** depending on when it is taken.
+**The honest L3 headroom figure is 1.56×, taken over the cycle**, and any record quoting 2.45×
+must either use 1.56× or say explicitly that it is a snapshot. The ruling's *scoped-to-this-triple*
+qualifier and its warning that a 200×200 level would likely clip both stand, and both are
+sharpened by this.
+
+### §16.6 DISCLOSED — what remains unknown, and two instrument defects carried
+
+**Unknown:** whether the limit cycle is physical or a discretisation artifact of the wedge axis
+in the entry region; whether it persists at 200×200; and `d21/ptp`, **still unmeasured with its
+evidence destroyed**. The mechanism was not diagnosed — the question asked was whether it
+settles, and it does not.
+
+**Two instrument defects, flagged and NOT fixed**, both in `analyse_L3_plateau.py`, both read by
+the supervisor as a diff: it **hardcodes the ρ = 1000 conversion** in its `Δp` rather than
+reading it (the same class as `read_nu_clip.py`'s hardcoded `NUMIN`/`NUMAX`, also still open),
+and `leg()` takes **`sorted(g)[0]`** — the *earliest* `postProcessing` directory — **which is the
+same stale-directory trap found and fixed in the VMFL054 comparator this session, recurring in a
+second instrument.** Neither affects the reported numbers (the legs are explicitly stitched), and
+both are recorded rather than silently repaired.
+
+| amendment | v1.11 |
+|---|---|
+| clause added | **`§16`** (`§16.1`–`§16.6`) |
+| rulings made | **1** — VMFL007-R3's L3 is NOT PLATEAUED; the case cannot be graded on this triple |
+| citations corrected | **1** — `§12.2`'s L3 headroom, 2.45× (snapshot) → **1.56×** (over the cycle) |
+| gates | **0** · bands | **0** · caps | **0** · re-grades | **0** · register bytes | **0** |
+| lines whose number changed above this section | **0** |
