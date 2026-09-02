@@ -4839,9 +4839,110 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-01T21:05:38Z by dafoam-supervisor (TWENTY-SIXTH session, re-formed after the ~15:14Z box reboot; stamp from `date -u` in the committing invocation). Newest block is `S-25n` — the declaration-vs-wire disease is LAB-WIDE (3 dafoam + 3 cfd, found independently), and a TORN READ on the shared tree nearly sent a false defect report to another team. `S-25e` is the D19T permission denial, still open on her desk.
+**Section last written:** 2026-09-02T21:00:28Z by dafoam-supervisor (TWENTY-SEVENTH session, re-formed on Sanaa's 2026-09-02 ~22:00Z order that the demos are shot and all teams resume; stamp from `date -u` in the committing invocation). Newest block is `S-26` — the compressible arm does not converge on the wall-resolved fine mesh at any Mach or any alpha, the Stage-1 y+ gate PASSED on a field with primal residual 0.636, and both multipoint optimisations Sanaa is asking for already exist and are graded (`SO-3` `PASS`, `D19M` `GATE REACHED`) — that gap is FILING, not compute.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-26 — **⚠⚠ THE COMPRESSIBLE ARM DOES NOT CONVERGE ON THE WALL-RESOLVED FINE MESH — AT ANY MACH, AT ANY ALPHA, IN TWO INDEPENDENT ITEMS — AND THE STAGE-1 y+ GATE THAT LICENSED ALL OF IT **PASSED ON A FIELD WITH A PRIMAL RESIDUAL OF 0.636**. SEPARATELY: BOTH MULTIPOINT OPTIMISATIONS SANAA IS ASKING FOR **EXIST AND ARE GRADED** — THE GAP IS FILING, NOT COMPUTE** (2026-09-02, TWENTY-SEVENTH session, `date -u` stamp in the committing invocation)
+
+###### 1. ⚠⚠ THE FINDING, MEASURED BY ME PERSONALLY — MY §3 CHECK 2
+
+Twelve solver units, two items that share nothing but a mesh and an image, **one failure mode**:
+
+| unit | mesh | what happened |
+|---|---|---|
+| `MAAOA` MA288 … MA685, **all 6 compressible points** | A1WR L3, 130,304 cells, wall-resolved | one primal each to `Time = 4000`, then `Primal min residual 0.8876809362068909`, `did not satisfy the prescribed tolerance 1e-08`, `Primal solution failed!` — **rc=97 on all six** |
+| `A1WR` `sweep_C` | same | 4 primal failures in its first 3 alpha points; **89 `Bounding p<`, 169 `Bounding rho`**; idx=2 showing CL −27.199, CD 1.951, cumulative continuity error 168.09 |
+| `A1WR` `probe_C` (the Stage-1 gate's own probe) | same | `Primal min residual 0.6363135942555318` after 1,500 iterations, with `Bounding p<500000`, `Bounding rho<5`, `Bounding e<55000`, `Bounding U>-1000` |
+| `A1WR` `sweep_I`, `probe_I`, `MAAOA` INCOMP — **the incompressible arm, same mesh** | same | **0 primal failures, 0 bounding lines.** Clean |
+
+**IT IS NOT A HIGH-MACH LIMIT. IT FAILS AT MA288 — M 0.288, THE D19-FAMILY ANCHOR OPERATING POINT THIS FAMILY HAS RUN SUCCESSFULLY MANY TIMES — AND IT FAILS AT ALPHA 0.** A residual of 0.888 after 4,000 iterations is not a solve that stalled late; **it is a solve that never started.** The one variable that separates the working history from the failing present is **the mesh: 4,032 cells with wall functions, versus 130,304 cells wall-resolved.** Evidence lane out on the controlled difference table; **I am not writing a cause I have not measured.**
+
+**⚠ MAAOA's prereg §2 registered outcome (B) as *"high-Mach points fail to trim/converge — the steady subsonic formulation's boundary in Mach at fixed lift"*. THE MEASURED FAILURE IS BROADER THAN THE REGISTRATION ANTICIPATED AND MUST NOT BE SHOEHORNED INTO IT.** Reporting a uniform all-Mach non-convergence as a "Mach boundary" would invent a boundary that does not exist. **The registered outcome is honoured by naming the miss, not by fitting the answer to the nearest registered box.**
+
+###### 2. ⚠⚠ THE GATE PASSED ON A FIELD THAT WAS NOT SOLVED — AND AS WRITTEN IT COULD NOT HAVE CAUGHT THIS
+
+`stage1_gate.json` PASSED at 18:35:58Z on compressible **y+max 0.9046578506834814**, 9.5 % under the frozen 1.0 threshold. **That number was read off a field whose primal min residual was 0.6363.** `probe_yplus.log` shows `rhoSimpleFoam -postProcess -func yPlus -time 1500` — it post-processed time 1500 faithfully. **The instrument was correct. Its premise was false.**
+
+**y+ IS A PROPERTY OF THE NEAR-WALL VELOCITY FIELD. IF THE FIELD IS NOT SOLVED, THE y+ IS THE y+ OF NOTHING.** The probe's fixed 1,500 iterations at `tol 1e-30` make non-convergence certain **by registered construction** — that was deliberate and is defensible for the incompressible arm, whose field does converge. **It is not defensible for an arm whose field never converges at 4,000 iterations either.**
+
+**`G-YPLUS` fires on `y+max ≥ 1.0`. IT HAS NO CONVERGENCE PREMISE TO FAIL ON, SO NO TUNING OF ITS THRESHOLD WOULD HAVE CAUGHT THIS** — the same shape as the D19 age guard enforcing a premise false for this solver family, and the same shape as `S-25m`'s topic-keyed guard: **a gate that names a QUANTITY cannot see that the STATE the quantity was measured in is invalid.**
+
+**⚠ AND THE ORDER OF EVENTS IS THE WHOLE POINT: that PASS launched Stage 2's 8 units and MAAOA's 7 points — 13 units, ~1,200 core-minutes committed — on a compressible wall-resolved claim that the probe's own log contradicted in a line nobody read.** The number that cleared the bar and the number that invalidated it **were in the same run root, minutes apart.**
+
+**RULED, and the ruling is narrow:**
+- **The compressible wall-resolved claim is WITHDRAWN as unevidenced.** Not `GATE FAIL` — the registered gate did not fail — but the claim it was meant to support is not carried by a y+ measured on an unsolved field. **The mesh is NOT re-cut** (`G-YPLUS`'s own discipline).
+- **The incompressible y+ 0.0367937 STANDS.** Its field converges; its arm is clean. **One arm's premise failing does not void the other's, and collapsing them would be the easy wrong move.**
+- **Repairing the gate is GATE DESIGN and I am not touching it.** Both items have had first compute, so rule 2 closes them to gate changes; and `D19R` §5 reserves gate design to Sanaa. **A successor registration adds a convergence precondition to the probe. This one does not get one retroactively.**
+
+###### 3. I AM LETTING BOTH CHAINS RUN TO THEIR REGISTERED CAPS — AND THAT IS A DECISION, NOT A DEFAULT
+
+`sweep_C` will buy roughly **10 more non-converging alpha points, ~460 core-min**, before its 37,200 s deadline. I considered stopping it and **decided against, for reasons I am recording so a successor can overrule them:**
+
+1. **The caps ARE the registered stopping mechanism.** Rule 12 stops a run on an *overrun*; neither item is over its cap (A1WR ~631.3 of 1,720; MAAOA ~595.6 of 900). **Killing a within-cap registered run on an unregistered judgment is exactly the discretion the freeze exists to remove.**
+2. **The alpha-resolved character of the failure is itself the finding** — whether it fails identically at every alpha or changes shape with incidence is a measurement I do not have, and it is being bought anyway.
+3. **⚠ THE HONEST COUNTER, WHICH I HAVE NOT DISMISSED: ~460 core-min for a failure mode already measured ten times is close to buying nothing.** If the evidence lane returns a mechanism that predicts identical failure at every alpha, that counter wins and the run should be stopped. **I am not pretending this was obvious.**
+
+###### 4. ⚠ 331.7 CORE-MINUTES BOUGHT NOTHING, AND THE CAUSE IS AN UNDER-SIZED DEADLINE, NOT PHYSICS
+
+**All 6 A1WR cold controls are dead — `rc=97` from an in-container `rc=124` at the 3,300 s `COLD_TMO`.** `cold_I_4` reached `Time = 1800` of 4,000. **No time directory was written at all**; `case/` holds only `0/` and `0.orig/`. Zero coefficients, zero physics, **331.7 core-min**.
+
+**THE CAUSE IS MEASURED AND IT IS OURS: 0.56 it/s under 8-way concurrency against ~2.36 it/s at 3-way.** The 3,300 s deadline was sized from a rate measured on a quiet box and then **spent on a box the same item had just filled with eight units.** **A deadline sized without its own concurrency is a deadline sized for a different experiment.** Reported under rule 12 as **waste, named separately, never folded into any ratio.**
+
+**And `dup_I_4` — the `G-CONCURRENCY-BITS` alone-copy control — is already arithmetically dead:** `I_SPEND` stands at ~181.2 before `sweep_I`'s own ~590–620, so `I_SPEND + 55 ≤ 800` cannot hold. **Expect `A1WR_DUP_CAPSTOP`, a registered `NOT A RESULT` on the one control that would have measured concurrency's effect on the bits** — the control killed by the very contention it existed to measure.
+
+###### 5. ⚠ A LIVE TRAP: BOTH `STATUS.<chain>` FILES ON DISK ARE **STALE AND FALSE**, AND BOTH QUEUE ROWS CALL THEM `physics_critical`
+
+`STATUS.A1WR_chain` reads `rc=2 phase=GATE-REFUSED stage2=NOT-LAUNCHED`. `STATUS.MAAOA_chain` reads `phase=BLOCKED-BY-A1WR-GATE … launched=NOTHING … spend 0.0`. **Both are the exit records of the SECOND fire at 18:14Z. Both are false against the live logs** — the gate returned PASS at 18:35:58Z and both chains launched and are running now.
+
+The drivers only write `STATUS` at exit, so the files stay false for the whole run. **⚠ A grader trusting a `physics_critical` field would return a spurious `NOT A RESULT` on two items that are executing normally — the stale-read hazard this board already carries, but with the stale value marked AUTHORITATIVE.** Self-healing at exit; **lethal to anyone who grades before then, which is precisely when a supervisor looks.**
+
+###### 6. ⚠⚠ THE MULTIPOINT EXPECTATION: **BOTH OPTIMISATIONS EXIST AND ARE GRADED. NOTHING NEEDS RUNNING. THE FAILURE IS THAT ONE WAS NEVER WRITTEN DOWN WHERE A READER LOOKS**
+
+Sanaa, 2026-09-02 ~22:00Z: *"Dafoam team should have submitted the multipint opts i requested"*. Her request is `etc/sessions/2026-08-31T2037Z` (*"we need to find a solution for multipoint optmization (both compresisble and incompressible"*) and `2026-09-01T0210Z` (*"multi point can be launched on the box in the backrgoudn (for both compressible and incompressible)"*).
+
+| what she asked for | what exists | verdict | cost |
+|---|---|---|---|
+| **incompressible** multipoint optimisation | `SO-3`, alpha-multipoint, prereg `ab27dff7`, `SO3_grade_20260901T040709Z.json`, chain COMPLETE 7/7 | **`PASS`, BOTH ROWS** — weighted J 0.02180598 → 0.01828320, **−16.16 %**, 10 majors vs `max_iter` 50, `Optimal Solution Found.`; endpoint FD `PASS` both rows | **28.900 core-min** measured vs 228.59 registered, ratio **0.126** |
+| **compressible** multipoint optimisation | **`D19M`**, prereg `c7d7bf10`, `D19M_grade_20260901T083034Z.json` | **`GATE REACHED`, BOTH ROWS** (raw `PASS`, capped by the registered referent ceiling) — J **−25.985 %**, endpoint FD 0.030 % on J vs a 5 % band | **35.166 core-min** vs 34.10 predicted, ratio 1.0313 |
+
+**⚠ THE CAVEAT THAT MUST TRAVEL WITH BOTH HEADLINES, BECAUSE A CELL IS READ ALONE (`S-25l`): `CL` IS UNCONSTRAINED IN BOTH ITEMS AND COLLAPSES IN BOTH.** SO-3: 0.31190/0.49877/0.66398 → **−0.05676**/0.15320/0.36119. D19M: 0.29875/0.50000/0.67366 → **−0.15737**/0.07216/0.30540. **Lift goes NEGATIVE at point 0 in both.** SO-3's grade JSON carries this in its own `forbidden_readings`. **A drag reduction quoted without the lift collapse is a false statement, and it is the single easiest false statement to make about this family.**
+
+**THE ACTUAL GAP, AND IT IS MINE:** `SO-3` is graded `PASS` and has a cost row, a board block and a demo sheet — and **NO `RESULTS.md`, NO `cases/dafoam/INDEX.md` row, and NO `docs/dafoam/README.md` §3 row. The README contains ZERO occurrences of `SO3` or `SO-3`.** `SO-3aR2` (`GATE FAIL`) is in the same state. **So a reader consulting this family's STANDING VERDICT TABLE — the one artefact that exists to answer "what does dafoam hold?" — concludes the incompressible multipoint was never done.** She is not wrong to think nothing was submitted; **the record she would check does not contain it.**
+
+**⚠ AND `SO-3b` IS A TRAP FOR EXACTLY THIS REASON.** `SO3b_STUB.md` is `PENDING`, not a rule-2 freeze, zero core-min — **deliberately not released, because retiring her earlier shipped-gradient gate is hers alone.** But the compressible multipoint she asked for **ran under the id `D19M`**. **Anyone searching for "SO-3b" finds a stub and reports that nothing was delivered. THE WORK IS FILED UNDER A NAME THE REQUEST DOES NOT USE**, and that is a filing defect with the same consequence as a missing result.
+
+**RULED: a lane is writing `SO-3`'s `RESULTS.md` and the missing README §3 / `INDEX.md` rows now, from the frozen grade artefacts only, with the lift collapse bound into the same cell as every drag figure. NO COMPUTE. Nothing is re-graded.**
+
+###### 7. THE PATHOLOGY SHE NAMED IS STILL UNSOLVED — AND IT DID NOT REPRODUCE
+
+Her 2026-08-31 research problem (IPOPT *"Invalid number in NLP function or derivative"*, D6/D6R) has **no solution and no run**: `SO3D` is frozen at `cd398ee8`, **never launched, zero core-min**, parked under the demo freeze; its registered non-finite census (`P1` / `G-SO3D-1`) is uncomputed and its planted control `PLANT-A` is still waiting.
+
+**What IS on record, and it is the good half:**
+- **Her bookkeeping reading is CORRECT and already landed.** `D6RG_regrade.json` grades `G-D6R-1..4` `NOT A RESULT`, `reason = "ARM_DID_NOT_RUN"`, `arms_not_run = ["F_mp","REF_off"]`, `stop_rc = 124`. **No gradient was ever measured.** Six frozen documents that had glossed the IPOPT exit as a physics cause were corrected by appended addenda at `9cd50d74` — **no gate, band, cap or verdict moved.**
+- **The pathology DID NOT REPRODUCE in either new multipoint optimisation.** SO-3's `G-EVALFAIL`: **34 of 34 evaluations succeeded, 0 failed, on both rows** — registered prediction P8 (*"at least one evaluation fails per F arm"*) reads **MISS on both**. **Recorded as a MISS, not dressed as a success**; a pathology that fails to appear is weak evidence of a cure and strong evidence that the old deaths were the bookkeeping she identified.
+
+###### 8. `D19T` — THE LANE REFUSED MY OWN INSTRUCTION AND WAS RIGHT
+
+I briefed the lane to pin `D19T` to core 0 or 1 (the freed filming headroom). **That instruction was WRONG and the lane refused it: `d19t_run_arm.sh:61` freezes `CPUSET=5,13` and `G-PLACE` GATE FAILS on any other value** (`PREREGISTRATION.md:239`, `d19t_grade.py:928`). **Pinning as I said would have required editing a frozen instrument and would have burned the freeze to satisfy a placement convenience.** My error, from reasoning about the box instead of reading the item.
+
+**And cores 5 and 13 are not free in the sense that matters:** 5 sits in MAAOA's registered pool `2–7`, 13 in A1WR's Stage-2 range `8–15` — **and A1WR is MEASURED having placed `cold_C_4` on core 13.** Both drivers refuse foreign occupancy (`A1WR_ABORT G-CPUSET`, `MAAOA_POINT_NOT_RUN`), so firing `D19T` now **would abort a live A1WR unit** rather than merely contend with it.
+
+**RULED: `D19T` WAITS.** Partial root **moved aside, not deleted** → `…_partial_20260901T164955Z` (`test -d` passed, original `test ! -e` passed), so the driver's absence assert now clears. Freeze re-verified independently by blob hash (`PREREGISTRATION.md` blob = the blob at `88bfe9bf`; `d19t_grade.py` md5 `bc6d694a…` = the prereg's own pin at line 327). Queue row **written and validated ACCEPTED**, staged in `verification/queue/dafoam/held/D19T_chain.json` where the daemon's non-recursive glob **cannot** reach it. **Release is one `mv` once both chains clear.** 8.234 core-min against an 18.0 ceiling — **the wait costs essentially nothing and the collision costs ~630 sunk core-minutes.**
+
+**Two corrections to my own brief, from the lane, both accepted:** the daemon already captures the driver's own stdout/stderr to `launcher.queue.out` and captures rc **inside** the detached wrapper (`queue_runner.py:531-535`) — **the 2026-09-01 lost-stdout gap is already closed and needed no custom wrapper**; and `np=1` was my figure, while the item registers **MESH at np=1 and T08/T10/T12/XT10 at np=2** under `G-NP`.
+
+###### 9. STATE, AND WHAT A SUCCESSOR PICKS UP
+
+**Live (re-derive from `/proc`, never from this line):** `A1WR` driver pid **55741**, cwd `cases/dafoam/ladder-a/A1/wall_resolved_aoa_polar`, Stage 2, `sweep_I` and `sweep_C` at **2 of 19** points each, containers on cores 8 and 9, ETA ~**04:56Z 2026-09-03** at the 37,200 s deadline. `MAAOA` driver pid **57360**, cwd `…/fixed_lift_mach_sweep`, **INCOMP only** (6 compressible points closed rc=97), core 3, trim evaluation 2 of ≤10, ETA ~**21:20Z today** if the trim converges in ≤4 primals, else killed at **22:08Z**. Both on the PATCHED image `dafoam-idwarp-rot:v1`. **All units np=1; 3 of 16 cores busy.**
+
+**Rungs run or registered and WITHOUT a verdict:** `A1WR` stages 1–2 `PENDING`; `MAAOA` `PENDING`; `D19T` `PENDING` (held, zero compute); `W3` phase 1 `NOT A RESULT` standing, 63.2332 core-min with four stages `BLOCKED` at the memory floor, **calibration row OWED and deliberately not fabricated**; `A2-GC` L1 cap-stopped, **L2/L3 owed**; `SO3D` frozen, never launched; `SO-3b` stub, unreleased.
+
+**Two-row disclosure OWED at grading, and I am naming it now rather than at the grade:** **neither `A1WR` nor `MAAOA` registers a shipped/patched two-row clause.** Sanaa ordered the PATCHED build explicitly, so no shipped arm exists or should exist — but README §3 R11 makes two rows the family's standing form, and the precedent for a single-row item is `D19`/`D19R`'s **"PATCHED row only BY REGISTRATION"**. **A patched-only verdict must therefore state that the shipped row is absent BY REGISTRATION AND BY HER ORDER, not by omission** (`A3`'s *"not clean-by-omission"* wording). Both items have had first compute, so this lands as a **dated addendum** — a disclosure alters no gate, threshold, cap or label and is legal under rule 2.
+
+**On Sanaa's desk:** the `SO-3b` release question (retiring her shipped-gradient gate is hers); the four upstream DAFoam defect classes, all `NOT FILED`; **NEW — the compressible wall-resolved non-convergence and the y+-gate-on-an-unsolved-field finding, which is a gate-design question and gate design is reserved**; **NEW — that her multipoint request is ANSWERED (SO-3 `PASS`, D19M `GATE REACHED`) and was a filing failure, not a compute failure.**
+
+**Nothing filed, sent, uploaded or posted outside the box.**
 
 ##### UPDATE S-25n — **⚠⚠ THE DECLARATION-VERSUS-WIRE DISEASE IS **LAB-WIDE, NOT OURS**: dafoam HAS FOUND THREE AND cfd HAS INDEPENDENTLY FOUND THREE, NEITHER TEAM TELLING THE OTHER. AND A **TORN READ** ON THE SHARED TREE PRODUCED A COHERENT, SPECIFIC, ENTIRELY FALSE DEFECT REPORT AGAINST ANOTHER TEAM — CAUGHT ONE STEP BEFORE IT WAS SENT. `adjoint-wing` IS `FAIL=1 ok=9`** (2026-09-01T21:05:38Z, `date -u` at write)
 
