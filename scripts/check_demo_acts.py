@@ -84,7 +84,8 @@ sys.path.insert(0, str(REPO / "scripts"))
 #: records against shock-reflection. That failure is not created by listing the
 #: act; it is only made visible by it.
 ACT_MODULES = ("workflows.jet_flap_act", "workflows.adjoint_act",
-               "workflows.dmr_act", "workflows.motor_thermal_act")
+               "workflows.dmr_act", "workflows.motor_thermal_act",
+               "workflows.battery_module_act")
 
 
 def _load_acts() -> dict:
@@ -110,10 +111,13 @@ def _acts_the_package_registers() -> dict:
     arbitrary module-level code for the side effect of finding out. A text
     search for "register_act" is worse than useless here: it matches the
     definition in ``demo_mode``, matches docstrings, and -- the case that
-    matters -- matches ``sdk/workflows/battery_module_act.py``, which calls
-    ``register_act`` INSIDE A FUNCTION and deliberately registers nothing on
-    import. Counting that would make this check demand the gating of an act
-    whose whole purpose is to refuse.
+    proved it -- matched ``sdk/workflows/battery_module_act.py`` back when
+    that module called ``register_act`` INSIDE A FUNCTION and deliberately
+    registered nothing on import. Counting that would have made this check
+    demand the gating of an act whose whole purpose then was to refuse.
+    (2026-09-02: that act now has a completed run behind it, registers at
+    module level like the others, and IS gated; the parsing rule below is
+    unchanged and simply finds it now, which is the rule working.)
 
     So: parse each module and count a call only when it sits at MODULE LEVEL,
     which is what "registers on import" actually means.
@@ -1531,7 +1535,8 @@ STRUCTURAL_PLANTS: tuple[tuple[str, str, object], ...] = (
 _PLANT_ACT_MODULES = {"jet-flap": "workflows.jet_flap_act",
                       "adjoint-wing": "workflows.adjoint_act",
                       "shock-reflection": "workflows.dmr_act",
-                      "motor-thermal": "workflows.motor_thermal_act"}
+                      "motor-thermal": "workflows.motor_thermal_act",
+                      "battery-module": "workflows.battery_module_act"}
 
 #: THE ASSERT THAT STOPS THE THIRD OCCURRENCE, rather than a third manual fix.
 #: Every module named in ``ACT_MODULES`` must be reachable from this map, so a
