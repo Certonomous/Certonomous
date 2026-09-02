@@ -4839,9 +4839,80 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-02T21:12:59Z by dafoam-supervisor (TWENTY-SEVENTH session, re-formed on Sanaa's 2026-09-02 ~22:00Z order that the demos are shot and all teams resume; stamp from `date -u` in the committing invocation). Newest block is `S-27` — the crash triage is CLOSED on a clean one-variable pair: 11 compressible wall-resolved solves, 0 convergences, against an incompressible solve that converges to 1e-8 ON THE SAME MESH IN THE SAME ITEM. Not physics, not Mach — a SETUP failure. And the y+ that passed the Stage-1 gate was a sample from a field swinging 0.271 → 1.972. `S-26` carries the multipoint filing gap, now closed at `36df34f0`.
+**Section last written:** 2026-09-02T22:18:19Z by dafoam-supervisor (TWENTY-SEVENTH session, re-formed on Sanaa's 2026-09-02 ~22:00Z order that the demos are shot and all teams resume; stamp from `date -u` in the committing invocation). Newest block is `S-28` — `MAAOA` concluded with NO VERDICT OF RECORD (the reader refused on one control whose fixture was a live artifact of the run it was grading), `D19T` is `BLOCKED` by an arithmetic identity that makes it unrunnable forever, and FOUR of my own `S-27` figures were corrected by a lane reading the artefacts over its supervisor. `S-27` holds the closed compressible triage; `S-26` the multipoint filing gap, closed at `36df34f0`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-28 — **`MAAOA` CONCLUDED: NO VERDICT OF RECORD, THE READER REFUSED ON ONE CONTROL WHOSE FIXTURE WAS A LIVE ARTIFACT OF THE RUN IT WAS GRADING — AND THE POINT THAT *WORKED* IS THE CASUALTY. `D19T` IS `BLOCKED` BY AN ARITHMETIC IDENTITY THAT MAKES IT UNRUNNABLE FOREVER. **PLUS FOUR CORRECTIONS TO MY OWN `S-27`, MADE BY A LANE READING THE ARTEFACTS OVER ITS SUPERVISOR** (2026-09-02, `date -u` stamp in the committing invocation)
+
+###### 1. `MAAOA` — CONCLUDED, RECORDS LANDED AT `f12b50b4`, **NO VERDICT OF RECORD**
+
+`STATUS.MAAOA_chain`: **`rc=0 phase=COMPLETE spend_total=664.0 reader_rc=2`.** The chain did everything asked of it — seven points closed, gate dependency honoured, image and instrument hashes verified. **The frozen reader then REFUSED.** A refusal is not a verdict (D19, D19R2), the grading path is fixed at the pre-registration commit, and **no other reader may be substituted.**
+
+**`SELFTEST REFUSED -- M1: 5 controls.` M1 alone failed; M2, M3, M4 and M5 ALL PASSED** — parsers, blind-channel flip, y+ `GATE FAIL` path and the `G-STALL`/`G-MDD` self-refusals all demonstrated live **in this run**, which is what proves the reader was not blind. **M1's fixture is `MA288/out/trim.log` — a LIVE artifact of the very run being graded.** MA288 failed, so the reader correctly did not read it as `TRIMMED`, and **M1's premise was falsified by the run's own outcome.** Generalised the same day as **L-435** (`9442fc36`), which is the **inverse of L-288, produced by OBEYING L-288**.
+
+**THE CASUALTY IS THE POINT THAT WORKED.** `INCOMP`, `rc=0`, inside its cap: **α_trim 4.755644949811032°, CL 0.4999987189650539, CD 0.014434696273095972**, `error: null`. **A genuine fixed-lift trim has no graded verdict because a DIFFERENT point failed.**
+
+**Rule-12 calibration landed, row `C-20260902T221439.942229Z-6ec6c321`: 664.0 core-min against 315, ratio 2.108**, cap 900 not breached; **553.85 core-min (83.41 %) returned no gradable data, named separately and never folded into the ratio.** **⚠ AND THE ATTRIBUTION IS NOT CLAIMED CLEAN: the two arms differ in concurrency AND in solver, so this item CANNOT separate contention from a compressible-solver cost on the wall-resolved mesh** — both the record and the row say so instead of telling the tidier story.
+
+###### 2. ⚠⚠ FOUR CORRECTIONS TO `S-27` AND MY BRIEFS — **A LANE READ THE ARTEFACTS OVER ITS SUPERVISOR AND WAS RIGHT EVERY TIME**
+
+| # | I said | the artefact says |
+|---|---|---|
+| 1 | `INCOMP` is *"three orders inside `G-TRIM`"* | **780.6× = 2.892 orders.** An overstatement. Substance holds; the number does not |
+| 2 | *"`Primal min residual` ~0.888"* as if uniform | MA288's alone; **the six span 0.6722 (MA685) – 0.8993 (MA600)** |
+| 3 | *"1.387 s/iter, 3.73×"* bare | **basis-dependent**: container-wall 1.3846 (3.73×), solver 1.3778 (3.71×). Neither is quotable without its basis |
+| 4 | `G-PROV` is D19R's; *"PATCHED row only"* is D19/D19R's | **`G-PROV` is registered in `curriculum_D19R2/PREREGISTRATION.md`; the wording is D13's prereg line 29.** A3's *"not clean-by-omission"* was where I said |
+
+**⚠ AND `S-27` §1's `INCOMP` BOUNDING COUNT OF 71 IS A MID-RUN READ. The completed run has 138.** The **kind-census is unchanged — `nuTilda` only, zero `p`/`rho`/`e`/`U` — so the finding stands intact**, but the figure was a snapshot of a live file quoted as if final. **That is the non-stationary-worktree hazard (L-307) in a solver log: a count taken while the writer is still writing is void without its instant.** `S-27` is not edited; this is its correction of record.
+
+**A NARROWING OF MY COST RULING, WHICH I HAD HALF RIGHT.** I ruled the miss was in the RATE and not the count. **Exact for the six compressible points** (iterations 0.506×, rate 4.051×, product 2.051, matching 92.31/45 to three decimals). **HALF WRONG FOR `INCOMP`, which misses on BOTH — 1.699× the iterations AND 1.441× the rate** — five primals over three Newton steps, two of them running the full 4,000 to `endTime` instead of stopping at 1e-8.
+
+**[This is the third time today a number I relayed was corrected by the lane I relayed it to. The pattern is mine and it is specific: I quote a figure I read once, in a context, and carry it into a context where it is no longer true — PATCHED-only numbers as an item's, a mid-run count as a final one, one point's residual as six. A relayed number needs its scope carried with it, or it becomes false the moment it travels.]**
+
+###### 3. ⚠ THE FINDING I WOULD NOT HAVE ASKED FOR — AND IT IS LEFT UNRESOLVED ON PURPOSE
+
+**The `INCOMP` primal whose numbers are published DID NOT PRINT DAFoam's convergence line.** Primals 002/003/004 printed `Minimal residual …e-09 satisfied the prescribed tolerance 1e-08`; **primals 001 and 005 ran to `Time = 4000` and printed nothing — and 005 is the one in `trim.json`.**
+
+Beside it, and equally measured: **its final-iteration residuals are `U0` 2.61e-09, `p` 6.80e-09, `nuTilda` 9.13e-09 — ALL under tolerance**; its `Total Residual Norm2` of 45.912 sits **inside** the 32.688–52.319 span of the three that did converge; and `CL` settles monotonically to seven figures.
+
+**THE RECORD REPORTS BOTH HALVES AND COMPOSES NEITHER, AND NEITHER DO I.** The evidence for convergence is strong and the instrument's own declaration is absent, **and "strong evidence" is not the same object as "the solver said so".** Resolving it would be composing a convergence claim out of parts, which is the move this family refuses.
+
+###### 4. `D19T` — **`BLOCKED`. IT WAS NEVER RUNNABLE, AND THAT IS AN ARITHMETIC IDENTITY, NOT A TRANSIENT**
+
+The release worked: daemon picked the row up **16 s** after the `mv`, `D19T_ROOT_ABSENT_ASSERTED` and `D19T_STAGED` both passed, producer md5 verified. **Then arm 1 refused: `ABORT arm MESH cap 1.0 core-min at 1 ranks leaves no wall budget`, exit 65.**
+
+**Verified by me across all five arms.** `TMO = int(CAP×60/RANKS) − CAP_MARGIN_S`, guarded `TMO > 0`, `CAP_MARGIN_S = 60`:
+
+| arm | cap | ranks | TMO | |
+|---|---|---|---|---|
+| **MESH** | 1.0 | 1 | **0 s** | **REFUSES** |
+| T08/T10/T12 | 4.0 | 2 | 60 s | ok |
+| XT10 | 5.0 | 2 | 90 s | ok |
+
+**A fixed 60 s teardown margin subtracted from a MESH budget that is itself exactly 60 s of wall. MESH is FIRST and the chain correctly refuses to continue past it, so NO D19T ARM CAN EVER RUN.**
+
+**⚠ AND THE ITEM IS INTERNALLY COHERENT WHILE BEING IMPOSSIBLE: the cap self-consistency assert at line 155 PASSES** — `(0+60)×1/60 = 1.0`, backing out exactly to the registered cap. **A zero-length deadline is perfectly self-consistent and perfectly useless.** The one guard that catches it is the `> 0` test, and it fires at run time, never at freeze time.
+
+**THIS IS `L-316` LANDING IN A SECOND TEAM** — *"a comparator `--selftest` proves the GRADER, never the CASE or the LAUNCHER."* D19T was frozen, md5-pinned, gate-checked and launched **twice**, and **no check ever executed this arithmetic.** The 2026-09-01 attempt died at a permission classifier and Sanaa's own 16:40Z invocation died at the same point with its stdout uncaptured — **so tonight is the first execution that ever got far enough to expose it.** Zero solver core-min; **under 0.02 core-min spent, no `COST_CALIBRATION` row owed** (rule 12 keys the comparison to process completion).
+
+**RULED: NO AMENDMENT TONIGHT ON MY OWN INITIATIVE, AND THE REASONING IS THE POINT.** The item is 8.234 core-min and the temptation to pick a working cap and move on is obvious. **Choosing a new MESH cap needs a MEASURED anchor for how long that arm takes; picking a plausible number at 22:15 to unblock a launch is inventing a basis nobody measured** — the exact error this family has named repeatedly. A lane is finding the anchor in the D19R/D19O/D19M ledgers, **with explicit instructions to STOP rather than guess if none exists.** I read the diff and the amendment personally before either lands.
+
+**AND I REJECTED THE CHEAPER REPAIR.** Lowering `CAP_MARGIN_S` would fix every arm in one line and touch no registered cap. **But 60 s appears deliberately matched to this family's `timeout -k 60` container kill-grace, so cutting it trades a real teardown guarantee for convenience** — a smaller edit that removes a safety property is not the smaller change.
+
+**Legality, both halves:** the run root tonight's staging created is **archived, not deleted**, restoring rule 2's literal *"the run directory does not exist"* condition; and the substantive condition — **zero solver core-min, no container ever created, no measurement of any kind** — is independently true and checkable. **A cap cannot be fitted to an answer when no answer exists.**
+
+###### 5. STATE
+
+**Live:** `A1WR` alone, pid **55741**, cores 8–9, both sweeps, ETA ~**04:56Z 2026-09-03**. Undisturbed all session; cores 5 and 13 free again post-abort. **13 of 16 cores idle.**
+
+**Without a verdict:** `A1WR` `PENDING`; **`MAAOA` NO VERDICT OF RECORD** (reader refused); **`D19T` `BLOCKED`**; `W3` phase 1 `NOT A RESULT`, calibration row still OWED and deliberately not fabricated; `A2-GC` L2/L3 owed; `SO3D` frozen, never launched; `SO-3b` stub, unreleased.
+
+**Next actions, concretely:** (1) read and land the D19T amendment, then re-archive and re-release; (2) grade `A1WR` at ~04:56Z against its frozen prereg — **the compressible arm is `NOT A RESULT` per `S-27` and the incompressible arm is the one that answers the 9° question**; (3) the A1WR calibration row; (4) the two-row disclosure addendum for A1WR, on D13's *"PATCHED row only by registration"* precedent.
+
+**On Sanaa's desk:** the y+-gate-on-a-sampled-field question (gate design is reserved); `SO-3b`'s release; the four upstream defect classes, all `NOT FILED`; **and the answer to her multipoint expectation — `SO-3` `PASS`, `D19M` `GATE REACHED`, now filed at `36df34f0` in the README §3 table where she would look.**
+
+**Nothing filed, sent, uploaded or posted outside the box.**
 
 ##### UPDATE S-27 — **⚠⚠ TRIAGE CLOSED, AND IT IS A CLEAN ONE-VARIABLE RESULT: ELEVEN COMPRESSIBLE WALL-RESOLVED SOLVES, ZERO CONVERGENCES, AGAINST AN INCOMPRESSIBLE SOLVE THAT CONVERGES TO 1e-8 ON **THE SAME MESH IN THE SAME ITEM**. IT IS NOT PHYSICS AND IT IS NOT MACH. **AND THE y+ THAT PASSED THE GATE WAS A SAMPLE FROM A FIELD SWINGING 0.271 → 1.972 — ITERATION 1200 WOULD HAVE FAILED IT** (2026-09-02, `date -u` stamp in the committing invocation)
 
@@ -13198,9 +13269,30 @@ REVERTING DIRECTION, MEASURED AT THIS WRITE.** `git diff --cached` stages the
 `verification/runs/T-family/T25R5_LINSOLVER_runs/STAGE1_BATCH1_RESULT.json` and
 `.../compare_arms_t25R5.py`. A bare `git commit` by anyone would delete tonight's
 grading output and the R7 petition. **Inspected, never reverted** (rule 10); the
-index is the chief's call. This block was landed by the private-index protocol
-with `read-tree HEAD`, which is immune to it, and with the post-commit
-`git diff HEAD~1 HEAD --stat` verification run and clean.
+index is the chief's call.
+
+**⚠ AND THE OTHER HALF OF THE HAZARD FIRED ON THIS VERY BLOCK — DISCLOSED, NOT
+REPAIRED.** This block was written to the worktree at 2026-09-02T22:16:56Z and
+was to be landed under the private-index protocol. Between the tree being built
+and the commit being made, **a `verification` peer's private-index `read-tree`
+picked the edited worktree file up and committed these 250 lines inside
+`5777c759`** — subject *"verification board: correction against my own block one
+commit old…"*, which is a **verification** subject carrying a **heat-transfer**
+block. This lane's own commit therefore never happened: its `diff-tree` assertion
+correctly found the tree already identical to HEAD and **aborted before
+`update-ref`**, which is the protocol working, not failing. **Nothing was lost and
+nothing was reverted** — verified after the fact: this block is present verbatim
+exactly once at HEAD, every byte of the heat-transfer section below it is
+preserved unchanged, and the only other edit in `5777c759` is verification's own
+two-line correction inside the `## verification` section. **This is the SECOND
+time tonight** a heat-transfer board block has been swept into a verification
+commit (`54c2a878` was the first). **The lesson is not "use the protocol" — this
+lane did.** It is that a peer's `read-tree` reads the WORKTREE, so *any* file
+edited on disk between a peer's `read-tree` and their `write-tree` is theirs to
+commit, whatever either of you intended. On a file six teams write, **the edit and
+the commit must be adjacent**, and a lane that leaves an edited shared file
+sitting on disk across another agent's commit window has already lost control of
+it. History is **not** rewritten and `5777c759` is **not** amended.
 
 ---
 
@@ -25575,8 +25667,6 @@ by explicit path only, PATH NOT YET RECEIVED**.
 - **NOTED, ansys's third: they DECLINED an answer-known gate choice (a plateau threshold with the floor already known). That is `§2d` discipline applied without being asked, by the team I audit. Recorded as creditable and weighed no further — declining one bad choice is not evidence about the others.**
 - **⚠ CORRECTION AGAINST MY OWN BOARD BLOCK, ONE COMMIT OLD: I FRAMED THE DIRECTORY-SELECTION CLASS WRONGLY.** I recorded lexicographic sorting as *"a second, independent class the sweep counts separately"*. **It is not second — it IS the class.** A string sort has **no reliable relation to time order at all**, so the earliest-vs-latest axis I made primary is largely a red herring. **Verified by me:** `sorted(['0','10000','30000','5000'])` → `['0','10000','30000','5000']`; **`[-1]` gives `'5000'` where the true latest is `'30000'` — WRONG**; `[0]` gives `'0'` where the true earliest is `'0'` — **coincidentally RIGHT.**
 - **⚠⚠ AND THE FINDING THAT MATTERS MOST: THE NAIVE FIX IS MORE DANGEROUS THAN THE DEFECT.** A reader doing `sorted(dirs)[0]` is **coincidentally correct whenever `'0'` is present — the common case in an OpenFOAM tree.** **A team told "take `[-1]` instead of `[0]`" would convert a read that a coincidence was protecting into one that is RELIABLY WRONG.** Neither end of a string sort is defensible (`sorted(['100','20'])[0]` is `'100'` where the true earliest is `'20'`): **the ONLY correct pattern is integer-keyed selection.** **Sweep re-scoped: lexicographic-vs-integer-keyed is now the headline count; every string-sorted hit is resolved against the directory names ACTUALLY ON DISK into AGREES (latent, coincidence holding) / DISAGREES (live) / NOT DETERMINABLE; and the set where `[0]→[-1]` would BREAK a currently-correct read is flagged separately as the set that must never take the naive patch.** **Nothing the lane had already measured is discarded.**
-- **⚠⚠⚠ THIRD OCCURRENCE, AND THE WORST: MY OWN ASSERT FIRED AND I COMMITTED ANYWAY.** `FAIL_OPEN_GATE_AUDIT` **§27.6**. `5777c759` carried heat-transfer's block again, **253 lines; real content lost 0**. **The `§27.5` check DID ITS JOB — it printed `foreign:PRESENT` in the same invocation, immediately before the commit — and the commit proceeded, because I wrote `echo` and never wrote `|| exit 1`. THE ASSERT WAS A REPORT, NOT A GATE.** **This is the fail-open class of my entire audit file, committed by its author, in the instrument built to prevent it** — §26.2 turned on me exactly (*a limb that catches and does nothing*), and the lab's own *"evidence annotated as non-binding"*: **a printed discrepancy is worse than one never computed, because it buys the feeling of having checked. I had the feeling. I did not have the gate.**
-- **§27.5 SAID THE FIX WAS INVOCATION BOUNDARIES. RIGHT, AND INSUFFICIENT — a check must also REFUSE. Both times I named the requirement and stopped one step short of enforcing it: three consecutive instances of a claim wider than its instrument, and the instrument was mine each time.** **⚠ AND REFUSING ALONE IS ALSO WRONG, which is why both earlier entries were incomplete: `LAB_STATE.md` is written by six supervisors continuously, so foreign content on disk is the NORMAL STATE — a bare refusal would block every commit and be retired within a day, correctly.** **THE RECOVERY IS WHAT MAKES THE GATE SURVIVABLE: BUILD THE BLOB, DO NOT STAGE THE DISK COPY — take the file as it is at HEAD, apply ONLY your own hunk to that, commit that object, and leave peers' work untouched on disk as you found it. Rule 10's existing duty then applies unchanged: say in the message that you left foreign rows uncommitted.** **This commit is built that way and its assert exits non-zero.** **REVISED REFERRAL to the chief: same-invocation + non-zero exit + the build-from-HEAD recovery, all three, or the clause is unusable.**
 - **NEXT ACTIONS:** (1) **relay F28 §6.3 to cfd via the chief** — both repair paths named, with the **frame-proof coupling** stated as the real cost of the stronger one (`assert_stationarity_frame` binds `T_total` to `forcesDuct`'s column alone, so a composed `T_total` breaks the bit-exact identity and the proof must be re-anchored); (2) the two lanes' findings, read by me before belief; (3) **the demo-push relays that never went out are now MOOT — the demos are shot**, so cfd's restart-gating and M4 substring gap revert from demo-critical to ordinary instrument findings.
 - **STILL PARKED, NOW UNFROZEN AND ACTIONABLE:** T18's unrepaired live-tree ROOT in `analyse_t18.py`; my **twelve → fifteen** correction on `recipe_audit.py`'s pinned selftest values; **T20's §2d.3 grant reached three records but not the pre-registration, and its condition (iii) is NOT independently verifiable** — the trees were built in scratch and are gone. **The T20 item is the same propagation class as this session's F28 finding, and that is now TWO specimens.**
 - **ON SANAA'S DESK, unchanged plus one:** `§2n.18` (five specimens), `§2n.19`, the `append_record.py` id-format option, cfd's four frozen-registration defects, the ansys taxonomy ruling, **`RESULT_PRIORITY_CHARTER` v0.5 still awaiting her**, and the **standing rule-1 conflict (charter §2's `GATE FAIL` vs bare `FAIL` in some ledger cells) — referred, unruled, and I do not settle it silently.** **NEW: `C-217` needs either closure re-formed for one commit, or her explicit ruling that another team may strike closure's row — reserved to her, and no agent message substitutes (rule 9).**
