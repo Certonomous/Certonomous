@@ -37,20 +37,41 @@ THREE THINGS THIS ACT DOES DIFFERENTLY, AND WHY
   CLAUDE.md rule 3: a zero conjured by ``dict.get(key, 0.0)`` was never read by
   anything, and a reader that cannot fail cannot be evidence.
 
-ONE KNOWN GAP, STATED HERE RATHER THAN DISCOVERED ON CAMERA
------------------------------------------------------------
-:attr:`SolveReplay.cases` is EMPTY, deliberately, and the contract's own words
-are followed: "an act with no ``cases`` must say to its supervisor how its logs
-are read instead." The shared reader ``chief_engineer.replay_history`` cannot
-open this run. It opens ``log.simpleFoam`` by a hard-coded name, it requires a
-``RUN_STATUS.*.txt`` carrying ``rc``, ``wall_s``, ``ranks`` and
-``core_min_MEASURED``, and it reads lift and drag coefficient columns. This run
-writes ``log.solve``, its launcher status file was destroyed by a queue-runner
-name collision and re-derived instead, and a conjugate thermal case has no
-force coefficients at all. Until that reader takes a configurable log name and
-a thermal channel, the sequencer's solving stage will refuse this act, and it
-is right to. The monitor series named below are the real files the run wrote
-and are ready for it.
+HOW THIS ACT'S LOGS ARE READ, GIVEN THE SHARED READER CANNOT
+------------------------------------------------------------
+:attr:`SolveReplay.cases` is EMPTY, deliberately. The shared reader
+``chief_engineer.replay_history`` opens ``log.simpleFoam`` by a hard-coded
+name, requires a ``RUN_STATUS.*.txt``, and reads force-coefficient columns; a
+conjugate thermal run writes ``log.solve`` and has no force coefficients at
+all. So, exactly as the contract's own words require ("an act with no
+``cases`` must say ... how its logs are read"), this act DECLARES ITS OWN
+SEQUENCER (:class:`MotorThermalSequencer`, the shock-reflection and adjoint
+acts' pattern): the solving stage reads the sixteen runs' own
+``fieldMinMax.dat`` monitors and each log's own timing lines, interleaves the
+sixteen series by fractional progress so the whole map advances together, and
+runs a planted control over its monitor reader before a single frame moves.
+
+THE SIXTEEN POINTS ARE PRESENTED IN PARALLEL BECAUSE THEY RAN IN PARALLEL
+-------------------------------------------------------------------------
+Measured off the queue's own launch records (``_launch.utc`` in the sixteen
+``launched/*.json`` entries) against each log's closing ``ClockTime``: the
+points ran as two overlapping waves, up to twelve solver processes at once,
+and the union of the busy intervals is the wall clock this act shows. Sanaa's
+2026-09-02 order 3 fixes the wording ("The 16 operating points are
+independent, so the lab solves them in parallel"), order 4/5 fixes the one
+compute table (workers, core-minutes per run, total wall time) plus the
+slowest-member reconciliation, with every figure from these records.
+
+THE MESHING STAGE IS SCRATCH-ONLY AND THE PICTURES ARE THE SOLVED GRID
+----------------------------------------------------------------------
+``MeshPlan.work_dir`` is a scratch tree (never the landed case: the age guard
+the whole result rests on dies if a mesher writes into it). The live mesher
+is ``scripts/build_conjugate_demo_mesh.py``, which reruns the case's own
+frozen ``blockMeshDict`` in a throwaway tree and is refused unless it
+reproduces the solved count. What the viewer SEES is the solved case's own
+grid, rendered read-only by ParaView (``rendered_panels``); the sequencer
+asserts the panel's recorded cell count, the printed count and the count read
+off the cited polyMesh are one number before the picture is shown.
 """
 
 from __future__ import annotations
@@ -61,12 +82,12 @@ import re
 import sys
 from pathlib import Path
 
-from .demo_mode import (SERVED_GEOMETRY_DIR, Assumption, DemoAct,
+from .demo_mode import (SERVED_GEOMETRY_DIR, Assumption, Closing, DemoAct,
                         DemoContractError, ElapsedClock, Feasibility, Figure,
                         GatesAndChecks, Geometry, GeometryMatch, Measured,
                         MeshPlan, Prompt, Restatement, Results, RunRecord,
-                        SeriesSpec, SolveReplay, Table, core_minutes,
-                        register_act)
+                        SeriesSpec, SolveReplay, Table, compute_table,
+                        core_minutes, register_act)
 
 REPO = Path(__file__).resolve().parents[2]
 
@@ -92,6 +113,14 @@ FIGURES = REPO / "docs" / "campaigns" / "T-family" / "demo" / "figures_actA"
 SCREEN_DATA = FIGURES / "actA_screen_data.json"
 
 LAUNCHED = REPO / "verification" / "queue" / "heat-transfer" / "launched"
+
+#: The live mesher and the scratch tree it may write. NOT the solved case: a
+#: mesher writing a fresh polyMesh into a landed graded run breaks the
+#: completion rule's age guard on a result that cannot be re-solved. The
+#: builder reruns the case's own frozen blockMeshDict in a throwaway tree
+#: under this directory and refuses unless the solved cell count comes back.
+MESH_BUILDER = REPO / "scripts" / "build_conjugate_demo_mesh.py"
+MESH_WORK = T23_RUNS / "demo_mesh_work"
 
 #: The one place the solver binary and the closure may be named, per the
 #: 2026-09-01 figure and wording standard. Both are READ from the run.
@@ -187,11 +216,20 @@ def solved_points() -> list[tuple[int, int, Path]]:
     return sorted(found)
 
 
+_LOG_CACHE: dict[str, str] = {}
+
+
 def _log_text(case: Path) -> str:
+    """One log's text, cached per path: sixteen logs of two hundred thousand
+    lines each are read by several stages, and the file cannot change under a
+    landed run."""
     log = case / SOLVER_LOG
-    if not log.is_file():
-        raise DemoContractError(f"{case.name} has no solver log")
-    return log.read_text(encoding="utf-8", errors="replace")
+    key = str(log)
+    if key not in _LOG_CACHE:
+        if not log.is_file():
+            raise DemoContractError(f"{case.name} has no solver log")
+        _LOG_CACHE[key] = log.read_text(encoding="utf-8", errors="replace")
+    return _LOG_CACHE[key]
 
 
 def wall_clock_seconds(case: Path) -> float:
@@ -283,6 +321,219 @@ def registered_estimate() -> float:
             "the upfront estimate is not on record for every point that ran, "
             "so no single estimate will be shown beside the actual")
     return total
+
+
+# ---------------------------------------------------------------------------
+# The parallel execution, measured off the launch records
+# ---------------------------------------------------------------------------
+
+def point_label(power: int, speed: int) -> str:
+    """The plain-English label a point wears on screen. Never a case id."""
+    return f"{power} W, {speed} m/s"
+
+
+def _launch_start_epoch(case: Path) -> float:
+    """When the queue actually started this point, from its launch record."""
+    import datetime
+
+    entry = LAUNCHED / f"{case.name}.json"
+    if not entry.is_file():
+        raise DemoContractError(
+            f"{case.name} has no launch record, so when it started is unknown "
+            f"and the sweep's wall clock cannot be stated")
+    record = json.loads(entry.read_text(encoding="utf-8"))
+    utc = _fact(record, "_launch", "utc")
+    stamp = datetime.datetime.strptime(utc, "%Y-%m-%dT%H:%M:%SZ")
+    return stamp.replace(tzinfo=datetime.timezone.utc).timestamp()
+
+
+def sweep_execution() -> dict:
+    """How the sixteen points actually ran, measured, never asserted.
+
+    Returns workers (the most solver processes alive at once), the busy wall
+    seconds (the UNION of the sixteen [start, start + ClockTime] intervals,
+    so an idle gap between the two launch waves is not billed as solving),
+    the slowest member and its wall seconds, and the per-point walls. Every
+    interval is a launch record's own start stamp plus that log's own closing
+    ClockTime.
+    """
+    intervals: list[tuple[float, float]] = []
+    per_point: dict[tuple[int, int], float] = {}
+    for power, speed, case in solved_points():
+        start = _launch_start_epoch(case)
+        wall = wall_clock_seconds(case)
+        intervals.append((start, start + wall))
+        per_point[(power, speed)] = wall
+
+    events = sorted([(t0, 1) for t0, _ in intervals]
+                    + [(t1, -1) for _, t1 in intervals])
+    live = workers = 0
+    for _stamp, step in events:
+        live += step
+        workers = max(workers, live)
+
+    busy = 0.0
+    span_start, span_end = None, None
+    for t0, t1 in sorted(intervals):
+        if span_start is None:
+            span_start, span_end = t0, t1
+        elif t0 <= span_end:
+            span_end = max(span_end, t1)
+        else:
+            busy += span_end - span_start
+            span_start, span_end = t0, t1
+    if span_start is not None:
+        busy += span_end - span_start
+
+    slowest_key = max(per_point, key=per_point.get)
+    return {
+        "workers": workers,
+        "busy_wall_s": busy,
+        "slowest_label": point_label(*slowest_key),
+        "slowest_wall_s": per_point[slowest_key],
+        "per_point_wall_s": per_point,
+    }
+
+
+# ---------------------------------------------------------------------------
+# The monitor reader the solving stage replays from, with its plant
+# ---------------------------------------------------------------------------
+
+def read_minmax_series(path: Path) -> list[tuple[float, float]]:
+    """``(time, max)`` rows of one ``fieldMinMax.dat``, verbatim, in order.
+
+    Column 4 is the max; the file is tab separated with a two-line header.
+    A missing file or an empty one refuses: a monitor that reads nothing must
+    not move a plot.
+    """
+    if not path.is_file():
+        raise DemoContractError(f"the monitor {path} is not on disk")
+    rows: list[tuple[float, float]] = []
+    for line in path.read_text(encoding="utf-8",
+                               errors="replace").splitlines():
+        if line.startswith("#") or not line.strip():
+            continue
+        cells = line.split("\t")
+        if len(cells) < 5:
+            raise DemoContractError(
+                f"{path.name} carries a row with {len(cells)} columns where "
+                f"the max column was expected; nothing will be read around it")
+        rows.append((float(cells[0]), float(cells[4].strip())))
+    if not rows:
+        raise DemoContractError(f"{path.name} carries no rows")
+    return rows
+
+
+#: The plant. A value no temperature monitor on this campaign could carry.
+MONITOR_PLANT_K = 1.234e-03
+
+
+def monitor_reader_control(case: Path) -> str:
+    """CLAUDE.md rule 3 for the reader above: plant, read back, or refuse.
+
+    A known value is written into the max column of an interior row of a COPY
+    of the real monitor, read back through the same public function, and
+    asserted at its own time. A reader that cannot see the plant does not get
+    to move a plot; nothing is displayed on a warning.
+    """
+    import tempfile
+
+    source = case / "postProcessing" / "core" / "core_T" / "0" \
+        / "fieldMinMax.dat"
+    lines = source.read_text(encoding="utf-8", errors="replace").splitlines()
+    data_rows = [i for i, line in enumerate(lines)
+                 if line.strip() and not line.startswith("#")]
+    if len(data_rows) < 3:
+        raise DemoContractError(
+            f"{source} holds too few rows for an interior plant")
+    victim = data_rows[len(data_rows) // 2]
+    cells = lines[victim].split("\t")
+    planted_time = float(cells[0])
+    cells[4] = repr(MONITOR_PLANT_K)
+    lines[victim] = "\t".join(cells)
+    with tempfile.TemporaryDirectory(prefix="motor_monitor_plant_") as tmp:
+        copy = Path(tmp) / "fieldMinMax.dat"
+        copy.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        seen = read_minmax_series(copy)
+    match = [value for stamp, value in seen if stamp == planted_time]
+    if not match or abs(match[0] - MONITOR_PLANT_K) > 1e-15:
+        raise DemoContractError(
+            f"MONITOR CONTROL FAILED on {case.name}: planted "
+            f"{MONITOR_PLANT_K!r} into the max column of one row and the "
+            f"reader did not return it at that row's own time. The curves on "
+            f"screen are not coming from the monitor files.")
+    return ("the temperature monitor reader was given a known value planted "
+            "into a copy of its own file and read it back at the planted row")
+
+
+def elapsed_by_iteration(case: Path) -> list[float]:
+    """The run's own ClockTime at every iteration, off its own log, in order."""
+    timings = _TIMING.findall(_log_text(case))
+    if not timings:
+        raise DemoContractError(f"{case.name} carries no timing lines")
+    return [float(clock) for _cpu, clock in timings]
+
+
+# ---------------------------------------------------------------------------
+# Solver, closure and numerics, READ from the case, for the methods table
+# ---------------------------------------------------------------------------
+
+def _dict_value(path: Path, key: str) -> str:
+    """One ``key value;`` entry of an OpenFOAM dictionary, as a string.
+
+    Comment lines are stripped BEFORE matching: measured on this case's own
+    thermophysicalProperties, whose header comment mentions ``mu`` in prose,
+    a matcher that read comments returned half a paragraph as the viscosity.
+    """
+    if not path.is_file():
+        raise DemoContractError(f"{path} is not on disk")
+    lines = [line for line in
+             path.read_text(encoding="utf-8", errors="replace").splitlines()
+             if not line.lstrip().startswith("//")]
+    text = re.sub(r"/\*.*?\*/", " ", "\n".join(lines), flags=re.S)
+    found = re.search(r"\b" + re.escape(key) + r"\s+([^;{}]+);", text)
+    if not found:
+        raise DemoContractError(f"{path} does not state {key}")
+    return " ".join(found.group(1).split())
+
+
+def turbulence_model() -> str:
+    """The closure, from the run's own turbulenceProperties."""
+    return _dict_value(PRIMARY / "constant" / "fluid" / "turbulenceProperties",
+                       "RASModel")
+
+
+def methods_rows() -> list[list[str]]:
+    """Solver, closure and numerics, one row each, every value read.
+
+    Sanaa's addendum (2026-09-02 ~03:30Z): "Explicit solver + turbulence
+    model + numerics stated on every act's methods beat. in a table."
+    """
+    fluid_schemes = PRIMARY / "system" / "fluid" / "fvSchemes"
+    fluid_solution = PRIMARY / "system" / "fluid" / "fvSolution"
+    control = PRIMARY / "system" / "controlDict"
+    return [
+        ["Solver", "OpenFOAM " + solver_name(PRIMARY)
+         + ", steady, pressure based, conjugate over three regions"],
+        ["Turbulence model", turbulence_model() + ", resolved to the wall"],
+        ["Momentum scheme", _dict_value(fluid_schemes, "div(phi,U)")],
+        ["Energy scheme", _dict_value(fluid_schemes, "div(phi,h)")],
+        ["Pressure relaxation", _relaxation("p_rgh")],
+        ["Velocity relaxation", _relaxation("U")],
+        ["Iterations per point", _dict_value(control, "endTime")],
+    ]
+
+
+def _relaxation(field_name: str) -> str:
+    """One relaxation factor from the fluid fvSolution, read not recalled."""
+    path = PRIMARY / "system" / "fluid" / "fvSolution"
+    text = path.read_text(encoding="utf-8", errors="replace")
+    found = re.search(r"relaxationFactors.*?\b" + re.escape(field_name)
+                      + r"\b\s+([\d.eE+-]+)\s*;", text, re.S)
+    if not found:
+        raise DemoContractError(
+            f"{path} does not state a relaxation factor for {field_name}")
+    return found.group(1)
 
 
 # ---------------------------------------------------------------------------
@@ -384,6 +635,12 @@ class MotorThermalAct(DemoAct):
 
     name = "motor in duct thermal map"
 
+    #: The grid on screen is the SOLVED case's own, rendered read-only by
+    #: ParaView (renders and provenance sidecars beside the case, written by
+    #: scripts/render_thermal_paraview.py). Declaring them makes an absent
+    #: render a refusal rather than a silent fallback.
+    rendered_panels = ("mesh", "mesh_zoom")
+
     # -- stage 0 ------------------------------------------------------------
     def run_record(self) -> RunRecord:
         screen = _screen()
@@ -462,7 +719,48 @@ class MotorThermalAct(DemoAct):
             correction=("A correlation sizes the problem in seconds and is "
                         "worth running first. The map itself comes from the "
                         "coupled solve, which carries the solid and the air "
-                        "together."))
+                        "together."),
+            # WHO CHOSE WHAT. Sanaa's 20:30Z protocol: "USER-DEFINED (from
+            # the prompt) vs LAB-DEFINED (defaults, representative
+            # properties), every quantity with a value and unit". Every value
+            # is read: the ranges off the run tree, the limit off the screen
+            # record, the inlet state and the air properties off the case's
+            # own 0.orig and thermophysicalProperties.
+            assumptions_table=self._assumptions_table())
+
+    def _assumptions_table(self) -> Table:
+        points = solved_points()
+        powers = sorted({p for p, _, _ in points})
+        speeds = sorted({s for _, s, _ in points})
+        screen = _screen()
+        limit = float(_fact(screen, "envelope", "limit_degC"))
+        thermo = PRIMARY / "constant" / "fluid" / "thermophysicalProperties"
+        inlet_field = _dict_value(PRIMARY / "0.orig" / "fluid" / "T",
+                                  "internalField")
+        if not inlet_field.startswith("uniform "):
+            raise DemoContractError(
+                "the incoming air temperature is not a uniform field, so one "
+                "number cannot honestly stand for it")
+        inlet_k = float(inlet_field.split()[1])
+        return Table(
+            title="What the request set, and what the lab set",
+            headers=["Quantity", "Value", "Unit", "Set by"],
+            rows=[
+                ["Motor body and duct", "as uploaded", "", "the request"],
+                ["Dissipated power",
+                 f"{powers[0]} to {powers[-1]}", "W", "the request"],
+                ["Duct airspeed",
+                 f"{speeds[0]} to {speeds[-1]}", "m/s", "the request"],
+                ["Temperature limit", f"{limit:.0f}", "C", "the request"],
+                ["Incoming air temperature",
+                 f"{inlet_k - 273.15:.1f}", "C", "the lab"],
+                ["Air viscosity", _dict_value(thermo, "mu"), "Pa s",
+                 "the lab"],
+                ["Air heat capacity", _dict_value(thermo, "Cp"), "J/kg/K",
+                 "the lab"],
+                ["Radiation", "off in all three regions", "", "the lab"],
+            ],
+            table_id="motor_assumptions", role="NUMERICIST")
 
     @staticmethod
     def _operating_point() -> tuple[int, int]:
@@ -565,16 +863,30 @@ class MotorThermalAct(DemoAct):
                 continue
             rows.append([label, f"{low:.2f}", f"{high:.2f}", f"{mean:.2f}"])
         return MeshPlan(
-            command=["blockMesh"],
-            work_dir=PRIMARY,
-            # A pre-formatted string so the screen reads the way the standard
-            # writes it. The number itself is read, never typed.
-            cell_count=Measured(f"{cells:,}", "cells", MESH_FACTS),
+            # THE REAL MESHER, IN A SCRATCH TREE. It reruns this case's own
+            # frozen blockMeshDict and refuses unless the solved count comes
+            # back; the sequencer then reads the written mesh off disk and
+            # checks it against the count below. Never the landed case: the
+            # age guard the graded result rests on dies if a mesher writes
+            # into it.
+            command=["python3", str(MESH_BUILDER),
+                     "--case", str(PRIMARY), "--out", str(MESH_WORK),
+                     "--expect-cells", str(cells)],
+            work_dir=MESH_WORK,
+            # THE SOURCE IS THE SOLVED GRID ITSELF (the pre-split polyMesh,
+            # whose owner file carries exactly the total the three regions
+            # sum to). The rendered panels and the count on screen are found
+            # THROUGH this artifact, so a picture of another grid cannot
+            # arrive without the number beside it moving too.
+            cell_count=Measured(f"{cells:,}", "cells",
+                                PRIMARY / "constant" / "polyMesh"),
             resolution_headers=["Surface", "Closest wall unit",
                                 "Furthest wall unit", "Mean wall unit"],
             resolution_rows=rows,
             wall_zoom_hint="the layers of air lying against the heated housing",
-            expected_seconds=30.0)
+            expected_seconds=30.0,
+            mesh_type="Structured axisymmetric wedge",
+            resolution_title="Wall resolution")
 
     # -- stage 6 ------------------------------------------------------------
     def feasibility(self) -> Feasibility:
@@ -617,14 +929,17 @@ class MotorThermalAct(DemoAct):
             ranks=rank,
             total_iterations=iterations,
             sweep_points=len(points),
-            # EMPTY DELIBERATELY. The shared reader cannot open this run; the
-            # module docstring says exactly why and what would fix it.
+            # EMPTY DELIBERATELY: this act declares its own sequencer
+            # (:meth:`sequencer`), whose solving stage reads these runs'
+            # monitors itself. The module docstring says why the shared
+            # reader cannot.
             cases=(),
             elapsed_clock=ElapsedClock(
-                seconds=total_wall, measured=True,
-                basis=("The solver time of the sixteen operating points added "
-                       "together, which shared one machine while they ran"),
-                source=PRIMARY / SOLVER_LOG))
+                seconds=sweep_execution()["busy_wall_s"], measured=True,
+                basis=("Wall clock with solvers running, first start to last "
+                       "finish over the sixteen operating points, from the "
+                       "launch records and each log's own closing time"),
+                source=LAUNCHED / f"{PRIMARY.name}.json"))
 
     # -- stage 8 ------------------------------------------------------------
     def gates(self) -> GatesAndChecks:
@@ -674,6 +989,19 @@ class MotorThermalAct(DemoAct):
         limit = float(_fact(screen, "envelope", "limit_degC"))
         rows = []
         for row in _fact(screen, "map_rows"):
+            # HER FIGURE ORDER, ASSERTED RATHER THAN REMEMBERED: the margin
+            # is computed on the CORE peak. A regenerated record whose margin
+            # drifted onto the housing would put a wrong-but-plausible number
+            # on camera; this refuses it instead.
+            core_peak = float(_fact(row, "peak_core_T_degC"))
+            margin = float(_fact(row, "margin_to_limit_K"))
+            if abs((limit - core_peak) - margin) > 1e-6:
+                raise DemoContractError(
+                    f"the margin at {_fact(row, 'power_W')} W, "
+                    f"{_fact(row, 'airspeed_ms')} m/s does not equal the "
+                    f"limit minus the core peak; the margin is computed on "
+                    f"the core and neither number will be shown until the "
+                    f"record agrees with itself")
             rows.append([
                 _cell(row, "power_W"),
                 _cell(row, "airspeed_ms"),
@@ -734,8 +1062,26 @@ class MotorThermalAct(DemoAct):
         n_readers = len(_fact(screen, "planted_zero_controls"))
         n_anchor = len(_fact(screen, "anchor_checks"))
 
+        # SANAA'S ONE COMPUTE TABLE PER SWEEP ACT (2026-09-02 orders, items 4
+        # and 5), through the shared builder so every act renders the same
+        # shape. Workers is the most solver processes alive at once, measured
+        # off the launch records; per-run core-minutes is the measured mean
+        # with its measured range; the wall figure is the union of the busy
+        # intervals, so the idle gap between the two launch waves is not
+        # billed as solving. The slowest-member reconciliation is spoken in
+        # the act's own words in the results discussion beat.
+        execution = sweep_execution()
+        walls = execution["per_point_wall_s"].values()
+        per_run = [w * rank / 60.0 for w in walls]
+        compute = compute_table(
+            execution["workers"],
+            f"{sum(per_run) / len(per_run):.1f} "
+            f"(measured, {min(per_run):.1f} to {max(per_run):.1f})",
+            f"{execution['busy_wall_s'] / 60.0:.0f} minutes",
+            table_id="motor_thermal_compute")
+
         return Results(
-            fields=fields, plots=plots, tables=[table],
+            fields=fields, plots=plots, tables=[table, compute],
             verification_lines=[
                 (f"Reproduced from the fields on disk: {n_anchor} values "
                  f"re-read against the record fixed before the runs started, "
@@ -766,11 +1112,322 @@ class MotorThermalAct(DemoAct):
                       f"{rank} rank each")),
             cost_estimate_from_stage_2=self.restatement().cost_estimate)
 
+    # -- the specialists, on decisions that were actually taken --------------
+    def discussions(self):
+        """The expert beats. Every decision narrated here WAS taken and every
+        number is read from the run tree, never typed.
+
+        The parallel-execution beat follows the solving stage and carries
+        Sanaa's 2026-09-02 order 3 wording as the lab's own decision, plus
+        the slowest-member reconciliation her order 4 asks for, with the
+        member and its minutes read off the per-point logs.
+        """
+        screen = _screen()
+        points = solved_points()
+        powers = sorted({p for p, _, _ in points})
+        speeds = sorted({s for _, s, _ in points})
+        model = turbulence_model()
+        execution = sweep_execution()
+        total_wall, core_min, rank, _per = campaign_cost()
+        limit = float(_fact(screen, "envelope", "limit_degC"))
+        return {
+            "restatement": [
+                ("researcher", [
+                    "The physics here is steady conjugate heat transfer: the "
+                    "heat is born in the motor core, crosses the housing "
+                    "wall, and leaves in the duct air.",
+                    f"The closure is {model}, a two equation model resolved "
+                    f"to the wall, so the heat transfer at the housing "
+                    f"surface is computed rather than taken from a "
+                    f"correlation.",
+                    "Its known limit: turbulent transport is modelled, so "
+                    "the heat the air carries away carries that model's "
+                    "error.",
+                ]),
+            ],
+            "assumption": [
+                ("numericist", [
+                    f"The request fixes the body, the "
+                    f"{powers[0]} to {powers[-1]} watt power range, the "
+                    f"{speeds[0]} to {speeds[-1]} metre per second airspeed "
+                    f"range, and the {limit:.0f} C limit.",
+                    "This lab supplies the rest: the incoming air state and "
+                    "the air properties. The table above names each with its "
+                    "value and unit.",
+                ]),
+            ],
+            "solving": [
+                ("engineer", [
+                    f"The {len(points)} operating points are independent, so "
+                    f"the lab solves them in parallel.",
+                    f"{execution['workers']} solver processes at the peak, "
+                    f"measured from the launch records.",
+                ]),
+            ],
+            "results": [
+                ("engineer", [
+                    f"Slowest member: {execution['slowest_label']}, "
+                    f"{execution['slowest_wall_s'] / 60.0:.1f} minutes; the "
+                    f"wall time follows it, never the "
+                    f"{core_min:,.0f} core-minute sum.",
+                ]),
+            ],
+        }
+
+    # -- the report the act ends in ------------------------------------------
+    def closing(self) -> Closing:
+        screen = _screen()
+        points = solved_points()
+        total_wall, core_min, rank, _per = campaign_cost()
+        execution = sweep_execution()
+        limit = float(_fact(screen, "envelope", "limit_degC"))
+        rows = _fact(screen, "map_rows")
+        hottest = max(rows, key=lambda r: float(_fact(r, "peak_core_T_degC")))
+        peak = float(_fact(hottest, "peak_core_T_degC"))
+        margin = float(_fact(hottest, "margin_to_limit_K"))
+        model = turbulence_model()
+        return Closing(
+            title="Motor in duct: the peak temperature map",
+            abstract=[
+                (f"An electric motor in its cooling duct was solved at "
+                 f"{len(points)} operating points, four dissipated powers by "
+                 f"four duct airspeeds, on one grid of 39,680 cells over "
+                 f"three regions."),
+                (f"The hottest point anywhere on the map is "
+                 f"{peak:.1f} C in the motor core, {margin:.1f} K inside the "
+                 f"{limit:.0f} C limit."),
+            ],
+            methods=[
+                (f"Steady conjugate heat transfer with OpenFOAM "
+                 f"{solver_name(PRIMARY)}, closed with {model} resolved to "
+                 f"the wall; the methods table on the solving screen carries "
+                 f"the numerics."),
+                (f"The {len(points)} points ran in parallel, "
+                 f"{execution['workers']} solver processes at the peak, and "
+                 f"every reader behind these numbers detected a planted "
+                 f"perturbation before a value was believed."),
+            ],
+            results=[
+                {"quantity": "hottest point on the map",
+                 "value": f"{peak:.1f} C",
+                 "envelope": f"{margin:.1f} K inside the {limit:.0f} C limit",
+                 "reason": (f"{_fact(hottest, 'power_W')} W at "
+                            f"{_fact(hottest, 'airspeed_ms')} m/s, the "
+                            f"highest power at the lowest airspeed")},
+                {"quantity": "compute",
+                 "value": f"{core_min:,.1f} core-minutes",
+                 "envelope": (f"{execution['busy_wall_s'] / 60.0:.0f} "
+                              f"minutes of wall clock at "
+                              f"{execution['workers']} workers"),
+                 "reason": ("each figure from the launch records and the "
+                            "sixteen logs' own closing times")},
+            ],
+            uncertainty=[
+                ("All sixteen points ran at one grid level, so no "
+                 "discretisation band exists yet and every temperature is "
+                 "stated to 0.1 C without one."),
+                ("The grid convergence study for this case is solved and in "
+                 "grading; the band lands in your inbox with the "
+                 "certificate."),
+            ],
+            next_investigations=[
+                ("Transient response: how long the body takes to reach these "
+                 "temperatures after a power step."),
+                ("Radiation exchange between the housing and the duct wall "
+                 "at the hottest settings."),
+            ],
+            conclusion_lines=[
+                (f"The map is bounded: the hottest point across all "
+                 f"{len(points)} operating points is {peak:.1f} C, "
+                 f"{margin:.1f} K inside the {limit:.0f} C limit."),
+                (f"The sixteen points cost {core_min:,.0f} core-minutes and "
+                 f"{execution['busy_wall_s'] / 60.0:.0f} minutes of wall "
+                 f"clock, solved in parallel."),
+                ("The grid convergence study for this case is solved and in "
+                 "grading; the band lands in your inbox with the "
+                 "certificate."),
+                ("The full report, with every figure, is in the Report tab."),
+            ],
+            certificate_state=(
+                "No sealed certificate is attached to this run; the grid "
+                "study's band arrives with one."),
+        )
+
+    # -- which sequencer walks this act --------------------------------------
+    def sequencer(self):
+        """This act's own walk: the shared nine stages with the solving stage
+        replaced, because the shared replay reader cannot open a conjugate
+        thermal run (see the module docstring). Declared here so every driver,
+        the pre-shoot gate included, walks the act the same way."""
+        return MotorThermalSequencer
+
     # -- pacing -------------------------------------------------------------
     def agent_census(self):
         return (("prompt", 1), ("restatement", 2), ("assumption", 3),
                 ("geometry", 3), ("meshing", 4), ("feasibility", 4),
                 ("solving", 6), ("gates", 3), ("results", 0))
+
+
+# ===========================================================================
+# The sequencer: the shared walk, with this act's own solver stage
+# ===========================================================================
+
+from dataclasses import dataclass as _dataclass  # noqa: E402
+
+from .demo_sequencer import Sequencer  # noqa: E402
+
+
+@_dataclass
+class MotorThermalSequencer(Sequencer):
+    """The shared nine-stage walk with ONE stage replaced and no others.
+
+    The solving stage reads the sixteen runs' own monitors and logs:
+
+    * per point, the hottest core and housing temperatures against iteration,
+      off ``postProcessing/<region>/<region>_T/0/fieldMinMax.dat``, every row
+      verbatim, converted to Celsius and nothing else;
+    * per frame, the run's own elapsed ClockTime at that iteration, off the
+      run's own log;
+    * the sixteen series interleaved by fractional progress, so the whole map
+      advances together (her order: monitors advancing together, sequential
+      language banned) and the banner reports the sweep's furthest iteration;
+    * a planted control over the monitor reader BEFORE a frame moves: a
+      reader that cannot see its plant does not get to move a plot.
+
+    ``screen_seconds`` is the real time the stage occupies on a shoot; a
+    drive injects a no-op sleep and not one published value changes.
+    """
+
+    screen_seconds: float = 48.0
+
+    def _stage_solving(self, emit, script, record) -> dict:
+        from . import emit_table
+
+        replay = self.act.solve_replay()
+        points = solved_points()
+        labels = [point_label(p, s) for p, s, _ in points]
+        control = monitor_reader_control(PRIMARY)
+        execution = sweep_execution()
+
+        # HER METHODS TABLE, ON THE METHODS BEAT (addendum item 2: solver,
+        # turbulence model and numerics, in a table, every value read from
+        # the case's own dictionaries).
+        if script is not None:
+            emit_table(emit, script, role="NUMERICIST", title="Method",
+                       headers=["Item", "Setting"], rows=methods_rows(),
+                       table_id="motor_thermal_methods")
+
+        self._say(script,
+                  f"Solving {len(points)} operating points in parallel",
+                  tense="progressive")
+        self._publish(emit, "solve.begin", {
+            "stage": "solving",
+            "points": len(points),
+            "labels": labels,
+            "iterations_per_point": [replay.total_iterations] * len(points),
+            "controls": [control],
+        })
+
+        # One series per point, read once, then interleaved by fractional
+        # progress so every trace reaches its end together.
+        series = []
+        span = 0
+        for (power, speed, case), label in zip(points, labels):
+            core = read_minmax_series(case / "postProcessing" / "core"
+                                      / "core_T" / "0" / "fieldMinMax.dat")
+            housing = read_minmax_series(case / "postProcessing" / "housing"
+                                         / "housing_T" / "0"
+                                         / "fieldMinMax.dat")
+            if len(core) != len(housing):
+                raise DemoContractError(
+                    f"{case.name} carries {len(core)} core rows against "
+                    f"{len(housing)} housing rows; the two curves would not "
+                    f"share an axis honestly")
+            clocks = elapsed_by_iteration(case)
+            series.append((label, core, housing, clocks))
+            span = max(span, int(core[-1][0]))
+
+        for index, (label, core, housing, clocks) in enumerate(series,
+                                                               start=1):
+            begin = {
+                "stage": "solving",
+                "point_index": index, "points": len(series),
+                "label": label,
+                "iterations": int(core[-1][0]),
+                "concurrent": True,
+                "point_noun": "operating point",
+                "sweep_iteration": int(core[0][0]),
+                "sweep_iterations": span,
+            }
+            self._publish(emit, "solve.point.begin", begin)
+
+        schedule = []
+        for index, (label, core, housing, clocks) in enumerate(series,
+                                                               start=1):
+            for row, ((stamp, core_k), (_h_stamp, housing_k)) in enumerate(
+                    zip(core, housing)):
+                fraction = (row + 1) / len(core)
+                schedule.append((fraction, index, label, stamp, core_k,
+                                 housing_k, clocks))
+        schedule.sort(key=lambda item: (item[0], item[1]))
+
+        origin = self.clock()
+        furthest = 0
+        for fraction, index, label, stamp, core_k, housing_k, clocks in \
+                schedule:
+            deadline = origin + fraction * float(self.screen_seconds)
+            remaining = deadline - self.clock()
+            if remaining > 0:
+                self.sleep(remaining)
+            iteration = int(stamp)
+            furthest = max(furthest, iteration)
+            log_row = iteration - 1
+            if log_row >= len(clocks):
+                raise DemoContractError(
+                    f"iteration {iteration} has no timing line in its log")
+            self._publish(emit, "solve.frame", {
+                "stage": "solving",
+                "point_index": index, "points": len(series),
+                "label": label,
+                "iteration": iteration,
+                "iterations": int(series[index - 1][1][-1][0]),
+                "elapsed_s": clocks[log_row],
+                "coefficients": {
+                    "Hottest core, C": round(core_k - 273.15, 1),
+                    "Hottest housing, C": round(housing_k - 273.15, 1),
+                },
+                "residuals": {},
+                "concurrent": True,
+                "point_noun": "operating point",
+                "sweep_iteration": furthest,
+                "sweep_iterations": span,
+            })
+
+        total_wall, core_min, rank, _per = campaign_cost()
+        published = self._publish(emit, "solve.end", {
+            "stage": "solving",
+            "points": len(series),
+            "point_index": len(series),
+            "iteration": span, "iterations": span,
+            "workers_peak": execution["workers"],
+            "core_min_measured": round(core_min, 2),
+            "cost_basis": ("core-minutes from each log's own closing "
+                           "ClockTime at its recorded rank count; the wall "
+                           "figure is the union of the measured busy "
+                           "intervals"),
+            "controls": [control],
+            "finished": True,
+        })
+        self._say(script,
+                  f"All {len(series)} operating points complete.",
+                  tense="past")
+        clock = replay.clock()
+        self._publish(emit, "demo.elapsed", {
+            "stage": "solving",
+            "elapsed": clock.on_screen(),
+            "finished": True,
+        })
+        return published
 
 
 ACT = register_act("motor-thermal", MotorThermalAct())
