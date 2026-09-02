@@ -548,11 +548,10 @@ class ReplayStage:
         payload = self._publish(emit, "solve.end", payload,
                                 banner_state={"finished": True})
         if script is not None:
-            total = sum(p.history_n for p in history.points)
-            self._say(script, emit, self._closing_sentence(history, total))
+            self._say(script, emit, self._closing_sentence(history))
         return payload
 
-    def _closing_sentence(self, history: RunHistory, iterations: int) -> str:
+    def _closing_sentence(self, history: RunHistory) -> str:
         """The one sentence the engineer speaks when the solve is finished.
 
         RE-DERIVE THIS BY DRIVING THE STAGE, NEVER BY READING THE f-STRING.
@@ -562,6 +561,15 @@ class ReplayStage:
         the closing beat of the act. That is why the sentence leads with
         "All", and it is why this is a named method: the offline re-derivation
         can call it, and a test can assert on what actually gets spoken.
+
+        THE ITERATION COUNT IS PER RUN, NEVER THE SWEEP SUM. This sentence
+        said "40,000 iterations" over plots whose axes end at 8,000, because
+        it summed five concurrent runs of 8,000 -- Sanaa caught it on the
+        re-film ("script say 40K iteration but the plots say 8K"). A sum over
+        concurrent runs is the wall-time defect in an iteration costume: no
+        run performed 40,000 iterations, so no sentence says one did. Equal
+        counts read "8,000 iterations each"; unequal counts name the range,
+        so the sentence can never contradict the axis under any point mix.
 
         THE UNIT ON SCREEN IS THE SCREEN'S UNIT, AND THE SCREEN'S UNIT IS
         NOW "core-minutes" AGAIN (chief ruling 2026-09-02, off Sanaa's own
@@ -579,17 +587,24 @@ class ReplayStage:
         points = len(history.points)
         cm = history.core_min_total
         projection = self.spec.cost_projection
+        counts = sorted({int(p.history_n) for p in history.points})
+        if len(counts) == 1:
+            per_run = (f"{counts[0]:,} iterations each" if points > 1
+                       else f"{counts[0]:,} iterations")
+        else:
+            per_run = (f"{counts[0]:,} to {counts[-1]:,} iterations per "
+                       f"{self.spec.point_noun}")
         if not self.spec.closing_shows_cost:
             # The act's one compute story lives at its results stage; the
             # closing sentence states what finished and how much work it was,
             # and no figure that story would contradict.
             return (f"All {points} {self.spec.point_noun}s complete, "
-                    f"{iterations:,} iterations.")
+                    f"{per_run}.")
         if projection is None:
             return (f"All {points} {self.spec.point_noun}s complete, "
-                    f"{iterations:,} iterations, {cm:.1f} core-minutes.")
+                    f"{per_run}, {cm:.1f} core-minutes.")
         return (f"All {points} {self.spec.point_noun}s complete, "
-                f"{iterations:,} iterations, "
+                f"{per_run}, "
                 f"{projection.apply(cm):.1f} core-minutes on "
                 f"{projection.hardware}.")
 
