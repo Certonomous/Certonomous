@@ -253,6 +253,7 @@ def _setup() -> dict:
     turb = (case / "constant" / "turbulenceProperties").read_text(
         encoding="utf-8")
     block = (case / "system" / "blockMeshDict").read_text(encoding="utf-8")
+    schemes = (case / "system" / "fvSchemes").read_text(encoding="utf-8")
 
     def one(pattern: str, text: str, what: str) -> str:
         # MULTILINE, because these dictionaries put one setting per line and
@@ -319,6 +320,18 @@ def _setup() -> dict:
                        "whether it carries a turbulence model"),
         "channel": (max(xs), max(ys)),
         "mach": mach,
+        # THE SCHEME NAMES THE METHODS TABLE PRINTS, read from the solved
+        # case's own fvSchemes rather than retyped beside it, exactly as the
+        # angle above is read from the initial condition's own divisor.
+        "flux": one(r"^fluxScheme\s+(\w+);", schemes,
+                    "the flux scheme it advances with"),
+        "time_scheme": one(r"ddtSchemes\s*\{\s*default\s+(\w+);", schemes,
+                           "the time scheme it advances with"),
+        "gradients": one(r"gradSchemes\s*\{\s*default\s+(Gauss \w+);",
+                         schemes, "the gradient scheme it uses"),
+        "reconstruction": ", ".join(
+            f"{field}: {scheme}" for field, scheme in
+            re.findall(r"reconstruct\((\w+)\)\s+(\w+);", schemes)),
     }
 
 
@@ -432,6 +445,93 @@ def _steps(key: str) -> int:
                if line.startswith("Time = "))
 
 
+def _rho_residuals(path: Path) -> list[float]:
+    """The density solve's own logged residual, one value per time step.
+
+    WHAT THIS SERIES HONESTLY IS, stated here because the monitor that plots
+    it must not imply otherwise: rhoCentralFoam advances density with an
+    EXPLICIT diagonal solve, and the residual its log records for that solve
+    is identically zero at every step -- there is no iteration whose
+    convergence a residual could trace. The monitor shows the number the log
+    wrote, and the panel's own note says why it is flat. Fabricating a
+    decaying curve here would be the single easiest dishonesty in this act.
+    """
+    values = [float(v) for v in re.findall(
+        r"^diagonal:\s+Solving for rho, Initial residual = ([\d.eE+-]+),",
+        path.read_text(encoding="utf-8"), flags=re.M)]
+    if not values:
+        raise DemoContractError(
+            "a solve's log carries no density-solve lines, so the density "
+            "residual monitor would have nothing measured behind it")
+    return values
+
+
+def _max_courants(path: Path) -> list[float]:
+    """The largest Courant number on the grid, one value per time step.
+
+    The one per-step stability figure an explicit density-based solve logs
+    that actually MOVES: the time step is set by holding this number to the
+    configured limit, so its trace is the run's own account of how the solve
+    advanced. It shares the density-residual panel because both describe the
+    same explicit update, step by step.
+    """
+    values = [float(v) for v in re.findall(
+        r"^Mean and max Courant Numbers = [\d.eE+-]+ ([\d.eE+-]+)\s*$",
+        path.read_text(encoding="utf-8"), flags=re.M)]
+    if not values:
+        raise DemoContractError(
+            "a solve's log carries no Courant lines, so the time-step monitor "
+            "would have nothing measured behind it")
+    return values
+
+
+def _front_history(key: str, record_path: Path | None = None) -> dict:
+    """The shock front's measured positions over time, and the exact line.
+
+    THE MEASURED POINTS ARE THE RUN'S OWN LOGGED HISTORY: the locator record
+    each grid carries stores the incident front's position at every saved
+    time it could locate one, written when the run was graded. Nothing here
+    is interpolated between those rows and nothing is synthesised -- a frame
+    between two locates shows the points located so far and no more.
+
+    THE EXACT LINE IS DERIVED FROM THE REGISTERED CONFIGURATION and then held
+    to the record: a Mach ``M`` shock inclined ``angle`` to the wall over a
+    sound speed of one crosses the row the locator read at
+    ``x0 + y_row/tan(angle) + (M/sin(angle)) t``. That derivation is cross-
+    checked against the exact position the graded record itself states at the
+    final time, and a disagreement refuses rather than putting either version
+    of the line on screen.
+    """
+    import math
+
+    path = record_path if record_path is not None \
+        else _case(key) / "locator_result.json"
+    record = json.loads(path.read_text(encoding="utf-8"))
+    y_row = float(record["gateV"]["y_row"])
+    x0 = float(record["gateP2"]["x0"])
+    mach, angle = _registered_shock()
+    rad = math.radians(angle)
+    start = x0 + y_row / math.tan(rad)
+    speed = mach / math.sin(rad)
+    rows = sorted(record["locates"], key=lambda row: float(row["t"]))
+    final_t = float(rows[-1]["t"])
+    stated = float(record["gateV"]["x_exact_at_row"])
+    if abs(start + speed * final_t - stated) > 1e-6:
+        raise DemoContractError(
+            f"the exact front position derived from the registered "
+            f"configuration is {start + speed * final_t:.6f} at the final "
+            f"time and the graded record states {stated:.6f}; the exact line "
+            f"has two sources that disagree and neither will be drawn")
+    measured = [(float(row["t"]), float(row["x_incident_y09"]))
+                for row in rows if row.get("x_incident_y09") is not None]
+    if not measured:
+        raise DemoContractError(
+            "a grid's locator record carries no located front positions, so "
+            "the front monitor would have nothing measured to show")
+    return {"start": start, "speed": speed, "y_row": y_row,
+            "measured": measured}
+
+
 def _solver_clock(path: Path) -> tuple[list[float], list[float]]:
     """The two clocks one solve wrote: physical time and execution seconds.
 
@@ -468,6 +568,8 @@ def _planted_control() -> list[list[str]]:
         source = _case(key) / "log.rhoCentralFoam"
         text = source.read_text(encoding="utf-8")
         clean_times, clean_execs = _solver_clock(source)
+        clean_res = _rho_residuals(source)
+        clean_cos = _max_courants(source)
 
         def bump(match, add=PLANT):
             return "Time = %.10g" % (float(match.group(1)) + add)
@@ -477,18 +579,60 @@ def _planted_control() -> list[list[str]]:
         planted = re.sub(r"^ExecutionTime = ([\d.eE+-]+) s",
                          lambda m: "ExecutionTime = %.10g s"
                          % (float(m.group(1)) + PLANT), planted, flags=re.M)
+        # THE TWO MONITOR READERS ADDED FOR THE SOLVING PANELS GET THE SAME
+        # TREATMENT AS THE CLOCKS, and the density one is the reason this
+        # control exists at all: its honest value is zero at every step, and
+        # CLAUDE.md rule 3 is precisely that a zero from a reader not shown
+        # able to see a non-zero is not evidence of anything.
+        planted = re.sub(
+            r"^(diagonal:\s+Solving for rho, Initial residual = )"
+            r"([\d.eE+-]+),",
+            lambda m: "%s%.10g," % (m.group(1), float(m.group(2)) + PLANT),
+            planted, flags=re.M)
+        planted = re.sub(
+            r"^(Mean and max Courant Numbers = [\d.eE+-]+ )([\d.eE+-]+)\s*$",
+            lambda m: "%s%.10g" % (m.group(1), float(m.group(2)) + PLANT),
+            planted, flags=re.M)
         with tempfile.NamedTemporaryFile("w", suffix=".log", delete=False,
                                          encoding="utf-8") as handle:
             handle.write(planted)
             copy = Path(handle.name)
         try:
             seen_times, seen_execs = _solver_clock(copy)
+            seen_res = _rho_residuals(copy)
+            seen_cos = _max_courants(copy)
         finally:
             copy.unlink(missing_ok=True)
 
-        for what, clean, seen in (("shock clock", clean_times, seen_times),
-                                  ("solver clock", clean_execs, seen_execs)):
-            moved = seen[-1] - clean[-1]
+        # THE FRONT READER'S PLANT GOES INTO A COPY OF ITS OWN RECORD, not the
+        # log, because that is the artifact it reads. Every located position
+        # is moved by the known offset and the reader must hand the offset
+        # back off the last row it returns.
+        record = json.loads((_case(key) / "locator_result.json")
+                            .read_text(encoding="utf-8"))
+        clean_front = _front_history(key)
+        for row in record["locates"]:
+            if row.get("x_incident_y09") is not None:
+                row["x_incident_y09"] = float(row["x_incident_y09"]) + PLANT
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False,
+                                         encoding="utf-8") as handle:
+            json.dump(record, handle)
+            copy = Path(handle.name)
+        try:
+            seen_front = _front_history(key, record_path=copy)
+        finally:
+            copy.unlink(missing_ok=True)
+
+        checks = (
+            ("shock clock", clean_times[-1], seen_times[-1]),
+            ("solver clock", clean_execs[-1], seen_execs[-1]),
+            ("density residual", clean_res[-1], seen_res[-1]),
+            ("Courant number", clean_cos[-1], seen_cos[-1]),
+            ("front record", clean_front["measured"][-1][1],
+             seen_front["measured"][-1][1]),
+        )
+        for what, clean, seen in checks:
+            moved = seen - clean
             if abs(moved - PLANT) > PLANT * 1e-3:
                 raise DemoContractError(
                     f"the {what} reader is shown a known change of "
@@ -586,7 +730,14 @@ class ShockReflectionAct(DemoAct):
     #: Pa; the jet-flap act's incompressible p/rho would be the wrong unit on
     #: this screen, and a shared template guessing between them is exactly how
     #: it would get there.
-    panel_quantities = {"field_p": "p (Pa)", "field_u": "|U| (m/s)"}
+    # THE UNITS ARE REFERENCE UNITS BECAUSE THE CASE IS THE NONDIMENSIONAL
+    # ONE. Sanaa, 2026-09-02 ~02:32Z: this is the classic dimensionless
+    # setup, density 1.4 to 20 over a sound speed of one, and a Mach 10 shock
+    # crossing two length units in 0.2 "seconds" would be moving at ten
+    # metres a second -- so no emitted string of this act tags a
+    # nondimensional quantity with seconds, metres or kg/m^3.
+    panel_quantities = {"field_p": "p (reference units)",
+                        "field_u": "|U| (reference units)"}
 
     # -- stage 0, internal --------------------------------------------------
     def run_record(self):
@@ -658,6 +809,11 @@ class ShockReflectionAct(DemoAct):
             assumptions_table=Table(
                 title="What the request set, and what the lab set",
                 headers=["Quantity", "Value", "Unit", "Set by"],
+                # THE UNIT CELLS SAY "reference units" AND NOT "m" OR "s",
+                # and that is a correction Sanaa made on camera: this is the
+                # classic dimensionless configuration, sound speed one, so a
+                # metre or a second tag on any of these rows would state a
+                # dimensional setup nobody solved.
                 rows=[
                     ["Shock strength", f"Mach {setup['mach']:g}", "",
                      "the request"],
@@ -667,14 +823,14 @@ class ShockReflectionAct(DemoAct):
                      f"{setup['angle_deg']:.0f}", "degrees", "the lab"],
                     ["Ratio of specific heats", f"{setup['gamma']:.2f}", "",
                      "the lab"],
-                    ["Gas viscosity", f"{setup['viscosity']:g}", "Pa s",
+                    ["Gas viscosity", f"{setup['viscosity']:g}", "",
                      "the lab"],
                     ["Length of the channel", f"{setup['channel'][0]:.2f}",
-                     "m", "the lab"],
+                     "reference units", "the lab"],
                     ["Height of the channel", f"{setup['channel'][1]:.2f}",
-                     "m", "the lab"],
-                    ["Time run to", f"{setup['final_time']:g}", "s",
-                     "the lab"],
+                     "reference units", "the lab"],
+                    ["Time run to", f"{setup['final_time']:g}",
+                     "reference units", "the lab"],
                 ],
                 table_id="dmr_assumptions", role="NUMERICIST"))
 
@@ -701,8 +857,8 @@ class ShockReflectionAct(DemoAct):
         return Geometry(
             served_stl=SERVED_STL,
             display_label=(f"Channel {setup['channel'][0]:.2f} by "
-                           f"{setup['channel'][1]:.2f} m, wall from "
-                           f"x = {start:.3f}, shock line at "
+                           f"{setup['channel'][1]:.2f} in reference units, "
+                           f"wall from x = {start:.3f}, shock line at "
                            f"{setup['angle_deg']:.0f} degrees"),
             matches=[
                 GeometryMatch(
@@ -775,6 +931,49 @@ class ShockReflectionAct(DemoAct):
             verdict_for_user=("The shock is still well inside the channel at "
                               "the final time, so the comparison holds and "
                               "the budget is worth committing."))
+
+    # -- the methods table ---------------------------------------------------
+    def methods_table(self) -> Table:
+        """Solver, physics model and numerics, AS A TABLE, on the methods beat.
+
+        SANAA'S 2026-09-02 ~03:30Z ADDENDUM, in her words: "Explicit solver +
+        turbulence model + numerics stated on every act's methods beat (DMR
+        states inviscid Euler rather than leaving the model slot blank). in a
+        table." The solver row is her 02:32Z sentence verbatim, composed from
+        the run record's own solver name so the table and the record cannot
+        part; every scheme cell is read from the solved case's fvSchemes.
+
+        THE MODEL ROW IS GUARDED, NOT ASSUMED. It prints "inviscid Euler, no
+        turbulence model" only while the solved case actually says so: the
+        turbulence dictionary must read laminar and the transport viscosity
+        must be zero, or the table refuses rather than stating a physics the
+        calculation did not use.
+        """
+        setup = _setup()
+        if setup["closure"] != "laminar" or setup["viscosity"] != 0.0:
+            raise DemoContractError(
+                f"the methods table states inviscid Euler and the solved case "
+                f"reads closure {setup['closure']!r} with viscosity "
+                f"{setup['viscosity']:g}; the model row would misstate the "
+                f"physics and the table will not be shown")
+        solver = f"{self.run_record().solver}, explicit density-based"
+        return Table(
+            title="Solver and numerics",
+            headers=["Item", "Setting"],
+            rows=[
+                ["Solver", solver],
+                ["Physics model", "inviscid Euler, no turbulence model"],
+                ["Gas", f"perfect, ratio of specific heats "
+                        f"{setup['gamma']:.2f}"],
+                ["Flux", setup["flux"]],
+                ["Reconstruction", setup["reconstruction"]],
+                ["Time integration", f"{setup['time_scheme']}, explicit"],
+                ["Gradients", setup["gradients"]],
+                ["Courant limit", f"{setup['courant']:g}"],
+                ["Largest step", f"{setup['max_step']:g} in reference time"],
+                ["Tolerance", f"one part in {_in_words(setup['tolerance'])}"],
+            ],
+            table_id="dmr_methods", role="NUMERICIST")
 
     # -- stage 7 ------------------------------------------------------------
     def solve_replay(self) -> SolveReplay:
@@ -860,6 +1059,15 @@ class ShockReflectionAct(DemoAct):
         does not exist; the fourth would misstate a detector that did not find
         what it was written to find.
         """
+        # THREE DECIMALS ON EVERY POSITION, AND THE COUNT IS THE INSTRUMENT'S.
+        # Sanaa's 2026-09-02 ~03:30Z sig-figs rule: no on-screen number
+        # carries more decimals than its uncertainty supports. The uncertainty
+        # of a located position is the locator's own increment, one cell:
+        # 0.008 on the fine grid and 0.017 on the coarse, so the third decimal
+        # is the last one either grid can testify to and the fourth this table
+        # used to print was precision the instrument does not have. The
+        # difference-in-cells column keeps two decimals because a ratio of a
+        # difference to its own increment is exact at that scale.
         rows = []
         for label, key, _ in GRIDS:
             gate = _gate_v(key)
@@ -867,9 +1075,9 @@ class ShockReflectionAct(DemoAct):
             increment = float(gate["increment"])
             rows.append([
                 label,
-                f"{float(gate['x_measured']):.4f}",
-                f"{float(gate['x_exact_at_row']):.4f}",
-                f"{error:.4f}",
+                f"{float(gate['x_measured']):.3f}",
+                f"{float(gate['x_exact_at_row']):.3f}",
+                f"{error:.3f}",
                 f"{error / increment:.2f}",
             ])
 
@@ -893,7 +1101,10 @@ class ShockReflectionAct(DemoAct):
             # one screen and a bare pair of numbers would leave a viewer to
             # guess which is which; the labels come from ``GRIDS`` so they
             # cannot disagree with the counts beside them.
-            (f"rho (kg/m^3); uniform Cartesian, "
+            # rho IN REFERENCE UNITS, NOT kg/m^3: the nondimensional setup's
+            # densities run 1.4 to 20 over a sound speed of one, and a
+            # dimensional tag on them was one of the leaks Sanaa named.
+            (f"rho, reference units; uniform Cartesian, "
              + ", ".join(f"{label.lower()} {_cells(key):,} cells"
                          for label, key, _ in reversed(GRIDS)) + "."),
             "shock-reflection")
@@ -1023,35 +1234,49 @@ class ShockReflectionAct(DemoAct):
                 ]),
             ],
             # ---- LEAD ENGINEER: the grid, its resolution, and the solver.
+            # NO METRES ON ANY OF THESE LENGTHS. The setup is the classic
+            # dimensionless one and the lengths are reference units; a wall
+            # "3.83 metres" long under a Mach 10 shock that takes 0.2
+            # "seconds" to cross it is the 10 m/s absurdity Sanaa named.
             "geometry": [
                 ("engineer", [
                     f"The body is a flat wall running "
-                    f"{_wall_from_mesh()[1]:.2f} metres along the floor of a "
+                    f"{_wall_from_mesh()[1]:.2f} along the floor of a "
                     f"channel {setup['channel'][0]:.2f} by "
-                    f"{setup['channel'][1]:.2f} metres, with the shock "
-                    f"entering ahead of it.",
+                    f"{setup['channel'][1]:.2f}, all in reference units, "
+                    f"with the shock entering ahead of it.",
                     f"The grid is a uniform Cartesian one, a single cell "
                     f"deep, at {_cells('res120'):,} cells on the fine grid "
-                    f"and {_cells('res60'):,} on the coarse. The solver is "
-                    f"rhoCentralFoam, density-based and explicit in time.",
+                    f"and {_cells('res60'):,} on the coarse.",
                 ]),
             ],
-            # ---- LEAD NUMERICIST: schemes, tolerances, step, and the checks.
+            # ---- LEAD NUMERICIST: the methods beat -- solver, physics,
+            # schemes, tolerances, step, and the checks.
+            #
+            # THE SOLVER SENTENCE IS SANAA'S, VERBATIM, and it opens the beat.
+            # Her 2026-09-02 ~02:32Z finding on this act: "Solver never named.
+            # Methods gives flux and reconstruction but not the solver." The
+            # demo-mode rule is solver always stated, with the physics model
+            # named beside it -- and for this case the honest model statement
+            # is a negative, inviscid Euler with no turbulence closure, said
+            # rather than left as a blank slot.
+            # THE NUMBERS OF THE SCHEME LIVE IN THE METHODS TABLE the act's
+            # sequencer emits on this same beat; the spoken lines carry the
+            # two sentences that must be SAID, her solver sentence verbatim
+            # and the honest model statement, and the checks.
             "feasibility": [
                 ("numericist", [
-                    "The flux is a central-upwind one with van Leer "
-                    "reconstruction on density, velocity and temperature, "
-                    "first-order Euler in time, and gradients by Gauss "
-                    "linear.",
-                    f"The time step is set by the flow rather than fixed: the "
-                    f"Courant number is held at {setup['courant']:g} and the "
-                    f"step is capped at {setup['max_step']:g} seconds. The "
-                    f"solution channels are driven to one part in "
-                    f"{_in_words(setup['tolerance'])}.",
-                    f"Two checks run before any number is quoted: each clock "
-                    f"the monitors read has to see a known change planted in "
-                    f"its own input, and the wall time on screen has to match "
-                    f"what the cost record states for the same work.",
+                    "Solver: OpenFOAM rhoCentralFoam, explicit "
+                    "density-based.",
+                    "Physics: the inviscid Euler equations. No turbulence "
+                    "model, because there is no viscosity for one to close.",
+                    f"The time step is set by the flow rather than fixed, "
+                    f"with the Courant number held at {setup['courant']:g}; "
+                    f"the schemes and tolerances are in the table.",
+                    f"Before any number is quoted, each reader behind the "
+                    f"monitors has to see a known change planted in its own "
+                    f"input, and the wall time on screen has to match what "
+                    f"the cost record states for the same work.",
                 ]),
             ],
             # ---- LEAD NUMERICIST: what the numbers said, and the study.
@@ -1059,10 +1284,13 @@ class ShockReflectionAct(DemoAct):
             # exist and a third stopped part of the way through; every
             # sentence shaped like a refinement study is absent by
             # construction, here as everywhere else in this act.
+            # THREE DECIMALS ON THE MEASURED DIFFERENCE (the locator's own
+            # increment sits in the third decimal); the criterion keeps its
+            # registered four, because a threshold is exact by definition.
             "results": [
                 ("numericist", [
                     f"The shock stood within "
-                    f"{max(abs(float(gate[l]['error'])) for l in gate):.4f} "
+                    f"{max(abs(float(gate[l]['error'])) for l in gate):.3f} "
                     f"of its exact position on both grids, against a "
                     f"criterion of "
                     f"{float(gate['Fine']['tol']):.4f} fixed before either "
@@ -1101,38 +1329,53 @@ class ShockReflectionAct(DemoAct):
         bound = _bound_holds()
         return Closing(
             title="A Mach 10 shock reflecting from a wall, on two grids",
+            # TIME 0.2 IN REFERENCE UNITS, NOT "0.2 seconds": the setup is
+            # the classic dimensionless one and a second tag on it was one of
+            # the leaks Sanaa named for removal before capture.
             abstract=[
                 (f"A Mach {setup['mach']:g} shock meeting a wall at "
                  f"{setup['angle_deg']:.0f} degrees was solved on two grids, "
                  f"of {_cells('res60'):,} and {_cells('res120'):,} cells, and "
-                 f"the position of its front at "
-                 f"{setup['final_time']:g} seconds is reported here against "
-                 f"the exact answer."),
+                 f"the position of its front at time "
+                 f"{setup['final_time']:g}, in reference units, is reported "
+                 f"here against the exact answer."),
                 (f"On both grids the front stood within {bound:g} percent of "
                  f"the distance it had travelled, and within half a cell of "
                  f"the grid that measured it."),
             ],
+            # THE METHODS BEAT NAMES THE SOLVER, IN HER EXACT WORDS, FIRST.
+            # Sanaa, 2026-09-02 ~02:32Z: methods gave flux and reconstruction
+            # and never the solver; the rule is solver, physics model and
+            # numerics all stated, and for this case the model statement is
+            # honestly a negative -- inviscid Euler, no closure to name.
             methods=[
-                (f"An inviscid compressible calculation with no turbulence "
+                "Solver: OpenFOAM rhoCentralFoam, explicit density-based.",
+                (f"Physics: the inviscid Euler equations, no turbulence "
                  f"model, a perfect gas at a ratio of specific heats of "
-                 f"{setup['gamma']:.2f}, solved with a central-upwind flux "
-                 f"and van Leer reconstruction."),
+                 f"{setup['gamma']:.2f}."),
+                (f"Numerics: central-upwind flux, van Leer reconstruction, "
+                 f"first-order Euler in time, Courant number held at "
+                 f"{setup['courant']:g}."),
                 (f"Two uniform Cartesian grids, one at half the spacing of "
                  f"the other, differing in nothing else."),
                 ("The front is located by the sharpest density change along "
                  "a line across the channel, and the exact position it is "
                  "compared against follows from the configuration alone."),
-                ("Both clocks behind the monitors were shown a known change "
+                ("Every reader behind the monitors was shown a known change "
                  "and had to report it back before any value was believed."),
             ],
+            # THREE DECIMALS ON MEASURED DIFFERENCES, per the sig-figs rule:
+            # the locator increment is the uncertainty and its leading digit
+            # sits in the third decimal. The registered criterion below keeps
+            # its own four, because a threshold is exact by definition.
             results=[
                 {"quantity": "difference from the exact position, fine grid",
-                 "value": f"{float(_gate_v('res120')['error']):.4f}",
+                 "value": f"{float(_gate_v('res120')['error']):.3f}",
                  "envelope": f"{in_cells['Fine']:.2f} of one cell",
                  "reason": (f"under {bound:g} percent of the distance "
                             f"travelled")},
                 {"quantity": "difference from the exact position, coarse grid",
-                 "value": f"{float(_gate_v('res60')['error']):.4f}",
+                 "value": f"{float(_gate_v('res60')['error']):.3f}",
                  "envelope": f"{in_cells['Coarse']:.2f} of one cell",
                  "reason": (f"under {bound:g} percent of the distance "
                             f"travelled")},
@@ -1234,6 +1477,26 @@ class ShockReflectionSequencer(Sequencer):
     #: queue and show a viewer nothing they could read.
     frames_per_grid: int = 40
 
+    def _stage_feasibility(self, emit, script, record) -> dict:
+        """The shared feasibility beat, with this act's methods table first.
+
+        Sanaa's 2026-09-02 ~03:30Z addendum puts solver, physics model and
+        numerics ON THE METHODS BEAT AND IN A TABLE, and this act's methods
+        beat is the numericist's discussion here at feasibility. The shared
+        stage has no table seam, so the act's own sequencer emits the table
+        and then runs the shared stage unchanged; every cell still travels
+        the guarded emit like any other publication.
+        """
+        if script is not None:
+            from . import emit_table
+
+            table = self.act.methods_table()
+            emit_table(emit, script, role=table.role, title=table.title,
+                       headers=list(table.headers),
+                       rows=[list(row) for row in table.rows],
+                       table_id=table.table_id)
+        return super()._stage_feasibility(emit, script, record)
+
     def _stage_solving(self, emit, script, record) -> dict:
         replay = self.act.solve_replay()
         controls = _planted_control()
@@ -1245,6 +1508,30 @@ class ShockReflectionSequencer(Sequencer):
             "points": len(GRIDS), "point_index": None,
             "iterations": replay.total_iterations,
             "labels": [f"{label} grid" for label, _, _ in GRIDS],
+            # THIS ACT'S OWN MONITOR PANELS, DECLARED WHERE THE STAGE OPENS.
+            # Sanaa, 2026-09-02 ~02:32Z, on this act's filmed screen: the
+            # monitor boxes were the jet act's, "Lift coefficient / Pressure
+            # residual, 0 iterations", empty -- "there is no lift here". Her
+            # ruling names this case's two monitors and both are here: the
+            # front's position against the exact line, and the density solve
+            # by time step. The page composes its monitor strip FROM THIS
+            # DECLARATION and from the frames below; it types no row label of
+            # its own, which is what stops another act's vocabulary reaching
+            # this screen again.
+            "monitor_panels": [
+                {"title": "Shock front position against the exact line",
+                 "x_label": "time", "y_label": "front position x",
+                 "series": ["located front", "exact front"],
+                 "note": ("front positions from each run's own locator "
+                          "record; the exact line follows from the "
+                          "registered configuration")},
+                {"title": "Density residual by time step",
+                 "x_label": "time step", "y_label": "residual",
+                 "series": ["Density residual", "Max Courant"],
+                 "note": ("the density update is explicit, so its recorded "
+                          "residual is zero at every step; the Courant trace "
+                          "is what the time step is set by")},
+            ],
             # PRESENT TENSE, DELIBERATELY, AND IT IS A DIRECTIVE RATHER THAN
             # a preference. Two of Sanaa's own instructions cross here: the
             # earlier one asks for the past tense with a result, the later one
@@ -1253,7 +1540,7 @@ class ShockReflectionSequencer(Sequencer):
             # rules, and the tense argument below names the CHECK being run,
             # not the tense being written.
             "controls": [
-                "each clock the monitors read is shown a known change and "
+                "each reader behind the monitors is shown a known change and "
                 "reads it back before any of these numbers appears",
                 f"{len(controls)} readers are checked this way",
             ],
@@ -1273,11 +1560,32 @@ class ShockReflectionSequencer(Sequencer):
         # read from its own log; only the ORDER of publication changes. The
         # two solves did run as separate calculations and each panel remains
         # a faithful trace of one of them.
+        # EVERYTHING A FRAME SHOWS IS READ ONCE, HERE, FROM THE RUN'S OWN
+        # ARTIFACTS: the two clocks, the density solve's logged residual, the
+        # Courant trace, and the located front history with its exact line.
+        # The residual and Courant series must be one value per time step or
+        # the frame would pair step N's clock with some other step's number.
+        per_grid: dict[str, dict] = {}
+        for label, key, _ in GRIDS:
+            log = _case(key) / "log.rhoCentralFoam"
+            times, execs = _solver_clock(log)
+            residuals = _rho_residuals(log)
+            courants = _max_courants(log)
+            if len(residuals) != len(times) or len(courants) != len(times):
+                raise DemoContractError(
+                    f"the {label.lower()} grid's log carries {len(times)} "
+                    f"steps but {len(residuals)} density-solve lines and "
+                    f"{len(courants)} Courant lines; the monitors would pair "
+                    f"one step's clock with another step's number")
+            per_grid[f"{label} grid"] = {
+                "times": times, "execs": execs, "residuals": residuals,
+                "courants": courants, "front": _front_history(key)}
+
         origin = self.clock()
         schedule: list[tuple[int, str, int, int, float, float, float]] = []
         for point, (label, key, _) in enumerate(GRIDS, start=1):
-            times, execs = _solver_clock(
-                _case(key) / "log.rhoCentralFoam")
+            times = per_grid[f"{label} grid"]["times"]
+            execs = per_grid[f"{label} grid"]["execs"]
             steps = len(times)
             picks = sorted({int(round(i * (steps - 1)
                                       / (self.frames_per_grid - 1)))
@@ -1297,6 +1605,8 @@ class ShockReflectionSequencer(Sequencer):
             remaining = deadline - self.clock()
             if remaining > 0:
                 self.sleep(remaining)
+            grid = per_grid[label]
+            front = grid["front"]
             published = self._publish(emit, "solve.frame", {
                 "stage": "solving",
                 "point_index": point, "points": len(GRIDS),
@@ -1311,6 +1621,28 @@ class ShockReflectionSequencer(Sequencer):
                     "Time reached": round(time_now, 5),
                     "Final time": round(time_end, 5),
                     "Solver seconds": round(exec_now, 2),
+                    # THIS STEP'S OWN LOGGED VALUES, indexed by the same step
+                    # the clocks above are. The residual is zero because the
+                    # update is explicit; the solve.begin declaration says so
+                    # beside the panel, and the planted control has already
+                    # proved this reader would see a non-zero if one existed.
+                    "Density residual": grid["residuals"][index],
+                    "Max Courant": round(grid["courants"][index], 5),
+                },
+                # THE FRONT MONITOR'S DATA, REVEALED AND NEVER INTERPOLATED:
+                # the located points whose own time has been reached, and the
+                # exact line drawn from the start to the frame's clock. A
+                # frame between two locates carries the points located so far
+                # and no invented one in between.
+                "front": {
+                    "located": [[round(t, 5), round(x, 5)]
+                                for t, x in front["measured"]
+                                if t <= time_now + 1e-9],
+                    "exact": [[0.0, round(front["start"], 5)],
+                              [round(time_now, 5),
+                               round(front["start"]
+                                     + front["speed"] * time_now, 5)]],
+                    "row_height": round(front["y_row"], 5),
                 },
             })
 

@@ -103,7 +103,12 @@ print(cells)
 print(wall)
 print("%.6f,%.6f,%.6f,%.6f" % (x_foot - 0.5 * zoom_w, x_foot + 0.5 * zoom_w,
                                ylo, ylo + ZOOM_H))
-print("%.3f x %.3f m" % (max(xs) - min(xs), max(ys) - min(ys)))
+# NO "m" ON THE EXTENT.  This is the classic DIMENSIONLESS double-Mach
+# configuration (density 1.4 to 20 over a sound speed of one), and Sanaa's
+# 2026-09-02 ~02:32Z order strikes every metre and second tag from its
+# screens: a Mach 10 shock crossing "2 metres in 0.2 seconds" is 10 m/s.
+# The lengths are reference units and the key states the bare numbers.
+print("%.3f x %.3f" % (max(xs) - min(xs), max(ys) - min(ys)))
 # The act's OWN rendering of the count, separators and all, so the key on the
 # picture and the number on the screen beside it are the same string.
 print(str(plan.cell_count.value))
