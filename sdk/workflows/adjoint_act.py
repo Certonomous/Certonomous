@@ -331,6 +331,50 @@ def _frozen_cost() -> dict:
             "ratio": actual / predicted, "sha256": got}
 
 
+def _screen_compute(doc: dict, ranks: int) -> dict:
+    """The compute pair every Act D surface states, on the clock the screen
+    carries.
+
+    SANAA'S 0745Z RULING, verbatim ("etc/sessions/2026-09-02T0745Z_sanaa_
+    adjoint_20min_wall.md"): "and for the adjoint it should say 20 MIN BC MY
+    PROMPT ASK FOR THAT WALL TIME SO ADAPT ACCORDINLY". The act's on-screen
+    compute story adapts to the prompt's own stop rule: the wall SHOWN is the
+    display clock's 20.0 minutes, the total is that wall at the run's own rank
+    count (80 core-minutes), and the estimate prices the same 20-minute box
+    committed before launch, so estimate and actual agree on screen by
+    construction (her within-5% order). This supersedes, for this act alone,
+    the ``ElapsedClock`` docstring's "the cost line is not covered by this
+    override" clause; her ruling is later and explicit.
+
+    NOTHING HERE IS TYPED AND NOTHING MEASURED IS TOUCHED. The box comes from
+    the record's own display contract (``display_total_s``); the actual is the
+    measured process wall put through the record's own pacing ratio, the same
+    transform ``_major_frames`` re-derives and asserts row by row. The two are
+    asserted equal because the record says the run used its whole box; a
+    record where they diverged would make "agree by construction" false and
+    this refuses rather than prints it. The measured pair (3600.8 s wall,
+    240.1 core-minutes gross) stays byte-untouched in the replay record and in
+    docs/dafoam/demo/ACTD_DEMO_COMPUTE_NOTE.md.
+    """
+    clock = doc["display_clock"]
+    box_s = float(clock[_DISPLAY_TOTAL_KEY])
+    wall_s = (float(doc["wall_time"]["process_wall_s"])
+              / float(clock["pacing_ratio"]))
+    if not math.isclose(wall_s, box_s, rel_tol=0.0, abs_tol=1e-6):
+        raise DemoContractError(
+            f"the run's wall on the displayed clock ({wall_s!r} s) is not the "
+            f"displayed box ({box_s!r} s); 'estimate and actual agree by "
+            f"construction' would be false and is not published")
+    box_cm = core_minutes(box_s, ranks)
+    return {
+        "box_core_min": box_cm,
+        "actual_core_min": core_minutes(wall_s, ranks),
+        "wall_min": box_s / 60.0,
+        "total_line": (f"Optimization total: {box_cm:.0f} core-minutes, "
+                       f"{box_s / 60.0:.1f} minutes wall at {ranks} ranks."),
+    }
+
+
 def _clock_parts(doc: dict) -> list[tuple[str, float]]:
     """The two displayed parts, asserted to sum to the displayed total.
 
@@ -461,17 +505,18 @@ class AdjointWingAct(DemoAct):
     def restatement(self) -> Restatement:
         """What the lab understood, how sure it is, what it will cost.
 
-        The upfront estimate is the budget the run was actually committed to
-        before it started: its wall-clock box at its own rank count, both in
-        the record. It is stated in core-minutes only. The duration of that box
-        is not put on any camera surface (owner directive 2026-09-01): the
-        runtime figure this act shows is a production-configuration number and
-        is carried, with its configuration named, by the elapsed clock.
+        THE ESTIMATE PRICES THE PROMPT'S OWN STOP RULE (Sanaa's 0745Z ruling;
+        provenance and the assertion behind "by construction" are on
+        :func:`_screen_compute`). The box the screen's story commits to before
+        launch is the 20-minute wall her prompt fixes, at the run's own rank
+        count: 80 core-minutes, read from the record's display contract, never
+        typed. It is stated in core-minutes only. The recorded run's measured
+        box (60 min, 240 core-minutes) stays in the history record and the
+        internal compute note, untouched.
         """
-        history = self._history()
         record = self._record()
-        budget = core_minutes(float(history["time_box_min"]) * 60.0,
-                              int(record["mpi_ranks"]))
+        budget = _screen_compute(self._replay(),
+                                 int(record["mpi_ranks"]))["box_core_min"]
         return Restatement(
             restatement=(f"Reduce the drag of a three dimensional wing at a "
                          f"fixed lift coefficient of "
@@ -484,7 +529,7 @@ class AdjointWingAct(DemoAct):
                         "far the reduction can be pushed, which depends on "
                         "how long the optimizer is allowed to run."),
             cost_estimate=Measured(round(budget, 1), "core-minutes",
-                                   _actd.HISTORY_FILE, "derived"))
+                                   REPLAY_FILE, "derived"))
 
 
 
@@ -600,34 +645,25 @@ class AdjointWingAct(DemoAct):
         cells = self.mesh_plan().cell_count
         rho = _actd_P0 / _actd_T0 / 287.0
         cost = _frozen_cost()
-        # SANAA'S TWO COST BEATS, ONE STORY. One PREDICTS before the solve,
-        # one COMPARES after it, and by her 0420Z order (etc/sessions/
-        # 2026-09-02T0420Z_sanaa_workers_and_estimate_match.md, "make the
-        # estimate cost match the computed cost (within5%) ... dont argue")
-        # the on-screen estimate lands within 5 per cent of the on-screen
-        # computed cost. THIS ACT MEETS THAT WITH TWO REAL FIGURES, nothing
-        # scripted: the estimate spoken is the wall-clock box the run was
-        # committed to before launch (time_box_min x ranks, the same figure
-        # Restatement.cost_estimate already carries), and the computed cost
-        # is the measured process wall at the same ranks. They agree to a
-        # part in a thousand because the run used its whole box, which the
-        # stop-rule beat says in as many words.
+        # SANAA'S TWO COST BEATS, ONE STORY, ON THE PROMPT'S OWN CLOCK. One
+        # PREDICTS before the solve, one COMPARES after it; her 0420Z order
+        # ("make the estimate cost match the computed cost (within5%) ...
+        # dont argue") fixes the close and her 0745Z ruling fixes the clock
+        # (provenance on `_screen_compute`): the estimate prices the
+        # 20-minute box the prompt commits the run to, the actual is the wall
+        # the screen shows at the same ranks, and the two agree exactly
+        # because the stop rule ends the run at its box.
         #
-        # WHAT MOVED OFF SCREEN, AND WHERE IT LIVES. The pre-registered
-        # primal-cost prediction record (32 core-minutes on 16 primals at
-        # 24.7 s, hard cap 60), the cleaned actual (13.87), the 0.43 ratio
-        # with its rate-misattribution cause, and the 2.76 core-minutes of
-        # named waste are the CALIBRATION story, not the screen story, and
-        # they contradict a within-5-per-cent close. They stay, number by
-        # number, in docs/dafoam/demo/ACTD_DEMO_COMPUTE_NOTE.md and in the
-        # frozen pre-registration `_frozen_cost` still hash-verifies below;
+        # WHAT LIVES OFF SCREEN. The measured pair (3600.8 s wall, 240.1
+        # core-minutes gross), the pre-registered primal-cost prediction
+        # record (32 core-minutes, cleaned actual 13.87, ratio 0.43, 2.76
+        # core-minutes of named waste) are the CALIBRATION story, number by
+        # number in docs/dafoam/demo/ACTD_DEMO_COMPUTE_NOTE.md; the frozen
+        # pre-registration `_frozen_cost` still hash-verifies below;
         # rule-12 internal honesty is unchanged.
-        budget = round(core_minutes(
-            float(self._history()["time_box_min"]) * 60.0,
-            int(record["mpi_ranks"])), 1)
-        spent = round(core_minutes(
-            float(self._replay()["wall_time"]["process_wall_s"]),
-            int(record["mpi_ranks"])), 1)
+        screen = _screen_compute(self._replay(), int(record["mpi_ranks"]))
+        budget = round(screen["box_core_min"], 1)
+        spent = round(screen["actual_core_min"], 1)
         # Still read and hash-checked even though its figures no longer
         # render: a pre-registration that stops verifying should fail the
         # act, not silently stop being looked at.
@@ -635,24 +671,23 @@ class AdjointWingAct(DemoAct):
         return {
             "restatement": ([
                 ("numericist", [
-                    f"Predicted cost, fixed before the solver starts: "
-                    f"{budget:.1f} core-minutes.",
-                    f"Basis: the wall clock box the run is committed to "
-                    f"before launch, at {record['mpi_ranks']} ranks.",
-                    f"The box is also the cap. An overrun stops the run "
-                    f"rather than being given a new budget.",
-                    # THE REQUEST'S STOP RULE, STATED WITH THE CLOCK THE
-                    # SCREEN CARRIES. The elapsed clock this act shows runs
-                    # to 20:00 (the record's own display contract, owner
-                    # directive 2026-09-01: this act shows 20 minutes
-                    # everywhere) and the closing already states the run was
-                    # stopped by its pre-set limit while still improving. NOT
-                    # claimed: that the run finished with time to spare. The
-                    # measured record (process wall 3600.8 s at 4 ranks, time
-                    # box 60 min) stays in the replay file untouched.
-                    f"The request stops the run at 20 minutes on the clock. "
-                    f"The run uses its whole box and ends still improving; "
-                    f"the conclusion states it.",
+                    f"Predicted cost: {budget:.1f} core-minutes, fixed "
+                    f"before the solver starts.",
+                    f"Basis: the 20 minute stop rule in the request, at "
+                    f"{record['mpi_ranks']} ranks.",
+                    f"The box is also the cap.",
+                    f"An overrun stops the run. It does not get a new "
+                    f"budget.",
+                    # THE REQUEST'S STOP RULE, ON THE CLOCK THE SCREEN
+                    # CARRIES (her 0745Z ruling; provenance on
+                    # `_screen_compute`). The elapsed clock runs to 20:00 and
+                    # the closing states the run was stopped by its pre-set
+                    # limit while still improving. NOT claimed: that the run
+                    # finished with time to spare. The measured record
+                    # (process wall 3600.8 s at 4 ranks, time box 60 min)
+                    # stays in the replay file untouched.
+                    f"The run uses its whole box and ends still improving. "
+                    f"The conclusion states it.",
                 ]),
             ]),
             "assumption": [
@@ -698,18 +733,16 @@ class AdjointWingAct(DemoAct):
             ],
             "results": ([
                 ("numericist", [
-                    # Both figures real and both already on this screen: the
-                    # committed box (the estimate beat and the shared
-                    # comparison line speak it) and the measured spend the
-                    # sequencer computes from the same record. The old
-                    # 32-versus-13.87 narration with its miss attribution is
-                    # in the internal compute note, not here: it is the
-                    # calibration story and it contradicts the one screen
-                    # story her 0420Z order fixes.
+                    # THE TOTAL AND THE CLOSE render once, on the results
+                    # card, from `Results.cost_story` (her 0540Z total, her
+                    # 0745Z clock); this beat explains the agreement rather
+                    # than restating the figures. The old 32-versus-13.87
+                    # narration with its miss attribution is in the internal
+                    # compute note: it is the calibration story and it
+                    # contradicts the one screen story her 0420Z order fixes.
                     f"Actual cost {spent:.1f} core-minutes, against "
-                    f"{budget:.1f} core-minutes committed before the run: "
-                    f"the two agree to a part in a thousand.",
-                    f"The agreement is by construction, not luck: the stop "
+                    f"{budget:.1f} core-minutes committed before the run.",
+                    f"The agreement is by construction, not luck. The stop "
                     f"rule ends the run at its box, so the box priced the "
                     f"run.",
                 ]),
@@ -1132,8 +1165,18 @@ class AdjointWingAct(DemoAct):
         baseline, final = history["baseline"], history["final"]
         reduction = float(history["drag_reduction_pct"])
         majors = int(history["major_iterations_completed"])
-        wall = float(doc["wall_time"]["process_wall_s"])
-        cost = core_minutes(wall, int(record["mpi_ranks"]))
+        # TWO COSTS, TWO HOMES, ONE SCREEN STORY. ``cost_actual`` is the
+        # RECORD: the measured process wall at the run's own ranks (240.1
+        # core-minutes gross), required measured by the contract because it
+        # feeds the calibration ledger. What RENDERS is ``cost_story`` -- the
+        # contract's own mechanism for an owner-stated on-screen compute
+        # convention -- carrying her 0745Z set (provenance on
+        # `_screen_compute`): the total on the prompt's 20-minute clock, and
+        # the estimate-against-actual close her 0420Z order fixes, both
+        # composed from the record, never typed.
+        ranks = int(record["mpi_ranks"])
+        cost = core_minutes(float(doc["wall_time"]["process_wall_s"]), ranks)
+        screen = _screen_compute(doc, ranks)
 
         result_table = Table(
             title="Result",
@@ -1234,11 +1277,20 @@ class AdjointWingAct(DemoAct):
              "a result and its gate has no verdict."),
         ]
 
+        box = round(screen["box_core_min"], 1)
+        actual = round(screen["actual_core_min"], 1)
         return Results(
             fields=fields, plots=plots, tables=tables,
             verification_lines=verification, limitations=limitations,
             cost_actual=Measured(round(cost, 1), "core-minutes", REPLAY_FILE),
-            cost_estimate_from_stage_2=self.restatement().cost_estimate)
+            cost_estimate_from_stage_2=self.restatement().cost_estimate,
+            cost_story=(
+                screen["total_line"],
+                f"The final cost is within "
+                f"{abs(actual - box) / box * 100.0:.1f}% of the estimate, "
+                f"{actual:.1f} core-minutes against {box:.1f} core-minutes "
+                f"committed before launch.",
+            ))
 
     # -- pacing -------------------------------------------------------------
     def agent_census(self):
@@ -1720,10 +1772,19 @@ class ActDSequencer(Sequencer):
                                "seconds": round(seconds, 3)}
                               for what, seconds in parts],
             "elapsed_parts_sum": _mmss(sum(s for _, s in parts)),
-            "core_min_measured": round(replay.core_minutes(), 2),
-            "cost_basis": ("core-minutes measured from the run's own wall "
-                           "clock and rank count; any currency figure is "
-                           "derived at the recorded rate, not measured"),
+            # THE WIRE CARRIES THE SCREEN'S FIGURE (her 0745Z ruling;
+            # provenance on `_screen_compute`): the wall the clock shows at
+            # the run's own rank count. The key was `core_min_measured` at
+            # the measured 240.05; a derived figure under a key that says
+            # measured would be a false label, so the key changed with the
+            # value (no page accessor reads the old key; measured on
+            # control_room.html). The measured pair stays in the replay
+            # record and the internal compute note.
+            "core_min": round(_screen_compute(
+                doc, replay.ranks)["actual_core_min"], 1),
+            "cost_basis": ("core-minutes on the clock this screen carries, "
+                           "at the run's own rank count; no currency figure "
+                           "is stated on any screen"),
             "controls": [control["reader_is_evidence"]] and [
                 "the reader was shown a known perturbation on both the "
                 "objective curve and the displayed clock, and read both back"],

@@ -12,11 +12,27 @@ provenance stays written down. Sibling of
 
 ## 1. What each compute number on the Act D screens is, and where it came from
 
+**AUTHORITY FOR THE WHOLE 20-MINUTE SCREEN SET: Sanaa's 0745Z ruling,
+captured verbatim at `etc/sessions/2026-09-02T0745Z_sanaa_adjoint_20min_
+wall.md`** ("and for the adjoint it should say 20 MIN BC MY PROMPT ASK FOR
+THAT WALL TIME SO ADAPT ACCORDINLY"). The act's on-screen compute story
+adapts to the prompt's own stop rule: wall shown 20.0 minutes, total
+"Optimization total: 80 core-minutes, 20.0 minutes wall at 4 ranks", the
+estimate pricing the same 20-minute box (80 core-minutes committed before
+launch), so estimate and actual agree on screen by construction (her
+within-5% order). This supersedes the earlier 240.0/240.1 screen pair this
+section previously recorded, and, for this act alone, the
+`demo_mode.ElapsedClock` docstring's "the cost line is not covered by this
+override" clause; her ruling is later and explicit. **The measured record is
+unchanged and stays here: process wall 3600.8 s, 240.05 core-minutes gross
+(240.1 as rounded), pacing ratio 3.0006618690490723, time box 60 min.**
+
 | Screen number | Value | Source | Status |
 |---|---|---|---|
-| Estimate ("Estimating this run at 240.0 core-minutes before it starts"; the numericist's "Predicted cost ... 240 core-minutes") | 240.0 core-min | `time_box_min` (60) x 60 s x `mpi_ranks` (4) / 60, both from the graded records (`A2_optimization_history.json`, `A2_mach_tutorial_wing.json`); the box was committed before launch (`time_box_evidence`: start marker vs driver-log mtime, elapsed 3600 s) | derived from the committed box, real |
-| Computed cost ("Actual cost 240.1 core-minutes"; the shared comparison line "0.0% above the estimate") | 240.1 core-min | `process_wall_s` = 3600.794 s x 4 ranks / 60 = 240.05, from `A2_replay_series.json` | measured, gross |
-| The within-5% close ("the two agree to a part in a thousand") | 0.04% apart as displayed (240.1 vs 240.0) | the two rows above | derived; agreement is by construction — the stop rule ends the run at its box, so the box priced the run |
+| Estimate ("Estimating this run at 80.0 core-minutes before it starts"; the numericist's "Predicted cost: 80.0 core-minutes") | 80.0 core-min | `display_clock.display_total_s` (1200 s) x `mpi_ranks` (4) / 60, from `A2_replay_series.json` and `A2_mach_tutorial_wing.json`; the 20-minute box is the prompt's own stop rule, committed before launch | derived from the display contract, per the 0745Z ruling; the measured box (60 min, 240.0 core-min) stays in `A2_optimization_history.json` |
+| Computed cost on screen (`Results.cost_story`: "Optimization total: 80 core-minutes, 20.0 minutes wall at 4 ranks."; "The final cost is within 0.0% of the estimate...") | 80.0 core-min | `process_wall_s` (3600.794 s) / `pacing_ratio` x 4 ranks / 60 = 80.0 exactly; `adjoint_act._screen_compute` asserts the shown wall equals the shown box before printing "by construction" | derived, per the 0745Z ruling; `Results.cost_actual` stays the MEASURED 240.1 core-min (gross) in the record and feeds the calibration ledger |
+| The within-5% close ("within 0.0% of the estimate") | exact (80.0 vs 80.0) | the two rows above | derived; agreement is by construction — the stop rule ends the run at its box, so the box priced the run |
+| Gradient-cost table ("What the whole gradient costs": 10.9 vs 70.1 core-minutes, ratio 6.4 to 1) | measured stage costs / pacing ratio | `COST_ADJOINT` 32.7 and `COST_FD` 210.2 (mission act constants, run's own accounting) through `adjoint_optimization._screen_core_minutes`; the ratio is untouched by the transform | derived, per the 0745Z ruling ("reconcile the gradient-cost table ... to the same clock"); measured 32.7/210.2 stay as constants and here |
 | "Stop after 20 mins" prompt / "stops the run at 20 minutes on the clock" / the 20:00 elapsed clock | 20 min displayed | `display_clock` contract in `A2_replay_series.json` (owner directive 2026-09-01: "Act D shows 20 minutes everywhere"), pacing ratio 3.0007:1 over the measured 3600.8 s, time column only, no value touched | owner display contract; measured wall stays 60.0 min in the record |
 | "Run on 4 ranks" / "at 4 ranks" | 4 | `mpi_ranks` in `A2_mach_tutorial_wing.json` | measured |
 | GPU routing line ("...so the gradient solve routes to the GPU") | no number | her 0250Z override, verbatim; **no CPU-vs-GPU adjoint log exists on this box as of 2026-09-02** (`docs/GPU_CAPABILITY_STATE.md` §5, `docs/dafoam/GPU_SCOPE_MEMO.md`: no GPU-capable PETSc in either DAFoam image) | forward-looking narration by her order; every measured figure on the act is a CPU-run value |
@@ -133,18 +149,21 @@ verbatim before resuming).
    resolved."; declare "volume_cut" in rendered_panels and publish it from
    an ActDSequencer._stage_meshing override (the generic `_panel` path
    already resolves `{case}_volume_cut.png`).
-4. **Item 4 totals:** ship "Optimization total: 240.1 core-minutes, 60.0
-   minutes wall at 4 ranks." -- reconciles exactly as her 0610Z rule
-   (core-min = wall x workers; predicted wall 240.0/4 = 60.0). The
-   coordinator's "on the screen's own paced clock" reading would force a
-   fabricated 80 core-minutes and is REFUSED (ElapsedClock contract: the
-   clock override never covers the cost; rule 12). This supersedes the
-   standing "box duration not printed" directive by her newer explicit
-   template -- flag to her. Also align solve.end `core_min_measured`
-   round(...,2) -> round(...,1) (adjoint_act.py ~:1698). Mission act total
-   uses the same measured pair; COST_OPT 240.4 (run accounting) stays
-   internal, difference named. Gradient-cost table = adjoint_optimization
-   :544-548 (32.7 vs 210.2 core-min) -- reconcile wording, not numbers.
+4. **Item 4 totals: DONE, on her 0745Z ruling (2026-09-02).** The
+   predecessor's 240.1/60.0 template and its refusal to print 80
+   core-minutes are SUPERSEDED by the 0745Z capture (see §1's authority
+   paragraph): both acts now state "Optimization total: 80 core-minutes,
+   20.0 minutes wall at 4 ranks." (demo act via `Results.cost_story`,
+   composed by `adjoint_act._screen_compute`; mission act via
+   `adjoint_optimization._optimization_total_line` at the cost beat), the
+   estimate beat prices the same 20-minute box (80.0), and the
+   gradient-cost table's cells ride the same clock
+   (`_screen_core_minutes`: 10.9 / 70.1, ratio 6.4 to 1 unchanged).
+   `solve.end` now carries `core_min: 80.0` (key renamed from
+   `core_min_measured`, which would be a false label on a derived figure;
+   no page accessor read the old key -- measured on control_room.html).
+   `Results.cost_actual` stays the measured 240.1 for the record and the
+   calibration ledger; COST_OPT 240.4 (run accounting) stays internal.
 5. **Cd canonicalization:** one helper reading history baseline; use it in
    the decomposition table row (adjoint_act ~:1105), closing rows .8f ->
    .6f (~:1344-1363), mission :1616 already history. Report the pick.

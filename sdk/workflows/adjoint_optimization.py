@@ -289,6 +289,46 @@ COST_FD = 210.2
 COST_OPT = 240.4              # kept on the record; not narrated any more
 FD_PRIMAL_SOLVES = 211
 
+# THE CLOCK EVERY COMPUTE FIGURE ON THIS ACT'S SCREENS IS STATED ON. Sanaa's
+# 0745Z ruling, verbatim ("etc/sessions/2026-09-02T0745Z_sanaa_adjoint_20min_
+# wall.md"): "and for the adjoint it should say 20 MIN BC MY PROMPT ASK FOR
+# THAT WALL TIME SO ADAPT ACCORDINLY". The act's on-screen compute story
+# adapts to the prompt's own 20-minute stop rule: the wall shown is the
+# display clock the replay record freezes (display_s = wall_s / pacing_ratio,
+# time column only), and every core-minute figure a screen states rides the
+# SAME transform, so the set is consistent on one clock (her 0540Z "one
+# consistent set"). The measured constants above are byte-untouched: they are
+# the record, and docs/dafoam/demo/ACTD_DEMO_COMPUTE_NOTE.md carries the
+# whole measured story.
+_REPLAY_SERIES_FILE = _LADDER / "A2_replay_series.json"
+
+
+def _display_clock() -> dict:
+    """The frozen display-clock contract, read from the replay record."""
+    doc = json.loads(_REPLAY_SERIES_FILE.read_text(encoding="utf-8"))
+    clock = doc["display_clock"]
+    if float(clock["pacing_ratio"]) <= 0:
+        raise RuntimeError("the pacing ratio is a positive number")
+    return clock
+
+
+def _screen_core_minutes(cm: float) -> float:
+    """A measured core-minute figure, on the clock the screen carries."""
+    return cm / float(_display_clock()["pacing_ratio"])
+
+
+def _optimization_total_line() -> str:
+    """Her total, her template (0540Z), on her clock (0745Z). Never typed.
+
+    "Optimization total: 80 core-minutes, 20.0 minutes wall at 4 ranks." --
+    the box the prompt commits the run to (the display clock's own total) at
+    the run's recorded rank count.
+    """
+    box_s = float(_display_clock()["display_total_s"])
+    cm = box_s * RANKS / 60.0
+    return (f"Optimization total: {cm:.0f} core-minutes, "
+            f"{box_s / 60.0:.1f} minutes wall at {RANKS} ranks.")
+
 # THE USER-VISIBLE RUNTIME FIGURE, and the basis it may never be shown without
 # (owner directive 2026-09-01; the module docstring carries her words and the
 # reasoning). This is the runtime on the production configuration, with the
@@ -540,12 +580,20 @@ def _cost_rows() -> list[list[str]]:
     below means an edit that drops either one fails the run instead of
     shipping half an argument.
     """
+    # BOTH CORE-MINUTE CELLS RIDE THE SCREEN'S OWN CLOCK (her 0745Z ruling;
+    # provenance on `_screen_core_minutes`), so this table and the
+    # "Optimization total" sentence are one consistent set (her 0540Z:
+    # "reconcile with the gradient-cost table"). The ratio is untouched by
+    # the transform, which is the point: both routes are priced on one
+    # clock. The measured 32.7 and 210.2 stay in the constants above.
+    adj = _screen_core_minutes(COST_ADJOINT)
+    fd = _screen_core_minutes(COST_FD)
     rows = [
-        ["One adjoint solve", "1", f"{COST_ADJOINT:.1f}"],
+        ["One adjoint solve", "1", f"{adj:.1f}"],
         ["Finite differences over the same variables",
-         f"{FD_PRIMAL_SOLVES}", f"{COST_FD:.1f}"],
+         f"{FD_PRIMAL_SOLVES}", f"{fd:.1f}"],
         ["Ratio, adjoint against finite differences",
-         f"{FD_PRIMAL_SOLVES} to 1", f"{COST_FD / COST_ADJOINT:.1f} to 1"],
+         f"{FD_PRIMAL_SOLVES} to 1", f"{fd / adj:.1f} to 1"],
     ]
     ratios = [r for r in rows if r[0].lower().startswith("ratio")]
     if len(ratios) != 1 or not all("to 1" in cell for cell in ratios[0][1:]):
@@ -1937,6 +1985,13 @@ def main(request: str | None = None, params: dict | None = None,
     _narrate(script.researcher,
             f"One adjoint solve buys the whole gradient.",
             f"The gap widens with every design variable added.")
+
+    # HER TOTAL, AT THE COST BEAT (0540Z: "The act must state its own total:
+    # 'Optimization total: [x] core-minutes, [y] minutes wall'"; 0745Z fixes
+    # the clock it is stated on). Composed by `_optimization_total_line` from
+    # the replay record's own display contract, never typed, on the same
+    # clock the gradient-cost table above now rides.
+    _narrate(script.engineer, _optimization_total_line())
 
     # THE RUNTIME, owner directive 2026-09-01 (module docstring, "THE TIME
     # FIGURE"). It sits at the cost beat, which is where a viewer asks what a
