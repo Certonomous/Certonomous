@@ -1046,16 +1046,31 @@ def _limb_convergence(events, refusal, act) -> list[str]:
 
     import live_pass_jet_flap as LP
 
-    said = False
+    said = declined = False
     for event in events:
         for _key, text, _zone in LP._rendered_strings(event):
-            if _re.search(r"convergence\s+stud(y|ies)|grid\s+convergence",
-                          text, flags=_re.I) and \
+            names_study = _re.search(
+                r"convergence\s+stud(y|ies)|grid\s+convergence", text,
+                flags=_re.I)
+            if names_study and \
                _re.search(r"\b(inbox|your box|in your|comes? to you|sent to "
                           r"you|with the certificate)\b", text, flags=_re.I):
                 said = True
-                break
-        if said:
+            # THE THIRD BRANCH (Sanaa 1100Z, adjoint act): the REQUEST
+            # itself declines the study ("dont run convergence study" is now
+            # in that act's registered prompt), and her always-run rule is
+            # overridden only by the customer's own words. So this branch
+            # requires BOTH the study named AND the decline attributed to
+            # the request or customer in the same sentence-stream string; a
+            # passive "the study was declined" attributes it to nobody,
+            # reads as the platform's own omission, and does NOT satisfy the
+            # limb (its planted control below proves that).
+            if names_study and _re.search(
+                    r"\b(request|customer)\b[^.?!]{0,80}\bdeclin"
+                    r"|\bdeclined\s+by\s+the\s+(request|customer)\b",
+                    text, flags=_re.I):
+                declined = True
+        if said or declined:
             break
     # THE OTHER BRANCH: a band on every number. The report's result rows carry
     # `envelope`, which is where a discretisation band would be stated.
@@ -1066,13 +1081,16 @@ def _limb_convergence(events, refusal, act) -> list[str]:
         if rows and all(_nonempty(r.get("envelope")) for r in rows
                         if isinstance(r, dict)):
             banded = True
-    if said or banded:
+    if said or banded or declined:
         return []
     return ["the convergence study is neither shown as done (no band on the "
-            "report's result rows) nor promised (no sentence naming the study "
-            "and its delivery to the user). Her stage 8 allows either and "
-            "forbids neither: the platform always runs it, so the screen never "
-            "stays silent about it."]
+            "report's result rows), nor promised (no sentence naming the "
+            "study and its delivery to the user), nor declined by the "
+            "request (no sentence naming the study and attributing the "
+            "decline to the request or customer). Her stage 8 allows the "
+            "first two for every act, her 1100Z prompt addition allows the "
+            "third where the request itself forbids the study, and the "
+            "screen never stays silent about it."]
 
 
 def _limb_language(events, refusal, act) -> list[str]:
@@ -1174,8 +1192,8 @@ CHECKLIST: tuple[tuple, ...] = (
      "arriving by the live route drain the paced queue before the viewer "
      "reaches the tab.",
      _limb_report),
-    ("convergence", "Convergence study shown done, or the 'lands in your "
-                    "inbox' line",
+    ("convergence", "Convergence study shown done, the 'lands in your "
+                    "inbox' line, or declined by the request",
      "ENFORCED",
      "one of the two branches is demonstrably taken -- a band on every report "
      "result row, or a sentence naming the study and its delivery to the user "
@@ -1537,24 +1555,64 @@ def _plant_long_caption(events):
     return out
 
 
-def _plant_no_convergence(events):
-    """Remove BOTH branches: the promise sentence and the bands."""
+def _rewrite_convergence_strings(node, replacement):
+    """Replace every convergence-naming string ANYWHERE in a payload.
+
+    RECURSIVE ON PURPOSE, and the depth is the finding: the first cut of
+    these plants walked only ``payload[k]`` and one level of list, while
+    ``_rendered_strings`` descends into nested structures -- so an
+    assumptions-table CELL ("Grid convergence study, declined by the
+    request", a list inside ``rows`` inside the payload) kept the limb green
+    under both convergence plants and the selftest reported them INVISIBLE
+    (measured on the adjoint-wing host stream, 2026-09-02). A plant that
+    reaches fewer surfaces than the limb it controls is not a control.
+    """
     import re as _re
 
+    if isinstance(node, str):
+        return (replacement if _re.search(
+            r"convergence\s+stud|grid\s+convergence", node, flags=_re.I)
+            else node)
+    if isinstance(node, list):
+        return [_rewrite_convergence_strings(x, replacement) for x in node]
+    if isinstance(node, dict):
+        return {k: _rewrite_convergence_strings(v, replacement)
+                for k, v in node.items()}
+    return node
+
+
+def _plant_no_convergence(events):
+    """Remove ALL THREE branches: promise, bands, and the declined form."""
     out = copy.deepcopy(events)
     for e in out:
         payload = e.get("payload") or {}
         for k, v in list(payload.items()):
-            if isinstance(v, str) and _re.search(
-                    r"convergence\s+stud|grid\s+convergence", v, flags=_re.I):
-                payload[k] = "The sweep settled at every point."
-            elif isinstance(v, list):
-                payload[k] = [
-                    "The sweep settled at every point."
-                    if isinstance(x, str) and _re.search(
-                        r"convergence\s+stud|grid\s+convergence", x,
-                        flags=_re.I) else x
-                    for x in v]
+            payload[k] = _rewrite_convergence_strings(
+                v, "The sweep settled at every point.")
+        if e.get("event") == "report.ready":
+            for row in payload.get("results") or []:
+                if isinstance(row, dict):
+                    row["envelope"] = ""
+    return out
+
+
+def _plant_unattributed_decline(events):
+    """The declined branch's own control: a decline attributed to NOBODY.
+
+    The third convergence branch (request-declined, Sanaa 1100Z) is only
+    honest because the decline is the customer's: "the request declined the
+    study". A passive "the grid convergence study was declined" names no
+    decliner, reads as the platform's own omission, and must NOT satisfy the
+    limb. This plant rewrites every convergence-naming string into exactly
+    that passive form and blanks the report bands, so a limb that accepted
+    an unattributed decline would read this stream clean and be caught here.
+    """
+    out = copy.deepcopy(events)
+    passive = "The grid convergence study was declined."
+    for e in out:
+        payload = e.get("payload") or {}
+        for k, v in list(payload.items()):
+            payload[k] = _rewrite_convergence_strings(v, passive)
         if e.get("event") == "report.ready":
             for row in payload.get("results") or []:
                 if isinstance(row, dict):
@@ -1593,6 +1651,8 @@ STRUCTURAL_PLANTS: tuple[tuple[str, str, object], ...] = (
      _plant_drop_event("report.ready")),
     ("convergence", "neither the band nor the promise is on any screen",
      _plant_no_convergence),
+    ("convergence", "the study is said to be declined but by nobody",
+     _plant_unattributed_decline),
 )
 
 #: The act the plants are made against. It must be one that walks all nine
