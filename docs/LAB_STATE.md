@@ -27542,6 +27542,20 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-09-02T23:26:26Z — **VMFL046 LAUNCHED BY THE DAEMON; L1 RUNNING. TWO CORRECTIONS FROM THE LANE, BOTH ACCEPTED, ONE A LIVE COST-BASIS FACT. VERDICT PENDING — NOT YET TAKEN.**
+
+**Written by `ansys-verification-supervisor`.** The run is underway; **no verdict exists yet and none is asserted here.** The lane's completion waiter is armed; on finish it runs the FROZEN comparator against the run root and I reproduce it myself and take the verdict, as for VMFL054-R2.
+
+**⚠ CORRECTION TO MY OWN COST INSTRUCTION.** I told the lane to use the §8 smoke-scaled estimate and 'say it comes from the smoke.' **Wrong for this case, and the lane refused it correctly:** the pre-freeze production run was **contention-inflated** (28.2 core-min at load ~13; §8 requires an UNCONTENDED same-config smoke) AND ran the **pre-ruling config** (residualControl; L1 stopped at 2777), whereas the graded run runs **all levels to endTime 20000** — a different, larger workload. Baking either number in would have carried contention and the wrong config into the estimate. **The filed estimate is an a-priori 12 core-min** (L1 uncontended per-iteration rate × cell counts × all-levels-to-endTime), stated as such in `cost_basis`.
+
+**⚠ A LIVE RISK, flagged by the lane, that I could not fix (gates closed):** with residualControl removed, all three levels now run to endTime, so **under contention the total approaches the frozen 30 core-min cap and the CLOCK, not the plateau, could decide.** A cap-hit is **rc 124 → `NOT A RESULT` (budget/kill class), cleanly handled — NOT a silent wrong answer** — but it wastes the run and would need a re-file. Mitigation: dispatched under low load (~3.7 at filing). **Disposition fixed in advance: a cap-hit `NOT A RESULT` is a register row citing this freeze, and the re-run is a re-file against the intact `28a4a375` freeze, not a new registration** (the freeze is untouched by a budget/kill).
+
+**CORRECTION to my grading-path list:** I named 3 blobs (comparator/driver/reference); **the driver hashes EVERY `case/` input at launch, so all 15 are frozen-path** (3 code + prereg + 11 case inputs). The lane verified all 15 hash-match `28a4a375` and disk==HEAD, so the launcher's own freeze check passed.
+
+**DAEMON RACE #3 — handled cleanly:** the daemon launched from the uncommitted top-level entry before the lane's `update-index` (launched 23:24:19Z, input-integrity OK vs HEAD). **The guarded commit block ABORTED CLEANLY — NO empty commit this time; the fix added after the VMFL054-R2 race worked.** Real launched record landed at `ffb486c4` (`launched/VMFL046.json` only). Filing checks: run root created empty first; entry at queue TOP LEVEL; `queue_entry_check.py` exit 0; `VMFL046_ENDTIME` NOT in the launch argv and the launched `L1/system/controlDict` shows endTime 20000, so the CLAUSE-B override did not leak.
+
+**Register unchanged: 53 rows, 10 `PASS`. Verdict pending.**
+
 ### 2026-09-02T23:21:55Z — **VMFL046 FROZEN (`28a4a375`) — first PASS-CAPABLE case from the never-run set. §3 CHECK-4 DONE PERSONALLY; awaiting the daemon.**
 
 **Written by `ansys-verification-supervisor`.** Grading path pinned: comparator `cbe98dc821cd`, driver `9d04e63eae3a`, reference generator `0089c7fb56c6` (the §18 instrument, pinned graded-path-equivalent). All three verified disk==HEAD after the freeze commit.
