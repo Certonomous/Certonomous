@@ -82,11 +82,94 @@ def read_minmax_at(path):
     return rows
 
 
+def read_surface_at(path):
+    rows = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if line.startswith("#") or not line.strip():
+            continue
+        cells = line.split()
+        rows.append((float(cells[0]), float(cells[-1])))
+    if not rows:
+        raise SystemExit(f"{path} carries no rows")
+    return rows
+
+
+OUTLET_10 = CASE / "postProcessing/coolant/outlet_Tbar/0/surfaceFieldValue.dat"
+OUTLET_20 = ARM_20 / "postProcessing/coolant/outlet_Tbar/0/surfaceFieldValue.dat"
+OC_GATE = CASE.parent / "OC_GATE.json"
+
+
+def outlet_overlay() -> None:
+    """THE MONEY SHOT, drawn where the gap actually lives. The 23.2 mK the
+    registered check refused on is O3, the COOLANT OUTLET area-mean at the
+    takeoff transient (analyse_t25R2.py:326); measured between the two arms'
+    own outlet monitors it is 23.2 mK at t = 60 s, while the hottest-cell
+    traces differ by at most 1.3 mK. So the overlay that makes the refusal
+    legible is the outlet channel: both arms' own monitors, pulse shaded,
+    with the 40-90 s inset where the two curves visibly separate during the
+    pulse and collapse together after it. Every point is a monitor row;
+    the annotated gap is computed from the two plotted curves and the
+    allowance is read from the graded gate record, never retyped."""
+    import json
+
+    from chief_engineer import plot_theme as theme
+
+    plt = theme._pyplot()
+    a10 = read_surface_at(OUTLET_10)
+    a20 = read_surface_at(OUTLET_20)
+    if [t for t, _ in a10] != [t for t, _ in a20]:
+        raise SystemExit("the two arms' outlet monitors carry different "
+                         "time stamps; the overlay would be misaligned")
+    gate = json.loads(OC_GATE.read_text(encoding="utf-8"))
+    detail = gate["results"]["OUTER_LOOP_GATE"]["detail"]
+    allowed_mk = float(detail["O3_tol"]) * 1000.0
+    by20 = dict(a20)
+    gap_60_mk = abs(a10[[t for t, _ in a10].index(60.0)][1] - by20[60.0]) \
+        * 1000.0
+
+    fig, ax = plt.subplots(figsize=(11.4, 4.6), dpi=150)
+    ax.axvspan(0.0, SWITCH_S, color=theme.INK, alpha=0.06, linewidth=0)
+    ax.plot([t for t, _ in a10], [v - 273.15 for _, v in a10],
+            color=theme.LIVE, linewidth=1.4, label="10 sweeps per step")
+    second = theme.WARN if hasattr(theme, "WARN") else theme.VALID
+    ax.plot([t for t, _ in a20], [v - 273.15 for _, v in a20],
+            color=second, linewidth=1.2, linestyle="--",
+            label="20 sweeps per step")
+    theme.style_axes(ax, "t (s)", "T (C)",
+                     "Coolant outlet, two solver efforts")
+    legend = ax.legend(frameon=False, fontsize=10, loc="lower right")
+    for text in legend.get_texts():
+        text.set_color(theme.INK)
+
+    axins = ax.inset_axes([0.42, 0.12, 0.34, 0.5])
+    for rows, colour, style in ((a10, theme.LIVE, "-"),
+                                (a20, legend.get_lines()[1].get_color(),
+                                 "--")):
+        window = [(t, v - 273.15) for t, v in rows if 40 <= t <= 90]
+        axins.plot([w[0] for w in window], [w[1] for w in window],
+                   color=colour, linewidth=1.3, linestyle=style)
+    axins.axvspan(40, SWITCH_S, color=theme.INK, alpha=0.06, linewidth=0)
+    axins.set_title(f"takeoff transient: {gap_60_mk:.1f} mK apart, "
+                    f"{allowed_mk:.1f} allowed", fontsize=8, color=theme.INK)
+    axins.tick_params(labelsize=7, colors=theme.INK)
+    for spine in axins.spines.values():
+        spine.set_color(theme.INK)
+        spine.set_alpha(0.4)
+    fig.tight_layout()
+    OUT.mkdir(parents=True, exist_ok=True)
+    target = OUT / "actC_outlet_overlay.png"
+    fig.savefig(target)
+    plt.close(fig)
+    print(f"wrote {target}")
+
+
 def two_arm_overlay() -> None:
-    """Her money shot: the hottest-cell trace at 10 sweeps against 20
-    sweeps, with the takeoff transient inset where the registered check
-    measured its 2.32e-2 K gap. Every point is a row of one of the two
-    arms' own monitors; nothing is synthesised, smoothed or shifted."""
+    """The COMPANION to the outlet money shot: the hottest-cell trace at 10
+    sweeps against 20 sweeps. The two traces differ by at most 1.3 mK over
+    the whole record, and showing that coincidence is the point -- the cells
+    barely move between solver efforts; the outlet is where the refused
+    23.2 mK lives. Every point is a row of one of the two arms' own
+    monitors; nothing is synthesised, smoothed or shifted."""
     from chief_engineer import plot_theme as theme
 
     plt = theme._pyplot()
@@ -115,7 +198,11 @@ def two_arm_overlay() -> None:
         axins.plot([w[0] for w in window], [w[1] for w in window],
                    color=colour, linewidth=1.2, linestyle=style)
     axins.axvspan(40, SWITCH_S, color=theme.INK, alpha=0.06, linewidth=0)
-    axins.set_title("takeoff transient", fontsize=8, color=theme.INK)
+    by20 = {t: mx for t, _mn, mx in a20}
+    coincide_mk = max(abs(mx - by20[t]) for t, _mn, mx in a10
+                      if t in by20) * 1000.0
+    axins.set_title(f"takeoff transient: traces within {coincide_mk:.1f} mK",
+                    fontsize=8, color=theme.INK)
     axins.tick_params(labelsize=7, colors=theme.INK)
     for spine in axins.spines.values():
         spine.set_color(theme.INK)
@@ -161,6 +248,7 @@ def main() -> int:
     fig.savefig(target)
     print(f"wrote {target}")
     stage_field_render()
+    outlet_overlay()
     two_arm_overlay()
     return 0
 

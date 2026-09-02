@@ -1,4 +1,8 @@
 {
+  "T_range_C": [
+    19.835290527343773,
+    22.234246826171898
+  ],
   "T_range_K": [
     292.98529052734375,
     295.3842468261719
@@ -7,10 +11,11 @@
   "case": "/home/ubuntu/Certonomous/verification/runs/T-family/T25R2_MODULE_runs/T25R2_L1",
   "case_name": "T25R2_L1",
   "cells": 16608,
+  "colour_bar_units": "C",
   "data_provenance": "rendered from the case's own constant/polyMesh and time directories; nothing synthesised, smoothed or decimated",
-  "generated_utc": "2026-09-02T02:52:15Z",
+  "generated_utc": "2026-09-02T05:23:32Z",
   "image": "T25R2_L1_field_T.png",
-  "ink_fraction": 0.215078125,
+  "ink_fraction": 0.21494212962962964,
   "panel": "field_T",
   "paraview": "5.13.3 EGL (/opt/paraview/bin/pvpython)",
   "regions": [
@@ -18,6 +23,6 @@
     "coolant"
   ],
   "script": "scripts/render_thermal_paraview.py",
-  "script_sha256": "9c4a4dcfab9749aa03eaa87aa496d195309940f072886887134ee940a5ff4959",
+  "script_sha256": "f375834922475818bb5f72ced5b43bec2d5c5ae647de72255ea650870435abf3",
   "time": 60.0
 }

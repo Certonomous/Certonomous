@@ -37,8 +37,9 @@ import sys
 import tempfile
 
 from paraview.simple import (  # noqa: E402
-    Clip, CreateRenderView, GetColorTransferFunction, GetScalarBar, Hide,
-    OpenFOAMReader, SaveScreenshot, Show, Slice, STLReader,
+    Calculator, Clip, CreateRenderView, GetColorTransferFunction,
+    GetScalarBar, Hide, OpenFOAMReader, SaveScreenshot, Show, Slice,
+    STLReader,
 )
 
 #: The control room is a dark surface (--bg #060708); a render dropped into
@@ -167,6 +168,94 @@ def render(view, path, min_ink, label):
     return frac
 
 
+#: Composite geometry of the mesh page: one 1920x1080 canvas carrying the
+#: fit-to-extents section AND a zoom inset at the wall, bottom-right, with a
+#: locator rectangle on the main panel showing where the inset lives. Sanaa
+#: 06:10Z (motor): "the solved polyMesh section, cell by cell, horizontal,
+#: fit-to-extents, wall-layer grading visible, with a zoom inset at the
+#: housing wall"; 06:50Z (battery): "Fit-to-extents so all seven bands are
+#: visible, then a zoom inset on one channel showing the wall layers -- same
+#: pattern as the motor's mesh page."
+CANVAS = (1920, 1080)
+INSET = (760, 430)
+MARGIN = 40
+
+
+def _show_edges(cut, view):
+    show = Show(cut, view)
+    show.Representation = "Surface With Edges"
+    show.AmbientColor = list(FLUID)
+    show.DiffuseColor = list(FLUID)
+    show.EdgeColor = list(EDGES)
+    show.LineWidth = 1.0
+    return show
+
+
+def _composite_with_inset(main_path, inset_path, out_path, axis, bounds,
+                          zoom_window, main_res):
+    """Paste the fit-to-extents section and the zoom inset onto one canvas.
+
+    The locator rectangle is drawn with :func:`make_view`'s own world-to-pixel
+    map (parallel scale = max(span_v/2, span_h/(2*aspect)) * 1.04 about the
+    section centre, scale being the view's half height), so the rectangle on
+    the main panel is the inset's window by construction, not by eye.
+    """
+    from PIL import Image, ImageDraw
+
+    bg = tuple(int(round(255 * c)) for c in BACKGROUND)
+    line = tuple(int(round(255 * c)) for c in EDGES)
+    canvas = Image.new("RGB", CANVAS, bg)
+    main = Image.open(main_path).convert("RGB")
+    inset = Image.open(inset_path).convert("RGB")
+
+    main_w, main_h = main.size
+    wide = main_w / main_h >= CANVAS[0] / CANVAS[1]
+    main_at = ((CANVAS[0] - main_w) // 2, MARGIN) if wide \
+        else (MARGIN, (CANVAS[1] - main_h) // 2)
+    inset_at = (CANVAS[0] - INSET[0] - MARGIN, CANVAS[1] - INSET[1] - MARGIN)
+    # The inset must sit on background, never on the section it locates.
+    overlap_x = main_at[0] + main_w > inset_at[0] - MARGIN
+    overlap_y = main_at[1] + main_h > inset_at[1] - MARGIN
+    if overlap_x and overlap_y:
+        os.write(2, (b"REFUSED: the mesh composite would paste the inset "
+                     b"over the section; pick a smaller main panel\n"))
+        os._exit(2)
+    canvas.paste(main, main_at)
+    canvas.paste(inset, inset_at)
+
+    draw = ImageDraw.Draw(canvas)
+    # Locator rectangle: world -> main-panel pixels, make_view's map.
+    plane = {"x": (2, 1), "y": (0, 2), "z": (0, 1)}[axis]
+    h, v = plane
+    ch = 0.5 * (bounds[2 * h] + bounds[2 * h + 1])
+    cv = 0.5 * (bounds[2 * v] + bounds[2 * v + 1])
+    span_h = bounds[2 * h + 1] - bounds[2 * h]
+    span_v = bounds[2 * v + 1] - bounds[2 * v]
+    aspect = main_res[0] / main_res[1]
+    scale = max(span_v / 2.0, span_h / (2.0 * aspect)) * 1.04
+    per_px = (main_res[1] / 2.0) / scale        # pixels per world unit
+
+    def to_px(wh, wv):
+        return (main_at[0] + main_w / 2.0 + (wh - ch) * per_px,
+                main_at[1] + main_h / 2.0 - (wv - cv) * per_px)
+
+    (h0, h1), (v0, v1) = zoom_window
+    x0, y1 = to_px(h0, v0)
+    x1, y0 = to_px(h1, v1)
+    locator = [x0, y0, x1, y1]
+    draw.rectangle(locator, outline=line, width=3)
+    draw.rectangle([inset_at[0] - 2, inset_at[1] - 2,
+                    inset_at[0] + INSET[0] + 2, inset_at[1] + INSET[1] + 2],
+                   outline=line, width=3)
+    # A leader from the locator to the inset, so the eye pairs them.
+    draw.line([x1, (y0 + y1) / 2.0, inset_at[0] - 2,
+               inset_at[1] + INSET[1] / 2.0], fill=line, width=2)
+    canvas.save(out_path)
+    return {"main_px": [main_at[0], main_at[1], main_w, main_h],
+            "inset_px": [inset_at[0], inset_at[1], INSET[0], INSET[1]],
+            "locator_px": [round(p, 1) for p in locator]}
+
+
 def mesh_panels(args, prefix):
     reader = open_case(args.case)
     t = latest_time(reader)
@@ -186,21 +275,70 @@ def mesh_panels(args, prefix):
         os._exit(2)
     bounds = reader.GetDataInformation().GetBounds()
 
-    for panel, zoom in (("mesh", None), ("mesh_zoom", args.zoom_window)):
-        view = make_view(args.axis, bounds, zoom=zoom)
-        show = Show(cut, view)
-        show.Representation = "Surface With Edges"
-        show.AmbientColor = list(FLUID)
-        show.DiffuseColor = list(FLUID)
-        show.EdgeColor = list(EDGES)
-        show.LineWidth = 1.0
-        path = os.path.join(args.out, f"{prefix}_{panel}.png")
-        render(view, path, args.min_ink, panel)
-        sidecar(path, args.case, panel, n_cells, {
-            "slice_polygons": polys, "axis": args.axis,
-            "zoom_window": zoom, "time": t,
-        })
-        Hide(cut, view)
+    # The served mesh panel is the COMPOSITE: fit-to-extents section at its
+    # own content aspect plus the wall zoom inset, one canvas. The separate
+    # full-size zoom stays as the mesh_zoom panel exactly as before.
+    plane = {"x": (2, 1), "y": (0, 2), "z": (0, 1)}[args.axis]
+    h, v = plane
+    span_h = bounds[2 * h + 1] - bounds[2 * h]
+    span_v = bounds[2 * v + 1] - bounds[2 * v]
+    inset_room = (CANVAS[0] - INSET[0] - 3 * MARGIN,
+                  CANVAS[1] - INSET[1] - 3 * MARGIN)
+    if span_h / span_v >= CANVAS[0] / CANVAS[1]:
+        main_res = (CANVAS[0] - 2 * MARGIN,
+                    max(64, int(round((CANVAS[0] - 2 * MARGIN)
+                                      * span_v / span_h))))
+        if main_res[1] > inset_room[1]:
+            main_res = (max(64, int(round(inset_room[1] * span_h / span_v))),
+                        inset_room[1])
+    else:
+        main_res = (max(64, int(round((CANVAS[1] - 2 * MARGIN)
+                                      * span_h / span_v))),
+                    CANVAS[1] - 2 * MARGIN)
+        if main_res[0] > inset_room[0]:
+            main_res = (inset_room[0],
+                        max(64, int(round(inset_room[0] * span_v / span_h))))
+
+    scratch_main = os.path.join(args.out, f"{prefix}_mesh_main_tmp.png")
+    view = make_view(args.axis, bounds, resolution=list(main_res))
+    _show_edges(cut, view)
+    render(view, scratch_main, 0.0, "mesh main (composite half)")
+    Hide(cut, view)
+
+    scratch_inset = os.path.join(args.out, f"{prefix}_mesh_inset_tmp.png")
+    view = make_view(args.axis, bounds, zoom=args.zoom_window,
+                     resolution=list(INSET))
+    _show_edges(cut, view)
+    render(view, scratch_inset, 0.0, "mesh inset (composite half)")
+    Hide(cut, view)
+
+    path = os.path.join(args.out, f"{prefix}_mesh.png")
+    geometry = _composite_with_inset(scratch_main, scratch_inset, path,
+                                     args.axis, bounds, args.zoom_window,
+                                     main_res)
+    os.remove(scratch_main)
+    os.remove(scratch_inset)
+    frac = ink_fraction(path)
+    if frac < args.min_ink:
+        os.write(2, (f"REFUSED: mesh composite rendered {frac:.5f} ink, "
+                     f"below {args.min_ink}\n").encode())
+        os._exit(2)
+    say(f"  mesh composite: ink {frac:.4f} -> {path}")
+    sidecar(path, args.case, "mesh", n_cells, {
+        "slice_polygons": polys, "axis": args.axis,
+        "zoom_window": args.zoom_window, "time": t,
+        "composite": geometry,
+    })
+
+    view = make_view(args.axis, bounds, zoom=args.zoom_window)
+    _show_edges(cut, view)
+    path = os.path.join(args.out, f"{prefix}_mesh_zoom.png")
+    render(view, path, args.min_ink, "mesh_zoom")
+    sidecar(path, args.case, "mesh_zoom", n_cells, {
+        "slice_polygons": polys, "axis": args.axis,
+        "zoom_window": args.zoom_window, "time": t,
+    })
+    Hide(cut, view)
 
 
 def field_panel(args, prefix):
@@ -236,7 +374,12 @@ def field_panel(args, prefix):
                          f"the pre-split {args.expect_cells}\n").encode())
             os._exit(2)
 
-        lut = GetColorTransferFunction("T")
+        # CELSIUS ON SCREEN (Sanaa 07:05Z: "Units mix across figures ...
+        # Pick C everywhere on screen"). The case's own T is kelvin; a
+        # Calculator subtracts the exact offset and the bar is titled in C.
+        # The sidecar keeps the kelvin range beside the celsius one, so the
+        # figure stays checkable against the run's own files.
+        lut = GetColorTransferFunction("T_C")
         lut.ApplyPreset("Inferno (matplotlib)", True)
         lo, hi = None, None
         cuts = []
@@ -250,8 +393,25 @@ def field_panel(args, prefix):
             rlo, rhi = t_info.GetComponentRange(0)
             lo = rlo if lo is None else min(lo, rlo)
             hi = rhi if hi is None else max(hi, rhi)
-            cuts.append(cut)
-        lut.RescaleTransferFunction(lo, hi)
+            calc = Calculator(Input=cut)
+            calc.AttributeType = "Cell Data"
+            calc.ResultArrayName = "T_C"
+            calc.Function = "T - 273.15"
+            calc.UpdatePipeline()
+            c_info = calc.GetCellDataInformation().GetArray("T_C")
+            if c_info is None:
+                os.write(2, (f"REFUSED: the celsius conversion produced no "
+                             f"array on region {region}\n").encode())
+                os._exit(2)
+            clo, chi = c_info.GetComponentRange(0)
+            if abs(clo - (rlo - 273.15)) > 1e-6 \
+                    or abs(chi - (rhi - 273.15)) > 1e-6:
+                os.write(2, (f"REFUSED: T_C range ({clo}, {chi}) is not "
+                             f"T - 273.15 of ({rlo}, {rhi}) on region "
+                             f"{region}\n").encode())
+                os._exit(2)
+            cuts.append(calc)
+        lut.RescaleTransferFunction(lo - 273.15, hi - 273.15)
 
         bounds = [None] * 6
         for _, reader in readers:
@@ -266,19 +426,26 @@ def field_panel(args, prefix):
         for cut in cuts:
             show = Show(cut, view)
             show.Representation = "Surface"
-            show.ColorArrayName = ["CELLS", "T"]
+            show.ColorArrayName = ["CELLS", "T_C"]
             show.LookupTable = lut
             shows.append(show)
         bar = GetScalarBar(lut, view)
-        bar.Title = "T (K)"
+        bar.Title = "T (C)"
         bar.ComponentTitle = ""
+        # Plain decimals at the ends, not scientific notation: the min and
+        # max a viewer reads are "20.0" and "22.2", never "2.2e+01".
+        bar.RangeLabelFormat = "%.1f"
+        bar.LabelFormat = "%.1f"
+        bar.AutomaticLabelFormat = 0
         bar.Visibility = 1
         shows[0].SetScalarBarVisibility(view, True)
         path = os.path.join(args.out, f"{prefix}_field_T.png")
         render(view, path, args.min_ink, "field_T")
         sidecar(path, args.case, "field_T", total, {
             "regions": regions, "time": float(time_name),
-            "T_range_K": [lo, hi], "axis": args.axis,
+            "T_range_K": [lo, hi],
+            "T_range_C": [lo - 273.15, hi - 273.15],
+            "colour_bar_units": "C", "axis": args.axis,
         })
     finally:
         shutil.rmtree(scratch, ignore_errors=True)
