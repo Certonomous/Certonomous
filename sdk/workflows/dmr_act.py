@@ -836,9 +836,9 @@ class ShockReflectionAct(DemoAct):
     def restatement(self) -> Restatement:
         return Restatement(
             restatement=(
-                "Checking the speed of the shock against the exact solution, "
-                "on two grids, with the success criterion written down before "
-                "anything is built."),
+                "Two grids, one check: the speed of the shock against the "
+                "exact answer. The criterion is written down before anything "
+                "is built."),
             confidence=(
                 "High on the shock speed, which has an exact answer to check "
                 "against. The structure behind the shock has no exact answer "
@@ -1009,14 +1009,13 @@ class ShockReflectionAct(DemoAct):
         be measured against a shock that was no longer there.
         """
         return Feasibility(
-            check=("Whether the shock runs off the far end of the channel "
-                   "before the final time, which would leave nothing to "
-                   "measure."),
+            check=("Whether the shock leaves the channel before the final "
+                   "time. If it does, nothing is left to measure."),
             result=Measured("2.48 along a channel of 4.00", "", FROZEN_GATE,
                             basis="derived"),
-            verdict_for_user=("The shock is still well inside the channel at "
-                              "the final time, so the comparison holds and "
-                              "the budget is worth committing."))
+            verdict_for_user=("The shock stays inside the channel at the "
+                              "final time. The comparison holds and the "
+                              "budget is worth committing."))
 
     # -- the methods table ---------------------------------------------------
     def methods_table(self) -> Table:
@@ -1186,29 +1185,20 @@ class ShockReflectionAct(DemoAct):
         fine_s = _wall_seconds("res120")
         coarse_s = _wall_seconds("res60")
         workers = _workers()
-        # SHAPE-ADAPTIVE ON PURPOSE, and only until the shared four-column
-        # shape is COMMITTED: at this writing the plain-sum total column
-        # exists in the working tree only (the display lane's unfinished
-        # work, which rule 10 forbids this lane to commit). Asking the
-        # signature keeps this act green at either HEAD; the branch dies the
-        # day their commit lands and a successor may then inline the
-        # four-cell call.
-        import inspect
-
         # THE TOTAL IS THE PLAIN SUM OF THE DISPLAYED PER-RUN CELLS, so the
         # arithmetic is checkable on screen: rounding each run first and then
         # the sum can differ in the last digit from rounding the sum alone.
+        # The four-cell call is the shared four-column shape demo_mode
+        # committed (workers | core-min per run | core-min total | wall
+        # time); the shape-adaptive branch that waited for that commit is
+        # gone with it.
         fine_cm = round(fine_s * RANKS / 60.0, 2)
         coarse_cm = round(coarse_s * RANKS / 60.0, 2)
         per_run = f"{fine_cm:.2f} fine, {coarse_cm:.2f} coarse"
         total_cm = f"{fine_cm + coarse_cm:.2f}"
         wall = f"{fine_s + coarse_s:.1f} s"
-        if "total_core_min" in inspect.signature(compute_table).parameters:
-            compute = compute_table(workers, per_run, total_cm, wall,
-                                    table_id="dmr_compute")
-        else:
-            compute = compute_table(workers, per_run, wall,
-                                    table_id="dmr_compute")
+        compute = compute_table(workers, per_run, total_cm, wall,
+                                table_id="dmr_compute")
 
         # THE CAPTION IS SYMBOLS, UNITS AND NUMBERS, per Sanaa's 2026-09-01
         # ~20:06Z instruction carried onto this act by her "(same applies for
@@ -1251,10 +1241,9 @@ class ShockReflectionAct(DemoAct):
             plots=[],
             tables=[position, compute],
             verification_lines=[
-                (f"The shock arrives within half a cell of its exact "
-                 f"position on both grids: {in_cells['Fine']:.2f} of a cell "
-                 f"on the fine grid and {in_cells['Coarse']:.2f} of a cell on "
-                 f"the coarse one."),
+                (f"Within half a cell of exact on both grids: "
+                 f"{in_cells['Fine']:.2f} of a cell fine, "
+                 f"{in_cells['Coarse']:.2f} coarse."),
                 # THE BOUND, AND IT IS SHOWN AS A BOUND. Sanaa's protocol
                 # names this act's beat "two grids vs exact theory to 0.2% on
                 # screen", and the inequality is what the measurement
@@ -1264,30 +1253,24 @@ class ShockReflectionAct(DemoAct):
                 # be a precision claim finer than the instrument. Under, not
                 # equal to. `_bound_holds` checks it against the two measured
                 # differences and refuses rather than printing it on trust.
-                (f"On both grids the difference is under {_bound_holds():g} "
-                 f"percent of the distance the shock travels."),
-                ("The success criterion, one percent of the distance the "
-                 "shock travels, is written down before the first grid is "
-                 "built."),
-                ("The structure behind the shock is recorded as a picture and "
-                 "is not one of the quantities measured here."),
+                (f"Under {_bound_holds():g} percent of the distance "
+                 f"travelled, on both grids."),
+                ("The criterion, one percent of the distance travelled, was "
+                 "written down before the first grid was built."),
+                ("The structure behind the shock is a picture, not a "
+                 "measured quantity."),
             ],
             limitations=[
-                ("The second shock and the jet running along the wall under "
-                 "it appear in the picture and are not among the quantities "
-                 "measured. Read them as a picture, not as a number."),
-                ("This is an inviscid calculation with no turbulence model in "
-                 "it, so nothing here says anything about a turbulence "
+                ("The second shock and the wall jet are in the picture only. "
+                 "Neither is measured."),
+                ("No viscosity and no turbulence model. Nothing here tests a "
                  "closure."),
-                ("The comparison is against an exact answer for the speed of "
-                 "the shock only. No experimental measurement of this "
-                 "configuration exists to compare the rest of it against."),
-                ("Two grids are solved. A third and finer one is attempted "
-                 "and stops part of the way through, so no refinement study "
-                 "and no order of accuracy is offered here."),
-                ("Each difference above is smaller than one cell of the grid "
-                 "that measures it, so it is a bound rather than a resolved "
-                 "number."),
+                ("The exact answer covers the shock speed only. No "
+                 "experiment exists for the rest."),
+                ("2 grids solved. A third stops part of the way through, so "
+                 "no refinement study and no order of accuracy."),
+                ("Each difference is under one cell of its own grid. Each is "
+                 "a bound, not a resolved number."),
             ],
             cost_actual=Measured(round(core_min, 2), COMPUTE_UNIT,
                                  GRADED_RECORD),
@@ -1313,17 +1296,6 @@ class ShockReflectionAct(DemoAct):
         return (("prompt", 0), ("restatement", 0), ("assumption", 0),
                 ("geometry", 0), ("meshing", w), ("feasibility", w),
                 ("solving", w), ("gates", 0), ("results", 0))
-
-    # RESUME NOTE (internal, 2026-09-02 ~06:3xZ, fleet-kill imminent): the
-    # 06:10Z compute convention is LANDED (compute table in results, wave
-    # sentence and predicted wall on the results beat) and the shortening
-    # pass is PARTIAL. Shortened: researcher restatement beat, engineer
-    # geometry beat. Still to shorten under her standing "still way too
-    # long": Restatement.restatement, Feasibility.check/verdict,
-    # Results.verification_lines, Results.limitations, Closing.abstract.
-    # Also: the compute_table call in results() is shape-adaptive until the
-    # display lane COMMITS the four-column demo_mode shape (uncommitted in
-    # the working tree at this writing); inline the four-cell call then.
 
     # -- the specialists ----------------------------------------------------
     def discussions(self):
@@ -1496,15 +1468,14 @@ class ShockReflectionAct(DemoAct):
             # the classic dimensionless one and a second tag on it was one of
             # the leaks Sanaa named for removal before capture.
             abstract=[
-                (f"A Mach {setup['mach']:g} shock meeting a wall at "
-                 f"{setup['angle_deg']:.0f} degrees was solved on two grids, "
-                 f"of {_cells('res60'):,} and {_cells('res120'):,} cells, and "
-                 f"the position of its front at time "
-                 f"{setup['final_time']:g}, in reference units, is reported "
-                 f"here against the exact answer."),
-                (f"On both grids the front stood within {bound:g} percent of "
-                 f"the distance it had travelled, and within half a cell of "
-                 f"the grid that measured it."),
+                (f"A Mach {setup['mach']:g} shock meets a wall at "
+                 f"{setup['angle_deg']:.0f} degrees. 2 grids solve it, "
+                 f"{_cells('res60'):,} and {_cells('res120'):,} cells."),
+                (f"The front's position at time {setup['final_time']:g}, "
+                 f"reference units, is reported against the exact answer."),
+                (f"Within {bound:g} percent of the distance travelled on "
+                 f"both grids. Within half a cell of the grid that measured "
+                 f"it."),
             ],
             # THE METHODS BEAT NAMES THE SOLVER, IN HER EXACT WORDS, FIRST.
             # Sanaa, 2026-09-02 ~02:32Z: methods gave flux and reconstruction
