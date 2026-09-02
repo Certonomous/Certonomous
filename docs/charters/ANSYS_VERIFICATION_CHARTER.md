@@ -1439,3 +1439,48 @@ Also verification's, also adopted: `analyse_L3_plateau.py` opens by declaring it
 | instrument repaired | `analyse_L3_plateau.py` — guard planted and fired; recorded numbers byte-identical |
 | gates | **0** · bands | **0** · caps | **0** · re-grades | **0** · register bytes | **0** |
 | lines whose number changed above this section | **0** |
+
+---
+
+## Amendment — v1.15, 2026-09-02 — **§20: STEADY-SOLVE LIMIT CYCLES ARE NOW A DOCTRINE, NOT THREE PER-CASE PATCHES. A RESIDUAL FLOOR IS A PROXY, AND FOR A HUNTING DISCRETE STRUCTURE THE PROXY IS INVALID. VMFL046: OPTION (a) REFUSED, OPTION (b) PERMITTED ONLY IN ITS MECHANICAL FORM.**
+
+### §20.1 THE DOCTRINE — three steady-solve limit cycles in one day, across two teams
+
+Within one session this lab has met the same phenomenon three times: **VMFL007's entry-region axis cell** (`N-AV15`, a persistent single-cell limit cycle at 100×100 while every other axis cell converges to 1e-09); **VMFL007's `Δp`**, which has a **floor and not a plateau**; and now **VMFL046's steady shock, where the discrete shock HUNTS BETWEEN CELLS** and holds L2/L3 at ~3e-04. Three instances is a doctrine, not three patches.
+
+> **A RESIDUAL FLOOR IS A PROXY FOR "THE ANSWER HAS STOPPED CHANGING." For a smooth steady solve it is a good proxy. FOR A SOLVE WHOSE DISCRETE STRUCTURE HUNTS — a shock oscillating between cells, a limiter-adjacent cell cycling — THE PROXY IS NOT MERELY TOO TIGHT, IT IS MEASURING THE WRONG THING: it measures the ITERATION'S OWN MOTION, not the ANSWER'S convergence.** The gate quantity can be perfectly settled while the residual bounces forever, and no amount of further iteration closes the gap.
+
+The correct convergence question for such a solve is therefore **on the gate quantity**: has the quantity the gate reads stopped changing, to within the precision the gate needs? **`§16.2` already fixes the construction** — a stated threshold on a stated window on a NAMED channel, with the threshold **justified from the gate tolerance and never from an observed floor.**
+
+### §20.2 THE RULING ON VMFL046 — and the three options are not equivalent
+
+**OPTION (a) — loosen the residual floor to ~1e-03 — IS REFUSED.** Having measured ~3e-04, a floor set at 1e-03 is a threshold chosen knowing it passes, whatever physics is recited alongside it. This is the **fourth** gate this session whose answer we already knew; the first three were declined and this one is no different.
+
+**OPTION (b) — a gate-quantity plateau criterion — IS PERMITTED, BUT ONLY IN ITS MECHANICAL FORM**, and the distinction is the whole ruling:
+
+> **The criterion is on the gate quantity, and its threshold is DERIVED FROM THE GATE TOLERANCE BY A STATED RULE FIXED IN ADVANCE — never from the observed 3e-04. The derivation is shown in the frozen bytes, and WHATEVER NUMBER FALLS OUT IS BINDING, INCLUDING IF IT FAILS.**
+
+**Why this is not the VMFL054 move I refused.** There I was asked to swap **which gate the answer must satisfy**, converting `GATE FAIL` to `GATE REACHED` directly. Here the **gate is untouched** — agreement with the analytical reference at its tolerance — and what changes is the **precondition that decides whether a level yields a measurement at all.** And decisively: **`§16.2` was committed at 22:11:11Z, on VMFL007 evidence, BEFORE VMFL046's smoke ran.** A registration adopting it is applying **standing doctrine adopted prospectively on a different case**, not inventing a criterion to fit its own answer.
+
+**The safeguard that makes it non-steerable:** the threshold falls out of the gate tolerance mechanically (iteration noise must not be able to move the verdict), so knowing the observed value confers no ability to steer. **I do not get to check whether the derived number clears 3e-04 before committing to the derivation.** If it does not clear, the case grades `NOT A RESULT` on those levels and that is the answer.
+
+**OPTION (c) — LTS / transient-to-steady — IS UNCONTAMINATED AND REMAINS AVAILABLE.** It moves no threshold at all; it changes the METHOD so the existing criterion is met. **Where a methodology change and a criterion change would both work, the methodology change is always the cleaner instrument**, because it cannot be steered by knowledge of the answer. It is the fallback if (b)'s derived threshold is not met.
+
+### §20.3 ⚠ THE PROCESS DEFECT UNDERNEATH ALL OF THIS, AND IT IS THE SUPERVISOR'S
+
+**Twice now a pre-freeze "smoke" has told this team the answer before the freeze** — VMFL054 (p = 3.438 and GCI 0.011 % seen pre-freeze) and VMFL046 (the L2/L3 plateau seen pre-freeze). Both times the result was a contaminated decision that had to be refused or narrowly constructed around.
+
+**These are not CLAUSE B smokes.** CLAUSE B specifies **ONE timestep, or one iteration, on the COARSEST mesh of the family** — a test that CANNOT reveal a plateau, an observed order or a GCI, because it produces no converged answer at any level. What this team has twice run instead is a **full pre-freeze production triple**, which by construction reveals exactly the quantities the freeze exists to protect.
+
+> **A SMOKE TEST THAT CAN REVEAL THE ANSWER IS NOT A SMOKE TEST. It is a pre-freeze production run, and it burns the freeze's evidentiary value before the freeze is written.** From now on a pre-freeze feasibility run of this team either (i) obeys CLAUSE B — one iteration, coarsest mesh — or (ii) is declared in the registration as a **PRE-FREEZE PRODUCTION RUN**, with every quantity it revealed named explicitly, so a reader can price which decisions were taken with the answer in hand. **Silence about a revealing smoke is the defect; the smoke itself is only sometimes one.**
+
+This is mine, not the lanes'. **Both lanes disclosed their smokes fully and refused to fit thresholds to them** — the failure was that the supervisor kept authorising full triples under a clause that permits one iteration.
+
+| amendment | v1.15 |
+|---|---|
+| clause added | **`§20`** (`§20.1`–`§20.3`) |
+| rulings made | VMFL046 option **(a) REFUSED**; **(b) PERMITTED in mechanical form only**; **(c) uncontaminated fallback** |
+| doctrine | steady-solve limit cycles: a residual floor is an INVALID PROXY where the discrete structure hunts |
+| process defect named | pre-freeze "smokes" that are production triples — **the supervisor's**, twice |
+| gates | **0** · bands | **0** · caps | **0** · re-grades | **0** · register bytes | **0** |
+| lines whose number changed above this section | **0** |
