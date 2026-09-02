@@ -1199,3 +1199,114 @@ supervisor's read as a diff; the comparator still does not exist. The lane stops
 here.
 
 *Amended 2026-09-01. **No solver has been launched for this rung.***
+
+---
+
+# ADDENDUM A3 — 2026-09-02. **§7's COMPARATOR PATH IS CORRECTED TO THE PATH THE COMPARATOR ACTUALLY OCCUPIED. NO GATE, THRESHOLD, CAP OR LABEL IS ALTERED, AND THE FILE DOES NOT MOVE.**
+
+**Version 1.2 → 1.3.**
+
+**`lines whose number changed above this section: 0`.** Appended at the foot.
+**This assertion is MACHINE-VERIFIED and not asserted from belief:** lines 1–1201
+of v1.2 were extracted from the committed blob at `HEAD` and diffed byte-for-byte
+against the same range of this file **inside the shell invocation that committed
+this addendum**, before the commit object was written. Every citation into v1.0,
+A1 or A2 by line number remains valid — including `:452`, `:453`, `:454`, `:455`,
+`:450`, `:671`, `:833-834` and `:662-663`, all of which are cited by
+`analyse_t23g2.py`, by `T23G2_RESULTS.md` and by the `verification` rulings.
+
+## ⚠ A3.0 THIS IS A POST-COMPUTE ADDENDUM AND IT ALTERS NOTHING THAT GRADES
+
+**T23G2 has run and has been graded. Its gates are closed** (`CLAUDE.md` rule 2).
+This addendum therefore does **exactly one thing**: it corrects a **statement of
+fact about a file path**.
+
+**Gates created, moved or retired: 0. Thresholds: 0. Bands: 0. Caps: 0. Labels:
+0.** No prediction is added, withdrawn or reworded. No quantity's role changes. No
+verdict is re-derived and nothing is re-graded. **`G-ORDER`'s band `[0.5, 1.5]`
+and its quantity `Q4` at `:833-834` are untouched by this addendum**, as they were
+untouched by `R7`.
+
+**Solver compute: 0 core-min. $0.00.** `cost_basis = NOT APPLICABLE — no compute
+is authorised or incurred by this addendum.`
+
+## A3.1 THE AUTHORITY, AND IT IS NOT THIS TEAM'S
+
+`VERIFICATION_CHARTER.md` **v1.41 §2d.9.2**, commit **`79bcfd83`**, 2026-09-02.
+
+`§2d.4.2` had forbidden relocating the comparator *"while T23G2 is ungraded."*
+That condition is now spent — `T23G2_RESULTS.md` reads `## RUNG VERDICT: NOT A
+RESULT` — and `verification` closed the question **the other way, and
+permanently**:
+
+> **RULED — PERMANENTLY, not conditionally: THE COMPARATOR DOES NOT MOVE. MOVING
+> IT WOULD NOT MAKE THE REGISTRATION TRUE — IT WOULD MAKE THE RECORD FALSE.** …
+> **A post-hoc relocation converts a DISCLOSED discrepancy into a CONCEALED one,
+> and produces a tree that lies about its own history.**
+
+> **REQUIRED, if heat-transfer wants it closed: a dated addendum correcting §7 to
+> state the ACTUAL path, altering no gate. You repair the record to match
+> reality, never reality to match the record.**
+
+**This addendum is that instrument, and nothing more.**
+
+## A3.2 THE CORRECTION — §7 AT `:662-663`
+
+**STRUCK, from §7's opening sentence at `:662-663`** — struck in this addendum
+and **not rewritten in place**, per `CLAUDE.md` rule 2:
+
+> ~~The comparator will be `verification/runs/T-family/T23G2_runs/analyse_t23g2.py`.~~
+
+**READS INSTEAD, and this is the correction:**
+
+> **The comparator is `docs/campaigns/T-family/analyse_t23g2.py`.**
+
+**Everything else in §7 stands unamended**, including the five behavioural
+requirements it registers (import `roache_triple` and never redefine `PLANT`,
+`FS` or the state names; delegate rule 4 to `mark_done_t23.py`; plant and read
+back on every reader; refuse (exit 2) rather than degrade; print the verdict block
+and record its own grading-path shas), the "**This registration authorises NO
+COMPUTE**" block, and the grading-path-fixed-at-commit paragraph at `:681-683`.
+**None of those is touched.**
+
+## ⚠ A3.3 WHY THE CORRECTION GOES TO THE TEXT AND NOT TO THE FILE — THE POINT OF THE WHOLE ADDENDUM
+
+**§7's own next words were `"It does not exist yet."`** `[MEASURED — the string
+is at `:663-664`.]`
+
+That is what settles it. **§7 was a statement of INTENT about a file nobody had
+written**, not a description of where the comparator lived while it graded. The
+comparator has never occupied
+`verification/runs/T-family/T23G2_runs/analyse_t23g2.py`; that path **does not
+exist on disk** `[MEASURED]`. Moving the file there now would leave the
+registration reading as though it described the grading-time location — **and it
+never did**. The registration would become a false description instead of an
+honest, unfulfilled intention.
+
+**So the demonstrable error is in this document's text, and it is repaired here.
+The file stays where it graded.** *You repair the record to match reality, never
+reality to match the record.*
+
+## ⚠ A3.4 WHAT THIS ADDENDUM DOES **NOT** FIX, SAID SO IT IS NOT ASSUMED
+
+**`scripts/check_comparator_freeze.py` still returns ZERO rows for T23G2, and
+this addendum does not change that** `[MEASURED — `POPULATION_ROOTS =
+("verification", "cases")` at `:131`, walked by `walk_population` at `:411`;
+`docs/` is never walked].`
+
+Before `§2d.9.2`, that blindness had two conceivable fixes: move the file into the
+walked population, or widen the walk. **The relocation is now permanently closed,
+so exactly one fix remains — the checker's walk roots — and
+`check_comparator_freeze.py` is a cross-team enforcement instrument that is not
+`heat-transfer`'s to change.** The docket item carries it, owned by
+`verification`. **T23G2's comparator therefore has no freeze coverage from that
+instrument, and this document does not pretend otherwise.**
+
+What T23G2 has instead, and it is weaker and is labelled as weaker: the `R2`
+grading-path sha recorder prints the working-tree blob and the frozen blob side by
+side on the artifact's face at every run (`T23G2_GRADE.out:6-24`,
+`T23G2_GRADE_POST_R7.out:6-24`). **It DISCLOSES divergence; nothing ENFORCES it.**
+
+*Addendum written 2026-09-02 by a `heat-transfer` lane, under
+`VERIFICATION_CHARTER.md` v1.41 §2d.9.2 (`79bcfd83`). **No solver was launched.
+No gate, threshold, cap or label was altered. No file was moved.***
