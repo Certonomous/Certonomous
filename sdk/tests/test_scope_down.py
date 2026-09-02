@@ -45,13 +45,40 @@ class TheMismatchIsDetected(unittest.TestCase):
         is not already an optimisation through the plain single-body study --
         which is how "Airfoil blown slot" became an unblown 3D baseline.
 
-        If routing ever improves, this fails loudly rather than leaving the
-        scope-down above testing nothing.
+        AMENDED 2026-09-02: the tripwire this docstring promised ("if routing
+        ever improves, this fails loudly") FIRED, exactly as written. The
+        jet-flap demo act registered its route, and the bare "Airfoil blown
+        slot" prompt now classifies to jet-flap-display (measured 0.74) --
+        the one route scope.CAPABILITIES declares able to BLOW -- so that
+        prompt moved to its own test below, which pins the improvement. The
+        sweep-phrased prompt here still lands on the generic study (measured
+        0.99) with the blowing ask unmet, so the mismatch stays reachable and
+        the scope-down tests above still test something. Regression controls
+        measured unmoved at the amendment: DMR 0.99, adjoint 0.90, motor
+        0.91, battery 0.99 on their registered prompts.
         """
-        for prompt in (_BLOWING_PROMPT, "Airfoil blown slot"):
-            route = apply_surface(classify(prompt), "airfoil.stl")
-            self.assertEqual(route.intent, GEOMETRY_STUDY, prompt)
-            self.assertTrue(scope.unmet_asks(prompt, route.intent), prompt)
+        route = apply_surface(classify(_BLOWING_PROMPT), "airfoil.stl")
+        self.assertEqual(route.intent, GEOMETRY_STUDY, _BLOWING_PROMPT)
+        self.assertTrue(scope.unmet_asks(_BLOWING_PROMPT, route.intent),
+                        _BLOWING_PROMPT)
+
+    def test_the_bare_blown_slot_prompt_routes_to_the_act_that_blows(self):
+        """The other half of the fired tripwire, pinned in the new direction.
+
+        "Airfoil blown slot" is the exact prompt that once became an unblown
+        3D baseline on camera. It now routes to the jet-flap act, whose
+        capability declaration (scope.CAPABILITIES[JET_FLAP_DISPLAY] carries
+        BLOWING -- an explicit promise, not the undeclared-run vacuous case)
+        means the blowing ask is MET there: unmet_asks must be empty. If
+        routing ever regresses this prompt back to the generic study, this
+        fails loudly, symmetric to the amended test above.
+        """
+        from chief_engineer.router import JET_FLAP_DISPLAY
+
+        prompt = "Airfoil blown slot"
+        route = apply_surface(classify(prompt), "airfoil.stl")
+        self.assertEqual(route.intent, JET_FLAP_DISPLAY, prompt)
+        self.assertEqual(scope.unmet_asks(prompt, route.intent), (), prompt)
 
     def test_several_unmet_asks_are_all_reported(self):
         unmet = scope.unmet_asks(
