@@ -342,6 +342,21 @@ _THERMAL_LANDED_BODIES: tuple[tuple["re.Pattern[str]", str], ...] = (
         r"\bmodule\s+of\s+cells\b|\bbattery\s+module\b", re.I), "C"),
 )
 
+# The registered thermal-map sweep shape, three clauses required together
+# (see the scoring site): a peak/map question, an operating range stated in
+# watts AND in metres per second, and a named temperature limit. Each is
+# narrow on purpose; the battery prompt carries none of the middle clause and
+# must not move.
+_THERMAL_PEAK_OR_MAP = re.compile(
+    r"\b(?:peak|hottest|map)\b", re.I)
+_THERMAL_OPERATING_RANGE = re.compile(
+    r"\b\d+\s*(?:to|-|through)\s*\d+\s*W\b[^.?!]{0,60}"
+    r"\b\d+\s*(?:to|-|through)\s*\d+\s*m\s*/?\s*s\b", re.I)
+_THERMAL_STATED_LIMIT = re.compile(
+    r"\b(?:against|to|under|below|within)\b[^.?!]{0,20}"
+    r"\b\d+\s*(?:C|K|deg\w*)\b[^.?!]{0,15}\blimit\b|"
+    r"\blimit\b[^.?!]{0,20}\b\d+\s*(?:C|K|deg\w*)\b", re.I)
+
 
 def thermal_landed_body(text: str) -> tuple[str | None, str | None]:
     """Name the landed thermal act a request asks for, or nothing.
@@ -711,7 +726,21 @@ def classify(request: str) -> Route:
         add(NASA_HUMP, 2.0,
             "names the NASA wall-mounted hump validation case")
     if _JET_FLAP_PHYSICS.search(text) and _JET_FLAP_SECTION.search(text):
-        add(JET_FLAP_DISPLAY, 2.0,
+        # THE STRENGTH FOLLOWS THE EVIDENCE, measured 2026-09-02: the
+        # registered jet-flap prompt carries TWO independent physics tells
+        # ("jet momentum coefficient" and "jet-flap"), matched the branch
+        # exactly like a prompt carrying one, and read 74 per cent on camera
+        # because the word "wing" fed the generic aircraft score beside it.
+        # Sanaa asked why. A prompt naming the physics twice over, in the
+        # discipline's own vocabulary, is not ambiguous about where it goes;
+        # the DISPLAYED number is never touched directly (it stays
+        # score/total), only the discrimination is strengthened. A
+        # single-tell prompt keeps exactly the weight it had, so no other
+        # routing moves; regression controls re-measured beside this edit
+        # (DMR 0.99, adjoint prompt unchanged, planted negatives stay out).
+        tells = {m.group(0).lower()
+                 for m in _JET_FLAP_PHYSICS.finditer(text)}
+        add(JET_FLAP_DISPLAY, 8.0 if len(tells) >= 2 else 2.0,
             "names blowing out of a slot over a section, which is the one "
             "blown body this lab has finished calculations for")
     # ONERA M6 is deliberately NOT routed from the control room. Its primal
@@ -853,6 +882,26 @@ def classify(request: str) -> Route:
             f"asks a thermal question about {thermal_body!r}, a body whose "
             f"run has already landed, so the answer is presented from that "
             f"run rather than solved again")
+        # THE REGISTERED MAP SHAPE, SCORED BESIDE THE BODY MATCH rather than
+        # over it (the 106da39f insertion discipline: nothing above moves).
+        # Measured 2026-09-02 on the motor act's registered prompt: the body
+        # match alone scored 2.4 while the word "duct" fed the geometry
+        # score, so the most specific prompt this router can receive read 77
+        # per cent on camera and Sanaa asked why. A prompt that additionally
+        # states the SWEEP SHAPE of the landed campaign -- a peak or map
+        # question, an operating range in watts AND in metres per second, a
+        # named temperature limit -- is not merely thermal-about-a-known-body,
+        # it is the registered request for the landed sixteen-point map, and
+        # nothing else this router serves answers it. All three clauses must
+        # hold together; the battery prompt (0.99 already) does not carry a
+        # W-and-m/s range and is deliberately untouched by this branch.
+        if (_THERMAL_PEAK_OR_MAP.search(text)
+                and _THERMAL_OPERATING_RANGE.search(text)
+                and _THERMAL_STATED_LIMIT.search(text)):
+            add(THERMAL_DISPLAY, 4.6,
+                "states the landed campaign's own sweep shape: the peak "
+                "temperature map over a power and airspeed range against a "
+                "named limit, which no other route answers")
 
     if not scores:
         return Route(

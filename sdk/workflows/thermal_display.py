@@ -110,7 +110,8 @@ SCREEN_SETS: dict[str, dict] = {
              "Radial temperature profile through the hottest solid cell",
              LANDED),
             ("actA_monitor_replay",
-             "Each run's own temperature monitor, replayed", LANDED),
+             "Each run's own temperature monitor, as the run wrote it",
+             LANDED),
             ("actA_assumption_beat",
              "The hand model against the coupled solve", LANDED),
         ),
@@ -712,7 +713,8 @@ def _present(script, emit, roster, out: Path,
     if anchors:
         headers, arows = anchors
         _emit_table(emit, script, role=_CE_ROLE,
-                    title="Anchor checks: the same value, worked out twice",
+                    title=("Anchor checks, housing temperature reader: "
+                           "the same value, worked out twice"),
                     headers=headers, rows=arows,
                     table_id=f"anchor-thermal-{key}")
 
@@ -773,8 +775,19 @@ def _quantities(bundle: dict) -> list[dict]:
     return list(bundle.get("quantity_rows") or [])
 
 
-def main(request: str | None = None, params: dict | None = None,
-         emit=None) -> int:
+def legacy_main(request: str | None = None, params: dict | None = None,
+                emit=None) -> int:
+    """FENCED 2026-09-02. The pre-DEMO-MODE screen presenter, kept for the
+    record and REACHABLE FROM NOWHERE: ``main`` below dispatches both landed
+    thermal bodies to their DEMO MODE acts, so no routed prompt can arrive
+    here. Sanaa filmed this path on 2026-09-02 (~04:50Z) and named its
+    narration for removal from every screen: "SOLVER / NONE ON THIS
+    REQUEST", "no solver starts", "the uploaded file is neither meshed nor
+    solved", the NOT-AVAILABLE table. Those sentences were honest about what
+    THIS path did and are the reason it no longer answers a prompt: the acts
+    mesh live in scratch, walk the stored solve, and state their solver.
+    Deleting the body outright would erase the record of what the screens
+    used to say; fencing it keeps the history and closes the route."""
     params = dict(params or {})
     out = OUT_ROOT / BEAT
     out.mkdir(parents=True, exist_ok=True)
@@ -877,16 +890,27 @@ def main(request: str | None = None, params: dict | None = None,
     knowledge.add(f"Thermal screens presented for {spec['title']} from "
                   f"{bundle.get('source_case', 'the landed case')}")
 
+    # PER-BODY, NOT SHARED. Sanaa flagged the coolant entry rendering on the
+    # MOTOR screens three times: that sentence describes the OLD battery
+    # feasibility configuration (film-coefficient channels), while the motor
+    # run has a meshed fluid region and always did. A shared list quietly
+    # cross-labelled the two bodies; each now carries only its own agenda.
+    # (This whole path is fenced -- ``legacy_main`` is reachable from nowhere
+    # -- and the entry is corrected so the retained record stops repeating
+    # the cross-case claim.)
     agenda = [
         {"title": "A second mesh for this body",
          "scope": "one refinement level would turn the uncertainty column "
                   "from a statement into a measured band",
          "cost": "one further solve at the finer level"},
-        {"title": "Resolve the coolant as a fluid region",
-         "scope": "the channels carry a convective coefficient rather than a "
-                  "coupled stream, which is why no outlet temperature exists",
-         "cost": "a conjugate case with a meshed fluid region"},
     ]
+    if key == "C":
+        agenda.append(
+            {"title": "Resolve the coolant as a fluid region",
+             "scope": "in the landed feasibility case the channels carry a "
+                      "convective coefficient rather than a coupled stream, "
+                      "which is why no outlet temperature exists there",
+             "cost": "a conjugate case with a meshed fluid region"})
     if emit:
         emit("agenda.updated", {"entries": agenda})
         emit("report.ready", lab_report(
@@ -930,3 +954,42 @@ if __name__ == "__main__":
     if "--act" in sys.argv:
         act = sys.argv[sys.argv.index("--act") + 1]
     raise SystemExit(main(params={"thermal_screens": act}))
+
+
+# ---------------------------------------------------------------------------
+# THE DISPATCHED ENTRY POINT. The router sends intent ``thermal-display``
+# here with ``params["thermal_screens"]`` naming the landed body ("A" the
+# motor in its duct, "C" the battery module); each is now a full DEMO MODE
+# act, so this module routes and no longer presents. ``make_act_entry`` holds
+# the whole delegation (emit passthrough, transcript, typed-prompt echo,
+# no-catch policy on refusals) exactly as ``jet_flap_display`` adopted it.
+#
+# WHY THE FORK LIVES HERE AND NOT IN THE ROUTER: server.py and router.py keep
+# their pre-DEMO-MODE dispatch (intent -> this module) byte-untouched for
+# every other team, and the body key is already resolved into params by the
+# router's own ``thermal_landed_body``. A key naming neither landed body is a
+# refusal, never a fall-through to the fenced presenter above: Sanaa's
+# 2026-09-02 ~04:50Z order is that no prompt may reach the old scaffold and
+# no act may say "no solver selected".
+# ---------------------------------------------------------------------------
+from .demo_sequencer import SequencerRefused, make_act_entry  # noqa: E402
+
+_MOTOR_ENTRY = make_act_entry("motor-thermal",
+                              act_module="workflows.motor_thermal_act",
+                              label="motor in duct thermal map")
+_BATTERY_ENTRY = make_act_entry("battery-module",
+                                act_module="workflows.battery_module_act",
+                                label="battery module thermal pulse")
+
+
+def main(request: str | None = None, params: dict | None = None,
+         emit=None) -> int:
+    key = str((params or {}).get("thermal_screens") or "").upper()
+    if key == "A":
+        return _MOTOR_ENTRY(request=request, params=params, emit=emit)
+    if key == "C":
+        return _BATTERY_ENTRY(request=request, params=params, emit=emit)
+    raise SequencerRefused(
+        "this thermal request names no body whose run has landed, so there "
+        "is no act to show; nothing is put on screen rather than the wrong "
+        "body being shown")
