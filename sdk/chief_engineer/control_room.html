@@ -2089,6 +2089,7 @@ function gsweepPin(p) {
   if (!g || !fin || typeof fin !== 'object') return;
   const xEnd = +p.iteration;
   g.panels.forEach((pn, pi) => {
+    if (pn.shared) return;  // shared-axis lines end on their own last frame
     const pinned = pn.series.filter(sn => fin[sn] !== undefined && isFinite(+fin[sn]));
     if (!pinned.length) return;
     g.cells[pi].forEach(cell => {
@@ -2212,10 +2213,27 @@ function gsweepReset(p) {
       title: String(pn.title || ''), x_label: String(pn.x_label || ''),
       y_label: String(pn.y_label || ''),
       series: (pn.series || []).map(String), note: String(pn.note || ''),
+      // SANAA'S 1800Z SHARED-AXIS DECLARATION (generic: any act declaring
+      // this shape gets it; acts that do not keep the per-panel path
+      // byte-identical). One axes per panel; one LINE per frame label,
+      // its value taken from the frame's monitors dict at `value_key`;
+      // colour by legend group, shade by position within the group; the
+      // group-colour legend only; a tag at each line's right endpoint;
+      // an endpoint dot whose text follows the declared pattern.
+      shared: String(pn.chart || '') === 'shared-axes',
+      value_key: String(pn.value_key || ''),
+      y_range: (Array.isArray(pn.y_range) && pn.y_range.length === 2)
+        ? [Number(pn.y_range[0]), Number(pn.y_range[1])] : null,
+      legend_groups: pn.legend_groups || null,
+      line_end_tags: pn.line_end_tags || null,
+      endpoint_text: String(pn.endpoint_text || ''),
     })),
     labels: labels.length ? labels : [''],
     cells: p.monitor_panels.map(() =>
       (labels.length ? labels : ['']).map(() => ({ x: [], ys: {}, front: null }))),
+    // Shared-axis panels file by LINE (the frame's label), not by column:
+    // one map per panel, label -> {x:[], y:[]}.
+    lines: p.monitor_panels.map(() => ({})),
     dirty: false, tick: null,
   };
   setHidden('sweepBox', false);
@@ -2234,6 +2252,17 @@ function gsweepFrame(p) {
   let col = g.labels.indexOf(String(p.label)); if (col < 0) col = 0;
   const mon = p.monitors || {};
   g.panels.forEach((pn, pi) => {
+    if (pn.shared) {
+      // One line per frame label; the declared value_key picks the
+      // quantity out of the unchanged frames.
+      const v = mon[pn.value_key];
+      if (v !== undefined && isFinite(+v)) {
+        const line = (g.lines[pi][String(p.label)] =
+          g.lines[pi][String(p.label)] || { x: [], y: [] });
+        line.x.push(+p.iteration); line.y.push(+v);
+      }
+      return;
+    }
     const cell = g.cells[pi][col];
     const named = pn.series.filter(sn => mon[sn] !== undefined);
     if (named.length) {
@@ -2250,6 +2279,122 @@ function gsweepFrame(p) {
   });
   gsweepMark();
 }
+// SANAA'S 1800Z SHARED-AXIS CHART, drawn from the act's declaration alone
+// (her spec: one axes, X iteration, Y the declared fixed range; one line per
+// operating point, coloured by power group and shaded by airspeed within it;
+// the four group colours as the only legend; a small m/s tag at each line's
+// right endpoint, DODGED so tags never overlap -- tags move, data never; an
+// endpoint dot, with the declared "<power> W · <speed> m/s · <T> C" text on
+// the panel's hottest line, which is the number her example names; no
+// per-panel titles). Generic: any act declaring chart "shared-axes" gets
+// this; every other act keeps the per-panel path untouched.
+function drawSharedPanel(ctx, g, pn, pi, geo) {
+  const { W, ML, MT, MB, RGAP, cellH, P, COLORS } = geo;
+  const y0 = MT + pi * (cellH + RGAP);
+  const TAG_W = 150;                        // right gutter: tags + endpoint text
+  const x0 = ML, x1 = W - 8 - TAG_W;
+  ctx.strokeStyle = 'rgba(140,170,200,.28)'; ctx.lineWidth = 1;
+  ctx.strokeRect(x0, y0, x1 - x0, cellH);
+  const lines = g.lines[pi] || {};
+  const names = Object.keys(lines);
+  const yr = pn.y_range || [0, 1];
+  const lo = yr[0], hi = yr[1];
+  const fmt = v => Math.abs(v) >= 100 ? v.toFixed(0) : +v.toPrecision(3);
+  ctx.font = '9px ui-monospace,monospace';
+  ctx.textAlign = 'right'; ctx.fillStyle = 'rgba(190,210,230,.7)';
+  ctx.fillText(String(fmt(hi)), ML - 5, y0 + 7);
+  ctx.fillText(String(fmt(lo)), ML - 5, y0 + cellH);
+  // Colour by legend group, shade by position within the group (her
+  // airspeed shading); both read from the declaration, never guessed.
+  const groups = pn.legend_groups ? Object.keys(pn.legend_groups) : [];
+  const colourOf = {}, shadeOf = {}, groupOf = {};
+  groups.forEach((gname, gi) => {
+    const members = pn.legend_groups[gname] || [];
+    members.forEach((lname, li) => {
+      colourOf[lname] = COLORS[gi % COLORS.length];
+      shadeOf[lname] = members.length > 1
+        ? 0.45 + 0.55 * (li / (members.length - 1)) : 1;
+      groupOf[lname] = gname;
+    });
+  });
+  let xMax = 1;
+  for (const nm of names) {
+    const lx = lines[nm].x;
+    if (lx.length) xMax = Math.max(xMax, lx[lx.length - 1]);
+  }
+  const px = v => x0 + (xMax ? v / xMax : 0) * (x1 - x0);
+  const py = v => y0 + cellH - ((v - lo) / ((hi - lo) || 1)) * cellH;
+  const ends = [];
+  for (const nm of names) {
+    const L = lines[nm];
+    if (!L.x.length) continue;
+    ctx.strokeStyle = colourOf[nm] || COLORS[0];
+    ctx.globalAlpha = shadeOf[nm] != null ? shadeOf[nm] : 1;
+    ctx.lineWidth = 1.3; ctx.beginPath();
+    for (let k = 0; k < L.x.length; k++) {
+      const X = px(L.x[k]), Y = py(L.y[k]);
+      k ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y);
+    }
+    ctx.stroke(); ctx.globalAlpha = 1;
+    const ex = px(L.x[L.x.length - 1]), v = L.y[L.y.length - 1];
+    const ey = py(v);
+    ctx.fillStyle = colourOf[nm] || COLORS[0];
+    ctx.beginPath(); ctx.arc(ex, ey, 2, 0, 6.2832); ctx.fill();
+    ends.push({ nm, ey, v });
+  }
+  // Line-end tags, dodged to a minimum vertical spacing. THE TAGS MOVE,
+  // THE DATA NEVER DOES: the dots and lines above are already drawn.
+  const MINSP = 10;
+  const tags = ends
+    .map(e => ({ ...e, tag: (pn.line_end_tags || {})[e.nm], ty: e.ey }))
+    .filter(e => e.tag != null && e.tag !== '')
+    .sort((a, b) => a.ty - b.ty);
+  // Capacity-aware: when the row cannot hold every tag at MINSP the spacing
+  // shrinks uniformly instead of clamping tags onto one another (a clamp
+  // after an overflow shift collapsed neighbours to identical y, measured
+  // 0 px apart on the 16-line replay).
+  const top = y0 + 6, bot = y0 + cellH;
+  const sp = tags.length > 1
+    ? Math.min(MINSP, (bot - top) / (tags.length - 1)) : 0;
+  for (let i = 1; i < tags.length; i++)
+    tags[i].ty = Math.max(tags[i].ty, tags[i - 1].ty + sp);
+  const over = tags.length ? tags[tags.length - 1].ty - bot : 0;
+  if (over > 0) for (const t of tags) t.ty -= over;
+  if (tags.length && tags[0].ty < top) tags[0].ty = top;
+  for (let i = 1; i < tags.length; i++)
+    tags[i].ty = Math.max(tags[i].ty, tags[i - 1].ty + sp);
+  // The endpoint text renders on the panel's hottest line only (her example
+  // names the map peak); every other line keeps its bare m/s tag.
+  const hottest = ends.length
+    ? ends.reduce((a, b) => (b.v > a.v ? b : a)) : null;
+  ctx.textAlign = 'left';
+  for (const t of tags) {
+    ctx.fillStyle = colourOf[t.nm] || 'rgba(190,210,230,.8)';
+    let text = t.tag;
+    if (hottest && t.nm === hottest.nm && pn.endpoint_text) {
+      const gname = groupOf[t.nm] || '';
+      text = pn.endpoint_text
+        .split('<power>').join(gname.replace(/\s*W$/, ''))
+        .split('<speed>').join(t.tag)
+        .split('<T>').join((+t.v).toFixed(1));
+    }
+    fillTextSub(ctx, text, x1 + 5, t.ty + 3);
+  }
+  // The four group colours are the whole legend, in the row's key slot.
+  let kx = ML;
+  const ky = y0 + cellH + (pi === P - 1 ? MB - 3 : RGAP - 7);
+  groups.forEach((gname, gi) => {
+    ctx.fillStyle = COLORS[gi % COLORS.length];
+    fillTextSub(ctx, gname, kx, ky);
+    kx += ctx.measureText(gname).width + 16;
+  });
+  if (pn.x_label) {
+    ctx.fillStyle = 'rgba(160,185,210,.7)'; ctx.textAlign = 'right';
+    fillTextSub(ctx, pn.x_label, W - 8, ky);
+    ctx.textAlign = 'left';
+  }
+}
+
 function drawGSweep() {
   const g = state.gsweep, cv = $('sweep'); if (!g || !cv) return;
   const dpr = window.devicePixelRatio || 1, W = cv.clientWidth, H = cv.clientHeight;
@@ -2260,14 +2405,21 @@ function drawGSweep() {
   const ML = 46, MR = 8, MT = 16, MB = 14, GAP = 12, RGAP = 26;
   const cellW = (W - ML - MR - GAP * (n - 1)) / n;
   const cellH = (H - MT - MB - RGAP * (P - 1)) / P;
-  if (cellW <= 4 || cellH <= 4) return;
+  // A shared-axis act has no columns, so sixteen labels must not shrink
+  // cellW below the guard and blank the whole strip.
+  if ((cellW <= 4 && !g.panels.every(pn => pn.shared)) || cellH <= 4) return;
   const COLORS = ['rgba(120,200,255,.95)', 'rgba(255,180,110,.9)',
                   'rgba(150,235,170,.9)', 'rgba(230,150,235,.9)'];
   ctx.font = '9px ui-monospace,monospace';
-  // Column titles: the act's own point labels, once, across the top.
-  ctx.fillStyle = 'rgba(210,228,245,.9)'; ctx.textAlign = 'left';
-  for (let c = 0; c < n; c++) {
-    fillTextSub(ctx, g.labels[c], ML + c * (cellW + GAP), MT - 5);
+  // Column titles: the act's own point labels, once, across the top --
+  // UNLESS every panel is a shared-axis chart, whose sixteen labels are not
+  // columns and whose layout carries no per-panel titles (Sanaa 1800Z:
+  // "This layout cannot overprint: no per-panel titles exist").
+  if (!g.panels.every(pn => pn.shared)) {
+    ctx.fillStyle = 'rgba(210,228,245,.9)'; ctx.textAlign = 'left';
+    for (let c = 0; c < n; c++) {
+      fillTextSub(ctx, g.labels[c], ML + c * (cellW + GAP), MT - 5);
+    }
   }
   g.panels.forEach((pn, pi) => {
     const y0 = MT + pi * (cellH + RGAP);
@@ -2275,6 +2427,10 @@ function drawGSweep() {
     ctx.save(); ctx.translate(11, y0 + cellH / 2); ctx.rotate(-Math.PI / 2);
     ctx.fillStyle = 'rgba(190,210,230,.75)'; ctx.textAlign = 'center';
     fillTextSub(ctx, pn.y_label || pn.title, 0, 0); ctx.restore();
+    if (pn.shared) {
+      drawSharedPanel(ctx, g, pn, pi, { W, ML, MT, MB, RGAP, cellH, P, COLORS });
+      return;
+    }
     // Row scales, shared across columns.
     const cells = g.cells[pi];
     const isFront = cells.some(c => c.front);
