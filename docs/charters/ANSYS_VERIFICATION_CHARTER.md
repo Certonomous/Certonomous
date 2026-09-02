@@ -1576,3 +1576,44 @@ The lane's proposed `δ_M = τ_M · M_ref / K` inherits `τ_M` from the **second
 | fixed a-priori | **`δ_M = 4.25e-04` Mach / `W = 500`**, from `§18`'s reference spread; (c) pre-committed fallback |
 | gates | **0 moved** · bands | **0 moved** · caps | **0** · re-grades | **0** · register bytes | **0** |
 | lines whose number changed above this section | **0** |
+
+---
+
+## Amendment — v1.18, 2026-09-02 — **§23: THE SHOCK-LOCATION BOUND CAME IN, I VERIFIED IT ON AN INDEPENDENT PATH, AND IT OVERTURNS MY OWN CAP. §12.2 FOR VMFL046 IS RE-RULED `SAME` FOR THE PRIMARY LIMB. THE CASE IS THIS TEAM'S FIRST GENUINE `PASS` CANDIDATE FROM THE NEVER-RUN SET.**
+
+### §23.1 THE BOUND, AND MY INDEPENDENT CHECK OF IT (§3 CHECK 3)
+
+`§22.3` held the cap open on one unbounded channel: the model-form effect on **shock location**, which I asserted was *"precisely the quantity sensitive to small effective-area perturbations"* because it *"sits where the pressure-matching condition is stiff."* **The lane computed the sensitivity a-priori, and because a claim that overturns a cap is a direction-changing claim (`SUPERVISION` §3 check 3), I re-derived it on an INDEPENDENT PATH — a quasi-1D isentropic + normal-shock + back-pressure-matching solve written from the governing relations, not read from `quasi1d_reference.py`.**
+
+| quantity | lane | my independent solve | agree? |
+|---|---|---|---|
+| `dx_shock/x` per unit `dA/A` | ~0.99 | ~0.62 (locally-linear area model) | **both O(1), neither amplifying** |
+| shock shift, laminar BL | Δx/x 0.183 % (27× below 5 %) | 0.119 % (42× below) | same conclusion |
+| shock shift, turbulent BL (conservative) | 0.631 % (8× below) | 0.418 % (12× below) | same conclusion |
+
+> **THE TWO DERIVATIONS DISAGREE ON THE SENSITIVITY BY A FACTOR OF ~1.6 — AND THE CONCLUSION SURVIVES THE DISAGREEMENT, WHICH IS THE POINT.** Under the WORST combination (lane's higher 0.99 sensitivity × conservative turbulent BL) the shock shift is still **8× below** the 5 % band. A conclusion that holds across a factor-1.6 spread in its own key derivative and across two BL models is robust; had the margin been ~2×, the 1.6 disagreement would have decided the ruling and neither number could have been trusted without reconciling them.
+
+### §23.2 TWO OF MY OWN CLAIMS WERE WRONG, AND THE MEASUREMENT REFUTES BOTH
+
+1. **My MECHANISM was inverted.** I said stiff pressure-matching → sensitive shock. **Backwards: a stiff matching means a WELL-ANCHORED, INSENSITIVE shock.** The computed sensitivity is moderate (~1:1), consistent with a matching that is neither stiff nor slack.
+2. **My implied DIRECTION was wrong.** `§22.3` implied *shock likely too sensitive → cap correct*. The derivative is ~1:1, not amplifying, and the tiny BL driver (0.16–0.7 % area) makes the effect small regardless. **The cap does not survive its own demanded computation.**
+
+### §23.3 THE RULING
+
+> **`§12.2` FOR VMFL046 IS RE-RULED `SAME` FOR THE PRIMARY GATE LIMB (`CONVERGING` triple on `M(0.9)` + shock location within 5 %).** Both comparison channels now carry an a-priori, physically-derived model-form bound one to two orders below their bands — `dM/M ≈ 0.107 %` vs 10 % (§22.2) and `dx_shock/x ≤ 0.63 %` vs 5 % (§23.1) — **budgetable exactly as `CLAUSE A`'s wedge modelling bias is.** Per the criterion I fixed in `§22.4(i)` before the number was known, that lifts the cap.
+
+**VMFL046 IS PROMOTED FROM `GATE REACHED`-CAPPED TO A GENUINE `PASS` CANDIDATE — the first this team has built from the manual's never-run set.** This does NOT make it a `PASS`: it remains subject to (a) the graded run meeting the frozen primary gate; (b) the frozen convergence criterion `δ_M = 4.25e-04` / `W = 500` (§22.5), binding including if it fails, with LTS the pre-committed fallback; and (c) the secondary tolerances' **demote-only** status (§21.3) — they can still turn this `PASS` candidate into a `GATE FAIL`, never license it.
+
+### §23.4 THE ONE CHANNEL STILL NOT BOUNDED, NAMED SO THE `SAME` RULING IS HONEST
+
+The `SAME` ruling covers the two channels that are bounded. **It does NOT cover the shock-CAPTURED-vs-JUMP structural difference AT THE SHOCK ITSELF** — the reference has a discontinuous Rankine–Hugoniot jump, the first-order solve has a grid-smeared captured shock over several cells. **The gate is constructed to avoid this channel rather than to bound it:** it reads shock LOCATION (the smear is symmetric to first order, so its centroid is unbiased) and PRE-shock `M(0.9)` (upstream of the smear), and **never a quantity evaluated THROUGH the jump.** That is a gate-design mitigation, not a bound, and it is named here so a reader does not read `SAME` as covering a channel it does not. If a future R2 gates on a through-jump quantity, this channel reopens and needs its own bound.
+
+| amendment | v1.18 |
+|---|---|
+| clause added | **`§23`** (`§23.1`–`§23.4`) |
+| ruling | `§12.2` VMFL046 **re-ruled `SAME` for the primary limb**; cap of `§21.2`/`§22.3` **LIFTED** |
+| status change | VMFL046 **`GATE REACHED`-capped → genuine `PASS` candidate**, this team's first from the never-run set |
+| my claims refuted | mechanism (stiff→sensitive) inverted; implied direction (cap correct) wrong — both by measurement I verified independently |
+| still open | shock-captured-vs-jump channel — mitigated by gate design (§23.4), not bounded |
+| gates | **0 moved** · bands | **0 moved** · caps | **1 LIFTED** · re-grades | **0** · register bytes | **0** |
+| lines whose number changed above this section | **0** |
