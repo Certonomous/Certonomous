@@ -1049,8 +1049,12 @@ def _limb_convergence(events, refusal, act) -> list[str]:
     said = declined = False
     for event in events:
         for _key, text, _zone in LP._rendered_strings(event):
+            # "grid independence study" joined the naming forms with Sanaa's
+            # 1620Z replacement sentence ("grid independence study in your
+            # inbox, ETA: 11 min"): same study, her newest words for it.
             names_study = _re.search(
-                r"convergence\s+stud(y|ies)|grid\s+convergence", text,
+                r"convergence\s+stud(y|ies)|grid\s+convergence"
+                r"|grid\s+independence\s+stud(y|ies)", text,
                 flags=_re.I)
             if names_study and \
                _re.search(r"\b(inbox|your box|in your|comes? to you|sent to "
@@ -1571,7 +1575,8 @@ def _rewrite_convergence_strings(node, replacement):
 
     if isinstance(node, str):
         return (replacement if _re.search(
-            r"convergence\s+stud|grid\s+convergence", node, flags=_re.I)
+            r"convergence\s+stud|grid\s+convergence"
+            r"|grid\s+independence\s+stud", node, flags=_re.I)
             else node)
     if isinstance(node, list):
         return [_rewrite_convergence_strings(x, replacement) for x in node]
