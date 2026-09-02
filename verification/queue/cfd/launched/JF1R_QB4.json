@@ -1,0 +1,51 @@
+{
+  "team": "cfd",
+  "case_id": "JF1R_QB4",
+  "prereg_commit": "4778bf75572dffc3dcd8779433ea5b585c5c390b",
+  "prereg_path": "verification/campaign/JF1R_QB4_QUIET_BOX_RERUN_NOTE.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/JF1_JET_FLAP/run_jf1r_qb4.sh",
+    "--prereg-commit=4778bf75572dffc3dcd8779433ea5b585c5c390b"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/JF1_JET_FLAP",
+  "ranks": 12,
+  "cost_core_min_estimate": 170.0,
+  "cost_basis": "derived, not measured: the landed serial JF1 L1 sweep MEASURED 1305-1512 wall s per case at 1 rank on a shared box (verification/runs/JF1_jet_flap/JF1_L1_*/RUN_STATUS.*.txt, 2026-08-31, sum 117.5 core-min); assuming 4-rank parallel efficiency 0.55-0.85 on the same 39,984-cell 2-D case gives 27-43 core-min per case, 135-215 core-min for five, point estimate 170 including meshing and decomposition overhead. CAP 400 core-min, STRUCTURAL: per-case timeout 1200 s x 4 ranks x 5 cases = 400; the cap is never raised (rule 12). Dollars at the owner-stated $0.0513/core-h, reported-by-owner, the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5): $0.15 estimate, $0.34 at cap.",
+  "memory_floor_gb": 4.0,
+  "enqueued_by": "JF1 demo lane, 2026-09-02T03:11:40Z, on Sanaa's DIRECT 2026-09-02 ~02:32Z demo order item 6, verbatim in etc/sessions/2026-09-02T0232Z_sanaa_demo_script_orders.md ('The quiet-box parallel rerun proceeds in the background; when its log lands, screens silently update to its numbers'), dispatched through the chief's demo-wave orders naming the queue-daemon path. ENQUEUEING IS NOT AUTHORISATION of anything beyond her order: no gate, no verdict; SUPERVISION_CHARTER.md section 3 check 4 has a committed registration to point at (note frozen at the prereg_commit above, cost registered before compute).",
+  "_schema_note": "Fields above are the required set (scripts/queue_entry_check.py REQUIRED_FIELDS). Fields below are annotations the validator ignores.",
+  "label": "feasibility / timing rerun -- NO GATE, no verdict of the fixed vocabulary attaches; outputs feed the demo screens' compute table only, and only after rule-4 completion checks",
+  "concurrency": "five cases, 4 ranks each (her '4 workers' per run), scotch decomposition, mpirun --bind-to none per L-431; TWO WAVES of at most 3 concurrent cases, so 12 ranks peak, which is what the ranks field declares",
+  "run_roots": "verification/runs/JF1_jet_flap/JF1R_QB4_<TAG>/ for TAG in UNBLOWN CMU005 CMU010 CMU020 CMU040 -- all five ABSENT at draft time (age guard re-checked by the launcher, which refuses any pre-existing root)",
+  "quiet_box_mechanism": "the daemon's own busy-ceiling and core-fraction holds are the quiet-box condition Sanaa's order names; the entry waits at the ceiling and launches only when the box is quiet, so the measured walls need no contention factor",
+  "physics_cross_check": "each blown case's settled CL_total against the landed serial value for the same C_mu_jet, expected within 1%; a larger gap is REPORTED as a finding beside the timing numbers and grades nothing (note section 2)",
+  "verdict_state": "NONE -- timing rerun; no gate registered",
+  "_launch": {
+    "utc": "2026-09-02T03:11:47Z",
+    "pid": 772025,
+    "sid": 772025,
+    "status_file": "/home/ubuntu/Certonomous/cases/JF1_JET_FLAP/STATUS.queue.JF1R_QB4",
+    "wrapper_out": "/home/ubuntu/Certonomous/cases/JF1_JET_FLAP/launcher.queue.out",
+    "started_epoch": 1788318707.4675002
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.JF1R_QB4 (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
+}
