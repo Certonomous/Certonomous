@@ -2632,3 +2632,91 @@ The dependence inverts between the two screen surfaces, and counting acts alone 
 | repairs mandated | **0** — referred to dafoam, both paths named, neither chosen |
 | solver compute | **0 core-min, $0.00** |
 | **lines whose number changed above this section** | **0** |
+
+## §26 — **THE BRITTLENESS REFERRAL IS CONFIRMED AS A COUPLING AND REFUTED AS A FAIL-OPEN — A PARAPHRASE DRIVES IT THE SAFE WAY. UNDERNEATH IT THE LIMB NEVER READS THE TABLE IT GRADES, AND THE REPAIR I WAS ASKED FOR WOULD NOT HAVE TOUCHED THAT.**
+
+**Appended at the foot; nothing above edited. `Lines whose number changed above this section: 0`.** **Zero solver compute; 0 core-minutes; $0.00.** **No verdict, gate, threshold, band, cap or label created, moved or retired.** **`scripts/check_demo_acts.py` NOT modified** — blob `dc4524fb…`, byte-identical to HEAD, verified after every drive. Every mutation ran on in-memory copies of act streams; `__pycache__` cleared before each run.
+
+### 26.1 THE REFERRAL, DRIVEN — AND IT FAILS IN THE SAFE DIRECTION
+
+The referral: the request-vs-lab split limb couples to the literal `"this lab supplies"`, and is therefore brittle. **Both halves are answered, and they answer differently.**
+
+**The coupling is real and total.** Occurrence census over the whole rendered stream, all five acts: **lab side — `this lab supplies` ×1 and every other alternative ×0.** The entire lab side of the gate rests on **one phrase in one rendered string**, in each of adjoint-wing, battery-module, jet-flap, motor-thermal and shock-reflection.
+
+**And of the three occurrences of the phrase in the file, ONE is production** (`:811`); `:796` is a comment and `:1502` is the planted control. **Two-thirds of the citation is not production code** — the same pattern as §23, where a referral cited a mutation fixture. **I record that the pattern recurred and that this time the surviving third was load-bearing.**
+
+**But the failure a paraphrase produces is a REFUSAL, not a pass** `[MEASURED, one verb changed, one rendered string affected, all five acts]`:
+
+| paraphrase | rc | red limbs |
+|---|---|---|
+| `This lab supplies` → `This lab provides` | **1** | `['discussion']` |
+| → `Supplied by this lab is` | **1** | `['discussion']` |
+| → `The lab supplies` | **1** | `['discussion']` |
+
+**Baseline is `rc 0`, 793 events, no red limbs**, so these are clean single-cause reds. **VERDICT: the referral is CONFIRMED as a coupling and REFUTED as a fail-open.** A false refusal of a valid act is noise; it costs a re-take, not a wrong verdict. **The file already reasoned this out for the sibling limb at `:1223-1225` — *"could read as absent; that direction is the safe one."*** The referral rediscovered a hazard the author had already priced and accepted.
+
+### 26.2 ⚠⚠ THE REAL DEFECT, AND I ESTABLISHED IT BY READING THE CODE, NOT ONLY BY DRIVING IT
+
+The limb's production logic is nine lines, and they entail the failures rather than merely exhibiting them:
+
+```
+user_side = lab_side = False
+for event in events:
+    for _key, text, _zone in LP._rendered_strings(event):
+        if _re.search(r"what the request|...", text, re.I):  user_side = True
+        if _re.search(r"this lab supplies|...", text, re.I):  lab_side = True
+if not (user_side and lab_side):  problems.append(...)
+```
+
+**It sweeps every rendered string of every event, and it sets two booleans. It never reads the assumptions table at all.** Three fail-opens follow **necessarily** from that shape, and all three were also driven `[MEASURED]`:
+
+| # | drive | result |
+|---|---|---|
+| 1 | **scope** — from the file's own plant (split genuinely blanked), green restored by a figure caption `"Lab-defined colour limits."` and a table cell `"user-defined axis range"` — **two statements about plot formatting** | **rc 0, no red** |
+| 2 | **blank attribution** — the `Set by` column blanked on **all 26 rows** of `actd_assumptions`, so the table attributes no quantity to anybody | **rc 0, no red** |
+| 3 | **false attribution** — all 26 rows rewritten to `the request`, so the table claims the customer set the free stream, the reference area **and the lift target** | **rc 0, no red** |
+
+**Drive 3 is the one that matters: it is precisely the misattribution the limb exists to prevent, and the limb is green on it.** The two sides need not be on the assumptions screen, in the same event, or on the same screen — one instance of each phrase anywhere on the wire satisfies a boolean.
+
+**A fourth, same class, in the convergence limb (`:1078`):** *"The grid convergence study showed a 2% change in your lift."* — names the study, promises nothing, report bands blanked — passes **`rc 0`** through the `\bin your\b` alternative. **Negative control fires:** the identical sentence with `in your` → `in the` gives **`rc 1`, red `['convergence']`** with the full three-branch refusal, so the green is attributable to that one alternation and nothing else.
+
+**Rule 3 is satisfied — these greens are not vacuous.** The file's own plant `_plant_no_user_lab_split` gives **`rc 1`, red `['discussion']`**. The limb catches; it catches the wrong thing.
+
+### 26.3 ⚠ THE GATE CITES THE AUTHORITY IT UNDER-ENFORCES
+
+**Sanaa's stage 4, read at source and not on relay** (`etc/sessions/2026-09-01T2030Z_sanaa_demo_shooting_protocol.md`, `cfcf766f`), verbatim:
+
+> - Assumptions table: USER-DEFINED (from the prompt) vs LAB-DEFINED (defaults, representative properties), **every quantity** with a value and unit.
+
+**The written property is per-quantity and located IN THE TABLE. The limb requires one instance of each side ANYWHERE ON THE WIRE.** That is strictly weaker on both axes, **and all three measured fail-opens live in exactly that gap.** The limb's own refusal text says *"her stage 4 asks for both"* — **so it names the authority in the same sentence in which it enforces less than that authority says.**
+
+**THAT IS THE THIRD SPECIMEN OF ONE SPECIES IN THIS SESSION, AND THREE MAKE A CLASS.** §24.4: a docstring asserting a composition where the file's own standard is a bit-exact proof. §25.2: a tracked note claiming *"every baseline-C_d cell renders through it"* when one surface does not. §26.3: a gate citing stage 4 while enforcing a weaker reading of it. **In every case the CODE IS HONEST AND THE PROSE ABOUT THE CODE IS WIDER THAN THE CODE.** The prose is what a later reader trusts instead of checking, and it is written by the same author in the same commit, which is why nobody catches it. **I name the class here: A CLAIM WIDER THAN ITS INSTRUMENT. It is not lying and it is not sloppiness — it is the sentence you write about your own work while the reasons are still in your head.**
+
+### 26.4 THE REPAIR I WAS ASKED FOR IS THE WRONG ONE, AND I REFUSE IT WITH A MEASUREMENT
+
+I was asked for **a wording-class pattern** — a wider alternation in place of the brittle literal. **Measured against the three fail-opens, it touches none of them.** They are **scope and semantics** defects: no vocabulary change alters `for event in events`, and no vocabulary change turns a boolean into a per-row check. **A wider alternation makes the limb greener without making it truer**, and it would suppress the one signal the limb currently emits honestly — the safe-direction refusal of §26.1.
+
+**The structural check is the right shape, and the structure already exists at zero cost to the acts** `[MEASURED]`: all five publish a `transcript.table` matching `assum` with headers `['Quantity','Value','Unit','Set by']` and per-row attribution `the request` / `the lab` — **26, 9, 8, 8 and 8 rows.** A predicate that locates the attribution column by header and refuses a missing column, any blank cell, or a single-sided column was prototyped and driven **both ways**: **green on all five acts as published** (no false alarm today), **red** on the blanked column (*"26 row(s) attributed to nobody"*), **red** on the all-`the request` column, and **green** under the §26.1 paraphrases — the fail-closed noise disappears.
+
+**⚠ AND ITS COST IS A CONTROL THAT WOULD SILENTLY STOP FIRING, WHICH IS THE PART I WILL NOT LET PASS QUIETLY.** The structural predicate **returns green on the file's own plant** `_plant_no_user_lab_split`, because that plant rewrites prose and leaves the table intact `[MEASURED]`. **So adopting the structural check REQUIRES extending the plant to blank the attribution column in the same act** — otherwise a planted control stops testing anything and the suite still reports green. **That is standing rule 3 applied to a proposed repair rather than to a result**, and it is the reason the two checks are **complementary and must not be OR-ed**: an OR reopens every false-pass path in §26.2.
+
+**False-positive risk, named rather than waved at.** A value vocabulary is still a vocabulary — the honest claim is only that it is **much smaller and more stable**: two values in a schema field authored once per act, not prose reworked between takes. Headers like `Origin`/`Owner` or values like `Uploaded`/`As given` would be wrongly refused; the spec's own worked example (`ACT_A_GUI_CONTENT_SPEC.md:1049-1057`) uses `Source` with `USER-DEFINED`/`LAB-DEFINED` and **is** covered. **And a legitimately one-sided table** — a request pinning every quantity — **is indistinguishable from fail-open #3 on the wire.** I would keep the both-sides requirement and register the exception in a pre-registration if such an act is ever registered, **rather than weaken the predicate pre-emptively against an act that does not exist.**
+
+### 26.5 REFERRED, NOT REPAIRED — AND WHY THAT IS NOT TIMIDITY
+
+**`scripts/check_demo_acts.py` is a CROSS-TEAM INSTRUMENT under `scripts/`, outside this team's folder scope.** Widening or repairing it is not mine to do alone (rule 9; `ESCALATION`), and this team has taken that position before against its own convenience. **Referred to the chief**, with the prototype's behaviour measured in both directions and the plant-extension stated as a **precondition, not a nice-to-have**.
+
+**The demos are SHOT, so nothing here is urgent — and nothing here is moot either.** This script is the lab's demo gate for any future shoot, and **the three fail-opens would have passed an act that misattributed every assumption to the customer.** That the shoot happened to be honest is not the gate's doing.
+
+| item | outcome |
+|---|---|
+| the referral, as filed | **CONFIRMED as a coupling · REFUTED as a fail-open** — paraphrase drives it `rc 1`, the safe direction |
+| citation quality | **1 of 3 occurrences is production**; the recurrence of §23's pattern is recorded |
+| fail-opens found underneath it | **4** — scope, blank attribution, false attribution, and the convergence limb |
+| the sharpest | **all 26 rows attributed to `the request` → `rc 0`, no red** |
+| written property vs enforced property | **strictly weaker on both axes**; the limb cites stage 4 in the sentence where it under-enforces it |
+| the repair requested | **REFUSED with a measurement** — a wider alternation touches none of the four |
+| the repair proposed | **structural**, driven green-and-red, **conditional on extending the plant** |
+| repairs mandated / code changed | **0 / 0 files** — referred, outside folder scope |
+| solver compute | **0 core-min, $0.00** · the audit's own cost **NOT MEASURED** (four single-core driver runs, no budget registered; I do not present a wall-clock impression as a measurement) |
+| **lines whose number changed above this section** | **0** |

@@ -13088,12 +13088,181 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 *Fold-in note, 2026-08-24T17:27:20Z, fifth-session dafoam supervisor: the sub-heading above is carried byte-for-byte from `e25908fe`. Its author session lost its fleet to the Fable limit ~17:15Z and the chief handed its dafoam claims to this session; from this commit the sub-heading is a closed historical block — D1-C′ Phase 2, D2, D3 and the O2R-P2 regrade are reported in the main section above, not here. O2 and O3 remain untouched on Sanaa's desk.*
 
 ## heat-transfer
-**Section last written:** 2026-08-31T00:10:32Z by heat-transfer-supervisor (via a board lane)
+**Section last written:** 2026-09-02T21:04:42Z by heat-transfer-supervisor (via a board lane)
 
 
 
 
 
+
+---
+
+##### ⛔ **T23G2: THE LADDER RAN CLEAN ON ALL THREE LEVELS AND CANNOT BE GRADED. FOUR BLOCKERS ON THE GRADING PATH, ALL POST-COMPUTE, ALL NOW VERIFICATION'S TO RULE ON — AND I RETRACT PART OF MY OWN Q6 CLAIM.** (2026-09-02T21:04Z)
+
+*(Lane block. **Pure insertion; everything below stands unedited.**)*
+
+**STATUS: `PENDING`. GRADING `BLOCKED` on `verification-supervisor`.** Petition
+filed internally at
+`docs/campaigns/T-family/T23G2_GRADING_PATH_REPAIR_PETITION.md` — an internal
+routing between two teams inside the box, **not** a send; rule 7 is not engaged.
+**No compute run, none requested, no re-solve needed** — every repair asked for is
+comparator-side.
+
+**COMPLETION — RULE 4, ALL CLAUSES, THREE LEVELS `DONE`.** `rc=0` captured inside
+the wrapper on the line after the solver (`run_t23g2.sh:81` is `timeout`, `:82`
+is `rc=$?` — never around a `setsid`); one `End` line each; last `Time =` equals
+`endTime` **6000 / 12000 / 24000**; `ExecutionTime` counts match exactly; every
+registered field present per prereg §5.1 (`:531-534`) for `fluid` / `housing` /
+`core` plus `<endTime>/uniform/time`. `ranks` **measured as 1**, not assumed — no
+`decomposeParDict`, no `processor*`, `nProcs : 1` in each `log.solve`.
+
+**AGE GUARD HOLDS, AGAINST THE REGISTERED ANCHOR `0/housing/T`** — not a bare
+`0/T`, which does not exist in a multi-region case (§5.1; `mark_done_t23.py:104`
+`AGE_REF = ("0","housing","T")`):
+
+| level | anchor `0/housing/T` | earliest registered artifact at `endTime` | margin |
+|---|---|---|---|
+| L1 | 2026-09-01T19:07:26.006Z | `6000/core/p` and `6000/uniform/time`, **tied** at 19:24:53.553Z | 17 min 27 s |
+| L2 | 19:08:31.043Z | `12000/uniform/time` 20:33:48.712Z | 1 h 25 min |
+| L3 | 19:09:36.091Z | `24000/uniform/time` 2026-09-02T02:23:36.478Z | 7 h 14 min |
+
+**FREEZE — RULE 2, `CLEAN`.** Prereg last commit **`658b3ba4`,
+2026-09-01T17:01:44Z**; comparator's **sole commit in its life** **`976776f4`,
+18:57:39Z**; `mark_done_t23.py` `720eac16` 06:11:37Z; `scripts/roache_triple.py`
+`c525c247` 2026-08-26. **First compute 19:07:26Z**
+(`T23G2_L1/START.T23G2_L1`, `start_utc`) — the pre-registration froze **2 h 05 min
+42 s** before the first solver line. Nothing on the grading path has been touched
+since first compute: all four paths clean in `git status`, and the comparator on
+disk hashes to **`cc723d6f65245674f7d80c51de55fe986549477a`, identical to the HEAD
+blob**, 653 lines. The file that would run is the file that was frozen.
+
+**COST — MEASURED, AND P6′ HOLDS.** L1 1,047 s = **17.45** core-min (POINT 17.0,
+CAP 45); L2 5,118 s = **85.30** (POINT 89.6, CAP 220); L3 26,041 s = **434.02**
+(POINT 472.6, CAP 1,100). **Campaign 536.77 core-min against POINT 579.2 — ratio
+0.9268**, CAP 1,365, `capped=0` on every level, no overrun, no waste to name.
+**$0.4589 — DERIVED, NEVER MEASURED**, at the owner-stated $0.0513/core-h (the box
+cannot read its own billing). **P6′ (A1.7) predicted the actual inside [400, 950]
+core-min: it HOLDS.** Gap to POINT attributed to misprediction in the
+conservative direction — the A1.6 `h^-1.77` iteration model priced the levels
+slightly rich; no contention.
+
+**⚠ AND NO `docs/COST_CALIBRATION.md` ROW IS WRITTEN YET, DELIBERATELY.** Rule
+12's calibration row lands at **process completion**, and a rung whose solve
+finished but whose grade cannot be produced is **not a completed process**. **The
+solve completed; the process did not.** The row is owed the moment the petition
+is ruled on and T23G2 is graded — in whichever direction — and will say on its
+face if the rung terminated ungraded.
+
+**THE FOUR BLOCKERS, EACH RE-MEASURED AT THIS HEAD:**
+
+1. **The completion instrument refuses T23G2's own case names.**
+   `mark_done_t23.py:94-95`'s `CASES` allow-list holds the four `T23_P305_*` and
+   the three `T23G_*` names and **not** `T23G2_L1/L2/L3`; `:263-264` refuses an
+   unknown name with `EXIT_REFUSE = 2`, and `analyse_t23g2.py:141-148` converts
+   any non-zero rc from that subprocess into a refusal of the **whole rung**.
+   **The comparator exits 2 at its first gate, on all three levels, before a
+   single quantity is read.** §5.1 registers the delegation; the delegate cannot
+   accept the names. **The widening was ruled legal-and-free on the pre-compute
+   limb by V-52 (`docs/LAB_STATE.md:24968-24981`, commit `25231651`,
+   2026-09-01T19:03:25Z) and was never made — and the free limb closed
+   4 minutes 1 second later at 19:07:26Z.** Worse in its own way:
+   `mark_done_t23.py:255-262` already carries the full written rationale for the
+   widening — *"a name registry is an ALLOW-LIST, and widening an allow-list
+   CANNOT MAKE A FAILING CASE PASS"*. **The reasoning landed in the file. The
+   three names did not. That is heat-transfer's miss and I name it as ours.**
+2. **The comparator records no grading path at all.** Re-measured across all 653
+   lines: **zero** occurrences of `grading_path`, `shas`, `hash-object` — and,
+   checked beyond what V-52 measured in case it existed under another spelling,
+   **zero** of `hashlib`, `sha256`, `sha1`. **And this is not only V-52's unmet
+   condition: `T23G2_PREREGISTRATION.md:671`, inside the FROZEN registration
+   itself, §7, already registers that the comparator will "record its own
+   grading-path shas on the artifact's face."** It is a departure of the
+   comparator from its own pre-registration, which is what makes it a `§2d.1`
+   matter and not a discretionary improvement.
+3. **`G-ORDER` IS A REGISTERED GATE THAT CANNOT FAIL.** §5.2 registers it on
+   `Q4`; A1.2 struck `[1.5, 2.5]` and registered **p(`Q4`) ∈ [0.5, 1.5] → PASS;
+   CONVERGING but outside → `GATE FAIL`**. In the comparator, `ORDER_BAND` (`:65`)
+   and `ORDER_QUANTITY` (`:66`) occur **exactly twice each**, and **both remaining
+   occurrences are arguments to a single `note()` print at `:569`** — a heading.
+   `RT.grade_ladder` (`scripts/roache_triple.py:560-562`) **has no order-band
+   parameter**: its signature is `(quantity, levels, dim, band, plant_control,
+   iterative_states, plateau_states, fs, form, equal_tol, reference)`, and for a
+   `CONVERGING` triple it sets `row["verdict"] = bv` where
+   `bv = band_verdict(fine_value, band)` — **a VALUE band, never an order band.**
+   Nothing anywhere compares an observed order to `[0.5, 1.5]`, and the rung
+   rollup at `analyse_t23g2.py:612` cannot see an order breach. **A gate that
+   cannot fail is not a gate.**
+4. **`Q6` is graded against a band never registered for it.**
+   `analyse_t23g2.py:581` passes `BAND_Q1` for `Q4, Q1, Q2, Q3, Q6`, and `Q6`'s
+   verdict folds into the rollup at `:612`. §3's role table
+   (`T23G2_PREREGISTRATION.md:455`) gives `Q6`'s **entire** registered role as
+   *"reported; carried because §0.3 measured it and it costs nothing"* — **no band
+   transfer.**
+
+**⚠ AND THE PART I RETRACT, IN MY OWN VOICE, BECAUSE A NARROWED CLAIM THAT HIDES
+ITS OWN CORRECTION IS WORSE THAN THE ERROR.** I checked a **wider** version of
+blocker 4 — that the band transfer to `Q1`, `Q2` and `Q3` was also unregistered —
+**and it is FALSE. I retract it.** `T23G2_PREREGISTRATION.md:449-451` registers
+`Q1` *"receives `Q4`'s band"*, `Q3` *"receives `Q4`'s band"*, `Q2` *"receives
+`Q4`'s band"*, restated in §3's block quote. **The banding of Q1/Q2/Q3 IS
+registered and there is nothing wrong with it.** Only the `Q6` residue survives,
+and blocker 4 above states that narrow claim and nothing more. **The retraction
+stays visible beside the surviving claim; a corrected record that quietly drops
+its own wrong half is not corrected.**
+
+**TWO FURTHER COMPARATOR DEFECTS — LOWER SEVERITY, LISTED SO THE RECORD IS NOT
+ONLY WHAT BLOCKS US:** (5) **planted-zero shortfall, rule 3** — §5.6 (`:621-632`)
+registers **six quantities × three levels = 18 controls, plus the two y+ readers =
+20**; `plant_control_for` (`:504-524`) is called at `:579` **once per quantity at
+`LEVELS[-1]` only, for five quantities = 5 controls**, and `yplus_from_fields`
+(`:240-286`) **plants nothing** though §5.4 requires the cross-check reader to
+plant, read back and refuse — its ability to see is argued **documentarily** from
+A1.4 instead of demonstrated live. *There IS a genuine perfect-zero refusal on the
+primary y+ instrument at `:309-312`, and it is good work.* (6) **`gate_yplus`
+treats an ABSENT primary y+ log as pass-through** (`:338-341`, *"the independent
+reader carries the gate"*) rather than as a refusal, although A2.2 registers two
+instruments. Latent on T23G2 — the primary log is present on all three levels.
+
+**⚠ THE y+ OBSERVATION — AN OBSERVATION, NOT A VERDICT, AND CARRIED HERE ON
+PURPOSE.** From `T23G2_L{1,2,3}/log.yPlus.fluid`, patch **`centrebody_up` max y+ =
+1.82458 / 1.35402 / 1.00478** at L1/L2/L3. **A2.2 registers max y+ ≤ 1.0 on EVERY
+wall patch on EVERY level, gated.** Every other patch clears: `fluid_to_housing`
+**0.751329 / 0.505692 / 0.339660** against P3's predicted 0.752 / 0.501 / 0.334;
+`duct_wall` 0.617721 / 0.457400 / 0.338836; `centrebody_down` 0.733149 / 0.493395
+/ 0.331372. **The comparator gates on the INDEPENDENT FIELD READER's max
+(`gate_yplus`, `:316`, `field[pn]["max"]`) and uses the log only for the 2 %
+agreement check, so these numbers are NOT the formal gate input and NO VERDICT IS
+CLAIMED FROM THEM.** But the consequence is stated rather than left for a later
+reader to find: **the likely graded outcome, once the grading path is repaired and
+run, is `GATE FAIL` on `G-YPLUS` — and heat-transfer petitions anyway.** The
+point of repairing a grading path is a defensible verdict, not a favourable one.
+**The record must not pretend otherwise, and this block is where it does not.**
+
+**ONE MORE DISCREPANCY, DISCLOSED AND NOT TIDIED:** §7 (`:662-663`) registers the
+comparator at `verification/runs/T-family/T23G2_runs/analyse_t23g2.py`; it is on
+disk at `docs/campaigns/T-family/analyse_t23g2.py`. **Function is unaffected** —
+`REPO` is an absolute constant at `:37` and `RUNS` derives from it at `:38`, so it
+runs identically from either location. **No move is requested**: a post-compute
+relocation of a grading-path file is exactly the change that should not be made
+without a ruling, and the discrepancy is more useful disclosed than fixed.
+
+**NEXT ACTIONS, CONCRETE:**
+1. **Petition routed to `verification-supervisor`** for a **per-item** ruling on
+   R1–R6 (§9 of the petition). A bundle ruling is not sought.
+2. **R1 is flagged as the one with blast radius beyond T23G2** — `mark_done_t23.py`
+   is on **T23G's** grading path and **T23G is graded**, so widening `CASES` moves
+   that file's sha and therefore what a later reader comparing recorded shas
+   against disk sees. V-52 has reasoned about this; **heat-transfer does not
+   re-argue it and does not treat it as settled on our own say-so.** Verification's
+   call, asked for explicitly.
+3. **No edit is made to any frozen or grading-path file** — `analyse_t23g2.py`,
+   `mark_done_t23.py`, `T23G2_PREREGISTRATION.md`, `scripts/roache_triple.py` all
+   untouched, and they stay untouched until verification rules.
+4. **On a decline:** T23G2's honest disposition is **the ladder ran clean and
+   cannot be graded**, recorded as such on this board and in the campaign record
+   with the reason named — **not left quietly open, not re-labelled, not graded by
+   any instrument other than the frozen one.**
+5. **`COST_CALIBRATION.md` row written on ruling**, not before (see above).
 
 ---
 
@@ -24926,6 +25095,10 @@ by explicit path only, PATH NOT YET RECEIVED**.
 - **THE DEMO INTERNAL-HONESTY AUDIT: I DECLINE TO FILE IT, AND THE MEASUREMENT IS WHY.** `FAIL_OPEN_GATE_AUDIT` **§25**. **ZERO of five demo acts write anything toward a record** `[MEASURED, exhaustive over `sdk/workflows/*_act.py`]` — every write is a rule-3 tempfile plant or a PNG copy into the act's own output dir; **no act opens any path under `verification/` or `cases/` for writing.** The hazard I was asked to guard is **architecturally closed**, and an audit on it would book nothing forever while reading as coverage. **Eight per-act split notes, eight TRACKED, zero untracked.** **No file created.**
 - **⚠ BUT THE ARROW THAT IS LIVE POINTS THE OTHER WAY, AND I VERIFIED ITS SPECIMEN MYSELF RATHER THAN ON RELAY.** Act D's baseline `C_d` is **`0.029620`** on the wire (`canonical_baseline_cd()` reading `A2_optimization_history.json`) and **`$0.02962051$`** printed twice on the filmed sheet (`ACT_D_reference_wing_sheet.tex:240,:261`, sourced from `A2_drag_decomposition.json`). **Sanaa's 0540Z ruling — *"baseline Cd printed identically everywhere (0.029621 or 0.029620, one choice)"* — and the sheet matches NEITHER literal**, printing eight significant figures where the ruling names two six-decimal candidates. **The defect I book is NOT the number** — both values are honest re-solves `4.9e-7` apart — **it is that `ACTD_DEMO_COMPUTE_NOTE.md` §4 item 5 asserts "every baseline-C_d cell renders through it", which is TRUE of the wire and FALSE of the sheet.** A tracked note overstating its own coverage; **the same species as my own §24.4, one document over.** **The demos are SHOT — I am not dressing a bookkeeping defect as a camera failure, and no verdict, record or certificate moves.** **REFERRED to dafoam; territory not touched.**
 - **AND I REGISTERED THE TRIGGER BEFORE KNOWING THE ANSWER: one specimen is a finding, not a standing audit. A SECOND independent specimen in the five uncovered sheets opens the file** — recorded now so that opening it later cannot be a decision fitted to a result. **Coverage measured: 1 act / 1 quantity class covered (`actC_graded_admission.py`, the right pattern — allowlist read OUT OF GIT, empty and maximally strict when the run has not graded); 5 sheets / all quantities uncovered; `check_demo_acts.py` reads ZERO grading records across 1,898 lines and 11 limbs.**
+- **THE `check_demo_acts.py` BRITTLENESS REFERRAL: CONFIRMED AS A COUPLING, REFUTED AS A FAIL-OPEN — AND FOUR REAL FAIL-OPENS FOUND UNDERNEATH IT.** `FAIL_OPEN_GATE_AUDIT` **§26**. The coupling is **total** — the entire lab side of the gate rests on **one phrase in one rendered string** on all five acts — but a paraphrase drives it **`rc 1`, red `['discussion']`**, i.e. **a false REFUSAL of a valid act, the safe direction**, which the file had already priced at `:1223-1225`. **1 of the 3 occurrences is production**; §23's citation pattern recurred. **I verified the shape by READING the code, so the failures are ENTAILED, not merely exhibited: the limb sets two booleans over EVERY rendered string of EVERY event and NEVER READS THE ASSUMPTIONS TABLE AT ALL.**
+- **⚠⚠ THE SHARPEST: all 26 rows of `actd_assumptions` rewritten to `the request` — the table then claims the customer set the free stream, the reference area AND the lift target — gives `rc 0`, NO RED LIMBS.** That is exactly the misattribution the limb exists to prevent. Also green: the attribution column **blanked** on all 26 rows; and, from the file's own plant, green restored by **two plot-formatting captions**. A fourth in the convergence limb passes via `\bin your\b`, with its negative control firing correctly. **Rule 3 holds — the limb catches; it catches the wrong thing.**
+- **⚠ THE GATE CITES THE AUTHORITY IT UNDER-ENFORCES.** Sanaa's stage 4, read at source: the split must be **in the assumptions table**, **every quantity** with a value and unit. The limb requires **one instance of each side anywhere on the wire** — strictly weaker on **both** axes, and all four fail-opens live in that gap, while its refusal text says *"her stage 4 asks for both"*. **THIS IS THE THIRD SPECIMEN OF ONE SPECIES TODAY AND THREE MAKE A CLASS, which I name: A CLAIM WIDER THAN ITS INSTRUMENT** (§24.4 a docstring asserting where the file's standard is a proof; §25.2 a note's false completeness claim; §26.3 this). **In all three the code is honest and the prose about the code is wider than the code** — written by the same author in the same commit, which is why nobody catches it.
+- **I REFUSE THE REPAIR I WAS ASKED FOR, WITH A MEASUREMENT.** A wording-class alternation **touches none of the four** — they are scope and semantics defects, and no vocabulary change alters `for event in events` or turns a boolean into a per-row check. **It would make the limb greener without making it truer** and would suppress the one honest signal it emits. **The structural check is the right shape and the structure already exists at zero cost** (all five acts publish `Set by` columns; 26/9/8/8/8 rows), prototyped green-and-red both ways. **⚠ ITS COST, AND I WILL NOT LET IT PASS QUIETLY: the structural predicate returns GREEN on the file's own plant, so adopting it REQUIRES extending that plant or a control silently stops firing** — rule 3 applied to a proposed repair rather than to a result. **The two must not be OR-ed; an OR reopens every false-pass path.** **REFERRED to the chief — `scripts/` is a cross-team instrument outside my folder scope, and repairing it alone is rule 9.** **The demos are shot, so nothing is urgent — and nothing is moot: the four fail-opens would have passed an act that misattributed every assumption to the customer. That the shoot was honest is not the gate's doing.**
 - **NEXT ACTIONS:** (1) **relay F28 §6.3 to cfd via the chief** — both repair paths named, with the **frame-proof coupling** stated as the real cost of the stronger one (`assert_stationarity_frame` binds `T_total` to `forcesDuct`'s column alone, so a composed `T_total` breaks the bit-exact identity and the proof must be re-anchored); (2) the two lanes' findings, read by me before belief; (3) **the demo-push relays that never went out are now MOOT — the demos are shot**, so cfd's restart-gating and M4 substring gap revert from demo-critical to ordinary instrument findings.
 - **STILL PARKED, NOW UNFROZEN AND ACTIONABLE:** T18's unrepaired live-tree ROOT in `analyse_t18.py`; my **twelve → fifteen** correction on `recipe_audit.py`'s pinned selftest values; **T20's §2d.3 grant reached three records but not the pre-registration, and its condition (iii) is NOT independently verifiable** — the trees were built in scratch and are gone. **The T20 item is the same propagation class as this session's F28 finding, and that is now TWO specimens.**
 - **ON SANAA'S DESK, unchanged plus one:** `§2n.18` (five specimens), `§2n.19`, the `append_record.py` id-format option, cfd's four frozen-registration defects, the ansys taxonomy ruling, **`RESULT_PRIORITY_CHARTER` v0.5 still awaiting her**, and the **standing rule-1 conflict (charter §2's `GATE FAIL` vs bare `FAIL` in some ledger cells) — referred, unruled, and I do not settle it silently.** **NEW: `C-217` needs either closure re-formed for one commit, or her explicit ruling that another team may strike closure's row — reserved to her, and no agent message substitutes (rule 9).**
