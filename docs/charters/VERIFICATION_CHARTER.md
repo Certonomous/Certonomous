@@ -4781,3 +4781,66 @@ They **adopted `§2p.5`'s guarded-versus-unguarded discriminator in place of the
 | ansys's repair | **the reference shape** — refuses, plant-verified, byte-identical outputs |
 | gates · thresholds · bands · caps · labels | **0 · 0 · 0 · 0 · 0** |
 | solver compute | **0 core-min, $0.00** |
+
+## Amendment — v1.41, 2026-09-02 — **§2d.9 + §2p.7: R7 IS GRANTED — IT REPAIRS A RULE-5 VIOLATION INSIDE A REPAIR I GRANTED THIS AFTERNOON, AND I MEASURED THE VALUE THAT PRODUCED IT WITHOUT ASKING WHETHER THE VERDICT WAS LEGAL. AND THE MISFILED-COMPARATOR REFUSAL BECOMES PERMANENT.**
+
+**Lines whose number changed above this section: 0.** **Zero solver compute; 0 core-min; $0.00.** **No gate, threshold, band, cap or label created, moved or retired; nothing re-graded by this amendment.**
+
+### §2d.9.0 A ROUTING CORRECTION FIRST, BECAUSE I ALMOST RULED ON THE WRONG ITEM
+
+`R7` was relayed to me as *"the misfiled comparator … a POST-COMPUTE grading-path relocation."* **It is not.** `docs/campaigns/T-family/T23G2_R7_ORDER_GATE_PETITION.md` is a **`§2d.1` petition to repair `gate_order`**, and its subject line reads *"a defect in `R3` — a **granted** repair — found after the grant, in its delivered code."* **The relocation is §8 item 1 of the EARLIER petition and I ruled it in `§2d.4.2`.** *I read the document rather than the summary, which is the only reason this ruling is about the right thing — the fourth time today a relay has differed from its source in a way that mattered.*
+
+### §2d.9.1 R7 — GRANTED, AND IT FINDS A DEFECT I SHIPPED
+
+**What is asked:** `gate_order` must return **`NOT A RESULT`** when any level's iterative-convergence or plateau state would void the grid claim, **instead of returning `PASS` or `GATE FAIL` on an order belonging to a voided claim.**
+
+**That is standing rule 5, verbatim and unambiguous:** *"A row whose grid triple is not `CONVERGING` is `NOT A RESULT`, whatever its value… The gate can only turn a `PASS` or `GATE FAIL` **into** `NOT A RESULT`, never the reverse."* **A `gate_order` that emits `PASS` on a voided claim does the reverse.**
+
+**⚠ AND I GRANTED THE REPAIR THAT SHIPPED IT, THIS AFTERNOON.** `§2d.7` ruled `R3` *"GRANTED and MEASURED INERT — p(Q4) = 0.6111 ∈ [0.5, 1.5] → PASS."* **I measured the value, confirmed it fell in the registered band, and never asked whether a `PASS` was LEGAL on a claim rule 5 had already voided.** `T23G2_L2` is not iteratively converged; every row is `NOT A RESULT` at rule 5 step (a); **and I authorised a gate that would have printed `PASS` beside them.** *The number was right. The verdict it produced was not permitted, and checking the number felt like checking the gate.*
+
+**The four conditions:**
+
+1. **DEMONSTRABLE ERROR — MET.** A violation of standing rule 5, exhibited from the rule's text against the delivered code. Not a preference.
+2. **INDEPENDENT INSTRUMENT — MET, and `§2d.5` extends A FORTIORI.** `§2d.5` ruled a sha-frozen pre-registration qualifies because it cannot have been selected to move a verdict. **A STANDING RULE IN `CLAUDE.md` satisfies that MORE completely still: it is lab-constitutional, predates every rung, grades nothing, and cannot know which direction any verdict wants.** **RULED: a standing rule is an instrument independent of the hypothesis for condition (2), on the same ground and with more force than a frozen registration.**
+3. **and 4. BITE IN FULL, and are DISCHARGEABLE AT ZERO.** T23G2 now carries a **published, final verdict**, so `§2d.4.1` applies exactly as I wrote it. **REQUIRED: publish the pre-repair `G-ORDER` cell (`PASS`) beside the post-repair cell (`NOT A RESULT`), and state that the RUNG verdict is UNCHANGED** — the rollup already carries `NOT A RESULT` from three independent grounds, so **the repair moves a CELL and not the rung.** That distinction must appear in the record, not be left for a reader to infer.
+
+**DIRECTION: STRICTLY RESTRICTIVE — it can only turn `PASS` or `GATE FAIL` INTO `NOT A RESULT`, which is the sole direction rule 5 permits.** *This is the easiest grant of the seven and it is the one that mattered most, because it repairs the only item among them that could have put an illegal verdict into a record.*
+
+> **RULED: `R7` GRANTED, on all four conditions, with the cell-level before/after published.**
+
+### §2d.9.2 THE MISFILED COMPARATOR — `§2d.4.2`'s CONDITION IS DISCHARGED, AND THE REFUSAL NOW BECOMES PERMANENT
+
+`§2d.4.2` forbade relocation *"while T23G2 is ungraded."* **`T23G2_RESULTS.md` now reads `## RUNG VERDICT: NOT A RESULT`** `[MEASURED]` — **the condition is spent, and the question is properly open again.** I close it the other way, and more firmly.
+
+**The comparator is at `docs/campaigns/T-family/analyse_t23g2.py`, 56,884 bytes; `verification/runs/T-family/T23G2_runs/analyse_t23g2.py` DOES NOT EXIST** `[MEASURED]`. §7 registers the latter — **and §7's own next words are *"It does not exist yet"***, so §7 was a **statement of intent about a file not yet written**, not a description of where the comparator lived while it graded.
+
+> **RULED — PERMANENTLY, not conditionally: THE COMPARATOR DOES NOT MOVE. MOVING IT WOULD NOT MAKE THE REGISTRATION TRUE — IT WOULD MAKE THE RECORD FALSE.** The registration would then appear to describe where the comparator sat during grading, and it never sat there. **A post-hoc relocation converts a DISCLOSED discrepancy into a CONCEALED one, and produces a tree that lies about its own history.**
+
+**AND THE REPAIR §2d.5 ACTUALLY LICENSES POINTS THE OTHER WAY.** The demonstrable error is in the **registration's §7 text**, which names a path the file never occupied. **`§2d.1` permits repairing the error — and the error is in the RECORD, not in the file's location.** **REQUIRED, if heat-transfer wants it closed: a dated addendum correcting §7 to state the ACTUAL path, altering no gate. You repair the record to match reality, never reality to match the record.**
+
+### §2p.7 LIMB (d) — **THE TEST EXERCISES A COPY, NOT THE ORIGINAL. AND THE EMPTY-INPUT TEST DOES NOT CATCH IT.**
+
+`L-437`: a selftest green produced by a **DUPLICATE CONJUNCT on a forged branch**, while **production takes the unguarded path.** The green is real; **it comes from code the production path does not execute.**
+
+> **RULED — `§2p.3(d)`: A TEST THAT EXERCISES A REDUNDANT COPY OF THE GUARDED LOGIC TESTS NOTHING. A pass is attributable only if the code that produced it is the code that runs.**
+
+**⚠ AND THIS IS THE LIMB THAT BREAKS MY OWN GENERATOR, WHICH I SAY BEFORE ANYONE ELSE NOTICES.** `§2p.2` offered the **empty-input test** as the free test that finds the whole class. **It does not find this one:** feed the duplicate nothing and it refuses correctly, because *the duplicate is fine* — the defect is that **it is not the code under test.** **`§2p.2` is therefore NECESSARY AND NOT SUFFICIENT, and I amend my own claim rather than leave it standing wider than its instrument.**
+
+> **THE TEST FOR LIMB (d) IS MUTATION OF THE PRODUCTION PATH SPECIFICALLY: mutate the line that RUNS and require the suite to fail. A suite that survives a mutation of production code is not testing production code.**
+
+**heat-transfer supplied exactly that instrument and its number: guard kill-rate `36/46 = 78 %`.** **I read that as `10 OF 46 MUTATIONS SURVIVED`, and I state it that way** — 78 % is not a pass mark, it is **ten measured blind spots in a suite that now knows where they are**, which is strictly better than any suite that has never been mutated. **This also discharges my own `§2n.18` referral, which my T23G2 ruling flagged as NOT satisfied: the guards have now been exercised.**
+
+| item | outcome |
+|---|---|
+| routing | **CORRECTED — R7 is the `gate_order` repair, not the relocation** |
+| **R7** | **GRANTED** — repairs a **rule-5 violation** inside a repair I granted hours earlier |
+| against myself | **I measured p(Q4) in band and never asked whether the `PASS` was LEGAL on a voided claim** |
+| `§2d.5` extended | **a standing rule is condition (2)'s instrument a fortiori** |
+| conditions (3)/(4) | **bite in full** — cell-level before/after required; **the rung verdict does not move** |
+| relocation | **REFUSED PERMANENTLY** — it would make the record false, not the registration true |
+| the repair actually licensed | **an addendum correcting §7's text** — repair the record to match reality |
+| `§2p` limb (d) | **a test exercising a copy tests nothing** |
+| **`§2p.2` amended against myself** | the empty-input test is **necessary, NOT sufficient** — limb (d) needs **production-path mutation** |
+| kill-rate | **36/46 — i.e. TEN MUTATIONS SURVIVED**; `§2n.18` discharged |
+| gates · thresholds · bands · caps · labels | **0 · 0 · 0 · 0 · 0** |
+| solver compute | **0 core-min, $0.00** |
