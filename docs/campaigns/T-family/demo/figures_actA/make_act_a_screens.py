@@ -283,10 +283,16 @@ def planted_core_control(case_dir, label="peak core-temperature reader"):
 
 MONITOR_REL = os.path.join("postProcessing", "housing", "housing_T", "0",
                            "fieldMinMax.dat")
+CORE_MONITOR_REL = os.path.join("postProcessing", "core", "core_T", "0",
+                                "fieldMinMax.dat")
 
 
 def monitor_path(root, case):
     return os.path.join(root, case, MONITOR_REL)
+
+
+def core_monitor_path(root, case):
+    return os.path.join(root, case, CORE_MONITOR_REL)
 
 
 def read_monitor(path):
@@ -740,45 +746,87 @@ def fig_radial(prof, z_used, extra, stats):
 # 4.  THE 16-TILE MONITOR REPLAY
 # ==========================================================================
 
-MONITOR_TITLE = "Housing temperature monitors, sixteen runs"
+MONITOR_TITLE = "Temperature monitors, sixteen runs"
 MONITOR_CAPTION = (r"16 runs $\cdot$ 100 samples each $\cdot$ "
-                   r"housing peak 103.6 $^\circ$C")
+                   r"core peak 107.7 $^\circ$C, housing 103.6 $^\circ$C")
+
+#: Colour by POWER (her 1800Z spec: 4 colours, legend = these only); shade
+#: by airspeed within each colour, faster air lighter, so the four lines of
+#: one power read as one family and separate by their line-end tags.
+POWER_COLOUR = {80: "#4c78a8", 155: "#2e7d32", 230: "#e08214", 305: "#b3261e"}
+SPEED_ALPHA = {10: 1.0, 20: 0.8, 30: 0.6, 40: 0.45}
 
 
-def fig_monitor(traces, final_internal):
-    """HER 1100Z LAYOUT ORDER, replacing the sixteen per-panel titles that
-    overlapped on screen: no "W" label on top of any panel; the grid is
-    self-labelling instead -- COLUMNS are the four powers, named ONCE each
-    on one x-axis line under the bottom row, and ROWS are the four
-    airspeeds, named once each at the left. Every panel keeps its own
-    settle line and value; each trace is still 100 samples of that run's
-    own monitor (the caption states it, so the unlabelled iteration axis
-    loses nothing a viewer needs)."""
-    fig, axes = plt.subplots(4, 4, figsize=(11.0, 8.2), sharex=True)
-    powers = sorted({p for p, _u in traces})
-    speeds = sorted({u for _p, u in traces})
-    for j, p in enumerate(powers):
-        for i, u in enumerate(speeds):
-            ax = axes[i, j]
-            it, mx, mn = traces[(p, u)]
-            ax.plot(it, mx - KELVIN_C, lw=1.3, color="#b3261e")
-            ax.plot(it, mn - KELVIN_C, lw=1.0, color="#1f5fb3", alpha=0.8)
-            ax.fill_between(it, mn - KELVIN_C, mx - KELVIN_C,
-                            color="#b3261e", alpha=0.10)
-            fin = mx[-1] - KELVIN_C
-            ax.axhline(fin, color="#666666", lw=0.6, ls=":")
-            ax.text(0.97, 0.10,
-                    r"settles at $" + (T_FMT % fin) + r"\ ^\circ$C",
-                    transform=ax.transAxes, fontsize=6.6, ha="right",
-                    color="#333333")
-            ax.tick_params(labelsize=6.6)
-            ax.set_xticks([])
-            ax.set_ylim(0, 115)
-            if j == 0:
-                ax.set_ylabel(r"$U_\infty = %d$ m s$^{-1}$" "\n"
-                              r"$T$  $[^\circ\mathrm{C}]$" % u, fontsize=7.5)
-            if i == len(speeds) - 1:
-                ax.set_xlabel(r"$%d$ W" % p, fontsize=9.5)
+def _monitor_chart(ax, traces, powers, speeds, tag_x):
+    """One shared-axis chart of her 1800Z spec: sixteen lines, colour by
+    power, shade by airspeed, m/s tag at each right endpoint, an endpoint
+    dot on every line -- no per-panel titles anywhere. Endpoints of
+    different power groups can land within a degree of each other, so the
+    TAGS (never the data) are dodged apart by a minimum spacing, sorted by
+    endpoint height."""
+    ends = []
+    for p in powers:
+        for u in speeds:
+            it, mx = traces[(p, u)]
+            colour = POWER_COLOUR[p]
+            y_end = mx[-1] - KELVIN_C
+            ax.plot(it, mx - KELVIN_C, lw=1.3, color=colour,
+                    alpha=SPEED_ALPHA[u])
+            ax.plot([it[-1]], [y_end], marker="o", ms=3.0,
+                    color=colour, alpha=SPEED_ALPHA[u])
+            ends.append([y_end, u, colour, SPEED_ALPHA[u]])
+    ends.sort(key=lambda e: e[0])
+    min_gap = 2.5
+    tag_y = None
+    for entry in ends:
+        tag_y = entry[0] if tag_y is None else max(entry[0],
+                                                   tag_y + min_gap)
+        ax.text(tag_x, tag_y, "%d" % entry[1], fontsize=6.2,
+                color=entry[2], alpha=max(entry[3], 0.7),
+                va="center", ha="left")
+    ax.set_ylim(20, 110)
+    ax.set_xlim(left=0)
+    ax.set_ylabel(r"$T$  $[^\circ\mathrm{C}]$", fontsize=8.5)
+    ax.tick_params(labelsize=7.0)
+
+
+def fig_monitor(core_traces, housing_traces, final_internal):
+    """HER 1800Z DESIGN, retiring the per-panel grid ("The per-panel layout
+    has failed three rounds; retire it"). One shared-axis chart: X
+    iteration, Y temperature 20-110 C, sixteen lines, CORE only; housing on
+    a second identical chart below (her stated alternative to a toggle).
+    Colour by power, shade by airspeed within each colour; legend carries
+    the four power colours only; every line ends in a dot with a small m/s
+    tag at its right endpoint; the hottest line carries the endpoint text
+    in her pattern ("305 W · 10 m/s · 107.7 C"). This layout cannot
+    overprint: no per-panel titles exist."""
+    from matplotlib.lines import Line2D
+
+    fig, (ax_core, ax_house) = plt.subplots(
+        2, 1, figsize=(11.0, 8.6), sharex=True)
+    powers = sorted({p for p, _u in core_traces})
+    speeds = sorted({u for _p, u in core_traces})
+    span = max(core_traces[k][0][-1] for k in core_traces)
+    tag_x = span * 1.012
+    _monitor_chart(ax_core, core_traces, powers, speeds, tag_x)
+    _monitor_chart(ax_house, housing_traces, powers, speeds, tag_x)
+    for ax, name in ((ax_core, "core"), (ax_house, "housing")):
+        ax.set_xlim(0, span * 1.06)
+        ax.text(0.008, 0.965, name, transform=ax.transAxes, fontsize=8.5,
+                ha="left", va="top", color="#333333")
+    ax_house.set_xlabel("Iteration", fontsize=8.5)
+    # The endpoint text, her pattern, on the hottest core line.
+    hot = max(core_traces, key=lambda k: core_traces[k][1][-1])
+    it, mx = core_traces[hot]
+    ax_core.annotate(r"%d W $\cdot$ %d m s$^{-1}$ $\cdot$ %s $^\circ$C"
+                     % (hot[0], hot[1], T_FMT % (mx[-1] - KELVIN_C)),
+                     xy=(it[-1], mx[-1] - KELVIN_C),
+                     xytext=(0.72, 0.955), textcoords="axes fraction",
+                     fontsize=7.4, color="#333333", ha="left", va="top")
+    handles = [Line2D([0], [0], color=POWER_COLOUR[p], lw=1.6,
+                      label="%d W" % p) for p in powers]
+    ax_core.legend(handles=handles, fontsize=7.4, loc="upper center",
+                   bbox_to_anchor=(0.40, 0.97), framealpha=0.92, ncol=4)
     fig.suptitle(MONITOR_TITLE, fontsize=10.5, y=0.975)
     fig.text(0.5, 0.006, MONITOR_CAPTION, ha="center", fontsize=8.0,
              color="#333333")
@@ -1108,11 +1156,13 @@ def sheet_text(mapmeta, stats, fin, locator):
             "straight.",
         "actA_monitor_replay":
             "Every trace is the run's own monitor output, sampled every 100 "
-            "iterations and shown unchanged. The monitor scans the housing "
-            "cells and the faces bounding them, so its settled value sits "
-            "%.4f K above the housing cell-only peak in the table; both are "
-            "real readings of the same solution. These monitors watch the "
-            "housing, not the core."
+            "iterations and shown unchanged: the core monitors on the upper "
+            "chart, the housing monitors on the identical chart below (her "
+            "18:00Z single-chart design; the per-panel grid is retired). "
+            "The housing monitor scans the housing cells and the faces "
+            "bounding them, so its settled value sits %.4f K above the "
+            "housing cell-only peak in the table; both are real readings "
+            "of the same solution."
             % fin["offset_K"],
         "actA_assumption_beat":
             "Both hand correlations are surface-convection closures for the "
@@ -1276,8 +1326,11 @@ def main():
                                s["local_slope_last_K_per_mm"]))
 
     traces = {}
+    core_traces = {}
     for p_w, u_ms, root, case in POINTS:
         traces[(p_w, u_ms)] = read_monitor(monitor_path(root, case))
+        it, mx, _mn = read_monitor(core_monitor_path(root, case))
+        core_traces[(p_w, u_ms)] = (it, mx)
     hot_final_mon = traces[(305, 10)][1][-1] - KELVIN_C
     # The monitor scans the HOUSING region and its bounding faces, so it is
     # compared against the HOUSING cell-only peak.  Comparing it against the
@@ -1289,9 +1342,11 @@ def main():
                internal_cells_degC=float(hot_internal),
                region="housing",
                offset_K=float(hot_final_mon - hot_internal))
-    fig = fig_monitor(traces, fin)
+    housing_traces = {k: (v[0], v[1]) for k, v in traces.items()}
+    fig = fig_monitor(core_traces, housing_traces, fin)
     save(fig, "actA_monitor_replay")
-    print("   monitors    16 tiles, %d samples each, housing monitor peak "
+    print("   monitors    2 shared-axis charts, %d samples each, housing "
+          "monitor peak "
           "%.4f degC against housing cell-only peak %.4f degC (offset %.4f K)"
           % (len(traces[(305, 10)][0]), fin["monitor_degC"],
              fin["internal_cells_degC"], fin["offset_K"]))
