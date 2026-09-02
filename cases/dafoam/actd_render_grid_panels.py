@@ -207,6 +207,43 @@ def _patch_quads(case: Path) -> tuple[list, list]:
     return base, quads
 
 
+def fit_parallel(view, cam, pts, direction, margin):
+    """Aim a parallel-projection camera so ``pts`` FILL the frame.
+
+    Sanaa 1620Z: "can we make the geometry and its color bar bigger pls? rn
+    its so small inside a big box ... a lot of empty space around it." A
+    hand-tuned dolly leaves whatever margin the tuning day left, so the
+    frame is computed instead: every point is projected onto the view
+    plane's right/up axes, the focal point is the centre of that footprint
+    and the parallel scale is the half-extent containing all of it times
+    ``margin``. The geometry fills the frame by construction, whatever the
+    eye direction.
+    """
+    dn = (sum(c * c for c in direction)) ** 0.5
+    d = tuple(c / dn for c in direction)
+    # screen-up = world +Y minus its component along the view axis;
+    # screen-right = up x view-axis (both unit, orthogonal).
+    uy = (-d[0] * d[1], 1.0 - d[1] * d[1], -d[1] * d[2])
+    un = (sum(c * c for c in uy)) ** 0.5
+    uy = tuple(c / un for c in uy)
+    rx = (uy[1] * d[2] - uy[2] * d[1],
+          uy[2] * d[0] - uy[0] * d[2],
+          uy[0] * d[1] - uy[1] * d[0])
+    sr = [sum(p[i] * rx[i] for i in range(3)) for p in pts]
+    su = [sum(p[i] * uy[i] for i in range(3)) for p in pts]
+    mid_r, mid_u = ((max(sr) + min(sr)) / 2, (max(su) + min(su)) / 2)
+    half_r, half_u = ((max(sr) - min(sr)) / 2, (max(su) - min(su)) / 2)
+    aspect = RESOLUTION[0] / RESOLUTION[1]
+    scale = max(half_u, half_r / aspect, 1e-9) * margin
+    reach = 2.0 * max(half_r, half_u, 1.0)
+    focal = tuple(mid_r * rx[i] + mid_u * uy[i] for i in range(3))
+    view.CameraParallelProjection = 1
+    cam.SetFocalPoint(*focal)
+    cam.SetPosition(*(focal[i] + reach * d[i] for i in range(3)))
+    cam.SetViewUp(0.0, 1.0, 0.0)
+    cam.SetParallelScale(scale)
+
+
 def _frame_polydata(points, quads, values):
     """One wall-patch surface as VTK polydata, per-face scalars optional."""
     from paraview.vtk import (vtkCellArray, vtkFloatArray, vtkPoints,
@@ -309,80 +346,34 @@ def render_wing_frames(case: Path) -> int:
             bar.ComponentTitle = ""
             bar.TitleColor = [0.85, 0.88, 0.92]
             bar.LabelColor = [0.85, 0.88, 0.92]
+            # BIGGER, per her 1620Z ("see ... the color bar big as well"):
+            # the defaults drew a sliver nobody could read on a filmed
+            # frame. Parked in the upper right corner because the fitted
+            # wing runs on the lower-left-to-right diagonal in both eye
+            # directions and the default mid-right slot sat ON the tip.
+            # Sized and looked at, not assumed.
+            bar.WindowLocation = "Upper Right Corner"
+            bar.ScalarBarLength = 0.5
+            bar.ScalarBarThickness = 40
+            bar.TitleFontSize = 28
+            bar.LabelFontSize = 24
             disp.SetScalarBarVisibility(view, True)
         else:
             disp.DiffuseColor = [0.30, 0.36, 0.42]
             disp.AmbientColor = [0.105, 0.126, 0.147]
-        b = bounds_of(pts)
-        if close:
-            # The inboard span on its own camera; the wing is unmoved. The
-            # frame is scaled by the CHORD, not the 2.2 m span slice: at
-            # span scale the camera sat almost on the surface and the view
-            # was a handful of faces nobody could read as a wing (looked at,
-            # not assumed).
-            cx = (b[0] + b[1]) / 2
-            cy = (b[2] + b[3]) / 2
-            cz = min(closeup_z, b[5]) / 2
-            reach = (b[1] - b[0]) * 0.75
-        else:
-            cx, cy, cz = ((b[0] + b[1]) / 2, (b[2] + b[3]) / 2,
-                          (b[4] + b[5]) / 2)
-            reach = b[5] - b[4]
-        cam.SetFocalPoint(cx, cy, cz)
-        cam.SetViewUp(0.0, 1.0, 0.0)
-        if close:
-            # THE CLOSE CAMERA IS FITTED, NOT TUNED (Sanaa 1100Z: "The
-            # inboard zoom crops the surface at the frame edge ... Pull the
-            # camera back a touch so the patch sits inside the frame --
-            # cropped geometry reads as a viewport bug"). Three rounds of
-            # hand-picked parallel scales (0.16, 0.30 to 0.46, 0.60) each
-            # still left surface crossing a frame edge under this oblique
-            # eye, because the projected extent depends on the projection
-            # and not on any one world span. So the frame is now COMPUTED:
-            # every vertex of this frame's own surface is projected onto
-            # the view plane's right/up axes, the focal point is the centre
-            # of that footprint and the parallel scale is the half-extent
-            # that contains all of it plus a 6 per cent margin. The whole
-            # patch sits inside the frame by construction, at the same
-            # oblique angle, in parallel projection, and every frame was
-            # still rendered and looked at.
-            view.CameraParallelProjection = 1
-            d = (-0.30, 0.85, 0.60)
-            dn = (sum(c * c for c in d)) ** 0.5
-            d = tuple(c / dn for c in d)
-            # screen-up = world +Y minus its component along the view axis;
-            # screen-right = up x view-axis (both unit, orthogonal).
-            uy = (-d[0] * d[1], 1.0 - d[1] * d[1], -d[1] * d[2])
-            un = (sum(c * c for c in uy)) ** 0.5
-            uy = tuple(c / un for c in uy)
-            rx = (uy[1] * d[2] - uy[2] * d[1],
-                  uy[2] * d[0] - uy[0] * d[2],
-                  uy[0] * d[1] - uy[1] * d[0])
-            sr = [sum((p[i] - (cx, cy, cz)[i]) * rx[i] for i in range(3))
-                  for p in pts]
-            su = [sum((p[i] - (cx, cy, cz)[i]) * uy[i] for i in range(3))
-                  for p in pts]
-            mid_r, mid_u = ((max(sr) + min(sr)) / 2, (max(su) + min(su)) / 2)
-            half_r, half_u = ((max(sr) - min(sr)) / 2,
-                              (max(su) - min(su)) / 2)
-            aspect = RESOLUTION[0] / RESOLUTION[1]
-            scale = max(half_u, half_r / aspect) * 1.06
-            fx, fy, fz = (cx + mid_r * rx[0] + mid_u * uy[0],
-                          cy + mid_r * rx[1] + mid_u * uy[1],
-                          cz + mid_r * rx[2] + mid_u * uy[2])
-            cam.SetFocalPoint(fx, fy, fz)
-            cam.SetPosition(fx + 2.0 * reach * d[0], fy + 2.0 * reach * d[1],
-                            fz + 2.0 * reach * d[2])
-            cam.SetParallelScale(scale)
-            Render(view)
-        else:
-            view.CameraParallelProjection = 0
-            cam.SetPosition(cx - 0.9 * reach, cy + 0.65 * reach,
-                            cz + 0.55 * reach)
-            Render(view)
-            view.ResetCamera()
-            cam.Dolly(2.7)
-            Render(view)
+        # BOTH CAMERAS ARE FITTED, NOT TUNED (Sanaa 1100Z on the close
+        # frame's cropping, then 1620Z on the whole family: "the geometry
+        # itself is small but we have a lot of empty space around it").
+        # Hand-picked dollies and parallel scales went through five rounds
+        # and each still left either a cropped edge or a small wing in a
+        # big box; `fit_parallel` projects every vertex of this frame's own
+        # surface and fills the frame by construction. The two passes keep
+        # their two eye directions, so the walk and the close view stay
+        # distinct conventions; margins leave room for the scalar bar.
+        fit_parallel(view, cam, pts,
+                     (-0.30, 0.85, 0.60) if close else (-0.9, 0.65, 0.55),
+                     1.06 if close else 1.04)
+        Render(view)
         png = out / f"{name}.png"
         SaveScreenshot(str(png), view, ImageResolution=RESOLUTION)
         ink = ink_fraction(png)
@@ -551,35 +542,26 @@ def main() -> int:
     disp.EdgeColor = list(EDGES)
     disp.LineWidth = 1.0
     disp.Interpolation = "Flat"
-    b = wing.GetDataInformation().GetBounds()
-    cx, cy, cz = ((b[0] + b[1]) / 2, (b[2] + b[3]) / 2, (b[4] + b[5]) / 2)
-    span = b[5] - b[4]
-    cam.SetFocalPoint(cx, cy, cz)
-    cam.SetPosition(cx - 0.9 * span, cy + 0.65 * span, cz + 0.55 * span)
-    cam.SetViewUp(0.0, 1.0, 0.0)
-    view.CameraParallelProjection = 0
-    Render(view)
-    view.ResetCamera()
-    cam.Dolly(2.7)
+    # FITTED, NOT DOLLIED (Sanaa 1620Z: the geometry fills the frame; see
+    # `fit_parallel`). A first cut fitted the bbox CORNERS and the wing
+    # still sat small in the frame: the tapered wing is a thin diagonal in
+    # its own box, so corners the surface never reaches inflated the
+    # footprint (rendered and looked at, which is how the shortcut was
+    # caught). The vertex set used is the stored shape history's baseline
+    # wall points, which `_patch_quads` proves map one to one onto this
+    # very patch at 1e-4 m.
+    import json as _json
+    _pts = _json.loads(SHAPE_FRAMES.read_text())["base_vertices"]
+    fit_parallel(view, cam, _pts, (-0.9, 0.65, 0.55), 1.04)
     Render(view)
     save("geometry", view, caption=WALL_CAPTION)
     Hide(wing, view)
 
     # -- mesh: the wing's skin as the volume grid holds it ------------------
+    # Same fitted three-quarter eye as the geometry panel (Sanaa 1620Z).
     disp = Show(wing, view)
     style(disp)
-    b = wing.GetDataInformation().GetBounds()
-    cx, cy, cz = ((b[0] + b[1]) / 2, (b[2] + b[3]) / 2, (b[4] + b[5]) / 2)
-    span = b[5] - b[4]
-    cam.SetFocalPoint(cx, cy, cz)
-    # Three-quarter view from above and ahead of the leading edge, span
-    # running across the wide frame.
-    cam.SetPosition(cx - 0.9 * span, cy + 0.65 * span, cz + 0.55 * span)
-    cam.SetViewUp(0.0, 1.0, 0.0)
-    view.CameraParallelProjection = 0
-    Render(view)
-    view.ResetCamera()
-    cam.Dolly(2.7)
+    fit_parallel(view, cam, _pts, (-0.9, 0.65, 0.55), 1.04)
     Render(view)
     save("mesh", view, caption=WALL_CAPTION)
     Hide(wing, view)

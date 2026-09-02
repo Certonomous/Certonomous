@@ -3,9 +3,9 @@
  "case": "/home/ubuntu/Certonomous/verification/runs/actD_runs/A2_wing_grid",
  "cells": 38304,
  "data_provenance": "rendered from the case's own constant/polyMesh, a gunzipped byte-for-byte copy of the landed A2-mach-wing run's grid; no synthesised, smoothed or decimated geometry",
- "generated_utc": "2026-09-02T04:49:13Z",
+ "generated_utc": "2026-09-02T15:59:27Z",
  "image": "A2_wing_grid_mesh.png",
- "ink_fraction": 0.03820301558123251,
+ "ink_fraction": 0.05759858630952386,
  "panel": "mesh",
  "paraview": "5.13.3 EGL (/opt/paraview/bin/pvbatch)",
  "points": 40209,
@@ -14,7 +14,7 @@
   714
  ],
  "script": "cases/dafoam/actd_render_grid_panels.py",
- "script_sha256": "92ff415acfd7e177b3d2e3f59ad6a7d815b624f6f98ab61998e226c4a61566e1",
+ "script_sha256": "524499119821a31374d707708776718cd0098bc26a5d913547a3c7d9df2d270b",
  "source_polymesh": "/home/ubuntu/certonomous-runs/A2-mach-wing/constant/polyMesh",
  "theme": "dark"
 }

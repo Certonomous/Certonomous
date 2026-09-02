@@ -5,16 +5,16 @@
   309.21
  ],
  "data_provenance": "the solver's own wall patch, quad by quad off its face list; frame vertices are the stored shape history's, displacements applied by index; per-face cell scalars, flat by construction; no triangle anywhere",
- "generated_utc": "2026-09-02T06:26:02Z",
+ "generated_utc": "2026-09-02T15:59:20Z",
  "image": "wing_near_47.png",
- "ink_fraction": 0.11814874387254903,
+ "ink_fraction": 0.12527956495098036,
  "paraview": "5.13.3 EGL (/opt/paraview/bin/pvbatch)",
  "resolution": [
   2560,
   714
  ],
  "script": "actd_render_grid_panels.py",
- "script_sha256": "e8317e95f53eaa607f20c65d64948af8e00fdd010928f754177500b472371537",
+ "script_sha256": "524499119821a31374d707708776718cd0098bc26a5d913547a3c7d9df2d270b",
  "source_patch": "/home/ubuntu/Certonomous/verification/runs/actD_runs/A2_wing_grid/constant/polyMesh",
  "source_shape_history": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
  "theme": "dark",
