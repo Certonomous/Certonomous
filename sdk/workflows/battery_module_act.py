@@ -639,11 +639,11 @@ class BatteryModuleAct(DemoAct):
         cruise = min(rate for _t, rate in pulse if rate > 0)
         actual, registered = campaign_cost()
         return Restatement(
-            restatement=(f"Solve the module through the pulse: "
-                         f"{takeoff:,.0f} watts per cubic metre of cell for "
-                         f"the first 60 seconds, {cruise:,.0f} after, out to "
-                         f"900 seconds, and report the hottest cell, the "
-                         f"spread, and the settling."),
+            restatement=(f"Solve the module through the pulse, "
+                         f"{takeoff:,.0f} watts per cubic metre for the "
+                         f"first 60 seconds and {cruise:,.0f} to 900, and "
+                         f"report the hottest cell, the spread and the "
+                         f"settling."),
             confidence=("The load is a volumetric rate from a real cell, so "
                         "the temperature rise is whatever the physics gives "
                         "and nothing is tuned toward a target."),
@@ -667,8 +667,8 @@ class BatteryModuleAct(DemoAct):
                         "a unit depth model."),
             finding=(f"The lab sets it as a volumetric rate from a real "
                      f"cell instead: {takeoff:,.0f} watts per cubic metre at "
-                     f"takeoff, which is about {per_cell:.0f} watts in a 100 "
-                     f"by 30 by 150 millimetre cell of the 5 to 8C class."),
+                     f"takeoff, about {per_cell:.0f} watts in a 100 by 30 by "
+                     f"150 millimetre cell of the 5 to 8C class."),
             correction=("A volumetric rate scales with the cell it heats, so "
                         "the same load is right on any depth of model; the "
                         "basis sits in the table below."),
@@ -834,12 +834,11 @@ class BatteryModuleAct(DemoAct):
                 table_id="battery_conservation"),
             grid_statement=(
                 "One grid of 16,608 cells over two regions carries this "
-                "run. The convergence check fixed before the runs started "
-                "refused the result: the takeoff transient moved "
+                "run. The check fixed before the runs refused it: the "
+                "takeoff transient moved "
                 f"{reading['O3'][0] * 1000:.1f} millikelvin between sweep "
-                f"settings against an allowance of "
-                f"{reading['O3'][1] * 1000:.1f}, so no temperature here is "
-                f"certified yet."))
+                f"settings, {reading['O3'][1] * 1000:.1f} allowed, so no "
+                f"temperature here is certified yet."))
 
     # -- stage 9 ------------------------------------------------------------
     def results(self) -> Results:
@@ -1042,15 +1041,14 @@ class BatteryModuleAct(DemoAct):
             title="Battery module under the takeoff pulse",
             abstract=[
                 ("An eight cell battery module with seven cooling channels "
-                 "was solved through the registered takeoff and cruise "
-                 "pulse, 900 seconds of transient conjugate heat transfer "
-                 "on 16,608 cells."),
+                 "was solved through the registered pulse: 900 seconds of "
+                 "transient conjugate heat transfer on 16,608 cells."),
                 (f"The run completed cleanly and the platform refused to "
-                 f"certify it: the sweep convergence check measured "
-                 f"{reading['O3'][0] * 1000:.1f} millikelvin of movement "
-                 f"against {reading['O3'][1] * 1000:.1f} allowed, so the "
-                 f"temperatures are reported as computed and the corrected "
-                 f"study is on the schedule."),
+                 f"certify it: the sweep check measured "
+                 f"{reading['O3'][0] * 1000:.1f} millikelvin of movement, "
+                 f"{reading['O3'][1] * 1000:.1f} allowed; the temperatures "
+                 f"are reported as computed and the corrected study is "
+                 f"scheduled."),
             ],
             methods=[
                 (f"Transient conjugate heat transfer with OpenFOAM "

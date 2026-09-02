@@ -429,7 +429,14 @@ def sweep_execution() -> dict:
         slowest = max(members, key=lambda iv: iv[2])
         wave_facts.append({"n": len(members),
                            "slowest_label": slowest[3],
-                           "slowest_min": slowest[2] / 60.0})
+                           "slowest_min": slowest[2] / 60.0,
+                           # How far the members' LAUNCHES straggled inside
+                           # the wave, off the same records: the measured
+                           # reason the busy wall runs past the sum of the
+                           # waves' slowest members.
+                           "start_spread_min": (max(iv[0] for iv in members)
+                                                - min(iv[0] for iv in
+                                                      members)) / 60.0})
 
     slowest_key = max(per_point, key=per_point.get)
     return {
@@ -460,6 +467,51 @@ def wave_sentence() -> str:
             f"is {word} waves, {sizes}; the wall clock follows the slowest "
             f"member of each wave ({slowest} minutes), never the "
             f"{core_min:,.0f} core-minute sum.")
+
+
+def _predicted_wall_minutes() -> tuple[int, float]:
+    """``(waves, predicted wall minutes)`` for the estimate, her 1100Z form.
+
+    The wave count is the run count over the worker count, rounded up --
+    derivable before a single run starts; the predicted wall is that count
+    times the estimate's own per-run minutes at the recorded rank. For this
+    map: 16 runs on 12 workers is two waves, 2 x 35 = 70 minutes, never the
+    47 of perfect packing."""
+    execution = sweep_execution()
+    n = len(solved_points())
+    workers = execution["workers"]
+    waves = -(-n // workers)
+    _wall, _core, rank, _per = campaign_cost()
+    per_run_min = scripted_estimate() / n / max(rank, 1)
+    return waves, waves * per_run_min
+
+
+def predicted_wall_sentence() -> str:
+    """Her 1100Z form, verbatim shape: "16 runs on 12 workers: two waves,
+    predicted ~75 min wall" -- the waves stated AT THE PREDICTION, so the
+    estimate never quotes the perfect-packing quotient as a forecast."""
+    execution = sweep_execution()
+    n = len(solved_points())
+    waves, predicted = _predicted_wall_minutes()
+    word = _COUNT_WORDS.get(waves, str(waves))
+    packing = scripted_estimate() / execution["workers"]
+    return (f"Predicted: {scripted_estimate():.0f} core-minutes; {n} runs "
+            f"on {execution['workers']} workers is {word} waves, so about "
+            f"{predicted:.0f} minutes of wall, not the {packing:.0f} of "
+            f"perfect packing.")
+
+
+def wall_reconciliation_sentence() -> str:
+    """Closes the predicted-versus-actual wall gap with measured causes,
+    the same move her JF1 clause makes ("predicted 4.9; the
+    strongest-blowing case ran long, and the wall clock followed it")."""
+    execution = sweep_execution()
+    _waves, predicted = _predicted_wall_minutes()
+    spread = max(w["start_spread_min"] for w in execution["waves"])
+    actual = execution["busy_wall_s"] / 60.0
+    return (f"Predicted {predicted:.0f} minutes of wall; launches inside a "
+            f"wave straggled by up to {spread:.0f} minutes, and the clock "
+            f"closed at {actual:.0f}.")
 
 
 # ---------------------------------------------------------------------------
@@ -720,9 +772,8 @@ class MotorThermalAct(DemoAct):
             run_id=PRIMARY.name,   # internal only; never rendered
             run_root=PRIMARY,
             solver="OpenFOAM " + solver_name(PRIMARY),
-            physics=("steady conjugate heat transfer between a heated motor "
-                     "core, its housing wall and the cooling air in the duct "
-                     "around it, with the "
+            physics=("steady conjugate heat transfer between the heated "
+                     "core, the housing wall and the duct air, with the "
                      + str(_fact(screen, "solver", "turbulence_model"))
                      + " closure resolved to the wall"),
             completion_evidence=T23_RUNS / f"DONE.{PRIMARY.name}",
@@ -762,8 +813,8 @@ class MotorThermalAct(DemoAct):
                          f"duct airspeeds, and report the hottest solid "
                          f"temperature and its margin to the limit at each."),
             confidence=("The body, the mesh and the operating range are "
-                        "settled before the first point runs, so what varies "
-                        "across the map is the physics and nothing else."),
+                        "settled before the first point runs; across the "
+                        "map only the physics varies."),
             cost_estimate=Measured(
                 round(scripted_estimate(), 1), "core-minutes",
                 LAUNCHED / f"{PRIMARY.name}.json", "derived",
@@ -792,11 +843,10 @@ class MotorThermalAct(DemoAct):
         return Assumption(
             assumption=("The request treats a hand correlation for a heated "
                         "duct as good enough to size the hot spot."),
-            finding=(f"At {power} watts and {speed} metres per second the "
-                     f"correlation puts the housing {predicted_rise:.0f} "
-                     f"kelvin above the incoming air, where the coupled solve "
-                     f"found {solved_rise:.0f} kelvin, so the quick estimate "
-                     f"is {ratio:.1f} times too high."),
+            finding=(f"At {power} W and {speed} m/s the correlation puts "
+                     f"the housing {predicted_rise:.0f} K above the incoming "
+                     f"air; the solve found {solved_rise:.0f}, so the "
+                     f"estimate runs {ratio:.1f} times too high."),
             correction=("A correlation sizes the problem in seconds and is "
                         "worth running first. The map itself comes from the "
                         "coupled solve, which carries the solid and the air "
@@ -1058,9 +1108,8 @@ class MotorThermalAct(DemoAct):
                 table_id="motor_thermal_conservation"),
             grid_statement=(
                 f"One grid of {cells:,} cells over {regions} regions carries "
-                f"every operating point in the map, and every point was "
-                f"checked against it cell by cell before a temperature was "
-                f"read."))
+                f"the whole map; every point was checked against it cell by "
+                f"cell before a temperature was read."))
 
     # -- stage 9 ------------------------------------------------------------
     def results(self) -> Results:
@@ -1180,8 +1229,8 @@ class MotorThermalAct(DemoAct):
                  f"re-read against the record fixed before the runs started, "
                  f"agreeing to better than {residual:.1e} K."),
                 (f"Instrument check: {n_readers} readers each detected a "
-                 f"planted {planted:.3e} K perturbation, so a zero from any "
-                 f"of them would have been a reading and not a blind spot."),
+                 f"planted {planted:.3e} K perturbation; a zero from any of "
+                 f"them would have been a reading, not a blind spot."),
                 ("There is no measured data for this configuration, so the "
                  "temperatures are shown as solved."),
             ],
@@ -1233,13 +1282,12 @@ class MotorThermalAct(DemoAct):
                     "Known limit: turbulent transport is modelled, and the "
                     "air side carries that model's error.",
                 ]),
-                ("engineer", [
-                    f"Predicted wall clock: "
-                    f"{scripted_estimate():.0f} core-minutes over "
-                    f"{execution['workers']} workers, about "
-                    f"{scripted_estimate() / execution['workers']:.0f} "
-                    f"minutes.",
-                ]),
+                # HER 1100Z ORDER: the prediction states the WAVES, not the
+                # perfect-packing quotient ("predicts 47, delivers 86, and
+                # never explains"). Wave count derived from the run counts
+                # (16 on 12 is two waves); predicted wall = waves times the
+                # estimate's per-run minutes at the recorded rank.
+                ("engineer", [predicted_wall_sentence()]),
             ],
             "assumption": [
                 ("numericist", [
@@ -1259,7 +1307,12 @@ class MotorThermalAct(DemoAct):
                 ]),
             ],
             "results": [
-                ("engineer", [wave_sentence()]),
+                # The two-wave slowest-member sentence (her 0610Z form) and
+                # the wall reconciliation (her 1100Z ask) both speak AFTER
+                # the compute table, closing the predicted-versus-actual
+                # loop at the delivery end too.
+                ("engineer", [wave_sentence(),
+                              wall_reconciliation_sentence()]),
             ],
         }
 
@@ -1292,9 +1345,9 @@ class MotorThermalAct(DemoAct):
                  f"the wall; the methods table on the solving screen carries "
                  f"the numerics."),
                 (f"The {len(points)} points ran in parallel, "
-                 f"{execution['workers']} solver processes at the peak, and "
-                 f"every reader behind these numbers detected a planted "
-                 f"perturbation before a value was believed."),
+                 f"{execution['workers']} solver processes at the peak; "
+                 f"every reader detected a planted perturbation before a "
+                 f"value was believed."),
             ],
             results=[
                 {"quantity": "hottest point on the map",
