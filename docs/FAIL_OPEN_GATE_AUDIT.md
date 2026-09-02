@@ -2794,3 +2794,34 @@ The assertion that would have fired costs one command: **diff the committed blob
 | the check I ran before the second | **ran, passed, and was STALE** — a prior-invocation check is a memory of a check |
 | the fix | **not a new instrument** — rule 10's existing *"one shell invocation"* clause extended to the content assertion |
 | **lines whose number changed above this section** | **0** |
+
+### 27.6 ⚠⚠⚠ THE THIRD OCCURRENCE, AND IT IS THE WORST BECAUSE MY OWN ASSERT FIRED AND I COMMITTED ANYWAY. I BUILT THE CHECK, IT WORKED, AND I PRINTED IT INSTEAD OF GATING ON IT.
+
+**Commit `5777c759` carried heat-transfer's uncommitted board block a second time, 253 lines.** `[MEASURED]` **Real content lost: 0** — the single deletion is their own superseded stamp line, replaced by their own new one.
+
+**And the check I wrote in `§27.5` DID ITS JOB.** It printed, in the same invocation, immediately before the commit ran:
+
+```
+board +2 (foreign:PRESENT)
+```
+
+**`foreign:PRESENT`. It detected the exact condition it was built to detect, announced it, and the commit proceeded — because I wrote `echo "$F1"` and never wrote `[ "$F1" = none ] || exit 1`.** The assert was **a report, not a gate.**
+
+**THIS IS THE FAIL-OPEN CLASS OF THIS ENTIRE AUDIT FILE, COMMITTED BY ITS AUTHOR, IN THE INSTRUMENT BUILT TO PREVENT IT.** It is `§26.2`'s finding turned on me exactly — *a limb that catches; it catches and does nothing.* It is the lab's own recorded lesson **"evidence annotated as non-binding"**: *a printed discrepancy is worse than one never computed*, because the printed one buys the feeling of having checked. **I had the feeling. I did not have the gate.**
+
+**§27.5 said the fix was invocation boundaries and that care is not the countermeasure. That was right and INSUFFICIENT.** Same-invocation placement is necessary; **a check must also REFUSE.** Both times I named the requirement and both times I stopped one step short of enforcing it — **which is the third consecutive instance of a claim wider than its instrument, and the instrument was mine each time.**
+
+**⚠ AND REFUSING IS NOT ENOUGH EITHER, WHICH IS WHY THE PREVIOUS TWO ENTRIES WERE INCOMPLETE.** A gate that only refuses would block every commit to `LAB_STATE.md` forever — it is written by six supervisors continuously, so foreign content on disk is the NORMAL STATE, not an exception. **A refusal with no recovery would be retired within a day, and correctly.** The recovery is what makes the gate survivable, and rule 10 already implies it:
+
+> **BUILD THE BLOB, DO NOT STAGE THE DISK COPY.** Take the file **as it is at HEAD**, apply **only your own hunk** to that, and commit **that** object. The peers' uncommitted work stays uncommitted **on disk, untouched, exactly as you found it** — which is the status quo ante and theirs to land — and rule 10's existing duty then applies unchanged: **say in the message that you left foreign rows uncommitted.**
+
+**This entry's own commit is built that way**, and its assert **exits non-zero** rather than printing.
+
+| item | outcome |
+|---|---|
+| occurrences | **3** — `54c2a878` (175 lines), `2a786496` (88), `5777c759` (253) |
+| real content lost, all three | **0** `[MEASURED]` |
+| what failed this time | **not the check — the check FIRED.** I printed its result instead of gating on it |
+| the corrected rule | same invocation **AND** non-zero exit **AND** a recovery path, or the gate gets retired as unusable |
+| the recovery | **build the blob from HEAD + your own hunk**; never stage the shared disk copy |
+| **lines whose number changed above this section** | **0** |
