@@ -469,6 +469,12 @@ class Sequencer:
 
         record = self.act.run_record()
         census = dict(self.act.agent_census())
+        # THE WORKERS TILE'S SOURCE (Sanaa 0420Z: the on-screen worker count
+        # matches the act's parallel story instead of reading 0). Only an act
+        # that declares a census puts the key on the wire; the page keeps the
+        # tile hidden for every other act exactly as before.
+        workers = dict(self.act.worker_census() or ())
+        stages_with_workers = bool(workers)
         discussions = self._checked_discussions()
         stages: dict[str, dict] = {}
 
@@ -523,6 +529,8 @@ class Sequencer:
             self._publish(emit, "stage.begin", {
                 "stage": stage,
                 "agents": census.get(stage, 0),
+                **({"workers": int(workers.get(stage, 0))}
+                   if stages_with_workers else {}),
             })
             handler = getattr(self, f"_stage_{stage}")
             published = handler(emit, script, record)
@@ -1293,7 +1301,7 @@ class Sequencer:
         # on the wire: it carries a case path, and a case path may not reach a
         # payload that renders.
         shutil.copy2(side, out / f"{served}.json")
-        return {
+        payload = {
             "url": f"/api/plot/{namespace or self._panel_store()}/{served}.png",
             "panel": panel,
             # Both numbers travel so the DISPLAY can make the same assertion
@@ -1302,6 +1310,21 @@ class Sequencer:
             "cells": claimed,
             "printed_cells": printed,
         }
+        # THE RENDER'S OWN MEASURED COLOUR RANGE, when the sidecar carries
+        # one. It is what lets a field panel be captioned with the field's
+        # numbers instead of the grid's (see the results stage); a mesh or
+        # geometry panel's sidecar has no range and adds nothing here.
+        rng = record.get("range")
+        if isinstance(rng, (list, tuple)) and len(rng) == 2:
+            try:
+                payload["range"] = [float(rng[0]), float(rng[1])]
+            except (TypeError, ValueError):
+                pass
+            else:
+                basis = record.get("range_basis")
+                if isinstance(basis, str) and basis:
+                    payload["range_basis"] = basis
+        return payload
 
     def _publish_panel(self, emit, mesh, panel: str, *, stage: str,
                        label: str = "", caption: str = "") -> dict | None:
@@ -1368,6 +1391,7 @@ class Sequencer:
                             # (SolveReplay.point_noun) and the default keeps
                             # every other act byte-identical.
                             point_noun=replay.point_noun,
+                            closing_shows_cost=replay.closing_shows_cost,
                             # ONE DECLARATION REACHES BOTH SURFACES THAT STATE
                             # A COST. The solving stage speaks a closing
                             # sentence and the results stage publishes a cost
@@ -1553,9 +1577,28 @@ class Sequencer:
             # neutral symbol and no unit.
             symbols = dict(getattr(self.act, "panel_quantities", {}) or {})
             grid = mesh.grid_caption()
-            fields = tuple(
-                (panel, symbols.get(panel, default), grid)
-                for panel, default in (("field_p", "p"), ("field_u", "|U|")))
+
+            # A FIELD PANEL'S CAPTION IS THE FIELD'S OWN NUMBERS, NOT THE
+            # GRID'S. Sanaa's filmed JF1 drive showed "O-mesh, 39,984 cells"
+            # under four different pictures at once -- the grid AND both field
+            # panels -- so the caption said the same thing about every
+            # picture and nothing about any of them. The grid keeps its
+            # caption; a field panel's caption is composed from its OWN
+            # render record (the sidecar's measured colour range and its
+            # basis, written by the renderer beside the image), numbers
+            # first, per her figure standard. A panel whose sidecar carries
+            # no range keeps the grid caption rather than inventing one.
+            def _field_caption(shot, title):
+                rng = shot.get("range")
+                if not rng:
+                    return grid
+                unit = ""
+                if "(" in title and title.endswith(")"):
+                    unit = " " + title[title.find("(") + 1:-1]
+                basis = str(shot.get("range_basis") or "")
+                tail = f", {basis}" if basis else ""
+                return f"{rng[0]:,.1f} to {rng[1]:,.1f}{unit}{tail}."
+
             # The namespace is the ACT'S, taken from a figure it declares, so a
             # panel announced beside the act's own figures is served from the
             # same directory they are. Derived rather than constant: see
@@ -1563,10 +1606,12 @@ class Sequencer:
             declared = list(r.fields) + list(r.plots)
             space = (figure_namespace(declared[0]) if declared
                      else self._panel_store())
-            for panel, title, caption in fields:
+            for panel, default in (("field_p", "p"), ("field_u", "|U|")):
+                title = symbols.get(panel, default)
                 shot = self._panel(mesh, panel, namespace=space)
                 if shot is None:
                     continue
+                caption = _field_caption(shot, title)
                 self._check_caption(title)
                 self._check_caption(caption)
                 announce_plot(emit, space, Path(shot["url"]).name,
@@ -1578,34 +1623,45 @@ class Sequencer:
                            headers=list(table.headers),
                            rows=[list(row) for row in table.rows],
                            table_id=table.table_id)
+        # ONE COMPUTE STORY PER CARD. An act with a ``cost_story`` (Sanaa's
+        # 2026-09-02 ruling off the filmed JF1 drive: the interim table's
+        # cells ARE the screen story until the rerun log lands) renders ITS
+        # lines and nothing computed beside them -- the measured total, the
+        # separate estimate line and the computed comparison would each
+        # contradict the table two keys up. The story lines are spoken as
+        # results lines too, so the card and the transcript carry one
+        # account. Every other act keeps the computed trio byte-identically,
+        # with ``cost_actual`` as the one authority (measured on the DMR act:
+        # 1.9 against 2.4 on one card before that unification).
+        if r.cost_story:
+            for line in r.cost_story:
+                self._say(script, line, tense="past")
+            # THE CARD STILL CARRIES A FORECAST BESIDE THE SPEND (rule 12's
+            # estimate-against-actual shape, and the pre-shoot gate checks
+            # for it). It is the SAME figure the stage-2 beat spoke -- the
+            # act's own cost_estimate -- so the story stays one story; the
+            # comparison line in the story closes against this same number.
+            cost_fields = {
+                "cost": list(r.cost_story),
+                "estimate": (f"Forecast before the run: "
+                             f"{r.cost_estimate_from_stage_2.on_screen()}."),
+            }
+        else:
+            cost_fields = {
+                "cost": cost_line(float(r.cost_actual.value),
+                                  projection=replay.cost_projection),
+                # THE FORECAST SAYS IT IS ONE, and says what it is a forecast
+                # for: a bare second number under the cost sentence invites a
+                # division that is not a ratio of anything.
+                "estimate": self._estimate_line(r, replay),
+                **self._cost_comparison_field(r, script),
+            }
         published = self._publish(emit, "demo.results", {
             "stage": "results",
             "solver": record.solver_header(),
             "verification": list(r.verification_lines),
             "limitations": list(r.limitations),
-            # ONE COMPUTE AUTHORITY ON ONE CARD. This read
-            # ``replay.core_minutes()`` (the SOLVES' wall x ranks) while the
-            # comparison line three keys down read ``cost_actual`` (the act's
-            # own total, which may include meshing or preflight) -- so a card
-            # could carry two different spends for one run (measured on the
-            # DMR act: 1.9 against 2.4). ``cost_actual`` is the authority: it
-            # is the act's declared, validated, measured total, and the
-            # comparison already uses it. A cost_actual that cannot be read
-            # as a number raises here, loudly, rather than falling back to a
-            # second figure.
-            "cost": cost_line(float(r.cost_actual.value),
-                              projection=replay.cost_projection),
-            # THE FORECAST NOW SAYS IT IS ONE, and says what it is a forecast
-            # for. It published as a bare "56.8 processor-minutes" beside the
-            # spend, and ``stageLines`` renders every string leaf in payload
-            # order, so the screen carried an unlabelled second number under
-            # the cost sentence with nothing to say which was which. That was
-            # merely confusing while both figures described one machine. It
-            # stops being merely confusing the moment the spend is shown for
-            # OTHER hardware: an unlabelled 56.8 sitting under a projected
-            # 23.5 invites a division that is not a ratio of anything.
-            "estimate": self._estimate_line(r, replay),
-            **self._cost_comparison_field(r, script),
+            **cost_fields,
             **self._certificate_field(),
         })
         return published

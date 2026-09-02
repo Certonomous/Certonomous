@@ -160,6 +160,14 @@ class ReplaySpec:
     #: What the progress row calls a point. "Sweep point" for a blowing
     #: sweep; an act with one run leaves this alone and gets no progress row.
     point_noun: str = "sweep point"
+    #: WHETHER THE CLOSING SENTENCE STATES THE MEASURED CORE-MINUTES AT ALL.
+    #: True is every act as it was. An act whose screens carry an owner-stated
+    #: interim compute convention (Sanaa's JF1 item 4: the compute table's
+    #: cells ARE the screen story until the rerun log lands) sets False so its
+    #: one compute story is not contradicted by the measured total two beats
+    #: earlier; its compute lines arrive at the results stage instead. The
+    #: measured figure stays in the RunHistory record either way.
+    closing_shows_cost: bool = True
     #: THE COMPUTE FIGURE IN THE CLOSING SENTENCE, when the act shows one for
     #: hardware this box is not. A ``workflows.demo_mode.HardwareProjection``,
     #: or ``None``, which is every act but the jet-flap today and leaves the
@@ -505,7 +513,17 @@ class ReplayStage:
                     "; the points run concurrently, so no single sweep total "
                     "is published as a duration"
                     if history.concurrent else "")),
-            "core_min_measured": round(history.core_min_total, 4),
+            # ``core_min_measured`` RIDES THE WIRE ONLY WHERE THE ACT'S SCREEN
+            # STORY IS THE MEASURED ONE. An act carrying an owner-stated
+            # interim compute convention (closing_shows_cost=False; Sanaa's
+            # 2026-09-02 ruling off the filmed JF1 drive: the interim table
+            # numbers ARE the screen story) keeps the measured total off the
+            # wire entirely, so no payload anywhere on that act contradicts
+            # its one story. The figure itself is not lost: it stays in the
+            # ``RunHistory`` this stage's ``prepare()`` returns and in the
+            # run-status files, which are the record channels (rule 12).
+            **({"core_min_measured": round(history.core_min_total, 4)}
+               if self.spec.closing_shows_cost else {}),
             # ``usd_derived`` AND ``cost_basis`` NO LONGER RIDE THE WIRE.
             # Sanaa's 2026-09-02 order, item 4: no currency on any screen, and
             # the never-list now refuses a dollar string mechanically, which
@@ -561,6 +579,12 @@ class ReplayStage:
         points = len(history.points)
         cm = history.core_min_total
         projection = self.spec.cost_projection
+        if not self.spec.closing_shows_cost:
+            # The act's one compute story lives at its results stage; the
+            # closing sentence states what finished and how much work it was,
+            # and no figure that story would contradict.
+            return (f"All {points} {self.spec.point_noun}s complete, "
+                    f"{iterations:,} iterations.")
         if projection is None:
             return (f"All {points} {self.spec.point_noun}s complete, "
                     f"{iterations:,} iterations, {cm:.1f} core-minutes.")

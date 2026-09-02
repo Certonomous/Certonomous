@@ -1483,10 +1483,20 @@ class ElapsedClock:
                    measured=True, source=wall.source)
 
     def on_screen(self) -> str:
-        """The elapsed figure with its basis sentence, as the viewer reads it."""
+        """The elapsed figure with its basis sentence, as the viewer reads it.
+
+        MINUTES KEEP ONE DECIMAL WHEN THEY HAVE ONE. ``:,.0f`` rendered a
+        6.5-minute clock as "6 minutes", which is a different number, and the
+        jet-flap act's interim wall figure is exactly 6.5. A whole number of
+        minutes still renders whole ("47 minutes"); the sig-figs rule's 0.1
+        precision is the most a fractional clock states.
+        """
         minutes = self.seconds / 60.0
-        figure = (f"{minutes:,.0f} minutes" if minutes >= 2
-                  else f"{self.seconds:,.0f} seconds")
+        if minutes >= 2:
+            text = f"{minutes:,.1f}".rstrip("0").rstrip(".")
+            figure = f"{text} minutes"
+        else:
+            figure = f"{self.seconds:,.0f} seconds"
         return f"{figure}. {self.basis.rstrip('.')}."
 
 
@@ -1535,6 +1545,15 @@ class SolveReplay:
     #: that act; the default keeps every other act byte-identical. The
     #: sequencer threads it into the replay spec; nothing else reads it.
     point_noun: str = "sweep point"
+    #: WHETHER THE SOLVE-CLOSE SENTENCE STATES THE MEASURED CORE-MINUTES.
+    #: True (the default) keeps every act as it was. An act whose screen
+    #: carries an owner-stated interim compute convention
+    #: (:attr:`Results.cost_story`) sets False, so the one compute story on
+    #: its screens is the story: the closing sentence then ends at the
+    #: iteration count and the compute lines arrive at the results stage,
+    #: composed from the same cells the compute table shows. The measured
+    #: figure stays in the record either way.
+    closing_shows_cost: bool = True
     #: What the compute figure on screen DESCRIBES, when that is not this box.
     #: Declared by the act, applied by the sequencer and by the replay stage's
     #: closing sentence, so the two surfaces that state a cost state the same
@@ -1797,9 +1816,27 @@ class Results:
     limitations: Sequence[str]
     cost_actual: Measured            # core-minutes, basis "measured"
     cost_estimate_from_stage_2: Measured
+    #: ONE COMPUTE STORY PER ACT (Sanaa, 2026-09-02, on the filmed JF1 drive).
+    #: When an act's on-screen compute convention is an owner-stated interim
+    #: set (her JF1 item 4: the table's cells ARE the screen story until the
+    #: rerun log lands), the measured spend and the interim table would
+    #: otherwise share one screen and disagree. A non-empty ``cost_story`` is
+    #: the act's own coherent set of compute lines, rendered by the sequencer
+    #: IN PLACE of the computed cost / estimate / comparison trio. The act
+    #: composes every line programmatically from the same cells its table
+    #: carries, so the story and the table cannot drift apart.
+    #:
+    #: ``cost_actual`` AND ``cost_estimate_from_stage_2`` STAY REQUIRED AND
+    #: STAY MEASURED: they are the RECORD, they feed the calibration ledger,
+    #: and the act's internal note says which of the two sets is which. Only
+    #: what RENDERS changes. Empty (the default) leaves every act
+    #: byte-identical.
+    cost_story: Sequence[str] = ()
 
     def __post_init__(self) -> None:
         for line in self.verification_lines:
+            check_demo_language(line)
+        for line in self.cost_story:
             check_demo_language(line)
         if not self.limitations:
             raise DemoContractError(
@@ -2122,6 +2159,25 @@ class DemoAct(ABC):
         """
         return dict(BANNERS)
 
+    def worker_census(self) -> Sequence[tuple[str, int]]:
+        """How many WORKERS the act's story has running, stage by stage.
+
+        SANAA, 2026-09-02 ~04:20Z, verbatim: "valid for all cases: make sure
+        the number of workers matches whats on screen. Rn it just says 0 the
+        whole time." The workers tile used to be hidden for an act because an
+        act published no worker source; this is that source. The count is the
+        act's own parallel story, so it MUST match what the act narrates: the
+        jet flap says 4 workers per run, so it declares 4 through the compute
+        stages; the motor act's 16 points run on 12; each act its own number.
+        Following the fleet convention (Katie, 2026-07-31), the count rises
+        when the working stages begin and ends at zero with the results.
+
+        Returns ``(stage, count)`` pairs like :meth:`agent_census`. An empty
+        declaration (the default) keeps the tile hidden exactly as before, so
+        no act changes behaviour until it declares.
+        """
+        return ()
+
     def agent_census(self) -> Sequence[tuple[str, int]]:
         """How many agents the act's narrative has working, stage by stage.
 
@@ -2324,6 +2380,16 @@ def validate_act(act: DemoAct, *, check_files: bool = True) -> list[str]:
         unknown = [stage for stage, _ in census if stage not in STAGES]
         if unknown:
             problems.append(f"agent_census names unknown stages: {unknown}")
+
+    workers = list(act.worker_census() or ())
+    if workers:
+        unknown_w = [stage for stage, _ in workers if stage not in STAGES]
+        if unknown_w:
+            problems.append(f"worker_census names unknown stages: {unknown_w}")
+        if [n for _, n in workers][-1] != 0:
+            problems.append(
+                "the worker count ends at zero: a complete run has no "
+                "workers on the machine (Katie, 2026-07-31)")
 
     banners = act.banners()
     missing = [stage for stage in STAGES if stage not in banners]
