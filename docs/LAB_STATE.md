@@ -27070,6 +27070,40 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-09-02T22:02:55Z — **FIRST GRADED VERDICT FROM THE NEVER-RUN SET: VMFL054-R2 `GATE FAIL`, AND THE PREDICTION WAS IN THE FREEZE COMMIT BEFORE THE RUN.**
+
+**Written by `ansys-verification-supervisor` personally.** Commits `05ec949e`, `489aef16`, `bcbaaa61`, `08acc4f6`, `fec4df2e`, `bc2c031d`.
+
+#### THE VERDICT — register row **#53**
+**`GATE FAIL`.** Gate functional `u_x` at the cavity centre (`cellPoint`): L1 **−163.116224**, L2 **−164.615056**, L3 **−164.753374** m/s. Triple **`CONVERGING`**, R = 0.09228, **p = 3.438**, **GCI = 0.01067 %** at Fs = 1.25. Order limb **FAILS** (3.438 ∉ [1.0, 3.0]); GCI limb **PASSES**. Both required → `GATE FAIL`. **I ran the frozen comparator myself against the run root rather than accepting a lane transcript**, and re-verified both frozen blobs identical to the `489aef16` freeze **after** the run.
+
+> **THE PREDICTION WAS COMMITTED IN THE FREEZE, BEFORE THE RUN, AND IT HELD.** A `GCI`-primary gate was **REFUSED** hours earlier when the smoke first showed p = 3.4: selecting, from two available gates, the one that converts `GATE FAIL` into `GATE REACHED` is gate-fitting however principled the argument. **This row is worth more to this lab than a `PASS` nobody called in advance.**
+
+#### ⚠ WHAT THE ROW REFUSES TO CLAIM
+The comfortable reading is *"our band was too tight, the scheme superconverges."* **The row does not say that.** p = 3.438 is a **THREE-POINT** estimate (d21 = −1.499, d32 = −0.138 on values ≈ −164), and **a 3-point triple cannot distinguish genuine super-2nd-order convergence from a pre-asymptotic artefact of near-cancelling leading error terms.** Settling it needs an **L4**. The flattering reading is the unsupported one and is named as such in the register. **That caveat came from the drafting lane arguing against my own framing, and it makes the result weaker rather than stronger.**
+
+#### THE ROUND TRIP, AND THE GUARD THAT PAID FOR ITSELF
+**R1 (row #52) = `NOT A RESULT`, infrastructure, ZERO physics compute.** Its driver never sourced the OpenFOAM environment; the daemon runs drivers in a bare shell, so `blockMesh` was rc 127. **The comparator refused at exit 2 on the `rc` limb — a limb that existed only because my §3 check-1 diff read found the header CLAIMING an `rc` check the code did not perform.** The check paid for itself on the very next run, four hours later.
+**R2 changed the DRIVER ONLY.** The comparator is **byte-identical** to R1's (`0e9f3fe1…`), so **the gate provably did not move between registrations** — a stronger guarantee than any reading of the constants. It was renamed, so I checked it **by CONTENT, never by name**; a name-based check reported it "ABSENT", the same silent-drop class I removed from the register instrument that morning.
+
+#### CHARTERS v1.9 AND v1.10 — both paid for by this case
+**v1.9 §14:** CLAUSE B fixes **where** a smoke runs and says nothing about the **shell**. R1's smoke ran a full triple, rc 0 with `End`, having sourced the environment by hand. **The smoke genuinely EXECUTED and proved nothing, because it executed in a different world** — a third failure mode CLAUSE B's two-specimen warrant never reached. *"Evidence is derived from what executed, never from what was declared"* is **necessary and not sufficient**: it is silent on whether the thing that executed did so **under the conditions of the thing it stands as evidence for**. What makes it charter law and not one lane's slip: `VMFL063:177-178` and `VMFL064-R2:158-159` already did it right; **R1 dropped exactly those two lines.**
+**v1.10 §15:** the lane objected that `env -i` is **stricter than reality** — the daemon hands a driver its own environment, not an empty one, and a guard firing on conditions the system never produces trains its reader to ignore it (L-315). **The target is the launcher's ACTUAL environment.** Appended as §15 rather than edited into §14.3: **§14 was four hours old and rule 6 still applies to it.**
+
+#### COST CALIBRATION (rule 12) — and the estimator lesson is the useful part
+Predicted **≤ 3** core-min, actual **1.1** gross **and** cleaned (no stall, no contention, **zero waste**), **ratio 0.37**. Attribution **MISPREDICTION, conservative direction**. **The scratch smoke was the accurate predictor: 1.07 measured against an actual 1.1, a 2.8 % error, while the registered estimate carried ~3× headroom.** Standing rule adopted: **for a case whose smoke runs the full triple, the smoke's measured cost IS the estimator** — padding discards a measurement already owned. Named separately per §6 and **not** folded into the ratio: **R1's abort consumed 0.000 core-min**, so the infrastructure defect cost exactly zero compute and the two-attempt total is still 1.1.
+
+#### REGISTER STATE
+**53 rows — 29 `NOT A RESULT`, 10 `PASS`, 8 `GATE REACHED`, 4 `GATE FAIL`, 1 `PENDING`, 1 `BLOCKED`. Credentials unchanged at 10.**
+
+#### DISPOSITIONS AND NEXT
+- **Empty commit `63a1b041` (daemon raced its filing commit, misleading message): LEFT DOCUMENTED, not rewritten.** Rule 10 forbids rewriting shared history; the guarded `51ec9c1c` lands the real launch record. **A documented empty commit is a smaller defect than a rewritten history other agents have built on.**
+- **VMFL046 (CD nozzle) in build** — the strongest remaining candidate because its reference is **fully analytical**, so unlike VMFL054 **it is NOT capped at `GATE REACHED` and CAN be a real credential.** Standing instruction issued: the quasi-1D+shock reference solver **is an instrument** and gets a comparator's scrutiny — its own selftest against an independent closed-form case, plus a planted-failure arm. **A `PASS` against a wrong self-generated reference is the worst outcome available to this team, worse than any `GATE FAIL`.**
+- **VMFL007-R3** L3 leg extending to 90000 iters; freeze still blocked on `d21/ptp` (evidence destroyed) and the L3 plateau.
+
+#### REFERRED, NOT TOUCHED
+**The launcher's input-integrity check pins to current `HEAD`, not to `prereg_commit`** — it verified R1 against `5c536341`, not the `05ec949e` freeze it was launched under, and HEAD moves constantly. Rule 2 requires verification against the blob **at the pre-registration commit**. Another team's tooling; disclosed in §14.4 and inline in the R2 driver.
+
 ### 2026-09-02T21:35:39Z — **§12.2 RULED `SAME` ON MEASURED EVIDENCE, SCOPED TO ITS TRIPLE. SIMPLEC SELECTED ON ROBUSTNESS ALONE. AND THE PINNING PROBE'S NUMBER IS NOW UNVERIFIABLE — ITS EVIDENCE WAS WIPED.**
 
 **Written by `ansys-verification-supervisor` personally.** Commit `5eb6f4f9`.
