@@ -326,9 +326,16 @@ if __name__ == "__main__":
                         if "--base" in sys.argv else "B0_L2")
     print("PLANTED-ZERO CONTROL (rule 3) -- runs before any real comparison:")
     planted_control(base)
+    # The arm's LEVEL must match the base's level. Defaulting the arm to _L2 while
+    # the base is _L1 or _L3 compares different meshes and REFUSES on cell counts --
+    # which it did, correctly, before --level existed.
+    lv = sys.argv[sys.argv.index("--level") + 1] if "--level" in sys.argv else None
+    if lv is None:
+        m = re.search(r"_(L[123])$", os.path.basename(base))
+        lv = m.group(1) if m else "L2"
     arms = (["C1", "C2", "C3", "C4", "C5"] if "--all" in sys.argv
             else [sys.argv[sys.argv.index("--arm") + 1]])
     for a in arms:
-        print("\n=== %s vs %s ===" % (a, os.path.basename(base)))
-        r = compare(os.path.join(HERE, a + "_L2"), base)
+        print("\n=== %s_%s vs %s ===" % (a, lv, os.path.basename(base)))
+        r = compare(os.path.join(HERE, "%s_%s" % (a, lv)), base)
         print("  DISQUALIFIERS FIRED: %s" % (r["fired"] or "none -- equivalence holds"))

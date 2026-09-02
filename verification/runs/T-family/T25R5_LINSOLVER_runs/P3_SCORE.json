@@ -1,0 +1,128 @@
+{
+  "B0_spread": 10.669355912378998,
+  "arm": "C4",
+  "baseline_reproduction": {
+    "B0_L1_vs_P1": "EXACT (931 / 28821)",
+    "B0_L2_vs_P2": "EXACT (901 / 208819)",
+    "B0_L3_vs_P3": "EXACT (1111 / 366954)",
+    "note": "five bit-for-bit reproductions across the probe"
+  },
+  "cost_core_min": {
+    "ceiling": 320,
+    "cost_basis": "REPORTED-BY-OWNER; derived at $0.0513/core-h",
+    "cumulative": 207.523,
+    "stage0": 18.6,
+    "stage1_clean": 74.157,
+    "stage1_waste_contaminated": 70.533,
+    "stage2": 44.233,
+    "stage2_cap": 126.0,
+    "usd_derived": 0.1774
+  },
+  "equivalence": {
+    "C4_L1": 1.199999e-08,
+    "C4_L2": 2.400003e-08,
+    "C4_L3": 6.04e-07,
+    "all": "EQUIVALENCE HOLDS at every level",
+    "threshold_K": 0.001
+  },
+  "ladder_extrapolation": {
+    "ceiling": 20000,
+    "note": "NOT ESTABLISHED -- 40 ramp steps only, ramp not soak. Presented as arithmetic on the measured factors, not as a prediction.",
+    "sigma_cap_if_held": 24709.3,
+    "verdict": "even on this optimistic arithmetic the ladder still breaches the ceiling by x1.24",
+    "wall_factors_measured": {
+      "L1": 9.67,
+      "L2": 11.37,
+      "L3": 5.24
+    }
+  },
+  "rows": {
+    "B0_L1": {
+      "clock_s": 131.0,
+      "end_lines": 1,
+      "exec_s": 131.28,
+      "max_it": 1000,
+      "mean_feas": 30.95703544575725,
+      "min_final": 4.25673299798e-09,
+      "n_all": 1200,
+      "n_feas": 931,
+      "pinned": 275,
+      "steps": 40,
+      "sum_feas": 28821,
+      "tot_it": 297821
+    },
+    "B0_L2": {
+      "clock_s": 516.0,
+      "end_lines": 1,
+      "exec_s": 516.15,
+      "max_it": 1000,
+      "mean_feas": 231.7635960044395,
+      "min_final": 6.44767279079e-09,
+      "n_all": 1200,
+      "n_feas": 901,
+      "pinned": 310,
+      "steps": 40,
+      "sum_feas": 208819,
+      "tot_it": 507819
+    },
+    "B0_L3": {
+      "clock_s": 993.0,
+      "end_lines": 1,
+      "exec_s": 989.39,
+      "max_it": 1000,
+      "mean_feas": 330.2916291629163,
+      "min_final": 9.95435773339e-09,
+      "n_all": 1200,
+      "n_feas": 1111,
+      "pinned": 96,
+      "steps": 40,
+      "sum_feas": 366954,
+      "tot_it": 455954
+    },
+    "C4_L1": {
+      "clock_s": 14.0,
+      "end_lines": 1,
+      "exec_s": 13.57,
+      "max_it": 3,
+      "mean_feas": 1.6337271750805586,
+      "min_final": 1.07689403701e-11,
+      "n_all": 1200,
+      "n_feas": 931,
+      "pinned": 0,
+      "steps": 40,
+      "sum_feas": 1521,
+      "tot_it": 2059
+    },
+    "C4_L2": {
+      "clock_s": 46.0,
+      "end_lines": 1,
+      "exec_s": 45.4,
+      "max_it": 17,
+      "mean_feas": 3.855715871254162,
+      "min_final": 1.13046135171e-11,
+      "n_all": 1200,
+      "n_feas": 901,
+      "pinned": 0,
+      "steps": 40,
+      "sum_feas": 3474,
+      "tot_it": 4390
+    },
+    "C4_L3": {
+      "clock_s": 189.0,
+      "end_lines": 1,
+      "exec_s": 188.93,
+      "max_it": 186,
+      "mean_feas": 11.01980198019802,
+      "min_final": 4.18307419076e-10,
+      "n_all": 1200,
+      "n_feas": 1111,
+      "pinned": 0,
+      "steps": 40,
+      "sum_feas": 12243,
+      "tot_it": 12939
+    }
+  },
+  "spread": 6.745191087156052,
+  "threshold": 3.0,
+  "verdict": "P-3 LOSES"
+}
