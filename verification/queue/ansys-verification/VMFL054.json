@@ -1,0 +1,13 @@
+{
+  "team": "ansys-verification",
+  "case_id": "VMFL054",
+  "prereg_commit": "05ec949eb4bd12d88a559f30e0f74ad5bd4f5e98",
+  "prereg_path": "cases/ansys_verification/VMFL054/PREREGISTRATION.md",
+  "launch_cmd": ["bash", "/home/ubuntu/Certonomous/cases/ansys_verification/VMFL054/run_vmfl054.sh", "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL054"],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL054",
+  "ranks": 1,
+  "cost_core_min_estimate": 3,
+  "cost_basis": "derived: estimate 3 core-min (frozen PREREGISTRATION.md sec.7 ceiling); scratch feasibility MEASURED 1.07 core-min for the full L1/L2/L3 triple to residual convergence (L1 0.017 + L2 0.117 + L3 0.933 core-min, wall 1/6/57 s); cap 40 core-min running total (driver CAP_CORE_MIN); ~$0.0026 at the owner-stated $0.0513/core-h, reported-by-owner, not measured (COMPUTE_BUDGET_CHARTER section 5)",
+  "memory_floor_gb": 1.0,
+  "enqueued_by": "ansys-lane-opus48 (claude-opus-4-8[1m]) filed the entry; the SUPERVISOR holds the section 3 check-4 on freeze commit 05ec949e (diff re-read of grade_vmfl054.py + run_vmfl054.sh, selftest 12 arms all pass incl. 4 planted BAD completion arms refusing exit 2, gate constants byte-identical to the pre-repair draft). Lane verified all 12 frozen files hash-match 05ec949eb4bd12d88a559f30e0f74ad5bd4f5e98 before enqueue; run root created empty; cwd = run root per charter section 11.4 (NOT the case dir -- the runner writes STATUS.queue.<case_id> and launcher.queue.out into cwd at :509/:510)."
+}
