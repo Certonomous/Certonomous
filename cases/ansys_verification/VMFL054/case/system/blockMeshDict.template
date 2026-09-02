@@ -1,0 +1,36 @@
+/*--------------------------------*- C++ -*----------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object blockMeshDict; }
+// VMFL054 - Laminar flow in a trapezoidal driven cavity, VM2026R1 p.173.
+// Symmetric trapezoid about x=1.0: bottom edge y=0 spans x in [0,2] (width 2 m),
+// top edge y=1 spans x in [0.5,1.5] (width 1 m), height h=1 m. Slanted side walls
+// (0,0)->(0.5,1) and (2,0)->(1.5,1). 2-D: one cell in z (thickness 0.1 m), the
+// z-faces are empty. __NX__/__NY__ are substituted by run_vmfl054.sh per level; the
+// r=2 family doubles BOTH counts at every level. Uniform grading (ratio 1) so the
+// Roache triple sees a clean, systematic halving of every cell dimension.
+scale 1;
+
+vertices
+(
+    (0.0 0.0 -0.05)   // 0
+    (2.0 0.0 -0.05)   // 1
+    (1.5 1.0 -0.05)   // 2
+    (0.5 1.0 -0.05)   // 3
+    (0.0 0.0  0.05)   // 4
+    (2.0 0.0  0.05)   // 5
+    (1.5 1.0  0.05)   // 6
+    (0.5 1.0  0.05)   // 7
+);
+
+blocks
+(
+    hex (0 1 2 3 4 5 6 7) (__NX__ __NY__ 1) simpleGrading (1 1 1)
+);
+
+boundary
+(
+    movingBottom { type wall; faces ( (0 1 5 4) ); }   // y = 0, moves +x
+    movingTop    { type wall; faces ( (3 2 6 7) ); }   // y = 1, moves +x
+    wallLeft     { type wall; faces ( (0 3 7 4) ); }   // slanted, stationary
+    wallRight    { type wall; faces ( (1 2 6 5) ); }   // slanted, stationary
+    frontAndBack { type empty; faces ( (0 1 2 3) (4 5 6 7) ); }
+);
