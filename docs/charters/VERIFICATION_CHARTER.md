@@ -4706,3 +4706,39 @@ It **does not amend `CLAUDE.md` rule 3** — constitutional, not mine; `§2p` bi
 | gates · thresholds · bands · caps · labels | **0 · 0 · 0 · 0 · 0** |
 | solver compute | **0 core-min, $0.00** |
 | **lines whose number changed above this section** | **0** |
+
+### §2p.5 — **LIMB (c) CLOSED ON MEASUREMENT: INCIDENCE IS ZERO, THE PREMISE THAT JUSTIFIED THE SWEEP WAS FALSE, AND THE RIGHT CURE IS NOT THE ONE I WROTE**
+
+**Appended 2026-09-02. Lines whose number changed above this section: 0.** `§2p.3(c)` was stated on mechanism with incidence marked NOT YET ESTABLISHED. The sweep has reported and **every correction below runs against my own clause.**
+
+**INCIDENCE: `LIVE 0`, `LATENT 25`, `NOT DETERMINABLE 0`** `[MEASURED, 2,114 `.py` files; 4,503 directories holding ≥2 numeric-named subdirs]`. **Every function-object directory read by a confirmed string-sorted grading-path reader holds exactly ONE subdirectory on disk.** 22 genuine time-directory selections were hand-verified out of 41 unguarded-lexicographic candidates. **The mechanism is real and its current exploitation is nil** — and the honest reading is that the class is **latent, not live**, which is a weaker statement than the referral's and I make it anyway.
+
+**⚠ THE PREMISE THAT JUSTIFIED THE SWEEP IS FALSE. It was ONE specimen, not two.** VMFL054's comparator is **REFUTED as a defect, verified by me at source**: `grade_vmfl054.py` has **one commit in its entire history**, and that single committed version already carries `if len(subs) > 1: refuse("…a restart wrote more than one; REFUSING rather than guessing which is current")` **immediately above** the `subs[0]`. **The index is reached only when the list has exactly one member. There is no repair diff in the repository because there was nothing to repair.** `analyse_L3_plateau.py:112,158` **is** genuine and **unrepaired at HEAD**. **So "twice in one day, a pattern not an accident" — the sentence that motivated a lab-wide sweep — does not survive.** *The sweep was still right to run, because the MECHANISM was verified independently and does not depend on the count. But a class propagated on a miscount is how a lab acquires rules nobody can later justify, and this one came within one unchecked citation of that.*
+
+**⚠ AND THE DISCRIMINATOR IS NOT THE INDEX — IT IS WHETHER THE SITE IS GUARDED.** Under a `refuse-unless-exactly-one` guard, `[0]`, `[-1]` and integer-keyed selection are **identical**, and most sites reached that way are sound. Of 205 time-like candidates: **96 unguarded, 69 named, 26 guarded, 13 guarded+named.**
+
+> **`§2p.5` REVISES `§2p.3(c)`: ANCHORING BEATS ORDERING, AND REFUSAL BEATS BOTH. A reader that knows which time it needs SELECTS BY THAT TIME and REFUSES if it is not uniquely present. Ordering — numeric, never lexicographic — is the FALLBACK for when the target genuinely is "whatever is latest". A `refuse-unless-exactly-one` guard is a sufficient alternative to integer keying and is STRONGER, because it declines rather than chooses.**
+
+**The lab had already converged on this twice and I should have looked before writing a rule.** `VMFLGPU003/grade_vmflgpu003.py:364-400` is **named AND integer-keyed AND refusing**, and says why in its own words: *"Never `the last directory`: a truncated or restarted run leaves a perfectly well-formed profile for the wrong iteration, and that number is indistinguishable from the right one once it is out of context"* — *"the gate is read AT endTime or it is not read."* **It is also the reader for the one directory on disk where a string sort actually disagrees, and it is immune.**
+
+**MEASURED AND REASSURING, stated because a null belongs on the record as much as a hit (`§2o`): NO grader anywhere selects a CASE TIME DIRECTORY by string sort** — every one uses `key=float` or equivalent. **That closes the highest-consequence variant, and it matters because case time dirs hold 490 of the 527 "naive-fix-breaks" directories.** For case time dirs `[0]` disagrees in **2 of 3,741 (0.1 %)** — the `'0'`-sorts-first coincidence holding — while for `postProcessing` dirs the coincidence does **not** hold: `[0]` disagrees in **60.2 %**.
+
+**THE AGE-GUARD CROSS-CHECK IS CONFIRMED AND THE HAZARD IS AS LARGE AS IT LOOKS.** Both canonical implementations stat **only case time-dir fields against `0/`** and **nothing under `postProcessing/`**. A reader that picks the wrong function-object directory reads a file **the age guard never opens**.
+
+**⚠ A REFINEMENT TO "GRADING PATH" THAT THIS FOUND, AND IT IS NOT COSMETIC.** `analyse_L3_plateau.py`'s own docstring says *"THIS SCRIPT PRODUCES MEASURED NUMBERS. It grades nothing, issues no verdict"* — so by a literal reading it is diagnostic and not urgent. **But its numbers are cited in `docs/NUMERICS_KNOWLEDGE.md` and `docs/charters/ANSYS_VERIFICATION_CHARTER.md`** `[MEASURED, 2 citations each]`. **A script that grades nothing but whose outputs become RECORDED LAB FACTS is on the RECORD path, and the record path deserves the grading path's hygiene.** *"It issues no verdict" is not a discharge when a charter quotes its number.*
+
+**COUNTS ARE LOWER BOUNDS, DISCLOSED BY THE LANE AGAINST ITS OWN WORK.** Its guard-detector marks a site GUARDED whenever the **enclosing function** contains any `len()` check, which falsely absolved `analyse_t15.py:693` — unguarded and lexicographic, caught only by hand. **Any unguarded site inside a large function that guards something else was silently absolved, so the 22 may be incomplete.** Closing it needs control-flow reachability, not an enclosing-function heuristic. **Non-Python readers were not swept.** And **LIVE/LATENT is a snapshot: a latent case becomes live the moment it is restarted, which is exactly how these directories multiply.**
+
+**THE SCANNER IS NOT LANDED, and the reason is `§2p` itself:** it carries **two known defects**, one of which produces **false GREENs**. **Landing an instrument that absolves sites it did not check would be the fail-open this clause exists to forbid.** If it is wanted as a standing instrument it is repaired first, with the empty-input test and a planted control on the false-GUARDED shape.
+
+| item | outcome |
+|---|---|
+| incidence | **LIVE 0 · LATENT 25** — mechanism real, exploitation nil |
+| the referral's premise | **FALSE — one specimen, not two.** VMFL054 **REFUTED** at source; `analyse_L3_plateau.py` **CONFIRMED**, unrepaired |
+| `§2p.3(c)` as I wrote it | **REVISED — anchoring beats ordering; refuse-unless-exactly-one beats both** |
+| case time directories | **CLEAN lab-wide** — the highest-consequence variant is closed |
+| age guard | **CONFIRMED BLIND** to this class |
+| "grading path" | **widened to the RECORD path** — a diagnostic quoted by a charter is not diagnostic |
+| counts | **LOWER BOUNDS**, by the lane's own disclosed defect |
+| repairs mandated | **0** — referred; `analyse_L3_plateau.py` is ansys's file |
+| solver compute | **0 core-min, $0.00**; the sweep itself ~15 core-min of static analysis, **not a pre-registered run** |
