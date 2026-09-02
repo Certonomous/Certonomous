@@ -849,7 +849,7 @@ function connect(id) {
 function resetMission() {
   if (state.source) state.source.close();
   state.mission=null; state.workers=0; state.agents=0; state.finished=false; state.plots=[]; state.surface=null; state.mesh=null; state.report=null;
-  state.landscape=[]; state.landMeta=null; state.certificate=null; state.digestPhase=null; state.touchpoints=0;
+  state.landscape=[]; state.landMeta=null; state.certificate=null; state.digestPhase=null; state.touchpoints=0; state.paraviewOwned=false;
   state.peakAgents=0; state.highWorkers=0; state.workersShown=0; state.fleetAhead=0;
   state.fleetAheadToken=0; state.fleetSeq=0; state.agentsSeen=0; state.rolesSeen=new Set(); revealQ.length=0; revealing=false;
   state.dispatch={}; state.dispatchGrant=null; state.trace=null; state.instant=false;
@@ -1829,7 +1829,21 @@ function stageBegan(p) {
   if (at >= 0) {
     $('kCycleLabel').textContent = 'Stage';
     $('kCycle').textContent = `${at + 1}/${STAGE_ORDER.length}`;
-    setHidden('kWorkersTile', true);
+    // WORKERS IS WIRED WHEN THE ACT DECLARES IT, AND ONLY THEN. Sanaa,
+    // 2026-09-02 ~04:20Z: "make sure the number of workers matches whats on
+    // screen. Rn it just says 0 the whole time." The tile used to be dropped
+    // for every act because an act published no worker source; the acts now
+    // declare a per-stage worker census (demo_mode.DemoAct.worker_census)
+    // and `stage.begin` carries it as `workers`, so the tile shows the
+    // act's own parallel story (the jet flap's 4 workers per run) and ends
+    // at zero with the results. An act that declares nothing keeps the
+    // hidden tile exactly as before: an absent source is never invented.
+    if (p.workers != null && Number.isFinite(Number(p.workers))) {
+      $('kWorkers').textContent = String(p.workers);
+      setHidden('kWorkersTile', false);
+    } else {
+      setHidden('kWorkersTile', true);
+    }
   }
   // The census is separate: the results stage carries none, and a stage with
   // no agents of its own must still move the masthead.
@@ -2668,6 +2682,14 @@ function injectCertificate() {
 
 async function loadGeometry(p) {
   try {
+    // THE TESSELLATED CANVAS NEVER PAINTS OVER A PARAVIEW RENDER. Sanaa,
+    // 2026-09-02 ~04:55Z, verbatim: "make sure ALL runs show the paraview no
+    // tesselation pls." An act that ships rendered panels announces no
+    // geometry.ready at all; this guard is for the race a late or foreign
+    // geometry.ready would otherwise win, flipping the stage back to the
+    // triangle canvas. The pre-mission upload preview, before any act has
+    // supplied a render, is the one place the plain surface view remains.
+    if (state.paraviewOwned) return;
     const url = p.url || (p.name ? `/api/geometry?name=${encodeURIComponent(p.name)}` : null);
     if (!url) return;
     // Candidates stream fast; their fetches can resolve out of order. A
@@ -3014,6 +3036,11 @@ function loadMeshPanel(p) {
   if (p.printed_cells != null) state.panelPrinted = Number(p.printed_cells);
   if (!panelCountsAgree()) { refusePanel(); return; }
   const img = $('viewportField'); if (!img) return;
+  // A PARAVIEW RENDER NOW OWNS THE STAGE. Sanaa, 2026-09-02 ~04:55Z: "make
+  // sure ALL runs show the paraview no tesselation pls." Once any rendered
+  // panel is up, a late geometry.ready must not flip the stage back to the
+  // client-side triangle canvas (see loadGeometry, which honours this flag).
+  state.paraviewOwned = true;
   img.src = p.url;
   showViewportStage(PANEL_STAGE[p.panel] || 'gridShot');
   setHidden('viewportEmpty', true);
@@ -3339,6 +3366,7 @@ function drawGeometry() {
 // own facets and is untouched).
 function showFieldImage(url, p) {
   const img = $('viewportField'); if (!img || !url) return;
+  state.paraviewOwned = true;   // her 04:55Z no-tessellation order; see loadGeometry
   img.src = url;
   showViewportStage('field');
   setHidden('viewportEmpty', true);
