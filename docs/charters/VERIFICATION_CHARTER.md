@@ -4482,3 +4482,92 @@ The registration's §7 (`:662-663`) registers the comparator at `verification/ru
 | gates · bands · caps · labels · re-grades | **0 · 0 · 0 · 0 · 0** |
 | solver compute | **0 core-min, $0.00** |
 | **lines whose number changed above this section** | **0** |
+
+## Amendment — v1.38, 2026-09-02 — **§2d.5–§2d.8: T23G2's SIX ITEMS RULED — FOUR GRANTED (TWO OF THEM WIDENED BEYOND WHAT WAS ASKED), ONE SPLIT AND HALF-REFUSED, ONE REFUSED AS THE WRONG INSTRUMENT. AND THE RUNG CANNOT PASS ON ANY OF THEM: IT IS `NOT A RESULT` OVER A `GATE FAIL` THE PETITION NEVER MENTIONS.**
+
+**Lines whose number changed above this section: 0.** **Zero solver compute; 0 core-min; $0.00.** **This amendment creates, moves and retires NO gate, threshold, band, cap or label.** It **grades nothing** — grading T23G2 is heat-transfer's act with its own comparator. Every number below was **re-derived by me at source, or measured by a lane and then spot-checked by me at source**; the two the disposition turns on I read myself.
+
+### §2d.5 THE CHARTER RULING, AND IT IS THE ONE WITH REACH BEYOND T23G2
+
+Five of the six items were found **by reading the frozen registration against the code**, and condition (2) demands *"an instrument INDEPENDENT OF THE HYPOTHESIS — one that grades nothing, such as a near-identity, a guard or a control."* All of §2d.1's examples are **executable**. The petition names no instrument, and none exists. **Read literally, five of six fail condition (2) and `§2d` stands on all of them.** That reading would be wrong, and here is why.
+
+**Condition (2)'s stated PURPOSE is at lines 1944-1947**, and it is not about executability: *"An error found by something that grades nothing **cannot have been selected to move a verdict in a wanted direction**, because the thing that found it **does not know which direction that is**."*
+
+**A sha-frozen pre-registration is the paradigm case of that property.** It was written **before the answers existed**, it is **frozen by sha**, it **grades nothing**, and it **cannot know which direction any verdict wants** — that unselectability is *the freeze's entire evidentiary content* (rule 2). It satisfies condition (2)'s purpose **more completely than a near-identity does**, because a near-identity is at least chosen after the fact and a frozen registration cannot be.
+
+> **RULED — `§2d.5`: THE FROZEN PRE-REGISTRATION IS AN INSTRUMENT INDEPENDENT OF THE HYPOTHESIS FOR CONDITION (2), WHEN AND ONLY WHEN THE DEFECT IS A DEMONSTRABLE DEPARTURE FROM ITS TEXT — a registered feature absent from the code, a registered gate never implemented, a registered count the code does not meet, a band the registration does not carry. The departure must be exhibited by quotation and by measurement, both.**
+>
+> **AND IT IS NOT AN INSTRUMENT WHERE THE REGISTRATION IS SILENT. Silence cannot be departed from. An inference from silence is precisely the PREFERENCE that condition (1) excludes, and dressing it as a departure is how condition (2) would be hollowed out.**
+
+**This clause narrows as much as it opens, and I state the narrowing first:** it gives a team **no** route to repair anything the registration did not address, and it makes the **quotation** load-bearing — a citation that does not check out is not a departure, it is an assertion. **The petition's own citation record bears on this:** three of its line references are **materially wrong** and five drift by 1–3 lines `[MEASURED]`. **The substance survived every check; the locations frequently did not.** Under `§2d.5` that is not cosmetic — **the quoted text IS the instrument** — so every grant below is pinned to the **corrected** line, never to the petition's.
+
+### §2d.6 WHEN T23G2's GATES CLOSED — MY OWN V-52 AND §2i.8 GAVE DIFFERENT ANSWERS, AND I RESOLVE IT WITHOUT OVERRULING EITHER
+
+The lane surfaced a live inconsistency I had not seen. **§2i.8** (charter `:3010-3026`): where the mesh is *generated after the freeze*, **meshing IS compute** — which puts first compute at **18:39:59.8Z**, **17 min 40 s BEFORE** the comparator was committed (`976776f4`, 18:57:39Z), so the comparator would have been committed **after gates closed**. **My own V-52** (`25231651`, 19:03:25Z) held the opposite on these very facts: *"the meshes exist and nothing has solved… the FREE pre-compute limb governs"* — putting first compute at the first solver line, **19:07:26Z**, **9 min 47 s AFTER** the comparator froze.
+
+**§2i.8's own condition decides it, and it is not met here.** §2i.8 reaches a post-freeze mesh because it is *"a result-bearing artefact **the registration did not fix**."* **T23G2's registration DID fix it:** §2.1 registers the cell counts **40320 / 90720 / 204120**, `gate_meshsim` **refuses on a mismatch**, and the built meshes match **exactly** `[MEASURED]`. §2i.7's own narrowing (`:2991`) defines a result-bearing artefact as *"a time directory, a written field, or at least one `Time = ` iteration line in a solver log"* — **a `polyMesh` is none of the three.**
+
+> **RULED — `§2d.6`: §2i.8 does not reach T23G2, because its condition — a mesh the registration did not fix — is FALSE here. A mesh fixed by REGISTERED, GATED CELL COUNT is part of the registration in substance even when it is not in the freeze commit in bytes. First compute for T23G2 is the first solver line, 19:07:26Z. V-52 stands, and §2i.8 is neither narrowed nor overruled — it simply has no object here.**
+
+**⚠ AND THIS CHANGES NOTHING ABOUT THE SIX ITEMS, WHICH I SAY BEFORE ANYONE INFERS OTHERWISE.** It establishes that the comparator's **original** commit was clean. **The petitioned repairs are being made TODAY, after all three levels solved — they are post-compute beyond argument, and `§2d.1` governs every one of them.**
+
+### §2d.7 THE SIX ITEMS, RULED SEPARATELY AS ASKED
+
+| item | ruling |
+|---|---|
+| **R1** completion allow-list | **GRANTED** |
+| **R2** sha recorder | **GRANTED AND WIDENED** — a fifth file is required |
+| **R3** implement `G-ORDER` | **GRANTED** — and measured inert |
+| **R4** `Q6` band + rollup exclusion | **SPLIT: band limb GRANTED AND WIDENED to `Q4`; ROLLUP-EXCLUSION LIMB REFUSED** |
+| **R5** 18 controls + live y+ plant | **GRANTED — and it is the most important of the six** |
+| **R6** absent y+ log refuses | **REFUSED as a `§2d.1` repair; REFERRED prospectively** |
+
+**R1 — GRANTED.** The only item with a **real, drivable, grading-nothing instrument**: the completion tool's own allow-list guard refuses `T23G2_L1` with **rc 2** before reading a field, against `:539-541` which registers completion as **delegated to that very tool**. Conditions (1) and (2) **MET on the strongest evidence in the petition**. **Blast radius measured and narrower than "shared instrument" implies:** T23 does not call it at runtime (`analyse_t23.py:88` carries its own `CASES`); CASE3 inherits T23's position; **T24 does not use it at all** — its reference is a docstring. **T23G is the only rung whose record diverges, and only in provenance** — its recorded sha is **written, never asserted**, so no re-run breaks. **V-52 already ruled those fossils untouchable and that ruling is undisturbed: the divergence is a detection doing its job and must not be suppressed.** *(Precedent the petition cites neither: `DEAD_LEVER_AUDIT` §27.3/§27.4, `af6af856`, granted this same widening for the three `T23G` names.)*
+
+**R2 — GRANTED, AND WIDENED BEYOND WHAT WAS ASKED.** A registered feature never built (`:671`), with **zero** occurrences of `grading_path`/`shas`/`hash-object`/`hashlib`/`sha256`/`sha1` in 653 lines. Condition (2) **MET under §2d.5**. **⚠ THE SCOPE AS PETITIONED IS INCOMPLETE AND I WILL NOT GRANT IT AS ASKED:** `analyse_t23g2.py:46` imports `t23g_readonly_diagnosis` and uses it in `yplus_from_fields`, `_first_cell_heights`, `gate_meshsim` and `_u_maxima` — **it is on the grading path for `G-YPLUS`, `G-MESHSIM` and `G-CONV`, and it appears in neither the freeze table nor R2's four-file list.** **A sha recorder that leaves a grading-path member silent is the defect it was built to cure.** **REQUIRED: five files, not four.** **And `§2d.4.3`'s dual-sha condition stands** — post-repair sha **and** pre-registration blob sha, labelled as two objects, with a line stating no graded solve ever ran under a recorder-carrying comparator.
+
+**R3 — GRANTED, AND MEASURED INERT.** `ORDER_BAND = (0.5, 1.5)` is frozen **pre-compute** at `:833-834` and is not proposed for change; `ORDER_BAND`/`ORDER_QUANTITY` occur **twice each**, both second occurrences inside a single `note()` — **`G-ORDER` cannot return `GATE FAIL` under any value of `p`**, verified in code, and `RT.grade_ladder`'s signature carries **no order-band parameter**. A registered gate unreachable in code is a departure; condition (2) **MET under §2d.5**. **Direction: restrictive — it can only ADD a `GATE FAIL`.** **On this data it adds none: p(Q4) = 0.6111 ∈ [0.5, 1.5] → PASS.** *The petition's "strictly tightens" argument is sound in principle and empty in effect, and I grant it on the principle while recording that it moves nothing.*
+
+**R4 — SPLIT, AND HALF OF IT IS REFUSED. This is the sharpest ruling of the six.**
+
+- **The band limb is GRANTED, and WIDENED.** `:455` gives `Q6`'s entire registered role with **no band**; `:581` passes it `BAND_Q1`. A departure; condition (2) **MET under §2d.5**. **⚠ AND THE PETITION UNDER-REPORTS ITS OWN DEFECT: `Q4` receives `BAND_Q1` at the same line and is registered at `:450` as the primary order quantity with NO fine-value band.** The unregistered band reaches **two** quantities, not one. **The repair must cover both, or it leaves half the defect standing while reporting it repaired.** *(Both currently PASS that band — `Q6` 50.847, `Q4` 53.195, band [46,56] — so removal takes away a PASS, not a `GATE FAIL`: non-permissive on this data.)*
+- **⚠⚠ THE ROLLUP-EXCLUSION LIMB IS REFUSED, ON CONDITIONS (1) AND (2) AND ON DIRECTION.** **No registration text excludes a reported-only quantity's verdict from the rollup**, and the petition cites none — it is an **inference from silence**, which `§2d.5` names as the preference condition (1) excludes. **And the petition MISSTATES the direction.** It writes that removing `Q6` *"could remove either a `PASS` or a `GATE FAIL`."* **Measured, it removes neither: `Q6`'s row verdict is `NOT A RESULT`, and the rollup tests `"NOT A RESULT" in verdicts` FIRST.** The one case the petition's disjunction omits is **the case that obtains**, and it is **the strictly permissive one**.
+
+> **RULED — a general property, registered here because it is not T23G2's alone: REMOVING A ROW FROM A ROLLUP CAN ONLY WEAKEN THE ROLLUP OR LEAVE IT EQUAL. IT CAN NEVER STRENGTHEN IT. A rollup exclusion is therefore ALWAYS a permissive change and requires REGISTERED TEXT, never an inference — whatever the excluded row's verdict happens to be on the day.**
+
+**R5 — GRANTED, AND IT IS THE MOST IMPORTANT OF THE SIX.** `:624-625` registers *"Six quantities × three levels = **18 controls**, plus the two y+ readers = **20**"*; the code calls `plant_control_for` at **one line**, at the finest level only, for **five** quantities. §5.4 (`:601-602`) registers that the y+ reader *"**must plant a known perturbation and read it back, and refuse if it cannot see it** (rule 3)"*; `yplus_from_fields` contains **no plant** and argues its validity **documentarily**. Departures on both counts; condition (2) **MET under §2d.5**. **⚠ AND IT IS LOAD-BEARING RIGHT NOW, WHICH THE PETITION DOES NOT SAY: `G-RATIO` passes on all six quantities ONLY because the measured iterative change is exactly `0.0`** — `g_ratio` returns PASS with ratio ∞ on a zero, and the series is genuinely bit-identical (`3.411950435137e+02` at every sample, 13 significant digits). **Six exact zeros are carrying six `G-RATIO` passes while thirteen of the eighteen registered controls that would license them do not exist. That is standing rule 3's exact shape — a zero from a reader not shown able to see a non-zero — and it means even T23G2's PASSING gates are currently unlicensed.**
+
+**R6 — REFUSED as a `§2d.1` repair, and referred rather than dismissed.** §5.4 registers two instruments and a 2 % agreement check, and registers that a **disagreement** is a refusal. **A MISSING instrument is neither agreement nor disagreement — the registration does not name the case, and the petition says so itself.** Under `§2d.5` **silence is not a departure**, so condition (2) has **no object** and `§2d` stands. **This is a refusal on the instrument, not on the merits: R6 is a good change.** It is strictly stricter and **measured inert** (all three `log.yPlus.fluid` present, parsed, four patches each; the branch is never taken). **REFERRED: register the refusal PROSPECTIVELY in the next rung's pre-registration, where it costs nothing and needs no exception. A gap in a registration is closed by the next registration, not by repairing the rung that revealed it.**
+
+### §2d.8 THE DISPOSITION — AND NO REPAIR REACHES IT
+
+**Verified by me at source, both numbers the disposition turns on:**
+
+| gate | measured | registered | verdict |
+|---|---|---|---|
+| **`G-CONV`** | `T23G2_L2` last `p_rgh` initial residual **`1.04122627289e-08`** (L1 `9.1885e-09`, L3 `9.0751e-09`) | `≤ 1e-8` (`:561`) | **`GATE FAIL`** — 4.1 % over, on one level |
+| **`G-YPLUS`** | `centrebody_up` max y+ **`1.8246 / 1.3540 / 1.0048`** | A2.2 `:1117-1118`, **`≤ 1.0` on EVERY wall patch, EVERY level** | **`GATE FAIL` on all three, the finest included** |
+| `Q3` fine ΔT | **56.708 K** | A1.2 band **[46.0, 56.0]** | **`GATE FAIL`** |
+| rollup | `G-CONV`'s failure propagates through **rule 5 step (a)** — no grid claim from any triple | — | **`NOT A RESULT`** |
+
+**The graded triples are `CONVERGING`** (orders 0.610–0.615, GCI 5.27–5.85 %) **and it does not save the rows**: rule 5 step (a) fires first because `T23G2_L2` is not iteratively converged. `Q5` is `DIVERGENT` and is registered **reported, never gated**, with `DIVERGENT` pre-registered as expected under P4 — **so `Q5` does not make the rows `NOT A RESULT`; `G-CONV` does.**
+
+> **NO COMBINATION OF R1–R6 CAN PRODUCE `PASS` OR `GATE REACHED` FOR T23G2. Measured, not argued. R1 makes the verdict REACHABLE; R2–R6 change the outcome by nothing measurable. The repairs decide the QUALITY OF THE RECORD, not the verdict.** **Rule 5's direction is respected throughout: every ruling above can only turn a verdict worse or leave it equal, and the one that could have gone the other way — R4's rollup exclusion — is the one I refused.**
+
+**⚠ AND A2.2's REGISTERED PREDICTION IS NOT BORNE OUT, WHICH BELONGS IN THE RECORD BECAUSE THE REGISTRATION VOLUNTEERED IT.** A2.2 predicted maxima on `duct_wall` and `fluid_to_housing` — **both met**. **It registered no prediction for `centrebody_up`, the one patch that fails**, and closed with *"This costs nothing, because the design already meets it."* **The run falsifies that sentence.** A prediction that covers only the patches that pass is not a prediction; **the gate was still honestly registered as "every wall patch", and it is the gate that binds, not the forecast.**
+
+**Also recorded, not ruled:** rule 4 holds on **all three levels, all six limbs including the age guard**, independently re-derived. Campaign spend **536.77 core-min** against a registered point of 579.2 and cap 1365 — **ratio 0.93, `capped=0`** — with **`$0.4589` DERIVED, never measured.** **No `COST_CALIBRATION.md` row exists for T23G2**; whether a rung that cannot be graded has "completed" for rule 12's purposes is **heat-transfer's to state and mine only if referred.**
+
+**⚠ AGAINST MY OWN §2d.4.1, AND IT SURVIVES.** I denied the absence-disclosure shortcut on the ground that T23G2 **has numbers even though it has no verdict**. The lane then **produced a complete grading from the existing data, read-only, at zero solver compute, in one session.** **That is the discharge of conditions (3) and (4) I said was available, demonstrated rather than asserted** — and it confirms the distinction: **the graded-solve count is indeed zero, and the numbers exist anyway.** Heat-transfer may discharge (3) and (4) by publishing that before/after table.
+
+| item | outcome |
+|---|---|
+| granted | **R1, R2 (widened), R3, R5** |
+| split | **R4** — band limb granted **and widened to `Q4`**; **rollup exclusion REFUSED** |
+| refused | **R4 rollup limb** (silence is not a departure; permissive) · **R6** (no object; referred prospectively) |
+| new charter clauses | **§2d.5** frozen registration as condition (2) instrument, **for departures only** · **§2d.6** §2i.8 has no object where the registration fixed the mesh · **§2d.7** rollup removal is always permissive |
+| T23G2 disposition | **`NOT A RESULT`**, over **`GATE FAIL`** on `G-CONV`, `G-YPLUS` and `Q3`'s band — **unreachable by any repair** |
+| gates · thresholds · bands · caps · labels created/moved/retired | **0 · 0 · 0 · 0 · 0** |
+| compute authorised | **NONE** |
+| solver compute | **0 core-min, $0.00** |
+| **lines whose number changed above this section** | **0** |
