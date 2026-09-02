@@ -1,4 +1,28 @@
-# Thermal demo acts — resume note (2026-09-02, updated ~10:3xZ)
+# Thermal demo acts — resume note (2026-09-02, updated ~11:4xZ)
+
+## HER 1100Z FINAL-TOUCHES BATCH — thermal items CLOSED
+(`etc/sessions/2026-09-02T1100Z_sanaa_final_touches.md`; commits
+`6f04fdf4`, `cfed57c9`)
+
+1. Motor wall prediction states waves at BOTH ends: estimate beat now
+   "Predicted: 560 core-minutes; 16 runs on 12 workers is two waves, so
+   about 70 minutes of wall, not the 47 of perfect packing"
+   (`predicted_wall_sentence()`); after the compute table the wire carries,
+   in order, the 3.4% cost comparison, the two-wave slowest-member sentence
+   AND the new measured reconciliation ("Predicted 70 minutes of wall;
+   launches inside a wave straggled by up to 15 minutes, and the clock
+   closed at 86" — spread off the launch records, wave 2 = 14.9 min, which
+   is why busy wall 85.6 exceeds the slowest-member sum 69.7). Verified on
+   the full stream (sequences 3346/3348/3350/3353) — nothing truncated.
+2. Max-temp replay (`actA_monitor_replay.pdf`): sixteen per-panel W titles
+   removed; columns = powers named ONCE on one bottom axis line
+   (80/155/230/305 W), rows = airspeeds named at the left; settle values
+   kept in-panel. PDF inspected, no overlap. Data JSON/CSVs byte-identical.
+3. "Surface loaded: … The rendered view arrives with the run." — measured
+   NOT on either thermal wire and not in either act's source; it is the
+   page's own string (`control_room.html:759,3718,3740`), cross-act lane.
+4. One more condensing pass over both acts (eleven longest sentences
+   trimmed; verbatim lines untouched). Battery otherwise ruled "green".
 
 State is MEASURED, not recalled. The two acts are
 `sdk/workflows/motor_thermal_act.py` and
