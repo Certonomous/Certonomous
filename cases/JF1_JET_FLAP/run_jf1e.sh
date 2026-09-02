@@ -60,9 +60,18 @@ done
 #       would be two changes (a different seed AND a different relaxation) and
 #       would destroy the attribution the ladder exists to produce.
 #
-# E2b (nNonOrthogonalCorrectors) and E2c (limitedLinear) are NOT implemented and
-# are refused, so that a rung cannot be run out of the frozen order by a typo
-# (registration section 7 clause 6).
+#   E2b nNonOrthogonalCorrectors 1 -> 2.  The change from E2a.  E2a's
+#       configuration -- the continuation chain AND the k/omega relaxation of
+#       0.5 -- is INHERITED UNCHANGED, per section 3's rule that a failed rung
+#       hands its configuration to the next rung as the new baseline.  E2b is
+#       therefore NOT seeded from E2a's output fields, for the same reason E2a
+#       was not seeded from E1's: that would be two changes.
+#       ENABLED 2026-09-02, and only because E2a is graded GATE FAIL in
+#       verification/campaign/JF1E_E2a_GRADING_RECORD.md.  A rung is implemented
+#       here only after the rung below it has been graded and failed.
+#
+# E2c (limitedLinear) is NOT implemented and is refused, so that a rung cannot be
+# run out of the frozen order by a typo (registration section 7 clause 6).
 case "${RUNG}" in
   E1)  RUNG_DESC="CONTINUATION, and it is the only change from the
                    2026-08-31 baseline: numerics dictionaries are the same
@@ -71,7 +80,11 @@ case "${RUNG}" in
                    is the ONLY change from E1.  Continuation seeding, fvSchemes,
                    nNonOrthogonalCorrectors, U relaxation 0.7 and p field
                    relaxation 0.3 are all INHERITED FROM E1 UNCHANGED." ;;
-  *) echo "REFUSED: --rung must be E1 or E2a (the frozen section 3 order, run in order); got '${RUNG}'"; exit 3 ;;
+  E2b) RUNG_DESC="nNonOrthogonalCorrectors 1 -> 2, and it is the ONLY change from
+                   E2a.  Continuation seeding, fvSchemes, k and omega relaxation
+                   0.5, U relaxation 0.7 and p field relaxation 0.3 are all
+                   INHERITED FROM E2a UNCHANGED." ;;
+  *) echo "REFUSED: --rung must be E1, E2a or E2b (the frozen section 3 order, run in order); got '${RUNG}'"; exit 3 ;;
 esac
 
 # --- the frozen section 5.2 table, VERBATIM -----------------------------------
@@ -83,8 +96,16 @@ case "${CMU}" in
   *) echo "REFUSED: --cmu must be one of 0.05 0.1 0.2 0.4; got '${CMU}'"; exit 3 ;;
 esac
 
-CAP_CORE_MIN=40.0
-WALL_ALLOWANCE_S=2400
+# PER-LINK WALL CAP.  This is a wrapper guard, NOT a registered threshold: the
+# registered figure is the RUNG cap of registration section 6, enforced
+# cumulatively by run_jf1e_chain.sh.  The per-link figure is set at
+# (registered rung cap)/4 for E2b so that a link cannot be killed for spending
+# less than its registered share -- E1 and E2a keep the 40.0/2400 they ran at,
+# unchanged, because changing them would change what those graded rungs mean.
+case "${RUNG}" in
+  E2b) CAP_CORE_MIN=55.0; WALL_ALLOWANCE_S=3300 ;;   # 4 x 55 = the registered 220
+  *)   CAP_CORE_MIN=40.0; WALL_ALLOWANCE_S=2400 ;;
+esac
 
 CASE_ID="JF1E_${RUNG}_${TAG}_A0"
 RUN_ROOT="${RUNS}/${CASE_ID}"
@@ -254,8 +275,13 @@ grep -qE '^[[:space:]]*div\(phi,k\)[[:space:]]+bounded Gauss limitedLinear 1;' "
   || { echo "REFUSED: div(phi,k) is not the frozen 'limitedLinear 1' -- that is E2c, a DIFFERENT RUNG"; exit 13; }
 grep -qE '^[[:space:]]*div\(phi,omega\)[[:space:]]+bounded Gauss limitedLinear 1;' "${RUN_ROOT}/system/fvSchemes" \
   || { echo "REFUSED: div(phi,omega) is not the frozen 'limitedLinear 1' -- that is E2c, a DIFFERENT RUNG"; exit 13; }
+# Asserted on the FRESHLY COPIED TEMPLATE, before any rung applies its change:
+# the baseline every rung departs from must still read 1.  For E1 and E2a it must
+# also still read 1 in the run (E2b is a different rung); for E2b this is the
+# starting point that the one change below moves to 2, asserted line by line.
 grep -qE '^[[:space:]]*nNonOrthogonalCorrectors[[:space:]]+1;' "${RUN_ROOT}/system/fvSolution" \
-  || { echo "REFUSED: nNonOrthogonalCorrectors is not 1 -- that is E2b, a DIFFERENT RUNG"; exit 13; }
+  || { echo "REFUSED: the staged case template's nNonOrthogonalCorrectors is not 1 -- the"
+       echo "         baseline this ladder departs from has drifted"; exit 13; }
 
 case "${RUNG}" in
   E1)
@@ -290,6 +316,94 @@ case "${RUNG}" in
     grep -qE '^[[:space:]]*U[[:space:]]+0\.7;'     "${RUN_ROOT}/system/fvSolution" || { echo "REFUSED: U relaxation left 0.7 -- that is a SECOND, UNREGISTERED change"; exit 13; }
     grep -qE '^[[:space:]]*p[[:space:]]+0\.3;'     "${RUN_ROOT}/system/fvSolution" || { echo "REFUSED: p field relaxation left 0.3 -- that is a SECOND, UNREGISTERED change"; exit 13; }
     ONE_CHANGE="relaxationFactors/equations k 0.7 -> 0.5 and omega 0.7 -> 0.5, asserted as EXACTLY four diff lines against case/system/fvSolution; U 0.7, p 0.3, nNonOrthogonalCorrectors 1 and both limitedLinear 1 entries all asserted UNCHANGED"
+    ;;
+  E2b)
+    # E2b's baseline is E2a's CONFIGURATION, not E2a's output.  So the staged
+    # dictionary is built in two explicit steps and BOTH are asserted:
+    #
+    #   step 1  reproduce E2a exactly  (k, omega 0.7 -> 0.5)
+    #   step 2  the ONE change of THIS rung  (nNonOrthogonalCorrectors 1 -> 2)
+    #
+    # The single-change claim is then proved where it actually lives: as a diff
+    # of the finished dictionary against the E2a baseline reconstructed here,
+    # which must be EXACTLY ONE changed line.  Proving it only against the case
+    # template would show three changed lines and prove nothing about the rung.
+    awk '
+      /^relaxationFactors/           { inRF = 1 }
+      inRF && /equations/            { inEQ = 1 }
+      inEQ && /^[[:space:]]*k[[:space:]]+0\.7;[[:space:]]*$/     { sub(/0\.7;/, "0.5;"); n++ }
+      inEQ && /^[[:space:]]*omega[[:space:]]+0\.7;[[:space:]]*$/ { sub(/0\.7;/, "0.5;"); n++ }
+      inEQ && /^[[:space:]]*}/       { inEQ = 0 }
+                                     { print }
+      END                            { if (n != 2) exit 1 }
+    ' "${RUN_ROOT}/system/fvSolution" > "${RUN_ROOT}/system/fvSolution.E2a_baseline" \
+      || { echo "REFUSED: the inherited E2a rewrite did not change exactly two lines"; exit 13; }
+
+    # The reconstructed E2a baseline must be byte-identical to the dictionary E2a
+    # ACTUALLY RAN, wherever that run root is still on disk.  This is the assert
+    # that makes "inherited from E2a unchanged" a measurement and not a claim.
+    E2A_REF="${RUNS}/JF1E_E2a_${TAG}_A0/system/fvSolution"
+    if [ -f "${E2A_REF}" ]; then
+      cmp -s "${E2A_REF}" "${RUN_ROOT}/system/fvSolution.E2a_baseline" \
+        || { echo "REFUSED: the reconstructed E2a baseline is not byte-identical to the"
+             echo "         fvSolution E2a actually ran (${E2A_REF}).  E2b would then be"
+             echo "         measuring more than one change."
+             diff "${E2A_REF}" "${RUN_ROOT}/system/fvSolution.E2a_baseline" || true
+             exit 13; }
+      E2A_PROOF="byte-identical to the fvSolution E2a actually ran (${E2A_REF})"
+    else
+      echo "REFUSED: E2a's run root for ${TAG} is absent, so 'inherited from E2a"
+      echo "         unchanged' cannot be measured.  It is not asserted on trust."
+      exit 13
+    fi
+
+    # step 2 -- THE ONE CHANGE OF THIS RUNG.
+    awk '
+      /^SIMPLE/                                                            { inS = 1 }
+      inS && /^[[:space:]]*nNonOrthogonalCorrectors[[:space:]]+1;[[:space:]]*$/ \
+                                                 { sub(/1;/, "2;"); n++ }
+                                                                           { print }
+      END                                        { if (n != 1) exit 1 }
+    ' "${RUN_ROOT}/system/fvSolution.E2a_baseline" > "${RUN_ROOT}/system/fvSolution.E2b" \
+      || { echo "REFUSED: the E2b rewrite did not change exactly one line (nNonOrthogonalCorrectors)"; exit 13; }
+    mv "${RUN_ROOT}/system/fvSolution.E2b" "${RUN_ROOT}/system/fvSolution"
+
+    # THE SINGLE-CHANGE PROOF: exactly one changed line against the E2a baseline.
+    NDIFF_E2A=$(diff "${RUN_ROOT}/system/fvSolution.E2a_baseline" "${RUN_ROOT}/system/fvSolution" \
+                  | grep -cE '^[<>]' || true)
+    [ "${NDIFF_E2A}" = "2" ] \
+      || { echo "REFUSED: E2b changed ${NDIFF_E2A} diff lines against the E2a baseline,"
+           echo "         expected 2 (one < and one >).  One change per rung is the"
+           echo "         ladder's entire evidentiary content."
+           diff "${RUN_ROOT}/system/fvSolution.E2a_baseline" "${RUN_ROOT}/system/fvSolution" || true
+           exit 13; }
+    # NOTE: `... | grep -q ...` is NOT usable here.  Under `set -o pipefail`,
+    # `grep -q` exits on its first match and SIGPIPEs the upstream `grep`, so the
+    # pipeline returns non-zero on SUCCESS.  Measured on this very script
+    # 2026-09-02: the assert refused a dictionary that was provably correct.
+    # The diff is captured first and matched afterwards.
+    DIFF_LINES=$(diff "${RUN_ROOT}/system/fvSolution.E2a_baseline" "${RUN_ROOT}/system/fvSolution" || true)
+    case "${DIFF_LINES}" in
+      *nNonOrthogonalCorrectors*) ;;
+      *) echo "REFUSED: the single changed line is not nNonOrthogonalCorrectors"
+         echo "${DIFF_LINES}"; exit 13 ;;
+    esac
+
+    # and, for the record, exactly three changed lines against the case template.
+    NDIFF_T=$(diff "${CASE_DIR}/case/system/fvSolution" "${RUN_ROOT}/system/fvSolution" \
+                | grep -cE '^[<>]' || true)
+    [ "${NDIFF_T}" = "6" ] \
+      || { echo "REFUSED: E2b differs from the case template in ${NDIFF_T} diff lines,"
+           echo "         expected 6 (k, omega, nNonOrthogonalCorrectors)"
+           diff "${CASE_DIR}/case/system/fvSolution" "${RUN_ROOT}/system/fvSolution" || true
+           exit 13; }
+
+    grep -qE '^[[:space:]]*nNonOrthogonalCorrectors[[:space:]]+2;' "${RUN_ROOT}/system/fvSolution" || { echo "REFUSED: nNonOrthogonalCorrectors is not 2"; exit 13; }
+    grep -qE '^[[:space:]]*k[[:space:]]+0\.5;'     "${RUN_ROOT}/system/fvSolution" || { echo "REFUSED: k relaxation is not the inherited 0.5"; exit 13; }
+    grep -qE '^[[:space:]]*omega[[:space:]]+0\.5;' "${RUN_ROOT}/system/fvSolution" || { echo "REFUSED: omega relaxation is not the inherited 0.5"; exit 13; }
+    grep -qE '^[[:space:]]*U[[:space:]]+0\.7;'     "${RUN_ROOT}/system/fvSolution" || { echo "REFUSED: U relaxation left 0.7 -- that is a SECOND, UNREGISTERED change"; exit 13; }
+    grep -qE '^[[:space:]]*p[[:space:]]+0\.3;'     "${RUN_ROOT}/system/fvSolution" || { echo "REFUSED: p field relaxation left 0.3 -- that is a SECOND, UNREGISTERED change"; exit 13; }
+    ONE_CHANGE="SIMPLE/nNonOrthogonalCorrectors 1 -> 2, asserted as EXACTLY TWO diff lines (one <, one >) against the E2a baseline, which is itself ${E2A_PROOF}; k 0.5, omega 0.5, U 0.7, p 0.3 and both limitedLinear 1 entries all asserted INHERITED UNCHANGED"
     ;;
 esac
 
@@ -389,7 +503,7 @@ STAGE="post"
   echo "   seed check: ${SEED_CHECK}"
   echo "-- relaxationFactors ACTUALLY IN THE STAGED DICTIONARY --"
   sed -n '/^relaxationFactors/,/^}/p' "${RUN_ROOT}/system/fvSolution"
-  echo "-- anti-bundling asserts (E2b and E2c must NOT be present) --"
+  echo "-- the controls the OTHER rungs own, as actually staged here --"
   grep -E 'nNonOrthogonalCorrectors' "${RUN_ROOT}/system/fvSolution"
   grep -E 'div\(phi,(k|omega)\)'     "${RUN_ROOT}/system/fvSchemes"
   echo "   CAVEAT D-1: the seed is NOT a converged field."
