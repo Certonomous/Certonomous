@@ -1346,10 +1346,11 @@ class ShockReflectionAct(DemoAct):
                 ("numericist", [
                     f"The request fixes two things: how strong the shock is, "
                     f"at Mach {setup['mach']:g}, and that it runs into a wall.",
-                    f"Everything else in the table above this lab supplies, "
-                    f"the {setup['angle_deg']:.0f} degrees between the shock "
-                    f"and the wall among them, because the request gives the "
-                    f"angle only as a steep one.",
+                    # "this lab supplies" is the gate's own marker for the
+                    # lab side of her stage-4 split; the condense keeps it.
+                    f"Everything else this lab supplies, the "
+                    f"{setup['angle_deg']:.0f} degrees between shock and "
+                    f"wall among them: the request says only a steep one.",
                 ]),
             ],
             # ---- LEAD ENGINEER: the grid, its resolution, and the solver.
@@ -1391,10 +1392,9 @@ class ShockReflectionAct(DemoAct):
                     f"The time step is set by the flow rather than fixed, "
                     f"with the Courant number held at {setup['courant']:g}; "
                     f"the schemes and tolerances are in the table.",
-                    f"Before any number is quoted, each reader behind the "
-                    f"monitors has to see a known change planted in its own "
-                    f"input, and the wall time on screen has to match what "
-                    f"the cost record states for the same work.",
+                    f"Two checks before any number is quoted: each reader "
+                    f"sees a change planted in its own input, and the "
+                    f"on-screen wall time matches the cost record.",
                 ]),
             ],
             # ---- LEAD NUMERICIST: what the numbers said, and the study.
@@ -1492,9 +1492,9 @@ class ShockReflectionAct(DemoAct):
                  f"{setup['courant']:g}."),
                 (f"Two uniform Cartesian grids, one at half the spacing of "
                  f"the other, differing in nothing else."),
-                ("The front is located by the sharpest density change along "
-                 "a line across the channel, and the exact position it is "
-                 "compared against follows from the configuration alone."),
+                ("The front is the sharpest density change along a line "
+                 "across the channel. The exact position follows from the "
+                 "configuration alone."),
                 ("Every reader behind the monitors was shown a known change "
                  "and had to report it back before any value was believed."),
             ],
@@ -1533,9 +1533,8 @@ class ShockReflectionAct(DemoAct):
                 ("The structure behind the front and the jet running along "
                  "the wall beneath it are shown as a picture and are not "
                  "among the quantities measured."),
-                ("The comparison is against an exact answer for the speed of "
-                 "the shock only. No measurement of this configuration exists "
-                 "to compare the rest of it against."),
+                ("The exact answer covers the shock speed only. No "
+                 "measurement of this configuration exists for the rest."),
             ],
             next_investigations=[
                 ("The same shock at a shallower angle, where the reflection "
