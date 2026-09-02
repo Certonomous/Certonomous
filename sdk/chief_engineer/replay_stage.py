@@ -117,11 +117,18 @@ def banner_for(state: dict) -> str:
     # banner is still a pure function of the very dictionary that is published,
     # so recomputing it from a recorded event reproduces it exactly.
     if state.get("concurrent"):
+        # THE NOUN IS THE ACT'S AND THE WORD IS "IN PARALLEL". Sanaa,
+        # 2026-09-02 orders, item 3, verbatim: 'Progress line: "Solving 5
+        # operating points in parallel," all monitors advancing together.
+        # Sequential language banned.' The noun rides the state dict so this
+        # stays a pure function of the very dictionary that is published;
+        # an act that declares none keeps "sweep point".
+        noun = str(state.get("point_noun") or "sweep point")
         reached = state.get("sweep_iteration")
         span = state.get("sweep_iterations")
         if reached is None or not span:
-            return f"Solving {int(points or 0)} sweep points"
-        return (f"Solving {int(points or 0)} sweep points together, "
+            return f"Solving {int(points or 0)} {noun}s in parallel"
+        return (f"Solving {int(points or 0)} {noun}s in parallel, "
                 f"iteration {int(reached):,} of {int(span):,}")
     if point is None or iteration is None:
         return "Solving"
@@ -260,8 +267,17 @@ class ReplayStage:
         history = self._history or self.prepare()
         points = len(history.points)
 
-        self._say(script, emit,
-                  f"Solving {points} {self.spec.point_noun}s.")
+        # THE PARALLEL DECISION IS SPOKEN, NOT IMPLIED. Sanaa, 2026-09-02
+        # item 3: the progress line is "Solving 5 operating points in
+        # parallel". "In parallel" is stated only when the runs actually
+        # overlapped on the box (history.concurrent is measured off their own
+        # start and end stamps), so the sentence cannot outrun the record.
+        if points > 1 and history.concurrent:
+            self._say(script, emit,
+                      f"Solving {points} {self.spec.point_noun}s in parallel.")
+        else:
+            self._say(script, emit,
+                      f"Solving {points} {self.spec.point_noun}s.")
         self._publish(emit, "solve.begin", {
             "stage": self.stage_id,
             "points": points,
@@ -322,6 +338,9 @@ class ReplayStage:
                 "wall_s": point.status["wall_s"],
                 "downsample": point.provenance,
                 "concurrent": True,
+                # The act's noun for a point, read by banner_for so the
+                # banner stays a pure function of the published dict.
+                "point_noun": self.spec.point_noun,
                 "sweep_iteration": int(point.frames[0].iteration),
                 "sweep_iterations": int(point.history_n),
             }
@@ -354,6 +373,7 @@ class ReplayStage:
                 "envelope": {k: list(v) for k, v in frame.envelope.items()},
                 "source_row": frame.source_row,
                 "concurrent": True,
+                "point_noun": self.spec.point_noun,
                 "sweep_iteration": furthest,
                 "sweep_iterations": furthest_total,
             }
@@ -373,6 +393,7 @@ class ReplayStage:
                     "final": dict(point.final),
                     "controls": list(point.controls),
                     "concurrent": True,
+                    "point_noun": self.spec.point_noun,
                     "sweep_iteration": furthest,
                     "sweep_iterations": furthest_total,
                 }
@@ -485,8 +506,15 @@ class ReplayStage:
                     "is published as a duration"
                     if history.concurrent else "")),
             "core_min_measured": round(history.core_min_total, 4),
-            "usd_derived": round(history.usd_derived, 4),
-            "cost_basis": history.cost_basis,
+            # ``usd_derived`` AND ``cost_basis`` NO LONGER RIDE THE WIRE.
+            # Sanaa's 2026-09-02 order, item 4: no currency on any screen, and
+            # the never-list now refuses a dollar string mechanically, which
+            # is exactly what caught these two: the run record's own
+            # cost-basis sentence names the recorded rate in dollars. The page
+            # renders neither key, so nothing on screen changes; the derived
+            # dollar figure and its basis sentence stay in the RUN RECORD and
+            # in the ``RunHistory`` this stage's ``prepare()`` returns, which
+            # is where the ledger and the calibration row read them (rule 12).
             "screen_s": round(screen_s, 3),
             "controls": list(history.controls),
             "finished": True,

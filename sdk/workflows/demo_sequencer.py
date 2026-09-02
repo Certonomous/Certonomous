@@ -1322,6 +1322,19 @@ class Sequencer:
 
     def _stage_feasibility(self, emit, script, record) -> dict:
         f = self.act.feasibility()
+        # THE METHODS TABLE, on Sanaa's 2026-09-02 addendum: solver, turbulence
+        # model and numerics stated on every act's methods beat AS A TABLE.
+        # Emitted here because the feasibility beat is where the numerics
+        # discussion already sits; an act that declares none keeps its prose
+        # exactly as it was.
+        methods = self.act.methods_table()
+        if script is not None and methods is not None:
+            from . import emit_table
+
+            emit_table(emit, script, role=methods.role, title=methods.title,
+                       headers=list(methods.headers),
+                       rows=[list(row) for row in methods.rows],
+                       table_id=methods.table_id)
         return self._publish(emit, "demo.feasibility", {
             "stage": "feasibility",
             "check": f.check,
@@ -1348,6 +1361,13 @@ class Sequencer:
             spec=ReplaySpec(cases=list(replay.cases),
                             seconds_per_point=max(
                                 replay.pace * 9.0, 0.001),
+                            # THE ACT'S OWN NOUN FOR A POINT. Sanaa's
+                            # 2026-09-02 item 3 fixes the jet-flap progress
+                            # line as "Solving 5 operating points in
+                            # parallel"; the noun is the act's declaration
+                            # (SolveReplay.point_noun) and the default keeps
+                            # every other act byte-identical.
+                            point_noun=replay.point_noun,
                             # ONE DECLARATION REACHES BOTH SURFACES THAT STATE
                             # A COST. The solving stage speaks a closing
                             # sentence and the results stage publishes a cost
@@ -1563,7 +1583,17 @@ class Sequencer:
             "solver": record.solver_header(),
             "verification": list(r.verification_lines),
             "limitations": list(r.limitations),
-            "cost": cost_line(replay.core_minutes(),
+            # ONE COMPUTE AUTHORITY ON ONE CARD. This read
+            # ``replay.core_minutes()`` (the SOLVES' wall x ranks) while the
+            # comparison line three keys down read ``cost_actual`` (the act's
+            # own total, which may include meshing or preflight) -- so a card
+            # could carry two different spends for one run (measured on the
+            # DMR act: 1.9 against 2.4). ``cost_actual`` is the authority: it
+            # is the act's declared, validated, measured total, and the
+            # comparison already uses it. A cost_actual that cannot be read
+            # as a number raises here, loudly, rather than falling back to a
+            # second figure.
+            "cost": cost_line(float(r.cost_actual.value),
                               projection=replay.cost_projection),
             # THE FORECAST NOW SAYS IT IS ONE, and says what it is a forecast
             # for. It published as a bare "56.8 processor-minutes" beside the
@@ -1718,17 +1748,22 @@ class Sequencer:
             bullets(script.engineer, *closing.conclusion_lines)
         if emit is None:
             return
-        emit("report.ready", lab_report(
+        # THE CERTIFICATE STATEMENT RIDES AS ITS OWN FIELD, no longer appended
+        # to the abstract. Sanaa's 2026-09-02 addendum: "all report tabs should
+        # have that uncertainty certificate, even if its empty ... i dont want
+        # it to look like some runs have certificates and some dont". The page
+        # now renders a certificate slot on EVERY report; this field is what an
+        # act's honest sentence fills it with, and the slot renders even when
+        # the sentence says no certificate is attached. One place, not two:
+        # the abstract append is removed with it.
+        emit("report.ready", dict(lab_report(
             title=closing.title,
-            # THE CERTIFICATE BLOCK, at the foot of the abstract, because the
-            # abstract is the one section of the memo the page renders as
-            # paragraphs and because the statement belongs beside the claim it
-            # qualifies rather than under a heading of its own.
-            abstract=list(closing.abstract) + [closing.certificate_state],
+            abstract=list(closing.abstract),
             methods=list(closing.methods),
             results=[dict(row) for row in closing.results],
             uncertainty=list(closing.uncertainty),
-            next_investigations=list(closing.next_investigations)))
+            next_investigations=list(closing.next_investigations)),
+            certificate_state=closing.certificate_state))
 
     # -- pacing -------------------------------------------------------------
     def _assert_not_all_at_once(self) -> None:
