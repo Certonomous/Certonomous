@@ -959,3 +959,99 @@ from `D0` and `B0_L2` run in the same stage on the same box.
 **SUBMISSIONS PARKED** (rule 7). **PERMANENTLY PRIVATE** (rule 8).
 
 <!-- END OF T25R5 PRE-REGISTRATION v1.1 -->
+
+---
+
+## Amendment A2 — 2026-09-02T~21:26Z, **BEFORE ANY T25R5 COMPUTE.** `C5` cannot support the inference §3.1 registered on it; the coarse-grid claim moves to `C4` vs `C5`
+
+**Version v1.2. Lines whose number changed above this section: 0.**
+
+**LEGALITY, RE-MEASURED IN THE COMMITTING INVOCATION AT 2026-09-02T21:26:01Z, not
+copied from any report:** `find verification/runs/T-family/T25R5_LINSOLVER_runs
+\( -name '0' -o -name 'processor*' -o -name 'log.*' -o -name '.rc.*' \)` returns
+**0** paths. The run tree holds the seven arm dictionaries and the verifier and
+**nothing else — no case tree, no `0/`, no `constant/`, no `system/`, no
+`processor*/`, no log, no rc file.** **No first compute. Rule 2's pre-compute limb
+governs and the gates are open.**
+
+**THE ARMS DO NOT CHANGE. Not one byte of any `fvSolution` is altered by this
+amendment.** What changes is **what may be concluded** from a comparison — which
+is exactly the clause that becomes unamendable the moment a solver starts.
+
+### A2.1 ⛔ THE CONFOUND — `C5` vs `B0` CHANGES TWO VARIABLES, SO IT IS NOT A CONTROL
+
+§3.1 registers `C5` as *"the control. If `C5` matches or beats `B0`, the
+coarse-grid correction is provably worth nothing on this system."*
+**That does not follow, and "provably" is the wrong word.**
+
+`B0` is **standalone GAMG with a `GaussSeidel` smoother**. `C5` is **PCG with a
+`DIC` preconditioner**. Going from one to the other **removes the multigrid AND
+adds Krylov acceleration in the same step.** If `C5` wins, at least two
+explanations survive:
+
+1. the coarse-grid correction was contributing nothing; **or**
+2. **Krylov acceleration is what this system was missing** — which is a live
+   hypothesis here precisely because §1.2 measured a per-iteration factor that
+   degrades with mesh, the signature a Krylov method is built to attack.
+
+**A comparison that moves two variables is not a control.** Found by the
+heat-transfer supervisor's §6 step-2 diff-read. Recorded as his.
+
+### A2.2 ⚡ THE CLEAN ISOLATION IS ALREADY IN THE ARM SET — `C4` vs `C5`
+
+`C4` is **PCG + GAMG preconditioner**; `C5` is **PCG + DIC preconditioner**.
+**Same outer Krylov solver, same tolerance, same `relTol`, same mesh, same
+everything — differing ONLY in whether the preconditioner carries a coarse-grid
+correction.** That is the one-variable contrast, and it costs nothing extra
+because both arms are already staged and already priced.
+
+**And it tests multigrid at its best case here**, since `C4`'s GAMG
+preconditioner is the tuned one (`DICGaussSeidel`, `nPreSweeps 1`,
+`nCellsInCoarsestLevel 200`) rather than the registered default. **A control that
+tests the weakest version of the thing it is trying to exonerate is not a fair
+test.**
+
+**Let `R = I(C5) / I(C4)`**, both being mean GAMG/PCG iterations per **FEASIBLE**
+`p_rgh` solve on L2 over steps 1–40, per §3.2's frozen thresholds. **Frozen here,
+before either number exists:**
+
+| outcome | condition | what may be concluded |
+|---|---|---|
+| **coarse-grid correction contributes NOTHING measurable** | **`R ≤ 1.5`** | §1.2's reading is supported: the coarse-grid correction is not doing the work multigrid exists to do, even when tuned and Krylov-wrapped |
+| **coarse-grid correction IS contributing** | **`R ≥ 3.0`** | **the OPPOSITE finding, and it is registered as reachable.** Multigrid works here once properly preconditioned, and §1.2's diagnosis is wrong about the mechanism |
+| **NOT SETTLED** | **`1.5 < R < 3.0`** | the correction contributes something, and not enough to call either way. **Reported as unsettled, and neither conclusion may be drawn.** |
+| **the GAMG preconditioner is a NET COST** | **`R < 1.0`** | reported as such, plainly |
+
+**Why 1.5 and 3.0.** Iteration counts here are deterministic at fixed rank count
+and decomposition, so neither bound is absorbing run-to-run noise. **1.5**: a
+coarse-grid correction that buys less than half is not doing the job multigrid
+exists for — mesh-independent convergence — which is an order-of-magnitude
+effect, not a 40 % one. **3.0**: a factor of three is a real contribution by any
+reading and is the same number `P-3` and T25R4's `G-P` already use for
+"materially different". **Both are registered before the numbers exist and this
+lane does not claim they are the right numbers, only that they are frozen and
+reasoned.**
+
+**THE INFERENCE IS UNAVAILABLE IF EITHER ARM IS DISQUALIFIED.** If `C4` or `C5`
+fails any of `E1`–`E6` (§4.2), `R` is **not computed and not reported as a
+bound** — a ratio between a valid arm and an invalid one is not a measurement.
+
+### A2.3 WHAT `C5` vs `B0` MAY STILL BE CITED FOR — **DOWNGRADED TO WHAT IT CAN CARRY**
+
+> **`C5` beating `B0` establishes ONLY this: a Krylov method with a cheap
+> preconditioner outperforms THE REGISTERED STANDALONE GAMG CONFIGURATION on this
+> system.** That is a statement about **a configuration**, not about multigrid.
+
+**§1.2's diagnosis may NOT be called "confirmed" by `C5` vs `B0` alone**, and the
+word "provably" is withdrawn from §3.1's description of `C5`. The conclusion
+§3.1 reached for is now carried by A2.2's `R`, and by nothing else.
+
+**This amendment alters no gate, no threshold, no cap, no label and no ceiling.**
+`G-T5` and its 46.35, the frozen denominator 231.7636, `P-1`…`P-4`, `E1`–`E6`,
+the equivalence thresholds, the 320 core-min ceiling and A1's stage table are all
+untouched. **`R` is a REPORTED, SCORED inference, and it gates nothing** — the
+same standing `P-3` has.
+
+**SUBMISSIONS PARKED** (rule 7). **PERMANENTLY PRIVATE** (rule 8).
+
+<!-- END OF T25R5 PRE-REGISTRATION v1.2 -->
