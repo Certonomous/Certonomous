@@ -840,3 +840,122 @@ one stated here.**
 THE SUPERVISOR'S DIFF-READ AND COMMIT, NOT A LAUNCH.**
 
 <!-- END OF T25R5 PRE-REGISTRATION v1.0 (DRAFT, UNCOMMITTED) -->
+
+---
+
+## Amendment A1 — 2026-09-02T~21:17Z, **BEFORE ANY T25R5 COMPUTE.** `B0_L2` moves to stage 0, because §6 step 3 as registered could not execute; and `s_upper`'s iteration ratio is frozen
+
+**Version v1.1. Lines whose number changed above this section: 0.**
+
+**THE CONDITION UNDER WHICH THIS AMENDMENT IS LEGAL, AND HOW IT WAS CHECKED.**
+Rule 2 permits an amendment **before first compute**. **Re-measured inside the
+invocation that commits this amendment, at 2026-09-02T21:16:53Z, and not copied
+from anyone's report:** `ls -d
+/home/ubuntu/Certonomous/verification/runs/T-family/T25R5_LINSOLVER_runs` returns
+`No such file or directory`, and `find .../verification/runs/T-family -maxdepth 1
+-name 'T25R5*'` returns **0** paths. **No `0/`, no time directory, no
+`processor*/`, no `log.*`, no run directory of any kind exists under this
+registration. There has been no first compute and the gates are open.**
+
+*(Housekeeping: the v1.0 trailer above still reads "THIS FILE IS UNCOMMITTED".
+That was true when written and is now false — v1.0 is committed at
+`9d9547931cef56168ec019c3b3a4c2add899a5de`, blob
+`c336dd8bb6b442502b1eb3ce0b72bb2d625023d9`. Rule 6 forbids editing it; the
+correction is recorded here instead.)*
+
+### A1.1 ⛔ THE DEFECT — §6 STEP 3 IS NOT EXECUTABLE AS REGISTERED
+
+§6 step 3 registers that `D0` runs **first** and that **both** `s_est` and
+`s_upper` are computed and reported **before stage 1 launches**. But §3.4 defines
+
+```
+    s_est = 1 - ExecutionTime(D0) / ExecutionTime(B0_L2)
+```
+
+and §3.4a's companion bound needs `i_B0` — **and §5.2 places `B0` in stage 1.**
+**Neither bound can be computed before the run they are ratios against has
+happened.** As registered, step 3 cannot be performed, and §6's "brackets `P-4`
+at 25.67 core-min" understates the true cost of bracketing it.
+
+**Found by the heat-transfer supervisor's check-4 read. Recorded as his, not
+absorbed.**
+
+### A1.2 THE RESOLUTION — `B0_L2` MOVES INTO STAGE 0. **NO COST IS ADDED.**
+
+Stage 1 already contained `B0_L2`. This moves that spend **earlier in the order**;
+it does not create any.
+
+| stage | arms | level | POINT core-min | CAP core-min |
+|---|---|---|---|---|
+| **0** | **`D0`, `B0_L2`** (2) | L2 | **34.15** | **51.33** |
+| **1** | **`C1`, `C2`, `C3`, `C4`, `C5`** (5) | L2 | **85.38** | **128.33** |
+| 2 | `B0`, winner (2) | L1 | 12.76 | 19.33 |
+| 2 | `B0`, winner (2) | L3 | 70.87 | 106.67 |
+| — | staging: 11 × `decomposePar`, serial, 20 s allowance | — | 3.67 | 3.67 |
+| **TOTAL** | **11 runs, unchanged** | | **206.83** | **309.33** |
+
+**Identical to §5.2's totals to rounding (206.84 / 309.34), and the run count is
+unchanged at 11.** **⛔ THE REGISTERED CEILING OF 320 CORE-MINUTES IS UNCHANGED
+AND IS NOT WIDENED BY THIS AMENDMENT.** `G-T5`, its threshold of 46.35, the
+frozen denominator 231.7636, `P-1`…`P-4`, the equivalence thresholds, `E1`–`E6`
+and every label are **untouched**.
+
+**§6 step 3's cost figure is corrected from 25.67 to `CAP` 51.33 core-min
+(`POINT` 34.15)** — the true cost of bracketing `P-4`.
+
+**AND IT STRICTLY IMPROVES THE DESIGN, which is why it is the right resolution
+rather than merely a legal one.** §3.5's L2 reproducibility control compares
+`B0_L2` against T25R4's P2 log, and §6 step 5 makes a reproducibility failure
+**`NOT A RESULT` for the whole probe**. With `B0_L2` in stage 0, **that control
+is evaluated before the five `C`-arms are paid for** instead of after. A staging
+defect that voids the probe is now caught at 51.33 core-min rather than at 179.66.
+
+**REGISTERED ORDER, replacing §6 steps 3–4:**
+
+> **3.** Stage 0: `D0` **and** `B0_L2`. Evaluate §3.5's L2 reproducibility control
+> **first** — a failure stops the probe at `NOT A RESULT` and stage 1 does not
+> launch. Then compute `s_est` **and** `s_upper` per §3.4a and A1.3, and report
+> both to the supervisor, **with which of the three registered outcomes holds**
+> (`P-4` loses / `P-4` wins / `P-4` not settled), **before stage 1 launches.**
+> **4.** Stage 1: `C1`…`C5` on L2.
+
+### A1.3 ⚠ `i_D0` AND `i_B0` ARE FROZEN AS **ALL-SOLVES** MEANS, AND THE REASON IS THAT `s_upper` IS A COST RATIO
+
+§3.4a wrote *"mean `p_rgh` iterations"* without saying which population. On the
+baseline the two candidates differ by nearly ×2 — **443.58 over all solves against
+231.76 over feasible solves** — and `s_upper = s_est / (1 − i_D0/i_B0)` depends on
+the choice. **Frozen here, before either number exists:**
+
+> **`i_D0` and `i_B0` are the mean GAMG iterations per `p_rgh` solve over ALL
+> logged `p_rgh` solves in time steps 1–40 — NOT the feasible subset.**
+
+**Why all-solves is the correct population and the feasible subset would be
+wrong here.** `s_upper` rests on the assumption that pressure wall time is
+proportional to GAMG iterations **performed**. Every iteration costs wall time
+whether or not its solve was feasible, and the 1,000-iteration pinned solves cost
+the most of all. Both runs perform 30 `p_rgh` solves per step over 40 steps, so
+the ratio of all-solves means **is** the ratio of total iterations — exactly the
+quantity the proportionality assumption is about. **The feasible restriction of
+§3.2 exists for `G-T5`, which measures solver QUALITY; `s_upper` is a COST ratio
+and must count the work actually done.**
+
+**Expected magnitude, stated so it cannot be presented as a discovery.** At
+`relTol 0.5`, `i_D0` should be ~1–2 against `i_B0` ~443, so `i_D0/i_B0` ~0.003–0.005
+and the correction `1/(1 − i_D0/i_B0)` ~1.004 — **a bracket roughly 0.4 % wide.**
+That is a reason to freeze the definition now rather than a reason it does not
+matter: a bound whose population is chosen after its inputs are known is not a
+bound.
+
+### A1.4 ⛔ THE OTHER RESOLUTION IS REFUSED, AND THE REFUSAL IS REGISTERED
+
+**Using T25R4's `P2` log as `D0`'s timing baseline is REFUSED.** `P2` ran on
+2026-09-01 under that day's box load; **an `ExecutionTime` ratio taken across two
+runs a day apart under different contention is not a measurement of pressure
+share**, it is a measurement of contention. §3.1 already refused to read `B0`'s
+**fields** off `P2`; **the refusal applies harder to a timing**, because a field
+is deterministic and a wall time is not. `s_est` and `s_upper` are computed only
+from `D0` and `B0_L2` run in the same stage on the same box.
+
+**SUBMISSIONS PARKED** (rule 7). **PERMANENTLY PRIVATE** (rule 8).
+
+<!-- END OF T25R5 PRE-REGISTRATION v1.1 -->
