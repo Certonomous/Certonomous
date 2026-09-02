@@ -191,6 +191,64 @@ verbatim before resuming).
    pre-shoot gate's request/lab split limb matches that exact phrase
    (measured: rewording it to "The lab supplies" turned the limb red).
 
+## 5. FINAL-TOUCHES BATCH (Sanaa ~11:00Z, `etc/sessions/2026-09-02T1100Z_
+sanaa_final_touches.md`) — landed 2026-09-02
+
+1. **Wording:** the wire's "Where the adjoint says to push, at fixed lift"
+   (both acts' gradient-frame label) is now "Gradient descent direction on
+   the skin, at fixed lift"; no "says to push/go" phrasing remains on any
+   wire (swept).
+2. **Certificate sentence removed.** The contract refuses an empty
+   `certificate_state`, so the minimal honest alternative renders instead;
+   it reads, exactly: "Certification is offered with the grid convergence
+   study, which this request declined." No banned issuance phrasing; no
+   future certificate promised; the absence attributed to the customer's
+   own choice.
+3. **PROMPT now** "Minimize drag at fixed lift. Stop after 20 mins. Dont
+   run convergence study" (her spelling kept). Router re-measured, no
+   router edit needed: both spacings route adjoint-optimization at 0.90;
+   controls held (bare stop clause general-mission 0.3, no lift constraint
+   shape-optimization, DMR/Ahmed unmoved). The act adapts honestly: a
+   REQUEST-side assumptions row ("Grid convergence study, declined by the
+   request | not run"), the inbox-promise line replaced everywhere in this
+   act by `CONVERGENCE_DECLINED_LINE` ("The request declined the grid
+   convergence study. Results stay relative to this single mesh."), the
+   dmr cross-act stage-8 assert retired (the two screens are meant to
+   differ now), and the mission act narrates the decline when the request's
+   own words carry it. The pre-shoot gate's convergence limb gained a THIRD
+   branch (study named + decline attributed to request/customer) with its
+   own planted control (an unattributed passive decline must read red);
+   fixing the plants exposed that both convergence plants were blind to
+   nested table cells while the limb reads them -- `
+   _rewrite_convergence_strings` now recurses, selftest 61/61 plants fired.
+4. **The 0745Z set as the standard table:** `demo_mode.compute_table` now
+   renders in the act's results tables; exact rendering: Number of workers
+   4 | Core-minutes per run 80 | Core-minutes total 80 | Total wall time
+   20.0 minutes (her "Workers | Core-min total | Wall" reading mapped onto
+   the shared four-column shape; the per-run column carries the single
+   run).
+5. **Colour bar:** was explicitly off (`SetScalarBarVisibility False`); now
+   renders on every coloured wing view. Walk/close frames: "outward normal
+   motion (mm)", window -3.1e+02 to 3.1e+02 with 100 mm ticks; gradient
+   frame: "descent direction (mm per unit step)". Confirmed by LOOKING at
+   the PNGs.
+6. **Close camera FITTED, not tuned:** three hand-picked scales still
+   cropped the patch under the oblique eye, so the camera now projects
+   every frame vertex onto the view plane and fits focal point + parallel
+   scale to the footprint plus 6%; the whole patch sits inside the frame by
+   construction. CONSEQUENCE, flagged: the frame now shows the full patch,
+   so the "Inboard span" labels and the mission's "inboard 2.2 metres"
+   narration would overclaim and both acts now say "Close view" / "a
+   closer camera, the whole patch in frame". Needs her eye on the next
+   viewing.
+7. **Close-view caption names the colour:** sidecar caption on the close
+   frames is her wall-patch sentence plus "Colour: outward normal motion,
+   mm." (both acts read captions from the sidecars).
+8. **Condensing:** restatement gained the declined-study sentence in short
+   form; the results verification lines split to one fact per sentence;
+   "as asked" was refused by the language guard (conversation register) and
+   removed. Her verbatim lines untouched.
+
 ### Verification of this batch (successor lane, 2026-09-02)
 
 Offline drives via `run_act` (never a POST to :8765): demo act 791 events,

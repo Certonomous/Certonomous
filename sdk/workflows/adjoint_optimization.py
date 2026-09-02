@@ -1469,7 +1469,10 @@ def main(request: str | None = None, params: dict | None = None,
         # on the skin, C_d at fixed C_L" was the explanation half of this
         # label; it is on the sheet and in the table three beats below, which
         # already names red, blue, white, the colour bar and the scale.
-        show("gradient", "Where the adjoint says to push, at fixed lift")
+        # "Gradient descent", her 1100Z wording order, replacing the
+        # "where the adjoint says to push" phrasing on the wire.
+        show("gradient",
+             "Gradient descent direction on the skin, at fixed lift")
         # What the run produced, presented by the one that ran it: the
         # researcher has just ruled on the gate and speaks again at the
         # conclusion, and the same voice three beats running reads as one
@@ -1753,7 +1756,12 @@ def main(request: str | None = None, params: dict | None = None,
         # this pass. It is not lost: the numericist says it in the next beat,
         # and the "What the gradient moved" table carries the row ["Display
         # scaling", "None anywhere in this act"].
-        show("near0", f"Inboard span, {BASELINE_NAME}, C_d "
+        # "Close view", not "Inboard span": her 1100Z order pulls this
+        # camera back until the whole patch sits inside the frame (cropped
+        # geometry reads as a viewport bug), so the frames now show the
+        # full patch fitted to the frame and an inboard label would
+        # overclaim.
+        show("near0", f"Close view, {BASELINE_NAME}, C_d "
                       f"{baseline['CD']:.6f}")
         # Whether what is on screen is at its true size is a statement about
         # measurement, so the numericist makes it (owner, 2026-07-31). It also
@@ -1762,9 +1770,9 @@ def main(request: str | None = None, params: dict | None = None,
         # they cannot be merged into one.
         roster.set(NUMERICIST, "holding the viewing convention", "working")
         _narrate(script.numericist,
-                f"The same surfaces on the inboard "
-                f"{_a2_shape.CLOSEUP_SPAN_M:g} metres of span, unscaled. The "
-                f"viewing convention moved, the wing did not.")
+                f"The same surfaces on a closer camera, the whole patch in "
+                f"frame, unscaled.",
+                f"The viewing convention moved, the wing did not.")
         roster.idle(NUMERICIST)
         for point in history:
             frame = frames.get(point["iter"])
@@ -1772,11 +1780,11 @@ def main(request: str | None = None, params: dict | None = None,
                 continue
             drop = (baseline["CD"] - frame["CD"]) / baseline["CD"] * 100
             show(f"near{frame['iter']}",
-                 f"Inboard span, iteration {frame['iter']}, "
+                 f"Close view, iteration {frame['iter']}, "
                  f"{_against_baseline(drop)}")
             _beat(_WING_FRAME_PACE_S)
         show(f"near{last['iter']}",
-             f"Inboard span, {_headline(reduction)}")
+             f"Close view, {_headline(reduction)}")
         _narrate(script.engineer,
                 f"That is the shape the gradient bought, at the size it is.")
     # THE COUNT LEAVES THE TILE WHERE THE TEAM STOPS WORKING: the end of the
@@ -1972,6 +1980,15 @@ def main(request: str | None = None, params: dict | None = None,
     _narrate(script.numericist,
             f"Results are relative to this mesh; grid independence not "
             f"assessed in this act.")
+    # HER 1100Z PROMPT ADDITION ("dont run convergence study"): when the
+    # request itself declines the study, the act states the decline as the
+    # customer's own choice rather than promising a band the request forbade.
+    # Detected from the request's words, never assumed.
+    if request and re.search(r"\b(don.?t|do not|no)\b[^.?!]{0,50}"
+                             r"convergence\s+stud", request, re.I):
+        _narrate(script.numericist,
+                f"The request declined the grid convergence study. Results "
+                f"stay relative to this single mesh.")
 
     # ITEM 7 (owner, 2026-07-31): the drag reduction was asked for as
     # "28.3% ± <numerical uncertainty>". The numerical channel this case

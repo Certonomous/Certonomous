@@ -108,8 +108,8 @@ from .demo_mode import (Assumption, DemoAct, DemoContractError, ElapsedClock,
                         GeometryMatch, Measured, MeshPlan, Prompt, Restatement,
                         Closing, Results, RunRecord, SeriesSpec, SolveReplay,
                         Table,
-                        check_demo_language, core_minutes, gpu_routing_lines,
-                        register_act)
+                        check_demo_language, compute_table, core_minutes,
+                        gpu_routing_lines, register_act)
 from .demo_sequencer import Sequencer
 
 __all__ = ["AdjointWingAct", "ActDSequencer", "ACT", "drive"]
@@ -155,16 +155,20 @@ GRID_BUILDER = (Path(__file__).resolve().parents[2] / "cases" / "dafoam"
 SERVED_GRID = (Path(__file__).resolve().parents[2] / "verification" / "runs"
                / "actD_runs" / "A2_wing_grid")
 
-#: SANAA'S STAGE 8, IN HER SECOND FORM, ON THE WIRE. Verbatim the sentence the
-#: shock-reflection act publishes (``dmr_act.CONVERGENCE_LINE``); ``self_check``
-#: asserts the two cannot drift apart.
-#:
-#: THIS SHEET-VERSUS-WIRE SPLIT IS THE FINDING, NOT THE STRING. The same
-#: violation was fixed on four LaTeX sheets while the ACT went on saying "grid
-#: independence not assessed" to the screen. A compliance repair applied to the
-#: document is not applied to the thing that renders. Two surfaces, one rule.
-CONVERGENCE_LINE = ("The grid convergence study for this case is running; the "
-                    "band lands in your inbox with the certificate.")
+#: STAGE 8, IN ITS THIRD FORM FOR THIS ACT ALONE: THE REQUEST DECLINED THE
+#: STUDY. Sanaa's 1100Z order adds "dont run convergence study" to this
+#: act's registered prompt, so the inbox-promise sentence (still the
+#: shock-reflection act's, verbatim from her stage 8) would now promise work
+#: the request forbade. The honest statement is that the customer declined
+#: it, said as fact with the single-mesh consequence beside it; the pre-shoot
+#: gate's convergence limb accepts this declined form (third branch, with its
+#: own planted control) exactly because the platform's always-run rule is
+#: overridden here by the request itself. The cross-act assert against
+#: ``dmr_act.CONVERGENCE_LINE`` is retired with the promise: the two acts no
+#: longer publish the same stage-8 sentence, by her order.
+CONVERGENCE_DECLINED_LINE = ("The request declined the grid convergence "
+                             "study. Results stay relative to this single "
+                             "mesh.")
 
 #: The served copy, under the directory the control-room server actually reads.
 #: Named as the SERVED file rather than a generator's output, because
@@ -172,15 +176,18 @@ CONVERGENCE_LINE = ("The grid convergence study for this case is running; the "
 #: surface must not be able to serve a stale body with nothing failing.
 SURFACE = _a2_shape.BASELINE_STL
 
-#: Her prompt for this act, VERBATIM FROM HER 2026-09-02 ORDER, registered in
-#: the clean-spaced form. She typed "lift.Stop" with the space missing; the
-#: router's pattern spans only the first sentence, so both her typed variant
-#: and this form route to this act (measured in the routing check below the
-#: gate). The request now fixes the objective, the lift constraint and a
-#: 20 minute stop rule; the adjoint method and the grading of the gradient
-#: before it is spent are the LAB'S decisions and the assumptions split says
-#: so.
-PROMPT = "Minimize drag at fixed lift. Stop after 20 mins"
+#: Her prompt for this act, VERBATIM FROM HER 2026-09-02 ORDERS (0540Z-era
+#: two-sentence form plus the 1100Z addition "dont run convergence study"),
+#: registered in the clean-spaced form with her spelling kept. She typed
+#: "lift.Stop" with the space missing; the router's patterns span only their
+#: own sentences, so her typed variants and this form all route to this act
+#: (re-measured after the 1100Z addition; controls held). The request now
+#: fixes the objective, the lift constraint, a 20 minute stop rule and the
+#: declined convergence study; the adjoint method and the grading of the
+#: gradient before it is spent are the LAB'S decisions and the assumptions
+#: split says so.
+PROMPT = ("Minimize drag at fixed lift. Stop after 20 mins. "
+          "Dont run convergence study")
 
 #: The plant for the replay reader (CLAUDE.md rule 3), the same constant the
 #: house readers use. A zero from a reader not shown able to see a non-zero is
@@ -532,8 +539,9 @@ class AdjointWingAct(DemoAct):
             restatement=(f"Reduce the drag of a three dimensional wing at "
                          f"fixed lift {_actd.CL_TARGET:g}. Use "
                          f"{_actd.N_DV} design variables. Stop at 20 "
-                         f"minutes on the clock. Grade the gradient before "
-                         f"spending anything on it."),
+                         f"minutes on the clock. Run no grid convergence "
+                         f"study. Grade the gradient before spending "
+                         f"anything on it."),
             confidence=("High on the gradient. It is graded against the "
                         "flow solver itself before use. Lower on how far "
                         "the reduction can be pushed. That depends on the "
@@ -716,7 +724,8 @@ class AdjointWingAct(DemoAct):
                     # the adjoint and its grading are the lab's method and
                     # are claimed as such, never attributed to the request.
                     f"What the request fixes: drag minimised, lift held "
-                    f"fixed, and a stop at 20 minutes on the clock.",
+                    f"fixed, a stop at 20 minutes, and no convergence "
+                    f"study.",
                     # "This lab supplies" is load-bearing wording: the
                     # pre-shoot gate's request/lab split limb matches it.
                     f"This lab supplies the method: a discrete adjoint of "
@@ -740,8 +749,7 @@ class AdjointWingAct(DemoAct):
                     # fragment of the line above it.
                     f"One grid: {cells.on_screen()}.",
                     f"Every number this act reports is relative to it.",
-                    f"The grid convergence study for this case is running; "
-                    f"the band lands in your inbox with the certificate.",
+                    CONVERGENCE_DECLINED_LINE,
                 ]),
             ],
             "results": ([
@@ -860,6 +868,11 @@ class AdjointWingAct(DemoAct):
                 # decisions and are claimed on the lab's side of this table.
                 ["Stop rule, the run ends when the clock reaches it",
                  "20", "minutes", "the request"],
+                # HER 1100Z PROMPT ADDITION, honestly attributed: the study
+                # is absent because the request forbade it, and that is a
+                # REQUEST-side fact a viewer must be able to see.
+                ["Grid convergence study, declined by the request",
+                 "not run", "", "the request"],
                 ["Gradient, a discrete adjoint of the flow solver, graded "
                  "against finite differences before it is spent",
                  "yes", "", "the lab"],
@@ -1264,20 +1277,25 @@ class AdjointWingAct(DemoAct):
                     "twentieth of the chord."),
         ]
 
+        # One fact per sentence (her repeated shortening order, latest
+        # 1100Z: "for all acts still condense the sentences").
+        identity = _load(IDENTITY_FILE)
         verification = [
             (f"The gradient was graded against {_actd.FD_SOLVES} central "
-             f"finite-difference solves of the full flow before it was used: "
-             f"the worst physical group agreed to {worst:.3g}%, inside the "
-             f"{_actd.GATE_PASS_PCT:g}% threshold fixed before the check, "
-             f"with no sign reversal in any component that could steer it."),
+             f"finite-difference solves of the full flow before it was "
+             f"used."),
+            (f"The worst physical group agreed to {worst:.3g}%, inside the "
+             f"{_actd.GATE_PASS_PCT:g}% threshold fixed before the check."),
+            (f"No sign reversal in any component that could steer it."),
             (f"The surface on screen was measured against the solved wall "
-             f"patch: {int(_load(IDENTITY_FILE)['solved_wall']['faces']):,} "
-             f"four sided faces against "
-             f"{int(_load(IDENTITY_FILE)['candidates']['sdk_geometry']['measured']['triangles']):,} "
-             f"triangles over the same points, agreeing to "
-             f"{_load(IDENTITY_FILE)['plant_control']['sdk_geometry']['two_way_max_m_clean'] * 1e6:.1f} "
-             f"micrometres."),
-            ("Results are relative to this mesh. " + CONVERGENCE_LINE),
+             f"patch."),
+            (f"The two agree to "
+             f"{identity['plant_control']['sdk_geometry']['two_way_max_m_clean'] * 1e6:.1f} "
+             f"micrometres: {int(identity['solved_wall']['faces']):,} four "
+             f"sided faces against "
+             f"{int(identity['candidates']['sdk_geometry']['measured']['triangles']):,} "
+             f"triangles over the same points."),
+            CONVERGENCE_DECLINED_LINE,
         ]
 
         limitations = [
@@ -1294,6 +1312,17 @@ class AdjointWingAct(DemoAct):
 
         box = round(screen["box_core_min"], 1)
         actual = round(screen["actual_core_min"], 1)
+        # HER 1100Z TABLE ORDER: the 0745Z ruling's set renders as the
+        # STANDARD compute table (the shared four-column shape every sweep
+        # act uses; her reading "Workers | Core-min total | Wall" maps onto
+        # it with the per-run column carrying this act's one run). Every
+        # cell from `_screen_compute`, never typed. Renders as:
+        # 4 | 80 | 80 | 20.0 minutes.
+        tables.append(compute_table(
+            ranks, f"{screen['actual_core_min']:.0f}",
+            f"{screen['actual_core_min']:.0f}",
+            f"{screen['wall_min']:.1f} minutes",
+            table_id="actd_compute"))
         return Results(
             fields=fields, plots=plots, tables=tables,
             verification_lines=verification, limitations=limitations,
@@ -1409,15 +1438,19 @@ class AdjointWingAct(DemoAct):
         # becomes decoration.
         table_checked = self._check_assumption_constants()
 
-        # THE CONVERGENCE PROMISE CANNOT FORK EITHER. Two acts publish the
-        # same stage-8 sentence and a paraphrase in one of them would leave the
-        # gate matching by meaning while the two screens said different things.
-        from . import dmr_act as _dmr
-        if CONVERGENCE_LINE != _dmr.CONVERGENCE_LINE:
+        # THE CROSS-ACT CONVERGENCE ASSERT IS RETIRED WITH THE PROMISE
+        # (Sanaa 1100Z: this act's request now declines the study, so this
+        # act no longer publishes the shock-reflection act's stage-8 promise
+        # sentence and the two screens are MEANT to differ). What is asserted
+        # instead: the declined sentence must attribute the decline to the
+        # REQUEST, because "the study was not run" without that attribution
+        # would read as the platform's own omission, and the always-run rule
+        # is overridden here only by the customer's own words.
+        if "request declined" not in CONVERGENCE_DECLINED_LINE:
             raise DemoContractError(
-                "this act's convergence-study sentence has drifted from the "
-                "one the shock-reflection act publishes; stage 8 must read the "
-                "same on both screens")
+                "the declined-study sentence must attribute the decline to "
+                "the request; without that attribution it reads as the "
+                "platform's own omission")
 
         # The standing prohibitions, checked over the same strings.
         return {"strings_checked": checked,
@@ -1543,25 +1576,22 @@ class AdjointWingAct(DemoAct):
                 f"{shares['shape']['pct_of_drop']:.1f} percent of the drop.",
                 "Twist on its own makes the drag slightly worse, which is not "
                 "the tidier answer, and it is the measured one.",
-                CONVERGENCE_LINE,
+                CONVERGENCE_DECLINED_LINE,
                 "The full report, with every figure, is in the Report tab.",
             ],
-            # STATES WHAT THIS RUN HAS. IT DOES NOT PROMISE ONE.
-            #
-            # This read "The certificate is issued with the convergence band,
-            # which is running for this case now" -- copied from the sibling's
-            # phrasing -- and a language rule landed banning `certificate is
-            # issued` on a screen, with the reason: state whether THIS run has
-            # a sealed certificate, promise no future one. THE RULE IS RIGHT
-            # AND THE STRING WAS WRONG. A future certificate is a claim about
-            # work that has not happened, which is the same defect as a
-            # premature "the convergence study is done" -- and I had argued
-            # that one at length two hours earlier while carrying this.
-            #
-            # The convergence study is still promised, in the conclusion lines,
-            # where it belongs: a study underway is a real scheduled thing. A
-            # CERTIFICATE is not, and the two were welded into one sentence.
-            certificate_state="No sealed certificate is attached to this run.",
+            # STATES WHAT THIS RUN HAS. IT DOES NOT PROMISE ONE, AND IT NO
+            # LONGER SPEAKS THE SENTENCE SANAA REMOVED (1100Z: "remove No
+            # sealed certificate is attached to this run"). The contract
+            # refuses an empty certificate_state (silence would read as one
+            # having been issued), so the minimal honest alternative renders
+            # instead: certification rides the grid convergence study, and
+            # this request declined that study, so the absence is the
+            # customer's own choice stated as fact. No banned issuance
+            # phrasing ("certificate is issued" stays banned); no future
+            # certificate promised.
+            certificate_state=("Certification is offered with the grid "
+                               "convergence study, which this request "
+                               "declined."),
         )
 
     # -- which sequencer walks this act -------------------------------------
@@ -1745,8 +1775,11 @@ class ActDSequencer(Sequencer):
         # so the wall-patch views and the trace advance together.
         self._wing_panel(emit, "wing_baseline",
                          f"Reference wing, {_actd.BASELINE_NAME}")
+        # "Gradient descent", her 1100Z wording order, replacing the
+        # "where the adjoint says to push" phrasing on the wire.
         self._wing_panel(emit, "wing_gradient",
-                         "Where the adjoint says to push, at fixed lift")
+                         "Gradient descent direction on the skin, at fixed "
+                         "lift")
 
         # ONE SCHEDULE, TWO MONITORS, AND THEY ARE NOT ON ONE CLOCK. The
         # counter advances on the displayed time axis; the adjoint solves
@@ -1880,8 +1913,12 @@ class ActDSequencer(Sequencer):
         # drive's own screen time so an offline gate drive is not slowed.
         near_beat = min(1.2, float(self.screen_seconds) / 1000.0)
         for it in _actd.SHOWN_FRAME_ITERS:
+            # "Close view", not "Inboard span": her 1100Z order pulls the
+            # close camera back until the whole patch sits inside the frame,
+            # so the frame now shows the full patch and an inboard label
+            # would overclaim.
             self._wing_panel(emit, f"wing_near_{it:02d}",
-                             f"Inboard span, iteration {it} of {counter_to}")
+                             f"Close view, iteration {it} of {counter_to}")
             self.sleep(near_beat)
 
         published = self._publish(emit, "solve.end", {
