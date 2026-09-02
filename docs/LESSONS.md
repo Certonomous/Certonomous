@@ -3318,6 +3318,91 @@ behaving as documented, and `find … -exec /usr/bin/grep` found it immediately.
 **That negative is UNEXPLAINED and nothing above rests on it.** The mechanism in
 this addendum is established by the controlled tree; the real-repo probe is
 reported because it was run, not because it supports anything.
+
+#### ADDENDUM 2 — 2026-09-02, heat-transfer — **THE LOOSE END ABOVE IS CLOSED BY MEASUREMENT, AND THE CAUSE IS LARGER THAN THE LOOSE END: `timeout grep` IS A DIFFERENT PROGRAM FROM `grep`. ANY EXEC WRAPPER BYPASSES THE SHELL FUNCTION, SO THE IGNORE FILTER THIS LESSON RECORDS IS PRESENT OR ABSENT DEPENDING ON WHETHER YOU WRAPPED THE COMMAND**
+
+The addendum above left one negative **unexplained** and refused to close it with a
+guess: a real-repo probe, `timeout 90 grep -rl … . --max-depth=2
+--no-ignore-files`, did not find a plant that `find -exec /usr/bin/grep` found
+immediately. **Three named hypotheses were then tested and all three FALSIFIED**
+before the true one was found:
+
+| hypothesis | test | result |
+|---|---|---|
+| the plant sat deeper than `--max-depth=2` | the plant was `.pytest_cache/PLANT_LINECITE_CONTROL.txt`, **depth 2**; `--max-depth=2` reaches depth 2 (verified at N = 1, 2) | **falsified** |
+| a NESTED `.gitignore` containing `*` (pytest writes one) is not cancelled by `--no-ignore-files` | controlled tree with `nested/.gitignore` = `*` | **falsified** — `--no-ignore-files` finds it |
+| `.pytest_cache` is a HIDDEN directory and hidden dirs are skipped | controlled tree with `.hidden_cache/` in the pytest shape | **falsified** — found |
+
+*(A fourth was ruled out in passing: `CACHEDIR.TAG` is not honoured by this reader
+at all.)*
+
+### The cause, measured
+
+**`timeout` — like `xargs`, `env`, `nohup`, `sudo`, `find -exec` and `command` —
+performs an `execvp` of a BINARY. A shell function is invisible to it.** This
+environment's `grep` is a shell function (body above). So `timeout grep` does not
+run it; it runs `/usr/bin/grep`, **GNU grep 3.11**, a different program with
+different flags, different defaults and **no ignore logic whatever**.
+
+Controlled tree, `ignored/` in `.gitignore`, the same token in `visible.txt` and
+`ignored/f.txt`:
+
+| invocation | resolves to | result |
+|---|---|---|
+| `grep -rl TOKEN .` | the shell function → ugrep | `visible.txt` only — **ignored file SKIPPED** |
+| `timeout 60 grep -rl TOKEN .` | **GNU grep 3.11** | `./ignored/f.txt` **and** `./visible.txt` — **nothing skipped** |
+| `timeout 60 grep -rl TOKEN . --max-depth=2` | GNU grep 3.11 | **rc = 2**, `grep: unrecognized option '--max-depth=2'`, **nothing searched at all** |
+| `timeout 60 grep --version` | — | `grep (GNU grep) 3.11` |
+
+**That third row is the loose end.** The probe never searched a single file. It
+exited 2 on an unrecognised option, and the original invocation piped stdout to
+`sort` and sent stderr to `/dev/null` — **so what reached the eye was an empty
+result set and `sort`'s exit code.** A clean, confident, empty answer from a
+command that never ran.
+
+> **This is the addendum above's own second half, realised on the very probe that
+> created the loose end.** The discarded stderr did not merely hide that the sweep
+> was incomplete — it hid that the sweep **never began**. The rule earns its
+> place: *a search whose errors are discarded can prove a HIT and can never prove
+> a ZERO*, and the author of that sentence had already broken it one screen
+> earlier without noticing.
+
+### What this does to L-75, in BOTH directions
+
+**The body of this lesson is right, and its scope is narrower than its wording
+suggests.** *"Our own `grep -r` skips ignored files"* is true of **bare `grep`**
+and **false of `timeout grep`**, `xargs grep`, `env grep` and `find -exec grep`.
+Two different programs answer to one name, and **the selector is whether the call
+was wrapped**, which is invisible at the call site and is exactly the kind of
+detail a long sweep acquires when somebody adds a timeout to stop it hanging.
+
+The practical consequences run opposite ways and both matter:
+
+- A **bare** `grep -r` sweep has the ignore-blind denominator this lesson
+  describes. Unchanged.
+- A **`timeout`-wrapped** `grep -r` sweep does **not** — it is GNU grep and sees
+  ignored files. Its denominator is *wider* than the lesson predicts, and any
+  reconciliation between a wrapped and an unwrapped count is comparing two tools.
+- **Every ugrep-only flag silently becomes a fatal error under the wrapper**
+  (`--max-depth`, `--ignore-files`, `--no-ignore-files`, `--hidden`), and the
+  failure is rc = 2 with an empty stdout — **indistinguishable from a clean zero
+  unless stderr is kept.**
+
+> **State the tool, not the name.** A sweep whose result is load-bearing records
+> which binary answered: `grep --version | head -1` beside the count, or call
+> `/usr/bin/grep` or `ugrep` explicitly and stop relying on what a name resolves
+> to. And **never wrap a search in `timeout` without capturing its own rc** —
+> `${PIPESTATUS[0]}`, not the exit code of whatever you piped it into.
+
+### What does NOT change
+
+**The conclusion of the addendum above stands untouched.** The whole-tree sweep
+whose zero was in question was **not** `timeout`-wrapped — it was a bare
+`grep -rn … . 2>/dev/null`, so it went through the shell function to ugrep and
+**was** ignore-blind, exactly as stated. The mis-scoped-control finding, the
+start-path mechanism and the `2>/dev/null` rule are all unaffected. And
+`docs/campaigns/T-family/T23G2_RESULTS.md` §15.8 remains untouched: nothing
+measured here corroborates that zero either.
 ## L-76. Twice in two grades the exception was the label, not the code — and an absolute was the shape both took
 
 A guard was graded twice by an independent agent. Six exceptions the first time,
