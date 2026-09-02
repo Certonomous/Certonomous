@@ -1167,3 +1167,60 @@ L-342) and both entries are re-armed per the runner's re-arm protocol.
 **No gate, threshold, cap or label moves. No physics artefact existed to be
 touched.** The G-ROOT clause reads unit dirs under `$RUN`, so the archived
 failed staging cannot block or be mistaken for a run.
+
+---
+---
+
+# ADDENDUM E — 2026-09-02 — POST-COMPUTE — v1.5 → v1.6 — SECOND FIRE: THE GATE REFUSED CORRECTLY ON TWO INSTRUMENT DEFECTS, AT 1.0 CORE-MIN
+
+**`lines whose number changed above this section: 0`**
+
+**The second fire (18:13:25Z, prereg `80e1b91a`) ran both probes to immediate
+failure — 41 s and 20 s of container startup, 1.02 core-min total, ZERO
+solver iterations — and `a1wr_stage1_gate.py` REFUSED (exit 2, rule 3
+fail-closed) exactly as built: Stage 2 never launched, and the waiting MAAOA
+chain took its registered `BLOCKED` branch at 0.0 spend.** Evidence archived
+whole at `…/A1WR/STAGE12_failed_meshcheck_20260902T181325Z/`. Two defects,
+both this lane's, both repaired and both proven before the third fire:
+
+1. **probe_I — DAFoam's INTERNAL mesh-quality gate refused the dispositioned
+   aspect-ratio flag.** `DACheckMesh` (read at `DACheckMesh.C:25-29` in the
+   patched image) aborts the primal at its default
+   `checkMeshThreshold.maxAspectRatio = 1000` (`pyDAFoam.py:611-616`); the
+   wall-resolved family's measured max AR is **212,104 at L3 — the SAME flag
+   §13.7 already dispositioned** as a disclosed artefact of the single-cell
+   spanwise extrusion (AR tracks 1/s0; the z direction carries symmetry and
+   no gradient). At the default threshold the registered item cannot run at
+   all — the solver's internal gate was re-litigating a question this
+   document had already ruled on. **Repair, all four run scripts (A1WR and
+   MAAOA):** `"checkMeshThreshold": {"maxAspectRatio": 5.0e5, "maxNonOrth":
+   70.0, "maxSkewness": 4.0, "maxIncorrectlyOrientedFaces": 0}` — **only
+   `maxAspectRatio` moves**, the other three stay at the shipped defaults,
+   copied not recalled. This implements §13.7's frozen disposition; it is
+   NOT one of §9's gates and it weakens nothing §9 tests — non-orthogonality,
+   skewness and orientation keep their shipped ceilings, `G-MESHFAM`'s
+   growth-ratio ceiling stands, and every `checkMesh` log verdict line is
+   still recorded and reported per §13.7.
+2. **probe_C — the physics self-assert searched for markers this lane had
+   renamed.** The generator renamed the `D19M_PHYSICS` marker LINES to
+   `A1WR_PHYSICS` but not the assert's SPLIT LITERALS (split across an
+   implicit concatenation precisely so they would not count as markers — and
+   therefore invisible to the rename). The assert counted 0/0 and aborted at
+   import, before any physics. **Repair:** the split literals now name
+   `A1WR_PHYSICS`, and the generator SIMULATES the assert on the emitted
+   bytes and refuses if it would not pass.
+
+**Verification before the third fire, on foreign/scratch artifacts (~2
+core-min instrument checks, cumulative with §15.4's 0.6):** the repaired
+compressible script was driven in the PATCHED image against a scratch case
+carrying **the real L3 mesh** to the task dispatcher with no solve:
+`AOAC_PHYSICS_MD5_PASS bb543035…` printed, daOptions (threshold included)
+accepted, DASolver/FFD/mphys built, `task arg not found!` reached — the
+registered terminal for a no-task invocation.
+
+**Re-pins:** `a1wr_runScript_incomp.py` → `d48f48c5e2e41e86981acbf6feccb3c4`,
+`a1wr_runScript_comp.py` → `a8af900b96fcb721e0fbbdeafdfa6d00` (block md5
+`bb543035df5ef2add923280ee92cd0ef`), `A1WR_STAGE12_MD5.txt` regenerated and
+`md5sum -c` clean. **No gate, threshold, cap or label of this item moves.**
+Spend to date on stages 1–2: **1.02 core-min of container startup, 0 solver
+iterations**, against the 1,720 registered — reported, not absorbed.

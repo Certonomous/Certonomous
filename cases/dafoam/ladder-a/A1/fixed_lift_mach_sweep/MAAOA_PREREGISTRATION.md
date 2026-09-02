@@ -181,3 +181,31 @@ entry re-armed. **Driver md5 re-pinned: `fdf184ecf0cde5df59c219b7a23d72a1`**
 deliberately outside it, exactly so the runtime G-FREEZE check cannot be
 satisfied by the file that performs it. **No gate, threshold, cap or label
 moves; the registered points, reading, costs and caps stand.**
+
+---
+---
+
+# AMENDMENT 2 — 2026-09-02 — PRE-COMPUTE — RUN-SCRIPT RE-PINS AFTER A1WR's SECOND-FIRE FINDINGS
+
+**`lines whose number changed above this section: 0`**
+
+**Condition: still no compute on this item — checked.** The second fire's
+driver reached the gate wait, read A1WR's `REFUSED` verdict and took its
+registered `BLOCKED` branch: `STATUS.MAAOA_chain` reads
+`phase=BLOCKED-BY-A1WR-GATE … spend_core_min=0.0`;
+`/home/ubuntu/certonomous-runs/MAAOA` still does not exist. The freeze
+window remains open.
+
+**What moves** (both defects found by A1WR's probes, disclosed in its
+ADDENDUM E, repaired identically here): (1) all MAAOA run scripts gain
+`"checkMeshThreshold"` with **only `maxAspectRatio` raised to 5.0e5** (the
+other three keys at the shipped defaults) — without it DAFoam's internal
+mesh gate refuses the wall-resolved family's dispositioned single-cell-span
+aspect ratio and no point can run; (2) the compressible script's physics
+self-assert split literals now name `A1WR_PHYSICS`, and the repaired script
+was driven in the PATCHED image against a scratch case on the real L3 mesh
+to its task dispatcher (`AOAC_PHYSICS_MD5_PASS`, model built, no solve).
+**Re-pins:** `maaoa_runScript_incomp.py` → `944dc9e0f9e396b79977b19a352ea429`,
+`maaoa_runScript_comp.py` → `bd22df020be42fbd2eef14cbc25182f7` (block md5
+`cc2e3aba1861bcf17a09965e03cc956b`), `MAAOA_MD5.txt` regenerated, `md5sum -c`
+clean. **No gate, threshold, cap or label of this item moves.**

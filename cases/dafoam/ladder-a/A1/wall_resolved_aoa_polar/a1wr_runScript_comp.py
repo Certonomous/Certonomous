@@ -67,6 +67,7 @@ daOptions = {
     "designSurfaces": ["wing"],
     "solverName": "DARhoSimpleFoam",
     "primalMinResTol": float(os.environ.get("A1WR_PRIMAL_TOL", "1.0e-8")),
+    "checkMeshThreshold": {"maxAspectRatio": 5.0e5, "maxNonOrth": 70.0, "maxSkewness": 4.0, "maxIncorrectlyOrientedFaces": 0},
     "primalBC": {
         "U0": {"variable": "U", "patches": ["inout"], "value": [U0, 0.0, 0.0]},
         "p0": {"variable": "p", "patches": ["inout"], "value": [p0]},
@@ -114,7 +115,7 @@ daOptions = {
 # ---- A1WR_PHYSICS_END ----
 
 # ---- THE SELF-ASSERT.  Runs at import, before `Top` is instantiated. --------
-_PHYS_MD5 = "a2a674eb5c2103f29cf9ef7a1a1781a9"
+_PHYS_MD5 = "bb543035df5ef2add923280ee92cd0ef"
 with open(__file__) as _fh:
     _src = _fh.read()
 # THE MARKER LITERALS ARE SPLIT ACROSS AN IMPLICIT CONCATENATION ON PURPOSE.
@@ -122,8 +123,8 @@ with open(__file__) as _fh:
 # very file, and the count-must-be-1 limb below -- the limb that makes the
 # split unambiguous -- would refuse its own producer. G-PHYS caught exactly
 # that on the first launch attempt, before any compute.
-_B = "# ---- D19M_PHYSICS" "_BEGIN ----\n"
-_E = "# ---- D19M_PHYSICS" "_END ----"
+_B = "# ---- A1WR_PHYSICS" "_BEGIN ----\n"
+_E = "# ---- A1WR_PHYSICS" "_END ----"
 if _src.count(_B) != 1 or _src.count(_E) != 1:
     raise SystemExit("AOAC_ABORT physics markers appear %d/%d times, expected 1/1"
                      % (_src.count(_B), _src.count(_E)))

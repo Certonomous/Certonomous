@@ -58,6 +58,7 @@ daOptions = {
     "designSurfaces": ["wing"],
     "solverName": "DASimpleFoam",
     "primalMinResTol": float(os.environ.get("A1WR_PRIMAL_TOL", "1.0e-8")),
+    "checkMeshThreshold": {"maxAspectRatio": 5.0e5, "maxNonOrth": 70.0, "maxSkewness": 4.0, "maxIncorrectlyOrientedFaces": 0},
     "primalBC": {
         "U0": {"variable": "U", "patches": ["inout"], "value": [U0, 0.0, 0.0]},
         "p0": {"variable": "p", "patches": ["inout"], "value": [p0]},
