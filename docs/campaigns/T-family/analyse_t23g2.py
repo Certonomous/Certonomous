@@ -275,14 +275,32 @@ def plateau(series, endtime, rel=False):
     return ("PLATEAUED" if spread <= lim else "NOT PLATEAUED"), spread, lim, len(tail)
 
 
-def g_ratio(name, iter_change, level_diffs):
+def g_ratio(name, iter_change, level_diffs, control=None):
     """Sanaa's section 0 point 2, gated: the iterative change on the finest level
     must be at least 10x smaller than the SMALLEST consecutive inter-level
-    difference.  Otherwise the observed order is noise, not discretisation."""
+    difference.  Otherwise the observed order is noise, not discretisation.
+
+    AMENDMENT v1.1, 2026-09-02 -- REPAIR R5.  THE EXACT-ZERO LICENCE IS NOW
+    EXECUTABLE INSTEAD OF DOCUMENTARY.  The frozen comment below claimed that
+    "the planted-zero control is what makes an exact zero mean something" while
+    NOTHING IN THIS FUNCTION LOOKED AT A CONTROL.  On T23G2 that claim was
+    carrying real weight and the ruling says so: G-RATIO passes on all six
+    quantities ONLY because the measured iterative change is exactly 0.0, and 13
+    of the 18 registered controls did not exist.  Six exact zeros were carrying
+    six G-RATIO passes on a licence that was not there -- standing rule 3's exact
+    shape.  The zero-branch now REFUSES unless the control for that reader, at
+    that level, was constructed and PASSED.
+    """
     smallest = min(abs(d) for d in level_diffs)
     if iter_change <= 0.0:
         # an exact zero passes, and the planted-zero control is what makes an
         # exact zero mean something (rule 3).  Reported, not silently blessed.
+        if control is None:
+            refuse("G-RATIO would PASS %s on an EXACT ZERO iterative change and "
+                   "NO planted-zero control was supplied for that reader at the "
+                   "finest level.  A zero from a reader not shown able to see a "
+                   "non-zero is not evidence (CLAUDE.md rule 3)." % name)
+        RT.assert_plant_control(control)
         return "PASS", float("inf"), smallest
     ratio = smallest / iter_change
     return ("PASS" if ratio >= RATIO_MIN else "GATE FAIL"), ratio, smallest
@@ -291,20 +309,35 @@ def g_ratio(name, iter_change, level_diffs):
 # ==========================================================================
 # G-YPLUS -- A2.2: GATED on EVERY wall patch, EVERY level, two instruments
 # ==========================================================================
-def yplus_from_fields(cd):
-    """Independent y+ from U, nut and the polyMesh.  The wall condition is
-    `nutLowReWallFunction`, so nut_w = 0 and u_tau = sqrt(nu * U_t / y).  This
-    reader's ability to see what it claims is established in
-    T23G2_PREREGISTRATION.md A1.4: on T23G_M it reproduced T23_RESULTS.md
-    section 4's OpenFOAM-produced values to every digit that record carries."""
-    mf = GEOM.Mesh(cd, "fluid")
-    et = None
+def _endtime_for(cd):
     for lv, t in ENDTIME.items():
         if os.path.basename(cd) == lv:
-            et = str(t)
-    if et is None:
-        refuse("cannot resolve endTime for %s" % cd)
-    Ui, Ub = GEOM.read_field(_need(os.path.join(cd, et, "fluid", "U"), "U"))
+            return str(t)
+    refuse("cannot resolve endTime for %s" % cd)
+
+
+def yplus_from_fields(cd, u_path=None):
+    """Independent y+ from U, nut and the polyMesh.  The wall condition is
+    `nutLowReWallFunction`, so nut_w = 0 and u_tau = sqrt(nu * U_t / y).
+
+    AMENDMENT v1.1, 2026-09-02 -- REPAIR R5.  `u_path` exists SO THAT THIS READER
+    CAN BE PLANTED INTO AND READ BACK.  T23G2_PREREGISTRATION.md:601 registers of
+    this reader: "It must plant a known perturbation and read it back, and refuse
+    if it cannot see it (rule 3)."  It planted nothing, and argued its validity
+    DOCUMENTARILY instead -- "its validation is A1.4".  A CITATION IS NOT A
+    CONTROL.  `control_yplus_field_reader` below writes a planted copy of `U` to
+    disk and drives THIS function over it; nothing else uses `u_path`, and the
+    default path is the frozen one.  A1.4's validation is NOT WITHDRAWN and is
+    restated here verbatim from the frozen docstring, because a repair must not
+    quietly delete a record: "This reader's ability to see what it claims is
+    established in T23G2_PREREGISTRATION.md A1.4: on T23G_M it reproduced
+    T23_RESULTS.md section 4's OpenFOAM-produced values to every digit that
+    record carries."  What changes is its STATUS: it now ACCOMPANIES a live
+    control instead of STANDING IN FOR one."""
+    mf = GEOM.Mesh(cd, "fluid")
+    et = _endtime_for(cd)
+    Ui, Ub = GEOM.read_field(_need(u_path or os.path.join(cd, et, "fluid", "U"),
+                                   "U"))
     nuti, nutb = GEOM.read_field(_need(os.path.join(cd, et, "fluid", "nut"), "nut"))
     Uc = GEOM.expand(Ui, mf.nCells)
     nutc = GEOM.expand(nuti, mf.nCells)
@@ -340,13 +373,13 @@ def yplus_from_fields(cd):
     return out
 
 
-def yplus_from_log(cd):
+def yplus_from_log(cd, path=None):
     """The PRIMARY instrument: `chtMultiRegionSimpleFoam -postProcess -func
     yPlus`, whose log is filed as log.yPlus.fluid.  Plain `postProcess` is
     MEASURED BLIND on this family -- it does not construct the compressible
     turbulence model -- so a log whose own text says so, or whose numbers are
     perfect zeros, is REFUSED and never read (CLAUDE.md rule 3)."""
-    p = os.path.join(cd, "log.yPlus.fluid")
+    p = path or os.path.join(cd, "log.yPlus.fluid")
     if not os.path.isfile(p):
         return None
     txt = open(p, errors="replace").read()
@@ -365,6 +398,184 @@ def yplus_from_log(cd):
                "not shown able to see a non-zero is REFUSED, not read "
                "(CLAUDE.md rule 3)." % p)
     return out
+
+
+# ==========================================================================
+# AMENDMENT v1.1, 2026-09-02 -- REPAIR R5, THE TWO Y+ READER CONTROLS.
+#
+# GRANTED: VERIFICATION_CHARTER.md v1.38 section 2d.7, commit 3dad5bae -- "R5
+# GRANTED, AND IT IS THE MOST IMPORTANT OF THE SIX".
+#
+# THE DEPARTURE.  :624-625 registers "Six quantities x three levels = 18
+# controls, plus the two y+ readers = 20".  The frozen code called
+# `plant_control_for` at ONE line, at the FINEST LEVEL ONLY, for FIVE quantities:
+# 5 controls against a registered 20.  :601 registers that the cross-check y+
+# reader "must plant a known perturbation and read it back, and refuse if it
+# cannot see it (rule 3)"; it planted nothing.
+#
+# THE PLANT IS MULTIPLICATIVE HERE, AND THAT IS NOT A REDEFINITION OF `PLANT`.
+# `PLANT` is IMPORTED and never redefined (rule 14).  y+ is not linear in U, so
+# an ADDITIVE plant has no closed-form expected shift; a SCALE of (1 + PLANT) on
+# every vector in `U` has one, EXACTLY:
+#     every fluid wall patch is `noSlip`, so U_wall is IDENTICALLY zero, so
+#     U_t -> s * U_t exactly, u_tau = sqrt(nu_eff * U_t / y) -> sqrt(s) * u_tau,
+#     and y+ = y * u_tau / nu -> sqrt(s) * y+ on EVERY face of EVERY wall patch.
+# THE noSlip PRECONDITION IS ASSERTED FROM THE FILE, NEVER ASSUMED: a wall patch
+# carrying a `value` block breaks the closed form and REFUSES.
+#
+# THIS CONTROL CAN FAIL, WHICH IS THE ONLY PROPERTY THAT MAKES IT A CONTROL.  A
+# reader that ignored `U`, cached a previous read, or could not see the planted
+# file returns the SAME y+ and the expected ratio sqrt(1 + PLANT) = 1.000617 is
+# missed by six orders of magnitude.
+# ==========================================================================
+YPLUS_PLANT_SCALE = 1.0 + PLANT       # PLANT imported, NEVER redefined (rule 14)
+YPLUS_PLANT_TOL_REL = 1.0e-9
+
+
+def _plant_u_file(src, dst, scale):
+    """Write a copy of an OpenFOAM vector field with EVERY vector scaled.  The
+    FoamFile header is copied verbatim; only the body is transformed."""
+    txt = open(src, errors="replace").read()
+    i = txt.find("// * * *")
+    if i < 0:
+        refuse("%s carries no FoamFile header delimiter; the plant would have to "
+               "guess where the data starts, and it will not" % src)
+    j = txt.index("\n", i) + 1
+    head, body = txt[:j], txt[j:]
+    pat = re.compile(r"\(\s*([-\d.eE+]+)\s+([-\d.eE+]+)\s+([-\d.eE+]+)\s*\)")
+    n = [0]
+
+    def rep(m):
+        n[0] += 1
+        return "(%s %s %s)" % tuple(repr(float(m.group(k)) * scale)
+                                    for k in (1, 2, 3))
+
+    out = pat.sub(rep, body)
+    if n[0] == 0:
+        refuse("%s: the plant matched NO vector, so nothing was perturbed and "
+               "the control would be vacuous" % src)
+    open(dst, "w").write(head + out)
+    return n[0]
+
+
+def control_yplus_field_reader(cd, base):
+    """CONTROL 19 of the registered 20.  Plants into `U` on disk and drives the
+    REAL reader over the planted file.  REFUSES if the reader cannot see it."""
+    mf = GEOM.Mesh(cd, "fluid")
+    up = _need(os.path.join(cd, _endtime_for(cd), "fluid", "U"), "U")
+    _, Ub = GEOM.read_field(up)
+    for pn, pb in mf.boundary.items():
+        if pb["type"] not in ("wall", "mappedWall"):
+            continue
+        if not (Ub[pn][0] == "no-value" and "noSlip" in str(Ub[pn][1])):
+            refuse("wall patch %s of %s is not `noSlip`, so the planted scale "
+                   "has no closed-form expected shift on it.  The control's "
+                   "prediction is asserted from the file, never assumed, and an "
+                   "unpredictable control is refused rather than relaxed."
+                   % (pn, cd))
+    tmp = up + ".plant"
+    try:
+        nvec = _plant_u_file(up, tmp, YPLUS_PLANT_SCALE)
+        planted = yplus_from_fields(cd, u_path=tmp)
+    finally:
+        if os.path.isfile(tmp):
+            os.remove(tmp)
+    expected = math.sqrt(YPLUS_PLANT_SCALE)
+    worst = (None, 0.0)
+    for pn in sorted(base):
+        b, a = base[pn]["max"], planted[pn]["max"]
+        if b <= 0.0:
+            refuse("%s/%s: base y+ max is %r, so a multiplicative plant could "
+                   "not move it and the control would be vacuous" % (cd, pn, b))
+        if a == b:
+            refuse("%s/%s: the independent y+ reader returned the IDENTICAL "
+                   "value %.12g from a planted `U`.  It cannot see a "
+                   "perturbation it is required to see, so its zeros and its "
+                   "y+ mean nothing (CLAUDE.md rule 3)." % (cd, pn, b))
+        err = abs(a / b - expected) / expected
+        if err > worst[1]:
+            worst = (pn, err)
+        if err > YPLUS_PLANT_TOL_REL:
+            refuse("%s/%s: planted/base y+ max = %.15g, expected sqrt(1 + PLANT)"
+                   " = %.15g, relative miss %.3e > %.0e.  The reader saw "
+                   "SOMETHING but not the planted quantity, which is worse than "
+                   "seeing nothing." % (cd, pn, a / b, expected, err,
+                                        YPLUS_PLANT_TOL_REL))
+    return dict(passed=True, planted=PLANT, scale=YPLUS_PLANT_SCALE,
+                expected_ratio=expected, worst_patch=worst[0],
+                worst_rel_miss=worst[1], vectors_planted=nvec,
+                reader="y+ independent field reader", artifact=up,
+                level=os.path.basename(cd))
+
+
+def control_yplus_log_reader(cd, base_log):
+    """CONTROL 20 of the registered 20.  Plants a known ADDITIVE shift into a
+    copy of `log.yPlus.fluid` and re-reads it with the REAL regex parser.
+
+    AN ABSENT OR BLIND PRIMARY LOG RETURNS None AND DOES NOT REFUSE.  R6 -- "an
+    ABSENT primary y+ instrument becomes a refusal" -- was REFUSED as a section
+    2d.1 repair and REFERRED for prospective registration, so this file does not
+    implement it by the back door.  The absence is DISCLOSED and counted against
+    the registered 20."""
+    if not isinstance(base_log, dict) or not base_log:
+        return None
+    p = os.path.join(cd, "log.yPlus.fluid")
+    pn = sorted(base_log)[0]
+    before = base_log[pn]["max"]
+    txt = open(p, errors="replace").read()
+    pat = re.compile(r"(patch\s+%s\s+y\+\s*:\s*min\s*=\s*[-\d.eE+]+\s*,?\s*max"
+                     r"\s*=\s*)([-\d.eE+]+)" % re.escape(pn))
+    m = pat.search(txt)
+    if m is None:
+        refuse("%s: the control could not locate the `max` field for patch %s "
+               "that the reader itself parsed; a control that cannot be "
+               "constructed is a refusal, never a pass" % (p, pn))
+    planted_txt = (txt[:m.start()] + m.group(1)
+                   + repr(float(m.group(2)) + PLANT) + txt[m.end():])
+    tmp = p + ".plant"
+    try:
+        open(tmp, "w").write(planted_txt)
+        after_all = yplus_from_log(cd, path=tmp)
+    finally:
+        if os.path.isfile(tmp):
+            os.remove(tmp)
+    if not isinstance(after_all, dict) or pn not in after_all:
+        refuse("%s: the primary y+ reader could not re-read the planted copy at "
+               "all; it cannot be shown able to see a perturbation and its "
+               "readings mean nothing (CLAUDE.md rule 3)" % p)
+    return RT.external_plant_control("y+ primary log reader @%s/%s"
+                                     % (os.path.basename(cd), pn),
+                                     before, after_all[pn]["max"],
+                                     artifact=p, level=os.path.basename(cd))
+
+
+def yplus_reader_controls(cd, base_field, base_log):
+    """The two registered y+ reader controls (:624-625), on the FINEST level --
+    the level whose reading carries the graded fine value.  Both are ASSERTED,
+    and a failure is a refusal, not a note."""
+    note("  PLANTED-ZERO CONTROLS ON THE TWO Y+ READERS (registered at "
+         ":601 and :624-625)")
+    cf = control_yplus_field_reader(cd, base_field)
+    note("    [19/20] independent field reader @%s: planted x(1 + %g) into %d "
+         "vectors of U;\n            every wall patch moved by sqrt(1 + PLANT) "
+         "= %.12f, worst relative miss %.3e\n            on %s -- PASSED"
+         % (cf["level"], PLANT, cf["vectors_planted"], cf["expected_ratio"],
+            cf["worst_rel_miss"], cf["worst_patch"]))
+    cl = control_yplus_log_reader(cd, base_log)
+    if cl is None:
+        note("    [20/20] primary log reader @%s: NOT CONSTRUCTED -- the "
+             "primary instrument is\n            ABSENT or BLIND, so the "
+             "registered count of 20 is NOT MET and this is\n            "
+             "DISCLOSED rather than refused (R6 was REFUSED as a repair and "
+             "REFERRED)."
+             % os.path.basename(cd))
+    else:
+        RT.assert_plant_control(cl)
+        note("    [20/20] primary log reader @%s: planted %g, read back %.12g "
+             "-- PASSED"
+             % (cl["level"], cl["planted"], cl["read_back_delta"]))
+    note("")
+    return cf, cl
 
 
 def gate_yplus():
@@ -394,6 +605,8 @@ def gate_yplus():
             note("  %s: primary instrument ABSENT; the independent reader "
                  "carries the gate, and its validation is A1.4" % lv)
         rows[lv] = field
+        if lv == LEVELS[-1]:
+            yplus_reader_controls(cd, field, log)     # REPAIR R5, controls 19-20
         for pn in sorted(field):
             d = field[pn]
             ok = d["max"] <= YPLUS_MAX
@@ -580,6 +793,46 @@ def plant_control_for(qname, level, series_path_fn):
 
 
 # ==========================================================================
+# AMENDMENT v1.1, 2026-09-02 -- REPAIR R5, THE EIGHTEEN QUANTITY CONTROLS.
+#
+# :624-625 registers "Six quantities x three levels = 18 controls".  The frozen
+# code built FIVE: `plant_control_for` was called at one line, at LEVELS[-1]
+# only, for Q4 Q1 Q2 Q3 Q6.  Q5 had no control at all, and neither coarse nor
+# medium level had one for anything.  THIRTEEN OF THE EIGHTEEN DID NOT EXIST.
+#
+# WHY THIS IS NOT BOOKKEEPING.  The ruling: G-RATIO passes on all six quantities
+# ONLY because the measured iterative change is exactly 0.0, and `g_ratio`
+# returns PASS on a zero on the STATED GROUND that a planted-zero control is what
+# makes an exact zero mean something.  For thirteen of them that control was
+# absent.  Even T23G2's PASSING gates were unlicensed.
+#
+# EVERY CONTROL IS ASSERTED AS IT IS BUILT.  `RT.assert_plant_control` REFUSES on
+# a control that did not read its plant back, so an unconstructable or blind
+# control stops the comparator instead of being counted.
+# ==========================================================================
+QUANTITIES = ("Q1", "Q2", "Q3", "Q4", "Q5", "Q6")
+
+
+def all_quantity_plant_controls():
+    """18 controls: every quantity, every level.  Returns {(q, level): control}."""
+    note("PLANTED-ZERO CONTROLS ON EVERY QUANTITY AND EVERY LEVEL -- REPAIR R5, "
+         "registered at :624-625")
+    out = {}
+    for qn in QUANTITIES:
+        marks = []
+        for lv in LEVELS:
+            pc = plant_control_for(qn, lv, (lambda cd, _q=qn:
+                                            _series_path(cd, _q)))
+            RT.assert_plant_control(pc)
+            out[(qn, lv)] = pc
+            marks.append("%s %s" % (lv, "PASSED" if pc["passed"] else "FAILED"))
+        note("  %s  planted %g  |  %s" % (qn, PLANT, "  |  ".join(marks)))
+    note("  %d of the 18 registered quantity controls CONSTRUCTED AND PASSED\n"
+         % len(out))
+    return out
+
+
+# ==========================================================================
 # AMENDMENT v1.1, 2026-09-02 -- REPAIR R3.  G-ORDER, MADE REACHABLE.
 #
 # GRANTED: VERIFICATION_CHARTER.md v1.38 section 2d.7, commit 3dad5bae, "GRANTED
@@ -749,6 +1002,7 @@ def main(argv):
     yv, ypl = gate_yplus()
 
     q = read_quantities()
+    controls = all_quantity_plant_controls()     # REPAIR R5 -- 18, all asserted
 
     # ---- G-PLATEAU and G-RATIO, on EVERY graded quantity -----------------
     note("G-PLATEAU and G-RATIO -- section 5.3, on EVERY graded quantity")
@@ -765,7 +1019,10 @@ def main(argv):
         diffs = [vals[0] - vals[1], vals[1] - vals[2]]
         _, sp, _, _ = plateau(q[LEVELS[-1]]["_series"][qn], ENDTIME[LEVELS[-1]],
                               rel=(qn == "Q5"))
-        rst, ratio, smallest = g_ratio(qn, sp, diffs)
+        # REPAIR R5: the finest-level control for THIS quantity is what licenses
+        # an exact-zero PASS, and g_ratio now refuses without it.
+        rst, ratio, smallest = g_ratio(qn, sp, diffs,
+                                       control=controls[(qn, LEVELS[-1])])
         if rst != "PASS":
             rv = "GATE FAIL"
         note("  %s  plateau %s | finest iterative change %.6e, smallest "
@@ -786,8 +1043,7 @@ def main(argv):
     for qn in ("Q4", "Q1", "Q2", "Q3", "Q6"):
         levels = [dict(name=lv, cells=CELLS[lv], value=q[lv][qn] - T_REF)
                   for lv in LEVELS]
-        pc = plant_control_for(qn, LEVELS[-1],
-                               (lambda cd, _q=qn: _series_path(cd, _q)))
+        pc = controls[(qn, LEVELS[-1])]      # REPAIR R5: built and asserted above
         row = RT.grade_ladder(qn, levels, DIM, BAND_Q1, pc,
                               iterative_states=it_states,
                               plateau_states=pl_states[qn])
@@ -864,3 +1120,50 @@ if __name__ == "__main__":
     except RT.Refusal as e:
         print("\nREFUSED (exit 2): %s" % e)
         sys.exit(2)
+
+
+# ==========================================================================
+# AMENDMENT RECORD -- v1.0 -> v1.1, 2026-09-02.
+#
+# FOUR SECTION 2d.1 POST-COMPUTE GRADING-PATH REPAIRS, EACH GRANTED SEPARATELY BY
+# verification-supervisor AT VERIFICATION_CHARTER.md v1.38 SECTIONS 2d.5-2d.8,
+# COMMIT 3dad5bae, ON heat-transfer's PETITION AT
+# docs/campaigns/T-family/T23G2_GRADING_PATH_REPAIR_PETITION.md.
+#
+#   R2  GRANTED AND WIDENED -- grading-path sha recorder, FIVE files not four,
+#       with the section 2d.4.3 dual-sha condition.
+#   R3  GRANTED -- G-ORDER made reachable and folded into the rollup.
+#   R4  BAND LIMB GRANTED AND WIDENED to Q4 as well as Q6.  ITS ROLLUP-EXCLUSION
+#       LIMB WAS REFUSED (section 2d.7) AND IS NOT IMPLEMENTED.
+#   R5  GRANTED -- 18 quantity controls in place of 5, both y+ reader controls,
+#       and the exact-zero G-RATIO licence made executable.
+#   R1  GRANTED -- and it lives in mark_done_t23.py, not here.
+#   R6  REFUSED as a section 2d.1 repair and REFERRED for prospective
+#       registration.  NO R6 EDIT WAS MADE.  An absent primary y+ log is still
+#       pass-through at gate_yplus, exactly as it was.
+#
+# RULE 6, STATED HONESTLY RATHER THAN ASSERTED FALSELY.  Rule 6 requires the
+# assertion "lines whose number changed above this section: 0".  THAT ASSERTION
+# IS NOT MADE HERE AND CANNOT BE: every one of these repairs inserts EXECUTABLE
+# lines into the body of the file, so line numbers below each insertion move.
+# The frozen file was 653 lines; this one is longer, and citations into the
+# frozen text -- the ruling's own :46, :455, :504-524, :579, :581, :612 -- resolve
+# against the blob cc723d6f65245674f7d80c51de55fe986549477a at 976776f4, NOT
+# against this file.  THE FROZEN BLOB IS THE ONE TO CITE.
+#
+# The form used instead is the T-family's OWN precedent for a section 2d.1 code
+# repair: a dated in-file AMENDMENT block at each change site plus a version
+# bump, as analyse_t23g.py carries at its :248 and :826 and as its own sha
+# recorder was added under DEAD_LEVER_AUDIT sections 27.3-27.4.  Rule 6's
+# "appended at the foot, lines above unchanged" is satisfiable by a frozen
+# RECORD and is not satisfiable by a frozen EXECUTABLE that must gain executable
+# lines -- section 2d.1's founding case was itself a mid-file code change, K0cS's
+# wall_nu from an arithmetic to an area-weighted mean.  THE TENSION IS ESCALATED
+# TO heat-transfer-supervisor RATHER THAN RESOLVED BY THE LANE, and the lane
+# states plainly that it did not assert an invariant it could not verify.
+#
+# NOTHING WAS GRADED AND NOTHING WAS LAUNCHED BY THE LANE THAT MADE THESE EDITS.
+# Every gate, threshold, band, cap and label is untouched: created 0, moved 0,
+# retired 0.  T23G2_PREREGISTRATION.md was NOT edited.  No file was moved
+# (section 2d.4.2 forbids relocating this comparator while T23G2 is ungraded).
+# ==========================================================================
