@@ -50,11 +50,12 @@ from __future__ import annotations
 from pathlib import Path
 
 from . import _jf1_geometry, _jf1_numbers
-from .demo_mode import (OWNER_GPU_STATION, Assumption, Closing, DemoAct,
+from .demo_mode import (GPU_ROUTING_POLICY, Assumption, Closing, DemoAct,
                         ElapsedClock, Feasibility, Figure,
                         GatesAndChecks, Geometry, GeometryMatch, MeshPlan,
                         Measured, Prompt, Restatement, Results, RunRecord,
-                        SeriesSpec, SolveReplay, Table, register_act)
+                        SeriesSpec, SolveReplay, Table, compute_table,
+                        gpu_routing_lines, register_act)
 
 #: Her prompt, verbatim. Not this act's to reword.
 PROMPT = ("Blown-wing high-lift: sweep the trailing-edge jet momentum "
@@ -127,6 +128,59 @@ SURFACE = "airfoil_blown_slot.stl"
 #: the customer surface. A viewer reads "processor-minutes" without being told
 #: what a core is, and it is the same minute on the same processor.
 COMPUTE_UNIT = "processor-minutes"
+
+#: THE GPU-DECLINE MECHANISM, THIS ACT'S OWN HALF OF THE ROUTING BEAT.
+#: Sanaa, 2026-09-02 ~02:32Z, item 1, her wording: the lab predicts the cost,
+#: considers the graphics processor, and declines with the mechanism named:
+#: "systems of ~40,000 unknowns; per-iteration transfer would exceed the solve
+#: itself -- staying on CPU." Her em-dash renders as a semicolon because her
+#: own addendum (~03:30Z, item 3) bans every dash from screen text; not one
+#: word moves. The ~40,000 IS THIS ACT'S MEASURED SYSTEM SIZE and is
+#: JF1-specific by her addendum ("the 40K is jF1 specific"): the force grid
+#: holds 39,984 cells (read off constant/polyMesh by the same reader the cell
+#: count on screen cites), so each solution channel is a system of ~40,000
+#: unknowns, solved over and over across thousands of iterations. The
+#: threshold it is judged against is NOT here: it is
+#: :data:`demo_mode.GPU_ROUTING_POLICY`, the lab's one routing rule, cited
+#: verbatim beside this sentence and never paraphrased per act.
+GPU_DECLINE_MECHANISM = (
+    "Systems of ~40,000 unknowns; per-iteration transfer would exceed the "
+    "solve itself; staying on CPU.")
+
+#: THE PARALLEL DECISION, IN HER WORDS (2026-09-02 item 3, verbatim):
+#: "The five operating points are independent, so the lab solves them in
+#: parallel." Spoken at the feasibility beat, where the decision is taken;
+#: the solving stage's own progress line and banner say the same thing from
+#: the same fact (the landed runs' start and end stamps overlap).
+PARALLEL_DECISION = ("The five operating points are independent, so the lab "
+                     "solves them in parallel.")
+
+#: SANAA'S INTERIM COMPUTE TABLE, HER THREE CELLS VERBATIM (2026-09-02 item 4:
+#: "JF1 until the rerun log lands: 4 workers | 19 core-min per run | 6.5 min
+#: wall"). OWNER-STATED INTERIM FIGURES, NOT MEASURED ON THIS BOX, and the
+#: internal record beside this act says so number by number
+#: (docs/campaigns/JF1-jet-flap/demo/JF1_DEMO_COMPUTE_NOTE.md): they describe
+#: the 4-worker quiet-box rerun she ordered, queued at
+#: verification/queue/cfd/JF1R_QB4.json, and the screen silently takes that
+#: run's measured numbers when its log lands. The MEASURED spend of the landed
+#: sweep (117.5 processor-minutes, single-rank, from the five run-status
+#: files) is untouched everywhere it is recorded and still renders as this
+#: run's cost.
+INTERIM_COMPUTE_ROW = ("4", "19", "6.5 min")
+
+#: THE SLOWEST-MEMBER RECONCILIATION, her shape: "slowest member: the
+#: strongest-blowing case, [x] min; wall time follows it". THE MEMBER IS
+#: MEASURED AND THE MINUTES ARE DELIBERATELY ABSENT. The landed run-status
+#: files name the strongest-blowing case (C_mu 0.40) as the slowest of the
+#: five: 1,512 wall seconds against 1,466 / 1,426 / 1,340 / 1,305 for the
+#: others. The [x] her shape carries must come from the run the table
+#: describes, the 4-worker rerun, whose log does not exist yet; the landed
+#: 25.2 minutes describes a different execution (single-rank, shared box) and
+#: printing it beside her interim 6.5-minute wall would reconcile nothing.
+#: Rather than fabricate, the line states the member and the mechanism and no
+#: minutes; the rerun's own figure drops in when its log lands.
+SLOWEST_MEMBER_LINE = ("Slowest member: the strongest-blowing case; wall "
+                       "time follows it, not the sum of the five.")
 
 FIGURES = _jf1_numbers.RUN_ROOT / "artefacts"
 
@@ -302,10 +356,11 @@ def _measured_core_min(statuses: list[dict] | None = None) -> float:
 
     IT IS THE MEASURED FIGURE AND IT STAYS THE MEASURED FIGURE. 117.5
     processor-minutes is what this hardware did, read from the run-status files
-    the solves wrote. :data:`OWNER_GPU_STATION` carries it onto other hardware
-    for display; nothing carries it into the record, and ``solve.end``, the
-    cost-calibration ledger and ``Results.cost_actual`` are untouched by any of
-    this (CLAUDE.md rule 12).
+    the solves wrote. Since Sanaa's 2026-09-02 item 1 removed the redirect
+    beat, no projection carries it onto other hardware anywhere: this is the
+    one compute figure of the act, on screen and in the record alike, and
+    ``solve.end``, the cost-calibration ledger and ``Results.cost_actual``
+    all report it (CLAUDE.md rule 12).
     """
     if statuses is None:
         statuses = _statuses()
@@ -510,6 +565,28 @@ class JetFlapAct(DemoAct):
             # the numbers come from. The type is stated once, here; the count
             # beside it is ``cell_count`` above and is read off the solved
             # grid's own polyMesh, so no caption retypes a number.
+            #
+            # "O-MESH" IS VERIFIED AGAINST THE MESH ITSELF, NOT THE LABEL.
+            # Sanaa asked (2026-09-02): "it says O mesh but isnt it C mesh?
+            # verify." Measured off the force grid's own polyMesh
+            # (JF1_L1_BLOWN_CMU020_A0, 2026-09-02): the farfield patch is ONE
+            # CLOSED RING of 408 faces whose centres cover 359.1 degrees
+            # around the section (largest angular gap 0.9 degrees) at a
+            # near-constant radius of 25.4 to 26.6 chords, and its face count
+            # EQUALS the inner loop's (airfoil 396 + jetSlot 12 = 408), so
+            # every grid line runs wall to farfield with no wake cut reaching
+            # the outer boundary. That is an O-topology by construction; a
+            # C-mesh's outer boundary is not a circle and carries more outer
+            # faces than wall faces. The COMPANION grid the flow picture is
+            # rendered from IS a C-mesh (JF1_P1_L1_CMESH_PHYSICS: farfield
+            # radius 24.5 to 35.8 chords, 666 outer faces against a 212-face
+            # inner loop), which is almost certainly the grid she was
+            # thinking of; that grid is named only in the limitations box,
+            # per the zone rule, and no caption types its topology. The
+            # generator's own log agrees (build_jf1.py prints "topology:
+            # O-MESH"), but the determination above is from the polyMesh, not
+            # from that print. Full note:
+            # docs/campaigns/JF1-jet-flap/demo/JF1_DEMO_COMPUTE_NOTE.md.
             mesh_type="O-mesh",
             # THIS ACT'S OWN TITLE FOR ITS RESOLUTION TABLE. It used to be a
             # constant in the meshing stage, which is why the shock benchmark
@@ -518,57 +595,49 @@ class JetFlapAct(DemoAct):
 
     # -- stage 6 ------------------------------------------------------------
     def feasibility(self) -> Feasibility:
-        """The check before the budget is committed, AND WHERE THE JOB GOES.
+        """The check before the budget is committed, AND WHERE THE JOB STAYS.
 
-        SANAA, 2026-09-01 ~21:30Z, VERBATIM: "For the Blown wing, I want the
-        lab to do a cost assessment and be like 117 core minutes. CPU box
-        refused, redirecting to GPU. (that way ittl show thois capability we
-        will have of the lab picking cpu when cheap and gpu when expensive) and
-        thne recorded minutes being 117/5."
+        THE GPU BEAT IS NOW A DECLINE, AND THE REDIRECT IS GONE. Sanaa's
+        2026-09-01 ~21:30Z redirect frame (117.5, "CPU box refused,
+        redirecting to GPU", 23.5) is SUPERSEDED by her 2026-09-02 ~02:32Z
+        orders, item 1: this act predicts the cost, considers the graphics
+        processor, and DECLINES with the mechanism named
+        (:data:`GPU_DECLINE_MECHANISM`, her words re-punctuated without the
+        dash her addendum bans). The redirect beat moves to the adjoint act,
+        where one large system solved once is the case the rule routes. The
+        threshold cited is :data:`demo_mode.GPU_ROUTING_POLICY`, the lab's ONE
+        routing rule, spoken verbatim in the feasibility discussion beat and
+        never paraphrased here.
 
-        So this stage carries two things now, and the line between them is the
-        whole point of this docstring.
+        THE NUMBERS STAY MEASURED AND STAY THIS BOX'S. No figure is carried
+        onto other hardware any more: the projection, its factor and both of
+        its screen sentences are removed with the redirect, and the spend this
+        act reports is the 117.5 processor-minutes the five run-status files
+        record for the processors serving these screens.
 
-        THE NUMBERS ARE MEASURED. 117.5 processor-minutes is what these five
-        calculations cost on the processors serving these screens, read from
-        the run-status files by :func:`_measured_core_min` rather than typed,
-        and it is the SAME figure the results stage reports as the spend. The
-        23.5 that arrives later is that figure carried onto other hardware by
-        :data:`OWNER_GPU_STATION`, which names the machine it describes and
-        states whose measurement the factor rests on. Neither number is invented
-        and neither is relabelled: this box measured 117.5 and did not measure
-        23.5.
+        THE PARALLEL DECISION IS SPOKEN AS THE LAB'S OWN (her item 3):
+        :data:`PARALLEL_DECISION`, and it is true of the record, not only of
+        the story: the five landed runs overlapped on the clock (starts
+        15:40:37Z to 16:02:18Z, ends 16:04:23Z to 16:27:30Z, 2026-08-31), and
+        the replay stage states concurrency only where the stamps prove it.
 
-        THE ROUTING DECISION IS NARRATION, and it is narration of the same
-        depicted kind as :data:`CONVERGENCE_LINE`. This lab does not today route
-        a job between its processors and a graphics processor; the built
-        platform does, and Sanaa's frame shows what the platform does as the
-        platform doing it. What the frame does NOT license is a measurement
-        claim, which is why the sentence below says where the sweep goes and
-        never says a graphics processor ran it here.
-
-        THE PHYSICS CHECK IS UNTOUCHED. It is still the unblown calculation and
-        still its own measured value with its own case behind it; the routing
-        decision follows it rather than replacing it, because the check is what
-        says the sweep is worth a budget and the routing is where that budget
-        is spent.
+        THE PHYSICS CHECK IS UNTOUCHED. It is still the unblown calculation
+        and still its own measured value with its own case behind it.
         """
         rows = _jf1_numbers.sweep_rows()
         unblown = rows[0]
-        on_cpu = _measured_core_min()
         return Feasibility(
             check=("A single unblown calculation on the same grid, to see "
                    "whether the section carries lift before any blowing, and "
-                   "a costing of the five settings before any budget goes on "
-                   "them."),
+                   "a costing of the five operating points before any budget "
+                   "goes on them."),
             result=Measured(round(float(unblown["CL_aero"]), 6), "",
                             Path(unblown["case_dir"])),
             verdict_for_user=(
                 f"The unblown section carries almost no lift, so the sweep "
-                f"measures blowing and not incidence. The five settings come "
-                f"to {on_cpu:,.1f} {COMPUTE_UNIT} on the processors serving "
-                f"these screens, which is dear enough that the platform sends "
-                f"them to {OWNER_GPU_STATION.hardware} instead."))
+                f"measures blowing and not incidence. Graphics processor "
+                f"considered and declined for this sweep. "
+                f"{PARALLEL_DECISION}"))
 
     # -- stage 7 ------------------------------------------------------------
     def solve_replay(self) -> SolveReplay:
@@ -619,29 +688,21 @@ class JetFlapAct(DemoAct):
                 seconds=span, measured=True,
                 basis=("The span of a sweep whose points run concurrently."),
                 source=Path(statuses[0]["path"])),
-            # THE COMPUTE FIGURE ON SCREEN DESCRIBES HER STATION, NOT THIS BOX.
-            # Sanaa, 2026-09-01: she ran this after moving the linear solves
-            # onto her station's graphics processor and measured five times
-            # the speed, and asked for that figure to be shown "instead". So
-            # the screen shows 117.5 / 5, and it shows what machine that
-            # describes, because a bare 23.5 would be a measurement claim this
-            # box cannot support: 117.5 is what THIS hardware measured. Rule
-            # 12, the same footing as the $0.0513 per core-hour rate, which is
-            # owner-stated and labelled so wherever it is used.
-            #
-            # THE 23.5 IS NO LONGER THE FIRST A VIEWER HEARS OF IT. Her 21:30Z
-            # amendment makes the FEASIBILITY stage state the 117.5 on this
-            # box's processors and show the platform redirecting the sweep, so
-            # this figure now arrives as the outcome of a decision the screen
-            # has already made rather than as a bare number two beats after a
-            # forecast made for a different machine. Nothing here moves: the
-            # projection, its hardware and its basis are the same object, and
-            # the redirect is narrated in the act, not encoded in this seam.
-            #
-            # NOTHING IN THE RECORD MOVES EITHER. ``wall_seconds`` above, this
-            # stage's ``core_min_measured``, ``Results.cost_actual`` below and
-            # the cost-calibration ledger all keep reporting the measured 117.5.
-            cost_projection=OWNER_GPU_STATION)
+            # HER NOUN FOR THIS ACT'S POINTS (2026-09-02 item 3): the solve
+            # stage says "Solving 5 operating points in parallel", and the
+            # noun travels from here so the opener, the banner and the closing
+            # sentence all use one word.
+            point_noun="operating point",
+            # THE PROJECTION IS GONE WITH THE REDIRECT BEAT (Sanaa 2026-09-02
+            # item 1 supersedes her 21:30Z redirect frame). The compute figure
+            # on every surface of this act is now the one this box measured,
+            # 117.5 processor-minutes, read from the five run-status files;
+            # no figure is carried onto other hardware and no factor is
+            # applied anywhere on screen. ``wall_seconds`` above,
+            # ``core_min_measured``, ``Results.cost_actual`` and the
+            # cost-calibration ledger were never touched by the projection and
+            # do not move now.
+            cost_projection=None)
 
     @staticmethod
     def _wall_clock_span(statuses: list[dict]) -> float:
@@ -784,8 +845,16 @@ class JetFlapAct(DemoAct):
         agreement = _agreement(rows)
         _stagnation_moves_aft()
         worst = max(agreement, key=lambda r: abs(r["pct"]))
+        # SANAA'S ONE COMPUTE TABLE PER SWEEP ACT (2026-09-02 item 4), in the
+        # shared shape every sweep act renders
+        # (:func:`demo_mode.compute_table`). The three cells are HER INTERIM
+        # FIGURES VERBATIM until the queued quiet-box rerun's log lands
+        # (:data:`INTERIM_COMPUTE_ROW`; internal record beside this act keeps
+        # the raw measured figures and the provenance of every cell). The
+        # reconciliation line renders in the results beat directly beneath it.
+        compute = compute_table(*INTERIM_COMPUTE_ROW, table_id="jf_compute")
         return Results(
-            fields=fields, plots=figures, tables=[lift],
+            fields=fields, plots=figures, tables=[lift, compute],
             verification_lines=[
                 # Sanaa's sentence, verbatim, opening lower case and all.
                 VERIFICATION_LINE,
@@ -913,51 +982,41 @@ class JetFlapAct(DemoAct):
                     f"steady and pressure-based.",
                 ]),
             ],
-            # ---- LEAD NUMERICIST: schemes, tolerances, and the checks that
-            # will run. All four are read off the case that ran.
+            # ---- LEAD NUMERICIST: the checks that run before any number is
+            # quoted. The schemes and tolerances moved into the METHODS TABLE
+            # (:meth:`methods_table`, Sanaa's 2026-09-02 addendum: solver,
+            # model and numerics as a table), so this beat no longer states
+            # them twice in prose.
             "feasibility": [
                 ("numericist", [
-                    "Second-order upwind on momentum, limited linear on the "
-                    "turbulence equations, and one non-orthogonal corrector "
-                    "on pressure. Pressure relaxed at 0.3, velocity and "
-                    "turbulence at 0.7.",
-                    "The target is every solution channel below one part in a "
-                    "million.",
                     "Three checks run before any number is quoted: nothing "
                     "may vary across the span of a section one cell deep, "
                     "every reader has to see a perturbation planted in its own "
                     "input, and the lift has to stop moving over the last "
                     "4,000 iterations.",
                 ]),
-                # ---- LEAD ENGINEER: WHERE THE JOB GOES, AND WHY. The beat
-                # Sanaa asked for at 21:30Z, spoken rather than merely printed,
-                # because what she wants on camera is the platform CHOOSING and
-                # a choice is something a viewer hears somebody make.
+                # ---- LEAD ENGINEER: THE ROUTING DECISION, AND IT IS A
+                # DECLINE. Sanaa's 2026-09-02 item 1 replaces her 21:30Z
+                # redirect frame: the lab predicts the cost, considers the
+                # graphics processor, and declines with the mechanism named.
                 #
-                # THE TWO FIGURES DESCRIBE TWO NAMED MACHINES AND SAY SO. The
-                # first is measured on the processors serving these screens;
-                # the second is that figure carried onto the workstation, and
-                # the third bullet is the projection's own basis, read from
-                # OWNER_GPU_STATION rather than retyped, so the ratio between
-                # the two is attributed to the engineer who timed it instead of
-                # sitting on screen as though this box had measured it.
-                #
-                # THE POLICY SENTENCE IS HERS: cheap work on the processors,
-                # expensive work on the graphics processor. It is the reason
-                # the redirect is worth showing at all, and without it the
-                # refusal reads as an arbitrary one.
+                # EVERY NUMBER IS READ. The forecast is the frozen
+                # registration's own five-point row (the same figure stage 2
+                # quotes); the ~40,000 unknowns are the force grid's own
+                # 39,984 cells; the policy sentence is
+                # demo_mode.GPU_ROUTING_POLICY VERBATIM, by way of
+                # gpu_routing_lines, so this act cannot drift into a
+                # paraphrase of the lab's one routing rule. The parallel
+                # decision is hers word for word, and it is true of the
+                # record: the five landed runs overlapped on the clock.
                 ("engineer", [
-                    f"Costing the five settings on the processors serving "
-                    f"these screens comes to {_measured_core_min():,.1f} "
-                    f"{COMPUTE_UNIT}.",
-                    f"That is dear enough that the platform declines to run "
-                    f"them here and sends the sweep to "
-                    f"{OWNER_GPU_STATION.hardware}. Cheap work stays on the "
-                    f"processors and expensive work moves to the graphics "
-                    f"processor, which is the choice being made right now.",
-                    f"The same five settings come to "
-                    f"{OWNER_GPU_STATION.apply(_measured_core_min()):,.1f} "
-                    f"{COMPUTE_UNIT} there. {OWNER_GPU_STATION.basis}",
+                    f"Costing the sweep before any budget goes on it: 5 "
+                    f"operating points, "
+                    f"{_jf1_numbers.registered_sweep_estimate()['total_core_min']:,.1f} "
+                    f"{COMPUTE_UNIT} forecast.",
+                    "Graphics processor considered, and declined.",
+                    *gpu_routing_lines(GPU_DECLINE_MECHANISM),
+                    PARALLEL_DECISION,
                 ]),
             ],
             "results": [
@@ -966,10 +1025,47 @@ class JetFlapAct(DemoAct):
                     f"{rows[-1]['CL_total']:.3f} across the blowing range, "
                     f"against {rows[1]['CL_published']:.3f} and "
                     f"{rows[-1]['CL_published']:.3f} on the published curve.",
+                    # THE COMPUTE TABLE'S RECONCILIATION, beneath the table it
+                    # reconciles (the tables render on the stage, this beat
+                    # follows it). The member is measured off the landed
+                    # run-status files; the minutes are deliberately absent
+                    # until the queued rerun's log lands. See
+                    # SLOWEST_MEMBER_LINE.
+                    SLOWEST_MEMBER_LINE,
                     CONVERGENCE_LINE,
                 ]),
             ],
         }
+
+    # -- the methods table (Sanaa's addendum: solver + model + numerics, as a
+    # table, on every act's methods beat) ------------------------------------
+    def methods_table(self) -> Table:
+        """Solver, turbulence model and numerics, each cell off the case.
+
+        EVERY CELL IS A FACT OF THE CASE THAT RAN, checked against the run
+        tree rather than recalled: ``constant/turbulenceProperties`` carries
+        ``RASModel kOmegaSST``; ``system/fvSchemes`` carries ``bounded Gauss
+        linearUpwind grad(U)`` on momentum and ``bounded Gauss limitedLinear
+        1`` on both turbulence equations; ``system/fvSolution`` carries
+        ``nNonOrthogonalCorrectors 1``, ``residualControl`` at 1e-06 on every
+        channel, and relaxation 0.3 on the pressure field with 0.7 on the
+        equations. Verified against
+        ``JF1_L1_BLOWN_CMU020_A0/system/{fvSchemes,fvSolution}`` and
+        ``constant/turbulenceProperties`` on 2026-09-02.
+        """
+        return Table(
+            title="Solver and numerics",
+            headers=["Item", "Setting"],
+            rows=[
+                ["Solver", "OpenFOAM simpleFoam, steady, pressure-based"],
+                ["Turbulence model", "k-omega SST, resolved to the wall"],
+                ["Momentum scheme", "second-order upwind"],
+                ["Turbulence schemes", "limited linear"],
+                ["Pressure correctors", "1 non-orthogonal"],
+                ["Relaxation", "0.3 pressure; 0.7 velocity and turbulence"],
+                ["Convergence target", "1e-06 on every channel"],
+            ],
+            table_id="jf_methods", role="NUMERICIST")
 
     # -- the tail: the act ends in a report ----------------------------------
     def closing(self) -> Closing:
@@ -989,7 +1085,6 @@ class JetFlapAct(DemoAct):
         stagnation = _stagnation_moves_aft()
         grids = _displayed_grids()
         core_min = _measured_core_min()
-        shown = OWNER_GPU_STATION.apply(core_min)
         worst = max(agreement, key=lambda r: abs(r["pct"]))
         cells = grids["table"]["cells"]
         travel = stagnation[-1]["x_over_c"] - stagnation[0]["x_over_c"]
@@ -1009,6 +1104,17 @@ class JetFlapAct(DemoAct):
                  f"{stagnation[-1]['x_over_c']:.4f} of the chord."),
             ],
             methods=[
+                # EXPLICIT NAMES FIRST (Sanaa 2026-09-02: every act states the
+                # solver, the turbulence model and the numerics; the methods
+                # BEAT carries them as a table, and the report repeats the
+                # names so the artifact that outlives the shoot carries them
+                # too).
+                ("Solver: OpenFOAM simpleFoam, steady, pressure-based. "
+                 "Turbulence model: k-omega SST, resolved to the wall. "
+                 "Numerics: second-order upwind momentum, limited linear "
+                 "turbulence, 1 non-orthogonal pressure corrector, "
+                 "relaxation 0.3 on pressure and 0.7 on velocity and "
+                 "turbulence, convergence target 1e-06 on every channel."),
                 ("A two-equation shear-stress transport model with the "
                  "near-wall layer resolved to the surface, steady and "
                  "incompressible, at a Reynolds number of one million on the "
@@ -1040,19 +1146,15 @@ class JetFlapAct(DemoAct):
                  "envelope": "aft along the lower surface, monotone",
                  "reason": ("each step larger than the half-cell resolution "
                             "on the location")},
-                # THE REPORT WAS THE ONE SURFACE CARRYING ONLY THE PROJECTION.
-                # Every screen in the act now names both machines, and this row
-                # named only the workstation, so the report -- the artifact that
-                # outlives the shoot -- was the single place a reader could not
-                # recover what this box actually measured except by multiplying
-                # the basis sentence back out. The measured figure goes beside
-                # the projected one, each against the machine it describes.
+                # ONE COMPUTE FIGURE, THE MEASURED ONE. The projection and its
+                # workstation are gone with the redirect beat (Sanaa
+                # 2026-09-02 item 1); the report states what this box
+                # measured, in the screen's unit, and nothing else.
                 {"quantity": "compute",
-                 "value": f"{shown:.1f} {COMPUTE_UNIT}",
-                 "envelope": (f"{OWNER_GPU_STATION.hardware}; "
-                              f"{core_min:,.1f} {COMPUTE_UNIT} on the "
-                              f"processors serving these screens"),
-                 "reason": OWNER_GPU_STATION.basis},
+                 "value": f"{core_min:,.1f} {COMPUTE_UNIT}",
+                 "envelope": "on the processors serving these screens",
+                 "reason": ("measured from the five run records, wall "
+                            "seconds times processors")},
             ],
             uncertainty=[
                 LIMITATIONS_LINE,
@@ -1079,20 +1181,15 @@ class JetFlapAct(DemoAct):
                 (f"Blowing turned a section that carried almost no lift into "
                  f"one carrying {rows[-1]['CL_total']:.2f}, and it did it "
                  f"with a slot rather than a hinge."),
-                # THE COST SENTENCE, REWRITTEN ONCE AND WHOLE. It read "The
-                # five calculations cost 23.5 processor-minutes on a
-                # workstation running the linear solves on its graphics
-                # processor" -- true, labelled, and silent about the decision
-                # that put them there, so the closing beat ended on an outcome
-                # whose cause had been shown four stages earlier and never
-                # closed. Now it carries both machines and the redirect between
-                # them, which is the beat Sanaa asked for, and it carries them
-                # in one sentence rather than as a caveat bolted to an existing
-                # one. Past tense: the conclusion is a results line.
-                (f"The five calculations came to {core_min:,.1f} "
-                 f"{COMPUTE_UNIT} on the processors serving these screens, so "
-                 f"they went to {OWNER_GPU_STATION.hardware} instead and cost "
-                 f"{shown:,.1f} there."),
+                # THE COST SENTENCE, REWRITTEN AGAIN AND SIMPLER. The
+                # redirect-and-workstation clause is gone with the beat it
+                # narrated (Sanaa 2026-09-02 item 1): the conclusion now
+                # carries the one measured figure, the parallel decision that
+                # produced its wall clock, and nothing priced. Past tense: the
+                # conclusion is a results line.
+                (f"The 5 operating points were solved in parallel and came "
+                 f"to {core_min:,.1f} {COMPUTE_UNIT} on the processors "
+                 f"serving these screens."),
                 CONVERGENCE_LINE,
                 "The full report, with every figure, is in the Report tab.",
             ],
