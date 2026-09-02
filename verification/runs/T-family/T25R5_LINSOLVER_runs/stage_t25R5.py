@@ -16,7 +16,8 @@ allowed to produce the answer (rule 4's age guard).  A stager that pre-created
 import os, re, shutil, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-DONOR = os.path.join(os.path.dirname(HERE), "T25R4_MODULE_runs", "P2")   # L2
+DONORS = {"L1": "P1", "L2": "P2", "L3": "P3"}   # T25R4 probe cases, one per level
+DONOR = os.path.join(os.path.dirname(HERE), "T25R4_MODULE_runs", DONORS["L2"])
 ARMS = ["D0", "B0", "C1", "C2", "C3", "C4", "C5"]
 
 # --- FROZEN AT THE PRE-REGISTRATION section 2 ("CHANGED, and this is the complete
@@ -70,9 +71,11 @@ def edit_controldict(path):
     return done
 
 
-def stage(arm, donor=None, force=False):
-    donor = donor or DONOR
-    case = os.path.join(HERE, arm + "_L2")
+def stage(arm, donor=None, force=False, level="L2"):
+    if level not in DONORS:
+        refuse("%r is not a registered level" % level)
+    donor = donor or os.path.join(os.path.dirname(HERE), "T25R4_MODULE_runs", DONORS[level])
+    case = os.path.join(HERE, "%s_%s" % (arm, level))
     src = os.path.join(HERE, "arms", "fvSolution.coolant." + arm)
     if not os.path.isfile(src):
         refuse("no arm dictionary at %s" % src)
@@ -115,8 +118,9 @@ def stage(arm, donor=None, force=False):
 if __name__ == "__main__":
     d = sys.argv[sys.argv.index("--donor") + 1] if "--donor" in sys.argv else None
     f = "--force" in sys.argv
+    lv = sys.argv[sys.argv.index("--level") + 1] if "--level" in sys.argv else "L2"
     if "--all" in sys.argv:
         for a in ARMS:
-            stage(a, d, f)
+            stage(a, d, f, lv)
         sys.exit(0)
-    sys.exit(stage(sys.argv[sys.argv.index("--arm") + 1], d, f))
+    sys.exit(stage(sys.argv[sys.argv.index("--arm") + 1], d, f, lv))

@@ -1180,3 +1180,82 @@ the **disqualified** 5.19× is four to thirty times short of what the ladder nee
 **SUBMISSIONS PARKED** (rule 7). **PERMANENTLY PRIVATE** (rule 8).
 
 <!-- END OF T25R5 PRE-REGISTRATION v1.3 -->
+
+---
+
+## Addendum D2 — 2026-09-02T~23:05Z, **AFTER STAGE 1.** D1.6's reporting condition is RETRACTED as misleading, and the reproduction control's first use is recorded against its author
+
+**Version v1.4. Lines whose number changed above this section: 0.**
+Addendum, not amendment: gates closed at 21:33:07Z. **Alters no gate, no threshold,
+no cap, no label.** `G-T5` PASS on `C4` stands, A2's `R` band stands, `E1`–`E6`
+stand, the 320 core-min ceiling stands.
+
+### D2.1 ⚡ D1.6's STANDING REPORTING CONDITION IS RETRACTED — IT MISLEADS IN THE OPPOSITE DIRECTION
+
+D1.6 required every report to quote *"the ladder needs 20.9×–156.8×"* beside any
+measured factor. **That range is a required PRESSURE-SOLVE factor. The required
+WALL factor is 11.5352× (230,704 / 20,000 core-min). They are different
+quantities.** Quoting the pressure-solve range next to a measured **wall** factor
+reads as *"still hopeless"* when the measurement says otherwise. **The condition
+was written to stop over-claiming and had begun to enforce under-claiming.**
+
+**Retracted by the heat-transfer supervisor after stage 1. Replaced, verbatim,
+with what the evidence supports and no more:**
+
+> *"On 40 ramp steps at L2, `C5` measured **13.56×** wall against a required
+> **11.5352×**, and `C4` measured **11.37×**. This does NOT establish that the
+> ladder fits inside 20,000 core-minutes: the measurement covers 40 of the
+> ladder's 11,800–47,200 steps, it is the **ramp and not the soak**, and no
+> extrapolation is established. The pressure-share bracket [20.9, 156.8] was a
+> required PRESSURE-SOLVE factor and must not be quoted beside a wall factor."*
+
+The lane's inference — that `B0`-type configurations stall more as the field
+settles, so `C5`'s margin would likely **grow** — **stays labelled an inference
+and is not banked.**
+
+### D2.2 THE REPRODUCTION CONTROL WORKED AGAINST ITS AUTHOR ON ITS FIRST USE
+
+Recorded plainly because it is the strongest evidence in this probe for the
+instrument itself.
+
+This lane reported that contention it had introduced caused `C2` and `C3` to
+cap-stop. **The supervisor authorised the re-run partly on that explanation. The
+re-run destroyed it:** `C1` contended/alone is **1.085×**, and **`C2` and `C3`
+capped again running ALONE** (rc 124, 39 and 38 steps). `E3` and `E4` stand on
+their own merits.
+
+> **The ruling was right for a reason its author did not have, and the only
+> reason the lab knows that is D1.4 — the control that required the numbers to be
+> registered BEFORE the re-run. It falsified the claim of the person who wrote
+> it, on its first use.** All three arms reproduced their registered integers
+> exactly (901/50,281, 901/40,230, 901/42,293) across 40, 39 and 38 steps under
+> different conditions, so the reproduction is not in doubt and the falsification
+> is not an artefact.
+
+### D2.3 STAGE 2 RUNS THE REGISTERED WINNER — **`C4`, NOT `C5`**
+
+`C5` has the better wall factor (13.56× against `C4`'s 11.37×). **`C5` is NOT the
+`G-T5` winner and is NOT substituted.** §6 step 8 says *"the winner"*; `G-T5`'s
+winner is `C4` at 60.11×; **`C4` runs.**
+
+> **Swapping in `C5` because the lab now prefers its metric would be choosing the
+> arm after seeing the data — the exact move this probe exists to prevent, at the
+> last step, on an otherwise clean result.**
+
+`B0` and `C4` on **L1** and **L3**, one arm at a time per D1.3. Caps unchanged:
+L1 9.667 core-min each (`timeout 290 s`), L3 53.333 each (`timeout 1600 s`);
+stage 2 total **126.00**. Spent 163.290; **worst case 289.29 of 320 — 30.71
+core-min of headroom, which is tight. An overrun STOPS the run (rule 12); nothing
+is extended.** `P-3` is scored as registered (max/min ≤ 3.0 across L1/L2/L3),
+using §3.2's frozen per-level feasibility thresholds **4.500e-07 / 6.500e-07 /
+1.000e-06**.
+
+**§5.1 STILL BINDS: NO LADDER LAUNCHES ON THIS RESULT, whatever `P-3` says.** What
+comes next — whether a successor gate is written on WALL COST rather than
+iterations, and whether the win survives the soak rather than the ramp — **is a
+new registration with its own cost, and where it touches the A1.3 ceiling it is
+Sanaa's.** It is not drafted here; this probe ends at a report (§6 step 9).
+
+**SUBMISSIONS PARKED** (rule 7). **PERMANENTLY PRIVATE** (rule 8).
+
+<!-- END OF T25R5 PRE-REGISTRATION v1.4 -->

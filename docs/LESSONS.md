@@ -20620,6 +20620,14 @@ correctly reported a true zero. **Two bugs in the comparator, both caught by the
 comparator's own control, neither by the author.** That is the argument for
 planting on every invocation rather than once at selftest time.
 
+**A rule-11 note from this lesson's own filing:** the tail read **maximum L-435**
+when this was drafted and **L-438** when it was committed twenty minutes later,
+because peers landed lessons in between. It was filed as L-439 only because the
+maximum was re-derived **inside the committing shell invocation**. Had the number
+been taken from the draft it would have collided with three existing blocks.
+(At filing: 440 blocks, 436 distinct, maximum 438 — three different figures, which
+is rule 11's entire point.)
+
 **Related:** L-399 (a control driven only where it cannot fail), L-321 (a fixture
 sharing the checker's route carries no information), L-273 (plant into a file the
 producer actually wrote), L-316 (a selftest proves the grader, never the case).
