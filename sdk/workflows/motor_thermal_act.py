@@ -305,6 +305,37 @@ def campaign_cost() -> tuple[float, float, int, dict]:
     return total_wall, core_minutes(total_wall, rank), rank, per_point
 
 
+#: SANAA'S SCRIPTED ESTIMATE (2026-09-02 ~04:20Z, verbatim: "make the
+#: estimate cost match the computed cost (within5%) in the script. Same for
+#: all acts. dont argue."). THE SCREEN'S estimate beat is scripted to land
+#: within five per cent of the on-screen measured cost; her order supersedes
+#: the real-ratio close this act carried ("20% above"). INTERNAL HONESTY IS
+#: UNCHANGED (rule 12): the REAL registered estimate is still
+#: :func:`registered_estimate` (483.6 core-minutes summed over the sixteen
+#: launched records), the real actual is still measured off the logs (578.8),
+#: the real ratio (1.20) stays in the lab's records, and the internal note on
+#: the screen figure names both. The screen carries the demo script per her
+#: vision frame; nothing here rewrites a launched record.
+SCRIPTED_ESTIMATE_CORE_MIN = 560.0
+
+
+def scripted_estimate() -> float:
+    """The scripted on-screen estimate, refused if it drifts past her 5%.
+
+    The guard is the point: if the measured actual ever moves (a re-read, a
+    changed record), the script must be re-set deliberately rather than a
+    stale figure quietly breaking the within-five-per-cent close on camera.
+    """
+    _wall, core_min, _rank, _per = campaign_cost()
+    if abs(core_min - SCRIPTED_ESTIMATE_CORE_MIN) \
+            > 0.05 * SCRIPTED_ESTIMATE_CORE_MIN:
+        raise DemoContractError(
+            "the scripted estimate no longer lands within five per cent of "
+            "the measured cost; re-set it against the current records rather "
+            "than letting a broken script reach a screen")
+    return SCRIPTED_ESTIMATE_CORE_MIN
+
+
 def registered_estimate() -> float:
     """The upfront estimate, summed over the launched points that ran."""
     total = 0.0
@@ -639,7 +670,12 @@ class MotorThermalAct(DemoAct):
     #: ParaView (renders and provenance sidecars beside the case, written by
     #: scripts/render_thermal_paraview.py). Declaring them makes an absent
     #: render a refusal rather than a silent fallback.
-    rendered_panels = ("mesh", "mesh_zoom")
+    #: The geometry render is ParaView too (Sanaa 2026-09-02 ~04:55Z: "ALL
+    #: runs show ParaView, no tessellation"): with it declared, the sequencer
+    #: serves the rendered body and the client STL canvas never runs. The
+    #: render is a half-cut oblique view, so the centrebody VISIBLY runs the
+    #: full duct length (her 04:50Z item on the stub-looking straight view).
+    rendered_panels = ("geometry", "mesh", "mesh_zoom")
 
     # -- stage 0 ------------------------------------------------------------
     def run_record(self) -> RunRecord:
@@ -670,10 +706,15 @@ class MotorThermalAct(DemoAct):
 
     # -- stages 1 to 3 ------------------------------------------------------
     def prompt(self) -> Prompt:
+        # HER COMPLETION (2026-09-02 ~04:50Z: the prompt was truncated at
+        # "...across"; finish it with the ranges and the limit). The ranges
+        # are written "80 to 305" rather than with a dash because dashes are
+        # banned on every screen; the router's registered-map recognizer
+        # accepts both spellings and is measured on this exact sentence.
         return Prompt(
             "Electric motor in a cooling duct: map the peak temperature in "
-            "the motor solids across the dissipated power and the duct "
-            "airspeed, and report the margin to the 200 C temperature limit.")
+            "the motor solids across 80 to 305 W and 10 to 40 m/s against "
+            "the 200 C limit.")
 
     def restatement(self) -> Restatement:
         points = solved_points()
@@ -688,10 +729,14 @@ class MotorThermalAct(DemoAct):
                         "settled before the first point runs, so what varies "
                         "across the map is the physics and nothing else."),
             cost_estimate=Measured(
-                round(registered_estimate(), 1), "core-minutes",
+                round(scripted_estimate(), 1), "core-minutes",
                 LAUNCHED / f"{PRIMARY.name}.json", "derived",
-                note=("summed over the sixteen launched records, one per "
-                      "point")))
+                note=(f"SCRIPTED demo estimate per Sanaa 2026-09-02 04:20Z "
+                      f"(estimate within 5% of computed cost on screen). "
+                      f"The REAL registered estimate is "
+                      f"{registered_estimate():.1f} core-minutes, summed "
+                      f"over the sixteen launched records; the real actual "
+                      f"and ratio stay in the lab's records unchanged")))
 
     def assumption(self) -> Assumption:
         """The one user-assumption check: the hand correlation runs hot.
@@ -1009,13 +1054,20 @@ class MotorThermalAct(DemoAct):
                 _cell(row, "peak_housing_T_degC", fmt=".1f"),
                 _cell(row, "rise_above_inlet_K", fmt=".1f"),
                 _cell(row, "margin_to_limit_K", fmt=".1f"),
-                "not available",
             ])
+        # THE UNCERTAINTY STATEMENT APPEARS ONCE, AS A FOOTNOTE ROW. Sanaa,
+        # 2026-09-02 ~04:50Z: 0.1 C everywhere and "the uncertainty
+        # statement once as a footnote row", not a column repeating the same
+        # sentence sixteen times. Every temperature above is 0.1 precision,
+        # which is her sig-figs rule for a number with no band yet.
+        rows.append([
+            "Uncertainty", "one grid level, no band until the grid study "
+            "lands; every value above is stated to 0.1", "", "", "", ""])
         table = Table(
             title="Peak temperature across the map",
             headers=["Power, W", "Airspeed, m/s", "Hottest core, C",
                      "Hottest housing, C", "Rise above inlet, K",
-                     f"Margin to the {limit:.0f} C limit, K", "Uncertainty"],
+                     f"Margin to the {limit:.0f} C limit, K"],
             rows=rows, table_id="motor_thermal_map", role="CHIEF ENGINEER")
 
         fields = [
@@ -1320,6 +1372,17 @@ class MotorThermalSequencer(Sequencer):
         self._say(script,
                   f"Solving {len(points)} operating points in parallel",
                   tense="progressive")
+        # THE WORKER TILE SHOWS THE REAL FLEET (Sanaa 2026-09-02 ~04:20Z,
+        # verbatim: "make sure the number of workers matches whats on screen.
+        # Rn it just says 0 the whole time"). The page's only worker sources
+        # are the fleet's own per-slot channel and the roster, neither of
+        # which an act used to publish, so the tile sat on 0 beside a
+        # sixteen-point solve. The count provisioned here is MEASURED, not
+        # narrative: the peak concurrent solver processes off the launch
+        # records (12), risen as solving opens and released to zero when it
+        # ends, which is Katie's sync convention for the numeral.
+        for _slot in range(execution["workers"]):
+            self._publish(emit, "worker.provisioned", {"stage": "solving"})
         self._publish(emit, "solve.begin", {
             "stage": "solving",
             "points": len(points),
@@ -1451,6 +1514,10 @@ class MotorThermalSequencer(Sequencer):
         self._say(script,
                   f"All {len(series)} operating points complete.",
                   tense="past")
+        # The fleet stands down with the solve: the tile falls back to zero
+        # the moment the work it counted is finished.
+        for _slot in range(execution["workers"]):
+            self._publish(emit, "worker.released", {"stage": "solving"})
         clock = replay.clock()
         self._publish(emit, "demo.elapsed", {
             "stage": "solving",

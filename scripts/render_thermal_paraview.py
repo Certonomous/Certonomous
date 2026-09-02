@@ -37,8 +37,8 @@ import sys
 import tempfile
 
 from paraview.simple import (  # noqa: E402
-    CreateRenderView, GetColorTransferFunction, GetScalarBar, Hide,
-    OpenFOAMReader, SaveScreenshot, Show, Slice,
+    Clip, CreateRenderView, GetColorTransferFunction, GetScalarBar, Hide,
+    OpenFOAMReader, SaveScreenshot, Show, Slice, STLReader,
 )
 
 #: The control room is a dark surface (--bg #060708); a render dropped into
@@ -284,6 +284,82 @@ def field_panel(args, prefix):
         shutil.rmtree(scratch, ignore_errors=True)
 
 
+def geometry_panel(args, prefix):
+    """The act's body as a ParaView render of its measured surface.
+
+    Sanaa's orders of 2026-09-02: every visual is a ParaView render, no
+    client tessellation ("ALL runs show ParaView, no tessellation"), and the
+    motor's centrebody must VISIBLY run the full duct length, which the
+    straight-on view hid. The surface rendered is the file the act's own
+    geometry guard measures against the solved case; the sidecar carries its
+    hash beside the case and cell count the served panel is asserted with.
+
+    ``--clip-plane x`` cuts the body open along the axis so the interior is
+    visible for its whole length (the motor's duct hides its centrebody
+    otherwise); the battery module needs no cut. The camera is an oblique
+    view built from ``--view-dir`` so the long axis lies across the frame.
+    """
+    stl = os.path.abspath(args.stl)
+    reader = STLReader(FileNames=[stl])
+    reader.UpdatePipeline()
+    source = reader
+    if args.clip_plane:
+        i = {"x": 0, "y": 1, "z": 2}[args.clip_plane]
+        bounds = reader.GetDataInformation().GetBounds()
+        cut = Clip(Input=reader)
+        cut.ClipType = "Plane"
+        origin = [0.5 * (bounds[0] + bounds[1]),
+                  0.5 * (bounds[2] + bounds[3]),
+                  0.5 * (bounds[4] + bounds[5])]
+        origin[i] = args.clip_at if args.clip_at is not None else origin[i]
+        normal = [0.0, 0.0, 0.0]
+        normal[i] = 1.0
+        cut.ClipType.Origin = origin
+        cut.ClipType.Normal = normal
+        cut.Invert = 1
+        cut.UpdatePipeline()
+        source = cut
+
+    bounds = source.GetDataInformation().GetBounds()
+    centre = [0.5 * (bounds[0] + bounds[1]), 0.5 * (bounds[2] + bounds[3]),
+              0.5 * (bounds[4] + bounds[5])]
+    spans = [bounds[1] - bounds[0], bounds[3] - bounds[2],
+             bounds[5] - bounds[4]]
+    reach = max(spans) * 2.2
+    direction = [float(v) for v in args.view_dir.split(",")]
+    norm = max(sum(v * v for v in direction) ** 0.5, 1e-12)
+    eye = [c + reach * v / norm for c, v in zip(centre, direction)]
+
+    view = CreateRenderView()
+    view.ViewSize = [1920, 1080]
+    view.Background = list(BACKGROUND)
+    view.UseColorPaletteForBackground = 0
+    view.OrientationAxesVisibility = 0
+    view.CameraParallelProjection = 0
+    view.CameraFocalPoint = centre
+    view.CameraPosition = eye
+    view.CameraViewUp = [float(v) for v in args.view_up.split(",")]
+    show = Show(source, view)
+    show.Representation = "Surface"
+    show.AmbientColor = [0.105, 0.125, 0.145]
+    show.DiffuseColor = [0.42, 0.52, 0.62]
+    view.ResetCamera(False)
+
+    path = os.path.join(args.out, f"{prefix}_geometry.png")
+    render(view, path, args.min_ink, "geometry")
+    sidecar(path, args.case, "geometry", args.expect_cells, {
+        "surface": stl,
+        "surface_sha256": hashlib.sha256(open(stl, "rb").read()).hexdigest(),
+        "clip_plane": args.clip_plane,
+        "view_dir": args.view_dir,
+        "note": ("the rendered file is the surface the act's geometry stage "
+                 "measures against the solved case; the cell count beside it "
+                 "is the solved grid the act prints, carried so the served "
+                 "panel is asserted against the same number"),
+    })
+    Hide(source, view)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--case", required=True)
@@ -301,6 +377,17 @@ def main():
                              "mesh_zoom. Required with the mesh panels.")
     parser.add_argument("--field-regions", default="")
     parser.add_argument("--field-time", default=None)
+    parser.add_argument("--stl", default=None,
+                        help="Surface file for the geometry panel: the file "
+                             "the act's geometry guard measures.")
+    parser.add_argument("--clip-plane", default=None, choices=("x", "y", "z"),
+                        help="Cut the geometry open along this axis so the "
+                             "interior shows for its full length.")
+    parser.add_argument("--clip-at", type=float, default=None)
+    parser.add_argument("--view-dir", default="1,0.55,0.85",
+                        help="Camera direction (from the body towards the "
+                             "eye), comma separated.")
+    parser.add_argument("--view-up", default="0,1,0")
     parser.add_argument("--min-ink", type=float, default=0.01)
     args = parser.parse_args()
     args.case = os.path.abspath(args.case)
@@ -321,6 +408,11 @@ def main():
             os.write(2, b"field panel needs --field-regions and --field-time\n")
             os._exit(2)
         field_panel(args, prefix)
+    if "geometry" in wanted:
+        if not args.stl:
+            os.write(2, b"the geometry panel needs --stl\n")
+            os._exit(2)
+        geometry_panel(args, prefix)
     say("done")
     os._exit(0)
 
