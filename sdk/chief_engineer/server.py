@@ -947,8 +947,19 @@ def main() -> None:
             stream.reconfigure(encoding="utf-8", errors="replace")
         except (AttributeError, ValueError):
             pass
-    _rehydrate_missions()
+    # BIND BEFORE THE RECOVERY SCAN — ORDER IS LOAD-BEARING. The scan marks
+    # every mission found "queued"/"running" as failed and publishes a
+    # mission.failed into its event log; that judgment is only true when THIS
+    # process is the one server. Run before the bind, a second boot losing
+    # the port race would first mark the LIVE server's in-flight missions
+    # failed — writing into state files and event logs the live process still
+    # owns — and only then die on "address already in use". Winning the bind
+    # is the proof of solitude, so it comes first; a losing boot now exits on
+    # the bind with every mission record untouched. (Port sharing via
+    # REUSEADDR is a known separate hazard on other platforms; on this box
+    # the second bind fails, which is exactly the guard this ordering uses.)
     server = ThreadingHTTPServer(("0.0.0.0", PORT), Handler)
+    _rehydrate_missions()
     print(f"Certonomous mission control listening on :{PORT} ({_backend_name()})", flush=True)
     server.serve_forever()
 
