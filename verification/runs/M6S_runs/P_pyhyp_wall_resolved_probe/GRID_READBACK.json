@@ -1,0 +1,88 @@
+{
+  "reading": "3(b) -- achieved first-cell height, READ BACK FROM THE WRITTEN GRID",
+  "grid": "work/volumeMesh.xyz",
+  "blocks": [
+    [
+      21,
+      33,
+      93
+    ],
+    [
+      33,
+      3,
+      93
+    ],
+    [
+      21,
+      3,
+      93
+    ],
+    [
+      33,
+      21,
+      93
+    ],
+    [
+      3,
+      33,
+      93
+    ],
+    [
+      3,
+      3,
+      93
+    ],
+    [
+      3,
+      21,
+      93
+    ],
+    [
+      3,
+      3,
+      93
+    ],
+    [
+      33,
+      3,
+      93
+    ]
+  ],
+  "wall_nodes_sampled": 1827,
+  "first_cell_height_m": {
+    "min": 9.858828882974823e-07,
+    "median": 1.6167366315552514e-06,
+    "mean": 1.7916971905020454e-06,
+    "max": 1.1195333554227118e-05,
+    "p05": 1.0854861450166428e-06,
+    "p95": 2.845660340337382e-06,
+    "spread_max_over_min": 11.35564242682039
+  },
+  "requested_s0_INPUT_NEVER_A_MEASUREMENT": 1.319e-06,
+  "median_over_requested": 1.225729061072973,
+  "max_over_requested": 8.487743407298801,
+  "reading_3a_level2_march_distance_m": 1.43e-06,
+  "NO_GATE": "Prereg \u00a72 reading 3 registers no target, band or tolerance for this reading. \u00a71.1 governs: nothing here bears on max non-orthogonality or on whether option 3 clears MESH_STANDARD \u00a73.1, and no checkMesh was run.",
+  "planted_control": [
+    {
+      "check": "PLANT: reader returns one height per wall node (9)",
+      "pass": true,
+      "observed": 9
+    },
+    {
+      "check": "PLANT: reader reads the planted height 7.500e-06 exactly",
+      "pass": true,
+      "observed": 7.5e-06
+    },
+    {
+      "check": "PLANT: reader SEES a 2.500e-05 mutation planted on disk",
+      "pass": true,
+      "observed": 2.5e-05
+    },
+    {
+      "check": "PLANT: the unmutated nodes are unchanged",
+      "pass": true,
+      "observed": 7.5e-06
+    }
+  ]
+}
