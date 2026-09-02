@@ -115,7 +115,7 @@ stage_unit() {  # stage_unit NAME ARM
   rm -rf "$u/case/constant/polyMesh" "$u/case/0" "$u/case/postProcessing" \
          "$u/case/reports" "$u/case/mphys.html" "$u/case/case.foam" 2>/dev/null
   # any numeric/renamed time dirs that rode along in the copy are removed
-  ( cd "$u/case" && for d in [0-9]* 0.[0-9]*; do [ -d "$d" ] && rm -rf "$d"; done ) 2>/dev/null
+  ( cd "$u/case" && for d in [0-9]* 0.[0-9]*; do case "$d" in 0.orig) continue ;; esac; [ -d "$d" ] && rm -rf "$d"; done ) 2>/dev/null  # 0.orig MATCHES [0-9]* -- it starts with a digit. The first fire deleted it and aborted at staging, 0.0 core-min (ADDENDUM D / MAAOA AMENDMENT 1)
   cp -r "$MESH" "$u/case/constant/polyMesh" || return 1
   test -d "$u/case/0.orig" || return 1
   test -f "$u/case/FFD/wingFFD.xyz" || return 1

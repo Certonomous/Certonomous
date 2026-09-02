@@ -154,3 +154,30 @@ frozen `a1wr_runScript_comp.py` `fe0135fb…` — sole physics departure: U0 fro
 hash-checks the instruments against the manifest before anything runs.
 
 **NOTHING IN THIS ITEM IS FILED, SENT, UPLOADED OR POSTED ANYWHERE.**
+
+---
+---
+
+# AMENDMENT 1 — 2026-09-02 — PRE-COMPUTE — DRIVER RE-PIN AFTER THE STAGING-GLOB REPAIR
+
+**`lines whose number changed above this section: 0`**
+
+**Condition: no compute has been spent on this item — checked, not asserted.**
+The first fire's driver (daemon launch 18:10:20Z) reached only its
+**gate-wait loop**: `MAAOA_WAIT_BEGIN` is the last line of its
+`launcher.queue.out`, `/home/ubuntu/certonomous-runs/MAAOA` **does not
+exist**, no container was created and no solver ran. Spend: 0.0 core-min.
+The freeze window is therefore open and this amendment is legal under rule 2.
+
+**What moves, and why:** `maaoa_chain_driver.sh` carried the same staging
+defect A1WR ADDENDUM D records — the stale-time-dir cleanup glob `[0-9]*`
+matches `0.orig` (it starts with a digit) and would have deleted it from
+every staged point, aborting each on its own `test -d 0.orig`. Repaired with
+`case "$d" in 0.orig) continue ;; esac`, proven on a planted fixture
+(`0.orig 0 1000 0.0001` → only `0.orig` survives). The waiting driver was
+terminated (`launcher_rc=143`, an infrastructure record, L-342) and the
+entry re-armed. **Driver md5 re-pinned: `fdf184ecf0cde5df59c219b7a23d72a1`**
+(§6's pin superseded). `MAAOA_MD5.txt` is unchanged — the driver is
+deliberately outside it, exactly so the runtime G-FREEZE check cannot be
+satisfied by the file that performs it. **No gate, threshold, cap or label
+moves; the registered points, reading, costs and caps stand.**

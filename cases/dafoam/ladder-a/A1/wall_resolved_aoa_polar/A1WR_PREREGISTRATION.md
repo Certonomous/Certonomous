@@ -1129,3 +1129,41 @@ Every gate of §9 as amended, every cap of §7.4, the FEASIBILITY label, the
 `GATE REACHED` ceiling, §3.4's no-re-cut rule, §6's two-directional stall
 trap, §8's registered outcomes and the lane's (B) prior. **NOTHING IN THIS
 ITEM IS FILED, SENT, UPLOADED OR POSTED ANYWHERE.**
+
+---
+---
+
+# ADDENDUM D — 2026-09-02 — POST-COMPUTE — v1.4 → v1.5 — FIRST FIRE ABORTED AT STAGING, 0.0 CORE-MIN: THE CLEANUP GLOB ATE `0.orig`
+
+**`lines whose number changed above this section: 0`**
+
+**The first fire of the chain (daemon launch 18:09:15Z, wrapper pid 51381,
+driver pid 51419) ABORTED INSIDE `stage_unit()` at 18:09:15Z, before any
+container started. Solver compute spent: 0.0 core-min.** The evidence is
+archived whole at
+`/home/ubuntu/certonomous-runs/A1WR/STAGE12_failed_staging_20260902T180915Z/`
+(nothing deleted): `probe_I/case/` holds the skeleton copy **without
+`0.orig`**, and `launcher.queue.out` ends `A1WR_ABORT staging failed for
+probe_I`.
+
+**The defect, in one line: `for d in [0-9]* …` — and `0.orig` starts with a
+digit.** The stale-time-dir cleanup matched it and removed it; the very next
+assert (`test -d 0.orig`) caught the damage and the driver failed closed —
+which is the one good thing on this page: **the point-of-use assert did
+exactly what it exists for, and the run root, the frozen skeletons and the
+mesh were never touched** (the cleanup runs only inside the fresh copy).
+
+**Repair, in both drivers** (`a1wr_chain_driver.sh` → md5
+`9bff59b63509e76d5dfa373a42a47074`; `maaoa_chain_driver.sh` → md5
+`fdf184ecf0cde5df59c219b7a23d72a1`): the loop now carries
+`case "$d" in 0.orig) continue ;; esac`, and the repaired loop was **driven
+on a planted fixture** (dirs `0.orig 0 1000 0.0001` → survivors: `0.orig`
+alone) before re-enqueue. Neither driver is inside `A1WR_STAGE12_MD5.txt` /
+`MAAOA_MD5.txt`, so no manifest changes; the queue entries re-pin the driver
+md5s. The waiting MAAOA driver (which had launched nothing and spent 0.0)
+was terminated (`launcher_rc=143` in its STATUS — an infrastructure record,
+L-342) and both entries are re-armed per the runner's re-arm protocol.
+
+**No gate, threshold, cap or label moves. No physics artefact existed to be
+touched.** The G-ROOT clause reads unit dirs under `$RUN`, so the archived
+failed staging cannot block or be mistaken for a run.
