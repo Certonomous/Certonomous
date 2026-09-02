@@ -1322,3 +1322,37 @@ both are recorded rather than silently repaired.
 | citations corrected | **1** — `§12.2`'s L3 headroom, 2.45× (snapshot) → **1.56×** (over the cycle) |
 | gates | **0** · bands | **0** · caps | **0** · re-grades | **0** · register bytes | **0** |
 | lines whose number changed above this section | **0** |
+
+---
+
+## Amendment — v1.12, 2026-09-02 — **§17: §16.6's DESCRIPTION OF THE `leg()` DEFECT IS WRONG, AND THE WRONG FIX FOLLOWS FROM IT. §16.1's SCOPE IS CORRECT BUT ITS FRAMING OVERREACHED.**
+
+### §17.1 THE MISDESCRIBED DEFECT — and why a wrong diagnosis is worse than none
+
+`§16.6` says `analyse_L3_plateau.py`'s `leg()` *"takes `sorted(g)[0]` — the earliest `postProcessing` directory."* **It does not take the earliest. It takes the LEXICOGRAPHICALLY FIRST, and on numeric directory names that bears no reliable relation to time order at all.** Verified by the supervisor:
+
+```
+sorted(['0','10000','30000','5000']) == ['0','10000','30000','5000']
+  [0]  -> '0'      NOT dependably the earliest
+  [-1] -> '5000'   NOT the latest; the true latest is 30000
+```
+
+> **THE DANGER IS THE REPAIR THE WRONG DIAGNOSIS IMPLIES.** "It takes the earliest" invites the fix *swap the index to `[-1]`* — **and that fix is still broken**, silently selecting `5000` over `30000`. **The directory names must be compared as INTEGERS.** A misdiagnosis that points at a plausible wrong repair is worse than no diagnosis, because it will be acted on.
+
+The `§16.6` identification of the trap, and its kinship to the VMFL054 comparator's hardcoded `centreProbe/0/`, **both stand**; only the mechanism was misdescribed. `N-AV15`'s provenance block carries the corrected form, and it was corrected there *before* it was corrected here — **by the lane, against the supervisor's own text.**
+
+### §17.2 §16.1's SCOPE IS RIGHT; THE FRAMING AROUND IT WAS NOT
+
+`§16.1` rules only that **L3 is not plateaued and a triple graded ON THIS TRIPLE is `NOT A RESULT`.** That scope is correct and is unchanged. **But the surrounding framing — that the case has "three independent problems" — read as though the case were dead, and the evidence does not say that.**
+
+**Measured, and it cuts the other way:** 25×25 and 50×50 plateau to **3.69e-12** and **4.55e-10** with final residuals at **2.42e-14** and **6.45e-14** — machine precision — and **the limit cycle is ABSENT at both.** Whether a triple that excludes 100×100 sits in the asymptotic range is **unanswered and is not being recommended here**; the point is narrower and sharper:
+
+> **A CASE IS CLOSED BY EVIDENCE OR IT IS NOT CLOSED. It is never closed by TONE.** The stand-down on VMFL007 stands as an allocation decision — there is better work available — and it is recorded as that, **not as a finding that the case cannot be verified.**
+
+| amendment | v1.12 |
+|---|---|
+| clause added | **`§17`** (`§17.1`–`§17.2`) |
+| citations corrected | **1** — `§16.6`'s `leg()` mechanism: "earliest" → **lexicographically first**, with the implied `[-1]` repair named as ALSO broken |
+| rulings changed | **0** — `§16.1`'s scope is reaffirmed; only its surrounding framing is narrowed |
+| gates | **0** · bands | **0** · caps | **0** · re-grades | **0** · register bytes | **0** |
+| lines whose number changed above this section | **0** |
