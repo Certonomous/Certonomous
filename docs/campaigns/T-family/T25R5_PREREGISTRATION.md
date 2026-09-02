@@ -1055,3 +1055,128 @@ same standing `P-3` has.
 **SUBMISSIONS PARKED** (rule 7). **PERMANENTLY PRIVATE** (rule 8).
 
 <!-- END OF T25R5 PRE-REGISTRATION v1.2 -->
+
+---
+
+## Addendum D1 — 2026-09-02T~22:05Z, **AFTER FIRST COMPUTE.** The re-run protocol, and three expected values registered so the re-run can LOSE
+
+**Version v1.3. Lines whose number changed above this section: 0.**
+
+⚠ **THIS IS AN ADDENDUM, NOT AN AMENDMENT.** First compute on this probe occurred
+at **2026-09-02T21:33:07Z**, so the gates are CLOSED (rule 2). **This addendum
+alters NO gate, NO threshold, NO cap and NO label.** `G-T5` stays at
+`≤ 46.3527` iterations per feasible solve, the frozen denominator stays
+`231.7636`, `E1`–`E6` stay exactly as registered, A2's `R` bands stay `1.5`/`3.0`,
+and the §5.2 ceiling stays **320 core-min**. What it adds is a **protocol** and a
+**new refusal condition**, both of which can only make the probe stricter.
+
+### D1.1 ⛔ `C2` AND `C3` ARE DISQUALIFIED. THE RULING IS FINAL AND THE NUMBERS ARE NOT BANKED
+
+`C2_L2` (rc 124, 38/40 steps) and `C3_L2` (rc 124, 37/40 steps) fired **`E3` and
+`E4`**. They are **DISQUALIFIED**.
+
+> **`C2`'s 44.6504 — a 5.19× reduction that CLEARS `G-T5` — IS NOT A SPEED-UP, IS
+> NOT ELIGIBLE, AND IS NEVER REPORTED AS ONE.**
+
+**A registered disqualifier that fires only when we dislike the result is not a
+disqualifier.** `C2` is the case that tests whether this one is real: it is the
+single arm that clears the gate, and it is the one thrown out. `E4` is the
+substantive half — a capped arm wrote no fields at `t = 0.8`, so **there is no
+equivalence check, and an uncertified 5.19× may be a different answer rather than
+a faster one.**
+
+**The disqualified attempts and their numbers stay on the record permanently.
+Nothing is deleted, nothing is overwritten, and `STAGE1_BATCH1_RESULT.json`
+stands.**
+
+### D1.2 THE CAUSE WAS A STAGING DEFECT, SO THE QUESTION IS UNMEASURED — NOT ANSWERED
+
+`B0_L2` ran 2-way with `D0`, and `D0` finished in 42 s of `B0`'s 516 s, so the
+**baseline effectively had the box to itself**. `C1`/`C2`/`C3` were then batched
+**3-way against each other for their whole duration**, on top of the live `ansys`
+and `JF1` campaigns. Measured iteration throughput: **B0 984/s, C1 480/s,
+C2 396/s, C3 362/s**. `C1` performed 4.15× **fewer** iterations per feasible solve
+than `B0` and still took 727 s against `B0`'s 516 s.
+
+**Honest limit on that claim:** per-iteration cost is **not** equal across
+configurations — a `DICGaussSeidel` sweep costs more than a plain `GaussSeidel`
+sweep — so **part of the throughput drop is genuine and this lane cannot separate
+the two from these runs.**
+
+**The defect was this lane's, introduced after the gates closed. Disqualifying a
+contaminated attempt does not oblige the lab to leave the question unmeasured; it
+obliges the lab never to bank the contaminated number.**
+
+### D1.3 THE PROTOCOL — **ONE ARM AT A TIME, AND `C1` IS RE-RUN TOO**
+
+1. **`C1`, `C2`, `C3` are re-run and `C4`, `C5` are run — five arms, ONE AT A
+   TIME.** No two arms of this probe run concurrently. Each is launched only after
+   the previous one's `rc` file exists.
+2. **⛔ `C1` IS RE-RUN, AND THAT IS NOT OPTIONAL.** `C1` completed, so there is a
+   temptation to keep it and re-run only what failed. **Refused.** `C1`'s 4.15×
+   was measured under 3-way contention while the baseline ran effectively alone;
+   comparing a clean `C2` against a contended `C1` **rebuilds the same confound
+   one level up.** Every arm is measured under one protocol or the comparison is
+   not a comparison.
+3. Cap **25.667 core-min per arm** (`timeout 770 s`), unchanged. Five arms =
+   **128.33 core-min**. Spent to date **89.133**; worst case cumulative
+   **217.47**, inside the registered 320.
+4. Full rule 4 on every arm; **§4.1's planted zero first on every invocation**;
+   §4.2 applied **before** any iteration count is compared.
+
+### D1.4 ⚡ THE CONTROL THAT MAKES THIS A MEASUREMENT AND NOT A RETRY — **REGISTERED BEFORE THE RE-RUN**
+
+Iteration counts are **deterministic** at fixed rank count and fixed
+decomposition. §3.5 proved it bit-for-bit: `B0_L2` reproduced T25R4's `P2` at
+**231.7636 against 231.7636**, same 901 feasible solves, same 310 pinned, same
+minimum residual. **Therefore a re-run under corrected conditions must reproduce
+the capped attempt's iteration counts EXACTLY — the contention changed the wall
+clock, and it cannot have changed the arithmetic.**
+
+**REGISTERED NOW, BEFORE THE RE-RUN, FROM THE DISQUALIFIED ATTEMPTS' LOGS:**
+
+| arm | feasible solves | **Σ iterations (exact integer)** | mean per feasible solve |
+|---|---|---|---|
+| `C1` | **901** | **50,281** | **55.8057713651** |
+| `C2` | **901** | **40,230** | **44.6503884573** |
+| `C3` | **901** | **42,293** | **46.9400665927** |
+
+> **⛔ IF A RE-RUN'S FEASIBLE-SOLVE COUNT IS NOT EXACTLY 901, OR ITS ITERATION SUM
+> IS NOT EXACTLY THE INTEGER ABOVE, THAT IS A DEFECT AND THE PROBE STOPS AS
+> `NOT A RESULT`. It does not get quietly re-measured.**
+
+The integer sums are registered alongside the means because an integer is
+unambiguous and cannot be argued about at the last decimal place.
+
+**THIS IS WHAT CONVERTS "RE-RUNNING THE ARM I LIKED" INTO "REPRODUCING A
+DETERMINISTIC QUANTITY UNDER CORRECTED CONDITIONS".** The re-run is made
+falsifiable against a number already in hand, and it can lose. **`C4` and `C5`
+have no such expectation registered, because they have never run — and that
+asymmetry is stated rather than hidden.**
+
+**Corroboration this rests on, arriving from a third independent direction:**
+`B0`, `C1`, `C2` and `C3` all carry **exactly 901** feasible solves despite
+running 40, 40, 38 and 37 steps. The gate's measurement population was
+**complete even in the capped arms**, because feasible solves stop occurring
+around step 30 (§3.2b). That strengthens the reproduction requirement rather
+than excusing it.
+
+### D1.5 COST ATTRIBUTION — THE CONTAMINATED BATCH IS **WASTE, NAMED**
+
+**The 70.533 core-min spent on `C1`/`C2`/`C3` under 3-way contention is WASTE
+CAUSED BY THIS LANE.** It is named as waste and is **never folded into an
+actual/predicted ratio** (`COMPUTE_BUDGET_CHARTER` §6, rule 12). It bought one
+usable equivalence result (`C1`'s, which held at 8.0e-09 K) and two disqualified
+attempts.
+
+### D1.6 THE STANDING REPORTING CONDITION IS REAFFIRMED AND UNCHANGED
+
+**No report of this probe may state or imply that the ladder is rescuable without
+quoting the 20.9×–156.8× requirement in the same breath as the measured factor.**
+The best **eligible** factor to date is `C1`'s 4.15×, below the 5.00× gate; even
+the **disqualified** 5.19× is four to thirty times short of what the ladder needs.
+**Nothing in the re-run changes that arithmetic.**
+
+**SUBMISSIONS PARKED** (rule 7). **PERMANENTLY PRIVATE** (rule 8).
+
+<!-- END OF T25R5 PRE-REGISTRATION v1.3 -->
