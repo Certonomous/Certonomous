@@ -6,7 +6,7 @@
  "demo_mode_arm": {
   "why": "the act is also driven through the shared stage sequencer, which composes stage headers, banners, progress lines and an elapsed sentence the act's own narration never produces",
   "driver": "cases/dafoam/drive_actd_demo_mode.py",
-  "emitted_events": 347,
+  "emitted_events": 743,
   "stages": [
    "prompt",
    "restatement",
@@ -20,7 +20,7 @@
   ],
   "strings_checked_by_the_act_itself": 80
  },
- "camera_strings_scanned": 2374,
+ "camera_strings_scanned": 4092,
  "wiring_strings_scanned": 161,
  "camera_hits": [],
  "wiring_hits": [
@@ -1490,50 +1490,50 @@
   {
    "kind": "path",
    "why": "filename with extension",
-   "match": "mach_tutorial_wing.stl",
-   "context": "/api/geometry?name=mach_tutorial_wing.stl",
-   "where": "demo[14]:geometry.ready.url"
+   "match": "api/surface/act-geometry/mach_tutorial_wing.stl",
+   "context": "/api/surface/act-geometry/mach_tutorial_wing.stl",
+   "where": "demo[0]:geometry.ready.url"
   },
   {
    "kind": "path",
    "why": "relative path with a separator",
-   "match": "/api/geometry",
-   "context": "/api/geometry?name=mach_tutorial_wing.stl",
-   "where": "demo[14]:geometry.ready.url"
+   "match": "/api/surface/act-geometry/mach_tutorial_wing.stl",
+   "context": "/api/surface/act-geometry/mach_tutorial_wing.stl",
+   "where": "demo[0]:geometry.ready.url"
   },
   {
    "kind": "path",
    "why": "relative path with a separator",
    "match": "/api/plot/results/actD_crease_section.png",
    "context": "/api/plot/results/actD_crease_section.png",
-   "where": "demo[340]:plot.ready.url"
+   "where": "demo[731]:plot.ready.url"
   },
   {
    "kind": "path",
    "why": "relative path with a separator",
    "match": "/api/plot/results/a2_sections_5station.png",
    "context": "/api/plot/results/a2_sections_5station.png",
-   "where": "demo[341]:plot.ready.url"
+   "where": "demo[732]:plot.ready.url"
   },
   {
    "kind": "path",
    "why": "relative path with a separator",
    "match": "/api/plot/results/a2_twist.png",
    "context": "/api/plot/results/a2_twist.png",
-   "where": "demo[342]:plot.ready.url"
+   "where": "demo[733]:plot.ready.url"
   },
   {
    "kind": "path",
    "why": "absolute home path",
    "match": "/home/ubuntu/Certonomous/mission-output/adjoint-optimization",
-   "context": "Artifacts in /home/ubuntu/Certonomous/mission-output/adjoint-optimization (1.05s)",
+   "context": "Artifacts in /home/ubuntu/Certonomous/mission-output/adjoint-optimization (3.96s)",
    "where": "stdout:42"
   },
   {
    "kind": "path",
    "why": "relative path with a separator",
    "match": "/home/ubuntu/Certonomous/mission-output/adjoint-optimization",
-   "context": "Artifacts in /home/ubuntu/Certonomous/mission-output/adjoint-optimization (1.05s)",
+   "context": "Artifacts in /home/ubuntu/Certonomous/mission-output/adjoint-optimization (3.96s)",
    "where": "stdout:42"
   }
  ],
@@ -1543,13 +1543,13 @@
   "stdout:42": 2
  },
  "wiring_trails": [
-  "demo[14]:geometry.ready.url",
-  "demo[340]:plot.ready.file",
-  "demo[340]:plot.ready.url",
-  "demo[341]:plot.ready.file",
-  "demo[341]:plot.ready.url",
-  "demo[342]:plot.ready.file",
-  "demo[342]:plot.ready.url",
+  "demo[0]:geometry.ready.url",
+  "demo[731]:plot.ready.file",
+  "demo[731]:plot.ready.url",
+  "demo[732]:plot.ready.file",
+  "demo[732]:plot.ready.url",
+  "demo[733]:plot.ready.file",
+  "demo[733]:plot.ready.url",
   "emit[100]:field.ready.url",
   "emit[102]:field.ready.url",
   "emit[104]:field.ready.url",
@@ -1856,63 +1856,77 @@
    },
    {
     "module": "sdk/workflows/adjoint_act.py",
-    "line": 116,
+    "line": 117,
     "kind": "path",
     "match": "A2_replay_series.json",
     "literal": "A2_replay_series.json"
    },
    {
     "module": "sdk/workflows/adjoint_act.py",
-    "line": 117,
+    "line": 118,
     "kind": "path",
     "match": "A2_mesh_time.json",
     "literal": "A2_mesh_time.json"
    },
    {
     "module": "sdk/workflows/adjoint_act.py",
-    "line": 118,
+    "line": 119,
     "kind": "path",
     "match": "A2_geometry_identity.json",
     "literal": "A2_geometry_identity.json"
    },
    {
     "module": "sdk/workflows/adjoint_act.py",
-    "line": 527,
+    "line": 454,
+    "kind": "path",
+    "match": "runScript.py",
+    "literal": "runScript.py"
+   },
+   {
+    "module": "sdk/workflows/adjoint_act.py",
+    "line": 465,
+    "kind": "path",
+    "match": "A2_shape_frames.json",
+    "literal": "A2_shape_frames.json"
+   },
+   {
+    "module": "sdk/workflows/adjoint_act.py",
+    "line": 873,
     "kind": "path",
     "match": "opt_IPOPT.txt",
     "literal": "opt_IPOPT.txt"
    },
    {
     "module": "sdk/workflows/adjoint_act.py",
-    "line": 529,
+    "line": 875,
     "kind": "path",
     "match": "opt_IPOPT.txt",
     "literal": "opt_IPOPT.txt"
    },
    {
     "module": "sdk/workflows/adjoint_act.py",
-    "line": 531,
+    "line": 877,
     "kind": "path",
     "match": "OptView.hst",
     "literal": "OptView.hst"
    },
    {
     "module": "sdk/workflows/adjoint_act.py",
-    "line": 533,
+    "line": 879,
     "kind": "path",
     "match": "opt_IPOPT.txt",
     "literal": "opt_IPOPT.txt"
    },
    {
     "module": "sdk/workflows/adjoint_act.py",
-    "line": 535,
+    "line": 881,
     "kind": "path",
     "match": "opt_IPOPT.txt",
     "literal": "opt_IPOPT.txt"
    },
    {
     "module": "sdk/workflows/adjoint_act.py",
-    "line": 537,
+    "line": 883,
     "kind": "path",
     "match": "opt_run_driver.log",
     "literal": "opt_run_driver.log"

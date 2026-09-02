@@ -144,7 +144,10 @@ FO
 fi
 # The script MUST exit with mpirun's rc. An inner script ending on an echo
 # exits 0 for every outcome -- the same class of trap as the setsid parent.
-mpirun -np $NP python a2gc_level.py 2>&1
+# --allow-run-as-root: the container runs as root and OpenMPI refuses
+# otherwise (measured 2026-09-01). This is the invocation already proven on
+# the A2 decomposition, run_a2_decomposition.sh:54.
+mpirun --allow-run-as-root -np $NP python a2gc_level.py 2>&1
 rc=\$?
 echo "SOLVE_RC=\$rc"
 exit \$rc
@@ -154,8 +157,12 @@ INNER
 # bash -lc string: rc is captured INSIDE, next to the command that produced it,
 # and the peak-RSS sampler does not depend on which cgroup version is mounted.
 cat > "$LEVELDIR/stage.sh" <<INNER
-set -uo pipefail
+set -o pipefail
+# The OpenFOAM bashrc references unbound variables, so `set -u` MUST NOT be in
+# force while it is sourced -- measured 2026-09-01: "WM_PROJECT_DIR: unbound
+# variable", container dead in 0.4 s. -u is armed immediately after.
 source /home/dafoamuser/dafoam/loadDAFoam.sh
+set -u
 
 # Peak-RSS sampler: sums RSS across every process every 2 s and keeps the max.
 # Independent of cgroup v1 vs v2 layout.

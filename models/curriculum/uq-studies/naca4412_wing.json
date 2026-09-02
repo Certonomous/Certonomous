@@ -20,7 +20,7 @@
       "mission": "naca4412_wing-production"
     }
   ],
-  "updated_utc": "2026-08-02T06:10:44Z",
+  "updated_utc": "2026-09-01T00:06:04Z",
   "numerical": {
     "dim": 3,
     "order_window": [
@@ -28,7 +28,6 @@
       2.5
     ],
     "observed_order": 10.467,
-    "observed_order_verdict_2026_08_25": "NOT A RESULT -- fitted across a RECIPE-FORKED gap; see recipe_fork_ruling_2026_08_25 in this file and verification/campaign/LADDER_RECIPE_RULING_2026-08-25.md. The number is struck, not deleted. This says nothing against the underlying solves.",
     "order_used": 2.5,
     "clamped": true,
     "band_abs": 0.011294571411314567,

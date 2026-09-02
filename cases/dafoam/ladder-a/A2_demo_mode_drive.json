@@ -14,8 +14,8 @@
   "gates",
   "results"
  ],
- "events_emitted": 347,
- "publications": 168,
+ "events_emitted": 743,
+ "publications": 360,
  "solver_frames": 48,
  "adjoint_events": 100,
  "displayed_clock": {
@@ -37,6 +37,10 @@
  "self_check": {
   "strings_checked": 80,
   "solver_header_matches_builder": true,
+  "assumption_constants": {
+   "verdict": "PASS",
+   "checked": 9
+  },
   "plant_control": {
    "planted": 0.001234,
    "row": 17,
@@ -81,8 +85,8 @@
    "check": "every publication carried a banner",
    "held": true,
    "detail": {
-    "banners": 168,
-    "publications": 168
+    "banners": 360,
+    "publications": 360
    }
   },
   {
@@ -171,7 +175,7 @@
    ]
   },
   {
-   "check": "the geometry stage states the solved case in the present tense",
+   "check": "the geometry stage publishes the act's own contract sentence, naming the measured cell count",
    "held": true,
    "detail": "This geometry, 38304 cells."
   },
@@ -189,7 +193,8 @@
     "zoom": "the first of the 39 layers marched from the wing surface",
     "meshed": false,
     "drawn": false,
-    "banner": "meshing"
+    "pictured": false,
+    "banner": "Meshing"
    }
   },
   {
@@ -211,7 +216,8 @@
     "zoom": "the first of the 39 layers marched from the wing surface",
     "meshed": false,
     "drawn": false,
-    "banner": "meshing"
+    "pictured": false,
+    "banner": "Meshing"
    }
   },
   {
