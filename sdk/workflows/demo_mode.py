@@ -253,31 +253,39 @@ def gpu_routing_lines(mechanism: str) -> tuple[str, str]:
 # The one compute-reporting convention every sweep act uses
 # ---------------------------------------------------------------------------
 
-#: SANAA'S COMPUTE TABLE (2026-09-02 orders, item 4; addendum item 4: "All
-#: demo acts use the same convention for the core min/ wall time numbers").
-#: One table per sweep act, these three columns, this order, her words. No
-#: currency anywhere on a screen: dollars, cents and derived-cost lines are on
-#: the never-list below and refused mechanically.
-COMPUTE_TABLE_HEADERS: tuple[str, str, str] = (
-    "Number of workers", "Core-minutes per run", "Total wall time")
+#: SANAA'S COMPUTE TABLE (2026-09-02 orders, item 4; addendum item 4; wave
+#: convention ~06:10Z, verbatim: "For all runs: Compute tables report per-run
+#: core-minutes , their plain sum as total, and wall time; parallelism is
+#: expressed in wall time and the wave sentence"). One table per sweep act,
+#: these four columns, this order: her two verbatim headers keep their words
+#: and the PLAIN-SUM total sits between them. No currency anywhere on a
+#: screen: dollars, cents and derived-cost lines are on the never-list below
+#: and refused mechanically.
+COMPUTE_TABLE_HEADERS: tuple[str, str, str, str] = (
+    "Number of workers", "Core-minutes per run", "Core-minutes total",
+    "Total wall time")
 
 
-def compute_table(workers, core_min_per_run, wall_time, *, table_id: str,
-                  role: str = "CHIEF ENGINEER") -> "Table":
+def compute_table(workers, core_min_per_run, total_core_min, wall_time, *,
+                  table_id: str, role: str = "CHIEF ENGINEER") -> "Table":
     """The shared compute table, so every sweep act renders the SAME shape.
 
-    The act supplies the three cells as strings it can stand behind; this
-    fixes the headers and the order so two acts cannot drift into two
-    conventions. Beside or beneath it the act states, in its own words, the
-    slowest-member reconciliation ("slowest member: <the case>; wall time
-    follows it") so workers x minutes is visibly reconciled with the wall
-    clock. That sentence is the act's because the slowest member is the act's
-    own measured fact.
+    The act supplies the four cells as strings it can stand behind:
+    ``total_core_min`` is the PLAIN SUM of the per-run core-minutes (her
+    06:10Z convention), never a wall-clock figure and never divided by
+    anything -- parallelism lives in the WALL-TIME column and in the act's
+    WAVE SENTENCE beneath the table, her general form: "N runs on W workers
+    is K waves; the wall clock follows the slowest member of each wave,
+    never the <sum> core-minute sum." A one-wave act keeps the spirit (wall
+    follows the slowest member). The PREDICTED wall time an act states
+    derives from predicted core-minutes divided by the workers running in
+    parallel, per the same order.
     """
     return Table(
         title="Compute",
         headers=list(COMPUTE_TABLE_HEADERS),
-        rows=[[str(workers), str(core_min_per_run), str(wall_time)]],
+        rows=[[str(workers), str(core_min_per_run), str(total_core_min),
+               str(wall_time)]],
         table_id=table_id, role=role)
 
 
@@ -1108,10 +1116,20 @@ class Restatement:
     restatement: str
     confidence: str                  # plain English, no tier words (R5)
     cost_estimate: Measured          # core-minutes, basis "derived"
+    #: THE PREDICTED WALL CLOCK, when the act runs in parallel. Sanaa's
+    #: 06:10Z wave convention, verbatim: "for all acts, if things are running
+    #: in parallel then the predicted ncore minutes should be divided by the
+    #: number of workers." The act composes the sentence because only the act
+    #: knows its own parallel arithmetic (runs x workers per run, waves); the
+    #: sequencer speaks it directly after the estimate beat. Empty (the
+    #: default) speaks nothing and leaves every act as it was.
+    predicted_wall: str = ""
 
     def __post_init__(self) -> None:
         check_demo_language(self.restatement)
         check_demo_language(self.confidence)
+        if self.predicted_wall:
+            check_demo_language(self.predicted_wall)
 
 
 @dataclass(frozen=True)

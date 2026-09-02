@@ -657,12 +657,22 @@ class Sequencer:
         self._say(script,
                   f"Estimating this run at {r.cost_estimate.on_screen()} "
                   f"before it starts.", tense="progressive")
-        return self._publish(emit, "demo.restatement", {
+        # THE PREDICTED WALL CLOCK RIDES THE SAME BEAT (Sanaa's 06:10Z wave
+        # convention: predicted core-minutes divided by the workers running
+        # in parallel). The sentence is the act's own, because only the act
+        # knows its parallel arithmetic; an act that declares none speaks
+        # nothing here.
+        if r.predicted_wall:
+            self._say(script, r.predicted_wall, tense="past")
+        payload = {
             "stage": "restatement",
             "restatement": r.restatement,
             "confidence": r.confidence,
             "estimate": r.cost_estimate.on_screen(),
-        })
+        }
+        if r.predicted_wall:
+            payload["predicted_wall"] = r.predicted_wall
+        return self._publish(emit, "demo.restatement", payload)
 
     def _stage_assumption(self, emit, script, record) -> dict:
         """The assumption beat, and the table that says who chose what.

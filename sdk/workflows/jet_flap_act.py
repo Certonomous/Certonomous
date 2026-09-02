@@ -215,19 +215,27 @@ def _interim_compute() -> dict:
             "wall_min": wall_min, "total": total, "estimate": estimate,
             "pct": pct, "over": over}
 
-#: THE SLOWEST-MEMBER RECONCILIATION, her shape: "slowest member: the
-#: strongest-blowing case, [x] min; wall time follows it". THE MEMBER IS
-#: MEASURED AND THE MINUTES ARE DELIBERATELY ABSENT. The landed run-status
-#: files name the strongest-blowing case (C_mu 0.40) as the slowest of the
-#: five: 1,512 wall seconds against 1,466 / 1,426 / 1,340 / 1,305 for the
-#: others. The [x] her shape carries must come from the run the table
-#: describes, the 4-worker rerun, whose log does not exist yet; the landed
-#: 25.2 minutes describes a different execution (single-rank, shared box) and
-#: printing it beside her interim 6.5-minute wall would reconcile nothing.
-#: Rather than fabricate, the line states the member and the mechanism and no
-#: minutes; the rerun's own figure drops in when its log lands.
-SLOWEST_MEMBER_LINE = ("Slowest member: the strongest-blowing case. Wall "
-                       "time follows it, not the sum of the five.")
+def _wave_sentence() -> str:
+    """The wave sentence beneath the compute table, her 06:10Z general form.
+
+    Her form: "N runs on W workers is K waves; the wall clock follows the
+    slowest member of each wave, never the <sum> core-minute sum" -- and she
+    says the phrasing "survives JF1 (one wave) unchanged in spirit". This
+    sweep is ONE wave: the five landed runs overlapped on the clock, and the
+    interim convention runs all five together at 4 workers each. THE MEMBER
+    IS MEASURED AND ITS MINUTES ARE DELIBERATELY ABSENT: the landed
+    run-status files name the strongest-blowing case (C_mu 0.40) as the
+    slowest of the five (1,512 wall s against 1,466 / 1,426 / 1,340 /
+    1,305), but its minutes belong to the run the table describes, the
+    4-worker rerun, whose graded log is not wired in yet; the landed 25.2
+    minutes describes a different execution. The rerun's own figure drops in
+    when its numbers land. Derived from the interim cells, never typed, so
+    the sentence and the table carry one arithmetic.
+    """
+    c = _interim_compute()
+    return (f"{c['runs']} runs in one wave: the wall clock follows the "
+            f"slowest member, the strongest-blowing case, never the "
+            f"{c['total']:.0f} core-minute sum.")
 
 FIGURES = _jf1_numbers.RUN_ROOT / "artefacts"
 
@@ -503,7 +511,20 @@ class JetFlapAct(DemoAct):
                 int(c["estimate"]), COMPUTE_UNIT,
                 Path("/home/ubuntu/Certonomous/etc/sessions/"
                      "2026-09-02T0420Z_sanaa_workers_and_estimate_match.md"),
-                "derived"))
+                "derived"),
+            # HER 06:10Z WAVE CONVENTION: the predicted wall clock is the
+            # predicted core-minutes divided by the workers running in
+            # parallel. This act's parallel arithmetic: 5 runs at 4 workers
+            # each, one wave, so 20 workers carry the 98 core-minutes and
+            # the prediction reads 98 / 20 = 4.9 minutes. Derived, never
+            # typed, so the estimate beat, the table and the wave sentence
+            # carry one arithmetic.
+            predicted_wall=(
+                f"Predicted wall clock: "
+                f"{c['estimate'] / (c['runs'] * int(c['workers'])):.1f} "
+                f"minutes; {c['estimate']:.0f} {COMPUTE_UNIT} across "
+                f"{c['runs']} runs at {c['workers']} workers each, one "
+                f"wave."))
 
     def assumption(self) -> Assumption:
         facts = _jf1_numbers.sweep_facts()
@@ -939,7 +960,13 @@ class JetFlapAct(DemoAct):
         # (:data:`INTERIM_COMPUTE_ROW`; internal record beside this act keeps
         # the raw measured figures and the provenance of every cell). The
         # reconciliation line renders in the results beat directly beneath it.
-        compute = compute_table(*INTERIM_COMPUTE_ROW, table_id="jf_compute")
+        story = _interim_compute()
+        compute = compute_table(
+            INTERIM_COMPUTE_ROW[0], INTERIM_COMPUTE_ROW[1],
+            # HER 06:10Z CONVENTION: the total is the PLAIN SUM of the
+            # per-run core-minutes, derived, never a wall figure.
+            f"{story['total']:.0f}", INTERIM_COMPUTE_ROW[2],
+            table_id="jf_compute")
         return Results(
             fields=fields, plots=figures, tables=[lift, compute],
             verification_lines=[
@@ -1158,13 +1185,12 @@ class JetFlapAct(DemoAct):
                     f"{rows[-1]['CL_total']:.3f} across the blowing range.",
                     f"Published curve: {rows[1]['CL_published']:.3f} to "
                     f"{rows[-1]['CL_published']:.3f}.",
-                    # THE COMPUTE TABLE'S RECONCILIATION, beneath the table it
-                    # reconciles (the tables render on the stage, this beat
-                    # follows it). The member is measured off the landed
-                    # run-status files; the minutes are deliberately absent
-                    # until the queued rerun's log lands. See
-                    # SLOWEST_MEMBER_LINE.
-                    SLOWEST_MEMBER_LINE,
+                    # THE WAVE SENTENCE, beneath the table it reconciles
+                    # (the tables render on the stage, this beat follows
+                    # it). Her 06:10Z general form, one-wave spirit; see
+                    # _wave_sentence for what is measured and what is
+                    # deliberately absent.
+                    _wave_sentence(),
                     CONVERGENCE_LINE,
                 ]),
             ],

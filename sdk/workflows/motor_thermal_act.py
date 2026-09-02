@@ -359,8 +359,9 @@ def registered_estimate() -> float:
 # ---------------------------------------------------------------------------
 
 def point_label(power: int, speed: int) -> str:
-    """The plain-English label a point wears on screen. Never a case id."""
-    return f"{power} W, {speed} m/s"
+    """The label a point wears inside its own monitor panel. Her style,
+    verbatim shape ("80W · 10m/s"); never a case id."""
+    return f"{power}W · {speed}m/s"
 
 
 def _launch_start_epoch(case: Path) -> float:
@@ -403,27 +404,62 @@ def sweep_execution() -> dict:
         live += step
         workers = max(workers, live)
 
+    # THE WAVES, DERIVED, NEVER HAND-TYPED (Sanaa 2026-09-02 ~06:10Z: the
+    # wall clock follows the slowest member of EACH wave). A wave is a
+    # contiguous busy block of the launch records: runs whose intervals
+    # overlap share a wave, and a gap on the clock opens the next one.
+    detail = []
+    for (power, speed), wall in per_point.items():
+        start = _launch_start_epoch(
+            next(c for pw, sp, c in solved_points()
+                 if (pw, sp) == (power, speed)))
+        detail.append((start, start + wall, wall,
+                       point_label(power, speed)))
+    detail.sort()
     busy = 0.0
-    span_start, span_end = None, None
-    for t0, t1 in sorted(intervals):
-        if span_start is None:
-            span_start, span_end = t0, t1
-        elif t0 <= span_end:
-            span_end = max(span_end, t1)
+    waves: list[list[tuple]] = []
+    for interval in detail:
+        if waves and interval[0] <= max(iv[1] for iv in waves[-1]):
+            waves[-1].append(interval)
         else:
-            busy += span_end - span_start
-            span_start, span_end = t0, t1
-    if span_start is not None:
-        busy += span_end - span_start
+            waves.append([interval])
+    wave_facts = []
+    for members in waves:
+        busy += max(iv[1] for iv in members) - min(iv[0] for iv in members)
+        slowest = max(members, key=lambda iv: iv[2])
+        wave_facts.append({"n": len(members),
+                           "slowest_label": slowest[3],
+                           "slowest_min": slowest[2] / 60.0})
 
     slowest_key = max(per_point, key=per_point.get)
     return {
         "workers": workers,
         "busy_wall_s": busy,
+        "waves": wave_facts,
         "slowest_label": point_label(*slowest_key),
         "slowest_wall_s": per_point[slowest_key],
         "per_point_wall_s": per_point,
     }
+
+
+_COUNT_WORDS = {1: "one", 2: "two", 3: "three", 4: "four", 5: "five"}
+
+
+def wave_sentence() -> str:
+    """Her general form, filled with measured values only (2026-09-02
+    ~06:10Z, verbatim shape: "16 runs on 12 workers is two waves; the wall
+    clock follows the slowest member of each wave (39.2 and 36.x min),
+    never the 579 core-minute sum")."""
+    execution = sweep_execution()
+    _wall, core_min, _rank, _per = campaign_cost()
+    waves = execution["waves"]
+    word = _COUNT_WORDS.get(len(waves), str(len(waves)))
+    sizes = " then ".join(str(w["n"]) for w in waves)
+    slowest = " and ".join(f"{w['slowest_min']:.1f}" for w in waves)
+    return (f"{len(solved_points())} runs on {execution['workers']} workers "
+            f"is {word} waves, {sizes}; the wall clock follows the slowest "
+            f"member of each wave ({slowest} minutes), never the "
+            f"{core_min:,.0f} core-minute sum.")
 
 
 # ---------------------------------------------------------------------------
@@ -1129,6 +1165,11 @@ class MotorThermalAct(DemoAct):
             execution["workers"],
             f"{sum(per_run) / len(per_run):.1f} "
             f"(measured, {min(per_run):.1f} to {max(per_run):.1f})",
+            # HER 06:10Z CONVENTION (mechanical adaptation by the JF1 lane
+            # when the shared table grew its total column; flagged to this
+            # act's lane): the PLAIN SUM of the measured per-run
+            # core-minutes, never a wall figure and never divided.
+            f"{sum(per_run):.0f}",
             f"{execution['busy_wall_s'] / 60.0:.0f} minutes",
             table_id="motor_thermal_compute")
 
@@ -1185,44 +1226,40 @@ class MotorThermalAct(DemoAct):
         return {
             "restatement": [
                 ("researcher", [
-                    "The physics here is steady conjugate heat transfer: the "
-                    "heat is born in the motor core, crosses the housing "
-                    "wall, and leaves in the duct air.",
-                    f"The closure is {model}, a two equation model resolved "
-                    f"to the wall, so the heat transfer at the housing "
-                    f"surface is computed rather than taken from a "
-                    f"correlation.",
-                    "Its known limit: turbulent transport is modelled, so "
-                    "the heat the air carries away carries that model's "
-                    "error.",
+                    "Steady conjugate heat transfer: heat is born in the "
+                    "core, crosses the housing wall, leaves in the duct air.",
+                    f"Closure: {model}, resolved to the wall, so the surface "
+                    f"heat transfer is computed, not correlated.",
+                    "Known limit: turbulent transport is modelled, and the "
+                    "air side carries that model's error.",
+                ]),
+                ("engineer", [
+                    f"Predicted wall clock: "
+                    f"{scripted_estimate():.0f} core-minutes over "
+                    f"{execution['workers']} workers, about "
+                    f"{scripted_estimate() / execution['workers']:.0f} "
+                    f"minutes.",
                 ]),
             ],
             "assumption": [
                 ("numericist", [
-                    f"The request fixes the body, the "
-                    f"{powers[0]} to {powers[-1]} watt power range, the "
-                    f"{speeds[0]} to {speeds[-1]} metre per second airspeed "
-                    f"range, and the {limit:.0f} C limit.",
-                    "This lab supplies the rest: the incoming air state and "
-                    "the air properties. The table above names each with its "
-                    "value and unit.",
+                    f"The request fixes the body, {powers[0]} to "
+                    f"{powers[-1]} W, {speeds[0]} to {speeds[-1]} m/s, and "
+                    f"the {limit:.0f} C limit.",
+                    "This lab supplies the incoming air state and the air "
+                    "properties; the table above names each.",
                 ]),
             ],
             "solving": [
                 ("engineer", [
                     f"The {len(points)} operating points are independent, so "
                     f"the lab solves them in parallel.",
-                    f"{execution['workers']} solver processes at the peak, "
-                    f"measured from the launch records.",
+                    f"{execution['workers']} workers at the peak, from the "
+                    f"launch records.",
                 ]),
             ],
             "results": [
-                ("engineer", [
-                    f"Slowest member: {execution['slowest_label']}, "
-                    f"{execution['slowest_wall_s'] / 60.0:.1f} minutes; the "
-                    f"wall time follows it, never the "
-                    f"{core_min:,.0f} core-minute sum.",
-                ]),
+                ("engineer", [wave_sentence()]),
             ],
         }
 
