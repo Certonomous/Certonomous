@@ -330,6 +330,10 @@
   /* Report figures: equal columns, one shared gutter, borders that line up
      with the result rows above — no stitched-together look. */
   .memo-figs { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; margin: 10px 0 6px; }
+  /* The uncertainty-certificate slot: present on every report, honest when
+     empty. A dashed border says "a place for a document", the sentence inside
+     says whether one exists; it never draws a document that does not. */
+  .memo-cert-slot { border: 1px dashed var(--line-2); padding: 10px 12px; margin: 6px 0 10px; font: 11px var(--mono); letter-spacing: .03em; color: var(--muted); }
   .memo-figs img { width: 100%; display: block; border: 1px solid var(--line-2); background: #040506; cursor: pointer; }
 
   /* workspace */
@@ -1879,6 +1883,22 @@ function setStageBanner(p) {
   // An empty banner is a stage DECLARED to have no word (the feasibility beat
   // has none of hers). It hides because it is empty, not because it is suspect.
   if (!text) { el.hidden = true; el.textContent = ''; return; }
+  // THE MIDDLE SCREEN NEVER REPEATS THE TOP-RIGHT STATUS. Sanaa, 2026-09-02,
+  // verbatim: "i do NOT WANT TO SEE things like planning or report on the main
+  // middle screen, we already have these LAB ONLINE MISSION COMPLETE HUMAN
+  // TOUCHPOINTS · 1 PACE · READING at the top right theres no need for it to
+  // also be in the middle screen it looks really weird." The masthead's own
+  // vocabulary is STAGE_STATUS plus its fixed states; a banner whose whole
+  // text is one of those words is the SAME status rendered twice, so it hides
+  // here and the top right keeps it. The live solving counter ("Solving 5
+  // operating points in parallel, iteration N of M") is not in that
+  // vocabulary and stays, because it carries information the chips do not.
+  const dupes = new Set([...Object.values(STAGE_STATUS),
+    'LAB ONLINE', 'MISSION COMPLETE', 'MISSION ENDED', 'FORMING THE TEAM',
+    'READING', 'FAST']);
+  if (dupes.has(text.trim().toUpperCase())) {
+    el.hidden = true; el.textContent = ''; return;
+  }
   el.hidden = false; el.textContent = text;
 }
 // A solve frame is one sample of a moving curve, not a row of narration. It
@@ -1935,6 +1955,22 @@ function sweepMark() {
 }
 function solveBegin(p) {
   state.solveSeries = null;
+  // AN ACT THAT DECLARES ITS OWN MONITOR PANELS GETS THEM, VERBATIM. The
+  // strip below this branch is hard-wired to a force solve — "Lift
+  // coefficient / Pressure residual" — and Sanaa caught it rendering those
+  // words, empty, over the shock benchmark: "there is no lift here". An act
+  // now declares its panels on `solve.begin` (`monitor_panels`: title,
+  // axis labels, series names, note) and feeds them per frame through the
+  // `monitors` dict and the `front` payload; this page composes the strip
+  // FROM THE DECLARATION and types no row label of its own, so another act's
+  // vocabulary cannot reach a screen it does not belong to. The contract is
+  // documented at dmr_act._stage_solving, which publishes it.
+  if (p && Array.isArray(p.monitor_panels) && p.monitor_panels.length) {
+    gsweepReset(p);
+    setHidden('traceBox', true);
+    return;
+  }
+  state.gsweep = null;
   // An act that names its points gets the small-multiple strip. One that does
   // not keeps the single objective trace it always had — the adjoint and race
   // paths publish no labels and must not lose their chart to this.
@@ -1957,6 +1993,7 @@ function frameResidual(r) {
   return best;
 }
 function solveFrame(p) {
+  if (state.gsweep) { gsweepFrame(p); return; }
   const cl = p && p.coefficients ? p.coefficients.Cl : null;
   if (cl == null || p.iteration == null) return;
   const sw = state.sweep;
@@ -1976,7 +2013,11 @@ function solveFrame(p) {
               x_label: 'Iteration', y_label: 'Lift coefficient',
               title: p.label });
 }
-function solveEnd(p) { state.solveSeries = null; if (state.sweep) drawSweep(); }
+function solveEnd(p) {
+  state.solveSeries = null;
+  if (state.gsweep) drawGSweep();
+  if (state.sweep) drawSweep();
+}
 
 // Ten cells, one canvas, one pass. Lift on the top row, residual beneath, every
 // column one sweep point, all sharing an axis within their row so the columns
@@ -2059,6 +2100,171 @@ function drawSweep() {
   ctx.fillText(String(fmt(yLo)), ML - 5, MT + cellH);
   ctx.fillText('1e' + Math.round(rHi), ML - 5, MT + cellH + RGAP + 7);
   ctx.fillText('1e' + Math.round(rLo), ML - 5, MT + cellH + RGAP + cellH);
+}
+
+// ============ THE ACT-GENERIC MONITOR STRIP (declaration-driven) ============
+//
+// SANAA, 2026-09-02, on the shock benchmark's filmed screen: the monitor
+// boxes were the jet act's — "Lift coefficient / Pressure residual, 0
+// iterations", empty — "there is no lift here." The strip above is hard-wired
+// to a force solve; this one renders whatever the act DECLARES on
+// `solve.begin.monitor_panels` and feeds per frame, and types not one row
+// label of its own. Layout: one ROW per declared panel, one COLUMN per point
+// label, every cell in a row on that row's shared scales so columns compare.
+//
+// Two data shapes per panel, both the act's:
+//   * series values in the frame's `monitors` dict, keyed by the declared
+//     series names, plotted against the frame's own iteration;
+//   * a `front` payload (located points + an exact line + nothing invented
+//     between locates), taken by the panel whose series the `monitors` dict
+//     does not carry. Series[0] draws the located points, series[1] the line.
+function gsweepReset(p) {
+  const labels = (p.labels || []).map(String);
+  state.sweep = null;
+  state.gsweep = {
+    panels: p.monitor_panels.map(pn => ({
+      title: String(pn.title || ''), x_label: String(pn.x_label || ''),
+      y_label: String(pn.y_label || ''),
+      series: (pn.series || []).map(String), note: String(pn.note || ''),
+    })),
+    labels: labels.length ? labels : [''],
+    cells: p.monitor_panels.map(() =>
+      (labels.length ? labels : ['']).map(() => ({ x: [], ys: {}, front: null }))),
+    dirty: false, tick: null,
+  };
+  setHidden('sweepBox', false);
+  // The declared notes are the act's own captions for its panels; the note
+  // row under the strip is the one place they fit without covering a chart.
+  $('sweepNote').textContent =
+    state.gsweep.panels.map(pn => pn.note).filter(Boolean).join('   ');
+  drawGSweep();
+}
+function gsweepMark() {
+  const g = state.gsweep; if (!g || g.tick) return;
+  g.tick = requestAnimationFrame(() => { g.tick = null; drawGSweep(); });
+}
+function gsweepFrame(p) {
+  const g = state.gsweep; if (!g || !p) return;
+  let col = g.labels.indexOf(String(p.label)); if (col < 0) col = 0;
+  const mon = p.monitors || {};
+  g.panels.forEach((pn, pi) => {
+    const cell = g.cells[pi][col];
+    const named = pn.series.filter(sn => mon[sn] !== undefined);
+    if (named.length) {
+      cell.x.push(+p.iteration);
+      for (const sn of pn.series) {
+        (cell.ys[sn] = cell.ys[sn] || []).push(
+          mon[sn] !== undefined && isFinite(+mon[sn]) ? +mon[sn] : null);
+      }
+    } else if (p.front) {
+      // Latest wins: the located list only grows and the exact line only
+      // extends, both composed by the act from its own records.
+      cell.front = p.front;
+    }
+  });
+  gsweepMark();
+}
+function drawGSweep() {
+  const g = state.gsweep, cv = $('sweep'); if (!g || !cv) return;
+  const dpr = window.devicePixelRatio || 1, W = cv.clientWidth, H = cv.clientHeight;
+  if (!W || !H) return;
+  cv.width = W * dpr; cv.height = H * dpr;
+  const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+  const P = g.panels.length || 1, n = g.labels.length || 1;
+  const ML = 46, MR = 8, MT = 16, MB = 14, GAP = 12, RGAP = 26;
+  const cellW = (W - ML - MR - GAP * (n - 1)) / n;
+  const cellH = (H - MT - MB - RGAP * (P - 1)) / P;
+  if (cellW <= 4 || cellH <= 4) return;
+  const COLORS = ['rgba(120,200,255,.95)', 'rgba(255,180,110,.9)',
+                  'rgba(150,235,170,.9)', 'rgba(230,150,235,.9)'];
+  ctx.font = '9px ui-monospace,monospace';
+  // Column titles: the act's own point labels, once, across the top.
+  ctx.fillStyle = 'rgba(210,228,245,.9)'; ctx.textAlign = 'left';
+  for (let c = 0; c < n; c++) {
+    fillTextSub(ctx, g.labels[c], ML + c * (cellW + GAP), MT - 5);
+  }
+  g.panels.forEach((pn, pi) => {
+    const y0 = MT + pi * (cellH + RGAP);
+    // The row's own y-axis word, rotated, exactly as declared.
+    ctx.save(); ctx.translate(11, y0 + cellH / 2); ctx.rotate(-Math.PI / 2);
+    ctx.fillStyle = 'rgba(190,210,230,.75)'; ctx.textAlign = 'center';
+    fillTextSub(ctx, pn.y_label || pn.title, 0, 0); ctx.restore();
+    // Row scales, shared across columns.
+    const cells = g.cells[pi];
+    const isFront = cells.some(c => c.front);
+    let xMax = 1, vals = [];
+    for (const c of cells) {
+      if (c.front) {
+        for (const [t, x] of (c.front.located || [])) { xMax = Math.max(xMax, t); vals.push(x); }
+        for (const [t, x] of (c.front.exact || [])) { xMax = Math.max(xMax, t); vals.push(x); }
+      } else if (c.x.length) {
+        xMax = Math.max(xMax, ...c.x);
+        for (const sn of pn.series) for (const v of (c.ys[sn] || [])) if (v != null) vals.push(v);
+      }
+    }
+    const lo0 = vals.length ? Math.min(...vals) : 0, hi0 = vals.length ? Math.max(...vals) : 1;
+    const pad = ((hi0 - lo0) || Math.abs(hi0) || 1) * 0.12;
+    const lo = lo0 - pad, hi = hi0 + pad;
+    const fmt = v => Math.abs(v) >= 100 ? v.toFixed(0) : +v.toPrecision(3);
+    ctx.textAlign = 'right'; ctx.fillStyle = 'rgba(190,210,230,.7)';
+    ctx.fillText(String(fmt(hi0)), ML - 5, y0 + 7);
+    ctx.fillText(String(fmt(lo0)), ML - 5, y0 + cellH);
+    // Series key, in the row's top margin after the row's first column title.
+    let kx = ML;
+    const ky = y0 + cellH + (pi === P - 1 ? MB - 3 : RGAP - 7);
+    ctx.textAlign = 'left';
+    pn.series.forEach((sn, si) => {
+      ctx.fillStyle = COLORS[si % COLORS.length];
+      fillTextSub(ctx, sn, kx, ky);
+      kx += ctx.measureText(sn).width + 16;
+    });
+    if (pn.x_label) {
+      ctx.fillStyle = 'rgba(160,185,210,.7)'; ctx.textAlign = 'right';
+      fillTextSub(ctx, pn.x_label, W - MR, ky);
+    }
+    for (let c = 0; c < n; c++) {
+      const x0 = ML + c * (cellW + GAP), cell = cells[c];
+      ctx.strokeStyle = 'rgba(140,170,200,.28)'; ctx.lineWidth = 1;
+      ctx.strokeRect(x0, y0, cellW, cellH);
+      const px = v => x0 + (xMax ? v / xMax : 0) * cellW;
+      const py = v => y0 + cellH - ((v - lo) / ((hi - lo) || 1)) * cellH;
+      if (cell.front) {
+        // Located points: dots joined by a line, series[0]'s colour.
+        const loc = cell.front.located || [];
+        ctx.strokeStyle = COLORS[0]; ctx.lineWidth = 1.3; ctx.beginPath();
+        loc.forEach(([t, x], k) => { const X = px(t), Y = py(x); k ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); });
+        ctx.stroke();
+        ctx.fillStyle = COLORS[0];
+        for (const [t, x] of loc) { ctx.beginPath(); ctx.arc(px(t), py(x), 1.8, 0, 6.2832); ctx.fill(); }
+        // The exact line, series[1]'s colour, dashed so measured and exact
+        // cannot be confused.
+        const ex = cell.front.exact || [];
+        if (ex.length > 1) {
+          ctx.strokeStyle = COLORS[1]; ctx.setLineDash([4, 3]); ctx.beginPath();
+          ex.forEach(([t, x], k) => { const X = px(t), Y = py(x); k ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); });
+          ctx.stroke(); ctx.setLineDash([]);
+        }
+        continue;
+      }
+      pn.series.forEach((sn, si) => {
+        const ys = cell.ys[sn] || [];
+        ctx.strokeStyle = COLORS[si % COLORS.length]; ctx.lineWidth = 1.3;
+        let started = false, lastX = null, lastY = null;
+        ctx.beginPath();
+        for (let k = 0; k < ys.length; k++) {
+          const v = ys[k]; if (v == null || !isFinite(v)) continue;
+          const X = px(cell.x[k]), Y = py(v);
+          if (!started) { ctx.moveTo(X, Y); started = true; } else ctx.lineTo(X, Y);
+          lastX = X; lastY = Y;
+        }
+        ctx.stroke();
+        if (lastX != null) {
+          ctx.fillStyle = COLORS[si % COLORS.length];
+          ctx.beginPath(); ctx.arc(lastX, lastY, 2.2, 0, 6.2832); ctx.fill();
+        }
+      });
+    }
+  });
 }
 // A transcript table renders in both feeds with the entry styling it sits
 // among. The first event for a table_id creates the table (headers + any
@@ -2424,6 +2630,21 @@ function renderMemo(rep) {
     ? `<div class="memo-figs">${figSrc.map(pl =>
         `<a href="${esc(pl.url)}" target="_blank" rel="noopener"><img src="${esc(pl.url)}" title="${esc(pl.title||'')}" alt="${esc(pl.title||'figure')}"></a>`).join('')}</div>`
     : '';
+  // THE UNCERTAINTY-CERTIFICATE SLOT RENDERS ON EVERY REPORT, EVEN EMPTY.
+  // Sanaa, 2026-09-02 addendum, verbatim: "all report tabs should have that
+  // uncertainty certificate, even if its empty. I wont click on it, but since
+  // i have anoher demo wiht that certificate i dont want it to look like some
+  // runs have certificates and some dont itll look inconsitent in the page im
+  // going to put the videos in." A sealed certificate renders as its link
+  // (injectCertificate, unchanged); a run without one renders the SLOT with
+  // the act's own honest sentence (`certificate_state`, a required field of
+  // the demo contract), and where even that is absent, a plain statement of
+  // absence. NOTHING IS FABRICATED: the slot's empty state is a sentence
+  // saying no certificate is attached, never a document.
+  const certSlot = state.certificate ? '' :
+    `<h4>Uncertainty certificate</h4><div class="memo-cert-slot">${
+      subHTML(rep.certificate_state
+              || 'No sealed certificate is attached to this run.')}</div>`;
   $('memo').innerHTML =
     `<span class="eyebrow">Lab report</span><h3>${subHTML(rep.title||'Mission report')}</h3>`
     + figs
@@ -2431,6 +2652,7 @@ function renderMemo(rep) {
     + `<h4>Abstract</h4>${(rep.abstract||[]).map(x=>`<p>${subHTML(x)}</p>`).join('')}`
     + `<h4>Methods</h4>${list(rep.methods)}`
     + `<h4>${esc(rep.uncertainty_title || 'Uncertainty')}</h4>${list(rep.uncertainty)}`
+    + certSlot
     + `<h4>Next investigations</h4>${list(rep.next_investigations)}`;
   document.querySelector('.tab[data-view="memo"]').hidden = false;
   injectCertificate();
@@ -3105,15 +3327,16 @@ function drawGeometry() {
 //   2. the strip        `$('plots')` figure, below the stage
 //   3. the report       `renderMemo` leads with `[...rep.plots, ...state.plots]`
 //
-// (3) is the workspace column — the top right — and it is the one she kept.
-// So the fan-out to (1) is removed at the fan-out, in `addPlot`, rather than by
-// blanking an element downstream: a screen that is drawn and then hidden is a
-// screen that can come back on the next redraw.
+// (3) is the workspace column — the top right — and on 2026-09-01 it was the
+// one she kept, so the fan-out to (1) was removed in `addPlot`.
 //
-// DELIBERATELY LEFT DEFINED AND UNREFERENCED. Restoring the stage copy is then
-// one line in `addPlot` rather than a reconstruction, and nothing about this
-// call is wrong — it is surplus. `field.ready` is a different path entirely
-// (`loadField` paints the body's own facets and is untouched).
+// RESTORED 2026-09-02, HER LATER ORDER: the pressure and velocity fields
+// appear on the main screen after the solve is done, "like we had before",
+// instead of the computational mesh staying up. The one line in `addPlot`
+// is back; the strip and report copies are untouched, so a viewer who looks
+// away from the stage still finds both fields below and in the Report tab.
+// `field.ready` is a different path entirely (`loadField` paints the body's
+// own facets and is untouched).
 function showFieldImage(url, p) {
   const img = $('viewportField'); if (!img || !url) return;
   img.src = url;
@@ -3134,10 +3357,15 @@ function showFieldImage(url, p) {
 function addPlot(p) {
   const url = p.url || (p.file ? `/api/plot/${p.mission||state.mission}/${p.file}` : null);
   if (!url) return; state.plots.push({ url, title: p.title, caption: p.caption });
-  // THE FAN-OUT THAT PUT THE FIELD ON THE STAGE IS GONE. See the block above
-  // `showFieldImage` for the three surfaces one `field: true` figure reached and
-  // which one Sanaa kept. To restore the stage copy: `if (p.field)
-  // showFieldImage(url, p);` here, and nothing else.
+  // THE STAGE COPY IS RESTORED, ON SANAA'S 2026-09-02 ORDER, which supersedes
+  // her 2026-09-01 removal: "for JF1 id like the pressure field and the
+  // velocity fields to appear on the main screen after the solve is done
+  // (like we had before) instead of just having the computational mesh stay
+  // on the main screen even after the run is done." The sequencer announces
+  // the field panels LAST and velocity after pressure, so the solve closes on
+  // the flow rather than on the grid, and the act's ordering, not this page,
+  // decides which field stands.
+  if (p.field) showFieldImage(url, p);
   const img = document.createElement('img'); img.src = url; img.title = p.title || ''; img.onclick = () => window.open(url,'_blank');
   // A TITLE IN `img.title` IS A HOVER TOOLTIP AND A FILMED SCREEN HAS NO
   // MOUSE. Measured: four figures on the jet-flap act, four titles, none of
