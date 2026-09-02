@@ -64,3 +64,94 @@ stage now emits `workers: 4` — read from the record's `mpi_ranks`, never
 typed — on `solve.begin`, every `solve.frame`, and `solve.end`. The
 page-side tile wiring stays the display lane's; no act edit is needed when
 it lands.
+
+## 4. RE-FILM BATCH (Sanaa 0540Z + 0610Z) — landed vs remaining, for a successor
+
+Written 2026-09-02 under a session-kill warning. Orders: `etc/sessions/
+2026-09-02T0540Z_sanaa_jf1_adjoint_refilm_review.md` and
+`.../2026-09-02T0610Z_sanaa_motor_renders_wave_convention.md` (read both
+verbatim before resuming).
+
+### Landed in this batch's commit
+
+* **Item 5 (74% confidence): DONE.** Router `_STOP_RULE_MINUTES` + add(4.6)
+  beside `_DRAG_AT_FIXED_LIFT` (motor registered-map precedent). Measured:
+  both prompt spacings route adjoint-optimization at **0.90**; controls held
+  (bare stop clause -> general-mission; no lift constraint ->
+  shape-optimization; DMR/JF1/Ahmed unmoved). Display traced NOT separately
+  miscalibrated: control_room.html:1111 prints the score itself.
+* **Item 2 (wall-patch renders): renderer DONE, publication NOT wired.**
+  `cases/dafoam/actd_render_grid_panels.py`: geometry/mesh panels now flat
+  per-face, Surface With Edges, wall-face count asserted == 1,008 (verified
+  off the patch: 1,008 faces, ALL quads, arity histogram {'4': 1008}); her
+  caption rides the sidecars verbatim ("the solver's wall patch, 1,008
+  faces, drawn face by face."). New `--wing-frames` mode renders 20
+  face-by-face wall-patch frames (baseline, gradient-on-skin, iters
+  0,6,...,42,47 full + inboard) from `A2_shape_frames.json` + the patch's own
+  quads (1,031 points map at 1e-4 m to the BASELINE surface, 1031/1031;
+  0/1031 to the final one, so the landed polyMesh is the undeformed shape).
+  Frames + sidecars under `verification/runs/actD_runs/A2_wing_grid/
+  paraview/wing/`. Inspected: gradient and iter frames good; `wing_near_*`
+  framing still reads as a face-level closeup, widen
+  `cam.SetParallelScale(0.16 * reach)` to ~0.30 and LOOK again.
+* Cd fact base (item 4): at .6f, history baseline = **0.029620**, decomp
+  lift-matched baseline = **0.029621** (two real re-solves, 4.9e-7 apart);
+  finals agree at 0.021245. The act prints both today (results table vs
+  decomposition table); the sequencer's first solve frame prints the history
+  value, so the canonical pick must be **0.029620 (history)** unless Sanaa
+  rules otherwise.
+
+### Remaining (designs verified against the code, nothing edited yet)
+
+1. **Sync (item 1), mission act** `sdk/workflows/adjoint_optimization.py`:
+   measured on the filmed events (m-8b8899f9ba9f): 48+48 wing frames burst
+   in 3 s (`_FRAME_PACE_S` = 60 ms via CERTONOMOUS_SWEEP_PACE_MS) so the
+   page's paced reveal drains after the act ends; `workers=4` appears in ONE
+   roster.update (set_workers at :1442, cleared :1485). Fix: set_workers(
+   RANKS,...) at the gradient-grading beat (~:1203) through the end of the
+   inboard pass (~:1638); thin the shown frames to iters 0,6,...,42,47 with
+   a ~1.2 s beat so emission paces the display. Demo act already carries
+   worker_census on stage.begin (meshing/feasibility/solving = 4).
+2. **Item 2 publication:** mission `show()` (:903) currently emits canvas
+   JSON tessellations (`field.ready`/`geometry.ready` -> triangle canvas);
+   switch to `mesh.panel` payloads with the pre-rendered PNGs copied into
+   the mission out dir, url `/api/plot/<out.name>/<png>` --
+   `loadMeshPanel` (control_room.html:3029) accepts url/label/caption and
+   null counts, and sets paraviewOwned. Demo act: publish wing-frame panels
+   at the matching majors inside `ActDSequencer._stage_solving`'s schedule
+   loop (adjoint_act.py ~:1660), payload label per iteration, caption
+   verbatim. CAPTION COLLISION to flag: her wall-patch caption vs her
+   "keep exactly as is" MESH_CAPTION ("chosen for speed; ...") on mission
+   frames -- proposal: MESH_CAPTION stays the caption, wall-patch sentence
+   spoken once by the numericist; needs her eye.
+3. **Item 3 volume cut:** `scripts/render_thermal_paraview.py` mesh_panels
+   REFUSES when slice polygons != cell count (built for one-cell-thick
+   meshes; the wing sym-plane slice gives ~1,672 polys vs 38,304 cells).
+   Insert (never replace) `--slice-at FLOAT` + `--expect-slice-polys INT`;
+   sym patch holds 1,672 faces. Render `A2_wing_grid_volume_cut.png`,
+   caption verbatim "the volume mesh at the symmetry plane, wall layers
+   resolved."; declare "volume_cut" in rendered_panels and publish it from
+   an ActDSequencer._stage_meshing override (the generic `_panel` path
+   already resolves `{case}_volume_cut.png`).
+4. **Item 4 totals:** ship "Optimization total: 240.1 core-minutes, 60.0
+   minutes wall at 4 ranks." -- reconciles exactly as her 0610Z rule
+   (core-min = wall x workers; predicted wall 240.0/4 = 60.0). The
+   coordinator's "on the screen's own paced clock" reading would force a
+   fabricated 80 core-minutes and is REFUSED (ElapsedClock contract: the
+   clock override never covers the cost; rule 12). This supersedes the
+   standing "box duration not printed" directive by her newer explicit
+   template -- flag to her. Also align solve.end `core_min_measured`
+   round(...,2) -> round(...,1) (adjoint_act.py ~:1698). Mission act total
+   uses the same measured pair; COST_OPT 240.4 (run accounting) stays
+   internal, difference named. Gradient-cost table = adjoint_optimization
+   :544-548 (32.7 vs 210.2 core-min) -- reconcile wording, not numbers.
+5. **Cd canonicalization:** one helper reading history baseline; use it in
+   the decomposition table row (adjoint_act ~:1105), closing rows .8f ->
+   .6f (~:1344-1363), mission :1616 already history. Report the pick.
+6. **GPU routing TODO:** `demo_mode.gpu_routing_lines` HAS landed; replace
+   the local sentence in adjoint_act gates beat with
+   gpu_routing_lines(mechanism) where the mechanism carries THIS act's real
+   system size `_actd.ADJOINT_STATES` = **349,348** unknowns (read, never
+   typed), keeping her sentence's content.
+7. **Item 6 sentence shortening:** not started; longest offenders are the
+   mission `_narrate` lines and adjoint_act assumption/results bullets.

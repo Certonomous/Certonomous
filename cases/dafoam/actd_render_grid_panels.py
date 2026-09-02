@@ -102,13 +102,291 @@ def style(display):
     display.AmbientColor = list(FLUID)
     display.EdgeColor = list(EDGES)
     display.LineWidth = 1.0
+    # Flat per-face colour, her wing-view spec: no smooth gradient across a
+    # face may suggest geometry the face list does not hold.
+    display.Interpolation = "Flat"
+
+
+#: Sanaa's wing-view spec, verbatim (2026-09-02 ~05:40Z): every wing view in
+#: this act draws the solver's wall patch face by face. This caption rides
+#: every wall-patch panel's sidecar and payload.
+WALL_CAPTION = "the solver's wall patch, 1,008 faces, drawn face by face."
+EXPECT_WALL_FACES = 1008
+EXPECT_WALL_POINTS = 1031
+
+#: The stored per-iteration surfaces (the optimiser's own shape history) and
+#: the iterations the acts show while the solve narration runs. Stride 6 plus
+#: the last recorded major: enough frames that the wing visibly walks the
+#: optimisation IN STEP with the narration, few enough that the page's paced
+#: reveal queue cannot fall behind the script (measured: 48 frames burst in
+#: 3 s of emission took the whole reveal past the end of the act).
+SHAPE_FRAMES = Path(__file__).resolve().parents[1] / "dafoam" / "ladder-a" \
+    / "A2_shape_frames.json"
+FRAME_ITERS = (0, 6, 12, 18, 24, 30, 36, 42, 47)
+
+
+def _patch_quads(case: Path) -> tuple[list, list]:
+    """The wing patch's own 1,008 quad faces, off the polyMesh, remapped.
+
+    Returns ``(points, quads)`` where points are the stored shape-history
+    vertex order (so a frame's displacements apply by index) and quads are
+    the patch's faces re-indexed into that order. The mapping is by exact
+    coordinate match at the shape record's own 1e-6 m rounding, and every
+    one of the 1,031 patch points must map or this refuses -- a face drawn
+    on mismapped points would be a picture of a wing nobody solved.
+    """
+    import json as _json
+    import re as _re
+
+    doc = _json.loads(SHAPE_FRAMES.read_text())
+    base = doc["base_vertices"]
+    if len(base) != EXPECT_WALL_POINTS:
+        raise SystemExit(f"REFUSED: shape record holds {len(base)} points, "
+                         f"expected {EXPECT_WALL_POINTS}")
+    # Tolerance match at 1e-4 m, bucketed at 1e-3: the stored vertices are
+    # rounded to 1e-6 m and the polyMesh points are full precision, so one
+    # of the 1,031 points misses an exact 6-dp match (measured); at 1e-4 all
+    # 1,031 match the BASELINE surface and zero match the final one, which
+    # also proves the landed polyMesh holds the undeformed baseline shape.
+    from collections import defaultdict
+    buckets = defaultdict(list)
+    for i, v in enumerate(base):
+        buckets[tuple(round(c, 3) for c in v)].append(i)
+
+    def lookup_pt(c):
+        kx, ky, kz = (round(x, 3) for x in c)
+        for bx in (round(kx - 0.001, 3), kx, round(kx + 0.001, 3)):
+            for by in (round(ky - 0.001, 3), ky, round(ky + 0.001, 3)):
+                for bz in (round(kz - 0.001, 3), kz, round(kz + 0.001, 3)):
+                    for i in buckets.get((bx, by, bz), ()):
+                        v = base[i]
+                        if max(abs(v[j] - c[j]) for j in range(3)) < 1e-4:
+                            return i
+        return None
+    poly = case / "constant" / "polyMesh"
+    bnd = (poly / "boundary").read_text()
+    m = _re.search(r"wing\s*\{[^}]*nFaces\s+(\d+);[^}]*startFace\s+(\d+);",
+                   bnd)
+    n, start = int(m.group(1)), int(m.group(2))
+    if n != EXPECT_WALL_FACES:
+        raise SystemExit(f"REFUSED: wing patch holds {n} faces, the caption "
+                         f"says {EXPECT_WALL_FACES}")
+    pts_lines = (poly / "points").read_text().splitlines()
+    i = 0
+    while pts_lines[i].strip() != "(":
+        i += 1
+    coords = []
+    for line in pts_lines[i + 1:]:
+        s = line.strip()
+        if s == ")":
+            break
+        if s.startswith("("):
+            coords.append([float(x) for x in s.strip("()").split()])
+    face_lines = (poly / "faces").read_text().splitlines()
+    i = 0
+    while face_lines[i].strip() != "(":
+        i += 1
+    quads = []
+    for line in face_lines[i + 1 + start:i + 1 + start + n]:
+        s = line.strip()
+        arity, rest = s.split("(", 1)
+        if arity != "4":
+            raise SystemExit("REFUSED: a wall face is not a quad; the "
+                             "caption says quad faces")
+        idx = [int(x) for x in rest.rstrip(")").split()]
+        quad = []
+        for p in idx:
+            hit = lookup_pt(coords[p])
+            if hit is None:
+                raise SystemExit(f"REFUSED: patch point {p} at {coords[p]} "
+                                 f"is not in the stored shape history; the "
+                                 f"frames cannot be drawn on the solver's "
+                                 f"own patch")
+            quad.append(hit)
+        quads.append(quad)
+    return base, quads
+
+
+def _frame_polydata(points, quads, values):
+    """One wall-patch surface as VTK polydata, per-face scalars optional."""
+    from paraview.vtk import (vtkCellArray, vtkFloatArray, vtkPoints,
+                              vtkPolyData, vtkQuad)
+
+    vp = vtkPoints()
+    for x, y, z in points:
+        vp.InsertNextPoint(x, y, z)
+    cells = vtkCellArray()
+    for q in quads:
+        quad = vtkQuad()
+        for j, p in enumerate(q):
+            quad.GetPointIds().SetId(j, p)
+        cells.InsertNextCell(quad)
+    pd = vtkPolyData()
+    pd.SetPoints(vp)
+    pd.SetPolys(cells)
+    if values is not None:
+        arr = vtkFloatArray()
+        arr.SetName("val")
+        for v in values:
+            arr.InsertNextValue(float(v))
+        pd.GetCellData().SetScalars(arr)
+    return pd
+
+
+def render_wing_frames(case: Path) -> int:
+    """Every wing view the acts show, as face-by-face wall-patch renders.
+
+    Baseline, the gradient on the skin, and the shown iterations of the
+    optimisation walk, each twice: the whole wing and the inboard span on a
+    closer camera. Per-face CELL scalars, so the colour is flat on each face
+    by construction; edges drawn; no triangle anywhere -- the polydata is
+    built quad by quad from the patch's own face list.
+    """
+    import json as _json
+    import shutil
+    import tempfile
+
+    from paraview.simple import OpenDataFile
+
+    doc = _json.loads(SHAPE_FRAMES.read_text())
+    points, quads = _patch_quads(case)
+    out = case / "paraview" / "wing"
+    out.mkdir(parents=True, exist_ok=True)
+    tmp = Path(tempfile.mkdtemp(prefix="actd_wing_"))
+    stamp = datetime.datetime.now(datetime.timezone.utc).strftime(
+        "%Y-%m-%dT%H:%M:%SZ")
+    me = Path(__file__).resolve()
+    sha = hashlib.sha256(me.read_bytes()).hexdigest()
+
+    grad = doc["gradient"]
+    gmax = max(abs(v) for v in grad["window_mm_per_step"])
+    dlo, dhi = doc["disp_window_mm"]
+    dmax = max(abs(dlo), abs(dhi))
+    frames = {f["iter"]: f for f in doc["frames"]}
+    # The inboard viewing convention the act narrates, from the module that
+    # computes it (2.2 m of span), not retyped as a guess.
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "sdk"))
+    from workflows._a2_shape import CLOSEUP_SPAN_M
+    closeup_z = float(CLOSEUP_SPAN_M)
+
+    view = new_view()
+    cam = GetActiveCamera()
+
+    def bounds_of(pts):
+        xs = [p[0] for p in pts]; ys = [p[1] for p in pts]
+        zs = [p[2] for p in pts]
+        return min(xs), max(xs), min(ys), max(ys), min(zs), max(zs)
+
+    def one(name, pts, values, window, close):
+        from paraview.simple import (ColorBy, Delete,
+                                     GetColorTransferFunction, Render, Show)
+        from paraview.vtk.vtkIOXML import vtkXMLPolyDataWriter
+
+        pd = _frame_polydata(pts, quads, values)
+        vtp = tmp / f"{name}.vtp"
+        writer = vtkXMLPolyDataWriter()
+        writer.SetFileName(str(vtp))
+        writer.SetInputData(pd)
+        writer.Write()
+        src = OpenDataFile(str(vtp))
+        disp = Show(src, view)
+        disp.Representation = "Surface With Edges"
+        disp.EdgeColor = list(EDGES)
+        disp.LineWidth = 1.0
+        if values is not None:
+            ColorBy(disp, ("CELLS", "val"))
+            lut = GetColorTransferFunction("val")
+            lut.ApplyPreset("Cool to Warm", True)
+            lut.RescaleTransferFunction(-window, window)
+            disp.SetScalarBarVisibility(view, False)
+        else:
+            disp.DiffuseColor = [0.30, 0.36, 0.42]
+            disp.AmbientColor = [0.105, 0.126, 0.147]
+        b = bounds_of(pts)
+        if close:
+            # The inboard span on its own camera; the wing is unmoved. The
+            # frame is scaled by the CHORD, not the 2.2 m span slice: at
+            # span scale the camera sat almost on the surface and the view
+            # was a handful of faces nobody could read as a wing (looked at,
+            # not assumed).
+            cx = (b[0] + b[1]) / 2
+            cy = (b[2] + b[3]) / 2
+            cz = min(closeup_z, b[5]) / 2
+            reach = (b[1] - b[0]) * 0.75
+        else:
+            cx, cy, cz = ((b[0] + b[1]) / 2, (b[2] + b[3]) / 2,
+                          (b[4] + b[5]) / 2)
+            reach = b[5] - b[4]
+        cam.SetFocalPoint(cx, cy, cz)
+        cam.SetViewUp(0.0, 1.0, 0.0)
+        if close:
+            # The inboard camera HOLDS ITS OWN FRAME, in parallel
+            # projection: ResetCamera would re-frame the whole wing, and a
+            # perspective camera at span scale sat on the surface; both
+            # were rendered and looked at before this form.
+            view.CameraParallelProjection = 1
+            cam.SetPosition(cx - 0.30 * reach, cy + 0.85 * reach,
+                            cz + 0.60 * reach)
+            cam.SetParallelScale(0.16 * reach)
+            Render(view)
+        else:
+            view.CameraParallelProjection = 0
+            cam.SetPosition(cx - 0.9 * reach, cy + 0.65 * reach,
+                            cz + 0.55 * reach)
+            Render(view)
+            view.ResetCamera()
+            cam.Dolly(2.7)
+            Render(view)
+        png = out / f"{name}.png"
+        SaveScreenshot(str(png), view, ImageResolution=RESOLUTION)
+        ink = ink_fraction(png)
+        if ink < MIN_INK:
+            say(f"REFUSED: {png.name} reads ink {ink:.4f}")
+            raise SystemExit(2)
+        (out / f"{name}.json").write_text(_json.dumps({
+            "image": png.name, "caption": WALL_CAPTION,
+            "wall_faces": EXPECT_WALL_FACES,
+            "wall_points": EXPECT_WALL_POINTS,
+            "colour_window": None if values is None else [-window, window],
+            "source_shape_history": str(SHAPE_FRAMES),
+            "source_patch": str(case / "constant" / "polyMesh"),
+            "data_provenance": (
+                "the solver's own wall patch, quad by quad off its face "
+                "list; frame vertices are the stored shape history's, "
+                "displacements applied by index; per-face cell scalars, "
+                "flat by construction; no triangle anywhere"),
+            "script": me.name, "script_sha256": sha,
+            "paraview": "5.13.3 EGL (/opt/paraview/bin/pvbatch)",
+            "resolution": list(RESOLUTION), "theme": "dark",
+            "ink_fraction": ink, "generated_utc": stamp,
+        }, indent=1, sort_keys=True) + "\n", encoding="utf-8")
+        say(f"wing/{png.name}: ink {ink:.3f}")
+        Delete(src)
+
+    one("wing_baseline", points, None, 0.0, False)
+    one("wing_gradient", points, grad["values_mm_per_step"], gmax, False)
+    for it in FRAME_ITERS:
+        f = frames[it]
+        pts = [[b[0] + d[0], b[1] + d[1], b[2] + d[2]]
+               for b, d in zip(points, f["disp"])]
+        one(f"wing_iter_{it:02d}", pts, f["disp_n_mm"], dmax, False)
+        one(f"wing_near_{it:02d}", pts, f["disp_n_mm"], dmax, True)
+    shutil.rmtree(tmp, ignore_errors=True)
+    say(f"PASS: {2 + 2 * len(FRAME_ITERS)} wall-patch frames rendered")
+    return 0
 
 
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--case", required=True)
     ap.add_argument("--expect-cells", type=int, required=True)
+    ap.add_argument("--wing-frames", action="store_true",
+                    help="render the face-by-face wall-patch wing views "
+                         "(baseline, gradient, shown iterations) instead of "
+                         "the grid panels")
     args = ap.parse_args()
+    if args.wing_frames:
+        return render_wing_frames(Path(args.case).resolve())
     case = Path(args.case).resolve()
     out = case / "paraview"
     out.mkdir(exist_ok=True)
@@ -154,7 +432,7 @@ def main() -> int:
     me = Path(__file__).resolve()
     sha = hashlib.sha256(me.read_bytes()).hexdigest()
 
-    def save(panel: str, view) -> None:
+    def save(panel: str, view, caption: str = "") -> None:
         png = out / f"{case.name}_{panel}.png"
         SaveScreenshot(str(png), view, ImageResolution=RESOLUTION)
         ink = ink_fraction(png)
@@ -165,6 +443,7 @@ def main() -> int:
             raise SystemExit(2)
         sidecar = {
             "panel": panel,
+            "caption": caption,
             "image": png.name,
             # The two keys demo_sequencer._panel asserts on: the count the
             # reader measured off this very mesh, and the case it is of.
@@ -199,13 +478,23 @@ def main() -> int:
     # the first render read as a silhouette on the dark ground (looked at,
     # not assumed), and a geometry beat whose body cannot be seen is the
     # blank-panel failure with better ink numbers.
+    # HER WING-VIEW SPEC APPLIES TO THE GEOMETRY BEAT TOO (2026-09-02
+    # ~05:40Z): the wall patch face by face, true edges, flat per-face
+    # colour. The smooth-shaded body this replaced is recorded in this
+    # file's history.
+    wall_faces = wing.GetDataInformation().GetNumberOfCells()
+    if wall_faces != 1008:
+        say(f"REFUSED: the wall patch reads {wall_faces} faces; the caption "
+            f"says 1,008")
+        return 2
     DOMAIN = (0.30, 0.36, 0.42)
     disp = Show(wing, view)
-    disp.Representation = "Surface"
+    disp.Representation = "Surface With Edges"
     disp.DiffuseColor = list(DOMAIN)
     disp.AmbientColor = [c * 0.35 for c in DOMAIN]
-    disp.Specular = 0.5
-    disp.SpecularPower = 40.0
+    disp.EdgeColor = list(EDGES)
+    disp.LineWidth = 1.0
+    disp.Interpolation = "Flat"
     b = wing.GetDataInformation().GetBounds()
     cx, cy, cz = ((b[0] + b[1]) / 2, (b[2] + b[3]) / 2, (b[4] + b[5]) / 2)
     span = b[5] - b[4]
@@ -217,7 +506,7 @@ def main() -> int:
     view.ResetCamera()
     cam.Dolly(2.7)
     Render(view)
-    save("geometry", view)
+    save("geometry", view, caption=WALL_CAPTION)
     Hide(wing, view)
 
     # -- mesh: the wing's skin as the volume grid holds it ------------------
@@ -236,7 +525,7 @@ def main() -> int:
     view.ResetCamera()
     cam.Dolly(2.7)
     Render(view)
-    save("mesh", view)
+    save("mesh", view, caption=WALL_CAPTION)
     Hide(wing, view)
 
     # -- mesh_zoom: the symmetry-plane section, closed on the wall layers ---

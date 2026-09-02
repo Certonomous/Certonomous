@@ -201,6 +201,16 @@ _DRAG_AT_FIXED_LIFT = re.compile(
     r"\bdrag\b[^.?!]{0,60}"
     r"(?:\b(?:fixed|held|constant|matched|same)\s+lift\b"
     r"|\blift\s+(?:held|fixed|constant|matched)\b)", re.I)
+# The registered request's SECOND clause: an explicit stop rule in minutes
+# ("Stop after 20 mins"). Scored beside the objective-and-constraint match,
+# on the motor lane's registered-map precedent (its three-clause recognizer,
+# weight 4.6, measured 0.91 on the registered motor prompt): a prompt that
+# states BOTH the constrained-drag objective and its own clock box is the
+# registered request for the landed fixed-lift optimisation, and nothing
+# else this router serves answers it. Narrow on purpose: a bare deadline
+# ("in 20 minutes") does not carry the word "stop" and does not move.
+_STOP_RULE_MINUTES = re.compile(
+    r"\bstop\b[^.?!]{0,30}\b\d+\s*min(?:ute)?s?\b", re.I)
 
 # Optimising lift-to-drag for an aircraft against mission requirements is a
 # distinct beat from the OpenFOAM shape sweep: it searches a wing design space.
@@ -852,6 +862,19 @@ def classify(request: str) -> Route:
         add(ADJOINT_OPTIMIZATION, 2.0,
             "asks for drag minimised with lift held fixed, which this lab "
             "answers with the verified gradient")
+        # THE REGISTERED-REQUEST SHAPE, SCORED BESIDE THE MATCH ABOVE rather
+        # than over it (the 106da39f insertion discipline; the motor lane's
+        # registered-map recognizer is the precedent and 4.6 is its measured
+        # weight). Traced 2026-09-02 for Sanaa's "why 74%": the objective
+        # clause alone scored 2.0 while "minimize" fed the generic
+        # shape-optimization score 0.7, so the act's own registered prompt
+        # read 74 per cent on camera. With the stop clause it reads 0.90.
+        # The display is not separately miscalibrated: the page prints the
+        # score itself (control_room.html renders r.confidence verbatim).
+        if _STOP_RULE_MINUTES.search(text):
+            add(ADJOINT_OPTIMIZATION, 4.6,
+                "states the registered request's own stop rule beside the "
+                "constrained objective, which no other route answers")
     # --- optimization ---
     if _OPTIMIZE.search(text):
         add(SHAPE_OPTIMIZATION, 0.7, "asks for an objective to be improved")

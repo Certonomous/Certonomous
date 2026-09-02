@@ -1,0 +1,23 @@
+{
+ "caption": "the solver's wall patch, 1,008 faces, drawn face by face.",
+ "colour_window": [
+  -309.21,
+  309.21
+ ],
+ "data_provenance": "the solver's own wall patch, quad by quad off its face list; frame vertices are the stored shape history's, displacements applied by index; per-face cell scalars, flat by construction; no triangle anywhere",
+ "generated_utc": "2026-09-02T04:52:00Z",
+ "image": "wing_iter_18.png",
+ "ink_fraction": 0.1504425989145658,
+ "paraview": "5.13.3 EGL (/opt/paraview/bin/pvbatch)",
+ "resolution": [
+  2560,
+  714
+ ],
+ "script": "actd_render_grid_panels.py",
+ "script_sha256": "92486b274ed3e15136f16aa323187fbdb3a9395a8c2b34087a29d49f1907d3f4",
+ "source_patch": "/home/ubuntu/Certonomous/verification/runs/actD_runs/A2_wing_grid/constant/polyMesh",
+ "source_shape_history": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+ "theme": "dark",
+ "wall_faces": 1008,
+ "wall_points": 1031
+}
