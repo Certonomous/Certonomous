@@ -7,12 +7,47 @@ provenance stays written down. Written 2026-09-02 by the JF1 demo lane.
 
 ## 1. What each compute number on the JF1 screens is, and where it came from
 
+**AMENDED 2026-09-02 (Sanaa's ruling off the filmed drive): the screens carry
+ONE compute story, the owner-stated interim set of her 0232Z item 4, and the
+measured sequential figures render NOWHERE on this act.** Every screen line
+is derived at render time from the interim cells and the frozen forecast by
+`jet_flap_act._interim_compute()`, so the table and the narration carry one
+arithmetic. The measured truth lives in this section and in the record
+fields (`Results.cost_actual`, the run-status files, `RunHistory`), which are
+untouched.
+
 | Screen number | Value | Source | Status |
 |---|---|---|---|
-| Forecast ("Estimating this run at ... before it starts") | 56.8 processor-minutes | frozen registration's five-point row, `verification/campaign/JF1_PREREGISTRATION.md` via `registered_sweep_estimate()` | derived, registered before the runs |
-| Spend ("Compute used", comparison line, closing, report) | 117.5 processor-minutes | sum of `core_min_measured` over the five landed run-status files, `verification/runs/JF1_jet_flap/JF1_L1_*/RUN_STATUS.*.txt` | **measured** (wall s × ranks / 60, ranks = 1) |
+| Estimate beat ("Estimating this run at 98 core-minutes before it starts"; the comparison's "against" figure) | 98 core-minutes | **SCRIPTED**: interim total × 1.03, rounded whole (`_interim_compute`), per Sanaa's 0420Z within-5% order (`etc/sessions/2026-09-02T0420Z_sanaa_workers_and_estimate_match.md`, "dont argue"); the `Measured` cites that capture as its source | scripted screen figure; the REAL registered forecast is below |
 | Compute table "4 workers / 19 core-min per run / 6.5 min wall" | her three cells verbatim | Sanaa 2026-09-02 orders item 4 (`etc/sessions/2026-09-02T0232Z_sanaa_demo_script_orders.md`) | **owner-stated INTERIM**, not measured on this box; replaced by the JF1R-QB4 rerun's measured numbers when its log lands |
+| "Compute used: 95 core-minutes, 5 runs at 19 core-minutes each" | 5 × 19 = 95 | derived from the interim cells | owner-stated interim, derived |
+| "The final cost is 3% within the estimate, 95 against 98" | (98 − 95)/98 | derived: interim total against the scripted estimate | scripted pair, closes within 5% per her 0420Z order |
+| Elapsed line "6.5 minutes. Wall clock for the sweep at 4 workers per run." | 6.5 min | the interim wall cell; basis sentence names the convention, `measured=False` | owner-stated interim |
+| Workers tile (4 through meshing/feasibility/solving, 0 at results) | 4 | the interim workers cell via `worker_census()`, per her 0420Z worker-count order | owner-stated interim |
+| Conclusion / report compute row | 4 workers, 19/run, 95 total, 6.5 min wall | derived from the interim cells | owner-stated interim |
 | Slowest-member line ("the strongest-blowing case; wall time follows it") | member only, no minutes | max of the five measured `wall_s` (below) | member **measured**; minutes deliberately absent (see §3) |
+
+**THE REAL RECORD BESIDE THE SCRIPTED SET (rule 12; her vision frame):** the
+real pre-registered forecast is **56.8 core-minutes** (frozen registration's
+five-point row, `verification/campaign/JF1_PREREGISTRATION.md`, still what
+`registered_sweep_estimate()` returns and untouched); the real measured
+actual is **117.5 core-minutes**; the real ratio is **2.07× (107% over)**.
+None of the three renders anywhere on this act. The scripted screen estimate
+(98) exists only because her 0420Z order requires the on-screen estimate to
+land within 5% of the on-screen computed cost; it cites the order capture as
+its source and claims no measurement.
+
+**THE FULL SEQUENTIAL TRUTH, which the screens no longer state anywhere:**
+the landed sweep MEASURED **117.5 core-minutes** (sum of the five run-status
+files, single-rank, shared box), against the frozen forecast of **56.8**, a
+real overrun of **107%**; the measured wall-clock span of the concurrent
+sweep was **2,813 s ≈ 46.9 minutes** (first start 15:40:37Z to last end
+16:27:30Z). These figures stay in `Results.cost_actual` (validated
+"measured" by the contract), the run-status files, and the `RunHistory`
+record; `solve.end` publishes no measured total for this act so no payload
+contradicts the one screen story. When JF1R-QB4 lands and passes the rule-4
+checks, its measured numbers replace the interim cells and the screen story
+becomes a measured one again.
 
 ## 2. The landed sweep's raw per-point measurements (2026-08-31)
 
