@@ -277,9 +277,10 @@ def render_wing_frames(case: Path) -> int:
         zs = [p[2] for p in pts]
         return min(xs), max(xs), min(ys), max(ys), min(zs), max(zs)
 
-    def one(name, pts, values, window, close):
+    def one(name, pts, values, window, close, bar_title=None, caption=None):
         from paraview.simple import (ColorBy, Delete,
-                                     GetColorTransferFunction, Render, Show)
+                                     GetColorTransferFunction, GetScalarBar,
+                                     Render, Show)
         from paraview.vtk.vtkIOXML import vtkXMLPolyDataWriter
 
         pd = _frame_polydata(pts, quads, values)
@@ -298,7 +299,17 @@ def render_wing_frames(case: Path) -> int:
             lut = GetColorTransferFunction("val")
             lut.ApplyPreset("Cool to Warm", True)
             lut.RescaleTransferFunction(-window, window)
-            disp.SetScalarBarVisibility(view, False)
+            # THE MILLIMETRE SCALE RENDERS BESIDE EVERY COLOURED VIEW
+            # (Sanaa 1100Z: "a field-coloured surface with no scale is the
+            # one thing left that could read as decoration"). The bar was
+            # explicitly off; each coloured call now names its quantity and
+            # the bar carries it.
+            bar = GetScalarBar(lut, view)
+            bar.Title = bar_title or "outward normal motion (mm)"
+            bar.ComponentTitle = ""
+            bar.TitleColor = [0.85, 0.88, 0.92]
+            bar.LabelColor = [0.85, 0.88, 0.92]
+            disp.SetScalarBarVisibility(view, True)
         else:
             disp.DiffuseColor = [0.30, 0.36, 0.42]
             disp.AmbientColor = [0.105, 0.126, 0.147]
@@ -320,35 +331,49 @@ def render_wing_frames(case: Path) -> int:
         cam.SetFocalPoint(cx, cy, cz)
         cam.SetViewUp(0.0, 1.0, 0.0)
         if close:
-            # The inboard camera HOLDS ITS OWN FRAME, in parallel
-            # projection: ResetCamera would re-frame the whole wing, and a
-            # perspective camera at span scale sat on the surface; both
-            # were rendered and looked at before this form. The parallel
-            # scale was 0.16 * reach and the frame read as a face-level
-            # closeup nobody could read as an inboard span (looked at, not
-            # assumed, 2026-09-02); at 0.30 to 0.40 the leading edge read
-            # but the root trailing edge left the frame's bottom, so the
-            # focal point is also shifted along the SCREEN-DOWN direction
-            # (the view-plane projection of -Y for this eye) to recentre
-            # the section. Settled at scale 0.46 with a 0.22 * reach shift:
-            # the leading edge, the face rows and the trailing-edge
-            # silhouette all read in-frame (each candidate was rendered and
-            # looked at before this pair was kept).
+            # THE CLOSE CAMERA IS FITTED, NOT TUNED (Sanaa 1100Z: "The
+            # inboard zoom crops the surface at the frame edge ... Pull the
+            # camera back a touch so the patch sits inside the frame --
+            # cropped geometry reads as a viewport bug"). Three rounds of
+            # hand-picked parallel scales (0.16, 0.30 to 0.46, 0.60) each
+            # still left surface crossing a frame edge under this oblique
+            # eye, because the projected extent depends on the projection
+            # and not on any one world span. So the frame is now COMPUTED:
+            # every vertex of this frame's own surface is projected onto
+            # the view plane's right/up axes, the focal point is the centre
+            # of that footprint and the parallel scale is the half-extent
+            # that contains all of it plus a 6 per cent margin. The whole
+            # patch sits inside the frame by construction, at the same
+            # oblique angle, in parallel projection, and every frame was
+            # still rendered and looked at.
             view.CameraParallelProjection = 1
             d = (-0.30, 0.85, 0.60)
             dn = (sum(c * c for c in d)) ** 0.5
             d = tuple(c / dn for c in d)
-            # screen-up = world +Y minus its component along the view axis
+            # screen-up = world +Y minus its component along the view axis;
+            # screen-right = up x view-axis (both unit, orthogonal).
             uy = (-d[0] * d[1], 1.0 - d[1] * d[1], -d[1] * d[2])
             un = (sum(c * c for c in uy)) ** 0.5
             uy = tuple(c / un for c in uy)
-            shift = 0.22 * reach
-            cx, cy, cz = (cx - shift * uy[0], cy - shift * uy[1],
-                          cz - shift * uy[2])
-            cam.SetFocalPoint(cx, cy, cz)
-            cam.SetPosition(cx - 0.30 * reach, cy + 0.85 * reach,
-                            cz + 0.60 * reach)
-            cam.SetParallelScale(0.46 * reach)
+            rx = (uy[1] * d[2] - uy[2] * d[1],
+                  uy[2] * d[0] - uy[0] * d[2],
+                  uy[0] * d[1] - uy[1] * d[0])
+            sr = [sum((p[i] - (cx, cy, cz)[i]) * rx[i] for i in range(3))
+                  for p in pts]
+            su = [sum((p[i] - (cx, cy, cz)[i]) * uy[i] for i in range(3))
+                  for p in pts]
+            mid_r, mid_u = ((max(sr) + min(sr)) / 2, (max(su) + min(su)) / 2)
+            half_r, half_u = ((max(sr) - min(sr)) / 2,
+                              (max(su) - min(su)) / 2)
+            aspect = RESOLUTION[0] / RESOLUTION[1]
+            scale = max(half_u, half_r / aspect) * 1.06
+            fx, fy, fz = (cx + mid_r * rx[0] + mid_u * uy[0],
+                          cy + mid_r * rx[1] + mid_u * uy[1],
+                          cz + mid_r * rx[2] + mid_u * uy[2])
+            cam.SetFocalPoint(fx, fy, fz)
+            cam.SetPosition(fx + 2.0 * reach * d[0], fy + 2.0 * reach * d[1],
+                            fz + 2.0 * reach * d[2])
+            cam.SetParallelScale(scale)
             Render(view)
         else:
             view.CameraParallelProjection = 0
@@ -365,7 +390,7 @@ def render_wing_frames(case: Path) -> int:
             say(f"REFUSED: {png.name} reads ink {ink:.4f}")
             raise SystemExit(2)
         (out / f"{name}.json").write_text(_json.dumps({
-            "image": png.name, "caption": WALL_CAPTION,
+            "image": png.name, "caption": caption or WALL_CAPTION,
             "wall_faces": EXPECT_WALL_FACES,
             "wall_points": EXPECT_WALL_POINTS,
             "colour_window": None if values is None else [-window, window],
@@ -384,14 +409,24 @@ def render_wing_frames(case: Path) -> int:
         say(f"wing/{png.name}: ink {ink:.3f}")
         Delete(src)
 
+    # Bar titles name each frame's own coloured quantity (Sanaa 1100Z): the
+    # gradient frame's colour is millimetres of skin motion PER UNIT STEP,
+    # the walk frames' colour is the outward normal motion in millimetres.
+    # The inboard zoom's caption names the quantity too, because that view
+    # is all warm tones and a viewer cannot infer it from contrast (her
+    # words); the sentence is her wall-patch caption plus the colour clause.
+    NEAR_CAPTION = WALL_CAPTION + " Colour: outward normal motion, mm."
     one("wing_baseline", points, None, 0.0, False)
-    one("wing_gradient", points, grad["values_mm_per_step"], gmax, False)
+    one("wing_gradient", points, grad["values_mm_per_step"], gmax, False,
+        bar_title="descent direction (mm per unit step)")
     for it in FRAME_ITERS:
         f = frames[it]
         pts = [[b[0] + d[0], b[1] + d[1], b[2] + d[2]]
                for b, d in zip(points, f["disp"])]
-        one(f"wing_iter_{it:02d}", pts, f["disp_n_mm"], dmax, False)
-        one(f"wing_near_{it:02d}", pts, f["disp_n_mm"], dmax, True)
+        one(f"wing_iter_{it:02d}", pts, f["disp_n_mm"], dmax, False,
+            bar_title="outward normal motion (mm)")
+        one(f"wing_near_{it:02d}", pts, f["disp_n_mm"], dmax, True,
+            bar_title="outward normal motion (mm)", caption=NEAR_CAPTION)
     shutil.rmtree(tmp, ignore_errors=True)
     say(f"PASS: {2 + 2 * len(FRAME_ITERS)} wall-patch frames rendered")
     return 0
