@@ -69,6 +69,29 @@ ORDER_QUANTITY = "Q4"         # core volume-averaged T; section 3
 # changing.  Applied to the FINE value of Q1, on dT.
 BAND_Q1 = (46.0, 56.0)
 
+# AMENDMENT v1.1, 2026-09-02 -- REPAIR R4, BAND LIMB ONLY.
+#
+# GRANTED AND WIDENED: VERIFICATION_CHARTER.md v1.38 section 2d.7, commit
+# 3dad5bae.  THE ROLLUP-EXCLUSION LIMB OF R4 WAS REFUSED AND IS NOT IMPLEMENTED
+# HERE; see the note in main().
+#
+# WHO IS REGISTERED TO RECEIVE Q4's BAND, QUOTED FROM THE FROZEN section 3 ROLE
+# TABLE: Q1 at :452 "reported; receives Q4's band", Q3 at :453 "receives Q4's
+# band", Q2 at :454 "receives Q4's band".  THREE, AND ONLY THREE.
+#   * Q6 at :455 -- "volume-averaged T | housing | reported; carried because
+#     section 0.3 measured it and it costs nothing".  NO BAND.
+#   * Q4 at :450 -- "PRIMARY ORDER QUANTITY -- G-ORDER and the GCI are computed
+#     on this and on nothing else".  NO FINE-VALUE BAND.
+# The frozen code passed BAND_Q1 to grade_ladder for ALL FIVE at one line, so the
+# UNREGISTERED BAND REACHED TWO QUANTITIES, not the one the petition reported.
+# Repairing only Q6 would leave half the defect standing while reporting it
+# repaired, which is why the ruling widened the grant.
+#
+# Q4 IS NOT LEFT UNGATED BY THIS.  Its registered gate is G-ORDER on p(Q4)
+# (:450, :834), which REPAIR R3 makes reachable in the same amendment.  What Q4
+# never had was a registered FINE-VALUE band.
+BAND_TRANSFER_REGISTERED = ("Q1", "Q3", "Q2")
+
 # G-CONV, section 5.3.  `h` carries Sanaa's tightened 1e-9; the rest 1e-8.
 RESID_TOL = {"h": 1.0e-9, "Uy": 1.0e-8, "Uz": 1.0e-8,
              "p_rgh": 1.0e-8, "k": 1.0e-8, "omega": 1.0e-8}
@@ -577,6 +600,53 @@ def plant_control_for(qname, level, series_path_fn):
 # DIRECTION: RESTRICTIVE.  This can only ADD a GATE FAIL; it can remove none.
 # The ruling records that on this data it adds none.
 # ==========================================================================
+def _apply_band_registration(row):
+    """REPAIR R4, BAND LIMB.  A band verdict on a quantity the registration never
+    gave a band to is NOT a graded verdict, and this makes that visible in the
+    row rather than leaving it to be inferred from the registration.
+
+    WHY THE ROW IS DOWNGRADED AND NOT REMOVED.  The rollup-exclusion limb of R4
+    was REFUSED (section 2d.7): "REMOVING A ROW FROM A ROLLUP CAN ONLY WEAKEN THE
+    ROLLUP OR LEAVE IT EQUAL.  IT CAN NEVER STRENGTHEN IT.  A rollup exclusion is
+    therefore ALWAYS a permissive change and requires REGISTERED TEXT, never an
+    inference."  No registered text excludes a reported-only quantity's verdict
+    from the rollup.  So the row STAYS in the rollup and its verdict is instead
+    made honest: with no registered band there is no band claim to make, and the
+    row yields NO RESULT rather than an unregistered PASS.
+
+    DIRECTION, and it is the whole safety argument: this can only turn a PASS or
+    a GATE FAIL INTO NOT A RESULT, which is the one direction rule 5 permits and
+    the direction roache_triple._seal already enforces.  It can never turn a
+    non-PASS into a PASS.
+    """
+    if row["quantity"] in BAND_TRANSFER_REGISTERED:
+        row["band_registered"] = True
+        return row
+    row["band_registered"] = False
+    note("    BAND NOT REGISTERED FOR %s (T23G2_PREREGISTRATION.md section 3 "
+         "role table transfers\n    Q4's band to Q1 :452, Q3 :453 and Q2 :454, "
+         "and to NOBODY ELSE).  The band verdict\n    printed above is "
+         "DISCLOSED, NOT GRADED: it is what an UNREGISTERED band would\n    have "
+         "said, and it licenses nothing." % row["quantity"])
+    if row["verdict"] != "NOT A RESULT":
+        note("    VERDICT DOWNGRADED %s -> NOT A RESULT: with no registered "
+             "band there is no\n    band claim to make.  The row is NOT removed "
+             "from the rung rollup -- the\n    rollup-exclusion limb of R4 was "
+             "REFUSED (section 2d.7)." % row["verdict"])
+        row["verdict"] = "NOT A RESULT"
+        row["why"] = ("no fine-value band is registered for %s (section 3 role "
+                      "table); the band printed beside this row is unregistered "
+                      "and grades nothing, so no band claim is made and the row "
+                      "yields NO RESULT.  It remains in the rung rollup: "
+                      "VERIFICATION_CHARTER.md section 2d.7 refuses rollup "
+                      "exclusion without registered text."
+                      % row["quantity"])
+    else:
+        note("    (the row was already NOT A RESULT on rule 5's earlier steps; "
+             "the unregistered\n    band changed nothing about that.)")
+    return row
+
+
 def gate_order(rows):
     """G-ORDER on the PRIMARY ORDER QUANTITY (:450), folded into the rollup.
 
@@ -723,6 +793,7 @@ def main(argv):
                               plateau_states=pl_states[qn])
         rows[qn] = row
         note(RT.format_row(row))
+        _apply_band_registration(row)
 
     # Q5 -- REPORTED, NEVER GATED (section 5.2; P4 predicts it fails again)
     v5 = [q[lv]["Q5"] for lv in LEVELS]
