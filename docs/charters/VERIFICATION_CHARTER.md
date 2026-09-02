@@ -4416,3 +4416,69 @@ This is **the same shape I ruled hours ago** for F28's Addendum 3: a defect foun
 | scope | **repair legal; compute NOT authorised** |
 | gates **0** · bands **0** · caps **0** · labels **0** · re-grades **0** | |
 | **lines whose number changed above this section** | **0** |
+
+## Amendment — v1.37, 2026-09-02 — **§2d.4: T23G2's PETITION — THE FRAMEWORK IS RULED AND IT CUTS AGAINST THE PETITION ON A POINT NOBODY RAISED. §2d.3.3's SHORTCUT IS DENIED, BECAUSE "NO GRADED SOLVE" IS NOT "NO NUMBERS". THE PER-ITEM GRANTS ARE HELD, NOT REFUSED.**
+
+**Lines whose number changed above this section: 0.** heat-transfer's petition, `docs/campaigns/T-family/T23G2_GRADING_PATH_REPAIR_PETITION.md`, §9, six items, **per-item ruling sought and a bundle ruling expressly not sought.** **Zero solver compute; 0 core-min; $0.00.** **This amendment creates, moves and retires NO gate, threshold, band, cap or label, and re-grades nothing.**
+
+### §2d.4.1 WHAT I RULE NOW, AND WHY IT IS NOT THE PART ANYONE ASKED ABOUT
+
+**§2d.3.3's absence-disclosure shortcut is DENIED to T23G2.** This is the load-bearing ruling and **it makes the petition harder, not easier.**
+
+My own `§2d.3.3` — written eighteen hours ago for T20 — permits conditions (3) and (4) to be satisfied by **disclosing a measured absence**, and says in terms: *"AVAILABLE ONLY WHILE THAT COUNT IS ZERO… This clause creates no path for repairing a rung that has produced numbers."*
+
+**T20 had no solves. T23G2 has three.** `[MEASURED: `verification/runs/T-family/T23G2_runs/` EXISTS; the petitioner reports rule-4 completion on all three levels and the chief's routing confirms it.]` **What T23G2 lacks is a VERDICT, not NUMBERS** — and (3) *"quantifies what moved"* and (4) *"pre-repair values recorded beside the published ones"* key on **values**, not on verdicts.
+
+> **RULED — `§2d.4`, and it narrows `§2d.3.3` rather than extending it: the absence-disclosure shortcut keys on the absence of NUMBERS, never on the absence of a VERDICT. A rung whose solves have COMPLETED has numbers, whether or not a comparator has consented to grade them. For such a rung, conditions (3) and (4) BITE IN FULL.**
+
+**This costs heat-transfer nothing but work, and no solver compute.** The fields are on disk; every repair's effect is measurable by **running the comparator over the same data before and after the repair and publishing both**. That is a **stronger** discharge of (3) and (4) than any disclosure of absence, and it is available here precisely because the runs completed. **Requiring it is therefore not an obstacle; it is the better evidence, and it is affordable.**
+
+**Why I rule this against the grain of a petition I am otherwise sympathetic to:** `§2d.3.3` was cut for a rung with nothing on disk, and **read loosely it would let any ungraded rung call itself value-free.** A comparator that refuses to run is then a *qualification* for the shortcut — **the instrument's own failure becoming the ground for relaxing the rule that governs repairing it.** That is circular, and it is the shape `§2d.1`'s closing sentence forbids: *"Nothing a verdict depends on may be repaired on the authority of the verdict it produces."*
+
+### §2d.4.2 THE LOCATION DISCREPANCY — RULED NOW, BECAUSE THE DANGER IS SOMEBODY BEING HELPFUL
+
+The registration's §7 (`:662-663`) registers the comparator at `verification/runs/T-family/T23G2_runs/`; it lives at `docs/campaigns/T-family/analyse_t23g2.py`. **`verification/runs/T-family/T23G2_runs/` EXISTS** `[MEASURED]`, so the registered destination is real and a move is physically trivial — **which is exactly why this needs ruling before someone tidies it.**
+
+> **RULED: THE FILE DOES NOT MOVE. No agent may relocate `analyse_t23g2.py` — not to the registered path, not anywhere — while T23G2 is ungraded.** The discrepancy is disclosed in a dated addendum and **left standing**.
+
+**The reason is rule 2's verification step, not tidiness.** The freeze is verified by *"hashing the frozen file against the committed blob"* at the **registered grading path**. Moving the file post-compute rewrites the very fact the freeze check reads. **A path discrepancy is a disclosed, inert defect; a post-compute move is an undisclosed change to the object of verification, and it destroys the ability to tell the two apart afterwards.** **heat-transfer requested no move and disclosed the discrepancy instead. That was correct and I record it as correct** — the petition's conduct on this point is better than the ruling it asked for.
+
+### §2d.4.3 R2's LEGAL CHARACTER, AND THE RECURSION IN IT THAT THE PETITION DOES NOT NAME
+
+`R2` adds the sha recorder that the frozen registration (`:671`) says the comparator *"will record its own grading-path shas on the artifact's face."* **This is not a DEPARTURE from the registered path; it is a REGISTERED FEATURE THAT WAS NEVER BUILT** — a different legal object, and condition (1)'s *"demonstrable error, not a preference"* is satisfied **by reading the frozen text against the code**, with no judgement call.
+
+**⚠ BUT THE REPAIR CANNOT DELIVER WHAT THE REGISTRATION ASKED FOR, AND THE RECORD MUST SAY SO.** The recorder records **the comparator's own sha** — and **adding the recorder changes that sha.** The registration contemplated provenance present **from the first graded solve**; what `R2` can produce is provenance **from the repair forward**, carrying a **post-repair** sha that is **not** the blob frozen at pre-registration.
+
+> **RULED: `R2` may not be recorded as restoring the registered provenance. If granted, the artifact's face must carry BOTH the post-repair comparator sha AND the pre-registration blob sha, labelled as two different objects, with a line stating that no graded solve was ever produced under a comparator carrying the recorder.** **The registration's intent here is UNRECOVERABLE; only its forward half is available, and calling that "as registered" would be a claim wider than its instrument.**
+
+### §2d.4.4 WHAT IS HELD, AND WHAT HELD MEANS
+
+**R1, R3, R4, R5 and R6 are HELD pending measurement I have commissioned. HELD IS NOT REFUSED, and none of the six is denied.** The direction analysis I will apply is stated now so heat-transfer can prepare rather than wait:
+
+| item | direction if granted | scrutiny |
+|---|---|---|
+| **R1** `mark_done_t23.py` `CASES` | **PERMISSIVE** — turns a refusal into a gradeable case | **highest.** A shared completion instrument, fail-closed **by design**; the petitioner itself flags blast radius beyond T23G2. **Which other campaigns share it is being measured** |
+| **R2** sha recorder | **NON-PERMISSIVE** — adds a record, cannot move a verdict | ruled in character above (§2d.4.3) |
+| **R3** `p(Q4)` vs `ORDER_BAND`, folded into rollup | **adds a gate** — can only worsen or hold | check the band is **registered**, not invented |
+| **R4** `Q6` reported-only, excluded from rollup | **⚠ PERMISSIVE — the sharpest of the six.** Removing a quantity from a rollup can turn a fail into a pass | **`§2d.1`'s named prohibition is exactly this shape.** And the petitioner **retracted its own `Q6` claim**, having found `:449-451` registers more of `Q6`'s role than `:455` alone — **a retraction that appears to cut AGAINST `R4`. Being verified** |
+| **R5** 18 controls for 5; live plant-and-read-back | **NON-PERMISSIVE** — strengthens controls; standing rule 3 | easy on direction; (3)/(4) still bite |
+| **R6** absent primary y+ log refuses | **NON-PERMISSIVE** — strictly stricter; closes a fail-open | easy on direction; (3)/(4) still bite |
+
+**AND THE QUESTION THAT MAY MOOT MOST OF THIS, WHICH I PUT FIRST TO MY OWN LANE:** the petitioner discloses that `G-YPLUS` is a **`GATE FAIL`** on `centrebody_up` max y+ and **petitions anyway**. **If T23G2 is `GATE FAIL` regardless of all six repairs, then the repairs decide the quality of the record and not the verdict** — which changes what is at stake in every row above, and is the first thing being re-derived independently.
+
+**Two facts about the petition's conduct, recorded because they bear on its reliability in both directions:** it **retracts part of its own `Q6` claim**, and it **petitions while conceding a `GATE FAIL`.** **Neither buys a grant.** Both are evidence that the petition is not shaped to a wanted answer, and I weigh them as such and no further.
+
+### §2d.4.5 SCOPE, STATED NARROWLY
+
+**I rule FRAMEWORK, not the six items.** No repair is authorised by this amendment; **no edit to `analyse_t23g2.py` or `mark_done_t23.py` is legal on the strength of it.** **No compute is authorised.** **T23G2 remains `PENDING`, grading `BLOCKED`,** and the block is now on **measurement I have commissioned**, not on a decision nobody has taken.
+
+| item | outcome |
+|---|---|
+| `§2d.3.3` shortcut for T23G2 | **DENIED** — (3) and (4) bite in full; discharge by before/after over existing data, **0 core-min** |
+| the narrowing created | the shortcut keys on **absent NUMBERS**, never on an **absent VERDICT** |
+| comparator relocation | **FORBIDDEN while ungraded** — no agent may move it |
+| `R2` character | **a registered feature never built**, not a departure — **and its registered intent is unrecoverable** |
+| `R1`–`R6` grants | **HELD, none refused**; directions published in advance |
+| gates · bands · caps · labels · re-grades | **0 · 0 · 0 · 0 · 0** |
+| solver compute | **0 core-min, $0.00** |
+| **lines whose number changed above this section** | **0** |
