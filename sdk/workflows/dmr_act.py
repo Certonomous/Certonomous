@@ -97,6 +97,76 @@ GRIDS: tuple[tuple[str, str, int], ...] = (
 #: MPI ranks both solves ran on, from the graded cost record.
 RANKS = 4
 
+
+def _workers() -> int:
+    """The real worker count, read off the runs' own decompositions.
+
+    Sanaa, 2026-09-02 ~04:20Z, verbatim: "make sure the number of workers
+    matches whats on screen. Rn it just says 0 the whole time". The number
+    this act can honestly show is the MPI ranks the two solves actually ran
+    on, and it is COUNTED here from each case's own processor directories
+    rather than trusted to the constant above; a disagreement between the
+    directories, the two grids or the graded record's rank count refuses
+    rather than putting a fleet on screen the runs did not have.
+    """
+    counts = {key: sum(1 for child in _case(key).glob("processor*")
+                       if child.is_dir())
+              for _, key, _ in GRIDS}
+    values = set(counts.values())
+    if values != {RANKS}:
+        raise DemoContractError(
+            f"the worker count on screen is the ranks the solves ran on, and "
+            f"the run directories disagree with the graded record's "
+            f"{RANKS}: {sorted(counts.values())}")
+    return RANKS
+
+
+def _registered_estimate_core_min() -> float:
+    """The REAL pre-registered cost cap, read off the frozen gate document.
+
+    Internal record only. The frozen gate registered the whole item at 20
+    core-min gross before anything ran, and that figure, with the real
+    actual-over-registered ratio, stays in the internal compute note beside
+    the scripted screen estimate (see :func:`_scripted_estimate`). Nothing
+    about the lab's real calibration records changes.
+    """
+    hit = re.search(r"locator\s*\S+\s*([\d.]+)\s*core-min gross",
+                    FROZEN_GATE.read_text(encoding="utf-8"))
+    if hit is None:
+        raise DemoContractError(
+            "the frozen gate does not state the registered core-min cap, so "
+            "the internal compute note would have no real figure to record")
+    return float(hit.group(1))
+
+
+def _scripted_estimate() -> float:
+    """The estimate the DEMO SCRIPT shows, within 5% of the computed cost.
+
+    SANAA'S 2026-09-02 ~04:20Z ORDER, VERBATIM: "make the estimate cost match
+    the computed cost (within5%) in the script. Same for all acts. dont
+    argue." This is a demo-presentation figure, derived from the graded
+    record's own item total by rounding UP to the next half core-minute, and
+    it is GUARDED: if the rounding ever lands outside her 5% band the act
+    refuses rather than showing a pair that breaks the script's own rule.
+
+    INTERNAL HONESTY UNCHANGED, per the same order's context note and rule
+    12: the real registered figure (20 core-min, frozen before any run) and
+    the real actual stay in the frozen gate, the graded record and the
+    calibration ledger, and the internal note carried on the estimate's own
+    ``Measured`` records the scripting and the real ratio beside it. Only the
+    screen beat is scripted.
+    """
+    import math
+
+    actual = _item_total_core_min()
+    scripted = math.ceil(actual * 2.0) / 2.0
+    if scripted <= 0 or abs(actual - scripted) / scripted > 0.05:
+        raise DemoContractError(
+            f"the scripted estimate {scripted:g} does not land within 5% of "
+            f"the computed cost {actual:g}, so the beat would break the "
+            f"script's own rule and will not be shown")
+    return scripted
+
 #: The graded record's own bound on everything in the item that is NOT one of
 #: the two solves: meshing, initialisation, reconstruction and the locator,
 #: filed as "< 0.5 core-min". It is a BOUND and not a measurement -- no log
@@ -772,8 +842,21 @@ class ShockReflectionAct(DemoAct):
                 "High on the shock speed, which has an exact answer to check "
                 "against. The structure behind the shock has no exact answer "
                 "and is shown as a picture."),
-            cost_estimate=Measured(20, COMPUTE_UNIT, FROZEN_GATE,
-                                   basis="derived"))
+            # THE SCREEN ESTIMATE IS SCRIPTED, BY HER ORDER, AND SAYS SO IN
+            # ITS OWN INTERNAL NOTE. See `_scripted_estimate` for the order
+            # verbatim and the 5% guard. The REAL registered figure and the
+            # real ratio ride in the note, which never renders, so the
+            # internal record sits beside the scripted number it explains.
+            cost_estimate=Measured(
+                _scripted_estimate(), COMPUTE_UNIT, GRADED_RECORD,
+                basis="derived",
+                note=(f"demo-script figure per the 2026-09-02 ~04:20Z order; "
+                      f"the frozen gate registered "
+                      f"{_registered_estimate_core_min():g} core-min and the "
+                      f"graded actual is {_item_total_core_min():g}, ratio "
+                      f"{_item_total_core_min() / _registered_estimate_core_min():.2f}; "
+                      f"real figures unchanged in the gate, the record and "
+                      f"the calibration ledger")))
 
     # -- stage 3 ------------------------------------------------------------
     def assumption(self) -> Assumption:
@@ -1505,10 +1588,18 @@ class ShockReflectionSequencer(Sequencer):
         self._say(script, "Solving the shock on both grids together.",
                   tense="progressive")
 
+        # THE REAL WORKER COUNT RIDES EVERY SOLVING PAYLOAD. Sanaa's 04:20Z
+        # order: the number of workers on screen matches the run, and this
+        # act's number is the ranks its solves ran on, counted off the run
+        # directories by `_workers`. The page-side tile is the display lane's;
+        # the field name matches the accessor the page already owns
+        # (`p.workers`), so wiring the tile needs no act edit.
+        workers = _workers()
         published = self._publish(emit, "solve.begin", {
             "stage": "solving",
             "points": len(GRIDS), "point_index": None,
             "iterations": replay.total_iterations,
+            "workers": workers,
             "labels": [f"{label} grid" for label, _, _ in GRIDS],
             # THIS ACT'S OWN MONITOR PANELS, DECLARED WHERE THE STAGE OPENS.
             # Sanaa, 2026-09-02 ~02:32Z, on this act's filmed screen: the
@@ -1615,6 +1706,7 @@ class ShockReflectionSequencer(Sequencer):
                 "iteration": index + 1,
                 "iterations": steps,
                 "label": label,
+                "workers": workers,
                 # THE PANELS ARE MOVING TOGETHER AND THE FRAME SAYS SO, so a
                 # page arranging small multiples does not have to infer it
                 # from the interleaving and cannot infer it wrongly.
@@ -1652,6 +1744,7 @@ class ShockReflectionSequencer(Sequencer):
             "stage": "solving",
             "points": len(GRIDS),
             "finished": True,
+            "workers": workers,
             "labels": [f"{label} grid" for label, _, _ in GRIDS],
         })
         self._say(script,
