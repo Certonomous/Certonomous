@@ -3044,8 +3044,11 @@ const VIEWPORT_STAGE = {
   gridShot: ['Computational grid', '03 / mesh'],
 };
 //: Which of the three panel states each rendered panel belongs in.
+//: `stl_surface` is the ParaView render of the served STL itself (the
+//: jet-flap act opens on it, Sanaa 1730Z: STL first, then the 2D section);
+//: it is a body, so the head must read Geometry, not Computational grid.
 const PANEL_STAGE = { geometry: 'bodyShot', mesh: 'gridShot',
-                      mesh_zoom: 'gridShot' };
+                      mesh_zoom: 'gridShot', stl_surface: 'bodyShot' };
 //: Every stage whose pixels are an image rather than a canvas.
 const IMAGE_STAGES = new Set(['field', 'bodyShot', 'gridShot']);
 function showViewportStage(stage) {

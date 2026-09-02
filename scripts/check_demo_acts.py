@@ -625,11 +625,18 @@ def _digits(text):
 
 
 def _is_surface(event) -> bool:
+    # "stl_surface" is the ParaView render of the SERVED STL FILE itself
+    # (Sanaa 1730Z: the jet-flap act opens on it, then shows the 2D section).
+    # It is a surface announcement in exactly this limb's sense: the body,
+    # rendered, on load -- more faithful to "STL renders on load" than the
+    # case-derived section panel, so refusing it here would fail the act for
+    # obeying the order.
     name = event.get("event")
     if name == "geometry.ready":
         return True
     return (name == "mesh.panel"
-            and (event.get("payload") or {}).get("panel") == "geometry")
+            and (event.get("payload") or {}).get("panel")
+            in ("geometry", "stl_surface"))
 
 
 def _limb_geometry(events, refusal, act) -> list[str]:
@@ -657,11 +664,18 @@ def _limb_geometry(events, refusal, act) -> list[str]:
     if not _nonempty(payload.get("url")):
         problems.append("the surface announcement carries no url, so the "
                         "browser has no address to fetch it from")
-    if len(ready) > 1:
-        # Two announcements of one body is two fetches and a second viewport
-        # cycle. The sequencer guards against it with `self._announced`.
-        problems.append(f"the surface is announced {len(ready)} times; each "
-                        f"announcement re-fetches and re-cycles the viewport")
+    # Two announcements of ONE picture is two fetches and a second viewport
+    # cycle -- the defect the sequencer's `self._announced` guards. Distinct
+    # PANELS are distinct pictures and a deliberate order (Sanaa 1730Z: the
+    # jet-flap act opens on the STL surface and then shows the 2D section),
+    # so duplication is counted per picture identity, not per event.
+    identities = [((e.get("payload") or {}).get("panel"),
+                   (e.get("payload") or {}).get("url"))
+                  for e in ready]
+    if len(identities) != len(set(identities)):
+        problems.append(f"one surface picture is announced more than once "
+                        f"({len(ready)} announcements); each repeat "
+                        f"re-fetches and re-cycles the viewport")
     return problems
 
 

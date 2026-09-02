@@ -56,6 +56,7 @@ from .demo_mode import (GPU_ROUTING_POLICY, Assumption, Closing, DemoAct,
                         Measured, Prompt, Restatement, Results, RunRecord,
                         SeriesSpec, SolveReplay, Table, compute_table,
                         gpu_routing_lines, register_act)
+from .demo_sequencer import Sequencer, SequencerRefused
 
 #: Her prompt, verbatim. Not this act's to reword.
 PROMPT = ("Blown-wing high-lift: sweep the trailing-edge jet momentum "
@@ -1411,6 +1412,105 @@ class JetFlapAct(DemoAct):
         return (("prompt", 0), ("restatement", 0), ("assumption", 0),
                 ("geometry", 0), ("meshing", w), ("feasibility", w),
                 ("solving", w), ("gates", 0), ("results", 0))
+
+    # -- which sequencer walks this act -------------------------------------
+    def sequencer(self):
+        """Declared so EVERY driver honours the 1730Z geometry order, not
+        only a module-local one (the shock act paid for that omission with
+        seven of nine stages; see its ``sequencer`` docstring)."""
+        return JetFlapSequencer
+
+
+#: Her label for the 2D section plot, verbatim (Sanaa 1730Z; the middle dot
+#: is hers, not a dash, and passes both wording gates byte for byte).
+SECTION_LABEL = ("NACA-class section, chord 1 m · jet slot at the "
+                 "trailing edge")
+
+#: The ParaView render of the served STL, and its provenance sidecar beside
+#: it. Rendered by ``scripts/render_stl_paraview.py`` from
+#: ``cases/demo-surfaces/airfoil_blown_slot.stl``; the sidecar carries the
+#: STL's sha256 and the sequencer refuses on a mismatch, so a render of some
+#: other surface cannot open this act.
+STL_RENDER = (_jf1_numbers.RUN_ROOT / "artefacts" / "paraview_stl"
+              / "airfoil_blown_slot_surface.png")
+
+
+class JetFlapSequencer(Sequencer):
+    """The shared nine-stage walk, with Sanaa's 1730Z geometry order.
+
+    Her words, verbatim: "the first thing that should appearis the STL file
+    geometr, THEN the 2D plot (which you can label "NACA-class section,
+    chord 1 m · jet slot at the trailing edge"." The base ``run()`` puts the
+    act's ONE geometry panel up before the first stage; this act has TWO
+    geometry visuals in a fixed order, so the startup publication becomes
+    the STL surface render (it stands through the planning beats) and the
+    labelled 2D section follows on the geometry stage, where the served
+    body is measured against the solved section.
+    """
+
+    def _publish_panel(self, emit, mesh, panel, *, stage, label="",
+                       caption=""):
+        # The base run() publishes panel "geometry" exactly once, at
+        # startup, before stage 1: that publication becomes the STL surface.
+        # Every later "geometry" publication (the stage's own, below) takes
+        # the base path with all of its count guards intact.
+        if panel == "geometry" and not getattr(self, "_stl_shown", False):
+            self._stl_shown = True
+            return self._publish_stl_panel(emit, stage=stage, label=label)
+        return super()._publish_panel(emit, mesh, panel, stage=stage,
+                                      label=label, caption=caption)
+
+    def _publish_stl_panel(self, emit, *, stage, label=""):
+        """The served STL's own ParaView render; ABSENT NEVER READS CLEAN.
+
+        The payload deliberately carries NO cell claims: an STL is not the
+        grid of the calculation, and the page's count assertion is for
+        panels that state one. The sidecar's sha check is this panel's own
+        guard: the picture must be OF the file the act serves.
+        """
+        import hashlib
+        import json as _json
+        import shutil
+
+        shot = STL_RENDER
+        side = shot.with_suffix(".json")
+        if not (shot.is_file() and side.is_file()):
+            raise SequencerRefused(
+                "this act opens on the ParaView render of the served STL "
+                "and that render is not on disk; the screen stops rather "
+                "than falling back to a drawing")
+        record = _json.loads(side.read_text(encoding="utf-8"))
+        served = _jf1_geometry.CANONICAL / SURFACE
+        digest = hashlib.sha256(served.read_bytes()).hexdigest()
+        if record.get("stl_sha256") != digest:
+            raise SequencerRefused(
+                "the STL render's provenance names a different surface than "
+                "the one this act serves; the act would open under the "
+                "wrong body")
+        from . import OUT_ROOT
+
+        out = Path(OUT_ROOT) / self._panel_store()
+        out.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(shot, out / "stl_surface.png")
+        shutil.copy2(side, out / "stl_surface.json")
+        payload = {
+            "url": f"/api/plot/{self._panel_store()}/stl_surface.png",
+            "panel": "stl_surface",
+            "stage": stage,
+        }
+        if label:
+            payload["label"] = label
+        return self._publish(emit, "mesh.panel", payload)
+
+    def _stage_geometry(self, emit, script, record):
+        # THEN the 2D plot, with her label as its caption. Routed through
+        # this class's _publish_panel: _stl_shown is already True, so this
+        # takes the base path and its three-way cell-count assertion.
+        self._publish_panel(emit, self.act.mesh_plan(), "geometry",
+                            stage="geometry",
+                            label=self.act.geometry().display_label,
+                            caption=SECTION_LABEL)
+        return super()._stage_geometry(emit, script, record)
 
 
 ACT = register_act("jet-flap", JetFlapAct())
