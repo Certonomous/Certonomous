@@ -31,3 +31,16 @@
   The plain 0-18 alpha polars (A1WR) inherently sweep lift; the fixed-lift
   clause is read as binding the (Ma,AoA) item and any optimization use of
   these results — flagged to her explicitly.
+
+## ADDENDUM — her follow-up, verbatim (~19:40Z, captured before any launch)
+
+> cool a few more things for the dafoam team baout these runs : 1. They
+> should be done with the fine mesh 2. The patching needs to happen
+> (parallelization transpose fix) 3. This is an immediate request, meaning
+> the box should be filled with this aany time soon.
+
+Chief's reading: (1) fine mesh reaffirmed; (2) the runs use the PATCHED
+solver build — the parallelization transpose fix (the D19-family PATCHED
+arm's fix) — not the shipped build; (3) immediate priority: the box fills
+with these runs as soon as the chain is up, full capacity minus filming
+headroom.
