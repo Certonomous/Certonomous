@@ -1,0 +1,60 @@
+{
+  "team": "dafoam",
+  "case_id": "A1WR_chain",
+  "prereg_commit": "586b72caf39dad1f79b028cf590818da585688a2",
+  "prereg_path": "cases/dafoam/ladder-a/A1/wall_resolved_aoa_polar/A1WR_PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/wall_resolved_aoa_polar/a1wr_chain_driver.sh"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/wall_resolved_aoa_polar",
+  "ranks": 1,
+  "cap_core_min_registered": 1720.0,
+  "cost_core_min_estimate": 932.4,
+  "cost_basis": "Anchors MEASURED from the coarse sweeps' logs (A1WR section 7.2); all scaling EXTRAPOLATED (section 7.3/13.2: stage 1 ~65, stage 2 424.5 + 442.9); dollars DERIVED at c7a.4xlarge $0.0513/core-h, owner-stated, NOT measured -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). 1720 core-min cap = 28.67 core-h = $1.47 derived. Registered caps: stage 1 = 120 core-min (2 x 3600 s in-container deadlines), stage 2 = 800 core-min PER ARM (sweep 37200 s + 3 colds x 3300 s = 785, duplicate only if measured I-arm spend + 55 <= 800). An overrun STOPS the run: the deadlines are INSIDE the containers and survive the death of the driver, the daemon and every agent. Calibration rows OWED to docs/COST_CALIBRATION.md per stage at completion; live-box contention (filming, other lanes) attributed there, never absorbed. ~0.6 core-min of pre-freeze instrument checks on FOREIGN artifacts is disclosed in ADDENDUM C 15.4.",
+  "memory_floor_gb": 4.0,
+  "enqueued_by": "dafoam lane on Sanaa's direct order (etc/sessions/2026-09-02T1900Z_sanaa_fine_sweeps_launch_order.md, incl. the ~19:40Z PATCHED-build addendum). Rule-2 check discharged at enqueue: disk blob of A1WR_PREREGISTRATION.md == HEAD blob b81de28a at 07667a58 (hashed, not assumed); ADDENDUM C is the governing freeze for stages 1-2 and alters no gate/threshold/cap/label.",
+  "_schema_note": "Fields above are the validator's REQUIRED_FIELDS plus cap_core_min_registered. Fields below are dafoam annotations the validator ignores.",
+  "ranks_note": "ranks=1 is the launch argv (one detached chain driver). CONCURRENCY INSIDE THE CHAIN, registered in ADDENDUM C 15.5: stage 1 = 2 one-core containers (cores 8,9); stage 2 = 8 one-core containers (cores 8-15), np=1 each per Addendum A 13.5, OMP_NUM_THREADS=1 per Addendum B 14.3; cores 0-7 carry no A1WR pin. cap_watch arithmetic at ranks=1 gives allowed wall 103,200 s against a ~12 h worst critical path (the sweep is SERIAL BY DESIGN -- the continuation IS the instrument).",
+  "image": "dafoam-idwarp-rot:v1 (PATCHED, parallelization transpose fix, Sanaa 19:40Z) sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35 -- driver G-IMG refuses any other id; two-variable disclosure vs the coarse sweeps' SHIPPED build on the face of ADDENDUM C 15.2",
+  "stage_gating": "INSIDE THE DETACHED CHAIN: a1wr_stage1_gate.py (md5 1aa8e1bdb7ac559d18d48a39e92067d3, controls K1-K4 mutation-asserted) reads both probes' y+ and Stage 2 launches ONLY on PASS; GATE FAIL (y+max >= 1.0) is a registered stop, mesh NOT re-cut (section 3.4); REFUSED (blind channel) stops as unmeasured. No agent takes this decision.",
+  "instrument_md5s_at_this_commit": {
+    "a1wr_chain_driver.sh": "9bff59b63509e76d5dfa373a42a47074",
+    "a1wr_runScript_incomp.py": "d48f48c5e2e41e86981acbf6feccb3c4",
+    "a1wr_runScript_comp.py": "a8af900b96fcb721e0fbbdeafdfa6d00",
+    "a1wr_cmd.sh": "eba014f2c538611d2249c3fcf9b3ddd7",
+    "a1wr_stage1_gate.py": "1aa8e1bdb7ac559d18d48a39e92067d3",
+    "a1wr_read.py": "22479c8954702fbb6e1b0594fe2b8d4c"
+  },
+  "run_root": "/home/ubuntu/certonomous-runs/A1WR/STAGE12 -- must be ABSENT; the driver refuses (G-ROOT exit 6) on existing unit dirs. CHECKED at enqueue: it does not exist.",
+  "controls_at_this_commit": "ALL ZERO COMPUTE on this item. a1wr_read.py selftest 18/18 (the frozen coarse reader's 11 carried whole + Y1-Y4, W1, B1/B1b, every mutation asserted); a1wr_stage1_gate.py driven through all three exit branches (0/3/2) on fixtures; the y+ blind-reader trap MEASURED (bare postProcess reads 0 everywhere) and the solver-hosted form MEASURED non-zero; BCType=nutLowReWallFunction MEASURED printed by a 30-iteration foreign-case check in the PATCHED image.",
+  "verdict_state": "PENDING",
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.A1WR_chain (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  },
+  "why_this_refire": "THIRD fire. Fire 1 (prereg 07667a58): staging glob ate 0.orig, 0.0 core-min (ADDENDUM D / AMENDMENT 1). Fire 2 (80e1b91a): DAFoam's internal DACheckMesh default maxAspectRatio=1000 refused the section-13.7-dispositioned single-cell-span AR (212,104 at L3), and the comp script's physics self-assert split literals still named D19M -- gate REFUSED fail-closed at 1.02 core-min, zero solver iterations (ADDENDUM E / AMENDMENT 2 at 586b72ca). Both repairs proven pre-fire: planted staging fixture; no-solve model build on the real L3 mesh in the patched image reaching the task dispatcher with AOAC_PHYSICS_MD5_PASS. Failed fires archived whole under certonomous-runs/A1WR/.",
+  "_launch": {
+    "utc": "2026-09-02T18:19:35Z",
+    "pid": 55739,
+    "sid": 55739,
+    "status_file": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/wall_resolved_aoa_polar/STATUS.queue.A1WR_chain",
+    "wrapper_out": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/wall_resolved_aoa_polar/launcher.queue.out",
+    "started_epoch": 1788373175.710196
+  }
+}

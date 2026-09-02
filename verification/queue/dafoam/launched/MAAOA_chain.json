@@ -1,0 +1,61 @@
+{
+  "team": "dafoam",
+  "case_id": "MAAOA_chain",
+  "prereg_commit": "586b72caf39dad1f79b028cf590818da585688a2",
+  "prereg_path": "cases/dafoam/ladder-a/A1/fixed_lift_mach_sweep/MAAOA_PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/fixed_lift_mach_sweep/maaoa_chain_driver.sh"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/fixed_lift_mach_sweep",
+  "ranks": 1,
+  "cap_core_min_registered": 900.0,
+  "cost_core_min_estimate": 315.0,
+  "cost_basis": "Anchors MEASURED (A1WR 7.2/13.2: 0.37163 / 0.35625 s/iter at 130,304 cells np=1); trim primal counts EXTRAPOLATED (~7,900 iters/point => ~45 core-min/point, 7 points => 315); dollars DERIVED at c7a.4xlarge $0.0513/core-h owner-stated, NOT measured. Caps: 120 core-min per point (7,200 s deadline INSIDE the container) and 900 core-min item ceiling enforced PROSPECTIVELY by the driver (a point is not launched if spend + 120 could breach it; a cap-stop is NOT A RESULT on that point). The wait phase spends 0. Calibration row OWED to docs/COST_CALIBRATION.md at completion, contention attributed separately.",
+  "memory_floor_gb": 4.0,
+  "enqueued_by": "dafoam lane on Sanaa's direct order (same session file; item 2, sequenced after item 1's launch per her words 'Once that is launched'). Rule-2 check at enqueue: disk blob of MAAOA_PREREGISTRATION.md == HEAD blob 88cb977c at 07667a58 (hashed); the freeze precedes ALL compute on this item (run root /home/ubuntu/certonomous-runs/MAAOA ABSENT, checked).",
+  "_schema_note": "Fields above are the validator's REQUIRED_FIELDS plus cap_core_min_registered. Fields below are dafoam annotations the validator ignores.",
+  "fixed_lift_reading_frozen": "REGISTERED READING of 'lift must be kept fixed': at every operating point the wing is TRIMMED in angle of attack to the lab's fixed lift target CL = 0.5 (the D19-family target), so the Mach sweep reports the trim angle alpha(Ma) and the drag at fixed lift CD(Ma; CL=0.5); 'for both' = both solver arms, the incompressible arm running its fixed-lift trim at its single regime as the control -- a Mach axis exists only in the compressible arm and no incompressible Mach axis is fabricated. Sanaa's correction, if any, lands as a PRE-COMPUTE AMENDMENT to the prereg.",
+  "dependency": "ENCODED IN THE CHAIN, NOT IN AGENT HANDS: the driver launches no solver until /home/ubuntu/certonomous-runs/A1WR/STAGE12/stage1_gate.json reads verdict PASS (poll 60 s, bound 43,200 s); on upstream GATE FAIL or REFUSED it exits BLOCKED with spend 0.0 -- 'fine grid' means the level the y+ probe validates.",
+  "ranks_note": "ranks=1 is the launch argv (one detached driver that first WAITS). Concurrency inside: up to 6 one-core containers on cpusets {2..7}; cores 0-1 carry no pin from this item or A1WR (filming headroom); MemAvailable floor 6.0 GiB before each point launch self-staggers this item behind A1WR's 8-unit peak hour on the measured 30 GiB box.",
+  "image": "dafoam-idwarp-rot:v1 (PATCHED) sha256:2927768a16ac... -- driver G-IMG refuses any other id",
+  "points": "MA288 (U0=100, the D19 anchor), MA400, MA500, MA600, MA650, MA685 (D16's Mach, with the DARhoSimpleCFoam caveat on the prereg's face: this sweep holds ONE frozen solver, DARhoSimpleFoam, and a convergence failure at high Mach is a REGISTERED outcome), INCOMP (U0=10 control)",
+  "instrument_md5s_at_this_commit": {
+    "maaoa_chain_driver.sh": "fdf184ecf0cde5df59c219b7a23d72a1",
+    "maaoa_runScript_incomp.py": "944dc9e0f9e396b79977b19a352ea429",
+    "maaoa_runScript_comp.py": "bd22df020be42fbd2eef14cbc25182f7",
+    "maaoa_cmd.sh": "d3f0fe7de3099e9142c7f8ce1a54ccef",
+    "maaoa_read.py": "79fddadcc748d3b83efb1d4ed8023475"
+  },
+  "run_root": "/home/ubuntu/certonomous-runs/MAAOA -- must be ABSENT; driver G-ROOT refuses (exit 6). CHECKED at enqueue: absent.",
+  "controls_at_this_commit": "ALL ZERO COMPUTE. maaoa_read.py selftest 5/5 (M1-M5, mutations asserted) and the populated-fixture table path driven; driver refusal branches mirror A1WR's; G-STALL and G-MDD plants fire and stay silent on the honest caveats.",
+  "verdict_state": "PENDING",
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.MAAOA_chain (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  },
+  "why_this_refire": "THIRD fire. Fire 1 (prereg 07667a58): staging glob ate 0.orig, 0.0 core-min (ADDENDUM D / AMENDMENT 1). Fire 2 (80e1b91a): DAFoam's internal DACheckMesh default maxAspectRatio=1000 refused the section-13.7-dispositioned single-cell-span AR (212,104 at L3), and the comp script's physics self-assert split literals still named D19M -- gate REFUSED fail-closed at 1.02 core-min, zero solver iterations (ADDENDUM E / AMENDMENT 2 at 586b72ca). Both repairs proven pre-fire: planted staging fixture; no-solve model build on the real L3 mesh in the patched image reaching the task dispatcher with AOAC_PHYSICS_MD5_PASS. Failed fires archived whole under certonomous-runs/A1WR/.",
+  "_launch": {
+    "utc": "2026-09-02T18:20:40Z",
+    "pid": 57358,
+    "sid": 57358,
+    "status_file": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/fixed_lift_mach_sweep/STATUS.queue.MAAOA_chain",
+    "wrapper_out": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/fixed_lift_mach_sweep/launcher.queue.out",
+    "started_epoch": 1788373240.7327955
+  }
+}
