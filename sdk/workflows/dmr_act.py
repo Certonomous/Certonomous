@@ -64,7 +64,8 @@ from pathlib import Path
 from .demo_mode import (Assumption, DemoAct, DemoContractError, ElapsedClock,
                         Feasibility, Figure, GatesAndChecks, Geometry,
                         GeometryMatch, Measured, MeshPlan, Prompt, Restatement,
-                        Results, SeriesSpec, SolveReplay, Table, register_act)
+                        Results, SeriesSpec, SolveReplay, Table, compute_table,
+                        register_act)
 from .demo_sequencer import Sequencer, make_act_entry
 
 __all__ = ["ShockReflectionAct", "ShockReflectionSequencer", "ACT", "drive",
@@ -1172,6 +1173,43 @@ class ShockReflectionAct(DemoAct):
                      "Difference", "Difference in cells of that grid"],
             rows=rows, table_id="dmr_position", role="CHIEF ENGINEER")
 
+        # SANAA'S 06:10Z COMPUTE CONVENTION, THE SHARED SHAPE: per-run
+        # core-minutes, their PLAIN SUM as total, and wall time; parallelism
+        # lives in the wall column and the wave sentence the results beat
+        # speaks. Every cell is the logs' own: wall clocks read per grid,
+        # ranks counted off the run directories, and the totals are already
+        # cross-checked against the graded record before this stage runs.
+        # THE TWO RUNS DID NOT OVERLAP -- the launch clocks in the two logs
+        # are 62 seconds apart and the first run ends before the second
+        # starts -- so the wall time is honestly the SUM of the two waves,
+        # exactly what the elapsed clock has always stated.
+        fine_s = _wall_seconds("res120")
+        coarse_s = _wall_seconds("res60")
+        workers = _workers()
+        # SHAPE-ADAPTIVE ON PURPOSE, and only until the shared four-column
+        # shape is COMMITTED: at this writing the plain-sum total column
+        # exists in the working tree only (the display lane's unfinished
+        # work, which rule 10 forbids this lane to commit). Asking the
+        # signature keeps this act green at either HEAD; the branch dies the
+        # day their commit lands and a successor may then inline the
+        # four-cell call.
+        import inspect
+
+        # THE TOTAL IS THE PLAIN SUM OF THE DISPLAYED PER-RUN CELLS, so the
+        # arithmetic is checkable on screen: rounding each run first and then
+        # the sum can differ in the last digit from rounding the sum alone.
+        fine_cm = round(fine_s * RANKS / 60.0, 2)
+        coarse_cm = round(coarse_s * RANKS / 60.0, 2)
+        per_run = f"{fine_cm:.2f} fine, {coarse_cm:.2f} coarse"
+        total_cm = f"{fine_cm + coarse_cm:.2f}"
+        wall = f"{fine_s + coarse_s:.1f} s"
+        if "total_core_min" in inspect.signature(compute_table).parameters:
+            compute = compute_table(workers, per_run, total_cm, wall,
+                                    table_id="dmr_compute")
+        else:
+            compute = compute_table(workers, per_run, wall,
+                                    table_id="dmr_compute")
+
         # THE CAPTION IS SYMBOLS, UNITS AND NUMBERS, per Sanaa's 2026-09-01
         # ~20:06Z instruction carried onto this act by her "(same applies for
         # mach10)". It read "The shock, the structure it throws off the wall
@@ -1211,7 +1249,7 @@ class ShockReflectionAct(DemoAct):
         return Results(
             fields=[figure],
             plots=[],
-            tables=[position],
+            tables=[position, compute],
             verification_lines=[
                 (f"The shock arrives within half a cell of its exact "
                  f"position on both grids: {in_cells['Fine']:.2f} of a cell "
@@ -1276,6 +1314,17 @@ class ShockReflectionAct(DemoAct):
                 ("geometry", 0), ("meshing", w), ("feasibility", w),
                 ("solving", w), ("gates", 0), ("results", 0))
 
+    # RESUME NOTE (internal, 2026-09-02 ~06:3xZ, fleet-kill imminent): the
+    # 06:10Z compute convention is LANDED (compute table in results, wave
+    # sentence and predicted wall on the results beat) and the shortening
+    # pass is PARTIAL. Shortened: researcher restatement beat, engineer
+    # geometry beat. Still to shorten under her standing "still way too
+    # long": Restatement.restatement, Feasibility.check/verdict,
+    # Results.verification_lines, Results.limitations, Closing.abstract.
+    # Also: the compute_table call in results() is shape-adaptive until the
+    # display lane COMMITS the four-column demo_mode shape (uncommitted in
+    # the working tree at this writing); inline the four-cell call then.
+
     # -- the specialists ----------------------------------------------------
     def discussions(self):
         """The three specialists, on decisions that were ACTUALLY taken.
@@ -1305,21 +1354,19 @@ class ShockReflectionAct(DemoAct):
         gate = {label: _gate_v(key) for label, key, _ in GRIDS}
         return {
             # ---- LEAD RESEARCHER: the physics, and what carries it.
+            # SHORT BULLETS, HER STANDING "still way too long" ORDER: each
+            # line carries one fact and leads with its numbers where it can.
             "restatement": [
                 ("researcher", [
-                    f"The physics here is a Mach {setup['mach']:g} shock "
-                    f"reflecting from a wall it meets at "
-                    f"{setup['angle_deg']:.0f} degrees, so the question is "
-                    f"how fast the shock runs and where its front stands.",
-                    f"At this strength the shock itself sets the answer, so "
-                    f"the calculation carries no turbulence model and no "
-                    f"viscosity: the transport dictionary sets the viscosity "
-                    f"to {setup['viscosity']:g} and the gas is a perfect one "
-                    f"at a ratio of specific heats of {setup['gamma']:.2f}.",
-                    "That is also its limit, and it is worth saying plainly: "
-                    "a calculation with no viscosity in it says nothing about "
-                    "a turbulence closure, and nothing here should be read as "
-                    "though it did.",
+                    f"The physics: a Mach {setup['mach']:g} shock meeting "
+                    f"the wall at {setup['angle_deg']:.0f} degrees. The "
+                    f"question: how fast it runs, where its front stands.",
+                    f"No turbulence model and no viscosity: the transport "
+                    f"dictionary sets viscosity to {setup['viscosity']:g}; "
+                    f"perfect gas, ratio of specific heats "
+                    f"{setup['gamma']:.2f}.",
+                    "The limit, said plainly: with no viscosity, nothing "
+                    "here says anything about a turbulence closure.",
                 ]),
             ],
             # ---- LEAD NUMERICIST: who chose what.
@@ -1340,14 +1387,13 @@ class ShockReflectionAct(DemoAct):
             # "seconds" to cross it is the 10 m/s absurdity Sanaa named.
             "geometry": [
                 ("engineer", [
-                    f"The body is a flat wall running "
-                    f"{_wall_from_mesh()[1]:.2f} along the floor of a "
-                    f"channel {setup['channel'][0]:.2f} by "
-                    f"{setup['channel'][1]:.2f}, all in reference units, "
-                    f"with the shock entering ahead of it.",
-                    f"The grid is a uniform Cartesian one, a single cell "
-                    f"deep, at {_cells('res120'):,} cells on the fine grid "
-                    f"and {_cells('res60'):,} on the coarse.",
+                    f"A flat wall, {_wall_from_mesh()[1]:.2f} along the "
+                    f"floor of a {setup['channel'][0]:.2f} by "
+                    f"{setup['channel'][1]:.2f} channel, reference units; "
+                    f"the shock enters ahead of it.",
+                    f"Uniform Cartesian grid, one cell deep: "
+                    f"{_cells('res120'):,} cells fine, {_cells('res60'):,} "
+                    f"coarse.",
                 ]),
             ],
             # ---- LEAD NUMERICIST: the methods beat -- solver, physics,
@@ -1387,14 +1433,31 @@ class ShockReflectionAct(DemoAct):
             # THREE DECIMALS ON THE MEASURED DIFFERENCE (the locator's own
             # increment sits in the third decimal); the criterion keeps its
             # registered four, because a threshold is exact by definition.
+            #
+            # THE WAVE SENTENCE IS TRUE TO THE LAUNCH RECORDS, not to the
+            # layout: the two logs' start clocks are 62 seconds apart and the
+            # first run ends before the second starts, so this item is two
+            # waves of one run each and the wall clock is their sum. Her
+            # general form survives unchanged: the wall clock follows the
+            # slowest (only) member of each wave, never the core-minute sum.
+            # The predicted wall figure is her 06:10Z formula, predicted
+            # core-minutes over the workers.
             "results": [
                 ("numericist", [
                     f"The shock stood within "
                     f"{max(abs(float(gate[l]['error'])) for l in gate):.3f} "
-                    f"of its exact position on both grids, against a "
-                    f"criterion of "
+                    f"of exact on both grids, against a criterion of "
                     f"{float(gate['Fine']['tol']):.4f} fixed before either "
                     f"grid was built.",
+                    (f"2 runs on {_workers()} workers is 2 waves of one; the "
+                     f"wall clock follows the slowest member of each wave, "
+                     f"{_wall_seconds('res120'):.1f} s then "
+                     f"{_wall_seconds('res60'):.1f} s, never the "
+                     f"{round(_wall_seconds('res120') * RANKS / 60.0, 2) + round(_wall_seconds('res60') * RANKS / 60.0, 2):.2f} "
+                     f"core-minute sum."),
+                    (f"Predicted wall: {_scripted_estimate():g} core-minutes "
+                     f"over {_workers()} workers, "
+                     f"{_scripted_estimate() / _workers() * 60.0:.1f} s."),
                     CONVERGENCE_LINE,
                 ]),
             ],
