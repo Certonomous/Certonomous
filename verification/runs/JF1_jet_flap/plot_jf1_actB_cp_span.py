@@ -588,11 +588,11 @@ def main():
         axx.axhline(0, color=MUTED, lw=0.8)
         axx.set_ylim(*YLIM)
         axx.set_xlim(-0.02, 1.02)
-        axx.set_xlabel("distance along the chord  $x/c$  [–]")
+        axx.set_xlabel("distance along the chord  $x/c$  [-]")
         axx.set_title(ttl, weight="bold", color=INK, loc="left", fontsize=11.2,
                       pad=8)
         tidy(axx)
-    axu.set_ylabel("pressure coefficient  $C_p$  [–]")
+    axu.set_ylabel("pressure coefficient  $C_p$  [-]")
 
     ZX = 0.075
     zlo = min(min(r["cp"][r["x"] < ZX].min() for r in cps), -0.2)
@@ -602,11 +602,11 @@ def main():
         axz.axhline(1.0, color=WARN, lw=1.1, ls=(0, (4, 3)), zorder=1)
         axz.set_xlim(-0.0035, ZX)
         axz.set_ylim(1.20, zlo - 0.12)
-        axz.set_xlabel("distance along the chord  $x/c$  [–]")
+        axz.set_xlabel("distance along the chord  $x/c$  [-]")
         axz.set_title(ttl, weight="bold", color=INK, loc="left", fontsize=10.8,
                       pad=7)
         tidy(axz)
-    axzu.set_ylabel("pressure coefficient  $C_p$  [–]")
+    axzu.set_ylabel("pressure coefficient  $C_p$  [-]")
     for axz in (axzu, axzl):
         axz.text(ZX * 0.985, 1.0, "  ideal stagnation, $C_p = +1$  ", color=WARN,
                  fontsize=8.8, ha="right", va="bottom")
@@ -632,8 +632,12 @@ def main():
     table_md = _stagnation_table_markdown(cps)
 
     assert_no_banner(fig)
+    # The caption takes the slot the removed cost line held (y=0.010):
+    # at 0.032 it sat in the bottom row's own x-label band and the two
+    # printed through each other, the overprint class Sanaa keeps
+    # naming; the label stays, the caption moves.
     caption(fig, "Blowing loads the rear of the section; suction is plotted "
-                 "upward and the lower row magnifies the leading edge.", y=0.032)
+                 "upward and the lower row magnifies the leading edge.", y=0.010)
     # EVERY SENTENCE OF THE HEADER PARAGRAPH AND OF THE FIVE-BULLET BOX IS
     # HERE, and the two stagnation figures are read out of the measurement
     # rather than retyped: the box quoted "+1.0015 and +1.0057" as literals,
@@ -674,7 +678,8 @@ def main():
         "%s"
         % (min(stag), max(stag),
            100.0 * (min(stag) - 1.0), 100.0 * (max(stag) - 1.0), table_md)))
-    cost_line(fig, cost_sweep)
+    # No cost footer: it carried the retired 117.5 / 2.07x set and an em
+    # dash (Sanaa 2010Z sweep; same removal as the mesh figure's).
     save(fig, "jet_flap_2_chordwise_pressure")
 
     # ========================================= FIGURE: spanwise uniformity ==

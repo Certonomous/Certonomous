@@ -530,9 +530,9 @@ def main():
     cg = np.linspace(1e-5, 0.45, 400)
     th = np.array([cl_theory(c) for c in cg])
     ax.plot(cg, th, "-", color=THEORY_C, lw=2.4, zorder=4,
-            label="jet-flap thin-aerofoil theory, $(C_L)_\\infty$  —  "
+            label="jet-flap thin-aerofoil theory, $(C_L)_\\infty$,  "
                   "Williams, Butler & Wood,\n"
-                  "ARC R&M 3304 (1961), eq. (2)  —  "
+                  "ARC R&M 3304 (1961), eq. (2):  "
                   "$C_L \\propto \\sqrt{C_\\mu}$")
 
     slope = cl_theory(0.40) / 0.40
@@ -560,15 +560,27 @@ def main():
             label="Reference case, slot closed: $C_L = %.5f$"
                   % rows[0]["cl_aero"])
 
+    # THE LAST LABEL MOVES CLEAR OF THE THEORY CURVE (Sanaa 2010Z: at
+    # the strongest blowing the "+11 pt above" slot sits exactly in the
+    # band between the point and the theory line, so "1.210" printed
+    # over the black curve and read like "1.2*0"). That one label goes
+    # to the right of its dot, below both rising curves; the data and
+    # every other label are untouched.
+    last_cmu = max(r["cmu"] for r in blown)
     for r in blown:
-        ax.annotate("%.3f" % r["cl_tot"], xy=(r["cmu"], r["cl_tot"]),
-                    xytext=(0, 11), textcoords="offset points", ha="center",
-                    fontsize=8.6, color=INK)
+        if r["cmu"] == last_cmu:
+            ax.annotate("%.3f" % r["cl_tot"], xy=(r["cmu"], r["cl_tot"]),
+                        xytext=(11, -3), textcoords="offset points",
+                        ha="left", fontsize=8.6, color=INK)
+        else:
+            ax.annotate("%.3f" % r["cl_tot"], xy=(r["cmu"], r["cl_tot"]),
+                        xytext=(0, 11), textcoords="offset points",
+                        ha="center", fontsize=8.6, color=INK)
 
     ax.set_xlim(-0.012, 0.455)
     ax.set_ylim(0.0, 1.42)
-    ax.set_xlabel("jet momentum coefficient  $C_\\mu$  [–]")
-    ax.set_ylabel("lift coefficient  $C_L$  [–]")
+    ax.set_xlabel("jet momentum coefficient  $C_\\mu$  [-]")
+    ax.set_ylabel("lift coefficient  $C_L$  [-]")
     ax.set_title(check_title("Lift grows with the square root of jet momentum"),
                  weight="bold", color=INK, loc="left", pad=9)
     leg = ax.legend(frameon=False, fontsize=8.9, loc="lower right",
@@ -595,8 +607,8 @@ def main():
     axb.set_xticks(range(len(vals)))
     axb.set_xticklabels(labels, fontsize=9.0)
     axb.set_ylim(0, max(vals) * 1.30)
-    axb.set_xlabel("change in $C_\\mu$ over the step  [–]")
-    axb.set_ylabel("extra lift per unit of\nextra jet momentum  [–]")
+    axb.set_xlabel("change in $C_\\mu$ over the step  [-]")
+    axb.set_ylabel("extra lift per unit of\nextra jet momentum  [-]")
     axb.set_title(check_title("Each extra unit of blowing buys less"),
                   weight="bold", color=INK, loc="left", fontsize=11.0, pad=9)
     tidy(axb)
@@ -753,7 +765,7 @@ def main():
     cb = fig.colorbar(cf, ax=ax, pad=0.012, fraction=0.030,
                       ticks=[-0.5, -0.25, 0.0, 0.25, 0.5])
     cb.set_label("air speed relative to the oncoming stream,  "
-                 "$|\\mathbf{U}|/U_\\infty - 1$  [–]", fontsize=9.5,
+                 "$|\\mathbf{U}|/U_\\infty - 1$  [-]", fontsize=9.5,
                  color=INK2)
     cb.ax.tick_params(labelsize=8.5, colors=INK2)
     cb.outline.set_edgecolor(GRIDC)
@@ -761,8 +773,8 @@ def main():
     ax.set_xlim(*xlim)
     ax.set_ylim(*ylim)
     ax.set_aspect("equal", adjustable="box")
-    ax.set_xlabel("$x/c$  [–]")
-    ax.set_ylabel("$y/c$  [–]")
+    ax.set_xlabel("$x/c$  [-]")
+    ax.set_ylabel("$y/c$  [-]")
     ax.set_title(check_title("A jet of air doing the job of a flap"),
                  weight="bold", color=INK, loc="left", pad=9)
     ax.tick_params(colors=INK2, labelsize=9.5)
@@ -772,8 +784,13 @@ def main():
     # standard removes.
 
     assert_no_banner(fig)
-    caption(fig, "Speed relative to the oncoming stream, with the jet sheet "
-                 "traced and streamlines entering at equal spacing.")
+    # The dashed contour is NAMED (Sanaa 2010Z): it is the zero level of
+    # the plotted quantity, where local speed equals the oncoming
+    # stream, read off the contour call above. 19 words, under the
+    # generator's own 20-word caption gate.
+    caption(fig, "Speed relative to the oncoming stream; jet sheet traced; "
+                 "streamlines equally spaced; dashed line: speed equals "
+                 "the oncoming stream.")
     save(fig, "jet_flap_3_flow_field")
 
     # ----------------------------------------------- FIGURE 4: trajectory ---
@@ -806,7 +823,7 @@ def main():
     ax.set_ylim(-1.10, 0.32)
     ax.set_aspect("equal", adjustable="box")
     ax.set_xlabel("$x/c$  [–]   (slot at $x/c = 1.00$)")
-    ax.set_ylabel("$y/c$  [–]")
+    ax.set_ylabel("$y/c$  [-]")
     ax.set_title(check_title("The jet is turned by the flow it is turning"),
                  weight="bold", color=INK, loc="left", pad=9)
     leg = ax.legend(frameon=False, fontsize=9.2, loc="upper right")

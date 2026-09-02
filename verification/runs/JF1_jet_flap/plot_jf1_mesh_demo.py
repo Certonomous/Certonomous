@@ -944,7 +944,12 @@ def main():
            sS["n_across"], 1e3 * sS["h"], 1e3 * sS["dy_max"],
            cmS["nonorth_max"], cmS["skew_max"],
            _sweep_yplus_max()[0], _sweep_yplus_max()[-1])))
-    cost_line(fig, cost_sweep)
+    # THE COST FOOTER IS GONE FROM THIS FIGURE (Sanaa 2010Z: it baked the
+    # retired 56.8 / 117.5 / 2.07x set and an em dash into the pixels; her
+    # option taken is removal, so no screen-set number is baked into a
+    # rendered artifact either). The compute story lives on the compute
+    # table and the conclusion, one surface, never a figure footer that
+    # drifts when the story moves. cost_sweep still feeds the sheet note.
     save(fig, "jet_flap_7_mesh_forcesweep")
 
     # -------------------------------------------------------------- readout --

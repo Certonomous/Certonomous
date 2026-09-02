@@ -51,6 +51,7 @@ from pathlib import Path
 
 from . import _jf1_geometry, _jf1_numbers
 from .demo_mode import (GPU_ROUTING_POLICY, Assumption, Closing, DemoAct,
+                        DemoContractError,
                         ElapsedClock, Feasibility, Figure,
                         GatesAndChecks, Geometry, GeometryMatch, MeshPlan,
                         Measured, Prompt, Restatement, Results, RunRecord,
@@ -473,6 +474,23 @@ class JetFlapAct(DemoAct):
     #: incompressible and solves a KINEMATIC pressure, so the unit is m^2/s^2
     #: and not Pa. The stage template cannot know that and no longer guesses.
     panel_quantities = {"field_p": "p/rho (m^2/s^2)", "field_u": "|U| (m/s)"}
+
+    #: THE OPERATING POINT ON THE PRESSURE FIELD'S CAPTION (Sanaa 2010Z:
+    #: "add the operating point to the caption ... or whichever it is" --
+    #: hers was a guess, this is READ). The field panels are rendered from
+    #: the case ``mesh_plan().cell_count.source`` cites; this property looks
+    #: that case up in the frozen sweep table and refuses rather than
+    #: captioning a picture with another row's blowing. Declared for the
+    #: pressure panel she named; everything else stays as is, her words.
+    @property
+    def panel_operating_points(self) -> dict:
+        cited = Path(_jf1_numbers.sweep_facts()["case_dir"]).name
+        for cmu, name in _jf1_numbers.SWEEP_CASES:
+            if name == cited:
+                return {"field_p": f"C_mu = {cmu:.2f}"}
+        raise DemoContractError(
+            f"the field panels cite {cited!r}, which is not a row of the "
+            f"frozen sweep table; its operating point cannot be stated")
 
     # -- stage 0 ------------------------------------------------------------
     def run_record(self) -> RunRecord:

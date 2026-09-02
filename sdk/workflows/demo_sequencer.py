@@ -1598,7 +1598,16 @@ class Sequencer:
             # basis, written by the renderer beside the image), numbers
             # first, per her figure standard. A panel whose sidecar carries
             # no range keeps the grid caption rather than inventing one.
-            def _field_caption(shot, title):
+            # THE OPERATING POINT RIDES THE CAPTION WHEN THE ACT DECLARES ONE
+            # (Sanaa 2010Z on the JF1 pressure field: "add the operating
+            # point to the caption"). Generic and act-authored: the act reads
+            # the point off the case its own panels cite and declares the
+            # symbol-and-number string per panel; this method never guesses
+            # one. An act declaring none is byte-identical.
+            op_points = dict(
+                getattr(self.act, "panel_operating_points", {}) or {})
+
+            def _field_caption(shot, title, panel):
                 rng = shot.get("range")
                 if not rng:
                     return grid
@@ -1607,7 +1616,9 @@ class Sequencer:
                     unit = " " + title[title.find("(") + 1:-1]
                 basis = str(shot.get("range_basis") or "")
                 tail = f", {basis}" if basis else ""
-                return f"{rng[0]:,.1f} to {rng[1]:,.1f}{unit}{tail}."
+                op = str(op_points.get(panel) or "")
+                lead = f"{op}; " if op else ""
+                return f"{lead}{rng[0]:,.1f} to {rng[1]:,.1f}{unit}{tail}."
 
             # The namespace is the ACT'S, taken from a figure it declares, so a
             # panel announced beside the act's own figures is served from the
@@ -1621,7 +1632,7 @@ class Sequencer:
                 shot = self._panel(mesh, panel, namespace=space)
                 if shot is None:
                     continue
-                caption = _field_caption(shot, title)
+                caption = _field_caption(shot, title, panel)
                 self._check_caption(title)
                 self._check_caption(caption)
                 announce_plot(emit, space, Path(shot["url"]).name,
