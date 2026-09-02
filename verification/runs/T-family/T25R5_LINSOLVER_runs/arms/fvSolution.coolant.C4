@@ -1,0 +1,133 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2606                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system/coolant";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    rho
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-08;
+        relTol          0;
+    }
+    rhoFinal { $rho; relTol 0; }
+
+    // *** THE p_rgh TOLERANCE IS 1e-8 AND 1e-9 IS UNREACHABLE. ***  MEASURED,
+    // T25RF addendum A2: GAMG STALLS at ~4.4e-9 on this system.  266 of 600
+    // p_rgh solves in the 5-sweep arm and 608 of 1200 in the 10-sweep arm
+    // terminated at maxIter 1000 WITHOUT reaching 1e-9, and the waste GREW as
+    // the field settled.  Relaxing one digit removed 601,763 GAMG iterations
+    // (627,533 -> 25,770, 24.4x) and changed the last-sweep Min/max T at
+    // Time = 30 by 0.000e+00 K -- 292.985283351 / 294.125534239 in both arms.
+    // CLAUDE.md rule 12: that is WASTE, named, not absorbed into a cost ratio.
+    "p_rgh.*"
+    {
+        solver          PCG;
+        preconditioner
+        {
+            preconditioner  GAMG;
+            smoother        DICGaussSeidel;
+            nPreSweeps      1;
+            nCellsInCoarsestLevel 200;
+            agglomerator    faceAreaPair;
+            mergeLevels     1;
+            cacheAgglomeration true;
+        }
+        tolerance       1e-13;
+        relTol          0.01;
+    }
+    p_rghFinal
+    {
+        $p_rgh;
+        tolerance       1e-13;
+        relTol          1e-3;
+    }
+
+    "(U|h|k|omega)"
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-10;
+        relTol          0.01;
+    }
+    "(U|h|k|omega)Final"
+    {
+        $U;
+        tolerance       1e-10;
+        relTol          0;
+    }
+}
+
+PIMPLE
+{
+    momentumPredictor true;
+    nCorrectors     2;
+    nNonOrthogonalCorrectors 0;
+    // frozenFlow IS AVAILABLE at v2606 and IS DELIBERATELY NOT USED.  It would
+    // stop solving momentum entirely and advance energy alone -- a STRONGER
+    // approximation than section 3.3's quasi-steady framing.  T25RF arm A3 was
+    // registered to reach for it only if A1 and A2 both failed; both held, A3
+    // was NEVER REACHED and NEVER RUN, and no departure was taken.  Left at its
+    // default false: the full momentum and turbulence equations are solved on
+    // every outer sweep of every time step.  The flow field is SOLVED, not
+    // imposed.
+}
+
+relaxationFactors
+{
+    // *** THIS BLOCK IS THE FIX FOR THE T25R_L1 DIVERGENCE, AND EVERY `Final`
+    // KEY IS WRITTEN OUT LITERALLY. ***
+    //
+    // MECHANISM, read at v2606 source and then CONFIRMED BY MEASUREMENT (T25RF
+    // arm A0 reproduced the crash under the NEW loads to the same three steps,
+    // T0 = -14.458 against the reference run's -14.459, so the divergence is
+    // NUMERICAL and not load-driven):
+    //   chtMultiRegionFoam.C:111 sets finalIter on the last outer sweep;
+    //   fvMatrix::relax() (fvMatrix.C:1249) looks its key up as
+    //   psi_.select(isFinalIteration()); GeometricField::select(bool)
+    //   (GeometricField.C:1179) returns name() + "Final".
+    //   *** OPENFOAM KEYWORD REGEXES MATCH IN FULL, so T25R's
+    //   "(U|h|k|omega)" DID NOT MATCH UFinal OR hFinal *** and momentum and
+    //   energy ran UNRELAXED on the final sweep.  At Co ~ 1600 the 1/dt term
+    //   adds almost nothing to the momentum diagonal, so that one unrelaxed
+    //   sweep had no diagonal dominance left to stabilise it: continuity
+    //   sum local went 3.609 -> 125.93 across sweeps 4 and 5 of Time = 1.0 and
+    //   Min T fell from 288.21 to -73.54.
+    //
+    // A QUOTED REGEX IS NOT USED HERE EVEN THOUGH ONE WOULD MATCH.  The failure
+    // being guarded against is a pattern that LOOKS like it matches and does
+    // not; the registered form is decidable by reading, and analyse_t25R2's
+    // `numerics_check` REFUSES a quoted key.
+    fields
+    {
+        p_rgh       0.3;
+        p_rghFinal  0.3;
+    }
+    equations
+    {
+        U           0.7;
+        UFinal      0.7;
+        h           0.7;
+        hFinal      0.7;
+        k           0.7;
+        kFinal      0.7;
+        omega       0.7;
+        omegaFinal  0.7;
+    }
+}
+
+// ************************************************************************* //
