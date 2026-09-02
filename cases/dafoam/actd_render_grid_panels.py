@@ -323,11 +323,32 @@ def render_wing_frames(case: Path) -> int:
             # The inboard camera HOLDS ITS OWN FRAME, in parallel
             # projection: ResetCamera would re-frame the whole wing, and a
             # perspective camera at span scale sat on the surface; both
-            # were rendered and looked at before this form.
+            # were rendered and looked at before this form. The parallel
+            # scale was 0.16 * reach and the frame read as a face-level
+            # closeup nobody could read as an inboard span (looked at, not
+            # assumed, 2026-09-02); at 0.30 to 0.40 the leading edge read
+            # but the root trailing edge left the frame's bottom, so the
+            # focal point is also shifted along the SCREEN-DOWN direction
+            # (the view-plane projection of -Y for this eye) to recentre
+            # the section. Settled at scale 0.46 with a 0.22 * reach shift:
+            # the leading edge, the face rows and the trailing-edge
+            # silhouette all read in-frame (each candidate was rendered and
+            # looked at before this pair was kept).
             view.CameraParallelProjection = 1
+            d = (-0.30, 0.85, 0.60)
+            dn = (sum(c * c for c in d)) ** 0.5
+            d = tuple(c / dn for c in d)
+            # screen-up = world +Y minus its component along the view axis
+            uy = (-d[0] * d[1], 1.0 - d[1] * d[1], -d[1] * d[2])
+            un = (sum(c * c for c in uy)) ** 0.5
+            uy = tuple(c / un for c in uy)
+            shift = 0.22 * reach
+            cx, cy, cz = (cx - shift * uy[0], cy - shift * uy[1],
+                          cz - shift * uy[2])
+            cam.SetFocalPoint(cx, cy, cz)
             cam.SetPosition(cx - 0.30 * reach, cy + 0.85 * reach,
                             cz + 0.60 * reach)
-            cam.SetParallelScale(0.16 * reach)
+            cam.SetParallelScale(0.46 * reach)
             Render(view)
         else:
             view.CameraParallelProjection = 0
