@@ -557,6 +557,56 @@ def plant_control_for(qname, level, series_path_fn):
 
 
 # ==========================================================================
+# AMENDMENT v1.1, 2026-09-02 -- REPAIR R3.  G-ORDER, MADE REACHABLE.
+#
+# GRANTED: VERIFICATION_CHARTER.md v1.38 section 2d.7, commit 3dad5bae, "GRANTED
+# -- AND MEASURED INERT".
+#
+# THE DEPARTURE, EXHIBITED BY QUOTATION AND BY MEASUREMENT.  A1.2 at
+# T23G2_PREREGISTRATION.md:834 registers G-ORDER: "p(Q4) from the finest three
+# levels in [0.5, 1.5] -> PASS; CONVERGING but outside -> GATE FAIL".  In the
+# frozen code ORDER_BAND and ORDER_QUANTITY each occurred TWICE, both second
+# occurrences inside a single note(), and RT.grade_ladder's signature carries no
+# order-band parameter -- so G-ORDER COULD NOT RETURN GATE FAIL UNDER ANY VALUE
+# OF p.  A registered gate unreachable in code is a departure; condition (2) is
+# met under section 2d.5.
+#
+# THE BAND IS NOT INVENTED HERE.  ORDER_BAND = (0.5, 1.5) is frozen PRE-COMPUTE
+# at :833-834 and is not touched by this repair.
+#
+# DIRECTION: RESTRICTIVE.  This can only ADD a GATE FAIL; it can remove none.
+# The ruling records that on this data it adds none.
+# ==========================================================================
+def gate_order(rows):
+    """G-ORDER on the PRIMARY ORDER QUANTITY (:450), folded into the rollup.
+
+    The registered clause bites only on a CONVERGING triple -- "CONVERGING but
+    outside -> GATE FAIL".  Where the finest triple is not CONVERGING there is no
+    order claim to gate, and an absent measurement is reported as absent, never
+    as a pass (VERIFICATION_CHARTER.md section 9).
+    """
+    note("G-ORDER -- A1.2 at T23G2_PREREGISTRATION.md:834, on %s, band %s"
+         % (ORDER_QUANTITY, ORDER_BAND))
+    row = rows.get(ORDER_QUANTITY)
+    if row is None:
+        refuse("G-ORDER is registered on %s and no row for it was graded; an "
+               "unevaluated gate is not a passed one" % ORDER_QUANTITY)
+    p = row["orders"][-1]
+    state = row["states"][-1]
+    if p is None or state != "CONVERGING":
+        verdict = "NOT A RESULT"
+        note("  finest triple is %s and the observed order is %s; there is NO "
+             "ORDER CLAIM to gate" % (state, "None" if p is None else "%.4f" % p))
+    else:
+        verdict = ("PASS" if ORDER_BAND[0] <= p <= ORDER_BAND[1]
+                   else "GATE FAIL")
+        note("  p(%s) = %.4f, band [%.1f, %.1f], finest triple %s"
+             % (ORDER_QUANTITY, p, ORDER_BAND[0], ORDER_BAND[1], state))
+    note("  G-ORDER: %s\n" % verdict)
+    return verdict
+
+
+# ==========================================================================
 # REPAIR R2 -- the grading-path sha recorder.  IT GRADES NOTHING.
 # ==========================================================================
 def _git(args):
@@ -699,7 +749,9 @@ def main(argv):
              "housing quantity LOWER.  On T23G the spread was\n  0.0027, which "
              "is a point AGAINST H-IFACE recorded before this run.\n")
 
-    verdicts = [ms, cv, yv, pv, rv] + [rows[q_]["verdict"] for q_ in rows]
+    ov = gate_order(rows)          # REPAIR R3 -- G-ORDER, folded into the rollup
+
+    verdicts = [ms, cv, yv, pv, rv, ov] + [rows[q_]["verdict"] for q_ in rows]
     final = ("NOT A RESULT" if "NOT A RESULT" in verdicts else
              "GATE FAIL" if "GATE FAIL" in verdicts else "PASS")
     note("=" * 74)
