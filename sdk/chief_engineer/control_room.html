@@ -743,13 +743,26 @@ async function launchMission() {
   // for the whole act (see `showActSurface`). An act launched with no surface
   // leaves the control at rest, so the panel never carries the last act's body.
   if (surface) showActSurface(meta || { name: surface });
-  // AND IT STAYS ON THE STAGE. The upload already rendered the body the moment
-  // it landed; `resetMission` then cleared the mesh and put the empty-stage line
-  // back, so between pressing launch and the geometry stage the viewer watched
-  // a placeholder sit where their own surface had just been. The body goes
-  // straight back, before the first stage opens.
-  if (surface) loadGeometry({ url: `/api/geometry?name=${encodeURIComponent(surface)}`,
-                              label: (meta && meta.body) || displayName(surface) });
+  // AND THE FILE CARD STAYS ON THE STAGE, NOT A TESSELLATED RENDER. This used
+  // to call loadGeometry on the uploaded surface -- the acknowledgment beat --
+  // right after resetMission cleared paraviewOwned and BEFORE the act's first
+  // paced event could drain, so the client triangle canvas was guaranteed a
+  // window on every surface-carrying launch. Measured on the adjoint act's
+  // offline drive: the act's ParaView mesh.panel is its FIRST wire event
+  // (sequence 1, before stage.begin) and it emits no geometry.ready at all,
+  // so this page-side call was the only tessellation left on an act launch.
+  // Sanaa's 0930Z ruling: the tessellation plot appears not at all. The
+  // neutral card is the honest state until the act's own render lands.
+  if (surface) {
+    subText('viewportLabel', (meta && meta.body) || displayName(surface));
+    $('viewportEmpty').textContent =
+      `Surface loaded: ${surface}`
+      + (meta && meta.triangles
+         ? `, ${(+meta.triangles).toLocaleString()} triangles` : '')
+      + `. The rendered view arrives with the run.`;
+    if (meta && meta.triangles)
+      $('viewportStats').textContent = (+meta.triangles).toLocaleString() + ' triangles';
+  }
   state.touchpoints = 1; renderTouch();
   $('shell').classList.add('launched'); $('shell').classList.remove('browsing');
   $('launch').disabled = true; $('beacon').classList.add('live'); $('globalStatus').textContent = 'FORMING THE TEAM';
@@ -1044,6 +1057,14 @@ function dispatch(env) {
     // that explains it. Pacing the status too would put the masthead behind the
     // solving backlog — the whole defect this is fixing.
     case 'stage.begin':
+      // ONLY DEMO ACTS EMIT stage.begin, so its arrival means an act is
+      // active -- and from that moment the tessellated canvas is out
+      // (Sanaa 0930Z: not at all), whether or not a ParaView panel has
+      // landed yet. Set on ARRIVAL, unpaced, so no queue backlog leaves a
+      // window; measured on the adjoint drive the first mesh.panel precedes
+      // stage.begin anyway, and this closes the path for an act whose first
+      // panel comes later.
+      state.paraviewOwned = true;
       if (p && p.stage && STAGE_STATUS[p.stage]) { state.stage = p.stage; setGlobalStatus(STAGE_STATUS[p.stage]); }
       enqueue('stageBegin', p, ts); break;
     // The nine stage payloads ARE the act's narrative and nothing rendered
