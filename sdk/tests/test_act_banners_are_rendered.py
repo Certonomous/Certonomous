@@ -173,6 +173,17 @@ def test_a_stage_with_no_word_of_hers_is_declared_empty_not_left_to_coincide():
         "two is what this whole change is about")
     assert BANNERS["feasibility"] == ""
 
+    # AND A STAGE NOBODY DECLARED IS NOT THE SAME THING, which is the arm that
+    # keeps the pre-shoot checklist honest. That checklist refuses a banner
+    # carrying no text; it now accepts the declaration above, so it must still
+    # refuse the accident, and it can only do that if the two are distinct.
+    # While both returned (text, True) they were not.
+    assert demo_sequencer.resolve_banner({"stage": "no-such-stage"}, None) == (
+        "", False), (
+        "a stage nothing declared must be distinguishable from a stage "
+        "declared to have no word; an absence that reads identical to a "
+        "decision is how the decision stops being reviewable")
+
 
 def test_every_stage_the_contract_fixes_has_a_default_banner():
     """A stage with no banner at all cannot be caught by either test above.

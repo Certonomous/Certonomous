@@ -297,7 +297,18 @@ def resolve_banner(state: dict, banners: "Mapping[str, str] | None" = None
         if text == default:
             return text, True
         return text, text.strip().lower() != stage.strip().lower()
-    return default, True
+    if stage in BANNERS:
+        # DECLARED, and possibly declared EMPTY. The feasibility beat has no
+        # word in Sanaa's seven and says so with an empty string; that is a
+        # statement about the stage, not an accident.
+        return default, True
+    # NOTHING DECLARED THIS STAGE AT ALL, which is a different thing from a
+    # stage declared to have no word, and the two were indistinguishable while
+    # both returned (text, True). They have to be told apart: the pre-shoot
+    # checklist refuses a banner carrying no text, and it must go on refusing
+    # the accident while accepting the declaration. An absence that reads
+    # identical to a decision is how the decision stops being reviewable.
+    return "", False
 
 
 # ---------------------------------------------------------------------------

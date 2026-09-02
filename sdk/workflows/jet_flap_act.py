@@ -235,6 +235,50 @@ def _stagnation_moves_aft() -> list[dict]:
     return blown
 
 
+def _wall_spacing() -> dict:
+    """The wall resolution ACROSS THE WHOLE SWEEP, derived once.
+
+    TWO NUMBERS FOR ONE QUANTITY REACHED THE SAME SCREEN. The mesh resolution
+    table printed a largest wall spacing of 0.316, read from the single
+    displayed case; the engineer's beat said the grid "reaches 0.398 at its
+    worst across all five calculations", the maximum over the sweep. Both were
+    true, both described the same wall on the same grid, and a viewer saw one
+    in a table headed "Largest" and heard the other a beat later. Sanaa caught
+    it. Nothing was wrong with either derivation; what was wrong is that there
+    were two.
+
+    THE SWEEP-WIDE FIGURE IS THE HONEST ONE. The grid is one grid and the
+    question the row answers is whether it resolves the wall EVERYWHERE the
+    five calculations put the flow. The worst case over the sweep is that
+    answer; the displayed case's own maximum is an accident of which row the
+    mesh figure was rendered from.
+
+    THE AGGREGATE IS EXACT RATHER THAN NEARLY RIGHT, and that rests on a
+    measured fact: every one of the five cases reports n = 396 wall faces. Only
+    because those counts are EQUAL is the mean of the five means the true mean
+    over all 1,980 faces. A mean of means over unequal samples is the kind of
+    number that looks right and is not, so the equality is asserted here rather
+    than assumed -- if a case is ever re-run on a different grid this refuses
+    instead of quietly reporting a weighted average as an unweighted one.
+    """
+    rows = [_jf1_numbers.wall_yplus(_jf1_numbers.RUN_ROOT / name,
+                                    _jf1_numbers.SWEEP_TIME)
+            for _, name in _jf1_numbers.SWEEP_CASES]
+    counts = {int(r["n"]) for r in rows}
+    if len(counts) != 1:
+        raise _jf1_numbers.ReaderRefused(
+            f"the five calculations report different wall-face counts "
+            f"{sorted(counts)}, so the mean over them is not the mean of "
+            f"their means and this row would state a weighted average as an "
+            f"unweighted one")
+    return {
+        "n": rows[0]["n"],
+        "min": min(r["min"] for r in rows),
+        "max": max(r["max"] for r in rows),
+        "mean": sum(r["mean"] for r in rows) / len(rows),
+    }
+
+
 def _run_status(case_dir: Path) -> dict:
     from chief_engineer.replay_history import read_run_status
 
@@ -436,7 +480,11 @@ class JetFlapAct(DemoAct):
         solved case's own artifacts.
         """
         facts = _jf1_numbers.sweep_facts()
-        yplus = facts["yplus"]
+        # ONE DERIVATION FOR ONE QUANTITY. This row read the DISPLAYED case's
+        # own wall spacing (0.316) while the engineer's beat quoted the sweep
+        # maximum (0.398); same wall, same grid, two numbers a beat apart. Both
+        # now come from `_wall_spacing`, so they cannot disagree again.
+        yplus = _wall_spacing()
         case_dir = Path(facts["case_dir"])
         return MeshPlan(
             command=["python3", str(MESH_BUILDER), "--out", str(MESH_WORK),
@@ -807,10 +855,8 @@ class JetFlapAct(DemoAct):
         facts = _jf1_numbers.sweep_facts()
         served = _jf1_geometry.CANONICAL / SURFACE
         chord, h_over_c = _jf1_geometry.measure_blown_slot(served)
-        worst_wall = max(
-            _jf1_numbers.wall_yplus(_jf1_numbers.RUN_ROOT / name,
-                                    _jf1_numbers.SWEEP_TIME)["max"]
-            for _, name in _jf1_numbers.SWEEP_CASES)
+        # THE SAME READER THE MESH TABLE USES. See `_wall_spacing`.
+        worst_wall = _wall_spacing()["max"]
         rows = _jf1_numbers.sweep_rows()
         return {
             # ---- LEAD RESEARCHER: the physics, and the model chosen for it,

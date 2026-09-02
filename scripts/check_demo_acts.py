@@ -687,7 +687,23 @@ def _limb_stages(events, refusal, act) -> list[str]:
                 f"a header banner describes the event {target!r}, which was "
                 f"never published; the header would name a screen that is not "
                 f"there")
-        if not _nonempty(p.get("text")):
+        # A BANNER MAY BE DECLARED TO HAVE NO WORD, AND THAT IS NOT THE SAME
+        # AS HAVING LOST ONE. Sanaa's seven stage words cover seven of the nine
+        # stages the contract fixes; the feasibility beat has none of hers, and
+        # every candidate contradicts her ORDER, so it declares an empty string
+        # rather than being given an invented word. This line was written when
+        # every banner carried text and could not tell that decision from an
+        # accident.
+        #
+        # ``authored`` IS WHAT SEPARATES THEM and it is the payload's own flag,
+        # not an inference here: ``demo_sequencer.resolve_banner`` reports True
+        # for a stage that declares its word (including declaring that it has
+        # none) and False for a stage nothing declared at all. So an empty
+        # banner nobody wrote is still a finding, which is the case this line
+        # exists for.
+        authored = p.get("authored")
+        declared_empty = (authored is True)
+        if not _nonempty(p.get("text")) and not declared_empty:
             problems.append("a header banner carries no text")
     return problems
 
