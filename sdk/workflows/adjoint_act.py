@@ -97,6 +97,7 @@ from __future__ import annotations
 import copy
 import json
 import math
+import re
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -128,6 +129,30 @@ FIGURES = _LADDER / "figures"
 #: stays exactly as it was -- only the WRITE target moves.
 MESH_WORK = (Path(__file__).resolve().parents[2] / "verification" / "runs"
              / "actD_runs" / "demo_mesh_work")
+
+#: THE MESHER THE STAGE CAN ACTUALLY RUN. The pipeline that BUILT this grid
+#: (cgns_utils -> pyHyp -> plot3dToFoam -> autoPatch -> createPatch ->
+#: renumberMesh) lives only in the DAFoam container and is absent on this
+#: host -- measured: repointing ``work_dir`` at scratch while keeping that
+#: command produced a HARD stage-5 refusal ("the meshing stage names a mesher
+#: that is not on this machine") and took the act off the air. So the demo
+#: stage runs this reproducer instead: it copies the landed run's own
+#: ``constant/polyMesh`` byte-for-byte (gunzipped) into the scratch directory,
+#: and the sequencer reads the cell count back off the mesh just written.
+#: Results are stored, not run live; the grid on screen is the REAL one.
+GRID_BUILDER = (Path(__file__).resolve().parents[2] / "cases" / "dafoam"
+                / "actd_reproduce_a2_grid.py")
+
+#: THE SERVED READ-ONLY COPY OF THE SOLVED GRID, and the artifact the
+#: on-screen cell count cites. A gunzipped byte-for-byte copy of
+#: ``A2-mach-wing/constant/polyMesh`` (made by the same reproducer), with the
+#: act's ParaView panels beside it under ``paraview/``. It exists because the
+#: landed run root may not be touched -- ``_live_cell_count`` and the panel
+#: guard read ``owner`` as plain text, and gunzipping inside a landed case
+#: would edit a frozen tree -- and because ``demo_sequencer._panel`` finds a
+#: panel THROUGH the cited artifact, so count and picture move together.
+SERVED_GRID = (Path(__file__).resolve().parents[2] / "verification" / "runs"
+               / "actD_runs" / "A2_wing_grid")
 
 #: SANAA'S STAGE 8, IN HER SECOND FORM, ON THE WIRE. Verbatim the sentence the
 #: shock-reflection act publishes (``dmr_act.CONVERGENCE_LINE``); ``self_check``
@@ -374,6 +399,15 @@ class AdjointWingAct(DemoAct):
 
     name = "adjoint wing drag reduction"
 
+    #: THE PANELS THIS ACT RENDERS FROM, DECLARED SO AN ABSENCE IS LOUD.
+    #: ParaView renders of the solved 38,304-cell grid, produced by
+    #: ``cases/dafoam/actd_render_grid_panels.py`` into
+    #: ``SERVED_GRID/paraview/`` and found by the sequencer through the
+    #: ``cell_count`` citation. A declared panel missing on disk is a refusal
+    #: rather than a fall-back to the retired canvas (Sanaa: "Never that
+    #: trashy canvas you were using before").
+    rendered_panels = ("mesh", "mesh_zoom")
+
     # -- caches: read once per drive, never memoised across drives ----------
     def _replay(self) -> dict:
         return _load(REPLAY_FILE)
@@ -484,6 +518,55 @@ class AdjointWingAct(DemoAct):
         return {"verdict": "PASS", "checked": len(pairs)}
 
 
+    # -- the numerics, read off the run's own dictionaries -------------------
+    def _numerics(self) -> dict:
+        """The schemes and relaxation the run ACTUALLY used, read, not typed.
+
+        Sanaa's 2026-09-02 orders: every act states the solver, the closure
+        and the numerics explicitly. This act's ethos is that nothing is
+        typed beside a claim, so the scheme words below are read out of the
+        landed run's own ``system/fvSchemes`` and ``system/fvSolution`` and
+        REFUSED if they are not what the spoken line renders them as --
+        a numerics beat that outlived a scheme change would be a typed claim
+        with a reader's costume on.
+        """
+        system = Path(self._history()["_source_dir"]) / "system"
+        schemes = (system / "fvSchemes").read_text(errors="replace")
+        solution = (system / "fvSolution").read_text(errors="replace")
+
+        def grab(pattern: str, text: str, what: str) -> str:
+            hit = re.search(pattern, text)
+            if not hit:
+                raise DemoContractError(
+                    f"the numerics beat reads {what} from the run's own "
+                    f"dictionaries and could not")
+            return hit.group(1).strip()
+
+        div_u = grab(r"div\(phi,U\)\s+([^;]+);", schemes, "the momentum scheme")
+        div_e = grab(r"div\(phi,e\)\s+([^;]+);", schemes, "the energy scheme")
+        grad = grab(r"gradSchemes\s*\{[^}]*?default\s+([^;]+);", schemes,
+                    "the gradient scheme")
+        if "linearUpwind" not in div_u:
+            raise DemoContractError(
+                f"the momentum convection line renders 'second-order upwind' "
+                f"and the run's scheme is {div_u!r}; the beat must change "
+                f"with the run")
+        if not re.search(r"\bupwind\b", div_e):
+            raise DemoContractError(
+                f"the energy convection line renders 'first-order upwind' "
+                f"and the run's scheme is {div_e!r}; the beat must change "
+                f"with the run")
+        if grad != "Gauss linear":
+            raise DemoContractError(
+                f"the gradient line renders 'Gauss linear' and the run's "
+                f"scheme is {grad!r}; the beat must change with the run")
+        p_relax = float(grab(r'"\(p\|p_rgh\)"\s+([0-9.eE+-]+);', solution,
+                             "the pressure relaxation"))
+        eq_relax = float(grab(
+            r'"\(U\|T\|e\|h\|nuTilda\|k\|epsilon\|omega\)"\s+([0-9.eE+-]+);',
+            solution, "the equation relaxation"))
+        return {"p_relax": p_relax, "eq_relax": eq_relax}
+
     # -- stage 4's discussion ------------------------------------------------
     def discussions(self):
         """The three specialists, on decisions ACTUALLY taken.
@@ -510,6 +593,7 @@ class AdjointWingAct(DemoAct):
         cells = self.mesh_plan().cell_count
         rho = _actd_P0 / _actd_T0 / 287.0
         cost = _frozen_cost()
+        numerics = self._numerics()
         # SANAA'S TWO COST BEATS. One PREDICTS before the solve, one COMPARES
         # after it. Every figure is read from the frozen pre-registration and
         # that document is hash-checked first, so the prediction cannot have
@@ -588,6 +672,26 @@ class AdjointWingAct(DemoAct):
                     f"never folded into the ratio.",
                 ]),
             ] if predicted else []),
+            # ---- LEAD NUMERICIST: solver, closure and numerics, explicit.
+            # Sanaa's 2026-09-02 ~02:32Z orders: "all acts should explicitely
+            # state the solver the rans model the numerical parameters".
+            # Scheme words are read from the run's own dictionaries by
+            # `_numerics` and refused if they drift from what these lines
+            # render them as.
+            "feasibility": [
+                ("numericist", [
+                    f"Solver: DAFoam {_actd.SOURCE_SOLVER} on OpenFOAM "
+                    f"{_actd.SOURCE_OPENFOAM} -- steady, compressible, "
+                    f"pressure-based. Closure: {_actd.SOURCE_TURBULENCE}, "
+                    f"one equation.",
+                    f"Convection: second-order upwind on momentum, "
+                    f"first-order upwind on energy and turbulence. "
+                    f"Gradients: Gauss linear. Steady state, no time scheme.",
+                    f"Relaxation: {numerics['p_relax']:g} on pressure, "
+                    f"{numerics['eq_relax']:g} on velocity, energy and "
+                    f"turbulence.",
+                ]),
+            ],
             "gates": [
                 ("numericist", [
                     f"The gradient is graded against the flow solver itself "
@@ -595,6 +699,35 @@ class AdjointWingAct(DemoAct):
                     f"Run on {record['mpi_ranks']} ranks, and the check is "
                     f"self-consistency rather than validation: no wind tunnel "
                     f"data exists for this wing.",
+                    # SANAA'S ROUTING LINE, VERBATIM BY HER ORDER, with two
+                    # mechanical accommodations to her own standing rules and
+                    # no change of wording: the first letter is capitalised
+                    # for the transcript's opener rule, and her em-dashes
+                    # render as the house double hyphen because
+                    # `check_wording` (owner rule) refuses the em-dash
+                    # character in transcript prose. Her 0232Z item 2 gated
+                    # this beat on
+                    # a CPU-vs-GPU adjoint log plus a gradient-consistency
+                    # row; her 0250Z override (etc/sessions/2026-09-02T0250Z_
+                    # sanaa_adjoint_gpu_beat_override.md, her words: "No we do
+                    # not have a gpu act. Regardless do as i said... dont
+                    # argue") waives that gate explicitly. AS OF 2026-09-02 NO
+                    # CPU-VS-GPU ADJOINT LOG EXISTS ON THIS BOX (search:
+                    # docs/GPU_CAPABILITY_STATE.md §5 "OpenFOAM / DAFoam
+                    # solvers: Not GPU-capable here";
+                    # docs/dafoam/GPU_SCOPE_MEMO.md: no GPU-capable PETSc in
+                    # either DAFoam image); the line is forward-looking
+                    # narration by her order, the override file records that,
+                    # and every measured figure in this act stays the real
+                    # CPU-run value. The gradient-consistency row is NOT
+                    # fabricated: it is added when a real GPU log lands.
+                    # TODO(demo_mode.GPU_ROUTING_POLICY): the JF1 lane is
+                    # adding the lab's one routing rule as a shared constant
+                    # in demo_mode; when it exists, cite it verbatim here
+                    # instead of this local string.
+                    f"The adjoint is one large linear system solved once -- "
+                    f"transfer amortizes -- so the gradient solve routes to "
+                    f"the GPU.",
                 ]),
             ],
         }
@@ -749,17 +882,27 @@ class AdjointWingAct(DemoAct):
     def mesh_plan(self) -> MeshPlan:
         """What the grid is, and what the wall-layer zoom frames.
 
-        THE COMMAND IS THE REAL PIPELINE AND THE SEQUENCER DOES NOT RUN IT.
-        Measured: ``demo_sequencer._stage_meshing`` never reads
-        ``MeshPlan.command``; it speaks the progressive line, emits the
-        resolution table and publishes the cell count and the zoom. So naming
-        the pipeline here is a statement of what builds this grid, not an
-        instruction to launch anything, and nothing is launched.
+        THE COMMAND NOW RUNS, AND IT REPRODUCES RATHER THAN MESHES. The real
+        pipeline (cgns_utils -> pyHyp -> plot3dToFoam -> autoPatch ->
+        createPatch -> renumberMesh) lives only in the DAFoam container --
+        see ``GRID_BUILDER`` above for the measured refusal that proved it --
+        so the stage runs ``actd_reproduce_a2_grid.py``, which copies the
+        landed run's own ``constant/polyMesh`` byte-for-byte into
+        ``MESH_WORK``. ``demo_sequencer._run_mesher`` then reads the cell
+        count back off the mesh just written and refuses a grid that does not
+        reproduce the solved one. Nothing is generated or synthesised.
 
-        NO DURATION IS PUBLISHED. The mesher's measured 8.021 s is carried in
-        ``expected_seconds``, which the sequencer does not put on screen, and
-        it is not the cost of drawing 38,304 cells one at a time in a browser.
-        Those are two different quantities and only one of them is measured.
+        THE PANELS ARE PARAVIEW RENDERS OF THE SAME GRID. ``cell_count``
+        cites ``SERVED_GRID/constant/polyMesh`` -- the served copy of the
+        solved grid -- so ``demo_sequencer._panel`` finds the renders through
+        the cited artifact and asserts three readings of one count: the value
+        printed here, the sidecar the renderer wrote, and ``owner`` on disk
+        at drive time. Rendered by ``cases/dafoam/actd_render_grid_panels.py``
+        under the 5.13.3 EGL build, per the render-pass pre-registration.
+
+        NO DURATION IS PUBLISHED. The real mesher's measured 8.021 s is
+        carried in ``expected_seconds``, which the sequencer does not put on
+        screen; it is used only to bound the reproducer's runtime.
         """
         mesh = _load(MESH_TIME_FILE)
         record = self._record()
@@ -787,39 +930,28 @@ class AdjointWingAct(DemoAct):
              f"{skew:.3f}" if skew is not None else "not read"],
         ]
         return MeshPlan(
-            # The pipeline by the name of each tool, not by the name of the
-            # script that drives it: the mesher is pyHyp, marching a
-            # hyperbolic extrusion off a CGNS surface mesh. There is no
-            # snappyHexMesh in this list and no STL enters it.
-            command=["cgns_utils", "pyHyp", "plot3dToFoam", "autoPatch",
-                     "createPatch", "renumberMesh"],
-            # The directory the mesh inputs live in: the surface mesh the
-            # extrusion starts from and the extrusion script itself. Read out
-            # of the history record rather than written here.
-            # ⚠ STILL THE RUN ROOT, AND THE REPOINT IS PREPARED BUT NOT
-            # WIRED. `MESH_WORK` above is the scratch target this should become
-            # and the guard is right to refuse meshing into a landed case. But
-            # MOVING IT ALONE IS A REGRESSION, measured rather than argued:
-            #
-            #   work_dir = run root   347 events, 9 of 9 stages; the guard
-            #                         SKIPS meshing and the screen shows a
-            #                         cell COUNT with no grid
-            #   work_dir = MESH_WORK   20 events, 5 of 9 stages, hard refusal:
-            #                         "the meshing stage names a mesher that is
-            #                         not on this machine"
-            #
-            # The guard's skip was MASKING a deeper blocker: `cgns_utils`,
-            # `pyHyp`, `plot3dToFoam` and `autoPatch` are all ABSENT ON THIS
-            # HOST -- they live in the DAFoam container. So the work_dir is the
-            # SECOND-order problem and the mesher toolchain is the first, and
-            # repointing without solving that takes the act off the air
-            # entirely rather than merely showing a number instead of a grid.
-            #
-            # This line moves to `MESH_WORK` in the same change that gives the
-            # meshing stage a mesher it can actually run, and not before.
-            work_dir=Path(self._history()["_source_dir"]),
+            # THE COMMAND THE STAGE RUNS AND CAN RUN. Both halves of the old
+            # blocker are resolved together, which is what the previous
+            # comment here required: the mesher named is one that exists on
+            # this host (python3 plus the reproducer), and the work_dir is
+            # scratch. The measured regression that comment recorded --
+            # repointing work_dir alone gave "the meshing stage names a
+            # mesher that is not on this machine", 20 events, 5 of 9 stages
+            # -- is what GRID_BUILDER exists to close: the container-only
+            # pipeline (cgns_utils/pyHyp/plot3dToFoam/autoPatch) is recorded
+            # in that script's docstring as what BUILT the grid, and the
+            # stage reproduces the stored grid instead of pretending to
+            # rebuild it.
+            command=["python3", str(GRID_BUILDER), "--out", str(MESH_WORK)],
+            work_dir=MESH_WORK,
+            # THE COUNT CITES THE SERVED COPY OF THE SOLVED GRID, not the
+            # mesh-time JSON: `_panel` locates the ParaView renders through
+            # this citation and re-reads `owner` beside it, so the picture
+            # and the printed count cannot come apart. The VALUE still comes
+            # from the mesh-time record and the two are asserted equal at
+            # drive time by the sequencer (sidecar, owner, printed count).
             cell_count=Measured(int(mesh["identity_assert"]["measured_cells"]),
-                                "cells", MESH_TIME_FILE),
+                                "cells", SERVED_GRID / "constant" / "polyMesh"),
             resolution_headers=["Quantity", "Value"],
             resolution_rows=rows,
             wall_zoom_hint=("the first of the 39 layers marched from the wing "
@@ -1258,9 +1390,22 @@ class AdjointWingAct(DemoAct):
                 CONVERGENCE_LINE,
                 "The full report, with every figure, is in the Report tab.",
             ],
-            certificate_state=(
-                "The certificate is issued with the convergence band, which "
-                "is running for this case now."),
+            # STATES WHAT THIS RUN HAS. IT DOES NOT PROMISE ONE.
+            #
+            # This read "The certificate is issued with the convergence band,
+            # which is running for this case now" -- copied from the sibling's
+            # phrasing -- and a language rule landed banning `certificate is
+            # issued` on a screen, with the reason: state whether THIS run has
+            # a sealed certificate, promise no future one. THE RULE IS RIGHT
+            # AND THE STRING WAS WRONG. A future certificate is a claim about
+            # work that has not happened, which is the same defect as a
+            # premature "the convergence study is done" -- and I had argued
+            # that one at length two hours earlier while carrying this.
+            #
+            # The convergence study is still promised, in the conclusion lines,
+            # where it belongs: a study underway is a real scheduled thing. A
+            # CERTIFICATE is not, and the two were welded into one sentence.
+            certificate_state="No sealed certificate is attached to this run.",
         )
 
     # -- which sequencer walks this act -------------------------------------
