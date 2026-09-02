@@ -6,7 +6,10 @@ Stitches the original 0..30000 leg and the 30000..90000 extension into one serie
 and answers one question: is the near-axis viscosity swing DECAYING, and if so at
 what rate and toward what settling iteration?
 
-THIS SCRIPT PRODUCES MEASURED NUMBERS.  It grades nothing, issues no verdict, and
+THIS SCRIPT IS ON THE RECORD PATH AND OWES GRADING-PATH HYGIENE.  It grades nothing and
+issues no verdict -- but its outputs are QUOTED AS LAB FACTS in NUMERICS_KNOWLEDGE N-AV15
+and in ANSYS_VERIFICATION_CHARTER sec.16, so "it only diagnoses" buys it no latitude
+(verification's sweep, sec.2p.5).  It produces measured numbers, and
 computes NO deviation from any reference value -- the only Delta p quantity it
 touches is the peak-to-peak of the Delta p series against itself, which is a
 flatness measure and contains no reference.
@@ -23,6 +26,40 @@ import sys
 import os
 import glob
 import math
+
+# RHO cannot be read from `constant/transportProperties`: an incompressible OpenFOAM case
+# stores only the KINEMATIC transport properties, so the density that converts the solver's
+# kinematic p (m2/s2) to Pa simply is not in any case file.  It is therefore NAMED here with
+# its derivation rather than left as a bare literal in an expression -- the manual gives
+# k = 10 Pa.s^n and the case runs k = 0.01 kinematic, so RHO = 10/0.01 = 1000 kg/m3.
+# A magic number in a record-path instrument is a number nobody can check.
+RHO = 1000.0
+_K_MANUAL, _K_KINEMATIC = 10.0, 0.01
+assert abs(RHO - _K_MANUAL / _K_KINEMATIC) < 1e-9, "RHO is inconsistent with its own derivation"
+
+
+def one_or_refuse(paths, what):
+    """Return the single matching path, or REFUSE.
+
+    THE DISCRIMINATOR IS GUARDED vs UNGUARDED, NOT WHICH INDEX (verification's sweep,
+    VERIFICATION_CHARTER sec.2p.5).  The earlier form took `sorted(paths)[0]` -- a
+    LEXICOGRAPHIC sort on numeric time-directory names, where sorted(['0','10000',
+    '30000','5000']) is ['0','10000','30000','5000'], so `[0]` is not the earliest and
+    `[-1]` is not the latest.  But swapping the index was never the fix: under
+    refuse-unless-exactly-one, `[0]`, `[-1]` and an integer-keyed max are ALL IDENTICAL
+    and all safe.  Ambiguity is refused, never resolved by a convention the caller
+    cannot see.  Exemplar: grade_vmflgpu003.py:364-400.
+    """
+    if len(paths) != 1:
+        # The message says exit 2, so the process MUST exit 2.  `raise SystemExit("...")`
+        # prints the string and exits 1 -- a refusal that announces one code and returns
+        # another is the "evidence annotated as non-binding" defect, and this line carried
+        # it for the length of one planted-failure test.
+        sys.stderr.write("REFUSE (exit 2): %s matched %d paths %s -- a restart or a stale "
+                         "directory makes this ambiguous; REFUSING rather than guessing "
+                         "which is current\n" % (what, len(paths), sorted(paths)))
+        raise SystemExit(2)
+    return paths[0]
 
 
 def read_series(path):
@@ -108,14 +145,16 @@ def main():
             plant = (int(it_s), float(v_s))
 
     def leg(d, name):
-        g = glob.glob(os.path.join(d, 'postProcessing', name, '*', '*.dat'))
-        return read_series(sorted(g)[0]) if g else []
+        return read_series(one_or_refuse(
+            glob.glob(os.path.join(d, 'postProcessing', name, '*', '*.dat')),
+            "%s/postProcessing/%s" % (d, name))) if glob.glob(
+            os.path.join(d, 'postProcessing', name, '*', '*.dat')) else []
 
     numax = stitch(leg(A, 'nuMaxAll'), leg(B, 'nuMaxAll'))
     pin = stitch(leg(A, 'pInlet'), leg(B, 'pInlet'))
     pout = stitch(leg(A, 'pOutlet'), leg(B, 'pOutlet'))
     din, dout = dict(pin), dict(pout)
-    dp = [(k, 1000.0 * (din[k] - dout[k])) for k in sorted(set(din) & set(dout))]
+    dp = [(k, RHO * (din[k] - dout[k])) for k in sorted(set(din) & set(dout))]
 
     if plant:
         it, val = plant
@@ -155,7 +194,8 @@ def main():
         g = glob.glob(os.path.join(d, 'postProcessing', 'nuAxisProbes', '*', 'nu'))
         if not g:
             continue
-        hdr, rows = read_probes(sorted(g)[0])
+        hdr, rows = read_probes(one_or_refuse(
+            g, "%s/postProcessing/nuAxisProbes" % d))
         for h in hdr:
             if h.startswith('# Probe'):
                 print(h)

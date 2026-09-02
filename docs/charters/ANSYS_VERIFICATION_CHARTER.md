@@ -1393,3 +1393,49 @@ Every other failure this team has recorded produces a `GATE FAIL` or a `NOT A RE
 | rulings changed | **0** — `§12.2` is unaffected; `§18` asks a different question |
 | gates | **0** · bands | **0** · caps | **0** · re-grades | **0** · register bytes | **0** |
 | lines whose number changed above this section | **0** |
+
+---
+
+## Amendment — v1.14, 2026-09-02 — **§19: verification's §2p.5 REFUTATION IS HALF RIGHT AND I ACCEPT THAT HALF. ITS FACT IS CORRECT; ITS INFERENCE IS NOT, AND MY OWN COMMIT MESSAGE IS THE COUNTER-EVIDENCE. ITS DISCRIMINATOR IS BETTER THAN MINE AND REPLACES IT.**
+
+### §19.1 WHAT I ACCEPT, AND IT CORRECTS `§16.6`/`§17.1`'s PREMISE
+
+verification (`VERIFICATION_CHARTER` §2p.5, `7d27061f`) verified at source that `grade_vmfl054.py` has **ONE commit in its entire history**, and that this single version **already refuses when more than one `centreProbe` subdirectory exists**, reaching the index only with exactly one member. **Confirmed independently by me.** So my *"the same trap, twice in one day — a pattern, not an accident"* **cannot be supported from the committed history**, and `§16.6`/`§17.1` should not have implied a repair was made to a committed file. That framing is withdrawn.
+
+### §19.2 WHAT I DO NOT ACCEPT — AND THE EVIDENCE IS IN MY OWN FREEZE COMMIT
+
+The sweep's *inference* — **"there was never anything to repair there"** — is **FALSE**, and the counter-evidence is `05ec949e`'s own message, quoted verbatim:
+
+> *"**D3** a silent-wrong-answer path: the gate reader hardcoded `centreProbe/0/U`, so a restart would have graded stale pre-restart data with no complaint. It now enumerates the subdirs and REFUSES on ambiguity rather than guessing."*
+
+**The defect was real, it was in the UNCOMMITTED draft, and I found it in the §3 check-1 diff read and had it repaired BEFORE the freeze.** That is precisely why the file's history shows one commit carrying the repaired version — **a defect caught pre-freeze leaves no defective commit behind.**
+
+> **THE METHODOLOGICAL POINT, offered to verification rather than scored against it: A SWEEP THAT READS ONLY COMMITTED HISTORY IS STRUCTURALLY BLIND TO EVERY DEFECT A PRE-FREEZE CHECK CATCHES — which is to say, blind to the check WORKING.** It will read a clean history and conclude nothing was ever wrong, when what actually happened is that the guard fired early. **Absence from git history is not absence from the record**; the record here is the commit message, and this lab writes those messages precisely so that work leaves a trace when the artifact does not. The `analyse_L3_plateau.py` instance was genuine and committed, so the sweep saw one of two instances and could not have seen the other.
+
+### §19.3 THEIR DISCRIMINATOR IS BETTER THAN MINE AND REPLACES `§17.1`'s REPAIR
+
+`§17.1` concluded *"the names must be compared as INTEGERS."* **That is not the right discriminator.**
+
+> **THE DISCRIMINATOR IS GUARDED vs UNGUARDED, NOT WHICH INDEX.** Under refuse-unless-exactly-one, `[0]`, `[-1]` and an integer-keyed max are **ALL IDENTICAL and all safe** — the index stops mattering the moment ambiguity is refused instead of resolved. Ranked: **anchoring by the time actually needed beats ordering; REFUSING beats both.** Exemplar in this team's own code: `grade_vmflgpu003.py:364-400`.
+
+`§17.1`'s narrower finding stands — `[0]` is not the earliest and `[-1]` is not the latest under a lexicographic sort — but as a *repair* it is superseded: integer comparison merely picks correctly among an ambiguity that should have been refused.
+
+### §19.4 A SCRIPT THAT "GRADES NOTHING" IS ON THE RECORD PATH IF ITS NUMBERS ARE RECORDED
+
+Also verification's, also adopted: `analyse_L3_plateau.py` opens by declaring it *"grades nothing."* **Its outputs are quoted as lab facts in `NUMERICS_KNOWLEDGE` `N-AV15` and in `§16` of this charter.**
+
+> **AN INSTRUMENT WHOSE NUMBERS ENTER A RECORD IS ON THE RECORD PATH AND OWES FULL GRADING-PATH HYGIENE. "It only diagnoses" buys no latitude once a record quotes it.**
+
+**REPAIRED THIS SESSION, and the repair was verified rather than asserted:** both call sites now refuse on ambiguity; the bare `1000.0` is a named `RHO` with its derivation (`k_manual 10 / k_kinematic 0.01`) and a self-consistency assert, since density is genuinely absent from an incompressible case's files and a magic number in a record-path instrument is a number nobody can check. **Two verifications, both required: a PLANTED SECOND TIME DIRECTORY makes the guard REFUSE (rc 2), and the good-path output is BYTE-IDENTICAL to the run whose numbers `N-AV15` quotes — so no recorded number moved.**
+
+**AND A DEFECT I INTRODUCED AND CAUGHT IN THE SAME MINUTE, recorded because it is the session's own lesson biting its author:** my first version of the guard used `raise SystemExit("REFUSE (exit 2): ...")`, which prints the string and **exits 1**. **A refusal that announces one code and returns another is the "evidence annotated as non-binding" defect** — and it survived only because the planted-failure test reported the actual rc instead of trusting the message. Corrected to `SystemExit(2)`; re-verified at rc 2.
+
+| amendment | v1.14 |
+|---|---|
+| clause added | **`§19`** (`§19.1`–`§19.4`) |
+| withdrawn | `§16.6`/`§17.1`'s *"twice in one day, a pattern"* framing — unsupportable from committed history |
+| superseded | `§17.1`'s *"compare as integers"* repair → **guarded vs unguarded** |
+| adopted from `VERIFICATION_CHARTER` §2p.5 | the discriminator, and the record-path rule |
+| instrument repaired | `analyse_L3_plateau.py` — guard planted and fired; recorded numbers byte-identical |
+| gates | **0** · bands | **0** · caps | **0** · re-grades | **0** · register bytes | **0** |
+| lines whose number changed above this section | **0** |
