@@ -1329,9 +1329,9 @@ class MotorThermalAct(DemoAct):
                 (f"The map is bounded: the hottest point across all "
                  f"{len(points)} operating points is {peak:.1f} C, "
                  f"{margin:.1f} K inside the {limit:.0f} C limit."),
-                (f"The sixteen points cost {core_min:,.0f} core-minutes and "
+                (f"{core_min:,.0f} core-minutes in "
                  f"{execution['busy_wall_s'] / 60.0:.0f} minutes of wall "
-                 f"clock, solved in parallel."),
+                 f"clock, in parallel."),
                 ("The grid convergence study for this case is solved and in "
                  "grading; the band lands in your inbox with the "
                  "certificate."),
@@ -1447,16 +1447,19 @@ class MotorThermalSequencer(Sequencer):
             # declared series through its ``monitors`` dict, keyed by these
             # exact series names.
             "monitor_panels": [
-                {"title": "Hottest core temperature",
+                # ONE PANEL PER OPERATING POINT is her 0610Z layout (16
+                # panels in two rows of eight, one label INSIDE each,
+                # caption once). Panels are ROWS and labels are COLUMNS in
+                # the declaration contract, so one row is declared whose
+                # sixteen cells are the points, each carrying both series;
+                # the page owns wrapping sixteen cells into two rows of
+                # eight and printing the label inside the cell (flagged to
+                # the display lane).
+                {"title": "Hottest temperatures by operating point",
                  "x_label": "iteration", "y_label": "T, C",
-                 "series": ["Hottest core, C"],
-                 "note": ("every value is a row of each run's own core "
-                          "temperature monitor")},
-                {"title": "Hottest housing temperature",
-                 "x_label": "iteration", "y_label": "T, C",
-                 "series": ["Hottest housing, C"],
-                 "note": ("every value is a row of each run's own housing "
-                          "temperature monitor")},
+                 "series": ["Hottest core, C", "Hottest housing, C"],
+                 "note": ("every value is a row of each run's own "
+                          "temperature monitors")},
             ],
             "controls": [control],
         })

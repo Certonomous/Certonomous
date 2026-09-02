@@ -876,8 +876,20 @@ class BatteryModuleAct(DemoAct):
                    "T (C) against t (s), hottest and coolest points.",
                    "results"),
         ]
+        # HER 0610Z COMPUTE CONVENTION: per-run core-minutes, plain sum as
+        # total, wall time. The two arms ran at one worker; the wall column
+        # carries their measured sum.
+        arm_minutes = [solver_seconds(c) / 60.0 for c in (PRIMARY, SWEEP_ARM)]
+        compute = Table(
+            title="Compute",
+            headers=["Core-minutes per run", "Total core-minutes",
+                     "Total wall time"],
+            rows=[[" and ".join(f"{m:.1f}" for m in arm_minutes),
+                   f"{sum(arm_minutes):.1f}",
+                   f"{sum(arm_minutes):.0f} minutes at one worker"]],
+            table_id="battery_compute", role="CHIEF ENGINEER")
         return Results(
-            fields=fields, plots=plots, tables=[table],
+            fields=fields, plots=plots, tables=[table, compute],
             verification_lines=[
                 ("Run rejected as a certified result: the sweep convergence "
                  "check fixed before the runs started measured "
@@ -922,13 +934,18 @@ class BatteryModuleAct(DemoAct):
         return {
             "restatement": [
                 ("researcher", [
-                    "The physics here is a transient conjugate pair: heat "
-                    "born in the cells, carried across the channel walls, "
-                    "and swept out by the coolant air.",
-                    f"The closure is {model}, a two equation model on the "
-                    f"coolant; the solid carries conduction alone.",
-                    "The module's thermal mass sets the story: a 60 second "
-                    "pulse moves the metal by a few kelvin, not tens.",
+                    "Transient conjugate pair: heat born in the cells, "
+                    "carried across the channel walls, swept out by the "
+                    "coolant air.",
+                    f"Closure: {model} on the coolant; the solid carries "
+                    f"conduction alone.",
+                    "Thermal mass sets the story: a 60 second pulse moves "
+                    "the metal by a few kelvin, not tens.",
+                ]),
+                ("engineer", [
+                    f"Predicted wall clock: {scripted_estimate():.1f} "
+                    f"core-minutes at one worker, about "
+                    f"{scripted_estimate():.0f} minutes.",
                 ]),
             ],
             "assumption": [
@@ -943,16 +960,15 @@ class BatteryModuleAct(DemoAct):
             "gates": [
                 ("numericist", [
                     "The run completed cleanly: return code zero, every "
-                    "field written, the whole record on disk.",
-                    "Completion is not certification. The convergence check "
-                    "registered before the runs started asked whether the "
-                    "answer moves when the solver sweeps harder, and it "
-                    "moved: "
+                    "field written.",
+                    "Completion is not certification.",
+                    "The check asked whether the answer moves when the "
+                    "solver sweeps harder. It moved: "
                     f"{reading['O3'][0] * 1000:.1f} millikelvin at the "
                     f"takeoff transient, {reading['O3'][1] * 1000:.1f} "
                     f"allowed.",
-                    "So the platform refuses to certify these temperatures, "
-                    "and says so on the result sheet rather than beside it.",
+                    "So the platform declines to certify these temperatures "
+                    "and says so on the result sheet.",
                 ]),
             ],
         }
