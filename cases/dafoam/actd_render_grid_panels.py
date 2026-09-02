@@ -370,6 +370,14 @@ def render_wing_frames(case: Path) -> int:
         # surface and fills the frame by construction. The two passes keep
         # their two eye directions, so the walk and the close view stay
         # distinct conventions; margins leave room for the scalar bar.
+        #
+        # RENDER ONCE BEFORE FITTING. Measured, not assumed: with the fit
+        # applied before the view's very first render, the FIRST frame of a
+        # run (the baseline) came out tiny -- the initial render performs
+        # its own camera reset over the fitted one -- while every later
+        # frame held the fit. One render first, then the fit, then the
+        # render that is captured.
+        Render(view)
         fit_parallel(view, cam, pts,
                      (-0.30, 0.85, 0.60) if close else (-0.9, 0.65, 0.55),
                      1.06 if close else 1.04)
