@@ -42,6 +42,54 @@ re-derive rather than trust the shas below.
 First action every session: read this board, run `/form-teams`, report the roster
 to Sanaa. Sends are reserved to Sanaa.
 
+### CHIEF HANDOFF — demo filming session, written 2026-09-02T06:35Z at the subscription-switch warning
+
+**Context:** Sanaa is filming the five demo acts and said *"commit everything bc
+im going to switch subscription soon"* — the fleet dies at the switch. All her
+directives this session are captured verbatim in `etc/sessions/2026-09-02T*` and
+committed. Server: fresh at pid 812034 (bounced ~05:20Z, all code through the
+worker-census wave). Gate at last reading: **5 of 5 acts can start, 0 checklist
+failures** (`scripts/check_demo_acts.py`).
+
+**Prompts she films with** (uploads: jet `airfoil_blown_slot.stl`, adjoint
+`mach_tutorial_wing.stl`, motor `t23_solved_geometry.stl`, battery
+`battery_module_8cell.stl`, DMR none): jet = "Blown-wing high-lift: sweep the
+trailing-edge jet momentum coefficient from 0 to 0.4 and report lift against
+blowing with the classical jet-flap theory."; DMR = "Drive a Mach 10 shock into
+a wall at a steep angle and check how fast the shock travels against the exact
+answer."; adjoint = "Minimize drag at fixed lift. Stop after 20 mins"; motor =
+"Electric motor in a cooling duct: map the peak temperature in the motor solids
+across 80 to 305 W and 10 to 40 m/s against the 200 C limit."; battery =
+"Transient thermal analysis of the 8-cell battery module under a takeoff power
+pulse: peak cell temperature, cell-to-cell spread, time to settle."
+
+**In flight at the kill (four demo lanes; resume from the captures + these notes):**
+- JF1 lane: landed everything through the 8,000-iterations fix + shortening;
+  was starting the shared compute-table convention update (0610Z capture:
+  per-run core-min | plain sum | wall; predicted wall = core-min ÷ workers).
+- Adjoint lane: mid-batch on the 0540Z list — face-by-face wall-patch renders
+  (1,008 quads, no triangle diagonals, her caption verbatim), volume-mesh
+  symmetry cut via the motor renderer, worker/geometry stage sync, one baseline
+  Cd everywhere, "Optimization total" line, confidence toward 0.9, shortening.
+  Resume note: `docs/dafoam/demo/ACTD_DEMO_COMPUTE_NOTE.md`.
+- Thermal lane: mid-batch on 0610Z+0625Z+0630Z — two-wave sentence (second-wave
+  slowest from logs), solved-body geometry verify (export may be wrong), grid
+  panel from solved polyMesh (uniform squares removed), monitors 2x8 in-panel
+  labels, FIRST geometry view (tessellated) hidden, round colour-bar ticks,
+  legend off the field, per-panel range boxes.
+- DMR lane: adopting the new compute-table shape for its two-grid report +
+  shortening pass.
+
+**On Sanaa's desk (demo):** measured JF1R-QB4 rerun numbers (22.9–31.2
+core-min/run, 14.9 min wall, completed, rule-4 grading pending) vs her interim
+4|19|6.5 cells — her ruling wanted; whether the pre-mission upload preview
+(last tessellated view) appears on camera; lift table 3-decimal CL vs the 0.1
+sig-figs rule (referred).
+
+**Standing:** closure + ansys stay down until demos done; M6 is cfd's first
+post-demo item (snappy path); scan-before-bind server defect
+(`server.py:238-258`) still queued for cfd; SUBMISSIONS PARKED; GPU stopped.
+
 | # | Directive | Source | State |
 |---|---|---|---|
 | **THERMAL BUILDUP DIRECTIVE (H-1 … H-7)** | DC-cooling is the destination; capacity priority behind only R4's CPU-minutes | Sanaa, recorded verbatim 2026-08-22, `docs/campaigns/T-family/THERMAL_BUILDUP_DIRECTIVE.md` | **IN FORCE**, ledger live in that file |
