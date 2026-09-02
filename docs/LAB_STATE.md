@@ -4839,9 +4839,103 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-02T21:00:28Z by dafoam-supervisor (TWENTY-SEVENTH session, re-formed on Sanaa's 2026-09-02 ~22:00Z order that the demos are shot and all teams resume; stamp from `date -u` in the committing invocation). Newest block is `S-26` — the compressible arm does not converge on the wall-resolved fine mesh at any Mach or any alpha, the Stage-1 y+ gate PASSED on a field with primal residual 0.636, and both multipoint optimisations Sanaa is asking for already exist and are graded (`SO-3` `PASS`, `D19M` `GATE REACHED`) — that gap is FILING, not compute.
+**Section last written:** 2026-09-02T21:12:59Z by dafoam-supervisor (TWENTY-SEVENTH session, re-formed on Sanaa's 2026-09-02 ~22:00Z order that the demos are shot and all teams resume; stamp from `date -u` in the committing invocation). Newest block is `S-27` — the crash triage is CLOSED on a clean one-variable pair: 11 compressible wall-resolved solves, 0 convergences, against an incompressible solve that converges to 1e-8 ON THE SAME MESH IN THE SAME ITEM. Not physics, not Mach — a SETUP failure. And the y+ that passed the Stage-1 gate was a sample from a field swinging 0.271 → 1.972. `S-26` carries the multipoint filing gap, now closed at `36df34f0`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-27 — **⚠⚠ TRIAGE CLOSED, AND IT IS A CLEAN ONE-VARIABLE RESULT: ELEVEN COMPRESSIBLE WALL-RESOLVED SOLVES, ZERO CONVERGENCES, AGAINST AN INCOMPRESSIBLE SOLVE THAT CONVERGES TO 1e-8 ON **THE SAME MESH IN THE SAME ITEM**. IT IS NOT PHYSICS AND IT IS NOT MACH. **AND THE y+ THAT PASSED THE GATE WAS A SAMPLE FROM A FIELD SWINGING 0.271 → 1.972 — ITERATION 1200 WOULD HAVE FAILED IT** (2026-09-02, `date -u` stamp in the committing invocation)
+
+###### 1. ⚠⚠ TWO CONTROLLED PAIRS, AND BETWEEN THEM THEY LOCATE IT EXACTLY
+
+**PAIR A — one mesh, one image, one item, np=1. The A1WR L3 mesh, aspect ratio 212,103.67, `nutLowReWallFunction` on both sides:**
+
+| solver | outcome | bounding |
+|---|---|---|
+| `DASimpleFoam` (MAAOA `INCOMP`) | **CONVERGED — `Minimal residual 9.997083655914609e-09 satisfied the prescribed tolerance 1e-08`** | 71 lines, **every one `Bounding nuTilda>1e-16`. Zero `p`, `rho`, `e`, `U`** |
+| `DARhoSimpleFoam` (11 solves) | **0 of 11 converged**, min residuals **0.6363–0.8993** | **`p`, `rho`, `e` AND `U` bounding in all eleven** |
+
+**Every MAAOA point, both arms, prints `Max aspect ratio = 212103.6706991908` in its own log. THIS IS A TRUE ONE-VARIABLE PAIR ON ONE MESH** — the strongest form of evidence this family can produce, and it fell out of an item that was not designed to produce it.
+
+**PAIR B — one solver, two meshes.** `DARhoSimpleFoam` on the coarse wall-functioned AOAC mesh (4,032 cells, AR 97.9, `nutUSpaldingWallFunction`) at α=4: **`Minimal residual 9.969381500012612e-09 satisfied the prescribed tolerance 1e-08` at iteration 502**, wall 5.755 s, **bounding = 6 × `nuTilda` and nothing else.**
+
+**SO IT IS NEITHER THE SOLVER ALONE NOR THE MESH ALONE. IT IS THE COMBINATION — the compressible formulation ON the wall-resolved mesh — and each half is proved harmless by the other pair.**
+
+###### 2. ⚠ α = 0 REMOVES THE ONLY COMFORTABLE EXPLANATION
+
+`sweep_C` fails at **α = 0** and α = 1 (`Primal solution failed!` at both), while `sweep_I` at **the same α = 0 on the same mesh** returns a clean `CL = −1.57e-06` — the correct answer for a symmetric aerofoil at zero incidence, to six decimals.
+
+**STALL, SEPARATION AND HIGH INCIDENCE ARE ALL DEAD AS EXPLANATIONS.** So is Mach: it fails identically at M 0.288, the anchor this family has converged many times. **A failure present at zero angle of attack and at the lowest Mach on the axis is a failure of the SETUP, not of the flow.**
+
+###### 3. THE MECHANISM THE EVIDENCE POINTS AT — AND THE LINE I WILL NOT CROSS
+
+**The bounding signature is the tell, and it is perfectly clean: every CONVERGING solve on this ground bounds `nuTilda` ONLY; every FAILING one bounds `p`, `rho`, `e` and `U` as well — `Bounding p<500000` appears in the `Time = 1` block, THE VERY FIRST ITERATION.** Not a late divergence. **It is broken before it starts.**
+
+**`p`, `rho` and `e` are exactly the equations the incompressible solver does not have.** Three measured differences sit on that axis, and I am naming them as candidates, **not as a cause**:
+
+1. **Extreme cell aspect ratio meeting the pressure–density–energy coupling.** `s0` **6.25e-07** against the coarse mesh's 4e-3 (**6,400×**), min cell volume **7.583e-12** (**29,725×** smaller), AR **212,103.67** against 97.87 (**2,167×**). `checkMesh` fails exactly one check and it is this one.
+2. **`alphat` becomes `BCType=fixedValue`** under `useWallFunction: False`, where the coarse case runs `compressible::alphatWallFunction. Default Prt=0.85`. **`alphat` is a COMPRESSIBLE-ONLY field — the incompressible arm does not have one**, so this difference exists on precisely the side that fails and cannot exist on the side that works.
+3. **⚠ `system/fvSolution` IS BYTE-IDENTICAL BETWEEN THE TWO MESHES — relaxation factors, solvers and tolerances were NEVER RETUNED for a mesh 32× finer with 2,167× the aspect ratio.** A steady compressible SIMPLE solve inherited settings tuned on a 4,032-cell wall-functioned grid.
+
+**THE RESIDUAL TRAJECTORY IS CONSISTENT WITH ALL THREE AND DISCRIMINATES BETWEEN NONE: `1.000 → 0.6075 → 0.3762 → 0.5246 → … → 0.6363` — it falls, REVERSES, and stalls high, never monotone, never below 0.376.** That is a solve fighting an instability, not one approaching an answer. **Which of the three drives it is UNMEASURED, and a successor registration separates them one variable at a time — the only honest way, and the third two-variable change this family has refused.**
+
+###### 4. ⚠⚠ THE GATE PASS WAS A SAMPLING ACCIDENT, AND THAT IS WORSE THAN S-26 SAID
+
+`S-26` recorded that the y+ gate read a non-converged field. **The truth is sharper and I am correcting my own block upward, not softening it.**
+
+**Across the probe's 16 printed iterations, y+max ranges 0.271 → 1.972 and CL ranges −37.65 → +67.05.** The gate's passing **0.9047** is nothing but **the iteration-1500 sample**. **Iteration 1200 read y+max 1.972 — WHICH WOULD HAVE GATE-FAILED. Iteration 1400 read 0.627.**
+
+**THE GATE DID NOT MEASURE A PROPERTY OF THE MESH. IT SAMPLED A SWINGING FIELD AT ONE ARBITRARY INSTANT AND THE INSTANT HAPPENED TO FALL 9.5 % UNDER THE BAR.** Had the probe been registered at 1,200 iterations instead of 1,500 — a choice with no physical content whatever — Stage 2 and all seven MAAOA points would never have launched.
+
+**⚠ AND THE LOUDEST TELL WENT UNREAD: `CL = 49.74`, `CD = 10.69` AT THE GRADED ITERATION.** A NACA0012 section does not produce a lift coefficient of fifty. **The field was visibly nonsense in the same log, four lines from the number that was believed.** Nobody looked, because the gate asked one question and that question had an answer.
+
+**`[For a successor: this is the third form of the unit-of-consumption disease (`S-25l`). The gate consumed ONE SCALAR FROM ONE ITERATION. Everything that would have invalidated it — the residual, the CL, the neighbouring samples — was in the same file and outside the unit the gate read. A gate that samples an unsteady quantity at one instant is reporting a draw from a distribution and calling it a measurement.]`**
+
+###### 5. WHAT THIS MAKES THE VERDICTS — SET NOW, BEFORE THE CHAINS CONCLUDE, SO GRADING IS NOT A NEGOTIATION
+
+- **Every compressible unit in both items is heading for `NOT A RESULT`** — the primal fails, no coefficients exist, there is nothing to grade. **Not `GATE FAIL`: no registered gate was reached.**
+- **⚠ IT MUST NOT BE REPORTED AS MAAOA'S REGISTERED OUTCOME (B).** That outcome registers *"high-Mach points fail to trim/converge — the steady subsonic formulation's boundary in Mach at fixed lift."* **THERE IS NO MACH BOUNDARY. It fails at every Mach and at α = 0.** Filing a uniform setup failure under a registered Mach-boundary outcome would **invent a physical boundary that does not exist** and would put a fabricated finding into the ladder. **The registration is honoured by naming the miss, not by fitting the answer to the nearest registered box.**
+- **The incompressible arms are UNAFFECTED and remain gradable.** `sweep_I` converges, `INCOMP` converges, `probe_I` y+ 0.0367937 stands on a field that is real. **One arm's premise failing does not void the other's.**
+- **CAUSE CLASS: a SETUP/NUMERICS failure — the case as registered cannot converge — NOT `PHYSICS-FAIL`.** The token is flagged for ratification against `docs/dafoam/GRADING_CHAIN.md` rather than invented in passing; **what is NOT in doubt is that this says nothing about NACA0012 and everything about the case setup.**
+
+###### 6. ⚠ AN INSTRUMENT-INTEGRITY FINDING, FOUND BY THE SAME SWEEP
+
+**Both `a1wr_runScript_comp.py` and `a1wr_runScript_incomp.py` state in their headers *"EXACTLY TWO declared departures, asserted by the generator"*. THE PHYSICS BLOCK CARRIES THREE:** `useWallFunction`, `primalMinResTol`, and the added `checkMeshThreshold`. **The header count does not match the bytes.**
+
+It is **symmetric across both arms, so it cannot explain the C/I asymmetry** and it changes no verdict here. **But an assertion in a frozen instrument's own header that is false about that instrument is exactly the class of thing that is believed later without being re-checked** — the same shape as the `libs` lesson. Recorded; the correction is a dated note on a frozen file, not an edit.
+
+###### 7. I REVERSED MY OWN STATED COUNTER-CONDITION ON STOPPING `sweep_C`, AND THE REASON MATTERS
+
+**In `S-26` §3 I wrote that if the evidence returned a mechanism predicting identical failure at every alpha, "that counter wins and the run should be stopped." THE EVIDENCE RETURNED EXACTLY THAT — and I am NOT stopping it. I am recording the reversal rather than quietly dropping the condition.**
+
+**What my counter-condition priced wrongly: it counted core-minutes and nothing else.**
+
+1. **The marginal cost is ~460 core-min = $0.39 DERIVED** (c7a.4xlarge $0.0513/core-h, owner-stated, **not measured**).
+2. **⚠ THE CORE HAS NO OTHER CLAIMANT — 11 of 16 cores are idle right now. Stopping `sweep_C` would CREATE idle compute, not recover any**, and Sanaa's standing objection is to idle compute rather than to spend.
+3. **The intervention has a real downside the condition ignored: `sweep_I` is HEALTHY and is the arm carrying the item's actual scientific question** (is the 9° break physics or resolution?). Acting on a live 630-core-min chain to save $0.39 risks the one arm that will produce a result.
+4. **It cannot change a verdict either way** — the compressible arm is `NOT A RESULT` whether it stops now or at its cap. **That is the test that would have made an intervention safe, and it also removes the reason for one.**
+
+**`[For a successor: a stop-condition written in one currency will fire wrongly the moment a second currency matters. Mine priced core-minutes and forgot opportunity cost, risk, and whether the outcome could move at all.]`**
+
+###### 8. TWO CORRECTIONS TO MY OWN `S-26`, BOTH NARROWING IT
+
+- **`rc=97` DOES NOT MEAN "SOLVER FAILURE" IN THE A1WR COLD ARMS. It means TIMEOUT** — all six show `wall_s` 3316–3317 against `tmo_s` 3300 — **and that includes the three INCOMPRESSIBLE colds, which were otherwise HEALTHY.** `cold_I_4` reached `p` residual **3.884e-06**, monotone after iteration 500, **five orders below the compressible arm and still falling** when the clock cut it. **`S-26` said "all six cold controls died"; the cause was right and the implication was not. Three of them were killed while succeeding.**
+- The 331.7 core-min waste figure **stands**, and its cause — a deadline sized on a quiet box and spent on a box the same item had just filled — **stands and is now doubly established**: the healthy incompressible colds prove the deadline, not the physics, is what stopped them.
+
+###### 9. WHAT A SUCCESSOR DOES WITH THIS
+
+**The wall-resolved compressible ladder is BLOCKED on a setup question, not on a physics one, and it is cheap to answer.** A successor registration separates the three candidates **one variable per run** on the already-built L3 mesh: (a) relaxation factors retuned for the true AR, (b) `alphat` wall treatment, (c) a mesh level with a sane aspect ratio (L1/L2 already exist). **Each is a single short compressible solve; the discriminating evidence costs a few core-minutes, not a campaign.**
+
+**And nothing here touches the incompressible line, which is where this family's live results are.**
+
+###### 10. THE POPULATION IS CLOSED BY AN EXHAUSTIVE SWEEP — AND CLOSING IT RE-CAUGHT A STANDING HAZARD WITH A FRESH MEASUREMENT
+
+The "11 of 11" is not a sample. The sweep was extended to files **≥ 50 MB** (all data — `pmat*.dat`, meshes, VTK, decomposed fields; no solver logs), to **3,108 log-ish files under other names** (`log.*`, `*.txt`, `*.dat`, `*.err`, `*.stdout`), and exhaustively to `cases/dafoam/` with no extension or size filter (ten hits, **all scripts and prose — no solver output lives under `cases/dafoam/`**). Four extra hits surfaced (`f5c-stageA-A1…A4`) and **all four were checked and are not counter-examples**: native `simpleFoam`, incompressible, zero compressible markers.
+
+**⚠ AND THE HAZARD RE-MEASURED, WHICH IS THE PART TO CARRY: the recursive `grep -rl` returned 62 paths and CONTAINED ONLY FOUR OF THE NINE D12-family solver logs — IT SILENTLY MISSED FIVE**, because `grep` here is ugrep and honours ignore files, so gitignored run trees are invisible to it. `find … | xargs grep -l` on explicit paths found all nine. **The lane abandoned the recursive list and rebuilt it explicitly, and only that is why the census is right.** This is the standing `grep`-honours-ignore-files lesson, and **it bit inside the very sweep whose whole purpose was completeness** — the place where a silent omission is most expensive and least visible. **A census taken with `grep -r` on this box is a census of the tracked tree, not of the disk.**
+
+**Cost of the evidence task: ~19 core-min derived on 1 core, read-only, no pre-registration applies** — reported rather than absorbed, and the overrun against the lane's own first estimate (~9) is attributed to the abandoned recursive grep running its full 300 s timeout before being re-scoped.
+
+**Nothing filed, sent, uploaded or posted outside the box.**
 
 ##### UPDATE S-26 — **⚠⚠ THE COMPRESSIBLE ARM DOES NOT CONVERGE ON THE WALL-RESOLVED FINE MESH — AT ANY MACH, AT ANY ALPHA, IN TWO INDEPENDENT ITEMS — AND THE STAGE-1 y+ GATE THAT LICENSED ALL OF IT **PASSED ON A FIELD WITH A PRIMAL RESIDUAL OF 0.636**. SEPARATELY: BOTH MULTIPOINT OPTIMISATIONS SANAA IS ASKING FOR **EXIST AND ARE GRADED** — THE GAP IS FILING, NOT COMPUTE** (2026-09-02, TWENTY-SEVENTH session, `date -u` stamp in the committing invocation)
 
