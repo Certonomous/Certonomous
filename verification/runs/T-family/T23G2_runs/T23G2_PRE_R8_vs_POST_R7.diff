@@ -1,0 +1,13 @@
+--- T23G2_GRADE_POST_R7.out  (R7 capture, 2026-09-02 23:01Z)
++++ T23G2_GRADE_PRE_R8.out   (R8 pre-repair baseline, today's tree)
+@@ -7,8 +7,8 @@
+   THIS RECORDER GRADES NOTHING.  It reads no field and moves no comparison.
+   Frozen column = the blob in 976776f4, the commit that froze this comparator.
+   docs/campaigns/T-family/T23G2_PREREGISTRATION.md
+-      post-repair (working tree) : b2721aaad40124c2aeb85055aee716fb35805764
+-      pre-registration (frozen)  : b2721aaad40124c2aeb85055aee716fb35805764   IDENTICAL
++      post-repair (working tree) : 0b597ba9544819552b085c93a67520c443bbc274
++      pre-registration (frozen)  : b2721aaad40124c2aeb85055aee716fb35805764   DIFFERS
+   docs/campaigns/T-family/analyse_t23g2.py
+       post-repair (working tree) : d2187518bc3b257d6305db7ac4a4f3c06b746f39
+       pre-registration (frozen)  : cc723d6f65245674f7d80c51de55fe986549477a   DIFFERS
