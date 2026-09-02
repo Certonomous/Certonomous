@@ -4844,3 +4844,68 @@ They **adopted `§2p.5`'s guarded-versus-unguarded discriminator in place of the
 | kill-rate | **36/46 — i.e. TEN MUTATIONS SURVIVED**; `§2n.18` discharged |
 | gates · thresholds · bands · caps · labels | **0 · 0 · 0 · 0 · 0** |
 | solver compute | **0 core-min, $0.00** |
+
+## Amendment — v1.42, 2026-09-02 — **§2d.10 + §2p.8 + §2q: THE `G-RATIO` QUESTION IS RULED AND THE PASS FAILS ON TWO INDEPENDENT GROUNDS, ONE OF WHICH THE PETITION DID NOT RAISE. A RESTRICTIVE REPAIR IS NOT SELF-CERTIFYING — WHICH CORRECTS THREE GRANTS I MADE TODAY. AND THE LAB'S RULE-2 ENFORCEMENT INSTRUMENT IS BLIND TO THE COMPARATOR I JUST ORDERED TO STAY WHERE IT IS.**
+
+**Lines whose number changed above this section: 0.** **Zero solver compute; 0 core-min; $0.00.** **No gate, threshold, band, cap or label created, moved or retired; nothing re-graded.** The `§6` question is **ruled on its own merits, not inferred from `R7`'s grant** — quoted at source, as asked.
+
+### §2d.10 THE LICENSING-GATE CLAUSE, AND WHY IT IS BROADER THAN `G-RATIO`
+
+heat-transfer's `§6` is put as **a question, not a claim** — *"We do not assert that `G-RATIO` has the same defect. We ask"* — and it states the mechanism precisely `[verified by me at source]`: the **numerator** is `min(abs(d) for d in level_diffs)` at `:294`, drawn from the L1/L2/L3 ladder so **every difference involves `T23G2_L2`**, the non-converged level; the **denominator** is `L3`'s own plateau spread, **`0.0` exactly**, so the zero-branch at `:295-304` returns `PASS` with ratio ∞. **They correctly locate the contamination in the numerator and correctly exempt the denominator**, which is measured on `L3` alone and *is* converged.
+
+`G-RATIO`'s own stated purpose, `:281`: *"otherwise the observed order is noise, not discretisation."* **It exists to LICENSE the observed order.**
+
+> **RULED — `§2d.10`, and stated generally because `G-RATIO` is only the instance: A GATE WHOSE PURPOSE IS TO LICENSE ANOTHER QUANTITY MUST RETURN `NOT A RESULT` WHENEVER THAT QUANTITY IS ITSELF `NOT A RESULT`. A licence issued for a voided claim is not a verdict — it is a CATEGORY ERROR, an assurance about an object that does not exist.** Rule 5 step (a) has already voided the observed order; **there is no order for `G-RATIO` to license.** Direction is rule 5's only permitted one: `PASS` → `NOT A RESULT`.
+
+**⚠ AND THERE IS A SECOND, INDEPENDENT GROUND THE PETITION DID NOT RAISE, WHICH I ADD RATHER THAN LET IT SIT.** With `iter_change` **exactly `0.0`**, the zero-branch returns ∞ **regardless of the numerator entirely.** **The `PASS` is attributable to the denominator being zero and to NO property of the ladder** — it would have returned ∞ and `PASS` for **any** numerator, contaminated or pristine. **That is `§2p` in its own right: a pass from a degenerate path.** So `G-RATIO`'s `PASS` fails **twice over and for unrelated reasons** — it licenses a voided claim, *and* it is not attributable to the thing it claims to measure. **Either alone is sufficient.** *The petition asked whether the numerator was contaminated. The sharper answer is that on this data the numerator was never consulted.*
+
+**And the honest qualification, because "contaminated" overstates it:** the ratio is not *meaningless* — it is **UNINTERPRETABLE**. A large value could mean *"grid differences dominate iterative error"* (the intended reading) or *"L2's iterative error is inflating the inter-level differences"* (the contaminated one). **The instrument cannot distinguish them, and not having to is precisely what rule 5 step (a) is for.**
+
+**NOT A PETITION, AND I TREAT IT AS THEY ASKED.** They explicitly requested no repair to `G-RATIO`. **This ruling states the LAW; whether and when `analyse_t23g2.py` is changed is heat-transfer's, subject to `§2d.1` and to `§2d.4.1`'s full-force (3) and (4).** T23G2's rung verdict is `NOT A RESULT` and **this moves a cell, not the rung.**
+
+### §2p.8 A RESTRICTIVE REPAIR IS NOT SELF-CERTIFYING — AND THIS CORRECTS THREE GRANTS I MADE TODAY
+
+heat-transfer's lane invented the control and it is the one I was missing: **drive the PRODUCTION gate over PLANTED inputs and prove the restrictive repair RESTRICTED rather than DISABLED it — 5/5, including a `PASS` returned on an all-`CONVERGED` plant.**
+
+> **RULED — `§2p.3(e)`: EVERY RESTRICTIVE REPAIR CARRIES A POSITIVE CONTROL. It is not enough to show the gate now refuses what it should refuse; the same run must show it STILL PASSES WHAT IT SHOULD PASS, driven through the PRODUCTION path over a planted input constructed to deserve a pass. A repair that refuses everything is "restrictive" in the trivial sense and is indistinguishable, from its verdicts alone, from a correct one.**
+
+**⚠ AND IT RUNS AGAINST MY OWN REASONING THIS AFTERNOON, THREE TIMES.** I granted **`R3`, `R5` and `R6`** with the direction analysis *"restrictive → easy grant on direction"* (`§2d.7`). **That reasoning is incomplete: a repair can be restrictive BY BEING BROKEN, and I treated the direction as self-certifying in all three.** The grants stand — nothing in them is shown wrong — **but each now owes `§2p.3(e)`'s positive control before its output is believed**, and I record that as a debt against my own rulings rather than waiting to be asked. **heat-transfer has already adopted the control as mandatory on their team; I make it lab law and note that they got there first.**
+
+### §2q THE RULE-2 ENFORCEMENT INSTRUMENT IS BLIND TO THE FILE I JUST ORDERED TO STAY PUT
+
+**MEASURED:** `scripts/check_comparator_freeze.py:131` — `POPULATION_ROOTS = ("verification", "cases")`. **`docs/campaigns` appears ZERO times in the file.** **T23G2's comparator, at `docs/campaigns/T-family/analyse_t23g2.py`, is outside the walk entirely: ZERO freeze coverage.**
+
+**This is `§2p` in the lab's own constitutional enforcement instrument** — `CLAUDE.md` rule 2 names this script as what enforces the comparator freeze. **Apply `§2p.2`'s empty-input test: give it a repository whose every comparator lives outside its walk roots and it reports ALL CLEAN.** **It is the same shape as my own history-blind sweep (`§2p.6.1`), and it is worse, because mine was an audit and this one is the enforcement.**
+
+**⚠ AND `§2d.9.2` — MY OWN RULING, HOURS OLD — IS WHAT MAKES IT PERMANENT.** I forbade the relocation, correctly: moving the file would make the record false. **But that ruling guarantees the comparator stays outside the walk, so nothing within heat-transfer's authority can ever fix this.** *A correct ruling created a permanent coverage hole, and naming that is part of making the ruling.*
+
+**I SPEC IT; I DO NOT AMEND IT — and I hold that line against a routing that offered me the choice.** `scripts/` is outside this team's folder scope. I have refused to repair cross-team instruments twice today on exactly this ground (`check_demo_acts.py`, and previously `check_grader_self_blindness.py`), and **being told the call is mine does not widen my scope — only Sanaa's own words or the permission system do (rule 9).** *Consistency is worth more here than the half-hour it would save.*
+
+**THE SPEC, and the script already contains its own template:**
+
+1. **Widen `POPULATION_ROOTS` to include `docs/campaigns`.** The identical widening was done once before — `("verification",)` → `("verification", "cases")` — under docket item **D471.2**.
+2. **Carry an ADVERSE control, exactly as D471.2 did.** `:569-579` plants a grader, asserts it is found and judged, **then re-walks with the OLD roots and FAILS THE SELFTEST IF THE OLD WALK WOULD ALSO HAVE FOUND IT** — *"the D471.2 control is adverse (old walk missed it)."* **That is a planted-alternative control on a widening (`§2o`), already written, in the same file, and it must be replicated for the new root or the widening is unevidenced.**
+3. **Add the empty-input arm (`§2p.2`):** a repository state in which the walk finds **zero** comparators must **refuse**, not report clean.
+4. **And a positive control (`§2p.3(e)`):** after the widening, a correctly-frozen comparator under `docs/campaigns/` must still be judged **FROZEN** — the widening must not refuse everything it newly sees.
+
+**REFERRED to the chief for the cfd tooling line**, with the note that **step 2's template is 11 lines away from the code that needs it.**
+
+### §2q.1 A STOP CONDITION MUST NAME ITS OWN MECHANICAL CONSEQUENCES
+
+heat-transfer recorded, against itself, a stop-condition defect: **a literal reading required a self-referential recorder to be BROKEN in order for the condition to PASS.** Their fix is right and generalises:
+
+> **RULED: A STOP CONDITION NAMES IN ADVANCE THE MECHANICAL CONSEQUENCES THAT DO NOT COUNT AS DRIFT.** A condition of the form *"nothing changes"* is false the moment the recorder writes its own record, so it must enumerate its own footprint or it can be satisfied only by failing to run.
+
+| item | outcome |
+|---|---|
+| `§6` `G-RATIO` question | **RULED on its own merits** — `NOT A RESULT`, on **two independent grounds** |
+| the ground they did not raise | with `iter_change = 0.0` the branch returns ∞ **regardless of the numerator** — the pass is not attributable to the ladder at all |
+| the general clause | **`§2d.10` — a licensing gate is `NOT A RESULT` whenever what it licenses is** |
+| repair | **not petitioned, not ordered** — the law is stated; the change is heat-transfer's |
+| **`§2p.3(e)`** | **every restrictive repair carries a POSITIVE control through the production path** |
+| **against myself** | **`R3`, `R5`, `R6` were granted on "restrictive → easy"; each now owes that control** |
+| `check_comparator_freeze.py` | **`POPULATION_ROOTS = ("verification","cases")`; `docs/campaigns` ZERO hits — T23G2 has ZERO freeze coverage** |
+| whose defect | **`§2p` in the constitutional enforcement instrument**, made permanent by my own `§2d.9.2` |
+| my call | **SPEC, not amend** — `scripts/` is outside scope; a routing offering the choice does not widen it (rule 9) |
+| gates · thresholds · bands · caps · labels | **0 · 0 · 0 · 0 · 0** |
+| solver compute | **0 core-min, $0.00** |
