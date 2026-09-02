@@ -1,154 +1,124 @@
-# Thermal demo acts — resume note (2026-09-02, ~06:4xZ, pre-subscription-switch)
+# Thermal demo acts — resume note (2026-09-02, updated ~10:3xZ)
 
-Written under the coordinator's commit-everything order before the fleet is
-killed by the subscription switch. State is MEASURED, not recalled. The two
-acts are `sdk/workflows/motor_thermal_act.py` and
+State is MEASURED, not recalled. The two acts are
+`sdk/workflows/motor_thermal_act.py` and
 `sdk/workflows/battery_module_act.py`; both drive 9 of 9 stages offline via
-`run_act` at this note's commit.
+`run_act` at this note's commit (motor 3,353 events, battery 793;
+`scripts/check_demo_acts.py`: 5 of 5 can start, 0 checklist failures,
+checklist selftest 60/60 plants fired).
 
-## LANDED (committed, verified by offline drives)
+## LANDED (committed, verified by offline drives and PNG inspection)
 
-- Sanaa 0610Z wave convention: `sweep_execution()` derives waves from the
-  launch records (contiguous busy blocks); `wave_sentence()` renders her
-  general form with measured values: "16 runs on 12 workers is two waves, 4
-  then 12; the wall clock follows the slowest member of each wave (30.5 and
-  39.2 minutes), never the 579 core-minute sum." Spoken in the results
-  discussion beat, replacing the contradictory slowest-member line.
-- Predicted wall = predicted core-minutes / workers, spoken at the
-  restatement beat: motor "560 core-minutes over 12 workers, about 47
-  minutes"; battery "20.5 core-minutes at one worker".
-- Compute tables: motor consumes the shared `compute_table` as the JF1 lane
-  adapted it (workers | per-run | total | wall: 12 | 36.2 (29.7 to 39.2) |
-  579 | 86 minutes). Battery carries per-run 7.1 and 12.6 | total 19.8 |
-  wall 20 minutes at one worker.
-- Monitor declaration: ONE panel, both temperature series, sixteen point
-  labels in her in-panel style ("80W · 10m/s").
-- Sentence-shortening pass over both acts' discussion beats.
-- Geometry: both acts serve ONLY the ParaView body render plus the mesh
-  panels; the tessellated STL canvas never runs (measured: zero
-  `geometry.ready` events on both streams), which is her keep-two-views
-  order already satisfied act-side.
+Earlier (pre-kill): wave convention, predicted wall = core-min/workers,
+motor compute table via shared `compute_table`, one-panel monitor
+declaration with 16 in-panel labels, sentence shortening, ParaView-only
+geometry (zero `geometry.ready` on both streams).
 
-## NOT DONE — for the successor lane, verbatim from her orders
+This session (commits `cff0b770`, `05419de5`, `f930b7b3`, `fab34302`):
 
-1. **Grid panel inset (0610Z, SANAA-DIRECT).** "The grid panel must draw
-   the solved polyMesh section, cell by cell, horizontal, fit-to-extents,
-   wall-layer grading visible, with a zoom inset at the housing wall."
-   Current state: `scripts/render_thermal_paraview.py` writes a full-extent
-   horizontal section (`T23_P305_U20_mesh.png`, 39,680 slice polygons
-   asserted == cells) and a SEPARATE `_mesh_zoom.png`; the inset composite
-   is not built. Plan sketched: render main at content aspect
-   (~1920x400), zoom at ~760x430, composite one 1920x1080 canvas with the
-   inset bottom-right plus a locator rectangle; PIL is available; the
-   world-to-pixel map is `make_view`'s (scale = max(span_v/2,
-   span_h/(2*aspect))*1.04 about the section centre). Re-render, LOOK at
-   the PNG with the Read tool, keep the sidecar's cells/case fields.
-2. **Page-side monitor wrap (0610Z).** Sixteen cells must render as two
-   rows of eight with the label INSIDE each panel, no shared header,
-   caption once. Act-side declaration is done (one panel, 16 labels); the
-   wrap is `control_room.html` `drawGSweep` work, owned by the display/JF1
-   lane. Flag stands.
-3. **0630Z figure polish, all three items, untouched** (see
-   `etc/sessions/2026-09-02T0630Z_sanaa_motor_figure_polish.md` verbatim):
-   round colour-bar ticks (20/40/60/80/100 C; 10/20/30/40 m/s) with min/max
-   at the ends; the temperature figure's legend box off the first panel's
-   field (to the black region right of row 1 or below); the velocity
-   figure's per-panel field-range corner boxes back ("0.2-10.5 m/s" style).
-   These live in the Act A figure generators under
-   `docs/campaigns/T-family/demo/` (`regen_actA_sheet.py`,
-   `render_actA_paraview/`), heat-transfer family territory.
-4. **Geometry render nose/tail question.** Her 0610Z note describes the
-   solved body as "nose, heated core section, tail". The solved T23 body is
-   a CONSTANT-RADIUS centrebody running the full duct: the display-surface
-   guard (`display_surface/generate_t23_display_surface.py`) REFUSES a
-   nose or tail, and the export with them was the retired WRONG body. The
-   current ParaView render (`T23_P305_U20_geometry.png`, half-cut oblique)
-   shows the full-length centrebody and passes the guard. If she still
-   reads it as a stub after the bounce, the answer is a view change, never
-   a re-export of the retired shape; take the question up rather than
-   redrawing the solved geometry.
-5. **Shared compute-table workers column.** Her 0610Z words put parallelism
-   in the wall column and the wave sentence; the shared `compute_table`
-   (demo_mode, JF1 lane's file) still carries a workers column. Referred
-   upward, not resolved here.
+- **No-tessellation GATE (Sanaa 0930Z relayed).** New `no_tessellation`
+  checklist line in `scripts/check_demo_acts.py`: an act serving a rendered
+  geometry panel fails if a `geometry.ready` rides its stream at ANY index;
+  a declared panel that never publishes is refused. Structural plant added,
+  selftest fires. Measured ordering on both thermal streams: the ParaView
+  `mesh.panel` (surface.png) is event 1, before the first `stage.begin`;
+  `geometry.ready` count is 0. The one remaining window is PAGE-owned: the
+  pre-mission upload preview (`control_room.html` `loadGeometry` /
+  `paraviewOwned`) may paint the plain surface before any act event exists
+  — display lane, reported to the chief.
+- **Mesh composites (0610Z motor render defect 1; 0650Z battery item 24).**
+  `scripts/render_thermal_paraview.py` mesh mode writes the served
+  `<case>_mesh.png` as ONE 1920x1080 composite: fit-to-extents section at
+  content aspect + wall zoom inset bottom-right + locator rectangle drawn
+  with `make_view`'s own world-to-pixel map + leader line. Re-rendered and
+  inspected for `T25R2_L1` (all SEVEN channel bands + one-channel wall-layer
+  inset; 16,608 slice polygons asserted == cells) and `T23_P305_U20`
+  (full duct + housing-wall inset; 39,680). Diagnosis of her "one refined
+  band" frame: the standalone `_mesh_zoom.png` (one channel BY DESIGN) was
+  filmed as if it were the main; the main panel now carries both views.
+- **Battery items 18-27 (0730Z list), act-side complete:**
+  - 18: stream is one source; every 28.7 derives from
+    `T25R2_L1 postProcessing/module/module_minmax/0/fieldMinMax.dat` max at
+    t=900 (301.8008 K); endpoint additionally PINNED on `solve.end`
+    (`final_monitors`, `final_time_s`). Every "27.8" in the stream is the
+    trace passing t=755-765; the filmed 27.8 axis top is a PAGE surface.
+  - 19/20: results table answers peak/spread/settle in the prompt's order;
+    peak row "occurs at t = 900 s"; settle row is the finding ("not settled
+    within the record", measured warming rate as standing); spread rows
+    named "hottest to coolest point" with the no-per-cell-monitor
+    limitation stated (none exists on disk — measured, module_minmax
+    extrema only).
+  - 21: closing uncertainty carries her sentence verbatim ("Single grid, so
+    no discretisation band; and the sweep convergence check refused
+    certification of the values themselves.").
+  - 22: Celsius everywhere — the ParaView field render converts via a
+    Calculator (range asserted == kelvin range - 273.15), bar "T (C)" with
+    plain-decimal min/max ends; caption, spread rows, feasibility rise in C.
+  - 23: compute table two rows, one per arm, shared four-column shape; each
+    row's ranks/clock/sweeps read from that arm's own records; one-worker
+    wave sentence speaks in the results beat.
+  - 24: see mesh composites above.
+  - 25: `actC_outlet_overlay.png` is the money shot, drawn where the gap
+    LIVES: the COOLANT OUTLET area-mean (O3, `analyse_t25R2.py:326`),
+    both arms' own monitors, pulse shaded, 40-90 s inset where the curves
+    visibly separate; annotation "23.2 mK apart, 12.3 allowed" computed
+    from the plotted rows / read from `OC_GATE.json`. The hottest-cell
+    overlay stays as the companion, inset stating the measured coincidence
+    ("traces within 1.3 mK"). Both + module history are in `Results.plots`.
+  - 26 act-side: monitor panel declares `x_label "t (s)"`,
+    `x_series: time_s`, `pulse_window_s: [0, 60]` (breakpoint read from
+    fvOptions). Page must consume these — display lane.
+  - 27: set-by table row "Coolant inlet temperature, the rise reference,
+    19.9 C, the lab" (the case's own 0.orig value, 293 K).
+- **Motor 0630Z figure polish, all three items**
+  (`figures_actA/render_fields_actA.py`, figures regenerated + inspected):
+  round colour-bar ticks (20/40/60/80/100 C; 10/20/30/40 m/s) with true
+  min/max at the ends; legend moved below the panels off the first panel's
+  field; velocity whole-model panels carry per-panel range corner boxes
+  ("0.2-10.5 m s-1" style, each panel's own array). Bundle records the
+  0630Z amendment to the extremes-nowhere-else clause.
 
-## ADDENDUM — Sanaa's 0650Z battery review, landed-vs-left at the kill
+## PAGE-SIDE NEEDS (control_room.html — display/JF1 lane, NOT this lane)
 
-Read `etc/sessions/2026-09-02T0650Z_sanaa_battery_comments.md` verbatim
-before resuming. State at the kill:
+1. **Figure-strip dedupe (item 26 tail / cross-act item 28).** Both thermal
+   streams emit each `plot.ready` exactly ONCE (measured; titles all
+   distinct). The Report tab (`renderMemo`) already de-dupes by URL; the
+   STRIP does not: `addPlot` (~control_room.html:3386) pushes to
+   `state.plots` and appends a `<figure>` unconditionally, so a re-delivered
+   event (reconnect/replay) duplicates the on-screen figure list. The
+   shared fix is a URL de-dupe in `addPlot` — one edit, deployed to every
+   act by construction.
+2. **Monitor strip x-axis/shading**: consume `x_series` ("time_s") and
+   `pulse_window_s` from the act's `monitor_panels` declaration.
+3. **2x8 monitor wrap (0610Z motor)**: sixteen cells as two rows of eight,
+   label inside each panel, no shared header, caption once (`drawGSweep`).
+4. **27.8 axis top (item 18's defective surface)**: the act stream's
+   endpoint is 28.7 with `final_monitors` now pinned on `solve.end`;
+   verify the live strip after a bounce reaches t=900 and autoscales past
+   28.7, or pin its endpoint from `final_monitors`.
+5. **Pre-mission upload preview** may paint the tessellated STL before any
+   act event (see gate note above); Sanaa 0930Z wants it never shown at all.
 
-1. MESH RENDER (her "one refined band amid uniform coarse cells"):
-   MEASURED FACTS for the diagnosis she asked for: the renderer draws the
-   PRE-SPLIT mesh and `scripts/render_thermal_paraview.py` REFUSES unless
-   the section's polygon count equals 16,608, so the full-domain claim is
-   asserted, not assumed; the committed `T25R2_L1_mesh.png` was inspected
-   and shows the module block with all SEVEN channel bands crossing it.
-   Suspect instead: (a) the ZOOM panel (`_mesh_zoom.png`, one channel by
-   design) filmed as if it were the main, or (b) the main panel's vertical
-   aspect crushing the channel bands to single lines. LEFT TO DO: her
-   fit-to-extents-plus-zoom-inset composite (the motor mesh-page pattern,
-   plan in item 1 above) applied to the battery panel too, then PNGs
-   re-inspected.
-2. Monitors in SECONDS with the 0-60 s pulse window shaded: frames already
-   carry `time_s` beside `iteration`; the axis choice and shading are the
-   page's monitor strip (display lane). Act-side nothing further needed
-   unless the contract grows an `x_series` field.
-3. Three quantities answered explicitly in refusal: NOT DONE. The results
-   table has peak/spread rows with standing but not her exact "peak over
-   the record ... occurring at t = 900 s, the module has not settled within
-   the record" phrasing, and the settle row reports a warming rate rather
-   than the finding sentence. Measured values to use: peak max
-   301.80 K = 28.7 C at t = 900 (the record's last row, still rising);
-   spread at 900 s from the same monitor; settle = not settled within the
-   record (module still warming ~mK/s at the end).
-4. Two-arm overlay ("money shot"): NOT BUILT. WHAT IS ON DISK, measured:
-   BOTH arms carry full monitor sets - `T25R2_L1_OC20/postProcessing/
-   module/module_minmax/0/fieldMinMax.dat` exists alongside L1's, so the
-   overlay CAN be built honestly (hottest-cell trace, 10 vs 20 sweeps,
-   pulse transient region where O3 measured 2.32e-2 K against 1.23e-2
-   allowed). Build it in `scripts/make_actC_figures.py`, add to
-   `Results.plots`, inspect the PNG.
-5. Set-by table: ALREADY carries "Coolant inlet temperature 20.0 C, the
-   lab" (from 0.orig/coolant/T = 293 K); verify it satisfies her ask or
-   extend wording to name it as the rise reference.
-6. Per-cell traces panel (all 8 cells, pulse shaded): NOT BUILT; the run
-   writes per-region extrema only in module_minmax - check whether per-cell
-   probes exist under postProcessing before promising 8 traces; if only
-   min/max exist on disk, say so rather than synthesize.
-7. Battery sentence-shortening: one pass done (restatement/gates beats);
-   results verification lines still long, one more pass wanted.
+## STILL OPEN, THIS LANE
 
-## ADDENDUM 2 — emergency kill-order stop point (0705Z batch measured state)
+- Nothing from the 0610Z-0745Z captures. Watch for her read of the new
+  composites/figures after the next filming pass.
+- "replay" appears in one motor figure FILENAME only
+  (`actA_monitor_replay.pdf`, its URL on the wire); title/caption prose are
+  clean and the language gate passes. Rename only if ruled.
+- Geometry nose/tail question (0610Z): unchanged — the solved T23 body IS
+  the full-length constant-radius centrebody; a re-read as a stub is a view
+  change question, never a re-export of the retired shape.
+- Shared compute-table workers column (0610Z): still referred upward.
 
-Sanaa's 0705Z battery batch 2 (`etc/sessions/2026-09-02T0705Z_sanaa_battery_comments_2.md`,
-read it verbatim) arrived at the kill. State:
+## STANDING MEASURED FACTS (do not re-derive blind)
 
-- MONEY-SHOT CHANNEL, MEASURED (the finding the successor needs first): the
-  23.2 mK O3 movement is the COOLANT OUTLET area-mean temperature at
-  t = 60 s (analyse_t25R2.py:326 names O3 as exactly that; measured between
-  the two arms' own outlet_Tbar monitors: 23.15 mK at t = 60, max 24.95 mK
-  at t = 10). The HOTTEST-CELL traces differ by at most 1.31 mK (at
-  t = 900) and only 0.04 mK at t = 60, so her "hottest-cell trace with the
-  23.2 mK gap visible" CANNOT be drawn honestly from the cell traces. The
-  committed `actC_two_arm_overlay.png` overlays the hottest-cell traces
-  (honest, but the inset shows coincidence, not the gap). REBUILD the money
-  shot as the OUTLET Tbar overlay (both arms' monitors are on disk),
-  labeled as the outlet, inset on 40-90 s; keep the cell-trace overlay as
-  the companion that shows the cells themselves barely move.
-- 0705Z-1 (28.7 vs 27.8 fork): my act derives every 28.7 from ONE source
-  (module_minmax max at t=900 = 301.80 K = 28.7 C); grep of my streams
-  shows no 27.8, so the fork is on a page surface or the pre-bounce screens.
-  Verify on the live page after the bounce before editing anything.
-- 0705Z-2 (her uncertainty sentence, verbatim replacement), 0705Z-3
-  (Celsius everywhere; the field render's colour bar is in K, add a
-  Calculator T-273.15 to render_thermal_paraview.py field mode and restage
-  the figure), 0705Z-4 (explicit spread/peak/settle wording; table rows
-  exist, her exact phrasing not yet), 0705Z-5 (figure-list dedupe; check
-  plot.ready duplicates on the live page), 0705Z-6 (two-row compute table,
-  one per arm, plus the one-worker wall sentence): ALL NOT LANDED; the act
-  file's current single-row compute table and limitations wording are the
-  state to edit from.
-- 0650Z-6 per-cell traces: MEASURED: no per-cell monitor exists on disk
-  (module_minmax extrema only); per-cell traces would have to come from the
-  181 written module/T fields grouped by cell block; say so on any screen
-  rather than promising 8 traces from monitors.
+- Battery peak: 301.8008 K = 28.7 C at t=900 (fieldMinMax final row);
+  module min there 296.9896 K = 23.8 C; spread 4.8 C; outlet 21.9 C.
+- The 23.2 mK gap is the COOLANT OUTLET (23.15 mK at t=60 between arms'
+  outlet monitors, max 24.95 mK at t=10); hottest-cell traces differ
+  <= 1.31 mK. O3_tol = 12.3 mK (OC_GATE.json).
+- No per-cell monitors on disk; per-cell traces would need the 181 written
+  module/T fields grouped by cell block.
+- Arms: T25R2_L1 (10 sweeps, 7.1 core-min) and T25R2_L1_OC20 (20 sweeps,
+  12.6 core-min), 1 rank each; total 19.76 vs scripted estimate 20.5.
