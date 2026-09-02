@@ -1,0 +1,22 @@
+FoamFile { version 2.0; format ascii; class volVectorField; object U; }
+// VMFL054: Laminar flow in a trapezoidal driven cavity (VM2026R1 p.173).
+// Both base walls (top y=1, bottom y=0) move at 400 m/s; slanted side walls
+// stationary. rho=1 kg/m3, nu=mu/rho=1/1=1 m2/s, U=400 => Re = U*h/nu = 400
+// (h = cavity height = 1 m). 2-D (one cell in z, empty front/back).
+//
+// DRAFT MODELLING CHOICE (figure-pending, disclosed in PREREGISTRATION.md sec.10):
+// the manual's text says "the top and bottom walls move" but does NOT print the
+// direction; both are set to +x here, matching the literal text. Whether Darr &
+// Vanka drive the walls co- or counter-directionally is confirmable only from the
+// PDF figure/source paper and is a DRAFT open question. It does NOT affect the
+// frozen a-priori gate (grid convergence), only which field the code converges to.
+dimensions      [0 1 -1 0 0 0 0];
+internalField   uniform (0 0 0);
+boundaryField
+{
+    movingTop    { type fixedValue; value uniform (400 0 0); }
+    movingBottom { type fixedValue; value uniform (400 0 0); }
+    wallLeft     { type noSlip; }
+    wallRight    { type noSlip; }
+    frontAndBack { type empty; }
+}
