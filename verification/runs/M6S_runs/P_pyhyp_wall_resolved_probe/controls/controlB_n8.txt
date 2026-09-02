@@ -1,0 +1,345 @@
+WARNING 7: VSPAERO Viewer Not Found. 
+	Expected here: /home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openvsp/vspviewer
+#--------------------#
+ Total Nodes:    1827 
+ Unique Nodes:   1595 
+ Total Faces:    1560 
+#--------------------#
+ Normal orientation check ...
+ Normals are consistent!
+ Determining topology ...
+ Topology complete.
+#--------------------#
+Grid Ratio:  4.0000 
+#--------------------#
+#-------------------------------------------------------------------------------------------------------------------#
+# Grid | CPU  | Sub | KSP | nAvg |  Sl  | Sensor | Sensor | Min     | Min     |  deltaS  | March    | cMax  | Ratio |
+# Lvl  | Time | Its | Its |      |      | Max    | Min    | Quality | Volume  |          | Distance |       | kMax  |
+#-------------------------------------------------------------------------------------------------------------------#
+      2    0.0     2     6      0  0.177  1.00263  0.24367  0.23535  0.141E-09  0.100E-03  0.116E-03  0.1000  0.0000 
+      3    0.0     6     6      0  0.225  1.01407  0.53966 -0.02131  0.484E-09  0.333E-03  0.572E-03  0.1000  4.0136 
+      4    0.1    15     6      0  0.275  1.01019  0.77649  0.03634  0.511E-08  0.530E-03  0.220E-02  0.1000  4.0098 
+      5    0.2    33     6      0  0.338  1.00440  0.88816  0.06554  0.809E-07  0.105E-02  0.867E-02  0.1000  4.0243 
+      6    0.3    59     5      0  0.416  1.00850  0.93628  0.09107  0.127E-05  0.256E-02  0.345E-01  0.1000  4.1941 
+      7    0.6    95     5      0  0.512  1.00653  0.96435  0.07825  0.212E-04  0.623E-02  0.138E+00  0.1000  4.3205 
+      8    1.1   169     5      0  0.629  1.01108  0.98260  0.06537  0.533E-03  0.125E-01  0.546E+00  0.1000  5.2860 
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2506                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _615aae61d7-20250627 OPENFOAM=2506 version=v2506
+Arch   : "LSB;label=32;scalar=64"
+Exec   : plot3dToFoam -noBlank volumeMesh.xyz
+Date   : Jul 29 2026
+Time   : 22:09:53
+Host   : ip-172-31-43-247
+PID    : 285
+I/O    : uncollated
+Case   : /home/dafoamuser/mount/case
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+Reading 9 blocks
+block 0 nx:21 ny:33 nz:8
+block 1 nx:33 ny:3 nz:8
+block 2 nx:21 ny:3 nz:8
+block 3 nx:33 ny:21 nz:8
+block 4 nx:3 ny:33 nz:8
+block 5 nx:3 ny:3 nz:8
+block 6 nx:3 ny:21 nz:8
+block 7 nx:3 ny:3 nz:8
+block 8 nx:33 ny:3 nz:8
+Reading block points
+block 0:
+Reading 5544 x coordinates...
+Reading 5544 y coordinates...
+Reading 5544 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 1:
+Reading 792 x coordinates...
+Reading 792 y coordinates...
+Reading 792 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 2:
+Reading 504 x coordinates...
+Reading 504 y coordinates...
+Reading 504 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 3:
+Reading 5544 x coordinates...
+Reading 5544 y coordinates...
+Reading 5544 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 4:
+Reading 792 x coordinates...
+Reading 792 y coordinates...
+Reading 792 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 5:
+Reading 72 x coordinates...
+Reading 72 y coordinates...
+Reading 72 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 6:
+Reading 504 x coordinates...
+Reading 504 y coordinates...
+Reading 504 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 7:
+Reading 72 x coordinates...
+Reading 72 y coordinates...
+Reading 72 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 8:
+Reading 792 x coordinates...
+Reading 792 y coordinates...
+Reading 792 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+Merged points within 1e-15 distance. Merged from 14616 down to 12760 points.
+Creating cells
+Creating boundary patches
+--> FOAM Warning : 
+    From Foam::polyMesh::polyMesh(const Foam::IOobject&, Foam::pointField&&, const Foam::cellShapeList&, const Foam::faceListList&, const Foam::wordList&, const Foam::wordList&, const Foam::word&, const Foam::word&, const Foam::wordList&, bool)
+    in file meshes/polyMesh/polyMeshFromShapeMesh.C at line 635
+    Found 3596 undefined faces in mesh; adding to default patch defaultFaces
+Writing polyMesh
+End
+
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2506                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _615aae61d7-20250627 OPENFOAM=2506 version=v2506
+Arch   : "LSB;label=32;scalar=64"
+Exec   : autoPatch 60 -overwrite
+Date   : Jul 29 2026
+Time   : 22:09:54
+Host   : ip-172-31-43-247
+PID    : 286
+I/O    : uncollated
+Case   : /home/dafoamuser/mount/case
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+Create polyMesh for time = 0
+
+Mesh read in = 0.05 s
+
+
+Feature:60
+minCos :0.5000000000000001
+
+Assigned 1560 faces to patch auto0
+
+Assigned 476 faces to patch auto1
+
+Assigned 1560 faces to patch auto2
+
+End
+
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2506                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _615aae61d7-20250627 OPENFOAM=2506 version=v2506
+Arch   : "LSB;label=32;scalar=64"
+Exec   : createPatch -overwrite
+Date   : Jul 29 2026
+Time   : 22:09:54
+Host   : ip-172-31-43-247
+PID    : 287
+I/O    : uncollated
+Case   : /home/dafoamuser/mount/case
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+Create mesh for time = 0
+
+Reading "system/createPatchDict"
+
+--> FOAM Warning : 
+    From Foam::labelHashSet Foam::polyBoundaryMesh::patchSet(const Foam::UList<Foam::wordRe>&, bool, bool) const
+    in file meshes/polyMesh/polyBoundaryMesh/polyBoundaryMesh.C at line 1137
+    Cannot find any patch or group names matching "wing_.*"
+--> FOAM Warning : 
+    From Foam::labelHashSet Foam::polyBoundaryMesh::patchSet(const Foam::UList<Foam::wordRe>&, bool, bool) const
+    in file meshes/polyMesh/polyBoundaryMesh/polyBoundaryMesh.C at line 1137
+    Cannot find any patch or group names matching auto3
+--> FOAM Warning : 
+    From Foam::labelHashSet Foam::polyBoundaryMesh::patchSet(const Foam::UList<Foam::wordRe>&, bool, bool) const
+    in file meshes/polyMesh/polyBoundaryMesh/polyBoundaryMesh.C at line 1137
+    Cannot find any patch or group names matching "farfield_.*"
+--> FOAM Warning : 
+    From Foam::labelHashSet Foam::polyBoundaryMesh::patchSet(const Foam::UList<Foam::wordRe>&, bool, bool) const
+    in file meshes/polyMesh/polyBoundaryMesh/polyBoundaryMesh.C at line 1137
+    Cannot find any patch or group names matching sym
+
+
+Adding patches to mesh region0
+
+Adding new patch wing from 
+{
+    type            wall;
+    nFaces          0;
+    startFace       0;
+}
+
+Adding new patch inout from 
+{
+    type            patch;
+    nFaces          0;
+    startFace       0;
+}
+
+Adding new patch sym from 
+{
+    type            symmetry;
+    nFaces          0;
+    startFace       0;
+}
+
+
+
+
+Repatching mesh region0
+
+--> FOAM Warning : 
+    From Foam::labelHashSet Foam::polyBoundaryMesh::patchSet(const Foam::UList<Foam::wordRe>&, bool, bool) const
+    in file meshes/polyMesh/polyBoundaryMesh/polyBoundaryMesh.C at line 1137
+    Cannot find any patch or group names matching "wing_.*"
+--> FOAM Warning : 
+    From Foam::labelHashSet Foam::polyBoundaryMesh::patchSet(const Foam::UList<Foam::wordRe>&, bool, bool) const
+    in file meshes/polyMesh/polyBoundaryMesh/polyBoundaryMesh.C at line 1137
+    Cannot find any patch or group names matching auto3
+Moving faces from patch auto0 to patch 4
+--> FOAM Warning : 
+    From Foam::labelHashSet Foam::polyBoundaryMesh::patchSet(const Foam::UList<Foam::wordRe>&, bool, bool) const
+    in file meshes/polyMesh/polyBoundaryMesh/polyBoundaryMesh.C at line 1137
+    Cannot find any patch or group names matching "farfield_.*"
+Moving faces from patch auto2 to patch 5
+Moving faces from patch auto1 to patch 6
+Moving faces from patch sym to patch 6
+Doing topology modification to order faces.
+
+Not synchronising points.
+
+Removing patches with no faces in them.
+
+Removed zero-sized patch defaultFaces type wall at position 0
+Removed zero-sized patch auto0 type patch at position 1
+Removed zero-sized patch auto1 type patch at position 2
+Removed zero-sized patch auto2 type patch at position 3
+
+
+Writing repatched mesh region0 to 0
+
+End
+
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2506                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _615aae61d7-20250627 OPENFOAM=2506 version=v2506
+Arch   : "LSB;label=32;scalar=64"
+Exec   : renumberMesh -overwrite
+Date   : Jul 29 2026
+Time   : 22:09:54
+Host   : ip-172-31-43-247
+PID    : 288
+I/O    : uncollated
+Case   : /home/dafoamuser/mount/case
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+Create mesh for time = constant
+
+Mesh region0 size: 10920
+Before renumbering
+    band           : 9564
+    profile        : 9915904
+
+Using renumber-method: CuthillMcKee [default]
+
+Reading fields
+
+After renumbering
+    band           : 332
+    profile        : 2748415
+
+Writing mesh to "constant"
+
+Timings:
+    read mesh   : 0.034497034
+    read fields : 0.000153081
+    decompose   : 0
+    cell-cells  : 0
+    renumber    : 0.002766269
+    write       : 0.118004098
+TotalTime = 0.165214869 s
+
+ExecutionTime = 0.17 s  ClockTime = 0 s
+
+End
+

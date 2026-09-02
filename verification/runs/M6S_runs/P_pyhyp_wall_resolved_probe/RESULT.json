@@ -1,0 +1,51 @@
+{
+  "probe": "M6S-P pyHyp wall-resolved feasibility probe",
+  "prereg_blob": "8fad9c6019174c235c79ac9948796c9c60b381b8",
+  "prereg_amended_commit": "87a6364f",
+  "LABEL": "FEASIBILITY PROBE -- NO GATE, NO THRESHOLD, NO VERDICT of the fixed vocabulary attaches to any number here. It can KILL option 3; it CANNOT clear it (prereg 1.1). No checkMesh number exists and none may be attributed to this probe.",
+  "pyhyp_rc": 0,
+  "pyhyp_wall_s": 9,
+  "reader_rc": 0,
+  "completion_clauses_4_1": {
+    "rc_zero": true,
+    "grid_exists_nonempty": true,
+    "header_Grid_Ratio_line": true,
+    "stacked_Min_Min__Quality_Volume_pair": true,
+    "ninety_two_rows_levels_2_to_93": true,
+    "artifacts_newer_than_run_root_creation": true
+  },
+  "probe_ran_at_all": true,
+  "grid_path": "/home/ubuntu/Certonomous/verification/runs/M6S_runs/P_pyhyp_wall_resolved_probe/work/volumeMesh.xyz",
+  "grid_bytes": 11214275,
+  "readings": {
+    "reading_1_min_quality_minimum_raw": "0.14054",
+    "reading_1_min_quality_minimum_level": 20,
+    "reading_1_min_quality_all_positive": true,
+    "reading_1_n_negative_levels": 0,
+    "reading_1_first_negative_raw": null,
+    "reading_1_first_negative_level": null,
+    "reading_1b_min_volume_minimum_raw": "0.326E-11",
+    "reading_1b_min_volume_negative_anywhere": false,
+    "reading_2a_header_grid_ratio_raw": "1.1674",
+    "reading_2b_last_level_march_distance_raw": "0.120E+02",
+    "reading_2b_march_closed_on_12.0": true,
+    "reading_2b_fraction_of_requested_marchDist": 1.0,
+    "reading_3_achieved_first_cell_height_raw": "0.143E-05",
+    "reading_3_requested_s0_INPUT_NOT_A_MEASUREMENT": 1.319e-06,
+    "reading_4_pyhyp_last_level_cpu_s": 5.9,
+    "table_state": "COMPLETE",
+    "n_data_rows": 92
+  },
+  "cost": {
+    "unit": "core-minutes",
+    "ranks": 1,
+    "driver_wall_s": 10,
+    "actual_core_min": 0.167,
+    "estimate_core_min": 0.11,
+    "cap_core_min": 15.0,
+    "structural_cap_timeout_s": 900,
+    "ratio_actual_over_predicted": 1.52,
+    "cost_basis": "dollars DERIVED at the owner-stated c7a.4xlarge rate $0.0513/core-h, reported-by-owner and NEVER measured -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md 5)",
+    "derived_usd": 0.000143
+  }
+}
