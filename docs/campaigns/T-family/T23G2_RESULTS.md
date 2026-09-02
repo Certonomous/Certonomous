@@ -35,7 +35,9 @@ record will reasonably ask whether the repairs made the rung fail.
   REACHABLE; R2–R6 change the outcome by nothing measurable. **The repairs decide
   the QUALITY OF THE RECORD, not the verdict.**"*
 - Direction of every repair is **restrictive or neutral**. `R3` can only *add* a
-  `GATE FAIL` and on this data adds none. `R4`'s band limb *removes* two `PASS`es
+  `GATE FAIL` and on this data adds none — **and see §14: `R3`'s own gate is
+  defective in a way this sentence does not cover, because it emits a `PASS` on a
+  ladder rule 5 has already voided.** `R4`'s band limb *removes* two `PASS`es
   and no `GATE FAIL`. `R5` can only *refuse*. The one limb that could have moved
   the verdict in the permissive direction — `R4`'s rollup exclusion — is the one
   `verification` **refused**.
@@ -187,15 +189,30 @@ it is visible even though rule 5 then supersedes it: `Q3`'s row verdict is
 | `G-YPLUS` | **`GATE FAIL`** | §1.2 |
 | `G-PLATEAU` | **`PASS`** | `PLATEAUED` on all six quantities at all three levels |
 | `G-RATIO` | **`PASS`** | ratio ∞ on all six (finest iterative change exactly 0.0; smallest inter-level difference 6.66e-01 to 2.65e-05), threshold ≥ 10 — **and now licensed by a live control, see §4** |
-| `G-ORDER` | **`PASS`** | p(`Q4`) = 0.6111, registered band [0.5, 1.5] at `:833-834`, finest triple `CONVERGING` |
+| `G-ORDER` | **`PASS` — as printed by the comparator; ⚠ NOT CITABLE AS A PASSED GATE, §14** | p(`Q4`) = 0.6111, registered band [0.5, 1.5] at `:833-834`, finest triple `CONVERGING` — **but p(`Q4`) = 0.6111 is the observed order of a triple whose grid claim rule 5 step (1) voided, so there is no order to gate and this `PASS` licenses nothing; the gate as implemented never consults the iterative-convergence states (§14)** |
 | **rung rollup** | **`NOT A RESULT`** | `NOT A RESULT` present in the verdict set and tested first |
 
-**On `G-ORDER`'s `PASS`, and the record will not overclaim it.** The gate is
+**⚠ On `G-ORDER`'s `PASS` — and this paragraph is itself amended, because as
+first written it did not go far enough. See §14 (2026-09-02).** The gate is
 registered on p(`Q4`) and p(`Q4`) = 0.6111 does sit inside [0.5, 1.5]. But that p
 is computed from a triple containing `T23G2_L2`, which rule 5 step (a) has
-declared cannot support a grid claim. **`G-ORDER`'s `PASS` is a gate result, not
-a grid-convergence claim**, and nothing in this rung licenses reading it as
-evidence about the discretisation.
+declared cannot support a grid claim. **The original wording of this paragraph
+then said `G-ORDER`'s `PASS` "is a gate result, not a grid-convergence claim".
+That concession was too weak and the record withdraws it.** A `PASS` computed
+from a triple rule 5 voided at step (1) is not a gate result either: rule 5's
+ordering puts step (1) *before* any grid claim, so the observed order — a
+property of that claim — does not survive to be gated at all. `gate_order`
+(`analyse_t23g2.py:917-918`) decides from exactly two fields, the finest triple's
+observed order and its triple state, and **never consults
+`row["iterative_convergence"]`**, which `RT.grade_ladder` stores on the same row
+(`scripts/roache_triple.py:601`). **`G-ORDER`'s `PASS` therefore licenses
+nothing and must not be cited as a passed gate**, neither as evidence about the
+discretisation nor as a gate the rung cleared. A `§2d.1` repair (`R7`) is
+petitioned at
+`/home/ubuntu/Certonomous/docs/campaigns/T-family/T23G2_R7_ORDER_GATE_PETITION.md`;
+until `verification` rules, this record treats the `PASS` as reported, not as
+earned. **The rung verdict is unaffected either way — `NOT A RESULT` on `G-CONV`
+and `G-YPLUS` regardless.**
 
 ---
 
@@ -219,6 +236,11 @@ values are not monotone; they are). **They still license nothing here.** Each ro
 carries the identical reason: *"levels `T23G2_L2` are not iteratively converged
 or not plateaued; no grid claim can be made from this triple."* Rule 5 step (a)
 fires before the triple state is ever consulted.
+
+**⚠ And that applies to p(`Q4`) = 0.6111 in the table above wherever it is read.**
+The five orders 0.6104–0.6148 are printed values of a voided claim. `G-ORDER`
+nevertheless returned `PASS` on p(`Q4`) = 0.6111 because the gate reads the triple
+state and not the row verdict — **§14**.
 
 **Richardson extrapolates are REPORTED and NEVER GATED ON**, as §5 registers:
 `Q4` 50.82486, `Q1` 50.220911, `Q2` 48.409226, `Q3` 54.318939, `Q6` 48.47198 (the
@@ -336,7 +358,7 @@ the preference condition (1) excludes.
 |---|---|---|---|
 | **`R1`** completion allow-list | `768203a9` | `mark_done_t23.py`'s allow-list is a registry, and it did not carry `T23G2_L1/L2/L3` — it refused them with **rc 2 before reading a field**, against `:539-541` which registers completion as delegated to that very tool | Admits the three T23G2 names. Widening an allow-list **cannot make a failing case pass**; the instrument is fail-closed before and after. Blast radius measured: T23 carries its own `CASES` at `analyse_t23.py:88`, CASE3 inherits T23's position, T24 references it only in a docstring |
 | **`R2`** grading-path sha recorder | `23d9d9b2` | A registered feature (`:671`) **never built** — zero occurrences of `grading_path`/`shas`/`hashlib`/`sha256` in 653 lines | Prints the five-file dual-sha table of §5, with `§2d.4.3`'s two-column condition and the line stating no graded solve ever ran under a recorder-carrying comparator |
-| **`R3`** `G-ORDER` made reachable | `c2ce64a5` | `A1.2` at `:834` registers `G-ORDER`, but `ORDER_BAND` and `ORDER_QUANTITY` each occurred **twice**, both second occurrences inside a single `note()`, and `RT.grade_ladder` carries no order-band parameter — **the gate could not return `GATE FAIL` under any value of p** | `G-ORDER` is now a gate that can fail and folds into the rung rollup. The band [0.5, 1.5] is frozen **pre-compute** at `:833-834` and is untouched. **Direction: restrictive — it can only ADD a `GATE FAIL`. On this data it adds none** (p = 0.6111 ∈ [0.5, 1.5]) |
+| **`R3`** `G-ORDER` made reachable | `c2ce64a5` | `A1.2` at `:834` registers `G-ORDER`, but `ORDER_BAND` and `ORDER_QUANTITY` each occurred **twice**, both second occurrences inside a single `note()`, and `RT.grade_ladder` carries no order-band parameter — **the gate could not return `GATE FAIL` under any value of p** | `G-ORDER` is now a gate that can fail and folds into the rung rollup. The band [0.5, 1.5] is frozen **pre-compute** at `:833-834` and is untouched. **Direction: restrictive — it can only ADD a `GATE FAIL`. On this data it adds none** (p = 0.6111 ∈ [0.5, 1.5]). **⚠ AMENDED 2026-09-02 — `R3` AS DELIVERED IS ITSELF DEFECTIVE: the gate it built emits `PASS` from p(`Q4`) = 0.6111, an order belonging to a triple rule 5 step (1) had already voided, because `gate_order` consults only the triple state and never the iterative-convergence states. The `PASS` is not citable as a passed gate. Repair `R7` petitioned; see §14** |
 | **`R4`** band limb *(rollup limb REFUSED)* | `ab5e753c` | `:455` gives `Q6`'s entire registered role with **no band**, and `:581` passed it `BAND_Q1` anyway. **`verification` found the petition under-reported its own defect: `Q4` receives the same unregistered band at the same line** (`:450` registers it as the primary order quantity with no fine-value band). Two quantities, not one | Band verdicts on `Q4` and `Q6` are now printed as **`DISCLOSED, NOT GRADED`** — what an unregistered band would have said, licensing nothing. **Non-permissive on this data:** both currently `PASS` that band, so the repair removes two `PASS`es and no `GATE FAIL` |
 | **`R5`** the eighteen controls | `91bb04f8` | See §7 — **the most important of the six** | 18 quantity controls in place of 5, both y+ reader controls built and mutation-tested, and the exact-zero `G-RATIO` licence made **executable** |
 
@@ -587,6 +609,13 @@ otherwise assume is settled.
    next rung.
 5. **`P5` was never evaluable** by this rung, as registered. It needs the
    single-variable successor.
+6. **⚠ `G-ORDER`'s `PASS` is unlicensed and the instrument that produced it is
+   unrepaired.** `gate_order` gates on a triple rule 5 voided at step (1). This
+   record caveats the `PASS` everywhere it appears (§2, §3, §6, §12, §14) but
+   **cannot repair the gate** — the comparator is post-compute on the grading
+   path and a repair is `verification`'s to grant. Petitioned as `R7` at
+   `/home/ubuntu/Certonomous/docs/campaigns/T-family/T23G2_R7_ORDER_GATE_PETITION.md`.
+   **Open until ruled.**
 
 ---
 
@@ -600,7 +629,10 @@ otherwise assume is settled.
 - **No settlement of H-MESH vs H-IFACE** (§9.1).
 - **No conclusion that y+ ≤ 1 was achieved.** It was achieved on three of four
   wall patches. The gate is on four.
-- **No claim that `G-ORDER`'s `PASS` says anything about the discretisation** (§2).
+- **No citation of `G-ORDER`'s `PASS` as a passed gate, at all.** It is not merely
+  silent about the discretisation — the order it gates on belongs to a triple rule
+  5 voided at step (1), and the gate never consults the iterative-convergence
+  states, so the `PASS` licenses nothing whatever (§2, §14).
 
 ## 13. WHAT WOULD TURN THIS INTO A RESULT
 
@@ -618,3 +650,116 @@ otherwise assume is settled.
    successor's registration.
 4. **Register `R6` prospectively** and carry the mutation kill-rate measurement
    into the successor's pre-registration rather than after it.
+
+---
+
+## ⚠ 14. AMENDMENT, 2026-09-02 — `G-ORDER`'s `PASS` IS UNLICENSED, AND THE RECORD SAYS SO WHEREVER THE NUMBER APPEARS
+
+**Nothing measured is changed by this amendment. No value, no order, no GCI, no
+gate verdict as the comparator printed it, and not the rung verdict.** What
+changes is what the record permits a reader to do with one printed `PASS`.
+
+**Scope of the edit, stated because the convention is to state it.** This
+amendment is appended at the foot, and **caveat markers were also inserted inline
+at every place the affected number appears** — §0 (the `R3` direction bullet), §2
+(the gate table row and the paragraph beneath it), §3 (beneath the quantity
+table), §6 (the `R3` row), §11 (new open item 6) and §12. The brief this
+amendment answers required the caveat to travel **in the same breath** as the
+number rather than in a footnote, so unlike a frozen grading-path file this record
+**cannot** assert `lines whose number changed above this section: 0` — line
+numbers above did shift. **No sentence above was deleted; the one sentence that
+was superseded (§2's "a gate result, not a grid-convergence claim") is quoted
+verbatim where it stood and then withdrawn, not rewritten away.** **No file
+external to this one cites this record by line**: a repository-wide `grep` for the
+line-citation form of this filename returns exactly one hit, and it is this
+sentence describing the check `[MEASURED]` 2026-09-02.
+
+### 14.1 The defect
+
+`gate_order` in
+`/home/ubuntu/Certonomous/docs/campaigns/T-family/analyse_t23g2.py` — the
+function repair `R3` delivered, committed at `c2ce64a5` — decides `G-ORDER` from
+**exactly two fields of the graded row**:
+
+- `row["orders"][-1]`, the finest triple's observed order (`:917`), and
+- `row["states"][-1]`, the finest triple's state (`:918`).
+
+It **never consults `row["iterative_convergence"]`**. That field is not missing.
+`RT.grade_ladder` writes it onto the very same row it hands back
+(`/home/ubuntu/Certonomous/scripts/roache_triple.py:601`), alongside `orders`
+and `states`, which are populated **unconditionally at row construction**
+(`:597-598`) — that is, *before* rule 5's step (a) runs at `:604-618` and sets
+`row["verdict"] = "NOT A RESULT"`. So a row that step (a) has voided still
+carries a `CONVERGING` triple state and a numeric order, and `gate_order` reads
+those two and grades on them.
+
+**The information required to decline the gate was present on the object being
+gated, and was not read.**
+
+### 14.2 The consequence, measured
+
+Both readings are from the comparator's own captured output, landed beside the run
+at
+`/home/ubuntu/Certonomous/verification/runs/T-family/T23G2_runs/T23G2_GRADE.out`
+(sha256 `40f2fa33f4818cad7834e86257cd9dac8c6b786f24662c87bb0ffe2927261d2b`; a
+byte-identical copy of the stdout of the 2026-09-02 grading, placed under the run
+directory because the original capture lived only in a session scratchpad, which
+rule 13 forbids a repository document to cite — **it is a copy of a capture, not a
+re-run, and is labelled as such**):
+
+- **`:115`** (and identically `:126`, `:131`, `:136`, `:141` — one per graded
+  quantity): `VERDICT: NOT A RESULT -- levels T23G2_L2 are not iteratively
+  converged or not plateaued; no grid claim can be made from this triple`.
+- **`:162`**: `G-ORDER: PASS`, from `:161` `p(Q4) = 0.6111, band [0.5, 1.5],
+  finest triple CONVERGING`.
+
+**`G-ORDER` reports a `PASS` derived from a ladder whose grid claim rule 5 had
+already voided, forty-seven lines earlier in its own output.**
+
+`CLAUDE.md` rule 5 fixes the ordering explicitly: step (1) — *any level not
+iteratively converged or not plateaued → `NOT A RESULT`*. The observed order is a
+property of the grid claim, and the grid claim does not survive step (1) to be
+gated. **An unevaluable gate reported as a pass is the "evidence annotated as
+non-binding" failure inverted: a non-binding number annotated as a gate result.**
+
+### 14.3 The contrast that is the actual lesson
+
+The lane that graded this rung had the right instinct **and applied it once**.
+
+**At `A2.1` (§9.1) it refused to bank the discrimination**, in terms: *"Both
+orders come from triples containing `T23G2_L2`, which is not iteratively converged
+— rule 5 step (a) says no grid claim can be made from these triples. A2.1 is
+therefore NOT settled by this rung."* p(`Q4`) = 0.6111 and p(`Q1`) = 0.6148 were
+declined as evidence **on precisely the ground that voids `G-ORDER`**.
+
+**The identical reasoning was simply not applied to `G-ORDER`.** The same two
+numbers, from the same rows, disqualified in one section and gated in another. §2
+went half the distance — it declined to read the `PASS` as evidence about the
+discretisation while still calling it *"a gate result"* — and that half-step is
+what this amendment completes.
+
+**The comparator itself had already written the rule down.** Repair `R4`'s
+`_apply_band_registration` states it as the whole safety argument
+(`analyse_t23g2.py:870-874`): *"this can only turn a `PASS` or a `GATE FAIL` INTO
+`NOT A RESULT`, which is the one direction rule 5 permits … It can never turn a
+non-`PASS` into a `PASS`."* `R4` applies that; `R3` does not. **Two repairs
+landed the same day in the same file, one honouring rule 5's ordering and one
+not.**
+
+### 14.4 What this record now asserts, and what it does not
+
+- **`G-ORDER`'s printed verdict remains `PASS`.** That is what the comparator
+  printed and the record reports it faithfully. **It is not citable as a passed
+  gate**, in this record or anywhere downstream.
+- **The rung verdict is untouched: `NOT A RESULT`**, on `G-CONV` and `G-YPLUS`,
+  on grounds that predate every repair (§0, §1). **Nothing here would change it in
+  either direction** — which is exactly why the repair petitioned below should be
+  judged on the instrument and not on the outcome.
+- **This record does not repair the gate and has no standing to.**
+  `analyse_t23g2.py` is post-compute on the frozen grading path; a change to it
+  is a `§2d.1` matter for `verification`. Petitioned as **`R7`** at
+  `/home/ubuntu/Certonomous/docs/campaigns/T-family/T23G2_R7_ORDER_GATE_PETITION.md`.
+  **The petition is a draft addressed to `verification-supervisor`. It has not
+  been acted on, and heat-transfer has not ruled on it.**
+- **`R6` remains refused and unrepaired** (§8). `R7` is a separate defect in a
+  *granted* repair and is not an attempt to reopen `R6`.
