@@ -746,12 +746,20 @@ MONITOR_CAPTION = (r"16 runs $\cdot$ 100 samples each $\cdot$ "
 
 
 def fig_monitor(traces, final_internal):
+    """HER 1100Z LAYOUT ORDER, replacing the sixteen per-panel titles that
+    overlapped on screen: no "W" label on top of any panel; the grid is
+    self-labelling instead -- COLUMNS are the four powers, named ONCE each
+    on one x-axis line under the bottom row, and ROWS are the four
+    airspeeds, named once each at the left. Every panel keeps its own
+    settle line and value; each trace is still 100 samples of that run's
+    own monitor (the caption states it, so the unlabelled iteration axis
+    loses nothing a viewer needs)."""
     fig, axes = plt.subplots(4, 4, figsize=(11.0, 8.2), sharex=True)
     powers = sorted({p for p, _u in traces})
     speeds = sorted({u for _p, u in traces})
-    for i, p in enumerate(powers):
-        for j, u in enumerate(speeds):
-            ax = axes[len(powers) - 1 - i, j]
+    for j, p in enumerate(powers):
+        for i, u in enumerate(speeds):
+            ax = axes[i, j]
             it, mx, mn = traces[(p, u)]
             ax.plot(it, mx - KELVIN_C, lw=1.3, color="#b3261e")
             ax.plot(it, mn - KELVIN_C, lw=1.0, color="#1f5fb3", alpha=0.8)
@@ -759,18 +767,18 @@ def fig_monitor(traces, final_internal):
                             color="#b3261e", alpha=0.10)
             fin = mx[-1] - KELVIN_C
             ax.axhline(fin, color="#666666", lw=0.6, ls=":")
-            ax.set_title(r"$%d$ W,  $%d$ m s$^{-1}$" % (p, u), fontsize=8.0,
-                         pad=3)
             ax.text(0.97, 0.10,
                     r"settles at $" + (T_FMT % fin) + r"\ ^\circ$C",
                     transform=ax.transAxes, fontsize=6.6, ha="right",
                     color="#333333")
             ax.tick_params(labelsize=6.6)
+            ax.set_xticks([])
             ax.set_ylim(0, 115)
             if j == 0:
-                ax.set_ylabel(r"$T$  $[^\circ\mathrm{C}]$", fontsize=7.5)
-            if i == 0:
-                ax.set_xlabel("Iteration", fontsize=7.5)
+                ax.set_ylabel(r"$U_\infty = %d$ m s$^{-1}$" "\n"
+                              r"$T$  $[^\circ\mathrm{C}]$" % u, fontsize=7.5)
+            if i == len(speeds) - 1:
+                ax.set_xlabel(r"$%d$ W" % p, fontsize=9.5)
     fig.suptitle(MONITOR_TITLE, fontsize=10.5, y=0.975)
     fig.text(0.5, 0.006, MONITOR_CAPTION, ha="center", fontsize=8.0,
              color="#333333")
