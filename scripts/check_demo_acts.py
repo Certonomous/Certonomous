@@ -1010,16 +1010,20 @@ def _limb_report(events, refusal, act) -> list[str]:
     # up. The standard's other clauses -- axis labels with units, a colour bar
     # with numeric ticks, a legend inside the axes -- live INSIDE the PNG, and
     # nothing here reads pixels.
+    # ONE LINE MAY STAND ALONE (her 17:30Z order): where a title and a
+    # caption would say the same thing, the duplicate goes and the figure
+    # carries ONE of the two ("remove T at the end of takeoff under the plot
+    # since we already have this: T (C), t = 60 s, module and coolant").
+    # A figure with NEITHER is still refused -- a nameless picture is the
+    # thing the 03:10Z standard exists to prevent.
     for p in (e.get("payload") or {} for e in plots):
         title, caption = str(p.get("title") or ""), str(p.get("caption") or "")
-        if not title.strip():
-            problems.append("a figure reaches the Report tab with no title")
-        elif len(title.split()) > 10:
+        if not title.strip() and not caption.strip():
+            problems.append("a figure reaches the Report tab with neither a "
+                            "title nor a caption")
+        if title.strip() and len(title.split()) > 10:
             problems.append(f"figure title is more than 10 words: {title!r}")
-        if not caption.strip():
-            problems.append(f"figure {title!r} reaches the Report tab with no "
-                            f"caption")
-        elif len(caption.split()) > 20 or "\n" in caption:
+        if caption.strip() and (len(caption.split()) > 20 or "\n" in caption):
             problems.append(f"figure caption is not one line of at most 20 "
                             f"words: {caption!r}")
     return problems

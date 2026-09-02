@@ -883,9 +883,13 @@ class BatteryModuleAct(DemoAct):
             table_id="battery_map", role="CHIEF ENGINEER")
 
         fields = [
+            # HER 1730Z ORDER: one line under the plot, hers kept — "T at
+            # the end of takeoff" duplicated what "T (C), t = 60 s, module
+            # and coolant" already says, so her line is the figure's title
+            # (9 words, inside the standard) and no second caption renders.
             Figure(FIGURES / "actC_temperature_field.png",
-                   "T at the end of takeoff",
-                   "T (C), t = 60 s, module and coolant.", "results"),
+                   "T (C), t = 60 s, module and coolant.",
+                   "", "results"),
         ]
         # The companion's coincidence figure is measured off both arms' own
         # monitors here, exactly as the figure generator measures it.
