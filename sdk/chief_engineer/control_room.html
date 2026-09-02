@@ -670,6 +670,20 @@ const revealQ = [];
 //: initial evaluation on the ?mission= resume path, so a constant declared
 //: further down would be in its temporal dead zone when the reset reads it.
 const VIEWPORT_RESTING = 'Load a surface to see it here.';
+// The pre-mission neutral file card ("Surface loaded: ...") is a PROMISE that
+// the run's own render is coming. The moment any act surface arrives the
+// promise is discharged and the card retires: text back to resting, overlay
+// hidden, stats cleared. Sanaa 1100Z: the card was sitting on top of the
+// final plot in every act, because the slot kept the card text and any
+// null-mesh drawGeometry pass (a resize, a tab return) re-showed it. A live
+// panel refusal is never touched: that text is an accusation, not a card.
+function retireSurfaceCard() {
+  if (state.panelRefused) return;
+  const slot = $('viewportEmpty');
+  if (slot.textContent !== VIEWPORT_RESTING) slot.textContent = VIEWPORT_RESTING;
+  setHidden('viewportEmpty', true);
+  $('viewportStats').textContent = '';
+}
 let revealing = false;
 // Monotonic geometry token — declared up here because the ?mission= resume path
 // runs during initial evaluation, before later `let` declarations initialise.
@@ -1064,6 +1078,14 @@ function dispatch(env) {
       // window; measured on the adjoint drive the first mesh.panel precedes
       // stage.begin anyway, and this closes the path for an act whose first
       // panel comes later.
+      // AND THE NEUTRAL FILE CARD GOES WITH IT (Sanaa 1100Z: "Surface
+      // loaded: ... The rendered view arrives with the run" sat on top of
+      // the final plot in every act). The run whose arrival the card
+      // promised is now here, so the promise is discharged: the slot goes
+      // back to its resting text, ready for a panel refusal or the next
+      // reset, and can never resurface over a rendered panel (drawGeometry
+      // honours paraviewOwned for the same reason).
+      retireSurfaceCard();
       state.paraviewOwned = true;
       if (p && p.stage && STAGE_STATUS[p.stage]) { state.stage = p.stage; setGlobalStatus(STAGE_STATUS[p.stage]); }
       enqueue('stageBegin', p, ts); break;
@@ -3090,6 +3112,7 @@ function loadMeshPanel(p) {
   // sure ALL runs show the paraview no tesselation pls." Once any rendered
   // panel is up, a late geometry.ready must not flip the stage back to the
   // client-side triangle canvas (see loadGeometry, which honours this flag).
+  retireSurfaceCard();
   state.paraviewOwned = true;
   img.src = p.url;
   showViewportStage(PANEL_STAGE[p.panel] || 'gridShot');
@@ -3291,7 +3314,12 @@ function drawGeometry() {
   // when no surface is loaded. Once geometry lands it is hidden and stays hidden
   // — the model never disappears (B2), through setup, solve, and the report.
   const haveMesh = !!(m && m.verts && m.verts.length);
-  setHidden('viewportEmpty', haveMesh);
+  // A null-mesh pass (resize, tab return) must not resurrect the empty-slot
+  // overlay over an act's rendered panel: once an act owns the stage the
+  // slot stays down unless a panel refusal deliberately raised it. This was
+  // the second half of the card-over-the-final-plot leak (Sanaa 1100Z).
+  setHidden('viewportEmpty',
+            haveMesh || (state.paraviewOwned && !state.panelRefused));
   const dpr = window.devicePixelRatio || 1, W = cv.clientWidth, H = cv.clientHeight;
   if (!W || !H) return;
   cv.width = W*dpr; cv.height = H*dpr; const ctx = cv.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,W,H);
@@ -3416,6 +3444,7 @@ function drawGeometry() {
 // own facets and is untouched).
 function showFieldImage(url, p) {
   const img = $('viewportField'); if (!img || !url) return;
+  retireSurfaceCard();
   state.paraviewOwned = true;   // her 04:55Z no-tessellation order; see loadGeometry
   img.src = url;
   showViewportStage('field');
