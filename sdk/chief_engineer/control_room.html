@@ -3384,7 +3384,20 @@ function showFieldImage(url, p) {
 }
 function addPlot(p) {
   const url = p.url || (p.file ? `/api/plot/${p.mission||state.mission}/${p.file}` : null);
-  if (!url) return; state.plots.push({ url, title: p.title, caption: p.caption });
+  if (!url) return;
+  // FIGURE-LIST DEDUPE, SHARED, AT THE ONE RENDER SITE (Sanaa cross-act item
+  // 28). Measured on all five acts' offline drives: no act announces the same
+  // figure twice (0 duplicate titles or URLs in any stream). The duplicates
+  // she saw ("T at the end of takeoff" printed twice) are render-side: the
+  // SSE endpoint replays the whole log from sequence 0 when an EventSource
+  // auto-reconnects (the server reads `after` from the query string only,
+  // never the Last-Event-ID header a reconnect carries), so every plot.ready
+  // arrived again and this function appended it again. The memo already
+  // de-dupes by URL (renderMemo); the strip and state.plots now do the same.
+  // A URL names one file in one namespace, so an exact repeat is the same
+  // figure, never a second one.
+  if (state.plots.some(x => x.url === url)) return;
+  state.plots.push({ url, title: p.title, caption: p.caption });
   // THE STAGE COPY IS RESTORED, ON SANAA'S 2026-09-02 ORDER, which supersedes
   // her 2026-09-01 removal: "for JF1 id like the pressure field and the
   // velocity fields to appear on the main screen after the solve is done
