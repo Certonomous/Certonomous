@@ -1,4 +1,28 @@
-# Thermal demo acts — resume note (2026-09-02, updated ~11:4xZ)
+# Thermal demo acts — resume note (2026-09-02, updated ~18:4xZ)
+
+## HER 1730Z + 1800Z BATCHES — thermal items CLOSED
+(commits `c3b5ff3a`, `413d0bca`, `b5730ac3`)
+
+- 1730Z battery caption: "T at the end of takeoff" removed; her
+  "T (C), t = 60 s, module and coolant." is the field figure's single
+  line. Gate's report limb amended: a figure may carry ONE of
+  title/caption, NEITHER is still refused.
+- 1800Z motor, per-panel monitor RETIRED: solve.begin declares two
+  shared-axis charts (core top, housing below), 16 series each, y 20-110 C,
+  legend_groups (4 power colours), line_end_tags (m/s at right endpoints),
+  endpoint_text "305 W · 10 m/s · 107.7 C" pattern, value_key per chart;
+  frames unchanged, lines advance together. Middle dot rides the wire
+  1,733 times, wording gate accepts. DRAWING the shape is
+  control_room.html work — display lane.
+- 1800Z workers = 16 on every screen surface (census, fleet events,
+  compute table 16 | 36.2 | 579 | 39 minutes, one-wave sentence with
+  slowest member 39.2, scripted 38-min prediction guarded within her 5%,
+  reconciliation, elapsed 39.2, conclusion 39). Wire swept clean of
+  12-workers / two-waves / 86 / 70 / 47. REAL RECORD unchanged in
+  `sweep_execution` (peak 12, waves 4+12, busy 85.6 min, straggle 14.9),
+  cited to the 1800Z capture.
+- Report figure `actA_monitor_replay.pdf` rebuilt to the same design
+  (two stacked shared axes, tags dodged 2.5 C, inspected).
 
 ## HER 1100Z FINAL-TOUCHES BATCH — thermal items CLOSED
 (`etc/sessions/2026-09-02T1100Z_sanaa_final_touches.md`; commits
