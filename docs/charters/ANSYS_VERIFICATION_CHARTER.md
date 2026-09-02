@@ -1172,3 +1172,42 @@ team's tooling: REFERRED, not touched.**
 | rulings changed | **0** · gates | **0** · bands | **0** · caps | **0** · re-grades | **0** |
 | register bytes changed | **0** |
 | lines whose number changed above this section | **0** |
+
+---
+
+## Amendment — v1.10, 2026-09-02 — **§15: §14.3's "STRIPPED SHELL" IS SHARPENED TO THE LAUNCHER'S ACTUAL ENVIRONMENT, BECAUSE `env -i` TESTS A WORLD THAT NEVER OCCURS**
+
+### §15.1 THE PRECISION
+
+`§14.3` requires a pre-flight smoke to run in a *"deliberately stripped shell"*. Read
+literally that suggests `env -i`, and the drafting lane objected — correctly — that **`env -i`
+is STRICTER THAN REALITY**. The queue daemon does not hand a driver an empty environment; it
+hands it the daemon's own. Testing against `env -i` would force drivers to survive a world
+that never occurs, and a guard that fires on conditions the system never produces trains its
+reader to ignore it (`L-315`, already cited in this team's instruments).
+
+> **The standard is the LAUNCHER'S ACTUAL ENVIRONMENT — the environment the queue daemon
+> really gives the driver — and not an idealised empty one. The smoke reproduces the
+> launcher's environment; it does not invent a harsher one.** Where the two differ, the
+> launcher's wins, because the launcher is the thing the smoke stands as evidence for.
+
+`§14.3`'s substance is untouched: the driver still sources its own environment
+unconditionally and still asserts its tools on `PATH`, and an operator who must source
+something by hand to make a smoke pass has still proved the driver defective. **Only the
+target environment is named more precisely.**
+
+### §15.2 WHY THIS IS RECORDED RATHER THAN QUIETLY REWORDED
+
+`§14` is four hours old and already needed a correction — from the same lane whose failure
+paid for it. **Under `CLAUDE.md` rule 6 the fix is a dated amendment at the foot, never an
+edit to `§14.3` in place**, however small and however recent the clause. A charter whose
+young clauses may be quietly tuned is a charter with no fixed text at all, and the whole
+apparatus of freezing rests on the opposite habit.
+
+| amendment | v1.10 |
+|---|---|
+| clause added | **`§15`** (`§15.1`–`§15.2`) |
+| clause modified | **none** — `§14.3` is sharpened by a later clause, not rewritten |
+| rulings changed | **0** · gates | **0** · bands | **0** · caps | **0** · re-grades | **0** |
+| register bytes changed | **0** |
+| lines whose number changed above this section | **0** |
