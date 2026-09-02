@@ -20230,4 +20230,11 @@ Two absolute limbs, **either of which alone would have fired here**:
 
 **Independently verified, by the lane and not by the author:** the restored file is 5 777 lines / 424 656 bytes against 5 571 before the incident — **it GREW by the append and did not come back short**; worktree byte-identical to HEAD; N-entry count **47 → 48, exactly +1**; and the check that actually matters, **set-difference of entry ids before against after: EMPTY.** *Disclosed, not glossed:* that audit covered entry PRESENCE, line count, byte count and worktree-vs-HEAD equality — **it did not audit for silent intra-entry content change**, which the prefix-md5 evidence makes unlikely but which nobody checked.
 
+
+**RESOLUTION OF THAT DISCREPANCY, same day — and the resolution is sharper than the discrepancy was.** The 44-vs-48 gap was recorded above as *"different regexes"*. **It was closed by one command, and an ambiguity that can be closed should not be enshrined** — a later reader would not know which figure to use. The four headings separating them are `N-AV9 COMPANION`, `N-T9 AMENDMENT 1`, `N-C6 — DATED ADDENDUM` and `N-C6 — DATED ADDENDUM 2`: **all companion, amendment or addendum blocks attached to an existing id, none of them entries.** So **44 is the ENTRY count and 48 is the BLOCK count.**
+
+> **Neither number was a wrong count. One was a CORRECT COUNT OF THE WRONG THING**, labelled `N-entries` when it was `N-blocks`. That is the form rule 11's hazard actually takes, and it is more dangerous than arithmetic error because the number is defensible in isolation.
+
+**The tell that settles which figure to trust: two INDEPENDENT methods agree on 44** — headings with a trailing period, and distinct `N-` ids — **and the set-difference between those two sets is EMPTY, so they are the same 44 and not two numbers that coincide.** The 48 has no second method agreeing with it, because it is a different quantity. **A count corroborated by a second, differently-constructed method is worth more than a count taken carefully once.**
+
 **A rule-11 illustration noticed in passing:** `LESSONS.md` at this moment holds **438 blocks, 434 distinct ids, and a maximum of 436** — three different figures, and **only the maximum is the right one.**
