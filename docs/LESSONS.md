@@ -3221,6 +3221,103 @@ figure collided with an unrelated one. **A number is defined by its frame, its
 filter, and the moment it was taken**, and dropping any of the three produces a
 figure that is precise, confident and unusable.
 
+
+#### ADDENDUM — 2026-09-02, heat-transfer — **L-75 IS CONFIRMED, NOT SOFTENED: THE FILTER IS A PROPERTY OF THE SWEEP'S START PATH, NOT OF THE FILE — SO A PLANTED CONTROL STARTED INSIDE THE IGNORED DIRECTORY PASSES WHILE PROVING NOTHING ABOUT THE SWEEP THAT PRODUCED THE ZERO. THIS LANE MADE EXACTLY THAT MISTAKE AND CAME WITHIN ONE STEP OF BANKING THE ZERO**
+
+**How it arose.** A T23G2 record needed the claim *no file cites this record by
+line*. `git grep` returned zero — tracked files only, and it says so. A
+whole-tree `grep -rn … . 2>/dev/null` started at the repository root **also**
+returned zero. Before believing the second zero this lane applied standing rule 3
+and planted a line-citation string in a `git check-ignore`-confirmed path under
+`.pytest_cache/`. **The reader found the plant, and the lane concluded that the
+ignore-skipping this lesson records did not apply here and that the zero was
+therefore corroborated. THAT CONCLUSION WAS WRONG, and it was reported upward
+before it was checked.**
+
+**What the control actually exercised.** The plant was read back with the sweep
+**started inside the ignored directory** (`grep -rn … .pytest_cache/`). The zero
+came from a sweep **started at the repository root**. Those are two different
+readers, and the difference between them *is* the filter.
+
+**Measured, in a controlled tree** — `ignored/` in `.gitignore`; the same token in
+`visible.txt`, `sub/s.txt` and `ignored/f.txt`:
+
+| invocation | result |
+|---|---|
+| `grep -rl TOKEN .` (root-started, the form the zero came from) | `sub/s.txt`, `visible.txt` — **`ignored/f.txt` NOT seen** |
+| `grep -rl TOKEN ignored/` (started below the rule, the form the "control" used) | **`ignored/f.txt` seen** |
+| `grep -rl TOKEN . --no-ignore-files` | all three seen |
+| `/usr/bin/grep -rl TOKEN .` | all three seen |
+
+**`sub/s.txt` and `ignored/f.txt` sit at the same depth, so depth is not the
+discriminator — the ignore rule is.** The wrapper is unchanged from this lesson's
+original reading: `type grep` still shows the shell function exec'ing
+`ugrep -G --ignore-files --hidden -I --exclude-dir=.git …`, now at ugrep 7.8.4.
+**Nothing in this addendum refutes the body above; it explains when the body's
+filter engages.**
+
+### The rule this adds
+
+**A `.gitignore` rule is applied by a sweep only if the sweep DESCENDS PAST IT.**
+Start below the rule and it is never read — so **the same file is invisible and
+visible to the same command depending only on where the command is pointed.**
+
+> **A planted control for a search sweep must be planted where the real sweep
+> would have to REACH it, and read back with the SAME start path, the same flags
+> and the same working directory as the sweep whose zero you are trying to
+> believe. A control that starts somewhere else certifies a reader nobody used.**
+
+This is `L-320` / `L-399` in the search-tool domain: the control exercised the
+branch that did not carry the load and reported green throughout. It is also the
+reason the discipline cannot be satisfied by *"I planted something and the tool
+found it"* — **the plant and the measurement must be the same invocation.**
+
+### The second half, and it is the sharper one
+
+**`2>/dev/null` on a recursive sweep destroys the only evidence that the sweep was
+incomplete.** The whole-tree run above discarded stderr, so an unreadable
+directory, a permission denial, a broken symlink or a truncated walk would have
+produced **exactly the output a clean, complete, empty sweep produces.**
+
+> **A search whose errors are discarded can prove a HIT and can never prove a
+> ZERO.** A hit survives any amount of silenced failure; a zero is a claim about
+> everything the walk was supposed to touch, and stderr is the only channel that
+> reports what it did not.
+
+This generalises to every `find`, `grep`, `ls` and `os.walk` sweep in this lab
+whose conclusion is an absence. **Keep stderr, count what you could not read, and
+report that count beside the zero** — a zero with "0 unreadable paths" beside it
+is a measurement; a zero from a silenced sweep is a hope. It is the same disease
+as `L-101` (a blindness both measurements share) and `L-407` (a validator that
+exits 0 on no input), reached through the shell rather than through the code.
+
+### What was done with the zero, and what was not
+
+**Nothing was banked.** The record's own caveat —
+`docs/campaigns/T-family/T23G2_RESULTS.md` §15.8, which states that `git grep`
+reads tracked files only and that an untracked citation would not be seen — was
+**left exactly as written**, on the supervisor's ruling that weakening a caveat is
+a **permissive** change to a record and needs a better warrant than "the evidence
+improved slightly". **That caution turns out to have been right for a reason
+neither the lane nor the supervisor had measured at the time: the corroborating
+sweep was ignore-blind, so it corroborated nothing.** The permissive-direction
+discipline protected a record from an author who believed, wrongly and briefly,
+that he had strengthened it.
+
+**Residue, stated plainly and not as a defect:** neither reader covered the
+out-of-repo data directories — `/home/ubuntu/closure-data`,
+`/home/ubuntu/certonomous-runs`, `/home/ubuntu/closure-challenge-benchmark` — so
+a citation there would still be unseen. `docs/LOCATIONS.md` enumerates them
+precisely because they are easy to forget.
+
+**One loose end, disclosed rather than smoothed:** a probe inside the real
+repository — plant under `.pytest_cache/`, then root-started
+`grep -rl … . --max-depth=2 --no-ignore-files` — **did not find the plant**,
+although the controlled tree shows both `--no-ignore-files` and `--max-depth=2`
+behaving as documented, and `find … -exec /usr/bin/grep` found it immediately.
+**That negative is UNEXPLAINED and nothing above rests on it.** The mechanism in
+this addendum is established by the controlled tree; the real-repo probe is
+reported because it was run, not because it supports anything.
 ## L-76. Twice in two grades the exception was the label, not the code — and an absolute was the shape both took
 
 A guard was graded twice by an independent agent. Six exceptions the first time,
