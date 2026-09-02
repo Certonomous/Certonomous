@@ -151,3 +151,32 @@ three-decimal published curve, backing a 4% agreement claim that one-decimal
 cells could not exhibit). The lift table is left at her earlier explicit
 format; the conflict is referred up for her ruling rather than resolved
 either way here. All numbers added by this wave follow the 0.1 rule.
+
+---
+
+## Amendment, 2026-09-02 (~09:30Z ruling): the screens KEEP the interim set — permanently
+
+Sanaa's ruling, captured at
+`etc/sessions/2026-09-02T0930Z_sanaa_jf1_65_and_no_tessellation.md`
+("JF1 6.5 and adapt the other numbers accoridnly"): **the JF1 screens keep
+her interim compute set — 4 workers | 19 core-min per run | 95 total |
+6.5 min wall, predicted wall 4.9 min — permanently. The rewiring-to-rerun
+question is CLOSED: no screen changes to the JF1R-QB4 measured numbers, now
+or later, absent a new ruling from her.** This supersedes the forward-looking
+sentences in §1 ("replaced by the JF1R-QB4 rerun's measured numbers when its
+log lands"), §3 ("the rerun's own slowest-member figure drops in when its
+log lands") and §5 ("a later wave rewires the screens' compute table ...");
+those sentences stand above as written history and are not re-executed.
+
+The rerun itself LANDED and is COMPLETE: all five cases pass every rule-4
+clause, measured total **131.73 core-min** against the registered 170
+(ratio 0.77), sweep span 893 s ≈ 14.9 min, slowest member UNBLOWN at 468 s.
+Grading and the full measured record:
+`verification/runs/JF1_jet_flap/JF1R_QB4_COMPLETION_GRADING.md`; the rule-12
+estimate-vs-actual row is in `docs/COST_CALIBRATION.md`. Wire consistency
+with 6.5 re-verified on the offline drive the same day: estimate 98,
+computed 95 (within 3%), predicted wall 4.9 = 98/(5×4), wave sentence names
+the 95 core-minute sum, conclusion says 4 workers | 19/run | 6.5 min — no
+surviving string contradicts the interim set.
+
+Lines whose number changed above this section: 0.
