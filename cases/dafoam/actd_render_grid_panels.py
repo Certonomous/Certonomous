@@ -189,8 +189,40 @@ def main() -> int:
             encoding="utf-8")
         say(f"{png.name}: ink {ink:.3f}, {cells} cells")
 
+    # -- geometry: the body itself, shaded, no grid and no tessellation -----
+    # Sanaa 2026-09-02 ~04:55Z: "make sure ALL runs show the paraview no
+    # tesselation pls". With this panel on disk and declared, the sequencer's
+    # geometry beat serves it and the page's client-side triangle canvas
+    # never runs for this act (demo_sequencer.run: panel first, canvas only
+    # where there is no panel).
+    # Lifted well above the palette's domain tone: at (0.105, 0.125, 0.145)
+    # the first render read as a silhouette on the dark ground (looked at,
+    # not assumed), and a geometry beat whose body cannot be seen is the
+    # blank-panel failure with better ink numbers.
+    DOMAIN = (0.30, 0.36, 0.42)
+    disp = Show(wing, view)
+    disp.Representation = "Surface"
+    disp.DiffuseColor = list(DOMAIN)
+    disp.AmbientColor = [c * 0.35 for c in DOMAIN]
+    disp.Specular = 0.5
+    disp.SpecularPower = 40.0
+    b = wing.GetDataInformation().GetBounds()
+    cx, cy, cz = ((b[0] + b[1]) / 2, (b[2] + b[3]) / 2, (b[4] + b[5]) / 2)
+    span = b[5] - b[4]
+    cam.SetFocalPoint(cx, cy, cz)
+    cam.SetPosition(cx - 0.9 * span, cy + 0.65 * span, cz + 0.55 * span)
+    cam.SetViewUp(0.0, 1.0, 0.0)
+    view.CameraParallelProjection = 0
+    Render(view)
+    view.ResetCamera()
+    cam.Dolly(2.7)
+    Render(view)
+    save("geometry", view)
+    Hide(wing, view)
+
     # -- mesh: the wing's skin as the volume grid holds it ------------------
-    Show(wing, view)
+    disp = Show(wing, view)
+    style(disp)
     b = wing.GetDataInformation().GetBounds()
     cx, cy, cz = ((b[0] + b[1]) / 2, (b[2] + b[3]) / 2, (b[4] + b[5]) / 2)
     span = b[5] - b[4]

@@ -3,9 +3,9 @@
  "cells": 38304,
  "data_provenance": "rendered from the case's own constant/polyMesh, a gunzipped byte-for-byte copy of the landed A2-mach-wing run's grid; no synthesised, smoothed or decimated geometry",
  "generated_utc": "2026-09-02T04:01:29Z",
- "image": "A2_wing_grid_mesh_zoom.png",
- "ink_fraction": 0.07701111694677876,
- "panel": "mesh_zoom",
+ "image": "A2_wing_grid_geometry.png",
+ "ink_fraction": 0.1460346638655462,
+ "panel": "geometry",
  "paraview": "5.13.3 EGL (/opt/paraview/bin/pvbatch)",
  "points": 40209,
  "resolution": [
