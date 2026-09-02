@@ -233,9 +233,21 @@ def _wave_sentence() -> str:
     the sentence and the table carry one arithmetic.
     """
     c = _interim_compute()
+    # THE WALL MISS NOW GETS ITS SENTENCE (Sanaa 1100Z, her clause verbatim:
+    # "predicted 4.9; the strongest-blowing case ran long, and the wall
+    # clock followed it."). Before this the core-minute line closed "within
+    # 3%" while the +33% wall miss (predicted 4.9, actual 6.5) had no
+    # sentence at all. Her clause rides the same bullet as the slowest-member
+    # line, after a semicolon, so her lowercase opening stays verbatim and
+    # the bullet keeps its capital. The 4.9 is DERIVED from the same
+    # arithmetic the estimate beat speaks (estimate over runs x workers),
+    # never typed, so the clause and the predicted-wall beat cannot part.
+    predicted = c["estimate"] / (c["runs"] * int(c["workers"]))
     return (f"{c['runs']} runs in one wave: the wall clock follows the "
             f"slowest member, the strongest-blowing case, never the "
-            f"{c['total']:.0f} core-minute sum.")
+            f"{c['total']:.0f} core-minute sum; predicted {predicted:.1f}; "
+            f"the strongest-blowing case ran long, and the wall clock "
+            f"followed it.")
 
 FIGURES = _jf1_numbers.RUN_ROOT / "artefacts"
 
@@ -722,16 +734,14 @@ class JetFlapAct(DemoAct):
         rows = _jf1_numbers.sweep_rows()
         unblown = rows[0]
         return Feasibility(
-            check=("A single unblown calculation on the same grid, to see "
-                   "whether the section carries lift before any blowing, and "
-                   "a costing of the five operating points before any budget "
-                   "goes on them."),
+            check=("One unblown run on the same grid, checking for lift "
+                   "before any blowing. One costing of the 5 points before "
+                   "any budget is committed."),
             result=Measured(round(float(unblown["CL_aero"]), 6), "",
                             Path(unblown["case_dir"])),
             verdict_for_user=(
-                f"The unblown section carries almost no lift, so the sweep "
-                f"measures blowing and not incidence. Graphics processor "
-                f"considered and declined for this sweep. "
+                f"Almost no lift unblown: the sweep measures blowing, not "
+                f"incidence. Graphics processor considered, and declined. "
                 f"{PARALLEL_DECISION}"))
 
     # -- stage 7 ------------------------------------------------------------
@@ -1266,11 +1276,11 @@ class JetFlapAct(DemoAct):
                 # names so the artifact that outlives the shoot carries them
                 # too).
                 ("Solver: OpenFOAM simpleFoam, steady, pressure-based. "
-                 "Turbulence model: k-omega SST, resolved to the wall. "
-                 "Numerics: second-order upwind momentum, limited linear "
-                 "turbulence, 1 non-orthogonal pressure corrector, "
-                 "relaxation 0.3 on pressure and 0.7 on velocity and "
-                 "turbulence, convergence target 1e-06 on every channel."),
+                 "Turbulence model: k-omega SST, resolved to the wall."),
+                ("Numerics: second-order upwind momentum, limited linear "
+                 "turbulence, 1 pressure corrector, relaxation 0.3 on "
+                 "pressure and 0.7 elsewhere, target 1e-06 on every "
+                 "channel."),
                 ("Steady, incompressible, Reynolds number 1,000,000 on "
                  "the chord."),
                 "5 calculations on one grid, differing in the jet only.",
