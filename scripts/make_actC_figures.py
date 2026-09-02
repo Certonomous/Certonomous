@@ -65,6 +65,69 @@ def stage_field_render() -> None:
     print(f"wrote {OUT / 'actC_temperature_field.png'}")
 
 
+ARM_20 = REPO / "verification/runs/T-family/T25R2_MODULE_runs/T25R2_L1_OC20"
+MONITOR_20 = ARM_20 / "postProcessing/module/module_minmax/0/fieldMinMax.dat"
+
+
+def read_minmax_at(path):
+    rows = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if line.startswith("#") or not line.strip():
+            continue
+        cells = line.split("\t")
+        rows.append((float(cells[0]), float(cells[2].strip()),
+                     float(cells[4].strip())))
+    if not rows:
+        raise SystemExit(f"{path} carries no rows")
+    return rows
+
+
+def two_arm_overlay() -> None:
+    """Her money shot: the hottest-cell trace at 10 sweeps against 20
+    sweeps, with the takeoff transient inset where the registered check
+    measured its 2.32e-2 K gap. Every point is a row of one of the two
+    arms' own monitors; nothing is synthesised, smoothed or shifted."""
+    from chief_engineer import plot_theme as theme
+
+    plt = theme._pyplot()
+    a10 = read_minmax_at(MONITOR)
+    a20 = read_minmax_at(MONITOR_20)
+    fig, ax = plt.subplots(figsize=(11.4, 4.6), dpi=150)
+    ax.axvspan(0.0, SWITCH_S, color=theme.INK, alpha=0.06, linewidth=0)
+    ax.plot([r[0] for r in a10], [r[2] - 273.15 for r in a10],
+            color=theme.LIVE, linewidth=1.4, label="10 sweeps per step")
+    ax.plot([r[0] for r in a20], [r[2] - 273.15 for r in a20],
+            color=theme.WARN if hasattr(theme, "WARN") else theme.VALID,
+            linewidth=1.2, linestyle="--", label="20 sweeps per step")
+    theme.style_axes(ax, "t (s)", "T (C)",
+                     "Hottest cell, two solver efforts")
+    legend = ax.legend(frameon=False, fontsize=10, loc="lower right")
+    for text in legend.get_texts():
+        text.set_color(theme.INK)
+
+    # The inset that makes the refusal legible: the takeoff transient,
+    # where the registered sweep check measured the 2.32e-2 K movement.
+    axins = ax.inset_axes([0.42, 0.14, 0.30, 0.44])
+    for rows, colour, style in ((a10, theme.LIVE, "-"),
+                                (a20, legend.get_lines()[1].get_color(),
+                                 "--")):
+        window = [(t, mx - 273.15) for t, _mn, mx in rows if 40 <= t <= 90]
+        axins.plot([w[0] for w in window], [w[1] for w in window],
+                   color=colour, linewidth=1.2, linestyle=style)
+    axins.axvspan(40, SWITCH_S, color=theme.INK, alpha=0.06, linewidth=0)
+    axins.set_title("takeoff transient", fontsize=8, color=theme.INK)
+    axins.tick_params(labelsize=7, colors=theme.INK)
+    for spine in axins.spines.values():
+        spine.set_color(theme.INK)
+        spine.set_alpha(0.4)
+    fig.tight_layout()
+    OUT.mkdir(parents=True, exist_ok=True)
+    target = OUT / "actC_two_arm_overlay.png"
+    fig.savefig(target)
+    plt.close(fig)
+    print(f"wrote {target}")
+
+
 def main() -> int:
     from chief_engineer import plot_theme as theme
 
@@ -81,6 +144,7 @@ def main() -> int:
             label="hottest point in the module")
     ax.plot(times, coolest, color=theme.VALID, linewidth=1.1,
             label="coolest point in the module")
+    ax.axvspan(0.0, SWITCH_S, color=theme.INK, alpha=0.06, linewidth=0)
     ax.axvline(SWITCH_S, color=theme.INK, linewidth=0.9, alpha=0.5)
     ax.annotate("takeoff to cruise, t = 60 s",
                 xy=(SWITCH_S, hottest[-1]),
@@ -97,6 +161,7 @@ def main() -> int:
     fig.savefig(target)
     print(f"wrote {target}")
     stage_field_render()
+    two_arm_overlay()
     return 0
 
 

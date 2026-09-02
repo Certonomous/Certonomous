@@ -117,3 +117,38 @@ before resuming. State at the kill:
    min/max exist on disk, say so rather than synthesize.
 7. Battery sentence-shortening: one pass done (restatement/gates beats);
    results verification lines still long, one more pass wanted.
+
+## ADDENDUM 2 — emergency kill-order stop point (0705Z batch measured state)
+
+Sanaa's 0705Z battery batch 2 (`etc/sessions/2026-09-02T0705Z_sanaa_battery_comments_2.md`,
+read it verbatim) arrived at the kill. State:
+
+- MONEY-SHOT CHANNEL, MEASURED (the finding the successor needs first): the
+  23.2 mK O3 movement is the COOLANT OUTLET area-mean temperature at
+  t = 60 s (analyse_t25R2.py:326 names O3 as exactly that; measured between
+  the two arms' own outlet_Tbar monitors: 23.15 mK at t = 60, max 24.95 mK
+  at t = 10). The HOTTEST-CELL traces differ by at most 1.31 mK (at
+  t = 900) and only 0.04 mK at t = 60, so her "hottest-cell trace with the
+  23.2 mK gap visible" CANNOT be drawn honestly from the cell traces. The
+  committed `actC_two_arm_overlay.png` overlays the hottest-cell traces
+  (honest, but the inset shows coincidence, not the gap). REBUILD the money
+  shot as the OUTLET Tbar overlay (both arms' monitors are on disk),
+  labeled as the outlet, inset on 40-90 s; keep the cell-trace overlay as
+  the companion that shows the cells themselves barely move.
+- 0705Z-1 (28.7 vs 27.8 fork): my act derives every 28.7 from ONE source
+  (module_minmax max at t=900 = 301.80 K = 28.7 C); grep of my streams
+  shows no 27.8, so the fork is on a page surface or the pre-bounce screens.
+  Verify on the live page after the bounce before editing anything.
+- 0705Z-2 (her uncertainty sentence, verbatim replacement), 0705Z-3
+  (Celsius everywhere; the field render's colour bar is in K, add a
+  Calculator T-273.15 to render_thermal_paraview.py field mode and restage
+  the figure), 0705Z-4 (explicit spread/peak/settle wording; table rows
+  exist, her exact phrasing not yet), 0705Z-5 (figure-list dedupe; check
+  plot.ready duplicates on the live page), 0705Z-6 (two-row compute table,
+  one per arm, plus the one-worker wall sentence): ALL NOT LANDED; the act
+  file's current single-row compute table and limitations wording are the
+  state to edit from.
+- 0650Z-6 per-cell traces: MEASURED: no per-cell monitor exists on disk
+  (module_minmax extrema only); per-cell traces would have to come from the
+  181 written module/T fields grouped by cell block; say so on any screen
+  rather than promising 8 traces from monitors.
