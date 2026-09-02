@@ -1261,6 +1261,21 @@ class ShockReflectionAct(DemoAct):
                 ("geometry", 3), ("meshing", 3), ("feasibility", 3),
                 ("solving", 4), ("gates", 2), ("results", 0))
 
+    def worker_census(self):
+        """The workers tile's source: this act's REAL count, stage by stage.
+
+        Sanaa 0420Z: the on-screen worker count matches the act's parallel
+        story. This act's number is the ranks its two solves actually ran
+        on, COUNTED off the run directories by :func:`_workers` and refused
+        on any disagreement with the graded record, never retyped. Per the
+        fleet convention it rises when the working stages begin and ends at
+        zero with the results, mirroring the jet-flap declaration.
+        """
+        w = _workers()
+        return (("prompt", 0), ("restatement", 0), ("assumption", 0),
+                ("geometry", 0), ("meshing", w), ("feasibility", w),
+                ("solving", w), ("gates", 0), ("results", 0))
+
     # -- the specialists ----------------------------------------------------
     def discussions(self):
         """The three specialists, on decisions that were ACTUALLY taken.
