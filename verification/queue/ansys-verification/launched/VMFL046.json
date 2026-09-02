@@ -1,0 +1,44 @@
+{
+  "team": "ansys-verification",
+  "case_id": "VMFL046",
+  "prereg_commit": "28a4a37580d683d074d939b76df57f2ce199bb03",
+  "prereg_path": "cases/ansys_verification/VMFL046/PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/ansys_verification/VMFL046/run_vmfl046.sh",
+    "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL046"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL046",
+  "ranks": 1,
+  "cost_core_min_estimate": 12,
+  "cost_basis": "derived a-priori ~12 core-min, NOT the smoke figure: the pre-freeze production run (28.2 core-min) was contention-inflated (load ~13) AND used the pre-ruling residualControl config (L1 stopped at 2777); the GRADED run now runs ALL levels to endTime 20000 (residualControl removed, plateau convergence), a different+larger workload, so neither 28.2 nor a scaling of it is the clean estimator (the \u00a78 estimator lesson needs an UNCONTENDED same-config smoke). 12 is scaled from L1's uncontended per-iteration rate and the L1/L2/L3 cell counts (~x4/level) at endTime 20000. CAVEAT: under heavy contention the all-levels-to-endTime total could approach the frozen 30 core-min cap (old contended run 28.2 with L1 short; L1 now runs full ~+1.3), so best dispatched under low load (load ~3.7 at filing); a cap-hit is rc 124 -> NOT A RESULT (budget/kill), cleanly handled, not a silent wrong answer. ~$0.0103 at $0.0513/core-h, owner-stated, not measured (COMPUTE_BUDGET_CHARTER sec.5).",
+  "memory_floor_gb": 1.0,
+  "enqueued_by": "ansys-lane-opus48 (claude-opus-4-8[1m]) filed the entry; the SUPERVISOR holds the section 3 check-4 on freeze commit 28a4a375 (15-arm selftest run personally, plateau_and_gate read as a diff, coupling verified: fields at endTime only + centreline every 500 so the last two are W_PLATEAU apart + driver asserts blockMesh/rhoSimpleFoam on PATH and writes RUN_RC). Lane verified all 15 frozen files (3 code + prereg + every case input) hash-match 28a4a37580d683d074d939b76df57f2ce199bb03 AND disk==HEAD (the driver's launch-time integrity check will pass). Run root created empty; cwd = run root per charter section 11.4. VMFL046_ENDTIME is NOT set in launch_cmd (a bare argv, no env override) so the graded default endTime 20000 applies -- the CLAUSE-B one-iteration override cannot leak into the graded run (checked explicitly per the silent-wrong-answer concern).",
+  "_launch": {
+    "utc": "2026-09-02T23:24:19Z",
+    "pid": 304602,
+    "sid": 304602,
+    "status_file": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL046/STATUS.queue.VMFL046",
+    "wrapper_out": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL046/launcher.queue.out",
+    "started_epoch": 1788391459.5930903
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.VMFL046 (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
+}
