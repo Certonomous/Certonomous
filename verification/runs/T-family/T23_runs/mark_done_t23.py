@@ -92,7 +92,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 # whatever rule 4 says".  THE SIX CLAUSES BELOW ARE UNTOUCHED, and both rc=2 and
 # rc=1 block grading, so this instrument is FAIL-CLOSED BEFORE AND AFTER.
 CASES = ("T23_P305_U10", "T23_P305_U20", "T23_P305_U30", "T23_P305_U40",
-         "T23G_C", "T23G_M", "T23G_F")
+         "T23G_C", "T23G_M", "T23G_F", "T23G2_L1", "T23G2_L2", "T23G2_L3")
 
 # T23 3.5 conjunct 4.  PER REGION, because two of the three regions are solids.
 NEEDED = {
@@ -425,3 +425,40 @@ def main(argv):
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))
+
+
+# ==========================================================================
+# AMENDMENT v1.2 -- 2026-09-02 -- REPAIR R1, T23G2.
+#
+# LINES WHOSE NUMBER CHANGED ABOVE THIS SECTION: 0.  MACHINE-VERIFIED IN THE
+# COMMITTING INVOCATION by diffing this file's first 95 lines against the blob
+# committed at 976776f4 (the commit that froze T23G2's grading path); the sole
+# edit above is IN PLACE on line 95, which gained three names and no newline.
+#
+# GRANT.  VERIFICATION_CHARTER.md v1.38 §2d.7, commit 3dad5bae: "R1 GRANTED --
+# the only item with a real, drivable, grading-nothing instrument".  The defect
+# is a DEMONSTRABLE DEPARTURE from T23G2_PREREGISTRATION.md:540-541, which
+# registers rule-4 completion as DELEGATED to this file: the allow-list refused
+# `T23G2_L1` with rc 2 before reading a field, so the registered delegation
+# could not be performed.  Condition (2) is met under the new §2d.5 -- the
+# sha-frozen pre-registration is the independent instrument, and the departure
+# is exhibited by quotation and by measurement.
+#
+# THE EDIT: `T23G2_L1`, `T23G2_L2`, `T23G2_L3` added to `CASES`.
+#
+# DIRECTION, and it is the same ground as REPAIR D2 above: widening an
+# ALLOW-LIST cannot make a failing case pass.  It converts "refused to look"
+# into "looked, and the answer is whatever rule 4 says".  THE SIX CLAUSES ARE
+# UNTOUCHED; rc=2 and rc=1 both block grading; FAIL-CLOSED BEFORE AND AFTER.
+# `CASES[0]` is unchanged, so `--selftest`'s forged case is the same case.
+#
+# BLAST RADIUS, as measured by the ruling: `analyse_t23.py:88` carries its own
+# `CASES` and does not call this at runtime; CASE3 inherits T23's position; T24
+# does not use this file at all (its reference is a docstring).  T23G is the one
+# rung whose record diverges, and only in PROVENANCE -- its recorded sha is
+# WRITTEN, never ASSERTED, so no re-run breaks.  V-52 ruled those fossils
+# untouchable and that ruling is undisturbed: the divergence is a detection
+# doing its job and must not be suppressed.
+#
+# NOT GRADED, NOT LAUNCHED, by the lane that made this edit.
+# ==========================================================================
