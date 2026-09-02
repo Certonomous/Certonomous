@@ -40,17 +40,42 @@ WORDS = {"ONE":1,"TWO":2,"THREE":3,"FOUR":4,"FIVE":5,"SIX":6,"SEVEN":7,
 VPAT = re.compile(r"`(" + "|".join(VERDICTS) + r")`")   # longest-first: PASS last
 
 
+# TWO ID FORMATS, and missing the second one silently DROPPED EIGHT ROWS AND FOUR
+# CREDENTIALS.  Rows #1-#43 are written `| **43** |`; rows #44-#51, appended later,
+# are written `| **#44** |` WITH A HASH.  A scan matching only the no-hash form
+# returns max id 43 -- and the register ALREADY RECORDS THIS DEFECT FIRING, at line
+# 758: a row id "derived by a scan that matched only the no-hash format, returning
+# max 43 and yielding 44, colliding with a `#44` the scan could not see."  The
+# register documented it on 2026-08-31; THIS INSTRUMENT WAS NEVER REPAIRED, and on
+# 2026-09-02 it still read 6 PASS where the register holds 10.
+#
+# Nor is `VMFL` required after the id any more: struck/renumbered row #49 opens
+# `| **#49** | ~~formerly 44~~`, and dropping it loses a real NOT A RESULT.  The id
+# cell alone anchors the row; the DATE anchors the verdict.  A row that yields no
+# verdict appends None, which is VISIBLE in the multiset -- never a silent drop.
+# The case cell must open `**` (normal row) or `~~` (struck/renumbered row #49).
+# That single requirement is what EXCLUDES the coverage-matrix addendum at lines
+# 193-196, whose rows are `| **#1** | VMFL001 run 1 |` -- hash id, PLAIN case cell,
+# a different column set entirely.  Counting those four as register rows is the
+# documented `**#N**`-cell hazard this team has already had fire once.
+ROWPAT = re.compile(r"^\| \*\*#?\d+\*\* \| (?:\*\*|~~)")
+# The date cell is sometimes BOLD (`**2026-08-31**`, rows #47/#48) and sometimes
+# bare (`2026-08-24`).  Stripping `*` before the match is the difference between
+# reading those rows' verdicts and silently recording None for them.
+DATE = re.compile(r"\s*\d{4}-\d{2}-\d{2}\s*")
+
+
 def register_verdicts(text):
     out = []
     for line in text.split("\n"):
-        if re.match(r"^\| \*\*\d+\*\* \| \*\*VMFL", line):
+        if ROWPAT.match(line):
             f = line.split("|")
             # DATE-ANCHORED, never a fixed index: register row #7's description
             # contains the regex `"(h|e)"`, a LITERAL PIPE inside a Markdown cell,
             # which shifts every field after it and breaks naive pipe-splitting.
             # The ISO date cell moves with the shift, so anchoring on it survives.
             di = next((i for i, c in enumerate(f)
-                       if re.fullmatch(r"\s*\d{4}-\d{2}-\d{2}\s*", c)), None)
+                       if DATE.fullmatch(c.replace("*", ""))), None)
             m = VPAT.search(f[di + 1]) if di is not None and di + 1 < len(f) else None
             out.append(m.group(1) if m else None)
     return out
@@ -106,6 +131,36 @@ def _selftest():
     arm("multiset/GOOD", any("VERDICT MULTISET" in x for x in check(reg, base)), False, "GOOD-input")
     arm("heading/BAD-absent", check(reg, "no table here\n"),
         ["glance-table heading not found (expected '### The <NUMBER> RUNS')"], "BAD-input")
+    # HASH-FORMAT ARMS -- regression for the defect that hid 8 rows and 4 credentials
+    # until 2026-09-02.  Row #49 is the struck/renumbered form, whose case cell opens
+    # `~~formerly 44~~` with no `VMFL`: it must still be counted.
+    hashreg = ("| **43** | **VMFLGPU007-R2** — a | 2026-08-27 | **`NOT A RESULT`** |\n"
+               "| **#44** | **VMFL063** — b | 2026-08-31 | **`GATE FAIL`** |\n"
+               "| **#48** | **VMFL033-R2** — c | 2026-08-31 | **`PASS`** |\n"
+               "| **#49** | ~~formerly 44~~ STRUCK | 2026-08-31 | **`NOT A RESULT`** |\n")
+    arm("hashfmt/GOOD", register_verdicts(hashreg),
+        ["NOT A RESULT", "GATE FAIL", "PASS", "NOT A RESULT"], "GOOD-input")
+    # BAD-input arm: the SUPERSEDED pattern is planted here as a KNOWN-BAD reader and
+    # must be shown BLIND to 3 of these 4 rows.  A control that only proves a reader
+    # sees good data never proves it would have caught the bad case -- this team has
+    # had two guards print assertions that never gated (CLAUDE.md rule 3, extended:
+    # plant a FAILURE and show the guard refuses, not merely a value and show it reads).
+    old = re.compile(r"^\| \*\*\d+\*\* \| \*\*VMFL")
+    arm("hashfmt/BAD-oldpattern",
+        sum(1 for l in hashreg.split("\n") if old.match(l)), 1, "BAD-input")
+    # BOLD DATE CELL -- rows #47/#48 write `**2026-08-31**`.  Before the fix these
+    # returned None and vanished from the credential count in the FLATTERING-to-nobody
+    # direction: VMFL033-R2's `PASS` was one of the four lost credentials.
+    arm("bolddate/GOOD",
+        register_verdicts("| **#48** | **VMFL033-R2** — c | **2026-08-31** | **`PASS`** |\n"),
+        ["PASS"], "GOOD-input")
+    # COVERAGE-MATRIX ADDENDUM (register lines 193-196) -- a DIFFERENT table with a
+    # different column set that shares the `| **#N** |` id form.  Counting its four
+    # rows as register rows is a documented hazard.  Planted here as known-bad input:
+    # the detector must read ZERO rows from it.
+    covmatrix = ("| **#1** | VMFL001 run 1 | `NOT A RESULT` | **`NOT HELD`** | x |\n"
+                 "| **#2** | VMFL001-R2 | `PASS` | **`HOLDS`** | y |\n")
+    arm("covmatrix/BAD", register_verdicts(covmatrix), [], "BAD-input")
     w = max(len(n) for _, n, _, _ in res)
     for ok, n, k, note in res:
         print(f"  {'PASS' if ok else 'FAIL':4}  {n:<{w}}  {k:<10} {note[:60]}")

@@ -1020,3 +1020,73 @@ this team's own citations, which is the part this team may bind.
 | verdicts changed | **0** · gates | **0** · bands | **0** · caps | **0** · re-grades | **0** |
 | register bytes changed | **0** |
 | citations corrected | **1**, pre-freeze, in a draft |
+
+---
+
+## Amendment — v1.8, 2026-09-02 — **§11.4's CWD RULING SURVIVES INTACT; ITS THREE `queue_runner.py` CITATIONS AND ONE FILENAME DO NOT. AND A LANE FOUND IT, NOT THE SUPERVISOR WHO WROTE IT.**
+
+### §13.1 THE CORRECTED CITATIONS
+
+`§11.4` justifies its `cwd`-points-at-the-run-root ruling by naming three places where
+`scripts/queue_runner.py` writes into `cwd`. **All three line numbers have moved and one of
+the FILENAMES has changed.** Read at source by the supervisor personally, at HEAD, on
+2026-09-02:
+
+| §11.4 says | at source today |
+|---|---|
+| `STATUS.<case_id>` at `:496` | **`STATUS.queue.<case_id>` at `:509`** — the *name* changed too |
+| wrapper stdout at `:522-523` | **`launcher.queue.out` at `:510`** |
+| `CAP_OVERRUN.txt` at `:611` | **`CAP_OVERRUN.txt` at `:639`** |
+
+Line 496 is now the opening line of the R5 explanatory comment (496–508); `:522-523` is a
+`raise ValueError` refusal; `:611` is the cap-watch glob.
+
+**The rename is not cosmetic and it is the substantive half of this amendment.** The runner
+now writes `STATUS.queue.<case_id>` — a namespace **it owns** — precisely so it can never
+occupy the launcher's `STATUS.<case_id>`. Per the R5 pre-registration quoted in that comment
+(`verification/campaign/R5_RUNNER_STATUS_COLLISION_PREREGISTRATION.md`, frozen at `52632a2d`,
+candidate (a) of its §3.2), the collision is now **impossible by construction rather than
+policed by an `exists()` test** — §3.1 refused the `exists()` design on the measured fact that
+**117 of 134 entries already had a file at the old target**, so that guard would have refused
+**87 %** of the lab's queue on the day it landed.
+
+### §13.2 WHAT DOES NOT CHANGE, AND WHY THAT IS THE POINT
+
+**`§11.4`'s RULING IS UNTOUCHED: `cwd` points at the RUN ROOT, never at the case directory,
+and the validator's contrary suggestion remains a suggestion and not a ruling.** The runner
+still writes runtime artefacts into `cwd`; only the addresses of the proof moved. Nothing
+here alters a gate, threshold, band, cap, label, verdict or register byte, and no row is
+promoted, demoted or re-graded.
+
+### §13.3 ⚠ THE FINDING IS ABOUT THIS SUPERVISOR
+
+`§12.5.3` closed with the sentence *"a cited number is not a checked number"*, and recorded
+that this team found a citation defect in another charter and then mis-cited that very
+clause hours later. **Today the same supervisor sent a lane a brief repeating `§11.4`'s three
+line numbers as fact, from a charter this team OWNS, without re-reading the source — and the
+lane opened its report by correcting all three.** The brief also asserted a "free win" case
+that had in fact run and been graded five days earlier, and a box load of 3.0 that was 11.0
+four minutes later.
+
+> **THE RULE THIS FIXES IN PRACTICE: A CITATION IN A CHARTER THIS TEAM OWNS DECAYS EXACTLY
+> LIKE ONE IN A CHARTER IT DOES NOT.** Ownership is not freshness. Line numbers into a file
+> under other teams' active development are a **perishable** form of evidence, and `§11.4`'s
+> were nine days old. Where the ruling is what matters, the charter now states the ruling and
+> names the *behaviour* — the runner writes `STATUS.queue.*`, `launcher.queue.out` and
+> `CAP_OVERRUN.txt` into `cwd` — with line numbers offered as a **finding aid, dated, not as
+> the ground of the ruling.**
+
+**And the standing dispatch practice earned its keep a third time.** Every brief this team
+issues ends by ordering the lane to open with what in the brief is wrong. Three of the four
+corrections above came back in a lane's first paragraph. **A brief that cannot be contradicted
+returns only its own assumptions** — that instruction is why this amendment exists rather than
+a wrong line number sitting in an owned charter for another nine days.
+
+| amendment | v1.8 |
+|---|---|
+| clause added | **`§13`** (`§13.1`–`§13.3`) |
+| citations corrected | **3 line numbers + 1 filename**, all in `§11.4` |
+| rulings changed | **0** — `§11.4`'s `cwd` ruling is reaffirmed verbatim |
+| lines whose number changed above this section | **0** |
+| verdicts changed | **0** · gates | **0** · bands | **0** · caps | **0** · re-grades | **0** |
+| register bytes changed | **0** |
