@@ -2029,8 +2029,37 @@ function solveFrame(p) {
 }
 function solveEnd(p) {
   state.solveSeries = null;
-  if (state.gsweep) drawGSweep();
+  if (state.gsweep) { gsweepPin(p); drawGSweep(); }
   if (state.sweep) drawSweep();
+}
+// THE ENDPOINT IS THE ACT'S, NOT THE SAMPLER'S. A solve.end may carry
+// final_monitors {series: value} plus final_time_s: the act's own closing
+// values, read from the same monitor rows the frames came from (battery's
+// item-18 fork: the report said 28.7 while this strip's axis top read 27.8,
+// because the axis was derived only from the sampled frames and their own
+// rounding). When present, each value is appended as the last sample of its
+// series, so the drawn curve AND the row's min/max axis labels close on the
+// one number every other surface prints. Acts that send no final_monitors
+// are byte-identical to before.
+function gsweepPin(p) {
+  const g = state.gsweep, fin = p && p.final_monitors;
+  if (!g || !fin || typeof fin !== 'object') return;
+  const xEnd = +p.iteration;
+  g.panels.forEach((pn, pi) => {
+    const pinned = pn.series.filter(sn => fin[sn] !== undefined && isFinite(+fin[sn]));
+    if (!pinned.length) return;
+    g.cells[pi].forEach(cell => {
+      // Only a column that streamed samples gets an endpoint: pinning into an
+      // empty cell would draw a curve no frame ever carried.
+      if (cell.front || !cell.x.length) return;
+      const lastX = cell.x[cell.x.length - 1];
+      cell.x.push(isFinite(xEnd) && xEnd > lastX ? xEnd : lastX);
+      for (const sn of pn.series) {
+        (cell.ys[sn] = cell.ys[sn] || []).push(
+          fin[sn] !== undefined && isFinite(+fin[sn]) ? +fin[sn] : null);
+      }
+    });
+  });
 }
 
 // Ten cells, one canvas, one pass. Lift on the top row, residual beneath, every
@@ -3696,7 +3725,24 @@ async function uploadSurface(e) {
     // The suggested objective is a camera surface: it lands in the operator's
     // own prompt box, so it names the body, not the file the server wrote.
     if (!$('goal').value.trim()) $('goal').value = (b.suggested || '').split(b.name).join(body);
-    loadGeometry({ url: b.url, label: body });
+    // NO TESSELLATED PREVIEW, EVER (Sanaa, 2026-09-02 ~09:30Z: the original
+    // tessellation plot "shouldnt appear at all anymore"; her standing
+    // ParaView-everywhere order covers the rest). This used to call
+    // loadGeometry(b.url), the one remaining path that painted the client
+    // triangle canvas, in the window between upload and the act's first
+    // ParaView panel. The honest pre-mission state is a neutral file card:
+    // filename, triangle count as text, "surface loaded". No render is
+    // fabricated; the first visual surface is always an act-served ParaView
+    // panel (the acts emit theirs before their first stage opens).
+    state.mesh = null;              // a stale mesh must not repaint on resize
+    showViewportStage('geometry');
+    drawGeometry();                 // null mesh: clears the canvas, shows the card
+    $('viewportEmpty').textContent =
+      `Surface loaded: ${b.name}, ${(+b.triangles).toLocaleString()} `
+      + `triangles. The rendered view arrives with the run.`;
+    subText('viewportLabel', body);
+    subText('viewportCaption', '');
+    $('viewportStats').textContent = (+b.triangles).toLocaleString() + ' triangles';
     toast(`${body} loaded`);
   } catch (err) { releaseSurface(); toast(err.message); }
   finally { e.target.value = ''; }
