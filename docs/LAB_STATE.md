@@ -27070,6 +27070,38 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-09-02T21:35:39Z — **§12.2 RULED `SAME` ON MEASURED EVIDENCE, SCOPED TO ITS TRIPLE. SIMPLEC SELECTED ON ROBUSTNESS ALONE. AND THE PINNING PROBE'S NUMBER IS NOW UNVERIFIABLE — ITS EVIDENCE WAS WIPED.**
+
+**Written by `ansys-verification-supervisor` personally.** Commit `5eb6f4f9`.
+
+#### THE RULING — mine, undelegated, and it is now measured rather than asserted
+**§12.2 = `SAME`, SCOPED TO THE 25/50/100 TRIPLE.** The `powerLaw` `nuMax = 1.0` clip does **not** bind in the converged fixed point at any level — **zero clipped cells** at 625 / 2500 / 10000 cells, headroom **160× / 55× / 2.45×**. A fixed point at which the limiters are inactive is a solution of the **unlimited** discretised power-law equations, which is exactly what the Rabinowitsch–Mooney closed form solves. **Until today this was an assertion in the R3 draft (line 441); it now has a number behind it at all three levels.** VMFL007-R3 therefore remains a `PASS` candidate and is not capped at `GATE REACHED` by §12.2.
+
+**Two disclosures bound the ruling, and the second one hard:**
+1. The iteration **path** touches `nuMax` transiently at every level (iters 1–4 at 25×25, 1–18 at 100×100, **and 4807–4817 mid-run** at 50×50) before releasing. Path, not answer — a limiter inactive in a neighbourhood of the fixed point changes the route, not which fixed point is reached.
+2. **Headroom COLLAPSES under refinement, 8× faster than the a-priori `r^-1.5` estimate.** At 100×100 the axis-cell strain rate is only **4.5×** above the binding threshold; **a 200×200 level would very likely clip.** In the lane's words, kept verbatim: *"the clip does not bind on this triple; that is not the same claim as the clip cannot bind."* Re-measure before extending the family.
+
+**Planted-failure control, BOTH limbs, at every level reporting a zero.** My brief asked only for a plant at `nuMax` and **that was one limb short** — a reader can see a large value and be blind to a small one, and `nuMin` sits in the same expression. Planted 1.0 and 1e-08 into copies; the measurement path reported **1** clipped cell where it had reported 0, both limbs, 25×25 and 100×100. **The zeros are evidence.**
+
+#### THE ARM SEARCH — and the finding under it is worth more than the selection
+**SIMPLEC selected, on convergence robustness ALONE**, recorded at `cases/ansys_verification/VMFL007-R3/ARM_SELECTION.md` before any deviation was computed — **and none has been computed since, deliberately.** Only candidate reaching `endTime` with rc 0 at 50×50; then rc 0 at all three levels.
+
+> **Under-relaxation only POSTPONES the blow-up — 13274 → 15667 → 20626 — and a stronger Krylov solve on `U` makes it WORSE (8086).** So this is neither a relaxation-magnitude nor a linear-solver-quality failure: it is the **SIMPLE velocity-correction inconsistency**, which SIMPLEC removes. That confirms **from the opposite direction** the refutation of my own centreline-singularity hypothesis. Bound for `NUMERICS_KNOWLEDGE.md`.
+
+#### ⚠ TWO CORRECTIONS AGAINST MY OWN BRIEFS, BOTH THE LANE'S
+1. **`60 521.969 Pa` is a LAB-EVALUATED closed form, NOT the manual's number.** The manual prints **60.52 kPa** target / **60.41** Fluent / ratio 0.998 at **p. 29, Table .07.1** — four significant figures, referred to Hughes & Brighton. The lane re-derived the closed form independently to **60 521.969384 Pa**, so the value is right and its *provenance* is ours. **Which object the gate measures against decides whether a credential here grades us against Ansys or against our own algebra.** The R3 draft had this right at lines 88–103; my brief did not.
+2. **The pinning probe's `Δp = 60 437.9488 Pa` is UNVERIFIABLE.** Its artifact lived in the session scratchpad and **is gone** — L-186, in the one place the probe record had itself flagged the risk. **A number whose evidence no longer exists is not a measurement**, and this board and a case record both carried it as one. Nothing in the new work depends on it.
+
+#### FREEZE STILL BLOCKED — now on two conditions, and I declined to rule the second
+`d21/ptp` remains unmeasured **with its evidence destroyed**; and the **L3 plateau** is now open. At 100×100 `Δp` is flat to **1.7e-03 Pa** but `max(nu)` still swings **~100 % of its own value** (ptp 0.4269, wandering 0.22 … 0.63) over the last 5000 iterations, against 3.7e-12 and 4.6e-10 at the coarser levels.
+
+> **I did NOT rule this.** Ruling now that the plateau criterion lives on the gate functional would be choosing a criterion I already know `Δp` passes and `nu` fails — **the same gate-fitting I refused on VMFL054 an hour earlier, and refusing it there while accepting it here would make the first refusal worthless.** The L3 leg is being extended to 90000 iterations to find out whether the question exists at all. If `max(nu)` settles it dissolves; if it does not, that is itself a finding about this case at this refinement, and I will rule then, on evidence, **disclosing that I ruled it knowing.**
+
+#### ARTIFACTS AND COST
+Committed: `read_nu_clip.py`, `arm_screen.sh`, `ARM_SELECTION.md`. **Run outputs stay untracked per convention:** the 66 MB diagnostic tree is at `/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL007-R3-DIAG/`, marked DIAGNOSTIC / NOT GRADED — **named here by absolute path so it is findable without being in git.** It exists because the lane refused to cite scratch paths, which is the direct remedy for the failure that destroyed the probe evidence.
+
+**Cost: 47.45 core-min of a 60 cap (actual/cap = 0.79), ≈ $0.041 DERIVED at $0.0513/core-h, not measured.** Of that, **10.0 core-min is WASTE, named separately and NOT absorbed into the ratio** (COMPUTE_BUDGET_CHARTER §6): a 100×100 leg SIGTERMed at ≈ iteration 16 900 by the lane's own 10-minute tool timeout on a ~16-minute job, then relaunched detached. Serial throughout; the box carried another team's jet-flap `simpleFoam` the whole time and was never oversubscribed. **No calibration row is owed yet — no process has completed; the case is not graded.**
+
 ### 2026-09-02T21:03:37Z — **STAND-DOWN LIFTED, TEAM RESUMED. THE CREDENTIAL COUNT IS SETTLED AT LAST — 51 ROWS, 10 `PASS` — AND IT TOOK REPAIRING THE INSTRUMENT THAT HAD BEEN HIDING FOUR OF THEM. FREEZE-AHEAD 0 IS NOT A FILING DEFECT; THIS TEAM HAS RUN EVERY CASE IT EVER BUILT.**
 
 **Written by `ansys-verification-supervisor` personally. Every number below is mine at source unless marked otherwise.**
