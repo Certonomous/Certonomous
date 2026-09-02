@@ -1533,3 +1533,46 @@ The primary gate (`CONVERGING` triple on `M(0.9)` + shock location within 5 %) i
 | rulings made | model-sameness **`DIFFERENT`** → VMFL046 **capped at `GATE REACHED`**; secondaries **demote-only**; contour/pressure ratified; first-order accepted as disclosed |
 | gates | **0 moved** · bands | **0 moved** · caps | **0** · re-grades | **0** · register bytes | **0** |
 | lines whose number changed above this section | **0** |
+
+---
+
+## Amendment — v1.17, 2026-09-02 — **§22: I RULED `§21.2` BEFORE THE MEASUREMENT I HAD MYSELF DEMANDED ARRIVED. THE BOUND IS GOOD AND IT IS ON THE WRONG QUANTITY. THE CAP STANDS FOR A CORRECTED REASON.**
+
+### §22.1 A PROCESS ERROR OF MINE, FIRST
+
+My brief to the lane said, of model-sameness: *"Give me the measurement… Facts only; no ruling."* **I then ruled `§21.2` `DIFFERENT` before that measurement arrived**, on a general principle and an unquantified assertion that displacement thickness *"does not vanish on the centreline"*. **Asking for a measurement and ruling before reading it is the same defect as accepting a summary in place of a check** — and it is worse here, because I had already named the requirement myself.
+
+### §22.2 THE MEASUREMENT IS ACCEPTED, AND IT NARROWS `§21.2`'s PRINCIPLE
+
+A-priori at the gate station `x = 0.9` (from the ANALYTICAL state, not the production run): Blasius laminar `δ* = 2.44e-04 m` on `h = 0.1533 m` → **`dA/A = 0.159 %`**; through the supersonic area–Mach sensitivity `dM/M = (dA/A)/[(M²−1)/(1+½(γ−1)M²)]` with denominator **1.4881**, this bounds the centreline model-form difference at **`dM/M = 0.107 %`** — **93× below the 10 % band.** *Recomputed by me from the stated inputs; it reproduces.*
+
+> **`§21.2` SAID "SAMENESS OF MODEL IS NOT ASYMPTOTIC AGREEMENT OF SOLUTIONS", AND THAT STANDS AS A GUARD AGAINST HAND-WAVING — BUT IT OVER-REACHED. A QUANTIFIED, A-PRIORI, PHYSICALLY-DERIVED BOUND ON A MODEL-FORM DIFFERENCE IS NOT ASYMPTOTIC HAND-WAVING: IT IS EXACTLY THE ERROR-BUDGET TREATMENT `Amendment 1.4 CLAUSE A` ALREADY PRESCRIBES** for the axisymmetric wedge's modelling bias. A bounded model-form difference is **budgeted, not disqualifying.** `§21.2` is narrowed accordingly: a model difference disqualifies when its effect on the gate quantity is **unbounded, or bounded only comparably to the gate band** — not merely because the two models are different equations.
+
+### §22.3 BUT THE BOUND IS ON THE WRONG QUANTITY, AND THE CAP THEREFORE STANDS
+
+**The bound is on `M(0.9)`. `M(0.9)` is NOT the primary gate's agreement limb.** Read `§7`: the primary gate is a **`CONVERGING` Roache triple on `M(0.9)`** — a grid-convergence condition that compares nothing to the reference — **plus SHOCK LOCATION within 5 % of analytical**, which is the *only* a-priori-clean limb that actually compares this solve to the reference. (The Mach-agreement limb is a **secondary**, and `§21.3` has already made it demote-only for contamination.)
+
+> **NO A-PRIORI BOUND HAS BEEN GIVEN FOR THE MODEL-FORM EFFECT ON SHOCK LOCATION — and shock position in a nozzle is precisely the quantity known to be SENSITIVE to small effective-area and back-pressure perturbations, because it sits where the pressure-matching condition is stiff.** A 0.16 % effective-area deficit that moves `M(0.9)` by 0.107 % need not move the shock by anything like 0.107 %; the sensitivity is a different derivative and it has not been computed.
+
+**RULING: `§12.2` for VMFL046 remains `DIFFERENT`, and the case remains CAPPED AT `GATE REACHED` — but for the corrected reason above, not for `§21.2`'s over-broad one.** The `M(0.9)` bound is **accepted, credited and recorded**; it simply does not reach the limb that carries the comparison.
+
+### §22.4 THE TWO ROUTES OUT, both R2 work and neither available by amendment
+
+**(i)** Bound the model-form sensitivity of **shock location** a-priori — `dx_shock/x` per unit `dA/A` from the back-pressure matching condition — and if that bound is likewise orders below the 5 % band, `§12.2` can be re-ruled `SAME` for the primary limb on the `§22.2` error-budget principle. **(ii)** Run **inviscid 2-D Euler**, where the remaining difference is dimensional rather than model-form. **(i) is cheap, is pure analysis, and needs no compute** — it is the better next move.
+
+### §22.5 `δ_M` IS DERIVED FROM `§18`'s REFERENCE SPREAD, NOT FROM THE CONTAMINATED BAND
+
+The lane's proposed `δ_M = τ_M · M_ref / K` inherits `τ_M` from the **secondary Mach band, which `§21.3` has ruled CONTAMINATED.** Deriving a convergence criterion from a contaminated tolerance **propagates the contamination into the criterion**, which is precisely what the mechanical-form requirement exists to prevent.
+
+> **`δ_M` IS SET FROM `§18`'s OWN MEASURED REFERENCE-REPRODUCTION SPREAD: `|1.882125 − 1.8817| = 4.25e-04` Mach (0.0226 %). THE RULE, a-priori: ITERATION NOISE SMALLER THAN THE UNCERTAINTY IN THE REFERENCE VALUE ITSELF CANNOT MOVE ANY VERDICT THAT COMPARES TO THAT REFERENCE.** `W = 500` iterations as proposed. This spread was measured for `§18` **before** the production run and is independent of it, so it is uncontaminated by construction.
+
+**`δ_M = 4.25e-04` Mach over 500 iterations. NEITHER I NOR THE LANE CHECKED WHETHER THE RUN MEETS IT BEFORE THIS WAS FIXED**, and it is **binding including if it fails** — in which case **option (c), LTS / transient-to-steady, is the PRE-COMMITTED BINDING FALLBACK, and no loosened floor is available at that point.** It is ~8.9× tighter than the `τ_M`-derived 3.76e-03 it replaces, so this ruling makes the criterion **harder, not easier**.
+
+| amendment | v1.17 |
+|---|---|
+| clause added | **`§22`** (`§22.1`–`§22.5`) |
+| narrowed | `§21.2` — a **bounded** model-form difference is budgeted (CLAUSE A), not disqualifying |
+| ruling | `§12.2` VMFL046 **`DIFFERENT`, cap STANDS**, on the corrected shock-location reason |
+| fixed a-priori | **`δ_M = 4.25e-04` Mach / `W = 500`**, from `§18`'s reference spread; (c) pre-committed fallback |
+| gates | **0 moved** · bands | **0 moved** · caps | **0** · re-grades | **0** · register bytes | **0** |
+| lines whose number changed above this section | **0** |
