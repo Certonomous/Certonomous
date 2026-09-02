@@ -1259,3 +1259,103 @@ Sanaa's.** It is not drafted here; this probe ends at a report (§6 step 9).
 **SUBMISSIONS PARKED** (rule 7). **PERMANENTLY PRIVATE** (rule 8).
 
 <!-- END OF T25R5 PRE-REGISTRATION v1.4 -->
+
+---
+
+## Addendum D3 — 2026-09-02T~23:30Z. **THE PROBE IS CLOSED.** What it established, and the one thing it did NOT
+
+**Version v1.5. Lines whose number changed above this section: 0.**
+Addendum. **Alters no gate, no threshold, no cap, no label.** `G-T5` PASS on `C4`
+stands; `P-3` LOSES at 6.7452; A2's `R` = 20.4545 stands; `P-2` LOSES; `E1`–`E6`
+stand; the 320 core-min ceiling stands. **Nothing launched and nothing launches
+(§5.1).**
+
+### D3.1 WHAT THE PROBE ESTABLISHED
+
+- **`G-T5` PASSES** on `C4` (PCG + tuned GAMG preconditioner) at **60.11×**,
+  equivalence holding to `max|ΔT| = 2.4e-08 K` against a `1.0e-03 K` threshold.
+- **`P-2` LOSES**, and it was registered as the better outcome. **The stall floor
+  was CONFIGURATIONAL, not arithmetic** — §0.4's round-off-in-a-1/h-term
+  attribution was **wrong**. Both Krylov arms show **zero** pinned solves against
+  `B0`'s 310.
+- **A2's `R` = 20.4545 ≥ 3.0** — the coarse-grid correction **is** contributing.
+  **§1.2 was wrong about the mechanism:** the defect was never that multigrid does
+  nothing, it was **GAMG used as a standalone solver, which stalls.**
+- **`P-3` LOSES**: `C4`'s spread is **6.7452** against 3.0 — a real improvement on
+  the re-measured baseline's 10.6694, and outside the gate.
+- **⚡ THE WIN DECAYS WITH MESH REFINEMENT: 9.67× (L1), 11.37× (L2), 5.24× (L3)**,
+  and it decays hardest exactly where the ladder's cost lives — `S3` at L3 is the
+  costliest run. Carrying the measured factors through A1.1's frozen pricing gives
+  **Σ CAP 24,709 core-min against the 20,000 ceiling — a ×1.24 breach on the most
+  favourable reading available.** A number that fails **even with the assumptions
+  stacked in its favour** is a stronger negative than one that fails on neutral
+  assumptions.
+- **Five bit-for-bit baseline reproductions** (`B0_L1`↔`P1`, `B0_L2`↔`P2`,
+  `B0_L3`↔`P3`, and `C1`/`C2`/`C3` against D1.4's registered integers).
+
+### D3.2 ⛔ THE ONE THING THIS PROBE DID **NOT** ESTABLISH — **`C5` AT L3 IS UNMEASURED**
+
+> **`C5` WAS NEVER RUN AT L1 OR L3. ITS BEHAVIOUR AT THE LEVEL THAT DOMINATES
+> LADDER COST IS *UNMEASURED*, NOT ANSWERED.**
+
+`C5` (PCG + `DIC`, no multigrid) had the **best** L2 wall factor — **13.56×**,
+**above** the required 11.5352× — and stage 2 correctly ran **`C4`**, the
+registered `G-T5` winner, rather than the arm the lab had come to prefer (D2.3).
+That was the right call and it leaves a real gap.
+
+**So what is established is that `C4`'s advantage decays with refinement. It is
+NOT established that `C5`'s does.** The arm with the best measured wall factor has
+never been measured at the level that dominates ladder cost.
+
+> **A READER MUST NOT INFER FROM D3.1 THAT THE LADDER IS DEAD FOR EVERY
+> CONFIGURATION. On this arithmetic it is dead FOR `C4`. For `C5` at L3 the
+> question is UNMEASURED.**
+
+Not a defect and not a task: naming an unmeasured question at closure is what
+stops it being silently converted into a settled negative.
+
+### D3.3 TWO INSTRUMENT DISCLOSURES, RECORDED RATHER THAN LEFT IN A MESSAGE
+
+1. **`compare_arms_t25R5.py` hardcoded the arm to `_L2`**, so a caller comparing
+   `C4` against `B0_L1` compared **two different meshes**. **It did no damage for
+   one reason only: the comparator REFUSED on differing cell counts** — the
+   default-deny design catching an error its caller made, not one its author
+   anticipated. **A refusal that saves you is evidence the refusal was worth
+   building.** Repaired: it now takes `--level` and infers it from the base case's
+   suffix.
+2. **A diagnostic print rendered a minimum residual of `4.2567e-09` as `"0.0"`**
+   through `round(v, 4)`. **A displayed zero that was not a real zero**, in a lab
+   whose rule 3 exists for exactly that. There are no zeros in that log — 1,200
+   solves, all positive — and the committed scorer formats `%.3e`, so nothing
+   downstream consumed it. **It is known to be harmless only because it was
+   checked rather than reasoned past.** Companion to **L-439**, whose subject is a
+   tolerance below the noise floor; this one is a *formatter* below the noise
+   floor.
+
+### D3.4 COST — FINAL, rule 12
+
+| item | core-min |
+|---|---|
+| stage 0 (`D0`, `B0_L2`) | 18.600 |
+| stage 1 contaminated batch — **WASTE, CAUSED BY THIS LANE** | **70.533** |
+| stage 1 clean (5 arms, sequential) | 74.157 |
+| stage 2 (4 arms, sequential) | 44.233 |
+| **cumulative** | **207.523** of the **320** registered ceiling |
+
+**$0.1774 — DERIVED, NOT MEASURED**, at $0.0513/core-h,
+`cost_basis = REPORTED-BY-OWNER`; the box cannot read its own billing. **The
+70.533 core-min of waste is named and is folded into no actual/predicted ratio**
+(`COMPUTE_BUDGET_CHARTER` §6).
+
+### D3.5 CLOSURE
+
+**The probe ends at a report (§6 step 9). No ladder launches (§5.1). Nothing is
+staged for a successor.** The successor question — a gate written on **wall cost**
+rather than iterations, whether the win survives the **soak** rather than the
+ramp, and whether **`C5`'s L3 behaviour differs from `C4`'s** — is a **new
+registration** with its own cost, drafted by the supervisor; where it touches the
+A1.3 ceiling it is **Sanaa's**.
+
+**SUBMISSIONS PARKED** (rule 7). **PERMANENTLY PRIVATE** (rule 8).
+
+<!-- END OF T25R5 PRE-REGISTRATION v1.5 — PROBE CLOSED -->

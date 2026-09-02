@@ -1,5 +1,11 @@
 {
   "B0_spread": 10.669355912378998,
+  "UNMEASURED": {
+    "consequence": "ESTABLISHED: C4's wall advantage decays with refinement (9.67/11.37/5.24). NOT ESTABLISHED: that C5's does. C5 had the BEST L2 wall factor (13.56x, above the required 11.5352x) and has never been measured at the level that dominates ladder cost.",
+    "reading": "On this arithmetic the ladder is dead FOR C4. For C5 at L3 the question is UNMEASURED, not answered. A reader must not convert this into a settled negative.",
+    "what": "C5 at L1 and L3",
+    "why": "stage 2 correctly ran C4, the registered G-T5 winner, not C5 -- substituting the preferred arm after seeing the data is the move the probe exists to prevent (D2.3)"
+  },
   "arm": "C4",
   "baseline_reproduction": {
     "B0_L1_vs_P1": "EXACT (931 / 28821)",
@@ -36,6 +42,7 @@
       "L3": 5.24
     }
   },
+  "probe_status": "CLOSED -- see Addendum D3. Nothing launched; section 5.1 binds.",
   "rows": {
     "B0_L1": {
       "clock_s": 131.0,
