@@ -48,11 +48,12 @@ import re
 import struct
 from pathlib import Path
 
-from .demo_mode import (CANONICAL_SURFACE_DIR, Assumption, Closing, DemoAct,
-                        DemoContractError, ElapsedClock, Feasibility, Figure,
-                        GatesAndChecks, Geometry, GeometryMatch, Measured,
-                        MeshPlan, Prompt, Restatement, Results, RunRecord,
-                        SeriesSpec, SolveReplay, Table, register_act)
+from .demo_mode import (CANONICAL_SURFACE_DIR, COMPUTE_TABLE_HEADERS,
+                        Assumption, Closing, DemoAct, DemoContractError,
+                        ElapsedClock, Feasibility, Figure, GatesAndChecks,
+                        Geometry, GeometryMatch, Measured, MeshPlan, Prompt,
+                        Restatement, Results, RunRecord, SeriesSpec,
+                        SolveReplay, Table, register_act)
 from .demo_sequencer import Sequencer
 
 REPO = Path(__file__).resolve().parents[2]
@@ -87,6 +88,11 @@ MODULE_MINMAX = PRIMARY / "postProcessing" / "module" / "module_minmax" \
     / "0" / "fieldMinMax.dat"
 OUTLET_TBAR = PRIMARY / "postProcessing" / "coolant" / "outlet_Tbar" / "0" \
     / "surfaceFieldValue.dat"
+#: The sweep arm's own module monitor: the companion overlay's measured
+#: coincidence (the cell traces barely move between solver efforts) is
+#: computed from it at display time, never retyped.
+MODULE_MINMAX_20 = SWEEP_ARM / "postProcessing" / "module" / "module_minmax" \
+    / "0" / "fieldMinMax.dat"
 
 _TIMING = re.compile(
     r"^ExecutionTime\s*=\s*([\d.eE+-]+)\s*s\s+ClockTime\s*=\s*([\d.eE+-]+)\s*s",
@@ -697,8 +703,11 @@ class BatteryModuleAct(DemoAct):
                  "", "the lab"],
                 ["Coolant", "air", "", "the lab"],
                 ["Coolant speed", speed[0], "m/s", "the lab"],
-                ["Coolant inlet temperature", f"{inlet_c:.1f}", "C",
-                 "the lab"],
+                # Named as the reference every rise on this act is measured
+                # from (her 0650Z: "the rise number needs its reference on
+                # screen").
+                ["Coolant inlet temperature, the rise reference",
+                 f"{inlet_c:.1f}", "C", "the lab"],
                 ["Channel gap", f"{solved['channel_gap_m'] * 1000:.0f}", "mm",
                  "the lab"],
             ],
@@ -771,10 +780,11 @@ class BatteryModuleAct(DemoAct):
         return Feasibility(
             check=("An energy balance on the coolant, which bounds the mean "
                    "outlet temperature rise at takeoff power in seconds."),
-            result=Measured(round(rise, 1), "K", OC_GATE, "derived",
-                            note="q x V over mdot x cp, registered values"),
+            result=Measured(round(rise, 1), "C", OC_GATE, "derived",
+                            note="q x V over mdot x cp, registered values; "
+                                 "a rise, stated in C per her units order"),
             verdict_for_user=(
-                f"The bulk rise is about {rise:.1f} K, so the module will "
+                f"The bulk rise is about {rise:.1f} C, so the module will "
                 f"not run away; what needs the solve is the spread between "
                 f"cells and the settling, which no balance gives."))
 
@@ -844,64 +854,94 @@ class BatteryModuleAct(DemoAct):
                 "the monitor holds no row at the end of takeoff")
         t60_min, t60_max = at60[0][1], at60[0][2]
         end_min, end_max = module[-1][1], module[-1][2]
+        end_t = module[-1][0]
+        warming = (module[-1][2] - module[-37][2]) / 180.0 * 1000
         refused = "as computed; certification refused, see below"
+        # HER 0730Z ITEMS 19 AND 20: the prompt's three quantities answered
+        # in the prompt's own order - peak, spread, settle - with her peak
+        # wording verbatim and the settle row a FINDING rather than a rate.
+        # The spread is the field extrema (hottest to coolest point): no
+        # per-cell monitor exists in this record, and the row says which
+        # spread it is instead of implying one it cannot support.
         table = Table(
             title="Module temperatures, as computed",
             headers=["Quantity", "Value", "Unit", "Standing"],
             rows=[
+                ["Peak over the record, hottest cell",
+                 f"{end_max - 273.15:.1f}", "C",
+                 f"occurs at t = {end_t:.0f} s; {refused}"],
+                ["Spread, hottest to coolest point, end of the record",
+                 f"{end_max - end_min:.1f}", "C", refused],
+                ["Time to settle", "not settled within the record", "",
+                 f"still warming, {warming:.1f} mK/s at the end"],
                 ["Hottest cell, end of takeoff", f"{t60_max - 273.15:.1f}",
                  "C", refused],
-                ["Spread across the module, end of takeoff",
-                 f"{t60_max - t60_min:.1f}", "K", refused],
-                ["Hottest cell, end of the record",
-                 f"{end_max - 273.15:.1f}", "C", refused],
-                ["Spread across the module, end of the record",
-                 f"{end_max - end_min:.1f}", "K", refused],
+                ["Spread, hottest to coolest point, end of takeoff",
+                 f"{t60_max - t60_min:.1f}", "C", refused],
                 ["Coolant leaving the module, end of the record",
                  f"{outlet[-1][1] - 273.15:.1f}", "C", refused],
-                ["Still warming at the end of the record",
-                 f"{(module[-1][2] - module[-37][2]) / 180.0 * 1000:.1f}",
-                 "mK/s", refused],
             ],
             table_id="battery_map", role="CHIEF ENGINEER")
 
         fields = [
             Figure(FIGURES / "actC_temperature_field.png",
                    "T at the end of takeoff",
-                   "T (K), t = 60 s, module and coolant.", "results"),
+                   "T (C), t = 60 s, module and coolant.", "results"),
         ]
+        # The companion's coincidence figure is measured off both arms' own
+        # monitors here, exactly as the figure generator measures it.
+        m20 = read_minmax_series(MODULE_MINMAX_20)
+        by20 = {stamp: mx for stamp, _mn, mx in m20}
+        coincide_mk = max(abs(mx - by20[stamp])
+                          for stamp, _mn, mx in module if stamp in by20) \
+            * 1000.0
         plots = [
+            Figure(FIGURES / "actC_outlet_overlay.png",
+                   "Coolant outlet, two solver efforts",
+                   (f"10 vs 20 sweeps, pulse shaded; the inset shows the "
+                    f"{reading['O3'][0] * 1000:.1f} mK gap, "
+                    f"{reading['O3'][1] * 1000:.1f} allowed."),
+                   "results"),
             Figure(FIGURES / "actC_module_history.png",
                    "Module temperature through the pulse",
                    "T (C) against t (s), hottest and coolest points.",
                    "results"),
+            Figure(FIGURES / "actC_two_arm_overlay.png",
+                   "Hottest cell, two solver efforts",
+                   (f"The cell traces stay within {coincide_mk:.1f} mK; "
+                    f"the gap sits at the outlet."),
+                   "results"),
         ]
-        # HER 0610Z COMPUTE CONVENTION: per-run core-minutes, plain sum as
-        # total, wall time. The two arms ran at one worker; the wall column
-        # carries their measured sum.
-        arm_minutes = [solver_seconds(c) / 60.0 for c in (PRIMARY, SWEEP_ARM)]
+        # HER 0730Z ITEM 23: the compute table is TWO ROWS, one per arm, in
+        # the shared four-column shape every sweep act renders. Each row is
+        # that arm's own record: its launcher's rank count, its solver's own
+        # closing clock, its sweep setting read from its own fvSolution. The
+        # plain sum and the one-worker wall sentence live in the results
+        # discussion beat, her 0610Z convention.
+        arm_rows = []
+        for case in (PRIMARY, SWEEP_ARM):
+            minutes = solver_seconds(case) / 60.0
+            sweeps = _dict_value(case / "system" / "fvSolution",
+                                 "nOuterCorrectors")
+            arm_rows.append([str(solver_ranks(case)),
+                             f"{minutes:.1f} ({sweeps} sweeps per step)",
+                             f"{minutes:.1f}", f"{minutes:.0f} minutes"])
         compute = Table(
             title="Compute",
-            headers=["Core-minutes per run", "Total core-minutes",
-                     "Total wall time"],
-            rows=[[" and ".join(f"{m:.1f}" for m in arm_minutes),
-                   f"{sum(arm_minutes):.1f}",
-                   f"{sum(arm_minutes):.0f} minutes at one worker"]],
+            headers=list(COMPUTE_TABLE_HEADERS),
+            rows=arm_rows,
             table_id="battery_compute", role="CHIEF ENGINEER")
         return Results(
             fields=fields, plots=plots, tables=[table, compute],
             verification_lines=[
-                ("Run rejected as a certified result: the sweep convergence "
-                 "check fixed before the runs started measured "
-                 f"{reading['O3'][0] * 1000:.1f} millikelvin of movement in "
-                 f"the takeoff transient between sweep settings, against an "
-                 f"allowance of {reading['O3'][1] * 1000:.1f}."),
+                ("Certification refused: the sweep check fixed before the "
+                 f"runs measured {reading['O3'][0] * 1000:.1f} millikelvin "
+                 f"of movement in the takeoff transient, "
+                 f"{reading['O3'][1] * 1000:.1f} allowed."),
                 ("Two of the three registered checks held; the failed one "
-                 "voids every row above as a certified number, which is why "
-                 "each carries its standing."),
-                (f"The corrected grid convergence study is on the lab's "
-                 f"schedule, {staged} cases staged with the repaired "
-                 f"criterion; the band lands in your inbox with the "
+                 "voids every row above as a certified number."),
+                (f"The corrected convergence study is staged, {staged} "
+                 f"cases; the band lands in your inbox with the "
                  f"certificate."),
                 ("Instrument check: both monitor readers detected a planted "
                  "perturbation before any curve moved."),
@@ -913,6 +953,10 @@ class BatteryModuleAct(DemoAct):
                 ("The module is still warming when the record ends at 900 "
                  "seconds, so the settling time is not answered by this "
                  "run."),
+                ("The record carries the module's extreme points, not "
+                 "per-cell monitors, so the spread is hottest to coolest "
+                 "point; cell-by-cell attribution needs the certified "
+                 "study."),
                 ("The solve is a unit depth section of the module, so "
                  "nothing that varies along the cell depth is resolved."),
                 ("No rig or cell test data exists for this module, so "
@@ -971,6 +1015,20 @@ class BatteryModuleAct(DemoAct):
                     "and says so on the result sheet.",
                 ]),
             ],
+            "results": [
+                # HER 0610Z CONVENTION, the one-worker form: parallelism
+                # lives in the wall column and this sentence; the total is
+                # the plain sum of the two arms' own solver clocks.
+                ("engineer", [
+                    (lambda minutes:
+                     f"2 runs on one worker is two waves of one; the wall "
+                     f"clock is the {sum(minutes):.0f} minute sum of both "
+                     f"arms, matching the {sum(minutes):.1f} core-minute "
+                     f"total at one worker."
+                     )([solver_seconds(c) / 60.0
+                        for c in (PRIMARY, SWEEP_ARM)]),
+                ]),
+            ],
         }
 
     # -- the report the act ends in ------------------------------------------
@@ -1006,11 +1064,11 @@ class BatteryModuleAct(DemoAct):
                  "perturbation before a value was believed."),
             ],
             results=[
-                {"quantity": "hottest cell at the end of the record",
+                {"quantity": "peak cell temperature over the record",
                  "value": f"{end_max - 273.15:.1f} C",
                  "envelope": "no band: certification refused",
-                 "reason": ("the sweep convergence check failed at the "
-                            "takeoff transient")},
+                 "reason": ("occurs at t = 900 s; the module has not "
+                            "settled within the record")},
                 {"quantity": "compute",
                  "value": f"{actual:.1f} core-minutes",
                  "envelope": (f"forecast {scripted_estimate():.1f} before "
@@ -1018,8 +1076,10 @@ class BatteryModuleAct(DemoAct):
                  "reason": "both arms' own solver clocks"},
             ],
             uncertainty=[
-                ("No discretisation band exists for this run and none is "
-                 "drawn; the refused check is the reason."),
+                # HER 0705Z SENTENCE, VERBATIM: two causes, kept separate.
+                ("Single grid, so no discretisation band; and the sweep "
+                 "convergence check refused certification of the values "
+                 "themselves."),
                 (f"The corrected grid convergence study is staged, {staged} "
                  f"cases with the repaired criterion; the band lands in "
                  f"your inbox with the certificate."),
@@ -1031,10 +1091,12 @@ class BatteryModuleAct(DemoAct):
                  "so the spread can be attributed cell by cell."),
             ],
             conclusion_lines=[
-                (f"The run completed and the platform declined to certify "
-                 f"it: the convergence check it registered before solving "
-                 f"refused the result, and the hottest cell reads "
-                 f"{end_max - 273.15:.1f} C as computed."),
+                ("The run completed and the platform declined to certify "
+                 "it: the convergence check it registered before solving "
+                 "refused the result."),
+                (f"Peak over the record: {end_max - 273.15:.1f} C as "
+                 f"computed, at t = 900 s; the module has not settled "
+                 f"within the record."),
                 ("The corrected convergence study is on the schedule; the "
                  "band lands in your inbox with the certificate."),
                 ("The full report, with every figure, is in the Report "
@@ -1096,6 +1158,9 @@ class BatteryModuleSequencer(Sequencer):
         clocks = elapsed_by_step(PRIMARY)
         total_steps = replay.total_iterations
         step_s = 900.0 / total_steps
+        pulse = pulse_table()
+        cruise = min(rate for _t, rate in pulse if rate > 0)
+        pulse_switch = min(t for t, rate in pulse if rate == cruise)
 
         if script is not None:
             emit_table(emit, script, role="NUMERICIST", title="Method",
@@ -1128,9 +1193,20 @@ class BatteryModuleSequencer(Sequencer):
             # its own series through its ``monitors`` dict under these exact
             # names, so the module column and the coolant column advance
             # together on one shared temperature scale.
+            # HER 0650Z/0730Z ITEM 26: the x axis reads SECONDS, not "time
+            # step", and the 0-60 s pulse window is declared for shading -
+            # every frame already carries ``time_s`` beside ``iteration``.
+            # The window's end is the pulse table's own breakpoint, read
+            # from the case's fvOptions, never retyped. The page's strip
+            # owns the drawing; this declaration is the act's half of the
+            # contract, and the strip must consume ``x_series`` and
+            # ``pulse_window_s`` for the axis and shading to land (display
+            # lane; flagged upward).
             "monitor_panels": [
                 {"title": "Temperatures through the pulse",
-                 "x_label": "time step", "y_label": "T, C",
+                 "x_label": "t (s)", "y_label": "T, C",
+                 "x_series": "time_s",
+                 "pulse_window_s": [0.0, pulse_switch],
                  "series": labels,
                  "note": ("every value is a row of the run's own monitors: "
                           "the module field extrema and the outlet average")},
@@ -1186,6 +1262,15 @@ class BatteryModuleSequencer(Sequencer):
             "stage": "solving",
             "point_index": 1, "points": 1,
             "iteration": total_steps, "iterations": total_steps,
+            # THE ENDPOINT, PINNED (her 0705Z 28.7-vs-27.8 fork; chief's
+            # item-18 ruling): the panel's closing values are stated here
+            # from the SAME monitor rows the frames came from, so a strip
+            # that dropped tail frames still has the one number every other
+            # surface prints. On this record the module series closes at
+            # the fieldMinMax maximum at t = 900 s.
+            "final_monitors": {label: round(rows[-1][1], 1)
+                               for label, rows in series},
+            "final_time_s": module[-1][0],
             "core_min_measured": round(campaign_cost()[0], 2),
             "cost_basis": ("core-minutes from each arm's own closing solver "
                            "clock at its recorded rank count"),
