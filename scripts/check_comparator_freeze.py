@@ -52,16 +52,31 @@ Every scoped row also prints the pooled first marker and pooled margin as a
 diagnostic, so a reader can see exactly what the scoping changed.
 
 --------------------------------------------------------------------------
-POPULATION -- what is walked  (D471.2)
+POPULATION -- what is walked  (D471.2, widened by VERIFICATION_CHARTER 2q)
 --------------------------------------------------------------------------
-Both verification/ and cases/ are walked, and the grader name patterns are
-analyse_*.py, grade_*.py and score_*.py.  Walking verification/ alone left
-eleven graders under cases/ (R5C's grade_r5c.py, the TBNN/TBRF analysers, the
-R4 scorers, the DAFoam case analysers) with zero freeze coverage.
+verification/, cases/ and docs/campaigns/ are walked, and the grader name
+patterns are analyse_*.py, grade_*.py and score_*.py.  Walking verification/
+alone left eleven graders under cases/ (R5C's grade_r5c.py, the TBNN/TBRF
+analysers, the R4 scorers, the DAFoam case analysers) with zero freeze
+coverage.
+
+docs/campaigns/ was added under VERIFICATION_CHARTER.md 2q (v1.42).  T23G2's
+comparator lives at docs/campaigns/T-family/analyse_t23g2.py and 2d.9.2 ruled
+PERMANENTLY that it does not move -- relocating it would make the record false
+rather than the registration true.  That ruling guarantees the file stays
+outside the two original roots, so the coverage hole could not be closed from
+the campaign side; it had to be closed here, in the instrument.
 
 A grader whose tree carries no completion marker is reported NO-MARKERS -- an
 explicit, counted row, not an invisible skip.  Silence and "out of evidence
 reach" look identical in a table that omits the row; only one of them is true.
+
+EMPTY POPULATION IS A REFUSAL, NOT A CLEAN BILL  (charter 2p.2)
+A walk that finds ZERO graders says nothing about freeze and must not report
+success.  It is the exact shape 2q names: point this check at a repository
+whose every comparator lives outside its walk roots and the old code answered
+exit 0.  A population of zero is now a refusal (exit 2); the reach of a check
+is not evidence of the state of what it cannot reach.
 
 --------------------------------------------------------------------------
 SHA-WITNESS FREEZE  (D471.3)
@@ -128,7 +143,9 @@ MARKER_UTC = re.compile(r"^finished_utc=(.+)$", re.M)
 
 # grader name patterns -- see POPULATION above
 GRADER_RE = re.compile(r"^(analyse_|grade_|score_).*\.py$")
-POPULATION_ROOTS = ("verification", "cases")
+# docs/campaigns added under VERIFICATION_CHARTER.md 2q; 2d.9.2 forbids moving
+# the comparator that lives there, so the root has to come to the file.
+POPULATION_ROOTS = ("verification", "cases", "docs/campaigns")
 
 # a substitution point in an f-string, %-format or str.format literal
 HOLE = "\x00"
@@ -588,6 +605,116 @@ def selftest():
               nm and nm[0]["status"], "NO-MARKERS")
 
         # ================================================================
+        # 2q -- POPULATION WIDENED TO docs/campaigns.  Deliberately the same
+        # three-part shape as D471.2 eleven lines above: the new root's grader
+        # must be FOUND and JUDGED through the PRODUCTION roots, and the OLD
+        # roots must be shown to have MISSED it.  A control the old code would
+        # also have passed is not a control.
+        # ================================================================
+        old_roots = ("verification", "cases")
+        tdc = os.path.join(repo, "docs", "campaigns", "T_synthetic")
+        os.makedirs(tdc)
+        open(os.path.join(tdc, "analyse_dc.py"), "w").write(
+            'def m(t):\n    return f"DC_{t}"\n')
+        commit("grader under docs/campaigns/", "2026-08-01T00:00:00+00:00")
+        marker(tdc, "DC_1", "2026-08-02T00:00:00Z")
+        # PRODUCTION PATH ON PURPOSE: no roots= argument, so this reads the same
+        # POPULATION_ROOTS the command line reads.  A test that passed its own
+        # roots tuple would be exercising a copy of the widening, and a test of
+        # a copy tests nothing (charter 2p.3(d)).
+        rows = walk_population(repo)
+        dcf = [x for x in rows if x["tree"].startswith("docs/campaigns/")]
+        check("2q grader under docs/campaigns/ is in the population", len(dcf), 1)
+        # 2p.3(e) POSITIVE CONTROL, limb 1 -- the widening must not refuse
+        # everything it newly sees.  A repair that condemns its whole new
+        # population is "restrictive" only in the trivial sense.
+        check("2q(e) newly-seen grader still judged FROZEN",
+              dcf and dcf[0]["status"], "FROZEN")
+        # ADVERSE CONTROL, the D471.2 shape -- re-walk with the OLD roots and
+        # fail the selftest if they would have found it too.
+        old_walk = walk_population(repo, roots=old_roots)
+        if any(x["tree"].startswith("docs/campaigns/") for x in old_walk):
+            print("  SELFTEST FAIL: docs/campaigns control is not adverse -- the "
+                  "old two-root walk would already have found it"); ok = False
+        else:
+            print("  2q control is adverse (old roots missed it)  OK")
+        # 2p.3(e) POSITIVE CONTROL, limb 2 -- the widening is ADDITIVE: it loses
+        # no grader it already walked and re-judges none of them.  A widening
+        # that quietly moved an existing verdict would be caught here.
+        was = {(x["tree"], x["comparator"]): x["status"] for x in old_walk}
+        now = {(x["tree"], x["comparator"]): x["status"] for x in rows}
+        check("2q(e) widening loses no previously-walked grader",
+              sorted(k for k in was if k not in now), [])
+        check("2q(e) widening changes no previously-returned verdict",
+              sorted(k for k, v in was.items() if now.get(k) != v), [])
+        check("2q(e) widening is purely additive",
+              len(rows) - len(old_walk), len(dcf))
+
+        # ================================================================
+        # 2p.2 -- THE EMPTY-INPUT ARM.  A walk that finds ZERO comparators has
+        # checked nothing and must REFUSE.  Both arms below run THIS FILE as a
+        # subprocess, so what is exercised is the code the command line runs and
+        # not a re-implementation of it (2p.3(d)).
+        # ================================================================
+        me = os.path.abspath(__file__)
+
+        def scratch_repo(name):
+            rp = os.path.join(tmp, name)
+            os.makedirs(rp)
+            subprocess.run(["git", "init", "-q", rp], check=True)
+            subprocess.run(["git", "-C", rp, "config", "user.email", "t@t"],
+                           check=True)
+            subprocess.run(["git", "-C", rp, "config", "user.name", "t"],
+                           check=True)
+            return rp
+
+        def commit_in(rp, msg, when):
+            env = dict(os.environ, GIT_AUTHOR_DATE=when, GIT_COMMITTER_DATE=when)
+            # throwaway repository in a tempdir -- not the shared worktree
+            subprocess.run(["git", "-C", rp, "add", "-A"], check=True, env=env)
+            subprocess.run(["git", "-C", rp, "commit", "-q", "-m", msg],
+                           check=True, env=env)
+
+        def entry_point_rc(rp):
+            return subprocess.run([sys.executable, me, "--repo", rp],
+                                  capture_output=True, text=True).returncode
+
+        # RESTRICTIVE ARM, in 2q's own words: a repository whose every
+        # comparator lives OUTSIDE the walk roots.  The old code answered
+        # exit 0 -- ALL CLEAN -- on exactly this tree.
+        rz = scratch_repo("empty_population")
+        os.makedirs(os.path.join(rz, "elsewhere"))
+        open(os.path.join(rz, "elsewhere", "analyse_hidden.py"), "w").write(
+            'def m(t):\n    return f"HID_{t}"\n')
+        marker(os.path.join(rz, "elsewhere"), "HID_1", "2026-08-10T00:00:00Z")
+        commit_in(rz, "comparator outside every walk root",
+                  "2026-08-09T00:00:00+00:00")
+        check("2p.2 zero-comparator population REFUSES",
+              entry_point_rc(rz), EXIT_REFUSE)
+        check("2p.2 the refused population really was empty",
+              len(walk_population(rz)), 0)
+        # PLANTED CONTROL ON THAT ZERO -- the walker that returned 0 above is
+        # shown able to return non-zero on the same tree when a root reaches it.
+        # A zero from a reader never shown able to see a non-zero is not
+        # evidence (CLAUDE.md rule 3).
+        check("2p.2 the hidden grader IS found once a root reaches it",
+              len(walk_population(rz, roots=("elsewhere",))), 1)
+
+        # POSITIVE CONTROL for that refusal (2p.3(e)) -- it restricted, it did
+        # not disable.  A non-empty, correctly-frozen population under the NEW
+        # root still exits 0 through the same entry point.
+        rp2 = scratch_repo("positive_control")
+        pdc = os.path.join(rp2, "docs", "campaigns", "P_rung")
+        os.makedirs(pdc)
+        open(os.path.join(pdc, "analyse_pc.py"), "w").write(
+            'def m(t):\n    return f"PC_{t}"\n')
+        commit_in(rp2, "frozen comparator under docs/campaigns",
+                  "2026-08-11T00:00:00+00:00")
+        marker(pdc, "PC_1", "2026-08-12T00:00:00Z")
+        check("2p.3(e) non-empty frozen population still PASSES",
+              entry_point_rc(rp2), EXIT_OK)
+
+        # ================================================================
         # D471.3 -- SHA WITNESS.  Comparator committed AFTER its marker, but a
         # record committed BEFORE the marker carries the comparator's sha and
         # names it.  Must read FROZEN-SHA-WITNESS with the commit test still
@@ -691,12 +818,21 @@ def main():
     print("scope: markers are matched PER COMPARATOR from the comparator's own "
           "source (D471.1)")
     print(f"population: {', '.join(POPULATION_ROOTS)}/  --  "
-          "analyse_*.py, grade_*.py, score_*.py (D471.2)")
+          "analyse_*.py, grade_*.py, score_*.py (D471.2; docs/campaigns added "
+          "under charter 2q)")
     print("=" * 100)
     if not rows:
+        # charter 2p.2, the empty-input test.  A walk that found nothing has not
+        # checked anything, and the old exit 0 here was indistinguishable, from
+        # the exit code alone, from "every comparator is frozen".  2q names this
+        # exact shape: a repository whose comparators all sit outside the walk
+        # roots used to report ALL CLEAN.  Refuse instead; a check's reach is not
+        # evidence about what lies beyond it.
         print("  no tree carries a grader.")
         print("ZERO VERDICT: NOT_A_MEASUREMENT -- nothing was in scope")
-        sys.exit(EXIT_OK)
+        refuse(f"REFUSE: the walk of {', '.join(POPULATION_ROOTS)}/ found ZERO "
+               f"comparators. An empty population is not a clean population -- "
+               f"it is a check that did not reach its subject (charter 2p.2).")
     bad = 0
     order = {"UNCOMMITTED": 0, "UNFROZEN": 1, "MODIFIED_AFTER_COMMIT": 2,
              "AMBIGUOUS-SCOPE": 3, "UNDATED-MARKER": 4, "AMENDED_AFTER": 5,
