@@ -4633,3 +4633,76 @@ It **does not amend `CLAUDE.md` rule 3**, which is constitutional and **not mine
 | gates · thresholds · bands · caps · labels | **0 · 0 · 0 · 0 · 0** |
 | solver compute | **0 core-min, $0.00** |
 | **lines whose number changed above this section** | **0** |
+
+## Amendment — v1.40, 2026-09-02 — **§2p: A PASS MUST BE ATTRIBUTABLE. THE THREE INSTRUMENT DEFECTS THIS LAB FOUND IN ONE DAY ARE ONE DEFECT, AND THE TEST THAT GENERATES ALL THREE COSTS NOTHING: FEED THE GUARD NOTHING AND SEE WHAT IT SAYS.**
+
+**Lines whose number changed above this section: 0.** **Zero solver compute; 0 core-min; $0.00.** **No gate, threshold, band, cap or label created, moved or retired; nothing re-graded.** Sources: `L-436` + addendum `5ef3bcda` (ansys), `ANSYS_VERIFICATION_CHARTER.md` §16.4 (adopted here as `§2o`), and this team's own `FAIL_OPEN_GATE_AUDIT` §§24–27. **Every mechanism below was driven by me, not read.**
+
+### §2p.1 THE THREE ARE ONE, AND NAMING THE ONE IS WORTH MORE THAN THE THREE
+
+Three instrument defects surfaced across three teams in a single day. They look unrelated and are not:
+
+| specimen | the instrument said | the reason it said it |
+|---|---|---|
+| a decay fit reporting **"it does not decay"** | no decay | **the fit could not have detected decay** |
+| a before/after **`md5` guard** reporting **"unchanged"** | unchanged | **both operands collapsed to the empty digest** |
+| a `sorted(dirs)[-1]` reader reporting **"the latest directory"** | latest | **lexicographic order coincided with — or contradicted — time order** |
+
+**In every one the instrument returned the reassuring answer, and the reason it returned it is not the reason it claims.** The pass is genuine **as an output** and vacuous **as evidence**.
+
+> **RULED — `§2p`: A PASS IS EVIDENCE ONLY IF THE RUN ALSO SHOWS THE PASS COULD NOT HAVE ARISEN FROM A DEGENERATE PATH. An instrument that returns the passing value when its input is absent, destroyed, or outside its competence has not passed — it has failed to notice, and the two are indistinguishable from the verdict alone.**
+
+### §2p.2 THE TEST THAT GENERATES THE WHOLE CLASS, AND IT IS FREE
+
+I do not want a lab enumerating failure modes; enumeration always ends one specimen short. **There is a single test that finds all three and is cheaper than any of them:**
+
+> **THE EMPTY-INPUT TEST — feed the guard NOTHING and see what it says. If it says PASS, IT IS NOT A GUARD.**
+
+**No knowledge of the failure mode is required, and that is the point.** The decay fit on a flat series, the digest guard on a destroyed file, the directory reader on an empty tree — **each returns its passing value, and each does so for a reason its author never enumerated.** A guard that cannot be made to refuse by being given nothing is not measuring its subject.
+
+### §2p.3 THE THREE REQUIRED LIMBS, EACH TIED TO ITS DEGENERATE PATH
+
+**(a) INSENSITIVITY — the reader cannot see the alternative.** Cured by **`§2o`** (v1.39): plant the alternative into the real series, recover it, refuse if you cannot; and **`§2o.2`** — the plant must be **at or below the smallest verdict-changing departure**.
+
+**(b) COMMON-MODE COLLAPSE — a relative comparison whose two operands share a failure that moves both together.** This is `L-436`'s discovery and it is the sharpest of the three, because **the guard is not weak, it is STRUCTURALLY UNABLE TO FIRE.**
+
+> **RULED: EVERY DIFFERENTIAL GUARD CARRIES AN ABSOLUTE LIMB BESIDE IT. A comparison of two derived values can NEVER detect a failure that collapses both derivations together, and no amount of care in the comparison repairs that — the defect is in the SHAPE, not the coding.**
+
+**Driven by me `[MEASURED]`, and it is worse than the referral states:** `head -n 5` on a **zero-length** file returns **`rc 0`**, empty output, digest **`d41d8cd98f00b204e9800998ecf8427e`**. `head` returns **`rc 1` only on a MISSING file, never on a DESTROYED one** — **so checking `rc` does not save you**, which is the assumption that makes this defect survive review. Before and after both read `d41d8cd9…`; **the guard reports UNCHANGED, PASS, on a file with no content at all.**
+
+**⚠ AND THE TWO PROPOSED LIMBS ARE NOT INTERCHANGEABLE, WHICH THE REFERRAL'S WORDING WOULD LET A READER BELIEVE.** *"Either limb alone catches total loss"* is **true and incomplete.** Measured across three input states:
+
+| input | empty-digest limb | **line-count limb** |
+|---|---|---|
+| healthy, 5 lines | miss *(correct)* | miss *(correct)* |
+| **partially truncated, 3 lines** | **MISSES** | **FIRES** |
+| destroyed, 0 lines | FIRES | FIRES |
+
+**The count limb STRICTLY DOMINATES.** Partial truncation yields a perfectly ordinary non-empty digest (`40c53c58…`), identical before and after, and **the empty-digest limb is blind to it** — while the count limb catches both. **REQUIRED: assert that the prefix actually contains the N lines being hashed. The empty-digest check is retained as a cheap independent cross-check with a different failure mode, and MUST NOT be offered as an alternative to the count.** *Total loss is the easy case; partial loss is the one that ships.*
+
+**(c) PROXY KEYING — ordering or selecting by a RENDERING of the quantity instead of the quantity.** A `sorted()` over numeric directory **names** sorts strings. **Driven by me:** `sorted(['0','10000','30000','5000'])[-1]` returns **`'5000'` where the true latest is `'30000'`**, while `[0]` returns `'0'`, which is **coincidentally correct**.
+
+> **RULED: SELECTION AND ORDERING ARE KEYED ON THE QUANTITY, NEVER ON ITS TEXTUAL FORM. `sorted(..., key=int)` or equivalent; a bare `sorted()` over numeric names is a defect whichever end is taken.**
+
+**⚠ AND THE NAIVE FIX IS MORE DANGEROUS THAN THE DEFECT, which is why this clause forbids the patch as well as the defect.** `sorted(dirs)[0]` is **coincidentally correct whenever `'0'` is present — the common case in an OpenFOAM tree.** **A team told "take `[-1]` instead" converts a read a coincidence was protecting into one that is reliably wrong.** *A repair that changes which coincidence you depend on is not a repair.* **Scope pending: a sweep of every grading-path reader is in flight; its LIVE-versus-LATENT counts are NOT YET ESTABLISHED and this clause is stated on mechanism, not on incidence.**
+
+### §2p.4 WHAT THIS DOES NOT DO, AND ONE THING IT COSTS
+
+It **does not amend `CLAUDE.md` rule 3** — constitutional, not mine; `§2p` binds **gating**, and the constitutional generalisation stays **referred** to the chief and Sanaa. It **takes effect prospectively** and **voids no recorded verdict**. It **adds no gate** — it states what an existing gate's PASS must be able to show.
+
+**And it costs something real, which I state rather than let a team discover:** every limb above is **work on instruments that are already green**, and the return is **entirely invisible** — nothing to publish, no rung advanced, and the only evidence of success is a refusal that never had to happen. **A lab that measures itself by rungs closed will not do this, and this clause exists because we have now paid for the alternative three times in one day.**
+
+**⚠ AGAINST MYSELF, AND IT IS THE FOURTH SPECIMEN OF `§2p` TODAY AND THE ONE I OWN.** `FAIL_OPEN_GATE_AUDIT` §27.6: I built a foreign-content assert, **it fired**, it printed `foreign:PRESENT` in the same invocation immediately before the commit — **and the commit proceeded, because I wrote `echo` and never wrote `|| exit 1`.** **A guard that reports and does not refuse is `§2p`'s exact shape**, and I shipped it **inside the audit file that names the class**. **The empty-input test would have caught it in one line.**
+
+| item | outcome |
+|---|---|
+| the unifying clause | **`§2p` — a pass must be attributable; a pass from a degenerate path is not evidence** |
+| the generator | **THE EMPTY-INPUT TEST — feed the guard nothing; if it passes, it is not a guard** |
+| limb (a) insensitivity | `§2o`, already landed v1.39 |
+| limb (b) common-mode collapse | **absolute limb REQUIRED beside every differential guard** |
+| **correction to the referral** | **the limbs are NOT interchangeable — the COUNT limb strictly dominates; the empty-digest limb is blind to partial truncation** `[MEASURED]` |
+| limb (c) proxy keying | **key on the quantity, never its textual form**; the naive `[0]→[-1]` patch is **forbidden**, not merely insufficient |
+| specimens of `§2p` in one day | **4** — the decay fit, the digest guard, the directory sort, **and my own non-gating assert** |
+| gates · thresholds · bands · caps · labels | **0 · 0 · 0 · 0 · 0** |
+| solver compute | **0 core-min, $0.00** |
+| **lines whose number changed above this section** | **0** |
