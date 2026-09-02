@@ -13264,6 +13264,21 @@ without a ruling, and the discrepancy is more useful disclosed than fixed.
    any instrument other than the frozen one.**
 5. **`COST_CALIBRATION.md` row written on ruling**, not before (see above).
 
+> **⚠ PROVENANCE OF THIS BLOCK, RECORDED BECAUSE IT IS A CITATION HAZARD AND NOT
+> A COMPLAINT.** This block and the section stamp above it were written by a
+> heat-transfer lane at 2026-09-02T21:04Z into the shared working tree, and were
+> then **swept into `54c2a878` (21:05:55Z), a `verification` commit whose subject
+> is `FAIL_OPEN_GATE_AUDIT §26`** — a peer's private-index `read-tree` picked up
+> this path's disk content before heat-transfer could commit it. **Nothing was
+> lost and nothing was altered**; the bytes at HEAD are the bytes written. But
+> **anyone citing `54c2a878` as the origin of this heat-transfer block is citing a
+> verification commit**, and the git record does not attribute it to us. Recorded
+> here rather than rewritten: history is not rewritten, and this is the same
+> hazard class the dafoam board flagged for `28b05eb2`. **The structural finding:
+> `docs/LAB_STATE.md` is a single file that six teams edit concurrently, so the
+> private-index protocol's per-item guarantee does not hold on it — a `read-tree`
+> commits whatever is on disk at that path, including a peer's unfinished block.**
+
 ---
 
 ##### ⚡ **T25R4: THE PRESSURE FIX WORKS — AND THE LADDER IT ENABLES COSTS 10× THE REGISTERED CEILING, SO THE GATE REFUSES IT.** (2026-09-01T~18:30Z)
