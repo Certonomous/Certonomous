@@ -20178,3 +20178,37 @@ run.]`**
 checker's route carries no information), L-316 (a selftest proves the grader,
 never the case or the launcher), L-399 (a control driven only where it cannot
 fail), L-273 (plant into a file the producer actually wrote).
+
+---
+
+## L-436. `open(p,'w').write(open(p).read()...)` TRUNCATES THE FILE BEFORE IT READS IT. I emptied `NUMERICS_KNOWLEDGE.md` — 5,571 lines — with one line of Python
+
+**2026-09-02, ansys-verification supervisor. MEASURED — the file was 0 bytes on disk.**
+
+### What happened
+
+Landing a numerics entry, I substituted two placeholders with:
+
+```python
+open(p,'w').write(open(p).read().replace('`MD5A`', md5).replace('`VERD`', v))   # DESTROYS THE FILE
+```
+
+Python evaluates `open(p,'w')` **before** the argument expression. That call **truncates the file to zero**, and only then does `open(p).read()` run — reading the file it has just emptied. It wrote the empty string. `docs/NUMERICS_KNOWLEDGE.md` went from **411,931 bytes to 0**.
+
+### Why it was not caught by the assertions I had already written
+
+**The step carried an md5 prefix assertion and the assertion PASSED.** I compared the md5 of the first *N* lines before and after. On an empty file `head -n N` returns nothing, so both digests were the digest of nothing, and **the guard reported EQUAL on a destroyed file**. A guard whose two sides degrade together cannot fire. **It is the lab's own `L-315` / planted-failure principle, in a place I did not think to plant one.**
+
+The real tell was three commands later: `check_numerics_index.py --gen` printed `FAMILIES 0 TOTAL 0`, and `tail -30` printed nothing at all. **The instrument that caught it was the one that REFUSED rather than reporting a number** — the index checker says `no FAMILY INDEX block exists` and declines to report divergence, exactly as its own docstring says it must, because *"a zero from a parser not shown able to see a non-zero is not evidence"*.
+
+### The rules
+
+1. **NEVER write and read the same path in one expression.** Read into a variable, build the whole new string, then open for writing. The safe form is three statements, and the unsafe form is one line shorter — which is exactly why it gets written.
+2. **Assert on CONTENT, never on a digest that a destroyed file also satisfies.** Before writing, assert the source is the size you expect (`assert len(orig) > 400000`); after writing, **re-read and assert the new content `startswith` the original** — a prefix check against the in-memory original cannot be fooled by truncation the way a digest-of-nothing can.
+3. **A generator's output is asserted non-empty before it is written into a record.** I nearly appended an index block built from `FAMILIES 0 TOTAL 0`. The repaired step asserts the generator SAW the new id first.
+
+### Recovery, and the one thing that made it safe
+
+Restored with `git show HEAD:<path> > <path>` — **not** `git checkout --`, which `CLAUDE.md` rule 10 forbids outright. Restoring from HEAD is only safe if no peer had uncommitted work in that file, and **I could prove it did not: the md5 I had taken before my own append was byte-identical to `HEAD`'s blob**, so the worktree was at HEAD and the only loss was my own uncommitted append. The restored file hashed identical to `HEAD`'s blob.
+
+> **The accident's own instrument is what proved the recovery safe.** Had I not taken that digest for an unrelated reason, I could not have shown that restoring destroyed nobody's work — I would only have been able to say I thought it did not. **Take the digest before you write, even when nothing seems to need it.**
