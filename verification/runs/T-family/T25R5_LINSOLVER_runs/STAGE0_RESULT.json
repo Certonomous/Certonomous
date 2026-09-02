@@ -1,0 +1,106 @@
+{
+  "P4_outcome": "P-4 LOSES",
+  "P4_reason": "s_est is a strict LOWER bound (section 3.4a); 0.91917 >= 0.9133, so the true pressure share crossed the threshold too. CONCLUSIVE.",
+  "actual_over_predicted": 0.545,
+  "arms": [
+    "D0_L2",
+    "B0_L2"
+  ],
+  "clock_time_s": {
+    "B0_L2": 516.0,
+    "D0_L2": 42.0
+  },
+  "concurrent": true,
+  "cost_basis": "REPORTED-BY-OWNER; derived at $0.0513/core-h. This box cannot read its own billing (COMPUTE_BUDGET_CHARTER section 5).",
+  "cost_cap": 51.33,
+  "cost_core_min": {
+    "B0_L2": 17.2,
+    "D0_L2": 1.4,
+    "total": 18.6
+  },
+  "cost_point": 34.15,
+  "cost_usd_derived": 0.0159,
+  "d0_fields_removed": "processor*/0.8 and processor*/0 field data deleted per prereg section 3.4 (D0 produces no physics). log.solve.legA retained: it carries the ExecutionTime and iteration counts, which are the arm's only registered output. Rule 4 completion was verified BEFORE deletion and its result is recorded above.",
+  "execution_time_s": {
+    "B0_L2": 516.15,
+    "D0_L2": 41.72
+  },
+  "feasible_n": {
+    "B0_L2": 901,
+    "D0_L2": 1200
+  },
+  "feasible_threshold_L2": 6.5e-07,
+  "i_B0": 423.1825,
+  "i_D0": 17.6175,
+  "i_ratio": 0.041631,
+  "launched_utc": "2026-09-02T21:33:07Z",
+  "mean_iters_all": {
+    "B0_L2": 423.1825,
+    "D0_L2": 17.6175
+  },
+  "mean_iters_feasible": {
+    "B0_L2": 231.7636,
+    "D0_L2": 17.6175
+  },
+  "min_final_residual": {
+    "B0_L2": 6.4477e-09,
+    "D0_L2": 3.2728e-07
+  },
+  "note": "STAGE 0 ONLY. C1..C5 have NOT been launched. Stage 1 is the supervisor's call.",
+  "p_rgh_solves": {
+    "B0_L2": 1200,
+    "D0_L2": 1200
+  },
+  "pinned_at_maxiter": {
+    "B0_L2": 310,
+    "D0_L2": 0
+  },
+  "prereg": "docs/campaigns/T-family/T25R5_PREREGISTRATION.md",
+  "prereg_blob": "041157d9bd017437e384684e253af5a6f0a59473",
+  "prereg_version": "v1.2 (A1 b8d88061, A2 9f850394)",
+  "pressure_share_bracket": [
+    0.91917,
+    0.9591
+  ],
+  "ranks": 2,
+  "repro_control_section_3_5": {
+    "deviation_pct": 0.0,
+    "feasible_n_measured": 901,
+    "feasible_n_target": 901,
+    "measured": 231.7636,
+    "note": "bit-for-bit identical to T25R4 P2 steps 1-40: same 1200 solves, same 901 feasible, same 310 pinned, same min final residual 6.4477e-09",
+    "target": 231.7636,
+    "tolerance_pct": 2.0,
+    "verdict": "PASS"
+  },
+  "required_pressure_solve_factor_for_20000_ceiling": [
+    20.9,
+    156.8
+  ],
+  "rule4_completion": {
+    "B0_L2": {
+      "age_guard": "PASS",
+      "end_line": true,
+      "exectime_count": 40,
+      "fields_present": true,
+      "last_time": 0.8,
+      "rc": 0
+    },
+    "D0_L2": {
+      "age_guard": "PASS",
+      "end_line": true,
+      "exectime_count": 40,
+      "fields_present": true,
+      "last_time": 0.8,
+      "rc": 0
+    }
+  },
+  "s_est_basis_divergence": 0.00057,
+  "s_est_clocktime": 0.9186,
+  "s_est_executiontime": 0.91917,
+  "s_upper": 0.9591,
+  "stage": "0",
+  "stage1_launched": false,
+  "steps": 40,
+  "threshold": 0.9133
+}

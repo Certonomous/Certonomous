@@ -160,8 +160,17 @@ def verify(arm, case=None, base=None, quiet=False, dicts_only=False):
     case and absent that flag, this REFUSES rather than quietly downgrading.
     """
     base = base or BASE_CASE
-    case = case or os.path.join(HERE, arm)
     say = (lambda *a: None) if quiet else print
+    # NO GUESSED DEFAULT.  Arm case directories carry their level (`C4_L2`,
+    # `C4_L1`, `C4_L3`), so there is no single name this could infer.  Guessing
+    # one would silently miss a staged case and downgrade to dictionary-only --
+    # the exact failure mode the two-token split above exists to prevent.
+    if case is None:
+        if not dicts_only:
+            refuse("arm %s: --case is REQUIRED for the full E6 verdict. Arm "
+                   "directories carry their level (%s_L1/_L2/_L3) and this "
+                   "verifier does not guess which one you meant." % (arm, arm))
+        case = os.path.join(HERE, arm + "__no_such_case")
 
     b_cool = read(os.path.join(base, "system", "coolant", "fvSolution"))
     staged = os.path.isdir(os.path.join(case, "system"))
