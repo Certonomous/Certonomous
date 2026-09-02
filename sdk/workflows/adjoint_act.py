@@ -593,7 +593,6 @@ class AdjointWingAct(DemoAct):
         cells = self.mesh_plan().cell_count
         rho = _actd_P0 / _actd_T0 / 287.0
         cost = _frozen_cost()
-        numerics = self._numerics()
         # SANAA'S TWO COST BEATS. One PREDICTS before the solve, one COMPARES
         # after it. Every figure is read from the frozen pre-registration and
         # that document is hash-checked first, so the prediction cannot have
@@ -626,15 +625,17 @@ class AdjointWingAct(DemoAct):
             "assumption": [
                 ("researcher", [
                     f"Steady compressible RANS, closed with Spalart-Allmaras.",
-                    f"One equation, calibrated for attached aerofoil flow "
-                    f"-- which is the regime this wing is trimmed in.",
+                    # NO DASHES ON SCREEN (Sanaa 0330Z addendum: "no dashes
+                    # anywhere"); re-punctuated, content unchanged.
+                    f"One equation, calibrated for attached aerofoil flow, "
+                    f"which is the regime this wing is trimmed in.",
                     f"It is not a separated-flow model and nothing here asks "
                     f"it to be one.",
                 ]),
                 ("numericist", [
                     f"What the request fixes: the wing, lift held fixed, the "
                     f"adjoint, and grading the gradient before spending it.",
-                    f"This lab supplies the rest -- free stream "
+                    f"This lab supplies the rest: free stream "
                     f"{_actd_U0:g} m/s, {_actd_P0:g} Pa, {_actd_T0:g} K, "
                     f"constant viscosity {_actd_MU:g} Pa s, density "
                     f"{rho:.4f} kg/m3, reference area {_actd_A0:g} m2, and "
@@ -672,26 +673,12 @@ class AdjointWingAct(DemoAct):
                     f"never folded into the ratio.",
                 ]),
             ] if predicted else []),
-            # ---- LEAD NUMERICIST: solver, closure and numerics, explicit.
-            # Sanaa's 2026-09-02 ~02:32Z orders: "all acts should explicitely
-            # state the solver the rans model the numerical parameters".
-            # Scheme words are read from the run's own dictionaries by
-            # `_numerics` and refused if they drift from what these lines
-            # render them as.
-            "feasibility": [
-                ("numericist", [
-                    f"Solver: DAFoam {_actd.SOURCE_SOLVER} on OpenFOAM "
-                    f"{_actd.SOURCE_OPENFOAM} -- steady, compressible, "
-                    f"pressure-based. Closure: {_actd.SOURCE_TURBULENCE}, "
-                    f"one equation.",
-                    f"Convection: second-order upwind on momentum, "
-                    f"first-order upwind on energy and turbulence. "
-                    f"Gradients: Gauss linear. Steady state, no time scheme.",
-                    f"Relaxation: {numerics['p_relax']:g} on pressure, "
-                    f"{numerics['eq_relax']:g} on velocity, energy and "
-                    f"turbulence.",
-                ]),
-            ],
+            # THE SOLVER/CLOSURE/NUMERICS STATEMENT IS A TABLE, NOT BULLETS.
+            # Sanaa's 0232Z order asked for it explicit; her 0330Z addendum
+            # rules the form: "Explicit solver + turbulence model + numerics
+            # stated on every act's methods beat ... in a table." It lives as
+            # rows of `_assumptions_table`, read from the run's own
+            # dictionaries by `_numerics` and refused if they drift.
             "gates": [
                 ("numericist", [
                     f"The gradient is graded against the flow solver itself "
@@ -699,13 +686,13 @@ class AdjointWingAct(DemoAct):
                     f"Run on {record['mpi_ranks']} ranks, and the check is "
                     f"self-consistency rather than validation: no wind tunnel "
                     f"data exists for this wing.",
-                    # SANAA'S ROUTING LINE, VERBATIM BY HER ORDER, with two
-                    # mechanical accommodations to her own standing rules and
-                    # no change of wording: the first letter is capitalised
-                    # for the transcript's opener rule, and her em-dashes
-                    # render as the house double hyphen because
-                    # `check_wording` (owner rule) refuses the em-dash
-                    # character in transcript prose. Her 0232Z item 2 gated
+                    # SANAA'S ROUTING LINE, with two mechanical
+                    # accommodations to her own standing rules and no change
+                    # of wording: the first letter is capitalised for the
+                    # transcript's opener rule, and her em-dashes become
+                    # commas because her 0330Z addendum bans every dash form
+                    # on screen ("no dashes anywhere"; em-dash, en-dash and
+                    # the double hyphen all out). Her 0232Z item 2 gated
                     # this beat on
                     # a CPU-vs-GPU adjoint log plus a gradient-consistency
                     # row; her 0250Z override (etc/sessions/2026-09-02T0250Z_
@@ -723,10 +710,13 @@ class AdjointWingAct(DemoAct):
                     # fabricated: it is added when a real GPU log lands.
                     # TODO(demo_mode.GPU_ROUTING_POLICY): the JF1 lane is
                     # adding the lab's one routing rule as a shared constant
-                    # in demo_mode; when it exists, cite it verbatim here
-                    # instead of this local string.
-                    f"The adjoint is one large linear system solved once -- "
-                    f"transfer amortizes -- so the gradient solve routes to "
+                    # in demo_mode, parameterised on the unknowns count. When
+                    # it lands, cite it here with THIS act's own real system
+                    # size read from its own record (her 0330Z addendum: "the
+                    # 40K is jF1 specific, so any other act should use its
+                    # own number of unknowns"), never JF1's 40,000.
+                    f"The adjoint is one large linear system solved once, "
+                    f"transfer amortizes, so the gradient solve routes to "
                     f"the GPU.",
                 ]),
             ],
@@ -774,6 +764,7 @@ class AdjointWingAct(DemoAct):
         which they formed.
         """
         rho = _actd_P0 / _actd_T0 / 287.0
+        numerics = self._numerics()
         return Table(
             title="What the request set, and what the lab set",
             headers=["Quantity", "Value", "Unit", "Set by"],
@@ -805,6 +796,28 @@ class AdjointWingAct(DemoAct):
                  f"{_actd_AOA0:g}", "degrees", "the lab"],
                 ["Grid, the SINGLE mesh this act's numbers are relative to",
                  f"{self.mesh_plan().cell_count.value}", "cells", "the lab"],
+                # SOLVER, CLOSURE AND NUMERICS AS TABLE ROWS. Sanaa's 0330Z
+                # addendum: "Explicit solver + turbulence model + numerics
+                # stated on every act's methods beat ... in a table." The
+                # solver and closure come from the run record's constants;
+                # the scheme renderings and relaxation factors are read from
+                # the run's own fvSchemes/fvSolution by `_numerics`, which
+                # refuses if the dictionaries stop matching what these rows
+                # say about them.
+                ["Solver, steady, compressible, pressure-based",
+                 f"DAFoam {_actd.SOURCE_SOLVER} on OpenFOAM "
+                 f"{_actd.SOURCE_OPENFOAM}", "", "the lab"],
+                ["Turbulence closure, one equation",
+                 f"{_actd.SOURCE_TURBULENCE}", "", "the lab"],
+                ["Convection scheme on momentum",
+                 "second-order upwind", "", "the lab"],
+                ["Convection scheme on energy and turbulence",
+                 "first-order upwind", "", "the lab"],
+                ["Gradient scheme", "Gauss linear", "", "the lab"],
+                ["Relaxation on pressure",
+                 f"{numerics['p_relax']:g}", "", "the lab"],
+                ["Relaxation on velocity, energy and turbulence",
+                 f"{numerics['eq_relax']:g}", "", "the lab"],
             ],
             table_id="actd_assumptions", role="NUMERICIST")
 
@@ -922,7 +935,7 @@ class AdjointWingAct(DemoAct):
              f"format: {int(served['triangles']):,} triangles over the same "
              f"{int(wall['unique_points']):,} points"],
             ["Widest disagreement between the two",
-             f"{identity['plant_control']['sdk_geometry']['two_way_max_m_clean'] * 1e6:.2f} "
+             f"{identity['plant_control']['sdk_geometry']['two_way_max_m_clean'] * 1e6:.1f} "
              f"micrometres on a {wall['extent'][2]:.4f} m span"],
             ["Maximum non-orthogonality",
              f"{non_ortho:.2f} deg" if non_ortho is not None else "not read"],
@@ -1107,14 +1120,16 @@ class AdjointWingAct(DemoAct):
                     ["Twist only, re-trimmed to the same lift",
                      f"{lift_matched['twist_only_at_CL05']['CD']:.6f}",
                      f"{lift_matched['twist_only_at_CL05']['CL']:.6f}",
-                     f"{abs(shares['twist']['pct_of_baseline_drag']):.2f}% "
+                     f"{abs(shares['twist']['pct_of_baseline_drag']):.1f}% "
                      f"more drag"],
                     ["Twist and section shape, at the same lift",
                      f"{lift_matched['twist_and_shape_at_CL05']['CD']:.6f}",
                      f"{lift_matched['twist_and_shape_at_CL05']['CL']:.6f}",
-                     f"{shares['shape']['pct_of_baseline_drag']:.2f}% less "
+                     # 0.1 precision by her 0330Z sig-figs rule: no band has
+                     # landed, so no percentage renders past one decimal.
+                     f"{shares['shape']['pct_of_baseline_drag']:.1f}% less "
                      f"drag from the shape, "
-                     f"{decomp['total_reduction_pct']:.2f}% net"],
+                     f"{decomp['total_reduction_pct']:.1f}% net"],
                 ], table_id="actd_decomposition"))
 
         # EVERY FIGURE THIS ACT PUBLISHES IS CHECKED AT THIS CALL SITE, not
@@ -1152,7 +1167,7 @@ class AdjointWingAct(DemoAct):
              f"four sided faces against "
              f"{int(_load(IDENTITY_FILE)['candidates']['sdk_geometry']['measured']['triangles']):,} "
              f"triangles over the same points, agreeing to "
-             f"{_load(IDENTITY_FILE)['plant_control']['sdk_geometry']['two_way_max_m_clean'] * 1e6:.2f} "
+             f"{_load(IDENTITY_FILE)['plant_control']['sdk_geometry']['two_way_max_m_clean'] * 1e6:.1f} "
              f"micrometres."),
             ("Results are relative to this mesh. " + CONVERGENCE_LINE),
         ]
@@ -1319,13 +1334,18 @@ class AdjointWingAct(DemoAct):
         total = float(decomp["total_reduction_pct"])
         return Closing(
             title="Where the drag reduction comes from",
+            # SIGNIFICANT FIGURES BY HER 0330Z RULE: "no number on any screen
+            # carries more decimals than its uncertainty supports, 0.1
+            # precision until a band exists." One grid, no band landed, so
+            # every percentage below renders at 0.1; the full-precision
+            # values stay in the decomposition record this method reads.
             abstract=[
-                f"Drag falls {total:.4f} percent on this wing, with lift held "
+                f"Drag falls {total:.1f} percent on this wing, with lift held "
                 f"at {_actd.CL_TARGET:g} at both ends of the comparison.",
                 f"Taken apart at matched lift, the section shape carries "
-                f"{shares['shape']['pct_of_drop']:.2f} percent of the drop and "
+                f"{shares['shape']['pct_of_drop']:.1f} percent of the drop and "
                 f"the twist on its own carries "
-                f"{shares['twist']['pct_of_drop']:.2f} percent.",
+                f"{shares['twist']['pct_of_drop']:.1f} percent.",
                 "The angle of attack contributes nothing by construction, "
                 "because lift is held as an equality constraint.",
             ],
@@ -1350,12 +1370,12 @@ class AdjointWingAct(DemoAct):
                  "reason": f"lift held at {final['CL']:g}"},
                 {"quantity": "share of the drop from section shape, "
                              "at matched lift",
-                 "value": f"{shares['shape']['pct_of_drop']:.2f} percent",
+                 "value": f"{shares['shape']['pct_of_drop']:.1f} percent",
                  "envelope": "band fixed beforehand, 92 to 105 percent",
                  "reason": "measured inside the band written down first"},
                 {"quantity": "share of the drop from twist alone, "
                              "at matched lift",
-                 "value": f"{shares['twist']['pct_of_drop']:.2f} percent",
+                 "value": f"{shares['twist']['pct_of_drop']:.1f} percent",
                  "envelope": "band fixed beforehand, minus 5 to plus 8 percent",
                  "reason": "twist on its own makes the drag slightly worse"},
                 {"quantity": "the same wing flown lower, lift NOT held",
@@ -1382,9 +1402,9 @@ class AdjointWingAct(DemoAct):
                 "optimiser is allowed to run to its own stopping condition?",
             ],
             conclusion_lines=[
-                f"Drag falls {total:.4f} percent with lift held at both ends.",
+                f"Drag falls {total:.1f} percent with lift held at both ends.",
                 f"Essentially all of it is section shape: "
-                f"{shares['shape']['pct_of_drop']:.2f} percent of the drop.",
+                f"{shares['shape']['pct_of_drop']:.1f} percent of the drop.",
                 "Twist on its own makes the drag slightly worse, which is not "
                 "the tidier answer, and it is the measured one.",
                 CONVERGENCE_LINE,
