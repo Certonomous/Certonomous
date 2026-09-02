@@ -1,0 +1,29 @@
+{
+  "axis": "z",
+  "caption": "the volume mesh at the symmetry plane, wall layers resolved.",
+  "case": "/home/ubuntu/Certonomous/verification/runs/actD_runs/A2_wing_grid",
+  "case_name": "A2_wing_grid",
+  "cells": 38304,
+  "data_provenance": "rendered from the case's own constant/polyMesh and time directories; nothing synthesised, smoothed or decimated",
+  "expected_slice_polygons": 1672,
+  "generated_utc": "2026-09-02T05:35:27Z",
+  "image": "A2_wing_grid_volume_cut.png",
+  "ink_fraction": 0.08723524305555555,
+  "panel": "volume_cut",
+  "paraview": "5.13.3 EGL (/opt/paraview/bin/pvpython)",
+  "script": "scripts/render_thermal_paraview.py",
+  "script_sha256": "03f74b96d0cf80157c9a4f8448d5a4b5b0975f5310cb9c3d5b54f363d107b0dd",
+  "slice_at": 0.01,
+  "slice_polygons": 1672,
+  "time": 0.0,
+  "zoom_window": [
+    [
+      -1.5,
+      6.5
+    ],
+    [
+      -2.25,
+      2.25
+    ]
+  ]
+}

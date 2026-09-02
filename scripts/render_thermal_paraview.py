@@ -341,6 +341,67 @@ def mesh_panels(args, prefix):
     Hide(cut, view)
 
 
+def volume_cut_panel(args, prefix):
+    """One section of a THREE-DIMENSIONAL volume mesh at a declared plane.
+
+    INSERTED (never replacing ``mesh_panels``) for the adjoint wing's
+    symmetry-plane cut, Sanaa 0540Z item 5: "the symmetry-plane slice of the
+    38,304-cell volume mesh showing the wall layers growing off the wing,
+    rendered cell by cell by the same renderer the motor act uses."
+
+    WHY ``mesh_panels`` CANNOT DRAW IT: that path's polygons==cells equality
+    is built for one-cell-thick meshes, where a mid-plane cut crosses every
+    cell exactly once. On a 3-D mesh a plane cut crosses one CELL COLUMN of
+    the extrusion, so the honest count is the number of cells the plane
+    passes through, and nothing in the case can tell the renderer what that
+    should be. So the caller DECLARES the plane (``--slice-at``) and the
+    expected polygon count (``--expect-slice-polys``); this refuses without
+    both, and refuses when the cut disagrees with the declaration. For the
+    wing: the sym patch holds 1,672 faces, and a plane just inside it
+    (z = 0.01) cuts exactly the 1,672 adjacent cells (measured on this box
+    before this function was written).
+    """
+    if args.slice_at is None or args.expect_slice_polys is None:
+        os.write(2, b"REFUSED: volume_cut needs --slice-at and "
+                    b"--expect-slice-polys; a 3-D mesh's plane cut has no "
+                    b"self-evident polygon count to assert against\n")
+        os._exit(2)
+    reader = open_case(args.case)
+    t = latest_time(reader)
+    reader.UpdatePipeline(t)
+    info = reader.GetDataInformation()
+    n_cells = info.GetNumberOfCells()
+    if args.expect_cells is not None and n_cells != args.expect_cells:
+        os.write(2, (f"REFUSED: mesh has {n_cells} cells, expected "
+                     f"{args.expect_cells}\n").encode())
+        os._exit(2)
+    cut = slice_mid(reader, args.axis, position=args.slice_at)
+    polys = cut.GetDataInformation().GetNumberOfCells()
+    if polys != args.expect_slice_polys:
+        os.write(2, (f"REFUSED: the section shows {polys} polygons against "
+                     f"the declared {args.expect_slice_polys}; the plane is "
+                     f"not cutting the cell layer the caller named\n"
+                     ).encode())
+        os._exit(2)
+    bounds = reader.GetDataInformation().GetBounds()
+    view = make_view(args.axis, bounds, zoom=args.zoom_window)
+    show = Show(cut, view)
+    show.Representation = "Surface With Edges"
+    show.AmbientColor = list(FLUID)
+    show.DiffuseColor = list(FLUID)
+    show.EdgeColor = list(EDGES)
+    show.LineWidth = 1.0
+    path = os.path.join(args.out, f"{prefix}_volume_cut.png")
+    render(view, path, args.min_ink, "volume_cut")
+    sidecar(path, args.case, "volume_cut", n_cells, {
+        "slice_polygons": polys, "expected_slice_polygons":
+            args.expect_slice_polys, "slice_at": args.slice_at,
+        "axis": args.axis, "zoom_window": args.zoom_window, "time": t,
+        **({"caption": args.caption} if args.caption else {}),
+    })
+    Hide(cut, view)
+
+
 def field_panel(args, prefix):
     """Temperature over the named regions at ``--field-time``.
 
@@ -537,7 +598,20 @@ def main():
     parser.add_argument("--expect-cells", type=int, default=None)
     parser.add_argument("--panels", default="mesh",
                         help="Comma list from: mesh (writes mesh and "
-                             "mesh_zoom), field (writes field_T).")
+                             "mesh_zoom), field (writes field_T), "
+                             "volume_cut (one declared-plane section of a "
+                             "3-D mesh; needs --slice-at, "
+                             "--expect-slice-polys and --zoom).")
+    parser.add_argument("--slice-at", type=float, default=None,
+                        help="volume_cut only: the section plane's position "
+                             "on --axis, declared by the caller.")
+    parser.add_argument("--expect-slice-polys", type=int, default=None,
+                        help="volume_cut only: the polygon count the "
+                             "declared plane must cut, asserted; a 3-D "
+                             "mesh's cut has no self-evident count.")
+    parser.add_argument("--caption", default=None,
+                        help="volume_cut only: caption recorded in the "
+                             "panel's provenance sidecar.")
     parser.add_argument("--zoom", default=None,
                         help="h0,h1,v0,v1 window, in the section plane's "
                              "horizontal and vertical coordinates, for "
@@ -575,6 +649,13 @@ def main():
             os.write(2, b"field panel needs --field-regions and --field-time\n")
             os._exit(2)
         field_panel(args, prefix)
+    if "volume_cut" in wanted:
+        if not args.zoom:
+            os.write(2, b"--zoom is required with the volume_cut panel\n")
+            os._exit(2)
+        h0, h1, v0, v1 = [float(v) for v in args.zoom.split(",")]
+        args.zoom_window = ((h0, h1), (v0, v1))
+        volume_cut_panel(args, prefix)
     if "geometry" in wanted:
         if not args.stl:
             os.write(2, b"the geometry panel needs --stl\n")
