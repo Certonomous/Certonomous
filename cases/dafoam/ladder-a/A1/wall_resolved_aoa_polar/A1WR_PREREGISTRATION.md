@@ -999,3 +999,133 @@ be BIT-IDENTICAL.**
 np = 1 (§13.5); the continued sweep stays serial and is **not** parallelised
 (§13.6); caps unchanged and not raised (§13.1–13.2); §3.4 stands — **Stage 2 does
 not launch on a y+ overshoot.**
+
+---
+---
+
+# ADDENDUM C — 2026-09-02 — POST-COMPUTE — v1.3 → v1.4 — THE STAGE-1/2 INSTRUMENTS, FROZEN, AND THE LAUNCH
+
+**`lines whose number changed above this section: 0`**
+
+This addendum executes the mechanism **§11 registered in advance** — *"Stage-2
+driver, run script and grader … registered as owed before Stage 2, each frozen
+by a dated addendum to this document before the compute it governs."* **It
+alters no gate, no threshold, no cap and no label.** Every operationalization
+below either implements a frozen clause or makes a gate stricter (rule 5's
+permitted direction).
+
+## 15.1 THE ORDER, AND THE CONDITION CHECKED
+
+Sanaa, 2026-09-02 ~19:00Z, verbatim (`etc/sessions/2026-09-02T1900Z_sanaa_fine_sweeps_launch_order.md`):
+
+> dafoam team launches the 0-18 with fine grid for both now. … These runs must
+> either be launched or queued, such that even if the fleet dies, they still
+> run. … They need to run in parallel …
+
+and her follow-up, ~19:40Z, verbatim (same file):
+
+> 1. They should be done with the fine mesh 2. The patching needs to happen
+> (parallelization transpose fix) 3. This is an immediate request, meaning the
+> box should be filled with this aany time soon.
+
+This is her explicit exception to the demo freeze, for these runs only.
+
+**Condition: Stage 1 and Stage 2 have not begun — checked, not asserted.**
+`/home/ubuntu/certonomous-runs/A1WR/STAGE12` **does not exist** (and neither do
+`…/A1WR/probe_I`, `…/A1WR/sweep_I` or any unit directory); the run root holds
+only Stage 0's `L1 L2 L3 STAGE0.log profiles a1wr_genmesh.py build_stage0.sh
+log.loadDAFoam`. Stage 0 HAS run (17:18Z, 2026-09-01), so the freeze stays
+closed and nothing here may move a gate/threshold/cap/label — and nothing does.
+The Stage-0 aspect-ratio question ("Stage 1 is NOT launched on this question's
+answer being assumed", `A1WR_STAGE0_RESULTS.md` §2) was **answered by §13.7's
+frozen disposition** — ZSpan and A0 unchanged, the flag a disclosed artefact of
+the single-cell spanwise extrusion — not assumed here.
+
+## 15.2 THE PATCHED BUILD — HER ORDER, AND THE HONEST TWO-VARIABLE DISCLOSURE
+
+**Registered: stages 1–2 run in the PATCHED image `dafoam-idwarp-rot:v1`,
+docker id `sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35`,
+`libidwarp` md5 `85f59e87253e0a71a813f64ca6e4c425`** — the D19-family PATCHED
+row's identity (`curriculum_D19M/d19m_run_arm.sh:195-197`, RESULTS.md §
+identity block). The chain driver refuses (`G-IMG`, exit 4) on any other id.
+
+**Disclosed: the coarse sweeps ran the SHIPPED image (`9d45679d…`), so
+fine-vs-coarse now moves BOTH resolution/wall-treatment AND the build.** This
+item refused two-variable moves three times; it accepts this one because it is
+**Sanaa's explicit order**, quoted above. Mitigation on the record, measured
+not argued: the patch lives in **libidwarp (mesh warping)**; these stages run
+**primal only, undeformed geometry, np = 1**, a path on which IDWarp performs no
+parallel transpose. §4's wall-treatment readings were **RE-VERIFIED in the
+patched image by measurement**: the `useWallFunction=False` branch read at
+`DAField.C` in that image's source, and a 30-iteration instrument check (below)
+printed **`Setting nut wall BC for wing. BCType=nutLowReWallFunction`** and ran
+`nutLowReWallFunction` end to end.
+
+## 15.3 INSTRUMENTS FROZEN BY THIS ADDENDUM (md5s; `A1WR_STAGE12_MD5.txt` is enforced by the driver at launch, G-FREEZE exit 4)
+
+| instrument | md5 | role |
+|---|---|---|
+| `a1wr_runScript_incomp.py` | `623013b79fa634ac0d3e9ace42323dd3` | producer, I arm — the frozen coarse `aoa_runScript_incomp.py` (`727c41e46dc242628a77f70817cecb39`) with EXACTLY TWO generator-asserted departures: `useWallFunction: False`; `primalMinResTol` env-overridable (default the frozen 1.0e-8) |
+| `a1wr_runScript_comp.py` | `fe0135fb2597dde2d00c6c874614d027` | producer, C arm — same two departures from the frozen `aoa_runScript_comp.py` (`8dbba88c465e80b526a0f10c744e9458`); the physics block is therefore **NO LONGER D19M's bytes** and its markers/self-assert are renamed A1WR (block md5 `a2a674eb5c2103f29cf9ef7a1a1781a9`) — the D19M continuity claim is **struck for this item, on purpose** |
+| `a1wr_cmd.sh` | `eba014f2c538611d2249c3fcf9b3ddd7` | in-container unit program (PROBE / CONTINUED / COLD) |
+| `a1wr_stage1_gate.py` | `1aa8e1bdb7ac559d18d48a39e92067d3` | **the Stage-1→2 launch decision, taken inside the detached chain, by no agent** — controls K1–K4, every mutation asserted; exit 0 PASS / 3 GATE FAIL / 2 REFUSED; all three branches driven on fixtures before this freeze |
+| `a1wr_read.py` | `22479c8954702fbb6e1b0594fe2b8d4c` | the grading path — the frozen coarse reader's ELEVEN controls carried whole (`aoa_read.py`, `1ce50161c7c59efd16f30449a7640fd7`) plus Y1–Y4 (G-YPLUS), W1 (G-WALLTREAT), B1/B1b (G-CONCURRENCY-BITS): **18 controls, selftest PASS before this freeze** |
+| `a1wr_chain_driver.sh` | `9ee58f7d9ebae1391c6f8c085748bc47` | the detached chain (pinned by the queue entry, which also carries this table) |
+
+## 15.4 MEASUREMENT OPERATIONALIZATION — THREE MECHANISM FACTS, MEASURED BEFORE FREEZE (~0.6 core-min of instrument checks on FOREIGN artifacts — coarse-case copies in scratch; ZERO compute on A1WR)
+
+1. **Bare `postProcess -func yPlus` reads y+ = 0 everywhere** (no turbulence
+   model in the database) — the exact rule-3 blind-reader trap, MEASURED on the
+   coarse compressible state. The solver-hosted form
+   (`simpleFoam|rhoSimpleFoam -postProcess -func yPlus`) reads non-zero
+   (65.6/419.4/311.0 on that wall-functioned state) and is the **only** form
+   any A1WR instrument may use.
+2. **DAFoam writes fields only at controlDict write times, and
+   `renameSolution` skips failed primals and sub-1 latest times** (read in
+   `pyDAFoam.py:817,1507-1545`; corroborated by the coarse run roots carrying
+   no `0.000x` dirs). Consequences, registered: the **probe** sets
+   `writeInterval == endTime == 1500`, so its y+ is **field-exact** on the
+   state the fixed 1,500 iterations left, read via mechanism 1; the **sweep's
+   per-point y+** is DAFoam's own printed `yPlus min/max/mean` line (present
+   each print step — MEASURED in the 30-iteration check), the LAST in each
+   point's segment, exact to ≤ printInterval (100) iterations before the point
+   stopped, with the staleness stated beside every reading. `G-YPLUS`'s
+   verdict rule (§3.3) is UNCHANGED: `GATE FAIL` at y+max ≥ 1.0 anywhere;
+   refusal (exit 2) for a blind channel on a point that ran ≥ 200 iterations.
+3. **The `yPlus` functionObject executes inside DAFoam's primal loop**
+   (MEASURED in the same check) and additionally writes the y+ field at write
+   times.
+
+**Stage 1's "fixed 1,500 iterations regardless of convergence"** is realized as
+`A1WR_PRIMAL_TOL=1e-30` + `endTime 1500`: DAFoam can never stop early, and its
+end-of-primal `AnalysisError` on the probe is the **registered
+no-convergence-claim of §5 Stage 1**, not a defect.
+
+## 15.5 THE LAUNCH — DURABLE BY CONSTRUCTION, LAYOUT NAMED
+
+Queue entry `verification/queue/dafoam/A1WR_chain.json` → the OS queue daemon
+launches `a1wr_chain_driver.sh` detached (`setsid nohup`); the driver launches
+docker containers whose **deadlines live inside the containers** — cap
+enforcement (rule 12: an overrun STOPS the run) survives the death of the
+driver, the daemon and every agent. **The Stage-1→2 y+ gate is inside the
+chain** (15.3). Layout, per §13.6/§14.2, on the measured **30 GiB** box
+(v1.1's "16.0 GiB" was a recollection, wrong, direction = more headroom;
+another unread constant, disclosed): probes cores 8,9; Stage 2 = sweeps 8,9 +
+six colds 10–15, one core each, np = 1, `OMP_NUM_THREADS=1` exported and
+recorded per ledger row; memory caps 4g (sweeps/probes) / 3g (colds);
+MemAvailable floor 4.0 GiB before every unit launch; **cores 0–7 carry no
+A1WR pin** (filming headroom lives there with the successor item's pool).
+In-container deadlines: probes 3,600 s ×2 = the 120 core-min Stage-1 cap;
+sweep 37,200 s + colds 3×3,300 s = 785 ≤ 800 core-min per arm; the
+G-CONCURRENCY-BITS alone-copy launches **only if** the I-arm's measured spend
++ 55 ≤ 800, else its absence is itself reported (a cap-stop on the control is
+`NOT A RESULT` on it). Calibration rows per stage remain OWED to
+`docs/COST_CALIBRATION.md` at completion (§7.5), contention attributed
+separately.
+
+## 15.6 UNCHANGED
+
+Every gate of §9 as amended, every cap of §7.4, the FEASIBILITY label, the
+`GATE REACHED` ceiling, §3.4's no-re-cut rule, §6's two-directional stall
+trap, §8's registered outcomes and the lane's (B) prior. **NOTHING IN THIS
+ITEM IS FILED, SENT, UPLOADED OR POSTED ANYWHERE.**
