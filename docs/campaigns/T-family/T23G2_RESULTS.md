@@ -291,9 +291,9 @@ nothing**: it reads no field and moves no comparison. "Frozen" is the blob in
 
 **The two that differ are exactly the two files the granted repairs touch**, and
 nothing else on the path moved: `mark_done_t23.py` carries `R1`;
-`analyse_t23g2.py` carries `R2`–`R5`. **All three working-tree shas above are
-also the shas at `HEAD`** `[MEASURED]` — the grading was performed against
-committed code, not against uncommitted working-tree state.
+`analyse_t23g2.py` carries `R2`–`R5`. **All FIVE working-tree shas above are also
+the shas at `HEAD`** `[MEASURED]`, checked file by file — the grading was
+performed against committed code, not against uncommitted working-tree state.
 
 **What the recorder explicitly does NOT claim**, in its own words on the
 artifact's face: *"THIS RECORDER DOES NOT RESTORE THE REGISTERED PROVENANCE AND
