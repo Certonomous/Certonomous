@@ -1090,3 +1090,85 @@ a wrong line number sitting in an owned charter for another nine days.
 | lines whose number changed above this section | **0** |
 | verdicts changed | **0** · gates | **0** · bands | **0** · caps | **0** · re-grades | **0** |
 | register bytes changed | **0** |
+
+---
+
+## Amendment — v1.9, 2026-09-02 — **§14: CLAUSE B SAID WHERE A SMOKE TEST RUNS AND NEVER SAID IN WHAT SHELL. A SMOKE THAT SOURCES AN ENVIRONMENT THE LAUNCH DOES NOT GET HAS PROVED NOTHING ABOUT THE LAUNCH.**
+
+### §14.1 THE FAILURE THAT PAID FOR THIS CLAUSE
+
+**VMFL054 R1**, frozen at `05ec949e` after a full §3 check-4 read, was launched by the queue
+daemon at **2026-09-02T21:43:57Z** and **aborted at L1 with `blockMesh` rc 127 — command not
+found — at ZERO physics compute.** Its driver never sourced the OpenFOAM environment. **The
+daemon runs a driver in a bare shell**; the lane's pre-flight smoke had sourced `etc/bashrc`
+by hand, so the smoke executed in an environment **the real launch never receives**.
+
+The frozen comparator **REFUSED, exit 2** — *"RUN_RC absent … cannot confirm solver rc==0
+(rule 4)"* — and that limb existed only because the supervisor's §3 check-1 diff read had
+found, hours earlier, that the comparator's header **claimed** an `rc` check the code did not
+perform. **The check paid for itself on the very next run.**
+
+### §14.2 WHY CLAUSE B DID NOT CATCH IT, STATED PRECISELY
+
+CLAUSE B (Amendment 1.4) is sound and is **not** weakened here. But read it again: it fixes
+**WHERE** a smoke runs — *"a scratch directory OUTSIDE `verification/runs/ansys_verification/`"*
+so it cannot create a `0/` and disarm rule 4's age guard — **and it says nothing whatever about
+the SHELL the smoke runs in.**
+
+Its two-specimen warrant (VMFL045, VMFL003) prices one failure: **a green comparator
+`--selftest` alongside a broken case.** This is a **third** failure and the warrant did not
+reach it:
+
+| specimen | what passed | what failed |
+|---|---|---|
+| VMFL045 run 1 | comparator `--selftest`, 45 checks | solver died on the first timestep |
+| VMFL003 run 1 | comparator `--selftest`, 60 checks | the case was unrunnable |
+| **VMFL054 R1** | **comparator selftest AND a full L1/L2/L3 smoke, rc 0, `End`** | **the DRIVER, under the launcher's own shell** |
+
+> **The smoke genuinely EXECUTED and still proved nothing, because it executed in a different
+> world.** `INFRA_FAMILY_SUPERVISION_GUIDELINES.md` §1.8 — *"evidence is derived from what
+> EXECUTED, never from what was DECLARED"* — is necessary and **not sufficient**: it is
+> silent on **whether the thing that executed was executed under the conditions of the thing
+> it stands as evidence for.**
+
+### §14.3 THE CLAUSE (appends to CLAUSE B, rewriting none of it)
+
+> **A pre-flight smoke test is evidence about the launch ONLY IF it runs under the SAME
+> ENVIRONMENT the launcher gives the driver: a bare shell, with nothing sourced, exported or
+> inherited by the agent conducting the smoke. If the driver needs an environment, THE DRIVER
+> SOURCES IT — never the operator, never the brief, never the interactive session.**
+
+Operationally, binding on every driver this team files:
+- The driver **sources its own environment unconditionally** and then **asserts the tools are
+  on `PATH`** — `command -v blockMesh` / `command -v <solver>`, each aborting with a named
+  message. Sourcing without asserting is a declaration; the assert is what executes.
+- The smoke is run in a **deliberately stripped shell**. An agent that must source something
+  to make a smoke pass has just proved the driver is defective, and reports that as the
+  finding.
+- **This team's reference drivers already did it right** — `VMFL063:177-178` and
+  `VMFL064-R2:158-159` both source the bashrc and assert the solver on `PATH`. R1 dropped
+  exactly those two lines. **The pattern existed and was not followed**, which makes this a
+  charter clause and not merely a lane's error.
+
+**HONEST LIMIT, disclosed as CLAUSE B disclosed its own.** This clause has a **one-specimen**
+warrant and no corpus replay (`MONITOR_STANDARD.md` standing rule 6). It is adopted anyway on
+the same reasoning CLAUSE B gave: **it is not a DETECTOR.** It classifies no archived log,
+returns no verdict on past work, and cannot produce a false positive against anything already
+recorded. It costs three lines in a driver and one stripped shell.
+
+### §14.4 CARRIED FORWARD, DISCLOSED AND NOT FIXED BY THIS TEAM
+
+The launcher's input-integrity check **pins to current `HEAD`, not to `prereg_commit`**: it
+verified R1 against `5c536341` rather than against the `05ec949e` freeze it was launched
+under, and **HEAD moves under us constantly** as other teams commit. `CLAUDE.md` rule 2
+requires the frozen file to be verified against **the committed blob at the pre-registration
+commit**. Rule 6 is the backstop and the R2 driver carries the caveat inline. **This is another
+team's tooling: REFERRED, not touched.**
+
+| amendment | v1.9 |
+|---|---|
+| clause added | **`§14`** (`§14.1`–`§14.4`) |
+| clause modified | **none** — CLAUSE B is appended to, not rewritten, and its warrant stands |
+| rulings changed | **0** · gates | **0** · bands | **0** · caps | **0** · re-grades | **0** |
+| register bytes changed | **0** |
+| lines whose number changed above this section | **0** |
