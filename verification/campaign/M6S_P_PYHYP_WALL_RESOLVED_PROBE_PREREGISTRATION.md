@@ -449,3 +449,142 @@ incomplete.**
    put one fact in front of it, not to make it.
 6. **It does not reopen `M6I`, `F13` or `F1`**, and no number produced under it may be cited
    against their verdicts.
+
+---
+
+## AMENDMENT 1 — 2026-09-02, BEFORE FIRST COMPUTE: the `Min Quality` header-string clause is STRUCK, because no pyHyp log can ever contain that string
+
+**Pre-compute amendment under CLAUDE.md rule 2**, which permits amendment before first compute
+**and requires the condition to be stated and how it was checked.** Appended at the foot under
+rule 6; nothing above is edited, reordered, inserted or deleted. v1.0 → **v1.1**.
+
+### A1.1 The condition, and how it was checked — NAMED DIRECTORIES THAT DO NOT EXIST
+
+**NO COMPUTE HAS OCCURRED UNDER THIS REGISTRATION.** Checked by `test -e` on each path this
+probe would write, at the moment of writing, by the lane that wrote this amendment and
+independently by the cfd supervisor:
+
+| path | state |
+|---|---|
+| `verification/runs/M6S_runs` | **ABSENT** |
+| `verification/runs/M6S_runs/P_pyhyp_wall_resolved_probe` | **ABSENT** |
+| `cases/M6S` | **ABSENT** |
+
+**No pyHyp log, no grid and no mesh exists for `M6S`. The only `M6S` artifact in the repository
+is this pre-registration itself.**
+
+### A1.2 What is STRUCK
+
+§2 Reading 1 and §4.1 each register the same clause:
+
+> **~~the log contains the `Min Quality` column header~~**
+
+**STRUCK in both places.** It is not rewritten in situ; §2 and §4.1 stand as frozen and this
+section governs.
+
+**The reason is a measurement, not an argument.** In
+`/home/ubuntu/certonomous-runs/A3-onera-m6-adjoint-vcoarse/logMeshGeneration.txt` the literal
+string `Min Quality` occurs **ZERO times**. pyHyp stacks that column header **vertically across
+two lines** (lines 16–17):
+
+```
+# Grid | CPU  | Sub | KSP | nAvg |  Sl  | Sensor | Sensor | Min     | Min     |  deltaS  | March    | cMax  | Ratio |
+# Lvl  | Time | Its | Its |      |      | Max    | Min    | Quality | Volume  |          | Distance |       | kMax  |
+```
+
+### A1.3 What replaces it, and WHICH INSTRUMENT IS WHICH
+
+**(a) The SANITY clause — the log's shape.** A line containing `| Min     | Min     |`
+**immediately followed by** a line containing `| Quality | Volume  |`.
+
+**(b) THE INSTRUMENT — the reading itself.** The **positional read of table column 9**, already
+registered in §2 Reading 1 as *"table column 9"* and already exercised by **all three §5
+controls**, whose required values (`-0.34602` at level 2, minimum `-1.00000`, `Min Volume`
+negative, `4.0000` / `0.546E+00`) were every one of them obtained positionally.
+
+> **These two are not interchangeable and a future reader must not invert them. (a) tests
+> whether the log has the shape of a pyHyp march log. (b) produces the number. A reader that
+> treats the header check as the measurement has inverted them and is reading nothing.**
+
+### A1.4 Why this is a REPAIR and NOT a loosening — the question was raised and is answered here rather than assumed
+
+The lane that found this hesitated to amend, on the ground that removing a required condition
+runs in the **loosening** direction, and referred it up. **The hesitation was correct and the
+answer is recorded rather than left implicit:**
+
+**A clause requiring a string that no artifact of that type can ever contain is not a strict
+check. It is a BROKEN one.** It is unsatisfiable by a good run and by a bad run alike, so it
+discriminates nothing. As frozen it would have marked **every** probe run `INCOMPLETE`,
+including a perfectly good one, and the failure would have been readable as *"pyHyp died"* when
+pyHyp had succeeded.
+
+**Repairing it makes the clause implementable; it does not widen anything.** It **alters no
+gate, no threshold, no cap and no label** — §9's 15.0 core-min cap and 900 s structural timeout
+are untouched, and **this probe has no gate to loosen** (§1.1, and the no-verdict clause on the
+face of this document).
+
+**Direction of the original error, stated plainly:** it failed **SAFE**. It could only refuse,
+never admit. No false positive was reachable through it, and no number was ever at risk of being
+wrongly believed — only of being wrongly withheld.
+
+### A1.5 Two measured properties of the tool, registered because a reader that does not know them will miscount
+
+| property | measured value, vcoarse log (`N = 65`) |
+|---|---|
+| stacked header pairs in one log | **2 — pyHyp REPRINTS the whole header block mid-table** (after level 49) |
+| lines beginning `#` | **12** |
+| data rows | **64** (levels 2–65) |
+| literal `Min Quality` | **0 occurrences** |
+
+**Data rows are distinguished from header rows by NOT beginning with `#`.** A reader that
+assumes a single header block, or that counts lines rather than testing the `#` prefix, will get
+the row count wrong — and §4.1's completion clause turns on that count (**92 rows expected for
+the probe's `N = 93`**). §4.1's row-count requirement is otherwise **unchanged**.
+
+**The detector carries its own planted control, per rule 3, and it was run before this amendment
+was written:** with the second header line removed, the stacked-pair count must fall **2 → 0**.
+**Measured: 0.** A detector that still reports a pair on the mutated log cannot see the failure
+it exists to catch.
+
+### A1.6 Why the defect survived the freeze — the defect class, named
+
+**The clause was written from a VISUAL reading of a column, and a column read by eye is not a
+string on disk.** The author read `Min` above `Quality` in a rendered table and wrote
+`Min Quality`, which the tool never emits.
+
+**This is the lab's recurring defect class in a new dress: a check that cannot fail, for a reason
+its author did not already know.** It is the same shape as `M6I`'s Gate A admitting a one-cell
+perturbation inside its own tolerance, and the same shape as a zero from a reader never shown
+able to see a non-zero — which is why **rule 3 exists and why it is the discipline that caught
+this one.**
+
+**A second, self-inflicted instance is recorded in the same breath, because it was the author's
+own:** the lane first reported this true zero to its supervisor as a **false** zero, having
+diagnosed a broken reader when the reader was right and the premise was wrong. **It was
+corrected against itself, in writing, before this amendment was authorised.** The genuinely
+defective reader was a different one — a flag on this box's `grep` that silently changes **which
+tree is searched**, not merely which files are skipped, while exiting 0: measured at **69 files
+without the flag against 2 with it** for this lane, and **69 against 0** for the supervisor on
+the identical command. **A hazard whose severity varies between invocations is worse than a
+constant one**, and it is recorded here because every reading in this registration was taken
+positionally against a named artifact rather than by pattern sweep, and that is why.
+
+### A1.7 What this amendment does NOT do
+
+1. **It does not alter a gate, threshold, cap or label.** There are none to alter, and §9's cap
+   and timeout are untouched.
+2. **It does not change readings 2, 3 or 4**, nor any required value of the three §5 controls.
+3. **It does not authorise compute.** The probe remains unrun, and remains **`BLOCKED`** on the
+   docker-socket permission recorded in §6 — **a Sanaa decision that no agent routes around.**
+   **Parked is not cancelled: the probe stays frozen and ready.**
+
+### A1.8 Assertions, MEASURED after the write
+
+| assertion | value |
+|---|---|
+| gate, threshold, cap or label altered | **none — the clause was unsatisfiable and is repaired, not widened** |
+| lines edited, reordered, inserted or deleted above this section | **none** |
+| **lines whose number changed above this section** | **0** |
+| md5 of this file's first 451 lines BEFORE the append | `9469dc37a82acccc1d4fa0b60b3ab608` |
+| md5 of this file's first 451 lines AFTER the append | `9469dc37a82acccc1d4fa0b60b3ab608` |
+| the two digests | **EQUAL — assertion MEASURED, verified after the write** |
