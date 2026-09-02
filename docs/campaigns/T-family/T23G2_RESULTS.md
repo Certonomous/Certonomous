@@ -45,6 +45,12 @@ record will reasonably ask whether the repairs made the rung fail.
   allow-list refused `T23G2_L1` with rc 2 before reading a field, so **no**
   verdict of any kind could be produced. It made a verdict possible; it did not
   choose which one.
+- **And the guard set that produced this verdict has since been mutation-tested
+  (§15). That measurement is about the INSTRUMENT, not about this verdict:
+  nothing was weakened in the run that was graded — all five grading-path files
+  were the committed bytes, no `-O` was used, and 20 of 20 planted controls
+  passed — and `NOT A RESULT` stands. A 78 % kill-rate does NOT mean the verdict
+  is 78 % trustworthy; §15.0 says so first and plainly.**
 
 **The honest summary: the negative verdict is a property of the CASE. The repairs
 are a property of the RECORD.**
@@ -293,6 +299,14 @@ the **real** parser, and is asserted by `RT.assert_plant_control`, which
 Row-level controls are additionally re-asserted inside each graded row: each of
 `Q4`, `Q1`, `Q2`, `Q3`, `Q6` prints *"planted-zero control: PASSED planted
 0.001234 reader `<Q>` @`T23G2_L3` saw 0.0012340000000108375"*.
+
+**Since 2026-09-02 this line says more than it did when it was written.** Nine of
+the ten mutations aimed at these controls — including the two that removed an
+assert to see whether a second line of defence existed — were **refused with the
+defect named** (§15.3), so the controls are not merely constructed: they have
+been shown to fire when broken. The tenth, `D8`, found that
+`YPLUS_PLANT_TOL_REL`, the tolerance deciding whether they pass, is **itself
+unguarded** (§15.5, item 8).
 
 ---
 
@@ -598,13 +612,23 @@ otherwise assume is settled.
    grading was performed with the file at the second path. The sha table of §5
    pins **which bytes** ran; it does not reconcile **where they live** against the
    registration. Referred, not resolved here.
-3. **The guards' mutation kill-rate is being measured separately, and this record
-   is NOT FINAL until that lands.** `R5`'s controls and `R3`'s newly-reachable
-   gate are asserted to refuse and to be able to fail; the *rate* at which the
-   guard set kills injected mutations is a separate measurement in flight. **Until
-   it lands, §4's "20 of 20 PASSED" is a statement that every control was
-   constructed and read its plant back — it is not yet a statement about how much
-   the guard set would catch.**
+3. **~~The guards' mutation kill-rate is being measured separately, and this
+   record is NOT FINAL until that lands.~~ CLOSED 2026-09-02 — THE CONDITION IS
+   SATISFIED AND THIS RECORD IS FINAL. See §15.** The struck text stood, verbatim,
+   as: *"The guards' mutation kill-rate is being measured separately, and this
+   record is NOT FINAL until that lands. `R5`'s controls and `R3`'s
+   newly-reachable gate are asserted to refuse and to be able to fail; the rate at
+   which the guard set kills injected mutations is a separate measurement in
+   flight. Until it lands, §4's '20 of 20 PASSED' is a statement that every
+   control was constructed and read its plant back — it is not yet a statement
+   about how much the guard set would catch."* **It has landed: 36 of 46 measured
+   mutations killed = 78 %; strict 14/15 = 93 %; permissive — the direction that
+   matters — 22/31 = 71 %; eight arms reported `UNMEASURED` and never as kills;
+   ten survivors named (§15.3, §15.5).** §4's "20 of 20" now does say more than it
+   did: nine of the ten mutations aimed at those controls were refused with the
+   defect named. **The kill-rate measures the INSTRUMENT and does not impeach this
+   run's verdict (§15.0), and it OPENS five docket items rather than closing any
+   (§15.7).**
 4. **`R6` is unrepaired** (§8) and is owed a **prospective** registration in the
    next rung.
 5. **`P5` was never evaluable** by this rung, as registered. It needs the
@@ -763,3 +787,422 @@ not.**
   been acted on, and heat-transfer has not ruled on it.**
 - **`R6` remains refused and unrepaired** (§8). `R7` is a separate defect in a
   *granted* repair and is not an attempt to reopen `R6`.
+
+---
+
+## ⚠ 15. AMENDMENT, 2026-09-02 — THE GUARD-MUTATION KILL-RATE. §11's OPEN ITEM 3 IS SATISFIED AND THIS RECORD IS NOW FINAL
+
+**Nothing measured is changed by this amendment. No value, no order, no GCI, no
+gate verdict as the comparator printed it, and not the rung verdict.** What
+changes is that the one condition this record declared itself NOT FINAL against
+has been measured and has landed.
+
+### ⚠ 15.0 THE DISTINCTION, FIRST, BECAUSE IT IS THE ONE THING A READER CAN GET WRONG
+
+**The mutation exercise measures the STRENGTH OF THE INSTRUMENT. It does not
+impeach THIS RUN'S RESULT. A 78 % kill-rate does not mean the verdict is 78 %
+trustworthy, and any sentence of that shape is a misreading of this section.**
+
+The two are separable because **nothing was weakened in the run that was
+actually graded**:
+
+- **Every mutation ran on a disposable scratch copy of the tree.** Not one
+  touched `/home/ubuntu/Certonomous`, the run directory, or any repository file.
+  The driver says so on its own first lines and its `Repo.build()` copies or
+  hardlinks into a scratch worktree.
+- **All five grading-path instruments were the committed bytes.** §5's table
+  records which; the run was executed without `python3 -O`, so every assert in
+  the path was live.
+- **The sha recorder ran and printed.** §5.
+- **20 of 20 planted-zero controls were constructed and passed.** §4.
+
+**`T23G2`'s rung verdict is `NOT A RESULT`, on `G-CONV` and `G-YPLUS`, on grounds
+established before any repair existed (§0, §1). This amendment does not move it
+and nothing in it could.**
+
+What the exercise DID find is that a set of guards which is strong against
+artifact corruption and against removing the planted-zero controls is
+**materially weaker against a change to a transcribed constant**, and that one
+clause of `CLAUDE.md` rule 4 is unguarded on the exact code path this rung takes.
+Those are findings about **what the next rung must fix**, not about what this one
+reported.
+
+### 15.1 WHAT WAS REGISTERED, WHAT RAN, AND WHERE THE EVIDENCE IS
+
+The set was **frozen before any mutation was executed** and is copied into the
+run directory, byte-identical, together with the driver, the control and every
+per-mutation record. **These are copies of a capture, not re-runs** — the same
+treatment §14.2 gave `T23G2_GRADE.out`, and for the same reason: the originals
+lived only in a session scratchpad, which rule 13 forbids a repository document
+to cite.
+
+| artifact | path under `/home/ubuntu/Certonomous/verification/runs/T-family/T23G2_runs/` | sha256 |
+|---|---|---|
+| the frozen set | `T23G2_MUTATION_SET_REGISTERED.md` | `5807609a214a57e8dacf0c399c269ef06ce73664bd8240abf6315d8b5f73299e` |
+| the driver | `mutation_drive_t23g2.py` | `e0aacf1ed3f1cb880bfff5d2047702b18e8a425eff3b260b65ee84aaf251e3c5` |
+| the clean control | `T23G2_MUTATION_CONTROL.out` | `aab0e51fd43f72f4ca5fa4296a7e5e4b1fe653731138393b2c7020a12a143ebf` |
+| 68 per-mutation records | `T23G2_MUTATION_RESULTS.jsonl` | `8b0d070080d82277bbc881665234b0e3a1da66aaab6c54125419da0dd0230ad6` |
+
+**The kill criterion, quoted from the frozen file rather than described:** a
+mutation is `KILLED` if the mutated set *"refuses (exit 2) with a message naming
+the defect; or `mark_done` returns NOT DONE (1) / REFUSE (2) and `require_done`
+refuses; or the owning `--selftest` reports FAIL on the mutated code; or a gate
+verdict moves in the RESTRICTIVE direction because the guard fired"*; it
+`SURVIVES` if *"the set completes with no refusal, no selftest failure, and the
+defect is not named anywhere in the output."*
+
+**The control reproduces the graded run.** `T23G2_MUTATION_CONTROL.out` is
+line-for-line identical to `T23G2_GRADE.out` **except** the five
+`pre-registration (frozen)` sha lines, which read `ABSENT-AT-FREEZE` because a
+scratch copy is not a git repository and the `976776f4` blobs cannot be resolved
+there, and the capture wrapper's `EXIT_CODE=3` trailer. **All 161 remaining lines
+are byte-identical: no gate, value, order, GCI or verdict differs.**
+
+**Two limits on the evidence, stated because they bound every figure below.**
+**(i)** The driver stores only the **last 6 000 characters** of each mutated run's
+output, while it classified on the **full** text; a difference earlier than that
+window is not visible in the `.jsonl`, and absence of a visible difference there
+is **not** evidence that a run matched the control. **(ii)** Because the frozen
+sha column reads `ABSENT-AT-FREEZE` throughout the harness, **no kill in this
+exercise could have come from the frozen-sha comparison** — the `I`-family kills
+below are on-disk-presence kills, not sha kills.
+
+**Cost, and a defect in the registration disclosed rather than glossed.** The
+exercise **launched no solver and created no run directory**; every arm re-ran
+the comparator against existing artifacts on copies. It was **not instrumented
+for cost**, and **the frozen mutation set carries no cost line, which `CLAUDE.md`
+rule 12 requires of every run.** That is a defect in this lane's own
+registration. The only figure available is a **bound from file timestamps**: the
+records span `21:54:38Z` to `22:11:53Z`, **17.24 wall-min**, across at most **9
+concurrent single-core workers**, giving **≤ 155 core-min — DERIVED FROM
+TIMESTAMPS, NOT MEASURED**, and an upper bound because the workers were not all
+busy for the whole envelope. **No estimate-versus-actual calibration row is filed
+for the exercise, because there is no pre-registered estimate to compare against
+— that absence is the defect, and inventing a retrospective estimate would hide
+it.** §10's calibration for the *rung* is unaffected.
+
+### 15.2 THE FROZEN SET'S OWN ARITHMETIC IS WRONG, AND THIS RECORD CORRECTS IT RATHER THAN THE FILE
+
+`T23G2_MUTATION_SET_REGISTERED.md`'s closing line reads **`TOTAL REGISTERED: 54.
+S = 18, P = 36.`** **The total is right and the split is wrong.** Recounting the
+direction letters the file itself assigns, arm by arm:
+
+**`S` (strict) = 17** — `A1`–`A8` (8), `C8`, `E1`, `F2`, `G1`, `G2`, `H1`, `H2`,
+`I1`, `I2`. **`P` (permissive) = 37.**
+
+**The file is not edited.** Its entire evidentiary value is that it is the bytes
+frozen before execution, and a pre-execution freeze that gets corrected after the
+fact is no longer one. **No direction letter was changed by this correction and
+none was in dispute** — every arm's `S`/`P` label is exactly as frozen; only the
+tally at the foot was miscounted. All figures below use the corrected split.
+
+### 15.3 THE MEASURED KILL-RATE
+
+**36 of 46 = 78 %.**
+
+| | registered | UNMEASURED | measured | `KILLED` | rate |
+|---|---|---|---|---|---|
+| **all** | 54 | 8 | **46** | **36** | **78 %** |
+| **`S` strict** | 17 | 2 | **15** | **14** | **93 %** |
+| **`P` permissive** | 37 | 6 | **31** | **22** | **71 %** |
+
+**The permissive direction is the one that matters** — a permissive survivor is a
+mutation that would let an unsound run be graded or move a verdict toward `PASS`.
+**Against that direction the guard set kills 71 %, not 93 %**, and the headline
+78 % is a blend of the two. The strict direction's single survivor is `F2`.
+
+**The eight `UNMEASURED` arms are reported as `UNMEASURED` and never as kills.**
+They are not evidence in either direction:
+
+- **`E1` — `UNCONSTRUCTABLE`.** Its patch anchor `ORDER_BAND = (0.5, 1.5)` occurs
+  twice in the comparator (once inside the `A1.2` comment), so the edit refused
+  rather than guess. Rebuilt as `E1b` in the follow-up set.
+- **`G2`, `G4` — the intended defect was never constructed.** Both bumped the
+  `owner` list's **size token** rather than a cell index, so the file became
+  self-inconsistent instead of describing a different mesh; what fired was
+  `t23g_readonly_diagnosis.py:46`'s bare `assert`, not the registered mesh check.
+  Rebuilt as `G2b` (killed by the registered check) and `G4b`.
+- **`E3`, `F3`, `G3`, `H3`, `J3` — INERT on this rung's data.** Each was
+  constructed correctly and its output came back **byte-identical to the clean
+  control**, i.e. the mutated code demonstrably never carried any load here: the
+  band and order limbs do not execute at all while rule 5 step (a) voids every
+  row, and `RESID_TOL["h"]` and `PLATEAU_MAX_SPREAD_K` are not the binding
+  constants on this data. **A mutation that could not have moved anything is not
+  a survival and is not a kill.**
+
+**What the guard set is strong at, from the kills:** all eight artifact mutations
+of rule 4 (`A1`–`A8`) were refused with the defect named; **nine of the ten
+planted-zero-control mutations (`D1`–`D7`, `D9`, `D10`) were refused**, including
+the two that tried to remove the assert and rely on the second line of defence;
+and all nine `roache_triple` mutations (`C1`–`C9`) were killed by its `--selftest`
+and `_seal`. **§4's "20 of 20 CONSTRUCTED AND PASSED" now says more than it did
+when it was written**: the controls were not merely built, they were shown to
+refuse when broken.
+
+### 15.4 THE FOLLOW-UP SET — DISCLOSED AS ADDED AFTER PHASE 1, AND REPORTED SEPARATELY
+
+**Fourteen further arms were written after the first phase had run, and they are
+never folded into the 36/46 above.** Three are controls — `R0` (the reachability
+device), `RQ1f` (`Q1` shifted out of the band) and `CLEANO` (the unmutated
+comparator under `python3 -O`). **The remaining eleven are mutations.**
+
+Two of them exist because the band and order limbs **never execute on the as-run
+data** — every graded row is `NOT A RESULT` at rule 5 step (a), because L2's
+`p_rgh` residual is `1.041e-08` against a `1e-8` tolerance. Several arms
+therefore needed a **harness device** that lowers that one residual below
+tolerance so the downstream guards become executable at all. **That device is a
+fake and is labelled one in the driver: it asserts nothing whatever about the run
+and appears in no figure about T23G2.** Its purpose is only to let a guard's
+kill-rate be *measured* rather than *assumed*, and the `R0` control confirms it
+works — under `R0` the band and order limbs execute and `G-ORDER` returns `PASS`.
+
+**Of the eleven: 4 `KILLED`, 6 `SURVIVED` — and every one of the six is
+permissive — and 1 stopped as an uncaught exception.**
+
+- **Killed by refusal:** `B5x`, `G2b`.
+- **Killed by a restrictive gate move**, the frozen criterion's fourth clause:
+  `E1b` and `RE1b` both drove `G-ORDER` to `GATE FAIL`. **The driver's automatic
+  classifier could not label these** — it detects refusals, selftest failures and
+  exit codes, not verdict direction — so it recorded them as
+  `SURVIVED-CHANGED`. **This record labels them `KILLED` by reading the criterion
+  the frozen file registered, and says so rather than quoting the driver's
+  field**, because the driver's labels are a convenience and the registered
+  criterion is the standard.
+- **Survived, all permissive:** `B3x`, `G2O`, `H3b`, `RF1`, `RF3`, `RQ1p` —
+  every one is named in §15.5.
+- **`G4b` stopped as an uncaught exception at exit 1** and is therefore neither:
+  the named guard did not fire, so **its actual question — are the mesh
+  similarity-ratio checks a backstop for the total-cells refusal? — is
+  UNANSWERED.**
+
+### ⚠ 15.5 THE SURVIVORS, NAMED, WITH WHAT EACH WOULD LET THROUGH
+
+#### ⚠⚠ 1. `B3` / `B3x` — RULE 4's `End`-LINE CLAUSE IS UNGUARDED ON THE PATH THIS RUNG TAKES
+
+**This is the most serious finding of the exercise and it is placed first for
+that reason: one of the lab's three standing instruments has a clause with no
+guard on the production code path.**
+
+`mark_done_t23.py` evaluates rule 4's rc conjunct through one of two branches —
+**`READ-FROM-STATUS` (`:171`)** when the `STATUS.` sidecar carries an integer
+`rc`, else **`DERIVED-FROM-LOG` (`:185`)**. The derived branch carries a compound
+test at **`:201`** which **duplicates conjunct 2 (`:208`, exactly one `End` line)
+and conjunct 3 (`:219`, last time == `endTime`)**.
+
+**Every `--selftest` drive of conjuncts 2–6 forges the DERIVED shape.** The three
+drives that exercise `READ-FROM-STATUS` (`:366-372`) vary **rc alone**.
+**T23G2's `STATUS.` files carry an integer `rc`, so this rung was graded on the
+branch where conjuncts 2 and 3 stand alone.**
+
+- **`B3`** neutered conjunct 2 (`n_end != 1` → `n_end < 0`). **Its own selftest
+  reported no failure** — the green came from the duplicate at `:201`, on the
+  branch the fixture forged.
+- **`B3x`** neutered conjunct 2 **and actually deleted L2's single `End` line
+  from `log.solve`**, then ran the **full comparator on the real artifacts**.
+  **The output was BYTE-IDENTICAL to the clean control**, exit 3, `RUNG VERDICT:
+  NOT A RESULT`. **An incomplete run was marked `DONE` and graded, and nothing
+  anywhere in the output says so.**
+
+**What it would let through: a solve that died before writing its `End` line,
+accepted as complete and graded as if it had finished.** Lesson **`L-437`**;
+docket **`D-20260902T223401.490231Z-74772ff9`**.
+
+#### 2. `B5` / `B5x` — THE SAME HOLE ON CONJUNCT 3, CAUGHT ONLY DOWNSTREAM AND ONLY BY LUCK
+
+`B5` widened conjunct 3's tolerance (`> 1e-9` → `> 1e9`) and **survived its own
+selftest for the same reason**. `B5x` added the artifact defect — L3's `endTime`
+directory renamed so the last written time is not `endTime` — and **was caught,
+but not by rule 4**: the refusal came from the comparator's missing-`U`-at-
+`endTime` check (`analyse_t23g2.py:159`, fed by `_u_maxima` at `:733`) inside
+`G-CONV`. **A downstream gate happened to need a file the defect had removed.**
+That is luck about which gate reads which file. **What it would let through: a
+run stopped short of `endTime`, graded on whatever its last time directory
+holds, whenever the missing time does not also remove a file some gate reads.**
+
+#### ⚠ 3. `H3b` — NOTHING PROTECTS THE INPUTS TO RULE 5 STEP (a)
+
+Widening `RESID_TOL["p_rgh"]` from `1.0e-8` to `1.0` **makes the whole rung
+gradeable**: step (a) stops firing and **five rows move from `NOT A RESULT` to
+graded verdicts** (`Q4`, `Q1`, `Q2` and `Q6` to `PASS`, `Q3` to `GATE FAIL`, each
+with an order ≈ 0.61 and a GCI ≈ 5.3–5.8 %). No refusal, no note.
+
+**This is the structural statement of the whole exercise: `_seal` protects the
+DIRECTION of a verdict move — it can turn a `PASS` into `NOT A RESULT` and never
+the reverse — and NOTHING protects the INPUTS to step (a) from being redefined.**
+A gate that cannot be moved directly can be moved by changing what feeds it.
+**What it would let through: a rung whose levels are not iteratively converged,
+graded as though they were.**
+
+#### 4. `RF1` / `RF3` — A ROLE TABLE TRANSCRIBED WITH NO EXECUTABLE TIE, AND ONE THAT LIES ON ITS FACE
+
+`BAND_TRANSFER_REGISTERED` is a five-name tuple transcribing repair `R4`'s role
+table from the pre-registration, **with no executable tie to the frozen document
+it transcribes**.
+
+- **`RF1`** — widened to include `Q4` and `Q6`. Their rows keep the band verdict
+  instead of being downgraded, and **the rung moves from `NOT A RESULT` to
+  `GATE FAIL`.**
+- **`RF3`** — the downgrade line deleted while its message is left in place.
+  **This is worse than silent: the record prints `VERDICT DOWNGRADED PASS -> NOT
+  A RESULT` while the row's verdict remains `PASS`** and the rollup uses `PASS`.
+  **The output asserts on its face a protection that is not applied.**
+
+**What they would let through: an unregistered band's verdict carried as a graded
+one, under a printed statement that it was not.**
+
+#### 5. `J4` — A REAL `GATE FAIL` TURNED INTO A `PASS`
+
+`YPLUS_MAX = 1.0` → `1e9`. **`G-YPLUS` is a genuine `GATE FAIL` on this run** —
+§1.2 — failing on `centrebody_up` at all three levels (max y+ **1.8245**,
+**1.3539**, **1.0047**). Under the mutation every patch passes and the gate
+reports `PASS`, with no refusal. **The rung verdict does not move** (rule 5 still
+voids every row), which is exactly why a gate-level guard cannot be inferred from
+a rung-level verdict. *Stated as a limit on this item's evidence: the `G-YPLUS`
+block sits earlier in the output than the 6 000-character window the driver
+retained, so the `PASS` itself is not readable in the `.jsonl`; the driver
+classified on the full text, and the control's three `GATE FAIL` rows are at
+`T23G2_GRADE.out:67`, `:72`, `:83`.*
+
+#### 6. `RQ1p` — A TRANSCRIBED BAND CONVERTS A `GATE FAIL` TO A `PASS`, WITH THE MUTATED BAND PRINTED AND NO REFUSAL
+
+With `Q1` shifted genuinely out of its band (the `RQ1f` control confirms the
+unmutated band then reports `GATE FAIL`), widening `BAND_Q1` to `(-1e9, 1e9)`
+converts it to `PASS`. **The mutated band is printed on the record's face** —
+`[Q3] value 56.708 band [-1e+09, 1e+09]`, and `band verdict (computed first,
+unconditionally): PASS` where the control reads `GATE FAIL` — **and nothing
+refuses.** A reader who does not know the registered band cannot tell.
+
+#### 7. `G2O` — THE MESH GUARDS VANISH UNDER `python3 -O`
+
+`t23g_readonly_diagnosis.py` carries **bare `assert` statements at `:46`, `:57`,
+`:74` and `:123`** and **is one of the five registered grading-path files**.
+Measured pair on the same corrupted `polyMesh/owner`: under `python3` (`G2`) it
+fires `AssertionError` at `:46` and **exits 1**; under `python3 -O` (`G2O`) it
+**runs to completion, exit 3, output byte-identical to the clean control** — and
+the `CLEANO` control shows **`-O` alone changes nothing**, so the whole of the
+silence is the stripped assert.
+
+**The honest limit: the exercise demonstrated the GUARD'S REMOVAL, not a wrong
+graded number.** No value moved. What was lost is the refusal that would have
+stopped the corrupt file being read at all, and no claim is made about a
+corruption that was not run. **The path is mixed: `scripts/roache_triple.py:1104`
+refuses under `-O`, while `analyse_t23g2.py` and `mark_done_t23.py` — the two
+files a runner actually invokes — carry no `-O` refusal**, so the one file that
+does refuse is reached only as an import. Lesson **`L-332` addendum**; docket
+**`D-20260902T223401.490252Z-09de8c2a`**.
+
+#### 8. THE LESSER SURVIVORS, IN THE SAME CLASS
+
+- **`D8`** — `YPLUS_PLANT_TOL_REL` is **itself unguarded**. Widening it from
+  `1e-9` to `1.0` changes nothing detectable, because §4's measured worst
+  relative miss is `2.219e-16` — about `4.5e6 ×` of headroom. **The tolerance
+  that decides whether a planted control passes is a plain constant nothing
+  checks.**
+- **`F1` / `F2`** — the same `BAND_TRANSFER_REGISTERED` tuple, widened and
+  narrowed on the as-run data. `F2` is **the strict direction's only measured
+  survivor**: narrowing the tuple wrongly downgrades `Q3` and `Q2` and nothing
+  objects.
+- **`I3`** — the **five-file `GRADING_PATH`**, widened by
+  `VERIFICATION_CHARTER.md` §2d.7, is guarded by nothing. Shrunk to four entries
+  it simply prints four rows. **The list that says what the grading path IS can
+  be shortened without complaint.**
+- **`J1`** (`BAND_Q1`) and **`J2`** (`RATIO_MIN`) — the transcribed-constant
+  control class, both survive on the as-run data.
+
+#### 9. THE EXIT-CONTRACT VIOLATIONS
+
+**`E2`, `G2` and `G4b` stop as uncaught exceptions at exit 1 — and exit 1 is this
+comparator's code for a graded non-`PASS`.** `E2` died `KeyError: 'Q4'` at
+`analyse_t23g2.py:1068` instead of firing `gate_order`'s registered *"no row for
+it was graded"* refusal; `G2` died `AssertionError` at
+`t23g_readonly_diagnosis.py:46`; `G4b` died `ValueError: unparsed field block` at
+`t23g_readonly_diagnosis.py:284`. **The comparator's own closing comment states
+the requirement it is failing** — a refusal arriving as an uncaught exception
+*"is indistinguishable from the comparator itself being broken"* — **and its
+`except RT.Refusal` wrapper catches only `Refusal`.** Docket
+**`D-20260902T223401.490267Z-75988b32`**.
+
+### ⚠ 15.6 THE STRUCTURAL FINDING — THIS COMPARATOR HAS NO FREEZE COVERAGE AT ALL, AND §11's ITEM 2 IS WHY
+
+**Verified personally by the heat-transfer supervisor, not relayed.**
+
+`scripts/check_comparator_freeze.py` — the instrument `CLAUDE.md` rule 2 names as
+its enforcement — declares `POPULATION_ROOTS = ("verification", "cases")` at
+`:131`, walked by `walk_population` at `:411`. **`docs/` is never walked, and the
+checker returns ZERO rows for T23G2.**
+
+**This connects directly to §11's open item 2 and changes what that item is.**
+`T23G2_PREREGISTRATION.md:662-663` registers the comparator as
+`verification/runs/T-family/T23G2_runs/analyse_t23g2.py` — a path **inside** the
+walk — and the file that ran is at `docs/campaigns/T-family/analyse_t23g2.py`,
+which is **outside** it. **Had the file been where it was registered, the checker
+would have seen it. The misfiling is why the checker is blind, so open item 2 is
+not cosmetic: it has a measured consequence.**
+
+**The file was NOT moved by this amendment.** Relocating a frozen grading-path
+member after first compute is a `§2d.1` matter for `verification`, not a lane's
+to perform.
+
+**And the sha recorder's discriminating power is already partly spent.** From the
+graded run's own table (`T23G2_GRADE.out:6-24`), the frozen column against
+`976776f4` reads **`DIFFERS`** for `analyse_t23g2.py` and for `mark_done_t23.py`
+— **the two files that hold every constant the survivors above exploit** — and
+`IDENTICAL` for the other three. **The recorder discloses that divergence;
+nothing enforces it. Nothing anywhere compares a printed sha against a recorded
+expected value.** Docket **`D-20260902T223401.490151Z-41ea39d0`**.
+
+### 15.7 WHAT THIS CLOSES, AND WHAT REMAINS OPEN
+
+**§11's open item 3 is CLOSED, and only because its condition is satisfied.** It
+said this record was `NOT FINAL` until the kill-rate landed. **It has landed, and
+the record is final.** Item 3's original text is struck in place at §11 rather
+than deleted, and its replacement points here.
+
+**Still open, and this amendment closes none of them:** `R6` (§8, item 4); `P5`
+(item 5); `R7`, the `G-ORDER` petition (§14, item 6); the untracked launcher
+(item 1); and **§11's item 2, which this section makes more serious rather than
+less**. Five new items are docketed:
+
+| docket id | what |
+|---|---|
+| `D-20260902T223401.490151Z-41ea39d0` | the freeze checker's walk roots exclude `docs/`; zero coverage for this comparator |
+| `D-20260902T223401.490231Z-74772ff9` | rule 4's selftest drives a branch production does not take |
+| `D-20260902T223401.490252Z-09de8c2a` | `-O` exposure on registered grading-path files |
+| `D-20260902T223401.490267Z-75988b32` | refusals arriving as uncaught exceptions at exit 1 |
+| `D-20260902T223401.490280Z-d0fb9b86` | transcribed constants and role tables with no executable tie |
+
+Lessons **`L-437`** (a selftest that drives a clause only through the branch
+production does not take is not coverage) and **`L-438`** (a planted-control
+tolerance means nothing until quoted in ulp of the operands it differences), plus
+addenda to **`L-10`** and **`L-332`**.
+
+**§13's item 4 stands and gains its evidence:** the successor's pre-registration
+should carry the mutation measurement **before** compute rather than after, and
+it now has a measured baseline to beat — **71 % in the permissive direction.**
+
+### 15.8 SCOPE OF THE EDIT
+
+**This amendment is appended at the foot, and three inline edits were made
+above**, each disclosed here because the convention is to state it:
+
+1. **§11 item 3** — its `NOT FINAL` condition is **struck in place, quoted
+   verbatim where it stood**, and replaced with the closed form pointing here. It
+   is not rewritten away.
+2. **§0** — one bullet appended pointing to §15.0, so a reader meets the
+   instrument-versus-verdict distinction in the same breath as the verdict.
+3. **§4** — one sentence appended, because "20 of 20 PASSED" now carries more
+   than it did and a reader of §4 alone should be told where.
+
+**No sentence above was deleted.** As in §14, this record **cannot** assert
+`lines whose number changed above this section: 0` — line numbers above did
+shift. **No file cites this record by line, this one included** — re-measured
+`[MEASURED]` 2026-09-02 with `git grep -n -E "T23G2_RESULTS\.md:[0-9]"`, which
+returns **zero** hits over every git-tracked file. *Two honest notes on that
+figure:* §14 reported **one** hit for the same check, and that hit was its own
+describing sentence under a looser pattern — the conclusion is unchanged and the
+count differs only because the patterns differ; and `git grep` reads **tracked
+files only**, so an untracked file citing this record by line would not be seen.
+
+**No grading-path file was edited, read for anything but its bytes, or re-run.
+Nothing was re-graded. No verdict, value, order, GCI or gate anywhere in this
+record is changed by this amendment.**
