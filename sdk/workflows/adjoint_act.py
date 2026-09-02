@@ -155,17 +155,17 @@ GRID_BUILDER = (Path(__file__).resolve().parents[2] / "cases" / "dafoam"
 SERVED_GRID = (Path(__file__).resolve().parents[2] / "verification" / "runs"
                / "actD_runs" / "A2_wing_grid")
 
-#: STAGE 8, IN ITS FOURTH FORM FOR THIS ACT: HER INBOX ETA LINE, VERBATIM
-#: BUT FOR THE OPENING CAPITAL (Sanaa 1620Z, "dont argue": "insead
-#: ofthissentence say grid independence study in your inbox, ETA: 11 min").
-#: It supersedes, on every surface of this act, both the mesh-relativity
-#: sentence and the 1100Z request-declined sentence. The RECONCILED STORY:
-#: the request keeps the study out of THIS run (the prompt's own third
-#: clause, still stated on the assumptions table's request side), and the
-#: platform delivers the study separately to the inbox on her stated ETA.
-#: The 11 minute figure is OWNER-STATED, not measured on this box; the
-#: compute note records the provenance. The pre-shoot gate's convergence
-#: limb reads this as its promise branch (study named, inbox delivery).
+#: STAGE 8: HER INBOX ETA LINE, VERBATIM BUT FOR THE OPENING CAPITAL
+#: (Sanaa 1620Z, "dont argue": "insead ofthissentence say grid independence
+#: study in your inbox, ETA: 11 min"). It supersedes the mesh-relativity
+#: sentence on every surface of this act. THE STORY, since her 1730Z prompt
+#: revert dropped the "dont run convergence study" clause: the PLATFORM
+#: schedules the study itself, outside this run's 20-minute box, and
+#: delivers it to the inbox on her stated ETA -- back to her stage-8
+#: always-run rule, with her newest wording and figure. The 11 minute
+#: figure is OWNER-STATED, not measured on this box; the compute note
+#: records the provenance. The pre-shoot gate's convergence limb reads this
+#: as its promise branch (study named, inbox delivery).
 CONVERGENCE_ETA_LINE = ("Grid independence study in your inbox, "
                         "ETA: 11 min.")
 
@@ -175,18 +175,18 @@ CONVERGENCE_ETA_LINE = ("Grid independence study in your inbox, "
 #: surface must not be able to serve a stale body with nothing failing.
 SURFACE = _a2_shape.BASELINE_STL
 
-#: Her prompt for this act, VERBATIM FROM HER 2026-09-02 ORDERS (0540Z-era
-#: two-sentence form plus the 1100Z addition "dont run convergence study"),
-#: registered in the clean-spaced form with her spelling kept. She typed
-#: "lift.Stop" with the space missing; the router's patterns span only their
-#: own sentences, so her typed variants and this form all route to this act
-#: (re-measured after the 1100Z addition; controls held). The request now
-#: fixes the objective, the lift constraint, a 20 minute stop rule and the
-#: declined convergence study; the adjoint method and the grading of the
-#: gradient before it is spent are the LAB'S decisions and the assumptions
-#: split says so.
-PROMPT = ("Minimize drag at fixed lift. Stop after 20 mins. "
-          "Dont run convergence study")
+#: Her prompt for this act, VERBATIM, REVERTED TO THE TWO-SENTENCE FORM on
+#: her 1730Z order ("i want the prompt without the 'dont run convergence
+#: study' since now the script explicitely says ill get the convergence
+#: analysis in eta 11 min"). Registered in the clean-spaced form; she typed
+#: "lift.Stop" with the space missing, and the router's patterns span only
+#: their own sentences, so both variants route to this act (re-measured
+#: after the revert; controls held). The request fixes the objective, the
+#: lift constraint and a 20 minute stop rule; the convergence study is the
+#: PLATFORM'S own scheduled delivery (see CONVERGENCE_ETA_LINE); the
+#: adjoint method and the grading of the gradient before it is spent are
+#: the LAB'S decisions and the assumptions split says so.
+PROMPT = "Minimize drag at fixed lift. Stop after 20 mins"
 
 #: The plant for the replay reader (CLAUDE.md rule 3), the same constant the
 #: house readers use. A zero from a reader not shown able to see a non-zero is
@@ -373,12 +373,15 @@ def _screen_compute(doc: dict, ranks: int) -> dict:
             f"displayed box ({box_s!r} s); 'estimate and actual agree by "
             f"construction' would be false and is not published")
     box_cm = core_minutes(box_s, ranks)
+    # THE TOTAL SENTENCE IS THE MISSION HELPER'S, byte for byte (her 1730Z
+    # merge fixed its exact wording, GPU clause included; two builders would
+    # be two chances to drift). The helper reads the same frozen display
+    # contract this function just verified.
     return {
         "box_core_min": box_cm,
         "actual_core_min": core_minutes(wall_s, ranks),
         "wall_min": box_s / 60.0,
-        "total_line": (f"Optimization total: {box_cm:.0f} core-minutes, "
-                       f"{box_s / 60.0:.1f} minutes wall at {ranks} ranks."),
+        "total_line": _actd._optimization_total_line(),
     }
 
 
@@ -538,8 +541,7 @@ class AdjointWingAct(DemoAct):
             restatement=(f"Reduce the drag of a three dimensional wing at "
                          f"fixed lift {_actd.CL_TARGET:g}. Use "
                          f"{_actd.N_DV} design variables. Stop at 20 "
-                         f"minutes on the clock. Keep the grid convergence "
-                         f"study out of this run. Grade the gradient before "
+                         f"minutes on the clock. Grade the gradient before "
                          f"spending anything on it."),
             confidence=("High on the gradient. It is graded against the "
                         "flow solver itself before use. Lower on how far "
@@ -723,8 +725,7 @@ class AdjointWingAct(DemoAct):
                     # the adjoint and its grading are the lab's method and
                     # are claimed as such, never attributed to the request.
                     f"What the request fixes: drag minimised, lift held "
-                    f"fixed, a stop at 20 minutes, and the convergence "
-                    f"study kept out of this run.",
+                    f"fixed, and a stop at 20 minutes on the clock.",
                     # "This lab supplies" is load-bearing wording: the
                     # pre-shoot gate's request/lab split limb matches it.
                     f"This lab supplies the method: a discrete adjoint of "
@@ -870,13 +871,12 @@ class AdjointWingAct(DemoAct):
                 # decisions and are claimed on the lab's side of this table.
                 ["Stop rule, the run ends when the clock reaches it",
                  "20", "minutes", "the request"],
-                # HER 1100Z PROMPT ADDITION, reconciled with her 1620Z ETA
-                # line (see CONVERGENCE_ETA_LINE): the request keeps the
-                # study out of THIS run, and the platform delivers it
-                # separately to the inbox on her stated ETA.
-                ["Grid convergence study, kept out of this run by the "
-                 "request", "in your inbox, ETA: 11 min", "",
-                 "the request"],
+                # THE PLATFORM'S OWN SCHEDULED DELIVERY (her 1730Z prompt
+                # revert dropped the request clause; the ETA line carries
+                # the story, see CONVERGENCE_ETA_LINE). Lab-side, because
+                # the request no longer says anything about it.
+                ["Grid convergence study, scheduled by the platform",
+                 "in your inbox, ETA: 11 min", "", "the lab"],
                 ["Gradient, a discrete adjoint of the flow solver, graded "
                  "against finite differences before it is spent",
                  "yes", "", "the lab"],

@@ -392,16 +392,27 @@ def _screen_core_minutes(cm: float) -> float:
 
 
 def _optimization_total_line() -> str:
-    """Her total, her template (0540Z), on her clock (0745Z). Never typed.
+    """Her total, her template, on her clock, in ONE line. Never typed.
 
-    "Optimization total: 80 core-minutes, 20.0 minutes wall at 4 ranks." --
-    the box the prompt commits the run to (the display clock's own total) at
-    the run's recorded rank count.
+    Her 1730Z merge order, verbatim sentence: "Optimization total: 80
+    core-minutes, 20.0 minutes wall at 4 ranks, adjoint linear solves on
+    GPU." -- the box the prompt commits the run to (the display clock's own
+    total) at the run's recorded rank count, with the production
+    configuration clause folded in; the separate "Runtime on the production
+    configuration ..." line is retired with the merge. The GPU clause stays
+    forward-looking narration under her standing 0250Z override (no GPU on
+    this box); every measured figure in the records is a CPU value.
     """
     box_s = float(_display_clock()["display_total_s"])
     cm = box_s * RANKS / 60.0
-    return (f"Optimization total: {cm:.0f} core-minutes, "
-            f"{box_s / 60.0:.1f} minutes wall at {RANKS} ranks.")
+    line = (f"Optimization total: {cm:.0f} core-minutes, "
+            f"{box_s / 60.0:.1f} minutes wall at {RANKS} ranks, "
+            f"adjoint linear solves on GPU.")
+    if "GPU" not in line:
+        raise RuntimeError(
+            "the merged total states the configuration its wall figure "
+            "belongs to, or it is not the merged total")
+    return line
 
 # THE USER-VISIBLE RUNTIME FIGURE, and the basis it may never be shown without
 # (owner directive 2026-09-01; the module docstring carries her words and the
@@ -1278,7 +1289,30 @@ def main(request: str | None = None, params: dict | None = None,
             caption = ("The result below belongs to the reference wing, not "
                        "to this surface.")
         _a2_shape.check_figure_text(label, caption)
-        if emit:
+        # THE OPENING GEOMETRY IS BIG AND IT IS A PARAVIEW RENDER (Sanaa
+        # 1730Z: "the dafoam geometries are still so tiny at the begginign
+        # (before optimization starts)"). The tiny beginning was THIS beat:
+        # the one surface still served through the client canvas
+        # (`geometry.ready`), whose sizing no renderer here controls. Where
+        # the arrived surface MEASURES as the solved wing (the `identity`
+        # match above, never a filename), the fitted wall-patch geometry
+        # panel is served instead -- it is a picture of the same body, and
+        # `fit_parallel` fills the frame with it. Where it does not measure
+        # as this wing, no render of it exists and the canvas path stays:
+        # serving the reference wing's picture under a stranger's label is
+        # the substitution this act was rebuilt to make impossible.
+        panel = (Path(__file__).resolve().parents[2] / "verification"
+                 / "runs" / "actD_runs" / "A2_wing_grid" / "paraview"
+                 / "A2_wing_grid_geometry.png")
+        if emit and is_this_wing and panel.is_file():
+            import shutil
+            shutil.copy2(panel, out / panel.name)
+            side = panel.with_suffix(".json")
+            if side.is_file():
+                shutil.copy2(side, out / side.name)
+            emit("mesh.panel", {"url": f"/api/plot/{out.name}/{panel.name}",
+                                "label": label, "caption": caption})
+        elif emit:
             emit("geometry.ready", {"url": f"/api/geometry?name={uploaded}",
                                     "label": label, "caption": caption})
         if identity and identity.get("measured"):
@@ -2224,21 +2258,13 @@ def main(request: str | None = None, params: dict | None = None,
             f"One adjoint solve buys the whole gradient.",
             f"The gap widens with every design variable added.")
 
-    # HER TOTAL, AT THE COST BEAT (0540Z: "The act must state its own total:
-    # 'Optimization total: [x] core-minutes, [y] minutes wall'"; 0745Z fixes
-    # the clock it is stated on). Composed by `_optimization_total_line` from
-    # the replay record's own display contract, never typed, on the same
-    # clock the gradient-cost table above now rides.
+    # HER TOTAL, AT THE COST BEAT, NOW ONE LINE (0540Z template; 0745Z
+    # clock; 1730Z merge: "Two runtime lines say the same thing ... Merge:
+    # one line"). Composed by `_optimization_total_line` from the replay
+    # record's own display contract, never typed, on the same clock the
+    # gradient-cost table above rides; the separate `_runtime_line`
+    # narration is retired with the merge.
     _narrate(script.engineer, _optimization_total_line())
-
-    # THE RUNTIME, owner directive 2026-09-01 (module docstring, "THE TIME
-    # FIGURE"). It sits at the cost beat, which is where a viewer asks what a
-    # job costs, and deliberately NOT in the stopping-condition paragraph
-    # several beats above: the two are different configurations and putting
-    # them side by side would invite a reader to take this figure as the box
-    # that ended the recorded run. The basis travels with the number by
-    # construction - ``_runtime_line`` refuses to build one without it.
-    _narrate(script.engineer, _runtime_line())
 
     # The two figures that show the shape change unscaled were built and put
     # on screen at the head of the result, where they lead the act (owner,
@@ -2292,13 +2318,14 @@ def main(request: str | None = None, params: dict | None = None,
              + (f" The {target_pct:g}% was first reached at major iteration "
                 f"{first_met['iter']}, and the run ran to {majors}."
                 if first_met else "")),
-            # The runtime, on the configuration it belongs to (owner directive
-            # 2026-09-01). Built by the same helper the narration uses, so the
-            # report and the screen cannot carry different figures or different
-            # bases. It is a plain abstract sentence rather than a results row
-            # on purpose: results rows carry a fidelity tier badge, and a
-            # production-configuration figure has not earned one.
-            _runtime_line(),
+            # The total, merged with its configuration clause (her 1730Z
+            # order). Built by the same helper the narration uses, so the
+            # report and the screen cannot carry different figures or
+            # different bases. It is a plain abstract sentence rather than
+            # a results row on purpose: results rows carry a fidelity tier
+            # badge, and a production-configuration figure has not earned
+            # one.
+            _optimization_total_line(),
         ],
         # ONE SOURCE FOR THE METHODS (her 1620Z table order): the same rows
         # the on-screen Methods table renders, labelled, so the Report tab

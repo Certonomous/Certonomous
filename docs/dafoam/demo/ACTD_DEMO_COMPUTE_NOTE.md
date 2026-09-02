@@ -305,6 +305,54 @@ sanaa_actd_viewing_feedback.md`) — landed 2026-09-02
    the screens as they now are (whole patch in the close view; the twist
    plot is degrees against metres, where equal aspect is not meaningful).
 
+## 7. GEOMETRY-SIZE + RUNTIME-MERGE + PROMPT-REVERT BATCH (Sanaa ~17:30Z,
+`etc/sessions/2026-09-02T1730Z_sanaa_geometry_size_and_order.md`) — landed
+2026-09-02
+
+1. **Geometry big every time it appears.** Two real causes found by
+   enumerating and LOOKING at all 24 published PNGs: (a) the view's very
+   FIRST render resets the camera over a fit applied before it, so the
+   baseline frame (the first of every render run) shipped tiny — the
+   renderer now renders once, fits, then captures (measured, the note is
+   in the code); (b) the mission's OPENING beat (uploaded surface) was the
+   one surface still served through the client canvas (`geometry.ready`),
+   whose sizing no renderer controls — where the arrived surface MEASURES
+   as the solved wing it now serves the fitted `A2_wing_grid_geometry.png`
+   as a `mesh.panel` (zero `geometry.ready` events on an upload drive,
+   measured); where it does not, the honest canvas path stays. All 24
+   PNGs re-rendered and each inspected: geometry, mesh, mesh_zoom,
+   volume_cut, wing_baseline, wing_gradient, wing_iter_00..47 (9),
+   wing_near_00..47 (9) — every one fills its frame. The opening panel's
+   caption is `MESH_CAPTION`, kept byte-identical per her 0540Z item 6
+   even though it contains "grid independence not assessed" — her 1620Z
+   replacement named the numericist SENTENCE, not this protected caption;
+   flagged for her eye.
+2. **Runtime lines merged**, her exact sentence, one builder both wires:
+   "Optimization total: 80 core-minutes, 20.0 minutes wall at 4 ranks,
+   adjoint linear solves on GPU." (`_optimization_total_line`; the demo
+   act's cost_story imports it byte-for-byte). The "Runtime on the
+   production configuration ..." narration and report line are retired;
+   the demo act's elapsed-clock basis sentence stays (the contract
+   requires a basis beside the clock figure and it is not one of the two
+   lines she quoted). GPU clause remains forward-looking per her 0250Z.
+3. **Prompt reverted** to "Minimize drag at fixed lift. Stop after 20
+   mins". Router: measured this session, both spacings route
+   adjoint-optimization at 0.90 with the two-sentence form (the same test
+   set that measured the three-sentence form; controls held: bare stop
+   clause general-mission 0.3, no lift constraint shape-optimization,
+   DMR/Ahmed unmoved); no router edit in any batch. The assumptions row is
+   no longer request-side: "Grid convergence study, scheduled by the
+   platform | in your inbox, ETA: 11 min | the lab"; restatement and the
+   request-fixes bullet drop the study clause; certificate and conclusion
+   keep the ETA coupling. Gate limb reads the ETA line via its promise
+   branch; selftest 61/61 plants fired.
+
+**Foreign red on the gate at this batch's close (not this lane's):**
+`motor-thermal: CANNOT START` — a double hyphen in transcript prose at
+`sdk/workflows/motor_thermal_act.py:1093`, the heat-transfer team's
+in-flight 1730Z work; adjoint-wing reads ok on all 11 checklist lines.
+Reported to the chief rather than edited.
+
 ### Verification of this batch (successor lane, 2026-09-02)
 
 Offline drives via `run_act` (never a POST to :8765): demo act 791 events,
