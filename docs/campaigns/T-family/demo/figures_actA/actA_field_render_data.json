@@ -648,7 +648,13 @@
     "colour_bar_carries": "numeric ticks and the unit only",
     "extremes_appear": "as the colour bar's end ticks and nowhere else in the figure",
     "colour_bars_unclipped": true,
-    "one_shared_colour_bar_per_figure": true
+    "one_shared_colour_bar_per_figure": true,
+    "amendment_0630Z": {
+      "source": "/home/ubuntu/Certonomous/etc/sessions/2026-09-02T0630Z_sanaa_motor_figure_polish.md",
+      "colour_bar_ticks": "round interior ticks, 20 degC / 10 m/s steps, with the true min and max as the end ticks",
+      "legend_position": "below the panels at figure level, never over a panel's field",
+      "per_panel_range_boxes": "each velocity whole-model panel carries its own drawn field range in a corner box; her explicit 0630Z ask, amending the 2026-09-01 'nowhere else' clause for those per-panel ranges"
+    }
   },
   "air_temperature_per_panel_degC": {
     "10": [

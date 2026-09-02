@@ -574,32 +574,57 @@ def _collection(poly, vals, cmap, vmin, vmax):
     return pc
 
 
-def _bar(fig, pc, axes, unit, vmin, vmax, dp, location="right"):
+def _bar(fig, pc, axes, unit, vmin, vmax, dp, location="right", step=None):
     """One colour bar per figure: numeric ticks and the unit, nothing else.
 
     The scale spans the full range of everything drawn, so nothing is clipped,
     and the minimum and the maximum are the bar's END TICKS -- they appear
     here and NOWHERE else in the figure (Sanaa's 2026-09-01 figure standard).
-    Ticks are printed at the display precision, which the bundle records; the
-    unrounded values live in the bundle and in the cell table."""
+    ROUND INTERMEDIATE TICKS (her 0630Z amendment, verbatim: "Colour-bar
+    ticks are odd numbers (38.0, 61.2, 84.5). Use round ticks (20/40/60/
+    80/100 C; 10/20/30/40 m/s) with min/max at the ends"): where ``step``
+    is given, the interior ticks are the round multiples of it inside the
+    range, printed as integers, and the true extremes keep the end slots at
+    display precision. A round tick landing within 3.5% of the range of an
+    end tick is dropped so the labels cannot collide. The unrounded values
+    live in the bundle and in the cell table."""
     fmt = "%%.%df" % dp
     cb = fig.colorbar(pc, ax=axes, location=location, shrink=0.9, pad=0.012)
     cb.set_label(unit)
-    ticks = [vmin + f * (vmax - vmin) for f in (0.0, 0.25, 0.5, 0.75, 1.0)]
+    if step:
+        import math
+        guard = 0.035 * (vmax - vmin)
+        inner = []
+        tick = math.floor(vmin / step) * step + step
+        while tick < vmax:
+            if tick - vmin > guard and vmax - tick > guard:
+                inner.append(tick)
+            tick += step
+        ticks = [vmin] + inner + [vmax]
+        labels = ([fmt % vmin] + ["%d" % round(t) for t in inner]
+                  + [fmt % vmax])
+    else:
+        ticks = [vmin + f * (vmax - vmin) for f in (0.0, 0.25, 0.5, 0.75,
+                                                    1.0)]
+        labels = [fmt % t for t in ticks]
     cb.set_ticks(ticks)
     setter = (cb.ax.set_yticklabels if location == "right"
               else cb.ax.set_xticklabels)
-    setter([fmt % t for t in ticks], fontsize=7)
+    setter(labels, fontsize=7)
     return cb
 
 
-def _caption(fig, text):
-    """Exactly one caption line, of at most 20 words, checked here."""
+def _caption(fig, text, y=-0.004):
+    """Exactly one caption line, of at most 20 words, checked here.
+
+    ``y`` drops the line further below the figure where a figure-level
+    legend now occupies the bottom edge (the 0630Z legend move), so the
+    caption and the legend never overlap."""
     n = len(text.split())
     if n > 20:
         refuse("the caption is %d words, above the 20-word limit: %r"
                % (n, text))
-    fig.text(0.5, -0.004, text, ha="center", va="top", fontsize=8)
+    fig.text(0.5, y, text, ha="center", va="top", fontsize=8)
 
 
 def _title(fig, text):
@@ -708,16 +733,20 @@ def fig_temperature(geo, tC, G, stem):
                % (u, ZOOM_ASPECT))
     for ax in axes[-1]:
         ax.set_xlabel(r"Axial position $z$, m")
-    _bar(fig, pc, list(axes.ravel()), r"$^\circ$C", vmin, vmax, DISPLAY_DP_T)
-    axes[0][0].legend(
+    _bar(fig, pc, list(axes.ravel()), r"$^\circ$C", vmin, vmax, DISPLAY_DP_T,
+         step=20)
+    # HER 0630Z ORDER: the legend box sat over the first panel's field; it
+    # now sits BELOW the panels, at figure level, over no field at all.
+    fig.legend(
         handles=[Rectangle((0, 0), 1, 1, fill=False, ec="#00e5ff", lw=0.8,
                            ls=(0, (4, 2)), label="solid body"),
                  Rectangle((0, 0), 1, 1, fc="#e9e6e0", ec="0.6", lw=0.4,
                            label="unheated support")],
-        fontsize=7.5, loc="upper right", framealpha=0.9)
+        fontsize=7.5, ncol=2, loc="upper center",
+        bbox_to_anchor=(0.5, -0.002), framealpha=0.9)
     _title(fig, "Temperature field, 305 W")
     _caption(fig, "Each polygon is one finite-volume cell of the computational "
-                  "mesh, coloured by its own stored value.")
+                  "mesh, coloured by its own stored value.", y=-0.055)
     return _save(fig, stem), vmin, vmax, zlim, int(sel.sum())
 
 
@@ -760,20 +789,27 @@ def fig_velocity(geo, umag, G, stem):
         al.set_ylabel(r"Radius $r$, m")
         zlim[u] = (float(v[sel].min()), float(v[sel].max()))
         _inset(al, r"$U_\infty$ = %d m s$^{-1}$" % u)
+        # HER 0630Z ORDER, verbatim: "consider labelling each left panel's
+        # field range in the small corner box ('0.2-10.5 m/s') like the
+        # earlier version did, so a flat-looking row is provably flat." The
+        # range is that panel's own drawn field, off the same array.
+        _inset(al, r"%.1f-%.1f m s$^{-1}$" % (lo, hi), loc="upper right")
         _inset(ar, r"$U_\infty$ = %d m s$^{-1}$, radial axis $\times$ %.0f"
                % (u, ZOOM_ASPECT))
     for ax in axes[-1]:
         ax.set_xlabel(r"Axial position $z$, m")
-    _bar(fig, pc, list(axes.ravel()), r"m s$^{-1}$", vmin, vmax, DISPLAY_DP_V)
-    axes[0][0].legend(
+    _bar(fig, pc, list(axes.ravel()), r"m s$^{-1}$", vmin, vmax, DISPLAY_DP_V,
+         step=10)
+    fig.legend(
         handles=[Rectangle((0, 0), 1, 1, fc="#cfcac2", ec="0.35", lw=0.7,
                            label="solid body"),
                  Rectangle((0, 0), 1, 1, fc="#e9e6e0", ec="0.6", lw=0.4,
                            label="unheated support")],
-        fontsize=7.5, loc="upper right", framealpha=0.9)
+        fontsize=7.5, ncol=2, loc="upper center",
+        bbox_to_anchor=(0.5, -0.002), framealpha=0.9)
     _title(fig, "Air speed, 305 W")
     _caption(fig, "Speed of the solved velocity vector, one polygon per "
-                  "finite-volume cell, on one shared scale.")
+                  "finite-volume cell, on one shared scale.", y=-0.055)
     return _save(fig, stem), lim, zlim, vmin, vmax
 
 
@@ -795,7 +831,7 @@ def fig_thumbnails(geo, tC, G, vmin, vmax, stem):
         for s in ax.spines.values():
             s.set_linewidth(0.6)
     _bar(fig, pc, list(axes), r"$^\circ$C", vmin, vmax, DISPLAY_DP_T,
-         location="bottom")
+         location="bottom", step=20)
     _title(fig, "Temperature at four cooling airspeeds, 305 W")
     _caption(fig, "One shared scale across the four airspeeds; each polygon is "
                   "one finite-volume cell of the mesh.")
@@ -1088,7 +1124,21 @@ def main():
             "extremes_appear": ("as the colour bar's end ticks and nowhere "
                                 "else in the figure"),
             "colour_bars_unclipped": True,
-            "one_shared_colour_bar_per_figure": True},
+            "one_shared_colour_bar_per_figure": True,
+            "amendment_0630Z": {
+                "source": os.path.join(
+                    REPO, "etc", "sessions",
+                    "2026-09-02T0630Z_sanaa_motor_figure_polish.md"),
+                "colour_bar_ticks": ("round interior ticks, 20 degC / 10 "
+                                     "m/s steps, with the true min and max "
+                                     "as the end ticks"),
+                "legend_position": ("below the panels at figure level, "
+                                    "never over a panel's field"),
+                "per_panel_range_boxes": (
+                    "each velocity whole-model panel carries its own drawn "
+                    "field range in a corner box; her explicit 0630Z ask, "
+                    "amending the 2026-09-01 'nowhere else' clause for "
+                    "those per-panel ranges")}},
         "air_temperature_per_panel_degC": {
             str(u): [float(tC[u]["fluid"].min()), float(tC[u]["fluid"].max())]
             for u in SPEEDS},
