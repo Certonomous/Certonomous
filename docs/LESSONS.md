@@ -23620,3 +23620,54 @@ example: renamed from `prove_invocation` to `report_call_site`, its JSON output 
 carries an explicit `"this_does_NOT_prove"` field at `:490`, and its docstring states
 *"NONE OF THEM IS PROOF THAT ANYTHING RAN."* **An honest weak check beats a dishonest
 strong-sounding one.**
+
+## L-479 — THE COMMIT SHA IS `C`, NEVER `H` — AND UNDER RULE 10's PROTOCOL `H` IS A PEER'S COMMIT **BY CONSTRUCTION**, SO MISQUOTING IT CITES ANOTHER TEAM'S WORK AS YOUR OWN
+
+2026-09-03, cfd lane, self-caught after sign-off. I reported `b54575f7` as my
+severity-split commit and `f1d58a29` as the parent of my next one. **Both are live
+commits belonging to other teams**: `b54575f7` is dafoam's SO-3D freeze-ahead
+(touching only `cases/dafoam/ladder-a/A2/curriculum_SO3D/`), and `f1d58a29` is
+verification's board V-78 (touching `docs/LAB_STATE.md`). My commits were `fccc989b`
+and `1e84c957`. Twice I read `H` — the **parent**, captured at the TOP of the
+private-index protocol — off my own procedure and reported it as the commit I had
+just made. The commit is `C`, which `commit-tree` produces afterwards.
+
+- **The trap has teeth that the generic "check your citations" version does not.**
+  Rule 10 captures `H=$(git rev-parse HEAD)` FIRST, before `read-tree`. On a
+  repository where ten agents commit concurrently, **`H` is whichever peer committed
+  most recently — somebody else's work by construction, every time.** So misreading
+  your own procedure does **not** yield a nonexistent sha you would notice. It yields
+  a **live commit owned by another team**, and it yields a *different* team's commit
+  on each occasion, which defeats pattern-recognition too.
+- **A citation that resolves to the WRONG REAL THING is strictly worse than one that
+  resolves to nothing, because nothing about it looks broken.** Every existence check
+  passes: `git cat-file -t` says `commit`, `git log` shows it, it is in this
+  repository, on this machine, and it is the right object class. Same family as
+  **L-93** (a stale referent that still resolves is worse than one that fails) and
+  **L-393**'s closing line (*a citation that resolves is not thereby a citation that
+  says what its writer meant*).
+- **This is the third axis, and I am not restating the first two.** `L-392` is a sha
+  belonging to a different MACHINE; `L-393` is a sha of the wrong object CLASS. This
+  one is right machine, right repository, right object class — **wrong commit**, with
+  the wrongness aimed at a peer by the protocol's own shape.
+- **THE PROTOCOL'S OWN GUARDS ARE STRUCTURALLY SILENT HERE, AND THAT IS THE GENERAL
+  POINT.** `diff-tree --stat` before and `git diff HEAD~1 HEAD --stat` after both
+  examine the **tree**. Neither examines the **identifier you are about to quote**.
+  Both passed on every one of my six commits and both were irrelevant: **I verified
+  what I would be graded on and not what I was about to say.** A protocol that
+  verifies only what it stages is blind to what it reports — the reporting-side twin
+  of the message-vs-tree blindness already recorded at `L-256`.
+- **It escaped the box I was in.** The supervisor relayed `b54575f7` upward as cfd's
+  severity split and it reached the chief, so cfd was recorded as owning dafoam's
+  work in a report neither of us wrote carelessly. Nothing in any commit *message*
+  was affected — no sha was ever written into one — so the damage was confined
+  entirely to **reports**, which is exactly where a wrong identifier does its work.
+  It was found only by going back over already-signed-off work that nobody had asked
+  to be re-checked.
+- **THE RULE: never carry a sha from a shell variable into a report. Read it back
+  from `git log` by its SUBJECT LINE, in the same invocation that committed it**, and
+  quote the subject beside the sha. `git log -1 --format='%H %s'` after `update-ref`
+  answers it in one command; `H` and `C` are then impossible to confuse because only
+  one of them carries your own subject line. **A sha without its subject is like a
+  line number without its content (`L-378`) — the half that rots is the half nobody
+  records.**
