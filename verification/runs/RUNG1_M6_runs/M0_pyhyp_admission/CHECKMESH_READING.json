@@ -1,0 +1,32 @@
+{
+  "state": "COMPLETE",
+  "log": "/home/ubuntu/Certonomous/verification/runs/RUNG1_M6_runs/M0_pyhyp_admission/foam/log.checkMesh",
+  "log_bytes": 3967,
+  "log_mtime": 1788454246.949087,
+  "max_non_orthogonality_deg": 88.88926674,
+  "avg_non_orthogonality_deg": 15.96643613,
+  "max_skewness": 2.849165477,
+  "max_skewness_label_form": "=",
+  "max_aspect_ratio": 35820.55869,
+  "max_aspect_ratio_label_form": ":",
+  "aspect_ratio_flagged": 164,
+  "min_cell_volume": 3.255891966e-12,
+  "max_cell_volume": 0.9336897486,
+  "cell_volume_ratio_DERIVED": 286769265795.719,
+  "geometric_directions": 3,
+  "severe_non_orth_faces": 206,
+  "severe_non_orth_threshold_deg": 70.0,
+  "cells": 143520,
+  "points": 148335,
+  "faces": 435248,
+  "internal_faces": 425872,
+  "n_regions": 1,
+  "has_End_line": true,
+  "verdict_line_IGNORED_NEVER_A_GATE": [
+    "Non-orthogonality check OK.",
+    "Failed 1 mesh checks."
+  ],
+  "boundary_faces_DERIVED": 9376,
+  "non_orth_vs_70": "above_70",
+  "skewness_vs_4": "at_or_below_4"
+}

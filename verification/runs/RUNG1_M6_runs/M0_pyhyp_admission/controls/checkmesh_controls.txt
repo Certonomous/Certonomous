@@ -1,0 +1,91 @@
+{
+  "all_controls_pass": true,
+  "controls": [
+    {
+      "control": "C1 `=` label form yields a non-null max aspect ratio",
+      "pass": true,
+      "observed": {
+        "state": "COMPLETE",
+        "max_aspect_ratio": 1.0,
+        "form": "="
+      },
+      "expected": "non-null, form '='"
+    },
+    {
+      "control": "C2 `:` label form yields a non-null max aspect ratio",
+      "pass": true,
+      "observed": {
+        "state": "COMPLETE",
+        "max_aspect_ratio": 5934.1,
+        "form": ":"
+      },
+      "expected": "non-null, form ':'"
+    },
+    {
+      "control": "C3 Min volume != Max volume gives a non-trivial cell-volume ratio (never 1)",
+      "pass": true,
+      "observed": {
+        "min": 1.77443e-08,
+        "max": 1.3347,
+        "ratio": 75218520.87712674
+      },
+      "expected": "ratio strictly > 1"
+    },
+    {
+      "control": "C4 verdict-line trap: a log that SAYS `check OK` at >70 deg is read as above_70",
+      "pass": true,
+      "observed": {
+        "numeric_max_deg": 84.6437,
+        "log_says_check_OK": true,
+        "reader_says": "above_70"
+      },
+      "expected": "numeric > 70, log says OK, reader says above_70"
+    },
+    {
+      "control": "C5 mutation: a planted 12.3456 on disk is read back exactly",
+      "pass": true,
+      "observed": {
+        "substitutions": 1,
+        "read_back": 12.3456,
+        "reader_says": "at_or_below_70"
+      },
+      "expected": "12.3456, at_or_below_70"
+    },
+    {
+      "control": "C6 an absent log reads ABSENT and yields no number",
+      "pass": true,
+      "observed": {
+        "state": "ABSENT",
+        "max": null
+      },
+      "expected": "ABSENT, no number"
+    },
+    {
+      "control": "C7 a log truncated before the geometry block REFUSES rather than degrades",
+      "pass": true,
+      "observed": {
+        "state": "INCOMPLETE",
+        "missing": [
+          "max_non_orthogonality_deg",
+          "max_skewness",
+          "max_aspect_ratio",
+          "min_cell_volume",
+          "max_cell_volume",
+          "cell_volume_ratio_DERIVED",
+          "geometric_directions"
+        ]
+      },
+      "expected": "INCOMPLETE"
+    },
+    {
+      "control": "C8 a genuine 0.0 reads as 0.0 and is distinguishable from ABSENT",
+      "pass": true,
+      "observed": {
+        "zero_state": "COMPLETE",
+        "zero_value": 0.0,
+        "absent_state": "ABSENT"
+      },
+      "expected": "COMPLETE/0.0 vs ABSENT"
+    }
+  ]
+}

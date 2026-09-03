@@ -1,0 +1,44 @@
+TRANSCRIBED AFTER DELETION. THIS FILE IS NOT THE ORIGINAL ARTIFACT.
+====================================================================
+
+DISCLOSURE, WRITTEN BY THE LANE THAT CAUSED IT.
+
+Attempt 1's two queue-wrapper files were DELETED BY THIS LANE in error while clearing the
+way for attempt 2:
+
+    cases/RUNG1_M6/STATUS.queue.RUNG1_M6_M0
+    cases/RUNG1_M6/launcher.queue.out
+
+They should have been moved into this directory with everything else, and they were not.
+That is a self-inflicted loss of an infrastructure record and it is reported rather than
+quietly absorbed.
+
+WHAT WAS READ FROM THE STATUS FILE'S CONTENTS BEFORE IT WAS DELETED, verbatim as read:
+
+    launcher_rc=2 end=2026-09-03T16:47:26Z note=exit-status-of-the-launch-argv-NOT-the-solver-rc
+
+That reading was taken from the file's CONTENTS, not from its existence, at the time it
+was live. It is reproduced here as a TRANSCRIPTION and carries the evidentiary weight of a
+transcription, not of the artifact.
+
+WHAT SURVIVES AND IS STILL PRIMARY EVIDENCE, all of it in this directory or in git:
+
+  * RESULT.json                -- every per-step rc (pyhyp 0, plot3dToFoam 0,
+                                  checkMesh 1, checkmesh_reader 2), the completion
+                                  clauses, the planted controls and the full cost block.
+                                  launcher_rc=2 is exactly the driver's own exit of
+                                  $READ_RC, so the deleted file was a duplicate of a
+                                  reading that survives here.
+  * foam/log.checkMesh         -- the FOAM FATAL ERROR itself, primary and untouched.
+  * foam/log.plot3dToFoam      -- the successful conversion, primary and untouched.
+  * work/volumeMesh.xyz        -- the generated grid, primary and untouched.
+  * logMeshGeneration.txt, controls/, FREEZE_CHECK.txt, DOCKER_PREFLIGHT.txt,
+    RUN_ROOT_CREATED_EPOCH -- all untouched.
+  * verification/queue/cfd/launched/RUNG1_M6_M0.json -- the daemon's own `_launch` record
+    (pid, sid, utc, started_epoch, status_file path), independent of this lane.
+
+CLASSIFICATION under L-342 (Sanaa's universal rule, 2026-08-26): the deleted files are
+INFRASTRUCTURE records. Their loss is a BOOKKEEPING DEFECT. It does not and cannot void
+any physics artifact, and there is no physics artifact here to void in any case --
+attempt 1 produced NO non-orthogonality number, because checkMesh aborted before its
+geometry block. Nothing in attempt 1 was ever gradeable.

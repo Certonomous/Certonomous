@@ -1,0 +1,100 @@
+{
+  "grid": "/home/ubuntu/Certonomous/verification/runs/RUNG1_M6_runs/M0_pyhyp_admission/work/volumeMesh.xyz",
+  "grid_bytes": 11214275,
+  "n_blocks": 9,
+  "block_dims_nodes": [
+    [
+      21,
+      33,
+      93
+    ],
+    [
+      33,
+      3,
+      93
+    ],
+    [
+      21,
+      3,
+      93
+    ],
+    [
+      33,
+      21,
+      93
+    ],
+    [
+      3,
+      33,
+      93
+    ],
+    [
+      3,
+      3,
+      93
+    ],
+    [
+      3,
+      21,
+      93
+    ],
+    [
+      3,
+      3,
+      93
+    ],
+    [
+      33,
+      3,
+      93
+    ]
+  ],
+  "nodes": 169911,
+  "cells_DERIVED_sum_(i-1)(j-1)(k-1)": 143520,
+  "tokens_consumed": 509761,
+  "tokens_total": 509761,
+  "fully_consumed": true,
+  "wall_nodes_sampled": 1827,
+  "first_cell_height_m": {
+    "min": 9.858828882974823e-07,
+    "max": 1.1195333554227118e-05,
+    "median": 1.6167366315552514e-06,
+    "mean": 1.7916971905020454e-06,
+    "p05": 1.0854861450166428e-06,
+    "p95": 2.827712889209478e-06,
+    "spread_max_over_min": 11.35564242682039
+  },
+  "requested_s0_INPUT_NEVER_A_MEASUREMENT": 1.319e-06,
+  "median_over_requested": 1.225729061072973,
+  "max_over_requested": 8.487743407298801,
+  "planted_controls_all_pass": true,
+  "planted_controls": [
+    {
+      "control": "P1 the grid parses and every token is consumed",
+      "pass": true,
+      "observed": {
+        "consumed": 509761,
+        "total": 509761
+      },
+      "expected": "consumed == total"
+    },
+    {
+      "control": "P2 a 2.5e-05 m displacement planted on disk MOVES the reading",
+      "pass": true,
+      "observed": {
+        "base_max": 1.1195333554227118e-05,
+        "mutated_max": 2.684237004422327e-05
+      },
+      "expected": "the maximum changes"
+    },
+    {
+      "control": "P3 the cell count is unchanged by a node displacement",
+      "pass": true,
+      "observed": {
+        "base": 143520,
+        "mutated": 143520
+      },
+      "expected": "equal"
+    }
+  ]
+}

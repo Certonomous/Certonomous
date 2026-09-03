@@ -1,0 +1,218 @@
+{
+  "case": "R1-M0 -- ONERA M6 admission probe",
+  "prereg": "verification/campaign/RUNG1_M6_PREREGISTRATION.md \u00a75, commit c7f99bb1",
+  "LABEL": "NO VERDICT OF THE FIXED VOCABULARY ATTACHES TO R1-M0. It is an admissibility measurement that gates a freeze (prereg \u00a75). IT GRADES NOTHING. No PASS / GATE FAIL / NOT A RESULT is claimed or implied.",
+  "NO_FIDELITY_CLAIM": "The cheapest converter was used -- plot3dToFoam ALONE, no autoPatch, no createPatch, no renumberMesh. Patch identity is irrelevant to a cell-geometry check and boundary NAMING in this case is meaningless. No fidelity claim attaches (\u00a75).",
+  "rc": {
+    "pyhyp": 0,
+    "plot3dToFoam": 0,
+    "checkMesh_exit_NOT_A_GATE": 1,
+    "checkmesh_reader": 2
+  },
+  "completion_clauses": {
+    "pyhyp_rc_zero": true,
+    "plot3dToFoam_rc_zero": true,
+    "checkmesh_log_present_and_COMPLETE": false,
+    "checkmesh_reader_rc_zero": false,
+    "grid_exists_nonempty": true,
+    "every_artifact_newer_than_run_root_creation": true,
+    "single_connected_region": false,
+    "cell_count_agrees_between_grid_and_checkMesh": false,
+    "all_planted_controls_pass": true
+  },
+  "probe_complete": false,
+  "artifact_ages_vs_run_root_creation": {
+    "log.checkMesh": true,
+    "volumeMesh.xyz": true,
+    "logMeshGeneration.txt": true
+  },
+  "run_root_created_epoch": 1788453991,
+  "measurement": {
+    "max_non_orthogonality_deg": null,
+    "avg_non_orthogonality_deg": null,
+    "max_skewness": null,
+    "severe_non_orth_faces_gt_70deg": null,
+    "max_aspect_ratio": null,
+    "max_aspect_ratio_label_form": null,
+    "aspect_ratio_flagged": 0,
+    "min_cell_volume": null,
+    "max_cell_volume": null,
+    "cell_volume_ratio_DERIVED": null,
+    "geometric_directions": null,
+    "cells": null,
+    "cells_INDEPENDENT_from_plot3d_header": 143520,
+    "points": null,
+    "faces": null,
+    "internal_faces": null,
+    "boundary_faces_DERIVED": null,
+    "n_regions": null,
+    "HOW_READ": "PARSED NUMERICALLY off `Mesh non-orthogonality Max:`. checkMesh's own verdict line was CAPTURED AND DISCARDED -- measured on this box, all 885 production checkMesh logs print `Non-orthogonality check OK.`, including one at 84.6437 deg and committee grids at 89.71 / 89.94 / 90.00 / 89.98 deg.",
+    "verdict_line_the_log_printed_IGNORED": []
+  },
+  "registered_outcome": null,
+  "skewness_vs_registered_4": null,
+  "wall_resolution": {
+    "requested_s0_INPUT_NEVER_A_MEASUREMENT": 1.319e-06,
+    "achieved_first_cell_height_m_READ_BACK_FROM_THE_WRITTEN_GRID": {
+      "min": 9.858828882974823e-07,
+      "max": 1.1195333554227118e-05,
+      "median": 1.6167366315552514e-06,
+      "mean": 1.7916971905020454e-06,
+      "p05": 1.0854861450166428e-06,
+      "p95": 2.827712889209478e-06,
+      "spread_max_over_min": 11.35564242682039
+    },
+    "yplus_A_PRIORI_DERIVED_NOT_MEASURED": {
+      "note": "Flat-plate turbulent correlation Cf = 0.026 Re^(-1/7) at the \u00a73 conditions. NO SOLVER HAS RUN, so no measured y+ exists and none is claimed. \u00a73 registers the intent as y+ 0.25-1.0.",
+      "U_inf_m_s": 285.6794,
+      "rho_inf": 1.224978,
+      "mu_back_solved_to_deliver_Re": 1.929119606396718e-05,
+      "u_tau_m_s": 10.18421,
+      "yplus_at_median_h": 1.0455,
+      "yplus_at_min_h": 0.6376,
+      "yplus_at_max_h": 7.2399,
+      "registered_intent": "0.25 - 1.0"
+    }
+  },
+  "cost": {
+    "unit": "core-minutes",
+    "ranks": 1,
+    "driver_wall_s": 55,
+    "per_step_wall_s": {
+      "pyhyp": 52,
+      "plot3dToFoam": 1,
+      "checkMesh": 1
+    },
+    "actual_core_min": 0.9167,
+    "estimate_core_min": 2.0,
+    "cap_core_min": 6.0,
+    "structural_cap_timeout_s": 360,
+    "ratio_actual_over_predicted": 0.458,
+    "fraction_of_cap": 0.1528,
+    "cap_approached": false,
+    "stall_over_3600_wall_s": false,
+    "cost_basis": "dollars DERIVED at the owner-stated c7a.4xlarge rate $0.0513/core-h, reported-by-owner and NEVER measured -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md \u00a75). GROSS: contention on the shared box is not separated out.",
+    "derived_usd": 0.000784
+  },
+  "planted_controls": {
+    "checkmesh_reader_all_pass": true,
+    "grid_reader_all_pass": true,
+    "checkmesh_controls": [
+      {
+        "control": "C1 `=` label form yields a non-null max aspect ratio",
+        "pass": true,
+        "observed": {
+          "state": "COMPLETE",
+          "max_aspect_ratio": 1.0,
+          "form": "="
+        },
+        "expected": "non-null, form '='"
+      },
+      {
+        "control": "C2 `:` label form yields a non-null max aspect ratio",
+        "pass": true,
+        "observed": {
+          "state": "COMPLETE",
+          "max_aspect_ratio": 5934.1,
+          "form": ":"
+        },
+        "expected": "non-null, form ':'"
+      },
+      {
+        "control": "C3 Min volume != Max volume gives a non-trivial cell-volume ratio (never 1)",
+        "pass": true,
+        "observed": {
+          "min": 1.77443e-08,
+          "max": 1.3347,
+          "ratio": 75218520.87712674
+        },
+        "expected": "ratio strictly > 1"
+      },
+      {
+        "control": "C4 verdict-line trap: a log that SAYS `check OK` at >70 deg is read as above_70",
+        "pass": true,
+        "observed": {
+          "numeric_max_deg": 84.6437,
+          "log_says_check_OK": true,
+          "reader_says": "above_70"
+        },
+        "expected": "numeric > 70, log says OK, reader says above_70"
+      },
+      {
+        "control": "C5 mutation: a planted 12.3456 on disk is read back exactly",
+        "pass": true,
+        "observed": {
+          "substitutions": 1,
+          "read_back": 12.3456,
+          "reader_says": "at_or_below_70"
+        },
+        "expected": "12.3456, at_or_below_70"
+      },
+      {
+        "control": "C6 an absent log reads ABSENT and yields no number",
+        "pass": true,
+        "observed": {
+          "state": "ABSENT",
+          "max": null
+        },
+        "expected": "ABSENT, no number"
+      },
+      {
+        "control": "C7 a log truncated before the geometry block REFUSES rather than degrades",
+        "pass": true,
+        "observed": {
+          "state": "INCOMPLETE",
+          "missing": [
+            "max_non_orthogonality_deg",
+            "max_skewness",
+            "max_aspect_ratio",
+            "min_cell_volume",
+            "max_cell_volume",
+            "cell_volume_ratio_DERIVED",
+            "geometric_directions"
+          ]
+        },
+        "expected": "INCOMPLETE"
+      },
+      {
+        "control": "C8 a genuine 0.0 reads as 0.0 and is distinguishable from ABSENT",
+        "pass": true,
+        "observed": {
+          "zero_state": "COMPLETE",
+          "zero_value": 0.0,
+          "absent_state": "ABSENT"
+        },
+        "expected": "COMPLETE/0.0 vs ABSENT"
+      }
+    ],
+    "grid_controls": [
+      {
+        "control": "P1 the grid parses and every token is consumed",
+        "pass": true,
+        "observed": {
+          "consumed": 509761,
+          "total": 509761
+        },
+        "expected": "consumed == total"
+      },
+      {
+        "control": "P2 a 2.5e-05 m displacement planted on disk MOVES the reading",
+        "pass": true,
+        "observed": {
+          "base_max": 1.1195333554227118e-05,
+          "mutated_max": 2.684237004422327e-05
+        },
+        "expected": "the maximum changes"
+      },
+      {
+        "control": "P3 the cell count is unchanged by a node displacement",
+        "pass": true,
+        "observed": {
+          "base": 143520,
+          "mutated": 143520
+        },
+        "expected": "equal"
+      }
+    ]
+  }
+}

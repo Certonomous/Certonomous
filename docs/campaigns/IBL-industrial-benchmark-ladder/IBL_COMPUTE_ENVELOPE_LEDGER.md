@@ -112,8 +112,15 @@ carrying `corrects:`, never by editing the original.
 | id | date_utc | rung / branch | run_id | work | rate | rate_source | derived_usd | est | cap | ratio | waste | **SETTLED $** | **REMAINING of $1,000** | UNPRICED BACKLOG | corrects |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | — | 2026-09-03 | — | *(opening balance — no spend)* | 0 core-min | — | — | $0.0000 | — | — | — | — | **$0.0000** | **$1,000.0000** | 0 instance-h | — |
+| E-20260903T165248.577394Z-1964eadd | 2026-09-03 | **RUNG1** / `R1-M0` admission probe, on the branch-(a2) coarse level | `/home/ubuntu/Certonomous/verification/runs/RUNG1_M6_runs/M0_pyhyp_admission` (attempt 2, the run that produced the measurement); attempt 1 preserved at `.../M0_ATTEMPT1_ABORTED_missing_fvSchemes` | **1.1000 core-min** total charged = 0.1833 measured (attempt 2, 11 wall s × 1 rank ÷ 60) + 0.9167 waste (attempt 1, 55 wall s × 1 rank ÷ 60) | $0.0513 / core-h | `on-box-owner-stated` | **$0.0009405 DERIVED, NOT MEASURED** (attempt 2 alone $0.000157; waste $0.000784) | 2.0 core-min | 6.0 core-min | **0.092×** (0.1833 / 2.0) — waste is NOT absorbed into this ratio, per `COMPUTE_BUDGET_CHARTER.md` §6 | **0.9167 core-min = $0.000784 DERIVED.** Attempt 1's `checkMesh` aborted on a missing `system/fvSchemes` — a DRIVER defect of this lane's, not a mesh finding; the grid it built was valid and it produced no number. No stall: longest row 55 wall s against the 3,600-s rule | **$0.0009** | **$999.9991** | 0 instance-h | — |
 
-**NO SPEND HAS BEEN CHARGED TO THIS ENVELOPE. The ladder has not launched.**
+> ~~**NO SPEND HAS BEEN CHARGED TO THIS ENVELOPE. The ladder has not launched.**~~
+>
+> **STRUCK 2026-09-03 by the row above, which is this envelope's first spend.** The original
+> sentence is struck rather than deleted, per rule 6 — a superseded statement in a ledger is
+> struck on its own face, never rewritten out of existence. **The ladder has launched: `R1-M0`
+> ran at 16:50Z and charged 1.1000 core-min = $0.0009405 DERIVED.** The table row, not this
+> prose, is the record.
 
 *(Historical note, and deliberately NOT a row: `verification/runs/M6I_runs/` and
 `verification/runs/M6S_runs/` were spent BEFORE this envelope existed — M6I R0's actual

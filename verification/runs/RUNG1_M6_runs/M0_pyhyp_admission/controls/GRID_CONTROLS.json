@@ -1,0 +1,32 @@
+{
+  "all_controls_pass": true,
+  "controls": [
+    {
+      "control": "P1 the grid parses and every token is consumed",
+      "pass": true,
+      "observed": {
+        "consumed": 509761,
+        "total": 509761
+      },
+      "expected": "consumed == total"
+    },
+    {
+      "control": "P2 a 2.5e-05 m displacement planted on disk MOVES the reading",
+      "pass": true,
+      "observed": {
+        "base_max": 1.1195333554227118e-05,
+        "mutated_max": 2.684237004422327e-05
+      },
+      "expected": "the maximum changes"
+    },
+    {
+      "control": "P3 the cell count is unchanged by a node displacement",
+      "pass": true,
+      "observed": {
+        "base": 143520,
+        "mutated": 143520
+      },
+      "expected": "equal"
+    }
+  ]
+}

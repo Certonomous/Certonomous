@@ -1,0 +1,59 @@
+{
+  "team": "cfd",
+  "case_id": "RUNG1_M6_M0",
+  "prereg_commit": "c7f99bb10fd19352918c4332c78d5fa6a4a40dcb",
+  "prereg_path": "verification/campaign/RUNG1_M6_PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/RUNG1_M6/run_r1m0.sh"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/RUNG1_M6",
+  "ranks": 1,
+  "cost_core_min_estimate": 2.0,
+  "cost_basis": "REGISTERED, NOT RE-DERIVED HERE: prereg section 5 fixes estimate 2.0 core-min and hard cap 6.0 core-min = $0.0051 DERIVED, with structural enforcement `timeout 360` at 1 rank. This lane may not alter a registered term. Corroboration that 2.0 is the right order, from the only measured artifact in hand: the byte-identical pyHyp deck ran in 9 wall s at 1 rank on this box (verification/runs/M6S_runs/P_pyhyp_wall_resolved_probe/RESULT.json, pyhyp_wall_s 9, driver total 0.167 core-min); plot3dToFoam and checkMesh on 143,520 cells are the unmeasured remainder and are what the estimate's headroom covers. Dollars are DERIVED, NOT MEASURED, at the owner-stated c7a.4xlarge rate $0.0513/core-h, reported-by-owner -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5): $0.0017 at the estimate, $0.0051 at the cap. GROSS: contention on the shared box is not separated out. AN OVERRUN STOPS THE RUN; it does not get a new budget (rule 12), and the driver's own `timeout` chain enforces that structurally rather than by policy.",
+  "memory_floor_gb": 2.0,
+  "enqueued_by": "cfd lab-lane, 2026-09-03, for cfd-supervisor. THE PRE-REGISTRATION CHECK IS DISCHARGED: the supervisor states they read prereg section 5 personally and authorised this launch, and the freeze is committed at c7f99bb1 (full sha above). ENQUEUEING IS STILL NOT AUTHORISATION IN ITSELF (SUPERVISION_CHARTER.md section 3 check 4) -- this note records whose check it was, and it was not this lane's.",
+  "_schema_note": "Fields above are the required set (scripts/queue_entry_check.py REQUIRED_FIELDS). Fields below are cfd annotations the validator ignores.",
+  "cap_core_min_registered": 6.0,
+  "cap_behaviour": "TWO INDEPENDENT LIMBS. (1) STRUCTURAL, inside the driver: a `timeout` chain whose remaining budget is recomputed before each of pyHyp, plot3dToFoam and checkMesh from a total of 360 s at 1 rank = 6.0 core-min exactly; an exhausted budget or a 124 exit STOPS the run at a named exit code and writes STOPPED.txt. (2) BOOKKEEPING, in the runner: cap_watch stamps CAP_OVERRUN.txt at 1.00x this figure. The cap is never raised.",
+  "label": "NO VERDICT OF THE FIXED VOCABULARY ATTACHES TO R1-M0 (prereg section 5). It is an ADMISSIBILITY MEASUREMENT THAT GATES A FREEZE and it grades nothing. No PASS, GATE REACHED, GATE FAIL, NOT A RESULT, BLOCKED or PENDING may be written against it or inferred from it.",
+  "registered_outcomes": "BOTH ARE PRE-STATED IN prereg section 5, so neither is a surprise and neither is a failure. (i) max non-orthogonality <= 70 deg: Gate A is satisfiable, MESH_STANDARD section 8.1's build-before-freeze is discharged, and the RUNG1-M6 registration becomes FREEZABLE. (ii) max non-orthogonality > 70 deg: branches (a1)/(a2) are DEAD, snappy (section 6 branch (b)) becomes the route, and section 2.3's boundary question moves onto the critical path and goes to Sanaa. A '> 70' reading is a real measurement that saves the ladder from a dead branch.",
+  "what_runs": "ONE coarse wall-resolved ONERA M6 generated with pyHyp, converted, and checkMesh'd. The pyHyp deck is byte-identical to the M6S-P probe deck already run on this box (N 93 -> 92 cell layers, s0 1.319e-06 REQUESTED, marchDist 12.0, the 1,560-face coarsened surface, every other option stock): 143,520 cells, which is exactly the coarse level of branch (a2) in prereg section 6. Conversion is plot3dToFoam ALONE -- no autoPatch, no createPatch, no renumberMesh. Patch identity is irrelevant to a cell-geometry check, so the cheapest converter is used and NO FIDELITY CLAIM ATTACHES (prereg section 5); boundary naming in the produced case is meaningless and no downstream reader may use it.",
+  "run_root": "/home/ubuntu/Certonomous/verification/runs/RUNG1_M6_runs/M0_pyhyp_admission -- ABSENT at enqueue, re-verified in the same shell, together with the registered-ABSENT L1/L2/L3 roots. The driver REFUSES with exit 3 if any of them pre-exists, writing nothing, and refuses a pre-existing `0` or numeric time directory under the converted case (rule 4's guard). It stamps RUN_ROOT_CREATED_EPOCH before anything else and asserts every artifact it reads is NEWER than that stamp -- R1-M0 runs no solver, so there is no 0/U to date the run against and the run root's own creation stamp is the age guard's analogue here.",
+  "how_the_number_is_read": "PARSED NUMERICALLY off `Mesh non-orthogonality Max:`. checkMesh's OWN VERDICT LINE IS CAPTURED AND DISCARDED into a field named verdict_line_IGNORED_NEVER_A_GATE. Measured on this box's own production artifacts: ALL 885 log.checkMesh files under verification/runs/ print `Non-orthogonality check OK.` -- including verification/runs/F13_ONERA_M6_runs/mesh/m1/log.checkMesh whose numeric line reads 84.6437 deg, and including the DPW5/HLPW6 committee grids at 89.71 / 89.94 / 90.00 / 89.98 deg. A reader that takes the verdict line records a 90-degree mesh as passing. checkMesh's process exit code is likewise recorded and is NOT a gate.",
+  "planted_controls": "Rule 3 and prereg section 9. ELEVEN controls, all run BEFORE the measurement counts; the checkMesh set runs before ANY compute, so a control failure costs zero core-minutes. checkMesh reader: C1 the `=` label form yields a non-null max aspect ratio; C2 the `:` form does too (a reader matching only `=` sees 745 of this box's 885 logs and silently misses exactly the 140 pathological ones -- measured); C3 Min volume != Max volume gives a non-trivial derived cell-volume ratio, never 1; C4 THE VERDICT-LINE TRAP on a real production artifact that says `check OK` at 84.6437 deg, which the reader must report as above_70; C5 a 12.3456 planted into a scratch copy on disk is read back exactly; C6 an absent log reads ABSENT and yields no number, never clean; C7 a truncated log REFUSES rather than degrades; C8 a genuine 0.0 reads as 0.0 and is distinguishable from ABSENT -- C4/C5 are what make a zero from this reader evidence at all. Grid reader: P1 every PLOT3D token is consumed; P2 a 2.5e-05 m displacement planted on disk MOVES the first-cell-height reading; P3 the cell count does NOT move under it. All eleven were run green against real artifacts before this entry was written.",
+  "falsifiability_guard": "SINGLE CONNECTED REGION IS A COMPLETION CLAUSE. plot3dToFoam converts a NINE-BLOCK PLOT3D grid; had it failed to merge the coincident block-interface points, those interfaces would become BOUNDARY faces, and checkMesh computes non-orthogonality over INTERNAL faces only -- so every block interface would drop out of the statistic and the reported maximum would be FALSELY OPTIMISTIC. The driver refuses on anything but `Number of regions: 1`. Independently, the PLOT3D block-header cell arithmetic and checkMesh's own census must agree on 143,520.",
+  "grading_paths_omitted_deliberately": "The GRADER-FREEZE check (0ac4eb42) derives a reader's pin from this entry's own prereg_commit. cases/RUNG1_M6/read_checkmesh.py and read_grid.py were written today and DO NOT EXIST at c7f99bb1, so no honest pin can be stated. The field is therefore OMITTED rather than fabricated, and this launch is UNPINNED by that check's tolerant default -- counted, not refused, and said here on the record instead of looking like a pass.",
+  "verdict_state": "NOT APPLICABLE -- see `label`. R1-M0 carries no verdict.",
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.RUNG1_M6_M0 (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  },
+  "attempt": 2,
+  "attempt_1_disclosure": "ATTEMPT 1 ran 2026-09-03 16:46:31-16:47:26Z and spent 0.9167 core-min. It produced a VALID MESH -- pyHyp rc 0, plot3dToFoam rc 0, 143,520 cells, points merged 169,911 -> 148,335 -- but checkMesh aborted with `FOAM FATAL ERROR: cannot find file system/fvSchemes`, a DRIVER defect (checkMesh in v2606 constructs an fvMesh and needs that dictionary; the driver wrote only controlDict). It therefore produced NO geometry block, NO non-orthogonality number, and none was read or attributed. THE MESH WAS NEVER IN QUESTION. Attempt 1 is preserved in full at verification/runs/RUNG1_M6_runs/M0_ATTEMPT1_ABORTED_missing_fvSchemes/. Its 0.9167 core-min is NAMED AS WASTE in both calibration ledgers and is NOT absorbed into attempt 2's actual/predicted ratio (COMPUTE_BUDGET_CHARTER section 6). THE FIX WAS PROVEN BEFORE RELAUNCH, on an UNRELATED 56-cell mesh (verification/runs/F16_runs/coarse) so that no M6 answer was read outside the registered run: with controlDict + fvSchemes + fvSolution, checkMesh returned rc 0 and the reader returned COMPLETE. The driver now also asserts all three dictionaries are present BEFORE checkMesh, at zero compute. This is ATTEMPT 2 of 2; a THIRD attempt of something that has failed twice is an escalation trigger under the envelope law and would go to Sanaa, not be taken by this lane.",
+  "cost_note_attempt_2": "The registered estimate (2.0) and cap (6.0 core-min) are UNCHANGED and are NOT reset by the retry -- a cap is never raised (rule 12). Attempt 1's 0.9167 core-min is already charged against the item. Attempt 2 regenerates from pyHyp rather than reusing attempt 1's grid, so that every artifact graded is dated by this run's own age guard; that choice costs ~0.9 core-min more than reuse and is made deliberately for provenance. Projected item total ~1.8 core-min, still under the 2.0 estimate and 0.31x of cap.",
+  "_launch": {
+    "utc": "2026-09-03T16:50:36Z",
+    "pid": 162112,
+    "sid": 162112,
+    "status_file": "/home/ubuntu/Certonomous/cases/RUNG1_M6/STATUS.queue.RUNG1_M6_M0",
+    "wrapper_out": "/home/ubuntu/Certonomous/cases/RUNG1_M6/launcher.queue.out",
+    "started_epoch": 1788454236.7122104,
+    "status_seen_utc": "2026-09-03T16:51:36Z"
+  }
+}
