@@ -1,0 +1,25 @@
+SO3D STAGE 1 -- launcher record
+launched_utc   2026-09-03T205808Z
+launcher       /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_SO3D/so3d_run_replay.sh
+reader         /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_SO3D/so3d_replay.py
+run_root       /home/ubuntu/certonomous-runs/CURRICULUM-SO3D-a2-wing-multipoint-rootcause
+ranks          1
+cap_core_min_registered 12.0
+solver_core_min_cap     0.0
+
+grading_path_blob_at_HEAD 4ebd9b2f17a824b49470f32d685bbb05cba61f09
+grading_path_blob_on_disk 4ebd9b2f17a824b49470f32d685bbb05cba61f09
+reader_md5                60af48e4e3debb536141eb3f5c66409b
+G1 OK   the reader on disk IS the committed grading path
+G2 OK   run root ABSENT at launch
+
+finished_utc   2026-09-03T205811Z
+rc             2
+wall_s         2.350
+core_min       0.0392   [MEASURED, wall_s x ranks / 60]
+usd            0.000033    [DERIVED at the owner-stated $0.0513/core-h; REPORTED-BY-OWNER, NOT MEASURED]
+stdout         /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_SO3D/SO3D_replay_2026-09-03T205808Z.out
+result_json    /home/ubuntu/certonomous-runs/CURRICULUM-SO3D-a2-wing-multipoint-rootcause/so3d_replay.json
+plant_json     /home/ubuntu/certonomous-runs/CURRICULUM-SO3D-a2-wing-multipoint-rootcause/so3d_plant_report.json
+
+reader exit 2 -- REFUSAL / NOT A RESULT
