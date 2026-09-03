@@ -480,3 +480,119 @@ READ IN FULL from `docs/papers/buoyant_natural_convection/ampofo_karayiannis_200
 p. 3569. **The numerical distribution itself remains NOT OBTAINED**: Fig. 11 has
 not been digitised, and no digitisation increment is stated here, so no reference
 column is armed by this correction. Recorded under D415.
+
+---
+
+## Dated correction, 2026-09-03 — THE PREDICTION-FIRST CLAIM IN THIS DOCUMENT'S OPENING PARAGRAPH IS FALSE AS WRITTEN AND IS STRUCK. THE RUNG'S GATE FAIL VERDICTS ARE NOT WITHDRAWN
+
+**Raised by a heat-transfer lane on the supervisor's record-integrity brief,
+2026-09-03. Zero core-minutes: found by reading commit timestamps and marker
+files, not by running anything. Nothing was re-run, re-graded or re-launched.**
+
+### C2.1 The sentence, quoted verbatim, and struck
+
+This document's lines 6–7 read, and are **not edited** (standing rule 6 — the
+original text above this section is untouched, and **lines whose number changed
+above this section: 0**):
+
+> ~~Predictions and cost estimate: `K0cS_PREREGISTRATION.md`, **committed at
+> `6d149d51` before any result existed**.~~
+
+**STRUCK. The clause "before any result existed" is false.**
+
+### C2.2 What the artifacts actually show
+
+`6d149d51` is `6d149d515a2f61e514686c47ec843dc38844daba`, committer date
+**2026-08-18T17:36:53Z**. It is the **only** commit in this repository's history
+that touches `docs/campaigns/F14-cooling-ladder/K0cS_PREREGISTRATION.md`, so
+17:36:53Z is the pre-registration's freeze instant and there is no earlier one to
+appeal to.
+
+**Seven of the ten completion markers in
+`verification/runs/F14-cooling-ladder/K0cS_runs/` carry a `finished_utc` EARLIER
+than that instant**, read from the marker files themselves:
+
+| marker | `finished_utc` | vs. freeze at 17:36:53Z |
+|---|---|---|
+| `DONE.C1_laminar` | 2026-08-18T17:28:48Z | **−8 min 05 s — BEFORE** |
+| `DONE.S_KE_c` | 2026-08-18T17:32:10Z | **−4 min 43 s — BEFORE** |
+| `DONE.S_SST_c` | 2026-08-18T17:32:38Z | **−4 min 15 s — BEFORE** |
+| `DONE.S_LS_c` | 2026-08-18T17:32:41Z | **−4 min 12 s — BEFORE** |
+| `DONE.C2_seed_d100` | 2026-08-18T17:32:41Z | **−4 min 12 s — BEFORE** |
+| `DONE.C3_prt128` | 2026-08-18T17:32:42Z | **−4 min 11 s — BEFORE** |
+| `DONE.C4_adiabatic` | 2026-08-18T17:32:54Z | **−3 min 59 s — BEFORE** |
+| `DONE.S_SST_f` | 2026-08-18T17:57:12Z | +20 min 19 s — after |
+| `DONE.S_LS_f` | 2026-08-18T18:02:29Z | +25 min 36 s — after |
+| `DONE.S_KE_f` | 2026-08-18T18:11:58Z | +35 min 05 s — after |
+
+**The seven that predate the freeze include the COARSE LEVEL OF ALL THREE GRADED
+MODELS** — `S_KE_c`, `S_SST_c`, `S_LS_c` — and **all four controls** `C1`–`C4`.
+Only the three fine levels postdate it. So at the moment the gate was frozen, one
+complete level of every model in the rung had already produced an answer.
+
+**A second, independent corroboration sits in the freeze commit's own subject
+line.** `6d149d51` is titled *"The K0c turbulent rung had no Nusselt reference; it
+has one now, and kOmegaSST fails it by 17 to 25 percent"*. **The commit that froze
+the pre-registration announced a failing result in its own message.** It also
+carried the `K0cS_runs/` case tree into the repository in the same commit. This is
+not a timestamp technicality recoverable by argument: the author knew a number
+when the gate was written down.
+
+### C2.3 A SECOND AND INDEPENDENT DEFECT ON THE SAME RUNG — no comparator was ever named
+
+`K0cS_PREREGISTRATION.md` is 228 lines and contains **zero occurrences** of
+`analyse_`, `analyze_`, `comparator`, `grading path`, `grading script` or
+`sha256`. **The grading path was never frozen for this rung at all**, and that
+defect is independent of every timing question above: it would stand even if the
+pre-registration had been committed a week before the first case existed.
+
+This is corroborated by an instrument that knows nothing of this correction.
+`scripts/check_comparator_freeze.py`, run at `HEAD` on 2026-09-03, classifies
+`verification/runs/F14-cooling-ladder/K0cS_runs/analyse_k0cs.py` as **`UNFROZEN`**
+— one of ten violations in a population of 190 graders — and finds no sha witness
+for it anywhere in the repository.
+
+### C2.4 WHAT IS WITHDRAWN, AND WHAT IS EXPRESSLY NOT
+
+**WITHDRAWN — the claim that this rung is prediction-first in standing rule 2's
+sense.** Rule 2 says the freeze *"is the document's entire evidentiary content: it
+proves the gate could not have been chosen to fit the answer."* **On K0cS that
+proof is not available.** The gate cannot be shown to be independent of the coarse
+results, and no reader should cite K0cS as an instance of the lab's
+pre-registration discipline working. Any downstream document that does so should
+carry this correction's date beside it.
+
+**NOT WITHDRAWN — the rung's verdicts.** `kOmegaSST` **GATE FAIL**, `kEpsilon`
+**GATE FAIL**, `LaunderSharmaKE` **REFUSED**, the rung **GATE FAIL**. These stand
+unaltered, under Sanaa's universal rule that **bookkeeping never voids physics**
+(2026-08-26): a documentary freeze gap is an infrastructure defect, not a defect in
+the solve. Nothing above touches a mesh, a solver, a field, a residual or a
+measured Nusselt number. The models still bracket the measured hot-wall Nusselt of
+63.45 from 53.69 to 76.49 and none is inside its band; that is a property of the
+runs, and it is unchanged.
+
+**NOT WITHDRAWN — the mutation control.** `every_row_reachable_both_ways: true`
+is a property of the comparator exercised against the run tree, and it is
+independent of when the gate was written down.
+
+### C2.5 Stated precisely, so this is neither overstated nor understated
+
+- This correction does **not** allege that the gate *was* chosen to fit the
+  answer. It establishes that **the lab cannot prove it was not**, which is the
+  only thing rule 2's freeze was ever able to establish, and here it is absent.
+- It does **not** downgrade a verdict. **`GATE FAIL` is not softened, and no
+  verdict is moved to `NOT A RESULT`** — rule 5's one-way door applies to grid
+  triples, not to this, and inventing a downgrade here would be its own violation.
+- It does **not** claim the three fine levels are contaminated. They postdate the
+  freeze; their timing is clean and is recorded above as such.
+- It does **not** extend to any other F14 rung. `K0cX` was not examined here.
+  (`analyse_k0cx.py` is separately reported `UNFROZEN` by the instrument named in
+  §C2.3; that is a pointer, not a finding, and nobody has read it.)
+
+**Nothing was sent** (standing rule 7); submissions remain **PARKED**. No
+permission setting, `CLAUDE.md` or `.claude/` configuration was touched (rule 9).
+No `DONE` marker was written, deleted or re-dated.
+
+*Correction written by a heat-transfer lane, 2026-09-03, from the marker files and
+`git show -s` on `6d149d51`. Appended at the foot per `L-304`; the original text
+above is edited nowhere.*
