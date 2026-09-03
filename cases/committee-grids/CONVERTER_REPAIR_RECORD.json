@@ -1,0 +1,69 @@
+{
+  "NOT_CLOSED": [
+    "TWO CONTENT CLASSES REMAIN. The three defective copies are repaired to one hash; the OTHER TWO copies (scripts/ugrid_to_foam.py and certonomous-runs/hlpw6-memory-probe/ugrid_to_foam.py, both 15,004 B at 670db2cb...) are an OLDER, DIFFERENT program and were NOT in the repair's scope. THEY STILL CARRY BARE ASSERTS. The dedup end-state is still unresolved and this record says so rather than implying the hazard is closed.",
+    "ONE REPAIRED COPY LIVES OUTSIDE GIT at /home/ubuntu/certonomous-runs/dpw5-committee-probe/ugrid_to_foam.py. It cannot be committed. It was written in the same operation as the two in-git copies so no window existed in which one was fixed and two were not, and its sha256 is recorded above so future drift is detectable.",
+    "check_converter_copies.py IS NOT DELIVERED BY THIS LANE. A peer lane has an UNTRACKED draft of that same checker in the tree, with a different design and its own wiring plan (scripts/lab_check.py, --prove-invocation). This lane did not commit another lane's unfinished file and did not overwrite it. WHICH DRAFT STANDS IS THE SUPERVISOR'S CALL. Until one lands and is invoked, NOTHING automatically detects a future divergence between these five copies."
+  ],
+  "O_control": {
+    "THIS_IS_NOT_A_GRADED_RUN": true,
+    "cells": {
+      "new_O": {
+        "mesh_written": false,
+        "rc": 1,
+        "stderr_tail": "ConverterRefusal: LAYOUT: no (endian, packaging) combination reproduces the actual file size 212 for /tmp/assert_guards_O_ce2_br89/tet_trail.b8.ugrid. The heade"
+      },
+      "new_plain": {
+        "mesh_written": false,
+        "rc": 1,
+        "stderr_tail": "ConverterRefusal: LAYOUT: no (endian, packaging) combination reproduces the actual file size 212 for /tmp/assert_guards_O_ce2_br89/tet_trail.b8.ugrid. The heade"
+      },
+      "old_O": {
+        "mesh_written": true,
+        "rc": 0,
+        "stderr_tail": ""
+      },
+      "old_plain": {
+        "mesh_written": false,
+        "rc": 1,
+        "stderr_tail": "AssertionError: trailing bytes -- format assumption wrong"
+      }
+    },
+    "discriminated": true,
+    "new_converter": "/home/ubuntu/Certonomous/cases/committee-grids/ugrid_to_foam.py",
+    "old_converter": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/rung0/old_conv.py",
+    "specimen_bytes": 204
+  },
+  "RUNG0b_NOT_CONTAMINATED": "RUNG0b's PASS stands untouched. __debug__ was verified TRUE and PYTHONOPTIMIZE unset BEFORE the run, and run_rung0b.sh carries no -O, so every one of the eight guards was LIVE for that run. The pinned blob at ace20cb1 is unchanged and the graded record at 33b77af5 remains verifiable against it. This repair is FORWARD-ONLY and casts no doubt on a clean verdict.",
+  "THIS_IS_NOT_A_GRADED_RUN": true,
+  "artifact": "the converter repair package's own record: what was repaired, what was measured, and what is NOT closed",
+  "copies_after_repair": {
+    "/home/ubuntu/Certonomous/cases/committee-grids/ugrid_to_foam.py": {
+      "bytes": 20262,
+      "in_git": true,
+      "sha256": "40be1ff72f95ae4d562a57dd6e1e3459e04e76f6f7f3b93cede5b61a202f6609"
+    },
+    "/home/ubuntu/Certonomous/cases/hlpw6/ugrid_to_foam.py": {
+      "bytes": 20262,
+      "in_git": true,
+      "sha256": "40be1ff72f95ae4d562a57dd6e1e3459e04e76f6f7f3b93cede5b61a202f6609"
+    },
+    "/home/ubuntu/Certonomous/scripts/ugrid_to_foam.py": {
+      "bytes": 15004,
+      "in_git": true,
+      "sha256": "670db2cb5a4c9001c47991fd3c619b4330d39b0844234be591317133f57f9072"
+    },
+    "/home/ubuntu/certonomous-runs/dpw5-committee-probe/ugrid_to_foam.py": {
+      "bytes": 20262,
+      "in_git": false,
+      "sha256": "40be1ff72f95ae4d562a57dd6e1e3459e04e76f6f7f3b93cede5b61a202f6609"
+    },
+    "/home/ubuntu/certonomous-runs/hlpw6-memory-probe/ugrid_to_foam.py": {
+      "bytes": 15004,
+      "in_git": false,
+      "sha256": "670db2cb5a4c9001c47991fd3c619b4330d39b0844234be591317133f57f9072"
+    }
+  },
+  "pre_repair_blob": "e2ce16902f09925b22cdcfe1... (17,590 B), pinned by RUNG0b section 9 at ace20cb1",
+  "regression": "The repaired converter reproduces the graded mesh EXACTLY: all five polyMesh files (points, faces, owner, neighbour, boundary) byte-identical to verification/runs/RUNG0b_MESH_IMPORT_runs/DPW5_L1T_hex/constant/polyMesh/. The repair changed guards and layout resolution, not output.",
+  "repaired_to": "40be1ff72f95ae4d562a57dd6e1e3459e04e76f6f7f3b93cede5b61a202f6609"
+}

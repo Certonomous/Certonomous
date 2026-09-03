@@ -14,6 +14,7 @@ boundary list -- which is asserted.
 Usage: ugrid_to_foam.py <file.b8.ugrid> <file.mapbc> <caseDir>
 """
 import os
+import struct
 import sys
 import time
 
@@ -31,36 +32,73 @@ def foam_type(code):
     return "patch"
 
 
-def sniff_layout(path):
-    """Return (endian, fortran) for a UGRID stream file.
+class ConverterRefusal(Exception):
+    """A condition this converter must stop on under ANY interpreter flag.
 
-    Four packagings are in circulation across the committee grid stores and
-    they are not distinguishable by file extension alone in practice:
-
-      .b8.ugrid   big-endian    raw C stream          (HLPW6 / AFLR3)
-      .lb8.ugrid  little-endian raw C stream          (DPW6 NASA GeoLab)
-      .r8.ugrid   big-endian    Fortran unformatted   (DPW5 Vassberg)
-      (little-endian Fortran, for symmetry)
-
-    Rather than trust the name, the first four bytes decide: a Fortran
-    unformatted file opens with a record-length marker whose value is exactly
-    28, the size of the seven-integer header record. Nothing else can be 28
-    there, because that slot otherwise holds the node count and no usable grid
-    has 28 nodes. Endianness is then settled by which byte order makes the
-    header self-consistent, and the caller's own byte-budget assertion below is
-    what actually proves the choice right.
+    NOT an `assert`. `python3 -O` deletes every assert, and until 2026-09-03 EVERY ONE
+    of this file's eight guards was one -- so `-O` removed the entire guard set. The
+    byte-budget check was doubly conditional (inside `if fortran:` AND an assert), and
+    `nbnd == ndecl`, the ONLY structural check a raw C stream received, was an assert
+    too: under `-O` a `.b8` grid converted with NO VALIDATION WHATSOEVER. See L-470.
     """
+
+
+def _expected_size(counts, fortran):
+    """The EXACT byte length a UGRID file must have for these seven counts.
+
+    Fortran unformatted writes the header and the bulk as TWO records, each bracketed
+    by a 4-byte length marker: 4 + 28 + 4 + 4 + payload + 4 = 28 + payload + 16.
+    """
+    nN, nT, nQ, nTet, nPyr, nPri, nHex = counts
+    payload = (nN * 24 + nT * 12 + nQ * 16 + (nT + nQ) * 4
+               + nTet * 16 + nPyr * 20 + nPri * 24 + nHex * 32)
+    return 28 + payload + (16 if fortran else 0)
+
+
+def sniff_layout(path):
+    """Return (endian, fortran) by the TOTAL-BYTE-BUDGET IDENTITY. Never a heuristic.
+
+    ⚠ THIS REPLACES A MEASURED DEFECT, AND THE DEFECT IS DESCRIBED SO IT CANNOT RETURN.
+    The old form tested the first four bytes for a Fortran record marker of 28 and, on
+    failing, ACCEPTED THE FIRST BYTE ORDER GIVING `0 < n < 2e9`, big-endian first. A
+    raw-C-stream UGRID whose byte-swapped first word stays positive and under 2e9 was
+    therefore mis-detected SILENTLY -- no error, no warning, a wrong mesh. Measured
+    blast radius at `verification/runs/RUNG1_M6_runs/M1_ugrid_reimport/
+    UGRID_HEADER_AUDIT.json` (`b78e8858`): 13 files audited, 3 mis-detecting, all three
+    `M6I_runs/mesh/wing_strct.{3,4,5}.lb8.ugrid`.
+
+    THE REPAIR IS A REFUSAL, NOT A NEW ACCEPT PATH. Each of the four (endian, packaging)
+    combinations implies an EXACT file size from the seven-integer header. Exactly one
+    must reproduce the size on disk. Zero matches REFUSES. More than one REFUSES. A
+    layout that reproduces the file size to the byte across four independent element
+    counts is not a guess -- and where it cannot be resolved uniquely, this converter
+    stops rather than choosing, because a mis-sniffed layout yields a cell count that is
+    wrong and looks fine.
+    """
+    size = os.path.getsize(path)
     with open(path, "rb") as f:
-        raw = f.read(4)
-    for endian, code in ((">", "big"), ("<", "little")):
-        if int.from_bytes(raw, code) == 28:
-            return endian, True
-    # raw stream: pick the byte order that gives a plausible node count
-    for endian, code in ((">", "big"), ("<", "little")):
-        n = int.from_bytes(raw, code)
-        if 0 < n < 2_000_000_000:
-            return endian, False
-    raise ValueError(f"cannot identify UGRID layout of {path}")
+        raw = f.read(64)
+    hits = []
+    for endian in (">", "<"):
+        for fortran in (False, True):
+            off = 4 if fortran else 0
+            if len(raw) < off + 28:
+                continue
+            counts = struct.unpack(endian + "7i", raw[off:off + 28])
+            if any(x < 0 for x in counts) or counts[0] <= 0:
+                continue
+            if _expected_size(counts, fortran) == size:
+                hits.append((endian, fortran))
+    if not hits:
+        raise ConverterRefusal(
+            f"LAYOUT: no (endian, packaging) combination reproduces the actual file size "
+            f"{size} for {path}. The header was read four ways and none is consistent "
+            f"with the bytes on disk. REFUSED rather than guessed.")
+    if len(hits) > 1:
+        raise ConverterRefusal(
+            f"LAYOUT: {len(hits)} layouts all reproduce size {size} for {path}: {hits}. "
+            f"Ambiguous. REFUSED -- never choose.")
+    return hits[0]
 
 
 def read_ugrid(path):
@@ -78,12 +116,16 @@ def read_ugrid(path):
             # the single bulk record that holds everything else. That the bulk
             # marker equals the exact byte budget of the remaining arrays is a
             # free check on the whole header, and is asserted.
-            assert int(np.frombuffer(f.read(4), dtype=i4)[0]) == 28
+            _m = int(np.frombuffer(f.read(4), dtype=i4)[0])
+            if _m != 28:
+                raise ConverterRefusal(
+                    f"Fortran header record trailing marker is {_m}, expected 28")
             bulk = int(np.frombuffer(f.read(4), dtype=i4)[0])
             want = (nN * 24 + nT * 12 + nQ * 16 + nT * 4 + nQ * 4
                     + nTet * 16 + nPyr * 20 + nPri * 24 + nHex * 32)
-            assert bulk == want, (
-                f"Fortran bulk record is {bulk} bytes, header implies {want}")
+            if bulk != want:
+                raise ConverterRefusal(
+                    f"Fortran bulk record is {bulk} bytes, header implies {want}")
         pts = np.frombuffer(f.read(nN * 24), dtype=f8).reshape(nN, 3).astype(np.float64)
         tri = np.frombuffer(f.read(nT * 12), dtype=i4).reshape(nT, 3).astype(np.int32)
         quad = np.frombuffer(f.read(nQ * 16), dtype=i4).reshape(nQ, 4).astype(np.int32)
@@ -94,9 +136,14 @@ def read_ugrid(path):
         pri = np.frombuffer(f.read(nPri * 24), dtype=i4).reshape(nPri, 6).astype(np.int32)
         hexa = np.frombuffer(f.read(nHex * 32), dtype=i4).reshape(nHex, 8).astype(np.int32)
         if fortran:
-            assert int(np.frombuffer(f.read(4), dtype=i4)[0]) == bulk
+            _c = int(np.frombuffer(f.read(4), dtype=i4)[0])
+            if _c != bulk:
+                raise ConverterRefusal(
+                    f"Fortran bulk record closing marker is {_c}, expected {bulk}")
         leftover = f.read(1)
-    assert not leftover, "trailing bytes -- format assumption wrong"
+    if leftover:
+        raise ConverterRefusal(
+            "trailing bytes after the declared payload -- format assumption wrong")
     # to 0-based
     for a in (tri, quad, tet, pyr, pri, hexa):
         a -= 1
@@ -201,7 +248,9 @@ def main():
         # elements. Correctness is not assumed: the boundary-face assertion
         # below fails outright if this is wrong.
         modal = int(np.bincount(apex_l, minlength=5).argmax())
-        assert modal == 2, f"unexpected AFLR3 pyramid apex convention: {modal}"
+        if modal != 2:
+            raise ConverterRefusal(
+                f"unexpected AFLR3 pyramid apex convention: {modal}")
         base_n = pyr[:, [0, 3, 4, 1]]
         apex_n = pyr[:, 2]
         del P
@@ -248,7 +297,9 @@ def main():
         order = np.argsort(inv, kind="stable")
         inv_s, fo_s = inv[order], fo[order]
         start = np.concatenate(([0], np.cumsum(cnt)[:-1]))
-        assert cnt.max() <= 2, "a face is shared by more than 2 cells"
+        if cnt.max() > 2:
+            raise ConverterRefusal(
+                f"a face is shared by {int(cnt.max())} cells; at most 2 is possible")
 
         internal = cnt == 2
         i0 = start[internal]
@@ -289,11 +340,16 @@ def main():
         dh, gh = keyhash(dk), keyhash(grp)
         sidx = np.argsort(dh, kind="stable")
         pos = np.searchsorted(dh[sidx], gh)
-        assert (pos < len(dh)).all() and (dh[sidx][np.minimum(pos, len(dh) - 1)] == gh).all(), \
-            "computed boundary face not present in the file's declared boundary list"
+        if not ((pos < len(dh)).all()
+                and (dh[sidx][np.minimum(pos, len(dh) - 1)] == gh).all()):
+            raise ConverterRefusal(
+                "computed boundary face not present in the file's declared "
+                "boundary list")
         tags_per_group.append(dt[sidx][pos])
     nbnd = sum(len(x) for x in bnd_own)
-    assert nbnd == ndecl, f"boundary face count mismatch: computed {nbnd}, declared {ndecl}"
+    if nbnd != ndecl:
+        raise ConverterRefusal(
+            f"boundary face count mismatch: computed {nbnd}, declared {ndecl}. THIS IS THE ONLY STRUCTURAL CHECK A RAW C STREAM RECEIVES and it was an assert until 2026-09-03 (L-470)")
     print(f"[{time.time()-t0:6.1f}s] boundary faces validated against file: {nbnd}", flush=True)
 
     # ---- assemble ----
