@@ -23536,3 +23536,87 @@ settledness decides the verdict.**
 established/inferred split, and no controlled downstream-perturbation experiment was run.
 **Zero solver compute was spent finding any of this**: every number above was re-derived from
 sample files, logs and frozen inputs already on disk.
+
+## L-478 — A NAME IS NOT A CONTROL. THREE TIMES IN ONE DAY, IN ONE TEAM, THE SOURCE ASSERTED A PROTECTION NO CODE PATH DELIVERED — AND THE PUREST CASE IS A CONSTANT THAT IS NEVER READ
+
+**Measured 2026-09-03, cfd. Three instances, found independently, in three unrelated
+files. Two are already repaired; the third is live at HEAD as this is written. The
+individual bugs are small. The shape is not, and it is a different shape from `L-470`.**
+
+### The three
+
+**(1) A guard in the wrong branch.** `cases/committee-grids/ugrid_to_foam.py`'s
+docstring stated that *"the caller's own byte-budget assertion below is what actually
+proves the choice right"*. That assertion sat only inside the `if fortran:` branch, so
+a **raw C stream received none of it**. Repaired at `463de30e`; `L-475` covers the
+separate `-O`-deletes-every-assert half of the same file's story.
+
+**(2) A guard too weak for its claim.** `scripts/check_converter_copies.py` exposed
+`--prove-invocation`, and the module docstring promised it *"demonstrates that the
+CALLER actually runs it, by showing that a planted divergence goes UNDETECTED when the
+call site is removed and IS detected when it is restored."* The implementation was
+`"check_converter_copies" in src` — **a substring test that a mention in a comment or a
+docstring satisfies.** `[MEASURED]` that satisfying case is live, not hypothetical:
+`scripts/lab_check.py:573` names `ugrid_to_foam.py` inside a docstring, in the body of
+`_own_body()`. The claim was **withdrawn rather than the check strengthened**; the
+function is now `report_call_site()` at `:455` and its docstring at `:458-468` discloses
+the whole history.
+
+**(3) STILL LIVE — a guard that does not exist at all.**
+`scripts/queue_runner.py:114` — `SKIP_DIRS = ("launched", "refused")`.
+`[MEASURED]` `grep -c SKIP_DIRS scripts/queue_runner.py` returns **1**: its own
+definition. **The name is bound and never read.** Those two directories are excluded
+from enumeration only because `d.glob("*.json")` at `:440` is **non-recursive** — a
+property of the pattern that excludes every subdirectory equally, not a decision the
+code takes. Proposal at `docs/QUEUE_STAND_DOWN_PROPOSAL.md`; the repair is forward-only
+and rides the daemon restart, which is Sanaa's.
+
+### Why it is one class and not three bugs
+
+The three fail by different mechanisms — wrong branch, weak implementation, no
+implementation — but **the reader-facing artifact is identical in all three: the source
+states a protection, and the reader who most needs to know is the one who will believe
+it.** In (1) and (2) the belief is *"the converter validates this"*. In (3) it is *"the
+enumerator skips those directories"* — asked, in practice, by whoever is deciding
+whether a team is safely stood down.
+
+**⚠ A named absent guard is worse than no guard.** An absent guard invites the
+question. A named one **answers it, wrongly, and closes it.** The name is load-bearing
+in the reader's head and in nothing else.
+
+**⚠⚠ AND THIS FAMILY IS INVISIBLE TO PLANTED-INPUT CONTROLS.** `L-470`'s family is
+guards that **run** and return clean without having looked at the thing they check —
+those are reachable by planting, because there is an execution to perturb. **These
+never run.** No input makes a never-read constant behave differently. Rule 3's
+planted-zero discipline cannot see this class at all, which is why it survived in three
+files at once in a lab that plants aggressively. The control this class needs is not a
+planted input but a **planted removal**: delete the protection and require a test to
+fail.
+
+### The tell, and it costs two seconds
+
+For any identifier whose name makes a safety claim: **`grep -c <NAME> <file>`. A count
+of 1 is the definition alone — the protection is prose.** That single command found
+instance (3). It is not a substitute for a test; it is a screen, and it should be run
+over every constant, flag and helper whose name asserts that something is checked,
+skipped, refused or held.
+
+### The harder half: a correct outcome from the wrong mechanism is still a defect
+
+`SKIP_DIRS`'s two directories **genuinely are skipped**. The behaviour is correct
+today. That is exactly what makes the defect durable — nothing is broken, no test
+fails, and it surfaces only when someone changes the glob to `rglob`, or adds a third
+name to the tuple, and gets behaviour that flatly contradicts the source they read
+first. **A correct outcome produced by a mechanism other than the one the source names
+is a latent defect, not a working control**, and it is invisible to every test of
+present behaviour precisely because present behaviour is right.
+
+### The rule
+
+**A protection is real when a test fails on its removal.** Until then the name is
+documentation and must be labelled as documentation. **Where the check cannot be
+strengthened, withdraw the claim rather than keep it** — instance (2) is the worked
+example: renamed from `prove_invocation` to `report_call_site`, its JSON output now
+carries an explicit `"this_does_NOT_prove"` field at `:490`, and its docstring states
+*"NONE OF THEM IS PROOF THAT ANYTHING RAN."* **An honest weak check beats a dishonest
+strong-sounding one.**
