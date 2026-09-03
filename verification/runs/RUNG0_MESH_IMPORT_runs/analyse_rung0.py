@@ -277,21 +277,31 @@ def run_controls(scratch: Path) -> list[dict]:
     # reader deriving nCells as max(owner)+1, which is only a LOWER BOUND and came out
     # two cells short on HLPW6 while agreeing exactly on all three DPW5 grids. A guard
     # never seen to fire is not known to be load-bearing (L-314), so it is planted here.
-    donor2 = None
+    #
+    # ⚠ IT IS RUN ON EVERY DONOR AVAILABLE, NOT THE FIRST ONE FOUND, AND THAT IS THE
+    # POINT. The defect this control guards was a LABEL-FORM defect: the counts are
+    # written as a QUOTED FoamFile key by OpenFOAM's own mesh writer and as a
+    # `// note:` COMMENT by ugrid_to_foam.py, and a reader that knew only the quoted
+    # form called every mesh this rung imports "no note". A control planted into only
+    # ONE of the two forms would certify a reader that still could not see the other.
+    # So the donor list deliberately spans both writers wherever both are on disk.
+    R0 = REPO / "verification/runs/RUNG0_MESH_IMPORT_runs"
+    donors = []
     for name, _u, _m in GRIDS:
-        if (REPO / "verification/runs/RUNG0_MESH_IMPORT_runs" / name
-                / "constant/polyMesh/owner").is_file():
-            donor2 = REPO / "verification/runs/RUNG0_MESH_IMPORT_runs" / name
-            break
-    if donor2 is None:
+        for base in (R0, R0 / "ATTEMPT2_PRESERVED"):
+            if (base / name / "constant/polyMesh/owner").is_file():
+                donors.append(base / name)
+    if (REPO / "verification/runs/M6I_runs/L2/constant/polyMesh/owner").is_file():
+        donors.append(REPO / "verification/runs/M6I_runs/L2")
+    if not donors:
         out.append(dict(
             control="C10 header-vs-derived count cross-check", fired=None,
             expected="a header note contradicting the mesh's own lists REFUSES",
-            saw="NOT RUN -- no imported polyMesh is on disk yet to plant into. This "
-                "control is UNBUILT-FOR-WANT-OF-AN-ARTIFACT on a first run and fires "
-                "on every run thereafter; it is reported, never silently skipped."))
-    else:
-        case = scratch / "C10"
+            saw="NOT RUN -- no polyMesh is on disk to plant into. Reported, never "
+                "silently skipped."))
+    seen_forms = set()
+    for di, donor2 in enumerate(donors):
+        case = scratch / f"C10_{di}"
         (case / "constant/polyMesh").mkdir(parents=True, exist_ok=True)
         for f in ("boundary", "neighbour"):
             shutil.copy(donor2 / "constant/polyMesh" / f,
@@ -309,8 +319,13 @@ def run_controls(scratch: Path) -> list[dict]:
         except R.Refusal as exc:
             fired = planted and "CONTRADICTS" in str(exc)
             saw = str(exc)[:180]
+        form = clean.get("header_note_form") or "no header note"
+        if form in seen_forms:
+            continue          # both label forms already exercised; do not spam the log
+        seen_forms.add(form)
         out.append(dict(
-            control="C10 a header note contradicting the mesh's own lists REFUSES",
+            control=f"C10 a header note contradicting the mesh's own lists REFUSES "
+                    f"[{form} form, {donor2.name}]",
             fired=fired,
             expected=f"nCells {clean['cells']} -> {clean['cells'] + 1} in the header "
                      f"alone must REFUSE, never be preferred over the lists",
