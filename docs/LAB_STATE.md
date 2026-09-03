@@ -267,7 +267,7 @@ read in the writing invocation.
 
 ---
 
-~~**Section last written:** 2026-09-03T19:14:26Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-37` — **THE PHYSICS RESULT: DAFoam refuses a 2-direction mesh BY DESIGN** (`DACheckGeometry.C:278`, source md5 `e6b9497656105a2cf6958e5a6d329823`, read by me in the registered image), so `d3f47bfa` does not fix the A1 2-D templates, it BREAKS them — `symmetry` is the requirement, not the defect. Item `NOT A RESULT` from its own frozen grader; the condemnation clause **did not fire** and I compose neither. **4.9 core-min.** Before it, `S-36` (`D6RF` queued, now LAUNCHED), `S-35`, `S-34`, `S-33`, `S-32`, `S-31`, `S-30`, `S-29`.
+~~**Section last written:** 2026-09-03T19:25:14Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-38` — `D6RF` aborted and the triage says **the guard is wrong, not the run** (it tests `U` where the decomposed fields are `U.gz`, and its abort asserts a deletion that never happened); `F3SR`'s verdict restored to **`PASS`** with the strike form verified by me; `F3S` has a record at last and its finding is **a prediction that MISSED in our favour**. Before it, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`, `S-35`, `S-34`, `S-33`, `S-32`, `S-31`, `S-30`, `S-29`.
 
 **Section last written:** 2026-08-24T16:27:20Z by chief (certonomous-64) — six-team structure ratified by Sanaa, D-3..D-6 closed, ansys-verification team created; written by the harness-build lane on the chief's instruction, stamp from `date -u` in the writing invocation
 
@@ -4842,6 +4842,46 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 **Section last written:** 2026-09-03T18:01:38Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-30` — the `W3_chain_r2` chain SURVIVED the usage-limit fleet kill as a detached OS daemon and is at its finite-difference legs (9 stages `rc=0`, 36.10 core-min of a registered 900.0), and `S-29` §6's three "live" pids are corrected: two are dead and the survivor's pid was never right. Before it, `S-29` — `D19T` graded `NOT A RESULT` by its own frozen grader; the `U2` patch-identity mechanism predicts five non-convergences across three items with a fourth arm disconfirming it; the generator fix landed forward-only and UNVERIFIED with `A1ZE` registered as its verification; `D12RLX` referred not withdrawn; and five of the supervisor's own errors are named as his. `S-28` holds `MAAOA`'s conclusion and `D19T`'s original block; `S-27` the closed compressible triage.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-38 — **`D6RF` ABORTED AND THE TRIAGE SAYS THE GUARD IS WRONG, NOT THE RUN: IT TESTS `U` WHERE THE DECOMPOSED FIELDS ARE `U.gz`, AND ITS ABORT MESSAGE ASSERTS A DELETION THAT NEVER HAPPENED. `F3SR`'s VERDICT IS RESTORED TO `PASS` AND `F3S` HAS A RECORD AT LAST — AND `F3S`'s REAL FINDING IS THAT A PREDICTION MISSED IN THE LAB'S FAVOUR** (2026-09-03, `date -u` stamp in the committing invocation)
+
+###### 1. `D6RF` `F_mp` — **`rc=5`, and it is a FALSE ALARM. Triaged by me (check 2).**
+
+`F_mp_launch.out` ends `ABORT S5 mp04/processor0/0/U was dropped -- the decomposed restart state is KEPT`. **Nothing was dropped, and I measured that rather than inferring it.**
+
+- D6R's source `O_mp/mp04/processor0/0/` contains **`T.gz U.gz alphat.gz nuTilda.gz nut.gz`** — the decomposed fields are **gzipped** (`writeCompression on`).
+- The guard tests `test -f "$WORK/$mp/processor0/0/U"` — **the uncompressed name.**
+- **The work copy's `mp04/processor0/0` is still present.** I listed it after the abort. `is_time_dir()` excluded `0` by name exactly as designed and the sweep did the right thing.
+
+**The diagnostic asymmetry:** the *reconstructed* fields at `$WORK/mp04/0/U` are plain, so the sibling assertion one line above **passed**; only the *decomposed* fields under `processor*/0/` are `.gz`, because `decomposePar` wrote them compressed. **That is why 83/83 driven guards missed it: the self-test fixtures created the file under the name the test expected.** A fixture cannot falsify an assumption it shares.
+
+**⚠ THIS IS TODAY'S DISEASE WITH THE SIGN FLIPPED.** Everything else caught today was a guard passing **vacuously**. This one **fails spuriously and states a falsehood about the filesystem in its own abort text** — it reported a file "dropped" that was never there under that name, in a directory that is intact. **Same root cause: the guard's evidence line does not correspond to the disk.** It failed in the safe direction and cost essentially no solver time, and it is still a defect. Repair commissioned: accept `U` **or** `U.gz` through one helper, sweep every other hard-coded field name for the same assumption, make the abort distinguish *absent directory* from *no matching filename* and print what it actually found, and **drive the positive leg against D6R's real bytes rather than a fixture.**
+
+**And `G-OCC` behaved exactly as ruled:** `AGGREGATE_HOLD` waited **540 s** for memory against the live `W3` container's 8 GiB, recording `live_caps_GiB`, `this_cap_GiB` and `host_noncontainer_rss_GiB` each tick, and **never refused**. Queue-don't-block, working.
+
+###### 2. `F3SR` — **VERDICT OF RECORD RESTORED TO `PASS`** (`2b3bfd5b`), and I verified the FORM myself
+
+`verdicts.ITEM_two_row_endpoint_fd = PASS`, grader md5 `9596c7bf711a934313a9b4d5801481c6`, composed at `:796-806` under §5 — which excludes `G12`, `G9`, `G10`, `G11`. The `PASS` is shown to rest on **every** limb, not only `G5`: `G1`, `G_ACC`, `G6`, `G6b`, `G7` all true on both arms, `arms_oomkilled` empty, both `G5` at **0.350109 %** and **0.163445 %** of a 5 % band, 5 of 5 components, zero sign flips.
+
+**Form checked by me, because form is what makes a corrected record trustworthy:** the original sentence is **struck with `~~…~~` at `:19`, byte-identical inside the strike, never reworded or deleted**; a banner sits above it; the full correction is at the foot naming exactly what changed. **`G12_cpu_placement_F-P GATE FAIL` did not become invisible because the verdict improved** — it is at `:11`, `:16` and `:50`, and the head carries the instruction that *a reader must leave this heading holding both facts.*
+
+**The uncomfortable half is in the document rather than elided:** the correction moves a verdict harsher-to-softer, ruled by the role that composed the harsher one, **which is exactly why the authority is the grader's emitted value and not anyone's judgement** — it removes a discretion that was never authorised rather than exercising a new one.
+
+###### 3. `F3S` — a record at last (`b73f964d`, 302 lines), and **its finding is a prediction that MISSED in our favour**
+
+`NOT A RESULT`, read from the grader; both grade runs on disk agree to six decimals; 19 of 20 `PASS`; **the FD bright line PASSED on both rows.**
+
+**⚠ `P2` MISSED, and the record puts it up front instead of burying it: the SHIPPED row was PREDICTED TO FAIL the bright line and did not** — `shape[18]` at **0.10803 %** relative error, in band, plateau met, no sign flip. **Under a threshold-free acceptance rule both toolchain rows produce FD tables that satisfy the bright line.** That is a substantive two-row result and it was not the one we expected.
+
+**The single failing limb is another unsatisfiable-by-construction clause** — the fourth of the day. `age_clause_pass False`, `n_stale 1`, on `OptView.hst`: a **staged input copied `cp -a` with mtimes PRESERVED that this item never writes**, so the age clause could not have been satisfied by any run, ever (F-S datum 1787838479 vs mtime 1787728010, 30.7 h older; F-P 41.6 h). **The 26/26 selftest could not catch it because its fixture created the file fresh against a datum pinned at epoch 1000000000** — *the same fixture-shares-the-assumption failure as §1.* The record refuses to let this soften the verdict.
+
+###### 4. THE STALE CALIBRATION ROW — routed through the file's OWN path, not edited
+
+`docs/COST_CALIBRATION.md:316`, row `C-20260831T164216.179599Z-19ea8c16`, still carries `ITEM VERDICT GATE FAIL` and repeats the struck false premise. **The lane refused to edit it and was right**; I read the file's rules myself at `:16-17` — *"Append-only… An existing row is never edited; a correction is a new row naming the row it corrects."* Commissioned as an `append_record.py --allocate-id` row carrying the structured `corrects:` field, the corrected `PASS` with its grader md5, and the explicit statement that **no core-minute figure changes.**
+
+###### 5. STATE
+
+`W3_chain_r2` **16 stages, 2h00m, all `rc=0`**. `A1ZE` **`NOT A RESULT`**, 4.9 core-min, `d3f47bfa` revert commissioned. `D6RF` stopped at `F_mp` on the false-alarm guard, repair commissioned, **re-enqueue gated on my diff read of the changed hunks**. `A1WRT` frozen with a driver landed, **owed my check 1 and check 4.**
 
 ##### UPDATE S-37 — ⚠⚠ **THE PHYSICS RESULT: `A1ZE` RAN AND ANSWERED IN 88 SECONDS. DAFoam REFUSES A 2-DIRECTION MESH BY DESIGN, IN ITS OWN SOURCE, UNCONDITIONALLY — SO `d3f47bfa` DOES NOT FIX THESE TEMPLATES, IT BREAKS THEM. THE ITEM IS `NOT A RESULT` FROM ITS OWN FROZEN GRADER AND THE CONDEMNATION CLAUSE DID NOT FIRE; I AM COMPOSING NEITHER** (2026-09-03, `date -u` stamp in the committing invocation)
 
