@@ -245,6 +245,53 @@ else
   bad "STAGING precondition" "MESH_SRC $SRC_REAL is absent; leg NOT RUN, and NOT RUN is not PASS"
 fi
 
+# ---- THE PRODUCER'S PATH DERIVATION, driven against the REAL frozen reader and
+# ---- against doctored copies. The producer imports DAFoam, which is not on the
+# ---- host, so the FUNCTION is extracted by ast and exercised directly.
+DERIVE_OUT="$TMP/derive.txt"
+python3 - "$PRODUCER" "$READER" > "$DERIVE_OUT" 2>&1 <<'PYD'
+import ast, os, sys, tempfile, shutil
+prod, reader = sys.argv[1], sys.argv[2]
+tree = ast.parse(open(prod).read())
+fn = next(n for n in tree.body if isinstance(n, ast.FunctionDef)
+          and n.name == "_reader_path_contract")
+ns = {"os": os}
+exec(compile(ast.Module(body=[fn], type_ignores=[]), "<d>", "exec"), ns)
+derive = ns["_reader_path_contract"]
+art, case, rd = derive(reader)
+print("REAL", art, case, rd)
+d = tempfile.mkdtemp(); base = open(reader).read(); refusals = 0
+try:
+    muts = [("absent", None),
+            ("no_RUN_DIRS", lambda t: t.replace('RUN_DIRS = ["mp0", "mp1", "mp2"]', 'PH = 1')),
+            ("two_json", lambda t: t + '\nE = os.path.join(root, "XM", "other.json")\n'),
+            ("two_rundirs", lambda t: t + '\nZ = read_run_dirs(os.path.join(root, "XM", "elsewhere"))\n')]
+    for label, m in muts:
+        p2 = os.path.join(d, "so3af2_read.py")
+        if m is None:
+            if os.path.exists(p2): os.remove(p2)
+        else:
+            open(p2, "w").write(m(base))
+        try:
+            derive(p2); print("NOREFUSE", label)
+        except SystemExit:
+            refusals += 1
+finally:
+    shutil.rmtree(d, ignore_errors=True)
+print("REFUSALS", refusals, "of", 4)
+PYD
+if grep -q "REAL \['XM', 'so3af2_M.json'\] \['XM', 'case'\] \['mp0', 'mp1', 'mp2'\]" "$DERIVE_OUT"; then
+  ok "DERIVE matches reader" "artefact/case/run_dirs derived == the frozen reader's own lines"
+else
+  bad "DERIVE matches reader" "$(grep '^REAL' "$DERIVE_OUT" | head -1)"
+fi
+if grep -q "^REFUSALS 4 of 4" "$DERIVE_OUT"; then
+  ok "DERIVE refuses 4/4" "absent reader, no RUN_DIRS, ambiguous artefact, ambiguous case -- all REFUSE"
+else
+  bad "DERIVE refuses 4/4" "$(grep -E '^REFUSALS|^NOREFUSE' "$DERIVE_OUT" | tr '\n' ' ')"
+fi
+rm -f "$DERIVE_OUT"
+
 # ---- THE PASSING DIRECTION.  All four guards must be SATISFIABLE, proved by
 # ---- all four PASS lines appearing before the launcher reaches the container.
 D="$(mk_sandbox pass)"

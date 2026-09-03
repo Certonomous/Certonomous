@@ -613,3 +613,72 @@ The supervisor predicted XM would carry the same defect *"in a milder form"* and
 Every prediction F1–F5, every band, both caps, the ceiling, the memory floor, the four NO-LAUNCH branches and their rcs, the plant constants `K_F = 2.0` and `band_REP = 1.0e-4 %`, and **§0.2 in full**. The MESH arm's verdict is **PENDING**; nothing is scored; **waste 0.0167 core-min named as waste and never absorbed into a ratio**. **NOT RE-FIRED. XM NOT QUEUED. SUBMISSIONS PARKED.**
 
 **END OF ADDENDUM 1.**
+
+---
+
+## ADDENDUM 2 — FINDING 4 WAS OVERSTATED AND IS CORRECTED; THE PRODUCER NOW CONFORMS TO THE FROZEN READER'S CONTRACT. Dated **2026-09-03**. Version **1.2 → 1.3**.
+
+> **lines whose number changed above this section: 0** — asserted by execution against both the pre-append snapshot and `git show HEAD:`. **ADDENDUM 1 §A1.8 IS NOT REWRITTEN**; its overstated sentences are struck by quote below and left standing in place (`CLAUDE.md` rule 6).
+
+**Moves no gate, no threshold, no prediction, no band, no cap and no label.**
+
+### A2.1 ⚠ CORRECTION — ADDENDUM 1's finding 4 was one size too large
+
+> ~~"**NOTHING INVOKES THE READER.** `so3af2_read.py` is *pinned* by the launcher and *never called* by it or by anything else. **The item's entire scoring instrument is never run**"~~ — **STRUCK. WRONG.**
+> ~~"an item whose reader is never invoked cannot produce a reading at all"~~ — **STRUCK. WRONG.**
+
+**POST-HOC GRADING IS THIS FAMILY'S NORM, AND THE EVIDENCE IS ANOTHER ITEM'S LAUNCHER.** `a1wrt_run_unit.sh:768`, verbatim:
+
+> `NOTE: this launcher does not GRADE.  a1wrt_read.py is the frozen grading` / `path and reads G-PATCH clause 3, G-COMPLETE, G-CAPS, G-REPRO and` / `G-PATCHPAIR off these logs afterward.`
+
+and `:27`: the rc line *"is read AFTER, by `a1wrt_read.py`"*. **Measured by this lane in the correcting invocation: that launcher makes ZERO invocations of its reader** and references it only in prose. **A launcher that pins its reader and does not call it is following the pattern, not breaking it**, and `so3af2_run_arm.sh:126-131` uses `` for exactly what the reference is for — existence, md5 pin, `SO3AF2_NL3_PASS`.
+
+**WHAT SURVIVES IS THE NARROWER CLAUSE, AND IT IS REAL: no registered artifact fixes what `--root` the reader receives.** The freeze pins the reader, records its 17/17 selftest under both interpreters and names its constants, and **nowhere states the grading invocation or its root.** That is a specification gap, not an unscoreable item, and §A2.3 closes it.
+
+**AND THE PATTERN IS NAMED BECAUSE IT IS THE SECOND TIME TONIGHT.** The token count was reported as 7/4 when it was 5/2/3; finding 4 was reported as *"never run"* when it was *"root unspecified"*. **Twice this lane measured a real defect and reported it one size too large.** *A disclosure that OVERSTATES a defect is still a wrong record, and the direction of the error does not excuse it.* The cure is the one already named — add up your own claim before reporting it — plus a second: **check whether the thing you are calling broken is how every sibling item works.**
+
+### A2.2 The two path mismatches — CONFIRMED, and the producer conforms
+
+Both confirmed against the frozen reader by both the supervisor and this lane:
+
+| | the reader (FROZEN, `d5f4149d…`, unchanged since 2026-08-31) | the producer, before |
+|---|---|---|
+| artefact | `:284` `os.path.join(root, "XM", "so3af2_M.json")` → `<root>/XM/so3af2_M.json` | `<root>/XM/**XM**/so3af2_M.json` — one nested `XM` too many |
+| run dirs | `:321` `read_run_dirs(os.path.join(root, "XM", "case"))` → `<root>/XM/case/mp<i>` | `<root>/XM/mp<i>` |
+
+**F3 would have scored MISS on a separation that had actually worked — a confident negative on a working mechanism.**
+
+**RULING APPLIED: THE PRODUCER CONFORMS TO THE FROZEN READER'S CONTRACT, NEVER THE REVERSE.** The reader is not touched. The producer is this item's own Stage-2 artefact and is corrected.
+
+**AND THE PATHS ARE DERIVED, NOT TRANSCRIBED** — the `a1wrt_controldict.py` shape. Transcribing would put the same literal in two files and let a future edit to one silently reopen exactly this defect. The producer parses the **staged reader's own bytes** with `ast` and refuses on anything not uniquely determined. The launcher stages the reader beside the producer for the XM arm; its md5 is verified against the pin at NL-3 first, so what is parsed is the frozen reader and not some other file of that name.
+
+> **⚠ AND THE FIRST DERIVATION RULE WAS WRONG, CAUGHT BY ITS OWN REFUSAL.** A first draft took the case path to be *"the `os.path.join(root, …)` that is not a `.json`"*. Driven against the real reader it **REFUSED**: there are **three** — `<root>/XM/XM.log`, `<root>/XM` and `<root>/XM/case`. **The refusal was right and the rule was wrong — it used a PROXY for the quantity instead of the relation that defines it**, which is the same disease as the token alternation of CORRECTION 1. The case path is now identified by its **consumer**: the argument of the call to `read_run_dirs`, the function whose result F3 is scored from, and nothing else.
+
+**Driven, both directions:** against the real reader it derives `['XM','so3af2_M.json']`, `['XM','case']`, `['mp0','mp1','mp2']` — **matching the reader's own lines exactly** — and it **REFUSES 4 of 4** on an absent reader, a removed `RUN_DIRS`, a second `.json` join and a second `read_run_dirs` call.
+
+**A missing case directory now REFUSES BY NAME** (`CASE_DIRECTORY_ABSENT`, exit 9) instead of failing somewhere inside DAFoam. **ADDENDUM 1 finding 1 — the XM arm stages one file into an otherwise empty directory — is NOT repaired here**, and this refusal is what makes it legible rather than a crash.
+
+### A2.3 The `--root` gap, closed
+
+**THE GRADING INVOCATION IS REGISTERED HERE AND WAS NOT REGISTERED BEFORE:**
+
+> `python3 so3af2_read.py --root /home/ubuntu/certonomous-runs/CURRICULUM-SO3aF2-a1-naca0012-multipoint-feasibility --out <out>`
+
+**`--root` is the ITEM'S RUN ROOT** — the directory the launcher mounts at `/mnt` — so the reader's `os.path.join(root, "XM", …)` resolves to the same paths the producer now writes. **It is run AFTER the arms, off their artefacts, by the lane, and NOT by the launcher** — the A1WRT pattern of §A2.1. Registering it fixes nothing that was moving and closes a gap that was genuinely open.
+
+### A2.4 Re-pins
+
+| file | md5 | note |
+|---|---|---|
+| `so3af2_runScript.py` | `c268633f67e6d2c785feec2ebfc7326c` | **RE-PINNED**; supersedes `4359b9b7c04a81b9e56231481f4e0ccb` |
+| `so3af2_run_arm.sh` | `ec02bf5b220f7e72393c71604e5af6eb` | **RE-PINNED**; supersedes `353f9936ef2c08a33c19a1ade8adaecd` |
+| `so3af2_pin_selftest.sh` | `a86587b43dfcaba9acc1ba7102576971` | **RE-PINNED** |
+| `so3af2_read.py` | `d5f4149d43abe3a165ffe7e653b78bee` | **UNCHANGED — the frozen reader is not touched** |
+
+**Census: 20 legs, PASS 20, FAIL 0, NOT RUN 0** in the committing invocation, with two new legs driving the path derivation — one that it matches the reader, one that it refuses 4/4. The producer carries **0 `assert` statements** and **0 occurrences of the forbidden token**, both re-measured.
+
+### A2.5 Unchanged
+
+F1–F5, every band, both caps, the ceiling, the memory floor, the four NO-LAUNCH branches and their rcs, the staging precondition (9), the docker-start rc (10), the plant constants, and **§0.2 in full**. MESH **PENDING**, nothing scored, **waste 0.0167 core-min** named as waste. **NOT RE-FIRED. XM NOT QUEUED. SUBMISSIONS PARKED.**
+
+**END OF ADDENDUM 2.**

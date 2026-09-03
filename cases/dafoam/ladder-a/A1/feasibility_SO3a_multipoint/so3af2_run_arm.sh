@@ -79,7 +79,7 @@ MD5_MESH_SRC_MANIFEST=b7bf0eca3185b7d9af93e61ca122201b
 MESH_REQUIRES="preProcessing.sh genAirFoilMesh.py profiles system constant 0.orig"
 
 MD5_READER=d5f4149d43abe3a165ffe7e653b78bee     # so3af2_read.py, pinned at the 2026-08-31 freeze, section 8
-MD5_PRODUCER=4359b9b7c04a81b9e56231481f4e0ccb                   # so3af2_runScript.py, pinned at the Stage-2 amendment
+MD5_PRODUCER=c268633f67e6d2c785feec2ebfc7326c                   # so3af2_runScript.py, pinned at the Stage-2 amendment
 
 # ---- THE FORBIDDEN TOKEN, section 6 NL-2 second clause: the structural half of
 # ---- the no-gradient promise.  Written by construction so this file does not
@@ -283,6 +283,11 @@ if [ "$ARM" = "MESH" ]; then
   CMD="cd /mnt/MESH && ./preProcessing.sh > checkMesh.log 2>&1 && checkMesh >> checkMesh.log 2>&1"
 else
   cp "$PRODUCER" "$BASE/XM/so3af2_runScript.py"
+  # THE READER IS STAGED BESIDE THE PRODUCER because the producer DERIVES its
+  # output paths from the reader's own expressions (ADDENDUM 2) rather than
+  # transcribing them. Its md5 was verified against the pin at NL-3 above, so
+  # what is staged is the frozen reader and not some other file of that name.
+  cp "$READER" "$BASE/XM/so3af2_read.py"
   CMD="cd /mnt/XM && python so3af2_runScript.py -task run_model > XM.log 2>&1"
 fi
 

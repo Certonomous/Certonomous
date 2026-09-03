@@ -147,7 +147,143 @@ SCENARIOS = ["point%d" % i for i in range(len(ALPHAS))]
 # the failure being repaired.  `so3ar2_collision_leg.py` DRIVES the invariant
 # that the map is total and injective over `SCENARIOS`, and drives it RED on the
 # unfixed source.
-RUN_DIRS = {sc: "mp%d" % i for i, sc in enumerate(SCENARIOS)}
+
+# ===========================================================================
+# THE OUTPUT PATHS ARE DERIVED FROM THE FROZEN READER'S OWN EXPRESSIONS.
+#
+# ADDENDUM 1 measured two mismatches between this producer and `so3af2_read.py`:
+# the per-point directories were written to `XM/mp<i>` while the reader's F3
+# reads `<root>/XM/case/`, and the artefact was written to `<root>/XM/XM/` --
+# one nested `XM` too many -- while the reader reads `<root>/XM/`.  F3 would have
+# scored MISS on a separation that had actually worked, which is the worst kind
+# of wrong answer: a confident negative on a working mechanism.
+#
+# THE READER IS FROZEN AND PINNED SINCE 2026-08-31 AND IS NOT TOUCHED.  THE
+# PRODUCER CONFORMS TO THE READER'S CONTRACT, NEVER THE REVERSE.
+#
+# And the paths are DERIVED, not transcribed -- the `a1wrt_controldict.py` shape.
+# Transcribing them would put the same literal in two files and let a future edit
+# to one silently reopen exactly this defect.  Every value below is parsed out of
+# the reader's OWN BYTES with `ast`, and anything not UNIQUELY determined REFUSES.
+# ===========================================================================
+def _reader_path_contract(reader_path):
+    """Parse `so3af2_read.py` and return (artefact_segments, case_segments,
+    run_dir_names) as the reader itself expresses them.  Refuses rather than
+    guessing: this is the file the grading depends on agreeing with."""
+    import ast as _ast
+
+    def _fail(reason, detail):
+        print("SO3aF2 PRODUCER REFUSAL: %s %s" % (reason, detail))
+        raise SystemExit(9)
+
+    if not os.path.isfile(reader_path):
+        _fail("READER_ABSENT", reader_path + " -- the producer derives its output "
+              "paths from the reader and will not guess them")
+    tree = _ast.parse(open(reader_path).read())
+
+    joins = []
+    for node in _ast.walk(tree):
+        if not isinstance(node, _ast.Call):
+            continue
+        f = node.func
+        if not (isinstance(f, _ast.Attribute) and f.attr == "join"):
+            continue
+        if not node.args:
+            continue
+        a0 = node.args[0]
+        if not (isinstance(a0, _ast.Name) and a0.id == "root"):
+            continue
+        segs = [a.value for a in node.args[1:]
+                if isinstance(a, _ast.Constant) and isinstance(a.value, str)]
+        if len(segs) == len(node.args) - 1:
+            joins.append(segs)
+
+    # THE CASE PATH IS IDENTIFIED BY ITS CONSUMER, NOT BY A FILENAME HEURISTIC.
+    # A first draft took "the join that is not a .json" and REFUSED against the
+    # real reader, because there are three of them -- <root>/XM/XM.log, <root>/XM
+    # and <root>/XM/case. The refusal was right and the rule was wrong: it used a
+    # PROXY for the quantity instead of the relation that actually defines it.
+    # The case path is the argument of the call to `read_run_dirs`, which is the
+    # function whose result F3 is scored from, and nothing else is.
+    case = []
+    for node in _ast.walk(tree):
+        if not (isinstance(node, _ast.Call) and isinstance(node.func, _ast.Name)
+                and node.func.id == "read_run_dirs" and len(node.args) == 1):
+            continue
+        a = node.args[0]
+        if not (isinstance(a, _ast.Call) and isinstance(a.func, _ast.Attribute)
+                and a.func.attr == "join" and a.args
+                and isinstance(a.args[0], _ast.Name) and a.args[0].id == "root"):
+            _fail("READER_CASE_PATH_NOT_A_ROOT_JOIN",
+                  "read_run_dirs is called with something this producer cannot derive")
+        segs = [x.value for x in a.args[1:]
+                if isinstance(x, _ast.Constant) and isinstance(x.value, str)]
+        if len(segs) != len(a.args) - 1:
+            _fail("READER_CASE_PATH_NOT_LITERAL", "non-literal segment in read_run_dirs' join")
+        case.append(segs)
+
+    art = [j for j in joins if j and j[-1].endswith(".json")]
+    if len(art) != 1:
+        _fail("READER_ARTEFACT_PATH_NOT_UNIQUE", repr(art))
+    if len(case) != 1:
+        _fail("READER_CASE_PATH_NOT_UNIQUE", repr(case))
+
+    run_dirs = None
+    for node in _ast.walk(tree):
+        if isinstance(node, _ast.Assign) and len(node.targets) == 1 \
+                and isinstance(node.targets[0], _ast.Name) \
+                and node.targets[0].id == "RUN_DIRS" \
+                and isinstance(node.value, (_ast.List, _ast.Tuple)):
+            vals = [e.value for e in node.value.elts
+                    if isinstance(e, _ast.Constant) and isinstance(e.value, str)]
+            if len(vals) == len(node.value.elts):
+                if run_dirs is not None:
+                    _fail("READER_RUN_DIRS_NOT_UNIQUE", "more than one RUN_DIRS assignment")
+                run_dirs = vals
+    if not run_dirs:
+        _fail("READER_RUN_DIRS_ABSENT", "no list-literal RUN_DIRS in the reader")
+    return art[0], case[0], run_dirs
+
+
+_READER = os.path.join(os.getcwd(), "so3af2_read.py")
+ART_SEGS, CASE_SEGS, READER_RUN_DIRS = _reader_path_contract(_READER)
+
+# The arm directory is `<root>/<ARM>`; both derived paths must agree on that first
+# segment, and it must be the directory this process is running in.  Asserting it
+# is what makes the derivation a check rather than an assumption.
+if ART_SEGS[0] != CASE_SEGS[0]:
+    print("SO3aF2 PRODUCER REFUSAL: READER_SEGMENTS_DISAGREE %r vs %r" % (ART_SEGS, CASE_SEGS))
+    raise SystemExit(9)
+if os.path.basename(os.getcwd()) != ART_SEGS[0]:
+    print("SO3aF2 PRODUCER REFUSAL: WRONG_WORKING_DIRECTORY cwd=%s expected basename %r "
+          "-- the reader's contract is <root>/%s/..." % (os.getcwd(), ART_SEGS[0], ART_SEGS[0]))
+    raise SystemExit(9)
+
+RUN_ROOT_DIR = os.path.dirname(os.getcwd())          # <root>
+ARTEFACT_PATH = os.path.join(RUN_ROOT_DIR, *ART_SEGS)  # <root>/XM/so3af2_M.json
+CASE_DIR = os.path.join(RUN_ROOT_DIR, *CASE_SEGS)      # <root>/XM/case
+
+# The per-point directories must be created UNDER the reader's case path, so the
+# producer runs from there.  A missing case directory REFUSES BY NAME rather than
+# failing somewhere inside DAFoam -- ADDENDUM 1 finding 1 (the XM arm stages one
+# file into an otherwise empty directory) is NOT repaired here and this refusal is
+# what makes it legible instead of a crash.
+if not os.path.isdir(CASE_DIR):
+    print("SO3aF2 PRODUCER REFUSAL: CASE_DIRECTORY_ABSENT %s -- the reader's F3 reads "
+          "run directories from here (%s), so the case must be staged under it. "
+          "The XM staging repair is NOT part of this addendum." % (CASE_DIR, "/".join(CASE_SEGS)))
+    raise SystemExit(9)
+os.chdir(CASE_DIR)
+print("SO3aF2 PRODUCER path contract DERIVED from the reader: artefact=%s case=%s run_dirs=%r"
+      % (ARTEFACT_PATH, CASE_DIR, READER_RUN_DIRS))
+
+# RUN_DIRS now come FROM THE READER, so the two files cannot disagree.  A count
+# mismatch against SCENARIOS refuses rather than silently pairing the shorter list.
+if len(READER_RUN_DIRS) != len(SCENARIOS):
+    print("SO3aF2 PRODUCER REFUSAL: RUN_DIRS_COUNT reader=%d scenarios=%d"
+          % (len(READER_RUN_DIRS), len(SCENARIOS)))
+    raise SystemExit(9)
+RUN_DIRS = {sc: READER_RUN_DIRS[i] for i, sc in enumerate(SCENARIOS)}
 
 # Input parameters for DAFoam -- UNCHANGED from so2a_runScript.py:39-84.
 daOptions = {
@@ -416,9 +552,8 @@ if MPI.COMM_WORLD.rank == 0:
     except Exception as exc:           # noqa: BLE001
         _fail("OBJECTIVE_UNREADABLE", {"error": str(exc)})
 
-    out_dir = os.path.join(os.getcwd(), "XM")
-    os.makedirs(out_dir, exist_ok=True)
-    art = os.path.join(out_dir, "so3af2_M.json")
+    art = ARTEFACT_PATH
+    os.makedirs(os.path.dirname(art), exist_ok=True)
     if os.path.exists(art):
         _fail("ARTEFACT_ALREADY_EXISTS", {"path": art,
               "note": "a pre-existing artefact means this is not the run allowed "
