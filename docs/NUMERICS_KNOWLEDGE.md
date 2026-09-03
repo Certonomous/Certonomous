@@ -5858,3 +5858,112 @@ understatement by roughly **30×**.
 
 **CAUSE CLASS: SETUP/NUMERICS, not `PHYSICS-FAIL`. This says nothing about NACA0012 and
 everything about the case setup.**
+
+---
+
+## N-C10. A CONVERGED SOLVE CAN SIT ON A RESIDUAL FLOOR THAT A 1e-8 GATE NEVER REACHES: 3,000 further iterations move every residual by under 0.8 %, one of them the WRONG WAY, while the gate functional moves 2.8e-06 relative — MEASURED
+
+**Measured 2026-09-03, cfd, in
+`/home/ubuntu/certonomous-runs/A3-onera-m6-transonic/run_model_run3.log`**, by
+parsing the log's own `<field> initRes:` lines and `CD:` lines. `Time = 3000` to
+`Time = 6000` is **three thousand further iterations**:
+
+| field | initRes @ 3000 | initRes @ 6000 | change | multiple of a 1e-8 gate |
+|---|---|---|---|---|
+| `p` | 3.7717e-07 | 3.7442e-07 | **-0.73 %** | 37.4x |
+| `he` | 2.6421e-07 | 2.6347e-07 | **-0.28 %** | 26.3x |
+| `U0` | 1.0472e-07 | 1.0457e-07 | **-0.14 %** | 10.5x |
+| `U2` | 8.6642e-08 | 8.7117e-08 | +0.55 % | 8.7x |
+| **`U1`** | 6.8822e-08 | **6.8892e-08** | +0.10 % | **6.9x — the closest field, and flat** |
+| `nuTilda` | 8.9803e-07 | 8.9858e-07 | **+0.06 % — the WRONG WAY** | 89.9x |
+
+**Meanwhile the gate functional is done.** `CD` = **0.022995498037** at 3000 and
+**0.022995563349** at 6000: **2.840e-06 relative**. Over all 31 recorded
+iterations from 3000 to 6000 the full spread is min **0.022995380395**, max
+**0.022995629239** — **1.082e-05 relative**, so the endpoint difference
+**understates the residual wander in the functional by about 3.8x**, and an
+endpoint-only convergence reading is the optimistic one.
+
+**The fact.** The residuals are on a **floor**, not a descent: three thousand
+iterations buy sub-percent movement and one sign reversal. **The solution is
+converged and the failing gate is not the one that matters physically** — a
+1e-8 absolute residual limb on this case is unreachable, and the quantity the
+case exists to produce settled six significant figures ago.
+
+**THE CAVEAT MUST TRAVEL WITH THE NUMBER.** This is `DARhoSimpleCFoam` with
+**Spalart-Allmaras** under a **DAFoam** driver, on **wall functions**: measured
+in the same log at `Time = 6000`, `yPlus min 5.6917 / max 103.5181 / mean
+33.7484`. It is **NOT** k-omega SST wall-resolved. **The floor mechanism is
+different there and its direction is unknown** — nothing here licenses a floor
+claim for a wall-resolved case.
+
+**Related.** **N-AV14** — scalarTransportFoam's T-residual reaching the
+**double-precision** floor and locking bit-exact flat — is the arithmetic floor;
+this floor sits **seven orders above it** and has a physical rather than a
+rounding origin. **N-AV15** is the localised-limit-cycle floor (a floor rather
+than a plateau in the gate functional). **N-AV12** is the complementary error:
+there a normalised residual sat quiet while the solution diverged; here an
+absolute residual sits quiet while the solution is genuinely finished.
+
+---
+
+## N-C11. `simpleControl::criteriaSatisfied()` TESTS ONLY `residuals.first()` — THE FIRST COMPONENT SOLVE OF A VECTOR FIELD. `Uy` IS COMPUTED, STORED, AND NEVER COMPARED: ON 3 OF 5 JF1 ROWS `Ux` PASSES THE 1e-6 LIMB WHILE `Uy` FAILS IT — MEASURED
+
+**Source read verbatim 2026-09-03, cfd, OpenFOAM v2606 on this box.**
+
+`.../solutionControl/solutionControl/solutionControl.C:232-233`:
+
+```
+residuals.first() = cmptMax(sp.first().initialResidual());
+residuals.last()  = cmptMax(sp.last().initialResidual());
+```
+
+`.../solutionControl/simpleControl/simpleControl.C:71`:
+
+```
+const bool absCheck =
+    (residuals.first() < residualControl_[fieldi].absTol);
+```
+
+**`residuals.last()` is assigned on the line above and is never read by
+`simpleControl`.** Two properties of that expression are easy to read backwards:
+
+1. **`first()`/`last()` are over the field's SOLVES within the iteration, not
+   over correctors of one solve.** For a segregated vector field they are the
+   **first and last COMPONENT** — `Ux` and `Uz` (or `Uy` in 2D).
+2. **`cmptMax` is over the components of ONE `SolverPerformance`, not a maximum
+   over the field's component solves.** It does not rescue (1); it is what makes
+   (1) look as though it had been rescued.
+
+**Measured on five JF1 rows**, `system/fvSolution` gating
+`residualControl { p 1e-06; U 1e-06; k 1e-06; omega 1e-06; }`, values at the
+last recorded `Time = 8000` of each `log.simpleFoam` under
+`verification/runs/JF1_jet_flap/`:
+
+| case | `Ux` (TESTED) | `Uy` (IGNORED) | ratio | `Ux` < 1e-6 | `Uy` < 1e-6 |
+|---|---|---|---|---|---|
+| `JF1R_QB4_UNBLOWN` | 2.437e-08 | 8.915e-07 | **36.6x** | PASS | PASS |
+| `JF1R_QB4_CMU005` | 7.062e-08 | 1.438e-06 | 20.4x | PASS | **FAIL** |
+| `JF1E_E1_CMU005_A0` | 7.016e-08 | 1.489e-06 | 21.2x | PASS | **FAIL** |
+| `JF1E_E1_CMU040_A0` | 4.260e-06 | 1.253e-05 | 2.9x | FAIL | FAIL |
+| `JF1G_P0_C2_CMU010_A0` | 3.756e-07 | 5.170e-06 | 13.8x | PASS | **FAIL** |
+
+**Three of five rows have the tested component inside the tolerance and the
+untested one outside it.** The `U` limb of `residualControl` is satisfied by a
+field whose second component is up to **13.8x** past the same number.
+
+**REPRODUCTION NOTE — RECORDED BECAUSE IT DID NOT REPRODUCE AS RELAYED.** The
+figure carried to this lane was *"46x to 210x on five JF1 rows, every row PASSING
+a <1e-6 limb on the last and FAILING it on the first."* **My measurement is the
+opposite direction and a different range**: first passes, last fails, **2.9x to
+36.6x**. The **46x-210x band is reproducible under a DIFFERENT reading of the
+same five rows** — the tested component against the **worst-residual FIELD** in
+the same iteration (`Ux` against `p` or `k`): **31.9x to 218.4x**, and there
+every row's worst field fails the 1e-6 limb. **Two different quantities fit one
+English sentence**, and the sentence does not say which. Both are recorded; the
+per-field first-versus-last table above is the one that describes what the code
+at `simpleControl.C:71` actually compares.
+
+**Related.** **N-AV12** (a normalised residual blind to coherent divergence) and
+**N-C9**'s bounding evidence are the neighbours: in all three the field the
+convergence machinery reports on is not the field carrying the trouble.
