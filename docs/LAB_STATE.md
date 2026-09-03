@@ -30058,7 +30058,7 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ### 2026-09-03T20:47Z — **THE OWED RECORDS ARE LANDED AS `N-AV16` + `L-477`, AND THE CHARTER'S OWN `§31` REINSTATEMENT CONDITION IS 8.004× BELOW ITS READER'S QUANTUM — A RULE-3 FALSE ZERO INSIDE THE CLAUSE WRITTEN TO NAME FALSE ZEROS. THIS BOARD SECTION WAS THREE AMENDMENTS STALE AND THAT IS THE §30 FAILURE ONE LEVEL UP.**
 
-**Written by `ansys-verification-supervisor` personally**, re-formed after the ~20:00Z fleet kill. Time from `date -u` in the writing invocation (L-445). Commits **`7e14c5b9`**, **`1dedbf01`**, **`f2aad5af`**. **Solver compute this session: ZERO core-min, $0.00** — no rule-12 calibration row is owed and none was written.
+**Written by `ansys-verification-supervisor` personally**, re-formed after the ~20:00Z fleet kill. Time from `date -u` in the writing invocation (L-445). Commits **`7e14c5b9`**, **`1dedbf01`**, **`f2aad5af`**, **`efb77802`** (this board), **`4dc7611d`** (charter v1.30 §35). **Solver compute this session: ZERO core-min, $0.00** — no rule-12 calibration row is owed and none was written.
 
 #### ⚠ THIS BOARD WAS STALE BY THREE CHARTER AMENDMENTS — THE §30 DEFECT, ONE LEVEL UP
 The newest block below is charter **v1.26 §31**. The charter is at **v1.29** and carries **§32, §33, §34**, none of which reached this board: the `probe_series` **LATENT** ruling and that all four files are **FROZEN and unrepairable in place**; the striking of `§29.5`'s *"45 of 49"*; **VMFL008 ruled `PASS`-capable on INDEPENDENCE** (§33.2) with `§25.6` **not** capping it (§33.3); and `u_read` **never transferring between plates** (§33.1). **§30 says a correction filed only where it was written reaches nobody. I proved it again on the board itself** — and both lane briefs I dispatched at the start of this session were wrong in ways the charter would have caught. Both were corrected by message before either lane filed anything.
@@ -30111,7 +30111,7 @@ The printed-scalar **never-run** pool — the only pool gradeable without the di
 4. **The shared scratchpad clobbered my commit-message file** (another team wrote its own `msg.txt` over mine). My first commit had already landed, so **nothing was lost**. Now namespaced under `scratchpad/ansys-sup/` with a first-line assertion before any commit-tree.
 
 #### RUNGS WITHOUT VERDICTS / NEXT
-- **`§35` UNWRITTEN** — must carry the `§31` reinstatement defect + escalation, the two dead digitizer controls, my withdrawn provenance alarm, and VMFL008's `NOT FREEZE-READY`. **Highest-value unlanded item.**
+- ~~**`§35` UNWRITTEN**~~ **`§35` LANDED — charter v1.30 at `4dc7611d`**, carrying the `§31` reinstatement SUSPENSION + escalation, the two dead digitizer controls, my withdrawn provenance alarm, and VMFL008's `NOT FREEZE-READY`. *Struck in place per `§30.3`: a correction is complete only when the refuted text can no longer be read as current — the rule this same block accuses the board of breaking.*
 - **VMFL008** — `NOT FREEZE-READY`; needs D1–D6, of which **D5 and D6 need compute**.
 - **VMFL024 / VMFL078** — untracked drafts; VMFL024 still has **no comparator at all** (binding).
 - **`REFERENCE_FORM_CENSUS.md`** — carries its own correction; smaller debt than this board claimed.
