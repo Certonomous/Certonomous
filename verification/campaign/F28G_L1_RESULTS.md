@@ -343,3 +343,82 @@ disk at the run root.
 
 **Unchanged by this record:** the frozen registration, both graders, `run_f28.sh`, and the queue
 row. Nothing frozen was edited (standing rule 6); no submission was made (standing rule 7).
+
+---
+
+## ADDENDUM 1 — 2026-09-03 — §4.1's "and flat" is refined, and the refinement STRENGTHENS the finding
+
+**Version:** v1.0 → **v1.1**. This document carried no version line before this addendum; **v1.0**
+denotes its state at commit `23eeff7e`.
+
+**Rule-6 assertion: lines whose number changed above this section: 0.** Nothing above was edited.
+Both addenda are appended at the foot. §4.1's original sentence is struck by this addendum, not
+rewritten, and remains readable at its original line numbers.
+
+**The struck words.** §4.1 reads *"At iteration 15,000 the gating **initial** residual for `p` is
+**0.1578798513** — five orders of magnitude above its 1e-6 criterion, **and flat**."*
+
+**The value and the five-order gap are unchanged and are re-verified.** `0.1578798513` occurs
+**exactly once** in the 656,692-line `log.simpleFoam`, at line **656652**, inside the `Time = 15000`
+block that opens at line 656647, and it is the **first** of the two `p` solves in that block.
+
+**"And flat" is wrong, and the correct description is worse for the run, not better.** Measured over
+the last 4,000 iterations, the gating `p` residual has **min 0.1171, max 0.5132, mean 0.1855,
+stdev 0.0375**; across the whole run it **never falls below 0.0642**. It does not descend and it
+does not settle: it **wanders across a factor of 4.4 with no downward trend**.
+
+**This is stronger evidence of non-convergence than "flat" was, not weaker.** A flat residual is at
+least stationary — it is consistent with a solution that has stopped moving and is merely stuck
+above its criterion. A residual wandering across a factor of 4.4 with no trend is **further** from
+convergence than a flat one: the iterate is still changing substantially every outer iteration and
+is not approaching a fixed point at all. **The verdict `NOT A RESULT` is undisturbed and this
+addendum does not touch either registered ground.**
+
+**Neither ground rests on this figure.** The HIT-CAP ground is structural (`ITER_CAP = 15000`
+against the run's `endTime`, `analyse_f28g.py:245`) and reads no residual value; the not-plateaued
+ground reads `postProcessing/forcesDuct/0/force.dat`. **The 0.1579 figure is corroborative, not
+load-bearing** — and it is correct.
+
+**Provenance of this addendum:** the figure was challenged and the challenge was withdrawn in full
+after re-measurement. The full reconciliation, including how the challenge arose, is
+`verification/campaign/F28G_L1_RESIDUAL_RECONCILIATION.md`.
+
+---
+
+## ADDENDUM 2 — 2026-09-03 — §5's "three separate configurations" is corrected to FOUR, and the fourth is the informative one
+
+**Rule-6 assertion: lines whose number changed above this section: 0.**
+
+**The struck words.** §5 reads *"…given that the `p` residual has now failed to move in 15,000
+iterations on **three separate configurations**…"*. **The count is four.** It was asserted, not
+counted; this addendum counts it from the run tree.
+
+Every run root under `verification/runs/F28_runs/` holding a `log.simpleFoam` was read. **Four**
+reached the 15,000-iteration cap, and **`SIMPLE solution converged` occurs 0 times in every one**:
+
+| run root | cells | disk source (`constant/fvOptions`) | `farfield` BC | gating `p`, last-500 band | last |
+|---|---|---|---|---|---|
+| `FEAS_L1_dp0_U20_A2` | 31,752 | **`U ((0.0 0 0) 0)` — SOURCE OFF** | `totalPressure` | 0.3317 – 0.6885 | 0.5145 |
+| `FEAS_L1_dp1000_U20_A2` | 31,752 | `U ((166666.66666666666 0 0) 0)` | `totalPressure` | 0.3110 – 0.5269 | 0.3669 |
+| `FEAS_L1_dp1000_U20_A2_BCPROBE` | 31,752 | `U ((166666.66666666666 0 0) 0)` | **`slip`** | 0.0579 – 0.3465 | 0.1416 |
+| **`F28G_L1_dp1000_U20`** (this row) | 35,544 (`mesh_A4/L1`) | `U ((166666.66666666666 0 0) 0)` | `totalPressure` | 0.1478 – 0.4014 | **0.1579** |
+
+The four configurations span **two meshes**, **two disk loadings including OFF**, and **two
+farfield boundary conditions**. The remaining four logs in that tree are short aborts (19–32
+iterations) or hold no `p` solves at all, and are evidence of nothing either way.
+
+**`FEAS_L1_dp0_U20_A2` is the single most informative row and it had not been used against this
+question.** It carries `U ((0.0 0 0) 0)` — the actuator-disk source is **exactly zero** — and it
+plateaus **highest of the four**. **That exonerates the actuator disk as the mechanism by
+measurement rather than by argument.** Corroborating, from the same dictionaries: even when on, the
+source is `((166666.66666666666 0 0) 0)` — constant `Su`, **`Sp = 0`**, purely explicit with no
+velocity dependence — so no source feedback loop exists to sustain a limit cycle in the first place.
+
+**No mechanism is asserted here.** What is established is negative and specific: the plateau is
+**not** caused by the actuator-disk source, and it survives a change of mesh and a change of
+farfield boundary condition. Candidate mechanisms and the measurement that separates each are in
+the reconciliation document named in Addendum 1; **the successor decision remains a supervisor
+referral and a cap raise remains Sanaa's alone**, exactly as §5 states.
+
+**Nothing in either addendum alters a gate, threshold, cap or label, and the verdict is
+`NOT A RESULT` as issued.**
