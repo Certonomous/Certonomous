@@ -1,0 +1,97 @@
+{
+  "_PARKED": "THIS ROW IS NOT IN THE QUEUE AND MUST NOT BE MOVED INTO verification/queue/ BY ANY LANE. It is parked under its own case directory on purpose. It enters the queue ONLY after dafoam-supervisor's SUPERVISION_CHARTER section 3 check 4 -- the section 4.3/4.4 cap arithmetic and the section 3.3/3.5 control bands read PERSONALLY, as arithmetic, not as a summary. That check is not delegable and a lane's arithmetic is not a substitute for it. ENQUEUEING IS NOT AUTHORISATION, and no lane launches this item.",
+  "team": "dafoam",
+  "case_id": "A1WRT",
+  "prereg_commit": "a62d8d7524b233c747a9d83b9098c3d10042dd49",
+  "prereg_path": "cases/dafoam/ladder-a/A1/wall_resolved_alpha_tail/PREREGISTRATION_DRAFT.md",
+  "prereg_note": "The filename retains _DRAFT so existing citations by path stay valid; the FILE IS FROZEN at the commit above. Rule 2 check to discharge AT ENQUEUE, not now: hash the disk file against the HEAD blob of that path at that commit and refuse on any difference.",
+  "launch_cmd": null,
+  "launch_cmd_note": "NULL BECAUSE THE DRIVER DOES NOT EXIST. Section 8 item 2 records the driver and run-script staging as OWED; they are not part of this freeze and carry no gate, threshold, cap or label of their own. This row therefore CANNOT be enqueued as it stands -- a null launch_cmd is a refusal, not an oversight. Whoever writes the driver fills this in, re-pins the instrument md5s below, and only then presents the row for check 4.",
+  "cwd": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/wall_resolved_alpha_tail",
+  "ranks": 1,
+  "cap_core_min_registered": 3304.0,
+  "cost_core_min_estimate": 287.7,
+  "cost_basis": "287.7 core-min at SOLO occupancy = 4.795 core-h = $0.2460 DERIVED, NOT MEASURED, at the owner-stated c7a.4xlarge rate of $0.0513/core-h; cost_basis class REPORTED-BY-OWNER -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). (Section 4.3 quotes $0.2462, which is the same arithmetic on the rounded 288 core-min: 4.800 core-h x $0.0513. Both are DERIVED; neither is measured. The unrounded figure is the one in this field.) THE ESTIMATE IS A FUNCTION OF OCCUPANCY and is registered as one (section 4.4): solo 287.7, 2x 572.3, 14-way 1101.4 core-min, the last at the MEASURED 3.85915x saturation. The per-iteration anchor 0.4615 s/it is MEASURED on this exact mesh, image and solver (A1WR alpha=12 at 0.46155, alpha=13 at 0.46134); the tail-stiffening allowance on alpha 14-18 is EXTRAPOLATED and is named in section 4.3 as the term most likely to carry the error. THE CAP IS NOT THE ESTIMATE: the item ceiling of 3304 core-min is 3.00x the 14-WAY estimate, = 55.07 core-h = $2.825 DERIVED -- under the $25 pre-authorisation and far under the $150 escalation trigger. An overrun STOPS the run and does not get a new budget. Calibration row OWED to docs/COST_CALIBRATION.md at completion per CLAUDE.md rule 12, comparing actual against the estimate AT THE MEASURED OCCUPANCY, with contention, waste and misprediction attributed SEPARATELY and waste never absorbed into the ratio.",
+  "memory_floor_gb": 4.0,
+  "enqueued_by": "NOBODY. NOT ENQUEUED. Drafted 2026-09-03 by a dafoam lab-lane at the freeze commit above, and PARKED pending dafoam-supervisor's check 4.",
+  "_schema_note": "Fields above mirror the validator's REQUIRED_FIELDS plus cap_core_min_registered, so the row is enqueueable in shape once launch_cmd exists. Fields below are dafoam annotations the validator ignores.",
+  "units_caps_and_deadlines": {
+    "_rule": "TMO is the IN-CONTAINER deadline. It lives inside the container so the cap stops the run even if the driver, the daemon and every agent die -- A1WR's own kill is the argument: the driver was polling healthily at 02:24:58Z and the box went down seven seconds later.",
+    "_registered_form": "TMO = int(CAP * 60 / RANKS) - CAP_MARGIN_S, with CAP_MARGIN_S = 300 s (3.2x the MEASURED 93.85 s container start). This is the form EVALUATED IN THE FROZEN DOCUMENT at section 4.4 and IMPLEMENTED in a1wrt_read.py (TMO_S_U1, TMO_S_U2U3). IT GOVERNS.",
+    "_margin_note": "A 60 s margin was also proposed for this row. It is recorded here for the supervisor and is NOT what is registered: at RANKS=1 it gives U1 21600 s and U2+U3 176520 s. Both forms are positive at every cap, so the > 0 requirement holds under either; the registered 300 s form is the one the frozen document evaluated and the reader implements, and the two must not be mixed.",
+    "U1_alpha12_symmetry": {
+      "cap_core_min": 361.0,
+      "basis": "3.00 x the 120.30 core-min 14-way estimate for this unit",
+      "TMO_s_REGISTERED": 21360,
+      "TMO_s_registered_arithmetic": "int(361 * 60 / 1) - 300 = 21660 - 300 = 21360",
+      "TMO_positive": true,
+      "TMO_core_min": 356.0,
+      "TMO_within_cap": "356.00 <= 361 OK",
+      "effective_budget_vs_14way": "356.00 / 120.30 = 2.96x",
+      "TMO_s_minus60_form": 21600,
+      "TMO_s_minus60_positive": true
+    },
+    "U2U3_tail_empty": {
+      "cap_core_min": 2943.0,
+      "basis": "3.00 x the 981.11 core-min 14-way estimate for this unit",
+      "TMO_s_REGISTERED": 176280,
+      "TMO_s_registered_arithmetic": "int(2943 * 60 / 1) - 300 = 176580 - 300 = 176280",
+      "TMO_positive": true,
+      "TMO_core_min": 2938.0,
+      "TMO_within_cap": "2938.00 <= 2943 OK",
+      "effective_budget_vs_14way": "2938.00 / 981.11 = 2.99x",
+      "TMO_s_minus60_form": 176520,
+      "TMO_s_minus60_positive": true
+    },
+    "ITEM_CEILING": {
+      "cap_core_min": 3304.0,
+      "arithmetic": "361 + 2943 = 3304 = 3.00 x the 1101.4 core-min 14-way estimate",
+      "derived_cost": "55.07 core-h x $0.0513 = $2.825 DERIVED, NOT MEASURED",
+      "TMO_s_minus60_form": 198180,
+      "TMO_s_minus60_positive": true
+    },
+    "_honest_limit_on_what_the_deadline_protects": "TMO_U2U3 is 176,280 s ~ 49 hours. THIS BOX WAS POWERED OFF AFTER 7 h 49 m on the night this item's predecessor ran, and its longest recorded uptime this week is under 23 h. A 49-hour in-container deadline is NECESSARY BUT NOT SUFFICIENT: the binding protection is the box's own uptime, and a poweroff is an infrastructure kill that no cap can convert into a cap-stop. The real protection against an over-long run on a busy box is the per-point ledger row, which lands after every point and survives the kill. Section 4.4 states this on its face."
+  },
+  "instrument_md5s_at_this_commit": {
+    "a1wrt_read.py": "705db5f7e972f6c033cbe303b7a6038f",
+    "a1wrt_fixture.log": "4f6e870f74790af9238266c7cf10a0d2",
+    "a1wr_alpha12_reference.tsv": "26ce1af0b0e93af5b9f71efdc34446a4",
+    "_verified": "a1wrt_read.py's md5 was hashed against the COMMITTED BLOB at a62d8d75, not merely off the working tree, and matches. The reader pins the fixture and reference md5s internally at a1wrt_read.py:90 and :93.",
+    "_inherited_unchanged_from_the_A1WR_freeze": {
+      "a1wr_runScript_incomp.py": "d48f48c5e2e41e86981acbf6feccb3c4",
+      "a1wr_cmd.sh": "eba014f2c538611d2249c3fcf9b3ddd7",
+      "libidwarp": "85f59e87253e0a71a813f64ca6e4c425",
+      "_note": "RE-VERIFY these against the A1WR manifest in the ENQUEUEING shell (section 8 item 4). They are transcribed here from the frozen document, not re-hashed by the lane that parked this row."
+    }
+  },
+  "image": "dafoam-idwarp-rot:v1 (PATCHED) sha256:2927768a16ac... -- G-IMG/G-FREEZE refuse (exit 4) on any other id or any instrument md5 mismatch. The build confound stands and is registered: the coarse sweeps ran the SHIPPED image, this and A1WR run the PATCHED one.",
+  "mesh": "A1WR L3, 130,304 cells, /home/ubuntu/certonomous-runs/A1WR/L3/. NOT re-cut under any outcome (section 3.4): a y+ overshoot is a registered GATE FAIL, not a reason to change the mesh.",
+  "run_root": "/home/ubuntu/certonomous-runs/A1WRT/ -- MUST BE ABSENT at launch. CHECKED BY EXECUTION at the freeze, 2026-09-03T18:29Z: ABSENT (test -e returned non-zero; no path matching *A1WRT* exists anywhere under /home/ubuntu/certonomous-runs/). RE-CHECK IN THE ENQUEUEING SHELL -- this row's check is stale the moment it is written.",
+  "units": [
+    "alpha12_symmetry -- U1, symmetry, COLD, alpha=12, its own container and case tree",
+    "tail_empty -- U2+U3, empty, ONE process: COLD alpha=12 then alpha 13...18 ascending, each inheriting its predecessor's FINAL state in memory"
+  ],
+  "gates": "G-COLDSTART, G-PATCH, G-PATCHPAIR, G-REPRO, G-COMPLETE, G-CAPS, G-CONCURRENCY-PRECOND, G-YPLUS, G-WALLTREAT, G-FIXTURE, G-STALL, G-NOBAND, G-IMG/G-FREEZE. Verdict class FEASIBILITY, verdict CEILING GATE REACHED -- the L3 family has no Roache triple, so NO value carries a band and PASS against a threshold is unavailable on any physical quantity.",
+  "registered_predictions": "RECORDED AS PREDICTIONS TO BE TESTED, per Sanaa's 2026-09-03 ~21:00Z launch rule -- a pre-registration mismatch never prevents a launch; it is compared to the outcome on the certificate. (1) The `empty` units are expected NOT to converge: primalMaxRes excludes the z-component of a vector equation, so removing the z-momentum equation removes a residual that was never in the criterion. Projected primalMaxRes runs 1.0182e-08 (alpha 1) to 2.7954e-08 (alpha 12), with alpha 0 at 2.2632e-07 and alpha 13 at 4.1455e-07 -- every one of all fourteen points ABOVE the registered 1.0e-8. If they DO converge, that is a finding about the coupling and is reported as one. (2) U1 (symmetry) WILL read NOT CONVERGED -- its U2 floor of 3.238e-08 sits above 1.0e-8, which is arithmetic, not a forecast. (3) G-PATCHPAIR predicts NOISE: CL and CD unchanged between symmetry and empty to within the extrapolation's own error.",
+  "controls_at_this_commit": "ZERO COMPUTE on this item. a1wrt_read.py --selftest returns rc=0 and SELFTEST PASS: 39 controls, both directions, mutation controls included -- including the four re-anchored G-PATCHPAIR controls Q1 (clean pair -> NOISE), Q2 (5.0e-3 planted shift -> CONTAMINATION), Q3 (5.0e-4 -> INDETERMINATE) and Q4 (a NON-CONVERGED U2, the outcome the item PREDICTS, still yields a verdict rather than NOT A RESULT). Q2 and Q3 assert their plant LANDED in the bytes before driving the reader. Every fixture is STATIC and committed with the reader; G-FIXTURE refuses at exit 2 if any fixture path resolves inside this item's run root (the L-435 repair).",
+  "verdict_state": "PENDING",
+  "_field_classes": {
+    "physics_critical": [
+      "the unit's rc inside the detached wrapper",
+      "the case's own log End line, endTime fields and the 0/T age guard",
+      "the solver's own `Mesh has N solution (non-empty) directions` line (G-PATCH)"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342). Bookkeeping never voids physics."
+  }
+}
