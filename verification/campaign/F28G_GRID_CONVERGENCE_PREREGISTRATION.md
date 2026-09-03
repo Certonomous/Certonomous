@@ -947,3 +947,110 @@ land. It was occasioned by two documents on one day, this one and JF1G's §11.
 
 *Appended by `lab-lane` for `cfd-supervisor`, 2026-09-01, after release. No solve has been
 launched, and this lane has not begun the comparator.*
+
+---
+
+## AMENDMENT 4 — THE GRADING PATH IS NAMED AND FROZEN HERE, BEFORE ANY SOLVE; AND A SECOND HOLE OF THE SAME SHAPE IS DISCLOSED: THIS REGISTRATION NAMES NO LAUNCHER EITHER
+
+**Version 1.4. Lines whose number changed above this section: 0.** A pure append.
+Dated 2026-09-03, by the `cfd` lab-lane, on `cfd-supervisor`'s ruling of the same day.
+**PRE-COMPUTE.** No F28G solve has ever run and none is launched by this amendment.
+
+### A4.1 The condition, and how it was checked — rule 2's requirement, discharged by naming the directory that does not exist
+
+`verification/runs/F28_runs/F28G_L1_dp1000_U20/` **does not exist.** Checked three ways in
+the same shell invocation that wrote this section, not recalled from §12:
+
+| check | result |
+|---|---|
+| `ls -d verification/runs/F28G*` | **0 directories** |
+| `ls -d verification/runs/F28_runs/F28G*` | **0 directories** |
+| `test -e verification/runs/F28_runs/F28G_L1_dp1000_U20` | **non-zero** (absent) |
+
+The full listing of `verification/runs/F28_runs/` at this moment carries `DIAG_*`, `FEAS_*`,
+`mesh_*` and `_*launch*` entries and **no `F28G` entry of any kind**. The mesh stage of §8
+is spent; the **solve stage has produced nothing**, so gates are open and a pre-compute
+amendment is legal under rule 2.
+
+### A4.2 THE GRADING PATH, FIXED HERE WITH ITS BLOBS
+
+| file | blob (worktree == this commit) | state at the original freeze `00188f82` |
+|---|---|---|
+| `cases/F28_DUCTED_ACTUATOR_DISK/analyse_f28g.py` | `8c17fdd55b9606ebf115f3442678fecc74152887` | **DID NOT EXIST** |
+| `cases/F28_DUCTED_ACTUATOR_DISK/analyse_f28.py` | `5aff1614aff38ccdad0c33a0be9fb17b313fc167` | present, **byte-identical** |
+| `cases/F28_DUCTED_ACTUATOR_DISK/f28_apex_mechanism_check.py` | `dfa795092bf8eef0b54e450beac5144b04e7a1dc` | present, **byte-identical** |
+
+`analyse_f28g.py` is the grading comparator. The other two are named because §7 and the
+parent's §6.2/§6.3 refer to them; they are **not** the Roache/GCI grader and never were —
+that misidentification is §A2.4's own finding and is not re-litigated here.
+
+### A4.3 THE THIRTY MINUTES, STATED RATHER THAN BURIED — it is the fact that makes this bookkeeping and not fitting
+
+`analyse_f28g.py` was introduced by commit `a09376a9f636088b534d2b5e480151cf20328314` at
+**2026-09-01 17:48:37 +0000**. This registration froze at `00188f8266d10c333bb45974dd88fc4d54ee8d0e`
+at **2026-09-01 17:18:16 +0000**. **The comparator post-dates its own registration's freeze
+by 30 minutes and 21 seconds.**
+
+**Why that is bookkeeping and not post-hoc fitting, stated as a checkable fact rather than
+as an assurance:** the comparator was written **before any F28G solve produced a number**,
+and no F28G solve has produced a number to this day — §A4.1's three absence checks are the
+evidence. A grader written before the first datum cannot have been shaped to the answer,
+because there was no answer to shape it to. **The freeze's evidentiary content — that the
+gate could not have been chosen to fit the result — is therefore intact in substance, and
+what was missing was the record of it.** This amendment supplies the record.
+
+It **does not** repair rule 2's hashability retroactively: the grading path is fixed **at
+this amendment's commit**, not at `00188f82`, and any reader must hash against this
+amendment's commit. That is a weaker guarantee than a grading path frozen with its
+registration, and it is stated as weaker rather than presented as equivalent.
+
+### A4.4 THE CHECK-1 TOKEN, AND THE BASIS ON WHICH IT WAS ISSUED
+
+`cfd-supervisor` issued the SUPERVISION_CHARTER §3 check-1 token on **2026-09-03**, from a
+**personal read of `analyse_f28g.py` (2,705 lines)**, and recorded the scope of that read as
+six items, reproduced here so a later reader knows what the token does and does not cover:
+
+1. **Zero bare `assert` statements** — L-332 honoured in fact, not cited.
+2. **`--selftest` run under `python3 -O`** by the supervisor: `limbs_failed: 0`, `pass: true`,
+   rc 0. Under `-O` is the only run that proves the guards survive optimisation.
+3. **Rule 5's Roache gating** implemented in the correct order and in the one permitted
+   direction, with `assert_one_way` proving the one-wayness on synthetic rows.
+4. **GCI at Fs = 1.25**, with a separate guard refusing to quote a GCI on a non-monotone triple.
+5. **Aspect ratio provably never gates** — an absurd `1e9` is planted and the row must still
+   not be rejected on it alone.
+6. **Verdict vocabulary tuple matches rule 1 exactly**, with `assert_verdict_strings_are_inert`,
+   and one plant per number-producing reader, each read back from disk and refusing if unseen.
+
+**A SCOPE MISMATCH IS RAISED HERE RATHER THAN PAPERED OVER, AND IT IS NOT THIS LANE'S TO
+RESOLVE.** `cases/F28_DUCTED_ACTUATOR_DISK/run_f28.sh` states at its own usage block that
+`--check1-token` attests to a read of **`analyse_f28.py`**. The supervisor's read was of
+**`analyse_f28g.py`** — a different file. The read that was performed is the more relevant
+one (it is the actual grader), but the token's registered referent is the other file, and a
+token supplied against a file its holder did not say they read would be exactly the
+laundering rule 9 forbids. **No token string has been supplied by this lane.**
+
+### A4.5 THE SECOND HOLE: THIS REGISTRATION NAMES NO LAUNCHER, AND ITS ONLY CANDIDATE BINDS TO A DIFFERENT REGISTRATION
+
+Found while preparing the launch this amendment was written to enable. **F28G CANNOT LAUNCH
+TODAY, and the reason is not the grading path.**
+
+1. **This document names no launcher script at all.** Population searched: every string
+   matching `[A-Za-z0-9_./-]+\.sh` in this file. **Zero matches.** Same shape as §A2.4's
+   missing comparator, in the other half of the run.
+2. **`run_f28.sh` cannot serve, because it is bound to the PARENT registration.** It sets
+   `PREREG=verification/campaign/F28_DUCTED_ACTUATOR_DISK_PREREGISTRATION.md` and refuses
+   unless `--prereg-commit`'s blob for **that** file equals the parent's blob on disk.
+   Measured: the parent's blob on disk is `198a76445ed2eb59bf5afb08b0487708fc8b1340`; the
+   parent's blob at F28G's freeze `00188f82` is `c482dd09e6f66fa7c57ca34263b6f18b73c4af21`.
+   **They differ**, so `--prereg-commit=00188f82` ABORTS. The only commit that satisfies the
+   check is the parent's own `b50cd1cadc9350228d35a8c86ff683df6e94a17b` — which would launch
+   an F28G rung **against the parent's freeze, gates and grading path, not this study's**.
+
+**VERDICT ON LAUNCHABILITY: `BLOCKED`** — and on the launcher, with the grading path now
+fixed. Not `PENDING`, which would say only "not yet run", and not softened: there is no
+registered path by which an F28G rung can start under this registration's own freeze.
+Writing or registering that launcher shapes what the study measures and is above a lane;
+it is referred to `cfd-supervisor` with the arithmetic above already done.
+
+*Appended by `lab-lane` for `cfd-supervisor`, 2026-09-03. Zero compute. No solve launched,
+no gate, threshold, cap or label altered.*
