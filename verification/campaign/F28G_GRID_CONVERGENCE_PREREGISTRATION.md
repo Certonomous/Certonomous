@@ -1054,3 +1054,107 @@ it is referred to `cfd-supervisor` with the arithmetic above already done.
 
 *Appended by `lab-lane` for `cfd-supervisor`, 2026-09-03. Zero compute. No solve launched,
 no gate, threshold, cap or label altered.*
+
+---
+
+## AMENDMENT 5 — THE TWO REMAINING MEASUREMENT DECISIONS ARE REGISTERED PRE-COMPUTE: `relax-u` BY EVIDENCE, AND MESH CERTIFICATION AGAINST THIS REGISTRATION'S OWN §5
+
+**Version 1.5. Lines whose number changed above this section: 0.** A pure append.
+Dated 2026-09-03, by the `cfd` lab-lane, on `cfd-supervisor`'s ruling of the same day.
+**PRE-COMPUTE.** No F28G solve has ever run and none is launched by this amendment.
+**No gate, threshold, cap or label is altered.**
+
+### A5.1 The condition, and how it was checked (rule 2)
+
+`verification/runs/F28_runs/F28G_L1_dp1000_U20/` **does not exist**, re-checked in the shell
+invocation that appended this section — `ls -d verification/runs/F28G*` **0 directories**,
+`ls -d verification/runs/F28_runs/F28G*` **0 directories**, `test -e` on the named path
+**non-zero**. The mesh stage of §8 is spent; the **solve stage has produced nothing**.
+
+### A5.2 `relax-u` = **0.7**, REGISTERED BY EVIDENCE AND HELD FIXED ACROSS THE TRIPLE
+
+§7 defers numerics to the parent's §8, which fixes `relax-u` as `0.7` **or** `0.5`,
+*"whichever is used is RECORDED PER RUN and HELD FIXED ACROSS THE TRIPLE"*. Nothing in this
+registration fixed which, and relaxation affects convergence on the graded quantity
+`T_total`, so choosing it is a **measurement decision** and it is registered here rather than
+taken at launch.
+
+**Chosen by evidence, not preference.** The ruling was: register whatever a **completed**
+parent run recorded; only if none exists, register `0.5`. Two parent runs completed
+(`solver_rc=0`, `phase=solved`) and **both recorded `relax_U=0.7`**:
+
+| run | `relax_U` | `solver_rc` | `wall_s` | record |
+|---|---|---|---|---|
+| `FEAS_L1_dp1000_U20_A2` | **0.7** | 0 | 625 | `verification/runs/F28_runs/FEAS_L1_dp1000_U20_A2/RUN_STATUS.F28.FEAS_L1_dp1000_U20_A2.FEASIBILITY.txt` |
+| `FEAS_L1_dp0_U20_A2` | **0.7** | 0 | 607 | `verification/runs/F28_runs/FEAS_L1_dp0_U20_A2/RUN_STATUS.F28.FEAS_L1_dp0_U20_A2.FEASIBILITY.txt` |
+
+Corroborated on disk rather than from the status line alone: each run's
+`system/fvSolution` `relaxationFactors/equations` reads `p 0.3; U 0.7; k 0.7; omega 0.7;`.
+
+**THE CAVEAT IS STATED, NOT BURIED:** both are **FEASIBILITY** rungs whose outputs are *never
+gradeable as verdicts*. What is taken from them is **not a number** but a **configuration
+that demonstrably converged on L1** (`rc=0` in 625 s and 607 s). That is a fact about the
+solver's behaviour under `0.7`, and it is the fact the ruling asked for. No feasibility
+value is imported into any gate.
+
+The `DIAG_*` rungs recorded `relax_U=0.3`, outside the parent's registered `0.7|0.5` pair,
+under `iter_cap=200`; they are diagnostics, none completed, and they are **not** evidence here.
+
+**`relax-u = 0.7` is HELD FIXED ACROSS L1, L2 AND L3.** A triple whose levels do not share it
+is not a triple.
+
+### A5.3 MESH ADMISSIBILITY — F28G's meshes are certified against **THIS** registration's §5
+
+Ruled by `cfd-supervisor` as owner of the mesh standard: **the registration under which a mesh
+is USED is the registration whose gates it must answer.** The birth certificates for
+`verification/runs/F28_runs/mesh_A4/L{1,2,3}/` are therefore cut against **§5 and §6 of this
+document** — the `1.25^(1/s)` per-level growth caps (`1.25000 / 1.16040 / 1.10426`) and the
+junction-jump bound — **not** against the parent's §5. Certifying against the parent's gates
+would produce a certificate answering a question nobody asked of these meshes.
+
+**This is a SCHEMA BINDING, NOT A GATE CHANGE.** No threshold moves; §5 and §6's numbers were
+frozen at `00188f82` and are untouched.
+
+**AND IT MAY NOT BLOCK.** A missing birth certificate is **procedural state** (Sanaa
+2026-09-03 ~21:00Z) and mesh-quality gates are **reported, not gated** (~20:00Z). If any of
+`mesh_A4/L1..L3` misses a §5 gate, that is **recorded as a prediction on the certificate and
+the run launches**. Neither a quality miss nor a missing certificate stops this study.
+
+### A5.4 THE CHECK-1 TOKENS ARE **TWO**, AT **DIFFERENT STRENGTHS**, AND MUST NOT BE READ AS EQUIVALENT
+
+| file | in the grading path? | token | strength |
+|---|---|---|---|
+| `analyse_f28g.py` | yes — the comparator | issued 2026-09-03 | **STRONG: 21 controls EXECUTED**, `--selftest` rc 0 under `python3 -O`, `limbs_failed: 0` |
+| `analyse_f28.py` | **yes** — imported at `:206`, called at `:600, :1580, :1582, :1595, :1596, :1631, :1648`; **`T_total` flows through it** | issued 2026-09-03 | **QUALIFIED — SOURCE-READ ONLY** |
+| `f28_apex_mechanism_check.py` | **no** — imported by nothing but itself | none needed | n/a |
+
+**THE QUALIFICATION, IN THE SUPERVISOR'S OWN TERMS.** `analyse_f28.py` **has no `--selftest`
+entry point**: measured `rc=2` identically with and without `python3 -O`, its usage exposing
+only `--grade` and `--guard-virgin`. Its plants — `PLANT_PA`, `PLANT_FO`, `PLANT_SU`,
+`PLANT_DX` — are therefore **DECLARED, NOT EXECUTED**. What the token attests is source
+discipline: zero bare `assert`, refusal at exit 2 with *"NOT A RESULT — comparator refuses"*
+rather than degradation, one plant per reader that produces a graded number, and tolerance as
+a function of the operand over a `PLANT_TOL` floor rather than a bare constant.
+
+> **The supervisor has read that the instrument CAN be made to fail; he has not seen it fail,
+> and cannot, because there is no way in. Declared controls prove capability, never
+> invocation.** This is the caller-side gap of `L-471`/`L-474` in its purest form, and **no
+> reader may upgrade this weaker token to the strength of the `analyse_f28g.py` one.**
+
+**IT DOES NOT BLOCK (Sanaa ~21:00Z).** It is carried as a **recorded prediction** onto the
+certificate, in these words: *"the parent comparator's controls are declared and unexecuted;
+no selftest entry point exists."* Adding one is a change to a **frozen grading path**, so it
+is **FORWARD-ONLY and rides a successor** — recorded here as an **OWED ITEM**, exactly as the
+`foam_to_ugrid` writer is.
+
+### A5.5 The launch path, corrected rather than duplicated
+
+`cases/F28_DUCTED_ACTUATOR_DISK/run_f28.sh` hard-bound its registration, so no successor could
+launch under its own freeze. Corrected at commit **`b3d5b529`**: the bound registration, the
+mesh subdirectory and the birth-certificate directory are now **parameters whose empty
+defaults reproduce the parent byte for byte**, and the launcher now **verifies its own blob
+against HEAD and REFUSES when it cannot** (fail-closed, out of `L-474`). **No physics
+parameter moved.** Reading `mesh_A4/L{1,2,3}` is **transcription**: §5 names those meshes at
+line 292, and solving `mesh_L<level>` instead would solve meshes this registration does not name.
+
+*Appended by `lab-lane` for `cfd-supervisor`, 2026-09-03. Zero compute. No solve launched.*
