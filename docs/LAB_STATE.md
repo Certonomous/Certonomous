@@ -14116,6 +14116,140 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### 🔬 **T21 WAS NOT FROZEN TONIGHT, AND THE PROBE THAT SAYS WHY RETURNS **FEASIBLE**: `regions ( fluid () solid (core housing) )` STARTS `chtMultiRegionSimpleFoam` v2606, REACHES `Time = 1`, SOLVES A REAL CONJUGATE INTERFACE AND WRITES — `rc = 0`. THE ZERO IS EVIDENCE BECAUSE **FOUR SIBLING ARMS ON THE SAME HARNESS DID CRASH**, ONE OF THEM PROVING THE `fluid ()` LINE WAS PASSED.** (2026-09-03T21:39:50Z)
+
+*(Lane block, written 2026-09-03T21:39:50Z — stamp from `date -u` read in the committing shell invocation. **PURE INSERTION at the top of the `## heat-transfer` section; every byte below stands unedited.** Nothing below is renumbered, deleted or rewritten — not the `2026-09-03T21:13:32Z` T16c block immediately following, not the `2026-09-03T19:30:29Z` T25R6c-R2/T3d block below that, and not any `**Section last written:**` stamp further down, which belongs to an earlier block and is deliberately **left unedited**. **Every figure below was measured by this lane at this write, or re-verified against `git log` / the named artifact — nothing is copied from the brief that commissioned it**; the five commit shas and subjects in §G were read back out of `git log` before being written here, and one figure the brief carried is qualified in §F because it is true of the commit's PARENT and not of HEAD. Anything not verified at this write is marked **VERIFY**. **Zero work under `verification/runs/`.** The probe ran at **1 rank in this lane's temporary space only**; `verification/runs/T-family/T21_runs/` was confirmed **ABSENT and was NOT created**, and no queue entry, registration, comparator or charter was touched. Per rule 13 no scratch path is cited in this repository document.)*
+
+---
+
+### A. **THE DECISION — T21 WAS NOT FROZEN TONIGHT, AND THE REASON IS A RULING ONE HOUR OLD**
+
+Freezing T21 was available tonight as the cheap route to freeze-ahead depth. **It was declined**, and the reason is not caution in general but one specific, measured precedent from this same session.
+
+This team ruled T5's `S_m` arm **`BLOCKED`**. `chtMultiRegionSimpleFoam` at v2606 opens `solid/createSolidMeshes.H` with `const wordList solidNames(rp["solid"]);` — **unguarded** — and `S_m` was registered with a `regionProperties` carrying **no `solid` entry at all**, so the solver died in its constructor. **The registered design and the registered solver were mutually unsatisfiable as written**, and the pre-compute check that should have caught it verified the *mesh* and never the *case–solver pair*. The lesson: **a pre-compute check that verifies the case and not the case–solver pair will pass a case that cannot start.**
+
+`docs/campaigns/T-family/T21_PREREGISTRATION.md` — untracked draft, **1,245 lines**, measured at this write — registers at its §1, lines **126–127**, `regionProperties = ` `fluid ()` / `solid (core housing)`: **zero fluid regions.** That is the *mirror* of the `S_m` shape, and freezing it blind would have risked repeating, within the hour, the error just ruled on. T21's own drafting had already been stopped on a **feasibility-first** ruling; the `S_m` finding vindicates that ruling, and the answer was owed to measurement, not to reasoning.
+
+**And the distinction is real, which is exactly why it had to be measured.** `S_m` **omitted** the `solid` key, so `rp["solid"]` threw on a missing key. T21 **declares `fluid ()` explicitly** — the key is *present with an empty list*, and `HashTable::at()` on a present-but-empty entry may perfectly well succeed. Whether it does, and whether the solver then survives an empty fluid-region set all the way to a write, is a question about a binary, not about an argument.
+
+---
+
+### B. **THE SOURCE READING — WHERE THE REGION LIST IS TAKEN, AND WHAT IS *NOT* GUARDED BY IT**
+
+All paths below are under `/usr/lib/openfoam/openfoam2606/`.
+
+| construct | file:line | what it does | guarded? |
+|---|---|---|---|
+| `regionProperties rp(runTime);` | `applications/solvers/heatTransfer/chtMultiRegionFoam/createMeshes.H:1` | reads `constant/regionProperties`; the class **is** a `HashTable<wordList>` (`src/meshTools/regionModel/regionProperties/regionProperties.H:95-97`), populated by `iodict.readEntry("regions", props, …)` at `regionProperties.cxx:86` | n/a |
+| `const wordList fluidNames(rp["fluid"]);` | `…/chtMultiRegionSimpleFoam/fluid/createFluidMeshes.H:1` | **unguarded** `HashTable::at()`. A **missing** key is a `FOAM FATAL ERROR` from `src/OpenFOAM/lnInclude/HashTableI.H:51`. A **present-but-empty** key yields an empty list | **NO** |
+| `const wordList solidNames(rp["solid"]);` | `…/chtMultiRegionFoam/solid/createSolidMeshes.H:1` | identical shape — **this is the line that killed `S_m`** | **NO** |
+| `forAll(fluidNames, i)` / `forAll(solidNames, i)` | `createFluidMeshes.H:5`, `createSolidMeshes.H:5` | on an empty list, **zero iterations**; `PtrList<fvMesh> fluidRegions(0)` is constructed empty and nothing indexes element 0 | harmless |
+| every `PtrList<…>(fluidRegions.size())` | `…/chtMultiRegionSimpleFoam/fluid/createFluidFields.H:2-24` | all sized 0; the populating `forAll` at `:29` never opens | harmless |
+| **`meshObjects::gravity::New(runTime)`** | `…/chtMultiRegionSimpleFoam/fluid/createFluidFields.H:26` | **AT FILE SCOPE, OUTSIDE the loop, which does not open until `:29`.** Constructed `IOobject::READ_MODIFIED` (`src/finiteVolume/cfdTools/general/meshObjects/gravity/gravityMeshObject.C:43-55`) — **the file must exist** | **NOT guarded by an empty fluid list** |
+| `fvSolution solutionDict(runTime);` | `…/chtMultiRegionFoam/include/createCoupledRegions.H:3` | reads the **top-level** `system/fvSolution` unconditionally, before any region loop | **NOT guarded** |
+| the four `forAll(fluidRegions, i)` / `forAll(solidRegions, i)` blocks in the time loop | `chtMultiRegionSimpleFoam.C:76, 87, 103, 127, 139` | all loop over the same lists; an empty fluid list simply skips its arms | harmless |
+
+**So the reading predicts:** the empty *list* is harmless throughout, but **two file-scope reads survive it** — `constant/g` and top-level `system/fvSolution`. Both predictions were then put on a binary.
+
+---
+
+### C. **THE MEASUREMENT — FIVE ARMS ON ONE HARNESS**
+
+A minimal scratch case: `blockMesh` box 20 × 10 × 10 mm at 10 × 5 × 5 cells, split by `topoSet` (two `cellZoneSet`s) + `splitMeshRegions -cellZones -overwrite` into **two solid regions**, `core` and `housing`, joined by the `mapped` interface pair `core_to_housing` / `housing_to_core` carrying `compressible::turbulentTemperatureRadCoupledMixed` on `T`; `heSolidThermo`/`hConst`/`rhoConst`/`constIso`, κ 200 vs 20 W/mK, outer walls fixed at 350 K (core) and 300 K (housing); `endTime 1`, `writeInterval 1`, **1 rank**. `rc` captured directly from `$?` on the solver line — **no `|| true`, no `setsid`** (both are measured lab traps; the second returns 0 for every outcome).
+
+| arm | `regions ( … )` | rc | what happened |
+|---|---|---:|---|
+| **A — the T21 shape** | `fluid ()  solid (core housing)` | **0** | `Create solid mesh for region core` / `… housing`; **no `Create fluid mesh` line at all**; `Time = 1`; `Min/max T: 300 350` (core) then `300 334.647` (housing); one `ExecutionTime` line; **`End`**; wrote `1/core/{T,p}` and `1/housing/{T,p}` |
+| **B — control, `solid` key REMOVED (the `S_m` shape)** | `fluid ()` | **1** | `FOAM FATAL ERROR … solid not found in table.  Valid entries: 1(fluid)`, from `HashTable::at`, `HashTableI.H:51` — raised at `solid/createSolidMeshes.H:1` |
+| **C — discriminator, `fluid` key REMOVED** | `solid (core housing)` | **1** | `FOAM FATAL ERROR … fluid not found in table.  Valid entries: 1(solid)`, same `HashTableI.H:51` — raised at `fluid/createFluidMeshes.H:1` |
+| **D — arm A minus `constant/g`** | as A | **1** | `FOAM FATAL ERROR … cannot find file "…/constant/g"`, after both solid meshes were built |
+| **E — arm A minus top-level `system/fvSolution`** | as A | **1** | `FOAM FATAL ERROR … cannot find file "…/system/fvSolution"`, after both regions' fields were built |
+
+**Three things this table establishes that no amount of reading could.**
+
+**1. The zero is evidence.** Arm A's `rc = 0` comes off a harness that produced `rc = 1` on **four** sibling arms differing from it by one dictionary entry or one file. A probe that cannot produce a failure has not demonstrated a success; this one produced four.
+
+**2. Arm B is not merely a control — it is the positive discriminator.** Its error names the *valid entries* it did find: **`1(fluid)`**. The `fluid` key was present, `rp["fluid"]` at `createFluidMeshes.H:1` **returned an empty list without throwing**, the zero-length `forAll` ran, and only the *later* `rp["solid"]` threw. **Present-but-empty and absent are measurably different**, and arm C shows the other side: remove the key and the very same `HashTableI.H:51` fires on `fluid` instead. **The `S_m` failure was a MISSING KEY, not an EMPTY LIST, and T21 does not share it.**
+
+**3. Arm A did real physics, not a no-op.** The housing's maximum reached **334.647 K** against its own 300 K outer wall — heat crossed the solid–solid `mapped` interface in one iteration. The run was not a hollow pass-through.
+
+**Corroborated upstream, independently of this lane:** OpenFOAM v2606 itself ships `tutorials/heatTransfer/chtMultiRegionSimpleFoam/jouleHeatingSolid/constant/regionProperties` reading `fluid ()` / `solid (solid)`. **The zero-fluid shape is a supported upstream configuration.** This probe extends it from one solid to **two solids with a live conjugate interface**, which is T21's shape and is what the tutorial does not cover.
+
+**Arms D and E confirm T21's own §6.2 by measurement.** The draft already registers, at lines **781–818**, that `constant/g` is mandatory despite there being no fluid region, citing `createFluidFields.H:26` and `gravityMeshObject.C`'s `READ_MODIFIED`. **That registration is correct and is now backed by a direct crash in the exact two-solid zero-fluid shape, not only by a source reading and a one-solid precedent.** Arm E adds a requirement the draft does **not** appear to register: a **top-level `system/fvSolution`** (a bare `SIMPLE { }` suffices) is read unconditionally at `createCoupledRegions.H:3`. **Recommended for the draft while it is still legally amendable** — flagged, not written, since editing the registration is not this lane's to do.
+
+---
+
+### D. **THE FINDING — `FEASIBLE`. AND ITS HONEST LIMITS.**
+
+**`fluid ()` with two solid regions is FEASIBLE on `chtMultiRegionSimpleFoam` v2606.** T21's registered case–solver pair is **satisfiable as written**, and the obstacle that would have made freezing it a repeat of `S_m` does not exist.
+
+**This is a feasibility finding, not a gate verdict**, and no term of the rule-1 vocabulary is claimed for it: nothing was gated, nothing was graded, and `FEASIBLE` is deliberately not offered as a synonym for `PASS`.
+
+**What this probe did NOT test, stated plainly rather than left to be assumed:**
+- **Geometry.** The probe is a 3-D hex box. T21 registers a **2-D axisymmetric wedge at θ = 5.0°, one cell circumferentially**. Wedge-ness is orthogonal to the region-list question, but **it was not exercised here**.
+- **Materials and source.** Placeholder solid thermo, not T21's registered PLA/aluminium properties, and **no `fvOptions` volumetric source** — T21's `core` carries one.
+- **Everything after the first iteration.** One iteration. Nothing about convergence, accuracy, the reference solution, the grid triple or the gate was measured, and nothing here bears on them.
+
+**Cost.** Five solver invocations plus `blockMesh`/`topoSet`/`splitMeshRegions`, all serial at 1 rank. Wall time per solver arm measured **0 s** by `date +%s` around each invocation — **below the resolution of the measurement**; gross well under **0.2 core-min**, which is stated as an upper bound and not as a measured value. **No rule-12 calibration row is owed**: this is a feasibility probe with no pre-registered estimate, not a completed process. `T3_R_fx` (T3d, 8 ranks) was not touched, signalled or approached; the probe took 1 of the 8 free cores briefly.
+
+---
+
+### E. **FREEZE-AHEAD — MEASURED AT THIS WRITE, AND IT IS WORSE THAN THE BLOCK BELOW SAYS**
+
+Sanaa's standing directive §2: ***"FREEZE-AHEAD ≥ 3: every team keeps at least three frozen, queue-ready registrations at all times. A starved queue is a planning defect."***
+
+**Measured 2026-09-03T21:36:00Z, on the counting convention `queue_runner.py` actually uses (top-level `<team>/*.json`; `held/` is not descended into and is not a queue):**
+
+| `verification/queue/heat-transfer/` | count |
+|---|---:|
+| **pending (top-level `*.json`)** | **0** |
+| `launched/` | 118 |
+| `held/` | 1 |
+| `refused/` | 1 |
+
+**heat-transfer FREEZE-AHEAD is 0 of 3. Deficit 3, with nothing pending.** The block below (§E, `2026-09-03T21:13:32Z`) measured **1** and forecast that it would go to 0 the moment `K0eR2_FP_T00.json` dropped; `launched/` has since gone 117 → 118. **That forecast is now realised and is recorded as such.**
+
+**The count is NOT padded with T21.** T21 is untracked, unfrozen and unenqueued; a registration whose case may not start is worth nothing to a queue, and until ten minutes ago nobody could say whether T21's would start. **It can now be frozen on the merits** — the feasibility obstacle is measured away and the freeze is the supervisor's personal check 4, not this lane's. But it is not frozen, so **it counts as zero here.** Refilling is registration work; nothing on the box blocks it.
+
+---
+
+### F. **A COMMIT-MESSAGE CORRECTION THAT CANNOT BE MADE IN THE COMMIT — RECORDED, NOT CORRECTED**
+
+`c4eb183c`'s message states its rule-11 derivation as *"max=479, blocks=0 … 482, distinct=0 — three different figures."* **`blocks=0` and `distinct=0` are a failed `$()` expansion**, not counts.
+
+**Re-measured at this write, and the basis matters:**
+
+| `docs/LESSONS.md` at | blocks | distinct | max |
+|---|---:|---:|---:|
+| **`c4eb183c^` (the parent — the state the message was describing)** | **482** | **477** | **479** |
+| `c4eb183c` and HEAD at this write | 483 | 478 | 480 |
+
+The two readings differ **because `L-480` itself landed in that commit** — which is the arithmetic confirming the derivation. **The load-bearing figure is correct: `max = 479` → `L-480`,** and `L-480` is present in `c4eb183c:docs/LESSONS.md`. The two wrong figures are **precisely the two that rule 11 says must never be used for anything** ("the MAXIMUM EXISTING NUMBER, never a count"), so **nothing rests on them.**
+
+**A commit message cannot be rewritten without rewriting history.** This is therefore **recorded, not corrected** — the same disposition this team took on the T3d launcher-pid case. **RULED: no correction commit.** A reader of `c4eb183c` who wants the counts reads this block; a reader who wants the lesson number reads `479 → L-480`, which the message got right.
+
+---
+
+### G. **INDEX OF THIS SESSION'S HEAT-TRANSFER RULINGS, WITH THEIR COMMITS**
+
+Every sha and subject below was read back out of `git log` at this write, not copied from the brief.
+
+| ruling | commit | committed (UTC) |
+|---|---|---|
+| **T5 `S_m` — `BLOCKED`.** The registered `regionProperties` carried no `solid` entry, so the solver died in `createSolidMeshes.H:1`'s unguarded `rp["solid"]`. **Crash triage discharged** — the crash is a finding, and the finding is that the case–solver pair was unsatisfiable as written. **No commit sha is asserted here for this ruling — VERIFY against the supervisor's own record.** | — | — |
+| **T16c — `NOT A RESULT`** on the registered unreachable branch; the ordering defect T16 had **published** did not fire on any level, 5813× to 6791× inside its own threshold | `ea8a3494` | 2026-09-03 21:00:21 |
+| **T5 y+: the evidence is preserved and the gate input is DELIBERATELY NOT CREATED** — the obvious recovery command writes a full table of zeros and exits 0 | `f9b82929` | 2026-09-03 21:14:36 |
+| **`L-480`** — a `writeControl`/`writeInterval` pair is not portable between function objects; on a `write()`-emitter it silently means *never* | `c4eb183c` | 2026-09-03 21:19:03 |
+| **T16c Amendment 3 — B1's rule-4 reading RULED**, reading (a) ratified; generalisation: *"unchanged"* against a **standing rule** never preserves a predecessor's weaker implementation | `ecb8cb8e` | 2026-09-03 21:25:41 |
+| **T16c Amendment 2 — the §10 declared omission is PRESERVED, NOT STRUCK**; the measured triple makes the blinding it declares **evidence of a prediction confirmed**, and striking it would destroy that evidence | `36fb5505` | 2026-09-03 21:27:14 |
+
+*(Ordering note, observed not inferred: **Amendment 3 was committed 1 m 33 s BEFORE Amendment 2**. The numbering is the amendments' own; the commit order is as above.)*
+
+**And one ruling that produces no commit at all: the T5 §2d.1 petition is being WITHDRAWN, NOT FILED.** `docs/campaigns/T-family/T5b_PREREGISTRATION.md:88` — verified at that exact line at this write — already forecloses it in terms: ***"`postProcess` may NOT be re-run on T5's completed cases to recover `y+`."*** §2 of that file grounds the foreclosure on Sanaa's own standing directive of 2026-08-27T16:54Z §3 (*"Answer-changing choices … are never selected by agreement with the reference. … Frozen gates never edited post-compute."*). **A petition that its own frozen predecessor has already answered is not a petition; it is a re-litigation.** Withdrawn — and, under standing rule 7, nothing was filed, sent or submitted anywhere in any case.
+
+---
+
+
 ##### ⚖ **T16c IS GRADED — `NOT A RESULT` ON FROZEN §4's REGISTERED UNREACHABLE BRANCH. AND THE VERDICT IS THE LEAST OF WHAT THE RUNG BOUGHT: IT *WITHDREW A FALSE DIAGNOSIS T16 HAD PUBLISHED*, AND IT *CORROBORATED VERIFICATION'S OWN T16 RULING WITH THE TRIPLE THAT DID NOT EXIST WHEN VERIFICATION RULED*. THE GRADING INVOCATION RETURNED `rc = 0` ON ALL FOUR `NOT A RESULT` ROWS — A READER CHECKING `$?` WOULD HAVE RECORDED A CLEAN GRADE.** (2026-09-03T21:13:32Z)
 
 *(Lane block, written 2026-09-03T21:13:32Z — stamp from `date -u` read in the committing shell invocation. **PURE INSERTION into the `## heat-transfer` section; every byte below stands unedited.** Nothing below is renumbered, deleted or rewritten — not the `2026-09-03T21:06:17Z` T5 block that a concurrent lane landed while this one was drafting, not the `2026-09-03T20:45:58Z` K0eR2 block, and not any `**Section last written:**` stamp further down, which belongs to an earlier block and is deliberately **left unedited**. **Every figure below was re-read at this write from `verification/runs/T-family/T16c_runs/gate_t16c.json`, `docs/campaigns/T-family/T16c_RESULTS.md`, `docs/COST_CALIBRATION.md` or the named commit object — not copied from a lane report.** Anything not verified at this write is marked **VERIFY**. **Zero solver compute by this lane; nothing launched, killed, signalled, moved or re-graded. `T3_runs/R_fx`, `K0eR2_runs/`, `T5_runs/` and `T25R6cR2_LEGAB_runs/` were not touched.**)*
