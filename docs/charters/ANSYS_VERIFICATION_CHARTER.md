@@ -2425,3 +2425,64 @@ the estimate and cap are re-filed. The comparator **refuses to grade** until its
 | ruled | code-to-code caps on **INDEPENDENCE**: vendor's-own-code → `GATE REACHED` (VMFL035); independent third party → `PASS` available (VMFL008), **with the shared-error scope stated in the row** |
 | gates | **0 moved** · bands | **0 moved** · caps | **0 moved** · re-grades | **0** · credentials | **0** · solver compute | **0 core-min, $0.00** |
 | lines whose number changed above this section | **0** |
+
+---
+
+## Amendment — v1.29, 2026-09-03 — **§34: VERIFICATION'S CONCATENATION POINT IS RIGHT AND SHARPER THAN OUR OWN; THEIR ILLUSTRATIVE PAIR IS WRONG, AND IT IS WRONG IN THE DIRECTION THAT WOULD MAKE THE REPAIR'S TEST PASS BY CONSTRUCTION**
+
+### §34.1 ACCEPTED — CONCATENATION, NOT MERELY SELECTION
+
+Verification accepted `§32` on every count and added one finding. **Their addition is correct
+and improves on our own characterisation:** `§32.1` described the lexical sort as taking *"a
+tail that is not the latest samples"*. **Their reading is sharper — the reader CONCATENATES
+two series in directory order**, so a second time-directory does not merely mis-select, it
+**interleaves two histories into one sequence that never existed.** Adopted; `§32.1`'s
+"selects a wrong tail" is the weaker statement of the same defect.
+
+### §34.2 ⚠ BUT THE PAIR THEY ILLUSTRATE IT WITH DOES NOT BREAK — VERIFIED AT SOURCE
+
+Their example is *"`0.1` before `0.05`"*. **Measured:** `sorted(['0.1','0.05'])` returns
+**`['0.05','0.1']`** — which **is** the correct numeric order. **Lexical sort does not
+misorder that pair, or any decimal pair sharing a prefix**: `['0.5','0.45']` → OK,
+`['0.9','0.10']` → OK.
+
+**Lexical order breaks on INTEGER-LIKE names OF DIFFERING DIGIT COUNT**, and only there:
+`['0','200','1000']` → `['0','1000','200']` **BREAKS**; `['9','10']` → `['10','9']`
+**BREAKS**; `['100','20','3']` → `['100','20','3']` **BREAKS**.
+
+**And that is precisely the regime VMFL001 is in.** Its `controlDict` sets `deltaT 1`,
+`endTime 3000`, `writeControl timeStep`, `writeInterval 3000` — **integer time-directory
+names**. A resumed run writing `3000` then `12000` misorders; one writing `3000` then `6000`
+(equal digit count) does not.
+
+> **WHY THIS IS WORTH CORRECTING RATHER THAN LETTING PASS OUT OF RECIPROCITY.** A repair
+> designed against the decimal example would be **tested with decimal directory names — which
+> never misorder — and would PASS while the real integer hazard survived untouched.** That is
+> a control that passes **by construction on the wrong specimen**, which is the exact failure
+> class this week has been spent on, and it would have been introduced by the repair meant to
+> close it. **`§32.1`'s drafted `--selftest` already plants `{"0","200","1000"}`** — integer,
+> differing digit count — **and is therefore the correct specimen. It stays as drafted, and
+> any repair registration must use integer names of differing digit count, never decimals.**
+
+**Stated plainly about the incentive:** this correction runs back to a team that had just
+accepted ours in full and commended us in the same message. **That is exactly when a check
+gets skipped**, and it is why it was run.
+
+### §34.3 THE `§28.4` CARRY, AND WHAT IT DOES NOT EARN
+
+Verification recorded our `VMFLGPU001-R2` `UNMEASURED` carry as the first application by
+another team of their `§28.4`, applied to our own favourable row. **Recorded, and it changes
+nothing about that row:** VMFLGPU001-R2's segmentation is **still unread**, still `UNMEASURED`,
+and still the one of the four carrying a favourable verdict. **A commendation for declaring a
+gap is not a step toward closing it**, and no record of this team may cite `§34.3` as though
+the quantity had since been measured. It is closed only by reading the remote instance.
+
+| amendment | v1.29 |
+|---|---|
+| clause added | **`§34`** (`§34.1`–`§34.3`) |
+| adopted from verification | **CONCATENATION**, not mere mis-selection — sharper than `§32.1`'s own wording |
+| corrected back | their `"0.1 before 0.05"` **does not misorder**; the hazard is **integers of differing digit count**, which is VMFL001's actual regime (`deltaT 1`, integer time-dirs) |
+| consequence | a repair tested on decimals would **pass by construction**; `§32.1`'s `{"0","200","1000"}` specimen stands and is **binding** on any repair registration |
+| unchanged | VMFLGPU001-R2 stays **`UNMEASURED`** |
+| gates · bands · caps · re-grades · credentials | **0 · 0 · 0 · 0 · 0** · solver compute **0 core-min, $0.00** |
+| lines whose number changed above this section | **0** |
