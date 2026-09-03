@@ -3558,3 +3558,131 @@ written down, by me, and not looked for.*** **`§2p.11`'s test is cheap and I ha
 to run it three times in six hours** — which is a better argument for the discipline than the
 clause I wrote to establish it, and it is filed here rather than in a place where it flatters
 me less to be found.
+
+---
+
+## §28.8 — **THE VACUOUS PREDICATE: A CHECK SATISFIED BY THE ABSENCE OF WHAT IT WAS MEANT TO EXAMINE. NOT A FIFTH FACE — IT IS `§28`'s TELL RESTATED IN LOGIC INSTEAD OF EPISTEMOLOGY, AND THAT RESTATEMENT BUYS A MECHANICAL TEST THE TELL COULD NOT GIVE** (2026-09-03T22:5xZ)
+
+**Zero compute; 0 core-min; $0.00. No gate, threshold, band, cap or label created, moved or retired; nothing re-graded. DISPOSITION: `REPORTED, NOT GATED`. No instrument is proposed and none is written.**
+
+### §28.8.1 THE MECHANISM, AND WHY IT IS NOT A NEW ENTRY
+
+Distilled by a dafoam lane from three same-night instances in three different artifacts:
+
+> **A CHECK WHOSE PREDICATE IS SATISFIED BY THE ABSENCE OF WHAT IT WAS MEANT TO EXAMINE.**
+
+**I RULE IT IS NOT A FIFTH FACE, AND THE REASON MATTERS MORE THAN THE RULING.** `§28`'s tell
+is *"the absence of an error was read as the presence of a check"* — **an epistemic
+description of a reader's mistake.** This is the same thing **stated in logic**:
+
+> **A UNIVERSALLY QUANTIFIED PREDICATE IS TRUE ON THE EMPTY SET.** *"Every changed path is
+> mine"*, *"every driven pin exists"*, *"every plant read back"* — **each is vacuously TRUE
+> when nothing was changed, driven, or read.** The check did not malfunction. **It returned
+> the correct answer to a question that had become empty.**
+
+**AND THE RESTATEMENT IS WORTH LANDING BECAUSE IT PAYS.** `§28`'s test — *"can this path
+distinguish 'the check ran and found nothing' from 'the check did not run'?"* — requires a
+reader to reason about a code path. **The logical form gives a test that can be applied to a
+PREDICATE, mechanically, without understanding the code around it.** *An epistemic tell finds
+instances when someone is already suspicious; a logical form finds them by inspection.*
+
+**IT SUBSUMES AT LEAST THREE OF THE FOUR FACES**, which is the strongest evidence it is the
+general form and not a new member: **face 1** (swallowed refusal — `2>/dev/null` yields empty
+output, so *"no errors"* holds vacuously); **face 2** (passing-on-skips — every pair skipped,
+so *"every evaluated pair flipped"* holds over an empty set); **face 4** (dropped-blocked-read
+— nothing read, so every property of what was read holds). **Face 3** (claim-from-completion)
+is **only partly covered** and I say so rather than round up: *"the process finished"* is a
+predicate about the **wrong object**, not a vacuous one about the right object. **`§28.6`'s
+M2a — the reader answering a different question — is the same partial case, and it is why M2a
+was refused a face.** *The vacuous predicate and the wrong-object predicate are cousins, not
+one thing, and the taxonomy is more useful for keeping them apart.*
+
+### §28.8.2 THE DISCRIMINATING TEST — MECHANICAL, AND IT FITS ON ONE LINE
+
+> **DOES THE PREDICATE REMAIN SATISFIABLE WHEN THE EXAMINED SET IS EMPTY, OR WHEN THE EXAMINER
+> IS BLIND?**
+> **The operational form: substitute the empty set — or a reader that can see nothing — and
+> evaluate. If the check still passes, ITS PASS CARRIES NO INFORMATION**, and it will pass on
+> the day the population it was written for disappears. **A pass that survives its own
+> subject's deletion was never measuring its subject.**
+
+### §28.8.3 THE INSTANCES — THREE RELAYED, TWO RE-DERIVED BY ME AT SOURCE
+
+`[REPORTED — dafoam; I did not open these three]`
+
+1. **A pin census printing `driven=4 exist=4 EQUAL` while blind to a fifth pin** — *both sides
+   of the equality used the same broken expression*, so **the equality was true AND vacuous.**
+   ⚡ *The sharpest of the set: two readers sharing a defect agree perfectly.*
+2. **A frozen plant control whose passing signature was BYTE-IDENTICAL to a totally blind
+   reader's** — SO-3D's `PLANT-B`, proven by evaluating the frozen expectation for both
+   readers on the same bytes. **This is `CLAUDE.md` rule 3's own control failing rule 3's own
+   test.**
+3. **Rule 10's protocol comment, `CLAUDE.md:114` — `# ASSERT: only your paths`** — **an EMPTY
+   `diff-tree` contains only your paths.** Two lanes landed empty commits with the assertion
+   satisfied.
+
+`[VERIFIED BY ME AT SOURCE — THIS TEAM'S OWN, AND INSTANCE 3's FOURTH OCCURRENCE]`
+
+4. **`ef33434c` — this team's own empty commit.** `git show --stat` returns **a subject line
+   and NO DIFFSTAT**; its tree is **byte-identical to its parent's**, verified by comparing
+   `ef33434c^{tree}` with `ef33434c~1^{tree}`. **It carries the full message of an amendment
+   it did not make**, and it landed with rule 10's assertion satisfied. Struck by disclosure
+   at `b086eaf6`. **Three lanes, three teams, one night, on one line of the constitution.**
+5. **The `corrects:` clause-parity claim, `70a8f935`.** A comment asserted coverage was
+   preserved across four records. **Made executable at my requirement, the raw sets came back
+   UNEQUAL.** The limb that now guards it is explicitly a **NON-EMPTY-BASELINE** limb —
+   *because two empty sets agree perfectly* — and it exists **only because the vacuous case
+   was anticipated.**
+
+⚠ **AND ONE THING THAT IS NOT AN INSTANCE, SEPARATED BECAUSE LUMPING IT WOULD INFLATE THE
+CLASS.** This session's `b1659976`, which destroyed 120 committed lines, was **NOT** a vacuous
+predicate: the diff was **non-empty**, the assertion `test -s` **correctly passed**, and the
+defect was that **no test consumed the DELETION COUNT** (`L-476`). *A missing test and a
+vacuous test are different failures, and `ef33434c` and `b1659976` are the two of them landing
+in the same shell three hours apart.*
+
+### §28.8.4 THE CURE GENERALISES, AND IT IS ALREADY IN USE ON THREE TEAMS
+
+> **ASSERT NON-EMPTINESS ALONGSIDE THE PROPERTY.** Never *"every X has property P"* alone —
+> always ***"there is at least one X, AND every X has property P."*** **The existential is not
+> a nicety; it is the half that can fail.**
+
+**Independently arrived at, three times, by three teams, before this section named it:**
+dafoam's **empty-tree guard**; this team's **`test -s` on the diff-tree output** and the
+**numstat comparison that replaced it**; this team's **NON-EMPTY-BASELINE limb** in the
+clause-parity work. **A cure that three teams reach separately is a cure the lab already
+believes in and had not written down.**
+
+**The `ENV-0` closure principle dafoam may bring separately — *every exit states which
+registered outcome occurred* — is the same idea at the exit-code layer**, and is noted here as
+adjacent rather than adopted, since it has not reached me as a filing.
+
+### §28.8.5 THE CONSTITUTION'S OWN EDGE — ROUTED CORRECTLY, AND NOT TOUCHED BY ME
+
+**`CLAUDE.md:114` carries the vacuous predicate in rule 10's own recipe**, verified by me at
+source. **Amending `CLAUDE.md` is Sanaa's alone (rule 9), and the chief has put a one-line
+proposal on her desk without asking any team to touch it. THAT ROUTING IS CORRECT AND I
+ENDORSE IT EXPLICITLY.** *No team may repair the constitution for her convenience, and a
+supervisor who "just fixed the comment" would have done exactly the laundering rule 9
+forbids.*
+
+**WHAT THIS TEAM DOES INSTEAD, AND IT NEEDS NO PERMISSION: every private-index commit I have
+made since `L-476` asserts the numstat — added, deleted and path — rather than reading a
+`--stat`.** *The recipe's text is hers; what I put in my own shell is mine.*
+
+### §28.8.6 DISPOSITION
+
+| item | outcome |
+|---|---|
+| classification | **NOT a fifth face — the FORMAL STATEMENT of `§28`'s tell** |
+| what it buys | **a MECHANICAL test over a predicate, where the tell required reasoning about a code path** |
+| coverage | **subsumes faces 1, 2 and 4; face 3 and `§28.6`'s M2a are the WRONG-OBJECT cousin, only partly covered — and kept apart deliberately** |
+| the test | **does the predicate remain satisfiable on the EMPTY SET, or with a BLIND examiner?** |
+| the cure | **assert the EXISTENTIAL alongside the universal — "at least one X, AND every X has P"** |
+| instances | **3 REPORTED (dafoam), 2 RE-DERIVED by me (`ef33434c`, `70a8f935`)** |
+| ⚠ not an instance | **`b1659976` — non-empty diff, missing test, not a vacuous one. `L-476`, a different failure** |
+| verdicts moved | **ZERO** |
+| the constitution | **`CLAUDE.md:114` carries it; ROUTED TO SANAA by the chief; NOT touched by this team, and that routing is endorsed** |
+| sweep · backfill · new instrument | **0 · 0 · 0** |
+| gates · thresholds · bands · caps · labels | **0 · 0 · 0 · 0 · 0** |
+| solver compute | **0 core-min, $0.00** |
