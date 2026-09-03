@@ -1,0 +1,47 @@
+{
+  "_note": "POST-REFUSE DIAGNOSTIC REPRODUCTION by ansys-lane-opus48. This is NOT the frozen calibrate's own report -- the frozen run (blob 2092c55dd59d36c490b5fc3681bfd36c30d5b49b, commit 0fab170f) REFUSED (exit 2) mid-run and emitted no JSON; its real stdout/stderr are GRADE_DIGITIZER.out / GRADE_DIGITIZER.err. This file reproduces the frozen instrument's own deterministic (seeded) per-quantity computations to explain WHY it refused. Synthetic plates only; no real plate was read.",
+  "instrument_blob": "2092c55dd59d36c490b5fc3681bfd36c30d5b49b",
+  "freeze_commit": "0fab170f",
+  "command": "python3 cases/ansys_verification/DIGITIZER/digitize_calibrate.py --calibrate --n 24",
+  "run_rc": 2,
+  "wall_s": 6.770,
+  "core_min_actual": 0.1128,
+  "core_min_cap": 0.3,
+  "cap_ok": true,
+  "cap_note": "no overrun; 0.1128 < 0.3 core-min (single core)",
+  "task_verdict": "NOT A RESULT",
+  "task_verdict_reason": "POSITION PLANT-NULL refused (exit 2): a plant failed, so the instrument unlocks nothing (charter 25.7 / 28.8). The VALUE quantity calibrated cleanly, but the task as a whole is NOT A RESULT.",
+  "value": {
+    "units": "y-data",
+    "u_read": 0.00505051,
+    "terms": {"syn_rms": 0.000684824, "half_spread": 1.74806e-05, "pixel_floor": 0.00505051},
+    "floor_dominates": true,
+    "B_half_spread_binds": false,
+    "prediction_A_and_B_lt_C_holds": true,
+    "plant_detect_band_ok": true,
+    "rms_bias": 0.0002651,
+    "bias_ok": true,
+    "syn_rms_steep": 0.001999,
+    "syn_rms_steep_over_whole": 2.92,
+    "status": "all VALUE plants fired and passed"
+  },
+  "position": {
+    "units": "x-data",
+    "u_read_candidate": 0.00277778,
+    "terms": {"syn_rms": 0.00265761, "half_spread": 1.36147e-07, "pixel_floor": 0.00277778},
+    "floor_dominates": true,
+    "B_half_spread_binds": false,
+    "prediction_A_and_B_lt_C_holds": true,
+    "per_plate_abs_err_px": {"min": 0.035, "mean": 0.843, "max": 1.693},
+    "null_control_plate0_feat_x": 1.0023,
+    "null_control_offset_xdata": 0.00324241,
+    "null_control_offset_px": 1.167,
+    "plant_null": "REFUSED -- null offset 1.167 px > u_read 1.000 px (pixel floor)",
+    "status": "PLANT-NULL refused; instrument declined to certify a POSITION u_read"
+  },
+  "axis_negatives": {
+    "note": "not reached -- the run refused during POSITION finalisation, before the shared axis-negative controls; both were exercised and passed in --selftest (log-as-linear and planted-flip refuse)."
+  },
+  "finding": "The prediction 'A and B < C' HELD for both quantities (u_read = pixel floor). For VALUE that is fine. For POSITION it is the problem: the pixel floor (1.000 px) is BELOW the steepest-descent feature locator's own per-plate error (mean 0.843 px, MAX 1.693 px), so a floor-dominated POSITION u_read is optimistic, and the planted null control (rule 3 / 16.4) correctly refused rather than certify it. The valuable surprise is that the prediction holding is exactly what exposed the unsafe floor.",
+  "recommended_next_step_NOT_taken_here": "A re-file (the frozen file must NOT be edited, rule 6) with a POSITION u_read derivation that does not let the pixel floor understate the locator error -- e.g. a high-percentile/max synthetic-control statistic instead of RMS, or a sub-pixel parabolic-fit feature locator. Supervisor/next-registration decision, not this lane's."
+}

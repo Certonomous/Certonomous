@@ -1,0 +1,3 @@
+CALIBRATION (per gated quantity, in its own units; 28.2):
+  [value   ] u_read=0.0050505 y-data  (syn_rms=0.0006848 half=1.748e-05 floor=0.005051)  detect_band_ok=True bias=0.0002651
+             steep-region syn_rms=0.001999 (2.92x whole) -- a steep read uses THIS (28.5)
