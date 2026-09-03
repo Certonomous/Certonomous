@@ -22832,3 +22832,104 @@ short-circuits.** Write the message file as its own step, then `test -s` it, the
 `scripts/append_record.py`'s tool-allocated-id check, which was **right** — hand-writing a
 tool-allocated id outside a structured `corrects:` field is the `C-217`/`L-404` duplicate
 mechanism in new clothes.
+
+---
+
+## L-470 — THREE GUARDS IN ONE SESSION RETURNED A CLEAN ANSWER WITHOUT HAVING LOOKED AT THE THING THEY CLAIM TO CHECK, AND ALL THREE ARE PLANTED-ZERO FAILURES IN DOMAINS WHERE NOBODY THOUGHT TO PLANT
+
+**Measured 2026-09-03, heat-transfer, on the T25R6c-R2 rung. Two of the three are my own
+defects, self-caught; the third is in a comparator I wrote and froze. Filed together
+because the individual bugs are trivial and the SHAPE is not — and because the same shape
+was docketed the same day as D588 from two *other* graders, which makes five instances in
+one session across two teams.**
+
+### The three
+
+**(1) A `git` assertion satisfied by the empty set.** The rule-10 private-index protocol
+ends with an assertion that `git diff-tree $H $T` shows *only my paths*. The queue daemon
+moved my entry to `launched/` between my validation and my `update-index`, so the add
+failed, the tree I wrote **equalled its parent**, and `diff-tree` printed **nothing**.
+Nothing is a subset of my paths. The guard passed. Commit `6d3b6c2d` is empty, carries a
+message describing a file it does not contain, and **the guard designed to catch a
+clobber could not distinguish "committed exactly my paths" from "committed nothing at
+all."**
+
+**(2) A reader whose addressing scheme could not name the object.** A progress monitor
+tested for the run's endTime field directory with a literal glob, `processor0/111.8`, and
+reported `FIELD DIRS at 111.8: 0` on a run that had written it. OpenFOAM names time
+directories from the **accumulated float**, so the directory is `111.799999999998` and no
+literal-string match can ever see it. **The zero was false and it looked exactly like the
+failure the predecessor rung had actually suffered** — T25R6c really did write no
+directory at its endTime. It was caught only because a second, independent reading
+existed: the frozen grader's `abs(float(d) - ENDTIME_B) <= 1e-6`, which matches, and the
+`DONE` marker it gates, which is on disk.
+
+**(3) A selftest that passed 39 checks on a comparator that cannot write its own
+verdict.** `grade_t25R6cR2.py --selftest` reports `PASS (0 failed)` over 39 checks
+covering every gate, every control and five planted mutations. **It never calls
+`finish()`.** On the real run the grader evaluated and printed every gate correctly and
+then raised `TypeError: not enough arguments for format string` at the record-writing
+step — a literal `%` in the prose string `"an irreducible ~3 % floor"` sitting in the same
+string as a `%d` interpolation, so Python consumed the argument as a space-flagged float
+conversion. **`T25R6cR2_VERDICT.json` was never written and the process exited 1, which is
+not in that grader's registered vocabulary (0/2/3/4).** A comparator that could not record
+an answer had certified itself healthy.
+
+### The mechanism they share
+
+Each guard has a different bug — vacuous truth, an addressing mismatch, uncovered code —
+and the same failure:
+
+> **THE GUARD RETURNED WITHOUT EVER HAVING TOUCHED THE THING IT CLAIMS TO CHECK, AND A
+> UNTOUCHED CHECK IS INDISTINGUISHABLE FROM A PASSED ONE.**
+
+(1) evaluated a predicate over an empty collection. (2) asked for an object by a name it
+could not have. (3) never executed the limb at all. In every case the *output* was the
+output of success.
+
+**This is rule 3 — the planted-zero control — outside the domain the lab planted it in.**
+Rule 3 exists because "a zero from a reader not shown able to see a non-zero is not
+evidence," and the lab enforces it rigorously on **comparators reading solver logs**.
+Nobody plants into a git assertion, a shell glob, or a selftest's own coverage. **All
+three of these are exactly the reader rule 3 forbids, in places the rule was never
+pointed at.**
+
+### The rules
+
+> **AN ASSERTION OVER A SET MUST ALSO ASSERT THE SET IS NON-EMPTY.** `only my paths` is
+> not a check; `exactly my paths AND not none` is. Applied here as a hard `[ "$N" -eq 1 ]`
+> on `diff-tree -r --name-only | wc -l` before `commit-tree`, in every commit after the
+> empty one.
+
+> **NEVER ADDRESS A FLOAT-NAMED ARTIFACT BY ITS LITERAL NAME.** OpenFOAM time directories
+> are accumulated floats: `111.799999999998`, not `111.8`. Match by **value with a
+> tolerance**, the way the frozen graders already do, and never by string equality or
+> glob. A literal match on a float name is a guaranteed false negative that is
+> **indistinguishable from the real defect it is looking for.**
+
+> **A SELFTEST THAT DOES NOT EXECUTE THE RECORDING PATH IS A TEST OF THE MEASUREMENT
+> ONLY.** A comparator's selftest must reach **every exit** — including `finish()`,
+> including the JSON write — because the artifact IS the deliverable and a verdict that
+> cannot be written did not happen. The cheapest sufficient form: run the full grade
+> against a synthetic case directory in a temp root and require the verdict file to exist
+> and parse.
+
+### What this does NOT license
+
+**It does not license repairing a frozen comparator on a lane's own authority.** The
+crash in (3) was triaged and escalated, not patched: crash triage is `SUPERVISION_CHARTER`
+§3 check 2, the supervisor's personal and non-delegable call, and the supervisor's earlier
+approval covered a *specific* diff — an approval is only as wide as what was approved
+(rule 9). What the lane may do, and did, is **quantify what a proposed fix would move**:
+on a copy in scratch with the single character `%` escaped to `%%` and nothing else
+changed, the grader exits **3 (GATE FAIL)** and every printed gate line is **byte-identical**
+to the frozen run's. `VERIFICATION_CHARTER` §2d.1 condition (3) asks what moved; the
+answer is **nothing — not one digit of one gate** — and that answer is a measurement
+offered to the supervisor, not a permission taken by the lane.
+
+**Cited:** empty commit `6d3b6c2d`; the false-zero monitor and its correction in
+`23eef25d`; the grader crash, its triage and the byte-identical probe in `286276a1`;
+`verification/runs/T-family/T25R6cR2_LEGAB_runs/T25R6cR2_GRADE_STDOUT.txt` (the traceback,
+landed rather than tidied). **Companion:** `docs/DOCKET.md` **D588**, two
+unsatisfiable-as-written gate predicates found the same day by *reading* comparators
+rather than running them — the same shape, arrived at from the opposite direction.
