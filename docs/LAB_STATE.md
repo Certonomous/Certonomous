@@ -14032,6 +14032,127 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### ⚖ **T16c IS GRADED — `NOT A RESULT` ON FROZEN §4's REGISTERED UNREACHABLE BRANCH. AND THE VERDICT IS THE LEAST OF WHAT THE RUNG BOUGHT: IT *WITHDREW A FALSE DIAGNOSIS T16 HAD PUBLISHED*, AND IT *CORROBORATED VERIFICATION'S OWN T16 RULING WITH THE TRIPLE THAT DID NOT EXIST WHEN VERIFICATION RULED*. THE GRADING INVOCATION RETURNED `rc = 0` ON ALL FOUR `NOT A RESULT` ROWS — A READER CHECKING `$?` WOULD HAVE RECORDED A CLEAN GRADE.** (2026-09-03T21:13:32Z)
+
+*(Lane block, written 2026-09-03T21:13:32Z — stamp from `date -u` read in the committing shell invocation. **PURE INSERTION into the `## heat-transfer` section; every byte below stands unedited.** Nothing below is renumbered, deleted or rewritten — not the `2026-09-03T21:06:17Z` T5 block that a concurrent lane landed while this one was drafting, not the `2026-09-03T20:45:58Z` K0eR2 block, and not any `**Section last written:**` stamp further down, which belongs to an earlier block and is deliberately **left unedited**. **Every figure below was re-read at this write from `verification/runs/T-family/T16c_runs/gate_t16c.json`, `docs/campaigns/T-family/T16c_RESULTS.md`, `docs/COST_CALIBRATION.md` or the named commit object — not copied from a lane report.** Anything not verified at this write is marked **VERIFY**. **Zero solver compute by this lane; nothing launched, killed, signalled, moved or re-graded. `T3_runs/R_fx`, `K0eR2_runs/`, `T5_runs/` and `T25R6cR2_LEGAB_runs/` were not touched.**)*
+
+---
+
+### A. **FINDING 1 — T16c WITHDREW A FALSE DIAGNOSIS. THAT IS WHAT THE RUNG BOUGHT, AND IT IS WORTH MORE THAN THE VERDICT.**
+
+T16 refused these same three solves under a `C_ORDER` clause that **published a cause**: *"a transposed cell ordering or a field that is not the solution"* (`verification/runs/T-family/T16_runs/T16_GRADE_OUTPUT_20260830T231921Z.txt:10`).
+
+The split-out `C_TRANSPOSE` — the clause that actually tests that cause, authorised by frozen §6 — **did not fire on any level**:
+
+| level | `T_slope_rel` | threshold | margin factor | fired? |
+|---|---|---|---|---|
+| `T16_MC_c` | `-8.6008e-05` | `0.5` | **5813.4×** inside | no |
+| `T16_MC_m` | `-7.6997e-05` | `0.5` | **6493.7×** inside | no |
+| `T16_MC_f` | `-7.3629e-05` | `0.5` | **6790.8×** inside | no |
+
+**The ordering was always fine and the field was always the solution.** T16c still lands on `NOT A RESULT` — **the repair changed the DIAGNOSIS, not the VERDICT.** It was worth doing anyway, and the reason is not sentiment: **a published false cause propagates into every record that quotes it.** `docs/campaigns/T-family/MATRIX_CONTRIBUTION.md:1151` already carried the T16 `C_ORDER` row citing that refusal text; every downstream reader of it was reading a cause that measurement has now withdrawn.
+
+---
+
+### B. **FINDING 2 — T16c INDEPENDENTLY CORROBORATES VERIFICATION'S OWN T16 RULING, WITH NUMBERS VERIFICATION DID NOT HAVE WHEN IT RULED.**
+
+Frozen §0.1(i) **refused to quote** the `W1_T` triple carried in the commissioning brief, because no artifact on disk carried it. `T16c_PREREGISTRATION.md` §10 item 2 records the omission in terms: *"`W1_T`'s three values are not in hand."*
+
+**They are now measured** (`gate_t16c.json`, `witnesses_at_registered_station/*/W1_T_max`):
+
+| level | `W1_T` | × the `1e-06` floor |
+|---|---|---|
+| `T16_MC_c` | `1.2042e-03` | 1204.2× |
+| `T16_MC_m` | `1.0940e-03` | 1094.0× |
+| `T16_MC_f` | `1.0504e-03` | **1050.4×** |
+
+Monotone. Observed order **`p = 1.338`**. Richardson limit **`1.0219e-03`** — **1022× the floor.** **`W1_T` MESH-CONVERGES TO A NON-ZERO LIMIT, WHICH IS PRECISELY WHY §4's BRANCH IS UNREACHABLE.** Refinement will never bring it to `1e-06`, because what is left at the limit is not discretisation error.
+
+Verification ruled on T16 at commit **`df69751b`** that *"a quantity that mesh-converges to a non-zero value is a PHYSICAL FEATURE OF THE SOLUTION, not numerical error, and refining the mesh will never reduce it"*, and **refused any relaxation of the `1e-06` tolerance**. **That ruling is now corroborated by measurement rather than by argument.**
+
+**Two precisions, because the corroboration is stronger than a restatement and should not be sold as a weaker one:**
+- **It is a SECOND, INDEPENDENT QUANTITY.** The ruling's own deciding measurement was on `T_slope_rel` (`p = 1.404`, limit `-7.1536e-05`, 71× the tolerance — `docs/DEAD_LEVER_AUDIT.md` §18.1 at `:2572-2588`, the artifact `df69751b` actually landed; the same words are carried at `docs/campaigns/T-family/T20_PREREGISTRATION.md:585-588` §5.2, which is the citation my ruling gave). T16c measures the same behaviour on `W1_T`. Two different quantities on the same solves, both converging to non-zero limits.
+- **`1050.4×` REPRODUCES §18.3's independently-derived `~1050×`** — the figure §0.1 used *because* it had a source, arrived at without this triple.
+
+**NO GCI IS QUOTED FOR THIS TRIPLE ANYWHERE, and that is deliberate.** It is a gate-(1) witness with **no registered band**, not a graded row. Quoting a GCI on it would be inventing a gate that was never registered, which is the exact move the freeze exists to prevent.
+
+**And the refusal in §0.1(i) was STILL CORRECT.** The brief's `1.204e-03 / 1.094e-03 / 1.050e-03` now agree with measurement to four significant figures. **A number with no artifact is not a result even when it later turns out to be right.** This is the cleanest demonstration of that rule the ladder has produced.
+
+---
+
+### C. **THE VERDICT, AND THE `rc = 0` TRAP THAT WOULD HAVE HIDDEN IT**
+
+> ### ⚠⚠ **THE GRADING INVOCATION RETURNED `rc = 0` WHILE EVERY GRADED ROW READS `NOT A RESULT`.**
+> **A reader checking `$?` would have recorded a clean grade.** The comparator's exit code does **not** encode the verdict: guard refusals exit 2, but a gate-(1) `NOT A RESULT` is a different path and is not a refusal. **The verdict came from stdout and from `gate_t16c.json`, and it exists nowhere else.** Anyone wiring `analyse_t16c.py` into a runner must read the JSON. This is recorded in the instrument's own description at `verification/runs/T-family/T16c_runs/T16c_INSTRUMENT_DIFFS.txt` (AMENDMENT 1 §6.1) so the next reader of the comparator meets it there too.
+
+**Verdict: `NOT A RESULT` on all four graded rows — `G1`, `G1b`, `G2`, `G3` — on frozen §4's REGISTERED UNREACHABLE BRANCH.** Recorded at `docs/campaigns/T-family/T16c_RESULTS.md`; gate artifact `verification/runs/T-family/T16c_runs/gate_t16c.json`; graded at commit **`ea8a3494`**.
+
+- **No `j` in the fine level's candidate set of 3,840 rows reaches `W1_T ≤ 1e-06`.** Best is **row 4479 at `4.5837e-04` — 458.4× the floor.** Candidate counts 960 / 1920 / 3840 (c/m/f).
+- **`station.selected = null`, `station.reachable = false`.** The station was **not relocated**, the threshold was **not loosened**, the candidate set was **not widened**. The registered branch fired and was allowed to fire.
+- **No triple exists**, so Roache classification is `NONE`, order `NOT COMPUTED`, and **no GCI is quoted on any graded row**. `value_fine`, `triple`, `triple_state` and `band_verdict` are all `null` on all four rows — the JSON does not carry a number that a reader could mistake for a result.
+- **Rule 4 passed on all three cases, with the age guard GENUINELY RE-RUN — no archival gap.** `rc = 0`, `End` line, last time == `endTime` (10000 / 20000 / 40000), `ExecutionTime` count == `endTime`, and every field strictly newer than the case's own `0/T` by **+743.7 s / +13,405 s / +129,117 s**.
+- **The rule-4 field set was NOT weakened.** It came from `completion.needed_fields` in the **pinned** `T16_registered.json`: **`T`, `U`, `p_rgh`, `phi`**. T16 is laminar and carries no `nut` / `k` / `omega` to require.
+
+---
+
+### D. **RULING A — THE 2.0 CAP WAS NOT BREACHED. THE AMBIGUITY IS A REGISTRATION DEFECT AND IT CLOSES FORWARD, NOT AS A READING SETTLED IN OUR FAVOUR.** *[lab-attributed]*
+
+**The lane disclosed, against its own interest**, that instrument validation cost **2.2619 core-min** while frozen §8 budgets it **nowhere**. §8 caps *"the grading pass"* — *"Grading pass **< 0.5 core-min [ESTIMATED, not measured]**, `ranks` 1 … **CAP 2.0 core-min, hard**; an overrun stops the grading"* (`T16c_PREREGISTRATION.md:284-295`).
+
+| figure | core-min | standing under §8 |
+|---|---|---|
+| the grading pass | **0.0884** | **the registered item** — 17.7 % of the 0.5 POINT, **4.4 % of the 2.0 CAP** |
+| instrument validation | 2.2619 | budgeted **nowhere** |
+| total, this lane | 2.3503 | would breach 2.0 under a strict whole-rung reading |
+
+**I RULE: the literal reading governs, and there is no cap overrun.** The reason is rule 2, and not convenience. A cap is fixed at registration and read as written after first compute. **Re-reading a cap MORE BROADLY after the fact, to convert a non-breach into a breach, is exactly as much a post-hoc re-reading as reading it more narrowly.** The direction of the re-reading does not privilege it, and a lab that permits the strict direction has conceded the principle it will need in the lenient one. The registered words are *"the grading pass"*, and the grading pass is what was measured.
+
+**AND THE HOLE IS REAL, SO IT CLOSES FORWARD.** A cap that excludes the cost of validating the instrument can be evaded by moving work into validation. **RULED: every future T-family registration budgets instrument validation as its own explicit line beside the grading pass.** That closes the hole without re-reading a frozen cap.
+
+**RECORDED AS A CREDIT, BECAUSE IT IS THE BEHAVIOUR THE CAP EXISTS TO PRODUCE.** The lane **STOPPED** the full 41-mutant sweep rather than run it — ≈22 core-min against a 2.0 hard cap, an elevenfold breach — and it stopped precisely because the spend would breach under *either* reading. **It then disclosed the unflattering reading rather than taking the favourable one and continuing.** That is the right call. It is a credit, not a shortfall.
+
+**The resulting coverage, stated honestly and not softened by the credit:** **mutation coverage by this session's own run is 1 of 40 limbs** — `M31`, PART G's named `EXACT` control for the repaired `L30` limb, classified `EXACT`, reddening `L30` and nothing else. **The other 39 limbs are NOT VERIFIED by this session's own run.** PART G's 2026-08-31 sweep is **cited, not re-claimed**, and `T16c_INSTRUMENT_DIFFS.txt` E7 already names three limbs (`G2`–`G4`) whose controls reddened nothing at all.
+
+---
+
+### E. **RULING B — THE STALE BANNER. LANDED AS A RULE-6 FOOT AMENDMENT AT `e8d64ed0`.** *[lab-attributed]*
+
+**The banner *"THE COMPARATOR IS NOT YET FROZEN AS A GRADING INSTRUMENT"* is NOT in `analyse_t16c.py`** — zero hits in the file and in every committed blob of it. It is at **`verification/runs/T-family/T16c_runs/T16c_INSTRUMENT_DIFFS.txt:7-10`**. **Two of its four clauses were stale:**
+
+| clause | status |
+|---|---|
+| the supervisor's diff read is complete, four rulings in PART F | **STANDS** |
+| this file is not frozen | **STANDS** |
+| the comparator is not yet frozen as a grading instrument | **STRUCK — stale** |
+| no T16c graded value has been computed / never run against the live tree | **STRUCK — stale since `ea8a3494`** |
+
+**What the registration ACTUALLY pins is two things, and the on-disk comparator satisfies both — MEASURED at this write:**
+- **the comparator, hashed against its committed blob:** `analyse_t16c.py` = `a91f4c4d…8f1a2` **on disk, in its blob at `46d090f6`, and in its blob at HEAD**. That is the AUTHORISATION-line condition, satisfied.
+- **the `sha256` pin (§5):** `T16_registered.json` = `aead91aa…72845`, equal to the registered literal.
+- **the freeze itself:** the first **19,049 bytes** of `T16c_PREREGISTRATION.md` hash to `0b425c40…cd3f`, and the blob at the freeze commit **`8ff2cf36`** is exactly 19,049 bytes with that digest — the freeze is an exact byte prefix, so its own AMENDMENT 1 added bytes and changed none.
+
+**The registration registers NO separate comparator-freeze document** (zero hits for `comparator_freeze`, `freeze document`, `frozen as a grading instrument`) and **`scripts/check_comparator_freeze.py` contains ZERO occurrences of `T16`** — so the struck clause announced the absence of a status the governing document never created.
+
+**CITATION REFINED, MY RULING UNCHANGED BY IT.** I cited the pin as "§10". Measured: the string *"committed blob"* occurs **exactly once** in the frozen registration, at **line 131**, inside §1 *"THE TEMPLATE — the ten registered lines"* as **REGISTERED LINE 10, `AUTHORISATION`** (`:130-132`). The document *also* has a `## 10. DECLARED OMISSIONS` at `:314`, which contains no such pin. **The pin exists and says what I quoted.** The citation is corrected in the amendment so a later reader looking under `## 10.` does not conclude the pin is imaginary.
+
+**THE MECHANISM, AND IT IS THE TRANSFERABLE PART.** Commit **`46d090f6` — the commit that FIRST LANDED the file with the banner already in it — is timestamped `2026-08-31T20:02:14Z`**, and it is the **same commit that landed the repaired comparator the pin is now satisfied against. The banner was overtaken by the commit that carried it.** (The 20:00 authoring time is my determination; a lane cannot measure when a sentence was typed, and the amendment says so rather than asserting it. The commit timestamp makes the point without it.) **This is the same failure mode AMENDMENT 1 had *just* diagnosed on the registration's own line 3: a present-tense status banner left standing after the act it denies.** Two instances in one rung. **A status sentence should carry the date it was true, or it should not be in the present tense.**
+
+**Form, verified not recited:** appended at the foot, **not one byte above it edited**. Pre-append the file was **571 lines**, `sha256 60d39a56…5a29`; post-append its **first 571 lines hash to that same digest** and `diff` reports **NO DIFFERENCES**; the commit's `diff-tree --numstat` reports **292 insertions, 0 deletions, one path**. **`lines whose number changed above this section: 0` — MEASURED.** Document version 1.0 → 1.1. The struck text is **quoted verbatim and left standing in place**; striking by deletion would destroy the record of what was claimed. **PARTS A–G and all four PART F rulings stand in full. The frozen registration was not touched.**
+
+**One residue disclosed rather than swept:** **E1 (`:545-547`) opens with the same present-tense claim as struck clause (d)** and is **left standing**, because my ruling named `:7-10` only — it is **flagged in the amendment** to be read as a statement about 2026-08-31. **E6 (`:563-568`) scopes itself explicitly** (*"in the invocation that wrote parts F and G"*) and is **true as written**. E1 beside E6, in one file, is the cheapest demonstration of the transferable shape above.
+
+---
+
+### F. **ALSO RECORDED**
+
+- **⚠ F2 REMAINS AN OPEN, ESCALATED EXPOSURE AND IS *NOT* DISCHARGED BY THIS GRADE.** `exact_t16.py` and `analyse_t16.py` are **unpinned**; `CONV_FLOOR`, `G_TOL`, `MASS_FLOOR` and `PLAT_FLOOR` have **no registered literal at all**. **No pin was added** — a pin the frozen document does not register is a **new gate**. Their digests are reported in `gate_t16c.json` under `provenance_reported_not_gated`, which is the honest label for them. **Closing F2 needs a `T16d`, never a patch.** *The honest qualifier the record already makes, carried here unweakened:* this verdict rests on **`W1_FLOOR_T = 1.0e-06`**, which **is** registered as a literal (`T16c_PREREGISTRATION.md:103`, `:187-188` — re-read at this write) and **is** checked, so the unpinned constants **could not have produced it** — **that is a fact about this outcome, not a discharge of the exposure.**
+- **The `-O` limb is clean, and the measured reason is that there is nothing to strip.** `python3 -O analyse_t16c.py --selftest` → **40 limbs, 0 failed**; the separate `--selftest-inner` probe returns **rc 2 with the S8a refusal printed**, i.e. the guard **still fires** under `-O`. Measured cause: **zero `assert` statements in the file** (AST count 0, with limb `L36`'s counter **shown able to see a planted assert**, returning 1); every refusal is `sys.exit(2)`. **L-332's defect class meeting a file built against it.** Reported; **nothing needed repair**.
+- **Still RAISED and NOT RULED: the rule-4 `B1` reading** (`T16c_INSTRUMENT_DIFFS.txt` E4). **This grading does not rule it, and neither does this block.**
+- **Calibration — rule 12, filed at commit `ae3daf52`, row id `C-20260903T210054.497332Z-753b0aa2` in `docs/COST_CALIBRATION.md`.** Ratio **`0.177×`** (0.0884 actual / 0.50 POINT, cleaned == gross). **Gap attributed to MISPREDICTION IN THE CONSERVATIVE DIRECTION:** the estimate was sized *"on three cases of 20/40/80 station rows"* and **no station was ever selected** — a gate-(1) `NOT A RESULT` is structurally cheaper than the graded run that was budgeted for. **No contention** (single-rank pass). **No waste** — the live-tree fingerprint control shows **161 entries under `T16_runs` identical before and after**. Solver **0.00 / 0.00 core-min as registered** (the three solves were already on disk). **USD DERIVED, NOT MEASURED** at $0.0513/core-h: grading **$0.000076**, whole lane **$0.00201** — the box cannot read its own billing.
+- **This lane's own spend: zero solver compute, zero re-grade, zero mutation.** Records only, and it is not costed as compute.
+
+---
+
 ##### 🔬 **T5's BLOCKER IS LIFTED AS A QUESTION OF FACT: THE `y+` GATE INPUT IS RECOVERABLE FROM FIELDS ALREADY ON DISK, AT ZERO SOLVER COMPUTE — AND THE FIRST INVOCATION I TRIED WROTE SIX WELL-FORMED ROWS OF ZEROS AND EXITED 0. THE INLINE FUNCTION OBJECT PRODUCED NOTHING BECAUSE THE TWO FOs EMIT THEIR ROWS IN DIFFERENT LIFECYCLE PHASES, SO ONE IDENTICAL `writeControl`/`writeInterval` PAIR MEANS "EVERY TIMESTEP" FOR ONE AND "NEVER" FOR THE OTHER. `S_m` IS `BLOCKED`; CHECK-2 CRASH TRIAGE IS DISCHARGED.** (2026-09-03T21:06:17Z) `[lab-attributed]`
 
 *(Lane block, written 2026-09-03T21:06:17Z — stamp from `date -u` read in the committing shell invocation. **PURE INSERTION at the top of the section; every byte below stands unedited.** Nothing below is renumbered, deleted or rewritten — not the 2026-09-03T20:45:58Z `FP_T10` block immediately following, and not any `**Section last written:**` stamp further down, each of which belongs to an earlier block and is deliberately **left unedited**, exactly as that block left its own predecessor's. The file content was built from `git show HEAD:docs/LAB_STATE.md`, never from the worktree copy, which runs behind HEAD by design. **Every figure below was re-measured by this lane against its own named artifact at this write**, not copied from the brief and not from any earlier lane report; **one figure carried to this lane needed its basis stated before it could be boarded, and that basis is given by name in §G.** Anything not verified at this write is marked **VERIFY** and is not asserted. **Zero solver compute. Nothing inside `verification/runs/T-family/T5_runs/` was created, modified, moved or deleted — the diagnostic ran on a copy under the lane's own scratch directory, and `find` over `T5_runs` for anything newer than 2026-09-01 returns empty after the fact.** No petition was filed, nothing was sent (rule 7), and no registration, comparator, launcher, charter, `CLAUDE.md` or `.claude/` file was edited.)*
