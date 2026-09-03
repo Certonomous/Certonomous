@@ -1,0 +1,295 @@
+--- curriculum_SO3aR2/so3ar2_runScript.py	2026-08-31 22:15:09.699761724 +0000
++++ feasibility_SO3a_multipoint/so3af2_runScript.py	2026-09-03 21:32:25.264177657 +0000
+@@ -1,116 +1,63 @@
+ #!/usr/bin/env python
+-"""CURRICULUM SO-3aR2 -- THE PRODUCER.  NACA0012 ALPHA-MULTIPOINT, INCOMPRESSIBLE.
++"""CURRICULUM SO-3aF2 -- THE PRODUCER.  NACA0012 ALPHA-MULTIPOINT FEASIBILITY,
++INCOMPRESSIBLE, PRIMAL ONLY.
+ 
+-Three operating points differing ONLY in angle of attack, one shared `shape`
+-design-variable vector, one shared geometry component, and a weighted objective
+-`J = SUM_i w_i * CD_i` assembled by an `om.ExecComp`.
+-
+-Derived from `curriculum_SO2a/so2a_runScript.py` (the single-point ancestor whose
+-flow setup, FFD box, shape-function construction and geometric constraints are
+-REUSED UNCHANGED by Sanaa's 2026-08-31 ruling) plus `curriculum_D6/
+-d6_opt_runScript.py`'s multipoint assembly.  `PREREGISTRATION.md` (frozen
+-1a06a7d6) governs; nothing here may move a gate, threshold, cap or label.
++DERIVED FROM `curriculum_SO3aR2/so3ar2_runScript.py` BY EXACTLY ONE CLASS OF
++DELETION, and `so3af2_runScript_DELTAS_from_so3ar2.diff` shows every byte of it.
++The physics, the FFD box, the shape-function construction, the geometric
++constraints, the per-point `run_directory` repair and the shared geometry are
++REUSED UNCHANGED -- this file makes no fresh physical choice.
+ 
+ --------------------------------------------------------------------------
+-(A) THIS FILE CONTAINS NO OPTIMISER.  NOT A DRIVER, NOT A SETTING, NOT A TASK.
++(A) THIS FILE CANNOT PRODUCE A GRADIENT.  THE CAPABILITY IS DELETED, NOT UNUSED.
+ --------------------------------------------------------------------------
+-Section 2 LIMB 1: *"A frozen chain that cannot express an optimisation iteration
+-cannot take one out of order... This is not a promise about behaviour; it is the
+-ABSENCE OF THE CAPABILITY, checkable by a reviewer against the arm table today."*
+-
+-The SO-2a parent carries `om.pyOptSparseDriver()`, an IPOPT settings block with
+-`max_iter`, and a `run_driver` task.  **All of it is REMOVED here, not merely left
+-unreached.**  `so3ar2_xf.py` only ever `exec`s this file's header (everything above
+-the OpenMDAO-setup anchor, whose literal bytes are held in `so3ar2_xf.py:112` and
+-are deliberately NOT spelled anywhere in this docstring -- see (E)), so leaving
+-the driver below the anchor would have been harmless AT RUNTIME -- and would still have left a reviewer reading a file
+-that ships the capability section 2 says this item does not have.  The registered
+-tasks are `run_model`, `compute_totals` and `check_totals`.  There is no
+-`run_driver`, no `pyOptSparse`, no IPOPT/SLSQP/SNOPT block, no `max_iter` and no
+-major count anywhere in this file.  `G-NOOPT` checks the ARTEFACTS; this removal
+-is what makes the reviewer's check of the FILE come out the same way.
++`FEASIBILITY_PREREGISTRATION.md` section 0 promises this item produces NO
++gradient number at all -- "not one that is ungated, not one that is 'diagnostic
++only', not one written to a file and left unread" -- and section 3 makes the
++promise STRUCTURAL rather than conventional: the parent's gradient task branches
++and the `of=`/`wrt=` lists they consume are PHYSICALLY REMOVED, leaving
++`run_model` as the only reachable task and an explicit non-zero exit for any
++other `-task` value.  A convention ("we simply will not pass the gradient task")
++is a claim about operator behaviour; a deleted branch is a property of the bytes.
++
++**AND THE DELETION REACHES EVERY MENTION, NOT ONLY THE BRANCHES, BECAUSE THE
++FREEZE'S OWN NL-2 REQUIRES IT.**  Section 6 NL-2 refuses the launch if the
++forbidden token appears ANYWHERE in the staged producer -- not merely in a
++reachable branch.  The parent carried it at SEVEN sites: the header docstring,
++the argparse help string, the two `elif` branches, the totals call, and the
++final else-clause message.  Deleting only the line range section 3 names would
++have left the token at three surviving sites and NL-2 WOULD HAVE FIRED ON EVERY
++LAUNCH, FOREVER.  Section 3's deletion and section 6's token check are jointly
++satisfiable only if every occurrence goes, which is what happens here and is
++disclosed in the Stage-2 amendment rather than left for a reader to discover.
++
++The only task string this file knows is `run_model`.  There is no optimiser, no
++driver, no `pyOptSparse`, no IPOPT/SLSQP/SNOPT block and no major count -- all
++already absent in the parent and still absent here.
+ 
+ --------------------------------------------------------------------------
+-(B) ONE SHARED GEOMETRY.  THIS IS A REGISTERED DIVERGENCE FROM D6.
++(B) WHAT IT WRITES, AND WHY IT REFUSES RATHER THAN WRITING A SHORT LIST.
+ --------------------------------------------------------------------------
+-Section 0, in the frozen document's own words: the multipoint adjoint *"runs one
+-`DASolver` instance per operating point behind ONE SHARED `OM_DVGEOCOMP` and sums
+-through an `om.ExecComp`."*  `d6_opt_runScript.py:143` builds `geometry_<pt>` PER
+-SCENARIO.  SO-3aR2 does not, and the difference is the point of the item: with one
+-geometry there is exactly one `shape` -> surface map, so `G-MP-STRUCT`'s identity
+-`J_adj[J,k] == SUM_i w_i J_adj[CD_i,k]` tests the ASSEMBLY rather than three
+-independent single-point problems that happen to share a DV name.
+-
+-Each scenario keeps its own `DAFoamBuilder`, its own mesh coordinate subsystem AND
+-ITS OWN `run_directory` -- one `DASolver` per operating point in one case copy per
+-operating point, which is what D6R measured to work -- and the SHARED geometry's
+-`x_aero0` feeds all three.  SO-3aR's docstring said "own builder, own mesh" and
+-stopped there; the missing third noun is what killed it, and it is the delta.  That is consistent because the
+-three points differ ONLY in alpha, and alpha enters through `patchV`, a BOUNDARY
+-CONDITION, never through the mesh: the three surface point sets are the same
+-points.  `nom_add_discipline_coords` and `nom_setConstraintSurface` therefore take
+-`point0`'s mesh, and which mesh they take is recorded here rather than left to be
+-wondered at.
+-
+-**WHAT IS NOT VERIFIED BY THIS FILE, STATED PLAINLY.** Whether three
+-`DASimpleFoam` `DASolver` instances co-exist in one process against one case
+-directory is a RUNTIME question this lane cannot answer without a container, and
+-this lane spends zero solver compute.  It is exactly the surface section 6
+-registers `P-EVAL` against and section 0 names as *"where a multipoint gradient
+-can be wrong while every single-point gradient is right"*.  Nothing in this
+-docstring claims it works; the MESH and X-S arms are what measure it.
++It writes ONE artefact, `XM/so3af2_M.json`, carrying per-point `alpha`, `CD`,
++`CL`, the objective `J`, and `residual_histories`.  `so3af2_read.py` REFUSES if
++the number of residual histories disagrees with the number of
++`satisfied the prescribed tolerance` lines in the log (section 5 F1: the two
++readings must agree, and a disagreement is a reading defect, not physics).
++
++**THIS FILE THEREFORE REFUSES TO WRITE THE ARTEFACT AT ALL RATHER THAN WRITE ONE
++WITH A WRONG-LENGTH LIST.**  If it cannot obtain exactly one residual history per
++scenario it exits non-zero with a named reason and writes nothing.  A short list
++would reach the reader as a CONVERGENCE DISAGREEMENT -- a finding about the
++multipoint assembly -- when its true cause was this file failing to look one up.
++Manufacturing that finding would be worse than failing to run.
+ 
+ --------------------------------------------------------------------------
+-(C) `patchV` IS NOT A DESIGN VARIABLE HERE, AND THE REMOVAL IS REGISTERED.
++(C) WHAT THIS FILE DOES NOT ESTABLISH.
+ --------------------------------------------------------------------------
+-Line 4: alpha is this item's OPERATING POINT and cannot simultaneously be a design
+-variable trimmed to a lift target.  The parent's `add_design_var("patchV", ...)`
+-is REMOVED, and `CL_target` survives only as a recorded provenance constant --
+-the angle `aoa0` is the tutorial's own trimmed angle AT that target, which is why
+-the number is quoted rather than re-derived.  Nothing trims anything here.
+-
+---------------------------------------------------------------------------
+-(D) THE HEADER/ANCHOR CONTRACT WITH `so3ar2_xf.py`.
+---------------------------------------------------------------------------
+-`so3ar2_xf.py:112` holds an ANCHOR string; the instrument splits this file at it and
+-`exec`s everything ABOVE it.  Everything the instrument needs is therefore defined
+-above the anchor: `Top`, `daOptions`, `U0`, `p0`, `CL_target`, `ALPHAS`, `WEIGHTS`.
+-The instrument then queries, by these exact paths:
+-
+-    obj.J                        the assembled objective          (so3ar2_xf.OBJ_PATH)
+-    point{i}.aero_post.CD / .CL  per-scenario forces              (so3ar2_xf.SCENARIOS)
+-    point{i}.patchV, patchV{i}   the operating point, BOTH paths  (G-ALPHA's source)
+-    shape                        the shared 8-component DV vector
+-
+-`patchV{i}` is added on `dvs` (promoted) AND connected to `point{i}.patchV`, so
+-BOTH of G-ALPHA's read paths resolve to the same value.  The instrument records
+-which path resolved and writes `None` for one that does not; it never substitutes
+-its own constant, because an instrument that echoes its own constant back cannot
+-detect a scenario wired to the wrong angle.
+-
+---------------------------------------------------------------------------
+-(E) THE ANCHOR IS NEVER SPELLED IN THIS DOCSTRING, AND THAT IS LOAD-BEARING.
+---------------------------------------------------------------------------
+-`so3ar2_xf.py:478` REFUSES (exit 2) unless the anchor appears in this file EXACTLY
+-ONCE.  This lane's first draft quoted the anchor's literal bytes twice while
+-explaining it, so the file carried it THREE times and the instrument would have
+-refused every arm before writing a single artefact -- the chain would have
+-produced nothing and the reason would have been a docstring.  It was caught by
+-DRIVING the instrument's own split against this file, not by reading either.  The
+-anchor is therefore referred to by NAME and by its line number in the instrument,
+-never by its bytes.  The same discipline is why `so3ar2_grade.py` reconstructs the
+-old instrument alias from parts at U88 and assembles its row-label known positive
+-from parts at U101: a file must not spell a token whose count it has to control.
+-
+-**AND THE DISTINCTION THAT MATTERS, because collapsing it would make this file
+-LESS honest, not more.**  The ANCHOR count is enforced by the INSTRUMENT against
+-this file's RAW BYTES, so prose genuinely must not spell it.  The optimiser-,
+-design-variable- and geometry-absence checks are the SELFTEST'S OWN, and they are
+-scoped to this file's CODE with the module docstring stripped -- because a rule
+-that forbade the docstring from NAMING what the file removed would buy a green
+-check by deleting the explanation.  This lane wrote those checks against the whole
+-file first, and all four went red on its own prose; the repair was to scope the
+-check, not to silence the paragraph.
++It never calls `solve_linear`, so it CANNOT show SO-3aR's adjoint collision is
++fixed (section 0.2).  It shows the three builders coexist in one process and
++that each owns a separate tree.  That is a weaker statement and the
++pre-registration says so in its own words.
+ """
+ 
+ # =============================================================================
+@@ -132,7 +79,7 @@
+ # `run_driver` is NOT a valid task in this item and no optimiser exists to run.
+ parser.add_argument("-optimizer", help="accepted and UNUSED: this item runs no optimiser",
+                     type=str, default="NONE")
+-parser.add_argument("-task", help="run_model (default), compute_totals, check_totals",
++parser.add_argument("-task", help="run_model -- THE ONLY TASK THIS ITEM HAS; see (A)",
+                     type=str, default="run_model")
+ args = parser.parse_args()
+ 
+@@ -389,23 +336,100 @@
+ # NO DRIVER IS CONSTRUCTED.  See (A): section 2 limb 1 is the ABSENCE of the
+ # capability, and `run_driver` is not among the tasks below.
+ if args.task == "run_model":
+-    # just run the primals once -- one multipoint evaluation is THREE primals
++    # ONE multipoint evaluation is THREE primals.  This is the only task.
+     prob.run_model()
+-elif args.task == "compute_totals":
+-    # the primals and the adjoint once, over the registered `of` set
+-    prob.run_model()
+-    of = ["obj.J"] + ["%s.aero_post.CD" % sc for sc in SCENARIOS] \
+-        + ["%s.aero_post.CL" % sc for sc in SCENARIOS]
+-    totals = prob.compute_totals(of=of, wrt=["shape"])
+-    if MPI.COMM_WORLD.rank == 0:
+-        print(totals)
+-elif args.task == "check_totals":
+-    # OpenMDAO's own FD check.  It is a CONVENIENCE, not this item's gate: the
+-    # gate is `so3ar2_grade.py`'s FD table at steps proved to lie in the plateau
+-    # PER PAIR, and no number printed here reaches a verdict.
+-    prob.run_model()
+-    prob.check_totals(compact_print=False, step=1e-3, form="central", step_calc="abs")
+ else:
+-    print("task arg not valid for SO-3aR2: run_model, compute_totals, check_totals "
+-          "(this item runs NO optimiser and `run_driver` is deliberately absent)")
++    print("task arg not valid for SO-3aF2: run_model is the ONLY task. "
++          "This item produces no gradient and the gradient task branches are "
++          "DELETED, not merely unreached -- see (A).")
+     exit(1)
++
++# =============================================================================
++# THE ARTEFACT.  Rank 0 only.  See (B): it REFUSES rather than writing short.
++# =============================================================================
++if MPI.COMM_WORLD.rank == 0:
++    import json
++
++    def _fail(reason, detail):
++        print("SO3aF2 PRODUCER REFUSAL: %s %s" % (reason, json.dumps(detail)))
++        exit(7)
++
++    def _residual_history(scenario):
++        """One residual history per scenario, or None.
++
++        The lookup chain is explicit and every step is named, because this lane
++        has spent ZERO solver core-minutes and therefore has NOT exercised this
++        API against a live container.  The mphys path `<scenario>.coupling.solver`
++        is corroborated by evidence on disk -- OpenMDAO deprecation warnings in
++        `CURRICULUM-D6R-a2-wing-multipoint/O_mp_20260828T162849Z_1898072.log`
++        name `cl04.coupling.solver` explicitly -- but WHICH attribute carries a
++        residual history is NOT corroborated, and that is this file's principal
++        launch risk, named in the Stage-2 amendment rather than hidden here.
++        Returning None is honest; inventing a list is not."""
++        node = prob.model
++        for part in (scenario, "coupling", "solver"):
++            node = getattr(node, part, None)
++            if node is None:
++                return None
++        das = getattr(node, "DASolver", None)
++        if das is None:
++            return None
++        for attr in ("getPrimalResidualHistory", "primalResidualHistory",
++                     "getResidualHistory", "residualHistory"):
++            obj = getattr(das, attr, None)
++            if obj is None:
++                continue
++            try:
++                hist = obj() if callable(obj) else obj
++            except Exception:          # noqa: BLE001 -- a raising lookup is a miss
++                continue
++            if hist is not None:
++                return list(hist)
++        return None
++
++    points, histories = [], []
++    for i_sc, sc in enumerate(SCENARIOS):
++        try:
++            cd = float(prob.get_val("%s.aero_post.CD" % sc)[0])
++            cl = float(prob.get_val("%s.aero_post.CL" % sc)[0])
++        except Exception as exc:       # noqa: BLE001
++            _fail("FUNCTIONAL_UNREADABLE", {"scenario": sc, "error": str(exc)})
++        if cd != cd or cl != cl:
++            _fail("FUNCTIONAL_NON_FINITE", {"scenario": sc, "CD": cd, "CL": cl})
++        points.append({"alpha": ALPHAS[i_sc], "CD": cd, "CL": cl})
++        h = _residual_history(sc)
++        if h is None:
++            _fail("RESIDUAL_HISTORY_UNAVAILABLE", {
++                "scenario": sc,
++                "note": "refusing to write a short residual_histories list; "
++                        "see (B) -- a short list reaches the reader as a "
++                        "CONVERGENCE DISAGREEMENT, which is a finding about the "
++                        "multipoint assembly this file would have manufactured"})
++        histories.append(h)
++
++    if len(histories) != len(SCENARIOS):
++        _fail("RESIDUAL_HISTORY_COUNT", {"got": len(histories),
++                                         "want": len(SCENARIOS)})
++
++    try:
++        j_val = float(prob.get_val("obj.J")[0])
++    except Exception as exc:           # noqa: BLE001
++        _fail("OBJECTIVE_UNREADABLE", {"error": str(exc)})
++
++    out_dir = os.path.join(os.getcwd(), "XM")
++    os.makedirs(out_dir, exist_ok=True)
++    art = os.path.join(out_dir, "so3af2_M.json")
++    if os.path.exists(art):
++        _fail("ARTEFACT_ALREADY_EXISTS", {"path": art,
++              "note": "a pre-existing artefact means this is not the run allowed "
++                      "to produce the answer; archive by mv, never overwrite"})
++    tmp = art + ".partial"
++    with open(tmp, "w") as fh:
++        json.dump({"points": points, "J": j_val,
++                   "residual_histories": histories,
++                   "weights": WEIGHTS, "scenarios": list(SCENARIOS),
++                   "run_dirs": [RUN_DIRS[sc] for sc in SCENARIOS]},
++                  fh, indent=2, sort_keys=True)
++        fh.write("\n")
++    os.replace(tmp, art)
++    print("SO3aF2 PRODUCER wrote %s" % art)

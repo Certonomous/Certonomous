@@ -405,3 +405,81 @@ any SO-1/SO-2 item. **SO-3aR's `NOT A RESULT` stands as SO-3aR's verdict.**
 Arming is the supervisor's decision under `SUPERVISION_CHARTER.md` §3 check 4
 (`CLAUDE.md` rule 9 — no agent's message is Sanaa's consent, and a lane does not arm
 its own item).
+
+---
+
+## STAGE-2 AMENDMENT — THE THREE OWED FILES EXIST. Dated **2026-09-03**. Version **1.0 → 1.1**.
+
+> **lines whose number changed above this section: 0** — asserted by execution in the committing invocation, against both the pre-append snapshot and `git show HEAD:`.
+
+**This is a PRE-COMPUTE amendment, which §8 anticipated in these words:** *"These land as a dated Stage-2 amendment BEFORE first compute, which `CLAUDE.md` rule 2 permits explicitly."*
+
+> **CONDITION CHECKED BY EXECUTION, 2026-09-03**, in the invocation that wrote this section, **beside a known positive** exactly as §2 requires: the run root `/home/ubuntu/certonomous-runs/CURRICULUM-SO3aF2-a1-naca0012-multipoint-feasibility` — **ABSENT**, while `/home/ubuntu/certonomous-runs/CURRICULUM-SO3aF-a1-naca0012-alpha-feasibility` read by the same test — **EXISTS**. The absence is a reading of the disk, not of a broken test. `verification/queue/` — **0** rows matching `so3af2`. **This item has still burned 0 core-min and started no container.**
+
+**It moves no prediction, no band, no cap, no label and no NO-LAUNCH rc.** §5's F1–F5, §6's four branches, §7's caps and the `K_F = 2.0` / `band_REP = 1.0e-4 %` plant constants stand exactly as frozen.
+
+### S2.1 The three files §8 owed, now pinned
+
+| file | role | md5 | lines |
+|---|---|---|---|
+| `so3af2_runScript.py` | **the producer** — §8 item 1 | `4359b9b7c04a81b9e56231481f4e0ccb` | **435** |
+| `so3af2_runScript_DELTAS_from_so3ar2.diff` | every byte of the deletion, as a diff — §8 item 1 | `217383144f65ac720c138678908bf1da` | 295 |
+| `so3af2_run_arm.sh` | **the launcher** — §8 item 2 | `9dec28b7119c901c68d2399d0c3248c2` | **230** |
+| `so3af2_pin_selftest.sh` | **the pin census** — §8 item 3 | `039e18f3775e837ac88ed84c34aabf6e` | 248 |
+| `so3af2_read.py` | the reader, **UNCHANGED from the 2026-08-31 freeze** | `d5f4149d43abe3a165ffe7e653b78bee` | 560 |
+
+**The reader is byte-unchanged and re-driven at this amendment: `SELFTEST PASS 17/17`, `failures=0`, under `python3` AND `python3 -O`.**
+
+### S2.2 ⚠ A DEFECT IN THE FROZEN TEXT, FOUND WHILE DERIVING THE PRODUCER, AND DISCLOSED RATHER THAN QUIETLY WORKED AROUND
+
+**§3 and §6 NL-2 are jointly satisfiable ONLY if the deletion reaches every mention of the forbidden token — and §3, read alone, does not say that.**
+
+§3 registers the deletion as *"the `compute_totals` and `check_totals` task branches (`so3ar2_runScript.py:394-408`) and the `of=`/`wrt=` lists they consume"*. §6 NL-2 refuses the launch if the token *"appears **anywhere** in it"*.
+
+**MEASURED: the parent carries the token at SEVEN sites, only FOUR of which are inside that line range** — the header docstring (`:28`), the argparse help string (`:135`), the two `elif` branches (`:394`, `:402`), the totals call (`:399`), and the final else-clause message (`:409`).
+
+> **Deleting exactly the range §3 names would have left the token at three surviving sites, and NL-2 WOULD HAVE FIRED ON EVERY LAUNCH OF THIS ITEM, FOREVER.** The item would have been unable to start, on a guard that was right, against a producer that was correct.
+
+**The resolution is the one the freeze plainly intends and is not a change to it.** §3's own words say NL-2's second clause *"is the structural half of the no-gradient promise (§3)"* — the two clauses are one instrument described twice, and the promise is *"produces no gradient number at all"*, not "has no reachable branch". **Every occurrence is therefore deleted**, and the producer's own docstring section (A) records why. `grep -c` over the staged producer returns **0**. **No frozen text is edited; the discrepancy is disclosed here and carried forward as a registered defect binding on any successor.**
+
+This is the **tenth** unsatisfiable-by-construction condition this family has met in one day, and the **second inside a frozen registration** rather than an instrument.
+
+### S2.3 The producer — what was deleted, and what was NOT touched
+
+**Deleted:** the two gradient task branches, the `of=`/`wrt=` lists they consume, and every mention of the forbidden token. The only task string the file knows is `run_model`; any other `-task` value exits **1** with a named message.
+
+**Not touched, and cited rather than re-decided:** `DASimpleFoam`, Spalart–Allmaras, `U0 = 10.0`, `A0 = 0.1`, `rho0 = 1.0`, `primalMinResTol 1.0e-8`, `useWallFunction True`, the FFD box, the shape functions, the geometric constraints, the **shared** geometry, and the per-point `run_directory` repair (`RUN_DIRS` derived from `SCENARIOS`, never spelled out). `ALPHAS`, `WEIGHTS` and `SCENARIOS` are byte-identical to the parent's.
+
+**Added:** the artefact writer for `XM/so3af2_M.json` (`points` with `alpha`/`CD`/`CL`, `J`, `residual_histories`, plus `weights`, `scenarios` and `run_dirs` for a reader's cross-check), and a refusal on a pre-existing artefact.
+
+> **⚠ THE PRINCIPAL LAUNCH RISK, NAMED HERE RATHER THAN DISCOVERED AT ARM TIME.** §5 F1 requires the residual-history count to **agree** with the count of `satisfied the prescribed tolerance` lines, and the reader **refuses** on a disagreement. **This lane has spent ZERO solver core-minutes and has therefore NOT exercised the residual-history lookup against a live container.** The mphys path `<scenario>.coupling.solver` is **corroborated by evidence on disk** — OpenMDAO deprecation warnings in `CURRICULUM-D6R-a2-wing-multipoint/O_mp_20260828T162849Z_1898072.log` name `cl04.coupling.solver` explicitly — but **which attribute carries a residual history is NOT corroborated**, and the producer tries four candidate names in order.
+>
+> **The producer therefore REFUSES (exit 7, `RESIDUAL_HISTORY_UNAVAILABLE`) and writes NO artefact rather than writing one with a short list.** A short list would reach the reader as a **CONVERGENCE DISAGREEMENT** — which §5 F1 defines as a finding about the multipoint assembly — when its true cause was the producer failing a lookup. **Manufacturing that finding would be worse than failing to run**, and this is the one place the item may need a bounded repair after its first container. It is registered as a foreseen outcome, not as an excuse.
+
+### S2.4 The launcher — the four NO-LAUNCH branches, and the half of NL-3 a file cannot do
+
+All four branches write their **named** file and exit with their **named** rc, and all four read **`BLOCKED`** — a branch that fires is the launcher declining to start, never a measurement that failed. The cpuset is **fixed against live containers at arm time** and refuses on collision, with **core 9 excluded by name** (§7: held by SO-2MR). The image is verified **by digest**, SHIPPED only. An overrun **stops** the arm at its cap with a named abort.
+
+> **NL-3 names *"the reader's or launcher's md5"*, and a file cannot contain its own md5** — writing the value changes the value. **The launcher enforces the half it can** (the reader's pin, in-process) and **self-hashes into the ledger and every NOLAUNCH file**; **the half it cannot is enforced from outside** by `so3af2_pin_selftest.sh` against the value pinned in S2.1 above. The split is stated rather than fudged.
+
+### S2.5 The pin census — a COUNT, not a claim
+
+It carries **no list of pins**. It **enumerates** every `MD5_*=` assignment out of the launcher's own bytes, maps each through one table, and **refuses if any enumerated pin has no registered target**; driven and existing counts are printed side by side and must be equal. **A pin added to the launcher with no row FAILS the census.** (The measured failure this repairs: SO-1c's driver carried twelve pins and its selftest drove four while claiming "every pin".)
+
+**DRIVEN AT THIS AMENDMENT — 14 legs, PASS 14, FAIL 0, NOT RUN 0:**
+
+- **Pin census** — `MD5_READER`, `MD5_PRODUCER`, driven **2**, existing **2**, **equal**; and the launcher's own md5 confirmed pinned in this document.
+- **All four NO-LAUNCH branches driven REFUSING**, each writing its named file with its named rc: NL-3 → rc **5**, NL-2 md5 → rc **4**, NL-2 **token** → rc **4**, NL-1 → rc **3**, NL-4 → rc **6**.
+- **NL-2's token clause driven BY NAME**, with the producer's pin moved onto the tainted bytes **so the md5 clause passes and the token clause is what fires** — otherwise the leg would pass for the wrong reason, which is a failure mode this lane hit earlier the same day and did not repeat.
+- **ALL FOUR DRIVEN PASSING**, every guard printing its PASS line — **the leg that proves the four guards are SATISFIABLE and not unsatisfiable-by-construction.** The run then ends at the **image-digest** guard, which cannot read a digest from the stub; `docker run` is never reached, and the leg's message says exactly that rather than implying it got further.
+- **Safety, read rather than promised:** the real run root **still ABSENT** at the end; `docker` reached **4 times**, every call hitting a **stub that exits 99 and starts nothing**, with the stub's transcript printed; cleanup **by name**, and a **decoy the file did not create SURVIVED** it.
+
+**No leg starts a container and no leg touches the real run root**, so both sentences of §2 are still true after this amendment — which is checked, not asserted.
+
+### S2.6 What is still NOT discharged
+
+- **`SUPERVISION_CHARTER.md` §3 check 4 — arming — is the supervisor's and is not taken here.** **THE ITEM IS NOT ENQUEUED, NOT LAUNCHED, AND NO QUEUE ENTRY IS FILED BY THIS COMMIT.**
+- **§0.2 stands undiminished:** this item never calls `solve_linear` and **cannot** show SO-3aR's adjoint collision is fixed. That proof belongs to SO-3aR2 under its own freeze, with an FD table beside it.
+- **`SUBMISSIONS PARKED.`**
+
+**END OF STAGE-2 AMENDMENT.**
