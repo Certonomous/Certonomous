@@ -285,13 +285,27 @@ had just filled 14-deep. Registered here rather than repeated:
 |---|---|---|---|
 | quiet | 0.4615 | 12,922 s + 94 s = **13,016 s** | **28.4 % — finishes comfortably** |
 | moderate contention, 2× | 0.923 | 25,938 s | 56.7 % — finishes |
-| **break-even** | **1.635** | 45,780 s | **100 % — the ceiling** |
-| A1WR's measured 14-way saturation | 1.781 | 49,868 s | **109 % — CAP-STOPPED at ~6.4 of 7 points** |
+| **break-even** | **1.63500** | 45,780 s | **100 % — the ceiling** |
+| A1WR's measured 14-way saturation | 1.781 | 49,868 s | **108.9 % — CAP-STOPPED at ~6.4 of 7 points** |
 
-**The item survives any contention up to 3.90× the solo rate.** Beyond that it
-cap-stops, and **that outcome is registered in advance: a cap-stop is
-`NOT A RESULT` on the unfinished points; points already in the ledger stand.**
-No new budget is granted on an overrun.
+**The item survives contention up to 3.543× the solo rate** —
+`45,780 s / 28,000 it = 1.63500 s/it`, and `1.63500 / 0.4615 = ` **3.54280**.
+
+**⚠ AND A1WR'S OWN MEASURED WORST CONTENTION IS 1.781 s/it = 3.85915× SOLO,
+WHICH IS ABOVE THAT CEILING. THE ITEM DOES NOT SURVIVE IT.** *(An earlier draft
+of this section claimed 3.90× headroom. That was arithmetically wrong, it
+contradicted this very table's 108.9 % row, and it overstated the real headroom
+by 10 % — on the one number a reader would use to decide whether to launch
+beside other work. Corrected by the supervisor's §3 check 4, and the error is
+recorded rather than silently fixed.)*
+
+Beyond the ceiling the item cap-stops, and **that outcome is registered in
+advance: a cap-stop is `NOT A RESULT` on the unfinished points; points already
+in the ledger stand.** No new budget is granted on an overrun.
+
+**THIS IS WHY §4.6'S CONCURRENCY PRECONDITION IS A LAUNCH GATE AND NOT ADVICE.**
+The margin between "finishes comfortably" and "cap-stops having bought nothing"
+is a box-occupancy condition that no gate in this lab currently reads.
 
 **AND THE MECHANISM IS MEASURED, NOT GUESSED:** A1WR's cpusets were all disjoint
 (A1WR 8–15, MAAOA 2–7, verified by `docker inspect`) and per-core throughput
@@ -304,7 +318,35 @@ attributed from measurement at calibration time instead of argued.
 is a legal filler under the never-idle rule without itself creating the
 saturation that killed A1WR's controls.
 
-### 4.6 Calibration at completion
+### 4.6 `G-CONCURRENCY-PRECOND` — A LAUNCH GATE, BECAUSE §4.5's MARGIN IS NEGATIVE AGAINST MEASURED SATURATION
+
+**REGISTERED: the launcher refuses to start this unit unless a census of live
+solver containers returns empty, and the census must itself be shown able to
+return a NON-EMPTY answer before its empty answer is accepted** (rule 3, applied
+to a census rather than to a field reader — a census that cannot see a running
+container is not evidence that none is running).
+
+Recorded into the unit's ledger row at launch, and again at every point
+boundary: **the census output verbatim, the box occupancy, `MemAvailable`, and
+the instant.** Contention is then attributed from measurement at calibration
+time instead of argued.
+
+**THE LAB-WIDE FINDING THIS GATE RESTS ON, STATED IN ITS GENERAL FORM BECAUSE IT
+IS NOT AN A1WR FACT:**
+
+> **A one-core cpuset isolates a core. It does not isolate memory bandwidth.**
+> A1WR's cpusets were all disjoint — A1WR on cores 8–15, MAAOA on 2–7, **verified
+> by `docker inspect` and not assumed** — and per-core throughput of a
+> 130,304-cell OpenFOAM SIMPLE solve still degraded **2.75× to 4.77×** under
+> 14-way concurrency. **No gate in this lab reads this**, every in-container
+> deadline in the lab is sized on a solo rate, and **331.6667 core-min bought
+> zero physics learning it** when all six of A1WR's cold controls timed out.
+
+`G-PLACEMENT`'s cpuset-disjointness reading is **necessary and not sufficient**,
+and this item registers that distinction on its face rather than discovering it
+again.
+
+### 4.7 Calibration at completion
 
 Per rule 12 and `docs/COST_CALIBRATION.md`'s append rules: at completion the
 estimate above is compared against the actual in core-minutes from logs, dollars
@@ -322,6 +364,7 @@ absorbed into the ratio.
 | `G-REPRO` | §3, both limbs R1 and R2, bands registered above | inside → `CORROBORATED`; R2 outside → tail labels withdrawn, `NOT A RESULT`; control absent → `NOT A RESULT` on the control |
 | `G-COMPLETE` | rule 4, **all** clauses: rc 0, `End` line, last time == `endTime`, fields present, `ExecutionTime` count == `endTime`, every field newer than the case's own datum | refuse (exit 2) rather than degrade. **⚠ REGISTERED WITH ITS IMPLEMENTATION OWED AND ITS ABSENCE MADE A FREEZE BLOCKER** — `G-COMPLETE` is registered in A1WR §9 and has **zero occurrences** in `a1wr_read.py`, so A1WR's completeness gate is unadjudicated to this day. **This item's reader does not freeze until `grep -c 'G-COMPLETE'` on it is non-zero and its planted control is driven.** |
 | `G-CAPS` | **arithmetic, not prose**: measured core-min per unit against the 768 cap, computed by the reader and printed | cap-stop ⇒ `NOT A RESULT` on the affected points. **Also registered with implementation owed** — A1WR's reader mentions `G-CAPS` in one conditional sentence and computes nothing. |
+| `G-CONCURRENCY-PRECOND` | §4.6 — no competing solver container live at launch, from a census PROVED able to return non-empty; census output, occupancy, MemAvailable and instant recorded per ledger row | **refuse to launch** if the census is non-empty or if the census cannot be shown able to see a live container. §4.5's headroom is 3.543x solo and A1WR's measured saturation is 3.859x — the margin is NEGATIVE, so this is a gate and not advice |
 | `G-YPLUS` | measured y+ min/mean/max on the wall patch, every α | `GATE FAIL` if y+max ≥ 1.0 anywhere; refuse (exit 2) on a blind channel for a point that ran ≥ 200 iterations. **The mesh is NOT re-cut** (A1WR §3.4) — an overshoot is a registered outcome |
 | `G-WALLTREAT` | `useWallFunction: False` in the staged script **and** `BCType=nutLowReWallFunction` in the solver log for the `wing` patch | refuse (exit 2) if the log does not confirm the BC that actually ran |
 | `G-FIXTURE` | **every planted control's fixture is STATIC and independent of the run being graded** | refuse (exit 2) if any fixture is read from this item's own run root. **THE L-435 REPAIR** — see §6 |

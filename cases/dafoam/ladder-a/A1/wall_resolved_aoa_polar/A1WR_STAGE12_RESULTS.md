@@ -576,3 +576,103 @@ state was in memory and died with the process at 02:25:05Z.
 **Written 2026-09-03 by lab-lane (dafoam). No solver, container or queue entry
 was launched, released or moved by this lane; the run tree was read-only apart
 from the frozen reader's own two JSON outputs.**
+
+---
+---
+
+# ADDENDUM 1 — 2026-09-03 — SUPERVISOR'S CHECK 4, TWO CORRECTIONS OWNED UPWARD, AND TWO FINDINGS RESTATED FOR CROSS-TEAM CITATION
+
+**`lines whose number changed above this section: 0`**
+
+Nothing above this line has been edited. Appended after the supervisor performed
+their `SUPERVISION_CHARTER` §3 check 4 personally on the successor draft.
+
+## 11. TWO CORRECTIONS THE SUPERVISOR RECORDS AS THEIRS
+
+Recorded here at their instruction, in their name, because a correction that is
+only made in a message is not made.
+
+1. **The reproduction-control premise was the supervisor's and it was false.**
+   The successor's control was directed on the premise that *"a converged steady
+   solution should be history-independent, so agreement corroborates that the
+   continuation label was live."* **A1WR's α = 12 point is NOT CONVERGED** (§3.2),
+   so a cold α = 12 compared against it is not two roads to one fixed point but
+   **two roads to iteration 4,000**, which no theory guarantees. A band sized on
+   the converged anchors would have been roughly four orders too tight and **would
+   have manufactured a false finding.** The two-limb `G-REPRO` now registered in
+   the successor draft replaces it.
+
+2. **"13 clean rows, all `error NONE`" was the supervisor's reading and it was
+   wrong** — the sixth instance in two days of the same failure, a column read
+   outside its scope and called clean. `error NONE` is DAFoam's **exception**
+   channel; the convergence criterion is a different string entirely, and the
+   frozen reader records **`CONVERGED 0` on both arms** (§3.2). What makes that
+   zero admissible is the planted control on **real bytes**: the criterion string
+   is counted **9 / 9 / 3** times in the coarse AOAI log, the coarse AOAC log and
+   `MAAOA/INCOMP/out/trim.log` — the last on **this mesh, this image, this
+   solver**. A zero from a reader shown able to see a non-zero.
+
+## 12. LAB-WIDE FINDING, STATED IN ITS GENERAL FORM
+
+Section 4.1's measurement is not an A1WR fact and is restated here so it can be
+cited outside this item:
+
+> **A one-core cpuset isolates a core. It does not isolate memory bandwidth.**
+>
+> A1WR's cpusets were all **disjoint** — A1WR on cores 8–15, MAAOA on 2–7,
+> **verified by `docker inspect`, not assumed** — and per-core throughput of a
+> 130,304-cell OpenFOAM SIMPLE solve still degraded **2.75× to 4.77×** under
+> 14-way concurrency, one np = 1 process per core on a 16-vCPU box.
+>
+> **No gate in this lab reads this.** `G-PLACEMENT`-class cpuset-disjointness
+> readings are **necessary and not sufficient**. Every in-container deadline in
+> the lab is sized on a solo rate, and **331.6667 core-min bought zero physics**
+> learning it when all six of A1WR's cold controls timed out — `cold_I_4` needing
+> **7,126 s** at its measured 1.781 s/iteration against a **3,300 s** deadline.
+
+The successor registers `G-CONCURRENCY-PRECOND` as a **launch gate** on this
+finding, with a census that must itself be proved able to return a non-empty
+answer before its empty answer is accepted.
+
+## 13. REGISTERED GATES WITH NO IMPLEMENTATION — STATED PRECISELY ENOUGH TO BE CITED BY A CROSS-TEAM AUDIT
+
+§2.3 records this for `G-COMPLETE`. Restated here in citable form, with the
+demonstrating command beside each instance, because the general question — **how
+many registered gates lab-wide have no implementation** — is being referred
+upward by the dafoam supervisor.
+
+| registered gate | registered at | implementation | demonstration | consequence |
+|---|---|---|---|---|
+| `G-COMPLETE` | `A1WR_PREREGISTRATION.md` §9 — rule 4 in all clauses, "refuse (exit 2) rather than degrade" | **NONE** | `grep -c 'G-COMPLETE' cases/dafoam/ladder-a/A1/wall_resolved_aoa_polar/a1wr_read.py` → **0** | A1WR's completeness gate is **unadjudicated to this day**. Its truncation, 13 of 19 declared points, is reported by the reader as a bare `COUNT MISMATCH` that refuses nothing |
+| `G-CAPS` | same table — "every stage within its registered cap; cap-stop ⇒ `NOT A RESULT`" | **PROSE ONLY** — one conditional sentence, no arithmetic | `grep -n 'G-CAPS' …/a1wr_read.py` → **one line**, inside the `G-CONCURRENCY-BITS` absence note | A1WR's cap accounting was done by hand at grade time and is labelled in §6 as **not from the grading path** |
+| MAAOA §4's pre-compute selftest pass | `.../fixed_lift_mach_sweep/` registration | asserted, **no artifact dated before compute** | supervisor's other lane, 2026-09-02 | — |
+
+**Three registered checks in one family that exist only as text.** Stated as a
+count of instances found, not as an estimate of the lab-wide total, which this
+record does not know.
+
+## 14. THE FIXTURE DEFECT IS A CLASS, NOT AN INCIDENT — CENSUS FILED
+
+§2.1 records that `a1wr_read.py` prefers a live artifact of the graded run as its
+control fixture and escaped only because nothing converged. A census of **all 468
+`.py` files under `cases/dafoam/`** was run on the supervisor's order and is filed
+at **`docs/dafoam/GRADING_FIXTURE_CENSUS.md`**.
+
+**Result: six instruments AFFECTED, five of them with the defect LIVE in the
+grading of record** — `aoa_read.py` (both AOAI and AOAC, each archived output
+reading `born against : REAL RUN ARTEFACT` with its source path and sha256),
+`maaoa_read.py`, `d19m_grade.py` and `d19o_grade.py` (both recording
+`"target_kind": "REAL"`), plus `so3af_read.py` affected by explicit design and
+**NOT EVALUABLE** for liveness. `a1wr_read.py` is the sixth, affected and not
+live. Three instruments were checked by hand and found **CLEAN**.
+
+**⚠ The coarse α-polar is inside the blast radius**: `aoa_read.py` graded both
+coarse arms, and those gradings produced the *"same boundary to the degree across
+a tenfold Reynolds difference"* finding that §8 of the pre-registration quotes and
+that this whole item exists to test. **This record makes no claim about that
+finding.** It records that its grading instrument carries the defect that voided
+MAAOA, that the question is open, and that it belongs to the supervisor —
+`VERIFICATION_CHARTER` §2d/§2d.1 rulings are not a lane's to make. **Nothing was
+repaired.**
+
+**NOTHING IN THIS ITEM IS FILED, SENT, UPLOADED OR POSTED ANYWHERE.**
