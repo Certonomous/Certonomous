@@ -581,3 +581,74 @@ LAYOUT_AUDIT` → **0 hits**; the same terms in `10ba2567`'s own file list → *
 **ABSENT**, `/home/ubuntu/certonomous-runs/RUNG0b_exports` **ABSENT**, no `RESULTS.json`.
 **Launch remains held on `SUPERVISION_CHARTER.md` §3 check 4** — the cfd supervisor's
 personal read of `ace20cb1` **and** `0b6cb24f`, undelegable, and not performed by this lane.
+
+---
+
+## LIFTING NOTE TO AMENDMENT 1 CLAUSE (ii) — 2026-09-03, **POST-COMPUTE** — the 13-header audit and the five-copy manifest are COMMITTED at `b78e8858`; clause (ii) is now VERIFIED-BY-COMMITTED-ARTIFACT and its RELAYED marking is LIFTED
+
+**Version: v1.2 → v1.3. Lines whose number changed above this section: 0.**
+**Changes no gate, no threshold, no cap and no label. It upgrades a CITATION and
+nothing else.** Amendment 1 and the addendum note at `75ad7ef9` are **not rewritten**;
+their text stands exactly as committed, RELAYED marking included, and this note is the
+correction beside them.
+
+**⚠ THIS NOTE IS POST-COMPUTE AND SAYS SO. RUNG0b RAN AT 19:40:38–19:45:04Z.** Under
+rule 2, gates close at first compute and changes land only as dated addenda that cannot
+alter a gate, threshold, cap or label. This one cannot and does not.
+
+> **BUT THE EVIDENCE ITSELF IS PRE-COMPUTE, AND THE 50 SECONDS ARE STATED RATHER THAN
+> GLOSSED.** `b78e8858` was committed at **19:39:48Z**; RUNG0b's `RUN_ROOT_CREATED_EPOCH`
+> is **19:40:38.500946Z**. **The artifacts were in the repository 50 seconds before this
+> rung's first compute.** The *evidence* anchoring clause (ii) therefore predates the run;
+> only the *note recording it* does not. Both facts are here so neither can be read as the
+> other.
+
+### What is now citable by path and commit
+
+| artifact, at `b78e8858` | what it establishes |
+|---|---|
+| `verification/runs/RUNG1_M6_runs/M1_ugrid_reimport/UGRID_HEADER_AUDIT.json` | **13 files audited, 3 mis-detecting**, and the three are `M6I_runs/mesh/wing_strct.{3,4,5}.lb8.ugrid` — **nothing in RUNG 0's population and nothing in the four R0-G2b exports.** Carries `control_both_outcomes_observed: true`: it **refuses unless it observes both agreement and disagreement**, so its zero for RUNG 0 is a zero from a reader shown able to see a non-zero (rule 3) |
+| `verification/runs/RUNG1_M6_runs/M1_ugrid_reimport/CONVERTER_COPY_MANIFEST.json` | **5 copies, 2 equivalence classes, 3 defective.** Carries `control_frozen_copy_present_and_defective: true` |
+| `verification/runs/RUNG1_M6_runs/M1_ugrid_reimport/audit_converter_and_ugrid_headers.py` | the instrument that produced both, re-measured from disk |
+
+**THE MANIFEST INDEPENDENTLY REPRODUCES THIS REGISTRATION'S OWN §9 PIN CHECK.** Its
+defective class is `e2ce16902f09925b22cd…` and its `paths_carrying_the_defect` lists
+`/home/ubuntu/Certonomous/cases/committee-grids/ugrid_to_foam.py` **first** — the exact
+blob Amendment 1 clause (i) verified independently from `ace20cb1`. **Two instruments,
+neither aware of the other, agree on which blob this rung pinned.**
+
+### Clause (ii) restated, now on committed evidence
+
+The audit's own `why_the_RUNG0_grids_are_safe_CORRECTED` field carries the mechanism
+verbatim:
+
+> *"NOT because they are large. The three DPW5 grids are Fortran unformatted and the
+> record-marker test fires BEFORE the defective plausibility branch is reached: the marker
+> reads 28 big-endian and 469,762,048 little-endian. Only HLPW6 is saved by the overflow
+> mechanism. They are safe BY THE ORDERING OF THE TESTS, not by their size — a correct
+> conclusion that rested on a wrong mechanism until it was measured."*
+
+> **CLAUSE (ii)'s "RELAYED, NOT VERIFIED HERE" MARKING IS LIFTED. Both halves now stand
+> on evidence: the test-ordering half verified by this lane from the pinned blob's own
+> source, and the 13-header half verified by a committed instrument carrying its own
+> refusal control.**
+
+### What is NOT lifted, and this is the part that outlives the run
+
+**§8 non-claim 10 and clause (iii) STAND UNCHANGED AND ARE NOT SOFTENED BY THIS NOTE.**
+RUNG0b's `PASS` certifies the converter **on this population only** — three
+Fortran-unformatted grids and one *large* raw C stream — and **makes no claim whatever
+about small raw-C-stream files**, which is precisely the class the audit measured the
+defect mis-detecting. **A closed proof that the defect was inert here is not a claim that
+the converter is sound**; the manifest records three defective copies still on this box,
+one of them outside git, and the repair is sequenced strictly after this record lands and
+rides the M6 R2 registration.
+
+**Also disclosed for the repair package and NOT acted on here (rule 6 — the pinned file is
+not touched):** all **eight** guards in the pinned converter are **bare `assert`
+statements** (`:81, :85, :97, :99, :204, :251, :292, :296`), so `python3 -O` deletes every
+one of them (L-332). The byte-budget check at `:85` is doubly conditional — inside
+`if fortran:` **and** an assert — so a raw C stream gets none of it, and `:296`
+(`nbnd == ndecl`), the only structural check such a file does get, is an assert too.
+**VERIFIED SAFE FOR THIS RUN AND CHECKED BEFORE LAUNCH, NOT ASSUMED:** `PYTHONOPTIMIZE`
+unset, `__debug__` true, and no `-O` anywhere in `run_rung0b.sh`, so every guard executed.
