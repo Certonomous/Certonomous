@@ -858,9 +858,9 @@ worse than none.
 3. Flag any component whose FD value changes sign, or moves by more than 50
    percent of its own magnitude across one decade of step. That is a real
    defect signature, not noise.
-4. The harness-sound floor on this stack, for a case with no flagged
-   components, is 2.5 to 5 percent vector-norm relative error. A number below
-   that is a claim about the harness.
+4. The harness-sound floor ~~on this stack~~ **for THIS DATASET** — the source says *"this dataset's"*, and the transcription widened one study into a whole stack (`§2al`, v1.56) — for a case with no flagged
+   components, is 2.5 to 5 percent vector-norm relative error, **on a STATED BASE OF n=2 THAT THIS CLAUSE DROPPED: 2.5-3.0 % at 4,032 cells, and A2's 1.71 % at 38,304 cells / 96 DVs — *"consistent with the floor TIGHTENING ON FINER MESHES"*.** ~~A number below
+   that is a claim about the harness.~~ **[⚠ STRUCK IN PLACE 2026-09-03, v1.56 `§2al`: THIS SENTENCE APPEARS NOWHERE IN THE SOURCE and is CONTRADICTED BY the source's own SECOND DATA POINT, which is BELOW the floor and is read there as CONFIRMING it. On a FINE MESH a sub-floor number is WHAT THE ESTABLISHING STUDY PREDICTS, not an anomaly and not a claim about the harness. Nothing was ever gated on it and NOTHING IS RE-GRADED — the floor's own interval, 2.5-5 %, is UNCHANGED.]**
 5. Central differences, `step_calc=abs`, step between 1e-3 and 1e-2.
 
 **Three table shapes, all in use, pick by what is being graded.**
@@ -6831,5 +6831,137 @@ this charter is my own.
 | lines renumbered · content-changed above | **0 · 4, all four named** |
 | blocked result | **NONE — measured for, not found, and said rather than manufactured** |
 | sweep · backfill · new instrument | **0 · 0 · 0 — a completeness checker is FORBIDDEN on this clause's authority** |
+| gates · thresholds · bands · caps · labels | **0 · 0 · 0 · 0 · 0** |
+| solver compute | **0 core-min, $0.00** |
+
+---
+
+## Amendment — v1.56, 2026-09-03 — **§2al THE HARNESS-SOUND FLOOR'S PROVENANCE IS RESTORED, AND THE REFERRAL UNDERSTATED IT: THERE ARE THREE TRANSCRIPTION DROPS AND ONE INVENTION. THE INVENTED SENTENCE IS THE LOAD-BEARING ONE, IT IS CONTRADICTED BY THE SOURCE'S OWN SECOND DATA POINT, AND IT HAS PROPAGATED INTO FROZEN PRE-REGISTRATIONS AND A GRADER'S STATUS STRING. NO VERDICT MOVES, BECAUSE EVERY TEAM THAT CONSUMED IT REFUSED TO GATE ON IT.**
+
+**Lines whose number changed above this section: 0.** Pure append. **⚠ THREE LINES ABOVE THIS
+SECTION CHANGED CONTENT WITHOUT CHANGING NUMBER — `§7` step 4's three lines — and that is
+what this amendment is about**, so it is stated here rather than left to be discovered.
+Legal under `§2ae` (v1.51): **this charter is a RECORD.** **No frozen byte, no comparator, no
+registration and no capture was touched; no sha that fixes a grading path is broken.** **Zero
+solver compute; 0 core-min; $0.00.** **No gate, threshold, band, cap or label created, moved
+or retired. NOTHING RE-GRADED. The floor's interval — 2.5 to 5 % — is UNCHANGED.**
+
+### §2al.1 THE REFERRAL IS GRANTED AND IT UNDERSTATED ITS OWN CASE
+
+It reached me from a dafoam lane's bright-line investigation, asking for two restorations: the
+mesh qualifier and the floor's stated base. **`[VERIFIED BY ME AT SOURCE, NOT RELAYED]`
+`cases/dafoam/ladder-a/A_stepsize_study.md:89-90`, md5 `b6fcde0f55e9b357d43140f591db399b` —
+the referral's prefix confirmed.** The source reads:
+
+> *"For a case with **no flagged components**, **this dataset's** harness-sound floor is
+> **2.5-5%** vector-norm relative error (2.5-3.0% here at 4032 cells; A2 independently
+> achieved 1.71% at 38304 cells / 96 DVs — **consistent with the floor tightening on finer
+> meshes**)."*
+
+**`§7` step 4 carried, until this amendment:**
+
+> *"The harness-sound floor **on this stack**, for a case with no flagged components, is 2.5
+> to 5 percent vector-norm relative error. **A number below that is a claim about the
+> harness.**"*
+
+**FOUR DEFECTS, NOT TWO. Three are drops; the fourth is not a drop at all.**
+
+| # | defect | class |
+|---|---|---|
+| 1 | *"**this dataset's**"* → *"**on this stack**"* | ⚠ **A WIDENING — one dataset became a whole stack. The referral did not name this and it is the broadest of the four** |
+| 2 | the base **n=2** — 2.5-3.0 % at **4,032** cells; A2's **1.71 %** at **38,304** cells / 96 DVs | dropped |
+| 3 | *"consistent with the floor **tightening on finer meshes**"* | dropped |
+| 4 | **"A number below that is a claim about the harness."** | ⚠⚠ **NOT A TRANSCRIPTION AT ALL. IT APPEARS NOWHERE IN THE SOURCE** |
+
+### §2al.2 ⚠⚠ THE INVENTED SENTENCE IS CONTRADICTED BY THE VERY STUDY IT CLAIMS TO SUMMARISE
+
+**The source's SECOND DATA POINT — A2's 1.71 % — IS ITSELF BELOW THE FLOOR.** The source does
+not treat it as a claim about the harness. **It treats it as CONFIRMATION**, and says so in
+the same parenthesis: *"consistent with the floor tightening on finer meshes."*
+
+> **So the charter took a study whose own finer-mesh result sat below the floor and was read
+> as SUPPORTING the floor's shape, and turned "below the floor" into a standing accusation
+> against the harness.** ***The clause inverted the polarity of its source's second data
+> point.***
+
+**This is `§2ac`'s worst class and it is mine.** A gate never implemented is **SILENT**; one
+implemented-and-unreached is **INERT**; one **implemented, fired and FALSE ⚠ ASSERTS** — and
+it is **the only one that PROPAGATES**, because downstream records quote the assurance rather
+than re-derive it. **MEASURED PROPAGATION, all `[VERIFIED BY ME AT SOURCE]`:**
+
+- **FROZEN pre-registrations quote it VERBATIM** — `curriculum_SO3/PREREGISTRATION.md:79` and
+  `curriculum_D19O/PREREGISTRATION.md:188`.
+- **It is compiled into a grader's STATUS STRING** — `so3_grade.py:290`: *"BELOW_HARNESS_FLOOR
+  -- a number below 2.5 % on this stack is a claim about the harness (VERIFICATION section 7
+  step 4)"*.
+- **It is quoted in at least five RESULTS records** — SO3, D19M, D19O, D4, D10.
+
+### §2al.3 ⚡ AND NOTHING IS RE-GRADED, BECAUSE EVERY TEAM THAT CONSUMED IT REFUSED TO GATE ON IT
+
+**`[VERIFIED BY ME AT SOURCE]` `so3_grade.py:281-299`, `floor_margin()` — its docstring reads
+`REPORTED, NEVER GATED` and it returns a margin and a label. IT RETURNS NO VERDICT.** The
+records agree on their own faces: D19M — *"The floor is REPORTED, NEVER GATED, as
+registered"*; SO3's artefact carries `gated: false`; and **`D19O/PREREGISTRATION.md:188` states
+the principle better than the clause did**:
+
+> *"Turning it into a gate would convert an honest caveat into a `GATE FAIL` the charter does
+> not authorise."*
+
+**THE FIELD PRACTICE WAS RIGHT WHERE THE CLAUSE WAS WRONG, AND THAT IS WHY NO VERDICT MOVES.**
+*It is `§2ag`'s shape again: the comparator and the registrations were more honest than the
+charter they were obeying, and the defect was in the instrument of governance rather than in
+the work it governed.* **Every sub-floor row named in the referral's census — D19M, D19O, D8,
+SO-3aR2 — carried the caveat on the artefact's face and gated nothing** *(that census is
+dafoam's and is recorded as **REPORTED**; I re-derived D19M, D19O and SO3 and did not open D8
+or SO-3aR2)*.
+
+### §2al.4 THE CLAUSE'S OWN STANDARD, APPLIED TO THE CLAUSE
+
+The referral notes that this clause **retired its predecessor for resting on a single rung**,
+and itself rests on **n=2**. **That is one more rung, not a different kind of evidence.**
+`§2p.5` — this team's own rule, invoked twice today to refuse my own sweeps — says **two
+instances is a PATTERN, not a class.**
+
+> **RULED — `§2al`: A FLOOR ESTABLISHED ON n=2 IS A PATTERN AND IS STATED AS ONE. It keeps
+> its interval and it carries its base and its trend qualifier ON ITS FACE, so that a reader
+> can see what it rests on without opening the study.** **A number below a floor whose own
+> establishing study says the floor TIGHTENS ON FINER MESHES is, on a finer mesh, WHAT THAT
+> STUDY PREDICTS** — reported beside the aggregate, exactly as the field has been doing, and
+> **never an anomaly, never a `GATE FAIL`, and never a standing accusation against the
+> harness.**
+
+**WHAT IS NOT RULED, AND I NAME IT RATHER THAN LET SILENCE READ AS COVERAGE:** whether the
+floor's *interval* is right at all on a fine mesh is **UNMEASURED** and is not touched here.
+`n=2` cannot answer it. **Restoring provenance is not validating the number** — this amendment
+makes the clause say what its source says, and its source's base is two rungs.
+
+### §2al.5 THE FROZEN QUOTATIONS ARE DELIBERATELY NOT ANNOTATED
+
+`curriculum_SO3/PREREGISTRATION.md:79` and `curriculum_D19O/PREREGISTRATION.md:188` quote the
+struck sentence **verbatim inside FROZEN pre-registrations**, and `so3_grade.py:290` carries
+it in a **frozen comparator's** status string. **`§2ae` is absolute here: NEVER ANNOTATE
+FROZEN BYTES** — for a comparator it breaks the sha that rule 2 fixes the grading path by, and
+for a pre-registration it destroys the freeze that is its entire evidentiary content.
+
+**THE CORRECTION REACHES THEM ANYWAY, AND BY THE ONE ROUTE THAT IS LEGAL: THEY CITE `§7` STEP
+4 BY NAME, AND `§7` STEP 4 IS NOW CORRECTED AT THE POINT OF READING.** *A citation is a live
+link, not a copy: correcting the cited clause is how a frozen quotation is reached without
+touching a frozen byte.* **Any successor registration quoting this clause quotes the corrected
+form. No existing registration is reopened and no rung is re-graded.**
+
+| item | outcome |
+|---|---|
+| referral | **GRANTED, and enlarged — it asked for 2 restorations; there are 3 drops and 1 invention** |
+| the invention | **"A number below that is a claim about the harness" — NOWHERE IN THE SOURCE, and CONTRADICTED by the source's own second data point** |
+| the widening the referral missed | **"this dataset's" → "on this stack"** |
+| source | `A_stepsize_study.md:89-90`, md5 **`b6fcde0f55e9b357d43140f591db399b`**, verified by me |
+| the floor's base | **n=2 — 2.5-3.0 % at 4,032 cells; 1.71 % at 38,304 cells / 96 DVs. A PATTERN, per `§2p.5`** |
+| the interval | **2.5-5 % — UNCHANGED. Not revisited, not validated** |
+| propagation | **2 FROZEN pre-registrations, 1 grader status string, ≥5 results records** |
+| ⚡ verdicts moved | **ZERO — `floor_margin()` is `REPORTED, NEVER GATED` and returns no verdict** |
+| who was right | **THE FIELD. `D19O:188` refused to gate on it before any ruling reached them** |
+| frozen bytes touched · shas broken | **0 · 0** — reached by citation, which is the only legal route |
+| lines renumbered · content-changed above | **0 · 3, all three named** |
+| sweep · backfill · new instrument | **0 · 0 · 0** — forward-only, as the referral itself proposed |
 | gates · thresholds · bands · caps · labels | **0 · 0 · 0 · 0 · 0** |
 | solver compute | **0 core-min, $0.00** |
