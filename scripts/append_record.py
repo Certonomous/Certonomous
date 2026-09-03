@@ -1661,6 +1661,640 @@ def run_allocation_disk_control() -> tuple[dict, dict, list[str]]:
     return planted, negative, notes
 
 
+# ------------------------------ THE `corrects:` FIELD, DRIVEN NOT ASSERTED
+#: The cited id used by every fixture below, rendered in each record's own
+#: prefix. A FIXED LITERAL rather than a minted one, deliberately: a citation IS
+#: a hand-written tool-form id -- that is the entire subject of Sanaa's
+#: 2026-09-03 amendment -- so minting it here would exercise the minter instead
+#: of the guard, and the guard is what is on trial.
+_CITED_STAMP = "20260902T215932.385336Z-ef920ed2"
+
+#: One CORRECTION-declaration entry opener per record, in that record's OWN
+#: vocabulary, and one ORDINARY opener beside it. Never borrowed across records
+#: (CLAUDE.md rule 14; this module's standing rule), because `CORRECTION_MARKER`
+#: itself is spelled per record and a fixture that borrowed another record's
+#: shape would grade the wrong grammar. The `docs/LESSONS.md` and
+#: `docs/NUMERICS_KNOWLEDGE.md` markers are UNEXERCISED BY THE LIVE CORPUS
+#: (measured 2026-09-03: `CORRECTION ROW` occurs 0 times in either), so these
+#: fixtures are the ONLY thing that drives them -- which is exactly what the
+#: comment above `CORRECTION_MARKER` promises and what, until this control
+#: existed, nothing delivered.
+_CORR_ENTRY = {
+    "docs/DOCKET.md": "**CORRECTION ROW** -- it restates the row it names",
+    "docs/COST_CALIBRATION.md": "**CORRECTION ROW** -- append rule 1, a new "
+                                "row naming the row it corrects",
+    "docs/LESSONS.md": "CORRECTION -- it restates the lesson it names",
+    "docs/NUMERICS_KNOWLEDGE.md": "CORRECTION -- it restates the fact it names",
+}
+_ORD_ENTRY = {
+    "docs/DOCKET.md": "an ordinary docket row, declaring nothing",
+    "docs/COST_CALIBRATION.md": "an ordinary cost row, declaring nothing",
+    "docs/LESSONS.md": "AN ORDINARY LESSON, declaring nothing",
+    "docs/NUMERICS_KNOWLEDGE.md": "AN ORDINARY FACT, declaring nothing",
+}
+#: A LEGACY id per record -- the second accept form, which proves the acceptance
+#: is a property of the FIELD and not a side effect of `--allocate-id`.
+_LEGACY_OWN = {
+    "docs/DOCKET.md": "D9001",
+    "docs/COST_CALIBRATION.md": "C-9001",
+    "docs/LESSONS.md": "L-9001",
+    "docs/NUMERICS_KNOWLEDGE.md": "N-B9001",
+}
+#: An id cell / heading token this record's pattern CANNOT parse and which is
+#: not the placeholder either -- the C3 case. One token, never `a note` for the
+#: heading records, because the marker's `\S+` cannot span a space.
+_NO_OWN_ID = {
+    "docs/DOCKET.md": "a note",
+    "docs/COST_CALIBRATION.md": "a note",
+    "docs/LESSONS.md": "no-id",
+    "docs/NUMERICS_KNOWLEDGE.md": "no-id",
+}
+for _tbl_name, _tbl in (("_CORR_ENTRY", _CORR_ENTRY), ("_ORD_ENTRY", _ORD_ENTRY),
+                        ("_LEGACY_OWN", _LEGACY_OWN), ("_NO_OWN_ID", _NO_OWN_ID)):
+    if set(_tbl) != set(RECORDS):  # pragma: no cover - a load-time refusal
+        raise SystemExit(
+            f"REFUSED: {_tbl_name} and RECORDS disagree. Every registered record "
+            f"gets its `corrects:` fixtures in ITS OWN vocabulary; a record with "
+            f"no fixture would have Sanaa's 2026-09-03 amendment proved on some "
+            f"OTHER record's grammar, which is the borrowed-shape defect "
+            f"(CLAUDE.md rule 14).")
+del _tbl_name, _tbl
+
+
+def _corrects_row(path: str, id_cell: str, entry: str) -> str:
+    """One row/heading in *path*'s OWN live entry grammar. Fixtures only."""
+    if path in ("docs/DOCKET.md", "docs/COST_CALIBRATION.md"):
+        return f"| {id_cell} | 2026-09-03 | verification | {entry} |\n"
+    if path == "docs/LESSONS.md":
+        return f"## {id_cell}. {entry}\n"
+    return f"**{id_cell}. {entry}**\n"
+
+
+def _corrects_specimens() -> list[dict]:
+    """The whole corpus, ONE definition, shared by every limb below.
+
+    Shared on purpose: the acceptance arms, the refusal arms and the regression
+    arm must be judging the SAME bytes, or "refusal unchanged everywhere else"
+    would be a claim about two different corpora. Each specimen carries the
+    verdict it is REGISTERED to produce, so a fixture that silently changed
+    class would fail its own arm rather than quietly widen the pass.
+    """
+    ph = ALLOCATE_PLACEHOLDER
+    out: list[dict] = []
+    for path in sorted(RECORDS):
+        cid = f"{TOOL_ID_PREFIX[path]}-{_CITED_STAMP}"
+        corr, ordy = _CORR_ENTRY[path], _ORD_ENTRY[path]
+        tag = path.rsplit("/", 1)[-1]
+
+        def spec(name, rows, allocate, accepted, clause):
+            # `cited` is DERIVED from the bytes, never declared: two specimens
+            # below (a legacy id in the body, an empty body) deliberately carry
+            # NO tool-form id at all, and a control that declared one would
+            # then plant a zero it could not see.
+            out.append({"name": f"{tag}: {name}", "path": path, "rows": rows,
+                        "allocate": allocate, "accepted": accepted,
+                        "clause": clause,
+                        "cited": cid if cid in rows else ""})
+
+        spec("a correction row with a well-formed corrects: field is ACCEPTED",
+             _corrects_row(path, ph, f"{corr} corrects:[{cid}]"),
+             True, True, "ACCEPT")
+        spec("a correction row carrying its own LEGACY id is ACCEPTED too",
+             _corrects_row(path, _LEGACY_OWN[path],
+                           f"{corr} corrects:[{cid}]"),
+             False, True, "ACCEPT")
+        spec("the SAME id outside any field still REFUSES (unchanged)",
+             _corrects_row(path, ph, f"{corr} it corrects {cid} in prose"),
+             True, False, "smuggle")
+        spec("a corrects: field on a NON-correction row REFUSES (C1/C2)",
+             _corrects_row(path, ph, f"{ordy} corrects:[{cid}]"),
+             True, False, "C2")
+        spec("a LEGACY id inside the field is MALFORMED, not prose (C1)",
+             _corrects_row(path, ph,
+                           f"{corr} corrects:[{_LEGACY_OWN[path]}]"),
+             True, False, "C1")
+        spec("an UNTERMINATED field REFUSES rather than reading as prose (C1)",
+             _corrects_row(path, ph, f"{corr} corrects:[{cid} and on it goes"),
+             True, False, "C1")
+        spec("whitespace inside the body is MALFORMED (C1)",
+             _corrects_row(path, ph, f"{corr} corrects:[ {cid}]"),
+             True, False, "C1")
+        spec("an EMPTY body is MALFORMED (C1)",
+             _corrects_row(path, ph, f"{corr} corrects:[]"),
+             True, False, "C1")
+        spec("a correction row with NO id of its own REFUSES (C3)",
+             _corrects_row(path, _NO_OWN_ID[path], f"{corr} corrects:[{cid}]"),
+             False, False, "C3")
+    # THE MOTIVATING CASE ITSELF, and it is cross-record: `docs/DOCKET.md` row
+    # `D-20260902T224505.958199Z-e02eb14e` was refused for citing the `C-` ids
+    # of the calibration rows it described. Two ids, `;`-separated, neither of
+    # this record's prefix.
+    dk = "docs/DOCKET.md"
+    out.append({
+        "name": "DOCKET.md: the MOTIVATING case -- two CROSS-RECORD C- ids in "
+                "one field on a docket correction row",
+        "path": dk, "allocate": True, "accepted": True, "clause": "ACCEPT",
+        "cited": f"C-{_CITED_STAMP}",
+        "rows": _corrects_row(
+            dk, ALLOCATE_PLACEHOLDER,
+            f"{_CORR_ENTRY[dk]} corrects:[C-{_CITED_STAMP};"
+            f"C-20260902T215932.385337Z-ef920ed3]")})
+    # NO `corrects:` OPENER ANYWHERE. These are the specimens the amendment must
+    # not touch AT ALL -- same verdict, same code, same MESSAGE BYTES.
+    out.append({
+        "name": "COST_CALIBRATION.md: a plain hand-written id, no field in "
+                "sight, still REFUSES",
+        "path": "docs/COST_CALIBRATION.md", "allocate": False,
+        "accepted": False, "clause": "smuggle-untouched",
+        "cited": f"C-{_CITED_STAMP}",
+        "rows": f"| C-{_CITED_STAMP} | 2026-09-03 | verification | a "
+                f"hand-written id in the id cell |\n"})
+    out.append({
+        "name": "COST_CALIBRATION.md: a placeholder with no --allocate-id "
+                "still REFUSES",
+        "path": "docs/COST_CALIBRATION.md", "allocate": False,
+        "accepted": False, "clause": "placeholder-untouched", "cited": "",
+        "rows": f"| {ALLOCATE_PLACEHOLDER} | 2026-09-03 | verification | no "
+                f"allocation flag |\n"})
+    return out
+
+
+def run_corrects_control() -> tuple[dict, dict, list[str]]:
+    """SANAA'S 2026-09-03 PLUMBING AMENDMENT, DRIVEN THROUGH THE PRODUCTION PATH.
+
+    The amendment has two halves and they need DIFFERENT kinds of proof:
+
+      * "accepts tool-allocated ids solely inside a structured corrects: field
+        on correction rows" -- a POSITIVE control (`VERIFICATION_CHARTER`
+        `§2p.3(e)`): a restrictive-looking repair that refused everything it
+        newly sees would be indistinguishable, from its verdicts alone, from a
+        correct one. So the accept arms are the first thing here.
+      * "refusal unchanged everywhere else" -- a REGRESSION control, and it is
+        the one that matters. `check_allocation`'s `apply_corrects=False` knob
+        reproduces this module BEFORE the amendment, so every specimen can be
+        graded TWICE, by the same function, on the same bytes. The property
+        asserted is not "the refusals look similar" but: the set of specimens
+        whose verdict CHANGED is EXACTLY the set registered as newly accepted,
+        and everything else keeps its code -- with the no-field specimens
+        keeping their refusal MESSAGE byte-for-byte.
+
+    Every arm calls `check_allocation` -- the function `main()` itself calls at
+    `main`'s allocation gate, with the arguments `main()` passes -- and the disk
+    block below calls `main()` end to end (`§2p.3(d)`: a test that exercises a
+    redundant copy of the guarded logic tests nothing). NOTHING here
+    re-implements `scan_corrects`; the masking is read back OUT of the
+    production function rather than recomputed.
+
+    Returns `(planted, negative, notes)`.
+    """
+    planted, negative, notes = {}, {}, []
+    specs = _corrects_specimens()
+
+    # ---- PLANT THE ZERO, before any refusal is credited -------------------
+    # A refusal that failed to fire and a reader that cannot see the id look
+    # identical from the outside. Every specimen that carries a tool-form id
+    # must be VISIBLE to the very expression the smuggle guard uses.
+    for s in specs:
+        if s["cited"]:
+            assert s["cited"] in re.findall(ANY_TOOL_ID, s["rows"]), s["name"]
+    # THE OTHER HALF OF THE PLANT, and it is the sharper one. Two C1 specimens
+    # -- a LEGACY id in the body, and an empty body -- carry NO tool-form id at
+    # all, so the smuggle scan is STRUCTURALLY unable to refuse them: a legacy
+    # id was never refused by that guard and never will be. Their refusal
+    # therefore comes from clause C1 ALONE. If C1 degraded a malformed field to
+    # "not a field" they would land silently, which is why the code refuses
+    # instead of falling back to prose.
+    c1_no_tool_id = [s for s in specs
+                     if s["clause"] == "C1" and not s["cited"]]
+    planted["the C1 specimens carrying NO tool-form id are invisible to the "
+            "smuggle scan, so only C1 can refuse them"] = (
+        bool(c1_no_tool_id)
+        and all(not re.findall(ANY_TOOL_ID, s["rows"]) for s in c1_no_tool_id))
+
+    # ---- limb group A: the two halves, specimen by specimen ---------------
+    n_accept = 0
+    newly_accepted, newly_refused, kept_code, kept_message = [], [], [], []
+    for s in specs:
+        on = check_allocation(s["rows"], s["path"], allocate=s["allocate"])
+        off = check_allocation(s["rows"], s["path"], allocate=s["allocate"],
+                               apply_corrects=False)
+        if s["accepted"]:
+            n_accept += 1
+            planted[s["name"]] = bool(on["ok"])
+            # ... and the SAME bytes were refused before the amendment. An
+            # accept arm whose specimen would have passed anyway proves nothing
+            # about the amendment.
+            planted[f"{s['name']} -- and was REFUSED before the amendment"] = (
+                (not off["ok"]) and off["code"] == EXIT_REFUSED_ALLOCATION)
+            negative[f"{s['name']} -- pre-amendment code ALSO accepted it"] = (
+                bool(off["ok"]))
+        else:
+            planted[s["name"]] = (
+                (not on["ok"]) and on["code"] == EXIT_REFUSED_ALLOCATION)
+            negative[f"{s['name']} -- but it was ACCEPTED"] = bool(on["ok"])
+        # THE REGRESSION LEDGER, over every specimen without exception, and it
+        # is kept DIRECTIONAL. "Refusal unchanged everywhere else" is a claim
+        # about ONE direction: nothing that refused before may pass now. The
+        # opposite direction is not a regression and the amendment makes it on
+        # purpose -- a MALFORMED field refuses rather than degrading to prose.
+        if off["ok"] and not on["ok"]:
+            newly_refused.append(s["name"])
+        elif on["ok"] and not off["ok"]:
+            newly_accepted.append(s["name"])
+        if on["ok"] == off["ok"] and not on["ok"]:
+            kept_code.append(on["code"] == off["code"])
+            if CORRECTS_OPENER not in s["rows"]:
+                # No field in the bytes: `scan_corrects` is never reached, so
+                # the message must be IDENTICAL, not merely similar.
+                kept_message.append(on["reason"] == off["reason"])
+
+    # ---- limb group B: THE REGRESSION ARM, stated as an equality ----------
+    # This is the mechanical form of "refusal unchanged everywhere else", and
+    # it is stated as a SET EQUALITY rather than a sampling: the specimens the
+    # amendment newly admits are EXACTLY the ones registered as field-scoped
+    # correction-row citations, and there is no tenth.
+    accepted_names = sorted(s["name"] for s in specs if s["accepted"])
+    planted["the ONLY inputs the amendment newly ADMITS are the registered "
+            "field-scoped correction-row citations, and no others"] = (
+        sorted(newly_accepted) == accepted_names)
+    # The other direction, named rather than hidden: the amendment ADDS
+    # refusals, and only for malformed fields carrying no tool-form id -- the
+    # specimens the smuggle scan could never have refused. That widening is
+    # documented at `CORRECTS_OPENER` and is strictly safer, but it is a
+    # verdict change and this control states it as one.
+    c1_names = sorted(s["name"] for s in specs
+                      if s["clause"] == "C1" and not s["cited"])
+    planted["the amendment ADDS refusals for exactly the malformed fields the "
+            "smuggle scan was structurally unable to see, and for nothing "
+            "else"] = (sorted(newly_refused) == c1_names)
+    planted["every specimen that refused before the amendment and still "
+            "refuses kept its EXIT CODE"] = (bool(kept_code) and all(kept_code))
+    planted["a refusal on rows carrying NO corrects: field keeps its message "
+            "BYTE-FOR-BYTE across the amendment"] = (
+        bool(kept_message) and all(kept_message))
+    no_field_names = {s["name"] for s in specs
+                      if CORRECTS_OPENER not in s["rows"]}
+    negative["the amendment moved a verdict on a specimen that carries no "
+             "corrects: field at all"] = bool(
+        no_field_names & (set(newly_accepted) | set(newly_refused)))
+
+    # ---- limb group C: the two mutation knobs, each removing ONE clause ----
+    # C2 and C3 are INDEPENDENT clauses, so each gets the mutation that deletes
+    # it and each must flip a limb. A clause whose removal changes no verdict
+    # was never load-bearing.
+    c2_flipped, c3_flipped = [], []
+    for s in specs:
+        if s["clause"] == "C2":
+            c2_flipped.append(check_allocation(
+                s["rows"], s["path"], allocate=s["allocate"],
+                require_correction_marker=False)["ok"])
+        if s["clause"] == "C3":
+            c3_flipped.append(check_allocation(
+                s["rows"], s["path"], allocate=s["allocate"],
+                require_own_entry=False)["ok"])
+    planted["removing clause C2 lets a field on a NON-correction row through "
+            "-- so C2 is load-bearing"] = (
+        bool(c2_flipped) and all(c2_flipped))
+    planted["removing clause C3 lets a correction row with NO id of its own "
+            "through -- so C3 is load-bearing"] = (
+        bool(c3_flipped) and all(c3_flipped))
+
+    # ---- limb group D: the MASK is what the smuggle scan is shown ----------
+    # Read back OUT of `scan_corrects`, never recomputed here. The mask must
+    # remove the cited id and must preserve every column, or a downstream line
+    # or column report would be the control's arithmetic and not the caller's.
+    mask_spec = next(s for s in specs if s["accepted"] and s["allocate"])
+    sc = scan_corrects(mask_spec["rows"], mask_spec["path"])
+    planted["the accepted field is MASKED out of what the smuggle scan sees"] = (
+        sc["ok"] and mask_spec["cited"] not in sc["masked"]
+        and mask_spec["cited"] in mask_spec["rows"])
+    planted["masking is length-preserving, so every reported line and column "
+            "is the caller's own"] = (
+        sc["ok"] and len(sc["masked"]) == len(mask_spec["rows"])
+        and sc["rows"] == [1])
+    planted["the accepted citation is REPORTED, not silently swallowed"] = (
+        sc["ok"] and sc["cited"] == [mask_spec["cited"]])
+    # AND THE MASK MEASURED AT ITS EDGE, which is the limb that discriminates a
+    # real mask from "the guard stopped running on this line": one row, a
+    # legitimate legacy id of its own, ONE well-formed field, and a SECOND
+    # tool-form id sitting in prose OUTSIDE the field. The smuggle guard must
+    # still fire, and its message must name the OUTSIDE id and NOT the cited
+    # one. A guard that had merely been switched off for the line would refuse
+    # nothing; a mask that blanked the whole line would name neither.
+    cp = "docs/COST_CALIBRATION.md"
+    inside = f"C-{_CITED_STAMP}"
+    outside = "C-20260901T101112.131415Z-0badc0de"
+    edge = (f"| C-9002 | 2026-09-03 | verification | "
+            f"{_CORR_ENTRY[cp]} corrects:[{inside}] and it also mentions "
+            f"{outside} in plain prose |\n")
+    assert inside in re.findall(ANY_TOOL_ID, edge), "edge fixture: inside id"
+    assert outside in re.findall(ANY_TOOL_ID, edge), "edge fixture: outside id"
+    edge_r = check_allocation(edge, cp, allocate=False)
+    planted["a tool id OUTSIDE the field on an otherwise-accepted correction "
+            "row still REFUSES -- the mask is per-field, not per-line"] = (
+        (not edge_r["ok"]) and edge_r["code"] == EXIT_REFUSED_ALLOCATION)
+    planted["and that refusal names the OUTSIDE id and not the cited one -- "
+            "the mask, measured at its edge"] = (
+        outside in edge_r["reason"] and inside not in edge_r["reason"])
+    negative["the refusal on a mixed row names the CITED id, so the mask "
+             "leaked"] = (inside in edge_r.get("reason", ""))
+
+    # ---- limb group E: THE EMPTY-INPUT ARM (`§2p.2`) ----------------------
+    # Feed the guard nothing and see what it says. Two honest halves:
+    empty_alloc = check_allocation("", "docs/COST_CALIBRATION.md",
+                                   allocate=True)
+    empty_plain = check_allocation("", "docs/COST_CALIBRATION.md",
+                                   allocate=False)
+    planted["EMPTY rows with --allocate-id REFUSE (the empty-input arm)"] = (
+        (not empty_alloc["ok"])
+        and empty_alloc["code"] == EXIT_REFUSED_ALLOCATION)
+    # The other half is NOT a refusal and must not be dressed up as one: empty
+    # rows with no allocation request are a legal no-op, and this module's
+    # semantics are Sanaa's, not this control's. What the arm asserts is the
+    # part that WOULD be a fail-open -- that nothing was ACCEPTED out of
+    # nothing, so the "clean" cannot be an acceptance in disguise.
+    planted["EMPTY rows manufacture NO accepted citation out of nothing"] = (
+        empty_plain["ok"] and empty_plain.get("cited") == []
+        and empty_plain.get("corrects_rows") == [])
+    negative["empty rows report an accepted corrects: field"] = bool(
+        empty_plain.get("cited"))
+    # ... and the pairing that makes the empty result a MEASUREMENT rather than
+    # blindness: the SAME reader, over the SAME call, DOES report an acceptance
+    # on the planted rows.
+    live = check_allocation(mask_spec["rows"], mask_spec["path"], allocate=True)
+    planted["the same reader that saw nothing in empty rows DOES see the "
+            "planted citation"] = (
+        live["ok"] and live.get("cited") == [mask_spec["cited"]])
+
+    # ---- limb group F: the LIVE lines the code's own comments name --------
+    # `CORRECTION_MARKER`'s comment says a planted negative drives the one live
+    # `docs/DOCKET.md` line carrying `CORRECTION ROW` -- a row ABOUT the defect,
+    # which the anchor must EXCLUDE. Both fixtures below are copied verbatim
+    # from the real files (2026-09-03) rather than invented, because the claim
+    # in the comment is about those lines and nothing else.
+    live_docket = (
+        "| D-20260902T224505.958199Z-e02eb14e | 2026-09-02 | heat-transfer | "
+        "**A CORRECTION ROW CANNOT NAME THE ROW IT CORRECTS: "
+        "`scripts/append_record.py`'s smuggle guard AND "
+        "`docs/COST_CALIBRATION.md`'s append rule 1 CANNOT BOTH BE SATISFIED** |")
+    live_cost_prose = (
+        "| C-20260903T162543.364120Z-e486a4a1 | 2026-09-03 | "
+        "ansys-verification | **VMFL046 -- a cost row whose entry cell opens "
+        "with something else.** The verdict is not what this row is about. "
+        "**CORRECTION ROW IN SUBSTANCE, AND IT NAMES ITS TARGET** |")
+    live_cost_true = (
+        "| C-44 | 2026-08-24 | verification | **CORRECTION ROW. It corrects "
+        "row `C-42` of this ledger (commit `6f005e19`) and nothing else** |")
+    dk_marker = re.compile(CORRECTION_MARKER["docs/DOCKET.md"])
+    ct_marker = re.compile(CORRECTION_MARKER["docs/COST_CALIBRATION.md"])
+    planted["a REAL cost correction row from the live ledger IS recognised "
+            "(the anchor is not vacuous)"] = bool(ct_marker.search(live_cost_true))
+    negative["the live DOCKET row that DESCRIBES the defect is classified as a "
+             "correction row"] = bool(dk_marker.search(live_docket))
+    negative["a live cost row that only MENTIONS 'CORRECTION ROW' mid-cell is "
+             "classified as one"] = bool(ct_marker.search(live_cost_prose))
+
+    # ---- limb group G: ON DISK, through main(), on the real production path -
+    planted_disk, negative_disk, notes_disk = _corrects_disk_control()
+    planted.update(planted_disk)
+    negative.update(negative_disk)
+    notes += notes_disk
+
+    notes.append(
+        f"    corrects: amendment proved on all {len(RECORDS)} registered "
+        f"records, each in its OWN correction vocabulary -- and LESSONS and "
+        f"NUMERICS have NO live correction row, so these fixtures are the only "
+        f"thing that drives their markers at all")
+    notes.append(
+        f"    REGRESSION ARM (the 'refusal unchanged everywhere else' half): "
+        f"{len(specs)} specimens graded TWICE by check_allocation, "
+        f"apply_corrects False then True. NEWLY ADMITTED "
+        f"{len(newly_accepted)}, registered as newly accepted {n_accept}, sets "
+        f"{'EQUAL' if sorted(newly_accepted) == accepted_names else 'DIFFERENT'}"
+        f"; NEWLY REFUSED {len(newly_refused)} -- malformed fields the smuggle "
+        f"scan could not see, which is a widening and is named as one, not a "
+        f"regression; {len(kept_code)} unchanged refusals kept their exit code "
+        f"and {len(kept_message)} of them their message byte-for-byte")
+    return planted, negative, notes
+
+
+def _corrects_disk_control() -> tuple[dict, dict, list[str]]:
+    """The amendment driven END TO END through `main()`, read back off disk.
+
+    `VERIFICATION_CHARTER` `§2j`, asked the way `§2j` asks it: WHO WROTE THE
+    BYTES THIS CONTROL READS? `main()` did -- the same `main()` the lab invokes,
+    the same argument vector, ending in the same `wt_file.write_text`. This
+    function supplies a throwaway repository and a rows file and nothing else.
+
+    The sharpest limb here is the one no in-memory arm can reach: after an
+    ACCEPTED correction row lands, the cited id is IN THE RECORD'S BYTES TWICE
+    -- once as its own row's entry and once as a citation -- and
+    `parse_record_ids`, the reader both reconcilers use, must count it ONCE.
+    An acceptance that made the reconcilers report a duplicate would be a
+    repair that broke the record it repaired.
+    """
+    planted, negative, notes = {}, {}, []
+    path = "docs/COST_CALIBRATION.md"
+    env = _clean_git_env()
+
+    def git(repo: Path, *args: str) -> None:
+        done = subprocess.run(["git", "-C", str(repo), *args],
+                              capture_output=True, text=True, env=env)
+        if done.returncode != 0:  # pragma: no cover - a broken box, not a defect
+            raise RuntimeError(f"git {args[0]} failed in the corrects control "
+                               f"repo: {done.stderr.strip()[:200]}")
+
+    def run_main(repo: Path, rows: Path, *extra: str) -> int:
+        buf_o, buf_e = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(buf_o), contextlib.redirect_stderr(buf_e):
+            return main(["--path", path, "--rows", str(rows),
+                         "--repo", str(repo), *extra])
+
+    with tempfile.TemporaryDirectory(prefix="append_record_corrects_") as td:
+        repo = Path(td) / "repo"
+        (repo / "docs").mkdir(parents=True)
+        record = repo / path
+        record.write_text(
+            "| id | date | team | process |\n|---|---|---|---|\n"
+            "| C-1 | 2026-08-31 | verification | a seeded LEGACY row |\n")
+        subprocess.run(["git", "init", "-q", str(repo)],
+                       capture_output=True, text=True, env=env, check=True)
+        git(repo, "config", "user.email", "control@certonomous.invalid")
+        git(repo, "config", "user.name", "append_record corrects control")
+        git(repo, "config", "commit.gpgsign", "false")
+        git(repo, "add", "--", path)
+        git(repo, "commit", "-q", "-m", "seed the corrects control record")
+
+        # (1) A NORMAL row lands, so there is a REAL id to correct. Its id is
+        # minted by main(); nothing below cites an id this control invented.
+        target_rows = Path(td) / "rows_target.md"
+        target_rows.write_text(
+            f"| {ALLOCATE_PLACEHOLDER} | 2026-09-03 | verification | the row "
+            f"that will be corrected |\n")
+        rc_t = run_main(repo, target_rows, "--allocate-id")
+        after_target = record.read_text()
+        target_ids = re.findall(tool_id_pattern(path), after_target)
+        planted["disk: the row to be corrected landed at OK"] = (
+            rc_t == EXIT_OK and len(target_ids) == 1)
+        target = target_ids[0]
+        n_entries_before = len(parse_record_ids(after_target, path))
+
+        # (2) THE POSITIVE CONTROL (`§2p.3(e)`), through main(): a correction
+        # row citing that very id inside the field.
+        corr_rows = Path(td) / "rows_correction.md"
+        corr_rows.write_text(
+            f"| {ALLOCATE_PLACEHOLDER} | 2026-09-03 | verification | "
+            f"**CORRECTION ROW** -- append rule 1, and it names the row it "
+            f"corrects: corrects:[{target}] |\n")
+        rc_c = run_main(repo, corr_rows, "--allocate-id")
+        after_corr = record.read_text()          # <- bytes written by main()
+        planted["disk: a correction row citing a REAL id inside the field "
+                "lands at OK"] = (rc_c == EXIT_OK)
+        planted["disk: the record CHANGED, so the writer can write"] = (
+            after_corr != after_target)
+        planted["disk: the cited id is IN THE RECORD'S BYTES twice -- its own "
+                "row and the citation"] = (after_corr.count(target) == 2)
+        planted["disk: and parse_record_ids -- the reader both reconcilers "
+                "use -- counts it ONCE, so the citation is not an entry"] = (
+            len(parse_record_ids(after_corr, path)) == n_entries_before + 1
+            and parse_record_ids(after_corr, path).count(target) == 1)
+        planted["disk: the correction row carries its OWN freshly minted id, "
+                "distinct from the one it cites"] = (
+            len(set(re.findall(tool_id_pattern(path), after_corr))) == 2)
+        notes.append(
+            f"    corrects: disk control -- main() wrote a correction row "
+            f"citing {target}; the id appears "
+            f"{after_corr.count(target)}x in the bytes and "
+            f"{parse_record_ids(after_corr, path).count(target)}x as an entry")
+
+        # (3) THE REFUSALS, through the same main(), with the record required
+        # BYTE-IDENTICAL afterwards. A refusal that wrote anything would be a
+        # different defect wearing a refusal's message.
+        bare_rows = Path(td) / "rows_bare.md"
+        bare_rows.write_text(
+            f"| {ALLOCATE_PLACEHOLDER} | 2026-09-03 | verification | "
+            f"**CORRECTION ROW** -- it corrects {target}, named in prose |\n")
+        rc_b = run_main(repo, bare_rows, "--allocate-id")
+        planted["disk: the SAME id OUTSIDE the field refuses at the allocation "
+                "code, and the record is byte-identical"] = (
+            rc_b == EXIT_REFUSED_ALLOCATION and record.read_text() == after_corr)
+        negative["disk: a bare citation on a correction row is accepted"] = (
+            rc_b == EXIT_OK)
+
+        ord_rows = Path(td) / "rows_ordinary.md"
+        ord_rows.write_text(
+            f"| {ALLOCATE_PLACEHOLDER} | 2026-09-03 | verification | an "
+            f"ordinary cost row corrects:[{target}] |\n")
+        rc_o = run_main(repo, ord_rows, "--allocate-id")
+        planted["disk: the field on a NON-correction row refuses, and the "
+                "record is byte-identical"] = (
+            rc_o == EXIT_REFUSED_ALLOCATION and record.read_text() == after_corr)
+        negative["disk: a corrects: field on an ordinary row is accepted"] = (
+            rc_o == EXIT_OK)
+
+        mal_rows = Path(td) / "rows_malformed.md"
+        mal_rows.write_text(
+            f"| {ALLOCATE_PLACEHOLDER} | 2026-09-03 | verification | "
+            f"**CORRECTION ROW** -- corrects:[{target} |\n")
+        rc_m = run_main(repo, mal_rows, "--allocate-id")
+        planted["disk: an UNTERMINATED field refuses, and the record is "
+                "byte-identical"] = (
+            rc_m == EXIT_REFUSED_ALLOCATION and record.read_text() == after_corr)
+
+        noid_rows = Path(td) / "rows_noid.md"
+        noid_rows.write_text(
+            f"| a note | 2026-09-03 | verification | **CORRECTION ROW** -- "
+            f"corrects:[{target}] |\n")
+        rc_n = run_main(repo, noid_rows)
+        planted["disk: a correction row with NO id of its own refuses, and the "
+                "record is byte-identical"] = (
+            rc_n == EXIT_REFUSED_ALLOCATION and record.read_text() == after_corr)
+
+        # (4) THE EMPTY-INPUT ARM on the production path (`§2p.2`).
+        empty_rows = Path(td) / "rows_empty.md"
+        empty_rows.write_text("")
+        rc_e1 = run_main(repo, empty_rows, "--allocate-id")
+        planted["disk: an EMPTY rows file with --allocate-id refuses, and the "
+                "record is byte-identical"] = (
+            rc_e1 == EXIT_REFUSED_ALLOCATION and record.read_text() == after_corr)
+        rc_e2 = run_main(repo, empty_rows)
+        planted["disk: an EMPTY rows file adds NO entry -- the empty path "
+                "cannot produce an accepted citation"] = (
+            len(parse_record_ids(record.read_text(), path))
+            == n_entries_before + 1)
+        notes.append(
+            f"    corrects: empty-input arm on the production path -- "
+            f"--allocate-id over empty rows returns exit {rc_e1}; without it "
+            f"main() returns exit {rc_e2} and adds no entry. THE SECOND IS NOT "
+            f"A REFUSAL, and is reported as what it is: an empty rows file is a "
+            f"legal no-op in this module, unchanged by the amendment and NOT "
+            f"this control's to change")
+
+        # (5) THE AMENDMENT'S OWN MUTATION, on the bytes main() just wrote:
+        # neutering the mask must turn that accepted row back into a refusal.
+        landed_row = [ln for ln in after_corr.splitlines(keepends=True)
+                      if CORRECTS_OPENER in ln]
+        planted["disk: exactly one landed row carries the field"] = (
+            len(landed_row) == 1)
+        # (5a) The bytes main() ACTUALLY graded -- the rows file, placeholder
+        # intact -- accept under the amendment and refuse without it. Same
+        # bytes, same function, one knob.
+        graded = corr_rows.read_text()
+        planted["disk: the bytes main() graded ACCEPT under the amendment and "
+                "REFUSE with apply_corrects=False"] = (
+            check_allocation(graded, path, allocate=True)["ok"]
+            and not check_allocation(graded, path, allocate=True,
+                                     apply_corrects=False)["ok"])
+        # (5b) AND THE FIELD IS NOT A LAUNDERING CHANNEL. Resubmit the LANDED
+        # row verbatim: its `corrects:` field is still well-formed and still
+        # accepted, but the row now carries a TOOL-FORM id at its entry
+        # position, with no placeholder left to fill. It must still refuse.
+        #
+        # WHICH CLAUSE REFUSES IT IS ITSELF A MEASUREMENT, and it is not the
+        # one a reader would guess: C3 fires, not the smuggle guard, because
+        # C3's own-id test reads `RECORDS[path]` -- the LEGACY pattern -- so a
+        # landed TOOL-allocated id does not count as "an id of its own". That
+        # is exactly what C3's own comment says it admits (a placeholder, or a
+        # legacy id this record parses) and it is FAIL-CLOSED, so it is
+        # recorded here as the measured behaviour rather than assumed away. The
+        # limb asserts only what matters: the row does not land twice.
+        #
+        # AND IT DEGRADES TO A GRADED FAILURE, NEVER TO AN EXCEPTION. Every
+        # mutation that stops the correction row from landing empties
+        # `landed_row`, and an unguarded `landed_row[0]` would kill those
+        # mutants with an `IndexError` at rc 1 instead of a control failure at
+        # exit 5 -- which is the shape this lab docketed on 2026-09-02 (three
+        # mutations stopping a comparator as uncaught exceptions). A mutant
+        # killed by a crash is killed for the wrong reason and reports nothing.
+        if len(landed_row) == 1:
+            own_ids = sorted(
+                set(re.findall(tool_id_pattern(path), landed_row[0]))
+                - {target})
+            replay = check_allocation(landed_row[0], path, allocate=False)
+            planted["disk: replaying the LANDED row verbatim still REFUSES -- "
+                    "an accepted field is not a channel for an entry-position "
+                    "id"] = (
+                len(own_ids) == 1 and (not replay["ok"])
+                and replay["code"] == EXIT_REFUSED_ALLOCATION)
+            negative["disk: the landed row, resubmitted verbatim, would land a "
+                     "second time"] = bool(replay["ok"])
+            notes.append(
+                f"    corrects: the landed row resubmitted verbatim refuses at "
+                f"exit {replay['code']}, and the clause that fires is C3 (no id "
+                f"of its OWN that this record's LEGACY pattern parses), not the "
+                f"smuggle guard -- measured, and fail-closed either way")
+        else:
+            planted["disk: replaying the LANDED row verbatim still REFUSES -- "
+                    "an accepted field is not a channel for an entry-position "
+                    "id"] = False
+            notes.append(
+                f"    corrects: the replay limb could not be evaluated -- "
+                f"{len(landed_row)} landed row(s) carry the field, not 1, so "
+                f"the accepted row did not land. Reported as a control FAILURE, "
+                f"never as a pass and never as a crash")
+    return planted, negative, notes
+
+
 # --------------------------------------------------------------- controls
 def run_controls() -> tuple[control_kind.ControlLedger, int, list[str]]:
     """Plant D369's OWN invisible case and prove BOTH forms on it.
@@ -1985,6 +2619,12 @@ def run_controls() -> tuple[control_kind.ControlLedger, int, list[str]]:
     alloc_planted, alloc_negative, alloc_notes = run_allocation_disk_control()
     notes += alloc_notes
 
+    # ---- limb group 5: Sanaa's 2026-09-03 `corrects:` amendment ------------
+    # Its POSITIVE half and its REGRESSION half, both driven; see
+    # `run_corrects_control` for why those are different kinds of proof.
+    corr_planted, corr_negative, corr_notes = run_corrects_control()
+    notes += corr_notes
+
     ledger = control_kind.ControlLedger(
         claim_class="worktree-only bytes that match no id pattern")
     ledger.plant("merge preserves the invisible tail",
@@ -2019,6 +2659,13 @@ def run_controls() -> tuple[control_kind.ControlLedger, int, list[str]]:
                  vocabulary="tool-allocated ids in a real record on disk",
                  planted=alloc_planted,
                  negative=alloc_negative)
+    ledger.plant("a tool-allocated id is accepted SOLELY inside a structured "
+                 "corrects: field on a correction row, and the refusal is "
+                 "unchanged everywhere else (Sanaa 2026-09-03)",
+                 vocabulary="correction rows and citation fields in all four "
+                            "records' own declarations",
+                 planted=corr_planted,
+                 negative=corr_negative)
 
     failures = [n for n, ok in planted.items() if not ok]
     if overwrite_kept:
@@ -2048,6 +2695,11 @@ def run_controls() -> tuple[control_kind.ControlLedger, int, list[str]]:
     failures += [f"tool-allocation NEGATIVE WAS matched (the guard is not "
                  f"load-bearing): {n}"
                  for n, hit in alloc_negative.items() if hit]
+    failures += [f"corrects: amendment limb did not hold: {n}"
+                 for n, ok in corr_planted.items() if not ok]
+    failures += [f"corrects: NEGATIVE WAS matched -- the field scoping is NOT "
+                 f"load-bearing: {n}"
+                 for n, hit in corr_negative.items() if hit]
     notes.append(
         "    D549 clause 1a proved BOTH WAYS on the same call: repaired -> "
         f"exit {ev_none['code']} (refused); pre-repair gate restored -> exit "
