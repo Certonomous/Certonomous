@@ -1,0 +1,37 @@
+{
+  "THE_CORRECTION_VERIFIED_AT_SOURCE_BY_THIS_LANE": {
+    "four_per_gate_PASS_branches_DO_exist": {
+      "analyse_rung0.py:448": "R0_G1  verdict=\"PASS\" if all(g1.values()) else \"GATE FAIL\"",
+      "analyse_rung0.py:462": "R0_G2a verdict=\"PASS\" if all(g2a.values()) else \"GATE FAIL\"",
+      "analyse_rung0.py:492": "R0_G3  verdict=\"PASS\" if not missing else \"GATE FAIL\"",
+      "analyse_rung0.py:505": "R0_G4  verdict=\"PASS\" if not stale else \"GATE FAIL\""
+    },
+    "the_507_508_omission_is_NOT_a_bug": "This lane called the omission of R0_G2b from the `per` list at :507-508 a defect. IT IS NOT. `per` is scanned ONLY for the string 'GATE FAIL'. R0_G2b is PENDING, not failing. Including a PENDING conjunct in a GATE-FAIL test would be WRONG, and the rung verdict handles R0_G2b correctly at :512 by withholding PASS. The predecessor's author got this right and this lane read it wrong.",
+    "the_file_header_says_it_too": ":16-17: 'THEREFORE THIS COMPARATOR CANNOT EMIT PASS FOR THE RUNG, AND REFUSES TO. Section 4's label is explicit...' -- the file declares the behaviour in its own header and cites the registration clause that requires it.",
+    "the_rung_PASS_is_WITHHELD_DELIBERATELY_AND_SAYS_SO": ":512-518 sets the grid's label to PENDING and PRINTS ITS OWN REASON: 'R0-G1, R0-G2a, R0-G3 and R0-G4 all hold on this grid. The grid's own label is still PENDING because section 4 defines PASS as the conjunction INCLUDING R0-G2b, which cannot run. Reporting PASS here would be reporting a conjunction one of whose conjuncts was never evaluated.'"
+  },
+  "THE_ONE_CONTROL_KEPT_AND_ITS_PURPOSE_RESTATED": {
+    "no_new_compute": "NONE. The arm had already run; this is a reframing of a result, not a re-run.",
+    "purpose_now": "A FALSIFIER OF VERIFICATION'S OWN RULING, no longer a repair licence. If the UNMODIFIED frozen comparator, run over a case in which ALL FIVE gates hold including a genuinely passing R0-G2b, returned PASS, then verification's reading would be wrong and the petition would reopen.",
+    "result": "IT DID NOT FALSIFY THEM. Arm 1 of CONTROL_2d1_CONDITION2_NOT_A_GRADED_RUN.json is exactly that case: R0-G1/G2a/G3/G4 PASS on all four grids by the comparator's own output, R0-G2b PASS on all four with C9 fired on all four measured inside the arm, and the frozen comparator emitted rung PENDING, per_grid PENDING x4, R0_G2b PENDING x4, rc=0, in 29.17 s. VERIFICATION'S READING SURVIVES ITS OWN FALSIFIER, and this lane reports that as plainly as it would have reported the opposite."
+  },
+  "THE_WRONG_FRAMING": "This lane wrote, and its supervisor relayed upward, that analyse_rung0.py has 'NO PASS BRANCH'. That was LITERALLY TRUE OF THE RUNG AND MISLEADING ABOUT THE FILE, and the misleading half is the half that travelled.",
+  "WHAT_FOLLOWS": "THE COMPARATOR IS NOT DEFECTIVE. IT IS FAITHFUL, AND IT SAYS SO OUT LOUD. It and the registration AGREE, so VERIFICATION_CHARTER.md \u00a72d.1 HAS NO OBJECT: there is no departure to repair and there never was. Verification ruled accordingly at f5b8deec (charter v1.52), REFUSING the petition ON THE INSTRUMENT rather than on the merits, and REFUSING BY NAME the registered strike of R0-G2b -- 'a limb becoming runnable is not evidence it was never meant.' The route to a Rung 0 verdict is a SUCCESSOR REGISTRATION that brings foam_to_ugrid.py inside the grading path and grades \u00a74's conjunction AS WRITTEN.",
+  "WHAT_IS_CANCELLED_AND_WILL_NOT_BE_DONE": [
+    "The \u00a72d.1 repair package, BOTH limbs. analyse_rung0.py is not touched -- not the rung PASS, not the :507-508 conjunction, and NOT the ':334-342 says DOES NOT EXIST' string either. That string sits inside a comparator verification has just called faithful, and the successor registration supersedes it.",
+    "Any change to cases/committee-grids/read_ugrid_identity.py. Frozen, untouched, moot.",
+    "Any strike of R0-G2b from the predecessor registration. REFUSED BY NAME.",
+    "The mirror-mutation control. Not owed. Arms 2 and 3 already exist in CONTROL_2d1_CONDITION2_NOT_A_GRADED_RUN.json and are kept as written; NO NEW WORK was done on them and none will be."
+  ],
+  "WHAT_THIS_IS": "A CORRECTION RECORD. It corrects the FRAMING used by this lane in two records it wrote earlier today and in the commit messages that carried them. The corrected records are NOT rewritten -- the error is preserved on its own face, exactly as a struck ledger row is -- and this file is the correction beside them.",
+  "authority": {
+    "relayed_by": "cfd supervisor, 2026-09-03, who verified the four PASS branches at source himself",
+    "ruling": "f5b8deec -- verification CHARTER v1.52",
+    "this_lane": "read :16-17, :448, :462, :492, :505 and :506-519 directly before writing this file"
+  },
+  "corrects": [
+    "verification/runs/RUNG0_MESH_IMPORT_runs/R0G2B_DIAGNOSTIC_NOT_A_GRADED_RUN.json (commit 589bacd6), field WHY_THE_FROZEN_COMPARATOR_STILL_SAYS_PENDING",
+    "verification/runs/RUNG0_MESH_IMPORT_runs/CONTROL_2d1_CONDITION2_NOT_A_GRADED_RUN.json (commit 89de4710), fields WHAT_THIS_IS and ruled_by",
+    "commit messages 589bacd6 and 89de4710, which are immutable and are corrected here"
+  ]
+}
