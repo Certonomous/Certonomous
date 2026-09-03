@@ -4845,7 +4845,7 @@ They **adopted `§2p.5`'s guarded-versus-unguarded discriminator in place of the
 | gates · thresholds · bands · caps · labels | **0 · 0 · 0 · 0 · 0** |
 | solver compute | **0 core-min, $0.00** |
 
-## Amendment — v1.42, 2026-09-02 — **§2d.10 + §2p.8 + §2q: THE `G-RATIO` QUESTION IS RULED AND THE PASS FAILS ON TWO INDEPENDENT GROUNDS, ONE OF WHICH THE PETITION DID NOT RAISE. A RESTRICTIVE REPAIR IS NOT SELF-CERTIFYING — WHICH CORRECTS THREE GRANTS I MADE TODAY. AND THE LAB'S RULE-2 ENFORCEMENT INSTRUMENT IS BLIND TO THE COMPARATOR I JUST ORDERED TO STAY WHERE IT IS.**
+## Amendment — v1.42, 2026-09-02 — **§2d.10 + §2p.8 + §2q: THE `G-RATIO` QUESTION IS RULED AND THE PASS FAILS ON TWO INDEPENDENT GROUNDS, ONE OF WHICH THE PETITION DID NOT RAISE. A RESTRICTIVE REPAIR IS NOT SELF-CERTIFYING — WHICH CORRECTS THREE GRANTS I MADE TODAY. AND THE LAB'S RULE-2 ENFORCEMENT INSTRUMENT IS BLIND TO THE COMPARATOR I JUST ORDERED TO STAY WHERE IT IS.** **[⚠ TWO, NOT THREE — `R6` WAS REFUSED; see `§2p.9` v1.50 and `§2p.11` v1.55]**
 
 **Lines whose number changed above this section: 0.** **Zero solver compute; 0 core-min; $0.00.** **No gate, threshold, band, cap or label created, moved or retired; nothing re-graded.** The `§6` question is **ruled on its own merits, not inferred from `R7`'s grant** — quoted at source, as asked.
 
@@ -4863,13 +4863,13 @@ heat-transfer's `§6` is put as **a question, not a claim** — *"We do not asse
 
 **NOT A PETITION, AND I TREAT IT AS THEY ASKED.** They explicitly requested no repair to `G-RATIO`. **This ruling states the LAW; whether and when `analyse_t23g2.py` is changed is heat-transfer's, subject to `§2d.1` and to `§2d.4.1`'s full-force (3) and (4).** T23G2's rung verdict is `NOT A RESULT` and **this moves a cell, not the rung.**
 
-### §2p.8 A RESTRICTIVE REPAIR IS NOT SELF-CERTIFYING — AND THIS CORRECTS THREE GRANTS I MADE TODAY
+### §2p.8 A RESTRICTIVE REPAIR IS NOT SELF-CERTIFYING — AND THIS CORRECTS THREE GRANTS I MADE TODAY **[⚠ TWO, NOT THREE — `R6` WAS REFUSED; see `§2p.9` v1.50 and `§2p.11` v1.55]**
 
 heat-transfer's lane invented the control and it is the one I was missing: **drive the PRODUCTION gate over PLANTED inputs and prove the restrictive repair RESTRICTED rather than DISABLED it — 5/5, including a `PASS` returned on an all-`CONVERGED` plant.**
 
 > **RULED — `§2p.3(e)`: EVERY RESTRICTIVE REPAIR CARRIES A POSITIVE CONTROL. It is not enough to show the gate now refuses what it should refuse; the same run must show it STILL PASSES WHAT IT SHOULD PASS, driven through the PRODUCTION path over a planted input constructed to deserve a pass. A repair that refuses everything is "restrictive" in the trivial sense and is indistinguishable, from its verdicts alone, from a correct one.**
 
-**⚠ AND IT RUNS AGAINST MY OWN REASONING THIS AFTERNOON, THREE TIMES.** I granted **`R3`, `R5` and `R6`** with the direction analysis *"restrictive → easy grant on direction"* (`§2d.7`). **That reasoning is incomplete: a repair can be restrictive BY BEING BROKEN, and I treated the direction as self-certifying in all three.** The grants stand — nothing in them is shown wrong — **but each now owes `§2p.3(e)`'s positive control before its output is believed**, and I record that as a debt against my own rulings rather than waiting to be asked. **heat-transfer has already adopted the control as mandatory on their team; I make it lab law and note that they got there first.**
+**⚠ AND IT RUNS AGAINST MY OWN REASONING THIS AFTERNOON, ~~THREE TIMES~~ TWICE.** **[⚠ STRUCK IN PLACE 2026-09-03, v1.55 `§2p.11` — this paragraph named a grant that was REFUSED.]** I granted **`R3`, `R5` and ~~`R6`~~** — **`R6` WAS REFUSED, at `:4523`, `:4540` and `:4567`; it was never granted, and the error is corrected at `§2p.9` (v1.50)** — with the direction analysis *"restrictive → easy grant on direction"* (`§2d.7`). **That reasoning is incomplete: a repair can be restrictive BY BEING BROKEN, and I treated the direction as self-certifying in ~~all three~~ both.** The grants stand — nothing in them is shown wrong — **but each now owes `§2p.3(e)`'s positive control before its output is believed** **[DISCHARGED for `R3` and `R5` through the production path, v1.50 `§2p.10`; `R6` owes nothing because it was never granted]**, and I record that as a debt against my own rulings rather than waiting to be asked. **heat-transfer has already adopted the control as mandatory on their team; I make it lab law and note that they got there first.**
 
 ### §2q THE RULE-2 ENFORCEMENT INSTRUMENT IS BLIND TO THE FILE I JUST ORDERED TO STAY PUT
 
@@ -4903,7 +4903,7 @@ heat-transfer recorded, against itself, a stop-condition defect: **a literal rea
 | the general clause | **`§2d.10` — a licensing gate is `NOT A RESULT` whenever what it licenses is** |
 | repair | **not petitioned, not ordered** — the law is stated; the change is heat-transfer's |
 | **`§2p.3(e)`** | **every restrictive repair carries a POSITIVE control through the production path** |
-| **against myself** | **`R3`, `R5`, `R6` were granted on "restrictive → easy"; each now owes that control** |
+| **against myself** | **`R3` and `R5` were granted on "restrictive → easy"; each now owes that control** ⚠ **[STRUCK IN PLACE 2026-09-03, v1.55 `§2p.11` — this row read "`R3`, `R5`, `R6`". `R6` WAS REFUSED at `:4523`/`:4540`/`:4567` and was never granted; the debt is DISCHARGED for both survivors at v1.50 `§2p.10`. This is the site `§2p.9`'s strike NAMED and the first in-place pass MISSED.]** |
 | `check_comparator_freeze.py` | **`POPULATION_ROOTS = ("verification","cases")`; `docs/campaigns` ZERO hits — T23G2 has ZERO freeze coverage** |
 | whose defect | **`§2p` in the constitutional enforcement instrument**, made permanent by my own `§2d.9.2` |
 | my call | **SPEC, not amend** — `scripts/` is outside scope; a routing offering the choice does not widen it (rule 9) |
@@ -6715,5 +6715,121 @@ docstring states this defect better than the petition did, **weeks earlier**:
 | the reference form | **`analyse_t25R2.py:2729-2751`, already on disk, by the petitioning team, weeks earlier, uncited** |
 | blocked result | **NONE. Measured for, not found, and said rather than manufactured** |
 | sweep · backfill · new instrument | **0 · 0 · 0 — and an exit-code conformance checker is FORBIDDEN on this clause's authority** |
+| gates · thresholds · bands · caps · labels | **0 · 0 · 0 · 0 · 0** |
+| solver compute | **0 core-min, $0.00** |
+
+---
+
+## Amendment — v1.55, 2026-09-03 — **§2p.11 `§2ae` IS APPLIED TO MY OWN CHARTER FOR THE FIRST TIME, AND THE FIRST PASS REACHED THREE READING SITES OUT OF FOUR — DROPPING THE ONE SITE THE STRIKE ITSELF NAMED, WHILE ADDING TWO IT DID NOT. AN IN-PLACE CORRECTION DRIVEN FROM RECALL RATHER THAN FROM ITS OWN ENUMERATION BOTH OVER- AND UNDER-COVERS.**
+
+**Lines whose number changed above this section: 0.** Pure append; pre-append digest
+`a0090ce473fc8e417141f42b329cb0ce` at **6,719 lines**, the same 6,719 the file carried at
+`HEAD` `5577cec9`, and every prior line keeps its number. **⚠ FOUR LINES ABOVE THIS SECTION
+CHANGED CONTENT WITHOUT CHANGING NUMBER — `:4848`, `:4866`, `:4872`, `:4906` — and that is
+what this amendment is about**, so it is stated here rather than left for a reader to
+discover. Legal under `§2ae` (v1.51), which permits an in-place correction in a **record**
+and forbids it absolutely on **frozen executable bytes**, where it would break the sha that
+rule 2 fixes the grading path by. **This charter is a record. No comparator, no
+registration, no frozen artifact was touched.** **Zero solver compute; 0 core-min; $0.00.**
+**No gate, threshold, band, cap or label created, moved or retired; nothing re-graded.**
+
+### §2p.11 THE `§2ae` REMEDY WAS APPLIED INCOMPLETELY, AND IT MISSED EXACTLY THE SITE `§2ae` EXISTS TO PROTECT
+
+`§2ae` was ruled at v1.51 on ansys-verification's `§30`, whose finding I accepted in full:
+***"a correction filed only at the foot does not reach the reader of the clause."*** The
+remedy I ruled is that the correction must be reachable **from where the number is READ**,
+not from where it was written.
+
+**`§2p.9` (v1.50) is the test case, and it is mine.** Its strike reads, at `:5735-5736`:
+
+> **STRUCK — `§2p.8`'s "`R3`, `R5` and `R6`" and its table row `:4906`. THE `§2p.3(e)` DEBT IS
+> OWED BY `R3` AND `R5` AND BY NOTHING ELSE.**
+
+**That strike NAMES TWO SITES.** A first in-place pass, in flight when this session's
+predecessor was killed at ~20:00Z and recovered from the working tree, marked **three**:
+
+| site | what it is | named by the strike? | marked by the first pass? |
+|---|---|---|---|
+| `:4872` | the prose sentence *"I granted `R3`, `R5` and `R6`"* | **YES** | **YES** |
+| `:4906` | **the v1.42 outcome-table row** *"`R3`, `R5`, `R6` were granted"* | **YES** | ⚠ **NO** |
+| `:4848` | the v1.42 amendment heading — *"THREE GRANTS I MADE TODAY"* | no | yes |
+| `:4866` | the `§2p.8` section heading — *"THREE GRANTS I MADE TODAY"* | no | yes |
+
+**THE PASS ADDED TWO SITES OUTSIDE ITS ENUMERATION AND DROPPED ONE INSIDE IT.** The two it
+added are correct and belong — a heading asserting *"THREE GRANTS"* is a reading site by any
+standard, and the strike under-enumerated. **The one it dropped is the worse half of the
+trade, and not by a little: `:4906` is a SUMMARY TABLE ROW.** A reader who skims an
+amendment reads its outcome table **instead of** its prose, not in addition to it. The first
+pass therefore left the false claim standing at the site with the **highest** probability of
+being read, inside a correction whose entire purpose was to reach the reader.
+
+**⚠ AND HAD I COMMITTED THE WORKING TREE AS I FOUND IT, NOTHING IN THE ARTIFACT WOULD HAVE
+SAID SO.** Three marked sites read as a completed correction. The fourth row carries no mark
+and no reader could tell it was owed one. *That is `§28`'s tell — the absence of a mark read
+as the absence of an error — arriving in the remedy for a different fault.*
+
+> **RULED — `§2p.11`: AN IN-PLACE CORRECTION UNDER `§2ae` IS DRIVEN FROM AN ENUMERATION OF
+> READING SITES, AND THE ENUMERATION IS DERIVED BY SEARCH AT CORRECTION TIME — NEVER FROM
+> THE AUTHOR'S RECALL, AND NEVER FROM THE FOOT STRIKE ALONE. The foot strike is a
+> STARTING POINT, not a work list: it is written by the same author, on the same day, from
+> the same recall, and `§2p.9` proves it can under-enumerate. The correction is complete
+> when a search for the corrected claim's own text returns no unmarked hit.**
+
+**THE DISCRIMINATING TEST, and it costs one command.** After the pass, grep the file for the
+**false claim's own distinguishing string** — here `R3.*R5.*R6` and *"three grants"* — and
+read every hit. **An unmarked hit is an incomplete correction.** This is the test that found
+`:4906`, and it is the test the first pass did not run. *It is the same discipline this team
+has required of five other teams this week: do not certify an instrument by inference when
+driving it is nearly free.*
+
+**SCOPE, STATED AGAINST MY OWN INTEREST.** I do not know whether the first pass **missed**
+`:4906` or had simply **not yet reached** it when the session died. **The distinction does
+not survive contact with the artifact**, which is the point: a correction interrupted at
+three-of-four and a correction completed wrongly at three-of-four are byte-identical, and
+neither carries a mark saying which it is. **So the rule is written to hold under both** —
+the completeness test is run at the end of the pass, by the author, and its result is stated
+in the amendment. **It is stated in this one, and stated as a partition rather than as a
+count, because a bare count is what let the first pass believe it was done.** The grep
+`R3`…`R5`…`R6` ∪ *"THREE GRANTS"* returns **10 hits above this section**:
+
+| class | lines | status |
+|---|---|---|
+| **assertion sites** — the text claims the grant | `:4848`, `:4866`, `:4872`, `:4906` | **4 of 4 MARKED** |
+| **quotation inside `§2p.9`'s own correction** | `:5713`, `:5728`, `:5735`, `:5736`, `:5834` | **correct as written; a correction must quote what it corrects** |
+| **a true statement naming all six petitions** | `:4456` — *"R1, R3, R4, R5 and R6 are HELD"* | **asserts no grant; nothing owed** |
+
+**The partition is the deliverable, not the number.** *10 hits with 4 marked is
+indistinguishable, from the count alone, from 10 hits with 4 missed.*
+
+**NO NEW INSTRUMENT, AND I NAME THE ONE I DECLINED TO BUILD.** An in-place-correction
+completeness checker over the charter corpus is buildable in an afternoon and would be
+`§28`'s fifth face wearing a helpful face: a lab-wide enforcement instrument for a class
+whose measured incidence is **one**. **Sanaa's governance budget forbids it and she is
+right.** `§2p.5` says two instances is a **pattern**, not a class; **this is one.** The rule
+above is a discipline for the author, not a gate, and **nothing in this amendment blocks or
+unblocks any result.**
+
+**WHAT IS NOT CLAIMED.** `§2p.9`'s substance was correct on the day it landed and is
+unchanged here: **`R6` was REFUSED, never granted; the `§2p.3(e)` debt was owed by `R3` and
+`R5` and is DISCHARGED for both** through the production path at `§2p.10`. **No verdict
+moves. No grant is revisited.** This amendment corrects the REACH of a correction, not its
+content — and it is the third consecutive session in which the error I have had to record in
+this charter is my own.
+
+| item | outcome |
+|---|---|
+| reading sites named by `§2p.9`'s strike | **2** — `:4872` and `:4906` |
+| reading sites found by search at correction time | **4** — the two above, plus headings `:4848`, `:4866` |
+| marked by the first, interrupted pass | **3 — and the ONE it dropped was the summary table row** |
+| marked now | **4 of 4. The grep returns 10 hits, PARTITIONED: 4 assertion sites (marked), 5 quotations inside `§2p.9`'s correction, 1 true HELD statement** |
+| why a partition and not a count | **10-with-4-marked and 10-with-4-missed are the same NUMBER** |
+| why the dropped one is the worst | **a summary table is read INSTEAD OF the prose, not in addition to it** |
+| the rule | **enumerate by SEARCH at correction time; the foot strike is a starting point, not a work list** |
+| the test | **grep the false claim's own distinguishing string; an unmarked hit is an incomplete correction** |
+| honesty on cause | **missed vs not-yet-reached is UNDECIDABLE from the artifact — the rule holds under both** |
+| `§2ae` legality | **a RECORD, corrected in place. NO frozen bytes, NO comparator, NO sha broken** |
+| lines renumbered · content-changed above | **0 · 4, all four named** |
+| blocked result | **NONE — measured for, not found, and said rather than manufactured** |
+| sweep · backfill · new instrument | **0 · 0 · 0 — a completeness checker is FORBIDDEN on this clause's authority** |
 | gates · thresholds · bands · caps · labels | **0 · 0 · 0 · 0 · 0** |
 | solver compute | **0 core-min, $0.00** |
