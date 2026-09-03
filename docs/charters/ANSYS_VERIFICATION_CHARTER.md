@@ -2049,7 +2049,7 @@ reader can actually back.
 ### §29.5 WHAT IS STILL TRUE, AND WHAT THIS COSTS THE CAMPAIGN
 
 `§25.7`/`§28.8` remain unmet: **no VMFL case gates on a digitized reference.** The
-survey established that **45 of 49 remaining cases are figure-only**, and Fig .46.2
+survey established that ~~**45 of 49 remaining cases are figure-only**~~ **⚠ THAT PAIR DOES NOT SURVIVE ITS OWN RE-COUNT AND IS STRUCK AS UNPINNED PROSE — see `§32.4`. It appears in NO dated survey artifact and cannot be reproduced from `CASE_MAP.md` by any stated method. A re-count gives ~46 of 48; the RATIO holds (~92 % → ~96 %, overwhelmingly figure-only) and the QUALITATIVE claim stands, but the figure-only count ROSE while the remaining count FELL, which is impossible under a shared classification and therefore proves the two numbers rest on different ones. And "remaining" is a MOVING TARGET that changes with every run, so a fixed pair in charter prose is structurally wrong whatever its value.**, and Fig .46.2
 (VMFL046-R2's target) is a **POSITION** read — the exact quantity that just failed
 to certify. **The path to those 45 cases now runs through the POSITION re-file**,
 and a `u_read` built per `§29.3` will be **larger** than the pixel floor, so
@@ -2219,4 +2219,123 @@ records that a supervisor who applies a threshold only to other teams' classes h
 | method corrected | `§30.3` rule 2 — **never annotate frozen bytes**; correction goes in the register row's verdict cell and the results record's section head |
 | gates | **0 moved** · bands | **0 moved** · caps | **0 moved** · re-grades | **1 (row #54, demotion only)** · credentials created | **0** |
 | solver compute | **0 core-min, $0.00** |
+| lines whose number changed above this section | **0** |
+
+---
+
+## Amendment — v1.27, 2026-09-03 — **§32: THE `probe_series` DEFECT IS REAL BUT NARROWER THAN THE AUDIT THAT ROUTED IT, AND THE CORRECTION RUNS BACK UPHILL · ONE QUANTITY IS CARRIED EXPLICITLY AS `UNMEASURED` · VMFL024's "EXPERIMENTAL" TARGETS ARE THE ANALYTIC RIGID-BODY LIMIT TO MACHINE PRECISION · AND AN AUDIT OF MY OWN ABANDONED READS**
+
+### §32.1 `probe_series` — CONFIRMED, RE-CHARACTERISED, AND THE AUDIT'S FRAMING CORRECTED
+
+The verification team's `VR3-R2` routed *"4 of 12 registered sites UNGUARDED — a lexical
+`sorted(glob.glob("postProcessing/*/U/gateProbes"))` with no `len()` guard."* **The numerator
+is right and the characterisation is not.** Verified on disk by this team:
+
+- **The count holds: exactly 4** `def probe_series` definitions — `VMFL001/grade_vmfl001.py:355`,
+  `VMFL001/R2/grade_vmfl001_r2.py:415`, `VMFLGPU001/grade_vmflgpu001.py:586`,
+  `VMFLGPU001-R2/grade_vmflgpu001_r2.py:611`. *(The "of 12" denominator is verification's own
+  scoped set; 34 `grade_*.py` comparators exist overall. We confirmed the numerator, not the
+  denominator, and say so.)*
+- **⚠ "UNGUARDED" IS IMPRECISE — ALL FOUR REFUSE AN EMPTY GLOB** (`if not hits: refuse(...)`),
+  and VMFL001 and its R2 additionally carry `if len(vals) < 10: refuse(...)`. The GPU pair's
+  function bodies lack an internal `len` guard, but their caller `iterative_convergence`
+  refuses on `n_avail < PLATEAU_MIN`. **On verification's own four-faces test these paths CAN
+  distinguish "ran and found nothing" from "did not run" — they refuse in both.**
+- **⚠ THE GLOB PATH IN THE AUDIT IS TRANSCRIBED WRONG.** The function-object name is
+  `gateProbes`, so the real pattern is `postProcessing/gateProbes/*/U`, not
+  `postProcessing/*/U/gateProbes`.
+- **THE GENUINE SHARED DEFECT IS THE LEXICAL SORT** — `sorted()` over string time-directory
+  names with no numeric key, so **`"1000"` sorts before `"200"`** and a multi-segment history
+  is concatenated out of time order; `vals[-n:]` then takes a "tail" that is not the latest
+  samples.
+
+> **SEVERITY: `LATENT`. A REAL DEFECT THAT CHANGED NO NUMBER IN ANY RECORDED VERDICT — and
+> the reason is measured, not assumed.** Every `gateProbes` function-object in every run on
+> this box holds **exactly one time-directory, `0`** (verified by directory listing across
+> VMFL001 L1/L2/L3, its R2, and VMFLGPU001 gpu/). **`sorted()` on a one-element list is a
+> no-op**, so nothing was ever reordered. These are steady solves to a fixed `endTime` with no
+> restart, so a single segment is produced by construction. **The realistic trigger is a
+> CRASHED-AND-RESUMED run**, which writes a second time-directory — and that is when this
+> would activate, silently, in the **false-favourable** direction: a flatter early segment
+> landing at the end could **falsely report a plateau** and let a non-converged level be
+> graded. *That is the same direction of harm as `§31`'s blind plateau, reached by a different
+> road.*
+
+**ALL FOUR FILES ARE FROZEN** — each working-tree blob hashes to the comparator sha cited in
+its own `PREREGISTRATION.md` (`8cb29610…`, `64b02be8…`, `21fa2387…`, `6a5d0fe7…`). **NONE MAY
+BE EDITED** (`§31.3`): an in-place fix changes the sha and destroys the property that makes
+the freeze evidence. **The repair is a NEW registration** carrying a guarded reader — numeric
+key `int(float(basename))`, explicit empty-glob refusal, explicit too-few-samples refusal, and
+a **monotonic-time assertion** that fires exactly on the failure the lexical sort would cause —
+with a `--selftest` that plants a two-segment history named `{"0","200","1000"}` and asserts
+numeric ordering. **Given no verdict moved, a documented disclosure is the proportionate
+alternative to a re-run**, and it lives where the number is read (`§31.3`), never in the source.
+
+### §32.2 ⚠ ONE QUANTITY IS CARRIED EXPLICITLY AS `UNMEASURED`, NOT AS CHECKED
+
+**`VMFLGPU001-R2`'s `gateProbes` segmentation CANNOT BE READ FROM THIS BOX.** Its run root
+exists here and is **empty**; the run lives read-only on the remote GPU instance and is not
+synced. Single-segment is **inferred from the case family, not re-read on disk.**
+
+> **THIS IS THE ONE OF THE FOUR THAT CARRIES A FAVOURABLE-DIRECTION VERDICT — row #39,
+> `GATE REACHED`** — so it is precisely the one where a falsely-reported plateau would matter.
+> Under the chief's standing rule *(a classifier-blocked measurement is an UNMEASURED quantity,
+> not a closed question)* it is recorded as **`UNMEASURED`** and **not** as verified. **Nothing
+> in this team's records may cite VMFLGPU001-R2's segmentation as checked.** Re-deriving it
+> requires reading the remote instance, which is not done here.
+
+### §32.3 VMFL024's "EXPERIMENTAL" TARGETS ARE THE ANALYTIC RIGID-BODY LIMIT, TO MACHINE PRECISION
+
+Verified by arithmetic, and it changes what that case is worth. The manual's Table .24.2
+targets (p. 92) are **exactly `r/R`**: `4.83/23 = 0.210000` (difference from the printed 0.21:
+**2.78e-17**), `9.43/23 = 0.410000` (**0**), `14.26/23 = 0.620000` (**0**).
+
+> **THOSE ARE NOT THREE EXPERIMENTAL DATA POINTS. THEY ARE THE `t → ∞` SOLID-BODY ASYMPTOTE,
+> WRITTEN OUT.** And Ansys's own `t = 80 s` values (0.2093 / 0.4109 / 0.6221) sit **−0.333 % /
+> +0.220 % / +0.339 %** from that asymptote — i.e. **at 80 s the flow is already at solid body
+> to a third of a percent.** So the gate tests little more than *"does the solver spin up to
+> rigid-body rotation."* This **strengthens** the lane's smoke design (initialising AT solid
+> body plants a state whose values are the published table, revealing nothing) and **weakens
+> the case's verification value**, which must be stated before VMFL024 is described as an
+> experimentally-referenced credential candidate. It is already capped at `GATE REACHED`;
+> this is the reason behind the cap, not merely its bookkeeping.
+
+### §32.4 `§29.5`'s "45 OF 49" DOES NOT SURVIVE ITS OWN RE-COUNT — STRUCK, WITH THE RATIO PRESERVED
+
+The figure appears in **no dated survey artifact** and cannot be reproduced from `CASE_MAP.md`
+by any stated method. A re-count against today's register run-set gives **~46 of 48**. **The
+ratio holds (~92 % → ~96 %) and the qualitative claim — overwhelmingly figure-only — stands.**
+But the figure-only count **ROSE** while the remaining count **FELL**, which is impossible
+under a shared classification, and therefore **proves the two figures rest on different
+classifications.** Marked in place at `§29.5`.
+
+> **AND A FIXED PAIR WAS STRUCTURALLY WRONG WHATEVER ITS VALUE: "remaining" is a MOVING TARGET
+> that changes with every run.** A count of remaining work does not belong in charter prose at
+> all; it belongs in a dated, script-derived artifact. *(Honest limit: the re-count's own
+> classifier is a crude `"profile"`-string heuristic over `CASE_MAP.md` scope flags that are
+> themselves partly stale — see the census correction — so **46 of 48 is a drafted figure with
+> a stated method, not a frozen one.** It is enough to establish that 45-of-49 does not
+> survive; it is not enough to replace it, and it is not written into this charter as if it
+> were.)*
+
+### §32.5 AN AUDIT OF MY OWN ABANDONED READS — the chief's addendum applied to the supervisor
+
+The plant-the-run test was extended to *an agent's own abandoned measurements, not only
+scripts*. Audited, and **three reads I began and did not finish are closed here**: the VMFL024
+contamination arithmetic I said I would verify personally and had not (`§32.3` — it holds, and
+it found more than it was sent for); the `§29.5` marking I grepped and left (`§32.4`); and the
+census correction I drafted and left unlanded. **A fourth is closed as `UNMEASURED` rather
+than as done** (`§32.2`). **Still outstanding and named rather than quietly carried: `N-AV16`
+and `L-465` are owed for the causal-blindness finding and its caller-side cousin.**
+
+| amendment | v1.27 |
+|---|---|
+| clause added | **`§32`** (`§32.1`–`§32.5`) |
+| corrected UPHILL | `VR3-R2`'s *"UNGUARDED"* — all four **do** refuse an empty glob; its glob path is transcribed wrong; the real defect is the **lexical sort** |
+| severity ruled | **`LATENT`** — measured single-segment everywhere on this box, so no recorded number moved; trigger is a crashed-and-resumed run, in the **false-favourable** direction |
+| repair route | **NEW registration only — all four are FROZEN and none may be edited** (`§31.3`) |
+| carried `UNMEASURED` | **VMFLGPU001-R2's segmentation** — unreadable from this box, and it is the one favourable-direction verdict of the four |
+| struck | `§29.5`'s **45 of 49**, unpinned and unreproducible; ratio preserved, pair struck |
+| found en route | VMFL024's printed targets are `r/R` to **2.78e-17** — the analytic asymptote, not experimental points |
+| gates | **0 moved** · bands | **0 moved** · caps | **0 moved** · re-grades | **0** · credentials | **0** · solver compute | **0 core-min, $0.00** |
 | lines whose number changed above this section | **0** |

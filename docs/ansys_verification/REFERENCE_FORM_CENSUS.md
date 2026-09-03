@@ -731,3 +731,20 @@ and still prints a number to four decimal places.
 **What does NOT change:** no reference-form classification (DISCRETE / PROFILE / EMPTY),
 no tolerance, no count and no total in any earlier batch. The correction is to a **parentage
 map**, and to nothing else.
+
+---
+
+## CORRECTION — 2026-09-03 — **NINE "NEVER-RUN" ENTRIES ARE STALE: THEY HAVE SINCE BEEN RUN AND CARRY REGISTER ROWS. THE REFERENCE-FORM CLASSIFICATIONS STAND; ONLY THE RUN STATUS IS CORRECTED.**
+
+Appended, dated, append-only under `CLAUDE.md` rule 6. **Nothing above is edited or renumbered; lines whose number changed above this section: 0.** Verified against `verification/credentials/ansys/ANSYS_VALIDATION_REGISTER.md` — **the authoritative run-set** — and not taken on report.
+
+**This census's batch scope was "cases not yet run at extraction time." That scope is now stale for nine cases.** Struck in place:
+
+- **Batch 1:** ~~VMFL006 (never-run)~~ → **RUN** (rows VMFL006, VMFL006-R2); ~~VMFL017 (never-run)~~ → **RUN** (VMFL017, VMFL017-R2)
+- **Batch 2:** ~~VMFL021~~ → **RUN** (VMFL021, VMFL021-R2 `GATE REACHED`); ~~VMFL022~~ → **RUN**; ~~VMFL023~~ → **RUN**
+- **Batch 3:** ~~VMFL036~~ → **RUN**
+- **Batch 4:** ~~VMFL059~~ → **RUN**; ~~VMFL063~~ → **RUN**; ~~VMFL064~~ → **RUN** (VMFL064, VMFL064-R2)
+
+**The "never-run" tallies in every batch summary and in the Complete Extraction Summary are stale by these nine and by the wider register run-set (27 distinct base VMFL cases plus 6 GPU cases now carry rows). THE REGISTER IS THE AUTHORITY FOR RUN STATUS; THIS CENSUS IS THE AUTHORITY FOR REFERENCE FORM.**
+
+**A THIRD STALENESS, REFERRED RATHER THAN FIXED HERE BECAUSE IT IS ANOTHER FILE'S:** `CASE_MAP.md` marks **VMFL021** and **VMFL022** `OUT OF SCOPE — no interPhaseChangeFoam on this box`, **but both were RUN and VMFL021-R2 was GATED at `GATE REACHED`.** The out-of-scope ground is **refuted by our own register**, and is referred for `CASE_MAP.md`'s own dated note. It does not move the remaining-count (both are run) but it further undermines any figure derived from CASE_MAP's scope flags — including the struck `45 of 49`.
