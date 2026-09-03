@@ -4959,9 +4959,57 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-03T23:27:12Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-45` — **the first container ever run in the `D6` lineage refused**, and its refusal establishes a registration defect reaching back through three items: `F_mp` reads a field its history never contained. The **in-container deadline is proven in production** — 199 s stopped by hand became 105 s killed by the container with nobody watching. **I stopped firing an arm because its failures stopped teaching.** A **rule-12 gap**: the estimates are in the queue row and not in the frozen document. And the night's triad — *a check that cannot see, an assertion looking at a ghost, a record that lost the clause naming its own rule* — with the lane synthesis that unifies them. Before it, `S-44`, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
+**Section last written:** 2026-09-03T23:50:46Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-46`, the CLOSING STATE — **`SO3aF2`'s `F1` cannot work as registered: the attribute it reads DOES NOT EXIST**, measured for 0.4 core-min by a field in a note after two arms costing 6.0 failed to reach it. **Both worked items are AT REST** with rest states verified by execution and **registration decisions DEFERRED**. **A false clause inside a line labelled `MEASURED` travelled through me to the chief** — and the sentence to carry is a lane's: *twice tonight "it does not change the ruling" was LUCK rather than DESIGN.* Before it, `S-45`, `S-44`, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-46 — **CLOSING STATE: `SO3aF2`'s `F1` CANNOT WORK AS REGISTERED — THE ATTRIBUTE IT READS DOES NOT EXIST, MEASURED FOR 0.4 CORE-MIN BY A FIELD IN A NOTE AFTER TWO ARMS COSTING 6.0 FAILED TO REACH IT. BOTH WORKED ITEMS ARE AT REST WITH VERIFIED REST STATES AND DEFERRED REGISTRATION DECISIONS. AND A FALSE CLAUSE INSIDE A LINE LABELLED `MEASURED` TRAVELLED THROUGH ME TO THE CHIEF** (2026-09-03, `date -u` stamp in the committing invocation)
+
+###### 1. `SO3aF2` — THE ROUTE IS CLOSED WITH A MEASURED REASON
+
+**The extended refusal delivered.** `rc=7` unchanged, no artefact, **0.4 core-min** — only what it *reports* changed, and the enumeration is an **argument** to `_fail`, proved by an AST leg, so it cannot gate the refusal it describes.
+
+**Measured: none of the four candidate attributes exists on either object.** `getPrimalResidualHistory`, `primalResidualHistory`, `getResidualHistory`, `residualHistory` — all `False` on `DASolver` (87 attributes) and on the wrapper (298), **0 UNREADABLE on either**. The only two names matching `resid|hist` are **methods, neither sequence-shaped**. **The producer was not failing to read a present attribute; it was naming attributes that are not there.**
+
+**RULED — branch (2): `F1`'s approach as registered CANNOT WORK.** Fourteenth unsatisfiable-by-construction condition, **established for 0.4 core-min by a field in a note after two arms costing 6.0 failed to reach the same point.**
+
+**⚠ AND THE TWO CLAIMS ARE RECORDED AS TWO LINES, DELIBERATELY:** *"no residual-history ATTRIBUTE exists"* is **MEASURED**; *"no residual history is OBTAINABLE"* is **UNMEASURED** — two methods have never been called and DAFoam may expose one by another route. **A successor who reads the second when we measured the first abandons a route we never tested** — the same scope error, pointing at giving up rather than at overclaiming.
+
+**Stood down, rest state VERIFIED BY EXECUTION rather than claimed:** disk == HEAD on all ten previously-committed files; run root **enumerated, not summarised**; archives counted at 6/32/33/166/211 paths with **nothing ever deleted** — every superseded root MOVED with its own count asserted; **`so3af2_M.json` 0 occurrences, so no number exists that a grader could mistake for a result**; containers 0; queue rows 0; guards 50/50.
+
+**And the line worth keeping: `so3af2_read.py` is `d5f4149d…`, identical to its 2026-08-31 freeze. Fourteen addenda, eight launches, three closed defect classes — the scoring instrument was never once edited.**
+
+**Item `PENDING`, F1–F5 unscored, MESH complete and `NOT A RESULT`, XM `rc=7` the registered risk landing, §0.2 binding. 6.8000 core-min across eight launches.** **The registration decision — what `F1` reads instead, or whether it survives — is DEFERRED to a fresh reading, beside `F_mp`'s.**
+
+###### 2. THE WASTE COLUMN — I OVERRULED A LANE, AND THE CHARTER SETTLED IT BETTER THAN MY ARGUMENT
+
+The lane's row declined to call the 6.0 core-min census stall **waste**, reasoning that *a spend whose cause is UNMEASURED cannot be classified.* **Good reasoning, aimed at the wrong field: waste names an OUTCOME, not a culpability**, and cause has its own column. **The structural argument is the decisive one — if a spend that bought nothing escapes the waste column BECAUSE its cause is unmeasured, then every unexplained spend escapes it, and a waste figure counting only explicable losses is always wrong in the same direction.**
+
+**The lane did not concede — it checked, and found what settles it independently of either argument:** `COMPUTE_BUDGET_CHARTER` §5:107-110 defines the split as *"solver cost that bought nothing"* — **an outcome test with no culpability clause.** It also verified my factual premise by execution first. **Waste 6.0167, 88.5 % of the item's total**, the 6.0000 carrying `cause UNMEASURED`, filed as a **correcting row** with the original struck on that field only.
+
+###### 3. ⚠ A FALSE CLAUSE IN A LINE LABELLED `MEASURED`, AND IT TRAVELLED THROUGH ME
+
+I quoted *"every sequence-shaped attribute on `DASolver` is mesh or geometry"* in a ruling and again to the chief. **It is FALSE. `DASolver` has 21 sequence-shaped attributes; EIGHT were named and all 21 quantified with the word "every."** Thirteen omitted, eight of them configuration/registry/version data.
+
+**The ruling survives** — none of the thirteen matches `resid|hist` — **but that is a fact about which sentence happened to be sloppy, not a property of how the line was written. Had the careless sentence been the other one, the ruling would have been false and equally well-dressed.**
+
+**⚠ THE LANE'S DIAGNOSIS OF THE TRANSMISSION IS THE PART TO KEEP, AND IT IS THEIRS:** *a false clause in a line labelled MEASURED does not stay in one document — it gets quoted, and each quotation strips the context that might have caught it. The defence is not more care at the relay; it is not typing "every" until the enumeration is finished.* **`MEASURED` is supposed to mean counted, which is exactly why a relay does not re-count it.**
+
+**And a SIXTH family member, from the lane's successor note, sharpened:** `sequence_shaped` **is true for `str`**, so the count means **`__len__`-bearing, not array-like** — `version` and `name` are in the 21 for that reason. **A label that overstates its own predicate: the reader takes the NAME for the MEASUREMENT**, the same disease as counting a display string as data. *Disclosed gap, not fixed: the caveat sits at `:1439` and the count at `:1427` — same addendum, adjacent sections, so a reader who stops at the count does not meet it. A cross-reference is a fresh-session call; the lane declined to write an ADDENDUM 15 under a stop order, which was correct.*
+
+###### 4. **THE SENTENCE TO CARRY FROM TONIGHT'S LAST EXCHANGES**, the lane's, and it is not the corrections
+
+> **Twice tonight "it does not change the ruling" was LUCK rather than DESIGN.**
+
+###### 5. CLOSING STATE
+
+`W3_chain_r2` — **running, zero non-zero rc across the entire chain.** **`D6RF2`** — at rest, verified: disk == HEAD on all nine touched files, run root **ABSENT**, three archives intact each preserved by count, **no `rm -rf` ever executed against the item**, containers 0, queue rows 0; **`REF_off` unrun**; `F_mp`'s registration decision **DEFERRED**. **`SO3aF2`** — at rest as above, `F1`'s decision **DEFERRED**. **`A1WRT`** — both units run, record landed, **no item verdict exists by construction**; successor **not designed**. **`SO3D` `NOT A RESULT`; `SO-3D-R` five gates scored.**
+
+**OPEN AND DELIBERATELY UNCHASED:** the frame allowance under-covering teardown (**n=1, not resized on one observation**); the census stall (two attempts, 6.0 core-min, **cause UNMEASURED**, parked with its evidence intact); the `§A14` cross-reference gap above.
+
+**OWED BY ME:** the `disarm` findings record; the **`N-D42`** determinism row (max re-derived at 41 from the family's real bold-inline form); both deferred registration decisions; the forward-only estimate rule's charter placement.
+
+**ON SANAA'S DESK:** the **rule-10 hole** — two empty commits, two lanes, two unrelated mechanisms, one signature, `# ASSERT: only your paths` never saying NON-EMPTY; and the **rule-12 estimate gap** — caps in the frozen document, estimates only in the queue row, **measured on ONE item and flagged as possibly wider without that being claimed.**
 
 ##### UPDATE S-45 — **THE FIRST CONTAINER EVER RUN IN THE `D6` LINEAGE REFUSED, AND ITS REFUSAL ESTABLISHES A REGISTRATION DEFECT REACHING BACK THROUGH THREE ITEMS: `F_mp` READS A FIELD ITS HISTORY NEVER CONTAINED. THE IN-CONTAINER DEADLINE IS PROVEN IN PRODUCTION — 199 s STOPPED BY HAND BECAME 105 s KILLED BY THE CONTAINER WITH NOBODY WATCHING. I STOPPED FIRING AN ARM BECAUSE ITS FAILURES STOPPED TEACHING. AND A rule-12 GAP: THE ESTIMATES ARE IN THE QUEUE ROW AND NOT IN THE FROZEN DOCUMENT** (2026-09-03, `date -u` stamp in the committing invocation)
 
