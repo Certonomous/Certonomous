@@ -1,3 +1,215 @@
+# ⛔ WITHDRAWN 2026-09-03 — **NOT FILED, AND NOT TO BE FILED IN THIS FORM**
+
+> **BOTH LIMBS ARE WITHDRAWN.** This petition was never filed with verification.
+> No message about it was ever sent to the verification team or to any other team.
+> **No agent may file it, quote it as a live request, or act on it.**
+>
+> **The drafted body is left standing beneath this notice, whole and unedited**
+> (`CLAUDE.md` rule 6 — originals are struck, never rewritten; rule 7 — submissions
+> are parked, and parked is not cancelled but neither is it live). The record of a
+> petition that was stopped before filing is worth more than a tidy directory.
+>
+> **Withdrawn by the heat-transfer supervisor, 2026-09-03, on a reading of this
+> team's own frozen document. Solver compute spent under this withdrawal: 0
+> core-min.**
+
+---
+
+## W1. THE RULING THAT FORECLOSES LIMB A — this team's own, frozen before its own compute
+
+`docs/campaigns/T-family/T5b_PREREGISTRATION.md` is FROZEN and byte-identical to
+its blob at HEAD (`e57ce580`, sha256 `53dc8386…`, verified by hashing the disk file
+against `git show HEAD:<path>`). Its **§2** heading is *"THE RULING THAT T5's
+VERDICT STANDS — and why `postProcess` was not re-run"*, and at **`:88`** it reads,
+verbatim:
+
+> **"`postProcess` may NOT be re-run on T5's completed cases to recover `y+`."**
+
+Its ground, `:89-96`, verbatim:
+
+> *"T5 §16.3.1 registered the absence of `y+` as `NOT A RESULT` **before compute**.
+> Manufacturing the missing measurement after the fact, specifically to escape a
+> registered verdict, is answer-changing, and Sanaa's standing directive of
+> 2026-08-27T16:54Z §3 forbids it in terms:*
+> *"Answer-changing choices (model, scheme class, formulation) are never selected
+> by agreement with the reference. ... Frozen gates never edited post-compute.""*
+
+and `:97-98`:
+
+> **"T5's `NOT A RESULT` STANDS. It is not reopened, restated, relaxed or graded
+> again by this document."**
+
+The same document carries **D3 — "a reader with no writer"** at `:76-82`:
+
+> *"T5's comparator reads **`yPlus.json`**. **Nothing in this repository has ever
+> written `yPlus.json`** — the function object writes
+> `postProcessing/air/yPlus/0/yPlus.dat`. ... **Even a firing function object and a
+> correct wall list would still have returned `NOT A RESULT`.**"*
+
+**D3 is re-measured at HEAD and it holds.** `analyse_t5.py:156` opens
+`<case>/yPlus.json`; the proposed driver `analyse_t5.A10_PROPOSED.py:156` opens the
+same path, character for character. A search of the whole T-family run tree returns
+**no `yPlus.json` in any case**; the same search for `yPlus.dat` over the same tree
+returns real files (e.g.
+`verification/runs/T-family/T5_runs/T5_CUBE_c/postProcessing/air/yPlus/0/yPlus.dat`),
+so the reader that returned the zero was shown able to return a non-zero
+(`CLAUDE.md` rule 3). The only writes of `yPlus.json` anywhere are selftest
+fixtures into temporary directories (`analyse_t5.py:339-353`), which are not case
+artifacts.
+
+## W2. WHY LIMB A IS NOT OURS TO PETITION AROUND
+
+**Limb A is foreclosed by this team's own frozen pre-registration**, and the
+foreclosure does not rest on a lab preference that verification could weigh against
+other lab preferences. It rests on **Sanaa's standing directive of
+2026-08-27T16:54Z §3**, quoted in the frozen text above.
+
+**Verification cannot be asked to lift a bar this team accepted before its own
+compute, on the owner's directive.** A §2d.1 petition asks verification to rule on
+the charter's post-compute repair conditions; it is not a route by which a team
+re-opens a constraint the owner set and the team then froze against itself. Asking
+would have been, in substance, permission laundering by procedure (`CLAUDE.md`
+rule 9): re-asking a question we had already answered against ourselves, of a body
+that is not the source of the bar.
+
+The petition's own **§1.1 (`:64-91`) already said this** and said it correctly. It
+then asked anyway — *"we are not asking verification to bless a change of mind — we
+are asking whether the ruling was right"*. **That distinction does not survive
+contact with the ground of the ruling.** Whether the ruling was right is not a
+question the ruling's own authority leaves open to us, because the authority is the
+directive, not our reasoning about it.
+
+## W3. LIMB B — SEVERABLE IN LAW; **NOT LIVE IN THIS FORM**; and **NOT** foreclosed by `:88`
+
+**Stated plainly, and against the framing under which this withdrawal was
+directed: `T5b_PREREGISTRATION.md:88` does not foreclose Limb B.** `:88` is about
+re-running `postProcess` to recover `y+`. Limb B asks whether a grading driver may
+be adopted post-compute. They are different questions and verification could rule
+them differently — which is exactly why the petition kept them apart. **Limb B is
+withdrawn on its own grounds, set out here, and not by borrowing Limb A's.**
+
+**Limb B is severable in law.** The evidence is measured, not asserted:
+
+- The proposed driver mutation-tests the very clause Limb A would satisfy —
+  mutation **N4**, *"the `y+` gate made to pass an absent `yPlus.json`"*
+  (`analyse_t5.A10_PROPOSED.py:1555-1557`) — so adopting B does not smuggle A in.
+- The petition's §7 (`:610-614`) already works the case through: Limb A refused and
+  Limb B granted is *"a coherent outcome"*.
+
+**But Limb B is not live in this form, on four measured grounds:**
+
+1. **It grades nothing.** The petition's own §7 (`:610-612`): *"every row would
+   still return `NOT A RESULT` through `gate_yplus`, so the rung would gain a
+   working instrument and no verdicts."* This is re-measured above: the proposed
+   driver reads `yPlus.json` at `:156`, and no such file exists in any case. **The
+   prize is an instrument that prints `NOT A RESULT`, not a result.**
+2. **The petition itself declines to claim the condition that would carry it.**
+   §5.5(2) (`:554-563`): *"⚠ WE DO NOT CLAIM THIS CONDITION IS MET"* — §2d.1(2),
+   independence of the instrument, with the harness self-hosted inside the file it
+   tests (§1.5, `:134-162`). **A petition that says on its face it has not earned
+   the grant it seeks should be earned, not filed.**
+3. **Two further conditions are open by the petition's own record:** twelve declared
+   ambiguities unresolved (§5.4(3), `:526-531`) and §2p.3(e)'s positive control not
+   known to have been driven (§5.4(5), `:534-539`).
+4. **The gap it exists to fill has since been filled lawfully** — see W4. The
+   marginal value of an adopted T5 driver that prints `NOT A RESULT` is now
+   essentially zero, while the ask remains a post-compute grading-path grant over a
+   **1,411-line diff** (415 frozen lines → 1,791 proposed) that no supervisor has
+   read as a diff (§5.4(2), `:520-525`).
+
+**The route Limb B should take instead is the one the petition itself named as its
+preferred refusal, §7 (`:623-627`):** lift the mutation harness out of the file it
+tests into `verification/runs/T-family/T5_runs/mutation_controls_t5.py`, close the
+twelve ambiguities, and register the grading path **prospectively in a successor
+rung** — which is what `T5c` did (W4). That costs no compute and asks nothing of
+anyone.
+
+## W4. THE LEGITIMATE ROUTE NAMED IN THE FROZEN DOCUMENT — already taken, twice
+
+`T5b_PREREGISTRATION.md:99` names it: *"The legitimate route is a successor rung
+with the defect repaired."* **That successor exists, ran, and has been graded — and
+so has ITS successor:**
+
+| | rung | what it produced | artifact |
+|---|---|---|---|
+| successor 1 | **`T5b`** | three levels complete, **6 graded rows, all `NOT A RESULT`**, `TALLY: 0 of 6 graded rows PASS`; **451.833 core-min** actual against a registered POINT of 419.2 and CAP 838.4 | `verification/runs/T-family/T5b_runs/T5B_GRADE_OUTPUT.txt:11-18`; `STATUS.T5_CUBE_{c,m,f}` |
+| successor 2 | **`T5c`** | re-grade of T5b's completed levels at **no solver compute** — **1 `GATE FAIL` (`G2a`), 5 `NOT A RESULT`, 0 of 6 PASS**; **the campaign's first graded rows in its history** | `docs/campaigns/T-family/T5c_RESULTS.md`; `verification/runs/T-family/T5c_runs/T5C_GRADE_OUTPUT.txt` |
+
+**The measurement Limb A wanted already exists lawfully**, produced by a function
+object registered before compute rather than reconstructed after it: `T5b`'s
+`postProcessing/air/yPlus/0/yPlus.dat` carries **30 data rows on every level**
+(5 write times × 6 walls), with the level-`f` `cube_front` maximum **2.3100421853**
+read straight from the file at `Time = 5000`. **Nothing scientific is lost by this
+withdrawal. What is given up is T5's own rows, which have never existed.**
+
+## W5. A CORRECTION AGAINST OURSELVES — the frozen document's belt-and-braces limb is weaker than it states
+
+`T5b_PREREGISTRATION.md:99-101` says the ruling is independently confirmed because
+*"even with recovered `y+` data, two of the three defects would still fire."* **On
+measurement at HEAD, that is one, not two.**
+
+**D2 — the registered wall that cannot exist — was ADOPTED-REPAIRED before T5b was
+frozen.** T5b §1 D2 (`:69-75`) quotes AMENDMENT 3's heading and its pre-adoption
+sentence (*"PROPOSED, NOT ADOPTED"*, `T5_PREREGISTRATION.md:1441`, `:1445`) without
+the adoption recorded twenty-one lines further on at **`T5_PREREGISTRATION.md:1466`**:
+*"**AMENDMENT 3 — FROZEN 2026-08-26.** The supervisor's personal diff read … .
+`analyse_t5.py` is now blob **`9c2c1d44`**"* — with the freeze-set row at `:1572`
+reading `9c2c1d44` *"unchanged (AMENDMENT 3/5)"*. Confirmed in the code at HEAD:
+`analyse_t5.py:53-54` names **six** walls, `cube_side_s` absent, and the file's blob
+at HEAD is `9c2c1d44cfebe6b3baaebc0ad53036b87d1f07d9`.
+
+So of the three defects, **D1 and D3 hold; D2's characterisation is stale.** D3
+alone is still sufficient to return `NOT A RESULT`, so the *ruling* at `:88` is
+untouched — but the withdrawal is recorded here as resting on **the directive and
+the ruling, not on the futility of the repair**, because the futility argument is
+weaker than the frozen text states and this notice will not lean on it.
+
+**No frozen file was edited to record this.** `T5b_PREREGISTRATION.md`,
+`T5_PREREGISTRATION.md`, `T5_RESULTS.md` and `analyse_t5.py` are untouched; whether
+`T5b` takes a dated disclosure addendum is the supervisor's call, not this
+document's.
+
+## W6. THE NEAR MISS, RECORDED AS A FINDING IN ITS OWN RIGHT
+
+**This petition was one supervisor decision away from asking verification for
+permission that this team had already refused itself, in writing, before its own
+compute, on the owner's standing directive.** It was drafted on a supervisor's
+direction, and the direction was wrong.
+
+**What caught it was a lane reading a frozen document inside its own family rather
+than accepting the brief it was handed** — `T5b_PREREGISTRATION.md:88`, found by
+reading the file, and put in the lane's report against its own instruction. The
+petition's §1.1 then led with it. **The check that worked was a subordinate
+reading the primary artifact and reporting what contradicted the task.** It is
+recorded here so the mechanism is credited, not the outcome.
+
+**One framing rule adopted with it.** The petition was briefed a figure —
+*"fourteen constants"* — that it could not reproduce and correctly refused to
+repeat (§1.6, `:163-181`). The figure came from a relay, not from an artifact, and
+its likely origin is a table's **row count** rather than a count of constants.
+**The rule taken from this: make the substantive claim about thresholds and bands,
+which are readable in frozen text, never about a count of names.**
+
+## W7. WHAT WAS AND WAS NOT DONE UNDER THIS WITHDRAWAL
+
+- **Nothing was sent, filed, uploaded, registered, posted or commented outside this
+  box** (`CLAUDE.md` rule 7). No message was sent to the verification team.
+- **T5's `NOT A RESULT` stands** and is not reopened, re-graded or restated by this
+  notice. `T5_PREREGISTRATION.md`, `T5_RESULTS.md` and `analyse_t5.py` are
+  untouched.
+- **No `yPlus.json` was written anywhere.** No `postProcess` and no solver was run
+  against any case.
+- **`analyse_t5.A10_PROPOSED.py` was not adopted, copied, promoted or executed.** It
+  stays beside the frozen comparator as a proposal, exactly as `§2d.11.3` endorsed.
+- **The petition body below is unedited.** Everything beneath this line is the
+  document as committed at `66862547`.
+
+---
+
+# ↓ WITHDRAWN BODY — retained unedited, for the record. Not a live request. ↓
+
+---
+
 # T5 — **DRAFT** PETITION TO `verification-supervisor` FOR A §2d.1 POST-COMPUTE GRADING-PATH RULING ON TWO LIMBS THAT MUST BE RULED SEPARATELY
 
 > # ⚠ **DRAFT. NOT FILED. NOT SENT.**
