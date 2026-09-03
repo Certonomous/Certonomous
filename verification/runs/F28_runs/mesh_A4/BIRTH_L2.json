@@ -1,0 +1,105 @@
+{
+  "case": "F28_DUCTED_ACTUATOR_DISK",
+  "study": "F28G_GRID_CONVERGENCE",
+  "level": "L2",
+  "stage": "stage0_mesh_birth",
+  "registration": "verification/campaign/F28G_GRID_CONVERGENCE_PREREGISTRATION.md",
+  "registration_commit": "95974b792dd0b0110db079dadae0804add57ee52",
+  "gates_are_section_6_1_of_THIS_registration": "Certified against F28G's OWN section 6.1 (M1..M6), NOT the parent's section 5 three-clause set. cfd-supervisor's ruling 2026-09-03: the registration under which a mesh is USED is the registration whose gates it must answer. This is a SCHEMA BINDING, NOT A GATE CHANGE -- no threshold moves and every number below is F28G's own, frozen at 00188f82.",
+  "registered_gates_section_5": {
+    "M1_max_non_orthogonality_lt_65": true,
+    "M2_max_skewness_lt_4": true,
+    "M3_zero_negative_volumes": true,
+    "M4_growth_within_level_cap": true,
+    "M5_refinement_ratio_1p5_within_5pc": true,
+    "M6_similarity_rho_invariant_and_jumps_in_band": true
+  },
+  "_registered_gates_section_5_note": "This key carries F28G's section 6.1 gates. The KEY NAME is the schema run_f28.sh reads (it requires every value true); the CONTENT is this study's gate-set. The name is retained rather than renamed because renaming it would silently disable the launcher's admissibility check.",
+  "checkMesh": {
+    "max_non_orthogonality": 57.9264,
+    "max_skewness": 1.27269,
+    "min_volume": 4.16627e-17,
+    "max_aspect_ratio": 53834.0,
+    "negative_volume_cells": 0
+  },
+  "checkMesh_summary": "verification/runs/F28_runs/mesh_A4/checkmesh_summary_L2.txt",
+  "checkMesh_full_log_untracked": "verification/runs/F28_runs/mesh_A4/L2/log.checkMesh",
+  "cells": 79974,
+  "per_direction_refinement_ratios_section_5_1": {
+    "nr_I": [
+      1.5,
+      1.5
+    ],
+    "nr_BI_BO": [
+      1.5,
+      1.5152
+    ],
+    "nr_O1": [
+      1.5,
+      1.5152
+    ],
+    "nr_O2": [
+      1.5,
+      1.4872
+    ],
+    "nx_c0": [
+      1.5,
+      1.5
+    ],
+    "nx_c1": [
+      1.5,
+      1.5
+    ],
+    "nx_c2": [
+      1.5,
+      1.5
+    ],
+    "nx_c3": [
+      1.5,
+      1.4815
+    ]
+  },
+  "similarity_read_back_section_5_3": {
+    "ROW_I": {
+      "rho": 0.735,
+      "junction_jump": 1.0108,
+      "q1": 1.15386
+    },
+    "c1": {
+      "rho": 1.06,
+      "junction_jump": 1.0242,
+      "q1": 1.13116
+    },
+    "c2": {
+      "rho": 0.68923,
+      "junction_jump": 0.9942,
+      "q1": 1.10972
+    },
+    "c3": {
+      "rho": 0.99,
+      "junction_jump": 0.9927,
+      "q1": 1.07332
+    },
+    "c4": {
+      "rho": 1.0,
+      "junction_jump": 1.0,
+      "q1": 1.0
+    },
+    "c5": {
+      "rho": 1.00174,
+      "junction_jump": 0.9947,
+      "q1": 1.05625
+    },
+    "c6": {
+      "rho": 0.65435,
+      "junction_jump": 1.007,
+      "q1": 1.05378
+    }
+  },
+  "growth_cap_this_level_section_4_1": 1.1604,
+  "aspect_ratio_note": "RECORDED AND EXPLICITLY NOT GATED (F28G section 6.2; MESH_STANDARD 3.3 'advisory at 1000, never a lone rejection'; 11.4 'no value of it makes a mesh inadmissible'). Measured 53834.0 here, against the lab's own reference-grade NASA TMR calibration of 66,643-74,041. What makes a record incomplete is the ABSENCE of this number, never its size.",
+  "y_plus_status": "ESTIMATE UNTIL A SOLVE RETURNS, and labelled as such (parent Addendum 1 A1.7, carried by F28G section 7 registered addition 6). No solve has run.",
+  "reading_rule_obeyed": "M1 and M2 are parsed as NUMBERS off 'Mesh non-orthogonality Max:' and 'Max skewness =' and NEVER off 'Non-orthogonality check OK.', 'Mesh OK.' or 'Failed N mesh checks.' (F28G section 6.1; MESH_STANDARD 14.4). A comparator that greps a verdict string is reading the wrong instrument and its clean result is not evidence. --selftest plants a summary whose verdict lines read OK while its numbers violate M1 and M2, and requires this reader to REJECT it.",
+  "stage0_verdict": "GATE REACHED",
+  "not_claimed": "This certificate admits a MESH. It is not a solve, not a verdict on any F28G gate, and no y+ or physics claim follows from it."
+}
