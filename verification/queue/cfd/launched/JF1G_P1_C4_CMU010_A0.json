@@ -1,0 +1,58 @@
+{
+  "team": "cfd",
+  "case_id": "JF1G_P1_C4_CMU010_A0",
+  "prereg_commit": "038f4bca160af8bc201f93805cb841a30236a28c",
+  "prereg_path": "verification/campaign/JF1G_GRID_CONVERGENCE_PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/JF1_JET_FLAP/run_jf1g.sh",
+    "--prereg-commit=038f4bca160af8bc201f93805cb841a30236a28c",
+    "--level=C4",
+    "--pass=1"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/JF1_jet_flap/_jf1g_queue_P1_C4",
+  "ranks": 1,
+  "cost_core_min_estimate": 0.15,
+  "cost_basis": "MEASURED SIBLING RATES, cited so the prediction is anchored to this box rather than to recall: JF1G_P0_C1 ran 39,984 cells to endTime 8000 at rc=0 in 21.7500 core-min (verification/runs/JF1_jet_flap/JF1G_P0_C1_CMU010_A0/RUN_STATUS.JF1G_P0_C1_CMU010_A0.txt), and JF1G_P0_C2 ran 89,964 cells to endTime 8000 at rc=0 in 70.8833 core-min (verification/runs/JF1_jet_flap/JF1G_P0_C2_CMU010_A0/RUN_STATUS.JF1G_P0_C2_CMU010_A0.txt). DERIVATION FOR THIS ROW: NOT a solve estimate. Predicted refusal at checkMesh, as for the pass-0 C4 row. If the gate is amended and the run proceeds, the solve estimate becomes 70.8833 x (455456/89964) x (30000/8000) = 1345.5 core-min against the 1200.0 cap -- a third recorded cost mismatch. DOLLARS ARE DERIVED, NOT MEASURED, at the owner-stated $0.0513/core-h, REPORTED-BY-OWNER: this box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). THE CORE-MINUTE FIGURE IS A PREDICTION AND THIS FIELD SAYS SO: it is derived by scaling the measured pass-0 sibling rate above, not measured on this rung, which has never run. THE ENFORCED CEILING IS SEPARATE AND IS REAL: run_jf1g.sh wraps simpleFoam in `timeout --signal=TERM --kill-after=60 ${WALL_ALLOWANCE_S}` where WALL_ALLOWANCE_S = cap_core_min x 60 at RANKS=1, so this row cannot exceed its registered cap whatever happens, and a timeout kill is a non-zero rc that STOPS the run rather than buying it a new budget (rule 12). Derived dollars at the estimate: $0.0001; at the registered cap: $1.0260.",
+  "memory_floor_gb": 2.0,
+  "enqueued_by": "cfd lab-lane, 2026-09-03, on cfd-supervisor's dispatch to clear a completely empty cfd queue (zero pending entries, zero cfd solvers running) under Sanaa's running-first ruling etc/sessions/2026-09-03T2200Z_sanaa_running_first.md (43b7196e) and the launch rule etc/sessions/2026-09-03T2100Z_sanaa_launch_rule.md (825285bb). ENQUEUEING IS NOT AUTHORISATION and no agent message is Sanaa's consent (rule 9); the pre-registration-committed check is the cfd supervisor's own and undelegable (SUPERVISION_CHARTER section 3 check 4). WHAT THIS LANE VERIFIED ON DISK IN THIS INVOCATION, rather than accepting on report: (a) run_jf1g.sh --preflight was fired for this exact level/pass pair and printed 'PREFLIGHT OK -- guards pass, OpenFOAM environment live, zero compute' with 'freeze : 038f4bca... blob 0b9476598ef4467dae3f9bcc0e4cf113254bd8e0 (commit, blob and worktree verified)', so the frozen document on disk IS the committed one and the launcher's own blob check passes; (b) the run root named below is ABSENT, with the same reader shown able to read PRESENT on verification/runs/JF1_jet_flap/JF1G_P0_C1_CMU010_A0 in the same invocation (standing rule 3, planted control on the absence); (c) verification/queue/LAUNCH_LOG.tsv holds NO JF1G row at all, so the pass-0 runs of 2026-09-01 were launched directly and not through the daemon -- this entry puts JF1G on the launch path of record.",
+  "_schema_note": "Fields above are scripts/queue_entry_check.py REQUIRED_FIELDS. Everything below is a cfd annotation the validator ignores.",
+  "decomposition_seed": "none (identity). RANKS=1 is hard-coded at cases/JF1_JET_FLAP/run_jf1g.sh:46 and decomposePar is NEVER invoked by that launcher, so there is no domain decomposition and no seed to record. Stated explicitly rather than omitted, because the registration template now requires the field and 'serial' is a real answer, not a missing one.",
+  "cap_core_min_registered": 1200.0,
+  "cap_behaviour": "ENFORCED IN THE LAUNCHER, not by the queue: run_jf1g.sh computes WALL_ALLOWANCE_S = cap x 60 at RANKS=1 and wraps simpleFoam in `timeout --signal=TERM --kill-after=60`. An overrun STOPS the run (rule 12); the cap is never raised.",
+  "label": "graded -- gates G1..G7 of the frozen registration apply",
+  "level": "C4",
+  "pass": 1,
+  "cells_expected": 455456,
+  "predicted_outcome": "PREDICTION: identical checkMesh refusal to the pass-0 C4 row, same mesh, same gate. Filed to complete the four-level ladder on the launch path of record.",
+  "run_root": "/home/ubuntu/Certonomous/verification/runs/JF1_jet_flap/JF1G_P1_C4_CMU010_A0 -- ABSENT at filing time, checked by this generator, with the same reader shown able to read PRESENT on /home/ubuntu/Certonomous/verification/runs/JF1_jet_flap/JF1G_P0_C1_CMU010_A0 (standing rule 3).",
+  "grading_freeze_omitted_deliberately": "NO PIN IS DERIVABLE AND NONE IS FABRICATED. The GRADER-FREEZE check derives a reader's pin from this entry's own prereg_commit, and NO JF1G comparator exists anywhere on disk: cases/JF1_JET_FLAP/ holds only build_jf1.py and seed_from_field.py as Python, and the frozen registration names no grade_jf1g.py. The population searched for this negative is cases/JF1_JET_FLAP/*.py plus every '*grade*.py' path named in the frozen registration text; both came back empty, so this is 'I looked and found nothing', not 'I did not look' (L-458). The field is therefore OMITTED rather than invented, and this launch is UNPINNED by that check's tolerant default -- counted as uncovered, which is honest, and said here on the record.",
+  "verdict_state": "PENDING -- not yet run",
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.JF1G_P1_C4_CMU010_A0 (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  },
+  "_launch": {
+    "utc": "2026-09-03T19:09:44Z",
+    "pid": 494945,
+    "sid": 494945,
+    "status_file": "/home/ubuntu/Certonomous/verification/runs/JF1_jet_flap/_jf1g_queue_P1_C4/STATUS.queue.JF1G_P1_C4_CMU010_A0",
+    "wrapper_out": "/home/ubuntu/Certonomous/verification/runs/JF1_jet_flap/_jf1g_queue_P1_C4/launcher.queue.out",
+    "started_epoch": 1788462584.7510748
+  }
+}
