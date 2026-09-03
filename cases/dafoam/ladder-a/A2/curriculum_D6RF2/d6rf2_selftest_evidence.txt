@@ -1,0 +1,301 @@
+=== driven Thu Sep  3 19:40:51 UTC 2026, Python 3.12.3
+
+########## d6rf2_anchor_gate.py --selftest under python3 
+D6RF2_ANCHOR REFUSE A3 sentinel '# OpenMDAO setup' occurs 2 times in d6rf2_opt_runScript.py (need exactly 1). d6rf2_fd_endpoint.py splits on it, so a second occurrence truncates the header at the FIRST one. THIS IS D6RF-BLOCKING-1.
+D6RF2_ANCHOR REFUSE A4 the header d6rf2_fd_endpoint.py would exec is 0 chars, below the registered floor 9000 -- the sentinel is unique but at the WRONG SITE
+D6RF2_ANCHOR REFUSE A2 d6rf2_fd_endpoint.py pins producer md5 137539e0a99be27f27fdb69e063b2a87; the file on disk is 740927066fc1f46dc100db506622d5f9. A pinned consumer refuses at the md5 check BEFORE it ever counts the anchor.
+D6RF2_ANCHOR REFUSE A2 d6rf2_fd_endpoint.py names producer 'd6rf2_opt_runScript.py', absent from /tmp/d6rf2_anchor4_u1du555j
+D6RF2 G-ANCHOR SELFTEST -- both directions, on REAL bytes
+
+A. THE POSITIVE LEG, on this item's own derived files
+D6RF2 G-ANCHOR -- 2 anchor-scoped readers, on the bytes they will actually read
+  d6rf2_fd_endpoint.py       producer=d6rf2_opt_runScript.py md5=137539e0a99b... anchor='# OpenMDAO setup' count=1 header=10536 chars, all 6 symbols present
+  d6rf2_ref_off.py           producer=d6rf2_opt_runScript.py md5=137539e0a99b... anchor='# OpenMDAO setup' count=1 header=10536 chars, all 6 symbols present
+D6RF2_ANCHOR_PASS readers=2 producer=d6rf2_opt_runScript.py
+  the repaired producer PASSES the gate for both readers           want=no-refusal  got=no-refusal  PASS
+
+B. THE NEGATIVE LEG, on the ORIGINAL producer, still on disk unedited
+  the ORIGINAL producer (sentinel twice) REFUSES at A3             want=REFUSED     got=REFUSED     PASS
+        the header A3 prevented: 1396 chars, missing ['class Top', 'POINTS', 'U0 =', 'CL_TARGETS', 'WEIGHTS']
+  PLANT: it is 1396 chars, carries daOptions and NOT class Top     PASS
+
+C. A4 AND A5 -- a unique sentinel AT THE WRONG SITE still refuses
+  count == 1 but the anchor is at the TOP -> REFUSES at A4         want=REFUSED     got=REFUSED     PASS
+
+D. A2 -- the pin, which is the clause the ruling did not anticipate
+  the producer drifts by one comment -> REFUSES at A2 (the md5), BEFORE the anchor is ever counted want=REFUSED     got=REFUSED     PASS
+  the producer is ABSENT from the work dir -> REFUSES at A2        want=REFUSED     got=REFUSED     PASS
+
+D6RF2_ANCHOR_SELFTEST 6/6 PASS
+rc=0
+
+########## d6rf2_units_assert.py --selftest under python3 
+D6RF UNITS GATE SELFTEST -- rc 0 = physical and in bounds, rc 77 = refusal
+
+A. THE TWO LIVE ARTEFACTS ON DISK -- the controls that are not fixtures
+  D4 arm F, THE CRASHED UNMARKED VECTOR (must refuse)        want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U2 {"_units": "ABSENT", "file": "/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin/F/d4_endpoint_dvs.json", "keys_present": 
+  D4 arm F3, THE REPAIRED PHYSICAL VECTOR (must PASS)        want rc=0   got rc=0   PASS
+
+B. THE MARKER -- absent is a refusal, never a default
+  clean D6 multipoint physical vector (must PASS)            want rc=0   got rc=0   PASS
+  no _units key at all                                       want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U2 {"_units": "ABSENT", "file": "/tmp/d6rf_units_st_x4ba10ji/dv_03.json", "keys_present": ["_scaler_source", "_scaler_source_md5", "
+  _units says DRIVER_SCALED                                  want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U2 {"_units": "DRIVER_SCALED", "file": "/tmp/d6rf_units_st_x4ba10ji/dv_04.json", "required": "PHYSICAL"}
+  _units lower-case (not the registered literal)             want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U2 {"_units": "physical", "file": "/tmp/d6rf_units_st_x4ba10ji/dv_05.json", "required": "PHYSICAL"}
+
+C. THE MARKER CANNOT VOUCH FOR ITSELF
+  _scaler_source_md5 absent                                  want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U4 {"_scaler_source_md5": "ABSENT", "file": "/tmp/d6rf_units_st_x4ba10ji/dv_06.json"}
+  _scaler_source absent                                      want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U3 {"_scaler_source": "ABSENT", "file": "/tmp/d6rf_units_st_x4ba10ji/dv_07.json"}
+  _scaler_source_md5 does not match the runscript in use     want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U3 {"_scaler_source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF2/d6rf2_opt_runScript.py", "md5_on_disk": "1
+  a PHYSICAL D6 vector graded against D4's runscript (wrong producer) want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U4 {"_scaler_source_md5": "137539e0a99be27f27fdb69e063b2a87", "file": "/tmp/d6rf_units_st_x4ba10ji/dv_09.json", "note": "the marker 
+  _scalers_applied LIES about shape (claims 1.0, registered 10.0) want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U5 {"_scalers_applied": {"patchV_cl04": 0.1, "patchV_cl05": 0.1, "patchV_cl06": 0.1, "shape": 1.0, "twist": 0.1}, "file": "/tmp/d6rf
+  _scalers_applied absent                                    want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U5 {"_scalers_applied": "ABSENT", "file": "/tmp/d6rf_units_st_x4ba10ji/dv_11.json", "registered": {"patchV_cl04": 0.1, "patchV_cl05"
+  _scaler_source resolves on disk but its md5 has MOVED      want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U3 {"_scaler_source": "/tmp/d6rf_units_st_x4ba10ji/moved_runscript.py", "md5_on_disk": "500145d0567cdf781a1c92de29e6fcc2", "md5_reco
+
+D. THE FRAME ITSELF -- a marked file whose vectors are still scaled
+  marked PHYSICAL but the vectors are DRIVER-SCALED (the live defect) want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U6 {"control_P": "control_pinned: {\"tol_rel\": 1e-12, \"violations\": [{\"dv\": \"patchV_cl04\", \"idx\": 0, \"pinned_value\": 100.
+  one pinned witness off U0 by 0.1 %                         want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U6 {"control_P": "control_pinned: {\"tol_rel\": 1e-12, \"violations\": [{\"dv\": \"patchV_cl05\", \"idx\": 0, \"pinned_value\": 100.
+  one pinned witness left driver-scaled at 10.0              want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U6 {"control_P": "control_pinned: {\"tol_rel\": 1e-12, \"violations\": [{\"dv\": \"patchV_cl06\", \"idx\": 0, \"pinned_value\": 100.
+
+E. BOUNDS CONTAINMENT -- refused HERE, never by the deformer
+  ONE shape component 1e-6 above its [-1,1] bound            want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U7 {"control_B": "control_bounds: {\"first_20\": [{\"dv\": \"shape\", \"excess\": 9.999999999177334e-07, \"idx\": 0, \"lower\": -1.0
+  ONE shape component at the crashed arm's own max |value|   want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U7 {"control_B": "control_bounds: {\"first_20\": [{\"dv\": \"shape\", \"excess\": 5.024592, \"idx\": 0, \"lower\": -1.0, \"upper\": 
+  one twist component below its lower bound                  want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U7 {"control_B": "control_bounds: {\"first_20\": [{\"dv\": \"twist\", \"excess\": 0.5, \"idx\": 0, \"lower\": -10.0, \"upper\": 10.0
+  one angle of attack above its 10 deg upper bound           want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U7 {"control_B": "control_bounds: {\"first_20\": [{\"dv\": \"patchV_cl04\", \"excess\": 0.5, \"idx\": 1, \"lower\": 0.0, \"upper\": 
+  a component exactly ON its bound (must NOT refuse)         want rc=0   got rc=0   PASS
+
+F. STRUCTURE
+  a registered design variable missing from the file         want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U5 {"file": "/tmp/d6rf_units_st_x4ba10ji/dv_21.json", "registered": ["patchV_cl04", "patchV_cl05", "patchV_cl06", "shape", "twist"],
+  a design variable that is not a numeric vector             want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U5 {"dv": "shape", "file": "/tmp/d6rf_units_st_x4ba10ji/dv_22.json", "not_a_numeric_vector": "ValueError(\"could not convert string 
+  the file does not parse as JSON                            want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U1 {"file": "/tmp/d6rf_units_st_x4ba10ji/notjson.json", "json_parse_failed": "JSONDecodeError('Expecting property name enclosed in d
+  the file does not exist                                    want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U1 {"design_variable_file_absent": "/tmp/d6rf_units_st_x4ba10ji/nope.json"}
+
+D6RF_UNITS_SELFTEST 25/25 PASS
+rc=0
+
+########## d6rf2_endpoint_locus.py --selftest under python3 
+SELFTEST clean: design variables parsed = ["patchV_cl04", "patchV_cl05", "patchV_cl06", "shape", "twist"]
+SELFTEST clean: scalers read from source = {"patchV_cl04": 0.1, "patchV_cl05": 0.1, "patchV_cl06": 0.1, "shape": 10.0, "twist": 0.1}
+  clean/control_P (3 pinned witnesses expected)              want=no-refusal  got=no-refusal  PASS
+  clean/control_B                                            want=no-refusal  got=no-refusal  PASS
+  PLANT: exactly 3 pinned witnesses discovered (one per point)     PASS
+  driver-scaled vector (the live defect)/control_P           want=REFUSED     got=REFUSED     PASS   <control_pinned: {"tol_rel": 1e-12, "violations": [{"dv": "patchV_cl04", "idx": 0, "pinned_value": 100.0, "reconstructed": 10.0, "rel_residual": 0.9}, >
+  driver-scaled vector (the live defect)/control_B           want=REFUSED     got=REFUSED     PASS   <control_bounds: {"first_20": [{"dv": "patchV_cl04", "excess": 90.0, "idx": 0, "lower": 100.0, "upper": 100.0, "value": 10.0}, {"dv": "patchV_cl05", "e>
+  mutant/one pinned witness off by 1e-9 relative             want=REFUSED     got=REFUSED     PASS   <control_pinned: {"tol_rel": 1e-12, "violations": [{"dv": "patchV_cl05", "idx": 0, "pinned_value": 100.0, "reconstructed": 100.00000010000001, "rel_res>
+  mutant/one pinned witness left driver-scaled (10.0)        want=REFUSED     got=REFUSED     PASS   <control_pinned: {"tol_rel": 1e-12, "violations": [{"dv": "patchV_cl06", "idx": 0, "pinned_value": 100.0, "reconstructed": 10.0, "rel_residual": 0.9}]}>
+  mutant/pinned off by 1e-13 (inside tol, must NOT fire)     want=no-refusal  got=no-refusal  PASS
+  registration with zero pinned components/control_P         want=REFUSED     got=REFUSED     PASS   <control_pinned: {"n_pinned_found": 0, "note": "no design-variable component has lower == upper, so this control checked nothing; a control with nothin>
+  mutant/shape just above upper bound                        want=REFUSED     got=REFUSED     PASS   <control_bounds: {"first_20": [{"dv": "shape", "excess": 9.999999999177334e-07, "idx": 0, "lower": -1.0, "upper": 1.0, "value": 1.000001}], "n_checked">
+  mutant/twist below lower bound                             want=REFUSED     got=REFUSED     PASS   <control_bounds: {"first_20": [{"dv": "twist", "excess": 0.5, "idx": 0, "lower": -10.0, "upper": 10.0, "value": -10.5}], "n_checked": 9, "n_violations">
+  mutant/shape above bound by 1e-12 (inside tol, must NOT fire) want=no-refusal  got=no-refusal  PASS
+  empty component set/control_B                              want=REFUSED     got=REFUSED     PASS   <control_bounds: {"n_checked": 0, "note": "zero components checked; a loop that can iterate zero times asserts its own trip count"}>
+  parser/scaler keyword removed                              want=REFUSED     got=REFUSED     PASS   <parse_registration: {"design_variable": ["twist"], "found_keywords": ["lower", "upper"], "missing_keyword": "scaler"}>
+  parser/lower keyword removed                               want=REFUSED     got=REFUSED     PASS   <parse_registration: {"design_variable": ["shape"], "found_keywords": ["scaler", "upper"], "missing_keyword": "lower"}>
+  parser/only two design variables registered                want=REFUSED     got=REFUSED     PASS   <parse_registration: {"design_variables_found": ["twist"], "n_found": 1, "n_required_min": 3, "note": "a registration this parser cannot read in full i>
+  parser/U0 not a module-level constant                      want=REFUSED     got=REFUSED     PASS   <parse_registration/['patchV_cl04', 'patchV_cl05', 'patchV_cl06']/lower: {"known": [], "name_not_a_module_level_constant": "U0"}>
+  parser/scaler is zero                                      want=REFUSED     got=REFUSED     PASS   <parse_registration: {"design_variable": ["shape"], "scaler_is_zero": true}>
+  parser/POINTS is not a module-level list (name unresolvable) want=REFUSED     got=REFUSED     PASS   <parse_registration: {"known_loop_variables": [], "name_concatenation_operand_is_not_a_loop_variable_over_a_module_level_string_list": "pt"}>
+  parser/loop over a non-list name                           want=REFUSED     got=REFUSED     PASS   <parse_registration: {"known_loop_variables": [], "name_concatenation_operand_is_not_a_loop_variable_over_a_module_level_string_list": "pt"}>
+  parser/name built by an f-string (unsupported form)        want=REFUSED     got=REFUSED     PASS   <parse_registration: {"add_design_var_first_arg_unsupported_form": "JoinedStr", "supported": ["\"literal\"", "\"literal\" + <for-loop var over a module>
+  parser/name built from a variable alone (unsupported form) want=REFUSED     got=REFUSED     PASS   <parse_registration: {"add_design_var_first_arg_unsupported_form": "Name", "supported": ["\"literal\"", "\"literal\" + <for-loop var over a module list>
+  parser/same loop variable bound to two different lists     want=REFUSED     got=REFUSED     PASS   <loop_bindings: {"bound_to_two_different_lists": [["cl04", "cl05", "cl06"], ["a", "b"]], "loop_variable": "pt", "note": "an ambiguous loop variable can>
+  descale/extracted key the registration does not know       want=REFUSED     got=REFUSED     PASS   <descale: {"extracted_key_not_registered": "alpha", "registered": ["patchV_cl04", "patchV_cl05", "patchV_cl06", "shape", "twist"]}>
+  descale/extractor returned fewer DVs than registered       want=REFUSED     got=REFUSED     PASS   <descale: {"note": "the extractor returned fewer design variables than the producer registered", "registered_but_not_extracted": ["patchV_cl04", "patch>
+  descale/bound list length != extracted length              want=REFUSED     got=REFUSED     PASS   <control_bounds/patchV_cl04: {"bound": "lower", "len_extracted": 3, "len_registered": 2}>
+SELFTEST real d6r_opt_runScript.py scalers = {"patchV_cl04": 0.1, "patchV_cl05": 0.1, "patchV_cl06": 0.1, "shape": 10.0, "twist": 0.1}
+SELFTEST real d6r_opt_runScript.py U0      = 100.0
+SELFTEST real d6r_opt_runScript.py POINTS  = ['cl04', 'cl05', 'cl06']
+  PLANT: the five registered names and their scalers          PASS
+  PLANT: U0 read from the source, not typed here              PASS
+  PLANT: POINTS read from the source, not typed here          PASS
+  PLANT: 3 pinned witnesses discovered on the REAL producer    PASS
+
+D6RF_LOCUS_SELFTEST 30/30 PASS
+rc=0
+
+########## d6rf2_anchor_gate.py --selftest under python3 -O
+D6RF2_ANCHOR REFUSE A3 sentinel '# OpenMDAO setup' occurs 2 times in d6rf2_opt_runScript.py (need exactly 1). d6rf2_fd_endpoint.py splits on it, so a second occurrence truncates the header at the FIRST one. THIS IS D6RF-BLOCKING-1.
+D6RF2_ANCHOR REFUSE A4 the header d6rf2_fd_endpoint.py would exec is 0 chars, below the registered floor 9000 -- the sentinel is unique but at the WRONG SITE
+D6RF2_ANCHOR REFUSE A2 d6rf2_fd_endpoint.py pins producer md5 137539e0a99be27f27fdb69e063b2a87; the file on disk is 740927066fc1f46dc100db506622d5f9. A pinned consumer refuses at the md5 check BEFORE it ever counts the anchor.
+D6RF2_ANCHOR REFUSE A2 d6rf2_fd_endpoint.py names producer 'd6rf2_opt_runScript.py', absent from /tmp/d6rf2_anchor4_ng_7vcju
+D6RF2 G-ANCHOR SELFTEST -- both directions, on REAL bytes
+
+A. THE POSITIVE LEG, on this item's own derived files
+D6RF2 G-ANCHOR -- 2 anchor-scoped readers, on the bytes they will actually read
+  d6rf2_fd_endpoint.py       producer=d6rf2_opt_runScript.py md5=137539e0a99b... anchor='# OpenMDAO setup' count=1 header=10536 chars, all 6 symbols present
+  d6rf2_ref_off.py           producer=d6rf2_opt_runScript.py md5=137539e0a99b... anchor='# OpenMDAO setup' count=1 header=10536 chars, all 6 symbols present
+D6RF2_ANCHOR_PASS readers=2 producer=d6rf2_opt_runScript.py
+  the repaired producer PASSES the gate for both readers           want=no-refusal  got=no-refusal  PASS
+
+B. THE NEGATIVE LEG, on the ORIGINAL producer, still on disk unedited
+  the ORIGINAL producer (sentinel twice) REFUSES at A3             want=REFUSED     got=REFUSED     PASS
+        the header A3 prevented: 1396 chars, missing ['class Top', 'POINTS', 'U0 =', 'CL_TARGETS', 'WEIGHTS']
+  PLANT: it is 1396 chars, carries daOptions and NOT class Top     PASS
+
+C. A4 AND A5 -- a unique sentinel AT THE WRONG SITE still refuses
+  count == 1 but the anchor is at the TOP -> REFUSES at A4         want=REFUSED     got=REFUSED     PASS
+
+D. A2 -- the pin, which is the clause the ruling did not anticipate
+  the producer drifts by one comment -> REFUSES at A2 (the md5), BEFORE the anchor is ever counted want=REFUSED     got=REFUSED     PASS
+  the producer is ABSENT from the work dir -> REFUSES at A2        want=REFUSED     got=REFUSED     PASS
+
+D6RF2_ANCHOR_SELFTEST 6/6 PASS
+rc=0
+
+########## d6rf2_units_assert.py --selftest under python3 -O
+D6RF UNITS GATE SELFTEST -- rc 0 = physical and in bounds, rc 77 = refusal
+
+A. THE TWO LIVE ARTEFACTS ON DISK -- the controls that are not fixtures
+  D4 arm F, THE CRASHED UNMARKED VECTOR (must refuse)        want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U2 {"_units": "ABSENT", "file": "/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin/F/d4_endpoint_dvs.json", "keys_present": 
+  D4 arm F3, THE REPAIRED PHYSICAL VECTOR (must PASS)        want rc=0   got rc=0   PASS
+
+B. THE MARKER -- absent is a refusal, never a default
+  clean D6 multipoint physical vector (must PASS)            want rc=0   got rc=0   PASS
+  no _units key at all                                       want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U2 {"_units": "ABSENT", "file": "/tmp/d6rf_units_st_v3ia1wro/dv_03.json", "keys_present": ["_scaler_source", "_scaler_source_md5", "
+  _units says DRIVER_SCALED                                  want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U2 {"_units": "DRIVER_SCALED", "file": "/tmp/d6rf_units_st_v3ia1wro/dv_04.json", "required": "PHYSICAL"}
+  _units lower-case (not the registered literal)             want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U2 {"_units": "physical", "file": "/tmp/d6rf_units_st_v3ia1wro/dv_05.json", "required": "PHYSICAL"}
+
+C. THE MARKER CANNOT VOUCH FOR ITSELF
+  _scaler_source_md5 absent                                  want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U4 {"_scaler_source_md5": "ABSENT", "file": "/tmp/d6rf_units_st_v3ia1wro/dv_06.json"}
+  _scaler_source absent                                      want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U3 {"_scaler_source": "ABSENT", "file": "/tmp/d6rf_units_st_v3ia1wro/dv_07.json"}
+  _scaler_source_md5 does not match the runscript in use     want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U3 {"_scaler_source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF2/d6rf2_opt_runScript.py", "md5_on_disk": "1
+  a PHYSICAL D6 vector graded against D4's runscript (wrong producer) want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U4 {"_scaler_source_md5": "137539e0a99be27f27fdb69e063b2a87", "file": "/tmp/d6rf_units_st_v3ia1wro/dv_09.json", "note": "the marker 
+  _scalers_applied LIES about shape (claims 1.0, registered 10.0) want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U5 {"_scalers_applied": {"patchV_cl04": 0.1, "patchV_cl05": 0.1, "patchV_cl06": 0.1, "shape": 1.0, "twist": 0.1}, "file": "/tmp/d6rf
+  _scalers_applied absent                                    want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U5 {"_scalers_applied": "ABSENT", "file": "/tmp/d6rf_units_st_v3ia1wro/dv_11.json", "registered": {"patchV_cl04": 0.1, "patchV_cl05"
+  _scaler_source resolves on disk but its md5 has MOVED      want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U3 {"_scaler_source": "/tmp/d6rf_units_st_v3ia1wro/moved_runscript.py", "md5_on_disk": "500145d0567cdf781a1c92de29e6fcc2", "md5_reco
+
+D. THE FRAME ITSELF -- a marked file whose vectors are still scaled
+  marked PHYSICAL but the vectors are DRIVER-SCALED (the live defect) want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U6 {"control_P": "control_pinned: {\"tol_rel\": 1e-12, \"violations\": [{\"dv\": \"patchV_cl04\", \"idx\": 0, \"pinned_value\": 100.
+  one pinned witness off U0 by 0.1 %                         want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U6 {"control_P": "control_pinned: {\"tol_rel\": 1e-12, \"violations\": [{\"dv\": \"patchV_cl05\", \"idx\": 0, \"pinned_value\": 100.
+  one pinned witness left driver-scaled at 10.0              want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U6 {"control_P": "control_pinned: {\"tol_rel\": 1e-12, \"violations\": [{\"dv\": \"patchV_cl06\", \"idx\": 0, \"pinned_value\": 100.
+
+E. BOUNDS CONTAINMENT -- refused HERE, never by the deformer
+  ONE shape component 1e-6 above its [-1,1] bound            want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U7 {"control_B": "control_bounds: {\"first_20\": [{\"dv\": \"shape\", \"excess\": 9.999999999177334e-07, \"idx\": 0, \"lower\": -1.0
+  ONE shape component at the crashed arm's own max |value|   want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U7 {"control_B": "control_bounds: {\"first_20\": [{\"dv\": \"shape\", \"excess\": 5.024592, \"idx\": 0, \"lower\": -1.0, \"upper\": 
+  one twist component below its lower bound                  want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U7 {"control_B": "control_bounds: {\"first_20\": [{\"dv\": \"twist\", \"excess\": 0.5, \"idx\": 0, \"lower\": -10.0, \"upper\": 10.0
+  one angle of attack above its 10 deg upper bound           want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U7 {"control_B": "control_bounds: {\"first_20\": [{\"dv\": \"patchV_cl04\", \"excess\": 0.5, \"idx\": 1, \"lower\": 0.0, \"upper\": 
+  a component exactly ON its bound (must NOT refuse)         want rc=0   got rc=0   PASS
+
+F. STRUCTURE
+  a registered design variable missing from the file         want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U5 {"file": "/tmp/d6rf_units_st_v3ia1wro/dv_21.json", "registered": ["patchV_cl04", "patchV_cl05", "patchV_cl06", "shape", "twist"],
+  a design variable that is not a numeric vector             want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U5 {"dv": "shape", "file": "/tmp/d6rf_units_st_v3ia1wro/dv_22.json", "not_a_numeric_vector": "ValueError(\"could not convert string 
+  the file does not parse as JSON                            want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U1 {"file": "/tmp/d6rf_units_st_v3ia1wro/notjson.json", "json_parse_failed": "JSONDecodeError('Expecting property name enclosed in d
+  the file does not exist                                    want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U1 {"design_variable_file_absent": "/tmp/d6rf_units_st_v3ia1wro/nope.json"}
+
+D6RF_UNITS_SELFTEST 25/25 PASS
+rc=0
+
+########## d6rf2_endpoint_locus.py --selftest under python3 -O
+SELFTEST clean: design variables parsed = ["patchV_cl04", "patchV_cl05", "patchV_cl06", "shape", "twist"]
+SELFTEST clean: scalers read from source = {"patchV_cl04": 0.1, "patchV_cl05": 0.1, "patchV_cl06": 0.1, "shape": 10.0, "twist": 0.1}
+  clean/control_P (3 pinned witnesses expected)              want=no-refusal  got=no-refusal  PASS
+  clean/control_B                                            want=no-refusal  got=no-refusal  PASS
+  PLANT: exactly 3 pinned witnesses discovered (one per point)     PASS
+  driver-scaled vector (the live defect)/control_P           want=REFUSED     got=REFUSED     PASS   <control_pinned: {"tol_rel": 1e-12, "violations": [{"dv": "patchV_cl04", "idx": 0, "pinned_value": 100.0, "reconstructed": 10.0, "rel_residual": 0.9}, >
+  driver-scaled vector (the live defect)/control_B           want=REFUSED     got=REFUSED     PASS   <control_bounds: {"first_20": [{"dv": "patchV_cl04", "excess": 90.0, "idx": 0, "lower": 100.0, "upper": 100.0, "value": 10.0}, {"dv": "patchV_cl05", "e>
+  mutant/one pinned witness off by 1e-9 relative             want=REFUSED     got=REFUSED     PASS   <control_pinned: {"tol_rel": 1e-12, "violations": [{"dv": "patchV_cl05", "idx": 0, "pinned_value": 100.0, "reconstructed": 100.00000010000001, "rel_res>
+  mutant/one pinned witness left driver-scaled (10.0)        want=REFUSED     got=REFUSED     PASS   <control_pinned: {"tol_rel": 1e-12, "violations": [{"dv": "patchV_cl06", "idx": 0, "pinned_value": 100.0, "reconstructed": 10.0, "rel_residual": 0.9}]}>
+  mutant/pinned off by 1e-13 (inside tol, must NOT fire)     want=no-refusal  got=no-refusal  PASS
+  registration with zero pinned components/control_P         want=REFUSED     got=REFUSED     PASS   <control_pinned: {"n_pinned_found": 0, "note": "no design-variable component has lower == upper, so this control checked nothing; a control with nothin>
+  mutant/shape just above upper bound                        want=REFUSED     got=REFUSED     PASS   <control_bounds: {"first_20": [{"dv": "shape", "excess": 9.999999999177334e-07, "idx": 0, "lower": -1.0, "upper": 1.0, "value": 1.000001}], "n_checked">
+  mutant/twist below lower bound                             want=REFUSED     got=REFUSED     PASS   <control_bounds: {"first_20": [{"dv": "twist", "excess": 0.5, "idx": 0, "lower": -10.0, "upper": 10.0, "value": -10.5}], "n_checked": 9, "n_violations">
+  mutant/shape above bound by 1e-12 (inside tol, must NOT fire) want=no-refusal  got=no-refusal  PASS
+  empty component set/control_B                              want=REFUSED     got=REFUSED     PASS   <control_bounds: {"n_checked": 0, "note": "zero components checked; a loop that can iterate zero times asserts its own trip count"}>
+  parser/scaler keyword removed                              want=REFUSED     got=REFUSED     PASS   <parse_registration: {"design_variable": ["twist"], "found_keywords": ["lower", "upper"], "missing_keyword": "scaler"}>
+  parser/lower keyword removed                               want=REFUSED     got=REFUSED     PASS   <parse_registration: {"design_variable": ["shape"], "found_keywords": ["scaler", "upper"], "missing_keyword": "lower"}>
+  parser/only two design variables registered                want=REFUSED     got=REFUSED     PASS   <parse_registration: {"design_variables_found": ["twist"], "n_found": 1, "n_required_min": 3, "note": "a registration this parser cannot read in full i>
+  parser/U0 not a module-level constant                      want=REFUSED     got=REFUSED     PASS   <parse_registration/['patchV_cl04', 'patchV_cl05', 'patchV_cl06']/lower: {"known": [], "name_not_a_module_level_constant": "U0"}>
+  parser/scaler is zero                                      want=REFUSED     got=REFUSED     PASS   <parse_registration: {"design_variable": ["shape"], "scaler_is_zero": true}>
+  parser/POINTS is not a module-level list (name unresolvable) want=REFUSED     got=REFUSED     PASS   <parse_registration: {"known_loop_variables": [], "name_concatenation_operand_is_not_a_loop_variable_over_a_module_level_string_list": "pt"}>
+  parser/loop over a non-list name                           want=REFUSED     got=REFUSED     PASS   <parse_registration: {"known_loop_variables": [], "name_concatenation_operand_is_not_a_loop_variable_over_a_module_level_string_list": "pt"}>
+  parser/name built by an f-string (unsupported form)        want=REFUSED     got=REFUSED     PASS   <parse_registration: {"add_design_var_first_arg_unsupported_form": "JoinedStr", "supported": ["\"literal\"", "\"literal\" + <for-loop var over a module>
+  parser/name built from a variable alone (unsupported form) want=REFUSED     got=REFUSED     PASS   <parse_registration: {"add_design_var_first_arg_unsupported_form": "Name", "supported": ["\"literal\"", "\"literal\" + <for-loop var over a module list>
+  parser/same loop variable bound to two different lists     want=REFUSED     got=REFUSED     PASS   <loop_bindings: {"bound_to_two_different_lists": [["cl04", "cl05", "cl06"], ["a", "b"]], "loop_variable": "pt", "note": "an ambiguous loop variable can>
+  descale/extracted key the registration does not know       want=REFUSED     got=REFUSED     PASS   <descale: {"extracted_key_not_registered": "alpha", "registered": ["patchV_cl04", "patchV_cl05", "patchV_cl06", "shape", "twist"]}>
+  descale/extractor returned fewer DVs than registered       want=REFUSED     got=REFUSED     PASS   <descale: {"note": "the extractor returned fewer design variables than the producer registered", "registered_but_not_extracted": ["patchV_cl04", "patch>
+  descale/bound list length != extracted length              want=REFUSED     got=REFUSED     PASS   <control_bounds/patchV_cl04: {"bound": "lower", "len_extracted": 3, "len_registered": 2}>
+SELFTEST real d6r_opt_runScript.py scalers = {"patchV_cl04": 0.1, "patchV_cl05": 0.1, "patchV_cl06": 0.1, "shape": 10.0, "twist": 0.1}
+SELFTEST real d6r_opt_runScript.py U0      = 100.0
+SELFTEST real d6r_opt_runScript.py POINTS  = ['cl04', 'cl05', 'cl06']
+  PLANT: the five registered names and their scalers          PASS
+  PLANT: U0 read from the source, not typed here              PASS
+  PLANT: POINTS read from the source, not typed here          PASS
+  PLANT: 3 pinned witnesses discovered on the REAL producer    PASS
+
+D6RF_LOCUS_SELFTEST 30/30 PASS
+rc=0
+
+########## d6rf2_derive.py RE-DRIVEN
+D6RF2 DERIVATION -- enumerated substitutions, present-then-absent
+
+  d6rf2_opt_runScript.py       <- d6r_opt_runScript.py         src md5 93edb4a231e13a7af065368f61a468ef
+      OK  switch are D4's bytes.  The ANCHOR line `# OpenMDAO setup`   -> switch are D4's bytes.  The anchor comme
+
+  ANCHOR COUNT  original 2  ->  repaired 1
+  HEADER LENGTH original-broken 1396  original-correct 10275  repaired 10536
+  HEADER CONTENT class Top / POINTS / U0 / daOptions / CL_TARGETS / WEIGHTS  ALL PRESENT
+  HEADER IDENTITY  repaired header == original CORRECT header + the registered substitution, BYTE FOR BYTE
+
+  repaired producer md5 137539e0a99be27f27fdb69e063b2a87
+
+  d6rf2_fd_endpoint.py         <- d6r_fd_endpoint.py           src md5 7491c3a73c232fb6744990fd8109fd63
+      OK  PRODUCER = "d6r_opt_runScript.py"                            -> PRODUCER = "d6rf2_opt_runScript.py"
+      OK  PRODUCER_MD5 = "93edb4a231e13a7af065368f61a468ef"            -> PRODUCER_MD5 = "{{PRODUCER_MD5}}"
+  d6rf2_ref_off.py             <- d6r_ref_off.py               src md5 ad67bbeb0c7b502262ebf5d4e8fa21cd
+      OK  PRODUCER = "d6r_opt_runScript.py"                            -> PRODUCER = "d6rf2_opt_runScript.py"
+      OK  PRODUCER_MD5 = "93edb4a231e13a7af065368f61a468ef"            -> PRODUCER_MD5 = "{{PRODUCER_MD5}}"
+  d6rf2_endpoint_physical.py   <- d6rf_endpoint_physical.py    src md5 ea0a83410c773f753a7750eb3becefdf
+      OK  RUNSCRIPT = "d6r_opt_runScript.py"                           -> RUNSCRIPT = "d6rf2_opt_runScript.py"
+      OK  MD5_RUNSCRIPT = "93edb4a231e13a7af065368f61a468ef"           -> MD5_RUNSCRIPT = "{{PRODUCER_MD5}}"
+      OK  import d6rf_endpoint_locus as locus                          -> import d6rf2_endpoint_locus as locus
+
+  CROSS-PIN CHECK -- every derived file names the repaired producer and its md5:
+    d6rf2_fd_endpoint.py           names-producer=True  pins-new-md5=True  old-md5-gone=True
+    d6rf2_ref_off.py               names-producer=True  pins-new-md5=True  old-md5-gone=True
+    d6rf2_endpoint_physical.py     names-producer=True  pins-new-md5=True  old-md5-gone=True
+
+D6RF2_DERIVE OK -- 4 files derived, every substitution asserted present-then-absent, D6R's originals untouched
+rc=0
