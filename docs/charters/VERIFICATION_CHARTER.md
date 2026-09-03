@@ -5640,3 +5640,60 @@ cfd has opened a `§2w` audit **on itself, unprompted** — F17–F27 headline v
 | gates · thresholds · bands · caps · labels | **0 · 0 · 0 · 0 · 0** |
 | solver compute | **0 core-min, $0.00** |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## Amendment — v1.49, 2026-09-03 — **§2s.11: THE LAUNCH/GRADE SPLIT, STATED SO NOBODY RE-DERIVES MY WRONG READING. SANAA REVERSES MY "CHOKE POINT IS THE LAUNCH" CORRECTION AND STRIKES MY D6 RULING OF TWENTY MINUTES AGO — BOTH CORRECTLY. I FOUND A TRUE FACT AND DREW A FALSE CONCLUSION FROM IT.**
+
+**Lines whose number changed above this section: 0.** **Zero solver compute; 0 core-min; $0.00.** **No gate, threshold, band, cap or label is created, moved or retired; the frozen grader is untouched.**
+
+**BLOCKED RESULT NAMED:** **runs that are being refused at launch right now** by an enforcement reading this amendment withdraws. **THIS AMENDMENT IS HER DIRECTIVE, NOT THIS TEAM'S INITIATIVE** — v1.48 stated it was the cycle's last governance commit, and that stands as this team's own budget discipline; **`[SANAA-DIRECT, 2026-09-03 ~21:00Z]` explicitly orders this reconciliation "within your governance budget."**
+
+### §2s.11 — **PRE-REGISTRATION PREDICTS · THE MONITOR WATCHES · THE GRADER JUDGES AFTERWARD**
+
+Her rule, verbatim: **"A pre-registration mismatch never prevents a launch. It's recorded as a prediction, the run launches under the monitor, and the outcome is compared to the prediction on the certificate."** And the sentence that decides it: **"Refusing to widen the gate was right; refusing to launch was the expensive part."**
+
+> **RULED — `§2s.11`, [SANAA-RULED]. THE REFUSAL LIVES AT GRADING. IT DOES NOT LIVE AT LAUNCH.**
+>
+> - **At LAUNCH:** a comparator `MISMATCH` — and every other pre-registration mismatch — is **RECORDED AS A PREDICTION**. The run **launches, under the monitor**. **Nothing about a frozen-comparator disagreement blocks a solve from starting.**
+> - **At GRADING:** the **frozen grader, UNCHANGED**, applies every gate **after the fact, on evidence**. A run whose comparator moved still gets that refusal **on its certificate**.
+> - **The rule changes WHEN the gate applies, never WHETHER it applies.**
+
+**`§2s.10` IS STRUCK.** D6's two states — `ABSENT-AT-FREEZE` and `ABSENT-ON-DISK` — **take the same disposition: RECORD, LAUNCH, JUDGED AFTER.** My ruling that they are a declaration defect refusing *now* was **twenty minutes old and is withdrawn.** The *reasoning* in `§2s.10` — that an absent artifact is a worse condition than absent evidence — **survives as a grading-time distinction**; what does not survive is the launch-side refusal it licensed.
+
+**WHAT DOES NOT CHANGE, stated because a reader will ask:** **rule 2's freeze-before-compute is untouched** — registrations still freeze before compute, because **they are the predictions being tested**; **the grader's gates are untouched**; and **two classes still stop a run before it starts** — a **physically ill-posed setup** (no outlet, inconsistent BCs, leaking geometry) is a **blocking physics fix, not a pre-registration mismatch**, and **resource limits QUEUE rather than block**, which is not blocking because the run stays scheduled.
+
+**THE ONE HARD STRUCTURAL STOP, recorded and NOT this team's instrument:** a fleet-wide safety ceiling at **min(3× the registered cost cap, the box's remaining budget)**, monitor-enforced, **graceful stop regardless of residual trend.** Her justification is the T12 lesson — *the launcher's own flag never fired, so something must be structurally guaranteed to stop a run* — **but the ceiling sits far above the estimate, because the estimate is a prediction to be tested and the ceiling is protection against the box being eaten.**
+
+### §2s.11.1 — **MY ERROR, NAMED, BECAUSE THE SHAPE OF IT IS THE LESSON**
+
+`§2s.1` and the spec's `§7.2` ruled: *"the daemon has no grading step, so the honest choke point is the LAUNCH"* — and I went further and claimed it **"serves her intent better, because the run is refused before the compute is spent."**
+
+> **THE FACT WAS TRUE AND THE CONCLUSION WAS FALSE.** The daemon genuinely has no grading step. **The correct inference was that THE GRADING STEP IS WHAT MUST BE BUILT — not that the refusal should move earlier to somewhere convenient.** I mistook *"where can a refusal most easily be attached"* for *"where does the refusal belong."*
+>
+> **AND THE WORSE HALF IS THE CLAIM ABOUT HER INTENT.** I asserted my mechanism served her purpose better than her own wording did. **It did the opposite: refusing before the compute is spent is precisely the expense she was eliminating** — a refused launch buys no evidence, teaches nothing, and forecloses the comparison that makes the standard improvable. **Reasoning about an owner's intent and getting it backwards is worse than being wrong about a mechanism, because a mechanism error is visible in the code and an intent error hides inside a justification.**
+
+**MY UNDERLYING CONCERN WAS RIGHT AND MY MECHANISM WAS CLUMSY, which I record so the concern is not thrown out with the error.** `§2s.2`'s three outcomes existed to stop the enforcer halting the lab and being switched off within a day. **Her rule achieves that protection more cleanly — nothing halts, everything launches — AND buys a calibration dataset my design could not.** *The problem I identified was real; she solved it in the direction I did not consider.*
+
+### §2s.11.2 — **THE PAYOFF BECOMES THIS TEAM'S CALIBRATION LINE**
+
+> *"What you gain: a calibration dataset for every pre-registration standard. If runs flagged 'will exceed cap' routinely come in under it, the caps are too tight; if y+ predictions never miss, the quality gate can drop to reporting. The standards get corrected by data instead of by petition."*
+
+**RECORDED AS THIS TEAM'S GOVERNING PRINCIPLE GOING FORWARD, and it is the answer to a problem this charter has been solving the expensive way all day.** Every gate, band and cap in this charter has been set, widened or defended **by argument**. **Under this rule each one accrues a predicted-versus-actual record on every certificate**, and **a standard that is never missed is a standard that should drop to reporting** — which is her governance reform's default arriving with the evidence to apply it.
+
+**⚠ AND IT SHARPENS, RATHER THAN LIFTS, `§2y.4`'s SUSPENSION OF LIMB (2).** The coverage metric stays suspended. **But its SUBJECT changes: the useful measurement is no longer "how many rows were refused" — under this rule none are — it is PREDICTED VERSUS ACTUAL.** *A refusal count would now measure only how often the lab declined to learn something.*
+
+| item | outcome |
+|---|---|
+| **the split** | **launch RECORDS a mismatch as a prediction; GRADING refuses.** The rule changes **when** a gate applies, never **whether** |
+| **`§2s.10` (D6)** | **STRUCK, twenty minutes after landing.** Both states: **record, launch, judged after.** Its artifact-vs-evidence reasoning survives **at grading time** |
+| **`§2s.1` / spec `§7.2`** | **REVERSED — mine.** True fact, false conclusion: the grading step must be **built**, not bypassed by refusing earlier |
+| **the worse half** | I claimed my mechanism **served her intent better**. It did the opposite — **a refused launch buys no evidence** |
+| unchanged | **rule 2's freeze-before-compute; the frozen grader; every gate it applies** |
+| still stops a run | **ill-posed setup** (blocking physics fix) · **resource limits QUEUE, which is not blocking** |
+| one hard ceiling | **min(3× registered cap, remaining box budget)**, monitor-enforced, graceful — **not this team's instrument** |
+| limb (2) | **still suspended, and its SUBJECT changes** to predicted-vs-actual |
+| this amendment's authority | **[SANAA-DIRECT]** — ordered by her; v1.48's "last of the cycle" stands as this team's own discipline |
+| gates · thresholds · bands · caps · labels | **0 · 0 · 0 · 0 · 0** |
+| solver compute | **0 core-min, $0.00** |
+| **lines whose number changed above this section** | **0** |
