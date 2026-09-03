@@ -22933,3 +22933,73 @@ offered to the supervisor, not a permission taken by the lane.
 landed rather than tidied). **Companion:** `docs/DOCKET.md` **D588**, two
 unsatisfiable-as-written gate predicates found the same day by *reading* comparators
 rather than running them — the same shape, arrived at from the opposite direction.
+
+## L-471 — A guard that verifies a VALUE cannot see that the action which sets that value never ran, and it is blindest exactly where the desired value equals the default
+
+**Measured 2026-09-03, cfd, on `cases/JF1_JET_FLAP/run_jf1g.sh`. Fixed at commit `388859b8`.**
+
+**The general form first, because the instance is not the lesson.** A step that MUTATES a
+file, followed by a check that READS THE VALUE in that file, is not a verified mutation. The
+check passes in two different worlds: the mutation ran and set the value, or the mutation
+never ran and the value was already there. Those are the same reading. The guard is therefore
+structurally incapable of catching its own failure **precisely on the configurations where the
+target equals the shipped default** — which are usually the baseline configurations, the ones
+run most often and questioned least.
+
+**The instance, so it reproduces.** `run_jf1g.sh` wrote `residualControl` with
+
+    sed -i -E "s|^( +)(p|U|k|omega)( +)1e-0[0-9];|\1\2\3${RESTOL};|" .../fvSolution
+
+The `s///` **delimiter is `|`**, and the alternation `(p|U|k|omega)` carries **four unescaped
+`|` of its own**. sed parses the command as `s|^( +)(p|` with `U` as the replacement and `k`
+as a flag, prints
+
+    sed: -e expression #1, char 13: unknown option to `s'
+
+exits **1**, and **does not edit the file**. The following loop then checked only
+`grep -qE "^ +${fld} +${RESTOL};"`.
+
+**Why it survived two days and four runs.** Pass 0's `RESTOL` is `1e-06`, which is already the
+value at `cases/JF1_JET_FLAP/case/system/fvSolution:46-49`. Every pass-0 run therefore printed
+no complaint while substituting nothing at all. The **same blindness sat on the sibling
+`endTime` substitution**: pass 0's target is `8000` and the template ships `endTime 8000;` at
+`case_blown/system/controlDict:21`. Two blind guards, one file, neither ever exercised. It
+surfaced only when pass 1 asked for `1e-08`, a value the template does not carry — `rc=9`,
+stage `dicts`, 0 wall s, zero solver compute.
+
+**The two readings that must not be conflated.** The refusal WORKED — it stopped a pass-1 run
+from solving at the pass-0 tolerance and being graded as if it had not. The SUBSTITUTION had
+never worked. A guard firing correctly is not evidence that the thing it guards is sound.
+
+**The repair, and it is three clauses, not a delimiter.**
+1. **Capture the mutating command's exit status explicitly, on its own line, and refuse on
+   non-zero.** Never fold it into an `&&` chain: a broken earlier link skips the guard silently.
+   This clause alone would have caught the defect on day one — sed exited 1 and nothing looked.
+2. **Count the lines the pattern MATCHES, before the file is touched, and require the expected
+   count.** This is the clause a value check cannot have. It fires on an expression that
+   compiles and matches nothing **even when the desired value is already present**, which is
+   the exact case above.
+3. **Keep the value check.** It is not wrong, it is insufficient.
+
+**Cross-reference: `docs/FAIL_OPEN_GATE_AUDIT.md` §28.** This is a **fifth specimen** of that
+taxonomy and the first found in a **LAUNCHER** rather than a grader, which is worth saying
+because the audit's four faces were all collected from graders and that is where everyone is
+looking. The §28 question — *can this code path distinguish "the check ran and found nothing"
+from "the check did not run"?* — applies to every mutate-then-verify pair in the repository,
+not only to comparators.
+
+**Population, so the negative has a stated width (L-458):** all 10 launcher and driver scripts
+in `cases/JF1_JET_FLAP/` (8 `*.sh`, 2 `*.py`, non-recursive). `sed -i` occurs **twice**, both
+in `run_jf1g.sh`, both replaced; **zero remain**. The siblings substitute
+template-to-new-file with an explicit refusal on failure, a different and non-blind shape.
+
+**Independent corroboration that the repair is the right one:** `run_jf1e.sh`'s E2c block,
+written by a different hand and recovered from the shared tree the same day (`9a31fe80`),
+arrives at clause 2 on its own — its `awk` rewrites carry `END { if (n != 2) exit 1 }`
+match-count assertions.
+
+**Operational note paid for in the same hour:** the fix was installed while **four solvers were
+live off that script**. All four `bash` processes held `fd 255` open on it, so an in-place
+write would have corrupted running solves. Installed by **atomic rename** instead — measured
+inode `7140380` before, `7140166` after, all four live pids still resolving `fd 255` to
+`7140380`. **Edit a script a running `bash` is executing only by rename, never in place.**
