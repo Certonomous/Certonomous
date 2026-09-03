@@ -860,7 +860,7 @@ def finish(out, rc, root, name="T25R6cR2_VERDICT.json"):
         "which cancel.  WHAT WOULD BREAK IT: (a) a change in the shared box's "
         "per-core throughput between the two windows -- MEASURED for the first "
         "time in this rung as R-R2-3, at constant solver work, and registered in "
-        "advance as an irreducible ~3 % floor; (b) leg B's restart coupling to "
+        "advance as an irreducible ~3 %% floor; (b) leg B's restart coupling to "
         "leg A's output, which C-R2-1 and G-R2-1 exist to catch and which R2 "
         "additionally EXCLUDES by discarding the first %d leg-B steps; (c) the "
         "single shared parser, whose defects cancel in the ratio only if "
@@ -1105,3 +1105,132 @@ if __name__ == "__main__":
         sys.exit(grade(root))
     print(__doc__)
     sys.exit(EXIT_REFUSE)
+
+
+# ===========================================================================
+# AMENDMENT 1 -- 2026-09-03 -- RECORD-EMISSION REPAIR.  VERSION BUMP: the file
+# as frozen at f67ade8d carried NO version constant, so the bump is recorded
+# HERE and nowhere else -- v1.0 (frozen, blob eb363769bb18dd0550b551e6fa5ba457
+# f002cfb9) -> v1.1 (this amendment).  Introducing a version CONSTANT would
+# have been a second change to the body and is deliberately not made.
+# ===========================================================================
+#
+# LINES WHOSE NUMBER CHANGED ABOVE THIS SECTION: 0.  VERIFIED BY DIFF, NOT
+# RECITED: the diff of this file against blob eb363769bb18dd0550b551e6fa5ba457
+# f002cfb9 is ONE 1-for-1 line replacement at :863 plus this appended block.
+# Nothing is inserted or deleted above this section, so every record that
+# cites this file by line still lands on the same statement -- including
+# VERIFICATION_CHARTER.md 2ah.3's :117-120, :551, :583, :702, :719, :800,
+# :808, :826, :829, :856, :863 and :870.
+#
+# HONEST QUALIFICATION, BECAUSE RULE 6'S CANONICAL AMENDMENT IS A PURE APPEND
+# AND THIS ONE IS NOT.  One line's CONTENT changed in place.  Line NUMBERING is
+# untouched -- the assertion above is about numbering and is true as written --
+# but the frozen blob is NO LONGER A BYTE-EXACT PREFIX of this file, so a
+# prefix-form freeze check (the form carried at cases/F23b_HP_WEDGE/
+# grade_f23b.py, verify_freeze_prefix) would flag it and would be RIGHT to.
+# TWO OF THE THREE STATES BELOW ARE MEASURED AND THE THIRD IS A READING, AND
+# THEY ARE NOT ASSERTED AT THE SAME STRENGTH.
+#   MEASURED, 2026-09-03, by running scripts/check_comparator_freeze.py against
+#   this tree: it reported this comparator FROZEN before the repair
+#   (worktree_differs_from_HEAD False), and MODIFIED_AFTER_COMMIT with the
+#   repair on disk and uncommitted (worktree_differs_from_HEAD True).
+#   NOT MEASURED, and named as what it is: a READING of
+#   check_comparator_freeze.py:404-409 says that once this amendment is
+#   committed the same check should report AMENDED_AFTER -- that checker's own
+#   designed state for a rule-6 amendment to a published rung.  THAT THIRD
+#   STATE HAD NOT BEEN OBSERVED WHEN THIS BLOCK WAS WRITTEN, and could not be:
+#   it cannot exist until the commit does.  It is observable immediately after
+#   that commit, and the observation is recorded WHERE IT IS TAKEN -- in the
+#   rung's results record -- and is never retrofitted into this block.
+#
+# (i) WHAT CHANGED -- ONE CHARACTER, AT :863, INSIDE finish().
+#     STRUCK -- the frozen text, quoted verbatim and NEVER rewritten:
+#         "advance as an irreducible ~3 % floor; (b) leg B's restart coupling to "
+#     REPLACED BY:
+#         "advance as an irreducible ~3 %% floor; (b) leg B's restart coupling to "
+#     The literal at :856-868 is an implicit concatenation closed by `% D_EXCL`
+#     at :868.  In the frozen text the `% f` of "% floor" parses as a valid
+#     conversion -- space flag, 'f' float -- and CONSUMES D_EXCL, leaving the
+#     real `%d` at :865 with no argument: TypeError: not enough arguments for
+#     format string.  Escaping to `%%` restores the literal per-cent sign, and
+#     the emitted prose is byte-for-byte what the frozen file intended to emit.
+#     NOTHING ELSE IS CHANGED: no refactor, no added field, no exit code, no
+#     reformatting.
+#
+# (ii) WHEN -- 2026-09-03, AFTER the graded solve and AFTER the pre-repair
+#     stdout, traceback intact and tidied away nowhere, was landed at 286276a1
+#     as T25R6cR2_GRADE_STDOUT.txt.  That file is NOT edited by this amendment
+#     and is not re-graded by it.
+#
+# (iii) WHAT WAS READABLE AT THAT MOMENT -- every gate line.  The crash is at
+#     :863 inside finish(), called at :826, AFTER all grading.  All 43 printed
+#     lines up to the traceback were already on stdout and are landed.  What
+#     was NOT readable: the registered artifact T25R6cR2_VERDICT.json, which
+#     json.dump at :870 never reached.
+#
+# (iv) WHICH FINDINGS REST ON THIS AND WHICH DO NOT.  NO gate finding rests on
+#     it.  G-R2-1 PLATEAU 0.3546 % against the 5 % threshold, G-R2-2
+#     rho = 1.103859, the verdict GATE FAIL, C-R2-1, the rule-3 planted-zero
+#     control, the rule-4 completion line, R-R2-1, R-R2-2 and R-R2-4 are all
+#     computed above :826 and print byte-identically before and after --
+#     MEASURED by the 2ah.1 probe over all 43 lines, not asserted.  What rests
+#     on the repair is exactly two things: the EXISTENCE of
+#     T25R6cR2_VERDICT.json, and the process exit code.
+#
+# (v) FIFTH DISCLOSURE CONTENT, REQUIRED BY 2ah.3 -- THE REGISTERED CHANNELS
+#     THAT MOVED, WITH THEIR PRE- AND POST-REPAIR VALUES:
+#       * the process exit code: registered 3 (EXIT_GATE_FAIL, :117-120)
+#         -> 1 ACTUAL, an unhandled TypeError leaving the interpreter through
+#         the unguarded __main__ -> 3 AFTER THIS REPAIR.
+#       * the verdict artifact registered at T25R6cR2_PREREGISTRATION.md:532:
+#         ABSENT -> PRESENT.
+#     No other registered channel moved.
+#
+# (vi) WHICH OFF-PATH CLAIM THIS AMENDMENT STANDS ON, per 2ah.3's closing
+#     narrowing.  IT IS SPLIT, AND THAT IS SAID RATHER THAN AVERAGED:
+#       * ON THE GATE VALUES -- the STRUCTURAL claim, "nothing downstream
+#         COMPUTES it".  Every out["verdict"] assignment is at :551, :583,
+#         :702, :800 and :808, all inside grade() and all above the finish()
+#         call at :826; rho is computed at :719; finish() opens at :829 by
+#         storing the rc it was handed.  Nothing at or after :829 computes a
+#         gate value.  This claim does not expire.
+#       * ON THE EXIT CODE -- a CONSUMER CENSUS ONLY, "nothing READS it".  It
+#         is the strictly weaker claim and it EXPIRES the moment somebody
+#         writes a consumer of this grader's rc.
+#
+# (vii) THE 2ah.2 CONDITION IS DISCHARGED BY RE-RUN, NOT BY THIS TEXT.  The
+#     repaired grader was driven through the production path against the real
+#     case directory; T25R6cR2_VERDICT.json exists on disk and parses; its gate
+#     lines are byte-identical to the landed stdout; the process exited 3.  The
+#     receipt is in the rung's record.
+#
+# (viii) RULE 2'S FREEZE VERIFICATION WAS SATISFIED BY HAND AND NOT BY THE
+#     REGISTERED PATH.  T25R6cR2_PREREGISTRATION.md:532 registers that this
+#     grader reports its own git blob sha1 and full disk sha256 INTO
+#     T25R6cR2_VERDICT.json at grade time.  That artifact was UNREACHABLE
+#     through the frozen path, so the verification was done BY HAND, ON THE
+#     PRE-REPAIR BYTES, against blob eb363769bb18dd0550b551e6fa5ba457f002cfb9
+#     -- identical on disk at that moment, at freeze commit f67ade8d, and at
+#     HEAD -- with disk sha256
+#     421b9cf4e7768b95cb9ca6d5eed1e2c093142a934100f90b0bf39de32d45d07b.  A
+#     reader must not be left to assume the registered path produced it.
+#     AND THE CONVERSE, SO NOBODY MISREADS THE ARTIFACT THAT NOW EXISTS: the
+#     T25R6cR2_VERDICT.json emitted after this repair carries THIS FILE'S
+#     POST-AMENDMENT hashes, which attest the AMENDED file and NOT the frozen
+#     one.  Those two values are deliberately NOT written here -- writing a
+#     file's own sha into itself changes the sha, which is the same reason the
+#     registration at T25R6cR2_PREREGISTRATION.md:530-534 has the grader
+#     recompute them at grade time rather than carry them as constants.  They
+#     are recorded in the rung's results record instead.  The frozen blob
+#     eb363769 is what graded the landed stdout; the two are reconciled only by
+#     this amendment.
+#
+# (ix) AUTHORITY, AND ITS LIMITS.  VERIFICATION_CHARTER.md 2ah, 2ah.1, 2ah.2
+#     and 2ah.3, landed v1.53: an off-grading-path post-compute change needs no
+#     2d.1 exception, no petition and no ruling; CLAUDE.md rule 6 supplies this
+#     FORM and 2d:1842-1845 supplies contents (i)-(iv).  NO EXIT-CODE CONTRACT
+#     IS ADOPTED HERE: 2ak (v1.54) is FORWARD-ONLY, this comparator is outside
+#     its scope, no EXIT_INSTRUMENT_ERROR is introduced, and the unguarded
+#     __main__ -- Defect B -- is NOT repaired by this amendment.
+# ===========================================================================

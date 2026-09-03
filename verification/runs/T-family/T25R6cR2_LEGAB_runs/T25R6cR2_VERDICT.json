@@ -1,0 +1,453 @@
+{
+  "B_R2_reported_never_gated": {
+    "a13_ceiling": 20000.0,
+    "ambiguity": "THE THRESHOLD 0.809412 IS FIXED ON rho_blend AND rho_blend'S MIXTURE IS NOT DEFINED BY THE REGISTRATION.  Both readings are reported; neither gates; this lane resolves nothing.  The ladder mixture (3500 leg-A + 8300 leg-B steps) is the one a ceiling statement would need.",
+    "not_a_relief_grant": "THIS ROW GRANTS NOTHING.  The A1.3 ceiling of 20,000 core-min is not this team's to move, this rung pre-registers no widening, and a rho >= 1 moves the ceiling question in the UNSAFE direction, not the safe one.",
+    "relief_threshold": 0.8094118408858203,
+    "rho_blend_ladder": 1.073053226266688,
+    "rho_blend_probe": 1.100116144018583,
+    "sigma_cap_c4_x_blend_ladder": 26514.394083791474
+  },
+  "ExecutionTime_is_cpu_time_not_wall_time": "ESTABLISHED FROM THIS BUILD'S SOURCE, not assumed from convention: OpenFOAM-v2606 TimeIO.C:631 prints elapsedCpuTime(); cpuTimeFwd.H typedefs cpuTime = cpuTimePosix; cpuTimePosix.C:40-47 computes ((tms_utime + tms_stime) difference) / sysconf(_SC_CLK_TCK) via ::times().  times(2) reports the CALLING PROCESS ONLY, so this is rank 0's user+system CPU -- not wall, not a sum over ranks.",
+  "P_R2_3_verdict": "WINS",
+  "R_R2_1_the_R6c_form_statistic_reported_gating_nothing": {
+    "P_R2_1_predicted": 0.10427,
+    "P_R2_1_verdict": "WINS",
+    "first40": 0.3725,
+    "last40": 0.39424999999999955,
+    "statistic": 0.05516804058338509,
+    "threshold": 0.05,
+    "why": "REGISTERED PREDICTION P-R2-1: this statistic will NOT fall below 5 % at ANY leg-B length, because its `first` window is anchored on the restart transient (measured 10.43 % cheaper than settled in T25R6c) while its `last` window is drawn from the settled distribution.  It asymptotes to ~10.4 %, not to zero.  REPORTED HERE, GATING NOTHING: it is the predecessor's instrument, scored.",
+    "would_have_passed": false
+  },
+  "R_R2_2_trajectory_reported_gating_nothing": [
+    {
+      "iters": 115.55,
+      "leg": "A",
+      "r": 0.35875,
+      "rho_window": 1.0,
+      "steps": [
+        1,
+        40
+      ]
+    },
+    {
+      "iters": 91.3,
+      "leg": "B",
+      "r": 0.3725,
+      "rho_window": 1.038327526132404,
+      "steps": [
+        1,
+        40
+      ]
+    },
+    {
+      "iters": 93.025,
+      "leg": "B",
+      "r": 0.4039999999999999,
+      "rho_window": 1.1261324041811844,
+      "steps": [
+        41,
+        80
+      ]
+    },
+    {
+      "iters": 93.0,
+      "leg": "B",
+      "r": 0.402,
+      "rho_window": 1.1205574912891987,
+      "steps": [
+        81,
+        120
+      ]
+    },
+    {
+      "iters": 93.0,
+      "leg": "B",
+      "r": 0.3797499999999999,
+      "rho_window": 1.0585365853658535,
+      "steps": [
+        121,
+        160
+      ]
+    },
+    {
+      "iters": 93.025,
+      "leg": "B",
+      "r": 0.3905000000000001,
+      "rho_window": 1.088501742160279,
+      "steps": [
+        161,
+        200
+      ]
+    },
+    {
+      "iters": 93.05,
+      "leg": "B",
+      "r": 0.39224999999999993,
+      "rho_window": 1.0933797909407663,
+      "steps": [
+        201,
+        240
+      ]
+    },
+    {
+      "iters": 92.975,
+      "leg": "B",
+      "r": 0.39250000000000007,
+      "rho_window": 1.094076655052265,
+      "steps": [
+        241,
+        280
+      ]
+    },
+    {
+      "iters": 93.0,
+      "leg": "B",
+      "r": 0.3982499999999998,
+      "rho_window": 1.1101045296167242,
+      "steps": [
+        281,
+        320
+      ]
+    },
+    {
+      "iters": 93.0,
+      "leg": "B",
+      "r": 0.38249999999999995,
+      "rho_window": 1.0662020905923344,
+      "steps": [
+        321,
+        360
+      ]
+    },
+    {
+      "iters": 93.05,
+      "leg": "B",
+      "r": 0.4,
+      "rho_window": 1.1149825783972125,
+      "steps": [
+        361,
+        400
+      ]
+    },
+    {
+      "iters": 93.0,
+      "leg": "B",
+      "r": 0.4012500000000003,
+      "rho_window": 1.1184668989547046,
+      "steps": [
+        401,
+        440
+      ]
+    },
+    {
+      "iters": 93.025,
+      "leg": "B",
+      "r": 0.4052500000000002,
+      "rho_window": 1.1296167247386766,
+      "steps": [
+        441,
+        480
+      ]
+    },
+    {
+      "iters": 92.975,
+      "leg": "B",
+      "r": 0.40625,
+      "rho_window": 1.132404181184669,
+      "steps": [
+        481,
+        520
+      ]
+    },
+    {
+      "iters": 93.05,
+      "leg": "B",
+      "r": 0.39899999999999947,
+      "rho_window": 1.112195121951218,
+      "steps": [
+        521,
+        560
+      ]
+    },
+    {
+      "iters": 93.05,
+      "leg": "B",
+      "r": 0.39849999999999997,
+      "rho_window": 1.1108013937282228,
+      "steps": [
+        561,
+        600
+      ]
+    },
+    {
+      "iters": 93.025,
+      "leg": "B",
+      "r": 0.3865000000000002,
+      "rho_window": 1.077351916376307,
+      "steps": [
+        601,
+        640
+      ]
+    },
+    {
+      "iters": 93.05,
+      "leg": "B",
+      "r": 0.3825000000000003,
+      "rho_window": 1.0662020905923353,
+      "steps": [
+        641,
+        680
+      ]
+    },
+    {
+      "iters": 92.975,
+      "leg": "B",
+      "r": 0.38875000000000026,
+      "rho_window": 1.0836236933797916,
+      "steps": [
+        681,
+        720
+      ]
+    },
+    {
+      "iters": 93.0,
+      "leg": "B",
+      "r": 0.38474999999999965,
+      "rho_window": 1.0724738675958179,
+      "steps": [
+        721,
+        760
+      ]
+    },
+    {
+      "iters": 93.075,
+      "leg": "B",
+      "r": 0.39350000000000024,
+      "rho_window": 1.0968641114982585,
+      "steps": [
+        761,
+        800
+      ]
+    },
+    {
+      "iters": 93.0,
+      "leg": "B",
+      "r": 0.37824999999999986,
+      "rho_window": 1.0543554006968636,
+      "steps": [
+        801,
+        840
+      ]
+    },
+    {
+      "iters": 92.975,
+      "leg": "B",
+      "r": 0.4114999999999995,
+      "rho_window": 1.1470383275261309,
+      "steps": [
+        841,
+        880
+      ]
+    },
+    {
+      "iters": 93.025,
+      "leg": "B",
+      "r": 0.40474999999999994,
+      "rho_window": 1.1282229965156791,
+      "steps": [
+        881,
+        920
+      ]
+    },
+    {
+      "iters": 93.025,
+      "leg": "B",
+      "r": 0.4049999999999997,
+      "rho_window": 1.1289198606271769,
+      "steps": [
+        921,
+        960
+      ]
+    },
+    {
+      "iters": 92.975,
+      "leg": "B",
+      "r": 0.4125,
+      "rho_window": 1.1498257839721253,
+      "steps": [
+        961,
+        1000
+      ]
+    },
+    {
+      "iters": 93.0,
+      "leg": "B",
+      "r": 0.39925000000000066,
+      "rho_window": 1.1128919860627196,
+      "steps": [
+        1001,
+        1040
+      ]
+    },
+    {
+      "iters": 93.0,
+      "leg": "B",
+      "r": 0.3980000000000004,
+      "rho_window": 1.1094076655052276,
+      "steps": [
+        1041,
+        1080
+      ]
+    }
+  ],
+  "R_R2_3_drift_floor_reported_gating_nothing": {
+    "P_R2_7_predicted_per_half_sd_pct": 1.8016,
+    "registered_in_advance": "The R2 registration states BEFORE the run that a rho finer than about +/-3 % is not achievable on this shared box.  This row measures whether that held.",
+    "scaling": [
+      {
+        "W": 40,
+        "mean": 0.3960480769230769,
+        "n": 26,
+        "sd_pct": 2.429663249278217
+      },
+      {
+        "W": 90,
+        "mean": 0.39594949494949494,
+        "n": 11,
+        "sd_pct": 2.162531257248153
+      },
+      {
+        "W": 180,
+        "mean": 0.39484444444444444,
+        "n": 5,
+        "sd_pct": 1.5727669692909716
+      },
+      {
+        "W": 267,
+        "mean": 0.39594569288389514,
+        "n": 4,
+        "sd_pct": 1.85426108885756
+      },
+      {
+        "W": 535,
+        "n": 2,
+        "note": "fewer than 3 windows; no sd"
+      }
+    ],
+    "settled_work_spread_pct": 2.1501919096517494,
+    "what_it_says": "Over the graded steps the solver does CONSTANT WORK (2.150 % integer spread in iterations/step) while the cost scatters by 2.430 % on a 40-step window.  Identical work, different cost: THAT IS THE MACHINE, and cpu-time accounting does not remove it.  It is the floor under any rate this rung reports."
+  },
+  "R_R2_4_work_vs_throughput_reported_gating_nothing": {
+    "iters_legA": 115.55,
+    "iters_legB_settled": 93.01495327102803,
+    "note": "rho = rho_work x rho_throughput.  rho_work is CONTENTION-FREE -- iteration counts do not depend on how busy the box is -- and rho_throughput is what is left, which is the machine.  REPORTED, GATING NOTHING: a new instrument, and Sanaa's 2026-09-03 20:00Z default is reported-not-gated.  A raw iteration SUM mixes cheap DILUPBiCGStab sweeps with expensive GAMGPCG ones and the two legs need not share that mixture, so rho_work is NOT offered as a corrected rho and no verdict rests on it.",
+    "rho_throughput": 1.3712944023661704,
+    "rho_work": 0.8049757963741068
+  },
+  "case": "W1150_C4_L1",
+  "cost_basis": "REPORTED-BY-OWNER; dollars DERIVED at $0.0513/core-h, NOT MEASURED -- this box cannot read its own billing (COMPUTE_BUDGET_CHARTER section 5)",
+  "exit": 3,
+  "grader_git_blob": "947df9dfc54157c79e76e2be273fdc73893adef8",
+  "grader_sha256": "d0aee9fcf57aaf777286b293629d1a046c97b25be894ecdd10cbd4e4ecf5a02b",
+  "ground": "G-R2-2: rho = 1.103859 >= 1.0.  A1.2's REGISTERED DIRECTION IS FALSIFIED: post-transient leg-B steps are NOT cheaper, so every CAP in the C4/C5 line priced off the 40-step ramp window is conservative in the UNSAFE direction rather than the safe one.",
+  "legs_are_independent_because": "r(leg A) and r(leg B) are means over DISJOINT delta sets parsed from TWO SEPARATE log files written by TWO SEPARATE mpirun invocations.  Neither is computed from the other and no term appears in both but ranks and 60, which cancel.  WHAT WOULD BREAK IT: (a) a change in the shared box's per-core throughput between the two windows -- MEASURED for the first time in this rung as R-R2-3, at constant solver work, and registered in advance as an irreducible ~3 % floor; (b) leg B's restart coupling to leg A's output, which C-R2-1 and G-R2-1 exist to catch and which R2 additionally EXCLUDES by discarding the first 40 leg-B steps; (c) the single shared parser, whose defects cancel in the ratio only if multiplicative and identical across legs -- hence the planted-zero control in BOTH legs.",
+  "planted_zero": {
+    "legA": {
+      "label": "legA",
+      "lines_rewritten": 34,
+      "other_deltas_that_moved": [],
+      "passed": true,
+      "plant_s": 1.23,
+      "plant_step": 7,
+      "read_back_delta_change": 1.23,
+      "tolerance_at_plant_step": 2.8099999999999998e-06,
+      "tolerance_basis": "1e-6 x max(|E[i]|, |E[i-1]|, PLANT_S) -- relative to the operands differenced, never a bare absolute"
+    },
+    "legB": {
+      "label": "legB",
+      "lines_rewritten": 1104,
+      "other_deltas_that_moved": [],
+      "passed": true,
+      "plant_s": 1.23,
+      "plant_step": 7,
+      "read_back_delta_change": 1.23,
+      "tolerance_at_plant_step": 2.64e-06,
+      "tolerance_basis": "1e-6 x max(|E[i]|, |E[i-1]|, PLANT_S) -- relative to the operands differenced, never a bare absolute"
+    }
+  },
+  "plateau": {
+    "P_R2_2_predicted": 0.018,
+    "both_normalisers_registered": "T25R6c divided by `last` only.  With a rising rate that is the SMALLER statistic -- T25R6c's 13.939 % is 16.197 % under the other normaliser, so ITS GATE FAILED UNDER THE LOOSER OF THE TWO and would only harden under the stricter.  R2 removes the choice by grading the larger.",
+    "first_half": {
+      "r": 0.3967102803738317,
+      "steps": [
+        41,
+        575
+      ]
+    },
+    "graded_normaliser": "second_half",
+    "graded_statistic": 0.003546266962976734,
+    "not_a_D389_instance": "D389 concerns normalising an ABSOLUTE TEMPERATURE by its mean, where the zero is arbitrary.  A rate in s/step has a meaningful zero, so endpoint normalisation is legitimate here.  D389 IS OPEN AND IS NOT SETTLED BY THIS RUNG.",
+    "passed": true,
+    "second_half": {
+      "r": 0.3953084112149533,
+      "steps": [
+        576,
+        1110
+      ]
+    },
+    "statistic_normalised_by_first_half": 0.0035337353938934683,
+    "statistic_normalised_by_second_half": 0.003546266962976734,
+    "threshold": 0.05
+  },
+  "predicted_verdict": "GATE FAIL",
+  "predicted_verdict_matched": true,
+  "predicted_vs_actual": {
+    "P_R2_4_verdict": "WINS",
+    "actual_core_min": 15.099333333333334,
+    "attribution": "The point estimate is derived from T25R6c's OWN measured per-step rates on the SAME case, arm, mesh, ranks and box, so a miss is contention or waste, NOT arm misprediction -- which is what T25R6c's P-C1 was.  Contention and waste stay separately named (COMPUTE_BUDGET_CHARTER section 6).",
+    "calibration_row_owed": "docs/COST_CALIBRATION.md -- owed at completion under rule 12; NOT discharged by this verdict.",
+    "cap_breached": false,
+    "cap_core_min": 45.0,
+    "core_min_basis": "ExecutionTime (CPU s, rank 0) x 2 ranks / 60.  THE RANK MULTIPLIER IS AN ASSUMPTION: ExecutionTime cannot see rank 1.  T25R6c used the same basis and R2 keeps it UNCHANGED so the two rungs stay comparable.",
+    "point_core_min": 14.707,
+    "ratio_actual_over_predicted": 1.0266766392420843,
+    "usd_derived_not_measured": 0.01291
+  },
+  "r_legA_s_per_step": 0.35875,
+  "r_legB_all_steps_s_per_step": 0.39516216216216216,
+  "r_legB_post_transient_s_per_step": 0.39600934579439256,
+  "registration": "docs/campaigns/T-family/T25R6cR2_PREREGISTRATION.md",
+  "rho": 1.1038588036080628,
+  "rho_all_steps_reported_for_comparability_with_T25R6c": 1.1014973161314625,
+  "roache": "NOT INVOKED -- no grid family, no functional at convergence, no order and no GCI is computed or derivable (rule 5 does not apply to a wall-cost measurement inside one transient)",
+  "rule4": [],
+  "rung": "T25R6c-R2",
+  "transient": {
+    "P_R2_5_predicted_band": [
+      92,
+      94
+    ],
+    "P_R2_5_verdict": "WINS",
+    "located_by": "linear-solver iteration count, NOT cost -- so the box cannot choose the boundary",
+    "measured_first_settled_step": 27,
+    "registered_D_EXCL": 40,
+    "settled_band": [
+      92.0,
+      94.0
+    ],
+    "settled_iterations_max": 94,
+    "settled_iterations_mean": 93.01495327102803,
+    "settled_iterations_min": 92
+  },
+  "verdict": "GATE FAIL",
+  "what_this_does_not_do": [
+    "IT AUTHORISES NO LADDER LAUNCH.  T25R5 5.1 is carried IN FORCE: no ladder launches on this result, whatever it says.",
+    "IT DOES NOT MEASURE THE SOAK RATE AT STEP 11,800.  It samples t <= 111.8 s of a soak that runs to t = 900 s -- 12.4 %, against T25R6c's 4.4 %.  The plateau clause is what licenses reading rho beyond the sampled steps, and that is a weaker claim, registered as the weaker claim.",
+    "IT DOES NOT RE-OPEN, WIDEN OR RETIRE THE A1.3 CEILING OF 20,000 CORE-MIN, which is not this team's to move.",
+    "IT CONSUMES NO OUTPUT OF T25R6a OR T25R6c.  It reads only ExecutionTime and iteration counts from logs it produced itself.  T25R6c's rho = 1.063997 REMAINS A DIAGNOSTIC AND MAY NOT BE QUOTED AS A VERDICT -- that prohibition stands and this rung does not lift it.",
+    "IT SETTLES NOTHING ABOUT D389, which is open, and nothing about the CLAUDE.md rule 4 clause wording, which is docketed and is not this team's to amend."
+  ]
+}
