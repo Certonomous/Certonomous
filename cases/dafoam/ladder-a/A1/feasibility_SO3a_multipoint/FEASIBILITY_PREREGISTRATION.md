@@ -682,3 +682,79 @@ Both confirmed against the frozen reader by both the supervisor and this lane:
 F1–F5, every band, both caps, the ceiling, the memory floor, the four NO-LAUNCH branches and their rcs, the staging precondition (9), the docker-start rc (10), the plant constants, and **§0.2 in full**. MESH **PENDING**, nothing scored, **waste 0.0167 core-min** named as waste. **NOT RE-FIRED. XM NOT QUEUED. SUBMISSIONS PARKED.**
 
 **END OF ADDENDUM 2.**
+
+---
+
+## ADDENDUM 3 — THE ARM COMMAND NEVER LOADED THE DAFoam ENVIRONMENT. Dated **2026-09-03**. Version **1.3 → 1.4**.
+
+> **lines whose number changed above this section: 0** — asserted by execution against both the pre-append snapshot and `git show HEAD:`.
+
+**Moves no gate, no threshold, no prediction, no band, no cap and no label.** An environment assertion can only ever refuse **more**.
+
+### A3.1 The second rc=127, and it is a different condition from the first
+
+MESH r2 launched 2026-09-03T22:12:06Z. **The staging repair worked**: 2 files became 22, the manifest matched on both sides, and the precondition named what it found. `preProcessing.sh` was staged, executable, and **ran** — then exited at its own first guard:
+
+> `OpenFOAM environment not found, forgot to source the OpenFOAM bashrc?`
+> `bash: line 1: checkMesh: command not found`
+
+**Both lines are one cause: the arm command never sourced the DAFoam environment.** And `bash -lc` does not supply it — a non-interactive login shell reads `/etc/profile` and the first of `~/.bash_profile` / `~/.bash_login` / `~/.profile`, **not `~/.bashrc`**, which is where a DAFoam image's environment hangs.
+
+**MEASURED: the string `source /home/dafoamuser/dafoam/loadDAFoam.sh` appears 110 times across this family's drivers, and 0 times in this launcher.** `a1wr_chain_driver.sh:173` — the driver that ran the alpha sweep this ladder is built on — carries it explicitly.
+
+### A3.2 ⚠ THE SAME CLASS AS THE FIRST ABORT — and that is the finding
+
+The first was **inputs**: nothing staged. This is **environment**: nothing sourced. **Both are things the arm needs that are not the instrument, and all four NO-LAUNCH guards check an instrument** — producer md5, forbidden token, reader pin, image digest. **A guard set that verifies every instrument and no precondition will launch a container into an empty directory, and then into an unloaded environment.** Twice, in one item, in one hour.
+
+**And it is the THIRD appearance of one specific shape**: a pattern known in this family, applied in one place and not its neighbour. `A1ZE`'s `occ_wait` handled an unreadable `MemAvailable` one line above a `docker ps` census that did not; `:199` staged the XM producer while MESH staged nothing; A1WR's driver sources the environment and this one did not. **Three items, three authors, one shape — and each branch is perfectly correct read on its own.**
+
+### A3.3 The repair — both arms, in one pass
+
+**THE LOADER PATH IS DERIVED FROM A1WR'S DRIVER BYTES, NOT RETYPED.** `A1WR_DRIVER` is pinned at `9bff59b63509e76d5dfa373a42a47074`; the launcher greps the distinct `source …loadDAFoam.sh` values out of it, **counts them, and refuses on anything but exactly one** — *take the first match* is the trap `D6RF-BLOCKING-1` was paid for. Measured: **1 distinct value**, `/home/dafoamuser/dafoam/loadDAFoam.sh`. A drift in A1WR's driver **refuses** rather than silently splitting the two items.
+
+**AND THE `source` IS NOT TRUSTED.** `so3af2_env_assert.sh` runs inside the container ahead of every arm: it sources the loader, then **interrogates the environment itself** and refuses by name — **ENV-1** loader not a file, **ENV-2** source returned non-zero, **ENV-3** `checkMesh` not on `PATH`, **ENV-4** `FOAM_APPBIN` empty, **ENV-5** `WM_PROJECT` empty. **ENV-5 is the load-bearing one: `$WM_PROJECT` is the exact variable `preProcessing.sh` tests in its own first three lines**, so the assertion checks the variable the arm's own script checks rather than one this lane chose. It then `exec`s the arm command. **rc 11**, distinct from 3/4/5/6 (NO-LAUNCH), 7 (producer), 8 (cap), 9 (staging) and 10 (docker start).
+
+**BOTH ARMS GO THROUGH IT.** Each arm now writes its command to `so3af2_cmd.sh` — A1WR's own shape — and the single `CMD` is `bash /mnt/so3af2_env_assert.sh $LOADER bash /mnt/$ARM/so3af2_cmd.sh`. **The two arms differ only in their command file.** Repairing MESH and rediscovering this on XM would have been the sibling-branch defect a fourth time.
+
+**Driven both ways on the HOST, no container needed** — the script sources a loader and interrogates the environment, so a fake loader exercises the real code path: absent loader → **rc 11, ENV-1 by name**; a loader that loads nothing → **rc 11, ENV-3 by name**; a good loader → **rc 0, `SO3AF2_ENV_OK` printed, and the arm command actually RAN** (the `exec` is verified, not assumed).
+
+### A3.4 ⚠ A CENSUS BLINDNESS FOUND IN THE SAME PASS, AND IT IS THE WORST OF THE THREE
+
+The pin census enumerated pins with `^MD5_[A-Z_]+=`. **`MD5_A1WR_DRIVER` carries a digit and was therefore never enumerated at all** — and the census printed **`driven=4 exist=4 — EQUAL, so every pin is driven as a COUNT`** while **five** pins existed.
+
+> **THE EQUALITY WAS TRUE AND VACUOUS, BECAUSE BOTH SIDES OF THE COMPARISON USED THE SAME BROKEN REGEX.** A census that enumerates with the same rule it counts with **cannot detect its own blindness**. This is the instrument whose entire purpose is to make *"every pin is driven"* a count rather than a claim, and it was making a claim.
+
+It was found **only** because a newly added pin failed to appear — the same accident that surfaced the two earlier coverage lies. **That is three coverage lies in one night, in one suite, none visible in its own summary line**, and it is why the invariant registered at §A3.6 is registered *because we have no way to detect these except by accident*, not as a nice-to-have.
+
+Repaired to `^MD5_[A-Z_0-9]+=`; the census now reports **driven=5 exist=5**.
+
+### A3.5 Re-pins
+
+| file | md5 | note |
+|---|---|---|
+| `so3af2_env_assert.sh` | `68811e246aed84778fe2878f8538d726` | **NEW** — the environment assertion |
+| `so3af2_run_arm.sh` | `209898b426ccce9d5e267bf0a7506e8b` | **RE-PINNED**; supersedes `ec02bf5b220f7e72393c71604e5af6eb` |
+| `so3af2_pin_selftest.sh` | `a0ac8f6b2c21e4a94fedf127c0ba25a6` | **RE-PINNED** |
+| `so3af2_read.py` | `d5f4149d43abe3a165ffe7e653b78bee` | **UNCHANGED — the frozen reader is not touched** |
+| `so3af2_runScript.py` | `c268633f67e6d2c785feec2ebfc7326c` | **UNCHANGED** by this addendum |
+| `a1wr_chain_driver.sh` | `9bff59b63509e76d5dfa373a42a47074` | **ANOTHER ITEM'S FILE, PINNED AND NOT TOUCHED** — the loader path is derived from it |
+
+**Census: 26 legs, PASS 26, FAIL 0, NOT RUN 0** in the committing invocation.
+
+### A3.6 The guard-suite invariant, REGISTERED AND NOT BUILT
+
+**Registered for this family's NEXT guard suites, forward-only, no retrofit of landed suites, and NOT started now** — building instrument infrastructure must not displace items in flight. Stated in the lane's own words and adopted by the supervisor:
+
+> *Both of tonight's census failures were **coverage lies, not logic errors**: a leg that passes for a reason other than the one it claims, and a leg that is unreachable while reporting PASS. Neither is visible in a suite's own summary line. The check worth adding is not another control but an **invariant on the suite itself**: every leg must be shown to fail for its own named reason, not merely to fail.*
+
+**It is registered BECAUSE WE HAVE NO WAY TO DETECT THESE EXCEPT BY ACCIDENT** — all three surfaced only because a new leg happened to fail carrying someone else's message, or failed to appear at all. **Luck is not a control.** It is the natural completion of `CLAUDE.md` rule 3: rule 3 proves a *reader* can see a non-zero; this proves a *control* fails for its own reason. **Sent to the chief as a lab-wide candidate**, since it bears on every team's comparators.
+
+### A3.7 Also registered: a capacity figure is quoted with its clock or not at all
+
+The supervisor's 22:07:46Z reading of 90.5 % busy predicted this row would queue; by the 22:12:06Z tick the box was **72.2 %**, `D6RF2` held on the **rank arithmetic** rather than the ceiling, and the 1-rank row **launched**. He flagged the staleness in advance, which is not the same as it being current. **The lane at the tick measures; not the supervisor minutes before.**
+
+### A3.8 Unchanged
+
+F1–F5, every band, both caps, the ceiling, the memory floor, the four NO-LAUNCH branches and their rcs, the staging precondition (9), the docker-start rc (10), the plant constants, and **§0.2 in full**. **ADDENDUM 1 finding 1 — XM stages one file into an otherwise empty directory — is STILL NOT REPAIRED and XM is NOT QUEUED.** MESH **PENDING**; cumulative waste across both attempts **0.0167 core-min**, named as waste and never absorbed into a ratio. **NOT RE-FIRED. SUBMISSIONS PARKED.**
+
+**END OF ADDENDUM 3.**

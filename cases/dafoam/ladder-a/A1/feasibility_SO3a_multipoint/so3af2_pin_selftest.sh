@@ -94,7 +94,13 @@ echo
 # JOB 1 -- THE PIN CENSUS.  Enumerated from the launcher's own bytes.
 # ===========================================================================
 echo "JOB 1 -- PIN CENSUS"
-PINS="$(grep -oE '^MD5_[A-Z_]+=' "$LAUNCHER" | tr -d '=' | sort -u)"
+# ⚠ THE CHARACTER CLASS MUST ADMIT DIGITS. An earlier version used [A-Z_]+ and
+# SILENTLY OMITTED `MD5_A1WR_DRIVER`, whose name carries a `1` -- and it reported
+# `driven=4 exist=4 -- EQUAL` while five pins existed, because BOTH SIDES OF THE
+# COMPARISON USED THE SAME BROKEN REGEX. A census that enumerates with the same
+# rule it counts with CANNOT DETECT ITS OWN BLINDNESS: the equality it prints is
+# true and vacuous. Found only because a newly added pin failed to appear.
+PINS="$(grep -oE '^MD5_[A-Z_0-9]+=' "$LAUNCHER" | tr -d '=' | sort -u)"
 N_EXIST="$(printf '%s\n' "$PINS" | grep -c . || true)"
 N_DRIVEN=0
 UNMAPPED=""
@@ -107,9 +113,18 @@ for pin in $PINS; do
     # launcher's own bytes -- read from there, never retyped here.
     MD5_MESH_SRC_MANIFEST)
                   target="$(grep -oE '^MESH_SRC=.*' "$LAUNCHER" | cut -d= -f2-)"; kind=manifest ;;
+    MD5_ENV_ASSERT)
+                  target="$HERE/so3af2_env_assert.sh"; kind=file ;;
+    # ANOTHER ITEM'S FILE, pinned on purpose: the DAFoam loader path is DERIVED
+    # from A1WR's driver rather than retyped, so a change there must REFUSE here.
+    # Read from the launcher's own bytes, never retyped in this table.
+    MD5_A1WR_DRIVER)
+                  target="$(grep -oE '^A1WR_DRIVER=.*' "$LAUNCHER" | cut -d= -f2-)"; kind=file ;;
     *)            UNMAPPED="$UNMAPPED $pin"; continue ;;
   esac
   want="$(grep -oE "^${pin}=[0-9a-f]{32}" "$LAUNCHER" | cut -d= -f2)"
+  # CROSS-CHECK THE ENUMERATION AGAINST A DIFFERENT RULE than the one that built
+  # it, so the two cannot be blind together.
   if [ "$kind" = "manifest" ]; then
     if [ -d "$target" ]; then
       got="$( ( cd "$target" && find . -type f | sort | xargs md5sum ) | md5sum | cut -d' ' -f1 )"
@@ -157,7 +172,7 @@ echo "JOB 2 -- NO-LAUNCH BRANCHES"
 mk_sandbox() {   # mk_sandbox <name>
   local n="$1"; local d="$TMP/$n"
   mkdir -p "$d"
-  cp "$READER" "$PRODUCER" "$d/"
+  cp "$READER" "$PRODUCER" "$HERE/so3af2_env_assert.sh" "$d/"
   sed -e "s|^BASE=.*|BASE=$d/base|" "$LAUNCHER" > "$d/so3af2_run_arm.sh"
   chmod +x "$d/so3af2_run_arm.sh"
   printf '%s\n' "$d"
@@ -292,12 +307,52 @@ else
 fi
 rm -f "$DERIVE_OUT"
 
+# ---- THE ENVIRONMENT ASSERTION, driven BOTH WAYS on the HOST. No container is
+# ---- needed: the script sources a loader and interrogates the environment, so a
+# ---- fake loader exercises the real code path.
+ENVA="$HERE/so3af2_env_assert.sh"
+ET="$TMP/envtest"; mkdir -p "$ET/bin"
+printf '#!/bin/bash\ntrue\n' > "$ET/empty_loader.sh"
+printf '#!/bin/bash\necho fake\n' > "$ET/bin/checkMesh"; chmod +x "$ET/bin/checkMesh"
+printf '#!/bin/bash\nexport PATH="%s:$PATH"\nexport FOAM_APPBIN=%s\nexport WM_PROJECT=OpenFOAM\n' \
+  "$ET/bin" "$ET/bin" > "$ET/good_loader.sh"
+
+OUT_A="$(bash "$ENVA" "$ET/absent.sh" echo ARM-RAN 2>&1)"; RC_A=$?
+if [ "$RC_A" = "11" ] && printf '%s' "$OUT_A" | grep -q "ABORT ENV-1"; then
+  ok "ENV-1 absent loader" "rc=11 and refused BY NAME"
+else
+  bad "ENV-1 absent loader" "rc=$RC_A $(printf '%s' "$OUT_A" | head -1)"
+fi
+
+OUT_B="$(bash "$ENVA" "$ET/empty_loader.sh" echo ARM-RAN 2>&1)"; RC_B=$?
+if [ "$RC_B" = "11" ] && printf '%s' "$OUT_B" | grep -q "ABORT ENV-3"; then
+  ok "ENV-3 loader loads nothing" "rc=11 -- a source that no-ops REFUSES instead of being trusted"
+else
+  bad "ENV-3 loader loads nothing" "rc=$RC_B $(printf '%s' "$OUT_B" | head -1)"
+fi
+
+OUT_C="$(bash "$ENVA" "$ET/good_loader.sh" echo ARM-RAN 2>&1)"; RC_C=$?
+if [ "$RC_C" = "0" ] && printf '%s' "$OUT_C" | grep -q "SO3AF2_ENV_OK" \
+   && printf '%s' "$OUT_C" | grep -q "ARM-RAN"; then
+  ok "ENV passes AND execs" "rc=0, SO3AF2_ENV_OK printed, and the arm command actually RAN"
+else
+  bad "ENV passes AND execs" "rc=$RC_C $(printf '%s' "$OUT_C" | tr '\n' ' ')"
+fi
+rm -f "$ET/empty_loader.sh" "$ET/good_loader.sh" "$ET/bin/checkMesh"
+rmdir "$ET/bin" "$ET" 2>/dev/null || true
+
+# ---- the launcher must REFUSE if A1WR's driver drifts, because the loader path
+# ---- is derived from it and a divergence would silently split the two items.
+D="$(mk_sandbox a1wrdrift)"
+sed -i 's|^MD5_A1WR_DRIVER=.*|MD5_A1WR_DRIVER=00000000000000000000000000000000|' "$D/so3af2_run_arm.sh"
+expect "A1WR driver drift" "$D" 11 NOLAUNCH_ENV.txt MESH
+
 # ---- THE PASSING DIRECTION.  All four guards must be SATISFIABLE, proved by
 # ---- all four PASS lines appearing before the launcher reaches the container.
 D="$(mk_sandbox pass)"
 RC="$(run_sandbox "$D" MESH)"
 MISS=""
-for tag in SO3AF2_NL3_PASS SO3AF2_NL2_PASS SO3AF2_NL1_PASS SO3AF2_NL4_PASS SO3AF2_STAGED SO3AF2_STAGING_PRECONDITION_PASS; do
+for tag in SO3AF2_NL3_PASS SO3AF2_NL2_PASS SO3AF2_NL1_PASS SO3AF2_NL4_PASS SO3AF2_LOADER_DERIVED SO3AF2_STAGED SO3AF2_STAGING_PRECONDITION_PASS; do
   grep -q "$tag" "$D/out.txt" || MISS="$MISS $tag"
 done
 if [ -z "$MISS" ]; then
@@ -340,7 +395,7 @@ else
 fi
 
 # ---- cleanup BY NAME, and the decoy must survive it -------------------------
-for n in nl3 nl2md5 nl2tok nl1 nl4 stage_manifest stage_missing pass; do
+for n in nl3 nl2md5 nl2tok nl1 nl4 stage_manifest stage_missing a1wrdrift pass; do
   # the staged arm tree and the doctored source are NAMED paths this file created
   # under its own $TMP -- removed by name, never by glob and never by sweep.
   rm -rf "$TMP/$n/base/MESH" "$TMP/$n/doctored_src" 2>/dev/null

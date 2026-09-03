@@ -78,6 +78,18 @@ MD5_MESH_SRC_MANIFEST=b7bf0eca3185b7d9af93e61ca122201b
 # ---- `cp -r 0.orig 0`.  rc=127 named the FIRST missing thing; this names the set.
 MESH_REQUIRES="preProcessing.sh genAirFoilMesh.py profiles system constant 0.orig"
 
+# ---- THE DAFoam ENVIRONMENT LOADER, DERIVED FROM A1WR'S OWN DRIVER BYTES.
+# ---- ADDENDUM 3. The arm command never sourced the environment, so the MESH arm
+# ---- exited rc=127 a second time -- `preProcessing.sh` ran and stopped at its own
+# ---- first guard. `bash -lc` does NOT supply it: a non-interactive login shell
+# ---- reads /etc/profile and the first of ~/.bash_profile / ~/.bash_login /
+# ---- ~/.profile, NOT ~/.bashrc where a DAFoam image's environment hangs.
+# ---- The path is DERIVED from `a1wr_chain_driver.sh` -- the driver that
+# ---- successfully ran the alpha sweep this ladder is built on -- rather than
+# ---- retyped, so a future divergence there cannot silently split the two.
+A1WR_DRIVER=/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/wall_resolved_aoa_polar/a1wr_chain_driver.sh
+MD5_A1WR_DRIVER=9bff59b63509e76d5dfa373a42a47074
+MD5_ENV_ASSERT=68811e246aed84778fe2878f8538d726
 MD5_READER=d5f4149d43abe3a165ffe7e653b78bee     # so3af2_read.py, pinned at the 2026-08-31 freeze, section 8
 MD5_PRODUCER=c268633f67e6d2c785feec2ebfc7326c                   # so3af2_runScript.py, pinned at the Stage-2 amendment
 
@@ -124,6 +136,7 @@ nolaunch() {   # nolaunch <file> <rc> <reason...>
 # NL-3 FREEZE -- the pinned instruments, checked BEFORE anything else is read
 # ---------------------------------------------------------------------------
 READER="$HERE/so3af2_read.py"
+ENV_ASSERT="$HERE/so3af2_env_assert.sh"
 [ -f "$READER" ] || nolaunch NOLAUNCH_FREEZE.txt 5 "reader absent at $READER"
 GOT_READER="$(md5sum "$READER" | cut -d' ' -f1)"
 [ "$GOT_READER" = "$MD5_READER" ] || nolaunch NOLAUNCH_FREEZE.txt 5 \
@@ -203,6 +216,27 @@ GOT_DIGEST="$(sudo -n docker image inspect --format '{{index .RepoDigests 0}}' "
 echo "SO3AF2_IMAGE_OK row=SHIPPED image=$IMG_SHIPPED digest=$GOT_DIGEST"
 
 # ---------------------------------------------------------------------------
+# THE ENVIRONMENT LOADER -- resolved from A1WR's driver, uniqueness ASSERTED
+# ---------------------------------------------------------------------------
+[ -f "$A1WR_DRIVER" ] || nolaunch NOLAUNCH_ENV.txt 11 \
+  "A1WR driver $A1WR_DRIVER is absent -- the loader path is DERIVED from it and this launcher will not retype it"
+GOT_A1WR="$(md5sum "$A1WR_DRIVER" | cut -d' ' -f1)"
+[ "$GOT_A1WR" = "$MD5_A1WR_DRIVER" ] || nolaunch NOLAUNCH_ENV.txt 11 \
+  "A1WR driver md5 $GOT_A1WR != pinned $MD5_A1WR_DRIVER -- the source of the loader path has changed and the two items may have diverged"
+# TAKE THE FIRST MATCH IS THE TRAP THIS FAMILY KEEPS PAYING FOR (D6RF-BLOCKING-1).
+# The DISTINCT values are counted and anything but exactly one REFUSES.
+LOADER_SET="$(grep -oE 'source [^ "]*loadDAFoam\.sh' "$A1WR_DRIVER" | awk '{print $2}' | sort -u)"
+LOADER_N="$(printf '%s\n' "$LOADER_SET" | grep -c . || true)"
+[ "$LOADER_N" = "1" ] || nolaunch NOLAUNCH_ENV.txt 11 \
+  "expected exactly ONE distinct loader path in $A1WR_DRIVER, found $LOADER_N: [$(printf '%s ' $LOADER_SET)]"
+LOADER="$LOADER_SET"
+[ -f "$ENV_ASSERT" ] || nolaunch NOLAUNCH_ENV.txt 11 "environment assertion $ENV_ASSERT is absent"
+GOT_ENV="$(md5sum "$ENV_ASSERT" | cut -d' ' -f1)"
+[ "$GOT_ENV" = "$MD5_ENV_ASSERT" ] || nolaunch NOLAUNCH_ENV.txt 11 \
+  "environment assertion md5 $GOT_ENV != pinned $MD5_ENV_ASSERT"
+echo "SO3AF2_LOADER_DERIVED loader=$LOADER from=$A1WR_DRIVER a1wr_md5=$GOT_A1WR distinct=1 env_assert_md5=$GOT_ENV"
+
+# ---------------------------------------------------------------------------
 # STAGE AND RUN
 # ---------------------------------------------------------------------------
 # A MANIFEST over a tree: sorted relative paths AND content hashes, so a moved
@@ -279,8 +313,11 @@ LEDGER="$BASE/ledger.txt"
 NAME="${PREFIX}${ARM}_${STAMP}"
 T0="$(date +%s)"
 
+cp "$ENV_ASSERT" "$BASE/so3af2_env_assert.sh"
 if [ "$ARM" = "MESH" ]; then
-  CMD="cd /mnt/MESH && ./preProcessing.sh > checkMesh.log 2>&1 && checkMesh >> checkMesh.log 2>&1"
+  cat > "$WORK/so3af2_cmd.sh" <<'ARMCMD'
+cd /mnt/MESH && ./preProcessing.sh > checkMesh.log 2>&1 && checkMesh >> checkMesh.log 2>&1
+ARMCMD
 else
   cp "$PRODUCER" "$BASE/XM/so3af2_runScript.py"
   # THE READER IS STAGED BESIDE THE PRODUCER because the producer DERIVES its
@@ -288,8 +325,14 @@ else
   # transcribing them. Its md5 was verified against the pin at NL-3 above, so
   # what is staged is the frozen reader and not some other file of that name.
   cp "$READER" "$BASE/XM/so3af2_read.py"
-  CMD="cd /mnt/XM && python so3af2_runScript.py -task run_model > XM.log 2>&1"
+  cat > "$WORK/so3af2_cmd.sh" <<'ARMCMD'
+cd /mnt/XM && python so3af2_runScript.py -task run_model > XM.log 2>&1
+ARMCMD
 fi
+# ---- BOTH ARMS GO THROUGH THE ENVIRONMENT ASSERTION.  Repairing MESH and
+# ---- rediscovering this on XM is the sibling-branch defect this item has
+# ---- already produced twice; the two arms differ ONLY in their command file.
+CMD="bash /mnt/so3af2_env_assert.sh $LOADER bash /mnt/$ARM/so3af2_cmd.sh"
 
 sudo -n docker run -d --name "$NAME" \
   --user 0:0 --cpus=$RANKS --cpuset-cpus="$CPUSET" \
