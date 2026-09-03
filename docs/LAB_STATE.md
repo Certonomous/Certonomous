@@ -21898,6 +21898,91 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+**Section last written:** 2026-09-03T15:59Z by cfd-supervisor **personally, no lane** (three lanes were live on other items and I held the board myself). **FORTY-EIGHTH WRITE.** **SANAA'S INDUSTRIAL BENCHMARK LADDER REMAINS THE STANDING ORDER**, now amended by her 2026-09-03T~17:30Z rulings. Where this conflicts with anything below, this block wins. HEAD at write time re-derived in the same shell invocation as the commit, never taken from a brief. **History is NOT rewritten:** board 47 and everything below it stand exactly as committed.
+
+⚠ **CLOCK, MEASURED NOT ASSUMED — AND THIS IS THE SECOND CONSECUTIVE BOARD ON WHICH THE BRIEFED TIME WAS WRONG.** My re-formation brief stamped this session `2026-09-03 ~17:35Z`. `date -u` on this box read **`2026-09-03T15:59:14Z`** at drafting — the brief runs **~1 h 36 min AHEAD** of the box. Board 47 recorded the same defect at ~2 h. **A board timestamp is evidence and is never copied from a brief**; both stamps here are the box's.
+
+### 🔴 THE BOX REBOOTED AT 15:34:57 TODAY — THE "ACCIDENTAL FLEET-STOP" WAS A REAL INSTANCE STOP, NOT A HARNESS EVENT
+
+- Measured: `uptime -s` = **`2026-09-03 15:34:57`**, `who -b` = `2026-09-03 15:34`, kernel `pool_workqueue_release` started 15:34. This is not an agent fleet dying — **the machine went down and came back up.**
+- **Queue daemon pid 1645, recorded ALIVE on board 47, is DEAD.** A new daemon **pid 1664** started 15:35 running `python3 /home/ubuntu/Certonomous/scripts/queue_runner.py --daemon`.
+- **ZERO cfd solvers are running.** Anything in flight at 15:34 died with the box, including the M6S-P probe launch that board 47 named as `VERIFY: launch in flight at write time`.
+- This reboot is the exact hazard the auto-stop patch exists to prevent, so **whether `/usr/local/bin/auto-stop.sh` initiated it is a question about the instrument, not a curiosity** — it is the first diagnostic assigned to the patch lane, with `UNDETERMINED` an allowed answer.
+
+### ✅ THE DOCKER BLOCKER ON BOARD 47 IS RESOLVED BY THE REBOOT — AND IT IS CROSS-TEAM NEWS, NOT CFD NEWS
+
+- Board 47: *"Group membership is fixed at PROCESS START. Queue daemon pid 1645 started 15:20:07, HOURS before her usermod, and `/proc/1645/status` reads `Groups: 4 24 27 30 105 1000` — NO 113. Every team needing docker from the queue is blocked until the daemon restarts. Chief's call."*
+- **Measured on the new daemon:** `/proc/1664/status` reads `Groups: 4 24 27 30 105 113 1000`. **Gid 113 is present.** `getent group docker` reads `docker:x:113:ubuntu`.
+- **The restart nobody had to authorise happened by reboot.** The daemon now launches with docker credentials, so the `sg docker -c` wrapper cfd adopted is belt-and-braces rather than load-bearing — **and it stays**, because nothing guarantees the next daemon starts post-usermod.
+- ⚠ **This unblocks OTHER TEAMS, dafoam most of all, and they will not learn it from my board.** Relayed upward as chief's-desk news the same session it was measured.
+
+### F5b — RESTATED FOR SANAA FROM DISK, AND MY OWN FAILURE RE-MEASURED RATHER THAN RECALLED
+
+Her order: restate it in one paragraph with options, because it has been superseded by three weeks of rulings and she will not rule on a stale memory. **Every figure below is measured this session, not carried from board 47.**
+
+- **The frozen reader is INTACT.** `git rev-parse HEAD:verification/runs/F5b_runs/analyse_f5b_physics.py` = **`6c6d34d02e6de925457dbfdbf75a0e004168f345`**, byte-identical to the stage-2 freeze blob at `a80d5f36`. Recoverable from git.
+- **The working-tree copy MOVED under my dispatch and is STILL BROKEN.** Blob is now **`5de783bd49553afa22048a2cdafec3bf92f6a41f`**; the hold artifact names `277463b1...`, so **the artifact is factually stale and I did NOT correct it — its own instruction forbids editing it.** 🔴 **And the edit did not repair the defect:** the working tree still carries **1 reference to `_finish_after_time_dir` and 0 definitions of it.** The HEAD copy carries **0 references** — the dangling call is purely a working-tree artefact and was never frozen. **A file that was edited under my dispatch, in violation of a hold, and is no less broken for it, is the worst of both outcomes and I record it as such.**
+- **The §2d.1 freeze condition is INTACT, measured not asserted:** **ZERO files written under `verification/runs/F5b_runs/physics_p1/` since 2026-08-25 17:03.** No agent has inspected the gate quantity; no `A_L` exists anywhere. **I preserved this in taking the measurement** — mtimes and directory names only, no file contents opened, `coefficient.dat` untouched.
+- **The defect is confirmed by direct observation, not by citing the record:** `verification/runs/F5b_runs/physics_p1/case/21.944/` **exists** and holds `polyMesh` and `uniform`. The frozen reader resolved endTime by string match on `END_TIME_STR = "21.9440"`. **The physics artifacts are present and intact; the grader looked in a directory that never existed.** F5b's `NOT A RESULT` therefore rests on completion clauses 4 and 6 failing over ONE trailing zero. Costed at C-65: **39.426 core-min MEASURED**, $0.0337 derived.
+- **THREE RULINGS POSTDATE THE 2026-08-25 DENIAL AND BEAR ON IT** — this is why the memory was stale:
+  1. **2026-08-28, her re-grade order:** *"Re-grades are successor comparators frozen by sha (rule 2); the original frozen files are never edited."* **This dissolves the 2026-08-25 deadlock.** That lane's reasoning was that both remaining options — finish the repair, or restore the file — are themselves edits to the file whose edit was denied. A successor comparator at a NEW PATH is neither. The deadlock was real on the day and is not real now.
+  2. **VERIFICATION_CHARTER §2p.5 (accepted):** *"A reader that knows which time it needs SELECTS BY THAT TIME and REFUSES if it is not uniquely present."* The exact cure for this defect, and now a standard rather than a proposal.
+  3. **§2d.3, v1.36 2026-08-31:** a §2d.1 repair may satisfy conditions (3) and (4) **by disclosing an absence, measured and named.** F5b has published no `A_L` and zero graded solves under the registration — so the addendum path that looked closed is reachable on the T20 precedent, **which did not exist on 2026-08-25.**
+  - Also bearing: **2026-08-26, bookkeeping never voids physics** (a bookkeeping failure invalidates the bookkeeping, never the physics artifacts). ⚠ **I flag this as MY reading, not her words about F5b** — clauses 4 and 6 are rule-4 completion fields, not the dead-poller/ledger fields her ruling names. It supports option 1; it does not decide it.
+- **The options are enumerated in the restatement routed to the chief.** In short: (1) successor comparator at a new path, no edit to the held file — legal on her own 2026-08-28 mechanism, needs no ruling on the denial at all; (2) rule narrowly on the denial, authorise the single step-2 correction; (3) discard the working-tree change — but rule 10 forbids `checkout --`/`reset`/`stash` and a restore is itself an edit to the denied file; (4) re-solve from scratch, ~39.4 core-min / ~$0.034 derived, cheap but discards intact artifacts; (5) leave it held — status quo, `NOT A RESULT` stands, topic open past the rule-freeze intent that instrument repairs be done once and closed.
+- **⚠ NOTHING IS DECIDED BY THIS BLOCK.** Option 1 is available on her prior ruling and I still do not exercise it, because the hold artifact's instruction is unconditional and **rule 9 means my own reading of her earlier ruling is not her consent to lift a hold she has not lifted.**
+
+### SANAA'S 2026-09-03 RULINGS — RECEIVED, ROUTED, NOT YET APPLIED
+
+| ruling | status |
+|---|---|
+| Rung 0 gate reworded to UGRID + patch identity + round-trip on cell count/patch names/per-patch face counts + quality reported vs the grid's own documentation | lane live |
+| Plot3D **DROPPED** — vindicates board 47's measured finding that `plot3dToFoam` imported M6I L1 as ONE patch `defaultFaces`, 27,648 faces | lane live |
+| CGNS **DEFERRED** to its own small registration if ever needed — board 47's "named costed gap" is superseded; it leaves the Rung 0 critical path entirely | lane live |
+| **Two-tier standard RESOLVES R12** — 70° stays the generation gate for lab-built meshes; committee grids admissible for validation-vs-workshop cases under (a)–(d); **a full certificate IS reachable**; meshing capability certified only on in-house sub-70° grids | lane live |
+| Register row certifies **FIDELITY** and says so | lane live |
+| Snappy branch **APPROVED AT $40 HARD CAP** | lane live |
+| Smallest instance that fits memory; serial converter NOT parallelised for one-offs | lane live |
+
+🔴 **HER TWO-TIER RULING OVERTURNS BOARD 47's HEADLINE CONCLUSION, AND I STATE THAT PLAINLY RATHER THAN LETTING IT AGE OUT.** Board 47 said *"R12 DOES NOT REACH A CERTIFICATE"* and *"Sanaa's 'full certificate' is NOT reachable on an R12-exempted grid."* **She ruled the opposite: a full certificate IS reachable, because a certificate's honesty is disclosure and verification, not our internal birth standard.** Board 47's conclusion stands as committed history and is **superseded, not rewritten.** The five-committee-grids-breach-by-17-20-degrees measurement it rested on is **unaffected and still true** — what changed is what that measurement licenses.
+
+🔴 **THE SNAPPY CAP HAS A LIVE ARITHMETIC TENSION AND IT IS NOT PAPERED OVER.** Board 47's snappy branch estimate is **$40.39 derived**. Her hard cap is **$40.00**. A hard cap is a hard cap: either the estimate is re-derived under it or the branch is re-scoped. Assigned to the lane with instructions to surface the number, not to round it.
+
+### TOOLING QUEUE — CARRIED FORWARD, ALL FOUR STILL OPEN
+
+Unchanged from board 47 and all still true: `check_comparator_freeze.py` invoked by **ZERO** executable files; `check_prereg_at_commit` existence-only; **no entry-schema field names a grading path**; blast radius 1 prereg blob differed (F23b, content legal), **0 graders drifted**, **2 rows launched with a grader that did not exist at their freeze**, **7 JF1 rows have NO grading script anywhere**. Commit `5c31a23c` widened the freeze checker's population to `docs/campaigns` and made it refuse an empty population.
+
+**Sanaa's freeze-enforcement order lands on top of this and my half is step (1)** — the queue daemon refuses to grade any run whose comparator sha does not match its frozen registration; enforcement at the choke point; primitive is fine. Lane live. **The standing hazard I briefed it against is this codebase's own:** `launcher_rc` has seven occurrences — one write, six selftest references, **ZERO production reads** — and `cap_watch` retires on `status.exists()` without ever parsing it. **A hook placed where grading does not happen is an eighth dead limb.** The lane must show positive evidence the hook is on the live path.
+
+### LIVE JOBS AND LANES
+
+**ZERO cfd solvers.** Queue daemon **pid 1664** alive, started 15:35, carrying gid 113. Three lanes live, at the §8 cap of 3: (1) auto-stop patch; (2) ladder rulings + Rung 0/1 cost re-derivation; (3) freeze-enforcement daemon hook + M6S-P + E2c prereg.
+
+### NEXT ACTIONS
+
+Land the three lanes' work; deliver the auto-stop patch file + sudo install line to Sanaa via the chief (**she installs, we never do**); deliver final rule-12 Rung 0/1 estimates; resolve the snappy $40.39-vs-$40 tension; write the E2c prereg without inheriting the `res p` defect; then the ungraded backlog.
+
+### UNGRADED BACKLOG — UNCHANGED, NAMED NOT TIDIED
+
+F28 (13 launched rows, 18+ run dirs, TWO frozen preregs, ZERO results); VR1–VR4 ran 2026-08-30 rc=0 with NO results record; VR5–VR10 frozen never launched; `JF1_P1_L1_CMESH_PHYSICS` asserted `NOT A RESULT` **only inside a cost-calibration row**; **F24_PRANDTL_MEYER at `PENDING` since 2026-08-27**; **TWO FILING CONVENTIONS live at once** (F17–F27 in `verification/campaign/`, F15/F16/F16b/M6I only under `verification/runs/`). **M6S-P is now added to it:** its launch was in flight when the box went down and its outcome is unknown until read from the status file's CONTENTS.
+
+### ON SANAA'S DESK
+
+1. **F5b — the restatement she ordered is delivered this session.** Unruled since 2026-08-25; nine days.
+2. **M6 direction** — option 1 finished and FAILED; her order predates option 3 existing.
+3. The rented-instance decision above 10 Mcells (her smallest-instance ruling settles the sizing; **no instance price may be quoted from recall**, so any dollar figure is BLOCKED-ON-PRICE until read from the console).
+4. Rule-10 exec-bit inflow; missing `cm-super`/`dvipng`/`ghostscript`; `router.py:470-477`; JF1 turbulence clipping; **Williams, Butler & Wood ARC R&M 3304 (1961) eq. (2) — NEVER "Spence 1956"**; the DMR "$0.00" line; the four dead-lever stage banners.
+
+*(Items 3, 4, 5 and 6 of board 47's desk list are RETIRED by her 2026-09-03 rulings: the committee-grid admissibility wall, the register row wording, whether to acquire CGNS, and the Plot3D question.)*
+
+### ON THE CHIEF'S DESK
+
+**The docker unblock above — urgent, cross-team, and dafoam's more than ours.** Gate 6 (sole blocker on JF1G, and `JF1G_R2_COST_BASIS_DRAFT.md` ADDENDUM A **falsifies its own §1 headline** — mid-run reading 32 % high — while §A.3 finds **C3 cannot finish inside the frozen Pass-0 cap**); the `GRADING-FREEZE` schema field NAME, now blocking my freeze-enforcement lane; an owner for `sdk/chief_engineer/mesh_certificate.py`.
+
+### UNVERIFIED, NAMED AS SUCH
+
+**VERIFY:** the F17–F27 headline verdicts are read from RESULTS records; no comparator re-run, no GCI re-derived. **VERIFY:** M6S-P's outcome — its launch died with the box and has not been read from disk. **VERIFY:** DPW5/HLPW6 grid readings are from existing logs, not fresh `checkMesh` runs. **VERIFY:** the 2.69e-08–4.72e-08 rate band rests on eight runs of which THREE were re-derived from scratch. **VERIFY:** every ruling-application and cost figure in this block's ruling table is a lane's live work and NONE of it is landed yet — this block reports what was dispatched, not what was achieved.
+
 **Section last written:** 2026-09-02T23:2xZ by cfd-supervisor personally, via a records lane. **FORTY-SEVENTH WRITE.** **SANAA'S INDUSTRIAL BENCHMARK LADDER IS THE STANDING ORDER.** Where this conflicts with anything below, this block wins. HEAD at write time: **`28a4a37580d683d074d939b76df57f2ce199bb03`** — re-derived in the same shell invocation as the commit, never taken from a sha handed to the lane. **History is NOT rewritten:** board 46 and everything below it stand exactly as committed. ⚠ **CLOCK NOTE, measured not assumed:** the write was briefed as `2026-09-03T~01:xxZ`; `date -u` on this box read **2026-09-02T23:18Z** at block-drafting time, so the stamp carries the MEASURED time and the briefed one is recorded as wrong by ~2 h. A board timestamp is evidence and is never copied from a brief.
 
 **Records-lane disclosure:** `docs/LAB_STATE.md` is a SIX-OWNER file and foreign content HAS been carried into commits today (board 46 documents the mechanism). This commit's blob was therefore built from **HEAD's own copy** of the file with this block spliced in, and the transformation asserted BY CONTENT to be a pure insertion — bytes before the splice point and bytes after it are equal to HEAD's, and the inserted span equals this block exactly. **Foreign uncommitted rows were left uncommitted** (a 6-line deletion in the verification section, somebody's unfinished work) — inspected, never reverted; somebody should be dispatched to land them.
