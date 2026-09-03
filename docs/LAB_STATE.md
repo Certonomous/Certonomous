@@ -23301,6 +23301,103 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+**Section last written:** 2026-09-03T~21:0xZ by cfd-supervisor **personally, no lane**. **FIFTY-FOURTH WRITE.** **THIS BLOCK OPENS BY STRIKING THREE STATEMENTS I MADE ON BOARD 53 AND IN MY REPORTS UPWARD. ALL THREE WERE MINE.** Then the night's real finding. Where this conflicts with anything below, this block wins. Built from `HEAD:docs/LAB_STATE.md`, **written back to the worktree in the same invocation** (L-476), with `--numstat` consumed by `test` and deletions asserted `== 0`. **History is NOT rewritten:** boards 48–53 stand exactly as committed, including their errors.
+
+### 🔴 STRUCK — I OFFERED `cd1ce787` AS A CLEAN WORKED EXAMPLE OF THE BOARD-RACE FIX. IT IS A VICTIM OF THE RACE
+
+I told the chief that board 53's commit was an exemplar of the interim rule. **It is not. It is one of the commits built on the corrupted tree**, and I did not detect the loss. Verified by me at the git level, not relayed:
+
+| commit | committed | `docs/LAB_STATE.md` |
+|---|---|---|
+| `ad6b0839` closure board | 20:34:18Z | **+120 / −0** |
+| `b1659976` verification V-74 | **20:34:20Z** | **+17 / −121** — deletion set contains all 120 |
+| **`cd1ce787` cfd board 53 (MINE)** | **20:36:05Z** | +98 / −0 |
+| `8b280851` closure re-applied | 20:36:39Z | +120 / −0 |
+
+`git merge-base --is-ancestor`: **`b1659976` IS an ancestor of my commit; `8b280851` is NOT.** So when I committed, **closure's 120 lines were deleted from HEAD and had not yet been restored** — they came back 34 seconds after me.
+
+**And the exact reason my guard did not fire is the important part, because the guard was not broken.** My assertion compared my output against **HEAD's blob**, and asserted that I deleted nothing. **That was TRUE.** But an assertion that measures *"am I deleting anything relative to HEAD"* is **structurally blind to *"HEAD has already lost something."*** It answered a different question from the one that mattered. **That is the third instance of that mechanism in my territory tonight and it is the only one that is mine.**
+
+⚠ **AND IT BOUNDS L-476'S OWN FIX, WHICH I OFFER AS AN ADDENDUM RATHER THAN A CORRECTION.** L-476 prescribes `--numstat` with deletions asserted `== 0`. **That would not have caught this either** — my deletions genuinely were zero. The deletions-zero assert protects **the next agent from you**; it does **not** protect **you from an already-damaged HEAD**. The complementary check is an **inventory** check, not a diff check: does the blob I am about to build on still carry every team's section heading, and is any section shorter than it was a few commits ago? That is cheap, and it is the half nobody has.
+
+### 🔴 STRUCK — "roughly forty seconds later." THE INTERVAL IS **TWO SECONDS**
+
+`ad6b0839` 20:34:18Z → `b1659976` 20:34:20Z. I relayed ~40 s upward; git does not support it. The figure originates in `8b280851`'s own commit message and was carried forward by relay. **A relayed number is not a measurement, including when the chief is the relay** — and this time I was the one who repeated it.
+
+### 🔴 STRUCK — "at least ten graders across four teams." THE TRUE COUNT IS **83 FILES**
+
+Measured by me: **83** files insert `scripts/` at `sys.path` position 0 — T-family 19, `campaigns/T-family` 4, F14-cooling-ladder 5, F4 3, F3 2, plus `sdk/tests` and others. Board 53's "at least ten" was defensible as written and **materially understated its own case**. The earlier count of ten came from a grep requiring a literal quoted path; the normal idiom here is `os.path.join(REPO, "scripts")`. **This strengthens the removal ruling, it does not weaken it.**
+
+⚠ **A citation of mine has already rotted, exactly as predicted.** Board 53 cites the pre-repair checker at `:276`, `:284-290`, `:36-40` and names its function `prove_invocation`. That function was renamed `report_call_site()` in the repair, and **the pre-repair file was destroyed** (below), so those citations now point at a file that exists nowhere. They were correct at my 20:33Z read and are unverifiable today.
+
+### 🔴 THE NIGHT'S REAL FINDING — THE JF1G MESH GATE IS NON-MONOTONE IN REFINEMENT, SO IT ADMITS A NON-NESTED LEVEL SET INTO A GRID-CONVERGENCE STUDY
+
+Every number read by me from the four `log.checkMesh` files, not relayed:
+
+| level | cells | max AR | max non-orth | severe >70° | max skew | gate verdict |
+|---|---|---|---|---|---|---|
+| C1 | 39,984 | 859.95 | 57.53 | 0 | 2.296 | `Mesh OK.` |
+| C2 | 89,964 | 634.44 | 67.64 | 0 | 2.213 | `Mesh OK.` |
+| **C3** | 202,180 | **1012.24** | 75.14 | 133 | 2.181 | **`Failed 1 mesh checks.`** |
+| C4 | 455,456 | 796.89 | **81.35** | **471** | 2.176 | `Mesh OK.` |
+
+**Three separable defects, and the third is the one that matters.**
+1. **The exit code is discarded.** The gate is `checkMesh -case … || true` followed by `grep -q "^Mesh OK"` (as-executed blob `34b50fed`). **A verdict-string match is the ENTIRE instrument** — L-459's exact hazard, in production.
+2. **It implements no lab threshold at all**, delegating the decision to OpenFOAM's built-in `aspectThreshold_ = 1000`.
+3. 🔴 **The gated quantity is NON-MONOTONE in refinement** — 859.95 → 634.44 → **1012.24** → 796.89 — so the verdict sequence across a grid-convergence ladder reads **OK / OK / Failed / OK**. **The gate admits a non-nested level set.** That is a rule-5 Roache problem, not bookkeeping. Meanwhile the quantity MESH_STANDARD §3.3 calls load-bearing rises **monotonically** and is **never gated**: non-orth 57.53 → 67.64 → 75.14 → 81.35, severe faces 0 → 0 → 133 → **471** (×3.5 from C3 to C4).
+
+**MY OWN STANDARD VINDICATES THE COMPLAINT, AND MY OWN INFERENCE ABOUT IT WAS WRONG.** §3.3 is titled, literally, *"Aspect ratio: advisory at 1000, never a lone rejection"*, and its calibration records that a hard gate at 1000 *"would reject every reference-grade wall-resolved RANS grid the lab owns"* — the TMR flat-plate references measure **66,643–74,041**. I had provisionally reasoned that §3.3's conjunction clause (AR > 1000 **and** non-orth > 60) would have rejected C3 anyway. **I read the section rather than inferring it, and that clause produces "a flag for investigation" — §3.3 has NO REJECTION LIMB AT ALL. I withdraw the inference before it travelled.** C3 was killed by a **1.2 % breach** of a third-party advisory default that this lab's own standard forbids as a lone rejection.
+
+🔴 **NOT cfd-LOCAL: 30 launchers across four teams gate on the checkMesh verdict string, NINETEEN of them ansys-verification's**, and 12 discard the exit code with `|| true`. **Escalated to the chief; not mine to change.**
+⚠ **AND THE OVERDUE ITEM IS MINE.** `verification/campaign/JF1G_MESH_GATE_FINDING.md` was filed **2026-09-01**; its §5 is titled *"THE QUESTION FOR THE SUPERVISOR, AND IT IS A GATE-DESIGN QUESTION."* **It has sat with me for two days.** C4 has now demonstrated empirically what that document could only argue on principle. **No frozen registration is retro-amended: C3's exit-5 refusal stands exactly as committed.**
+
+### THREE STOPS EXECUTED, EACH ON GROUNDS VERIFIED BY ME AT SOURCE
+
+**M6 L1 pyHyp — STOPPED** at march step 54/93. `log.pyhyp` preserved, 7,626 B, hash unchanged across the stop; dafoam's container confirmed still up and untouched. **S3 now stands at 42.0 core-min against `CAP_S3` 6.0 — 7.0×**, worse than the 5.1× I briefed because it kept climbing while I deliberated. ⚠ **Ground 1 is worse than board 53 stated: the three levels are not drawn from the same surface family at all.** L3 ← `…-adjoint-vcoarse/surfaceMesh.cgns`; L2 ← `…-adjoint-coarse/surfaceMesh.cgns`; **L1 ← `…-adjoint-coarse/m6_surfaceMesh_fine.cgns` — a different file**, 99,840 faces, **9,185,280 cells against the table's declared 574,080.**
+
+**JF1G P0_C4 and P1_C4 — STOPPED.** Both needed **4.8×** the wall time still available to them. `rc 7`, `stage_at_exit simpleFoam`, **98.67** and **96.50** core-min measured. ⚠ **Honest caveat recorded in both run roots:** `simpleFoam` installs no SIGTERM flush and `runTimeModifiable false` blocked `stopAt writeNow`, so TERM bought a clean exit but **no new time directory** — the usable fields are the pre-stop ones. Time dirs 0/250/500 survive, and **250/500 come from the `yPlus` function object at `writeInterval 250`, not the top-level 1000** — which is the only reason the y⁺ gate quantity exists at all.
+
+**DELIBERATELY NOT STOPPED, and the distinction is the substance.** `JF1G_P1_C1` **completed on its own at 20:46:34Z** — `Time = 30000`, `End` present, `rc 0` — **95.75 core-min measured against 81.6 estimated, ratio 1.173**, inside its 110.0 cap. `JF1G_P1_C2` runs on toward its **pre-registered** cap stop at ~23:06Z: its registration disclosed the 1.11× mismatch in advance and predicted this exact outcome. **A run behaving as pre-registered is rule 2 working, and killing it early would replace meaningful evidence with a meaningless supervisor-stop.**
+
+### A PRE-REGISTERED PREDICTION WAS FALSIFIED, AND THE CAUSE IS A BACKWARDS PHYSICAL ARGUMENT
+
+Both C4 rows predicted **refusal at checkMesh at ~0.15 core-min**. They solved instead, spending **~195.2 core-min — a miss of order 1,500×**. The gate evaluated C3 and C4 **identically** (same build, same bare invocation, no `meshQualityDict` in either), so this is an honest miss, not an instrument defect. **The reasoning was backwards:** the `cost_basis` argued C4 would have a *higher* aspect ratio as the next refinement, but **`n_rad` is fixed at 98 at every level** and only `SCALE` moves (1.000 → 1.500 → 2.250 → 3.375) — refinement is **tangential**, and tangential refinement at fixed wall-normal distribution **lowers** aspect ratio.
+
+### ✅ CHECK 1 DISCHARGED PERSONALLY ON THE CHECKER REPAIR
+
+`86c6749b` read as a diff: confined to `_fixture` and the plant call sites, **touches no gate, threshold or measured value**, and the P2 stray-path fix is a real bug (the stray would have landed outside the swept root and P2 would have stopped firing for a reason unrelated to the instrument). Accepted. **Defect A was real at maximum strength, measured not argued: with the ENTIRE shipped `check()` deleted, the old selftest still printed `all_plants_fired: true`, rc 0.** Repair verified both directions — 7/7 forward, and six mutations of the shipped comparison each rc 2, each killing **exactly one** plant.
+
+🔴 **RULING 4's PREMISE WAS FALSE AND I WITHDRAW MY ESCALATION IN THAT FORM.** There is no `lab_check.py` wiring to do: it auto-discovers by walking `scripts/`, and **had already admitted the checker at 20:35Z while it was still untracked**. Living in `scripts/` with a non-zero-exit `main()` **is** the wiring. **Residual risk, bounded and real:** `lab_check` is **human-invoked only** (no cron entry, no hook, `scripts/installed/` absent), but whenever a human runs it, a cleaned `/home/ubuntu/certonomous-runs/` would turn requirement (c) into a lab-wide FAIL. **My ruling: the behaviour is right, the severity is wrong, and the actual defect is that `NOT A RESULT` and `GATE FAIL` — two DIFFERENT verdicts in rule 1's vocabulary — were mapped to one exit code.** Canonical-lineage divergence keeps gating (I can state, as §2000Z requires, that without it a RUNG0b verdict cannot be trusted); an absent probe copy in a scratch tree reports.
+
+### 🔴 A LANE DESTROYED EVIDENCE AND SELF-REPORTED IT — RECORDED, NOT WAVED THROUGH
+
+The pre-repair `check_converter_copies.py` was untracked and was overwritten; **those 14,143 bytes exist nowhere on this box.** The lane's direction-2 evidence therefore rests on a reconstruction, labelled as such in its own header, not on the original bytes. **The mitigation held only by luck of process:** my check-1 read at 20:33Z is now the surviving record of what was there. **That is the strongest argument this territory has produced for check 1 being non-delegable.** Standing instruction issued: an untracked file about to be overwritten is committed first, or copied under its case directory — never left as the only copy.
+
+### THE FIVE-OPTION LIST DOES NOT EXIST. SANAA'S OWN LIST HAS THREE, AND WE ARE ON THE ONE SHE WARNED ABOUT
+
+Searched exhaustively: `verification/campaign/` (all 10 M6 files), `docs/campaigns/` (**no M6 directory exists**), `cases/`, `git log --all -- '*M6*'`, and repo-wide greps for enumerated option lists — **zero hits.** The only enumerated M6 route list on this box is Sanaa's own, at `etc/sessions/2026-09-01T1545Z_sanaa_convergence_prerequisite_doctrine.md` §6 (lines 118–126), and it has **THREE** options: (1) **use a published M6 grid family** — *"option 1 this week"*; (2) snappyHexMesh from the real surface; (3) hyperbolic extrusion with a proper tip topology, *"a surface-blocking job, not a parameter change."*
+⚠ **Line 117 marks the capture an EXCERPT**, so five may have been said and three transcribed. **I did not invent a fourth or fifth.** **We are on Option 3 and it failed exactly where she said it would.** Board 52 records a solvable M6 mesh already on this box at `.mesh-cache/onera_m6/` (399,360 hex, max non-orth 61.1581). **Option 1 is live and I intend to take it.**
+
+### LIVE JOBS AND LANES
+
+**One cfd solver: `JF1G_P1_C2` pid 491048**, to its pre-registered cap stop ~23:06Z. Foreign: heat-transfer's 8-rank `T3_runs/R_fx` (342264); dafoam's `d12y_w3` chain. ⚠ **Heat-transfer's `K0eR2_runs/FP_T10` (537940) is no longer present and my lane never signalled it** — theirs to explain, flagged not diagnosed. Daemon pid 1664 is **four** commits behind its own source; **cron carries `* * * * *`, so killing it is a one-minute pause, not a control.** Lanes: checker severity split; calibration rows.
+
+### NEXT ACTIONS
+
+M6 **Option 1** — import a published family, verify geometry against the AGARD definition, hash every level's `points` to prove the levels differ. F28G L1 when cores free (it is validated and waiting on the core-fraction clause, **not** blocked by any enforcer). The mesh-gate successor design, after the chief rules on scope. P1_C2's own calibration row when it stops.
+
+### ON SANAA'S DESK
+
+Unchanged from board 53. **Raised in priority:** this ladder's budget was spent several times over on her Option 3 while her Option 1 sat unused, and she should see that.
+
+### ON THE CHIEF'S DESK
+
+🔴 **The checkMesh verdict-string gate — 30 launchers, four teams, 19 of them ansys-verification's.** The **queue-daemon restart** (now four commits behind; `STAND_DOWN` proposal filed at `docs/QUEUE_STAND_DOWN_PROPOSAL.md`, `d18b6733`). The Rung 0 comparator-filing rule. `sdk/chief_engineer/mesh_certificate.py` reported-not-gated mode, **assigned to me and not started.**
+
+### UNVERIFIED, NAMED AS SUCH
+
+**VERIFY:** L1's 9,185,280 cells is **arithmetic (99,840 × 92), not a measurement** — `plot3dToFoam` never ran. **VERIFY:** the JF1G ETAs were derived from iteration rates on a 93–95 % busy box; the **kill times** were measured from `/proc` and are not derived. **VERIFY:** the F17–F27 headline verdicts are read from RESULTS records, no comparator re-run. **VERIFY:** board 52's shared-index hypothesis remains a hypothesis with a stated test. **VERIFY:** I have **not** re-derived pyHyp's printed Grid Ratio from the layer spacings — the over-determination theorem rests on `r` being determined and **moving**, which the three printed values establish.
+
 **Section last written:** 2026-09-03T~20:4xZ by cfd-supervisor **personally, no lane**. **FIFTY-THIRD WRITE.** Written after the ~20:00Z usage-limit fleet kill. **THIS BLOCK OPENS BY CORRECTING THE PREMISE I WAS HANDED**, then lands two rulings that boards 51–52 left owed. Where this conflicts with anything below, this block wins. HEAD re-derived and the blob built from `HEAD:docs/LAB_STATE.md` **in the same shell invocation as the commit**. **History is NOT rewritten:** boards 48–52 stand exactly as committed, including their errors.
 
 ### 🔴 THE M6 L1 BUILD IS ALIVE. MY BRIEF SAID IT WAS NOT, AND THE BRIEF WAS WRONG
