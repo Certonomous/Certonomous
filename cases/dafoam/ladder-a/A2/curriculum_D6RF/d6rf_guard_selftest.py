@@ -59,6 +59,14 @@ def census():
 
 
 def run_launcher(arm, base=None):
+    # THE BELT TO THE GATE'S BRACES.  Even if a future edit forgets to gate a
+    # call site, this refuses to hand the REAL launcher the REAL root while that
+    # root exists -- the condition under which this file started a container.
+    if base == REG_ROOT and os.path.exists(REG_ROOT):
+        raise RuntimeError(
+            "REFUSED to drive the launcher at the registered run root while that "
+            "root EXISTS (%s): the launcher would stage an arm and start a "
+            "container. Archive the root by `mv` and re-run." % REG_ROOT)
     env = dict(os.environ)
     if base is not None:
         env["BASE"] = base
@@ -97,6 +105,44 @@ def main():
     print("  container census BEFORE: %d [%s]\n" % (len(before), ",".join(before)))
 
     # =====================================================================
+    # ⚠ THE SAFETY PRECONDITION, AND IT EXISTS BECAUSE THIS FILE LAUNCHED A
+    # CONTAINER.  ADDENDUM 3 incident, 2026-09-03T19:26:40Z.
+    #
+    # Every "happy path" drive below hands the REAL launcher the REAL registered
+    # run root.  That was safe ONLY while the root did not exist: the launcher
+    # then stopped at the L-251 mode check with rc 4, having staged nothing.
+    # The daemon fired the item at 19:02Z and CREATED the root -- and the same
+    # drives, unchanged, then walked straight past the mode check, staged
+    # `REF_off/` and STARTED A CONTAINER, spending 0.8 core-min and writing an
+    # `ARM=REF_off` row into the live ledger.
+    #
+    # THE ASSUMPTION WAS TRUE WHEN WRITTEN AND BECAME FALSE UNDERNEATH THE FILE,
+    # and the file's own check of it (U9/U54) was a REPORTED LEG, not a
+    # PRECONDITION -- it observed the root's absence and carried on regardless.
+    # A safety property that is graded instead of enforced is not a safety
+    # property.
+    #
+    # So: the launcher-invoking legs are now GATED, and when they are skipped
+    # they are REPORTED AS NOT RUN -- never as passed.  The static and
+    # extracted-function legs are read-only and always run.
+    # =====================================================================
+    root_exists = os.path.exists(REG_ROOT)
+    launcher_drives_safe = not root_exists
+    if not launcher_drives_safe:
+        print("  " + "=" * 72)
+        print("  ⚠ THE REGISTERED RUN ROOT EXISTS: %s" % REG_ROOT)
+        print("  EVERY LAUNCHER-INVOKING LEG IS SKIPPED AND REPORTED AS NOT RUN.")
+        print("  Driving them now would stage an arm and START A CONTAINER -- this")
+        print("  file did exactly that at 2026-09-03T19:26:40Z, for 0.8 core-min.")
+        print("  Archive the root (`mv` -- never delete) and re-run for a full pass.")
+        print("  " + "=" * 72 + "\n")
+    SKIPPED = []
+
+    def skip(label):
+        SKIPPED.append(label)
+        print("  %-62s %s" % (label, "NOT RUN"))
+
+    # =====================================================================
     print("A. G-ROOT -- the launcher pointed somewhere it must never write")
     rc, out = run_launcher("F_mp", D6R_ROOT)
     rec("U1  BASE = D6R PRESERVED run root -> ABORT rc 3", rc == 3,
@@ -115,20 +161,30 @@ def main():
 
     # =====================================================================
     print("\nB. THE ARM GUARD IS AN EQUALITY, NOT A PREFIX MATCH")
+    # SAFE EVEN WITH THE ROOT PRESENT: the arm guard aborts before any staging.
+    # Driven against D4's root, which G-ROOT.1 refuses anyway, so the launcher
+    # cannot reach a destructive step by either path.
     for bad in ("F_m", "F_mpX", "REF_of", "REF_offX", "O_mp", "ACC_mp"):
-        rc, out = run_launcher(bad, REG_ROOT)
-        rec("U7  arm '%s' -> ABORT rc 64" % bad,
-            rc == 64 and "not one of this item's two REGISTERED arms" in out)
-    rc, out = run_launcher(None, REG_ROOT)
-    rec("U8  no arguments -> ABORT rc 64", rc == 64)
+        rc, out = run_launcher(bad, D4_ROOT)
+        rec("U7  arm '%s' -> ABORT (rc 3 or 64, before any staging)" % bad,
+            rc in (3, 64))
+    if launcher_drives_safe:
+        rc, out = run_launcher(None, REG_ROOT)
+        rec("U8  no arguments -> ABORT rc 64", rc == 64)
+    else:
+        skip("U8  no arguments -> ABORT rc 64")
 
     # =====================================================================
     print("\nC. THE CAP IDENTITY -- computed by the REAL code, not read off")
     print("     (pointed at the registered run root, WHICH DOES NOT EXIST, so")
     print("      each drive stops at the L-251 mode check with rc 4)")
-    rec("U9  the registered run root really is absent", not os.path.exists(REG_ROOT),
-        REG_ROOT)
+    rec("U9  the registered run root is absent (the PRECONDITION for section C)",
+        launcher_drives_safe, REG_ROOT)
     for arm in ("F_mp", "REF_off"):
+        if not launcher_drives_safe:
+            for lbl in ("U10", "U11", "U12", "U13", "U14", "U15", "U16", "U17", "U18"):
+                skip("%s %-7s (launcher drive gated: the run root exists)" % (lbl, arm))
+            continue
         rc, out = run_launcher(arm, REG_ROOT)
         m = re.search(r"D6RF_CAP_FRAME arm=%s registered_core_min=(\S+) ranks=(\d+) "
                       r"deadline_in_container_s=(\d+) frame_allowance_s=(\d+) "
@@ -247,8 +303,11 @@ def main():
         rec("U35 exactly 76 of D6R's own %d entries under mp04/processor0 are "
             "swept (75 pseudo-times + the endTime)" % len(names), len(sel) == 76,
             "selected %d" % len(sel))
-        rec("U36 the launcher asserts 0/, 0.orig/ and processor*/0/ SURVIVED",
-            "0.orig was dropped" in src and "processor0/0/U was dropped" in src)
+        rec("U36 the launcher asserts 0/, 0.orig/ and processor*/0/ SURVIVED "
+            "(now through assert_field, which accepts U or U.gz)",
+            "0.orig was dropped" in src
+            and 'assert_field "S5 $mp/processor0/0"' in src
+            and 'assert_field "S5 $mp/0"' in src)
 
     # =====================================================================
     print("\nG. THE FROZEN PINS")
@@ -390,16 +449,90 @@ def main():
         and 'cat "$cg" 2>/dev/null || echo 0' not in src)
 
     # =====================================================================
+    print("\nJ. THE COMPRESSED-FIELD REPAIR (ADDENDUM 3) -- driven on D6R's REAL")
+    print("   directories for the positive legs, because a FIXTURE is exactly what")
+    print("   hid this defect: a fixture creates the file under the name the test")
+    print("   expects, so 83/83 passed with the launcher unable to see `U.gz`.")
+    fn = re.search(r"(field_path\(\) \{[\s\S]*?\n\})", src)
+    if rec("U68 `field_path` was extracted from the launcher", fn is not None):
+        import tempfile
+        body = fn.group(1).replace("local ", "")
+        script = body + '\nif field_path "$1" "$2"; then :; else echo NOTFOUND; fi\n'
+
+        def fp(d, name):
+            r = subprocess.run(["bash", "-c", script, "x", d, name],
+                               stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+            return r.stdout.decode().strip()
+
+        # ---- POSITIVE LEGS, ON REAL BYTES ------------------------------
+        gz = os.path.join(D6R_ROOT, "O_mp", "mp04", "processor0", "0")
+        plain = os.path.join(D6R_ROOT, "O_mp", "mp04", "0")
+        mesh = os.path.join(D6R_ROOT, "base", "constant", "polyMesh")
+        got = fp(gz, "U")
+        rec("U69 REAL decomposed dir (gzipped) resolves `U` -> U.gz",
+            got == os.path.join(gz, "U.gz"), got)
+        got = fp(plain, "U")
+        rec("U70 REAL reconstructed dir (plain) resolves `U` -> U",
+            got == os.path.join(plain, "U"), got)
+        got = fp(mesh, "points")
+        rec("U71 REAL constant/polyMesh resolves `points` -> points.gz",
+            got == os.path.join(mesh, "points.gz"), got)
+        got = fp(mesh, "points.gz")
+        rec("U72 a caller passing the `.gz` name already resolves the same file",
+            got == os.path.join(mesh, "points.gz"), got)
+        got = fp(os.path.join(D6R_ROOT, "O_mp", "0"), "U")
+        rec("U73 REAL F_mp age-datum dir resolves `U`",
+            got.endswith("/O_mp/0/U"), got)
+        # ---- NEGATIVE LEGS ---------------------------------------------
+        td = tempfile.mkdtemp(prefix="d6rf_gz_")
+        neither = os.path.join(td, "neither"); os.makedirs(neither)
+        open(os.path.join(neither, "T"), "w").close()
+        open(os.path.join(neither, "U.bz2"), "w").close()
+        got = fp(neither, "U")
+        rec("U74 a dir with NEITHER `U` nor `U.gz` returns NOTFOUND",
+            got == "NOTFOUND", got)
+        got = fp(os.path.join(td, "absent"), "U")
+        rec("U75 an ABSENT directory returns NOTFOUND", got == "NOTFOUND", got)
+        # `U.gz.gz` must not be conjured by a caller passing `U.gz`
+        onlygz = os.path.join(td, "onlygz"); os.makedirs(onlygz)
+        open(os.path.join(onlygz, "U.gz"), "w").close()
+        rec("U76 `U.gz` and `U` resolve identically when only the .gz exists",
+            fp(onlygz, "U") == fp(onlygz, "U.gz") == os.path.join(onlygz, "U.gz"))
+    # ---- THE ABORT MUST TELL A READER WHICH FAILURE IT IS ---------------
+    rec("U77 the abort DISTINGUISHES an absent directory from a present one "
+        "with no matching name",
+        "THE DIRECTORY IS ABSENT" in src
+        and "EXISTS but holds NEITHER" in src)
+    rec("U78 the abort PRINTS WHAT IT ACTUALLY FOUND",
+        "WHAT IS ACTUALLY THERE (up to 20 entries)" in src)
+    rec("U79 no abort message asserts a deletion it has not established",
+        "was dropped -- the decomposed restart state is KEPT" not in src)
+    rec("U80 all four field-name sites now go through the helper",
+        len(re.findall(r"assert_field ", src)) >= 5
+        and not re.search(r'test -f "\$WORK[^"]*/0/U"', src)
+        and not re.search(r'stat -c .%Y. "\$WORK/0/U"', src))
+    rec("U81 the age datum is ASSERTED to be a non-empty integer before use",
+        "is not an integer" in src and "unenforceable" in src)
+
+    # =====================================================================
     after = census()
     print("\n  container census AFTER: %d [%s]" % (len(after), ",".join(after)))
     rec("U52 CONTAINER CENSUS BEFORE == AFTER (zero containers created)",
         before == after, "before=%s after=%s" % (before, after))
     rec("U53 no container carrying this item's prefix exists",
         not [c for c in after if c.startswith("d6rf_")])
-    rec("U54 the registered run root is STILL absent after every drive",
-        not os.path.exists(REG_ROOT), REG_ROOT)
+    rec("U54 the run root is in the SAME state as before these drives",
+        os.path.exists(REG_ROOT) == root_exists,
+        "%s (existed before: %s)" % (REG_ROOT, root_exists))
 
-    print("\nD6RF_GUARD_SELFTEST %d/%d PASS" % (len(OK), len(OK) + len(FAIL)))
+    if SKIPPED:
+        print("\n  ⚠ %d LEG(S) NOT RUN -- reported as NOT RUN, never as passed:" % len(SKIPPED))
+        for l in SKIPPED:
+            print("      %s" % l)
+        print("  A run with legs skipped is NOT a full pass and must not be cited as one.")
+    print("\nD6RF_GUARD_SELFTEST %d/%d PASS%s"
+          % (len(OK), len(OK) + len(FAIL),
+             (", %d NOT RUN" % len(SKIPPED)) if SKIPPED else ""))
     if FAIL:
         print("FAILED: %s" % ", ".join(FAIL))
         return 1

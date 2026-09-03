@@ -996,3 +996,169 @@ Unchanged from §A1.6 and restated because this addendum adds no evidence about 
 container has ever run `F_mp` or `REF_off`, at any point in this lineage.** `L-316` — a self-test
 proves the **instrument**, never the **case**. **P2 remains the falsifier, and the first real
 container is the first evidence about the case.**
+
+---
+
+# ADDENDUM 3 — 2026-09-03, **POST-COMPUTE**. A guard that failed spuriously and stated a falsehood about the filesystem; a self-test that started a container; and a producer whose own docstring makes both arms unrunnable
+
+**Version 1.3.** **Lines whose number changed above this section: 0.**
+
+## ⚠ A3.0 THIS ADDENDUM IS POST-COMPUTE, AND THE REASON IS THIS LANE'S OWN ACCIDENT
+
+Addenda 1 and 2 were pre-compute and said so. **This one is not, and it must not claim to be.**
+This item has now spent **0.800 core-min** in a container — not from the chain, but from
+`d6rf_guard_selftest.py`, which started one by accident at 2026-09-03T19:26:40Z (§A3.4).
+`CLAUDE.md` rule 2 therefore binds in its post-compute form: **gates are closed, and this addendum
+may not alter a gate, threshold, cap or label. It does not.** Nothing in §1–§6 moves. What changes
+is one launcher guard's handling of file names, one self-test's safety precondition, and the
+recording of a blocking defect that stops the item.
+
+**Registered spend to date: `REF_off` `rc=2`, 12 wall s, 4 ranks, 0.800 core-min**
+[MEASURED, `/home/ubuntu/certonomous-runs/CURRICULUM-D6RF-a2-wing-multipoint-fd/ledger.txt`,
+the sole `ARM=` row], against the item ceiling of 670.0. **That row was not produced by the chain
+and must not be read as this item's `REF_off` arm.**
+
+## A3.1 `D6RF-GUARD-DEF-1` — the S5 assertion failed spuriously and its abort message was FALSE
+
+`F_mp` aborted `rc=5` on its first fire:
+
+    ABORT S5 mp04/processor0/0/U was dropped -- the decomposed restart state is KEPT
+
+**NOTHING WAS DROPPED.** OpenFOAM's `writeCompression on` makes `decomposePar` write the
+**decomposed** fields gzipped while the **reconstructed** ones stay plain. Measured on D6R's own
+source:
+
+| directory | contents |
+|---|---|
+| `O_mp/mp04/0/` (reconstructed) | `T U alphat nuTilda nut p` — **plain** |
+| `O_mp/mp04/processor0/0/` (decomposed) | `T.gz U.gz alphat.gz nuTilda.gz nut.gz p.gz` — **gzipped** |
+
+The guard tested `test -f "$WORK/$mp/processor0/0/U"` — the uncompressed name — and the work copy's
+`mp04/processor0/0/` was **intact with all six fields** after the abort. `is_time_dir()` excluded `0`
+by name exactly as designed, the sweep did the right thing, **and the assertion written to CONFIRM
+it stated a falsehood about the filesystem in its own abort message.**
+
+**IT IS THE MIRROR OF THE DEFECT ADDENDUM 2 REPAIRED.** S4 could pass **vacuously** on a pair of
+false zeros; this one **fails spuriously and asserts a deletion that did not happen** — sending its
+reader hunting a destructive bug that does not exist, which is where the supervisor's triage went
+for ten minutes. **Same root in both: the guard's evidence line did not correspond to what was on
+disk.** It failed in the safe direction and cost no solver time, and it is still a defect.
+
+**WHY NO DRIVE CAUGHT IT:** the self-tests built **fixtures**, and a fixture creates the file under
+the name the test expects. 83/83 passed with the launcher unable to see `U.gz`.
+
+## A3.2 THE REPAIR — one helper, four sites, and an abort that says what it found
+
+`field_path <dir> <name>` resolves `<name>` **or** `<name>.gz` (and accepts a caller who already
+passed the `.gz` form); `assert_field` aborts through it and **distinguishes the two failures**:
+
+* **the directory is absent** → *"THE DIRECTORY IS ABSENT … This is a missing directory, NOT a
+  missing field"*;
+* **the directory exists but holds neither name** → it prints **what is actually there**, up to 20
+  entries.
+
+**THE SWEEP — four sites, and the count is reported rather than assumed.** Every hard-coded field
+name in the launcher was enumerated; there were **four**, of which **one** bit:
+
+| # | site | on this case family | status |
+|---|---|---|---|
+| 1 | S5 `$WORK/$mp/processor0/0/U` | **gzipped — THE LIVE DEFECT** | repaired |
+| 2 | S5 `$WORK/$mp/0/U` | plain, passed | repaired anyway — same assumption |
+| 3 | G-COLD `$WORK/0/U` (`REF_off`) | plain, passed | repaired anyway |
+| 4 | **the AGE DATUM, `stat -c %Y "$WORK/0/U"`** | plain, passed | **repaired — and it is the most dangerous of the four** |
+
+**Site 4 would have failed SILENTLY, not loudly.** `stat` on a missing path returns **empty**, so
+`AGE_DATUM` would be the empty string, `.d4_age_datum` would hold a blank line, and the arm command
+would carry `--age-datum ` with no value. The physical wrapper would then refuse — so it fails safe,
+but **late, and with a message about the wrapper rather than about the datum.** It is now resolved by
+name and **asserted to be a non-empty integer before use**, because rule 4's age guard is PHYSICS.
+
+Two further sites named `points.gz` **explicitly** (S3's reference-mesh anchors) — the same
+assumption in the other direction. They hold on this case family and are routed through the same
+helper anyway, so the repair has **no unrepaired call site** (rule 14).
+
+**DRIVEN ON REAL BYTES, because a fixture is what hid it.** `field_path` is extracted from the
+launcher and pointed at D6R's **real** directories: the gzipped `processor0/0` resolves `U` → `U.gz`;
+the plain `mp04/0` resolves `U` → `U`; `constant/polyMesh` resolves `points` → `points.gz`; a caller
+passing `points.gz` resolves the same file; `O_mp/0` resolves the age-datum `U`. **Negative legs:** a
+directory holding `T` and `U.bz2` returns NOTFOUND, and an absent directory returns NOTFOUND. Both
+directions, real bytes on the positive side.
+
+## A3.3 ⚠ A3.4's INCIDENT — **`d6rf_guard_selftest.py` STARTED A CONTAINER**
+
+**At 2026-09-03T19:26:40Z this item's guard self-test staged `REF_off/` and started a real
+container**, spending **0.800 core-min** and writing an `ARM=REF_off … rc=2` row into the live
+ledger. **This lane caused it and reports it as its own.**
+
+**THE MECHANISM.** Every "happy path" drive hands the **real** launcher the **real** registered run
+root. That was safe **only while the root did not exist**: the launcher then stopped at the L-251
+mode check with `rc 4`, having staged nothing — and the file's docstring said exactly that. **The
+daemon fired the item at 19:02:29Z and created the root.** The same drives, unchanged, then walked
+past the mode check, staged the arm and reached `docker run`.
+
+**THE ASSUMPTION WAS TRUE WHEN WRITTEN AND BECAME FALSE UNDERNEATH THE FILE — and the file's own
+check of it (`U9`/`U54`) was a REPORTED LEG, not a PRECONDITION.** It observed the root's absence,
+recorded a `PASS`, and carried on regardless. **A safety property that is graded instead of enforced
+is not a safety property.** The container census before/after still agreed, because the container had
+exited by the time the closing census ran — so the one control designed to catch this could not.
+
+**THE REPAIR, two layers.** A **precondition** at the head of the file gates every launcher-invoking
+leg on the root's absence and prints why; and `run_launcher()` itself **raises** if handed the real
+root while it exists, so a future edit that forgets to gate a call site still cannot launch.
+**Skipped legs are reported `NOT RUN`, never as passed**, and the summary line refuses to be read as
+a full pass: it now prints `77/78 PASS, 19 NOT RUN`, with the single `FAIL` being the run root's
+absence — **which is correctly failing, because the root exists.** The arm-guard legs were re-pointed
+at D4's root, which `G-ROOT.1` refuses before any staging, so they run safely either way.
+
+## A3.4 ⚠⚠ `D6RF-BLOCKING-1` — **BOTH ARMS ARE UNRUNNABLE AS REGISTERED, AND THE ACCIDENT IS WHAT FOUND IT**
+
+The accidental container did not fail on infrastructure. It failed on physics setup, four times, one
+per rank [MEASURED, `REF_off_20260903T192640Z_518092.log`]:
+
+    D6R_REF_OFF REFUSE anchor '# OpenMDAO setup' appears 2 times
+
+**`d6r_opt_runScript.py` contains the anchor TWICE**: at **`:230`**, the real anchor, and at
+**`:21`**, **inside the module docstring**, in the sentence that *explains the anchor* — *"The ANCHOR
+line `# OpenMDAO setup` is kept so that…"*. Both consumers refuse on a count other than one:
+`d6r_ref_off.py:53` and **`d6r_fd_endpoint.py:67`**.
+
+**SO BOTH ARMS REFUSE, NOT ONE.** `REF_off` is measured refusing; **`F_mp` would refuse identically
+at `d6r_fd_endpoint.py:67`**, which is the FD instrument itself. For contrast,
+`d4_opt_runScript.py` carries the anchor **once**, which is why D4's arm F3 ran.
+
+**THIS IS A THIRD "COULD NEVER HAVE FINISHED" DEFECT IN THE SAME PREDECESSOR REGISTRATION**, beside
+`D6RF-DEF-3` (`REF_off`'s cap, 3.16× short) and `D6RF-DEF-2` (`F_mp` staged in place). **D6R's own
+`F_mp` and `REF_off` could never have run either**, for this reason, and the chain stopped before
+reaching them so nobody found out.
+
+**AND IT IS THE `D6RACC2` `U15/U16` SHAPE AGAIN — *a detector that cannot tell a statement from prose
+about a statement* — except here it is the producer's own docstring poisoning its consumers' count.**
+
+**THIS ITEM IS `BLOCKED` UNTIL THAT IS RULED ON, AND THE REPAIR IS NOT THIS LANE'S TO MAKE.**
+`d6r_ref_off.py`, `d6r_fd_endpoint.py` and `d6r_opt_runScript.py` are **frozen** and md5-pinned in
+§7b; rule 6 forbids editing them, and changing the anchor or the split rule changes the **science
+path**, which is a supervisor's design decision and not a lane's. **No launch may be attempted until
+it is ruled.** `P2` — *"the chain COMPLETES"* — is on course to **MISS**, and it has now missed for a
+reason established **before** the 155.7 core-min of `F_mp` were spent rather than after.
+
+## A3.5 The revised pins, and the state of the record
+
+| file | md5 |
+|---|---|
+| `d6rf_run_arm.sh` | **`70de3ad3ab0d76ce2c95634c91c4b8f8`** (ADDENDUM 2 value `cecc53b2…` SUPERSEDED) |
+| `d6rf_chain_driver.sh` | **`3362e5e4d69b8aed5ff950e9cac7a03a`** (re-pinned to the launcher above) |
+| `d6rf_guard_selftest.py` | **`300457862f5f66764523ab3672472e00`** |
+| `d6rf_guard_selftest_evidence.txt` | **`669a4f91d1c1202ef06a0dd8b7c5787d`** |
+| `d6rf_units_assert.py` | `40993d949e44aae3f80bf1a3d2cf4998` — **unchanged** |
+
+**A check that stops at §7a or at A1.1 will read a false mismatch on the launcher and the driver;
+the binding pins are here.** Drives: units **25/25** under `python3` and `python3 -O`; guards
+**77/78 PASS with 19 NOT RUN** under both — **and that is NOT a full pass and is not cited as one.**
+
+**THE RUN ROOT NOW EXISTS AND THE RE-FIRE REFUSAL STAYS.** §2a S1 registers that `F_mp` has **no
+`rm -rf`** and that a re-fire finds a stale arm directory and **REFUSES**. That refusal is correct
+and **is not weakened here**: the repair is a clean root, not a permissive guard. A re-fire therefore
+requires the partial root to be **ARCHIVED by `mv`, never deleted** — it holds `F_mp/`'s partial
+staging, the accidental `REF_off/`, that arm's log and the ledger row, all of which are evidence.
+**This lane has not archived it**: the root is left exactly as found, for the supervisor's reading,
+and the archive is his call together with the `D6RF-BLOCKING-1` ruling.

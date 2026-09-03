@@ -309,6 +309,55 @@ stage_say() { echo "$*"; echo "$*" >> "$STAGE_EVID"; }
 : > "$STAGE_EVID"
 stage_say "D6RF_STAGE arm=$ARM utc=$(date -u +%Y%m%dT%H%M%SZ) base=$BASE_REAL permission=$PERMISSION"
 
+# ===========================================================================
+# FIELD PRESENCE -- `U` OR `U.gz`, AND AN ABORT THAT SAYS WHAT IT ACTUALLY FOUND.
+# REPAIR REGISTERED IN ADDENDUM 3, on the dafoam-supervisor's crash triage of
+# F_mp's rc=5 abort.
+#
+# THE DEFECT.  OpenFOAM's `writeCompression on` makes `decomposePar` write the
+# DECOMPOSED fields gzipped while the RECONSTRUCTED ones stay plain.  MEASURED on
+# D6R's own source: `O_mp/mp04/0/` holds `T U alphat nuTilda nut p`, and
+# `O_mp/mp04/processor0/0/` holds `T.gz U.gz alphat.gz nuTilda.gz nut.gz p.gz`.
+# The S5 assertion tested `processor0/0/U` -- the uncompressed name -- and
+# aborted `rc=5` saying the file "was dropped".  NOTHING WAS DROPPED: the
+# directory and all six fields were intact; the sweep had done exactly the right
+# thing and the assertion meant to CONFIRM it stated a falsehood about the
+# filesystem in its own abort message, sending its reader hunting a destructive
+# bug that does not exist.
+#
+# IT IS THE MIRROR OF THE S4 DEFECT ADDENDUM 2 REPAIRED.  S4 could pass
+# VACUOUSLY on a pair of false zeros; this one FAILS SPURIOUSLY and asserts a
+# deletion that did not happen.  Same root in both: the guard's evidence line did
+# not correspond to what was on disk.
+#
+# WHY NO DRIVE CAUGHT IT: the self-tests built FIXTURES, and a fixture creates the
+# file under the name the test expects.  ADDENDUM 3's legs are therefore pointed
+# at D6R's REAL directories on disk for the positive case (section A3.3).
+# ===========================================================================
+field_path() {   # $1 = directory, $2 = field name (with or without .gz)
+  local d="$1" n="${2%.gz}"
+  [ -d "$d" ] || return 1
+  if   [ -f "$d/$n" ];     then echo "$d/$n";     return 0
+  elif [ -f "$d/$n.gz" ];  then echo "$d/$n.gz";  return 0
+  fi
+  return 1
+}
+field_present() { field_path "$1" "$2" >/dev/null 2>&1; }
+assert_field() { # $1 label, $2 directory, $3 field, $4 why-it-matters
+  local p
+  p=$(field_path "$2" "$3") && { stage_say "$1 OK $3 present as $(basename "$p") in $2"; return 0; }
+  # THE ABORT DISTINGUISHES THE TWO CASES AND PRINTS WHAT IT ACTUALLY FOUND.
+  if [ ! -d "$2" ]; then
+    stage_say "ABORT $1 THE DIRECTORY IS ABSENT: $2"
+    stage_say "  This is a missing directory, NOT a missing field.  $4"
+  else
+    stage_say "ABORT $1 the directory $2 EXISTS but holds NEITHER '${3%.gz}' NOR '${3%.gz}.gz'."
+    stage_say "  WHAT IS ACTUALLY THERE (up to 20 entries): [$(ls -A "$2" 2>/dev/null | head -20 | tr '\n' ' ')]"
+    stage_say "  $4"
+  fi
+  exit 5
+}
+
 if [ "$ARM" = "F_mp" ]; then
   # ------------------------------------------------------------------ S1
   SRC="$D6R_ROOT/O_mp"
@@ -327,12 +376,21 @@ if [ "$ARM" = "F_mp" ]; then
   # ------------------------------------------------------------------ S3
   # THE DOUBLE-DEFORMATION CONFOUND, ELIMINATED BY MEASUREMENT.  D4's arm F died
   # on `Mesh quality error!`; its F3 repair recorded the same md5 on both sides.
-  test -f "$BASE/base/constant/polyMesh/points.gz" || { stage_say "ABORT S3 no reference mesh at $BASE/base"; exit 5; }
-  BASE_MESH_MD5=$(md5sum "$BASE/base/constant/polyMesh/points.gz" | cut -d' ' -f1)
+  # S3 named `points.gz` explicitly -- the SAME assumption as S5's, in the other
+  # direction.  It happens to hold on this case family (constant/polyMesh IS
+  # gzipped), but a tree written without compression would abort here saying the
+  # reference mesh is absent when it is present under the plain name.  Swept in
+  # ADDENDUM 3 so the repair has no unrepaired call site (rule 14).
+  BASE_MESH=$(field_path "$BASE/base/constant/polyMesh" points) || \
+    assert_field "S3 base reference mesh" "$BASE/base/constant/polyMesh" points \
+      "The undeformed reference mesh is this arm's md5 anchor; without it the double-deformation confound cannot be eliminated by measurement."
+  BASE_MESH_MD5=$(md5sum "$BASE_MESH" | cut -d' ' -f1)
   test "$BASE_MESH_MD5" = "$MD5_REF_MESH" || { stage_say "ABORT S3 base reference mesh md5 $BASE_MESH_MD5 != registered $MD5_REF_MESH"; exit 5; }
   for mp in mp04 mp05 mp06; do
-    test -f "$SRC/$mp/constant/polyMesh/points.gz" || { stage_say "ABORT S3 $SRC/$mp has no reference mesh"; exit 5; }
-    M=$(md5sum "$SRC/$mp/constant/polyMesh/points.gz" | cut -d' ' -f1)
+    MP_MESH=$(field_path "$SRC/$mp/constant/polyMesh" points) || \
+      assert_field "S3 $mp reference mesh" "$SRC/$mp/constant/polyMesh" points \
+        "The undeformed reference mesh must be md5-equal to base's or the FD perturbation warps from an already-deformed mesh."
+    M=$(md5sum "$MP_MESH" | cut -d' ' -f1)
     test "$M" = "$MD5_REF_MESH" || {
       stage_say "ABORT S3 $mp reference mesh md5 $M != registered $MD5_REF_MESH"
       stage_say "  The source's UNDEFORMED reference mesh has MOVED, so an FD"
@@ -437,9 +495,13 @@ if [ "$ARM" = "F_mp" ]; then
   test "$REMAIN" -eq 0 || { stage_say "ABORT S5 $REMAIN output time directories remain in the COPY (required 0, dropped $DROPPED of $BEFORE_DROP)"; exit 5; }
   # `0` and `0.orig` SURVIVED, and that is asserted rather than assumed.
   for mp in mp04 mp05 mp06; do
-    test -f "$WORK/$mp/0/U" || { stage_say "ABORT S5 $mp/0/U was dropped -- the initial fields are KEPT, not swept"; exit 5; }
+    assert_field "S5 $mp/0" "$WORK/$mp/0" U \
+      "The RECONSTRUCTED initial fields are KEPT, not swept -- is_time_dir() excludes '0' by name."
     test -d "$WORK/$mp/0.orig" || { stage_say "ABORT S5 $mp/0.orig was dropped -- the pristine backup is KEPT, not swept"; exit 5; }
-    test -f "$WORK/$mp/processor0/0/U" || { stage_say "ABORT S5 $mp/processor0/0/U was dropped -- the decomposed restart state is KEPT"; exit 5; }
+    # THE SITE THAT ABORTED rc=5 ON THE FIRST FIRE.  decomposePar writes these
+    # GZIPPED under writeCompression; the reconstructed sibling above is plain.
+    assert_field "S5 $mp/processor0/0" "$WORK/$mp/processor0/0" U \
+      "The DECOMPOSED restart state is KEPT, not swept.  These fields are gzipped on this case family (U.gz), which the predecessor's plain-name test could not see."
   done
   # AND THE SOURCE IS ASSERTED INTACT: D6R's evidence is not touched.
   # This is a POSITIVE assertion (`> 1`), so unlike S4's comparison it cannot
@@ -498,7 +560,8 @@ else
   done
   test -n "$(ls -d "$WORK"/processor* 2>/dev/null)" && { stage_say "ABORT G-COLD processor* present"; exit 5; }
   test -n "$(ls -d "$WORK"/[0-9]*.[0-9]* 2>/dev/null)" && { stage_say "ABORT G-COLD time dir present"; exit 5; }
-  test -f "$WORK/0/U" || { stage_say "ABORT G-COLD 0/U missing"; exit 5; }
+  assert_field "G-COLD $ARM 0" "$WORK/0" U \
+    "A cold case must carry its initial fields; without them there is nothing to date the age guard from."
   cp -a "$BASE/d4_extract_endpoint.py" "$BASE/d4_opt_runScript.py" \
         "$BASE/d4_endpoint_locus.py" "$BASE/d4_endpoint_physical.py" \
         "$BASE/d6r_opt_runScript.py" "$BASE/d6r_ref_off.py" \
@@ -548,7 +611,23 @@ fi
 
 # ---- THE AGE DATUM IS WRITTEN LAST (section 2a S8, CLAUDE.md rule 4) ------
 touch "$WORK/0"/* || { stage_say "ABORT S8 age-guard datum"; exit 5; }
-AGE_DATUM=$(stat -c '%Y' "$WORK/0/U")
+# THE MOST DANGEROUS OF THE FOUR SITES, AND IT FAILED SILENTLY RATHER THAN LOUDLY.
+# The predecessor read `stat -c %Y "$WORK/0/U"` by the plain name.  On a tree whose
+# `0/` is gzipped, `stat` prints an error to stderr and returns EMPTY -- so
+# AGE_DATUM would be the empty string, `.d4_age_datum` would hold a blank line, and
+# the arm command would carry `--age-datum ` with no value.  The physical wrapper
+# would then refuse, so it fails safe -- but LATE, and with a message about the
+# wrapper rather than about the datum.  Here it is resolved by name and ASSERTED
+# to be a non-empty integer before it is used.
+AGE_SRC=$(field_path "$WORK/0" U) || \
+  assert_field "S8 age datum" "$WORK/0" U \
+    "The age datum is read from this file's mtime; every registered product must be strictly newer than it (CLAUDE.md rule 4)."
+AGE_DATUM=$(stat -c '%Y' "$AGE_SRC")
+case "$AGE_DATUM" in
+  ''|*[!0-9]*) stage_say "ABORT S8 the age datum read from $AGE_SRC is not an integer: '$AGE_DATUM'"
+               stage_say "  An empty or non-numeric datum makes the age guard unenforceable, and rule 4's age guard is PHYSICS."
+               exit 5 ;;
+esac
 echo "$AGE_DATUM" > "$WORK/.d4_age_datum"
 stage_say "D6RF_G_COLD OK arm=$ARM age_datum_epoch=$AGE_DATUM (every registered product must be strictly newer)"
 
