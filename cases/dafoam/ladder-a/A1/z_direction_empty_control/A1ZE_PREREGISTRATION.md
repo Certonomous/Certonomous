@@ -729,3 +729,117 @@ queue row is filed by `dafoam-supervisor` after check 4, or not at all.
 
 **SUBMISSIONS PARKED. Nothing here is sent, filed, uploaded, registered, posted or commented
 outside this box.**
+
+---
+---
+
+# ADDENDUM A — 2026-09-03 — THE LAUNCH PATH, ITS PINS, AND A MEMORY FIGURE CORRECTED
+
+**`lines whose number changed above this section: 0`**
+
+Nothing above this line has been edited. This addendum **alters no gate, no threshold, no cap and
+no label**, and it cannot: it registers the *launch* path, which the freeze did not contain, and it
+corrects one figure that lives in the parked queue row rather than in any registered gate.
+**Zero compute has been spent. The run root `/home/ubuntu/certonomous-runs/A1ZE` is still absent,
+re-asserted by execution at this stamp.**
+
+## A.1 WHY THIS ADDENDUM EXISTS
+
+The freeze fixed the **grading** path (rule 2: "the grading path is fixed at the pre-registration
+commit"). It did not contain a driver, and the supervisor's check-4 read found that: the parked
+row's `launch_cmd` named `a1ze_chain_driver.sh`, **which did not exist**. The registration was not
+the blocker; the absent driver was. The launch path lands here.
+
+## A.2 THE LAUNCH PATH, PINNED
+
+| instrument | role | md5 |
+|---|---|---|
+| `a1ze_chain_driver.sh` | ONE detached process, four arms in order, stops at the first non-zero rc | see `A1ZE_INSTRUMENT_MD5.txt` |
+| `a1ze_stage.py` | stages both arms of a pair from the same sources **and carries the one-variable assert** | ditto |
+| `a1ze_cmd.sh` | the in-container unit program; **captures its own rc to `out/rc.txt`** | ditto |
+| `a1ze_runScript.py` | the primal. **A byte-identical copy of `a1wr_runScript_incomp.py`, md5 `d48f48c5e2e41e86981acbf6feccb3c4`** | ditto |
+| `A1ZE_INSTRUMENT_MD5.txt` | the pins the driver verifies with `md5sum -c` before anything runs | — |
+
+**The runScript is not new code.** A1ZE needs one cold point at a fixed α for a fixed iteration
+count at `np = 1` — exactly A1WR's `COLD` mode with a one-element α list. **Authoring fresh solver
+code that this lane cannot execute would be the larger risk**, and reusing an already-exercised
+frozen instrument means the *only* thing A1ZE varies from A1WR's proven path is the patch type,
+which is the item's whole point. The grader `a1ze_grade.py` is **unchanged at `9b755c3b1a043879a664853a3d747c53`**,
+verified disk == the blob at the freeze commit `03120e2244d52aee5dd79f7e0ea66b4b2940f7fd`.
+
+## A.3 THE ONE-VARIABLE ASSERT — AND ONE DELIBERATE WIDENING, DECLARED
+
+`a1ze_stage.py` stages **both arms of a pair in one invocation from the same sources**, then
+md5-walks both trees and **refuses** unless: the file *sets* are identical; the *only* files that
+differ are the ones the patch legitimately touches; every differing line is a `type` or `inGroups`
+line; each differing line carries **its own arm's registered type**; and no allow-listed file is
+identical between the arms (which would mean the mutation silently did not take).
+
+**⚠ THE WIDENING, DECLARED RATHER THAN DONE QUIETLY.** The supervisor's requirement said the diff
+must be confined to the **`type`** lines. It is confined to `type` **and `inGroups`**. A patch
+cannot be `type empty` while its `inGroups` still reads `1(symmetry)` — that is the same
+"a patch cannot be `empty` in the mesh and `symmetry` in the field" constraint that forced
+`d3f47bfa` to touch 41 files rather than 3, one level down. **`inGroups` is not a second variable;
+it is the same variable's second line.** It appears in no registered gate, so **no gate moves.**
+
+**Both legs proved by execution, on a scratch copy, with the real run root untouched:**
+
+| plant | result |
+|---|---|
+| an untouched file (`case/system/fvSolution`) edited in one arm | **REFUSED** — `A SECOND VARIABLE: 1 file(s) differ that the patch does not touch` |
+| a non-`type` line changed inside a touched file (`0.orig/U` `internalField`) | **REFUSED** — `A SECOND VARIABLE inside case/0.orig/U` |
+| a file removed from one arm (`case/system/fvSchemes`) | **REFUSED** — `arm file SETS differ` |
+| the mutation silently not taking on one file (`0.orig/p`) | **REFUSED** — `the patch was staged but 1 file(s) are IDENTICAL between the arms` |
+| the clean staging | **ADMITTED** — a gate that only ever refuses is as useless as one that never does |
+
+Clean coarse staging, measured: **38 files compared, exactly 10 differ** (`constant/polyMesh/boundary`
+plus the nine `0.orig` fields that declare both planes), **44 differing lines, all `type`/`inGroups`.**
+
+**The treatment type is not a literal in any instrument.** `a1ze_stage.py` parses it out of
+`system/createPatchDict` **at HEAD** (md5 asserted `b06b3285…`) and the control type out of the
+**ancestor blob at `d3f47bfa^`** (md5 asserted `5e897099…`), and refuses if the two agree — because
+then the commit under test changed nothing and there is no experiment. **If `d3f47bfa` is wrong,
+the wrong type is staged and `G-DIRN.E`/`G-U2.E` see it.** That is what makes this a test of the
+commit rather than of a hand-patch.
+
+## A.4 WHAT STOPS THE RUN, AND WHAT DELIBERATELY DOES NOT
+
+**Stops it:** (1) the per-arm `TMO` **inside** the container, surviving the death of the driver,
+the daemon and every agent; (2) the **370.0 core-min item ceiling, checked before every arm** —
+below the 532.0 cap sum by design, so the ceiling binds first. `G-BUDGET` re-derives
+`TMO = int(CAP×60/RANKS) − 60` from the registered cap at run time and refuses on a mismatch, on
+`TMO ≤ 0`, or on a failed exact back-check, rather than trusting the table.
+
+**Does NOT stop it: occupancy and memory.** `occ_wait()` records containers, `MemAvailable` and
+load average to `ledger.txt` and **waits**; it has no refusal branch and cannot consume the entry
+(Sanaa ~21:00Z, ~22:00Z). `d19t_run_arm.sh`'s `G-QUIET` refuse-to-launch form is **not reproduced**.
+
+`docker inspect` is read for `ExitCode` and `OOMKilled` **before** `docker rm`. The in-container
+`out/rc.txt` is **physics-critical**; the docker exit code and the ledger rows are infrastructure —
+except that a *missing* `rc.txt` is not bookkeeping, because it means the unit program never
+reached its own end.
+
+## A.5 ⚠ THE MEMORY FIGURE WAS A GUESS, AND IT IS CORRECTED — `3.0` → `4.0` GiB
+
+**The parked row's `memory_floor_gb = 3.0` had no measurement behind it, and the supervisor was
+right to refuse it.** **Peak RSS for this case family is UNMEASURED and cannot be measured without
+running something, which this lane will not do.**
+
+What *is* measured, from `/home/ubuntu/certonomous-runs/A1WR/STAGE12/CHAIN_LEDGER.tsv` on the
+**identical 130,304-cell L3 mesh**: six `COLD` units at `--memory=3g`, **`OOMKilled=false` on every
+row**, reaching iteration 1800; and two probes at `--memory=4g`, **also `OOMKilled=false`**.
+**A non-OOM observation is an upper bound not reached, not a peak** — and those arms stopped at
+1800 of a 4,000 endTime, so nothing on disk covers a full run.
+
+**Sized conservatively at 4 GiB** — the value already demonstrated non-OOM on this mesh, and 1.33×
+the value demonstrated non-OOM through iteration 1800. **It is labelled a size, not a
+measurement.** It gates nothing: memory is a resource condition and `G-OCC` **queues** on it.
+
+## A.6 STATE AT THIS STAMP
+
+Run root **absent**, re-asserted by execution. **Nothing launched, nothing queued, zero solver
+core-min.** The queue row remains parked at `A1ZE_QUEUE_ROW.parked.json`, outside
+`verification/queue/`, and enters the queue only on `dafoam-supervisor`'s personal check-4 of the
+driver as a diff. The live `W3_chain_r2` container was not touched.
+
+**SUBMISSIONS PARKED.**
