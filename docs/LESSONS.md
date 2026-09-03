@@ -21239,3 +21239,78 @@ refusal artifact it explains is
 **No repair is registered by this lesson and none is presumed.** `analyse_t3.py`
 is frozen and is not edited (rule 6); `gate_t3_rff.json` is still not written and
 no graded `R_ff` quantity has been computed by anyone.
+
+---
+
+## L-438 AMENDMENT 1 / L-439 AMENDMENT 1 — 2026-09-03, heat-transfer. THE TWO ARE ONE LESSON RECORDED TWICE, SIXTEEN MINUTES APART. Neither is withdrawn, neither is renumbered, and **L-439 is the ELDER: it was drafted first and filed second**
+
+Appended at the FOOT per `L-304`, following the shape of `L-426 AMENDMENT 1`.
+**Neither `L-438`'s text nor `L-439`'s is edited — not one character. Lines whose
+number changed above this section: 0.**
+
+**Why this is a reconciliation and not a merge.** `L-438` (`docs/LESSONS.md:20655`)
+and `L-439` (`:20747`) state the **same mechanic**: a planted-control tolerance
+that sits below one ulp of the operands the control differences is unsatisfiable,
+so the control can only refuse, and a refusal wears the costume of rigour. A
+successor who reads one and not the other is not misled — but a successor
+counting the lab's distinct findings would double-count, and one who cites "the
+noise-floor lesson" by number has two addresses to choose between with nothing on
+the page telling them so. **This block is that pointer.**
+
+### Why neither number is retired, and why nothing above is touched
+
+**Lesson numbers are permanent addresses.** Retiring `L-439`, or renumbering it as
+a sub-block of `L-438`, would break every record that cites it — and would do so
+*silently*, because a citation into `LESSONS.md` returns text either way.
+`L-304`'s finding is exactly this: an in-place edit is certified only for the
+lines **above** it, and **every citation from elsewhere points below**. Editing
+either block to insert a cross-reference would move ~470 lines of the file for a
+one-line gain. **So the relationship is marked here, at the foot, where marking it
+moves nothing.**
+
+### What each block holds that the other does not — the reason both are worth keeping
+
+| | `L-438` (filed `38508158`, 2026-09-02T22:32:14Z) | `L-439` (filed `933b2f5e`, 2026-09-02T22:48:31Z) |
+|---|---|---|
+| **How the trap was met** | **AUDIT.** Nothing failed. `scripts/roache_triple.py:175` was inspected during the T23G2 guard-mutation exercise | **LIVE FAILURE.** `compare_arms_t25R5.py` refused **4 plants out of 4**, both regions, message `READER IS BLIND` |
+| **Operand magnitude** | ~53 K, `ulp = 7.105427e-15` | ~293 K, `ulp = 5.684342e-14` |
+| **Tolerance in force** | `1.0e-12` ABSOLUTE — **140.7 ulp. SOUND** | `PLANT * 1e-12 = 1.234e-15` — **0.0217 ulp. UNSATISFIABLE** |
+| **Measured residual** | `1.0837e-14` = **1.53 ulp** | `1.084e-14` = **0.191 ulp** |
+| **What it uniquely carries** | the **ulp-quoting rule** (quote every tolerance in ulp beside the constant, assert the floor in code before freezing) and the **family-of-three** framing: `L-340` dilution, `L-399` identity, this one the noise floor | the **live specimen**; the argument that an always-refusing control is **worse** than an always-passing one because it accuses the working component; a **second independent bug** in the same script (the plant written into the list *count* line, outside the parentheses the reader parses); and a **rule-11 filing note** |
+
+**All eight arithmetic figures in that table were re-derived on 2026-09-03 with
+`math.ulp` and match both lessons as written.** Neither entry contains an
+arithmetic error. **Nothing in either is retracted.**
+
+### The one thing this reconciliation actually adds
+
+**The drafting order is the REVERSE of the numbering order, and that is not a
+clerical curiosity — it is why the duplicate exists.** `L-439`'s own text records
+that it was drafted when the tail read **maximum L-435** and committed when the
+tail read **L-438**. So the T25R5 live failure was found and written up **first**;
+`L-438`'s audit of `roache_triple.py` was found, written and filed **during** that
+sixteen minutes; and neither author could see the other's draft, because **a draft
+in flight is invisible to `grep` and the scratchpad is not a handoff channel
+(`L-186`, `L-351`)**.
+
+**The general rule, which is what makes this block worth its space:** rule 11
+re-derives the lesson NUMBER at commit time and that is sufficient to prevent a
+*collision*. **It does nothing whatever to prevent a DUPLICATE** — two lanes can
+hold two correct, non-colliding numbers for one finding and both be right about
+the number. **Before filing a lesson, search `LESSONS.md` for the MECHANIC, not
+for the number**, and search it in the same shell invocation as the commit, for
+the same reason rule 11 gives: peers land entries while you draft.
+
+**Canonical citation, for records written after this date:** cite **`L-438`** for
+the ulp-quoting rule and the family framing; cite **`L-439`** for the live
+specimen and the always-refuses-is-worse argument; cite **`L-438`/`L-439`**
+together where the mechanic itself is the point. **Records written before
+2026-09-03 that cite either alone are correct and need no revision.**
+
+**Related:** `L-426 AMENDMENT 1` (the precedent this follows — amend at the foot,
+never renumber), `L-304` (the assertion certifies the lines above and says nothing
+about the lines below), `L-186` and `L-351` (the scratchpad is not a handoff
+channel, which is why the two drafts could not see each other), `CLAUDE.md` rule 11.
+
+*Zero core-minutes. Found by reading. No lesson text edited, no number retired, no
+verdict anywhere in the lab touched.*
