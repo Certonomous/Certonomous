@@ -193,3 +193,74 @@ re-derived by this lane from the frozen artifacts named beside it — the price 
 at `T25R5_PREREGISTRATION.md:58-66`, `s_per_step` at `:72-73`, A1.2 at
 `T25R4_PREREGISTRATION.md:443-452`, the deferral at `T25R6a_PREREGISTRATION.md`
 §4.2 — and never from a summary handed down. No case directory exists.*
+
+---
+
+## AMENDMENT v1.1 — 2026-09-03 — **THIS REGISTRATION IS SUPERSEDED BY `T25R6c` AND WITHDRAWN BEFORE ANY COMPUTE. THE DEFECT IS IN ITS DESIGN, NOT ITS CASE SOURCE.**
+
+**Lines whose number changed above this section: 0.** Nothing above is edited, reordered,
+inserted or deleted (rule 6). **Zero solver compute; 0 core-min; $0.00.** **No gate,
+threshold, cap or label above is altered by this amendment** — the design they belong to
+is withdrawn entire.
+
+**STATE AT WITHDRAWAL: NO COMPUTE, NO CASE DIRECTORY, NO ENQUEUED ROW.**
+`verification/runs/T-family/T25R6b_runs/W400_L1` never existed — verified, and its absence
+is the same condition rule 2 requires an amendment to state and to say how it was checked.
+Nothing is re-graded, no verdict is withdrawn, and no row anywhere depends on this document.
+
+### A1.1 THE GROUND — the instrument contained 29.7 % of the bias it existed to bound
+
+§2 registered `ρ` over **400 steps at `deltaT 0.02`**. Reading the case family *before*
+binding a case source to it — the check that produced this amendment — established that a
+ladder run is **two legs**: leg A at `deltaT 0.02` and leg B at `deltaT 0.1`
+(`run_one_t25R4.sh:111-127`). The registered ladder step count resolves exactly:
+**`S1` leg A `70/0.02` = 3,500 + leg B `830/0.1` = 8,300 = 11,800**, matching
+`T25R5_PREREGISTRATION.md:58-66` to the digit.
+
+> **70.3 % of ladder steps are leg-B steps at a 5× larger timestep.** A1.2's ramp→soak
+> bias therefore has **two components** — window position **and** the `deltaT` regime
+> change — and **this document's instrument contained only the first.** A registration
+> that measures 29.7 % of a bias and is read as bounding all of it is **worse than no
+> registration**: it would have produced a confident number, wrong in a direction nobody
+> would have checked.
+
+Compounding it, §6's **400 steps at `deltaT 0.02` to `t = 8 s` is leg A of nothing
+registered** — `C4_L1`'s leg A ends at 0.8 s and the ladder's at 70 s. **The span was
+invented.**
+
+**AND IT COULD NOT HAVE BEEN REPAIRED BY AMENDMENT.** A corrected `ρ` requires a new cap,
+and rule 2 forbids an amendment that alters a cap. Supersession was the only lawful route.
+
+### A1.2 ⚡ §6's "TWO INDEPENDENT ROUTES" CLAIM IS **STRUCK** — it is a tautology
+
+§6 asserted the per-step rate was *"derived two independent ways and agreeing to six
+significant figures"*: `1,881.6 / 11,800 = 0.1594576` and `(229.62/48) × 2/60 =
+0.1594583`.
+
+> **~~STRUCK.~~** `POINT(S1)` was **built** as `N × r(L1) × 2/60` (A1.1's frozen formula),
+> so dividing it back by `N` recovers `r(L1) × 2/60` **by algebra**. The two figures agree
+> because **they are the same number**. This was a **false corroboration**, it was carried
+> upward before it was caught, and it is struck here rather than rewritten (rule 6).
+
+**The rate's VALUE is unaffected** and remains sound as a conservative cap basis.
+**Genuine, independent corroboration exists and points the other way:** `B0_L1`'s own
+40-step run measures **0.1094000 core-min/step** against the probe's **0.1594583** —
+**the probe rate is 1.4576× the arm rate.** A1.2's bias is already visible on disk. That
+measured number is carried into `T25R6c` §1 as evidence.
+
+### A1.3 WHAT SURVIVES INTO `T25R6c`, UNCHANGED
+
+The **same-run construction** (arm, mesh, ranks and `0/` identical between numerator and
+denominator), the **falsifier** `ρ ≥ 1.0`, the **plateau clause evaluated first** in
+rule-5 shape, the **REPORTED-never-gated** ceiling-relief clause, `T25R5` §5.1 carried in
+force, and **the cap priced at `ρ = 1` so it cannot censor its own falsifier**. Only the
+windows, the span and the cap change.
+
+### A1.4 DISPOSITION OF THE HELD QUEUE ROW
+
+`verification/queue/heat-transfer/held/T25R6b_W400_L1.json` — which the runner's own
+validator **REFUSED** (`EXEC: cwd … does not exist`) and which therefore never entered the
+queue path — is **WITHDRAWN**, not re-pointed. A row pointing at a superseded design is
+worse than no row.
+
+**Successor:** `docs/campaigns/T-family/T25R6c_PREREGISTRATION.md`.
