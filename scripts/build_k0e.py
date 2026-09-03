@@ -154,10 +154,46 @@ def build(arm, ref, out_root, foam_bashrc):
 
     # ---- system/, copied verbatim except controlDict --------------------
     os.makedirs(os.path.join(case, "system"), exist_ok=True)
-    for f in ("fvSchemes", "decomposeParDict", "blockMeshDict"):
+    for f in ("decomposeParDict", "blockMeshDict"):
         src = os.path.join(ref, "system", f)
         if os.path.isfile(src):
             shutil.copy2(src, os.path.join(case, "system", f))
+
+    # fvSchemes: the reference's, PLUS the one entry it could not carry.
+    #
+    # The reference is a simpleFoam case.  It solves no energy equation, so its
+    # divSchemes has no `div(phi,T)` and its `default none;` makes the omission
+    # fatal rather than silent -- buoyantBoussinesqSimpleFoam refuses to start
+    # (measured: rc=1 in 0 wall s, FOAM FATAL IO ERROR, attempt 1 preserved at
+    # K0e_runs/FP_T10.attempt1_MISSING_div_phi_T_FAILED).
+    #
+    # THE SCHEME IS THE LADDER'S OWN, NOT THIS FILE'S CHOICE.  `bounded Gauss
+    # limitedLinear 1` is what K0f (M1_c/system/fvSchemes line 22) and K0cS
+    # (S_SST_c/system/fvSchemes line 28) register for div(phi,T).  K0e exists to
+    # be comparable to those rungs, so it adopts their scheme rather than
+    # inventing one.
+    #
+    # IT DOES NOT TOUCH ANY MOMENTUM-RELEVANT SCHEME.  div(phi,U), gradSchemes,
+    # laplacianSchemes, snGradSchemes and interpolationSchemes are copied
+    # byte-unchanged, so M4 -- the only gated row -- is unaffected by this edit.
+    with open(os.path.join(ref, "system", "fvSchemes")) as fh:
+        fvsch = fh.read()
+    if "div(phi,T)" in fvsch:
+        refuse("the reference fvSchemes already carries div(phi,T); refusing "
+               "rather than inserting a second, possibly conflicting entry")
+    fvsch2 = fvsch.replace(
+        "    div(phi,U)                      bounded Gauss linearUpwind grad(U);",
+        "    div(phi,U)                      bounded Gauss linearUpwind grad(U);\n"
+        "    div(phi,T)                      bounded Gauss limitedLinear 1;")
+    if "div(phi,T)" not in fvsch2:
+        refuse("fvSchemes edit did not take: no div(phi,T) entry was produced. "
+               "Refusing rather than starting a solver that cannot discretise "
+               "its own energy equation.")
+    if fvsch2.count("div(phi,U)") != fvsch.count("div(phi,U)"):
+        refuse("fvSchemes edit changed the div(phi,U) entry count; refusing "
+               "rather than running with a momentum scheme this edit touched")
+    with open(os.path.join(case, "system", "fvSchemes"), "w") as fh:
+        fh.write(fvsch2)
 
     # fvSolution: the reference's, with `p` renamed to `p_rgh` and T added.
     # The rename is the ONLY change to the momentum-relevant settings, and it is
@@ -194,6 +230,16 @@ def build(arm, ref, out_root, foam_bashrc):
     # ---- constant/ ------------------------------------------------------
     shutil.copy2(os.path.join(ref, "constant", "turbulenceProperties"),
                  os.path.join(case, "constant", "turbulenceProperties"))
+    # The mesh's birth certificate travels WITH the mesh, so the case carries
+    # its own measured quality figures and the grader never has to reach into
+    # another directory to learn whether this mesh is orthogonal.
+    bc = os.path.join(ref, "constant", "birth_certificate.json")
+    if os.path.isfile(bc):
+        shutil.copy2(bc, os.path.join(case, "constant", "birth_certificate.json"))
+    else:
+        refuse(f"{bc} missing: the grader asserts the mesh's MEASURED "
+               f"non-orthogonality before it reads any wall gradient, and it "
+               f"cannot do that from a mesh with no birth certificate.")
     with open(os.path.join(case, "constant", "transportProperties"), "w") as fh:
         fh.write(HEADER.format(cls="dictionary", loc="constant",
                                obj="transportProperties"))

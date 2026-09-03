@@ -488,3 +488,100 @@ and the entry stays scheduled. **That is not a block, not a refusal and not a
 *Registered by a heat-transfer lane on the supervisor's decision, 2026-09-03.
 This lane assigns the rung no verdict. Nothing was sent, filed, uploaded,
 registered or posted — submissions are PARKED.*
+
+---
+
+# AMENDMENT 1 — 2026-09-03. **THIS PRE-REGISTRATION IS SUPERSEDED BY `K0eR2_PREREGISTRATION.md`.** Version 1.0 → **1.1**
+
+**Appended at the foot. Nothing above is edited** (standing rule 6).
+**Lines whose number changed above this section: 0.**
+
+**That assertion is MEASURED, not asserted.** In the invocation that wrote this
+amendment:
+
+| | |
+| --- | --- |
+| lines above this section, before the append | **490** |
+| sha256 of the file before the append | `f3b60bc005508c6e7c70416721af55b5b01bc5f3afef7cfa511c81a36b22436d` |
+| sha256 of the first 490 lines of the file after the append | **recomputed and required to EQUAL the row above, else the write is abandoned** |
+| `git diff --numstat` on the landing commit | required to read **`<additions> 0`** — zero deletions |
+
+**Nothing in this amendment alters a gate, a threshold, a cap or a label of the
+document above.** It records that the document is superseded and names its
+successor. The gate change itself is made **in the successor, frozen before that
+successor's first compute**, and NOT here — see §A1.3.
+
+---
+
+## A1.1 WHY SUPERSEDED RATHER THAN AMENDED
+
+**A solver has executed once against this registration** — `K0e_FP_T10`, launched
+by the daemon at 2026-09-03T19:23:00Z, exited **rc=1 in 0 wall seconds** with
+`Entry 'div(phi,T)' not found in dictionary "system/fvSchemes/divSchemes"`. It
+produced **no fields, no time directory and no result**, and the attempt is
+preserved at
+`verification/runs/F14-cooling-ladder/K0e_runs/FP_T10.attempt1_MISSING_div_phi_T_FAILED/`.
+
+**Standing rule 2 closes gates at first compute.** A failed launch that produced
+nothing could be read as "not compute", and that reading would be convenient
+here, because the change §A1.3 describes is a change to this document's own
+gate. **The supervisor refused that permissive reading explicitly** and directed
+supersession instead. **The gate is not moved inside a document whose gates are
+closed; a successor is frozen before its own first compute, where the freeze is
+genuinely prediction-first and nothing is fitted to anything.**
+
+This is the mechanism the lab already used for `T25R6b` → `T25R6c`. It costs one
+document and no compute.
+
+## A1.2 THE TWO DEFECTS THIS DOCUMENT CARRIED
+
+1. **`div(phi,T)` was never registered.** §4.1 registered the case as "identical
+   to the reference in schemes". The reference is a `simpleFoam` case; it solves
+   no energy equation, so its `divSchemes` correctly carries no `div(phi,T)`, and
+   its `default none;` turns that inherited omission into a **launch-time fatal**
+   rather than a silent default. **The one scheme the thermal arm needs is the
+   one scheme a momentum reference cannot carry.**
+2. **The gated row could not answer its own gating question.** See §A1.3.
+
+## A1.3 THE GATE MOVES FROM `M4` TO `M4b` — IN THE SUCCESSOR, NOT HERE
+
+**§5.1 of the document above gates `M4`, the cross-solver comparison, and states
+the gating reason as: a momentum field that moved means `beta`/`g` were not
+neutralised.**
+
+**`M4` cannot answer that question.** §6.1 above already records, from the
+installed OpenFOAM v2606 source, that `simpleFoam` solves
+`UEqn == -fvc::grad(p)` while `buoyantBoussinesqSimpleFoam` solves
+`UEqn == fvc::reconstruct((-ghf*snGrad(rhok) - snGrad(p_rgh))*magSf)` — **different
+discrete operators, differing independently of `beta` and `g`.** A non-zero `M4`
+therefore **conflates "`beta`/`g` leaked" with "the two operators are not
+identical" and cannot separate them.**
+
+**`M4b` can.** It compares the **same binary** at two wall temperatures, so the
+operator confound **cancels exactly**; with `beta = 0` the thermal field cannot
+enter the momentum equation, so a moved momentum field means one thing only.
+
+**In the successor: `M4b` is the single gated row at 0 ULP, and `M4` becomes
+REPORTED, NOT GATED, with the source finding recorded as the reason it cannot
+gate.** Neither change is made to the document above.
+
+## A1.4 WHAT SURVIVES INTO THE SUCCESSOR UNCHANGED
+
+The reference and its title-page verification (§2); **no band on the correlation,
+and §3's reasoning verbatim**; the case, the two arms and their physics (§4); the
+three planted zeros **including the vector plant** (§8.1); the strict completion
+rule and the age guard (§8.2); **no Roache triple, no GCI** (§8.3); the
+`writePrecision 10` secondary limit — **0 ULP necessary, not sufficient**; and
+**`GATE FAIL` unreachable**.
+
+## A1.5 WHAT THIS AMENDMENT DOES NOT DO
+
+- **It does not retire, widen or amend any standard, gate threshold or charter
+  clause.** Those are Sanaa's alone.
+- **It does not delete or edit anything above.**
+- **It does not grade anything.** No verdict is assigned by this amendment.
+- **The §9 pins above are SUPERSEDED, not re-cut here.** The successor re-cuts
+  every pin in its own freezing commit.
+
+*Amendment by a heat-transfer lane on the supervisor's ruling of 2026-09-03.
+Nothing sent — submissions are PARKED.*

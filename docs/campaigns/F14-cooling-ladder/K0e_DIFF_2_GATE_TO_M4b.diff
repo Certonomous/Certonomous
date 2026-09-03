@@ -1,0 +1,267 @@
+--- a/scripts/analyse_k0e.py  (K0e-frozen blob 695becd6, superseded)
++++ b/scripts/analyse_k0e.py  (K0eR2 blob 25ecaa6b: gate M4 -> M4b, orthogonality from checkMesh, M3 as convergence)
+@@ -8,15 +8,28 @@
+ 
+ WHAT THIS FILE MAY AND MAY NOT PRODUCE
+ --------------------------------------
+-Exactly ONE row is GATED: **M4**, the bit-for-bit momentum control.  Its
++Exactly ONE row is GATED: **M4b**, the SAME-SOLVER neutralisation control --
++`FP_T10` against `FP_T00`, the same binary at two wall temperatures.  Its
+ threshold is **0 ULP** and it is stated in ULP of the operands, never as a
+ hardcoded "equivalent" tolerance constant.  Any non-zero ULP distance is a hard
+ `NOT A RESULT` for the rung.
+ 
+ The gating reason, in the form Sanaa's 2026-09-03 20:00Z ruling requires:
+-  *Without M4, the verdict on the Stanton attribution cannot be trusted, because
+-  a momentum field that moved means beta and g were not actually neutralised and
+-  the attribution of any Stanton-number error to the thermal closure is void.*
++  *Without M4b, the verdict on the Stanton attribution cannot be trusted, because
++  a momentum field that moved when only the wall temperature changed means beta
++  and g were not actually neutralised, and the attribution of any Stanton-number
++  error to the thermal closure is void.*
++
++**M4 -- the cross-solver comparison against the recorded `simpleFoam` field -- is
++REPORTED, NOT GATED, and the reason is a source finding rather than a
++preference.**  `simpleFoam/UEqn.H` solves `UEqn == -fvc::grad(p)` while
++`buoyantBoussinesqSimpleFoam/UEqn.H` solves
++`UEqn == fvc::reconstruct((-ghf*snGrad(rhok) - snGrad(p_rgh))*magSf)`.  Those are
++DIFFERENT DISCRETE OPERATORS and they differ INDEPENDENTLY of beta and g, so a
++non-zero M4 conflates "beta/g leaked" with "the two operators are not identical"
++and cannot separate them.  A gate that cannot answer its own gating question is
++not a gate.  M4b compares one binary with itself, so the operator confound
++cancels exactly, and it IS a clean test of that question.
+ 
+ EVERY OTHER ROW IS REPORTED, NOT GATED -- the lab default since that ruling.
+ In particular the Stanton comparison against equation (1) carries **NO BAND**:
+@@ -568,16 +581,57 @@
+         Tw = read_patch_values(t_path, PLATE_PATCH, False, n_faces)
+         at_w = read_patch_values(at_path, PLATE_PATCH, False, n_faces)
+ 
++    # THE ORTHOGONALITY EVIDENCE IS checkMesh's MEASUREMENT, NOT A RE-DERIVATION
++    # FROM TWO ROUNDED NUMBERS.  A first version of this reader asserted
++    # |x_cell - x_face| <= 1e-12 and REFUSED on the preflight case at plate face
++    # 14, where the two coordinates read 0.007521543256 and 0.007521543255.
++    # That is a difference of one unit in the TENTH significant digit -- exactly
++    # the resolution of `writePrecision 10` -- so the assertion was testing ASCII
++    # round-off and calling it non-orthogonality.  The mesh's actual measured
++    # non-orthogonality is asserted here instead, from the figure checkMesh
++    # produced, and the per-face check is reduced to what it can honestly be: a
++    # consistency bound at the WRITTEN precision.
++    bc_path = os.path.join(case, "constant", "birth_certificate.json")
++    if not os.path.isfile(bc_path):
++        refuse(f"{bc_path} missing: this reader treats the wall gradient as a "
++               f"pure y-difference, which is exact only on an orthogonal mesh, "
++               f"and it will not assume orthogonality it has not read.")
++    import json
++    with open(bc_path) as fh:
++        bc = json.load(fh)
++    if "max_non_orthogonality" not in bc:
++        refuse(f"{bc_path} carries no max_non_orthogonality field")
++    if float(bc["max_non_orthogonality"]) != 0.0:
++        refuse(f"{bc_path} reports max_non_orthogonality "
++               f"{bc['max_non_orthogonality']}, not 0.  The wall gradient below "
++               f"is (value_face - value_owner)/d, which is EXACT only at zero "
++               f"non-orthogonality; refusing rather than reporting a Stanton "
++               f"number built on a correction this reader does not apply.")
++
++    # ONE unit in the 10th significant digit, from `writePrecision 10`, doubled
++    # as margin.  DERIVED from the write format, not a chosen epsilon: the two
++    # coordinates are rounded INDEPENDENTLY and can round in opposite
++    # directions, so their difference is bounded by a full unit in the last
++    # place, which for a leading digit of 1 is 1e-9 relative.
++    #
++    # THE CHECK KEEPS ITS DISCRIMINATING POWER, and this was MEASURED on the
++    # preflight case rather than argued: the worst |x_cell - x_face| over all
++    # 208 plate faces is 1.000000e-09 (pure round-off), while the SMALLEST
++    # plate cell spacing is 4.493756e-04 m.  A genuinely misaligned face would
++    # show a difference of order that spacing -- FIVE ORDERS OF MAGNITUDE above
++    # this bound.  The bound sits in the gap, not near either edge.
++    WRITE_PRECISION_BOUND = 2e-9
++
+     rows = []
+     for i in range(n_faces):
+         o = owner[start_face + i]
+         xf, yf, _ = fc[i]
+         xc, yc, _ = cc[o]
+-        if abs(xc - xf) > 1e-12 * max(1.0, abs(xf)):
++        if abs(xc - xf) > WRITE_PRECISION_BOUND * max(1.0, abs(xf), abs(xc)):
+             refuse(f"plate face {i}: owner cell centre x {xc!r} differs from "
+-                   f"face centre x {xf!r}.  The registration reads the wall "
+-                   f"gradient as a y-difference on an orthogonal mesh; refusing "
+-                   f"rather than projecting on an assumed normal.")
++                   f"face centre x {xf!r} by more than the written precision "
++                   f"can explain.  The wall-normal direction is not +y for this "
++                   f"face; refusing rather than projecting on an assumed normal.")
+         d = abs(yc - yf)
+         if d <= 0.0:
+             refuse(f"plate face {i}: zero wall distance")
+@@ -609,7 +663,21 @@
+     On the cavity, D424 measured this pinned at EXACTLY 0.8500 in every cell --
+     a better stress closure forced by a constant into being a worse heat-flux
+     closure.  This row asks whether the same transmission holds on a flow whose
+-    momentum closure is the best-validated thing this lab owns."""
++    momentum closure is the best-validated thing this lab owns.
++
++    WHAT A DEPARTURE FROM 0.85 HERE ACTUALLY MEASURES, and it is NOT physics.
++    `buoyantBoussinesqSimpleFoam` sets `alphat = nut/Prt` in TEqn.H and then
++    updates `nut` in `turbulence->correct()` LATER IN THE SAME OUTER ITERATION,
++    so the two written fields are ONE TURBULENCE CORRECTION APART.  Any spread
++    in this ratio is therefore the residual change in `nut` over one outer
++    iteration -- a CONVERGENCE diagnostic -- and never a physical variation of
++    the turbulent Prandtl number, which is a compile-time constant in this
++    solver.  MEASURED on the 5-iteration preflight case: min 0.4391, max 1.5470,
++    zero cells at exactly 0.85, on a field that is nowhere near converged.  A
++    converged solve should drive the spread toward zero, and THAT is the honest
++    reading of this row: it confirms the transmission D424 found -- alphat is
++    slaved to nut by a constant, so this quantity cannot report on the physics
++    at all -- rather than measuring a Prandtl number."""
+     tdir = os.path.join(case, str(END_TIME))
+     nut = read_scalar_field(field_path(tdir, "nut"))
+     at = read_scalar_field(field_path(tdir, "alphat"))
+@@ -686,9 +754,12 @@
+         print(f"  {arm}: {'DONE' if ok else 'NOT DONE'}")
+         for i in sorted(cl):
+             print(f"      clause {i}: {cl[i]}")
+-    if not done[GRADED_ARM]:
+-        print(f"\nM4       {NOT_A_RESULT}   {GRADED_ARM} is NOT DONE under the "
+-              f"strict completion rule")
++    # The GATED row is M4b, which needs BOTH arms.  A gated row that cannot be
++    # measured cannot yield a PASS.
++    if not (done[GRADED_ARM] and done[CONTROL_ARM]):
++        missing = [a for a in ARMS if not done[a]]
++        print(f"\nM4b      {NOT_A_RESULT}   NOT DONE under the strict "
++              f"completion rule: {' '.join(missing)}")
+         print(f"RUNG     {NOT_A_RESULT}")
+         return EXIT_OK
+ 
+@@ -706,40 +777,50 @@
+     print(f"  P3 negative control 0.0 -> read back {rec['P3']['read_back']!r}"
+           f"   DID NOT FIRE")
+ 
+-    # ---- M4, THE ONLY GATED ROW ---------------------------------------
+-    print("\n--- M4  MOMENTUM CONTROL, THE ONLY GATED ROW ---")
++    # ---- M4b, THE ONLY GATED ROW --------------------------------------
++    print("\n--- M4b SAME-SOLVER NEUTRALISATION CONTROL, THE ONLY GATED ROW ---")
++    print("  FP_T10 vs FP_T00: the SAME binary and the SAME discrete operators,")
++    print("  differing ONLY in the wall temperature.  With beta = 0 the thermal")
++    print("  field cannot enter the momentum equation at all, so the operator")
++    print("  confound cancels EXACTLY and this is a clean test of whether beta")
++    print("  and g were neutralised.")
+     print("  threshold: 0 ULP, on every component of every cell, processor-local.")
+     print("  There is no tolerance constant in this comparator.")
++    m4b = ulp_compare_U(case_g, case_c, GRADED_ARM, CONTROL_ARM)
++    print(f"  cells compared             {m4b['cells']} x 3 components")
++    print(f"  components at non-zero ULP {m4b['components_nonzero']}")
++    print(f"  worst ULP distance         {m4b['worst_ulp']}")
++    if m4b["worst_ulp"]:
++        print(f"  worst at                   {m4b['where']}   "
++              f"|diff| {m4b['worst_abs']:.6e} m/s   (REPORTED beside the "
++              f"verdict, NOT a threshold)")
++    m4b_pass = (m4b["worst_ulp"] == 0)
++    print(f"  M4b {PASS if m4b_pass else NOT_A_RESULT}")
++
++    # ---- M4, REPORTED, NOT GATED --------------------------------------
++    print("\n--- M4  CROSS-SOLVER MOMENTUM COMPARISON (REPORTED, NOT GATED) ---")
++    print("  FP_T10 against the recorded simpleFoam field.  It is NOT gated, and")
++    print("  the reason is read from the installed source rather than preferred:")
++    print("    simpleFoam:                 UEqn == -fvc::grad(p)")
++    print("    buoyantBoussinesqSimpleFoam: UEqn == fvc::reconstruct(")
++    print("                                   (-ghf*snGrad(rhok)")
++    print("                                    - snGrad(p_rgh))*magSf)")
++    print("  Those are DIFFERENT DISCRETE OPERATORS and they differ INDEPENDENTLY")
++    print("  of beta and g, so a non-zero M4 conflates 'beta/g leaked' with 'the")
++    print("  operators are not identical' and cannot separate them.  A gate that")
++    print("  cannot answer its own gating question is not a gate.")
+     m4 = ulp_compare_U(case_g, reference, GRADED_ARM, "simpleFoam reference")
+-    print(f"  cells compared            {m4['cells']} x 3 components")
++    print(f"  cells compared             {m4['cells']} x 3 components")
+     print(f"  components at non-zero ULP {m4['components_nonzero']}")
+     print(f"  worst ULP distance         {m4['worst_ulp']}")
+     if m4["worst_ulp"]:
+         print(f"  worst at                   {m4['where']}")
+         print(f"  worst pair                 {m4['worst_pair'][0]!r} vs "
+-              f"{m4['worst_pair'][1]!r}   (|diff| {m4['worst_abs']:.6e} m/s, "
+-              f"REPORTED beside the verdict, not a threshold)")
+-    m4_pass = (m4["worst_ulp"] == 0)
+-    print(f"  M4  {PASS if m4_pass else NOT_A_RESULT}")
+-
+-    # ---- M4b, the DISCRIMINATOR, REPORTED not gated --------------------
+-    print("\n--- M4b SAME-SOLVER NEUTRALISATION CONTROL (REPORTED, not gated) ---")
+-    print("  FP_T10 vs FP_T00: the SAME binary and the SAME discrete operators,")
+-    print("  differing only in the wall temperature.  With beta = 0 the thermal")
+-    print("  field cannot enter the momentum equation, so this must be 0 ULP.")
+-    print("  It DISCRIMINATES a beta/g leak from a solver-identity difference,")
+-    print("  which M4 alone cannot separate.")
+-    if not done[CONTROL_ARM]:
+-        print(f"  M4b {UNMEASURED}  {CONTROL_ARM} is NOT DONE")
+-        m4b = None
+-    else:
+-        m4b = ulp_compare_U(case_g, case_c, GRADED_ARM, CONTROL_ARM)
+-        print(f"  worst ULP distance         {m4b['worst_ulp']}   "
+-              f"({m4b['components_nonzero']} components non-zero)")
+-        if m4b["worst_ulp"]:
+-            print(f"  worst at                   {m4b['where']}   "
+-                  f"|diff| {m4b['worst_abs']:.6e} m/s")
+-        print(f"  M4b {REPORTED}")
++              f"{m4['worst_pair'][1]!r}   (|diff| {m4['worst_abs']:.6e} m/s)")
++    print(f"  M4  {REPORTED}")
++    print("  NOTE, and it is the whole point of the pair: M4b at 0 ULP with M4")
++    print("  non-zero is the SIGNATURE of the operator difference and of nothing")
++    print("  else.  M4b non-zero is a beta/g leak, whatever M4 reads.")
+ 
+     # ---- M1 / M2, REPORTED --------------------------------------------
+     rows_g = wall_rows(case_g, T_WALL_THERMAL, DT_THERMAL)
+@@ -786,6 +867,11 @@
+         print(f"  spread {p['spread']:.6e}")
+         print(f"  cells at EXACTLY Prt = {PRT} (0 ULP): {p['exactly_0p85']} of "
+               f"{p['cells'] - p['zero_alphat']}")
++    print("  READ THIS ROW AS A CONVERGENCE DIAGNOSTIC, NOT AS PHYSICS: alphat")
++    print("  is set to nut/Prt in TEqn.H and nut is updated LATER in the same")
++    print("  outer iteration, so the two written fields are one turbulence")
++    print("  correction apart.  Prt is a constant in this solver and cannot")
++    print("  vary; the spread measures how much nut still moves per iteration.")
+     print(f"  M3  {REPORTED}")
+ 
+     print("\n--- M5  THERMAL BOUNDARY LAYER AND NEAR-WALL alphat [REPORTED] ---")
+@@ -818,23 +904,25 @@
+ 
+     # ---- the rung verdict ------------------------------------------------
+     print("\n" + "=" * 78)
+-    if m4_pass:
+-        print(f"RUNG K0e   {PASS}  on M4, the only gated row.  Every other row is")
+-        print("           REPORTED, not gated.  No band is armed on the")
+-        print("           correlation, so this rung CANNOT GATE FAIL and its")
+-        print("           Stanton agreement is NOT a validation of the thermal")
+-        print("           closure -- see the pre-registration section 2.1.3 on")
+-        print("           circularity.")
++    if m4b_pass:
++        print(f"RUNG K0eR2 {PASS}  on M4b, the only gated row: the momentum field")
++        print("           is bit-identical between the two wall temperatures, so")
++        print("           beta and g ARE neutralised and a Stanton error on this")
++        print("           rung is attributable to the thermal closure alone.")
++        print("           Every other row is REPORTED, not gated.  No band is")
++        print("           armed on the correlation, so this rung CANNOT GATE FAIL,")
++        print("           and its Stanton agreement is NOT a validation of the")
++        print("           thermal closure -- see the pre-registration section")
++        print("           2.1.3 on circularity.")
++        print(f"           M4 (cross-solver) reads {m4['worst_ulp']} ULP, REPORTED.")
+     else:
+-        print(f"RUNG K0e   {NOT_A_RESULT}.  M4 is non-zero: the momentum field")
+-        print("           moved, so beta and g were not demonstrated neutral by")
+-        print("           this control, and the attribution of any Stanton error")
+-        print("           to the thermal closure is VOID.  The reported rows above")
+-        print("           stand as measurements and as NOTHING MORE.")
+-        if m4b is not None:
+-            print(f"           M4b (same solver, same operators) reads "
+-                  f"{m4b['worst_ulp']} ULP -- see the pre-registration section 5.1")
+-            print("           for what that discriminates.")
++        print(f"RUNG K0eR2 {NOT_A_RESULT}.  M4b is non-zero: the momentum field")
++        print("           moved when ONLY the wall temperature changed, on the")
++        print("           same binary and the same discrete operators.  beta and")
++        print("           g were therefore NOT neutralised, and the attribution")
++        print("           of any Stanton error to the thermal closure is VOID.")
++        print("           The reported rows above stand as measurements and as")
++        print("           NOTHING MORE.")
+     print("=" * 78)
+     return EXIT_OK
+ 
