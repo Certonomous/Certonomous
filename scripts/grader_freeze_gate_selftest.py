@@ -148,17 +148,23 @@ def run() -> int:  # noqa: C901 -- a flat list of controls reads better than a f
     cwd1 = tmp / "case_violation"; cwd1.mkdir()
     e_bad = {**_base(c_drift, cwd1, "GFG_VIOLATION"), "grading_paths": [GRADER]}
     v1, launched1, refused1 = drive(e_bad, "GFG_VIOLATION")
-    txt1 = ""
-    rtxt = root / "cfd" / "refused" / "GFG_VIOLATION.REFUSED.txt"
-    if rtxt.exists():
-        txt1 = rtxt.read_text()
-    check("A1 PLANTED VIOLATION: an entry whose comparator does NOT hash to what its "
-          "frozen registration pinned is REFUSED by the live tick() -- moved to "
-          "refused/, never launched, and the reason names GRADER-FREEZE",
-          v1 == "REFUSED-ONLY" and refused1.exists() and not launched1.exists()
-          and "GRADER-FREEZE" in txt1,
-          f"tick={v1} refused={refused1.exists()} launched={launched1.exists()} "
-          f"named={'GRADER-FREEZE' in txt1}")
+    stamp1 = {}
+    if launched1.exists():
+        stamp1 = (json.loads(launched1.read_text()).get(gfg.GRADING_FREEZE_STAMP) or {})
+    check("A1 PLANTED MISMATCH *LAUNCHES*, AND IS RECORDED: an entry whose comparator "
+          "does NOT hash to what its frozen registration pinned goes through the live "
+          "tick() to launched/, NEVER to refused/, and its record carries verdict "
+          "MISMATCH with predicts=GRADING_WILL_REFUSE. THIS ARM INVERTED on 2026-09-03 "
+          "~21:00Z -- it asserted REFUSED-ONLY until Sanaa ruled 'a pre-registration "
+          "mismatch never prevents a launch'; the reading is unchanged, its consequence "
+          "moved from blocking the run to predicting its grading",
+          v1 == "LAUNCHED" and launched1.exists() and not refused1.exists()
+          and stamp1.get("verdict") == "MISMATCH"
+          and stamp1.get("predicts") == "GRADING_WILL_REFUSE"
+          and stamp1.get("kind") == "PREDICTION" and "actual" in stamp1,
+          f"tick={v1} launched={launched1.exists()} refused={refused1.exists()} "
+          f"verdict={stamp1.get('verdict')} predicts={stamp1.get('predicts')} "
+          f"actual={stamp1.get('actual')!r} walked={str(stamp1.get('walked_commit'))[:12]}")
 
     # --- A2 THE PERMIT DIRECTION + THE WRONG-OBJECT CONTROL ------------------------
     # FREEZE_ENFORCEMENT_SPEC section 3 arm 3: a case where a DIFFERENT file moved while
@@ -209,14 +215,23 @@ def run() -> int:  # noqa: C901 -- a flat list of controls reads better than a f
     # The SAME violating entry, validated with GRADER-FREEZE REMOVED from CHECKS, must
     # come back CLEAN. If it does not, A1's refusal was never this guard's and the
     # guard is not shown load-bearing.
+    # RE-POINTED 2026-09-03 ~21:00Z. It used to prove A1's REFUSAL came from this guard
+    # and nothing else. There is no refusal left to attribute, so attributing one would be
+    # a control asserting a fact that is no longer true. What must now be shown is the
+    # pair Sanaa's rule turns on: the check contributes NO refusal, and the reading is
+    # NOT thereby lost -- it lands on the record instead.
     without = {k: v for k, v in qec.CHECKS.items() if k != "GRADER-FREEZE"}
     fails_with = qec.validate(e_bad, REPO, None)
     fails_without = qec.validate(e_bad, REPO, None, without)
-    check("A4 MUTATION/VISIBILITY LIMB: with GRADER-FREEZE removed from CHECKS the same "
-          "violating entry is validated CLEAN -- so A1's refusal is produced by THIS "
-          "guard and by nothing else that would have fired anyway",
-          any(f.startswith("GRADER-FREEZE") for f in fails_with) and not fails_without,
-          f"with={len(fails_with)} without={len(fails_without)}")
+    check("A4 NO REFUSAL, AND THE READING SURVIVES ANYWAY: the same MISMATCH entry "
+          "validates identically WITH and WITHOUT GRADER-FREEZE mounted -- neither "
+          "contributes a refusal -- while the launched record still carries the MISMATCH "
+          "state. So the check cannot block a run, and the reading is not what was given "
+          "up to achieve that",
+          not any(f.startswith("GRADER-FREEZE") for f in fails_with)
+          and fails_with == fails_without and stamp1.get("verdict") == "MISMATCH",
+          f"with={len(fails_with)} without={len(fails_without)} "
+          f"identical={fails_with == fails_without} recorded={stamp1.get('verdict')}")
 
     # --- A5 A GRADER THAT DID NOT EXIST AT THE FREEZE -------------------------------
     # Board 47 measured 2 rows launched with a grader that did not exist at their
@@ -225,20 +240,31 @@ def run() -> int:  # noqa: C901 -- a flat list of controls reads better than a f
     e_af = {**_base(c_drift, cwd5, "GFG_ABSENT_FREEZE"),
             "grading_paths": ["scripts/grader_freeze_gate.py"]}
     v5, launched5, refused5 = drive(e_af, "GFG_ABSENT_FREEZE")
-    check("A5 ABSENT-AT-FREEZE: a comparator that did not exist in the tree the freeze "
-          "commit fixes is REFUSED -- a sha cannot pin a file that was not there",
-          v5 == "REFUSED-ONLY" and refused5.exists() and not launched5.exists(),
-          f"tick={v5} verdict={gfg.grading_freeze_record(e_af, REPO)['verdict']}")
+    st5 = (json.loads(launched5.read_text()).get(gfg.GRADING_FREEZE_STAMP) or {}
+           ) if launched5.exists() else {}
+    check("A5 ABSENT-AT-FREEZE LAUNCHES AND IS RECORDED (INVERTED): a comparator that did "
+          "not exist in the tree the freeze commit fixes is recorded, not refused -- a sha "
+          "cannot pin a file that was not there, and verification's artifact-absent vs "
+          "evidence-absent distinction is kept as a RECORDED finding after Sanaa ruled "
+          "record-and-launch",
+          v5 == "LAUNCHED" and not refused5.exists()
+          and st5.get("verdict") == "ABSENT-AT-FREEZE",
+          f"tick={v5} recorded={st5.get('verdict')} predicts={st5.get('predicts')}")
 
     # --- A6 A PATH THAT ESCAPES THE REPO -------------------------------------------
     cwd6 = tmp / "case_escape"; cwd6.mkdir()
     e_esc = {**_base(c_match, cwd6, "GFG_ESCAPE"),
              "grading_paths": ["../../../etc/passwd"]}
     v6, launched6, refused6 = drive(e_esc, "GFG_ESCAPE")
-    check("A6 MALFORMED: a grading path that escapes the repository is REFUSED, not "
-          "silently normalised into something the pin appears to cover",
-          v6 == "REFUSED-ONLY" and refused6.exists() and not launched6.exists(),
-          f"tick={v6}")
+    st6 = (json.loads(launched6.read_text()).get(gfg.GRADING_FREEZE_STAMP) or {}
+           ) if launched6.exists() else {}
+    check("A6 MALFORMED IS RECORDED, NEVER NORMALISED (INVERTED): a grading path escaping "
+          "the repository is recorded MALFORMED rather than quietly rewritten into "
+          "something the pin appears to cover. It launches now, and the escaping path is "
+          "NEVER OPENED -- _normalise() returns None before any read, so nothing outside "
+          "the repository is touched at launch",
+          v6 == "LAUNCHED" and st6.get("verdict") == "MALFORMED",
+          f"tick={v6} recorded={st6.get('verdict')}")
 
     # --- A7 THE UNREGISTERED EXEMPTION IS AN EXEMPTION, NOT A PASS ------------------
     cwd7 = tmp / "case_feas"; cwd7.mkdir()
@@ -266,20 +292,31 @@ def run() -> int:  # noqa: C901 -- a flat list of controls reads better than a f
         cwd8 = tmp / "case_absent_disk"; cwd8.mkdir()
         e_ad = {**_base(c_match, cwd8, "GFG_ABSENT_DISK"), "grading_paths": [cand]}
         v8, launched8, refused8 = drive(e_ad, "GFG_ABSENT_DISK")
-        check("A8 ABSENT-ON-DISK: a comparator frozen at the registration but missing "
-              "from the working tree is REFUSED -- the run would have nothing to grade it",
-              v8 == "REFUSED-ONLY" and refused8.exists() and not launched8.exists(),
-              f"tick={v8} path={cand}")
+        st8 = (json.loads(launched8.read_text()).get(gfg.GRADING_FREEZE_STAMP) or {}
+               ) if launched8.exists() else {}
+        check("A8 ABSENT-ON-DISK LAUNCHES AND IS RECORDED (INVERTED): a comparator frozen "
+              "at the registration but missing from the working tree is recorded, not "
+              "refused. The run will have nothing to grade it -- that is now a PREDICTION "
+              "the certificate tests, not a reason to withhold the compute",
+              v8 == "LAUNCHED" and st8.get("verdict") == "ABSENT-ON-DISK",
+              f"tick={v8} recorded={st8.get('verdict')} path={cand}")
 
     # --- A9 THE PIN IS DERIVED, SO IT CANNOT BE SELF-CERTIFIED ----------------------
     # A row that writes a matching-looking sha beside a drifted comparator must still
     # be refused: the pin comes from prereg_commit, never from a field the row supplies.
     e_lie = {**e_bad, "grader_sha": disk, "grading_sha": disk}
-    check("A9 NO SELF-CERTIFICATION: adding a field that states the drifted grader's own "
-          "disk sha does NOT clear the refusal -- the pin is derived from prereg_commit, "
-          "so the party who drifted the comparator cannot also write its alibi",
-          any(f.startswith("GRADER-FREEZE") for f in qec.validate(e_lie, REPO, None)),
-          "grader_sha/grading_sha ignored by construction")
+    rec_lie = gfg.grading_freeze_record(e_lie, REPO)
+    check("A9 NO SELF-CERTIFICATION (INVERTED to the recorded state): adding a field that "
+          "states the drifted grader's own disk sha does NOT clean the RECORD -- it still "
+          "reads MISMATCH, because the pin is derived from prereg_commit and never from a "
+          "field the row supplies. It used to say 'does not clear the refusal'; there is "
+          "no refusal left, and the property it was protecting matters just as much now: "
+          "a row that could self-certify would write a FALSE CLEAN ROW into the "
+          "calibration dataset, which is worse than evading a block because it survives",
+          rec_lie["verdict"] == "MISMATCH"
+          and rec_lie["predicts"] == "GRADING_WILL_REFUSE",
+          f"verdict={rec_lie['verdict']} predicts={rec_lie['predicts']} "
+          f"(grader_sha/grading_sha ignored by construction)")
 
     # --- A10 THE EMPTY-POPULATION REFUSAL (section 2p.2 at the METRIC's level) -------
     # FAILED BEFORE THIS REPAIR, measured: the walk returned total=0, eligible=0 and rc 0,
@@ -303,14 +340,26 @@ def run() -> int:  # noqa: C901 -- a flat list of controls reads better than a f
     # refused into refused/ and the walk over that same root then reported total=0,
     # MISMATCH=0. Acting on the violation ERASED it from the metric, which is the one
     # way section 2s.4 says this kind of number can leave the lab worse off than none.
+    # RE-POINTED 2026-09-03 ~21:00Z, and the reason is worth stating: GRADER-FREEZE no
+    # longer refuses anything, so refused/ can no longer be populated by a freeze
+    # mismatch. THE D2 DEFECT IS UNCHANGED -- other checks still refuse into refused/, and
+    # a walk blind to that directory still loses those rows -- so the repair stands and
+    # the control is planted through a SCHEMA refusal instead. Honest note on what the
+    # walk means now: refused/ is far less trafficked than it was under the refusing
+    # design, so this counts a smaller population than it would have; it is not zero, and
+    # a walk that silently omits a directory is wrong at any population size.
+    e_schema = {k: v for k, v in _base(c_match, cwd1, "GFG_SCHEMA_REFUSED").items()
+                if k != "ranks"}
+    vS, launchedS, refusedS = drive(e_schema, "GFG_SCHEMA_REFUSED")
     cov = gfg.coverage(root, REPO)
-    check("A11 A REFUSED VIOLATION IS COUNTED, NOT ERASED: after A1's MISMATCH row was "
-          "refused into refused/, the pin reading over the same root still counts it -- "
-          "in its own state's tally AND in a separate refused column, so the number "
-          "cannot be improved by hiding a violation",
-          cov["tally"].get("MISMATCH", 0) >= 1 and cov["refused_total"] >= 1
-          and cov["refused_tally"].get("MISMATCH", 0) >= 1,
-          f"MISMATCH={cov['tally'].get('MISMATCH', 0)} refused_total={cov['refused_total']} "
+    check("A11 A ROW IN refused/ IS COUNTED, NOT ERASED: a row refused by another check "
+          "(SCHEMA) lands in refused/, and the pin reading over the same root still walks "
+          "and counts it in a separate refused column -- before this repair the walk "
+          "globbed only queued and launched, so acting on a violation ERASED it from the "
+          "population, which is the one way this kind of number can be improved by hiding "
+          "something",
+          vS == "REFUSED-ONLY" and refusedS.exists() and cov["refused_total"] >= 1,
+          f"tick={vS} refused_total={cov['refused_total']} "
           f"refused_tally={dict(sorted(cov['refused_tally'].items()))} "
           f"rows_walked={cov['total']}")
 
@@ -372,13 +421,15 @@ def run() -> int:  # noqa: C901 -- a flat list of controls reads better than a f
             e_reg = {**_base(fix_sha, cwdA, "GFG_REG_WINS"), "prereg_path": "PREREG.md"}
             vA, launchedA, refusedA = drive(e_reg, "GFG_REG_WINS")
             recA = gfg.grading_freeze_record(e_reg, fixrepo)
-            check("A13 THE REGISTRATION PINS WHAT THE ENTRY OMITS: an entry declaring NO "
-                  "comparator, whose FROZEN REGISTRATION declares one that has since "
-                  "drifted, is REFUSED -- before D8 this row read UNPINNED and launched, "
-                  "so omitting the field was a way out of the pin",
-                  vA == "REFUSED-ONLY" and refusedA.exists() and not launchedA.exists()
-                  and recA["verdict"] == "MISMATCH",
-                  f"tick={vA} verdict={recA['verdict']} field={recA['field']}")
+            check("A13 THE REGISTRATION PINS WHAT THE ENTRY OMITS (INVERTED to record): "
+                  "an entry declaring NO comparator, whose FROZEN REGISTRATION declares "
+                  "one that has since drifted, is RECORDED MISMATCH from the registration "
+                  "-- before D8 this row read UNPINNED, so omitting the field erased the "
+                  "prediction entirely. It launches either way; what changed is that the "
+                  "dataset now has a row instead of a hole",
+                  vA == "LAUNCHED" and not refusedA.exists()
+                  and recA["verdict"] == "MISMATCH" and recA["source"] == "REGISTRATION",
+                  f"tick={vA} verdict={recA['verdict']} source={recA['source']}")
 
             # A14: registration says X, entry says Y. Section 2s.6: never choose.
             cwdB = tmp / "case_conflict"; cwdB.mkdir()
@@ -387,11 +438,13 @@ def run() -> int:  # noqa: C901 -- a flat list of controls reads better than a f
                      "grading_paths": ["scripts/analyse_y.py"]}
             vB, launchedB, refusedB = drive(e_con, "GFG_DECL_CONFLICT")
             recB = gfg.grading_freeze_record(e_con, fixrepo)
-            check("A14 DISAGREEMENT REFUSES, IT DOES NOT PICK: a registration naming "
-                  "comparator X against an entry naming comparator Y is REFUSED "
-                  "(DECLARATION-CONFLICT) -- and note comparator Y is UNDRIFTED, so a "
-                  "guard that silently preferred the entry would have PASSED this row",
-                  vB == "REFUSED-ONLY" and refusedB.exists() and not launchedB.exists()
+            check("A14 DISAGREEMENT IS RECORDED, IT IS NEVER PICKED (INVERTED): a "
+                  "registration naming comparator X against an entry naming comparator Y "
+                  "is recorded DECLARATION-CONFLICT and launches. Comparator Y is "
+                  "UNDRIFTED, so a reader that silently preferred the entry would have "
+                  "written a CLEAN prediction over a poisoned one -- the failure moved "
+                  "from a wrong refusal to a wrong dataset row, and is no less a failure",
+                  vB == "LAUNCHED" and not refusedB.exists()
                   and recB["verdict"] == "DECLARATION-CONFLICT",
                   f"tick={vB} verdict={recB['verdict']}")
 
@@ -406,6 +459,52 @@ def run() -> int:  # noqa: C901 -- a flat list of controls reads better than a f
                   f"verdict={recC['verdict']}")
         finally:
             qr.REPO = saved_repo
+
+    # --- A17 THE RULED FIELD NAME, AND THE LEGACY SPELLING THAT MUST NOT BE DROPPED ---
+    # The chief ruled the entry field is `grading_freeze` (2026-09-03). `grading_paths`
+    # stays a tolerated alias because THE ONLY PINNED ROW ON DISK IS WRITTEN AGAINST IT,
+    # and Sanaa's same-day reform makes the pin backfill FORWARD-ONLY -- old rows are
+    # read, never rewritten. A rename that stranded that row would have LOOKED like a
+    # tidy-up and would have silently returned a protected run to the tolerant default.
+    cwdN = tmp / "case_newname"; cwdN.mkdir()
+    e_new = {**_base(c_drift, cwdN, "GFG_NEWNAME"), gfg.GRADING_FREEZE_FIELD: [GRADER]}
+    recN = gfg.grading_freeze_record(e_new, REPO)
+    e_old = {**_base(c_drift, cwdN, "GFG_OLDNAME"), "grading_paths": [GRADER]}
+    recO = gfg.grading_freeze_record(e_old, REPO)
+    check("A17 RULED NAME AND LEGACY ALIAS BOTH READ: an entry declaring the ruled field "
+          f"{gfg.GRADING_FREEZE_FIELD!r} and one declaring the legacy 'grading_paths' "
+          "reach the SAME verdict on the same drifted comparator -- the rename strands "
+          "no row, and the only PINNED row on disk is written against the legacy name",
+          recN["verdict"] == "MISMATCH" and recO["verdict"] == "MISMATCH"
+          and recN["field"] == gfg.GRADING_FREEZE_FIELD and recO["field"] == "grading_paths",
+          f"ruled={recN['verdict']}/{recN['field']} legacy={recO['verdict']}/{recO['field']}")
+
+    # --- A18 THE FIELD-PAIRING GUARD, PLANTED IN EACH DIRECTION ----------------------
+    # THE HAZARD: the entry field `grading_freeze` and the record stamp `_grading_freeze`
+    # differ by ONE LEADING UNDERSCORE. A typo either way makes the field read as ABSENT
+    # -> UNPINNED -> tolerant default -> THE RUN LAUNCHES, silently, looking exactly like
+    # the 290 rows already in that state. A guard that only works when nobody makes the
+    # mistake it guards against is not a guard, so it is planted in BOTH directions here.
+    clean_now = gfg.field_pairing_check()
+    saved_field, saved_stamp = gfg.GRADING_FREEZE_FIELD, gfg.GRADING_FREEZE_STAMP
+    fired = {}
+    try:
+        gfg.GRADING_FREEZE_STAMP = "_grading_freezes"       # typo in the OUTPUT stamp
+        fired["stamp_typo"] = bool(gfg.field_pairing_check())
+        gfg.GRADING_FREEZE_STAMP = saved_stamp
+        gfg.GRADING_FREEZE_FIELD = "grading_freez"          # typo in the INPUT field
+        fired["field_typo"] = bool(gfg.field_pairing_check())
+        gfg.GRADING_FREEZE_FIELD = saved_field
+        gfg.GRADING_FREEZE_STAMP = "grading_freeze"         # the underscore simply dropped
+        fired["underscore_dropped"] = bool(gfg.field_pairing_check())
+    finally:
+        gfg.GRADING_FREEZE_FIELD, gfg.GRADING_FREEZE_STAMP = saved_field, saved_stamp
+    check("A18 FIELD-PAIRING GUARD FIRES IN EVERY DIRECTION AND IS QUIET WHEN CORRECT: "
+          "a typo planted in the output stamp, in the input field, and as a dropped "
+          "underscore each produce a refusal, while the real pairing produces none -- so "
+          "the guard is shown load-bearing rather than merely present",
+          not clean_now and all(fired.values()) and not gfg.field_pairing_check(),
+          f"clean={not clean_now} planted={fired} restored_clean={not gfg.field_pairing_check()}")
 
     skip("A16 REGISTRATION-UNREADABLE",
          "the blob-exists-but-unreadable shape cannot be planted without corrupting a "

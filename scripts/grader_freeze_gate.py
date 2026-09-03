@@ -7,36 +7,45 @@ etc/sessions/2026-09-03T1730Z_sanaa_mesh_standard_and_freeze_enforcement.md:42-4
      match its frozen registration -- enforcement at the choke point first,
      primitive is fine"
 
+⚠⚠ THIS FILE IS A RECORDER AND NOT A REFUSER, AND IT USED TO BE A REFUSER.
+SANAA-DIRECT 2026-09-03 ~21:00Z (etc/sessions/2026-09-03T2100Z_sanaa_launch_rule.md),
+verbatim: "A pre-registration mismatch never prevents a launch. It's recorded as a
+prediction, the run launches under the monitor, and the outcome is compared to the
+prediction on the certificate.  Pre-registration predicts; the monitor watches; the
+grader judges afterward."  On this exact category -- her list's "Freeze or procedural
+state -- registration not frozen, pin missing, lesson not filed" -- she is explicit:
+"record and launch.  A missing pin or unfiled lesson is bookkeeping and can be completed
+while the solve runs."  NOTHING HERE STOPS A LAUNCH ANY MORE; `refusals()` returns the
+empty list unconditionally, on its first statement, with no branch above it.
+
 WHAT THIS FILE IS.  The primitive that answers ONE question about ONE queue entry:
 does the comparator this entry names still hash to what its frozen registration
-pinned?  It decides; it never moves, writes, launches or grades anything.  Two
-callers use it, and only the first can refuse:
+pinned?  It reads; it never moves, writes, launches, refuses or grades anything.
+Two callers use it and NEITHER can refuse:
 
-  * queue_entry_check.CHECKS["GRADER-FREEZE"] -- the LIVE refusal.  queue_runner.tick()
-    calls qec.validate(entry, REPO, path) and routes any non-empty failure list
-    straight into move_refused().  That is the daemon's one and only refusal choke
-    point and this check now sits in it.
+  * queue_entry_check.CHECKS["GRADER-FREEZE"] -- RECLASSIFIED TO REPORTING under
+    Sanaa's ~20:00Z reform ("reporting checks run, log, and attach to the certificate;
+    they never block a solve from starting").  It is still mounted in the live validator
+    so the classification is visible AT THE MOUNT POINT rather than being an absence a
+    reader has to notice, and it contributes no refusal.
     CITED BY SYMBOL, NOT BY LINE, DELIBERATELY.  Every by-line citation of
     queue_runner.py in this repository that was checked on 2026-09-03 was STALE --
     four records cite `queue_runner.py:223` for list_entries(), which lives at :440,
     an error of 217 lines.  A citation that rots silently is worse than none.
-  * queue_runner.launch() -- the RECORD.  Stamps `_grading_freeze` on the launched
-    record so step (2) can COUNT coverage off disk instead of re-deriving it.
+  * queue_runner.launch() -- THE RECORD, AND NOW THE WHOLE POINT.  Stamps the harvestable
+    prediction on the launched record under gfg.GRADING_FREEZE_STAMP.
 
-WHERE THE CHOKE POINT ACTUALLY IS, AND WHY THIS IS NOT A DEAD LIMB.  Measured
-2026-09-03, not assumed: scripts/queue_runner.py has NO grading step.  main() loops
-on tick(); tick() runs cap_watch() (which reports, never grades) and launch().  Of
-the 306 queue entries on disk carrying a launch_cmd, exactly TWO name a grader
-(ansys VMFL033-R2 and VMFL076-R2, both `run_vmfl0XX_r2.sh graded`); the other 304
-launch a solver and grading happens afterwards, by hand or inside the run script.
+WHERE THE READING SITS, AND WHY IT IS NOT A DEAD LIMB.  Measured 2026-09-03, not
+assumed: scripts/queue_runner.py has NO grading step.  main() loops on tick(); tick()
+runs cap_watch() (which reports, never grades) and launch().  Of the 306 queue entries
+on disk carrying a launch_cmd, exactly TWO name a grader (ansys VMFL033-R2 and
+VMFL076-R2); the other 304 launch a solver and grading happens afterwards.
 
-So a hook placed at "where the daemon grades" would never fire -- the pathology this
-codebase already carries twice (`launcher_rc`: one write, six selftest references,
-zero production reads; `cap_watch` retiring on `status.exists()` without ever parsing
-it).  THE HONEST CHOKE POINT IS THE LAUNCH, and refusing there is strictly STRONGER
-than refusing at grading: a run whose comparator cannot be pinned never burns the
-core-minutes in the first place.  What it does NOT cover is stated plainly in
-COVERAGE below, because an enforcement claim wider than its mechanism is the failure
+So the reading attaches at the launch -- the one place in this daemon where every run
+passes through and a record can be written against it.  Under the old design that was
+the refusal point; under Sanaa's rule it is the PREDICTION point, and the prediction is
+worth more than the refusal was, because it accumulates.  What it does NOT cover is
+stated plainly below, because a claim wider than its mechanism is the failure
 this lab keeps paying for.
 
 THE PIN IS DERIVED, NEVER DECLARED.  The entry names only a PATH.  The pinned sha is
@@ -66,26 +75,25 @@ fixed gate vocabulary (PASS / GATE REACHED / GATE FAIL / NOT A RESULT / BLOCKED 
 PENDING), which grades physics results and is not this file's to spend.  Nothing here
 attaches a verdict to any run.
 
-THE TOLERANT DEFAULT, AND HOW IT STAYS VISIBLE.  An entry with no grading-path field
-is UNPINNED and is NOT refused.  That is a deliberate choice with a measured reason:
-all 306 entries on disk lack the field, so refusing on absence would refuse the
-lab's entire queue on the day it landed -- a brick, not a gate.  But "no field,
-therefore grade it anyway" silently reproduces today's state, so UNPINNED is made
-COUNTABLE in three places, none of them prose:
-    1. `_grading_freeze.verdict` stamped on every launched record (queue_runner.launch);
-    2. a `GRADER-FREEZE <case>: UNPINNED` line in verification/queue/runner.log;
+EVERY STATE IS RECORDED AND EVERY STATE LAUNCHES.  There is no longer a "tolerant
+default" set against a strict one -- UNPINNED, MISMATCH and everything between are read,
+written down, and launched.  What was once the tolerance is now the rule, and the reading
+is made COUNTABLE in three places, none of them prose:
+    1. the harvestable prediction stamped on every launched record under
+       GRADING_FREEZE_STAMP (queue_runner.launch);
+    2. a `GRADER-FREEZE <case>: <state>` line in verification/queue/runner.log;
     3. `--pin-reading <queue root>`, which walks the queue and prints the per-state
        breakdown with the commit it was walked at.
-UNPINNED is refusal-ELIGIBLE, not refused: flipping `--strict` turns the same reading
-into a refusal with no change to what is measured.
 
-THE SUNSET IS SANAA'S AND NO AGENT SETS IT.  VERIFICATION_CHARTER §2s.2 rules that the
-third outcome (proceed-and-count) "carries a sunset or it is permanent" -- at the sunset
-UNPINNED becomes a refusal.  THE MECHANISM EXISTS HERE (`--strict`, one flag, nothing
-else changes) AND THE DATE DOES NOT.  The date is recorded, when she sets it, in
-`docs/charters/VERIFICATION_CHARTER.md` §2s -- named here so its ABSENCE IS VISIBLE
-RATHER THAN IMPLIED.  `--strict` has no default-on path and never self-activates; no
-figure this file emits may be read as having reached a sunset condition.
+THE SUNSET QUESTION IS DISSOLVED, NOT ANSWERED, AND THAT ITEM COMES OFF SANAA'S DESK.
+VERIFICATION_CHARTER §2s.2 required the proceed-and-count outcome to "carry a sunset or
+it is permanent" -- at the sunset, UNPINNED would become a refusal -- and the date was
+referred to Sanaa as an open item.  HER ~21:00Z RULING REMOVES THE THING THE SUNSET WOULD
+HAVE ARRIVED AT: nothing refuses at launch, so there is no stricter state to sunset into
+and no date to set.  `--strict` was the mechanism and IS REMOVED rather than left dormant,
+because a flag that no longer means what its name says is worse than no flag.  The §2s.2
+clause is not violated by this; it is superseded on its own subject by a later and higher
+ruling, and the referral is WITHDRAWN rather than left open on her desk.
 
 THIS FILE EMITS NO §2s.4 COVERAGE FIGURE, DELIBERATELY.  §2s.4's coverage is
 judged / total over the GRADER population that check_comparator_freeze walks (40 of
@@ -97,10 +105,47 @@ file prints carries its HEAD sha; and a stop condition written as a bare count -
 "145/145" an earlier draft of this docstring cited -- names a target that RECEDES as
 the lab works, and is not used here.
 
-THE FIELD NAME IS PROPOSED, NOT SETTLED.  `grading_paths` is this lane's proposal;
-the schema field name is an OPEN QUESTION ON THE CHIEF'S DESK (cfd board 47).
-GRADING_PATHS_FIELD and GRADING_PATHS_ALIASES below are the single place it is
-written down; a ruling renames it there and nowhere else.
+THE FIELD NAME IS RULED: `grading_freeze` (chief, 2026-09-03), chosen to match the
+runner's existing `_grading_freeze` stamp key so no second vocabulary enters the schema.
+`grading_paths` -- this lane's earlier proposal -- REMAINS A TOLERATED ALIAS and must
+stay one: a live row is written against it (T25R6a, the only PINNED row on disk), and
+dropping the spelling would silently return it to UNPINNED.  Sanaa's 2026-09-03 ~20:00Z
+reform makes the pin backfill FORWARD-ONLY, so old spellings are read, never rewritten.
+
+⚠ AND THE RULED NAME CREATES A FAIL-OPEN SHAPE, WHICH IS WHY field_pairing_check()
+EXISTS.  The INPUT field `grading_freeze` and the OUTPUT stamp `_grading_freeze` now
+differ by ONE LEADING UNDERSCORE.  A typo in either direction reads as an absent field
+-> UNPINNED -> A PREDICTION SILENTLY NOT MADE.  Under the old refusing design the typo
+would have opened a hole in a gate; under the recording design it does something quieter
+and, for a calibration dataset, just as bad -- IT DROPS ROWS OUT OF THE DATASET WITHOUT
+ANY ROW SAYING SO, and a dataset with silent holes is the planted-zero failure wearing a
+different coat.  So the stamp is DERIVED from the field rather than typed twice,
+queue_runner writes it through that constant instead of a string literal, and the pairing
+is CHECKED AT IMPORT and refuses.  A guard that only works when nobody makes the mistake
+it guards against is not a guard.
+
+CLASSIFICATION UNDER SANAA'S 2026-09-03 ~20:00Z REFORM: **REPORTING**, and after her
+~21:00Z launch ruling that classification is not a judgement call -- reporting checks
+"run, log, and attach to the certificate; they never block a solve from starting", which
+is exactly and only what this file now does.
+THE GATING REASON STILL EXISTS AND STILL BITES, ONE STEP DOWNSTREAM.  *"Without a
+comparator present at freeze and present on disk, the verdict on that run cannot be
+trusted, because nothing computed it"* -- and for MISMATCH: without a comparator whose
+bytes are the bytes its registration froze, the verdict cannot be trusted, because the
+script that produced it may have been chosen after the answer was known (rule 2).  Those
+sentences are TRUE and they GATE AT GRADING, in the frozen comparator, which refuses
+(exit 2) rather than degrade under rule 4.  Sanaa: "The rule changes WHEN the gate
+applies -- after the fact, on evidence -- not WHETHER it applies."
+
+⚠ COVERAGE REPORTING IS SUSPENDED AND THIS FILE PUBLISHES NO RATIO.  Her reform: *"no
+instrument is built to measure another instrument's reach unless the first instrument has
+already changed a verdict at least once"*, and *"coverage ratios forward-only,
+unreported."*  THIS ENFORCER HAS CHANGED ZERO VERDICTS -- it fires at launch, and every
+row it has met was already launched.  Verification has suspended their own limb-(2)
+coverage report on the same ground.  `--pin-reading` therefore prints the per-state
+census as an INTERNAL ENGINEERING FIGURE and DELIBERATELY PRINTS NO FRACTION; the
+counts stay available in the returned dict for a caller that needs them and are not
+published, quoted upward, or logged as a ratio.
 
 USAGE
     python3 scripts/grader_freeze_gate.py <entry.json> [<entry.json> ...]
@@ -126,13 +171,84 @@ from pathlib import Path
 
 EXIT_REFUSE = 2
 
-# THE PROPOSED SCHEMA FIELD. Name NOT final -- on the chief's desk (cfd board 47).
+# THE RULED SCHEMA FIELD (chief, 2026-09-03). THE SINGLE PLACE THE NAME IS WRITTEN.
 # A list, because a rung can be graded by more than one comparator, and because a
 # scalar that later needs to be a list is a migration nobody performs.
-GRADING_PATHS_FIELD = "grading_paths"
-# Tolerated spellings, so a ruling that picks another name does not strand rows
-# written against this one. Read in order; the first present wins.
-GRADING_PATHS_ALIASES = (GRADING_PATHS_FIELD, "grader_paths", "comparator_paths")
+GRADING_FREEZE_FIELD = "grading_freeze"
+# THE OUTPUT STAMP IS DERIVED, NEVER TYPED A SECOND TIME. queue_runner.launch() writes
+# meta[gfg.GRADING_FREEZE_STAMP], not a string literal, so there is exactly ONE spelling
+# of this name in the codebase and the underscore-typo has nowhere to live. The import
+# guard below still checks the pairing, because a derivation can itself be edited.
+GRADING_FREEZE_STAMP = "_" + GRADING_FREEZE_FIELD
+# Tolerated spellings, read in order, first present wins. `grading_paths` is NOT dead
+# history: the only PINNED row on disk is written against it, and Sanaa's 2026-09-03
+# reform makes the pin backfill FORWARD-ONLY -- old rows are read, never rewritten.
+GRADING_PATHS_ALIASES = (GRADING_FREEZE_FIELD, "grading_paths", "grader_paths",
+                         "comparator_paths")
+# Kept as the old symbol name so no caller or record that referenced it is stranded.
+GRADING_PATHS_FIELD = GRADING_FREEZE_FIELD
+
+
+def field_pairing_check() -> list[str]:
+    """THE INPUT FIELD AND THE OUTPUT STAMP MUST BE THE UNDERSCORE PAIR. Refuses at import.
+
+    THE HAZARD, STATED BEFORE THE MECHANISM. `grading_freeze` (what an entry declares)
+    and `_grading_freeze` (what the launched record is stamped with) differ by one
+    character. A typo in either -- `grading_freezes`, `_grading_freez`, a dropped
+    underscore -- makes the field read as ABSENT. An absent field is UNPINNED, UNPINNED
+    is the tolerant default, and the tolerant default LAUNCHES. The failure is silent,
+    logs nothing unusual, and is indistinguishable from the state 290 rows are in today.
+
+    This returns the reasons it is unhappy rather than raising, so a control can plant
+    the typo in each direction and watch it fire (a guard never seen to fail is not known
+    to be load-bearing, L-314). The module-level caller below turns a non-empty list into
+    a refusal at import time.
+
+    NO `assert` (L-332): `python3 -O` deletes asserts, and this guard must survive it.
+    """
+    bad: list[str] = []
+    if GRADING_FREEZE_STAMP != "_" + GRADING_FREEZE_FIELD:
+        bad.append(
+            f"FIELD-PAIRING: the entry field {GRADING_FREEZE_FIELD!r} and the record "
+            f"stamp {GRADING_FREEZE_STAMP!r} are not the underscore pair. A row written "
+            f"against either spelling would read as declaring NOTHING, and an entry that "
+            f"declares nothing LAUNCHES under the tolerant default.")
+    if GRADING_FREEZE_FIELD not in GRADING_PATHS_ALIASES:
+        bad.append(
+            f"FIELD-PAIRING: the ruled field {GRADING_FREEZE_FIELD!r} is absent from the "
+            f"alias tuple actually read by declared_paths(), so a correctly written entry "
+            f"would be invisible to the reader and would launch unpinned.")
+    # THE OUTPUT SIDE, CHECKED WHERE IT IS ACTUALLY WRITTEN. The pairing above is a
+    # statement about two constants in this file; the stamp that reaches disk is written
+    # by queue_runner, and a literal reintroduced there would defeat both constants
+    # without touching either. This limb is skipped only if the file is absent (this
+    # instrument is legitimately runnable standalone), and the skip is reported, not
+    # silent -- "could not check" and "checked clean" must never be the same reading.
+    qr_src = Path(__file__).resolve().parent / "queue_runner.py"
+    if qr_src.is_file():
+        try:
+            text = qr_src.read_text()
+        except OSError as exc:
+            bad.append(f"FIELD-PAIRING: queue_runner.py exists and could not be read "
+                       f"({exc}); the stamp it writes could not be checked, which is not "
+                       f"the same as checking it clean.")
+            text = ""
+        if text:
+            literals = set(re.findall(r"""["'](_?grading_freeze\w*)["']""", text))
+            if literals:
+                bad.append(
+                    f"FIELD-PAIRING: queue_runner.py writes the stamp as STRING "
+                    f"LITERAL(S) {sorted(literals)} instead of gfg.GRADING_FREEZE_STAMP. "
+                    f"A second spelling of this name is exactly the typo surface this "
+                    f"guard exists to remove.")
+            if "GRADING_FREEZE_STAMP" not in text:
+                bad.append(
+                    "FIELD-PAIRING: queue_runner.py references GRADING_FREEZE_STAMP "
+                    "nowhere, so nothing stamps the launched record under the ruled name "
+                    "and every launch would silently record no freeze reading at all.")
+    return bad
+
+
 
 FULL_SHA_CHARS = set("0123456789abcdef")
 
@@ -142,25 +258,57 @@ FULL_SHA_CHARS = set("0123456789abcdef")
 # is EXEMPT here -- exempt is not covered, and --pin-reading counts it in its own column.
 UNREGISTERED_PREREG_TAGS = frozenset({"FEASIBILITY", "PHYSICS"})
 
-# States that must stop a launch. Everything else is a reading, not a refusal.
+# The states that ARE a pre-registration mismatch. THEY REFUSE NOTHING. The name says
+# `RECORDED` because that is now the whole of their effect: each is written onto the
+# launched record as a prediction that grading will refuse, and the run launches.
 #
-# THE LAST TWO ARE §2s.6's, ADDED 2026-09-03 WITH D8, AND NEITHER CAN FIRE ON ANY ROW
-# ON DISK TODAY -- measured, not assumed: zero registrations in this repository carry a
-# GRADING_PATHS declaration, so there is nothing yet for a conflict to be between and
-# nothing yet to be unreadable. They refuse a condition that does not exist yet, which
-# is the only honest moment to install a refusal.
-REFUSING_STATES = ("MISMATCH", "ABSENT-AT-FREEZE", "ABSENT-ON-DISK", "MALFORMED",
-                   "DECLARATION-CONFLICT", "REGISTRATION-UNREADABLE")
+# ⚠⚠ THIS SET REFUSED LAUNCHES UNTIL 2026-09-03 ~21:00Z AND THE HISTORY IS RECORDED
+# BECAUSE IT WENT THREE WAYS IN ONE HOUR -- a reader who sees only the current state
+# would reasonably assume nobody had thought about it.
+#   1. cfd built ABSENT-AT-FREEZE and ABSENT-ON-DISK as refusals, noticed that §2s.2
+#      assigns unconditional refusal to MISMATCH alone, and REFERRED the two rather than
+#      conforming quietly or moving a gate on its own reading.
+#   2. Verification UPHELD the stricter reading: §2s.2's third outcome was written for
+#      rows where the FREEZE EVIDENCE is absent, while these are rows where the ARTIFACT
+#      is absent -- a different and worse condition. A row declaring a grading path not
+#      present at its own freeze commit HAS REGISTERED NOTHING; a comparator absent on
+#      disk CANNOT GRADE AT ALL.
+#   3. SANAA INVERTED THE CONSEQUENCE, and hers governs: record and launch, judged after.
+#      "A pre-registration mismatch never prevents a launch."
+# VERIFICATION'S DISTINCTION IS KEPT because it is still TRUE and still worth recording --
+# artifact-absent and evidence-absent are different findings and the record names which.
+# WHAT IS DROPPED IS THE CONSEQUENCE, NOT THE REASONING. The gating reason it was framed
+# with -- "without a comparator present at freeze and present on disk, the verdict on
+# that run cannot be trusted, because nothing computed it" -- REMAINS TRUE AND STILL
+# GATES; it now gates AT GRADING, where the frozen comparator refuses rather than
+# degrades (rule 4), instead of at launch. Sanaa: "The rule changes WHEN the gate
+# applies -- after the fact, on evidence -- not WHETHER it applies."
+#
+# THE LAST TWO ARE §2s.6's, ADDED 2026-09-03 WITH D8, AND NEITHER OCCURS ON ANY ROW ON
+# DISK TODAY -- measured, not assumed: zero registrations in this repository carry a
+# GRADING_FREEZE (or legacy GRADING_PATHS) declaration.
+RECORDED_MISMATCH_STATES = ("MISMATCH", "ABSENT-AT-FREEZE", "ABSENT-ON-DISK", "MALFORMED",
+                            "DECLARATION-CONFLICT", "REGISTRATION-UNREADABLE")
 
-# Every verdict this instrument can return. One tuple so the coverage tally, the
-# printed breakdown and the states themselves cannot drift apart -- a tally keyed on a
+# Every verdict this instrument can return. One tuple so the census tally, the printed
+# breakdown and the states themselves cannot drift apart -- a tally keyed on a
 # hand-written list is how a new state becomes invisible to the count that exists to
 # see it.
-ALL_STATES = ("PINNED", "UNPINNED", "UNREGISTERED") + REFUSING_STATES
+ALL_STATES = ("PINNED", "UNPINNED", "UNREGISTERED") + RECORDED_MISMATCH_STATES
 
 
 class Refusal(Exception):
     """A condition that must stop this instrument under ANY flag."""
+
+
+# THE FIELD-PAIRING GUARD FIRES AT IMPORT, DELIBERATELY, and it sits here rather than
+# beside its function only because `Refusal` must exist before it can be raised.
+# queue_entry_check imports this module UNGUARDED so the daemon fails loudly rather than
+# validating without the check; this refusal rides that same path. A misspelt field name
+# must stop the daemon, not quietly pass its whole queue under the tolerant default.
+_PAIRING = field_pairing_check()
+if _PAIRING:
+    raise Refusal("; ".join(_PAIRING))
 
 
 def is_full_sha(s) -> bool:
@@ -231,12 +379,15 @@ def declared_paths(entry: dict) -> tuple[list, str | None]:
 # already-ruled clause by cfd-supervisor, 2026-09-03; it creates no gate and moves none.
 #
 # THE DECLARATION FORMAT, and why it is this narrow.  A line whose first non-decoration
-# token is `GRADING_PATHS:` followed by one or more repo-relative paths.  Leading
-# markdown decoration (`>`, `*`, `_`, backtick, `-`) is tolerated because registrations
-# are markdown; anything else on the left is not a declaration.  A registration carrying
-# TWO declarations that disagree is a CONFLICT, not a menu -- §2s.6's "never choose"
-# applies inside one document exactly as it does between two.
-REGISTRATION_DECL_RE = re.compile(r"^[\s>*_`+-]*GRADING_PATHS\s*:\s*(.+?)\s*$", re.MULTILINE)
+# token is `GRADING_FREEZE:` -- the ruled vocabulary -- followed by one or more
+# repo-relative paths.  The legacy `GRADING_PATHS:` spelling is read too, and BOTH FEED
+# THE SAME CONFLICT CHECK, so a registration carrying one of each that disagree is a
+# CONFLICT and not a precedence puzzle: §2s.6's "never choose" applies inside one
+# document exactly as it does between two.  Leading markdown decoration (`>`, `*`, `_`,
+# backtick, `-`) is tolerated because registrations are markdown; anything else on the
+# left is not a declaration.
+REGISTRATION_DECL_RE = re.compile(
+    r"^[\s>*_`+-]*GRADING_(?:FREEZE|PATHS)\s*:\s*(.+?)\s*$", re.MULTILINE)
 
 
 def _split_decl(text: str) -> list[str]:
@@ -338,11 +489,12 @@ def _normalise(repo: Path, p: str) -> str | None:
     return s
 
 
-def grading_freeze_record(entry: dict, repo: Path) -> dict:
-    """THE PRIMITIVE. A dict reading of one entry. Never raises on entry content.
+def _freeze_reading(entry: dict, repo: Path) -> dict:
+    """THE PRIMITIVE'S CORE. A dict reading of one entry. Never raises on entry content.
 
-    Keys: verdict, detail, field, paths (one row per declared path with `path`,
-    `frozen_sha`, `disk_sha`, `state`), prereg_commit, refusal_eligible.
+    Not called directly by production: `grading_freeze_record()` wraps this and adds the
+    harvest envelope. Split so the reading logic and the record's schema can each be read
+    without the other.
     """
     repo = Path(repo)
     sha = entry.get("prereg_commit")
@@ -390,17 +542,20 @@ def grading_freeze_record(entry: dict, repo: Path) -> dict:
             f"the senior source because it cannot move after first compute; an entry that "
             f"contradicts it is the shape a drifted comparator would be hidden behind."),
             field=field, paths=[], prereg_commit=sha, refusal_eligible=True)
+    source = "ENTRY" if paths else "NONE"
     if reg_state == "DECLARED":
         # The senior source spoke. Whether or not the entry agreed, THIS is what is pinned.
         paths, field = reg_paths, f"the frozen registration ({entry.get('prereg_path')})"
+        source = "REGISTRATION"
 
     if not paths:
         return dict(verdict="UNPINNED", detail=(
-            f"entry declares no {GRADING_PATHS_FIELD!r}: no comparator is named, so the "
+            f"entry declares no {GRADING_FREEZE_FIELD!r}: no comparator is named, so the "
             f"sha of the script that will grade case {case} is NOT pinned to freeze "
-            f"{sha[:8]} and this launch is NOT covered by freeze enforcement. Tolerated "
-            f"by the default policy and COUNTED as uncovered -- it is not a pass."),
-            field=field, paths=[], prereg_commit=sha, refusal_eligible=True)
+            f"{sha[:8]}. Nothing is predicted about this run's grading, and that absence "
+            f"is recorded rather than read as a pass."),
+            field=field, paths=[], prereg_commit=sha, refusal_eligible=True,
+            source=source)
 
     rows = []
     worst = "PINNED"
@@ -434,65 +589,139 @@ def grading_freeze_record(entry: dict, repo: Path) -> dict:
         if state != "PINNED" and worst == "PINNED":
             worst = state
 
-    bad = [r for r in rows if r["state"] in REFUSING_STATES]
+    bad = [r for r in rows if r["state"] in RECORDED_MISMATCH_STATES]
     if not bad:
         return dict(verdict="PINNED", detail=(
             f"{len(rows)} comparator(s) named by {field!r} hash EXACTLY as commit "
             f"{sha[:8]} froze them."),
-            field=field, paths=rows, prereg_commit=sha, refusal_eligible=False)
+            field=field, paths=rows, prereg_commit=sha, refusal_eligible=False,
+            source=source)
     return dict(verdict=worst, detail=(
         f"{len(bad)} of {len(rows)} comparator(s) named by {field!r} do NOT match "
         f"freeze {sha[:8]}."),
-        field=field, paths=rows, prereg_commit=sha, refusal_eligible=True)
+        field=field, paths=rows, prereg_commit=sha, refusal_eligible=True,
+        source=source)
 
 
-def refusals(entry: dict, repo: Path, strict: bool = False) -> list[str]:
-    """The refusal strings for one entry. THE SHAPE queue_entry_check.CHECKS expects.
+# ------------------------------------------------- THE HARVEST ENVELOPE (Sanaa, item 3)
+# Her words, 2026-09-03 ~21:00Z: "What you gain: a calibration dataset for every
+# pre-registration standard... The standards get corrected by data instead of by
+# petition."  A RECORD A HUMAN CAN READ BUT A SCRIPT CANNOT AGGREGATE DOES NOT PRODUCE
+# THAT DATASET, so the envelope below is designed to be joined, not merely filed:
+# a stable schema tag, the machine-readable prediction, the state that produced it, the
+# commit it was walked at, a timestamp, and an `actual` slot the after-the-fact outcome
+# is written into.
+GRADING_FREEZE_SCHEMA = "grading_freeze/2"
 
-    Empty list = nothing to refuse. A refusal is returned ONLY for a state in
-    REFUSING_STATES -- or, under `strict`, also for UNPINNED. `strict` is OFF on the
-    live path today and is the single switch a ruling flips AT THE SUNSET; nothing else
-    changes when it does. THE SUNSET DATE IS SANAA'S, IT DOES NOT EXIST YET, and its
-    home is named in this module's docstring so its absence is visible. The earlier
-    wording here named "coverage reaches 145/145" as the trigger: VERIFICATION_CHARTER
-    §2s.9.1 has since ruled that a stop condition written as a BARE COUNT names a target
-    that RECEDES as the lab works -- every new grader enters the population unjudged, so
-    normal productive work moves the target away faster than evidence accrues. The
-    condition is a ratio at a stated walked commit, never a count, and this flag does not
-    read any figure to decide anything.
+# The testable claim, as an enum a harvester can group by. The dependent variable of the
+# calibration dataset: for each row, did grading actually do what this predicted?
+PREDICTS = {
+    "PINNED": "GRADING_WILL_PROCEED",
+    "UNPINNED": "NO_PREDICTION_NOT_PINNED",
+    "UNREGISTERED": "NO_PREDICTION_EXEMPT",
+}
+
+
+def grading_freeze_record(entry: dict, repo: Path) -> dict:
+    """THE PRIMITIVE. One entry's freeze reading, wrapped as a HARVESTABLE PREDICTION.
+
+    ⚠ THIS IS A PREDICTION, NOT A VERDICT, AND SINCE 2026-09-03 ~21:00Z IT BLOCKS
+    NOTHING.  Sanaa, verbatim: "A pre-registration mismatch never prevents a launch. It's
+    recorded as a prediction, the run launches under the monitor, and the outcome is
+    compared to the prediction on the certificate. Pre-registration predicts; the monitor
+    watches; the grader judges afterward."  This record is the "predicts" half.
+
+    KEYS, and they are a contract -- a harvester reads these:
+      schema           "grading_freeze/2". Bump when a key's meaning changes, never
+                       silently; a dataset whose rows mean different things by date is
+                       worse than no dataset.
+      kind             "PREDICTION". Never a verdict; carries none of CLAUDE.md rule 1's
+                       gate vocabulary, which is the grader's to spend and not this file's.
+      verdict          the instrument state: PINNED / UNPINNED / UNREGISTERED /
+                       MISMATCH / ABSENT-AT-FREEZE / ABSENT-ON-DISK / MALFORMED /
+                       DECLARATION-CONFLICT / REGISTRATION-UNREADABLE.
+      predicts         the testable claim as an enum -- GRADING_WILL_PROCEED,
+                       GRADING_WILL_REFUSE, NO_PREDICTION_NOT_PINNED,
+                       NO_PREDICTION_EXEMPT. THE COLUMN THE CALIBRATION JOINS ON.
+      actual           null at launch. THE JOIN SLOT: what grading actually did, written
+                       after the fact. `null` means not yet observed and must never be
+                       read as agreement.
+      case_id          so rows aggregate without parsing filenames.
+      paths            one row per declared comparator: path, frozen_sha, disk_sha, state.
+      source           REGISTRATION / ENTRY / NONE -- which declaration §2s.6's precedence
+                       actually used. A calibration that cannot see this cannot tell a
+                       registration-declared pin from an entry-declared one.
+      prereg_commit    the freeze the pin was derived from.
+      walked_commit    the HEAD this reading was taken at. §2s.9.1: a freeze figure
+                       without its walked commit is meaningless, because the population
+                       moves under the measurement.
+      recorded_utc     when.
+      detail, field    prose and the field name the declaration came from.
+      refusal_eligible LEGACY, kept because 289 launched records on disk already carry it
+                       and a harvester reading them must not break. IT NO LONGER MEANS
+                       "this launch may be refused" -- nothing is refused at launch. It
+                       now means only "this state is a recorded mismatch". New readers
+                       should use `predicts`.
     """
-    rec = grading_freeze_record(entry, repo)
-    v = rec["verdict"]
-    if v in ("DECLARATION-CONFLICT", "REGISTRATION-UNREADABLE"):
-        # A DIFFERENT REFUSAL FROM THE ONE BELOW, and it must not borrow its wording:
-        # nothing here says a comparator moved. The claim is that this row cannot say
-        # WHICH comparator is pinned, which is refused before it spends core-minutes.
-        return [
-            f"GRADER-FREEZE [{v}]: {rec['detail']}\n"
-            "        TO CLEAR: make the frozen registration and the queue entry name the "
-            "same comparator, or remove the entry's declaration and let the registration "
-            "speak alone. Nothing here edits, reverts or stages anything."
-        ]
-    if v in REFUSING_STATES:
-        lines = []
-        for r in rec["paths"]:
-            if r["state"] not in REFUSING_STATES:
-                continue
-            lines.append(
-                f"        {r['path']}: {r['state']} "
-                f"frozen={str(r['frozen_sha'])[:12]} disk={str(r['disk_sha'])[:12]}")
-        return [
-            "GRADER-FREEZE: the comparator named by this entry does not match the "
-            f"sha its frozen registration ({rec['prereg_commit']}) pinned.\n"
-            + "\n".join(lines)
-            + "\n        A run graded by a script that has moved since the freeze cannot "
-              "show the gate was not chosen to fit the answer (CLAUDE.md rule 2), so this "
-              "run is REFUSED BEFORE it spends core-minutes rather than graded after.\n"
-              "        TO CLEAR: commit the comparator, re-freeze the registration at the "
-              "new commit, and re-enqueue. Nothing here edits, reverts or stages anything."
-        ]
-    if strict and v == "UNPINNED":
-        return ["GRADER-FREEZE (--strict): " + rec["detail"]]
+    rec = _freeze_reading(entry, Path(repo))
+    v = rec.get("verdict")
+    rec["schema"] = GRADING_FREEZE_SCHEMA
+    rec["kind"] = "PREDICTION"
+    rec["predicts"] = PREDICTS.get(v, "GRADING_WILL_REFUSE")
+    rec["actual"] = None
+    rec["case_id"] = entry.get("case_id")
+    rec.setdefault("source", "NONE")
+    rec["walked_commit"] = _git_rev_parse(Path(repo), "HEAD^{commit}")
+    rec["recorded_utc"] = datetime.datetime.now(
+        datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    return rec
+
+
+def refusals(entry: dict, repo: Path) -> list[str]:
+    """ALWAYS EMPTY. THE SHAPE queue_entry_check.CHECKS expects, and it never refuses.
+
+    ⚠⚠ THIS FUNCTION USED TO REFUSE AND SANAA RULED THAT IT MUST NOT, 2026-09-03 ~21:00Z
+    (etc/sessions/2026-09-03T2100Z_sanaa_launch_rule.md), verbatim:
+
+        "A pre-registration mismatch never prevents a launch. It's recorded as a
+         prediction, the run launches under the monitor, and the outcome is compared to
+         the prediction on the certificate. Pre-registration predicts; the monitor
+         watches; the grader judges afterward."
+
+    and, on this exact category -- "Freeze or procedural state -- registration not frozen,
+    pin missing, lesson not filed" -- her handling is explicit: "record and launch. A
+    missing pin or unfiled lesson is bookkeeping and can be completed while the solve
+    runs."
+
+    THE `return []` IS UNCONDITIONAL AND IS THE FIRST STATEMENT, DELIBERATELY. There is no
+    branch above it, no flag that re-enables a refusal, and no state -- MISMATCH included
+    -- that reaches a non-empty list. THAT IS THE MECHANISM, not a promise about one:
+    read this function and there is nowhere for a refusal to come from. `--strict` is
+    REMOVED rather than left dormant, because a flag that no longer means what its name
+    says is worse than no flag, and its removal DISSOLVES the §2s.2 sunset question
+    entirely -- there is nothing left to sunset into.
+
+    WHAT IS NOT WEAKENED, AND IT IS THE LOAD-BEARING HALF. Her words: "The grader is
+    unchanged, and that matters: the frozen grader still judges against the
+    pre-registration... The rule changes WHEN the gate applies -- after the fact, on
+    evidence -- not WHETHER it applies." A run whose comparator drifted still cannot be
+    graded by that comparator: the frozen comparator refuses (exit 2) rather than degrade,
+    per rule 4's standing precedent, and nothing here touches any comparator. Rule 2 is
+    untouched; registrations still freeze before compute, because they are the predictions
+    being tested.
+
+    ⚠ THE HONEST COST, STATED RATHER THAN BURIED. Under this rule a run with a drifted
+    comparator SPENDS ITS COMPUTE AND THEN CANNOT BE GRADED BY THAT COMPARATOR. That is a
+    real cost, it is not a defect in this design, and she weighed it explicitly:
+    "Refusing to widen the gate was right; refusing to launch was the expensive part."
+    The fleet safety ceiling -- min(3x registered cap, remaining box budget), the
+    monitor's, NOT this check's -- is what protects the box.
+
+    The reading itself is unchanged and is MORE valuable than before, not less: it is
+    written to the launched record by queue_runner.launch() as a harvestable prediction,
+    and the predicted-versus-actual comparison is the calibration dataset Sanaa's item 3
+    is about.
+    """
     return []
 
 
@@ -594,11 +823,10 @@ def main(argv: list[str]) -> int:
     # the rename and the disclaimer rather than quietly answering to the wrong word.
     ap.add_argument("--coverage", dest="coverage_alias", metavar="QUEUE_ROOT",
                     help=argparse.SUPPRESS)
-    ap.add_argument("--strict", action="store_true",
-                    help="also REFUSE an entry that names no comparator (UNPINNED). "
-                         "OFF on the live path; the switch a ruling flips AT THE SUNSET. "
-                         "The sunset date is Sanaa's, does not exist yet, and this flag "
-                         "never self-activates.")
+    # `--strict` IS REMOVED, NOT DEPRECATED. It converted UNPINNED into a launch refusal,
+    # and nothing refuses at launch since Sanaa's 2026-09-03 ~21:00Z ruling. Left in place
+    # it would be a switch whose name promises an effect it can no longer have. Its
+    # removal also dissolves the §2s.2 sunset question: there is nothing to sunset into.
     ap.add_argument("--selftest", action="store_true")
     a = ap.parse_args(argv)
 
@@ -633,9 +861,13 @@ def main(argv: list[str]) -> int:
               f"(queued + launched + refused)")
         print(f"  of which in refused/     {cov['refused_total']:5d}   "
               f"{dict(sorted(cov['refused_tally'].items())) or '{}'}")
-        print(f"  PINNED / ELIGIBLE        {cov['pinned']}/{cov['eligible']}   "
-              f"(UNREGISTERED rows are EXEMPT and excluded from the denominator; "
-              f"exempt is not covered)")
+        print(f"  NO RATIO IS PRINTED, AND THE OMISSION IS THE POINT. Sanaa 2026-09-03 "
+              f"~20:00Z: coverage ratios are FORWARD-ONLY AND UNREPORTED, and no "
+              f"instrument measures another's reach until the first has changed a "
+              f"verdict at least once. THIS ENFORCER HAS CHANGED ZERO VERDICTS -- it "
+              f"fires at launch and every row it has met was already launched. The "
+              f"counts above are an INTERNAL ENGINEERING CENSUS: not a coverage figure, "
+              f"not a compliance figure, not for quoting upward or into a record.")
         if cov["unparsed"]:
             print(f"  ⚠ {len(cov['unparsed'])} row(s) could not be parsed and are in NO "
                   f"tally above -- they are a HOLE in this reading, not a clean result:")
@@ -647,35 +879,40 @@ def main(argv: list[str]) -> int:
         return 0
 
     if not a.entries:
-        print("No entries given. Nothing was checked; nothing was refused.")
+        print("No entries given. Nothing was read; nothing was recorded.")
         return 0
 
-    refused = 0
+    # THE CLI READS AND REPORTS. IT DOES NOT REFUSE AN ENTRY ON ITS FREEZE STATE, because
+    # the launch path does not either, and a command-line tool that answered `2` where the
+    # daemon answers `launch` would be a second, contradictory authority on the same
+    # question. The ONLY non-zero exit left is the instrument refusing ITSELF -- an
+    # unreadable file, a non-object, or the AST/pairing self-checks -- which is a
+    # statement about this tool, never about the run.
+    unreadable = 0
     for s in a.entries:
         p = Path(s)
         try:
             e = json.loads(p.read_text())
         except (OSError, json.JSONDecodeError) as exc:
-            print(f"REFUSED {p}: cannot read as JSON: {exc}")
-            refused += 1
+            print(f"REFUSED (instrument) {p}: cannot read as JSON: {exc}")
+            unreadable += 1
             continue
         if not isinstance(e, dict):
-            print(f"REFUSED {p}: not a JSON object")
-            refused += 1
+            print(f"REFUSED (instrument) {p}: not a JSON object")
+            unreadable += 1
             continue
         rec = grading_freeze_record(e, repo)
-        fails = refusals(e, repo, strict=a.strict)
-        if fails:
-            refused += 1
-            print(f"REFUSED {p}  [{rec['verdict']}]")
-            for f in fails:
-                print("    " + f)
-        else:
-            # printed INSIDE the accepting branch, so the claim cannot outlive the check
-            print(f"OK {p}  [{rec['verdict']}] {rec['detail']}")
-    if refused:
-        print(f"\n{refused} of {len(a.entries)} entr"
-              f"{'ies' if len(a.entries) != 1 else 'y'} REFUSED by GRADER-FREEZE.")
+        mark = "PREDICTS-REFUSE" if rec["predicts"] == "GRADING_WILL_REFUSE" else "RECORDED"
+        print(f"{mark} {p}  [{rec['verdict']}] predicts={rec['predicts']} "
+              f"source={rec['source']}")
+        print(f"    {rec['detail']}")
+        if rec["predicts"] == "GRADING_WILL_REFUSE":
+            print("    THIS DOES NOT STOP THE LAUNCH (Sanaa 2026-09-03 ~21:00Z). It is "
+                  "recorded as a prediction that the FROZEN GRADER will refuse this run "
+                  "afterwards, and the certificate compares predicted against actual.")
+    if unreadable:
+        print(f"\n{unreadable} of {len(a.entries)} file(s) could not be read. That is a "
+              f"refusal BY this instrument ABOUT ITS INPUT, not a verdict on any run.")
         return EXIT_REFUSE
     return 0
 

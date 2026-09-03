@@ -453,11 +453,29 @@ def check_team_binding(entry: dict, root: Path, entry_path=None) -> list[str]:
 
 
 def check_grader_freeze(entry: dict, root: Path, entry_path=None) -> list[str]:
-    """8. The comparator's sha must match what the frozen registration pinned.
+    """8. REPORTING, NOT GATING. ALWAYS RETURNS []. It cannot stop a launch.
 
-    STEP (1) of Sanaa's freeze-enforcement wiring order, 2026-09-03. The reading is
-    grader_freeze_gate.refusals(); this function is the LIVE MOUNT POINT and adds no
-    logic of its own, so the primitive cannot drift away from what production runs.
+    ⚠⚠ THIS CHECK USED TO REFUSE AND SANAA RULED THAT IT MUST NOT, 2026-09-03 ~21:00Z
+    (etc/sessions/2026-09-03T2100Z_sanaa_launch_rule.md): "A pre-registration mismatch
+    never prevents a launch. It's recorded as a prediction, the run launches under the
+    monitor, and the outcome is compared to the prediction on the certificate." On this
+    exact category -- "Freeze or procedural state -- registration not frozen, pin missing,
+    lesson not filed" -- she is explicit: "record and launch."
+
+    IT STAYS MOUNTED IN `CHECKS` ON PURPOSE, and that is a judgement worth defending: a
+    check that always returns [] looks like the dead-limb pathology this codebase already
+    carries twice. It is not dead, it is RECLASSIFIED, and the difference has to be
+    visible somewhere a reader will actually look. Deleting the entry would leave the
+    reclassification as an ABSENCE -- nothing in the live validator would say why freeze
+    state no longer blocks -- whereas this docstring sits at the mount point where the
+    next reader goes looking. THE READING ITSELF IS NOT LOST BY RETURNING []: it is
+    computed and written to the launched record by queue_runner.launch(), which is where
+    it now does its work.
+
+    WHAT STILL GATES, ONE STEP LATER: the frozen comparator, at grading, which refuses
+    (exit 2) rather than degrade under rule 4. Sanaa: "The grader is unchanged, and that
+    matters." Rule 2 is untouched -- registrations still freeze before compute, because
+    they are the predictions being tested.
 
     THIS INSERTION SHIFTED LINE NUMBERS IN THIS FILE and the shift is disclosed rather
     than discovered: the module-level import above added 16 lines, so REQUIRED_FIELDS
@@ -470,28 +488,26 @@ def check_grader_freeze(entry: dict, root: Path, entry_path=None) -> list[str]:
     line-block high. Those records belong to heat-transfer and are not this lane's to
     edit; the drift is reported upward instead.
 
-    WHY THE REFUSAL IS AT LAUNCH AND NOT AT GRADING. Measured 2026-09-03:
-    queue_runner.py has no grading step at all -- main() loops on tick(), tick() runs
-    cap_watch() (which reports) and launch(). Of 306 queue entries carrying a
-    launch_cmd, exactly 2 name a grader. A hook at "where the daemon grades" would
-    never fire. Refusing at launch is strictly stronger anyway: a run whose comparator
-    cannot be pinned never spends the core-minutes.
+    WHERE THE READING LANDS. Measured 2026-09-03: queue_runner.py has no grading step at
+    all -- main() loops on tick(), tick() runs cap_watch() (which reports) and launch().
+    Of 306 queue entries carrying a launch_cmd, exactly 2 name a grader. So the launch is
+    the one place every run passes through, and the freeze reading is written there, as a
+    harvestable prediction under gfg.GRADING_FREEZE_STAMP. `--pin-reading` (renamed from
+    `--coverage` 2026-09-03) walks those rows; it counts QUEUE ROWS and is NOT
+    VERIFICATION_CHARTER 2s.4's coverage figure, and it publishes no ratio at all while
+    coverage reporting is suspended.
 
-    `strict` is False here and the module docstring says why: all 306 entries on disk
-    lack the field, so refusing on absence would refuse the lab's whole queue on the
-    day it landed. An unpinned row is COUNTED, not passed -- see the `_grading_freeze`
-    stamp queue_runner.launch() writes and `--pin-reading` (renamed from `--coverage`
-    2026-09-03: it counts QUEUE ROWS and is NOT VERIFICATION_CHARTER 2s.4's coverage
-    figure, which is judged/total over the GRADER population).
+    WHICH COMPARATOR IS READ IS NOT THE ENTRY'S TO CHOOSE (2s.6, 2026-09-03). The
+    declaration is taken from the FROZEN REGISTRATION first and the entry second, and a
+    disagreement is RECORDED AS ITS OWN STATE rather than silently resolved. The pinned
+    sha never could be forged; the choice of file could -- drift comparator X, enqueue a
+    row naming comparator Y -- and that would poison a recorded prediction exactly as it
+    would once have evaded a refusal. The finding stands; only its consequence moved.
 
-    WHICH COMPARATOR IS CHECKED IS NO LONGER THE ENTRY'S TO CHOOSE (2s.6, 2026-09-03).
-    The declaration is read from the FROZEN REGISTRATION first and the entry second, and
-    a disagreement between them REFUSES rather than picking one. Before that, the pinned
-    sha could not be forged but the choice of file could: drift comparator X, enqueue a
-    row naming comparator Y. Still no logic of its own here -- the reading remains
-    grader_freeze_gate.refusals().
+    Still no logic of its own here -- the reading remains grader_freeze_gate's, so the
+    primitive cannot drift away from what production runs.
     """
-    return gfg.refusals(entry, root, strict=False)
+    return gfg.refusals(entry, root)
 
 
 CHECKS: dict[str, object] = {

@@ -574,10 +574,18 @@ def launch(entry: dict, path: Path, root: Path, log: Log, archive: bool = True) 
     # validator already accepted (L-342, Sanaa's universal rule 2026-08-26), so the
     # reading is recorded as STAMP-FAILED rather than raised. It cannot open a hole:
     # nothing downstream reads this field to decide anything.
+    # THE STAMP KEY IS gfg.GRADING_FREEZE_STAMP, NOT A STRING LITERAL, AND THAT IS
+    # LOAD-BEARING. The ruled entry field is `grading_freeze` and this stamp is
+    # `_grading_freeze` -- one leading underscore apart. A literal typed here could drift
+    # from the field by that character, and the failure would be SILENT: the field reads
+    # as absent, absent is UNPINNED, UNPINNED is the tolerant default, and the run
+    # LAUNCHES looking exactly like the 290 rows already in that state. One spelling, one
+    # constant, and gfg.field_pairing_check() refuses at import if this line reverts to a
+    # literal.
     try:
-        meta["_grading_freeze"] = gfg.grading_freeze_record(entry, REPO)
+        meta[gfg.GRADING_FREEZE_STAMP] = gfg.grading_freeze_record(entry, REPO)
     except Exception as exc:  # noqa: BLE001 -- bookkeeping never voids the launch
-        meta["_grading_freeze"] = dict(
+        meta[gfg.GRADING_FREEZE_STAMP] = dict(
             verdict="STAMP-FAILED", detail=f"{type(exc).__name__}: {exc}",
             field=None, paths=[], prereg_commit=entry.get("prereg_commit"),
             refusal_eligible=True)
@@ -593,7 +601,7 @@ def launch(entry: dict, path: Path, root: Path, log: Log, archive: bool = True) 
     # run is uncovered is indistinguishable from one that is quiet when it passes --
     # the same reason the GPU clause logs INERT. `grep -c 'GRADER-FREEZE .*: UNPINNED'
     # verification/queue/runner.log` is step (2)'s second, independent count.
-    _gf = meta["_grading_freeze"]
+    _gf = meta[gfg.GRADING_FREEZE_STAMP]
     log(f"GRADER-FREEZE {case_id}: {_gf['verdict']} -- {_gf['detail']}")
     return pid, sid
 
