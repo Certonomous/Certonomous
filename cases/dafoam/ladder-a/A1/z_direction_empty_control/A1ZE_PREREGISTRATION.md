@@ -1237,3 +1237,182 @@ verified both sides** — and `/home/ubuntu/certonomous-runs/A1ZE` re-asserted *
 execution**, which is what `G-ROOT` requires before the next fire.
 
 **SUBMISSIONS PARKED.**
+
+---
+---
+
+# ADDENDUM F — 2026-09-03 — **v1.6** — **THE ANSWER: DAFoam HARD-ABORTS ON A 2-DIRECTION MESH BY EXPLICIT DESIGN. `empty` BOUNDING PLANES CANNOT BE USED ON THIS CASE FAMILY, AND `d3f47bfa` IS WRONG.**
+
+**`lines whose number changed above this section: 0`** — first **731** lines byte-identical to
+`03120e22`, **845** to `2a31f940`, **988** to `cd7d383a`. Addenda A–E untouched. **No gate,
+threshold, cap or label changes; this addendum records a measurement and a registration gap.**
+
+## F.1 WHAT THE RUN MEASURED
+
+| arm | planes | result |
+|---|---|---|
+| **`Sc`** control | `symmetry` | **`rc=0`, every completion clause holds.** `Mesh has 3 solution (non-empty) directions (1 1 1)`. `U2` **present**, floor **6.656746e-08**. 206 s, **3.4333 core-min** of a 9.0 cap |
+| **`Ec`** treatment | `empty` | **`Mesh has 2 solution (non-empty) directions (1 1 0)`** — *the change took effect perfectly* — then **`FOAM FATAL ERROR`, core dumped**, `rc=97`, 88 s, 1.4667 core-min |
+
+`G-DIRN.S` and `G-U2.S` both reproduce the premise on the control. **`G-DIRN.E`'s registered
+threshold of `N = 2` is MET.** Chain stopped at `Ec`, `rc=73`; `S3`/`E3` never ran.
+**Frozen grader: `A1ZE_VERDICT NOT A RESULT`.** It manufactured nothing.
+
+## F.2 THE CAUSE, MEASURED FROM A1ZE's OWN REGISTERED IMAGE, WITH A HASH
+
+`Ec`'s log names its own killer:
+
+> `--> FOAM FATAL ERROR: Mesh geometric directions is less than 3 and not supported!`
+> `From Foam::checkGeometry(...) in file DACheckMesh/DACheckGeometry.C at line 278.`
+
+Read read-only from `dafoam-idwarp-rot:v1` (`sha256:2927768a16ac…`), the image this item registers
+and `G-IMG` asserts —
+`/home/dafoamuser/dafoam/repos/dafoam/src/adjoint/DACheckMesh/DACheckGeometry.C`,
+md5 **`e6b9497656105a2cf6958e5a6d329823`**, lines 276–281:
+
+```
+if (mesh.nGeometricD() < 3)
+{
+    FatalErrorInFunction
+        << "Mesh geometric directions is less than 3 and not supported!"
+        << abort(FatalError);
+}
+```
+
+**This is DAFoam's own code, in `libDASolver.so`, not OpenFOAM's. DAFoam REFUSES any mesh with
+fewer than three geometric directions, by explicit design.** `empty` bounding planes give
+`nGeometricD() == 2`. **Therefore DAFoam cannot run this case family with `empty` planes, and
+`d3f47bfa` is wrong on the merits.**
+
+**And note where the abort sits.** The `Mesh has N solution (non-empty) directions` line that
+`G-DIRN.E` reads is printed by **the same function, four lines above the abort**. *`G-DIRN.E`'s
+threshold was met on the last line DAFoam printed before refusing to continue.*
+
+## F.3 ⚠ THIS CLOSES ADDENDUM B's LOOP — UPSTREAM'S COMMENT WAS NOT A PREFERENCE, IT WAS A CONSEQUENCE
+
+Addendum B recorded `DAUtility.C:775-780`: the median exists *"because we often need to run 2D
+simulations with symmetry BC"*, and registered — **before this run** — that this **raises the prior
+that `empty` is not what this toolchain expects**. It does more than that. **DAFoam requires ≥ 3
+geometric directions, so `symmetry` is not upstream's stylistic choice for 2-D — it is the ONLY
+option DAFoam permits**, and the median exists to cope with the residual component that choice
+forces. **The prediction registered in B.3 is confirmed by F.2, and it was registered before the
+answer existed.**
+
+## F.4 ⚠ THE REGISTRATION'S CONDEMNATION TRIGGER WAS POINTED AT THE WRONG FAILURE, AND I SAY SO RATHER THAN CLAIMING THE GATE FIRED
+
+`§3b` registers: *a `GATE FAIL` on `G-DIRN.E` or `G-U2.E` condemns `d3f47bfa`.* **Neither fired, and
+neither could have.** `G-DIRN.E` anticipated **"the change did not take effect"** (`N` still 3).
+What actually happened is the opposite and worse: **the change took effect perfectly — `N = 2` — and
+the toolchain then refused the result.** `G-U2.E` was never evaluated, because the arm did not
+complete.
+
+`§3b.0` did register `G-EMPTY` `BLOCKED` — *"the mesh could not be built, or IDWarp / the adjoint
+refused `empty`"* — as condemning. **That is substantively what happened**, but `G-EMPTY` reads the
+staged *files*, which were perfectly correct, so it passed; the refusal arrived through the strict
+completion rule as `NOT A RESULT`. **The right gate existed and was pointed at the wrong artifact.**
+
+**So the frozen grader's `NOT A RESULT` stands and is correct, and no registered gate condemns
+`d3f47bfa` by its own letter.** The commit is condemned by **measurement** — `DACheckGeometry.C:276`
+— not by a gate. **That distinction is preserved rather than smoothed over: a gate that did not fire
+is not a gate that fired, and the evidence is strong enough not to need the pretence.**
+
+**Recommended, and NOT taken by this lane:** `d3f47bfa` is reverted forward on the physics, under
+Sanaa's 2026-09-03 ~20:00Z blocking-physics-fix rule ("wrong patch identity on a mesh"), which now
+runs in the opposite direction from the one that motivated it. **That is `dafoam-supervisor`'s
+ruling to take, not a lane's.** Until it is taken, `cases/dafoam/PATCH_IDENTITY_D3F47BFA_UNVERIFIED.md`
+and the three template `README_PATCH_IDENTITY.md` notes remain accurate and are what a reader finds.
+
+## F.5 COST, AND THE ORDERING THAT PAID FOR ITSELF TWICE
+
+**Fire 2: 4.9 core-min of a 532.0 ceiling** (`Sc` 3.4333 + `Ec` 1.4667). Fire 1: 0.7, named as
+waste. **Total 5.6 core-min, $0.0048 DERIVED** at the owner-stated $0.0513/core-h, **not measured**.
+
+**The coarse-pair-first ordering has now saved the L3 budget twice** — once on a setup defect
+(Addendum E) and once on the item's actual answer. **The question `A1ZE` exists to ask about `CL`
+and `CD` cannot be answered at all**, because the treatment arm cannot run in this toolchain: there
+is no `empty` solve to compare against. `§1b`'s coefficient question is **`BLOCKED` by the
+toolchain, not unmeasured by choice**, and `S3`/`E3` are not worth 514 core-min to re-confirm what
+`Ec` established for 1.4667.
+
+**Calibration, rule 12:** `Sc` actual **3.4333** against its registered `est @ n=6 (MEASURED)` of
+**1.8374** — ratio **1.87×**, inside its 9.0 cap; contention at launch was `loadavg 33.64` on 16
+cores with one other container, i.e. well above the n=6 anchor's conditions. A full
+`COST_CALIBRATION.md` row is owed **when the supervisor rules on whether this item is complete** —
+it has answered its verification question and cannot answer its coefficient question.
+
+**SUBMISSIONS PARKED.**
+
+---
+---
+
+# ADDENDUM G — 2026-09-03 — **v1.7** — `G-GUARDS` REFUSED A CLEAN ARM ON A PATH BUG, AND THE FROZEN GRADER **CANNOT LAWFULLY BE REPAIRED FOR THIS ITEM**
+
+**`lines whose number changed above this section: 0`** — first **731** lines byte-identical to
+`03120e22`, **845** to `2a31f940`, **988** to `cd7d383a`. Addenda A–F untouched. **No gate,
+threshold, cap or label changes — and after first compute none may.**
+
+## G.1 THE DEFECT, AND IT IS THE INVERSE OF WHAT IT LOOKS LIKE
+
+The grade printed:
+
+> `G-GUARDS Sc: NOT A RESULT -- 4 guard(s) left no execution marker, so they cannot be shown to have
+> run: ['A1ZE_COLD_START', 'A1ZE_G_EMPTY_OK', 'A1ZE_TIMEDIR_SCAN', 'A1ZE_TOL_VAR_OK']`
+
+**All four markers were present. Measured, in `logs/Sc_20260903T190524Z.log`: 1 occurrence each.**
+
+| marker | in the **docker log** | in `out/sweep.log` |
+|---|---|---|
+| `A1ZE_G_EMPTY_OK` | **1** | 0 |
+| `A1ZE_TIMEDIR_SCAN` | **1** | 0 |
+| `A1ZE_TOL_VAR_OK` | **1** | 0 |
+| `A1ZE_COLD_START` | **1** | 0 |
+
+`G-GUARDS` searches `<arm>/out/guards.log` — **never written** — and `<arm>/out/sweep.log`, which is
+the *runScript's* redirected stdout and by construction cannot contain the *wrapper's* prints.
+**The markers live in the docker log at `<root>/logs/<arm>_<stamp>.log`, and `G-GUARDS` never looks
+there.** A one-line path bug.
+
+**⚠ IT IS NOT THE VACUOUS-PASS DISEASE; IT IS ITS MIRROR.** A vacuous pass admits an arm that was
+never checked. **This REFUSES an arm that was fully checked.** It fails **closed**, which is the
+safe direction and is why it cost nothing here — but a guard that cannot see its own evidence would
+make **every clean arm `NOT A RESULT`**, and that is a defect in exactly the way A1WR's unreachable
+1e-8 was: **a gate whose passing condition cannot be met by a correct run.**
+
+## G.2 IT CHANGED NOTHING, AND THAT IS CHECKED, NOT ASSUMED
+
+`A1ZE_VERDICT NOT A RESULT` is reached **independently and over-determinedly**: `COMPLETION Ec`
+failed on `rc=97`, no `End`, and `last Time = None != 2000`; `G-COEF` on both pairs returned
+`NOT A RESULT` because an arm of each pair did not complete; `S3`/`E3` never staged. **Strike
+`G-GUARDS` entirely and the verdict is unchanged.** The false refusal is a defect in the
+instrument, not a change to the item's answer.
+
+## G.3 ⚠ IT CANNOT BE REPAIRED FOR THIS ITEM, AND THE REASON IS RULE 2
+
+**A1ZE has spent compute — 5.6 core-min across two fires — so its gates are CLOSED.** Rule 2: after
+first compute, *"changes land only as dated addenda that cannot alter a gate, threshold, cap or
+label."* **`G-GUARDS` is a gate.** Repairing its reader changes which arms it admits, and that is a
+gate change by any honest reading.
+
+**So: the frozen grader is NOT edited, and no other reader may be substituted for it** — the
+D19/D19R2 precedent this family already carries (*a refusal is not a verdict, and the grading path
+is fixed at the pre-registration commit*). **The repair belongs to a SUCCESSOR ITEM, not to
+A1ZE.** Registered here as the successor's first requirement, so the next registration inherits it:
+
+> **`G-GUARDS` must read the arm's DOCKER LOG (`<root>/logs/<arm>_<stamp>.log`), which is where the
+> in-container wrapper's stdout is captured, and must be driven on a REAL completed arm before it is
+> frozen** — the fixture-only proof this item used passed happily while pointed at a file that never
+> exists. **A control that proves a reader can parse a marker does not prove the reader can FIND
+> one**, and that is the same distinction as *"plant the run, not only the value"*, one level up.
+
+**No frozen instrument was edited to establish any of this.** The diagnosis is entirely from the
+run's own artifacts and from `grep -c` over them.
+
+## G.4 STATE
+
+`d3f47bfa` is **reverted forward** on the measured engineering fact that the templates could not
+run — **not** on a gate reading, and **not** on this item's verdict, which remains `NOT A RESULT`.
+The record files `cases/dafoam/PATCH_IDENTITY_D3F47BFA_REVERTED.md` and the three template
+`README_PATCH_IDENTITY.md` notes carry that distinction on their first screen, as does the revert
+commit's own message.
+
+**Zero further solver core-min. SUBMISSIONS PARKED.**
