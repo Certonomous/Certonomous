@@ -569,9 +569,53 @@ KNOWN_EXCLUDED = {
     #    wedge CENTROID bias.` at :4469. This is the LESSONS second-block form
     #    in another record's vocabulary: its parent `## N-AV9.` exists at :3913
     #    (checked), so excluding it drops no number from the arithmetic.
+    #
+    # THREE FURTHER SECOND-BLOCK / CITATION SPELLINGS, added 2026-09-03 for
+    # docket D-20260903T184847. THE DEFECT WAS IN THIS REGISTER, NOT IN THE
+    # RECORD: `docs/LESSONS.md` gained its `AMENDMENT` exclusion on 2026-09-01
+    # (:562) and this record -- which writes the SAME convention, the CLAUDE.md
+    # rule 6 departure grammar -- never gained the parallel spelling. So the
+    # tool refused (exit 7) on five lines whose ids are ALL already counted at
+    # their primary entries, which is the definition of a second block, not of a
+    # lost id. Measured on HEAD's blob AND the worktree, identical on both: 138
+    # candidate lines, 131 parsed, 7 residue -- the 2 above plus these 5. No
+    # expression below matches a line the id pattern parses (measured: zero
+    # clashes), and KNOWN_EXCLUDED feeds `shape_audit` ALONE, never `parse_ids`,
+    # so this edit cannot move an id, a series maximum or a next-id: 131 ids /
+    # 131 distinct before and after, byte for byte.
+    #  * an AMENDMENT block. Measured: exactly 1 line, `## N-T9 AMENDMENT 1 --
+    #    2026-09-01, heat-transfer. ...` at :5297, parent `## N-T9.` at :5142
+    #    (checked). This is the LESSONS `L-426 AMENDMENT` rule spelled in THIS
+    #    record's vocabulary -- bold OR h2 -- never borrowed (CLAUDE.md rule 14).
+    #    SAME TRAP as L-61, and it is why the anchor is what it is: the line
+    #    CONTAINS an em-dash later on, so an exclusion written as "has no
+    #    em-dash" would fail on it. `AMENDMENT\b` cannot reach a genuine entry
+    #    (an entry carries a literal period straight after the id), and the `\b`
+    #    is load-bearing: a planted `## N-Z3 AMENDMENTS to a theory` must still
+    #    refuse, and does.
+    #  * a DATED ADDENDUM block. Measured: exactly 2 lines, `## N-C6 -- DATED
+    #    ADDENDUM, 2026-09-01: ...` at :5343 and `## N-C6 -- DATED ADDENDUM 2,
+    #    ...` at :5458, parent `## N-C6.` at :4682 (checked). Anchored on the
+    #    LITERAL WORDS after the em-dash, deliberately: a bare `id + em-dash`
+    #    exclusion would swallow a GENUINELY LOST new fact written
+    #    `## N-Z1 -- a title`, which must keep refusing. A planted violation
+    #    drives exactly that line, and a second drives `-- UNDATED ADDENDUM`.
+    #  * a BOLD PROSE CITATION -- a paragraph OPENING with a bolded id, which is
+    #    prose and not an entry at all. Measured: exactly 2 lines,
+    #    `**N-C9**'s bounding evidence are the neighbours:` at :5968 and
+    #    `**N-C10** and **N-C11** were appended;` at :5975; all three primaries
+    #    exist (:5780, :5864, :5910, checked). The distinguishing byte is WHERE
+    #    THE BOLD CLOSES: an entry is `**N-B26. text**` (bold closes at the end
+    #    of the title), a citation is `**N-C9**` (bold closes immediately after
+    #    the number). Anchoring on that closing `**` is what keeps this narrower
+    #    than "any bold line"; a planted `**N-Z2 a bold entry with no period**`
+    #    must still refuse, and does.
     "docs/NUMERICS_KNOWLEDGE.md": (
         r"^(?:\*\*|## )N-[A-Z]+[ \t]*=",
         r"^(?:\*\*|## )N-[A-Z]+\d+[ \t]+COMPANION\b",
+        r"^(?:\*\*|## )N-[A-Z]+\d+[ \t]+AMENDMENT\b",
+        r"^(?:\*\*|## )N-[A-Z]+\d+[ \t]+—[ \t]+DATED ADDENDUM\b",
+        r"^\*\*N-[A-Z]+\d+\*\*",
     ),
     # A STRUCK id cell carrying its own annotation inside the cell, so the cell
     # does not close after the id and the pattern cannot reach the `|`.
