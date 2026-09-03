@@ -70,6 +70,22 @@ import sys
 import tempfile
 from pathlib import Path
 
+# STEP (1) of Sanaa's freeze-enforcement wiring order (SANAA-DIRECT 2026-09-03 ~17:30Z
+# item 6). The pin logic lives in its own module so the SAME code can be driven both
+# from here -- the live refusal, since queue_runner.tick() calls validate() and routes
+# any non-empty failure list to move_refused() -- and from a stand-alone CLI a
+# comparator can shell to. Cited by SYMBOL, not by line: every by-line citation of
+# queue_runner.py in this repository checked on 2026-09-03 was stale (four records
+# cite `queue_runner.py:223` for list_entries(), which lives at :440).
+#
+# The import is MODULE-LEVEL AND UNGUARDED ON PURPOSE. If scripts/grader_freeze_gate.py
+# is missing, this instrument does not import, the daemon does not start, and somebody
+# notices within one cron cycle. The alternative -- a try/except that lets validation
+# continue without the freeze check -- is a gate that disappears exactly when its file
+# does, which is the failure mode this whole wiring order exists to end.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import grader_freeze_gate as gfg  # noqa: E402
+
 TEAMS = (
     "cfd",
     "heat-transfer",
@@ -436,6 +452,39 @@ def check_team_binding(entry: dict, root: Path, entry_path=None) -> list[str]:
     ]
 
 
+def check_grader_freeze(entry: dict, root: Path, entry_path=None) -> list[str]:
+    """8. The comparator's sha must match what the frozen registration pinned.
+
+    STEP (1) of Sanaa's freeze-enforcement wiring order, 2026-09-03. The reading is
+    grader_freeze_gate.refusals(); this function is the LIVE MOUNT POINT and adds no
+    logic of its own, so the primitive cannot drift away from what production runs.
+
+    THIS INSERTION SHIFTED LINE NUMBERS IN THIS FILE and the shift is disclosed rather
+    than discovered: the module-level import above added 16 lines, so REQUIRED_FIELDS
+    moved 83 -> 99, UNREGISTERED_PREREG_TAGS 114 -> 130, and the non-empty-string
+    SCHEMA refusal 199 -> 217 (measured with grep after the final edit, not predicted
+    from the diff -- an earlier draft of this very paragraph said 97/128/215 and was
+    wrong by two, because a later edit to the comment above it moved everything again).
+    Four records in verification/queue/ and
+    verification/runs/T-family/ cite `queue_entry_check.py:114`; they now point one
+    line-block high. Those records belong to heat-transfer and are not this lane's to
+    edit; the drift is reported upward instead.
+
+    WHY THE REFUSAL IS AT LAUNCH AND NOT AT GRADING. Measured 2026-09-03:
+    queue_runner.py has no grading step at all -- main() loops on tick(), tick() runs
+    cap_watch() (which reports) and launch(). Of 306 queue entries carrying a
+    launch_cmd, exactly 2 name a grader. A hook at "where the daemon grades" would
+    never fire. Refusing at launch is strictly stronger anyway: a run whose comparator
+    cannot be pinned never spends the core-minutes.
+
+    `strict` is False here and the module docstring says why: all 306 entries on disk
+    lack the field, so refusing on absence would refuse the lab's whole queue on the
+    day it landed. An unpinned row is COUNTED, not passed -- see the `_grading_freeze`
+    stamp queue_runner.launch() writes and `--coverage`.
+    """
+    return gfg.refusals(entry, root, strict=False)
+
+
 CHECKS: dict[str, object] = {
     "SCHEMA": check_schema,
     "COMMIT-EXISTS": check_commit_exists,
@@ -444,6 +493,7 @@ CHECKS: dict[str, object] = {
     "EXEC": check_cwd_launchable,
     "RANKS": check_ranks,
     "TEAM-BINDING": check_team_binding,
+    "GRADER-FREEZE": check_grader_freeze,
 }
 
 

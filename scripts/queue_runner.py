@@ -106,6 +106,7 @@ HERE = Path(__file__).resolve().parent
 REPO = HERE.parent
 sys.path.insert(0, str(HERE))
 import queue_entry_check as qec  # noqa: E402  (read-only validator; never launches)
+import grader_freeze_gate as gfg  # noqa: E402  (freeze pin reading; never launches)
 
 EXIT_REFUSE = 2
 DEFAULT_ROOT = REPO / "verification" / "queue"
@@ -561,6 +562,25 @@ def launch(entry: dict, path: Path, root: Path, log: Log, archive: bool = True) 
         rule="a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT "
              "reported beside the verdict and voids only the cost claim; only a "
              "PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)")
+    # THE FREEZE-COVERAGE STAMP (step (1) of Sanaa's wiring order, 2026-09-03).
+    # ENFORCEMENT IS NOT HERE -- it is check_grader_freeze in the validator, which ran
+    # before this function was reached and which routes a violation to move_refused().
+    # By the time control arrives here the entry has already been found non-violating,
+    # so what this records is COVERAGE: PINNED (this launch is protected) or UNPINNED
+    # (it is not, and the row says so on disk instead of looking like a pass).
+    # That makes step (2)'s weekly fraction a COUNT OFF DISK, not a re-derivation:
+    #     grep -c '"verdict": "PINNED"' verification/queue/*/launched/*.json
+    # A stamp failure is a BOOKKEEPING defect and must never void a launch the
+    # validator already accepted (L-342, Sanaa's universal rule 2026-08-26), so the
+    # reading is recorded as STAMP-FAILED rather than raised. It cannot open a hole:
+    # nothing downstream reads this field to decide anything.
+    try:
+        meta["_grading_freeze"] = gfg.grading_freeze_record(entry, REPO)
+    except Exception as exc:  # noqa: BLE001 -- bookkeeping never voids the launch
+        meta["_grading_freeze"] = dict(
+            verdict="STAMP-FAILED", detail=f"{type(exc).__name__}: {exc}",
+            field=None, paths=[], prereg_commit=entry.get("prereg_commit"),
+            refusal_eligible=True)
     dst.write_text(json.dumps(meta, indent=2) + "\n")
     with open(root / "LAUNCH_LOG.tsv", "a") as f:
         f.write("\t".join(str(x) for x in (
@@ -569,6 +589,12 @@ def launch(entry: dict, path: Path, root: Path, log: Log, archive: bool = True) 
     log(f"LAUNCHED team={entry['team']} case={case_id} pid={pid} sid={sid} "
         f"ranks={entry['ranks']} est={entry['cost_core_min_estimate']} core-min "
         f"prereg={entry['prereg_commit'][:8]} STATUS={status}")
+    # Logged on EVERY launch, PINNED and UNPINNED alike. A clause that is quiet when a
+    # run is uncovered is indistinguishable from one that is quiet when it passes --
+    # the same reason the GPU clause logs INERT. `grep -c 'GRADER-FREEZE .*: UNPINNED'
+    # verification/queue/runner.log` is step (2)'s second, independent count.
+    _gf = meta["_grading_freeze"]
+    log(f"GRADER-FREEZE {case_id}: {_gf['verdict']} -- {_gf['detail']}")
     return pid, sid
 
 
