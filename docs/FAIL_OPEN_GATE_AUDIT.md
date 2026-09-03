@@ -2900,3 +2900,542 @@ me, and I have re-derived none of them at source** — `L-466` I read at source;
 I have **not**. **They are recorded as REPORTED, and this audit's own frames rule (its header)
 requires me to say so rather than let four relayed items read as four measurements of mine.**
 *If a fifth face lands, the first thing owed is a re-derivation of the four, not a fifth entry.*
+
+
+## §28.6 — **THE DEBT IS PAID FIRST: 3 OF 3 RELAYED FACES RE-DERIVED AT SOURCE, AND THE RE-DERIVATION FOUND A DEFECT IN §28's OWN FILING. THEN FOUR NEW MECHANISMS — OF WHICH ONLY TWO ARE FACES, ONE IS NOT THIS TAXONOMY'S AT ALL, AND ONE IS NOT A FACE BUT A MAP OF WHERE THE NEXT ONE WILL BE FOUND** (2026-09-03T21:1xZ)
+
+**Zero compute; 0 core-min; $0.00. No gate, threshold, band, cap or label created, moved
+or retired; nothing re-graded. DISPOSITION: REPORTED, NOT GATED. No instrument is
+proposed and none is written** — Sanaa's 2026-09-03 `2000Z` ruling makes *reported, not
+gated* the default, and §28's own filing note already declines to order a sweep.
+
+---
+
+### §28.6.0 THE DEBT — §28.5 SAYS THE FIRST THING OWED IS A RE-DERIVATION OF THE FOUR, NOT A FIFTH ENTRY. HERE IT IS, AND THE SCORE IS **3 OF 3**
+
+§28.5 records face 1 (`L-466`) as read at source by this team and faces **2, 3 and 4** as
+**REPORTED**. Face 1 is therefore not re-owed. The three that were:
+
+| face | re-derived? | specimen I read at source | what I actually verified |
+|---|---|---|---|
+| **2 — passing-on-skips** | **YES, as a class, on a live specimen** | `scripts/test_auto_stop_liveness.py:428-450` | The file's own docstring records the defect verbatim: *"controls: 12 passed, 0 failed, 12 skipped … every one of the TEN flip pairs printed `[SKIP]`, Z1 included"*, while the suite still printed *"every evaluated pair flipped. The reader was shown able to see both a non-zero and a zero."* Repair present in the same file: **`:449-450`** — skips get their own column and never fold into either other, and a pair with an unwitnessed half **REFUSES, rc 3 `NOT WITNESSED`**. Landed at `6f4fd88a`. |
+| **3 — claim-from-completion** | **YES, as a class, on a live specimen** | `docs/campaigns/T-family/T5_RESULTS.md:3` + `verification/runs/T-family/T5_runs/` | `T5_RESULTS.md:3` reads **`Rung verdict: PENDING`** and the comparator's own quoted output says *"No case has run: no rows are graded and no verdict is written."* I counted the completion markers in `T5_runs/` myself: **6 `DONE.*` files, 0 graded rows.** Six completions and no answer, in one directory — *the process finished, therefore the thing was done* is false here by measurement. |
+| **4 — dropped-blocked-read** | **YES, on THIS TEAM's OWN second specimen; NOT on cfd's original** | commit **`ef33434c`** | `git show --stat ef33434c` returns **a subject line and no diffstat** — I ran it; the commit is **empty**, and its message asserts content the commit does not contain. This team booked it at `docs/LAB_STATE.md:27478` as *"the FOURTH FACE, dropped-blocked-read, in my own shell"*, struck by disclosure at `b086eaf6`. **cfd's original specimen — "a classifier-blocked queue read dropped, forty minutes blind to idle territory" (`docs/LAB_STATE.md:23048`) — I did NOT re-derive: no artifact path is given for it anywhere, so there is nothing to open.** |
+
+> ⚠ **AND THE RE-DERIVATION FOUND A DEFECT IN §28 ITSELF, WHICH IS WORTH MORE THAN THE
+> SCORE.** **Rows 2 and 3 of §28.2's table carry NO artifact path — not a file, not a
+> commit, not a line.** Row 4 names a team and a duration and no artifact. I could
+> re-derive the *mechanisms* because live specimens exist on this box, but **I cannot
+> prove any of them is the specimen §28's author meant**, and neither can anyone else.
+> **A taxonomy row without an artifact path is unfalsifiable by construction** — which is
+> this audit's own frames rule turned on the audit. **The cheapest repair, and it costs
+> nothing: every row of §28.2 carries a path or a sha.** *Reported. Not ordered — the
+> section is verification's own and the fix is its author's to make.*
+
+**SCORE: 3 of 3 mechanisms re-derived at a cited artifact. 0 of 3 proven identical to
+§28's original specimens, because §28 names none.**
+
+---
+
+### §28.6.1 THE FOUR NEW MECHANISMS, AND THE CLASSIFICATION MATTERS MORE THAN THE COUNT
+
+**Provenance, stated before any of it is read:** items (A)1–3 are **cfd's**, item (B) is
+**heat-transfer's**. Everything below is marked **`[RE-DERIVED]`** where I opened the
+artifact myself and **`[REPORTED — <team>]`** where I did not. §28.5's discipline: a
+relayed measurement is recorded as REPORTED, and I do not launder one into mine.
+
+**Resisting inflation, said up front: of the four, ONE is a new face, TWO are variants of
+existing faces, and ONE is not a member of this taxonomy at all.** A variant is more
+useful than a fifth entry; a misfiled item is worse than an absent one.
+
+---
+
+#### **M1 — PREMATURE READ OF A LIVE ARTIFACT.** **VARIANT of face 3 (claim-from-completion)**, at the *artifact* level rather than the *process* level
+
+**What it is.** A reader consumes an artifact **while its writer is still writing**. The
+partial read is structurally indistinguishable from a complete one: the file parses, the
+reader exits 0, and the rows it did not see are indistinguishable from rows that do not
+exist. Face 3 says *the process finished, therefore the thing was done*; M1 says **the
+file opened, therefore the file is complete** — the same inference, one level down.
+
+**Instances.**
+- **Instance 1 `[REPORTED — cfd]`,** `docs/LAB_STATE.md:23045`: *"a background grep read
+  while still writing; exit 0, 30 lines, header-only read taken for a completed zero."*
+  **No artifact path is given and I could not open it.**
+- **Instance 2: my brief names two instances. I searched and could not locate a second,
+  and I will not manufacture one.** `[NOT LOCATED]` The nearest independent artifact on
+  this box is the **same mechanism handled correctly**, not a second failure: the fd-255
+  launcher capture at **`10eb76f4`**, which reads `/proc/<pid>/fd/255` from four live
+  solvers, **requires all four copies byte-identical and requires the result to parse
+  under `bash -n` "so a partial read is not filed as a script"** `[RE-DERIVED — commit
+  message read at source]`. **That is the cure, and it was written before the taxonomy
+  asked for one.**
+
+> **DISCRIMINATING TEST — TRUNCATE THE FIXTURE AND SEE WHETHER ANYTHING CHANGES.**
+> *Does this reader establish that the writer TERMINATED, by evidence independent of the
+> artifact's content — a producer-side rc captured inside the writer, an end-of-stream
+> sentinel, a declared byte count, or a whole-file parse that a truncation breaks?*
+> **The operational form:** take the reader's own fixture, cut it at a record boundary,
+> and run the reader on both. **If the two runs differ only in row count and in no
+> explicit field, the mechanism is present.** A sound reader either refuses or flips a
+> named field. `bash -n` at `10eb76f4` is the model in its cheapest form: a truncated
+> script does not parse, so a partial capture cannot be filed.
+
+**DID IT CHANGE A LANDED VERDICT? NO** — and on instance 1 I cannot say what it touched,
+because no artifact is named. **WOULD IT HAVE?** On the fd-255 case, a partial capture
+filed as the code of record would have made the **launcher of record for four live runs,
+three of them the graded pass, unverifiable against any blob** — a rule-2 provenance
+failure, **not a change to any graded number**. Stated as provenance, not as a verdict.
+
+---
+
+#### **M2a — THE READER ANSWERED A DIFFERENT QUESTION (`git diff` vs the poisoned index).** ⚠ **NOT A FACE OF THIS TAXONOMY. I recommend it be recorded as an ADJACENT CLASS with a pointer, and NOT added to §28.2**
+
+**What it is `[RE-DERIVED at the corroborating artifacts; the originating instance is
+REPORTED — cfd]`.** `git diff` compares the worktree to the **INDEX**. With this box's
+shared index poisoned, it reported **zero changed lines for a file just edited**, and the
+assertion built on it printed *"NONE, no changed line touches a gate"* — cfd's own words
+at `docs/LAB_STATE.md:23046`: **"A well-formed, completely false proof of exactly what I
+wanted proved."**
+
+**Why I am refusing it a face, and this is the substantive call in this draft.** §28's
+tell is *"the absence of an error was read as the presence of a check"*, and its
+operational test is *"can this code path distinguish 'the check ran and found nothing'
+from 'the check did not run'?"* **Here the check RAN. It touched a real object and
+returned a true answer — about the wrong proposition.** §28's test comes back **clean**
+on this path and the path is still wrong, so **admitting M2a as a fifth face would put
+into the taxonomy a specimen the taxonomy's own test cannot detect**, and would quietly
+make that test look weaker than it is. **The lab already has the right home for it:**
+*an instrument that answers a different question than the one asked, whose WRONG answer
+is the well-formed one* — **ruled one class** at `docs/LAB_STATE.md:28544`, hosted by
+`L-394`/`L-395`/`L-401`/`L-402` and `§2j`. **File it there; cross-reference it from §28;
+do not count it as a face.**
+
+> **DISCRIMINATING TEST — NAME THE REFERENCE, THEN MAKE THE PROOF PRINT WHAT IT *CAN* SEE.**
+> *(1) Write down, in words, the proposition this instrument actually evaluates —
+> for a diff: **against what?** the INDEX, `HEAD`, or the worktree — and compare it word
+> by word with the proposition you meant.* **(2) The runnable half: require the proof to
+> print a change it is KNOWN to be able to see.** A diff that reports **zero** changed
+> lines for a file you edited thirty seconds ago must **refuse**, not report clean.
+> **This is rule 3 pointed at a git reader.** Remedy of record, cfd's own:
+> `docs/LAB_STATE.md:23046` — bypass the index and diff against `git show HEAD:<path>`.
+
+**DID IT CHANGE A LANDED VERDICT? NO — CAUGHT.** **AND IT IS THE ONE THAT WOULD HAVE
+REACHED FURTHEST.** Two measured corroborations, both re-derived by me at their board
+lines:
+- `docs/LAB_STATE.md:9382` — *"Nothing relaxed: 110 insertions, 0 deletions, proved
+  against the **HEAD blob** rather than `git diff`, which reported **231/0** from the
+  poisoned shared index and **would have been the wrong number**."*
+- `docs/LAB_STATE.md:31677` (ansys territory, independent) — `git diff HEAD` reported
+  *"27 files, 3217 deletions"* on files that **per-path hashing showed all 27 identical**,
+  so **Sanaa's own "a pure-deletion diff vs HEAD is the reversion signature" guard FIRES
+  FALSELY** on this box. **The only valid discriminator named there: `git hash-object`
+  against `git rev-parse HEAD:<path>`.**
+
+⚠ **WHY THIS ONE IS THE DANGEROUS ONE EVEN THOUGH IT CHANGED NOTHING:** the false proof
+it produces is *"no changed line touches a gate"* — **the exact assertion rule 2's freeze
+discipline rests on.** A reader that cannot see a change **cannot see a gate being
+widened**, and rule 2's entire evidentiary content is that the gate could not have been
+fitted to the answer. **This mechanism attacks the check that protects every other
+check.** It was caught by re-deriving against the HEAD blob, **not by any control.**
+
+---
+
+#### **M2b — `checkMesh`'s ABSENT-LINE VARIANTS, AND THE WITNESS-FIELD DISCRIMINATOR.** **VARIANT of face 2 (passing-on-skips)**, at the *line* level: an absent line is a check that never ran, and it reads as a check that ran clean
+
+**What it is `[RE-DERIVED — I read the reader and its control at source]`.** `checkMesh`
+does not print a fixed set of lines. Whether a given quantity appears at all depends on
+which branch the tool took. **So a reader keyed to a line's ABSENCE conflates two states
+that are not the same: "the condition is absent" and "the check never printed."** The
+neighbouring defect is already `L-459` (`docs/LESSONS.md:22040-22064`): `checkMesh` prints
+**`Non-orthogonality check OK.`** at **89.7134 / 89.9441 / 89.9985 / 89.983501 degrees**
+against a 70-degree gate, with **1,810,108** severely non-orthogonal faces on the same
+screen — *the warning and the verdict are two different tests, printed adjacently, and
+the verdict is the looser of the two.*
+
+**THE CURE IS THE MODEL FOR THIS WHOLE EXTENSION, AND IT IS ALREADY BUILT AND RUNNING.**
+`cases/committee-grids/read_ugrid_identity.py:391-439`:
+- **`state`** — set to `"ABSENT"` at **`:398`** when the log is not a file, and to
+  `"READ"` at **`:401`** when it is. **The field is present in BOTH cases and its value
+  differs.** That is the whole trick.
+- **`aspect_ratio_label_form`** — `"="` (**`:418`**, value printed, unflagged), `":"`
+  (**`:422`**, `***High aspect ratio` branch taken), `None` (**`:426`**, no aspect-ratio
+  line at all). **Three states, so "no high-AR warning" and "no AR line" are
+  distinguishable**, which two states could never be.
+- The tool's verdict strings are captured into
+  `verdict_line_IGNORED_NEVER_A_GATE` (**`:434`**) **solely to show they were discarded**.
+- **The control that proves it:** `cases/committee-grids/grade_rung0b.py:282-287`, control
+  **B7** — drive the reader on a log that does not exist and require
+  `state == "ABSENT"` **and** the number `None`: *"an ABSENT `checkMesh` log reads
+  `ABSENT`. IT NEVER READS CLEAN"* (`:65`).
+
+> **DISCRIMINATING TEST — THE WITNESS FIELD. THIS IS THE SHAPE EVERY OTHER TEST IN THIS
+> SECTION IS BUILT TO IMITATE.**
+> *Is there a field in this reader's OUTPUT that is present in **both** the found and the
+> not-found case, and takes **different values** in the two?*
+> **If the only difference between "the line was there and clean" and "the line was never
+> printed" is an absent key or a `None`, the mechanism is present** — because every
+> downstream consumer that tests truthiness collapses the two. **The runnable form:** run
+> the reader twice, once on a real artifact and once on a path that does not exist, and
+> **diff the two output dicts.** A sound reader differs in a named, non-null field. An
+> exposed reader differs only in what is missing.
+
+**DID IT CHANGE A LANDED VERDICT? NO, AND IT WAS EXPLICITLY PREVENTED FROM DOING SO.**
+RUNG 0b (`33b77af5`) records, in its own commit message: *"QUALITY REPORTED, NOT GATED,
+and no verdict line was read anywhere (L-459) … every value PARSED off its named maximum
+while `checkMesh` printed `Non-orthogonality check OK.` beside all four"*
+`[RE-DERIVED — commit message read at source]`.
+
+⚠ **BUT THE SAME READER DEFECT DID MOVE A REGISTERED GATE — IN THE OPPOSITE, SAFE
+DIRECTION, AND IT IS ON THE RECORD.** `docs/LESSONS.md:19901-19919`: a registration gated
+its meshes on `checkMesh` printing **`Mesh OK`**; the finest level instead printed
+`***High aspect ratio … Max aspect ratio: 1012.242839, number of cells 2` and
+`Failed 1 mesh checks.` — **two cells in 202,180 failed the study**, on a quantity
+`docs/standards/MESH_STANDARD.md` §3.3 calls *"advisory at 1000, never a lone rejection"*.
+**A false REJECTION, not a false pass.** Worth saying plainly: **the same "read the tool's
+verdict line" defect cuts both ways, and the fail-open direction — `OK` at 89.9985° — is
+the one nothing catches.**
+
+---
+
+#### **M3 — THE COMMIT-MESSAGE PAIR: "a commit message is a pointer, never a payload."** **VARIANT of face 3 (claim-from-completion)** — *the work was done and the commit landed, therefore the measurement is filed*
+
+**What it is `[RE-DERIVED — both commits opened at source]`.** Two halves of one
+mechanism, one per direction:
+- **The writing half.** `10ba2567` — I ran `git show --stat`: **exactly one file,
+  `CONVERTER_CALLER_SCAN_certonomous_runs.json`, 31 insertions.** The five-copy converter
+  manifest and the 13-header byte-budget audit existed **only in that commit's message**.
+- **The reading half.** A measurement was later read *out of* a commit message and treated
+  as filed.
+
+**The consequence is landed and documented, and it is not hypothetical.** `b78e8858`'s own
+message: *"The Rung 0 lane searched the tree for them, could not find them, and had to
+mark its RUNG0b amendment's citation **RELAYED NOT VERIFIED**."* The repair landed the
+same day — `b78e8858`, **3 files, 637 insertions**, both artifacts **re-measured from
+disk** by `verification/runs/RUNG1_M6_runs/M1_ugrid_reimport/audit_converter_and_ugrid_headers.py`
+rather than transcribed from the message, **each carrying its own refusal control** (the
+manifest refuses unless it finds the known-defective copy and reports it defective; the
+header audit refuses unless it observes **both** agreement and disagreement).
+
+> **DISCRIMINATING TEST — RESOLVE THE CITATION, DO NOT READ IT.**
+> *For every measurement a record relies on: can a script open it **by path**? Run
+> `git rev-parse <commit>:<path>` on the citation and `git diff-tree --stat <commit>` on
+> the commit that allegedly filed it.* **If the commit's diffstat does not list a file
+> containing the number, the number is not filed — whatever its message says.**
+> The asymmetry is exact and cheap: `10ba2567` → **1 file, 31 insertions**, number absent.
+> `b78e8858` → **3 files, 637 insertions**, number present and hashable.
+> **A measurement that lives only in a commit message cannot be read by a script, cannot
+> be hashed as an input, and cannot be cited by path from a frozen `FROZEN PATHS` table.**
+
+**DID IT CHANGE A LANDED VERDICT? NO.** RUNG 0b's `PASS` (`33b77af5`) was graded after
+both artifacts were real. **WHAT IT DID DO, AND IT IS NOT NOTHING:** it forced a **frozen
+registration's amendment to carry a citation marked `RELAYED NOT VERIFIED`** — the
+downgrade stands on the record at `75ad7ef9`. **A citation degraded is not a verdict
+changed, and I will not inflate it into one.**
+
+---
+
+#### **M4 — heat-transfer's DOMAIN GAP.** ⚠ **NOT A FACE. It is a map of where the next face will be found, and it is the sharpest item in this set**
+
+**FIRST, A CORRECTION TO MY OWN BRIEF, BECAUSE IT WAS HANDED TO ME AS A VERBATIM QUOTE AND
+IT IS NOT ONE.** I was given, as verbatim: *"we plant rigorously into comparators reading
+solver logs, and into nothing else."* **That sentence is not on disk in that wording.**
+The on-disk sentence is `docs/LESSONS.md:22890-22895` (**`L-470`**, heat-transfer's):
+
+> *"This is rule 3 — the planted-zero control — outside the domain the lab planted it in.
+> … the lab enforces it rigorously on **comparators reading solver logs**. Nobody plants
+> into a git assertion, a shell glob, or a selftest's own coverage. **All three of these
+> are exactly the reader rule 3 forbids, in places the rule was never pointed at.**"*
+
+**The paraphrase is faithful in substance and sharper than the original. It is still a
+paraphrase, and the landed text must quote the file, not the relay.**
+
+**The census, stated at the number the artifact carries.** `L-470` files **three** guards
+measured on the T25R6c-R2 rung and says the same shape was docketed the same day as
+**D588** from two other graders — **"which makes five instances in one session across two
+teams"** (`docs/LESSONS.md:22843-22844`) `[RE-DERIVED — read at source]`. **My brief says
+six. I could not find a sixth and I am not going to round up to it** `[REPORTED —
+heat-transfer; the sixth is NOT LOCATED by me]`. The three at source:
+1. **A `git` assertion satisfied by the empty set** — the rule-10 protocol's
+   *"only my paths"* assertion, with an empty tree. **`diff-tree` printed nothing; nothing
+   is a subset of my paths; the guard passed.** Commit **`6d3b6c2d`** is empty and carries
+   a message describing a file it does not contain.
+2. **A reader whose addressing scheme could not name the object** — a monitor globbed
+   `processor0/111.8`; OpenFOAM writes the accumulated float **`111.799999999998`**, so
+   **no literal match could ever succeed.**
+3. **A selftest that passed 39 checks on a comparator that cannot write its own verdict** —
+   `grade_t25R6cR2.py --selftest` reports `PASS (0 failed)` over 39 checks and **never
+   calls `finish()`**; the real run then raised `TypeError` at the record-writing step and
+   **`T25R6cR2_VERDICT.json` was never written.**
+
+> **DISCRIMINATING TEST — NAME THE OBJECT, THEN LOOK FOR ITS PLANT.**
+> *What kind of object does this reader actually consume — a solver log, a directory
+> listing, a git tree, a queue entry, a JSON record, its own coverage? Now: does any
+> control in this repository **mutate an object of THAT KIND** and require this reader's
+> output to change?*
+> **If the file's only plant targets a solver log while its load-bearing read is a
+> `diff-tree`, a glob, or a queue directory, the reader is UNPLANTED IN ITS OWN DOMAIN** —
+> and its zero is exactly the zero rule 3 forbids, in a place rule 3 was never pointed at.
+> **The operational form is one line: `grep` the file for its plant, then ask what the
+> plant is planted INTO.** A plant in the wrong domain is decoration.
+
+🔴 **DID ANY INSTANCE CHANGE A LANDED VERDICT? NO. DID ONE *WOULD-HAVE*? YES — AND THIS IS
+THE SINGLE MOST IMPORTANT SENTENCE IN THIS DRAFT.**
+
+> **`L-470` INSTANCE (2) WOULD HAVE CHANGED A LANDED VERDICT.** The monitor reported
+> **`FIELD DIRS at 111.8: 0` on a run that had written that directory**. Under
+> `CLAUDE.md` rule 4 — *last time == `endTime`*, fields present, age guard — **a run that
+> wrote no field directory at its `endTime` is not complete, and its rows grade
+> `NOT A RESULT`.** A false zero there converts a completed, gradeable run into an
+> incomplete one. **And `L-470` says the trap was fully baited:** *"The zero was false and
+> it looked exactly like the failure the predecessor rung had actually suffered"* —
+> T25R6c really did write no directory at its endTime (`docs/LESSONS.md:22861-22863`).
+> **It was caught ONLY because a second, independent reading existed** — the frozen
+> grader's `abs(float(d) - ENDTIME_B) <= 1e-6` and the `DONE` marker it gates. **It was
+> not caught by a control, because in that domain there was no control.**
+
+**I state the governance consequence and do not act on it.** The bar handed to me is
+explicit: *nothing here becomes a gate until one would have changed a verdict.* **On my
+reading that precondition is now MET, by exactly one instance, and it is heat-transfer's,
+not this team's.** **I propose no instrument, write no clause, and change no disposition —
+this stays REPORTED, NOT GATED.** Whether a met precondition is acted on is the
+supervisor's call and, above that, Sanaa's; **it is not a lane's, and a lane noticing that
+a bar is met is not the same as the bar being lifted.**
+
+---
+
+### §28.6.2 THE DOMAIN-GAP COUNT — PART MEASURED, PART EXPLICITLY UNMEASURED, AND I SAY WHICH IS WHICH
+
+The question M4 poses is quantitative: **into how many non-log-reading comparator classes
+does this lab actually plant?** I measured what is cheap and refuse to guess the rest.
+
+**MEASURED — the population that plants at all.** Files under `verification/`, `cases/`
+and `scripts/` matching `*.py` that define a plant constant (a top-level identifier
+containing `PLANT` on the left of an `=`): **261 files.** Method stated so it can be
+re-run and disputed; it is a **syntactic census of planters, not of plant targets.**
+
+**MEASURED, AND DECISIVE FOR ONE CLASS — the queue readers.** Applying a proximity test —
+a `PLANT` token within 25 source lines of a queue-shaped read (`verification/queue`,
+`queue_runner`, `LAUNCH_LOG`) — returns **exactly 1 file of the 261**, and it is
+`scripts/test_auto_stop_liveness.py`, **which is not a graded comparator.**
+🔴 **THE QUEUE-READING CLASS HAS ESSENTIALLY NO PLANTED CONTROL, AND IT IS THE CLASS FACE
+4 WAS FOUND IN.** That is the one number in this section I will defend.
+
+**MEASURED — one genuine non-log planter exists, so the "nothing else" is not literally
+true, and the correction sharpens the finding rather than blunting it.**
+`scripts/referent_population_screen.py:264-293` **plants into a git-OBJECT reader**: it
+writes a loose blob with `git hash-object -w` (`:271`), reads it back through the
+production `read_blobs` path, and **refuses (`REFUSED:`, exit 2) if the plant does not
+come back** (`:277`, `:289`). **I opened it and read it** `[RE-DERIVED]`.
+**So the gap is not "git" as a domain — it is the git INDEX/STATUS domain** (`L-470`
+instance 1's `diff-tree` assertion, and M2a's `git diff`), **and the queue domain.**
+Naming the gap correctly is what makes it fixable.
+
+**UNMEASURED, AND I WILL NOT GUESS IT.** The counts for the mesh-reading, field-reading
+and index-reading classes are **NOT measured by anything I ran.** The proximity test
+returns **66** files for mesh-shaped reads and **10** for git/index-shaped reads, but
+**proximity is co-occurrence, not targeting**: a comparator may plant faithfully into a
+solver log while merely *mentioning* `polyMesh` twenty lines away, and it would score as a
+mesh-domain planter. **Those two numbers are proxies and must not be quoted as counts of
+planted classes.** The measurement that would settle it is per-file and cannot be
+automated honestly: **for each of the 261, read what the plant is written into and what
+the load-bearing read consumes, and record the pair.** At a few minutes a file that is
+tens of hours of reading. **It is unmeasured. It is not "small" and it is not "probably
+fine" — it is unmeasured**, and §28.4's own rule applies to it: *a blocked, refused,
+skipped or unrun measurement is `NOT A RESULT`, never absence-of-failure.*
+
+---
+
+### §28.6.3 THE SUMMARY THE NEXT READER ACTUALLY NEEDS
+
+| # | mechanism | classification | discriminating test, in one line | changed a landed verdict? |
+|---|---|---|---|---|
+| M1 | premature read of a live artifact | **variant of face 3** | truncate the fixture; if the reader's output differs only in row count and in no named field, it is exposed | **no**; would have broken a launcher's provenance, not a number |
+| M2a | reader answering a different question (`git diff` vs poisoned index) | ⚠ **NOT this taxonomy** — the ruled class at `LAB_STATE:28544` | name the reference the comparison is against, then require the proof to print a change it is known to be able to see | **no — caught.** ⚠ but it is the one that attacks rule 2's own freeze check |
+| M2b | `checkMesh` absent-line variants | **variant of face 2** | **the witness field**: run the reader on a real artifact and on a missing one and diff the outputs — a sound reader differs in a named, non-null field | **no**, and RUNG 0b prevented it by design; the same defect DID move a gate once, in the safe direction |
+| M3 | the commit-message pair | **variant of face 3** | resolve the citation with `git rev-parse <commit>:<path>`; a message is not a payload | **no**; it downgraded a frozen amendment's citation to `RELAYED NOT VERIFIED` |
+| M4 | the domain gap | ⚠ **not a face — a map** | name the object the reader consumes, then look for a plant into **that kind** of object | **no — but ONE INSTANCE WOULD HAVE**, `L-470` (2), a false zero that rule 4 turns into `NOT A RESULT` |
+
+**NET EFFECT ON §28.2: ZERO NEW FACES.** Two variants (M1, M3 under face 3; M2b under
+face 2), one referral out of the taxonomy (M2a), one map (M4). **The taxonomy stands at
+four faces**, and the extension's value is that **three separate teams' new findings all
+landed inside the existing four** — which is evidence the four are the right four, and
+that evidence is worth more than a fifth row would have been.
+
+---
+
+### §28.6.4 DISPOSITION, AND IT IS NOT NEGOTIABLE HERE
+
+**REPORTED, NOT GATED.** No clause is written, no instrument is built, no sweep is ordered,
+no threshold is created, moved or retired, and nothing is re-graded. **Sanaa's governance
+budget is the binding constraint** — her 2026-09-03 `2000Z` ruling makes *reported, not
+gated* the default and `2200Z` says *"I prefer something to be running and watched than too
+much governance and no run."* **This section costs zero compute and adds zero enforcement.**
+
+The three cures named above are **already built and already running** — the witness field
+at `read_ugrid_identity.py:398/401/418-426` with control B7, the skip-refusal at
+`test_auto_stop_liveness.py:449-450`, and the artifact-not-message discipline at
+`b78e8858`. **Nothing new is needed to act on any of this; a reader has only to copy a
+shape that exists.**
+
+---
+
+### §28.6.5 SCOPE, HONESTLY — WHAT IS MINE AND WHAT IS NOT
+
+**RE-DERIVED BY ME AT SOURCE:** `test_auto_stop_liveness.py:428-450`; `T5_RESULTS.md:3`
+and the six `DONE.*` markers in `T5_runs/` (counted by me); `ef33434c` is empty (I ran
+`git show --stat`); `10ba2567` is 1 file / 31 insertions and `b78e8858` is 3 files / 637
+insertions (both `--stat`, run by me); `read_ugrid_identity.py:391-439` and
+`grade_rung0b.py:65,282-287`; `referent_population_screen.py:264-293`; `L-459`, `L-470`
+and `docs/LESSONS.md:19901-19919` read at source; the 261-file plant census and the
+queue-class count of 1, both run by me in this invocation.
+
+**REPORTED, NOT RE-DERIVED:** cfd's premature-read instance 1 (`LAB_STATE:23045`, **no
+artifact path exists to open**); cfd's face-4 queue instance and its *"forty minutes"*
+(`LAB_STATE:23048`, **no artifact path**); the originating `git diff` false-proof instance
+(**corroborated at two independent board lines, but the instance itself is cfd's**).
+
+**CLAIMED IN MY BRIEF AND NOT LOCATED BY ME:** a **second** premature-read instance; a
+**sixth** heat-transfer instance (the artifact says five); and the domain-gap sentence as
+a **verbatim** quote (the on-disk wording differs — `docs/LESSONS.md:22890-22895`).
+
+**NOT MEASURED AT ALL:** the per-class planting counts for the mesh, field and
+index-reading comparator classes. Proxies exist; **counts do not**, and §28.4 says what an
+unrun measurement is.
+
+*A relayed item recorded as mine would have made this section read as four measurements of
+this team's, which is the exact defect §28.5 was written to avoid. The relay is named every
+time.*
+
+---
+
+### §28.6.6 ⚠⚠ THE SUPERVISOR'S RULING ON THE MET PRECONDITION — **"WOULD HAVE CHANGED A VERDICT" IS A NECESSARY CONDITION FOR GATING, NOT A SUFFICIENT ONE, AND READING IT AS SUFFICIENT IS HOW A GOVERNANCE BUDGET GETS SPENT BY ACCIDENT**
+
+`§28.6.1`'s M4 finds that **`L-470` instance (2) would have changed a landed verdict** — a
+monitor's false `FIELD DIRS at 111.8: 0` on a run that **had** written
+`111.799999999998`, which under `CLAUDE.md` rule 4 converts a complete, gradeable run into
+an incomplete one and its rows into `NOT A RESULT`. **The measurement is sound and I accept
+it.** The lane stopped there and said acting on it was not a lane's call. **That was
+correct and it is the right instinct; the call is made here.**
+
+**THE BAR AS IT WAS HANDED DOWN READS: *"none becomes a gate until one would have changed a
+verdict."*** *Until* is a **gate-permitting** word, not a **gate-triggering** one. It names
+a threshold below which gating is **forbidden**; it does not promise gating above it.
+**RULED: a met precondition opens the question; it does not answer it.** *The failure mode
+this ruling prevents is mechanical and would be invisible: a lab that gates on every met
+necessary condition has delegated its governance budget to whoever finds the next
+specimen.*
+
+**I DECLINE TO GATE, ON THREE INDEPENDENT GROUNDS, ANY ONE OF WHICH WOULD SUFFICE:**
+
+1. **ONE INSTANCE IS NOT A CLASS.** `§2p.5`: two instances is a **PATTERN**, not a class.
+   This is **one**, and this team has refused its own sweeps on two-member populations
+   twice this week. **A rule refused against my own findings is not available to me here.**
+2. **NOTHING IS BLOCKED, SO SANAA'S BAR DENIES IT A CLAUSE.** The false zero **was caught**
+   — by the frozen grader's independent `abs(float(d) - ENDTIME_B) <= 1e-6` reading. **No
+   result is blocked today**, and her governance reform is explicit: no result blocked → no
+   petition, no clause; the team records the decision and moves on.
+3. **⚡ THE STRONGEST GROUND, AND IT IS THE ONE THAT WOULD SURVIVE IF THE OTHER TWO FELL:
+   THE CURE IS ALREADY BUILT AND ALREADY RUNNING IN THIS EXACT DOMAIN.** The witness field
+   at `read_ugrid_identity.py:398/401/418-426` with control **B7** at
+   `grade_rung0b.py:282-287`, and the skip-refusal at
+   `test_auto_stop_liveness.py:449-450`. **A new gate would add ENFORCEMENT without adding
+   PROTECTION** — it would compel, at lab-wide cost, a shape three teams have already
+   adopted voluntarily and are already running. *That is the most expensive kind of rule:
+   one whose entire effect is on the people who were already complying.*
+
+**WHAT WOULD MOVE ME, STATED IN ADVANCE SO IT CANNOT BE FITTED LATER — AND THIS IS THE PART
+THAT MAKES THE REFUSAL FALSIFIABLE RATHER THAN MERELY CONVENIENT:**
+
+> **(a) A SECOND INSTANCE IN THE SAME DOMAIN** — making it a pattern under `§2p.5`; **or
+> (b) ONE INSTANCE THAT WAS NOT CAUGHT**, i.e. a false zero of this shape that reached a
+> landed verdict and had to be demoted afterwards, which would put a result in the
+> `§2ac` class; **or (c) an instance in a domain where NO independent second reading
+> exists**, since ground 2 rests entirely on one having existed here by good fortune.
+> **On (c) I note against my own refusal: the second reading that caught `L-470` (2) was
+> not a control. It was luck of the same kind `§2ag.6` named — and luck is not a control.**
+> **That is the honest weakness of ground 2 and I state it rather than let a successor
+> find it.**
+
+**DISPOSITION UNCHANGED: `REPORTED, NOT GATED`.** Zero instruments, zero sweeps, zero
+clauses, zero thresholds created, moved or retired, nothing re-graded, zero compute.
+
+---
+
+### §28.6.7 THE DEFECT IN `§28.2` IS ACCEPTED AGAINST MY OWN SECTION, AND THE REPAIR IS A DISCIPLINE, NOT AN INSTRUMENT
+
+`§28.6.0` finds that **rows 2, 3 and 4 of `§28.2` carry no artifact path** — no file, no
+commit, no line — so the re-derivation could establish the **mechanisms** and could not
+establish that they are **`§28`'s own specimens**. **The score is stated honestly as
+`3 of 3` mechanisms re-derived and `0 of 3` proven identical.** *That distinction is worth
+more than the score, and it is the kind a lane is under no obligation to volunteer.*
+
+**ACCEPTED. THE ROW WAS MINE AND THE OMISSION WAS MINE.** `§28.5` promised that a relayed
+item would be recorded as REPORTED, and it kept that promise; **what it did not do was
+record WHAT WAS RELAYED WELL ENOUGH FOR ANYONE TO OPEN IT.** *An attribution without a
+citation is a well-labelled dead end — it tells you whose measurement you cannot check.*
+
+> **RULED: A TAXONOMY ROW CARRIES A PATH OR A SHA. A row naming a mechanism, a team and a
+> duration, and no artifact, is UNFALSIFIABLE BY CONSTRUCTION — which is this audit's own
+> frames rule turned on the audit.** It costs one field at writing time and it is the
+> difference between a record and an anecdote.
+
+**THE SPECIMENS NOW ON RECORD FOR FACES 2, 3 AND 4** — `test_auto_stop_liveness.py:428-450`,
+`T5_RESULTS.md:3` with the six `DONE.*` markers in `T5_runs/`, and `ef33434c` —
+**are cited here and are EXPRESSLY NOT CLAIMED to be the originals.** They are live
+specimens of the same mechanisms, found on this box. **`§28.2`'s original three remain
+unlocatable and are recorded as such rather than quietly replaced**, because substituting a
+findable specimen for an unfindable one and saying nothing is exactly the move that makes a
+record look sounder than it is.
+
+**AND cfd's FACE-4 ORIGINAL — the "forty minutes blind to idle territory" — REMAINS
+UNRE-DERIVED, with no artifact path in existence.** Under `§28.4`'s own rule, an unrun
+measurement is **`NOT A RESULT`**, never absence-of-failure. **It stays REPORTED and it does
+not get promoted by the passage of time.**
+
+---
+
+### §28.6.8 THREE ENDORSEMENTS AND TWO CORRECTIONS TO MY OWN BRIEF, WHICH THE LANE CAUGHT AND I DID NOT
+
+**(1) THE `M2a` REFUSAL IS UPHELD AS THE SUPERVISOR'S CALL, NOT MERELY ACCEPTED AS A LANE'S
+RECOMMENDATION — AND IT IS THE BEST JUDGEMENT IN THE DRAFT.** `§28`'s test is *"can this
+path distinguish 'the check ran and found nothing' from 'the check did not run'?"* **On the
+`git diff`-versus-poisoned-index false proof, THE CHECK RAN.** It touched a real object and
+returned a **true** answer **about the wrong proposition**, so `§28`'s test comes back
+**clean** on a path that is wrong. **Admitting it as a fifth face would place inside the
+taxonomy a specimen the taxonomy cannot detect, and would make the test appear weaker than
+it is.** It is filed to the ruled class at `L-394`/`L-395`/`L-401`/`L-402` and `§2j`, and
+cross-referenced from here. ⚠ **Its danger is recorded rather than diluted by the
+reclassification: the false proof it manufactures is *"no changed line touches a gate"* —
+the exact assertion rule 2's freeze discipline rests on. It attacks the check that protects
+every other check, and it was caught by re-deriving against the `HEAD` blob, not by any
+control.**
+
+**(2) ZERO NEW FACES IS THE RIGHT ANSWER AND IS A RESULT, NOT AN ABSENCE OF ONE.** Three
+teams' independent findings all landed inside the existing four. **That is evidence the
+four are the right four, and it is worth more than a fifth row.** *A taxonomy that grows
+by one every time someone looks at it is a list, not a taxonomy.*
+
+**(3) THE DOMAIN-GAP NUMBER I WILL STAND BEHIND IS THE NARROW ONE.** Of **261** files
+defining a plant constant, **exactly 1** sits near a queue-shaped read, and it is not a
+graded comparator: **the queue-reading class — the class face 4 was found in — has
+essentially no planted control.** The mesh, field and index-class counts are **UNMEASURED**;
+the proximity figures **66** and **10** are co-occurrence, not targeting, and **must not be
+quoted as counts**. *"Unmeasured" is the finding there — not "small", not "probably fine".*
+
+**⚠ TWO CORRECTIONS TO MY OWN BRIEF, BOTH FOUND BY THE LANE, BOTH RECORDED AS MINE:**
+- **I handed down as VERBATIM a sentence that is not on disk in that wording.** *"We plant
+  rigorously into comparators reading solver logs, and into nothing else"* is a
+  **paraphrase**; the on-disk text is `docs/LESSONS.md:22890-22895`. **The paraphrase is
+  faithful and sharper than the original, which is exactly what makes it dangerous** — a
+  quotation improved in transit is still a fabricated quotation, and had the lane taken it
+  on my authority the landed record would have carried a false quote in quotation marks.
+- **I said SIX instances. The artifact says FIVE** (`docs/LESSONS.md:22843-22844`: three at
+  source plus `D588`'s two, *"five instances in one session across two teams"*). **The lane
+  looked for a sixth, did not find one, and refused to round up to my number.**
+
+*Both are the `§28` family in a brief rather than in code: a number and a quotation that
+arrived without an artifact and would have been believed on the strength of who sent them.
+**A supervisor's brief is a relay like any other, and it gets no exemption from the audit
+it commissions.*** **The lane tested the code instead of my guess, for the second time
+today. That is what a lane is for, and it is recorded here rather than absorbed.**
