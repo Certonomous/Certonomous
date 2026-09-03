@@ -1409,3 +1409,51 @@ line displaced is the `END OF ADDENDUM 13.` marker below, which moves down by th
 length of this section and is cited by nothing.
 
 **END OF ADDENDUM 13.**
+
+---
+
+## ADDENDUM 14 — A CORRECTION TO ADDENDUM 13's MEASURED LINE, AND THE WASTE COLUMN OVERRULED. Dated **2026-09-03**. Version **1.14 → 1.15**.
+
+> **lines whose number changed above this section: 0** — asserted by execution against both the pre-append snapshot and `git show HEAD:`.
+
+**Moves no gate, no threshold, no prediction, no band, no cap or label. F1–F5 REMAIN UNSCORED. The A13.1 ruling is UNAFFECTED and the reason is given in §A14.2.**
+
+### A14.1 ⚠ A CLAUSE IN THE MEASURED LINE IS WRONG. STRUCK BY QUOTE, NOT REWRITTEN.
+
+A13.1 line 1344 states, of `DASolver`:
+
+> ~~"every sequence-shaped attribute on `DASolver` is mesh or geometry (`faces`, `owners`, `neighbours`, `xv`, `xv0`, `basicFamilies`, `wallList`, `imOptions`)"~~ — **STRUCK.**
+
+**Re-counted from the artefact `XM/XM.log`: `DASolver` has 21 sequence-shaped attributes. I named 8 and characterised all 21.** The thirteen I did not name are `allSurfacesGroup`, `allWallsGroup`, `boundaries`, `defaultOptions`, `designSurfacesGroup`, `dtype`, `families`, `fileNames`, `name`, `options`, `parallelFlag`, `solverRegistry`, `version` — and **eight of those are configuration, registry or version data, not mesh or geometry at all.**
+
+**This is the same defect as the other four in this document's ledger of them, in its purest form: a universal claim ("every") resting on an enumeration I did not finish.** It differs from the arithmetic error in A13.7 in one way that makes it worse — **that one was in a working note; this one is in a line labelled MEASURED.**
+
+**How it happened, stated plainly:** the eight names are the sequence-shaped attributes that are *interesting* — the ones a reader hunting a residual history would weigh. I wrote down the ones I had reasoned about and quantified them with the word "every". **The census had all 21 on disk the whole time.**
+
+### A14.2 THE RULING IS UNAFFECTED, AND THIS IS WHY — NOT AN ASSERTION THAT IT SURVIVES
+
+**Checked, not assumed: none of the thirteen unnamed attributes is a residual history.** No name among them matches `resid|hist` at all, and their types are `str`, `dict` and `OrderedDict` holding configuration. **The A13.1 ruling rests on the four registered candidate names being absent from both objects — re-verified here, present in 0 of the 2 enumerated attribute sets — and on the only two `resid|hist` names on `DASolver` being `calcPrimalResidualStatistics` and `getResiduals`, both recorded by the artefact as `{"type": "method", "callable": true, "sequence_shaped": false}`.** Every one of those figures re-checked against `XM/XM.log` and every one confirmed: `DASolver` **87** attributes, wrapper **298**, **0 UNREADABLE on either**.
+
+**So the struck clause was decorative and the load-bearing clauses were sound — but that is a fact about which sentence happened to be sloppy, not a property of how the line was written.** Had the wrong sentence been the careless one, the ruling would have been false and equally well-dressed.
+
+**One honest note on the census's own predicate:** `sequence_shaped` is true for `str`, so `version`, `name`, `dtype` and `parallelFlag` are counted sequence-shaped. That is a broad predicate, deliberately — a census that guesses which sequences matter is the blindness it exists to remove — but it means "sequence-shaped" in these counts is **`__len__`-bearing**, not "array-like", and a successor reading 21 should read it that way.
+
+### A14.3 THE WASTE COLUMN — I WAS OVERRULED AND THE OVERRULE IS RIGHT
+
+The close-out row `C-20260903T234227.693660Z-ef853022` recorded waste **0.0167** and declined to count the 6.0 core-min census stall, on the ground that *"a spend whose cause is UNMEASURED cannot be classified"*.
+
+**Overruled by the dafoam supervisor, and the reasoning is recorded here because it is a lasting rule and not a one-off correction:**
+
+> **Waste names an OUTCOME, not a culpability.** It is core-minutes that bought nothing. **Whether the spend was avoidable is a question about CAUSE, and cause has its own field.**
+
+**And the decisive argument is the practical one: if a spend that bought nothing escapes the waste column BECAUSE its cause is unmeasured, then every unexplained spend escapes it — and unexplained spends are exactly what the column is for.** A waste figure that counts only the losses we can explain will always look small, and always wrong in the same direction.
+
+**The charter is on the supervisor's side, and I checked it rather than taking the ruling on authority:** `COMPUTE_BUDGET_CHARTER` §5 lines 107–110 define the split as labelling *"solver cost that bought nothing"* — **an outcome test, with no culpability clause.**
+
+**The factual premise was checked too, by execution, before accepting:** both census container logs (`ATTRCENSUS_2026-09-03T230242Z.container.log`, `…T231752Z.container.log`) end at `SO3AF2_ENV_OK`, the line before the Python invocation; the only `so3af2_attr_census.py` artefacts on disk are the **script**, never an output. **The two attempts produced no enumeration. They bought nothing, and that is measured.**
+
+**Corrected figure: waste 6.0167 core-min — 88.5 % of the item's 6.8000.** Components: **6.0000** the two census attempts (rc: hand-stopped `rc=9` staging-precondition archive, then a second attempt that reached `ENV_OK` and produced no enumeration), **cause UNMEASURED**; **0.0167** the three `rc=127`/`rc=1` `MESH` aborts, cause measured and closed. A correcting row is appended to `docs/COST_CALIBRATION.md`; the original row is **struck by the correcting row, never edited**.
+
+**What the item's remaining 0.7833 core-min bought** is stated so the 6.0167 is not read as the whole story: the `MESH` arm (0.0500, complete, `NOT A RESULT`) and the two `XM` launches (0.3500 + 0.4000), the second of which produced the refusal enumeration that **is** the artefact behind A13.1. **The item's one measured finding cost 0.4 core-min. Delivering it cost 6.4.**
+
+**END OF ADDENDUM 14.**
