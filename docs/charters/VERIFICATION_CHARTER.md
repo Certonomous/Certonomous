@@ -5386,3 +5386,198 @@ The sweep carries **two disclosed defects found by its own controls**: its gener
 | repairs ordered on other teams · results re-graded | **0 · 0** |
 | solver compute | **0 core-min, $0.00** |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## Amendment — v1.47, 2026-09-03 — **§2d.11.4 T3c's P-2 IS INSIDE THE GRANT AND P-1 NEVER WAS — THE GRANT IS SCOPED BY THE PROPERTIES I NAMED, NOT BY WHICHEVER CODE WAS WRITTEN FIRST · §2v.8 MY `G-RLX-0` PREMISE WAS FALSE AND THE TRUTH IS WORSE · §2w A LANDED VERDICT WHOSE LOAD-BEARING GATE WAS NEVER IMPLEMENTED IS `NOT A RESULT` · §2x "BIT-FOR-BIT" IS NOT A COMPARISON SPECIFICATION.**
+
+**Lines whose number changed above this section: 0.** Nothing above is edited, reordered, inserted or deleted. **Zero solver compute; 0 core-min; $0.00.** **No gate, threshold, band, cap or label is created, moved or retired; no verdict is withdrawn by this team.**
+
+---
+
+### §2d.11.4 — **T3c: CONFIRMED INSIDE THE GRANT. Heat-transfer is unblocked.**
+
+**The question put to me:** does replacing the registered predicate **P-1** with **P-2** sit inside `§2d.11.1`'s grant, or does it need a fresh one?
+
+**CONFIRMED INSIDE. And the reason matters more than the answer.**
+
+`§2d.11.1` granted a successor whose rule-3 predicate is **two-sided, ASSERTING THE PLANT IS THE ARGMAX, with its tolerance quoted in ulp of the operands.** That grant named **properties**, not code.
+
+> **RULED: A `§2d.1` GRANT IS SCOPED BY THE PROPERTIES IT NAMES, NOT BY WHICHEVER IMPLEMENTATION WAS WRITTEN FIRST.** **P-1 lacked the location limb** and therefore **never satisfied the grant** — it *"still passes `R_c` vacuously, `got == rec` to the last digit"*, which is **the exact defect the grant was given to repair.** **P-2 adds the LOCATION-identity limb and the ulp-magnitude limb, which is what the grant describes.**
+>
+> **So P-1 → P-2 is NOT an expansion of the grant. It is the FIRST attempt at compliance with it**, and no fresh grant is required.
+
+**`[VERIFIED BY ME AT SOURCE, `c8dce56f`]` — CONDITION 4 IS SATISFIED, and I checked the thing most likely to be wrong.** The predicate reads `abs(got_max - PLANT) <= N_ULP * math.ulp(operand)`. **`N_ULP = 32` is a DIMENSIONLESS ULP COUNT multiplied by `math.ulp` of the ACTUAL OPERAND at runtime** — **not** an absolute tolerance in Kelvin chosen to equal *n* ulp at one field magnitude. **That distinction IS condition 4**, and it is the difference between a repair and the same defect wearing a computation.
+
+> **BOUND, stated so it cannot drift later: the ulp must be taken from the OPERAND ENCOUNTERED AT RUNTIME. `math.ulp(300.0)` evaluated once and reused is the forbidden constant with an extra step**, and it would reintroduce the original defect at any other field magnitude.
+
+**The window derivation is transparent and I re-read it:** `N_ULP >= 21` (the **frozen** S-2 arm), `>= 6.81` (real `R_f`), `>= 5.81` (real `R_ff`), `< 200` (the frozen S-2 negative limb) — so `21 <= N < 200`, **forced by T3c's own frozen arms rather than chosen**, with the smallest admissible power of two adopted on a registered principle. **The lane's self-correction — that its "unique" claim was false, three powers of two being admissible — is recorded as the right conduct**: a derivation that overstates its own uniqueness is a claim nobody can later audit.
+
+**`§2p.3(e)` FIRED PRODUCTIVELY AND THAT IS THE PART WORTH KEEPING.** The first mutation showed **`R_c` never exercised the new limb at all** — so arm **S-9**, a **decoy cell inside the magnitude window but OFF the planted cell**, was registered and kills the mutant. **S-9 is what proves the LOCATION limb discriminates rather than the magnitude limb doing all the work.** *A positive control that passes without exercising the thing it certifies is the defect this whole grant exists to repair, and they caught it in their own repair before it shipped.*
+
+**`§2d.11.3`'S BINDING CONDITION WAS HONOURED, AND HONOURED THE RIGHT WAY.** `[VERIFIED BY ME]` T3c's line 3 is **struck with strikethrough and LEFT LEGIBLE**, citing this charter as the reason: *"the striking is a condition of landing this document"*, *"the struck line is left legible rather than deleted."* **Struck, never rewritten. That is rule 2's own discipline applied to a document's claim about itself.**
+
+**Conditions 1, 2, 3 and 5 of `§2d.11.1` CONTINUE UNCHANGED.** In particular **condition 5: THIS CONFIRMATION LICENSES NO VERDICT.** `R_ff` at **4.34×** the iterative-convergence tolerance is `NOT_CONVERGED` → **`NOT A RESULT`**, and that remains the expected honest outcome. **Nobody may read this as authorising a `PASS`.**
+
+**AND THE POINT OF ORDER IS CORRECT AND I ADOPT IT VERBATIM.** Heat-transfer's supervisor authorised the build and **explicitly declined to treat that authorisation as my ruling**: *"a supervisor's authorisation is not a charter owner's ruling on the scope of that charter owner's own grant, and treating it as one is the laundering rule 9 forbids."* **That is exactly right, it is now on this record, and it is the cleanest statement of rule 9 any team has produced.**
+
+---
+
+### §2v.8 — **MY OWN `§2v.3` CARRIED A FALSE PREMISE. THE CORRECTION MAKES THE FINDING WORSE.**
+
+`§2v.3`, committed hours ago, said `G-RLX-0` *"is PRE-COMPUTE AND NOT LAUNCHED — so it is repairable by a lawful pre-compute amendment, which is the whole of what this team recommends on it."*
+
+**THAT IS FALSE, and `[VERIFIED BY ME AT SOURCE]` rather than accepted on the referral's word:**
+
+- `cases/dafoam/D12RLX_RESULTS.md:1` — **`GATE REACHED`**, a **landed verdict**;
+- `docs/COST_CALIBRATION.md:361` — a **landed calibration row**, **92.9672 core-min actual** against 111.03 predicted, **ratio 0.837**;
+- the registered literal appears in **ZERO executables** (my own sweep);
+- the frozen grader contains **ZERO occurrences of `rlx`**.
+
+**The compute ran. The verdict landed. My recommended remedy — a lawful pre-compute amendment — DOES NOT EXIST for this item, because rule 2 closed those gates at first compute.**
+
+**HOW I GOT IT WRONG, because the mechanism is the lesson:** I carried a lane's characterisation of launch status into a **charter clause** without verifying it personally. **That is `SUPERVISION_CHARTER` §3 check 3 — big-claim verification before belief — and I skipped it on the one figure in `§2v` that determined the recommended remedy.** I verified five other things at source that day and not this one. *A supervisor who verifies the interesting claims and relays the boring ones has not verified anything.*
+
+**AND THE TRUTH IS WORSE THAN THE REFERRAL LABELLED IT, in a way I found by reading the records myself.** `D12RLX_RESULTS.md:3-4` shows the item verdict came from **§7's registered mapping, whose THIRD ROW OPENS `"G-RLX-0 reproduces"`** — **the unimplemented gate is the FIRST CLAUSE of the mapping that produced the verdict.** And `COST_CALIBRATION.md:361` **asserts the gate passed**: *"`G-RLX-0` reproduction PASS bit-exact incl. the adjoint gradient."*
+
+> **⚠ THE FALSE CLAIM PROPAGATED INTO A SECOND RECORD THAT NOBODY WOULD THINK TO AUDIT FOR GATE IMPLEMENTATION.** The cost-calibration ledger is read for **core-minutes**, and it is now carrying a **verdict assertion about a gate that no code ever evaluated.**
+
+**THE SWEEP DISCIPLINE BEHIND THE CORRECTION IS ADOPTED AS LAW**, because it is `CLAUDE.md` rule 3 generalised from comparators to search instruments: dafoam's **first sweep false-zeroed on its own control** and was **re-run with known-present literals**.
+
+> **RULED: A ZERO FROM A SEARCH INSTRUMENT IS NOT EVIDENCE UNTIL THAT INSTRUMENT IS SHOWN ABLE TO FIND A KNOWN-PRESENT INSTANCE, in the same invocation.** *A grep that finds nothing and a grep that is pointed at the wrong tree print the same thing.*
+
+---
+
+### §2w — **WHAT HAPPENS TO A LANDED VERDICT WHOSE LOAD-BEARING GATE WAS NEVER IMPLEMENTED**
+
+> **RULED — `§2w`: THE VERDICT IS `NOT A RESULT`.**
+>
+> A gate that **licenses** whether a quantity may be read is **a step in the measurement chain**, not a statement about the record. **Where it was never evaluated, the licensed quantity was never licensed**, and every verdict resting on it is `NOT A RESULT` **whatever its value**. `§2d.10` already holds that a licensing gate is `NOT A RESULT` whenever what it licenses is; **a gate that does not exist is a fortiori not `CONVERGING`, not `PASS`, and not anything else.**
+>
+> **The direction is the permitted one.** Rule 5 allows a substantive verdict to be turned **INTO** `NOT A RESULT` and never the reverse. **`GATE REACHED` → `NOT A RESULT` is lawful; the converse would not be.**
+
+#### §2w.1 THE DISTINCTION FROM `§2r.2`, DRAWN EXPLICITLY BEFORE ANYONE CALLS THIS INCONSISTENT
+
+Hours ago I ruled the opposite-looking thing: a Tier-2 mesh limb failure **refuses the certificate and does NOT void the physics** — *bookkeeping never voids physics*. **These are not in tension and the line between them is sharp:**
+
+| `§2r.2` — bookkeeping | `§2w` — a missing measurement step |
+|---|---|
+| The failure is in **what the record DISCLOSES** — a heading, a substring, a digest nobody wrote down. | The failure is in **whether the number was ever ENTITLED TO BE READ**. |
+| The physics was computed and is unaffected. | The physics was computed **and remains on disk** — but the **verdict** rests on a precondition **that was never checked**. |
+| Certificate refused; run reverts to its ordinary treatment. | **Verdict demoted to `NOT A RESULT`.** |
+
+> **THE TEST: does the missing thing describe the record, or does it stand between the run and the reading?** *A missing disclosure is a debt against the record. A missing licensing gate is a hole in the measurement.*
+
+#### §2w.2 HOW IT IS CORRECTED — **SUPERSESSION, NEVER DELETION**
+
+1. **The original verdict is STRUCK AND LEFT LEGIBLE**, with the demotion and its cause beside it (rule 6; and T3c's line 3, struck this same day, is the reference execution). **A reader who finds only `NOT A RESULT` learns less than one who sees a `GATE REACHED` demoted and why.**
+2. **THE COMPUTE IS NOT WASTE.** The run ran, the artifacts are on disk, and **a future implementation of the gate can still grade them.** Same disposition this charter gave T3's 26,757 core-min.
+3. **⚠ THE CALIBRATION ROW STANDS AS A RECORD OF SPEND; ITS VERDICT ASSERTION DOES NOT.** The core-minutes are a **measured fact about the run** and are true whatever the verdict — *physics never voids bookkeeping either.* But a calibration row that **asserts a gate passed** carries a claim outside its own subject, and **where that claim is false it is corrected on the same terms as any other record.**
+4. **THE OWNING TEAM DEMOTES ITS OWN VERDICT. This team rules the CLASS, not the item.** Dafoam has already declined to treat the `GATE REACHED` as supported and referred rather than withdrawn — **which is the correct order of operations and is recorded as such.**
+
+#### §2w.3 **THE DISCRIMINATOR THAT MAKES `§2v`'s MEASUREMENT ACTIONABLE**
+
+The two confirmed members of `§2v`'s class are **not equivalent**, and the difference is the whole of what to do about them:
+
+- **`G-COMPLETE`** — the item's completeness is recorded **UNADJUDICATED**; the team **declined to hand-compute the missing verdict**. **A DISCLOSED HOLE.**
+- **`G-RLX-0`** — a **verdict LANDED** on the strength of the unimplemented gate, and a second record asserts that gate passed. **A FALSE RECORD.**
+
+> **RULED: THE QUESTION IS NOT "IS A GATE UNIMPLEMENTED" — IT IS "DID A VERDICT LAND ON ITS STRENGTH."** An unimplemented gate whose item is recorded unadjudicated is **a hole its team already disclosed**. An unimplemented gate carrying a published verdict is **a false record and is corrected under `§2w.2`**. *Only the second is urgent, and conflating them would have this lab chasing disclosures instead of errors.*
+
+**NO LAB-WIDE SWEEP IS ORDERED.** `§2v.1` measured this class at **2 confirmed of 105** with **five of nine naive flags false**, and **371 of 393 registrations unreadable by that extractor**. **A sweep whose false-positive rate exceeds half, aimed at a class of two, would produce more false accusations than findings.** The two confirmed members are handled **on their own facts, by their own team.**
+
+**⚠ AND I WILL NOT BORROW SANAA'S NO-RE-GRADING INSTRUCTION AS COVER.** Her *"no re-grading of past results unless a specific comparator is shown to have moved"* is about the **FREEZE**. Here **no comparator moved — a gate never existed.** **That is a different condition and her instruction neither authorises nor forbids it.** *Reading an instruction onto a case it does not address is the laundering rule 9 forbids, and it is just as wrong when it would save me work.*
+
+#### §2w.4 WHAT IS **NOT** RULED HERE
+
+**The RESULT-PRIORITY consequences are NOT ruled**: whether a demoted item still counts toward a ladder, how it orders against live rungs, and what it does to a capability claim. **`RESULT_PRIORITY_CHARTER.md` is a DRAFT at v0.5 awaiting Sanaa — its orderings are proposals and only the bright line is settled**, and this team will not settle by amendment what is on her desk for ratification. **Referred, with `§2w` as the verification-side input.**
+
+---
+
+### §2x — **"BIT-FOR-BIT" IS NOT A COMPARISON SPECIFICATION**
+
+The sharpest finding in the referral, and it generalises past its specimen: **the registered `h_min` and the achieved value DIFFER AS STRINGS and are EQUAL AS `float64`** — and **no code ever decided which comparison *"bit-for-bit"* meant.**
+
+> **RULED — `§2x`: A REGISTERED COMPARISON NAMES ITS OPERATOR AND ITS TYPE.** *"Bit-for-bit"*, *"exact"*, *"identical"*, *"unchanged"* and *"reproduces"* are **English words, not comparison specifications.** Each resolves **differently** over decimal strings, over `float64`, and over rendered output, and **the three disagree on real values** — as this specimen proves, where the same quantity is simultaneously unequal and equal depending on a choice nobody made.
+>
+> **A registration that says "bit-for-bit" without naming the type has registered a gate whose meaning is decided by whoever implements it — and WHERE NO CODE EVER MADE THE CHOICE, THE GATE WAS NEVER SPECIFIED, LET ALONE IMPLEMENTED.**
+>
+> **Required in the registration: the operator (`==`, `abs(a-b) <= tol`, string identity), the TYPE the comparison is performed in, and — for any float comparison — the TOLERANCE AND ITS UNIT** (`§2d.11.4`'s ulp-count-times-runtime-ulp is the reference form).
+
+**⚠ AND THE FAILURE MODE IS THE DANGEROUS ONE: this reads as MORE precise than a stated tolerance, not less.** *"Bit-for-bit" sounds like the strictest thing a registration can say.* **It is in fact the least specified**, and a reviewer's eye slides over it precisely because it sounds rigorous. **A phrase that buys credibility without buying meaning is worse in a registration than an admitted approximation.**
+
+### §2y — **SANAA'S GOVERNANCE REFORM APPLIED TO THIS TEAM'S OWN CLAUSES, INCLUDING TWO I COMMITTED TODAY**
+
+`[SANAA-DIRECT, 2026-09-03 ~20:00Z, `etc/sessions/2026-09-03T2000Z_sanaa_governance_reform.md`, read verbatim before this amendment was committed.]` **This team is the most affected by it, and the first thing it does is cut two of my own clauses down.**
+
+#### §2y.1 THE BLOCKED RESULTS THIS AMENDMENT NAMES, as her new bar requires
+
+> *"Petitions, rulings, and charter amendments require a blocked result to name. No result blocked → no petition."*
+
+- **`§2d.11.4` — BLOCKED RESULT: T3's `R_ff` grading.** 26,757 core-min already spent, a complete field tree on disk, and **not one row graded** pending this confirmation.
+- **`§2w` / `§2v.8` — BLOCKED RESULT: D12RLX's verdict integrity.** A landed `GATE REACHED` whose supporting record its own team declines to treat as supported.
+
+**Both name a blocked result and both clear the bar.** `§2x` does **not** stand alone under it and is landed **only** as the specification `§2w` needs to be applicable — **not as a free-standing rule**, and it opens no work for any team.
+
+#### §2y.2 CLASSIFICATION — **GATING vs REPORTING, for every clause in this amendment**
+
+> *"Gating requires a stated reason of the form 'without this, the verdict on result X cannot be trusted.' Anything without that reason is reporting."*
+
+| clause | mode | the stated reason, or why not |
+|---|---|---|
+| **`§2w`** | **GATING** | *Without the licensing gate having been evaluated, the verdict on D12RLX cannot be trusted* — the number was never entitled to be read. This is the required form exactly. |
+| **`§2x`** | **GATING only where the comparison it governs is itself gating; REPORTING everywhere else** | An unspecified comparison in a **reporting** check misleads a reader; an unspecified comparison in a **gating** check means the gate was never specified. **Only the second can void a verdict**, so only the second gates. |
+| **`§2d.11.4`** | **neither — a scope confirmation** | It creates no check. It confirms which implementations an existing grant already covers. |
+| **`§2v.8`** | **neither — a correction of record** | It withdraws a false statement of mine. |
+
+#### §2y.3 **HER RULINGS CUT TWO CLAUSES I COMMITTED TODAY, AND I RECORD THAT PLAINLY**
+
+- **`§2r.4`'s FIRST OBSTACLE IS DISSOLVED BY HER, not by me.** I ruled Tier-2 certificates **documentary** partly because the birth machinery quarantines every committee grid on **skewness**. She has **reclassified the skewness quarantine to REPORTING**. **A reporting check never blocks.** So **obstacle 1 no longer blocks a Tier-2 certificate**; obstacles 2 and 3 (checkMesh's false `OK` line, and the missing *reported-not-gated* rendering mode) **stand**, and the second of those is now **the standard's default mode by her order**, so it is a build item rather than a question.
+- **`§2s.2`'s SUNSET IS SUPERSEDED BY HER CONDITION.** I recommended `UNREACHABLE → REFUSE` when coverage first reads full. **She ruled it fires only after the fleet monitor has run ONE FULL SWEEP fleet-wide.** **Her condition governs; my recommendation is struck.** It is also the better condition — it turns on **demonstrated fleet-wide observability**, not on a ratio I had already shown recedes as the lab works.
+
+#### §2y.4 **LIMB (2) IS SUSPENDED, AND HER RULE 2 IS WHY — IT CATCHES MY OWN METRIC**
+
+> *"No instrument is built to measure another instrument's reach unless the first instrument has already changed a verdict at least once."*
+
+**The coverage metric is exactly that: an instrument measuring the freeze enforcer's reach.** `[MEASURED]` **the enforcer has changed ZERO verdicts** — its census reads **1 PINNED of 289 eligible**, and because the gate fires **at launch** while **every eligible row has already launched**, it has refused nothing and can refuse nothing historical.
+
+> **RULED AGAINST MY OWN PROGRAM: LIMB (2)'s COVERAGE REPORTING IS SUSPENDED.** Her separate application — *"coverage ratios forward-only, unreported"* — points the same way. **The weekly coverage report does not start.** It starts when the enforcer has refused something real. **I built a measuring instrument for a thing that had not yet measured anything, which is her rule's exact target, and it is mine.**
+
+#### §2y.5 WHAT THIS TEAM OWES UNDER THE REFORM, AND THE HONEST DIGEST LINE
+
+- **THE ONE-PASS RECLASSIFICATION IS OWED BY ME** for every check this charter defines: each is marked **gating with its stated reason**, or **drops to reporting**. **Anything that cannot produce the reason drops.** One pass, inside the governance budget, **not a new cycle.**
+- **`§2w.3` ALREADY CONFORMS TO HER COST RULE** — it orders **no sweep, no backfill and no migration**, and the two confirmed members are handled by their own team on their own facts.
+- **THE DIGEST LINE, STATED AS SHE REQUIRES IT: `no physics result this cycle`.** Zero solver compute, zero rungs graded. **The honest counterweight, offered as fact and not as excuse: two rungs that were blocked are now unblocked** — T3's `R_ff` and T5c — **and this team's output is properly measured in other teams' results, not in its own.** **Her warning is nevertheless taken: repeated no-result cycles are the signal, and this team will be the last to notice its own.**
+
+---
+
+| item | outcome |
+|---|---|
+| **T3c `P-1` → `P-2`** | **CONFIRMED INSIDE `§2d.11.1`** — no fresh grant needed; **heat-transfer unblocked** |
+| why | **a `§2d.1` grant is scoped by the PROPERTIES it names**, not by whichever code was written first; **P-1 never satisfied it** |
+| condition 4 | **SATISFIED** — `N_ULP` × `math.ulp(operand)` is a dimensionless count against a **runtime** ulp; **bound added: never a pre-evaluated `ulp(300.0)`** |
+| `§2d.11.3` condition | **HONOURED** — line 3 **struck and left legible**, citing this charter |
+| verdict licensed by the confirmation | **NONE.** `R_ff` at **4.34×** remains `NOT A RESULT` |
+| **`§2v.3`'s premise** | **FALSE — MINE.** `G-RLX-0` is **post-compute**: `GATE REACHED` landed, **92.9672 core-min**, calibration row landed |
+| how I erred | **carried a lane's characterisation into a charter clause without check 3** — on the one figure that decided the remedy |
+| worse than labelled | the unimplemented gate is **the FIRST clause of the mapping that produced the verdict**, and the **calibration ledger asserts it PASSED** |
+| **`§2w`** | **a landed verdict whose load-bearing gate was never implemented is `NOT A RESULT`** — the permitted direction |
+| `§2w.1` | the line against `§2r.2`: **does the missing thing describe the record, or stand between the run and the reading?** |
+| `§2w.2` | **supersession, never deletion**; compute is **not waste**; **the calibration row's SPEND stands, its VERDICT ASSERTION does not** |
+| `§2w.3` | **the discriminator: did a verdict LAND on its strength?** Disclosed hole vs **false record** — only the second is urgent |
+| sweep ordered | **NONE** — false-positive rate >50 % against a class of 2 |
+| Sanaa's no-re-grading instruction | **NOT borrowed as cover** — it addresses the freeze; **no comparator moved here** |
+| new law | **`§2x` — "bit-for-bit" is not a comparison specification**; name the operator, the type, and the tolerance with its unit |
+| adopted from the referral | **a zero from a search instrument is not evidence until it is shown able to find a known-present instance** |
+| result-priority consequences | **NOT RULED — `RESULT_PRIORITY_CHARTER` is a v0.5 draft on Sanaa's desk** |
+| **`§2y` blocked results named** | **`R_ff`'s grading** and **D12RLX's verdict integrity** — both clear Sanaa's new petition bar |
+| `§2y.2` classification | `§2w` **GATING** with her required reason; `§2x` **gating only where the comparison it governs gates**, reporting otherwise |
+| **`§2r.4` obstacle 1** | **DISSOLVED BY HER** — the skewness quarantine is reclassified **REPORTING**, and a reporting check never blocks |
+| **`§2s.2` sunset** | **MY RECOMMENDATION STRUCK** — her condition governs: after ONE full fleet-wide monitor sweep |
+| **limb (2) coverage** | **SUSPENDED — her meta-instrument rule catches MY OWN metric.** The enforcer has changed **0 verdicts** (1 PINNED of 289, and it fires at launch on already-launched rows) |
+| owed by me | the **one-pass reclassification** of every check this charter defines — gating with its reason, or it drops to reporting |
+| **digest line, as she requires it** | **`no physics result this cycle`** — 0 core-min, 0 rungs graded; **two rungs UNBLOCKED** (`R_ff`, T5c), which is where this team's output properly shows |
+| gates · thresholds · bands · caps · labels | **0 · 0 · 0 · 0 · 0** |
+| verdicts withdrawn by this team | **0** |
+| solver compute | **0 core-min, $0.00** |
+| **lines whose number changed above this section** | **0** |
