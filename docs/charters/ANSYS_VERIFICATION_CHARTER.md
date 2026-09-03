@@ -2019,7 +2019,7 @@ if that plate is near the tail, it exceeds an RMS-based `u_read`.
 > per-plate error on the calibration set — a maximum, or a high percentile (≥ 95th)
 > with the max reported beside it — for any quantity whose per-plate error CAN
 > exceed the pixel floor.** The test of whether A is conservative enough is not an
-> argument: it is that **the planted null passes by construction**, because `u_read`
+> argument: it is that ~~**the planted null passes by construction**~~ **⚠ REFUTED BY `§35.2`: A NULL THAT PASSES BY CONSTRUCTION CANNOT REFUSE AND IS THEREFORE NOT A CONTROL — it must be evaluated on a HELD-OUT specimen**, because `u_read`
 > is then ≥ every clean-plate error the calibration measured, the null-control
 > plate included. RMS remains admissible only for a quantity whose max per-plate
 > error is itself below the pixel floor (the floor then binds and dominates the
@@ -2485,4 +2485,155 @@ the quantity had since been measured. It is closed only by reading the remote in
 | consequence | a repair tested on decimals would **pass by construction**; `§32.1`'s `{"0","200","1000"}` specimen stands and is **binding** on any repair registration |
 | unchanged | VMFLGPU001-R2 stays **`UNMEASURED`** |
 | gates · bands · caps · re-grades · credentials | **0 · 0 · 0 · 0 · 0** · solver compute **0 core-min, $0.00** |
+| lines whose number changed above this section | **0** |
+
+---
+
+## Amendment — v1.30, 2026-09-03 — **§35: A CONTROL THAT CANNOT FAIL IS NOT A CONTROL, AND I WROTE ONE INTO `§29.3` MYSELF · `§31`'s REINSTATEMENT CONDITION IS 8.004× BELOW ITS READER'S QUANTUM AND IS UNFALSIFIABLE AS WRITTEN · ONE ALARM OF MINE WITHDRAWN**
+
+### §35.1 `§31`'s REINSTATEMENT CONDITION CANNOT BE RESOLVED BY ANY INSTRUMENT THIS TEAM OWNS
+
+`§31` froze, in advance and correctly in spirit: a re-run's finest level must reach a
+**measured shock plateau — final-window drift ≤ 6.25e-04 m** — before `VMFL046`'s
+`GATE FAIL` may be reinstated. **The threshold is unresolvable by the frozen bytes it
+would be applied to.**
+
+- The centreline sampler is **`nPoints 400`, hard-coded in `system/controlDict` at EVERY
+  level**, giving a uniform spacing of **5.002506e-03 m, identical at L1, L2 and L3**.
+- `grade_vmfl046.py:251` locates the shock at the largest Mach drop between **adjacent
+  samples** — it **snaps to a sample node**, so it can only ever return **0 or a multiple
+  of 5.0e-03 m**. The frozen threshold is **8.004× below that quantum.**
+- Measured on the real viscous L3 data with a faithful reimplementation of that frozen
+  reader: final-window drift **exactly 0.0000e+00 m — which SATISFIES the condition.**
+  The interpolating diagnostic (`diagnostic_shock_steadiness.py:82`, last downward
+  `M = 1` crossing) reads **2.3265e-03 m** on the same bytes and **fails it by 3.72×.**
+
+> **RULED — `§35.1`: A THRESHOLD IS NOT SPECIFIED UNTIL ITS READER IS SPECIFIED.** A
+> threshold below its reader's quantum is not strict; it is **unfalsifiable**, and it fails
+> in the direction that flatters whoever wrote it. **Binding from v1.30: every gate,
+> plateau, band and reinstatement threshold registered in this territory NAMES ITS READER
+> AND STATES THAT READER'S RESOLUTION, in the frozen bytes, at freeze time.** A threshold
+> whose reader cannot resolve it is refused at the freeze, not discovered at grading.
+
+**⚠ THE INCENTIVE IS DISCLOSED BECAUSE IT RUNS TOWARD US, and `§31.2` obliges it.** §31's
+condition, if met, **reinstates a recorded `GATE FAIL` against this team**. Declaring it
+unresolvable therefore **blocks a failure from returning** — an outcome in our favour
+reached by a finding against our own clause. **NO READER IS SELECTED HERE.** Both readers
+exist on disk, they straddle the threshold, and **choosing one now, knowing which answer
+each gives, is precisely the gate-fitting this charter has refused four times.**
+
+> **OPERATIVE: NO REINSTATEMENT MAY BE CLAIMED UNDER `§31` IN EITHER DIRECTION** until a
+> reader is named by a party **not choosing with the answers in hand**. **ESCALATED to the
+> chief and not self-applied** — naming the reader alters a frozen condition, which
+> `ESCALATION_CHARTER` reserves. `§31`'s demotion of row #54 is **untouched and stands**;
+> only its reinstatement limb is suspended.
+
+### §35.2 ⚠ `§29.3` SPECIFIED A CONTROL THAT CANNOT FAIL — AND I WROTE IT
+
+`§29.3` ruled that term A must dominate the worst demonstrated per-plate error, and gave
+as **the test** that *"the planted null passes **by construction**"*. **That sentence names
+the defect and calls it the goal.** Verified by me in the frozen bytes of
+`DIGITIZER/R2/digitize_calibrate_r2.py` (sha `e51518…bc3130`), not taken on a lane's report:
+
+1. **`:88` IS AN ASSERTION THAT CANNOT FIRE.** `:84` sets `u_read = max(term_A,
+   half_spread, pixel_floor)` and `:80` sets `term_A = mx` for `statistic == "max"`, so
+   `u_read >= mx` holds **identically**; `:88` then refuses only if
+   `not (u_read >= mx - 1e-15)`, which is **never true for any finite input the instrument
+   generates**. Its own comment calls it *"a self-check, refuses if violated."*
+2. **THE `POSITION` PLANT-NULL CANNOT REFUSE.** `control_render(0.0)` is a **re-render of
+   calibration plate #0** (`:172-173, :180-182`) — a **member of the very population whose
+   maximum defines `u_read`** — so `|null_err| <= mx <= u_read` holds identically. **All
+   discrimination in that instrument rests on `PLANT-DETECT` alone.**
+3. **`plant_null.passes_by_construction` IS SET AT `:106` FROM THE STATISTIC LABEL**
+   (`statistic == "max"`), **never from measured membership.** Today the asserted value is
+   correct by accident of construction; **a flag that asserts a property rather than
+   measuring it is not evidence**, and repointing `control_render` at a held-out plate
+   would leave the flag reading `true` while the property had gone.
+
+> **RULED — `§35.2`: A PLANTED NULL MUST BE EVALUATED ON A HELD-OUT SPECIMEN, NEVER ON A
+> MEMBER OF THE POPULATION THAT DEFINED THE TOLERANCE IT IS TESTED AGAINST.** `§29.3`'s
+> requirement that term A dominate the **calibration set** is **correct and stands**; what
+> is struck is its *test* — the null's passing proves nothing when passing is arithmetically
+> guaranteed. **The null's job is to ask whether `u_read` covers a plate the calibration
+> DID NOT SEE**, and only a held-out plate can be asked that. `§29.3` is marked in place.
+>
+> **AND THE GENERAL FORM, WHICH IS THE PART THAT TRAVELS: EVERY CONTROL IN THIS TERRITORY
+> MUST BE SHOWN ABLE TO FAIL, BY PLANTING THE FAILURE — not shown to pass on good input.**
+> `CLAUDE.md` rule 3 plants a value to prove a READER can see a non-zero; this is its
+> mirror, and the lab has been running without it. A control demonstrated only on the
+> favourable case is an untested control wearing a green light.
+
+**Neither finding reaches `VALUE`, and that is stated so the disclosure is not read as
+wider than it is.** `:88` is gated on `statistic == "max"` and `VALUE` is graded `rms`;
+`VALUE`'s null is also a population member but passes because the **pixel floor genuinely
+dominates** (`syn_max` 0.0011145 < floor 0.0050505), so it retains real power, and its
+`passes_by_construction` correctly reads `false`. **`VMFL008` gates on `VALUE`.**
+
+**These are FROZEN files and NONE IS EDITED** (`§31.3`). The repair is a **new
+registration**; the disclosure lives where the number is read.
+
+### §35.3 ⚠ AN ALARM OF MINE, RAISED HARD AND NOW WITHDRAWN
+
+I put it to a lane that register **row #56**'s `PASS` might be a verdict with **no evidence
+on disk** — this team's own recorded failure class (`L-444`) — reasoning that the R2
+instrument crashed inside `print(json.dumps(rep, …))` at `:196`, so `json.dumps` raised
+**before** `print` emitted and the report was never written; which would leave
+`GRADE_R2.json` a lane's `verbose=False` re-execution with nothing frozen behind it.
+
+**The premise is true of `:196` and IRRELEVANT.** The per-quantity blocks print at
+`:108-111`, the header at `:174`, the axis negatives at `:194` and **both verdict words at
+`:195`** — all **before** the crash. `GRADE_R2.out` carries both `u_read` values, every
+term, and **both `PASS` verdicts**. And decisively: **the reconstruction ran
+`verbose=False`, which emits nothing at all**, so that stdout **could only have come from
+the frozen run.**
+
+> **ROW #56's `PASS` IS NOT EVIDENCE-FREE AND THE ALARM IS WITHDRAWN.** What genuinely rests
+> on the reconstruction alone is a set of **auxiliary** fields — `plant_detect.delta_3u`,
+> `.recovered`, `.recovery_err`, `bias_ok`, and `passes_by_construction`. The last is
+> **doubly weak** (reconstruction-only *and* asserted-not-measured, `§35.2`), which is worth
+> knowing but is not what I alleged. **A disclosure that OVERSTATES a defect is still a
+> wrong record** — this team's own words, `L-314` Addendum 3 — and this one would have been.
+
+**Forward flag, on the record now rather than at the freeze:** `D5` will produce VMFL008's
+per-case artifact **through this same R2 code path**, so it will hit the same `:196` crash
+and face the identical provenance question. Its load-bearing values will be corroborable
+from pre-crash stdout; its JSON-only fields will not.
+
+### §35.4 VMFL008 IS `NOT FREEZE-READY`, AND THE CAMPAIGN'S CEILING IS FOUR CASES, NOT FORTY-FIVE
+
+**`NOT FREEZE-READY`.** Binding blocker: **`D5` — VMFL008's OWN per-case `VALUE`
+calibration, never run** (`reference/` empty; `UREAD_JSON_SHA256 = ""` at
+`grade_vmfl008.py:165`; the comparator **refuses, exit 2**, at `:204-217` rather than grade
+against an unpinned instrument — **verified in the code by me**). Co-binding: **`D6`, `SW`
+unmeasured**. `D1`–`D4` open. **The digitizer is NOT the blocker** — row #56 is `PASS` on
+both quantities and the R1 `NOT A RESULT` is superseded. **Cost reconciles CLEANLY under
+`§26.3`: filed 16.53 vs its own method's 16.5312, ratio 1.0000**, against VMFL046's
+1.66×/3.17× miss.
+
+**Three errors in my own lane brief, corrected by the lane and recorded here:** `SW` is the
+**swirl-component COST multiplier**, not a shockwave (a Re = 1800 laminar rotating cavity
+has no shock — contamination from VMFL046); the digitizer's `NOT A RESULT` framing was too
+coarse; and I pointed the lane only as far as `§27` of a charter that runs to `§34`.
+
+**THE CEILING, MEASURED.** The printed-scalar **never-run** pool — the only pool gradeable
+without the digitizer — is exactly **`VMFL024`, `VMFL034`, `VMFL072`, `VMFRT005`**. It is
+**soft downward**: VMFL024 is capped at `GATE REACHED` on two grounds and `§32.3` showed its
+"experimental" targets are the analytic rigid-body asymptote to **2.78e-17**; `VMFRT005` is
+a **Forte combustion** case this box's solvers may not reproduce at all. **Honest count of
+genuinely useful non-digitizer cases: about two.** Recorded as a **dated finding with its
+method stated**, not as charter prose — `§32.4` established that a count of remaining work
+does not belong in a clause at all, because "remaining" moves with every run.
+
+| amendment | v1.30 |
+|---|---|
+| clause added | **`§35`** (`§35.1`–`§35.4`) |
+| marked in place | `§29.3`'s *"the planted null passes by construction"* — struck, pointer to `§35.2`; `§32.5`'s `L-465` corrected to `L-477` at `7e14c5b9` |
+| ruled | a threshold **names its reader and that reader's resolution** in the frozen bytes, at freeze time |
+| ruled | a planted null is evaluated on a **HELD-OUT specimen**; **every control must be shown able to FAIL, by planting the failure** |
+| suspended | **`§31`'s reinstatement limb** — unresolvable as written; **no reinstatement claimable in either direction**; ESCALATED, incentive disclosed as running toward us |
+| withdrawn | my `L-444` alarm against **row #56** — its `PASS` **is** backed by frozen-run stdout |
+| verdict recorded | **VMFL008 `NOT FREEZE-READY`**, binding blocker `D5` |
+| records landed | **`N-AV16`**, **`L-477`** (`7e14c5b9`); FAMILY INDEX repaired (`f2aad5af`) |
+| gates | **0 moved** · bands | **0 moved** · caps | **0 moved** · re-grades | **0** · credentials | **0** · register bytes | **0** |
+| solver compute | **0 core-min, $0.00** |
 | lines whose number changed above this section | **0** |
