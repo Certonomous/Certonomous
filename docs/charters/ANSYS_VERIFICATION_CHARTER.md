@@ -2594,7 +2594,7 @@ the frozen run.**
 > knowing but is not what I alleged. **A disclosure that OVERSTATES a defect is still a
 > wrong record** — this team's own words, `L-314` Addendum 3 — and this one would have been.
 
-**Forward flag, on the record now rather than at the freeze:** `D5` will produce VMFL008's
+~~**Forward flag, on the record now rather than at the freeze:**~~ **⚠ REFUTED BY `§36.1` — THE R2 INSTRUMENT PERSISTS NOTHING (`json` occurs only at its `import` and one `print`); it CANNOT produce this artifact and D5 is a NEW instrument. The row-#56 withdrawal above STANDS; only this flag falls.** `D5` will produce VMFL008's
 per-case artifact **through this same R2 code path**, so it will hit the same `:196` crash
 and face the identical provenance question. Its load-bearing values will be corroborable
 from pre-crash stdout; its JSON-only fields will not.
@@ -2635,5 +2635,197 @@ does not belong in a clause at all, because "remaining" moves with every run.
 | verdict recorded | **VMFL008 `NOT FREEZE-READY`**, binding blocker `D5` |
 | records landed | **`N-AV16`**, **`L-477`** (`7e14c5b9`); FAMILY INDEX repaired (`f2aad5af`) |
 | gates | **0 moved** · bands | **0 moved** · caps | **0 moved** · re-grades | **0** · credentials | **0** · register bytes | **0** |
+| solver compute | **0 core-min, $0.00** |
+| lines whose number changed above this section | **0** |
+
+---
+
+## Amendment — v1.31, 2026-09-03 — **§36: `§35.3`'s FORWARD FLAG IS REFUTED IN THE SAME SESSION THAT WROTE IT — THE R2 INSTRUMENT PERSISTS NOTHING AND CANNOT PRODUCE D5's ARTIFACT AT ALL · D5 MAY NOT RUN UNDER VMFL008's AUTHORITY · `SW` IS NOT A MEASURABLE QUANTITY · AND A REAL CHARTER GAP IS NAMED RATHER THAN PAPERED**
+
+### §36.1 ⚠ `§35.3`'s FORWARD FLAG IS WRONG, AND I WROTE IT NINETY MINUTES AGO
+
+`§35.3` closed with: *"`D5` will produce VMFL008's per-case artifact **through this same R2
+code path**, so it will hit the same `:196` crash and face the identical provenance
+question."* **Both halves are false, and the second is false because the first is.**
+
+- **THE R2 INSTRUMENT PERSISTS NOTHING.** `json` occurs at exactly two lines of
+  `DIGITIZER/R2/digitize_calibrate_r2.py` — the `import` at `:42` and the
+  `print(json.dumps(...))` at `:196`. **There is no `open(...,"w")` and no `json.dump`
+  anywhere in the file**; `__main__` (`:273-281`) writes only PNGs. The frozen R1 file is
+  the same (`digitize_calibrate.py:519` is also a `print`). **No code path in either frozen
+  instrument can produce `reference/UREAD_VMFL008.json`.**
+- **AND IT IS HARD-WIRED TO A PLATE THAT IS NOT VMFL008's.** `calibrate_r2:161` calls
+  `dc.default_spec()`, fixed at `y_range = (0.0, 2.5)` (`digitize_calibrate.py:417-422`),
+  and builds VALUE on the single frozen abscissa `dc.X_STATION = 0.517` (`:428`). Running
+  it reproduces **the R2 plate's `S_y = 2.5` format constant** — the very number `§33.1`
+  ruled non-transferable — at one station where VMFL008 gates at nine.
+
+> **THE PART THAT IS WORST IS THAT THIS TEAM ALREADY KNEW.** `DIGITIZER/R2/RESULTS.md:60-62`
+> records *"`GRADE_R2.json` is a **reconstruction** by the lane … not the CLI's own
+> emission"*, and `:52-55` had already assigned the encoder fix to *"the **first per-case
+> registration's instrument**"*. **I wrote `§35.3`'s forward flag without reading our own
+> results record**, and it drifted the plan off a route already chosen and written down.
+> `§35.3`'s **withdrawal of the row-#56 alarm stands and is unaffected** — that rests on
+> `GRADE_R2.out`'s pre-crash stdout, which I verified. **Only the forward flag falls.**
+> Marked in place at `§35.3` per `§30.3`, in this commit.
+
+**D5 IS A NEW PER-CASE INSTRUMENT, NOT A RE-RUN.** It imports both frozen files **read-only
+with their hashes asserted** — as R2 already imports R1 at `:152-160` — and edits neither
+(rule 6, `§31.3`).
+
+### §36.2 RULED — D5 MAY NOT RUN UNDER VMFL008's AUTHORITY, AND NEEDS ITS OWN FREEZE
+
+I asked whether pre-freeze D5/D6 compute is legitimate **and named "it needs its own
+pre-registration first" as an acceptable answer in advance**, so that the lane could not
+read my expectation off the shape of the question. **That is the answer, and the authority
+is quoted rather than assumed:**
+
+- **Clause B does not reach D5 on any limb** (`§5`): the smoke is *"**After** the
+  pre-registration is committed and **BEFORE** the graded run starts … ONE timestep (or one
+  iteration) on the COARSEST mesh"*, and *"is never the graded artifact and **is never cited
+  by a record**."* D5 is not a timestep, is not on a mesh, is not after a commit — **and its
+  output IS cited, by the frozen bytes at `grade_vmfl008.py:165`.**
+- **`§25.7`:** *"the instrument is built and calibrated as its **own pre-registered, costed
+  task**, and its calibration is a `PASS`/`GATE FAIL`/`NOT A RESULT` of its own."*
+- **`§28.8`:** *"`--calibrate` is compute the freeze governs and has **not** been run."*
+- **The frozen bytes instruct it themselves** (`digitize_calibrate_r2.py:37-38`): *"do NOT
+  run `--calibrate` (it produces the committed `u_read`, **which waits for the freeze**)."*
+- **Precedent, twice:** `DIGITIZER` froze at `0fab170f` before `--calibrate`; `DIGITIZER/R2`
+  froze at `5714f2c7` before `--calibrate`.
+
+> **RULED — `§36.2`: D5 AND D6 RUN UNDER ONE PRE-REGISTRATION OF THEIR OWN,
+> `cases/ansys_verification/VMFL008/D5D6_PREREGISTRATION.md`, FROZEN BY THE SUPERVISOR'S
+> `§3` CHECK 4 BEFORE EITHER RUNS.** It carries the answer-blind format determinations
+> (so `S_y` is frozen **before** D5 runs — `§25.2` point 2's literal demand), the held-out
+> design, the planted-failure obligations, both estimates and both caps, and the
+> instrument's own verdict per `§25.7`. **Two freezes, in order: D5D6 first, VMFL008's own
+> second, once the artifact sha can be written into `grade_vmfl008.py:165`.**
+
+**The consequence is stated plainly rather than softened: this team does NOT launch at the
+~03:48Z window as the chief's disposition anticipated.** A freeze must land first. **An idle
+box is a failure; a case that computes a committed number before freezing it is a worse
+one**, and `§26.5` already ruled which way that conflict resolves.
+
+### §36.3 A REAL GAP IN THIS CHARTER, NAMED AND NOT PAPERED
+
+`§33.3` and `§11.2` make D6's measurement **binding before the freeze** — it sets the
+**cap**, and "cap" is in `§11.2`'s enumerated list. `§26.3` demands the input **pre-freeze**.
+**But Clause B, the only pre-flight authority in this charter, is positioned POST-freeze and
+forbids its output being cited by any record.** So the charter simultaneously requires a
+pre-freeze measurement and provides no clause under which one may run.
+
+> **`§36.2`'s own-pre-registration route CLOSES the gap for this case and does NOT repeal
+> it.** The general defect stands recorded and unrepaired: **a charter that mandates a
+> measurement it authorises no mechanism to take.** Naming it is the point; a convenient
+> reading of Clause B would have hidden it.
+
+### §36.4 ⚠ `SW` IS NOT A MEASURABLE QUANTITY — RETIRED, AND ITS INTERVAL DOES NOT SURVIVE THE RENAME
+
+`§33.3` and `PREREGISTRATION.md:425-426` define `SW` as *"the cost of solving **three**
+momentum components (swirl) instead of **two**."* **That counterfactual does not exist.**
+`simpleFoam` solves a 3-component `volVectorField U` unconditionally — there is no
+2-component mode — and **in this cavity the swirl is the only momentum source**, so
+suppressing it leaves no flow at all: the "2-component" arm converges instantly on a zero
+field, and the ratio of a real solve to a null solve is an artifact, not a multiplier.
+
+What `§7.4`'s stated procedure actually computes is an **aggregate rate ratio** folding in
+mesh topology (5° sector with `cyclic` patches vs the datum's), the closed domain and its
+pressure reference cell, cell aspect ratios and pressure-solver sweep counts.
+
+> **RULED — `§36.4`: `SW` IS RETIRED AND REPLACED BY `RATE_RATIO`** — VMFL008-L1's directly
+> measured `s/(cell·iteration)` over the datum's `1.0000e-06`. This **removes the only
+> unmeasured multiplier in `§7`** and substitutes a measurement of the actual case, so
+> `§26.3` is better served, not worse. **Legal because VMFL008 has no run directory and no
+> compute has been spent** — before first compute, amendments are legal and must state the
+> condition and how it was checked (`CLAUDE.md` rule 2): *checked by the absence of any run
+> root for VMFL008 under `verification/runs/ansys_verification/`, and by both case files
+> being untracked.*
+>
+> **AND THE INTERVAL DOES NOT COME ALONG FOR FREE.** `[1.15, 1.50]` was defended as a
+> **swirl-component** range; **an aggregate rate ratio does not inherit that defence.**
+> The interval must be **RE-DERIVED AND RE-DEFENDED on aggregate-ratio grounds in the D5D6
+> pre-registration, or it is not a registered decision rule at all.** Keeping the numbers
+> and swapping the quantity beneath them is exactly the move this charter refuses.
+
+### §36.5 THE COMPARATOR IS STILL AN UNTRACKED DRAFT, SO TWO DEFECTS ARE REPAIRABLE **NOW** AND NEVER AGAIN
+
+`grade_vmfl008.py:221-222` requires **eight** top-level keys (`dim`, `units`, `u_read`,
+`statistic`, `verdict`, `terms`, `plate_interior_px_h`, `y_span_data_units`) — **my brief
+said four.** Two defects found in that check:
+
+1. **`units` is presence-checked and NEVER value-checked.** An artifact declaring
+   `"units": "ft/s"` passes `_load_uread` intact. `dim` is checked at `:225`; `units` is
+   checked nowhere. **`§28.2` requires every term computed in the quantity's own units —
+   this is the guard for that clause, and it is absent.**
+2. **`terms` sub-keys are dereferenced without being in the presence loop** —
+   `t["term_A"]`/`t["half_spread"]` at `:246`, `t["pixel_floor"]` at `:250`, `t["max"]` at
+   `:257`. A missing one raises `KeyError` → traceback → **exit 1**, not `refuse` → **exit
+   2**. It fails loudly **wearing the wrong exit code**, and a launcher that distinguishes
+   refusal from crash misclassifies it.
+
+> **RULED: both are repaired BEFORE the freeze, under the supervisor's `§3` check 1 read of
+> the diff.** After the freeze neither may be touched (`§31.3`) and the wrong-exit-code path
+> would be permanent. **A defect found while the bytes are still a draft and left there
+> becomes a frozen defect by inaction**, and inaction is a choice this charter does not
+> excuse.
+
+### §36.6 TWO CONSTRUCTIONS RULED, BOTH BEFORE ANY PLATE IS OPENED
+
+1. **`PLATE_INTERIOR_PX_H = 495` is a STATED, DEFENDED CHOICE or it is a latent refusal.**
+   `grade_vmfl008.py:170` hard-codes it and `:232-235` refuses on mismatch; 495 is the **R2
+   format's** interior height. If D3 finds Fig .08.3's aspect ratio is not 4:3, then
+   *"matched to the target's format"* and *"same 495 px interior"* are **incompatible and the
+   comparator refuses its own artifact** — yet `PREREGISTRATION.md:200-201` asserts both.
+   **RULED: fixing the interior height and matching the data ranges is legitimate** (`§33.1`
+   makes the reader's error format-independent **in pixels**) **but it must be written and
+   defended in the frozen bytes, and D3 must report the measured aspect ratio before the
+   freeze.** A threshold that depends on an unmeasured format is `§35.1`'s defect again.
+2. **NINE STATIONS, ONE `u_read`, IS A `§33.1`-SHAPED TRANSFER — ACROSS ABSCISSAE INSTEAD OF
+   ACROSS PLATES.** The gate reads at `r/R ∈ {0.1 … 0.9}` (`:125`) while `dc.ValueQuantity`
+   is single-station; the local curve slope, and hence the value error from a one-pixel
+   horizontal misread, differs station to station (`§28.5`). **RULED: D5 instantiates all
+   nine stations on the same digitized read, takes the statistic over the POOLED per-plate
+   error set, and reports the per-station breakdown beside it.** Measurement is a cheap
+   interpolation, so this adds no image operations — **and it completes D4, whose
+   steep-region determination becomes per-station and observable rather than a single
+   yes/no.**
+
+### §36.7 COST — FILED AT OR ABOVE ITS OWN METHOD, IN BOTH DIRECTIONS, AND THE CAPS ARE SEPARATE
+
+Method: two already-recorded data available now — `DIGITIZER/R2/RESULTS.md:66` (the
+authorised `--calibrate --n 24` measured **4.032 s = 0.0672 core-min** over ≈ 66
+render-or-digitize operations → **0.061091 s/op**) and `§28.7`'s independently measured
+**0.117 s/pair = 0.0585 s/op** — **4.4 % apart**, and the larger is used because it also
+carries interpreter start-up that will not scale.
+
+| | filed | its own method | ratio | cap | worst pessimistic arm |
+|---|---|---|---|---|---|
+| **D5** | **0.15** core-min | 0.146619 (144 ops) | **1.0231** | **0.45** | 61.1 % of cap |
+| **D6** | **0.10** core-min | 0.079413 | **1.2592** | **0.30** | 45.2 % of cap |
+| **total** | **0.25** core-min | — | — | **0.75, SEPARATE not pooled** | — |
+
+**$0.00021 DERIVED, NOT MEASURED** ($0.0513/core-h, owner-stated; the box cannot read its
+own billing). **Both filed figures sit ABOVE their own method's output** (1.02×, 1.26×) —
+the direction `§27` showed VMFL046 got right only by accident — and **the D6 excess is
+explained, not absorbed: its method's own multiplier is the quantity D6 exists to measure.**
+**Caps are separate so a D5 overrun cannot kill D6.** And the asymmetry that makes a tight
+cap safe *here* and does not generalise: **a cap-hit on D5 forfeits ~9 seconds; `§27.2`
+showed a cap-hit on VMFL046 would have forfeited 21.9 core-min of already-spent L3 compute.
+The cost of losing a run is not the cost of the run's estimate.**
+
+**Two soft inputs named rather than buried:** the 144-op count is *a count of a design not
+yet written*, not a measurement; and `blockMesh + checkMesh ≈ 2.0 s` is **assumed** and is
+42 % of D6's filed estimate.
+
+| amendment | v1.31 |
+|---|---|
+| clause added | **`§36`** (`§36.1`–`§36.7`) |
+| marked in place | **`§35.3`'s forward flag** — struck, pointer to `§36.1`; `§35.3`'s withdrawal of the row-#56 alarm **stands** |
+| refuted, against me | the R2 instrument **persists nothing** and is hard-wired to a foreign plate format; **our own `RESULTS.md` said so and I had not read it** |
+| ruled | D5+D6 run under **their own pre-registration and freeze**; **no launch at the ~03:48Z window** |
+| named, unrepaired | a **charter gap** — a pre-freeze measurement mandated with no clause authorising it |
+| retired | **`SW`** → **`RATE_RATIO`**; **the `[1.15, 1.50]` interval must be RE-DEFENDED or it is not a registered rule** |
+| repaired before freeze | `grade_vmfl008.py` — `units` never value-checked; `terms` sub-keys `KeyError`→**exit 1** instead of refuse→**exit 2** |
+| gates | **0 moved** · bands | **0 moved** · caps | **0 moved** · re-grades | **0** · credentials | **0** |
 | solver compute | **0 core-min, $0.00** |
 | lines whose number changed above this section | **0** |
