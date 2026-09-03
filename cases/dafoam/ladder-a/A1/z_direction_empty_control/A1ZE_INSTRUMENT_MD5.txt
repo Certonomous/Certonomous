@@ -1,6 +1,6 @@
-fe3e512f5b9d0b87192f6f5b572d8dc8  A1ZE_PREREGISTRATION.md
-505b883efb1fedadad88e47dd6d07249  a1ze_grade.py
-8e62ad7b3557e55bd7316b0d66ba92b9  a1ze_stage.py
+2a9cabca5418701290d1760c8c67b89f  A1ZE_PREREGISTRATION.md
+8c04f2b747a9f86707b57a8f97218179  a1ze_grade.py
+b1fe45622629526c4f2fb1b9c4f40f69  a1ze_stage.py
 b0e2c8eaf8c16aefb373bb3211a483cd  a1ze_cmd.sh
 d48f48c5e2e41e86981acbf6feccb3c4  a1ze_runScript.py
 610d951088e9039b261c3b9b13f1aae6  a1ze_chain_driver.sh

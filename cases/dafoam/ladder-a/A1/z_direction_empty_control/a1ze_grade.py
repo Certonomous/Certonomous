@@ -355,13 +355,22 @@ def grade(root):
                         seen[fp] = t
         bad = {p: t for p, t in seen.items()
                if set(t.values()) != {want} or len(t) != 2}
+        nfield = len(seen) - 1
         if bad:
             arm_state[arm] = "BLOCKED"
             out.append(f"G-EMPTY {arm}: BLOCKED -- {len(bad)} file(s) not "
                        f"'{want}' on both planes")
+        elif nfield <= 0:
+            # THE SAME VACUOUS PASS THIS ITEM SWEPT FOR IN a1ze_cmd.sh, FOUND
+            # HERE BY THE FIRST FIRE: the arm never ran, `case/0` did not exist,
+            # so the loop examined NOTHING and the guard reported both planes
+            # fine. "Checked and clean" must not look like "did not check".
+            arm_state[arm] = "BLOCKED"
+            out.append(f"G-EMPTY {arm}: BLOCKED -- the mesh reads '{want}' but "
+                       f"ZERO field files were examined; the check did not run")
         else:
             out.append(f"G-EMPTY {arm}: both planes '{want}' in the mesh and in "
-                       f"{len(seen)-1} field file(s)")
+                       f"{nfield} field file(s)")
 
     for arm in ARMS:
         if arm_state.get(arm) == "BLOCKED":

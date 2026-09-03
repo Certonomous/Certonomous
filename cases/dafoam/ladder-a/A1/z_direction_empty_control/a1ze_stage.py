@@ -43,11 +43,19 @@ ALLOWED_KEYS = ("type", "inGroups")
 
 PAIRS = {
     # pair    : (control arm, treatment arm, mesh source, skeleton, alpha)
+    # MESH from D19T's built 4,032-cell coarse polyMesh; SKELETON from the
+    # INCOMPRESSIBLE AOAI case. They are deliberately different sources and the
+    # first fire proved why: D19T's MESH/ is the COMPRESSIBLE/THERMAL case
+    # (constant/thermophysicalProperties, 0.orig/T, 0.orig/alphat), and
+    # a1ze_runScript.py is DASimpleFoam, which reads constant/transportProperties
+    # and died with `cannot find file "/mnt/case/constant/transportProperties"`.
+    # The two meshes carry IDENTICAL patch names -- symmetry1 symmetry2 wing
+    # inout -- so the incompressible fields stage onto the coarse mesh unchanged.
     "coarse": ("Sc", "Ec",
                "/home/ubuntu/certonomous-runs/CURRICULUM-D19T-a1-naca0012-"
                "shape7-primal-tightening/MESH",
-               "/home/ubuntu/certonomous-runs/CURRICULUM-D19T-a1-naca0012-"
-               "shape7-primal-tightening/MESH",
+               "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-"
+               "polar-incompressible/case",
                4.0),
     "L3": ("S3", "E3",
            "/home/ubuntu/certonomous-runs/A1WR/L3",
@@ -184,16 +192,50 @@ def stage_arm(arm_dir, skel, mesh, want, here):
         p = os.path.join(case, junk)
         if os.path.isdir(p):
             shutil.rmtree(p)
-    # AGE-GUARD PRECONDITION (registration section 3, requirement 3): no `0/`
-    # and no numeric time directory may exist in a staged case. `0.orig` starts
-    # with a digit and MUST survive -- deleting it is A1WR ADDENDUM D's bug.
+    # AGE-GUARD PRECONDITION (registration section 3): no `0/` and no numeric
+    # time directory may exist in a staged case. Skeletons are real run roots and
+    # carry their own leftover time directories -- the AOAI case ships a `1000/`,
+    # which the first fire of this repair caught. Those are RUN OUTPUT, not part
+    # of the case definition, so they are CLEANED here and the assert is then
+    # re-run on what survives: clean, then prove.
+    # `0.orig` STARTS WITH A DIGIT AND MUST SURVIVE -- deleting it is the bug
+    # A1WR's ADDENDUM D records.
+    removed = []
     for d in sorted(os.listdir(case)):
         if d == "0.orig":
             continue
-        if os.path.isdir(os.path.join(case, d)) and re.match(r"^[0-9]", d):
-            raise Refuse("time directory %r present in staged case %s" % (d, case))
+        fp = os.path.join(case, d)
+        if os.path.isdir(fp) and re.match(r"^[0-9]", d):
+            shutil.rmtree(fp)
+            removed.append(d)
+    survivors = [d for d in sorted(os.listdir(case))
+                 if d != "0.orig" and os.path.isdir(os.path.join(case, d))
+                 and re.match(r"^[0-9]", d)]
+    if survivors:
+        raise Refuse("time directory %r survived the staging clean in %s"
+                     % (survivors[0], case))
+    if not os.path.isdir(os.path.join(case, "0.orig")):
+        raise Refuse("the staging clean removed 0.orig -- A1WR ADDENDUM D's bug")
+    if removed:
+        print("A1ZE_STAGE_CLEANED time dirs removed from the skeleton copy: %s"
+              % removed)
     shutil.copytree(os.path.join(mesh, "constant", "polyMesh"),
                     os.path.join(case, "constant", "polyMesh"))
+    # G-SOLVERMATCH, added after the first fire. a1ze_runScript.py is DASimpleFoam
+    # (INCOMPRESSIBLE) and reads constant/transportProperties. A compressible or
+    # thermal skeleton carries thermophysicalProperties instead and the solver
+    # dies 40 s in, after staging has already "passed". Checked HERE, at staging,
+    # where it is free -- and checked BOTH ways: the required file must be
+    # present AND the incompatible one must be absent.
+    con = os.path.join(case, "constant")
+    if not os.path.exists(os.path.join(con, "transportProperties")):
+        raise Refuse("G-SOLVERMATCH: skeleton has no constant/transportProperties "
+                     "-- a1ze_runScript.py is DASimpleFoam (incompressible) and "
+                     "reads it. Present in constant/: %s" % sorted(os.listdir(con)))
+    if os.path.exists(os.path.join(con, "thermophysicalProperties")):
+        raise Refuse("G-SOLVERMATCH: skeleton carries constant/"
+                     "thermophysicalProperties -- that is a COMPRESSIBLE/THERMAL "
+                     "case and this item's runScript is incompressible")
     touched = []
     b = os.path.join(case, "constant", "polyMesh", "boundary")
     if not os.path.exists(b):

@@ -1149,3 +1149,91 @@ so a row that exists **only** there cannot be committed reliably. The canonical 
 `refused/` immediately — which is normal and is reported wherever it lands.
 
 **Zero solver core-min. SUBMISSIONS PARKED.**
+
+---
+---
+
+# ADDENDUM E — 2026-09-03 — **v1.5** — THE FIRST FIRE DIED IN 42 SECONDS ON A SETUP DEFECT OF MINE, AND IT COST 0.7 CORE-MIN BECAUSE THE COARSE PAIR RUNS FIRST
+
+**`lines whose number changed above this section: 0`** — the disk file's first **731** lines are
+byte-identical under `cmp` to `03120e22`, **845** to `2a31f940`, **988** to `cd7d383a`. Addenda A–D
+untouched. **No gate, threshold, cap or label changes.** Run root re-asserted **absent** by
+execution after the archive below.
+
+## E.1 WHAT HAPPENED, AND WHAT IT COST
+
+The daemon accepted the row at **18:58:59Z** and launched. Every guard fired and left its marker:
+`G-FREEZE` (731 lines vs the blob), `G-CONTROLS` (7 born), `G-IMG`, `A1ZE_ONE_VARIABLE_PASS`
+(38 files compared, 10 differing, 44 lines), `G-BUDGET`, `G-OCC` (`containers=1`),
+`A1ZE_G_EMPTY_OK … fields_checked=9 of 9`, `A1ZE_TIMEDIR_SCAN`, `A1ZE_TOL_VAR_OK`. **Then the
+solver died 42 s in:**
+
+> `--> FOAM FATAL ERROR: cannot find file "/mnt/case/constant/transportProperties"`
+
+**Chain stopped at arm `Sc`, `rc=73`, `spend 0.7 core-min` of a 532.0 ceiling.** The frozen grader
+ran on the partial root and returned **`A1ZE_VERDICT NOT A RESULT`** — it manufactured nothing.
+
+**THE COARSE-PAIR-FIRST ORDERING IS WHY THIS COST 0.7 CORE-MIN AND NOT 512.** That ordering was
+registered in Addendum A for exactly this reason, and it is the first thing in this item that has
+now been paid for rather than argued for.
+
+## E.2 THE DEFECT IS MINE AND IT IS A SETUP MISMATCH, NOT A PHYSICS FINDING
+
+`a1ze_runScript.py` is **`DASimpleFoam` — INCOMPRESSIBLE** — and reads
+`constant/transportProperties`. I staged the coarse pair from **D19T's `MESH/`, which is the
+COMPRESSIBLE/THERMAL case**: `constant/thermophysicalProperties`, `0.orig/T`, `0.orig/alphat`, no
+`transportProperties`. **A1WR's driver already distinguishes `SKEL_I` from `SKEL_C` and picks
+`simpleFoam` or `rhoSimpleFoam` accordingly; I collapsed that distinction when I reused D19T's
+directory as both mesh source and skeleton.** Cause class **SETUP**, never `PHYSICS-FAIL`.
+
+**Repair, and it is a one-entry change because `PAIRS` already separates mesh from skeleton:** the
+coarse **mesh** stays D19T's built 4,032-cell `polyMesh`; the coarse **skeleton** becomes the
+**incompressible AOAI case**, the same skeleton the L3 pair already uses. **The two meshes carry
+identical patch names — `symmetry1 symmetry2 wing inout` — verified by execution**, so the
+incompressible fields stage onto the coarse mesh unchanged. Measured after the repair: coarse
+**37 files compared, 8 differing** (7 incompressible fields + `boundary`), 36 differing lines;
+L3 **38 compared, 8 differing**. The touched count drops from 10 to 8 because `T` and `alphat` are
+gone — **the pair is now the incompressible configuration throughout, which is better one-variable
+hygiene, not worse.** §3's registered α = 4 and 4,032 cells are unchanged, and the two pairs are
+still never compared to each other.
+
+## E.3 THREE GUARDS ADDED, EACH BECAUSE THE RUN SHOWED THEY WERE MISSING
+
+**`G-SOLVERMATCH`, at staging, where it is free.** The skeleton must carry
+`constant/transportProperties` **and must not** carry `constant/thermophysicalProperties`. Driven
+both ways: the compressible skeleton **REFUSES at staging** instead of dying 40 s into a container;
+the incompressible one stages clean. *A defect that costs 0.7 core-min to discover in a container
+costs nothing to discover in a file listing.*
+
+**The staging clean, then the assert.** The AOAI skeleton is a real run root and ships its own
+leftover **`1000/`** time directory; the age-guard precondition correctly refused it. Skeleton time
+directories are **run output, not case definition**, so they are now removed and the assert is
+re-run on the survivors — **clean, then prove** — with an explicit check that **`0.orig` survived**,
+because it starts with a digit and deleting it is the bug A1WR's Addendum D records.
+
+**⚠ AND THE RUN FOUND THE SAME VACUOUS-PASS DISEASE INSIDE THE FROZEN GRADER, WHICH ADDENDUM C's
+SWEEP HAD MISSED.** The partial grade printed:
+
+> `G-EMPTY Ec: both planes 'empty' in the mesh and in 0 field file(s)`
+
+**`Ec` never ran, so `case/0` did not exist, the loop examined nothing, and the guard reported the
+planes fine.** It changed no verdict — `COMPLETION` caught the arm — but it is exactly the class
+Addendum C swept `a1ze_cmd.sh` for and **I did not turn the same test on the grader.** Now
+`nfield <= 0` makes the arm **`BLOCKED`**. **Proved by replaying the SAME partial root through the
+hardened grader**: `G-EMPTY Ec: BLOCKED -- the mesh reads 'empty' but ZERO field files were
+examined; the check did not run`. *A sweep that stops at the file you were asked about is not a
+sweep, and this one had to be paid for by a run.*
+
+## E.4 SPEND, AND THE ARCHIVE
+
+**0.7 core-min spent, $0.0006 DERIVED** at the owner-stated $0.0513/core-h, never measured. **It
+bought no physics and is named as waste, not folded into any ratio** (rule 12 §6). The rule-12
+calibration row is **not yet owed** — it keys to process completion and this item has not completed.
+**The 0.7 is carried forward as spend-to-date on A1ZE and will be disclosed in that row.**
+
+The run root was **archived by `mv`, never `rm`** —
+`/home/ubuntu/certonomous-runs/A1ZE_partial_20260903T190245Z`, **114 entries preserved, count
+verified both sides** — and `/home/ubuntu/certonomous-runs/A1ZE` re-asserted **absent by
+execution**, which is what `G-ROOT` requires before the next fire.
+
+**SUBMISSIONS PARKED.**
