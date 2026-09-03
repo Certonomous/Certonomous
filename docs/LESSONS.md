@@ -22574,3 +22574,85 @@ well it solves.
 `b52ed93b` (T19b freeze), `verification/runs/T-family/T19_runs/STATUS.*`,
 `verification/runs/T-family/T19_runs/*/log.solve`,
 `verification/runs/T-family/T19b_runs/gate_t19b.json`.
+
+## L-466 — A `2>/dev/null` CONVERTS AN INSTRUMENT'S REFUSAL INTO A CLEAN-LOOKING ZERO. Measured three ways in one session: `find` on this box is **bfs 4.1.1**, which REJECTS a relative `-newermt` and exits 1 — under the redirect that refusal read as a measured absence
+
+**THE READING WAS NOT WRONG. THE READER NEVER RAN.** That is the whole lesson, and it is
+why this class is so hard to see: a swallowed refusal and a genuine zero are the same
+empty string.
+
+**THE MEASUREMENT, 2026-09-03.** A cfd lane probing clause (6) of
+`scripts/auto_stop_patched.sh` asked whether anything under `/home/ubuntu/certonomous-runs`
+had been written in the last 30 minutes:
+
+```
+find /home/ubuntu/certonomous-runs -type f -newermt "-30 minutes" -print -quit 2>/dev/null
+```
+
+It printed nothing. The lane wrote down "no fresh writes" — **while a DAFoam container was
+writing to that tree continuously at ~100 % of one core.** Re-run with stderr open, the
+reader had never looked:
+
+```
+bfs: error: ... -newermt "-30 minutes" ... Invalid timestamp.
+```
+
+`find` on this box's PATH is **bfs 4.1.1**, which accepts only ISO-8601-like timestamps and
+rejects the relative form GNU findutils accepts. Under root cron `find` resolves to
+`/usr/bin/find` (GNU findutils 4.9.0) and the same expression works — **so the defect is
+invisible exactly where people test and absent exactly where the code runs.** Redone with
+`/usr/bin/find` and a `touch -d` reference file plus `-newer`, the tree was hot:
+`.../CURRICULUM-D12R2W3-cylinder-unsteady/S3b_c0_ap_20260903T172242Z_179692.log.ok...`.
+
+**WHAT CAUGHT IT WAS THE PLANTED CONTROL, NOT THE REVIEW** (CLAUDE.md rule 3). The lane
+believed the zero until it ran the same reader against a tree with a file touched *now* and
+a tree whose only file was 90 minutes old, and required it to report a presence and an
+absence correctly. The presence limb is the one that failed. **A zero from a reader not
+shown able to see a non-zero is not evidence — and that applies to the reader you wrote
+sixty seconds ago, not only to the ones in the comparators.**
+
+**THE GENERAL LIMB, WHICH IS THE PART THAT WILL BITE SOMEONE ELSE.**
+
+> **A STDERR REDIRECT CONVERTS AN INSTRUMENT'S REFUSAL INTO A CLEAN-LOOKING ZERO.** Any
+> construction that turns "I could not look" into "I looked and found nothing" is the same
+> defect, whatever the surface. Never put `2>/dev/null` on a reader whose emptiness you
+> intend to believe. Capture stderr, test it non-empty, and **surface the error instead of
+> the count** — which is what clause (3) of `auto_stop_patched.sh` already does, and
+> `scan_err` at `scripts/auto_stop_patched.sh:426-430` is the shape to copy.
+
+**THIS IS A FAMILY, AND THE SAME SESSION FOUND THREE MEMBERS.**
+
+1. **This one** — a redirect swallowing bfs's refusal, so an unrun reader reported zero.
+2. **`scripts/test_auto_stop_liveness.py` exiting 0 on twelve skips.** The suite skipped
+   all twelve IDLE-half controls and all ten flip pairs (correctly: the box had three teams'
+   solvers live and clause (1) reads the real `/proc`), counted a skip as neither pass nor
+   fail, exited **0**, and printed *"The reader was shown able to see both a non-zero and a
+   zero"* — a sentence that was **false for that run**. Filed at
+   `verification/runs/AUTOSTOP_LIVENESS/suite_host_2026-09-03T1815Z.txt`; repaired the same
+   session by `adjudicate()`, which returns **3 NOT WITNESSED** and withholds the claim.
+3. **The board enforcer's `coverage()` returning rc 0 on an empty population**, and its walk
+   that could not see refused rows (cfd supervisor, same week).
+
+In all three the instrument **failed open**: it reported success or absence when it had not
+measured. The shared tell is that **the claim was printed from the run completing rather
+than from the evidence**. The repair is the same in all three: make the printed claim
+conditional on what was actually evaluated, and give "could not look" its own return code
+and its own column so it can never fold into either of the other two.
+
+**AND THE COROLLARY THIS SESSION ALSO PAID FOR.** The lane then **deleted** the false-zero
+artifact, reasoning that a wrong reading should not be left on disk to be cited. That was
+overruled: a false reading is a **specimen** — the evidence that the defect was real and the
+evidence of how it presented. `MOVE, NEVER DELETE`. The file was never committed and is
+**unrecoverable**; the loss is recorded, not repaired, at
+`verification/runs/AUTOSTOP_LIVENESS/clause6_FALSE_ZERO_SUPERSEDED_bfs_relative_newermt.LOSS_RECORD.txt`,
+and no reconstruction is offered in its place.
+
+**Cited:** `verification/runs/AUTOSTOP_LIVENESS/clause6_planted_zero_2026-09-03T1815Z.txt`
+(the corrected reading, both limbs of the control),
+`verification/runs/AUTOSTOP_LIVENESS/clause6_FALSE_ZERO_SUPERSEDED_bfs_relative_newermt.LOSS_RECORD.txt`
+(the loss), `verification/runs/AUTOSTOP_LIVENESS/suite_host_2026-09-03T1815Z.txt` (exit 0 on
+twelve skips), `verification/runs/AUTOSTOP_LIVENESS/fixed_harness_rerun_2026-09-03T1835Z.txt`
+(the same run now exiting 3, claim withheld),
+`scripts/test_auto_stop_liveness.py` (`adjudicate()`, `selftest()`),
+`scripts/auto_stop_patched.sh:426-430` (the `scan_err` shape to copy) and `:710-720`
+(the same bfs defect, already documented there and reintroduced anyway).
