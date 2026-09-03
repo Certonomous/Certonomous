@@ -172,3 +172,95 @@ file, gate name and the command that demonstrates the absence.
 ---
 
 **Nothing in this document is filed, sent, uploaded or posted anywhere.**
+
+---
+---
+
+# CORRECTION 1 — 2026-09-03 — §6 IS WITHDRAWN. IT WAS A FALSE ACCUSATION.
+
+**`lines whose number changed above this section: 0`**
+
+Nothing above is edited. This section withdraws part of §6 of this same
+document, written by this lane earlier today.
+
+## 7. WHAT §6 CLAIMED, AND WHY IT WAS WRONG
+
+§6 recorded that A1WR registers `G-COMPLETE` and `G-CAPS` and never implemented
+them, on the evidence that `grep -c 'G-COMPLETE' a1wr_read.py` returns **0**.
+**Both claims are withdrawn in full.**
+
+The standard is verification's §2v ruling, which landed while this census was
+being written and which refused a specimen of exactly this shape:
+
+> *"a gate is implemented where it must be, not where the reader is — the
+> grading path is every frozen instrument the registration names, not the one
+> file with `analyse_` in its name."*
+
+**This census applied the wrong test.** It looked in the one file with the
+grading harness, found nothing, and inferred absence. **Absence from one
+instrument is not absence from the grading path.** In the same referred class
+**five of nine flags were false accusations**; this was two more of them, and
+they were this lane's.
+
+## 8. WHAT THE §2v TEST ACTUALLY RETURNS — EVERY FROZEN INSTRUMENT, WITH THE LINE
+
+A1WR's registration names its instruments at §15.3 and §11. Checked, all of them:
+
+| gate | implemented at | the line, quoted |
+|---|---|---|
+| `G-COMPLETE` | `a1wr_runScript_incomp.py:357-362` | `AOA_SWEEP_END n_declared=%d n_executed=%d` then, on mismatch, `AOA_SWEEP_TRUNCATED n_declared=%d n_executed=%d -- NOT a completion` and **`exit(97)`** |
+| `G-COMPLETE` | `a1wr_cmd.sh:68-71` | `EXEC="$(grep -c '^AOA_POINT_END ' …)"` → `A1WR_COUNTS declared=$DECLARED point_end_markers=$EXEC converged_lines=$CONV walltreat_lines=$BCOK`; the PROBE branch prints `A1WR_PROBE_NO_ENDTIME_STATE … y+ NOT MEASURED` and **`exit 97`** |
+| `G-CAPS` | `a1wr_chain_driver.sh:251-257` | `CAN_DUP="$(python3 -c "print('YES' if $I_SPEND + 55.0 <= $ARM_CAP_MIN else 'NO')")"`, else `A1WR_DUP_CAPSTOP: I-arm spend $I_SPEND + 55 would exceed the $ARM_CAP_MIN cap … A cap-stop is NOT A RESULT on that control.` |
+
+**Both gates are implemented, in frozen instruments the registration names, with
+the correct verdict vocabulary.**
+
+## 9. LIVE OR MERELY REACHABLE — THE ANSWER THE FIRST VERSION NEVER ASKED
+
+**`G-COMPLETE` fired LIVE.** All six A1WR cold controls carry
+`A1WR_TRUNCATED declared=1 executed=0 -- NOT a completion` in their docker logs
+and **exited 97** on it. That is the gate doing its job, on the record, in the
+grading of record.
+
+**It did not fire for the two sweeps — and that is not a missing gate.** The
+02:25:05Z SIGTERM killed both containers before the unit-end block ran:
+`logs/sweep_I.docker.log` and `logs/sweep_C.docker.log` **do not exist**, and
+`AOA_SWEEP_END` appears **0 times** in either sweep log. **A gate whose host
+process was killed is not an unimplemented gate**, and conflating the two is
+exactly how this false accusation was made.
+
+## 10. WHAT SURVIVES, STATED NARROWLY
+
+`a1wr_read.py` does not itself name or adjudicate `G-COMPLETE` or `G-CAPS`; it
+prints a bare `COUNT MISMATCH` and returns 0, and its cap line is prose. **That
+is an observation about one instrument's division of labour, and under §2v it is
+reported CLEAN — not as a suspicion.** A reader is entitled to leave a gate to
+the producer and the driver; what it may not do is claim to have adjudicated one.
+
+The one operational consequence worth keeping, stripped of the accusation: **the
+A1WR sweeps' completeness was never adjudicated by anything, because the process
+that would have adjudicated it was killed.** That is an infrastructure fact about
+one run, already recorded in `A1WR_STAGE12_RESULTS.md` §1, and it is not a defect
+in any instrument.
+
+## 11. THE MAAOA ITEM IN §6 IS NOT WITHDRAWN AND IS NOT RE-ASSERTED EITHER
+
+§6's third row — MAAOA §4's assertion of a pre-compute selftest pass with no
+artifact dated before compute — **was not measured by this lane.** It was
+relayed. Under the standard applied here it is therefore **NOT-EVALUABLE by this
+census**, and it is downgraded to that rather than left standing as a finding
+this document did not earn.
+
+## 12. WHAT THIS CORRECTION DOES NOT TOUCH
+
+**§1–§5 stand unchanged.** The fixture-defect census — six instruments AFFECTED,
+five live, three CLEAN — was built by reading every candidate's call site by
+hand, and its liveness column was decided from the grading record on disk, which
+is the §2v standard. **`aoa_read.py`'s two archived gradings still say
+`born against : REAL RUN ARTEFACT` on their own face**, and `d19m`/`d19o` still
+record `"target_kind": "REAL"`. Those are quotations from artifacts, not
+inferences from an absence, and nothing here weakens them.
+
+**The difference between §1–§5 and the withdrawn §6 is the difference this
+correction exists to mark: a finding read off an artifact, versus a finding
+inferred from not finding something in one file.**

@@ -676,3 +676,101 @@ MAAOA, that the question is open, and that it belongs to the supervisor —
 repaired.**
 
 **NOTHING IN THIS ITEM IS FILED, SENT, UPLOADED OR POSTED ANYWHERE.**
+
+---
+---
+
+# ADDENDUM 2 — 2026-09-03 — §2.3 AND §13 ARE WITHDRAWN, AND THE MECHANISM BEHIND `CONVERGED 0` IS NOW MEASURED
+
+**`lines whose number changed above this section: 0`**
+
+Nothing above this line has been edited.
+
+## 15. WITHDRAWN: `G-COMPLETE` AND `G-CAPS` **ARE** IMPLEMENTED
+
+**§2.3 and §13 of this record are withdrawn.** They claimed A1WR registers
+`G-COMPLETE` and `G-CAPS` and never implemented them, on the evidence that
+`grep -c 'G-COMPLETE' a1wr_read.py` returns 0. **That inference was wrong.**
+
+Verification's §2v ruling is the standard: *"a gate is implemented where it must
+be, not where the reader is — the grading path is every frozen instrument the
+registration names, not the one file with `analyse_` in its name."* Five of nine
+flags in that referred class were false accusations. **These were two more, and
+they were this lane's.**
+
+Checked against every frozen instrument A1WR's registration names:
+
+| gate | implemented at | the line |
+|---|---|---|
+| `G-COMPLETE` | `a1wr_runScript_incomp.py:357-362` | `AOA_SWEEP_TRUNCATED n_declared=%d n_executed=%d -- NOT a completion`, then `exit(97)` |
+| `G-COMPLETE` | `a1wr_cmd.sh:68-71` | `A1WR_COUNTS declared=… point_end_markers=…`, counted off `^AOA_POINT_END `; PROBE branch `exit 97` on a missing endTime state |
+| `G-CAPS` | `a1wr_chain_driver.sh:251-257` | `'YES' if $I_SPEND + 55.0 <= $ARM_CAP_MIN`, else `A1WR_DUP_CAPSTOP … A cap-stop is NOT A RESULT on that control.` |
+
+**`G-COMPLETE` fired LIVE**: all six cold controls carry the truncation marker
+and exited **97**. It did not fire for the two sweeps because the SIGTERM killed
+both containers before the unit-end block ran — `logs/sweep_{I,C}.docker.log` do
+not exist and `AOA_SWEEP_END` appears **0** times in either sweep log. **A gate
+whose host process was killed is not an unimplemented gate.**
+
+**What survives, narrowly:** `a1wr_read.py` does not itself adjudicate either
+gate. Under §2v that is **CLEAN**, not a suspicion. **The A1WR sweeps'
+completeness was never adjudicated by anything** — because the adjudicating
+process was killed, which is §1's infrastructure fact and not an instrument
+defect. §6's cap arithmetic in this record remains hand-derived and is still
+labelled as such; that labelling was correct and is unaffected.
+
+## 16. THE MECHANISM BEHIND `CONVERGED 0` — MEASURED, AND IT IS THE MESH
+
+§3.2 established that no point converged and proved the channel could see a real
+convergence. **The cause is now measured, and it is not the flow.**
+
+The L3 mesh's two bounding planes are **`type symmetry`, not `empty`** —
+`constant/polyMesh/boundary`, **130,304 faces each**, i.e. every cell's front and
+back face. OpenFOAM therefore reports, in the sweep's own log:
+
+> `Mesh has 3 solution (non-empty) directions (1 1 1)`
+
+and **assembles a z-momentum equation on a mesh one cell thick.** `U2` then
+floors instead of converging. Measured across all 559 print steps of
+`sweep_I/out/sweep.log`, minimum `initRes` reached by each channel:
+
+| channel | minimum `initRes`, whole run |
+|---|---|
+| U0 | 1.429824e-09 |
+| U1 | 1.738461e-09 |
+| p | 2.589369e-09 |
+| nuTilda | 8.288244e-09 |
+| **U2** | **3.238410e-08** |
+
+**Every channel but `U2` reaches below 1e-8. `U2` never does.** It is the largest
+last-iteration residual at **12 of the 14 points** (α = 0 and α = 1 excepted,
+where U1 dominates).
+
+**`3.238e-08` sits ABOVE the registered `primalMinResTol = 1.0e-8`. These points
+could not have converged. The `CONVERGED 0` of §2 is a property of the mesh
+configuration, not of the physics and not of the operating point** — and it is
+arithmetic, not an interpretation.
+
+Corroborated elsewhere and credited as external: `MAAOA INCOMP` (`U2` 2.48e-08)
+and D19T; on the coarse 4,032-cell mesh the same floor sits at ~1.7e-10, so **it
+scales with the mesh**, which is why the coarse sweeps could converge to 1e-8 and
+this one could not. The mechanism is killed for the compressible arm, where `p`
+at 9.29e-01 dominates and the failure is the separate one N-C9 documents.
+
+**WHAT THIS DOES AND DOES NOT CHANGE.** It does not change one number in §3's
+polar, and it does not change the item verdict: the readings stand exactly as
+recorded. It does not license loosening the tolerance retrospectively — that
+would be result-shopping on a closed freeze. **And it does not tell us whether
+CL or CD are contaminated: that is UNMEASURED**, and §9's list of things this
+record does not claim is extended by one line —
+
+> **no claim, in either direction, about whether the spurious third solution
+> direction affects the published CL and CD.**
+
+A separate **one-variable** item registers the `empty`-versus-`symmetry` control,
+including whether the coefficients move at all. It is not folded into the tail
+successor, whose `G-REPRO` control is only valid against A1WR's own configuration
+and would be broken by changing the patch type. **One variable per item is the
+standard that caught this.**
+
+**NOTHING IN THIS ITEM IS FILED, SENT, UPLOADED OR POSTED ANYWHERE.**

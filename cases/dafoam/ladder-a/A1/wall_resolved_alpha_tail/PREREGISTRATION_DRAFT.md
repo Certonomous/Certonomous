@@ -320,15 +320,24 @@ saturation that killed A1WR's controls.
 
 ### 4.6 `G-CONCURRENCY-PRECOND` — A LAUNCH GATE, BECAUSE §4.5's MARGIN IS NEGATIVE AGAINST MEASURED SATURATION
 
-**REGISTERED: the launcher refuses to start this unit unless a census of live
-solver containers returns empty, and the census must itself be shown able to
-return a NON-EMPTY answer before its empty answer is accepted** (rule 3, applied
-to a census rather than to a field reader — a census that cannot see a running
-container is not evidence that none is running).
+**THE DEFECT WAS NEVER CONCURRENCY. IT WAS A COST BASIS THAT ASSUMED A QUIET BOX
+WHILE NOTHING CHECKED.** An earlier form of this clause demanded an empty
+machine; that would fight Sanaa's standing order that the box is never idle, and
+it would refuse launches the arithmetic says are perfectly safe.
 
-Recorded into the unit's ledger row at launch, and again at every point
-boundary: **the census output verbatim, the box occupancy, `MemAvailable`, and
-the instant.** Contention is then attributed from measurement at calibration
+**REGISTERED: the launcher records measured occupancy and `MemAvailable` at
+launch AND at every point boundary into the ledger row, and REFUSES only if the
+registered deadline does not cover the predicted rate AT THE MEASURED
+OCCUPANCY.** The census must itself be shown able to return a NON-EMPTY answer
+before an empty one is accepted (rule 3, applied to a census rather than to a
+field reader — a census that cannot see a running container is not evidence that
+none is running), but an empty census is **not** a launch condition.
+
+**The test is the arithmetic, not an empty machine.** §4.5 is what makes this
+workable: this tail survives contention to **3.543×** the solo rate, and two
+concurrent solvers cost roughly 2×, so **this item may legitimately launch beside
+other work and must not block the box.** An item whose deadline covered only
+1.05× could not. Contention is then attributed from measurement at calibration
 time instead of argued.
 
 **THE LAB-WIDE FINDING THIS GATE RESTS ON, STATED IN ITS GENERAL FORM BECAUSE IT
@@ -362,9 +371,9 @@ absorbed into the ratio.
 |---|---|---|
 | `G-COLDSTART` | every field of `0/` read back from disk and asserted `uniform` **before** the first primal | refuse (exit 2) on any nonuniform field — A1WR's mixed `0/` is the precedent |
 | `G-REPRO` | §3, both limbs R1 and R2, bands registered above | inside → `CORROBORATED`; R2 outside → tail labels withdrawn, `NOT A RESULT`; control absent → `NOT A RESULT` on the control |
-| `G-COMPLETE` | rule 4, **all** clauses: rc 0, `End` line, last time == `endTime`, fields present, `ExecutionTime` count == `endTime`, every field newer than the case's own datum | refuse (exit 2) rather than degrade. **⚠ REGISTERED WITH ITS IMPLEMENTATION OWED AND ITS ABSENCE MADE A FREEZE BLOCKER** — `G-COMPLETE` is registered in A1WR §9 and has **zero occurrences** in `a1wr_read.py`, so A1WR's completeness gate is unadjudicated to this day. **This item's reader does not freeze until `grep -c 'G-COMPLETE'` on it is non-zero and its planted control is driven.** |
-| `G-CAPS` | **arithmetic, not prose**: measured core-min per unit against the 768 cap, computed by the reader and printed | cap-stop ⇒ `NOT A RESULT` on the affected points. **Also registered with implementation owed** — A1WR's reader mentions `G-CAPS` in one conditional sentence and computes nothing. |
-| `G-CONCURRENCY-PRECOND` | §4.6 — no competing solver container live at launch, from a census PROVED able to return non-empty; census output, occupancy, MemAvailable and instant recorded per ledger row | **refuse to launch** if the census is non-empty or if the census cannot be shown able to see a live container. §4.5's headroom is 3.543x solo and A1WR's measured saturation is 3.859x — the margin is NEGATIVE, so this is a gate and not advice |
+| `G-COMPLETE` | rule 4, **all** clauses: rc 0, `End` line, last time == `endTime`, fields present, `ExecutionTime` count == `endTime`, every field newer than the case's own datum | refuse (exit 2) rather than degrade, and **the distinction is registered**: a clause the reader CAN evaluate and that fails is a `GATE FAIL`; a clause it CANNOT evaluate is a REFUSAL. *(An earlier draft justified this gate by claiming A1WR had never implemented `G-COMPLETE`. **That claim was FALSE and is withdrawn** — see §5.1. The gate is implemented here because a single grading path is easier to audit than two, not because A1WR lacked one.)* |
+| `G-CAPS` | **arithmetic, not prose**: measured core-min per unit against the 768 cap, computed by the reader and printed | cap-stop ⇒ `NOT A RESULT` on the affected points. *(The same withdrawn claim applied here; A1WR enforces its cap in `a1wr_chain_driver.sh`. See §5.1.)* |
+| `G-CONCURRENCY-PRECOND` | §4.6 — measured occupancy and MemAvailable recorded at launch and at every point boundary, from a census PROVED able to return non-empty | **refuse to launch only if the registered deadline does not cover the predicted rate AT THE MEASURED OCCUPANCY.** An empty box is NOT a launch condition — this item survives 3.543x solo and must not block the box. The test is arithmetic |
 | `G-YPLUS` | measured y+ min/mean/max on the wall patch, every α | `GATE FAIL` if y+max ≥ 1.0 anywhere; refuse (exit 2) on a blind channel for a point that ran ≥ 200 iterations. **The mesh is NOT re-cut** (A1WR §3.4) — an overshoot is a registered outcome |
 | `G-WALLTREAT` | `useWallFunction: False` in the staged script **and** `BCType=nutLowReWallFunction` in the solver log for the `wing` patch | refuse (exit 2) if the log does not confirm the BC that actually ran |
 | `G-FIXTURE` | **every planted control's fixture is STATIC and independent of the run being graded** | refuse (exit 2) if any fixture is read from this item's own run root. **THE L-435 REPAIR** — see §6 |
@@ -375,6 +384,36 @@ absorbed into the ratio.
 **Composition:** D19M's repaired `compose_item` from `verdict_before_ceiling`,
 hard-gate list tested for **both** `GATE FAIL` and `NOT A RESULT`. Ceiling
 `GATE REACHED`.
+
+### 5.1 ⚠ A WITHDRAWN ACCUSATION — `G-COMPLETE` AND `G-CAPS` **ARE** IMPLEMENTED IN A1WR
+
+An earlier draft of this document, and this lane's census, recorded that A1WR
+registers `G-COMPLETE` and `G-CAPS` and never implemented them, on the evidence
+that `grep -c 'G-COMPLETE' a1wr_read.py` returns 0. **That inference was wrong
+and is withdrawn in full.**
+
+Verification's §2v ruling is the standard, and it refused a specimen of exactly
+this shape: *"a gate is implemented where it must be, not where the reader is —
+the grading path is every frozen instrument the registration names, not the one
+file with `analyse_` in its name."* Checked against every frozen A1WR instrument:
+
+| gate | implemented at | the line |
+|---|---|---|
+| `G-COMPLETE` | `a1wr_runScript_incomp.py:357-362` | `AOA_SWEEP_TRUNCATED n_declared=%d n_executed=%d -- NOT a completion` then `exit(97)` |
+| `G-COMPLETE` | `a1wr_cmd.sh:68-71` | counts `AOA_POINT_END` markers, `A1WR_COUNTS declared=… point_end_markers=…`; the PROBE branch exits 97 on a missing endTime state |
+| `G-CAPS` | `a1wr_chain_driver.sh:251-257` | `CAN_DUP = 'YES' if I_SPEND + 55.0 <= ARM_CAP_MIN`, else `A1WR_DUP_CAPSTOP … A cap-stop is NOT A RESULT on that control.` |
+
+**And it fired LIVE.** All six A1WR cold controls carry the truncation marker in
+their docker logs and exited **97** on it. It did **not** fire for the two
+sweeps — because the 02:25:05Z SIGTERM killed the containers before the unit-end
+block ran (no `sweep_*.docker.log` exists; `AOA_SWEEP_END` appears **0** times in
+either sweep log). **A gate whose host process was killed is not an unimplemented
+gate**, and conflating the two is how a false accusation gets made.
+
+**What survives, narrowly:** `a1wr_read.py` does not itself name or adjudicate
+either gate — it prints a bare `COUNT MISMATCH` and returns 0. That is an
+observation about one instrument's division of labour. Under §2v it is reported
+**CLEAN**, not as a suspicion.
 
 ---
 
@@ -428,13 +467,55 @@ them on this very mesh, image and solver.
 - **A converged high-α point is not evidence of attached flow.** 2-D steady RANS
   with SA past the onset of significant separation is not a valid model of the
   flow at **any** resolution.
-- **Registered in advance, because A1WR's α 0…12 makes it likely:** the tail may
-  well produce **seven more `NOT CONVERGED` points** — every A1WR arm-I point
-  ran the full 4,000 iterations without satisfying 1e-8. **That is a registered
-  outcome, not a defect, and it does not license raising `endTime`, relaxing the
-  tolerance, or re-tuning anything.** Any of those would be result-shopping and
-  is forbidden on this item; a different iteration budget is a NEW rung with its
-  own pre-registration.
+- **⚠ REGISTERED AS A KNOWN PROPERTY OF THE MESH, NOT AS AN EXPECTATION: EVERY
+  POINT OF THIS TAIL WILL READ `NOT CONVERGED`, AND THE MECHANISM AND ITS
+  MEASURED NUMBER ARE ON THE RECORD BEFORE THE RUN.**
+
+  The mesh's two bounding planes are **`type symmetry`, not `empty`** — measured
+  in `constant/polyMesh/boundary`, 130,304 faces each — so OpenFOAM reports
+  **`Mesh has 3 solution (non-empty) directions (1 1 1)`** and assembles a
+  **z-momentum equation on a mesh one cell thick**. `U2` therefore floors instead
+  of converging. Measured on `A1WR sweep_I` across all 559 print steps:
+
+  | channel | minimum `initRes` reached, whole run |
+  |---|---|
+  | U0 | 1.429824e-09 |
+  | U1 | 1.738461e-09 |
+  | p | 2.589369e-09 |
+  | nuTilda | 8.288244e-09 |
+  | **U2** | **3.238410e-08** |
+
+  **Every channel but `U2` gets below 1e-8. `U2` never does.** It is the largest
+  last-iteration residual at **12 of the 14** points, and its floor of
+  **3.238e-08 sits ABOVE the registered `primalMinResTol = 1.0e-8`.**
+
+  **So A1WR's points could not have converged, and neither can this tail's. That
+  is arithmetic, not a forecast.** Corroborated on `MAAOA INCOMP` (`U2` 2.48e-08)
+  and on the coarse 4,032-cell mesh (~1.7e-10, i.e. the floor scales with the
+  mesh); killed for the compressible arm, where `p` at 9.29e-01 dominates and the
+  mechanism is the separate one N-C9 documents.
+
+  **AND THE CLAUSE THAT NOW MATTERS MOST: this licenses NOTHING.** It does not
+  license raising `endTime`, **it does not license relaxing 1.0e-8 to 1e-7 to
+  manufacture a convergence**, and it does not license re-tuning. A successor
+  reading this page will reach for exactly that loosening; it is result-shopping,
+  it is forbidden on this item, and a different tolerance or iteration budget is
+  a **NEW rung with its own pre-registration**.
+
+- **THE TAIL STILL RUNS, AT `symmetry`, WITH THE FROZEN NUMERICS UNCHANGED.** It
+  is the faithful extension of A1WR, and `G-REPRO` is only valid against A1WR's
+  own configuration — **changing the patch type would break the very comparison
+  this item exists to make.** The `empty`-versus-`symmetry` control, including
+  whether CL/CD move at all, is a **separate one-variable item** and is not
+  folded in here. One variable per item is the standard that caught this.
+
+- **REGISTERED CONSEQUENCE FOR EVERY COEFFICIENT THIS ITEM PUBLISHES:** they are
+  **iteration-4,000 states on a configuration with a known residual floor of
+  3.238e-08**. **Whether that floor contaminates CL or CD is UNMEASURED, and is
+  being measured elsewhere.** `G-NOBAND` already forbids presenting any value as
+  grid-converged or inside a band; **this clause additionally forbids presenting
+  any value of this item as a CONVERGED polar.** The two prohibitions are
+  separate and both bind.
 - **No adjoint claim.** Primal only, undeformed geometry, no optimiser, no trim.
 - **The build confound stands and is restated:** the coarse sweeps ran the
   SHIPPED image, this and A1WR run the PATCHED `dafoam-idwarp-rot:v1`.
@@ -446,8 +527,10 @@ them on this very mesh, image and solver.
 1. **Supervisor's §3 check 4, personally**: the §4.3/§4.4 cap arithmetic and the
    §3.3 reproduction-control bands, read as arithmetic and not as a summary.
 2. The driver, run-script staging and **reader** written, with `G-COMPLETE` and
-   `G-CAPS` actually implemented (§5) and `G-FIXTURE` enforced (§6), every
-   control driven and its selftest passing, then md5-pinned by the freeze.
+   `G-CAPS` implemented **in this item's reader** (§5) and `G-FIXTURE` enforced
+   (§6), every control driven and its selftest passing, then md5-pinned by the
+   freeze. *(Implemented in the reader for auditability, NOT because A1WR lacked
+   them — §5.1 withdraws that claim.)*
 3. Run root `/home/ubuntu/certonomous-runs/A1WRT/` re-checked absent **in the
    freezing shell**.
 4. Mesh, image and instrument md5s re-verified against the A1WR manifest in that
