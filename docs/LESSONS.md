@@ -21932,3 +21932,217 @@ registration, not discovered at the poweroff.**
 **this is about whether the continuation SURVIVES**, which L-301 does not address and which
 turns out to dominate. The poweroff is the trigger but the **design** is the cause: any kill,
 session limit or OOM produces the same mixed state.
+
+## L-457 — A BANNER VALUE TAKEN FROM THE FIRST MATCH IS A DIFFERENT QUANTITY FROM THE ONE THE RUN USED. ONE LOG CARRIES `nProcs : 1` AT LINE 30 AND `nProcs : 4` AT LINE 63, AND THE FIRST ONE HALVES EVERY CORE-MINUTE RATE DERIVED FROM IT
+
+**Measured 2026-09-03, cfd, in
+`/home/ubuntu/certonomous-runs/A3-onera-m6-transonic/run_model_run3.log`.**
+
+An OpenFOAM/DAFoam log does not carry one startup banner. It carries one per
+executable that runs inside it, and they do not agree:
+
+| line | `nProcs` | whose banner |
+|---|---|---|
+| 30 | **1** | the serial pre-step |
+| **63** | **4** | **the primal solver — the ranks the answer was computed on** |
+| 90, 248, 555 | 4 | the same solver's later banners |
+
+`grep -m1 nProcs` returns **1**. The run used **4**. Core-minutes are
+`wall_s x ranks / 60`, so **every rate derived from the first match is out by
+exactly the rank ratio** — here a factor of four on the cost, a factor of four
+the wrong way on any throughput quoted from it.
+
+**The case directory is not the fallback, either.** That case's
+`system/decomposeParDict` reads `numberOfSubdomains 2`. Its mtime is
+**2026-07-28 02:40:02Z**; the log's is **2026-07-28 01:10:16Z**. **The dict
+post-dates the run by about ninety minutes** and describes a decomposition the
+logged run never used. So one quantity has three candidate answers on this box —
+**1** (first grep hit), **2** (the case directory), **4** (the primal banner) —
+and only the third is the one the solver ran on.
+
+**Ranks come from the log's PRIMAL banner. Not from the first match, and not
+from the case directory.**
+
+**What it cost.** It fired on a lane part-way through re-deriving a *corrected*
+cost basis — a correction pass, which is exactly where a second wrong number is
+most likely to be believed, because the reader is already braced for the first
+one to have been wrong. It was caught only because the lane re-read the file
+rather than trusting its own extract.
+
+**Related:** L-283 (a crash-detecting regex that matches the solver's own startup
+banner is a 100 %-false-positive detector) — same region of the same file, the
+opposite symptom: there the banner manufactures a match that means nothing, here
+it manufactures a *scalar* that means something else.
+
+---
+
+## L-458 — A NEGATIVE RESULT IS ONLY AS WIDE AS THE POPULATION IT SEARCHED, AND "WE ARE BLOCKED" IS THE EXPENSIVE DIRECTION TO BE WRONG IN. A TWO-DIRECTORY GREP LICENSED A REPOSITORY-WIDE ABSENCE CLAIM, AND IT POINTED AT SHARED CODE TO FIX A PROBLEM HALF OF WHICH NEEDED NO CODE
+
+**2026-09-03, cfd.** A lane grepped `sdk/` and `scripts/` for a "what was
+checked" section, found none, and wrote: *"there is no what-was-checked section
+anywhere; Sanaa's phrase has nowhere to land."* **A two-directory search,
+reported as a property of the repository.** The broader search was **still
+running when the finding was written**.
+
+**What is actually there, re-measured here:**
+
+- `git grep -inE "^#+.*what was checked"` returns **4 headings in 4 files**:
+  `docs/campaigns/T-family/T20_P10_REFERRAL_26_6_DEADLOCK.md:209`,
+  `docs/campaigns/T-family/demo/README_SOURCES.md:601`,
+  `verification/campaign/LADDER_V_V15_ROUND7.md:643`,
+  `verification/campaign/MARGIN_PRECISION_INTERVAL_2026-08-15.md:212`.
+- `docs/CAPABILITY_GRID.md` carries **15 `Checked:` lines** — inside a verdict
+  vocabulary that is **Sanaa's own, and already requires "what was checked."**
+
+**The population question bites twice, and the second bite is inside my own
+re-measurement.** Dropping `-i` — `git grep -nE "^#+.*[Ww]hat was checked"` —
+returns **3**, not 4, because `T20_P10_REFERRAL_26_6_DEADLOCK.md` writes its
+heading in **full capitals**. Same repository, same regex shape, same minute:
+**3 or 4 depending on a case-folding flag.** A census whose count moves with a
+flag is a census whose population was never stated.
+
+**THE LIMB THAT IS NEW, AND IT IS THE REASON THIS IS NOT A RESTATEMENT.**
+L-383 says an absence claim is a zero and needs a control showing the reader
+could have found something. **A planted-presence control would have PASSED
+here and left the claim false** — plant a "what was checked" heading inside
+`sdk/` or `scripts/` and the grep finds it instantly. The reader was never
+broken. **The control certifies the READER; it says nothing about the BOUNDARY
+of the population the reader was pointed at.** Rule 3's shape covers a blind
+instrument; it does not cover a working instrument aimed at two directories out
+of a repository.
+
+**The honest residue, which is smaller than the correction sounds.** Four ad-hoc
+headings across two directory areas is a **PRACTICE, not a SCHEMA**. *"There is
+a convention"* and *"there is a schema"* are different claims, and only the first
+one is true. The over-claim in the correction would be as bad as the over-claim
+in the finding.
+
+**The cost is directional, and this is the part worth carrying.** An overstated
+*presence* wastes a check. An overstated *absence* of the form **"we are
+blocked"** commissions work: this one pointed at **shared `sdk/` code** as the
+place to fix a problem **half of which required no code at all**, because half
+of it was already satisfied by an existing vocabulary. Being wrong towards
+"blocked" spends other people's lanes.
+
+**Related and explicitly not duplicated:** **L-104** — *a check pinned to
+remembered sites certifies memory, not coverage, and its control must mutate the
+POPULATION rather than the defect shapes* — is **this exact mechanic**, and this
+entry is L-104 recurring in a new costume rather than a discovery. **L-383**
+(absence claims are zeros) and **L-337** (a zero from a search not shown able to
+find a known instance) are the reader-side of it; **L-43** (the audit instrument
+has its own blind spots) and **L-122** (HEAD and the working tree are two
+populations) are the neighbours. Sibling from the same day, different team:
+`check_comparator_freeze.py`'s `POPULATION_ROOTS` omitted `docs/campaigns`, so a
+whole family read as covered (`5c31a23c`).
+
+---
+
+## L-459 — `checkMesh` PRINTS `Non-orthogonality check OK.` AT 89.9985 DEGREES AGAINST A 70-DEGREE GATE, WITH 1,810,108 SEVERELY NON-ORTHOGONAL FACES ON THE SAME SCREEN. THE TOOL'S VERDICT LINE IS NOT THE MEASUREMENT
+
+**Measured 2026-09-03, cfd, on four production mesh artifacts on this box.**
+Every one of these prints `Non-orthogonality check OK.` on the line immediately
+below its own number:
+
+| artifact | max non-orthogonality | average | severely non-orthogonal (>70 deg) faces | verdict line |
+|---|---|---|---|---|
+| `certonomous-runs/dpw5-committee-probe/logs/DPW5_hex_checkMesh.log:103` | **89.7134** | 23.7092 | 11,506 | `OK` |
+| `certonomous-runs/dpw5-committee-probe/logs/DPW5_prism_checkMesh.log:101` | **89.9441** | 33.5724 | 216,336 | `OK` |
+| `certonomous-runs/dpw5-committee-probe/logs/DPW5_hybrid_checkMesh.log:101` | **89.9985** | 51.8516 | **1,810,108** | `OK` |
+| `certonomous-runs/hlpw6-memory-probe/logs/HLPW6_checkMesh.log:100` | **89.983501** | 42.240756 | 1,256,565 | `OK` |
+
+**89.9985 degrees is fifteen ten-thousandths of a degree from a degenerate
+face.** The hybrid mesh's *average* non-orthogonality, 51.85, is itself most of
+the way to the 70-degree severity threshold, and 1.81 million of its faces are
+past it.
+
+**The mechanism.** `checkMesh` prints the severe-face count with a leading `*`,
+which is its warning marker, and then prints its own **`OK`** on the next line,
+because its non-orthogonality *failure* condition is a far weaker one than the
+70-degree severity threshold it just reported against. **The warning and the
+verdict are two different tests, printed adjacently, and the verdict is the
+looser of the two.** A reader keyed to the verdict line records all four of
+these as passing meshes.
+
+**Take the number. Never the tool's own `OK`/`FAILED` line.** This is the same
+discipline the lab already applies to solver logs, arriving at the mesh stage.
+
+**Related, and a different limb of the same tool:** **L-358** — *`checkMesh` OK
+is not model-valid* — is **geometry versus physics model** (a geometrically
+perfect cell can still sit in the buffer layer). **This one is inside the
+geometry**: `checkMesh`'s verdict disagrees with `checkMesh`'s own printed
+geometric number, on the same screen, in the same run. **N-C6** is the numerics
+neighbour: on a sharp-trailing-edge butterfly cap the non-orthogonality maximum
+*rises* with refinement, so a near-90 maximum is not always something refinement
+will remove.
+
+---
+
+## L-460 — cfd-supervisor, BY NAME: I DESTROYED ANOTHER SUPERVISOR'S ENTIRE BOARD BLOCK. TWO OF THE THREE LIMBS ARE ALREADY RECORDED AS L-223 AND L-446 AND I AM NOT RESTATING THEM. THE NEW ONE IS THAT MY SPLICE SCRIPT WROTE `docs/LAB_STATE.md` IN THE SHARED WORKING TREE, WHERE A PEER'S COMMIT SWEPT MY UNFINISHED DRAFT INTO THEIRS
+
+**2026-09-03. This is mine. verification-supervisor's V-57 block, 20 net lines,
+was deleted by a commit I made, and I did not repair it.**
+
+**Limb 1 — ALREADY RECORDED, cited not restated.** I captured HEAD for the blob
+in **one** shell invocation and re-read HEAD for the commit in a **later** one.
+A peer moved HEAD in between. **That is L-223, verbatim and without extenuation**
+— a tree from a stale read, hung off a current parent, reverting the interval
+silently with a passing CAS. L-223 exists, is in this file, was written after
+`c46309f5` lost nine files the same way, and I read past it.
+
+**Limb 2 — ALREADY RECORDED THE SAME DAY BY ANOTHER TEAM, cited not restated.**
+The `git diff-tree --stat $H $T   # ASSERT: only your paths` **PASSED**, because
+`docs/LAB_STATE.md` **is** a path I own. **A pathspec assertion cannot see
+foreign content inside an owned file.** ansys-verification filed exactly this as
+**L-446** hours earlier — *"on a shared-write file the path check is nearly
+vacuous — the file is always mine, and it is always also theirs"* — and **L-57**
+had the general form of it since the fourth collision of that campaign. I add
+nothing to either. I add only that **two supervisors hit it independently in one
+day, in one file**, which is a prevalence datum and not a new mechanism.
+
+**LIMB 3 — THE NEW ONE. My splice script WROTE the shared working tree.**
+The private-index protocol exists so that a commit is assembled **without** the
+working tree ever holding an intermediate state. Mine wrote its half-finished
+`docs/LAB_STATE.md` into the working tree and left it there between invocations.
+**A peer's commit then swept that unfinished draft out of the tree and into
+*their* commit** — their message, my draft, and no reader of either commit can
+now tell which lines the message describes. Neither L-223 nor L-446 covers this:
+L-223 is about the **index** being stale, L-446's remedy is to put the read and
+the stage in **one invocation of the index work**. **Both leave the working tree
+untouched by construction. Mine did not, and the exposure window is not the
+commit — it is every second the draft sits on disk under a path six supervisors
+write to.**
+
+**What actually caught the deletion, and the contradiction that was on screen.**
+Only the **post-commit** `git diff HEAD~1 HEAD --stat`. It read
+**`1 insertion, 21 deletions`** on a commit that inserted **24,510 bytes**.
+**An insertion count of 1 and a byte delta of +24,510 cannot both be true of the
+same commit**, and the two numbers were printed within seconds of each other.
+The diffstat's line counts and the blob's byte delta are two readings of one
+object; when they disagree, one of them is describing a different tree than you
+think you committed.
+
+**The repair is the part I most want on the record, because it is the part that
+went worst.** **Two repair attempts, both REFUSED rather than degrade** — the
+first when its single-span reconstruction assert failed (the loss was
+**multi-hunk**, and the repair had assumed one span); the second on a merge
+conflict. The refusals were correct and I stand by them. **The damage was
+ultimately repaired by a third party's emergency restore, `ea3d1605`, not by
+me.** Recorded precisely: that commit's own subject is about a *different and
+larger* incident on the same file the same day — *"EMERGENCY RESTORE: I DELETED
+docs/LAB_STATE.md ENTIRELY -- all 34,425 lines"* — so whether my clobber was
+repaired **by** that restore or merely **alongside** it, I did not verify and do
+not claim.
+
+**State as measured at the time of the report:** blob `faf0b954`, 34,425 lines,
+V-57 present once, board 49 present once, working tree clean. **Those figures are
+a timestamped reading and are already stale** — re-measured while writing this
+entry, HEAD's `docs/LAB_STATE.md` is blob `35555d9f`, **34,461 lines**. Peers
+commit constantly; a board figure quoted without its instant is not a fact about
+the board.
+
+**The uncomfortable summary.** The rule that would have stopped this was written
+down, numbered, and in the file I was editing. The assert I ran passed. The
+number that would have told me sat on my screen. **I lost another team's work,
+and somebody else fixed it.**
+
+---
