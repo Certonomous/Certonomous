@@ -28458,6 +28458,126 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-09-03T18:02Z — **A CORRECTION FILED ONLY AT THE FOOT REACHES NOBODY, AND I PROVED IT ON MYSELF WITHIN HOURS. CHARTER v1.25 (`dfa93f9b`). VMFL046-INVISCID L3 IS LIVE AND ITS PLATEAU IS IN DOUBT.**
+
+**Written by `ansys-verification-supervisor` personally.** Time measured by `date -u`, not inherited from a brief (L-445).
+
+**COMMIT `dfa93f9b` — charter v1.25, `§30`.** `§27` (v1.22) had correctly refuted `§26.2`'s
+worked example, but filed the refutation **only as an appended section**. `§26.2`'s body,
+its cap table and the v1.21 summary table went on stating `19.95` / `1.66×` **unmarked**.
+`§26.2` is the clause whose entire function is to teach estimate-vs-method reconciliation —
+**its teaching IS its worked example** — so the unmarked wrong example taught the exact
+gate-fitting-shaped error the correction names. All three sites are now struck in place
+with a pointer to `§27` and the corrected `3.78`. **3 lines changed in place, 0 added,
+0 removed, 2069 → 2069** before the appended block, so every later amendment's
+`lines whose number changed above this section: 0` assertion survives.
+
+> ⚠ **THE PROOF IS AGAINST ME, AND IT IS A RECURRENCE.** `§27.4` already records the wrong
+> figure entering a lane brief because the supervisor briefed it as established. **On
+> re-forming this session I did it again, after writing `§27`** — I dispatched two lanes and
+> handed both *"filed 12.00 under a method that yields 19.95 (1.66× under)"* as an
+> instruction. Caught only because I read `docs/COST_CALIBRATION.md` row
+> `C-20260903T162543.364120Z-e486a4a1` for an unrelated reason; **both lanes corrected by
+> message in the same turn, before either filed anything.** A correction its own author
+> forgets within hours is not an effective correction: the failure is not memory, it is that
+> **the refuted text was still the most findable statement of the fact.**
+
+**RECORD DEBT CHECKED, NOT ASSUMED — AND IT WAS ALREADY PAID.** The calibration row says the
+supervisor "is correcting both records separately". Verified: `docs/LESSONS.md:20990` carries
+the strike, and charter `§27` carries the dated correction. **Nothing outstanding there.**
+The board's earlier *"register row #54 + calibration row NOT YET COMMITTED"* line is
+**STALE — struck**: row **#54** is landed in the register and calibration row
+`C-20260903T162543.364120Z-e486a4a1` is landed at `docs/COST_CALIBRATION.md:380`.
+
+#### LIVE — VMFL046-INVISCID, the decisive Euler arm (§24.7)
+**Freeze verified personally (§3 check 4):** `6345bf84`, committed **before** launch; working
+tree **byte-identical to HEAD** across all **13** frozen blobs. Comparator freeze verified
+three ways — HEAD, disk and the prereg's cited hash all read
+`cbe98dc821cdbeaba0c27363117b65b7ee199dcf`.
+
+**THE ONE-VARIABLE CLAIM IS TRUE IN THE FROZEN BYTES, AND I CHECKED IT RATHER THAN TAKING IT.**
+`diff -r` of the viscous against the inviscid case returns **exactly two lines**:
+`mu 1.7894e-05 → 0.0` and `noSlip → slip`. Mesh, schemes, `fvSolution`, `controlDict`,
+contour, and every other BC are byte-identical. **Honest statement: two lines, one physical
+variable** — a no-slip wall at zero viscosity is ill-posed, so the slip wall is μ=0's
+necessary companion, not a second change. Had μ not actually been zero, outcome **B**
+(shared-defect) would have been a false refutation.
+
+**Frozen prediction (§2), committed before compute:** `x_shock(inviscid, grid-converged) ∈
+[1.19, 1.31]` → **A** = viscous physics confirmed, and this arm is credential-capable
+(`§12.2` ruled **SAME**: viscosity absent from *both* sides, so no model-form gap to bound).
+≈1.0885 → **B** = shared setup/discretisation defect, **escalated, not absorbed**.
+
+| level | rc | wall | `ExecutionTime` | vs viscous |
+|---|---|---|---|---|
+| L1 | 0, `End`, 20000==endTime | 57 s | 55.5 s | **1.00×** |
+| L2 | 0, `End`, 20000==endTime | 230 s | 227.8 s | **0.74×** |
+| L3 | **RUNNING**, pid 296348, at 8770/20000 | — | 583 s @ 17:55 | ETA ~18:10Z |
+
+Cost so far **4.78 core-min** against a cap of **84**. *(The L1-identical / L2-0.74× split is
+a real calibration datum: removing viscosity bought nothing at 3 200 cells and 26 % at
+12 800.)*
+
+> ⚠ **THE MONITOR'S LABEL CONTRADICTED ITS OWN NUMBER, AND CHASING THAT FOUND SOMETHING BIGGER
+> THAN THE LABEL.** A monitor reported L3's `p` initial residual rising **4.20e-4 → 2.25e-3**
+> and called it **"PLATEAUED"**. A five-fold monotone rise is not a plateau. **Triaged on
+> numbers.** Resolved, and it splits two ways:
+>
+> **(a) The residual reading is real.** L1 and L2 decayed smoothly to **3.69e-10** and
+> **6.07e-10** by iteration 10000 and sat there to 20000 — **no mid-run rise at all**. L3 does
+> **not** converge: `p` oscillates between **1.20e-4 and 1.44e-3** with no trend, out to the
+> latest sample.
+>
+> **(b) AND YET THE FROZEN GATE QUANTITY IS FROZEN SOLID AT L3** — `M(0.9)` is constant **to
+> eight decimals** from iteration **3000** through **11500**, i.e. `|dM| = 0` against a
+> criterion of `4.25e-4`. **A gate quantity that is bit-stable to 8 decimals while the
+> pressure residual oscillates by a factor of 12 is not reassuring — it is a question.**
+>
+> **THE HYPOTHESIS I AM NOW TESTING, AND IT IS AN INSTRUMENT FINDING, NOT A CASE FINDING:**
+> `x = 0.9` lies between the throat (`x = 0.5`) and the shock (`x ≈ 1.15–1.25`), so it is
+> **supersonic and upstream**. In supersonic flow **downstream disturbances cannot propagate
+> upstream**. If that is why `M(0.9)` is frozen, then **the frozen plateau criterion is
+> causally incapable of detecting an unsteady or oscillating shock — and shock location is
+> the PRIMARY gate limb.** The convergence criterion would be measuring a station that cannot
+> see the quantity the gate is about. **This would apply verbatim to the already-graded
+> viscous VMFL046 (row #54), whose plateau was "MET at every level" at `|dM|` = 0 / 8.7e-11 /
+> 4.3e-10** — met-ness that would certify nothing about whether its shock had settled.
+> **STATED AS A HYPOTHESIS UNDER TEST, NOT A FINDING** (§3 check 3): a lane is extracting
+> Mach at stations either side of the shock across every sample time. The refutation is
+> available and specific — **if the shock-region stations are ALSO steady, the hypothesis is
+> dead** and the frozen `M(0.9)` simply reflects a converged solve with a noisy pressure
+> equation. **No verdict, no row and no re-grade moves on this until that comes back.**
+
+**PAIRED VISCOUS/INVISCID READING AT `M(0.9)`, computed by me, DIAGNOSTIC not a gate limb.**
+Same mesh, same schemes, same BCs, one variable:
+
+| | L1 | L2 | L3 | Roache | Richardson | vs analytical 1.882125 |
+|---|---|---|---|---|---|---|
+| inviscid | 1.74154106 | 1.78502247 | 1.81571469 | CONVERGING, R=0.7059, p=0.5025 | **1.889372** | **+0.385 %** |
+| viscous (row #54) | 1.738725 | 1.781806 | 1.812050 | CONVERGING, R=0.702, p=0.510 | 1.883305 | +0.063 % |
+
+**REMOVING VISCOSITY ENTIRELY MOVES `M(0.9)` BY ONLY +0.16 / +0.18 / +0.20 %.** The
+fine-level deficit against analytical goes **−3.72 % → −3.53 %**: roughly **95 % of the
+`M(0.9)` deficit is NOT viscous**, it is discretisation (`p_obs ≈ 0.50`, first-order upwind).
+Expected for an upstream isentropic station, and it is **not yet evidence about the shock** —
+the primary limb is shock location and that number does not exist until L3 completes.
+
+#### RUNGS WITHOUT VERDICTS / NEXT
+- **VMFL046-INVISCID** — running; verdict on completion against the frozen `§2` prediction.
+- **VMFL024** — **PREREGISTRATION IS ENTIRELY UNTRACKED IN GIT** (`cases/ansys_verification/VMFL024/`,
+  47 KB draft + `case/`, survived the kill, never committed). **No compute may launch on it**
+  (§3 check 4). A lane is auditing it for freeze-readiness, including the `§26.3` cost
+  reconciliation using **only data available at filing**.
+- **THE ANSYS QUEUE HOLDS ZERO PENDING ROWS** — every json is in `launched/` or `held/`.
+  Stated honestly per `§26.5`: **a case frozen early to fill a slot is a worse failure than
+  an idle box.** Charter v1.24 records **45 of 49 remaining cases are figure-only**, and the
+  **digitizer calibration returned `NOT A RESULT`** (POSITION PLANT-NULL refused, `§29`), so
+  those 45 are not about to unblock. A lane is producing the honest printed-scalar short
+  list — **however short it turns out to be.**
+
+#### ON SANAA'S DESK
+Nothing new from this team.
+
 ### 2026-09-03T16:12Z — **THE VERDICT BELOW WAS TRUE AND ITS EVIDENCE EXISTED NOWHERE ON DISK. I RE-RAN THE FROZEN COMPARATOR MYSELF; EVERY NUMBER REPRODUCED EXACTLY. CHARTER v1.19 RECORDS THAT THE RUN REFUTED MY OWN CAP-LIFTING BOUND BY 20.50×.**
 
 **Written by `ansys-verification-supervisor` personally**, re-formed after the accidental fleet-stop. Commits **`4f83564b`** (charter v1.19 + v1.20), **`4a4b0dbd`** (the verdict's evidence), **`1cd4b4fb`** (lessons L-440…L-445).
