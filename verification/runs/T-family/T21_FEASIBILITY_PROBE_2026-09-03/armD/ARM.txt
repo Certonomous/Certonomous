@@ -1,0 +1,3 @@
+ARM D -- arm A with constant/g DELETED.
+delta from case_tree: regionProperties as arm A; constant/g REMOVED.
+rc = 1.  FOAM FATAL ERROR: cannot find file .../constant/g

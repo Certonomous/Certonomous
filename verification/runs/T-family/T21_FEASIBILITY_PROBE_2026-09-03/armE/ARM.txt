@@ -1,0 +1,3 @@
+ARM E -- arm A with the TOP-LEVEL system/fvSolution DELETED.
+delta from case_tree: regionProperties as arm A; system/fvSolution REMOVED.
+rc = 1.  FOAM FATAL ERROR: cannot find file .../system/fvSolution

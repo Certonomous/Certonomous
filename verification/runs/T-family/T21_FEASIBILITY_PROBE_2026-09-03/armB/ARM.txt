@@ -1,0 +1,3 @@
+ARM B -- CONTROL, the S_m shape: the 'solid' key REMOVED ENTIRELY.
+delta from case_tree: constant/regionProperties = regions ( fluid () )
+rc = 1.  FOAM FATAL ERROR: solid not found in table.  Valid entries: 1(fluid)

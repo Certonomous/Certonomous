@@ -1,0 +1,3 @@
+ARM C -- DISCRIMINATOR, the 'fluid' key REMOVED ENTIRELY.
+delta from case_tree: constant/regionProperties = regions ( solid (core housing) )
+rc = 1.  FOAM FATAL ERROR: fluid not found in table.  Valid entries: 1(solid)

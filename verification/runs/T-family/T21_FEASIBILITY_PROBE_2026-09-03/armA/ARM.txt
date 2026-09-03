@@ -1,0 +1,3 @@
+ARM A -- the T21 shape.
+delta from case_tree: constant/regionProperties = regions ( fluid () solid (core housing) )
+rc = 0.  Reached Time = 1, wrote fields, printed End.
