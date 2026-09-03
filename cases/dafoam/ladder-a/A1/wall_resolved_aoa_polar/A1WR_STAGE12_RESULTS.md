@@ -774,3 +774,51 @@ and would be broken by changing the patch type. **One variable per item is the
 standard that caught this.**
 
 **NOTHING IN THIS ITEM IS FILED, SENT, UPLOADED OR POSTED ANYWHERE.**
+
+---
+---
+
+# ADDENDUM 3 — 2026-09-03 — THE OTHER HALF OF THE MECHANISM: A 100× DEAD BAND, READ FROM THE INSTALLED SOURCE
+
+**`lines whose number changed above this section: 0`**
+
+Nothing above this line has been edited. This completes §16, and it closes the
+loop on the correction that opened this record: **why the LEDGER read
+`err=NONE` on thirteen rows that contained zero convergences.**
+
+§16 established that `U2`'s residual floors at **3.238410e-08**, above the
+registered `primalMinResTol = 1.0e-8`, so the points could not converge. **It did
+not explain why DAFoam also never raised a failure.** Read from the installed
+source in the patched image — not inferred:
+
+| | `DASolver.C` | criterion | threshold with this item's registered values |
+|---|---|---|---|
+| **early stop / `satisfied` line** | `:188`, `:192-194` | `primalMaxRes < primalMinResTol` | **< 1.0e-8** |
+| **`Primal solution failed!`** | `:2745-2753` | `primalMaxRes / primalMinResTol > primalMinResTolDiff` | **> 1.0e-6** |
+
+`primalMinResTolDiff` is registered at **100** (`A1WR_PREREGISTRATION.md:318`),
+so **there is a deliberate 100× DEAD BAND between the two thresholds**, and the
+measured floor lands inside it:
+
+> **3.238410e-08 = 3.24× the tolerance, and 0.0324× the failure threshold.**
+
+**A1WR's arm I could NEITHER converge NOR be flagged as failed.** DAFoam printed
+nothing — no `satisfied` line, no failure banner — the driver caught no
+exception, and the ledger recorded `err=NONE`. **That is the entire mechanical
+explanation of the "13 clean rows, all `error NONE`" reading that Addendum 1 §11
+records as the supervisor's correction, and it vindicates the frozen reader:
+`NOT CONVERGED` was the right label and `err=NONE` was never evidence against
+it.**
+
+**Bearing on Sanaa's 2026-09-03 taxonomy:** she names *"a residual print that
+isn't the max over equations"* as a blocking physics fix. **This one is the max**
+— `primalMaxRes` is reset to `-1e10` each iteration (`DASolver.C:224`) and
+maximised over the equation set — so that defect does **not** apply here. The
+defect that does apply is the patch identity, and it is fixed in the successor,
+not retrofitted onto this closed freeze.
+
+**Nothing in this addendum changes a number, a gate or the verdict.** No
+tolerance is relaxed retrospectively, and `primalMinResTolDiff` is not
+re-litigated on a closed item.
+
+**NOTHING IN THIS ITEM IS FILED, SENT, UPLOADED OR POSTED ANYWHERE.**
