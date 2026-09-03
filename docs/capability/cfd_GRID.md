@@ -239,3 +239,73 @@ for s in f018c8bf 4ad083fb a1fbe127 14018d5b 193b522c b8fe7eea a1ac1c21 c69ce11c
 
 **Census after R-1D: unchanged — CAN DO 3 · CAN DO, CAVEATS 6 · CAN NOT DO (attempted) 4 · not attempted 23.** The 2D·unsteady·incompressible cell holds CAN DO on F18; no cell changed verdict class.
 Applied into the table in place 2026-08-26T22:17:45Z by a cfd lane on the cfd-supervisor's order; line count unchanged (240 lines before and after, above this appended line — every edit was a one-line in-place rewrite: cells at lines 48, 51, 54, 57; derivation row line 30 and this section's F3 parenthetical, both corrected from the `:92-93` gate-row cite to `F3_SUCCESSOR_TRIPLE_PREREGISTRATION.md:81`; in-flight lines 12 and 89 (F17b graded); footer lines 119, 122, 125); footer sha control re-run: 43/43 resolve.
+
+---
+
+## MESH IMPORT — COMMITTEE GRIDS (FIDELITY). Appended 2026-09-03 by a cfd lab-lane on the cfd-supervisor's order, append-only. **Lines whose number changed above this section: 0.**
+
+**⚠ THIS ROW SITS OUTSIDE THE 36-CELL TABLE, AND THAT IS A SCHEMA FINDING REPORTED RATHER
+THAN WORKED AROUND.** Sanaa's taxonomy is **dimension × time × regime** — every one of the
+36 cells is a flow regime. **A mesh-import capability is not a flow regime and fits no
+cell.** Placing it in one would be a category error and, worse, would read as a claim
+about solving on those grids. It is therefore filed as its own named section, on the
+precedent of the R-1D ruling below, and **the boundary sentence the supervisor required is
+carried in full rather than dropped for want of a field.**
+
+**THE RULED WORDING, QUOTED AT SOURCE AND NOT PARAPHRASED.** Sanaa, on the register row
+(`verification/campaign/RUNG0_MESH_IMPORT_PREREGISTRATION.md` §10, frozen `d127d83d`):
+
+> *"Register wording: the mesh-import row certifies fidelity (faithful import + honest
+> quality reporting), and says so; admissibility is the separate ruling above."*
+
+Sanaa, on the hard limit (`docs/standards/MESH_STANDARD.md` §15.7):
+
+> *"What committee grids can never do is certify our meshing capability — that stays on
+> in-house grids under 70°."*
+
+And §15.7's own clause, which this row is written to obey: *"**No Tier-2 grid, and no
+result obtained on one, may be cited as evidence of this lab's meshing capability** — not
+in `docs/CAPABILITY_GRID.md`, not in a credentials-wall entry, not in the capability
+register, not in a certificate's capability claim, and not in a report upward. … **'Never'
+is her word and it takes no exception.**"
+
+### The row
+
+| capability | verdict |
+|---|---|
+| **mesh import — committee grids (FIDELITY)** | **`PASS`** — this row certifies **fidelity only**: that a published committee grid is imported **faithfully** and its **measured quality reported honestly**. It certifies **nothing about admissibility**, which is Sanaa's separate two-tier ruling of 2026-09-03 (`MESH_STANDARD.md` §15), and **nothing about this lab's meshing capability**, which stays on in-house grids under the 70° gate (§15.7). Import via **UGRID** with patch identity preserved; **round trip verified on cell count, patch names and per-patch face counts**; measured quality reported against the grid's own documentation. **Plot3D is dropped** — it destroyed patch identity, importing M6I L1 (983,040 cells) as one `defaultFaces` patch of 27,648 faces. **CGNS is deferred** to its own registration. Grids imported, round-tripped and quality-reported: **DPW5 L1.T hex / prism / hybrid, HLPW6 `h6c1_rans_3a_1`** — **all four measured at 89.71°–90.00° max non-orthogonality against the 70° gate, reported not gated.** |
+
+**Grid identity, carrying §15.5's literal string verbatim, case-sensitive:**
+`workshop committee family, quality as published`.
+
+### 🔴 THE BOUNDARY, AND IT BINDS EVERY CITATION OF THIS ROW
+
+> **THIS ROW CERTIFIES AN IMPORT CAPABILITY, NOT A MESHING CAPABILITY. RUNG0b IMPORTED
+> AND ROUND-TRIPPED FOUR COMMITTEE GRIDS; IT DID NOT BUILD ONE.** §15.7 states the
+> distinction exactly: *"a Tier-2 certificate certifies the PHYSICS this lab computed; it
+> certifies nothing about the MESH this lab did not build. Importing a grid faithfully is
+> an import capability (that is what the mesh-import register row certifies — fidelity),
+> and it is not a meshing capability."*
+>
+> **AND IT IS POPULATION-BOUNDED.** `RUNG0b_MESH_IMPORT_PREREGISTRATION.md` §8 non-claim
+> 10: the `PASS` **certifies the converter on this population only** — three
+> Fortran-unformatted grids and one **large** raw C stream — **and makes no claim whatever
+> about small raw-C-stream files**, which is precisely the class the committed 13-header
+> audit (`b78e8858`) measured the pinned converter mis-detecting. **Three defective copies
+> of that converter remain on this box**, one of them outside git.
+
+### The evidence
+
+| what | where |
+|---|---|
+| verdict | `verification/runs/RUNG0b_MESH_IMPORT_runs/RESULTS.json` @ **`33b77af5`** — `rung_verdict` **`PASS`**, all four grids `PASS`, all five gates `PASS` on each |
+| registration, frozen **before** first compute | `verification/campaign/RUNG0b_MESH_IMPORT_PREREGISTRATION.md` @ **`ace20cb1`**; amendment `0b6cb24f`, notes `75ad7ef9` / `86457521` |
+| the gate that makes it a verdict rather than an assertion | **R0-G2b** graded from the frozen path, with **B9 firing 4/4** — the round-trip plant the predecessor could only record as UNBUILT |
+| quality, **reported not gated** | max non-orthogonality **89.7134 / 89.9441 / 89.9985 / 89.9835°**, every value PARSED off its named maximum while `checkMesh` printed `Non-orthogonality check OK.` beside all four (L-459) |
+| predecessor | `RUNG0_MESH_IMPORT` @ `d127d83d` — **`PENDING`, not amended, standing as committed** |
+
+**WHAT THIS SECTION DOES NOT DO.** It does not touch `docs/CAPABILITY_GRID.md`, which is
+the **verification supervisor's** file; the frozen registration §10 says in terms *"cfd
+drafts the wording, it does not land it."* This is the family-table draft §10 directs to
+`docs/capability/cfd_GRID.md`, with its `<verdict>` placeholder now filled from a graded
+record. **It changes no cell of the 36-cell table and no census figure.**
