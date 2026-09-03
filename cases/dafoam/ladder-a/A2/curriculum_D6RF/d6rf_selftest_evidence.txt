@@ -1,0 +1,779 @@
+=== driven Thu Sep  3 18:18:53 UTC 2026 on ip-172-31-43-247, python3 Python 3.12.3
+
+########## LOCUS SELFTEST under python3
+SELFTEST clean: design variables parsed = ["patchV_cl04", "patchV_cl05", "patchV_cl06", "shape", "twist"]
+SELFTEST clean: scalers read from source = {"patchV_cl04": 0.1, "patchV_cl05": 0.1, "patchV_cl06": 0.1, "shape": 10.0, "twist": 0.1}
+  clean/control_P (3 pinned witnesses expected)              want=no-refusal  got=no-refusal  PASS
+  clean/control_B                                            want=no-refusal  got=no-refusal  PASS
+  PLANT: exactly 3 pinned witnesses discovered (one per point)     PASS
+  driver-scaled vector (the live defect)/control_P           want=REFUSED     got=REFUSED     PASS   <control_pinned: {"tol_rel": 1e-12, "violations": [{"dv": "patchV_cl04", "idx": 0, "pinned_value": 100.0, "reconstructed": 10.0, "rel_residual": 0.9}, >
+  driver-scaled vector (the live defect)/control_B           want=REFUSED     got=REFUSED     PASS   <control_bounds: {"first_20": [{"dv": "patchV_cl04", "excess": 90.0, "idx": 0, "lower": 100.0, "upper": 100.0, "value": 10.0}, {"dv": "patchV_cl05", "e>
+  mutant/one pinned witness off by 1e-9 relative             want=REFUSED     got=REFUSED     PASS   <control_pinned: {"tol_rel": 1e-12, "violations": [{"dv": "patchV_cl05", "idx": 0, "pinned_value": 100.0, "reconstructed": 100.00000010000001, "rel_res>
+  mutant/one pinned witness left driver-scaled (10.0)        want=REFUSED     got=REFUSED     PASS   <control_pinned: {"tol_rel": 1e-12, "violations": [{"dv": "patchV_cl06", "idx": 0, "pinned_value": 100.0, "reconstructed": 10.0, "rel_residual": 0.9}]}>
+  mutant/pinned off by 1e-13 (inside tol, must NOT fire)     want=no-refusal  got=no-refusal  PASS
+  registration with zero pinned components/control_P         want=REFUSED     got=REFUSED     PASS   <control_pinned: {"n_pinned_found": 0, "note": "no design-variable component has lower == upper, so this control checked nothing; a control with nothin>
+  mutant/shape just above upper bound                        want=REFUSED     got=REFUSED     PASS   <control_bounds: {"first_20": [{"dv": "shape", "excess": 9.999999999177334e-07, "idx": 0, "lower": -1.0, "upper": 1.0, "value": 1.000001}], "n_checked">
+  mutant/twist below lower bound                             want=REFUSED     got=REFUSED     PASS   <control_bounds: {"first_20": [{"dv": "twist", "excess": 0.5, "idx": 0, "lower": -10.0, "upper": 10.0, "value": -10.5}], "n_checked": 9, "n_violations">
+  mutant/shape above bound by 1e-12 (inside tol, must NOT fire) want=no-refusal  got=no-refusal  PASS
+  empty component set/control_B                              want=REFUSED     got=REFUSED     PASS   <control_bounds: {"n_checked": 0, "note": "zero components checked; a loop that can iterate zero times asserts its own trip count"}>
+  parser/scaler keyword removed                              want=REFUSED     got=REFUSED     PASS   <parse_registration: {"design_variable": ["twist"], "found_keywords": ["lower", "upper"], "missing_keyword": "scaler"}>
+  parser/lower keyword removed                               want=REFUSED     got=REFUSED     PASS   <parse_registration: {"design_variable": ["shape"], "found_keywords": ["scaler", "upper"], "missing_keyword": "lower"}>
+  parser/only two design variables registered                want=REFUSED     got=REFUSED     PASS   <parse_registration: {"design_variables_found": ["twist"], "n_found": 1, "n_required_min": 3, "note": "a registration this parser cannot read in full i>
+  parser/U0 not a module-level constant                      want=REFUSED     got=REFUSED     PASS   <parse_registration/['patchV_cl04', 'patchV_cl05', 'patchV_cl06']/lower: {"known": [], "name_not_a_module_level_constant": "U0"}>
+  parser/scaler is zero                                      want=REFUSED     got=REFUSED     PASS   <parse_registration: {"design_variable": ["shape"], "scaler_is_zero": true}>
+  parser/POINTS is not a module-level list (name unresolvable) want=REFUSED     got=REFUSED     PASS   <parse_registration: {"known_loop_variables": [], "name_concatenation_operand_is_not_a_loop_variable_over_a_module_level_string_list": "pt"}>
+  parser/loop over a non-list name                           want=REFUSED     got=REFUSED     PASS   <parse_registration: {"known_loop_variables": [], "name_concatenation_operand_is_not_a_loop_variable_over_a_module_level_string_list": "pt"}>
+  parser/name built by an f-string (unsupported form)        want=REFUSED     got=REFUSED     PASS   <parse_registration: {"add_design_var_first_arg_unsupported_form": "JoinedStr", "supported": ["\"literal\"", "\"literal\" + <for-loop var over a module>
+  parser/name built from a variable alone (unsupported form) want=REFUSED     got=REFUSED     PASS   <parse_registration: {"add_design_var_first_arg_unsupported_form": "Name", "supported": ["\"literal\"", "\"literal\" + <for-loop var over a module list>
+  parser/same loop variable bound to two different lists     want=REFUSED     got=REFUSED     PASS   <loop_bindings: {"bound_to_two_different_lists": [["cl04", "cl05", "cl06"], ["a", "b"]], "loop_variable": "pt", "note": "an ambiguous loop variable can>
+  descale/extracted key the registration does not know       want=REFUSED     got=REFUSED     PASS   <descale: {"extracted_key_not_registered": "alpha", "registered": ["patchV_cl04", "patchV_cl05", "patchV_cl06", "shape", "twist"]}>
+  descale/extractor returned fewer DVs than registered       want=REFUSED     got=REFUSED     PASS   <descale: {"note": "the extractor returned fewer design variables than the producer registered", "registered_but_not_extracted": ["patchV_cl04", "patch>
+  descale/bound list length != extracted length              want=REFUSED     got=REFUSED     PASS   <control_bounds/patchV_cl04: {"bound": "lower", "len_extracted": 3, "len_registered": 2}>
+SELFTEST real d6r_opt_runScript.py scalers = {"patchV_cl04": 0.1, "patchV_cl05": 0.1, "patchV_cl06": 0.1, "shape": 10.0, "twist": 0.1}
+SELFTEST real d6r_opt_runScript.py U0      = 100.0
+SELFTEST real d6r_opt_runScript.py POINTS  = ['cl04', 'cl05', 'cl06']
+  PLANT: the five registered names and their scalers          PASS
+  PLANT: U0 read from the source, not typed here              PASS
+  PLANT: POINTS read from the source, not typed here          PASS
+  PLANT: 3 pinned witnesses discovered on the REAL producer    PASS
+
+D6RF_LOCUS_SELFTEST 30/30 PASS
+rc=0
+
+########## LOCUS SELFTEST under python3 -O
+SELFTEST clean: design variables parsed = ["patchV_cl04", "patchV_cl05", "patchV_cl06", "shape", "twist"]
+SELFTEST clean: scalers read from source = {"patchV_cl04": 0.1, "patchV_cl05": 0.1, "patchV_cl06": 0.1, "shape": 10.0, "twist": 0.1}
+  clean/control_P (3 pinned witnesses expected)              want=no-refusal  got=no-refusal  PASS
+  clean/control_B                                            want=no-refusal  got=no-refusal  PASS
+  PLANT: exactly 3 pinned witnesses discovered (one per point)     PASS
+  driver-scaled vector (the live defect)/control_P           want=REFUSED     got=REFUSED     PASS   <control_pinned: {"tol_rel": 1e-12, "violations": [{"dv": "patchV_cl04", "idx": 0, "pinned_value": 100.0, "reconstructed": 10.0, "rel_residual": 0.9}, >
+  driver-scaled vector (the live defect)/control_B           want=REFUSED     got=REFUSED     PASS   <control_bounds: {"first_20": [{"dv": "patchV_cl04", "excess": 90.0, "idx": 0, "lower": 100.0, "upper": 100.0, "value": 10.0}, {"dv": "patchV_cl05", "e>
+  mutant/one pinned witness off by 1e-9 relative             want=REFUSED     got=REFUSED     PASS   <control_pinned: {"tol_rel": 1e-12, "violations": [{"dv": "patchV_cl05", "idx": 0, "pinned_value": 100.0, "reconstructed": 100.00000010000001, "rel_res>
+  mutant/one pinned witness left driver-scaled (10.0)        want=REFUSED     got=REFUSED     PASS   <control_pinned: {"tol_rel": 1e-12, "violations": [{"dv": "patchV_cl06", "idx": 0, "pinned_value": 100.0, "reconstructed": 10.0, "rel_residual": 0.9}]}>
+  mutant/pinned off by 1e-13 (inside tol, must NOT fire)     want=no-refusal  got=no-refusal  PASS
+  registration with zero pinned components/control_P         want=REFUSED     got=REFUSED     PASS   <control_pinned: {"n_pinned_found": 0, "note": "no design-variable component has lower == upper, so this control checked nothing; a control with nothin>
+  mutant/shape just above upper bound                        want=REFUSED     got=REFUSED     PASS   <control_bounds: {"first_20": [{"dv": "shape", "excess": 9.999999999177334e-07, "idx": 0, "lower": -1.0, "upper": 1.0, "value": 1.000001}], "n_checked">
+  mutant/twist below lower bound                             want=REFUSED     got=REFUSED     PASS   <control_bounds: {"first_20": [{"dv": "twist", "excess": 0.5, "idx": 0, "lower": -10.0, "upper": 10.0, "value": -10.5}], "n_checked": 9, "n_violations">
+  mutant/shape above bound by 1e-12 (inside tol, must NOT fire) want=no-refusal  got=no-refusal  PASS
+  empty component set/control_B                              want=REFUSED     got=REFUSED     PASS   <control_bounds: {"n_checked": 0, "note": "zero components checked; a loop that can iterate zero times asserts its own trip count"}>
+  parser/scaler keyword removed                              want=REFUSED     got=REFUSED     PASS   <parse_registration: {"design_variable": ["twist"], "found_keywords": ["lower", "upper"], "missing_keyword": "scaler"}>
+  parser/lower keyword removed                               want=REFUSED     got=REFUSED     PASS   <parse_registration: {"design_variable": ["shape"], "found_keywords": ["scaler", "upper"], "missing_keyword": "lower"}>
+  parser/only two design variables registered                want=REFUSED     got=REFUSED     PASS   <parse_registration: {"design_variables_found": ["twist"], "n_found": 1, "n_required_min": 3, "note": "a registration this parser cannot read in full i>
+  parser/U0 not a module-level constant                      want=REFUSED     got=REFUSED     PASS   <parse_registration/['patchV_cl04', 'patchV_cl05', 'patchV_cl06']/lower: {"known": [], "name_not_a_module_level_constant": "U0"}>
+  parser/scaler is zero                                      want=REFUSED     got=REFUSED     PASS   <parse_registration: {"design_variable": ["shape"], "scaler_is_zero": true}>
+  parser/POINTS is not a module-level list (name unresolvable) want=REFUSED     got=REFUSED     PASS   <parse_registration: {"known_loop_variables": [], "name_concatenation_operand_is_not_a_loop_variable_over_a_module_level_string_list": "pt"}>
+  parser/loop over a non-list name                           want=REFUSED     got=REFUSED     PASS   <parse_registration: {"known_loop_variables": [], "name_concatenation_operand_is_not_a_loop_variable_over_a_module_level_string_list": "pt"}>
+  parser/name built by an f-string (unsupported form)        want=REFUSED     got=REFUSED     PASS   <parse_registration: {"add_design_var_first_arg_unsupported_form": "JoinedStr", "supported": ["\"literal\"", "\"literal\" + <for-loop var over a module>
+  parser/name built from a variable alone (unsupported form) want=REFUSED     got=REFUSED     PASS   <parse_registration: {"add_design_var_first_arg_unsupported_form": "Name", "supported": ["\"literal\"", "\"literal\" + <for-loop var over a module list>
+  parser/same loop variable bound to two different lists     want=REFUSED     got=REFUSED     PASS   <loop_bindings: {"bound_to_two_different_lists": [["cl04", "cl05", "cl06"], ["a", "b"]], "loop_variable": "pt", "note": "an ambiguous loop variable can>
+  descale/extracted key the registration does not know       want=REFUSED     got=REFUSED     PASS   <descale: {"extracted_key_not_registered": "alpha", "registered": ["patchV_cl04", "patchV_cl05", "patchV_cl06", "shape", "twist"]}>
+  descale/extractor returned fewer DVs than registered       want=REFUSED     got=REFUSED     PASS   <descale: {"note": "the extractor returned fewer design variables than the producer registered", "registered_but_not_extracted": ["patchV_cl04", "patch>
+  descale/bound list length != extracted length              want=REFUSED     got=REFUSED     PASS   <control_bounds/patchV_cl04: {"bound": "lower", "len_extracted": 3, "len_registered": 2}>
+SELFTEST real d6r_opt_runScript.py scalers = {"patchV_cl04": 0.1, "patchV_cl05": 0.1, "patchV_cl06": 0.1, "shape": 10.0, "twist": 0.1}
+SELFTEST real d6r_opt_runScript.py U0      = 100.0
+SELFTEST real d6r_opt_runScript.py POINTS  = ['cl04', 'cl05', 'cl06']
+  PLANT: the five registered names and their scalers          PASS
+  PLANT: U0 read from the source, not typed here              PASS
+  PLANT: POINTS read from the source, not typed here          PASS
+  PLANT: 3 pinned witnesses discovered on the REAL producer    PASS
+
+D6RF_LOCUS_SELFTEST 30/30 PASS
+rc=0
+
+########## GRADER SELFTEST under python3
+D6RF GRADER SELFTEST -- every outcome DRIVEN, zero containers
+
+A. THE CLEAN CONTROL AND THE LADDER
+D6RF_VERDICT PASS  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_en4p536j/r01.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  1  clean two-arm root, everything inside band           want=PASS          got=PASS          PASS
+        rung 7: every gated row PASS
+D6RF_VERDICT GATE FAIL  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_en4p536j/r02.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      GATE FAIL
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  2  FD rel err 9 % > the registered 5 % band             want=GATE FAIL     got=GATE FAIL     PASS
+        rung 6: gate(s) ['G-FD_bright_line_on_J'] GATE FAIL
+D6RF_VERDICT GATE FAIL  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_en4p536j/r03.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      GATE FAIL
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  3  FD plateau 25 % > the registered 10 % tolerance      want=GATE FAIL     got=GATE FAIL     PASS
+        rung 6: gate(s) ['G-FD_bright_line_on_J'] GATE FAIL
+D6RF_VERDICT GATE FAIL  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_en4p536j/r04.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      GATE FAIL
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  4  ONE sign flip -- GATE FAIL, not the pathology        want=GATE FAIL     got=GATE FAIL     PASS
+        rung 6: gate(s) ['G-FD_bright_line_on_J'] GATE FAIL
+D6RF_VERDICT NOT A RESULT  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_en4p536j/r05.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      NOT A RESULT
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  5  TWO sign flips -- the registered pathology           want=NOT A RESULT  got=NOT A RESULT  PASS
+        rung 4: the registered FD sign-flip pathology fired
+D6RF_VERDICT NOT A RESULT  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_en4p536j/r06.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      NOT A RESULT
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  6  a component NEAR_ZERO -- no FD pair was taken        want=NOT A RESULT  got=NOT A RESULT  PASS
+        rung 5: gate(s) ['G-FD_bright_line_on_J'] NOT A RESULT for want of an input
+D6RF_VERDICT GATE FAIL  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_en4p536j/r07.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            GATE FAIL
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  7  per-point CD_mp above CD_REF_off at cl06             want=GATE FAIL     got=GATE FAIL     PASS
+        rung 6: gate(s) ['G-OFF_per_point'] GATE FAIL
+D6RF_VERDICT GATE FAIL  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_en4p536j/r08.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            GATE FAIL
+  G-PRICE_single_point       GATE FAIL
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  8  single-point price above the 1.0e-3 band             want=GATE FAIL     got=GATE FAIL     PASS
+        rung 6: gate(s) ['G-OFF_per_point', 'G-PRICE_single_point'] GATE FAIL
+D6RF_VERDICT NOT A RESULT  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_en4p536j/r09.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       NOT A RESULT
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  9  NEGATIVE single-point price -- a finding about D4    want=NOT A RESULT  got=NOT A RESULT  PASS
+        rung 4: negative single-point price -- a finding about D4, named in advance
+
+B. COMPLETION, THE AGE GUARD AND THE CENSUS
+D6RF_VERDICT NOT A RESULT  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_en4p536j/r10.json
+  G1_completion              ran_clean=False all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  10 rc != 0 on an arm that ran                           want=NOT A RESULT  got=NOT A RESULT  PASS
+        rung 1: completion clause failed on arm(s) ['F_mp']
+D6RF_VERDICT NOT A RESULT  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_en4p536j/r11.json
+  G1_completion              ran_clean=False all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  11 OOMKilled true                                       want=NOT A RESULT  got=NOT A RESULT  PASS
+        rung 1: completion clause failed on arm(s) ['F_mp']
+D6RF_VERDICT NOT A RESULT  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_en4p536j/r12.json
+  G1_completion              ran_clean=False all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  12 a registered product OLDER than the arm's own age datum want=NOT A RESULT  got=NOT A RESULT  PASS
+        rung 1: completion clause failed on arm(s) ['F_mp']
+D6RF_VERDICT NOT A RESULT  spend 46.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_en4p536j/r13.json
+  G1_completion              ran_clean=True all_arms_ran=False
+  G-DVL_endpoint_locus       NOT A RESULT
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            NOT A RESULT
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  13 REF_off never ran, chain accounts for it             want=NOT A RESULT  got=NOT A RESULT  PASS
+        rung 2: registered arm(s) ['REF_off'] did not run; the item can never be PASS with an arm unbought
+  14 an arm missing while the chain says COMPLETE         want=REFUSED       got=REFUSED       PASS
+        {"REFUSE": "CENSUS", "detail": {"arm": "REF_off", "arm_absent_from_ledger": true, "chain_not_run": [], "chain_outcome": "COMPLETE"
+  15 a duplicate ledger row for one arm                   want=REFUSED       got=REFUSED       PASS
+        {"REFUSE": "LEDGER", "detail": {"arms_seen": ["F_mp", "F_mp"], "duplicate_arm_row": "F_mp", "note": "refused, not last-wins"}}
+  16 two chain=started lines (a second fire)              want=REFUSED       got=REFUSED       PASS
+        {"REFUSE": "CHAIN_STATUS", "detail": {"n_chain_started": 2, "note": "a second fire into an existing root makes the census unreadab
+
+C. THE LOCUS CONTROLS -- the defect this item exists to repair
+D6RF_VERDICT NOT A RESULT  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_en4p536j/r17.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       GATE FAIL
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  17 F_mp's PHYSICAL artefact still DRIVER-SCALED (the live defect) want=NOT A RESULT  got=NOT A RESULT  PASS
+        rung 3: G-DVL GATE FAIL -- the design point on disk is not the one the registration names, so nothing downstream of it measures wh
+D6RF_VERDICT NOT A RESULT  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_en4p536j/r18.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       GATE FAIL
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  18 one shape component outside its registered [-1, 1] bound want=NOT A RESULT  got=NOT A RESULT  PASS
+        rung 3: G-DVL GATE FAIL -- the design point on disk is not the one the registration names, so nothing downstream of it measures wh
+D6RF_VERDICT NOT A RESULT  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_en4p536j/r19.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       GATE FAIL
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  19 a pinned witness moved off U0 by 0.1 %               want=NOT A RESULT  got=NOT A RESULT  PASS
+        rung 3: G-DVL GATE FAIL -- the design point on disk is not the one the registration names, so nothing downstream of it measures wh
+D6RF_VERDICT NOT A RESULT  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_en4p536j/r20.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       GATE FAIL
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  20 the artefact does not declare itself PHYSICAL        want=NOT A RESULT  got=NOT A RESULT  PASS
+        rung 3: G-DVL GATE FAIL -- the design point on disk is not the one the registration names, so nothing downstream of it measures wh
+
+D. CAPS, TOOLCHAIN, PLACEMENT
+D6RF_VERDICT GATE FAIL  spend 541.000 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_en4p536j/r21.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     GATE FAIL
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  21 core_min above the registered cap                    want=GATE FAIL     got=GATE FAIL     PASS
+        rung 6: gate(s) ['G-CAPS'] GATE FAIL
+D6RF_VERDICT GATE FAIL  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_en4p536j/r22.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     GATE FAIL
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  22 container clock beyond deadline + kill grace         want=GATE FAIL     got=GATE FAIL     PASS
+        rung 6: gate(s) ['G-CAPS'] GATE FAIL
+D6RF_VERDICT GATE FAIL  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_en4p536j/r23.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     GATE FAIL
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  23 host-minus-container gap above the 30 s limb         want=GATE FAIL     got=GATE FAIL     PASS
+        rung 6: gate(s) ['G-CAPS'] GATE FAIL
+D6RF_VERDICT PASS  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_en4p536j/r24.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  24 an absent container clock -> NOT_MEASURED, host bracket stands want=PASS          got=PASS          PASS
+        rung 7: every gated row PASS
+D6RF_VERDICT GATE FAIL  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_en4p536j/r25.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               GATE FAIL
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  25 the SHIPPED digest on a row                          want=GATE FAIL     got=GATE FAIL     PASS
+        rung 6: gate(s) ['G9_toolchain'] GATE FAIL
+D6RF_VERDICT GATE FAIL  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_en4p536j/r26.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              GATE FAIL
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  26 cpuset moved off the registered set                  want=GATE FAIL     got=GATE FAIL     PASS
+        rung 6: gate(s) ['G12_placement'] GATE FAIL
+D6RF_VERDICT GATE FAIL  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_en4p536j/r27.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              GATE FAIL
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  27 delivered cores below the registered 3.0 floor       want=GATE FAIL     got=GATE FAIL     PASS
+        rung 6: gate(s) ['G12_placement'] GATE FAIL
+D6RF_VERDICT PASS  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_en4p536j/r28.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  28 delivered cores NOT_MEASURED -> disclosed, not failed want=PASS          got=PASS          PASS
+        rung 7: every gated row PASS
+D6RF_VERDICT GATE FAIL  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_en4p536j/r29.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              GATE FAIL
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  29 container memory not the registered 20g              want=GATE FAIL     got=GATE FAIL     PASS
+        rung 6: gate(s) ['G12_placement'] GATE FAIL
+
+E. THE PLANTED-ZERO CONTROLS (rule 3) -- a blind reader REFUSES
+  -- FD control:    delta 1.234000e-03, reader saw the plant: True
+  -- price control: delta 1.234000e-03, reader saw the plant: True
+  -- both originals byte-unchanged by the control: True
+  -- a BLIND FD reader (returns the unperturbed file whatever it is given) want=REFUSED       got=REFUSED       PASS
+        {"REFUSE": "PLANT_FD", "detail": {"delta": 0.0, "original_md5_after": "97a4e3f19e89787a45d9007d905ea7a5", "original_md5_before": "
+  -- a BLIND price reader                                 want=REFUSED       got=REFUSED       PASS
+        {"REFUSE": "PLANT_PRICE", "detail": {"delta": 0.0, "original_md5_after": "ea3c9b11f3290a7d5daf205f2bf2d763", "original_md5_before"
+  -- an FD artefact with NO plantable PLANNED row         want=REFUSED       got=REFUSED       PASS
+        {"REFUSE": "PLANT_FD", "detail": {"no_PLANNED_row_with_an_ok_s_hi_leg": true, "note": "a control with nothing to plant into is not
+
+F. THE REFERENCE AND THE FREEZE
+  -- D4's recorded reference has MOVED on disk            want=REFUSED       got=REFUSED       PASS
+        {"REFUSE": "G-PRICE", "detail": {"D4_reference_moved": {"recorded": 0.021125978108239574, "reread": 0.1}}}
+  -- the freeze check on an uncommitted path              want=REFUSED       got=REFUSED       PASS
+        {"REFUSE": "FREEZE", "detail": {"absent_on_disk": "cases/dafoam/ladder-a/A2/curriculum_D6RF/NOT_A_FILE.md"}}
+
+D6RF_GRADE_SELFTEST 37/37 PASS
+rc=0
+
+########## GRADER SELFTEST under python3 -O
+D6RF GRADER SELFTEST -- every outcome DRIVEN, zero containers
+
+A. THE CLEAN CONTROL AND THE LADDER
+D6RF_VERDICT PASS  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_ndlyatml/r01.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  1  clean two-arm root, everything inside band           want=PASS          got=PASS          PASS
+        rung 7: every gated row PASS
+D6RF_VERDICT GATE FAIL  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_ndlyatml/r02.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      GATE FAIL
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  2  FD rel err 9 % > the registered 5 % band             want=GATE FAIL     got=GATE FAIL     PASS
+        rung 6: gate(s) ['G-FD_bright_line_on_J'] GATE FAIL
+D6RF_VERDICT GATE FAIL  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_ndlyatml/r03.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      GATE FAIL
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  3  FD plateau 25 % > the registered 10 % tolerance      want=GATE FAIL     got=GATE FAIL     PASS
+        rung 6: gate(s) ['G-FD_bright_line_on_J'] GATE FAIL
+D6RF_VERDICT GATE FAIL  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_ndlyatml/r04.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      GATE FAIL
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  4  ONE sign flip -- GATE FAIL, not the pathology        want=GATE FAIL     got=GATE FAIL     PASS
+        rung 6: gate(s) ['G-FD_bright_line_on_J'] GATE FAIL
+D6RF_VERDICT NOT A RESULT  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_ndlyatml/r05.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      NOT A RESULT
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  5  TWO sign flips -- the registered pathology           want=NOT A RESULT  got=NOT A RESULT  PASS
+        rung 4: the registered FD sign-flip pathology fired
+D6RF_VERDICT NOT A RESULT  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_ndlyatml/r06.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      NOT A RESULT
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  6  a component NEAR_ZERO -- no FD pair was taken        want=NOT A RESULT  got=NOT A RESULT  PASS
+        rung 5: gate(s) ['G-FD_bright_line_on_J'] NOT A RESULT for want of an input
+D6RF_VERDICT GATE FAIL  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_ndlyatml/r07.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            GATE FAIL
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  7  per-point CD_mp above CD_REF_off at cl06             want=GATE FAIL     got=GATE FAIL     PASS
+        rung 6: gate(s) ['G-OFF_per_point'] GATE FAIL
+D6RF_VERDICT GATE FAIL  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_ndlyatml/r08.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            GATE FAIL
+  G-PRICE_single_point       GATE FAIL
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  8  single-point price above the 1.0e-3 band             want=GATE FAIL     got=GATE FAIL     PASS
+        rung 6: gate(s) ['G-OFF_per_point', 'G-PRICE_single_point'] GATE FAIL
+D6RF_VERDICT NOT A RESULT  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_ndlyatml/r09.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       NOT A RESULT
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  9  NEGATIVE single-point price -- a finding about D4    want=NOT A RESULT  got=NOT A RESULT  PASS
+        rung 4: negative single-point price -- a finding about D4, named in advance
+
+B. COMPLETION, THE AGE GUARD AND THE CENSUS
+D6RF_VERDICT NOT A RESULT  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_ndlyatml/r10.json
+  G1_completion              ran_clean=False all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  10 rc != 0 on an arm that ran                           want=NOT A RESULT  got=NOT A RESULT  PASS
+        rung 1: completion clause failed on arm(s) ['F_mp']
+D6RF_VERDICT NOT A RESULT  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_ndlyatml/r11.json
+  G1_completion              ran_clean=False all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  11 OOMKilled true                                       want=NOT A RESULT  got=NOT A RESULT  PASS
+        rung 1: completion clause failed on arm(s) ['F_mp']
+D6RF_VERDICT NOT A RESULT  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_ndlyatml/r12.json
+  G1_completion              ran_clean=False all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  12 a registered product OLDER than the arm's own age datum want=NOT A RESULT  got=NOT A RESULT  PASS
+        rung 1: completion clause failed on arm(s) ['F_mp']
+D6RF_VERDICT NOT A RESULT  spend 46.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_ndlyatml/r13.json
+  G1_completion              ran_clean=True all_arms_ran=False
+  G-DVL_endpoint_locus       NOT A RESULT
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            NOT A RESULT
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  13 REF_off never ran, chain accounts for it             want=NOT A RESULT  got=NOT A RESULT  PASS
+        rung 2: registered arm(s) ['REF_off'] did not run; the item can never be PASS with an arm unbought
+  14 an arm missing while the chain says COMPLETE         want=REFUSED       got=REFUSED       PASS
+        {"REFUSE": "CENSUS", "detail": {"arm": "REF_off", "arm_absent_from_ledger": true, "chain_not_run": [], "chain_outcome": "COMPLETE"
+  15 a duplicate ledger row for one arm                   want=REFUSED       got=REFUSED       PASS
+        {"REFUSE": "LEDGER", "detail": {"arms_seen": ["F_mp", "F_mp"], "duplicate_arm_row": "F_mp", "note": "refused, not last-wins"}}
+  16 two chain=started lines (a second fire)              want=REFUSED       got=REFUSED       PASS
+        {"REFUSE": "CHAIN_STATUS", "detail": {"n_chain_started": 2, "note": "a second fire into an existing root makes the census unreadab
+
+C. THE LOCUS CONTROLS -- the defect this item exists to repair
+D6RF_VERDICT NOT A RESULT  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_ndlyatml/r17.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       GATE FAIL
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  17 F_mp's PHYSICAL artefact still DRIVER-SCALED (the live defect) want=NOT A RESULT  got=NOT A RESULT  PASS
+        rung 3: G-DVL GATE FAIL -- the design point on disk is not the one the registration names, so nothing downstream of it measures wh
+D6RF_VERDICT NOT A RESULT  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_ndlyatml/r18.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       GATE FAIL
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  18 one shape component outside its registered [-1, 1] bound want=NOT A RESULT  got=NOT A RESULT  PASS
+        rung 3: G-DVL GATE FAIL -- the design point on disk is not the one the registration names, so nothing downstream of it measures wh
+D6RF_VERDICT NOT A RESULT  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_ndlyatml/r19.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       GATE FAIL
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  19 a pinned witness moved off U0 by 0.1 %               want=NOT A RESULT  got=NOT A RESULT  PASS
+        rung 3: G-DVL GATE FAIL -- the design point on disk is not the one the registration names, so nothing downstream of it measures wh
+D6RF_VERDICT NOT A RESULT  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_ndlyatml/r20.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       GATE FAIL
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  20 the artefact does not declare itself PHYSICAL        want=NOT A RESULT  got=NOT A RESULT  PASS
+        rung 3: G-DVL GATE FAIL -- the design point on disk is not the one the registration names, so nothing downstream of it measures wh
+
+D. CAPS, TOOLCHAIN, PLACEMENT
+D6RF_VERDICT GATE FAIL  spend 541.000 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_ndlyatml/r21.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     GATE FAIL
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  21 core_min above the registered cap                    want=GATE FAIL     got=GATE FAIL     PASS
+        rung 6: gate(s) ['G-CAPS'] GATE FAIL
+D6RF_VERDICT GATE FAIL  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_ndlyatml/r22.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     GATE FAIL
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  22 container clock beyond deadline + kill grace         want=GATE FAIL     got=GATE FAIL     PASS
+        rung 6: gate(s) ['G-CAPS'] GATE FAIL
+D6RF_VERDICT GATE FAIL  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_ndlyatml/r23.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     GATE FAIL
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  23 host-minus-container gap above the 30 s limb         want=GATE FAIL     got=GATE FAIL     PASS
+        rung 6: gate(s) ['G-CAPS'] GATE FAIL
+D6RF_VERDICT PASS  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_ndlyatml/r24.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  24 an absent container clock -> NOT_MEASURED, host bracket stands want=PASS          got=PASS          PASS
+        rung 7: every gated row PASS
+D6RF_VERDICT GATE FAIL  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_ndlyatml/r25.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               GATE FAIL
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  25 the SHIPPED digest on a row                          want=GATE FAIL     got=GATE FAIL     PASS
+        rung 6: gate(s) ['G9_toolchain'] GATE FAIL
+D6RF_VERDICT GATE FAIL  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_ndlyatml/r26.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              GATE FAIL
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  26 cpuset moved off the registered set                  want=GATE FAIL     got=GATE FAIL     PASS
+        rung 6: gate(s) ['G12_placement'] GATE FAIL
+D6RF_VERDICT GATE FAIL  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_ndlyatml/r27.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              GATE FAIL
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  27 delivered cores below the registered 3.0 floor       want=GATE FAIL     got=GATE FAIL     PASS
+        rung 6: gate(s) ['G12_placement'] GATE FAIL
+D6RF_VERDICT PASS  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_ndlyatml/r28.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              PASS
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  28 delivered cores NOT_MEASURED -> disclosed, not failed want=PASS          got=PASS          PASS
+        rung 7: every gated row PASS
+D6RF_VERDICT GATE FAIL  spend 106.667 core-min of a 670.0 ceiling  -> /tmp/d6rf_grade_st_ndlyatml/r29.json
+  G1_completion              ran_clean=True all_arms_ran=True
+  G-DVL_endpoint_locus       PASS
+  G-FD_bright_line_on_J      PASS
+  G-OFF_per_point            PASS
+  G-PRICE_single_point       PASS
+  G-CAPS                     PASS
+  G9_toolchain               PASS
+  G12_placement              GATE FAIL
+  R-RED_composite_reduction  19.23076923076922 (REPORTED, NOT GATED)
+  29 container memory not the registered 20g              want=GATE FAIL     got=GATE FAIL     PASS
+        rung 6: gate(s) ['G12_placement'] GATE FAIL
+
+E. THE PLANTED-ZERO CONTROLS (rule 3) -- a blind reader REFUSES
+  -- FD control:    delta 1.234000e-03, reader saw the plant: True
+  -- price control: delta 1.234000e-03, reader saw the plant: True
+  -- both originals byte-unchanged by the control: True
+  -- a BLIND FD reader (returns the unperturbed file whatever it is given) want=REFUSED       got=REFUSED       PASS
+        {"REFUSE": "PLANT_FD", "detail": {"delta": 0.0, "original_md5_after": "97a4e3f19e89787a45d9007d905ea7a5", "original_md5_before": "
+  -- a BLIND price reader                                 want=REFUSED       got=REFUSED       PASS
+        {"REFUSE": "PLANT_PRICE", "detail": {"delta": 0.0, "original_md5_after": "ea3c9b11f3290a7d5daf205f2bf2d763", "original_md5_before"
+  -- an FD artefact with NO plantable PLANNED row         want=REFUSED       got=REFUSED       PASS
+        {"REFUSE": "PLANT_FD", "detail": {"no_PLANNED_row_with_an_ok_s_hi_leg": true, "note": "a control with nothing to plant into is not
+
+F. THE REFERENCE AND THE FREEZE
+  -- D4's recorded reference has MOVED on disk            want=REFUSED       got=REFUSED       PASS
+        {"REFUSE": "G-PRICE", "detail": {"D4_reference_moved": {"recorded": 0.021125978108239574, "reread": 0.1}}}
+  -- the freeze check on an uncommitted path              want=REFUSED       got=REFUSED       PASS
+        {"REFUSE": "FREEZE", "detail": {"absent_on_disk": "cases/dafoam/ladder-a/A2/curriculum_D6RF/NOT_A_FILE.md"}}
+
+D6RF_GRADE_SELFTEST 37/37 PASS
+rc=0
