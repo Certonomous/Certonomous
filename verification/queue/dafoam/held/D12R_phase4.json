@@ -48,5 +48,7 @@
   "ranks": 1,
   "rc_capture": "HARNESS `$?`, NOT THE KERNEL'S RECORD -- same registered-vs-implemented gap as D12R_phase3.json (d12x_stage_and_run.sh:330 vs :332). Agreed 32/32 on phase 1. NOT repairable here: frozen by md5.",
   "team": "dafoam",
-  "verdict_state": "PENDING"
+  "verdict_state": "PENDING",
+  "hold_reason": "PATCH-IDENTITY DEFECT CONFIRMED PRESENT -- same ground as D12R_phase3, measured on the same cylinder roots 2026-09-03T17:16Z: symmetry1/symmetry2 'type symmetry', nFaces 2450 on both bounding planes of a one-cell-thick mesh, solver logs 'Mesh has 3 solution (non-empty) directions (1 1 1)'. BLOCKING PHYSICS FIX class per Sanaa 2026-09-03 ~20:00Z. SECOND, INDEPENDENT HOLD GROUND: this row's registered precondition is 'phase 3 complete + step_plan3.json', and phase 3 is itself held above, so the precondition cannot be satisfied while that hold stands. 200.0 core-min estimated.",
+  "hold_reason_recorded": "2026-09-03T17:16Z by dafoam lane, on the supervisor's order that every held row either releases or carries its reason ON THE ROW. Preconditions were re-verified on disk by this lane and NOT taken from the brief; two of the supervisor's three release candidates were found already run and are held instead. No row was released. No run root was archived, created or modified."
 }

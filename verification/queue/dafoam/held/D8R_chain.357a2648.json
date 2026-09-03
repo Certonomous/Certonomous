@@ -60,5 +60,7 @@
       "CHAIN_DONE"
     ],
     "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342, d4d0c29d)"
-  }
+  },
+  "hold_reason": "ALREADY RUN AND GRADED -- DO NOT RELEASE. Verified on disk 2026-09-03T17:16Z: run root /home/ubuntu/certonomous-runs/CURRICULUM-D8R-a6-twist-opt-conv EXISTS (49 entries) and carries CHAIN_DONE 'stamp=20260828T021330Z arms=[O-P F-P O-S F-S] grader_rc=0', plus D8R_grade_20260828T021329Z.json whose ITEM VERDICT IS 'PASS' on BOTH rows (SHIPPED, PATCHED). docs/LAB_STATE.md records it as a landed two-row PASS. The registered precondition -- run root asserted ABSENT at freeze, 22:05:56Z and 22:41Z -- therefore FAILS NOW. Releasing would spend ~1038 core-min re-running a COMPLETED, GRADED item and would write into the root that holds its graded artefacts. Held indefinitely; this row should be retired rather than released, which is the supervisor's call.",
+  "hold_reason_recorded": "2026-09-03T17:16Z by dafoam lane, on the supervisor's order that every held row either releases or carries its reason ON THE ROW. Preconditions were re-verified on disk by this lane and NOT taken from the brief; two of the supervisor's three release candidates were found already run and are held instead. No row was released. No run root was archived, created or modified."
 }

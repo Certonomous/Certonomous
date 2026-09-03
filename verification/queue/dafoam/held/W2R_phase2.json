@@ -42,5 +42,7 @@
   "ranks": 1,
   "rc_capture": "d12y_w2r_stage_and_run.sh:421 rc=$? of the FOREGROUND timeout/docker run, AND :423 docker inspect .State.ExitCode|.State.OOMKilled written to the manifest row; no setsid on the rc path (docs/dafoam/A3_SETSID_RC_AUDIT.md section 0 for the hazard shape).",
   "team": "dafoam",
-  "verdict_state": "PENDING"
+  "verdict_state": "PENDING",
+  "hold_reason": "PATCH-IDENTITY DEFECT CONFIRMED PRESENT -- same ground as the D12R rows, measured on the same cylinder geometry 2026-09-03T17:16Z: symmetry1/symmetry2 'type symmetry' on both bounding planes of a one-cell-thick 2-D mesh, solver logs 'Mesh has 3 solution (non-empty) directions (1 1 1)'. BLOCKING PHYSICS FIX class per Sanaa 2026-09-03 ~20:00Z. Its own registered precondition (phase 1 rc=0 at 2026-08-26T17:46:04Z) IS satisfied and the frozen comparator plan file was NOT verified by this lane -- so the phase-1 leg is not the blocker; the patch identity is.",
+  "hold_reason_recorded": "2026-09-03T17:16Z by dafoam lane, on the supervisor's order that every held row either releases or carries its reason ON THE ROW. Preconditions were re-verified on disk by this lane and NOT taken from the brief; two of the supervisor's three release candidates were found already run and are held instead. No row was released. No run root was archived, created or modified."
 }
