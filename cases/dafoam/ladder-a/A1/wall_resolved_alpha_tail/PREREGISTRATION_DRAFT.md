@@ -365,34 +365,65 @@ Sanaa, 2026-09-03, verbatim: *"still carries a hard per-run cap (set by the team
 at ~3× its own estimate, not by me) … The estimate is an instrument, not a
 permission slip."*
 
-> **REGISTERED CAPS, PER UNIT, EACH ≈ 3× ITS OWN ESTIMATE:**
-> **U1 = 97 core-min** (3.00 × 32.33) · **U2+U3 = 767 core-min** (3.00 × 255.39)
-> · **ITEM CEILING = 864 core-min** = 3.00 × the 288 estimate.
-> = 14.40 core-h ≈ **$0.7387 DERIVED** — under the $25 pre-authorisation and far
-> under the $150 escalation trigger.
+**⚠ THE ESTIMATE AND THE CAP ARE SPLIT, BECAUSE CONFLATING THEM IS WHAT PRODUCED
+THE CONFLICT.** A single figure that assumes a quiet box is the A1WR error; a
+single figure that assumes a full one would report a ~0.26 ratio on a quiet night
+and corrupt the calibration dataset. So:
+
+**THE ESTIMATE IS A PREDICTION AND IS REPORTED AS A FUNCTION OF OCCUPANCY**
+(solve time and the stiffening allowance scale with occupancy; the two container
+starts do not):
+
+| occupancy | item estimate |
+|---|---|
+| solo | **287.7 core-min** |
+| 2× | **572.3 core-min** |
+| **14-way, the MEASURED saturation (3.85915× solo)** | **1,101.4 core-min** |
+
+**THE DEADLINE AND CAP ARE PROTECTION AND ARE SIZED ON THE WORST REGISTERED
+CASE — the 14-way end:**
+
+> **U1 = 361 core-min** (3.00 × 120.30) · **U2+U3 = 2,943 core-min**
+> (3.00 × 981.11) · **ITEM CEILING = 3,304 core-min** = 3.00 × the 14-way
+> estimate. = 55.07 core-h ≈ **$2.825 DERIVED** — under the $25
+> pre-authorisation and far under the $150 escalation trigger.
+
+**THE CERTIFICATE COMPARES ACTUAL AGAINST THE ESTIMATE AT THE MEASURED
+OCCUPANCY**, using the occupancy `G-CONCURRENCY-PRECOND` records at launch and at
+every point boundary. Like against like — that is the calibration payoff, and it
+exists only because the occupancy recording is in the instrument.
 
 **D19T was frozen, md5-pinned, gate-checked and launched TWICE with a deadline
 of exactly 0 s because nobody ever executed the arithmetic at freeze. It is
 executed here, in this document, and its result is evaluated:**
 
 ```
-ranks         = 1                       (np = 1, registered)
-CAP_MARGIN_S  = 300                     (3.2x the MEASURED 93.85 s container start)
+ranks         = 1                        (np = 1, registered)
+CAP_MARGIN_S  = 300                      (3.2x the MEASURED 93.85 s container start)
 
-TMO_U1        = int( 97 * 60 / 1) - 300 =  5820 - 300 =  5520 s
-TMO_U2U3      = int(767 * 60 / 1) - 300 = 46020 - 300 = 45720 s
+TMO_U1        = int(  361 * 60 / 1) - 300 =  21660 - 300 =  21360 s
+TMO_U2U3      = int( 2943 * 60 / 1) - 300 = 176580 - 300 = 176280 s
 ```
 
 **EVALUATED, both of them, here, in this document:**
 
 | unit | `TMO` | `> 0` ? | `TMO/60` core-min | ≤ its cap ? |
 |---|---|---|---|---|
-| U1 | **5,520 s** | ✓ | 92.00 | ≤ 97 ✓ |
-| U2+U3 | **45,720 s** | ✓ | 762.00 | ≤ 767 ✓ |
+| U1 | **21,360 s** | ✓ | 356.00 | ≤ 361 ✓ |
+| U2+U3 | **176,280 s** | ✓ | 2,938.00 | ≤ 2,943 ✓ |
 
-Back-check: `(5520 + 300) × 1 / 60 = 97.0` and `(46020 - 300 + 300) × 1 / 60 =
-767.0`, both exact. Effective budget `92.00 / 32.33 = 2.85×` (U1) and
-`762.00 / 255.39 = 2.98×` (U2+U3) — both satisfy the ~3× effective-budget rule.
+Back-checks exact. Effective budget `356.00 / 120.30 = 2.96×` (U1) and
+`2938.00 / 981.11 = 2.99×` (U2+U3), both against the **14-way** estimate.
+
+**⚠ AND AN HONEST LIMIT ON WHAT THAT DEADLINE PROTECTS.** `TMO_U2U3` is
+**176,280 s ≈ 49 hours**. **This box was powered off after 7 h 49 m on the night
+this item's predecessor ran**, and its longest recorded uptime this week is
+under 23 h. **A 49-hour in-container deadline is therefore not the binding
+protection — the box's own uptime is**, and a poweroff is an infrastructure kill
+that no cap can convert into a cap-stop. The deadline is sized correctly for the
+registered worst case and is stated here as **necessary but not sufficient**;
+the real protection against an over-long run on a busy box is the per-point
+ledger row, which lands after every point and survives the kill.
 
 **A freeze that cannot print a positive evaluated integer in this table does not
 launch.** D19T was frozen, md5-pinned, gate-checked and launched **twice** with a
@@ -465,12 +496,27 @@ before an empty one is accepted (rule 3, applied to a census rather than to a
 field reader — a census that cannot see a running container is not evidence that
 none is running), but an empty census is **not** a launch condition.
 
-**The test is the arithmetic, not an empty machine.** §4.5 is what makes this
-workable: this tail survives contention to **3.543×** the solo rate, and two
-concurrent solvers cost roughly 2×, so **this item may legitimately launch beside
-other work and must not block the box.** An item whose deadline covered only
-1.05× could not. Contention is then attributed from measurement at calibration
-time instead of argued.
+**The test is the arithmetic, not an empty machine.**
+
+**REFUSAL POINT, RE-DERIVED AGAINST THE NEW DEADLINES:**
+
+| unit | deadline | iterations | break-even s/it | = × solo | refuses at |
+|---|---|---|---|---|---|
+| U1 | 21,360 s | 4,000 | 5.3400 | **11.57×** | occupancy > 11.57× |
+| U2+U3 | 176,280 s | 28,000 | 6.2957 | **13.64×** | occupancy > 13.64× |
+
+**The measured 14-way saturation is 3.859× solo, so both deadlines cover the
+worst occupancy this box has ever exhibited with 3.0–3.5× margin, and this gate
+NEVER REFUSES at any occupancy on record — n = 7 and n = 8 included.** It records
+and it queues; it does not block. That is the correct outcome under
+"reported, not gated" and under *"I prefer something to be running and watched
+than too much governance and no run."*
+
+**It is not decorative, and here is the condition that would still fire it:** an
+occupancy above ~11.6× solo, i.e. roughly three times worse than anything
+measured on this box. If that is ever recorded, the arithmetic refuses and the
+refusal is the finding. Contention is otherwise attributed from measurement at
+calibration time instead of argued.
 
 **THE LAB-WIDE FINDING THIS GATE RESTS ON, STATED IN ITS GENERAL FORM BECAUSE IT
 IS NOT AN A1WR FACT:**
@@ -642,13 +688,39 @@ them on this very mesh, image and solver.
   that had zero convergences**, and it is registered here so this item's reader
   cannot repeat the misreading.
 
-  **REGISTERED EXPECTATION FOR U2 AND U3, AND WHY IT IS NOT A TUNING CLAIM:**
-  with `empty` there are **two** solution directions, so no z-momentum equation
-  is assembled, so there is no `U2` residual to floor, and the remaining four
-  channels have all been MEASURED below 1e-8 on this mesh (U0 1.43e-09,
-  U1 1.74e-09, p 2.59e-09, nuTilda 8.29e-09). **The `empty` units are therefore
-  expected to satisfy 1.0e-8 and stop early. They converge because the equation
-  that floored is GONE, not because anything was relaxed.**
+  **⚠ WITHDRAWN, AND THIS WOULD HAVE COST 288 CORE-MIN TO LEARN THE OTHER WAY.**
+  An earlier version of this clause registered that the `empty` units are
+  *expected to converge*, because removing the z-momentum equation removes the
+  `U2` residual that floors. **That premise is FALSE, and the source says so.**
+
+  `primalMaxRes` is **not** the max over the velocity components. For vector
+  fields `DAUtility.C:762-790` **sorts the three components and takes the
+  MEDIAN**, and the source comment says it exists precisely *"because we often
+  need to run 2D simulations with symmetry BC, so one component of the residual
+  vector … may be high while the other two components' residuals are low."*
+  So `primalMaxRes` = max( **MEDIAN**(U0,U1,U2), p, nuTilda ), and **`U2` never
+  entered the convergence criterion at all** — from α = 2 upward it is the
+  *largest* of the three and the median discards it.
+
+  **MEASURED on A1WR, the binding channel is `nuTilda` at 8 of 14 points and the
+  median-of-`U` at 6. `U2` binds at NONE.** Projecting the `empty` case by
+  removing `U2` from the median gives `primalMaxRes` of **1.02e-08 … 2.80e-07
+  across α 1…13 — every value still ABOVE 1.0e-8**, the closest being α = 1 at
+  1.0182e-08, a factor of 1.02.
+
+  **REGISTERED, THEREFORE: U2 AND U3 ARE EXPECTED *NOT* TO CONVERGE EITHER.**
+  The patch repair is still correct — a `symmetry` bounding plane on a one-cell
+  mesh is a genuine defect and assembling a spurious equation is wrong whatever
+  the residual bookkeeping does with it — **but it must NOT be sold as the thing
+  that makes the solve converge.** It is not.
+
+  **The honest projection is registered as a projection**: it assumes the other
+  channels are unchanged by the patch swap, which they will not be exactly, since
+  removing an equation changes the coupled system. The margins are factors of
+  1.02–28, not orders, so the swap alone is very unlikely to drop every channel
+  below 1e-8. **If the `empty` units DO converge, that is a finding about the
+  coupling and is reported as one** — it is not the outcome this document
+  predicts.
 
   **AND THE CLAUSE THAT MATTERS MOST: none of this licenses relaxing anything.**
   It does not license raising `endTime`, **it does not license relaxing 1.0e-8 to

@@ -98,7 +98,6 @@ REFERENCE_MD5 = "26ce1af0b0e93af5b9f71efdc34446a4"
 ENDTIME_CAP = 4000          # frozen `endTime`, carried unchanged from A1WR
 DECLARED_ALPHAS = [12, 13, 14, 15, 16, 17, 18]
 CAP_CORE_MIN = 768.0        # section 4.4, = 3.00x the 256 estimate
-TMO_S = 45780               # section 4.4, = int(768*60/1) - 300, EVALUATED
 RANKS = 1                   # np = 1, registered
 YPLUS_THRESHOLD = 1.0       # G-YPLUS
 R1_BAND = 1.0e-3            # G-REPRO limb R1, at the iteration cap
@@ -107,10 +106,13 @@ R2_BAND = 1.0e-4            # G-REPRO limb R2, on the extrapolated plateau
 PATCHPAIR_NOISE = 1.0e-4    # <= this: the repair does not move the coefficients
 PATCHPAIR_INDET = 1.0e-3    # <= this: INDETERMINATE; above: CONTAMINATION
 # Registered per-unit caps (§4.4), each ~3x its own estimate.
-CAP_CORE_MIN_U1 = 97.0
-CAP_CORE_MIN_U2U3 = 767.0
-TMO_S_U1 = 5520
-TMO_S_U2U3 = 45720
+# Caps are sized on the WORST REGISTERED OCCUPANCY (the measured 14-way
+# saturation, 3.85915x solo), NOT on the quiet estimate -- the estimate stays a
+# prediction and is reported per occupancy, the cap is protection.
+CAP_CORE_MIN_U1 = 361.0
+CAP_CORE_MIN_U2U3 = 2943.0
+TMO_S_U1 = 21360
+TMO_S_U2U3 = 176280
 CONTAMINATION = "CONTAMINATION"
 INDETERMINATE = "INDETERMINATE"
 NOISE = "NOISE"
@@ -340,7 +342,7 @@ def g_caps(wall_s_total: float, cap_core_min: float, ranks: int) -> tuple[str, l
     lines = ["  measured wall   : %.4f s x %d rank(s) / 60 = %.4f core-min"
              % (wall_s_total, ranks, core_min),
              "  registered cap  : %.1f core-min  (in-container deadline %d s)"
-             % (cap_core_min, TMO_S),
+             % (cap_core_min, TMO_S_U2U3),
              "  consumed        : %.2f %% of cap" % (frac * 100.0),
              "  remaining       : %.4f core-min" % (cap_core_min - core_min),
              "  derived cost    : %.4f core-h x $0.0513 = $%.5f DERIVED, NOT MEASURED"
