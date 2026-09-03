@@ -1974,3 +1974,102 @@ validation-against-workshop-data context is **non-conforming** and must cite §1
 | md5 of this file's HEAD blob before the append | `72cb037d3e2e0224694e102f7a9c0cc8` |
 | md5 of this file's first 1,571 lines after the append | `72cb037d3e2e0224694e102f7a9c0cc8` |
 | the two digests | `**EQUAL — assertion MEASURED**` (72cb037d3e2e0224694e102f7a9c0cc8, both sides, in the landing commit's own shell invocation) |
+
+### 15.10 CORRECTION, 2026-09-03 — §15.1's QUOTATION IS RESTORED TO STRICT VERBATIM: THE ENUMERATOR IS PUT BACK AND THE EMPHASIS IS TAKEN OFF (v1.11) [SANAA-RULED TEXT; cfd's OWN CORRECTION OF ITS OWN LANDING]
+
+**Lines whose number changed above this section: 0.** Nothing above is edited, reordered,
+inserted or deleted. §15.1's rendering is **superseded by this subsection and is NOT rewritten**
+— CLAUDE.md rule 6: a frozen file is corrected by a dated amendment at the foot, never by an
+edit in place. That is also why this subsection sits **below §15's closing assertion table**
+rather than beside §15.1 where a reader would rather find it: putting it there would move every
+line after it and break the assertion this file has now made twice. **Disclosed, not tidied.**
+
+**WHAT WAS WRONG.** §15 landed at `d23c08b2` with Sanaa's ruling quoted at §15.1 in a form that
+departed from the capture in exactly two ways, both found and reported by the landing lane's own
+character comparison rather than discovered later:
+
+1. the capture's own list enumerator **`1. `** was dropped from the head of the quoted span;
+2. the whole quotation was wrapped in **one bold-marker pair**.
+
+**Neither altered a word of hers.** The word sequence landed at `d23c08b2` was already
+character-identical to the capture — 1,083 characters, degree signs and em dashes included.
+**Both are nonetheless departures, and this is the one text in this document that is not the
+lab's to shape.**
+
+**THE RULING THAT THESE ARE DEPARTURES** — cfd-supervisor, 2026-09-03, on their own read of
+verification's constraint that *"the text quoting Sanaa's ruling must stay verbatim"*:
+
+> **The dropped `1. ` enumerator: RESTORE it.** It is a character of hers. Stopping the quote
+> at *"…that stays on in-house grids under 70°"* is correct scoping — item 2 is a different
+> subject and does not belong — but where her text is reproduced, it is reproduced.
+> **Trimming to the item boundary is scoping; dropping a character inside the retained span is
+> editing.**
+>
+> **The whole-quote bold wrap: REMOVE it. Emphasis is a rhetorical act.** The blockquote already
+> marks the text as hers; bolding it is the lab deciding how loudly she said something. It cuts
+> the same way whether it amplifies or softens — the point is that it is *our* choice applied to
+> *her* words. **A quoted ruling is reproduced, not styled.**
+
+**THE OPERATIVE RENDERING. This supersedes §15.1's.** Sanaa, 2026-09-03 ~17:30Z, from
+`etc/sessions/2026-09-03T1730Z_sanaa_mesh_standard_and_freeze_enforcement.md:5-20`, item 1 in full and nothing else — no emphasis
+added, no enumerator dropped, no character changed. It was extracted from the capture file's own
+bytes by the landing script and never retyped:
+
+> 1. Two-tier mesh standard — this resolves the R12 question. The 70° gate
+> is our generation standard: every mesh the lab builds must meet it,
+> unchanged. Committee grids are a different object: they exist for
+> comparability with the workshop's own results, where every participant
+> used the same grids. Ruling: committee grids are admissible for
+> validation-against-workshop-data cases without meeting the 70° gate,
+> under these conditions: (a) their measured quality (max
+> non-orthogonality, skewness, the works) is reported on the certificate,
+> not gated; (b) solver-side mitigations (non-orthogonal corrector counts,
+> relaxation) are registered before running; (c) the numerical-uncertainty
+> band still comes from the grid family; (d) the certificate names the
+> grid as "workshop committee family, quality as published" in the
+> what-was-checked section. A full certificate IS reachable this way — a
+> certificate's honesty is disclosure and verification, not our internal
+> birth standard. What committee grids can never do is certify our meshing
+> capability — that stays on in-house grids under 70°.
+
+**THE SCOPE OF THE TRIM, STATED SO IT CANNOT BE MISTAKEN FOR A CUT.** The quoted span ends where
+her item 1 ends. Capture line 20 continues, on the same line, with `2. Rung 0 wording` — the
+opening of item 2, the Rung 0 rewording, a different subject that §15 does not govern. **That
+text is not omitted because it was inconvenient; it is omitted because it is about something
+else.** Item 2 is on the record in the capture and is quoted where it belongs.
+
+**MEASURED, NOT ASSERTED.** The rendering above and the capture span were compared
+character-by-character in the correction commit's own shell invocation, after stripping only the
+blockquote `> ` prefix that markdown requires on both sides and normalising whitespace:
+
+| reading | value |
+|---|---|
+| characters, this subsection's rendering | **1,086** |
+| characters, `etc/sessions/2026-09-03T1730Z_sanaa_mesh_standard_and_freeze_enforcement.md:5-20` item 1 | **1,086** |
+| the two strings | **IDENTICAL — measured** |
+| characters at `d23c08b2` (enumerator dropped) | 1,083 |
+| words altered, then or now | **0** |
+| non-ascii characters, both sides | `°` DEGREE SIGN, `—` EM DASH — present and matching |
+
+**WHAT THIS CORRECTION DOES NOT DO.** It changes **no gate value** — §3.1's 70° and its 65–70
+band, §3.2's skewness 4 and §3.3's aspect-ratio advisory are untouched, nothing is written to
+`docs/physics_rules.yaml`, and §5's change control is not invoked. It creates **no new top-level
+section**: the maximum section ordinal in this file remains **15**, and only the section VERSION
+moves, **v1.10 → v1.11**. It re-grades nothing, retires nothing, and declares no grid Tier 2. It
+does not touch `docs/charters/SUPERVISOR_RULINGS.md`, which is a different file with a different
+owner.
+
+| assertion | value |
+|---|---|
+| ruling authority for the quoted text | **[SANAA-RULED]**, 2026-09-03 ~17:30Z |
+| authority for the correction itself | cfd-supervisor, 2026-09-03, quoted above |
+| max section ORDINAL in this file | **15** — unchanged by this subsection |
+| section VERSION | **v1.10 → v1.11** |
+| gate values changed | **0** |
+| gates · thresholds · bands · caps · labels created, moved or retired | **0 · 0 · 0 · 0 · 0** |
+| results re-graded | **0** |
+| solver compute | **0 core-min, $0.00** |
+| **lines whose number changed above this section** | **0** |
+| md5 of this file's first 1,976 lines before the append | `976955e58fbad295e648d17f24cc4934` |
+| md5 of this file's first 1,976 lines after the append | `976955e58fbad295e648d17f24cc4934` |
+| the two digests | **EQUAL — assertion MEASURED, in the correction commit's own shell invocation** |
