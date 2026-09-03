@@ -23671,3 +23671,129 @@ just made. The commit is `C`, which `commit-tree` produces afterwards.
   one of them carries your own subject line. **A sha without its subject is like a
   line number without its content (`L-378`) — the half that rots is the half nobody
   records.**
+
+## L-480 — A `writeControl`/`writeInterval` PAIR IS NOT PORTABLE BETWEEN FUNCTION OBJECTS: COPIED FROM AN `execute()`-EMITTER ONTO A `write()`-EMITTER IT SILENTLY MEANS **NEVER** — AND THE OBVIOUS COMMAND TO RECOVER THE MISSING DATA WRITES A FULL TABLE OF ZEROS AND EXITS 0
+
+2026-09-03, heat-transfer lane, on T5. **This is not a T5 lesson.** It is a
+transferable OpenFOAM fact that reaches every team that configures a function
+object, and its second limb is a `CLAUDE.md` rule-3 specimen of the purest kind.
+Evidence preserved at
+`verification/runs/T-family/T5_runs/YPLUS_RECOVERABILITY_2026-09-03/`; executable
+check at `scripts/check_fo_table_is_evidence.py`. Zero solver compute.
+
+### Limb 1 — one identical setting, two different meanings, no error either way
+
+T5's `system/controlDict` gave **both** its function objects the identical
+control:
+
+```
+writeControl    writeTime;
+writeInterval   1000;
+```
+
+`wallHeatFlux` wrote **30,000 data rows**. `yPlus` wrote **0**. Same file, same
+block, same two lines.
+
+- **The mechanism is the LIFECYCLE PHASE the rows are emitted from, and it is not
+  visible in the configuration.** `wallHeatFlux` emits its table from
+  `execute()`, governed by `executeControl` — **unset, so every timestep**.
+  `yPlus` emits its table from `write()` (`yPlus.C:219`, inside `write()` at
+  `:191`), governed by `writeControl`/`writeInterval`. Under `ocWriteTime` the
+  fire condition (`timeControl.C:197-205`) is `writeTime` **and**
+  `executionIndex % 1000 == 0`. The run had **five** write times. **`write()`
+  never executed once.**
+- **So a `writeControl`/`writeInterval` pair carries no meaning of its own.** Its
+  meaning is a property of the object it is attached to. Copied off a working
+  object onto a different one — the ordinary way a `controlDict` is built — it
+  can mean *"every timestep"* on one line and *"never"* four lines later.
+- **NOTHING SIGNALS IT.** No error, no warning, `rc = 0`, an `End` line, the
+  completion rule fully satisfied, and a `.dat` present on disk at the expected
+  path looking configured and connected. The lab's strict completion rule
+  (`CLAUDE.md` rule 4) passes a run whose gate input was never written, because
+  every clause it checks is about the SOLVE and none is about the INSTRUMENT.
+- **THE TELL, and it is cheap: a `.dat` with headers and ZERO data rows beside a
+  sibling `.dat` with thousands.** T5's file was 114 bytes — two header lines —
+  on all three levels. **And the mtime says it outright**: the real
+  `T5_CUBE_m/postProcessing/air/yPlus/0/yPlus.dat` is stamped **20:57:25**, at
+  function-object construction, while `log.solve` and the sibling
+  `wallHeatFlux.dat` are stamped **22:13:03** at the end of the solve. **A gate
+  input dated before its own run is a gate input that was never written.**
+- Same family as **L-478** (a name is not a control) and **L-474** (a launcher
+  that verifies everything except itself): the artifact exists, is well-formed,
+  sits at the right path, and certifies nothing.
+
+### Limb 2 — the recovery command fabricates zeros, and this is the limb that would have cost a verdict
+
+The obvious repair is to re-derive the quantity from the frozen `endTime` fields.
+The obvious command to do it is **wrong in a way that leaves no mark**:
+
+```
+postProcess -case <case> -func yPlus -region air -time 5000     # BLIND
+```
+
+- `postProcess` constructs **no turbulence model**, so `yPlus::execute()`
+  (`yPlus.C:173`) finds none in the registry, emits *"Unable to find turbulence
+  model in the database: yPlus will not be calculated"* **on stderr**, and
+  returns `false`. **`yPlus::write()` then runs anyway** and writes a
+  **complete, well-formed table in which every `min`, `max` and `average` is
+  exactly `0.0000000000e+00`.** **Exit code 0.**
+- **The file is not marked.** Nothing in the `.dat` records that the computation
+  did not happen. A lane that ran the obvious command, saw `rc = 0`, saw six
+  properly-formatted rows on the right six patches, and filed the result **would
+  have graded a registered gate on fabricated zeros** — and the gate in question
+  would have *passed*, because zero is inside every sublayer bound.
+- **The cure is the SOLVER's own `-postProcess` mode**, which constructs the
+  thermophysical and turbulence models and therefore populates the registry:
+
+```
+chtMultiRegionSimpleFoam -case <case> -postProcess -func yPlus -region air -time 5000
+```
+
+  Driven on a scratch copy of T5's `m` level it returned genuine `y+` on the same
+  six patches — maxima `cube_front` **2.960969226**, `floor` **2.389443862**,
+  `cube_top` **1.903105528**, `cube_side_n` **1.732353011**, `cube_rear`
+  **1.443516718**, `roof` **1.212625584** — from the identical fields, at the
+  identical time, at **zero solver compute**.
+- **THE TWO INVOCATIONS ARE EACH OTHER'S LIVE CONTROL, AND THAT IS THE GENERAL
+  FORM.** Same case, same fields, same time directory; one reader blind to the
+  quantity and one not. `CLAUDE.md` rule 3: **a zero from a reader not shown able
+  to see a non-zero is not evidence.** Run the pair, with the blind invocation as
+  the control, or the zeros are not a measurement — and note that here the
+  planted control is not something you construct, it is **the wrong command you
+  were about to run anyway**, which makes it free.
+- **The asymmetry that makes this dangerous is worth naming separately.** A blind
+  reader that *crashed* would be harmless. A blind reader that *returned nothing*
+  would be harmless. This one returns **the right shape, the right patch names,
+  the right row count, at the right time, with a clean exit code** — everything a
+  reader checks except the values. Same shape as **L-475**'s finding that a
+  well-formed converter wrote a mesh from a malformed file and exited 0.
+
+### What the lesson does NOT license, said here because the temptation is the whole risk
+
+**Recoverability is a capability, not a permission.** That the number can be
+re-derived at zero compute says nothing about whether a rung whose registered gate
+input is absent may use it. T5's absence was registered as `NOT A RESULT`
+**before compute** (`T5_PREREGISTRATION.md` §16.3.1;
+`analyse_t5.py:166-168`), and manufacturing a registered gate input after the
+verdict is known is exactly what `§2d.1` exists to police. **The measurement was
+preserved as a diagnostic and the gate input was deliberately NOT created.** The
+legitimate routes are a `§2d.1` petition or a successor rung — and the successor
+rung (`T5b`) was in fact built, repairing the configuration and reading
+`postProcessing/air/yPlus/0/yPlus.dat` directly rather than a file no producer in
+this repository has ever written.
+
+### The executable check
+
+`scripts/check_fo_table_is_evidence.py` refuses (exit 2) a function-object table
+that (a) has headers and zero data rows, or (b) has rows in which **every** value
+outside the time column is exactly zero; and, when a rule-3 control is offered,
+refuses a "control" that is itself empty or all-zero, covers a different label
+set, or — the T5 case — **is non-zero on the same labels while the subject is
+zero, which proves the subject fabricated rather than measured**. It grades
+nothing. `--selftest` drives **14 arms: 8 planted failures, 2 positive controls
+(`§2p.3(e)`: a restrictive guard must still pass what it should pass), and 4 over
+the real preserved T5 artifacts rather than fixtures.** 0 misbehaved, identically
+under `python3` and `python3 -O`. Driving a mutant with the all-zero limb
+disabled, in the same mirrored layout, flips exactly the two arms that limb owns
+and exits 2 — so the selftest is known able to fail. **No bare `assert` anywhere
+in the file (L-475).**
