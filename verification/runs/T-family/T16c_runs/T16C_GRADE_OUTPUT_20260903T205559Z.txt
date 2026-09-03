@@ -1,0 +1,40 @@
+T16c comparator.  Frozen authority: docs/campaigns/T-family/T16c_PREREGISTRATION.md
+  pinned instrument T16_registered.json sha256 aead91aaab8480f6a4321a3d9eb01536d9ceb4cbfb7a3774426cea608ae72845
+  provenance (REPORTED, not gated on the grading path) exact_t16.py     sha256 7ecc61a782d9018177b1eea2dabe3dbe049c74179c13e903d80ded2b6487692b
+  provenance (REPORTED, not gated on the grading path) build_t16.py     sha256 cb19b3e32faf2cdbd94542b87e1cb4666f52547fe78ca01d2e2bca105999abb0
+  provenance (REPORTED, not gated on the grading path) analyse_t16.py   sha256 1a5c79e57d4144abb165702fd900c0c99aa1c03f5cbb24a547b7a085d4d4562f
+(i) strict completion, standing rule 4 (rc, End, last time == endTime, fields present, ExecutionTime count == endTime, AGE GUARD against the case's own 0/T):
+    T16_MC_c rc=0 End=True ExecutionTime lines=10000 == endTime=10000, fields T,U,p_rgh,phi all NEWER than 0/T by {'T': '744', 'U': '744', 'p_rgh': '744', 'phi': '744'} s
+    T16_MC_m rc=0 End=True ExecutionTime lines=20000 == endTime=20000, fields T,U,p_rgh,phi all NEWER than 0/T by {'T': '13405', 'U': '13405', 'p_rgh': '13405', 'phi': '13405'} s
+    T16_MC_f rc=0 End=True ExecutionTime lines=40000 == endTime=40000, fields T,U,p_rgh,phi all NEWER than 0/T by {'T': '129117', 'U': '129117', 'p_rgh': '129117', 'phi': '129117'} s
+verifying the DERIVED analytic reference before any comparison:
+B1 U'' + G theta + P = 0: worst residual 3.612e-11 at BOTH stencil widths (the difference is exact on a cubic) -> PASS
+B2 U(0) = U(1) = 0 and Simpson integral = 0.9999999999999996 (|1 - I| = 4.44e-16) -> PASS
+B3 tabulated values at G = 48: U(0.25) = 1.500000000000000 (want 1.5), U(0.75) = 0.750000000000000 (want 0.75), tau_hot/tau_cold = 5.000000000000000 (want 5), Y_max = 0.368118692087013 (closed root 0.368118692087013) -> PASS
+B4 INDEPENDENT RK4 shooting route (n = 4000 steps, exact on a cubic): U'(0) recovered 9.999999999999915 (closed 10.000000000000000), worst |U_rk4 - U_closed| 8.741e-14, |mean - 1| 4.075e-14 -> PASS
+B4b FV band model is SECOND ORDER and converges on the closed form: errors 1.200e-05 / 3.000e-06 / 7.500e-07 at N = 250/500/1000, ratios 4.0001 and 4.0000 (required in [3.5, 4.5]), Richardson remainder -6.067e-12 < 1e-9 -> PASS
+  reader self-check: on the analytic profile at N = 20/40/80 the 4-point Lagrange reader recovers U(0.25) to 2.220e-16 and the cubic-max reader recovers Y_max to 5.524e-09 -- both readers are EXACT on a cubic, so every error they report on a solve is the SOLVE's
+operands (L-331), read from each case's own files:
+  T16_MC_c: N=20 Ny=1280 dx=1.0000e-03 nu=1.5000e-05 Pr=0.71 beta=3.333333e-03 TRef=300.0000 T_hot=304.1284403670 T_cold=300.0000000000 g=9.810 U0=0.0750000000 Re=100.00000000 G=Gr/Re=48.0000000000 (reversal 72, margin 1.5000) REGISTERED station row 960 at y/b=48.0250 times=['9000', '10000']
+  T16_MC_m: N=40 Ny=2560 dx=5.0000e-04 nu=1.5000e-05 Pr=0.71 beta=3.333333e-03 TRef=300.0000 T_hot=304.1284403670 T_cold=300.0000000000 g=9.810 U0=0.0750000000 Re=100.00000000 G=Gr/Re=48.0000000000 (reversal 72, margin 1.5000) REGISTERED station row 1920 at y/b=48.0125 times=['18000', '20000']
+  T16_MC_f: N=80 Ny=5120 dx=2.5000e-04 nu=1.5000e-05 Pr=0.71 beta=3.333333e-03 TRef=300.0000 T_hot=304.1284403670 T_cold=300.0000000000 g=9.810 U0=0.0750000000 Re=100.00000000 G=Gr/Re=48.0000000000 (reversal 72, margin 1.5000) REGISTERED station row 3840 at y/b=48.0063 times=['36000', '40000']
+(ii) W1 DEVELOPMENT WITNESSES at the REGISTERED station, ALL THREE LEVELS, REPORTED UNCONDITIONALLY AND BEFORE ANY GUARD (frozen document section 3):
+    T16_MC_c W1_v 3.3897e-04 / 2e-04   W1_g 2.5193e-06 / 2e-05   W1_T 1.2042e-03 / 1e-06   ({'-8b': 'v 3.4e-04 g 2.5e-06 T 1.2e-03', '-4b': 'v 1.3e-04 g 1.0e-06 T 4.8e-04', '+4b': 'v 8.9e-05 g 6.5e-07 T 3.2e-04', '+8b': 'v 1.5e-04 g 1.1e-06 T 5.2e-04'})  T_slope_rel -8.6008e-05  monotone True
+    T16_MC_m W1_v 2.9983e-04 / 2e-04   W1_g 6.3487e-07 / 2e-05   W1_T 1.0940e-03 / 1e-06   ({'-8b': 'v 3.0e-04 g 6.3e-07 T 1.1e-03', '-4b': 'v 1.2e-04 g 2.5e-07 T 4.4e-04', '+4b': 'v 7.9e-05 g 1.6e-07 T 2.9e-04', '+8b': 'v 1.3e-04 g 2.7e-07 T 4.8e-04'})  T_slope_rel -7.6997e-05  monotone True
+    T16_MC_f W1_v 2.8642e-04 / 2e-04   W1_g 2.1218e-07 / 2e-05   W1_T 1.0504e-03 / 1e-06   ({'-8b': 'v 2.9e-04 g 2.1e-07 T 1.1e-03', '-4b': 'v 1.1e-04 g 8.0e-08 T 4.2e-04', '+4b': 'v 7.5e-05 g 4.9e-08 T 2.8e-04', '+8b': 'v 1.2e-04 g 8.7e-08 T 4.6e-04'})  T_slope_rel -7.3629e-05  monotone True
+(iii) C_TRANSPOSE, the ORDERING guard, threshold 0.5 (frozen document section 1 line 4, sized to the -1.0 signature and NOT to instrument precision):
+    T16_MC_c |slope/(-dT) - 1| = 8.6008e-05, threshold 0.5 -> ok (5813 x inside)
+    T16_MC_m |slope/(-dT) - 1| = 7.6997e-05, threshold 0.5 -> ok (6494 x inside)
+    T16_MC_f |slope/(-dT) - 1| = 7.3629e-05, threshold 0.5 -> ok (6791 x inside)
+(iv) STATION SELECTION by the frozen RULE of section 4: metric W1_T(j) (analyse_t16.py:340-354, T16's OWN witness), threshold 1e-06 (W1_FLOOR_T, analyse_t16.py:116), SMALLEST j in the candidate set on the FINE level, then applied to c and m BY PHYSICAL COORDINATE y/b:
+    T16_MC_c candidate set: 960 rows, j in [160, 1119] (y/b in [8.0250, 55.9750]); the fast scanner was MEASURED EQUAL to the frozen reader at rows [160, 640, 1119]
+    T16_MC_m candidate set: 1920 rows, j in [320, 2239] (y/b in [8.0125, 55.9875]); the fast scanner was MEASURED EQUAL to the frozen reader at rows [320, 1280, 2239]
+    T16_MC_f candidate set: 3840 rows, j in [640, 4479] (y/b in [8.0062, 55.9937]); the fast scanner was MEASURED EQUAL to the frozen reader at rows [640, 2560, 4479]
+    UNREACHABLE BRANCH: NO j in the fine level's candidate set reaches W1_T <= 1e-06. The best is row 4479 at W1_T = 4.5837e-04, which is 458.4 x the floor.
+    Section 4, registered in advance and WITHOUT APPEAL: the station is NOT relocated, the threshold is NOT loosened, the candidate set is NOT widened. The recorded reason is that THE REGISTERED REFERENT DOES NOT DESCRIBE THIS SOLVE'S REGIME, and the honest consequence is that the CASE, not the comparator, needs changing.
+G1  value=NONE (no station was selected) -> NOT A RESULT
+G1b value=NONE (no station was selected) -> NOT A RESULT
+G3  value=NONE (no station was selected) -> NOT A RESULT
+G2  value=NONE (no station was selected) -> NOT A RESULT
+gate (1) FAILED: section 4 unreachable branch: no candidate row reaches W1_T <= 1e-06 on the fine level (best 4.5837e-04 at row 4479)
+wrote /home/ubuntu/Certonomous/verification/runs/T-family/T16c_runs/gate_t16c.json

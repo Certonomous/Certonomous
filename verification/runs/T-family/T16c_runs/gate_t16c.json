@@ -1,0 +1,456 @@
+{
+  "rung": "T16c",
+  "predecessor": "T16",
+  "frozen_preregistration": "docs/campaigns/T-family/T16c_PREREGISTRATION.md",
+  "frozen_preregistration_sha256": "0b425c40974581484f9ce91c44ad7bb3d4956fb1e81dad0ce03e7ba7e01bcd3f",
+  "pinned": {
+    "path": "/home/ubuntu/Certonomous/verification/runs/T-family/T16_runs/T16_registered.json",
+    "sha256": "aead91aaab8480f6a4321a3d9eb01536d9ceb4cbfb7a3774426cea608ae72845"
+  },
+  "provenance_reported_not_gated": {
+    "exact_t16.py": "7ecc61a782d9018177b1eea2dabe3dbe049c74179c13e903d80ded2b6487692b",
+    "build_t16.py": "cb19b3e32faf2cdbd94542b87e1cb4666f52547fe78ca01d2e2bca105999abb0",
+    "analyse_t16.py": "1a5c79e57d4144abb165702fd900c0c99aa1c03f5cbb24a547b7a085d4d4562f"
+  },
+  "identities": {
+    "c": {
+      "case": "T16_MC_c",
+      "b": 0.02,
+      "H": 1.28,
+      "N": 20,
+      "Ny": 1280,
+      "dx": 0.001,
+      "dy": 0.001,
+      "nu": 1.5e-05,
+      "Pr": 0.71,
+      "beta": 0.0033333333333333335,
+      "TRef": 300.0,
+      "g": 9.81,
+      "T_hot": 304.1284403669725,
+      "T_cold": 300.0,
+      "dT": 4.128440366972484,
+      "U0": 0.075,
+      "Re": 100.0,
+      "G_mix": 48.00000000000009,
+      "endTime": 10000.0,
+      "writeInterval": 1000.0,
+      "j_station": 960,
+      "witness_rows": [
+        [
+          -8,
+          800
+        ],
+        [
+          -4,
+          880
+        ],
+        [
+          4,
+          1040
+        ],
+        [
+          8,
+          1120
+        ]
+      ],
+      "witness_gaps": [
+        -8,
+        -4,
+        4,
+        8
+      ]
+    },
+    "m": {
+      "case": "T16_MC_m",
+      "b": 0.02,
+      "H": 1.28,
+      "N": 40,
+      "Ny": 2560,
+      "dx": 0.0005,
+      "dy": 0.0005,
+      "nu": 1.5e-05,
+      "Pr": 0.71,
+      "beta": 0.0033333333333333335,
+      "TRef": 300.0,
+      "g": 9.81,
+      "T_hot": 304.1284403669725,
+      "T_cold": 300.0,
+      "dT": 4.128440366972484,
+      "U0": 0.075,
+      "Re": 100.0,
+      "G_mix": 48.00000000000009,
+      "endTime": 20000.0,
+      "writeInterval": 2000.0,
+      "j_station": 1920,
+      "witness_rows": [
+        [
+          -8,
+          1600
+        ],
+        [
+          -4,
+          1760
+        ],
+        [
+          4,
+          2080
+        ],
+        [
+          8,
+          2240
+        ]
+      ],
+      "witness_gaps": [
+        -8,
+        -4,
+        4,
+        8
+      ]
+    },
+    "f": {
+      "case": "T16_MC_f",
+      "b": 0.02,
+      "H": 1.28,
+      "N": 80,
+      "Ny": 5120,
+      "dx": 0.00025,
+      "dy": 0.00025,
+      "nu": 1.5e-05,
+      "Pr": 0.71,
+      "beta": 0.0033333333333333335,
+      "TRef": 300.0,
+      "g": 9.81,
+      "T_hot": 304.1284403669725,
+      "T_cold": 300.0,
+      "dT": 4.128440366972484,
+      "U0": 0.075,
+      "Re": 100.0,
+      "G_mix": 48.00000000000009,
+      "endTime": 40000.0,
+      "writeInterval": 4000.0,
+      "j_station": 3840,
+      "witness_rows": [
+        [
+          -8,
+          3200
+        ],
+        [
+          -4,
+          3520
+        ],
+        [
+          4,
+          4160
+        ],
+        [
+          8,
+          4480
+        ]
+      ],
+      "witness_gaps": [
+        -8,
+        -4,
+        4,
+        8
+      ]
+    }
+  },
+  "times": {
+    "c": [
+      "9000",
+      "10000"
+    ],
+    "m": [
+      "18000",
+      "20000"
+    ],
+    "f": [
+      "36000",
+      "40000"
+    ]
+  },
+  "completion": {
+    "c": {
+      "case": "T16_MC_c",
+      "rc": 0,
+      "end_line": true,
+      "execution_time_count": 10000,
+      "times": [
+        "9000",
+        "10000"
+      ],
+      "needed_fields": [
+        "T",
+        "U",
+        "p_rgh",
+        "phi"
+      ],
+      "age_datum_mtime": 1787851806.418379,
+      "field_age_s": {
+        "T": 743.685492515564,
+        "U": 743.6494925022125,
+        "p_rgh": 743.658492565155,
+        "phi": 743.6714925765991
+      },
+      "ok": true
+    },
+    "m": {
+      "case": "T16_MC_m",
+      "rc": 0,
+      "end_line": true,
+      "execution_time_count": 20000,
+      "times": [
+        "18000",
+        "20000"
+      ],
+      "needed_fields": [
+        "T",
+        "U",
+        "p_rgh",
+        "phi"
+      ],
+      "age_datum_mtime": 1787852575.348024,
+      "field_age_s": {
+        "T": 13404.954919338226,
+        "U": 13404.815918445587,
+        "p_rgh": 13404.849918603897,
+        "phi": 13404.89991903305
+      },
+      "ok": true
+    },
+    "f": {
+      "case": "T16_MC_f",
+      "rc": 0,
+      "end_line": true,
+      "execution_time_count": 40000,
+      "times": [
+        "36000",
+        "40000"
+      ],
+      "needed_fields": [
+        "T",
+        "U",
+        "p_rgh",
+        "phi"
+      ],
+      "age_datum_mtime": 1787883663.4648838,
+      "field_age_s": {
+        "T": 129117.40139842033,
+        "U": 129116.85439538956,
+        "p_rgh": 129116.98439621925,
+        "phi": 129117.18839716911
+      },
+      "ok": true
+    }
+  },
+  "witnesses_at_registered_station": {
+    "c": {
+      "time": "10000",
+      "row_index": 960,
+      "row_y_over_b": 48.025,
+      "G1": 1.5018814526028317,
+      "G1b": 0.36680005407559513,
+      "tau_hot": 498.1590178293912,
+      "tau_cold": 99.19167996395154,
+      "G3": 5.022185510018917,
+      "G2": 0.0006434992698865875,
+      "mass_mean": 1.000000004665392,
+      "mass_dev": 4.6653920726669185e-09,
+      "v_min": 0.049595839981975774,
+      "reversed_cells": 0,
+      "T_slope_rel": -8.600762974186882e-05,
+      "T_monotone": true,
+      "W1": {
+        "-8b": {
+          "v": 0.0003389695334774512,
+          "g": 2.519341658852516e-06,
+          "T": 0.001204162653670233
+        },
+        "-4b": {
+          "v": 0.0001348011307000796,
+          "g": 9.96598430936513e-07,
+          "T": 0.0004788752662328627
+        },
+        "+4b": {
+          "v": 8.900680119472426e-05,
+          "g": 6.54478309753206e-07,
+          "T": 0.00031619565055077803
+        },
+        "+8b": {
+          "v": 0.00014777853403313834,
+          "g": 1.0851018500722048e-06,
+          "T": 0.0005249826761343625
+        }
+      },
+      "W1_v_max": 0.0003389695334774512,
+      "W1_g_max": 2.519341658852516e-06,
+      "W1_T_max": 0.001204162653670233,
+      "W1_max": 0.001204162653670233
+    },
+    "m": {
+      "time": "20000",
+      "row_index": 1920,
+      "row_y_over_b": 48.0125,
+      "G1": 1.5004686332096715,
+      "G1b": 0.3677448705188723,
+      "tau_hot": 499.63967222264216,
+      "tau_cold": 99.91894893843173,
+      "G3": 5.00044963974262,
+      "G2": 0.0005845497431519918,
+      "mass_mean": 0.9999999996748723,
+      "mass_dev": 3.2512770253845247e-10,
+      "v_min": 0.024979737234607932,
+      "reversed_cells": 0,
+      "T_slope_rel": -7.69972105294503e-05,
+      "T_monotone": true,
+      "W1": {
+        "-8b": {
+          "v": 0.00029983381802933806,
+          "g": 6.34874382478975e-07,
+          "T": 0.0010940089936728864
+        },
+        "-4b": {
+          "v": 0.00011922637463190888,
+          "g": 2.4825960310967e-07,
+          "T": 0.0004350290409843176
+        },
+        "+4b": {
+          "v": 7.871039355067388e-05,
+          "g": 1.6110071426312361e-07,
+          "T": 0.00028719905758761195
+        },
+        "+8b": {
+          "v": 0.00013067476560535418,
+          "g": 2.6621390778782686e-07,
+          "T": 0.00047680862291915344
+        }
+      },
+      "W1_v_max": 0.00029983381802933806,
+      "W1_g_max": 6.34874382478975e-07,
+      "W1_T_max": 0.0010940089936728864,
+      "W1_max": 0.0010940089936728864
+    },
+    "f": {
+      "time": "40000",
+      "row_index": 3840,
+      "row_y_over_b": 48.00625,
+      "G1": 1.5001170262346941,
+      "G1b": 0.3679820081700378,
+      "tau_hot": 500.00904790592114,
+      "tau_cold": 100.09954824275503,
+      "G3": 4.995117926939401,
+      "G2": 0.0005611569610874971,
+      "mass_mean": 1.0000000000114215,
+      "mass_dev": 1.142153038813376e-11,
+      "v_min": 0.01251244353034438,
+      "reversed_cells": 0,
+      "T_slope_rel": -7.362943368216524e-05,
+      "T_monotone": true,
+      "W1": {
+        "-8b": {
+          "v": 0.0002864200843639697,
+          "g": 2.1217595190926985e-07,
+          "T": 0.0010504125867217007
+        },
+        "-4b": {
+          "v": 0.00011389052178145675,
+          "g": 8.012108873199871e-08,
+          "T": 0.00041768516493410294
+        },
+        "+4b": {
+          "v": 7.518819033869306e-05,
+          "g": 4.935628443696419e-08,
+          "T": 0.0002757401532345381
+        },
+        "+8b": {
+          "v": 0.00012482341892927629,
+          "g": 8.720038986693828e-08,
+          "T": 0.0004577763097558487
+        }
+      },
+      "W1_v_max": 0.0002864200843639697,
+      "W1_g_max": 2.1217595190926985e-07,
+      "W1_T_max": 0.0010504125867217007,
+      "W1_max": 0.0010504125867217007
+    }
+  },
+  "C_TRANSPOSE": {
+    "c": {
+      "value": -8.600762974186882e-05,
+      "ok": true,
+      "margin_factor": 5813.4377322178225
+    },
+    "m": {
+      "value": -7.69972105294503e-05,
+      "ok": true,
+      "margin_factor": 6493.7417415759155
+    },
+    "f": {
+      "value": -7.362943368216524e-05,
+      "ok": true,
+      "margin_factor": 6790.762538774105
+    }
+  },
+  "station": {
+    "rule": "frozen T16c_PREREGISTRATION.md section 4",
+    "floor": 1e-06,
+    "candidate_counts": {
+      "c": 960,
+      "m": 1920,
+      "f": 3840
+    },
+    "selected": null,
+    "reachable": false,
+    "best_row": 4479,
+    "best_W1_T": 0.0004583706738858627,
+    "reason": "THE UNREACHABLE BRANCH, registered in section 4"
+  },
+  "gate1": {
+    "ok": false,
+    "why": [
+      "section 4 unreachable branch: no candidate row reaches W1_T <= 1e-06 on the fine level (best 4.5837e-04 at row 4479)"
+    ]
+  },
+  "rows": [
+    {
+      "row": "G1",
+      "quantity": "v(Y = 0.25)/U0 on the station row, 4-point Lagrange at cell centres",
+      "value_fine": null,
+      "triple": null,
+      "triple_state": null,
+      "verdict": "NOT A RESULT",
+      "band_verdict": null,
+      "note": "gate (1): section 4 unreachable branch: no candidate row reaches W1_T <= 1e-06 on the fine level (best 4.5837e-04 at row 4479)"
+    },
+    {
+      "row": "G1b",
+      "quantity": "Y_max, location of the maximum upflow on the station row, from the cubic through the 4 cells around it",
+      "value_fine": null,
+      "triple": null,
+      "triple_state": null,
+      "verdict": "NOT A RESULT",
+      "band_verdict": null,
+      "note": "gate (1): section 4 unreachable branch: no candidate row reaches W1_T <= 1e-06 on the fine level (best 4.5837e-04 at row 4479)"
+    },
+    {
+      "row": "G3",
+      "quantity": "tau_hot / tau_cold from the half-cell wall gradients of v on the station row",
+      "value_fine": null,
+      "triple": null,
+      "triple_state": null,
+      "verdict": "NOT A RESULT",
+      "band_verdict": null,
+      "note": "gate (1): section 4 unreachable branch: no candidate row reaches W1_T <= 1e-06 on the fine level (best 4.5837e-04 at row 4479)"
+    },
+    {
+      "row": "G2",
+      "quantity": "RMS over the station row of (T - T_lin)/dT",
+      "value_fine": null,
+      "triple": null,
+      "triple_state": null,
+      "verdict": "NOT A RESULT",
+      "band_verdict": null,
+      "note": "gate (1): section 4 unreachable branch: no candidate row reaches W1_T <= 1e-06 on the fine level (best 4.5837e-04 at row 4479)"
+    }
+  ]
+}
