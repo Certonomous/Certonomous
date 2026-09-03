@@ -343,3 +343,110 @@ never `HEAD~1` (peers commit constantly and HEAD moves; a `HEAD~1` check comes b
 
 **Version 1.0, 2026-08-27.** Written by cfd lane R on the cfd supervisor's order, before any
 implementation code existed.
+
+---
+
+## Amendment (2026-09-03) — THE FLEET SAFETY CEILING: THIS CLAUSE IS RE-SCOPED TO 3× THE REGISTERED CAP, AND THE SECOND TERM OF SANAA'S `min()` IS DECLARED UNCOMPUTABLE RATHER THAN GUESSED
+
+**lines whose number changed above this section: 0** — this amendment is appended at the
+foot and edits nothing above it (rule 6). Version bumped to **1.1** at the foot.
+
+**RULE 2, FIRST LIMB, AND HOW THE CONDITION WAS CHECKED.** Amendments before first compute
+are legal and must state the condition and name the run directory that does not exist.
+Checked on disk 2026-09-03, not assumed: `verification/runs/RUNNER_CAP_ENFORCEMENT/`
+**does not exist**; no `CAP_CEILING*` artifact exists anywhere under
+`/home/ubuntu/Certonomous` or `/home/ubuntu/certonomous-runs`; and `scripts/queue_runner.py`
+contains **no `enforce` code path at all** — its five `enforce` hits are the words
+"NOT ENFORCED" in `cap_watch`'s own flag text. **No run has ever been graded under this
+clause, because it has never been armed.** Gates are therefore still open and this
+amendment may set a threshold.
+
+### 1. WHAT AUTHORISES THE RE-SCOPE
+
+Sanaa, 2026-09-03 ~21:00Z, verbatim, recorded at
+`etc/sessions/2026-09-03T2100Z_sanaa_launch_rule.md`:
+
+> The one hard limit that stays: a fleet-wide safety ceiling on any single run (e.g. 3× its
+> registered cost cap, or the box's remaining budget, whichever is smaller). Below that, the
+> monitor manages extensions as we defined; at the ceiling the monitor stops the run
+> gracefully regardless of residual trend. Justification: the T12 lesson is that the
+> launcher's own flag never fired, so something must be structurally guaranteed to stop a
+> run — but that something should be a ceiling far above the estimate, not the estimate
+> itself.
+
+§7 of this clause says no agent may switch it on. That instruction is **not overridden by
+any agent's reading of it**; it is overtaken by Sanaa's own later words, which do not merely
+permit a structural stop but **require** one. The reconciliation is deliberately narrow:
+this clause is armed **as the ceiling only**, at **3× the registered cap**, and for nothing
+else. The 1.00× cap enforcement §4 describes stays **OFF**, and `cap_watch` keeps reporting
+and never killing.
+
+### 2. THE SECOND TERM OF `min()` IS UNCOMPUTABLE ON THIS BOX, AND SAYS SO
+
+Sanaa's ceiling is `min(3 × registered cap, the box's remaining budget)`. **The second term
+has no source, and inventing one is forbidden.** `COMPUTE_BUDGET_CHARTER.md` §5: the instance
+cannot read its own billing, and there is no spend policy, no cap and no dollar figure
+anywhere in this repository — writing one "would be inventing policy".
+`docs/COST_CALIBRATION.md` is an actual-versus-predicted **calibration** ledger; it is not a
+remaining-budget ledger and must never be read as one.
+
+So the ceiling is **half-computable, and it states which half it computed**:
+
+- the `3 × cap` term is evaluated;
+- the remaining-budget term is recorded **`UNAVAILABLE — NOT EVALUATED`**, with §5 named as
+  the reason, in the sidecar the ceiling writes;
+- it is **never silently resolved**. Defaulting it to `0` stops every run on the box the
+  moment the ceiling is armed; defaulting it to infinity silently deletes half of Sanaa's
+  rule. **Both are the same failure — a reader reporting a number it could not read** — and
+  both are refused here. A half-computable rule that names the half it computed is honest;
+  one that quietly computes the other half is not.
+
+Sanaa's 2026-09-03 ~22:00Z ruling ("Nothing gets blocked bc of money cap") is a second,
+independent reason the budget term must not become a stop.
+
+### 3. A RUN WITH NO REGISTERED CAP GETS NO CEILING, AND THAT HOLE IS NAMED
+
+`cap_core_min_registered` is optional today; `cap_watch` falls back to 1.10 × the **estimate**
+for entries lacking it. **That fallback must not be inherited by the ceiling.** Sanaa was
+explicit that the ceiling is "far above the estimate, not the estimate itself", and §5 of this
+clause already forbids inferring an unstated cap and killing on it. Therefore: **an entry with
+no numeric `cap_core_min_registered` > 0 has NO ceiling and is never stopped by it.** This is a
+real coverage hole, it is stated rather than closed by inference, and the fix belongs at
+registration (make the field mandatory), forward-only per the 2026-09-03 ~20:00Z ruling.
+
+### 4. IT MUST NOT INHERIT `cap_watch`'S RETIREMENT PREDICATE
+
+`scripts/queue_runner.py:698` retires a watch on `status.exists()` **without parsing the
+file**. A `STATUS` written by the launcher on a **refusal** — `launcher_rc=2`, as in the three
+`T10aR2` rows at `verification/runs/T-family/T10aR2_runs/LAUNCH_RECORD.md:9-11` — therefore
+retires the watch on a run that never started, and a `STATUS` written early retires the watch
+on a run still going. The ceiling **parses** the STATUS, or keys on the log's own liveness. It
+does not ask whether a file exists and call that an answer.
+
+### 5. "STOPS GRACEFULLY" IS `stopAt writeNow`, AND THE CONSEQUENCE IS CARRIED HERE
+
+For an OpenFOAM solve the graceful stop is `stopAt writeNow` in `system/controlDict`, which
+lets the solver write its fields and emit its own `End` line. §4.2's `SIGTERM` → 60 s →
+`SIGKILL` to `_launch.sid` is the **fallback**, for a run that does not honour the dictionary.
+
+**The consequence, written here rather than left to be discovered by whoever grades the run:**
+a `writeNow` stop leaves **last time ≠ `endTime`**, so by CLAUDE.md rule 4 the run is **NOT a
+completed run**. That is not a defect in the stop; it is consistent, and it is exactly the
+label the 2026-09-03 ~20:00Z ruling assigns — **"non-convergent, reported not gated"**. A
+ceiling-stopped run is reported, never graded as though it finished.
+
+### 6. STATUS OF THIS AMENDMENT
+
+**DRAFTED. NOT ARMED. No code in `scripts/queue_runner.py` has been changed by it, and no
+kill path exists in the live runner.** This amendment fixes *what the ceiling would be* before
+any code is written, which is the whole evidentiary point of a pre-registration.
+
+**Arming it is a separate act and is not one an agent takes on another agent's say-so**
+(CLAUDE.md rule 9). This clause kills running solvers; at the time of writing three teams have
+live solves on this box — `rhoSimpleFoam` pid 296348 (ansys), eight
+`buoyantBoussinesqSimpleFoam` ranks (heat-transfer), and a dafoam container. The lane that
+drafted this will not arm a kill path against them, and records that the decision to arm is
+Sanaa's.
+
+**Version 1.1, 2026-09-03.** Amendment written by a cfd lane on the cfd supervisor's order.
+Version 1.0 stands unaltered above.
