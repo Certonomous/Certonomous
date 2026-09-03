@@ -14032,6 +14032,122 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### ✅ **K0eR2 ARM `FP_T10` IS COMPLETE ON ALL SIX CLAUSES OF RULE 4 — AND THIS IS AN ARM COMPLETION, NOT A RUNG VERDICT. NO VERDICT IS ISSUED HERE AND NONE MAY BE READ INTO IT. IT COST 94.77 core-min AGAINST A REGISTERED POINT OF 35.0 (×2.71) AND CLEARED ITS 3 150 s TIMEOUT BY 307 s ON LUCK, NOT MARGIN. `FP_T00` STAYS IN THE QUEUE AND IS NOT FORCE-LAUNCHED — THE RUNNER'S REFUSAL IS PROTECTING IT.** (2026-09-03T20:45:58Z)
+
+*(Lane block, written 2026-09-03T20:45:58Z — stamp from `date -u` read in the committing shell invocation. **PURE INSERTION at the top of the section; every byte below stands unedited.** Nothing below is renumbered, deleted or rewritten — not the 2026-09-03T19:30:29Z block immediately following, and not the `**Section last written:**` stamp further down, which belongs to an earlier block and is deliberately **left unedited**, exactly as that block left its own predecessor's. **Every figure here was RE-MEASURED by this lane against its own named artifact at this write** — not copied from the brief, not from an earlier board block, not from any lane report. **Two figures carried to this lane were wrong or imprecise against their artifacts and are corrected below by name.** Anything not verified at this write is marked **VERIFY** and is not asserted. **Zero compute was spent by this lane; nothing was launched, killed, signalled, moved or edited.**)*
+
+---
+
+### A. **`FP_T10` — COMPLETE. ALL SIX CLAUSES OF STANDING RULE 4, EACH WITH THE ARTIFACT THAT EVIDENCED IT**
+
+Run root `verification/runs/F14-cooling-ladder/K0eR2_runs/FP_T10`. Solver `buoyantBoussinesqSimpleFoam` (v2606), 2 ranks. Started **2026-09-03T19:46:53Z**, ended **2026-09-03T20:34:17Z**.
+
+| # | clause (rule 4) | measured | evidence artifact |
+|---|---|---|---|
+| 1 | `rc = 0` | `rc=0`; also `reconstruct_rc=0`, `cellcentres_rc=0`, `wall=2843`, `ranks=2`, `timeout_s=3150`, `note=clean` | `verification/runs/F14-cooling-ladder/K0eR2_runs/STATUS.FP_T10` |
+| 2 | an `End` line | exactly **one** `^End$`, at line **252 140** | `.../FP_T10/log.solve` |
+| 3 | last time == `endTime` | last `Time = 9000`; registered `endTime 9000` (`system/controlDict:15`) | `.../FP_T10/log.solve`, `.../FP_T10/system/controlDict` |
+| 4 | fields present at `endTime` | `T U p_rgh alphat nut k omega` **all seven present** in `processor0/9000/`, in `processor1/9000/` **and** in the reconstructed `9000/` | `.../FP_T10/{9000,processor0/9000,processor1/9000}` |
+| 5 | `ExecutionTime` count == `endTime` | **9 000** `ExecutionTime` lines == `endTime` 9000 | `.../FP_T10/log.solve` |
+| 6 | **age guard** | `0/T` at **19:46:53.605356Z**. **All 21 field files** (7 fields × reconstructed + 2 processor dirs) are **strictly newer**; earliest of them is `processor0/9000/nut` at **20:34:16.164636Z**, latest `9000/U` at **20:34:16.999639Z**. **Zero older-or-equal.** | `stat` mtimes under `.../FP_T10/` |
+
+**THE ZERO IN CLAUSE 6 IS PLANTED, NOT ASSUMED (standing rule 3).** The same comparison, run against the seven fields in `.../FP_T10/0/`, **fired on all seven** (`OLDER-OR-EQUAL` for `T U p_rgh alphat nut k omega`). A reader shown able to see a non-zero returned zero on the `9000` set. §8.2 of the frozen registration (`docs/campaigns/F14-cooling-ladder/K0eR2_PREREGISTRATION.md:385-399`) fixes `<case>/0/T` as the age-guard datum for this single-region case, and that is the file used.
+
+> ### ⚠⚠ **THIS IS AN ARM COMPLETION, NOT A RUNG VERDICT.**
+> **K0eR2's only GATED row is `M4b`** — the same-solver ULP comparison of `FP_T10` against `FP_T00`, threshold **0 ULP** (`K0eR2_PREREGISTRATION.md` §0, §5.1). **§8.2 requires BOTH arms** and states it in terms: *"The gated row needs BOTH arms, so a `NOT DONE` on either is `NOT A RESULT` for the rung. A gated row that cannot be measured cannot yield a `PASS`."* **`FP_T00` HAS NOT RUN.**
+> **No verdict is issued in this block and none may be implied from it.** The rung's reachable verdict set is **`PASS` or `NOT A RESULT` only**; **`GATE FAIL` is unreachable by construction** because no band is armed anywhere on the rung (`K0eR2_PREREGISTRATION.md:26`, `:509-510`). The completion above is a *completion*, and nothing more.
+> **The grader was NOT run.** No `analyse_k0e.py` invocation was made by this lane.
+
+---
+
+### B. **COST — 94.77 core-min ACTUAL, ×2.71 THE POINT, AND THE SUBSTANTIVE FINDING IS THE MULTIPLIER**
+
+| | |
+|---|---|
+| **actual** | **94.77 core-min** = 2 843 ClockTime s × 2 ranks ÷ 60. `ClockTime = 2843 s` on the final `ExecutionTime` line of `log.solve`, corroborated by `wall=2843` in `STATUS.FP_T10` |
+| registered POINT | **35.00 core-min** (`cost_core_min_estimate`) |
+| **ratio actual/predicted** | **2.71** (94.767/35.0 = 2.7076) |
+| registered CAP | **105.00 core-min** (`cap_core_min_registered`) |
+| **cap headroom left** | **10.23 core-min — 9.7 % of the cap.** It came in **under**, and only just |
+| **overrun artifacts** | **NONE.** No `CAP_OVERRUN.txt`, no `ESTIMATE_OVERRUN.txt` anywhere under `K0eR2_runs/`. **The zero is planted:** the identical `find … -iname` sweep with a pattern known to exist (`*STATUS*`) returned `STATUS.FP_T10` and `launch/FP_T10/STATUS.queue.K0eR2_FP_T10`, so the sweep can see a file when there is one |
+| dollars | **$0.0810 derived** (94.767 core-min ÷ 60 × $0.0513/core-h). **DERIVED, NOT MEASURED, at an owner-reported rate** — the box cannot read its own billing (`COMPUTE_BUDGET_CHARTER.md` §5) |
+
+**THE NUMBER TO CARRY FORWARD — THE THERMAL MULTIPLIER IS 3.38×, NOT 1.25×.** The queue row's `cost_basis` (`verification/queue/heat-transfer/launched/K0eR2_FP_T10.json`) reads, verbatim:
+
+> *"derived: the MEASURED simpleFoam reference solve on this exact 52224-cell mesh is 28.00 core-min (840 ClockTime s x 2 ranks / 60, 9000 iterations, `/home/ubuntu/certonomous-runs/tmr-flatplate-finer/log.simpleFoam`) x 1.25 for the added T equation and alphat update (an ESTIMATE, not a measurement: segregated linear solves per outer iteration go 6 -> 7) = 35.00 core-min POINT"*
+
+**Measured against that same 28.00 core-min reference, the multiplier is 94.767 / 28.00 = ×3.38.** The registered ×1.25 was reasoned from a linear-solve count (6 → 7) and is out by a factor of **2.7**. **It is not gated and it did not break the cap — but it is the calibration finding of this arm, and a successor pricing a `buoyantBoussinesqSimpleFoam` arm off a `simpleFoam` reference on the same mesh should use ×3.38, not ×1.25, or say why not.**
+
+**GAP ATTRIBUTION — HONESTLY SPLIT, NOT FOLDED (`COMPUTE_BUDGET_CHARTER.md` §6).**
+- **Contention is real and is a substantial part of the gap, and it is NOT silently inside the ratio.** The box ran **84.5–97.1 % busy** across the twelve runner ticks spanning the arm's tail (`verification/queue/runner.log`), with 8 T-family ranks and 4 cfd ranks alongside 2 of ours on 16 cores. The arm's own log proves the contention directly: **its trailing rate was 1.440 s/iteration at 20:31:35Z and 0.112 s/iteration over its last 600 iterations — a factor of 12.9 on the same binary, same mesh, same case, purely from what else was on the box.** The ×3.38 therefore contains contention and cannot be cleanly separated into "thermal cost" and "contention cost" from this single arm.
+- **`FP_T00`, if it runs on a quiet box, is the separation experiment** — same binary, same mesh, same iteration count. **That is a further reason not to force it onto a loaded box: doing so destroys the only clean measurement available of the true thermal multiplier.**
+- **The reference itself carries the same ambiguity and this is stated, not hidden:** the 28.00 core-min `simpleFoam` basis was measured at an unstated load, and this lane did **not** re-derive the load it was taken at. **VERIFY.**
+- **Waste: NONE IDENTIFIABLE on this arm.** `note=clean`; one solver invocation; no restart, no discarded build, no stall (2 843 wall s is under the 3 600-s stall rule, so gross == cleaned). Zero core-minutes are named as waste.
+
+> **`docs/COST_CALIBRATION.md` — DETERMINATION: NO ROW IS OWED YET, AND ONE IS OWED AT RUNG COMPLETION.**
+> Read against that file's own rules at this write. Its Purpose paragraph scopes the ledger to *"one row per completed process (a rung graded, a case closed, a curriculum item finished)"*, and `CLAUDE.md` rule 12 uses the same three examples. **An arm completion is none of the three: K0eR2 is not graded, not closed, and `M4b` cannot be measured until `FP_T00` exists.** Entering a row now would enter **half a rung's actual against a whole rung's estimate** — which is the projection-as-actual error the block below this one already refuses for T3d. **The row is owed at K0eR2's rung completion**, and it must carry **both** arms' actuals, the ×3.38 finding above, and the contention split. **No row was written and no id was consumed** — the next id is re-derived from the file's own tail at that commit (`CLAUDE.md` rule 11, and that file's 2026-08-23 row-id amendment), never from this block.
+
+---
+
+### C. **THE NEAR-MISS — IT CLEARED BY 307 s ON LUCK, AND A TIMEOUT KILL WOULD HAVE BEEN A TOTAL LOSS**
+
+| | |
+|---|---|
+| envelope | `timeout 3150` s at 2 ranks (`launch_cmd` in the queue entry; `timeout_s=3150` in `STATUS.FP_T10`) |
+| actual wall | **2 843 s** — **margin 307 s, 9.7 % of the envelope** |
+| at 20:31:35Z (ClockTime 2 682 s) | **iteration 8 067 of 9 000**, **933 remaining**, trailing rate **1.440 s/it** over the previous 50 iterations (**1.390** over 100, **1.255** over 200) |
+| implied finish at that rate | **1 297–1 344 s** still needed, against **468 s** of `timeout` remaining. **It was, on its own trailing rate, going to be killed** |
+| what actually happened | the box freed and the **last 600 iterations took 67 ClockTime s — 0.112 s/it**; the last 933 took 161 s (0.173 s/it) |
+
+**⚠ CORRECTION TO A FIGURE CARRIED TO THIS LANE.** The reconnaissance figure for the tail rate was *"~0.28 s/it"* over the last ~600 iterations. **Re-measured from `log.solve`'s own `ClockTime` column, it is 0.112 s/it over the last 600 (67 s elapsed) and 0.173 s/it over the last 933.** The tail was **faster** than reported, which makes the recovery sharper, not milder. The recon figure for the implied finish (*"~1325 s"*) sits inside the re-derived **1 297–1 344 s** window and is not disputed — the window is stated instead of a point because the answer depends on the trailing window chosen.
+
+**A KILL WOULD HAVE COST THE WHOLE ARM, NOT PART OF IT.** `system/controlDict` carries `startFrom startTime` (`:12`), `startTime 0` (`:13`), `writeControl timeStep` (`:17`) and **`writeInterval 9000`** (`:18`) — measured in the case's own file at this write. **Nothing was written until 20:34:16.** Until that moment `processor0/` held only `0/` and `constant/`. There was **no restart point at any instant of the run**: a SIGTERM at 20:33 would have destroyed 2 800 s of work and left nothing to resume from.
+
+---
+
+### D. **THE DETERMINATION — `FP_T00` STAYS IN THE QUEUE. IT IS NOT FORCE-LAUNCHED. THE RUNNER IS PROTECTING IT, NOT OBSTRUCTING IT.** *(heat-transfer-supervisor's determination, [lab-attributed], recorded so a successor does not re-litigate it.)*
+
+**FIRST, WHAT THIS IS NOT.** **This is NOT an idle-compute defect and must not be boarded as one.**
+
+| measured fact | figure | artifact |
+|---|---|---|
+| queue daemon | **alive**, `pid 1664`, **`ppid 1`**, started **2026-09-03T15:35:14Z**, command `python3 /home/ubuntu/Certonomous/scripts/queue_runner.py --daemon` | `ps -o pid,ppid,lstart,args -p 1664` |
+| cadence | ticking every **~65 s**; ticks read at this write through **20:41:03Z** | `verification/queue/runner.log` |
+| box | **loadavg 28.14 / 29.04 / 27.80 on 16 cores**; **12 solver binaries live** — 8 `buoyantBoussinesqSimpleFoam` (all with cwd `verification/runs/T-family/T3_runs/R_fx`, i.e. **T3d**) + 4 `simpleFoam` (cfd's four `JF1_jet_flap/_jf1g_queue_*` arms) | `/proc/loadavg`, `/proc/<pid>/cwd` |
+| runner-measured busy | **84.5 % – 97.1 %** over the last twelve ticks | `verification/queue/runner.log` |
+| `FP_T00` refusals | **14**, most recent **2026-09-03T20:34:32Z** | `grep -c 'K0eR2_FP_T00' verification/queue/runner.log` |
+
+**⚠ CORRECTION TO A SECOND FIGURE CARRIED TO THIS LANE.** The recon busy range was *"84.5–95.6 %"*. **Re-measured over the last twelve ticks it is 84.5–97.1 %** — the box is **busier** than reported, which strengthens the determination rather than weakening it.
+
+**THE TWO CEILINGS, WITH LINE NUMBERS, RE-READ AT THIS WRITE** (`scripts/queue_runner.py`, inside `tick()` which begins at **`:867`**):
+
+- **Gate A — `:933-935`.** `if busy >= busy_ceiling:` → logs `HELD <entry>: busy X% >= ceiling 85.0%` and **`return "HELD"` — it aborts the WHOLE tick**, so no entry is even reached. `busy_ceiling` default **85.0** at `:1945`. **`busy` is CPU-busy percent from a `/proc/stat` idle delta over a 5 s window (`:178-191`, `tick(…, 5.0, …)` at `:1978`) — it is NOT load average**, and a reader who confuses the two will mis-predict every fire condition on this box.
+- **Gate B — `:936-941`.** `if busy_cores + ranks > core_fraction * ncpu:` → logs and **`continue`s** (first-fit over the whole queue, so a wide held entry does not block a narrow one). `core_fraction` default **0.9** at `:1947`; **0.9 × 16 = 14.4 cores**. At the 20:34:32Z tick this refused `FP_T00` explicitly: **`13.5 busy + 2 ranks > 0.9 x 16 cores`**, i.e. **15.5 > 14.4**.
+
+**THE FIRE CONDITION, DERIVED.** For a 2-rank entry, Gate B needs `busy_cores ≤ 12.4`, i.e. **busy ≤ 77.5 %** — which is stricter than Gate A's 85.0 %, so **77.5 % is the binding threshold for `FP_T00`**. T3d holds 8 ranks and cfd's four JF1 arms hold 4. **`FP_T00` will not launch until T3d ends or JF1 sheds arms.**
+
+> ### **THE REASONING — AND IT IS THE PART THAT MATTERS**
+> **`FP_T00` carries the IDENTICAL envelope as `FP_T10`: 3 150 s timeout, 105.00 core-min cap** (`verification/queue/heat-transfer/K0eR2_FP_T00.json`). **`FP_T10` cleared that envelope by 307 s only because the box emptied under it** (§C). Forcing `FP_T00` onto a 93 %-busy box runs it at the **loaded** rate — the rate at which `FP_T10` was, on its own trailing figures, **going to be killed** — and its `writeInterval 9000` / `startFrom startTime` write plan means a timeout kill costs **the entire arm, with no restart point**.
+>
+> **AND THE CAP CANNOT BE WIDENED TO FIX IT.** **K0eR2 HAS NOW HAD FIRST COMPUTE.** Under `CLAUDE.md` rule 2, its gates, thresholds, **caps** and labels are **closed**; a dated addendum may not alter any of those four, and a cap is one of them. There is no legal route to a bigger envelope for `FP_T00`. **Letting the runner start it on a quiet box is therefore not merely acceptable — it is the ONLY route that respects the freeze.** Forcing the launch would be choosing, knowingly, between a likely total loss and an illegal cap amendment.
+>
+> **THE RUNNER'S 14 REFUSALS ARE THE FREEZE BEING ENFORCED BY MACHINERY THAT DOES NOT KNOW IT IS DOING SO.** Recorded here so that a successor reading *"held 14 times"* does not read it as an obstruction and reach for `--force`.
+
+**WHAT HAPPENS WITH NO AGENT ALIVE — WHICH IS THE POINT.** When **T3d ends the box sheds 8 ranks** and `FP_T00` should drop automatically at the next sub-77.5 % tick, **with no agent alive and no human action** — the detached-queue behaviour Sanaa's standing orders require. **T3d ETA: NOT RE-DERIVED AT THIS WRITE — VERIFY.** The 19:30:29Z block below carries **~2026-09-04T04:04Z** from its own reading of `R_fx/log.solve`; a later extrapolation put it at 05:00Z–07:30Z. **Both are extrapolations, neither is a measurement, and this lane did not read `R_fx` at all** (the run was not touched: no kill, no signal, nothing attached).
+
+---
+
+### E. ⚠ **THE LIVE PLANNING DEFICIT — heat-transfer FREEZE-AHEAD IS 1 AGAINST A FLOOR OF 3, AND GOES TO 0 WHEN `FP_T00` DROPS**
+
+**Measured at this write:** `verification/queue/heat-transfer/` holds **1 pending entry** (`K0eR2_FP_T00.json`), 117 in `launched/`, 1 in `held/`, 1 in `refused/`. **`held/` is not a queue and is not counted** — `glob` in `queue_runner.py` does not descend into it (the counting trap is documented at `docs/DEAD_LEVER_AUDIT.md:1637`).
+
+**Sanaa's standing directive §2 — *"FREEZE-AHEAD ≥ 3: every team keeps at least three frozen, queue-ready registrations at all times. A starved queue is a planning defect."*** (quoted at `docs/DEAD_LEVER_AUDIT.md:1627`).
+
+**heat-transfer is at 1. Deficit 2 — and the moment `FP_T00` fires the deficit is 3, with ZERO pending.** That is the state a successor inherits, and it is boarded as the planning defect it is rather than left to be discovered when the box next goes quiet. **Refilling it is a registration task, not a compute task, and nothing on the box blocks it.**
+
+---
+
+
 ##### ⚠ **T25R6c-R2 IS A `GATE FAIL` WHOSE REGISTERED ARTIFACT WAS NEVER EMITTED — AND D-J1 IS BOUND INTO T3d's LIVE GRADING PATH TWICE, WITH `gate_t3d.json` SET TO DROP BOTH DENOMINATORS. THE GRADING-TIME OBLIGATION IS BELOW AND A CLOSER MUST MEET IT.** (2026-09-03T19:30:29Z)
 
 *(Lane block, written 2026-09-03T19:30:29Z — stamp from `date -u` read in the committing shell invocation. **PURE INSERTION at the top of the section; every byte below stands unedited.** Nothing below is renumbered, deleted or rewritten — not the 2026-09-03T18:33:50Z block immediately following, and not the `**Section last written:** 2026-09-03T18:21:45Z` stamp further down, which belongs to an earlier block and is deliberately **left unedited**, exactly as that block left its own predecessor's. **Read this block first.** **Every figure here was RE-MEASURED by this lane against its own artifact at this write** — not copied from the brief, not from an earlier board block, not from any lane report. Three figures carried to this lane were wrong against their artifacts and are corrected below by name. Anything not verified at this write is marked **VERIFY** and is not asserted.)*
