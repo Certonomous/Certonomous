@@ -102,9 +102,19 @@ RANKS = 1                   # np = 1, registered
 YPLUS_THRESHOLD = 1.0       # G-YPLUS
 R1_BAND = 1.0e-3            # G-REPRO limb R1, at the iteration cap
 R2_BAND = 1.0e-4            # G-REPRO limb R2, on the extrapolated plateau
-# G-PATCHPAIR (§3.5): U1's extrapolated plateau vs U2's converged value.
-PATCHPAIR_NOISE = 1.0e-4    # <= this: the repair does not move the coefficients
-PATCHPAIR_INDET = 1.0e-3    # <= this: INDETERMINATE; above: CONTAMINATION
+# G-PATCHPAIR (§3.5): U1's extrapolated plateau vs U2's EXTRAPOLATED PLATEAU,
+# both through the identical frozen plateau() routine.  RE-ANCHORED 2026-09-03:
+# the item now REGISTERS that the `empty` units are expected NOT to converge
+# (§7), so an anchor on "U2's converged value" would have fired NOT A RESULT on
+# the outcome the item predicts, and a gate cannot be anchored on the outcome
+# its own registration expects.
+# BANDS: supervisor's construction (dafoam-supervisor, 2026-09-03), DERIVED from
+# the MEASURED +-4.9e-05 plateau-extrapolation sensitivity of §3.3, not itself
+# measured.  A two-sided plateau-vs-plateau comparison carries that error on
+# BOTH sides: 2 x (4.9e-05 + 4.9e-05) = 1.96e-4, rounded up to 2.0e-4.  The 10x
+# ratio between the two bands is preserved from the pre-re-anchor form.
+PATCHPAIR_NOISE = 2.0e-4    # <= this: the repair does not move the coefficients
+PATCHPAIR_INDET = 2.0e-3    # <= this: INDETERMINATE; above: CONTAMINATION
 # Registered per-unit caps (§4.4), each ~3x its own estimate.
 # Caps are sized on the WORST REGISTERED OCCUPANCY (the measured 14-way
 # saturation, 3.85915x solo), NOT on the quiet estimate -- the estimate stays a
@@ -113,6 +123,13 @@ CAP_CORE_MIN_U1 = 361.0
 CAP_CORE_MIN_U2U3 = 2943.0
 TMO_S_U1 = 21360
 TMO_S_U2U3 = 176280
+# The in-container deadline BELONGS TO A UNIT, not to the module.  Grading U1
+# against TMO_S_U2U3 prints 176,280 s beside a cap of 361 core-min -- an 8.25x
+# overstatement of that grading's own deadline, in a report a reader would take
+# as authoritative.  The deadline is therefore selected from the unit being
+# graded, and where the cap does not name a registered unit the reader prints
+# that it cannot say, rather than a number that is true in another scope.
+CAP_TO_TMO = {CAP_CORE_MIN_U1: TMO_S_U1, CAP_CORE_MIN_U2U3: TMO_S_U2U3}
 CONTAMINATION = "CONTAMINATION"
 INDETERMINATE = "INDETERMINATE"
 NOISE = "NOISE"
@@ -336,13 +353,17 @@ def g_complete(pts: list[dict], declared: list[int], rc, cap: int) -> tuple[str,
 # ---------------------------------------------------------------------------
 # G-CAPS -- ARITHMETIC.  A1WR's reader had one prose sentence and computed nothing.
 # ---------------------------------------------------------------------------
-def g_caps(wall_s_total: float, cap_core_min: float, ranks: int) -> tuple[str, list[str]]:
+def g_caps(wall_s_total: float, cap_core_min: float, ranks: int,
+           tmo_s: int | None = None) -> tuple[str, list[str]]:
     core_min = wall_s_total * ranks / 60.0
     frac = core_min / cap_core_min if cap_core_min else float("inf")
+    dl = ("in-container deadline %d s" % tmo_s if tmo_s is not None else
+          "in-container deadline NOT STATED: this cap names no registered unit, "
+          "and a deadline true for another unit would be false here")
     lines = ["  measured wall   : %.4f s x %d rank(s) / 60 = %.4f core-min"
              % (wall_s_total, ranks, core_min),
-             "  registered cap  : %.1f core-min  (in-container deadline %d s)"
-             % (cap_core_min, TMO_S_U2U3),
+             "  registered cap  : %.1f core-min  (%s)"
+             % (cap_core_min, dl),
              "  consumed        : %.2f %% of cap" % (frac * 100.0),
              "  remaining       : %.4f core-min" % (cap_core_min - core_min),
              "  derived cost    : %.4f core-h x $0.0513 = $%.5f DERIVED, NOT MEASURED"
@@ -444,29 +465,43 @@ def g_patch(text: str, expect_n: int) -> tuple[str, list[str]]:
 # ---------------------------------------------------------------------------
 # G-PATCHPAIR -- symmetry vs empty, one variable, thresholds from measurement
 # ---------------------------------------------------------------------------
-def g_patchpair(u1_series, u2_final) -> tuple[str, list[str]]:
-    """U1's EXTRAPOLATED PLATEAU against U2's CONVERGED value.
+def g_patchpair(u1_series, u2_series) -> tuple[str, list[str]]:
+    """U1's EXTRAPOLATED PLATEAU against U2's EXTRAPOLATED PLATEAU.
 
-    Not the two values at iteration 4,000: U1 stops at the cap still drifting
-    while U2 is expected to converge, so a cap-vs-cap comparison would fold
-    U1's own residual-state head-room into the answer and call it
-    contamination."""
+    PLATEAU AGAINST PLATEAU, both through THIS identical frozen routine, so the
+    two sides are the same kind of estimate of the same kind of quantity.
+
+    Not the two values at iteration 4,000: U1 stops at the cap still drifting,
+    so a cap-vs-cap comparison would fold U1's own residual-state head-room into
+    the answer and call it contamination.
+
+    And NOT U2's converged value either.  RE-ANCHORED 2026-09-03: §7 registers
+    that the `empty` units are expected NOT to converge, because `primalMaxRes`
+    never contained U2 to begin with.  An anchor on "U2's converged value" makes
+    this gate return NOT A RESULT on the very outcome the item predicts -- the
+    gate would be unfirable by its own registration.  A plateau is available
+    from a drifting series and from a converged one alike, so this form returns
+    a real verdict on BOTH outcomes.
+
+    The denominator is U2's plateau: the `empty` configuration is the repaired
+    one and is the reference the comparison is against."""
     lines, worst, verdicts = [], 0.0, []
-    if not u1_series or u2_final is None:
+    if not u1_series or not u2_series:
         return NOT_A_RESULT, ["  one side of the pair is absent -- reported, "
                               "never papered over"]
     for k, nm in ((1, "CL"), (2, "CD")):
         u1 = [s[k] for s in u1_series]
+        u2 = [s[k] for s in u2_series]
         pa, note = plateau(u1)
-        vb = u2_final[k - 1]
+        vb, noteb = plateau(u2)
         if pa is None or vb is None:
-            lines.append("  %s NOT QUOTED -- %s" % (nm, note))
+            lines.append("  %s NOT QUOTED -- U1: %s ; U2: %s" % (nm, note, noteb))
             verdicts.append(None)
             continue
         rel = abs(pa - vb) / abs(vb) if vb else float("inf")
         worst = max(worst, rel)
         lines.append("  %s  U1 symmetry plateau %.14g (%s)" % (nm, pa, note))
-        lines.append("  %s  U2 empty converged  %.14g" % (nm, vb))
+        lines.append("  %s  U2 empty    plateau %.14g (%s)" % (nm, vb, noteb))
         lines.append("  %s  -> rel %.6e" % (nm, rel))
         verdicts.append(rel)
     if any(v is None for v in verdicts):
@@ -721,23 +756,47 @@ def selftest(run: Path | None) -> tuple[list[str], list[str]]:
         "the mutation control on the patch-identity reader itself")
 
     # ---- Q: G-PATCHPAIR, symmetry vs empty ----------------------------------
+    # RE-ANCHORED with the gate (§3.5): both sides are now SERIES, and both go
+    # through the same plateau() routine.  plateau() is homogeneous of degree 1
+    # under a uniform scaling of the series -- the ratio r is scale-invariant
+    # and values[-1] and inc[-1] scale linearly -- so scaling a whole series by
+    # (1+x) moves its plateau by exactly (1+x), and the planted shift is EXACT
+    # rather than approximate.  Q4 asserts that the gate still returns a verdict
+    # when U2 does NOT converge, which is the outcome the item PREDICTS.
     ref_rows = read_reference(REFERENCE_PATH)
     u1 = [(r[0], r[1], r[2]) for r in ref_rows]
-    pl_cl, _ = plateau([r[1] for r in ref_rows])
-    pl_cd, _ = plateau([r[2] for r in ref_rows])
-    v, _ = g_patchpair(u1, (pl_cl, pl_cd))
+    u2_same = [(r[0], r[1], r[2]) for r in ref_rows]
+    v, _ = g_patchpair(u1, u2_same)
     chk(("Q1", "[+]"), v == NOISE,
-        "U2 converged exactly at U1's plateau -> NOISE",
+        "U2's plateau identical to U1's -> NOISE",
         "no false alarm on a clean pair; got %s" % v)
-    v, _ = g_patchpair(u1, (pl_cl * (1 + 5e-3), pl_cd))
+    u2_hi = [(r[0], r[1] * (1 + 5e-3), r[2]) for r in ref_rows]
+    if [x[1] for x in u2_hi] == [x[1] for x in u2_same]:
+        raise SystemExit("CONTROL Q2 DID NOT LAND")
+    v, _ = g_patchpair(u1, u2_hi)
     chk(("Q2", "[-]"), v == CONTAMINATION,
-        "U2 shifted 5.0e-3 -> CONTAMINATION",
-        "5x the INDETERMINATE ceiling; the falsifier is registered; got %s" % v)
-    v, _ = g_patchpair(u1, (pl_cl * (1 + 5e-4), pl_cd))
+        "U2's series shifted 5.0e-3 -> CONTAMINATION",
+        "2.5x the INDETERMINATE ceiling of %.1e; the falsifier is registered; "
+        "got %s" % (PATCHPAIR_INDET, v))
+    u2_mid = [(r[0], r[1] * (1 + 5e-4), r[2]) for r in ref_rows]
+    if [x[1] for x in u2_mid] == [x[1] for x in u2_same]:
+        raise SystemExit("CONTROL Q3 DID NOT LAND")
+    v, _ = g_patchpair(u1, u2_mid)
     chk(("Q3", "[!]"), v == INDETERMINATE,
-        "U2 shifted 5.0e-4 -> INDETERMINATE, not silently cleared",
-        "the middle band exists so an ambiguous answer is not rounded to a "
-        "verdict; got %s" % v)
+        "U2's series shifted 5.0e-4 -> INDETERMINATE, not silently cleared",
+        "2.5x the NOISE band of %.1e and 0.25x the INDETERMINATE ceiling: the "
+        "middle band exists so an ambiguous answer is not rounded to a verdict; "
+        "got %s" % (PATCHPAIR_NOISE, v))
+    # Q4: THE OUTCOME THIS ITEM PREDICTS.  A U2 series that is still drifting at
+    # the cap -- i.e. NOT CONVERGED -- must still produce a verdict, because §7
+    # registers non-convergence of the `empty` units as the EXPECTED outcome.
+    # Under the pre-2026-09-03 anchor this case returned NOT A RESULT.
+    v, _ = g_patchpair(u1, [(r[0], r[1], r[2]) for r in ref_rows])
+    chk(("Q4", "[!]"), v in (NOISE, INDETERMINATE, CONTAMINATION),
+        "a NON-CONVERGED U2 (a drifting series, the PREDICTED outcome) still "
+        "yields a verdict, not NOT A RESULT",
+        "a gate anchored on the outcome its own registration expects is "
+        "unfirable; got %s" % v)
 
     # ---- K: G-COMPLETE, the gate A1WR registered and never wrote -------------
     full = segment(base_all)
@@ -836,8 +895,12 @@ def main(argv: list[str]) -> int:
         return 2
     run = Path(argv[1])
     cap_cm = CAP_CORE_MIN_U2U3
+    tmo_s = TMO_S_U2U3
     if "--cap-core-min" in argv:
         cap_cm = float(argv[argv.index("--cap-core-min") + 1])
+        # The deadline follows the unit the cap names.  An unregistered cap gets
+        # NO deadline printed rather than another unit's.
+        tmo_s = CAP_TO_TMO.get(cap_cm)
 
     lines = ["=" * 78,
              "A1WRT WALL-RESOLVED ALPHA-TAIL READER -- FEASIBILITY READINGS, NOT VERDICTS",
@@ -962,7 +1025,7 @@ def main(argv: list[str]) -> int:
     lines.append("")
 
     # --- G-CAPS (arithmetic) ---------------------------------------------
-    vp, pn = g_caps(wall_total, cap_cm, RANKS)
+    vp, pn = g_caps(wall_total, cap_cm, RANKS, tmo_s)
     lines.append("G-CAPS (ARITHMETIC, not prose):")
     lines.extend(pn)
     lines.append("  %s" % vp)
@@ -981,21 +1044,29 @@ def main(argv: list[str]) -> int:
     lines.append("  %s" % vr)
     lines.append("")
 
-    # G-PATCHPAIR reads U1's plateau against U2's CONVERGED alpha=12.
-    u2_final = None
+    # G-PATCHPAIR reads U1's EXTRAPOLATED PLATEAU against U2's EXTRAPOLATED
+    # PLATEAU, both through the identical frozen plateau() routine.
+    # RE-ANCHORED 2026-09-03: the previous form compared U1's plateau against
+    # U2's CONVERGED value and nulled the pair when U2 did not converge -- and
+    # §7 registers NON-convergence of the `empty` units as the EXPECTED outcome,
+    # so that form returned NOT A RESULT on this item's own prediction.  U2's
+    # convergence state is still READ and REPORTED here; it no longer decides
+    # whether the gate can fire.
+    u2_series, u2_conv = [], None
     for q in pts:
         if q["mode"] == "COLD" and abs(q["alpha_deg"] - 12.0) < 1e-9:
-            s = series_of(q["text"])
-            if s:
-                u2_final = (s[-1][1], s[-1][2])
-            if classify(q["text"], ENDTIME_CAP)["verdict"] != CONVERGED:
-                lines.append("G-PATCHPAIR: U2's alpha=12 is NOT CONVERGED, so its "
-                             "final value is NOT a converged value. The pair is "
-                             "reported as NOT A RESULT rather than compared "
-                             "against a plateau it does not have.")
-                u2_final = None
-    lines.append("G-PATCHPAIR (section 3.5 -- `symmetry` vs `empty`, one variable):")
-    vq, qn = g_patchpair(u1_cold, u2_final)
+            u2_series = series_of(q["text"])
+            u2_conv = classify(q["text"], ENDTIME_CAP)["verdict"]
+    lines.append("G-PATCHPAIR (section 3.5 -- `symmetry` vs `empty`, one variable,")
+    lines.append("  PLATEAU vs PLATEAU, both EXTRAPOLATED by the same frozen routine):")
+    if u2_conv is not None:
+        lines.append("  U2 alpha=12 convergence state: %s%s" % (
+            u2_conv,
+            "  (the outcome section 7 REGISTERS as expected; it does not "
+            "disable this gate)" if u2_conv != CONVERGED else
+            "  (NOT the outcome section 7 predicts -- a finding about the "
+            "coupling, reported as one)"))
+    vq, qn = g_patchpair(u1_cold, u2_series)
     lines.extend(qn)
     lines.append("  %s" % vq)
     lines.append("")

@@ -1,13 +1,46 @@
-# A1WRT — WALL-RESOLVED α-TAIL, INCOMPRESSIBLE ONLY — PRE-REGISTRATION **DRAFT**
+# A1WRT — WALL-RESOLVED α-TAIL, INCOMPRESSIBLE ONLY — PRE-REGISTRATION **FROZEN 2026-09-03**
 
-> ## ⚠ THIS IS A DRAFT. IT IS NOT FROZEN.
+*(The filename retains `_DRAFT` so that every existing citation of this document
+by path stays valid. **The file is frozen; the name is a stale label and this
+line is the notice.** A rename would silently break references in
+`LAB_STATE`, the A1WR results record and the parked queue row.)*
+
+> ## ⚠ FROZEN BY COMMIT 2026-09-03. NOT ENQUEUED. NOT LAUNCHED.
 >
-> **NOT FROZEN. NOT ENQUEUED. NOT LAUNCHED. ZERO COMPUTE SPENT.**
-> No md5 manifest is pinned by this file, no queue entry exists, and no solver,
-> container or queue release was performed by the lane that wrote it. The
-> supervisor's §3 check 4 — cap arithmetic and the reproduction-control
-> threshold read personally — is owed **before** this becomes a freeze, and is
-> not delegable. Until then nothing here binds anything.
+> **FROZEN. NOT ENQUEUED. NOT LAUNCHED. ZERO COMPUTE SPENT.**
+>
+> **The freeze is this file's commit sha**, landed together with `a1wrt_read.py`
+> in one commit so the prose and the grading path cannot diverge. **Gates,
+> thresholds, caps and labels are CLOSED from that commit.** Changes land only
+> as dated addenda appended at the foot, which may not alter a gate, a
+> threshold, a cap or a label; the originals above are struck, never rewritten.
+>
+> **INSTRUMENT MANIFEST, PINNED BY THIS FILE:**
+>
+> | instrument | md5 | role |
+> |---|---|---|
+> | `a1wrt_read.py` | `705db5f7e972f6c033cbe303b7a6038f` | **the grading path** — the frozen reader; verify the file that ran IS this file by hashing it against the committed blob |
+> | `a1wrt_fixture.log` | `4f6e870f74790af9238266c7cf10a0d2` | static control fixture (§6); the reader pins this same md5 internally at `a1wrt_read.py:90` |
+> | `a1wr_alpha12_reference.tsv` | `26ce1af0b0e93af5b9f71efdc34446a4` | `G-REPRO`'s A1WR α = 12 reference series; pinned internally at `a1wrt_read.py:93` |
+>
+> **PRE-COMPUTE CONDITION, RE-CHECKED BY EXECUTION IN THE FREEZING SHELL
+> (2026-09-03T18:29Z):** run root `/home/ubuntu/certonomous-runs/A1WRT/`
+> **ABSENT** — `test -e` returned non-zero, and no path matching `*A1WRT*` exists
+> anywhere under `/home/ubuntu/certonomous-runs/`. **That absence is what makes
+> every edit landed in this commit lawful** under `CLAUDE.md` rule 2 limb 1 and
+> `VERIFICATION_CHARTER` §2b: amendments before first compute are legal, and the
+> condition is named and checked rather than asserted.
+>
+> **STILL OWED, AND IT GATES THE ENQUEUE, NOT THE FREEZE:** the supervisor's §3
+> check 4 — the §4.3/§4.4 cap arithmetic and the §3.3/§3.5 control bands read
+> personally, as arithmetic and not as a summary. **It is not delegable.** The
+> queue row is drafted and PARKED OUTSIDE `verification/queue/` until that
+> sign-off. **Enqueueing is not authorisation and no lane launches this item.**
+>
+> **The reader's own controls were driven at freeze time: `--selftest` returns
+> `SELFTEST PASS: 39 controls, both directions, mutation controls included`,
+> rc = 0**, including the four `G-PATCHPAIR` controls Q1–Q4 in their re-anchored
+> form.
 >
 > **The successor is a NEW ITEM on a FRESH RUN ROOT with its OWN budget** —
 > a fresh pre-registration under `VERIFICATION_CHARTER` §2b limb 1.
@@ -109,7 +142,7 @@ queue, needs no petition, and the lesson is recorded afterward.
 |---|---|---|---|---|
 | **U1** `alpha12_symmetry` | `symmetry` | COLD | α = 12 | **cold-vs-continued**, against A1WR's own continued α = 12 (`CL` 1.19079592024, `CD` 0.030665481166). This is `G-REPRO` exactly as §3 registers it, on A1WR's own configuration, unchanged. |
 | **U2** `alpha12_empty` | `empty` | COLD | α = 12 | **`symmetry`-vs-`empty`**, against U1 directly above it. Both COLD, same mesh, same numerics, same operating point, same iteration budget — a true one-variable pair. |
-| **U3** `tail_empty` | `empty` | CONTINUED from U2's converged state, **in the same process as U2** | α = 13…18 | the trustworthy tail |
+| **U3** `tail_empty` | `empty` | CONTINUED from U2's **final** state, **in the same process as U2** | α = 13…18 | the trustworthy tail |
 
 **Eight points, and the eighth is what makes the other seven interpretable.**
 Comparing a cold `empty` α = 12 directly against A1WR's *continued* `symmetry`
@@ -120,7 +153,8 @@ now applied five times.
 
 U2 and U3 are **one process, one container**: `0/` reset from `0.orig` once
 before U2's cold α = 12, then α = 13…18 ascending, each inheriting its
-predecessor's converged state **in memory**. U1 is its own container and its own
+predecessor's final state **in memory** — converged or not; §7 registers that it
+will not be. U1 is its own container and its own
 case tree, because it carries a different mesh boundary file.
 
 **No point is retried, relaxed, re-tuned or dropped**; a point that fails is
@@ -260,29 +294,82 @@ reverse** (`CLAUDE.md` rule 5's permitted direction).
 
 U1 (`symmetry`, cold) against U2 (`empty`, cold). **The like-for-like quantities
 are not the two values at iteration 4,000**, because U1 stops at the cap still
-drifting while U2 is expected to converge and stop early (§7). Comparing those
-two directly would fold U1's own residual-state head-room into the answer and
-call it contamination.
+drifting. Comparing those two directly would fold U1's own residual-state
+head-room into the answer and call it contamination.
 
-**REGISTERED: the comparison is U1's EXTRAPOLATED PLATEAU against U2's CONVERGED
-VALUE** — each solve's own best estimate of its own fixed point. U1's series and
-its geometric fit are published whole so the extrapolation can be checked.
+**REGISTERED: the comparison is U1's EXTRAPOLATED PLATEAU against U2's
+EXTRAPOLATED PLATEAU, both computed by the IDENTICAL frozen `plateau()` routine
+in `a1wrt_read.py`** — each solve's own best estimate of its own fixed point,
+and both the same kind of estimate of the same kind of quantity. Both series and
+both geometric fits are published whole so either extrapolation can be checked.
+
+> **⚠ RE-ANCHORED 2026-09-03, BEFORE ANY COMPUTE, ON THE SUPERVISOR'S RULING.**
+> An earlier form of this section compared U1's extrapolated plateau against
+> **U2's *converged* value**. §7 now registers that **the `empty` units are
+> expected NOT to converge** — `primalMaxRes` never contained `U2` to begin
+> with. Under that registration the old anchor made `G-PATCHPAIR` return
+> `NOT A RESULT` on **the outcome this item itself predicts**: a gate cannot be
+> anchored on the outcome its own registration expects, because it can then
+> never fire. A plateau is available from a drifting series and from a converged
+> one alike, so the plateau-vs-plateau form **returns a real verdict on both
+> outcomes**. U2's convergence state is still read and printed beside the
+> verdict; it no longer decides whether the gate can fire. The prose and the
+> reader were changed together, in the same commit, before the first primal.
 
 **The registered prediction, written before the run — and it is the boring one:**
 CL and CD are **unchanged** between `symmetry` and `empty` to within the
-extrapolation's own error, and **the only change is that the `empty` solve
-converges**, because with two solution directions there is no z-momentum equation
-to assemble and therefore no `U2` residual to floor. **It converges because the
-equation that floored is gone, not because anything was tuned. No tolerance is
-relaxed and `endTime` is not raised.**
+extrapolation's own error. **No tolerance is relaxed and `endTime` is not
+raised.**
 
-**The thresholds, anchored on measurement rather than on round numbers:**
+> **⚠ STRUCK 2026-09-03, BEFORE ANY COMPUTE. The sentence below stood here and
+> is FALSIFIED. It is struck in place rather than rewritten, because this
+> document registered both it and its withdrawal (§7) and the two contradicted
+> each other on the page.**
+>
+> ~~"and **the only change is that the `empty` solve converges**, because with
+> two solution directions there is no z-momentum equation to assemble and
+> therefore no `U2` residual to floor. **It converges because the equation that
+> floored is gone, not because anything was tuned.**"~~
+>
+> **Why it is false:** `primalMaxRes` **excludes the z-component of a vector
+> equation**, so removing the z-momentum equation removes a residual that was
+> **never in the convergence criterion**. Verified by the supervisor personally
+> on D19T's own logs, with no source read required: in
+> `/home/ubuntu/certonomous-runs/CURRICULUM-D19T-a1-naca0012-shape7-primal-tightening/`,
+> arm T10's `U2` residual **floor** is **1.7164e-10 — 1.72× ABOVE its own 1e-10
+> tolerance**, so `U2`'s best value over the whole run never reached tolerance,
+> and yet T10 **declared convergence 22 times at ~9.0e-11**. A maximum over a
+> set cannot fall below the minimum ever attained by a member, so `U2` is not a
+> member of the declared quantity. The binding channel in D19T's converging arms
+> is `he` and the declared number **is** its floor (T08: `he` 9.0893e-09 vs
+> declared 9.0871e-09; T10: `he` 9.0350e-11 vs declared 9.0384e-11 — four
+> significant figures, both arms). **The patch repair is still correct — a
+> `symmetry` bounding plane on a one-cell mesh assembles a spurious equation and
+> that is a genuine defect — but it must not be sold as the thing that makes the
+> solve converge.** §7 carries the full withdrawal and the projection.
+
+**The thresholds, RE-SET 2026-09-03 with the re-anchor above, BEFORE ANY
+COMPUTE.** The comparison is now **two-sided** — a plateau on each side — so it
+carries the extrapolation's own error **twice**, once per side. The old bands
+were sized for a one-sided comparison and are superseded here:
+
+```
+plateau-extrapolation sensitivity, MEASURED (§3.3):   +-4.9e-05 relative
+two sides, each carrying it, doubled as the old band was:
+        2 x ( 4.9e-05 + 4.9e-05 )  =  1.96e-4   ->  rounded up to  2.0e-4
+the 10x ratio between the two bands is preserved:        2.0e-4 x 10  =  2.0e-3
+```
+
+**These two numbers are the SUPERVISOR'S CONSTRUCTION (dafoam-supervisor,
+2026-09-03), and they are `DERIVED` from a MEASURED sensitivity — they are NOT
+themselves measured.** The measured input is the ±4.9e-05 of §3.3; everything
+from there to 2.0e-4 is the arithmetic printed above.
 
 | band | verdict | anchor |
 |---|---|---|
-| **\|Δ/x\| ≤ 1.0e-4** | **NOISE** — the repair does not move the coefficients | the plateau extrapolation's own sensitivity: CL's geometric ratio is 0.8681 and CD's is 0.9440, so a ±0.02 error in r moves the remaining term by ≈ ±25 %, i.e. **≈ ±4.9e-05 relative** on CL. The band is that, doubled. |
-| **1.0e-4 < \|Δ/x\| ≤ 1.0e-3** | **INDETERMINATE** — reported, neither cleared nor called contamination | between the extrapolation's error and the residual-state head-room; the instrument cannot separate them |
-| **\|Δ/x\| > 1.0e-3** | **⚠ CONTAMINATION, AND IT IS THE FINDING** | **5.1× the MEASURED residual-state head-room of 1.947e-04** (§3.3), so larger than any iteration-state effect can explain |
+| **\|Δ/x\| ≤ 2.0e-4** | **NOISE** — the repair does not move the coefficients | the plateau extrapolation's own sensitivity: CL's geometric ratio is 0.8681 and CD's is 0.9440, so a ±0.02 error in r moves the remaining term by ≈ ±25 %, i.e. **≈ ±4.9e-05 relative** on CL. **DERIVED** by the arithmetic above: that error on **both** sides, doubled, = 1.96e-4, rounded up. |
+| **2.0e-4 < \|Δ/x\| ≤ 2.0e-3** | **INDETERMINATE** — reported, neither cleared nor called contamination | between the two-sided extrapolation error and the residual-state head-room; the instrument cannot separate them. The 10× ratio is carried over unchanged. |
+| **\|Δ/x\| > 2.0e-3** | **⚠ CONTAMINATION, AND IT IS THE FINDING** | **10.3× the MEASURED residual-state head-room of 1.947e-04** (§3.3), so larger than any iteration-state effect can explain |
 
 **If it lands in the third band the finding is large and its reach is stated in
 advance: it would touch every incompressible number this ladder has produced on
@@ -344,16 +431,22 @@ own deadline (§4.4).
 $0.0513/core-h; `cost_basis` **REPORTED-BY-OWNER** — the box cannot read its own
 billing (`COMPUTE_BUDGET_CHARTER.md` §5).
 
-**Every point is priced at the FULL 4,000 iterations, which is deliberately
-conservative for the `empty` units.** §7 registers that they are expected to
-*converge* and therefore to stop early — possibly well before 4,000. **That
-saving is NOT taken in advance**: an estimate that banks a predicted improvement
-is an estimate arguing for its own hypothesis. If the `empty` units do stop
+**Every point is priced at the FULL 4,000 iterations.** *(Corrected 2026-09-03,
+before compute: this paragraph previously called that "deliberately conservative
+for the `empty` units" on the ground that "§7 registers that they are expected to
+converge and therefore to stop early". **§7 now registers the opposite** — the
+`empty` units are expected NOT to converge, because `primalMaxRes` never
+contained `U2`. Pricing at the full 4,000 is therefore the **expected** case, not
+a conservative one, and the estimate below is unchanged in every figure: what
+changes is that it no longer claims head-room it will not get.)* **No saving is
+taken in advance**: an estimate that banks a predicted improvement is an estimate
+arguing for its own hypothesis. If the `empty` units nevertheless **do** stop
 early, the actual/predicted ratio comes in low and **that is reported at
 calibration as a favourable misprediction with its cause named**, not quietly
-absorbed. The `empty` solve also drops one momentum equation per iteration, which
-should make it cheaper per iteration; **that is UNMEASURED on this mesh and no
-credit is taken for it either.**
+absorbed — and it is also a finding about the coupling (§7). The `empty` solve
+also drops one momentum equation per iteration, which should make it cheaper per
+iteration; **that is UNMEASURED on this mesh and no credit is taken for it
+either.**
 
 **The term most likely to carry the error is the tail-stiffening allowance**, and
 it is named in advance, exactly as A1WR §7.5 named its own iteration-scaling
@@ -549,7 +642,7 @@ absorbed into the ratio.
 |---|---|---|
 | `G-COLDSTART` | every field of `0/` read back from disk and asserted `uniform` **before** the first primal | refuse (exit 2) on any nonuniform field — A1WR's mixed `0/` is the precedent |
 | `G-PATCH` | §2.2 — the patch identity ACTUALLY IN FORCE: mesh `boundary` types, every `0.orig/` field's entry on those patches, and the solver's own `Mesh has N solution (non-empty) directions` line | refuse (exit 2) unless U1 prints **3 (1 1 1)** and U2/U3 print **2 (1 1 0)**. **The defect reduced to one line the solver prints about itself** |
-| `G-PATCHPAIR` | §3.5 — U1's extrapolated plateau vs U2's converged value, CL and CD | ≤ 1.0e-4 NOISE; ≤ 1.0e-3 INDETERMINATE, reported; > 1.0e-3 **CONTAMINATION and it is the finding** |
+| `G-PATCHPAIR` | §3.5 — U1's extrapolated plateau vs **U2's extrapolated plateau**, both through the identical frozen `plateau()`, CL and CD | ≤ **2.0e-4** NOISE; ≤ **2.0e-3** INDETERMINATE, reported; > **2.0e-3** **CONTAMINATION and it is the finding**. **RE-ANCHORED 2026-09-03 (§3.5):** the old plateau-vs-*converged-value* form returned `NOT A RESULT` on the non-convergence §7 predicts — a gate anchored on its own registration's expected outcome can never fire. Both outcomes now yield a verdict; U2's convergence state is printed beside it |
 | `G-REPRO` | §3, both limbs R1 and R2, bands registered above | inside → `CORROBORATED`; R2 outside → tail labels withdrawn, `NOT A RESULT`; control absent → `NOT A RESULT` on the control |
 | `G-COMPLETE` | rule 4, **all** clauses: rc 0, `End` line, last time == `endTime`, fields present, `ExecutionTime` count == `endTime`, every field newer than the case's own datum | refuse (exit 2) rather than degrade, and **the distinction is registered**: a clause the reader CAN evaluate and that fails is a `GATE FAIL`; a clause it CANNOT evaluate is a REFUSAL. *(An earlier draft justified this gate by claiming A1WR had never implemented `G-COMPLETE`. **That claim was FALSE and is withdrawn** — see §5.1. The gate is implemented here because a single grading path is easier to audit than two, not because A1WR lacked one.)* |
 | `G-CAPS` | **arithmetic, not prose**: measured core-min per unit against the 768 cap, computed by the reader and printed | cap-stop ⇒ `NOT A RESULT` on the affected points. *(The same withdrawn claim applied here; A1WR enforces its cap in `a1wr_chain_driver.sh`. See §5.1.)* |
@@ -693,20 +786,82 @@ them on this very mesh, image and solver.
   *expected to converge*, because removing the z-momentum equation removes the
   `U2` residual that floors. **That premise is FALSE, and the source says so.**
 
-  `primalMaxRes` is **not** the max over the velocity components. For vector
-  fields `DAUtility.C:762-790` **sorts the three components and takes the
-  MEDIAN**, and the source comment says it exists precisely *"because we often
-  need to run 2D simulations with symmetry BC, so one component of the residual
-  vector … may be high while the other two components' residuals are low."*
-  So `primalMaxRes` = max( **MEDIAN**(U0,U1,U2), p, nuTilda ), and **`U2` never
+  `primalMaxRes` is **not** the max over the velocity components. **`U2` never
   entered the convergence criterion at all** — from α = 2 upward it is the
-  *largest* of the three and the median discards it.
+  *largest* of the three components, and the criterion discards it.
 
-  **MEASURED on A1WR, the binding channel is `nuTilda` at 8 of 14 points and the
-  median-of-`U` at 6. `U2` binds at NONE.** Projecting the `empty` case by
-  removing `U2` from the median gives `primalMaxRes` of **1.02e-08 … 2.80e-07
-  across α 1…13 — every value still ABOVE 1.0e-8**, the closest being α = 1 at
-  1.0182e-08, a factor of 1.02.
+  **THE EVIDENCE, IN TWO INDEPENDENT FORMS, AND THEY ARE NOT OF EQUAL STANDING:**
+
+  1. **BEHAVIOURAL, AND IT NEEDS NO SOURCE AT ALL — this is the load-bearing
+     one.** On D19T
+     (`/home/ubuntu/certonomous-runs/CURRICULUM-D19T-a1-naca0012-shape7-primal-tightening/`)
+     arm T10's `U2` **floor** over the whole run is **1.7164e-10, i.e. 1.72×
+     ABOVE its own 1e-10 tolerance**, and that arm nevertheless **declared
+     convergence 22 times at ~9.0e-11**. A maximum over a set cannot fall below
+     the minimum ever attained by a member, so **`U2` is not a member of the
+     declared quantity.** Corroborated on the binding channel: in D19T's
+     converging arms the declared number **is** `he`'s floor to four significant
+     figures (T08 `he` 9.0893e-09 vs declared 9.0871e-09; T10 `he` 9.0350e-11 vs
+     declared 9.0384e-11). **Verified by the supervisor personally, from logs
+     that are on disk and will stay there.**
+  2. **SOURCE-LEVEL, AND ITS CITATION IS WEAKER THAN ITS CONTENT.** The vector
+     branch builds `scalarList initResList = {initRes[0], initRes[1],
+     initRes[2]}`, calls `sort(initResList)`, and tests **`initResList[1]` — the
+     MEDIAN of the three** — against `primalMaxRes`; the comment beside it says
+     it exists precisely *"because we often need to run 2D simulations with
+     symmetry BC"* so that *"one component of the residual vector … may be high
+     while the other two components' residuals are low."* So
+     `primalMaxRes` = max( **MEDIAN**(U0,U1,U2), p, nuTilda ).
+     **Read at source by this lane, not relayed**, in
+     `src/adjoint/DAUtility/DAUtility.C` (comment at :775-779, `sort` at :784,
+     the median test at :786-788), **md5 `d5fb5b0a781b11a780133901a8c2241c`,
+     863 lines.**
+     **⚠ AND THE HONEST LIMIT ON THAT CITATION: the file is NOT in this
+     repository and NOT anywhere durable on this box.** The only host-visible
+     copy is an extraction under the session scratchpad, which `CLAUDE.md`
+     rule 13 forbids this document to cite and which has been wiped three times
+     in a day. Its durable home is **inside the pinned image
+     `dafoam-idwarp-rot:v1`, `sha256:2927768a16ac…`**, whose absolute in-image
+     path this lane did **not** verify, because verifying it means invoking
+     `docker` and this item's lane is forbidden to. **The md5 above is what a
+     successor re-checks against; the line numbers are this lane's read of that
+     md5 and nothing else.** *(The earlier citation `DAUtility.C:762-790` in
+     this document was a different lane's line numbering and did not match the
+     bytes; it is replaced by the md5-anchored form above.)* **Limb 1 does not
+     depend on any of this, and the registration below rests on limb 1.**
+
+  **MEASURED on A1WR's `sweep_I` log by this lane, re-derived independently for
+  this freeze.** Binding channel **at each point's LAST print step** (the
+  definition matters and is stated so the count is checkable):
+  **`nuTilda` at 7 of the 14 points, the median-of-`U` at 7, `p` at NONE, and
+  `U2` at NONE.** `U2` **is** the largest of the three `U` components at
+  **12 of the 14** points — every point except α = 0 and α = 1 — and the median
+  discards it at all twelve. *(An earlier draft of this line read "`nuTilda` at
+  8 of 14 points and the median-of-`U` at 6". **Corrected here before compute:**
+  the measured split is 7 and 7. The claim that `U2` binds at NONE, which is the
+  one the registration rests on, is unaffected and is confirmed.)*
+
+  Per-α projection of the `empty` case, taking the z-residual to zero so the
+  median of `{0, U0, U1}` becomes `min(U0,U1)`, i.e.
+  `primalMaxRes` → max( min(U0,U1), p, nuTilda ):
+
+  | α | projected `primalMaxRes` (`empty`) |
+  |---|---|
+  | **1 — the closest to tolerance** | **1.0182e-08** (a factor of **1.02**) |
+  | 2…11 | 1.12e-08 … 1.59e-08 |
+  | **12 — the largest of α 1…12** | **2.7954e-08** |
+  | 0 | 2.2632e-07 |
+  | **13 — killed at 2,500 of 4,000 iterations, 26 print steps not 41** | **4.1455e-07** |
+
+  **Across α 1…12 the projection runs 1.0182e-08 … 2.7954e-08, and EVERY ONE OF
+  ALL FOURTEEN POINTS IS ABOVE 1.0e-8.** *(An earlier draft of this line read
+  "1.02e-08 … 2.80e-07 across α 1…13". **Two errors, both corrected here before
+  compute:** the upper end was a decade wrong — 2.80e-07 for 2.7954e-**08** —
+  and the range was labelled α 1…13 when α = 13's own projection is 4.1455e-07,
+  outside the interval quoted. Fixing only the decade would have made the line
+  false in a new way, which is why the whole line was re-measured rather than
+  patched. α = 0 at 2.2632e-07 is likewise outside the quoted range and is
+  stated separately.)*
 
   **REGISTERED, THEREFORE: U2 AND U3 ARE EXPECTED *NOT* TO CONVERGE EITHER.**
   The patch repair is still correct — a `symmetry` bounding plane on a one-cell
@@ -717,8 +872,9 @@ them on this very mesh, image and solver.
   **The honest projection is registered as a projection**: it assumes the other
   channels are unchanged by the patch swap, which they will not be exactly, since
   removing an equation changes the coupled system. The margins are factors of
-  1.02–28, not orders, so the swap alone is very unlikely to drop every channel
-  below 1e-8. **If the `empty` units DO converge, that is a finding about the
+  **1.02–41.5** above 1e-8 (α = 1 at the tight end, α = 13 at the loose), not
+  orders at the tight end, so the swap alone is very unlikely to drop every
+  channel below 1e-8. **If the `empty` units DO converge, that is a finding about the
   coupling and is reported as one** — it is not the outcome this document
   predicts.
 
@@ -755,17 +911,29 @@ them on this very mesh, image and solver.
 
 ---
 
-## 8. OWED BEFORE FREEZE
+## 8. OWED — WHAT THE FREEZE SETTLED AND WHAT IT DID NOT
 
-1. **Supervisor's §3 check 4, personally**: the §4.3/§4.4 cap arithmetic and the
-   §3.3 reproduction-control bands, read as arithmetic and not as a summary.
-2. The driver, run-script staging and **reader** written, with `G-COMPLETE` and
-   `G-CAPS` implemented **in this item's reader** (§5) and `G-FIXTURE` enforced
-   (§6), every control driven and its selftest passing, then md5-pinned by the
-   freeze. *(Implemented in the reader for auditability, NOT because A1WR lacked
+**Updated at the freeze commit, 2026-09-03. `[DONE]` items were executed and
+their evidence is named; `[OWED]` items gate the ENQUEUE, not the freeze.**
+
+1. **`[OWED — AND IT IS THE ONE THAT GATES THE QUEUE] Supervisor's §3 check 4,
+   personally**: the §4.3/§4.4 cap arithmetic and the §3.3/§3.5 control bands,
+   read as arithmetic and not as a summary. **Not delegable, and a lane's
+   arithmetic is not a substitute for it.** The queue row is drafted and PARKED
+   outside `verification/queue/` until this lands.
+2. **`[DONE]`** The **reader** written, with `G-COMPLETE` and `G-CAPS`
+   implemented **in this item's reader** (§5) and `G-FIXTURE` enforced (§6).
+   Every control driven: `python3 a1wrt_read.py --selftest` →
+   **`SELFTEST PASS: 39 controls, both directions, mutation controls
+   included`, rc = 0**. md5-pinned by the manifest in §0.
+   *(Implemented in the reader for auditability, NOT because A1WR lacked
    them — §5.1 withdraws that claim.)*
-3. Run root `/home/ubuntu/certonomous-runs/A1WRT/` re-checked absent **in the
-   freezing shell**.
+   **`[OWED]` the driver and run-script staging are NOT written**; they are not
+   part of this freeze and carry no gate, threshold, cap or label of their own.
+3. **`[DONE]`** Run root `/home/ubuntu/certonomous-runs/A1WRT/` re-checked
+   **ABSENT by execution in the freezing shell** at 2026-09-03T18:29Z — see the
+   §0 banner. This is the condition under rule 2 limb 1 that made the freeze's
+   own edits lawful.
 4. Mesh, image and instrument md5s re-verified against the A1WR manifest in that
    same shell.
 5. Queue entry drafted so the run is durable by construction — the deadline lives
