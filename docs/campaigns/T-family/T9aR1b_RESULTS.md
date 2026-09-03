@@ -1,7 +1,29 @@
 # T9a-R1b (`W1b`) results — layered 1-D conduction, HARMONIC interface scheme, interface temperature
 
+> ## SUPERSEDED VERDICT — READ THIS FIRST (2026-09-03)
+>
+> **THE RUNG VERDICT BELOW IS SUPERSEDED. R1 READS `NOT A RESULT` ON ITS ROACHE
+> LIMB.** `VERIFICATION_CHARTER.md` **§2g** (Amendment v1.16, 2026-08-27, `:2590`)
+> ruled on this exact row and **REFUSED** the pre-registered floor exception this
+> record's §5 relies on, on standing rule 5's own one-way sentence. The remedy it
+> prescribes is at `VERIFICATION_CHARTER.md:2643` — *"The row reads `NOT A RESULT`
+> on its Roache limb — rule 5 unexcepted."*
+>
+> **THE MEASUREMENT IS PRESERVED AND IS NOT DISCARDED** (`:2644`): the deviation
+> is **2.899e-12 K against a registered 1.000e-06 K floor**, and the three levels
+> agree to 12 significant figures. A `NOT A RESULT` hides no measurement.
+>
+> **The frozen artifact `verification/runs/T-family/T9aR1b_runs/gate_t9aR1b.json`
+> was NOT edited** (standing rule 6): its `"verdict": "PASS"` cell stands as
+> written and is superseded, not rewritten. The companion record is
+> `verification/runs/T-family/T9aR1b_runs/T9aR1b_R1_COMPANION_RECORD_2026-09-03.md`.
+> The struck text below is preserved as originally written; see AMENDMENT 1 at the
+> foot.
+
 Graded 2026-08-27 by the frozen comparator at three levels.
-**RUNG VERDICT: `PASS` — one of one GRADED row PASS.**
+**~~RUNG VERDICT: `PASS` — one of one GRADED row PASS.~~ SUPERSEDED 2026-09-03 —
+`NOT A RESULT` on R1's Roache limb (§2g). NO GRADED ROW CARRIES A VERDICT ON THIS
+RUNG.**
 
 **The census is over GRADED rows only (D534).** `R0` (`q_hot`) is a **`REPORTED`
 row class, not a verdict**, and is excluded from the tally and named here rather
@@ -77,7 +99,15 @@ note, started_utc, ended_utc` — absent → NOTE, grade proceeds.
 
 | row | c | m | f | exact | deviation | band | triple | verdict |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
-| **R1** `T_i1` | 348.781082399 | 348.781082399 | 348.781082399 | 348.781082399 | **2.899e-12 K** | **1.000e-06 K** (absolute floor) | **EXACT** | **PASS** |
+| **R1** `T_i1` | 348.781082399 | 348.781082399 | 348.781082399 | 348.781082399 | **2.899e-12 K** | **1.000e-06 K** (absolute floor) | **EXACT** | **~~PASS~~ → `NOT A RESULT`** (§2g, 2026-08-27) |
+
+> **THE VERDICT CELL IN THE ROW ABOVE IS SUPERSEDED.** The `PASS` is struck and
+> reads **`NOT A RESULT`** on the Roache limb, per
+> `VERIFICATION_CHARTER.md:2643`. **The value, the deviation, both level
+> differences and the null order/GCI are unchanged and are REPORTED** — 2.899e-12 K
+> against a 1.000e-06 K floor, `e21` −2.842e-13, `e32` +3.240e-12, order `null`,
+> GCI `null`. The paragraphs that follow argue for the exception that §2g refused;
+> they are preserved as written, and they no longer state this rung's label.
 
 **Standing rule 5 (2) names `EXACT` among the states that make a row
 `NOT A RESULT`. This row is graded `PASS` instead, under a rule registered
@@ -163,3 +193,78 @@ excess has vanished** under the harmonic scheme, to within 3e-12 relative.
   not fire and was not repaired.
 - No frozen file edited (rule 6). **Nothing sent, filed, uploaded, posted or
   registered outside this box** (rule 7).
+
+---
+
+## AMENDMENT 1 — 2026-09-03: THE `PASS` IS SUPERSEDED. R1 READS `NOT A RESULT` ON ITS ROACHE LIMB
+
+**Nothing above this section was deleted or rewritten; the original verdict line
+and the original §5 table cell are STRUCK IN PLACE and their surrounding argument
+is preserved verbatim.** Two struck cells and two inserted notices were added
+above; the sections' own text is otherwise unchanged.
+
+### A1.1 The ruling
+
+`docs/charters/VERIFICATION_CHARTER.md` **§2g**, Amendment v1.16, 2026-08-27
+(`:2590`), answered the referral this record made in its own §5 — *"whether
+standing rule 5 (2) should carry a registered-floor exception for
+provably-degenerate triples is a standing-rule question above this lane"*.
+
+**The answer is no.** `VERIFICATION_CHARTER.md:2606-2607`, verbatim:
+
+> **A pre-registration fixes the gate, threshold, cap and label FOR ITS CASE. It has no power to
+> disapply a standing rule, and an exception to one is void however early it was frozen.**
+
+`CLAUDE.md` standing rule 5's last sentence — *"The gate can only turn a `PASS` or
+`GATE FAIL` **into** `NOT A RESULT`, never the reverse"* — is decisive on its own.
+An exception that yields `PASS` where clause (2) yields `NOT A RESULT` runs the
+gate backwards.
+
+**Standing rule 2 is clean and was never in question.** The exception was frozen
+at `3c39d08d`, 2026-08-26T21:18Z, against first compute at 2026-08-27T08:54:19Z.
+Freezing early proves the exception was not chosen to fit the answer; §2g holds
+that it does not confer the authority to write the exception.
+
+### A1.2 What changes, and what does not
+
+**ONE CELL MOVES.** R1's Roache-limb verdict: **`PASS` → `NOT A RESULT`**.
+
+Unchanged: the completion finding (§2, three of three arms, rc 0); every control
+(§4); the `R0` `REPORTED` row (§6); the cost record (§8); the latent
+completion-checker defect referred in §3; and **every number in §5's table**.
+
+**The measurement is REPORTED beside the refusal, per `VERIFICATION_CHARTER.md:2644`
+— a `NOT A RESULT` hides no measurement:** deviation **2.899e-12 K** against a
+registered **1.000e-06 K** floor; `e21` **−2.842e-13**, `e32` **+3.240e-12**;
+observed order **null** and GCI **null**, both correctly refused, because
+`p = ln|e32/e21| / ln r` on two round-off differences is noise divided by noise.
+
+### A1.3 The census, restated
+
+**RUNG VERDICT: `NOT A RESULT` — the rung's ONE graded row is `NOT A RESULT` on
+its Roache limb.** `R0` is a `REPORTED` row class (D534) and was never in the
+census. **This rung carries no `PASS`.**
+
+### A1.4 The frozen artifact was NOT edited
+
+`verification/runs/T-family/T9aR1b_runs/gate_t9aR1b.json` still reads
+`"verdict": "PASS"` in its own bytes and **is deliberately left that way**
+(standing rule 6: a graded artifact is not rewritten to match a later ruling).
+The dated companion record beside it —
+`verification/runs/T-family/T9aR1b_runs/T9aR1b_R1_COMPANION_RECORD_2026-09-03.md`
+— names the artifact, quotes §2g by charter line, states the superseded cell and
+preserves the measurement. The `T9aR1b` row of
+`docs/campaigns/T-family/T_FAMILY_INDEX.md` carries the same correction, so no
+path a reader can take to this number arrives without the ruling attached.
+
+### A1.5 What §2g leaves open, stated rather than glossed
+
+§2g.3 names the remedy: a successor registering a **floor demonstration** with
+its own gate, which **can** `PASS` without touching rule 5.
+`VERIFICATION_CHARTER.md:2800` records the ruling that **`PASS` is available to
+T9a-R1c's floor limb**. **`T9aR1c` carries no `*_RESULTS.md` and therefore no rung
+verdict at this writing**; this amendment supplies none and none should be
+inferred.
+
+**No compute was run for this amendment. No frozen file was edited. Nothing was
+sent, filed, uploaded, posted or registered outside this box (rule 7).**
