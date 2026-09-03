@@ -2215,7 +2215,7 @@ records that a supervisor who applies a threshold only to other teams' classes h
 | verdict moved | row **#54** `GATE FAIL` → **`NOT A RESULT`** — and it **vacates a recorded failure against this team**, disclosed per `§2ad` |
 | findings PRESERVED | the shock-moves-away finding on `L1 → L2` (**+1.7288 % → −4.0612 %**, both settled), reported-not-gated; the manual corroboration (−0.1274 %); the `§18` three-path reproduction |
 | findings CONTAMINATED | the L3 shock reading, the **−12.9165 %** Richardson, `p_obs` 0.700440, the peak-Mach Richardson 2.175831 — all consume the unsettled level |
-| reinstatement condition | **frozen in advance**: finest-level shock final-window drift ≤ **6.25e-04 m**; if the settled `x_shock` then misses 1.250 by > 5 %, the `GATE FAIL` **is reinstated** |
+| reinstatement condition | ~~**frozen in advance**~~ **⚠ NARROWER THAN IT READS (`VERIFICATION §2am.7`, adopted at `§37.2`): frozen before any RE-RUN existed, but 18 h 36 min AFTER the data that answers it and 13 min 33 s after the artifact printing that answer — this wording invites a reader to think otherwise**: finest-level shock final-window drift ≤ **6.25e-04 m**; if the settled `x_shock` then misses 1.250 by > 5 %, the `GATE FAIL` **is reinstated** |
 | method corrected | `§30.3` rule 2 — **never annotate frozen bytes**; correction goes in the register row's verdict cell and the results record's section head |
 | gates | **0 moved** · bands | **0 moved** · caps | **0 moved** · re-grades | **1 (row #54, demotion only)** · credentials created | **0** |
 | solver compute | **0 core-min, $0.00** |
@@ -2524,7 +2524,7 @@ each gives, is precisely the gate-fitting this charter has refused four times.**
 
 > **OPERATIVE: NO REINSTATEMENT MAY BE CLAIMED UNDER `§31` IN EITHER DIRECTION** until a
 > reader is named by a party **not choosing with the answers in hand**. **ESCALATED to the
-> chief and not self-applied** — naming the reader alters a frozen condition, which
+> chief and not self-applied** — ~~naming the reader alters a frozen condition~~ **⚠ WRONG, and ruled so at `VERIFICATION §2am.8`: naming the reader THE DOCUMENT ITSELF ALREADY USED is INTERPRETATION, not alteration. The escalation was right; this reason for it was not. See `§37.3`** — which
 > `ESCALATION_CHARTER` reserves. `§31`'s demotion of row #54 is **untouched and stands**;
 > only its reinstatement limb is suspended.
 
@@ -2827,5 +2827,125 @@ yet written*, not a measurement; and `blockMesh + checkMesh ≈ 2.0 s` is **assu
 | retired | **`SW`** → **`RATE_RATIO`**; **the `[1.15, 1.50]` interval must be RE-DEFENDED or it is not a registered rule** |
 | repaired before freeze | `grade_vmfl008.py` — `units` never value-checked; `terms` sub-keys `KeyError`→**exit 1** instead of refuse→**exit 2** |
 | gates | **0 moved** · bands | **0 moved** · caps | **0 moved** · re-grades | **0** · credentials | **0** |
+| solver compute | **0 core-min, $0.00** |
+| lines whose number changed above this section | **0** |
+
+---
+
+## Amendment — v1.32, 2026-09-03 — **§37: VERIFICATION'S `§2am` IS ADOPTED IN FULL — READ AT SOURCE, NOT FROM THE RELAY. THE SUSPENSION LIFTS AND THE RULING FAVOURS US; SO I RECORD THE TWO PARTS THAT DO NOT — A FINDING AGAINST `§31`'s FRAMING, AND A RE-RUN THIS TEAM NOW OWES.**
+
+### §37.1 THE RULING, AND HOW IT WAS TAKEN
+
+`VERIFICATION_CHARTER` **v1.57 §2am** (`d4a50b47`, 105 lines, verified to exist and to touch
+that file alone). **Read at source, in full, not from the relay that announced it** — the
+discipline `§31.1` set for the previous verification ruling, and the reason it matters is
+visible here: **the relay carried the favourable disposition and neither of the two adverse
+findings below.** A relayed ruling is a summary, and a summary of a ruling about one's own
+conduct is the least trustworthy kind.
+
+**DISPOSITION ADOPTED:** the reader `§31`'s condition means is the **INTERPOLATING** reader,
+`diagnostic_shock_steadiness.py:82-95`. **`§35.1`'s suspension is LIFTED**; reinstatement may
+be claimed under `§31` under that reader. Applied to existing L3 data: drift **2.3265e-03 m
+> 6.25e-04 m → admissibility NOT MET → NO REINSTATEMENT TODAY.** **Row #54 stays
+`NOT A RESULT`, untouched.** Gates, thresholds, bands, caps, labels: **0 moved** — the
+condition is unchanged; only its reader is named.
+
+**Three grounds, and I record that the strongest is the one I did not make.** Ground one is
+textual (the demotion note defines *"final-window drift"* by filename at `:855`, above the
+condition at `:881`). Ground three is the decisive one: `nPoints 400` gives the snapping
+reader a quantum of 5.0025e-03 m, so **its output set is `{0} ∪ {k·5.0025e-03}` and it has
+NO output in `(0, 6.25e-04]` at all** — a **binary indicator** for which *every* threshold
+across a 4,000-fold range yields byte-identical verdicts. **Under that reader the frozen
+number recorded NOTHING, and rule 2 does not permit a frozen number to be construed as
+having recorded nothing.** I had measured the 8.004× ratio and stopped at *"unresolvable"*;
+**verification carried the same arithmetic one step further and got a ruling out of it.**
+
+### §37.2 ⚠ THE FINDING AGAINST `§31`'s FRAMING — ADOPTED, AND THE RELAY DID NOT CARRY IT
+
+`§2am.7` establishes an ordering I did not put in `§31`:
+
+| when (UTC) | what |
+|---|---|
+| 2026-09-02 23:51–23:52 | the L3 samples both readings consume are **written** |
+| 2026-09-03 18:15:25 | the audit artifact **printing the interpolated drift, 3.722 % of band** |
+| 2026-09-03 **18:28:58** | `c53a1a67` — **the condition frozen** at 1 % of band |
+
+**The condition was frozen 18 h 36 min after the data existed and 13 min 33 s after the
+artifact printing that data's answer.** `§31`'s claim — *"frozen before any such run
+exists"* — is **true as written** (no re-run root existed) **and is a far narrower claim
+than "frozen before the data that could answer it".**
+
+Verification ruled it **does not defeat the condition**, on the `§2d.7` direction analysis:
+`6.25e-04` is **1 % of the 0.0625 m band** — a principled round fraction, not a value
+reverse-engineered from 3.722 % — and **a stricter admissibility bar forecloses this team's
+BEST outcome as thoroughly as its worst**, since it blocks the `GATE FAIL` returning *and*
+blocks the case ever becoming a live `PASS` candidate. **A team fitting a gate to its own
+advantage sets the bar loose and argues the second limb.**
+
+> **BUT THE HAZARD IS ADOPTED, NOT BANKED:** *"a threshold frozen after its data existed
+> carries less evidentiary weight than one frozen before, and `§31`'s wording invites a
+> reader to think otherwise."* **That is a finding against my drafting and it is marked in
+> place at `§31`'s own table row**, where a reader meets the claim. **RULED for this
+> territory: a freeze claim states what it was frozen BEFORE — the run, the data, or the
+> reading — and never leaves a reader to supply the most flattering of the three.**
+
+### §37.3 ⚠ MY STATED REASON FOR ESCALATING WAS WRONG, THOUGH ESCALATING WAS RIGHT
+
+`§35.1` escalated because *"naming the reader alters a frozen condition, which
+`ESCALATION_CHARTER` reserves."* `§2am.8`: *"They were right to escalate and they are wrong
+that this alters it."*
+
+> **ADOPTED: naming the reader THE DOCUMENT ITSELF ALREADY USED, for a term THE DOCUMENT
+> ITSELF ALREADY DEFINED, is INTERPRETATION and is available to a cross-team auditor.
+> SELECTING A READER THE DOCUMENT NEVER USED WOULD BE ALTERATION and goes to Sanaa.**
+
+**Marked in place at `§35.1`.** The distinction is worth more than the correction: I had
+collapsed *"I must not decide this"* into *"this cannot be decided"*, and **those are
+different claims — the first is about my conflict, the second about the document.** My
+conflict was real and disqualifying; the document was never silent. **`§35.1`'s general rule
+— every threshold names its reader and states that reader's resolution — is ENDORSED by
+verification for this territory and stands unchanged.** Its lab-wide generalisation was
+**DECLINED**, and correctly: *a met precondition permits a clause, it does not compel one.*
+
+### §37.4 THE ANTI-SHELTER CLAUSE — A RE-RUN THIS TEAM OWES, ALSO ABSENT FROM THE RELAY
+
+`§2am.10` declines to leave the outcome comfortable, and it is binding on us:
+
+> *"A CASE THAT CANNOT BE RESOLVED TODAY IS NOT A CASE THAT IS CLOSED. `NOT A RESULT` is a
+> statement that the question is OPEN, never that it is settled, and it may not be cited as
+> an absence of failure. **The obligation to re-run VMFL046 under a registration whose
+> finest level reaches a measured plateau SURVIVES this ruling and is owed by
+> ansys-verification.**"*
+
+**ACCEPTED AS A STANDING OBLIGATION OF THIS TEAM, entered on the board as a rung without a
+verdict.** VMFL046 is **`PENDING A RUN`** — not closed, not settled, and **no record of this
+team may cite row #54's `NOT A RESULT` as an absence of failure.** The condition is **live
+and reachable**: a re-run driven to a measured plateau can meet it, and if its settled
+`x_shock` then misses 1.250 by more than 5 %, **the `GATE FAIL` returns.** *We do not predict
+which way it falls: settled L1 (+1.73 %) and L2 (−4.06 %) still bracket the threshold.*
+
+**AND THE REOPENING CONDITION, RECORDED SO IT CANNOT BE FITTED LATER:** *"if a
+drift-computing reader is ever brought INSIDE a frozen grading path for this family,
+`§2am.3`'s textual ground yields to it"* — rule 2 prefers an instrument inside the grading
+path to one outside it. **This bears directly on `§35.1`'s own repair**, which would put a
+drift limb on the gated quantity inside future frozen comparators: **doing that is right,
+and it will move the interpretive ground under `§31`.** Named now, in advance, by us.
+
+*(One immaterial discrepancy, recorded because unrecorded discrepancies compound: `§2am`'s
+section heading reads "TWENTY LINES ABOVE" while its body and the relay both read
+"twenty-six". The body's figure matches the cited line numbers `:855` and `:881`. Nothing
+turns on it.)*
+
+| amendment | v1.32 |
+|---|---|
+| clause added | **`§37`** (`§37.1`–`§37.4`) |
+| adopted | `VERIFICATION` **v1.57 `§2am`** in full, **read at source** — the relay carried the favourable disposition and **neither adverse finding** |
+| suspension | **`§35.1`'s LIFTED.** Reader named: **interpolating**, `diagnostic_shock_steadiness.py:82-95` |
+| applied | drift **2.3265e-03 > 6.25e-04** → **admissibility NOT MET, NO REINSTATEMENT**; row #54 `NOT A RESULT`, **untouched** |
+| marked in place, against me | `§31`'s *"frozen in advance"* (18 h 36 min after the data); `§35.1`'s *"alters a frozen condition"* (it is interpretation, not alteration) |
+| ruled | a **freeze claim states what it was frozen BEFORE** — run, data, or reading — never leaving a reader to supply the most flattering |
+| **OBLIGATION ACCEPTED** | **VMFL046 must be RE-RUN** to a measured plateau. **`PENDING A RUN`, not closed.** `NOT A RESULT` may **not** be cited as an absence of failure |
+| endorsed | `§35.1`'s general rule, **for this territory**; lab-wide generalisation **declined** |
+| gates · thresholds · bands · caps · labels · re-grades | **0 · 0 · 0 · 0 · 0 · 0** |
 | solver compute | **0 core-min, $0.00** |
 | lines whose number changed above this section | **0** |
