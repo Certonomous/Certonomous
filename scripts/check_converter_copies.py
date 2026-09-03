@@ -31,7 +31,46 @@ FOUR DESIGN REQUIREMENTS, each answering a way a checker like this fails open:
      `/home/ubuntu/certonomous-runs/`, outside git, in a tree that can be cleaned at any
      time. A checker reporting "no divergence" because a file vanished is the fail-open
      this lab has hunted repeatedly. A known path that disappears is reported as
-     `NOT A RESULT` and exits non-zero.
+     `NOT A RESULT`. Whether that also GATES depends on where it lived -- see next.
+
+THE SEVERITY SPLIT, AND THE GENERAL POINT, WHICH IS WORTH MORE THAN THIS FILE.
+
+  `NOT A RESULT` AND `GATE FAIL` ARE DIFFERENT VERDICTS (CLAUDE.md rule 1), AND MAPPING
+  BOTH ONTO ONE EXIT CODE WAS THE ACTUAL DEFECT.
+
+`GATE FAIL` says a threshold was tested and missed. `NOT A RESULT` says the question was
+never answered. They are separate words in the fixed vocabulary precisely because they are
+separate states of knowledge -- yet this file originally returned exit 2 for both, and
+`lab_check.py`'s `EXIT_CONTRACT` (`lab_check.py:441`) maps 2 to FAIL. So an unmeasured
+thing arrived at the runner wearing the word for a measured failure. The vocabulary was
+right and the channel was one bit too narrow to carry it.
+
+Measured consequence, which is why this was repaired rather than noted: `lab_check.py` is
+the lab-wide runner, and two of the four known copies live outside git. One team cleaning
+its own probe directory would have turned every other team's `lab_check` run FAIL, over a
+file nothing in the repository depends on.
+
+The split, ruled by cfd-supervisor 2026-09-03 under Sanaa's "reported, not gated" default
+(2026-09-03 2000Z, `825285bb`), which gates only where the owner can state "without this,
+the verdict on result X cannot be trusted":
+
+  GATES (exit 2)      -- DIVERGENCE in the canonical lineage, wherever the divergent copy
+                         lives. The owner CAN state it: the three canonical copies are
+                         what RUNG0b's freeze pins, so a RUNG0/RUNG0b mesh-import verdict
+                         cannot be trusted without this.
+  GATES (exit 2)      -- an UNKNOWN copy. A positive finding about a file that EXISTS,
+                         and the exact mechanism by which this defect propagated.
+  GATES (exit 2)      -- a missing copy INSIDE the repository. A tracked file vanishing is
+                         the repository losing a file, not hygiene.
+  REPORTS (exit 0)    -- a missing copy OUTSIDE git. Still `NOT A RESULT`, still printed
+                         in text and in JSON, still impossible to read as clean -- the OK
+                         line is suppressed and the run is stated to be NOT CLEAN. What
+                         changes is only that one team's scratch-tree hygiene no longer
+                         takes down every other team's check.
+
+THIS IS NOT A WEAKENING. Nothing that was detected before goes undetected now; one class
+of finding stops being able to halt work it has no claim over. The instrument's reach is
+unchanged and only its authority is narrowed, to the cases where its owner can defend it.
 
  (d) IT MUST BE INVOKED -- AND THE INVOCATION PATH IS ENUMERATION, NOT A CALL SITE.
      MEASURED 2026-09-03: `scripts/lab_check.py` does not hold a list of checks to call.
@@ -69,6 +108,11 @@ ROOTS = [
 ]
 SKIP_DIRS = {".git", "node_modules", "__pycache__"}
 TARGET = "ugrid_to_foam.py"
+
+# Paths under here are repository files and their ABSENCE GATES. Paths outside it live in
+# a scratch tree and their absence is NOT A RESULT, REPORTED, not gated. See THE SEVERITY
+# SPLIT in the module docstring.
+REPO_ROOT = "/home/ubuntu/Certonomous"
 
 # Paths known to this checker. A path here that is MISSING is NOT A RESULT (requirement c);
 # a copy found that is NOT here is an unknown copy and is a refusal (requirement b).
@@ -121,6 +165,10 @@ class Config:
     known: tuple[str, ...]
     canonical: str
     second_lineage: tuple[str, ...]
+    #: Paths under this prefix are repository files: their absence GATES. Paths outside
+    #: it are scratch-tree files: their absence is NOT A RESULT and is REPORTED, not
+    #: gated. Injected so a fixture can hold both kinds. See THE SEVERITY SPLIT above.
+    repo_root: str = "/home/ubuntu/Certonomous"
     target: str = TARGET
     skip_dirs: frozenset = frozenset(SKIP_DIRS)
 
@@ -128,8 +176,20 @@ class Config:
 def default_config() -> Config:
     """The production configuration -- the real paths on this box."""
     return Config(roots=tuple(ROOTS), known=tuple(KNOWN), canonical=CANONICAL,
-                  second_lineage=tuple(SECOND_LINEAGE), target=TARGET,
-                  skip_dirs=frozenset(SKIP_DIRS))
+                  second_lineage=tuple(SECOND_LINEAGE), repo_root=REPO_ROOT,
+                  target=TARGET, skip_dirs=frozenset(SKIP_DIRS))
+
+
+def _inside_repo(path: str, cfg: Config) -> bool:
+    """True if `path` is a repository file, whose ABSENCE gates.
+
+    The test is a path prefix, not a `git ls-files` call, and that is deliberate: this
+    function is asked about paths that DO NOT EXIST, and git cannot answer for a file it
+    no longer has. A prefix test gives the same answer whether or not the file is there,
+    which is the only kind of answer this question can accept.
+    """
+    r = os.path.abspath(cfg.repo_root)
+    return os.path.abspath(path).startswith(r + os.sep)
 
 
 def ast_self_check(path: str | None = None) -> None:
@@ -197,24 +257,40 @@ def check(cfg: Config | None = None, as_json: bool = False, emit: bool = True):
         "THIS_IS_NOT_A_GRADED_RUN": True,
         "verdict": "NONE -- a consistency check carries no verdict of the fixed vocabulary",
     }
-    problems = []
+    gating = []     # exit 2 -- lab_check maps this to FAIL and it stops the lab
+    reporting = []  # exit 0 -- stated, never silent, but it does not gate
 
-    # (c) a known path that has vanished is NOT A RESULT, never clean.
+    # (c) a known path that has vanished is NOT A RESULT, never clean -- BUT THE
+    # SEVERITY DEPENDS ON WHERE IT LIVED. See THE SEVERITY SPLIT in the module docstring.
     missing = [p for p in cfg.known if not os.path.isfile(p)]
     report["missing_known_copies"] = missing
-    if missing:
-        problems.append(
-            f"NOT A RESULT: {len(missing)} known copy/copies are ABSENT: {missing}. An "
-            f"absent copy is not an absent difference -- it is an unmeasured one. Two of "
-            f"the known copies live outside git under /home/ubuntu/certonomous-runs/, a "
-            f"tree that can be cleaned at any time, so this is the expected way for this "
-            f"check to go blind. It reports NOT A RESULT rather than 'no divergence'.")
+    missing_in = [p for p in missing if _inside_repo(p, cfg)]
+    missing_out = [p for p in missing if not _inside_repo(p, cfg)]
+    report["missing_inside_repo"] = missing_in
+    report["missing_outside_git"] = missing_out
+    if missing_in:
+        gating.append(
+            f"NOT A RESULT: {len(missing_in)} known copy/copies INSIDE THE REPOSITORY are "
+            f"ABSENT: {missing_in}. An absent copy is not an absent difference -- it is an "
+            f"unmeasured one. A tracked file vanishing is not hygiene, it is the "
+            f"repository losing a file, and it GATES.")
+    if missing_out:
+        reporting.append(
+            f"NOT A RESULT: {len(missing_out)} known copy/copies OUTSIDE GIT are ABSENT: "
+            f"{missing_out}. An absent copy is not an absent difference -- it is an "
+            f"unmeasured one, and this check is BLIND to those paths until they return. "
+            f"REPORTED, NOT GATED: they live under a scratch tree that any team may clean "
+            f"at any time, and no owner can state that another team's verdict cannot be "
+            f"trusted because a probe directory was tidied. This is NOT A RESULT about "
+            f"those paths -- it is NOT 'no divergence', and it is NOT clean.")
 
-    # (b) a copy the checker has never seen is a refusal, not a shrug.
+    # (b) a copy the checker has never seen is a refusal, not a shrug. GATES wherever it
+    # lives: an unseen copy is how this defect propagated, and it is a positive finding
+    # about a file that EXISTS, not an absence.
     unknown = [p for p in found if p not in cfg.known]
     report["unknown_copies"] = unknown
     if unknown:
-        problems.append(
+        gating.append(
             f"UNKNOWN COPY/COPIES: {unknown}. A new copy is how this defect propagated in "
             f"the first place -- three of five copies were byte-identical clones. Add it "
             f"to KNOWN deliberately, after deciding which lineage it belongs to.")
@@ -230,12 +306,19 @@ def check(cfg: Config | None = None, as_json: bool = False, emit: bool = True):
         report["lineage_canonical"] = h1
         drift = [p for p, h in h1.items() if h != canon]
         if drift:
-            problems.append(
+            # GATES WHEREVER THE DIVERGENT COPY LIVES, including outside git. The owner
+            # CAN state the sentence the 2000Z ruling requires: the three canonical copies
+            # are what RUNG0b's freeze pins, so without this a RUNG0/RUNG0b mesh-import
+            # verdict cannot be trusted. Divergence is also a positive measurement about
+            # files that are PRESENT -- it is a difference, not a blindness.
+            gating.append(
                 f"DIVERGENCE in the canonical lineage: {drift} do not match "
                 f"{cfg.canonical}. A repair applied to one copy and not the others is "
                 f"exactly the hazard this checker exists for.")
     else:
-        problems.append(f"NOT A RESULT: the canonical converter is ABSENT: {cfg.canonical}")
+        # The canonical converter is a tracked repository file. Its absence gates.
+        gating.append(
+            f"NOT A RESULT: the canonical converter is ABSENT: {cfg.canonical}")
 
     # SECOND LINEAGE. The consistency statement here is EXPLICITLY QUALIFIED BY ITS OWN
     # POWER. With 0 members present there is nothing to compare; with 1 member the
@@ -260,18 +343,40 @@ def check(cfg: Config | None = None, as_json: bool = False, emit: bool = True):
     else:
         if len(set(h2.values())) > 1:
             report["lineage_second_consistency"] = "DIVERGENT"
-            problems.append(
-                f"DIVERGENCE in the second (older, no-sniff_layout) lineage: {h2}. These "
-                f"are deliberately NOT synced to the canonical -- they are a different "
-                f"program -- but they must agree with each other.")
+            # MY EXTENSION OF THE SUPERVISOR'S RULING, FLAGGED AS SUCH SO IT CAN BE
+            # OVERRULED CHEAPLY. The ruling named canonical-lineage divergence as gating
+            # and justified it by RUNG0b's freeze. Nothing pins the second lineage, so I
+            # cannot state the required sentence for it when every present member lives in
+            # a scratch tree -- that is one team's probe hygiene. If any present member is
+            # inside the repository, it gates on the same ground as any tracked file.
+            txt = (f"DIVERGENCE in the second (older, no-sniff_layout) lineage: {h2}. "
+                   f"These are deliberately NOT synced to the canonical -- they are a "
+                   f"different program -- but they must agree with each other.")
+            if any(_inside_repo(p, cfg) for p in present2):
+                gating.append(txt)
+            else:
+                reporting.append(
+                    txt + " REPORTED, NOT GATED: every present member of this lineage "
+                    "lives outside git, and no owner can state that another team's "
+                    "verdict depends on it. This severity is the lane's extension of "
+                    "cfd-supervisor's 2026-09-03 ruling, not the ruling itself.")
         else:
             report["lineage_second_consistency"] = (
                 f"VERIFIED over {len(present2)} members present")
 
+    # `problems` remains EVERY problem, gating or not, so no reader and no caller can get
+    # a shorter list by asking the old question. The exit code is derived from the GATING
+    # list alone.
+    problems = gating + reporting
     report["problems"] = problems
+    report["gating_problems"] = gating
+    report["reporting_only_problems"] = reporting
     report["consistent"] = not problems
-    code = 0 if not problems else 2
+    code = 2 if gating else 0
     report["exit_code"] = code
+    report["gate_status"] = "GATING" if gating else (
+        "NOT GATING -- but NOT CLEAN: see reporting_only_problems" if reporting
+        else "NOT GATING -- nothing to report")
 
     if emit:
         if as_json:
@@ -285,8 +390,16 @@ def check(cfg: Config | None = None, as_json: bool = False, emit: bool = True):
                 mark = "known" if p in cfg.known else "UNKNOWN"
                 print(f"  {sha256(p)[:16]}  {mark:7s} {p}")
             print(f"\nsecond lineage: {report['lineage_second_consistency']}")
-            for pr in problems:
-                print(f"\nREFUSAL: {pr}")
+            for pr in gating:
+                print(f"\nREFUSAL (GATING, exit 2): {pr}")
+            for pr in reporting:
+                print(f"\nNOT A RESULT (REPORTED, NOT GATED, exit 0): {pr}")
+            # A reporting-only finding must never be able to read as a clean run, so the
+            # OK line is printed only when there is NOTHING of either kind.
+            if reporting and not gating:
+                print(f"\nThis run is NOT CLEAN. {len(reporting)} finding(s) above are "
+                      f"NOT A RESULT and are unmeasured, not measured-and-equal. The exit "
+                      f"code is 0 because they do not gate, NOT because nothing was found.")
             if not problems:
                 print("\nOK: all copies accounted for and consistent within their "
                       "lineages, SUBJECT TO the second-lineage qualification above.")
@@ -325,22 +438,36 @@ def _fixture(parent: str):
 
     canon_body = b"# canonical fixture converter\nx = 1\n"
     old_body = b"# older lineage fixture converter, no sniff_layout\ny = 2\n"
-    c1 = w("canon_a", canon_body)
-    c2 = w("canon_b", canon_body)
-    c3 = w("canon_c", canon_body)
-    s1 = w("old_a", old_body)
-    s2 = w("old_b", old_body)
+    # THE FIXTURE STRADDLES THE REPOSITORY BOUNDARY ON PURPOSE. `repo/` stands for
+    # /home/ubuntu/Certonomous and `outside/` for /home/ubuntu/certonomous-runs, so the
+    # severity split can be exercised in BOTH directions rather than asserted.
+    c1 = w("repo/canon_a", canon_body)       # inside the repo, canonical
+    c2 = w("repo/canon_b", canon_body)       # inside the repo, canonical lineage
+    c3 = w("outside/canon_c", canon_body)    # OUTSIDE git, canonical lineage
+    s1 = w("outside/old_a", old_body)        # OUTSIDE git, second lineage
+    s2 = w("outside/old_b", old_body)        # OUTSIDE git, second lineage
     cfg = Config(roots=(tmp,), known=(c1, c2, c3, s1, s2), canonical=c1,
-                 second_lineage=(s1, s2))
+                 second_lineage=(s1, s2), repo_root=os.path.join(tmp, "repo"))
     return cfg, {"c1": c1, "c2": c2, "c3": c3, "s1": s1, "s2": s2}
 
 
-def _fired(code: int, report: dict, needle: str) -> dict:
-    """Grade ONE plant on the SHIPPED `check()`'s own return value."""
-    hits = [p for p in report["problems"] if needle in p]
-    return {"exit_code": code, "n_problems": len(report["problems"]),
+def _fired(code: int, report: dict, needle: str, *, expect_code: int = 2,
+           channel: str = "problems") -> dict:
+    """Grade ONE plant on the SHIPPED `check()`'s own return value.
+
+    `channel` selects which list the finding must appear in, so a plant can require not
+    merely THAT something was found but that it was filed at the right SEVERITY --
+    `gating_problems` vs `reporting_only_problems`. A plant that only checked
+    `problems` would pass whichever way the severity split went, and the severity IS
+    the thing under test.
+    """
+    hits = [p for p in report[channel] if needle in p]
+    return {"exit_code": code, "expected_exit_code": expect_code, "channel": channel,
+            "n_problems": len(report["problems"]),
+            "n_gating": len(report["gating_problems"]),
+            "n_reporting_only": len(report["reporting_only_problems"]),
             "matched": len(hits),
-            "fired": bool(hits) and code == 2}
+            "fired": bool(hits) and code == expect_code}
 
 
 def selftest():
@@ -377,7 +504,8 @@ def selftest():
             fh.write(b"X")
         code, report = check(cfg, emit=False)
         rep["P1_one_byte_flip_in_canonical_lineage"] = _fired(
-            code, report, "DIVERGENCE in the canonical lineage")
+            code, report, "DIVERGENCE in the canonical lineage",
+            expect_code=2, channel="gating_problems")
         rep["P1_one_byte_flip_in_canonical_lineage"]["drifted_paths"] = [
             os.path.relpath(p, t) for p in report.get("lineage_canonical", {})
             if report["lineage_canonical"][p] != report.get("canonical_sha256")]
@@ -390,19 +518,49 @@ def selftest():
         os.makedirs(os.path.dirname(stray), exist_ok=True)
         shutil.copyfile(f["c1"], stray)
         code, report = check(cfg, emit=False)
-        rep["P2_unknown_copy_detected"] = _fired(code, report, "UNKNOWN COPY")
+        rep["P2_unknown_copy_detected"] = _fired(
+            code, report, "UNKNOWN COPY", expect_code=2, channel="gating_problems")
         rep["P2_unknown_copy_detected"]["unknown"] = [
             os.path.relpath(p, t) for p in report["unknown_copies"]]
 
-        # P3 -- a KNOWN copy vanishes. NOT A RESULT, never "no divergence".
+        # P3a -- a known copy INSIDE THE REPOSITORY vanishes. NOT A RESULT, and it GATES:
+        # a tracked file disappearing is the repository losing a file, not hygiene.
+        cfg, f = _fixture(t)
+        os.remove(f["c2"])
+        code, report = check(cfg, emit=False)
+        rep["P3a_missing_INSIDE_repo_GATES"] = _fired(
+            code, report, "INSIDE THE REPOSITORY are ABSENT",
+            expect_code=2, channel="gating_problems")
+        rep["P3a_missing_INSIDE_repo_GATES"]["missing_inside_repo"] = [
+            os.path.relpath(p, t) for p in report["missing_inside_repo"]]
+        rep["P3a_missing_INSIDE_repo_GATES"]["note"] = (
+            "an absent copy is an UNMEASURED difference, never an absent one")
+
+        # P3b -- a known copy OUTSIDE GIT vanishes. STILL NOT A RESULT, and it must NOT
+        # gate. THE SEVERITY IS THE THING UNDER TEST, so this plant requires all three:
+        # the finding is present, it is filed in reporting_only_problems, and the exit
+        # code is 0. It also requires that the run does NOT read as clean.
         cfg, f = _fixture(t)
         os.remove(f["c3"])
         code, report = check(cfg, emit=False)
-        rep["P3_absent_copy_is_NOT_A_RESULT"] = _fired(code, report, "NOT A RESULT")
-        rep["P3_absent_copy_is_NOT_A_RESULT"]["missing"] = [
-            os.path.relpath(p, t) for p in report["missing_known_copies"]]
-        rep["P3_absent_copy_is_NOT_A_RESULT"]["note"] = (
-            "an absent copy is an UNMEASURED difference, never an absent one")
+        rep["P3b_missing_OUTSIDE_git_REPORTS_not_gates"] = _fired(
+            code, report, "OUTSIDE GIT are ABSENT",
+            expect_code=0, channel="reporting_only_problems")
+        r3b = rep["P3b_missing_OUTSIDE_git_REPORTS_not_gates"]
+        r3b["missing_outside_git"] = [
+            os.path.relpath(p, t) for p in report["missing_outside_git"]]
+        r3b["gate_status"] = report["gate_status"]
+        r3b["consistent_flag_is_False"] = (report["consistent"] is False)
+        r3b["appears_in_problems_too"] = any(
+            "OUTSIDE GIT are ABSENT" in p for p in report["problems"])
+        r3b["did_not_gate"] = report["gating_problems"] == []
+        # Firing means ALL of it: found, filed as reporting-only, exit 0, not gating, and
+        # still visible in the undivided `problems` list and in `consistent: false`.
+        r3b["fired"] = bool(r3b["fired"] and r3b["did_not_gate"]
+                            and r3b["appears_in_problems_too"]
+                            and r3b["consistent_flag_is_False"])
+        r3b["note"] = ("NOT A RESULT and GATE FAIL are different verdicts (rule 1); "
+                       "mapping both to exit 2 was the defect this plant guards")
 
         # P4 -- the ast self-check rejects a file carrying a bare assert.
         bad = os.path.join(t, "has_assert.py")
@@ -416,14 +574,34 @@ def selftest():
         rep["P4_ast_self_check_rejects_bare_assert"] = {"fired": fired4}
 
         # P5 -- DRIFT INSIDE THE SECOND LINEAGE, which is never synced to the canonical.
+        # Both fixture members live OUTSIDE git, so under the lane's flagged extension of
+        # the supervisor's ruling this REPORTS at exit 0 rather than gating. It is still
+        # detected and still printed; only its authority is narrowed.
         cfg, f = _fixture(t)
         with open(f["s2"], "ab") as fh:
             fh.write(b"# drifted\n")
         code, report = check(cfg, emit=False)
-        rep["P5_second_lineage_drift"] = _fired(
-            code, report, "DIVERGENCE in the second")
-        rep["P5_second_lineage_drift"]["consistency"] = report[
+        rep["P5_second_lineage_drift_outside_git_REPORTS"] = _fired(
+            code, report, "DIVERGENCE in the second",
+            expect_code=0, channel="reporting_only_problems")
+        rep["P5_second_lineage_drift_outside_git_REPORTS"]["consistency"] = report[
             "lineage_second_consistency"]
+
+        # P5b -- THE SAME DRIFT, WITH ONE MEMBER INSIDE THE REPOSITORY, MUST GATE. Without
+        # this the severity split would be untested in the direction that matters: a plant
+        # that only ever sees the non-gating branch cannot show the gating branch works.
+        cfg, f = _fixture(t)
+        inside = os.path.join(cfg.repo_root, "old_c", TARGET)
+        os.makedirs(os.path.dirname(inside), exist_ok=True)
+        shutil.copyfile(f["s1"], inside)
+        with open(inside, "ab") as fh:
+            fh.write(b"# drifted inside the repo\n")
+        cfg2 = dataclasses.replace(cfg, known=cfg.known + (inside,),
+                                   second_lineage=cfg.second_lineage + (inside,))
+        code, report = check(cfg2, emit=False)
+        rep["P5b_second_lineage_drift_inside_repo_GATES"] = _fired(
+            code, report, "DIVERGENCE in the second",
+            expect_code=2, channel="gating_problems")
 
         # P6 -- A ONE-MEMBER SECOND LINEAGE MUST DECLARE ITSELF VACUOUS, NOT PASS.
         # This is the production configuration after the 2026-09-03 removal. The plant
@@ -445,9 +623,19 @@ def selftest():
             "note": "not a refusal -- a true statement about a check that cannot fail"}
 
     ok = all(v["fired"] for v in rep.values())
+    gating_plants = [k for k in rep if k.endswith("GATES")]
+    reporting_plants = [k for k in rep if "REPORTS" in k]
     print(json.dumps({"selftest": rep, "all_plants_fired": ok,
-                      "plants_driving_shipped_check": ["P0", "P1", "P2", "P3", "P5", "P6"],
-                      "plants_driving_helper_only": ["P4"]},
+                      "plants_driving_shipped_check": sorted(
+                          k for k in rep if not k.startswith("P4")),
+                      "plants_driving_helper_only": ["P4"],
+                      "severity_split_covered_both_ways": {
+                          "plants_requiring_exit_2": sorted(gating_plants),
+                          "plants_requiring_exit_0_and_still_NOT_A_RESULT":
+                              sorted(reporting_plants),
+                          "note": "a severity split tested in only one direction is not "
+                                  "tested: the gating branch and the reporting branch "
+                                  "each need a plant that fails if the other is used"}},
                      indent=2, sort_keys=True))
     return 0 if ok else 2
 
