@@ -1,0 +1,60 @@
+{
+  "THIS_IS_NOT_A_GRADED_RUN": true,
+  "cause": "plot3dToFoam: PLOT3D carries no boundary-condition metadata",
+  "checkMesh_after": {
+    "avg_non_orthogonality": "15.96643613",
+    "cells": null,
+    "max_aspect_ratio": "35820.55869",
+    "max_cell_volume": "0.9336897486",
+    "max_non_orthogonality": "88.88926674",
+    "max_skewness": "2.849165477",
+    "min_cell_volume": "3.255891966e-12",
+    "severe_non_ortho_faces": "206"
+  },
+  "checkMesh_before": {
+    "avg_non_orthogonality": "15.96643613",
+    "cells": null,
+    "max_aspect_ratio": "35820.55869",
+    "max_cell_volume": "0.9336897486",
+    "max_non_orthogonality": "88.88926674",
+    "max_skewness": "2.849165477",
+    "min_cell_volume": "3.255891966e-12",
+    "severe_non_ortho_faces": "206"
+  },
+  "classification_evidence": {
+    "cut_radius_used": 5.89820537977279,
+    "extrusion_layers": 92,
+    "farfield_faces": 1560,
+    "farfield_radius_range": [
+      10.141397176360638,
+      12.887646774584493
+    ],
+    "gap_lower_radius": 1.6550135831849424,
+    "gap_upper_radius": 10.141397176360638,
+    "gap_width": 8.486383593175695,
+    "n_boundary_faces": 9376,
+    "n_internal_faces": 425872,
+    "symmetry_faces": 6256,
+    "symmetry_faces_per_layer": 68.0,
+    "symmetry_plane_max_abs_z": 0.0,
+    "wall_faces": 1560,
+    "wall_radius_range": [
+      0.02394729635223311,
+      1.6550135831849424
+    ]
+  },
+  "defect": "single patch `defaultFaces` type wall, 9376 faces -- a closed all-wall box with no inlet, no outlet and no symmetry condition",
+  "fix": "S2 -- BLOCKING PHYSICS FIX: boundary identity restored to R1-M0",
+  "geometry_UNCHANGED_by_the_repair": true,
+  "patches_after": [
+    {
+      "nFaces": 1560,
+      "openfoam_type": "patch",
+      "patch": "farfield"
+    }
+  ],
+  "repaired_case": "/home/ubuntu/Certonomous/verification/runs/RUNG1_M6_runs/M2_M0_patch_identity/foam",
+  "source_case_UNTOUCHED": "/home/ubuntu/Certonomous/verification/runs/RUNG1_M6_runs/M0_pyhyp_admission/foam",
+  "verdict": "NONE -- no verdict of the fixed vocabulary attaches to a mesh repair.",
+  "what_this_does_NOT_change": "No point moved. The 88.88926674 degree maximum non-orthogonality, its 206 severe faces and the 35820.55869 max aspect ratio stand exactly as measured and remain recorded predictions."
+}
