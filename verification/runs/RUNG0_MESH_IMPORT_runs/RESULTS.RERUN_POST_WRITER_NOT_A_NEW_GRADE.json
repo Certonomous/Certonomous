@@ -1,0 +1,649 @@
+{
+  "case_id": "RUNG0_MESH_IMPORT",
+  "controls": [
+    {
+      "control": "C0 absolute, r8 Fortran, big-endian",
+      "expected": "cells 10, bnd 5, {alpha:2, beta:2, gamma:1}",
+      "fired": true,
+      "saw": "cells 10, bnd 5, {'alpha': 2, 'beta': 2, 'gamma': 1}"
+    },
+    {
+      "control": "C0 absolute, b8 raw stream, big",
+      "expected": "cells 10, bnd 5, {alpha:2, beta:2, gamma:1}",
+      "fired": true,
+      "saw": "cells 10, bnd 5, {'alpha': 2, 'beta': 2, 'gamma': 1}"
+    },
+    {
+      "control": "C1 rename one .mapbc group (scratch copy)",
+      "expected": "the renamed patch appears in the emitted name set",
+      "fired": true,
+      "saw": "names ['PLANTED_WALL_RENAME', 'farfield', 'symmetry', 'wall']"
+    },
+    {
+      "control": "C2 delete one boundary quad (scratch copy of the real grid)",
+      "expected": "exactly one patch's face count drops by exactly 1; cells unchanged",
+      "fired": true,
+      "saw": "per-patch drop {'farfield': 0, 'symmetry': 1, 'wall': 0}, bnd 41984 -> 41983, cells 638976 -> 638976"
+    },
+    {
+      "control": "C3 +1 on one nFaces",
+      "expected": "R0-G2a reports UNEQUAL, not equal",
+      "fired": true,
+      "saw": "{'defaultFaces': 6912} -> {'defaultFaces': 6913}"
+    },
+    {
+      "control": "C4 rename one patch",
+      "expected": "R0-G2a reports a NAME-SET MISMATCH",
+      "fired": true,
+      "saw": "['defaultFaces'] -> ['PLANTED_PATCH']"
+    },
+    {
+      "control": "C5 both aspect-ratio label forms yield a NON-NULL value",
+      "expected": "'=' form and ':' form both non-null; a reader matching only '=' silently misses exactly the pathological logs",
+      "fired": true,
+      "saw": "'=' 1.26794919382 / ':' 14426.8"
+    },
+    {
+      "control": "C6 Min volume != Max volume -> a non-trivial derived ratio, never 1",
+      "expected": "ratio > 1 and derived, never 1 and never null",
+      "fired": true,
+      "saw": "min 1.02355e-05 max 90736700000.0 ratio 8864901568071906.0"
+    },
+    {
+      "control": "C7 the verdict line is DISCARDED, the number is PARSED",
+      "expected": "the same log that prints `Non-orthogonality check OK.` yields a parsed maximum ABOVE 70 degrees",
+      "fired": true,
+      "saw": "verdict lines ['Non-orthogonality check OK.', 'Failed 3 mesh check'] at 89.7134 deg"
+    },
+    {
+      "control": "C8 an absent log reads ABSENT, never clean",
+      "expected": "state ABSENT and no number",
+      "fired": true,
+      "saw": "state ABSENT"
+    },
+    {
+      "control": "C10 a header note contradicting the mesh's own lists REFUSES [// comment form, DPW5_L1T_hex]",
+      "expected": "nCells 638976 -> 638977 in the header alone must REFUSE, never be preferred over the lists",
+      "fired": true,
+      "saw": "POLYMESH: /tmp/rung0_controls_6xykzypr/C10_0/constant/polyMesh/owner's header note (// comment) CONTRADICTS the mesh's own lists: ['nCells: header 638977 vs derived 638976']. REFUS"
+    },
+    {
+      "control": "C10 a header note contradicting the mesh's own lists REFUSES [quoted FoamFile key form, L2]",
+      "expected": "nCells 122880 -> 122881 in the header alone must REFUSE, never be preferred over the lists",
+      "fired": true,
+      "saw": "POLYMESH: /tmp/rung0_controls_6xykzypr/C10_8/constant/polyMesh/owner's header note (quoted FoamFile key) CONTRADICTS the mesh's own lists: ['nCells: header 122881 vs derived 122880"
+    },
+    {
+      "control": "C9 foam_to_ugrid round trip (section 7 row 7)",
+      "expected": "drop one face from the written file -> R0-G2b reports unequal",
+      "fired": null,
+      "saw": "NOT RUN -- /home/ubuntu/Certonomous/cases/committee-grids/foam_to_ugrid.py DOES NOT EXIST (frozen registration section 9 says so). This control is neither passed nor failed; it is UNBUILT, and R0-G2b is consequently PENDING, never PASS."
+    }
+  ],
+  "per_grid": {
+    "DPW5_L1T_hex": "PENDING",
+    "DPW5_L1T_hybrid": "PENDING",
+    "DPW5_L1T_prism": "PENDING",
+    "HLPW6_h6c1_rans_3a_1": "PENDING"
+  },
+  "prereg": "verification/campaign/RUNG0_MESH_IMPORT_PREREGISTRATION.md",
+  "prereg_commit": "d127d83d4ebf4caaaf0c12c39a063c5f624a03a4",
+  "results": [
+    {
+      "R0_G1": {
+        "checks": {
+          "boundary_face_sum_equals_source": true,
+          "defaultFaces_absent": true,
+          "n_patches_equals_distinct_mapbc_names": true,
+          "patch_names_set_equal": true
+        },
+        "verdict": "PASS"
+      },
+      "R0_G2a": {
+        "checks": {
+          "cell_count_exact": true,
+          "patch_names_set_equal": true,
+          "per_patch_face_counts_exact": true
+        },
+        "imported_cells": 638976,
+        "per_patch_mismatches": {},
+        "source_cells": 638976,
+        "verdict": "PASS"
+      },
+      "R0_G2b": {
+        "verdict": "PENDING",
+        "why": "cases/committee-grids/foam_to_ugrid.py DOES NOT EXIST. The frozen registration section 9 registers it as to-be-written. NOT RUN is not a pass and not a failure; it is the reason the rung's conjunction cannot be evaluated."
+      },
+      "R0_G3": {
+        "missing_fields": [],
+        "verdict": "PASS"
+      },
+      "R0_G4": {
+        "root_epoch": 1788457592.751698,
+        "stale_or_absent": [],
+        "verdict": "PASS"
+      },
+      "birth_certificate": {
+        "aspect_ratio_flagged": true,
+        "aspect_ratio_label_form": ":",
+        "cell_volume_ratio": 8864901568071906.0,
+        "cell_volume_ratio_basis": "DERIVED (max/min), NOT a checkMesh output",
+        "cells": 638976,
+        "checkMesh_log": "/home/ubuntu/Certonomous/verification/runs/RUNG0_MESH_IMPORT_runs/DPW5_L1T_hex/log.checkMesh",
+        "created_at": "2026-09-03T17:46:54Z",
+        "faces": 1937920,
+        "generator": "cases/committee-grids/ugrid_to_foam.py",
+        "geometric_directions": 3,
+        "grid_provenance": "workshop committee family, quality as published",
+        "how_the_number_is_read": "PARSED off the named maximum lines. checkMesh's own verdict strings are captured above solely to show they were DISCARDED: on this box `Non-orthogonality check OK.` is printed at 89.71, 89.94 and 89.9985 degrees.",
+        "internal_faces": 1895936,
+        "max_aspect_ratio": 14426.8,
+        "max_cell_volume": 90736700000.0,
+        "max_non_orthogonality": 89.7134,
+        "max_skewness": 14.0594,
+        "min_cell_volume": 1.02355e-05,
+        "non_orthogonality_gate_deg": 70,
+        "points_sha256": "870e6c6fceab6dbeea0d6494793fcbb7dd7f41c8e92056814c5398938d51f7fd",
+        "published_quality_comparison": "no published quality figure located -- searched the grid's own distribution directory on this box (readme / g.html / l2.xml beside the grid) and no max non-orthogonality, skewness or aspect-ratio figure is published there. Section 4 gates this comparison on being MADE, not on agreeing, and this is the made comparison's honest outcome. NEVER silence, NEVER a blank.",
+        "quality_reporting_mode": "REPORTED, NOT GATED (Sanaa's two-tier ruling, condition (a); MESH_STANDARD section 11.4)",
+        "regions": 1,
+        "severe_non_ortho_faces": 11506,
+        "state": "READ",
+        "verdict_line_IGNORED_NEVER_A_GATE": [
+          "Non-orthogonality check OK.",
+          "Failed 3 mesh check"
+        ]
+      },
+      "case": "/home/ubuntu/Certonomous/verification/runs/RUNG0_MESH_IMPORT_runs/DPW5_L1T_hex",
+      "grid": "DPW5_L1T_hex",
+      "polymesh_reading": {
+        "boundary_faces": 41984,
+        "case": "/home/ubuntu/Certonomous/verification/runs/RUNG0_MESH_IMPORT_runs/DPW5_L1T_hex",
+        "cells": 638976,
+        "counts_basis": "DERIVED from the mesh's own lists (nFaces = len(owner), nInternalFaces = len(neighbour), nCells = max(owner)+1); the header note is a CROSS-CHECK and a disagreement REFUSES",
+        "default_faces_present": false,
+        "faces": 1937920,
+        "header_note_form": "// comment",
+        "internal_faces": 1895936,
+        "n_patches": 3,
+        "patches": {
+          "farfield": 13312,
+          "symmetry": 15360,
+          "wall": 13312
+        }
+      },
+      "quality_reading": {
+        "aspect_ratio_flagged": true,
+        "aspect_ratio_label_form": ":",
+        "cell_volume_ratio": 8864901568071906.0,
+        "cell_volume_ratio_basis": "DERIVED (max/min), NOT a checkMesh output",
+        "cells": 638976,
+        "checkMesh_log": "/home/ubuntu/Certonomous/verification/runs/RUNG0_MESH_IMPORT_runs/DPW5_L1T_hex/log.checkMesh",
+        "faces": 1937920,
+        "geometric_directions": 3,
+        "how_the_number_is_read": "PARSED off the named maximum lines. checkMesh's own verdict strings are captured above solely to show they were DISCARDED: on this box `Non-orthogonality check OK.` is printed at 89.71, 89.94 and 89.9985 degrees.",
+        "internal_faces": 1895936,
+        "max_aspect_ratio": 14426.8,
+        "max_cell_volume": 90736700000.0,
+        "max_non_orthogonality": 89.7134,
+        "max_skewness": 14.0594,
+        "min_cell_volume": 1.02355e-05,
+        "regions": 1,
+        "severe_non_ortho_faces": 11506,
+        "state": "READ",
+        "verdict_line_IGNORED_NEVER_A_GATE": [
+          "Non-orthogonality check OK.",
+          "Failed 3 mesh check"
+        ]
+      },
+      "source": "/home/ubuntu/certonomous-runs/dpw5-committee-probe/grid/L1.T.rev01.p3d.hex.r8.ugrid",
+      "source_reading": {
+        "boundary_faces": 41984,
+        "boundary_quad": 41984,
+        "boundary_tri": 0,
+        "cells": 638976,
+        "distinct_mapbc_names": 3,
+        "endian": "big",
+        "fortran": true,
+        "hex": 638976,
+        "mapbc": "/home/ubuntu/certonomous-runs/dpw5-committee-probe/grid/dpw5_L1T.mapbc",
+        "mapbc_groups": 18,
+        "nodes": 660177,
+        "patches": {
+          "farfield": 13312,
+          "symmetry": 15360,
+          "wall": 13312
+        },
+        "prism": 0,
+        "pyr": 0,
+        "source": "/home/ubuntu/certonomous-runs/dpw5-committee-probe/grid/L1.T.rev01.p3d.hex.r8.ugrid",
+        "tet": 0
+      },
+      "verdict": "PENDING",
+      "verdict_why": "R0-G1, R0-G2a, R0-G3 and R0-G4 all hold on this grid. The grid's own label is still PENDING because section 4 defines PASS as the conjunction INCLUDING R0-G2b, which cannot run. Reporting PASS here would be reporting a conjunction one of whose conjuncts was never evaluated."
+    },
+    {
+      "R0_G1": {
+        "checks": {
+          "boundary_face_sum_equals_source": true,
+          "defaultFaces_absent": true,
+          "n_patches_equals_distinct_mapbc_names": true,
+          "patch_names_set_equal": true
+        },
+        "verdict": "PASS"
+      },
+      "R0_G2a": {
+        "checks": {
+          "cell_count_exact": true,
+          "patch_names_set_equal": true,
+          "per_patch_face_counts_exact": true
+        },
+        "imported_cells": 1277952,
+        "per_patch_mismatches": {},
+        "source_cells": 1277952,
+        "verdict": "PASS"
+      },
+      "R0_G2b": {
+        "verdict": "PENDING",
+        "why": "cases/committee-grids/foam_to_ugrid.py DOES NOT EXIST. The frozen registration section 9 registers it as to-be-written. NOT RUN is not a pass and not a failure; it is the reason the rung's conjunction cannot be evaluated."
+      },
+      "R0_G3": {
+        "missing_fields": [],
+        "verdict": "PASS"
+      },
+      "R0_G4": {
+        "root_epoch": 1788457592.751698,
+        "stale_or_absent": [],
+        "verdict": "PASS"
+      },
+      "birth_certificate": {
+        "aspect_ratio_flagged": true,
+        "aspect_ratio_label_form": ":",
+        "cell_volume_ratio": 3.3327827385819732e+16,
+        "cell_volume_ratio_basis": "DERIVED (max/min), NOT a checkMesh output",
+        "cells": 1277952,
+        "checkMesh_log": "/home/ubuntu/Certonomous/verification/runs/RUNG0_MESH_IMPORT_runs/DPW5_L1T_prism/log.checkMesh",
+        "created_at": "2026-09-03T17:47:12Z",
+        "faces": 3229184,
+        "generator": "cases/committee-grids/ugrid_to_foam.py",
+        "geometric_directions": 3,
+        "grid_provenance": "workshop committee family, quality as published",
+        "how_the_number_is_read": "PARSED off the named maximum lines. checkMesh's own verdict strings are captured above solely to show they were DISCARDED: on this box `Non-orthogonality check OK.` is printed at 89.71, 89.94 and 89.9985 degrees.",
+        "internal_faces": 3160576,
+        "max_aspect_ratio": 7488.42,
+        "max_cell_volume": 61135900000.0,
+        "max_non_orthogonality": 89.9441,
+        "max_skewness": 6.31513,
+        "min_cell_volume": 1.83438e-06,
+        "non_orthogonality_gate_deg": 70,
+        "points_sha256": "870e6c6fceab6dbeea0d6494793fcbb7dd7f41c8e92056814c5398938d51f7fd",
+        "published_quality_comparison": "no published quality figure located -- searched the grid's own distribution directory on this box (readme / g.html / l2.xml beside the grid) and no max non-orthogonality, skewness or aspect-ratio figure is published there. Section 4 gates this comparison on being MADE, not on agreeing, and this is the made comparison's honest outcome. NEVER silence, NEVER a blank.",
+        "quality_reporting_mode": "REPORTED, NOT GATED (Sanaa's two-tier ruling, condition (a); MESH_STANDARD section 11.4)",
+        "regions": 1,
+        "severe_non_ortho_faces": 216336,
+        "state": "READ",
+        "verdict_line_IGNORED_NEVER_A_GATE": [
+          "Non-orthogonality check OK.",
+          "Failed 3 mesh check"
+        ]
+      },
+      "case": "/home/ubuntu/Certonomous/verification/runs/RUNG0_MESH_IMPORT_runs/DPW5_L1T_prism",
+      "grid": "DPW5_L1T_prism",
+      "polymesh_reading": {
+        "boundary_faces": 68608,
+        "case": "/home/ubuntu/Certonomous/verification/runs/RUNG0_MESH_IMPORT_runs/DPW5_L1T_prism",
+        "cells": 1277952,
+        "counts_basis": "DERIVED from the mesh's own lists (nFaces = len(owner), nInternalFaces = len(neighbour), nCells = max(owner)+1); the header note is a CROSS-CHECK and a disagreement REFUSES",
+        "default_faces_present": false,
+        "faces": 3229184,
+        "header_note_form": "// comment",
+        "internal_faces": 3160576,
+        "n_patches": 3,
+        "patches": {
+          "farfield": 26624,
+          "symmetry": 15360,
+          "wall": 26624
+        }
+      },
+      "quality_reading": {
+        "aspect_ratio_flagged": true,
+        "aspect_ratio_label_form": ":",
+        "cell_volume_ratio": 3.3327827385819732e+16,
+        "cell_volume_ratio_basis": "DERIVED (max/min), NOT a checkMesh output",
+        "cells": 1277952,
+        "checkMesh_log": "/home/ubuntu/Certonomous/verification/runs/RUNG0_MESH_IMPORT_runs/DPW5_L1T_prism/log.checkMesh",
+        "faces": 3229184,
+        "geometric_directions": 3,
+        "how_the_number_is_read": "PARSED off the named maximum lines. checkMesh's own verdict strings are captured above solely to show they were DISCARDED: on this box `Non-orthogonality check OK.` is printed at 89.71, 89.94 and 89.9985 degrees.",
+        "internal_faces": 3160576,
+        "max_aspect_ratio": 7488.42,
+        "max_cell_volume": 61135900000.0,
+        "max_non_orthogonality": 89.9441,
+        "max_skewness": 6.31513,
+        "min_cell_volume": 1.83438e-06,
+        "regions": 1,
+        "severe_non_ortho_faces": 216336,
+        "state": "READ",
+        "verdict_line_IGNORED_NEVER_A_GATE": [
+          "Non-orthogonality check OK.",
+          "Failed 3 mesh check"
+        ]
+      },
+      "source": "/home/ubuntu/certonomous-runs/dpw5-committee-probe/grid/L1.T.rev01.p3d.prism.r8.ugrid",
+      "source_reading": {
+        "boundary_faces": 68608,
+        "boundary_quad": 15360,
+        "boundary_tri": 53248,
+        "cells": 1277952,
+        "distinct_mapbc_names": 3,
+        "endian": "big",
+        "fortran": true,
+        "hex": 0,
+        "mapbc": "/home/ubuntu/certonomous-runs/dpw5-committee-probe/grid/dpw5_L1T.mapbc",
+        "mapbc_groups": 18,
+        "nodes": 660177,
+        "patches": {
+          "farfield": 26624,
+          "symmetry": 15360,
+          "wall": 26624
+        },
+        "prism": 1277952,
+        "pyr": 0,
+        "source": "/home/ubuntu/certonomous-runs/dpw5-committee-probe/grid/L1.T.rev01.p3d.prism.r8.ugrid",
+        "tet": 0
+      },
+      "verdict": "PENDING",
+      "verdict_why": "R0-G1, R0-G2a, R0-G3 and R0-G4 all hold on this grid. The grid's own label is still PENDING because section 4 defines PASS as the conjunction INCLUDING R0-G2b, which cannot run. Reporting PASS here would be reporting a conjunction one of whose conjuncts was never evaluated."
+    },
+    {
+      "R0_G1": {
+        "checks": {
+          "boundary_face_sum_equals_source": true,
+          "defaultFaces_absent": true,
+          "n_patches_equals_distinct_mapbc_names": true,
+          "patch_names_set_equal": true
+        },
+        "verdict": "PASS"
+      },
+      "R0_G2a": {
+        "checks": {
+          "cell_count_exact": true,
+          "patch_names_set_equal": true,
+          "per_patch_face_counts_exact": true
+        },
+        "imported_cells": 2981888,
+        "per_patch_mismatches": {},
+        "source_cells": 2981888,
+        "verdict": "PASS"
+      },
+      "R0_G2b": {
+        "verdict": "PENDING",
+        "why": "cases/committee-grids/foam_to_ugrid.py DOES NOT EXIST. The frozen registration section 9 registers it as to-be-written. NOT RUN is not a pass and not a failure; it is the reason the rung's conjunction cannot be evaluated."
+      },
+      "R0_G3": {
+        "missing_fields": [],
+        "verdict": "PASS"
+      },
+      "R0_G4": {
+        "root_epoch": 1788457592.751698,
+        "stale_or_absent": [],
+        "verdict": "PASS"
+      },
+      "birth_certificate": {
+        "aspect_ratio_flagged": true,
+        "aspect_ratio_label_form": ":",
+        "cell_volume_ratio": 1.5611759831659742e+16,
+        "cell_volume_ratio_basis": "DERIVED (max/min), NOT a checkMesh output",
+        "cells": 2981888,
+        "checkMesh_log": "/home/ubuntu/Certonomous/verification/runs/RUNG0_MESH_IMPORT_runs/DPW5_L1T_hybrid/log.checkMesh",
+        "created_at": "2026-09-03T17:47:44Z",
+        "faces": 6216192,
+        "generator": "cases/committee-grids/ugrid_to_foam.py",
+        "geometric_directions": 3,
+        "grid_provenance": "workshop committee family, quality as published",
+        "how_the_number_is_read": "PARSED off the named maximum lines. checkMesh's own verdict strings are captured above solely to show they were DISCARDED: on this box `Non-orthogonality check OK.` is printed at 89.71, 89.94 and 89.9985 degrees.",
+        "internal_faces": 6137344,
+        "max_aspect_ratio": 7488.42,
+        "max_cell_volume": 28637900000.0,
+        "max_non_orthogonality": 89.9985,
+        "max_skewness": 6.31513,
+        "min_cell_volume": 1.83438e-06,
+        "non_orthogonality_gate_deg": 70,
+        "points_sha256": "870e6c6fceab6dbeea0d6494793fcbb7dd7f41c8e92056814c5398938d51f7fd",
+        "published_quality_comparison": "no published quality figure located -- searched the grid's own distribution directory on this box (readme / g.html / l2.xml beside the grid) and no max non-orthogonality, skewness or aspect-ratio figure is published there. Section 4 gates this comparison on being MADE, not on agreeing, and this is the made comparison's honest outcome. NEVER silence, NEVER a blank.",
+        "quality_reporting_mode": "REPORTED, NOT GATED (Sanaa's two-tier ruling, condition (a); MESH_STANDARD section 11.4)",
+        "regions": 1,
+        "severe_non_ortho_faces": 1810108,
+        "state": "READ",
+        "verdict_line_IGNORED_NEVER_A_GATE": [
+          "Non-orthogonality check OK.",
+          "Failed 3 mesh check"
+        ]
+      },
+      "case": "/home/ubuntu/Certonomous/verification/runs/RUNG0_MESH_IMPORT_runs/DPW5_L1T_hybrid",
+      "grid": "DPW5_L1T_hybrid",
+      "polymesh_reading": {
+        "boundary_faces": 78848,
+        "case": "/home/ubuntu/Certonomous/verification/runs/RUNG0_MESH_IMPORT_runs/DPW5_L1T_hybrid",
+        "cells": 2981888,
+        "counts_basis": "DERIVED from the mesh's own lists (nFaces = len(owner), nInternalFaces = len(neighbour), nCells = max(owner)+1); the header note is a CROSS-CHECK and a disagreement REFUSES",
+        "default_faces_present": false,
+        "faces": 6216192,
+        "header_note_form": "// comment",
+        "internal_faces": 6137344,
+        "n_patches": 3,
+        "patches": {
+          "farfield": 26624,
+          "symmetry": 25600,
+          "wall": 26624
+        }
+      },
+      "quality_reading": {
+        "aspect_ratio_flagged": true,
+        "aspect_ratio_label_form": ":",
+        "cell_volume_ratio": 1.5611759831659742e+16,
+        "cell_volume_ratio_basis": "DERIVED (max/min), NOT a checkMesh output",
+        "cells": 2981888,
+        "checkMesh_log": "/home/ubuntu/Certonomous/verification/runs/RUNG0_MESH_IMPORT_runs/DPW5_L1T_hybrid/log.checkMesh",
+        "faces": 6216192,
+        "geometric_directions": 3,
+        "how_the_number_is_read": "PARSED off the named maximum lines. checkMesh's own verdict strings are captured above solely to show they were DISCARDED: on this box `Non-orthogonality check OK.` is printed at 89.71, 89.94 and 89.9985 degrees.",
+        "internal_faces": 6137344,
+        "max_aspect_ratio": 7488.42,
+        "max_cell_volume": 28637900000.0,
+        "max_non_orthogonality": 89.9985,
+        "max_skewness": 6.31513,
+        "min_cell_volume": 1.83438e-06,
+        "regions": 1,
+        "severe_non_ortho_faces": 1810108,
+        "state": "READ",
+        "verdict_line_IGNORED_NEVER_A_GATE": [
+          "Non-orthogonality check OK.",
+          "Failed 3 mesh check"
+        ]
+      },
+      "source": "/home/ubuntu/certonomous-runs/dpw5-committee-probe/grid/L1.T.rev01.p3d.hybrid.r8.ugrid",
+      "source_reading": {
+        "boundary_faces": 78848,
+        "boundary_quad": 5120,
+        "boundary_tri": 73728,
+        "cells": 2981888,
+        "distinct_mapbc_names": 3,
+        "endian": "big",
+        "fortran": true,
+        "hex": 0,
+        "mapbc": "/home/ubuntu/certonomous-runs/dpw5-committee-probe/grid/dpw5_L1T.mapbc",
+        "mapbc_groups": 18,
+        "nodes": 660177,
+        "patches": {
+          "farfield": 26624,
+          "symmetry": 25600,
+          "wall": 26624
+        },
+        "prism": 425984,
+        "pyr": 0,
+        "source": "/home/ubuntu/certonomous-runs/dpw5-committee-probe/grid/L1.T.rev01.p3d.hybrid.r8.ugrid",
+        "tet": 2555904
+      },
+      "verdict": "PENDING",
+      "verdict_why": "R0-G1, R0-G2a, R0-G3 and R0-G4 all hold on this grid. The grid's own label is still PENDING because section 4 defines PASS as the conjunction INCLUDING R0-G2b, which cannot run. Reporting PASS here would be reporting a conjunction one of whose conjuncts was never evaluated."
+    },
+    {
+      "R0_G1": {
+        "checks": {
+          "boundary_face_sum_equals_source": true,
+          "defaultFaces_absent": true,
+          "n_patches_equals_distinct_mapbc_names": true,
+          "patch_names_set_equal": true
+        },
+        "verdict": "PASS"
+      },
+      "R0_G2a": {
+        "checks": {
+          "cell_count_exact": true,
+          "patch_names_set_equal": true,
+          "per_patch_face_counts_exact": true
+        },
+        "imported_cells": 2661338,
+        "per_patch_mismatches": {},
+        "source_cells": 2661338,
+        "verdict": "PASS"
+      },
+      "R0_G2b": {
+        "verdict": "PENDING",
+        "why": "cases/committee-grids/foam_to_ugrid.py DOES NOT EXIST. The frozen registration section 9 registers it as to-be-written. NOT RUN is not a pass and not a failure; it is the reason the rung's conjunction cannot be evaluated."
+      },
+      "R0_G3": {
+        "missing_fields": [],
+        "verdict": "PASS"
+      },
+      "R0_G4": {
+        "root_epoch": 1788457592.751698,
+        "stale_or_absent": [],
+        "verdict": "PASS"
+      },
+      "birth_certificate": {
+        "aspect_ratio_flagged": true,
+        "aspect_ratio_label_form": ":",
+        "cell_volume_ratio": 3.9147540100107115e+20,
+        "cell_volume_ratio_basis": "DERIVED (max/min), NOT a checkMesh output",
+        "cells": 2661338,
+        "checkMesh_log": "/home/ubuntu/Certonomous/verification/runs/RUNG0_MESH_IMPORT_runs/HLPW6_h6c1_rans_3a_1/log.checkMesh",
+        "created_at": "2026-09-03T17:48:23Z",
+        "faces": 6509759,
+        "generator": "cases/committee-grids/ugrid_to_foam.py",
+        "geometric_directions": 3,
+        "grid_provenance": "workshop committee family, quality as published",
+        "how_the_number_is_read": "PARSED off the named maximum lines. checkMesh's own verdict strings are captured above solely to show they were DISCARDED: on this box `Non-orthogonality check OK.` is printed at 89.71, 89.94 and 89.9985 degrees.",
+        "internal_faces": 6359970,
+        "max_aspect_ratio": 2286.24,
+        "max_cell_volume": 1162220000.0,
+        "max_non_orthogonality": 89.9835,
+        "max_skewness": 9.97161,
+        "min_cell_volume": 2.96882e-12,
+        "non_orthogonality_gate_deg": 70,
+        "points_sha256": "4fa7b69f1b5ca0b05d31baaf9a6351ee274a5a3389ccb57434335f8a3e0f5682",
+        "published_quality_comparison": "no published quality figure located -- searched the grid's own distribution directory on this box (readme / g.html / l2.xml beside the grid) and no max non-orthogonality, skewness or aspect-ratio figure is published there. Section 4 gates this comparison on being MADE, not on agreeing, and this is the made comparison's honest outcome. NEVER silence, NEVER a blank.",
+        "quality_reporting_mode": "REPORTED, NOT GATED (Sanaa's two-tier ruling, condition (a); MESH_STANDARD section 11.4)",
+        "regions": 1,
+        "severe_non_ortho_faces": 1256565,
+        "state": "READ",
+        "verdict_line_IGNORED_NEVER_A_GATE": [
+          "Non-orthogonality check OK.",
+          "Failed 2 mesh check"
+        ]
+      },
+      "case": "/home/ubuntu/Certonomous/verification/runs/RUNG0_MESH_IMPORT_runs/HLPW6_h6c1_rans_3a_1",
+      "grid": "HLPW6_h6c1_rans_3a_1",
+      "polymesh_reading": {
+        "boundary_faces": 149789,
+        "case": "/home/ubuntu/Certonomous/verification/runs/RUNG0_MESH_IMPORT_runs/HLPW6_h6c1_rans_3a_1",
+        "cells": 2661338,
+        "counts_basis": "DERIVED from the mesh's own lists (nFaces = len(owner), nInternalFaces = len(neighbour), nCells = max(owner)+1); the header note is a CROSS-CHECK and a disagreement REFUSES",
+        "default_faces_present": false,
+        "faces": 6509759,
+        "header_note_form": "// comment",
+        "internal_faces": 6359970,
+        "n_patches": 14,
+        "patches": {
+          "Box": 56,
+          "FLAP": 9980,
+          "FLAP_COVE": 7010,
+          "FLAP_TE": 565,
+          "FLAP_UPPER": 8341,
+          "POS": 5695,
+          "SLAT": 31844,
+          "SLAT_BRACKETS": 16714,
+          "SLAT_TE": 1184,
+          "SLAT_UPPER": 12361,
+          "WING": 10971,
+          "WING_TE": 1449,
+          "WING_TIP": 3934,
+          "WING_UPPER": 39685
+        }
+      },
+      "quality_reading": {
+        "aspect_ratio_flagged": true,
+        "aspect_ratio_label_form": ":",
+        "cell_volume_ratio": 3.9147540100107115e+20,
+        "cell_volume_ratio_basis": "DERIVED (max/min), NOT a checkMesh output",
+        "cells": 2661338,
+        "checkMesh_log": "/home/ubuntu/Certonomous/verification/runs/RUNG0_MESH_IMPORT_runs/HLPW6_h6c1_rans_3a_1/log.checkMesh",
+        "faces": 6509759,
+        "geometric_directions": 3,
+        "how_the_number_is_read": "PARSED off the named maximum lines. checkMesh's own verdict strings are captured above solely to show they were DISCARDED: on this box `Non-orthogonality check OK.` is printed at 89.71, 89.94 and 89.9985 degrees.",
+        "internal_faces": 6359970,
+        "max_aspect_ratio": 2286.24,
+        "max_cell_volume": 1162220000.0,
+        "max_non_orthogonality": 89.9835,
+        "max_skewness": 9.97161,
+        "min_cell_volume": 2.96882e-12,
+        "regions": 1,
+        "severe_non_ortho_faces": 1256565,
+        "state": "READ",
+        "verdict_line_IGNORED_NEVER_A_GATE": [
+          "Non-orthogonality check OK.",
+          "Failed 2 mesh check"
+        ]
+      },
+      "source": "/home/ubuntu/certonomous-runs/hlpw6-memory-probe/grid/h6c1_rans_3a_1.b8.ugrid",
+      "source_reading": {
+        "boundary_faces": 149789,
+        "boundary_quad": 4175,
+        "boundary_tri": 145614,
+        "cells": 2661338,
+        "distinct_mapbc_names": 14,
+        "endian": "big",
+        "fortran": false,
+        "hex": 0,
+        "mapbc": "/home/ubuntu/certonomous-runs/hlpw6-memory-probe/grid/h6c1_rans_3a_1.mapbc",
+        "mapbc_groups": 73,
+        "nodes": 1156796,
+        "patches": {
+          "Box": 56,
+          "FLAP": 9980,
+          "FLAP_COVE": 7010,
+          "FLAP_TE": 565,
+          "FLAP_UPPER": 8341,
+          "POS": 5695,
+          "SLAT": 31844,
+          "SLAT_BRACKETS": 16714,
+          "SLAT_TE": 1184,
+          "SLAT_UPPER": 12361,
+          "WING": 10971,
+          "WING_TE": 1449,
+          "WING_TIP": 3934,
+          "WING_UPPER": 39685
+        },
+        "prism": 1883036,
+        "pyr": 341341,
+        "source": "/home/ubuntu/certonomous-runs/hlpw6-memory-probe/grid/h6c1_rans_3a_1.b8.ugrid",
+        "tet": 436961
+      },
+      "verdict": "PENDING",
+      "verdict_why": "R0-G1, R0-G2a, R0-G3 and R0-G4 all hold on this grid. The grid's own label is still PENDING because section 4 defines PASS as the conjunction INCLUDING R0-G2b, which cannot run. Reporting PASS here would be reporting a conjunction one of whose conjuncts was never evaluated."
+    }
+  ],
+  "root_epoch": 1788457592.751698,
+  "rung_verdict": "PENDING"
+}

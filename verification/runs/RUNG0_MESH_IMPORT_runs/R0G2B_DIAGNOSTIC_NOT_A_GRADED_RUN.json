@@ -1,0 +1,431 @@
+{
+  "C9_fired": {
+    "DPW5_L1T_hex": true,
+    "DPW5_L1T_hybrid": true,
+    "DPW5_L1T_prism": true,
+    "HLPW6_h6c1_rans_3a_1": true
+  },
+  "DEFECT_FOUND_AND_FIXED_IN_THIS_LANE_S_OWN_WRITER": "The writer's FIRST version copied ugrid_to_foam.py's PYR_T / PYR_Q constants, which are DEAD CODE in that file (defined at its :150-151, never passed to add()). Its LIVE pyramid path is :203-214, apex at local 2 and base wound [0,3,4,1]. verify_elements REFUSED on 962,824 regenerated triangle rows and the export stopped. IT REFUSED ON HLPW6 ALONE: HLPW6 IS THE ONLY ONE OF THE FOUR GRIDS CONTAINING PYRAMIDS (DPW5 hex 638,976 hexes / prism 1,277,952 prisms / hybrid 2,555,904 tets + 425,984 prisms, NOT ONE PYRAMID). A writer validated on the three DPW5 grids would have shipped it -- the third time this rung has been bitten by exactly that, after the Fortran-offset defect and the nCells lower-bound defect. The selftest now builds one of EACH of the four element types, with a per-type mutation control.",
+  "DEFECT_THE_WRITER_S_EXISTENCE_INTRODUCED": "analyse_rung0.py:334-342 builds control C9's `saw` string by interpolating the writer's path into a HARDCODED sentence 'DOES NOT EXIST'. It never tests writer.is_file(). Re-running the frozen comparator on 2026-09-03T18:23Z, with the writer present on disk, therefore emitted a FACTUALLY FALSE STATEMENT into its output: `NOT RUN -- /home/ubuntu/Certonomous/cases/committee-grids/foam_to_ugrid.py DOES NOT EXIST`. That re-run's output is preserved as RESULTS.RERUN_POST_WRITER_NOT_A_NEW_GRADE.json and log.analyse.RERUN_POST_WRITER; RESULTS.json and log.analyse were RESTORED byte-identical to the attempt-3 graded record. NOTHING WAS DELETED. The comparator was NOT edited: the grading path is fixed at the pre-registration commit and this rung is POST-COMPUTE.",
+  "GRADED_STATE_UNCHANGED": {
+    "R0_G2b": {
+      "DPW5_L1T_hex": "PENDING",
+      "DPW5_L1T_hybrid": "PENDING",
+      "DPW5_L1T_prism": "PENDING",
+      "HLPW6_h6c1_rans_3a_1": "PENDING"
+    },
+    "rung_verdict": "PENDING",
+    "source": "verification/runs/RUNG0_MESH_IMPORT_runs/RESULTS.json (attempt 3, sha256 d0686c23...)"
+  },
+  "OUT_OF_BAND_READING": {
+    "DPW5_L1T_hex": "PASS",
+    "DPW5_L1T_hybrid": "PASS",
+    "DPW5_L1T_prism": "PASS",
+    "HLPW6_h6c1_rans_3a_1": "PASS"
+  },
+  "WHAT_THIS_IS": "NOT A GRADED RESULT AND NOT A RUNG VERDICT. This is the R0-G2b round trip run OUT OF BAND, after cases/committee-grids/foam_to_ugrid.py was written on 2026-09-03. It is named the way ATTEMPT 2's re-reading was named, for the same reason: the FROZEN comparator analyse_rung0.py CANNOT consume it. Only the supervisor, on VERIFICATION_CHARTER.md section 2d.1, can decide whether the grading path may be repaired to read these numbers. Until then R0-G2b's GRADED state is PENDING on all four grids and the rung verdict is PENDING.",
+  "WHY_THE_FROZEN_COMPARATOR_STILL_SAYS_PENDING": "Measured, not inferred, by re-running it: analyse_rung0.py:464-470 assigns R0_G2b the literal verdict 'PENDING' and never calls any writer; :507-508 omits R0_G2b from the per-grid conjunction list entirely; :509-513 has NO PASS BRANCH for a grid (GATE FAIL, else PENDING); :609-615 has NO PASS BRANCH for the rung (GATE FAIL / BLOCKED / else PENDING); :334-342 hardcodes C9 as fired=None. Re-run 2026-09-03T18:23Z: rung PENDING, all four grids PENDING, C9 fired=None -- byte-identical to the attempt-3 record apart from two scratch tempdir names.",
+  "case_id": "RUNG0_MESH_IMPORT",
+  "cost_core_min_this_lane": {
+    "basis": "wall x 1 rank / 60, from /usr/bin/time -v artifacts under /home/ubuntu/certonomous-runs/rung0-r0g2b-export/*.time.txt and a wall-clock bracket on the comparator re-run. PRODUCTIVE 97.6 s = four round trips 68.08 s + comparator re-run 28.405 s + ~1.14 s of selftests (0.19 s measured per run, run count is this lane's own count, not a logged figure). WASTE 29.51 s = the first round-trip pass, voided by this lane's own pyramid-template defect -- NAMED SEPARATELY AND NOT ABSORBED (COMPUTE_BUDGET_CHARTER.md section 6).",
+    "cumulative_against_cap": {
+      "cap": 23.0,
+      "note": "The 23.0 core-min cap is NOT reset and was NOT raised.",
+      "pct": 27.9,
+      "spent_before": 4.3,
+      "spent_here": 2.119,
+      "total": 6.419
+    },
+    "productive": 1.627,
+    "ranks": 1,
+    "total": 2.119,
+    "waste": 0.492
+  },
+  "export_artifacts_note": "The written .ugrid and .mapbc files live OUTSIDE git (CLAUDE.md: data too large for git lives outside it). Sizes 37.1 / 47.7 / 68.2 / 89.2 MB.",
+  "export_artifacts_root": "/home/ubuntu/certonomous-runs/rung0-r0g2b-export",
+  "gate_implemented": "Registration section 4, R0-G2b, verbatim: `foam_to_ugrid.py` (to be written; it does not exist) writes the imported mesh back to UGRID + `.mapbc`; the SAME independent reader of R0-G2a re-reads the written file. The three quantities must be EXACTLY EQUAL to R0-G2a's source-side values. -- The three quantities are R0-G2a's: cell count (exact integer equality), patch names (exact set equality), per-patch face counts (exact integer equality on every patch). NO TOLERANCE, because the registration implements none. No fourth quantity was added.",
+  "per_grid": {
+    "DPW5_L1T_hex": {
+      "C9": {
+        "control": "C9 foam_to_ugrid round trip (registration section 7, row 7)",
+        "expected": "drop one face from the written file -> R0-G2b reports unequal",
+        "fired": true,
+        "plant": {
+          "after": 37131184,
+          "before": 37131204,
+          "bytes_removed": 20,
+          "kind": "quad"
+        },
+        "saw": "planted per-patch mismatches {'symmetry': (15360, 15359)}, cells 638976 vs 638976"
+      },
+      "R0_G2b": {
+        "checks": {
+          "cell_count_exact": true,
+          "patch_names_set_equal": true,
+          "per_patch_face_counts_exact": true
+        },
+        "per_patch_mismatches": {},
+        "source_cells": 638976,
+        "verdict": "PASS",
+        "written_cells": 638976
+      },
+      "roundtrip_json": "/home/ubuntu/certonomous-runs/rung0-r0g2b-export/DPW5_L1T_hex.roundtrip.json",
+      "source_reading": {
+        "boundary_faces": 41984,
+        "cells": 638976,
+        "distinct_mapbc_names": 3,
+        "endian": "big",
+        "fortran": true,
+        "mapbc": "/home/ubuntu/certonomous-runs/dpw5-committee-probe/grid/dpw5_L1T.mapbc",
+        "mapbc_groups": 18,
+        "patches": {
+          "farfield": 13312,
+          "symmetry": 15360,
+          "wall": 13312
+        },
+        "source": "/home/ubuntu/certonomous-runs/dpw5-committee-probe/grid/L1.T.rev01.p3d.hex.r8.ugrid"
+      },
+      "written": {
+        "boundary_faces": 41984,
+        "bytes": 37131204,
+        "case": "/home/ubuntu/Certonomous/verification/runs/RUNG0_MESH_IMPORT_runs/DPW5_L1T_hex",
+        "cells": 638976,
+        "elements_verified": {
+          "hex": 638976,
+          "pri": 0,
+          "pyr": 0,
+          "tet": 0
+        },
+        "endian": "big",
+        "fortran": true,
+        "hex": 638976,
+        "mapbc": "/home/ubuntu/certonomous-runs/rung0-r0g2b-export/DPW5_L1T_hex.roundtrip.r8.mapbc",
+        "mapbc_group_note": "ONE GROUP PER PATCH. The source's per-tag multiplicity is NOT in the polyMesh and cannot be recovered; the group count therefore does NOT round-trip and is NOT one of the three quantities section 4 grades.",
+        "mapbc_groups": 3,
+        "nodes": 660177,
+        "patches": {
+          "farfield": 13312,
+          "symmetry": 15360,
+          "wall": 13312
+        },
+        "prism": 0,
+        "pyr": 0,
+        "tet": 0,
+        "ugrid": "/home/ubuntu/certonomous-runs/rung0-r0g2b-export/DPW5_L1T_hex.roundtrip.r8.ugrid",
+        "variant": "r8"
+      },
+      "written_reading": {
+        "boundary_faces": 41984,
+        "cells": 638976,
+        "distinct_mapbc_names": 3,
+        "endian": "big",
+        "fortran": true,
+        "mapbc": "/home/ubuntu/certonomous-runs/rung0-r0g2b-export/DPW5_L1T_hex.roundtrip.r8.mapbc",
+        "mapbc_groups": 3,
+        "patches": {
+          "farfield": 13312,
+          "symmetry": 15360,
+          "wall": 13312
+        },
+        "source": "/home/ubuntu/certonomous-runs/rung0-r0g2b-export/DPW5_L1T_hex.roundtrip.r8.ugrid"
+      }
+    },
+    "DPW5_L1T_hybrid": {
+      "C9": {
+        "control": "C9 foam_to_ugrid round trip (registration section 7, row 7)",
+        "expected": "drop one face from the written file -> R0-G2b reports unequal",
+        "fired": true,
+        "plant": {
+          "after": 68244404,
+          "before": 68244420,
+          "bytes_removed": 16,
+          "kind": "tri"
+        },
+        "saw": "planted per-patch mismatches {'wall': (26624, 26623)}, cells 2981888 vs 2981888"
+      },
+      "R0_G2b": {
+        "checks": {
+          "cell_count_exact": true,
+          "patch_names_set_equal": true,
+          "per_patch_face_counts_exact": true
+        },
+        "per_patch_mismatches": {},
+        "source_cells": 2981888,
+        "verdict": "PASS",
+        "written_cells": 2981888
+      },
+      "roundtrip_json": "/home/ubuntu/certonomous-runs/rung0-r0g2b-export/DPW5_L1T_hybrid.roundtrip.json",
+      "source_reading": {
+        "boundary_faces": 78848,
+        "cells": 2981888,
+        "distinct_mapbc_names": 3,
+        "endian": "big",
+        "fortran": true,
+        "mapbc": "/home/ubuntu/certonomous-runs/dpw5-committee-probe/grid/dpw5_L1T.mapbc",
+        "mapbc_groups": 18,
+        "patches": {
+          "farfield": 26624,
+          "symmetry": 25600,
+          "wall": 26624
+        },
+        "source": "/home/ubuntu/certonomous-runs/dpw5-committee-probe/grid/L1.T.rev01.p3d.hybrid.r8.ugrid"
+      },
+      "written": {
+        "boundary_faces": 78848,
+        "bytes": 68244420,
+        "case": "/home/ubuntu/Certonomous/verification/runs/RUNG0_MESH_IMPORT_runs/DPW5_L1T_hybrid",
+        "cells": 2981888,
+        "elements_verified": {
+          "hex": 0,
+          "pri": 425984,
+          "pyr": 0,
+          "tet": 2555904
+        },
+        "endian": "big",
+        "fortran": true,
+        "hex": 0,
+        "mapbc": "/home/ubuntu/certonomous-runs/rung0-r0g2b-export/DPW5_L1T_hybrid.roundtrip.r8.mapbc",
+        "mapbc_group_note": "ONE GROUP PER PATCH. The source's per-tag multiplicity is NOT in the polyMesh and cannot be recovered; the group count therefore does NOT round-trip and is NOT one of the three quantities section 4 grades.",
+        "mapbc_groups": 3,
+        "nodes": 660177,
+        "patches": {
+          "farfield": 26624,
+          "symmetry": 25600,
+          "wall": 26624
+        },
+        "prism": 425984,
+        "pyr": 0,
+        "tet": 2555904,
+        "ugrid": "/home/ubuntu/certonomous-runs/rung0-r0g2b-export/DPW5_L1T_hybrid.roundtrip.r8.ugrid",
+        "variant": "r8"
+      },
+      "written_reading": {
+        "boundary_faces": 78848,
+        "cells": 2981888,
+        "distinct_mapbc_names": 3,
+        "endian": "big",
+        "fortran": true,
+        "mapbc": "/home/ubuntu/certonomous-runs/rung0-r0g2b-export/DPW5_L1T_hybrid.roundtrip.r8.mapbc",
+        "mapbc_groups": 3,
+        "patches": {
+          "farfield": 26624,
+          "symmetry": 25600,
+          "wall": 26624
+        },
+        "source": "/home/ubuntu/certonomous-runs/rung0-r0g2b-export/DPW5_L1T_hybrid.roundtrip.r8.ugrid"
+      }
+    },
+    "DPW5_L1T_prism": {
+      "C9": {
+        "control": "C9 foam_to_ugrid round trip (registration section 7, row 7)",
+        "expected": "drop one face from the written file -> R0-G2b reports unequal",
+        "fired": true,
+        "plant": {
+          "after": 47674292,
+          "before": 47674308,
+          "bytes_removed": 16,
+          "kind": "tri"
+        },
+        "saw": "planted per-patch mismatches {'wall': (26624, 26623)}, cells 1277952 vs 1277952"
+      },
+      "R0_G2b": {
+        "checks": {
+          "cell_count_exact": true,
+          "patch_names_set_equal": true,
+          "per_patch_face_counts_exact": true
+        },
+        "per_patch_mismatches": {},
+        "source_cells": 1277952,
+        "verdict": "PASS",
+        "written_cells": 1277952
+      },
+      "roundtrip_json": "/home/ubuntu/certonomous-runs/rung0-r0g2b-export/DPW5_L1T_prism.roundtrip.json",
+      "source_reading": {
+        "boundary_faces": 68608,
+        "cells": 1277952,
+        "distinct_mapbc_names": 3,
+        "endian": "big",
+        "fortran": true,
+        "mapbc": "/home/ubuntu/certonomous-runs/dpw5-committee-probe/grid/dpw5_L1T.mapbc",
+        "mapbc_groups": 18,
+        "patches": {
+          "farfield": 26624,
+          "symmetry": 15360,
+          "wall": 26624
+        },
+        "source": "/home/ubuntu/certonomous-runs/dpw5-committee-probe/grid/L1.T.rev01.p3d.prism.r8.ugrid"
+      },
+      "written": {
+        "boundary_faces": 68608,
+        "bytes": 47674308,
+        "case": "/home/ubuntu/Certonomous/verification/runs/RUNG0_MESH_IMPORT_runs/DPW5_L1T_prism",
+        "cells": 1277952,
+        "elements_verified": {
+          "hex": 0,
+          "pri": 1277952,
+          "pyr": 0,
+          "tet": 0
+        },
+        "endian": "big",
+        "fortran": true,
+        "hex": 0,
+        "mapbc": "/home/ubuntu/certonomous-runs/rung0-r0g2b-export/DPW5_L1T_prism.roundtrip.r8.mapbc",
+        "mapbc_group_note": "ONE GROUP PER PATCH. The source's per-tag multiplicity is NOT in the polyMesh and cannot be recovered; the group count therefore does NOT round-trip and is NOT one of the three quantities section 4 grades.",
+        "mapbc_groups": 3,
+        "nodes": 660177,
+        "patches": {
+          "farfield": 26624,
+          "symmetry": 15360,
+          "wall": 26624
+        },
+        "prism": 1277952,
+        "pyr": 0,
+        "tet": 0,
+        "ugrid": "/home/ubuntu/certonomous-runs/rung0-r0g2b-export/DPW5_L1T_prism.roundtrip.r8.ugrid",
+        "variant": "r8"
+      },
+      "written_reading": {
+        "boundary_faces": 68608,
+        "cells": 1277952,
+        "distinct_mapbc_names": 3,
+        "endian": "big",
+        "fortran": true,
+        "mapbc": "/home/ubuntu/certonomous-runs/rung0-r0g2b-export/DPW5_L1T_prism.roundtrip.r8.mapbc",
+        "mapbc_groups": 3,
+        "patches": {
+          "farfield": 26624,
+          "symmetry": 15360,
+          "wall": 26624
+        },
+        "source": "/home/ubuntu/certonomous-runs/rung0-r0g2b-export/DPW5_L1T_prism.roundtrip.r8.ugrid"
+      }
+    },
+    "HLPW6_h6c1_rans_3a_1": {
+      "C9": {
+        "control": "C9 foam_to_ugrid round trip (registration section 7, row 7)",
+        "expected": "drop one face from the written file -> R0-G2b reports unequal",
+        "fired": true,
+        "plant": {
+          "after": 89187500,
+          "before": 89187516,
+          "bytes_removed": 16,
+          "kind": "tri"
+        },
+        "saw": "planted per-patch mismatches {'WING_UPPER': (39685, 39684)}, cells 2661338 vs 2661338"
+      },
+      "R0_G2b": {
+        "checks": {
+          "cell_count_exact": true,
+          "patch_names_set_equal": true,
+          "per_patch_face_counts_exact": true
+        },
+        "per_patch_mismatches": {},
+        "source_cells": 2661338,
+        "verdict": "PASS",
+        "written_cells": 2661338
+      },
+      "roundtrip_json": "/home/ubuntu/certonomous-runs/rung0-r0g2b-export/HLPW6_h6c1_rans_3a_1.roundtrip.json",
+      "source_reading": {
+        "boundary_faces": 149789,
+        "cells": 2661338,
+        "distinct_mapbc_names": 14,
+        "endian": "big",
+        "fortran": false,
+        "mapbc": "/home/ubuntu/certonomous-runs/hlpw6-memory-probe/grid/h6c1_rans_3a_1.mapbc",
+        "mapbc_groups": 73,
+        "patches": {
+          "Box": 56,
+          "FLAP": 9980,
+          "FLAP_COVE": 7010,
+          "FLAP_TE": 565,
+          "FLAP_UPPER": 8341,
+          "POS": 5695,
+          "SLAT": 31844,
+          "SLAT_BRACKETS": 16714,
+          "SLAT_TE": 1184,
+          "SLAT_UPPER": 12361,
+          "WING": 10971,
+          "WING_TE": 1449,
+          "WING_TIP": 3934,
+          "WING_UPPER": 39685
+        },
+        "source": "/home/ubuntu/certonomous-runs/hlpw6-memory-probe/grid/h6c1_rans_3a_1.b8.ugrid"
+      },
+      "written": {
+        "boundary_faces": 149789,
+        "bytes": 89187516,
+        "case": "/home/ubuntu/Certonomous/verification/runs/RUNG0_MESH_IMPORT_runs/HLPW6_h6c1_rans_3a_1",
+        "cells": 2661338,
+        "elements_verified": {
+          "hex": 0,
+          "pri": 1883036,
+          "pyr": 341341,
+          "tet": 436961
+        },
+        "endian": "big",
+        "fortran": false,
+        "hex": 0,
+        "mapbc": "/home/ubuntu/certonomous-runs/rung0-r0g2b-export/HLPW6_h6c1_rans_3a_1.roundtrip.b8.mapbc",
+        "mapbc_group_note": "ONE GROUP PER PATCH. The source's per-tag multiplicity is NOT in the polyMesh and cannot be recovered; the group count therefore does NOT round-trip and is NOT one of the three quantities section 4 grades.",
+        "mapbc_groups": 14,
+        "nodes": 1156796,
+        "patches": {
+          "Box": 56,
+          "FLAP": 9980,
+          "FLAP_COVE": 7010,
+          "FLAP_TE": 565,
+          "FLAP_UPPER": 8341,
+          "POS": 5695,
+          "SLAT": 31844,
+          "SLAT_BRACKETS": 16714,
+          "SLAT_TE": 1184,
+          "SLAT_UPPER": 12361,
+          "WING": 10971,
+          "WING_TE": 1449,
+          "WING_TIP": 3934,
+          "WING_UPPER": 39685
+        },
+        "prism": 1883036,
+        "pyr": 341341,
+        "tet": 436961,
+        "ugrid": "/home/ubuntu/certonomous-runs/rung0-r0g2b-export/HLPW6_h6c1_rans_3a_1.roundtrip.b8.ugrid",
+        "variant": "b8"
+      },
+      "written_reading": {
+        "boundary_faces": 149789,
+        "cells": 2661338,
+        "distinct_mapbc_names": 14,
+        "endian": "big",
+        "fortran": false,
+        "mapbc": "/home/ubuntu/certonomous-runs/rung0-r0g2b-export/HLPW6_h6c1_rans_3a_1.roundtrip.b8.mapbc",
+        "mapbc_groups": 14,
+        "patches": {
+          "Box": 56,
+          "FLAP": 9980,
+          "FLAP_COVE": 7010,
+          "FLAP_TE": 565,
+          "FLAP_UPPER": 8341,
+          "POS": 5695,
+          "SLAT": 31844,
+          "SLAT_BRACKETS": 16714,
+          "SLAT_TE": 1184,
+          "SLAT_UPPER": 12361,
+          "WING": 10971,
+          "WING_TE": 1449,
+          "WING_TIP": 3934,
+          "WING_UPPER": 39685
+        },
+        "source": "/home/ubuntu/certonomous-runs/rung0-r0g2b-export/HLPW6_h6c1_rans_3a_1.roundtrip.b8.ugrid"
+      }
+    }
+  },
+  "prereg": "verification/campaign/RUNG0_MESH_IMPORT_PREREGISTRATION.md",
+  "prereg_commit": "d127d83d4ebf4caaaf0c12c39a063c5f624a03a4",
+  "reader": "cases/committee-grids/read_ugrid_identity.py -- the SAME reader R0-G2a uses, unmodified",
+  "writer": {
+    "bytes": 53741,
+    "path": "cases/committee-grids/foam_to_ugrid.py",
+    "selftest": "21 controls, ALL FIRED, exit 0; also exit 0 under `python3 -O`",
+    "sha256": "b7f06b486bd6a92ae672c5bd7acf682392a0d16a63aa83d3a4d9659d47bc5a1d"
+  }
+}
