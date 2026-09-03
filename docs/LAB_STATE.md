@@ -4839,9 +4839,83 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-03T18:01:38Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-30` — the `W3_chain_r2` chain SURVIVED the usage-limit fleet kill as a detached OS daemon and is at its finite-difference legs (9 stages `rc=0`, 36.10 core-min of a registered 900.0), and `S-29` §6's three "live" pids are corrected: two are dead and the survivor's pid was never right. Before it, `S-29` — `D19T` graded `NOT A RESULT` by its own frozen grader; the `U2` patch-identity mechanism predicts five non-convergences across three items with a fourth arm disconfirming it; the generator fix landed forward-only and UNVERIFIED with `A1ZE` registered as its verification; `D12RLX` referred not withdrawn; and five of the supervisor's own errors are named as his. `S-28` holds `MAAOA`'s conclusion and `D19T`'s original block; `S-27` the closed compressible triage.
+**Section last written:** 2026-09-03T20:34:58Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-42` — the recovered `A1WRT` repair is RIGHT IN DESIGN and **cannot launch**: `FFD_SRC` and `MD5_FFD` are referenced and never defined under `set -u`, so it would have died on a bash error with no abort text; the 11 s abort of `S-41` was also standing in front of a SECOND blocker (the producer's FFD is not in the mesh directory); `W3_chain_r2` is at **28 stages, every one `rc=0`, 180.9335 core-min** of 900.0; `D6RF2` is **queued on capacity** and is projected not to fire until `W3` lands; and **FREEZE-AHEAD is 1 against Sanaa's floor of 3**, named as my planning defect. Before it, `S-41` — the guard that fired for the right reason — `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-42 — **THE RECOVERED `A1WRT` REPAIR IS RIGHT IN DESIGN AND CANNOT LAUNCH: TWO CONSTANTS IT REFERENCES ARE UNDEFINED UNDER `set -u`, SO IT WOULD HAVE DIED ON A BASH ERROR WITH NO ABORT MESSAGE AT ALL. AND THE 11-SECOND ABORT WAS HIDING A SECOND BLOCKER — THE PRODUCER'S FFD IS NOT IN THE MESH DIRECTORY. `W3_chain_r2` IS AT 28 STAGES, EVERY ONE `rc=0`. `D6RF2` IS QUEUED ON CAPACITY AND WILL NOT FIRE UNTIL `W3` LANDS** (2026-09-03, `date -u` stamp in the committing invocation)
+
+###### 1. THE RECOVERED WORK — inspected, never reverted, and it is incomplete in a way only a diff read finds
+
+The lane killed at ~20:00Z left its repair uncommitted in the worktree: `a1wrt_run_unit.sh` **modified** (+58/−3, one hunk — a new `S5b` and a rewritten `S6`) and `a1wrt_controldict.py` **untracked**, 382 lines, new. Under rule 10 it is inspected and completed, never reverted, and it lands attributed as recovered work.
+
+**⚠ IT CANNOT LAUNCH.** `a1wrt_run_unit.sh` runs under `set -uo pipefail` at `:53`. The new `S5b` block references **`$FFD_SRC` and `$MD5_FFD`, and neither is defined anywhere in the file** — I grepped the definitions and the file carries only `HERE`, `ENDTIME=4000` and `STAGE_EVID`; `git show HEAD:` confirms both names are new in the repair. Under `set -u` the script dies at `S5b` on an unbound variable: **no `stage_say`, no abort text, no exit code of its own — a bash error where this item's whole discipline is that every refusal names itself.**
+
+**This is the sixth unsatisfiable-by-construction condition of the day, and it is inside the repair of the fifth.** It is incomplete work from a killed lane rather than a design fault, and it is exactly what check 1 exists to catch: the abort would have been indistinguishable from a broken script, on an item whose entire claim is that its refusals are legible.
+
+###### 2. THE `S6` REPAIR IS WHAT I RULED, AND I VERIFIED THE LOAD-BEARING PIN MYSELF RATHER THAN ACCEPTING IT
+
+`S-41` ruled that `A1WRT` **writes** the controlDict **derived from `a1wr_chain_driver.sh`'s own bytes, never retyped**, with `S6` surviving as a read-back. The recovered `a1wrt_controldict.py` does exactly that, and the part that matters is where its pin comes from:
+
+| | measured by me, this invocation |
+|---|---|
+| `DERIVED_MD5` pinned in the instrument | `85656349b8c31277e51883d2df9f8217` |
+| md5 of `/home/ubuntu/certonomous-runs/A1WR/STAGE12/sweep_I/case/system/controlDict` | **`85656349b8c31277e51883d2df9f8217`** |
+| `a1wr_chain_driver.sh` on disk | `9bff59b63509e76d5dfa373a42a47074` == the instrument's pin == A1WR's ADDENDUM D re-pin |
+
+**The pin is not the author's invention — it is the hash of the controlDict A1WR's own driver actually wrote for the sweep this item extends.** That is the strongest available form and it is ACCEPTED. The deriver asserts the heredoc trip count is **exactly 1** (*"a `[0]` here would take whichever the regex happened to match first and call it the template"* — the `D6RF-BLOCKING-1` lesson applied by a lane without being told to), refuses on any surviving `$var` in the output, refuses on an absent driver as **UNMEASURED**, and reads `endTime`, `writeInterval` and `deltaT` back **from disk** through the same verifier after writing. **Selftest driven by me: 11 controls, both directions, rc 0 under `python3` AND `python3 -O`.**
+
+###### 3. ⚠ THE 11-SECOND ABORT WAS HIDING A SECOND BLOCKER, AND ONE RIGHT GUARD SURFACED BOTH
+
+`a1wr_runScript_incomp.py:129` builds its model with `OM_DVGEOCOMP(file="FFD/wingFFD.xyz")` — **the FFD is a hard input of the producer `A1WRT` inherits unchanged, and the L3 mesh directory has no `FFD/`.** A1WR never met this because its driver stages from a case *skeleton* and overlays L3's polyMesh; `A1WRT` stages from the mesh directory, which carries the mesh and the fields but **not the case furniture**.
+
+**Confirmed by me rather than relayed:** `wingFFD.xyz` md5 **`6ddf378b028d03d8a18270488bee1759`**, byte-identical across four of A1WR's own run cases under `/home/ubuntu/certonomous-runs/A1WR/STAGE12/`. So staging it moves no variable — it restores an input A1WR always had.
+
+**`S6` masked it.** The launch aborted on the controlDict at 11 s and never reached the primal, where the missing FFD would have failed inside the container. **The guard I reported yesterday as saving 287.7 core-min of non-comparable numbers was also standing in front of a second, independent blocker nobody had measured** — and the item would have burned a container start to find it. That belongs in the record beside the first finding, not as a footnote to it.
+
+###### 4. ⚠ AND A VACUOUS EVIDENCE LINE INSIDE THE NEW INSTRUMENT — the same disease, in the repair for it
+
+`a1wrt_controldict.py`'s `check_bytes` guards the external corroboration on `if A1WR_REFERENCE.is_file():` but performs the comparison only under `if endtime == ENDTIME and text != ref`. **On a non-registered `endTime` no comparison happens and the note still prints *"BYTE-IDENTICAL to A1WR's own generated controlDict"*.** It is reachable only off the registered path, so it cannot corrupt a production run — and it is precisely the class this family has spent the whole day naming: **a guard that reports a property it did not check is a defect even when nothing downstream depends on it.** Repair ordered with a control that drives the non-registered branch and asserts the note does **not** claim a comparison.
+
+###### 5. MY RULING ON WHETHER THE ADDENDUM IS LAWFUL — recorded because it turns on a real question
+
+`A1WRT` is frozen at `a62d8d75` and **has had a launch attempt**, which is normally where rule 2 closes the gates. **RULING, mine:** the 2026-09-03T19:38:15Z attempt aborted at 11 s with `launcher_rc=5`, **created no container, produced no gate reading, took no measurement and cost ~0 core-min**. No gate could have been chosen to fit an answer that does not exist. The repair moves **no gate, threshold, cap or label** — it repairs staging. The dated pre-compute addendum is therefore lawful under rules 2 and 6, **and it must DISCLOSE the launch attempt in its own text rather than describe the item as untouched.** The distinction between *"no compute happened"* and *"nothing happened"* is the whole of it, and the addendum carries both.
+
+The addendum is also required to state **which controlDict fields `A1WRT` CONTROLS and which it INHERITS** — controlled: `endTime`, `writeInterval`, `deltaT`, written then read back; everything else inherited, with its source named. **That distinction IS the item's claim to being one-variable**, and an item that cannot say which variables it holds fixed is not a one-variable item.
+
+###### 6. `W3_chain_r2` — 28 STAGES, EVERY ONE `rc=0`, AND IT IS PAST THE FD LEGS
+
+Alive as **179657** (launcher wrapper) → **179658** (`d12y_w3_chain_driver.sh`) → **179692** (`d12y_w3_stage_and_run.sh --phase 1`), **3 h 05 m elapsed**, re-derived by execution. Ledger `/home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3-cylinder-unsteady/ledger.txt`: **28 `STAGE=` rows, `grep -c 'rc=[1-9]'` returns 0** — not one non-zero container exit in the whole chain. **`SPENT_CORE_MIN=180.9335` of `cap 900.0`**, $0.1547 **DERIVED** at the owner-stated $0.0513/core-h, never measured. Now at `S4_n40_r1` / `S4_n40_r2`, `TASK=compute_totals`, `rc=0`, 1.9 and 1.85 core-min, `memavail_GiB` 25.3 against a 14.0 floor.
+
+**It survived the second fleet kill, as an OS daemon that belongs to no agent.** No verdict is claimed from it; it is a run in progress, watched, and reported as such.
+
+###### 7. `D6RF2` IS QUEUED ON CAPACITY — AND THE HONEST PREDICTION IS THAT IT CANNOT FIRE UNTIL `W3` LANDS
+
+Daemon **pid 1664** alive. Its own log, every ~65 s: **`HELD D6RF2_chain.json: busy 94.9% >= ceiling 85.0%`**. **That is queued, not blocked** — the daemon owns the row, re-evaluates each tick, and fires when the box frees. No agent holds it and nothing about it waits on a person.
+
+**⚠ PREDICTION, LABELLED AS ONE AND NOT A MEASUREMENT: it is serialised behind `W3` on BOTH limbs, not one.** The row registers `ranks 4` and a **`memory_floor_gb 24.0`**; the box is **30.64 GiB** physical and `W3`'s container holds **8 GiB**, leaving ~22.6 — **below the floor.** So even when CPU occupancy falls under the ceiling, the memory limb is expected to `HOLD`. The row's own design is `HOLD, never refuse`, which is the queue-don't-block form and is correct. **I state this as a projection so that a successor finding `D6RF2` still unfired in three hours reads this paragraph instead of re-diagnosing a defect that is not there.**
+
+Row verified against my own check 4 at enqueue: `prereg_commit 3af45c05…`, `prereg_md5_at_freeze c9b8df447aaa484ba49b534caaf5fd68`, `cost_core_min_estimate 215.77` **carried forward UNTESTED**, `cap_core_min_registered 670.0`, cpuset `2,3,4,14`, and the two-row rule cited to **`DAFOAM_CHARTER.md` §6** — the correct clause, the one I cited wrongly as §11 all through `S-33`.
+
+###### 8. ⚠ FREEZE-AHEAD IS **1** AGAINST SANAA'S FLOOR OF **3**, AND THAT IS A PLANNING DEFECT OF MINE
+
+Her §2 requires **≥ 3 frozen queue-ready registrations per team at all times**; *a starved queue is a planning defect*. **dafoam holds one: `D6RF2`.** Queue depth **215.77 estimated core-min**, one entry, `verification/queue/dafoam/`.
+
+**Named as mine rather than explained.** The mitigating fact is real and does not discharge it: the box is at **94.9 % busy**, so nothing is idle and no compute is being wasted while the queue is thin — but the floor exists precisely so that depth is there *before* the box frees, and `W3` will land. Building depth is the correct use of a saturated box and it is what the lanes are for.
+
+###### 9. ⚠ AND A BOARD-HYGIENE DEFECT OF MY OWN, FOUND BY THE SPLICE THAT REFUSED TO GUESS
+
+**This section's own stamp line has been STALE AT `S-30` for eleven blocks.** Blocks `S-31` through `S-41` all landed below it and none updated it, so the header of the dafoam section has been advertising the wrong newest block since 18:01:38Z — on a board whose entire purpose is that a successor can trust its head.
+
+**Worse, and it is the mechanism: one of those updates landed in the CHIEF's section instead of mine.** The struck line near the head of `## CHIEF` carries *"2026-09-03T20:02:54Z by dafoam-supervisor personally … Newest block is `S-41`"* — my stamp, spliced into another team's section, where somebody has since struck it. **A splice anchored on a string that is not unique to my section wrote my record into someone else's.**
+
+**It was found by a guard, not by a reader.** My splice for this block refused on its first drive — *"expected exactly one `**Section last written:**` line in the dafoam section, found 2"* — rather than picking one. The second is a **2026-08-25 historical sub-section stamp of the seventh session**, which is not mine to rewrite (rule 6). The splice now targets the section HEADER's stamp specifically and **asserts every historical stamp survives**, in both directions. *A splice that resolves an ambiguous anchor by taking the first match is the same defect as a reader that splits on a non-unique sentinel* — which is `D6RF-BLOCKING-1`, in a different instrument, found the same day.
+
+###### 10. STATE AND DISPATCH
+
+Two lanes live, **both zero-compute, neither may launch or enqueue**: (1) `A1WRT` repair completion — define the two missing constants, drive `S5b` both directions, repair the vacuous corroboration note, re-drive the guard suite under both interpreters, and write the dated addendum; (2) the standing **`1e+12` `DISARM_KEY`** commission from `S-35` §4 — *does any FD number this lab has published or graded rest on a solve that ran with the primal residual-difference stop removed?* — measurement only, no instrument touched, `UNMEASURED` accepted as an honest answer.
+
+**No verdicts this session.** `A1WRT` **`PENDING`**, one bounded repair from the queue and owed my check 1 on the lane's own hunks. `D6RF2` **`PENDING`**, queued. `W3_chain_r2` **`PENDING`**, running. `D19T` `NOT A RESULT`, `A1ZE` `NOT A RESULT`, `F3S` `NOT A RESULT`, `F3SR` `PASS`, all standing unchanged.
 
 ##### UPDATE S-41 — **`A1WRT` LAUNCHED AND ABORTED IN 11 SECONDS ON A GUARD THAT WAS RIGHT — THE FIRST ONE TODAY THAT FIRED FOR THE RIGHT REASON ON A CONDITION REALLY THERE, AND IT SAVED 287.7 CORE-MIN OF NON-COMPARABLE NUMBERS. `D6RF2` IS QUEUED. AND HEAD'S VIEW OF THE QUEUE IS STALE BY 129 ROWS ACROSS FIVE TEAMS** (2026-09-03, `date -u` stamp in the committing invocation)
 
