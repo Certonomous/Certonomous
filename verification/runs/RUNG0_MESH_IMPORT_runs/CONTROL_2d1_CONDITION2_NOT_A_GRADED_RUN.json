@@ -1,0 +1,146 @@
+{
+  "GRADED_STATE_UNCHANGED": {
+    "R0_G2b": "PENDING on all four grids",
+    "note": "Nothing in this file changes it. No reader may infer a PASS from these arms.",
+    "rung_verdict": "PENDING",
+    "source": "verification/runs/RUNG0_MESH_IMPORT_runs/RESULTS.json, sha256 d0686c23..."
+  },
+  "RESULT": "ALL FOUR ARMS FIRED. With every registered gate holding -- R0-G1/G2a/G3/G4 PASS on all four grids by the comparator's OWN output, and R0-G2b PASS on all four with C9 fired on all four, MEASURED INSIDE ARM 1 rather than cited -- the FROZEN comparator emitted rung PENDING, per_grid PENDING x4, R0_G2b PENDING x4. The same reader then read GATE FAIL from the same comparator when one patch's nFaces was raised by 1 (per-patch mismatch symmetry 15360 vs 15361), and BLOCKED when one case directory was omitted. Arm 0's plant forced rung_verdict to PASS in a scratch copy and the reader saw PASS. FOUR DISTINCT OUTCOMES FROM ONE READER; PASS APPEARS ONLY AS THE PLANT, NEVER AS SOMETHING analyse_rung0.py EMITTED.",
+  "SANAA_RULE_ENGAGED_AND_SATISFIED": "2026-09-03 governance reform: 'No instrument is built to measure another instrument's reach unless the first instrument has already changed a verdict at least once.' analyse_rung0.py HAS changed a verdict at least once -- GATE FAIL on all four grids on attempt 2 (RESULTS.ATTEMPT2_SPURIOUS_GATE_FAIL.json) and PENDING on attempt 3 (RESULTS.json). The exception applies on its face. Named here rather than passed over.",
+  "WHAT_IT_DOES_NOT_SHOW": [
+    "NOT A RESULT is NOT exercised. The comparator reaches it only when one of its own eleven planted controls fails, and those read repository paths outside the run root, so no run root this file can build will force one. Three of the four reachable verdicts are demonstrated; the fourth is named and left undemonstrated.",
+    "It does not prove unreachability BY EXHAUSTION. It shows PENDING emitted from the only configuration in which PASS could ever be due. It deliberately does not walk the frozen grader's control flow: that would be an instrument built to measure another instrument's reach.",
+    "It licenses no repair. \u00a72d.1 requires all four conditions, and (1), (3) and (4) are argued in the lane's report and in R0G2B_DIAGNOSTIC_NOT_A_GRADED_RUN.json, not established here."
+  ],
+  "WHAT_THIS_IS": "THE \u00a72d.1 CONDITION (2) INSTRUMENT'S RECORD. IT GRADES NOTHING AND IT IS NOT A RUNG VERDICT. VERIFICATION_CHARTER.md \u00a72d.1 permits a post-compute change to a grading path only when four conditions hold, and condition (2) requires the error to have been established by an instrument INDEPENDENT OF THE HYPOTHESIS -- one that grades nothing. Every example the clause gives is EXECUTABLE, and until this run the claim that analyse_rung0.py cannot emit PASS had been established only BY READING THE SOURCE. This is that reading made executable. It repairs nothing, and the ruling on what follows is verification's under \u00a72d.1, not this lane's.",
+  "arm1_R0_G2b_measured_here": {
+    "DPW5_L1T_hex": {
+      "c9_fired": true,
+      "checks": {
+        "cell_count_exact": true,
+        "patch_names_set_equal": true,
+        "per_patch_face_counts_exact": true
+      },
+      "verdict": "PASS"
+    },
+    "DPW5_L1T_hybrid": {
+      "c9_fired": true,
+      "checks": {
+        "cell_count_exact": true,
+        "patch_names_set_equal": true,
+        "per_patch_face_counts_exact": true
+      },
+      "verdict": "PASS"
+    },
+    "DPW5_L1T_prism": {
+      "c9_fired": true,
+      "checks": {
+        "cell_count_exact": true,
+        "patch_names_set_equal": true,
+        "per_patch_face_counts_exact": true
+      },
+      "verdict": "PASS"
+    },
+    "HLPW6_h6c1_rans_3a_1": {
+      "c9_fired": true,
+      "checks": {
+        "cell_count_exact": true,
+        "patch_names_set_equal": true,
+        "per_patch_face_counts_exact": true
+      },
+      "verdict": "PASS"
+    }
+  },
+  "arm1_comparator_reading": {
+    "per_gate": {
+      "DPW5_L1T_hex": {
+        "R0_G1": "PASS",
+        "R0_G2a": "PASS",
+        "R0_G2b": "PENDING",
+        "R0_G3": "PASS",
+        "R0_G4": "PASS"
+      },
+      "DPW5_L1T_hybrid": {
+        "R0_G1": "PASS",
+        "R0_G2a": "PASS",
+        "R0_G2b": "PENDING",
+        "R0_G3": "PASS",
+        "R0_G4": "PASS"
+      },
+      "DPW5_L1T_prism": {
+        "R0_G1": "PASS",
+        "R0_G2a": "PASS",
+        "R0_G2b": "PENDING",
+        "R0_G3": "PASS",
+        "R0_G4": "PASS"
+      },
+      "HLPW6_h6c1_rans_3a_1": {
+        "R0_G1": "PASS",
+        "R0_G2a": "PASS",
+        "R0_G2b": "PENDING",
+        "R0_G3": "PASS",
+        "R0_G4": "PASS"
+      }
+    },
+    "per_grid": {
+      "DPW5_L1T_hex": "PENDING",
+      "DPW5_L1T_hybrid": "PENDING",
+      "DPW5_L1T_prism": "PENDING",
+      "HLPW6_h6c1_rans_3a_1": "PENDING"
+    },
+    "rung": "PENDING"
+  },
+  "arms": [
+    {
+      "control": "ARM 0 PLANT: the control's verdict reader must be able to SEE a PASS",
+      "expected": "rung_verdict PASS and every per_grid PASS, read back FROM DISK",
+      "fired": true,
+      "saw": "donor rung was 'PENDING'; planted copy reads rung 'PASS', per_grid ['PASS']"
+    },
+    {
+      "control": "ARM 1: every registered gate HOLDS -- R0-G1/G2a/G3/G4 by the comparator's own output and R0-G2b measured here -- and the FROZEN comparator still emits PENDING",
+      "expected": "R0-G2b PASS x4 with C9 fired x4; R0-G1/G2a/G3/G4 PASS on all four; and the comparator's rung verdict PENDING, never PASS",
+      "fired": true,
+      "saw": "R0-G2b ['PASS', 'PASS', 'PASS', 'PASS'] C9 [True, True, True, True]; runnable gates all PASS True; comparator rc=0 rung='PENDING' per_grid=['PENDING'] R0_G2b=['PENDING'] in 29.17 s"
+    },
+    {
+      "control": "ARM 2 MIRROR: one patch's nFaces raised by 1 -> the comparator must reach GATE FAIL, so ARM 1's PENDING is a reading and not a default",
+      "expected": "rung GATE FAIL, DPW5_L1T_hex GATE FAIL",
+      "fired": true,
+      "saw": "rung='GATE FAIL' DPW5_L1T_hex='GATE FAIL' per-patch mismatches {'symmetry': [15360, 15361]}; rc=0 in 35.196 s"
+    },
+    {
+      "control": "ARM 3 MIRROR: one case directory omitted -> the comparator must reach BLOCKED, a third distinct verdict from the same reader",
+      "expected": "rung BLOCKED, HLPW6_h6c1_rans_3a_1 BLOCKED",
+      "fired": true,
+      "saw": "rung='BLOCKED' HLPW6='BLOCKED'; rc=0 in 27.486 s"
+    }
+  ],
+  "case_id": "RUNG0_MESH_IMPORT",
+  "comparator_under_test": {
+    "modified_by_this_control": "NO. Not edited, not imported, not read at run time.",
+    "path": "/home/ubuntu/Certonomous/verification/runs/RUNG0_MESH_IMPORT_runs/analyse_rung0.py",
+    "sha256": "590bd40d1adee5b19a03b7352ae8f0db60b75e433ebaed11698d5cdc11e03317"
+  },
+  "cost": {
+    "basis": "wall x 1 rank / 60. PRODUCTIVE 124.37 s measured by /usr/bin/time -f on the run that produced this record (arm 1 comparator 29.17 s, arm 2 35.196 s, arm 3 27.486 s, plus arm 1's four round trips). WASTE 120 s: a first invocation killed by this lane's own 120 s command timeout -- an operator misjudgement, not a defect in the control, and NAMED SEPARATELY rather than absorbed (COMPUTE_BUDGET_CHARTER.md \u00a76).",
+    "cumulative_against_cap": {
+      "cap": 23.0,
+      "note": "The cap was not reset and not raised.",
+      "pct": 45.6,
+      "spent_total": 10.49
+    },
+    "productive_core_min": 2.073,
+    "ranks": 1,
+    "waste_core_min": 2.0
+  },
+  "instrument": {
+    "bytes": 20063,
+    "grades": "NOTHING. It runs the frozen comparator as a subprocess and reports what it emitted.",
+    "path": "/home/ubuntu/Certonomous/cases/committee-grids/control_comparator_pass_unreachable.py",
+    "sha256": "c5b4f186b09c8a429939916cad981b57bb5d5bbbc827b54502aa8db554432dfa"
+  },
+  "prereg": "verification/campaign/RUNG0_MESH_IMPORT_PREREGISTRATION.md",
+  "prereg_commit": "d127d83d4ebf4caaaf0c12c39a063c5f624a03a4",
+  "ruled_by": "cfd supervisor, 2026-09-03: limb (a) -- the ':334-342 says DOES NOT EXIST about a file that exists' defect -- AUTHORISED IN PRINCIPLE, all four conditions held. Limb (b) -- adding a PASS branch and folding R0_G2b into the :507-508 conjunction -- REFUSED AS THINGS STOOD, on condition (2), because nothing executable had established it and a PASS branch can only ever turn PENDING into PASS. This instrument was ordered to supply exactly what condition (2) names. It is built; it is not a grant."
+}
