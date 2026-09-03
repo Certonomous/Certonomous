@@ -1430,6 +1430,126 @@ Updates d09a4e28's "origin of the day's 52/69 UNVERIFIED". Settled by cfd's comm
 
 ## closure
 
+**SIXTEENTH SESSION, 2026-09-03T20:34:17Z (closure-supervisor). QUIESCENCE PASS ONLY — NO
+COMPUTE LAUNCHED, NOTHING FILED, NOTHING GRADED, NO CHARTER OR LEDGER TOUCHED. This block
+CONFIRMS the block below and ADDS ONE STANDING FINDING AGAINST THE QUEUE DAEMON. It
+supersedes nothing on physics or verdicts.**
+
+**═══ THE STAND-DOWN HOLDS, AND IT WAS RESTATED TO ME AT THIS SESSION'S FORMATION ═══**
+Closure was re-formed at ~20:26Z after the ~20:00Z session-limit fleet kill, with the
+carve-out *"closure stays down"*. That is consistent with the block below and changes
+nothing: Sanaa's own words at `c5edce6b` bind this line to a **CONDITION** — the demo
+catalogue being done — and **only she lifts it.** A chief's restatement is not a
+relaxation and **no agent message is her consent (rule 9)**. **PARKED IS NOT CANCELLED
+(rule 7):** every frozen artefact below stays current and stays findable.
+
+**═══ QUIESCENCE, MEASURED ON FOUR CHANNELS AT 2026-09-03T20:27:30Z, HEAD `5577cec9` ═══**
+**(1) PROCESSES: ZERO closure-owned.** Every candidate pid's `/proc/<pid>/cwd` and argv
+resolved; **no process on this box has a cwd or an argv under any closure path**, and no
+`setsid`/`nohup`/`timeout` wrapper targets a closure case. The box's live work is
+heat-transfer's, cfd's and dafoam's.
+**⚠ AND THE READER MATCHED ITSELF FOR THE THIRD RECORDED TIME** — the sweep's single
+"closure" hit was **its own grep's command line**. Two previous sessions wrote this trap on
+this board and it recurred anyway. **Writing it down has now demonstrably not been enough,
+so it is stated as a construction rather than a caution: a liveness reader EXCLUDES ITS OWN
+PID BEFORE IT COUNTS ANYTHING.**
+**(2) COMPUTE: ZERO writes in 3 h, inside and outside git [MEASURED].**
+`/home/ubuntu/closure-data/` 20,145 files, newest **2026-08-31T14:54**;
+`/home/ubuntu/closure-challenge-benchmark/` 6,263 files, newest **2026-08-17T20:41**;
+closure territory inside git, newest **2026-08-31T15:10**. **Closure's last launch of
+record is 2026-08-31T00:45:13Z** (`M1_kOmega__alpha_15_7929_4048`, from
+`verification/queue/LAUNCH_LOG.tsv`) — **three days cold, and correct while the line is
+down.**
+**(3) QUEUE: 0 LAUNCHABLE ROWS.** `verification/queue/closure/` holds **`README.md` and
+ZERO `.json` at top level**; `launched/` holds **81**. This team's queue has no `held/` and
+no `refused/` subdirectory.
+**(4) UNCOMMITTED WORK: 0 TRACKED FILES MODIFIED.** 80 worktree deletions — the queue rows
+of the finding below — and 91 untracked paths, 79 of them the `launched/` receipts.
+**No tracked closure file differs from its HEAD blob**, so no `git show HEAD:`
+reconciliation was owed on any of them.
+
+**═══ THE FINDING WORTH CARRYING FORWARD: THE QUEUE DAEMON HAS NO STAND-DOWN SWITCH, AND
+CLOSURE'S QUIESCENCE RESTS ON AN EMPTY DIRECTORY ═══**
+`scripts/queue_runner.py` scans **every** team including closure: `list_entries` at
+`:434-442` iterates `TEAMS` (`:113`, taken from `queue_entry_check.py`'s list, closure
+fourth) and takes `d.glob("*.json")`. **There is no HOLD file, no team enable list, no
+disable switch and no stand-down concept anywhere in it.**
+**`SKIP_DIRS = ("launched","refused")` is defined at `:114` and THE ENUMERATOR DOES NOT
+CONSULT IT** — I read both sites myself. `launched/` and `refused/` are out of reach only
+because **`glob` is NON-RECURSIVE**, which is an incidental property of the enumerator and
+**not a guard**.
+**THE CONSEQUENCE, STATED PLAINLY: A STOOD-DOWN TEAM IS PROTECTED BY NOTHING BUT THE
+ABSENCE OF A FILE.** One `.json` dropped at the top level of `verification/queue/closure/`
+— by a lane, by a successor reading the freeze-ahead floor of 3 as still binding, or by an
+inattentive move out of `launched/` — **launches within 60 s, with no agent alive and no
+stand-down check anywhere in the path.** The daemon is kept alive by a cron keepalive every
+minute (`scripts/queue_runner.sh`, pidfile-locked), **so killing it is not a control
+either.**
+**THIS IS WHY CLOSURE FILES NOTHING, AND THE REASONING IS NOW MEASURED RATHER THAN
+PRUDENT.** The block below retired the *"depth 0 is a freeze-ahead violation"* framing on
+the argument that a team ordered down must not stock a queue a daemon would fire. **That
+argument is now backed by the daemon's own code: there is no second line of defence.** The
+freeze-ahead floor re-arms when the stand-down lifts and not before.
+**ESCALATED, NOT REPAIRED — `scripts/` is outside closure's folder scope and the queue
+runner is cfd's.** No patch written, no file touched. The ask, stated so it is actionable
+rather than a complaint: **a queue that can be told a team is down** — a per-team HOLD
+marker the enumerator honours, or an explicit skip list the enumerator actually reads.
+**Until one exists, every stood-down team in this lab is one file-drop from a launch.**
+
+**═══ THE 80-ROW HEAD-VS-DISK DIVERGENCE: EXACTLY 80, BIJECTIVE BOTH WAYS, AND NOT
+CLOSURE'S TO CLEAR ═══**
+HEAD places **80** closure rows at top level (pending) and 2 under `launched/`; disk places
+**0** at top level and **81** under `launched/`. **All 80 reconcile into `launched/` as an
+EXACT set match; 0 rows on disk are unknown to HEAD; 0 rows HEAD knows are absent from
+disk.** Nothing is lost and nothing was removed — the runner MOVED them.
+**This is the whole-condition queue-state item owned by cfd's queue infrastructure, and
+closure does NOT clear its rows separately** — on the chief's instruction, and on the plain
+argument that a divergence measured team-by-team is a divergence nobody can see whole.
+It also **CONFIRMS the block below's Correction 1 by an independent measurement**, and the
+`launched/` count of 81 is unchanged from the 78 `M1_` + 2 `G1_` + 1 `G2_` reconciliation
+already verified there.
+
+**COST THIS SESSION: 0 core-min of solver compute [MEASURED] · 0 GPU-hours [MEASURED] ·
+$0.00.** One read-only lane; no solver, no case directory. **Nothing to calibrate under
+rule 12 — no process completed** — and that is a recorded decision, not an omission.
+
+**RUNGS WITHOUT VERDICTS — UNCHANGED, ALL FROZEN IN PLACE BY THE STAND-DOWN, NONE
+ABANDONED.** **M1** — 72 of 78 arms complete, **UNGRADED**; the grade must PARTITION on the
+two **ASYMMETRIC PAIRS** (`AR_14_Ret_180`, `AR_7_Ret_180`) · **M1's 6 capped arms** —
+evidence sha256-pinned; `PH_Breuer`'s pressure solve saturating `maxIter 200` remains an
+**UNRESOLVED NUMERICAL FINDING** · **M1b, M1-C, R4b-Ib** — three drafts committed,
+**UNFROZEN AND UNREVIEWED; CHECK 1 HAS NOT BEEN PERFORMED ON ANY OF THEM** · **R4b-I**
+`BLOCKED` · **R4b solve arm** `BLOCKED` on Sanaa **and** structurally pinned at `PENDING` ·
+**M2** — **STILL UNRULED since 08-28**, still mine · **RC1/RC2** — landed unfrozen ·
+**Ling arm 2** — frozen, costed, deliberately **UNFILED** · **G1b `xr`** null (D550).
+**FS2 and FS5 are STANDING GATES, permanently re-armed.**
+
+**NEXT ACTIONS — UNCHANGED IN ORDER, AND NOT TO BE TAKEN UNTIL SANAA LIFTS THE
+STAND-DOWN.** (1) grade M1, partitioned; (2) check 1 on all three drafts **as diffs,
+personally** — **check 4 is mine and inheritable from nobody**, since R4b-I's `enqueued_by`
+still carries the build lane's written REFUSAL to claim it and that refusal was CORRECT;
+(3) land **L-409** and the scale-control lesson; (4) rule on M2; (5) D551's L4 from a
+**measured pilot**; (6) the `host` field on the Ling entry, **before** any card is started.
+
+**ON SANAA'S DESK — UNCHANGED, AND EXPLICITLY NOT WITHDRAWN BY THE STAND-DOWN.**
+**(a) GPU: YES for Ling arm 2** — frozen, costed at a **40 GPU-h = $32.19 [DERIVED]** cap,
+and **deliberately UNFILED**: its entry has no `host` field and `queue_runner.py` defaults
+that to `local`, so filing it would fire a GPU arm **on the CPU box**. **If the card is
+started expecting this to be picked up, NOTHING WILL HAPPEN and the card idles.**
+**(b) THE R4b INCREMENT RULING**, owed since 08-28 — it buys the **permission**, not the
+**instrument**: `grade_r4b.py:861-876` leaves G1, G3-G7 as unconditional `PENDING` stubs
+which the aggregator tests **before** `GATE REACHED`. **SUBMISSIONS REMAIN PARKED (rule 7).**
+
+**BLOCKED — ONE ITEM, COVERING EVERYTHING ELSE.** The whole line is **stood down by Sanaa
+until the demo catalogue is done.** What would unblock it: **her word, and only hers.**
+
+**VERIFY (NOT checked by me this session):** that `SKIP_DIRS` is referenced nowhere else in
+`queue_runner.py` — I read the definition at `:114` and the enumerator at `:434-442`, and
+the file-wide count is the lane's, not mine; the `_dev` B3 record's arithmetic; RC1/RC2's
+on-disk state; M2's frozen-generator question; `docs/closure/README.md`'s known
+disagreement with `Ling2016/RESULTS.md`; and the DISK-based recount of unfiled closure
+artefacts owed to the block below's Correction 3.
+
 **FIFTEENTH SESSION, 2026-09-01T01:25Z (closure-supervisor). STAND-DOWN PASS ONLY — NO LANES
 SPAWNED, NO COMPUTE LAUNCHED, NOTHING GRADED. This block CONFIRMS the state of the block
 below and CORRECTS THREE OF ITS READINGS. It supersedes nothing on physics or verdicts.**
