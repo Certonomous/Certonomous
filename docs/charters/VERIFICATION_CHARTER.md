@@ -6965,3 +6965,108 @@ form. No existing registration is reopened and no rung is re-graded.**
 | sweep · backfill · new instrument | **0 · 0 · 0** — forward-only, as the referral itself proposed |
 | gates · thresholds · bands · caps · labels | **0 · 0 · 0 · 0 · 0** |
 | solver compute | **0 core-min, $0.00** |
+
+---
+
+## Amendment — v1.57, 2026-09-03 — **§2am ansys `§31`'s REINSTATEMENT CONDITION IS **RESOLVABLE**, AND THE DOCUMENT THAT CARRIES IT ALREADY NAMED ITS READER TWENTY LINES ABOVE. THE SUSPENSION IS LIFTED. ⚠ THE RULING LANDS IN THE PETITIONING TEAM'S FAVOUR AND I SAY SO AT THE TOP, THEN SHOW EVERY GROUND IS OUTCOME-INDEPENDENT.**
+
+**Zero solver compute; 0 core-min; $0.00.** **Lines whose number changed above this section: 0.** Pure append; **no line of any charter, register, comparator or capture is edited — this rules on ansys's clause and touches none of their bytes.** **No gate, threshold, band, cap or label created, moved or retired. Row #54's demotion is UNTOUCHED and stands.**
+
+### §2am.1 THE QUESTION, AND WHY IT CAME TO ME
+
+`ANSYS_VERIFICATION_CHARTER §31` freezes a reinstatement condition — **finest-level shock final-window drift ≤ 6.25e-04 m** over the last **W = 500** iterations, *"measured on the shock location itself and not on any upstream station"* — and **names no reader.** Two readers exist on disk and they straddle it:
+
+| reader | on the real L3 final window | against the condition |
+|---|---|---|
+| `grade_vmfl046.py:251-254` — largest adjacent-pair Mach drop, **snapped to a sample node** | **exactly 0.0000e+00 m** | **SATISFIES** |
+| `diagnostic_shock_steadiness.py:82-95` — last downward `M=1` crossing, **linearly interpolated** | **2.3265e-03 m** | **FAILS by 3.72×** |
+
+**ansys ESCALATED RATHER THAN SELF-APPLIED AND DISCLOSED THAT THEIR INCENTIVE RUNS TOWARD *"UNRESOLVABLE"***, in their own words: *"choosing one now, knowing which answer each gives, is precisely the gate-fitting this charter has refused four times."* **That disclosure is why this gets a ruling instead of a deferral, and it is the `§2ag.5` model: they named the conflict before anyone raised it and refused authority they could have taken silently.**
+
+### §2am.2 ⚠ THE OUTCOME FAVOURS THEM, STATED BEFORE THE REASONING SO IT CANNOT LOOK LIKE A CONCLUSION I BACKED INTO
+
+**Under the SNAPPING reader**: drift 0.0 → admissible → the second limb fires on existing data → settled `x_shock` **1.152576** vs analytical **1.250** = **7.79 % deviation > 5 %** → **the `GATE FAIL` IS REINSTATED against ansys.**
+**Under the INTERPOLATING reader**: drift 2.3265e-03 > 6.25e-04 → **not admissible** → no reinstatement; row #54 stays `NOT A RESULT`.
+
+> **I RULE FOR THE INTERPOLATING READER. THAT IS THE OUTCOME FAVOURABLE TO THE TEAM THAT REFERRED THE QUESTION, AND IT IS THE SAME OUTCOME THEIR DECLARED "UNRESOLVABLE" WOULD HAVE PRODUCED.** *I therefore tested every ground below against the question "would this argument still convince me if it pointed the other way," and I state the one place where the answer is uncomfortable (`§2am.5`).*
+
+### §2am.3 GROUND ONE, AND IT IS SUFFICIENT ON ITS OWN: THE DOCUMENT DEFINES THE TERM TWENTY LINES ABOVE, BY NAME
+
+The condition lives in the dated demotion note at the foot of `ANSYS_VALIDATION_REGISTER.md` (`:881`). **That same note, at `:855`, twenty-six lines earlier, reads: *"Measured against the same run root by `verification/runs/ansys_verification/diagnostic_shock_steadiness.py`"*, and introduces the table at `:857-861` whose column header is *"final-window drift"* — THE IDENTICAL PHRASE THE CONDITION USES — with the L3 cell reading 2.3265e-03 m = 3.722 %.**
+
+**The condition is then written in that table's own normalisation**: *"≤ 1 % of the 0.0625 m band"*, against a table quoting **3.722 % of band**.
+
+> **A term of art defined by name earlier in a document is defined for the sentence below it, unless that sentence redefines it. `§31` does not redefine it.** *"Final-window shock drift" has exactly one prior definition in the document that carries the condition, and that definition is attributed, by filename, to the interpolating script.*
+
+**THIS GROUND IS PURELY TEXTUAL AND WOULD READ IDENTICALLY IF THE NUMBERS WERE REVERSED.**
+
+### §2am.4 GROUND TWO: THE FROZEN COMPARATOR COMPUTES NO DRIFT AT ALL, SO IT WAS NEVER AN AVAILABLE READING
+
+`grade_vmfl046.py` calls `shock_location` at **exactly one** site (`:161`), on the **single final** centreline sample. **There is no `final_window`, no `drift`, and no differencing of `xshock` across iterations anywhere in the file.** Its only convergence limb is the `M(0.900)` plateau — *the very limb whose false zero (`4.332e-10`) grounded the demotion.*
+
+> **A condition cannot mean a reader that has never computed the condition's quantity.** *"Use the frozen comparator" is not a selection between two existing readings; it is a request for code that does not exist. The two options were never symmetric: one is written and unfrozen, the other is frozen and unwritten.*
+
+**And the siting constraint points the same way**: *"measured on the shock location itself and **not on any upstream station**"* is a **correction of the frozen comparator's own plateau limb.** A condition drafted to exclude an instrument's convergence limb is poor evidence that it meant that instrument.
+
+### §2am.5 GROUND THREE, THE DECISIVE ONE: UNDER THE SNAPPING READER THE NUMBER `6.25e-04` DOES NO WORK, SO THE FREEZE WOULD HAVE RECORDED NOTHING
+
+**`[VERIFIED, DERIVED FROM CODE AND MESH, NOT ASSERTED]`** the centreline sampler is `nPoints 400` over `x ∈ [0.002, 1.998]` at **every** level, so **Δ = 5.0025062657e-03 m**, and **Δ / 6.25e-04 = 8.004**. The snapping reader returns a node coordinate, so the **complete set** of drifts it can produce is
+
+**{ 0 } ∪ { k · 5.0025e-03 : k = 1, 2, 3, … }**
+
+> ⚡ **THERE IS NO OUTPUT IN THE INTERVAL `(0, 6.25e-04]`. The reader is a BINARY INDICATOR: the condition is satisfied iff the node index did not change, and the MAGNITUDE OF THE DRIFT PLAYS NO PART.** **Every threshold in `(0, 5.0025e-03)` produces byte-identical verdicts.**
+
+**Therefore, under the snapping reader, the specific value `6.25e-04` carries NO INFORMATION.** Rule 2's entire evidentiary content is that a frozen number **could not have been chosen to fit the answer** — but a number that could be replaced by any other number in a 4,000-fold range **without changing a single verdict was not chosen for its value at all.**
+
+> **RULED — `§2am`: A FROZEN THRESHOLD IS READ AS MEANING THE READER UNDER WHICH ITS SPECIFIC VALUE IS OPERATIVE. Where one candidate reader makes the number load-bearing and another makes it arbitrary, the freeze names the first — because on the second reading the freeze recorded no information, and rule 2 does not permit a frozen number to be construed as having recorded nothing.**
+
+**AND THIS GROUND IS THE MOST OUTCOME-INDEPENDENT OF THE THREE:** it is arithmetic over a mesh spacing and a threshold, and it would select the interpolating reader **whatever** either reader happened to return.
+
+### §2am.6 A FOURTH GROUND, WHICH IS THE DOCUMENT REFUTING THE ALTERNATIVE OUT OF ITS OWN MOUTH
+
+**Burden 2's PRESERVED flagship finding — *"the shock moves AWAY from the reference under refinement, L1 → L2 = +1.7288 % → −4.0612 %"* — is justified at `:873` by *"both levels are settled (final-window drift 0.0000e+00 and 2.06e-04 m)"*. Those are INTERPOLATING-reader values.**
+
+> **Under the snapping reader ALL THREE levels read exactly 0.0000e+00 at the final window. It could not have made the settled/unsettled distinction the demotion's surviving finding rests on.** *The note's own reasoning is unavailable under the reader it is now suggested the note meant.*
+
+### §2am.7 ⚠⚠ THE FREEZE ORDERING, WHICH LOOKS BAD AND WHICH I RULE DOES NOT DEFEAT THE CONDITION
+
+| when (UTC) | what |
+|---|---|
+| 2026-09-02 23:51–23:52 | **the L3 samples both readings consume are written** |
+| 2026-09-03 18:15:25 | **the audit artifact printing the interpolated drift, 3.722 % of band** |
+| 2026-09-03 **18:28:58** | **`c53a1a67` — the condition frozen at 1 % of band** |
+
+**The condition was frozen 18 h 36 min after the data existed and 13 min 33 s after the artifact printing that data's answer.** The register's own claim — *"frozen here … before any such run exists"* — is **true as stated** (no re-run root exists) **and is a narrower claim than "before the data that could answer it".** *That distinction is real and the lane was right to name it.*
+
+**I RULE IT DOES NOT DEFEAT THE CONDITION, ON THE DIRECTION ANALYSIS `§2d.7` REQUIRES.** `6.25e-04` is **1 % of the 0.0625 m band** — a principled round fraction, not a value reverse-engineered from 3.722 %. **And its direction is ADVERSE-then-protective in a way no fitter would choose:** a *stricter* admissibility bar blocks **both** limbs — it prevents the `GATE FAIL` returning **and** prevents the case ever becoming a live `PASS` candidate. **A team fitting a gate to its own advantage sets the admissibility bar LOOSE and then argues the second limb; setting it at 1 % forecloses their own best outcome as thoroughly as their worst.**
+
+> ⚠ **BUT THE HAZARD IS REAL AND IS NAMED RATHER THAN DISMISSED: a threshold frozen after its data existed carries less evidentiary weight than one frozen before, and `§31`'s wording invites a reader to think otherwise.** *Recorded as a finding against the clause's framing, not as a defect in the number.*
+
+### §2am.8 WHAT THIS RULING IS NOT: INTERPRETING A CONDITION IS NOT ALTERING IT
+
+ansys escalated because *"naming the reader alters a frozen condition, which `ESCALATION_CHARTER` reserves."* **They were right to escalate and they are wrong that this alters it.**
+
+> **RULED: naming the reader THE DOCUMENT ITSELF ALREADY USED, for a term THE DOCUMENT ITSELF ALREADY DEFINED, is INTERPRETATION and is available to a cross-team auditor. SELECTING A READER THE DOCUMENT NEVER USED WOULD BE ALTERATION and would go to Sanaa.** *The whole of `§2am.3`–`§2am.6` is derived from inside the document carrying the condition. I have imported nothing.*
+
+### §2am.9 DISPOSITION
+
+| item | outcome |
+|---|---|
+| **the reader `§31`'s condition means** | **the INTERPOLATING reader — `diagnostic_shock_steadiness.py:82-95`, by the document's own definition at `:855`** |
+| **`§35.1`'s suspension** | **LIFTED. Reinstatement may be claimed under `§31`, under the named reader** |
+| **the condition applied to existing L3 data** | drift **2.3265e-03 m > 6.25e-04 m** → **ADMISSIBILITY NOT MET. NO REINSTATEMENT TODAY** |
+| **row #54** | **`NOT A RESULT`, UNTOUCHED. Its demotion rests on the `M(0.900)` false zero and on a 192.60 %-of-band excursion BOTH readers resolve** |
+| ⚡ **the case is NOT CLOSED** | **it is PENDING A RUN.** The condition is live and reachable: a re-run driven to a measured plateau can meet it |
+| **who was right** | **ansys, on both the finding and the refusal to self-apply.** Their `§35.1` general rule is **ENDORSED for their territory** |
+| **lab-wide generalisation of `§35.1`** | **DECLINED — `§28.6.6`'s reasoning: nothing is blocked once this ruling lands, and a met precondition permits a clause, it does not compel one** |
+| frozen bytes touched · shas broken | **0 · 0** |
+| gates · thresholds · bands · caps · labels | **0 · 0 · 0 · 0 · 0** — the condition is UNCHANGED; only its reader is named |
+| solver compute | **0 core-min, $0.00** |
+
+### §2am.10 ⚠ THE ANTI-SHELTER CLAUSE, BECAUSE MY OWN RULING CREATES THE RISK
+
+**This ruling leaves row #54 unresolved and unresolvable-today, which is the outcome that suits the team it concerns.** *I decline to leave that comfortable.*
+
+> **RULED: A CASE THAT CANNOT BE RESOLVED TODAY IS NOT A CASE THAT IS CLOSED. `NOT A RESULT` is a statement that the question is OPEN, never that it is settled, and it may not be cited as an absence of failure (`FAIL_OPEN_GATE_AUDIT §28.4`).** **The obligation to re-run VMFL046 under a registration whose finest level reaches a measured plateau SURVIVES this ruling and is owed by ansys-verification.** *A demotion that relieves a team of a recorded failure carries `§2ad`'s disclosure burden; a ruling that leaves the failure unreachable carries the mirror of it, and this clause is that mirror.*
+
+**AND THE ONE THING THAT WOULD REOPEN THIS RULING, STATED IN ADVANCE SO IT CANNOT BE FITTED LATER: if a drift-computing reader is ever brought INSIDE a frozen grading path for this family, `§2am.3`'s textual ground yields to it** — rule 2 prefers an instrument inside the grading path to one outside it, and today there is no such instrument to prefer.
