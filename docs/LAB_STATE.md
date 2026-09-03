@@ -267,7 +267,7 @@ read in the writing invocation.
 
 ---
 
-~~**Section last written:** 2026-09-03T18:20:06Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-31` — **`S-29` §2's U2 mechanism is FALSIFIED by its own control case**: `U2` is not in the quantity DAFoam declares convergence on, proved from `D19T`'s arithmetic alone, and the two `D19T` rows I read as confirmations were disconfirmations. The binding channel is `he` and its floor IS the declared number to four figures. Check 1 (six instrument diffs) and the mtime ruling are discharged inside it. Before it, `S-30` (the chain survived the fleet kill and is at its FD legs), then `S-29`.
+~~**Section last written:** 2026-09-03T18:33:47Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-32` — **the D6 lineage has carried a units defect since D4 that would have certified an FD table at the WRONG WING**, and the crash that hid it was the lucky outcome (62 of 96 shape components outside their bound, max 6.02x). `A1ZE` and `D6RF` are both FROZEN with check 4 discharged on both registrations, and **neither can be enqueued because neither has a launcher**. Before it, `S-31` (S-29's U2 mechanism falsified by its own control case), `S-30` (the chain survived the fleet kill), then `S-29`.
 
 **Section last written:** 2026-08-24T16:27:20Z by chief (certonomous-64) — six-team structure ratified by Sanaa, D-3..D-6 closed, ansys-verification team created; written by the harness-build lane on the chief's instruction, stamp from `date -u` in the writing invocation
 
@@ -4842,6 +4842,50 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 **Section last written:** 2026-09-03T18:01:38Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-30` — the `W3_chain_r2` chain SURVIVED the usage-limit fleet kill as a detached OS daemon and is at its finite-difference legs (9 stages `rc=0`, 36.10 core-min of a registered 900.0), and `S-29` §6's three "live" pids are corrected: two are dead and the survivor's pid was never right. Before it, `S-29` — `D19T` graded `NOT A RESULT` by its own frozen grader; the `U2` patch-identity mechanism predicts five non-convergences across three items with a fourth arm disconfirming it; the generator fix landed forward-only and UNVERIFIED with `A1ZE` registered as its verification; `D12RLX` referred not withdrawn; and five of the supervisor's own errors are named as his. `S-28` holds `MAAOA`'s conclusion and `D19T`'s original block; `S-27` the closed compressible triage.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-32 — ⚠⚠ **THE `D6` LINEAGE HAS CARRIED A UNITS DEFECT SINCE `D4` THAT WOULD HAVE CERTIFIED AN FD TABLE AT THE WRONG WING — AND THE CRASH THAT HID IT WAS THE LUCKY OUTCOME. TWO ITEMS FROZEN (`A1ZE`, `D6RF`), CHECK 4 DISCHARGED ON BOTH REGISTRATIONS, AND **NEITHER CAN BE ENQUEUED BECAUSE NEITHER HAS A LAUNCHER**. THREE MORE ERRORS OF MINE, NAMED** (2026-09-03, `date -u` stamp in the committing invocation)
+
+###### 1. ⚠⚠ THE UNITS DEFECT — verified by me personally, and the numbers are worse than the lane's
+
+A lane found it; **supervisor check 3 was done on it before it was repeated anywhere**, because it is large enough to change this family's direction.
+
+`/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin/F3/` preserves the pair. **The endpoint design variables are DRIVER-SCALED and nothing in the `D6` lineage descales them:**
+
+| DV | physical | driver-scaled | scaler |
+|---|---|---|---|
+| `patchV[0]` | **100.0** | 10.0 | 0.1 |
+| `twist[0]` | −0.23042706064274512 | −0.023042706064274512 | 0.1 |
+| **`shape[0]`** | **0.3168962317413609** | **3.168962317413609** | **10.0 — the scaled frame is TEN TIMES LARGER** |
+
+**Then I opened the crashed arm's own artifact, `F/d4_endpoint_dvs.json`.** It carries **no units marker of any kind**; its `shape` is **bit-identical to the DRIVER-SCALED frame**; and **62 of its 96 shape components lie OUTSIDE the `[-1,1]` bound, maximum |value| 6.024591873823496.** The mesh deformer refused: `Mesh quality error!`, rc=1 at 15 s.
+
+**⚠ THE CRASH IS THE LUCKY OUTCOME, AND THAT IS THE FINDING.** Nearly two-thirds of the design vector at up to **6× its bound** is so far out that the deformer refused. Had the excursion been milder — a smaller optimum, a scaler nearer 1 — **the arm would have returned a complete, plausible FD table at a wing that was never the design point, and not one of the count, plant or order controls would have caught it, because every one of them interrogates the TABLE and none interrogates the FRAME.**
+
+**In this family an FD table is the artifact that converts a DAFoam gradient into a result.** A defect that silently relocates the geometry underneath the table **attacks the bright line itself.** `F3`'s repair — `_units: PHYSICAL` carried beside `_scaler_source_md5`, `_scalers_applied`, `_control_B`, `_control_P`, `_preimage_md5`, `_quantified_move` and `_not_established` — is the right shape and is now **mandatory, never a default**: an unmarked file is precisely what a naive extractor produces.
+
+Two further `D6R` registration defects, found by measurement and never exposed only because the chain stopped first: `F_mp` was registered to run **in place inside `O_mp/`** on top of 912 optimiser time directories (`D4` arm `F2`, rc=1 at 56 s, `renameSolution … already exists`), and **`REF_off`'s cap was 3.16× short** — 40.0 registered against a measured 55.53 core-min. **No source exists anywhere for `D6R`'s "10.5" anchor** and the lane said so rather than repeating it.
+
+###### 2. TWO ITEMS FROZEN, CHECK 4 DISCHARGED ON BOTH REGISTRATIONS — AND **NEITHER HAS A LAUNCHER**
+
+**`A1ZE`** — `03120e2244d52aee5dd79f7e0ea66b4b2940f7fd`, 17 paths, all under `cases/dafoam/`, no foreign rows. Verified **by me, not relayed**: grader `a1ze_grade.py` md5 `9b755c3b1a043879a664853a3d747c53` **disk == `git show HEAD:` == the pin at line 719**, three ways; `--selftest` rc=0, 7 readers born. **I planted the violations myself rather than believing the lane's**: a `U2` line appended to `P2n_noU2.log` → `CONTROL_FIXTURE_MOVED`, `NOT A RESULT`, **rc=2**; a one-byte whitespace change to `P3_coef.log` → the same, **rc=2**. It refuses; it does not degrade. Caps re-derived by me — `TMO` 480/480/15360/15360, all > 0, back-check `(TMO+60)×ranks/60 == cap` exact on four of four, ratios to anchor wall **4.354× / 4.354× / 4.311× / 4.311×**; cap sum 532.0 with the **item ceiling 370.0 BELOW it so the ceiling binds first**; predicted central 281.15. $0.2404 / $0.3164 **DERIVED**. `VERDICT_CEILING` enforcement is real code at `a1ze_grade.py:584-585`, not prose.
+
+**`A1ZE` §3a is better than what I asked for and it deserves saying:** it registers **"neither arm declares"** as the expectation and pre-registers that an `empty`-only declaration would mean `U2` reaches the criterion after all and **contradicts `D19T` `T10`** — reported as a new fact, folded into no gate. **That makes my own `S-31` finding falsifiable BY this run instead of assumed by it.**
+
+**`D6RF`** — `a1d8da497183dcb7f589dcbc8177462448d9346d`, root absence asserted by execution. Locus instrument driven **30/30**, grader **37/37**, each under `python3` and `python3 -O`, **zero containers created**. `GATE REACHED` deliberately not registered: this item runs no optimiser.
+
+**⚠ AND BOTH ARE BLOCKED ON THE SAME THING.** `A1ZE`'s parked row names `a1ze_chain_driver.sh`; **the file does not exist** — the directory holds only the registration, the draft stub, the grader, the row and `controls/`. `D6RF`'s `d6rf_run_arm.sh` and `d6rf_chain_driver.sh` are likewise unwritten, which its own §7c registers as the outstanding deliverable. **This family writes excellent registrations and then does not write the thing that runs them.** Both lanes are on it; neither row enters the queue until I have read its driver as a diff.
+
+###### 3. ⚠ THREE MORE ERRORS OF MINE — the same pattern, the fourth day running
+
+1. **I told a lane `CAP_MARGIN_S = 60`. It is not this lineage's constant** — `D6R` uses `FRAME_ALLOWANCE_S = 90` (`d6r_run_arm.sh:251-256`); the 60 is the A1 family's and is the one that gave `D19T`'s `MESH` arm `TMO = 0`; `SO3` uses 180. The lane registered the stricter 90 and checked the identity under both.
+2. **I told a lane `D6R`'s `O_mp` SUCCEEDED.** I verified it myself: **`rc=0` is the CONTAINER's exit.** `O_mp/opt_IPOPT.txt` reads `Sorry, things failed ?!?!` and `EXIT: Invalid number in NLP function or derivative detected.` at iteration 73, and `D6R`'s own frozen grader called it `UNCLASSIFIED`. **`F_mp` reads the endpoint of a FAILED optimisation.** The lane's handling is right: the FD bright line needs a valid geometry and a converged primal, not an optimum, so it survives as a full gate; the off-design rows carry the caveat; `R-RED` drops to reported-not-gated; **no optimality claim anywhere.**
+3. **I implied anchors A1/A2 would price these arms. They do not** — A1 is `F_mp`'s *input*, A2 only the `compute_totals` leg.
+
+**That is the fourth consecutive day on which a status or figure I relayed was corrected by the lane I relayed it to, and it is always the same failure: a value true in one scope, carried into a scope where it is false.** `rc=0` meaning "the container exited" repeated as "the optimisation succeeded" is that failure in its purest form.
+
+###### 4. STATE
+
+Live: `W3_chain_r2`, driver **179658**, at its **finite-difference legs** — `S3b_c0_ap` `rc=0` 8.5667 core-min, `S3b_c0_am` `rc=0` 12.4667, now `S3b_c0_b*`; **10 stages, every one `rc=0`, 48.5667 core-min** of a registered 900.0, $0.0415 **DERIVED**. Lanes: `A1ZE` driver, `D6RF` driver, `A1WRT` one-pass repair then freeze. **PENDING and unqueued:** `A1ZE`, `D6RF`, `A1WRT`. **No verdicts this session.**
 
 ##### UPDATE S-31 — ⚠⚠ **`S-29` §2's MECHANISM IS FALSIFIED BY ITS OWN CONTROL CASE. `U2` IS NOT IN THE QUANTITY DAFoam DECLARES CONVERGENCE ON — PROVED FROM `D19T`'s ARITHMETIC WITHOUT READING ANY SOURCE — AND THE TWO `D19T` ROWS I READ AS CONFIRMATIONS WERE DISCONFIRMATIONS ALL ALONG. THE BINDING CHANNEL IS `he`, AND ITS FLOOR *IS* THE DECLARED NUMBER TO FOUR FIGURES** (2026-09-03, `date -u` stamp in the committing invocation)
 
