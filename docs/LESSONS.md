@@ -23124,3 +23124,63 @@ which is a sampling rate, not a bound.
 error read as the presence of a check.* A summary statistic is face (d) with a number
 attached: it looks like a measurement of the population and is a measurement of a
 projection of it.
+
+## L-473 — A case built by copying another solver's `system/` inherits THAT solver's scheme set, and `default none;` turns every inherited omission into a launch-time fatal
+
+**Measured 2026-09-03, heat-transfer, on K0e.** The rung builds a
+`buoyantBoussinesqSimpleFoam` case from a recorded `simpleFoam` flat-plate
+reference, copying `constant/polyMesh`, the decomposition and `system/`
+wholesale so that the two cases differ **only** by the thermal fields and the
+solver binary — which is exactly what its bit-for-bit momentum control requires.
+The pre-registration wrote that down as *"identical to the reference in
+schemes"* and froze it.
+
+**The daemon launched it and the solver exited `rc=1` in ZERO wall seconds:**
+
+> `FOAM FATAL IO ERROR: Entry 'div(phi,T)' not found in dictionary
+> "system/fvSchemes/divSchemes"`
+
+**The reference was not defective. It was correct.** `simpleFoam` solves no
+energy equation, so a `div(phi,T)` entry in its `fvSchemes` would have been
+dead configuration. **The defect is that "copy the reference's schemes" is a
+statement about a DIFFERENT SET OF EQUATIONS than the one that will be solved.**
+
+> **RULE. A builder that copies `fvSchemes`, `fvSolution` or any dictionary
+> ACROSS A SOLVER CHANGE must ASSERT the entries ITS OWN equations need, not
+> inherit and hope. The assertion belongs in the builder, before the solver
+> starts, and it must fail loudly.**
+
+**Why `default none;` is the load-bearing half of the title.** With a permissive
+`default`, the missing entry would have been silently supplied — the run would
+have completed, produced fields, and been graded, and the graded Stanton number
+would have carried an unregistered discretisation nobody chose. **The fatal
+error is the good outcome here.** `default none;` converted a silent physics
+substitution into a zero-second, zero-cost, unmissable stop. **Any case built
+this way should set `default none;` deliberately, for exactly that reason.**
+
+**The generalisable shape, which is why this is not a note about one dictionary.**
+Copying a validated artifact is a legitimate and often necessary technique — it
+is what makes a bit-for-bit control possible at all. **But an inherited artifact
+is validated for the configuration it came from, and a solver change is a
+configuration change.** The same failure mode is available in
+`fvSolution` (a solver entry keyed on a field the new solver does not have —
+K0e's own builder renames `p` to `p_rgh` and asserts the rename took), in
+`controlDict` function objects (they were separately smoke-tested here before
+the successor was queued, and passed), and in `constant/` dictionaries.
+
+**Cost of learning it: 0.00 core-minutes of solver time.** The launcher captured
+`rc` and wrote a `STATUS` file with `wall=0`, so the failure was legible
+immediately and the attempt is preserved rather than re-run blind. **A launcher
+that captures `rc` is what made a zero-cost failure a finding instead of a
+mystery** — the same gap that left K0d's two arms permanently unverifiable on
+clause 1.
+
+**Scope.** Any case built by copying another case's dictionaries when the solver,
+the equation set or the physics model differs. It is forward-only: nothing here
+requires a backfill of existing builders, and no existing result is affected.
+
+**Recorded after the fix, per Sanaa's 2026-09-03 20:00Z ruling that a blocking
+physics fix is made first and the lesson written afterward.** The fix is
+`scripts/build_k0e.py` (three refusals around the edit, one of which checks that
+the edit itself took effect); the rung was superseded rather than amended,
+`K0e_PREREGISTRATION.md` `AMENDMENT 1` → `K0eR2_PREREGISTRATION.md` §4.2.
