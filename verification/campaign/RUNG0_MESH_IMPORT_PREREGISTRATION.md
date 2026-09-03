@@ -2,19 +2,19 @@
 
 **Team: cfd. v1.0, written 2026-09-03.**
 
-> ## ⚠ DRAFT — **NOT FROZEN**. THE FREEZE IS THE cfd SUPERVISOR'S ACT, NOT THIS LANE'S.
+> ## ✅ FROZEN — 2026-09-03T17:17:27Z, by the cfd supervisor. `date -u` re-derived in the committing shell.
 >
 > Under `SUPERVISION_CHARTER.md` §3 the *"pre-registration committed before compute"* check is one of
-> the four the supervisor performs **personally and may never delegate**. This file is drafted by a
-> lane and carries **no freeze**. **NO COMPUTE MAY BE LAUNCHED AGAINST IT** until the supervisor
-> commits it as frozen and records the freezing commit sha at the head of this section. Nothing in
-> this document is an authorisation.
+> the four the supervisor performs **personally and may never delegate**. **THE cfd SUPERVISOR STATES
+> THEY READ §4's GATES, THRESHOLDS, CAPS AND LABELS PERSONALLY AND APPROVED THIS FREEZE.** This lane
+> performed the MECHANICS ONLY, judged nothing and moved no gate. **THE FREEZING COMMIT IS THE COMMIT
+> CARRYING THIS EDIT** — a file cannot hold its own sha, so that sha is recorded in the commit message
+> and in the queue entry's `prereg_commit`, and is checked by hashing this file against that blob.
+> **THE PRE-COMPUTE CONDITION, RE-CHECKED IN THE COMMITTING SHELL, NAMING THE DIRECTORY THAT DOES NOT
+> EXIST:** `verification/runs/RUNG0_MESH_IMPORT_runs` — **ABSENT**. See §15 for the measured assertions.
 >
-> **Clock discrepancy, recorded rather than smoothed:** `date -u` on this box read
-> **2026-09-03T16:10:34Z** while this file was being drafted. The governing directive capture is
-> filed as `2026-09-03T1730Z_...`, i.e. **~80 minutes in the future of this box's clock**. The
-> capture's *content* is Sanaa's and is not in doubt; its *stamp* disagrees with the box and is
-> recorded here as measured, never reconciled by assumption.
+> **Clock discrepancy, carried forward unchanged from the draft and not smoothed:** `date -u` read
+> **2026-09-03T16:10:34Z** at drafting; the governing capture is filed `...T1730Z`, ~80 min ahead.
 
 **Authority.** Sanaa's standing order of 2026-09-03 ~00:30Z
 (`etc/sessions/2026-09-03T0030Z_sanaa_industrial_benchmark_ladder.md`) and her rulings of
@@ -724,3 +724,78 @@ one contradicted it in one word.** The narrow search was not wrong about what it
 reported as an absence in the repository. **A negative result is only as wide as the population it
 searched, and §11.4 did not state its population.** Recorded here rather than repaired silently,
 because a finding that overstates in the direction of "we are blocked" costs real work.
+
+---
+
+## 15. THE FREEZE — 2026-09-03T17:17:27Z, **BEFORE FIRST COMPUTE**: the measured assertions behind the stamp at the head of this file
+
+**Appended at the foot. Version 1.2 → 1.3 (FROZEN). Lines whose number changed above this section: 0.**
+*(Checked by measurement: the md5 of the file's first 726 lines is **`2edc834d65cdf19448a54dd47a402949`** immediately before
+this append, and the append adds only lines after 726.)*
+
+**THIS SECTION ALTERS NO GATE, NO THRESHOLD, NO CAP AND NO LABEL.** It records the act of freezing and
+the checks that were run to prove nothing moved. §4's gates, §5's estimate and §13.1's cap of
+23 core-min are untouched and are now **closed**: after this commit they change only by dated addendum,
+never by edit (CLAUDE.md rule 2).
+
+### 15.1 THE PRE-COMPUTE CONDITION, AND HOW IT WAS CHECKED — rule 2
+
+**Named directory that does not exist:** `verification/runs/RUNG0_MESH_IMPORT_runs`.
+**Checked in the committing shell's own invocation**, three independent ways rather than one, because a
+single negative reader that cannot see a positive is not evidence (rule 3):
+
+| check | command | answer |
+|---|---|---|
+| filesystem test | `test -e verification/runs/RUNG0_MESH_IMPORT_runs` | non-zero → **ABSENT** |
+| whole-tree search | `find verification/runs -maxdepth 1 -name 'RUNG0*'` | **no hit** |
+| git tree | `git ls-tree HEAD verification/runs/` grepped for `RUNG0` | **no hit** |
+
+`verification/runs/RUNG1_M6_runs` is **NOT** part of this condition and **does exist** — Rung 1's
+`M0` admissibility measurement ran there under its own separate registration
+(`verification/campaign/RUNG1_M6_PREREGISTRATION.md`, freeze `c7f99bb1`). **That is a different case
+id under a different freeze and it is neither compute under this registration nor evidence for it.**
+No compute has ever run under **this** registration.
+
+### 15.2 THE NO-MOVEMENT ASSERTION — measured, not asserted from the diff
+
+The freeze edit replaced the 13-line status block at lines 5–17 with a 13-line block. **13 in, 13 out,
+so NO LINE NUMBER ANYWHERE IN THIS FILE CHANGED.** Verified by md5 over the three ranges a freeze must
+never touch, taken **before and after** the edit with `sed -n '<a>,<b>p' <file> | md5sum`:
+
+| range | what it is | md5 BEFORE | md5 AFTER |
+|---|---|---|---|
+| lines 162–234 | **§4 — gates, thresholds, caps, labels** | `e90808f1fc72c3c375d859de001a05ff` | `e90808f1fc72c3c375d859de001a05ff` |
+| lines 237–323 | **§5 — cost, estimate, cap, cost basis** | `787fbe861ba221a6eced3a49fb6ee413` | `787fbe861ba221a6eced3a49fb6ee413` |
+| lines 532–553 | **§13.1 — the 23 core-min cap regime** | `ddacb4ff6790dfcb475e03c1becf0cf7` | `ddacb4ff6790dfcb475e03c1becf0cf7` |
+
+**Byte-identical in all three. Not "unchanged as far as the diff showed" — hashed.**
+
+### 15.3 A CONSEQUENCE OF STAMPING A FREEZE, DISCLOSED RATHER THAN DISCOVERED
+
+§13 recorded `md5(head -n 511) = 832853d27ddc746c2807958f316391f8` and §14 recorded
+`md5(head -n 656) = f99780163120bfef93c2a3de1a658d7f`. **Both reproduced exactly at the moment this
+freeze began** — they were checked, not taken on trust. **Both are now stale**, and necessarily so: the
+freeze stamp rewrote bytes on lines 5–17, which sit inside both ranges. **Nothing they were protecting
+was lost** — their job was to prove an append moved no line above it, and §15.2 proves that directly by
+line number and by section hash. The re-derived values, so the audit trail stays checkable:
+
+| range | value recorded at the time | value after the freeze |
+|---|---|---|
+| `head -n 511` | `832853d27ddc746c2807958f316391f8` | **`8d7d7546c132f39defb272e7c1668f92`** |
+| `head -n 656` | `f99780163120bfef93c2a3de1a658d7f` | **`b2c8a3a50dad73eda5c2f576c4a003ff`** |
+
+**A freeze stamp cannot be added to a document that hashes its own prefix without invalidating that
+hash. The honest move is to say so and republish the value, not to skip the stamp and not to leave a
+reader checking a figure that can no longer reproduce.**
+
+### 15.4 WHAT THIS FREEZE DOES AND DOES NOT AUTHORISE
+
+**Does:** it closes §4's gates, §5's estimate and §13.1's cap against later movement, and it makes this
+file the pinnable object every later hash-check refers to.
+
+**Does not:** it grades nothing, launches nothing, and licenses nothing beyond the registered 23
+core-min cap. **§8's seven non-claims stand in full.** And the rung's verdict remains the **conjunction**
+of §4's labels over **all four grids** — R0-G2b's writer `cases/committee-grids/foam_to_ugrid.py` still
+does not exist (§9 says so), so **no `PASS` is reachable under this registration until it is written and
+run.** Until then the rung's state is **`PENDING`** in the display sense of rule 1 — *not yet run* —
+and no reading of R0-G1, R0-G2a or R0-G3 alone may be reported as a rung verdict of any kind.
