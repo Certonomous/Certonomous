@@ -23184,3 +23184,57 @@ physics fix is made first and the lesson written afterward.** The fix is
 `scripts/build_k0e.py` (three refusals around the edit, one of which checks that
 the edit itself took effect); the rung was superseded rather than amended,
 `K0e_PREREGISTRATION.md` `AMENDMENT 1` → `K0eR2_PREREGISTRATION.md` §4.2.
+
+## L-474 — A launcher that verifies everything except ITSELF produces runs whose code of record exists in no commit
+
+**Measured 2026-09-03, cfd, on four live JF1G runs. Preserved at `10eb76f4`. Sibling of L-471,
+which came out of the same launcher on the same day.**
+
+**The general form.** A launcher that hashes its *registration* three ways and never hashes
+*itself* cannot distinguish "my bytes are the bytes that were reviewed and committed" from
+"nobody ever looked at my bytes". Edit it and it launches without complaint. The runs it
+starts are then graded against whatever version of the launcher happens to be in the working
+tree **at grading time**, which is not necessarily the version that produced the numbers.
+Rule 2's check — *verify the frozen file IS the file that ran by hashing it against the
+committed blob* — is satisfied and **irrelevant**, because it is pointed at the registration,
+not at the thing executing.
+
+**The instance.** `cases/JF1_JET_FLAP/run_jf1g.sh` verifies pre-registration commit `038f4bca`,
+its blob at that commit, and the worktree copy, all three against pinned blob `0b9476598e`.
+That fired and passed on every launch. Meanwhile the launcher itself was edited twice in
+fifteen minutes: a delimiter fix into the working tree at ~19:05Z, then the L-471 class fix by
+atomic rename at ~19:20Z. **Four runs launched in between, three of them the graded pass.**
+Their code of record was blob `34b50fed…` (18,949 bytes) — a version matching **neither**
+`388859b8~1` (`38e594a0…`, 17,112 B) **nor** HEAD (`5998b996…`, 22,176 B). It existed in no
+commit at all until it was recovered.
+
+**Why it was recoverable, and this is the transferable part.** Every running `bash` holds its
+script open on **fd 255**, and **bash reads the script INCREMENTALLY** from that descriptor
+rather than slurping it at startup. The class fix had been installed by **atomic rename**, so
+the new content took a new inode (`7140166`) and every live process stayed on the original
+(`7140380`). The executed bytes were therefore still on disk, reachable, and unmodified:
+
+    cat /proc/<pid>/fd/255 > preserved_copy
+
+**RECOVERY DISCIPLINE, because a capture can lie:** read from **every** live process, require
+all copies **byte-identical**, and require the result to **parse (`bash -n`)** — otherwise a
+partial read gets filed as if it were a script. Then hash it and commit it.
+
+**Two corollaries, both paid for the same hour.**
+1. **Edit a script a running `bash` is executing ONLY by rename, never in place.** An
+   in-place write (truncate-and-write, same inode) changes bytes under a process reading by
+   offset and corrupts it mid-run. The rename that made this recoverable is the same rename
+   that made it safe.
+2. **Byte-identity to a freeze blob and "a supervisor read it" are DIFFERENT FACTS** — one is
+   about drift, the other about whether anyone ever looked. Neither substitutes for the other,
+   and a check-1 token covers only the file its holder actually opened.
+
+**The fix, and it is fail-closed.** A launcher must verify its **own** blob against a
+committed version and **REFUSE** when it cannot — never warn and proceed. The failure mode
+here was silent by construction: nothing in any log, any status file or any queue record said
+the launcher was unversioned, and it was invisible until someone went looking for it.
+
+**Provenance note that protects the four runs:** the gap is in the launcher's **self-identity**,
+not in the registration. No gate, threshold, cap or label moved, and the registration check
+rule 2 names held throughout. Recorded in each run root as `CODE_OF_RECORD.txt` so a grader
+arriving cold cannot reach for the current file by accident.
