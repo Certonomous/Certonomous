@@ -22146,6 +22146,99 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+**Section last written:** 2026-09-03T~18:1xZ by cfd-supervisor **personally, no lane**. **FIFTY-FIRST WRITE.** Written after a usage-limit fleet kill at ~17:5xZ. Where this conflicts with anything below, this block wins. HEAD re-derived and the blob built from `HEAD:docs/LAB_STATE.md` **in the same shell invocation as the commit** — the correction of my own L-460 clobber. **History is NOT rewritten:** boards 48–50 stand exactly as committed.
+
+### 🔴 THE THREE RULINGS OF 2026-09-03 UNBLOCK M6, AND I HAVE TAKEN THAT DECISION RATHER THAN WAITED
+
+Committed at `d8d04b06` (17:11:18Z), `825285bb` (17:18:54Z), `43b7196e` (17:24:39Z). ⚠ **Their filenames read `2000Z/2100Z/2200Z` but these are Sanaa's LOCAL labels, not UTC** — I ran the clock audit rather than calling the timestamps impossible. They are real, recent and permanent.
+
+**The consequence for my territory is the largest single change on this board.** `2100Z` lists the nine categories that may block a run and puts **mesh quality gates — skewness, non-orthogonality, aspect ratio, y⁺ — in the record-as-prediction class**, not the blocking class: record the mismatch, launch, monitor, and let the frozen grader judge afterward on the certificate. `2000Z` makes **"reported, not gated" the DEFAULT** for every check, gating surviving only where its owner states *"without this, the verdict on result X cannot be trusted."* `2200Z`: *"non physics/ill posedness relqted gqtes blocking a run"* is on her never-again list, and *"I prefer something to be running and watched than too much governance and no run."*
+
+**So the 70° gate no longer blocks M6.** The **88.88926674°** stands, is not softened, and is carried onto the certificate as a **recorded prediction**. And **§2.3 — the committee-grid question — STOPS BEING LOAD-BEARING.** It mattered only because the gate blocked; the gate no longer blocks. It drops from critical path to a documentation matter. **I have taken this decision and did not wait for her**, per `2000Z`'s generalised silence-is-yes and the running-first order.
+
+### 🔴 BRANCHES (a1)/(a2) COME BACK — AN ORDER OF MAGNITUDE OFF THE M6 BILL
+
+| branch | est. core-min | note |
+|---|---|---|
+| **(a1)** | **101.7** | in-house pyHyp — **the target** |
+| (a2) | 1,627.0 | fallback if (a1) yields no family |
+| (b) snappy full | 11,595.2 (cap 34,786, $29.74 derived) | **needs RENTED 64–128 core — an instance change, RESERVED TO SANAA** |
+| (b-on-box) | 1,971.2 (cap 5,914, $5.0561 derived) | |
+
+⚠ **Unrounded tension carried forward:** board 47's snappy estimate is **$40.39 derived against Sanaa's $40.00 hard cap.**
+
+**AND THE HONEST ROUTE, WHICH I INSISTED ON:** `RUNG1_M6_PREREGISTRATION.md` frozen at `c7f99bb1` **is NOT amended, edited or reinterpreted.** Its §5 killed (a1)/(a2) on the >70° branch and **that outcome stands exactly as committed**, under the regime in force when it was written. Reviving a branch a registration killed, *after* seeing the measurement, *by editing that registration*, is precisely the shape rule 2 exists to forbid. The lane is drafting a **SUCCESSOR registration at a new path, frozen before its own compute**, which cites the predecessor, names `825285bb` as the only reason a closed route reopened, and carries the 88.889°, the 206 severe faces, the AR 35,820.56, and the **flat-plate-derived (NOT measured) y⁺ ≈ 1.05** forward as declared predictions.
+
+### 🔴 RUNG 0 HAS A VERDICT AND IT IS `PENDING` — ONE UNBUILT FILE IS THE WHOLE REASON
+
+`verification/runs/RUNG0_MESH_IMPORT_runs/RESULTS.json` → `"rung_verdict": "PENDING"`. Attempt 3 ran **17:46:32Z→17:49:05Z, rc=0, 153 wall s**, rc captured **inside** the driver (`cases/committee-grids/run_rung0.sh:160`), not around a `setsid` line — so the zero is real. **This is `PENDING` in rule 1's legitimate "not yet run" sense and is NOT a softened GATE FAIL: nothing failed.**
+
+| grid | cells (source == imported) | max non-orth | severe >70° | max skew | G1/G2a/G3/G4 |
+|---|---|---|---|---|---|
+| DPW5_L1T_hex | 638,976 == 638,976 | 89.7134° | 11,506 | 14.0594 | **PASS ×4** |
+| DPW5_L1T_prism | 1,277,952 == 1,277,952 | 89.9441° | 216,336 | 6.31513 | **PASS ×4** |
+| DPW5_L1T_hybrid | 2,981,888 == 2,981,888 | 89.9985° | 1,810,108 | 6.31513 | **PASS ×4** |
+| HLPW6_h6c1_rans_3a_1 | 2,661,338 == 2,661,338 | 89.9835° | 1,256,565 | 9.97161 | **PASS ×4** |
+
+**R0-G2b is `PENDING` on all four for one reason: `cases/committee-grids/foam_to_ugrid.py` DOES NOT EXIST.** Control **C9 is NOT RUN** for the same reason — *unbuilt, not passed and not failed*. **12 controls fired, twice, in two independent scratch dirs.** Attempt 2's spurious `GATE FAIL` is **preserved, not rewritten**, at `RESULTS.ATTEMPT2_SPURIOUS_GATE_FAIL.json`; its four case dirs were **MOVED** to `ATTEMPT2_PRESERVED/`.
+
+### 🔴 THE THREE DPW5 "LEVELS" ARE ONE NODE SET IN THREE CELL TYPES — I HASHED THEM MYSELF
+
+**Check 3 discharged personally; I did not relay this.** `DPW5_L1T_{hex,prism,hybrid}/constant/polyMesh/points` are **byte-identical**: sha256 `870e6c6fceab6dbeea0d6494793fcbb7dd7f41c8e92056814c5398938d51f7fd`, **24,857,286 bytes each**, while their `owner` files differ (13.2M / 23.0M / 47.5M). HLPW6 is a genuinely different node set (`4fa7b69f…`).
+
+**Consequence, and it is a real finding:** **a Roache triple over those three would measure CELL-TYPE sensitivity while calling itself refinement.** They are not a refinement family. This is the pre-registration's §11.3 condition-(c) problem, **measured rather than argued**, and it means **no nested committee refinement family exists on this box** — now demonstrated, not inferred. Every M6 family the lane proposes must prove its levels differ by hashing their points files first.
+
+### ✅ CHECK 1 DISCHARGED PERSONALLY — C10's DIFF READ AS A DIFF
+
+`git show 7422bf01 -- .../analyse_rung0.py` (blob `3df93fb3..5a1b58ca`). The change is **confined to `run_controls()`**: C10 goes from a single-donor control (first grid found, `break`) to a walk over **every donor on disk**, exercising each distinct header-label form once, plus a longer log label. **It touches no gate, no threshold and no measuring path** — the measurement lives in a different file entirely (`cases/committee-grids/read_ugrid_identity.py`). It can change only which controls are *exercised*, never a value. **A strengthening of a self-test, and I accept it.** The reason it was needed: the counts are written as a **quoted FoamFile key** by OpenFOAM's writer and as a **`// note:` comment** by `ugrid_to_foam.py`, and a reader knowing only the quoted form called every mesh "no note."
+
+### 🔴 THREE INSTRUMENT DEFECTS IN RUNG 0, NAMED SO NOBODY RE-DERIVES THEM
+
+1. **THE COMPARATOR HAS NO `PASS` BRANCH.** `analyse_rung0.py:609-615` computes GATE FAIL → BLOCKED → **else PENDING**, and `grade_grid` **hardcodes `R0_G2b: PENDING`**. So building the writer is **necessary but not sufficient** — the frozen grading path must also change, post-compute. **That is a rule-2 §2d.1 repair question and it is MINE, not a lane's.** A lane is putting §2d.1's four conditions in front of me condition by condition; it has changed nothing.
+2. **THE FREEZE PIN IS `ABSENT-AT-FREEZE`, AND STRUCTURALLY SO.** `git rev-parse d127d83d:…/analyse_rung0.py` → *path exists on disk, but not in `d127d83d`*. Measured, not relayed: `grader_freeze_gate.py` returns `PREDICTS-REFUSE … [ABSENT-AT-FREEZE]`. **The registration files its comparator INSIDE the run root whose ABSENCE is its own rule-2 pre-compute proof — the two conditions cannot both hold at one commit.** That is a **filing** defect (comparators belong in `cases/<CASE>/` or `scripts/`), not a gate defect, and it is mine and verification's to rule. Against `7422bf01` and HEAD the file is **VERIFIED clean** (blob `5a1b58ca…`, sha256 `590bd40d…`, empty diff both ways).
+3. **A THIRD FILE MEASURES EVERY NUMBER AND IS PINNED TO NOTHING.** `grading_freeze` names only `analyse_rung0.py`. **`cases/committee-grids/read_ugrid_identity.py` derives every cell count, patch name and face count and is not in it.** Clean against HEAD today; nothing would have noticed had it moved.
+
+⚠ **AND A STALE STRING THAT MISDESCRIBES ITS OWN DERIVATION.** `read_ugrid_identity.py:342-344` emits `counts_basis = "nCells = max(owner)+1"` — **the known-broken lower-bound method that was found wrong and repaired** — while `:308-309` actually computes `max(max(own_vals), max(nbr_vals, default=-1)) + 1`. It **moves no number**, but the string is now in `RESULTS.json` on all four grids and in all four `birth_certificate.json` files. A record that misdescribes its own derivation as the broken one is how a future citation goes wrong.
+
+### RUNG 0 COST — AND THE CALIBRATION ROW IS OWED
+
+**2.5500 core-min actual** (153 wall s × 1 rank ÷ 60) against **7.5 registered** — **ratio 0.340**; against the *runnable* subset (7.5 − 2.302 predeclared-unrunnable = 5.198) **0.491**. Cap **23**, **18.7 % used, no overrun**. **Waste, separate and folded into no ratio: 1.7500 core-min** (attempt 2, ran clean, verdict void on a reader defect); attempt 1 sub-second (`set -u` × the OpenFOAM bashrc). **Item total ≥ 4.3000 core-min = $0.003677 DERIVED, NOT MEASURED.** ⚠ **`docs/COST_CALIBRATION.md` carries NO Rung 0 row** — zero `RUNG0` hits, and that zero is live (planted against 298 `core-min` and 302 `ratio` hits in the same file by the same reader). **Rule 12 owes it at process completion; a lane is landing it.**
+
+### 🔴 THE AUTO-STOP PATCH IS READY, WITNESSED ONLY BY CONSTRUCTION, AND NEEDS SANAA'S ROOT
+
+`scripts/auto_stop_patched.sh` (43,957 B, committed `696dba49`). **NEVER INSTALLED — measured, not believed:** live `/usr/local/bin/auto-stop.sh` md5 `7c958c0acceabf988052d6b639023bbc` (identical to the OLD `scripts/auto-stop.sh`); the patch is `b2af2e5a6d4f05003cc0b106a3b90d54`; no `.bak.*` exists. **Install needs `sudo` into `/usr/local/bin`, which CLAUDE.md reserves to Sanaa and no agent at any level may take.** The patch's own header says it: *"THIS FILE IS NOT INSTALLED. SANAA INSTALLS IT, OR NOBODY DOES."*
+
+**Its invariant is proven mechanically, not asserted:** against the live file, **deleted = 0, added = 562, all 216 original lines present in order**, every added line a `say` or a `keep` — **it can only make the box harder to stop, never easier.**
+
+⚠ **THE GAP:** MONITOR_STANDARD's 2026-08-27 amendment (`docs/standards/MONITOR_STANDARD.md:1620`) is satisfied **BY CONSTRUCTION ONLY** — **no artifact on disk records that `scripts/test_auto_stop_liveness.py` was ever executed and passed.** A lane is converting that into a **witnessed both-directions control run** (reader sees the plant; reader reports absence when it is removed) and comparing the patched vs old decision against today's real box state, **without sudo and without touching the live path.**
+
+### LIVE JOBS AND LANES
+
+**ZERO cfd solvers.** Foreign and **not to be touched**: `rhoSimpleFoam` **pid 296348** (parent `timeout 4753s`, pid 296347), cwd `verification/runs/ansys_verification/VMFL046_INVISCID/L3` — ansys-verification's; and dafoam's W3 `dafoam/opt-packages` container (pids 179657/179658/179692) at `--cpus=1`. Queue daemon **pid 1664, started 15:35:14Z** — **it predates EVERY enforcer commit (`0ac4eb42` 16:13, `1fb8343c` 17:14, `d2005e7c` 17:29, `1c81275b` 17:37), so it holds modules with NO freeze check at all and has never refused anything.** Post-`d2005e7c` the enforcer is a **recorder, not a refuser**, so a restart is now purely additive.
+
+**Three lanes live:** M6 UGRID re-import + successor registration; Rung 0 writer + calibration row + §2d.1; auto-stop witness + fleet-ceiling scoping.
+
+### NEXT ACTIONS
+
+Build `foam_to_ugrid.py` → R0-G2b + C9 → Rung 0's real verdict. Rule on §2d.1 for the missing `PASS` branch. Freeze the M6 successor registration and **verify its commit personally** before any compute. Land the Rung 0 calibration row. Implement the **fleet safety ceiling min(3× registered cap, remaining budget)** and the **deadline residual-trajectory monitor** — both assigned to cfd by `2000Z`/`2100Z` and **neither exists**. Reclassify MESH_STANDARD's gates gating-vs-reporting under `2000Z`'s one-pass audit (**below the fold — physics first**).
+
+### ON SANAA'S DESK
+
+1. **THE AUTO-STOP INSTALL LINE — ready to paste, needs her root.** Three commands + rollback, in the patch header at `scripts/auto_stop_patched.sh:52-76`.
+2. **F5b** — unruled since 2026-08-25, **nine days**. One-paragraph restatement delivered; recommendation is **option 1** (successor comparator at a new path, already legal under her own 2026-08-28 ruling, needing no ruling on the denial at all) and **I have not taken it**, because the hold artifact is unconditional and an agent's reading of her ruling is not her consent.
+3. **§2.3 committee-grid question — NO LONGER BLOCKING.** Kept on the desk as documentation, removed from critical path.
+4. **The $40.39-vs-$40.00 snappy cap**, if snappy is ever revived.
+5. Rule-10 exec-bit inflow; `cm-super`/`dvipng`/`ghostscript`; `router.py:470-477`; JF1 turbulence clipping; **Williams, Butler & Wood ARC R&M 3304 (1961) eq. (2) — NEVER "Spence 1956"**; the DMR "$0.00" line.
+
+### ON THE CHIEF'S DESK
+
+**The shared index — `git diff --cached HEAD --numstat` shows `2 186 docs/LAB_STATE.md` alone: a bare commit deletes 186 lines of THIS BOARD.** The **queue-daemon restart** (now safe: the enforcer is a recorder). The **Rung 0 comparator-filing rule** — comparators cannot live inside the run root whose absence is their own freeze proof. **`sdk/chief_engineer/mesh_certificate.py`** reported-not-gated mode, assigned to me.
+
+### UNVERIFIED, NAMED AS SUCH
+
+**VERIFY:** attempt 2's 1.7500 core-min is a **step sum**, not a total — no total-wall record exists for it. **VERIFY:** `read_ugrid_identity.py`'s stale `counts_basis` moves no number — a lane is confirming against both sites; I have not read both myself. **VERIFY:** the M6 branch costs (101.7 / 1,627.0 / 11,595.2 / 1,971.2) are read from the frozen registration by a lane, **not re-derived by me**. **VERIFY:** `1c81275b`'s self-reported *"I took the lab's validator down for ~2 minutes"* and *"the launch archiver retires other rungs' live records"* — **an evidence-touching defect against other teams that I have NOT yet confirmed repaired.** **VERIFY:** the F17–F27 headline verdicts are read from RESULTS records, no comparator re-run.
+
+
 **Section last written:** 2026-09-03T~16:5xZ by cfd-supervisor **personally, no lane**. **FIFTIETH WRITE.** **THE LADDER'S DECISIVE MEASUREMENT CAME BACK AND IT KILLED TWO BRANCHES.** Where this conflicts with anything below, this block wins. HEAD re-derived in the same shell invocation as the commit **and the blob built in that same invocation** — see the disclosure at the foot, which is the correction of my own defect from board 49. **History is NOT rewritten:** boards 48 and 49 stand exactly as committed.
 
 ### 🔴 `R1-M0`: MAX NON-ORTHOGONALITY **88.88926674°** AGAINST A 70° GATE. BRANCHES (a1) AND (a2) ARE DEAD
