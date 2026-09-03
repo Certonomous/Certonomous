@@ -483,3 +483,66 @@ refuse-on-stale-directory stands unweakened. No `rm -rf` was executed.**
 HUNKS AS A DIFF.** §7 stands verbatim: removing one refusal is not evidence the
 arms run, no container has ever run `F_mp` or `REF_off` in this lineage, and
 **the first real container is the first evidence about the case.**
+
+---
+
+## ADDENDUM — 2026-09-03T22:49Z — THE `G-DELIVERY` REPAIR BROKE A PIN IT DID NOT UPDATE, AND THE ITEM'S OWN GUARD CAUGHT IT BEFORE THE RE-FIRE
+
+**Dated pre-compute addendum. Still zero solver compute: no container has ever run
+`F_mp` or `REF_off` in this lineage.** Run root asserted **ABSENT by execution**
+in the amending invocation. **NO GATE, THRESHOLD, CAP OR LABEL MOVES** — caps
+480.0 / 190.0, deadlines 7110 / 2760 s, ranks 4, the patched row, `G-ANCHOR`, the
+units gate and its two call sites all stand exactly as frozen.
+
+### What happened
+
+The `G-DELIVERY` repair changed `d6rf2_run_arm.sh`
+(`01e034e1c611e7fc4f0f4e31d3e34511` → `eb4ad36dd03f466f80024db57859e8df`).
+**`d6rf2_chain_driver.sh:54` pins that md5, and the repair did not update it.**
+The driver asserts the pin **twice per fire** — `:79` before staging and `:152`
+before each arm — so the re-fire would have **aborted at `rc=4` before any
+container**, for the third consecutive time and for a third distinct reason.
+
+**IT WAS CAUGHT BY THIS ITEM'S OWN GUARD SUITE, NOT BY A READER.**
+`d6rf2_guard_selftest.py` control **`U37` — "the driver's pinned launcher md5 ==
+the launcher on disk" — returned `FAIL`, `rc=1`, under BOTH `python3` and
+`python3 -O`**, on a pre-fire drive. **Verified as caused by the repair rather
+than pre-existing:** the pin matched the launcher **exactly** at the repair
+commit's parent, and differs only after it.
+
+### The class, because it is the same one twice in one file
+
+**The repair fixed "a file the launcher reads was never delivered" and then
+committed "a file another file asserts about was changed without updating the
+assertion".** Both are the same shape — **an artefact and a statement about it
+drifting apart** — and `CLAUDE.md` rule 14 already names it: *a lesson is not
+applied until EVERY call site asserts it.* **Updating the assertion is the second
+half of the repair and is not optional.** The repair is only complete when
+nothing that speaks about the changed file still speaks about the old one.
+
+### The repair, and what it does not touch
+
+`MD5_LAUNCHER` re-pinned to `eb4ad36dd03f466f80024db57859e8df`, with the reason
+recorded at the constant itself so the next reader does not have to reconstruct
+it. **Nothing executably pins `d6rf2_chain_driver.sh`'s own md5** — checked by
+search across the case's shell and python before editing — so this change breaks
+no further assertion.
+
+**RE-DRIVEN AFTER THE FIX, both interpreters, zero containers:**
+`D6RF2_GUARD_SELFTEST 97/97 PASS`, **0 FAIL, 0 NOT RUN**, `rc=0` under `python3`
+and `python3 -O`; `U37` **PASS**. `G-DELIVERY` re-driven on the launcher's real
+bytes and unchanged by this edit: `F_mp` gate missing → `REFUSE-MISSING 1 of 7`,
+gate present → `OK 7`.
+
+### Pins
+
+| instrument | md5 |
+|---|---|
+| `d6rf2_chain_driver.sh` | **`a3e57f2bdb741b0ff4b3151759d07105`** — supersedes `5818d2ed385d46f5ec053493c052b7a2`, which the previous addendum recorded as UNCHANGED and which **that addendum's table is therefore now wrong about; this line is its correction** |
+| `d6rf2_run_arm.sh` | `eb4ad36dd03f466f80024db57859e8df` — unchanged by this addendum |
+| `d6rf2_anchor_gate.py` | `e34c0cb62df30e7a1565b896d07a32e6` — unchanged throughout |
+
+**NOT FIRED.** The supervisor authorised a re-fire on the state as he read it;
+**the item could not have fired in that state**, and firing on an authorisation
+whose precondition is measured false is not obedience. **§7 stands verbatim: the
+first real container is the first evidence about the case.**

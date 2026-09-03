@@ -51,7 +51,16 @@ H5_FLOOR_GIB=24.0; H5_SAMPLES=45; H5_WINDOW_S=60; AGG_CEILING_GIB=30.6
 AGG_POLL_S=30; AGG_BOUND_S=14400
 H5_RETRY_S=60; H5_BOUND_S=14400
 
-MD5_LAUNCHER=01e034e1c611e7fc4f0f4e31d3e34511
+MD5_LAUNCHER=eb4ad36dd03f466f80024db57859e8df   # d6rf2_run_arm.sh, RE-PINNED
+# 2026-09-03: re-pinned from 01e034e1c611e7fc4f0f4e31d3e34511 after the G-DELIVERY
+# repair added the anchor gate to both arms' staging lists and inserted the derived
+# delivery guard.  THE PIN IS NOT A FORMALITY: this driver asserts it TWICE per fire
+# (:79 before staging, :152 before each arm) and a stale pin aborts at rc=4 before any
+# container -- which is exactly what d6rf2_guard_selftest.py control U37 caught here,
+# on the launcher's own bytes, before the re-fire.  The repair changed a file another
+# file asserts about; updating the assertion is the second half of the repair and is
+# not optional (CLAUDE.md rule 14: a lesson is not applied until EVERY call site
+# asserts it).
 MD5_AGGREGATE=709ab0b98ef0302a3a3a318588f9493f
 MD5_RUNSCRIPT6=137539e0a99be27f27fdb69e063b2a87
 MD5_FD=0ce81a0b038abe12728b5b062e4420df
