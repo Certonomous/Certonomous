@@ -1,0 +1,57 @@
+CODE OF RECORD FOR THIS RUN — READ BEFORE GRADING IT
+=====================================================
+case_id : JF1G_P1_C1_CMU010_A0
+written : 2026-09-03, by the cfd lab-lane, WHILE THIS RUN WAS STILL SOLVING.
+
+THE LAUNCHER THAT ACTUALLY RAN THIS CASE IS NOT THE ONE IN THE WORKING TREE AND
+IS NOT THE ONE AT HEAD. GRADE AGAINST THE PRESERVED COPY, NOT AGAINST CURRENT.
+
+  code of record : cases/JF1_JET_FLAP/run_jf1g.sh.AS_EXECUTED_BY_THE_FOUR_LIVE_RUNS_2026-09-03T1906Z_PRESERVED
+  git blob       : 34b50fedaed63458295c7d77def729523ecc783a
+  sha256         : ab6f09b26c74a05e0e3fb7a534a232a0814d1221795cc9d1d4cb130f7784957d
+  bytes          : 18949
+  committed at   : 10eb76f4b66e490415aea95cdd66db8aad8a895c
+
+BOTH OF THESE ARE THE WRONG VERSION TO GRADE AGAINST:
+  HEAD / commit 388859b8 : blob 5998b996492a81ae51a2ccfe3bf6b7b47146c432 (22,176 bytes)
+      -- the CLASS FIX. Installed by atomic rename at ~19:20Z, AFTER this run
+         launched. This run never executed it and cannot have.
+  commit 388859b8~1      : blob 38e594a0c4b92e265c0981b6f69f2dda3252bd03 (17,112 bytes)
+      -- the ORIGINAL, with the broken s|| delimiter. This run did not execute
+         that either: the delimiter was already fixed in the working tree when
+         it launched.
+
+The version that ran is the interim one that existed in the working tree only
+between ~19:05Z and ~19:20Z and was never committed at the time. It is now
+committed, at the path and blob above.
+
+HOW THAT WAS ESTABLISHED — measured, not reconstructed. Each live bash held the
+script open on fd 255. The class fix was installed by ATOMIC RENAME, which gives
+the new content a new inode (7140166) and leaves every running process on the
+ORIGINAL inode (7140380). bash reads a script INCREMENTALLY through that fd, so
+these runs continue to read the old inode for their whole life and cannot see the
+class fix. The preserved bytes were read back from /proc/<pid>/fd/255 of all four
+live launchers, required to be byte-identical across all four, and required to
+parse under `bash -n` so a partial read could not be filed as a script.
+
+WHAT IS **NOT** IN QUESTION, AND THIS IS THE POINT — RULE 2'S NAMED CHECK HELD.
+The launcher's own three-way verification of the PRE-REGISTRATION fired on every
+one of these launches and passed: commit 038f4bca160af8bc201f93805cb841a30236a28c,
+its blob at that commit, and the working-tree copy, all three hashing to the
+pinned blob 0b9476598ef4467dae3f9bcc0e4cf113254bd8e0. That is the check rule 2
+names — "verify the frozen file IS the file that ran by hashing it against the
+committed blob" — and it was satisfied throughout.
+
+  THE PROVENANCE GAP IS IN THE LAUNCHER'S SELF-IDENTITY, NOT IN THE REGISTRATION.
+
+run_jf1g.sh verifies the registration three ways and never verifies its OWN blob
+against any committed version, so an edited launcher launches without complaint.
+That is why the interim version could run four graded cases without anything
+saying so, and it is a launcher defect, not a defect in this run's gates,
+thresholds, caps or labels — none of which moved.
+
+Provenance of the fix itself, for a reader arriving cold: the interim version
+differs from 388859b8~1 by a sed DELIMITER (`@` for `|`) plus an inline
+disclosure comment, and by nothing else. It is why this run's system/fvSolution
+carries the residualControl the frozen registration prescribes for its pass
+rather than silently keeping the template's.
