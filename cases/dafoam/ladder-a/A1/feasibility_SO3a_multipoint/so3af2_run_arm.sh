@@ -89,7 +89,7 @@ MESH_REQUIRES="preProcessing.sh genAirFoilMesh.py profiles system constant 0.ori
 # ---- retyped, so a future divergence there cannot silently split the two.
 A1WR_DRIVER=/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/wall_resolved_aoa_polar/a1wr_chain_driver.sh
 MD5_A1WR_DRIVER=9bff59b63509e76d5dfa373a42a47074
-MD5_ENV_ASSERT=68811e246aed84778fe2878f8538d726
+MD5_ENV_ASSERT=a5b7fcae05aab420d94623582d45f897
 MD5_READER=d5f4149d43abe3a165ffe7e653b78bee     # so3af2_read.py, pinned at the 2026-08-31 freeze, section 8
 MD5_PRODUCER=c268633f67e6d2c785feec2ebfc7326c                   # so3af2_runScript.py, pinned at the Stage-2 amendment
 

@@ -758,3 +758,72 @@ The supervisor's 22:07:46Z reading of 90.5 % busy predicted this row would queue
 F1–F5, every band, both caps, the ceiling, the memory floor, the four NO-LAUNCH branches and their rcs, the staging precondition (9), the docker-start rc (10), the plant constants, and **§0.2 in full**. **ADDENDUM 1 finding 1 — XM stages one file into an otherwise empty directory — is STILL NOT REPAIRED and XM is NOT QUEUED.** MESH **PENDING**; cumulative waste across both attempts **0.0167 core-min**, named as waste and never absorbed into a ratio. **NOT RE-FIRED. SUBMISSIONS PARKED.**
 
 **END OF ADDENDUM 3.**
+
+---
+
+## ADDENDUM 4 — `set -u` KILLED THE ENVIRONMENT ASSERTION FROM INSIDE, AND THE INSTRUMENT SAID NOTHING ABOUT ITSELF. Dated **2026-09-03**. Version **1.4 → 1.5**.
+
+> **lines whose number changed above this section: 0** — asserted by execution against both the pre-append snapshot and `git show HEAD:`.
+
+**Moves no gate, no threshold, no prediction, no band, no cap and no label.** Both changes can only ever refuse **more** or report **more**.
+
+### A4.1 The third rc, and it was the instrument rather than the case
+
+MESH r3 launched 22:24:16Z and returned **rc=1** — outside this item's entire registered set. The loader derived correctly (1 distinct value from A1WR's pinned bytes), staging was intact at 22 files, and then:
+
+> `/home/dafoamuser/dafoam/OpenFOAM/OpenFOAM-v2506/etc/bashrc: line 180: WM_PROJECT_DIR: unbound variable`
+
+**`so3af2_env_assert.sh` ran `source "$LOADER"` with `set -u` ACTIVE.** OpenFOAM's own `etc/bashrc` references `WM_PROJECT_DIR` before setting it — **entirely normal for an init script** — so bash aborted **inside the source**, exit 1, **before any ENV-n check could execute**. The failing line is in the image's file; **the cause was in mine.**
+
+**And A1WR's driver carries `set -uo pipefail` too, at `:27`, and works** — because its `source` at `:172-173` runs inside a **fresh `bash -lc` in the container**, which does not inherit the host script's shell options. **A1WR's `set -u` and A1WR's `source` are in different shells on different machines. Mine were in one shell.** Verified by this lane in the repairing invocation.
+
+### A4.2 ⚠ THE SYMMETRY — one shell option, two items, opposite causes, identical signatures
+
+| | what was unbound | signature |
+|---|---|---|
+| **A1WRT**, rc 127 | a variable **we** needed — `FFD_SRC` — referenced and never defined | bare bash error, no named refusal, **empty evidence file** |
+| **SO3aF2**, rc 1 | a variable a **third party** legitimately leaves unset, referenced by its own init script | bare bash error, no named refusal, **no ENV line at all** |
+
+**`set -u` is the right default and it is exactly wrong across a foreign init script.**
+
+### A4.3 Repair 1 — `set -u` relaxed across ONE line, and restored immediately
+
+`set +u; source "$LOADER"; SRC_RC=$?; set -u`, disclosed in the file with the reason: **a third-party init script's unbound references are expected behaviour, not a defect to be caught.**
+
+**THIS WEAKENS NOTHING.** ENV-1 through ENV-5 are the actual verification and **every one runs with `set -u` restored**. The relaxation covers exactly one line, whose failure is now **reported by ENV-2's `SRC_RC`** instead of by a dead shell.
+
+**Driven, with the r3 shape reproduced exactly**: a fixture loader that reads an unset variable before setting it — OpenFOAM's own shape — **aborts under the old code path with `unbound variable`** and under the repaired one returns **rc 0, prints `SO3AF2_ENV_OK`, and the arm command RUNS.**
+
+### A4.4 Repair 2 — ENV-0, the silent-exit trap. rc **12**
+
+On 22:24:16Z the instrument **neither passed nor refused**. It emitted no ENV-n refusal and no `SO3AF2_ENV_OK`.
+
+> **THAT IS THE THIRD MEMBER OF TONIGHT'S COVERAGE-LIE FAMILY AND THE ONE THE OTHER TWO DO NOT COVER: a leg that passes for the wrong reason, a leg unreachable while reporting PASS — and now a leg that is SILENT rather than wrong. A silent instrument is the hardest of the three to notice, because there is nothing to read.**
+
+**THE RULE IT ENFORCES: an instrument must always say which of its outcomes occurred, INCLUDING "neither".** An `EXIT` trap fires on any exit that reached neither a named refusal nor the OK line, prints **the last checkpoint reached** so the silence itself becomes evidence, and exits **12** — distinct from 3/4/5/6 (NO-LAUNCH), 7 (producer), 8 (cap), 9 (staging), 10 (docker start) and 11 (environment refusals).
+
+**All seven exit paths mark the verdict as emitted** — the usage error, ENV-1 through ENV-5, and the OK path — enumerated from the file's own bytes rather than counted from memory. *(A first count of "6 expected" was this lane's miscount and is corrected here rather than left in a comment.)*
+
+**Driven both ways, and the second leg is the one that matters: a loader that exits mid-source produces `rc 12`, the line `ENV-0 ASSERT TERMINATED WITHOUT VERDICT`, and the last checkpoint reached — and the arm command DOES NOT RUN.** That leg would have caught r3 on its own.
+
+### A4.5 Re-pins
+
+| file | md5 | note |
+|---|---|---|
+| `so3af2_env_assert.sh` | `a5b7fcae05aab420d94623582d45f897` | **RE-PINNED**; supersedes `68811e246aed84778fe2878f8538d726` |
+| `so3af2_run_arm.sh` | `0e9198ac111bcea18168306fe993ee0d` | **RE-PINNED**; supersedes `209898b426ccce9d5e267bf0a7506e8b` |
+| `so3af2_pin_selftest.sh` | `c0629f8c01965f574284344189d9086a` | **RE-PINNED** |
+| `so3af2_read.py` | `d5f4149d43abe3a165ffe7e653b78bee` | **UNCHANGED — the frozen reader is not touched** |
+| `so3af2_runScript.py` | `c268633f67e6d2c785feec2ebfc7326c` | **UNCHANGED** |
+
+**Census: 29 legs, PASS 29, FAIL 0, NOT RUN 0** in the committing invocation.
+
+### A4.6 The probe regime, re-checked against its own three clauses
+
+**All three still hold**: the failure was **cheap** (0.0000 core-min, 0.12 s), the abort was **legible** (one line naming its own file and line number), and **the arm produced no number.** Cumulative waste across three attempts remains **0.0167 core-min**, named as waste and never absorbed into a ratio. **The moment this arm computes anything, the probe regime ends and the reading is the supervisor's.**
+
+### A4.7 Unchanged
+
+F1–F5, every band, both caps, the ceiling, the memory floor, the four NO-LAUNCH branches and their rcs, the staging precondition (9), the docker-start rc (10), the environment refusals (11), the plant constants, and **§0.2 in full**. **ADDENDUM 1 finding 1 — XM stages one file into an otherwise empty directory — is STILL NOT REPAIRED and XM is NOT QUEUED.** MESH **PENDING**. **NOT RE-FIRED. SUBMISSIONS PARKED.**
+
+**END OF ADDENDUM 4.**

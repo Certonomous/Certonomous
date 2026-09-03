@@ -338,6 +338,40 @@ if [ "$RC_C" = "0" ] && printf '%s' "$OUT_C" | grep -q "SO3AF2_ENV_OK" \
 else
   bad "ENV passes AND execs" "rc=$RC_C $(printf '%s' "$OUT_C" | tr '\n' ' ')"
 fi
+# ---- THE r3 SHAPE: a third-party init script that READS AN UNSET VARIABLE
+# ---- BEFORE SETTING IT, which is what OpenFOAM's own etc/bashrc does at line
+# ---- 180 and what killed MESH r3 with rc=1 inside the source. It must now PASS.
+printf '#!/bin/bash\necho "$SOME_UNSET_VAR_READ_FIRST"\nexport SOME_UNSET_VAR_READ_FIRST=x\nexport PATH="%s:$PATH"\nexport FOAM_APPBIN=%s\nexport WM_PROJECT=OpenFOAM\n' \
+  "$ET/bin" "$ET/bin" > "$ET/unbound_loader.sh"
+OUT_D="$(bash "$ENVA" "$ET/unbound_loader.sh" echo ARM-RAN 2>&1)"; RC_D=$?
+if [ "$RC_D" = "0" ] && printf '%s' "$OUT_D" | grep -q "SO3AF2_ENV_OK" \
+   && printf '%s' "$OUT_D" | grep -q "ARM-RAN"; then
+  ok "UNBOUND-VAR init script" "rc=0 -- the r3 failure shape now PASSES and the arm command RAN"
+else
+  bad "UNBOUND-VAR init script" "rc=$RC_D $(printf '%s' "$OUT_D" | tr '\n' ' ' | cut -c1-120)"
+fi
+
+# ---- ENV-0: AN UNFORESEEN TERMINATION MUST STILL PRODUCE A NAMED VERDICT.
+# ---- This is the leg that would have caught r3 on its own: the instrument
+# ---- exited saying NOTHING about itself, which is the one coverage lie the
+# ---- other two do not cover -- SILENT rather than wrong.
+printf '#!/bin/bash\nexit 7\n' > "$ET/dies_loader.sh"
+OUT_E="$(bash "$ENVA" "$ET/dies_loader.sh" echo ARM-RAN 2>&1)"; RC_E=$?
+if [ "$RC_E" = "12" ] && printf '%s' "$OUT_E" | grep -q "ENV-0 ASSERT TERMINATED WITHOUT VERDICT" \
+   && printf '%s' "$OUT_E" | grep -q "last_checkpoint_reached"; then
+  ok "ENV-0 silent-exit trap" "rc=12, named BY NAME, and it printed the last checkpoint reached"
+else
+  bad "ENV-0 silent-exit trap" "rc=$RC_E $(printf '%s' "$OUT_E" | tr '\n' ' ' | cut -c1-120)"
+fi
+
+# ---- and the arm command must NOT have run on that path
+if printf '%s' "$OUT_E" | grep -q "ARM-RAN"; then
+  bad "ENV-0 does not exec" "the arm command RAN after a verdict-less termination"
+else
+  ok "ENV-0 does not exec" "the arm command did NOT run -- a silent instrument stops the arm"
+fi
+
+rm -f "$ET/unbound_loader.sh" "$ET/dies_loader.sh"
 rm -f "$ET/empty_loader.sh" "$ET/good_loader.sh" "$ET/bin/checkMesh"
 rmdir "$ET/bin" "$ET" 2>/dev/null || true
 

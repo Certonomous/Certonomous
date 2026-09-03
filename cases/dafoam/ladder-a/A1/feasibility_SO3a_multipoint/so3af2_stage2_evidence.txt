@@ -303,3 +303,81 @@ JOB 3 -- SAFETY
   DECOY SURVIVED             PASS  cleanup was by name, not by sweep
 
 SO3aF2 PIN CENSUS: PASS 26  FAIL 0  NOT RUN 0
+
+===========================================================================
+ADDENDUM 4 RE-DRIVE, 2026-09-03T222931Z -- set -u across the source, and ENV-0
+===========================================================================
+  so3af2_read.py             md5=d5f4149d43abe3a165ffe7e653b78bee lines=560
+  so3af2_runScript.py        md5=c268633f67e6d2c785feec2ebfc7326c lines=570
+  so3af2_run_arm.sh          md5=0e9198ac111bcea18168306fe993ee0d lines=372
+  so3af2_env_assert.sh       md5=a5b7fcae05aab420d94623582d45f897 lines=149
+  so3af2_pin_selftest.sh     md5=c0629f8c01965f574284344189d9086a lines=455
+
+THE SYMMETRY, measured:
+  a1wr_chain_driver.sh:27  set -uo pipefail
+  a1wr_chain_driver.sh:173 sources INSIDE a fresh 'bash -lc' in the CONTAINER,
+     so its set -u and its source are in DIFFERENT SHELLS ON DIFFERENT MACHINES.
+  so3af2_env_assert.sh had both in ONE shell (:39 set -uo pipefail, :55 source).
+
+EXIT PATHS THAT MARK A VERDICT (enumerated from the file's own bytes): 7
+  = usage + ENV-1..ENV-5 + the OK path. A first count of '6 expected' was a miscount.
+
+SO-3aF2 PIN CENSUS AND NO-LAUNCH SELFTEST
+launcher md5 0e9198ac111bcea18168306fe993ee0d
+
+JOB 1 -- PIN CENSUS
+  PIN:MD5_A1WR_DRIVER        PASS  a1wr_chain_driver.sh 9bff59b63509e76d5dfa373a42a47074
+  PIN:MD5_ENV_ASSERT         PASS  so3af2_env_assert.sh a5b7fcae05aab420d94623582d45f897
+  PIN:MD5_MESH_SRC_MANIFEST  PASS  base b7bf0eca3185b7d9af93e61ca122201b
+  PIN:MD5_PRODUCER           PASS  so3af2_runScript.py c268633f67e6d2c785feec2ebfc7326c
+  PIN:MD5_READER             PASS  so3af2_read.py d5f4149d43abe3a165ffe7e653b78bee
+  PIN-CENSUS                 PASS  driven=5 exist=5 -- EQUAL, so every pin is driven as a COUNT
+  NL-3-OUTSIDE               PASS  launcher md5 0e9198ac111bcea18168306fe993ee0d is pinned in the frozen document
+
+JOB 2 -- NO-LAUNCH BRANCHES
+  NL-3 FREEZE (refuses)      PASS  rc=5 wrote NOLAUNCH_FREEZE.txt
+  NL-2 PRODUCER md5          PASS  rc=4 wrote NOLAUNCH_PRODUCER.txt
+  NL-2 PRODUCER token        PASS  rc=4 wrote NOLAUNCH_PRODUCER.txt
+  NL-2 token BY NAME         PASS  refused on the token clause, not on the md5 clause
+  NL-1 ROOT (refuses)        PASS  rc=3 wrote NOLAUNCH_ROOT.txt
+  NL-4 MEM (refuses)         PASS  rc=6 wrote NOLAUNCH_MEM.txt
+  STAGING manifest           PASS  rc=9 wrote NOLAUNCH_STAGING.txt
+  STAGING precondition       PASS  rc=9 wrote NOLAUNCH_STAGING.txt
+  STAGING names the SET      PASS  refused on the precondition clause and NAMED the missing input
+  DERIVE matches reader      PASS  artefact/case/run_dirs derived == the frozen reader's own lines
+  DERIVE refuses 4/4         PASS  absent reader, no RUN_DIRS, ambiguous artefact, ambiguous case -- all REFUSE
+  ENV-1 absent loader        PASS  rc=11 and refused BY NAME
+  ENV-3 loader loads nothing PASS  rc=11 -- a source that no-ops REFUSES instead of being trusted
+  ENV passes AND execs       PASS  rc=0, SO3AF2_ENV_OK printed, and the arm command actually RAN
+  UNBOUND-VAR init script    PASS  rc=0 -- the r3 failure shape now PASSES and the arm command RAN
+  ENV-0 silent-exit trap     PASS  rc=12, named BY NAME, and it printed the last checkpoint reached
+  ENV-0 does not exec        PASS  the arm command did NOT run -- a silent instrument stops the arm
+  A1WR driver drift          PASS  rc=11 wrote NOLAUNCH_ENV.txt
+  ALL GUARDS SATISFIABLE     PASS  every guard printed its PASS line INCLUDING staging; the run then ended rc=10 because the stub REFUSES `docker run` -- which is the only place it can end, and NO CONTAINER IS EVER CREATED
+
+SANDBOX DELTAS (printed, not asserted away):
+    48c48
+    < BASE=/home/ubuntu/certonomous-runs/CURRICULUM-SO3aF2-a1-naca0012-multipoint-feasibility
+    ---
+    > BASE=/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/dafoam/freezeahead_lane/so3af2_pin_selftest_881885/pass/base
+
+JOB 3 -- SAFETY
+  REAL ROOT UNTOUCHED        PASS  manifest unchanged across this run: 4515435e5cf3364cc434aad981a39c7c
+  NO CONTAINER STARTED       PASS  docker was reached 14 time(s), ALL of them the STUB. It answers ONLY `image inspect` (with the registered digest, so the legs past that guard are reachable) and REFUSES everything else, `docker run` included -- so no container is ever created. The full transcript is printed below rather than summarised.
+    STUB-DOCKER-CALLED ps --format {{.Names}}
+    STUB-DOCKER-CALLED ps --format {{.Names}}
+    STUB-DOCKER-CALLED ps -q
+    STUB-DOCKER-CALLED image inspect --format {{index .RepoDigests 0}} dafoam/opt-packages:latest
+    STUB-DOCKER-CALLED ps --format {{.Names}}
+    STUB-DOCKER-CALLED ps -q
+    STUB-DOCKER-CALLED image inspect --format {{index .RepoDigests 0}} dafoam/opt-packages:latest
+    STUB-DOCKER-CALLED ps --format {{.Names}}
+    STUB-DOCKER-CALLED ps -q
+    STUB-DOCKER-CALLED image inspect --format {{index .RepoDigests 0}} dafoam/opt-packages:latest
+    STUB-DOCKER-CALLED ps --format {{.Names}}
+    STUB-DOCKER-CALLED ps -q
+    STUB-DOCKER-CALLED image inspect --format {{index .RepoDigests 0}} dafoam/opt-packages:latest
+    STUB-DOCKER-CALLED run -d --name so3af2_MESH_2026-09-03T222931Z --user 0:0 --cpus=1 --cpuset-cpus=0 --memory=4g --memory-swap=4g --oom-score-adj=500 -v /tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/dafoam/freezeahead_lane/so3af2_pin_selftest_881885/pass/base:/mnt -w /mnt/MESH dafoam/opt-packages:latest bash -lc bash /mnt/so3af2_env_assert.sh /home/dafoamuser/dafoam/loadDAFoam.sh bash /mnt/MESH/so3af2_cmd.sh
+  DECOY SURVIVED             PASS  cleanup was by name, not by sweep
+
+SO3aF2 PIN CENSUS: PASS 29  FAIL 0  NOT RUN 0
