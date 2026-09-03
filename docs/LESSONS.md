@@ -22245,3 +22245,62 @@ tail moved while the work was in progress. At that commit `docs/LESSONS.md` held
 is the one to use** (rule 11). By the time this addendum was written the maximum was **460**
 again. **Re-derive in the same shell invocation as the commit, every time; a number derived
 even an hour earlier is already a guess.**
+
+---
+
+## L-461 — A PIXEL FLOOR IS A FLOOR ON RESOLUTION, NOT ON THE READER'S ERROR. AN UNCERTAINTY PINNED TO IT IS A FALSE PRECISION, AND THE THREE-FLOOR `max` DOES NOT CATCH IT — A PLANTED NULL DOES
+
+**2026-09-03, DIGITIZER instrument calibration, ansys-verification.**
+
+The digitized-reference instrument derives its read-off uncertainty as
+`u_read = max(` synthetic-control statistic, ½·(two-read-off spread), **one-pixel
+floor** `)`. The one-pixel floor is the honest statement that no processing
+recovers information the raster does not carry. For the POSITION quantity (the
+x-location of a shock, located by steepest descent) the floor was **0.0027778
+x-data = 1.000 px** and it dominated the `max`, so `u_read = 1 px`.
+
+**The instrument's planted null then refused to certify it.** A clean, undisplaced
+control plate — truth = zero displacement by construction — read back at **1.167
+px**, and the null control (`rule 3`, `L-...`/`§16.4`) refuses unless a known-zero
+reads back within `u_read`. The calibration verdict was `NOT A RESULT`.
+
+The locator's demonstrated error across 24 clean plates was **mean 0.843 px, max
+1.693 px.** So:
+
+> **A `u_read` of one pixel was a claim the reader could locate a feature to one
+> pixel. It could not — its own error ran to 1.7 px on a clean plate.** The pixel
+> floor bounds how finely the raster CAN be read; it says nothing about how well
+> THIS reader locates THIS feature. When the reader's error exceeds the floor, a
+> floor-dominated uncertainty is a **false precision.**
+
+**The `max` of three floors did not catch this, and could not have.** `max(A, B, C)`
+guards against a `u_read` that is too small relative to its own three inputs. Here
+the pixel floor `C` was the largest of the three and was **still below the reader's
+real error** — because the synthetic-control statistic `A` was an **RMS**, which
+understates a distribution with a tail, and the two-read-off spread `B` was ~1e-7
+on clean synthetic plates. All three inputs agreed on an optimistic number, so
+their `max` was optimistic too. **A guard over three quantities that are all
+optimistic in the same direction cannot fire** — the same shape as `L-436` (a guard
+whose two sides degrade together) and the enumerated-channel bound of `L-441` (all
+paths computing the same incomplete thing).
+
+**What caught it was the one control that does not depend on the reader's own
+statistics: a planted null tied to an externally-known answer.** The truth was zero
+by construction, not by anything the reader computed, so the comparison
+`|read − 0| ≤ u_read` was independent of every optimistic input. **When every
+internal estimate of an uncertainty can be biased the same way, only a control
+anchored to an external known value is load-bearing.**
+
+**The fix (charter `§29.3`):** the synthetic-control statistic must **dominate the
+worst demonstrated per-plate error** (a max, or a high percentile with the max
+beside it), so the planted null passes **by construction** — `u_read ≥` every
+clean-plate error the calibration measured. An RMS is admissible only where the
+max per-plate error is itself below the pixel floor (the floor then genuinely
+binds). **The test that a statistic is conservative enough is not an argument; it
+is that the null control passes.**
+
+**Related:** L-441 (a bound over enumerated channels is silent about the channels
+you did not list — same optimism-in-agreement shape), L-436 (a guard whose two
+sides degrade together cannot fire), the planted-zero control (`rule 3`: a zero
+from a reader not shown able to see a non-zero is not evidence — here, a precision
+from a floor not shown to bound the reader's error is not a precision).
