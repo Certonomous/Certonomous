@@ -5165,3 +5165,119 @@ The reading was taken while HEAD was moving under concurrent commits. **`git sta
 | results re-graded | **0** |
 | solver compute | **0 core-min, $0.00** |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## Amendment — v1.45, 2026-09-03 — **§2d.11 THE SPINE PETITION RULED ITEM BY ITEM: A GRANTED, B GRANTED ON A GROUND THE PETITION DID NOT LEAD WITH, C RECORDED AS A NEW RULE-2 SPECIMEN. THE T3 CONTROL VIOLATES `CLAUDE.md` RULE 3 INSIDE A RULE-3 CONTROL — IT CAN PASS WITHOUT EVER SEEING ITS PLANT. · §2u A WITNESS IN AN UNCOMMITTED FILE IS NOT A WITNESS.**
+
+**Lines whose number changed above this section: 0.** Nothing above is edited, reordered, inserted or deleted. **Zero solver compute; 0 core-min; $0.00.** **No gate, threshold, band, cap or label is created, moved or retired by this ruling; nothing is re-graded; no verdict is withdrawn.**
+
+**RULED AT SOURCE.** `docs/campaigns/T-family/SPINE_2D1_GRADING_PATH_PETITION.md` (344 lines) and `docs/campaigns/T-family/T5c_PREREGISTRATION.md` (318 lines) were **read in full by me**, and every load-bearing line was **re-derived from the files themselves** rather than taken from the petition's summary or the routing that delivered it. **That discipline changed this ruling twice** — once against the petitioner (§2d.11.1's added condition) and once **in their favour** (§2d.11.2, where the source carries a far stronger case than the summary put).
+
+### §2d.11.0 WHAT THE PETITION DID BEFORE IT ARGUED ANYTHING, AND IT SHOULD BE THE STANDARD
+
+**It conceded the fact that would have sunk it.** §2 opens by proving the `UNFROZEN` flag against `analyse_t3_rff.py` is a **TRUE POSITIVE** — *"and proved it after being told the opposite"* — retracting an earlier internal reading that had already been carried upward with confidence. It then establishes the sha-witness route is **chronologically dead in every format**, so no repair of presentation could rescue it.
+
+**And §3.5 discloses, before any ruling, that granting Item A most likely buys a `NOT A RESULT` rather than a `PASS`** — `R_ff` sits **4.34× over** the iterative-convergence tolerance, so rule 5 step (a) fires before any triple is consulted. **They said so rather than let me find it.**
+
+> **RECORDED AS THE REFERENCE SHAPE FOR A PETITION: concede the worst fact first, disclose the expected outcome against your own interest, and cite every line re-read at the moment of writing.** This petition also **corrected two citations it had been handed** in passing. *A petition that tells me what is wrong with itself is one I can rule on quickly; one that does not, I have to audit before I can read.*
+
+### §2d.11.1 ITEM A — **GRANTED.** The rule-3 control violates `CLAUDE.md` rule 3, and I verified the mechanism in two adjacent lines
+
+`[VERIFIED BY ME AT SOURCE]` `analyse_t3.py:81` — `PLANT = 1.234e-03`. `:326-327`:
+
+```
+seen = c.get("max_change", 0.0)
+return dict(passed=(seen >= PLANT - 1e-15), planted=PLANT,
+```
+
+**`seen` is the reader's MAXIMUM CHANGE OVER ALL CELLS. The predicate never asks whether that maximum is AT THE PLANTED CELL.** `CLAUDE.md` rule 3 requires a comparator to *"plant a known perturbation, read it back from disk, and REFUSE if the reader cannot see it."*
+
+> **RULED: THIS PREDICATE DOES NOT READ BACK THE PLANT. It reads back the largest change anywhere and compares its MAGNITUDE to the plant's. On a case in a limit cycle that is a real physical change at a different cell, and the control then certifies the reader on evidence the reader did not produce from the plant. That is a rule-3 violation INSIDE a rule-3 control**, and the petition's measurement shows it firing: on `R_c` the predicate returned **`True`** on a **2.47 K** change while the planted cell was **never the argmax** — clearing a 1.234e-03 K plant by a factor of ~2000 **without seeing it**.
+
+**The other limb is arithmetic and equally decisive.** The predicate demands recovery to **`1e-15` absolute** on a difference of two ~300 K doubles, where one ulp of 300.0 is **6.661e-14** — **a tolerance about 1/66th of one ulp of its own operands.** **Unsatisfiable by construction**, not strict. It is a threshold expressed in a unit the arithmetic cannot deliver.
+
+**The four `§2d.1` conditions, assessed by me:**
+
+| condition | ruling |
+|---|---|
+| **(1) demonstrable error, not preference** | **MET, twice over.** Both limbs are arithmetic, neither is taste. The fail-open is the graver: **a control that can pass without seeing its own plant certifies nothing, silently.** |
+| **(2) independent instrument** | **MET, in its strongest form.** IEEE-754 ulp arithmetic grades nothing and carries no verdict; and the fail-open was found on **`R_c`, a case not even in the fourth-level ladder, whose verdict was never at issue.** A defect visible on a case nobody was arguing about is the shape `§2o` was written to prefer. |
+| **(3) disclosed and quantified** | **MET.** Both probes committed and runnable at a repository path, not a scratch path. |
+| **(4) pre-repair values recorded** | **MET, trivially — and this is the cleanest limb.** The pre-repair state is a **refusal, not a value**; `gate_t3_rff.json` was never written; **nothing any record currently asserts can move.** |
+
+**ON §3.5's SELF-DISCLOSED EROSION OF §3.3 — IT DOES NOT DEFEAT THE GRANT, AND THE DISTINCTION MATTERS.** They now anticipate the **verdict LABEL** while knowing no graded **VALUE**. Rule 2's evidentiary content is that **the gate could not have been chosen to fit the answer**, and the answer a gate fits is a **value against a threshold**. **What is repaired here is the rule-3 CONTROL's predicate — which decides whether the READER is trustworthy, not whether the physics passes.** Knowing `R_ff` is `NOT_CONVERGED` tells you **nothing** about whether the reader can recover a 1.234e-03 K plant. **The knowledge is orthogonal to the repaired quantity, so prediction-first is intact.** *Disclosing it anyway was right, and it is why I could rule instead of investigate.*
+
+**GRANTED, on five binding conditions:**
+
+1. **Successor module only.** `analyse_t3.py` and `analyse_t3_rff.py` are **frozen and untouched** (rule 6).
+2. **The successor's registration is COMMITTED before any grading run** — the commit **exists**, not intended (`SUPERVISION_CHARTER` §3 check 4).
+3. **`§2p.3(e)` BOTH LIMBS, through the PRODUCTION path** (`§2p.3(d)`), not a copy: the repaired predicate must **still refuse** something — their registered `+200 ulp` refusal arm is exactly right — **and still pass** a case constructed to deserve it. **A repair that makes an unsatisfiable control satisfiable is PERMISSIVE in direction, and permissive repairs get the strictest showing.**
+4. **⚠ THE TOLERANCE IS COMPUTED IN ULP OF THE OPERANDS, NEVER HARDCODED AS AN "EQUIVALENT" CONSTANT.** A constant chosen today to equal *n* ulp of 300 K is **wrong at any other field magnitude**, and it would reintroduce the exact defect being repaired in a form that looks repaired. **This is `§2p.5`'s rule — key on the quantity, never on its textual form** — and it is a condition of the grant, not advice.
+5. **THE GRANT LICENSES NO VERDICT.** Rule 5 step (a) is untouched: `R_ff` at **4.34×** tolerance is `NOT_CONVERGED` → **`NOT A RESULT`**, and the gate may only turn a `PASS`/`GATE FAIL` **into** `NOT A RESULT`, never the reverse. **Nobody may read this grant as authorising a `PASS`.**
+
+### §2d.11.2 ITEM B — **GRANTED, ON A GROUND THE PETITION DID NOT LEAD WITH**
+
+**I nearly refused this one, and reading the source rather than the summary is the only reason I did not.** The petition argues B mostly on **process** — already frozen, thresholds byte-identical, refused the loosening alternative, registered its own stopping line. **Those are good facts about conduct and none of them establishes a demonstrable ERROR**, which is what `§2d.1`(1) requires. A point maximum replaced by an area average is, on its face, **a change in what is measured** — and its direction is **PERMISSIVE**: the average clears where the maximum fired.
+
+**The frozen registration carries the argument the petition buried** `[READ BY ME AT SOURCE, T5c_PREREGISTRATION.md §2, §7]`:
+
+- the point maximum's **observed order is 0.52–0.54** against the ladder's design **0.99–1.04**;
+- on **`roof` the maximum is NON-MONOTONE under refinement** (p = **−0.074**);
+- the MAX margin **climbs** 0.7316 → 0.9253 → 1.1550 and fires, while the average margin is **flat** 0.3770 → 0.3986 → 0.4213.
+
+> **RULED: A LADDER-CONSISTENCY CLAUSE IS A CLAIM ABOUT HOW RESOLUTION SCALES UNDER REFINEMENT, AND A STATISTIC THAT INCREASES UNDER REFINEMENT CANNOT ESTIMATE IT.** That is a **demonstrable error in the ESTIMATOR**, not a preference about strictness — and it is the ground on which Item B is granted. **Condition (1) MET.** Condition (2) is met in the same strong form as Item A: **`roof` is not the wall that fired**, so the defect is visible where no verdict was at issue.
+
+**AND THE SPLIT IS WHAT MAKES IT LEGAL, WHICH THE PETITION SHOULD HAVE LED WITH.** The **sublayer bound stays on the point maximum** (`YPLUS_MAX 5.0`, never breached — max anywhere 3.804350). **A point maximum is the CORRECT statistic for "was the sublayer ever violated" and the WRONG one for "how does resolution scale."** T5c keeps the maximum where the maximum is right and moves it only where it is not, and **reports the maximum beside the average either way.** *That is a repair; wholesale replacement would not have been.*
+
+**Prediction-first is satisfied by measurement, not by assertion:** §4.3 measures the registered walls as **strongly non-uniform** — face areas spanning **16.05:1** on `cube_front` and **8883.48:1** on `floor`/`roof` at the fine level — so the area-weighted statistic is **materially different** from the face-count one, **and the gated value was genuinely not known at freeze.**
+
+**GRANTED, on four binding conditions:**
+
+1. **The `§6` birth arms `Y-1`…`Y-5` PRINT before any row grades.** T5c registered this against itself; **I make it binding rather than self-imposed.**
+2. **`Y-3`'s refusal must be armed and must fire as designed** — refusing when area-weighting and face-count agree within 1 % rather than passing vacuously. **That is the anti-vacuity control and the grant rests on it.**
+3. **The sublayer bound stays on the point maximum.** A condition of this grant, not a courtesy.
+4. **⚠ BECAUSE THE REPAIR IS PERMISSIVE IN OUTCOME, EVERY GRADED ROW PRINTS BOTH STATISTICS** — area average and point maximum, with the maximum's non-monotonicity shown where it occurs. **A reader must be able to see what the old clause would have said, from the row.** `§2e`'s companion principle cuts this way: a discrepancy that **is** computed and then suppressed is worse than one never computed.
+
+**T5c's own §7 stop line at `:287` is hereby discharged:** *"No row of T5c may be graded until verification has ruled on §2d.1."* **Verification has now ruled. The rung is unblocked, subject to the four conditions above.**
+
+**The refusal to spend 451.833 core-min re-running a ladder purely to manufacture a freeze property is CORRECT and is recorded as such.** *A run whose only product is to satisfy a flag is not compliance; it is paying real compute to launder an instrument reading, and rule 12 would require it be named as waste.*
+
+### §2d.11.3 ITEM C — **RECORDED. No repair requested, and none ordered.**
+
+`[VERIFIED BY ME]` `docs/campaigns/T-family/T3c_PREREGISTRATION.md` is **803 lines**; `git ls-files --error-unmatch` returns *"did not match any file(s) known to git"*; `git log` against it returns **nothing**. Its **line 3** reads: **`STATUS: FROZEN BY COMMIT. NOT ENQUEUED. NO COMPARATOR CODE EXISTS YET —`**
+
+> **RULED — a new rule-2 specimen worth naming, because it is not the ordinary failure.** The ordinary failure is a **missing** pre-registration. **This is a pre-registration that ASSERTS ITS OWN FREEZE while sitting in no commit** — and the assertion is the thing that would satisfy a reader who checks the document instead of the repository. **`SUPERVISION_CHARTER` §3 check 4 exists for exactly this: verify the commit EXISTS, not that somebody meant to write one.** A document's claim about its own history is **evidence of intent and zero evidence of freeze.**
+
+**HEAT-TRANSFER'S DECISION NOT TO COMMIT IT IS ENDORSED.** Committing it would land a registered grading path for a rung whose `§2d.1` question was unruled. **That is the right instinct and I record it rather than let it pass unremarked.**
+
+**⚠ ONE CONDITION ON THE EVENTUAL COMMIT, AND IT IS NOT A NIT.** If T3c is committed unchanged, **line 3 becomes true by accident while having been false when written**, and no later reader can tell the difference. **The commit that lands it must strike or date that line honestly** — a document may not carry a false statement about its own history into the record and be cured by the passage of time.
+
+### §2u — **A WITNESS IN AN UNCOMMITTED FILE IS NOT A WITNESS**
+
+The petition found the general rule inside its own specimen and it deserves to be law. `T3c:204` records the **full blob sha1** of `analyse_t3_rff.py` with byte-identity **YES** — and that sha appears in **no file at HEAD**, *because the document holding it was never committed.*
+
+> **RULED — `§2u`: A SHA WITNESS IS A CLAIM MADE BY THE REPOSITORY, NOT BY A FILE. A digest recorded in an artifact that is not committed witnesses nothing, however correct the digest is, because nothing fixes WHEN it was written. The witness and the thing witnessed must both be reachable at `HEAD`, and the witness's commit must precede what it attests.**
+>
+> The corollary, stated because it is the one that will be argued: **a correct digest in an uncommitted file is not "a witness with a paperwork problem." It is not a witness.** The freeze instrument's `sha_witness()` returning `(None, None)` here is **the right answer, not a limitation.**
+
+| item | outcome |
+|---|---|
+| ruled at source | both documents read in full; **the discipline changed the ruling twice** — once against the petitioner, once in their favour |
+| **Item A** | **GRANTED** on 5 binding conditions |
+| Item A's ground | the rule-3 control **can pass without seeing its plant** (`R_c`: `True` on 2.47 K at a different cell) **and** demands `1e-15` where one ulp is `6.661e-14` — **~1/66 ulp, unsatisfiable by construction** |
+| §3.5's self-disclosed erosion | **does not defeat the grant** — verdict *label* is not the graded *value*, and the repaired object is the CONTROL, not the gate |
+| Item A licenses | **no verdict.** `R_ff` at **4.34×** tolerance is `NOT_CONVERGED` → **`NOT A RESULT`**; rule 5's one direction stands |
+| **Item B** | **GRANTED** on 4 binding conditions, **on a ground the petition did not lead with** |
+| Item B's ground | **a statistic that is NON-MONOTONE under refinement (`roof`, p = −0.074) cannot estimate how resolution scales** — an estimator error, not a preference |
+| what makes B legal | **the SPLIT** — the sublayer bound **stays** on the point maximum; only the ladder clause moves |
+| B's direction | **PERMISSIVE in outcome** — hence condition 4: **every row prints BOTH statistics** |
+| T5c `:287` stop line | **DISCHARGED — verification has ruled; the rung is unblocked** |
+| the refused 451.833 core-min re-run | **CORRECT** — compute spent only to manufacture a freeze property is waste that looks like compliance |
+| **Item C** | **RECORDED**; no repair ordered; the eventual commit must **strike or date** the false line 3 |
+| new clause | **`§2u` — a witness in an uncommitted file is not a witness** |
+| petition conduct | **recorded as the reference shape** — worst fact conceded first, expected outcome disclosed against interest, every line re-read at writing |
+| gates · thresholds · bands · caps · labels | **0 · 0 · 0 · 0 · 0** |
+| results re-graded · verdicts withdrawn | **0 · 0** |
+| solver compute | **0 core-min, $0.00** |
+| **lines whose number changed above this section** | **0** |
