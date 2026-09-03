@@ -390,3 +390,150 @@ file and re-runs no case.
 | B.1 | `verification/runs/T-family/T23_runs/analyse_t23.py:85, 374–379`; `verification/runs/T-family/T23G_runs/analyse_t23g.py:123, 404–409`; successors at `analyse_t24.py:517` and `analyse_t25R2.py:889` |
 | B.2 | `verification/runs/T-family/T19b_runs/analyse_t19b.py:299–326` |
 | cost figures quoted in A.3 | `verification/runs/T-family/T19_runs/STATUS.P_*` (`core_min`) |
+
+---
+
+## F. DATED SECTION — 2026-09-03T18:5xZ: THE FOURTH QUESTION, **(d) THE CALLER SIDE**
+
+**Appended, not rewritten. Lines whose number changed above this section: 0.**
+
+Added on the heat-transfer supervisor's instruction, sourced from verification's
+completed four-faces audit — `docs/FAIL_OPEN_GATE_AUDIT.md` §28 (commit
+`4b98398c`), **read at source before being applied**, not on relay. §28's own
+words for the test:
+
+> **CAN THIS CODE PATH DISTINGUISH "THE CHECK RAN AND FOUND NOTHING" FROM "THE
+> CHECK DID NOT RUN"? If it cannot, its zero is UNINTERPRETABLE and must refuse.**
+> That is rule 3's planted control asked one step earlier — **plant the RUN, not
+> only the VALUE.**
+
+**Still a code read. Nothing was built, nothing repaired, nothing re-graded, and
+the live solver found in §F.4 was not touched.** §28 is explicit that it orders no
+sweep and that three of its four faces are relayed rather than re-derived; this
+section adds two measured specimens from this family and one correction, and
+claims nothing broader.
+
+### F.1 Why (d) is a different guarantee from (a)/(b)/(c)
+
+(a), (b) and (c) are **instrument-side**: can this check emit a failure, can it
+emit a pass, and is the outcome the data's. **(d) is caller-side**: was the check
+ever invoked, and can a reader of the artifact tell? A planted-zero control that
+answers (a)–(c) perfectly still proves nothing if no one called it, and §28's tell
+is that *the absence of an error was read as the presence of a check*.
+
+### F.2 Two (d) findings in this family. **Neither moves a verdict.**
+
+#### F.2.1 `grade_t25R6a.py` + `compare_arms_t25R5.py:planted_control` — the verdict artifact carries **no positive evidence the rule-3 control ran**
+
+`T25R6a_VERDICT.json` carries 23 top-level keys — `ceiling`, `censored`,
+`cost_basis`, `equivalence`, `gate`, `repro`, `roache`, `rule4`, `verdict` and the
+rest — and **not one of them names the plant magnitude, the recovered value or a
+detection floor.** A `T25R6a_VERDICT.json` produced with the rule-3 control never
+invoked would be byte-indistinguishable from this one.
+
+**The defect is at the INTERFACE, not only at the caller.**
+`compare_arms_t25R5.py:202` ends `planted_control` with a bare `return True`. It
+measures `seen = maxdiff(orig, new, ...)` per region and per end, compares it to
+`PLANT` within `PLANT_TOL_K`, and then **throws the measurement away** — so the
+caller at `grade_t25R6a.py:347` has nothing to record even if it wanted to.
+
+**What is sound, stated so the finding is not inflated.** The call at
+`grade_t25R6a.py:341–352` is **unconditional**; it **refuses when the case
+directory is absent** (`:343–345` — absence REFUSES, it does not read as nothing
+to flag); and it refuses on any non-`True` return. So the control **did** run.
+**The failure is that a reader of the artifact cannot establish that**, which is
+exactly §28's tell.
+
+- (d) **FAIL** on the artifact. (a), (b), (c) sound for this control — the
+  neighbouring (a) failure is at `:437` and is a different predicate (§A.1).
+- **Does not move a verdict:** T25R6a is already `NOT A RESULT` from §A.1.
+
+#### F.2.2 `analyse_t24.py:973–981` — a swallowed classification, face 1 in miniature
+
+```
+try:
+    if float(la.split()[0]) > float(npr):
+        print("    SATURATED at launch ...")
+except (ValueError, IndexError, AttributeError):
+    pass
+```
+
+If `START.<case>`'s load average is malformed, absent, or not the shape expected,
+the saturation classification **silently does not happen** and **nothing anywhere
+records that it was attempted**. "Not saturated" and "loadavg unreadable" produce
+the identical artifact and the identical silence.
+
+This is advisory to the calibration row rather than to the verdict —
+`T24_PREREGISTRATION.md` §5.5 registers a saturated launch as producing *a COST
+but NOT a calibration row* — which is to say it is advisory to **the very row
+landed today**.
+
+- (d) **FAIL**, consequence **LOW**: T24's `START.T24_*` files **do** exist (the
+  missing-`START` defect that `OPEN_INSTRUMENT_DEFECTS_2026-08-31.md` finding 1
+  records against T23 was fixed for T24), and all twelve `gate_t24.json` rows
+  carry a `start` block, so the `except` limb is not believed to have fired.
+- **Does not move a verdict.**
+
+### F.3 (d)-SOUND, recorded so a successor does not redo it
+
+| what | evidence |
+|---|---|
+| **Best (d) example in the family** | `gate_t24.json` rows carry `control_Q1_at_plant`, `control_Q1_floor`, `control_Q2_at_plant`, `control_Q2_floor` — **per case, measured**. A recovered value and a demonstrated floor cannot exist unless the control ran |
+| T23, weaker but sound | `T23_GRADE.json` rows carry `control_Q1_floor` / `control_Q2_floor` but **not** `at_plant`. A floor is still a measured quantity, so it is still positive evidence; T24 added `at_plant` and T23 has only the floor |
+| control blocks present in the verdict artifact | `gate_t11.json` `planted_zero_control`; `gate_t14.json`, `gate_t17.json`, `gate_t18.json` `planted_zero_controls`; `T25R6c_VERDICT.json` `planted_zero`; `gate_k0c.json` and `gate_k0ct.json` `controls` + `control_predictions` |
+| T15 | would have carried `planted_zero_controls=pz` in its JSON — it refused first (§A.2), and the refusal itself is captured in `T15_GRADE_OUTPUT.txt`, which is caller-side evidence of a different and adequate kind |
+| **completion checks have the (d)-CORRECT polarity throughout** | absence REFUSES, it never reads as nothing-to-flag: `analyse_t14.py:238`, `analyse_t17.py:327`, `analyse_t9aR1c.py:513` all refuse on a missing `DONE` marker; `grade_t25R6a.py:343` refuses on a missing case directory; `grade_t25R5.py:84` refuses on a missing or non-zero `rc` file |
+| **Roache triple is never bypassed on a PASS path** | in T11 (`:277`), T14 (`:205`), T17 (`:294`), T18 (`:234`) the triple state is consulted **before** the band test. Where there is no triple, the artifact says so **positively** rather than by omission: `T15` writes `grid_triple: false` and `triple: "NONE -- SINGLE MESH, NO GRID-CONVERGENCE EVIDENCE"` on every row, `T25R6a_VERDICT.json` writes `roache: "NOT INVOKED -- no grid claim, no order, no GCI"`. **No comparator read here can emit a PASS on a path that never consulted the triple** |
+| no swallowed refusals in the runners | every `2>/dev/null` found under `T-family/*/ *.sh` and `F14-cooling-ladder/*/ *.sh` is on a `readlink`/`cat` of a possibly-absent `/proc` entry inside a launch guard (`run_one_e4a.sh:12,14`, `run_one_t11.sh:32,35` and the like). None silences an instrument |
+
+### F.4 The supervisor's two claims: one **CONFIRMED**, one **CORRECTED**
+
+Both were checked at source rather than taken on faith, as instructed.
+
+**CLAIM 1 — "the live T3d run has NO monitor of any kind" — CONFIRMED, and the
+case is now named.** The live run is
+`verification/runs/T-family/T3_runs/R_fx` (`T3_runs/launch_t3d.sh` names `R_fx`).
+Its `log.solve` was being written at **2026-09-03T18:51:10Z**, the instant it was
+read, at **`Time = 1917`**. **No monitor sidecar exists anywhere under
+`T3_runs/`**, and `verification/monitor/` holds only VR2 and VR5 artifacts
+unrelated to this case. So "no alarm" and "nothing watching" are the same
+observation, exactly as put. **This is a (d) failure at the fleet level, not in a
+file, and it sits against Sanaa's 22:00Z ruling that every run is watched by its
+monitor. THE RUN WAS NOT TOUCHED** — this is a read of mtimes and of the log's
+last `Time` line, nothing more.
+
+**CLAIM 2 — "`docs/COST_CALIBRATION.md` has no caller-side proof; the fix that is
+allowed is that the RUNG RECORD states the debt in its own text" — the diagnosis
+holds and THE PROPOSED FIX IS CORRECTED, because it already exists and it already
+failed.**
+
+Both rungs **already state the debt in their own registration text**:
+
+- `docs/campaigns/T-family/T15_PREREGISTRATION.md:329` — *"…`docs/COST_CALIBRATION.md` at completion"*, and `T15_registered.json`'s `cost.note` ends *"Calibration row owed in `docs/COST_CALIBRATION.md` at completion."*
+- `docs/campaigns/T-family/T24_PREREGISTRATION.md:902` — requires *"a row appended to `docs/COST_CALIBRATION.md`"*.
+
+**Both debts were written into the artifact, in advance, in the rung's own words —
+and both rows still went unlanded until a human noticed, twice on 2026-09-03.**
+
+> **The correction: caller-side evidence in the artifact is NECESSARY BUT NOT
+> SUFFICIENT. A debt stated on line 902 of a registration nobody re-opens at
+> completion is a caller-side proof with no reader.** The (d) gap here is not that
+> the obligation is unstated; it is that **nothing reads the statement at the
+> moment completion occurs**. Writing the obligation down does not let the path
+> distinguish "the row was considered and not needed" from "nobody looked", which
+> is §28's bar, so it does not clear §28's bar.
+
+**No detector is proposed and none was built** — instrument-on-instrument work is
+restricted, and this section is a read. What is recorded is that the allowed fix
+was already in place and is measurably insufficient, so that whoever disposes of
+this does not spend a cycle installing it a second time.
+
+### F.5 Scope of this section, honestly
+
+Two (d) specimens, from the same 29 comparators §1 names, plus the eleven files
+§1 already lists as **pattern-scanned but unread** — which are unread for (d) as
+well. **(d) had a lower hit rate in this family than predicted**, and the reason
+looks structural rather than lucky: most of these comparators write their control's
+**measured** outputs into the verdict JSON rather than a pass flag, and their
+completion checks refuse on absence. The two that fail are the two that recorded a
+**bare boolean** or **nothing at all**.
