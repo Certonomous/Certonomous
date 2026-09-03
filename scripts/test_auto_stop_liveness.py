@@ -60,8 +60,20 @@ controls export both spellings so the same harness drives either script.
 USAGE
     python3 scripts/test_auto_stop_liveness.py
     python3 scripts/test_auto_stop_liveness.py --script <path>
-Exit 0 = every control behaved as pre-registered AND every pair flipped.
-Non-zero = REFUSED.
+    python3 scripts/test_auto_stop_liveness.py --selftest
+
+EXIT CODES, AND WHY 3 EXISTS (added 2026-09-03, cfd lane; see the amendment note
+on adjudicate() below)
+    0  every control behaved as pre-registered, AND every pair was evaluated in
+       BOTH directions and flipped. Only this code licenses the both-directions
+       claim, and only this code prints it.
+    1  REFUSED -- a control landed off its pre-registered verdict, or a pair that
+       WAS evaluated did not flip.
+    2  the script under test is not there.
+    3  NOT WITNESSED -- nothing went wrong, and nothing was proven either: at
+       least one pair had a half SKIPPED, so the reader was never shown able to
+       see both a presence and an absence. This is the code the suite returned
+       zero for until 2026-09-03.
 """
 
 from __future__ import annotations
@@ -405,12 +417,199 @@ def control(name: str, expect: str, fn) -> dict:
         shutil.rmtree(tmp, ignore_errors=True)
 
 
+def adjudicate(results: list[dict], pairs: list[tuple]) -> tuple[int, list[str]]:
+    """Turn control outcomes into ONE verdict. Pure: no I/O, no clock, no /proc.
+
+    WHY THIS IS A FUNCTION AND NOT INLINE IN main() (2026-09-03, cfd lane)
+    ---------------------------------------------------------------------
+    THE DEFECT IT REPAIRS, measured on this box on 2026-09-03 and filed at
+    verification/runs/AUTOSTOP_LIVENESS/suite_host_2026-09-03T1815Z.txt:
+
+        controls: 12 passed, 0 failed, 12 skipped
+        every one of the TEN flip pairs printed [SKIP], Z1 included
+        SUITE EXIT CODE: 0
+        and the run still printed, unconditionally:
+          "every evaluated pair flipped. The reader was shown able to see both
+           a non-zero and a zero."
+
+    THAT SENTENCE WAS FALSE FOR THAT RUN. Not one pair had been evaluated. The
+    box had three teams' OpenFOAM solvers live, clause (1) reads the real /proc
+    and cannot be sandboxed, so every IDLE-half control SKIPPED -- correctly --
+    and the suite absorbed all twelve skips into neither the pass column nor the
+    fail column and exited 0.
+
+    A skip is honest. Counting it as a pass is not, and printing the
+    both-directions claim over a run that evaluated no direction is the exact
+    disease this suite exists to catch: a green badge on a test that tested
+    nothing. It is the same shape as a reader that reports a zero it was never
+    shown able to see a non-zero with -- which is CLAUDE.md rule 3, turned on
+    the harness itself.
+
+    THE REPAIR, and it is three lines of doctrine rather than three lines of code:
+      (a) skips are counted in their OWN column and never fold into either other;
+      (b) a pair with an unwitnessed half REFUSES -- rc 3, NOT WITNESSED -- so
+          the suite cannot pass by not looking;
+      (c) THE CLAIM IS PRINTED FROM THE EVIDENCE, NEVER FROM THE RUN COMPLETING.
+          The old sentence was unconditional. That was the whole bug: the run
+          finishing was being read as the reading succeeding.
+
+    Pure so it can be driven by --selftest with synthetic rows, in both
+    directions, without a box, a solver or a clock. The thing that changed here
+    is the ADJUDICATION, so the control has to exercise the adjudication.
+
+    Returns (exit_code, lines_to_print).
+    """
+    out: list[str] = []
+    by_id = {r["name"].split()[0]: r for r in results}
+
+    out.append("")
+    out.append("  FLIP CHECK -- a busy control that does not flip the answer is not a control")
+    flip_fail: list[str] = []
+    unwitnessed: list[str] = []
+    for busy, idle, signal in pairs:
+        b, i = by_id.get(busy), by_id.get(idle)
+        if b is None or i is None:
+            missing = busy if b is None else idle
+            flip_fail.append(f"{busy}/{idle}")
+            out.append(f"    [REFUSED] {busy} vs {idle:4s}  {signal}: control {missing} "
+                       f"is named in the flip table and was never run")
+            continue
+        if b["ok"] is None or i["ok"] is None:
+            which = busy if b["ok"] is None else idle
+            unwitnessed.append(f"{busy}/{idle}")
+            out.append(f"    [NOT WITNESSED] {busy} vs {idle:4s}  {signal}: "
+                       f"{which} SKIPPED, so this pair proves nothing in either direction")
+            continue
+        flipped = (b["got"] != i["got"] and b["got"] == "ALIVE" and i["got"] == "IDLE")
+        out.append(f"    [{'ok     ' if flipped else 'REFUSED'}] {busy} vs {idle:4s}  "
+                   f"{signal}: {b['got']} vs {i['got']}")
+        if not flipped:
+            flip_fail.append(f"{busy}/{idle}")
+
+    n_pass = sum(1 for r in results if r["ok"] is True)
+    n_fail = sum(1 for r in results if r["ok"] is False)
+    n_skip = sum(1 for r in results if r["ok"] is None)
+    n_pair_ok = len(pairs) - len(flip_fail) - len(unwitnessed)
+    out.append("")
+    out.append(f"  controls: {n_pass} passed, {n_fail} failed, {n_skip} skipped")
+    out.append(f"  pairs:    {n_pair_ok} witnessed in BOTH directions, "
+               f"{len(flip_fail)} refused, {len(unwitnessed)} not witnessed")
+    if n_skip:
+        for r in results:
+            if r["ok"] is None:
+                out.append(f"    SKIPPED {r['name'].split()[0]}: {r['note']}")
+
+    if n_fail or flip_fail:
+        out.append("")
+        out.append(f"REFUSED: {n_fail} control(s) off their pre-registered verdict; "
+                   f"{len(flip_fail)} pair(s) did not flip"
+                   f"{': ' + ', '.join(flip_fail) if flip_fail else ''}")
+        if unwitnessed:
+            out.append(f"  and {len(unwitnessed)} pair(s) were NOT WITNESSED at all: "
+                       f"{', '.join(unwitnessed)}")
+        return 1, out
+
+    if unwitnessed:
+        out.append("")
+        out.append(f"NOT WITNESSED: no control landed off its verdict, and no pair was "
+                   f"proven either. {len(unwitnessed)} pair(s) had a half SKIPPED: "
+                   f"{', '.join(unwitnessed)}")
+        out.append("  THIS RUN DOES NOT MAKE THE BOTH-DIRECTIONS CLAIM. The reader was not "
+                   "shown able to see both a presence and an absence, so per CLAUDE.md rule 3 "
+                   "there is no evidence here -- only an absence of contradiction.")
+        return 3, out
+
+    out.append("")
+    out.append(f"All {n_pass} controls behaved as pre-registered and all {len(pairs)} pairs "
+               f"were evaluated in BOTH directions and flipped. The reader was shown able to "
+               f"see both a non-zero and a zero.")
+    return 0, out
+
+
+def _row(cid: str, expect: str, got: str) -> dict:
+    """A synthetic control outcome for --selftest. `got` of None means SKIP."""
+    return {"name": f"{cid}  synthetic", "expect": expect, "got": got or "SKIP",
+            "ok": None if got is None else (got == expect), "rc": 0,
+            "note": "synthetic row, no script was run", "line": ""}
+
+
+def selftest() -> int:
+    """A planted control on the ADJUDICATOR -- in both directions, like everything else here.
+
+    A fix to a both-directions check that is itself only checked one way would be
+    the original defect wearing a repair's clothes. So this drives adjudicate()
+    with synthetic rows and refuses unless it answers correctly on EVERY arm:
+    a clean run must still PASS (or the repair has broken the suite into always
+    refusing, which is just as useless as always passing), and each way of being
+    unproven must REFUSE with the right code.
+    """
+    pairs = [("A1", "A0", "signal under test")]
+    cases = [
+        ("clean both directions -> 0, and the claim is printed",
+         [_row("A1", "ALIVE", "ALIVE"), _row("A0", "IDLE", "IDLE")], 0, True),
+        ("IDLE half skipped -> 3 NOT WITNESSED, claim withheld  [THE 2026-09-03 DEFECT]",
+         [_row("A1", "ALIVE", "ALIVE"), _row("A0", "IDLE", None)], 3, False),
+        ("ALIVE half skipped -> 3 NOT WITNESSED, claim withheld",
+         [_row("A1", "ALIVE", None), _row("A0", "IDLE", "IDLE")], 3, False),
+        ("both halves skipped -> 3 NOT WITNESSED, claim withheld",
+         [_row("A1", "ALIVE", None), _row("A0", "IDLE", None)], 3, False),
+        ("a control off its verdict -> 1 REFUSED",
+         [_row("A1", "ALIVE", "IDLE"), _row("A0", "IDLE", "IDLE")], 1, False),
+        ("pair evaluated but does not flip -> 1 REFUSED",
+         [_row("A1", "ALIVE", "ALIVE"), _row("A0", "IDLE", "ALIVE")], 1, False),
+        ("a pair naming a control that was never run -> 1 REFUSED",
+         [_row("A1", "ALIVE", "ALIVE")], 1, False),
+    ]
+    claim = "shown able to see both a non-zero and a zero"
+    bad = 0
+    print("SELFTEST of adjudicate() -- the both-directions check, checked both ways")
+    for label, rows, want_rc, want_claim in cases:
+        rc, lines = adjudicate(rows, pairs)
+        text = "\n".join(lines)
+        got_claim = claim in text
+        ok = (rc == want_rc) and (got_claim == want_claim)
+        print(f"  [{'ok     ' if ok else 'REFUSED'}] {label}")
+        print(f"            rc={rc} (want {want_rc}); "
+              f"both-directions claim printed={got_claim} (want {want_claim})")
+        if not ok:
+            bad += 1
+
+    # THE MUTATION CONTROL. A selftest that only shows the fixed code passing
+    # cannot tell a working adjudicator from one that returns 0 unconditionally
+    # -- which is precisely the bug being repaired. So: re-run the skip arm
+    # through the OLD logic, reproduced here, and REFUSE unless the old logic
+    # gets it WRONG. If the line below ever prints "ok", the repair is not in
+    # the code path the suite actually runs.
+    rows = [_row("A1", "ALIVE", "ALIVE"), _row("A0", "IDLE", None)]
+    old_flip_fail = [f"{b}/{i}" for b, i, _ in pairs
+                     if not (rows[0]["ok"] is None or rows[1]["ok"] is None)
+                     and not (rows[0]["got"] == "ALIVE" and rows[1]["got"] == "IDLE")]
+    old_rc = 1 if (sum(1 for r in rows if r["ok"] is False) or old_flip_fail) else 0
+    mutation_ok = (old_rc == 0)
+    print(f"  [{'ok     ' if mutation_ok else 'REFUSED'}] MUTATION CONTROL: the pre-repair "
+          f"logic returns {old_rc} on the skip arm")
+    print(f"            it must return 0 -- that IS the defect. If it refuses here, this "
+          f"selftest is not exercising the thing that was broken.")
+    if not mutation_ok:
+        bad += 1
+
+    if bad:
+        print(f"\nREFUSED: {bad} selftest arm(s) wrong")
+        return 1
+    print(f"\nAll {len(cases)} arms and the mutation control behaved as pre-registered.")
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
+    ap.add_argument("--selftest", action="store_true",
+                    help="drive adjudicate() with synthetic rows; runs no script")
     ap.add_argument("--script", default=str(PATCHED))
     ap.add_argument("--idle-minutes", type=int, default=30)
     ap.add_argument("--fresh-minutes", type=int, default=30)
     args = ap.parse_args()
+    if args.selftest:
+        return selftest()
     script = Path(args.script)
     if not script.is_file():
         print(f"REFUSED: no script at {script}", file=sys.stderr)
@@ -682,7 +881,6 @@ def main() -> int:
     print()
 
     results = [control(n, e, f) for n, e, f in controls]
-    by_id = {r["name"].split()[0]: r for r in results}
 
     for r in results:
         tag = "SKIP   " if r["ok"] is None else ("ok     " if r["ok"] else "REFUSED")
@@ -691,35 +889,10 @@ def main() -> int:
         if r["line"]:
             print(f"            script said: {r['line'].strip()}")
 
-    print("\n  FLIP CHECK -- a busy control that does not flip the answer is not a control")
-    flip_fail = []
-    for busy, idle, signal in pairs:
-        b, i = by_id[busy], by_id[idle]
-        if b["ok"] is None or i["ok"] is None:
-            print(f"    [SKIP   ] {busy} vs {idle:4s}  {signal}  (a half was skipped)")
-            continue
-        flipped = b["got"] != i["got"] and b["got"] == "ALIVE" and i["got"] == "IDLE"
-        print(f"    [{'ok     ' if flipped else 'REFUSED'}] {busy} vs {idle:4s}  "
-              f"{signal}: {b['got']} vs {i['got']}")
-        if not flipped:
-            flip_fail.append(f"{busy}/{idle}")
-
-    n_pass = sum(1 for r in results if r["ok"] is True)
-    n_fail = sum(1 for r in results if r["ok"] is False)
-    n_skip = sum(1 for r in results if r["ok"] is None)
-    print(f"\n  controls: {n_pass} passed, {n_fail} failed, {n_skip} skipped")
-    if n_skip:
-        for r in results:
-            if r["ok"] is None:
-                print(f"    SKIPPED {r['name'].split()[0]}: {r['note']}")
-
-    if n_fail or flip_fail:
-        print(f"\nREFUSED: {n_fail} control(s) off their pre-registered verdict; "
-              f"{len(flip_fail)} pair(s) did not flip{': ' + ', '.join(flip_fail) if flip_fail else ''}")
-        return 1
-    print(f"\nAll {n_pass} controls behaved as pre-registered and every evaluated pair "
-          f"flipped. The reader was shown able to see both a non-zero and a zero.")
-    return 0
+    rc, lines = adjudicate(results, pairs)
+    for line in lines:
+        print(line)
+    return rc
 
 
 if __name__ == "__main__":

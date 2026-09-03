@@ -1,0 +1,75 @@
+FIXED-HARNESS RE-RUN -- utc=2026-09-03T18:30:16Z  uid=1000  no sudo
+Same two runs as before, through the repaired adjudicate(). Nothing else changed.
+PRE-DECLARED, before the runs:
+  host run     -> must now exit 3 NOT WITNESSED (was 0) and must NOT print the claim
+  isolated run -> must still exit 1 REFUSED on the two pre-declared invalid controls
+
+================= ARM 1: real patched script, contaminated box =================
+    [NOT WITNESSED] F1 vs F0    clause (1) solver basename match: F0 SKIPPED, so this pair proves nothing in either direction
+    [NOT WITNESSED] G1 vs G0    clause (2) repo worker CPU test: G0 SKIPPED, so this pair proves nothing in either direction
+    [NOT WITNESSED] H1 vs H0    clause (3) transcript freshness: H0 SKIPPED, so this pair proves nothing in either direction
+    [NOT WITNESSED] A1 vs Z1    the patch sees what the INSTALLED script does not: Z1 SKIPPED, so this pair proves nothing in either direction
+
+  controls: 12 passed, 0 failed, 12 skipped
+  pairs:    0 witnessed in BOTH directions, 0 refused, 10 not witnessed
+    SKIPPED A0: a real solver is running on this box (pid 342276 is buoyantBoussinesqSimpleFoam); clause (1) reads the real /proc and cannot be sandboxed, so an IDLE-half control here would be measuring the box, not the patch
+    SKIPPED B0: a real solver is running on this box (pid 342276 is buoyantBoussinesqSimpleFoam); clause (1) reads the real /proc and cannot be sandboxed, so an IDLE-half control here would be measuring the box, not the patch
+    SKIPPED C0: a real solver is running on this box (pid 342276 is buoyantBoussinesqSimpleFoam); clause (1) reads the real /proc and cannot be sandboxed, so an IDLE-half control here would be measuring the box, not the patch
+    SKIPPED C0b: a real solver is running on this box (pid 342276 is buoyantBoussinesqSimpleFoam); clause (1) reads the real /proc and cannot be sandboxed, so an IDLE-half control here would be measuring the box, not the patch
+    SKIPPED D0: a real solver is running on this box (pid 342276 is buoyantBoussinesqSimpleFoam); clause (1) reads the real /proc and cannot be sandboxed, so an IDLE-half control here would be measuring the box, not the patch
+    SKIPPED D3b: a real solver is running on this box (pid 342276 is buoyantBoussinesqSimpleFoam); clause (1) reads the real /proc and cannot be sandboxed, so an IDLE-half control here would be measuring the box, not the patch
+    SKIPPED D5: a real solver is running on this box (pid 342276 is buoyantBoussinesqSimpleFoam); clause (1) reads the real /proc and cannot be sandboxed, so an IDLE-half control here would be measuring the box, not the patch
+    SKIPPED E0: a real solver is running on this box (pid 342276 is buoyantBoussinesqSimpleFoam); clause (1) reads the real /proc and cannot be sandboxed, so an IDLE-half control here would be measuring the box, not the patch
+    SKIPPED F0: a real solver is running on this box (pid 342276 is buoyantBoussinesqSimpleFoam); clause (1) reads the real /proc and cannot be sandboxed, so an IDLE-half control here would be measuring the box, not the patch
+    SKIPPED G0: a real solver is running on this box (pid 342276 is buoyantBoussinesqSimpleFoam); clause (1) reads the real /proc and cannot be sandboxed, so an IDLE-half control here would be measuring the box, not the patch
+    SKIPPED H0: a real solver is running on this box (pid 342276 is buoyantBoussinesqSimpleFoam); clause (1) reads the real /proc and cannot be sandboxed, so an IDLE-half control here would be measuring the box, not the patch
+    SKIPPED Z1: a real solver is running on this box (pid 342276 is buoyantBoussinesqSimpleFoam); clause (1) reads the real /proc and cannot be sandboxed, so an IDLE-half control here would be measuring the box, not the patch
+
+NOT WITNESSED: no control landed off its verdict, and no pair was proven either. 10 pair(s) had a half SKIPPED: A1/A0, B1/B0, C1/C0, C1/C0b, D1/D0, D2/D3b, F1/F0, G1/G0, H1/H0, A1/Z1
+  THIS RUN DOES NOT MAKE THE BOTH-DIRECTIONS CLAIM. The reader was not shown able to see both a presence and an absence, so per CLAUDE.md rule 3 there is no evidence here -- only an absence of contradiction.
+ARM 1 EXIT: 3
+
+================= ARM 2: SOLVERS-emptied isolation variant =====================
+  [REFUSED] Z1  INSTALLED script, A1's plant [DISCRIM]  expected IDLE  got ALIVE
+            plant: control A1's EXACT plant, run through the INSTALLED script
+            script said: ALIVE: solver or mesher running (buoyantBoussinesqSimpleFoam, pid 342276)
+
+  FLIP CHECK -- a busy control that does not flip the answer is not a control
+    [ok     ] A1 vs A0    clause (6) run-tree freshness: ALIVE vs IDLE
+    [ok     ] B1 vs B0    clause (5a) driver cwd test: ALIVE vs IDLE
+    [ok     ] C1 vs C0    clause (5b) session liveness: ALIVE vs IDLE
+    [ok     ] C1 vs C0b   clause (5b) daemon's status_seen_utc stamp: ALIVE vs IDLE
+    [ok     ] D1 vs D0    clause (4) container CPU test: ALIVE vs IDLE
+    [ok     ] D2 vs D3b   clause (4) INDETERMINATE-therefore-ALIVE: ALIVE vs IDLE
+    [REFUSED] F1 vs F0    clause (1) solver basename match: IDLE vs IDLE
+    [ok     ] G1 vs G0    clause (2) repo worker CPU test: ALIVE vs IDLE
+    [ok     ] H1 vs H0    clause (3) transcript freshness: ALIVE vs IDLE
+    [REFUSED] A1 vs Z1    the patch sees what the INSTALLED script does not: ALIVE vs ALIVE
+
+  controls: 22 passed, 2 failed, 0 skipped
+  pairs:    8 witnessed in BOTH directions, 2 refused, 0 not witnessed
+
+REFUSED: 2 control(s) off their pre-registered verdict; 2 pair(s) did not flip: F1/F0, A1/Z1
+ARM 2 EXIT: 1
+
+================= ARM 3: adjudicator selftest =================================
+SELFTEST of adjudicate() -- the both-directions check, checked both ways
+  [ok     ] clean both directions -> 0, and the claim is printed
+            rc=0 (want 0); both-directions claim printed=True (want True)
+  [ok     ] IDLE half skipped -> 3 NOT WITNESSED, claim withheld  [THE 2026-09-03 DEFECT]
+            rc=3 (want 3); both-directions claim printed=False (want False)
+  [ok     ] ALIVE half skipped -> 3 NOT WITNESSED, claim withheld
+            rc=3 (want 3); both-directions claim printed=False (want False)
+  [ok     ] both halves skipped -> 3 NOT WITNESSED, claim withheld
+            rc=3 (want 3); both-directions claim printed=False (want False)
+  [ok     ] a control off its verdict -> 1 REFUSED
+            rc=1 (want 1); both-directions claim printed=False (want False)
+  [ok     ] pair evaluated but does not flip -> 1 REFUSED
+            rc=1 (want 1); both-directions claim printed=False (want False)
+  [ok     ] a pair naming a control that was never run -> 1 REFUSED
+            rc=1 (want 1); both-directions claim printed=False (want False)
+  [ok     ] MUTATION CONTROL: the pre-repair logic returns 0 on the skip arm
+            it must return 0 -- that IS the defect. If it refuses here, this selftest is not exercising the thing that was broken.
+
+All 7 arms and the mutation control behaved as pre-registered.
+ARM 3 EXIT: 0
