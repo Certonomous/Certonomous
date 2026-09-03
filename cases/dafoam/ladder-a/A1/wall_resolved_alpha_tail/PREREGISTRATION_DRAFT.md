@@ -948,3 +948,113 @@ their evidence is named; `[OWED]` items gate the ENQUEUE, not the freeze.**
 **Drafted 2026-09-03 by lab-lane (dafoam). No solver, container or queue entry
 was launched, released or moved. Every figure above is read from an artifact
 named beside it.**
+
+---
+
+## ADDENDUM 1 — 2026-09-03T19:06Z — THE SOURCE CITATION MADE DURABLE, AND THE LAUNCH PATH
+
+**Document version 1.0 → 1.1.**
+**Lines whose number changed above this section: 0.** This addendum is appended
+at the foot; nothing above it was edited, and the assertion was verified by
+diffing this file against its blob at the freeze commit `a62d8d75` — the only
+hunk is this section, appended.
+
+**THIS ADDENDUM ALTERS NO GATE, NO THRESHOLD, NO CAP AND NO LABEL.** It records
+provenance and names the launch path. Every gate, band, cap, deadline and
+verdict label registered above stands exactly as frozen.
+
+### A1.1 The `DAUtility.C` citation, re-anchored on the pinned image
+
+§7 cites the median form of `primalMaxRes` and this document was frozen carrying
+an honest limit on that citation: the file was nowhere durable on this box, its
+only host-visible copy was under the session scratchpad, which `CLAUDE.md`
+rule 13 forbids this document to cite, and the lane that froze it could not
+verify the in-image path because reading it means invoking `docker` and that
+lane was forbidden to.
+
+**The supervisor performed that read** — image identification is a supervisor act
+under §6 — read-only, `--rm --network=none`, no mount, on **both** toolchain rows:
+
+| row | image | id | `DAUtility.C` md5 |
+|---|---|---|---|
+| shipped | `dafoam/opt-packages:latest` | `sha256:9d45679d55fd…` | `d5fb5b0a781b11a780133901a8c2241c` |
+| **patched — the row THIS ITEM RUNS** | `dafoam-idwarp-rot:v1` | `sha256:2927768a16ac…` | `d5fb5b0a781b11a780133901a8c2241c` |
+
+**In-image path:
+`/home/dafoamuser/dafoam/repos/dafoam/src/adjoint/DAUtility/DAUtility.C`**;
+`sort(initResList)` at `:784`, `if (initResList[1] > primalMaxRes)` at `:786`,
+`primalMaxRes = initResList[1]` at `:788`; the `<scalar>` overload's true max at
+`:747-751`; the "2D simulations with symmetry BC" comment at `:775-780`.
+
+**THE CORROBORATION IS WHAT MATTERS AND IT IS NOT A RESTATEMENT.** The md5 above
+was reached **twice, independently**: by this lane reading the extracted bytes it
+could see, and by the supervisor reading the file inside each image. **The two
+agree to the digit, and the line numbers agree.** The citation is therefore now
+anchored in a **durable, pinned home** — the image this item's own `G-IMG` gate
+already refuses to run without — and no scratch path is cited.
+
+**AND THE HALF THAT IS NEW EVIDENCE, NOT NEW WORDING:** the md5 is **identical in
+the SHIPPED and the PATCHED rows**. The residual-bookkeeping behaviour §7 rests
+on is therefore **measured to be the same in both builds**, rather than assumed
+to transfer across the build confound this item registers at §7's closing bullet.
+
+**What does NOT change:** §7's registration rests on the **behavioural** limb —
+D19T arm T10's `U2` floor of 1.7164e-10 standing 1.72× above its own 1e-10
+tolerance while that arm declared convergence 22 times at ~9.0e-11. That limb
+needs no source read at all and remains the primary. The source limb is now
+citable instead of being dropped; it was never the load-bearing one.
+
+### A1.2 The launch path — `launch_cmd` is no longer null
+
+The driver and its patch-identity instrument are written, and the parked queue
+row's `launch_cmd` is filled in from them. **Both are pinned here:**
+
+| instrument | md5 | role |
+|---|---|---|
+| `a1wrt_run_unit.sh` | `288bc6904f908eb852e024ca0d61762c` | the unit launcher — one unit, one container, one process, np 1 |
+| `a1wrt_patch_assert.py` | `7f3a2c8e70684daba975ac9a2ee50385` | `G-PATCH` clauses 1 and 2, host-side and PRE-PRIMAL |
+
+**Nothing in the launcher moves a registered number.** It **re-derives** the cap
+frame at run time from §4.4's own registered form — `TMO = int(CAP × 60 / RANKS)
+− 300`, asserted `> 0`, with the back-check `(TMO + 300) × RANKS / 60 == CAP`
+inverted and re-added so no edit can silently widen the cap — and **executes**,
+rather than trusting, the arithmetic this document already evaluated:
+
+| unit | cap | TMO re-derived | `> 0` | back-check | ≤ cap |
+|---|---|---|---|---|---|
+| `alpha12_symmetry` | 361.0 | **21,360 s** | ✓ | 361.000000 | ✓ |
+| `tail_empty` | 2943.0 | **176,280 s** | ✓ | 2943.000000 | ✓ |
+
+**The frame allowance is 300 s and this document is its authority.** Three
+constants live in this family and the difference is registered, not drift:
+**A1WRT 300** (§4.4, 3.2× the MEASURED 93.85 s container start), D6R/D6RF 90,
+A1/D19 60. A 60 s form was proposed for this item on 2026-09-03 and is **not
+this item's registered form**; the launcher uses 300 and says so on its face.
+
+**The ITEM CEILING is asserted before every unit** against the ledger's own
+accumulated spend, and a ledger that exists but cannot be parsed is `UNMEASURED`
+and **refuses** — an unknown prior spend plus this unit's cap cannot be shown to
+fit under 3,304 core-min, and a zero meaning "could not read" is a planted zero.
+Note for the reader: 361 + 2943 = **3,304 exactly**, so the ceiling is the sum of
+the two caps and can only refuse when a unit has already overrun.
+
+**`G-OCC` RECORDS AND QUEUES; IT NEVER REFUSES.** `G-QUIET`'s refuse-to-launch
+form is ruled out of this family (dafoam-supervisor, 2026-09-03). §4.6's refusal
+arithmetic is still **computed and printed** — break-even 11.571× solo for U1 and
+13.642× for U2+U3, against a worst measured box occupancy of 3.859× — because the
+arithmetic is the finding even where it never fires. Where the box is busy the
+launcher **queues, boundedly (30 min), and then launches anyway with the mismatch
+RECORDED AS A PREDICTION**, per Sanaa's 2026-09-03 ~21:00Z rule: pre-registration
+predicts, the monitor watches, the grader judges afterward on the certificate.
+
+**One integration defect was found and fixed in the launcher, not in the frozen
+grader.** `a1wrt_read.py:965-966` reads `<run>/tail_empty/out/rc` and treats its
+**absence as a REFUSAL**, not as a pass. The launcher now writes that artefact
+from **the kernel's** exit code — `docker inspect .State.ExitCode`, taken before
+`docker rm`, never from `$?` of a `timeout` or `setsid` line — and reads it back
+and asserts it landed. Found by reading the frozen grader, not by watching a
+graded run refuse at exit 2.
+
+**STILL OWED, AND IT STILL GATES THE ENQUEUE:** the supervisor's §3 check 4, and
+a personal diff read of the launcher. **Nothing has been launched, enqueued or
+released. Zero compute has been spent on this item.**

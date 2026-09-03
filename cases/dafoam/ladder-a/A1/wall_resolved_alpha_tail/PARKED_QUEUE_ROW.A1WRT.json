@@ -5,8 +5,13 @@
   "prereg_commit": "a62d8d7524b233c747a9d83b9098c3d10042dd49",
   "prereg_path": "cases/dafoam/ladder-a/A1/wall_resolved_alpha_tail/PREREGISTRATION_DRAFT.md",
   "prereg_note": "The filename retains _DRAFT so existing citations by path stay valid; the FILE IS FROZEN at the commit above. Rule 2 check to discharge AT ENQUEUE, not now: hash the disk file against the HEAD blob of that path at that commit and refuse on any difference.",
-  "launch_cmd": null,
-  "launch_cmd_note": "NULL BECAUSE THE DRIVER DOES NOT EXIST. Section 8 item 2 records the driver and run-script staging as OWED; they are not part of this freeze and carry no gate, threshold, cap or label of their own. This row therefore CANNOT be enqueued as it stands -- a null launch_cmd is a refusal, not an oversight. Whoever writes the driver fills this in, re-pins the instrument md5s below, and only then presents the row for check 4.",
+  "launch_cmd": [
+    "bash",
+    "-lc",
+    "bash /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/wall_resolved_alpha_tail/a1wrt_run_unit.sh alpha12_symmetry dafoam-idwarp-rot:v1 ; bash /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/wall_resolved_alpha_tail/a1wrt_run_unit.sh tail_empty dafoam-idwarp-rot:v1"
+  ],
+  "launch_cmd_note": "FILLED IN 2026-09-03 (ADDENDUM 1). The separator between the two units is `;` AND NOT `&&`, AND THAT IS REGISTERED, NOT A CONVENIENCE: section 3.4 states that if the cold alpha=12 control fails outright the verdict is NOT A RESULT on G-REPRO and `the tail is still run and reported, with the control's absence named, never papered over`. An `&&` would silently drop the seven tail points -- the points the whole item exists to buy -- on the failure of its control. Each unit enforces its OWN cap and its OWN in-container deadline inside the launcher, so the sequence cannot borrow budget from one unit for the other; the row's cap_core_min_registered is the ITEM CEILING that bounds both.",
+  "launch_cmd_ordering_note": "U1 runs first because it is the cheaper unit (32 vs 255 core-min estimated) and because it is the one with materially less deadline headroom under load (section 4.5: break-even 11.571x solo for U1 against 13.642x for U2+U3). Section 4.5 also permits U1 to run BESIDE U2+U3 rather than before it; the sequence above is the serial reading, which consumes 1 of 16 cores at a time instead of 2.",
   "cwd": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/wall_resolved_alpha_tail",
   "ranks": 1,
   "cap_core_min_registered": 3304.0,
@@ -56,6 +61,9 @@
     "a1wrt_read.py": "705db5f7e972f6c033cbe303b7a6038f",
     "a1wrt_fixture.log": "4f6e870f74790af9238266c7cf10a0d2",
     "a1wr_alpha12_reference.tsv": "26ce1af0b0e93af5b9f71efdc34446a4",
+    "a1wrt_run_unit.sh": "288bc6904f908eb852e024ca0d61762c",
+    "a1wrt_patch_assert.py": "7f3a2c8e70684daba975ac9a2ee50385",
+    "_launcher_note": "The launcher PINS a1wrt_patch_assert.py by the md5 above and DRIVES its selftest on the box at every launch, so a G-PATCH instrument whose controls do not fire stops the item before any primal. Pinned AND driven: a declared-but-unused hash is decoration that reads like a guard.",
     "_verified": "a1wrt_read.py's md5 was hashed against the COMMITTED BLOB at a62d8d75, not merely off the working tree, and matches. The reader pins the fixture and reference md5s internally at a1wrt_read.py:90 and :93.",
     "_inherited_unchanged_from_the_A1WR_freeze": {
       "a1wr_runScript_incomp.py": "d48f48c5e2e41e86981acbf6feccb3c4",
