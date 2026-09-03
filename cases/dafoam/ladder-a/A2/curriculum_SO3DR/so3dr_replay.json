@@ -1,0 +1,299 @@
+{
+  "attribution_rule": "A primal record runs from `^Time = 1$` to the line before the next one. Its AoA is the LAST `Setting UMag ... AoA = a degs` strictly before the start. It is attributed to the scenario whose `dvs.patchV_clNN` AoA in the most recent `Driver debug print for iter coord` block is nearest to a, with |gap| <= 1e-05 AND with EXACTLY ONE candidate inside that tolerance. Anything else is UNATTRIBUTED and is reported by count and reason, never dropped and never folded into a neighbour. Records preceding the first design-vector block are PRETRIM and are excluded by name.",
+  "controls": {
+    "D4": {
+      "banners": 3,
+      "rate": 0.022222222222222223,
+      "reached_time_1000": 135,
+      "starts": 135
+    },
+    "D5": {
+      "banners": 2,
+      "rate": 0.011695906432748537,
+      "reached_time_1000": 171,
+      "starts": 171
+    },
+    "D6": {
+      "banners": 546,
+      "rate": 0.6642335766423357,
+      "reached_time_1000": 822,
+      "starts": 822
+    },
+    "D6R_whole_log": {
+      "banners": 671,
+      "rate": 0.6867963152507677,
+      "reached_time_1000": 977,
+      "starts": 977
+    }
+  },
+  "cost": {
+    "cap_core_min_registered": 12.0,
+    "cost_basis": "core-minutes MEASURED from this process's own wall clock x 1 rank / 60. Dollars are DERIVED at the owner-stated rate $0.0513/core-h and are REPORTED-BY-OWNER, NOT MEASURED -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER \u00a75).",
+    "cost_core_min_measured": 0.0703,
+    "predicted_core_min_bracket": [
+      3.0,
+      10.0
+    ],
+    "predicted_core_min_point": 6.0,
+    "ranks": 1,
+    "solver_core_min": 0.0,
+    "unit": "core-minutes = wall seconds x ranks / 60",
+    "usd_derived": 6e-05,
+    "wall_s": 4.221
+  },
+  "cutback_coupling": {
+    "banner_count_distribution": {
+      "0": 8,
+      "1": 665
+    },
+    "coupled": 665,
+    "cutbacks": 673,
+    "cutbacks_with_no_preceding_driver_block": 0,
+    "fraction": 0.9881129271916791
+  },
+  "gates": {
+    "G-SO3D-1": {
+      "hits": [],
+      "hits_unrestricted": [],
+      "measured": {
+        "nonfinite_in_scope": 0,
+        "nonfinite_unrestricted": 0,
+        "window_last_line": 264048
+      },
+      "question": "channel: value or flag?",
+      "reading": "H1 stands as the only surviving reading of the exception",
+      "threshold": "P1: count == 0",
+      "verdict": "PASS"
+    },
+    "G-SO3D-2": {
+      "measured": {
+        "cl04": 0.8828947368421053,
+        "cl05": 0.0,
+        "cl06": 0.0
+      },
+      "question": "dose-response in CL target",
+      "reading": "H2 refuted",
+      "threshold": "P2: r(cl04) < r(cl05) < r(cl06), strict",
+      "verdict": "GATE FAIL"
+    },
+    "G-SO3D-3": {
+      "measured": {
+        "controls": {
+          "D4": {
+            "banners": 3,
+            "rate": 0.022222222222222223,
+            "reached_time_1000": 135,
+            "starts": 135
+          },
+          "D5": {
+            "banners": 2,
+            "rate": 0.011695906432748537,
+            "reached_time_1000": 171,
+            "starts": 171
+          },
+          "D6": {
+            "banners": 546,
+            "rate": 0.6642335766423357,
+            "reached_time_1000": 822,
+            "starts": 822
+          },
+          "D6R_whole_log": {
+            "banners": 671,
+            "rate": 0.6867963152507677,
+            "reached_time_1000": 977,
+            "starts": 977
+          }
+        },
+        "d4_control_rate_registered": 0.02222,
+        "min_rate": 0.0,
+        "rates": {
+          "cl04": 0.8828947368421053,
+          "cl05": 0.0,
+          "cl06": 0.0
+        }
+      },
+      "question": "multipoint-specific vs case-specific",
+      "reading": "H3 not supported at the registered margin",
+      "threshold": "P3: min(r) >= 0.1111",
+      "verdict": "GATE FAIL"
+    },
+    "G-SO3D-4": {
+      "measured": {
+        "banner_count_distribution": {
+          "0": 8,
+          "1": 665
+        },
+        "coupled": 665,
+        "cutbacks": 673,
+        "cutbacks_with_no_preceding_driver_block": 0,
+        "fraction": 0.9881129271916791
+      },
+      "question": "single-scenario poisoning of the sum",
+      "reading": "cutbacks follow DAFoam's own boolean failure signal",
+      "threshold": "P4: fraction >= 0.90",
+      "verdict": "PASS"
+    }
+  },
+  "item": "SO-3D-R",
+  "log_integrity_before": {
+    "D4": {
+      "bytes": 2014423,
+      "lines": 41350,
+      "path": "/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin/O_20260825T181237Z_2359354.log",
+      "sha256": "d3cf24a0ae88a01b54e7a524c93c3872087c8b163bdc8c72dbcf8e3a89783b1a"
+    },
+    "D5": {
+      "bytes": 2421922,
+      "lines": 50474,
+      "path": "/home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density/O48_20260826T174911Z_325871.log",
+      "sha256": "17fae902fd916d13ddef2de589594f555930610eb3d55f1f2dcd3f61d079121c"
+    },
+    "D6": {
+      "bytes": 10661530,
+      "lines": 222223,
+      "path": "/home/ubuntu/certonomous-runs/CURRICULUM-D6-a2-wing-multipoint/O_mp_20260827T140924Z_805560.log",
+      "sha256": "3efd30fe34f4fd538a9586f2dc4801e08d487dc88654135833f2e916e79384be"
+    },
+    "D6R": {
+      "bytes": 12732644,
+      "lines": 264608,
+      "path": "/home/ubuntu/certonomous-runs/CURRICULUM-D6R-a2-wing-multipoint/O_mp_20260828T162849Z_1898072.log",
+      "sha256": "394d9f5d8c59ea79602e678cec7a75915bef53a048b61e153d835fce57fc675d"
+    }
+  },
+  "log_sha256_after": {
+    "D4": "d3cf24a0ae88a01b54e7a524c93c3872087c8b163bdc8c72dbcf8e3a89783b1a",
+    "D5": "17fae902fd916d13ddef2de589594f555930610eb3d55f1f2dcd3f61d079121c",
+    "D6": "3efd30fe34f4fd538a9586f2dc4801e08d487dc88654135833f2e916e79384be",
+    "D6R": "394d9f5d8c59ea79602e678cec7a75915bef53a048b61e153d835fce57fc675d"
+  },
+  "newton_trim_invocations": {
+    "D6": 1,
+    "D6R": 1
+  },
+  "nonfinite_census": {
+    "count": 0,
+    "count_unrestricted": 0,
+    "hits": [],
+    "hits_unrestricted": [],
+    "window_last_line": 264048
+  },
+  "null_result": {
+    "mechanism_finding": null,
+    "triggered": false
+  },
+  "per_scenario": {
+    "banners": {
+      "cl04": 671,
+      "cl05": 0,
+      "cl06": 0
+    },
+    "cl_targets": {
+      "cl04": 0.4,
+      "cl05": 0.5,
+      "cl06": 0.6
+    },
+    "pretrim": 39,
+    "rates": {
+      "cl04": 0.8828947368421053,
+      "cl05": 0.0,
+      "cl06": 0.0
+    },
+    "starts": {
+      "cl04": 760,
+      "cl05": 89,
+      "cl06": 89
+    },
+    "unattributed": 0,
+    "unattributed_reasons": {
+      "PRETRIM: record precedes the first design-vector block": 39
+    }
+  },
+  "plant_control": {
+    "gate": "G-SO3D-P",
+    "plants": {
+      "PLANT-A": {
+        "census_planted": 1,
+        "census_unplanted": 0,
+        "channel": "value",
+        "delta": 1,
+        "detected_at_target_line": true,
+        "expected": "delta == 1 and the hit is at the target line, field CD",
+        "status": "PASS",
+        "target_line": 200035
+      },
+      "PLANT-B": {
+        "channel": "flag",
+        "degeneracy_note": "The per-scenario vector above is REPORTED, NOT SCORED. On this plant's own anchors it is degenerate: both anchors are owned by cl04, so a correct reader emits {cl04:0, cl05:0, cl06:0} with the total unchanged -- byte-for-byte what a reader attributing NOTHING emits. Measured 2026-09-03, both readers. The predecessor SO-3D scored on that vector; this successor does not.",
+        "deleted_line": 200205,
+        "expected": "exactly one record ordinal at -1, exactly one at +1, no other record moving, BOTH owning scenarios NAMED, and the total unchanged at 671",
+        "inserted_after_line": 100261,
+        "owning_rps_ids": {
+          "368": "255",
+          "739": "574"
+        },
+        "owning_scenarios": {
+          "368": "cl04",
+          "739": "cl04"
+        },
+        "per_scenario_banners_planted": {
+          "cl04": 671,
+          "cl05": 0,
+          "cl06": 0
+        },
+        "per_scenario_banners_unplanted": {
+          "cl04": 671,
+          "cl05": 0,
+          "cl06": 0
+        },
+        "per_scenario_moves_REPORTED_BESIDE_NOT_INSTEAD": {
+          "cl04": 0,
+          "cl05": 0,
+          "cl06": 0
+        },
+        "record_moves_by_ordinal": {
+          "368": 1,
+          "739": -1
+        },
+        "records_after": 977,
+        "records_before": 977,
+        "scored_at": "RECORD level, keyed on shift-invariant record ordinal",
+        "status": "PASS",
+        "total_planted": 671,
+        "total_unplanted": 671
+      },
+      "PLANT-C": {
+        "R": 1.111224917e-05,
+        "R_scaled": 1.111224917e-09,
+        "channel": "dose/classification (RELATIVE plant)",
+        "classification_after": true,
+        "classification_before": false,
+        "expected": "exactly one record moves, and it is the target, failed -> converged",
+        "multiplier": 0.0001,
+        "n_records_moved": 1,
+        "records_whose_classification_moved": [
+          149881
+        ],
+        "status": "PASS",
+        "target_line": 150060,
+        "target_record_start_line": 149881
+      }
+    },
+    "status": "PASS"
+  },
+  "prereg": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_SO3DR/PREREGISTRATION.md",
+  "reader": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_SO3DR/so3dr_replay.py",
+  "solver_core_min": 0.0,
+  "solver_core_min_cap": 0.0,
+  "stage": 1,
+  "started_utc": "2026-09-03T212056Z",
+  "status": "SCORED",
+  "toolchain_row": "PATCHED (dafoam-idwarp-rot:v1) -- every log replayed here was produced on that row; there is no shipped row for the multipoint pathology and this rung does not manufacture one (DAFOAM_CHARTER.md \u00a76)",
+  "verdict_summary": {
+    "G-SO3D-1": "PASS",
+    "G-SO3D-2": "GATE FAIL",
+    "G-SO3D-3": "GATE FAIL",
+    "G-SO3D-4": "PASS",
+    "G-SO3D-P": "PASS"
+  }
+}

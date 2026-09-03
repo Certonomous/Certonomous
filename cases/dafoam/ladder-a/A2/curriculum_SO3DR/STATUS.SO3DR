@@ -1,5 +1,5 @@
 SO3DR STAGE 1 -- launcher record
-launched_utc   2026-09-03T211812Z
+launched_utc   2026-09-03T212056Z
 launcher       /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_SO3DR/so3dr_run_replay.sh
 reader         /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_SO3DR/so3dr_replay.py
 run_root       /home/ubuntu/certonomous-runs/CURRICULUM-SO3DR-a2-wing-multipoint-rootcause
@@ -7,8 +7,20 @@ ranks          1
 cap_core_min_registered 12.0
 solver_core_min_cap     0.0
 
-grading_path_blob_at_HEAD HEAD:cases/dafoam/ladder-a/A2/curriculum_SO3DRR/so3dr_replay.py
-grading_path_blob_on_disk 
+derived_rel               cases/dafoam/ladder-a/A2/curriculum_SO3DR/so3dr_replay.py
+grading_path_blob_at_HEAD 55b918edf4f8246c79c7e631a3bd6864eb86ec52
+grading_path_blob_on_disk 55b918edf4f8246c79c7e631a3bd6864eb86ec52
 reader_md5                007328fe6777b23d6d81a1a7e8fedcd0
-ABORT G1: could not hash the reader against its committed blob. UNMEASURED, not assumed.
-rc 6
+G1 OK   the reader on disk IS the committed grading path
+G2 OK   run root ABSENT at launch
+
+finished_utc   2026-09-03T212100Z
+rc             0
+wall_s         4.277
+core_min       0.0713   [MEASURED, wall_s x ranks / 60]
+usd            0.000061    [DERIVED at the owner-stated $0.0513/core-h; REPORTED-BY-OWNER, NOT MEASURED]
+stdout         /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_SO3DR/SO3DR_replay_2026-09-03T212056Z.out
+result_json    /home/ubuntu/certonomous-runs/CURRICULUM-SO3DR-a2-wing-multipoint-rootcause/so3dr_replay.json
+plant_json     /home/ubuntu/certonomous-runs/CURRICULUM-SO3DR-a2-wing-multipoint-rootcause/so3dr_plant_report.json
+
+reader exit 0 -- every gate scored; verdicts are in so3dr_replay.json

@@ -1,0 +1,75 @@
+{
+  "gate": "G-SO3D-P",
+  "log_sha256_D6R": "394d9f5d8c59ea79602e678cec7a75915bef53a048b61e153d835fce57fc675d",
+  "plants": {
+    "PLANT-A": {
+      "census_planted": 1,
+      "census_unplanted": 0,
+      "channel": "value",
+      "delta": 1,
+      "detected_at_target_line": true,
+      "expected": "delta == 1 and the hit is at the target line, field CD",
+      "status": "PASS",
+      "target_line": 200035
+    },
+    "PLANT-B": {
+      "channel": "flag",
+      "degeneracy_note": "The per-scenario vector above is REPORTED, NOT SCORED. On this plant's own anchors it is degenerate: both anchors are owned by cl04, so a correct reader emits {cl04:0, cl05:0, cl06:0} with the total unchanged -- byte-for-byte what a reader attributing NOTHING emits. Measured 2026-09-03, both readers. The predecessor SO-3D scored on that vector; this successor does not.",
+      "deleted_line": 200205,
+      "expected": "exactly one record ordinal at -1, exactly one at +1, no other record moving, BOTH owning scenarios NAMED, and the total unchanged at 671",
+      "inserted_after_line": 100261,
+      "owning_rps_ids": {
+        "368": "255",
+        "739": "574"
+      },
+      "owning_scenarios": {
+        "368": "cl04",
+        "739": "cl04"
+      },
+      "per_scenario_banners_planted": {
+        "cl04": 671,
+        "cl05": 0,
+        "cl06": 0
+      },
+      "per_scenario_banners_unplanted": {
+        "cl04": 671,
+        "cl05": 0,
+        "cl06": 0
+      },
+      "per_scenario_moves_REPORTED_BESIDE_NOT_INSTEAD": {
+        "cl04": 0,
+        "cl05": 0,
+        "cl06": 0
+      },
+      "record_moves_by_ordinal": {
+        "368": 1,
+        "739": -1
+      },
+      "records_after": 977,
+      "records_before": 977,
+      "scored_at": "RECORD level, keyed on shift-invariant record ordinal",
+      "status": "PASS",
+      "total_planted": 671,
+      "total_unplanted": 671
+    },
+    "PLANT-C": {
+      "R": 1.111224917e-05,
+      "R_scaled": 1.111224917e-09,
+      "channel": "dose/classification (RELATIVE plant)",
+      "classification_after": true,
+      "classification_before": false,
+      "expected": "exactly one record moves, and it is the target, failed -> converged",
+      "multiplier": 0.0001,
+      "n_records_moved": 1,
+      "records_whose_classification_moved": [
+        149881
+      ],
+      "status": "PASS",
+      "target_line": 150060,
+      "target_record_start_line": 149881
+    }
+  },
+  "snapshot_utc": "2026-09-03T212100Z",
+  "started_utc": "2026-09-03T212056Z",
+  "status": "PASS"
+}
