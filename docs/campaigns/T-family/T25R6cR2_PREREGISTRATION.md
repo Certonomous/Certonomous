@@ -557,3 +557,119 @@ NEVER run `--grade`.**
 *Frozen 2026-09-03 by heat-transfer lab-lane. No gate, threshold, band, cap or
 label in this document may be altered after first compute; a departure lands as a
 dated addendum at the foot, never as a rewrite (rule 2, rule 6).*
+
+---
+
+# ADDENDUM v1.1 — 2026-09-03, AFTER FIRST COMPUTE
+
+**Lines whose number changed above this section: 0.** This section is appended at
+the foot; nothing above it is edited, and the assertion is MEASURED, not stated —
+the sha256 of the first 559 lines is recorded in this commit's message and is
+byte-identical before and after the append.
+
+**THIS ADDENDUM ALTERS NO GATE, NO THRESHOLD, NO BAND, NO CAP AND NO LABEL**
+(rule 2). `G-R2-1` remains 5 %, `G-R2-2` remains `rho < 1.0`, the band remains
+`[1.0439, 1.1066]`, the point remains 14.707 core-min, the cap remains 45.0, and
+the label vocabulary is untouched. It records two things the run established:
+a **registration defect that is this team's own**, and the **status of the
+verdict record**.
+
+---
+
+## A1.1 — THE VERDICT, AND THE THREE STATEMENTS THAT ARE NOT SYNONYMS
+
+The rung graded **`GATE FAIL`, `rho = 1.103859 ≥ 1.0`**. `G-R2-1` PASSED at
+**0.3546 %** against 5 %, so — for the first time in this line — the plateau
+clause **licensed** reading rho at all. **A1.2's registered direction is
+falsified:** post-transient leg-B steps are not cheaper, and every CAP in the
+C4/C5 line priced off the 40-step ramp window is conservative in the **unsafe**
+direction.
+
+The frozen grader then raised `TypeError` at `grade_t25R6cR2.py:857` inside
+`finish()`, downstream of every gate, and **`T25R6cR2_VERDICT.json` was never
+written**. Stated precisely, because the precision is the point and no one of
+these is a synonym for another:
+
+> **The MEASUREMENT is `GATE FAIL`.**
+> **The REGISTERED ARTIFACT was never emitted.**
+> **The verdict rests on the landed stdout —
+> `verification/runs/T-family/T25R6cR2_LEGAB_runs/T25R6cR2_GRADE_STDOUT.txt`,
+> commit `286276a1`, traceback intact — until the path is repaired.**
+
+The governing law is Sanaa's universal rule of 2026-08-26: **bookkeeping never
+voids physics.** A missing verdict file is an **infrastructure** loss, which this
+rung's own queue entry classed as infrastructure *in advance*, and it is
+emphatically **not** grounds for `NOT A RESULT`: rule 4 returned COMPLETE, the
+planted-zero control passed both legs, and `C-R2-1` cleared with the run's own
+transient ending at leg-B step 27 inside the registered 40. The repair is
+petitioned, not taken:
+`docs/campaigns/T-family/T25R6cR2_2D1_RECORD_EMISSION_PETITION.md` (`9254c823`).
+
+---
+
+## A1.2 — A REGISTRATION DEFECT THAT IS OURS: **P-R2-7 IS NOT SCORABLE AS REGISTERED**
+
+**§7 registered P-R2-7 as the per-half drift sd at `W_half = 535`, and §8
+registered `R-R2-3` as the estimator that would score it. The estimator requires
+at least 3 non-overlapping windows. `(N_B − D_EXCL) / W_half = 1070 / 535 = 2.`**
+
+**The rung cannot measure the quantity it predicted, and the arithmetic that says
+so was available at registration time.** `R-R2-3` duly reported
+`W=535 n=2 — fewer than 3 windows; no sd`, exactly as its own code specifies.
+This is a **registration defect**, not an inconvenience and not a
+measurement failure: the prediction was well-formed, the estimator was
+well-formed, and **they were incompatible by construction**. Recorded plainly
+because a prediction that cannot be scored is worse than one that loses — a loss
+is a calibration datum, and this is a hole.
+
+**What P-R2-7 could still be checked against**, offered as the honest partial and
+never as a rescue: at the nearest measurable window, `W = 267` (n = 4), the
+frozen power law predicts **2.0514 %** and the run measured **1.8543 %**.
+
+---
+
+## A1.3 — THE RECOVERABLE FINDING, WHICH IS BETTER THAN THE PREDICTION WAS
+
+The drift model was registered from T25R6c as
+`sd%(W) = e^1.762373 · W^−0.186825`. T25R6c-R2's own four measurable points
+(W = 40, 90, 180, 267 → 2.4297, 2.1625, 1.5728, 1.8543 %) fit
+
+> **`sd%(W) = e^1.583175 · W^−0.189959`**
+
+**The EXPONENT reproduced to 1.7 %** — 0.189959 against 0.186825 — **on two
+independent runs, on two different case geometries, three hours apart on a
+shared box whose load differed between them.** The **amplitude** fell (intercept
+1.762 → 1.583): a quieter box.
+
+**WHAT THIS LICENSES.** That the *shape* of the throughput-drift law is a
+property of the box and the solver rather than of one run: the strongly
+sub-diffusive exponent (**p ≈ 0.19, not the 0.5 of independent noise**) is
+reproducible, and it is what makes the design calculation in §4 — how long a
+window must be for a threshold to sit outside the drift — a transferable method
+rather than a one-off fit. A successor may reuse the **form** and the exponent as
+a starting estimate.
+
+**WHAT THIS DOES NOT LICENSE, AND THE LIST IS THE LOAD-BEARING HALF.**
+- **It does not license reusing the AMPLITUDE.** The intercept moved 10 % between
+  two runs hours apart and is a property of the box's *current* load. A successor
+  that carries `e^1.762373` forward as a constant is quoting one afternoon's
+  contention as a physical parameter.
+- **It is a two-point agreement and is called one.** Two runs are not a
+  reproduction study. This is one corroboration, not a validated law, and no
+  uncertainty on the exponent is quoted because two fits do not support one.
+- **It does not rescue P-R2-7**, which remains unscorable as registered (A1.2).
+  A finding recovered from a failed prediction is a finding, not a retroactive
+  win, and the scoring record reads: P-R2-1 WINS on direction while missing its
+  value by ~2×; P-R2-2 WINS on outcome while over-predicting 5.1×; P-R2-3, 4, 5
+  and 6 WIN; **P-R2-7 NOT SCORABLE AS REGISTERED.**
+- **It grants nothing to the ceiling question.** `B-R2` reported
+  `rho_blend(ladder) = 1.073053` and `Σ CAP(C4) × blend = 26,514.4` core-min
+  against the 20,000 ceiling. **REPORTED, NEVER GATED.** That moves the ceiling
+  question in the **unsafe** direction, this team requests no widening, and the
+  ceiling is not this team's to move.
+
+**FOR THE SUCCESSOR, CONCRETELY:** register `W_half` such that at least three
+non-overlapping windows fit the graded span — i.e. `N_B − D_EXCL ≥ 3·W_half` —
+or register an estimator that is valid at n = 2. The defect in A1.2 is a
+one-line arithmetic check at registration time and it is cheaper than the run
+that exposed it.
