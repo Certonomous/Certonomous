@@ -1,0 +1,27 @@
+==============================================================================
+K0e -- forced-convection flat plate, campaign F14 cooling ladder
+prereg: docs/campaigns/F14-cooling-ladder/K0e_PREREGISTRATION.md
+this file's GIT BLOB SHA-1 (sha1 of b'blob <len>\0' + content): 25ecaa6bca8cd99f4ca1e0a84dba998cde923aaa
+==============================================================================
+
+--- STRICT COMPLETION RULE (standing rule 4, all-or-nothing) ---
+age-guard datum: <case>/0/T.  K0e is SINGLE-REGION (one mesh, one
+case, no regions), so 0/T is the correct dating file, and
+launch_k0e.sh touches it LAST, immediately before the solver.
+  FP_T10: DONE
+      clause 1: PASS rc=0
+      clause 2: PASS End line
+      clause 3: PASS last time == endTime 9000
+      clause 4: PASS all of T U p_rgh alphat nut k omega
+      clause 5: PASS ExecutionTime count == 9000
+      clause 6: PASS every endTime field newer than 0/T
+  FP_T00: NOT DONE
+      clause 1: FAIL rc=124 wall=3151 checkMesh_rc=na timeout_s=3150 ranks=2 solver=buoyantBoussinesqSimpleFoam solver_path=/usr/lib/openfoam
+      clause 2: FAIL no End line
+      clause 3: FAIL last time 350.0 != 9000
+      clause 4: FAIL missing T U p_rgh alphat nut k omega
+      clause 5: FAIL ExecutionTime count 349 != 9000
+      clause 6: PASS every endTime field newer than 0/T
+
+M4b      NOT A RESULT   NOT DONE under the strict completion rule: FP_T00
+RUNG     NOT A RESULT
