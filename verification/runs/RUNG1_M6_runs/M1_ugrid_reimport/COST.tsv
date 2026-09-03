@@ -1,0 +1,10 @@
+stage	wall_s	ranks	core_min	rc
+ugrid_to_foam_L3	1	1	0.0167	1
+ugrid_to_foam_L2	3	1	0.05	0
+checkMesh_L2	1	1	0.0167	0
+ugrid_to_foam_L1	24	1	0.4	0
+checkMesh_L1	4	1	0.0667	0
+TOTAL	33	1	0.55	0
+ugrid_to_foam_L3_RETRY	0	1	0.0	1
+ugrid_to_foam_L3_RETRY2	1	1	0.0167	0
+checkMesh_L3_RETRY2	0	1	0.0	0

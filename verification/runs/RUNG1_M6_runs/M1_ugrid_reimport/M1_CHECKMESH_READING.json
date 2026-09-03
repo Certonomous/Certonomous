@@ -1,0 +1,186 @@
+{
+  "THIS_IS_NOT_A_GRADED_RUN": true,
+  "controls_all_fired": true,
+  "covered_by_a_frozen_preregistration": false,
+  "levels": {
+    "L1": {
+      "aspect_ratio_label_form": ":",
+      "avg_non_orthogonality": 32.9696,
+      "boundary_openness": "1.05598e-18 -3.48082e-15 1.73012e-18",
+      "boundary_patches": 3,
+      "cell_volume_ratio": 2.231595984118555e+17,
+      "cell_volume_ratio_basis": "DERIVED (max/min), NOT a checkMesh output",
+      "cells": 983040,
+      "checkMesh_log": "/home/ubuntu/Certonomous/verification/runs/RUNG1_M6_runs/M1_ugrid_reimport/L1_ugrid/log.checkMesh",
+      "faces": 2956800,
+      "geometric_directions": 3,
+      "hexahedra": 970752,
+      "how_the_number_is_read": "PARSED off the named numeric line 'Mesh non-orthogonality Max:'. checkMesh's verdict strings are captured above SOLELY to show they were DISCARDED: this log prints 'Non-orthogonality check OK.' at 87.7462 degrees (L-459).",
+      "internal_faces": 2929152,
+      "max_aspect_ratio": 1578.62,
+      "max_cell_volume": 132.366,
+      "max_non_orthogonality": 87.7462,
+      "max_skewness": 5.11159,
+      "min_cell_volume": 5.93145e-16,
+      "patches": [
+        {
+          "nFaces": 12288,
+          "openfoam_type": "symmetry",
+          "patch": "symmetry"
+        },
+        {
+          "nFaces": 7680,
+          "openfoam_type": "wall",
+          "patch": "wing"
+        },
+        {
+          "nFaces": 7680,
+          "openfoam_type": "patch",
+          "patch": "farfield"
+        }
+      ],
+      "points": 990849,
+      "polyhedra": 0,
+      "prisms": 12288,
+      "regions": 1,
+      "severe_non_ortho_faces": 191794,
+      "source_ugrid": "/home/ubuntu/Certonomous/verification/runs/M6I_runs/mesh/wing_strct.1.lb8.ugrid",
+      "verdict_lines_CAPTURED_AND_DISCARDED_NEVER_A_GATE": [
+        "Cell volumes OK.",
+        "Face pyramids OK.",
+        "Failed 2 mesh check",
+        "Non-orthogonality check OK."
+      ]
+    },
+    "L2": {
+      "aspect_ratio_label_form": "=",
+      "avg_non_orthogonality": 33.3715,
+      "boundary_openness": "1.35976e-18 -1.30052e-15 7.62979e-18",
+      "boundary_patches": 3,
+      "cell_volume_ratio": 3.7735379248454824e+16,
+      "cell_volume_ratio_basis": "DERIVED (max/min), NOT a checkMesh output",
+      "cells": 122880,
+      "checkMesh_log": "/home/ubuntu/Certonomous/verification/runs/RUNG1_M6_runs/M1_ugrid_reimport/L2_ugrid/log.checkMesh",
+      "faces": 370560,
+      "geometric_directions": 3,
+      "hexahedra": 119808,
+      "how_the_number_is_read": "PARSED off the named numeric line 'Mesh non-orthogonality Max:'. checkMesh's verdict strings are captured above SOLELY to show they were DISCARDED: this log prints 'Non-orthogonality check OK.' at 86.4646 degrees (L-459).",
+      "internal_faces": 363648,
+      "max_aspect_ratio": 873.822,
+      "max_cell_volume": 895.653,
+      "max_non_orthogonality": 86.4646,
+      "max_skewness": 8.30139,
+      "min_cell_volume": 2.37351e-14,
+      "patches": [
+        {
+          "nFaces": 3072,
+          "openfoam_type": "symmetry",
+          "patch": "SYMMETRY"
+        },
+        {
+          "nFaces": 1920,
+          "openfoam_type": "wall",
+          "patch": "WING3D"
+        },
+        {
+          "nFaces": 1920,
+          "openfoam_type": "patch",
+          "patch": "FARFIELD"
+        }
+      ],
+      "points": 124865,
+      "polyhedra": 0,
+      "prisms": 3072,
+      "regions": 1,
+      "severe_non_ortho_faces": 24774,
+      "source_ugrid": "/home/ubuntu/Certonomous/verification/runs/M6I_runs/mesh/wing_strct.2.lb8.ugrid",
+      "verdict_lines_CAPTURED_AND_DISCARDED_NEVER_A_GATE": [
+        "Cell volumes OK.",
+        "Face pyramids OK.",
+        "Failed 1 mesh check",
+        "Non-orthogonality check OK."
+      ]
+    },
+    "L3": {
+      "aspect_ratio_label_form": ":",
+      "avg_non_orthogonality": 34.6269,
+      "boundary_openness": "-6.3844e-18 3.1579e-16 -5.77637e-18",
+      "boundary_patches": 3,
+      "cell_volume_ratio": 3459904931591508.5,
+      "cell_volume_ratio_basis": "DERIVED (max/min), NOT a checkMesh output",
+      "cells": 15360,
+      "checkMesh_log": "/home/ubuntu/Certonomous/verification/runs/RUNG1_M6_runs/M1_ugrid_reimport/L3_ugrid/log.checkMesh",
+      "faces": 46560,
+      "geometric_directions": 3,
+      "hexahedra": 14592,
+      "how_the_number_is_read": "PARSED off the named numeric line 'Mesh non-orthogonality Max:'. checkMesh's verdict strings are captured above SOLELY to show they were DISCARDED: this log prints 'Non-orthogonality check OK.' at 87.662 degrees (L-459).",
+      "internal_faces": 44832,
+      "max_aspect_ratio": 1243.59,
+      "max_cell_volume": 5262.55,
+      "max_non_orthogonality": 87.662,
+      "max_skewness": 2.77547,
+      "min_cell_volume": 1.52101e-12,
+      "patches": [
+        {
+          "nFaces": 768,
+          "openfoam_type": "symmetry",
+          "patch": "SYMMETRY"
+        },
+        {
+          "nFaces": 480,
+          "openfoam_type": "wall",
+          "patch": "WING3D"
+        },
+        {
+          "nFaces": 480,
+          "openfoam_type": "patch",
+          "patch": "FARFIELD"
+        }
+      ],
+      "points": 15873,
+      "polyhedra": 0,
+      "prisms": 768,
+      "regions": 1,
+      "severe_non_ortho_faces": 3686,
+      "source_ugrid": "/home/ubuntu/Certonomous/verification/runs/M6I_runs/mesh/wing_strct.3.lb8.ugrid",
+      "verdict_lines_CAPTURED_AND_DISCARDED_NEVER_A_GATE": [
+        "Cell volumes OK.",
+        "Face pyramids OK.",
+        "Failed 1 mesh check",
+        "Non-orthogonality check OK."
+      ]
+    }
+  },
+  "planted_controls": {
+    "label_form_control": {
+      "fired": true,
+      "forms_seen_in_real_logs_this_run": [
+        ":",
+        "="
+      ],
+      "must_include_both": [
+        "=",
+        ":"
+      ]
+    },
+    "non_null_volume_control": {
+      "fired": true,
+      "min_ne_max_on_every_level": true,
+      "ratios": [
+        2.231595984118555e+17,
+        3.7735379248454824e+16,
+        3459904931591508.5
+      ]
+    },
+    "plant_and_read_back_control": {
+      "fired": true,
+      "log": "/home/ubuntu/Certonomous/verification/runs/RUNG1_M6_runs/M1_ugrid_reimport/L1_ugrid/log.checkMesh",
+      "planted_value": 12.345678,
+      "true_value": 87.7462,
+      "value_read_back": 12.345678
+    }
+  },
+  "record": "R1-M1 UGRID RE-IMPORT of the M6I nested family",
+  "registration_gap_DISCLOSED": "No frozen pre-registration covers a UGRID re-import of the M6I family. RUNG0_MESH_IMPORT_PREREGISTRATION is frozen but registers exactly four COMMITTEE grids (DPW5 hex/prism/hybrid, HLPW6 h6c1_rans_3a_1) and M6I is LAB-BUILT. RUNG1_M6_PREREGISTRATION is a DRAFT and its section 5 registers a pyHyp probe, not an import. This is surfaced to the cfd supervisor, not resolved by this lane.",
+  "verdict": "NONE -- no verdict of the fixed vocabulary attaches to this record. It is an admissibility MEASUREMENT. It grades nothing."
+}
