@@ -267,7 +267,7 @@ read in the writing invocation.
 
 ---
 
-~~**Section last written:** 2026-09-03T19:46:30Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-40` — `D6RF2` FROZEN, checks 1 and 4 discharged, and **my own blocking ruling was wrong**: the consumers pin the producer md5 and check it six lines BEFORE the anchor, so a docstring reword alone would have refused one step earlier. `G-ANCHOR` lifts each reader's constants by `ast` from the reader itself. Launcher, driver and grader still unwritten; no queue row. Before it, `S-39` (`D6RF-BLOCKING-1`), `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`, `S-35`, `S-34`, `S-33`, `S-32`, `S-31`, `S-30`, `S-29`.
+~~**Section last written:** 2026-09-03T20:02:54Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-41` — `A1WRT` launched and aborted in 11 s on **a guard that was RIGHT**, saving 287.7 core-min of non-comparable numbers (source `endTime` 1000 vs registered 4000; A1WR *writes* its controlDict, the mesh source's copy is stale); `D6RF2` **QUEUED**; and **HEAD's view of the queue is stale by 129 rows across five teams** — measured, escalated, deliberately not acted on. Before it, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
 
 **Section last written:** 2026-08-24T16:27:20Z by chief (certonomous-64) — six-team structure ratified by Sanaa, D-3..D-6 closed, ansys-verification team created; written by the harness-build lane on the chief's instruction, stamp from `date -u` in the writing invocation
 
@@ -4842,6 +4842,55 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 **Section last written:** 2026-09-03T18:01:38Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-30` — the `W3_chain_r2` chain SURVIVED the usage-limit fleet kill as a detached OS daemon and is at its finite-difference legs (9 stages `rc=0`, 36.10 core-min of a registered 900.0), and `S-29` §6's three "live" pids are corrected: two are dead and the survivor's pid was never right. Before it, `S-29` — `D19T` graded `NOT A RESULT` by its own frozen grader; the `U2` patch-identity mechanism predicts five non-convergences across three items with a fourth arm disconfirming it; the generator fix landed forward-only and UNVERIFIED with `A1ZE` registered as its verification; `D12RLX` referred not withdrawn; and five of the supervisor's own errors are named as his. `S-28` holds `MAAOA`'s conclusion and `D19T`'s original block; `S-27` the closed compressible triage.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-41 — **`A1WRT` LAUNCHED AND ABORTED IN 11 SECONDS ON A GUARD THAT WAS RIGHT — THE FIRST ONE TODAY THAT FIRED FOR THE RIGHT REASON ON A CONDITION REALLY THERE, AND IT SAVED 287.7 CORE-MIN OF NON-COMPARABLE NUMBERS. `D6RF2` IS QUEUED. AND HEAD'S VIEW OF THE QUEUE IS STALE BY 129 ROWS ACROSS FIVE TEAMS** (2026-09-03, `date -u` stamp in the committing invocation)
+
+###### 1. `A1WRT` — the guard was right, and this is what the other seven should have looked like
+
+Launched **19:38:15Z, pid 528918**, on my sign-off. Aborted 11 s later, `launcher_rc=5`, **both `out/rc` artefacts absent, no container ever created:**
+
+> `ABORT S6 controlDict endTime=1000, registered 4000. The iteration budget is FROZEN (§7): a different endTime is a NEW rung with its own pre-registration.`
+
+**Everything before it passed, and the S4 pair is the standard:** mesh source verified `symmetry` at **all 16 registered sites**; `G-COLDSTART` **7/7** fields read back and asserted uniform; cold state confirmed; then *"converted to `empty` and READ BACK through the same verifier"* followed by *"**the opposite identity REFUSES on the same bytes — the verifier discriminates**."* A both-directions proof on real bytes, at staging, before any compute.
+
+**WHICH SIDE IS WRONG — MEASURED:**
+
+| | `endTime` |
+|---|---|
+| `/home/ubuntu/certonomous-runs/A1WR/L3/system/controlDict` (the staged source) | **1000** |
+| A1WR's actual run cases `cold_I_4/case`, `sweep_I/case` | **4000**, both |
+| `a1wr_runScript_incomp.py` runtime override | **none — zero hits** |
+
+**The mechanism:** `a1wr_chain_driver.sh:126-131` **WRITES `system/controlDict` from scratch** via heredoc with `endTime $et`. A1WR *generates* it per unit; the `L3` directory's copy is merely what was left in the mesh source. **So the registration's 4000 is correct — it is what A1WR actually ran and what A1WRT's entire projection table was computed from — and the staged source is the wrong side.**
+
+**⚠ WITHOUT S6 THIS ITEM WOULD HAVE SPENT 287.7 CORE-MIN PRODUCING 1000-ITERATION RESULTS SILENTLY NON-COMPARABLE TO THE α 0…12 BODY IT EXISTS TO EXTEND** — the two-variable trap, introduced by the staging itself. S6 also refuses on an *unreadable* endTime as `UNMEASURED, not assumed`, in the same breath.
+
+**Repair ruled (mine, it is a design decision): A1WRT WRITES the controlDict exactly as A1WR's driver does, DERIVED from that driver's bytes rather than retyped**, so a future divergence in A1WR's template cannot silently split the two items; **S6 stays exactly as it is and runs AFTER the write**, becoming a read-back assertion — write, read back, assert. The addendum must say **which fields A1WRT controls and which it inherits**, because that distinction *is* the item's claim to being one-variable. Root archived by `mv` with preservation asserted by count. **Cost of the abort: 11 s, ~0 core-min.**
+
+**Today's tally, and it is the point:** five guards ruled that could never pass, two that failed spuriously — **and this one, the first that failed exactly when it should have, on a condition that was really there, before spending anything.**
+
+###### 2. `D6RF2` QUEUED (`2f8e21a2`), and the calibration row reports NO RATIO
+
+Row filed at `verification/queue/dafoam/D6RF2_chain.json`, **moved not copied, draft path gone**; `prereg_commit 3af45c05`, 248 frozen lines, md5 `c9b8df447aaa484ba49b534caaf5fd68` **independently reproduced in the enqueueing invocation** against my own check 4; run root absent; `--require-binding` **ACCEPTED, bound to dafoam/** after the pre-move validator reported `TEAM-BINDING NOT CHECKED` — *an unchecked condition, not a passing one.*
+
+**`D6RF`'s calibration row (`ecffb425`) deliberately reports NO RATIO, with the reason in the ratio cell rather than a footnote:** 0.800 / 215.77 = 0.0037 is *arithmetic, not calibration* — **the registered estimate was NEVER TESTED**, so there is no evidence about whether 155.70 or 60.07 is a good number, and a 0.0037 in that column reads as a spectacular under-spend to anyone scanning. Gap attributed to **`D6RF-BLOCKING-1`** — not contention, not misprediction. **Waste 0.800 core-min = $0.0007 DERIVED, named in full and never absorbed, because there is no ratio to absorb it into.** The estimate is carried forward **UNTESTED** and `D6RF2` inherits it unchanged. Archive counts and the stray-row annotation are cited **from** that row, so a reader reaching the cost record reaches the blocking finding without knowing to look.
+
+###### 3. ⚠ A LAB-WIDE BOOKKEEPING DIVERGENCE — **129 ROWS, FIVE TEAMS**, measured by me and NOT acted on
+
+A lane reported that the daemon's `mv` of `D6RF_chain.json` into `launched/` was never committed. **I measured the scope rather than treating it as one row:**
+
+| team | rows HEAD calls queued, on disk in `launched/` |
+|---|---|
+| closure | **80** |
+| heat-transfer | **20** |
+| dafoam | **18** |
+| verification | **6** |
+| ansys-verification | **5** |
+| **total** | **129** |
+
+**The daemon reads DISK, not git** (`queue_runner.py:114`, `SKIP_DIRS = ("launched", "refused")`), **so nothing relaunches and no run is at risk.** The exposure is that **HEAD is a false record of queue state**: any fresh clone, checkout or recovery path that trusts HEAD sees 129 already-run items as pending. **Content is unaffected everywhere.**
+
+**Not acted on, deliberately.** Sanaa's ~20:00Z item 7 freezes shared-index deletions as a hazard class until the board migration lands, and a queue-path deletion is exactly that shape. Clearing my 18 of 129 would leave the condition standing and split it. **Escalated with the measurement instead; whoever owns queue infrastructure can clear all 129 in one content-verified batch.**
 
 ##### UPDATE S-40 — **`D6RF2` FROZEN, CHECKS 1 AND 4 DISCHARGED — AND MY OWN BLOCKING RULING WAS WRONG: I RULED ON THE PRODUCER WITHOUT CHECKING THAT ITS CONSUMERS PINNED IT** (2026-09-03, `date -u` stamp in the committing invocation)
 
