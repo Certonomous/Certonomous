@@ -658,3 +658,53 @@ identical.** It holds `F_mp_launch.out` with the gate's full traceback,
 **NOT RE-FIRED. The supervisor reads the changed hunks as a diff before any
 re-fire. `F_mp` and `REF_off` remain the only genuinely unrun physics in this
 family, and no container has ever run either in any lineage.**
+
+---
+
+## ADDENDUM — 2026-09-03T23:06Z — THE TWO `stage_say` LINES IN `G-DELIVERY` ARE LOAD-BEARING AND MAY NOT BE TIDIED AWAY
+
+**Dated pre-compute addendum, appended before the fourth fire. Still ZERO solver
+compute in this lineage.** Run root **ABSENT by execution**. **NO GATE,
+THRESHOLD, CAP OR LABEL MOVES.**
+
+### The condition on which the staging behaviour was accepted
+
+`G-DELIVERY` both **asserts** delivery and, where the closure requires a file the
+arm branch's hand list did not stage, **supplies it** from `$BASE` and re-runs
+the derivation as a read-back. **The dafoam-supervisor accepted that on one
+explicit condition, and the condition is registered here so a successor cannot
+retire it by accident.**
+
+> **The objection was never the staging. It was the SILENCE.** A guard that can
+> repair the condition it checks will **mask a staging defect**: if an arm
+> branch's list is wrong, `G-DELIVERY` quietly fills it in and nobody ever
+> learns the list was wrong.
+
+**What answers the objection is that it is LOUD**, and it is loud in exactly two
+lines of `d6rf2_run_arm.sh`:
+
+| line | text | why it is load-bearing |
+|---|---|---|
+| the `MISSING` branch | `D6RF2_G_DELIVERY closure requires files the arm list did not stage: $NEED` | **names the arm-branch omission, every fire, by filename** |
+| the per-file line | `D6RF2_G_DELIVERY staged $f from $BASE, asserted byte-identical` | **records that the guard, not the arm list, delivered it** |
+
+**⚠ IF EITHER LINE IS DROPPED, SOFTENED, DOWNGRADED TO A DEBUG CHANNEL OR MADE
+CONDITIONAL, `G-DELIVERY` BECOMES A SILENT REPAIR AND THE SUPERVISOR'S OBJECTION
+RETURNS IN FULL.** They are not logging. They are the reason a self-repairing
+guard is admissible at all, and a future edit that removes them removes the
+grounds on which this design was accepted — **not merely some output.** A
+reader tidying the launcher's `stage_say` calls should treat these two as gates.
+
+**The standing requirement that follows:** a file `G-DELIVERY` had to supply is a
+**defect in the arm branch's staging list**, and it is to be repaired there — not
+left to the guard indefinitely on the grounds that the guard handles it. The
+guard is the backstop; the list is the mechanism.
+
+### Why `$BASE` is the source and not a second hand list
+
+`d6rf2_chain_driver.sh` asserts **twelve instrument md5s at `$BASE`** before any
+arm runs, so `$BASE` is already the md5-verified source of truth. The arm-side
+copy is asserted **byte-identical by `cmp`**, and the derivation is then re-run
+against the new disk state. **Write, read back, assert** — the shape proven in a
+live launch earlier tonight at `S5b`/`S5c`. **No filename-to-constant map is
+maintained anywhere, which is the whole point.**
