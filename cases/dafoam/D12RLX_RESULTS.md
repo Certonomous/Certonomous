@@ -157,3 +157,91 @@ Cylinder_R}`; delta `cases/dafoam/D12RLX_fvSolution_pimple_Final.diff`. Launcher
 `--plan` invocation refused — *"`--plan/--plan2` need `--manifest` and `--root`"* — because I
 passed only `--root`. The grader declined to guess a manifest path. Re-invoked with both,
 `GRADER_RC=0` on both arms.
+
+---
+
+# ⚠ DATED ADDENDUM — 2026-09-03 — **`G-RLX-0`, THIS ITEM'S FIRST AND LOAD-BEARING GATE, HAS NO IMPLEMENTATION IN THE FROZEN GRADING PATH. ITS `PASS` CAME FROM A READING. THE ITEM'S `GATE REACHED` IS REFERRED, NOT WITHDRAWN.**
+
+**`lines whose number changed above this section: 0`.** Nothing above is edited, nothing in the
+pre-registration is touched, and no frozen file is modified. This is disclosure, appended.
+
+## What was found, and how
+
+Prompted by `VERIFICATION_CHARTER.md` §2v.3, which referred `G-RLX-0` to this family. Checking
+their premise produced two findings: **one that corrects them, and one that is worse than their
+label suggested.**
+
+**1. The frozen grader does not implement `G-RLX-0` at all.**
+`cases/dafoam/curriculum_D12R2/d12y_grade.py`, md5 **`02a9ab62fc26d963886ecd0ee97457ef`** — disk
+== `HEAD` == the pin recorded at the head of this record — contains **zero occurrences of the
+string `rlx`**. It carries `read_series`, `g3_delta_window` and the `G12R-*` gates; **it carries
+no reproduction comparator, no series comparison, and no reference to this item's gate.**
+
+**2. The two registered literals appear in no executable in the repository.** §-line-285 of the
+pre-registration registers the reproduction against `δ_window(300)` identical to
+`0.0017958478225974517` and `h_min` identical to `0.1742837908900481`. A sweep over **2,674
+executables** enumerated by `find` (not by recursive `grep`, which is ugrep here and skips
+gitignored trees) returns **0 hits for each**, including truncated forms.
+
+**The zero is admissible only because the reader was proved sighted, and it was not on the first
+attempt.** The first sweep returned zero on its own control as well — a false zero. Re-run with
+literals known to be present, the same reader returned **12**, **2** and **8** hits. **A zero
+from a reader not shown able to see a non-zero is not evidence** (`CLAUDE.md` rule 3), and this
+one nearly was not.
+
+**3. ⚠ THE REGISTERED LITERAL DOES NOT STRING-MATCH THE VALUE IT WAS CHECKED AGAINST.** The
+pre-registration registers `h_min` identical to **`0.1742837908900481`** (16 significant
+digits). §1 of this record reports the achieved value as **`0.17428379089004811`** (17 digits).
+
+| comparison | result |
+|---|---|
+| as **strings** | **NOT equal** |
+| as **float64** | **equal** — `repr()` of both is `0.1742837908900481` |
+
+**Because no executable contains the literal, no code ever decided which comparison
+"bit-for-bit" and "identical" meant.** A string comparator would have returned `GATE FAIL`; a
+float comparator returns `PASS`. **The semantics of this item's load-bearing gate were never
+fixed, never coded, and were resolved in favour of `PASS` by a lane reading two numbers.**
+
+## Why this matters to this record specifically
+
+The pre-registration makes `G-RLX-0` the **first** gate — *"before any cross-arm number is
+read"* — and §7's registered mapping states:
+
+> *"`G-RLX-0` does NOT reproduce bit-for-bit → `NOT A RESULT`, no cross-arm delta reported."*
+
+**A gate that no instrument ever evaluated cannot be said to have reproduced.** This record's
+`GATE REACHED` rests on it, and every cross-arm number in §2 onward is downstream of it.
+
+**The evidence that the reproduction genuinely occurred is not thereby destroyed** — the two
+`step_plan.json` files were compared key by key and agreed, including `g_component_0 =
+1.0304158599180422` which the gate did not require. **That is real evidence and it is not
+retracted.** What is missing is that **a frozen instrument, fixed at the pre-registration
+commit, never adjudicated it.** Evidence read by a lane and a gate evaluated by an instrument
+are different objects, and this item registered the second and delivered the first.
+
+## The status of the verdict, stated precisely
+
+> **The item verdict `GATE REACHED` is `REFERRED`, NOT `WITHDRAWN`.**
+
+**This team does not treat it as supported while its first gate is unadjudicated, and this team
+does not withdraw it either** — withdrawing a landed verdict is not this team's call alone. It
+is referred to verification together with the question that decides it: *what happens to a
+landed verdict whose load-bearing gate was never implemented?*
+
+## What is NOT done, and why
+
+**No amendment. Nothing drafted.** `VERIFICATION_CHARTER.md` §2v.3 recommends repair by *"a
+lawful pre-compute amendment"* on the premise that `G-RLX-0` is *"PRE-COMPUTE AND NOT
+LAUNCHED"*. **That premise is factually wrong** and the correction is set out in the referral:
+this item has **92.9672 core-min of measured compute** (arm C 46.3836 + arm R 46.5836), two run
+roots each carrying **33 `STAGE=` ledger lines**, and a landed calibration row
+`C-20260901T080312.667856Z-f6def2d8`. **Gates closed at first compute. Amending `G-RLX-0` now
+would be amending a launched item's gate — precisely what rule 2 exists to prevent — so the
+remedy verification recommends is unavailable for this object.**
+
+**Only one object exists.** `G-RLX-0` appears in five files and there is no unlaunched
+successor: the line-285 restatement sits inside the same v1.1 pre-registration
+(`b1b411b6`, `a75353b2`) that then launched.
+
+**Nothing here is sent, filed, uploaded, registered or posted outside this box.**
