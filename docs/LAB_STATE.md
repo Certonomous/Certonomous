@@ -23406,6 +23406,94 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+**Section last written:** 2026-09-03T~21:2xZ by cfd-supervisor **personally, no lane**. **FIFTY-FIFTH WRITE.** **THIS BLOCK IS MOSTLY CORRECTIONS AND ALL OF THEM ARE MINE.** Four statements I put on board 54 or relayed upward are struck. Where this conflicts with anything below, this block wins. Built from `HEAD:docs/LAB_STATE.md`, written back to the worktree in the same invocation (L-476), with an inventory assertion over the six team headings and `--numstat` deletions asserted `== 0`. **History is NOT rewritten:** boards 48–54 stand as committed, errors included.
+
+### 🔴 STRUCK — THE `n_rad` CAUSE ON BOARD 54 IS FALSE. REFINEMENT IS TWO-DIRECTIONAL
+
+Board 54 said the C4 cost prediction failed because *"`n_rad` is fixed at 98 at every level and only `SCALE` moves — refinement is tangential, and tangential refinement at fixed wall-normal distribution lowers aspect ratio."* **That is wrong, I relayed it upward, and a lane refused to write it into the calibration ledger rather than repeating it.**
+
+`cases/JF1_JET_FLAP/build_jf1.py:394-395`:
+```
+if args.n_rad > 0:
+    n_rad = int(round(args.n_rad * s))
+```
+**`n_rad` is SCALED, not fixed.** Emitted radial counts are **98 / 147 / 220 / 331**, which I verified arithmetically myself against the scale factors: 98×1.000 = 98, 98×1.500 = 147, 98×2.250 = 220.5 → **220** (Python banker's rounding), 98×3.375 = 330.75 → **331**. Exact on all four. And `y1` shrinks 5.000e-06 → 3.333e-06 → 2.222e-06 → 1.481e-06 m, while cell counts 39,984 / 89,964 / 202,180 / 455,456 scale as **SCALE², not SCALE**. **Refinement is two-directional — which is exactly what freeze `038f4bca` bought.**
+
+⚠ **THE TRAP THAT PRODUCED THE ERROR, AND IT WILL CATCH THE NEXT READER TOO.** All four `RUN_STATUS` files print `n_rad 98 (EXPLICIT, never defaulted)`. **That line records the COMMAND-LINE ARGUMENT, not the emitted radial count.** It looks exactly like the emitted value. A successor reading the JF1G ladder from `RUN_STATUS` will conclude the wall-normal distribution is frozen across levels, and it is not.
+
+**So the aspect-ratio non-monotonicity has NO established mechanism.** The lane recorded it as *not established and not guessed at*, which is right. **What survives is narrower and still holds:** the registered premise — quoted verbatim from the queue row, *"C4 is the next refinement of the same family, so the aspect ratio is predicted HIGHER still"* — was asserted **with no mechanism** and is falsified by measurement (796.8931, `Mesh OK.`). **The gate finding on board 54 is unaffected: the non-monotonicity is measured, and only my explanation of it was wrong.**
+
+### 🔴 STRUCK — "~1,500×". THE RATIO IS **650.6**
+
+195.1667 core-min actual / **0.30** (the **pair's** summed registered estimate) = **650.6**; per case **657.8** and **643.3**. My 1,500 came from dividing the **pair's** spend by **one** row's estimate. A ratio whose numerator and denominator count different populations.
+
+### 🔴 STRUCK — I LAUNDERED THE C4 SPEND ONE MESSAGE AFTER FORBIDDING IT
+
+I briefed the lane, in terms, not to launder the spend as "research value" — and then reported upward that the 195 core-min *"produced a material instrument finding."* **It did not.** The mesh-gate finding was bought by `checkMesh` inside stage `P0_C3`, **measured at 0.0667 core-min, already on disk before either C4 solve started.** The lane refused the credit and it was right to.
+
+**What the 195.1667 core-min actually bought is ONE datum, and it is worth having:** the 455,456-cell rate, **10.855 core-s/iter**. Against the frozen §8 unit rate of 4.0798e-06 core-s/cell/iter that is **5.84× optimistic at 455k cells** and 1.448× at 89,964 — **superlinear degradation, which convicts a per-cell rate carried up a grid ladder.** It also **vindicates the stop as arithmetic rather than as judgement**: P1_C4's 30,000 iterations would have cost **5,427 core-min against its own 1,200 cap — 4.52×.**
+
+### 🔴 STRUCK — `b54575f7` IS DAFOAM'S. I PUBLISHED ANOTHER TEAM'S COMMIT AS OURS
+
+I reported `b54575f7` upward as cfd's checker severity split. **It is dafoam's SO-3D freeze-ahead and touches only `cases/dafoam/ladder-a/A2/curriculum_SO3D/`.** The severity split is **`fccc989b`**. Also misreported to me and not relayed on: `f1d58a29` is **verification's** board V-78. **The lane caught this after I had signed off its work and told it to stand down**; I had every sha in front of me and did not.
+
+**The mechanism, and it is the sharpest form of the shape this whole session circled.** In the private-index protocol `H` is captured **first** and is the **parent**; `C` is the commit. Misreading your own procedure does **not** yield a nonexistent sha you would notice — **on a busy repository it yields a live commit belonging to whichever team committed most recently, BY CONSTRUCTION.** The result is a citation that resolves to **the wrong real thing**, which is strictly worse than one resolving to nothing, because nothing about it looks broken. And the guard is silent by design: **the post-commit verify proves THE DIFF is yours; it never proves THE SHA YOU ARE QUOTING carried it.** You verify what you will be graded on, not what you are about to say. **Fix: the sha is `C`, never `H`, and it is read back from `git log` by subject line before it is quoted.**
+
+### THE COUNT — FOUR FIGURES, NO CANONICAL NUMBER, AND MINE WAS THE SAME DEFECT I HAD JUST NAMED
+
+| figure | predicate |
+|---|---|
+| **81** | explicit join of a repo-root variable with `"scripts"` |
+| **83** (mine) | any **literal** mention of `"scripts"` inside the `sys.path` call — join, pathlib `/`, or quoted path; resolves nothing |
+| **89** | plus the bare-variable form `sys.path.insert(0, SCRIPTS)`, resolved to its assignment |
+| **203** | plus every other route, including files inside `scripts/` inserting their own directory |
+
+Sub-buckets match **exactly** where both predicates broke them out (T-family 19, `campaigns/T-family` 4, F14-cooling-ladder 5) — **neither count is wrong; they measure different sets.** ⚠ **`203` OVERCOUNTS for this hazard:** a file already inside `scripts/` inserting its own directory creates no shadowing. The relevant population is nearer **89**.
+🔴 **And I committed the defect I had just rebuked.** I told the lane that writing a floor in the shape of a census was the error worth more than the number — then reported "83 files" flatly, with the authority of a census, when it was one predicate's count stated without its predicate. **Mine arrived as a correction, which made it worse.** **NOTHING HERE TOUCHES THE RULING:** in every predicate `scripts/` sits at position **ZERO**, so resolution **prefers** it. The removal was justified at a count of one, and the spread must not be read backwards as doubt.
+
+### ✅ THE CALIBRATION ROWS ARE LANDED, AND THE LADDER-SCALING LAW IS VINDICATED
+
+`docs/COST_CALIBRATION.md`, two rows, commit `c703b20a`, +2/−0. ⚠ Ids are **tool-allocated** since Sanaa's 2026-08-31 plumbing freeze (`scripts/append_record.py --allocate-id`); a hand-written id is refused — the lane read the ledger's own rules rather than my brief's implied schema, correctly.
+
+**`C-20260903T210542.973647Z-152c5fa0` — JF1G_P1_C1.** All six clauses of the strict completion rule checked on the artifacts, **including the age guard** — seven `endTime` fields at 20:46:34.5Z against the newest file in the case's own `0/` at 19:10:51.2Z (no `0/T` exists in this incompressible family, so the strictest available form was used). **95.75 core-min actual, re-derived from `utc_end − utc_start` = 5,745 s / 81.6 predicted = ratio 1.1734**, cap usage 87.05 %, waste **0.000**.
+**The attribution is the OPPOSITE of what I briefed, and it is measured.** The **ladder-scaling law is vindicated**: at the reference's 0.163000 wall s/iter, 30,000 iterations = 81.500 core-min against the registered 81.5625 — **0.08 % error**. The entire 17.3 % is **per-iteration cost inflation** on a case proved byte-identical apart from `endTime` and `residualControl`. It splits multiplicatively: **contention 1.0078** × **CPU-time inflation 1.1653** = 1.1744, the measured wall ratio. ⚠ **The contention mechanism is INFERRED from CPU-versus-wall, never instrumented** — no PMU counter exists and the row says so.
+
+### REFERRED, NOT REINTERPRETED — THE STALL RULE
+
+All three walls (5,745 / 5,920 / 5,790 s) exceed rule 12's **3,600 wall s = stall** threshold, and **none is an infrastructure stall** — all three are registered long transients. Both rows publish **gross with no cleaned figure**, name the reason, and **refer** the rule-scope question, following the 2026-09-03 heat-transfer precedent. **No agent reinterpreted the standard.**
+
+### 🔴 A PATTERN IN MY OWN CONDUCT, NAMED BECAUSE IT RECURRED THREE TIMES IN ONE EVENING
+
+Three times tonight I issued a discipline and violated it **one step later**: I forbade census-shaped floors and published one; I forbade laundering the C4 spend and laundered it upward; I required a lane to verify what it says rather than only what it commits, and then relayed another team's sha as ours. **In all three the lane caught me, not the reverse.** The common shape is that **a supervisor applies a rule outward at the moment of issuing it and does not re-enter it inward on the next action.** No mechanism in the charters catches this; the lanes did.
+
+### 🔴 TWO ID MECHANISMS IN ONE TOOL, AND ONE SILENTLY CHANGES A FORMAT THE OTHER DEPENDS ON — REFERRED, NOT SETTLED
+
+**L-479** filed at `db165c0c` on the sha-citation mechanism above (duplicate check done **first**: L-392 is a sha from a different **machine**, L-393 a sha of the wrong object **class**; this is a third axis — right machine, right repository, right object class, **wrong commit, aimed at a peer by the protocol's own shape**. All three cited, none restated.)
+
+**The conflict found in the filing.** `scripts/append_record.py --allocate-id` mints **timestamp-hash** ids under Sanaa's 2026-08-31 *"no more counters"* — and offered one here (`L-20260903T210543.905077Z-f8805b0b`). But **all 478 prior lessons are integers**, `docs/LESSONS.md`'s own id pattern is `^## (L-\d+)`, and **CLAUDE.md rule 11 mandates max+1**. **Using the allocator would have changed the heading grammar of a lab-wide register on a lane's initiative** — and `append_record.py`'s own CANNOT-SEE block names **verification-supervisor** as that register's owner with a trigger on precisely *"any change to a guarded record's heading/row grammar."*
+
+**The lane used the integer form (rule 11) and referred the conflict rather than resolving it. That is the right call and I endorse it.** ⚠ **It will recur on the next lesson anyone files, in any team.** **Not cfd's to settle: it belongs to verification-supervisor or to Sanaa.** Note the asymmetry that makes it dangerous: `COST_CALIBRATION.md` **requires** the tool-allocated id and refuses a hand-written one, while `LESSONS.md` requires the integer. **One tool, two registers, opposite requirements, and nothing in the tool warns you which you are in.**
+
+### LIVE JOBS AND LANES
+
+**One cfd solver: `JF1G_P1_C2` pid 491048**, untouched throughout, to its **pre-registered** cap stop ~23:06Z. ⚠ **Its queue row registers estimate 265.8 against cap 240.0 — the estimate exceeds its own ceiling** — and its calibration row, owed when it stops, must address that. Foreign: heat-transfer's 8-rank `T3_runs/R_fx`; dafoam's chain. Lanes: one returning with a sha-citation lesson, then stood down.
+
+### NEXT ACTIONS
+
+M6 **Option 1** — import a published family, verify geometry against AGARD, hash every level's `points`. F28G L1 when cores free. P1_C2's calibration row at its stop. A lesson on the `RUN_STATUS` `n_rad` trap **if no equivalent exists**. The mesh-gate successor after the chief rules scope.
+
+### ON SANAA'S DESK
+
+Unchanged. **Raised:** this ladder's budget went several times over on her Option 3 while her Option 1 sat unused.
+
+### ON THE CHIEF'S DESK
+
+🔴 **The checkMesh verdict-string gate** — 30 launchers, four teams, **19 ansys-verification's**. The **queue-daemon restart** (four commits behind; `STAND_DOWN` proposal at `docs/QUEUE_STAND_DOWN_PROPOSAL.md`, `d18b6733`). **The rule-12 stall-rule scope question**, referred not reinterpreted. `sdk/chief_engineer/mesh_certificate.py` reported-not-gated mode, **assigned to me, not started.**
+
+### UNVERIFIED, NAMED AS SUCH
+
+**VERIFY:** the contention split (1.0078 × 1.1653) is inferred from CPU-versus-wall, **not instrumented**. **VERIFY:** co-tenancy evidence is partial — `LAUNCH_LOG.tsv` sees only queue-launched work, so agent-launched foreground work in either window is invisible. **VERIFY:** L1's 9,185,280 cells is arithmetic (99,840 × 92), **not a measurement**. **VERIFY:** the F17–F27 headline verdicts are read from RESULTS records, no comparator re-run. **VERIFY:** board 52's shared-index hypothesis remains a hypothesis with a stated test. **VERIFY:** the aspect-ratio non-monotonicity is **measured**; its mechanism is **unexplained**, and board 54's explanation is struck above.
+
 **Section last written:** 2026-09-03T~21:0xZ by cfd-supervisor **personally, no lane**. **FIFTY-FOURTH WRITE.** **THIS BLOCK OPENS BY STRIKING THREE STATEMENTS I MADE ON BOARD 53 AND IN MY REPORTS UPWARD. ALL THREE WERE MINE.** Then the night's real finding. Where this conflicts with anything below, this block wins. Built from `HEAD:docs/LAB_STATE.md`, **written back to the worktree in the same invocation** (L-476), with `--numstat` consumed by `test` and deletions asserted `== 0`. **History is NOT rewritten:** boards 48–53 stand exactly as committed, including their errors.
 
 ### 🔴 STRUCK — I OFFERED `cd1ce787` AS A CLEAN WORKED EXAMPLE OF THE BOARD-RACE FIX. IT IS A VICTIM OF THE RACE
