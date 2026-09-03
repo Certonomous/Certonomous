@@ -1964,3 +1964,106 @@ Per `§27.3`, the estimate is reconciled against its own stated method **using o
 | found by | **`ansys-lane-opus48`, against the supervisor who wrote `§25`**, before the freeze |
 | gates | **0 moved** · bands | **0 moved** · caps | **1 SET (new task)** · re-grades | **0** · register bytes | **0** |
 | lines whose number changed above this section | **0** |
+
+---
+
+## Amendment — v1.24 — 2026-09-03 — **§29: THE DIGITIZER CALIBRATED, ITS PLANTED NULL REFUSED, AND THE VERDICT IS `NOT A RESULT`. A PIXEL FLOOR IS A FLOOR ON RESOLUTION, NOT ON THE READER'S ERROR — AND `u_read` PINNED TO IT IS A FALSE PRECISION A NULL CONTROL EXISTS TO CATCH.**
+
+### §29.1 THE VERDICT
+
+The `§25`/`§28` digitizer instrument was frozen (`0fab170f`, blob
+`2092c55d…`), `§3` checks 1 and 4 done personally, and `--calibrate --n 24` run.
+**It refused (exit 2) at POSITION PLANT-NULL** and the task verdict is
+**`NOT A RESULT`**, reproduced by the supervisor against the freeze to
+byte-identical numbers (`cases/ansys_verification/DIGITIZER/RESULTS.md`). The
+instrument **unlocks nothing** (`§25.7`, `§28.8`), and this holds even though the
+VALUE quantity calibrated cleanly.
+
+| quantity | u_read | binding term | plants |
+|---|---|---|---|
+| VALUE (y-data) | 0.0050505 | pixel floor | DETECT band OK, bias 0.000265 ≤ u_read — **passed** |
+| POSITION (x-data) | 0.0027778 (candidate) | pixel floor | **PLANT-NULL REFUSED**: clean control read 1.167 px > floor |
+
+### §29.2 WHAT ACTUALLY FAILED — the pixel floor is a floor on the wrong thing
+
+The pre-registration predicted `u_read ≈ pixel floor` for both quantities (its
+`§5`, "A and B < C"). **The prediction held — and for POSITION that is exactly
+the failure.** The pixel floor (1.000 px) sits **below** the steepest-descent
+locator's own demonstrated per-plate error on clean plates: **mean 0.843 px, max
+1.693 px**, the null-control plate **1.167 px**.
+
+> **A PIXEL FLOOR BOUNDS HOW FINELY THE RASTER CAN BE READ. IT SAYS NOTHING ABOUT
+> HOW WELL A GIVEN READER LOCATES A GIVEN FEATURE.** When the reader's own error
+> exceeds the floor, a floor-dominated `u_read` claims a precision the reader does
+> not have — a **false precision** — and `max(A, B, C)` does not protect against
+> it, because the floor `C` can be the largest of the three and still be below the
+> reader's real error. The three-floor `max` protects against a `u_read` that is
+> too *small* relative to its three inputs; it does not protect against a *statistic
+> that is itself optimistic.*
+
+**Only the planted null caught it.** A null control tied to a known-zero answer
+(`rule 3`, `§16.4`) is the one instrument that compares `u_read` against the
+reader's demonstrated behaviour on a plate whose truth is zero displacement.
+Inspection of the three-floor `max` would have passed this `u_read`; the null
+refused it. **This is the null control earning its place a second time this
+session** (VMFL046's plants, now this).
+
+### §29.3 THE RULING — the synthetic-control statistic must make the null pass BY CONSTRUCTION
+
+`§25.4`'s term A — "the synthetic-control statistic" — was implemented as an RMS.
+**An RMS understates a distribution with a tail**, and the POSITION locator's
+error has one (mean 0.843 px, max 1.693 px). The null control samples one plate;
+if that plate is near the tail, it exceeds an RMS-based `u_read`.
+
+> **RULED: term A of `§25.4` is a statistic that DOMINATES the worst demonstrated
+> per-plate error on the calibration set — a maximum, or a high percentile (≥ 95th)
+> with the max reported beside it — for any quantity whose per-plate error CAN
+> exceed the pixel floor.** The test of whether A is conservative enough is not an
+> argument: it is that **the planted null passes by construction**, because `u_read`
+> is then ≥ every clean-plate error the calibration measured, the null-control
+> plate included. RMS remains admissible only for a quantity whose max per-plate
+> error is itself below the pixel floor (the floor then binds and dominates the
+> tail), which is where VALUE sits and POSITION does not.
+
+This is `§28.2`'s discipline extended: `§28.2` fixed *which units* the statistic is
+in; `§29.3` fixes *which statistic*, so that the number `u_read` reports is one the
+reader can actually back.
+
+### §29.4 THE RE-FILE — POSITION re-registered; VALUE not carved out to soften a `NOT A RESULT`
+
+- **POSITION is re-filed** as a new registration with term A per `§29.3` (max /
+  high-percentile). The lane also offered a sub-pixel locator (parabolic fit to the
+  gradient minimum) to pull the error below one pixel; **that is a legitimate second
+  improvement but it is not the fix** — a sharper locator with an RMS statistic can
+  still hide a tail. `§29.3` (the conservative statistic) is the required change;
+  the sub-pixel locator is optional and, if used, its own max error must still
+  dominate `u_read`.
+- **VALUE calibrated cleanly and is NOT certified here by carving it out of the
+  failed task.** A `NOT A RESULT` task is not softened by keeping its clean limb;
+  that is the vocabulary discipline (`rule 1`) applied to an instrument. VALUE is
+  carried into the re-file as a **separately-registered quantity**, where its clean
+  calibration stands on its own frozen bytes.
+- **This task's `NOT A RESULT` is permanent.** The re-file is a new registration and
+  does not re-grade it.
+
+### §29.5 WHAT IS STILL TRUE, AND WHAT THIS COSTS THE CAMPAIGN
+
+`§25.7`/`§28.8` remain unmet: **no VMFL case gates on a digitized reference.** The
+survey established that **45 of 49 remaining cases are figure-only**, and Fig .46.2
+(VMFL046-R2's target) is a **POSITION** read — the exact quantity that just failed
+to certify. **The path to those 45 cases now runs through the POSITION re-file**,
+and a `u_read` built per `§29.3` will be **larger** than the pixel floor, so
+`§25.6`'s `u_read ≥ tol/3` cap will bind on more of them: **more of the 45 will be
+`GATE REACHED` by construction than the earlier estimate assumed.** Stated here so
+no later report reads the re-file as a delay rather than as the honest cost of
+reading a position off a picture.
+
+| amendment | v1.24 |
+|---|---|
+| clause added | **`§29`** (`§29.1`–`§29.5`) |
+| verdict recorded | DIGITIZER calibration **`NOT A RESULT`** (POSITION PLANT-NULL refused); reproduced personally |
+| ruled | `§25.4` term A **must dominate the worst demonstrated per-plate error** (max / high-percentile) for any quantity whose error can exceed the pixel floor; the null passing **by construction** is the test |
+| re-file | POSITION re-registered per `§29.3`; VALUE carried as a separate quantity, **not** certified by carving out a failed task |
+| campaign cost | more of the 45 figure-only cases will be `GATE REACHED` by construction than assumed |
+| gates | **0 moved** · bands | **0 moved** · caps | **0 moved** · re-grades | **0** · register bytes | **0** |
+| lines whose number changed above this section | **0** |
