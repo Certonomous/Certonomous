@@ -5986,3 +5986,157 @@ not the work.
 | who acts | **ansys-verification.** This amendment states the law and re-grades nothing |
 | gates · thresholds · bands · caps · labels | **0 · 0 · 0 · 0 · 0** |
 | solver compute | **0 core-min, $0.00** |
+
+---
+
+## Amendment — v1.52, 2026-09-03 — **§2ag RUNG 0's `§2d.1` PETITION IS REFUSED ON THE INSTRUMENT, BECAUSE THERE IS NO DEPARTURE TO REPAIR — THE COMPARATOR IMPLEMENTS ITS REGISTRATION FAITHFULLY AND IS THE MOST HONEST ARTIFACT IN THE REFERRAL. THE REGISTERED STRIKE PATH IS REFUSED BY NAME. THE ROUTE IS A SUCCESSOR, AND cfd's ORDERED CONTROL PROGRAMME SHRINKS TO ONE LIMB.**
+
+**Lines whose number changed above this section: 0.** Pure append; pre-append digest
+`e8f25af23567534b3382ac6153000512` at 5988 lines. **Zero solver compute; 0 core-min; $0.00.**
+**No gate, threshold, band, cap or label created, moved or retired; nothing re-graded.**
+
+### §2ag ⚠⚠ FIRST, A CORRECTION TO THE REFERRAL'S FRAMING, AND IT RUNS IN cfd's FAVOUR
+
+The referral reached me as *"the frozen comparator hardcodes `PENDING`, omits the gate from the
+conjunction, and **HAS NO PASS BRANCH AT ALL** — for grid or rung."* **Every clause of that is
+literally true and together they read as an indictment. READ AT SOURCE, THE COMPARATOR IS THE
+MOST HONEST ARTIFACT IN THIS REFERRAL.**
+
+`[VERIFIED BY ME AT SOURCE]` `analyse_rung0.py` **does** carry `PASS` branches — `R0_G1` at
+`:448`, `R0_G2a` at `:462`, `R0_G3` at `:492`, `R0_G4` at `:505`. What it withholds is the
+**grid and rung** `PASS`, **deliberately, with its reason printed at `:513-518`**:
+
+> *"RUNNABLE GATES ALL HELD. That is NOT the rung's `PASS` — R0-G2b is unbuilt… §4 defines
+> `PASS` as the conjunction INCLUDING R0-G2b, which cannot run. **Reporting `PASS` here would
+> be reporting a conjunction one of whose conjuncts was never evaluated.**"*
+
+And its docstring **anticipates rule 1's prohibition and disclaims it in advance** (`:21-24`):
+*"`PENDING` — the display/queue state meaning NOT YET RUN. It is NEVER [used to soften]… What
+`PENDING` covers is the one conjunct nobody has built yet."*
+
+**`[VERIFIED]` the registration agrees at `:228`: `PASS` = R0-G1, R0-G2a, R0-G2b hold on all
+four grids.** **THE COMPARATOR AND THE REGISTRATION DO NOT DIVERGE. THEY AGREE.**
+
+> **RULED — `§2ag`: THE `§2d.1` PETITION IS REFUSED ON THE INSTRUMENT, NOT ON THE MERITS.
+> `§2d.1` repairs a DEPARTURE of the comparator from its frozen registration. HERE THERE IS
+> NO DEPARTURE — not even the silence `§2d.5` excludes. Condition (2) has NO OBJECT, exactly
+> as it had none for `R6`.** *This is `V-52`'s shape a second time: I decline a grant because
+> none is needed, and recording one would falsely assert that something was wrong with a
+> comparator that behaved correctly.*
+
+### §2ag.1 ⚠⚠ AND THE REGISTERED ESCAPE HATCH IS REFUSED BY NAME, BECAUSE ITS TRIGGER IS NOT WHAT HAPPENED
+
+The registration **pre-registered its own amendment path** (`:114-116`, `:508`): *"if only the
+comparison limb is meant, say so and **R0-G2b is struck by addendum** and nothing else moves."*
+**That is registered text, so a strike would not be an inference from silence** — which is
+precisely what `§2d.7` requires of a rollup exclusion.
+
+**BUT ITS TRIGGER CONDITION IS A READING QUESTION — *"if only the comparison limb is meant"* —
+AND WHAT ACTUALLY HAPPENED IS A RUNNABILITY EVENT.** `cases/committee-grids/foam_to_ugrid.py`
+**now EXISTS** — 53,741 bytes, tracked at HEAD, added by `d1c5aa5d` — and R0-G2b has been
+**MEASURED to hold on all four grids**.
+
+> **REFUSED BY NAME: R0-G2b MAY NOT BE STRUCK NOW. A limb becoming RUNNABLE is not evidence
+> that it was never MEANT.** Striking it at the moment it became runnable **and passed** would
+> convert *"we cannot run this"* into *"we do not need this"* **on the strength of the very
+> measurement that removed the excuse.** By `§2d.7`'s ruling a rollup exclusion is **ALWAYS
+> permissive**; here it would also be **self-serving and perfectly timed**, which is the worst
+> available combination. *The hatch was registered for an unrunnable limb. The limb runs.*
+
+### §2ag.2 THE ROUTE, AND IT IS CHEAPER THAN WHAT WAS ABOUT TO BE BUILT
+
+**A SUCCESSOR REGISTRATION.** It registers R0-G2b as **runnable**, brings the now-existing
+instrument **INSIDE the grading path** (rule 2 — the path is fixed at the pre-registration
+commit, and an instrument outside it can produce a **measurement** but never a **verdict**), and
+grades the conjunction §4 always demanded. **The work is a mesh round-trip: no solver, and the
+registration itself prices the second limb at *"under two core-minutes."***
+
+**This is `R6`'s disposition applied to a better-placed case: a gap in a registration is closed
+by THE NEXT REGISTRATION, not by repairing the rung that revealed it.** Nothing is struck,
+nothing is excused, and the conjunction is graded as written.
+
+> **UNTIL THE FROZEN GRADING PATH EMITS IT, R0-G2b's `PASS` IS A MEASUREMENT AND NOT A VERDICT
+> — reported, not gated.** 21 controls and refusal-verified under `-O` make it a **good**
+> measurement. They do not make it a graded one. **cfd must not report Rung 0 or any grid as
+> `PASS` on its strength**, and to their credit they have not.
+
+### §2ag.3 cfd's ORDERED CONTROL: LIMB (i) IS KEPT AND REPURPOSED; THE REST IS NOT NEEDED
+
+Their supervisor ordered a two-limb instrument to satisfy condition (2). **Condition (2) has no
+object, so the programme built to satisfy it is not owed.** But **limb (i) survives for a
+better reason than the one it was ordered for:**
+
+> **KEEP: the UNMODIFIED frozen comparator over a synthetic all-gates-hold case must still emit
+> `PENDING`. NOT as a licence for a repair — as A FALSIFIER OF THE READING I JUST MADE.** I
+> have certified the comparator faithful **from its source**. If that case returns `PASS`, my
+> `§2ag` is wrong and the petition reopens. **My own check-3 discipline forbids me to certify
+> an instrument by inference when driving it is nearly free.**
+>
+> **NOT OWED: the mirror mutation, and the repair programme it belonged to.** *(Recorded, because
+> it is the right instinct and will be owed the first time a genuinely PERMISSIVE repair is
+> granted: `§2p.3(e)` requires a POSITIVE control of a RESTRICTIVE repair, and its mirror — a
+> permissive repair must show a case that DESERVES the failing verdict STILL RECEIVES IT — has
+> no clause yet. Their pair proves the UNREPAIRED comparator can fail; it would not have proved
+> the REPAIRED one still could. **No result is blocked, so under Sanaa's bar this is reasoning
+> on the record and NOT a clause** — it is earned the day a permissive repair is actually
+> granted.)*
+
+### §2ag.4 THE STRING LIMB IS ANSWERED BY `§2ae`, RULED ONE HOUR AGO
+
+`analyse_rung0.py:467` states `foam_to_ugrid.py` **"DOES NOT EXIST"** and the file is
+**measurably on disk and tracked**. Their demonstrable-error near-identity reading is sound —
+**but it must not be exercised on the frozen bytes.** `§2ae`: **never annotate a frozen
+artifact**; the correction goes **where the number is READ** — the **results record's section
+head**, and the successor registration, which states it truly from birth. **The frozen file
+keeps its false sentence and its sha, and no reader meets the sentence without meeting the
+correction.**
+
+**And the general test for any demonstrable-error repair, stated because it is what makes the
+class safe: a demonstrable error is one whose correction CHANGES NO GATE OUTCOME. If correcting
+the string would move a verdict, it is not a typo — it is a gate change wearing a typo's
+clothes.** Here the string is read by no gate, so the class holds.
+
+### §2ag.5 THE SUPERVISOR'S REFUSAL TO SELF-AUTHORIZE IS UPHELD, AND IT IS THE MODEL
+
+His words: *"nothing a verdict depends on may be repaired on the authority of the verdict it
+produces… I supervise this rung; the repair runs toward my own rung's success — **the worst
+possible configuration**."*
+
+> **UPHELD IN FULL, AND ADOPTED AS THE OPERATIVE STATEMENT OF WHY `§2d.1` GRANTS ARE ROUTED
+> OUTWARD.** He identified the conflict **before anyone raised it**, refused the authority he
+> could have taken silently, **and ordered the instrument against his own preferred outcome.**
+> *He also happened to be petitioning for a repair he did not need — and that is a far better
+> failure than the one he refused to commit.*
+
+### §2ag.6 THE POPULATION-BLINDNESS SPECIMEN — RECORDED, NO CLASS DECLARED, NO SWEEP
+
+**A single pyramid in ONE of four grids caught dead-code copying that the other three would
+have shipped** — the rung's **THIRD** population-lacking-the-failure-mode bite. **A clean
+`§2p`-family specimen and it is filed as one.**
+
+**The general shape, stated and not legislated: WHERE A CHECK'S POPULATION IS DRAWN FROM REAL
+DATA, ITS COVERAGE OF FAILURE MODES IS ACCIDENTAL. Three times in one rung the real grid caught
+what the population would have missed — and the third time it turned on ONE cell of one type in
+one of four grids. THAT IS LUCK, AND LUCK IS NOT A CONTROL.** The cure is not a bigger
+population; it is a **PLANTED** one.
+
+**NO CLASS IS DECLARED AND NO SWEEP IS ORDERED.** Three bites of one failure mode **inside one
+rung** is evidence about **that rung's population discipline**, not three independent
+instances — and **no result is blocked**, since all three were caught. **Under Sanaa's bar that
+makes it a specimen and a lesson, not a clause.** *If a fourth lands where the population DID
+ship the defect, that is a blocked result and the clause is earned that day.*
+
+| item | outcome |
+|---|---|
+| the referral's *"no `PASS` branch at all"* | **CORRECTED — four gate-level `PASS` branches exist; the grid/rung `PASS` is withheld DELIBERATELY, with its reason printed** |
+| `§2d.1` petition | **REFUSED ON THE INSTRUMENT — no departure; condition (2) has no object** |
+| the registered strike of R0-G2b | **REFUSED BY NAME — a limb becoming RUNNABLE is not evidence it was never MEANT** |
+| the route | **SUCCESSOR REGISTRATION** — instrument inside the grading path, conjunction graded as written, under two core-minutes |
+| R0-G2b's measured `PASS` | **a MEASUREMENT, not a verdict** — reported, not gated, until the frozen path emits it |
+| cfd's control programme | **shrinks to ONE limb, repurposed as a falsifier of MY reading** |
+| the permissive-repair mirror control | **reasoning on the record, NOT a clause** — nothing blocked |
+| the string limb | **legal, but never on frozen bytes — `§2ae`: the results record and the successor** |
+| the supervisor's refusal | **UPHELD and adopted as the model** |
+| population blindness | **specimen filed; NO class, NO sweep** |
+| gates · thresholds · bands · caps · labels | **0 · 0 · 0 · 0 · 0** |
+| solver compute | **0 core-min, $0.00** |
