@@ -1,0 +1,27 @@
+=== PHASE A CONTROLS (rule 3; before any conversion) ===
+  [       FIRED] B10 foam_to_ugrid.py --selftest (the writer is INSIDE the grading path, so it carries its battery here)
+                 expected: exit 0 with every control fired
+                 saw     : rc=0, 21 FIRED rows, tail: 'ALL 21 CONTROLS FIRED.'
+  [       FIRED] B0 ABSOLUTE one-hex export/re-read, r8 layout
+                 expected: cells 1, hex 1, {lid:2, sides:4}, bnd 6 -- known a priori
+                 saw     : cells 1, hex 1, {'lid': 2, 'sides': 4}, bnd 6, endian big, fortran True
+  [       FIRED] B0 ABSOLUTE one-hex export/re-read, b8 layout
+                 expected: cells 1, hex 1, {lid:2, sides:4}, bnd 6 -- known a priori
+                 saw     : cells 1, hex 1, {'lid': 2, 'sides': 4}, bnd 6, endian big, fortran False
+  [       FIRED] B1 rename one .mapbc group (scratch copy)
+                 expected: the renamed patch appears in the emitted name set
+                 saw     : names ['PLANTED_GROUP_RENAME', 'farfield', 'symmetry', 'wall']
+  [       FIRED] B2 delete one boundary face (scratch copy of the real grid)
+                 expected: exactly one patch's face count drops by exactly 1; cells unchanged
+                 saw     : per-patch drop {'farfield': 0, 'symmetry': 1, 'wall': 0}, bnd 41984 -> 41983, cells 638976 -> 638976, plant removed 20 bytes (quad)
+  [       FIRED] B5 checkMesh fed BOTH aspect-ratio label forms
+                 expected: a NON-NULL max aspect ratio from EACH form -- a reader matching only `=` sees the healthy logs and silently misses exactly the pathological ones
+                 saw     : {'=': (1.26794919382, '='), ':': (14426.8, ':')}
+  [       FIRED] B6 a log with Min volume != Max volume
+                 expected: a NON-TRIVIAL derived cell-volume ratio, never 1
+                 saw     : min 1.02355e-05, max 90736700000.0, ratio 8864901568071906.0
+  [       FIRED] B7 an ABSENT checkMesh log
+                 expected: state ABSENT and NO number. ABSENT NEVER READS CLEAN.
+                 saw     : state 'ABSENT', keys ['checkMesh_log', 'state']
+
+controls-only: no grid was graded, no verdict is claimed.

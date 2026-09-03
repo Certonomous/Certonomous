@@ -1,0 +1,86 @@
+=== PHASE A CONTROLS (rule 3; before any conversion) ===
+  [       FIRED] B10 foam_to_ugrid.py --selftest (the writer is INSIDE the grading path, so it carries its battery here)
+                 expected: exit 0 with every control fired
+                 saw     : rc=0, 21 FIRED rows, tail: 'ALL 21 CONTROLS FIRED.'
+  [       FIRED] B0 ABSOLUTE one-hex export/re-read, r8 layout
+                 expected: cells 1, hex 1, {lid:2, sides:4}, bnd 6 -- known a priori
+                 saw     : cells 1, hex 1, {'lid': 2, 'sides': 4}, bnd 6, endian big, fortran True
+  [       FIRED] B0 ABSOLUTE one-hex export/re-read, b8 layout
+                 expected: cells 1, hex 1, {lid:2, sides:4}, bnd 6 -- known a priori
+                 saw     : cells 1, hex 1, {'lid': 2, 'sides': 4}, bnd 6, endian big, fortran False
+  [       FIRED] B1 rename one .mapbc group (scratch copy)
+                 expected: the renamed patch appears in the emitted name set
+                 saw     : names ['PLANTED_GROUP_RENAME', 'farfield', 'symmetry', 'wall']
+  [       FIRED] B2 delete one boundary face (scratch copy of the real grid)
+                 expected: exactly one patch's face count drops by exactly 1; cells unchanged
+                 saw     : per-patch drop {'farfield': 0, 'symmetry': 1, 'wall': 0}, bnd 41984 -> 41983, cells 638976 -> 638976, plant removed 20 bytes (quad)
+  [       FIRED] B5 checkMesh fed BOTH aspect-ratio label forms
+                 expected: a NON-NULL max aspect ratio from EACH form -- a reader matching only `=` sees the healthy logs and silently misses exactly the pathological ones
+                 saw     : {'=': (1.26794919382, '='), ':': (14426.8, ':')}
+  [       FIRED] B6 a log with Min volume != Max volume
+                 expected: a NON-TRIVIAL derived cell-volume ratio, never 1
+                 saw     : min 1.02355e-05, max 90736700000.0, ratio 8864901568071906.0
+  [       FIRED] B7 an ABSENT checkMesh log
+                 expected: state ABSENT and NO number. ABSENT NEVER READS CLEAN.
+                 saw     : state 'ABSENT', keys ['checkMesh_log', 'state']
+
+=== PHASE B CONTROLS (rule 3; before any gate reads a number) ===
+  [       FIRED] B3 +1 on one nFaces (scratch polyMesh)
+                 expected: R0-G2a reports UNEQUAL, not equal
+                 saw     : {'farfield': 13312, 'symmetry': 15360, 'wall': 13312} -> {'farfield': 13312, 'symmetry': 15361, 'wall': 13312}
+  [       FIRED] B4 rename one patch (scratch polyMesh)
+                 expected: R0-G2a reports a NAME-SET MISMATCH
+                 saw     : ['farfield', 'symmetry', 'wall'] -> ['PLANTED_PATCH', 'symmetry', 'wall']
+  [       FIRED] B8 a header note contradicting the mesh's own lists [// comment form]
+                 expected: nCells 638976 -> 638977 in the header alone must REFUSE, never be preferred over the lists
+                 saw     : POLYMESH: /tmp/rung0b_controls_57hlhqxz/B8_0/constant/polyMesh/owner's header note (// comment) CONTRADICTS the mesh's own lists: ['nCells: header 638977 vs derived 638976']. REFUSED -- never choose between them.
+
+=== PER-GRID READING ===
+  DPW5_L1T_hex             PASS
+      R0_G1   PASS
+      R0_G2a  PASS
+      R0_G2b  PASS
+      R0_G3   PASS
+      R0_G4   PASS
+      quality REPORTED NOT GATED: max non-orth 89.7134 deg (70 deg generation gate), severe 11506, skew 14.0594, AR 14426.8 (: form), cell-volume ratio 8.865e+15 DERIVED
+  DPW5_L1T_prism           PASS
+      R0_G1   PASS
+      R0_G2a  PASS
+      R0_G2b  PASS
+      R0_G3   PASS
+      R0_G4   PASS
+      quality REPORTED NOT GATED: max non-orth 89.9441 deg (70 deg generation gate), severe 216336, skew 6.31513, AR 7488.42 (: form), cell-volume ratio 3.333e+16 DERIVED
+  DPW5_L1T_hybrid          PASS
+      R0_G1   PASS
+      R0_G2a  PASS
+      R0_G2b  PASS
+      R0_G3   PASS
+      R0_G4   PASS
+      quality REPORTED NOT GATED: max non-orth 89.9985 deg (70 deg generation gate), severe 1810108, skew 6.31513, AR 7488.42 (: form), cell-volume ratio 1.561e+16 DERIVED
+  HLPW6_h6c1_rans_3a_1     PASS
+      R0_G1   PASS
+      R0_G2a  PASS
+      R0_G2b  PASS
+      R0_G3   PASS
+      R0_G4   PASS
+      quality REPORTED NOT GATED: max non-orth 89.9835 deg (70 deg generation gate), severe 1256565, skew 9.97161, AR 2286.24 (: form), cell-volume ratio 3.915e+20 DERIVED
+
+=== B9, THE ROUND-TRIP PLANT, PER GRID ===
+  [       FIRED] B9 round-trip plant (§7 row 7) -- THE CONTROL THE PREDECESSOR RECORDED AS UNBUILT
+                 expected: drop one face from the written file -> R0-G2b UNEQUAL
+                 saw     : planted per-patch mismatches {'symmetry': (15360, 15359)}, cells 638976 vs 638976
+  [       FIRED] B9 round-trip plant (§7 row 7) -- THE CONTROL THE PREDECESSOR RECORDED AS UNBUILT
+                 expected: drop one face from the written file -> R0-G2b UNEQUAL
+                 saw     : planted per-patch mismatches {'wall': (26624, 26623)}, cells 1277952 vs 1277952
+  [       FIRED] B9 round-trip plant (§7 row 7) -- THE CONTROL THE PREDECESSOR RECORDED AS UNBUILT
+                 expected: drop one face from the written file -> R0-G2b UNEQUAL
+                 saw     : planted per-patch mismatches {'wall': (26624, 26623)}, cells 2981888 vs 2981888
+  [       FIRED] B9 round-trip plant (§7 row 7) -- THE CONTROL THE PREDECESSOR RECORDED AS UNBUILT
+                 expected: drop one face from the written file -> R0-G2b UNEQUAL
+                 saw     : planted per-patch mismatches {'WING_UPPER': (39685, 39684)}, cells 2661338 vs 2661338
+
+=== RUNG 0b VERDICT: PASS ===
+§4's conjunction holds on ALL FOUR grids across ALL FIVE gates, R0-G2b included and graded from this frozen path rather than inherited from any earlier measurement.
+Predecessor verification/campaign/RUNG0_MESH_IMPORT_PREREGISTRATION.md (frozen d127d83d4ebf4caaaf0c12c39a063c5f624a03a4) is NOT amended and its PENDING stands as committed. Authority for the successor route: f5b8deec  (verification CHARTER v1.52).
+
+written: /home/ubuntu/Certonomous/verification/runs/RUNG0b_MESH_IMPORT_runs/RESULTS.json

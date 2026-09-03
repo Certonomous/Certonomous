@@ -1,0 +1,33 @@
+{
+  "aspect_ratio_flagged": true,
+  "aspect_ratio_label_form": ":",
+  "cell_volume_ratio": 1.5611759831659742e+16,
+  "cell_volume_ratio_basis": "DERIVED (max/min), NOT a checkMesh output",
+  "cells": 2981888,
+  "checkMesh_log": "/home/ubuntu/Certonomous/verification/runs/RUNG0b_MESH_IMPORT_runs/DPW5_L1T_hybrid/log.checkMesh",
+  "created_at": "2026-09-03T19:41:47Z",
+  "faces": 6216192,
+  "generator": "cases/committee-grids/ugrid_to_foam.py",
+  "geometric_directions": 3,
+  "grid_provenance": "workshop committee family, quality as published",
+  "how_the_number_is_read": "PARSED off the named maximum lines. checkMesh's own verdict strings are captured above solely to show they were DISCARDED: on this box `Non-orthogonality check OK.` is printed at 89.71, 89.94 and 89.9985 degrees.",
+  "internal_faces": 6137344,
+  "max_aspect_ratio": 7488.42,
+  "max_cell_volume": 28637900000.0,
+  "max_non_orthogonality": 89.9985,
+  "max_skewness": 6.31513,
+  "min_cell_volume": 1.83438e-06,
+  "non_orthogonality_gate_deg": 70,
+  "points_sha256": "870e6c6fceab6dbeea0d6494793fcbb7dd7f41c8e92056814c5398938d51f7fd",
+  "published_quality_comparison": "no published quality figure located -- searched the grid's own distribution directory on this box and no max non-orthogonality, skewness or aspect-ratio figure is published there. \u00a74 gates this comparison on being MADE, not on agreeing. NEVER silence, NEVER a blank.",
+  "quality_reporting_mode": "REPORTED, NOT GATED (MESH_STANDARD \u00a711.4)",
+  "regions": 1,
+  "roundtrip_export": "/home/ubuntu/certonomous-runs/RUNG0b_exports/DPW5_L1T_hybrid.r8.ugrid",
+  "roundtrip_export_sha256": "bd1ef2e7a436a7ee8acc809b3f23a029393dcfb3c201470f557278a01b22b819",
+  "severe_non_ortho_faces": 1810108,
+  "state": "READ",
+  "verdict_line_IGNORED_NEVER_A_GATE": [
+    "Non-orthogonality check OK.",
+    "Failed 3 mesh check"
+  ]
+}
