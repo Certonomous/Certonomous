@@ -22146,3 +22146,102 @@ number that would have told me sat on my screen. **I lost another team's work,
 and somebody else fixed it.**
 
 ---
+
+---
+
+## ADDENDUM to L-452 — 2026-09-03, dafoam: **TWO MORE INSTANCES FROM THE SAME EVENING, AND THE SECOND IS IN THE GRADER. The general form: A GUARD WHOSE OUTCOME IS FIXED BY ITS OWN ARITHMETIC IS DECORATIVE, WHICHEVER WAY IT IS STUCK.** *(No new `L-` number is taken; L-452 above is NOT rewritten, and no line number above this section changed.)*
+
+L-452 named two instances in the launcher, both stuck **silent**. The D19T chain then ran to
+completion and produced two more — one stuck silent, one stuck **loud** — and the loud one is
+in the frozen grader.
+
+### THIRD INSTANCE — `over_cap=NO` on an arm killed by its own deadline
+
+**Measured, D19T T12, 2026-09-03:** `ledger.txt` records
+`rc=124 wall_s=251 core_min=8.367 cap_core_min=10.0 over_cap=NO`. **The arm was killed by its
+240 s deadline and its own cost flag says it was inside its cap.**
+
+Because the solver receives `cap − CAP_MARGIN_S × ranks / 60` — **`cap − ranks` at a 60 s
+margin, so strictly less than `cap`** — the deadline **always** binds before the cap does.
+**The launcher's `over_cap` flag is therefore unreachable for every deadline-killed arm: it
+can never fire on the failure mode that actually occurs.** An arm can only exceed its cap by
+outliving a deadline that, by construction, stops it first.
+
+**This is the same disease as the back-check that adds back the margin it should audit: a
+check whose arithmetic guarantees its own answer.** The back-check could never say *no*; the
+`over_cap` flag can never say *yes*.
+
+### FOURTH INSTANCE — a fatal-token gate that can never say PASS, in the GRADER
+
+**The frozen `d19t_grade.py` (md5 `bc6d694a7805a0d507be024dda8fd4fa`) failed `G-COMPLETE` on
+`T08` and `T10` — arms that ran `rc=0` with 22 of 22 solves converged at their registered
+tolerance and `G-TOL` `PASS` — on `fatal_tokens_seen: ["Floating point exception"]`.**
+
+The only match in those logs is OpenFOAM's standard startup banner:
+`trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).` **Every DAFoam log prints
+it.** The grader **knows** this — `BENIGN` carries `trapfpe_notice: "trapFpe:"` and the record
+duly reports `benign_counts.trapfpe_notice: 1` — but:
+
+```python
+def read_fatal_tokens(text):
+    return [t for t in FATAL_TOKENS if t in text]      # BENIGN is never consulted
+def read_benign_counts(text):
+    return {k: text.count(v) for k, v in BENIGN.items()}   # counted FOR THE RECORD ONLY
+```
+
+**`BENIGN` is computed and never subtracted.** So `"Floating point exception"` matches the
+banner, `no_fatal_token` is `False`, and **no D19T arm that runs the solver can ever pass
+`G-COMPLETE`.** Confirmed by the arm that has no solver: `MESH` prints no banner
+(`trapfpe_notice: 0`) and is the only arm to pass.
+
+**The author anticipated the trap, named it, wrote the exemption — and never wired it to the
+test.** That is the sharpest form yet: not an oversight about the hazard, but an oversight
+about whether the mitigation was connected. This is the standing OpenFOAM banner fact
+(`NUMERICS_KNOWLEDGE.md` §7: *monitors must match the sigFpe HANDLER, not the banner, or every
+run reads as fatal*) reappearing **inside a grader written by someone who had recorded it.**
+
+**THE VERDICT OF RECORD STANDS AND IS NOT DISTURBED BY THIS.** The frozen grader returned
+`NOT A RESULT` and that is the item's verdict; a defect found in a grading path is **reported
+beside the verdict, never used to overturn it**, and no other reader may be substituted. The
+item was `NOT A RESULT` on grounds entirely independent of this defect — `G-STAGES`
+(`XT10` declared and never executed), `G-TOL` on `T12` (zero tolerance statements), and
+`G-ADJ`/`G-EPS`/`G-TRIVIAL` (no adjoint, because the adjoint arm never ran). **The defect
+changes row verdicts, not the item's.** Repairing a frozen instrument is a dated-amendment
+decision reserved above the lane that found it.
+
+### THE GENERAL FORM, STATED ONCE
+
+**A guard whose outcome is determined by its own arithmetic rather than by the run is
+decorative, and it is decorative in both directions:**
+
+- **stuck silent** — a threshold sitting above a limit that binds earlier (`over_cap` behind a
+  deadline), or a self-consistency check that inverts the subtraction it should audit;
+- **stuck loud** — a match set containing a string that is always present (a fatal-token list
+  containing the text of a universal banner).
+
+**The test is the same for both and it is one line: feed the guard an input that should flip
+it, and confirm it flips.** A guard that has never been shown to return *both* of its answers
+is not a guard. This is the planted-zero discipline (`CLAUDE.md` rule 3) applied to gates
+rather than to readers: **a gate that has only ever been seen to pass, or only ever seen to
+fail, is exactly as unproven as a reader that has only ever returned zero.**
+
+### WHAT THIS EVENING PROVED ABOUT THE CAP RULING, AND IT SHOULD BE FINDABLE
+
+**The gate that caught T12's 8.367 core-min overrun was the grader's `G-CAP` at an UNCHANGED
+4.0 — the threshold the supervisor refused to widen when the launcher's caps were raised.**
+`G-CAPS` returned `GATE FAIL` with `over_cap: [{arm: T12, cap: 4.0, core_min: 8.367}]`. **Had
+that threshold been widened to match the launcher's new 10.0, the overrun would have passed
+silently in BOTH instruments** — the launcher's `over_cap` because the deadline binds first
+(third instance above), and the grader's because it had been moved out of the way.
+
+**Refusing to widen a gate is the kind of decision that looks like obstruction until the day
+it is the only thing still working.** It was the only thing still working.
+
+### A NOTE ON THE NUMBERING RULE, SINCE THIS ADDENDUM IS ITS OWN ILLUSTRATION
+
+L-452..L-456 were drafted against a maximum of **446** and landed at **452..456**, because the
+tail moved while the work was in progress. At that commit `docs/LESSONS.md` held **454 blocks,
+449 distinct numbers, and a maximum of 451** — **three different figures, and only the maximum
+is the one to use** (rule 11). By the time this addendum was written the maximum was **460**
+again. **Re-derive in the same shell invocation as the commit, every time; a number derived
+even an hour earlier is already a guess.**
