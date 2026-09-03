@@ -57,7 +57,15 @@ CASE_ID="F28_DUCTED_ACTUATOR_DISK"
 REPO="/home/ubuntu/Certonomous"
 CASE_SRC="$REPO/cases/$CASE_ID/case"
 RUN_ROOT="$REPO/verification/runs/F28_runs"
-PREREG="$REPO/verification/campaign/F28_DUCTED_ACTUATOR_DISK_PREREGISTRATION.md"
+# THE REGISTRATION THIS LAUNCHER BINDS IS A PARAMETER (2026-09-03, cfd-supervisor's
+# ruling).  It was hard-coded to the parent, which meant a SUCCESSOR STUDY COULD NOT
+# LAUNCH UNDER ITS OWN FREEZE: F28G's rungs could only run bound to the parent's
+# registration, gates and grading path.  A launcher hard-bound to one registration
+# cannot serve a successor, and the defect is general.
+# THE PARENT REMAINS THE DEFAULT, so every existing invocation is byte-for-byte
+# unchanged in behaviour when the new flags are absent.  NOT ONE PHYSICS PARAMETER,
+# schedule, tolerance, endTime, scheme or decomposition setting moves in this change.
+PREREG_REL="verification/campaign/F28_DUCTED_ACTUATOR_DISK_PREREGISTRATION.md"
 
 # Registered physics (section 4).  NAMED CONSTANTS, never inlined below.
 RHO=1.2
@@ -67,6 +75,9 @@ ITER_CAP=15000            # section 8.  RIGOR CLAUSE, not a budget cap.
 
 RUNG=""; LEVEL=""; DELTA_P=""; U_INF=""; PREREG_COMMIT=""; CHECK1_TOKEN=""
 RELAX_U="0.7"; PREFLIGHT=0; RANKS=4
+# Defaults reproduce the parent EXACTLY.  A successor overrides them explicitly.
+MESH_SUBDIR=""            # empty => "mesh_L<level>", the parent's layout
+BIRTH_DIR=""              # empty => cases/<case>/case/mesh, the parent's layout
 
 usage() {
   cat <<'USAGE'
@@ -93,6 +104,9 @@ while [ $# -gt 0 ]; do
     --delta-p) DELTA_P="$2"; shift 2;;
     --u-inf) U_INF="$2"; shift 2;;
     --prereg-commit) PREREG_COMMIT="$2"; shift 2;;
+    --prereg-path) PREREG_REL="$2"; shift 2;;
+    --mesh-subdir) MESH_SUBDIR="$2"; shift 2;;
+    --birth-dir) BIRTH_DIR="$2"; shift 2;;
     --check1-token) CHECK1_TOKEN="$2"; shift 2;;
     --relax-u) RELAX_U="$2"; shift 2;;
     --ranks) RANKS="$2"; shift 2;;
@@ -230,6 +244,64 @@ guard_virgin_section_11_1() {
 # GUARDS -- every one of them before any compute
 # -----------------------------------------------------------------------------
 PHASE="guards"
+
+# -----------------------------------------------------------------------------
+# SELF-BLOB CHECK -- THE LAUNCHER VERIFIES ITSELF, AND REFUSES IF IT CANNOT.
+# Added 2026-09-03 on cfd-supervisor's ruling, out of L-474.
+#
+# WHY.  This launcher already hashes its REGISTRATION three ways.  It never
+# hashed ITSELF, and a launcher that verifies everything except itself cannot
+# distinguish "my bytes are the bytes that were reviewed and committed" from
+# "nobody ever looked at my bytes".  Measured the same day on a sibling: four
+# JF1G runs, three of them the graded pass, executed a launcher blob that
+# existed in NO COMMIT, while that launcher's registration check passed on every
+# one of them.  Their code of record had to be recovered from /proc/<pid>/fd/255.
+#
+# FAIL-CLOSED, AND IT NEVER WARNS AND PROCEEDS.  An unverifiable self-blob is a
+# REFUSAL: if the file on disk is not byte-identical to the version committed at
+# HEAD for this same path, nothing runs.  That is deliberately strict -- it means
+# an edited launcher must be COMMITTED before it can launch anything, which is
+# precisely the property whose absence produced the JF1G gap.
+SELF_PATH="$0"
+case "$SELF_PATH" in
+  /*) ;;
+  *) SELF_PATH="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")" ;;
+esac
+case "$SELF_PATH" in
+  "$REPO"/*) SELF_REL="${SELF_PATH#$REPO/}" ;;
+  *) abort "SELF-BLOB CHECK: this launcher is running from outside the repository
+    ($SELF_PATH).  Its bytes cannot be verified against a committed version, and
+    an unverifiable launcher REFUSES rather than proceeding." ;;
+esac
+self_disk_blob=$(cd "$REPO" && git hash-object "$SELF_REL" 2>/dev/null)
+case "$self_disk_blob" in
+  ????????????????????????????????????????) ;;
+  *) abort "SELF-BLOB CHECK: could not hash this launcher on disk ($SELF_REL).
+    An unverifiable launcher REFUSES." ;;
+esac
+self_head_blob=$(cd "$REPO" && git rev-parse --verify --quiet "HEAD:$SELF_REL" 2>/dev/null)
+case "$self_head_blob" in
+  ????????????????????????????????????????) ;;
+  *) abort "SELF-BLOB CHECK: this launcher does not exist at HEAD ($SELF_REL).
+    An uncommitted launcher REFUSES: a run whose launcher is in no commit has a
+    code of record that cannot be cited (L-474)." ;;
+esac
+[ "$self_disk_blob" = "$self_head_blob" ] || abort "SELF-BLOB CHECK FAILED.
+  This launcher on disk is NOT the version committed at HEAD.
+    on disk : $self_disk_blob
+    at HEAD : $self_head_blob
+  Commit the launcher before running it.  A run launched from an uncommitted
+  launcher produces numbers whose code of record exists in no commit -- measured
+  on JF1G, 2026-09-03, and recovered only because bash still held the old inode
+  open on fd 255.  THIS REFUSES; IT DOES NOT WARN AND PROCEED."
+
+# The registration this run is bound to, resolved AFTER argument parsing so that
+# --prereg-path takes effect.  Default is the parent, unchanged.
+PREREG="$REPO/$PREREG_REL"
+case "$PREREG_REL" in
+  /*|*..*) abort "--prereg-path is repository-relative and may not be absolute
+    or contain '..'; got '$PREREG_REL'" ;;
+esac
 [ -n "$RUNG" ]    || abort "--rung is required; it names this rung's OWN cwd (section 11.4)"
 [ -n "$LEVEL" ]   || abort "--level is required"
 [ -n "$DELTA_P" ] || abort "--delta-p is required"
@@ -247,7 +319,7 @@ case "$RELAX_U" in 0.7|0.5) ;; *) abort "--relax-u is 0.7 or 0.5 (section 8); wh
 # disk against the committed blob -- rule 2: "verify the frozen file IS the file
 # that ran by hashing it against the committed blob."
 have_blob=$(cd "$REPO" && git rev-parse --verify --quiet \
-  "${PREREG_COMMIT}:verification/campaign/F28_DUCTED_ACTUATOR_DISK_PREREGISTRATION.md" 2>/dev/null)
+  "${PREREG_COMMIT}:${PREREG_REL}" 2>/dev/null)
 [ -n "$have_blob" ] || abort "commit $PREREG_COMMIT does not carry the pre-registration"
 disk_blob=$(cd "$REPO" && git hash-object "$PREREG")
 [ "$have_blob" = "$disk_blob" ] || abort "THE PRE-REGISTRATION ON DISK IS NOT THE
@@ -260,9 +332,12 @@ disk_blob=$(cd "$REPO" && git hash-object "$PREREG")
   (SUPERVISION_CHARTER section 3 check 1; that check MAY NOT BE DELEGATED).
   Stage 1 onward is gated behind it and this launcher will not fire without it."
 
-MESH_SRC="$RUN_ROOT/mesh_L$LEVEL"
+# The mesh a rung solves is the mesh ITS OWN registration names.  Solving
+# `mesh_L<level>` under a registration that names a different ladder would solve
+# meshes the registration does NOT name, which is the violation this avoids.
+if [ -n "$MESH_SUBDIR" ]; then MESH_SRC="$RUN_ROOT/$MESH_SUBDIR/L$LEVEL"; else MESH_SRC="$RUN_ROOT/mesh_L$LEVEL"; fi
 [ -d "$MESH_SRC/constant/polyMesh" ] || abort "no built mesh at $MESH_SRC"
-BIRTH="$REPO/cases/$CASE_ID/case/mesh/BIRTH_L$LEVEL.json"
+if [ -n "$BIRTH_DIR" ]; then BIRTH="$REPO/$BIRTH_DIR/BIRTH_L$LEVEL.json"; else BIRTH="$REPO/cases/$CASE_ID/case/mesh/BIRTH_L$LEVEL.json"; fi
 [ -f "$BIRTH" ] || abort "no birth certificate for level $LEVEL: $BIRTH.
   MESH_STANDARD section 6: a mesh whose birth certificate is missing is
   QUARANTINED FROM NEW WORK."
