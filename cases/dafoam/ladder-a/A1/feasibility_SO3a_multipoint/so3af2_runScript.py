@@ -523,6 +523,72 @@ if MPI.COMM_WORLD.rank == 0:
                 return list(hist)
         return None
 
+    def _enumerate_for_refusal(scenario):
+        """ADDENDUM 12. What the object ACTUALLY exposes, reported INSIDE the
+        refusal that could not find a residual history.
+
+        THIS ADDS WHAT THE REFUSAL REPORTS, NEVER WHAT IT DECIDES. The refusal
+        below is unchanged -- same trigger, same `rc=7`, same
+        RESIDUAL_HISTORY_UNAVAILABLE, still no artefact written. A refusal that
+        starts producing a product is not a refusal.
+
+        WHY HERE AND NOT IN A SEPARATE ARM: a diagnostic that must re-reach this
+        state costs a whole run and can stall before arriving -- as one did,
+        twice, for 6.0 core-min and no enumeration. THE INSTRUMENT THAT ALREADY
+        REACHES THE MOMENT IS ASKED TO SAY WHAT IT SAW, at the moment the
+        question arises, rather than reconstructing that moment from scratch.
+
+        AN UNREADABLE ATTRIBUTE IS RECORDED, NEVER SKIPPED: a silently omitted
+        attribute is exactly the blindness this enumeration exists to remove.
+        NOTHING HERE RAISES -- a failure to enumerate must not replace the
+        refusal it is describing."""
+        out = {}
+        try:
+            node = prob.model
+            path = []
+            for part in (scenario, "coupling", "solver"):
+                node = getattr(node, part, None)
+                path.append(part)
+                if node is None:
+                    out["resolved_to"] = "/".join(path[:-1])
+                    out["missing_at"] = part
+                    return out
+            out["resolved_to"] = "/".join(path)
+
+            def describe(obj, label):
+                d = {"label": label, "type": type(obj).__name__, "attributes": {}}
+                try:
+                    names = sorted(set(dir(obj)))
+                except Exception as exc:          # noqa: BLE001
+                    d["dir_failed"] = str(exc)
+                    return d
+                for name in names:
+                    if name.startswith("__"):
+                        continue
+                    try:
+                        val = getattr(obj, name)
+                    except Exception as exc:      # noqa: BLE001
+                        d["attributes"][name] = {"UNREADABLE": str(exc)}
+                        continue
+                    rec = {"type": type(val).__name__, "callable": callable(val)}
+                    try:
+                        rec["len"] = len(val)
+                        rec["sequence_shaped"] = True
+                    except Exception:             # noqa: BLE001
+                        rec["sequence_shaped"] = False
+                    d["attributes"][name] = rec
+                return d
+
+            out["solver"] = describe(node, "%s.coupling.solver" % scenario)
+            das = getattr(node, "DASolver", None)
+            if das is None:
+                out["DASolver"] = "ABSENT on the solver object"
+            else:
+                out["DASolver"] = describe(das, "%s.coupling.solver.DASolver" % scenario)
+        except Exception as exc:                  # noqa: BLE001
+            out["ENUMERATION_FAILED"] = str(exc)
+        return out
+
     points, histories = [], []
     for i_sc, sc in enumerate(SCENARIOS):
         try:
@@ -540,7 +606,16 @@ if MPI.COMM_WORLD.rank == 0:
                 "note": "refusing to write a short residual_histories list; "
                         "see (B) -- a short list reaches the reader as a "
                         "CONVERGENCE DISAGREEMENT, which is a finding about the "
-                        "multipoint assembly this file would have manufactured"})
+                        "multipoint assembly this file would have manufactured",
+                "candidates_tried": ["getPrimalResidualHistory",
+                                     "primalResidualHistory",
+                                     "getResidualHistory",
+                                     "residualHistory"],
+                "what_the_object_exposes": _enumerate_for_refusal(sc),
+                "this_enumeration_decides_nothing":
+                    "ADDENDUM 12. The refusal is unchanged -- same trigger, same "
+                    "rc=7, same reason, still no artefact. This field is what the "
+                    "refusal REPORTS, not what it DECIDES."})
         histories.append(h)
 
     if len(histories) != len(SCENARIOS):

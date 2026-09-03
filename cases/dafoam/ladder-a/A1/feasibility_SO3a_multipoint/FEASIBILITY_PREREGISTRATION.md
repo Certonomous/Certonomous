@@ -1260,3 +1260,72 @@ The graded artefact `XM/so3af2_M.json` remains **ABSENT**, which is correct.
 **NOT RE-FIRED.** Two attempts have now produced no enumeration, and **the reason for that is not established and is not guessed at here.** XM `rc=7` stands as the registered risk landing; MESH complete and **NOT A RESULT**; item **PENDING**; **F1–F5 unscored**; **§0.2 binding.** **SUBMISSIONS PARKED.**
 
 **END OF ADDENDUM 11.**
+
+---
+
+## ADDENDUM 12 — THE REFUSAL NOW REPORTS WHAT THE OBJECT EXPOSES. THE CENSUS IS PARKED. Dated **2026-09-03**. Version **1.12 → 1.13**.
+
+> **lines whose number changed above this section: 0** — asserted by execution against both the pre-append snapshot and `git show HEAD:`.
+
+**Moves no gate, no threshold, no prediction, no band, no cap or label.** It adds what a refusal **reports**, never what it **decides**.
+
+### A12.1 Why the census was the wrong instrument, measured
+
+A static comparison of the census against XM — **artefacts and code only, no container** — established:
+
+- the census stops **exactly where XM printed its path-contract line next**, and never printed it;
+- the executable statements before the task branch are **43 in each and AST-identical** ignoring docstrings, with the **same nine module-level imports in the same order**;
+- **neither file mentions matplotlib**; the prefixes differ by **2,314 bytes and all of it is docstring**;
+- **same image digest**, and an **identical `SO3AF2_ENV_OK` line** in both container logs.
+
+> **THE CENSUS STALLS IN CODE BYTE-IDENTICAL TO THE PRODUCER'S — CODE THE PRODUCER GOT PAST IN 21 SECONDS. THE DIFFERENCE IS NOT IN THIS ITEM'S CODE.**
+
+**And the precision matters more than the finding.** The matplotlib font-cache line is the **first** line, not the last; the **last** is the VSPAERO warning, **which XM also printed**. The cache had already reported before output stopped. **THAT IT IS RELATED TO THE STALL IS UNMEASURED** — it is a difference between the runs, and calling it the cause would be **taking a correlate for the relation**, the error this item has made three times.
+
+### A12.2 The ruling — ask the instrument that already reaches the moment
+
+**XM reaches the exact point of the question in 21 seconds, reliably, twice.** It built the model, derived the path contract, ran **three converged primals**, and refused **at the residual-history lookup** — so **the object whose attributes we want existed in that process, at that moment.**
+
+> **DO NOT BUILD A SECOND INSTRUMENT TO REACH A PLACE THE FIRST ALREADY REACHES. ASK THE PRODUCER TO SAY WHAT IT SAW, AT THE POINT WHERE IT REFUSES.**
+
+That is the closure form applied to the diagnostic itself: instead of a second instrument that must *reach* the state, the instrument that already reaches it is made to *report* what it found. **Its marginal cost is a field in a note rather than a run** — against **6.0 core-min and two stalls** for the arm that tried to reconstruct the moment from scratch.
+
+### A12.3 What changed, and the constraint that bounds it
+
+The `RESIDUAL_HISTORY_UNAVAILABLE` refusal now carries **`candidates_tried`** and **`what_the_object_exposes`** — every attribute of `<scenario>.coupling.solver` and its `DASolver`: name, type, callability, and length for anything sequence-shaped.
+
+> **THE REFUSAL IS UNCHANGED. Same trigger, same `rc=7`, same reason, still no artefact written. THIS ADDS WHAT THE REFUSAL REPORTS, NEVER WHAT IT DECIDES — a refusal that starts producing a product is not a refusal.**
+
+**Proved structurally, not asserted:** a census leg walks the AST and confirms the trigger's body is **exactly one `_fail("RESIDUAL_HISTORY_UNAVAILABLE")` call**, so the enumeration is an **argument** and **cannot gate the refusal**.
+
+**An unreadable attribute is RECORDED, never skipped** — a silently omitted attribute is exactly the blindness this exists to remove. **And nothing in it raises**: a failure to describe must not displace the refusal it describes.
+
+### A12.4 Driven — 50 legs, PASS 50, FAIL 0, NOT RUN 0
+
+Five are new, all on the host against synthetic objects, **no container**:
+
+- **the refusal is unchanged by the note** — the structural AST proof above;
+- **shapes reported** — names, types, callability, lengths;
+- **the unreadable is recorded** — an attribute that raises on read appears as `UNREADABLE`, not omitted;
+- **a missing node is named** — `resolved_to` and `missing_at`, rather than a silently empty result;
+- **the enumeration cannot replace the refusal** — a hostile object yields `ENUMERATION_FAILED`, not an exception.
+
+### A12.5 The census is PARKED, not deleted, and its stall stays on record
+
+**Two attempts, 6.0 core-min, no enumeration, the difference measurably NOT in this item's code, and the cause UNMEASURED.** It is not chased and not deleted: **a parked defect with its evidence intact is a finding; a deleted one is nothing.** It remains an unexplained difference between two containers from one digest, and if the extended refusal answers the attribute question the census may never be needed — the stall is still worth having on record.
+
+### A12.6 Re-pins
+
+| file | md5 | note |
+|---|---|---|
+| `so3af2_runScript.py` | `0cbff59668dd1a88c155f6728ed0863c` | **RE-PINNED**; every departure in `so3af2_runScript_DELTAS_addendum12.diff` |
+| `so3af2_run_arm.sh` | `5e44a11a9020f68c1eb96e3a37bfbc50` | **RE-PINNED** (the producer pin) |
+| `so3af2_pin_selftest.sh` | `82011a88ac7ba351b067f33783d48bcc` | **RE-PINNED** |
+| `so3af2_read.py` | `d5f4149d43abe3a165ffe7e653b78bee` | **UNCHANGED — the frozen reader is not touched** |
+| `so3af2_attr_census.py` | `2fd479d881f63b529605b3a45d0154f3` | **UNCHANGED — parked, not deleted** |
+
+### A12.7 Standing
+
+**NOT FIRED.** The open defects stand: the frame allowance under-covers teardown (**n=1**, unresized), and the census stall is **unexplained**. XM `rc=7` remains the registered risk landing; MESH complete and **NOT A RESULT**; item **PENDING**; **F1–F5 unscored**; **§0.2 binding.** **SUBMISSIONS PARKED.**
+
+**END OF ADDENDUM 12.**

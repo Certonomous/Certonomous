@@ -546,6 +546,90 @@ else
 fi
 rm -f "$DT/good.sh" "$DT/bin/checkMesh"; rmdir "$DT/bin" "$DT" 2>/dev/null || true
 
+# ---- THE EXTENDED REFUSAL (ADDENDUM 12). The producer's
+# ---- RESIDUAL_HISTORY_UNAVAILABLE refusal now REPORTS what the object exposes.
+# ---- Driven on the HOST against synthetic objects: no container is needed
+# ---- because the enumerator only walks attributes.
+ENUM_OUT="$TMP/enum.txt"
+python3 - "$PRODUCER" > "$ENUM_OUT" 2>&1 <<'PYE'
+import ast, sys
+src = open(sys.argv[1]).read()
+t = ast.parse(src)
+
+# --- STRUCTURAL: the enumeration must not be able to GATE the refusal --------
+trig = None
+for n in ast.walk(t):
+    if isinstance(n, ast.If) and isinstance(n.test, ast.Compare) \
+       and isinstance(n.test.left, ast.Name) and n.test.left.id == "h":
+        trig = n; break
+ok_struct = False
+if trig is not None and len(trig.body) == 1:
+    st = trig.body[0]
+    if isinstance(st, ast.Expr) and isinstance(st.value, ast.Call) \
+       and isinstance(st.value.func, ast.Name) and st.value.func.id == "_fail" \
+       and st.value.args and isinstance(st.value.args[0], ast.Constant) \
+       and st.value.args[0].value == "RESIDUAL_HISTORY_UNAVAILABLE":
+        ok_struct = True
+print("STRUCT", ok_struct)
+
+# --- the enumerator, driven four ways ---------------------------------------
+fn = next(n for n in ast.walk(t) if isinstance(n, ast.FunctionDef)
+          and n.name == "_enumerate_for_refusal")
+ns = {}
+exec(compile(ast.Module(body=[fn], type_ignores=[]), "<e>", "exec"), ns)
+class DAS:
+    residualHistory = [1.0, 2.0, 3.0]
+    def aMethod(self): return 1
+    @property
+    def explodes(self): raise RuntimeError("raises on read")
+class Solver:
+    def __init__(s, d): s.DASolver = d
+class N: pass
+def build(sc, das, stop=None):
+    r = N()
+    if stop == sc: return r
+    x = N(); setattr(r, sc, x)
+    if stop == "coupling": return r
+    c = N(); x.coupling = c
+    if stop == "solver": return r
+    c.solver = Solver(das)
+    return r
+ns["prob"] = type("P", (), {"model": build("point0", DAS())})()
+a = ns["_enumerate_for_refusal"]("point0")
+d = a.get("DASolver", {}).get("attributes", {})
+print("SHAPES", d.get("residualHistory", {}).get("len") == 3,
+      d.get("residualHistory", {}).get("sequence_shaped") is True,
+      d.get("aMethod", {}).get("callable") is True)
+print("UNREADABLE", "explodes" in d and "UNREADABLE" in d["explodes"])
+ns["prob"] = type("P", (), {"model": build("point0", None, stop="solver")})()
+b = ns["_enumerate_for_refusal"]("point0")
+print("MISSING", b.get("missing_at") == "solver")
+class Hostile:
+    def __getattr__(s, n): raise RuntimeError("all raise")
+ns["prob"] = Hostile()
+try:
+    c = ns["_enumerate_for_refusal"]("point0")
+    print("NORAISE", isinstance(c, dict) and "ENUMERATION_FAILED" in c)
+except Exception:
+    print("NORAISE False")
+PYE
+grep -q "^STRUCT True" "$ENUM_OUT" \
+  && ok "REFUSAL unchanged by the note" "the trigger's body is EXACTLY one _fail('RESIDUAL_HISTORY_UNAVAILABLE') call -- the enumeration is an ARGUMENT and cannot gate it" \
+  || bad "REFUSAL unchanged by the note" "$(grep '^STRUCT' "$ENUM_OUT")"
+grep -q "^SHAPES True True True" "$ENUM_OUT" \
+  && ok "ENUM reports shapes" "names, types, callability and lengths for sequence-shaped attributes" \
+  || bad "ENUM reports shapes" "$(grep '^SHAPES' "$ENUM_OUT")"
+grep -q "^UNREADABLE True" "$ENUM_OUT" \
+  && ok "ENUM records the unreadable" "an attribute that RAISES on read is RECORDED, never skipped" \
+  || bad "ENUM records the unreadable" "$(grep '^UNREADABLE' "$ENUM_OUT")"
+grep -q "^MISSING True" "$ENUM_OUT" \
+  && ok "ENUM names a missing node" "resolved_to and missing_at, rather than a silently empty result" \
+  || bad "ENUM names a missing node" "$(grep '^MISSING' "$ENUM_OUT")"
+grep -q "^NORAISE True" "$ENUM_OUT" \
+  && ok "ENUM cannot replace the refusal" "a hostile object yields ENUMERATION_FAILED, not an exception -- a failure to describe must not displace the refusal it describes" \
+  || bad "ENUM cannot replace the refusal" "$(grep '^NORAISE' "$ENUM_OUT")"
+rm -f "$ENUM_OUT"
+
 # ---- THE PASSING DIRECTION.  All four guards must be SATISFIABLE, proved by
 # ---- all four PASS lines appearing before the launcher reaches the container.
 D="$(mk_sandbox pass)"
