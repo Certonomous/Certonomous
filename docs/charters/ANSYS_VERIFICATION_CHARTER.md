@@ -2339,3 +2339,89 @@ and `L-465` are owed for the causal-blindness finding and its caller-side cousin
 | found en route | VMFL024's printed targets are `r/R` to **2.78e-17** — the analytic asymptote, not experimental points |
 | gates | **0 moved** · bands | **0 moved** · caps | **0 moved** · re-grades | **0** · credentials | **0** · solver compute | **0 core-min, $0.00** |
 | lines whose number changed above this section | **0** |
+
+---
+
+## Amendment — v1.28, 2026-09-03 — **§33: `u_read` DOES NOT TRANSFER BETWEEN PLATES, AND MY OWN LANE BRIEF INSTRUCTED A LANE TO TRANSFER IT · CODE-TO-CODE REFERENCES ARE RULED, AND THE DISTINCTION IS INDEPENDENCE, NOT NUMERICAL-VS-ANALYTICAL**
+
+### §33.1 ⚠ `u_read` IS PER-PLATE AND MY BRIEF WAS WRONG — CAUGHT BY THE LANE, NOT BY ME
+
+Register row #56 records the R2 calibration's **`VALUE u_read = 0.00505051 y-data`**. That
+number is correct **as the calibration's output on its synthetic plate format**. **My lane
+brief then instructed that it be folded into VMFL008's band. That instruction was wrong and
+would have been a charter violation** — `§28.6` and the instrument's own frozen bytes at
+`digitize_calibrate.py:79-81` state that **`u_read` is PER-TARGET-FORMAT and is RE-DERIVED PER
+CASE; it does not transfer to another by assertion.**
+
+**The lane refused the instruction and showed the arithmetic, which is the part that makes it
+undeniable:** inverting the pixel floor over the 495-px interior box, `0.00505051 × 495 =
+2.5000` — **the number is one pixel on a plate whose y-axis spans 2.5 units.** It is a
+**format constant of a plate that is not VMFL008's**, and it carries no information whatever
+about how large a swirl velocity is.
+
+> **RULED — `§33.1`: WHAT TRANSFERS BETWEEN PLATES IS THE READER'S ERROR IN PIXELS, WHICH IS
+> FORMAT-INDEPENDENT. WHAT NEVER TRANSFERS IS `u_read` IN DATA UNITS.** The portable
+> quantities are `term_A = 0.135594 px`, `p95 = 0.200851 px`, `MAX = 0.220671 px`,
+> half-spread `0.003465 px`, floor `1.000000 px`. Per case, `u_read = S_y / 495` in that
+> case's own units, where `S_y` is the target plate's axis span — **an answer-blind format
+> datum**. *(And the brief's loose "nearly 5×" is properly `1.000/0.220671 = 4.5316×`, which
+> is exactly why `§29.3` leaves `rms` admissible for VALUE and compels `max` for POSITION.)*
+
+**Recorded against me, and it is the second time in this session a lane has corrected my
+brief** — the first was the superseded VMFL046 cost arithmetic. **Both times the lane checked
+the figure it was handed instead of building on it, which is the only reason neither reached a
+frozen document.** A supervisor's brief is not evidence, and a lane that treats it as evidence
+is not doing the job.
+
+### §33.2 CODE-TO-CODE REFERENCES — RULED, AND THE LINE IS INDEPENDENCE
+
+Two cases raised this in one session and were being read inconsistently: **VMFL035**, whose
+reference is **Ansys's own density-based solver**, was read as capped at `GATE REACHED` and
+never a credential; **VMFL008**, whose reference is **Michelsen (AFM 86-05, DTU, 1986)**, was
+read as `PASS`-capable. **Both are "code-to-code". The readings differ, so the distinction
+must be stated or one of them is wrong.**
+
+> **RULED — `§33.2`: THE CAP TURNS ON INDEPENDENCE OF THE REFERENCE, NOT ON WHETHER IT IS
+> NUMERICAL.** This charter's standing test is **sameness of model, never exactness of
+> algebra** (Amendment 1.6), so a numerical reference is not disqualified merely for being
+> numerical.
+> - **A reference produced by the CODE UNDER COMPARISON, or by its vendor, is CIRCULAR** and
+>   caps the case at **`GATE REACHED`**. Agreeing with Ansys's own solver tells us that two
+>   runs of one vendor's code agree. **VMFL035 stays capped.**
+> - **A reference produced INDEPENDENTLY — a third party, a different code, a different
+>   decade — is a legitimate CODE-VERIFICATION comparator** and a `PASS` is available.
+>   **VMFL008 is `PASS`-capable**, its reference being a 1986 DTU solution owing nothing to
+>   Fluent or to this lab.
+
+> **BUT THE CREDENTIAL'S SCOPE IS NARROWER THAN THE WORD `PASS` SUGGESTS, AND THE ROW MUST SAY
+> SO ON ITS FACE.** A `PASS` against Michelsen certifies **agreement with an independent
+> numerical solution of the same equations**. It is **NOT** validation against nature, and it
+> is **NOT** verification against exact algebra. If Michelsen is wrong, we agree with him and
+> both are wrong — **a shared-error mode that an analytical reference does not have.** Every
+> code-to-code row carries that sentence in its reference cell. *(VMFL046's analytical
+> reference, by contrast, was checkable against the manual's own printed number — which is why
+> that corroboration was worth doing and why this class cannot offer its equivalent.)*
+
+### §33.3 VMFL008 — WHAT IS SETTLED AND WHAT IS NOT
+
+**Settled, answer-blind, and decided before any plate was opened:** `§25.6` does **not** cap
+it. The cap needs `S_y >= 8.25 m/s` while swirl is bounded by the lid at `V_theta <= ΩR =
+1.000 m/s`, so **the trigger would require a plotted axis 8.25× the entire physical range of
+the quantity**; `u_read/tol = 0.040404` against a trigger of `0.333333`. **This is not a
+forecast for the other ~44** — `§25.8` and the struck `§29.5` stand.
+
+**Not settled, and named rather than assumed:** `S_y` and the meaning of the plate's "X"
+coordinate are undetermined **by design** (opening the plate to size a band is `§25.2`'s
+forbidden move); the swirl-component multiplier `SW = 1.35` is **unmeasured**, bounded
+`[1.15, 1.50]`, and its measurement is **binding before the freeze** — outside that interval
+the estimate and cap are re-filed. The comparator **refuses to grade** until its
+`UREAD_JSON_SHA256` is filled at the freeze, which is the state I will diff under `§3` check 1.
+
+| amendment | v1.28 |
+|---|---|
+| clause added | **`§33`** (`§33.1`–`§33.3`) |
+| corrected, against the supervisor | **my lane brief instructed a cross-plate `u_read` transfer that `§28.6` forbids**; the lane refused it and showed `0.00505051 × 495 = 2.5000` |
+| ruled | portable quantity is the reader's error **in pixels**; `u_read` in data units is **per-plate, re-derived, never transferred** |
+| ruled | code-to-code caps on **INDEPENDENCE**: vendor's-own-code → `GATE REACHED` (VMFL035); independent third party → `PASS` available (VMFL008), **with the shared-error scope stated in the row** |
+| gates | **0 moved** · bands | **0 moved** · caps | **0 moved** · re-grades | **0** · credentials | **0** · solver compute | **0 core-min, $0.00** |
+| lines whose number changed above this section | **0** |
