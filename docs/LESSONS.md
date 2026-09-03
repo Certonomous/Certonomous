@@ -21413,3 +21413,250 @@ version control, the board would simply be gone.
 empty success), L-446 (the rule-10 assert reads the wrong property), L-223 (a
 peer can move HEAD between two bash calls), L-186 (the board is the only handoff
 channel, so damage to it is load-bearing), CLAUDE.md rule 10.
+
+---
+
+## L-449 — `git diff | grep -c '^+'` OVERCOUNTS BY ONE AND `grep -c '^+[^+]'` UNDERCOUNTS BY THE BLANK LINES. I REPORTED AN APPEND OF 111 LINES AS 112, AND IN THE SAME SESSION PUT A STALE `446` IN A COMMIT MESSAGE WHOSE OWN ASSERT HAD MEASURED `447`
+
+**2026-09-03, heat-transfer, during the record-integrity sweep. Zero
+core-minutes. Both specimens measured today; the second is against myself.**
+
+### Specimen 1 — the pipe
+
+An append of **111 lines** was reported to a supervisor as **112**. Reproduced
+from scratch in a throwaway repository, appending 111 lines (16 of them blank) to
+a 50-line file:
+
+| form | returns | error |
+|---|---|---|
+| `git diff \| grep -c '^+'` | **112** | **+1** — it counts the `+++ b/f.txt` **file header** |
+| `git diff \| grep -c '^+[^+]'` | **95** | **−16** — the header is gone and so is **every blank added line**, which is `+` followed by nothing |
+| `git diff \| grep -cE '^\+([^+]\|$)'` | **111** | **correct** |
+| `wc -l` before and after | 50 → 161 | **161 − 50 = 111** |
+
+`95 + 16 = 111`. The two wrong answers are wrong in **opposite** directions, so
+they cannot check each other, and **neither looks wrong**: 112 and 95 are both
+plausible sizes for the thing being counted.
+
+**The `+++` header is the trap and it is structural.** Every unified diff of a
+file begins `--- a/path` and `+++ b/path`. `^+` matches the `+++` line, always,
+exactly once per file. So the overcount is **+1 per file in the diff**, which is
+why it is invisible: on a one-file diff it is off by one, which reads as a
+plausible rounding, and on a ten-file diff it is off by ten, which reads as a
+plausible diff.
+
+### Specimen 2 — the same failure without a pipe, committed by me, hours later
+
+Commit **`54a90677`** (the `L-438`/`L-439` reconciliation) carries in its message:
+
+> *"maximum existing lesson number is 446 BEFORE and 446 AFTER"*
+
+**The assertion the invocation actually ran was correct and it measured `447`
+before and `447` after.** `L-447` had been landed by a peer at
+**2026-09-03T16:29:36Z** (`52ecad8a`), between my reading of the tail at
+**16:18** and my commit. The **guard was live**; the **prose was eleven minutes
+and one peer commit stale**, because I typed the number from the earlier bash
+call instead of echoing the variable the guard had just computed.
+
+**Nothing was harmed** — the guard's job was to prove no new number was claimed
+and it proved exactly that, `MAX_BEFORE == MAX_AFTER`, on the real values. **But
+the commit message is now a false statement about this repository**, permanently,
+because a commit message cannot be corrected without rewriting history. It is
+corrected here instead, and disclosed in the commit that carries this lesson.
+
+### The rule
+
+**A line count, a lesson number, a row count, a file count — these are
+MEASUREMENTS, and a measurement needs a CLOSURE CHECK, not a pipe.**
+
+1. **Close the count against an independent quantity.** For an append, that is
+   file length: `after − before`. `1201 + 111 = 1312` closes; a `112` does not
+   close against anything, which is precisely why nobody noticed it.
+2. **If you must use the pipe, use `grep -cE '^\+([^+]|$)'`** and know that it is
+   still only a count of `+` lines in a diff, not a count of lines in a file.
+3. **Never put a number in prose that the invocation writing that prose did not
+   itself compute.** If a guard computed it, **echo the guard's variable into the
+   text** — do not retype the value you read earlier. Between your reading and
+   your commit, peers land work (`CLAUDE.md` rule 11; measured here at eleven
+   minutes).
+4. **Two instruments that are wrong in opposite directions do not bracket the
+   truth** unless you know the sign of each error. Here they bracket it by
+   accident — 95 < 111 < 112 — and reading that as agreement would have been
+   luck, not method.
+
+**Related:** `CLAUDE.md` rule 11 (numbers re-derived at commit, in the same shell
+invocation — this is the same discipline applied to *every* number, not only
+lesson numbers), `L-445` (a timestamp nobody measured is a fact nobody checked —
+the same failure in the time dimension), `L-43`/rule 11's block-count-versus-
+distinct-count-versus-maximum trio, `L-419`-family readings of `grep` under the
+ugrep wrapper.
+
+---
+
+## L-450 — `check_comparator_freeze.py` GREPS ONLY THE FULL 64-HEX sha256, SO IT IS STRUCTURALLY BLIND TO THE TWO WITNESS FORMS THIS LAB ACTUALLY WRITES: THE GIT BLOB sha1 AND THE TRUNCATED PREFIX. A REAL FREEZE READS AS `UNFROZEN`
+
+**2026-09-03, heat-transfer. Zero core-minutes — found by reading the instrument
+and testing it against three live specimens.**
+
+### The mechanic, one line of it
+
+`scripts/check_comparator_freeze.py:282`:
+
+    rc, out, _ = git(repo, "grep", "-l", disk_sha, "HEAD")
+
+`disk_sha` is `hashlib.sha256(...).hexdigest()` — **64 hex characters**. At
+`:417` this witness is the **only** escape from `UNFROZEN`:
+
+    if row["status"] in ("UNFROZEN", "UNCOMMITTED") and disk_sha:
+        w_iso, w_path = sha_witness(repo, relc, disk_sha)
+
+So a rung that froze its grading path **correctly**, but recorded the witness in
+either of the two forms below, gets no credit and is reported as a violation.
+
+### The two invisible forms, with live specimens measured at `HEAD`
+
+**Form 1 — the TRUNCATED sha256 prefix.**
+`docs/campaigns/T-family/T3_R_FF_PREREGISTRATION.md:333` records
+`analyse_t3_rff.py` as **`e1aaf61b236fa72a`** — sixteen hex, a **correct prefix**
+of the disk sha256
+`e1aaf61b236fa72adb93a25e66f433584a95108947cb49c1e8969c4b28885997`.
+
+**Form 2 — the GIT BLOB sha1.** The same table's *"git blob"* column records
+**`44e3e2b8038b9274`**, a correct prefix of
+`git hash-object` = `44e3e2b8038b9274bc7dcbd96ecdfb29e4b43899`.
+`analyse_t23.py` is witnessed the same way: its blob
+`314a2b82b85cd1c620f26d37c1a2613cf76838d6` appears in **three** files at `HEAD` —
+`T23G_PREFLIGHT_FINDINGS.md`, `T23G_RESULTS.md`, `T23G_runs/T23G_GRADED.json`.
+
+**Measured, with the positive control the zero needs (rule 3).** A zero from a
+reader not shown able to see a non-zero is not evidence, so both greps were run:
+
+| grep at `HEAD` | rc | meaning |
+|---|---|---|
+| full sha256 `e1aaf61b…85997` | **1** | **NO MATCH — this is what the instrument runs** |
+| 16-hex prefix `e1aaf61b236fa72a` | **0** | **MATCH — `T3_R_FF_PREREGISTRATION.md`** |
+
+**The record exists and is findable. The instrument's own query is the thing that
+cannot find it.** `analyse_t3_rff.py` is duly reported **`UNFROZEN`**, one of ten
+violations in a population of 190 graders.
+
+### ⚠ WHAT THIS DOES **NOT** ESTABLISH — measured, and it cuts against the finding
+
+**On today's tree, fixing this blindness would move ZERO rows.** All ten
+`UNFROZEN` graders were swept for hidden witnesses, and for the two that have one
+the witness is **too late** to help:
+
+| grader | hidden witness | witness first landed | earliest marker in scope | would status flip? |
+|---|---|---|---|---|
+| `analyse_t3_rff.py` | prefix + blob | 2026-08-26T16:27:50Z | 2026-08-24T15:58:04Z (`DONE.R_m`) | **NO** |
+| `analyse_t23.py` | blob ×3 | 2026-09-01T05:47:31Z | 2026-08-31T18:18:01Z | **NO** |
+
+`sha_witness` only upgrades when `parse_utc(w_iso) < mk["time"]`, and neither
+witness predates its markers. **So the coverage figure reported weekly is NOT
+wrong today.** Saying otherwise would be the overstatement this lesson exists to
+prevent.
+
+### Why it is still worth a number
+
+**The instrument's reach is narrower than its output implies, and the gap is in
+the direction that manufactures false violations.** Today the two effects cancel
+by accident. **The moment a rung freezes its comparator properly and records the
+witness as a git blob — which is current lab practice, in three files at `HEAD`
+right now — that rung will be counted as a violation, and the person chasing the
+denominator will go looking for a freeze that is already there.**
+
+`check_comparator_freeze.py`'s own `CANNOT SEE` footer is the right instinct and
+**this belongs in it**: *a witness recorded in any form other than the full
+64-hex sha256*.
+
+### The rules
+
+1. **An instrument that searches for a canonical form must state which forms it
+   searches for**, in its `CANNOT SEE` line, or its zero is a claim about its
+   regex rather than about the repository.
+2. **A coverage denominator produced by a form-sensitive matcher is a LOWER
+   BOUND on coverage**, never a measurement of it, until the matcher is shown to
+   see every form in use. Report it as such while it is reported weekly.
+3. **Before believing an instrument's "not found", run the query that SHOULD
+   find it** — the positive control in the table above took one command and
+   converted an assumption into a measurement (`CLAUDE.md` rule 3, applied to a
+   *search* rather than to a field reader).
+4. **The lab writes freeze witnesses in at least three forms.** Full sha256, git
+   blob sha1, and truncated-to-16 prefixes of either. **Pick one and require it,
+   or teach the reader all three** — but the choice must be made deliberately,
+   not inherited from whichever form the first record happened to use.
+
+**Related:** `L-449` (a count that closes against nothing), `CLAUDE.md` rule 2
+(the freeze is the pre-registration's entire evidentiary content — so an
+instrument that cannot see a freeze is not a minor tooling gap), rule 3 (plant the
+zero), `L-321` (a fixture sharing the checker's route carries no information).
+
+---
+
+## L-451 — "IT WAS CONTENTION" IS A HYPOTHESIS, AND THE ISOLATING RE-RUN IS THE ONLY THING THAT TESTS IT. MINE SURVIVED REVIEW, WAS RE-RUN ALONE ON THE SUPERVISOR'S ORDER, AND CAME BACK **1.085×**
+
+**2026-09-02/03, T25R5 linear-solver tuning probe, heat-transfer. Recorded on
+2026-09-03 from `GT5_VERDICT.json`, the rung's own graded artifact.**
+
+Three arms of a five-arm probe hit the `timeout` cap and were disqualified. The
+lane attributed the cap-stops to **host contention** — peer solvers on the same
+box, which is a real and frequently correct explanation here (`L-431`: `mpirun`
+binds from core 0, so concurrent MPI jobs stack on the same cores). **The
+supervisor did not accept the attribution and required the arm to be re-run
+alone.**
+
+**`verification/runs/T-family/T25R5_LINSOLVER_runs/GT5_VERDICT.json`,
+`contention_correction`, verbatim:**
+
+| field | value |
+|---|---|
+| `claimed` | *"contention caused the cap-stops"* |
+| `measured` | *"C1 contended 727.56s vs alone 670.61s = 1.085x only"* |
+| `verdict` | *"the lane's contention attribution was SUBSTANTIALLY WRONG; the re-run the supervisor required is what falsified it"* |
+
+`727.56 / 670.61 = 1.0849`. **Contention was worth 8.5 %.** And the decisive
+part: **`C2` and `C3` CAPPED AGAIN RUNNING ALONE** — `rc != 0 (124)`, `no End
+line`, `steps 39 != 40` and `steps 38 != 40` respectively, recorded in each arm's
+`rule4` list in the same JSON. **With the box to themselves they still could not
+finish.** The arms were slow because of what they were, not because of what else
+was running.
+
+### Why the wrong attribution was so comfortable
+
+**It was true-shaped.** Peer solvers *were* live. `L-431` *is* a real mechanic in
+this lab. A contention story explains a cap-stop without implicating the
+configuration under test, so it costs nothing to believe — and it **terminates
+the investigation**, which is its real damage. Had it stood, `C2` and `C3` would
+have been recorded as *"probably fine, unlucky scheduling"* rather than as what
+they are: **configurations that do not converge in the budget.** The probe's
+whole subject is which linear-solver configuration is cheap. **The excuse
+attacked the measurement the rung existed to make.**
+
+### The rule
+
+1. **An environmental attribution — contention, thermal throttling, a noisy
+   neighbour, a shared filesystem — is a HYPOTHESIS about a cause you did not
+   measure.** Write it down as a hypothesis, never as a finding, until the
+   isolating run exists.
+2. **The isolating re-run is the instrument, and it is CHEAP.** One arm, alone,
+   is a few hundred core-seconds against a probe that spent hundreds of
+   core-minutes. **There is no budget argument for skipping it**, and the cost of
+   skipping it is a false disqualification recorded as a measurement.
+3. **Quote the isolation factor as a NUMBER.** *"1.085×"* ends the argument;
+   *"contention was significant"* cannot be checked, cannot be wrong, and
+   therefore says nothing.
+4. **The re-run must reproduce the FAILURE, not merely the timing.** `C2`/`C3`
+   capping *again*, alone, with `rc 124` and short step counts, is what converted
+   this from a timing comparison into a disqualification that holds.
+5. **This is a supervisor's `SUPERVISION_CHARTER` §3 crash-triage call and it
+   worked exactly as written** — *a crash is a finding until triage says
+   otherwise*. **A cap-stop is a crash.** The lane's explanation was plausible,
+   internally consistent, and wrong, and only the check the lane did not think it
+   needed caught it.
+
+**Related:** `L-431` (concurrent MPI jobs stack from core 0 — the mechanic that
+made the wrong story credible), `L-272` (a contention penalty measured over
+minutes does not extrapolate over days), `L-432` (a deliberate halt and a crash
+leave the same artefacts; only a positive record separates them), `L-421` (the
+better instrument ran first and its answer was discarded because a later report
+looked better), `SUPERVISION_CHARTER` §3.
