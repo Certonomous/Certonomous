@@ -537,3 +537,417 @@ looks structural rather than lucky: most of these comparators write their contro
 **measured** outputs into the verdict JSON rather than a pass flag, and their
 completion checks refuse on absence. The two that fail are the two that recorded a
 **bare boolean** or **nothing at all**.
+
+---
+
+## G. DATED APPENDED SECTION — 2026-09-03T19:1xZ: **THE ELEVEN §1 NAMED AS UNREAD ARE NOW READ. SIX DEFECTS, NONE MOVING A VERDICT — BUT ONE OF THEM IS BOUND INTO THE READER THAT WILL ANSWER T3d's PREDICTION P-1 TONIGHT, AND IT SITS IN A FILE §1's OWN READ SET ALREADY COVERED**
+
+**Appended, not merged.** Nothing above this line is altered: `lines whose number
+changed above this section: 0`. Sections 0–F stand as written, including §1's
+coverage claim and §F.5's scope statement — this section closes the gap §1 named,
+it does not restate or renumber it.
+
+**A CODE READ, like its parent. No instrument was built.** Predicate lines were
+LOCATED by an AST walk over each file (every `If`/`While`/`Assert`/`IfExp`/
+`Compare`/`BoolOp`/`not` node, printed with its line number and enclosing
+function); **every judgement below was made by opening the file at that line and
+reading the block.** The walk emits source text and makes no judgement — it is a
+`grep` with better manners, not a checker, and no program here grades another
+program. Sanaa's 20:00Z precondition is satisfied on the same footing as §A's.
+
+**REPAIRS NOTHING. RE-GRADES NOTHING.** Every file named is frozen or has fired.
+Rule 6 forbids editing them; a grading-path repair after first compute is
+`VERIFICATION_CHARTER` §2d.1, verification's and not heat-transfer's. **Zero
+compute: 0 core-min, $0.00 derived.** No gate, threshold, band, cap or label
+created, moved or retired.
+
+### G.1 COVERAGE — what was read, and the one arithmetic correction to §1's list
+
+**All eleven files §1 names are read to conclusion.** Two bookkeeping facts about
+that list, stated because they change what "eleven files" means on disk:
+
+- `analyse_t9a.py` is **one file at two paths** — `T9a_runs/analyse_t9a.py` and
+  `T9aH_runs/analyse_t9a.py` are byte-identical
+  (`dd2d6bf0ac690fdcca90719cb6586168763d311ea3b5a7ad937fdf054ecac9da`).
+- `analyse_k0b_mesh.py` is **two distinct files at three paths** —
+  `K0b_mesh_sensitivity/` carries a 20 189-byte build
+  (`f7821a9c…`) and `K0b_D403_rerun/` + `K0b_D406_repair/` carry an identical
+  16 763-byte build (`bbe45d64…`). §1's singular name covers both; **both were
+  read**, and the larger one carries the D407 `final_residuals()` block the
+  smaller does not.
+
+So: **twelve distinct source files, 1,579 predicate-bearing lines located and
+read, across 12,480 lines of Python.** Nothing on §1's list is left unread, and no
+file is being converted into a clean one by silence.
+
+| file | lines | predicate lines | outcome |
+|---|---:|---:|---|
+| `T10a_runs/analyse_t10a.py` | 1 001 | 144 | 1 unreachable (d) shape; 1 SOUND form worth copying |
+| `T16_runs/analyse_t16.py` | 1 015 | 170 | clean; 1 vacuous-`all` shape not reachable |
+| `T23G_runs/analyse_t23g.py` | 1 090 | 77 | §B.1 confirmed by reading; 1 mild (d) |
+| `T25R2_MODULE_runs/analyse_t25R2.py` | 2 759 | 308 | **2 defects** (G.2 **D-J5**, **D-J6**) |
+| `T3_runs/analyse_t3.py` | 1 150 | 168 | **1 defect** (G.2 **D-J1**) |
+| `T5b_runs/analyse_t5b.py` | 1 058 | 167 | clean; the family's best completion check |
+| `T5c_runs/analyse_t5c.py` | 1 611 | 213 | clean; the family's best **(d)** prior art |
+| `T9aH_runs/analyse_t9aH.py` | 798 | 108 | clean; a live planted convergence control |
+| `T9a_runs/analyse_t9a.py` | 638 | 82 | **1 defect** (G.2 **D-J1**) |
+| `K0b_mesh_sensitivity/analyse_k0b_mesh.py` | 474 | 40 | **3 defects** (**D-J2**, **D-J3**, **D-J4**) |
+| `K0b_D403_rerun/analyse_k0b_mesh.py` | 393 | 29 | clean (has no residual block to get wrong) |
+| `K2b_runs/analyse_k2b.py` | 493 | 73 | 1 observation (**D-J7**); `s13` is exemplary |
+
+**What this section still cannot see, stated as §1 states its own gaps:** the
+`selftest()` bodies were read only where a predicate line fell inside one or where
+a production finding needed its arm checked; satisfiability was reasoned from the
+code and, where an artifact existed, checked against it — where no artifact
+exists, this section says so at the finding.
+
+### G.2 THE SIX DEFECTS. **NOT ONE OF THEM MOVES A VERDICT**, and each says how that was established
+
+---
+
+#### **D-J1 — `analyse_t1c.py:229`, `analyse_t3.py:278`, `analyse_t9a.py:213` — the `rng == 0 → CONVERGED` limb. Fails (b), (c) AND (d). THREE FILES, ONE PREDICATE, AND ONE OF THEM IS LIVE ON A RUNNING GATE.**
+
+```python
+dmax = max(abs(x - y) for x, y in zip(a, b))
+rng  = max(b) - min(b)
+rel  = dmax / rng if rng > 0 else 0.0
+return dict(state="CONVERGED" if rel <= tol else "NOT_CONVERGED", ...)
+```
+
+When the LAST checkpoint's field is spatially uniform — `max(b) == min(b)` — `rel`
+is set to `0.0` **irrespective of `dmax`**. Two checkpoints differing by an
+arbitrarily large *uniform* amount are therefore graded **CONVERGED**.
+
+- **(b)** on that input the predicate cannot be made FALSE — `0.0 <= tol` for
+  every registered `tol`.
+- **(c)** the outcome is fixed by the guard's `else` branch, not by the data.
+- **(d)** "the field never developed" and "the field stopped moving" return the
+  same word. §28.4 requires that zero to REFUSE; it returns the best available
+  verdict instead. `state="UNJUDGED"` already exists two lines above for exactly
+  this purpose and is not used here.
+
+**⚠ THIS IS BOUND INTO A GATE THAT IS RUNNING AS THIS IS WRITTEN.**
+`analyse_t3d.py:80` reads `READER = A.T1C.iterative_convergence` — the T3d frozen
+grading path takes its convergence reader from `analyse_t1c.py`. **T3d's
+registered PREDICTION P-1 is precisely an iterative-convergence claim**
+(`T3d_PREREGISTRATION.md:54–56`: relative change ≤ 1e-06 in `T` between the last
+two checkpoints). The predicate that will answer P-1 has a branch that answers it
+YES for free. **This is stated to the supervisor as a finding BEFORE the grading,
+not after it.**
+
+**IT HAS NOT FIRED, AND THAT IS MEASURED, NOT ASSUMED.** Every `field_range`
+recorded in `T9a_runs/gate_t9a.json`, `T9aH_runs/gate_t9a.json` and
+`T9a_runs/gate_t9aD.json` lies between **12.1236** and **49.9756** K. R_fx's
+seeded `T` field carries R_ff's range, tens of K. **No published verdict moves,
+and none is expected to.**
+
+**THE NEAR MISS IS THE POINT.** `W_C3` — the C3 control case, whose whole
+definition at `analyse_t9a.py:31` is *"a uniform-temperature solid"*, i.e. exactly
+the input shaped to trip this limb — records `field_range = 5.2296e-12` (T9aH) and
+`5.0022e-12` (T9a). **It missed the branch by five picokelvin.** Its `relative` of
+0.3696 / 0.9091 is a ratio of two machine-noise quantities, so the control's
+`NOT_CONVERGED` is rounding residue and not physics — **the `analyse_t15.py:501`
+shape from §A.2 again**, here firing in the direction the control happened to
+want. `W_C3`'s state is non-load-bearing (`analyse_t9a.py:484` collects it into
+`bad`, which `:630` prints and `:634` excludes from the exit condition), so
+nothing turns on it either way.
+
+**THE PLANTED CONTROL DOES NOT COVER THIS BRANCH, AND THAT IS THE (d) LESSON IN
+ONE ARTIFACT.** T9aH's `RC5_planted_convergence_*` is a real, live planted control
+— it plants 1.234e-03 into `T`, and `analyse_t9aH.py:429–430` asserts BOTH that
+`max_change` equals the plant to 1e-12 AND that the state flipped to
+`NOT_CONVERGED`; the artifact records it fired
+(`field_range` 49.80/49.98, `max_change` 0.0012340000000108375, `relative`
+2.4779e-05 / 2.4692e-05). **But the plant leaves `field_range` at ~50 K, so it
+exercises the `rng > 0` branch only.** The control proves the reader can see a
+change. It never reaches the branch that would pass in silence. *§28.3's sentence,
+measured: this control proves the instrument CAN fail, and says nothing about
+whether the failing path was ever entered.*
+
+**THE FAMILY ALREADY KNOWS THE RIGHT FORM.** `analyse_t10a.py:372` writes
+`state="CONVERGED" if dmax == 0.0 else "NOT_CONVERGED"` — byte-exact identity, no
+division, no fallback, no degenerate input to fall through.
+
+**AND THIS IS A GAP IN §1's OWN READ, NAMED AGAINST THIS TEAM'S INTEREST.**
+`analyse_t1c.py` is **not** one of the eleven. It sits inside §1's 704-line
+*read* set ("T-family, part 1", `T1c`). The instance was there to be found and was
+not found. **704 predicate lines is a count, not a coverage proof** — which is the
+same distinction §1 was written to make about the eleven, arriving from the other
+side.
+
+---
+
+#### **D-J2 — `K0b_mesh_sensitivity/analyse_k0b_mesh.py:256` — `terminated_by` asserts `endTime` from an ABSENCE. Fails (d).**
+
+```python
+"terminated_by": ("residualControl"
+                  if "SIMPLE solution converged in" in text else "endTime"),
+```
+
+Only the `residualControl` branch is read from the solver's own line. `endTime` is
+inference from a **missing substring**, so a run that was killed, capped,
+SIGTERMed or crashed is recorded as having run to `endTime` — a positive claim
+manufactured out of no evidence. **The function's own docstring (`:200–202`) states the
+opposite in as many words:** *"`terminated_by`, read from the solver's own line
+rather than inferred"*. That is true of one branch and false of the other, and the
+docstring is what a reader will believe. **Face 3 of §28.2 with a caption.**
+
+---
+
+#### **D-J3 — same file, `:247` with `:250–251` — a field nobody could check is invisible in the output. Fails (d).**
+
+```python
+"met_target": (resid <= tgt) if tgt else None,
+...
+met   = sorted(f for f, d in per_field.items() if d["met_target"] is True)
+unmet = sorted(f for f, d in per_field.items() if d["met_target"] is False)
+```
+
+A field whose `residualControl` target could not be read gets `met_target=None`
+and lands in **neither** list. `fields_not_meeting_target: []` is therefore emitted
+both when every field met its target and when **no field had a target at all** —
+the two states §28.4 says must never share a representation. `if tgt` compounds it:
+it is a truthiness test on a float, so a legal `residualControl` entry of `0` is
+swallowed by the same branch as a missing one.
+
+**Reachability, measured on disk:** both committed legs declare
+`p_rgh 1e-07; U 1e-08; T 1e-08;` and the solve is laminar — `Ux Uy T p_rgh`, all
+four covered by `target_for()` including its `U`-governs-components rule at `:236`.
+**Every solved field currently has a target, so this has not fired.** A turbulent
+variant adding `k`/`omega` would fire it silently.
+
+---
+
+#### **D-J4 — same file — THE D407 WARRANT HAS NEVER BEEN PRODUCED FOR THE LEGS IT WAS WRITTEN FOR. Face 3 and (d), and the most instructive of the six.**
+
+`measure()` returns `convergence=final_residuals(case)`, and `final_residuals()`
+returns a dict on **every** path — `{"measured": False, "why": …}` when no log is
+found, `{"measured": True, …}` otherwise. It can never return nothing.
+
+**The published `k0b_mesh_sensitivity.json` carries NO `convergence` key at all,
+in any of its three legs (`32x32`, `64x64`, `128x128`).** Not `null`, not
+`measured: false` — absent.
+
+The explanation is on the mtimes and in the log: the artifact was written
+**2026-08-17 16:30**; the comparator was repaired **2026-08-18 18:32** by commit
+`d9475c07`, whose subject is *"D407: the convergence warrant was a comment, so no
+run could contradict it"*. **The repair landed and the comparator was never
+re-run.**
+
+> The D407 commit moved the warrant out of a comment and into code so that a run
+> could contradict it. **The code has still never been executed for these legs, so
+> the warrant is still uncontradictable — for exactly the same reason, one level
+> down.** Nothing in the artifact distinguishes "the convergence check ran and had
+> nothing to say" from "the convergence check has never run".
+
+**No verdict moves:** the artifact's own header declares
+`not_a_validation: "K0b is a capability rung graded against no published datum"`,
+so there is no gate here to flip. What is gone is the evidence D407 believed it
+had installed.
+
+---
+
+#### **D-J5 — `analyse_t25R2.py:1438` — `all()` over an EMPTY `zip`. Fails (b) and (d), and its neighbours prove it is an oversight and not a choice.**
+
+```python
+outs, ins = [], []
+for t in _written_times(case_dir):
+    if t <= 0.0:
+        continue
+    outs.append((t, read_patch_T(case_dir, t, "outlet", mc)))
+    ins.append((t, read_patch_T(case_dir, t, "inlet", mc)))
+d2 = all(o[1] > i[1] for o, i in zip(outs, ins))
+```
+
+`_written_times` (`:1444–1449`) refuses only when there are **no** time directories
+at all. A case holding only `0/` survives that refusal, every entry is then dropped
+by `if t <= 0.0: continue`, `zip` is empty, and **`all()` of nothing is `True`**:
+**D2 passes having read zero data.** It feeds straight into `:1814`
+`gates_ok = eb["ok"] and ac["D1"] and ac["D2"] and ac["D3"]` → `:1815`
+`verdict = "PASS" if gates_ok else "GATE FAIL"`.
+
+**The two lines above it behave correctly on the same degenerate input.** D1
+(`:1430`) and D3 (`:1431`) iterate `range(N_CELLS)`, a fixed 8, and `min(diff)`
+would raise loudly on an empty list. **The file refuses loudly on one degenerate
+input and passes silently on the one beside it, three lines apart.**
+
+**No verdict moves, and the reason is uncomfortable:** the path is unreachable in
+production only because `read_updown(case_dir, T_PULSE, mm)` at `:1428` runs FIRST
+and would fail to find `T_PULSE` on a `0/`-only case. **The protection is statement
+ORDER, not a guard** — which is question (c) exactly. Reorder those four lines for
+any reason and the silent pass becomes live.
+
+---
+
+#### **D-J6 — `analyse_t25R2.py:1671–1672` — a verdict-vocabulary distinction decided by a substring of a prose message. Fails (c).**
+
+```python
+blocked  = [x for x in oc_ready if "no case directory" not in x[1]]
+oc_state = "NOT A RESULT" if blocked else "PENDING"
+```
+
+`x[1]` is a human-readable reason string. **The split between `PENDING` and
+`NOT A RESULT` — a distinction `CLAUDE.md` rule 1 fixes and
+`VERIFICATION_CHARTER` §9 governs — is decided by whether that prose happens to
+contain the phrase `"no case directory"`.** Reword the message anywhere it is
+produced and the classification flips with nothing in the diff to show it.
+`oc_state` then propagates to `:1719` and `:1732–1734`, where it decides whether
+graded rows read `NOT A RESULT` or `PENDING`. No verdict moves today; the coupling
+is invisible to every check the rung has.
+
+---
+
+#### **D-J7 (OBSERVATION, not a defect row) — `analyse_k2b.py` refuses loudly where a value exists and omits silently where it does not.**
+
+`s13` (`:183–245`) is the best null-refusal in this family and is quoted here so
+the contrast is exact: it returns `verdict="REFUSED"` with `resolved_ulp`,
+`run_range` and `print_resolution`, and its reason **names the score it would
+otherwise have returned** — *"Scoring it against the mean would have returned
+{pct_vs_mean:.6f} % — a PASS."* That is §28.4 answered in the artifact.
+
+The same file's optional sections do the opposite. `mass_ledger` (`:356`) and the
+`if tin and tout_m:` / `if tin and tout_a:` / `if tin and tin_a:` / `if umax:` /
+`if tret:` / `if yplus:` / `if g:` family (`:309`, `:329`, `:346`, `:366–373`)
+**drop their whole section from the record** when an input is missing, and
+`emit`'s matching `if m:` / `if b:` / `if o:` / `if c:` / `if a:` prints nothing.
+No `NOT MEASURED` line is written. A reader of the report cannot tell "the mass
+ledger closed" from "the mass ledger was never computed".
+
+**Checked and cleared inside the same finding:** `mass` (`:354`) is a dict
+comprehension over a fixed 4-tuple of patch names, so `all(v is not None for v in
+mass.values())` at `:356` is **not** vacuous — the empty-`all` hazard does not
+apply there. **Reachability on disk NOT DETERMINED:** the analyser's JSON output is
+optional (`--json`, `:485`) and no such artifact was found beside `K2b_runs`. This
+is recorded as unresolved rather than as clean.
+
+---
+
+#### **D-J8 (OBSERVATION) — `analyse_t23g.py:723–725` — a control met by mutual absence, and a tolerance that goes absolute below unity. (d), mild.**
+
+If the dT shift yields `None` for both `order` and `GCI_abs` — which a
+non-CONVERGING triple does in both framings — then `(a is None) != (b is None)` is
+False and `a is not None` is False, so the shift-invariance assertion passes
+**having compared nothing**. The state comparison at `:717` is substantive and
+fires first, so the residual exposure is small. Separately, `shift_invariant`
+(`:224`) reads `abs(a - b) <= RTOL * max(1.0, abs(a), abs(b))`: the `max(1.0, …)`
+floor makes the tolerance **absolute** for any quantity below unity, so the
+control weakens toward unfalsifiable on small values.
+
+**§B.1 confirmed by reading, not by scan.** `analyse_t23g.py:407`
+(`if at_plant < 0.1 * PLANT:`) is present and is fully subsumed by
+`:404`'s `if not (at_plant >= PLANT * (1.0 - 1e-9)):`, exactly as §B.1 records it
+from the scan. The scan's finding survives the read.
+
+### G.3 CLEARED — read, suspected, and found SOUND, so a successor does not spend the cycle
+
+Recorded in the same spirit as §C. Several of these are lines this read expected to
+be defects and was wrong about; saying so is the point.
+
+1. **`analyse_t9a.py:418`** `if conv["state"] not in ("CONVERGING", "EXACT")`. This
+   read initially suspected a type mismatch: `iterative_convergence` (`:214`) can
+   only ever emit `CONVERGED` / `NOT_CONVERGED` / `UNJUDGED`, none of which is in
+   that tuple, which would have made the row **always** NOT A RESULT. **Wrong** —
+   `conv` here comes from `gci()` (`:227–252`), whose domain is
+   EXACT/OSCILLATORY/DIVERGENT/STAGNANT/CONVERGING. Sound.
+2. **`analyse_t23g.py:806`** `if extras[g]["verdict"] == "GATE FAIL" and worst ==
+   "PASS"`. Suspected: a `GATE REACHED` value of `worst` would swallow an extras
+   GATE FAIL. **Not reachable** — `worst` is seeded at `:748` from
+   `RT.grade_ladder`, whose verdict domain is exactly {PASS, GATE FAIL, NOT A
+   RESULT} (`scripts/roache_triple.py:614`, `:622`, `:636`; `band_verdict:535`
+   returns only PASS or GATE FAIL), and the NOT-A-RESULT case takes the explicit
+   `NOT EVALUATED` branch at `:750`. The guard is complete over the reachable
+   domain.
+3. **`analyse_t9aH.py:196` `collapse_fired` and `:199–209` `discrimination`** —
+   both are `all()`/comprehension shapes that are vacuous on empty input.
+   **Not reachable:** the only production call sites pass a fixed 3-key dict
+   literal (`:515–520`) and a list built over a fixed `LEVELS` (`:544`).
+4. **`analyse_t10a.py:566–568`** — `m["void"]` has an `else: m["void"] = False`
+   arm, i.e. "the closure check did not run" recorded as "not void", the PASS
+   direction, feeding `:594 if voided:`. **Not reachable:** `want_F` defaults
+   `True` (`:451`) and the only production call passes `want_F=True` (`:820`).
+   Selftest-only. Worth knowing it is one keyword argument away from live.
+5. **`analyse_t16.py:395–399`** — `missing = [f for f in gated if worst[f] is
+   None]` **refuses before** `bad = [f for f in gated if worst[f] > CONV_FLOOR]`,
+   so an unread residual can never reach the comparison. (d)-sound. (`:331`
+   `T_monotone = all(...)` is vacuous on a one-cell row, but `N` is mesh-fixed and
+   `:224` refuses a mismatched `Ny`.)
+6. **`analyse_t5b.py:172–184` `_l342_class`** falls through to **`"UNCLASSIFIED"`**,
+   not `"INFRASTRUCTURE"`. A newly added field name cannot silently become
+   non-gating. This is the fail-open direction taken deliberately the other way.
+7. **`analyse_t5b.py:418–482` and `analyse_t5c.py:370–430` `check_completion`** —
+   all six clauses of `CLAUDE.md` rule 4, age guard included
+   (`getmtime(field) <= mtime(0/T)`), plus `FOAM FATAL` / `Signal:`. The selftest
+   **FORGES** each failure mode — `rc=1`, no `End`, short `ExecutionTime` count,
+   absent fields, stale mtime, FOAM FATAL — and asserts NOT COMPLETE for each
+   (`t5b:906–912`), then separately asserts the record says `INFERENCE` and
+   `NOT MEASURED` where it inferred (`:916–918`). **This is question (d) answered
+   properly: the check is proven able to say "did not run", by making it say it.**
+8. **`analyse_t5b.py:810–811` / `analyse_t5c.py:1390–1391`** —
+   `idok = abs(rv - LO) >= MARGIN and abs(rv - HI) >= MARGIN`, refusing a reference
+   that sits ON a band boundary. **This family already wrote the defence against
+   `analyse_t15.py:501`** — the defect §A.2 measured at 1.076e-14 relative excess.
+   It exists in T5b/T5c and not in T15.
+9. **`analyse_t5c.py:1143–1157` with `:1170–1183`** — `read_level_statistics`
+   returns `(None, why)` if ANY registered wall is unreadable, and
+   `gate_yplus_t5c` iterates the fixed `YPLUS_WALLS`. The explicit `missing` check
+   T5b needs at `:378` is enforced structurally upstream instead. **An improvement
+   over T5b, not the regression this read went looking for.**
+10. **`analyse_t5c.py:879–892` `report()`** — refuses when `self.positive is None or
+    self.negative is None`: **a control lacking either a positive OR a negative arm
+    cannot be reported as passed.** This is §28.4's operational test implemented in
+    code, and it is the strongest (d) prior art in the family.
+11. **`analyse_t5c.py:1591`** — `ok(sys.flags.optimize == 0, …)`: the file refuses
+    to run under `python -O`, where every `assert` silently vanishes. A direct,
+    cheap defence against "the check did not run".
+12. **`analyse_t25R2.py:391 clear_pycache`** (the stale-`__pycache__` inversion) and
+    **`:403–421 freeze_check`** (worktree bytes hashed against the committed blob),
+    plus the **AST self-scan at `:2258–2267`** proving no residual-gate name is bound
+    in its own source. Three different "did this actually run as written" defences
+    in one file.
+13. **`analyse_t3.py:612–616`** — `within_tolerance` is `False`, not absent, when
+    `imbalance_pct` is None (`Q_wall == 0`): it refuses in the safe direction.
+    **`:692`** — `conv_states.get(l) != "CONVERGED"` treats a MISSING level as bad.
+    **`:549`** — `St` is `float("nan")`, not `0.0`, when `T_w == T_in`.
+14. **`analyse_k0b_mesh.py:350`** — the `nu_at_time(...)` vs `mean(nu_hot)` assert is
+    **not** an identity: `nu_at_time` (`:179`) uses the x-fastest shortcut
+    `T[j*nx]` while `measure` uses the `writeCellCentres` `xi`/`yi` mapping. Two
+    independent index derivations; the assert can genuinely fail. Sound.
+
+### G.4 THE SHAPE OF THE SIX, SINCE SIX IS ENOUGH TO NAME ONE
+
+Five of the six are the **same arithmetic sentence**: *a guard that exists to avoid
+a division by zero, or an empty iterable, silently substitutes the value that
+grades BEST.* `rng > 0 else 0.0` (D-J1). `if tgt else None` dropped from both
+tallies (D-J3). `all()` of an empty `zip` (D-J5). `else: void = False` (cleared
+item 4). `else "endTime"` (D-J2) is the same move in string form.
+
+**The correct substitution is already written in this family, five times over** —
+`float("inf")` in `analyse_k2b.py:209`, `analyse_k2b.py:210`,
+`analyse_t16.py:317`, `analyse_t16.py:579`, `analyse_t5b.py:698`, and `nan` in
+`analyse_t3.py:549`. All six choose a value that **cannot pass**. The six defects
+above choose one that cannot fail. Nothing separates the two groups except which
+constant the author reached for at a guard nobody expected to be taken.
+
+*No class is declared and no sweep is ordered. Six instances in twelve files is a
+pattern worth naming; it is not a measurement of the other four teams, and this
+section does not make one.*
+
+### G.5 WHAT THIS SECTION DOES NOT DO, AND THE ONE THING IT HANDS UPWARD
+
+- It does **not** repair, re-grade, withdraw or re-run anything, and it edits no
+  file named in it.
+- It does **not** move a gate, band, threshold, cap or label.
+- It does **not** claim any of the six moves a verdict. **None does.** Where that
+  was established against an artifact it says so and names it; where it was
+  reasoned from code alone (D-J5, D-J6, D-J7) it says that instead.
+- It does **not** build a detector. Instrument-on-instrument work is restricted and
+  the parent §F already records that the allowed fix is insufficient.
+- It authorises no send. **SUBMISSIONS REMAIN PARKED** (rule 7).
+
+**The one thing handed upward, and it is time-critical:** **D-J1 is bound into
+`analyse_t3d.py:80`, the frozen grading path of the T3d continuation now running in
+`R_fx` (endTime 24 000, ETA ~2026-09-04T03:48Z).** The predicate that will answer
+its registered PREDICTION P-1 has a branch that answers P-1 YES on a degenerate
+field. On the evidence — every `field_range` in this ladder is tens of kelvin —
+that branch will not be taken. **The supervisor should know that before the row is
+graded rather than after, and this is a finding, not a request to touch the run.**
