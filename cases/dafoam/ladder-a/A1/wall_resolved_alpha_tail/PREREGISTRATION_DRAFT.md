@@ -2092,3 +2092,112 @@ author expected a 2-direction mesh to be *readable*, i.e. expected the solver to
 *run* on it. **`X5` is a control on the READER, not a claim about the SOLVER**,
 and nothing in it is falsified by an abort — but it does show precisely where the
 registration's expectation sat.
+
+---
+
+## ADDENDUM 8 — 2026-09-03T22:43Z — THE GRADER'S OUTPUT, AND WHAT IT DOES **NOT** SAY
+
+**Document version 1.7 → 1.8.** **Lines whose number changed above this section:
+0** — COMPUTED over the first 2094 lines against this file's blob at `HEAD`; one
+hunk, zero deleted lines. **Post-compute addendum** (both units have run): under
+`CLAUDE.md` rule 2 limb 2 the gates are CLOSED, and **this addendum alters no
+gate, no threshold, no cap and no label.** It records an instrument's output.
+
+### A8.1 ⚠ NO ITEM VERDICT EXISTS, AND THAT IS BY CONSTRUCTION
+
+**The frozen grader emits NO item-level verdict line.** Its own first docstring
+line (`a1wrt_read.py:2`) and its banner (`:906`) both read **"FEASIBILITY
+READINGS, NOT VERDICTS"**, and the file contains no verdict composer. The last
+line of its output is `G-STALL PASS`. **So no item verdict exists on record, and
+none is composed here — not by the grader, not by the supervisor and not by this
+lane.**
+
+**`GATE REACHED` in the `SCOPE` line is a CEILING on what a verdict could be if
+one were composed. IT IS NOT A VERDICT AND MUST NEVER BE QUOTED AS ONE.**
+
+A frozen instrument that declares itself a feasibility reader and then declines
+to compose a verdict is behaving **exactly as registered**. This is the same
+discipline from the other direction: the verdict is the grader's emitted value,
+and a hand-composed verdict is a defect whichever way it leans. **Here the grader
+emits none, so none exists.**
+
+### A8.2 The gates, verbatim — and the `SCOPE` fence is part of them
+
+Invocation: `a1wrt_read.py <run>`, blob **hashed against `HEAD` in the invoking
+shell immediately before running** — committed blob == disk == pin
+`705db5f7e972f6c033cbe303b7a6038f`, all three identical. `GRADER_RC=0`.
+Its own `SELFTEST PASS: 39 controls, both directions, mutation controls
+included.` ran in the same invocation.
+
+- **`G-PATCH` PASS, both units.** `alpha12_symmetry`: solver reports 3 (1 1 1),
+  registered 3 (symmetry). `tail_empty`: solver reports 2 (1 1 0), registered 2
+  (empty).
+- **`G-WALLTREAT` PASS** — `BCType=nutLowReWallFunction` confirmed in the log
+  that actually ran, Spalding line absent.
+- **`G-YPLUS` PASS** on every measured point; worst y+max NONE < 1.0.
+- **`G-CAPS` PASS** — 0.0000 core-min, 0.00 % of the 2943.0 cap.
+- **`G-STALL` PASS** — no stall/separation claim bound to an angle.
+- **`G-COMPLETE` GATE FAIL** — declared 7 `[12,13,14,15,16,17,18]`, segments
+  found 1 `['12']`, rc 97; `COUNT: 7 declared, 1 present -- the gap is NOT
+  absorbed`; `alpha 12: no End line`; `alpha 12: no Time = line at all`;
+  `unit rc=97 (rule 4 requires rc = 0)`.
+- **`G-REPRO` GATE FAIL** — R1 band 1.0e-03: CL 1.1836353615763 vs A1WR
+  continued 1.1907959202411 → rel **6.013254e-03 OUTSIDE**; CD 0.030758033132912
+  vs 0.030665481166038 → rel **3.018116e-03 OUTSIDE**. R2 band 1.0e-04,
+  extrapolated plateaus: CL → rel **2.542431e-02 OUTSIDE**; CD → rel
+  **5.614858e-04 OUTSIDE**. The gate's own sentence: *"two starting states reach
+  different plateaus on the same mesh at the same alpha. THE CONTINUED LABELS ON
+  THIS TAIL ARE WITHDRAWN and the successor is a diagnosis, not more points."*
+- **`G-PATCHPAIR` NOT A RESULT** — *"one side of the pair is absent — reported,
+  never papered over."*
+
+**⚠ `SCOPE (G-NOBAND)`, QUOTED HERE WITH THE GATES AND NEVER TO BE SEPARATED FROM
+THEM:** *"this mesh family's own grid convergence is PENDING — NO value above is
+grid-converged, NO value carries a band, and the item's verdict ceiling is GATE
+REACHED. 2-D steady RANS with SA past the onset of significant separation is not
+a valid model of the flow at ANY resolution: convergence and correctness remain
+independent claims and only the first is measured here."*
+
+### A8.3 ⚠ THE CAVEAT THAT TRAVELS WITH `G-REPRO`'s NUMBERS
+
+**`G-REPRO`'s `GATE FAIL` rests on coefficients DAFoam declined to certify, and a
+reader must learn that where the numbers are, not afterwards.**
+
+`G-REPRO` takes `CL` and `CD` from the **per-iteration prints** — its registered
+source, and R2's extrapolated-plateau arm is *designed* for values that have not
+converged. **But DAFoam declared BOTH primals failed** (`Primal min residual
+1.051926887799928e-06` / `did not satisfy the prescribed tolerance 1e-08` /
+`Primal solution failed!`) **and wrote `CL=NA CD=NA` on its own
+`AOA_POINT_VALUES` summary line.** **Two different sources for one quantity, on a
+point the solver did not stand behind.** The gate is **not** voided by this and is
+not touched; the disclosure travels with it.
+
+### A8.4 The graded segment's provenance, established as a measurement
+
+`G-COMPLETE` reports `1 segment found ['12']` for a unit that took **zero time
+steps**, so the provenance was measured rather than assumed:
+
+**It is `tail_empty`'s OWN, and it is a DECLARATION WITH NO SOLVE BEHIND IT.**
+Source `/home/ubuntu/certonomous-runs/A1WRT/tail_empty/out/sweep.log:456` —
+`AOA_POINT_BEGIN idx=0 alpha=12.0000000000 mode=CONTINUED continued_from=NONE
+after_exception=FALSE`, printed by the producer **before** the primal; six lines
+later the mesh check aborts. That log carries **zero** `Time =`, **zero** `End`
+and **zero** `AOA_POINT_END`. Read by `a1wrt_read.py:949` → `:952` → `:1015`.
+
+**The `CONTINUED` label is `tail_empty`'s own**, from that line's `mode=` field
+(regex `:157`, stored `:184`, printed `:989`); U2 runs `MODE=CONTINUED`
+(`a1wrt_run_unit.sh:141`). **U1's log carries its own marker reading `mode=COLD`
+with 41 `Time =` lines and 1 `End`.** **Separate files, read separately: no
+cross-contamination and no unattributable number.** `G-COMPLETE`'s own complaints
+are the reader describing this precisely.
+
+**And this narrows §A8.3's issue rather than widening it:** `G-REPRO` reads U1's
+log **separately** at `:1038` (`u1_pts = segment(u1_log.read_text(...))`). **Two
+registered sources for two different units — not one quantity read two ways.**
+The only issue is the one §A8.3 states.
+
+### A8.5 What is NOT decided here
+
+**Nothing about a successor.** What replaces U2's `empty` treatment is an
+item-level design question, it belongs to the supervisor, and **it does not get
+decided in the same breath as a result.**
