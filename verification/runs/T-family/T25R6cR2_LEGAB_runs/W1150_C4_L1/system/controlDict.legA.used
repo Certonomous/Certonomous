@@ -1,0 +1,130 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     chtMultiRegionFoam;
+
+// §6 -- LEG A of TWO. chtMultiRegionFoam reads ONE scalar deltaT from this
+// dictionary and, with adjustTimeStep no, never changes it. The registered
+// schedule has two segments (dt = 0.02 s to t = 70 s, 0.1 s after -- Sanaa's
+// §2 first option, her exact numbers), so it is run as TWO CHAINED
+// INVOCATIONS.
+//
+// WHY NOT THE `setTimeStep` FUNCTION OBJECT, WHICH EXISTS AND WOULD PROBABLY
+// WORK: it requires adjustTimeStep true, which activates the solver's own
+// Courant/diffusion control, and its interaction with that control on the FIRST
+// step cannot be established without running the solver. THE PRINCIPLE THAT
+// DECIDES IT: a time-step schedule that can only be verified from a log line
+// AFTER the solver ran cannot be pre-registered as an INPUT. Here deltaT is a
+// literal scalar a supervisor reads as a diff before compute.
+//
+// FLOATING POINT, SETTLED AT SOURCE BEFORE REGISTERING: 0.02 is not a
+// binary-exact fraction. Time.C:1120-1124 computes the write index as
+//     label(((value() - startTime_) + 0.5*deltaT_)/writeInterval_)
+// and that +0.5*deltaT guard makes the index immune to drift of order 1e-13.
+// Names are formatted `general` at timePrecision 12; drift to t = 900 is ~1e-11
+// against a 12-significant-digit resolution of 1e-9 there. Two orders of margin.
+
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         0.8;
+deltaT          0.02;
+
+// NO ADAPTIVE STEPPING ON GATED RUNS. With adjustTimeStep no, maxCo and maxDi
+// are INERT and are therefore NOT WRITTEN AT ALL -- an inert control in a frozen
+// dictionary is a future reader's trap. Sanaa's second option (adaptive at
+// maxCo 0.5) is REFUSED and priced in §0.3: Co ~ 1600 at the old step scales to
+// dt ~ 1.6e-04 s, ~5.8 MILLION steps, ~490x the registered count, and it would
+// destroy the time ladder because an adaptively chosen dt is not exactly
+// halvable. Co is REPORTED per level, never controlled.
+adjustTimeStep  no;
+
+// 100 registered steps on this leg. Rule 4's ExecutionTime clause is a
+// STEP-COUNT identity, not a time-value identity (§9.1 conjunct 5), and
+// mark_done_t25R3.py checks it PER LEG.
+
+writeControl    timeStep;
+writeInterval   40;
+purgeWrite      0;
+
+// writePrecision 12, NOT the default 6. At T ~ 293 K six significant figures
+// leave a ~1 mK write quantum, LARGER than the discretisation signals this rung
+// gates on. It is also what bounds the leg-B restart truncation at ~3e-10 K,
+// which is ~3.3e8 times smaller than tau (§6.3).
+writeFormat     ascii;
+writePrecision  12;
+writeCompression off;
+timeFormat      general;
+timePrecision   12;
+runTimeModifiable false;
+
+// INSTRUMENTS -- COPIED VERBATIM from the staged T25R2_L2 controlDict, never
+// retyped. A function object with an unknown `operation` aborts AT
+// CONSTRUCTION and would throw away the whole solve.
+functions
+{
+    outlet_hflux
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        region          coolant;
+        regionType      patch;
+        name            outlet;
+        operation       weightedSum;
+        weightField     phi;
+        fields          (T);
+        writeControl    timeStep;
+        writeInterval   1;
+        writeFields     false;
+        log             false;
+    }
+    inlet_hflux
+    {
+        $outlet_hflux;
+        name            inlet;
+    }
+    outlet_mdot
+    {
+        $outlet_hflux;
+        operation       sum;
+        fields          (phi);
+    }
+    inlet_mdot
+    {
+        $outlet_mdot;
+        name            inlet;
+    }
+    outlet_Tbar
+    {
+        $outlet_hflux;
+        operation       areaAverage;
+        writeControl    runTime;
+        writeInterval   5;
+    }
+    inlet_Tbar
+    {
+        $outlet_Tbar;
+        name            inlet;
+    }
+    module_minmax
+    {
+        type            fieldMinMax;
+        libs            (fieldFunctionObjects);
+        region          module;
+        fields          (T);
+        writeControl    runTime;
+        writeInterval   5;
+        log             false;
+    }
+}
+
+// ************************************************************************* //

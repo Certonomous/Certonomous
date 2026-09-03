@@ -1,0 +1,12 @@
+case=W1150_C4_L1
+rung=T25R6c-R2
+registration=docs/campaigns/T-family/T25R6cR2_PREREGISTRATION.md
+rule4=COMPLETE (all conjuncts, both legs, age guard vs 0/module/T)
+registered_steps=40 legA + 1110 legB
+endTime_legA=0.8 endTime_legB=111.8
+exec_s_legA=14.35 exec_s_legB=438.63
+exec_s_basis=CPU TIME (user+system, rank 0), NOT wall -- OpenFOAM-v2606 TimeIO.C:631 -> cpuTimePosix -> times(2)
+finished_utc=2026-09-03T19:01:32Z
+grader_sha256=421b9cf4e7768b95cb9ca6d5eed1e2c093142a934100f90b0bf39de32d45d07b
+completion_definition=IMPORTED from grade_t25R6cR2.rule4; not retyped
+this_marker_is_not_a_verdict=rule 4 is COMPLETION, not grading. G-R2-1 and G-R2-2 are not evaluated here.

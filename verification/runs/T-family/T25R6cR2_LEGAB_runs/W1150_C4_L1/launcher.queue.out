@@ -1,0 +1,5 @@
+  cap check: (60 + 1290) s x 2 ranks / 60 = 45.000000 core-min <= 45.0 registered cap
+  ok   leg B write control verified on disk: runTime / 111 / endTime 111.8
+DONE W1150_C4_L1 -> /home/ubuntu/Certonomous/verification/runs/T-family/T25R6cR2_LEGAB_runs/DONE.W1150_C4_L1
+T25R6c-R2 W1150_C4_L1 legA rc=0 legB rc=0
+launcher exit rc=0
