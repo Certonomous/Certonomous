@@ -358,3 +358,139 @@ reading a grid-convergence claim off them gets `NOT A RESULT`.**
 - It does **not** launch, authorise, or request a ladder run.
 - It does **not** recommend a ruling on the 20,000 ceiling.
 - It does **not** authorise any send. **SUBMISSIONS REMAIN PARKED** (rule 7).
+
+---
+
+## 8. SANAA'S RULING ON THE CEILING — 2026-09-03. THE ITEM IS CLOSED.
+
+Appended 2026-09-03 by a heat-transfer `lab-lane`.
+
+**This record is NOT a frozen document.** It carries no version block, no freeze
+declaration and no entry in any freeze registry, so **no freeze ceremony is
+performed on it** — this section is appended plainly. It is nonetheless appended
+**at the foot and only at the foot**, because
+`docs/charters/VERIFICATION_CHARTER.md:6335` cites this record **by line** —
+`:157` the interval, `:121` `10.651858`, `:123` `7.059383`. Those three
+citations were re-verified live against this file before this section was
+written, and they still read what the charter says they read.
+
+> **Lines whose number changed above this section: 0** — established by diff of
+> the committed blob against the working file, not recited. Lines 1–360 are
+> unchanged: nothing above is added, removed, reworded or renumbered. §§1–7 stand
+> exactly as they were written and committed at `325e6032`.
+
+### 8.1 The ruling, in Sanaa's own words
+
+**This is Sanaa's own ruling. It is not the chief's reading and it is not this
+team's.**
+
+Source, verified at the commit that carries it: commit **`fbab523b`**, file
+`etc/sessions/2026-09-03T2250Z_sanaa_go_all_asks.md`. Her words, verbatim:
+
+> **"and you have my GO for all ur asks"**
+
+That GO answers an enumerated seven-item list. **Item 4**, verbatim from the
+capture:
+
+> **T25 ceiling — STANDS at 20,000 core-min.** No widening. The measured
+> ΣCAP(C5) = 20,006.80 (+6.80, ~200× below the measurement's own resolution) is
+> ruled against the standing ceiling; B-R2's 26,514.4 remains reported, never
+> gated. Consistent with her 2026-09-03 ruling ("I'll rule on a measurement, not
+> a hope") — the measurement arrived and the ceiling stands.
+
+**Scope — standing rule 9.** Her GO is a per-item reading of an enumerated list
+and **is not a blanket**. It settles **the ceiling question and nothing else**:
+it re-grades no rung, moves no other threshold, band or cap, and licenses no
+spend.
+
+### 8.2 WHAT WAS RULED
+
+> ### **THE T25 LADDER CEILING STANDS AT `20,000` CORE-MINUTES. NO WIDENING.**
+> ### **`Σ CAP(C5) = 20,006.80` core-min is RULED AGAINST IT.**
+
+The ceiling is the one registered at `T25R4_PREREGISTRATION.md` §A1.3 and carried
+into `G-T6a` at `T25R6a_PREREGISTRATION.md:473`. **It is unchanged.** No
+widening was requested by this team (§6, item 3: *"This lane requests
+nothing"*), and none was granted.
+
+### 8.3 THE RESOLUTION CAVEAT TRAVELS WITH THE NUMBER — AND IS NOT A GROUND FOR REOPENING
+
+The caveat is **not** relegated to this addendum. It already stands at the
+**head** of this record — §1 lines `:25`–`:30`, *"the breach is ~200× SMALLER
+than the measurement's own registered resolution"* and *"The measurement cannot
+resolve which side of 20,000 the ladder falls on"* — and is derived in §3.4. It
+is restated here only so that a reader arriving at the ruling meets it again:
+
+| quantity | value | artifact |
+|---|---:|---|
+| measured `Σ CAP(C5)` | **20,006.80** core-min | this record `:23`, `:138` |
+| breach over the ceiling | **+6.80** core-min, **×1.00034**, **0.034 %** | this record `:24`, `:140` |
+| registered interval on `Σ CAP(C5)` | **[18,801.4 , 21,480.1]** core-min | this record `:157` |
+| mean half-width of that interval | **1,339.35** core-min | `(21,480.1 − 18,801.4) / 2` |
+| **half-width ÷ breach** | **×196.96** | `1,339.35 / 6.80` |
+
+**The measurement cannot resolve which side of 20,000 the ladder falls on**, and
+a ruling either way is consistent with it.
+
+**The ruling stands regardless.** Sanaa ruled on the measurement as it is, having
+been shown its width; her item 4 names the resolution gap in its own text
+(*"~200× below the measurement's own resolution"*) and rules anyway. **This team
+is not re-arguing it.** The caveat is recorded here as **a property of the
+measurement, not as a ground for reopening**, and this section is not to be cited
+as one.
+
+*Disclosure, so no reader is misled about where the caveat has reached:* the
+T-family register `docs/campaigns/T-family/T_FAMILY_INDEX.md` carries **no
+verdict row for T25R6a** at this writing — it still reads *"in flight at this
+writing"* (`:268`–`:269`). When that row is written, the ×196.96 caveat belongs
+in its verdict cell. **That row is not this record's to write and was not touched
+here.**
+
+### 8.4 WHAT THIS TEAM PUT ON THE DESK, AND WHAT IT ASKED FOR
+
+Heat-transfer put **two numbers pointing opposite ways** in front of Sanaa and
+**asked for nothing**:
+
+- `Σ CAP(C5) = 20,006.80` against a 20,000 ceiling — a breach of **+6.80**
+  core-min, **0.034 %**;
+- the registered interval **`[18,801.4 , 21,480.1]`**, whose mean half-width
+  **1,339.35** core-min is **×196.96** the breach;
+- `B-R2`'s `rho_blend`-scaled **26,514.4** core-min, **reported, never gated**.
+
+**No widening was requested and none is granted.** The team got a ruling on the
+measurement — which is the shape Sanaa asked for on 2026-09-03 when she said she
+would rule on *"a measurement, not a hope"*.
+
+### 8.5 `B-R2` — REPORTED, NEVER GATED, AND NOT RESOLVED BY THIS RULING
+
+`Σ CAP(C4) × rho_blend = 26,514.4` core-min against the ceiling of 20,000, at
+`rho_blend = 1.073053` (ladder 3500A + 8300B), relief threshold 0.809412 —
+`verification/runs/T-family/T25R6cR2_LEGAB_runs/T25R6cR2_GRADE_STDOUT.txt:31`
+(block `:30`–`:32`), and `docs/campaigns/T-family/T25R6cR2_RESULTS.md:110`–`:112`.
+
+It **stays REPORTED, NEVER GATED**. It grants no widening and it is not graded
+against the ceiling by this ruling or by anything else. **Its mixture ambiguity
+remains unresolved and is NOT resolved here** — this ruling touches the ceiling,
+not `rho_blend`'s composition.
+
+### 8.6 NO VERDICT CHANGES. NOTHING IS RE-GRADED.
+
+**A ceiling ruling is not a re-grade, and no reader may infer one from it.** Both
+landed verdicts stand on disk exactly as published:
+
+| rung | landed verdict | ground | artifact |
+|---|---|---|---|
+| **T25R6a** | **`NOT A RESULT`** (`exit` 4) | *"the equivalence control FIRED (prereg 6.4)"* | `T25R6a_C5_OUTER_runs/T25R6a_VERDICT.json` |
+| **T25R6c-R2** | **`GATE FAIL`** (`exit` 3) | `rho = 1.103859 ≥ 1.0` | `T25R6cR2_LEGAB_runs/T25R6cR2_VERDICT.json` |
+
+Both were re-read from disk at this writing and neither was edited. The §4.1
+repair diff in this record remains **PROPOSED, NOT APPLIED**. No grader was run,
+no comparator was re-run, no graded number was recomputed, and no threshold, band
+or cap was moved by this section.
+
+### 8.7 STATUS
+
+> **CLOSED on Sanaa's desk. CLOSED on this team's board.**
+
+**SUBMISSIONS REMAIN PARKED** (rule 7). Nothing here authorises a send, a launch,
+or a spend.
