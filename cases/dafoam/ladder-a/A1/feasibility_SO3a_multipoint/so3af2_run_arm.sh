@@ -89,6 +89,7 @@ MESH_REQUIRES="preProcessing.sh genAirFoilMesh.py profiles system constant 0.ori
 # ---- retyped, so a future divergence there cannot silently split the two.
 A1WR_DRIVER=/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/wall_resolved_aoa_polar/a1wr_chain_driver.sh
 MD5_A1WR_DRIVER=9bff59b63509e76d5dfa373a42a47074
+MD5_ATTR_CENSUS=2fd479d881f63b529605b3a45d0154f3
 MD5_ENV_ASSERT=a5b7fcae05aab420d94623582d45f897
 MD5_READER=d5f4149d43abe3a165ffe7e653b78bee     # so3af2_read.py, pinned at the 2026-08-31 freeze, section 8
 MD5_PRODUCER=c268633f67e6d2c785feec2ebfc7326c                   # so3af2_runScript.py, pinned at the Stage-2 amendment
@@ -102,6 +103,13 @@ FORBIDDEN_TOKEN="compute""_totals"
 # ---- CAPS, section 7.  core-minutes.  An overrun STOPS the run.
 CAP_MESH=3.0
 CAP_XM=6.0
+# ---- ADDENDUM 8. The ATTRCENSUS arm: a bounded DIAGNOSTIC that asks the live
+# ---- solver object which attribute holds a residual history, instead of the
+# ---- producer guessing a fifth name. IT SCORES NOTHING and writes no graded
+# ---- artefact. Capped WELL UNDER the 6.0 the XM arm did not approach: XM ran
+# ---- three primals to its refusal for 0.3500 core-min MEASURED, and this arm
+# ---- runs the same three plus an enumeration.
+CAP_ATTRCENSUS=2.0
 CEILING=9.0
 MEM_FLOOR_GIB=6.0
 MEM_CAP=4g
@@ -114,7 +122,8 @@ ARM="${1:-}"
 case "$ARM" in
   MESH) CAP="$CAP_MESH" ;;
   XM)   CAP="$CAP_XM" ;;
-  *) echo "ABORT usage: so3af2_run_arm.sh <MESH|XM>"; exit 64 ;;
+  ATTRCENSUS) CAP="$CAP_ATTRCENSUS" ;;
+  *) echo "ABORT usage: so3af2_run_arm.sh <MESH|XM|ATTRCENSUS>"; exit 64 ;;
 esac
 
 nolaunch() {   # nolaunch <file> <rc> <reason...>
@@ -137,6 +146,7 @@ nolaunch() {   # nolaunch <file> <rc> <reason...>
 # ---------------------------------------------------------------------------
 READER="$HERE/so3af2_read.py"
 ENV_ASSERT="$HERE/so3af2_env_assert.sh"
+ATTR_CENSUS="$HERE/so3af2_attr_census.py"
 [ -f "$READER" ] || nolaunch NOLAUNCH_FREEZE.txt 5 "reader absent at $READER"
 GOT_READER="$(md5sum "$READER" | cut -d' ' -f1)"
 [ "$GOT_READER" = "$MD5_READER" ] || nolaunch NOLAUNCH_FREEZE.txt 5 \
@@ -359,13 +369,23 @@ else
       "G-COLD $mp: constant/polyMesh/boundary is absent -- the point has no mesh"
   done
 
+  # THE TWO SOLVER ARMS SHARE THIS STAGING AND DIFFER ONLY IN WHICH INSTRUMENT
+  # RUNS. Duplicating it would be the sibling-branch defect this item has already
+  # produced twice -- a pattern applied to one branch and not the one beside it.
   cp "$PRODUCER" "$WORK/so3af2_runScript.py"
+  if [ "$ARM" = "ATTRCENSUS" ]; then
+    [ -f "$ATTR_CENSUS" ] || nolaunch NOLAUNCH_STAGING.txt 9 "attribute census instrument absent at $ATTR_CENSUS"
+    GOT_AC="$(md5sum "$ATTR_CENSUS" | cut -d' ' -f1)"
+    [ "$GOT_AC" = "$MD5_ATTR_CENSUS" ] || nolaunch NOLAUNCH_STAGING.txt 9 \
+      "attribute census md5 $GOT_AC != pinned $MD5_ATTR_CENSUS"
+    cp "$ATTR_CENSUS" "$WORK/so3af2_attr_census.py"
+  fi
   # THE READER IS STAGED BESIDE THE PRODUCER because the producer DERIVES its
   # output paths from the reader's own expressions (ADDENDUM 2) rather than
   # transcribing them. Its md5 was verified against the pin at NL-3 above.
   cp "$READER" "$WORK/so3af2_read.py"
-  echo "SO3AF2_STAGED arm=XM case=$CASE_SEG ffd=$FFD_REL run_dirs=[$(printf '%s ' $RUN_DIRS_LIST)] points=$RD_N files=$(find "$WORK" -type f | wc -l)"
-  echo "SO3AF2_STAGING_PRECONDITION_PASS arm=XM derived_from=producer+frozen_reader ffd_refs=1 run_dirs_decls=1 case_seg=$CASE_SEG"
+  echo "SO3AF2_STAGED arm=$ARM case=$CASE_SEG ffd=$FFD_REL run_dirs=[$(printf '%s ' $RUN_DIRS_LIST)] points=$RD_N files=$(find "$WORK" -type f | wc -l)"
+  echo "SO3AF2_STAGING_PRECONDITION_PASS arm=$ARM derived_from=producer+frozen_reader ffd_refs=1 run_dirs_decls=1 case_seg=$CASE_SEG"
 fi
 
 # ---------------------------------------------------------------------------
@@ -410,9 +430,15 @@ if [ "$ARM" = "MESH" ]; then
 cd /mnt/MESH && ./preProcessing.sh > checkMesh.log 2>&1 && checkMesh >> checkMesh.log 2>&1
 ARMCMD
 else
-  cat > "$WORK/so3af2_cmd.sh" <<'ARMCMD'
-cd /mnt/XM && python so3af2_runScript.py -task run_model > XM.log 2>&1
-ARMCMD
+  # THE ARM'S OWN COMMAND, derived from $ARM rather than hard-coded, so a third
+  # arm cannot inherit the second's working directory.
+  if [ "$ARM" = "ATTRCENSUS" ]; then
+    ARM_ENTRY=so3af2_attr_census.py
+  else
+    ARM_ENTRY=so3af2_runScript.py
+  fi
+  printf 'cd /mnt/%s && python %s -task run_model > %s.log 2>&1\n' \
+    "$ARM" "$ARM_ENTRY" "$ARM" > "$WORK/so3af2_cmd.sh"
 fi
 # ---- BOTH ARMS GO THROUGH THE ENVIRONMENT ASSERTION.  Repairing MESH and
 # ---- rediscovering this on XM is the sibling-branch defect this item has

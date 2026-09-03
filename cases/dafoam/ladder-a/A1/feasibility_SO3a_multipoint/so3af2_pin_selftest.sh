@@ -115,6 +115,8 @@ for pin in $PINS; do
                   target="$(grep -oE '^MESH_SRC=.*' "$LAUNCHER" | cut -d= -f2-)"; kind=manifest ;;
     MD5_ENV_ASSERT)
                   target="$HERE/so3af2_env_assert.sh"; kind=file ;;
+    MD5_ATTR_CENSUS)
+                  target="$HERE/so3af2_attr_census.py"; kind=file ;;
     # ANOTHER ITEM'S FILE, pinned on purpose: the DAFoam loader path is DERIVED
     # from A1WR's driver rather than retyped, so a change there must REFUSE here.
     # Read from the launcher's own bytes, never retyped in this table.
@@ -452,6 +454,50 @@ expect "XM G-COLD warm start" "$D" 9 NOLAUNCH_STAGING.txt XM
 
 rm -rf "$TMP/xm_nomesh/base" "$TMP/xm_nopoly/base" "$TMP/xm_ok/base" "$TMP/xm_warm/base" 2>/dev/null
 
+# ---- THE ATTRCENSUS ARM (ADDENDUM 8). It shares XM's staging and differs only
+# ---- in which instrument runs, so the legs prove BOTH: that it stages, and that
+# ---- it cannot write the graded artefact.
+D="$(mk_sandbox ac_ok)"; mk_fake_mesh "$D/base"; cp "$HERE/so3af2_attr_census.py" "$D/"
+RC_AC="$(run_sandbox "$D" ATTRCENSUS)"
+AC_OK=1
+grep -q "SO3AF2_STAGED arm=ATTRCENSUS" "$D/out.txt" || AC_OK=0
+[ -f "$D/base/ATTRCENSUS/so3af2_attr_census.py" ] || AC_OK=0
+[ -f "$D/base/ATTRCENSUS/case/FFD/wingFFD.xyz" ] || AC_OK=0
+for mp in mp0 mp1 mp2; do [ -d "$D/base/ATTRCENSUS/case/$mp" ] || AC_OK=0; done
+if [ "$AC_OK" = "1" ]; then
+  ok "ATTRCENSUS stages" "its own arm dir with the census instrument, FFD and mp0..2 (run ended rc=$RC_AC at the stub)"
+else
+  bad "ATTRCENSUS stages" "rc=$RC_AC; $(tail -1 "$D/out.txt")"
+fi
+# the arm's command must name ITS OWN directory and instrument, not XM's
+if [ -f "$D/base/ATTRCENSUS/so3af2_cmd.sh" ] \
+   && grep -q "cd /mnt/ATTRCENSUS" "$D/base/ATTRCENSUS/so3af2_cmd.sh" \
+   && grep -q "so3af2_attr_census.py" "$D/base/ATTRCENSUS/so3af2_cmd.sh"; then
+  ok "ATTRCENSUS cmd is its own" "cd /mnt/ATTRCENSUS with the census instrument -- it did not inherit XM's"
+else
+  bad "ATTRCENSUS cmd is its own" "$(cat "$D/base/ATTRCENSUS/so3af2_cmd.sh" 2>/dev/null)"
+fi
+# a drifted census instrument must REFUSE
+D="$(mk_sandbox ac_drift)"; mk_fake_mesh "$D/base"; cp "$HERE/so3af2_attr_census.py" "$D/"
+printf '\n# drift\n' >> "$D/so3af2_attr_census.py"
+expect "ATTRCENSUS md5 drift" "$D" 9 NOLAUNCH_STAGING.txt ATTRCENSUS
+# the census instrument must not be able to WRITE the graded artefact
+if python3 - "$HERE/so3af2_attr_census.py" <<'PYX'
+import ast, sys
+t = ast.parse(open(sys.argv[1]).read())
+bad = [n.lineno for n in ast.walk(t)
+       if isinstance(n, ast.Call) and isinstance(n.func, ast.Name) and n.func.id == "open"
+       and n.args and isinstance(n.args[0], ast.Name) and n.args[0].id == "ARTEFACT_PATH"]
+sys.exit(1 if bad else 0)
+PYX
+then
+  ok "ATTRCENSUS writes no artefact" "no open() targets ARTEFACT_PATH -- proved by parsing, not by grepping a comment"
+else
+  bad "ATTRCENSUS writes no artefact" "an open() targets ARTEFACT_PATH"
+fi
+rm -rf "$TMP/ac_ok/base" "$TMP/ac_drift/base" 2>/dev/null
+rm -f "$TMP/ac_ok/so3af2_attr_census.py" "$TMP/ac_drift/so3af2_attr_census.py" 2>/dev/null
+
 # ---- THE PASSING DIRECTION.  All four guards must be SATISFIABLE, proved by
 # ---- all four PASS lines appearing before the launcher reaches the container.
 D="$(mk_sandbox pass)"
@@ -500,7 +546,7 @@ else
 fi
 
 # ---- cleanup BY NAME, and the decoy must survive it -------------------------
-for n in nl3 nl2md5 nl2tok nl1 nl4 stage_manifest stage_missing a1wrdrift xm_nomesh xm_nopoly xm_ok xm_warm pass; do
+for n in nl3 nl2md5 nl2tok nl1 nl4 stage_manifest stage_missing a1wrdrift xm_nomesh xm_nopoly xm_ok xm_warm ac_ok ac_drift pass; do
   # the staged arm tree and the doctored source are NAMED paths this file created
   # under its own $TMP -- removed by name, never by glob and never by sweep.
   rm -rf "$TMP/$n/base/MESH" "$TMP/$n/doctored_src" 2>/dev/null

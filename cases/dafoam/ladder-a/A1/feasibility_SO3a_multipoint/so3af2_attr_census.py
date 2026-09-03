@@ -1,0 +1,598 @@
+#!/usr/bin/env python
+"""SO-3aF2 ATTRIBUTE CENSUS -- DERIVED FROM so3af2_runScript.py, HEADER UNCHANGED.
+
+ADDENDUM 8.  The XM arm refused at `rc=7 RESIDUAL_HISTORY_UNAVAILABLE` because the
+producer tried FOUR candidate attribute names for a residual history and none of
+them carried one.  A FIFTH GUESS IS THE WRONG MOVE: it is the proxy-versus-relation
+disease this item has met three times -- guessing at a NAME when what is needed is
+the RELATION, i.e. which attribute of the LIVE OBJECT actually holds the history.
+
+THIS FILE ASKS THE OBJECT INSTEAD OF GUESSING.  It runs the same model the producer
+runs and then ENUMERATES what `<scenario>.coupling.solver` and its `DASolver`
+actually expose -- every attribute name, its type, whether it is callable, and for
+anything sequence-shaped its length -- and writes that census out as EVIDENCE.
+
+WHAT IT MAY NOT DO, AND THE CONSTRAINTS ARE THE POINT:
+  * IT SCORES NOTHING.  No prediction is evaluated, no band is applied, no verdict
+    token is emitted.  F1-F5 belong to `so3af2_read.py` and are untouched.
+  * IT NEVER WRITES `so3af2_M.json`.  ⚠ A FIRST DRAFT OF THIS BANNER CLAIMED "the
+    name appears nowhere below" AND THAT WAS FALSE -- it appears three times, in
+    the producer's inherited header and in the path-contract derivation, which
+    this file keeps byte-identical on purpose.  A CLAIM IN A COMMENT IS NOT A
+    PROPERTY OF THE BYTES, which is this item's own standing lesson, and the
+    banner said it about itself.  The guarantee is therefore STRUCTURAL rather
+    than asserted: the census writes only `so3af2_attr_census.json`, and after
+    writing it this file CHECKS `ARTEFACT_PATH` ON DISK and REFUSES if a graded
+    artefact exists, so a run that somehow produced one cannot pass silently.
+  * ITS OWN rc IS 13, distinct from every other code in this item's taxonomy
+    (3/4/5/6 NO-LAUNCH, 7 producer, 8 cap, 9 staging, 10 docker, 11 environment,
+    12 ENV-0).
+  * IT COMPUTES NO GRADIENT.  The header below is BYTE-IDENTICAL to the producer's
+    up to the task branch, so the gradient task branches are absent here exactly as
+    they are absent there, and the forbidden token appears nowhere.
+
+The header above this banner is the producer's own, unchanged, so the model this
+censuses is the model the producer builds -- not a re-creation of it.
+"""
+
+"""CURRICULUM SO-3aF2 -- THE PRODUCER.  NACA0012 ALPHA-MULTIPOINT FEASIBILITY,
+INCOMPRESSIBLE, PRIMAL ONLY.
+
+DERIVED FROM `curriculum_SO3aR2/so3ar2_runScript.py` BY EXACTLY ONE CLASS OF
+DELETION, and `so3af2_runScript_DELTAS_from_so3ar2.diff` shows every byte of it.
+The physics, the FFD box, the shape-function construction, the geometric
+constraints, the per-point `run_directory` repair and the shared geometry are
+REUSED UNCHANGED -- this file makes no fresh physical choice.
+
+--------------------------------------------------------------------------
+(A) THIS FILE CANNOT PRODUCE A GRADIENT.  THE CAPABILITY IS DELETED, NOT UNUSED.
+--------------------------------------------------------------------------
+`FEASIBILITY_PREREGISTRATION.md` section 0 promises this item produces NO
+gradient number at all -- "not one that is ungated, not one that is 'diagnostic
+only', not one written to a file and left unread" -- and section 3 makes the
+promise STRUCTURAL rather than conventional: the parent's gradient task branches
+and the `of=`/`wrt=` lists they consume are PHYSICALLY REMOVED, leaving
+`run_model` as the only reachable task and an explicit non-zero exit for any
+other `-task` value.  A convention ("we simply will not pass the gradient task")
+is a claim about operator behaviour; a deleted branch is a property of the bytes.
+
+**AND THE DELETION REACHES EVERY MENTION, NOT ONLY THE BRANCHES, BECAUSE THE
+FREEZE'S OWN NL-2 REQUIRES IT.**  Section 6 NL-2 refuses the launch if the
+forbidden token appears ANYWHERE in the staged producer -- not merely in a
+reachable branch.  The parent carried it at SEVEN sites: the header docstring,
+the argparse help string, the two `elif` branches, the totals call, and the
+final else-clause message.  Deleting only the line range section 3 names would
+have left the token at three surviving sites and NL-2 WOULD HAVE FIRED ON EVERY
+LAUNCH, FOREVER.  Section 3's deletion and section 6's token check are jointly
+satisfiable only if every occurrence goes, which is what happens here and is
+disclosed in the Stage-2 amendment rather than left for a reader to discover.
+
+The only task string this file knows is `run_model`.  There is no optimiser, no
+driver, no `pyOptSparse`, no IPOPT/SLSQP/SNOPT block and no major count -- all
+already absent in the parent and still absent here.
+
+--------------------------------------------------------------------------
+(B) WHAT IT WRITES, AND WHY IT REFUSES RATHER THAN WRITING A SHORT LIST.
+--------------------------------------------------------------------------
+It writes ONE artefact, `XM/so3af2_M.json`, carrying per-point `alpha`, `CD`,
+`CL`, the objective `J`, and `residual_histories`.  `so3af2_read.py` REFUSES if
+the number of residual histories disagrees with the number of
+`satisfied the prescribed tolerance` lines in the log (section 5 F1: the two
+readings must agree, and a disagreement is a reading defect, not physics).
+
+**THIS FILE THEREFORE REFUSES TO WRITE THE ARTEFACT AT ALL RATHER THAN WRITE ONE
+WITH A WRONG-LENGTH LIST.**  If it cannot obtain exactly one residual history per
+scenario it exits non-zero with a named reason and writes nothing.  A short list
+would reach the reader as a CONVERGENCE DISAGREEMENT -- a finding about the
+multipoint assembly -- when its true cause was this file failing to look one up.
+Manufacturing that finding would be worse than failing to run.
+
+--------------------------------------------------------------------------
+(C) WHAT THIS FILE DOES NOT ESTABLISH.
+--------------------------------------------------------------------------
+It never calls `solve_linear`, so it CANNOT show SO-3aR's adjoint collision is
+fixed (section 0.2).  It shows the three builders coexist in one process and
+that each owns a separate tree.  That is a weaker statement and the
+pre-registration says so in its own words.
+"""
+
+# =============================================================================
+# Imports
+# =============================================================================
+import os
+import argparse
+import numpy as np
+from mpi4py import MPI
+import openmdao.api as om
+from mphys.multipoint import Multipoint
+from dafoam.mphys import DAFoamBuilder
+from mphys.scenario_aerodynamic import ScenarioAerodynamic
+from pygeo.mphys import OM_DVGEOCOMP
+
+
+parser = argparse.ArgumentParser()
+# RETAINED so the parent's command line still parses, and DELIBERATELY NARROWED:
+# `run_driver` is NOT a valid task in this item and no optimiser exists to run.
+parser.add_argument("-optimizer", help="accepted and UNUSED: this item runs no optimiser",
+                    type=str, default="NONE")
+parser.add_argument("-task", help="run_model -- THE ONLY TASK THIS ITEM HAS; see (A)",
+                    type=str, default="run_model")
+args = parser.parse_args()
+
+# =============================================================================
+# Input Parameters -- QUOTATIONS from curriculum_SO2a/so2a_runScript.py:31-45,
+# reused UNCHANGED by the ruling.  These are not fresh choices.
+# =============================================================================
+U0 = 10.0
+p0 = 0.0
+nuTilda0 = 4.5e-5
+# The tutorial's own trimmed angle at CL_target = 0.5, quoted from
+# so2a_runScript.py:35.  It is the CENTRE of this item's alpha bracket and the
+# angle at which the family's plateau study, SO-1a and SO-2a were all measured.
+CL_target = 0.5
+aoa0 = 5.13918623195176
+A0 = 0.1
+# rho is used for normalizing CD and CL
+rho0 = 1.0
+
+# ---- LINE 4 OF THE FROZEN TEN.  THREE alpha, degrees: aoa0 - 2, aoa0, aoa0 + 2.
+# ---- The centre is a QUOTATION; the +/-2 degree bracket is LANE-CHOSEN and
+# ---- registered as lane-chosen on the three grounds line 4 states -- all three
+# ---- inside the tutorial's own aoa bound [0.0, 10.0]; NACA0012 attached
+# ---- throughout 3-7 deg at Re ~ 6.7e5, so no scenario sits near stall; and the
+# ---- bracket is wide enough that the points are genuinely different operating
+# ---- points.  WRITTEN OUT rather than computed from aoa0 +/- 2.0, so the file
+# ---- carries the exact values the comparator compares against to 1e-12 and a
+# ---- floating-point subtraction cannot move one of them.
+ALPHAS = [3.13918623195176, 5.13918623195176, 7.13918623195176]
+# ---- EQUAL WEIGHTS.  A CHOICE, NOT A DEFAULT, and named as one (line 4).
+# ---- Written as 1.0/3.0 rather than 0.3333... so the objective uses the exact
+# ---- binary value the artefact records.  A different weighting is a DIFFERENT
+# ---- OBJECTIVE and would need its own row; section "G-WT" registers why the
+# ---- shuffled-weight probe is NOT bought.
+WEIGHTS = [1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0]
+# The scenario group names.  `so3ar2_xf.SCENARIOS` is the same tuple and the
+# comparator refuses an artefact whose scenario names are not these.
+SCENARIOS = ["point%d" % i for i in range(len(ALPHAS))]
+
+# ===========================================================================
+# THE PER-POINT RUN DIRECTORIES -- THE WHOLE REASON SO-3aR2 EXISTS.
+#
+# SO-3aR built one `DAFoamBuilder` per operating point and gave NONE of them a
+# `run_directory`, so three independent `DASolver` instances shared one case
+# directory, each carrying its OWN `solution_counter`, and each renamed its
+# converged solution to the SAME `0.0001`.  `point0` renamed 443 -> 0.0001 and
+# succeeded (its arm log line 1827); `point1` tried 436 -> 0.0001 and
+# `pyDAFoam.renameSolution` raised
+#     `pyDAFoam Error: /mnt/X-S/0.0001 already exists, moving failed!`
+# at `pyDAFoam.py:1543`, reached from `mphys_dafoam.py:483` in `solve_linear`.
+# The item died at arm 2 of 5 with `NOT A RESULT`
+# [MEASURED, cases/dafoam/ladder-a/A1/curriculum_SO3aR/RESULTS.md section 6].
+#
+# THE CURE IS THE LAB'S OWN AND IS PORTED, NOT INVENTED.  A2's D6R already
+# carried it:
+#   `curriculum_D6R/d6r_opt_runScript.py:59`  RUN_DIRS = {"cl04": "mp04", ...}
+#   `curriculum_D6R/d6r_opt_runScript.py:120` "gridFile": os.path.join(os.getcwd(), RUN_DIRS[point])
+#   `curriculum_D6R/d6r_opt_runScript.py:138` run_directory=RUN_DIRS[pt]
+# A1 never carried A2's isolation forward.  That is a LAB REGRESSION of cause
+# class BOOKKEEPING/INSTRUMENT -- not an upstream defect and not physics.
+#
+# THE KEYS ARE DERIVED FROM `SCENARIOS`, NEVER SPELLED OUT.  A hand-written map
+# is one more call site of the scenario label, and a scenario added above with no
+# row here would silently fall back to the shared directory -- which is exactly
+# the failure being repaired.  `so3ar2_collision_leg.py` DRIVES the invariant
+# that the map is total and injective over `SCENARIOS`, and drives it RED on the
+# unfixed source.
+
+# ===========================================================================
+# THE OUTPUT PATHS ARE DERIVED FROM THE FROZEN READER'S OWN EXPRESSIONS.
+#
+# ADDENDUM 1 measured two mismatches between this producer and `so3af2_read.py`:
+# the per-point directories were written to `XM/mp<i>` while the reader's F3
+# reads `<root>/XM/case/`, and the artefact was written to `<root>/XM/XM/` --
+# one nested `XM` too many -- while the reader reads `<root>/XM/`.  F3 would have
+# scored MISS on a separation that had actually worked, which is the worst kind
+# of wrong answer: a confident negative on a working mechanism.
+#
+# THE READER IS FROZEN AND PINNED SINCE 2026-08-31 AND IS NOT TOUCHED.  THE
+# PRODUCER CONFORMS TO THE READER'S CONTRACT, NEVER THE REVERSE.
+#
+# And the paths are DERIVED, not transcribed -- the `a1wrt_controldict.py` shape.
+# Transcribing them would put the same literal in two files and let a future edit
+# to one silently reopen exactly this defect.  Every value below is parsed out of
+# the reader's OWN BYTES with `ast`, and anything not UNIQUELY determined REFUSES.
+# ===========================================================================
+def _reader_path_contract(reader_path):
+    """Parse `so3af2_read.py` and return (artefact_segments, case_segments,
+    run_dir_names) as the reader itself expresses them.  Refuses rather than
+    guessing: this is the file the grading depends on agreeing with."""
+    import ast as _ast
+
+    def _fail(reason, detail):
+        print("SO3aF2 PRODUCER REFUSAL: %s %s" % (reason, detail))
+        raise SystemExit(9)
+
+    if not os.path.isfile(reader_path):
+        _fail("READER_ABSENT", reader_path + " -- the producer derives its output "
+              "paths from the reader and will not guess them")
+    tree = _ast.parse(open(reader_path).read())
+
+    joins = []
+    for node in _ast.walk(tree):
+        if not isinstance(node, _ast.Call):
+            continue
+        f = node.func
+        if not (isinstance(f, _ast.Attribute) and f.attr == "join"):
+            continue
+        if not node.args:
+            continue
+        a0 = node.args[0]
+        if not (isinstance(a0, _ast.Name) and a0.id == "root"):
+            continue
+        segs = [a.value for a in node.args[1:]
+                if isinstance(a, _ast.Constant) and isinstance(a.value, str)]
+        if len(segs) == len(node.args) - 1:
+            joins.append(segs)
+
+    # THE CASE PATH IS IDENTIFIED BY ITS CONSUMER, NOT BY A FILENAME HEURISTIC.
+    # A first draft took "the join that is not a .json" and REFUSED against the
+    # real reader, because there are three of them -- <root>/XM/XM.log, <root>/XM
+    # and <root>/XM/case. The refusal was right and the rule was wrong: it used a
+    # PROXY for the quantity instead of the relation that actually defines it.
+    # The case path is the argument of the call to `read_run_dirs`, which is the
+    # function whose result F3 is scored from, and nothing else is.
+    case = []
+    for node in _ast.walk(tree):
+        if not (isinstance(node, _ast.Call) and isinstance(node.func, _ast.Name)
+                and node.func.id == "read_run_dirs" and len(node.args) == 1):
+            continue
+        a = node.args[0]
+        if not (isinstance(a, _ast.Call) and isinstance(a.func, _ast.Attribute)
+                and a.func.attr == "join" and a.args
+                and isinstance(a.args[0], _ast.Name) and a.args[0].id == "root"):
+            _fail("READER_CASE_PATH_NOT_A_ROOT_JOIN",
+                  "read_run_dirs is called with something this producer cannot derive")
+        segs = [x.value for x in a.args[1:]
+                if isinstance(x, _ast.Constant) and isinstance(x.value, str)]
+        if len(segs) != len(a.args) - 1:
+            _fail("READER_CASE_PATH_NOT_LITERAL", "non-literal segment in read_run_dirs' join")
+        case.append(segs)
+
+    art = [j for j in joins if j and j[-1].endswith(".json")]
+    if len(art) != 1:
+        _fail("READER_ARTEFACT_PATH_NOT_UNIQUE", repr(art))
+    if len(case) != 1:
+        _fail("READER_CASE_PATH_NOT_UNIQUE", repr(case))
+
+    run_dirs = None
+    for node in _ast.walk(tree):
+        if isinstance(node, _ast.Assign) and len(node.targets) == 1 \
+                and isinstance(node.targets[0], _ast.Name) \
+                and node.targets[0].id == "RUN_DIRS" \
+                and isinstance(node.value, (_ast.List, _ast.Tuple)):
+            vals = [e.value for e in node.value.elts
+                    if isinstance(e, _ast.Constant) and isinstance(e.value, str)]
+            if len(vals) == len(node.value.elts):
+                if run_dirs is not None:
+                    _fail("READER_RUN_DIRS_NOT_UNIQUE", "more than one RUN_DIRS assignment")
+                run_dirs = vals
+    if not run_dirs:
+        _fail("READER_RUN_DIRS_ABSENT", "no list-literal RUN_DIRS in the reader")
+    return art[0], case[0], run_dirs
+
+
+_READER = os.path.join(os.getcwd(), "so3af2_read.py")
+ART_SEGS, CASE_SEGS, READER_RUN_DIRS = _reader_path_contract(_READER)
+
+# The arm directory is `<root>/<ARM>`; both derived paths must agree on that first
+# segment, and it must be the directory this process is running in.  Asserting it
+# is what makes the derivation a check rather than an assumption.
+if ART_SEGS[0] != CASE_SEGS[0]:
+    print("SO3aF2 PRODUCER REFUSAL: READER_SEGMENTS_DISAGREE %r vs %r" % (ART_SEGS, CASE_SEGS))
+    raise SystemExit(9)
+if os.path.basename(os.getcwd()) != ART_SEGS[0]:
+    print("SO3aF2 PRODUCER REFUSAL: WRONG_WORKING_DIRECTORY cwd=%s expected basename %r "
+          "-- the reader's contract is <root>/%s/..." % (os.getcwd(), ART_SEGS[0], ART_SEGS[0]))
+    raise SystemExit(9)
+
+RUN_ROOT_DIR = os.path.dirname(os.getcwd())          # <root>
+ARTEFACT_PATH = os.path.join(RUN_ROOT_DIR, *ART_SEGS)  # <root>/XM/so3af2_M.json
+CASE_DIR = os.path.join(RUN_ROOT_DIR, *CASE_SEGS)      # <root>/XM/case
+
+# The per-point directories must be created UNDER the reader's case path, so the
+# producer runs from there.  A missing case directory REFUSES BY NAME rather than
+# failing somewhere inside DAFoam -- ADDENDUM 1 finding 1 (the XM arm stages one
+# file into an otherwise empty directory) is NOT repaired here and this refusal is
+# what makes it legible instead of a crash.
+if not os.path.isdir(CASE_DIR):
+    print("SO3aF2 PRODUCER REFUSAL: CASE_DIRECTORY_ABSENT %s -- the reader's F3 reads "
+          "run directories from here (%s), so the case must be staged under it. "
+          "The XM staging repair is NOT part of this addendum." % (CASE_DIR, "/".join(CASE_SEGS)))
+    raise SystemExit(9)
+os.chdir(CASE_DIR)
+print("SO3aF2 PRODUCER path contract DERIVED from the reader: artefact=%s case=%s run_dirs=%r"
+      % (ARTEFACT_PATH, CASE_DIR, READER_RUN_DIRS))
+
+# RUN_DIRS now come FROM THE READER, so the two files cannot disagree.  A count
+# mismatch against SCENARIOS refuses rather than silently pairing the shorter list.
+if len(READER_RUN_DIRS) != len(SCENARIOS):
+    print("SO3aF2 PRODUCER REFUSAL: RUN_DIRS_COUNT reader=%d scenarios=%d"
+          % (len(READER_RUN_DIRS), len(SCENARIOS)))
+    raise SystemExit(9)
+RUN_DIRS = {sc: READER_RUN_DIRS[i] for i, sc in enumerate(SCENARIOS)}
+
+# Input parameters for DAFoam -- UNCHANGED from so2a_runScript.py:39-84.
+daOptions = {
+    "designSurfaces": ["wing"],
+    "solverName": "DASimpleFoam",
+    "primalMinResTol": 1.0e-8,
+    "primalBC": {
+        "U0": {"variable": "U", "patches": ["inout"], "value": [U0, 0.0, 0.0]},
+        "p0": {"variable": "p", "patches": ["inout"], "value": [p0]},
+        "nuTilda0": {"variable": "nuTilda", "patches": ["inout"], "value": [nuTilda0]},
+        "useWallFunction": True,
+    },
+    "function": {
+        "CD": {
+            "type": "force",
+            "source": "patchToFace",
+            "patches": ["wing"],
+            "directionMode": "parallelToFlow",
+            "patchVelocityInputName": "patchV",
+            "scale": 1.0 / (0.5 * U0 * U0 * A0 * rho0),
+        },
+        "CL": {
+            "type": "force",
+            "source": "patchToFace",
+            "patches": ["wing"],
+            "directionMode": "normalToFlow",
+            "patchVelocityInputName": "patchV",
+            "scale": 1.0 / (0.5 * U0 * U0 * A0 * rho0),
+        },
+    },
+    "adjEqnOption": {"gmresRelTol": 1.0e-6, "pcFillLevel": 1, "jacMatReOrdering": "rcm"},
+    "normalizeStates": {
+        "U": U0,
+        "p": U0 * U0 / 2.0,
+        "nuTilda": nuTilda0 * 10.0,
+        "phi": 1.0,
+    },
+    "inputInfo": {
+        "aero_vol_coords": {"type": "volCoord", "components": ["solver", "function"]},
+        "patchV": {
+            "type": "patchVelocity",
+            "patches": ["inout"],
+            "flowAxis": "x",
+            "normalAxis": "y",
+            "components": ["solver", "function"],
+        },
+    },
+}
+
+# Mesh deformation setup.  The `symmetryPlanes` and `fileType` are UNCHANGED from
+# so2a_runScript.py:87-92; `gridFile` is now PER POINT, which is the SO-3aR2 delta.
+# D6R's shape, `d6r_opt_runScript.py:117-124`: each point owns a full case copy and
+# reads its mesh out of that copy, so no two IDWarp instances and no two DASolvers
+# address the same directory.
+def mesh_options_for(point):
+    return {
+        "gridFile": os.path.join(os.getcwd(), RUN_DIRS[point]),
+        "fileType": "OpenFOAM",
+        # point and normal for the symmetry plane
+        "symmetryPlanes": [[[0.0, 0.0, 0.0], [0.0, 0.0, 1.0]], [[0.0, 0.0, 0.1], [0.0, 0.0, 1.0]]],
+    }
+
+# The ExecComp expression, BUILT FROM `WEIGHTS` rather than written as a literal,
+# so a weight changed above cannot leave a stale coefficient in the objective.
+# D6 wrote its expression as the literal "J = 0.25*CD04 + 0.50*CD05 + 0.25*CD06"
+# beside a separate weights list -- two places to change and one to forget.
+OBJ_EXPR = "J = " + " + ".join("%r*CD%d" % (w, i) for i, w in enumerate(WEIGHTS))
+
+
+# Top class: the multipoint assembly.
+class Top(Multipoint):
+    def setup(self):
+
+        # ONE builder per operating point -- one DASolver per scenario -- EACH IN
+        # ITS OWN `run_directory`.  They share `daOptions` because the three points
+        # differ ONLY in alpha, which is a boundary condition and not a mesh
+        # property; they do NOT share a directory, because each DASolver carries
+        # its own `solution_counter` and renames into `run_directory`.  Sharing one
+        # is what killed SO-3aR at its second arm.
+        self.builders = []
+        for i, sc in enumerate(SCENARIOS):
+            b = DAFoamBuilder(daOptions, mesh_options_for(sc), scenario="aerodynamic",
+                              run_directory=RUN_DIRS[sc])
+            b.initialize(self.comm)
+            self.builders.append(b)
+
+        # the design variable component holding the top level design variables
+        self.add_subsystem("dvs", om.IndepVarComp(), promotes=["*"])
+
+        # one mesh coordinate subsystem per scenario (each DASolver needs its own)
+        for i, sc in enumerate(SCENARIOS):
+            self.add_subsystem("mesh_" + sc, self.builders[i].get_mesh_coordinate_subsystem())
+
+        # ---- THE ONE SHARED GEOMETRY.  See (B).  This is the whole reason the
+        # ---- item can buy G-MP-STRUCT: exactly one `shape` -> surface map.
+        self.add_subsystem("geometry", OM_DVGEOCOMP(file="FFD/wingFFD.xyz", type="ffd"))
+
+        # one scenario (flow condition) per operating point
+        for i, sc in enumerate(SCENARIOS):
+            self.mphys_add_scenario(sc, ScenarioAerodynamic(aero_builder=self.builders[i]))
+
+        # The geometry takes its undeformed surface from SCENARIO 0's mesh and
+        # feeds ALL THREE scenarios.  WHICH mesh is recorded here rather than left
+        # implicit: the three are the same points, and reading point0's is a
+        # choice a reviewer can check.
+        self.connect("mesh_%s.x_aero0" % SCENARIOS[0], "geometry.x_aero_in")
+        for sc in SCENARIOS:
+            self.connect("geometry.x_aero0", "%s.x_aero" % sc)
+
+        # ---- the weighted objective, assembled by an ExecComp.  This component
+        # ---- is what G-MP-STRUCT's identity is an identity ABOUT.
+        self.add_subsystem("obj", om.ExecComp(OBJ_EXPR))
+        for i, sc in enumerate(SCENARIOS):
+            self.connect("%s.aero_post.CD" % sc, "obj.CD%d" % i)
+
+    def configure(self):
+
+        # surface coordinates from SCENARIO 0's mesh -- see the note in setup().
+        points = getattr(self, "mesh_%s" % SCENARIOS[0]).mphys_get_surface_mesh()
+
+        # add pointset to the SHARED geometry component
+        self.geometry.nom_add_discipline_coords("aero", points)
+
+        # triangular points for the geometric constraints, from the same mesh
+        tri_points = getattr(self, "mesh_%s" % SCENARIOS[0]).mphys_get_triangulated_surface()
+        self.geometry.nom_setConstraintSurface(tri_points)
+
+        # ---- the shape function construction, UNCHANGED from
+        # ---- so2a_runScript.py:137-148.  5x2x2 FFD -> 8 `shape` functions.
+        pts = self.geometry.DVGeo.getLocalIndex(0)
+        dir_y = np.array([0.0, 1.0, 0.0])
+        shapes = []
+        for i in range(1, pts.shape[0] - 1):
+            for j in range(pts.shape[1]):
+                # k=0 and k=1 move together to ensure symmetry
+                shapes.append({pts[i, j, 0]: dir_y, pts[i, j, 1]: dir_y})
+        # LE/TE shape: j=0 and j=1 move in opposite directions so the LE/TE are fixed
+        for i in [0, pts.shape[0] - 1]:
+            shapes.append({pts[i, 0, 0]: dir_y, pts[i, 0, 1]: dir_y,
+                           pts[i, 1, 0]: -dir_y, pts[i, 1, 1]: -dir_y})
+        self.geometry.nom_addShapeFunctionDV(dvName="shape", shapes=shapes)
+
+        # ---- the geometric constraints, UNCHANGED from so2a_runScript.py:151-155.
+        # ---- They live on the SHARED geometry, so there is one set of them for
+        # ---- the whole multipoint problem rather than three that could disagree.
+        leList = [[1e-4, 0.0, 1e-4], [1e-4, 0.0, 0.1 - 1e-4]]
+        teList = [[0.998 - 1e-4, 0.0, 1e-4], [0.998 - 1e-4, 0.0, 0.1 - 1e-4]]
+        self.geometry.nom_addThicknessConstraints2D("thickcon", leList, teList, nSpan=2, nChord=10)
+        self.geometry.nom_addVolumeConstraint("volcon", leList, teList, nSpan=2, nChord=10)
+        self.geometry.nom_addLERadiusConstraints("rcon", leList, 2, [0.0, 1.0, 0.0], [-1.0, 0.0, 0.0])
+
+        # ---- ONE shared `shape` vector across all three scenarios (line 1).
+        self.dvs.add_output("shape", val=np.array([0] * len(shapes)))
+        self.connect("shape", "geometry.shape")
+
+        # ---- the operating points.  ONE `patchV{i}` per scenario, differing ONLY
+        # ---- in the angle.  Promoted through `dvs` AND connected to the scenario,
+        # ---- so BOTH of G-ALPHA's read paths -- `patchV{i}` and
+        # ---- `point{i}.patchV` -- resolve to the same value.  See (D).
+        for i, sc in enumerate(SCENARIOS):
+            self.dvs.add_output("patchV%d" % i, val=np.array([U0, ALPHAS[i]]))
+            self.connect("patchV%d" % i, "%s.patchV" % sc)
+
+        # ---- the design variables.  `shape` ONLY.  `patchV` is NOT a design
+        # ---- variable in this item and its removal is registered, not silent --
+        # ---- see (C).  The parent's `add_design_var("patchV", ...)` is GONE.
+        self.add_design_var("shape", lower=-1.0, upper=1.0, scaler=10.0)
+
+        # ---- the objective and the geometric constraints are DECLARED so the
+        # ---- model is the one the later optimisation rung will use, and so the
+        # ---- constraint components are built.  NO DRIVER EXISTS TO CONSUME THEM
+        # ---- IN THIS ITEM -- see (A).  The per-scenario CL is NOT constrained
+        # ---- here: alpha is the operating point, nothing is trimmed, and G5C
+        # ---- verifies dCL_i/dx as a GRADIENT rather than enforcing a target.
+        self.add_objective("obj.J", scaler=1.0)
+        self.add_constraint("geometry.thickcon", lower=0.5, upper=3.0, scaler=1.0)
+        self.add_constraint("geometry.volcon", lower=1.0, scaler=1.0)
+        self.add_constraint("geometry.rcon", lower=0.8, scaler=1.0)
+
+
+# OpenMDAO setup
+prob = om.Problem()
+prob.model = Top()
+prob.setup(mode="rev")
+
+# NO DRIVER IS CONSTRUCTED.  See (A): section 2 limb 1 is the ABSENCE of the
+# capability, and `run_driver` is not among the tasks below.
+if args.task != "run_model":
+    print("SO3aF2 CENSUS: the only task is run_model; this file scores nothing.")
+    exit(13)
+
+prob.run_model()
+
+# =============================================================================
+# THE CENSUS.  Rank 0 only.  It ASKS THE OBJECT and records what it is told.
+# =============================================================================
+if MPI.COMM_WORLD.rank == 0:
+    import json
+
+    def describe(obj, label, depth_note):
+        """Every attribute the object exposes, with enough shape to identify a
+        residual history without guessing its name.  Nothing here raises: an
+        attribute that cannot be read is RECORDED AS UNREADABLE, never skipped,
+        because a silently omitted attribute is exactly the blindness this
+        census exists to remove."""
+        out = {"label": label, "note": depth_note,
+               "type": type(obj).__name__, "attributes": {}}
+        try:
+            names = sorted(set(dir(obj)))
+        except Exception as exc:              # noqa: BLE001
+            out["dir_failed"] = str(exc)
+            return out
+        for name in names:
+            if name.startswith("__"):
+                continue
+            rec = {}
+            try:
+                val = getattr(obj, name)
+            except Exception as exc:          # noqa: BLE001
+                out["attributes"][name] = {"UNREADABLE": str(exc)}
+                continue
+            rec["type"] = type(val).__name__
+            rec["callable"] = callable(val)
+            try:
+                rec["len"] = len(val)
+                rec["sequence_shaped"] = True
+            except Exception:                 # noqa: BLE001
+                rec["sequence_shaped"] = False
+            if rec.get("sequence_shaped") and not rec["callable"]:
+                try:
+                    rec["first_element_type"] = type(list(val)[0]).__name__ if len(val) else None
+                except Exception:             # noqa: BLE001
+                    rec["first_element_type"] = "UNREADABLE"
+            out["attributes"][name] = rec
+        return out
+
+    census = {"item": "SO3aF2", "arm": "ATTRCENSUS", "scores_nothing": True,
+              "writes_no_graded_artefact": True, "scenarios": {}}
+    for sc in SCENARIOS:
+        entry = {}
+        node = prob.model
+        path = []
+        for part in (sc, "coupling", "solver"):
+            node = getattr(node, part, None)
+            path.append(part)
+            if node is None:
+                entry["resolved_to"] = "/".join(path[:-1])
+                entry["missing_at"] = part
+                break
+        if node is not None:
+            entry["resolved_to"] = "/".join(path)
+            entry["solver"] = describe(node, "%s.coupling.solver" % sc,
+                                       "the mphys wrapper")
+            das = getattr(node, "DASolver", None)
+            if das is None:
+                entry["DASolver"] = "ABSENT on the solver object"
+            else:
+                entry["DASolver"] = describe(das, "%s.coupling.solver.DASolver" % sc,
+                                             "the pyDAFoam object the producer needs")
+        census["scenarios"][sc] = entry
+
+    out_path = os.path.join(RUN_ROOT_DIR, ART_SEGS[0], "so3af2_attr_census.json")
+    tmp = out_path + ".partial"
+    with open(tmp, "w") as fh:
+        json.dump(census, fh, indent=2, sort_keys=True)
+        fh.write("\n")
+    os.replace(tmp, out_path)
+    # THE STRUCTURAL GUARANTEE.  This run must not have produced the graded
+    # artefact.  Checked ON DISK rather than promised in a comment.
+    if os.path.exists(ARTEFACT_PATH):
+        print("SO3aF2 CENSUS REFUSAL: GRADED_ARTEFACT_PRESENT %s -- this diagnostic "
+              "must not produce the reader's artefact, and one exists on disk after "
+              "it ran. Nothing here may be scored." % ARTEFACT_PATH)
+        exit(13)
+    print("SO3AF2_ATTR_CENSUS_WRITTEN %s scenarios=%d graded_artefact_absent=yes"
+          % (out_path, len(census["scenarios"])))

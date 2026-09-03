@@ -1022,3 +1022,68 @@ The producer tried **four candidate attribute names** and none carried a residua
 F1–F5, every band, both caps, the ceiling, the memory floor, every rc in the taxonomy, the plant constants, and **§0.2 in full**. **SUBMISSIONS PARKED.**
 
 **END OF ADDENDUM 7.**
+
+---
+
+## ADDENDUM 8 — THE ATTRIBUTE CENSUS. A BOUNDED DIAGNOSTIC THAT ASKS THE OBJECT INSTEAD OF GUESSING. Dated **2026-09-03**. Version **1.8 → 1.9**.
+
+> **lines whose number changed above this section: 0** — asserted by execution against both the pre-append snapshot and `git show HEAD:`.
+
+**Moves no gate, no threshold, no prediction, no band, no cap and no label. IT SCORES NOTHING.**
+
+*(Drafting note, disclosed because it touched this file: a first attempt to append this section used an UNQUOTED heredoc, so three backtick-quoted names were COMMAND-SUBSTITUTED and landed as empty strings — the "backticks kill the commit" trap, here eating document text instead of a commit message. The malformed append was never committed; the file was restored BYTE-IDENTICAL to its pre-append state, asserted by diff against both the snapshot and HEAD, and this section is appended with a quoted heredoc. Nothing above line 1024 was ever at risk, and that is checked rather than claimed.)*
+
+### A8.1 Why a census and not a fifth guess
+
+The XM arm refused at `rc=7` because the producer tried **four candidate attribute names** for a residual history and none carried one. **A fifth guess is the wrong move.**
+
+> **It is the proxy-versus-relation disease this item has met three times tonight** — the token alternation that measured a superset of what the guard reads, the case path taken as *"the join that is not a .json"*, and now **guessing at a NAME when what is needed is the RELATION: which attribute of the live object actually holds the history.**
+
+**This arm asks the object.**
+
+### A8.2 What it is, and the constraints ARE the registration
+
+`so3af2_attr_census.py` is **derived from the producer**, header byte-identical up to the task branch, so **the model it censuses is the model the producer builds** rather than a re-creation of it. It runs the same `run_model` and then enumerates what `<scenario>.coupling.solver` and its `DASolver` actually expose — every attribute name, its type, whether it is callable, and for anything sequence-shaped its length — writing that census out as **evidence**.
+
+| constraint | how it is enforced |
+|---|---|
+| **It scores nothing** | no prediction is evaluated, no band applied, no verdict token emitted; F1–F5 belong to `so3af2_read.py` and are untouched |
+| **It never writes the graded artefact** | it writes only `so3af2_attr_census.json`, and **after writing it CHECKS `ARTEFACT_PATH` ON DISK and REFUSES if one exists** |
+| **Its own rc is 13** | distinct from 3/4/5/6 (NO-LAUNCH), 7 (producer), 8 (cap), 9 (staging), 10 (docker), 11 (environment), 12 (ENV-0) |
+| **It computes no gradient** | the header is byte-identical to the producer's, so the gradient branches are absent exactly as they are there; the forbidden token appears **0** times |
+| **An unreadable attribute is RECORDED, never skipped** | a silently omitted attribute is exactly the blindness this census exists to remove |
+
+> **⚠ AND A FIRST DRAFT OF ITS OWN BANNER CLAIMED THE GRADED ARTEFACT'S NAME "appears nowhere below" — WHICH WAS FALSE.** It appears three times, in the inherited header and in the path-contract derivation, both kept byte-identical on purpose. **A CLAIM IN A COMMENT IS NOT A PROPERTY OF THE BYTES** — this item's own standing lesson, and the banner said it about itself. The guarantee is now **structural** (the on-disk check above) and **proved by parsing rather than by grepping a comment**: a census leg walks the AST and asserts **no `open()` call targets `ARTEFACT_PATH`**.
+
+### A8.3 Cost
+
+| field | value |
+|---|---|
+| ranks | **1** |
+| **cap** | **2.0 core-min** — **well under the 6.0 the XM arm did not approach.** Basis: XM ran three primals to its refusal for **0.3500 core-min MEASURED**, and this arm runs the same three plus an enumeration |
+| point estimate | **0.40 core-min**, [DERIVED from that MEASURED 0.3500], not measured |
+| solver core-min | it launches one container; **it produces no graded number** |
+| dollars | **DERIVED, NOT MEASURED** at $0.0513/core-h: 2.0 core-min cap = **$0.00171** |
+| calibration | owed at completion, **its own row**, not covered by the MESH or XM rows |
+
+### A8.4 Driven — 41 legs, PASS 41, FAIL 0, NOT RUN 0
+
+New legs: the census instrument **pinned and enumerated** by the pin census (**driven=6 exist=6**); **ATTRCENSUS stages its own arm directory** with the instrument, the FFD and `mp0..2`; **its command names its own directory and instrument** and did not inherit XM's; a **drifted census instrument REFUSES** at rc 9; and the **no-graded-artefact guarantee proved by AST**.
+
+> **⚠ AND A LEG CAUGHT A REAL DEFECT IN THE SAME PASS.** The staging evidence lines hard-coded `arm=XM`, so the ATTRCENSUS arm **announced itself as XM** in its own log. **A label that does not track the branch it is in is the sibling-branch defect wearing a different hat**, and it was found by the leg that checked the label rather than the behaviour. The arm name now tracks `$ARM`.
+
+### A8.5 Re-pins
+
+| file | md5 | note |
+|---|---|---|
+| `so3af2_attr_census.py` | `2fd479d881f63b529605b3a45d0154f3` | **NEW** |
+| `so3af2_run_arm.sh` | `feab8825c8789a5c32625845292e74f9` | **RE-PINNED** |
+| `so3af2_pin_selftest.sh` | `a483850797f01c5418adf7448acecbb5` | **RE-PINNED** |
+| `so3af2_read.py` | `d5f4149d43abe3a165ffe7e653b78bee` | **UNCHANGED — the frozen reader is not touched** |
+| `so3af2_runScript.py` | `c268633f67e6d2c785feec2ebfc7326c` | **UNCHANGED** |
+
+### A8.6 Standing
+
+**NOT QUEUED. NOT FIRED.** Check 1 and check 4 are the supervisor's. The XM arm's `rc=7` stands as the **registered risk landing**; MESH stands **complete and NOT A RESULT**; the item stays **PENDING**; **F1–F5 are unscored**; and **§0.2 binds in full — whatever the census shows, this item never called `solve_linear` and nothing here may be quoted toward SO-3aR's adjoint collision.** **SUBMISSIONS PARKED.**
+
+**END OF ADDENDUM 8.**
