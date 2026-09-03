@@ -1,0 +1,42 @@
+=== PLANTED CONTROLS (standing rule 3, registration section 7) ===
+  [       FIRED] C0 absolute, r8 Fortran, big-endian
+                 expected: cells 10, bnd 5, {alpha:2, beta:2, gamma:1}
+                 saw     : cells 10, bnd 5, {'alpha': 2, 'beta': 2, 'gamma': 1}
+  [       FIRED] C0 absolute, b8 raw stream, big
+                 expected: cells 10, bnd 5, {alpha:2, beta:2, gamma:1}
+                 saw     : cells 10, bnd 5, {'alpha': 2, 'beta': 2, 'gamma': 1}
+  [       FIRED] C1 rename one .mapbc group (scratch copy)
+                 expected: the renamed patch appears in the emitted name set
+                 saw     : names ['PLANTED_WALL_RENAME', 'farfield', 'symmetry', 'wall']
+  [       FIRED] C2 delete one boundary quad (scratch copy of the real grid)
+                 expected: exactly one patch's face count drops by exactly 1; cells unchanged
+                 saw     : per-patch drop {'farfield': 0, 'symmetry': 1, 'wall': 0}, bnd 41984 -> 41983, cells 638976 -> 638976
+  [       FIRED] C3 +1 on one nFaces
+                 expected: R0-G2a reports UNEQUAL, not equal
+                 saw     : {'defaultFaces': 6912} -> {'defaultFaces': 6913}
+  [       FIRED] C4 rename one patch
+                 expected: R0-G2a reports a NAME-SET MISMATCH
+                 saw     : ['defaultFaces'] -> ['PLANTED_PATCH']
+  [       FIRED] C5 both aspect-ratio label forms yield a NON-NULL value
+                 expected: '=' form and ':' form both non-null; a reader matching only '=' silently misses exactly the pathological logs
+                 saw     : '=' 1.26794919382 / ':' 14426.8
+  [       FIRED] C6 Min volume != Max volume -> a non-trivial derived ratio, never 1
+                 expected: ratio > 1 and derived, never 1 and never null
+                 saw     : min 1.02355e-05 max 90736700000.0 ratio 8864901568071906.0
+  [       FIRED] C7 the verdict line is DISCARDED, the number is PARSED
+                 expected: the same log that prints `Non-orthogonality check OK.` yields a parsed maximum ABOVE 70 degrees
+                 saw     : verdict lines ['Non-orthogonality check OK.', 'Failed 3 mesh check'] at 89.7134 deg
+  [       FIRED] C8 an absent log reads ABSENT, never clean
+                 expected: state ABSENT and no number
+                 saw     : state ABSENT
+  [       FIRED] C10 a header note contradicting the mesh's own lists REFUSES [// comment form, DPW5_L1T_hex]
+                 expected: nCells 638976 -> 638977 in the header alone must REFUSE, never be preferred over the lists
+                 saw     : POLYMESH: /tmp/rung0_controls_jycv61bu/C10_0/constant/polyMesh/owner's header note (// comment) CONTRADICTS the mesh's own lists: ['nCells: header 638977 vs derived 638976']. REFUS
+  [       FIRED] C10 a header note contradicting the mesh's own lists REFUSES [quoted FoamFile key form, L2]
+                 expected: nCells 122880 -> 122881 in the header alone must REFUSE, never be preferred over the lists
+                 saw     : POLYMESH: /tmp/rung0_controls_jycv61bu/C10_4/constant/polyMesh/owner's header note (quoted FoamFile key) CONTRADICTS the mesh's own lists: ['nCells: header 122881 vs derived 122880
+  [     NOT RUN] C9 foam_to_ugrid round trip (section 7 row 7)
+                 expected: drop one face from the written file -> R0-G2b reports unequal
+                 saw     : NOT RUN -- /home/ubuntu/Certonomous/cases/committee-grids/foam_to_ugrid.py DOES NOT EXIST (frozen registration section 9 says so). This control is neither passed nor failed; it is UNBUILT, and R0-G2b is consequently PENDING, never PASS.
+
+controls-only: no grid was graded, no verdict is claimed.
