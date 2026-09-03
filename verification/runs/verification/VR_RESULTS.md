@@ -426,6 +426,85 @@ tracked change.
 
 # VR3-R2 — **`GATE FAIL`.** FOUR OF THE TWELVE "CARDINALITY-GUARDED SAFE" SITES ARE **NOT SAFE FOR THE REASON CLAIMED** — AND THEY ARE ONE FUNCTION REPLICATED FOUR TIMES
 
+## ⚠⚠ CORRECTION — 2026-09-03T19:0xZ, PLACED AT THE HEAD OF THIS SECTION BECAUSE `§2ae` REQUIRES THE CORRECTION TO BE REACHABLE FROM WHERE THE NUMBER IS READ. **THE `GATE FAIL` STANDS. ITS CHARACTERISATION DOES NOT, AND THE ERROR IS IN MY INSTRUMENT.**
+
+**Raised UPHILL by ansys-verification** (their charter v1.27 `§32`, `de52e181`) **against a finding
+of mine. I verified every limb at source and THEY ARE RIGHT ON EVERY COUNT.**
+
+**WHAT SURVIVES — the numerator.** **Exactly 4 sites**, and ansys confirms the count. **The
+`GATE FAIL` verdict STANDS** (reasoning at the foot of this correction).
+
+**WHAT IS WITHDRAWN — three things, all mine:**
+
+**(1) THE `G1` PATTERN IS TRANSCRIBED WRONG ON EVERY ROW OF THIS RECORD.** I printed
+~~`postProcessing/*/U/gateProbes`~~. **The truth is `postProcessing/gateProbes/*/U`**
+`[VERIFIED BY ME AT SOURCE: grade_vmfl001.py:360 is`
+`os.path.join(level_dir, "postProcessing", PROBE_FO, "*", "U")` `with PROBE_FO = "gateProbes"`
+`at :72]`. **THE MECHANISM IS A DEFECT IN MY DRIVER AND I REPRODUCED IT:**
+`vr3r2_guard_set_attribution.py:114-120` collects literals with **`ast.walk`, which is
+BREADTH-FIRST and not source order**, and then **appends name-resolved strings AFTER all
+literals**. Driven on that exact line it yields `['postProcessing', '*', 'U']` and then appends
+`gateProbes` last.
+
+> **`_strs` RETURNS A MULTISET AND I REGISTERED IT AS A SEQUENCE.** `§3` of the registration
+> promises *"`G1` the **ordered** set that decides the answer… over what **resolved
+> pattern**"*. **The instrument can report WHICH literals a pattern contains and never IN WHAT
+> ORDER.** *An ordered claim from an unordered instrument — and I read this driver as my
+> non-delegable check 1 and did not catch it.*
+
+**(2) "UNGUARDED" IS TRUE UNDER MY REGISTERED `G4` AND MISLEADING IN PLAIN ENGLISH.**
+`[VERIFIED AT SOURCE, ALL FOUR SITES]` each binding is immediately followed by
+**`if not hits: refuse(...)`**. **ALL FOUR REFUSE AN EMPTY GLOB.** My `G4` requires a
+**CARDINALITY** guard (against literal `1`), so an emptiness guard correctly fails that test —
+**but a reader takes "UNGUARDED" to mean "unprotected", and these paths are not unprotected.**
+
+> **AND IT MATTERS MOST AGAINST MY OWN `FAIL_OPEN_GATE_AUDIT §28`, FILED ONE HOUR AGO.** That
+> section's operational test is *"can this code path distinguish 'the check ran and found
+> nothing' from 'the check did not run'?"* **THESE FOUR CAN. They are NOT specimens of the
+> four-faces family, and an unqualified "UNGUARDED" invites exactly that misreading.**
+
+**(3) MY DRIVER IS BLIND TO TRUTHINESS GUARDS.** `_inspect` matches only an `ast.Compare`
+containing `len(<name>)`. **`if not hits:` is a `UnaryOp(Not)` and is INVISIBLE to it.** So the
+driver cannot see an emptiness guard **at all** — it did not weigh one and reject it; it never
+saw one.
+
+**THE CORRECTED CHARACTERISATION, WHICH IS ansys's AND IS BETTER THAN MINE:**
+
+> **THE GENUINE DEFECT IS THE LEXICAL SORT** — `sorted(glob.glob(...))` with **no numeric key**
+> over a `*` that **is the start-time directory**. It is **LATENT BY MEASUREMENT** (ansys: every
+> `gateProbes` function object on this box holds **exactly one** time directory today), and its
+> **TRIGGER IS FALSE-FAVOURABLE: a crashed-and-resumed run**, which manufactures the second
+> directory. **`[MY OWN ADDITION, VERIFIED AT `grade_vmfl001.py:366` ONLY AND NOT GENERALISED TO
+> THE OTHER THREE]`: that site does `for h in hits:` over ALL members, so a second directory
+> would not merely select the wrong one — it would CONCATENATE two series in lexical order,
+> where `"0.1"` precedes `"0.05"`.**
+
+**WHY THE `GATE FAIL` NEVERTHELESS STANDS**, applying my own `§2w.1` discriminator — *does the
+defect DESCRIBE the record, or STAND BETWEEN the run and the reading?*
+
+- **Defect (1) DESCRIBES.** The classification path never consumes pattern **order**:
+  `has_wildcard` is a membership test over a set, `kind` comes from the call shape, and the
+  guard test is scope-and-dominance. **No class moves.**
+- **Defects (2) and (3) move nothing either**, because a truthiness guard is **not** the
+  cardinality guard `G4` requires — **seeing it would not have made any site `GUARDED`.**
+- **And the failing condition's SUBSTANCE is confirmed, not weakened:** the four carry a
+  **real lexical-ordering hazard over a set that can become multi-member**, which is precisely
+  the exposure `§4` registered `GATE FAIL` to report.
+
+**UNCHANGED AND RE-AFFIRMED: this widens a CANDIDATE set 19 → 23 and MOVES NO VERDICT.** All
+four graders are **FROZEN**; **repair is by NEW REGISTRATION only** — and that now includes
+**my own driver**, whose `G1` limb must be rebuilt to preserve source order and to see
+truthiness guards before any successor quotes a pattern from it.
+
+**⚠ ONE QUANTITY CARRIED EXPLICITLY UNMEASURED, AND ansys IS RIGHT TO INSIST ON IT:**
+**`VMFLGPU001-R2`'s segmentation is `NOT A RESULT` here — its run root is empty on this box
+because the run lives on the remote GPU instance.** It is **the one of the four with a
+favourable verdict**, i.e. **exactly where a false plateau would matter most.** **NOTHING MAY
+CITE IT AS CHECKED.** *This is the first application by another team of `FAIL_OPEN_GATE_AUDIT`
+`§28.4` — a blocked or unrun measurement is `NOT A RESULT`, never absence-of-failure — and they
+applied it to their own favourable row within an hour of it being filed. That is the clause
+working exactly as intended, and by someone other than its author.*
+
 **Registration:** `verification/campaign/VR3R2_PREREGISTRATION.md`, **frozen at `8515ea51`**,
 blob `ff0af23c4630`, **before this run** — the driver's own freeze arm re-derived that blob at
 run time and would have refused otherwise.
