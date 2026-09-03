@@ -108,6 +108,11 @@ A1WR_CASE_DIR=/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/wall_resolved_ao
 # directory another item may restage; the preserved root is the stabler pin.
 FFD_SRC="$A1WR_ROOT/STAGE12/sweep_I/case/FFD/wingFFD.xyz"
 MD5_FFD=6ddf378b028d03d8a18270488bee1759
+# ---- decomposeParDict, FROM THE SAME CASE AND FOR THE SAME REASON ------------
+# The second file L3's `system/` gets wrong.  Staged rather than argued inert --
+# see S5c.  Same case as the FFD so the two staged inputs cannot drift apart.
+DPD_SRC="$A1WR_ROOT/STAGE12/sweep_I/case/system/decomposeParDict"
+MD5_DPD=e6f1b0060944bc86d6dff56480ad2bd4
 # ---- THIS ITEM'S OWN INSTRUMENT, pinned by the freeze -----------------------
 # Pinned AND DRIVEN below.  A declared-but-unused hash is decoration that reads
 # like a guard, which is the same defect class as an unreachable check.
@@ -554,6 +559,29 @@ cp "$FFD_SRC" "$WORK/FFD/wingFFD.xyz" || { stage_say "ABORT S5b stage FFD"; exit
 echo "$MD5_FFD  $WORK/FFD/wingFFD.xyz" | md5sum -c - >> "$STAGE_EVID" 2>&1 \
   || { stage_say "ABORT S5b staged FFD md5 -- the copy did not land intact"; exit 4; }
 stage_say "A1WRT_STAGE (S5b) OK FFD staged from $FFD_SRC (A1WR's own alpha 0..12 incompressible sweep case), md5 $MD5_FFD asserted on BOTH sides of the copy"
+
+# ---- S5c: decomposeParDict -- A VARIABLE REMOVED, NOT ARGUED INERT ----------
+# L3's copy carries `numberOfSubdomains 2` and a `kahipCoeffs` block; the case
+# A1WR ACTUALLY RAN carries `1` and no such block.  MEASURED: sweep_I's copy is
+# BYTE-IDENTICAL to the incompressible SKELETON's, and A1WR's driver never writes
+# one -- so `1` is what A1WR ran, and L3's `2` is MESH-GENERATION FURNITURE,
+# exactly like L3's controlDict.  Same defect, same root, found second.
+#
+# IT WOULD HAVE BEEN EASY TO ARGUE THIS INERT -- `decomposePar` appears ZERO
+# times in both a1wr_cmd.sh and a1wr_runScript_incomp.py and this item runs np=1.
+# THAT ARGUMENT IS NOT TAKEN, and the reason is the ruling: an inertness argument
+# leaves the question OPEN and rests on a claim about pyDAFoam's internals that
+# cannot be settled without a container.  Staging the file CLOSES it -- whether
+# anything reads the dictionary stops mattering once A1WRT and the body it
+# extends carry identical bytes.  A removed variable beats a defended one.
+test -f "$DPD_SRC" || { stage_say "ABORT S5c decomposeParDict source absent: $DPD_SRC"; exit 5; }
+echo "$MD5_DPD  $DPD_SRC" | md5sum -c - >> "$STAGE_EVID" 2>&1 \
+  || { stage_say "ABORT S5c decomposeParDict md5 -- A1WR's own copy has MOVED from what this item registered against"; exit 4; }
+test -d "$WORK/system" || { stage_say "ABORT S5c no system/ under $WORK -- this is not a staged OpenFOAM case"; exit 5; }
+cp "$DPD_SRC" "$WORK/system/decomposeParDict" || { stage_say "ABORT S5c stage decomposeParDict"; exit 4; }
+echo "$MD5_DPD  $WORK/system/decomposeParDict" | md5sum -c - >> "$STAGE_EVID" 2>&1 \
+  || { stage_say "ABORT S5c staged decomposeParDict md5 -- the copy did not land intact"; exit 4; }
+stage_say "A1WRT_STAGE (S5c) OK decomposeParDict staged from $DPD_SRC, md5 $MD5_DPD asserted on BOTH sides of the copy -- L3's mesh-generation copy REPLACED, not inherited"
 
 # ---- S6: the controlDict is now DERIVED AND WRITTEN, THEN READ BACK ---------
 # WHY THIS CHANGED, AND IT IS NOT A WEAKENING.  S6 previously asserted the

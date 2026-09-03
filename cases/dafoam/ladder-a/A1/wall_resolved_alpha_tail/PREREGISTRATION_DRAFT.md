@@ -1450,3 +1450,236 @@ reader can take the scoped claim for a global one.
 same five as ADDENDUM 2 §A2.6. `a1wrt_controldict.py` is untouched at
 `a77c9bac486dce940707bdf9c00e1a6b`, and the grading path `a1wrt_read.py` remains
 `705db5f7e972f6c033cbe303b7a6038f`. **Still not enqueued, still not launched.**
+
+---
+
+## ADDENDUM 4 — 2026-09-03T20:56Z — THE INHERITED SET CLOSED AND ENUMERATED, `decomposeParDict` STAGED, AND THE GUARD SUITE MADE A COMMITTED ARTEFACT
+
+**Document version 1.3 → 1.4.**
+**Lines whose number changed above this section: 0** — **COMPUTED, not claimed:**
+in the appending invocation the first **1,452** lines of this file, its entire
+length before this append, were compared byte-for-byte against its blob at `HEAD`
+and are identical; `git diff` for this path shows **one hunk, zero deleted
+lines**.
+
+**PRE-COMPUTE CONDITION, BY EXECUTION IN THE APPENDING INVOCATION:** the
+registered run root `/home/ubuntu/certonomous-runs/A1WRT/` is **ABSENT**; the
+appending shell was written to refuse the append outright had it existed.
+
+**Landed on the dafoam-supervisor's ruling of 2026-09-03**, which discharged
+check 1 and check 4 on ADDENDUM 2/3's work and ordered this pass.
+
+### A4.1 NO GATE, THRESHOLD, CAP OR LABEL MOVES — named unchanged, again
+
+`endTime` **4000** · `primalMinResTol` **1e-8** · caps **361.0** and **2943.0** ·
+`ITEM CEILING` **3304.0** · frame allowance **300 s** · `TMO` **21,360 s** and
+**176,280 s** · ranks **np = 1** · toolchain row **patched**,
+`dafoam-idwarp-rot:v1`, digest `sha256:2927768a16ac…` · declared points **1** and
+**7** · `G-PATCH`, `G-REPRO`, `G-OCC`, `G-COLDSTART`, `G-STALL` **as frozen, none
+re-anchored, re-worded or re-thresholded** · verdict labels **as frozen**.
+**Every one unchanged.** What moves is the staging and the registered
+controlled/inherited split, which A4.3 rewrites in full.
+
+---
+
+### A4.2 THE CLOSED SET — every file A1WRT inherits from `L3`, enumerated
+
+**Two second-variable candidates had been found in `L3/system/` and both were
+found REACTIVELY, by something else tripping first.** That set had never been
+enumerated. It is enumerated here and registered as **closed**.
+
+**THE ENUMERATOR, stated so a successor re-runs it rather than trusts it.**
+`A1WRT` inherits exactly what `cp -a "$MESH_SRC" "$WORK"` delivers at `S2`, where
+`MESH_SRC=/home/ubuntu/certonomous-runs/A1WR/L3`. The path set is therefore
+**`find /home/ubuntu/certonomous-runs/A1WR/L3 -type f`** — **31 files**, no
+exclusions, `constant/polyMesh` included (9 of the 31) — each compared by md5
+against the same relative path under
+**`/home/ubuntu/certonomous-runs/A1WR/STAGE12/sweep_I/case`**, the run case whose
+alpha 0..12 series this tail extends. **31 = 21 + 4 + 6**, and the three groups
+below are exhaustive and disjoint.
+
+**STATE (i) — BYTE-IDENTICAL, inherited, nothing to do. 21 files.**
+
+| files | md5 |
+|---|---|
+| `0.orig/U` | `c6678d41923f6f1ee868da0a4d6e1a07` |
+| `0.orig/p` | `9508b3825e96dc218c23a2351d1dc9b6` |
+| `0.orig/nut` | `ba6041c403dfd7131b6dfb487bf3886f` |
+| `0.orig/nuTilda` | `d0165ec400b2ab18309e8f17cfb73284` |
+| `0.orig/k` | `1c065e15a59e811953be7963eeb20026` |
+| `0.orig/omega` | `191f3f7bee9a531c767d3a816c1e5d72` |
+| `0.orig/epsilon` | `f793e246c094d210cc6c0cedf584efc2` |
+| `constant/polyMesh/points.gz` | `7dab2ae9bd9d719757f7b9f555269d3f` |
+| `constant/polyMesh/faces.gz` | `bb644581c397733ea36b1999a84d598b` |
+| `constant/polyMesh/owner.gz` | `71c37ed4cd7a757b2bb30f27fa436c16` |
+| `constant/polyMesh/neighbour.gz` | `90e17aeb33c63f5b573e3ff44391ff90` |
+| `constant/polyMesh/boundary` | `3a469a74b1adb167e145fe50e14790e6` |
+| `constant/polyMesh/cellZones.gz` | `01003fa50e99eacae9e4078b1583b8aa` |
+| `constant/polyMesh/faceZones.gz` | `c9c0f2a9389cdf8935e03c9f4597f39a` |
+| `constant/polyMesh/pointZones.gz` | `dedc6402d08ae5fd038b0cff708fdd97` |
+| `constant/polyMesh/sets/highAspectRatioCells.gz` | `4ed1ea026c2ce7cff7129b3eaee8b9db` |
+| `constant/transportProperties` | `931e6f0f1e263e04eed2ff0a513b2463` |
+| `constant/turbulenceProperties` | `8c78a44cd53f17e62cd71eac0e67585d` |
+| `system/fvSchemes` | `f8c63ea5edf64abb6f4de333ceee60df` |
+| `system/fvSolution` | `68aff91e03f2d622fcb8b02a9c894c69` |
+| `system/createPatchDict` | `5e89709961881491e3f05dc97bbcf75c` |
+
+**The mesh, the discretisation, the linear solvers, the fluid properties, the
+turbulence model and every initial field are in this group.** Nothing in the
+physics of the run is in any other group, and that is the finding.
+
+**STATE (ii) — DIFFERS AND IS STAGED from A1WR's own bytes, md5-asserted on BOTH
+sides of the copy. 2 files.**
+
+| file | `L3` (inherited, WRONG) | staged from `sweep_I` | stage |
+|---|---|---|---|
+| `system/controlDict` | `46bb883cfc235d12df020bafbe3a9e78`, `endTime 1000` | `85656349b8c31277e51883d2df9f8217`, `endTime 4000` | **`S6`** — DERIVED from A1WR's own heredoc, written, read back |
+| `system/decomposeParDict` | `c3f5f05d45f0b9a70d645b107a837727`, `numberOfSubdomains 2` + `kahipCoeffs` | `e6f1b0060944bc86d6dff56480ad2bd4`, `numberOfSubdomains 1` | **`S5c` — NEW in this addendum** |
+
+Plus the input that was **absent altogether** and is staged at `S5b`:
+`FFD/wingFFD.xyz`, `6ddf378b028d03d8a18270488bee1759`. `L3` has no `FFD/`, so it
+appears in no row above; it is named here so the staged set is complete at three.
+
+**`decomposeParDict` IS STAGED RATHER THAN ARGUED INERT, AND THE DIFFERENCE
+MATTERS.** The inertness argument was available and is measured —
+`decomposePar` appears **zero** times in both `a1wr_cmd.sh` and
+`a1wr_runScript_incomp.py`, and this item runs np = 1 — but it **leaves the
+question open**, because it rests on a claim about pyDAFoam's internals that
+cannot be settled without opening a container. Staging **closes** it: whether
+anything reads the dictionary stops mattering once A1WRT and the body it extends
+carry identical bytes. **A removed variable beats a defended one.**
+
+**And the direction of the repair is established, not assumed.** `sweep_I`'s
+`decomposeParDict` is **byte-identical to the incompressible skeleton's**
+(`/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible/case/system/decomposeParDict`,
+same `e6f1b006…`), and A1WR's driver **never writes one** — `decompos` and
+`numberOfSubdomains` appear zero times in `a1wr_chain_driver.sh`. So **`1` is
+what A1WR actually ran**, and `L3`'s `2` is the odd one out: mesh-generation
+furniture, exactly like `L3`'s `controlDict`. Staging makes A1WRT match A1WR; it
+introduces nothing.
+
+**STATE (iii) — DIFFERS OR IS EXTRA, AND IS INHERITED DELIBERATELY. 8 files.
+THESE NEED THE SUPERVISOR'S SIGN-OFF BEFORE ENQUEUE.**
+
+**(iii-a) Two files that DIFFER and are deliberately NOT staged:**
+
+| file | `L3` | `sweep_I` |
+|---|---|---|
+| `surfaceMesh.xyz` | `022ee2e7ba89056b62b683f053a77491` | `ed3e2abaa49ebb8d83eeb1d032aaf405` |
+| `volumeMesh.xyz` | `35d9f01d8f6b676083431c6dce9c5f92` | `406627551850708ea6f64f7057334f4d` |
+
+**The argument, on the face of the registration, and it INVERTS the pattern of
+the other two.** These are plot3d artefacts of mesh generation. **Nothing reads
+them:** `surfaceMesh`, `volumeMesh` and `plot3d` appear **zero** times in
+`a1wr_runScript_incomp.py`, **zero** times in `a1wr_cmd.sh` and **zero** times in
+the frozen grader `a1wrt_read.py`; the single `.xyz` reference in the producer is
+`FFD/wingFFD.xyz` at `:129`. **And `sweep_I`'s copies are the SKELETON's** —
+byte-identical to `CURRICULUM-AOAI-…/case/{surfaceMesh,volumeMesh}.xyz` — i.e.
+stale plot3d files describing the skeleton's mesh, left behind when
+`stage_unit()` overlaid `L3`'s `polyMesh` on the skeleton. **`L3`'s copies are
+the plot3d form of the mesh actually being run.** So here, uniquely, staging from
+`sweep_I` would import files describing a **different mesh**, and inheriting
+`L3`'s is correct on the merits rather than merely convenient. **Registered as a
+deliberate divergence and referred for sign-off.**
+
+**(iii-b) Six files present in `L3` and absent from A1WR's run case entirely:**
+`log.autoPatch` `9a2f8e6fa9e3ead117555096647b9e08` · `log.checkMesh`
+`44dbd5df2324a14482aa27374d81d756` · `log.createPatch`
+`cfd4e38344af7342f49d2cd8ff76c6bd` · `log.genmesh`
+`f75ba282195a7b16e95e8ba4e4affc6e` · `log.plot3dToFoam`
+`5beba89ffd4a43d680132181f4e928bc` · `log.renumberMesh`
+`966fb9589e205934e662b72417d49acd`.
+
+**This is a fourth state and it is named rather than forced into the other
+three.** They are not divergent bytes; they are **extra files A1WRT carries that
+A1WR's run case never had**. `log.` appears **zero** times in the producer and in
+`a1wr_cmd.sh`; the three hits in `a1wrt_read.py` (`:931`, `:951`, `:1038`) are
+prose and local variables, not these files. They are `L3`'s mesh-generation
+provenance and are kept for that reason. **Referred for sign-off with (iii-a).**
+
+**THE SET IS NOW CLOSED.** 21 + 2 + 8 = 31, plus the one staged input `L3` never
+had. Any future difference is a change to `L3` or to `sweep_I`, and both are
+inside A1WR's preserved run root.
+
+---
+
+### A4.3 THE CONTROLLED / INHERITED SPLIT, REWRITTEN — it moved, so it is restated in full
+
+**ADDENDUM 2 §A2.3's split is superseded by this section.** It is this item's
+claim to being one-variable and cannot be true by omission.
+
+**CONTROLLED — written or staged by A1WRT, and asserted:**
+
+| what | how | assertion |
+|---|---|---|
+| `controlDict` `endTime` = **4000** | written (`S6`) | read back from disk, gated individually; unreadable ⇒ **UNMEASURED and refuses** |
+| `controlDict` `writeInterval` = **4000** | written (`S6`) | as above |
+| `controlDict` `deltaT` = **1** | written (`S6`) | as above |
+| the **whole** `controlDict`, all 17 lines | derived from `a1wr_chain_driver.sh:126-154` | byte-identical to `85656349b8c31277e51883d2df9f8217`, A1WR's own generated file — **COMPARED / NOT COMPARED / UNMEASURED**, never a claim it did not make |
+| `FFD/wingFFD.xyz` | staged (`S5b`) | md5 `6ddf378b…` on **both** sides of the copy |
+| `system/decomposeParDict` | staged (`S5c`) | md5 `e6f1b006…` on **both** sides of the copy |
+
+**INHERITED — the 21 files of state (i)**, byte-identical to A1WR's own run case,
+from `L3` via `cp -a` at `S2`. **The fourteen non-gated `controlDict` fields**
+(`startFrom`, `startTime`, `stopAt`, `writeControl`, `purgeWrite`, `writeFormat`,
+`writePrecision`, `writeCompression`, `timeFormat`, `timePrecision`,
+`runTimeModifiable`, `DebugSwitches`, and the `functions { yPlus1 … }` block) are
+carried from A1WR's heredoc, md5-pinned at `9bff59b63509e76d5dfa373a42a47074`,
+and covered as a block by the byte-identity assertion above.
+
+**INHERITED DELIBERATELY AND DIVERGENT — the 8 files of state (iii)**, listed
+above with their argument, pending sign-off.
+
+---
+
+### A4.4 AN FFD IS A NAME, NOT AN IDENTITY
+
+**Enumerator: `find /home/ubuntu -name wingFFD.xyz -not -path '*/.git/*'`, then
+`md5sum` on each. Measured 2026-09-03: 484 files, 9 distinct md5s, of which 284
+carry `6ddf378b028d03d8a18270488bee1759`.** The A1WR geometry is only the
+plurality; **200 files under that same filename are eight other geometries** —
+the M6, CRM, RAE2822 and tutorial cases. **An FFD is the design-variable
+parametrisation, so two files of the same name with different bytes are
+different design spaces, and a finite-difference table computed against the wrong
+one is a table at the wrong wing** — which reaches the bright line, where the FD
+table is what converts a DAFoam gradient into a result. `DAFOAM_CHARTER.md` §6
+already fixes that identity is a hash and never a version string; **this is that
+rule arriving at geometry inputs rather than at images**, and it is recorded here
+because the extension is not written anywhere else. This item pins its FFD by
+md5 and asserts it on both sides of the copy for exactly this reason.
+
+---
+
+### A4.5 THE GUARD SUITE IS NOW A COMMITTED ARTEFACT, AND THE PINS MOVE WITH IT
+
+**`a1wrt_drive_guards.sh` is promoted out of the session scratchpad and into this
+item.** A harness that lives only in scratch is wiped and is not a handoff
+channel (rule 13 / L-186); a guard suite a successor cannot re-drive is a claim
+about one box at one moment. It extracts the launcher's shell blocks **from the
+launcher's own bytes** between its section markers, and reads the constants it
+drives them with **out of the launcher**, so it cannot drift away from the file
+it tests — and it **REFUSES (rc 2)** rather than guessing if the launcher's shape
+moves.
+
+| instrument | md5 | role |
+|---|---|---|
+| `a1wrt_run_unit.sh` | **`f73191dea23877c99aaf802d21441009`** | the launcher, with `S5c`. Supersedes ADDENDUM 3's `0b00f8bf8d4425131c37bc585e249f4e` |
+| `a1wrt_drive_guards.sh` | **`72b3caf7c4280afbe97396e3edc2b111`** | **new** — the standing guard suite, 221 lines |
+| `a1wrt_controldict.py` | `a77c9bac486dce940707bdf9c00e1a6b` | **unchanged** |
+| `a1wrt_read.py` | `705db5f7e972f6c033cbe303b7a6038f` | **unchanged — the grading path did not move, and nothing in this pass touches it** |
+| `a1wrt_patch_assert.py` | `7f3a2c8e70684daba975ac9a2ee50385` | **unchanged** |
+
+**DRIVEN, this session, zero containers: `23/23` legs as registered, 0
+mismatched, 0 NOT RUN.** Six instrument-selftest legs — `a1wrt_patch_assert.py`
+**11/11**, `a1wrt_read.py` **39/39**, `a1wrt_controldict.py` **13/13**, each
+under `python3` **and** `python3 -O`; `S0b` **3** legs; `S5b` **7**; `S5c` **7**.
+
+**AND THE HARNESS'S OWN CONTROLS WERE DRIVEN, because a harness that has never
+failed is not known to be able to.** With an instrument removed it reports
+**`21/21` legs and `1 NOT RUN`, named, folded into neither column**; with one of
+`S5c`'s two md5 assertions deleted from a copy of the launcher it **refuses at
+rc 2** naming the block and the expected-versus-found count.
+
+**Still not enqueued, still not launched, zero compute.** Outstanding before
+enqueue: **the supervisor's sign-off on the eight state-(iii) files**, and his
+check 1 and check 4 against these new bytes.
