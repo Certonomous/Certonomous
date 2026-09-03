@@ -1995,3 +1995,100 @@ comparison** (`CLAUDE.md` rule 12): actual/predicted against **32.33** for U1 an
 **255.39** for U2, in core-minutes from the logs, dollars **derived, not
 measured**, waste named separately and never absorbed into the ratio, landing as
 a row in `docs/COST_CALIBRATION.md`.
+
+---
+
+## ADDENDUM 7 — 2026-09-03T22:32Z — U2 IS PREDICTED TO ABORT AT `DACheckGeometry`, AND THE PREDICTION IS REGISTERED BEFORE THE RUN
+
+**Document version 1.6 → 1.7.**
+**Lines whose number changed above this section: 0** — **COMPUTED:** in the
+appending invocation the first **1,997** lines of this file were compared
+byte-for-byte against its blob at `HEAD` and are identical; `git diff` shows one
+hunk, zero deleted lines.
+
+**⚠ THE PRE-COMPUTE CONDITION NO LONGER HOLDS, AND THAT IS SAID PLAINLY RATHER
+THAN LEFT FOR A READER TO NOTICE.** `/home/ubuntu/certonomous-runs/A1WRT/` is
+**PRESENT**: U1 ran 21:17:19Z–22:11:39Z. Addenda 1–6 were all pre-compute; **this
+one is not.** Under `CLAUDE.md` rule 2 limb 2 the gates are therefore **CLOSED**,
+and this addendum **cannot and does not alter a gate, a threshold, a cap or a
+label**. `endTime` 4000 · `primalMinResTol` 1e-8 · caps 361.0 / 2943.0 · ceiling
+3304.0 · np = 1 · patched row · declared points 1 and 7 · `G-PATCH`, `G-REPRO`,
+`G-OCC`, `G-COLDSTART`, `G-STALL`, `G-FIXTURE` — **all exactly as frozen.** What
+this addendum adds is a **prediction**, which binds nothing and grades nothing.
+
+---
+
+### A7.1 U1's outcome, as fact, with no verdict attached
+
+U1 `alpha12_symmetry` ran to `Time = 4000`, `rc = 0`, `End` present, and then
+DAFoam declared the primal not accepted: `sweep.log:1147-1149` —
+`Primal min residual 1.051926887799928e-06` / `did not satisfy the prescribed
+tolerance 1e-08` / `Primal solution failed!` — with `CL=NA CD=NA`. The frozen
+grader `a1wrt_read.py` (`705db5f7e972f6c033cbe303b7a6038f`, hashed against its
+committed blob in the invoking shell) was run once and returned, verbatim:
+**`UNIT LOG(S) ABSENT: tail_empty`** / **`PENDING: the item has not produced
+every unit's log.`** **That is the only output on record and nothing is added to
+it here.** The grader grades the ITEM; it cannot speak until U2 has run.
+
+### A7.2 THE PREDICTION — registered BEFORE U2 is dropped
+
+> **U2 `tail_empty` is PREDICTED TO ABORT** inside the container at
+> `DACheckGeometry.C:278` with **`Mesh geometric directions is less than 3 and
+> not supported!`**, **SIGABRT**, **zero time steps**, at the order of
+> **1.5 core-min** — nowhere near its **2943.0** cap, because the refusal is at
+> mesh check, before iteration one.
+>
+> **IF IT ABORTS:** the A1ZE finding **TRANSFERS**, `empty` is categorically
+> unusable for this case family in this image, and the item needs a **successor
+> with a different treatment, not a repair**.
+>
+> **IF IT DOES NOT ABORT:** A1ZE's result **does not transfer**, and that is the
+> more valuable finding — it would mean the refusal is conditional on something
+> neither item has isolated.
+
+**Why this is registered rather than argued.** It cuts **against** U2 producing
+anything, and a prediction that costs the writer the outcome they wanted is the
+only kind worth writing down. **It is registered before the drop so it cannot be
+claimed afterwards.**
+
+### A7.3 The evidence, VERIFIED ON DISK BY THIS LANE rather than relayed
+
+| claim | artefact read | what it says |
+|---|---|---|
+| the refusal fires on a 2-direction mesh | `/home/ubuntu/certonomous-runs/A1ZE/Ec/out/sweep.log` | `Mesh has 2 solution (non-empty) directions (1 1 0)`, then `Mesh geometric directions is less than 3 and not supported!`, then `Signal: Aborted (6)` |
+| it is the `empty` treatment that causes it | the same run's sibling arm `A1ZE/Sc/out/sweep.log` | `Mesh has 3 solution (non-empty) directions (1 1 1)` — **no abort.** The two arms differ in the treatment and in nothing else |
+| the cost and the shape | `A1ZE` ledger | `STAGE=Ec TASK=run_arm rc=97 wall_s=88 ranks=1 core_min=1.4667` |
+| U2 really is the `empty` unit | `a1wrt_run_unit.sh:141` | `tail_empty) CAP=2943.0; WANT_PATCH=empty; MODE=CONTINUED; ALPHAS="12 13 14 15 16 17 18"` |
+
+**THE IMAGE IDENTITY, STATED AT THE STRENGTH THE EVIDENCE ACTUALLY SUPPORTS —
+which is NOT quite "the same digest".** A1WRT's `S7` asserted the **digest**:
+`row=PATCHED digest=sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35`.
+**A1ZE's record names the TAG, `dafoam-idwarp-rot:v1`, not a digest.** That tag
+resolves to that digest on this box today (`docker image inspect`, read
+2026-09-03T21:0xZ), and there is no record of a rebuild between A1ZE's 19:05Z run
+and A1WRT's 21:16Z one — **so same-image is well supported, but one side of the
+comparison is tag-anchored and `DAFOAM_CHARTER.md` §6 is explicit that a version
+string is not an identity.** The transfer argument is therefore recorded as
+**strong but not digest-to-digest**, and if U2 does *not* abort, this is the first
+thing to re-examine.
+
+### A7.4 Why the registration could not have known — and what that means
+
+**A1WRT was frozen at `a62d8d75`, BEFORE A1ZE ran.** Measured on the frozen
+document: **`DACheckGeometry` 0 hits · "geometric direction" 0 · `nGeometricD` 0
+· `A1ZE` 0 · "not supported" 0.** The registration's `empty` premise rests on
+evidence that did not exist when it was written, and the evidence now points the
+other way. **This is disclosed, not repaired**: the premise is not edited, the
+unit is not withdrawn, and the cap is not touched. **The item is run and
+measured, because declaring U2 dead on another item's evidence without measuring
+would be a value true in one scope carried into another** — the exact failure
+this family has committed repeatedly today. **~1.5 core-min and ninety seconds
+buys the answer.**
+
+**One thing the registration DID anticipate, and it is worth naming because it
+cuts the other way:** the frozen grader carries control **`X5`**, which reads a
+planted `2 (1 1 0)` and **PASSES it as a valid `empty` unit**. So the item's
+author expected a 2-direction mesh to be *readable*, i.e. expected the solver to
+*run* on it. **`X5` is a control on the READER, not a claim about the SOLVER**,
+and nothing in it is falsified by an abort — but it does show precisely where the
+registration's expectation sat.
