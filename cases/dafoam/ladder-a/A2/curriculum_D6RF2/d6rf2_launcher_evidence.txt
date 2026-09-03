@@ -1,0 +1,491 @@
+=== driven Thu Sep  3 19:51:18 UTC 2026, Python 3.12.3
+
+########## d6rf2_derive_launcher.py (re-driven; re-asserts every substitution and all 14 cross-checks)
+D6RF2 LAUNCHER/DRIVER/GRADER DERIVATION
+
+  this item's instrument md5s, READ FROM DISK:
+    d6rf2_opt_runScript.py         137539e0a99be27f27fdb69e063b2a87
+    d6rf2_fd_endpoint.py           0ce81a0b038abe12728b5b062e4420df
+    d6rf2_ref_off.py               25f532e01156d8bd93458b23e1471d0a
+    d6rf2_endpoint_locus.py        341189ca866f302a7e1bba8eefad3a57
+    d6rf2_endpoint_physical.py     6e5fa9f9c2048b0665593282f62ba3dc
+    d6rf2_units_assert.py          34f8b79b96cc17d28d42ffd9ebc1874f
+    d6rf2_anchor_gate.py           e34c0cb62df30e7a1565b896d07a32e6
+
+  d6rf2_run_arm.sh             <- d6rf_run_arm.sh            src md5 70de3ad3ab0d76ce2c95634c91c4b8f8
+      OK  ITEM=D6RF                                      x1   -> ITEM=D6RF2
+      --  ITEM = "D6RF"                                  x0   (declared optional; absent here)
+      OK  CURRICULUM-D6RF-a2-wing-multipoint-fd          x1   -> CURRICULUM-D6RF2-a2-wing-multipoin
+      OK  D6RF_                                          x25  -> D6RF2_
+      OK  d6rf_                                          x33  -> d6rf2_
+      OK  d6r_fd_endpoint.py                             x5   -> d6rf2_fd_endpoint.py
+      OK  d6r_ref_off.py                                 x5   -> d6rf2_ref_off.py
+      OK  d6r_opt_runScript.py                           x8   -> d6rf2_opt_runScript.py
+      OK  d6r_cmd.sh                                     x1   -> d6rf2_cmd.sh
+      OK  MD5_RUNSCRIPT6=93edb4a231e13a7af065368f61a46   x1   -> MD5_RUNSCRIPT6=137539e0a99be27f27f
+      OK  MD5_FD=7491c3a73c232fb6744990fd8109fd63        x1   -> MD5_FD=0ce81a0b038abe12728b5b062e4
+      OK  MD5_REFOFF=ad67bbeb0c7b502262ebf5d4e8fa21cd    x1   -> MD5_REFOFF=25f532e01156d8bd93458b2
+      OK  MD5_LOCUS6=341189ca866f302a7e1bba8eefad3a57    x1   -> MD5_LOCUS6=341189ca866f302a7e1bba8
+      OK  MD5_PHYS6=ea0a83410c773f753a7750eb3becefdf     x1   -> MD5_PHYS6=6e5fa9f9c2048b0665593282
+      OK  MD5_UNITS=40993d949e44aae3f80bf1a3d2cf4998     x1   -> MD5_UNITS=34f8b79b96cc17d28d42ffd9
+      OK  MD5_REF_MESH=0fb1935a9b8781b73ac4ccb136e3ec6   x1   -> MD5_ANCHOR_GATE=e34c0cb62df30e7a15
+      ADD G-ANCHOR at staging (PREREGISTRATION.md section 3) before # ---- THE AGE DATUM IS WRITTEN LAST
+  d6rf2_chain_driver.sh        <- d6rf_chain_driver.sh       src md5 3362e5e4d69b8aed5ff950e9cac7a03a
+      OK  ITEM=D6RF                                      x2   -> ITEM=D6RF2
+      --  ITEM = "D6RF"                                  x0   (declared optional; absent here)
+      OK  CURRICULUM-D6RF-a2-wing-multipoint-fd          x1   -> CURRICULUM-D6RF2-a2-wing-multipoin
+      OK  D6RF_                                          x10  -> D6RF2_
+      OK  d6rf_                                          x10  -> d6rf2_
+      OK  d6r_fd_endpoint.py                             x2   -> d6rf2_fd_endpoint.py
+      OK  d6r_ref_off.py                                 x2   -> d6rf2_ref_off.py
+      OK  d6r_opt_runScript.py                           x2   -> d6rf2_opt_runScript.py
+      --  d6r_cmd.sh                                     x0   (declared optional; absent here)
+      OK  MD5_RUNSCRIPT6=93edb4a231e13a7af065368f61a46   x1   -> MD5_RUNSCRIPT6=137539e0a99be27f27f
+      OK  MD5_FD=7491c3a73c232fb6744990fd8109fd63        x1   -> MD5_FD=0ce81a0b038abe12728b5b062e4
+      OK  MD5_REFOFF=ad67bbeb0c7b502262ebf5d4e8fa21cd    x1   -> MD5_REFOFF=25f532e01156d8bd93458b2
+      OK  MD5_LOCUS6=341189ca866f302a7e1bba8eefad3a57    x1   -> MD5_LOCUS6=341189ca866f302a7e1bba8
+      OK  MD5_PHYS6=ea0a83410c773f753a7750eb3becefdf     x1   -> MD5_PHYS6=6e5fa9f9c2048b0665593282
+      OK  MD5_UNITS=40993d949e44aae3f80bf1a3d2cf4998     x1   -> MD5_UNITS=34f8b79b96cc17d28d42ffd9
+      OK  MD5_LAUNCHER=70de3ad3ab0d76ce2c95634c91c4b8f   x1   -> MD5_LAUNCHER=01e034e1c611e7fc4f0f4
+      OK  MD5_UNITS=34f8b79b96cc17d28d42ffd9ebc1874f     x1   -> MD5_UNITS=34f8b79b96cc17d28d42ffd9
+      OK  "$D6R_CASE_DIR/d6rf2_opt_runScript.py" "$D6R   x1   -> "$HERE/d6rf2_opt_runScript.py" "$H
+      OK  "$D6R_CASE_DIR/d6r_extract_endpoint.py" "$D6   x1   -> "$D6R_CASE_DIR/d6r_extract_endpoin
+      OK  "$HERE/d6rf2_units_assert.py" \                x1   -> "$HERE/d6rf2_units_assert.py" "$HE
+      OK  echo "$MD5_UNITS  $BASE/d6rf2_units_assert.p   x1   -> echo "$MD5_UNITS  $BASE/d6rf2_unit
+  d6rf2_grade.py               <- d6rf_grade.py              src md5 240cd657acc75287ed962e08fe715509
+      --  ITEM=D6RF                                      x0   (declared optional; absent here)
+      OK  ITEM = "D6RF"                                  x1   -> ITEM = "D6RF2"
+      --  CURRICULUM-D6RF-a2-wing-multipoint-fd          x0   (declared optional; absent here)
+      OK  D6RF_                                          x2   -> D6RF2_
+      OK  d6rf_                                          x9   -> d6rf2_
+      --  d6r_fd_endpoint.py                             x0   (declared optional; absent here)
+      --  d6r_ref_off.py                                 x0   (declared optional; absent here)
+      OK  d6r_opt_runScript.py                           x1   -> d6rf2_opt_runScript.py
+      --  d6r_cmd.sh                                     x0   (declared optional; absent here)
+      --  MD5_RUNSCRIPT6=93edb4a231e13a7af065368f61a46   x0   (declared optional; absent here)
+      --  MD5_FD=7491c3a73c232fb6744990fd8109fd63        x0   (declared optional; absent here)
+      --  MD5_REFOFF=ad67bbeb0c7b502262ebf5d4e8fa21cd    x0   (declared optional; absent here)
+      --  MD5_LOCUS6=341189ca866f302a7e1bba8eefad3a57    x0   (declared optional; absent here)
+      --  MD5_PHYS6=ea0a83410c773f753a7750eb3becefdf     x0   (declared optional; absent here)
+      --  MD5_UNITS=40993d949e44aae3f80bf1a3d2cf4998     x0   (declared optional; absent here)
+      OK  curriculum_D6RF/                               x4   -> curriculum_D6RF2/
+      OK  "cases/dafoam/ladder-a/A2/curriculum_D6RF2/d   x1   -> "cases/dafoam/ladder-a/A2/curricul
+
+  CROSS-CHECK:
+    no D6R producer md5 survives anywhere                OK
+    no d6rf_ (single-f) token survives                   OK
+    the launcher invokes G-ANCHOR                        OK
+    G-ANCHOR precedes the age datum                      OK
+    G-ANCHOR precedes the first docker run               OK
+    the driver pins the derived launcher                 OK
+    the launcher pins the gate                           OK
+    the .gz field helper survived                        OK
+    count_src_entries survived                           OK
+    the age datum integer assert survived                OK
+    the units gate is at both call sites                 OK
+    exactly one sudo rm -rf $WORK                        OK
+    H5 and aggregate HOLD                                OK
+    docker inspect before docker rm                      OK
+
+D6RF2_DERIVE_LAUNCHER OK -- 3 files derived; launcher md5 01e034e1c611e7fc4f0f4e31d3e34511
+rc=0
+
+########## d6rf2_guard_selftest.py under python3 
+D6RF2 LAUNCHER/DRIVER GUARD SELFTEST -- driven, zero containers
+
+  container census BEFORE: 1 [d12y_w3_S3b_c3_ap_20260903T172242Z_179692]
+
+A. G-ROOT -- the launcher pointed somewhere it must never write
+  U1  BASE = D6R PRESERVED run root -> ABORT rc 3                PASS
+        ABORT G-ROOT.2a BASE resolves to D6R'S PRESERVED RUN ROOT: /home/ubuntu/certonomous-runs/CURRICULUM-D6R-a2-wing-multipoint
+  U2  ...and the abort NAMES D6R's root and what it protects     PASS
+  U3  BASE = D4's run root -> ABORT rc 3                         PASS
+        ABORT G-ROOT.1 BASE is not this item's registered run root.
+  U4  ...and the abort NAMES the root it just protected          PASS
+  U5  a `..` traversal back to D6R's root -> ABORT rc 3 (realpath -m) PASS
+        ABORT G-ROOT.2a BASE resolves to D6R'S PRESERVED RUN ROOT: /home/ubuntu/certonomous-runs/CURRICULUM-D6R-a2-wing-multipoint
+  U6  BASE = the runs directory itself -> ABORT rc 3             PASS
+        ABORT G-ROOT.1 BASE is not this item's registered run root.
+
+B. THE ARM GUARD IS AN EQUALITY, NOT A PREFIX MATCH
+  U7  arm 'F_m' -> ABORT (rc 3 or 64, before any staging)        PASS
+  U7  arm 'F_mpX' -> ABORT (rc 3 or 64, before any staging)      PASS
+  U7  arm 'REF_of' -> ABORT (rc 3 or 64, before any staging)     PASS
+  U7  arm 'REF_offX' -> ABORT (rc 3 or 64, before any staging)   PASS
+  U7  arm 'O_mp' -> ABORT (rc 3 or 64, before any staging)       PASS
+  U7  arm 'ACC_mp' -> ABORT (rc 3 or 64, before any staging)     PASS
+  U8  no arguments -> ABORT rc 64                                PASS
+
+C. THE CAP IDENTITY -- computed by the REAL code, not read off
+     (pointed at the registered run root, WHICH DOES NOT EXIST, so
+      each drive stops at the L-251 mode check with rc 4)
+  U9  the registered run root is absent (the PRECONDITION for section C) PASS
+        /home/ubuntu/certonomous-runs/CURRICULUM-D6RF2-a2-wing-multipoint-fd
+  U10 F_mp    the launcher printed its own cap frame             PASS
+  U11 F_mp    cap == the registered 480.0                        PASS
+        got 480.0
+  U12 F_mp    TMO == the registered 7110 s                       PASS
+        got 7110
+  U13 F_mp    TMO > 0 (the D19T identity)                        PASS
+        TMO=7110
+  U14 F_mp    frame allowance is 90, kill grace 60, ranks 4      PASS
+  U15 F_mp    the inversion returns the cap exactly              PASS
+        (7110+90)*4/60 = 480.000000
+  U16 F_mp    TMO also > 0 under CAP_MARGIN_S = 60 (7140 s)      PASS
+  U17 F_mp    the drive stopped at the L-251 mode check, rc 4    PASS
+        rc=4
+  U18 F_mp    TMO >= 1.5 x the measured-anchor wall (2335.5 s)   PASS
+        ratio 3.044
+  U10 REF_off the launcher printed its own cap frame             PASS
+  U11 REF_off cap == the registered 190.0                        PASS
+        got 190.0
+  U12 REF_off TMO == the registered 2760 s                       PASS
+        got 2760
+  U13 REF_off TMO > 0 (the D19T identity)                        PASS
+        TMO=2760
+  U14 REF_off frame allowance is 90, kill grace 60, ranks 4      PASS
+  U15 REF_off the inversion returns the cap exactly              PASS
+        (2760+90)*4/60 = 190.000000
+  U16 REF_off TMO also > 0 under CAP_MARGIN_S = 60 (2790 s)      PASS
+  U17 REF_off the drive stopped at the L-251 mode check, rc 4    PASS
+        rc=4
+  U18 REF_off TMO >= 1.5 x the measured-anchor wall (901.0 s)    PASS
+        ratio 3.063
+
+D. THE DESTRUCTIVE STEP -- one, guarded, and it cannot escape
+  U19 exactly ONE `sudo -n rm -rf "$WORK"` in executable code    PASS
+        at line 551
+  U20 EVERY executable recursive remove targets "$WORK..." or the $d inside the swept loop PASS
+        commented `rm -rf` occurrences (counted, not hidden): [17, 367, 547]
+  U21 every named guard is present in executable code            PASS
+        missing: []
+  U22 EVERY guard precedes the first destructive step (guards end line 293, first remove line 486) -- both RECOMPUTED here PASS
+  U23 the first `docker run` (line 726) follows every guard and the destructive step PASS
+
+E. THE UNITS GATE AT BOTH CALL SITES (CLAUDE.md rule 14)
+  U24 call site 1: the launcher runs the gate HOST-side at staging PASS
+  U25 call site 1 refuses with the DISTINCT rc 7                 PASS
+  U26 both arm commands exist                                    PASS
+        found 2
+  U27 call site 2: the gate sits BETWEEN the wrapper and the mpirun in BOTH arm commands PASS
+  U28 the launcher REFUSES an arm command that lacks the gate    PASS
+  U29 the in-container refusal rc 77 is NAMED on the ledger, not left bare PASS
+
+F. THE TIME-DIRECTORY SWEEP -- the REAL function, on REAL names
+  U30 the `is_time_dir` function was extracted from the launcher PASS
+  U31 `0` is KEPT (the initial fields)                           PASS
+  U32 `0.orig` is KEPT -- a bare `0.*` glob would have DELETED it PASS
+  U33 `constant` is KEPT                                         PASS
+  U34 `1000` is SELECTED for the sweep                           PASS
+  U35 exactly 76 of D6R's own 78 entries under mp04/processor0 are swept (75 pseudo-times + the endTime) PASS
+        selected 76
+  U36 the launcher asserts 0/, 0.orig/ and processor*/0/ SURVIVED (now through assert_field, which accepts U or U.gz) PASS
+
+G. THE FROZEN PINS
+  U37 the driver's pinned launcher md5 == the launcher on disk   PASS
+        01e034e1c611e7fc4f0f4e31d3e34511
+  U38 every staged-instrument md5 pinned in the launcher matches the file it names (11 pins) PASS
+        mismatched: []
+  U39 the D4 history md5 pin matches the artefact on disk        PASS
+  U40 the reference-mesh md5 pin matches base AND all three mp trees PASS
+  U41 no stale predecessor cap survives in the launcher          PASS
+  U42 the caps in the file are exactly 480.0 and 190.0           PASS
+
+H. THE DRIVER
+  U43 the item ceiling is 670.0 == 480.0 + 190.0                 PASS
+  U44 cumulative spend is asserted BEFORE every arm              PASS
+  U45 the `spent_core_min` reader was extracted from the driver  PASS
+  U46 it reads D6R's real O_mp row as 2257.933, NOT its 2900.0 cap PASS
+        got 2257.933
+  U47 the driver refuses arm 'O_mp' -> rc 64                     PASS
+  U47 the driver refuses arm 'ACC_mp' -> rc 64                   PASS
+  U47 the driver refuses arm 'F_m' -> rc 64                      PASS
+  U48 the driver's H5 and aggregate gates HOLD, never refuse     PASS
+  U49 rc is captured INSIDE the wrapper, from the launcher's own exit PASS
+  U50 the ledger row carries every field the supervisor named    PASS
+  U51 `docker inspect` is read BEFORE `docker rm`                PASS
+
+I. THE S4 VACUOUS-ZERO REPAIR (ADDENDUM 2) -- driven on the REAL function
+  U55 `count_src_entries` was extracted from the launcher        PASS
+  U56 an ABSENT path reports UNMEASURED, never 0                 PASS
+        got 'UNMEASURED'
+  U57 an UNREADABLE path reports UNMEASURED, never 0             PASS
+        got 'UNMEASURED'
+  U58 a genuinely EMPTY directory reports 0 (a real zero is still 0) PASS
+        got '0'
+  U59 D6R's real mp04/processor0 counts 78 entries               PASS
+        got '78'
+  U60 the `0.*` form counts D6R's 75 pseudo-time directories     PASS
+        got '75'
+  U61 S4 REFUSES on an UNMEASURED source count                   PASS
+  U62 S4 REFUSES on a ZERO source count -- the guard asserts its own trip count PASS
+  U63 S4 REFUSES when the POST-copy count is UNMEASURED or 0     PASS
+  U64 the S4 evidence line NAMES the number it counted on both sides PASS
+  U65 S5's SOURCE INTACT assertion refuses on UNMEASURED too     PASS
+  U66 no `ls ... | wc -l` survives outside count_src_entries     PASS
+  U67 the cgroup sampler reports a transient read as UNMEASURED, never as a zero sample PASS
+
+J. THE COMPRESSED-FIELD REPAIR (ADDENDUM 3) -- driven on D6R's REAL
+   directories for the positive legs, because a FIXTURE is exactly what
+   hid this defect: a fixture creates the file under the name the test
+   expects, so 83/83 passed with the launcher unable to see `U.gz`.
+  U68 `field_path` was extracted from the launcher               PASS
+  U69 REAL decomposed dir (gzipped) resolves `U` -> U.gz         PASS
+        /home/ubuntu/certonomous-runs/CURRICULUM-D6R-a2-wing-multipoint/O_mp/mp04/processor0/0/U.gz
+  U70 REAL reconstructed dir (plain) resolves `U` -> U           PASS
+        /home/ubuntu/certonomous-runs/CURRICULUM-D6R-a2-wing-multipoint/O_mp/mp04/0/U
+  U71 REAL constant/polyMesh resolves `points` -> points.gz      PASS
+        /home/ubuntu/certonomous-runs/CURRICULUM-D6R-a2-wing-multipoint/base/constant/polyMesh/points.gz
+  U72 a caller passing the `.gz` name already resolves the same file PASS
+        /home/ubuntu/certonomous-runs/CURRICULUM-D6R-a2-wing-multipoint/base/constant/polyMesh/points.gz
+  U73 REAL F_mp age-datum dir resolves `U`                       PASS
+        /home/ubuntu/certonomous-runs/CURRICULUM-D6R-a2-wing-multipoint/O_mp/0/U
+  U74 a dir with NEITHER `U` nor `U.gz` returns NOTFOUND         PASS
+        NOTFOUND
+  U75 an ABSENT directory returns NOTFOUND                       PASS
+        NOTFOUND
+  U76 `U.gz` and `U` resolve identically when only the .gz exists PASS
+  U77 the abort DISTINGUISHES an absent directory from a present one with no matching name PASS
+  U78 the abort PRINTS WHAT IT ACTUALLY FOUND                    PASS
+  U79 no abort message asserts a deletion it has not established PASS
+  U80 all four field-name sites now go through the helper        PASS
+  U81 the age datum is ASSERTED to be a non-empty integer before use PASS
+
+  container census AFTER: 1 [d12y_w3_S3b_c3_ap_20260903T172242Z_179692]
+  U52 CONTAINER CENSUS BEFORE == AFTER (zero containers created) PASS
+        before=['d12y_w3_S3b_c3_ap_20260903T172242Z_179692'] after=['d12y_w3_S3b_c3_ap_20260903T172242Z_179692']
+  U53 no container carrying this item's prefix exists            PASS
+  U54 the run root is in the SAME state as before these drives   PASS
+        /home/ubuntu/certonomous-runs/CURRICULUM-D6RF2-a2-wing-multipoint-fd (existed before: False)
+
+D6RF2_GUARD_SELFTEST 97/97 PASS
+rc=0
+
+########## d6rf2_anchor_gate.py --selftest under python3 
+D6RF2_ANCHOR REFUSE A3 sentinel '# OpenMDAO setup' occurs 2 times in d6rf2_opt_runScript.py (need exactly 1). d6rf2_fd_endpoint.py splits on it, so a second occurrence truncates the header at the FIRST one. THIS IS D6RF-BLOCKING-1.
+D6RF2_ANCHOR REFUSE A4 the header d6rf2_fd_endpoint.py would exec is 0 chars, below the registered floor 9000 -- the sentinel is unique but at the WRONG SITE
+D6RF2_ANCHOR REFUSE A2 d6rf2_fd_endpoint.py pins producer md5 137539e0a99be27f27fdb69e063b2a87; the file on disk is 740927066fc1f46dc100db506622d5f9. A pinned consumer refuses at the md5 check BEFORE it ever counts the anchor.
+D6RF2_ANCHOR REFUSE A2 d6rf2_fd_endpoint.py names producer 'd6rf2_opt_runScript.py', absent from /tmp/d6rf2_anchor4_sw6lx49r
+D6RF2 G-ANCHOR SELFTEST -- both directions, on REAL bytes
+
+A. THE POSITIVE LEG, on this item's own derived files
+D6RF2 G-ANCHOR -- 2 anchor-scoped readers, on the bytes they will actually read
+  d6rf2_fd_endpoint.py       producer=d6rf2_opt_runScript.py md5=137539e0a99b... anchor='# OpenMDAO setup' count=1 header=10536 chars, all 6 symbols present
+  d6rf2_ref_off.py           producer=d6rf2_opt_runScript.py md5=137539e0a99b... anchor='# OpenMDAO setup' count=1 header=10536 chars, all 6 symbols present
+D6RF2_ANCHOR_PASS readers=2 producer=d6rf2_opt_runScript.py
+  the repaired producer PASSES the gate for both readers           want=no-refusal  got=no-refusal  PASS
+
+B. THE NEGATIVE LEG, on the ORIGINAL producer, still on disk unedited
+  the ORIGINAL producer (sentinel twice) REFUSES at A3             want=REFUSED     got=REFUSED     PASS
+        the header A3 prevented: 1396 chars, missing ['class Top', 'POINTS', 'U0 =', 'CL_TARGETS', 'WEIGHTS']
+  PLANT: it is 1396 chars, carries daOptions and NOT class Top     PASS
+
+C. A4 AND A5 -- a unique sentinel AT THE WRONG SITE still refuses
+  count == 1 but the anchor is at the TOP -> REFUSES at A4         want=REFUSED     got=REFUSED     PASS
+
+D. A2 -- the pin, which is the clause the ruling did not anticipate
+  the producer drifts by one comment -> REFUSES at A2 (the md5), BEFORE the anchor is ever counted want=REFUSED     got=REFUSED     PASS
+  the producer is ABSENT from the work dir -> REFUSES at A2        want=REFUSED     got=REFUSED     PASS
+
+D6RF2_ANCHOR_SELFTEST 6/6 PASS
+rc=0
+
+########## d6rf2_guard_selftest.py under python3 -O
+D6RF2 LAUNCHER/DRIVER GUARD SELFTEST -- driven, zero containers
+
+  container census BEFORE: 1 [d12y_w3_S3b_c3_ap_20260903T172242Z_179692]
+
+A. G-ROOT -- the launcher pointed somewhere it must never write
+  U1  BASE = D6R PRESERVED run root -> ABORT rc 3                PASS
+        ABORT G-ROOT.2a BASE resolves to D6R'S PRESERVED RUN ROOT: /home/ubuntu/certonomous-runs/CURRICULUM-D6R-a2-wing-multipoint
+  U2  ...and the abort NAMES D6R's root and what it protects     PASS
+  U3  BASE = D4's run root -> ABORT rc 3                         PASS
+        ABORT G-ROOT.1 BASE is not this item's registered run root.
+  U4  ...and the abort NAMES the root it just protected          PASS
+  U5  a `..` traversal back to D6R's root -> ABORT rc 3 (realpath -m) PASS
+        ABORT G-ROOT.2a BASE resolves to D6R'S PRESERVED RUN ROOT: /home/ubuntu/certonomous-runs/CURRICULUM-D6R-a2-wing-multipoint
+  U6  BASE = the runs directory itself -> ABORT rc 3             PASS
+        ABORT G-ROOT.1 BASE is not this item's registered run root.
+
+B. THE ARM GUARD IS AN EQUALITY, NOT A PREFIX MATCH
+  U7  arm 'F_m' -> ABORT (rc 3 or 64, before any staging)        PASS
+  U7  arm 'F_mpX' -> ABORT (rc 3 or 64, before any staging)      PASS
+  U7  arm 'REF_of' -> ABORT (rc 3 or 64, before any staging)     PASS
+  U7  arm 'REF_offX' -> ABORT (rc 3 or 64, before any staging)   PASS
+  U7  arm 'O_mp' -> ABORT (rc 3 or 64, before any staging)       PASS
+  U7  arm 'ACC_mp' -> ABORT (rc 3 or 64, before any staging)     PASS
+  U8  no arguments -> ABORT rc 64                                PASS
+
+C. THE CAP IDENTITY -- computed by the REAL code, not read off
+     (pointed at the registered run root, WHICH DOES NOT EXIST, so
+      each drive stops at the L-251 mode check with rc 4)
+  U9  the registered run root is absent (the PRECONDITION for section C) PASS
+        /home/ubuntu/certonomous-runs/CURRICULUM-D6RF2-a2-wing-multipoint-fd
+  U10 F_mp    the launcher printed its own cap frame             PASS
+  U11 F_mp    cap == the registered 480.0                        PASS
+        got 480.0
+  U12 F_mp    TMO == the registered 7110 s                       PASS
+        got 7110
+  U13 F_mp    TMO > 0 (the D19T identity)                        PASS
+        TMO=7110
+  U14 F_mp    frame allowance is 90, kill grace 60, ranks 4      PASS
+  U15 F_mp    the inversion returns the cap exactly              PASS
+        (7110+90)*4/60 = 480.000000
+  U16 F_mp    TMO also > 0 under CAP_MARGIN_S = 60 (7140 s)      PASS
+  U17 F_mp    the drive stopped at the L-251 mode check, rc 4    PASS
+        rc=4
+  U18 F_mp    TMO >= 1.5 x the measured-anchor wall (2335.5 s)   PASS
+        ratio 3.044
+  U10 REF_off the launcher printed its own cap frame             PASS
+  U11 REF_off cap == the registered 190.0                        PASS
+        got 190.0
+  U12 REF_off TMO == the registered 2760 s                       PASS
+        got 2760
+  U13 REF_off TMO > 0 (the D19T identity)                        PASS
+        TMO=2760
+  U14 REF_off frame allowance is 90, kill grace 60, ranks 4      PASS
+  U15 REF_off the inversion returns the cap exactly              PASS
+        (2760+90)*4/60 = 190.000000
+  U16 REF_off TMO also > 0 under CAP_MARGIN_S = 60 (2790 s)      PASS
+  U17 REF_off the drive stopped at the L-251 mode check, rc 4    PASS
+        rc=4
+  U18 REF_off TMO >= 1.5 x the measured-anchor wall (901.0 s)    PASS
+        ratio 3.063
+
+D. THE DESTRUCTIVE STEP -- one, guarded, and it cannot escape
+  U19 exactly ONE `sudo -n rm -rf "$WORK"` in executable code    PASS
+        at line 551
+  U20 EVERY executable recursive remove targets "$WORK..." or the $d inside the swept loop PASS
+        commented `rm -rf` occurrences (counted, not hidden): [17, 367, 547]
+  U21 every named guard is present in executable code            PASS
+        missing: []
+  U22 EVERY guard precedes the first destructive step (guards end line 293, first remove line 486) -- both RECOMPUTED here PASS
+  U23 the first `docker run` (line 726) follows every guard and the destructive step PASS
+
+E. THE UNITS GATE AT BOTH CALL SITES (CLAUDE.md rule 14)
+  U24 call site 1: the launcher runs the gate HOST-side at staging PASS
+  U25 call site 1 refuses with the DISTINCT rc 7                 PASS
+  U26 both arm commands exist                                    PASS
+        found 2
+  U27 call site 2: the gate sits BETWEEN the wrapper and the mpirun in BOTH arm commands PASS
+  U28 the launcher REFUSES an arm command that lacks the gate    PASS
+  U29 the in-container refusal rc 77 is NAMED on the ledger, not left bare PASS
+
+F. THE TIME-DIRECTORY SWEEP -- the REAL function, on REAL names
+  U30 the `is_time_dir` function was extracted from the launcher PASS
+  U31 `0` is KEPT (the initial fields)                           PASS
+  U32 `0.orig` is KEPT -- a bare `0.*` glob would have DELETED it PASS
+  U33 `constant` is KEPT                                         PASS
+  U34 `1000` is SELECTED for the sweep                           PASS
+  U35 exactly 76 of D6R's own 78 entries under mp04/processor0 are swept (75 pseudo-times + the endTime) PASS
+        selected 76
+  U36 the launcher asserts 0/, 0.orig/ and processor*/0/ SURVIVED (now through assert_field, which accepts U or U.gz) PASS
+
+G. THE FROZEN PINS
+  U37 the driver's pinned launcher md5 == the launcher on disk   PASS
+        01e034e1c611e7fc4f0f4e31d3e34511
+  U38 every staged-instrument md5 pinned in the launcher matches the file it names (11 pins) PASS
+        mismatched: []
+  U39 the D4 history md5 pin matches the artefact on disk        PASS
+  U40 the reference-mesh md5 pin matches base AND all three mp trees PASS
+  U41 no stale predecessor cap survives in the launcher          PASS
+  U42 the caps in the file are exactly 480.0 and 190.0           PASS
+
+H. THE DRIVER
+  U43 the item ceiling is 670.0 == 480.0 + 190.0                 PASS
+  U44 cumulative spend is asserted BEFORE every arm              PASS
+  U45 the `spent_core_min` reader was extracted from the driver  PASS
+  U46 it reads D6R's real O_mp row as 2257.933, NOT its 2900.0 cap PASS
+        got 2257.933
+  U47 the driver refuses arm 'O_mp' -> rc 64                     PASS
+  U47 the driver refuses arm 'ACC_mp' -> rc 64                   PASS
+  U47 the driver refuses arm 'F_m' -> rc 64                      PASS
+  U48 the driver's H5 and aggregate gates HOLD, never refuse     PASS
+  U49 rc is captured INSIDE the wrapper, from the launcher's own exit PASS
+  U50 the ledger row carries every field the supervisor named    PASS
+  U51 `docker inspect` is read BEFORE `docker rm`                PASS
+
+I. THE S4 VACUOUS-ZERO REPAIR (ADDENDUM 2) -- driven on the REAL function
+  U55 `count_src_entries` was extracted from the launcher        PASS
+  U56 an ABSENT path reports UNMEASURED, never 0                 PASS
+        got 'UNMEASURED'
+  U57 an UNREADABLE path reports UNMEASURED, never 0             PASS
+        got 'UNMEASURED'
+  U58 a genuinely EMPTY directory reports 0 (a real zero is still 0) PASS
+        got '0'
+  U59 D6R's real mp04/processor0 counts 78 entries               PASS
+        got '78'
+  U60 the `0.*` form counts D6R's 75 pseudo-time directories     PASS
+        got '75'
+  U61 S4 REFUSES on an UNMEASURED source count                   PASS
+  U62 S4 REFUSES on a ZERO source count -- the guard asserts its own trip count PASS
+  U63 S4 REFUSES when the POST-copy count is UNMEASURED or 0     PASS
+  U64 the S4 evidence line NAMES the number it counted on both sides PASS
+  U65 S5's SOURCE INTACT assertion refuses on UNMEASURED too     PASS
+  U66 no `ls ... | wc -l` survives outside count_src_entries     PASS
+  U67 the cgroup sampler reports a transient read as UNMEASURED, never as a zero sample PASS
+
+J. THE COMPRESSED-FIELD REPAIR (ADDENDUM 3) -- driven on D6R's REAL
+   directories for the positive legs, because a FIXTURE is exactly what
+   hid this defect: a fixture creates the file under the name the test
+   expects, so 83/83 passed with the launcher unable to see `U.gz`.
+  U68 `field_path` was extracted from the launcher               PASS
+  U69 REAL decomposed dir (gzipped) resolves `U` -> U.gz         PASS
+        /home/ubuntu/certonomous-runs/CURRICULUM-D6R-a2-wing-multipoint/O_mp/mp04/processor0/0/U.gz
+  U70 REAL reconstructed dir (plain) resolves `U` -> U           PASS
+        /home/ubuntu/certonomous-runs/CURRICULUM-D6R-a2-wing-multipoint/O_mp/mp04/0/U
+  U71 REAL constant/polyMesh resolves `points` -> points.gz      PASS
+        /home/ubuntu/certonomous-runs/CURRICULUM-D6R-a2-wing-multipoint/base/constant/polyMesh/points.gz
+  U72 a caller passing the `.gz` name already resolves the same file PASS
+        /home/ubuntu/certonomous-runs/CURRICULUM-D6R-a2-wing-multipoint/base/constant/polyMesh/points.gz
+  U73 REAL F_mp age-datum dir resolves `U`                       PASS
+        /home/ubuntu/certonomous-runs/CURRICULUM-D6R-a2-wing-multipoint/O_mp/0/U
+  U74 a dir with NEITHER `U` nor `U.gz` returns NOTFOUND         PASS
+        NOTFOUND
+  U75 an ABSENT directory returns NOTFOUND                       PASS
+        NOTFOUND
+  U76 `U.gz` and `U` resolve identically when only the .gz exists PASS
+  U77 the abort DISTINGUISHES an absent directory from a present one with no matching name PASS
+  U78 the abort PRINTS WHAT IT ACTUALLY FOUND                    PASS
+  U79 no abort message asserts a deletion it has not established PASS
+  U80 all four field-name sites now go through the helper        PASS
+  U81 the age datum is ASSERTED to be a non-empty integer before use PASS
+
+  container census AFTER: 1 [d12y_w3_S3b_c3_ap_20260903T172242Z_179692]
+  U52 CONTAINER CENSUS BEFORE == AFTER (zero containers created) PASS
+        before=['d12y_w3_S3b_c3_ap_20260903T172242Z_179692'] after=['d12y_w3_S3b_c3_ap_20260903T172242Z_179692']
+  U53 no container carrying this item's prefix exists            PASS
+  U54 the run root is in the SAME state as before these drives   PASS
+        /home/ubuntu/certonomous-runs/CURRICULUM-D6RF2-a2-wing-multipoint-fd (existed before: False)
+
+D6RF2_GUARD_SELFTEST 97/97 PASS
+rc=0
+
+########## d6rf2_anchor_gate.py --selftest under python3 -O
+D6RF2_ANCHOR REFUSE A3 sentinel '# OpenMDAO setup' occurs 2 times in d6rf2_opt_runScript.py (need exactly 1). d6rf2_fd_endpoint.py splits on it, so a second occurrence truncates the header at the FIRST one. THIS IS D6RF-BLOCKING-1.
+D6RF2_ANCHOR REFUSE A4 the header d6rf2_fd_endpoint.py would exec is 0 chars, below the registered floor 9000 -- the sentinel is unique but at the WRONG SITE
+D6RF2_ANCHOR REFUSE A2 d6rf2_fd_endpoint.py pins producer md5 137539e0a99be27f27fdb69e063b2a87; the file on disk is 740927066fc1f46dc100db506622d5f9. A pinned consumer refuses at the md5 check BEFORE it ever counts the anchor.
+D6RF2_ANCHOR REFUSE A2 d6rf2_fd_endpoint.py names producer 'd6rf2_opt_runScript.py', absent from /tmp/d6rf2_anchor4_p8l_nm6b
+D6RF2 G-ANCHOR SELFTEST -- both directions, on REAL bytes
+
+A. THE POSITIVE LEG, on this item's own derived files
+D6RF2 G-ANCHOR -- 2 anchor-scoped readers, on the bytes they will actually read
+  d6rf2_fd_endpoint.py       producer=d6rf2_opt_runScript.py md5=137539e0a99b... anchor='# OpenMDAO setup' count=1 header=10536 chars, all 6 symbols present
+  d6rf2_ref_off.py           producer=d6rf2_opt_runScript.py md5=137539e0a99b... anchor='# OpenMDAO setup' count=1 header=10536 chars, all 6 symbols present
+D6RF2_ANCHOR_PASS readers=2 producer=d6rf2_opt_runScript.py
+  the repaired producer PASSES the gate for both readers           want=no-refusal  got=no-refusal  PASS
+
+B. THE NEGATIVE LEG, on the ORIGINAL producer, still on disk unedited
+  the ORIGINAL producer (sentinel twice) REFUSES at A3             want=REFUSED     got=REFUSED     PASS
+        the header A3 prevented: 1396 chars, missing ['class Top', 'POINTS', 'U0 =', 'CL_TARGETS', 'WEIGHTS']
+  PLANT: it is 1396 chars, carries daOptions and NOT class Top     PASS
+
+C. A4 AND A5 -- a unique sentinel AT THE WRONG SITE still refuses
+  count == 1 but the anchor is at the TOP -> REFUSES at A4         want=REFUSED     got=REFUSED     PASS
+
+D. A2 -- the pin, which is the clause the ruling did not anticipate
+  the producer drifts by one comment -> REFUSES at A2 (the md5), BEFORE the anchor is ever counted want=REFUSED     got=REFUSED     PASS
+  the producer is ABSENT from the work dir -> REFUSES at A2        want=REFUSED     got=REFUSED     PASS
+
+D6RF2_ANCHOR_SELFTEST 6/6 PASS
+rc=0

@@ -246,3 +246,134 @@ recomputed from the file. **Nothing in §0–§5 changes when it lands.**
 
 **`CLAUDE.md` check-1 and check-4 are the SUPERVISOR'S and this lane claims neither.** Enqueueing is
 not authorisation.
+
+---
+
+# ADDENDUM 1 — 2026-09-03, PRE-COMPUTE. The launcher, the driver and the grader, derived rather than written, with `G-ANCHOR` invoked at staging before any container
+
+**Version 1.1.** **Lines whose number changed above this section: 0.**
+
+**PRE-COMPUTE, condition CHECKED BY EXECUTION:**
+
+    ROOT_ABSENCE_RE_ASSERTED_BY_EXECUTION utc=2026-09-03T19:51:25Z
+      /home/ubuntu/certonomous-runs/CURRICULUM-D6RF2-a2-wing-multipoint-fd=ABSENT
+
+**0 core-min, no container, NOT ENQUEUED.** **Nothing in §0–§7 moves.** This addendum adds only the
+machinery §6 named. **No gate, threshold, band, cap, label, prediction or cost is altered.**
+
+## A1.1 DERIVED, NOT WRITTEN — and the reason is that re-typing would re-open every lesson
+
+`d6rf2_derive_launcher.py` derives the three files from **`D6RF`'s repaired bytes** by an enumerated
+substitution set, every substitution asserted **present-then-absent**, plus one addition asserted
+**absent-then-present**. **Anything not in the set is `D6RF`'s bytes.** What that preserves, and what
+re-typing would have put at risk:
+
+* the **`.gz`-tolerant `field_path` / `assert_field`** helper with **no unrepaired call site** —
+  four field-name sites plus the two `points.gz` sites (`D6RF` ADDENDUM 3);
+* **`count_src_entries` returning `UNMEASURED`, never `0`**, and S4 refusing on `UNMEASURED` *and* on
+  `0` — the vacuous-pass repair (`D6RF` ADDENDUM 2);
+* the **age datum resolved by name and asserted a non-empty integer** before use;
+* every guard's evidence line **naming its own trip count**;
+* the **units gate at both call sites**, rc 7 / rc 77 distinct, and the launcher refusing to build an
+  arm command that lacks it;
+* **H5 and aggregate that HOLD and never refuse to launch**;
+* **`rc` captured inside the wrapper**, `docker inspect` read **before** `docker rm`;
+* exactly one `sudo -n rm -rf "$WORK"`, every guard preceding it, and `F_mp` **refusing** on a stale
+  arm directory rather than removing one;
+* and the **safety precondition, not a graded leg**: no launcher-invoking test can fire against a
+  real existing root — the gate at the head of the self-test *and* the raise inside `run_launcher()`.
+
+**A DISCIPLINE THE DERIVER ENFORCES AND THIS ITEM ADOPTS: an undeclared substitution that matches
+nothing ABORTS.** A token that legitimately appears in only one of the three files must be
+**declared optional at the call site**, and an absent optional is **printed**, never passed over.
+*A silent no-op rename is the same disease as a vacuous pass, in a different costume.*
+
+## A1.2 THE ONE STRUCTURAL ADDITION — `G-ANCHOR` at staging
+
+The launcher md5-checks the gate, then runs it **over the arm directory's own staged bytes**, so it
+checks what the container will actually read. **A refusal is rc 3 and NO CONTAINER IS CREATED.**
+The gate already refuses at run time inside the consumers; invoking it at staging is what turns
+*"this would have refused after a launch"* into *"this refuses before one"* — which is the whole
+content of `D6RF-BLOCKING-1`.
+
+**Placement asserted by RECOMPUTED line numbers, read from the derived file rather than predicted:**
+the gate's md5 check at **623**, `G-ANCHOR` invoked at **624**, its OK line at **630**, the age datum
+at **631**, the first `docker run` at **726**. From the self-test's own recomputation: guards end
+**293**, the first executable recursive remove is at **486**, the first `docker run` at **726** —
+**every guard precedes every destructive step, and the destructive step precedes the container.**
+
+> **A CORRECTION MADE BEFORE THIS FILE WAS COMMITTED, RECORDED BECAUSE IT IS THE HOUSE DEFECT.** The
+> first draft of this paragraph carried **480 / 500 / 486** — numbers this lane had *estimated from
+> the shape of the edit* rather than read from the derived file. They were wrong. They were caught by
+> reading the file before the commit, and the measured values above replace them. **A line number
+> quoted without being read is the same error class as a residual quoted outside its basis**, and
+> this family has now paid for it enough times to write it down.
+
+## A1.3 THE PINS
+
+| file | md5 |
+|---|---|
+| `d6rf2_run_arm.sh` | **`01e034e1c611e7fc4f0f4e31d3e34511`** |
+| `d6rf2_chain_driver.sh` | **`5818d2ed385d46f5ec053493c052b7a2`** |
+| `d6rf2_grade.py` | **`32a539780e34fe6d7945b7e301badc0f`** — **THE GRADING PATH** |
+| `d6rf2_guard_selftest.py` | `ab9ed104794ac4e64f57f6a9b6dbeca3` |
+| `d6rf2_derive_launcher.py` | `c798ee6d5391e47c7db13e7561f28df2` |
+| `d6rf2_launcher_evidence.txt` | `979f17093fb6cb01b326f2baf746d050` |
+
+**THE PIN CHAIN IS EXECUTABLE AND ABORTS A FIRE:** the driver asserts the launcher's md5 **twice per
+fire**; the launcher asserts the **gate's** md5 and the **eleven** staged-instrument md5s before any
+container and again inside each arm directory; and the grader verifies its own frozen set against
+`git cat-file blob HEAD:` at execution — re-pointed to **this item's** paths, with the gate and the
+repaired producer added to that set, so it cannot verify `D6RF`'s freeze and pass on the wrong one.
+
+## A1.4 DRIVEN — 97/97, A FULL PASS, WITH NOTHING SKIPPED
+
+| drive | result |
+|---|---|
+| `d6rf2_derive_launcher.py` re-driven | **OK**, every substitution re-asserted, **14/14 cross-checks** |
+| `d6rf2_guard_selftest.py` under `python3` | **97/97 PASS** |
+| `d6rf2_guard_selftest.py` under `python3 -O` | **97/97 PASS** |
+| `d6rf2_anchor_gate.py --selftest` under `python3` | **6/6 PASS** |
+| `d6rf2_anchor_gate.py --selftest` under `python3 -O` | **6/6 PASS** |
+
+**ZERO CONTAINERS CREATED**, census before == after, no `d6rf2_` container has ever existed, and the
+run root is asserted **still absent after every drive**. **This is a full pass and is cited as one:
+`0` legs NOT RUN**, because the run root is absent and the launcher-invoking legs were therefore
+safe to drive — the precondition doing its job in the permitting direction.
+
+**The 14 cross-checks, so the number is not the claim:** no D6R producer md5 survives anywhere; no
+single-`f` `d6rf_` token survives; the launcher invokes `G-ANCHOR`; `G-ANCHOR` precedes the age datum
+and the first `docker run`; the driver pins the derived launcher; the launcher pins the gate; the
+`.gz` helper, `count_src_entries` and the age-datum integer assert all survived; the units gate is at
+both call sites; exactly one `sudo -n rm -rf "$WORK"`; H5 and aggregate HOLD; `docker inspect` before
+`docker rm`.
+
+## A1.5 TWO DEFECTS IN MY OWN DERIVATION, FOUND BY DRIVING IT AND FIXED BEFORE THE FREEZE
+
+1. **The derived self-test's `U27` FAILED at first, 96/97.** Its regex spelled the units gate as
+   `d6rf_units_assert\.py` — **escaped** — and the rename substitution matched only the unescaped
+   form, so the check for the gate's second call site was looking for a filename that no longer
+   existed. **A renamed instrument whose test still names the old spelling reports a defect that is
+   not there** — the mirror of `D6RF`'s `0/25`, where a rename made a test report failure for a
+   reason unrelated to what it tests. Repaired and re-driven **97/97**.
+2. **Three substitutions I first declared mandatory are legitimately absent from one of the three
+   files** (`d6r_cmd.sh` is the launcher's only; the shell `ITEM=D6RF` form is not the grader's,
+   which uses `ITEM = "D6RF"`). The deriver **refused** rather than proceeding, and each was
+   **declared optional at the call site** rather than the check being loosened. The refusal text is
+   registered: *"if that is legitimate it must be DECLARED optional, not discovered."*
+
+## A1.6 THE HARDENING NOTE — DECLINED, AND WHY
+
+The supervisor offered, *"if it is free when you touch the file"*, an assertion that
+`REQUIRED_SYMBOLS` and `READERS` are non-empty in `d6rf2_anchor_gate.py`. **It is not free: that file
+is FROZEN at `3af45c05` and its md5 is pinned in §5.** Editing it to add an assertion would break the
+freeze this item's own §5 records, for a property that is already visible in the source as two
+literal non-empty tuples and whose trip counts the gate **prints on its pass line**. **It is left
+unchanged, and the reason is recorded rather than the change made quietly.**
+
+## A1.7 WHAT REMAINS BEFORE A QUEUE ROW
+
+**Check 1 on the launcher is the supervisor's**, and no queue row is filed until he records it.
+Nothing here is enqueued, nothing is sent, and **§7 stands verbatim: removing one refusal is not
+evidence the arms run. No container has ever run `F_mp` or `REF_off` in this lineage; `L-316` binds;
+the first real container is the first evidence about the case.**
