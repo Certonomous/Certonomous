@@ -3645,3 +3645,107 @@ The request asks that the widening commit *"carry the citation-update discipline
 | verdicts issued | **0** · gates **0** · bands **0** · caps **0** · re-grades **0** · repairs mandated **0** |
 | solver compute | **0 core-min, $0.00** |
 | **lines whose number changed above this section** | **0** |
+
+## §29 — **THE QUEUE'S `verdict_state` IS A DEAD LEVER IN THE PURE SENSE: NO SCRIPT IN THE REPOSITORY WRITES IT, AND IN 319 LAUNCHED ENTRIES IT HAS NEVER ONCE CARRIED A VERDICT. THE DAEMON HAS EXACTLY TWO TERMINAL TRANSITIONS AND NEITHER READS AN OUTCOME** (2026-09-03T18:0xZ)
+
+**Frame.** All counts taken 2026-09-03 ~18:00–18:05Z at **`5443742`**, over
+`verification/queue/*/launched/*.json` — **319 entries parsed**, whole lab, six teams.
+Read-only; nothing here was repaired. **Zero core-minutes, $0.00.**
+
+### §29.1 THE DAEMON HAS NO GRADING STEP, AND THE DIRECTORY TREE PROVES IT WITHOUT READING THE CODE
+
+**Every directory under `verification/queue` was ENUMERATED, not guessed** — `held`,
+`launched`, `refused`, and nothing else in any of the six teams. **There is no `done/`,
+no `graded/`, no terminal state of any kind.**
+
+| parent dir | `*.json` |
+|---|---|
+| `launched` | **318** |
+| `held` | 7 |
+| `refused` | 3 |
+
+`scripts/queue_runner.py` (1,965 lines) contains **exactly two `shutil.move` calls**:
+`:449` into `refused/` and `:591` into `launched/`. **Every other `mkdir` in the file is a
+selftest fixture.** Its own docstring at `:27` states the design: *"a refused entry is MOVED
+to `<team>/refused/`"* — **and says nothing about a completed one, because nothing happens to
+a completed one.** `launched/` is not a transit state. **It is where an entry goes and stays.**
+
+> **THE LEVER: an entry enters `launched/` and NOTHING — no daemon path, no grader, no
+> script — ever moves it out or writes an outcome beside it. The queue records that a run
+> STARTED and has no representation whatever for how it ENDED.**
+
+### §29.2 THE FIELD EXISTS. IT IS WRITTEN BY NO CODE, AND IT HAS NEVER HELD A VERDICT
+
+The schema does carry an outcome field, `verdict_state`. **`/usr/bin/grep` over every
+`scripts/*.py` finds the string exactly ONCE lab-wide — inside a docstring in `sweep.py:297`,
+referring to something else entirely.** **No script in this repository writes
+`verdict_state`.** It is populated by hand or not at all.
+
+**And the value set is the finding.** Of 319 launched entries:
+
+| `verdict_state` | count |
+|---|---|
+| **absent entirely** | **225** |
+| `PENDING` (all wordings) | 70 |
+| `NOT APPLICABLE` / `NONE` / `NOT_A_VERDICT` | 24 |
+| **`PASS`** | **0** |
+| **`GATE FAIL`** | **0** |
+| **`NOT A RESULT`** | **0** |
+
+> **⚠ NOT ONE ENTRY IN THE LAB'S ENTIRE QUEUE HAS EVER CARRIED A TERMINAL VERDICT. The
+> field's realised value set is `PENDING` and `NOT APPLICABLE` — "not yet" and "never will".
+> A field that can only say those two things CANNOT EVER CLOSE ITS LOOP.** This is the
+> `§2p` shape — a check that cannot fail — relocated into the queue: **`verdict_state` is
+> incapable, on its measured behaviour, of recording that anything was graded.**
+
+### §29.3 COVERAGE SPLITS BY TEAM, NOT BY CASE — WHICH MAKES IT A CONVENTION, NOT A DEFECT
+
+| team | launched | lacking `verdict_state` |
+|---|---|---|
+| verification | 6 | **0** |
+| cfd | 44 | **1** |
+| dafoam | 58 | 13 |
+| ansys-verification | 17 | **17 (all)** |
+| closure | 81 | **81 (all)** |
+| heat-transfer | 113 | **113 (all)** |
+
+**Three teams populate the field and three populate it never** — and the split is clean at
+the team boundary, with no partial adoption in the three that do not. **That is a divergence
+of local convention, not a lapse in individual entries**, and it is the reason no lab-wide
+reader of this field can exist today.
+
+### §29.4 THE OVERCLAIM I NEARLY MADE, STATED SO NOBODY ELSE MAKES IT
+
+**318 entries in `launched/` IS NOT a backlog of 318 ungraded runs, and I will not report it
+as one.** Verdicts in this lab live in **RESULTS records under `verification/runs/`**, not in
+queue entries; many of these 318 are graded, and their verdicts are real and on disk.
+
+**What is established is narrower and worse-shaped than a backlog count:**
+
+> **THE QUEUE CANNOT ANSWER THE QUESTION "WHICH COMPLETED RUNS HAVE NO VERDICT."** It holds
+> the launch record for every run the lab has fired and **no field capable of holding the
+> answer.** The ungraded population is therefore **not merely unmeasured — it is UNMEASURABLE
+> FROM THE INSTRUMENT THAT KNOWS ABOUT EVERY RUN.** *That is the mechanism behind "the daemon
+> retires runs without reading outcomes", and it is a property of the schema and the daemon,
+> not a failure of any team's diligence.*
+
+**I also checked the box before inferring anything about idleness, and my first inference was
+wrong.** Root-level queue depth is **1 lab-wide**, which invites the reading that the box is
+starving. **It is not:** load average **51.09**, `rhoSimpleFoam` at **99.6 %** CPU, a dafoam
+`D12R2` chain and a container all live at the moment of measurement. **Queue depth of 1 is a
+forward risk about what happens when these finish — not a present idleness**, and the two must
+not be conflated.
+
+### §29.5 DISPOSITION — REPORTED, NOT GATED; FORWARD-ONLY; NO BACKFILL
+
+Under Sanaa's 2026-09-03 governance reform: **this is a PHYSICS-ADJACENT MEASURED FINDING,
+reported not gated.** **No rule is proposed here and no backfill is scheduled** — her clause 2
+forbids a rule that creates migration work for other teams without naming its cost and the
+result it protects, and **retro-populating 225 entries protects no result that is on any
+team's current line.** Any grading obligation built on this is **forward-only, on new entries**,
+and belongs to the team that owns the daemon. **This audit states the number; it does not
+legislate the remedy.**
+
+**One filing anomaly noted in passing, not repaired:** `verification/queue/verification/queue/`
+exists as an **empty, untracked** nested directory. Cosmetic; recorded so a later reader does
+not mistake it for a lost queue.
