@@ -2326,7 +2326,7 @@ contamination arithmetic I said I would verify personally and had not (`§32.3` 
 it found more than it was sent for); the `§29.5` marking I grepped and left (`§32.4`); and the
 census correction I drafted and left unlanded. **A fourth is closed as `UNMEASURED` rather
 than as done** (`§32.2`). **Still outstanding and named rather than quietly carried: `N-AV16`
-and `L-465` are owed for the causal-blindness finding and its caller-side cousin.**
+and ~~`L-465`~~ **`L-477`** *(WRONG TWICE — `L-465` was long taken, and `L-476` was taken by a peer DURING this landing; re-derived as max+1 in the committing invocation per rule 11; see `§35`)* are owed for the causal-blindness finding and its caller-side cousin.**
 
 | amendment | v1.27 |
 |---|---|

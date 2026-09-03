@@ -23390,3 +23390,149 @@ A precondition written against `status` fails on a file no peer has touched.
 post-commit verify rule 10 requires is real and it is what caught this — but it fires **after
 the ref has moved**, so it is a detector, not a guard. **The guard has to sit before
 `commit-tree`, and it has to be a comparison rather than a rendering.**
+
+## L-477 — A CONVERGENCE CRITERION IS ONLY A CRITERION IF IT CAN SEE THE GATED QUANTITY, AND THAT IS A DOMAIN-OF-DEPENDENCE ARGUMENT OWED IN WRITING AT FREEZE TIME — VMFL046 CHOSE ITS CRITERION FOR BEING "SMOOTH AND STABLE", WHICH IS THE PROPERTY THAT MADE IT BLIND
+
+**Measured 2026-09-03, ansys-verification, on VMFL046 (row #54) and VMFL046-INVISCID
+(row #55) — both now `NOT A RESULT` under `ANSYS_VERIFICATION_CHARTER` §31 / `CLAUDE.md`
+rule 5. The numerics fact is `N-AV16`. THIS IS THE PRACTICE, AND IT IS NOT THE SAME THING:
+N-AV16 says a supersonic station cannot see a downstream shock; this says WE OWE AN ARGUMENT
+AT FREEZE TIME THAT OURS CAN, and names the three ways we talked ourselves out of it.**
+
+### The rule
+
+**A convergence criterion must be evaluated on a quantity whose domain of dependence contains
+the gated quantity — and the pre-registration must SAY SO, in writing, before the freeze.**
+Not "the residual is small". Not "the field looks settled". A sentence naming the gated
+quantity, naming the convergence quantity, and stating why a change in the first must show up
+in the second. Where the two are the same quantity the sentence is one line and trivial; where
+they differ it is the whole argument, and **its absence is the defect.**
+
+**The corollary that would have caught this on its own: prefer a convergence limb ON THE GATED
+QUANTITY ITSELF.** VMFL046's gate was shock location. A drift limb on shock location over the
+final window costs one extra read of a file already on disk. It was not there — and the two
+readers that could have supplied it were both written *after* the verdicts, as diagnostics.
+
+### The selection bias, which is the part that generalises furthest
+
+The frozen pre-registration says the gate station was chosen as *"a pre-shock, smooth,
+supersonic station"* (`cases/ansys_verification/VMFL046/PREREGISTRATION.md:88-89`) and
+predicts *"M(0.9) (pre-shock, isentropic) plateaus (stable); the shock cell may oscillate
++/-1 cell"* (`:217-218`). **The quantity was selected for its stability. Read that again: the
+criterion was chosen because it was expected not to move.** A quantity chosen for not moving
+is a quantity chosen for insensitivity, and insensitivity to *what* was never asked. The
+prediction was correct — M(0.9) plateaued to 2.6e-10 — and being correct is exactly how it
+did the damage.
+
+> **A CONVERGENCE QUANTITY PICKED FOR BEING WELL-BEHAVED HAS BEEN PICKED ON THE ONE CRITERION
+> THAT ANTI-CORRELATES WITH USEFULNESS. THE QUESTION IS NOT "WILL IT SETTLE" BUT "WHAT WOULD
+> MAKE IT MOVE, AND IS THAT THE THING I AM GATING ON".**
+
+### What it cost — three guards, one geometry
+
+The gate: shock location within 5 % of analytical 1.250 m, band **0.0625 m**. At the finest
+level the shock drifted **4.8404e-03 m = 7.745 %** of that band (inviscid) and
+**2.3265e-03 m = 3.722 %** (viscous) across the final 500 iterations, having swept
+**100.34 %** and **192.60 %** of the whole band over the run, and had not stopped when
+`endTime` did. The convergence limb read **2.621e-10** and **4.332e-10** against
+`δ_M = 4.25e-04` — converged with six decades of margin. **Blindness ratio 1.85e+07.**
+(`verification/runs/ansys_verification/VMFL046_INVISCID/DIAGNOSTIC_shock_steadiness.out:20-24, 47-51`.)
+
+Three independent guards, all defeated by the same geometry:
+1. **The plateau limb** — evaluated at x = 0.900, between the throat (x = 0.5, read from the
+   frozen `blockMeshDict` vertices) and the shock (approx 1.15–1.21), measured Mach 1.74–1.81. It is
+   on the supersonic branch and outside the shock's reach. `N-AV16` shows the blindness is
+   **regional**: every measured pre-shock station froze at ~1e-10 while every post-shock
+   station moved 1e-03 to 1e-01. **So this was never a bad choice of station. Any pre-shock
+   station would have done the same, and moving it upstream makes it worse.**
+2. **The shock reader** — `grade_vmfl046.py:161` reads the shock from `cl_last`, the single
+   final sample, with **no history comparison anywhere in the frozen comparator.** A quantity
+   read once cannot be observed to move. This is the cheapest of the three to have fixed.
+3. **The residual channel** — dismissed at `grade_vmfl046.py:247-248` as *"the steady-shock
+   limit cycle floors them ~1e-4"*, the 1e-6 floor refused at `PREREGISTRATION.md:213`.
+
+**AND THE THIRD GUARD IS THE ONE THAT WOULD HAVE WORKED, WHICH IS THE UNCOMFORTABLE PART.**
+Measured from `log.rhoSimpleFoam` on the inviscid arm, final p-residuals are
+**3.69e-10 / 6.07e-10 / 7.02e-05** at L1/L2/L3. The two settled levels sit **five decades
+below** the refused 1e-6 floor and the unsettled one sits **70x above it** — a 1.16e+05
+separation landing exactly on the settled/unsettled split. **The refused criterion separates
+the levels correctly on the arm where the verdict turned.** The observation that justified
+refusing it was taken on the **viscous** pre-freeze run, where it does hold (6.58e-10 /
+3.18e-04 / 2.54e-04), and was carried into the **inviscid** freeze **unretested, where it is
+false by six orders of magnitude.**
+
+> **A REACHABILITY OBSERVATION DOES NOT TRANSFER ACROSS A PHYSICS CHANGE. "The residual floor
+> is unreachable" was measured with viscosity in the equations and applied to a case with
+> viscosity removed. Removing dissipation changed the answer, and nobody re-measured.**
+
+Honest limit, so this is not over-claimed: on the **viscous** arm L2 and L3 invert in residual
+order (3.18e-04 vs 2.54e-04) while the shock-drift diagnostic ranks them the other way. **The
+residual is not a universal discriminator. It is simply the one channel of the three that was
+not blind here, and we removed it.**
+
+### ⚠ THE CORRECTION AGAINST THIS TEAM, STATED BEFORE THE REPAIR BECAUSE IT IS THE PART A READER WILL BE TEMPTED TO SKIP
+
+`§31` demoted both rows for a rule-3 false zero inside a graded gate, and **froze a
+reinstatement condition: finest-level shock final-window drift <= 6.25e-04 m.**
+
+**That threshold is 8.004x below the resolution of the frozen comparator's own shock reader,
+and the frozen reader returns a false zero across it.** The centreline sampler is `nPoints
+400`, hard-coded at every level (`.../L3/system/controlDict:40`), spacing **5.002506e-03 m**,
+identical at L1/L2/L3. `grade_vmfl046.py:251` locates the shock at the largest Mach drop
+between adjacent samples — **snapped to a sample node** — so it can only ever return 0 or a
+multiple of 5.0e-03 m. Re-derived on the actual viscous L3 data with a faithful
+reimplementation of that frozen reader: final-window drift **exactly 0.0000e+00 m**, which
+**would satisfy the reinstatement condition**. The interpolating diagnostic
+(`diagnostic_shock_steadiness.py:82`, last downward M = 1 crossing) reads **2.3265e-03 m** on
+the same bytes and fails it by 3.72x. **§31 names no reader for its own condition, and the two
+readers on disk straddle it.**
+
+> **WE WROTE A REINSTATEMENT CONDITION IN THE UNITS OF A QUANTITY, WITHOUT ASKING WHETHER ANY
+> INSTRUMENT WE OWN CAN RESOLVE IT — AND THE INSTRUMENT INSIDE THE FROZEN BYTES ANSWERS ZERO.
+> THAT IS THE SAME FALSE ZERO §31 EXISTS TO NAME, ONE PARAGRAPH FURTHER DOWN.** The lesson is
+> not that §31 is wrong to demand reinstatement evidence. It is that **a threshold is not
+> specified until its reader is specified**, and a threshold below its reader's quantum is
+> unfalsifiable in the direction that flatters us.
+
+**AND THE INCENTIVE IS DISCLOSED, BECAUSE IT CUTS TOWARD US.** §31's condition, if met, would
+**reinstate a `GATE FAIL` against this team**. Declaring the condition unresolvable therefore
+**blocks a recorded failure from returning** — a favourable outcome, reached by an adverse
+finding. It is stated here so a reader can weigh it rather than discover it. **No reader is
+being selected now: both are on disk, they straddle the threshold, and choosing one after
+seeing which answer each gives is exactly the gate-fitting this lesson is about.** The repair
+is escalated, not self-applied, and **no reinstatement may be claimed under §31 in either
+direction until a reader is named by a party not choosing with the answers in hand.**
+
+A second instrument fact compounds it: the sampler does **not** refine with the mesh. Mesh
+axial spacing is 1.250e-02 / 6.250e-03 / **3.125e-03** m, so the sampler is 0.400x / 0.800x /
+**1.601x** the mesh spacing — **under-resolving exactly at the finest level, the level whose
+settledness decides the verdict.**
+
+### The repair, and it is fail-closed
+
+1. **Every pre-registration gating a quantity states, before the freeze, the domain-of-
+   dependence argument connecting its convergence limb to its gated quantity.** Where they are
+   different quantities, the argument is explicit and names the mechanism by which motion in
+   the gated quantity must appear in the convergence quantity. **No argument, no freeze.**
+2. **Where a hyperbolic region (M > 1, or any characteristic structure) separates the two, the
+   convergence limb is invalid and must be moved or supplemented.** Cheapest sufficient form:
+   **a drift limb on the gated quantity itself over the same final window**, at the same
+   threshold discipline.
+3. **A quantity read from a single final sample is never a convergence limb.** If the frozen
+   comparator reads it once, it cannot report motion, and its silence is not evidence.
+4. **Every threshold names its reader and states that reader's resolution.** A threshold below
+   its reader's quantum is refused at freeze time, not discovered at grading. **Retrofit this
+   to `§31`'s reinstatement condition before anyone tries to satisfy it.**
+5. **A "this criterion is unreachable" finding is scoped to the physics it was measured on.**
+   Carrying it across an arm that changes the equations requires re-measuring it, and the
+   re-measurement is cheap: it is one grep of a log that already exists.
+6. **Rule 3's planted control is not a substitute for any of this and never was.** It plants at
+   the gate station and reads back at the gate station, so it proves the *reader* works. **It
+   cannot prove the *station* is one where the answer can appear.** Both selftests here
+   returned ALL PASS while the gate was blind.
+
+**What this does not claim.** It does not re-grade anything; both rows are already
+`NOT A RESULT`. It does not assert the mechanism as proven — `N-AV16` carries the
+established/inferred split, and no controlled downstream-perturbation experiment was run.
+**Zero solver compute was spent finding any of this**: every number above was re-derived from
+sample files, logs and frozen inputs already on disk.

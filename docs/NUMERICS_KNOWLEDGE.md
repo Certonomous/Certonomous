@@ -6119,3 +6119,129 @@ superseding block, **never editing above** (records cite this file by line numbe
 | N-K | Data-driven closure benchmark numerics: Pope tensor-basis rank, TBNN / SpaRTA conditioning | N-K1, N-K2, N-K3, N-K4, N-K5, N-K6, N-K7, N-K8, N-K9, N-K10 |
 | N-T | T-family heat-transfer ladder: GCI / Richardson, thermal grid-convergence numerics | N-T1, N-T2, N-T3, N-T4, N-T5, N-T6, N-T7, N-T8, N-T9, N-T10 |
 | N-X | Cross-cutting V&V numerics: estimators and tolerances general to verification | N-X1, N-X2, N-X3 |
+
+## N-AV16. A CONVERGENCE CRITERION EVALUATED IN A SUPERSONIC REGION SITS OUTSIDE THE GATED QUANTITY'S DOMAIN OF DEPENDENCE AND READS A TRUE ZERO WHILE THE GATE MOVES: at VMFL046's finest level EVERY station on the pre-shock branch held |ΔM| ≤ 5.0e-10 over the same 500 iterations in which EVERY post-shock station moved 6.8e-04 to 1.7e-01 — the freeze is REGIONAL, not stational, and re-siting the station within the supersonic branch is no fix
+
+**THE TRANSFERABLE FACT, first, because it governs every gate this lab sets on a flow
+carrying an embedded supersonic region.** Steady supersonic flow is hyperbolic: the domain
+of dependence of a point on the supersonic branch contains no point downstream of it, so a
+disturbance downstream — the motion of a shock, a change in back-pressure matching, anything
+— **cannot reach it.** A convergence criterion evaluated at such a point therefore does not
+report "the solution has settled". It reports "the part of the solution that can reach this
+point has settled", which in a converging–diverging nozzle is the isentropic expansion the
+throat already fixed. The reading is a **true zero of a quantity that is not the gated
+quantity**, and no threshold on it, however tight, can be made to see the gate. **This is
+not a criterion set too loose. It is a criterion pointed somewhere the answer cannot go.**
+
+The `CLAUDE.md` rule 3 planted-zero control does not catch this and was never able to: the
+reader plants a perturbation *at the gate station* and reads it back, so it proves the reader
+can see a non-zero **there**. It cannot prove that *there* is a place where the gated
+quantity's motion appears. **A planted control validates the instrument, not the station.**
+
+**THE MEASUREMENT.** VMFL046 (viscous, register row #54) and VMFL046-INVISCID (row #55),
+OpenFOAM `rhoSimpleFoam`, first-order upwind, r = 2 triple 3 200 / 12 800 / 51 200
+cells, `endTime 20000`. Frozen gate: shock location within 5 % of the analytical 1.250 m
+(band **0.0625 m**), `SHOCK_TOL` at `cases/ansys_verification/VMFL046/grade_vmfl046.py:47`.
+Frozen convergence limb: a plateau on centreline Mach at **x = 0.900**, `δ_M = 4.25e-04`
+over `W = 500` (`:38`, `:44`). Frozen geometry, read from the mesh and not from prose
+(`blockMeshDict` vertices): **throat at x = 0.5 m**, L = 2.0, A_in/A* = 2, A_exit/A* = 3.
+So x = 0.900 lies between the throat and the shock, and the centreline Mach measured there
+is **1.74–1.81** — supersonic, measured, not assumed.
+
+| level | shock final-window drift | as % of the 5 % band | plateau limb abs(dM) at x = 0.900 | plateau verdict |
+|---|---|---|---|---|
+| INVISCID L1 | 8.1934e-14 m | 0.000 % | 0.000e+00 | CONVERGED |
+| INVISCID L2 | 5.7865e-13 m | 0.000 % | 0.000e+00 | CONVERGED |
+| **INVISCID L3** | **4.8404e-03 m** | **7.745 %** | **2.621e-10** | **CONVERGED** |
+| VISCOUS L1 | 0.0000e+00 m | 0.000 % | 0.000e+00 | CONVERGED |
+| VISCOUS L2 | 2.0605e-04 m | 0.330 % | 8.678e-11 | CONVERGED |
+| **VISCOUS L3** | **2.3265e-03 m** | **3.722 %** | **4.332e-10** | **CONVERGED** |
+
+Run-wide (iterations >= 3000) the shock swept **6.2713e-02 m = 100.34 %** of the entire
+tolerance band on the inviscid arm and **1.2037e-01 m = 192.60 %** on the viscous arm, and
+had not stopped when the solver did. **Blindness ratio — the gated quantity's motion divided
+by the convergence quantity's motion over the same window — 1.85e+07 (inviscid L3) and
+5.37e+06 (viscous L3).** Source: `verification/runs/ansys_verification/VMFL046_INVISCID/DIAGNOSTIC_shock_steadiness.out`
+lines 6–8, 13–15, 20–24, 32–35, 39–43, 47–51 (byte-identical audit copy at
+`verification/runs/ansys_verification/VMFL046/DIAGNOSTIC_shock_steadiness_AUDIT.out`).
+
+**THE DISCRIMINATING CHECK, AND IT IS THE PART THAT MAKES THIS A FACT RATHER THAN A STORY.**
+A near-zero at one station is consistent with several accounts. The domain-of-dependence
+account makes a **spatial** prediction the others do not: the freeze should cover the entire
+supersonic branch and stop at the shock. Tested on the existing `postProcessing/centreline`
+history — no solver run — |ΔM| over the **same** final W = 500 window at eleven stations:
+
+| station x | inviscid L3: M, abs(dM) | viscous L3: M, abs(dM) |
+|---|---|---|
+| 0.600 | 1.366, **4.98e-11** | 1.366, **2.76e-10** |
+| 0.800 | 1.674, **2.47e-10** | 1.674, **4.49e-10** |
+| **0.900** (the gate station) | 1.812, **2.62e-10** | 1.812, **4.33e-10** |
+| 1.000 | 1.949, **2.96e-10** | 1.948, **4.96e-10** |
+| 1.100 | 2.058, **2.45e-10** | 2.057, 9.98e-06 *(inside the upstream smear)* |
+| 1.200 | 1.976, 2.23e-01 *(in the captured shock)* | 0.541, **1.06e-02** |
+| 1.300 | 0.517, **2.77e-03** | 0.545, **1.45e-02** |
+| 1.400 | 0.487, **6.83e-04** | 0.577, **2.44e-02** |
+| 1.600 | 0.486, **1.39e-02** | 0.733, **3.86e-02** |
+| 1.800 | 0.493, **3.32e-02** | 0.644, **1.69e-01** |
+| 1.950 | 0.399, **2.46e-02** | 0.416, **5.67e-02** |
+
+Shock at L3: 1.2126 m (inviscid), 1.1526 m (viscous), frozen reader. **Every station with
+M above 1 is frozen at 1e-10; every station with M below 1 is moving by 1e-03 to 1e-01; the
+transition is at the shock.** Largest downstream motion over largest upstream motion:
+**1.12e+08** (inviscid L3), **3.41e+08** (viscous L3).
+
+**THREE CONSEQUENCES, ALL OF THEM PRACTICAL.**
+1. **Re-siting the criterion inside the supersonic branch is not a repair.** x = 0.600 is as
+   blind as x = 0.900 — blinder, by a factor of 5. A repair must move the criterion **across
+   the shock**, or read the gated quantity itself.
+2. **The freeze degrades over the captured shock's width, not at a point.** Viscous x = 1.100
+   sits 0.05 m upstream of a shock at 1.1526 and reads 9.98e-06 — four decades above the
+   upstream floor and four below the downstream motion. A captured shock has a numerical
+   width, and inside that width the hyperbolic separation is partial. **The clean statement is
+   about the branches, not about a knife edge.**
+3. **The coarse levels do not warn you.** INVISCID L1 and L2 are bit-stable (8.2e-14, 5.8e-13)
+   and both inside the 5 % band. Only the FINEST level failed to settle — the opposite of the
+   usual pattern, and why nothing was suspected.
+
+**A SECOND, INDEPENDENT NUMERICS FACT FOUND IN THE SAME BYTES: A SAMPLER'S RESOLUTION IS NOT
+THE MESH'S, AND HERE IT DOES NOT REFINE WITH IT.** The centreline is sampled with
+`nPoints 400` **hard-coded in `system/controlDict` at every level** (`.../L3/system/controlDict:40`),
+giving a uniform sample spacing of **5.002506e-03 m identical at L1, L2 and L3**. The mesh
+axial spacing is **1.250e-02 / 6.250e-03 / 3.125e-03 m** (blocks `(40 20 1)+(120 20 1)`,
+`(80 40 1)+(240 40 1)`, `(160 80 1)+(480 80 1)`; nCells 3 200 / 12 800 / 51 200, read from
+`constant/polyMesh/owner`). So the sampler is **0.400× the mesh spacing at L1, 0.800× at L2,
+and 1.601× at L3** — it crosses from resolving the mesh to under-resolving it, **at the
+finest level, the one whose settledness decides the verdict.** Any quantity extracted from
+that sample — the frozen comparator's shock location among them — carries a resolution floor
+of 5.0e-03 m = **8.004 % of the gate band** at every level, and refining the grid does not
+lower it. **A grid triple refines the solution; it does not refine the instrument reading it.**
+
+**HONESTY NOTE — WHAT IS ESTABLISHED AND WHAT IS INFERENCE, KEPT SEPARATE.**
+- **ESTABLISHED, from disk:** the plateau limb read 2.6e-10 / 4.3e-10 while the gated quantity
+  moved 7.745 % / 3.722 % of its band over the same window and 100.34 % / 192.60 % over the
+  run; the near-zero is **regional**, covering every measured station on the pre-shock branch;
+  the moving region is **exactly** the post-shock branch; the transition coincides with the
+  captured shock; every frozen station is measured supersonic and every moving station
+  subsonic. None of this rests on a mechanism.
+- **INFERENCE, strongly supported and NOT proven:** that the **hyperbolic domain of
+  dependence is why**. It is the standard gas-dynamic account, it predicted the spatial
+  signature before the signature was measured, and nothing on disk contradicts it. **But no
+  controlled experiment was run** — no artificial downstream perturbation was injected with
+  the upstream branch monitored, and such an experiment is what would close it. An
+  alternative account — that the pre-shock region is simply the numerically easy part and
+  settles first for unrelated reasons — is not excluded by these data, though it does not
+  explain why the boundary falls at the sonic line rather than anywhere else.
+- **NOT MEASURED:** whether the shock was in a limit cycle, drifting monotonically, or still
+  in transient. The samples are 500 iterations apart and the run was stopped by `endTime`,
+  not by settling. **The entry claims motion, not a mode of motion.**
+
+Sources: `verification/runs/ansys_verification/VMFL046_INVISCID/DIAGNOSTIC_shock_steadiness.out`;
+`verification/runs/ansys_verification/{VMFL046,VMFL046_INVISCID}/L{1,2,3}/postProcessing/centreline/`;
+`cases/ansys_verification/VMFL046/grade_vmfl046.py` (blob `cbe98dc821cdbeaba0c27363117b65b7ee199dcf`),
+`:38` `:44` `:47` `:251`; `cases/ansys_verification/VMFL046/PREREGISTRATION.md:57,88-89,91,99`;
+`verification/runs/ansys_verification/VMFL046_INVISCID/L3/system/{blockMeshDict,controlDict}`.
+Manual context, title-page verified against the PDF and not the sidecar (rule 15): VM2026R1
+printed p. 155 = PDF p. 169, "The maximum Mach number is 2.2" — **the manual prints no shock
+location and no tabulated target for this case, only Figure .46.2**, which is why the gate
+runs against a lab-generated analytical reference. Filed by `ansys-verification-supervisor`,
+2026-09-03; zero solver compute.
