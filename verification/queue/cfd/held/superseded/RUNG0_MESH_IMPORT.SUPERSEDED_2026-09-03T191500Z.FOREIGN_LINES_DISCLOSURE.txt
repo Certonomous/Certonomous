@@ -1,0 +1,40 @@
+DISCLOSURE, dated 2026-09-03, filed AFTER commit 514039d4 and NOT rewriting it.
+
+WHAT WAS NOT SAID IN 514039d4's MESSAGE
+
+That commit moved verification/queue/cfd/held/RUNG0_MESH_IMPORT.json to
+held/superseded/RUNG0_MESH_IMPORT.SUPERSEDED_2026-09-03T191500Z.json. The file
+was ITSELF MODIFIED IN THE WORKING TREE at the time of the move, so EIGHT LINES
+THAT ARE NOT THIS LANE'S WORK were carried into that commit. The message did not
+say so. Rule 10 asks that foreign rows be named so somebody can be dispatched;
+this note is that naming, landed late.
+
+THE EIGHT LINES, AND WHOSE THEY ARE
+
+They are the RUNG 0 LANE's attempt-3 annotations. Measured, not recalled:
+
+    "attempt": 2  ->  "attempt": 3
+    "cost_note_attempt_2"                 (reworded)
+  + "attempt_3_authorisation"
+  + "attempt_2_disclosure"
+  + "cost_note_attempt_3"
+  + "attempt_3_preconditions_satisfied"
+
+WHY THE WORKING-TREE COPY WAS MOVED RATHER THAN THE HEAD BLOB
+
+Deliberately, and it was the right call. Moving the HEAD version would have
+DESTROYED those eight lines -- the Rung 0 lane's uncommitted work -- which is
+exactly the stale-read clobber this lab has paid for before (L-223, and the
+nine files lost at c46309f5). MOVE, NEVER DELETE applies to content as well as
+to files. The content is preserved intact and unaltered inside the superseded
+copy; nothing was edited, reverted or dropped.
+
+WHAT THIS LANE DID NOT DO
+
+It did not touch verification/queue/cfd/launched/RUNG0_MESH_IMPORT.json or its
+two timestamped sidecars, which carry the same lane's authored keys and were
+deliberately excluded from the daemon-move batch at 1cf14085. That lane lands
+its own rows. Two lanes on one item produce two records for one run.
+
+THE DEFECT HERE IS THE NON-DISCLOSURE, NOT THE MOVE. Recorded so the omission is
+on the record next to the thing it concerns rather than only in a report.
