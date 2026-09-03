@@ -199,3 +199,39 @@ Recorded because a guard suite that never caught anything is not evidence the in
 This document is **FROZEN** at the commit that introduces it, together with its reader. After first compute its gates are closed; anything further lands as a dated addendum that cannot alter a gate, threshold, cap or label, and originals are struck rather than rewritten.
 
 **FREEZE ONLY. NOT ENQUEUED. NO QUEUE ENTRY. NOT LAUNCHED. ZERO SOLVER CORE-MINUTES. SUBMISSIONS PARKED.**
+
+---
+
+## ADDENDUM 1 — A LAUNCH WAS ATTEMPTED AND ABORTED BEFORE ANY MEASUREMENT. THE LAUNCHER IS REPAIRED AND RE-PINNED. Dated **2026-09-03**. Version **1.0 → 1.0a**.
+
+> **lines whose number changed above this section: 0** — asserted by execution in the committing invocation, against both the pre-append snapshot and `git show HEAD:`.
+
+**⚠ THIS ITEM HAS HAD A LAUNCH ATTEMPT, AND THIS ADDENDUM DISCLOSES IT RATHER THAN DESCRIBING THE ITEM AS UNTOUCHED.** The distinction that matters is between *"no compute happened"* and *"nothing happened"*, and both are stated.
+
+**What happened, 2026-09-03T21:18:12Z.** `so3dr_run_replay.sh` was invoked on the supervisor's authorisation and **aborted at its own G1 guard**, `rc 6`, recorded in `STATUS.SO3DR`:
+
+> `ABORT G1: could not hash the reader against its committed blob. UNMEASURED, not assumed.`
+
+**NO COMPUTE OCCURRED.** The abort happened **before** the run-root guard and before the reader was invoked: the run root `/home/ubuntu/certonomous-runs/CURRICULUM-SO3DR-a2-wing-multipoint-rootcause` was **never created** and is **ABSENT**, no container was started, no gate was scored, no plant was applied, and the cost was **~0 core-min**. **No gate could have been chosen to fit an answer that does not exist**, so the pre-compute window remains open and this addendum is lawful under `CLAUDE.md` rule 2. It moves **no gate, no threshold, no prediction, no plant, no anchor, no cap and no label.**
+
+**The defect, and it is the lane's own.** The launcher carried the reader's repo-relative path as a **second literal** beside its absolute path. A `sed` that rewrote `curriculum_SO3D` → `curriculum_SO3DR` **applied twice** to that line and produced `curriculum_SO3DRR`, so the launcher hashed a path that does not exist. **Two constants that could disagree, and they did.**
+
+**The guard behaved exactly as designed and is the reason this is a footnote rather than an incident.** It refused on an unhashable grading path instead of proceeding, it named itself, and it recorded `UNMEASURED, not assumed` rather than treating an empty hash as a match. **An unchecked condition is not a passing one.**
+
+**The repair is structural, not a patch of the typo.** `REL` is now **derived** from `READER` and `REPO` (`REL="${READER#${REPO}/}"`), so the two paths **cannot** diverge — the possibility is removed rather than tested for. Two further guards were added ahead of the hash: the reader must be an existing file, and the derivation must actually have stripped the repo prefix; each aborts `rc 6` with its own named message.
+
+**Re-pin. This is the only pinned value this addendum changes, and it is not the grading path.**
+
+| file | role | md5 at freeze | **md5 now** | lines |
+|---|---|---|---|---|
+| `so3dr_replay.py` | **the grading path** | `007328fe6777b23d6d81a1a7e8fedcd0` | **unchanged — `007328fe6777b23d6d81a1a7e8fedcd0`** | 1136 |
+| `so3dr_replay_selftest.py` | guard suite | `a05557a21e3fea28de1b08ab43832738` | **unchanged** | 904 |
+| `so3dr_run_replay.sh` | launcher (grades nothing) | `33eb3b814c54efaf7f7ae8cdb20ad081` | **`7bcc62e0b3432c737ac18e38edc1cf83`** | **118** |
+
+**The grading path is byte-unchanged**, re-hashed in this invocation. The launcher computes no gate, applies no plant and reads no log; it proves identity, invokes, and records. **Repairing it cannot move a verdict**, which is why the repair is lawful pre-compute and why the re-pin is disclosed here rather than treated as bookkeeping.
+
+**Also disclosed:** `git rev-parse HEAD:<missing path>` **echoes its argument back** instead of returning empty, which is why `STATUS.SO3DR` recorded the literal string `HEAD:cases/.../curriculum_SO3DRR/so3dr_replay.py` in the `blob_at_HEAD` field. The abort was caught by the **second** clause — `git hash-object` on a missing file returns empty — and by the inequality test that follows it. **Two independent clauses stood where one would have been fooled by an echoed argument**, and that is stated so a reader does not credit the first one alone.
+
+**Unchanged and re-asserted:** every gate, threshold, prediction, plant definition, **plant anchor**, cap and label of §2–§7; the 54-control guard suite and its 54/54 result under both interpreters; and the freeze's §9 disclaimers. **NOT ENQUEUED. NO QUEUE ENTRY. SUBMISSIONS PARKED.**
+
+**END OF ADDENDUM 1.**

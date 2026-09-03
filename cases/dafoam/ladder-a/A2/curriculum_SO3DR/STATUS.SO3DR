@@ -1,0 +1,14 @@
+SO3DR STAGE 1 -- launcher record
+launched_utc   2026-09-03T211812Z
+launcher       /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_SO3DR/so3dr_run_replay.sh
+reader         /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_SO3DR/so3dr_replay.py
+run_root       /home/ubuntu/certonomous-runs/CURRICULUM-SO3DR-a2-wing-multipoint-rootcause
+ranks          1
+cap_core_min_registered 12.0
+solver_core_min_cap     0.0
+
+grading_path_blob_at_HEAD HEAD:cases/dafoam/ladder-a/A2/curriculum_SO3DRR/so3dr_replay.py
+grading_path_blob_on_disk 
+reader_md5                007328fe6777b23d6d81a1a7e8fedcd0
+ABORT G1: could not hash the reader against its committed blob. UNMEASURED, not assumed.
+rc 6

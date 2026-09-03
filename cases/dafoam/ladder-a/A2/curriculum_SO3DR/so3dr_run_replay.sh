@@ -20,8 +20,16 @@ set -uo pipefail
 
 REPO="/home/ubuntu/Certonomous"
 CASE="${REPO}/cases/dafoam/ladder-a/A2/curriculum_SO3DR"
-REL="cases/dafoam/ladder-a/A2/curriculum_SO3DRR/so3dr_replay.py"
 READER="${CASE}/so3dr_replay.py"
+# REL IS DERIVED FROM READER, NEVER CARRIED AS A SECOND LITERAL. An earlier
+# version of this file held the repo-relative path as its own string; a sed that
+# rewrote `curriculum_SO3D` -> `curriculum_SO3DR` applied twice to it and
+# produced `curriculum_SO3DRR`, so the launcher hashed a path that does not
+# exist. The G1 guard REFUSED (rc 6, "UNMEASURED, not assumed") and no run root
+# and no container were created -- the guard did its job -- but the defect was
+# two constants that could disagree. Deriving one from the other removes the
+# possibility rather than testing for it.
+REL="${READER#${REPO}/}"
 RUN_ROOT="/home/ubuntu/certonomous-runs/CURRICULUM-SO3DR-a2-wing-multipoint-rootcause"
 STATUS="${CASE}/STATUS.SO3DR"
 STAMP="$(date -u +%Y-%m-%dT%H%M%SZ)"
@@ -42,6 +50,18 @@ say "solver_core_min_cap     0.0"
 say ""
 
 # ---- G1: the frozen file must BE the file that runs (CLAUDE.md rule 2) -----
+if [ ! -f "${READER}" ]; then
+  say "ABORT G1: the reader ${READER} is not a file. UNMEASURED, not assumed."
+  say "rc 6"
+  exit 6
+fi
+if [ "${REL}" = "${READER}" ]; then
+  say "ABORT G1: the repo-relative path did not derive -- REL (${REL}) is still"
+  say "ABORT G1: absolute, so ${READER} is not under ${REPO}. UNMEASURED."
+  say "rc 6"
+  exit 6
+fi
+say "derived_rel               ${REL}"
 BLOB_HEAD="$(cd "${REPO}" && git rev-parse "HEAD:${REL}" 2>/dev/null)"
 BLOB_DISK="$(cd "${REPO}" && git hash-object "${REL}" 2>/dev/null)"
 MD5_DISK="$(md5sum "${READER}" | cut -d' ' -f1)"
