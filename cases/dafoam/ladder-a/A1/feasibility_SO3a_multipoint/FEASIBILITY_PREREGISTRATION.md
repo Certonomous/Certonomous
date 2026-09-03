@@ -1329,3 +1329,83 @@ Five are new, all on the host against synthetic objects, **no container**:
 **NOT FIRED.** The open defects stand: the frame allowance under-covers teardown (**n=1**, unresized), and the census stall is **unexplained**. XM `rc=7` remains the registered risk landing; MESH complete and **NOT A RESULT**; item **PENDING**; **F1–F5 unscored**; **§0.2 binding.** **SUBMISSIONS PARKED.**
 
 **END OF ADDENDUM 12.**
+
+---
+
+## ADDENDUM 13 — `F1`'s APPROACH AS REGISTERED CANNOT WORK. THE ROUTE IS CLOSED AND THE ITEM STANDS DOWN. Dated **2026-09-03**. Version **1.13 → 1.14**.
+
+> **lines whose number changed above this section: 0** — asserted by execution against both the pre-append snapshot and `git show HEAD:`.
+
+**Moves no gate, no threshold, no prediction, no band, no cap or label. F1–F5 REMAIN UNSCORED.**
+
+### A13.1 ⚠ THE RULING, IN TWO LINES, AND THE TWO CLAIMS ARE NOT THE SAME
+
+> **1. NO RESIDUAL-HISTORY *ATTRIBUTE* EXISTS ON EITHER OBJECT. — MEASURED.**
+> All four candidates — `getPrimalResidualHistory`, `primalResidualHistory`, `getResidualHistory`, `residualHistory` — are **absent from both** `DASolver` (87 attributes) **and** the mphys wrapper (298 attributes), 0 unreadable on either. The only two names matching `resid|hist` on `DASolver` are `calcPrimalResidualStatistics` and `getResiduals`, **both methods, neither sequence-shaped**, and every sequence-shaped attribute on `DASolver` is mesh or geometry (`faces`, `owners`, `neighbours`, `xv`, `xv0`, `basicFamilies`, `wallList`, `imOptions`).
+>
+> **2. WHETHER A RESIDUAL HISTORY IS *OBTAINABLE* IS — UNMEASURED.**
+> `getResiduals` and `calcPrimalResidualStatistics` are methods **nobody has called**, and DAFoam may expose a history by some other route entirely. **Nothing here tests that.**
+
+**THE DISTINCTION IS LOAD-BEARING.** A successor who reads *"unobtainable"* where this measured *"absent as an attribute"* will abandon a route that was never tested — **the same scope error as an overclaim, in the direction of giving up instead.**
+
+**RULED: `F1`'s approach as registered cannot work.** The quantity it reads does not exist on the object it reads from, and **no run at any budget would have changed that.** **The fourteenth unsatisfiable-by-construction condition, established for 0.4 core-min by a field in a note.**
+
+### A13.2 What is deferred, and to whom
+
+**What `F1` should read instead — or whether `F1` survives at all — is a REGISTRATION DECISION** and goes on the deferred pile beside `F_mp`'s, **for a fresh session.** Not tonight, and not by the lane. **F1–F5 are unscored and the item is `PENDING`.**
+
+### A13.3 The durable product of this item, which is not its answer
+
+> **A guess about an object can be checked before it is written into an instrument.**
+
+The producer wrote **four guesses into an instrument** and paid **three runs and 6.0 core-min** to learn they were all wrong. **The enumeration cost a field in a note.** The check was available the whole time, at the exact moment of the question, and nobody asked for it until the guesses had been paid for.
+
+**It sits beside the other closure this item produced:** *before building an instrument to reach a state, ask whether something already reaches it.* **Both say one thing from opposite ends — the information you need is usually already within reach of something that works, and the expensive move is building a new way to get it.**
+
+### A13.4 The honest accounting
+
+**Eight launches, 6.8000 core-min.** Produced: a mesh **nothing grades**, one **registered refusal**, one **measured reason `F1` cannot work as written**, and thirteen addenda largely about the delivery path. **Three real defect classes closed** — inputs, environment, and the shell option that hid both — and **a registered stop rule that could not stop is now enforced by an in-container deadline.**
+
+> **THE INSTRUMENTS IMPROVED A GREAT DEAL AND THIS ITEM'S PHYSICS QUESTION DID NOT MOVE.** It is now closed with a **measured** reason rather than an open one, which is a better place to leave it than where it began — **and that is not the same as progress on the physics.**
+
+### A13.5 The two open defects, neither chased nor deleted
+
+1. **The frame allowance under-covers teardown.** The census's enforced 105 s deadline still landed **2.3000 core-min against a 2.0 cap**, because the process took **33 s** to die after SIGTERM and `FRAME_ALLOWANCE_S` is **15**. **DELIBERATELY UNRESIZED: n=1**, and a constant fitted to a single sample is the shape this family was bitten by repeatedly.
+2. **The census stall is unexplained.** Two attempts, **6.0 core-min**, no enumeration, the difference measurably **not in this item's code**, cause **UNMEASURED**. **Parked with its evidence intact** — a parked defect with its evidence is a finding; a deleted one is nothing.
+
+### A13.6 Rest state
+
+**`MESH` complete and `NOT A RESULT`. `XM` `rc=7`, the registered risk landing. F1–F5 unscored. Item `PENDING`. §0.2 binding — this item never called `solve_linear` and nothing it measured may be quoted toward SO-3aR's adjoint collision.** **SUBMISSIONS PARKED. NOTHING FURTHER ON SO3aF2.**
+
+### A13.7 The rest state above was then VERIFIED BY EXECUTION, and the verification caught an error in itself
+
+§A13.6 states the rest state. Stating it is not checking it, so it was checked:
+`so3af2_reststate_evidence.txt`, beside this file, is the **output** of the
+commands, produced 2026-09-03T233750Z — disk-vs-`HEAD` md5 on all eleven touched
+files, the run root enumerated rather than summarised, every archive counted,
+`so3af2_M.json` absent, containers and queue rows at zero, the guard suite at
+`PASS 50 FAIL 0 NOT RUN 0`, and the item cost recomputed from the ledger.
+
+Two things that check earned:
+
+1. **The frozen reader `so3af2_read.py` still hashes to
+   `d5f4149d43abe3a165ffe7e653b78bee`**, its value at the 2026-08-31 freeze
+   (`3b85e47f0893d322a198e7d52b989e51aa43c205`). Thirteen addenda, eight
+   launches and three closed defect classes later, **the scoring instrument was
+   never once edited.** That is the only sentence in this document that would
+   have been worth anything had the item produced a number.
+
+2. **The check found a defect in itself.** Its first pass printed the launcher-row
+   sum as `6.8333`; the correct sum is `6.7833`, and the item total `6.8000`. The
+   figure of record was never wrong — every addendum says 6.8000 — but the wrong
+   line was the **one line in a "verify, don't claim" step that I did by hand
+   instead of by machine.** It is corrected by computation in the evidence file
+   and disclosed there rather than quietly fixed, because a stand-down that
+   silently repaired its own arithmetic would be exactly the record this item
+   spent thirteen addenda learning not to write.
+
+**Assertion:** lines whose number changed above this section: **0**. The single
+line displaced is the `END OF ADDENDUM 13.` marker below, which moves down by the
+length of this section and is cited by nothing.
+
+**END OF ADDENDUM 13.**

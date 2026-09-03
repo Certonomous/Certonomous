@@ -1,0 +1,98 @@
+SO3aF2 REST STATE -- VERIFIED BY EXECUTION, NOT CLAIMED
+Produced 2026-09-03T233750Z by the dafoam lane at stand-down, on the
+supervisor's instruction to verify rather than assert. Every line below is
+the output of a command run at that time, not a recollection.
+
+1. DISK == HEAD on every file this item touched (md5 of working file vs
+   md5 of 'git show HEAD:<path>'). Eleven files, ten equal; the eleventh is
+   FEASIBILITY_PREREGISTRATION.md, which carries ADDENDUM 13 and is committed
+   by the same commit that lands this evidence file.
+     so3af2_read.py                                 disk == HEAD  d5f4149d43abe3a165ffe7e653b78bee
+     so3af2_runScript.py                            disk == HEAD  0cbff59668dd1a88c155f6728ed0863c
+     so3af2_attr_census.py                          disk == HEAD  2fd479d881f63b529605b3a45d0154f3
+     so3af2_run_arm.sh                              disk == HEAD  5e44a11a9020f68c1eb96e3a37bfbc50
+     so3af2_env_assert.sh                           disk == HEAD  a5b7fcae05aab420d94623582d45f897
+     so3af2_pin_selftest.sh                         disk == HEAD  82011a88ac7ba351b067f33783d48bcc
+     so3af2_stage2_evidence.txt                     disk == HEAD  3afaf0d7b78651b608faf42cf489e31a
+     so3af2_runScript_DELTAS_addendum12.diff        disk == HEAD  d2dcbbf1b0e67489a6d5a4f29e345f19
+     so3af2_attr_census_DELTAS_from_producer.diff   disk == HEAD  77d4b1ce7fda40f56cd80b888017510f
+     so3af2_runScript_DELTAS_from_so3ar2.diff       disk == HEAD  217383144f65ac720c138678908bf1da
+
+2. THE FROZEN READER IS THE FILE THAT WAS FROZEN. so3af2_read.py md5
+   d5f4149d43abe3a165ffe7e653b78bee, identical to the value recorded at the
+   2026-08-31 freeze (commit 3b85e47f0893d322a198e7d52b989e51aa43c205).
+   Thirteen addenda, eight launches, three defect classes closed, and the
+   scoring instrument was never once edited.
+
+3. RUN ROOT, ENUMERATED (not summarised):
+     ATTRCENSUS
+     ATTRCENSUS_2026-09-03T230242Z.container.log
+     ATTRCENSUS_2026-09-03T230242Z.inspect.txt
+     ATTRCENSUS_2026-09-03T231752Z.container.log
+     ATTRCENSUS_2026-09-03T231752Z.inspect.txt
+     ATTRCENSUS_PRESTOP_arm.log
+     ATTRCENSUS_PRESTOP_docker_logs.txt
+     ATTRCENSUS_PRESTOP_inspect.txt
+     ATTRCENSUS_stopped_rc9_20260903T231526Z
+     MESH
+     MESH_2026-09-03T223426Z.container.log
+     MESH_2026-09-03T223426Z.inspect.txt
+     XM
+     XM_2026-09-03T224931Z.container.log
+     XM_2026-09-03T224931Z.inspect.txt
+     XM_2026-09-03T233357Z.container.log
+     XM_2026-09-03T233357Z.inspect.txt
+     XM_rc7_20260903T233132Z
+     ledger.txt
+     so3af2_env_assert.sh
+
+4. ARCHIVES PRESERVED, BY PATH COUNT AT THIS READING:
+     CURRICULUM-SO3aF2-a1-naca0012-multipoint-feasibility_rc127_20260903T220940Z    6 paths
+     CURRICULUM-SO3aF2-a1-naca0012-multipoint-feasibility_rc127r2_20260903T222137Z   32 paths
+     CURRICULUM-SO3aF2-a1-naca0012-multipoint-feasibility_rc1r3_20260903T223143Z   33 paths
+     ATTRCENSUS_stopped_rc9_20260903T231526Z                                     166 paths
+     XM_rc7_20260903T233132Z                                                     211 paths
+     Nothing was deleted at any point in this item. Every superseded run
+     root was MOVED, and each move asserted its own path count.
+
+5. NO GRADED ARTEFACT EXISTS. find -name so3af2_M.json under the run root:
+     0 occurrences. The item is PENDING and no
+     number was written that a grader could mistake for a result.
+
+6. NOTHING IS LEFT RUNNING AND NOTHING IS LEFT QUEUED:
+     live so3af2 containers            : 0
+     pending rows verification/queue/dafoam : 0
+     pending rows, all teams           : 0
+
+7. GUARD SUITE AT STAND-DOWN:
+     SO3aF2 PIN CENSUS: PASS 50  FAIL 0  NOT RUN 0
+     NOT RUN 0 is the load-bearing figure: a skipped leg is reported NOT RUN,
+     never PASS, and there are none.
+
+8. ITEM COST, COMPUTED FROM THE LEDGER AT THIS READING, NOT RECALLED:
+     five launcher rows that reached a container:
+       MESH  2026-09-03T223426Z  0.0500
+       XM    2026-09-03T224931Z  0.3500
+       ATTRCENSUS 2026-09-03T230242Z 3.6833
+       ATTRCENSUS 2026-09-03T231752Z 2.3000
+       XM    2026-09-03T233357Z  0.4000   sum 6.7833
+     three archived MESH aborts, ledgers moved with their run roots: 0.0167
+     ITEM TOTAL 6.8000 core-min across EIGHT launches.
+     Cross-check: the current ledger's core_min column sums to 10.4833, which
+     includes a 3.7000 LANE-INTERVENTION note describing the SAME event as the
+     3.6833 launcher row above it. 10.4833 - 3.7000 = 6.7833, agreeing with the
+     independent sum. The intervention note is a record of a hand-stop, not a
+     second spend, and double-counting it would overstate the item by 54%.
+     cost_basis: REPORTED-BY-OWNER, NOT MEASURED -- wall seconds and rank count
+     are read from the ledger rows the launcher wrote; the $/core-h rate is
+     owner-stated (c7a.4xlarge, $0.0513/core-h) and this box cannot read its
+     own billing (COMPUTE_BUDGET_CHARTER §5).
+
+AN ERROR OF MINE, RECORDED BECAUSE IT WAS MADE DURING THIS VERY VERIFICATION:
+the first pass of item 8 printed the launcher sum as 6.8333. That was my own
+arithmetic, done in prose rather than by the machine, and it was wrong by
+0.0500. The figure of record 6.8000 was never affected -- it is what every
+addendum says -- but the incident is the point: I was in the middle of a step
+whose whole purpose was 'verify rather than claim', and the one line I wrote
+by hand instead of computing is the one line that came out false. It is fixed
+above by computation and left disclosed here rather than quietly corrected.
