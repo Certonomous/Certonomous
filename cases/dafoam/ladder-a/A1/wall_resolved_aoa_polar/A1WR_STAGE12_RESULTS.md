@@ -822,3 +822,80 @@ tolerance is relaxed retrospectively, and `primalMinResTolDiff` is not
 re-litigated on a closed item.
 
 **NOTHING IN THIS ITEM IS FILED, SENT, UPLOADED OR POSTED ANYWHERE.**
+
+---
+---
+
+# ADDENDUM 4 — 2026-09-03 — ⚠ ADDENDUM 3'S "IT IS THE MAX" IS WITHDRAWN. IT IS THE **MEDIAN** FOR VECTORS, AND `U2` WAS NEVER THE BINDING CHANNEL.
+
+**`lines whose number changed above this section: 0`**
+
+Nothing above this line has been edited. Re-derived through a **sanctioned
+route** — `docker create` + `docker cp`, which **executes nothing**: the
+container's `State.Status` read `created`, `StartedAt=0001-01-01T00:00:00Z`,
+`Pid=0` before and after the copy, and it was removed without ever being started.
+`DASolver.C` md5 `406153e9db37e0a89ce0449ab6c41ced`, plus the whole
+`src/adjoint` tree (1,044 files).
+
+## 17. WHAT ADDENDUM 3 GOT WRONG
+
+Addendum 3 asserted that Sanaa's named defect class — *"a residual print that
+isn't the max over equations"* — **does not apply here**, because `primalMaxRes`
+is "reset to `-1e10` (`DASolver.C:224`) and maximised over the equation set."
+
+**The reset is real. The maximisation claim was never verified and is wrong for
+vector fields.** `DASolver.C:224` is the *only* site in that file that writes
+`primalMaxRes`; the updates live in `DAUtility.C`, and there are **two
+overloads**:
+
+| overload | used by | rule |
+|---|---|---|
+| `SolverPerformance<scalar>` (`DAUtility.C:734-760`) | `p` (`pEqnSimple.H:52`), `nuTilda` (`DASpalartAllmaras.C:468`), `k`, `omega`, `he`, `T` … | `if (initRes > primalMaxRes) primalMaxRes = initRes;` — **a true max** |
+| `SolverPerformance<vector>` (`DAUtility.C:762-790`) | **`U`** (`DASimpleFoam/UEqnSimple.H:29`) | `sort(initResList); if (initResList[1] > primalMaxRes) …` — **the MEDIAN of the three components** |
+
+The source states the reason in its own comment, verbatim:
+
+> *"for vectors, we need to use the median value for the residual … this is
+> because we often need to run 2D simulations with **symmetry BC**, so one
+> component of the residual vector, which is related to the symmetry BC, may be
+> high while the other two components' residuals are low."*
+
+**So `primalMaxRes` = max( MEDIAN(U0,U1,U2), p, nuTilda ).** Sanaa's defect class
+**does apply**, in a subtler form than she named: not a print that omits an
+equation, but a print that takes the **median across a vector's components**.
+Addendum 3's clearance of it is withdrawn.
+
+## 18. THE CONSEQUENCE: `U2` IS EXPLICITLY DISCARDED, AND §16's MECHANISM IS WRONG
+
+§16 attributed the zero convergences to `U2`'s floor of 3.238e-08. **`U2` never
+entered the criterion at all.** From α = 2 upward `U2` is the *largest* of the
+three components at every point, and the median discards the largest. Measured,
+last print of each point:
+
+| α | median(U) | p | nuTilda | **`primalMaxRes`** | binding channel |
+|---|---|---|---|---|---|
+| 0 | 4.671e-08 | 1.26e-07 | 2.26e-07 | **2.2632e-07** | nuTilda |
+| 1 | 3.586e-08 | 1.02e-08 | 8.29e-09 | **3.5864e-08** | U(median) |
+| 4 | 1.985e-08 | 1.25e-08 | 1.05e-08 | **1.9847e-08** | U(median) |
+| 8 | 5.877e-09 | 5.64e-09 | 1.54e-08 | **1.5373e-08** | nuTilda |
+| 9 | 1.738e-09 | 2.74e-09 | 1.51e-08 | **1.5050e-08** | nuTilda |
+| 12 | 2.998e-08 | 1.66e-08 | 2.80e-08 | **2.9979e-08** | U(median) |
+
+**`nuTilda` is the binding channel at 8 of the 14 points and the median-of-`U` at
+6. `U2` is binding at none.**
+
+**WHAT SURVIVES, AND IT IS THE CONCLUSION:** every point's `primalMaxRes` lands
+between **1.34e-08 and 4.15e-07** — **above 1.0e-8 so no point could converge,
+and below 1.0e-6 so no point could be flagged as failed.** The dead-band account
+of Addendum 3 stands exactly; **only the identity of the channel that put the
+value there was wrong.** `CONVERGED 0` with `err=NONE` on thirteen rows remains
+fully explained, and the frozen reader's `NOT CONVERGED` remains correct.
+
+**AND THE REACH IS WIDER THAN THIS ITEM.** The median rule is DAFoam's, not this
+mesh's: **on any 2-D DAFoam case the velocity residual reported to the
+convergence criterion is the median of three components, so a single badly
+converged momentum component is invisible to `primalMinResTol` by design.** That
+is a fact about the tool, it is registered here for cross-team citation, and it
+is **reported, not gated** — no verdict in this record moves on it.
+
+**NOTHING IN THIS ITEM IS FILED, SENT, UPLOADED OR POSTED ANYWHERE.**
