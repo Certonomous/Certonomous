@@ -1898,3 +1898,69 @@ Found by **`ansys-lane-opus`**, against the supervisor who wrote `L-443`, commit
 | found by | **a lane, against this supervisor**, who had briefed it with the wrong number |
 | gates | **0 moved** · bands | **0 moved** · caps | **0 moved** · re-grades | **0** · register bytes | **0** |
 | lines whose number changed above this section | **0** |
+
+---
+
+## Amendment — v1.23, 2026-09-03 — **§28: `§25` HAD A WRONG-NUMBER PATH AND A LOOPHOLE THAT REOPENS `§25.2` UNDER A NEW NAME. A LANE FOUND BOTH BEFORE THE INSTRUMENT WAS FROZEN, WHICH IS THE ONLY TIME FINDING THEM IS CHEAP.**
+
+### §28.1 WHY THIS AMENDMENT EXISTS AT ALL
+
+`§25` was written by me and handed to `ansys-lane-opus48` as a specification to build against, with the standing instruction that **finding a hole in the charter is the highest-value thing a lane can do.** It returned five, one of them a path that would have let a **wrong shock location** through a gate. All five are adopted. **`§25` was eight hours old and had never met an implementer; that is exactly how long a specification survives contact with the thing it specifies.**
+
+### §28.2 ⚠ THE WRONG-NUMBER PATH — `u_read` MUST BE IN THE GATED QUANTITY'S OWN DIMENSION
+
+`§25.6` requires the fold `|CFD − ref| ≤ sqrt(tol² + u_read²)` **"with both terms in the same units."** `§25.4` derives `u_read` from *"synthetic-control RMS error"* **and never says of WHAT.** The natural implementation — RMS of the digitized curve against truth — is a **y-value** error. **The first plate this team wants (Fig. .46.2) is gated on SHOCK LOCATION, which is an x-POSITION.** A y-units `u_read` folded into an x-location band is dimensionally meaningless and would have produced a gate that looked complete and was not.
+
+> **RULED: every term of `§25.4` — the synthetic-control statistic, the pixel floor, and the half-spread of the two read-offs — is computed ON THE GATED QUANTITY, IN THAT QUANTITY'S OWN UNITS.** A `u_read` derived for a value-at-a-station does not license a gate on a position, an integral, a slope, or a peak. **One plate can carry several gated quantities, and each needs its own `u_read`.**
+
+The instrument as built calibrates **value** read-offs correctly and is not wrong; it is **incomplete for a position gate**, and the incompleteness was invisible from `§25`'s text.
+
+### §28.3 ⚠ THE LOOPHOLE THAT REOPENS `§25.2` — AN AUTOMATED READER CAN SHRINK ITS OWN UNCERTAINTY
+
+`§25.4`'s *"half the spread of two independent read-offs"* was written for **human** digitizers, where independence is a fact about two people. For an **automated** reader, independence must be manufactured by perturbing defensible operator choices — and **narrowing the perturbation range narrows the spread, which narrows `u_read`, which widens the effective margin.**
+
+> **THAT IS `§25.2`'s FORBIDDEN MOVE WEARING A NEW NAME:** sizing the uncertainty to suit the answer, done through a range parameter instead of through the read-off itself.
+>
+> **RULED: the perturbation ranges are PRE-REGISTERED IN THE FROZEN BYTES, with a stated defence of why each range spans the choices a competent reader could actually have made. A range narrowed after any target value is known is a `§25.2` violation and voids the calibration.** Where the ranges are disputed, the WIDER defensible range is used — `u_read` errs large, and `§25.6`'s `u_read ≥ tol/3` cap is the honest consequence, not something to engineer around.
+
+### §28.4 THE AXIS PLANT DOES NOT CATCH A FLIP — AND IT BIT THE BUILD
+
+`§25.3`'s held-out-tick check verifies the axis fit against a tick excluded from it. **A consistently REVERSED axis pairing is still a self-consistent straight line**, so the held-out tick lands on the wrong line at **~0 px error** and the plant passes. The lane hit this in its own build: **RMS ≈ 1.09 at near-zero bias** — the signature of a correct-shaped fit in the wrong direction.
+
+> **RULED: `§25.3`'s "log axes declared explicitly" extends to ORIENTATION declared explicitly, and the AXIS PLANT adds a SLOPE-SIGN check against that declaration.** A guard that passes on a flipped axis is a guard whose two sides degrade together (`L-436`'s class) — the fit and its held-out check are wrong in the same direction and agree.
+
+### §28.5 A WHOLE-CURVE RMS AVERAGES THE EASY PART WITH THE PART YOU ARE READING
+
+An RMS over an entire digitized curve mixes flat regions (easy, sub-pixel) with steep regions (hard, where a one-pixel horizontal error is a large value error). **A read taken near a shock — which is the whole point of Fig. .46.2 — is a steep-region read**, and a whole-curve RMS understates its uncertainty.
+
+> **RULED: where the gated quantity is read in a locally steep region, `u_read` uses the STEEP-REGION statistic, not the whole-curve one.** The instrument reports both. **The statistic is chosen by where the read happens, and that choice is frozen before the read.**
+
+### §28.6 `§25.3`'s "MATCHED TO THE TARGET PLATE" vs `§25.2`'s "DO NOT READ THE TARGET PLATE"
+
+The two clauses collided as written. **Resolved: synthetic plates are matched to the target's ANSWER-BLIND FORMAT** — DPI, axis ranges and scale type, tick density, line width, marker style, gridline density, aspect ratio: every one measurable without reading the plotted curve.
+
+**Consequence, stated because it is a cost and not a detail: `u_read` is PER-TARGET-FORMAT and is RE-DERIVED PER CASE.** There is no single lab-wide `u_read`, and a calibration performed for one figure does not transfer to another by assertion. `§25.7`'s authorisation is per case.
+
+### §28.7 THE DIGITIZER'S OWN CAP, UNDER `§26.2`
+
+Filed estimate **0.1 core-min** (basis: 0.117 s per render-and-digitize measured on this box × ~32 operations ≈ 4 s wall, serial). Per `§26.2` the cap is **~3× the team's own estimate: 0.3 core-min.** The lane proposed 5, which is **50×** and not the discipline.
+
+**A tight cap is safe HERE and the reason is worth stating, because it does not generalise:** a cap-hit on this task forfeits ~4 seconds and a re-file. `§27.2` showed a cap-hit on VMFL046 would have forfeited **21.9 core-min of already-spent L3 compute**. **The cost of losing a run is not the cost of the run's estimate, and `~3×` is a discipline on the estimate, not a judgement about the loss.** Observed and recorded; not acted on beyond applying her rule as written.
+
+Per `§27.3`, the estimate is reconciled against its own stated method **using only inputs available at filing** — `0.117 s × 32 ÷ 60 = 0.0624` core-min against a filed 0.1, i.e. filed **1.6× above** its own method with the margin disclosed, not silently absorbed.
+
+### §28.8 WHAT IS STILL NOT AUTHORISED
+
+`§25.7` is unchanged and unmet. **No case gates on a digitized reference.** The instrument has run its selftest only; `--calibrate` is compute the freeze governs and has **not** been run, so **no `u_read` exists** and this task has **no verdict**. VMFL046-R2 remains a future **new registration**, and **row #54's `GATE FAIL` is permanent** whatever any calibration returns.
+
+| amendment | v1.23 |
+|---|---|
+| clause added | **`§28`** (`§28.1`–`§28.8`) |
+| ⚠ wrong-number path CLOSED | `u_read` computed **on the gated quantity in its own units** — a value-`u_read` never licenses a position gate |
+| ⚠ loophole CLOSED | perturbation ranges **pre-registered and defended**; narrowing one after a target value is known **voids the calibration** |
+| plants strengthened | axis **orientation** declared + **slope-sign** check (the held-out tick passes a flipped axis) |
+| refined | steep-region `u_read` where the read is steep; synthetic plates matched to the **answer-blind format**; `u_read` is **per-case** |
+| cap ruled | digitizer estimate **0.1** core-min, cap **0.3** (`~3×`, `§26.2`) — the lane's 5 was 50× |
+| found by | **`ansys-lane-opus48`, against the supervisor who wrote `§25`**, before the freeze |
+| gates | **0 moved** · bands | **0 moved** · caps | **1 SET (new task)** · re-grades | **0** · register bytes | **0** |
+| lines whose number changed above this section | **0** |
