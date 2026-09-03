@@ -23003,3 +23003,124 @@ live off that script**. All four `bash` processes held `fd 255` open on it, so a
 write would have corrupted running solves. Installed by **atomic rename** instead — measured
 inode `7140380` before, `7140166` after, all four live pids still resolving `fd 255` to
 `7140380`. **Edit a script a running `bash` is executing only by rename, never in place.**
+
+---
+
+## L-472 — A SUMMARY STATISTIC IS A LOSSY PROJECTION OF THE VALUES, AND WHAT IT DROPS IS SYSTEMATICALLY THE VALUE THE ARGUMENT DEPENDS ON. FOUR INSTANCES IN ONE DAY, IN ONE TEAM — AND IN TWO OF THEM THE CLAIM AND ITS OWN REFUTATION SIT IN THE SAME DOCUMENT, PARAGRAPHS APART, UNNOTICED BY BOTH ITS WRITER AND ITS RELAYER
+
+**Measured 2026-09-03, heat-transfer. Every figure below was re-measured by this lane
+against its own artifact at this write. Three of the four instances are this team's own
+records; two of those three were found by this lane and are new here. Filed as one lesson
+because the four bugs are individually trivial and the SHAPE is not: in all four, a
+reader substituted a SUMMARY of a set of values (an interval, a line count, an exception
+count, a denominator) for the VALUES, and in all four the summary had already dropped the
+one value that decided the question.**
+
+### The four
+
+**(1) An interval whose own counterexample sat six lines below it.**
+`docs/campaigns/T-family/GATE_PREDICATE_SATISFIABILITY_READ_2026-09-03.md:638-640` argues
+that defect **D-J1** — `rel = dmax / rng if rng > 0 else 0.0`, the guard that substitutes
+the value grading BEST when the field is spatially uniform — has never fired, and rests
+that argument on one sentence: *"Every `field_range` recorded in `T9a_runs/gate_t9a.json`,
+`T9aH_runs/gate_t9a.json` and `T9a_runs/gate_t9aD.json` lies between 12.1236 and 49.9756
+K."*
+
+**Re-measured here over all 22 `field_range` values in those three files
+(7 + 7 + 8), the sentence is wrong at BOTH ends:**
+
+| | measured | argument's sentence |
+|---|---:|---:|
+| minimum | **5.002220859751105e-12 K** (`W_C3`, `T9a_runs/gate_t9a.json`) | 12.1236 K |
+| maximum | **49.98474017626177 K** (`D_B_x`, `T9a_runs/gate_t9aD.json`) | 49.9756 K |
+
+The 12.1236 K floor holds only over the **20** non-`W_C3` rows — there are **two** `W_C3`
+rows, one in each `gate_t9a.json`, at **5.002220859751105e-12 K** and
+**5.229594535194337e-12 K**.
+
+**And `W_C3` is the uniform-solid control**, whose whole definition at
+`analyse_t9a.py:31` is *"a uniform-temperature solid"* — **the input deliberately shaped
+to enter the branch the argument claims is unreachable.** The same section says so, at
+`:644-647`, **six lines after** the sentence it refutes. **The claim and its
+counterexample coexist in one document, and neither the lane that wrote it nor the
+supervisor who relayed it upward registered the contradiction.**
+
+**(2) A line count read as coverage — same session, same team.** §1 of that document
+records **704 predicate lines** read across a comparator set, and separately flags
+**eleven files** as pattern-scanned but unread. `analyse_t1c.py`, where D-J1 lives at
+`:229`, is **not one of the eleven — it sits inside the 704-line read set, and the defect
+was not found there.** The document states this against itself at `:672-675`: *"704
+predicate lines is a count, not a coverage proof."* **That sentence is correct and it was
+written only after the defect had been found by another route.** The count was load-bearing
+until it failed.
+
+**(3) The CORRECTION inherited the failure it was written to correct — and this is the
+instance that makes the lesson.** `T3d_DJ1_GRADING_TIME_OBLIGATION.md` §4.2 is the record
+that overturned (1). At `:155` it writes *"the 12.1236 K floor holds only over the 21
+non-`W_C3` rows."* **Its own table, 15 lines above at `:137-140`, tabulates TWO `W_C3`
+rows.** 22 − 2 = **20**. `T3d_DJ1_2D1_FORWARD_ONLY_PETITION.md:121` repeats it as *"21 of
+22."* **A document that had just finished demonstrating that an interval hides its
+exception then miscounted its own exceptions, in prose sitting directly beneath the table
+that lists them.** No new reading is needed to catch this — only the arithmetic on the
+document's own table.
+
+**(4) A denominator carried without its population, and a board that contradicts itself
+15,000 lines apart.** `docs/LAB_STATE.md:13902` records K0cX as *"24 of 60 graded rows."*
+Re-measured from `verification/runs/F14-cooling-ladder/K0cX_runs/gate_k0cx.json`:
+`total_graded_rows = 42`, `total_failed_rows = 24`. Per model, `n_rows = 14` and `n_fail =
+10 / 7 / 7` for `kOmegaSST` / `kEpsilon` / `LaunderSharmaKE`. **The numerators are right
+and the denominator is not a row count at all** — 60 is `len(mutation_control)`, which is
+3 models × **20**, where 20 = 14 graded + 6 `reported_never_graded`. So `10/20`, `7/20`,
+`7/20` on that board line silently move six never-graded rows into the denominator of a
+failure rate. **The same board carries the correct figure — "24 of 42" — at `:29022`.**
+Both numbers came from the same artifact; the one that travelled was the one nobody
+re-derived.
+
+### Why this shape survives review, which is the part worth keeping
+
+**A summary is exactly the artifact class the reporting chain selects for.** A lane writes
+the values and the summary; the supervisor relays the summary; the board carries the
+summary; the next reader inherits it. Every hop preferentially transmits the projection
+and discards the values — so a defect in the projection is the one defect that is
+guaranteed to be copied forward and never re-derived. In (1) two readers passed it. In (4)
+the correct value was already on the same page and lost the race to the wrong one.
+
+**And a summary drops values non-randomly.** An interval drops the extremes; an exception
+count drops the exceptions; a line count drops the unread line; a denominator drops the
+question of which population. **Those are precisely the values an argument about reach,
+coverage or rarity turns on.** The projection is lossy in exactly the direction the claim
+is made.
+
+### The reading discipline — and it is NOT an instrument
+
+1. **A bound is quoted with its witness.** Print the argmin and argmax **with their row
+   labels**, never the interval alone. A bound without its witness is a claim about the
+   population made without naming the member that decides it.
+2. **A count of exceptions is replaced by the list of exceptions.** The count is precisely
+   the statistic that hides the exception you failed to enumerate — as (3) demonstrates
+   against its own table.
+3. **A denominator is a population, and the population is named from the artifact's own
+   field.** `total_graded_rows` and `len(mutation_control)` are different questions; a
+   ratio that does not say which one it answers answers neither.
+4. **A read-set size is not coverage** (this is (2), and the document says it best).
+5. **Re-derive the summary from the values in the same invocation that quotes it.** Three
+   of the four above fall out of arithmetic on figures already in the same file. Nothing
+   here required a new measurement — only reading the table and the sentence together.
+
+**No script is written for this, deliberately.** Sanaa 2026-09-03T20:00Z: *"No instrument
+is built to measure another instrument's reach unless the first instrument has already
+changed a verdict at least once."* **D-J1 has changed no verdict**, and 22:00Z forbids
+*"the instrumentalisation of instruments instead of running."* This is a convention
+binding on readers, recorded as such rather than dressed up as a mechanism.
+
+**Population, so the negative has a stated width (L-458).** Re-measured at this write: the
+**22** `field_range` values in the three named T9a gate files; the **10** K0cG quantity
+rows in `gate_k0cg.json`; the **20** K0cS `graded_rows`; the **56** K0cX rows across four
+model blocks. **No repository-wide sweep for further summary statistics was run and none
+is claimed** — the four above are the instances that crossed one lane's desk in one day,
+which is a sampling rate, not a bound.
+
+**Cross-reference:** `docs/FAIL_OPEN_GATE_AUDIT.md` §28 face (d) — *the absence of an
+error read as the presence of a check.* A summary statistic is face (d) with a number
+attached: it looks like a measurement of the population and is a measurement of a
+projection of it.
