@@ -509,3 +509,148 @@ under conditions (a)–(d) — not discovered while one is being written.**
 3. **Condition (c)'s missing committee refinement levels** (11.3) — an acquisition, not a solve.
 4. **The off-box import branch's price** (§5.3), which is `BLOCKED-ON-PRICE` and cannot be quoted
    from this box.
+
+---
+
+## 13. AMENDMENT 1 — 2026-09-03, **BEFORE FIRST COMPUTE**: Sanaa's ~18:00Z compute-envelope law is registered, the cap regime changes, and committee-level acquisition is costed
+
+**Appended at the foot. Version 1.0 → 1.1. Lines whose number changed above this section: 0.**
+Nothing above is edited, struck or renumbered. *(Checked by measurement: the md5 of the file's
+first 511 lines is **`832853d27ddc746c2807958f316391f8`** immediately before this append, and the
+append adds only lines after 511.)*
+
+**THE CONDITION FOR A PRE-COMPUTE AMENDMENT, AND HOW IT WAS CHECKED — rule 2.** Amendments are
+legal only before first compute. **Checked by direct filesystem test at 2026-09-03T16:28:54Z, naming
+the directories that do not exist:** `verification/runs/RUNG0_MESH_IMPORT_runs` **ABSENT**,
+`verification/runs/RUNG1_M6_runs` **ABSENT**, `verification/runs/RUNG2_runs` **ABSENT**,
+`verification/runs/RUNG3_runs` **ABSENT**. **No compute has ever been run under this registration,
+and this registration is not yet frozen** — the freeze remains the supervisor's non-delegable check.
+
+**Authority:** Sanaa's [SANAA-DIRECT] of 2026-09-03 ~18:00Z,
+`etc/sessions/2026-09-03T1800Z_sanaa_compute_envelope.md`.
+
+### 13.1 What changes: the CAP REGIME, and only that
+
+> **"every run still registers its cost estimate before launch, still carries a hard per-run cap
+> (set by the team at ~3× its own estimate, not by me), still reports predicted-vs-actual, and still
+> names waste. The estimate is an instrument, not a permission slip."** — Sanaa, verbatim.
+
+**That sentence goes on the face of this registration and every registration this ladder produces.**
+
+§5.2's cap of **200 core-min** was set under the abolished per-case approval regime, where a
+generous cap bought freedom from a round trip. **Under her rule the cap is ~3× the team's own
+estimate.** §5.1's estimate is unchanged at **7.5 core-min**, so:
+
+| item | estimate | **hard cap (~3×)** | derived $ at cap |
+|---|---|---|---|
+| **Rung 0 graded pass** | **7.5 core-min** | **23 core-min** *(supersedes the 200 of §5.2)* | **$0.0197 DERIVED** |
+| Rung 0 development allowance (aggregate, not one run) | — | **100 core-min**, and **no single development run over 23** | $0.0855 DERIVED |
+
+**This TIGHTENS the cap. Nothing is widened by this amendment.** §5.2's 200 is struck and replaced
+by 23; the struck value stands where it is and is not edited.
+
+**No gate, threshold or label in §4 is altered by this amendment. Only the cap moves, and it moves
+down.**
+
+### 13.2 The $40 snappy cap — READ as subsumed, and the arithmetic says nothing needs widening
+
+Sanaa set the snappy branch at a **$40 hard cap personally at ~17:30Z**. Her ~18:00Z law makes
+per-run caps the team's at ~3× its own estimate. **A later general ruling superseding a specific
+personal cap is exactly the kind of widening no agent performs quietly (rule 9), so both figures are
+carried here and she can correct this reading in one line.**
+
+**And the arithmetic removes the tension rather than resolving it in our favour:**
+
+| regime | snappy cap | derived $ |
+|---|---|---|
+| her ~17:30Z personal cap | 46,780 core-min | **$39.997** |
+| her ~18:00Z rule, ~3× the branch's **estimate** of 11,595 core-min | **34,786 core-min** | **$29.74** |
+
+> **THE ~3× CAP LANDS *BELOW* HER $40. There is nothing to widen and nothing to ask her for.
+> Registering the ~3× figure satisfies BOTH rulings simultaneously.**
+
+**A correction to a figure that was relayed to this lane:** the ~3× multiplier applies to the
+branch's **ESTIMATE ($9.91)**, not to the earlier **CAP ($40.39)**. Multiplying the cap would have
+given ~$121 and **widened her personal cap by 3×**. **This is the same defect class as the 100×
+cost-basis error — a number carried forward one step without being re-derived — and it is recorded
+as such rather than quietly fixed.**
+
+### 13.3 The two node-sizing rules — different job classes, and they must not be averaged
+
+Both are Sanaa's, ~30 minutes apart, and **they are not in conflict.**
+
+| job class | rule | her words |
+|---|---|---|
+| **SERIAL CONVERTER / IMPORT** — §5.3's job | rent for **MEMORY**, at the **smallest core count that fits it** | *"do not rent 16 vCPU for a serial converter — take the smallest instance that fits memory. Parallelizing the converter is approved only if conversion becomes recurring; one-off imports don't justify it"* (~17:30Z) |
+| **FINE-GRID SOLVE** — Rungs 1–3 | rent for **CORES**, **64–128 core spot** | *"rent the node the grid needs — CRM fine-grid class means 64–128 core spot instances; never crop a grid to a box"* (~18:00Z) |
+
+**§5.3 stands unchanged: it costs a SERIAL CONVERTER and is governed by the first rule.** Its
+~87.5 % idle-core waste finding is precisely why the first rule exists.
+
+**`NEVER CROP A GRID TO A BOX.`** The on-box **10 Mcell** figure and *"DPW5 L4.F hybrid at 80.99
+Mcells cannot be imported here at all"* remain **TRUE AS FACTS ABOUT THIS BOX** and are **RETIRED AS
+LIMITS ON AMBITION.** Any estimate that used 10 Mcell as a *scope constraint* is re-derived without
+it; any estimate that used it as a statement about *where a job can run* stands.
+
+**BLOCKED-ON-PRICE is now a blocker on MEASUREMENT, not on permission.** Under the $1,000 envelope
+nothing waits on a cost approval — but a rented row still cannot be converted to dollars from this
+box, so it enters the ledger **in instance-hours with a console-read price, or it does not enter as
+dollars at all.** The ledger carries an explicit **UNPRICED BACKLOG** column so the 80 % line cannot
+be crossed invisibly.
+
+### 13.4 🔴 NEW COSTED DELIVERABLE — ACQUIRING ≥3 NESTED COMMITTEE LEVELS
+
+§11.3 identified this as the ladder's largest open item and did not cost it. It is costed here.
+
+**Why it is Rung 0's and not Rung 2's:** condition (c) of Sanaa's two-tier ruling — *"the
+numerical-uncertainty band still comes from the grid family"* — needs a **refinement family**, and
+what is on disk is `L1.T` in three **cell types**, three discretisations of one resolution. **A
+Roache triple across them is `NOT A RESULT` on its face: there is no `h` to refine.**
+
+**Re-verified for this amendment, by a whole-filesystem `find` rather than a glob:** every
+`wing_strct*` file on this box lives in `verification/runs/M6I_runs/mesh/` and is **generator output
+dated 2026-09-01 17:28** beside `hcf_wing`, `hcf_coarsening`, `input.nml` and a `log.hcf_wing`
+beginning *"Wing grid generator … Reading the input file: input.nml"*.
+
+> **THE ONLY NESTED REFINEMENT FAMILY THIS LAB OWNS IS LAB-BUILT AND FAILS OUR OWN 70° GENERATION
+> GATE AT 87.66–87.75°. THE ONLY GRIDS ADMISSIBLE AS COMMITTEE GRIDS EXIST AT EXACTLY ONE LEVEL
+> EACH. NEITHER COMBINATION YIELDS A CERTIFIED BAND.**
+> **This is an ACQUISITION problem, not a permission problem, and no ruling of Sanaa's touches it.**
+
+**Cost, at §5's measured serial rate of 0.203 core-min/Mcell**, for three nested DPW levels in the
+hybrid series (`L1.T` measured at 2.981888 Mcell; the DPW-8/AePW-4 family grows ~3.375× per level at
+`r = 1.5`, per `docs/MESH_STANDARD.md`, so `L2.T ≈ 10.1` and `L3.T ≈ 34.0` Mcell — **the two larger
+sizes are PROJECTED from the published growth formula, not measured, and the projection is checked
+against the actual file on first download**):
+
+| item | value |
+|---|---|
+| total cells, three levels | ≈ **47.1 Mcell** |
+| download volume, at L1.T hybrid's measured **22.9 MB/Mcell** | ≈ **1.08 GB** — lives outside git per `docs/LOCATIONS.md` |
+| conversion, serial | 47.1 × 0.203 = **9.56 core-min** |
+| `checkMesh`, at 1× the converter rate | **9.56 core-min** |
+| **estimate, +22 % contention** | **23.3 core-min** |
+| **hard cap (~3×)** | **70 core-min — $0.0599 DERIVED** |
+
+**WHAT THE BOX CAN AND CANNOT HOLD, at the §5.3 memory model of 467 MiB + 674 MiB/Mcell (the
+CONVERTER's — it must NOT be transplanted to a solve):**
+
+| level | Mcell | peak import memory | on this box? |
+|---|---|---|---|
+| DPW5 L1.T hybrid | 2.98 | **2.5 GiB** | **yes** |
+| DPW5 L2.T hybrid (projected) | 10.1 | **7.3 GiB** | **yes** |
+| DPW5 L3.T hybrid (projected) | 34.0 | **22.8 GiB** | **yes** — against 31,379 MiB total and ~24.5 GiB `MemAvailable` measured with a foreign solver live. **Tight; run it on a quiet box or rent.** |
+| DPW5 L4.F hybrid | 80.99 | **53.8 GiB** | **NO** — memory-sized rental, smallest 64 GiB shape, **`BLOCKED-ON-PRICE`** |
+
+> **ALL THREE LEVELS NEEDED FOR CONDITION (c) CAN BE IMPORTED ON THIS BOX. The import is not the
+> blocker. Acquiring the files is.** The **SOLVE** at a 34 Mcell fine level is a different job class
+> and is the 64–128-core rented case under her ~18:00Z ruling.
+
+### 13.5 Assertions, MEASURED after the write
+
+- The four registered run roots named in 13's opening paragraph were **ABSENT** at the check, and no
+  compute has run under this registration.
+- **No gate, threshold or label of §4 is altered.** The only cap that moves is §5.2's, and it moves
+  **down**, from 200 to 23 core-min.
+- Sanaa's $40 personal cap is **carried, not dropped**, and the ~3× figure computed here (**$29.74**)
+  **sits below it**, so this amendment widens nothing.
