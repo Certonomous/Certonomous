@@ -1,0 +1,34 @@
+HELD 2026-09-03T19:2xZ by a heat-transfer lane. MOVED, NOT DELETED.
+
+REASON: a BLOCKING PHYSICS FIX, in Sanaa's 2026-09-03 20:00Z taxonomy -- the
+setup cannot produce a result at all, so "launch anyway" is the one case her
+21:00Z ruling names as wrong.
+
+K0e_FP_T10 launched from this queue at 19:23:00Z (runner pid 510342) and the
+solver exited rc=1 in ZERO wall seconds with:
+
+    FOAM FATAL IO ERROR: Entry 'div(phi,T)' not found in dictionary
+    "system/fvSchemes/divSchemes"
+
+The case is built from the recorded simpleFoam reference, whose fvSchemes
+carries `default none;` and -- correctly, since simpleFoam solves no energy
+equation -- no div(phi,T) entry. buoyantBoussinesqSimpleFoam cannot discretise
+its T equation without one and refuses to start. FP_T00 would fail identically,
+in zero seconds, and would write a STATUS file that then blocks the real run.
+
+The failed attempt is PRESERVED at
+  verification/runs/F14-cooling-ladder/K0e_runs/FP_T10.attempt1_MISSING_div_phi_T_FAILED/
+  verification/runs/F14-cooling-ladder/K0e_runs/STATUS.FP_T10.attempt1_MISSING_div_phi_T_FAILED
+Nothing was deleted. Cost: 0.00 core-min of solver time (wall=0 in the STATUS
+file); the only spend is the meshing/decompose of one build, which is named as
+waste when this rung's calibration row is written.
+
+NOT FIXED BY THIS LANE. The repair is a one-line addition to
+scripts/build_k0e.py, which is a script that produces a measured number, so the
+diff goes to the heat-transfer supervisor as a diff for their own personal read
+(SUPERVISION_CHARTER section 3) before it is applied. Applying it also re-pins
+the frozen path in K0e_PREREGISTRATION.md section 9 and needs a dated addendum,
+because the solver has now started once.
+
+This entry is re-dropped into verification/queue/heat-transfer/ when that is
+done. It is not refused, not cancelled and not BLOCKED: it is held.
