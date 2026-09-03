@@ -22381,3 +22381,36 @@ Predicate and controls: `verification/runs/T-family/T3_runs/analyse_t3c.py`,
 **L-447** (the fail-open finding) and to L-438/L-439 (tolerances quoted in ulp).
 The rung graded `NOT A RESULT` ×4 on `R_ff`'s iterative convergence, which is a
 separate matter and is not what this lesson is about.
+
+## L-463 — A cost prediction written as an INEQUALITY is unfalsifiable, and it makes its calibration row meaningless
+
+**Measured 2026-09-03, heat-transfer, on the T5c re-grade.** The registration priced
+itself at **`< 1 core-min`, comparator time only** (`T5c_PREREGISTRATION.md` §8). The
+run came in at **0.132 core-min** (7.92 wall s × 1 rank ÷ 60). The rule-12 calibration
+row then had **nothing to divide by**: `< 1` supplies no predicted value, so the ratio
+column can only use the bound, which makes it **an upper bound on a ratio rather than a
+ratio** (`docs/COST_CALIBRATION.md` row `C-20260903T173557.828437Z-71cdb068`).
+
+**Why that is a defect and not a formatting quibble.** Every actual under 1 satisfies
+`< 1`. **The row can therefore never say the estimate was wrong — only that it was not
+exceeded.** That is an **unfalsifiable cost prediction**, and it is the cost-estimate
+analogue of a gate that cannot fail. Sanaa's purpose for the ledger (2026-08-23) is that
+the comparison tells us **whether our standards are calibrated or merely conservative**;
+an inequality tells us **neither**. The 10× conservatism here is not even attributable as
+a misprediction, because there is no predicted value that missed — it is the distance
+between an actual and a ceiling, a different quantity.
+
+> **RULE. A comparator-only step carries a POINT estimate derived from one MEASURED
+> comparator run — this lab has dozens on disk — and the bound goes in a SEPARATE cap
+> column.** Priced that way T5c registers **~0.1–0.2 core-min**, the ratio reads near
+> **1.0**, and the row becomes evidence about the estimate instead of a tautology.
+
+**The two columns are different instruments and must not be collapsed:** the POINT is the
+prediction being tested (rule 12's ratio denominator); the CAP is the guard that stops a
+runaway. Registering only the guard deletes the prediction. `T25R6a` §8.5 already fixes
+its denominator in advance for exactly this reason and is the shape to copy.
+
+**Scope.** Applies to any step cheap enough to be tempting to price with an inequality —
+comparators, re-grades, graders, digitisers, transcription checks. It is not confined to
+heat-transfer: **any team writing `< X` produces the same unfalsifiable row**, which is
+why this is handed upward rather than imposed sideways.
