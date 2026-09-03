@@ -21056,3 +21056,65 @@ which is measured.
 rate or ordering — a throughput once called impossible on an unaudited clock,
 quarantining 21,990 good rows), L-186 (the board is the only handoff channel, so
 its defects are load-bearing).
+
+---
+
+## L-446 — THE PRIVATE-INDEX ASSERT SAYS "ONLY YOUR PATHS" AND I READ IT THAT WAY. IT PRINTED `7 insertions(+), 21 deletions(-)` ON A FILE I HAD ONLY ADDED TO, AND I COMMITTED ANYWAY
+
+**2026-09-03, `docs/LAB_STATE.md`, ansys-verification. The clobber was mine and
+the instrument that caught it is the one I had already run and misread.**
+
+CLAUDE.md rule 10's private-index protocol carries the line
+`git diff-tree --stat $H $T   # ASSERT: only your paths`. I ran it. It printed:
+
+```
+docs/LAB_STATE.md | 28 +++++++---------------------
+1 file changed, 7 insertions(+), 21 deletions(-)
+```
+
+**One file, and it was mine, so the assert passed as written.** I had made two
+small edits to my own board section — a corrected header and two added
+paragraphs, `+6/-2`. **Twenty-one deletions were on the screen and the assert I
+was running did not ask about them.** A peer had committed their board section
+in the minutes between my read and my stage; `update-index --add` staged my
+whole stale copy of a shared-write file, reverting eighteen lines of theirs.
+
+> **The path list and the line counts are different assertions, and only the
+> first one is written down.** *Only my paths* is satisfied by a commit that
+> silently reverts every other team's work inside a file I legitimately own a
+> section of. On a shared-write file the path check is nearly vacuous — the file
+> is always mine, and it is always also theirs.
+
+**What actually caught it was the post-commit `git diff HEAD~1 HEAD --stat`,
+whose output I read for its numbers rather than its file list**, two minutes
+later. That verify is described in the rule as catching a stale `read-tree`, and
+this is precisely that failure — but it only catches it **after** the commit
+lands, so the window in which a peer can branch from the damaged tree is real.
+
+**Two operational changes, neither of which needs a rule change:**
+1. **Read the pre-commit `diff-tree --stat` for DELETIONS, not for the file
+   list.** On a file you only appended to, `deletions > 0` is a stop. If you
+   edited in place, compute the deletions you intended and compare the number.
+2. **On a shared-write file, the read and the stage belong in ONE shell
+   invocation.** Rule 10 already requires `read-tree`, the assert and `-p` in one
+   invocation because a lane can move HEAD between two bash calls. The same
+   hazard applies to the *editing* read: minutes separated mine, and minutes were
+   enough.
+
+**The repair is the other half of the lesson: restore, never revert.** I did not
+check an old file over the new one (rule 10 forbids `git checkout --` outright,
+and it would have discarded the peer's newer work along with my damage). I took
+the current HEAD's bytes, located the stale paragraph by its own anchor line,
+spliced back exactly the lines standing in the last pre-clobber commit, and
+asserted afterwards that the file differed from that commit **only** in my own
+hunk. **A clobber is repaired by re-applying the victim's bytes, not by rewinding
+the file.**
+
+**Escalated, not self-applied:** whether rule 10's assert line should itself read
+*"only your paths AND only your line counts"* is a change to the lab
+constitution, which is not an agent's to make.
+
+**Related:** L-223 (a lane can move HEAD between two bash calls; `c46309f5` lost
+nine files), L-351 (the scratchpad is shared fleet-wide — same class, different
+shared resource), L-186 (the board is the only handoff channel, so damage to it
+is load-bearing), CLAUDE.md rule 10.
