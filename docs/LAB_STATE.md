@@ -267,7 +267,7 @@ read in the writing invocation.
 
 ---
 
-~~**Section last written:** 2026-09-03T18:33:47Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-32` — **the D6 lineage has carried a units defect since D4 that would have certified an FD table at the WRONG WING**, and the crash that hid it was the lucky outcome (62 of 96 shape components outside their bound, max 6.02x). `A1ZE` and `D6RF` are both FROZEN with check 4 discharged on both registrations, and **neither can be enqueued because neither has a launcher**. Before it, `S-31` (S-29's U2 mechanism falsified by its own control case), `S-30` (the chain survived the fleet kill), then `S-29`.
+~~**Section last written:** 2026-09-03T18:40:18Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-33` — the MEDIAN is now **measured with a hash** from the image this family actually runs (`DAUtility.C` md5 `d5fb5b0a781b11a780133901a8c2241c`, `sort` then index 1 of three at :783-788), not inferred; `S-31` §1-§2 never depended on it and are untouched. Before it, `S-32` (the D6 units defect; `A1ZE` and `D6RF` frozen, neither with a launcher), `S-31`, `S-30`, `S-29`.
 
 **Section last written:** 2026-08-24T16:27:20Z by chief (certonomous-64) — six-team structure ratified by Sanaa, D-3..D-6 closed, ansys-verification team created; written by the harness-build lane on the chief's instruction, stamp from `date -u` in the writing invocation
 
@@ -4842,6 +4842,46 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 **Section last written:** 2026-09-03T18:01:38Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-30` — the `W3_chain_r2` chain SURVIVED the usage-limit fleet kill as a detached OS daemon and is at its finite-difference legs (9 stages `rc=0`, 36.10 core-min of a registered 900.0), and `S-29` §6's three "live" pids are corrected: two are dead and the survivor's pid was never right. Before it, `S-29` — `D19T` graded `NOT A RESULT` by its own frozen grader; the `U2` patch-identity mechanism predicts five non-convergences across three items with a fourth arm disconfirming it; the generator fix landed forward-only and UNVERIFIED with `A1ZE` registered as its verification; `D12RLX` referred not withdrawn; and five of the supervisor's own errors are named as his. `S-28` holds `MAAOA`'s conclusion and `D19T`'s original block; `S-27` the closed compressible triage.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-33 — **THE MEDIAN IS NO LONGER INFERRED. IT IS MEASURED, WITH A HASH, FROM THE IMAGE THIS FAMILY ACTUALLY RUNS — AND MY OWN `S-31` §3 STATED THE RIGHT FACT IN THE WRONG SCOPE, WHICH IS THE FIFTH INSTANCE THIS WEEK** (2026-09-03, `date -u` stamp in the committing invocation)
+
+###### 1. THE MEASUREMENT
+
+`S-31` §3 recorded, correctly as far as it went, that `DAUtility.C` is **not on this host** — I searched the filesystem and got zero hits. **That is the wrong scope and I am the one who used it.** `DAFOAM_CHARTER.md` §11 is explicit that the **image** is the toolchain identity; the host filesystem is not. The file is in the image, and it always was.
+
+Read from the authoritative copy:
+
+- Image `dafoam/opt-packages:latest`, digest **`sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc`** — **verified identical to the digest pinned in the live `W3_chain_r2` queue row**, so this is the same image the family is running right now, not a lookalike.
+- `/home/dafoamuser/dafoam/repos/dafoam/src/adjoint/DAUtility/DAUtility.C`, md5 **`d5fb5b0a781b11a780133901a8c2241c`**.
+
+**`SolverPerformance<vector>` — the U equation's path:** comment at `:775-779`, then
+
+```
+:783   scalarList initResList = {initRes[0], initRes[1], initRes[2]};
+:784   sort(initResList);
+:786   if (initResList[1] > primalMaxRes)
+:788       primalMaxRes = initResList[1];
+```
+
+**`sort`, then index 1 of three. The median, measured.** Against it, `SolverPerformance<scalar>` at `:747`/`:749`/`:751` is a plain `if (initRes > primalMaxRes) primalMaxRes = initRes;` — a true max. **Two different rules for two different equation types, in one file.**
+
+###### 2. WHAT IT CHANGES — CONFIRMATION, NOT CORRECTION
+
+**`S-31` §1 and §2 are untouched and did not depend on this.** The `D19T` `T10` proof — `U2`'s floor 1.7164e-10 sitting 1.72× above a 1e-10 tolerance while the arm declared 22 times — established **exclusion** by arithmetic alone and needed no source. What §3 could not then say is **why**, and now it can.
+
+The projection is **confirmed**: with the median established, an `empty` bounding plane makes the z-residual vanish, so `sort([0, U0, U1])[1] = min(U0, U1)` — exactly the post-fix channel `A1WRT` and `A1ZE` already use. **`A1ZE`'s registered `R-DECL` expectation that NEITHER arm declares is unaffected and does not move.**
+
+**Ordered as a lawful pre-compute amendment** to `A1ZE` (zero compute; run root absence to be asserted **by execution** in the amending invocation), under rule 6's form — dated, appended at the foot, version bumped, `lines whose number changed above this section: 0` asserted **mechanically**. **No gate, threshold, cap or label may change**, and the amendment says so.
+
+###### 3. DISCLOSURE, AND A RULE-13 CHECK THAT CAME BACK CLEAN
+
+**I ran a `docker run --rm` outside the daemon to read this.** It is read-only toolchain identification under §11 — no run root, no grading, no arithmetic tested. **The standing prohibition on invoking a driver or container to test its own arithmetic is untouched and still binds.** I record the invocation rather than leaving it to be discovered.
+
+**Rule 13 / L-186 checked across this family's A1 tree: CLEAN.** A lane extracted a copy of the source into the shared scratchpad at `…/scratchpad/a1wr_lane/srcx/`, and **no document of ours cites it** — `A1WRT`'s draft at `:816` cites the in-image relative path and at `:828` explicitly says "md5 and nothing else". The citation discipline held without being asked. *(Unrelated pre-existing scratch-path citations elsewhere on this board — `D6RG`'s verdict of record among them — are already flagged there and are not repaired by this block.)*
+
+###### 4. ⚠ THE PATTERN, FIFTH INSTANCE
+
+`rc=0` read as "the optimisation succeeded" when it meant "the container exited". A mid-run count quoted as final. One point's residual quoted as six. A `PATCHED`-only figure quoted as an item's. And now **"not on this box" for a host search, in a family whose charter says the identity is the image.** Every one is the same move: **a value true in one scope, carried into a scope where it is false.** Four of the five were caught by lanes; this one I caught myself, which is the only thing new about it.
 
 ##### UPDATE S-32 — ⚠⚠ **THE `D6` LINEAGE HAS CARRIED A UNITS DEFECT SINCE `D4` THAT WOULD HAVE CERTIFIED AN FD TABLE AT THE WRONG WING — AND THE CRASH THAT HID IT WAS THE LUCKY OUTCOME. TWO ITEMS FROZEN (`A1ZE`, `D6RF`), CHECK 4 DISCHARGED ON BOTH REGISTRATIONS, AND **NEITHER CAN BE ENQUEUED BECAUSE NEITHER HAS A LAUNCHER**. THREE MORE ERRORS OF MINE, NAMED** (2026-09-03, `date -u` stamp in the committing invocation)
 
