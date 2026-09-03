@@ -424,3 +424,105 @@ launch and has not launched.**
 | the falsifier that did **not** falsify verification's reading | `verification/runs/RUNG0_MESH_IMPORT_runs/CONTROL_2d1_CONDITION2_NOT_A_GRADED_RUN.json` |
 | cost calibration for the predecessor | `docs/COST_CALIBRATION.md`, row `C-20260903T180819.145643Z-49087129` |
 | the envelope this rung draws on | `docs/campaigns/IBL-industrial-benchmark-ladder/IBL_COMPUTE_ENVELOPE_LEDGER.md` |
+
+---
+
+## AMENDMENT 1 — 2026-09-03, **PRE-COMPUTE** — disclosure of a MEASURED defect in the pinned converter, and the exact scope of what a RUNG0b `PASS` would and would not certify
+
+**Version: v1.0 → v1.1. Lines whose number changed above this section: 0.**
+**This amendment CHANGES NO GATE, NO THRESHOLD, NO CAP AND NO LABEL. It is disclosure,
+which is what rule 2's pre-compute amendment is for.**
+
+**THE CONDITION, AND HOW IT WAS CHECKED — rule 2 requires both, so both are here, checked
+in this amendment's own shell before it was written.** The run directory that does not
+exist is **`verification/runs/RUNG0b_MESH_IMPORT_runs`**. Verified absent three ways:
+`test -e` → **non-zero**; `find verification/runs -maxdepth 1 -iname 'RUNG0b*'` → **0
+hits**; `git ls-tree -r HEAD --name-only | grep -c RUNG0b_MESH_IMPORT_runs` → **0**. The
+export root `/home/ubuntu/certonomous-runs/RUNG0b_exports` is likewise **ABSENT**.
+**NO COMPUTE HAS OCCURRED UNDER THIS REGISTRATION. NOT ONE GRID HAS BEEN CONVERTED, NOT
+ONE GATE HAS READ A NUMBER, AND NO `RESULTS.json` EXISTS.**
+
+### Why this amendment exists, and it is this team's own lesson turned on itself
+
+`docs/LESSONS.md` **L-467**, filed by this team **today**, says: *the population that
+validates an instrument must be shown to contain the feature the instrument handles, or
+the validation is vacuous for that feature.* **RUNG0b tests `ugrid_to_foam.py` as the
+artefact under test, on a population where that converter's known defect CANNOT FIRE.**
+If RUNG0b returns `PASS` and the record does not say so, the certificate reads *"this
+converter works"* when what was measured is *"this converter works on grids that cannot
+trip its known defect."* **That is the same vacuity one level up, and writing it down
+before the run is the only thing that stops it.**
+
+### (i) The pinned blob carries a MEASURED defect
+
+**§9 pins `cases/committee-grids/ugrid_to_foam.py` as the artefact under test. VERIFIED
+BY THIS LANE, in this amendment's own shell:
+`git show ace20cb1:cases/committee-grids/ugrid_to_foam.py` is `sha256 e2ce16902f09925b…`,
+**17,590 bytes** — which is the **DEFECTIVE** copy, not the clean 15,004-byte one.
+**The freeze pins the defective blob, deliberately and now on the record.**
+
+The mechanism, **read by this lane directly out of that pinned blob** at its `sniff_layout`
+(`:53-63`) rather than taken on report: the Fortran record-marker test runs **first** and
+returns on `== 28`; only if that fails does control reach a **plausibility** branch that
+accepts **the first byte order giving `0 < n < 2e9`, big-endian first**. A raw-C-stream
+UGRID whose byte-swapped first word stays positive and under 2e9 is therefore **silently
+mis-detected**, with no error and no warning.
+
+### (ii) That defect is PROVEN INERT for this rung's four grids — and the proof is TEST ORDERING, not size
+
+- **DPW5 L1.T hex, prism and hybrid** are **Fortran unformatted**. The record-marker test
+  (28 big-endian, against 469,762,048 little-endian) **fires BEFORE the defective
+  plausibility branch is ever reached.** The defect is unreachable for them by control
+  flow, not by luck of magnitude.
+- **HLPW6 `h6c1_rans_3a_1`** is the **only** one of the four saved by the negative-overflow
+  mechanism instead.
+
+> **⚠ THE PROVENANCE OF (ii) IS DISCLOSED RATHER THAN SMOOTHED, AND IT IS NOT YET FULLY
+> ANCHORED.** The **13-header byte-budget audit** establishing that the defect mis-detects
+> **only M6I L3/L4/L5** — and **nothing** in RUNG 0's population and **nothing** in the four
+> R0-G2b round-trip exports — was performed by the **RUNG1 M6 lane**, not by this one. This
+> lane was instructed **not to re-derive it** and has not. **At the time of this amendment
+> that audit and its five-copy manifest are NOT COMMITTED and this lane could not locate
+> them on disk under any search term.** The one artefact of that package that does exist is
+> `verification/runs/RUNG1_M6_runs/M1_ugrid_reimport/CONVERTER_CALLER_SCAN_certonomous_runs.json`
+> — the **CLOSED** caller scan, `files_scanned` **9,225**, `skipped_over_50MB` **0**,
+> `unreadable` **0**, `"COMPLETED": true`, 6 hits — and it is **UNTRACKED**, so it is cited
+> here by path **and by its on-disk `sha256 1a1ea18d4c3dbaf9dbb1b14f8013612a…`**, which is
+> resolvable and tamper-evident even while uncommitted.
+>
+> **CONSEQUENCE, STATED PLAINLY: the TEST-ORDERING half of (ii) is VERIFIED BY THIS LANE**
+> (it is a property of the pinned blob's own source, quoted above, and of the three DPW5
+> grids' registered `.r8` layout). **The 13-header audit half is RELAYED, NOT VERIFIED HERE,
+> and rests on a record that is not yet in the repository.** The M6 lane owes that commit.
+> Until it lands, **(ii) is a disclosed dependency rather than a closed proof**, and this
+> sentence is what stops a later reader taking it for one. **It does not block the run**:
+> the test-ordering argument alone already makes the defect unreachable for three of the
+> four grids, and no gate in this registration reads the converter's layout decision.
+
+### (iii) What a RUNG0b `PASS` would certify, and what it would NOT
+
+> **A `PASS` HERE CERTIFIES THE CONVERTER ON THIS POPULATION ONLY — the four grids of §3,
+> three Fortran-unformatted and one large raw C stream. IT MAKES NO CLAIM WHATEVER ABOUT
+> SMALL RAW-C-STREAM UGRID FILES**, which are precisely the class the pinned defect
+> mis-detects. Anyone citing a RUNG0b `PASS` for a `.b8`/`.lb8` grid outside this
+> population is citing it for something it did not measure.
+
+This joins §8's non-claims as **non-claim 10** and is binding on every downstream citation.
+
+### (iv) The repaired converter is registered elsewhere, and NO COPY IS TOUCHED HERE
+
+The repair rides the **M6 R2** registration — the lane whose population **contains** L3/L4/L5,
+which is to say the population where the defect **fires**. **Repair it where it matters and
+test it there.** This amendment **touches no converter copy**: the dedup end-state is
+unresolved, five copies exist across two trees at two distinct hashes, and repairing one of
+them is exactly the divergence hazard. **`cases/committee-grids/ugrid_to_foam.py` is
+byte-unchanged and stays pinned as `e2ce1690…` for this rung.**
+
+### What this amendment does not do
+
+It does not move a gate, a threshold, a cap or a label; it does not alter §3's population,
+§4's five gates, §5's 4.4/13.2/39.6 core-min figures, or §7's eleven controls. It does not
+grade anything. **It does not authorise a launch** — `SUPERVISION_CHARTER.md` §3 check 4
+remains the cfd supervisor's, personally and undelegably, and he has stated he will confirm
+**both** this registration's commit **and** this amendment's commit exist, by reading them
+himself, before anything computes.
