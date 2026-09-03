@@ -1,8 +1,31 @@
 # Curriculum item D4S-F3SR — the A2 wing endpoint FD table re-run at a repaired cap frame: RESULTS
 
-**Item verdict: `GATE FAIL`.** Both arms completed, both rows are present, the FD bright line is
-satisfied on both, and the item fails on a **resource-delivery** gate. Every number below carries
+> ## ⚠ CORRECTED 2026-09-03 — THE VERDICT OF RECORD IS **`PASS`**. SEE **CORRECTION 1** AT THE FOOT.
+>
+> **The line struck immediately below is the original wording, preserved verbatim and struck, never
+> rewritten.** It was composed by hand from a gate the pre-registration **excludes** from
+> composition, on a premise that is false. The frozen grader's own emitted value is
+> `ITEM_two_row_endpoint_fd` = **`PASS`**.
+>
+> **AND THE FAILING GATE DOES NOT DISAPPEAR BECAUSE THE VERDICT IMPROVED:**
+> **`G12_cpu_placement_F-P` is `GATE FAIL`** — a real gate failure, on the delivered-cores limb,
+> reported here beside the verdict and treated in full at §4. `PREREGISTRATION.md` §5 does not admit
+> it to the item composition; that is the registration's choice, made before compute, and it is not
+> a judgement this document may re-make in either direction.
+>
+> **A READER MUST LEAVE THIS HEADING HOLDING BOTH FACTS: the item is `PASS`, and `G12_cpu_placement_F-P`
+> failed.**
+
+~~**Item verdict: `GATE FAIL`.** Both arms completed, both rows are present, the FD bright line is
+satisfied on both, and the item fails on a **resource-delivery** gate.~~ Every number below carries
 its provenance tag per `DAFOAM_CHARTER.md` §18.6, and every `MEASURED` tag names its artefact.
+
+> **AND THE ACCEPTANCE CRITERION THIS ITEM RAN UNDER IS NOT THE PRODUCER'S.** The instrument
+> **DISARMS** DAFoam's own primal-acceptance clause — `primalMinResTolDiff` 1e3 → **`1.0e12`** — and
+> replaces it with a stationarity rule. That was registered before compute and it is legitimate; it
+> is also the reason one of the two FD tables below exists at all, and until this correction **this
+> document did not mention it**. **CORRECTION 2** at the foot carries it with the measurement that
+> bounds it.
 
 **Zero solver compute was spent producing this record.** The chain graded itself; this document
 reads artefacts.
@@ -249,3 +272,252 @@ statement about the patch either.** **Both readings require a control this item 
 **Record written 2026-08-31 by a dafoam lane from the artefacts named above. Item verdict `GATE
 FAIL` composed by the dafoam-supervisor from the 19/1 per-gate split; the grader composes no item
 verdict. No gate, threshold, band, cap or label is moved by this document.**
+
+---
+
+# CORRECTION 1 — 2026-09-03. The item verdict of record is **`PASS`**, restored from this item's own frozen grader; the `GATE FAIL` in the original heading was composed by hand from a gate the registration excludes
+
+**Ruled by the dafoam-supervisor, 2026-09-03, after reading every link himself.** Written by a
+dafoam lane. **NOTHING WAS RE-GRADED AND NO COMPUTE WAS SPENT.** No instrument was run, no artefact
+was written, no run root was touched. Every value below is read out of the frozen grader's own
+emitted JSON, the frozen registration, or the grader's source, each cited.
+
+**What changed above this section, stated so no reader has to diff for it:** a correction banner was
+inserted at the head and the original verdict sentence was **struck with `~~…~~`, not deleted and
+not reworded** — its exact wording survives on the page. Nothing else above this line was altered.
+The two sections `docs/COST_CALIBRATION.md` cites (§6 and §6.1) are untouched, and nothing in the
+repository cites this record by line number.
+
+## C1.1 THE VERDICT, AND ITS AUTHORITY
+
+| | |
+|---|---|
+| **verdict of record** | **`PASS`** |
+| authority | `ITEM_two_row_endpoint_fd` = `PASS`, emitted by this item's own frozen grader |
+| artefact | `/home/ubuntu/certonomous-runs/CURRICULUM-D4S-F3SR-a2-wing-cdmin/d4s_f3sr_grade_20260831T154117Z.json`, key `verdicts.ITEM_two_row_endpoint_fd` |
+| the grader | `d4s_f3sr_grade.py`, `grader_md5` `9596c7bf711a934313a9b4d5801481c6` as recorded in that same JSON |
+| where it is computed | `d4s_f3sr_grade.py:796-806`, under the comment `# ---- item composition (PREREGISTRATION.md section 5)` |
+| superseded | **`GATE FAIL`**, the original heading, struck above |
+
+## C1.2 THE REGISTERED COMPOSITION, QUOTED — and `G12` is not in it
+
+`PREREGISTRATION.md` §5, frozen `ed9cda9080080b1f5f450ee3202a6d64ddb76d49` on 2026-08-27, four days
+before the run, never revised. The **ITEM** row, verbatim:
+
+> **`NOT A RESULT`** if any arm fails G1 or G-ACC, any control fails, any OOM, or any row's G5 is
+> `NOT A RESULT`; else **`PASS` iff both rows' G5 `PASS`; else `GATE FAIL`** (a two-row divergence
+> is a finding, D4-SHIPPED §5)
+
+The grader implements exactly that and nothing else:
+
+    rows_ok = all(report["G1"][a]["pass"] and report["G_ACC"][a]["pass"] and report["G6"][a]["pass"]
+                  and report["G6b"][a]["pass"] and report["G7"][a]["pass"] for a in ARMS)
+    g5 = [verdicts["G5_endpoint_fd_%s" % a] for a in ARMS]
+    if not rows_ok or "NOT A RESULT" in g5 or oom:   item = "NOT A RESULT"
+    elif all(v == "PASS" for v in g5):               item = "PASS"
+    else:                                            item = "GATE FAIL"
+
+**`G12` appears nowhere in the composition, in the registration or in the code.** So does `G9`,
+`G10` and `G11`. That exclusion is the registration's own choice, made before compute.
+
+## C1.3 THE `PASS` RESTS ON EVERY LIMB OF §5, NOT ONLY ON `G5` — read from the JSON
+
+| arm | `G1` | `G_ACC` | `G6` planted zero | `G6b` negative control | `G7` count refusal | **`G5` bright line** |
+|---|---|---|---|---|---|---|
+| **F-S** (SHIPPED) | `True` | `True` | `True` | `True` | `True` | **`PASS`**, aggregate **0.350109 %** of a 5 % band |
+| **F-P** (PATCHED) | `True` | `True` | `True` | `True` | `True` | **`PASS`**, aggregate **0.163445 %** of a 5 % band |
+
+`arms_oomkilled` = `[]`. Every one of the five registered components graded on both rows
+(`n_graded` 5 of `n_registered` 5), **0 sign flips**, **0 without plateau**, **0 ungradeable**,
+**0 near-zero**, on both arms. So `rows_ok` is true, no `G5` is `NOT A RESULT`, no arm OOM-ed, and
+both `G5` are `PASS` — the composition's `PASS` branch, on every limb.
+
+## C1.4 THE FALSE PREMISE, QUOTED, AND WHY IT IS FALSE
+
+The original record justified its hand-composition with this sentence (§1, unaltered above):
+
+> **"THE FROZEN GRADER EMITS PER-GATE VERDICTS AND A REPORT. IT COMPOSES NO ITEM VERDICT.** Its
+> top-level keys are exactly `grader_md5`, `registered`, `report`, `verdicts` — there is **no**
+> `verdict`, `item_verdict` or `rows` key [MEASURED, `d4s_f3sr_grade_20260831T154117Z.json`, read
+> by this lane]."
+
+**THE MEASUREMENT IS TRUE. THE CONCLUSION IS FALSE.** The four top-level keys are exactly those
+four; there is indeed no top-level `verdict`, `item_verdict` or `rows` key. **But the item verdict
+does not live at the top level. It lives INSIDE `verdicts`, under the key
+`ITEM_two_row_endpoint_fd`** — set at `d4s_f3sr_grade.py:806` and asserted as the item verdict by
+that grader's own self-test in at least six legs (`:987`, `:1030`, `:1052`, `:1146`, `:1180`,
+`:1186`), where a planted `G1` failure, a planted drift, a planted sign flip and an OOM row are each
+required to drive `ITEM_two_row_endpoint_fd` to the matching label.
+
+**A SEARCH LOOKED FOR THREE KEY NAMES, DID NOT FIND THEM, AND PUBLISHED THAT ABSENCE AS PROOF OF
+NON-EXISTENCE RATHER THAN AS "I DID NOT LOOK WHERE IT LIVES."** That is `CLAUDE.md` rule 3's
+planted-zero failure with a `[MEASURED]` tag on it, and **the tag is what makes it dangerous**: the
+measurement is honest, so the inference inherits a credibility it did not earn. A reader checking
+the citation would confirm the four key names and stop.
+
+## C1.5 WHY THE HAND-COMPOSITION WAS NOT PERMITTED, IN EITHER DIRECTION
+
+1. **The grading path is fixed at the pre-registration commit** (`CLAUDE.md` rule 2). §5 is the
+   registered composition, the frozen grader implements it, and no other reader — and no hand — may
+   be substituted for it.
+2. **`GATE FAIL` was composed from `G12`, which §5 excludes.** That is not a stricter reading of the
+   registered rule; it is a different rule.
+3. **The one override direction the lab permits is the other one.** Rule 5 lets a gate turn a `PASS`
+   or `GATE FAIL` **into** `NOT A RESULT`, never the reverse. **Nothing anywhere authorises a
+   hand-composed `PASS` → `GATE FAIL`.** The hand-composition was unsanctioned twice over.
+
+**AND THE UNCOMFORTABLE PART IS SAID HERE RATHER THAN ELIDED: this correction moves a verdict from
+harsher to softer, and it is ruled by the same role that composed the harsher one.** That is
+precisely why the authority cited in C1.1 is the frozen grader's own emitted value and not anyone's
+judgement — **the correction removes a discretion that was never authorised; it does not exercise a
+new one.** A hand-composed verdict is the defect whichever way it leans. **A false `GATE FAIL` is
+not the safe error:** it discards a result the lab paid 77.934 core-min for, and it makes the record
+wrong in the direction readers trust least to be checked. Honesty is carried by the value.
+
+## C1.6 `G12_cpu_placement_F-P` IS STILL `GATE FAIL`, AND IT IS NOT DIMINISHED BY THIS CORRECTION
+
+`verdicts.G12_cpu_placement_F-P` = **`GATE FAIL`**; `verdicts.G12_cpu_placement_F-S` = `PASS` on the
+identical gate and the identical cpuset minutes earlier. §4 of this record treats it in full and is
+unaltered. **The verdict improving does not make the gate failure smaller, and this correction
+neither re-grades it, explains it away, nor moves it out of the reader's path** — the head banner
+carries it beside the restored verdict for exactly that reason. What §5 says is that this item's
+verdict does not turn on it. What §4 says about *why* it failed is untouched and still open.
+
+## C1.7 ⚠ THE SAME FALSE CLAIM HAS PROPAGATED INTO A SECOND RECORD — NOT REPAIRED HERE
+
+`docs/COST_CALIBRATION.md:316`, the landed calibration row
+`C-20260831T164216.179599Z-19ea8c16`, carries **"ITEM VERDICT `GATE FAIL`"** and repeats the premise
+verbatim: *"Item verdict composed by the `dafoam-supervisor` from the 19/1 per-gate split; the
+grader composes no item verdict."*
+
+**That row is NOT corrected by this document and must not be silently edited here.**
+`docs/COST_CALIBRATION.md` has its own append rules and its own correction mechanism, and its cost
+figures — 77.934 measured against 75.862 registered, ratio 1.0273, waste 0.000 — are **unaffected**:
+nothing in this correction touches a core-minute. **The defect is confined to the row's verdict cell
+and its restatement of the false premise**, and clearing it is the owning team's, through that
+file's own correction path. It is named here so it is not discovered a third time.
+
+---
+
+# CORRECTION 2 — 2026-09-03. The acceptance criterion this item ran under was **not** the producer's: `primalMinResTolDiff` was DISARMED to `1.0e12`, and until now this document did not say so
+
+**Zero compute. Nothing re-graded.** Every figure below is read from the run roots, the frozen
+registrations or the frozen grader's output, each cited.
+
+**THE GAP THIS CLOSES.** Before this correction the word "disarm" and the value `1e12` appeared
+**zero times** in this document. Both registrations carry the disarm explicitly; the document a
+reader reaches for the verdict did not. **A reader must not have to find the pre-registration to
+learn that the FD table on one of the two rows exists because a convergence criterion was
+disarmed.**
+
+## C2.1 WHAT WAS DISARMED, AND WHAT THE NUMBER MEANS
+
+`d4s_f3s_fd_endpoint.py:69-70` sets `DISARM_KEY = "primalMinResTolDiff"`,
+`DISARM_TOL_DIFF = 1.0e12`, writes it into the exec'd producer's `daOptions`, and then **reads the
+effective value back off the constructed `DASolver` and REFUSES (rc 2) if it did not take**.
+
+`primalMinResTolDiff` is the **ratio bar** in DAFoam's `DASolver::checkPrimalFailure()`
+(`src/adjoint/DASolver/DASolver.C:2744-2752`, quoted verbatim in this lab's own record at
+`cases/dafoam/ladder-a/A6/rung_n16_np1/RESULTS.md:79-84`):
+
+    scalar tolMax = daOptionPtr_->getOption<scalar>("primalMinResTolDiff");
+    if (daGlobalVarPtr_->primalMaxRes / primalMinResTol_ > tolMax) { … return 1; }
+
+A primal is declared failed iff `primalMaxRes / primalMinResTol > primalMinResTolDiff`, so the
+effective accept floor is `primalMinResTol × primalMinResTolDiff`. Printed by the instrument itself
+in **all four** arm logs of this item and its predecessor, identically:
+
+    D4S_F3S_DISARM primalMinResTolDiff registered_before=1000.0 effective=1000000000000.0 primalMinResTol=1e-08
+
+**So the accept floor moves from `1e-8 × 1e3` = `1e-5` to `1e-8 × 1e12` = `1e+4`** — a level no
+primal reaching `endTime` can exceed. **The producer's threshold clause cannot fire.** The
+instrument records that number itself, as `producer_accept_floor_now` in its `disarm` record.
+
+*Provenance caveat, stated rather than glossed: the toolchain source was NOT read from the image by
+the lane writing this correction — no container was invoked. The extract above is this lab's own
+verbatim quotation of it, cited by path and line.*
+
+## C2.2 WHAT REPLACED IT, AND WHY — this is a repair, not a relaxation
+
+`d4s_f3s_accept.py` replaces the threshold with a **stationarity rule**: for every printed equation,
+the initial residual must be stationary to `1e-3` relative over the last 200 iterations, continuity
+`sum local ≤ 1e-6`, every parsed number finite, and a capture yielding zero `Time =` lines is a
+**reader failure that REFUSES, never an acceptance**. **The rule never compares a residual to a
+level**, so it is blind to which side of `1e-5` a floor sits.
+
+The reason is `D4S-PREREG-DEF-1`, and it is measured, not argued
+(`curriculum_D4_SHIPPED_F3S/PREREGISTRATION.md` §1, `d4s_f3s_accept.py` docstring):
+
+| row | endpoint `nuTilda` floor | against the producer's `1e-5` |
+|---|---|---|
+| PATCHED (`curriculum_D4` F3) | **9.780100659e-06** | accepted, by **2.2 %** |
+| SHIPPED (`D4-SHIPPED` F3 r2) | **1.115891818e-05** | rejected, by **11.6 %** |
+
+**A threshold sitting at the instrument's own residual floor decides the arm by which side of the
+floor the endpoint lands.** Both series were stationary to better than `1e-6` relative over their
+last 200 iterations. The supervisor's ruling that created this repair **explicitly refused** the
+alternative — restating the threshold `1e3 → 2e3` — as *"a threshold moved after seeing which side
+the endpoint sat on"*, and required the one rule be applied to **both** rows, with the PATCHED row
+**re-bought** so it could not be a SHIPPED-only relaxation.
+
+## C2.3 IT IS REGISTERED BY VALUE, AND GATED
+
+* `curriculum_D4_SHIPPED_F3S/PREREGISTRATION.md:67` — *"The producer's threshold clause is
+  **DISARMED, not loosened** … set to `DISARM_TOL_DIFF = 1.0e12` — an accept floor of 1e4 that no
+  primal reaching `endTime` can exceed — and the EFFECTIVE value is READ BACK from the constructed
+  `DASolver`; if it is not 1e12 the instrument REFUSES (rc 2)."*
+* **This item's** `PREREGISTRATION.md:50` carries the instrument forward as a **byte-identical copy**
+  (md5 `9ce78caa…`) with `DISARM_TOL_DIFF 1.0e12` named in the row.
+* **This item's** `PREREGISTRATION.md:184` makes gate **`G-ACC`** `PASS` only if *"every capture
+  re-evaluates ACCEPTED ∧ every instrument record agrees ∧ **disarm read-back = 1e12**"*.
+  `G_ACC_stationarity_F-S` and `G_ACC_stationarity_F-P` are both **`PASS`** in this item's grade JSON.
+
+## C2.4 ⚠ THE BOUNDING MEASUREMENT — the disarm's operational effect is exactly one thing
+
+Read from the per-primal acceptance records, `d4s_f3s_accept.jsonl`, key `r_end`, in the four arm
+directories of this item and its predecessor — **88 primals**, 22 per arm:
+
+| item / arm | row | primals | end residual (`nuTilda`, the worst equation) | against the undisarmed `1e-5` |
+|---|---|---|---|---|
+| `D4S-F3S` / `F-S` | SHIPPED | 22 | **1.116021650e-05** | **all 22 ABOVE** |
+| `D4S-F3S` / `F-P` | PATCHED | 22 | **9.781615363e-06** | all 22 below |
+| `D4S-F3SR` / `F-S` | SHIPPED | 22 | **1.116021650e-05** | **all 22 ABOVE** |
+| `D4S-F3SR` / `F-P` | PATCHED | 22 | **9.781615363e-06** | all 22 below |
+
+**44 of 88 primals — every SHIPPED-row primal — would have been rejected by the undisarmed
+threshold, and none of the 44 PATCHED-row primals would.** So **the disarm's entire operational
+effect is that the SHIPPED row's FD table exists at all.** It buys nothing on the patched path.
+
+*The count above was produced by a reader whose first pass returned `primals = 0` on all four arms —
+it read a key the record does not use. That false zero was caught by a control counting records
+carrying an `accepted` field (22 per arm, not 0) and the reader was repaired before any number was
+written here. Disclosed under rule 3.*
+
+## C2.5 AND THE FALSIFIER THE REGISTRATION SET FOR EXACTLY THIS QUESTION WAS **HIT**
+
+`P3` — *"PATCHED reproduces `D4` F3 to printed digits"* — was registered **before compute** as the
+test of whether the disarm changed the answer on the row where the old threshold was already
+satisfied. Scored in **both** items' grade JSONs:
+
+| | |
+|---|---|
+| `P3_patched_reproduces_D4_F3_to_printed_digits` | **`HIT`** |
+| tolerance | `1e-12` relative |
+| **`worst_rel_diff` across all five components** | **`0.0`** |
+| components | `shape[46]`, `shape[18]`, `shape[0]`, `twist[0]`, `patchV[1]` — each `rel_diff_J_adj` `0.0` and `rel_diff_d_hi` `0.0` |
+| reference | `curriculum_D4` arm F3, produced under the **undisarmed** `primalMinResTolDiff = 1e3` |
+
+**The PATCHED row, run with the disarm live, reproduces bit-for-bit the table produced under the
+threshold. The disarm demonstrably moved nothing where the old threshold was satisfied.**
+`P6_both_rows_reproduce_D4S_F3S_to_printed_digits` is likewise **`HIT`**.
+
+## C2.6 WHAT THIS DOES AND DOES NOT LICENCE
+
+**It does not licence relaxing a convergence criterion anywhere else.** What makes this one
+admissible is the whole set together: registered by value before compute; justified by a
+*measurement* of the residual floor rather than by convenience; gated by a read-back that refuses if
+the disarm did not take; replaced by a rule that never compares a residual to a level and is applied
+identically to both rows; and bounded by a falsifier, registered in advance, that was hit at
+`0.0` relative difference. **A relaxation missing any one of those is a different object.** The
+defect this correction repairs was never the disarm — it was that this document did not tell its
+reader about it.
