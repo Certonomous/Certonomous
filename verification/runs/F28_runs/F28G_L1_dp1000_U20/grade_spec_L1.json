@@ -1,0 +1,8 @@
+{
+  "cases": {"L1": "/home/ubuntu/Certonomous/verification/runs/F28_runs/F28G_L1_dp1000_U20"},
+  "rc": {"L1": 0},
+  "cells": {"L1": 35544},
+  "endTime": 15000,
+  "delta_p": 1000,
+  "U_inf": 20
+}

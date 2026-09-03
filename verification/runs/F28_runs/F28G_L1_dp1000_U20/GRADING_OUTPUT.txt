@@ -1,0 +1,28 @@
+F28G L1 GRADING TRANSCRIPT -- regenerated deterministically for the results record.
+grader : cases/F28_DUCTED_ACTUATOR_DISK/analyse_f28g.py
+         blob 8c17fdd55b9606ebf115f3442678fecc74152887 (worktree == 95974b79 == HEAD == 7f032d84)
+         sha256 3c88c2033ec5de3d0c07279500dbda6948a96c84d57f4fecd7859023a0718292
+date_utc: 2026-09-03T23:07:37Z
+
+=== (A) --selftest : the instrument's own planted controls, standing rule 3 ===
+overall pass = True | limbs_run = 83 | limbs_failed = 0
+  richardson_N_T8          15 run / 0 failed
+  roache_triple            22 run / 0 failed
+  checkMesh_M1_M2_M3       11 run / 0 failed
+  grading_readback_M4_M6    6 run / 0 failed
+  ladder_M4_M5_M6           9 run / 0 failed
+  precondition_clause_4     4 run / 0 failed
+  verdict_ordering_rule_5   8 run / 0 failed
+  crash_filter              3 run / 0 failed
+  completion_rule_4         5 run / 0 failed
+exit code of --selftest: (recorded below)
+  rc=0
+
+=== (B) --grade on the real L1 run root ===
+spec: cases.L1 = verification/runs/F28_runs/F28G_L1_dp1000_U20, rc 0, cells 35544, endTime 15000, delta_p 1000, U_inf 20
+NOT A RESULT -- comparator refuses (exit 2): L1 ran to the registered iteration cap of 15000.  Parent section 8: HIT CAP -> NOT A RESULT, NEVER "CLOSE ENOUGH", and F28G section 8's stop order stops the ladder there.
+  rc=2
+
+=== (C) CONTROL -- the triple-requirement refusal is LIVE (same reader, L1 absent from spec) ===
+NOT A RESULT -- comparator refuses (exit 2): no 'L1' in the grading spec.  A Roache triple has three levels; two is not a triple and no order exists.
+  rc=2
