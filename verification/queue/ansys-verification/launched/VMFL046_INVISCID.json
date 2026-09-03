@@ -1,0 +1,44 @@
+{
+  "team": "ansys-verification",
+  "case_id": "VMFL046_INVISCID",
+  "prereg_commit": "6345bf841a0ced7c082bf67698d79ae9985c80c0",
+  "prereg_path": "cases/ansys_verification/VMFL046/INVISCID/PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/ansys_verification/VMFL046/INVISCID/run_vmfl046_inviscid.sh",
+    "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL046_INVISCID"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL046_INVISCID",
+  "ranks": 1,
+  "cost_core_min_estimate": 28,
+  "cost_basis": "Filed 28 core-min = the MEASURED viscous VMFL046 total (L1/L2/L3 = 57/310/1316 s at 3200/12800/51200 cells, 20000 iters, RANKS 1, from launcher.queue.out), reused as the apples-to-apples basis because the inviscid arm keeps the same solver (rhoSimpleFoam), meshes and iteration count. NO unmeasured inviscid saving is applied: cfd's 0.70-vs-1.03 microsec/cell-step figure is rhoCentralFoam (density-based) and is NOT applicable to this pressure-based rhoSimpleFoam run, so the safe direction (charter section 27) is filed with factor 1.0. This run MEASURES the rhoSimpleFoam inviscid/viscous per-iteration ratio for the first time -- predicted actual 0.85-1.0x = 24-28 core-min, recorded predicted-vs-actual on the certificate. Cap 84 core-min (~3x, charter section 26.2). Dollars are owner-derived at $0.0513/core-h (c7a.4xlarge), DERIVED, NOT MEASURED -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5): estimate ~$0.02394, cap ~$0.07182.",
+  "memory_floor_gb": 1.0,
+  "enqueued_by": "ansys-lane-opus48 (claude-opus-4-8[1m]) filed the entry; the SUPERVISOR holds the SUPERVISION_CHARTER section 3 check-4 on freeze commit 6345bf841a0ced7c082bf67698d79ae9985c80c0 (13 files: prereg + 11 case inputs + driver), verified the two-change case diff personally (0/U noSlip->slip, thermophysicalProperties mu 1.7894e-05->0.0, no file added/removed) and confirmed the reused grader blob cbe98dc8 intact at HEAD. This is the INVISCID (Euler) arm of VMFL046's CD-nozzle shock (charter section 24.7's open hypothesis): the frozen viscous VMFL046 case with viscosity removed (mu=0, slip walls) and nothing else changed, to test whether the -12.92% grid-converged shock displacement is viscous physics (predict inviscid shock near analytical 1.250) or a shared setup/discretisation defect (would land near the viscous 1.0885). Model-sameness ruled SAME (inviscid CFD vs inviscid quasi-1D analytical, charter section 12.2). NEW registration; does NOT re-grade VMFL046 row #54 (permanent GATE FAIL). Run root created empty (age guard + EXEC pass). VMFL046_ENDTIME is NOT set in launch_cmd (bare argv, no env override) so the graded default endTime 20000 applies -- the CLAUSE-B one-iteration override cannot leak in. Grading path: the FROZEN grade_vmfl046.py (blob cbe98dc821cdbeaba0c27363117b65b7ee199dcf) reused unchanged (same solver/log/fields/reference, inviscid analytical shock 1.250).",
+  "_launch": {
+    "utc": "2026-09-03T17:43:27Z",
+    "pid": 281778,
+    "sid": 281778,
+    "status_file": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL046_INVISCID/STATUS.queue.VMFL046_INVISCID",
+    "wrapper_out": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL046_INVISCID/launcher.queue.out",
+    "started_epoch": 1788457407.6755753
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.VMFL046_INVISCID (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
+}
