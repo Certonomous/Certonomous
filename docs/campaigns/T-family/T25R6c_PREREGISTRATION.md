@@ -412,3 +412,124 @@ from the disk bytes by this lane in the same shell invocation that wrote them he
 tautology in A1.3 was derived on paper and then demonstrated in the grader's selftest; the
 13.57 s in A1.6 was read from `T25R5_LINSOLVER_runs/C4_L1/log.solve.legA`. No solver has
 run for this rung.*
+
+---
+
+## ADDENDUM A2 — 2026-09-03, **POST-COMPUTE** — THE RUN HAPPENED AND GRADED **`NOT A RESULT`** ON TWO INDEPENDENT GROUNDS; THE STAGING DEFECT THAT PRODUCED THE FIRST IS THIS LANE'S AND IS NAMED
+
+**Lines whose number changed above this section: 0.** Appended at the foot; nothing above
+or in amendment v1.1 is edited, reordered, inserted or deleted (rule 6). **Gates are
+CLOSED — first compute has occurred — and this addendum alters NO gate, NO threshold, NO
+numeric band, NO cap and NO label** (rule 2). It records outcomes only.
+
+**THE RUN.** The daemon (`scripts/queue_runner.py`, not this lane) launched
+`verification/queue/heat-transfer/T25R6c.json` at **2026-09-03T18:11:43Z, pid 351014,
+2 ranks**. Leg A `rc=0`, 40 `ExecutionTime` lines, last `Time = 0.8`. Leg B `rc=0`, 400
+`ExecutionTime` lines, last `Time = 40.8`, `End` line present. `reconstructPar rc=0`.
+Solver wall span 18:11:50Z → 18:14:42Z.
+
+### A2.1 ⛔ VERDICT: `NOT A RESULT` — AND IT WOULD HAVE BEEN `NOT A RESULT` WITHOUT THE DEFECT
+
+`T25R6c_VERDICT.json`, written by the frozen grader `39726f66` at exit 4. **The grader was
+not edited before, during or after the grade.**
+
+**GROUND 1 — rule 4, clause 4/6: THERE IS NO FIELD DIRECTORY AT `t = 40.8`.** The write
+landed at **`t = 36.8`**. `processor0/` holds `0`, `0.8`, `36.8` and nothing else.
+
+> **THE CAUSE, NAMED RATHER THAN LEFT TO BE REDISCOVERED: `writeControl timeStep` COUNTS
+> ON THE GLOBAL TIME INDEX, AND THAT INDEX DOES NOT RESET ACROSS A `startFrom latestTime`
+> RESTART.** Leg A consumed indices 1…40, so `writeInterval 400` fired at global index
+> **400 = leg-B step 360 = `t` 36.8**, and index **440** (`t` 40.8) is not a multiple of
+> 400. **THE DEFECT IS THIS LANE'S**, in `stage_t25R6c.py`'s `LEGB_SET`, and it is a
+> BLOCKING SETUP FIX in Sanaa's 2026-09-03 20:00Z taxonomy: a successor writes
+> `writeInterval 440` (global) or `writeControl runTime`. The registration's gate,
+> threshold, band, cap and label are untouched by it.
+
+**GROUND 2 — G-T6c-1 PLATEAU FAILS INDEPENDENTLY, AND THIS IS THE ONE THAT MATTERS.**
+
+| statistic | value | threshold |
+|---|---:|---|
+| `r(first 40 leg-B steps)` | **0.345750** s/step | — |
+| `r(last 40 leg-B steps)` | **0.401750** s/step | — |
+| `\|last − first\| / last` | **13.939 %** | **≤ 5 %** |
+
+**So the staging defect cost NO verdict that would otherwise have existed.** Both grounds
+are stated because reporting only the one that is this lane's fault would understate what
+the rung actually found.
+
+### A2.2 ✅ THE PLANTED-ZERO CONTROL PASSED ON BOTH REAL LOGS
+
+`1.23 s` planted at step 7 of `log.solve.legA` and of `log.solve.legB`, read back **from
+disk** as a `1.230000 s` change **in that delta and in no other** — `0` other deltas moved,
+in each leg. **The reader is therefore shown able to see a known non-zero at a known
+step**, which is what makes any zero it reports evidence at all (rule 3). The control ran
+**before** rule 4 and would have refused (exit 2) with no verdict issued.
+
+### A2.3 ⚡ PHYSICS FINDING — REPORTED, NOT GATED: **THE REGISTERED LEG-B WINDOW IS TOO SHORT TO REACH THE SOAK PLATEAU**
+
+Leg B's per-step rate is **RISING, not settling**: **+16.20 %** from its first 40 steps to
+its last 40. **400 steps at `deltaT 0.1` do not reach a plateau by `t = 40.8 s` of a soak
+that runs to `t = 900 s`.** §5 disclosed the sampled-window scope and made the plateau
+clause the licence for reading `ρ` beyond it; **the measurement has now withdrawn that
+licence.** A successor rung needs a **longer leg B**, and this is the measured reason
+rather than a guess. This is a PHYSICS FINDING in the 20:00Z taxonomy: it is reported with
+its evidence, it opens a follow-up question, **and it triggers no rule change on its own.**
+
+### A2.4 ⛔ THE SHARED-BOX BREAKING CONDITION OF A1.2(a) FIRED — `/proc/loadavg` ROSE ACROSS THE RUN
+
+| witness | 1-min load | at |
+|---|---:|---|
+| `.load.W440_C4_L1.before_legA` | **51.80** | before leg A |
+| `.load.W440_C4_L1.between_legs` | **52.96** | between the legs |
+| `.load.W440_C4_L1.after_legB` | **58.34** | after leg B |
+
+**The box carried a load of ~52–58 on 16 cores throughout, and it ROSE ~12.6 % between the
+legs.** A1.2(a) registered, before the run, that a throughput change between the two
+windows would make `ρ` absorb contention as though it were the `deltaT` regime change.
+**It happened.** `ρ` from this run is therefore confounded with a rising contention
+environment **in addition to** failing the plateau clause. **The witness is a witness, not
+a control** — it cannot decompose the two — and that limitation was disclosed in A1.2
+before the number existed, not after it.
+
+### A2.5 DIAGNOSTIC ONLY — **`ρ = 1.063997` IS NOT A RESULT AND IS NOT A `GATE FAIL`**
+
+Computed outside the frozen grading path for the record: `r(leg A) = 0.359000 s/step`
+(14.36 s / 40), `r(leg B) = 0.381975 s/step` (152.79 s / 400), `ρ = 1.063997`.
+
+> **THIS IS NOT A VERDICT AND MUST NEVER BE QUOTED AS ONE.** The row is `NOT A RESULT`,
+> and a gate can only turn a verdict **into** `NOT A RESULT`, never the reverse (rule 5's
+> ordering, applied here by analogy since no triple exists). Had it survived a plateaued,
+> uncontended window it would have **falsified A1.2's registered direction**; it did not
+> survive one, so it establishes **nothing** and no `CAP` in the C4/C5 line is revised on
+> it. It is recorded so a successor knows which way the unconfounded question is likely to
+> point, and for no other purpose.
+
+### A2.6 PREDICTED-VS-ACTUAL (rule 12) — **P-C1 WINS**
+
+| quantity | value |
+|---|---:|
+| frozen POINT denominator (§6, fixed in advance) | **48.136** core-min |
+| **actual, gross**, from `ExecutionTime` 14.36 + 152.79 s × 2 ranks ÷ 60 | **5.5717** core-min |
+| actual from the launcher's own wall span (172 s × 2 ÷ 60), reported beside it | 5.7333 core-min |
+| **ratio actual/predicted** | **0.1157** |
+| **P-C1's predicted ratio, registered BEFORE the run** | **0.1034** |
+| **P-C1 verdict** | **WINS** (inside ±50 %) |
+| cleaned | **= gross**; no leg exceeded the 3600 wall-s stall rule (14.36 s, 152.79 s) |
+| waste | **0.000** core-min, named separately and folded into no ratio |
+| cap 210.485 core-min | **not approached**: 2.65 % of it spent |
+| dollars | **$0.004764 DERIVED, NOT MEASURED**, at $0.0513/core-h, `cost_basis` REPORTED-BY-OWNER |
+
+**The gap is MISPREDICTION OF THE ARM, exactly as registered** — not contention and not
+waste. A1.6 predicted, before the solver started, that the frozen denominator priced off
+`B0_L1`'s GAMG rate would over-estimate a `C4_L1` PCG run by ~10×, and it did, by 8.6×.
+**This is the calibration payoff the 21:00Z rule exists to produce: the mismatch was
+recorded as a prediction, the run launched, and the prediction was scored against the
+outcome.** The ledger row is `docs/COST_CALIBRATION.md`.
+
+---
+
+*Addendum written 2026-09-03 by the heat-transfer `lab-lane` that filed the entry. Every
+figure was read from the run's own artifacts under
+`verification/runs/T-family/T25R6c_LEGAB_runs/W440_C4_L1/` — the two solve logs, the three
+`.load.*` witnesses, `.t.*`, and `T25R6c_VERDICT.json` — after the grade, and the grader
+was not touched at any point. Nothing was sent anywhere (rule 7).*
