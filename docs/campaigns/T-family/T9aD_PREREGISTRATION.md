@@ -588,3 +588,133 @@ by there being eight rather than fifteen** — §AD1.2 stands unaltered.
 *Addendum written by a heat-transfer lane on the heat-transfer supervisor's
 citation-repair brief, from `docs/L342_GRADER_AUDIT.md` Addendum 8 (`commit:b85111d1`) §5,
 2026-08-27T20:12:13Z. Zero core-minutes.*
+
+---
+
+# ADDENDUM 2 — 2026-09-03. **POST-COMPUTE. A STALE SHA CELL, RECORDED. NO INSTRUMENT, GATE OR VERDICT TOUCHED.** Version 1.1 → 1.2.
+
+**`lines whose number changed above this section: 0`.** This addendum is appended at
+the foot; nothing above it is edited, struck, reworded or renumbered (standing rule 6).
+**The assertion was VERIFIED, not typed:** in the single shell invocation that wrote this
+addendum, the bytes of this file above this section were compared byte-for-byte against
+this path's committed blob at `HEAD` and the comparison was clean. **`§5`'s table at
+`:381`–`:385`, and line `:384` in particular, is not edited.**
+
+**Condition — POST-COMPUTE.** The T9a-D arm has run and graded. Rule 2's post-compute
+limb governs: *"changes land only as dated addenda that cannot alter a gate, threshold,
+cap or label."* This is such an addendum. **No verdict is reopened, no case re-graded, no
+case re-run, no `DONE` marker written, deleted or re-dated. Zero core-minutes.**
+
+**Origin.** A heat-transfer record-integrity sweep, 2026-09-03, applying rule 2's own
+check — *"verify the frozen file **is** the file that ran by hashing it against the
+committed blob"* — to this document. **The check FAILS as written.**
+
+## AD2.1 THE CELL, QUOTED AND STRUCK AS A CLAIM ABOUT THE SHIPPED FILE
+
+Line `:384` of this document reads:
+
+> ~~| **`analyse_t9aD.py` (as run)** | **`2d4ebb49354eff6a3e22aa5619e1058a9bdf8cb6bd1938603b98df718d4a79e6`** | after the amendment, still before any `D_*` case existed |~~
+
+**The label "(as run)" no longer describes the file that produced this rung's published
+grading, and the sha in it is not the sha of `analyse_t9aD.py`.**
+
+## AD2.2 THE TWO SHA256 VALUES, AND WHICH FILE EACH BELONGS TO
+
+Measured on 2026-09-03 with `sha256sum` against the working tree, which is byte-identical
+to `HEAD` for both paths:
+
+| sha256 | the file it is the hash of | status |
+|---|---|---|
+| `8e57aacaa6920259d77ae873fe8bf04dbc55ac8629c9678d1685a7946ccaee68` | `verification/runs/T-family/T9a_runs/analyse_t9aD.py` — **the shipped comparator** | **this is the file that ran** |
+| `2d4ebb49354eff6a3e22aa5619e1058a9bdf8cb6bd1938603b98df718d4a79e6` | `verification/runs/T-family/T9a_runs/analyse_t9aD.py.pre_tolerance_2026-08-22` — **the preserved pre-repair sidecar** | this is the value at `:384` |
+
+**The rung's own grading output settles it without reference to this addendum.**
+`verification/runs/T-family/T9a_runs/gate_t9aD.json` self-records
+
+    "analyse_t9aD.py": "8e57aacaa6920259d77ae873fe8bf04dbc55ac8629c9678d1685a7946ccaee68"
+
+so the published verdicts were produced by `8e57aaca…`, not by the `2d4ebb49…` this
+document registers as "(as run)".
+
+**The rest of the `:381`–`:385` table is sound and is NOT struck.**
+`T9aD_registered.json` at `:385` re-hashes today to
+`4d6f482eed39ffbda1c5e76ea1e520c21e41d78e529ed8745613a8607b3e8637` — **an exact match**.
+Only the one comparator cell is stale.
+
+## AD2.3 WHY THIS IS A STALE CELL AND NOT A HIDDEN EDIT — the disclosure exists and is cited
+
+**`docs/campaigns/T-family/T9aD_RESULTS.md:652`** discloses the post-compute tolerance
+repair under `VERIFICATION_CHARTER` §2d.1's four-condition exception, and its condition
+(4) row reads, verbatim:
+
+> `analyse_t9aD.py.pre_tolerance_2026-08-22` sits beside the file that ran, hashing the
+> registered frozen `2d4ebb49…8d4a79e6`
+
+**That row is correct, and it is the row that identifies `2d4ebb49…` as the SIDECAR.**
+The §2d.1 grant, the diff read as a diff by the supervisor (`T9aD_RESULTS.md:654`–`:670`,
+one contiguous hunk at `analyse_t9aD.py:311`), and the preservation of the pre-repair
+bytes are all on record. **Nothing was concealed.** What happened is narrower and duller:
+the repair was disclosed in the RESULTS record and the pre-registration's `§5` table was
+left carrying the pre-repair value under a label — "(as run)" — that the repair made
+false.
+
+**The cell was TRUE WHEN WRITTEN.** At `2026-08-22T17:58:41Z`, with `find … -name 'D_*' |
+wc -l` returning `0` (quoted at `:373`–`:376` of this document), `analyse_t9aD.py` did
+hash to `2d4ebb49…`. It went stale later, when the repair shipped. **A frozen table cell
+does not update itself, and no instrument in this lab was watching this one.**
+
+## AD2.4 A SECOND FINDING, INDEPENDENT OF THE SHA — this pre-registration POSTDATES its own markers
+
+Recorded here because a reader arriving at `§5` for the freeze question should not have to
+discover it separately.
+
+- This document was **first committed at `06410acd2d3cc8a824912afca6e225acef6b2d2e`,
+  2026-08-22T18:21:01Z**.
+- **All eight `D_*` completion markers** in `verification/runs/T-family/T9a_runs/` —
+  `DONE.D_A_c`, `D_A_f`, `D_A_m`, `D_B_x`, `D_C_c`, `D_C_f`, `D_C_m`, `D_R_f` — carry
+  filesystem mtimes of **2026-08-22T18:02:17Z**, **18 minutes 44 seconds EARLIER**.
+
+**Honestly bounded, in both directions.** These eight markers carry no `finished_utc`
+field — their content is the sixteen bytes `strict rule met` — so the times above are
+**mtimes, a filesystem property, not a run property**, and are weaker evidence than the
+`finished_utc` values available on other rungs. They are, however, the only completion
+timestamps this rung has, and they are the same ones every instrument here reads.
+`scripts/check_comparator_freeze.py` marks exactly this weakness as `MARKER-UNDATED`.
+**`ADDENDUM 1 §AD1.2` already states in terms that a later citation cannot secure the
+eight completions written before it; this finding is the same limitation reached from the
+sha side rather than the instrument side, and it does not make §AD1.2 better or worse.**
+
+## AD2.5 WHAT THIS ADDENDUM ESTABLISHES, AND WHAT IT EXPRESSLY DOES NOT
+
+**ESTABLISHED — rule 2's hash check does not pass on this document as written.** A
+successor who hashes `analyse_t9aD.py` against the value at `:384` gets a mismatch. That
+successor should read this addendum and `T9aD_RESULTS.md:652` and will find the mismatch
+fully explained; **they should not conclude that an instrument was swapped silently.**
+
+**NOT ESTABLISHED, AND NOT ALLEGED — any defect in the physics or in the grading.** The
+repair moved nothing measured: `T9aD_RESULTS.md:651` records that `gate_t9aD.json`
+reproduced after the repair with **exactly one differing line, a deleted `mkdtemp` name**.
+**No T9a-D verdict is reopened, downgraded or softened by this addendum**, under Sanaa's
+universal rule that bookkeeping never voids physics (2026-08-26).
+
+**CANNOT SEE, stated rather than left implicit:**
+- **The `8b1a7237…eb2300f3` "first freeze" value at `:383` could not be checked.** No file
+  on disk hashes to it and it is truncated in the record, so it survives only as prose in
+  this document and in `T9aD_RESULTS.md`. It is neither confirmed nor impeached here.
+- **Whether `2d4ebb49…` was ever the sha of a file that graded a `D_*` case.** The sidecar
+  is preserved and the repair is disclosed, but no artifact read here dates the repair
+  against the eight markers.
+- **Whether any other pre-registration in the T-family carries the same stale-cell shape.**
+  Not swept. `scripts/check_comparator_freeze.py` independently reports
+  `T9a_runs/analyse_t9aD.py` as `UNFROZEN` at `HEAD`; that is corroboration for this
+  finding, not coverage of the family.
+
+**Nothing was sent** (rule 7); submissions remain **PARKED**. **No byte of any instrument
+was touched** — `analyse_t9aD.py`, its sidecar, `mark_done_t9aD.py` and
+`T9aD_registered.json` are byte-identical to their `HEAD` blobs before and after. No
+permission setting, `CLAUDE.md` or `.claude/` configuration was touched (rule 9). **No
+gate, threshold, band, cap, label or cost basis moved, and none could:** this addendum
+adds no test and computes no number a verdict depends on.
+
+*Addendum written by a heat-transfer lane on the heat-transfer supervisor's
+record-integrity brief, 2026-09-03. Appended at the foot per `L-304`. Zero core-minutes.*
