@@ -5775,3 +5775,86 @@ FAMILIES 7 TOTAL 127
 | md5 of the file BEFORE this block | `e887654120a1e76d2db9e81264b2cba8` |
 | md5 of that same prefix AFTER this block | `e887654120a1e76d2db9e81264b2cba8` |
 | the two digests | **EQUAL — assertion MEASURED, verified after the write** |
+
+
+## N-C9. `DARhoSimpleFoam` does not converge on a wall-resolved NACA0012 mesh at max aspect ratio 212,103 — at ANY Mach and ANY alpha including α = 0 — while `DASimpleFoam` converges to 1e-8 on the SAME mesh and `DARhoSimpleFoam` converges in 502 iterations on a coarse wall-functioned one; and in this mesh family the maximum aspect ratio is set by the SPAN, not by the refinement
+
+**Two controlled pairs, and between them they locate it exactly** (A1WR / MAAOA, 2026-09-02,
+DAFoam image `dafoam-idwarp-rot:v1`).
+
+**PAIR A — one mesh, one image, one item, np = 1.** A1WR L3, 130,304 cells,
+`Max aspect ratio = 212103.6706991908`, `nutLowReWallFunction` on both sides:
+
+| solver | outcome | bounding |
+|---|---|---|
+| `DASimpleFoam` | **CONVERGED**, `Minimal residual 9.997083655914609e-09` at tol 1e-08 | 138 lines, **every one `Bounding nuTilda>1e-16`; zero `p`/`rho`/`e`/`U`** |
+| `DARhoSimpleFoam`, 11 solves | **0 of 11 converged**, min residuals **0.6363–0.8993** | **`p`, `rho`, `e` AND `U` in all eleven**, first in the **`Time = 1`** block |
+
+**PAIR B — one solver, two meshes.** `DARhoSimpleFoam` on the coarse wall-functioned mesh
+(4,032 cells, AR 97.87, `nutUSpaldingWallFunction`) at α = 4: **converged at iteration 502**,
+wall **5.755 s**, bounding = 6 × `nuTilda` and nothing else.
+
+**So it is neither the solver alone nor the mesh alone — it is the combination, and each half
+is proved harmless by the other pair.** It fails at **α = 0**, where the incompressible arm
+returns `CL = −1.57e-06` (correct to six decimals for a symmetric section), and at M 0.288,
+this family's repeatedly-converged anchor. **Stall, separation, incidence and Mach are all dead
+as explanations. A failure at zero incidence and the lowest Mach on the axis is a failure of
+the SETUP, not of the flow.**
+
+**Residual trajectory:** `1.000 → 0.6075 → 0.3762 → 0.5246 → … → 0.6363` — **falls, REVERSES,
+stalls high; never below 0.3762.** A solve fighting an instability, not one approaching an
+answer. **Consistent with all three candidates below and discriminating between none.**
+
+**Three measured differences sit on the failing axis — candidates, NOT a cause:**
+
+1. **Aspect ratio meeting the p–ρ–e coupling.** `s0` **6.25e-07** vs the coarse mesh's 4e-3
+   (**6,400×**), min cell volume **7.583e-12** (**29,725×** smaller), AR **212,103.67** vs
+   **97.87** (**2,167×**). `checkMesh` fails exactly one check and it is this one.
+2. **`alphat` wall treatment**, measured from the two logs:
+   wall-resolved → `Setting alphat wall BC for wingBCType=fixedValue`;
+   coarse → `Setting alphat wall BC for wingBCType=compressible::alphatWallFunction. Default Prt=0.85`.
+   **`alphat` is a COMPRESSIBLE-ONLY field — the incompressible arm has none — so this
+   difference exists on precisely the side that fails and cannot exist on the side that works.**
+3. **`system/fvSolution` is BYTE-IDENTICAL between the two grounds**, md5
+   **`ff25e4462dbee92b9bfa72513dc51662`** on both: `(p|p_rgh|rho) 0.30`,
+   `(U|T|e|h|nuTilda|k|epsilon|omega) 0.70`, `nNonOrthogonalCorrectors 0`. **A steady
+   compressible SIMPLE solve on a 32× finer grid with 2,167× the aspect ratio inherited,
+   unchanged, a relaxation schedule tuned on a 4,032-cell wall-functioned grid.**
+
+**⚠ THE MESH-FAMILY FACT, AND IT CHANGES HOW CANDIDATE 1 MUST BE TESTED.** The A1WR generator
+registers `MUST_NOT_SCALE = ["marchDist", "ZSpan", "nSpan"]`, so the **span is held constant at
+0.1** across L1/L2/L3 while `s0` scales as `1/R`. **The maximum aspect ratio is governed by
+span ÷ first-cell-height and scales with R**, not with the chordwise refinement:
+
+| level | R | cells | `s0` | `ZSpan/s0` | max AR |
+|---|---|---|---|---|---|
+| L1 | 1 | 8,064 | 2.5e-06 | 40,000 | ≈ 53,026 (DERIVED) |
+| L2 | 2 | 32,640 | 1.25e-06 | 80,000 | ≈ 106,052 (DERIVED) |
+| L3 | 4 | 130,304 | 6.25e-07 | 160,000 | **212,103.67 MEASURED** |
+
+The chordwise-cell-to-`s0` ratio is **≈ 3,140 and invariant** across all three levels.
+
+**CONSEQUENCE: coarsening the mesh is NOT a one-variable aspect-ratio test in this family.**
+L3 → L1 moves cell count (16×), chordwise spacing (4×), `s0` (4×) **and** AR (4×)
+simultaneously. **The one-variable knob is `ZSpan`**: the case is 2-D, one cell thick in z with
+`empty` end patches, so the span carries **no physical content whatever**, and shrinking it
+changes the maximum aspect ratio by exactly that factor at identical cell count, chordwise
+resolution, `s0` and y+. *(Register the caveat when using it: `A0 = 0.1` is the reference area
+= chord 1.0 × span 0.1, so coefficients from a reduced-span mesh are not comparable unless
+`A0` is scaled with it.)*
+
+**Also recorded, because it explains why nothing objected:** the run script sets
+`checkMeshThreshold: {"maxAspectRatio": 5.0e5}` — **above the mesh's own 212,103.67** — so
+DAFoam's own mesh check could not refuse it.
+
+**COST BASIS FOR ANY SUCCESSOR, MEASURED ON THIS ARM RATHER THAN BORROWED.** L3 compressible,
+np=1: **1,500 iterations in 961.61 s at 2-way concurrency = 1.5599 it/s** (`probe_C`); **1,600
+iterations in 3200.07 s at 8-way = 0.5000 it/s** (`cold_C_4`) — **contention factor 3.1198×**,
+from `/home/ubuntu/certonomous-runs/A1WR/STAGE12/CHAIN_LEDGER.tsv`. **The 0.56 / 2.36 it/s
+figures recorded elsewhere are the INCOMPRESSIBLE cold's and must not be used to cost a
+compressible arm.** A single 500-iteration compressible L3 solve costs **16.67 core-min** on a
+busy box — so *"the discriminating evidence costs a few core-minutes, not a campaign"* is an
+understatement by roughly **30×**.
+
+**CAUSE CLASS: SETUP/NUMERICS, not `PHYSICS-FAIL`. This says nothing about NACA0012 and
+everything about the case setup.**

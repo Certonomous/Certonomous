@@ -21660,3 +21660,275 @@ minutes does not extrapolate over days), `L-432` (a deliberate halt and a crash
 leave the same artefacts; only a positive record separates them), `L-421` (the
 better instrument ran first and its answer was discarded because a later report
 looked better), `SUPERVISION_CHARTER` §3.
+
+
+## L-452 — A freeze verifies IDENTITY and CONSISTENCY and never EXECUTION: D19T was hash-pinned, gate-checked and launched TWICE with a solver deadline of exactly zero seconds, and its self-consistency assert PASSED because it adds back the margin the solver never gets
+
+**2026-09-02/03, dafoam, `curriculum_D19T`.** The launcher computes the in-container deadline
+as `TMO = int(cap × 60 / ranks) − CAP_MARGIN_S` with `CAP_MARGIN_S = 60`, then asserts
+`TMO > 0`. For the `MESH` arm at cap **1.0 core-min** and **ranks 1** that is
+`int(60/1) − 60 =` **0**. `MESH` is the **first** arm and the chain correctly refuses to
+continue past a failed one, so **no D19T arm could ever run, at any time, under any
+conditions.** The item was frozen, md5-pinned, gate-checked and **launched twice** before
+anything noticed; the first two attempts died upstream with their stdout uncaptured, so the
+2026-09-02 queue release was the first execution that ever reached the assert.
+
+**THE MECHANISM, AND IT IS THE WHOLE LESSON. The launcher's own back-check —
+`(TMO + CAP_MARGIN_S) × ranks / 60 == cap` — PASSED.** For `MESH`: `(0 + 60) × 1 / 60 = 1.0`,
+backing out **exactly** to the registered cap. **A zero-length deadline is perfectly
+self-consistent and perfectly useless.** The back-check is *structurally incapable* of
+catching the defect **because it adds back the very margin the solver never gets**: it
+reconstructs `cap` by undoing the subtraction it should be auditing. **A self-consistency
+check that inverts the subtraction it should audit will pass forever.**
+
+The freeze verified two things and neither was the right one:
+
+- **IDENTITY** — the file that ran is the file that was frozen (md5s, blob shas). Held.
+- **CONSISTENCY** — the numbers agree with each other (the back-check). Held.
+- **EXECUTION** — that the arithmetic those numbers feed yields a runnable configuration.
+  **Never checked, by anything, at freeze time.** The only guard that catches it, `TMO > 0`,
+  fires at RUN time.
+
+**AND IT WAS LEGIBLE IN THE FROZEN TEXT.** §6's cap table recorded the `MESH` deadline as
+`0 s + margin` in plain sight. **A deadline written down as zero was never reconciled against
+the `> 0` assert that consumes it.**
+
+**⚠ THE SECOND INSTANCE WAS IN THE SAME FILE, AND IT IS THE EXPENSIVE ONE.** When the
+repaired launcher's tables were finally executed for **every** arm — the check that had never
+been run — `TMO > 0` proved **necessary and not sufficient**. The solver does not receive
+`cap`; it receives `cap − CAP_MARGIN_S × ranks / 60`, which at a 60 s margin is exactly
+**`cap − ranks`** core-min. At `ranks = 2` a 4.0 cap delivers **2.0 — half the budget goes to
+a margin nobody costed**:
+
+| arm | cap | ranks | `TMO` | effective budget | the item's OWN registered prediction | |
+|---|---|---|---|---|---|---|
+| `MESH` (repaired) | 3.0 | 1 | 120 s | 2.0 | 0.183 MEASURED | fits, 10.9× |
+| `T08` | 4.0 | 2 | 60 s | 2.0 | 1.628 | fits, only 1.23× |
+| **`T10`** | 4.0 | 2 | 60 s | **2.0** | **2.108** | **registered to time out** |
+| **`T12`** | 4.0 | 2 | 60 s | **2.0** | **2.589** | **exceeds by 1.30×** |
+| `XT10` | 5.0 | 2 | 90 s | 3.0 | 1.726 | fits, 1.74× |
+
+**Two of five arms were registered to die at their own deadlines on a QUIET box, by the
+document's own predicted spend, before any contention factor.** The amendment that repaired
+`MESH` asserted in passing that *"the four solver arms were never reached and are not
+defective"* — **never evaluated, about the same arithmetic that had just failed one arm
+over.**
+
+**THE ABSOLUTE FORM IS LOUD; THE RELATIVE FORM IS SILENT, AND SILENT IS WHAT COSTS.**
+`TMO = 0` fires an assert and stops. `0 < TMO < the arm's own predicted wall` fires nothing:
+the arm launches, runs, and dies at its deadline having bought no number at all. **Nothing in
+the system was watching for it.**
+
+**The rule. Execute the frozen arithmetic on the frozen table, for EVERY row, and freeze the
+printed result beside it.** A freeze that pins hashes and checks self-consistency has proved
+the document is the document; it has not proved the document can run. The assert set is three
+clauses and the second is the one that is always missing:
+
+```
+TMO = int(cap*60/ranks) - CAP_MARGIN_S
+assert TMO > 0                                  # NECESSARY AND NOT SUFFICIENT
+assert TMO*ranks/60 >= SAFETY * predicted_arm_core_min   # THE MISSING ONE
+assert abs((TMO + CAP_MARGIN_S)*ranks/60 - cap) <= 1e-6
+```
+
+**And `predicted` is sized on a BUSY box.** A1WR lost all six cold controls — **331.7
+core-min for zero physics** — to a deadline sized from a quiet-box rate.
+
+**Relationship to the neighbours.** This is **L-316** (*a comparator `--selftest` proves the
+GRADER, never the CASE or the LAUNCHER*) landing in a second team, with the mechanism now
+named: the launcher **had** a self-check, it passed, and it passed **because of** the way it
+was wrong. It is the launcher-side twin of **L-266** (*dry-run the frozen rule on its frozen
+ladder before the freeze*) — L-266 for a grading rule, this for a resource budget. Distinct
+from **L-250**, which is about a cap being the wrong *size*: here the cap is the wrong *kind
+of number*, and no size check in place would have found it.
+
+**Cost:** zero solver core-min across two launches — the only mercy in it — against two
+freezes, two archived partial roots, two amendments and two sessions of supervisor time.
+Repaired and released 2026-09-03: `MESH` then ran **rc=0, wall 7 s, 0.117 core-min**.
+
+## L-453 — A gate that samples an unsteady quantity at one instant is reporting a draw from a distribution and calling it a measurement: A1WR's y+ gate passed on 0.9047 read at iteration 1500 from a field ranging 0.271–1.972, with `CL = 49.74` four lines away in the same log
+
+**2026-09-02, dafoam (A1WR Stage 1).** The Stage-1 gate required `y+max < 1.0` on a
+wall-resolved mesh and read **0.9046578506834814** — a pass by 9.5 %, cross-checked across two
+independent channels agreeing to **2.6e-11**, recorded in `stage1_gate.json` with a `verdict`
+and a `why`. Everything about the instrument was careful.
+
+**The field it read was not steady.** Across the probe's 16 printed iterations `y+max` ranges
+**0.271 → 1.972**. The gate's 0.9047 is nothing but **the iteration-1500 sample**.
+**Iteration 1200 read 1.972 — which would have GATE-FAILED. Iteration 1400 read 0.627.** The
+read point of 1,500 iterations was a registration choice **with no physical content
+whatever**; at 1,200 instead, Stage 2 and all seven downstream MAAOA points would never have
+launched.
+
+**THE GATE DID NOT MEASURE A PROPERTY OF THE MESH. IT SAMPLED A SWINGING FIELD AT ONE
+ARBITRARY INSTANT AND THE INSTANT HAPPENED TO FALL UNDER THE BAR.**
+
+**⚠ AND THE LOUDEST TELL WENT UNREAD.** At the graded iteration the same log printed
+**`CL = 49.74`, `CD = 10.69`**. A NACA0012 section does not produce a lift coefficient of
+fifty. **The field was visibly nonsense four lines from the number that was believed** — and
+the primal residual there was **0.636**, so the solve had not converged at all. Nobody looked,
+because the gate asked one question and that question had an answer.
+
+**The mechanism.** The gate's *unit of consumption* was one scalar from one iteration.
+**Everything that would have invalidated it — the residual, the `CL`, the neighbouring
+samples — was in the same file and outside the unit the gate read.** A filter that reads one
+scalar cannot notice that the scalar is meaningless.
+
+**The rule, in three parts.**
+
+1. **Establish that the quantity is STATIONARY at the read point before gating on it** — read
+   it at ≥ 3 separated instants and require the spread be small against the threshold margin.
+   A gate on a non-stationary quantity is a lottery whose odds are set by an arbitrary
+   registration choice.
+2. **A gate on a solution-dependent quantity must ALSO read the solution's convergence state**
+   and refuse when the solve has not converged. `y+` on a field at residual 0.636 is not a
+   mesh property; it is a picture of a transient.
+3. **Register at least one CO-LOCATED SANITY QUANTITY the gate must also bound.** Here
+   `|CL| < 3` would have cost nothing and would have refused the whole stage. **The check that
+   saves you is usually already in the file.**
+
+**Relationship to the neighbours.** L-419 instance 2 is the **reporting** form of this — one
+residual sample read as a trajectory, by an agent writing a status line. **This is the GATE
+form, and it is worse: a wrong report gets corrected; a wrong gate LICENSES DOWNSTREAM
+COMPUTE.** Here it licensed Stage 2 and seven MAAOA points, none of which should have
+launched. **Gate design is reserved to Sanaa; this records the mechanism and proposes no
+threshold change.**
+
+## L-454 — A relayed number needs its scope carried with it, or it becomes false the moment it travels: three of one supervisor's own figures were corrected by his own lanes in a single day, and every one had been TRUE where he first read it
+
+**2026-09-02, dafoam.** In one day, three figures a supervisor had relayed downward were
+corrected by the lanes he relayed them to. **None was a fabrication and none was a
+misreading.** Each was a number **true in the context where it was first read** and **false in
+the context it was carried into**:
+
+| # | what was relayed | what the artefact said | the scope that was dropped |
+|---|---|---|---|
+| 1 | a PATCHED-row provenance figure quoted as **the item's** | registered for **one row only** | *"…for the PATCHED row"* |
+| 2 | a bounding count of **71** quoted as the run's | the **completed** run has **138** | *"…as of the instant I read it, mid-run"* |
+| 3 | *"`Primal min residual` ~0.888"* quoted as if uniform | that is **one point's**; the six span **0.6722–0.8993** | *"…for one of six points"* |
+
+A fourth and fifth followed within two days: a *"three orders inside the gate"* that measured
+**780.6× = 2.892 orders**, and a contention factor of **4.21×** taken from the
+**incompressible** arm and handed to a lane costing a **compressible** one, where the
+correct measured figure is **3.1198×**.
+
+**The mechanism is the relay hop, not the reading.** A number is read together with its
+qualifier — a row name, a timestamp, a point id, a solver. **The qualifier lives in the
+sentence around the number, not in the number.** When the number is quoted onward the sentence
+is rewritten and **the qualifier is what gets dropped**, because it is the part that sounds
+like throat-clearing. The figure arrives at its destination looking like a bare fact.
+
+**Why the supervisor is the highest-leverage place for it.** A lane's wrong number reaches one
+record. **A supervisor's wrong number is quoted into every lane's brief**, where each lane
+treats it as the premise it was given and builds on it — and then spends its own budget
+discovering the premise was wrong. **The correct direction of correction is what happened
+here, and it should be said out loud: lanes read the artefacts over their supervisor and were
+right every time.**
+
+**The rule. A number is never relayed without the scope that makes it true, and the scope
+travels INSIDE the number's own phrase:**
+
+- **not** *"min residual 0.888"* but *"MA288's min residual 0.888 — the six span
+  0.6722–0.8993"*;
+- **not** *"71 bounding lines"* but *"71 bounding lines as of 22:0xZ, mid-run, file still
+  being written"*;
+- **not** *"contention is 4.21×"* but *"the INCOMPRESSIBLE arm's contention is 4.21×"*.
+
+**A figure taken from a file that is still being written is void without its instant** (L-307's
+non-stationary-worktree hazard, here inside a solver log). **A figure taken from one member of
+a population is void without its member id.**
+
+**Relationship to the neighbours.** L-68 named the shape — *a caveat that stayed in the body
+while the title travelled*. This names the **hop** at which the caveat is lost and the **role**
+at which losing it is most expensive. L-419 is the same disease inside one agent's own
+reporting; this is what it looks like across an org chart.
+
+## L-455 — A stop-condition written in one currency fires wrongly the moment a second currency matters: mine priced core-minutes and forgot opportunity cost, risk to the healthy arm, and whether the outcome could move at all
+
+**2026-09-02, dafoam (A1WR `sweep_C`).** A registered counter-condition read: *if the evidence
+returns a mechanism predicting identical failure at every alpha, "that counter wins and the run
+should be stopped."* **The evidence returned exactly that** — the compressible arm fails at
+every Mach and at α = 0, a uniform setup failure rather than a physics boundary. **By its own
+terms the condition had fired.**
+
+**The run was not stopped, and the reversal was RECORDED rather than quietly dropped** — which
+is the only reason this lesson exists.
+
+| currency | reading |
+|---|---|
+| **core-minutes** — the only one the condition counted | marginal cost of continuing ≈ **460 core-min = $0.39 DERIVED**. Says **STOP** |
+| **opportunity cost** | **11 of 16 cores idle.** Stopping would **CREATE** idle compute, not recover any, and the standing objection is to idle compute rather than to spend. Says **CONTINUE** |
+| **risk to the healthy arm** | the same live chain carries `sweep_I`, which is **converging** and carries the item's actual scientific question. Acting on a live 630-core-min chain to save $0.39 risks the one arm that will produce a result. Says **CONTINUE** |
+| **can the outcome still move?** | the compressible arm is **`NOT A RESULT`** whether it stops now or at its cap. **Nothing an intervention could buy.** Says **CONTINUE** — and this is decisive |
+
+**The rule. A stop-condition must name every currency it is willing to spend, and must include
+the fourth line explicitly: "can the outcome still move?"** A condition that prices only compute
+will fire on a cheap-to-stop run that is buying something, and stay silent on an expensive run
+that is buying nothing.
+
+**The clean test, and it cuts both ways.** *"Would stopping change any verdict?"* If **no**, the
+intervention is unsafe (it risks touching a live chain) **and** pointless (it buys no verdict) —
+**the same fact that removes the reason for an intervention is the one that would have made it
+safe.** If **yes**, the stop is worth its risk and the condition should have fired far earlier.
+
+**And a stop-condition is discharged by being ANSWERED, not by being obeyed or ignored.**
+Recording the reversal with the currencies priced is what makes it a decision rather than a
+drift. **A registered condition silently dropped is the failure; one overruled in writing is a
+record.**
+
+## L-456 — An in-memory continuation has no restart, and its budget is spent whether or not it finished: A1WR Stage 2 chained 19 alpha points through ONE process, and the poweroff left a MIXED field state on disk that is neither cold nor continued
+
+**2026-09-02/03, dafoam (A1WR Stage 2).** Stage 2 registers **19 alpha points in a single
+process**, each inheriting its predecessor's converged state **in memory**. The design is
+deliberate and is why the sweep is cheap. The log states the coupling at every point:
+
+```
+AOA_POINT_BEGIN idx=13 alpha=13.0000000000 mode=CONTINUED continued_from=12.0000000000
+```
+
+**The box powered off at ~02:25Z and the process died. Everything the sweep had built lived in
+that process's memory, and none of it was on disk.**
+
+**WHAT IS ON DISK, MEASURED — AND IT IS THE WORST OF BOTH.** `sweep_I/case/` has exactly one
+field directory, `0/`, and no time directory at all:
+
+| file | size | mtime | state |
+|---|---|---|---|
+| `U.gz` | **3,547,654 B** | **2026-09-03 02:05** | a **full converged velocity field**, written at the α = 12 → 13 handover |
+| `p.gz` | 423 B | 2026-09-02 18:36 | **initial uniform value**, untouched since staging |
+| `nut.gz` | 445 B | 2026-09-02 18:36 | **initial uniform value** |
+| `nuTilda.gz` | 447 B | 2026-09-02 18:36 | **initial uniform value** |
+
+**A 3.5 MB converged `U` beside 423-byte uniform `p`, `nut` and `nuTilda`, their mtimes 7.5
+hours apart inside one directory.** That state is **not cold** — `U` is a converged 13°
+field. It is **not continued** — pressure and turbulence are at their initial values. **It is a
+state no solver ever produced and no restart may legitimately consume.**
+
+**The loss.** Points 0–12 completed (idx 12 closed at `CL = 1.19079592024`,
+`CD = 0.030665481166`, `wall_s = 1847.1318`); **point 13 began at 02:05 and never ended; 6 of 19
+points are gone**, and **there is no way to resume from point 13** — the state it needed was the
+memory that died. **The budget for the completed points is spent and returns no completed
+sweep, because the deliverable is the polar, not the points.**
+
+**The rule. A design whose instrument is process-resident has no restart, and that is priced at
+registration, not discovered at the poweroff.**
+
+1. **Name the continuation medium in the pre-registration.** If the state that makes point
+   *n+1* cheap lives only in RAM, say so, and register the **restart granularity as the whole
+   chain** — not the point.
+2. **Register the LOSS, not just the cost.** The registered cost of an in-memory chain is *"the
+   whole chain's core-minutes, at risk as one unit."* An item that cannot lose less than
+   everything should say so beside its cap.
+3. **If the chain is long enough that losing it matters, WRITE THE STATE — and write ALL of
+   it.** **Writing SOME fields per point is worse than writing none**: it manufactures exactly
+   the mixed state above, which is indistinguishable from a valid restart point to anything
+   that only checks that a time directory exists.
+4. **A restart guard must check FIELD-SET COHERENCE, not the existence of a time directory.**
+   Here every field is in `0/` and their mtimes differ by 7.5 hours; a guard asking only *"does
+   a time dir exist"* passes this state. The coherent check is that **every field in the
+   restart directory shares one write epoch**, and a guard that cannot assert that must refuse.
+
+**Relationship to the neighbours.** L-301 prices a continuation (sub-linear, ≈ 0.88 × linear);
+**this is about whether the continuation SURVIVES**, which L-301 does not address and which
+turns out to dominate. The poweroff is the trigger but the **design** is the cause: any kill,
+session limit or OOM produces the same mixed state.
