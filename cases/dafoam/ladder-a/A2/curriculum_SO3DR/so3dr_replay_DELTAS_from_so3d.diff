@@ -1,0 +1,357 @@
+--- ../curriculum_SO3D/so3d_replay.py	2026-09-03 20:47:58.749638195 +0000
++++ so3dr_replay.py	2026-09-03 21:12:46.029856434 +0000
+@@ -1,17 +1,43 @@
+ #!/usr/bin/env python3
+-"""SO-3D STAGE 1 READER -- log replay of the multipoint `Invalid number in NLP
+-function or derivative` pathology on the compressible A2 wing.
++"""SO-3D-R STAGE 1 READER -- the SUCCESSOR to `curriculum_SO3D/so3d_replay.py`.
+ 
+-Grading path for `cases/dafoam/ladder-a/A2/curriculum_SO3D/PREREGISTRATION.md`
+-(FROZEN 2026-08-31, version 1.0). This file is the instrument that §12 of that
+-document registered as a binding pre-compute condition: Stage 1 may not run
+-until this file is committed and its md5 and line count are recorded in a dated
+-amendment at the foot of the pre-registration.
++Grading path for `cases/dafoam/ladder-a/A2/curriculum_SO3DR/PREREGISTRATION.md`.
++
++WHY A SUCCESSOR AND NOT AN AMENDMENT. SO-3D has had first compute (2026-09-03,
++rc=2, `NOT A RESULT`), so `CLAUDE.md` rule 2 closes its gates and its frozen
++reader may not be edited. This family's precedent is successor-not-amendment
++(D6 -> D6R -> D6RF -> D6RF2; A1WR -> A1WRT): the successor stages its OWN copy
++with a new pin and the predecessor stays intact as the instrument that produced
++its verdict. `curriculum_SO3D/so3d_replay.py` is NOT edited, NOT moved and NOT
++re-pinned by this file's existence.
++
++WHAT CHANGED, AND IT IS EXACTLY ONE THING PLUS TWO DISCLOSURE REPAIRS.
++
++  (1) PLANT-B IS SCORED AT THE RECORD LEVEL, KEYED ON RECORD ORDINAL. The
++      predecessor scored it per scenario. On the freeze's own anchors that
++      predicate is DEGENERATE: both anchors are owned by `cl04`, so the
++      registered -1/+1 cancels and a correct reader emits
++      {cl04: 0, cl05: 0, cl06: 0}, total 671 -> 671 -- which is BYTE-FOR-BYTE
++      what a reader that attributes NOTHING AT ALL also emits. Measured, both
++      readers, 2026-09-03. A control whose passing signature is identical to its
++      own total-failure signature tests nothing. Record-level scoring is not
++      merely finer: it is what makes the control non-degenerate.
++  (2) The plant report is written INCREMENTALLY, so each control's pass is a
++      fact on disk rather than an inference from control flow.
++  (3) The refusal path writes its artifact into the RUN ROOT as well as the case
++      directory, so a reader arriving at the run root can tell a refusal from a
++      run that never started.
++
++NOT CHANGED, DELIBERATELY: every gate, threshold, prediction, plant definition,
++plant ANCHOR, cap and label. THE ANCHORS ARE NOT MOVED. Re-selecting 200000 or
++100000 so the plant lands in two different scenarios would be tuning the
++experiment until the control passes -- the same family as choosing a threshold
++to fit a result.
+ 
+ WHAT THIS PROGRAM IS ALLOWED TO DO
+   * read four log files that already exist on disk, read-only;
+   * create the item's own run root and write COPIES of one of them into it;
+-  * write `so3d_plant_report.json`, `so3d_replay.json` under the run root and
++  * write `so3dr_plant_report.json`, `so3dr_replay.json` under the run root and
+     a copy of each under the case directory.
+ 
+ WHAT IT NEVER DOES
+@@ -26,7 +52,7 @@
+ explicit `raise` or `refuse()`.  There are no `assert` statements at all.
+ 
+ EXIT CODES
+-  0  every gate scored; verdicts are in `so3d_replay.json`
++  0  every gate scored; verdicts are in `so3dr_replay.json`
+   2  REFUSAL / NOT A RESULT -- plant control failed, a log is missing or
+      truncated, an attribution is ambiguous, or an original was modified
+   3  BLOCKED on cost -- the registered 12 core-min cap was reached
+@@ -46,8 +72,8 @@
+ # forbidden after first compute (CLAUDE.md rule 2).
+ # --------------------------------------------------------------------------
+ 
+-CASE_DIR = "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_SO3D"
+-RUN_ROOT = "/home/ubuntu/certonomous-runs/CURRICULUM-SO3D-a2-wing-multipoint-rootcause"
++CASE_DIR = "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_SO3DR"
++RUN_ROOT = "/home/ubuntu/certonomous-runs/CURRICULUM-SO3DR-a2-wing-multipoint-rootcause"
+ RUNS = "/home/ubuntu/certonomous-runs"
+ 
+ LOG_D6R = RUNS + "/CURRICULUM-D6R-a2-wing-multipoint/O_mp_20260828T162849Z_1898072.log"
+@@ -103,6 +129,7 @@
+ RE_PRIMAL_START = re.compile(r"^Time = 1$")
+ RE_UMAG = re.compile(r"^Setting UMag = \S+ AoA = (\S+) degs")
+ RE_FAIL_BANNER = re.compile(r"^Primal solution failed!$")
++RE_RPS = re.compile(r"^Running Primal Solver\s+(\S+)\s*$")
+ RE_MIN_RES = re.compile(r"^Primal min residual\s+(\S+)\s*$")
+ RE_TOL_LINE = re.compile(r"^did not satisfy the prescribed tolerance\s+(\S+)\s*$")
+ RE_DRIVER_DEBUG = re.compile(r"^Driver debug print for iter coord:")
+@@ -365,7 +392,25 @@
+         residual_converged = None
+         if min_res is not None and tol is not None:
+             residual_converged = min_res < tol
++        # SHIFT-INVARIANT RECORD IDENTITY. PLANT-B deletes one line and inserts
++        # one line, so ABSOLUTE LINE NUMBERS MOVE between the unplanted and
++        # planted copies and cannot key a record across them -- the predecessor's
++        # per-record view was keyed on `start_line` and would have compared two
++        # different records. The ORDINAL (the k-th `^Time = 1$` in file order) is
++        # invariant, because the plant inserts and deletes only a
++        # `Primal solution failed!` line, which matches neither `^Time = 1$` nor
++        # `Running Primal Solver`. The RPS id is carried beside it as a
++        # corroborating label and is NOT used as a key: measured 2026-09-03,
++        # 977 records carry only 773 DISTINCT ids, so it is not unique.
++        rps_id = None
++        for i in range(s, max(-1, s - 40), -1):
++            m = RE_RPS.match(lines[i])
++            if m:
++                rps_id = m.group(1)
++                break
+         records.append({
++            "ordinal": k,
++            "rps_id": rps_id,
+             "start_line": s + 1,
+             "end_line": end,
+             "aoa": aoa,
+@@ -541,9 +586,32 @@
+ # not PASS the reader exits 2 and every other gate is NOT A RESULT.
+ # --------------------------------------------------------------------------
+ 
+-def score_plant_control(clean_lines, clock=None):
++def score_plant_control(clean_lines, clock=None, emit=None):
++    """`emit` is called after EVERY plant, pass or refuse, so each control's
++    outcome is a FACT ON DISK and not an inference from control flow. The
++    predecessor wrote its report only after all three plants passed, so when it
++    refused at PLANT-B the PASS of PLANT-A survived nowhere -- it had to be
++    deduced from the source's ordering. That is evidence of a weaker kind and
++    this successor does not produce it."""
+     report = {"gate": "G-SO3D-P", "plants": {}}
+ 
++    def flush():
++        # THE NOT-RUN FILLING BELONGS TO THE INSTRUMENT, NOT TO THE CALLER.
++        # An earlier draft filled it in `main`'s emitter, so any other caller got
++        # a snapshot with plants simply ABSENT -- and an absent plant reads as
++        # nothing rather than as NOT RUN. A guarantee that depends on the caller
++        # is not a guarantee. This file's own PLANT-INCREMENTAL control caught it.
++        snap = dict(report)
++        snap["plants"] = dict(report["plants"])
++        for nm in ("PLANT-A", "PLANT-B", "PLANT-C"):
++            if nm not in snap["plants"]:
++                snap["plants"][nm] = {
++                    "status": "NOT RUN",
++                    "note": "not reached at the time this snapshot was written; "
++                            "NOT RUN is not PASS"}
++        if emit is not None:
++            emit(snap)
++
+     # ---- PLANT-A : value channel -----------------------------------------
+     if clock:
+         clock.check("PLANT-A")
+@@ -564,6 +632,7 @@
+         "expected": "delta == 1 and the hit is at the target line, field CD",
+         "status": "PASS" if a_ok else "REFUSE",
+     }
++    flush()
+     if not a_ok:
+         raise Refusal(
+             "REFUSE (PLANT-A): planted `nan` into `CD:` at line %d. Expected the "
+@@ -584,39 +653,93 @@
+     b_records = parse_primal_records(b_lines)
+     b_ps = per_scenario_rates(b_records)
+ 
+-    base_total = sum(base_ps["banners"].values())
+-    b_total = sum(b_ps["banners"].values())
+-    moves = {s: b_ps["banners"][s] - base_ps["banners"][s] for s in SCENARIOS}
+-    minus = [s for s, d in moves.items() if d == -1]
+-    plus = [s for s, d in moves.items() if d == +1]
+-    zero = [s for s, d in moves.items() if d == 0]
++    base_total = sum(r["banners"] for r in base_records)
++    b_total = sum(r["banners"] for r in b_records)
++    scen_moves = {s: b_ps["banners"][s] - base_ps["banners"][s] for s in SCENARIOS}
++
++    # ---- RECORD-LEVEL SIGNATURE, keyed on the shift-invariant ordinal --------
++    # This is the whole reason SO-3D-R exists. See the module docstring: the
++    # per-scenario signature is DEGENERATE on this plant's own anchors -- both
++    # are owned by `cl04`, so a correct reader and a totally blind one emit the
++    # SAME vector. The record-level signature separates them.
++    if len(base_records) != len(b_records):
++        raise Refusal(
++            "REFUSE (PLANT-B): the record COUNT changed across the plant, %d -> "
++            "%d. PLANT-B moves one banner line and must not create or destroy a "
++            "primal record; ordinals are only shift-invariant while the count "
++            "holds. NOT A RESULT."
++            % (len(base_records), len(b_records))
++        )
++    id_drift = [k for k in range(len(base_records))
++                if base_records[k]["rps_id"] != b_records[k]["rps_id"]]
++    if id_drift:
++        raise Refusal(
++            "REFUSE (PLANT-B): %d record(s) changed their `Running Primal Solver` "
++            "label across the plant, first at ordinal %d (%r -> %r). The ordinal "
++            "key is corroborated by that label and the two disagree, so the "
++            "before/after comparison is not record-to-record. NOT A RESULT."
++            % (len(id_drift), id_drift[0],
++               base_records[id_drift[0]]["rps_id"], b_records[id_drift[0]]["rps_id"])
++        )
++    rec_moves = {k: b_records[k]["banners"] - base_records[k]["banners"]
++                 for k in range(len(base_records))
++                 if b_records[k]["banners"] != base_records[k]["banners"]}
++    rec_plus = [k for k, d in rec_moves.items() if d == +1]
++    rec_minus = [k for k, d in rec_moves.items() if d == -1]
++    other = [k for k, d in rec_moves.items() if d not in (+1, -1)]
++    owners = {k: base_records[k]["scenario"] for k in rec_moves}
++    # A blind reader still produces the two ordinal deltas -- ordinals need no
++    # attribution -- but it CANNOT NAME THE OWNING SCENARIO. Requiring both
++    # owners to be named is the clause a blind reader fails.
++    owners_named = all(owners.get(k) is not None for k in rec_moves)
+     b_ok = (
+-        len(minus) == 1 and len(plus) == 1 and len(zero) == len(SCENARIOS) - 2
++        len(rec_plus) == 1 and len(rec_minus) == 1 and not other
++        and owners_named
+         and b_total == base_total
+         and base_total == PLANT_B_TOTAL_BANNERS_EXPECTED
+     )
+     report["plants"]["PLANT-B"] = {
+         "channel": "flag",
++        "scored_at": "RECORD level, keyed on shift-invariant record ordinal",
+         "deleted_line": b_meta["deleted_line"],
+         "inserted_after_line": b_meta["inserted_after_line"],
+-        "banners_unplanted": base_ps["banners"],
+-        "banners_planted": b_ps["banners"],
+-        "moves": moves,
++        "record_moves_by_ordinal": {str(k): v for k, v in rec_moves.items()},
++        "owning_scenarios": {str(k): owners[k] for k in rec_moves},
++        "owning_rps_ids": {str(k): base_records[k]["rps_id"] for k in rec_moves},
++        "records_before": len(base_records),
++        "records_after": len(b_records),
+         "total_unplanted": base_total,
+         "total_planted": b_total,
+-        "expected": ("exactly one scenario -1, exactly one +1, the rest 0, total "
+-                     "unchanged at %d" % PLANT_B_TOTAL_BANNERS_EXPECTED),
++        "per_scenario_moves_REPORTED_BESIDE_NOT_INSTEAD": scen_moves,
++        "per_scenario_banners_unplanted": base_ps["banners"],
++        "per_scenario_banners_planted": b_ps["banners"],
++        "degeneracy_note": (
++            "The per-scenario vector above is REPORTED, NOT SCORED. On this "
++            "plant's own anchors it is degenerate: both anchors are owned by "
++            "cl04, so a correct reader emits {cl04:0, cl05:0, cl06:0} with the "
++            "total unchanged -- byte-for-byte what a reader attributing NOTHING "
++            "emits. Measured 2026-09-03, both readers. The predecessor "
++            "SO-3D scored on that vector; this successor does not."),
++        "expected": ("exactly one record ordinal at -1, exactly one at +1, no "
++                     "other record moving, BOTH owning scenarios NAMED, and the "
++                     "total unchanged at %d" % PLANT_B_TOTAL_BANNERS_EXPECTED),
+         "status": "PASS" if b_ok else "REFUSE",
+     }
++    flush()
+     if not b_ok:
+         raise Refusal(
+             "REFUSE (PLANT-B): moved one `Primal solution failed!` banner from "
+-            "line %d to just after line %d. Expected exactly one scenario at -1, "
+-            "exactly one at +1, the rest at 0, and the total unchanged at %d. "
+-            "Measured moves %r, total %d -> %d. Any other movement means the "
+-            "reader is not attributing banners to the scenario that owns them."
++            "line %d to just after line %d. Expected exactly one record ordinal "
++            "at -1, exactly one at +1, no other record moving, BOTH owning "
++            "scenarios NAMED, and the total unchanged at %d. Measured: record "
++            "moves %r, owning scenarios %r, total %d -> %d. A reader that cannot "
++            "NAME the scenario owning a record it saw move is not attributing at "
++            "all, and the per-scenario vector cannot tell the two apart on these "
++            "anchors -- which is why this gate is scored per record."
+             % (b_meta["deleted_line"], b_meta["inserted_after_line"],
+-               PLANT_B_TOTAL_BANNERS_EXPECTED, moves, base_total, b_total)
++               PLANT_B_TOTAL_BANNERS_EXPECTED,
++               {str(k): v for k, v in rec_moves.items()},
++               {str(k): owners[k] for k in rec_moves}, base_total, b_total)
+         )
+ 
+     # ---- PLANT-C : dose / classification channel --------------------------
+@@ -654,6 +777,7 @@
+         "expected": "exactly one record moves, and it is the target, failed -> converged",
+         "status": "PASS" if c_ok else "REFUSE",
+     }
++    flush()
+     if not c_ok:
+         raise Refusal(
+             "REFUSE (PLANT-C): scaled `Primal min residual` at line %d from %r to "
+@@ -668,6 +792,7 @@
+         )
+ 
+     report["status"] = "PASS"
++    flush()
+     return report
+ 
+ 
+@@ -837,7 +962,7 @@
+     clock = Clock()
+     started = time.strftime("%Y-%m-%dT%H%M%SZ", time.gmtime())
+     result = {
+-        "item": "SO-3D",
++        "item": "SO-3D-R",
+         "stage": 1,
+         "started_utc": started,
+         "prereg": os.path.join(CASE_DIR, "PREREGISTRATION.md"),
+@@ -866,11 +991,18 @@
+         clock.check("after reading logs")
+ 
+         # ---- G-SO3D-P, scored FIRST (§6 ordering rule 1) -----------------
+-        plant_report = score_plant_control(text["D6R"], clock)
+-        plant_report["started_utc"] = started
+-        plant_report["log_sha256_D6R"] = integrity["D6R"]["sha256"]
+-        write_json(os.path.join(RUN_ROOT, "so3d_plant_report.json"), plant_report)
+-        write_json(os.path.join(CASE_DIR, "so3d_plant_report.json"), plant_report)
++        def emit_plant(partial):
++            # The NOT-RUN filling is done by score_plant_control's own flush();
++            # this emitter only stamps and writes, so the guarantee cannot be
++            # lost by swapping the caller.
++            partial["started_utc"] = started
++            partial["snapshot_utc"] = time.strftime("%Y-%m-%dT%H%M%SZ",
++                                                    time.gmtime())
++            partial["log_sha256_D6R"] = integrity["D6R"]["sha256"]
++            write_json(os.path.join(RUN_ROOT, "so3dr_plant_report.json"), partial)
++            write_json(os.path.join(CASE_DIR, "so3dr_plant_report.json"), partial)
++
++        plant_report = score_plant_control(text["D6R"], clock, emit_plant)
+         result["plant_control"] = plant_report
+         clock.check("after the plant control")
+ 
+@@ -958,9 +1090,9 @@
+         result["verdict_summary"] = {k: v["verdict"] for k, v in gates.items()}
+         result["verdict_summary"]["G-SO3D-P"] = plant_report["status"]
+         result["status"] = "SCORED"
+-        write_json(os.path.join(RUN_ROOT, "so3d_replay.json"), result)
+-        write_json(os.path.join(CASE_DIR, "so3d_replay.json"), result)
+-        print("SO3D STAGE 1 SCORED  %.4f core-min of a %.1f cap"
++        write_json(os.path.join(RUN_ROOT, "so3dr_replay.json"), result)
++        write_json(os.path.join(CASE_DIR, "so3dr_replay.json"), result)
++        print("SO3DR STAGE 1 SCORED  %.4f core-min of a %.1f cap"
+               % (result["cost"]["cost_core_min_measured"], CAP_CORE_MIN))
+         for k in sorted(result["verdict_summary"]):
+             print("  %-10s %s" % (k, result["verdict_summary"][k]))
+@@ -975,10 +1107,12 @@
+         result["cost"] = {"wall_s": round(clock.wall_s(), 3),
+                           "cost_core_min_measured": round(clock.core_min(), 4),
+                           "cap_core_min_registered": CAP_CORE_MIN}
+-        try:
+-            write_json(os.path.join(CASE_DIR, "so3d_replay.json"), result)
+-        except OSError:
+-            pass
++        for d in (RUN_ROOT, CASE_DIR):
++            try:
++                if os.path.isdir(d):
++                    write_json(os.path.join(d, "so3dr_replay.json"), result)
++            except OSError:
++                pass
+         sys.stderr.write("BLOCKED: %s\n" % e)
+         return 3
+ 
+@@ -988,10 +1122,12 @@
+         result["cost"] = {"wall_s": round(clock.wall_s(), 3),
+                           "cost_core_min_measured": round(clock.core_min(), 4),
+                           "cap_core_min_registered": CAP_CORE_MIN}
+-        try:
+-            write_json(os.path.join(CASE_DIR, "so3d_replay.json"), result)
+-        except OSError:
+-            pass
++        for d in (RUN_ROOT, CASE_DIR):
++            try:
++                if os.path.isdir(d):
++                    write_json(os.path.join(d, "so3dr_replay.json"), result)
++            except OSError:
++                pass
+         sys.stderr.write("NOT A RESULT: %s\n" % e)
+         return 2
+ 
