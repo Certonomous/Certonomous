@@ -789,3 +789,119 @@ amendment appended at the foot with a version bump and the assertion
 **NO COMPUTE HAS OCCURRED. NO LADDER LAUNCHES ON ANY OUTCOME OF THIS RUNG.**
 
 <!-- END OF T25R6a PRE-REGISTRATION v1.0 -->
+
+---
+
+## Amendment A1 — 2026-09-03, **BEFORE ANY T25R6a COMPUTE.** The supervisor's two non-delegable checks are recorded, the §8.2 cap decision is ACCEPTED on the record, and §2.3's finding is correctly framed
+
+**Version v1.1. Lines whose number changed above this section: 0.**
+**Alters NO gate, NO threshold, NO cap, NO label.** `G-T6a` and its 20,000
+core-min threshold stand; the per-run caps of §8.2 and the 230 core-min rung
+ceiling stand; the labels of §7.2, the predictions `P-1`…`P-5` and every control
+of §6 stand unchanged. This amendment **records** decisions and **corrects a
+characterisation**. It moves no number.
+
+**THE CONDITION UNDER WHICH THIS AMENDMENT IS LEGAL, AND HOW IT WAS CHECKED.**
+Rule 2 permits an amendment **before first compute**. **Checked at writing, by
+listing:** none of
+`verification/runs/T-family/T25R6a_C5_OUTER_runs/{B0_L1,C5_L1,B0_L3,C5_L3}`
+exists — `ls` returns *"No such file or directory"* for all four. The run
+directory holds instruments only. **No T25R6a compute has occurred and no queue
+entry existed when this was written.**
+
+### A1.1 THE SUPERVISOR'S TWO NON-DELEGABLE CHECKS, PERFORMED PERSONALLY — recorded here because a check nobody can find later did not happen
+
+`SUPERVISION_CHARTER.md` §3. **Both were the supervisor's own, on the artifacts,
+not on this lane's report:**
+
+- **CHECK 4 — pre-registration committed before compute.** Verified at source at
+  freeze commit **`2b9bd20b`**, timestamped **2026-09-03T16:28:09Z**: both
+  `docs/campaigns/T-family/T25R6a_PREREGISTRATION.md` and
+  `verification/runs/T-family/T25R6a_C5_OUTER_runs/grade_t25R6a.py` are status
+  **A (added)** in that single commit, **before any case directory exists**.
+  **The freeze is true by construction and rests on no agent's intention.**
+- **CHECK 1 — the grading script read as code.** Properties confirmed **in the
+  file**: the hard `CEILING = 20000.0`; the planted-zero control running **before**
+  any real comparison and refusing if the reader cannot see its plant; the
+  delegated comparator **blob-verified** and refusing if it is not the registered
+  blob; a censored run returning `NOT A RESULT` and **unable to PASS**, while a
+  censored bound that still exceeds the ceiling returns `GATE FAIL`; rule 1's
+  verdict vocabulary carried on distinct exit codes.
+
+### A1.2 ⚡ THE §8.2 CAP-SETTING DECISION IS **ACCEPTED** BY THE SUPERVISOR — and a successor must NOT "tidy" it back to ×3 of POINT
+
+§8.2 sets the **`C5` runs'** caps from the **no-speed-up** estimate (the measured
+baseline cost at that level) while keeping the **POINT** estimate `40.111` as the
+predicted-versus-actual denominator (§8.5). **The supervisor accepted this
+explicitly, and the reasoning is recorded here so it survives its author:**
+
+> **A cap set at ×3 of an estimate that already assumes the hypothesis is TRUE
+> would guarantee a censored run precisely when the hypothesis is FALSE — which
+> is the one outcome this rung exists to be able to detect.** It is exactly how
+> T25R5 lost `C2` and `C3`.
+>
+> **Sanaa's ~3× law fixes the per-run cap to the team's own estimate; it does not
+> say WHICH estimate.** Choosing the one that cannot censor the falsifier is what
+> makes the law **an instrument rather than a formality** — her own words for the
+> principle are *"The estimate is an instrument, not a permission slip."*
+>
+> **What makes this defensible rather than a choice made later is that BOTH
+> estimates are registered in advance**, in §8.1 and §8.2, before any arm exists.
+
+> **⛔ TO A SUCCESSOR TIDYING THIS FILE: the `C5` caps are NOT an arithmetic slip
+> and must not be "corrected" to ×3 of the extrapolated POINT.** Doing so would
+> re-introduce the censoring hazard §7.3 was written to remove, and would do it in
+> the direction that hides a failed hypothesis behind an `rc 124`.
+
+### A1.3 ⚠ §2.3 IS CORRECTLY FRAMED, AND THIS AMENDMENT PINS THE FRAMING SO IT CANNOT DRIFT
+
+The supervisor verified §2's central claims at source — `sigma_cap_if_held`
+**24709.3** in `P3_SCORE.json`; `24709.3 / 4 = 6177.325`; and **A1.3:456 does put
+the ceiling on `Σ CAP(run)` over the six ladder runs.** **The breach is REAL AS
+REGISTERED and the test was applied correctly.**
+
+**The framing is pinned here, in both directions, because a finding this shape is
+easy to re-tell wrongly:**
+
+> **⛔ THIS FINDING IS *NOT* "THE CEILING IS WRONG", AND IT IS *NOT* "THE TEST IS
+> MISAPPLIED". NEITHER IS TRUE, AND NEITHER MAY BE WRITTEN.**
+> T25R4 **A1.3:454** titles the clause *"THE CEILING — the safety valve on an
+> unattended daemon"* and **:460** frames 20,000 core-min as *"~333 core-hours,
+> ~$17"*. **A safety valve on an unattended daemon is SUPPOSED to bound the worst
+> case, and `Σ CAP` is exactly the worst case.** The ceiling applying to a timeout
+> allowance is therefore **coherent and probably deliberate.**
+>
+> **WHAT IS WRONG IS ONLY THE PLAIN-ENGLISH GLOSS that has been travelling with
+> the number.** *"The ladder costs more than 20,000 core-minutes"* is **FALSE**.
+> *"The ladder's ×4 timeout allowance exceeds 20,000 core-minutes"* is **TRUE**.
+> **Fix the gloss; change no number.** T25R5 D3.1's *"a ×1.24 breach on the most
+> favourable reading available"* is the specific wording corrected — prospectively,
+> for anything that re-carries it — and **24,709.3 and ×1.2355 stand exactly as
+> published.**
+
+**A pattern recorded rather than left as an anecdote.** This is the **second**
+confident negative characterisation from this team on 2026-09-03 that **survived
+its numbers but not its wording** — the other was the supervisor's own, a freeze
+flag reported to the chief as a false positive which the measurement contradicted.
+**Both were caught by demanding a measurement instead of accepting a reading.**
+That is an argument **for** Sanaa's 18:00Z self-check clause, not against this
+lab's arithmetic.
+
+### A1.4 ⛔ NO WIDENING REQUEST IS DRAFTED, AND THE LIVE QUESTION IS NOT A THRESHOLD VALUE
+
+**Instructed by the supervisor and registered here: this lane drafts no widening
+request, and no document of this rung pre-empts one.** §7.4's disposition is a
+**registered response to a future `GATE FAIL`**, not a request, and it is not
+activated by this amendment.
+
+**On this rung's own numbers the ladder may need no widening at all** (§2.3(a):
+the expected cost is 6,177.3 core-min, inside the ceiling). **The live question is
+therefore not "what should the threshold be" but "WHAT IS THE CEILING MEANT TO
+BIND — the worst case, or the expected cost?"** **That is Sanaa's to answer,
+because the ceiling and its purpose are both hers**, and the supervisor is putting
+it to her **as a question, not as a request.** Nothing here proposes an answer.
+
+**SUBMISSIONS PARKED** (rule 7). **PERMANENTLY PRIVATE** (rule 8).
+
+<!-- END OF T25R6a PRE-REGISTRATION v1.1 -->
+
