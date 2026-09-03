@@ -546,3 +546,115 @@ gate present → `OK 7`.
 **the item could not have fired in that state**, and firing on an authorisation
 whose precondition is measured false is not obedience. **§7 stands verbatim: the
 first real container is the first evidence about the case.**
+
+---
+
+## ADDENDUM — 2026-09-03T23:03Z — `G-DELIVERY` BECOMES A CLOSURE, AND IT FINDS A SECOND INSTANCE NOBODY HAD LOOKED FOR
+
+**Dated pre-compute addendum. Still ZERO solver compute across three fires:
+`spent_before_arm=0.000` on every one, and no container has ever been created in
+this lineage.** Run root asserted **ABSENT by execution**. **NO GATE, THRESHOLD,
+CAP OR LABEL MOVES** — caps 480.0 / 190.0, deadlines 7110 / 2760 s, ranks 4, the
+patched row, `G-ANCHOR`, the units gate and its two call sites all stand as
+frozen. §7 stands verbatim.
+
+### The third abort, and what it proved about the second repair
+
+The 22:54:37Z fire reached `G-ANCHOR` — **the furthest this item has ever got** —
+and refused at **`rc=3`**, 69 s in, on the gate's own traceback:
+`FileNotFoundError: .../F_mp/d6rf2_ref_off.py`, raised inside
+`d6rf2_anchor_gate.py:130` iterating its own `READERS`.
+
+**`G-DELIVERY` had passed immediately before, naming its seven.** So the guard was
+not wrong — **it was one level too shallow.** `d6rf2_anchor_gate.py:53` declares
+`READERS = ("d6rf2_fd_endpoint.py", "d6rf2_ref_off.py")`, and **the launcher
+never mentions `d6rf2_ref_off.py` at all**: it is named only by the gate's own
+tuple. The derivation enumerated one level; the dependency was two.
+
+**AND IT IS THIS FAMILY'S SIGNATURE DEFECT AGAIN: one entry of a two-element
+tuple was staged and its sibling was not.** Each branch reads as correct alone,
+which is why no reader catches it and only execution does.
+
+### The repair — a closure, not another level
+
+**`d6rf2_ref_off.py` is NOT added to a list.** A hand list is what produced the
+defect twice; a third would leave the class open one level further down.
+
+1. **Level 0** is unchanged: what the launcher md5-checks or executes at `$WORK`,
+   branch-aware, arm block located by pattern.
+2. **Each derived instrument is parsed with `ast`** and its **module-level `.py`
+   filename constants** — `READERS`, `PRODUCER`, `EXTRACTOR`, `RUNSCRIPT`,
+   `STAGED_PRODUCER` and anything of that shape — are read **from the file's own
+   bytes**, never from a pattern maintained in the guard.
+3. **Iterated to a FIXED POINT**, bounded at 8 rounds, **refusing on
+   non-convergence** rather than silently stopping at the bound, *because a set
+   truncated at a depth is not a closure*.
+4. **COMPLETENESS IS ASSERTED AGAINST THE DISK, NOT AGAINST THE CLOSURE.**
+   Asserting the fixed point against itself would be **tautological** — the exact
+   vacuous-predicate shape this lab has now catalogued three times. Instead:
+   **every `.py` actually present in `$WORK`, including files that arrived with
+   the base copy and were never derived, must reference only `.py` files that are
+   also present.** That can fire, and on the 22:55:46Z state it does.
+5. **The closure's requirements are STAGED FROM `$BASE`**, whose twelve
+   instrument md5s the driver asserts before any arm runs, with the arm-side copy
+   asserted **byte-identical by `cmp`** — so the requirement is met from verified
+   bytes and still never from a second hand list. **Then the derivation is re-run
+   as a READ-BACK**: write, read back, assert, the same shape as `S5b`/`S5c`.
+
+### ⚠ WHAT THE CLOSURE FOUND THAT NOBODY HAD LOOKED FOR
+
+**`REF_off` IS MISSING A FILE TOO, AND IT IS THE OTHER ENTRY OF THE SAME TUPLE.**
+Its level-0 set of nine contains `d6rf2_ref_off.py` but **not
+`d6rf2_fd_endpoint.py`**, which `d6rf2_anchor_gate.py` also reads. **`REF_off`
+would have aborted at `G-ANCHOR` exactly as `F_mp` did, on the other reader, and
+no one had noticed** — the arm never ran because the chain stops at the first
+non-zero. **Measured, not argued:** the closure returns
+`MISSING 1 of 10 ... d6rf2_fd_endpoint.py` for `REF_off`.
+**A detection catches the level you thought of; a closure catches the level you
+did not.**
+
+### Driven, both directions, zero containers — twelve legs
+
+| leg | condition | result |
+|---|---|---|
+| 1 | the **exact 22:55:46Z state** (the seven the old guard passed) | `MISSING 1 of 8 … d6rf2_ref_off.py` |
+| 2 | + `d6rf2_ref_off.py` | `OK 8 (7 level-0, 1 by closure)` |
+| 3 | **`REF_off`'s own nine** | `MISSING 1 of 10 … d6rf2_fd_endpoint.py` — **the new finding** |
+| 4 | a staged file referencing an absent one | `REFUSE-DANGLING … d6r_fd_endpoint.py -> d6r_opt_runScript.py` |
+| 5 | an 11-deep declaration chain against a bound of 8 | `REFUSE-NONCONVERGENT` |
+| 6 | a required file that does not parse | `REFUSE-UNPARSEABLE … UNMEASURED, not assumed empty` |
+| 7 | a file with no arm branch | `REFUSE-SHAPE` |
+| 8 | the arm-branch opener altered | `REFUSE-SHAPE` |
+| 9 | arm branch present, every `$WORK` reference stripped | `REFUSE-EMPTY` |
+| 10 | `MISSING` → stage from `$BASE` → read-back | `rc 0`, staged and **asserted byte-identical** |
+| 11 | required, and **absent from `$BASE` too** | `rc 8`, refusing by name |
+| 12 | the staged copy does not land intact | `rc 8`, "NOT byte-identical" |
+
+Every plant asserted to have landed before its verdict. **The two halves are
+driven separately — `${BASH_SOURCE[0]}` binds to a sourced block rather than to
+the launcher — and that split is reported rather than an end-to-end run implied.**
+
+### The pin, applied without waiting to be caught
+
+The repair moved the launcher's md5 again
+(`eb4ad36d…` → **`01bc529b5a96f7589ebd8d3941200d1c`**), and
+`d6rf2_chain_driver.sh:54` pins it. **It was updated as part of the repair this
+time rather than after control `U37` caught it** — the previous addendum's whole
+lesson. Driver md5 accordingly **`686e1cbcaa837229a40c145764c6d865`**,
+superseding `a3e57f2bdb741b0ff4b3151759d07105`.
+
+**Guard suite after the repair: `D6RF2_GUARD_SELFTEST 97/97 PASS`, 0 FAIL, rc 0
+under both interpreters, `U37` PASS and `U9` PASS.** *(U9 — "the registered run
+root is absent" — FAILED on a drive taken before the archive and PASSED after it:
+a live precondition check, not a decoration.)*
+
+### The run root is archived, never deleted
+
+`mv` to `…_ABORTED_G-ANCHOR-READERS_20260903T225546Z`. **Preservation asserted by
+count: files 371 → 371, dirs 84 → 84, bytes 44,759,156 → 44,759,156, all three
+identical.** It holds `F_mp_launch.out` with the gate's full traceback,
+`STATUS.chain`, `STATUS.F_mp` and the staged `F_mp` tree. **No `rm -rf`.**
+
+**NOT RE-FIRED. The supervisor reads the changed hunks as a diff before any
+re-fire. `F_mp` and `REF_off` remain the only genuinely unrun physics in this
+family, and no container has ever run either in any lineage.**

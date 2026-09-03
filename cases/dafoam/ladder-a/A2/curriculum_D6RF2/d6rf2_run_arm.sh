@@ -631,10 +631,15 @@ fi
 #     file and the directory it was expected in.  `rc=4` on a bare `md5sum -c`
 #     told a reader nothing about delivery, which is why this rc is its own.
 # ===========================================================================
-DELIVERY=$(python3 - "${BASH_SOURCE[0]}" "$ARM" "$WORK" <<'PYEOF'
-import re, sys, pathlib
+# --- the derivation, run as a function so it can be re-run as a READ-BACK ----
+derive_delivery() {
+  python3 - "${BASH_SOURCE[0]}" "$ARM" "$WORK" <<'PYEOF'
+import ast, re, sys, pathlib
 self_path, arm, work = sys.argv[1], sys.argv[2], pathlib.Path(sys.argv[3])
 src = pathlib.Path(self_path).read_text(errors="replace").splitlines()
+PYNAME = re.compile(r'^[A-Za-z0-9_][A-Za-z0-9_.-]*\.py$')
+
+# ---- LEVEL 0: what THIS LAUNCHER md5-checks or executes at $WORK ------------
 opens = [i for i, l in enumerate(src, 1)
          if re.match(r'^if \[ "\$ARM" = "F_mp" \]; then\s*$', l)]
 if len(opens) != 1:
@@ -642,8 +647,6 @@ if len(opens) != 1:
           "-- the launcher's shape has MOVED and this guard will not guess"
           % (self_path, len(opens))); sys.exit()
 o = opens[0]
-# The opener sits at column 0, so its matching `else`/`fi` are the next column-0
-# ones; nested blocks in this file are indented.  Asserted, not assumed.
 els = next((i for i, l in enumerate(src, 1) if i > o and l == "else"), None)
 fin = next((i for i, l in enumerate(src, 1) if els and i > els and l == "fi"), None)
 if not els or not fin:
@@ -657,35 +660,127 @@ for i, l in enumerate(src, 1):
         m = p.search(l)
         if not m:
             continue
-        if o < i < els:
-            region = "F_mp"
-        elif els < i < fin:
-            region = "REF_off"
-        else:
-            region = "BOTH"
+        region = "F_mp" if o < i < els else ("REF_off" if els < i < fin else "BOTH")
         if region in ("BOTH", arm):
             req.add(m.group(1))
 if not req:
-    print("REFUSE-EMPTY the derivation found ZERO required instruments for "
-          "arm=%s. A guard that requires nothing has not proved delivery, it "
-          "has failed to read." % arm); sys.exit()
+    print("REFUSE-EMPTY the derivation found ZERO level-0 instruments for arm=%s. "
+          "A guard that requires nothing has not proved delivery, it has failed "
+          "to read." % arm); sys.exit()
+level0 = len(req)
+
+def declared_py(path):
+    """MODULE-LEVEL .py filename constants, from the file's OWN bytes via ast.
+
+    This is how an instrument states what it will itself open at $WORK --
+    READERS, PRODUCER, EXTRACTOR, RUNSCRIPT, STAGED_PRODUCER and anything of
+    that shape.  Read by ast from the source, never by a pattern maintained
+    here, so a new constant of the same shape is picked up without editing
+    this guard."""
+    try:
+        tree = ast.parse(path.read_text(errors="replace"), filename=str(path))
+    except SyntaxError:
+        return None
+    out = set()
+    for node in tree.body:
+        if not isinstance(node, ast.Assign):
+            continue
+        v, vals = node.value, []
+        if isinstance(v, ast.Constant) and isinstance(v.value, str):
+            vals = [v.value]
+        elif isinstance(v, (ast.Tuple, ast.List, ast.Set)):
+            vals = [e.value for e in v.elts
+                    if isinstance(e, ast.Constant) and isinstance(e.value, str)]
+        out |= {x for x in vals if PYNAME.match(x)}
+    return out
+
+# ---- CLOSE OVER THE PRODUCT, TO A FIXED POINT ------------------------------
+# One level catches what the launcher names.  The 22:55:46Z abort was two
+# levels down: d6rf2_ref_off.py is named ONLY by d6rf2_anchor_gate.py's own
+# READERS tuple, which the launcher never mentions.  A detection catches the
+# level you thought of; a closure catches the level you did not.
+ROUNDS = 8
+for _ in range(ROUNDS):
+    grew = set()
+    for name in sorted(req):
+        f = work / name
+        if not f.is_file():
+            continue
+        d = declared_py(f)
+        if d is None:
+            print("REFUSE-UNPARSEABLE %s is not parseable Python, so what it "
+                  "opens at $WORK cannot be derived -- UNMEASURED, not assumed "
+                  "empty" % name); sys.exit()
+        grew |= d
+    if grew <= req:
+        break
+    req |= grew
+else:
+    print("REFUSE-NONCONVERGENT the requirement closure did not settle in %d "
+          "rounds for arm=%s -- REFUSED rather than silently stopping at the "
+          "bound, because a set truncated at a depth is not a closure" % (ROUNDS, arm))
+    sys.exit()
+
+# ---- (A) every DERIVED requirement is present ------------------------------
 missing = sorted(n for n in req if not (work / n).is_file())
 if missing:
-    print("REFUSE-MISSING %d of %d required instrument(s) absent from %s: %s"
+    print("MISSING %d of %d required instrument(s) absent from %s: %s"
           % (len(missing), len(req), work, " ".join(missing))); sys.exit()
-print("OK %d required instruments derived and all present: %s"
-      % (len(req), " ".join(sorted(req))))
+
+# ---- (B) COMPLETENESS, AND IT IS NOT THE FIXED POINT RESTATED --------------
+# Asserting the closure against itself would be tautological.  This asserts a
+# property of the DISK: every .py actually staged in $WORK -- including files
+# that arrived with the base copy and were never in the derived set -- must
+# reference only .py files that are ALSO present.  It can fire, and on the
+# 22:55:46Z state it does: d6rf2_anchor_gate.py -> d6rf2_ref_off.py, absent.
+dangling = []
+for f in sorted(work.glob("*.py")):
+    d = declared_py(f)
+    if d is None:
+        continue
+    for target in sorted(d):
+        if not (work / target).is_file():
+            dangling.append("%s -> %s" % (f.name, target))
+if dangling:
+    print("REFUSE-DANGLING %d staged instrument reference(s) point at a file "
+          "absent from %s: %s" % (len(dangling), work, "; ".join(dangling)))
+    sys.exit()
+
+print("OK %d required instruments (%d level-0, %d by closure) derived, all "
+      "present, and no staged instrument references an absent file: %s"
+      % (len(req), level0, len(req) - level0, " ".join(sorted(req))))
 PYEOF
-)
+}
+
+DELIVERY=$(derive_delivery)
+# ---- STAGE what the closure requires and the hand list did not deliver -----
+# $BASE is the md5-verified source: d6rf2_chain_driver.sh asserts all twelve
+# instrument md5s there before any arm runs.  The arm-side copy is asserted
+# BYTE-IDENTICAL to it with `cmp`, so the requirement is met from verified
+# bytes and never from a second hand list.
+case "$DELIVERY" in
+  MISSING*)
+    NEED=$(printf '%s' "$DELIVERY" | sed 's/.*: //')
+    stage_say "D6RF2_G_DELIVERY closure requires files the arm list did not stage: $NEED"
+    for f in $NEED; do
+      test -f "$BASE/$f" || { stage_say "ABORT G-DELIVERY $f is required at \$WORK and is ABSENT FROM \$BASE TOO -- it was never staged into the run root, so no verified copy exists to deliver"; exit 8; }
+      cp -a "$BASE/$f" "$WORK/$f" || { stage_say "ABORT G-DELIVERY could not stage $f into $WORK"; exit 8; }
+      cmp -s "$BASE/$f" "$WORK/$f" || { stage_say "ABORT G-DELIVERY staged $f is NOT byte-identical to the md5-verified copy in \$BASE -- the copy did not land intact"; exit 8; }
+      stage_say "D6RF2_G_DELIVERY staged $f from \$BASE, asserted byte-identical"
+    done
+    # THE READ-BACK: the same derivation, again, on the new disk state.
+    DELIVERY=$(derive_delivery) ;;
+esac
 case "$DELIVERY" in
   OK\ *) stage_say "D6RF2_G_DELIVERY $DELIVERY" ;;
-  REFUSE-MISSING*)
+  MISSING*)
     stage_say "ABORT G-DELIVERY arm=$ARM -- $DELIVERY"
-    stage_say "  An instrument this launcher WILL read at \$WORK was never staged"
-    stage_say "  there.  This is the 2026-09-03T22:13:11Z defect class: the gate"
-    stage_say "  exists and is correct; it was not DELIVERED.  The required set"
-    stage_say "  was DERIVED from this launcher's own references, not from a list."
-    stage_say "  NO CONTAINER IS CREATED."
+    stage_say "  Still absent after staging from \$BASE.  NO CONTAINER IS CREATED."
+    exit 8 ;;
+  REFUSE-DANGLING*)
+    stage_say "ABORT G-DELIVERY arm=$ARM -- $DELIVERY"
+    stage_say "  A staged instrument names a file that is not there.  This is the"
+    stage_say "  22:55:46Z class, caught BEFORE the gate rather than by its traceback."
     exit 8 ;;
   *)
     stage_say "ABORT G-DELIVERY arm=$ARM -- the delivery derivation could not be"
