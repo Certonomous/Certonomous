@@ -381,3 +381,52 @@ JOB 3 -- SAFETY
   DECOY SURVIVED             PASS  cleanup was by name, not by sweep
 
 SO3aF2 PIN CENSUS: PASS 29  FAIL 0  NOT RUN 0
+
+===========================================================================
+ADDENDUM 5 -- THE MESH ARM COMPLETED. Captured 2026-09-03T223754Z
+===========================================================================
+LEDGER:
+  ITEM=SO3aF2 ARM=MESH STAMP=2026-09-03T223426Z rc=0 wall_s=3 ranks=1 core_min=0.0500 cap_core_min=3.0 ceiling=9.0 cpuset=0 mem=4g row=SHIPPED digest=sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc launcher_md5=0e9198ac111bcea18168306fe993ee0d reader_md5=d5f4149d43abe3a165ffe7e653b78bee producer_md5=c268633f67e6d2c785feec2ebfc7326c memavail_GiB=27.43 cap_exceeded=0
+
+CONTAINER LOG (the whole 277 bytes):
+  SO3AF2_ENV_OK loader=/home/dafoamuser/dafoam/loadDAFoam.sh checkMesh=/home/dafoamuser/dafoam/OpenFOAM/OpenFOAM-v2506/platforms/linux64GccDPInt32Opt/bin/checkMesh FOAM_APPBIN=/home/dafoamuser/dafoam/OpenFOAM/OpenFOAM-v2506/platforms/linux64GccDPInt32Opt/bin WM_PROJECT=OpenFOAM
+
+KERNEL RECORD:
+  0 false 2026-09-03T22:34:26.907562339Z 2026-09-03T22:34:29.479039344Z 0 4294967296
+
+MESH/ CONTENTS (48 files):
+  0
+  0.orig
+  FFD
+  checkMesh.log
+  constant
+  genAirFoilMesh.py
+  logMeshGeneration.txt
+  preProcessing.sh
+  profiles
+  so3af2_cmd.sh
+  surfaceMesh.xyz
+  system
+  volumeMesh.xyz
+
+constant/polyMesh (8 files):
+  boundary
+  cellZones.gz
+  faceZones.gz
+  faces.gz
+  neighbour.gz
+  owner.gz
+  pointZones.gz
+  points.gz
+
+checkMesh.log TERMINAL LINES -- OBSERVATION, NOT A VERDICT (section A5.2):
+      Coupled point location match (average 0) OK.
+  
+  Mesh OK.
+  
+  End
+  
+
+  NOTHING GRADES THIS ARM. checkMesh's 'Mesh OK.' is its judgement against its
+  own defaults, not this lab's against a pre-registered threshold. The item
+  stays PENDING; F1-F5 are all XM's gates and XM has not run.

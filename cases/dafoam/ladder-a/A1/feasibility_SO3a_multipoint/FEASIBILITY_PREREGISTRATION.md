@@ -827,3 +827,64 @@ On 22:24:16Z the instrument **neither passed nor refused**. It emitted no ENV-n 
 F1–F5, every band, both caps, the ceiling, the memory floor, the four NO-LAUNCH branches and their rcs, the staging precondition (9), the docker-start rc (10), the environment refusals (11), the plant constants, and **§0.2 in full**. **ADDENDUM 1 finding 1 — XM stages one file into an otherwise empty directory — is STILL NOT REPAIRED and XM is NOT QUEUED.** MESH **PENDING**. **NOT RE-FIRED. SUBMISSIONS PARKED.**
 
 **END OF ADDENDUM 4.**
+
+---
+
+## ADDENDUM 5 — THE MESH ARM IS COMPLETE. Dated **2026-09-03**. Version **1.5 → 1.6**.
+
+> **lines whose number changed above this section: 0** — asserted by execution against both the pre-append snapshot and `git show HEAD:`.
+
+**Moves no gate, no threshold, no prediction, no band, no cap and no label. NO MESH GATE IS ADDED — see §A5.3.**
+
+### A5.1 What the arm did
+
+`SO3aF2_MESH_r4` launched 2026-09-03T22:34:26Z and returned **rc = 0**, wall **3 s**, **0.0500 core-min** against a registered cap of 3.0 and an item ceiling of 9.0. `cap_exceeded=0`.
+
+The environment assertion passed for the first time, with paths resolved inside the container:
+
+> `SO3AF2_ENV_OK loader=/home/dafoamuser/dafoam/loadDAFoam.sh checkMesh=…/platforms/linux64GccDPInt32Opt/bin/checkMesh FOAM_APPBIN=…/platforms/linux64GccDPInt32Opt/bin WM_PROJECT=OpenFOAM`
+
+`MESH/` carries `0/`, `constant/polyMesh/` with **8 files**, `volumeMesh.xyz`, `surfaceMesh.xyz`, `logMeshGeneration.txt` and a 3610-byte `checkMesh.log` ending `Mesh OK.` and `End`.
+
+**Completion holds on every limb available to this arm**: `rc = 0`, an `End` line, the mesh written, and `checkMesh` reporting `Mesh OK.` on its own criteria. **`Mesh has 3 solution (non-empty) directions (1 1 1)` is the `symmetry` configuration**, which is what DAFoam requires.
+
+### A5.2 ⚠ THE RULING — MESH IS COMPLETE. IT IS NOT A RESULT, BECAUSE NOTHING GRADES IT
+
+**Ruled by the `dafoam-supervisor`, 2026-09-03.** No gate fires on this arm. The registration carries **no** aspect-ratio, non-orthogonality, skewness or `checkMesh` threshold: **`MESH` is a `SCRIPT` arm whose product is the mesh, and F1–F5 are all XM's.**
+
+- **THE ITEM STAYS `PENDING`.** XM has not run and the gates that decide this item have not been reached.
+- **The mesh metrics in `checkMesh.log` are an OBSERVATION and are NOT a verdict.** They are recorded as an observation and nothing in this lab may quote them as a finding.
+- **`Mesh OK.` is `checkMesh`'s judgement against its own defaults, not this lab's against a pre-registered threshold, and the two are not the same thing.**
+
+### A5.3 ⚠ A REGISTERED LIMITATION — the registration gates the OUTCOME and not the MESH it rests on
+
+**Nothing in this item would have caught a bad mesh.** F1–F5 gate XM's readings; the mesh those readings are computed on is gated by nothing. **It happens to be a good mesh — and "it happens to be fine" is not a gate.**
+
+**That is tonight's theme one level up.** The NO-LAUNCH guards check instruments and not inputs; the registration checks outcomes and not the mesh they rest on. Same shape, different altitude.
+
+> **NO MESH GATE IS ADDED TO THIS ITEM, AND THAT IS DELIBERATE.** Adding a threshold after seeing the numbers is choosing the threshold to fit the answer, and it is the one thing that would turn a clean arm into a compromised one. **The limitation is registered FORWARD-ONLY: a successor that gates its mesh should exist; this item is not retrofitted to have one.**
+
+### A5.4 The delivery path, four attempts, and what closed
+
+| # | rc | condition | closed by |
+|---|---|---|---|
+| 1 | 127 | **no staging step at all** — `mkdir -p` then a container told to run a script never put there | ADDENDUM 1: staging from a lineage-matched source, tree-manifest asserted both sides, G-COLD, precondition rc 9 |
+| 2 | 127 | **environment never sourced** — and `bash -lc` does not supply it | ADDENDUM 3: loader derived from A1WR's pinned bytes, `so3af2_env_assert.sh`, rc 11 |
+| 3 | 1 | **`set -u` aborted inside the foreign init script**, and the instrument emitted neither outcome | ADDENDUM 4: `set +u` across four lines; ENV-0 trap, rc 12 |
+| 4 | **0** | — | — |
+
+**0.0667 core-min for all four attempts combined.** Three real defects in the delivery path, now closed: **inputs, environment, and the shell option that hid both.**
+
+### A5.5 ⚠ XM IS NOT A PROBE — the regime is over and it does not resume
+
+**The cheap-firing regime applied only while the arm produced no number. XM produces numbers and those numbers reach F1–F5.**
+
+> **A wrong precondition on MESH cost two cents. A wrong precondition on XM can produce a plausible F3 MISS on a separation that actually worked** — the exact failure found and repaired in ADDENDUM 2's findings 2 and 3, and the reason the reader's contract is derived rather than transcribed.
+
+XM therefore gets the full treatment **before** it fires: the staged set derived from the producer's own references, every path asserted against the frozen reader's expressions, the guard suite driven under both interpreters, and the supervisor's **check 1 on the changed hunks and check 4 before it is queued**. **ADDENDUM 1 finding 1 is still unrepaired and XM is still NOT QUEUED.**
+
+### A5.6 Unchanged
+
+F1–F5, every band, both caps, the ceiling, the memory floor, every rc in the taxonomy, the plant constants, and **§0.2 in full** — this item never calls `solve_linear`, cannot show SO-3aR's adjoint collision is fixed, and **nothing it measures may be quoted toward it**. **SUBMISSIONS PARKED.**
+
+**END OF ADDENDUM 5.**
