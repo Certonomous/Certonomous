@@ -224,3 +224,163 @@ The brief posed a choice between the cheap incompressible A1 vehicle (which has 
 This document is **FROZEN** at the commit that introduces it. After first compute its gates are closed; anything further lands as a dated addendum that cannot alter a gate, threshold, cap or label, and originals are struck rather than rewritten (`CLAUDE.md` rule 2, rule 6).
 
 **FREEZE ONLY. NOT ENQUEUED. NO QUEUE ENTRY. ZERO SOLVER CORE-MINUTES. SUBMISSIONS PARKED.**
+
+---
+
+## AMENDMENT 1 — THE READER EXISTS. Dated **2026-09-03**. Version **1.0 → 1.1**.
+
+> **lines whose number changed above this section: 0** — asserted by execution in the
+> committing invocation: the 226 lines above this rule are byte-identical to the frozen
+> document, diffed against `git show HEAD:` before the append and against the pre-append
+> snapshot after it. Nothing above was rewritten; this section is appended at the foot
+> (`CLAUDE.md` rule 6, `DAFOAM_CHARTER.md` §6-form amendment).
+
+**This is a PRE-COMPUTE amendment and the window is open.** `CLAUDE.md` rule 2 requires an
+amendment before first compute to state the condition and how it was checked, by naming the
+run directory that does not exist.
+
+> **CHECKED BY EXECUTION, 2026-09-03T20:49:25Z**, in the invocation that wrote this section:
+> `/home/ubuntu/certonomous-runs/CURRICULUM-SO3D-a2-wing-multipoint-rootcause` — **ABSENT**.
+> `verification/queue/` — **0** rows matching `so3d`, in any team's directory.
+> `docker ps -a` — **0** containers matching `so3d`.
+> `so3d_replay.json`, `so3d_plant_report.json`, `RESULTS.md` — **all ABSENT** from this
+> case directory. **No compute has occurred under this item.**
+
+**IT DISCHARGES §12's BINDING CONDITION AND NOTHING ELSE.** It moves no gate, no threshold,
+no prediction, no plant, no cap and no label. §5's P1–P4, §6's five gates, §7's three plants
+and §11's 12 core-min cap stand exactly as frozen.
+
+### A1.1 The instrument, by hash
+
+| file | role | md5 | lines |
+|---|---|---|---|
+| `so3d_replay.py` | **the reader** — §12's frozen artifact name | `60af48e4e3debb536141eb3f5c66409b` | **1000** |
+| `so3d_replay_selftest.py` | guard suite; drives every refusal in both directions | `30947a3d35df6639d099044d9313c29d` | **695** |
+| `so3d_replay_selftest_evidence.txt` | the capture both interpreters produced | *(written in the same commit)* | 126 |
+
+**The selftest is an ADDITION, not a SUBSTITUTION.** §12 fixed four artifact names *"so a later
+file cannot be substituted"*. All four keep their exact names and roles; `so3d_replay.py` is the
+reader and nothing else grades. The selftest is a second instrument that never reads a registered
+log, never creates the run root and never writes either JSON. **It is deliberately a separate file
+rather than a `--selftest` mode: a fixture-root override inside the reader would make the grading
+path steerable at any input, and rule 2 fixes that path at the pre-registration commit.**
+
+### A1.2 Two implementation decisions the freeze necessarily left open, registered here BEFORE any scoring
+
+§12 froze this document with the reader not yet written, so two mechanical choices had to be made
+by the lane. **Both are registered before a single gate quantity was computed, and both are
+`[lab-attributed]`. The supervisor may overrule either before first compute; after it, they are
+closed with everything else.**
+
+**(a) SCENARIO ATTRIBUTION — the rule G-SO3D-2 and G-SO3D-3 rest on.** The logs carry **no
+per-primal scenario tag**: `cl04`/`cl05`/`cl06` appear only in OpenMDAO deprecation warnings at
+setup. Attribution is therefore derived from the log's own arithmetic:
+
+> A primal record runs from `^Time = 1$` to the line before the next one — the same counter §2
+> A7–A10 used, so the numbers are comparable to the declared 977 / 822 / 135 / 171. Its AoA is
+> the **last** `Setting UMag = 100 AoA = a degs` strictly before the start (§2 A14 records **985**
+> UMag lines against **977** starts, so the mapping is last-before-start, never one-to-one by
+> position). It is attributed to the scenario whose `dvs.patchV_clNN` second element in the most
+> recent `Driver debug print for iter coord` block is nearest to `a`, with `|gap| ≤ 1e-5` **and
+> exactly one candidate inside that tolerance**. Anything else is **UNATTRIBUTED** and is reported
+> by count and reason. Records preceding the first design-vector block are **PRETRIM** and are
+> excluded **by name**. Nothing is ever folded into a neighbouring scenario.
+
+**Why this rule and not "nearest CL target".** §2 A16 attributed one terminal record by its printed
+`CL`. That is unsafe as a general rule: a *failed* primal's CL is exactly the quantity that did not
+converge, so classifying failures by it would let the failure define its own scenario. The AoA route
+is a design variable IPOPT sets and the log prints on both sides — the same number, at 10 significant
+figures in the `Setting UMag` line and 8 in the `Design Vars` block. **Structural check, run in the
+freezing invocation and reported as structure, not as a gate quantity:** at iteration 245 the three
+declared AoAs are 0.57804667 / 1.77215221 / 3.03876289 and the following primal announced
+`AoA = 0.5780466691` — separated by more than a degree, so the attribution is unambiguous by a margin
+of five orders of magnitude over the tolerance.
+
+**BANNERS, NOT RECORDS.** Per-scenario failure counts are counts of `Primal solution failed!`
+**banners** attributed to the record that contains them. This is forced by §7 PLANT-B, whose
+registered expectation is a movement of exactly **−1 / +1** against a total unchanged at **671** —
+and 671 is the banner count of §2 A7. A record-based count could not move by +1 into a record that
+already failed, and the plant would be unsatisfiable by construction.
+
+**(b) THE G-SO3D-1 IN-SCOPE DEFINITION.** §6's cell for this gate says the census covers *"a numeric
+field of a DAFoam or OpenMDAO print"*. The reader implements that as a whitelist of the log's own
+print shapes (residual lines, `CD:`/`CL:`/`CM`, `yPlus`, continuity errors, `ExecutionTime`,
+`Primal min residual`, the tolerance line, `Setting UMag`, residual statistics, and the
+`array([...])` blocks of Design Vars / Nonlinear constraints / Objectives), and the non-finite token
+is bounded on both sides so `info`, `Info`, `infinity` and `nanoseconds` are **not** matches — a
+control drives exactly that. **The UNRESTRICTED count over every line in the P1 window is computed
+and reported BESIDE the in-scope count, never instead of it**, so the restriction hides nothing and
+a reader who disagrees with the whitelist has the other number in the same JSON.
+
+### A1.3 THE GATE WALK — what makes each gate FIRE and what makes it REFUSE
+
+Registered because this family has found six unsatisfiable-by-construction conditions in one day.
+**Every line below was driven by execution in the selftest, in both directions.**
+
+| gate / guard | FIRES (verdict reachable) when | REFUSES / is NOT A RESULT when |
+|---|---|---|
+| **G-SO3D-P** PLANT-A | census moves by exactly +1 **at the planted line** → PASS | delta ≠ 1, or the hit is elsewhere → exit 2. Driven by blinding the census whitelist: the reader **refused**, it did not report a clean sheet |
+| **G-SO3D-P** PLANT-B | exactly one scenario −1, exactly one +1, rest 0, total 671 → PASS | any other movement → exit 2. Driven by breaking the AoA tolerance to 1e-30 so nothing attributes: **refused** |
+| **G-SO3D-P** PLANT-C | exactly one record flips failed→converged, and it is the target → PASS | no flip, or another record moves → exit 2. Driven by blinding the tolerance reader so every classification is `None`: **refused** |
+| **G-SO3D-1** | in-scope non-finite count `== 0` → PASS (H1 stands); `≥ 1` → GATE FAIL (H1 refuted, H6 revived), naming file, line and token | never NOT A RESULT on its own; the window is 1…264048 and is asserted against the file's own length |
+| **G-SO3D-2** | strict `r(cl04) < r(cl05) < r(cl06)` → PASS; any other ordering → GATE FAIL | **NOT A RESULT** if any scenario has **zero** attributed starts — an undefined rate is not a rate that passes |
+| **G-SO3D-3** | `min(r) ≥ 0.1111` → PASS; below → GATE FAIL | **NOT A RESULT** on an undefined rate |
+| **G-SO3D-4** | coupled fraction `≥ 0.90` → PASS; below → GATE FAIL | **NOT A RESULT** if there are **zero** cutback lines — the denominator does not exist, and a 0/0 is never a 1.0 |
+| **log integrity** | four logs present, non-empty, sha256 recorded → proceeds | absent or 0-byte → **NOT A RESULT, never a zero**, exit 2 |
+| **run-root guard** | root absent → proceeds | root present → refuses; archive by `mv`, never delete |
+| **originals untouched** | sha256 unchanged after the plant pass → proceeds | any original moved → **NOT A RESULT**, exit 2 |
+| **cost cap** | 12 core-min reached → **BLOCKED**, exit 3, nothing below it scored | — |
+| **solver cap** | 0 solver core-min, by construction: the reader starts no container, no MPI job, no OpenFOAM process | any solver launch under this id is out of registration |
+
+**THE CAP IS NOT SHORT.** A full pass — read, census, record parse, coupling, sha256 — over the
+222,223-line D6 log measured **0.49 s wall at ranks = 1** (probe run on the D6 log precisely because
+it carries no G-SO3D-1/2/4 threshold, so no gate quantity was computed). The whole pipeline is
+single-digit seconds against **720 wall s**. **The cap can fire — both directions are driven — but it
+is not expected to bind, and §11's 6 core-min point prediction is expected to be one to two orders
+HIGH.** That is a calibration finding owed to `docs/COST_CALIBRATION.md` at completion under rule 12;
+it is **not** a licence to move the frozen prediction, which stands.
+
+### A1.4 No `assert` carries anything
+
+`assert` vanishes under `python3 -O`. **Neither file contains a single `assert` statement** — proved
+by parsing both files' ASTs and counting `ast.Assert` nodes, not by grepping. Every refusal is an
+explicit `raise Refusal` / `raise CostCap` and every gate is an explicit comparison.
+
+**GUARD COUNTS, both interpreters, from `so3d_replay_selftest_evidence.txt`:**
+
+| interpreter | `__debug__` | controls | PASS | FAIL | NOT RUN |
+|---|---|---|---|---|---|
+| `python3` | `True` | **46** | **46** | 0 | **0** |
+| `python3 -O` | `False` | **46** | **46** | 0 | **0** |
+
+The two runs' verdict columns are **byte-identical**, diffed by execution, and the `__debug__` line
+differs between them — so the two invocations are demonstrably different interpreters and not the
+same run reported twice.
+
+### A1.5 TWO DEFECTS THE SELFTEST FOUND IN THE READER, BOTH THE LANE'S OWN
+
+Recorded because a guard suite that never caught anything is not evidence that the instrument is
+sound.
+
+1. **The uniqueness rule was unsatisfiable in the wrong direction.** The first draft called an
+   attribution ambiguous when the second-nearest gap was under 100× the nearest. On an **exact**
+   match the nearest gap is `0.0`, the comparison falls back to a `1e-12` floor, and a rival
+   `1e-7` away — comfortably *inside* the 1e-5 tolerance — passed as unambiguous. **A ratio cannot
+   express this condition; a count can.** The rule is now: ambiguous iff **more than one candidate
+   lies within the tolerance**. Control `ATTR-AMBIG` is what caught it and now drives it.
+2. **A control that could not run.** `import __debug__` raised `ModuleNotFoundError` — `__debug__`
+   is a builtin, not a module — so the control that reports which interpreter is running **failed
+   as an error rather than reporting anything**. Fixed and driven.
+
+### A1.6 What is still NOT discharged by this amendment
+
+- **The supervisor's `SUPERVISION_CHARTER.md` §3 check 4** — the personal pre-compute gate — is
+  **not** taken here and cannot be taken by a lane.
+- **This item is NOT ENQUEUED.** §11 registers it at `ranks 1`, host post-processing, **no container
+  and no queue entry**; it is a host reader invocation, and the decision to make it is the
+  supervisor's.
+- **Stage 2 and Stage 3 remain unfrozen** (§10), and **no remedy is proposed** (§8).
+- **SUBMISSIONS PARKED.** Nothing in this item is filed, sent, uploaded, registered, posted or
+  commented outside this box (`CLAUDE.md` rule 7; `DAFOAM_CHARTER.md` §10).
+
+**END OF AMENDMENT 1. FREEZE OTHERWISE UNCHANGED.**

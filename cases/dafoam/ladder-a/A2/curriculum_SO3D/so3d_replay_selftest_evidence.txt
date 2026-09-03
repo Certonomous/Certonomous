@@ -1,0 +1,126 @@
+SO-3D READER GUARD EVIDENCE -- so3d_replay.py / so3d_replay_selftest.py
+Captured 2026-09-03T204945Z by the dafoam lab-lane that wrote the reader.
+
+This file is the artifact the pre-registration's AMENDMENT 1 cites. It is under
+the case directory, never the scratchpad (CLAUDE.md rule 13).
+
+INSTRUMENT IDENTITY AT CAPTURE
+  so3d_replay.py             md5=60af48e4e3debb536141eb3f5c66409b lines=1000 bytes=42278
+  so3d_replay_selftest.py    md5=30947a3d35df6639d099044d9313c29d lines=695 bytes=29173
+
+NO RUN OCCURRED. The selftest never reads a registered log, never creates the
+item's run root and never writes so3d_replay.json or so3d_plant_report.json.
+Run root /home/ubuntu/certonomous-runs/CURRICULUM-SO3D-a2-wing-multipoint-rootcause:
+  ABSENT, asserted by execution at capture time
+
+================ python3 (assert active, __debug__ True) ================
+SO3D READER SELFTEST -- __debug__=True (python3 -O sets it False)
+  RUNROOT-ABSENT   PASS  an absent run root is accepted
+  RUNROOT-PRESENT  PASS  an existing run root REFUSES
+  LOGS-OK          PASS  a present non-empty log is accepted with sha256
+  LOGS-MISSING     PASS  a missing log REFUSES (NOT A RESULT, never a zero)
+  LOGS-EMPTY       PASS  a 0-byte log REFUSES
+  CENSUS-SEES      PASS  the census sees planted non-finites
+  CENSUS-ZERO      PASS  the census returns 0 on clean text
+  CENSUS-WORDS     PASS  `info`/`nanoseconds`/`Infinity` are NOT matches
+  CENSUS-WINDOW    PASS  the P1 line window is honoured
+  ATTR-EXACT       PASS  an exact AoA attributes to its scenario
+  ATTR-FAR         PASS  an out-of-tolerance AoA is UNATTRIBUTED
+  ATTR-AMBIG       PASS  an ambiguous AoA is UNATTRIBUTED, not nearest-wins
+  ATTR-NOBLOCK     PASS  no design-vector block gives UNATTRIBUTED
+  REC-ATTRIB       PASS  records attribute to the right scenarios
+  REC-PRETRIM      PASS  pre-trim records are named, not dropped
+  REC-UNATTR       PASS  an unattributable record is counted, never folded into a neighbour
+  DV-MALFORMED     PASS  a malformed design-vector array REFUSES
+  UMAG-NONNUM      PASS  a non-numeric AoA REFUSES
+  MINRES-NONNUM    PASS  a non-numeric residual REFUSES
+  RESID-CLASS      PASS  residual classification is failed/None as the log allows
+  PLANT-A-APPLY    PASS  PLANT-A writes `nan` into a CD field
+  PLANT-A-REFUSE   PASS  PLANT-A REFUSES when it cannot be applied
+  PLANT-B-APPLY    PASS  PLANT-B moves one banner, total unchanged
+  PLANT-B-REFUSE   PASS  PLANT-B REFUSES with no banner to move
+  PLANT-B-ANCHOR   PASS  PLANT-B REFUSES on inverted anchors
+  PLANT-C-APPLY    PASS  PLANT-C scales the residual by 1e-4
+  PLANT-C-REFUSE   PASS  PLANT-C REFUSES when it cannot be applied
+  GATE-P-PASS      PASS  the plant control PASSes on a sound reader
+  GATE-P-BLIND     PASS  the plant control REFUSES a blinded census
+  GATE-P-ATTRIB    PASS  the plant control REFUSES broken attribution
+  GATE-P-TOTAL     PASS  the plant control REFUSES a wrong banner total
+  GATE-P-RESID     PASS  the plant control REFUSES a blinded residual classifier
+  COUPLE-YES       PASS  coupling detects a banner before a cutback
+  COUPLE-NO        PASS  coupling reports 0.0 when no banner precedes
+  COUPLE-NONE      PASS  zero cutbacks gives a None fraction, not a 1.0
+  CONTROL-RATE     PASS  a single-point control rate counts starts and banners
+  COST-CAP-FIRES   PASS  the 12 core-min cap can BLOCK
+  COST-CAP-QUIET   PASS  the cap does not fire early
+  G1-BOTH          PASS  G-SO3D-1 can PASS and can GATE FAIL
+  G2-ALL           PASS  G-SO3D-2 can PASS, GATE FAIL and be NOT A RESULT
+  G3-BOTH          PASS  G-SO3D-3 can PASS and can GATE FAIL
+  G4-ALL           PASS  G-SO3D-4 can PASS, GATE FAIL and be NOT A RESULT
+  NULL-YES         PASS  the §8 null criterion triggers on P1-clean/P2-fail/P4-fail
+  NULL-NO          PASS  the §8 null criterion does not trigger otherwise
+  NO-ASSERTS       PASS  neither file contains a single `assert` statement
+  INTERPRETER      PASS  the interpreter mode is reported, not assumed
+CONTROLS 46  PASS 46  FAIL 0  NOT RUN 0
+
+================ python3 -O (assert stripped, __debug__ False) ==========
+SO3D READER SELFTEST -- __debug__=False (python3 -O sets it False)
+  RUNROOT-ABSENT   PASS  an absent run root is accepted
+  RUNROOT-PRESENT  PASS  an existing run root REFUSES
+  LOGS-OK          PASS  a present non-empty log is accepted with sha256
+  LOGS-MISSING     PASS  a missing log REFUSES (NOT A RESULT, never a zero)
+  LOGS-EMPTY       PASS  a 0-byte log REFUSES
+  CENSUS-SEES      PASS  the census sees planted non-finites
+  CENSUS-ZERO      PASS  the census returns 0 on clean text
+  CENSUS-WORDS     PASS  `info`/`nanoseconds`/`Infinity` are NOT matches
+  CENSUS-WINDOW    PASS  the P1 line window is honoured
+  ATTR-EXACT       PASS  an exact AoA attributes to its scenario
+  ATTR-FAR         PASS  an out-of-tolerance AoA is UNATTRIBUTED
+  ATTR-AMBIG       PASS  an ambiguous AoA is UNATTRIBUTED, not nearest-wins
+  ATTR-NOBLOCK     PASS  no design-vector block gives UNATTRIBUTED
+  REC-ATTRIB       PASS  records attribute to the right scenarios
+  REC-PRETRIM      PASS  pre-trim records are named, not dropped
+  REC-UNATTR       PASS  an unattributable record is counted, never folded into a neighbour
+  DV-MALFORMED     PASS  a malformed design-vector array REFUSES
+  UMAG-NONNUM      PASS  a non-numeric AoA REFUSES
+  MINRES-NONNUM    PASS  a non-numeric residual REFUSES
+  RESID-CLASS      PASS  residual classification is failed/None as the log allows
+  PLANT-A-APPLY    PASS  PLANT-A writes `nan` into a CD field
+  PLANT-A-REFUSE   PASS  PLANT-A REFUSES when it cannot be applied
+  PLANT-B-APPLY    PASS  PLANT-B moves one banner, total unchanged
+  PLANT-B-REFUSE   PASS  PLANT-B REFUSES with no banner to move
+  PLANT-B-ANCHOR   PASS  PLANT-B REFUSES on inverted anchors
+  PLANT-C-APPLY    PASS  PLANT-C scales the residual by 1e-4
+  PLANT-C-REFUSE   PASS  PLANT-C REFUSES when it cannot be applied
+  GATE-P-PASS      PASS  the plant control PASSes on a sound reader
+  GATE-P-BLIND     PASS  the plant control REFUSES a blinded census
+  GATE-P-ATTRIB    PASS  the plant control REFUSES broken attribution
+  GATE-P-TOTAL     PASS  the plant control REFUSES a wrong banner total
+  GATE-P-RESID     PASS  the plant control REFUSES a blinded residual classifier
+  COUPLE-YES       PASS  coupling detects a banner before a cutback
+  COUPLE-NO        PASS  coupling reports 0.0 when no banner precedes
+  COUPLE-NONE      PASS  zero cutbacks gives a None fraction, not a 1.0
+  CONTROL-RATE     PASS  a single-point control rate counts starts and banners
+  COST-CAP-FIRES   PASS  the 12 core-min cap can BLOCK
+  COST-CAP-QUIET   PASS  the cap does not fire early
+  G1-BOTH          PASS  G-SO3D-1 can PASS and can GATE FAIL
+  G2-ALL           PASS  G-SO3D-2 can PASS, GATE FAIL and be NOT A RESULT
+  G3-BOTH          PASS  G-SO3D-3 can PASS and can GATE FAIL
+  G4-ALL           PASS  G-SO3D-4 can PASS, GATE FAIL and be NOT A RESULT
+  NULL-YES         PASS  the §8 null criterion triggers on P1-clean/P2-fail/P4-fail
+  NULL-NO          PASS  the §8 null criterion does not trigger otherwise
+  NO-ASSERTS       PASS  neither file contains a single `assert` statement
+  INTERPRETER      PASS  the interpreter mode is reported, not assumed
+CONTROLS 46  PASS 46  FAIL 0  NOT RUN 0
+
+================ COST ENVELOPE PROBE ================
+One full pass of read + census + record parse + coupling + sha256 over the
+222,223-line D6 log measured 0.49 s wall at ranks=1. The D6 log carries no
+G-SO3D-1/2/4 threshold, so the probe computed no gate quantity. Extrapolated,
+the whole Stage-1 pipeline is single-digit seconds against a registered cap of
+12 core-min = 720 wall s at ranks=1. THE CAP IS NOT SHORT BY CONSTRUCTION.
+It can still fire -- controls COST-CAP-FIRES and COST-CAP-QUIET drive both
+directions -- but it is not expected to bind, and the pre-registration's 6
+core-min point prediction is expected to be one to two orders HIGH. That gap
+is a calibration finding for docs/COST_CALIBRATION.md, not a licence to move
+the frozen prediction.
