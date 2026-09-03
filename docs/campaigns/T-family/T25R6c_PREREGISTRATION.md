@@ -222,3 +222,193 @@ by this lane from the artifacts named beside it — the leg structure from
 resolution from `S1/system/controlDict{,.legB}`, `r_M` from `B0_L1`'s own log, the age-guard
 path from `run_one_t25R5.sh` — and never from a summary handed down. No case directory
 exists.*
+
+---
+
+## AMENDMENT v1.1 — 2026-09-03 — **THE GRADING PATH IS FIXED AND PINNED, THE LEGS' INDEPENDENCE IS STATED WITH ITS BREAKING CONDITION, AND ONE REGISTERED CROSS-CHECK IS STRUCK AS A TAUTOLOGY BEFORE IT COULD BE QUOTED AS ONE.**
+
+**Lines whose number changed above this section: 0.** Nothing above is edited, reordered,
+inserted or deleted (rule 6); this section is appended at the foot and the pre-amendment
+region was byte-compared against the frozen blob `23140f80` before it was written.
+**No gate, no threshold, no numeric band, no cap and no label above is altered.**
+G-T6c-1 (plateau ≤ 5 %), G-T6c-2 (`ρ < 1.0`), B-T6c (reported), X-T6c (reported), R-T6c
+(reported), the 70.162 / 210.485 core-min brackets and the 48.136 core-min
+predicted-vs-actual denominator all stand exactly as frozen.
+
+**THE CONDITION, AND HOW IT WAS CHECKED.** Rule 2 makes an amendment legal **before first
+compute** and requires it to state the condition and how the condition was checked.
+**Zero solver compute has occurred: 0 core-min, $0.00.** At the moment this amendment is
+written, `verification/runs/T-family/T25R6c_LEGAB_runs/W440_C4_L1` **exists and is
+STAGED** — `ls -a` returns exactly `0.orig`, `constant`, `system` and nothing else: **no
+`0/`, no numeric time directory, no `processor*`, no `log.solve.legA`, no
+`log.solve.legB`.** Staging copies dictionaries; it starts no solver and spends no
+core-minutes. §0's closing sentence *"No case directory exists"* was true at the freeze
+`5e51676e` and is **superseded as a statement of fact, not as a gate**: the directory now
+exists and holds no answer. Rule 4's age guard remains **evaluable**, which is the whole
+reason the stager is forbidden to create `0/`.
+
+### A1.1 GRADING PATH — FIXED HERE, BEFORE FIRST COMPUTE, AND THE GAP IS DISCLOSED RATHER THAN BURIED
+
+**The freeze commit `5e51676e` named no grading script.** That is a procedural gap in the
+freeze and it is stated plainly rather than left for a reader to notice. Rule 2's window
+for repair is exactly this one — before first compute — and Sanaa's 2026-09-03 ~21:00Z
+launch rule puts *"Freeze or procedural state — registration not frozen, pin missing,
+lesson not filed"* in the **record-and-launch** class, not the blocking class.
+
+> **GRADING_FREEZE: verification/runs/T-family/T25R6c_LEGAB_runs/grade_t25R6c.py**
+
+| instrument | path | git blob sha1 | sha256 of the disk bytes |
+|---|---|---|---|
+| **comparator / grader** | `verification/runs/T-family/T25R6c_LEGAB_runs/grade_t25R6c.py` | `39726f664685125bb16d89fd1174686b3a1e813f` | `6463e00bebff3a7bdd8395ee53fd3e2995ce4e05041375416e59c872960c94f8` |
+| stager | `verification/runs/T-family/T25R6c_LEGAB_runs/stage_t25R6c.py` | `95e0c1cd6ad592b83b5fb52b472c723f13a64766` | `5d1a9f7f383f1a031c74374e8c97bf9f9602f9bfb2da733a6fac86e398457981` |
+| runner | `verification/runs/T-family/T25R6c_LEGAB_runs/run_one_t25R6c.sh` | `49d52d7695fca68d43622058222765939dd83432` | `f306f953fc00ebbe0b49b9d1e62918eefe0e85c3e2f48e1675bf71c841fce9ae` |
+| completion marker | `verification/runs/T-family/T25R6c_LEGAB_runs/mark_done_t25R6c.py` | `c11945447835307c2580c51e8d2b51c0f981f078` | `7a208d97de3eeeb428a7a1493d6dceb865cd08d05acae6fc36aecc050cf12add` |
+
+**The four files land in the SAME COMMIT as this amendment**, so the pin and the pinned
+objects are one atomic fact and neither can be true without the other. §8.4's FULL-sha256
+witness (L-450) is discharged in the table above. **The grader cannot carry its own
+sha256 as an internal constant** — writing the constant would change the file and
+therefore the constant — so it recomputes and reports both hashes into
+`T25R6c_VERDICT.json` at grade time, and **this table is what they are checked against.**
+
+### A1.2 ⚡ WHY LEG A AND LEG B ARE INDEPENDENT, AND THE ONE SHARED ASSUMPTION THAT WOULD BREAK IT
+
+**This section exists because the predecessor died of a false independence claim** and a
+successor design is entitled to be told, in the document, exactly what its own claim rests
+on.
+
+**THEY ARE INDEPENDENT IN THE ONLY SENSE THAT KILLED T25R6b.** `r(leg A)` and `r(leg B)`
+are means over **disjoint sets of `ExecutionTime` deltas**, parsed from **two separate
+files** — `log.solve.legA` and `log.solve.legB` — written by **two separate `mpirun`
+invocations**, each of which starts its own `ExecutionTime` clock at zero. Neither number
+is computed from the other; no quantity appears in both but `ranks` and the constant 60,
+and those cancel identically in the ratio. **Nothing in the grader divides one leg's
+number by the other leg's number to obtain a third and then offers the third back as
+corroboration** — which is precisely what §1 struck.
+
+**WHAT WOULD BREAK IT, named so a reader inherits it rather than re-finds it:**
+
+1. **THE SHARED BOX — the live hazard.** The legs run sequentially on one machine that
+   other teams also use. If effective per-core throughput differs between leg A's window
+   and leg B's window, **`ρ` absorbs contention as though it were the `deltaT` regime
+   change**, and the two samples stop being independent of a common cause. This is
+   measured history, not a hypothetical: T25R5 disqualified C1, C2 and C3 to exactly this.
+   **Mitigated, not eliminated:** `/proc/loadavg` is witnessed at three points —
+   `.load.<RUN>.before_legA`, `.load.<RUN>.between_legs`, `.load.<RUN>.after_legB` — and
+   is read beside `ρ`. A witness is not a control; it is disclosed as a witness.
+2. **THE RESTART COUPLING.** Leg B starts `latestTime` from leg A's own output, so its
+   first steps carry field re-read and matrix re-assembly cost — a genuine leg-A → leg-B
+   dependency that is not a `deltaT` effect. **G-T6c-1 is the guard for exactly this**, and
+   it is evaluated first: a leg-B rate still moving is `NOT A RESULT` before `ρ` is read.
+3. **THE SHARED INSTRUMENT.** Both rates come from one parser. A parser defect cancels in
+   the ratio **only if it is multiplicative and identical across the legs**, which restart
+   logs do not guarantee. Hence the planted-zero control is planted into **both** leg logs
+   and read back **at the planted step** in each.
+
+**THE PLANT'S MAGNITUDE IS A DESIGN DECISION, NOT A COPIED CONSTANT.** OpenFOAM prints
+`ExecutionTime` to **two decimals**, so 0.01 s is the smallest perturbation this log can
+represent at all. **The T3 constant `1.234e-03` would be annihilated by the print format**
+and the control would "pass" by reading a zero it was never able to read. The registered
+plant is **`PLANT_S = 1.23 s` at step 7** — exactly representable at the log's own
+granularity, 123× it — and the control **refuses (exit 2)** unless the delta at step 7
+rose by exactly that and **no other delta moved**. The tolerance is `1e-6 × max(|E[i]|,
+|E[i-1]|, PLANT_S)`, **relative to the operands differenced**, never a bare absolute below
+the arithmetic noise floor (§8.3).
+
+### A1.3 ⛔ X-T6c AS REGISTERED IS A TAUTOLOGY THROUGH THE RUN'S OWN RATE — STRUCK BEFORE IT COULD BE QUOTED
+
+§3 registers the closed form `ρ = ((N_A + N_B)·ratio − N_A) / N_B`. **Applied to a cost
+ratio taken against this run's own `r(leg A)`, it returns `ρ` identically, by algebra:**
+
+> `total = N_A·r_A + N_B·r_B`; `ratio = total / ((N_A+N_B)·r_A) = (N_A + N_B·ρ)/(N_A+N_B)`;
+> so `((N_A+N_B)·ratio − N_A)/N_B = ρ`, **exactly, for every input.**
+
+> **~~That route is STRUCK AS A CORROBORATION.~~ It is the same shape §1 struck in the
+> predecessor — a number divided back by what built it — and it would have been quoted as
+> a cross-check by anyone who did not do the algebra.** It is retained in the grader
+> **only** as a parser bookkeeping check, labelled as such in the verdict, and it is
+> evidence for nothing about the physics. The grader's selftest **demonstrates the
+> identity to 1e-12 rather than asserting it.**
+
+**THE NON-CIRCULAR ROUTE, which is what X-T6c now reports:** actual core-minutes against
+the **frozen POINT denominator 48.136 core-min**, whose rate `r_M = 0.1094` was measured on
+**`B0_L1` in T25R5 — a different run, on a different arm, before this case existed.**
+Nothing this run produces enters it. **No gate, threshold or label moves:** X-T6c was
+registered `REPORTED, never a gate` and it remains reported.
+
+### A1.4 B-T6c — THE REGISTRATION FIXES THE THRESHOLD AND NOT THE MIXTURE; BOTH READINGS ARE REPORTED AND NEITHER GATES
+
+§3 fixes `ρ_blend < 0.809412 (= 20,000 / 24,709.3)` and **does not define `ρ_blend`'s step
+mixture**. The probe's mixture (40 A + 400 B) and the ladder's (3,500 A + 8,300 B) give
+different blends from the same `ρ`, and only the **ladder** mixture means anything for a
+statement about the ladder's cost. **This lane resolves nothing and moves nothing.** The
+grader prints **both**, labelled, with the ambiguity named in the verdict JSON. B-T6c was
+registered `REPORTED, NEVER GATED` and stays so; **the A1.3 ceiling of 20,000 core-min is
+not this team's to move and this rung pre-registers no widening and grants none.**
+
+### A1.5 THE CAP IS SPLIT BETWEEN THE LEGS — A DERIVATION FROM THE REGISTERED CAP, NOT A NEW CAP
+
+The registered hard per-run cap is **210.485 core-min at 2 ranks = 6,314.55 wall s**. It is
+apportioned **in proportion to the registered step counts, 40 : 400**, so neither leg can
+eat the other's budget: **leg A `timeout` 574 s, leg B `timeout` 5,740 s**, and
+`(574 + 5,740) × 2 / 60 = 210.4667 core-min ≤ 210.485`. **`run_one_t25R6c.sh` asserts that
+inequality at pre-flight and REFUSES (exit 84) if it ever stops holding** — a cap nothing
+enforces is not a cap. **The cap's value is unchanged**; only its enforcement is stated.
+
+### A1.6 ⚡ PREDICTION P-C1 — THE FROZEN POINT DENOMINATOR IS PRICED OFF THE WRONG ARM, AND THAT IS RECORDED AS A PREDICTION RATHER THAN REPAIRED
+
+Under Sanaa's 2026-09-03 ~21:00Z rule — *"A pre-registration mismatch never prevents a
+launch. It's recorded as a prediction, the run launches under the monitor, and the outcome
+is compared to the prediction on the certificate"* — this mismatch is **registered, not
+fixed**, because fixing it would move a frozen cost figure.
+
+**The mismatch:** §6's POINT denominator `48.136 = 440 × r_M` uses `r_M = 0.1094`
+core-min/step, measured on **`B0_L1`** — the **GAMG baseline**. The case this rung actually
+runs is **`C4_L1`**, the PCG arm, which T25R5 measured **13.56× faster at L2**. `C4_L1`'s
+own leg A is on disk and took **13.57 ExecutionTime s over 40 steps**.
+
+> **P-C1, A POINT ESTIMATE WITH A STATED BASIS, NEVER AN INEQUALITY (L-463):** at `ρ = 1`,
+> the actual will be **`440 × (13.57 s / 40) × 2 / 60 = 4.976 core-min`**, i.e. a
+> predicted-vs-actual ratio of **`4.976 / 48.136 = 0.1034`**. **Attribution: MISPREDICTION
+> of the arm — not contention and not waste**, which stay separately named
+> (`COMPUTE_BUDGET_CHARTER` §6). The grader scores P-C1 `WINS` inside ±50 % of that ratio
+> and `LOSES` outside it, and the rule-12 calibration row is owed to
+> `docs/COST_CALIBRATION.md` at completion.
+
+**The CAP is untouched and remains priced at the falsifier**, which is the point of §6: the
+cap must never censor `ρ ≥ 1`. Being ~10× conservative on the estimate is the **safe**
+direction and it is disclosed here rather than discovered in the calibration ledger.
+
+### A1.7 THE STANDING RULES THIS RUNG RUNS UNDER, RESTATED SO THE GRADER'S REFUSALS ARE READABLE
+
+- **Rule 4, strict completion, ALL conjuncts, BOTH legs:** `rc = 0` for each leg from a
+  file written **inside** the runner immediately after each `mpirun`; an `End` line;
+  **last time == `endTime`** (0.8 for leg A, 40.8 for leg B); the eight fields present in
+  every `processor*` directory at `t = 40.8`; `ExecutionTime` count == the registered step
+  count (40 and 400 — a **step-count** identity, never a time-value identity); and the
+  **AGE GUARD against `0/module/T`**, whose **existence is checked before it is used as a
+  datum** (§4). **The comparator REFUSES (exit 2) rather than degrades.**
+- **Rule 5, Roache:** **NOT INVOKED, and that is a registered decision.** There is no grid
+  family and no functional at convergence here — this is a wall-cost measurement inside one
+  transient at one mesh. **No observed order and no GCI is computed, quoted or derivable.**
+  A successor reading a grid-convergence claim off these numbers gets `NOT A RESULT`.
+- **Verdict vocabulary (rule 1):** `PASS` (`ρ < 1.0`, plateau held), `GATE FAIL`
+  (`ρ ≥ 1.0`, plateau held), `NOT A RESULT` (plateau failed, or rule 4 incomplete),
+  refusal (exit 2) on a failed planted-zero control — **which issues no verdict at all.**
+
+### A1.8 QUEUE STATE
+
+The queue entry is filed at **`verification/queue/heat-transfer/T25R6c.json`**, naming
+`prereg_commit` = the commit that carries **this amendment**, `grading_freeze` = the
+grader above, `cwd` = the staged case, `ranks` 2, `cost_core_min_estimate` 48.136 (the
+frozen denominator, not a flattering one), `cap_core_min_registered` 210.485.
+**ENQUEUEING IS NOT AUTHORISATION** and this lane launches nothing: the daemon launches.
+Nothing is sent anywhere (rule 7).
+
+---
+
+*Amendment written 2026-09-03 by a heat-transfer `lab-lane`. Every sha in A1.1 was computed
+from the disk bytes by this lane in the same shell invocation that wrote them here; the
+tautology in A1.3 was derived on paper and then demonstrated in the grader's selftest; the
+13.57 s in A1.6 was read from `T25R5_LINSOLVER_runs/C4_L1/log.solve.legA`. No solver has
+run for this rung.*
