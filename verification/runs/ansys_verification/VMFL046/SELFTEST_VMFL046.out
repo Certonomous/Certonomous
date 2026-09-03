@@ -1,0 +1,21 @@
+REFUSE (exit 2): centreline row has 6 cols, expected 5 (x T Ux Uy Uz): '0.9 nan garbage row here now' in /tmp/vmfl046_selftest_kml_lsy1/bad.xy
+REFUSE (exit 2): no 'End' line in /tmp/vmfl046_selftest_kml_lsy1/4a-noEnd/log.rhoSimpleFoam (rule 4)
+REFUSE (exit 2): field p missing at latest time 100 (rule 4)
+REFUSE (exit 2): age guard (rule 4): U at 100 is NOT newer than the case's own 0/T
+REFUSE (exit 2): solver rc=1 (not 0) in /tmp/vmfl046_selftest_kml_lsy1/4d-rc (rule 4)
+REFUSE (exit 2): last time 100 != endTime 200 (rule 4): run stopped early / did not reach endTime
+SELFTEST 0 analytical profile: maxM=2.197 shock_x=1.250 (built a-priori)
+SELFTEST 1a centreline plant: PASS ({'reader': 'centreline', 'plant_ux': 15.0, 'M_base': 1.4401389974026997, 'M_seen': 1.4833431673247806, 'passed': True})
+SELFTEST 1b T-field plant: PASS ({'reader': 'T_field', 'plant': 25.0, 'readback_error': 0.0, 'passed': True})
+SELFTEST 2 known-bad: PASS -- refused (exit 2)
+SELFTEST 3a converging: state=CONVERGING p=1.322
+SELFTEST 3b oscillatory: state=OSCILLATORY
+SELFTEST 4good: PASS -- clean level accepted
+SELFTEST 4a-noEnd: PASS -- refused (exit 2)
+SELFTEST 4b-missingField: PASS -- refused (exit 2)
+SELFTEST 4c-ageGuard: PASS -- refused (exit 2)
+SELFTEST 4d-rc: PASS -- refused (exit 2)
+SELFTEST 4e-endTimeMismatch: PASS -- refused (exit 2)
+SELFTEST 5a plateau (identical samples): converged=True (expect True)
+SELFTEST 5b plateau (|dM|=0.0864 > 0.000425): converged=False (expect False)
+SELFTEST: ALL PASS

@@ -1,0 +1,3 @@
+M(x=0.90): L1=1.7387 L2=1.7818 L3=1.8120 (plateau |dM| 0/8.7e-11/4.3e-10 < 0.00042) analytical=1.8821 fine-dev=3.72%
+triple: state=CONVERGING R=0.702 p=0.510 GCI=4.91% | shock L3 x=1.153 vs analytical 1.250 (7.79%)
+VERDICT: GATE FAIL -- primary(shock<=5%)=False [p in[0.5,2.5]=True, GCI<=15%=True, Mdev<=10%=True]. Secondaries are DEMOTE-ONLY and contaminated-loose: a secondary that does NOT fire is NOT evidence of quality (§21.3). Model-form difference budgeted, §12.2 SAME (v1.18).

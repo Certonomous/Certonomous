@@ -1,0 +1,12 @@
+L1  x_shock=1.257629  M(0.9)=1.738725  peak_M=2.000851  n=400
+L2  x_shock=1.192596  M(0.9)=1.781806  peak_M=2.039722  n=400
+L3  x_shock=1.152576  M(0.9)=1.812050  peak_M=2.069958  n=400
+analytical: x_shock=1.250000  peak_M=2.197198
+  L1 x_shock dev = +0.6103 %
+  L2 x_shock dev = -4.5923 %
+  L3 x_shock dev = -7.7939 %
+ROACHE x_shock: state=CONVERGING R=0.615385 p=0.700440 richardson=1.088544
+  richardson dev vs analytical = -12.9165 %   -> |dev|/0.63% (charter v1.19 §24.1 bound) = 20.50x
+ROACHE peak_M: state=CONVERGING R=0.777853 p=0.362431 richardson=2.175831
+  richardson vs MANUAL printed max Mach 2.2 (p.155) = -1.0986 %
+  our analytical peak 2.197198 vs MANUAL 2.2 = -0.1274 %
