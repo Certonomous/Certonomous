@@ -1,0 +1,83 @@
+{
+  "team": "heat-transfer",
+  "case_id": "T25R6a",
+  "prereg_commit": "2b9bd20b456f97d778044ad0feef5544c6ae12b9",
+  "prereg_path": "docs/campaigns/T-family/T25R6a_PREREGISTRATION.md",
+  "prereg_amendment_commit": "5d17ec0361f9d1e7db9f39a013134a59d181ce67",
+  "prereg_amendment_note": "prereg_commit names THE FREEZE -- the commit at which the gate G-T6a, its 20,000 core-min threshold, the per-run caps, the labels and the predictions P-1..P-5 were fixed, before any case directory existed. Amendment A1 at 5d17ec03 ALTERS NO GATE, NO THRESHOLD, NO CAP AND NO LABEL; it records the supervisor's two non-delegable checks, accepts the section 8.2 cap-setting decision on the record, and pins the framing of the section 2 arithmetic self-check. Both shas are named because a reader who fetches only prereg_commit gets v1.0 and would not see A1.",
+  "launch_cmd": [
+    "/bin/bash",
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T25R6a_C5_OUTER_runs/run_seq_t25R6a.sh"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/T-family/T25R6a_C5_OUTER_runs",
+  "ranks": 2,
+  "grading_paths": [
+    "verification/runs/T-family/T25R6a_C5_OUTER_runs/grade_t25R6a.py"
+  ],
+  "cost_core_min_estimate": 40.111,
+  "cap_core_min_registered": 230,
+  "cap_core_min_registered_note": "TRANSCRIBED FROM THE REGISTRATION, NOT REGISTERED HERE. NO VALUE MOVES. THE REGISTRATION IS AUTHORITATIVE: if this field and the cited source disagree, the source wins and this field is the thing that is wrong. Source: T25R6a_PREREGISTRATION.md section 8.2, frozen at 2b9bd20b -- rung ceiling 230 core-min, covering four per-run caps totalling 224.40 plus 1.333 of staging allowance.",
+  "cap_core_min_per_run": {
+    "B0_L1": 13.2,
+    "C5_L1": 13.2,
+    "B0_L3": 99.0,
+    "C5_L3": 99.0,
+    "sum": 224.4,
+    "basis": "Sanaa 2026-09-03 18:00Z item 2: a hard per-run cap set BY THE TEAM at ~3x its own estimate. Arithmetic shown in prereg section 8.2: B0_L1 estimate 4.376 core-min x3 = 13.128 -> cap 13.20; B0_L3 estimate 32.980 x3 = 98.939 -> cap 99.00.",
+    "which_estimate_the_3x_multiplies": "For the two C5 runs the x3 multiplies the NO-SPEED-UP estimate (the measured baseline cost at that level), NOT C5's extrapolated estimate. DISCLOSED, NOT BURIED, and ACCEPTED BY THE SUPERVISOR ON THE RECORD at prereg Amendment A1.2: a cap set at 3x an estimate that already assumes the hypothesis is TRUE would guarantee a censored run precisely when the hypothesis is FALSE -- the one outcome this rung exists to detect, and exactly how T25R5 lost C2 and C3. Sanaa's law fixes the cap to the team's own estimate and does not say WHICH estimate. BOTH estimates are registered in advance (prereg 8.1 and 8.2), which is what makes this defensible rather than a choice made later."
+  },
+  "cap_enforcement": "THE LAUNCHER'S `timeout` WRAPPER IS THE ONLY THING THAT STOPS THIS RUN. scripts/queue_runner.py REPORTS a cap overrun and does NOT kill. The cap therefore binds only through the arithmetic timeout_s = cap_core_min * 60 / ranks, and run_one_t25R6a.sh REFUSES at pre-flight if the registered timeout_s does not equal that product (13.20*60/2 = 396 s at L1, exit 84), REFUSES a --timeout not equal to the registered timeout_s (exit 83), and REFUSES --ranks != 2 (exit 82). A cap nothing enforces is not a cap.",
+  "cost_basis": "POINT 40.111 core-min = B0_L1 4.376 + C5_L1 0.323 + B0_L3 32.980 + C5_L3 2.433, at 2 ranks, wall_s x ranks / 60. The two B0 figures are MEASURED -- T25R5's own B0_L1 131.28 s and B0_L3 989.39 s over the identical 40-step window, verification/runs/T-family/T25R5_LINSOLVER_runs/P3_SCORE.json rows.*.exec_s. The two C5 figures are EXTRAPOLATED from C5's L2 ratio 38.07/516.15 and are LABELLED AS SUCH AT EVERY APPEARANCE, because they are the very quantity this rung exists to measure and will be too small if predictions P-1/P-2 go against the lane. USD: 40.111 core-min = 0.6685 core-h ~ $0.0343 DERIVED, NOT MEASURED, at the owner-stated $0.0513/core-h; cap 230 core-min ~ $0.1966 DERIVED. cost_basis REPORTED-BY-OWNER -- this box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). The predicted-vs-actual denominator is FIXED IN ADVANCE at 40.111 (prereg 8.5) so a successor cannot pick a flattering one later.",
+  "not_funded_by_the_envelope": "Sanaa's 2026-09-03 18:00Z $1,000 standing envelope covers THE BENCHMARK LADDER, Rungs 0-3, which is cfd's territory. T25 IS NOT INSIDE IT. This rung is not charged against that envelope and does not cite it; it runs under the standing 2026-08-21 blanket plus its own registered 230 core-min cap. Citing a ladder-specific envelope as lab-wide funding would be permission laundering of the kind CLAUDE.md rule 9 names.",
+  "two_ceilings_are_different_instruments": "The 230 core-min cap here is a GUARD this team set on this run. The 20,000 core-min T25 ladder ceiling is an OUTCOME CONDITION Sanaa set on the ladder, reaffirmed 2026-09-03 16:00Z with no widening on an optimistic reading. They are never added together and the first is never licence against the second. Checked and reported: 230 is 1.15 % of 20,000, so the hazard does not arise here.",
+  "memory_floor_gb": 4.0,
+  "memory_basis": "ESTIMATED, NOT MEASURED. No memory record exists for T25R5's byte-identical B0_L1/B0_L3 runs, so this is a floor chosen with margin rather than a reading. Basis for the margin: the largest case here is the L3 coolant/module pair at the T25R4 P3 mesh, decomposed over 2 ranks, and the whole four-case sequence ran inside this box's envelope during T25R5 stage 2 without incident. MemAvailable at filing was 27 GB.",
+  "enqueued_by": "heat-transfer lab-lane, ON THE SUPERVISOR'S EXPLICIT INSTRUCTION of 2026-09-03. SUPERVISION_CHARTER section 3 CHECK 4 (pre-registration COMMITTED before compute) WAS NOT PERFORMED BY THIS LANE and is not delegable to it: the supervisor discharged it personally against freeze commit 2b9bd20b, verifying AT SOURCE that both the registration and grade_t25R6a.py are status A (added) in that single commit, timestamped 2026-09-03T16:28:09Z, before any case directory existed. CHECK 1 (measurement script read as code) was likewise the supervisor's, on grade_t25R6a.py. ENQUEUEING IS NOT AUTHORISATION.",
+  "_one_entry_not_four_and_why": "THIS RUNG IS A TIMING MEASUREMENT. G-T6a is computed from ExecutionTime RATIOS, so two cases running concurrently would contaminate the exact quantity being measured. Prereg section 10 step 4 registers the runs as sequential on T25R5 Addendum D1.3's protocol -- a protocol T25R5's own contention episode proved necessary. Four independent queue entries could be picked up on the same tick, so the sequence is enforced inside run_seq_t25R6a.sh, in ONE process, rather than hoped for from the scheduler. Registered order: B0_L1, C5_L1, B0_L3, C5_L3, baselines first at each level so a missing baseline is found before its arm spends anything.",
+  "_age_guard_scope_disclosed": "Because this entry drives four cases, `cwd` is the RUN directory and not a case directory, so the validator's AGE-GUARD clause inspects the run directory rather than each case. THAT IS A WEAKER READING THAN USUAL AND IS STATED RATHER THAN LEFT TO BE DISCOVERED. The real per-case guard is in the launcher: run_one_t25R6a.sh REFUSES (exit 92) if the case holds `0/` and REFUSES (exit 93) if it holds any numeric time directory, and it creates `0/` itself and touches `0/module/T` LAST so that file dates the run allowed to produce the answer. Verified on disk at filing: each of B0_L1, C5_L1, B0_L3, C5_L3 contains exactly `0.orig`, `constant` and `system` -- no `0/`, no time directory, no processor*.",
+  "_verified_on_disk_by_this_lane": {
+    "cases_staged": [
+      "B0_L1",
+      "C5_L1",
+      "B0_L3",
+      "C5_L3"
+    ],
+    "case_contents": "0.orig, constant, system only -- for all four",
+    "e6_dictionary_check": "full E6 rc=0 on all four, via the FROZEN verify_arm_t25R5.py (git blob 3a0945445d10762f6b549e729c704ac93df68f4e), which run_one_t25R6a.sh re-verifies by blob at launch and refuses on mismatch",
+    "mesh_pairing": "coolant polyMesh/faces md5: B0_L1 == C5_L1 (8cc593a212f5), B0_L3 == C5_L3 (6c273ffe6a70), and L1 != L3. Every wall factor therefore compares SAME-MESH arms. This is checked rather than assumed because T25R5 Addendum D3.3 disclosed a comparator that hardcoded _L2 and would have compared two different meshes -- it did no damage only because it refused on differing cell counts.",
+    "arms_on_disk": "B0 p_rgh solver GAMG (the baseline); C5 solver PCG, preconditioner DIC (no multigrid) -- the registered arms, installed from T25R5's own arms/fvSolution.coolant.{B0,C5}, unchanged, which is what makes this rung's factors comparable to C4's to the digit",
+    "controlDict": "endTime 0.8, deltaT 0.02 (= 40 registered steps), adjustTimeStep no, writeControl timeStep, writeInterval 40 -- asserted by the stager on every case",
+    "grader_pinned": "grade_t25R6a.py hashes 8540ecf5aad6bf7d0c2c90c81ce2405fa85c1bf4 both at freeze 2b9bd20b and on disk",
+    "hash_function_named": "git blob sha1 (sha1 over b'blob <len>\\0' + bytes), NOT sha256 of the file. The two can never agree and comparing them is meaningless."
+  },
+  "_completion_and_freeze_markers": "run_seq_t25R6a.sh calls mark_done_t25R6a.py, which applies rule 4 IMPORTED FROM THE FROZEN GRADER (one definition of completion in this rung) and writes DONE.<CASE> carrying a `finished_utc=` line from the run's own stamp. This is deliberate: scripts/check_comparator_freeze.py dates a comparator's freeze against the earliest completion marker of the cases it grades, and T25R5_LINSOLVER_runs/ carries NO DONE.* marker at all, so all three of its graders sit in the unjudged NO-MARKERS state. mark_done is DEFAULT-DENY -- an incomplete case gets NO marker, because a marker saying done about a case that is not done would corrupt every freeze judgment later dated against it.",
+  "_cap_stop_is_a_bound_not_a_disqualification": "prereg section 7.3. An rc 124 yields a CENSORED wall factor with a known upper bound f < ExecutionTime(B0_level)/timeout_level; the grader computes Sigma CAP at that bound, returns GATE FAIL if the bound still breaches 20,000 (a bound that fails is a decision) and NOT A RESULT otherwise. A CENSORED RUN CAN NEVER PRODUCE A PASS. The sequential driver CONTINUES past a cap stop so the remaining levels are still measured, and STOPS on a launcher refusal (rc 80-96) because that means the case was never eligible. Note that Sanaa's ~3x cap law makes censoring almost impossible here: the smallest measurable wall factor is 131.28/396 = 0.3315 at L1 and 989.39/2970 = 0.3331 at L3, so a C5 three times SLOWER than the baseline is still MEASURED rather than disqualified. T25R5's x1.5 caps could not say that.",
+  "_what_this_entry_does_not_authorise": "NO LADDER LAUNCHES ON ANY OUTCOME OF THIS RUNG, a G-T6a PASS INCLUDED (prereg 5.1 carried forward in force, and 7.4). Sigma CAP is the ladder's x4 TIMEOUT ALLOWANCE under the assumption that the 40-step RAMP wall factor holds for the whole run; 40 steps is 0.34 % of the shortest ladder run and it is the ramp, not the soak. The assumption is UNMEASURED and this rung does not test it. On GATE FAIL the rung reports the measured number and STOPS; a widening request is a desk item for Sanaa and is decided by nobody in this lab. This registration pre-registers NO widening and grants none.",
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.T25R6a (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  },
+  "_launch": {
+    "utc": "2026-09-03T16:42:26Z",
+    "pid": 155484,
+    "sid": 155484,
+    "status_file": "/home/ubuntu/Certonomous/verification/runs/T-family/T25R6a_C5_OUTER_runs/STATUS.queue.T25R6a",
+    "wrapper_out": "/home/ubuntu/Certonomous/verification/runs/T-family/T25R6a_C5_OUTER_runs/launcher.queue.out",
+    "started_epoch": 1788453746.5775223
+  }
+}
