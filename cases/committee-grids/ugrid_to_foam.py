@@ -39,7 +39,7 @@ class ConverterRefusal(Exception):
     of this file's eight guards was one -- so `-O` removed the entire guard set. The
     byte-budget check was doubly conditional (inside `if fortran:` AND an assert), and
     `nbnd == ndecl`, the ONLY structural check a raw C stream received, was an assert
-    too: under `-O` a `.b8` grid converted with NO VALIDATION WHATSOEVER. See L-470.
+    too: under `-O` a `.b8` grid converted with NO VALIDATION WHATSOEVER. See L-475.
     """
 
 
@@ -349,7 +349,7 @@ def main():
     nbnd = sum(len(x) for x in bnd_own)
     if nbnd != ndecl:
         raise ConverterRefusal(
-            f"boundary face count mismatch: computed {nbnd}, declared {ndecl}. THIS IS THE ONLY STRUCTURAL CHECK A RAW C STREAM RECEIVES and it was an assert until 2026-09-03 (L-470)")
+            f"boundary face count mismatch: computed {nbnd}, declared {ndecl}. THIS IS THE ONLY STRUCTURAL CHECK A RAW C STREAM RECEIVES and it was an assert until 2026-09-03 (L-475)")
     print(f"[{time.time()-t0:6.1f}s] boundary faces validated against file: {nbnd}", flush=True)
 
     # ---- assemble ----

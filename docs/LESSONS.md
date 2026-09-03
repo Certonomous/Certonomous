@@ -23238,3 +23238,78 @@ the launcher was unversioned, and it was invisible until someone went looking fo
 not in the registration. No gate, threshold, cap or label moved, and the registration check
 rule 2 names held throughout. Recorded in each run root as `CODE_OF_RECORD.txt` so a grader
 arriving cold cannot reach for the current file by accident.
+
+---
+
+## L-475 — A GUARD SET THAT IS ENTIRELY `assert`-BASED IS ONE INTERPRETER FLAG FROM ABSENT, AND THE FILE THAT LOSES THE MOST IS THE ONE WHOSE ONLY STRUCTURAL CHECK IS AN ASSERT
+
+**Measured 2026-09-03, cfd, on `cases/committee-grids/ugrid_to_foam.py` — the converter
+that imported every committee grid this lab holds. `L-332` already says an `assert` is not
+a refusal. THIS IS ITS SHARPEST SPECIMEN AND THE GENERAL LIMB IS NEW: the question is not
+whether a file contains an assert, but WHAT FRACTION OF ITS GUARD SET IS ASSERTS AND WHAT
+IS LEFT WHEN THEY ALL GO.**
+
+### The fact
+
+The converter carried **eight** guards. **All eight were bare `assert` statements** —
+`:81`, `:85`, `:97`, `:99`, `:204`, `:251`, `:292`, `:296`. `python3 -O` deletes every one,
+so the guard set does not degrade under that flag: **it vanishes entirely.**
+
+**And the loss is not uniform across inputs, which is the part worth keeping.** Two of the
+eight (`:81`, `:85`, `:97`) sit inside `if fortran:`, so a **raw C stream never reached
+them even under plain `python3`**. That leaves `:296` — `assert nbnd == ndecl`, the
+boundary-face-count identity — as the **only structural check a `.b8`/`.lb8` file ever
+received. It was an assert too.
+
+> **CONSEQUENCE, MEASURED AND NOT INFERRED: under `python3 -O` a raw-C-stream UGRID
+> converted with NO VALIDATION WHATSOEVER.**
+
+### The measurement that makes it citable rather than assertable
+
+`cases/committee-grids/control_assert_guards_under_O.py` runs the old and repaired
+converters against one specimen — a valid 204-byte `.b8` UGRID with **8 trailing bytes** —
+under both interpreter modes:
+
+| converter | mode | rc | mesh written | |
+|---|---|---|---|---|
+| old (`ace20cb1`) | `python3` | 1 | no | guard fired |
+| old (`ace20cb1`) | `python3 -O` | **0** | **YES** | ***guard absent — a mesh written from a file already shown malformed*** |
+| repaired | `python3` | 1 | no | guard fired |
+| repaired | `python3 -O` | 1 | no | guard still fires |
+
+**It does not merely lose a warning. It produces a complete, plausible OpenFOAM mesh and
+exits 0, and nothing downstream can tell.**
+
+**THE FIRST VERSION OF THIS CONTROL DID NOT DISCRIMINATE** — both forms exited 1 on a
+*truncated* file, because that fails in the layout sniffer before any assert is reached.
+Under `L-467` a control that cannot fire certifies nothing, so it was rebuilt against the
+trailing-bytes guard until the four cells separated. **Recorded because the useless
+version looked exactly as convincing as the useful one.**
+
+### The rule
+
+> **COUNT A FILE'S GUARDS AND COUNT HOW MANY ARE `assert`. IF THE ANSWER IS "ALL OF THEM",
+> THE FILE HAS NO GUARDS UNDER `-O`. AND ASK WHICH GUARDS A GIVEN INPUT CLASS ACTUALLY
+> REACHES — a guard behind a branch that class never takes was never protecting it, and an
+> input class down to ONE assert is one flag from unprotected.**
+
+Corollary for reviewers: `grep -c assert` is a **coverage** question, not a style question.
+Where the count equals the guard count, the file's entire safety story is optional.
+
+### What was done
+
+All three defective copies repaired identically in one operation (`463de30e`): the eight
+asserts became explicit `raise ConverterRefusal`, and the byte-order defect became a
+**total-byte-budget identity that refuses** on zero matches and on more than one, rather
+than a new accept path. **The repaired converter reproduces the graded mesh byte-identically
+on all five `polyMesh` files**, so the repair changed guards and not output.
+
+**`RUNG0b`'s `PASS` is untouched and was checked, not assumed:** `__debug__` true and
+`PYTHONOPTIMIZE` unset were verified **before** that run, and its driver carries no `-O`,
+so all eight guards were live for it.
+
+**Cited:** `cases/committee-grids/control_assert_guards_under_O.py` (the both-ways control),
+`cases/committee-grids/CONVERTER_REPAIR_RECORD.json` (what is repaired and what is **not**
+closed — two content classes remain and two copies still carry bare asserts),
+`verification/runs/RUNG1_M6_runs/M1_ugrid_reimport/CONVERTER_COPY_MANIFEST.json`
+(`b78e8858`, five copies), and `L-332`, which this extends rather than replaces.

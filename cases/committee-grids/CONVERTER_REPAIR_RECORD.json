@@ -63,6 +63,7 @@
       "sha256": "670db2cb5a4c9001c47991fd3c619b4330d39b0844234be591317133f57f9072"
     }
   },
+  "lesson": "L-475 -- a guard set that is entirely assert-based is one interpreter flag from absent. NOTE: commit 463de30e cites 'L-470' in three source files; that was a NUMBER THIS LANE GUESSED BEFORE DERIVING IT, which rule 11 forbids. The tail moved 469 -> 474 under peer lanes between the two commits and the real number is L-475. Corrected in the same commit that lands the lesson, so no citation dangles.",
   "pre_repair_blob": "e2ce16902f09925b22cdcfe1... (17,590 B), pinned by RUNG0b section 9 at ace20cb1",
   "regression": "The repaired converter reproduces the graded mesh EXACTLY: all five polyMesh files (points, faces, owner, neighbour, boundary) byte-identical to verification/runs/RUNG0b_MESH_IMPORT_runs/DPW5_L1T_hex/constant/polyMesh/. The repair changed guards and layout resolution, not output.",
   "repaired_to": "40be1ff72f95ae4d562a57dd6e1e3459e04e76f6f7f3b93cede5b61a202f6609"

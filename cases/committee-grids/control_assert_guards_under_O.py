@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""control_assert_guards_under_O.py -- THE MEASUREMENT THAT MAKES L-470 CITABLE.
+"""control_assert_guards_under_O.py -- THE MEASUREMENT THAT MAKES L-475 CITABLE.
 
 It is easy to *assert* that `python3 -O` deletes asserts. This runs the old and the
 repaired `ugrid_to_foam.py` against the same malformed UGRID under both interpreter
@@ -44,7 +44,7 @@ HERE = Path(__file__).resolve().parent
 
 
 class Refusal(Exception):
-    """Never an `assert` -- this file of all files (L-332, L-470)."""
+    """Never an `assert` -- this file of all files (L-332, L-475)."""
 
 
 def write_specimen(d: Path):
