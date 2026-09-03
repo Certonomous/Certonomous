@@ -441,3 +441,106 @@ reader whose plant did not fire is `NOT A RESULT`, not a pass.**
 8. **It claims no rented-instance dollar figure and proposes no instance change** — that is
    reserved to Sanaa.
 9. **Nothing is sent, filed, submitted or registered outside this box (rule 7).**
+
+---
+
+## ADDENDUM 1 — 2026-09-03, POST-COMPUTE. `v1.1`
+
+**lines whose number changed above this section: 0**
+
+**This addendum alters NO gate, NO threshold, NO cap and NO label.** It is appended at the
+foot under rule 2's permitted post-first-compute form and rule 6's mechanics. Everything
+above is untouched; the gates frozen at `3126345f` stand exactly as committed.
+
+### A1.1 🔴 THE REGISTRATION WAS SILENT ON THREE BUILD PARAMETERS, AND THIS LANE CHOSE THEM **AFTER** THE FREEZE
+
+**Stated plainly, because a smoothed version implying prior registration would be worse
+than no addendum at all.** `3126345f` fixes the three cell counts — 8,970 / 71,760 /
+574,080 — and says **nothing** about:
+
+1. the near-wall spacing `s0` at any level,
+2. `marchDist` per level (§5's P6 registers only "≥ 50"),
+3. which surface file feeds which level.
+
+**That is a drafting gap in this registration, made by the lane that wrote it.** It was
+found while building `S3`, i.e. **after the freeze**, and the choices below were therefore
+made **post-freeze, on 2026-09-03, by the cfd lane, with the cfd supervisor's endorsement.**
+They were **not** registered in advance and this addendum does not pretend otherwise.
+
+| parameter | L3 | L2 | L1 | why |
+|---|---|---|---|---|
+| surface faces | **390** | **1,560** | **6,240** | `r = 2` in each surface direction. Measured, not inferred from file size: existing volume meshes on these same surfaces divide exactly by their 64 layers — 24,960/64 = 390.0, 99,840/64 = 1,560.0, 399,360/64 = 6,240.0 |
+| surface file | `A3-onera-m6-adjoint-vcoarse/surfaceMesh.cgns` | `A3-onera-m6-adjoint-coarse/surfaceMesh.cgns` | `A3-onera-m6-adjoint-coarse/m6_surfaceMesh_fine.cgns` | all under `/home/ubuntu/certonomous-runs/`, read-only |
+| pyHyp `N` | **24** | **47** | **93** | 23 / 46 / 92 cell layers, `r = 2` |
+| **`s0`** | **4.0e-04** | **2.0e-04** | **1.0e-04** | **halves with `r`** — see A1.2 |
+| **`marchDist`** | **50.0** | **50.0** | **50.0** | **uniform** — see A1.2 |
+
+`390 × 23 = 8,970`, `1,560 × 46 = 71,760`, `6,240 × 92 = 574,080` — the registered counts
+exactly.
+
+### A1.2 THE REASONING, WHICH IS THE ONLY THING THAT MAKES A POST-FREEZE CHOICE ACCEPTABLE
+
+**`s0` HALVES because a Roache triple is meaningless otherwise.** The triple measures the
+**observed order of a discretisation**, and that is only meaningful if **every length scale
+refines together at the same ratio**. Hold `s0` fixed while the cell count rises 8×: the
+near-wall spacing does not refine at all, the near-wall discretisation error does not shrink
+with `r`, and the extracted order is contaminated by a term that is not converging.
+`MESH_STANDARD.md` §9.2's similarity clause exists to prevent exactly that. Halving `s0` at
+`r = 2` makes it refine at the same rate as the linear dimension, which **is** the
+definition of a similar family.
+
+**`marchDist` is UNIFORM for the opposite reason: it is a DOMAIN EXTENT, not a resolution.**
+Domain size must be **identical** across levels or the three meshes are solving **three
+different problems**. A far-field boundary that moves with refinement changes the physics,
+not the discretisation. 50.0 satisfies P6's "≥ 50" on every level.
+
+**CONSEQUENCE, REGISTERED AS A PREDICTION AND NOT A DEFECT: this is a WALL-FUNCTION family
+and `y⁺` will be in the TENS, not of order 1.** §3 already registers
+`nutUSpaldingWallFunction` precisely because it is continuous across the whole `y⁺` range,
+so the discrete operator cannot change part-way along the triple. **This is the trade this
+route was chosen to make** — the ~61.5° wall-function family was preferred over the
+wall-resolved 88.889° one exactly to buy mesh admissibility with `y⁺`. **A `y⁺` in the tens
+is the trade working, not the trade failing.**
+
+### A1.3 🔴 THE L3 CONSEQUENCE, REGISTERED **BEFORE** `checkMesh` ANSWERS
+
+**Written now, while the answer is unknown, so that it cannot later read as an excuse
+constructed after a bad result.**
+
+§5's P2 already names the near-61.5° expectation as "the prediction most likely to be
+wrong". The sharpest reason is L3's surface: **the only volume mesh ever built on the
+390-face surface — `A3-onera-m6-adjoint-vcoarse` — measured 135.318° max non-orthogonality
+and skewness 55.378. Broken.** That build used `N = 65` and stock `s0`, against L3's
+`N = 24` and `s0 = 4.0e-04`, so it is **not** the same build — but it **is** the same
+surface, and this registration does not pretend that difference is reassurance.
+
+> **IF L3 IS INADMISSIBLE, THE GRID-CONVERGENCE GATE (Gate G) IS `NOT A RESULT` UNDER
+> RULE 5. IT IS NOT A `GATE FAIL`, AND IT IS NOT A `PASS` ON TWO LEVELS.**
+> A Roache triple requires three levels. Two levels yield no observed order, no GCI, and
+> therefore no band — and Gate P's band is the deliverable. Rule 5's single permitted
+> direction (a gate may turn a `PASS` or `GATE FAIL` **into** `NOT A RESULT`, never the
+> reverse) covers this, but a reader arriving cold should not have to derive it.
+>
+> **A two-level result is not a smaller result. It is no result.**
+
+`S3` builds **coarse-first** for this reason: L3 is the cheapest **and** the riskiest, so
+the ladder learns early and spends nothing discovering it.
+
+### A1.4 COST — `S3` ATTEMPT 1 FAILED AND ITS SPEND IS NAMED AS WASTE
+
+Attempt 1 (`verification/runs/RUNG1_M6_R2_runs.ATTEMPT1_PRESERVED_docker_rc127/`, moved
+aside and **not deleted**) invoked the pyHyp container as
+`bash -lc 'python3 genWingMesh.py'` with the volume at `/w` and no user flag, and returned
+**`rc=127`, `python3: command not found`, on all three levels**: the image ships DAFoam's
+interpreter as `python` behind an environment script that must be sourced first. The
+working recipe is `cases/RUNG1_M6/run_r1m0.sh:190-192` — `-u 1002:1002`, mount at
+`/home/dafoamuser/mount`, `source loadDAFoam.sh` before `python` — and is now copied in
+shape rather than reinvented.
+
+**Attempt 1 spend: 0.9802 core-min, ALL OF IT WASTE, named separately and never absorbed
+into the actual/predicted ratio** (`COMPUTE_BUDGET_CHARTER.md` §6). No level was built;
+`levels_built: []`, and its family proof correctly reads **`NOT A RESULT` — "an unbuilt
+level is NOT A RESULT, never an absent difference."**
+
+**This waste is charged against `S3`'s registered 6.0 core-min cap, not excused from it.**
+An overrun stops the run; it does not get a new budget (rule 12).
