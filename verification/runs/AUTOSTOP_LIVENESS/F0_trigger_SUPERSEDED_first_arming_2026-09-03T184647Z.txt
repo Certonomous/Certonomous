@@ -1,0 +1,12 @@
+F0 WINDOW TRIGGER armed 2026-09-03T184647Z
+  waiting for: NO process whose basename(/proc/PID/exe) is in the REAL SOLVERS list
+  solver list read from /home/ubuntu/Certonomous/scripts/auto_stop_patched.sh (22 names)
+  poll 60s, deadline 28800s, 3 consecutive quiet polls required
+  target: the REAL UNMODIFIED /home/ubuntu/Certonomous/scripts/auto_stop_patched.sh (never the SOLVERS-emptied isolation variant)
+
+SUPERSEDED, AND THIS NOTE IS THE POINT: this artifact was written by the FIRST arming
+of the trigger, before the script recorded its own death. This lane stopped that process
+at 18:50Z to update the script. The file simply STOPS -- which is exactly the ambiguous
+artifact docs/FAIL_OPEN_GATE_AUDIT.md section 28 warns about, and it is annotated here
+rather than deleted so the ambiguity is visible instead of tidied away. NOT A RESULT.
+The live trigger is the newest F0_window_trigger_*.txt in this directory.

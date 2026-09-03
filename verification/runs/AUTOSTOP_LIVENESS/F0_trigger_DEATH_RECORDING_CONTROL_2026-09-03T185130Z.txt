@@ -1,0 +1,7 @@
+
+NOT A RESULT -- THE TRIGGER EXITED AT 2026-09-03T185130Z WITHOUT REACHING A VERDICT.
+  It was killed, or the box went down, before the window opened. F0 REMAINS
+  PENDING. This line exists so that a dead trigger is READABLE AS DEAD: an
+  artifact that simply stopped growing is indistinguishable from one whose
+  check ran and found nothing, and that ambiguity is the defect section 28
+  names.

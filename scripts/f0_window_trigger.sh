@@ -43,13 +43,37 @@ DEADLINE_S=${DEADLINE_S:-28800}          # 8 h, then refuse rather than linger
 QUIET_CONFIRMATIONS=${QUIET_CONFIRMATIONS:-3}   # consecutive quiet polls before firing
 
 stamp() { date -u +%Y-%m-%dT%H%M%SZ; }
+
+# THE THREE STATES THIS ARTIFACT MUST DISTINGUISH, per docs/FAIL_OPEN_GATE_AUDIT.md
+# section 28: a reader who was not here must be able to tell
+#   RAN AND PASSED  /  RAN AND FAILED  /  NOT A RESULT (the window never opened)
+# apart FROM THE FILE ALONE. "F0 passed" and "the trigger never fired" must never look the
+# same, and this script's own exit status must never stand in for the evidence.
+VERDICT_REACHED=""
+on_exit() {
+    if [ -z "$VERDICT_REACHED" ]; then
+        { echo
+          echo "NOT A RESULT -- THE TRIGGER EXITED AT $(stamp) WITHOUT REACHING A VERDICT."
+          echo "  It was killed, or the box went down, before the window opened. F0 REMAINS"
+          echo "  PENDING. This line exists so that a dead trigger is READABLE AS DEAD: an"
+          echo "  artifact that simply stopped growing is indistinguishable from one whose"
+          echo "  check ran and found nothing, and that ambiguity is the defect section 28"
+          echo "  names."
+        } >> "$OUT" 2>/dev/null
+    fi
+}
 START=$(stamp)
 OUT="$OUTDIR/F0_window_trigger_${START}.txt"
+
+trap on_exit EXIT TERM INT HUP
 
 # One instance only. A second trigger would race the first for the same window and file
 # two artifacts describing one reading.
 exec 9>"$LOCK"
 if ! flock -n 9; then
+    # Not a death and not a result: another instance owns this window. Suppress the
+    # death note so a lock-loss does not manufacture a spurious NOT A RESULT artifact.
+    VERDICT_REACHED=1
     echo "another F0 trigger already holds $LOCK -- exiting without firing" >&2
     exit 0
 fi
@@ -61,7 +85,9 @@ fi
 SOLVERS=$(grep -m1 '^SOLVERS=' "$PATCH" | cut -d"'" -f2)
 if [ -z "$SOLVERS" ]; then
     { echo "REFUSED $(stamp): could not read SOLVERS from $PATCH"
-      echo "The condition cannot be established, so nothing is reported."; } > "$OUT"
+      echo "NOT A RESULT: the condition cannot even be established, so nothing is reported."
+      echo "F0 REMAINS PENDING."; } > "$OUT"
+    VERDICT_REACHED=1
     exit 1
 fi
 
@@ -90,21 +116,30 @@ live_solver() {
 
 t0=$(date +%s)
 quiet=0
+beats=0
 last_seen="(none yet)"
 while :; do
     now=$(date +%s)
     if [ $(( now - t0 )) -ge "$DEADLINE_S" ]; then
         { echo
-          echo "REFUSED $(stamp): deadline ${DEADLINE_S}s reached and the box was never quiet."
+          echo "NOT A RESULT, WINDOW NEVER OPENED -- $(stamp): deadline ${DEADLINE_S}s reached"
+          echo "  and the box was never quiet."
           echo "  last solver seen: $last_seen"
-          echo "  F0 REMAINS PENDING. A deadline reached is not a result, and no suite run is"
+          echo "  F0 REMAINS PENDING. A deadline reached is NOT A RESULT, and no suite run is"
           echo "  reported here, because a run taken against a contaminated box would test nothing."
         } >> "$OUT"
+        VERDICT_REACHED=1
         exit 2
     fi
     if found=$(live_solver); then
         quiet=0
         last_seen="$found at $(stamp)"
+        # HEARTBEAT. Without it, a trigger that is alive and correctly waiting looks
+        # identical to one that died five hours ago.
+        beats=$(( beats + 1 ))
+        if [ $(( beats % 10 )) -eq 1 ]; then
+            echo "  alive $(stamp), waiting: $found" >> "$OUT"
+        fi
     else
         quiet=$(( quiet + 1 ))
         echo "  quiet poll $quiet/$QUIET_CONFIRMATIONS at $(stamp)" >> "$OUT"
@@ -131,13 +166,14 @@ RC=$?
   echo "================================================================================"
   echo "SUITE RC = $RC   (captured inside this script, at $(stamp))"
   case "$RC" in
-    0) echo "VERDICT: every control behaved as pre-registered AND every pair was evaluated in"
+    0) echo "VERDICT: RAN AND PASSED. Every control behaved as pre-registered AND every pair"
+       echo "  was evaluated in"
        echo "  BOTH directions. F0 is WITNESSED. This converts the auto-stop patch's standing"
        echo "  verdict from GATE REACHED to a clean both-directions PASS on the real install"
        echo "  candidate. The grading of that upgrade is the supervisor's, not this script's." ;;
-    3) echo "VERDICT: NOT WITNESSED -- a solver started during the run, so a half was skipped."
+    3) echo "VERDICT: NOT A RESULT -- a solver started during the run, so a half was skipped."
        echo "  F0 REMAINS PENDING. Re-arm the trigger for the next window." ;;
-    1) echo "VERDICT: REFUSED -- a control landed off its pre-registered verdict, or an"
+    1) echo "VERDICT: RAN AND FAILED -- a control landed off its pre-registered verdict, or an"
        echo "  evaluated pair did not flip. This is a finding about the PATCH and must be"
        echo "  triaged, not re-run away." ;;
     124) echo "VERDICT: the suite timed out at 900 s. NOT A RESULT." ;;
@@ -145,4 +181,5 @@ RC=$?
   esac
   echo "Artifact complete."
 } >> "$OUT"
+VERDICT_REACHED=1
 exit "$RC"
