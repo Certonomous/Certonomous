@@ -5086,3 +5086,82 @@ Her directive, 2026-09-03 ~18:00Z, verbatim at `etc/sessions/2026-09-03T1800Z_sa
 | results re-graded | **0** |
 | solver compute | **0 core-min, $0.00** |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## Amendment — v1.44, 2026-09-03 — **§2s.9: I CORRECTED SANAA'S NUMBER AND THE CORRECTION WAS WRONG. BOTH FIGURES WERE RIGHT AT DIFFERENT MOMENTS — THE DENOMINATOR IS NOT A CONSTANT, IT GREW DURING THE TASK THAT MEASURED IT, AND HER STOP CONDITION THEREFORE RECEDES AS THE LAB WORKS. AND THE INSTRUMENT HER STEP (1) IS ABOUT CONTAINS A FAIL-OPEN THAT ANSWERS `FROZEN` WHEN IT COULD NOT CHECK.**
+
+**Lines whose number changed above this section: 0.** Nothing above is edited, reordered, inserted or deleted; `§2s.4` is **struck in one figure and stands in the rest**, corrected here per rule 6 rather than rewritten above. **Zero solver compute; 0 core-min; $0.00.** **No gate, threshold, band, cap or label is created, moved or retired; nothing is re-graded.**
+
+### §2s.9 — **THE CORRECTION RUNS AGAINST MY OWN TEXT, LANDED WITHIN THE HOUR**
+
+`§2s.4`, committed at `fb2d0d39` earlier today, said: *"The `145` this program was briefed on is wrong; the measured figure is `144`."* **That sentence is struck.** It was written from two of my own whole-repo runs, both honest, both reproducible — **and it drew the wrong conclusion from them.**
+
+**WHAT ACTUALLY HAPPENED `[MEASURED, four walks across one afternoon]`:**
+
+| walk | graders | `NO-MARKERS` |
+|---|---|---|
+| the stopped lane's, before this session | — | **145** |
+| mine, twice, mid-session | **189** | **144** |
+| the re-walk, minutes later | **190** | **145** |
+
+**One file explains every reading:** `verification/runs/T-family/T25R6a_C5_OUTER_runs/grade_t25R6a.py`, landed by another team's lane **between measurements**. **`145` was right when it was measured, `144` was right when I measured it, and `145` is right again now.** Nothing was miscounted by anybody.
+
+> **STRUCK: *"the briefed 145 is wrong."* IT WAS NOT WRONG. It was a correct reading of a population that has since grown, and I turned a moving quantity into somebody's error.** The measurements were fine; **the inference was mine and it was uncharitable in a direction I would have criticised in another team.**
+
+#### §2s.9.1 THE CONSEQUENCE IS LARGER THAN THE CORRECTION, AND IT CHANGES HER STOP CONDITION
+
+**The coverage denominator is not a constant.** It grew by one grader inside the span of a single task, and **every new grader enters the population at `NO-MARKERS`** — unjudged by construction, because a grader is written before its run has finished.
+
+> **RULED — `§2s.9.1`: A COVERAGE FIGURE IS MEANINGLESS WITHOUT THE COMMIT IT WAS WALKED AT.** The weekly report states its denominator as **"graders walked at commit `<sha>`"**, never as a fixed number. **A stop condition written as a bare count — *"until it reads 145/145"* — names a target that RECEDES as the lab works**, because normal productive work adds graders faster than freeze evidence accrues. **It was already stale when it was written**, through nobody's fault.
+>
+> **The honest stop condition is a RATIO AND A DIRECTION, not a count:** every grader walked at the reporting sha carries a judged freeze verdict. **Referred to Sanaa in that form**, with the arithmetic above, so she is ruling on a measurement rather than on a number that moved.
+
+**This is `§2q.1` firing on my own clause** — *a stop condition names in advance the mechanical consequences that do not count as drift.* A condition of the form *"until it reads N/N"* is falsified the moment the lab writes its next grader, **so it can be satisfied only by the lab not working.** `§2q.1` was written for exactly this shape and I did not apply it to the metric I was specifying.
+
+**The judged figure is unaffected and remains the honest reading: `40` judged.** `40 of 189` and `40 of 190` are the same finding.
+
+#### §2s.9.2 **⚠⚠ A FAIL-OPEN IN THE SHA COMPARISON HER STEP (1) IS ABOUT — `[VERIFIED BY ME AT SOURCE]`**
+
+`check_comparator_freeze.py:388-403`. `modified` is initialised **`None`** and assigned **only** when three conditions all hold: the `git log` call returned 0, a disk digest exists, and `git cat-file blob` succeeded. The verdict line is then:
+
+```
+row["commit_test"] = "MODIFIED_AFTER_COMMIT" if modified else "FROZEN"
+```
+
+**`None` is falsy.** So **a comparator whose worktree-versus-blob comparison COULD NOT BE PERFORMED is reported `FROZEN`** — the reassuring answer. **And the row carries no `worktree_differs_from_HEAD` key at all**, because that key is written only inside the successful branch: **from the row alone, "checked and clean" and "never checked" are indistinguishable.**
+
+**⚠ AND THE IRONY IS ON THE FOUR LINES DIRECTLY ABOVE IT, WHICH IS WHY THIS IS A CLASS AND NOT A TYPO.** The comment there explains the comparison is **`INDEX-INDEPENDENT ON PURPOSE`**, because this repository's shared index *"has been observed stale enough to report tracked files as deleted while they sit on disk."* **That reasoning is correct and the design it produced is right.** The care went into defeating one fail-open, and **the very next line folds the failure of that same subprocess into the reassuring verdict.** *A guard can be carefully reasoned in its mechanism and fail-open in its default, and the reasoning is what makes the default invisible.*
+
+**LATENCY RE-MEASURED, NOT INHERITED** `[MEASURED at today's population, not read off the prior audit]`: judged rows **40**; judged rows whose byte comparison never ran **0**; rows reading `FROZEN` on an uncomputed comparison **0**; comparators whose worktree differs from HEAD **0**. **The latent ruling holds today.**
+
+> **RULED — `§2s.9.2`: THE ENFORCER DOES NOT ROUTE THROUGH `commit_test`.** The enforcement quantity is an **independently computed sha of the comparator's bytes**, compared against the pin derived from the frozen registration by the repository itself. **An enforcer that consumes this instrument's `commit_test` inherits a branch that answers `FROZEN` when it could not check** — and the latency argument **expires the instant that verdict gates anything**, because latency is a statement about today's population and an enforcer is a statement about every future one.
+>
+> **AND THE LATENCY IS NOT THE DEFENCE.** *A fail-open that is currently unexploited is a fail-open with a good week.* It is recorded here as a live constraint on the wiring, not as a closed item.
+
+**This is `§2p` in this team's own instrument for the second time in two days**, after `§2q` found the population blindness in the same file. **Both were found by other teams reading my code, which is the argument for the cross-team audit mandate rather than against it.**
+
+#### §2s.9.3 A METHOD NOTE, BECAUSE IT NEARLY PUT A FALSE ALARM ON THE RECORD
+
+A report reached me that `git status` read **`MM`** on this charter — the index apparently holding a third version, *"somebody's unfinished work sitting where a bare commit would sweep it up."* **REFUTED, by comparing content rather than re-reading status:** the index blob, the `HEAD` blob and the worktree blob are **all `7cb52493`**, and that is byte-identical to what `fb2d0d39` committed. **There is no third version and there never was.**
+
+The reading was taken while HEAD was moving under concurrent commits. **`git status` is a comparison against an index that a concurrent private-index commit leaves stale by design**, and this lab has recorded it reporting dirty files clean and tracked files deleted. **The instrument in this very file already knows it** — that is what the `INDEX-INDEPENDENT ON PURPOSE` comment in `§2s.9.2` is defending against.
+
+> **RULED: AN INDEX-STATE ALARM IS SETTLED BY COMPARING BLOBS, NEVER BY RE-READING `git status`.** `git ls-files -s`, `git rev-parse HEAD:<path>` and `git hash-object <path>` answer with content; `status` answers with an index. **A hazard report that rests on `status` alone is not yet a finding**, and inspecting it costs three commands.
+
+| item | outcome |
+|---|---|
+| `§2s.4`'s *"the briefed 145 is wrong"* | **STRUCK — my overreach.** 145, 144 and 145 are all correct readings of a **growing** population |
+| the file that explains all four walks | `grade_t25R6a.py`, landed by another team's lane mid-measurement |
+| the larger consequence | **`§2s.9.1` — a coverage figure is meaningless without its walked commit**; a bare-count stop condition **recedes as the lab works** |
+| whose clause catches it | **`§2q.1`, my own** — a stop condition must name its own mechanical consequences; I did not apply it to the metric I was specifying |
+| judged figure | **40 — unaffected**; `40/189` and `40/190` are one finding |
+| **`§2s.9.2` fail-open** | `commit_test` answers **`FROZEN` when the byte comparison could not run**; the disclosure key is absent, so *never checked* and *checked clean* are indistinguishable |
+| latency | **re-measured at today's population: 0 rows affected** — and latency is **not** the defence |
+| wiring constraint | **the enforcer computes its own sha; it does NOT consume `commit_test`** |
+| `§2p` specimens in this team's own instrument | **2 in two days**, both found by other teams reading my code |
+| the `MM` alarm | **REFUTED** — index, HEAD and worktree all `7cb52493`; settled by blobs, not by `status` |
+| gates · thresholds · bands · caps · labels | **0 · 0 · 0 · 0 · 0** |
+| results re-graded | **0** |
+| solver compute | **0 core-min, $0.00** |
+| **lines whose number changed above this section** | **0** |
