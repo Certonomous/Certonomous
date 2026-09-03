@@ -317,4 +317,5 @@
 2026-09-03T17:34:22Z	heat-transfer	P_q_m	233439	233439	1	12.624	4d8943d85e001215f76b3451ad7aba75515362df	/home/ubuntu/Certonomous/verification/runs/T-family/T19_runs/P_q_m/STATUS.queue.P_q_m
 2026-09-03T17:43:27Z	ansys-verification	VMFL046_INVISCID	281778	281778	1	28	6345bf841a0ced7c082bf67698d79ae9985c80c0	/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL046_INVISCID/STATUS.queue.VMFL046_INVISCID
 2026-09-03T17:46:32Z	cfd	RUNG0_MESH_IMPORT	292747	292747	1	7.5	d127d83d4ebf4caaaf0c12c39a063c5f624a03a4	/home/ubuntu/Certonomous/cases/committee-grids/STATUS.queue.RUNG0_MESH_IMPORT
-2026-09-03T18:03:38Z	heat-transfer	T3d_R_fx	339312	339312	8	5442.1	4c869b292e61c726fcf36fea06dbfdb3612c8265	/home/ubuntu/Certonomous/verification/runs/T-family/T3_runs/R_fx/STATUS.queue.T3d_R_fx
+2026-09-03T18:03:38Z	heat-transfer	T3d_R_fx	339965	339965	8	5442.1	4c869b292e61c726fcf36fea06dbfdb3612c8265	/home/ubuntu/Certonomous/verification/runs/T-family/T3_runs/R_fx/STATUS.queue.T3d_R_fx
+2026-09-03T18:11:43Z	heat-transfer	T25R6c	351014	351014	2	48.136	351a3fd7baa54f5c652e174ab3b00ed024fca7e6	/home/ubuntu/Certonomous/verification/runs/T-family/T25R6c_LEGAB_runs/W440_C4_L1/STATUS.queue.T25R6c

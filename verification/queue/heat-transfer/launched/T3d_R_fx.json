@@ -77,12 +77,41 @@
   },
   "_launch": {
     "utc": "2026-09-03T18:03:38Z",
-    "pid": 339312,
-    "sid": 339312,
+    "pid": 339965,
+    "sid": 339965,
     "status_file": "/home/ubuntu/Certonomous/verification/runs/T-family/T3_runs/R_fx/STATUS.queue.T3d_R_fx",
     "wrapper_out": "/home/ubuntu/Certonomous/verification/runs/T-family/T3_runs/R_fx/launcher.queue.out",
     "started_epoch": 1788458618.2056901,
     "status_seen_utc": "2026-09-03T18:04:38Z"
+  },
+  "_launch_pid_CORRECTION_2026-09-03T18:30Z": {
+    "what_was_wrong": "pid and sid were both recorded as 339312. NO SUCH PROCESS EXISTS. `ps -o pid,ppid,sid -p 339312` returns a header and no row. A pid that resolves to nothing cannot be used to find this run, and finding a live run is the ONLY thing this field is for -- so this was a bookkeeping defect that broke session-switch recovery, and it is corrected in the fields above rather than merely annotated.",
+    "what_is_true_MEASURED": {
+      "launcher_pid": 339965,
+      "launcher_sid": 339965,
+      "launcher_ppid": 1,
+      "launcher_argv": "bash /home/ubuntu/Certonomous/verification/runs/T-family/T3_runs/launch_t3d.sh --case-dir .../R_fx --timeout 122445 --ranks 8 --no-detach",
+      "launcher_cwd": "/home/ubuntu/Certonomous/verification/runs/T-family/T3_runs/R_fx",
+      "launcher_started_utc": "2026-09-03T18:03:38Z",
+      "timeout_wrapper_pid": 342264,
+      "mpirun_pid": 342265,
+      "solver_rank0_pid": 342276,
+      "solver_rank_pids": "342276-342283, EIGHT ranks, all PPID 342265",
+      "all_in_session": 339965
+    },
+    "how_measured": "`ps -o pid,ppid,sid,pgid,lstart,etime,args -p <pid>` for each pid; `readlink /proc/<pid>/cwd` for the launcher and for rank 0 (both resolve to R_fx); `ps -o pid,ppid,sid,lstart,args --ppid 339965` for the child tree; the rank count from `ps -eo pid,ppid,args | grep 'bin/buoyantBoussinesqSimpleFoam -parallel'`, counted as EIGHT rank processes parented on mpirun 342265 (a bare `pgrep -c -f` over-counts: it also matches the timeout and mpirun argv, which contain the same string, and its own shell).",
+    "PPID_1_is_expected_not_a_symptom": "PPID 1 is orphaning to init and is the CORRECT state for a daemon-launched detached run, not evidence of a crash.",
+    "mechanism_MEASURED_NOT_INFERRED": "The launcher self-detaches. `launcher.queue.out` reads `launched R_fx detached`, and the SURVIVING launcher 339965 carries `--no-detach` in its argv while the queue entry's own `launch_cmd` above carries NO such flag. So 339312 was the OUTER launch_t3d.sh that queue_runner.py spawned and recorded; it re-executed itself into a new session as 339965 with `--no-detach` and exited. The runner recorded the pid it spawned, which is by construction the one that does not survive. THIS IS A GENERAL DEFECT IN THE RUNNER'S LAUNCH RECORD FOR ANY SELF-DETACHING LAUNCHER, not a one-off transcription slip. Reported to the supervisor as a finding; NOT fixed here, because scripts/queue_runner.py is not this team's file.",
+    "supersedes_a_prior_lane_decision_DISCLOSED": "The heat-transfer board block records a prior lane's decision NOT to edit this row's counterpart in LAUNCH_LOG.tsv ('it is an append-only launch record'). That decision is REVERSED here for both records, on the supervisor's explicit instruction and for a stated reason: no consumer parses the pid column (verification/credibility/vr6_untracked_launch_record.py:249 and every queue_runner.py selftest count NON-BLANK LINES only), whereas APPENDING a correction row would fabricate a launch in every one of those counts. The original bytes are not destroyed -- commit 0047fcaa holds the row as first landed, permanently, and this field cites it.",
+    "cap_clock_CORRECTED": {
+      "timeout_clock_starts_utc": "2026-09-03T18:04:57Z",
+      "NOT": "2026-09-03T18:03:38Z",
+      "why": "79 s of checkMesh + decomposePar precede the solver. The launcher starts at 18:03:38Z; the `timeout --signal=TERM --kill-after=120 122445` wrapper (pid 342264) and mpirun and every rank all carry lstart 18:04:57Z, measured by ps. The cap clock is the TIMEOUT's clock, not the launcher's.",
+      "cap_deadline_utc": "2026-09-05T04:05:42Z",
+      "cap_deadline_arithmetic": "18:04:57Z + 122445 s = 34 h 00 m 45 s later = 2026-09-05T04:05:42Z. Dating it from the launcher instead would give 04:04:23Z, 79 s early.",
+      "margin_against_the_run": "The endTime ETA is ~2026-09-04T03:44Z (MEASURED at 18:25:14Z: 863 of 24000 iterations at ExecutionTime 1250.35 s = 1.44884 s/iteration; 23137 iterations remaining = 33522 s). The cap deadline is a FULL DAY LATER than the ETA. The timeout will not bind unless the run slows by more than 2.4x."
+    },
+    "projection_not_an_actual": "Projected total 4636.3 core-min against the 5442.1 core-min estimate and the 16326 core-min cap -- a PROJECTION from 863 of 24000 iterations, explicitly NOT a measured actual. No COST_CALIBRATION.md row is owed or entered until the run completes (rule 12)."
   },
   "_field_classes": {
     "physics_critical": [
