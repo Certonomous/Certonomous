@@ -483,3 +483,59 @@ It carries **no list of pins**. It **enumerates** every `MD5_*=` assignment out 
 - **`SUBMISSIONS PARKED.`**
 
 **END OF STAGE-2 AMENDMENT.**
+
+---
+
+## CORRECTION 1 TO THE STAGE-2 AMENDMENT — **THE COUNTS IN S2.2 ARE WRONG. THE FINDING IS NOT.** Dated **2026-09-03**. Version **1.1 → 1.1a**.
+
+> **lines whose number changed above this section: 0** — asserted by execution. **S2.2 IS NOT REWRITTEN.** Its wrong figures are STRUCK BY QUOTE below and left standing in place, per `CLAUDE.md` rule 6: *originals are struck, never rewritten.* A reader arriving at S2.2 must be able to see what it said and what was wrong with it.
+
+**Raised by the `dafoam-supervisor` on his own independent measurement of the parent file, and re-measured by this lane before correcting anything. A disclosure that OVERSTATES a defect is still a wrong record, and the direction of the error does not excuse it.**
+
+### C1.1 What S2.2 says, struck
+
+> ~~"the parent carries the token at **SEVEN** sites, only **FOUR** of which are inside that line range"~~ — **STRUCK. WRONG.**
+> ~~"...the header docstring (`:28`), the argparse help string (`:135`), the two `elif` branches (`:394`, `:402`), the totals call (`:399`), and the final else-clause message (`:409`)"~~ — **STRUCK. WRONG**, and note that this enumeration names **six** things while the sentence claims seven: **a census whose own enumeration does not self-add.**
+> ~~"Deleting exactly the range §3 names would have left the token at **three surviving sites**"~~ — the *number* three is **CORRECT**; the *fraction* it was presented as (3 of 7) is not.
+
+### C1.2 The correct counts, measured by this lane in the correcting invocation
+
+**The forbidden token is `compute_totals` and ONLY that string** — `so3af2_read.py:72`, `FORBIDDEN_PRODUCER_TOKEN = "compute_totals"`, and §6 NL-2 names that clause and no other.
+
+| quantity | value | lines |
+|---|---|---|
+| occurrences of `compute_totals` in `so3ar2_runScript.py` | **5** | `:28`, `:135`, `:394`, `:399`, `:409` |
+| inside the registered range **394–408** | **2** | `:394`, `:399` |
+| **outside** the range — the survivors | **3** | `:28`, `:135`, `:409` |
+
+**The counts are 5 / 2 / 3.**
+
+**THE CAUSE OF THE ERROR, NAMED.** This lane grepped `compute_totals\|check_totals` — **the count of lines matching EITHER token**, which is 7 lines (`:28, :135, :394, :399, :402, :407, :409`) with 4 in range (`:394, :399, :402, :407`). **`check_totals` is not the forbidden token.** `:402` and `:407` carry `check_totals` alone and contain no forbidden token at all. **The figure reported was a measurement of a different quantity from the one NL-2 tests**, and the tell was visible in the record itself: the prose enumerated six items under a heading that said seven. **A census whose own enumeration does not self-add is not to be trusted, and this one was mine.**
+
+### C1.3 ⚠ THE FINDING SURVIVES INTACT — this is a CORRECTION, not a withdrawal
+
+Deleting exactly the range §3 names leaves **3 occurrences** of the forbidden token, so `grep -c` returns **3**, `TOKEN_HITS != 0`, and **NL-2 FIRES ON EVERY LAUNCH OF THIS ITEM, FOREVER** — the item unable to start, on a guard that is right, against a producer that is correct. **The tenth unsatisfiable-by-construction condition is real. It is 3 survivors, not 3-of-7.**
+
+### C1.4 The resolution is an INTERPRETATION, and both readings are stated in full
+
+**It is labelled as an interpretation and not as what the text obviously said**, because resolving an ambiguity in a frozen document in the direction that lets one's own item start is the shape of choosing the reading to fit the answer.
+
+> **READING A — the narrow one.** §3 registers the deletion as *"the `compute_totals` and `check_totals` task branches (`so3ar2_runScript.py:394-408`) and the `of=`/`wrt=` lists they consume"*. Read as a line range and nothing more, the deletion touches `:394` and `:399` only, and `:28`, `:135` and `:409` survive.
+>
+> **READING B — the wider one, ADOPTED.** §6 NL-2 refuses if the token appears *"anywhere in it"*, and §3's own words call that clause *"the structural half of the no-gradient promise (§3)"*. On this reading the two clauses are **one instrument described twice**, the promise being *"produces no gradient number at all"* — which a docstring cannot violate and a deleted branch cannot satisfy by halves. Every occurrence goes.
+
+**THE TEST READING B HAD TO PASS, and it is not that it makes the item runnable.** *Does the wider deletion change any measured quantity, any gate, any threshold or any label?* **The three extra occurrences are a module docstring line, an argparse help string, and an error message in the else-branch. NOT ONE IS EXECUTABLE GRADIENT CODE.** Deleting them changes no computation the producer performs and no number the reader reads. **The wider reading repairs the document's EXPRESSION, not its CONTENT, and that is the only ground on which it is admissible.**
+
+**And NL-2 keeps its full discriminating power** — reintroduce the token by any future edit and it fires. **That is proved rather than asserted**: the pin census drives the token clause **by name**, with the producer's md5 pin moved onto the tainted bytes so the md5 clause passes and the token clause is what fires. Without that control the leg would have passed for the wrong reason, and that single control is what makes this resolution safe.
+
+### C1.5 Registered as a carried-forward defect
+
+**The §3/§6 NL-2 discrepancy is a defect OF THE FROZEN DOCUMENT, binding on any successor**, exactly as SO-3D's §5-versus-§8 contradiction is. **No frozen text is edited by this correction or by the amendment above it.**
+
+**Second contradiction inside a frozen registration in one day, and the fourth this lab has met** — after heat-transfer's T8 §12 axis-extrapolation, K0d's odd cell count, and SO-3D's §5/§8. Carried upward as a class, not as a fourth isolated incident.
+
+### C1.6 Unchanged by this correction
+
+Every pin in S2.1, the producer's bytes, the launcher, the pin census and its 14/14, the reader's 17/17, the residual-history refusal of S2.3, the NL-3 split of S2.4, and every prediction, band, cap, label and NO-LAUNCH rc. **NOT ARMED. NOT ENQUEUED. ZERO SOLVER CORE-MINUTES. SUBMISSIONS PARKED.**
+
+**END OF CORRECTION 1.**

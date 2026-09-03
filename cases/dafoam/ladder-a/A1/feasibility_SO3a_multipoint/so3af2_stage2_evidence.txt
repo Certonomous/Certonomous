@@ -66,3 +66,36 @@ JOB 3 -- SAFETY
   DECOY SURVIVED             PASS  cleanup was by name, not by sweep
 
 SO3aF2 PIN CENSUS: PASS 14  FAIL 0  NOT RUN 0
+
+===========================================================================
+CORRECTION 1, appended 2026-09-03 -- THE COUNT ABOVE IS WRONG
+===========================================================================
+The line above reading "occurrences in the PARENT so3ar2_runScript.py: 7 across
+7 lines" and the sentence "only FOUR of those lie inside the range section 3
+names" are BOTH WRONG and are struck by quote here rather than rewritten
+(CLAUDE.md rule 6: originals are struck, never rewritten).
+
+CAUSE: that line grepped 'compute_totals\|check_totals' -- the count of lines
+matching EITHER token. `check_totals` IS NOT THE FORBIDDEN TOKEN.
+so3af2_read.py:72 sets FORBIDDEN_PRODUCER_TOKEN = "compute_totals" and section 6
+NL-2 names that clause and no other. Lines :402 and :407 carry `check_totals`
+alone and contain no forbidden token at all. The figure measured a DIFFERENT
+QUANTITY from the one NL-2 tests.
+
+CORRECT COUNTS, re-measured in the correcting invocation:
+
+  occurrences of `compute_totals` in so3ar2_runScript.py : 5
+    at lines : 28, 135, 394, 399, 409
+  inside the registered range 394-408                    : 2   (394, 399)
+  outside the range -- the survivors                     : 3   (28, 135, 409)
+
+THE FINDING SURVIVES INTACT. Deleting exactly the range section 3 names leaves 3
+occurrences, grep -c returns 3, TOKEN_HITS != 0, and NL-2 fires on every launch
+of this item forever. It is 3 survivors, not 3-of-7.
+
+Occurrences in the STAGED PRODUCER remain 0, which is unchanged by this
+correction and is the number NL-2 actually reads.
+
+Raised by the dafoam-supervisor on his own independent measurement; re-measured
+by this lane before correcting. A disclosure that OVERSTATES a defect is still a
+wrong record.
