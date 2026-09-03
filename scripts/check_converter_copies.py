@@ -54,14 +54,25 @@ The split, ruled by cfd-supervisor 2026-09-03 under Sanaa's "reported, not gated
 (2026-09-03 2000Z, `825285bb`), which gates only where the owner can state "without this,
 the verdict on result X cannot be trusted":
 
+TWO DIFFERENT REASONS GATE HERE, AND THEY MUST NOT BE COLLAPSED INTO ONE. A future reader
+who reduces this to "we gate on paths we like" has lost the argument that justifies it:
+
+  REASON 1 -- THE FREEZE ARGUMENT. Canonical-lineage divergence gates because RUNG0b's
+    freeze PINS the three canonical copies. This is the sentence Sanaa's 2000Z default
+    demands, stated in full: without this check, a RUNG0/RUNG0b mesh-import verdict cannot
+    be trusted. It is an argument about a specific downstream RESULT.
+  REASON 2 -- THE INTEGRITY ARGUMENT. Anything INSIDE this repository diverging or
+    vanishing gates because tracked content changing under the lab is a repository-
+    integrity failure, on its own account and regardless of lineage. It is NOT a freeze
+    argument and NOT a physics argument, and no downstream result needs to be named for
+    it: the repository losing a tracked file is the harm.
+
   GATES (exit 2)      -- DIVERGENCE in the canonical lineage, wherever the divergent copy
-                         lives. The owner CAN state it: the three canonical copies are
-                         what RUNG0b's freeze pins, so a RUNG0/RUNG0b mesh-import verdict
-                         cannot be trusted without this.
+                         lives. REASON 1.
   GATES (exit 2)      -- an UNKNOWN copy. A positive finding about a file that EXISTS,
                          and the exact mechanism by which this defect propagated.
-  GATES (exit 2)      -- a missing copy INSIDE the repository. A tracked file vanishing is
-                         the repository losing a file, not hygiene.
+  GATES (exit 2)      -- a missing or divergent copy INSIDE the repository, in EITHER
+                         lineage. REASON 2.
   REPORTS (exit 0)    -- a missing copy OUTSIDE git. Still `NOT A RESULT`, still printed
                          in text and in JSON, still impossible to read as clean -- the OK
                          line is suppressed and the run is stated to be NOT CLEAN. What
@@ -119,11 +130,27 @@ REPO_ROOT = "/home/ubuntu/Certonomous"
 #
 # `/home/ubuntu/Certonomous/scripts/ugrid_to_foam.py` WAS here and is deliberately gone.
 # It was REMOVED 2026-09-03 (cfd-supervisor ruling 3), not lost: it was the older
-# five-bare-assert lineage sitting in the one directory that 60+ graders across four teams
-# insert at `sys.path` position ZERO (`os.path.join(REPO, "scripts")`), so the next
-# `import ugrid_to_foam` written anywhere in the lab would have resolved to the defective
-# copy silently and preferentially, ahead of the canonical one. It is not listed below
-# because requirement (c) would then report NOT A RESULT forever over a deliberate removal.
+# five-bare-assert lineage sitting in the one directory the lab inserts at `sys.path`
+# position ZERO, so the next `import ugrid_to_foam` written anywhere would have resolved
+# to the defective copy silently and PREFERENTIALLY, ahead of the canonical one.
+#
+# THE COUNT IS PREDICATE-DEPENDENT, AND THE PREDICATE IS PART OF THE NUMBER. Census taken
+# 2026-09-03 over every `*.py` in this repository, counting files with a
+# `sys.path.insert(0, X)` where X denotes REPOSITORY `scripts/` (sdk/scripts excluded):
+#     81  X is an explicit join of a repo-root variable with "scripts"
+#     89  ... plus the bare-variable form, `sys.path.insert(0, SCRIPTS)`, resolved to its
+#         assignment in the same file
+#    203  ... plus every other route by which `scripts/` reaches position 0: a file inside
+#         `scripts/` inserting its own directory, and the `_LAB_PATHS_DIR` idiom
+# An earlier reading of this hazard was written as "60+" -- a FLOOR from a single grep
+# pattern, phrased in a shape that reads like a census. That was the error, more than the
+# number was: a count without its predicate cannot be checked, and the three figures above
+# are all correct answers to three different questions. What is NOT predicate-dependent,
+# and is the whole point: in every one of them `scripts/` sits at position ZERO, ahead of
+# everything else on the path.
+#
+# It is not listed below because requirement (c) would then report NOT A RESULT forever
+# over a deliberate removal.
 KNOWN = [
     "/home/ubuntu/Certonomous/cases/committee-grids/ugrid_to_foam.py",
     "/home/ubuntu/Certonomous/cases/hlpw6/ugrid_to_foam.py",
@@ -343,12 +370,14 @@ def check(cfg: Config | None = None, as_json: bool = False, emit: bool = True):
     else:
         if len(set(h2.values())) > 1:
             report["lineage_second_consistency"] = "DIVERGENT"
-            # MY EXTENSION OF THE SUPERVISOR'S RULING, FLAGGED AS SUCH SO IT CAN BE
-            # OVERRULED CHEAPLY. The ruling named canonical-lineage divergence as gating
-            # and justified it by RUNG0b's freeze. Nothing pins the second lineage, so I
-            # cannot state the required sentence for it when every present member lives in
-            # a scratch tree -- that is one team's probe hygiene. If any present member is
-            # inside the repository, it gates on the same ground as any tracked file.
+            # THE RULING (cfd-supervisor, 2026-09-03, endorsed and adopted -- this was
+            # raised as a lane extension and was ruled to be the correct application of
+            # the ruling to a case it did not enumerate, not an extension of it).
+            # Nothing pins the second lineage, so REASON 1 (the freeze argument) is
+            # unavailable for it: when every present member lives in a scratch tree this
+            # REPORTS. When a present member is inside the repository, REASON 2 (the
+            # integrity argument) applies on its own account and it GATES. The boundary is
+            # doing integrity work here, not freeze work -- see the module docstring.
             txt = (f"DIVERGENCE in the second (older, no-sniff_layout) lineage: {h2}. "
                    f"These are deliberately NOT synced to the canonical -- they are a "
                    f"different program -- but they must agree with each other.")
