@@ -527,3 +527,95 @@ daemon takes it is **`PENDING`**.
 *Registered by a heat-transfer lane on the supervisor's ruling of 2026-09-03.
 This lane assigns the rung no verdict. Nothing was sent, filed, uploaded,
 registered or posted — submissions are PARKED.*
+
+---
+
+# AMENDMENT 1 — 2026-09-03. **§3 CHECK 1 (the grading-path diff-read) IS DISCHARGED.** Version 1.0 → **1.1**
+
+**Appended at the foot. Nothing above is edited** (standing rule 6).
+**Lines whose number changed above this section: 0.**
+
+**MEASURED, not asserted.** In the invocation that wrote this amendment: lines
+above, before the append **529**; sha256 before
+`3fcdc00b07b8a34d800166b1c06a1f395d39241b05acebf3f9487beca7c8389a`; the sha256 of the first **529** lines after the append is **recomputed
+and required to equal it, else the write is abandoned**; and `git diff --numstat`
+on the landing commit is required to read **`<additions> 0`** — zero deletions.
+
+**THE PRE-COMPUTE CONDITION, and how it was checked.** Standing rule 2 permits
+amendment **before first compute**, and requires the condition be stated with the
+method: **`verification/runs/F14-cooling-ladder/K0eR2_runs/FP_T10` and
+`.../FP_T00` DO NOT EXIST, and no `K0eR2_runs/STATUS.*` file exists.** Checked
+under a planted control (rule 3): the same reader returned **20** `STATUS.*`
+files for `K0f_runs`, so it is demonstrably able to see a non-zero.
+**Zero core-minutes have been spent against K0eR2.**
+
+**This amendment alters no gate, no threshold, no cap and no label**, and re-cuts
+no pin. It records the status of a check.
+
+---
+
+## A1.1 THE CHECK, AND WHAT WAS ACTUALLY DONE
+
+`SUPERVISION_CHARTER.md` §3 check 1 — **measurement-script diffs read as diffs** —
+is the supervisor's own and may never be delegated. The grader
+`scripts/analyse_k0e.py` changed between the superseded `K0e` freeze (blob
+`695becd6…`) and this document's §9 pin (blob `25ecaa6b…`), so the check was
+owed. The diff is filed at
+`docs/campaigns/F14-cooling-ladder/K0e_DIFF_2_GATE_TO_M4b.diff`, **267 lines**.
+
+**DISCHARGED 2026-09-03, and the account is the supervisor's own correction
+rather than their first description of it.** Recorded in the order it happened,
+because the sequence is the point:
+
+1. The supervisor first reported the diff **"read and approved — all 267 lines"**.
+2. **The supervisor then corrected that themselves, unprompted.** What had
+   actually been read at that moment was a **filtered extraction** — a grep of
+   the `+`/`-` lines with comment-only and blank lines excluded — **not the file
+   end to end.**
+3. The supervisor then **read the file end to end, all 267 lines**, and issued
+   the correction naming the first description as false.
+
+**The approval is unchanged and was not weakened by the correction. Only the
+description of the read was wrong, and it was the supervisor who found it.**
+
+**THE DATE OF THE FULL READ IS THE CORRECTION, NOT THE FIRST REPORT**, and this
+record is written that way deliberately.
+
+## A1.2 WHY THIS IS RECORDED RATHER THAN QUIETLY FIXED
+
+**Approving a measurement-script diff from a filtered view and calling it a full
+read is the same failure the graded rows on this rung exist to catch**: a summary
+statistic standing in for the underlying values. This registration already
+carries two instances of it found in this lane's own work — a `1e-12` assertion
+that was measuring ASCII round-off (§8.4) and a `Prt_eff` spread that reads like
+physics and is a convergence residual (§6.5).
+
+**The correction is therefore evidence that the check works, not evidence
+against it**, and burying it would have cost more than it saved.
+
+## A1.3 WHAT THE FULL READ ADDED — none of it changing the verdict
+
+Recorded because a check that produced findings is worth more on the record than
+one that produced only an approval:
+
+- **The removed `UNMEASURED` branch is stricter than the filtered view showed.**
+  The old grader could reach `m4b = None` and print an `UNMEASURED` row when the
+  control arm was `NOT DONE`. The new grader **cannot reach that state at all** —
+  §8.2's both-arms requirement returns `NOT A RESULT` before the comparison.
+- **The verdict block is correct in both branches**, and the `NOT A RESULT`
+  branch ends *"The reported rows above stand as measurements and as NOTHING
+  MORE."*
+- **`float(bc["max_non_orthogonality"]) != 0.0` is an exact comparison against
+  zero** — any non-zero refuses, which is the strict direction.
+- **`import json` sits inside the function rather than at module scope.**
+  Harmless, and **deliberately not fixed**: this file is pinned by §9, and
+  re-cutting a frozen pin for style would be the tail wagging the dog.
+
+## A1.4 WHAT IS NOW OWED ON K0eR2
+
+**Nothing, until the daemon launches it.** Both queue entries were held on the
+runner's busy ceiling at every tick from 19:40:20Z. **That is a resource gate
+queueing — `PENDING`, not blocked.**
+
+*Amendment by a heat-transfer lane, 2026-09-03. No verdict is assigned by this
+amendment. Nothing sent — submissions are PARKED.*
