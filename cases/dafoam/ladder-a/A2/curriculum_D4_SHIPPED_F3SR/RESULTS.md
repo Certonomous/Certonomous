@@ -114,7 +114,7 @@ reader of this item.**
 ## 4.1 What passed, stated first, because it is the part a reader is most likely to lose
 
 * **`G5_endpoint_fd_F-S` = `PASS` and `G5_endpoint_fd_F-P` = `PASS`.** The FD-vs-adjoint bright
-  line of `DAFOAM_CHARTER.md` §1 is **satisfied on both rows**.
+  line of `DAFOAM_CHARTER.md` §1 is **satisfied on both rows**. **⚠ AND BOTH AGGREGATES SIT BELOW `VERIFICATION_CHARTER.md:861-863`'s 2.5–5 % HARNESS-SOUND FLOOR — READ CORRECTION 3 AT THE FOOT BEFORE TAKING EITHER FIGURE AS A SUB-PERCENT VERIFICATION.**
 * **`G6_planted_zero_F-S` = `PASS` and `G6_planted_zero_F-P` = `PASS`**, and both
   `G6b_negative_control` gates `PASS`. **The reader was shown able to see a non-zero before its
   zero was taken as evidence** (`CLAUDE.md` rule 3), on both rows.
@@ -324,8 +324,8 @@ The grader implements exactly that and nothing else:
 
 | arm | `G1` | `G_ACC` | `G6` planted zero | `G6b` negative control | `G7` count refusal | **`G5` bright line** |
 |---|---|---|---|---|---|---|
-| **F-S** (SHIPPED) | `True` | `True` | `True` | `True` | `True` | **`PASS`**, aggregate **0.350109 %** of a 5 % band |
-| **F-P** (PATCHED) | `True` | `True` | `True` | `True` | `True` | **`PASS`**, aggregate **0.163445 %** of a 5 % band |
+| **F-S** (SHIPPED) | `True` | `True` | `True` | `True` | `True` | **`PASS`**, aggregate **0.350109 %** of a 5 % band — **⚠ below the harness-sound floor, see CORRECTION 3** |
+| **F-P** (PATCHED) | `True` | `True` | `True` | `True` | `True` | **`PASS`**, aggregate **0.163445 %** of a 5 % band — **⚠ below the harness-sound floor, see CORRECTION 3** |
 
 `arms_oomkilled` = `[]`. Every one of the five registered components graded on both rows
 (`n_graded` 5 of `n_registered` 5), **0 sign flips**, **0 without plateau**, **0 ungradeable**,
@@ -521,3 +521,144 @@ identically to both rows; and bounded by a falsifier, registered in advance, tha
 `0.0` relative difference. **A relaxation missing any one of those is a different object.** The
 defect this correction repairs was never the disarm — it was that this document did not tell its
 reader about it.
+
+---
+
+# CORRECTION 3 — 2026-09-03. Both FD aggregates sit **below** `VERIFICATION_CHARTER.md` §7 step 4's harness-sound floor, and until now this document did not say so
+
+**Ruled by the dafoam-supervisor, 2026-09-03.** Written by a dafoam lane. **NOTHING WAS RE-GRADED
+AND NO COMPUTE WAS SPENT.** No instrument was run, no artefact written, no run root touched, no
+container invoked. **The item verdict does not move: `ITEM_two_row_endpoint_fd` remains `PASS`.**
+No gate moves. No threshold moves. This is a **disclosure repair**, of the same class as
+CORRECTION 2 — the defect is not the number, it is that the document let a reader meet the number
+without the sentence the charter attaches to it.
+
+**What changed above this section, stated so no reader has to diff for it.** Two edits, both
+**additive markers appended inside existing lines**, so **lines whose number changed above this
+section: 0**:
+
+1. §4.1's `G5` bullet (the sentence *"the FD-vs-adjoint bright line … is satisfied on both rows"*)
+   now carries a pointer to this correction. Its original wording is intact and unreworded.
+2. §C1.3's two verdict cells now carry the same pointer. **The figures, the gate readings and every
+   word of CORRECTION 1's reasoning are untouched.**
+
+Nothing else above this line was altered. §6 and §6.1 — the two sections `docs/COST_CALIBRATION.md`
+cites — remain untouched, and nothing in the repository cites this record by line number.
+
+## C3.1 THE NUMBERS AND THE FLOOR
+
+`VERIFICATION_CHARTER.md:861-863`, the fourth of the five reporting-protocol steps, none optional:
+
+> *"The harness-sound floor on this stack, for a case with no flagged components, is 2.5 to 5
+> percent vector-norm relative error. A number below that is a claim about the harness."*
+
+The clause's precondition is met here — `n_sign_flips` `0`, `n_without_plateau` `0`,
+`n_ungradeable` `0`, `n_near_zero` `0`, on both arms — so this row is **inside** the clause's scope,
+not outside it.
+
+| row | aggregate, as graded | against the floor's lower edge |
+|---|---|---|
+| **F-S** (SHIPPED) | **0.350109 %** | **7.14× below** |
+| **F-P** (PATCHED) | **0.163445 %** | **15.30× below** |
+
+[MEASURED, `report.G5.<arm>.aggregate_rel_err_pct` in
+`/home/ubuntu/certonomous-runs/CURRICULUM-D4S-F3SR-a2-wing-cdmin/d4s_f3sr_grade_20260831T154117Z.json`,
+grader md5 `9596c7bf711a934313a9b4d5801481c6`. The ratios are arithmetic on those two values and the
+charter's 2.5 %.]
+
+**Stated plainly, in the form the charter asks for and four sibling records already use
+(`curriculum_D19M/RESULTS.md:99`, `curriculum_D19O/RESULTS.md:86-93`,
+`curriculum_D8/RESULTS.md:322-329`, `curriculum_SO3/RESULTS.md:195`): these are claims about the
+harness. This record does not claim a sub-percent verification of the DAFoam gradient.** The floor
+is **REPORTED HERE, NEVER GATED** — `G5`'s registered band is 5 % and it is unchanged.
+
+## C3.2 THE SAME TABLE RESTRICTED TO THE FLOOR'S OWN INSTRUMENT
+
+`docs/dafoam/V_STANDARD_FD_VS_ADJOINT.md:155` records that the floor **"is calibrated on shape
+derivatives through IDWarp."** This item's five graded components are **not one instrument**:
+
+| component | class | warp in the derivative chain? |
+|---|---|---|
+| `shape[46]`, `shape[18]`, `shape[0]` | `nom_addLocalDV`, pyGeo | **yes** |
+| `twist[0]` | `nom_addGlobalDV`, pyGeo | **yes** |
+| `patchV[1]` | `"type": "patchVelocity"`, **angle of attack** | **no — a boundary condition** |
+
+[MEASURED, `/home/ubuntu/certonomous-runs/CURRICULUM-D4S-F3SR-a2-wing-cdmin/d4_opt_runScript.py`
+md5 `2906d52a5dbed2bacbaeaf85a37d3fe8`: `:78-79` `"patchV": {"type": "patchVelocity"`; `:166`
+`self.dvs.add_output("patchV", val=np.array([U0, aoa0]))`; `:241` `designVarsComp=[1]` targeting
+`CL` — index 1 is the angle of attack. `:146` twist, `:152` shape.]
+
+Restricting the same vector norm to the four warp-chain components:
+
+| row | as graded (5 components) | **4 warp-chain components only** | `patchV[1]` alone |
+|---|---|---|---|
+| **F-S** | 0.350109 % | **0.861604 %** (2.90× below the floor) | 0.001631 % |
+| **F-P** | 0.163445 % | **0.391451 %** (6.39× below the floor) | 0.001487 % |
+
+[MEASURED — recomputed by this lane from the grader's own `report.G5.<arm>.graded` array in the JSON
+named above, using the grader's own reference `d_hi` and the same vector-relative statistic
+`‖J_adj − J_fd‖ / ‖J_fd‖`. The full-table values reproduce the grader's to six decimal places, which
+is the check that the recomputation is on the grader's convention and not on this lane's.]
+
+**BOTH FRAMINGS ARE STATED BECAUSE THE UNRESTRICTED NUMBER ALONE IS WHAT MAKES THIS ROW LOOK
+ANOMALOUS.** Restricted to the instrument the floor was actually calibrated on, the row is still
+below the floor — 2.90× and 6.39× — so **the sub-floor reading is real on the floor's own stack and
+is not an artefact of the instrument mix.**
+
+## C3.3 THE MECHANISM — and this is the observation the verification amendment now turns on
+
+**`patchV[1]` carries 91.37 % (F-S) and 90.87 % (F-P) of the vector norm's magnitude, and it has the
+smallest error of the five. It pulls the aggregate down by 2.46× and 2.40×.** [MEASURED, same JSON,
+same array: `|d_hi(patchV[1])| / ‖d_hi‖` and the ratio of the restricted to the unrestricted
+aggregate.]
+
+**A floor derived for a warp-chain instrument does not straightforwardly reach an aggregate that is
+90 % dominated by a component with no warp chain at all.** That is stated here as the **mechanism**,
+not as a finding that the clause fails to apply. `V_STANDARD_FD_VS_ADJOINT.md:176-180` already
+requires that *"a DAFoam record states which instrument it is on"* and separates a shape-DV number
+at 0.03 % (to which §7 step 4 *"applies in full"*) from a field-DV number at 0.03 % (to which it does
+not). **This record is the mixed case that rule does not yet name**, and whether the clause reaches a
+mixed aggregate is `VERIFICATION_CHARTER.md`'s to rule, not this record's. It has been routed to the
+verification supervisor as a clause question. **Nothing here argues the floor does not apply.**
+
+## C3.4 THE FLOOR'S SOURCE STUDY, AND THE SAME-MESH COMPARATOR
+
+The charter states the floor at `:861-863` with no derivation on its face. Its source is
+`/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A_stepsize_study.md:89-90` (md5
+`b6fcde0f55e9b357d43140f591db399b`, 136 lines), whose five recommended steps are the charter's five
+steps nearly verbatim:
+
+> *"For a case with **no flagged components**, this dataset's harness-sound floor is **2.5-5%**
+> vector-norm relative error (2.5-3.0% here at 4032 cells; **A2 independently achieved 1.71% at 38304
+> cells / 96 DVs — consistent with the floor tightening on finer meshes**)."*
+
+**The comparator a reader needs, and it is very close to this row** [MEASURED]:
+
+| | the study's A2 datum | this item |
+|---|---|---|
+| mesh | **38,304 cells** | **38,304 cells** — `F-S_20260831T151834Z_40613.log:207` `Global Cells: 38304` |
+| shape DVs | **96** | **96** — `adjoint.shape` length in `F-S/d4s_f3s_fd_endpoint.json` |
+| aggregate | **1.71 %** | 0.350109 % / 0.163445 % |
+
+**This item is on the same rung, the same mesh and the same shape-DV count as the one data point in
+the floor's own establishing dataset that already sits below the floor.** The study's own words
+attribute that to mesh refinement — *"consistent with the floor tightening on finer meshes"* — a
+qualifier the charter clause does not carry.
+
+**What that does and does not establish.** It establishes [MEASURED] that a sub-floor aggregate on
+this mesh is what the floor's source study predicts rather than an anomaly. It does **not** establish
+that the clause does not reach this row, and this record does not claim that. A reader is now able to
+weigh 0.350109 % and 0.163445 % against a same-mesh, same-DV-count comparator instead of against
+nothing, which is the whole purpose of this correction.
+
+## C3.5 WHAT THIS CORRECTION DOES NOT DO
+
+It does not move the verdict, which remains `PASS` from the item's own frozen grader. It does not
+move, widen or reinterpret `G5`'s 5 % band. It does not re-grade, re-run or annotate any artefact —
+every figure above is read or recomputed from artefacts already on disk. It does not amend, quote as
+amended, or propose wording for `VERIFICATION_CHARTER.md`, which is not this team's document and
+whose floor is a threshold. **And it does not diminish `G12_cpu_placement_F-P`, which remains
+`GATE FAIL` and is treated at §4.**
+
+**Nothing in this item or this record is filed, sent, emailed, uploaded, posted or commented outside
+this box, now or ever** (`CLAUDE.md` rule 7; `DAFOAM_CHARTER.md` §10). **SUBMISSIONS PARKED.**

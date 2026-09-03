@@ -1,7 +1,7 @@
 # Curriculum item D4S-F3S — the A2 wing endpoint FD table under a stationarity acceptance rule, both rows: RESULTS
 
 **Item verdict: `NOT A RESULT`.** Read from this item's own frozen grader, not composed here.
-**The FD bright line PASSED on both rows.** The item is `NOT A RESULT` on one limb of one gate —
+**The FD bright line PASSED on both rows** — **⚠ but both aggregates sit BELOW `VERIFICATION_CHARTER.md:861-863`'s 2.5–5 % harness-sound floor and are therefore claims about the harness; see ADDENDUM 1 at the foot before reading either as a sub-percent verification.** The item is `NOT A RESULT` on one limb of one gate —
 `G1`'s age clause, on a file this item never produces — and that limb was **unsatisfiable by
 construction**.
 
@@ -80,8 +80,8 @@ plus `G9_two_rows_distinct` `PASS`, `G10_cap_discipline` `PASS`, `G11_memory_env
 
 | row | aggregate vector-relative error | band |
 |---|---|---|
-| **F-S** (SHIPPED) | **0.350109 %** | 5 % |
-| **F-P** (PATCHED) | **0.163445 %** | 5 % |
+| **F-S** (SHIPPED) | **0.350109 %** | 5 % — **⚠ 7.14× BELOW the 2.5–5 % harness-sound floor, see ADDENDUM 1** |
+| **F-P** (PATCHED) | **0.163445 %** | 5 % — **⚠ 15.30× BELOW the 2.5–5 % harness-sound floor, see ADDENDUM 1** |
 
 ---
 
@@ -297,6 +297,104 @@ item's is not, and filing it is a separate act through that file's own append pa
 1. **The rule-12 calibration row** for this item (§7) — owed, not fabricated here.
 2. **Nothing else.** This record discharges `docs/LAB_STATE.md:9139`'s standing `RESULTS.md` debt for
    `D4S-F3S`.
+
+**Nothing in this item or this record is filed, sent, emailed, uploaded, posted or commented outside
+this box, now or ever** (`CLAUDE.md` rule 7; `DAFOAM_CHARTER.md` §10). **SUBMISSIONS PARKED.**
+
+---
+
+# ADDENDUM 1 — 2026-09-03. Both FD aggregates sit **below** `VERIFICATION_CHARTER.md` §7 step 4's harness-sound floor, and this record did not say so
+
+**Ruled by the dafoam-supervisor, 2026-09-03.** Written by a dafoam lane. **NOTHING WAS RE-GRADED
+AND NO COMPUTE WAS SPENT** — no instrument run, no artefact written, no run root touched, no
+container invoked. **The item verdict does not move: `ITEM_two_row_endpoint_fd` remains
+`NOT A RESULT`**, on `G1`'s age clause, exactly as §1 and §3 state. No gate moves. No threshold
+moves. This is a **disclosure repair**, landed in the same pass as `CORRECTION 3` on the sibling
+record `curriculum_D4_SHIPPED_F3SR/RESULTS.md`, which carries the full treatment.
+
+**What changed above this section, stated so no reader has to diff for it.** Two edits, both
+**additive markers appended inside existing lines**, so **lines whose number changed above this
+section: 0**:
+
+1. The head sentence *"The FD bright line PASSED on both rows"* now carries the caveat and a pointer
+   to this addendum. Its original wording is intact and unreworded.
+2. §2's aggregate table's two `band` cells now carry the same pointer. **The two figures themselves
+   are untouched.**
+
+Nothing else above this line was altered, and nothing in the repository cites this record by line
+number.
+
+## A1.1 THE NUMBERS AND THE FLOOR
+
+`VERIFICATION_CHARTER.md:861-863`, the fourth of five reporting-protocol steps, none optional:
+
+> *"The harness-sound floor on this stack, for a case with no flagged components, is 2.5 to 5
+> percent vector-norm relative error. A number below that is a claim about the harness."*
+
+The precondition is met — `n_sign_flips` `0`, `n_without_plateau` `0`, `n_ungradeable` `0`,
+`n_near_zero` `0` on both arms — so this row is **inside** the clause's scope.
+
+| row | aggregate, as graded | against the floor's lower edge | restricted to the floor's own warp-chain instrument |
+|---|---|---|---|
+| **F-S** (SHIPPED) | **0.350109 %** | **7.14× below** | **0.861604 %** (2.90× below) |
+| **F-P** (PATCHED) | **0.163445 %** | **15.30× below** | **0.391451 %** (6.39× below) |
+
+[MEASURED. The as-graded values are `report.G5.<arm>.aggregate_rel_err_pct` in
+`/home/ubuntu/certonomous-runs/CURRICULUM-D4S-F3S-a2-wing-cdmin/d4s_f3s_grade_20260827T194848Z.json`,
+grader md5 `2ed0651c786cb5bd8832f8660ba6c670`. The restricted values were recomputed by this lane
+from that file's own `report.G5.<arm>.graded` array, on the grader's own reference `d_hi` and the
+grader's own statistic `‖J_adj − J_fd‖ / ‖J_fd‖`; the unrestricted recomputation reproduces the
+grader's printed value to six decimals, which is what shows the recomputation is on the grader's
+convention and not on this lane's.]
+
+**Stated plainly, in the form four sibling records already use (`curriculum_D19M/RESULTS.md:99`,
+`curriculum_D19O/RESULTS.md:86-93`, `curriculum_D8/RESULTS.md:322-329`,
+`curriculum_SO3/RESULTS.md:195`): these are claims about the harness, and this record does not claim
+a sub-percent verification of the DAFoam gradient.** The floor is **REPORTED, NEVER GATED** — `G5`'s
+registered band is 5 % and is unchanged. **This addendum does not argue that the floor does not
+apply.**
+
+## A1.2 THE MECHANISM, AND THE SAME-MESH COMPARATOR — the short form; the full treatment is in the sibling record
+
+- **The instrument mix.** `patchV[1]` is `"type": "patchVelocity"` — **angle of attack, a boundary
+  condition with no mesh warp in its derivative chain** [MEASURED,
+  `/home/ubuntu/certonomous-runs/CURRICULUM-D4S-F3S-a2-wing-cdmin/d4_opt_runScript.py` md5
+  `2906d52a5dbed2bacbaeaf85a37d3fe8`, `:78-79`, `:166`, `:241`]. It carries **91.37 %** (F-S) and
+  **90.87 %** (F-P) of the vector norm's magnitude and has the smallest error of the five, pulling
+  the aggregate down by **2.46×** and **2.40×** [MEASURED, same grade JSON]. The floor is calibrated
+  *"on shape derivatives through IDWarp"* (`docs/dafoam/V_STANDARD_FD_VS_ADJOINT.md:155`), so a floor
+  derived for a warp-chain instrument does not straightforwardly reach an aggregate 90 % dominated by
+  a component with no warp chain. **Whether it does is `VERIFICATION_CHARTER.md`'s to rule and has
+  been routed to the verification supervisor; it is not ruled here.**
+- **The same-mesh comparator.** The floor's source is
+  `/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A_stepsize_study.md:89-90` (md5
+  `b6fcde0f55e9b357d43140f591db399b`), which rests it on **two** points — A1 at 4,032 cells
+  (2.5-3.0 %) and *"A2 independently achieved **1.71 %** at **38304 cells / 96 DVs** — consistent
+  with the floor tightening on finer meshes."* **This item runs on 38,304 cells with 96 shape DVs**
+  [MEASURED, `F-S_20260827T134911Z_790602.log:207` `Global Cells: 38304`; `adjoint.shape` length 96
+  in `F-S/d4s_f3s_fd_endpoint.json`]. **Same rung, same mesh, same shape-DV count as the one data
+  point in the floor's own establishing dataset that already sits below the floor.**
+
+## A1.3 A DETERMINISM FACT THIS RECORD IS THE RIGHT PLACE TO CARRY
+
+`D4S-F3S` (2026-08-27) and `D4S-F3SR` (2026-08-31) ran the same two arms with the same frozen
+instrument (md5 `9ce78caab9c46d13398ee1d0643cf982`) four days apart. Their FD tables are
+**byte-identical**: `d4s_f3s_fd_endpoint.json` md5 **`04742db0af8a28ce26ac9dda2bdd3d22`** (F-S) and
+**`3515eb10dcf3c3c58dd90afddd2ecf5a`** (F-P) in **both** run roots, and all 22 per-arm `CD` values
+agree to 17 significant figures.
+
+**The control that makes this a determinism statement and not a copied file:** across the same 22
+legs, `wall_s` agrees in **0 of 22** — F3S 19.5-21.7 s per primal, F3SR 13.8-15.0 s. **A copied
+artefact would carry the wall times too.** [MEASURED, `{F-S,F-P}/d4s_f3s_accept.jsonl` in both run
+roots.] The registered falsifier `P6_both_rows_reproduce_D4S_F3S_to_printed_digits` was **`HIT`**
+independently of this lane.
+
+**Under `DAFOAM_CHARTER.md` §6 this is a claim about a toolchain, not about arithmetic in general**:
+it holds for `dafoam/opt-packages:latest`
+(`sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc`) and
+`dafoam-idwarp-rot:v1`
+(`sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35`), on this case at
+`np = 4` with `cpuset=5,6,7,9`, and is **asserted for no other image, rank count or decomposition.**
 
 **Nothing in this item or this record is filed, sent, emailed, uploaded, posted or commented outside
 this box, now or ever** (`CLAUDE.md` rule 7; `DAFOAM_CHARTER.md` §10). **SUBMISSIONS PARKED.**
