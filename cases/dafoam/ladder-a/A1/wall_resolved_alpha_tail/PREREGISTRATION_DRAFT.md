@@ -1864,3 +1864,134 @@ queues, it never refuses** — it would not stop the collision. **Referred to th
 supervisor, not resolved by a lane.**
 
 **Nothing has been launched. Zero compute. The run root is absent.**
+
+---
+
+## ADDENDUM 6 — 2026-09-03T21:14Z — U1 IS ENQUEUED ON A CORRECTED PREMISE, AND U1/U2 ARE SERIALISED ONTO ONE CORE RATHER THAN SPLIT ACROSS TWO
+
+**Document version 1.5 → 1.6.**
+**Lines whose number changed above this section: 0** — **COMPUTED:** in the
+appending invocation the first **1,866** lines of this file, its entire length
+before this append, were compared byte-for-byte against its blob at `HEAD` and
+are identical; `git diff` shows **one hunk, zero deleted lines**.
+
+**PRE-COMPUTE CONDITION, BY EXECUTION IN THE APPENDING INVOCATION:** the
+registered run root `/home/ubuntu/certonomous-runs/A1WRT/` is **ABSENT**. **This
+is the LAST addendum for which that will be true**, and it is landed **before**
+the drop for exactly that reason: the queue's own README records that **the drop
+is the launch**, so everything this document has to say is said while the item is
+still at zero compute.
+
+**THIS ADDENDUM ALTERS NO GATE, NO THRESHOLD, NO CAP AND NO LABEL.** `endTime`
+4000 · `primalMinResTol` 1e-8 · caps 361.0 / 2943.0 · ceiling 3304.0 · frame
+allowance 300 s · `TMO` 21,360 / 176,280 s · np = 1 · patched row
+`sha256:2927768a16ac…` · declared points 1 and 7 · `G-PATCH`, `G-REPRO`, `G-OCC`,
+`G-COLDSTART`, `G-STALL`, `G-FIXTURE` **as frozen** · verdict labels as frozen.
+**All unchanged. What this addendum records is a scheduling ruling and an
+enqueue, and neither touches a registered number.**
+
+---
+
+### A6.1 The premise was wrong twice over, and the record says how
+
+ADDENDUM 5 held the queue row because the authorisation's capacity premise was
+measured false. **The supervisor re-derived both errors himself and
+re-authorised on the true premise.** They are recorded because they are
+instrument failures, not arithmetic slips:
+
+1. **A stale value carried across scopes.** The 94.9 % figure was read from the
+   runner's log at **20:30Z** and carried to **21:0xZ** without re-reading.
+2. **The wrong instrument entirely.** `uptime`'s **load average** was read as an
+   occupancy measure. **Load average is a run-queue length, not a utilisation
+   percentage** — it counts runnable *and* uninterruptible-sleep tasks, so an
+   I/O-heavy box reads "saturated" while its cores are not. **Measured on this
+   box at 21:12:28Z: load average 24.34 against 70.6 % busy.**
+   `scripts/queue_runner.py` `measure_box` is the instrument; `uptime` is not.
+
+**The true reading, at the drop:** busy **70.6 %** (~11.3 of 16 cores),
+MemAvailable **26.1 GB**, headroom **3.1 cores** to the `0.9 × ncpu` line.
+`D6RF2_chain` and `F28G_L1_dp1000_U20` are held **only because they are 4-rank**
+(`queue_runner.py:936`, `busy_cores + ranks > 0.9 × ncpu`), and the runner is
+**first-fit over the whole queue, not FIFO** — its own comment: *"a held wide
+entry must not block a narrow one behind it."* **So this 1-rank row overtakes
+them, and the drop is a launch on the next tick.**
+
+**THE COST, ACCEPTED AND NAMED RATHER THAN WAVED PAST** (the supervisor's, in his
+words): this row raises `busy_cores` to ~12.3, so **`D6RF2` will need `W3` to
+release ~1.9 cores instead of ~0.9** before it admits. It is taken because
+`D6RF2` is held by `W3`'s occupancy and **not by this row**, and holding a
+fully-checked 1-rank item idle for hours to marginally speed an item blocked by
+something else is the wrong trade under the standing directive that idle capacity
+is a defect.
+
+### A6.2 U1 ENQUEUED — `A1WRT_U1_alpha12_symmetry`
+
+The **reproduction control**: `symmetry`, COLD, one point at α = 12, against
+A1WR's own CONTINUED α = 12 (`CL` 1.19079592024, `CD` 0.030665481166) — `G-REPRO`
+on A1WR's own configuration, unchanged. **Estimate 32.33 core-min against the
+registered cap 361.0**; **$0.0276 DERIVED, NOT MEASURED**, and the whole item's
+ceiling of 3,304.0 core-min is **$2.82 DERIVED** — both inside the under-$25
+pre-authorised band. Row at
+`verification/queue/dafoam/A1WRT_U1_alpha12_symmetry.json`, **moved and not
+copied** from beside the case.
+
+### A6.3 U1 AND U2 ARE SERIALISED ONTO ONE CORE — and the obvious repair is REFUSED
+
+**Ruled by the dafoam-supervisor, 2026-09-03, and it is the more consequential of
+the two rulings.**
+
+Both units default to `CPUSET="${A1WRT_CPUSET:-10}"`, so two rows enqueued
+together would collide on core 10 — and the launcher's `G-OCC` **records and
+queues but never refuses**, so it would not stop the collision. **The apparent
+repair is to give U2 a second core. THAT IS REFUSED.**
+
+> **U1 and U2 exist TO BE COMPARED — that comparison IS the item, and its whole
+> claim is to be one-variable. Running the two arms on different cores makes CPU
+> PLACEMENT a variable that differs between them, and this family already carries
+> `G12_cpu_placement_F-P` `GATE FAIL` on record: placement is demonstrably not
+> free in these measurements. Solving a scheduling collision by splitting the
+> arms would buy throughput by spending the very thing the item exists to
+> measure.**
+
+**The shared `CPUSET` default is therefore not a defect to route around — it is
+the one-variable design expressing itself**, and the collision is the reason to
+**serialise**, not the reason to split. **U2's row is drafted and HELD at
+`cases/dafoam/ladder-a/A1/wall_resolved_alpha_tail/A1WRT_U2_tail_empty.json`
+until U1 has landed and been read**, then moved. Both arms run on core 10,
+sequentially, on identical placement.
+
+**AND THE HOLD ON U2 IS A SCHEDULING RULING, NOT A DEPENDENCY. It must never be
+reported as one.** §3 registers that U1 does **not** gate U2: if the cold α = 12
+fails outright the verdict is `NOT A RESULT` on `G-REPRO` and **the tail is still
+run and reported**, with the control's absence named.
+
+**Serialising is also what CLOSES the `G-OCC` gap** rather than relying on a
+guard that reports and does not refuse. That `G-OCC` cannot catch a same-item
+cpuset collision is recorded here as a known limitation of that guard, not as a
+defect of this run.
+
+### A6.4 The `S8` pattern is the shape a successor copies
+
+ADDENDUM 5 §A5.3 registered the `cp -a` mtime hazard and named the remedy; it is
+repeated here because it is the operative half. **Any age datum must come from
+something the launcher itself wrote, never from the staged tree.** `S8` is the
+shape to copy: it `touch`es `$WORK/0.orig/*` **last, after every other staging
+step**, and writes `$WORK/.a1wrt_age_datum` from that `touch` — so the datum
+dates *the run that was allowed to produce the answer*, which is precisely what
+`CLAUDE.md` rule 4's age guard requires. **The staged tree's mtimes date `L3`.**
+
+### A6.5 What happens next, and what this lane may not do
+
+**The verdict is the frozen grader's and the reading is the supervisor's.** This
+lane does not grade, and does not diagnose an abort into a repair: **an abort is
+a finding about the case until triage says otherwise, and triage is the
+supervisor's** (`SUPERVISION_CHARTER.md` §3, the check that may never be
+delegated). The grading path is `a1wrt_read.py`,
+`705db5f7e972f6c033cbe303b7a6038f`, **unchanged since the freeze and unmoved by
+any of the six addenda**.
+
+**A completion report is incomplete without the estimate-versus-actual
+comparison** (`CLAUDE.md` rule 12): actual/predicted against **32.33** for U1 and
+**255.39** for U2, in core-minutes from the logs, dollars **derived, not
+measured**, waste named separately and never absorbed into the ratio, landing as
+a row in `docs/COST_CALIBRATION.md`.
