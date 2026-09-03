@@ -479,3 +479,135 @@ The `MESH` cap is registered in **two** executables: the launcher's `cap_core_mi
 `G-MANIFEST`, `G-COLD`, `G-ROOT.1`, `G-ROOT.2`, `G-ROW`, `G9-TOOLCHAIN`, `G-EPS`, `G-PLAT7`, the `VERDICT_CEILING = "GATE REACHED"` and its reason, and every threshold, band and label in §3–§5 and §9 are unchanged. **No gate, threshold, label or verdict class moves, and no verdict class is made reachable that was not reachable at the freeze.**
 
 **SUBMISSIONS PARKED.** Nothing in this amendment is sent, filed, uploaded, registered or posted outside this box.
+
+---
+
+# AMENDMENT 2 — 2026-09-03 — PRE-COMPUTE — **THE CAPS ARE RE-SET ON THE *EFFECTIVE SOLVER BUDGET*, NOT THE NOMINAL CAP; `T10` AND `T12` WERE REGISTERED TO TIME OUT AT THEIR OWN PREDICTED SPEND; AND THE ASSERT THAT WOULD HAVE CAUGHT BOTH IS ADDED AND EXECUTED**
+
+**`lines whose number changed above this section: 0`**
+
+## Condition: still zero solver core-minutes — checked by execution at 2026-09-03T16:31:03Z, not asserted
+
+1. **Run root absent.** `d19t_chain_driver.sh assert-absent` re-executed and printed
+   `D19T_ROOT_ABSENT_ASSERTED /home/ubuntu/certonomous-runs/CURRICULUM-D19T-a1-naca0012-shape7-primal-tightening does not exist at 2026-09-03T16:31:03Z`.
+2. **Both partial roots preserved by `mv`, never deleted:** `..._partial_20260901T164955Z` and `..._partial_20260902T220708Z`.
+3. **Zero `d19t_` containers in any state, from a reader shown able to see a non-zero:** the same census returns **40** containers.
+4. **The age-guard launch sentinel `.d19t_datums` does not exist**, while the siblings' `.d19r_datums`, `.d19o_datums` and `.d19m_datums` all do — again a zero from a reader proved sighted.
+5. **No `ledger.txt` has ever been written under any D19T root.**
+
+**Spend to date: 0.0 solver core-min.** Amendments before first compute are legal under `CLAUDE.md` rule 2 and §10. At this amendment `PREREGISTRATION.md` was byte-identical to its committed blob `f64f82fd66be80d4c5d769064388c4a3e0797086` (md5 `2a39628367d421ba5f0720fae6171520`) before the append, and this amendment is a **pure append** — verified by the prefix-identity method, not by a diffstat.
+
+## THE DEFECT AMENDMENT 1 REPAIRED ONE ARM OF AND LEFT IN THE OTHER FOUR
+
+Amendment 1 stated: *"The four solver arms were never reached and are not defective."*
+**That sentence is FALSE by this document's own predicted spend, and it was asserted without ever being evaluated.** It is struck here, not rewritten, and the correction is attributed to the lane evaluation that produced it.
+
+**THE STRUCTURAL FINDING, WHICH IS THE REAL CONTENT OF THIS AMENDMENT.** The solver never receives `cap`. It receives
+
+> **`cap − CAP_MARGIN_S × ranks / 60`**, which at `CAP_MARGIN_S = 60` is exactly **`cap − ranks`** core-min.
+
+At `ranks = 2` a 4.0 cap delivers **2.0** — **half the budget goes to a margin nobody costed.** And the launcher's back-check
+
+> `(TMO + CAP_MARGIN_S) × ranks / 60 == cap`
+
+is **structurally incapable of catching this, because it adds back the very margin the solver never gets**: it reconstructs `cap` by *undoing the subtraction it should be auditing*. **A self-consistency check that inverts the subtraction it should audit will pass forever.**
+
+**What that left on the ground, against this document's own §6 predictions:**
+
+| arm | cap | ranks | `TMO` | effective budget | §6 registered prediction | |
+|---|---|---|---|---|---|---|
+| `MESH` (Amendment 1) | 3.0 | 1 | 120 s | 2.0 | 0.183 **MEASURED** | fits, 10.93× |
+| `T08` | 4.0 | 2 | 60 s | 2.0 | 1.628 | fits, but only 1.23× |
+| **`T10`** | 4.0 | 2 | 60 s | **2.0** | **2.108** | **REGISTERED TO TIME OUT** |
+| **`T12`** | 4.0 | 2 | 60 s | **2.0** | **2.589** | **exceeds by 1.30×** |
+| `XT10` | 5.0 | 2 | 90 s | 3.0 | 1.726 | fits, 1.74× |
+
+**Two of five arms were registered to die at their own deadlines on a QUIET box, before any contention factor.** `MESH`'s original defect was the **absolute** form (`TMO = 0`) and it was loud: an assert fired. `T10` and `T12` are the **relative** form — `0 < TMO < the arm's own predicted wall` — and it is **silent**: nothing fires, the arm launches, and it dies at its deadline having bought nothing. **The silent form is the expensive one.**
+
+## THE RULING: CAPS SET ON THE EFFECTIVE BUDGET AT ~3×
+
+Sanaa's 2026-09-03 ~18:00Z envelope law, item 2, verbatim: a hard per-run cap *"set by the team at ~3× its own estimate, not by me"*, and *"the estimate is an instrument, not a permission slip."* **That factor is applied to the EFFECTIVE SOLVER BUDGET, not to the nominal cap** — applying it to the nominal cap is precisely the error that produced this defect twice.
+
+| arm | ranks | **cap** | `TMO` | **effective core-min** | §6 prediction | ratio |
+|---|---|---|---|---|---|---|
+| `MESH` | 1 | **3.0** *(unchanged)* | 120 s | 2.0 | 0.183 | **10.93×** |
+| `T08` | 2 | **7.0** | 150 s | 5.0 | 1.628 | **3.07×** |
+| `T10` | 2 | **8.5** | 195 s | 6.5 | 2.108 | **3.08×** |
+| `T12` | 2 | **10.0** | 240 s | 8.0 | 2.589 | **3.09×** |
+| `XT10` | 2 | **7.5** | 165 s | 5.5 | 1.726 | **3.19×** |
+
+**§6's cap table is superseded by the rows above. The originals are struck, not rewritten.**
+
+Back-check exact on all five: `(120+60)×1/60 = 3.0`, `(150+60)×2/60 = 7.0`, `(195+60)×2/60 = 8.5`, `(240+60)×2/60 = 10.0`, `(165+60)×2/60 = 7.5`.
+
+## `G-BUDGET` — THE ASSERT THIS ITEM DID NOT HAVE, ADDED AND **EXECUTED**
+
+Registered at `d19t_run_arm.sh`, evaluated per arm at run time, refusing with **exit 65** on failure:
+
+```
+TMO = int(cap*60/ranks) - CAP_MARGIN_S
+assert TMO > 0                                  # NECESSARY AND NOT SUFFICIENT -- retained, and documented as such
+assert TMO*ranks/60 >= 3.0 * pred_core_min(arm) # G-BUDGET: THE ONE THAT WAS MISSING
+assert abs((TMO + CAP_MARGIN_S)*ranks/60 - cap) <= 1e-6
+```
+
+`pred_core_min()` is a new registered table carrying §6's own per-arm predictions (`MESH` 0.183 **MEASURED**, `T08` 1.628, `T10` 2.108, `T12` 2.589, `XT10` 1.726). **These are predictions and are never used as caps.**
+
+**EXECUTED OVER ALL FIVE ARMS, from the edited file's own tables, 2026-09-03 — because an assert nobody ran is what put this item here:**
+
+```
+D19T_G_BUDGET arm=MESH cap_core_min=3.0  margin_cost_core_min=1.000 effective_core_min=2.000000 predicted=0.183 ratio=10.9290 required=3.0x PASS  [TMO=120s backcheck=3.000000]
+D19T_G_BUDGET arm=T08  cap_core_min=7.0  margin_cost_core_min=2.000 effective_core_min=5.000000 predicted=1.628 ratio=3.0713  required=3.0x PASS  [TMO=150s backcheck=7.000000]
+D19T_G_BUDGET arm=T10  cap_core_min=8.5  margin_cost_core_min=2.000 effective_core_min=6.500000 predicted=2.108 ratio=3.0835  required=3.0x PASS  [TMO=195s backcheck=8.500000]
+D19T_G_BUDGET arm=T12  cap_core_min=10.0 margin_cost_core_min=2.000 effective_core_min=8.000000 predicted=2.589 ratio=3.0900  required=3.0x PASS  [TMO=240s backcheck=10.000000]
+D19T_G_BUDGET arm=XT10 cap_core_min=7.5  margin_cost_core_min=2.000 effective_core_min=5.500000 predicted=1.726 ratio=3.1866  required=3.0x PASS  [TMO=165s backcheck=7.500000]
+ALL FIVE ARMS PASS TMO>0, G-BUDGET >= 3.0x, AND THE EXACT BACK-CHECK: True
+```
+
+**HONEST LIMIT ON THAT EVALUATION.** The launcher **refused** to run its own assert path against a scratch `BASE` — `G-ROOT.1` fired and would not accept a root that is not this item's registered one. That is the guard working, and it means the numbers above were produced by evaluating **the tables and constants read out of the edited file** under the identical arithmetic, **not** by the launcher executing them in place. **The launcher's own execution happens at launch**, prints `D19T_G_BUDGET` per arm to the log, and records `eff_core_min`, `pred_core_min`, `budget_ratio` and `tmo_s` into `ledger.txt` — where the `MESH` arm's line is the first live confirmation and is checked on landing.
+
+## `G-QUIET` — THE CONCURRENCY PRECONDITION, ENFORCED AND RECORDED
+
+**Every cap in this item rests on a QUIET-BOX cost basis, and until now that was an unstated assumption rather than a checked condition.** The measured compressible contention factor on this hardware is **3.1198×** (`probe_C` 1.5599 it/s at 2-way against `cold_C_4` 0.5000 it/s at 8-way, `A1WR/STAGE12/CHAIN_LEDGER.tsv`). At that factor **every arm's spend would exceed the grader's unchanged `G-CAP` threshold and this item could return nothing but `GATE FAIL` on cost alone.**
+
+**The gate is NOT widened to accommodate that. The precondition is enforced instead.** Before each arm the launcher:
+
+1. proves its container reader **sighted** — `docker ps -a` must return a non-zero count, else **exit 66** with the reason that a zero from an unsighted reader is not evidence (rule 3);
+2. refuses to launch (**exit 66**) if any competing solver container is live;
+3. records `g_quiet_utc` and `g_quiet_census_all` into `ledger.txt` beside the arm's cost.
+
+**This is the exact repair for the A1WR failure class.** A1WR's deadline assumed a quiet box and **nothing enforced it**; six cold controls died at the deadline for **331.7 core-min of zero physics**. **A quiet-box cost basis with no quiet-box gate is a prediction with no premise.**
+
+**Residual risk, stated rather than hidden:** `G-QUIET` is checked at each arm's launch. A peer that starts a solver *mid-arm* is not caught, and the resulting contention would show as an over-cap spend at grading. That is the safe direction — the cost is bought, recorded, and then judged.
+
+## THE GRADER DOES NOT MOVE, AND THE RELATIONSHIP IS NOW THE CORRECT ONE
+
+**`d19t_grade.py` is not edited. Its md5 is `bc6d694a7805a0d507be024dda8fd4fa`, confirmed identical to its HEAD blob before and after.** `ARM_CAP_CORE_MIN` stays `{MESH 1.0, T08 4.0, T10 4.0, T12 4.0, XT10 5.0}`. Widening a `G-CAP` threshold is reserved above this team.
+
+**The two caps are not duplicates and are not meant to be equal:**
+
+- **the launcher's cap is a RUNAWAY STOP** — it bounds how long an arm may occupy the box;
+- **the grader's cap is the COST GATE** — it decides whether the spend was anomalous, and it is the **stricter** of the two and remains binding.
+
+On §6's quiet-box predictions **every arm lands inside the grader's caps** — `MESH` 0.183/1.0 (5.46×), `T08` 1.628/4.0 (2.46×), `T10` 2.108/4.0 (1.90×), **`T12` 2.589/4.0 (1.54×, the tightest)**, `XT10` 1.726/5.0 (2.90×) — **so the two cannot disagree about a normal run.** They differ only where an arm runs long, and there the launcher lets it finish and the grader refuses its cost: the number is bought, recorded and then judged, instead of being destroyed by a deadline.
+
+## WHAT ELSE DOES NOT MOVE
+
+**The item ceiling is unchanged at 18.0 core-min.** It is a **spend** ceiling on the ledger's summed `core_min` (`d19t_chain_driver.sh:65-66`), **not** an identity on the sum of arm caps. Cap sum rises to **36.0** and the effective-budget sum to **27.0**, while the ceiling stays **18.0** and therefore **binds first** — against a quiet predicted item spend of **8.234 core-min**, cumulative spend after each arm is 0.183, 1.811, 3.919, 6.508, 8.234, all well inside. Predicted item spend is unchanged at **8.234 core-min**; derived dollars unchanged at **$0.0070** predicted and **$0.0154** at the ceiling, at the owner-stated $0.0513/core-h — **DERIVED, never measured**, the box cannot read its own billing.
+
+**`CAP_MARGIN_S` stays at 60 s.** It is a global serving all five arms; one arm's mis-sized budget is never a reason to move a global. **The margin was never the defect — the budgets were, and that is what moved.**
+
+**Gates untouched:** `G-PLACE` (cpuset `5,13`), `G-NP`, `G-MANIFEST`, `G-COLD`, `G-ROOT.1`, `G-ROOT.2`, `G-ROW`, `G9-TOOLCHAIN`, `G-EPS`, `G-PLAT7`, and `VERDICT_CEILING = "GATE REACHED"`. **No existing gate, threshold, label or verdict class moves, and no verdict class is made reachable that was not reachable at the freeze.** `G-BUDGET` and `G-QUIET` are **new refusals** — they can only stop a launch, never license one, and neither can turn a `GATE FAIL` into a pass.
+
+## THE INSTRUMENT RE-PIN
+
+| file | old md5 | new md5 | role |
+|---|---|---|---|
+| `d19t_run_arm.sh` | `9b04d68ebed675e2d3df6c55d1e52956` | **`8bcdb9c306d1df659a1cb97e050cfcf9`** | launcher |
+| **`d19t_grade.py`** | `bc6d694a7805a0d507be024dda8fd4fa` | **`bc6d694a7805a0d507be024dda8fd4fa` — UNCHANGED** | **THE GRADING PATH** |
+
+`bash -n` passes on the edited launcher.
+
+**⚠ THE LEDGER ROW GAINS SIX FIELDS AND THE GRADER'S PARSE WAS RE-PROVED AGAINST IT, BY EXECUTION.** `ledger.txt` now also carries `eff_core_min`, `pred_core_min`, `budget_ratio`, `tmo_s`, `g_quiet_utc` and `g_quiet_census_all`. The frozen grader's `_LEDGER` regex was run against a row in the new format and **every field it consumes still parses correctly** — `core_min`, `ranks`, `cpuset`, `cap_core_min`, `rc`, `wall_s`, `digest`, `row` — the old format still parses, and the reader's zero leg (no rows → `{}`) still returns empty. **This was executed, not inferred, because changing the ledger format under a frozen grader is exactly the kind of change that is assumed safe and is not.**
+
+**SUBMISSIONS PARKED.** Nothing in this amendment is sent, filed, uploaded, registered or posted outside this box.

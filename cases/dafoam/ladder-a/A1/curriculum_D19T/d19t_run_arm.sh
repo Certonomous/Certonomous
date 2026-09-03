@@ -64,14 +64,26 @@ container_census() {
   sudo -n docker ps --format '{{.Names}}' 2>/dev/null | grep -v "^d19t_" | tr '\n' ',' | sed 's/,$//'
 }
 
-# ---- REGISTERED CAP TABLE (PREREGISTRATION.md section 6, verbatim) ----------
-#   arm    ranks  core-min cap  in-container wall  memory   primalMinResTol
-#   MESH     1        3.0            120 s          4g          n/a
-#   T08      2        4.0             ...           4g         1e-8
-#   T10      2        4.0             ...           4g         1e-10
-#   T12      2        4.0             ...           4g         1e-12
-#   XT10     2        5.0             ...           4g         1e-10
-#   (wall = cap*60/ranks - CAP_MARGIN_S)
+# ---- REGISTERED CAP TABLE (PREREGISTRATION.md AMENDMENT 2, verbatim) --------
+#   THE SOLVER DOES NOT RECEIVE `cap`.  IT RECEIVES `cap - CAP_MARGIN_S*ranks/60`,
+#   which for CAP_MARGIN_S=60 is exactly `cap - ranks` core-min.  At ranks=2 a
+#   4.0 cap delivers 2.0 -- half the budget goes to a margin nobody costed.  The
+#   caps below are set on the EFFECTIVE budget at ~3x each arm's own registered
+#   prediction (Sanaa 2026-09-03 ~18:00Z envelope law item 2), NOT on the
+#   nominal cap.  Setting 3x on the nominal cap is the error that produced the
+#   zero-length MESH deadline and then left T10 and T12 under-budgeted.
+#
+#   arm    ranks  cap    TMO     effective   registered   ratio   primalMinResTol
+#                        (s)     core-min    prediction
+#   MESH     1     3.0   120       2.0        0.183       10.93x     n/a
+#   T08      2     7.0   150       5.0        1.628        3.07x    1e-8
+#   T10      2     8.5   195       6.5        2.108        3.08x    1e-10
+#   T12      2    10.0   240       8.0        2.589        3.09x    1e-12
+#   XT10     2     7.5   165       5.5        1.726        3.19x    1e-10
+#   (TMO = int(cap*60/ranks) - CAP_MARGIN_S;  effective = TMO*ranks/60)
+#   memory 4g on every arm.  Cap sum 36.0; ITEM CEILING stays 18.0 and binds
+#   first -- it is a SPEND ceiling on the ledger sum, not an identity on the
+#   cap sum.
 #
 # MEMORY IS SIZED FROM A MEASUREMENT, NOT INHERITED.  The A1 4,032-cell adjoint
 # peaked at 1137-1189 MiB (`cases/dafoam/ADJOINT_MEMORY_ENVELOPE.json`, options
@@ -82,9 +94,26 @@ CAP_MARGIN_S=60
 cap_core_min() {
   case "$1" in
     MESH)          echo 3.0 ;;
-    T08|T10|T12)   echo 4.0 ;;
-    XT10)          echo 5.0 ;;
+    T08)           echo 7.0 ;;
+    T10)           echo 8.5 ;;
+    T12)           echo 10.0 ;;
+    XT10)          echo 7.5 ;;
     *)             echo "" ;;
+  esac
+}
+# THE ARM'S OWN REGISTERED QUIET-BOX PREDICTION (PREREGISTRATION.md section 6
+# per-arm table).  It is what the effective-budget assert below is measured
+# against.  MESH is MEASURED (D19R); the four solver arms are EXTRAPOLATED from
+# D19R's 0.0740 core-min per converged primal solve, except T08 whose basis is
+# that measurement directly.  THESE ARE NOT CAPS AND ARE NEVER USED AS ONE.
+pred_core_min() {
+  case "$1" in
+    MESH)  echo 0.183 ;;
+    T08)   echo 1.628 ;;
+    T10)   echo 2.108 ;;
+    T12)   echo 2.589 ;;
+    XT10)  echo 1.726 ;;
+    *)     echo "" ;;
   esac
 }
 cap_memory() {
@@ -158,6 +187,61 @@ import sys
 if abs($BACKCHECK - $CAP) > 1e-6:
     sys.stderr.write('ABORT cap assert: deadline %ds x %d ranks backs out to %s core-min, not the registered %s\n' % ($TMO, $RANKS, '$BACKCHECK', '$CAP')); sys.exit(1)
 " || exit 65
+
+# ---- G-BUDGET: THE ASSERT THIS ITEM DID NOT HAVE ---------------------------
+# `TMO > 0` above is NECESSARY AND NOT SUFFICIENT.  It caught the ABSOLUTE form
+# (MESH's deadline of exactly 0 s).  It cannot catch the RELATIVE form --
+# 0 < TMO < the arm's own predicted wall -- which is SILENT: nothing fires, the
+# arm launches, and it dies at its deadline having bought nothing.  T10 and T12
+# sat in that window through two launches of this item.
+#
+# AND THE BACK-CHECK ABOVE IS STRUCTURALLY INCAPABLE OF CATCHING EITHER, because
+# it ADDS BACK the very margin the solver never gets: (TMO + margin)*ranks/60
+# reconstructs `cap` by undoing the subtraction it should be auditing.  A
+# self-consistency check that inverts the subtraction it should audit will pass
+# forever.  G-BUDGET audits the subtraction instead.
+EFF_CORE_MIN=$(python3 -c "print('%.6f' % ($TMO*$RANKS/60.0))")
+PRED=$(pred_core_min "$ARM"); test -n "$PRED" || { echo "ABORT arm $ARM carries no registered prediction -- G-BUDGET cannot be evaluated"; exit 65; }
+BUDGET_FACTOR=3.0
+python3 -c "
+import sys
+eff, pred, fac = $EFF_CORE_MIN, $PRED, $BUDGET_FACTOR
+if eff < fac*pred - 1e-9:
+    sys.stderr.write('ABORT G-BUDGET arm $ARM: effective solver budget %.6f core-min '
+                     '(deadline %ds x %d ranks) is below %.1fx the registered prediction '
+                     '%.6f = %.6f core-min. The cap is arithmetically incompatible with '
+                     'the run it is meant to permit.\n' % (eff, $TMO, $RANKS, fac, pred, fac*pred)); sys.exit(1)
+" || exit 65
+echo "D19T_G_BUDGET arm=$ARM cap_core_min=$CAP margin_cost_core_min=$(python3 -c "print('%.3f' % ($CAP_MARGIN_S*$RANKS/60.0))") effective_core_min=$EFF_CORE_MIN predicted=$PRED ratio=$(python3 -c "print('%.4f' % ($EFF_CORE_MIN/$PRED))") required=${BUDGET_FACTOR}x PASS"
+
+# ---- G-QUIET: THE CONCURRENCY PRECONDITION, ENFORCED AND RECORDED ----------
+# The cost basis for every arm is a QUIET-BOX prediction.  Until now that was an
+# UNSTATED ASSUMPTION rather than a checked condition, and an unenforced
+# quiet-box assumption is exactly what cost A1WR 331.7 core-min for zero physics
+# (six cold controls killed by a deadline sized on a quiet box and spent on a
+# box the same item had just filled).  The measured compressible contention
+# factor on this hardware is 3.1198x (probe_C 1.5599 it/s at 2-way against
+# cold_C_4 0.5000 it/s at 8-way); at that factor every arm's SPEND would exceed
+# the grader's UNCHANGED G-CAP threshold and this item could return nothing but
+# GATE FAIL.  The gate is NOT widened to accommodate that.  The precondition is
+# enforced instead, so the quiet-box basis is a recorded fact and not a hope.
+#
+# PLANTED-ZERO DISCIPLINE (CLAUDE.md rule 3): a zero from `docker ps` is only
+# evidence if the SAME reader is shown able to return a non-zero.  It is proved
+# sighted against `docker ps -a` before its zero is accepted.
+CENSUS_ALL=$(sudo -n docker ps -a --format '{{.Names}}' 2>/dev/null | wc -l)
+test "$CENSUS_ALL" -gt 0 || { echo "ABORT G-QUIET: the container reader returned zero on 'docker ps -a' too -- it is NOT SHOWN ABLE TO SEE A NON-ZERO, so its zero on running containers is not evidence"; exit 66; }
+CENSUS_LIVE=$(container_census)
+QUIET_UTC=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+if [ -n "$CENSUS_LIVE" ]; then
+  echo "ABORT G-QUIET arm=$ARM at $QUIET_UTC: competing solver containers are live [$CENSUS_LIVE]."
+  echo "  This item's caps are sized on a QUIET-BOX cost basis and the grader's G-CAP"
+  echo "  thresholds are NOT widened for contention.  Launching now would spend the arm"
+  echo "  at up to 3.1198x its predicted cost and return GATE FAIL on cost alone."
+  echo "  This is a REFUSAL TO LAUNCH, not a request to raise a cap."
+  exit 66
+fi
+echo "D19T_G_QUIET arm=$ARM PASS at $QUIET_UTC: zero competing solver containers, from a reader shown able to see a non-zero (docker ps -a returned $CENSUS_ALL)"
 echo "D19T_CAP arm=$ARM cap_core_min=$CAP ranks=$RANKS deadline_in_container_s=$TMO backs_out_to=$BACKCHECK"
 
 MEMAVAIL_KB=$(awk '/MemAvailable/{print $2}' /proc/meminfo)
@@ -339,8 +423,9 @@ OVER=$(python3 -c "print('YES' if $CORE_MIN > $CAP else 'NO')")
 
 LEDGER="$BASE/ledger.txt"
 {
-  printf 'ARM=%s ROW=%s IMG=%s DIGEST=%s rc=%s wall_s=%s ranks=%s core_min=%s cap_core_min=%s over_cap=%s tol=%s mode=%s memory=%s cpuset=%s memavail_pre_GiB=%s memavail_post_GiB=%s siblings_pre=[%s] siblings_post=[%s] log=%s stamp=%s\n' \
+  printf 'ARM=%s ROW=%s IMG=%s DIGEST=%s rc=%s wall_s=%s ranks=%s core_min=%s cap_core_min=%s over_cap=%s eff_core_min=%s pred_core_min=%s budget_ratio=%s tmo_s=%s g_quiet_utc=%s g_quiet_census_all=%s tol=%s mode=%s memory=%s cpuset=%s memavail_pre_GiB=%s memavail_post_GiB=%s siblings_pre=[%s] siblings_post=[%s] log=%s stamp=%s\n' \
     "$ARM" "$ROW" "$IMG" "$GOT_DIGEST" "${rc:-NA}" "$WALL" "$RANKS" "$CORE_MIN" "$CAP" "$OVER" \
+    "$EFF_CORE_MIN" "$PRED" "$(python3 -c "print('%.4f' % ($EFF_CORE_MIN/$PRED))")" "$TMO" "$QUIET_UTC" "$CENSUS_ALL" \
     "${TOL:-n/a}" "${MODE:-n/a}" "$MEM" "$CPUSET" "$MEMAVAIL_GIB" "$MEMAVAIL_POST" \
     "$SIBLINGS_PRE" "$SIBLINGS_POST" "$(basename "$LOG")" "$STAMP"
   grep -a "D19T_CONTAINER_UID\|D19T_IDWARP_SO_MD5\|D19T_DEADLINE_IN_CONTAINER_S" "$LOG" | head -3
