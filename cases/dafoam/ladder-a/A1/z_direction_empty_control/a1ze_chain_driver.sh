@@ -44,7 +44,15 @@ PREREG_COMMIT="03120e2244d52aee5dd79f7e0ea66b4b2940f7fd"
 IMG="dafoam-idwarp-rot:v1"
 IMG_DIGEST_WANT="2927768a16ac"
 
-ITEM_CEILING_MIN=370.0
+# FINDING 1, dafoam-supervisor's check-1 read: 370.0 DID NOT BIND. G-CEIL tests
+# SPEND before an arm, never SPEND+cap, so the walk is 0 -> 9 -> 18 -> 275, all
+# below 370, and E3 launches: worst case 532.0 core-min, 1.44x the "ceiling".
+# NOT repaired by making G-CEIL predictive at 370 -- that would make E3, the
+# item's PRINCIPAL TREATMENT ARM, unreachable by construction. Repaired by
+# registering the honest bound: A CEILING BELOW THE CAP SUM IS NOT A CEILING.
+ITEM_CEILING_MIN=532.0
+N_ARMS_EXPECTED=4
+N_PINS_EXPECTED=6
 CAP_MARGIN_S=60
 # arm : cap_core_min : tmo_s : ranks : alpha : planes : pair : cpuset
 ARMS=(
@@ -70,6 +78,7 @@ note() { say "$*" >> "$STATUS.log"; say "$*"; }
 fin() { echo "rc=$1 phase=$2 spend_core_min=${SPEND:-0} utc=$(date -u +%Y-%m-%dT%H:%M:%SZ) pid=$$" > "$STATUS"; exit "$1"; }
 
 SPEND=0
+NRUN=0
 : > "$STATUS.log"
 note "A1ZE_CHAIN_BEGIN stamp=$STAMP pid=$$ img=$IMG prereg=$PREREG_COMMIT"
 
@@ -89,8 +98,15 @@ for f in A1ZE_PREREGISTRATION.md a1ze_grade.py a1ze_stage.py a1ze_cmd.sh \
          a1ze_runScript.py A1ZE_INSTRUMENT_MD5.txt; do
   test -f "$HERE/$f" || { note "A1ZE_ABORT G-SRC instrument absent: $f"; fin 5 G-SRC; }
 done
+# A truncated pin file passes `md5sum -c` having checked only what it contains
+# (MEASURED on this box's coreutils 9.4: 1 of 6 lines -> rc 0). The count is
+# asserted FIRST so a short pin file refuses instead of passing vacuously.
+NPIN="$(grep -c . "$HERE/A1ZE_INSTRUMENT_MD5.txt")"
+[ "$NPIN" = "$N_PINS_EXPECTED" ] \
+  || { note "A1ZE_ABORT G-FREEZE: pin file has $NPIN entries, expected $N_PINS_EXPECTED -- a truncated pin file would pass md5sum -c having checked a subset"; fin 4 G-FREEZE; }
 ( cd "$HERE" && md5sum -c A1ZE_INSTRUMENT_MD5.txt --quiet ) \
   || { note "A1ZE_ABORT G-FREEZE: an instrument drifted from its frozen md5"; fin 4 G-FREEZE; }
+note "A1ZE_G_PINS_OK $NPIN of $N_PINS_EXPECTED instrument pins present and matching"
 # Rule 6, EXECUTED rather than asserted in prose: the registration carries a
 # dated ADDENDUM appended at its foot, so the whole file is no longer the frozen
 # blob -- but the FROZEN PORTION must still be byte-identical to it. That is
@@ -111,7 +127,10 @@ note "A1ZE_G_FREEZE_PASS instruments match their pins; the registration's first 
 # --- the grader's own controls must be born BEFORE any compute is spent ------
 python3 "$HERE/a1ze_grade.py" --selftest > "$ROOT/grader_selftest.out" 2>&1 \
   || { note "A1ZE_ABORT G-CONTROLS the frozen grader refused its own selftest"; fin 3 G-CONTROLS; }
-note "A1ZE_G_CONTROLS_PASS $(grep -c '^CONTROL ' "$ROOT/grader_selftest.out") controls born, rc 0"
+NCTL="$(grep -c '^CONTROL ' "$ROOT/grader_selftest.out")"
+[ "$NCTL" -ge 7 ] \
+  || { note "A1ZE_ABORT G-CONTROLS selftest exited 0 but printed $NCTL control lines -- rc 0 with no controls born is not a passing control"; fin 3 G-CONTROLS; }
+note "A1ZE_G_CONTROLS_PASS $NCTL controls born, rc 0"
 
 # --- G-IMG: the image, by digest --------------------------------------------
 GOT="$(sudo -n docker image inspect --format '{{.Id}}' "$IMG" 2>/dev/null)"
@@ -128,7 +147,13 @@ occ_wait() {
   while true; do
     kb="$(awk '/^MemAvailable:/{print $2}' /proc/meminfo)"
     [ -n "$kb" ] || { note "A1ZE_OCC cannot read MemAvailable -- waiting, not refusing"; sleep 30; waited=$((waited+30)); continue; }
-    n="$(sudo -n docker ps -q 2>/dev/null | wc -l)"
+    # A failed `docker ps` prints nothing and `wc -l` says 0 -- INDISTINGUISHABLE
+    # from a genuinely idle box (MEASURED both ways). The rc is captured and a
+    # failed read is recorded as UNMEASURED, never as 0. It gates nothing, which
+    # is exactly why it would be believed later.
+    local ps_out ps_rc
+    ps_out="$(sudo -n docker ps -q 2>/dev/null)"; ps_rc=$?
+    if [ "$ps_rc" = "0" ]; then n="$(printf '%s' "$ps_out" | grep -c . )"; else n="UNMEASURED"; fi
     la="$(cut -d' ' -f1-3 /proc/loadavg)"
     if [ "$kb" -ge "$MEM_FLOOR_KB" ]; then
       note "A1ZE_OCC_LAUNCH arm=$1 containers=$n memavail_kb=$kb loadavg=$la waited_s=$waited"
@@ -223,9 +248,15 @@ for pair in coarse L3; do
     || { note "A1ZE_ABORT staging/one-variable assert REFUSED for pair=$pair"; fin 7 G-ONEVAR; }
   note "A1ZE_ONE_VARIABLE_PASS pair=$pair (see $STATUS.log for the file-by-file manifest)"
 
+  # A pair name that matches no arm would let this loop complete SILENTLY as
+  # success and the item would end having run nothing -- "ran every arm" is not
+  # distinguishable from "matched no arm" without a count. Found by applying the
+  # same test to the guards the check-1 read did not name.
+  NPAIR=0
   for spec in "${ARMS[@]}"; do
     IFS=':' read -r a cap tmo ranks alpha planes apair cpu <<< "$spec"
     [ "$apair" = "$pair" ] || continue
+    NPAIR=$((NPAIR + 1)); NRUN=$((NRUN + 1))
     note "A1ZE_ARM_BEGIN $a planes=$planes alpha=$alpha cap=$cap TMO=${tmo}s"
     run_arm "$a" "$cap" "$tmo" "$ranks" "$alpha" "$planes" "$cpu"
     ARC=$?
@@ -236,9 +267,14 @@ for pair in coarse L3; do
       fin "$ARC" "ARM-$a"
     fi
   done
+  [ "$NPAIR" -eq 2 ] \
+    || { note "A1ZE_ABORT pair=$pair matched $NPAIR arm(s), expected 2 -- the arm loop ran nothing and would have completed silently"; fin 8 G-ARMS; }
+  note "A1ZE_PAIR_COMPLETE pair=$pair arms_run=$NPAIR"
 done
 
-note "A1ZE_ALL_ARMS_COMPLETE spend=$SPEND core-min of ceiling $ITEM_CEILING_MIN"
+[ "$NRUN" -eq "$N_ARMS_EXPECTED" ] \
+  || { note "A1ZE_ABORT $NRUN arm(s) ran, expected $N_ARMS_EXPECTED -- the chain completed without running the item"; fin 8 G-ARMS; }
+note "A1ZE_ALL_ARMS_COMPLETE arms_run=$NRUN of $N_ARMS_EXPECTED spend=$SPEND core-min of ceiling $ITEM_CEILING_MIN"
 python3 "$HERE/a1ze_grade.py" --root "$ROOT" > "$ROOT/A1ZE_grade_${STAMP}.out" 2>&1
 GRC=$?
 note "A1ZE_GRADED rc=$GRC -> $ROOT/A1ZE_grade_${STAMP}.out"

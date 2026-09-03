@@ -986,3 +986,166 @@ and changes nothing on the strength of it.
 
 **Zero solver core-min. Read-only image identification only, well under 0.02 core-min, disclosed
 rather than omitted. SUBMISSIONS PARKED.**
+
+---
+---
+
+# ADDENDUM C — 2026-09-03 — **v1.3** — THE ITEM CEILING DID NOT BIND, AND FOUR GUARDS COULD NOT TELL "CHECKED AND CLEAN" FROM "NEVER RAN"
+
+**`lines whose number changed above this section: 0`** — asserted mechanically: the disk file's
+first **731** lines are byte-identical under `cmp` to the blob at `03120e22`, its first **845** to
+`2a31f940`, and its first **988** to `cd7d383a`, so Addenda A and B are untouched.
+
+**LAWFUL PRE-COMPUTE, CONDITION CHECKED BY EXECUTION IN THIS INVOCATION:**
+`/home/ubuntu/certonomous-runs/A1ZE` **does not exist**, no `Sc/Ec/S3/E3` unit directory exists,
+no queue row is filed. **This addendum changes ONE registered figure — the item ceiling — and says
+so in its title rather than burying it. No gate, threshold, cap or label otherwise moves.**
+
+## C.1 ⚠⚠ THE ITEM CEILING OF 370.0 WAS NOT A CEILING
+
+`§6.2` registered *"ITEM CEILING 370.0 core-min, checked after every arm, 1.316× the central
+prediction and below the cap sum by design"*, and `§5.5` said the same. **As implemented it could
+never bind.** `G-CEIL` tests cumulative spend **before** an arm and never `spend + cap`. The walk,
+computed:
+
+| before | cumulative cap bound | `SPEND >= 370.0` ? |
+|---|---|---|
+| `Sc` | 0.0 | LAUNCH |
+| `Ec` | 9.0 | LAUNCH |
+| `S3` | 18.0 | LAUNCH |
+| **`E3`** | **275.0** | **LAUNCH** |
+
+**Worst case 532.0 core-min — 1.44× the figure the registration called a ceiling.** The real bound
+was always the cap sum. **"Below the cap sum by design" was exactly backwards: a ceiling below the
+cap sum is not a ceiling, it is a number that reads like one.**
+
+**NOT repaired by making `G-CEIL` predictive at 370.0.** That would stop the chain before `E3` —
+**the item's principal treatment arm, and one of the two arms that verify `d3f47bfa`** — making it
+unreachable by construction. *That is the same defect one level up: a threshold a run cannot reach,
+which is what A1WR's 1e-8 against its own 3.238410e-08 floor already cost this ladder.*
+
+> **REGISTERED CHANGE: `ITEM_CEILING = 532.0 core-min`**, equal to the cap sum, in the driver and in
+> the frozen grader (`a1ze_grade.py`). **The honest worst case is 532.0 core-min = $0.4549 DERIVED**
+> at the owner-stated $0.0513/core-h, never measured. The central prediction is unchanged at
+> **281.15 core-min ($0.2404 DERIVED)**, and every per-arm cap is unchanged at 9.0/9.0/257.0/257.0.
+> **The previous $0.3164 ceiling figure was wrong and is superseded here.**
+
+The structural stop is now genuinely two-layer and both layers bind: the per-arm `TMO` **inside**
+the container, and a ceiling that is actually reachable by the arithmetic that produces it.
+
+## C.2 THE UNIFYING TEST, APPLIED TO EVERY GUARD — **can the code path distinguish "the check ran and found nothing" from "the check did not run"? If it cannot, its zero must refuse.**
+
+| # | guard | the vacuous pass | measured | repair |
+|---|---|---|---|---|
+| 2 | `occ_wait`'s container census | a failed `docker ps` prints nothing, `wc -l` says **0**, written to the ledger as `containers=0` — **indistinguishable from an idle box** | live read → `1`; empty query → `0`; **failed call → `0`** | rc captured; a failed read records **`containers=UNMEASURED`**, never `0` |
+| 3 | `G-EMPTY`'s field limb | if `0.orig` held no field declaring the planes the loop body never ran, `NBAD` stayed 0, **success having examined nothing** | reproduced on a `0.orig` with one non-matching file | counts `fields_checked`; **zero REFUSES**; the count is printed |
+| 4 | `md5sum -c` on the pin file | a short pin file passes having checked a subset | **⚠ the stated premise does not hold for an EMPTY file on this box** — coreutils 9.4 returns **rc 1**. The real hazard is **TRUNCATION: a 1-of-6-line pin file returns rc 0** | pin-file entry count asserted `== 6` **before** `md5sum -c` runs |
+| — | grader selftest | `rc 0` with **no** control lines would have satisfied the check | — | control count asserted `>= 7` |
+| **NEW** | **the arm-selection loop** | **a pair name matching no arm completes SILENTLY as success — the item ends having run nothing.** Found by applying the test to the guards the check-1 read did not name | `pair='TYPO'` → 0 arms matched, loop returns success | `NPAIR == 2` per pair and `NRUN == 4` overall, both refuse |
+
+**And `G-GUARDS` in the frozen grader — plant the RUN, not only the value.** A control proving a
+reader can *see* a non-zero does not prove the reader *executed*. `a1ze_cmd.sh` now emits an
+execution marker only after each guard has run and counted what it examined —
+`A1ZE_G_EMPTY_OK … fields_checked=N`, `A1ZE_TIMEDIR_SCAN`, `A1ZE_TOL_VAR_OK`, `A1ZE_COLD_START` —
+and the grader makes an arm **`NOT A RESULT`** if any marker is missing or if `fields_checked` is
+zero. Driven four ways: clean → all 4 markers; one marker removed → `NOT A RESULT`;
+`fields_checked=0` → `NOT A RESULT`; empty log → `NOT A RESULT`.
+
+## C.3 ⚠ THE `A1WR_PRIMAL_TOL` NAME IS LOAD-BEARING AND WAS MIS-DOCUMENTED — FAIL-OPEN AND SILENT
+
+`a1ze_cmd.sh`'s header said `A1ZE_PRIMAL_TOL`; the code correctly sets **`A1WR_PRIMAL_TOL`**, which
+is the name `a1ze_runScript.py:60` reads (`os.environ.get("A1WR_PRIMAL_TOL", "1.0e-8")`) — the A1WR
+prefix survives because the runScript is a byte-identical copy. **A successor trusting the header
+would export the wrong name, it would be silently ignored, the `1.0e-8` DEFAULT would apply, and the
+two arms could then stop at DIFFERENT iteration counts — reintroducing the exact third variable
+TRAP 2 exists to exclude, with no error printed anywhere.** The header is corrected *and* the name is
+now **asserted on the staged bytes at the point of use** (`A1ZE_TOL_VAR_OK`), because a comment is
+not a check.
+
+## C.4 WHAT DID NOT CHANGE
+
+Every gate and its threshold; every per-arm cap and `TMO`; the drift anchors; the arms; the verdict
+class and ceiling; the central cost prediction. Changed: the **item ceiling only** (370.0 → 532.0,
+with its dollars), plus non-registered guard hardening and one corrected comment.
+**`a1ze_grade.py`'s md5 changes with the ceiling and the new `G-GUARDS`:
+`9b755c3b1a043879a664853a3d747c53` -> `505b883efb1fedadad88e47dd6d07249`.**
+`§12`'s pin sits in the frozen portion and **is not edited** (rule 6); **this addendum supersedes
+it**, and `A1ZE_INSTRUMENT_MD5.txt` — which `a1ze_chain_driver.sh` verifies with `md5sum -c` after
+asserting the file holds exactly 6 entries — carries the operative value. The grader's `--selftest`
+still returns **7 readers born, both legs proved on `P2n` and `P4`, rc 0**.
+
+**OPERATIVE PINS AT v1.3, superseding `§12`'s table for the two files that moved:**
+
+| instrument | md5 |
+|---|---|
+| `a1ze_grade.py` — the frozen grading path | **`505b883efb1fedadad88e47dd6d07249`** |
+| `a1ze_chain_driver.sh` | `610d951088e9039b261c3b9b13f1aae6` |
+| `a1ze_cmd.sh` | `b0e2c8eaf8c16aefb373bb3211a483cd` |
+| `a1ze_stage.py` | `8e62ad7b3557e55bd7316b0d66ba92b9` (unchanged) |
+| `a1ze_runScript.py` | `d48f48c5e2e41e86981acbf6feccb3c4` (unchanged) |
+
+**Zero solver core-min. SUBMISSIONS PARKED.**
+
+---
+---
+
+# ADDENDUM D — 2026-09-03 — **v1.4** — TWO OPERATIONAL FAULTS OF MINE, ONE OF THEM A COMMIT WHOSE MESSAGE WAS FALSE AGAINST ITS OWN DIFF
+
+**`lines whose number changed above this section: 0`** — the disk file's first **731** lines are
+byte-identical under `cmp` to the blob at `03120e22`, its first **845** to `2a31f940`, its first
+**988** to `cd7d383a`. Addenda A, B and C are untouched. **No gate, threshold, cap or label
+changes here.** Run root `/home/ubuntu/certonomous-runs/A1ZE` re-asserted **absent** by execution.
+
+## D.1 ⚠⚠ COMMIT `4fdfaae2b23e98c1c390a903672ecb2cddadab40` IS A PURE DELETION WHOSE MESSAGE CLAIMS FIVE FIXES LANDED. THAT IS A FALSE RECORD AND IT IS MINE.
+
+Its diff is **one file, 136 deletions** — the parked queue row — and nothing else.
+`a1ze_grade.py`, `a1ze_cmd.sh`, `a1ze_chain_driver.sh`, `A1ZE_PREREGISTRATION.md` and
+`A1ZE_INSTRUMENT_MD5.txt` were **on disk only**. The message describes work that did not enter the
+tree.
+
+**MECHANISM, so it is not repeated:** `git update-index --add -- <many paths>` is **all-or-nothing**.
+One path in the list — `verification/queue/dafoam/A1ZE_chain.json` — had **vanished between the
+`cp` that created it and the `update-index` that tried to add it**, because the queue daemon picked
+it up and moved it to `refused/` in that window. `update-index` aborted on that path and **added
+none of the other six**. The separate `--force-remove` then succeeded, so the tree carried only the
+deletion.
+
+**THE ASSERT FIRED CORRECTLY AND I MISREAD IT.** `git diff-tree --stat` printed exactly one line, a
+136-line deletion. I read it as "the parked row was removed, as intended" and did not notice that
+**six additions I expected were absent**. *The rule-10 assert says "only your paths"; it does not
+say "all of your paths", and a diff that is a strict subset of what you meant passes it.* Recorded
+here as the operational lesson: **check the assert for what is MISSING, not only for what is
+foreign** — and never stage a path a live daemon owns in the same `update-index` as your own files.
+
+Nothing was lost: the working tree was intact throughout and every instrument is committed by the
+commit that carries this addendum. **`4fdfaae2` is not rewritten** — history is not edited; this is
+its correction of record.
+
+## D.2 THE DAEMON REFUSED THE ROW, THE REFUSAL WAS CORRECT, AND IT IS RECORDED RATHER THAN ERASED
+
+`2026-09-03T18:54:54Z`, `verification/queue/dafoam/refused/A1ZE_chain.REFUSED.txt`:
+
+> `SCHEMA: 'cost_basis' must contain the phrase 'not measured' -- this box cannot read its own
+> billing (COMPUTE_BUDGET_CHARTER.md section 5)`
+
+The row said **"NEVER measured"** — the same claim in different words, and
+`scripts/queue_entry_check.py:274` tests for the literal phrase. **The validator was right to
+refuse: a rule that accepts synonyms cannot be checked mechanically, and this one exists precisely
+because the box cannot read its own billing.** Corrected to *"reported-by-owner and not measured"*.
+
+**And the refusal caught a second, real defect in the same string:** `cost_basis` still carried the
+**stale `$0.3164` ceiling figure**, which was tied to the 370.0 ceiling that Addendum C had just
+shown does not bind. **Corrected to `$0.4549` at the 532.0 core-min ceiling.** Addendum C had
+updated the ceiling in the driver, the grader and the registration and **missed this one copy of
+the derived dollars** — a figure that travelled into a second document and was not carried with its
+scope, which is this family's most-repeated error and is named as such.
+
+## D.3 THE ROW NOW HAS A CANONICAL TRACKED HOME
+
+The queue directory is owned by a live daemon that may move a file within seconds of its creation,
+so a row that exists **only** there cannot be committed reliably. The canonical copy is
+**`A1ZE_QUEUE_ROW.json` in this item's directory**, tracked and committed; filing is a **copy** into
+`verification/queue/dafoam/`, done as the last action, and the daemon may move it to `launched/` or
+`refused/` immediately — which is normal and is reported wherever it lands.
+
+**Zero solver core-min. SUBMISSIONS PARKED.**

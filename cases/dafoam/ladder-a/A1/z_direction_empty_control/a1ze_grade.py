@@ -55,7 +55,24 @@ ARMS = {
     "E3": ("L3", 130304, "empty", 12.0, 2000, 1, 257.0, 15360),
 }
 PAIRS = [("coarse", "Sc", "Ec"), ("L3", "S3", "E3")]
-ITEM_CEILING_CORE_MIN = 370.0
+# 532.0, not 370.0. The predecessor figure DID NOT BIND: the driver's G-CEIL
+# tests cumulative spend BEFORE an arm, never spend+cap, so the walk 0/9/18/275
+# never reaches 370 and the worst case is the cap sum. A ceiling below the cap
+# sum is not a ceiling. Corrected pre-compute (A1ZE_PREREGISTRATION ADDENDUM C).
+ITEM_CEILING_CORE_MIN = 532.0
+
+# GUARD EXECUTION MARKERS -- "plant the run, not only the value". A control that
+# proves a reader can see a non-zero does not prove the reader EXECUTED. Each of
+# these is printed by a1ze_cmd.sh only after the guard it names has actually run
+# and counted what it examined; a missing marker means the guard did not run, and
+# an arm whose guards did not run is NOT A RESULT however clean its numbers look.
+GUARD_MARKERS = {
+    "A1ZE_G_EMPTY_OK": "G-EMPTY examined the mesh and a non-zero count of fields",
+    "A1ZE_TIMEDIR_SCAN": "the age-guard precondition scan ran",
+    "A1ZE_TOL_VAR_OK": "the staged runScript was proved to read A1WR_PRIMAL_TOL",
+    "A1ZE_COLD_START": "0/ was reset from 0.orig last, dating the run",
+}
+RE_FIELDS_CHECKED = re.compile(r"A1ZE_G_EMPTY_OK .*fields_checked=(\d+)")
 
 # Drift anchors -- MEASURED, per operating point, each from its own alpha
 # segment of A1WR sweep_I/out/sweep.log (last 10 CL:/CD: prints of that segment).
@@ -400,6 +417,40 @@ def grade(root):
             else:
                 out.append(f"G-U2.E {arm}: GATE REACHED -- U2 absent from every "
                            f"printed block")
+
+    # G-GUARDS: did the in-container guards RUN? Their markers are read from the
+    # arm's own docker log. A zero that cannot distinguish "checked and found
+    # nothing" from "did not check" must refuse, so a missing marker -- or a
+    # fields_checked count of zero -- makes the arm NOT A RESULT.
+    for arm in ARMS:
+        log_p = arm_state.get(arm)
+        if not isinstance(log_p, str) or not log_p.endswith(".log"):
+            continue
+        d = os.path.dirname(os.path.dirname(log_p))
+        cand = [os.path.join(d, "out", "guards.log"), log_p]
+        blob = ""
+        for c in cand:
+            if os.path.exists(c):
+                with open(c, errors="replace") as f:
+                    blob += f.read()
+        missing = [m for m in GUARD_MARKERS if m not in blob]
+        if missing:
+            out.append(f"G-GUARDS {arm}: NOT A RESULT -- {len(missing)} guard(s) "
+                       f"left no execution marker, so they cannot be shown to have "
+                       f"run: {sorted(missing)}")
+            arm_state[arm] = "NOT A RESULT"
+            verdict_bits.append("NOT A RESULT")
+            continue
+        m = RE_FIELDS_CHECKED.search(blob)
+        n = int(m.group(1)) if m else 0
+        if n <= 0:
+            out.append(f"G-GUARDS {arm}: NOT A RESULT -- G-EMPTY reported "
+                       f"fields_checked={n}; it examined nothing")
+            arm_state[arm] = "NOT A RESULT"
+            verdict_bits.append("NOT A RESULT")
+            continue
+        out.append(f"G-GUARDS {arm}: all {len(GUARD_MARKERS)} guards left an "
+                   f"execution marker; G-EMPTY examined {n} field(s)")
 
     # G-TOL: neither arm may have stopped on tolerance. Justified on EQUAL
     # ITERATION COUNT alone -- if either arm stops early the comparison is a
