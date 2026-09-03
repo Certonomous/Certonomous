@@ -267,7 +267,7 @@ read in the writing invocation.
 
 ---
 
-~~**Section last written:** 2026-09-03T18:40:18Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-33` — the MEDIAN is now **measured with a hash** from the image this family actually runs (`DAUtility.C` md5 `d5fb5b0a781b11a780133901a8c2241c`, `sort` then index 1 of three at :783-788), not inferred; `S-31` §1-§2 never depended on it and are untouched. Before it, `S-32` (the D6 units defect; `A1ZE` and `D6RF` frozen, neither with a launcher), `S-31`, `S-30`, `S-29`.
+~~**Section last written:** 2026-09-03T18:49:23Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-34` — both chief broadcasts audited against this session and **both found things**: two of my reads were blocked and quietly dropped (re-deriving one surfaced a three-way md5 divergence on a frozen registration — lawful, but I had reported check 4 discharged without it); three guards in a driver I was about to approve cannot tell "checked" from "never ran"; the A1ZE item ceiling does not bind; and **upstream's own comment cuts AGAINST `d3f47bfa`**, registered before compute. Before it, `S-33`, `S-32`, `S-31`, `S-30`, `S-29`.
 
 **Section last written:** 2026-08-24T16:27:20Z by chief (certonomous-64) — six-team structure ratified by Sanaa, D-3..D-6 closed, ansys-verification team created; written by the harness-build lane on the chief's instruction, stamp from `date -u` in the writing invocation
 
@@ -4842,6 +4842,64 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 **Section last written:** 2026-09-03T18:01:38Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-30` — the `W3_chain_r2` chain SURVIVED the usage-limit fleet kill as a detached OS daemon and is at its finite-difference legs (9 stages `rc=0`, 36.10 core-min of a registered 900.0), and `S-29` §6's three "live" pids are corrected: two are dead and the survivor's pid was never right. Before it, `S-29` — `D19T` graded `NOT A RESULT` by its own frozen grader; the `U2` patch-identity mechanism predicts five non-convergences across three items with a fourth arm disconfirming it; the generator fix landed forward-only and UNVERIFIED with `A1ZE` registered as its verification; `D12RLX` referred not withdrawn; and five of the supervisor's own errors are named as his. `S-28` holds `MAAOA`'s conclusion and `D19T`'s original block; `S-27` the closed compressible triage.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-34 — **BOTH CHIEF BROADCASTS AUDITED AGAINST THIS SESSION AND BOTH FOUND THINGS. TWO OF MY READS WERE BLOCKED AND QUIETLY DROPPED; RE-DERIVING ONE OF THEM SURFACED A THREE-WAY md5 DIVERGENCE ON A FROZEN REGISTRATION. THREE GUARDS IN A DRIVER I WAS ABOUT TO APPROVE CANNOT TELL "CHECKED" FROM "NEVER RAN". AND UPSTREAM'S OWN COMMENT CUTS AGAINST THE COMMIT UNDER TEST** (2026-09-03, `date -u` stamp in the committing invocation)
+
+###### 1. DROPPED-READ AUDIT — **TWO FOUND, BOTH RE-DERIVED, ONE WAS LOAD-BEARING**
+
+The chief's rule: *a classifier-blocked measurement is an unmeasured quantity, not a closed question.* Audited honestly rather than asserted clean.
+
+**DROP 1 — a `grep` that timed out at 120 s, went to background, and whose output I never read.** I had already concluded from a `find -iname '*A1ZE*'` that no `A1ZE` registration existed, and briefed a lane on that premise. **The dropped output names `cases/dafoam/ladder-a/A1/z_direction_empty_control/PREREGISTRATION_DRAFT.md` on its second line.** The `find` missed it because **the directory is named for the physics, not the rung** — `z_direction_empty_control`, not `A1ZE`. The lane corrected me from the artefacts. **That was luck, not method: I briefed on a false premise and was rescued by a lane doing the read I dropped.** The same output also names `d6r_ref_off.py` and `d6_ref_off.py` — `REF_off` already had an implementation while I was calling it "commissioned, not drafted".
+
+**DROP 2 — a `git cat-file` that ERRORED (`fatal: too many arguments`) and which I moved past.** It was verifying that `A1ZE`'s registration blob is present in its own freeze commit — **part of check 4, which I had already reported discharged.** Re-derived, and it was not idle:
+
+| | md5 of `A1ZE_PREREGISTRATION.md` |
+|---|---|
+| blob at freeze commit `03120e22` | `e0fc1aa9e1326d37d21de1b519336762` |
+| `git show HEAD:` | `fc28823844b992d56fc21d9871d6ea06` |
+| disk | `b0c044ff34922f0bcd08b1e2d64cd3a0` |
+
+**Three values, all different — a frozen registration that had moved twice.** Rule 2 exists for exactly this. **Both changes are LAWFUL and I verified it rather than assuming it**: hunk headers `@@ -729,3 +729,117 @@` and `@@ -843,3 +843,146 @@` prove both are **pure appends at the foot**; each carries `lines whose number changed above this section: 0`; each asserts zero compute with root absence checked **by execution**; **no gate, threshold, cap or label moves.** Verdict: clean — **but I would have been reporting check 4 discharged on a file I never hashed against its own freeze commit.**
+
+###### 2. CALLER-SIDE AUDIT — **THREE GUARDS THAT CANNOT TELL "CHECKED" FROM "NEVER RAN"**
+
+The chief's second broadcast, applied as the cost-free test to `a1ze_chain_driver.sh` and `a1ze_cmd.sh` during my check-1 read — **before** the row was enqueued, not after.
+
+1. **`occ_wait`'s container census, `driver:131`** — `n="$(sudo -n docker ps -q 2>/dev/null | wc -l)"`. A denied `docker ps` has its stderr swallowed, yields empty, and `wc -l` returns **0**, written to the ledger as `containers=0` — **indistinguishable from a genuinely idle box. This is cfd's failure exactly, in my territory, one line below code that gets it right**: `:130` handles an unreadable `MemAvailable` by waiting and refusing to assume. **The pattern was known to the author and applied to one reader and not its neighbour.**
+2. **`G-EMPTY`'s field limb, `cmd.sh:51-59`** — the loop `continue`s past non-matching files, so **an empty `0.orig` leaves `NBAD` at 0 and the guard reports success having examined nothing.** `:33`'s `test -d 0.orig` proves the directory exists, not that it holds fields.
+3. **`G-FREEZE`'s instrument limb, `driver:92`** — `md5sum -c --quiet` on an **empty or truncated pin file exits 0**, satisfying the limb vacuously.
+
+**All three ordered repaired with the zero made to refuse, plus a fourth, fail-open in a comment**: `cmd.sh`'s header names `A1ZE_PRIMAL_TOL` where the code correctly sets `A1WR_PRIMAL_TOL` (verified: `a1ze_runScript.py:60` reads that name). A successor trusting the header would export a variable that is **silently ignored**, the default `1.0e-8` would apply, and the two arms could stop at different iteration counts — **reintroducing the exact third variable `TRAP 2` exists to exclude, with no error raised anywhere.**
+
+###### 3. ⚠ AND A FIFTH, WHICH IS AN ARITHMETIC ONE: **THE ITEM CEILING DOES NOT BIND**
+
+`G-CEIL` tests `SPEND >= 370.0` *before* each arm; nothing tests `SPEND + cap`. Walk it: `Sc`+`Ec` = 18, `S3` = 257 → 275; **275 < 370, so `E3` launches and the item ends at 532.0 core-min — 44 % past its own ceiling.** The registration's claim that 370.0 *"sits below the 532.0 cap sum by design, so the ceiling binds first"* is **false as implemented.**
+
+**And the obvious fix is the wrong one.** Making `G-CEIL` predictive at 370 would make **`E3`, the item's principal treatment arm, unreachable by construction** — the `G-PATCHPAIR` mistake in a new place. **Ordered instead: raise the registered ceiling to at least the cap sum and restate the worst case honestly at 532.0 core-min / $0.4549 DERIVED.** *A ceiling below the cap sum is not a ceiling; it is a number that reads like one.*
+
+###### 4. ⚠⚠ UPSTREAM'S OWN COMMENT CUTS **AGAINST** `d3f47bfa`, AND IT IS REGISTERED BEFORE COMPUTE
+
+Read by me, verbatim, from **A1ZE's own registered image** `dafoam-idwarp-rot:v1` (`sha256:2927768a16ac…`), `DAUtility.C` md5 `d5fb5b0a781b11a780133901a8c2241c`, lines 775-780:
+
+> *"for vectors, we need to use the median value for the residual / this is because we often need to run 2D simulations with **symmetry BC**, so one component of the residual vector, which is related to the symmetry BC, may be high while the other two components' residuals are low. In this case, we can use the median value for the residual vector, which better represents the convergence."*
+
+**Upstream anticipated a one-cell-thick 2-D mesh with `symmetry` bounding planes, expected exactly the high z-component this lab measured, and built the median to tolerate it.** So **`symmetry` on these planes is documented upstream design intent, not an inherited oversight** — which **raises** the prior that `empty` is not what this toolchain expects, and makes `G-EMPTY BLOCKED` on a treatment arm the more likely outcome. **§3b.0 already registers that as condemning `d3f47bfa`.** It is recorded now, before the answer exists, precisely because it moves the odds **against** the commit under test. It remains **INFERRED** that the adjoint or the warping *requires* `symmetry`; what is **measured** is that the residual criterion was written around it. **Nothing fetched, nothing filed.**
+
+###### 5. ⚠ TWO MORE ERRORS OF MINE — ONE IS IN MY OWN GENERATED BRIEF
+
+1. **I cited the wrong charter clause all session.** Toolchain identity is **`DAFOAM_CHARTER.md` §6** — *"Shipped and patched are always two rows, and toolchain identity is an image ID and a library hash, never a version string"* (line 201). **§11 is the lessons-and-numerics NUMBERING clause** (line 412). I verified both headings myself. **⚠ The error is not only mine in passing: my own generated agent brief's reading list says "§11 the toolchain identity rule".** `harness/teams.yaml` is the source of truth and **`harness/` is not my territory — referred to the chief**, not edited by me.
+2. **⚠ I measured the median in the WRONG IMAGE and said so as though it settled the question.** I read `DAUtility.C` in `dafoam/opt-packages:latest` and justified it by matching the live `W3_chain_r2` row. **It does match — and `W3_chain_r2` is not this item. A1ZE's registered image is the PATCHED `dafoam-idwarp-rot:v1`.** Six dafoam images sit on this box. Under **§6 those are two rows**, and a library hash measured in one is **not** a fact about the other. A lane caught it and measured **both**; they are byte-identical, so the finding transfers — **now measured to transfer rather than assumed to.**
+
+**That second one is the sixth instance of my pattern, and I committed it INSIDE the board block that named the pattern.** `S-33` §4 lists five instances of *"a value true in one scope, carried into a scope where it is false"* — and the measurement that block was built on was itself scoped to an image this item does not run. **Naming a failure mode is not the same as being free of it, and the shortest interval between the two is apparently one commit.**
+
+###### 6. AUDIT RE-RUN UNDER THE CHIEF'S ADDENDUM — **TWO MORE ABANDONED READS, BOTH CLEAN, AND I COULD NOT HAVE KNOWN THAT WITHOUT FINISHING THEM**
+
+The addendum extends the plant-the-run test from code paths to **an agent's own abandoned measurements**. §1 above was written before it and found the two obvious drops; re-running the sweep harder found **two partial reads I had treated as complete**:
+
+- **I saw `a1ze_grade.py`'s `PASS` branch PRINT and never checked that it EXITS.** A print without an exit is a warning, not a ceiling. Completed: `:586` is `return 2` under `sys.exit(main())` — **rc 2, a genuine refusal.** The `VERDICT_CEILING` enforcement is real. The lane's claim was accurate; **my read of it was not, and I had already reported it as "real code, not prose" on the strength of the print alone.**
+- **I ran `grep -c 'ref_off' … = 5` and never looked at what the five SAY** — the live question being whether `D6RF` re-implements `REF_off` when a working implementation exists, which would be duplicated work and a second variable. Completed: `D6RF` **reuses** `d6r_ref_off.py`, pinned at `ad67bbeb0c7b502262ebf5d4e8fa21cd` and marked frozen in `curriculum_D6R/` — **the same md5 I had computed independently.** No duplication.
+
+**Both came back clean, and that is the finding rather than a reprieve:** a count, a print and a first matching line are the three shapes an unfinished read takes here, and each one *looks* like an answer. Four abandoned reads in one session, two of them load-bearing. **The two clean ones cost nothing to finish and I had no way to know which pair was which until I did.**
 
 ##### UPDATE S-33 — **THE MEDIAN IS NO LONGER INFERRED. IT IS MEASURED, WITH A HASH, FROM THE IMAGE THIS FAMILY ACTUALLY RUNS — AND MY OWN `S-31` §3 STATED THE RIGHT FACT IN THE WRONG SCOPE, WHICH IS THE FIFTH INSTANCE THIS WEEK** (2026-09-03, `date -u` stamp in the committing invocation)
 
