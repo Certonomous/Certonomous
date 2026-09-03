@@ -533,3 +533,37 @@ JOB 3 -- SAFETY
   DECOY SURVIVED             PASS  cleanup was by name, not by sweep
 
 SO3aF2 PIN CENSUS: PASS 36  FAIL 0  NOT RUN 0
+
+===========================================================================
+ADDENDUM 7 -- THE XM ARM RAN AND REFUSED AT rc=7. Captured 2026-09-03T225222Z
+===========================================================================
+LEDGER, XM row:
+  ITEM=SO3aF2 ARM=XM STAMP=2026-09-03T224931Z rc=7 wall_s=21 ranks=1 core_min=0.3500 cap_core_min=6.0 ceiling=9.0 cpuset=0 mem=4g row=SHIPPED digest=sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc launcher_md5=e4ae5705cdc367aea19109764ebb1d62 reader_md5=d5f4149d43abe3a165ffe7e653b78bee producer_md5=c268633f67e6d2c785feec2ebfc7326c memavail_GiB=27.35 cap_exceeded=0
+
+CONTAINER LOG (the whole 277 bytes):
+  SO3AF2_ENV_OK loader=/home/dafoamuser/dafoam/loadDAFoam.sh checkMesh=/home/dafoamuser/dafoam/OpenFOAM/OpenFOAM-v2506/platforms/linux64GccDPInt32Opt/bin/checkMesh FOAM_APPBIN=/home/dafoamuser/dafoam/OpenFOAM/OpenFOAM-v2506/platforms/linux64GccDPInt32Opt/bin WM_PROJECT=OpenFOAM
+
+KERNEL RECORD:
+  7 false 2026-09-03T22:49:32.241949736Z 2026-09-03T22:49:53.249140167Z 0 4294967296
+
+THE REFUSAL, XM.log:1799:
+  SO3aF2 PRODUCER REFUSAL: RESIDUAL_HISTORY_UNAVAILABLE {"scenario": "point0", "note": "refusing to wr
+  ite a short residual_histories list; see (B) -- a short list reaches the reader as a CONVERGENCE DIS
+  AGREEMENT, which is a finding about the multipoint assembly this file would have manufactured"}
+
+THE PATH CONTRACT, XM.log:3:
+  SO3aF2 PRODUCER path contract DERIVED from the reader: artefact=/mnt/XM/so3af2_M.json case=/mnt/XM/case run_dirs=['mp0', 'mp1', 'mp2']
+
+WHAT RAN:
+  Running Primal Solver           : 3
+  satisfied the prescribed tolerance: 3
+  artefact so3af2_M.json          : ABSENT -- the correct outcome
+
+OBSERVATION, EXPLICITLY NOT A SCORE (section A7.4):
+  case/mp0 time dirs: 0 443 
+  case/mp1 time dirs: 0 436 
+  case/mp2 time dirs: 0 424 
+  F3 IS UNSCORED. Only so3af2_read.py scores F3 and it was never invoked.
+  This must not be read by hand PRECISELY BECAUSE IT CUTS IN THE DIRECTION WE
+  WOULD LIKE, and the producer's refusal may have blocked a reading that would
+  have been FAVOURABLE to us -- which is what makes the refusal principled.

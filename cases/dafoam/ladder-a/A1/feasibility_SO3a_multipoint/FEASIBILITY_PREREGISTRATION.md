@@ -957,3 +957,68 @@ Eight legs are new and all use a **fake MESH output**, so **no container is crea
 **The supervisor's check 1 on the changed hunks and check 4 before it is queued.** **XM IS NOT QUEUED.** The MESH arm stands complete and **NOT A RESULT** (§A5.2); the item stays **PENDING**; F1–F5 are unscored; **§0.2 binds in full** — this item never calls `solve_linear` and nothing it measures may be quoted toward SO-3aR's collision proof. **SUBMISSIONS PARKED.**
 
 **END OF ADDENDUM 6.**
+
+---
+
+## ADDENDUM 7 — THE XM ARM RAN AND REFUSED AT `rc=7`. THE REGISTERED RISK LANDED. Dated **2026-09-03**. Version **1.7 → 1.8**.
+
+> **lines whose number changed above this section: 0** — asserted by execution against both the pre-append snapshot and `git show HEAD:`.
+
+**Moves no gate, no threshold, no prediction, no band, no cap and no label. F1–F5 ARE UNSCORED.**
+
+### A7.1 What happened
+
+`SO3aF2_XM` launched 2026-09-03T22:49:31Z at 57.3 % box, and exited **rc = 7**, wall **21 s**, **0.3500 core-min** against a cap of 6.0 which was never approached.
+
+> `SO3aF2 PRODUCER REFUSAL: RESIDUAL_HISTORY_UNAVAILABLE {"scenario": "point0", …}` — `XM.log:1799`
+
+**No artefact was written. That is the correct outcome and it was registered before the first container.**
+
+### A7.2 ⚠ THE RULING — AN INSTRUMENT DECLINING TO MANUFACTURE A FINDING
+
+**Ruled by the `dafoam-supervisor`, 2026-09-03: `rc=7` is the registered risk landing, not a defect and not a crash.**
+
+§A2.3 named this outcome, with its reason, **before any container ran**: a short `residual_histories` list would reach the reader as a **CONVERGENCE DISAGREEMENT** — which §5 F1 defines as *a finding about the multipoint assembly* — when its true cause was the producer failing an attribute lookup. **An infrastructure failure wearing a physics finding's clothes is worse than not running.**
+
+**The item stays `PENDING`. F1–F5 are unscored. The reader was never invoked, because no artefact exists for it to read.**
+
+### A7.3 What held
+
+- The **environment assertion** passed with container-resolved paths (`SO3AF2_ENV_OK`, the whole 277-byte container log).
+- The **path contract derived correctly**: `artefact=/mnt/XM/so3af2_M.json case=/mnt/XM/case run_dirs=['mp0', 'mp1', 'mp2']` — matching the frozen reader's `:284` and `:321`.
+- **Three primals ran and three `satisfied the prescribed tolerance`.**
+- The staging built the reader's layout: `case/FFD`, `case/mp0`, `case/mp1`, `case/mp2`.
+
+**Everything the evening's six addenda were for held.**
+
+### A7.4 ⚠ AN OBSERVATION, EXPLICITLY NOT A SCORE — and the reason it is not
+
+The three per-point directories each carry a **distinct** time directory: **`mp0: 443`, `mp1: 436`, `mp2: 424`.**
+
+**THIS IS A DIRECTORY LISTING. IT IS NOT F3 AND F3 IS UNSCORED.** F3 is scored by `so3af2_read.py` and by nothing else, and the reader was never invoked.
+
+> **IT MUST NOT BE READ BY HAND PRECISELY BECAUSE IT CUTS IN THE DIRECTION WE WOULD LIKE.** Three distinct time directories is *prima facie* what a working separation looks like. **A reader who sees three directory names and concludes the separation worked has composed a verdict out of evidence he found congenial** — which is the same offence as choosing a threshold after seeing the answer, in the flattering direction instead of the unflattering one.
+
+> **AND THE STRONGEST EVIDENCE THAT THE PRODUCER'S REFUSAL WAS PRINCIPLED IS THIS: IT MAY HAVE BLOCKED A READING THAT WOULD HAVE BEEN FAVOURABLE TO US.** An instrument that declines to manufacture a finding **even when the finding it declines to manufacture might have gone our way** is an instrument working correctly.
+
+**§0.2 also binds here in full**: whatever those directories show, this item never called `solve_linear` and nothing about them may be quoted toward SO-3aR's adjoint collision.
+
+### A7.5 Cost, and the waste ruling
+
+**0.3500 core-min** against the **1.20** bracket point; cap 6.0 never approached. Item total **0.4167 core-min** across five launches (0.0667 MESH across four, 0.3500 XM).
+
+> **WASTE: NONE. Ruled by the supervisor.** Every core-minute ran **three converged primals** and produced a **registered refusal that prevented a manufactured finding**. **That is an answer, not a loss** — the same ruling made on A1WRT U1 and for the same reason.
+
+### A7.6 The bounded repair, ordered and NOT YET BUILT
+
+The producer tried **four candidate attribute names** and none carried a residual history. **A fifth guess is the wrong move** — it is the proxy-versus-relation disease this item has met three times: guessing at a **name** when what is needed is the **relation**, i.e. which attribute of the live object actually holds the history.
+
+**Ordered: one cheap diagnostic container that ENUMERATES what the live `<scenario>.coupling.solver` object has** — the available attributes and which are non-empty sequences of the right shape — **and records that enumeration as evidence.** The producer then reads the attribute **measured** to exist, pinned against that measurement rather than chosen from plausible spellings.
+
+**It scores nothing, writes no `so3af2_M.json`, carries its own rc, and is capped well under the 6.0 this arm did not approach.** It lands as its own dated addendum.
+
+### A7.7 Unchanged
+
+F1–F5, every band, both caps, the ceiling, the memory floor, every rc in the taxonomy, the plant constants, and **§0.2 in full**. **SUBMISSIONS PARKED.**
+
+**END OF ADDENDUM 7.**
