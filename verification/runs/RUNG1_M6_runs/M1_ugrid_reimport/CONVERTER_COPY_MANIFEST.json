@@ -1,0 +1,85 @@
+{
+  "THIS_IS_NOT_A_GRADED_RUN": true,
+  "artifact": "every copy of ugrid_to_foam.py on this box",
+  "control_frozen_copy_present_and_defective": true,
+  "copies": [
+    {
+      "bytes": 17590,
+      "git_tracked": true,
+      "has_defective_plausibility_branch": true,
+      "has_sniff_layout": true,
+      "inside_repo": true,
+      "mtime": 1786907036.3402767,
+      "path": "/home/ubuntu/Certonomous/cases/committee-grids/ugrid_to_foam.py",
+      "sha256": "e2ce16902f09925b22cdcfe148723967be3f77488e58ea81e04c2bab93e9b05e"
+    },
+    {
+      "bytes": 17590,
+      "git_tracked": true,
+      "has_defective_plausibility_branch": true,
+      "has_sniff_layout": true,
+      "inside_repo": true,
+      "mtime": 1786907039.9191694,
+      "path": "/home/ubuntu/Certonomous/cases/hlpw6/ugrid_to_foam.py",
+      "sha256": "e2ce16902f09925b22cdcfe148723967be3f77488e58ea81e04c2bab93e9b05e"
+    },
+    {
+      "bytes": 15004,
+      "git_tracked": true,
+      "has_defective_plausibility_branch": false,
+      "has_sniff_layout": false,
+      "inside_repo": true,
+      "mtime": 1785559978.632089,
+      "path": "/home/ubuntu/Certonomous/scripts/ugrid_to_foam.py",
+      "sha256": "670db2cb5a4c9001c47991fd3c619b4330d39b0844234be591317133f57f9072"
+    },
+    {
+      "bytes": 17590,
+      "git_tracked": false,
+      "has_defective_plausibility_branch": true,
+      "has_sniff_layout": true,
+      "inside_repo": false,
+      "mtime": 1785570869.507411,
+      "path": "/home/ubuntu/certonomous-runs/dpw5-committee-probe/ugrid_to_foam.py",
+      "sha256": "e2ce16902f09925b22cdcfe148723967be3f77488e58ea81e04c2bab93e9b05e"
+    },
+    {
+      "bytes": 15004,
+      "git_tracked": false,
+      "has_defective_plausibility_branch": false,
+      "has_sniff_layout": false,
+      "inside_repo": false,
+      "mtime": 1785559274.405213,
+      "path": "/home/ubuntu/certonomous-runs/hlpw6-memory-probe/ugrid_to_foam.py",
+      "sha256": "670db2cb5a4c9001c47991fd3c619b4330d39b0844234be591317133f57f9072"
+    }
+  ],
+  "equivalence_classes": {
+    "670db2cb5a4c9001c47991fd3c619b4330d39b0844234be591317133f57f9072": [
+      "/home/ubuntu/Certonomous/scripts/ugrid_to_foam.py",
+      "/home/ubuntu/certonomous-runs/hlpw6-memory-probe/ugrid_to_foam.py"
+    ],
+    "e2ce16902f09925b22cdcfe148723967be3f77488e58ea81e04c2bab93e9b05e": [
+      "/home/ubuntu/Certonomous/cases/committee-grids/ugrid_to_foam.py",
+      "/home/ubuntu/Certonomous/cases/hlpw6/ugrid_to_foam.py",
+      "/home/ubuntu/certonomous-runs/dpw5-committee-probe/ugrid_to_foam.py"
+    ]
+  },
+  "hazard": "Copies are byte-identical across the repo boundary. A repair to one SILENTLY leaves the others defective and no reader can tell which is authoritative. At least one defective copy lives OUTSIDE git, so a repo-only divergence check would not see it.",
+  "n_carrying_the_defect": 3,
+  "n_copies": 5,
+  "n_equivalence_classes": 2,
+  "nothing_here_is_modified": "This script observes only. cases/committee-grids/ugrid_to_foam.py is RUNG 0's frozen grading path (rule 6) and is imported read-only.",
+  "paths_carrying_the_defect": [
+    "/home/ubuntu/Certonomous/cases/committee-grids/ugrid_to_foam.py",
+    "/home/ubuntu/Certonomous/cases/hlpw6/ugrid_to_foam.py",
+    "/home/ubuntu/certonomous-runs/dpw5-committee-probe/ugrid_to_foam.py"
+  ],
+  "roots_searched": [
+    "/home/ubuntu/Certonomous",
+    "/home/ubuntu/certonomous-runs",
+    "/home/ubuntu/closure-data",
+    "/home/ubuntu/closure-challenge-benchmark"
+  ],
+  "verdict": "NONE -- an inventory carries no verdict of the fixed vocabulary"
+}

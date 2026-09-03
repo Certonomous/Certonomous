@@ -1,0 +1,310 @@
+{
+  "THIS_IS_NOT_A_GRADED_RUN": true,
+  "artifact": "byte-budget layout audit of every .ugrid file on this box",
+  "blast_radius": "raw-C-stream UGRID files small enough that the byte-swapped first word stays positive and below 2e9. Nothing in RUNG 0 and nothing in the four R0-G2b round-trip exports.",
+  "control_both_outcomes_observed": true,
+  "files": [
+    {
+      "AGREES": true,
+      "byte_budget_packagings_matching": 1,
+      "bytes": 55691572,
+      "cells_from_header": 983040,
+      "header": [
+        990849,
+        192,
+        27456,
+        0,
+        0,
+        12288,
+        970752
+      ],
+      "path": "/home/ubuntu/Certonomous/verification/runs/M6I_runs/mesh/wing_strct.1.lb8.ugrid",
+      "proven_byte_order": "little",
+      "proven_packaging": "rawC",
+      "sniff_layout_returns": [
+        "little",
+        "rawC"
+      ]
+    },
+    {
+      "AGREES": true,
+      "byte_budget_packagings_matching": 1,
+      "bytes": 7042228,
+      "cells_from_header": 122880,
+      "header": [
+        124865,
+        96,
+        6816,
+        0,
+        0,
+        3072,
+        119808
+      ],
+      "path": "/home/ubuntu/Certonomous/verification/runs/M6I_runs/mesh/wing_strct.2.lb8.ugrid",
+      "proven_byte_order": "little",
+      "proven_packaging": "rawC",
+      "sniff_layout_returns": [
+        "little",
+        "rawC"
+      ]
+    },
+    {
+      "AGREES": false,
+      "byte_budget_packagings_matching": 1,
+      "bytes": 900724,
+      "cells_from_header": 15360,
+      "header": [
+        15873,
+        48,
+        1680,
+        0,
+        0,
+        768,
+        14592
+      ],
+      "path": "/home/ubuntu/Certonomous/verification/runs/M6I_runs/mesh/wing_strct.3.lb8.ugrid",
+      "proven_byte_order": "little",
+      "proven_packaging": "rawC",
+      "sniff_layout_returns": [
+        "big",
+        "rawC"
+      ]
+    },
+    {
+      "AGREES": false,
+      "byte_budget_packagings_matching": 1,
+      "bytes": 117844,
+      "cells_from_header": 1920,
+      "header": [
+        2057,
+        24,
+        408,
+        0,
+        0,
+        192,
+        1728
+      ],
+      "path": "/home/ubuntu/Certonomous/verification/runs/M6I_runs/mesh/wing_strct.4.lb8.ugrid",
+      "proven_byte_order": "little",
+      "proven_packaging": "rawC",
+      "sniff_layout_returns": [
+        "big",
+        "rawC"
+      ]
+    },
+    {
+      "AGREES": false,
+      "byte_budget_packagings_matching": 1,
+      "bytes": 16132,
+      "cells_from_header": 240,
+      "header": [
+        279,
+        12,
+        96,
+        0,
+        0,
+        48,
+        192
+      ],
+      "path": "/home/ubuntu/Certonomous/verification/runs/M6I_runs/mesh/wing_strct.5.lb8.ugrid",
+      "proven_byte_order": "little",
+      "proven_packaging": "rawC",
+      "sniff_layout_returns": [
+        "big",
+        "rawC"
+      ]
+    },
+    {
+      "AGREES": true,
+      "byte_budget_packagings_matching": 1,
+      "bytes": 37131204,
+      "cells_from_header": 638976,
+      "header": [
+        660177,
+        0,
+        41984,
+        0,
+        0,
+        0,
+        638976
+      ],
+      "path": "/home/ubuntu/certonomous-runs/dpw5-committee-probe/grid/L1.T.rev01.p3d.hex.r8.ugrid",
+      "proven_byte_order": "big",
+      "proven_packaging": "fortran",
+      "sniff_layout_returns": [
+        "big",
+        "fortran"
+      ]
+    },
+    {
+      "AGREES": true,
+      "byte_budget_packagings_matching": 1,
+      "bytes": 68244420,
+      "cells_from_header": 2981888,
+      "header": [
+        660177,
+        73728,
+        5120,
+        2555904,
+        0,
+        425984,
+        0
+      ],
+      "path": "/home/ubuntu/certonomous-runs/dpw5-committee-probe/grid/L1.T.rev01.p3d.hybrid.r8.ugrid",
+      "proven_byte_order": "big",
+      "proven_packaging": "fortran",
+      "sniff_layout_returns": [
+        "big",
+        "fortran"
+      ]
+    },
+    {
+      "AGREES": true,
+      "byte_budget_packagings_matching": 1,
+      "bytes": 47674308,
+      "cells_from_header": 1277952,
+      "header": [
+        660177,
+        53248,
+        15360,
+        0,
+        0,
+        1277952,
+        0
+      ],
+      "path": "/home/ubuntu/certonomous-runs/dpw5-committee-probe/grid/L1.T.rev01.p3d.prism.r8.ugrid",
+      "proven_byte_order": "big",
+      "proven_packaging": "fortran",
+      "sniff_layout_returns": [
+        "big",
+        "fortran"
+      ]
+    },
+    {
+      "AGREES": true,
+      "byte_budget_packagings_matching": 1,
+      "bytes": 89187516,
+      "cells_from_header": 2661338,
+      "header": [
+        1156796,
+        145614,
+        4175,
+        436961,
+        341341,
+        1883036,
+        0
+      ],
+      "path": "/home/ubuntu/certonomous-runs/hlpw6-memory-probe/grid/h6c1_rans_3a_1.b8.ugrid",
+      "proven_byte_order": "big",
+      "proven_packaging": "rawC",
+      "sniff_layout_returns": [
+        "big",
+        "rawC"
+      ]
+    },
+    {
+      "AGREES": true,
+      "byte_budget_packagings_matching": 1,
+      "bytes": 37131204,
+      "cells_from_header": 638976,
+      "header": [
+        660177,
+        0,
+        41984,
+        0,
+        0,
+        0,
+        638976
+      ],
+      "path": "/home/ubuntu/certonomous-runs/rung0-r0g2b-export/DPW5_L1T_hex.roundtrip.r8.ugrid",
+      "proven_byte_order": "big",
+      "proven_packaging": "fortran",
+      "sniff_layout_returns": [
+        "big",
+        "fortran"
+      ]
+    },
+    {
+      "AGREES": true,
+      "byte_budget_packagings_matching": 1,
+      "bytes": 68244420,
+      "cells_from_header": 2981888,
+      "header": [
+        660177,
+        73728,
+        5120,
+        2555904,
+        0,
+        425984,
+        0
+      ],
+      "path": "/home/ubuntu/certonomous-runs/rung0-r0g2b-export/DPW5_L1T_hybrid.roundtrip.r8.ugrid",
+      "proven_byte_order": "big",
+      "proven_packaging": "fortran",
+      "sniff_layout_returns": [
+        "big",
+        "fortran"
+      ]
+    },
+    {
+      "AGREES": true,
+      "byte_budget_packagings_matching": 1,
+      "bytes": 47674308,
+      "cells_from_header": 1277952,
+      "header": [
+        660177,
+        53248,
+        15360,
+        0,
+        0,
+        1277952,
+        0
+      ],
+      "path": "/home/ubuntu/certonomous-runs/rung0-r0g2b-export/DPW5_L1T_prism.roundtrip.r8.ugrid",
+      "proven_byte_order": "big",
+      "proven_packaging": "fortran",
+      "sniff_layout_returns": [
+        "big",
+        "fortran"
+      ]
+    },
+    {
+      "AGREES": true,
+      "byte_budget_packagings_matching": 1,
+      "bytes": 89187516,
+      "cells_from_header": 2661338,
+      "header": [
+        1156796,
+        145614,
+        4175,
+        436961,
+        341341,
+        1883036,
+        0
+      ],
+      "path": "/home/ubuntu/certonomous-runs/rung0-r0g2b-export/HLPW6_h6c1_rans_3a_1.roundtrip.b8.ugrid",
+      "proven_byte_order": "big",
+      "proven_packaging": "rawC",
+      "sniff_layout_returns": [
+        "big",
+        "rawC"
+      ]
+    }
+  ],
+  "method": "For each file the exact size implied by its 7-integer header is computed under both byte orders and both packagings; exactly one must reproduce the on-disk size. That identity is arithmetic, not inference. What ugrid_to_foam.sniff_layout actually returns is then recorded beside it.",
+  "n_files": 13,
+  "n_mis_detecting": 3,
+  "paths_mis_detecting": [
+    "/home/ubuntu/Certonomous/verification/runs/M6I_runs/mesh/wing_strct.3.lb8.ugrid",
+    "/home/ubuntu/Certonomous/verification/runs/M6I_runs/mesh/wing_strct.4.lb8.ugrid",
+    "/home/ubuntu/Certonomous/verification/runs/M6I_runs/mesh/wing_strct.5.lb8.ugrid"
+  ],
+  "roots_searched": [
+    "/home/ubuntu/Certonomous",
+    "/home/ubuntu/certonomous-runs",
+    "/home/ubuntu/closure-data",
+    "/home/ubuntu/closure-challenge-benchmark"
+  ],
+  "verdict": "NONE -- an audit of a reader carries no verdict of the fixed vocabulary",
+  "why_the_RUNG0_grids_are_safe_CORRECTED": "NOT because they are large. The three DPW5 grids are Fortran unformatted and the record-marker test fires BEFORE the defective plausibility branch is reached: the marker reads 28 big-endian and 469,762,048 little-endian. Only HLPW6 is saved by the overflow mechanism. They are safe BY THE ORDERING OF THE TESTS, not by their size -- a correct conclusion that rested on a wrong mechanism until it was measured."
+}
