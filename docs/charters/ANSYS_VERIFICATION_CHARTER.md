@@ -1617,3 +1617,153 @@ The `SAME` ruling covers the two channels that are bounded. **It does NOT cover 
 | still open | shock-captured-vs-jump channel — mitigated by gate design (§23.4), not bounded |
 | gates | **0 moved** · bands | **0 moved** · caps | **1 LIFTED** · re-grades | **0** · register bytes | **0** |
 | lines whose number changed above this section | **0** |
+
+---
+
+## Amendment — v1.19, 2026-09-03 — **§24: THE RUN REFUTED `§23`'s BOUND BY 20.5×. THE ARITHMETIC IS NOT THE CASUALTY — THE METHOD IS. A SENSITIVITY ARGUMENT OVER ENUMERATED PERTURBATIONS IS NOT AN UPPER BOUND ON A TOTAL DISCREPANCY, AND THIS TEAM WILL STOP TREATING IT AS ONE.**
+
+### §24.1 THE REFUTATION, STATED AS A NUMBER BEFORE ANYTHING IS SAID ABOUT IT
+
+`§23.3` lifted VMFL046's `GATE REACHED` cap on a bound I re-derived personally on an independent path (`§3` check 3): the model-form effect on shock location is **`dx_shock/x ≤ 0.63 %`**, worst case, *"8× below the 5 % band"*. The graded run's grid-converged answer is now on the record:
+
+| quantity | value |
+|---|---|
+| Richardson limit of `x_shock` over the CONVERGING triple (R = 0.6154, p = 0.700) | **1.0885** |
+| analytical reference `x_shock` | **1.250** |
+| grid-converged discrepancy | **−12.92 %** |
+| `§23.1`'s worst-case bound on the same quantity | **≤ 0.63 %** |
+| **refutation factor** | **20.5×** |
+
+**The bound is refuted.** Not strained, not at its edge — exceeded by more than an order of magnitude, in the one place it was load-bearing.
+
+### §24.2 TWO QUALIFICATIONS, IN BOTH DIRECTIONS, BEFORE THE RULING
+
+**(a) The refuted bound did not change the verdict.** The primary limb failed on its own terms at 7.79 % against a 5 % band; under the un-lifted cap the outcome would still have been `GATE FAIL`. **The cap-lift was not self-serving in outcome**, and I record that because the opposite pattern — a bound that lifts a cap and then delivers the `PASS` it enabled — is the one that should end a method permanently.
+
+**(b) That is no defence of the reasoning, and it is not offered as one.** A bound wrong by 20.5× that happened not to matter is a bound wrong by 20.5×. **The next case is where it costs something.**
+
+### §24.3 WHAT ACTUALLY FAILED — and it is not arithmetic
+
+Both derivations in `§23.1` were, so far as I can tell, correctly executed. They computed the same thing: **the shock displacement produced by ONE ENUMERATED PERTURBATION — boundary-layer displacement thickness acting through effective area** — as `sensitivity × perturbation`, and both got an O(1) sensitivity and a sub-percent answer. That number may well still be right *for that channel*.
+
+> **THE DEFECT IS THAT I PRESENTED IT AS A BOUND ON THE TOTAL DISCREPANCY BETWEEN THE TWO MODELS. IT IS NOT. IT IS A BOUND ON THE CHANNELS I HAPPENED TO ENUMERATE.** Every mechanism not on the list — here, viscous total-pressure loss through the diverging section setting the downstream matching state, which is not a displacement-thickness effect at all — sits **outside** the bound and is unconstrained by it. A sensitivity calculation tells you how hard one lever pushes. **It tells you nothing about how many levers there are.**
+
+This is why the factor-1.6 robustness check in `§23.1` gave false comfort. Two derivations agreeing across a 1.6× spread in the *derivative* confirms the derivative. **Both were computing the same incomplete quantity, so agreement between them could never have surfaced the missing channel** — the check was independent in path and identical in scope, and only scope was wrong. *An independent check of the wrong quantity is not an independent check.*
+
+### §24.4 THE RULING — `§22.2`'s NARROWING IS ITSELF NARROWED
+
+`§22.2` established that a **quantified** model-form difference is budgeted rather than disqualifying (`CLAUSE A`). That principle stands. **The evidence that qualifies as a quantification does not.**
+
+> **A model-form difference may be BUDGETED under `CLAUSE A`, and may lift a `GATE REACHED` cap, ONLY where the bound is one of:**
+> **(i) a bound on the TOTAL discrepancy between the two models** — a closed-form or limiting-case argument that constrains everything the two models can differ by, not a sum over named channels; or
+> **(ii) an ENUMERATED-CHANNEL bound that has been VALIDATED against at least one MEASURED comparison of the same two models** on a comparable configuration — the enumeration tested, not asserted; or
+> **(iii) an enumerated-channel bound carrying an explicit, pre-registered COMPLETENESS ARGUMENT** naming why no unenumerated channel can contribute at the band's scale — and that argument is itself frozen and is itself falsifiable by the run.
+>
+> **An enumerated-channel bound with none of these is UNVALIDATED. It is recorded in the frozen bytes as unvalidated, it may be reported as a diagnostic expectation, and IT DOES NOT LIFT A CAP.** The case stays capped at `GATE REACHED`.
+
+`§23.1`'s bound was form (iii) without the completeness argument — I never asked *what else could move this shock*, and the question is one sentence long. **Had I asked it, viscous stagnation-pressure loss would have been named in the first minute**, and VMFL046 would have been registered honestly as `GATE REACHED`-capped, which is what it turned out to deserve.
+
+### §24.5 THE ADDENDUM `§23.4` WAS PROMISED, NOW OWED AND PAID — and it SURVIVES
+
+`§23.4` argued the shock-captured-vs-jump channel away with *"the smear is symmetric to first order, so its centroid is unbiased."* Before the freeze the lane corrected me: **first-order upwind is dissipative, so smear symmetry is not safe to assume; the discretisation bias in locating a captured shock is instead bounded by the numerical shock WIDTH (a few cells) — ≪ the 5 % band (≈20 cells at L3) — and it REFINES with the mesh.** I accepted it then and record it now as the operative text of `§23.4`, the original argument **struck, not rewritten**.
+
+**And unlike `§24.1`'s casualty, this one is CORROBORATED by the run.** The measured shock location moved monotonically *away* from the analytical reference under refinement (L1 1.25763 → L2 1.19260 → L3 1.15258) and the triple is `CONVERGING` toward 1.0885. A discretisation bias that refines away cannot produce that: **the coarse-grid agreement was the artefact and the fine-grid disagreement is the physics.** The width-based bound is on discretisation bias, it is small, and it is not what the 12.92 % is made of.
+
+### §24.6 THE LESSON THAT GENERALISES BEYOND THIS TEAM
+
+> **THE COARSE MESH AGREED WITH THE REFERENCE AND THE FINE MESH DID NOT.** At L1 the shock sat **0.61 %** from analytical; a single-level submission would have passed this limb outright, and the pre-freeze smoke's *"<1 % shock agreement"* — cited in the registration as evidence this was a `PASS` candidate — **was that coarse-grid reading.** The grid triple is the only reason it was caught.
+>
+> **An agreement obtained at the coarsest level is the least trustworthy number in the set, and it is the one that looks most like success.** This team will not cite a coarse-level agreement as candidacy evidence again; a pre-freeze smoke establishes that the case RUNS, never that it AGREES.
+
+### §24.7 WHAT THIS DOES NOT DO, AND THE AUDIT IT OPENS
+
+It does **not** re-grade row #54: VMFL046's `GATE FAIL` was reached on the primary limb's own terms, is permanent, and no amendment touches it. It does **not** retract `§22.2`'s principle, only the evidence standard under it. It does **not** claim the −12.92 % is established as viscous model-form: the decisive inviscid/Euler comparison **has not been run**, and the reading in the register row is stated there as an open hypothesis.
+
+**AUDIT OPENED, and it is on me:** every registration in this territory that budgeted a model-form difference by an enumerated-channel sensitivity argument is now suspect under `§24.4` and must be re-read against (i)/(ii)/(iii). `CLAUSE A`'s wedge modelling bias is the first to re-read. **No `PASS` row is retracted on suspicion** — the audit reports per row, and any row it cannot defend is escalated rather than quietly re-labelled.
+
+| amendment | v1.19 |
+|---|---|
+| clause added | **`§24`** (`§24.1`–`§24.7`) |
+| narrowed | **`§22.2`** — a quantified model-form difference lifts a cap only under `§24.4`(i)/(ii)/(iii) |
+| struck & replaced | **`§23.4`**'s smear-symmetry argument → the shock-WIDTH bound (the lane's correction, promised at the freeze) |
+| my ruling refuted | **`§23.3`**'s cap-lift rests on a bound the run exceeded by **20.5×**; the cap-lift is recorded as **wrongly reasoned, and outcome-neutral for row #54** |
+| gates | **0 moved** · bands | **0 moved** · caps | **0 moved (a FUTURE cap-lift standard is TIGHTENED)** · re-grades | **0** · register bytes | **0** |
+| audit opened | every `CLAUSE A` model-form budget in this territory, re-read against `§24.4` |
+| lines whose number changed above this section | **0** |
+
+---
+
+## Amendment — v1.20, 2026-09-03 — **§25: THE DIGITIZED-REFERENCE INSTRUMENT STANDARD. SANAA APPROVED DIGITIZATION AS ITS OWN INSTRUMENTED TASK; THIS IS THE INSTRUMENT, AND ITS HARDEST CLAUSE EXISTS BECAUSE THE FIRST FIGURE WE WANT TO READ BELONGS TO A CASE WHOSE ANSWER WE ALREADY KNOW.**
+
+### §25.0 THE AUTHORITY
+
+Sanaa, 2026-09-03 (~16:00Z), verbatim, recorded at `etc/sessions/2026-09-03T1600Z_sanaa_five_rulings.md`:
+
+> *"Digitization approved as its own instrumented task; digitized references carry stated read-off uncertainty, folded into the gate band."*
+
+That is the whole authority and it is also the whole specification's spine: **instrumented**, **stated uncertainty**, **folded into the band**. `§25` is this team's operationalisation. It authorises **building and calibrating** the instrument; it authorises **no gate** until `§25.7`'s conditions are met per case.
+
+### §25.1 WHAT A DIGITIZED REFERENCE IS
+
+A value read off a printed plot is a **measurement of a figure**, not a reference value. It carries `u_read`, an uncertainty of the reading, which is **additional to** and **independent of** whatever uncertainty the plotted quantity itself carries. **A digitized number never becomes exact by being the manual's own.** Every register row, results record and charter citation that uses one states it as `value ± u_read (digitized, Fig. N, p. P)` — the bare number is not a citable form in this territory.
+
+### §25.2 ⚠ THE ORDER OF OPERATIONS — the clause the rest of the standard exists to protect
+
+The first plate this team wants is **VM2026R1 Fig. .46.2**, which plots Ansys's own centreline Mach against their analytical solution — i.e. it yields **Ansys's own shock location**, the exact comparison `§24.7` records as unrun. **I already know our answer is 1.0885.**
+
+> **A reference selected, or an uncertainty band sized, AFTER our own answer is known is gate-fitting wearing a new instrument.** It is the same move this team refused three times (VMFL054, VMFL007, and the `δ_M` derivation at `§22.5`), and a digitizer makes it *easier*, because a read-off has a dozen defensible knobs and every one of them moves the answer.
+
+**BINDING, and it binds hardest where we already have a number:**
+
+1. **The predicted value is frozen before the read-off.** The registration states, in the frozen bytes, what we expect the digitized value to be **and why** — before the plate is read.
+2. **`u_read` and its full derivation are frozen before the read-off**, and are derived from `§25.3`'s synthetic controls — **never from the target plate**, and never from any statistic computed on it.
+3. **The band arithmetic (`§25.6`) is frozen before the read-off.**
+4. **The read-off is executed by the frozen script**, whose inputs are the extracted plate and the axis calibration and nothing else, and whose output lands in a file the frozen registration already commits to consuming.
+5. **A digitized-reference gate is ALWAYS A NEW REGISTRATION, NEVER A RE-GRADE.** Row #54's `GATE FAIL` is permanent whatever any R2 finds.
+
+### §25.3 `u_read` IS CALIBRATED ON SYNTHETIC PLATES WHERE TRUTH IS KNOWN BY CONSTRUCTION — with a planted-failure arm
+
+The instrument is calibrated on figures **this lab renders**, of curves whose true values are known exactly, matched to the target plate's DPI, axis ranges, line width, marker style, gridline density and aspect ratio. Digitize `N ≥ 20` such plates; the error distribution over them is the calibration.
+
+**Rule 3 extended to figures — and a null needs its own plant (`§16.4`):**
+
+- **PLANT-DETECT (positive control).** A synthetic plate whose curve is displaced by a known offset `≥ 3 u_read` **must be read back as displaced, within the calibration**. If the digitizer cannot see a planted displacement, its agreement with an undisplaced plate is worthless and the instrument **REFUSES (exit 2)**, never degrades.
+- **PLANT-NULL (negative control).** An undisplaced synthetic plate must read back at zero offset within `u_read`. A digitizer that reports displacement on a clean plate is equally disqualified.
+- **AXIS PLANT.** The axis calibration is fitted on a subset of ticks and **verified against a held-out tick** not used in the fit. Disagreement beyond the pixel floor **refuses**. Log axes are declared explicitly in the frozen bytes; a log axis fitted as linear is a silent order-of-magnitude error and is exactly the class this clause catches.
+
+### §25.4 `u_read` IS THE MAXIMUM OF THREE FLOORS, never the smallest defensible number
+
+`u_read = max(` synthetic-control RMS error (`§25.3`), half the spread of **two independent read-offs of the target plate** performed without sight of each other's numbers, the **pixel floor** — one plate pixel converted to data units at the frozen extraction DPI `)`.
+
+The two-independent-read-offs term reuses the `§18`/`§22.5` construction that set `δ_M`: **a measured reproduction spread is the empirical floor on a quantity's own uncertainty, and it is uncontaminated only if it is measured before the comparison it will feed.** The pixel floor is stated because no processing recovers information the raster does not carry.
+
+### §25.5 THE FIGURE IS IDENTIFIED AGAINST THE PDF, NEVER THE SIDECAR (rule 15)
+
+A plate is identified by its **printed caption text AND page number, verified in the PDF itself**. The `.txt` sidecar cannot carry a plot and must never be the identification path — a sidecar can be internally consistent and externally false (L-144). The extracted raster is written to the case directory at a stated DPI and **its hash is frozen into the registration**, so the plate that was read is provably the plate that was registered.
+
+### §25.6 HOW `u_read` ENTERS THE GATE — folded in, and capable of capping the case
+
+Per Sanaa's ruling the read-off uncertainty is **folded into the gate band**, not reported beside it:
+
+- The comparison is `|CFD − ref_digitized| ≤ sqrt( tol² + u_read² )`, with `tol` the pre-registered physical tolerance and both terms in the same units, stated in the frozen bytes.
+- **THE CAP.** If `u_read ≥ tol / 3`, the instrument — not the physics — is materially deciding the verdict, and **the case is CAPPED at `GATE REACHED`**: it may reach its gate, it may not become a `PASS` credential. The ratio is computed and printed by the comparator on every run, whatever the verdict.
+- **`u_read` never shrinks a band.** Folding is quadrature-widening only; a digitized reference can never make a gate easier to pass than the physical tolerance alone would.
+- A `GATE FAIL` against a digitized reference is a `GATE FAIL` and is registered as one. Widening applies to the band, never to the vocabulary.
+
+### §25.7 WHAT AUTHORISES A DIGITIZED GATE
+
+No case gates on a digitized reference until, in this order: the instrument passes `§25.3`'s three plants on the calibration set; `u_read` is derived per `§25.4` and **committed**; the case's registration freezes prediction, `u_read`, band arithmetic and plate hash per `§25.2`; and `§3` check 4 (pre-registration committed before compute) is done by me personally. **The instrument is built and calibrated as its own pre-registered, costed task**, and its calibration is a `PASS`/`GATE FAIL`/`NOT A RESULT` of its own — an instrument that fails its plants is a `NOT A RESULT` and unlocks nothing.
+
+### §25.8 WHAT IT UNLOCKS, STATED WITHOUT INFLATION
+
+Roughly **48 figure-heavy cases** in the manual's never-run set have no printed scalar this team can gate against and have been blocked on exactly that. `§25` is what makes them addressable. It does **not** make them `PASS` candidates: `§25.6`'s cap will bind on any case whose printed tolerance is tight relative to a plate's readable resolution, and **a large fraction of the 48 will be `GATE REACHED` by construction.** That is the honest ceiling of reading numbers off pictures, and it is stated here so no later report presents it as a disappointment.
+
+| amendment | v1.20 |
+|---|---|
+| clause added | **`§25`** (`§25.0`–`§25.8`) |
+| authority | Sanaa 2026-09-03, verbatim at `§25.0` |
+| authorises | **building and calibrating** the digitizer as a pre-registered, costed task |
+| authorises NOT | **no gate on any digitized reference** until `§25.7`'s conditions are met per case |
+| new cap | `u_read ≥ tol/3` → case **capped at `GATE REACHED`** |
+| gates | **0 moved** · bands | **0 moved** · caps | **0 moved (one NEW cap defined)** · re-grades | **0** · register bytes | **0** |
+| lines whose number changed above this section | **0** |
