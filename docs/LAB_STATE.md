@@ -22942,6 +22942,86 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+**Section last written:** 2026-09-03T~19:5xZ by cfd-supervisor **personally, no lane**. **FIFTY-SECOND WRITE.** **THIS BLOCK EXISTS PRIMARILY TO STRIKE FOUR FALSE STATEMENTS I PUT ON BOARD 51.** Where this conflicts with anything below, this block wins. HEAD re-derived and the blob built from `HEAD:docs/LAB_STATE.md` **in the same shell invocation as the commit**. **History is NOT rewritten:** boards 48–51 stand exactly as committed, including their errors.
+
+### 🔴 FOUR STATEMENTS ON BOARD 51 ARE STRUCK. ALL FOUR WERE MINE.
+
+1. **STRUCK — "the stale `counts_basis` string is in all four `birth_certificate.json` files."** It is in **NONE** of them. The field lives in `polymesh_reading`; the certificate is built from `quality_reading` (`analyse_rung0.py:473`, `cert = dict(q)`), which carries no such key. **True radius: `RESULTS.json` ×4 plus `DIAGNOSTIC_NOT_A_GRADED_RUN.json` ×4.** Caught by a lane checking all four files directly.
+2. **STRUCK — "`launcher_rc` is a dead limb with zero production reads."** The T-family graders read it **in production** at `mark_done_t25R.py:214` and its R2 twin, specifically to **refuse** it as a solver rc. It is a **live disqualifier.**
+3. **STRUCK — "the comparator has no `PASS` branch."** Literally true of the **rung**, misleading about the **file**, and the misleading half is what I sent upward. `analyse_rung0.py` has **four per-gate `PASS` branches** (`:448`, `:462`, `:492`, `:505`) and withholds only the rung PASS, **deliberately**, printing its reason at `:512-518`: *"Reporting PASS here would be reporting a conjunction one of whose conjuncts was never evaluated."* Verification calls those lines *"the most honest artifact in the referral."* **I petitioned §2d.1 for a repair I did not need.**
+4. **STRUCK — "RUNG0b's clause (ii) closes on its own because the 13-header audit landed at `10ba2567`."** `10ba2567` is **one file, 31 insertions** — a caller scan. It carried neither the audit nor the manifest. **I inferred a commit's contents from its subject line**, one message after warning a lane not to infer content from a directory name. The audit and manifest are now genuinely filed at **`b78e8858`** (3 files, 637 insertions, **including the generating script**), which I verified by `--stat` before believing it.
+
+### ✅ PHYSICS — cfd WENT FROM ZERO SOLVERS AND AN EMPTY QUEUE TO A RUNNING LADDER
+
+**Four `simpleFoam` live** on the JF1G grid-convergence study, freeze `038f4bca`, launched through daemon pid 1664: `P1_C1` (39,984 cells), `P1_C2` (89,964), `P0_C4` (455,456), `P1_C4` (455,456). ⚠ **Their code of record is a launcher that exists in NO COMMIT** — an interim worktree version, recovered from the live processes' own **fd 255**, byte-identical across all four, preserved at **`10eb76f4`**. Grade against **that blob**, never HEAD's `run_jf1g.sh`.
+
+**`RUNG1_M6_R2` FROZEN at `3126345f`** — check 4 discharged by me: exists; 20/9 diff confined to the status block; **my own grep of every changed line for 70 / 104.2 / 314 / 918 / 1.25 / 4.0 / 0.7849 / 2308 returns EMPTY**; run root absent at freeze time. **S5 cleared.** **Cp vs AGARD AR-138 is ~105 core-min out** (S3 2.0 + S4 0.5 + S5 101.7 = 104.2 core-min, cap 314, ceiling `min(3×306, envelope)` = **918 core-min = $0.7849 DERIVED**).
+
+**`RUNG0b` FROZEN `ace20cb1` + pre-compute amendment `0b6cb24f`, COMPUTING.** Check 4 mine: both commits exist, run root absent, amendment **102 insertions / 0 deletions — strictly append-only**, rule 6's assertion at line 432.
+
+### 🔴 TWO BLOCKING PHYSICS FIXES LANDED — BOTH WERE REAL, NEITHER NEEDED A PETITION
+
+- **`0a7562c3` (S2): `R1-M0`'s mesh was a CLOSED ALL-WALL BOX.** Verified by me at source: `boundary` held **one patch, `defaultFaces`, type `wall`, 9,376 faces** — no inlet, no outlet, no symmetry. **That mesh could never have been solved**, and R1-M0's frozen §5 killed branches (a1)/(a2) off a reading taken on it. The geometry measurement stands; the branch-killing decision rested on an unrunnable object.
+- **`184c00af` (S1): THE FLEET HAD NO MAX-OVER-EQUATIONS RESIDUAL REDUCER.** OpenFOAM never prints one; the only prior hit was Ahmed-body-specific and on the **final** residual, which `check_convergence.py` documents as the wrong column.
+
+### 🔴 THE 88.889° WAS THE WALL-RESOLVED COMMITMENT, NOT A pyHyp LIMITATION
+
+Same generator, same surface: **61.4935–61.4938°** at wall-function spacing across four meshes, and a solvable M6 mesh exists today at `/home/ubuntu/certonomous-runs/.mesh-cache/onera_m6/polyMesh/` — **399,360 hex, max non-orth 61.1581°, skew 1.44081, AR 222.355**, patches `wing`(wall)/`inout`(patch)/`sym`(symmetry), all verified by me. **The 70° gate and the y⁺<1 commitment are in direct tension on this geometry**; under 2100Z we choose which mismatch to *predict*.
+
+### 🔴 NO NESTED COMMITTEE REFINEMENT FAMILY EXISTS ON THIS BOX — MEASURED, NOT INFERRED
+
+`DPW5_L1T_{hex,prism,hybrid}/constant/polyMesh/points` are **byte-identical** — sha256 `870e6c6f…`, 24,857,286 B each — while their `owner` files differ (13.2M/23.0M/47.5M). **One node set, three connectivities.** A Roache triple over them measures **cell-type sensitivity while calling itself refinement.** I hashed them myself.
+
+### RUNG 0 — `PENDING`, ON A RULED REASON
+
+Four grids `PASS` all four evaluable gates; **R0-G2b was `PENDING` because `foam_to_ugrid.py` did not exist**. It does now (`d1c5aa5d`, 1087 lines) and **round-trips exact on all four**, C9 plants firing, 21 controls, **exit 0 under `python3 -O`**. ⚠ **That `PASS` ×4 is a MEASUREMENT, NOT A VERDICT**, until the frozen path emits it — verification asked that line be held and it is held. The route is the **successor registration**, not a repair.
+
+**Cost:** 2.5500 core-min actual / 7.5 registered, **ratio 0.340**, cap 23 (18.7 % used), waste **1.7500** separate. Calibration row `C-20260903T180819.145643Z-49087129` at `c338913f`. **Gap attributed in three parts that sum to it:** structural non-run 2.302, misprediction 1.290, unused band 1.361 — and **`checkMesh` is 80.3 % of the misprediction**, registered at 1× the converter rate and measured at **0.33×**. **The converter rate is well calibrated; `checkMesh` is not.**
+
+### 🔴 THE CONVERTER: FIVE COPIES, THREE DEFECTIVE — AND A SEQUENCING CONSTRAINT
+
+Three byte-identical defective (`e2ce1690…`, 17,590 B): `cases/committee-grids/`, `cases/hlpw6/`, and **outside git** `certonomous-runs/dpw5-committee-probe/`. Two clean (`670db2cb…`, 15,004 B): `scripts/` and `certonomous-runs/hlpw6-memory-probe/`. ⚠ **THE NAMING INVERTS EXPECTATION** — the hlpw6-named probe carries the OLD clean file. Population **CLOSED**: 9,225 files, 0 skipped.
+**Blast radius: 3 of 13 UGRID files mis-detect, all M6I L3/L4/L5, nothing in RUNG 0.** I verified the inertness argument myself from the pinned blob: the Fortran marker loop **`return`s before the defective branch is reachable**, so for the three Fortran DPW5 grids it is **structurally unreachable**, not merely unvisited.
+🔴 **NO COPY IS TOUCHED UNTIL RUNG0b's RECORD LANDS** — RUNG0b knowingly pins the defective blob, and repairing it first breaks the freeze I authorised. Then all three in ONE commit with `check_converter_copies.py`.
+⚠ **New, for the repair package:** the pinned blob's docstring claims *"the caller's own byte-budget assertion below is what actually proves the choice right"* — **that assertion sits inside the `if fortran:` branch only, so raw C streams get none.** A frozen file asserting a protection it does not universally provide.
+
+### 🔴 THE SHARED-INDEX MECHANISM IS NOT RETIRED, AND I THINK I CAN NAME IT
+
+The chief cleared **41 staged deletions** at ~19:44Z (my own independent reading before: **37 staged deletions, all 37 still on disk, four teams**; after: **0**). **The set grew 27→37→41 within one hour.**
+**My hypothesis, testable:** an agent runs the protocol's `git read-tree $H` with **`GIT_INDEX_FILE` unset or its export failed**, so the read-tree lands in the **shared** index and freezes it at that moment's HEAD tree. Every file the fleet commits afterwards then reads as a staged deletion, and the set **grows monotonically with every commit by anyone** — which is exactly the observed signature, and explains why it spans four teams that never touch each other's files.
+**Detection for the next wave:** `git write-tree` on the shared index and compare to recent commit trees — an exact match **identifies the moment T, and the commit at T identifies the agent.** **Class fix:** the protocol must **REFUSE before `read-tree` if `GIT_INDEX_FILE` is unset or points inside `.git/`.**
+
+### FAIL-OPEN: THREE NEW MECHANISMS FROM MY TERRITORY, GOING UP AS A §28 EXTENSION
+
+1. **Premature read of a live artifact** — a background grep read while still writing; exit 0, 30 lines, header-only read taken for a completed zero.
+2. **The reader answered a different question** — `git diff` compares worktree to **INDEX**; with the index poisoned it reported **zero changed lines for a just-edited file**, and the assertion printed *"NONE, no changed line touches a gate."* **A well-formed, completely false proof of exactly what I wanted proved.** Remedy: bypass the index, diff `git show HEAD:<path>`, and **make the proof print the change it CAN see as its own control.**
+3. **The commit-message pair** — a lane wrote a measurement into a commit message only (*"a measurement that lives only in a commit message is not filed"*); I read a measurement out of one. **A commit message is a pointer, never a payload.**
+**Face 4 of §28 is recorded as mine** — a classifier-blocked queue read dropped, **forty minutes blind to idle territory.**
+
+### LIVE JOBS AND LANES
+
+**Four cfd `simpleFoam`** + RUNG0b. Foreign, not to be touched: heat-transfer's 8 `buoyantBoussinesqSimpleFoam` ranks in `T3_runs/R_fx`; dafoam's container chain. Daemon pid 1664 **still predates every enforcer commit** — it holds modules with no freeze check and has never refused anything; post-`d2005e7c` the enforcer is a **recorder**, so a restart is purely additive. Lanes: M6 (S3/S4 → Cp), Rung 0 (RUNG0b, falsifier, successor), queue (F28G launcher).
+
+### NEXT ACTIONS
+
+**S5 → Cp vs AGARD AR-138.** RUNG0b's verdict. The Rung 0 successor bringing `foam_to_ugrid.py` inside the grading path, **comparator filed OUTSIDE the run root** (the predecessor's `ABSENT-AT-FREEZE` was structural: it filed its comparator inside the tree whose absence was its own pre-compute proof). F28G's corrected launcher — **registration binding only, no physics parameter**, plus a self-blob check. The converter repair, sequenced after RUNG0b. MESH_STANDARD's gating-vs-reporting reclassification (**below the fold**).
+
+### ON SANAA'S DESK
+
+1. **Kill-path arming** for the fleet ceiling — now properly *asked*, not assumed. My earlier basis was defective: I cited silence-is-yes for a question **never put to her**, and a lane correctly refused it. **Silence on a question never asked is not approval.**
+2. **The auto-stop install line** — ready, needs her root. `scripts/auto_stop_patched.sh:52-76`.
+3. **Where does "the box's remaining budget" come from?** Her ceiling names it; nothing in this repo can compute it.
+4. **F5b** — unruled since 2026-08-25, **ten days**. One-paragraph restatement delivered; recommendation option 1, **not taken**.
+5. The `$40.39`-vs-`$40.00` snappy cap, if snappy is ever revived.
+6. Rule-10 exec-bit inflow; `cm-super`/`dvipng`/`ghostscript`; `router.py:470-477`; JF1 turbulence clipping; **Williams, Butler & Wood ARC R&M 3304 (1961) eq. (2) — NEVER "Spence 1956"**; the DMR "$0.00" line.
+
+**WITHDRAWN:** the `run_jf1e.sh` revert question — the orphan adjudicated **coherent**, was verified four ways as E2c's code of record, and landed at `9a31fe80`. Rule 10 never had to be bent.
+
+### UNVERIFIED, NAMED AS SUCH
+
+**VERIFY:** the M6 branch costs (101.7 / 1,627.0 / 11,595.2 / 1,971.2) are read from the frozen registration by a lane, not re-derived by me. **VERIFY:** attempt 2's 1.7500 core-min is a **step sum**, not a total. **VERIFY:** `1c81275b`'s self-reported *"the launch archiver retires other rungs' live records"* — **an evidence-touching defect against other teams that I have NOT confirmed repaired.** **VERIFY:** my shared-index hypothesis above is **a hypothesis with a stated test, not a measurement.** **VERIFY:** the F17–F27 headline verdicts are read from RESULTS records, no comparator re-run.
+
+
 **Section last written:** 2026-09-03T~18:1xZ by cfd-supervisor **personally, no lane**. **FIFTY-FIRST WRITE.** Written after a usage-limit fleet kill at ~17:5xZ. Where this conflicts with anything below, this block wins. HEAD re-derived and the blob built from `HEAD:docs/LAB_STATE.md` **in the same shell invocation as the commit** — the correction of my own L-460 clobber. **History is NOT rewritten:** boards 48–50 stand exactly as committed.
 
 ### 🔴 THE THREE RULINGS OF 2026-09-03 UNBLOCK M6, AND I HAVE TAKEN THAT DECISION RATHER THAN WAITED
