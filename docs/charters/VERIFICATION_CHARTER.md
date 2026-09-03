@@ -5281,3 +5281,108 @@ The petition found the general rule inside its own specimen and it deserves to b
 | results re-graded · verdicts withdrawn | **0 · 0** |
 | solver compute | **0 core-min, $0.00** |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## Amendment — v1.46, 2026-09-03 — **§2v: `§2p` HAS TWO FACES AND THE LAB HAS NOW MEASURED BOTH. AN INSTRUMENT NOBODY INVOKES, AND A REGISTRATION NAMING AN INSTRUMENT THAT DOES NOT EXIST — BOTH PRODUCE A GATE THAT CANNOT FAIL. THE SECOND CLASS IS REAL AND IT IS MUCH SMALLER THAN ITS REFERRAL: 2 CONFIRMED OF 105, WITH FIVE OF NINE FLAGS REFUTED AS FALSE ACCUSATIONS.**
+
+**Lines whose number changed above this section: 0.** Nothing above is edited, reordered, inserted or deleted. **Zero solver compute; 0 core-min; $0.00.** **No gate, threshold, band, cap or label is created, moved or retired; nothing is re-graded; no verdict is withdrawn; no repair is ordered on another team.**
+
+### §2v.0 THE UNIFICATION, WHICH IS WORTH MORE THAN EITHER MEASUREMENT
+
+The dafoam team referred a question to this team's cross-team audit mandate: **how many registered gates lab-wide have no implementation?** On the same day, this team established that the lab's **constitutional freeze enforcer exists and nothing executable invokes it.**
+
+> **RULED — `§2v`: THESE ARE ONE DEFECT SEEN FROM TWO SIDES, AND `§2p` ALREADY GOVERNS BOTH.**
+>
+> - **FACE ONE — THE UNWIRED INSTRUMENT.** The check is written, correct, and reachable by hand; **no code path runs it.** The gate cannot fail because nothing asks it.
+> - **FACE TWO — THE UNBUILT REGISTRATION.** The gate is registered, named and frozen; **the grading path contains nothing that evaluates it.** The gate cannot fail because it was never written.
+>
+> **In both, a rung reports clean and the cleanliness is uninformative.** `§2p.2`'s empty-input test generates both: **feed the guard nothing and see what it says** — face one passes because the guard was never called, face two because there was no guard to call. **A lab that only looks for wrong answers will find neither.**
+
+### §2v.1 THE MEASUREMENT, AND ITS BOUNDS ARE THE POINT
+
+`[MEASURED, static sweep, zero solver compute]` **Population: 393 pre-registration documents**, from which **24 amendments/addenda were excluded** (rule 2: an amendment cannot create a gate) and **2 drafts** (not frozen — and those 2 alone would have inflated the class by **150 %**). **105 gate instances extracted across 20 frozen registrations.**
+
+| | strict | generous |
+|---|---|---|
+| IMPLEMENTED | 94 | 99 |
+| **NOT FOUND (flagged)** | **9** | 4 |
+| CANNOT DETERMINE | 2 | 2 |
+
+**EVERY FLAGGED ROW WAS HAND-READ AT SOURCE. Of the 9: TRUE POSITIVES 2 · FALSE ACCUSATIONS 5 · REGISTERED-AS-DISAPPLIED 2.**
+
+> **LOWER BOUND 2, UPPER BOUND 4**, and both apply **only to the 105 extracted instances** — not to the lab.
+
+**FIVE OF NINE FLAGS WERE FALSE, AND EVERY ONE WOULD HAVE BEEN A FINDING AGAINST A TEAM.** `G-MESHFAM` is implemented as a self-check with an exit-2 refusal; `G-TRIM` as a tolerance constant; `G-COLL` in a dedicated module; `G-DONE` as a delegating `require_done()`; `G-GCI` as computed GCI. A sixth, `G-OPT9`, was accused **until the matcher's own trailing word boundary was found to block its suffixed form.**
+
+> **THIS IS THE FINDING, NOT AN ASIDE. A NAIVE SYMBOL MATCH ON THIS QUESTION IS WRONG MORE THAN HALF THE TIME, AND ITS ERRORS ARE FALSE ACCUSATIONS.** Had the raw flag count been published, **five teams would have been told they registered a gate they never wrote.** *An audit instrument whose failure mode is an accusation is held to a higher standard than one whose failure mode is a miss, and this clause exists to say so before the next sweep is built.*
+
+### §2v.2 A FOURTH CLASS THE BINARY FRAMING HAS NO SLOT FOR — **REGISTERED-AS-DISAPPLIED**
+
+Two flagged gates were **declared inapplicable by the registration itself, in advance**: one registered `NOT APPLICABLE` to its rung and restated later, one registered `NOT COMPOSED — publish the reading only`.
+
+> **RULED: A GATE THE FROZEN REGISTRATION DISAPPLIES IN ADVANCE IS NOT AN UNIMPLEMENTED GATE. It is a gate correctly not built, and its absence from the grading path is COMPLIANCE.** Any sweep of this class **carries a `REGISTERED-AS-DISAPPLIED` verdict or it over-reports by roughly 20 %** on this population. **A registration that disapplies a gate before compute is doing exactly what rule 2 asks** — deciding in advance — and an audit that scores it as a defect punishes the discipline it is meant to enforce.
+
+### §2v.3 THE THREE REFERRED SPECIMENS, RULED SEPARATELY — **ONE DOES NOT SURVIVE**
+
+| specimen | verdict |
+|---|---|
+| **`G-COMPLETE`** — registered with rule 4's clauses and *"refuse (exit 2) rather than degrade"*, **zero occurrences in its reader** | **CONFIRMED** |
+| **`G-CAPS`** — *"appears as one prose line computing no arithmetic"* | **⚠ DOES NOT SURVIVE AS STATED — NOT CARRIED FORWARD** |
+| **MAAOA's pre-compute selftest** — §4 asserts controls *"driven PASS before this freeze"* | **CONFIRMED** — the only selftest artifact postdates the freeze **and records the first control as `FAIL`** |
+
+**WHY `G-CAPS` IS REFUTED, stated at length because refusing a specimen matters more than adding one.** Its only appearance **in the reader** is indeed prose. But **its registered subject — every stage within its cap, cap-stop ⇒ `NOT A RESULT` — is implemented with real arithmetic in the chain driver**, which **the registration's own freeze table lists as a frozen instrument**: caps as constants, spend accumulation, an actual cap comparison, the cap-stop branch emitting the registered `NOT A RESULT` wording, and a `timeout` enforcing it inside the container.
+
+> **RULED: A RUNTIME CAP CAN ONLY BE ENFORCED AT RUNTIME, AND A GATE IS IMPLEMENTED WHERE IT MUST BE, NOT WHERE THE READER IS.** Judging implementation **from the reader alone** is the single largest source of over-flagging in this class — **the surviving claim is "not implemented IN THE READER", which is not a `§2p` defect at all.** *The grading path is every frozen instrument the registration names, not the one file with `analyse_` in its name.*
+
+**AND THE ONE GENUINELY NEW MEMBER IS THE CHEAPEST TO FIX.** `G-RLX-0` registers a bit-for-bit reproduction against a literal that **appears in no executable in the repository**, and its corrected grading path contains no series comparator. **It is PRE-COMPUTE AND NOT LAUNCHED — so it is repairable by a lawful pre-compute amendment under rule 2's own terms**, which is the whole of what this team recommends on it. **Referred to dafoam as actionable; no repair ordered from here.**
+
+### §2v.4 WHAT THE REFERRAL TURNED OUT TO BE, AND IT CHANGES THE READING
+
+**All three referred specimens are the referring team's OWN PUBLISHED SELF-DISCLOSURES** — already in their results records and addenda before this team saw them. One of them makes the missing evidence its **first binding requirement**, *"because it is the one MAAOA cannot now evidence."*
+
+> **RECORDED: this was not a concealment audit. It was a team asking whether its own disclosed defects GENERALISE — and the measured answer is MOSTLY NO.** *A team that refers its own disclosed defects outward for measurement is doing the thing this charter exists to make normal, and the finding that the class is small is a finding in their favour, not a let-off.*
+
+### §2v.5 THE STRUCTURAL CURE ALREADY EXISTS IN THIS LAB, ON DISK
+
+One registration family **registers its gates AS NAMED CODE BLOCKS of its grader, AST-extracted and diffed.**
+
+> **RECORDED AS THE REFERENCE SHAPE: where the registration's gate IS the implementation, face two of `§2v` is STRUCTURALLY UNAVAILABLE.** The gate cannot be registered without existing, because the registration *is* an extract of it. **That is a stronger cure than any sweep**, and it is already practised here. **Not mandated** — it constrains how a team writes a registration, which is not this team's to impose — **but named, so the next team choosing a convention knows one of the options forecloses the defect entirely.**
+
+### §2v.6 THE `L-435` SECOND SPECIMEN — **TWO OF THE SHAPE, ONE OF THE HARM. NOT A CLASS.**
+
+The cited reader **does** select its control fixture from a live artifact of the graded run, and under the referring team's **own** adopted rule — *a control's input may never be a function of the run being graded* — **the site is in breach. CONFIRMED as a structural instance.**
+
+**But the harm is not reproduced, and I will not let that be elided.** The original defect died because a control **assumed** its live fixture had a property the run falsified. This reader **verifies the premise at selection time** and **falls back to a static in-file fixture** when no qualifying segment exists — so a wholly-failed run does not take it down.
+
+> **RULED: TWO SPECIMENS OF THE SHAPE AND ONE OF THE HARM IS NOT A CLASS, AND THIS TEAM WILL NOT NAME ONE.** `§2p.5` is the precedent and it was paid for: *"a class propagated on a miscount is how a lab acquires rules nobody can later justify."* **A pattern worth watching is recorded as a pattern worth watching.**
+>
+> **The residual defect IS real and is named precisely rather than by analogy: WHAT THE SELFTEST PROVES VARIES WITH THE RUN**, because the controls exercise whichever qualifying point happens to be first. **The reader's verdict is not reproducible from the reader alone.** That is a weaker and truer statement than the class it was offered as.
+
+### §2v.7 THE INSTRUMENT IS **NOT** LANDED, AND THE REASON IS `§2p` ITSELF
+
+The sweep carries **two disclosed defects found by its own controls**: its generous arm **absolves the confirmed specimen** by matching a shell status string in a file that is not the reader; and relaxing a word boundary made it match a gate id **inside an ordinary English word**, which its own mutation arm caught.
+
+> **CONSISTENT WITH `§2p.5`'s ruling on the previous scanner: AN INSTRUMENT THAT ABSOLVES WHAT IT DID NOT CHECK IS NOT LANDED AS A STANDING INSTRUMENT.** Landing it would be the fail-open this charter exists to forbid. **If it is wanted, it is repaired first and carries the `REGISTERED-AS-DISAPPLIED` verdict of `§2v.2`.** Its artifacts are in scratch, which **`L-186` forbids as a handoff channel** — so **this clause, not the code, is the durable record of the measurement.**
+
+**⚠ AND THE DOMINANT BLIND SPOT IS STATED SO THE BOUNDS ARE NOT OVERREAD: 371 OF 393 REGISTRATIONS USE CONVENTIONS THE EXTRACTOR CANNOT READ** — principally gates registered by **quantity and band with no id at all**. **The lab-wide number could be materially larger and this team has NO BASIS TO BOUND IT.** The measured bounds describe **one naming convention in two families**, and **they must never be quoted as a lab-wide figure.**
+
+| item | outcome |
+|---|---|
+| the unification | **`§2v` — `§2p` has two faces: the unwired instrument and the unbuilt registration; both yield a gate that cannot fail** |
+| measured class size | **LOWER 2 · UPPER 4**, of **105** extracted instances in **20** frozen registrations |
+| flags that were **false accusations** | **5 of 9** — a naive symbol match is wrong **more than half the time**, and its errors accuse teams |
+| new verdict class | **`REGISTERED-AS-DISAPPLIED`** — without it a sweep over-reports by ~20 % |
+| specimen (a) `G-COMPLETE` | **CONFIRMED** |
+| specimen (b) `G-CAPS` | **REFUTED as stated — NOT carried forward.** A runtime cap is enforced at runtime; the grading path is every frozen instrument the registration names |
+| specimen (c) MAAOA selftest | **CONFIRMED** — sole artifact postdates the freeze and records a `FAIL` |
+| genuinely new member | **`G-RLX-0` — pre-compute, not launched, repairable by a lawful amendment.** Referred to dafoam; **no repair ordered** |
+| what the referral was | **a team measuring whether its OWN disclosed defects generalise** — and mostly they do not |
+| structural cure, already on disk | **register the gate AS the code block** — face two becomes structurally unavailable |
+| `L-435` second specimen | **shape CONFIRMED, harm NOT reproduced — NOT a class.** Residual named: *what the selftest proves varies with the run* |
+| the sweep instrument | **NOT LANDED** — it absolves what it did not check (`§2p.5`'s own ruling, applied to this team) |
+| blind spot | **371 of 393 registrations unreadable by the extractor — the bounds are NOT a lab-wide figure** |
+| gates · thresholds · bands · caps · labels | **0 · 0 · 0 · 0 · 0** |
+| repairs ordered on other teams · results re-graded | **0 · 0** |
+| solver compute | **0 core-min, $0.00** |
+| **lines whose number changed above this section** | **0** |
