@@ -1,0 +1,35 @@
+FLEET SAFETY CEILING -- DRY RUN. THIS PROGRAM CANNOT KILL; IT HAS NO SIGNAL PATH.
+  utc=2026-09-03T18:50:36Z
+  ceiling = 3 x cap_core_min_registered
+  second term of Sanaa's min(), the box's remaining budget: UNAVAILABLE -- NOT EVALUATED
+    COMPUTE_BUDGET_CHARTER section 5: this instance cannot read its own billing, and no spend cap exists in the repo.
+    A RECORDED STATE, not an absent one. NOT defaulted to 0 (every run instantly over the ceiling) and NOT to
+    infinity (half the rule silently deleted); both are the same failure, a reader reporting a number it could not read.
+
+  PLANTED CONTROLS FIRST. Two of them, because there are two questions:
+    (a) CAN the instrument fire?      -- the planted-value control (rule 3)
+    (b) DID the caller invoke it?     -- the caller-side control (FAIL_OPEN_GATE_AUDIT section 28)
+    [ok     ] PLANTED_OVER_CEILING     expected 'AT OR OVER CEILING', got 'AT OR OVER CEILING'
+    [ok     ] PLANTED_UNDER_CEILING    expected 'under ceiling', got 'under ceiling'
+    [ok     ] PLANTED_CAPLESS          expected 'NOT A RESULT (no cap_core_min_registered: no ceiling is computable, so this entry is UNPROTECTED -- not safe)', got 'NOT A RESULT (no cap_core_min_registered: no ceiling is computable, so this entry is UNPROTECTED -- not safe)'
+    [ok     ] PLANTED_REFUSED_LAUNCH   expected 'not live', got 'not live'
+    [ok     ] PLANTED_ARGV_EXITED_SOLVE_ALIVE expected 'AT OR OVER CEILING', got 'AT OR OVER CEILING'
+    [ok     ] caller WITH the ceiling check: rc=4, planted over-ceiling entry CAUGHT
+    [ok     ] caller WITHOUT it: rc=5, reports NOT A RESULT -- the check did not run
+    [ok     ] and it does NOT report ZERO VICTIMS over a check that never ran
+  => the instrument can fire, AND the caller demonstrably invokes it. Only now is its zero worth reading.
+
+  RECORDS SEEN: 320   EVALUATED: 317   NOT EVALUATED: 3   LIVE: 1
+  (an entry the ceiling did not evaluate is RECORDED with its reason, never omitted -- omission is the bug)
+
+  ev  team            case_id                        ranks       cap  ceiling(3x)   elapsed    margin  verdict
+  ----------------------------------------------------------------------------------------------------------------------------
+  RAN heat-transfer   T3d_R_fx                          8  16326.00     48978.00    375.80  48602.20  under ceiling
+  --- dafoam          D4-SHIPPED_ACC_F3                --        --           --        --        --  NOT EVALUATED (no started_epoch to measure from)
+  --- dafoam          D7FR_F-P                         --        --           --        --        --  NOT EVALUATED (no started_epoch to measure from)
+  --- dafoam          D7FR_F-S                         --        --           --        --        --  NOT EVALUATED (no started_epoch to measure from)
+
+  per-entry evaluation record written: verification/runs/AUTOSTOP_LIVENESS/ceiling_tick_2026-09-03T1855Z.json
+
+ZERO VICTIMS: the ceiling check RAN over 317 evaluated record(s) and found none at or over its ceiling.
+  This is a result, not a silence: the per-row RAN column and the sidecar name every entry it judged.

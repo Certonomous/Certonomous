@@ -132,14 +132,35 @@ def evaluate(queue_root: Path, now: float | None = None,
         if not d.is_dir():
             continue
         for p in sorted(d.glob("*.json")):
+            # EVERY RECORD PRODUCES A ROW. An entry this loop cannot evaluate is RECORDED
+            # as NOT EVALUATED WITH THE REASON -- never dropped. Omission is the bug:
+            # docs/FAIL_OPEN_GATE_AUDIT.md section 28's operational test is "can this code
+            # path distinguish 'the check ran and found nothing' from 'the check did not
+            # run'?", and a silently skipped record makes those two the same silence.
+            # The `except: continue` this replaces was face 1 of that taxonomy -- a
+            # swallowed refusal -- sitting inside the very tool written to answer it.
+            base = {"team": team, "record": str(p), "case_id": p.stem, "evaluated": False,
+                    "reason": None, "ranks": None, "cap": None, "ceiling": None,
+                    "elapsed_core_min": None, "margin": None, "sid": None,
+                    "sid_live": None, "status_seen": None, "launcher_rc": None,
+                    "finished_argv": None, "live": False, "verdict": None}
             if not is_current(p):
+                rows.append({**base, "reason": "archived by a later launch of this case_id",
+                             "verdict": "NOT EVALUATED (archived, not under watch)"})
                 continue
             try:
                 meta = json.loads(p.read_text())
-            except (OSError, json.JSONDecodeError):
+            except (OSError, json.JSONDecodeError) as e:
+                rows.append({**base,
+                             "reason": f"record unreadable: {type(e).__name__}: {e}",
+                             "verdict": "NOT A RESULT (record unreadable -- this entry was "
+                                        "NOT evaluated and is NOT known to be safe)"})
                 continue
             li = meta.get("_launch") or {}
             if "started_epoch" not in li:
+                rows.append({**base, "case_id": meta.get("case_id", p.stem),
+                             "reason": "_launch.started_epoch absent",
+                             "verdict": "NOT EVALUATED (no started_epoch to measure from)"})
                 continue
             sid = li.get("sid")
             sid_live = isinstance(sid, int) and sid in sids
@@ -185,7 +206,8 @@ def evaluate(queue_root: Path, now: float | None = None,
             live = sid_live
 
             if not has_cap:
-                verdict = "NO CEILING (no cap_core_min_registered)"
+                verdict = ("NOT A RESULT (no cap_core_min_registered: no ceiling is "
+                           "computable, so this entry is UNPROTECTED -- not safe)")
             elif not live:
                 verdict = "not live"
             elif elapsed_core_min >= ceiling:
@@ -194,6 +216,8 @@ def evaluate(queue_root: Path, now: float | None = None,
                 verdict = "under ceiling"
 
             rows.append({
+                **base, "evaluated": True,
+                "reason": "evaluated against 3x cap_core_min_registered",
                 "team": team, "case_id": meta.get("case_id", p.stem), "record": str(p),
                 "ranks": ranks, "cap": cap if has_cap else None, "ceiling": ceiling,
                 "elapsed_core_min": elapsed_core_min,
@@ -263,7 +287,8 @@ def planted_control(now: float | None = None) -> tuple[bool, list[str]]:
         expect = {
             "PLANTED_OVER_CEILING": "AT OR OVER CEILING",
             "PLANTED_UNDER_CEILING": "under ceiling",
-            "PLANTED_CAPLESS": "NO CEILING (no cap_core_min_registered)",
+            "PLANTED_CAPLESS": ("NOT A RESULT (no cap_core_min_registered: no ceiling "
+                                "is computable, so this entry is UNPROTECTED -- not safe)"),
             "PLANTED_REFUSED_LAUNCH": "not live",
             "PLANTED_ARGV_EXITED_SOLVE_ALIVE": "AT OR OVER CEILING",
         }
@@ -277,23 +302,141 @@ def planted_control(now: float | None = None) -> tuple[bool, list[str]]:
         return ok, lines
 
 
+def check_ceiling(rows: list[dict]) -> list[dict]:
+    """THE CEILING CHECK ITSELF. Kept as a named entry in CHECKS, not inlined, so that a
+    control can REMOVE IT FROM THE CALLER and watch the same planted entry sail through.
+
+    That removal is the only thing that proves the caller actually invokes it.
+    docs/FAIL_OPEN_GATE_AUDIT.md section 28: every planted-value control this lab has run
+    proves the INSTRUMENT can fail; "NOT ONE of them proves the CALLER ever invoked it."
+    """
+    return [r for r in rows if r["verdict"] == "AT OR OVER CEILING"]
+
+
+CHECKS = {"ceiling": check_ceiling}
+
+
 def fmt(rows: list[dict]) -> list[str]:
+    """Rows are EVIDENCE OF EVALUATION, not evidence of quiet.
+
+    Each printed row says what the ceiling READ (the cap), what it COMPUTED (3x), what it
+    MEASURED (core-minutes) and the MARGIN -- so a reader can tell an entry that was
+    checked and found safe from an entry that was never checked. A table that showed only
+    survivors would be face 2 of the audit wearing a ceiling's clothes.
+    """
     out = [
-        "  team            case_id                        ranks   cap    ceiling(3x)  "
-        "elapsed  margin   verdict",
-        "  " + "-" * 116,
+        "  ev  team            case_id                        ranks       cap  "
+        "ceiling(3x)   elapsed    margin  verdict",
+        "  " + "-" * 124,
     ]
-    for r in sorted(rows, key=lambda x: (x["verdict"] != "AT OR OVER CEILING", x["team"])):
-        cap = f"{r['cap']:.2f}" if r["cap"] is not None else "  --"
-        cei = f"{r['ceiling']:.2f}" if r["ceiling"] is not None else "   --"
-        mar = f"{r['margin']:.2f}" if r["margin"] is not None else "   --"
-        out.append(f"  {r['team'][:14]:14s}  {str(r['case_id'])[:28]:28s}  "
-                   f"{r['ranks']:5d}  {cap:>6s}  {cei:>10s}  "
-                   f"{r['elapsed_core_min']:8.2f}  {mar:>7s}  {r['verdict']}")
+    for r in sorted(rows, key=lambda x: (x["verdict"] != "AT OR OVER CEILING",
+                                         not x["evaluated"], x["team"] or "")):
+        cap = f"{r['cap']:.2f}" if r["cap"] is not None else "--"
+        cei = f"{r['ceiling']:.2f}" if r["ceiling"] is not None else "--"
+        ela = f"{r['elapsed_core_min']:.2f}" if r["elapsed_core_min"] is not None else "--"
+        mar = f"{r['margin']:.2f}" if r["margin"] is not None else "--"
+        ev = "RAN" if r["evaluated"] else "---"
+        out.append(f"  {ev:3s} {(r['team'] or '')[:14]:14s}  {str(r['case_id'])[:28]:28s}  "
+                   f"{str(r['ranks'] or '--'):>5s}  {cap:>8s}  {cei:>11s}  {ela:>8s}  "
+                   f"{mar:>8s}  {r['verdict']}")
     return out
 
 
-def dry_run() -> int:
+def report(queue_root: Path, checks: dict | None = None,
+           now: float | None = None, sids: set[int] | None = None,
+           echo: bool = True, sidecar: Path | None = None) -> tuple[int, list[str]]:
+    """THE REAL CALLER. dry_run() and every control drive THIS, never evaluate() directly.
+
+    Returns (exit_code, lines). Exit codes are in the module docstring; 5 is new and is the
+    whole point of section 28: THE CHECK DID NOT RUN, which is NOT A RESULT and is never a
+    quiet pass.
+    """
+    checks = CHECKS if checks is None else checks
+    out: list[str] = []
+    rows = evaluate(queue_root, now=now, sids=sids)
+
+    n_eval = sum(1 for r in rows if r["evaluated"])
+    n_not = len(rows) - n_eval
+    live = [r for r in rows if r["live"]]
+    unreadable = [r for r in rows if r["verdict"].startswith("NOT A RESULT (record")]
+    capless_live = [r for r in rows if r["live"] and r["cap"] is None]
+
+    out.append(f"  RECORDS SEEN: {len(rows)}   EVALUATED: {n_eval}   "
+               f"NOT EVALUATED: {n_not}   LIVE: {len(live)}")
+    out.append("  (an entry the ceiling did not evaluate is RECORDED with its reason, "
+               "never omitted -- omission is the bug)")
+    out.append("")
+
+    # THE CALLER-SIDE TEST, asked before any finding is reported.
+    if "ceiling" not in checks:
+        out.append("NOT A RESULT: THE CEILING CHECK DID NOT RUN.")
+        out.append("  No entry was judged against any ceiling, so 'nothing exceeded its "
+                   "ceiling' would be an UNINTERPRETABLE zero.")
+        out.append("  docs/FAIL_OPEN_GATE_AUDIT.md section 28: a blocked, refused, skipped "
+                   "or unrun measurement is NOT A RESULT --")
+        out.append("  never absence-of-failure, never a silent PASS, never a closed question.")
+        if echo:
+            for line in out:
+                print(line)
+        return 5, out
+
+    findings = checks["ceiling"](rows)
+
+    for line in fmt([r for r in rows if r["live"] or not r["evaluated"]
+                     or r["verdict"] == "AT OR OVER CEILING"][:60]):
+        out.append(line)
+    out.append("")
+
+    if unreadable:
+        out.append(f"  {len(unreadable)} record(s) were UNREADABLE and are NOT known to be "
+                   f"safe -- they are NOT A RESULT, not a pass:")
+        for r in unreadable:
+            out.append(f"    - {r['record']}: {r['reason']}")
+        out.append("")
+    if capless_live:
+        out.append(f"  COVERAGE HOLE, STATED AT RUNTIME AND PER ENTRY: {len(capless_live)} "
+                   f"LIVE entry/entries carry no cap_core_min_registered.")
+        out.append("  section 5 of RUNNER_CAP_ENFORCEMENT_CLAUSE forbids inferring an "
+                   "unstated cap and acting on it, so no ceiling")
+        out.append("  is computable for them. Each is NOT A RESULT and UNPROTECTED -- it is "
+                   "NOT 'under the ceiling'.")
+        for r in capless_live:
+            out.append(f"    - NOT A RESULT: {r['team']}/{r['case_id']} "
+                       f"({r['elapsed_core_min']:.2f} core-min so far, no ceiling computable)")
+        out.append("")
+
+    if sidecar is not None:
+        try:
+            sidecar.write_text(json.dumps(
+                {"utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                 "multiplier": CEILING_MULTIPLIER,
+                 "budget_term": "UNAVAILABLE -- NOT EVALUATED",
+                 "checks_run": sorted(checks), "records": len(rows),
+                 "evaluated": n_eval, "not_evaluated": n_not, "live": len(live),
+                 "findings": [r["case_id"] for r in findings],
+                 "rows": rows}, indent=1, default=str))
+            out.append(f"  per-entry evaluation record written: {sidecar}")
+            out.append("")
+        except OSError as e:
+            out.append(f"  WARNING: could not write the evaluation record: {e}")
+
+    if findings:
+        out.append(f"WOULD STOP: {len(findings)} live entry/entries are AT OR OVER their "
+                   f"ceiling.")
+        rc = 4
+    else:
+        out.append(f"ZERO VICTIMS: the ceiling check RAN over {n_eval} evaluated record(s) "
+                   f"and found none at or over its ceiling.")
+        out.append("  This is a result, not a silence: the per-row RAN column and the "
+                   "sidecar name every entry it judged.")
+        rc = 0
+    if echo:
+        for line in out:
+            print(line)
+    return rc, out
+
+
+def dry_run(sidecar: Path | None = None) -> int:
     print("FLEET SAFETY CEILING -- DRY RUN. THIS PROGRAM CANNOT KILL; IT HAS NO SIGNAL PATH.")
     print(f"  utc={time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}")
     print(f"  ceiling = {CEILING_MULTIPLIER:g} x cap_core_min_registered")
@@ -301,56 +444,62 @@ def dry_run() -> int:
           "UNAVAILABLE -- NOT EVALUATED")
     print("    COMPUTE_BUDGET_CHARTER section 5: this instance cannot read its own billing, "
           "and no spend cap exists in the repo.")
-    print("    It is NOT defaulted to 0 (which would put every run over the ceiling at "
-          "once) and NOT to infinity (which would")
-    print("    silently delete half the rule). A half-computable rule that names the half "
-          "it computed is honest.")
+    print("    A RECORDED STATE, not an absent one. NOT defaulted to 0 (every run instantly "
+          "over the ceiling) and NOT to")
+    print("    infinity (half the rule silently deleted); both are the same failure, a "
+          "reader reporting a number it could not read.")
     print()
-    print("  PLANTED CONTROL FIRST -- the report below is a ZERO, and a zero from a reader "
-          "not shown able to see a")
-    print("  non-zero is not evidence (CLAUDE.md rule 3; L-466 was filed today for exactly "
-          "this failure):")
+    print("  PLANTED CONTROLS FIRST. Two of them, because there are two questions:")
+    print("    (a) CAN the instrument fire?      -- the planted-value control (rule 3)")
+    print("    (b) DID the caller invoke it?     -- the caller-side control "
+          "(FAIL_OPEN_GATE_AUDIT section 28)")
     ok, lines = planted_control()
     for line in lines:
         print(line)
-    if not ok:
-        print("\nREFUSED: the reader could not see the planted over-ceiling entry. "
-              "No live table is printed, because a")
-        print("  'nothing is over the ceiling' report from this reader would be worth "
-              "nothing.")
-        return 1
-    print("  => the reader is shown able to flag a victim, decline a safe run, decline a "
-          "capless run, and decline a")
-    print("     refused launch. Only now is its zero worth reading.")
-    print()
-
-    rows = evaluate(QUEUE_ROOT)
-    live = [r for r in rows if r["live"]]
-    over = [r for r in rows if r["verdict"] == "AT OR OVER CEILING"]
-    capless_live = [r for r in live if r["cap"] is None]
-    print(f"  LIVE QUEUE, all teams: {len(rows)} current launched record(s), "
-          f"{len(live)} still live by BOTH tests (kernel session alive AND STATUS not "
-          f"showing an exited launch argv).")
-    print()
-    for line in fmt([r for r in rows if r["live"] or r["verdict"] == "AT OR OVER CEILING"]):
+    ok2, lines2 = caller_side_control()
+    for line in lines2:
         print(line)
+    if not (ok and ok2):
+        print("\nREFUSED: a control failed. No live table is printed, because a report from "
+              "this reader would be worth nothing.")
+        return 1
+    print("  => the instrument can fire, AND the caller demonstrably invokes it. Only now "
+          "is its zero worth reading.")
     print()
-    if capless_live:
-        print(f"  COVERAGE HOLE, NAMED NOT PAPERED OVER: {len(capless_live)} live "
-              f"entry/entries carry no cap_core_min_registered")
-        print("  and therefore have NO ceiling at all. section 5 forbids inferring an "
-              "unstated cap and acting on it, so these")
-        print("  runs are unprotected by this mechanism. The fix belongs at registration "
-              "and is forward-only.")
-        for r in capless_live:
-            print(f"    - {r['team']}/{r['case_id']}  ({r['elapsed_core_min']:.2f} "
-                  f"core-min so far)")
-        print()
-    if over:
-        print(f"WOULD STOP: {len(over)} live entry/entries are AT OR OVER their ceiling.")
-        return 4
-    print("ZERO VICTIMS: no live entry is at or over its ceiling.")
-    return 0
+    rc, _ = report(QUEUE_ROOT, sidecar=sidecar)
+    return rc
+
+
+def caller_side_control(now: float | None = None) -> tuple[bool, list[str]]:
+    """PLANT THE RUN, NOT ONLY THE VALUE.
+
+    A planted over-ceiling entry is driven through report() -- THE REAL CALLER, the same
+    function dry_run() uses -- twice: once with the ceiling in CHECKS, once with CHECKS
+    emptied. The pair proves the caller actually invokes the check, which no planted value
+    can prove.
+
+    The second arm's REQUIRED answer is not "the entry passes" but "NOT A RESULT: the
+    ceiling check did not run". A caller that reported ZERO VICTIMS with no check in it
+    would be the exact defect section 28 names.
+    """
+    t_now = time.time() if now is None else now
+    lines: list[str] = []
+    with tempfile.TemporaryDirectory(prefix="ceiling_caller_") as td:
+        tmp = Path(td)
+        root = _plant(tmp, t_now)
+        rc_with, out_with = report(root, checks=CHECKS, now=t_now, echo=False)
+        rc_without, out_without = report(root, checks={}, now=t_now, echo=False)
+        a = (rc_with == 4 and any("WOULD STOP" in l for l in out_with))
+        b = (rc_without == 5 and any("THE CEILING CHECK DID NOT RUN" in l
+                                     for l in out_without))
+        c = not any("ZERO VICTIMS" in l for l in out_without)
+        lines.append(f"    [{'ok     ' if a else 'REFUSED'}] caller WITH the ceiling check: "
+                     f"rc={rc_with}, planted over-ceiling entry CAUGHT")
+        lines.append(f"    [{'ok     ' if b else 'REFUSED'}] caller WITHOUT it: rc={rc_without}, "
+                     f"reports NOT A RESULT -- the check did not run")
+        lines.append(f"    [{'ok     ' if c else 'REFUSED'}] and it does NOT report ZERO "
+                     f"VICTIMS over a check that never ran")
+        return (a and b and c), lines
 
 
 def selftest() -> int:
@@ -370,7 +519,13 @@ def selftest() -> int:
     ok, lines = planted_control(now=now)
     for line in lines:
         print(line)
-    check("planted control: all four arms correct", ok)
+    check("planted-VALUE control: can the instrument fire? (rule 3)", ok)
+
+    ok2, lines2 = caller_side_control(now=now)
+    for line in lines2:
+        print(line)
+    check("planted-RUN control: does the CALLER invoke it? "
+          "(FAIL_OPEN_GATE_AUDIT section 28)", ok2)
 
     # THE MUTATION CONTROL. A selftest that only shows the evaluator flagging its plant
     # cannot tell a working evaluator from one that flags EVERYTHING. section 6 of
@@ -426,6 +581,20 @@ def selftest() -> int:
               rows4["PLANTED_EMPTY_STATUS"]["verdict"] == "AT OR OVER CEILING",
               f"got {rows4['PLANTED_EMPTY_STATUS']['verdict']!r}")
 
+    with tempfile.TemporaryDirectory(prefix="ceiling_unread_") as td:
+        tmp = Path(td)
+        root = _plant(tmp, now)
+        broken = root / "cfd" / "launched" / "PLANTED_UNREADABLE.json"
+        broken.write_text("{ this is not json")
+        rws = {r["case_id"]: r for r in evaluate(root, now=now)}
+        r = rws.get("PLANTED_UNREADABLE", {})
+        check("an UNREADABLE record is reported as NOT A RESULT, not silently dropped",
+              bool(r) and r.get("verdict", "").startswith("NOT A RESULT (record"),
+              f"got {r.get('verdict', '<row absent entirely -- the old code dropped it>')!r}")
+        rc, out = report(root, now=now, echo=False)
+        check("and the caller SURFACES it rather than reporting a clean sweep over it",
+              any("UNREADABLE" in l for l in out))
+
     src = Path(__file__).read_text()
     for forbidden in ("killpg", "SIGTERM", "SIGKILL", "os.kill"):
         check(f"this file contains no {forbidden} path",
@@ -443,11 +612,14 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--selftest", action="store_true")
+    ap.add_argument("--sidecar", default=None,
+                    help="write the per-entry evaluation record here as JSON")
     args = ap.parse_args()
     if args.selftest:
         return selftest()
     if args.dry_run:
-        return dry_run()
+        sc = Path(args.sidecar) if args.sidecar else None
+        return dry_run(sidecar=sc)
     ap.print_help()
     return 2
 
