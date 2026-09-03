@@ -2553,15 +2553,40 @@ def run_controls() -> tuple[control_kind.ControlLedger, int, list[str]]:
     # that must REFUSE and a fixture that must NOT, in ITS OWN vocabulary --
     # never borrowed from another record, which is `check_record_reconciliation`
     # 's 2026-08-24 defect.
+    # `near_miss`: a line that SITS ONE BYTE OUTSIDE an exclusion expression and
+    # must therefore STILL REFUSE. Added 2026-09-03 for docket
+    # D-20260903T184847. WHY IT IS A SEPARATE KEY FROM `refuse`, AND WHY IT IS
+    # THE ARM THAT WAS MISSING: `refuse` proves clause 1b fires AT ALL, and its
+    # mutation is `NEVER_A_CANDIDATE` -- the candidate clause removed. Neither
+    # touches the EXCLUSION set, so neither can catch an exclusion that is too
+    # WIDE. The `excluded` limbs cannot catch it either: they prove an exclusion
+    # matches what it should, never that it fails to match what it should not.
+    # An over-wide exclusion is silent in both directions, because
+    # `KNOWN_EXCLUDED` feeds `shape_audit` ALONE and never `parse_ids` -- so it
+    # can only ever turn a refusal into an acceptance, never move an id. That is
+    # exactly the permissive direction VERIFICATION_CHARTER §2p.3(e) requires a
+    # control for, and until this key existed the NUMERICS exclusions added
+    # earlier today carried none: MEASURED 2026-09-03 by deleting each of the
+    # three one at a time -- the selftest stayed rc 0 GREEN on all three, while
+    # `--dry-run docs/NUMERICS_KNOWLEDGE.md` flipped to rc 7 on all three. The
+    # register entry was load-bearing on the real file and wholly unproven by
+    # the controls, and this module's own comments at the exclusions asserted
+    # planted controls that did not exist.
     d549_forms = {
         L: {
             "refuse": "## L-9999 no separator at all, so no id is parsed\n",
             "excluded": (f_comma,),
+            # `AMENDMENT\b` must not reach a longer word; the parallel NUMERICS
+            # near-miss is the same trap in that record's vocabulary.
+            "near_miss": ("## L-9998 AMENDMENTS to a theory\n",),
             "furniture": (),
         },
         "docs/DOCKET.md": {
             "refuse": "| D9999 the first cell never closes, so no id is parsed\n",
             "excluded": ("| D19-D20 note | a range in one cell is one note |\n",),
+            # The range exclusion ends in the literal word `note`; a first cell
+            # that merely CONTAINS a hyphen is an ordinary unparseable row.
+            "near_miss": ("| D9998-D9999 summary | not the word note |\n",),
             "furniture": ("| # | Item | Where found | What settles it |\n",
                           "|---|------|-------------|-----------------|\n"),
         },
@@ -2569,13 +2594,39 @@ def run_controls() -> tuple[control_kind.ControlLedger, int, list[str]]:
             "refuse": "**N-B9999 missing its period, so no id is parsed**\n",
             "excluded": (
                 "**N-D = DAFoam-team numerics facts, opened 2026-08-21**\n",
-                "## N-AV9 COMPANION - the wedge CENTROID bias.\n"),
+                "## N-AV9 COMPANION - the wedge CENTROID bias.\n",
+                # The three added earlier today, now actually driven. Each is
+                # the REAL committed line, trimmed, not a paraphrase of it.
+                "## N-T9 AMENDMENT 1 — 2026-09-01, heat-transfer. Six "
+                "call sites, not four.\n",
+                "## N-C6 — DATED ADDENDUM, 2026-09-01: THE SCOPE IS "
+                "NARROWED.\n",
+                "**N-C9**'s bounding evidence are the neighbours: in all "
+                "three the field\n"),
+            # Each near-miss is the specimen this record's own exclusion
+            # comments already NAME as "must still refuse". They now do so in
+            # code rather than in prose.
+            "near_miss": (
+                # `AMENDMENT\b` must not reach `AMENDMENTS`.
+                "## N-Z3 AMENDMENTS to a theory\n",
+                # A bare id + em-dash is a GENUINELY LOST new fact, and is what
+                # a lazier `id + em-dash` exclusion would have swallowed.
+                "## N-Z1 — a title\n",
+                # ... and the addendum exclusion is anchored on the word DATED.
+                "## N-Z2 — UNDATED ADDENDUM, 2026-09-01: text\n",
+                # The bold-citation exclusion is anchored on the bold CLOSING
+                # immediately after the number. A bold ENTRY missing its period
+                # must still refuse.
+                "**N-Z2 a bold entry with no period**\n"),
             "furniture": (),
         },
         "docs/COST_CALIBRATION.md": {
             "refuse": "| C-9999 the first cell never closes, so no id parses\n",
             "excluded": ("| ~~**C-9104**~~ **STRUCK - DUPLICATE ID; RE-ISSUED "
                          "AS C-9114**, see that row |\n",),
+            # The struck exclusion needs the `~~` to OPEN the cell; a row that
+            # is merely bold is an ordinary unparseable row.
+            "near_miss": ("| **C-9105** annotated in-cell, never struck |\n",),
             "furniture": ("| id | date | team | process |\n",
                           "|---|---|---|---|\n"),
         },
@@ -2586,6 +2637,15 @@ def run_controls() -> tuple[control_kind.ControlLedger, int, list[str]]:
         raise SystemExit("REFUSED: the D549 control fixtures and RECORDS "
                          "disagree; every record gets its own fixtures "
                          "(CLAUDE.md rule 14).")
+    # EVERY record carries a near-miss, or the arm covers a subset of the
+    # records it knows about -- `check_record_reconciliation`'s 2026-08-24
+    # defect, and CLAUDE.md rule 14's whole point.
+    _nm_missing = sorted(p for p, s in d549_forms.items() if not s["near_miss"])
+    if _nm_missing:  # pragma: no cover
+        raise SystemExit(
+            f"REFUSED: these records have no D549 near-miss fixture, so their "
+            f"exclusion set is unproven in the PERMISSIVE direction: "
+            f"{_nm_missing}")
 
     shape_planted, shape_negative = {}, {}
     for path, spec in sorted(d549_forms.items()):
@@ -2614,6 +2674,19 @@ def run_controls() -> tuple[control_kind.ControlLedger, int, list[str]]:
                           f"refuse"] = (
                 len(shape_audit(form, path, "fixture",
                                 apply_excluded=False)) == 1)
+        # (ii-b) A NEAR-MISS must STILL REFUSE. This is the arm that catches an
+        # exclusion widened past the convention it was written for, and it is
+        # scored BOTH ways on purpose: the positive limb says the refusal is
+        # still there, and the negative limb -- "the exclusion set swallows it"
+        # -- must be FALSE, so a future edit that quietly broadens an expression
+        # is caught by a limb whose failure text names the swallowing directly.
+        for k, form in enumerate(spec["near_miss"], 1):
+            hit = shape_audit(form, path, "fixture")
+            shape_planted[f"{tag}: near-miss {k} still refuses, so the "
+                          f"exclusion set did not over-reach"] = (
+                len(hit) == 1 and parse_ids(form, RECORDS[path]) == [])
+            shape_negative[f"{tag}: near-miss {k} is SWALLOWED by the "
+                           f"exclusion set"] = (hit == [])
         # (iii) table furniture -- the header row and the `|---|` separator --
         # yields no id AND does not refuse; the mutation is a candidate
         # loosened to a bare `^\|`, which turns every table into a refusal.
@@ -2728,7 +2801,14 @@ def run_controls() -> tuple[control_kind.ControlLedger, int, list[str]]:
                  for n, hit in parse_negative.items() if hit]
     failures += [f"D549 candidate-shape limb did not hold: {n}"
                  for n, ok in shape_planted.items() if not ok]
-    failures += [f"D549 candidate is too loose -- it matched furniture: {n}"
+    # `shape_negative` now carries TWO kinds of negative, so the old wording --
+    # "it matched furniture" -- would MISNAME an over-wide exclusion as a loose
+    # candidate and send the next reader to the wrong table. Measured
+    # 2026-09-03: widening the COST_CALIBRATION exclusion printed exactly that
+    # false diagnosis. The limb NAME already says which kind it is, so the
+    # prefix states only what is true of both.
+    failures += [f"D549 negative form WAS matched -- a shape reached what it "
+                 f"must not: {n}"
                  for n, hit in shape_negative.items() if hit]
     failures += [f"D549 expectation limb did not hold: {n}"
                  for n, ok in expect_planted.items() if not ok]
