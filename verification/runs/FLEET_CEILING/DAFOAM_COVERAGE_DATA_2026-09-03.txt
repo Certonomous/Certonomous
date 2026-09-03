@@ -1,0 +1,63 @@
+FLEET SAFETY CEILING -- COVERAGE DATA FOR THE DAFOAM TEAM
+Measured 2026-09-03 by a cfd lane. THIS IS DATA, NOT A REQUEST AND NOT A BLOCKER.
+No fix is proposed here: dafoam's queue entries are dafoam's territory.
+
+WHAT THE CEILING IS. Report-only, wired into scripts/queue_runner.py's tick() on
+2026-09-03. It reads each current launched record and compares core-minutes elapsed
+against 3x cap_core_min_registered. It CANNOT kill; no kill path exists anywhere.
+
+THE THREE ENTRIES IT CANNOT EVALUATE, by id, with the exact field that is absent:
+
+  case_id: D4-SHIPPED_ACC_F3
+    record:         /home/ubuntu/Certonomous/verification/queue/dafoam/launched/D4-SHIPPED_ACC_F3.json
+    MISSING FIELD:  _launch.started_epoch
+    _launch keys present: ['eta', 'launched_by', 'outcome_20260826T163731Z', 'per_arm_out', 'pid', 'sid', 'status_files', 'utc', 'wrapper_out']
+    cap_core_min_registered: (absent)
+    ranks: 4
+    ceiling verdict: NOT EVALUATED -- with no start time there is nothing to
+      measure elapsed core-minutes from, so no ceiling can be computed.
+
+  case_id: D7FR_F-P
+    record:         /home/ubuntu/Certonomous/verification/queue/dafoam/launched/D7FR_F-P.json
+    MISSING FIELD:  _launch.started_epoch
+    _launch keys present: ['container', 'launched_by', 'pid', 'sid', 'status_file', 'utc', 'wrapper_out']
+    cap_core_min_registered: (absent)
+    ranks: 4
+    ceiling verdict: NOT EVALUATED -- with no start time there is nothing to
+      measure elapsed core-minutes from, so no ceiling can be computed.
+
+  case_id: D7FR_F-S
+    record:         /home/ubuntu/Certonomous/verification/queue/dafoam/launched/D7FR_F-S.json
+    MISSING FIELD:  _launch.started_epoch
+    _launch keys present: ['container', 'launched_by', 'pid', 'sid', 'status_file', 'utc', 'wrapper_out']
+    cap_core_min_registered: (absent)
+    ranks: 4
+    ceiling verdict: NOT EVALUATED -- with no start time there is nothing to
+      measure elapsed core-minutes from, so no ceiling can be computed.
+
+WHAT THE CEILING CAN AND CANNOT SEE, plainly:
+
+  CAN see: a run whose current launched/*.json record carries _launch.started_epoch,
+    _launch.sid, ranks and cap_core_min_registered, and whose sid still names a live
+    session in the kernel. Liveness is taken from the KERNEL only. A STATUS file
+    carrying launcher_rc does NOT retire a row -- launcher_rc is the exit status of
+    the launch argv and never the solver's, and a live 8-rank solve was measured
+    today sitting behind launcher_rc=0.
+
+  CANNOT see:
+    1. Any run with no current launched record -- anything started outside the queue
+       runner. THE DAFOAM CONTAINER CHAIN IS IN THIS CLASS. Measured at 18:44Z: a
+       container was up (d12y_w3_S3b_c1_ap_...) with its driver bash at pid 179657,
+       sid 179657, cwd cases/dafoam/curriculum_D12R2 -- and no live-sid launched
+       record corresponds to it. The ceiling does not see that work at all.
+    2. The three entries above, for want of _launch.started_epoch.
+    3. Any entry with no cap_core_min_registered > 0. No ceiling is computable and
+       inferring one is forbidden (RUNNER_CAP_ENFORCEMENT_CLAUSE section 5). Across
+       all teams, 233 of 317 records (74%) carry the field.
+
+THE HONEST HEADLINE: THE CEILING'S COVERAGE OF ACTUALLY-RUNNING WORK IS PARTIAL.
+That is a fact for the record, not a reason to withhold the report-only wiring. A
+partial ceiling that names the rows it cannot cover is worth more than no ceiling and
+a clean-looking silence -- which is docs/FAIL_OPEN_GATE_AUDIT.md section 28 in one
+sentence. Every uncovered row is emitted as NOT EVALUATED or NOT A RESULT with its
+reason, every tick, in verification/runs/FLEET_CEILING/ceiling_tick_latest.json.

@@ -69,6 +69,9 @@ from pathlib import Path
 
 REPO = Path("/home/ubuntu/Certonomous")
 QUEUE_ROOT = REPO / "verification" / "queue"
+# The production record of every tick. A campaign directory of its own, because this is
+# the ceiling's own run output and not part of the auto-stop investigation that produced it.
+TICK_DIR = REPO / "verification" / "runs" / "FLEET_CEILING"
 
 # The multiplier Sanaa named. 3x the REGISTERED CAP -- never the estimate. section 5 of
 # RUNNER_CAP_ENFORCEMENT_CLAUSE forbids inferring an unstated cap and acting on it, and
@@ -344,7 +347,8 @@ def fmt(rows: list[dict]) -> list[str]:
 
 def report(queue_root: Path, checks: dict | None = None,
            now: float | None = None, sids: set[int] | None = None,
-           echo: bool = True, sidecar: Path | None = None) -> tuple[int, list[str]]:
+           echo: bool = True, sidecar: Path | None = None
+           ) -> tuple[int, list[str], dict]:
     """THE REAL CALLER. dry_run() and every control drive THIS, never evaluate() directly.
 
     Returns (exit_code, lines). Exit codes are in the module docstring; 5 is new and is the
@@ -378,7 +382,9 @@ def report(queue_root: Path, checks: dict | None = None,
         if echo:
             for line in out:
                 print(line)
-        return 5, out
+        return 5, out, {"ran": False, "records": len(rows), "evaluated": n_eval,
+                        "not_evaluated": n_not, "live": len(live), "findings": [],
+                        "capless_live": len(capless_live), "unreadable": len(unreadable)}
 
     findings = checks["ceiling"](rows)
 
@@ -433,7 +439,167 @@ def report(queue_root: Path, checks: dict | None = None,
     if echo:
         for line in out:
             print(line)
-    return rc, out
+    return rc, out, {"ran": True, "records": len(rows), "evaluated": n_eval,
+                     "not_evaluated": n_not, "live": len(live),
+                     "findings": [r["case_id"] for r in findings],
+                     "capless_live": len(capless_live), "unreadable": len(unreadable),
+                     "detail": [f"{r['team']}/{r['case_id']}={r['verdict']}"
+                                for r in rows if r["live"] or not r["evaluated"]]}
+
+
+def ceiling_watch(root: Path, log=None, now: float | None = None,
+                  sids: set[int] | None = None, checks: dict | None = None,
+                  tick_dir: Path | None = None) -> int:
+    """ONE PRODUCTION TICK, REPORT-ONLY. Called from scripts/queue_runner.py's tick().
+
+    This is the "monitor watches" half of Sanaa's 2026-09-03 21:00Z law and NOTHING more:
+    it records, it never kills, and it never blocks a launch (her 22:00Z ruling -- running
+    cases cannot be blocked by governance).
+
+    WHY IT EXISTS BEFORE ANY KILL PATH DOES. section 28's fifth requirement is to prove the
+    CALLER invokes the check -- and that cannot be proven until the tick loop invokes
+    something. Report-only wiring is how the caller-side evidence comes into existence at
+    all, and it accumulates production history at zero risk to anybody's solve.
+
+    IT WRITES TWO THINGS, and the pair is the point:
+      * ceiling_tick_latest.json -- EVERY entry this tick, with the cap READ, the 3x
+        ceiling COMPUTED, the core-minutes MEASURED and the MARGIN; an entry not evaluated
+        carries its REASON. Omission is the bug.
+      * ceiling_tick_log.tsv -- one appended row per tick, so a reader can tell how many
+        ticks ran over what window. A count, not an impression.
+    From either alone, "the ceiling ran and nothing was near its limit" and "the ceiling
+    did not run" are different-looking facts. That is the whole requirement.
+    """
+    # THE TICK RECORD IS DERIVED FROM THE QUEUE ROOT, NOT FROM A FIXED GLOBAL, and this is
+    # a repair to this function's own first version rather than a design flourish.
+    #
+    # MEASURED 2026-09-03T18:59Z: with a module-level TICK_DIR, `queue_runner.py --selftest`
+    # -- which drives the REAL tick() against scratch queue roots -- wrote its SYNTHETIC
+    # PLANTED_* entries straight into the production record at
+    # verification/runs/FLEET_CEILING/. A selftest silently polluting the production log it
+    # is supposed to be independent of is not a cosmetic problem: it makes the production
+    # record unciteable, because a reader cannot tell a real tick from a test's.
+    #
+    # Deriving it from `root` makes the scratch case correct BY CONSTRUCTION: a root of
+    # <X>/verification/queue records to <X>/verification/runs/FLEET_CEILING, so a test root
+    # records inside the test's own tree and the real root records in the repo. No flag to
+    # remember, and no way to get it wrong from the caller's side.
+    if tick_dir is None:
+        tick_dir = (root.parent / "runs" / "FLEET_CEILING" if root.name == "queue"
+                    else Path(root) / "FLEET_CEILING")
+    tick_dir.mkdir(parents=True, exist_ok=True)
+    rc, _, summ = report(root, checks=checks, now=now, sids=sids, echo=False,
+                         sidecar=tick_dir / "ceiling_tick_latest.json")
+    tsv = tick_dir / "ceiling_tick_log.tsv"
+    if not tsv.exists():
+        tsv.write_text(
+            "# Fleet safety ceiling, REPORT-ONLY production ticks. This runner never kills.\n"
+            "# ran=0 means THE CEILING CHECK DID NOT RUN this tick -- NOT A RESULT, never a\n"
+            "# clean sweep. budget_term is UNAVAILABLE every tick by construction:\n"
+            "# COMPUTE_BUDGET_CHARTER section 5, this box cannot read its own billing.\n"
+            "# detail lists every LIVE and every NOT-EVALUATED entry by name; the archived\n"
+            "# majority is carried in the counts and in full in ceiling_tick_latest.json.\n"
+            "utc\trc\tran\trecords\tevaluated\tnot_evaluated\tlive\tcapless_live\t"
+            "unreadable\tfindings\tbudget_term\tdetail\n")
+    with tsv.open("a") as fh:
+        fh.write("\t".join([
+            time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), str(rc),
+            "1" if summ["ran"] else "0", str(summ["records"]), str(summ["evaluated"]),
+            str(summ["not_evaluated"]), str(summ["live"]), str(summ["capless_live"]),
+            str(summ["unreadable"]), ",".join(summ["findings"]) or "-",
+            "UNAVAILABLE--NOT-EVALUATED",
+            "; ".join(summ.get("detail", [])) or "-"]) + "\n")
+    if log is not None:
+        if not summ["ran"]:
+            log("CEILING NOT A RESULT: the ceiling check DID NOT RUN this tick. This is not "
+                "a clean sweep -- no entry was judged against any ceiling.")
+        elif summ["findings"]:
+            log(f"CEILING RAN: {summ['evaluated']} evaluated, {summ['live']} live, "
+                f"{len(summ['findings'])} AT OR OVER ceiling ({','.join(summ['findings'])}). "
+                f"REPORT-ONLY: nothing was stopped, and this runner has no kill path.")
+        else:
+            log(f"CEILING RAN: {summ['evaluated']} evaluated, {summ['not_evaluated']} not "
+                f"evaluated (recorded with reasons), {summ['live']} live, "
+                f"{summ['capless_live']} live and UNPROTECTED (no registered cap), "
+                f"0 at/over ceiling -> {tick_dir / 'ceiling_tick_latest.json'}")
+    return rc
+
+
+def tick_caller_control(now: float | None = None) -> tuple[bool, list[str]]:
+    """CONDITION 5, THROUGH THE REAL TICK LOOP -- plant the RUN, not only the value.
+
+    Drives scripts/queue_runner.py's ACTUAL tick() against a scratch queue root holding a
+    planted over-ceiling entry, and requires the ceiling record to appear. Then drives the
+    same tick() with the ceiling removed from CHECKS and requires the record to say NOT A
+    RESULT rather than reporting a clean sweep.
+
+    No planted VALUE can prove a caller invoked anything. This pair can, and it is the half
+    docs/FAIL_OPEN_GATE_AUDIT.md section 28 says the lab had never done.
+    """
+    t_now = time.time() if now is None else now
+    lines: list[str] = []
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    try:
+        import queue_runner
+    except Exception as e:
+        lines.append(f"    [REFUSED] could not import queue_runner: {type(e).__name__}: {e}")
+        return False, lines
+    with tempfile.TemporaryDirectory(prefix="ceiling_tick_") as td:
+        tmp = Path(td)
+        # the recognised root shape queue_runner requires: <...>/verification/queue
+        vq = tmp / "verification" / "queue"
+        vq.mkdir(parents=True)
+        src = _plant(tmp, t_now)
+        for team_dir in src.iterdir():
+            (vq / team_dir.name).mkdir(parents=True, exist_ok=True)
+            for sub in team_dir.iterdir():
+                dest = vq / team_dir.name / sub.name
+                dest.mkdir(parents=True, exist_ok=True)
+                for f in sub.iterdir():
+                    dest.joinpath(f.name).write_text(f.read_text())
+        logged: list[str] = []
+
+        # THE MODULE THAT MUST BE PATCHED IS THE ONE queue_runner IMPORTS, not this one.
+        # Run as a script this file is `__main__`; queue_runner's deferred
+        # `from fleet_safety_ceiling import ceiling_watch` creates a SECOND module object,
+        # and the check it calls reads THAT copy's globals. Patching sys.modules[__name__]
+        # -- which the first version of this control did -- silently patched a copy nobody
+        # called, and the control reported REFUSED while tick() was in fact invoking the
+        # ceiling correctly. A control aimed at the wrong object is worse than no control:
+        # it produces a red that means nothing.
+        import fleet_safety_ceiling as fsc_module
+
+        def run_tick(checks):
+            orig = fsc_module.CHECKS
+            fsc_module.CHECKS = checks
+            try:
+                queue_runner.tick(vq, logged.append, 95.0, 0.5, 0.1, {},
+                                  measure=lambda: (1.0, 100.0))
+            finally:
+                fsc_module.CHECKS = orig
+
+        # ARM 1: the ceiling IS in CHECKS. tick() must invoke it and the record must exist.
+        # The record location is DERIVED FROM THE SCRATCH ROOT, so this control cannot
+        # touch the production log even if it wanted to.
+        before = len(logged)
+        tickdir_a = tmp / "verification" / "runs" / "FLEET_CEILING"
+        run_tick(CHECKS)
+        rec_a = tickdir_a / "ceiling_tick_latest.json"
+        said_a = any("CEILING RAN" in m and "AT OR OVER" in m for m in logged[before:])
+        a = rec_a.exists() and said_a
+        lines.append(f"    [{'ok     ' if a else 'REFUSED'}] the REAL queue_runner.tick() "
+                     f"invoked the ceiling: record written={rec_a.exists()}, "
+                     f"tick log names the over-ceiling entry={said_a}")
+        # ARM 2: the ceiling is REMOVED from CHECKS. tick() must say NOT A RESULT.
+        before = len(logged)
+        run_tick({})
+        said_b = any("CEILING NOT A RESULT" in m for m in logged[before:])
+        clean_b = any("AT OR OVER" in m for m in logged[before:])
+        b = said_b and not clean_b
+        lines.append(f"    [{'ok     ' if b else 'REFUSED'}] with the check removed, the same "
+                     f"tick() reports NOT A RESULT ({said_b}) and does NOT report a sweep "
+                     f"({not clean_b})")
+        return (a and b), lines
 
 
 def dry_run(sidecar: Path | None = None) -> int:
@@ -466,7 +632,7 @@ def dry_run(sidecar: Path | None = None) -> int:
     print("  => the instrument can fire, AND the caller demonstrably invokes it. Only now "
           "is its zero worth reading.")
     print()
-    rc, _ = report(QUEUE_ROOT, sidecar=sidecar)
+    rc, _, _ = report(QUEUE_ROOT, sidecar=sidecar)
     return rc
 
 
@@ -487,8 +653,8 @@ def caller_side_control(now: float | None = None) -> tuple[bool, list[str]]:
     with tempfile.TemporaryDirectory(prefix="ceiling_caller_") as td:
         tmp = Path(td)
         root = _plant(tmp, t_now)
-        rc_with, out_with = report(root, checks=CHECKS, now=t_now, echo=False)
-        rc_without, out_without = report(root, checks={}, now=t_now, echo=False)
+        rc_with, out_with, _ = report(root, checks=CHECKS, now=t_now, echo=False)
+        rc_without, out_without, _ = report(root, checks={}, now=t_now, echo=False)
         a = (rc_with == 4 and any("WOULD STOP" in l for l in out_with))
         b = (rc_without == 5 and any("THE CEILING CHECK DID NOT RUN" in l
                                      for l in out_without))
@@ -526,6 +692,12 @@ def selftest() -> int:
         print(line)
     check("planted-RUN control: does the CALLER invoke it? "
           "(FAIL_OPEN_GATE_AUDIT section 28)", ok2)
+
+    ok3, lines3 = tick_caller_control(now=now)
+    for line in lines3:
+        print(line)
+    check("planted-RUN control through the REAL queue_runner.tick() -- "
+          "section 28 condition 5", ok3)
 
     # THE MUTATION CONTROL. A selftest that only shows the evaluator flagging its plant
     # cannot tell a working evaluator from one that flags EVERYTHING. section 6 of
@@ -591,7 +763,7 @@ def selftest() -> int:
         check("an UNREADABLE record is reported as NOT A RESULT, not silently dropped",
               bool(r) and r.get("verdict", "").startswith("NOT A RESULT (record"),
               f"got {r.get('verdict', '<row absent entirely -- the old code dropped it>')!r}")
-        rc, out = report(root, now=now, echo=False)
+        rc, out, _ = report(root, now=now, echo=False)
         check("and the caller SURFACES it rather than reporting a clean sweep over it",
               any("UNREADABLE" in l for l in out))
 

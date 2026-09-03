@@ -754,6 +754,39 @@ def cap_watch(root: Path, log: Log, now: float | None = None, retire_seen: bool 
             log(f"{word} reported for {meta['case_id']} [{ident}] -> {flag}")
 
 
+def ceiling_watch(root: Path, log: Log) -> None:
+    """REPORT-ONLY fleet safety ceiling. Never kills, never blocks a launch.
+
+    Sanaa 2026-09-03 21:00Z: "a fleet-wide safety ceiling on any single run (e.g. 3x its
+    registered cost cap ...)". THIS IS THE WATCHING HALF ONLY. No kill path exists in this
+    runner or in scripts/fleet_safety_ceiling.py; that half is unarmed pending Sanaa, and
+    docs/standards/RUNNER_CAP_ENFORCEMENT_CLAUSE.md stays ADVISORY, INERT, OFF.
+
+    A FAILURE HERE IS RECORDED AS `NOT A RESULT`, NOT SWALLOWED, AND NOT FATAL, and the
+    three-way distinction is deliberate:
+      * swallowing it would be face 1 of docs/FAIL_OPEN_GATE_AUDIT.md section 28 -- a
+        refusal read as a clean sweep -- the exact defect this ceiling exists not to
+        reproduce;
+      * letting it raise would let a REPORTING check stop the launcher, and Sanaa's
+        22:00Z ruling is that running cases are not blocked by governance;
+      * so it is loud in the journal and the tick proceeds.
+    The import is deferred for the same reason: a module-level import that failed would
+    take the whole daemon down at startup over a report-only instrument.
+    """
+    try:
+        from fleet_safety_ceiling import ceiling_watch as _cw
+    except Exception as e:                                    # noqa: BLE001
+        log(f"CEILING NOT A RESULT: the evaluator could not be imported "
+            f"({type(e).__name__}: {e}) -- the ceiling DID NOT RUN this tick. "
+            f"This is NOT a clean sweep; no entry was judged against any ceiling.")
+        return
+    try:
+        _cw(root, log)
+    except Exception as e:                                    # noqa: BLE001
+        log(f"CEILING NOT A RESULT: the evaluator raised ({type(e).__name__}: {e}) -- the "
+            f"ceiling DID NOT RUN to completion this tick. This is NOT a clean sweep.")
+
+
 def measure_box(busy_window: float) -> tuple[float, float]:
     """The daemon's real reading: (busy %, MemAvailable GB) from /proc."""
     return busy_percent(busy_window), mem_available_gb()
@@ -849,6 +882,10 @@ def tick(root: Path, log: Log, busy_ceiling: float, core_fraction: float,
     decision can change and a GPU-less host pays nothing for the clause.
     """
     cap_watch(root, log)
+    # REPORT-ONLY fleet safety ceiling (2026-09-03). Records that it RAN, every tick, over
+    # every launched entry -- so "nothing was near its limit" and "the ceiling did not run"
+    # can never be the same silence. It cannot kill and cannot block a launch.
+    ceiling_watch(root, log)
     queues = list_entries(root)
     total = sum(len(v) for v in queues.values())
     if total == 0:

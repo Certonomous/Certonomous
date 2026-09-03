@@ -1,0 +1,22 @@
+NOT A RESULT -- THESE TWO FILES ARE SYNTHETIC AND MUST NEVER BE CITED AS PRODUCTION TICKS.
+
+They were written on 2026-09-03 at ~18:59Z by `python3 scripts/queue_runner.py --selftest`,
+which drives the REAL tick(). tick() had just been wired to call the report-only fleet
+safety ceiling, and the ceiling's first version chose its output directory from a
+module-level constant. So a SELFTEST's scratch queue roots -- holding entries named
+PLANTED_OVER_CEILING, PLANTED_UNDER_CEILING, PLANTED_CAPLESS and
+PLANTED_ARGV_EXITED_SOLVE_ALIVE -- wrote straight into the production record.
+
+WHY THAT MATTERS ENOUGH TO KEEP THE SPECIMEN. It is not untidiness. A production log a
+reader cannot separate from a test's output is unciteable: every row in it becomes
+"possibly synthetic", and the ceiling's whole purpose is to be a record someone can trust
+about what ran. The defect is the same family as the rest of today's work -- an artifact
+whose provenance cannot be read off the artifact.
+
+THE REPAIR, in scripts/fleet_safety_ceiling.py's ceiling_watch(): the tick directory is
+DERIVED FROM THE QUEUE ROOT, so a root of <X>/verification/queue records to
+<X>/verification/runs/FLEET_CEILING. A scratch root now records inside the scratch tree by
+construction -- no flag to remember, and no way for a caller to get it wrong.
+
+These files are MOVED and annotated, never deleted. The production record restarts clean at
+the first real daemon tick after the wiring lands.
