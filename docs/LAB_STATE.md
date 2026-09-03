@@ -4839,9 +4839,47 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-03T17:43:47Z by dafoam lane for dafoam-supervisor (stamp from `date -u` in the committing invocation). Newest block is `S-29` — `D19T` graded `NOT A RESULT` by its own frozen grader; the `U2` patch-identity mechanism predicts five non-convergences across three items with a fourth arm disconfirming it; the generator fix landed forward-only and UNVERIFIED with `A1ZE` registered as its verification; `D12RLX` referred not withdrawn; and five of the supervisor's own errors are named as his. `S-28` holds `MAAOA`'s conclusion and `D19T`'s original block; `S-27` the closed compressible triage.
+**Section last written:** 2026-09-03T18:01:38Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-30` — the `W3_chain_r2` chain SURVIVED the usage-limit fleet kill as a detached OS daemon and is at its finite-difference legs (9 stages `rc=0`, 36.10 core-min of a registered 900.0), and `S-29` §6's three "live" pids are corrected: two are dead and the survivor's pid was never right. Before it, `S-29` — `D19T` graded `NOT A RESULT` by its own frozen grader; the `U2` patch-identity mechanism predicts five non-convergences across three items with a fourth arm disconfirming it; the generator fix landed forward-only and UNVERIFIED with `A1ZE` registered as its verification; `D12RLX` referred not withdrawn; and five of the supervisor's own errors are named as his. `S-28` holds `MAAOA`'s conclusion and `D19T`'s original block; `S-27` the closed compressible triage.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-30 — **THE CHAIN SURVIVED THE FLEET KILL AND IS BUILDING AN FD TABLE RIGHT NOW: `W3_chain_r2` IS AT ITS FINITE-DIFFERENCE LEGS, 9 STAGES `rc=0`, 36.10 CORE-MIN OF A REGISTERED 900.0. AND THE THREE PIDS `S-29` CALLED LIVE ARE ALL DEAD — THE ONE THAT SURVIVED IS NOT THE ONE THAT BLOCK NAMED** (2026-09-03T18:01:38Z, `date -u` stamp in the committing invocation)
+
+###### 1. THE PHYSICS THAT IS RUNNING — an FD table, which is this family's bright line
+
+`W3_chain_r2` (2-D unsteady incompressible cylinder, Re_D 1.0e6, 2,450 cells, np=1, DAPimpleFoam time-accurate unsteady adjoint) is in **phase 1**, at the stage that matters: `S3b_c0_am`, container `d12y_w3_S3b_c0_am_20260903T172242Z_179692` **up at the moment of reading**. `S3b_c0_ap` closed `rc=0` at **514 s / 8.5667 core-min**. `ap`/`am` are the plus and minus legs at `--dvIndex=0 --dvDelta=1.0e-6` — **this is the finite-difference table the charter requires beside every adjoint gradient, being measured now**, preceded by the three repeats `S3_r1/r2/r3` (338 / 348 / 460 s; 5.6333 / 5.8 / 7.6667 core-min) that carry the plateau evidence the step must be proved to sit inside.
+
+**Ledger, `/home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3-cylinder-unsteady/ledger.txt`: 9 `STAGE=` rows, every one `rc=0`, `inspect=[0|false]` throughout (no non-zero container exit, no OOM). Cumulative 36.1000 core-min** against `cap_core_min_registered` **900.0** and a phase-1 estimate of **196.4**. `memavail_GiB` never below 27.6 against a 14.0 floor. Dollars are **DERIVED, not measured** — $0.0513/core-h owner-stated; the box cannot read its own billing.
+
+No verdict is claimed from this. It is a run in progress, watched, and reported as such.
+
+###### 2. ⚠ CORRECTION TO `S-29` §6 — **ALL THREE PIDS IT CALLS LIVE ARE DEAD, AND ITS SURVIVOR'S PID IS OFF BY ONE PROCESS**
+
+`S-29` §6 reads *"Live through the daemon: `W3_chain_r2` pid **179656**, `D12R_phase3` pid **202525**, `W2R_phase2` pid **225360**."* Re-derived by execution this session:
+
+| S-29 said | reading now |
+|---|---|
+| `W3_chain_r2` pid 179656 | **no such process.** The chain is alive as **179657** (launcher wrapper) -> **179658** (`d12y_w3_chain_driver.sh`) -> **179692** (`d12y_w3_stage_and_run.sh --phase 1`), all 37 min elapsed, matching `STATUS.W3_chain`'s `START ... pid=179658 sid=179657` at 17:22:42Z |
+| `D12R_phase3` pid 202525 | **dead** |
+| `W2R_phase2` pid 225360 | **dead** |
+
+**Two of the three did not survive the usage-limit fleet kill; the third did, and its recorded pid was never right.** The board asserted three live jobs and one was live under a different number. That is the confident-wrong-line failure the board's own VERIFY rule exists to prevent, and it was mine.
+
+**The survival itself is the detached-queue-runner ruling working exactly as Sanaa specified (2026-08-26): the chain is an OS daemon, it does not belong to any agent, and killing the fleet did not touch it.** `179657`'s command line still carries its own `rc` capture into `STATUS.queue.W3_chain_r2` — the rc is taken *inside* the detached wrapper, never around the `setsid` line.
+
+###### 3. WHAT IS DISPATCHED, AND WHAT IS MINE
+
+Three lanes live (at the cap of 3), all ANALYSIS-AND-FREEZE only — **not one of them may launch; launches are daemon-only and every queue row waits on my personal check-4 sign-off**:
+
+1. **`F_mp` / `REF_off` registration** — the only genuinely unrun physics in this family. Anchors to be read from `D6R`'s and `D6RACC2`'s own ledgers (`O_mp` succeeded; `ACC_mp` COMPLETE), cap table under the adopted `max(3.0 x measured-anchor, 1.25 x wall-at-max-occupancy)` form, then freeze.
+2. **`A1ZE`** — the sanctioned verification of `d3f47bfa`. Its two corrections, the condemnation clause asserted at BOTH ends, and a cap table whose every arm clears the `TMO = int(CAP*60/RANKS) - 60 > 0` identity that made `D19T` unrunnable forever.
+3. **`A1WR` tail run-or-redesign**, plus assembly of the reader diffs and the md5/mtime table for my own reads.
+
+**Reserved to me and not delegated:** the measurement-script diff reads (check 1), the mtime ruling, and check-4 on both registrations. The lanes assemble; they do not rule.
+
+###### 4. STILL WITHOUT VERDICTS
+
+`D19T` `NOT A RESULT` (landed, `S-29`). `MAAOA` **no verdict of record, permanent**. `D12RLX` **referred, not withdrawn** — its load-bearing `G-RLX-0` has no implementation in the frozen grading path. `W3_chain_r2` **`PENDING`** — running. `F_mp`, `REF_off`, `A1ZE` **`PENDING`** — unregistered at this stamp, registrations in flight. `A1WR` tail — **premise falsified**, run-or-redesign undecided.
 
 ##### UPDATE S-29 — **`D19T` GRADED `NOT A RESULT` BY ITS OWN FROZEN GRADER, AND THE GATE I REFUSED TO WIDEN IS THE ONE THAT CAUGHT THE OVERRUN. A SINGLE MESH DEFECT — BOUNDING PLANES `symmetry` INSTEAD OF `empty` — PREDICTS FIVE NON-CONVERGENCES ACROSS THREE ITEMS WITH NO EXCEPTIONS, AND A FOURTH ARM DISCONFIRMS IT, SO IT IS A TWO-AND-A-HALF ITEM FINDING. THREE OF TONIGHT'S FINDINGS BECAME LAB LAW. AND I WAS WRONG FIVE TIMES, EACH NAMED BELOW AS MINE** (2026-09-03, `date -u` stamp in the committing invocation)
 
