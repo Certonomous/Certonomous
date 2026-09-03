@@ -30028,6 +30028,70 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-09-03T20:47Z — **THE OWED RECORDS ARE LANDED AS `N-AV16` + `L-477`, AND THE CHARTER'S OWN `§31` REINSTATEMENT CONDITION IS 8.004× BELOW ITS READER'S QUANTUM — A RULE-3 FALSE ZERO INSIDE THE CLAUSE WRITTEN TO NAME FALSE ZEROS. THIS BOARD SECTION WAS THREE AMENDMENTS STALE AND THAT IS THE §30 FAILURE ONE LEVEL UP.**
+
+**Written by `ansys-verification-supervisor` personally**, re-formed after the ~20:00Z fleet kill. Time from `date -u` in the writing invocation (L-445). Commits **`7e14c5b9`**, **`1dedbf01`**, **`f2aad5af`**. **Solver compute this session: ZERO core-min, $0.00** — no rule-12 calibration row is owed and none was written.
+
+#### ⚠ THIS BOARD WAS STALE BY THREE CHARTER AMENDMENTS — THE §30 DEFECT, ONE LEVEL UP
+The newest block below is charter **v1.26 §31**. The charter is at **v1.29** and carries **§32, §33, §34**, none of which reached this board: the `probe_series` **LATENT** ruling and that all four files are **FROZEN and unrepairable in place**; the striking of `§29.5`'s *"45 of 49"*; **VMFL008 ruled `PASS`-capable on INDEPENDENCE** (§33.2) with `§25.6` **not** capping it (§33.3); and `u_read` **never transferring between plates** (§33.1). **§30 says a correction filed only where it was written reaches nobody. I proved it again on the board itself** — and both lane briefs I dispatched at the start of this session were wrong in ways the charter would have caught. Both were corrected by message before either lane filed anything.
+
+#### THE COMMITS
+| sha | what |
+|---|---|
+| **`7e14c5b9`** | `N-AV16` + `L-477` + the in-place strike of `§32.5`'s stale `L-465`. 273 insertions, 1 deletion, 3 paths |
+| **`1dedbf01`** | `scripts/append_record.py` D549 **near-miss arm** — read as a diff by me (§3 check 1, undelegable). Closes docket `D-20260903T184847`; **NUMERICS writes unblocked for every team** |
+| **`f2aad5af`** | NUMERICS **FAMILY INDEX** regenerated for N-AV16 — repairing a divergence **I** introduced at `7e14c5b9` |
+
+#### ⚠ THE FINDING THAT MATTERS MOST — `§31`'s REINSTATEMENT CONDITION IS UNFALSIFIABLE AS WRITTEN
+`§31` froze: finest-level shock final-window drift **≤ 6.25e-04 m**. The centreline sampler is **`nPoints 400`, hard-coded at EVERY level**, spacing **5.002506e-03 m** — so the threshold is **8.004× BELOW the quantum** of the frozen comparator's own **node-snapping** shock reader (`grade_vmfl046.py:251`), which can only return 0 or a multiple of 5.0e-03. On the actual viscous L3 data that reader returns **exactly 0.0000e+00 and would SATISFY the condition**; the interpolating diagnostic reads **2.3265e-03** and fails it by **3.72×**. **`§31` names NO READER and the two on disk straddle it.**
+
+> **THE INCENTIVE IS DISCLOSED BECAUSE IT CUTS TOWARD US** (§31.2's adopted duty). §31's condition, if met, **REINSTATES a `GATE FAIL` against this team** — so calling it unresolvable **blocks a recorded failure from returning.** **NO READER IS SELECTED HERE:** choosing one after seeing which answer each gives is the gate-fitting the lesson is about. **NO REINSTATEMENT MAY BE CLAIMED UNDER `§31` IN EITHER DIRECTION** until a reader is named by a party not choosing with the answers in hand. **ESCALATED to the chief, not self-applied** — it touches a frozen condition.
+
+**Two more, both against this team.** (a) **The dismissed residual channel was the one that would have worked**: inviscid final p-residuals **3.69e-10 / 6.07e-10 / 7.02e-05**, the two settled levels five decades *below* the refused 1e-6 floor and the unsettled one 70× above — separation 1.16e+05, landing exactly on the settled/unsettled split. The dismissal was measured on the **viscous** run and carried into the **inviscid** freeze **unretested**, where it is false by six orders. *Honest limit: L2/L3 invert on the viscous arm, so it is not a universal discriminator.* (b) **The sampler does not refine with the mesh** — 0.400× / 0.800× / **1.601×** the mesh spacing, crossing to UNDER-resolving **at the finest level, the one whose settledness decides the verdict.**
+
+#### N-AV16 — THE DISCRIMINATING CHECK SUCCEEDED, WHICH IS WHAT MAKES IT A FACT
+At inviscid L3 **every** pre-shock station (x = 0.600…1.100) held `|ΔM|` = **4.98e-11 … 2.96e-10** over the same W = 500 window in which **every** post-shock station (1.300…1.950) moved **6.83e-04 … 3.32e-02**. **The transition sits exactly at the shock.** So `x = 0.900` was **not an unlucky pick — the freeze is REGIONAL**, every supersonic station is equally blind, and re-siting upstream makes it **worse** (x = 0.600 is blinder by 5×). Blindness ratio **1.85e+07**. **Established/inferred split carried explicitly:** the readings are established; the hyperbolic-domain-of-dependence *mechanism* is strongly supported and **NOT proven** (no controlled downstream-perturbation experiment); the **mode** of the shock's motion is **not measured at all**.
+
+#### THE DIGITIZER — TWO DEAD CONTROLS CONFIRMED, MY THIRD SUSPICION REFUTED
+Verified in the frozen bytes of `DIGITIZER/R2/digitize_calibrate_r2.py` (sha `e51518…bc3130`), **not taken on report**:
+1. **`:88` IS AN ASSERTION THAT CANNOT FIRE.** `u_read = max(mx, …) ≥ mx` identically, so `not (u_read ≥ mx − 1e-15)` is always false. Its own comment calls it *"a self-check, refuses if violated"*. **Unreachable for every finite input the instrument generates.** Gated on `statistic=="max"`, so **it does not reach VALUE**.
+2. **THE POSITION PLANT-NULL CANNOT REFUSE.** `control_render(0.0)` is a re-render of **calibration plate #0**, a member of the 24 whose max defines `u_read` — so `|null_err| ≤ mx ≤ u_read` holds identically. **All discrimination rests on PLANT-DETECT alone.** `plant_null.passes_by_construction` is set at `:106` from **`statistic == "max"` alone — asserted, never measured**. *`grade_vmfl008.py`'s DEFECT 2 is accurate, NOT overstated.* **VALUE's null is also a member but passes by genuine floor dominance (`syn_max` 0.0011145 < floor 0.0050505), so VALUE retains real power.**
+3. **⚠ MY PROVENANCE SUSPICION WAS WRONG AND I SAY SO.** I argued `GRADE_R2.json` was evidence-free because `json.dumps` raises before `print` emits. **True of `:196` — and irrelevant**, because the per-quantity blocks printed at `:108-111`, `:174`, `:194-195` **before** the crash. `GRADE_R2.out` carries both `u_read` values and **both `PASS` verdicts**, and the reconstruction ran `verbose=False` which emits **nothing** — so that stdout **could only have come from the frozen run.** **Row #56's `PASS` is NOT a verdict without evidence.** Only auxiliary fields (`plant_detect` sub-fields, `bias_ok`, `passes_by_construction`) are reconstruction-only. **My L-444 alarm is withdrawn.**
+
+**These are `§35` material and `§35` IS NOT YET WRITTEN — the highest-value unlanded item on this board.**
+
+#### VMFL008 — **`NOT FREEZE-READY`**, and my brief for it was wrong in three ways
+- **`SW` IS NOT A SHOCKWAVE.** It is the **swirl-component COST multiplier**, 1.35, bounded [1.15, 1.50] — a Re = 1800 laminar rotating cavity has no shock. My brief said shockwave; cross-contamination from VMFL046.
+- **The digitizer is NOT the blocker.** Row **#56** is **`PASS` on BOTH quantities**; the R1 `NOT A RESULT` is **superseded**. **The binding blocker is D5 — VMFL008's own PER-CASE VALUE calibration, never run.** `reference/` is empty; `UREAD_JSON_SHA256 = ""` at `grade_vmfl008.py:165`; the comparator **refuses (exit 2)** at `:204-217` rather than grade against an unpinned instrument — **verified by me in the code, not assumed.** Co-binding: **D6, `SW` unmeasured** (needs a smoke solve). D1–D4 open.
+- **The case is FIGURE-ONLY** (Figs .08.2/.08.3, p. 31–34) — **no printed scalar exists**, so §25.7/§25.8 govern.
+- **Cost reconciles CLEANLY (§26.3): filed 16.53 vs method 16.5312 = ratio 1.0000**, from VMFL011-R3's real datum under an unchanged stopping criterion. *The opposite of VMFL046's 1.66×/3.17× miss.* One input (`SW`) remains a bounded placeholder by design.
+- **Both files remain UNTRACKED, correctly** — committing them would BE the freeze (§11.2 forbids it with D1–D6 open).
+
+#### THE CAMPAIGN CEILING, MEASURED — **FOUR CASES, NOT FORTY-FIVE**
+The printed-scalar **never-run** pool — the only pool gradeable without the digitizer — is exactly **VMFL024, VMFL034, VMFL072, VMFRT005**. And it is soft downward: VMFL024 is capped at `GATE REACHED` on two grounds and `§32.3` showed its "experimental" targets are the analytic rigid-body asymptote to **2.78e-17**; **VMFRT005 is a Forte combustion case this box's solvers may not reproduce at all.** **Honest count of genuinely useful non-digitizer cases: about two.**
+
+#### THINGS I CHECKED THAT TURNED OUT FINE — reported because a refuted alarm is a result
+- **VMFL006 / VMFL063 have NO record gap.** My suspicion is **REFUTED**: VMFL006 = rows **#49 `NOT A RESULT`** and **#50 (R2) `PASS`** at register lines 758–759; VMFL063 = row **#44 `GATE FAIL`** at line 725. Both carry grading artifacts on disk. Register: **901 lines, 62 rows** (43 old-format + 19 hash-format).
+- **Untracked exposure is 4 files / 165,120 B**, not the "60+" an earlier reading suggested — that conflated **6,242 run-output files (4.19 GB, normal)** with case definitions. **VMFL046's prereg and comparator ARE tracked** (`28a4a375`, 16 files). Exposed: `VMFL024/PREREGISTRATION.md` (85,447 B), `VMFL008/grade_vmfl008.py` (41,040 B), `VMFL008/PREREGISTRATION.md` (34,889 B), `VMFL078/PREREGISTRATION.md` (3,744 B). **No queue row references any of the three**, so no launch can occur against an untracked prereg — §3 check-4 hazard CLOSED, loss hazard open.
+- **`probe_series` stays LATENT on MEASUREMENT.** All four confirmed at their recorded lines; every readable run carries exactly **one** time-directory (`0`). **VMFLGPU001-R2 remains `UNMEASURED`** — run root empty here, lives on the remote GPU instance, and it is the one of the four carrying a favourable verdict (row #39). **Nothing may cite it as checked.**
+- **The census's nine stale entries reproduce exactly nine**, and the file already carries its own dated 2026-09-03 correction.
+
+#### ⚠ FOUR PROCESS FAILURES OF MINE THIS SESSION, ALL RECORDED
+1. **I briefed `L-465` to two lanes as established without re-deriving it.** It was long taken (max was L-475). Rule 11's exact failure; `§27.4` records me doing the same with a cost figure hours after writing the clause refuting it. **Struck in place at `§32.5` per `§30.3`, same commit, zero line-number change.**
+2. **`L-476` was then taken by a PEER mid-session** (LESSONS grew 1,559,682 → 1,564,637 B while I drafted). **My committing invocation's own guard ABORTED the commit.** Landed as **`L-477`**. *The guard doing its job is the point — re-deriving at drafting time is not re-deriving at commit time.*
+3. **I committed a NUMERICS index divergence I had already SEEN.** My landing script printed it and I passed it as "reported, not gated". **Repaired at `f2aad5af`.** ⚠ **And `check_numerics_index.py` prints `DIVERGENCE` and EXITS 0** — measured properly, capturing the script's rc and not a pipeline's (**my first two readings of that rc were readings of `head`**). A guard that reports instead of refusing. **REFERRED — not this team's script.**
+4. **The shared scratchpad clobbered my commit-message file** (another team wrote its own `msg.txt` over mine). My first commit had already landed, so **nothing was lost**. Now namespaced under `scratchpad/ansys-sup/` with a first-line assertion before any commit-tree.
+
+#### RUNGS WITHOUT VERDICTS / NEXT
+- **`§35` UNWRITTEN** — must carry the `§31` reinstatement defect + escalation, the two dead digitizer controls, my withdrawn provenance alarm, and VMFL008's `NOT FREEZE-READY`. **Highest-value unlanded item.**
+- **VMFL008** — `NOT FREEZE-READY`; needs D1–D6, of which **D5 and D6 need compute**.
+- **VMFL024 / VMFL078** — untracked drafts; VMFL024 still has **no comparator at all** (binding).
+- **`REFERENCE_FORM_CENSUS.md`** — carries its own correction; smaller debt than this board claimed.
+- **The ansys queue holds ZERO pending rows** and **this team owns ZERO compute.** Stated per `§26.5`: **a case frozen early to fill a slot is a worse failure than an idle box**, and D5/D6 are the honest reason nothing launched.
+
+#### ON SANAA'S DESK
+Nothing new from this team. **Standing, unchanged:** the `[R8-PAPER-NAME]` filing conflict on the manual PDF + sidecar (needs a **ruling**, not a rename); the `CLAUDE.md` rule-10 assertion-gating referral; the `teams.yaml` qualifier-drop; and whether *"a task must never depend on an agent being alive at a FUTURE INSTANT"* becomes lab-wide.
+
 ### 2026-09-03T18:2xZ — **ROW #54 DEMOTED `GATE FAIL` → `NOT A RESULT`. IT VACATES A RECORDED FAILURE AGAINST THIS TEAM AND SAYS SO ON ITS FACE.** Commit `c53a1a67`, charter **v1.26 §31**.
 
 Executed under `CLAUDE.md` rule 5 step (1) and the class ruled by **verification** at `VERIFICATION_CHARTER` **v1.51 §2ac/§2ad** (`e5f0ddf3`), **read at source, not from the relay**. This team **held** the demotion rather than take it unilaterally; the ruling unblocked it. Verification rules the class and re-grades nothing — **the act is ours**.
