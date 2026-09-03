@@ -1837,3 +1837,64 @@ The team's two work streams have opposite compute profiles and are sequenced so 
 | worked example, against us | VMFL046's filed 12.00 vs its own method's 19.95 — a 1.66× under-file that would have set a **36.0** cap against **28.05** consumed |
 | gates | **0 moved** · bands | **0 moved** · caps | **cap-SETTING RULE adopted; no existing cap moved** · re-grades | **0** · register bytes | **0** |
 | lines whose number changed above this section | **0** |
+
+---
+
+## Amendment — v1.22, 2026-09-03 — **§27: `§26.2`'s WORKED EXAMPLE IS WRONG AND ITS DIRECTION IS INVERTED. THE CLAUSE'S CONCLUSION SURVIVES AND GETS STRONGER: FAITHFULLY FOLLOWING THAT ESTIMATE'S OWN METHOD WOULD HAVE SET A CAP THAT KILLED THE RUN.**
+
+### §27.1 THE CORRECTION
+
+`§26.2` was committed at `2e8d2f03` and cited `L-443` for the figure *"VMFL046 filed 12.00 core-min under a method yielding 19.95 — 1.66× under."* **The 19.95 was computed from the GRADED L1's 57 s wall time, a datum that did not exist when the estimate was filed** (freeze `23:20:59Z`; launch 200 s later). The datum the method actually had was the smoke's **L1 = 0.18 core-min** (`PREREGISTRATION.md:125`).
+
+| basis | estimate | ~3× cap it sets | actual consumed |
+|---|---|---|---|
+| ~~the filed estimate's own stated method (v1.21 §26.2, WRONG)~~ | ~~19.95~~ | ~~59.85~~ | — |
+| **the method executed on inputs available AT FILING** | **3.78** | **11.34** | **28.05** |
+| filed | 12.00 | 36.0 | 28.05 |
+
+**The filed 12.00 was 3.17× ABOVE its own stated method, not 1.66× below it.**
+
+### §27.2 THE CLAUSE'S CONCLUSION IS NOT WEAKENED BY THIS — IT IS SHARPENED
+
+`§26.2` argued that a ~3× cap makes the cap a function of the estimate, and that the failure direction is **strangling a run, not overspending**. The corrected numbers make that argument **more** forceful, not less:
+
+> **HAD THE REGISTRATION FOLLOWED ITS OWN STATED METHOD FAITHFULLY, IT WOULD HAVE FILED 3.78 CORE-MIN AND SET A CAP OF 11.34. THE RUN CONSUMED 28.05. THE CAP WOULD HAVE KILLED A CORRECT, COMPLETED SOLVE AT ITS FINEST LEVEL, AFTER 21.9 CORE-MIN OF L3 COMPUTE HAD ALREADY BEEN SPENT.**
+
+The filed 12.00 was **wrong in the safe direction by accident**. `§26.2` said the margin was luck; **the correction shows it was more luck than `§26.2` knew** — the run survived not because the estimate was good but because it was inflated 3.17× above a method that was itself badly broken. **Two errors in opposite directions, and the survival of the run is the product of both.**
+
+### §27.3 WHAT ACTUALLY BROKE THE ESTIMATE, AND `§26.3` IS AMENDED FOR IT
+
+The smoke's L1 converged at **2 777 iterations under `residualControl`**. **`residualControl` was removed in the same frozen document that carries the estimate** (`PREREGISTRATION.md:219`), so every graded level ran the full **20 000** iterations. The workload changed by **20000/2777 = 7.202×** and the estimate never carried it: `0.18 × 7.202 × 21 = 27.2236` against actual **28.05**, **ratio 1.0304** — one mechanism closing ~97 % of a 2.337× miss.
+
+> **THE FREEZE PRICED A RUN AND THEN, IN THE SAME DOCUMENT, CHANGED THE WORKLOAD IT HAD JUST PRICED.**
+
+**`§26.3` IS AMENDED, and the amendment is what makes it a real check:**
+
+> **The freeze-time arithmetic self-check uses ONLY INPUTS AVAILABLE AT FILING** — a check fed by a number from the run it is checking grades the freeze against information the freeze could not have had, which is gate-fitting's structure wearing a cost basis. **AND it re-prices the workload against every configuration change the same document makes.** A registration that alters `residualControl`, `endTime`, `writeInterval`, the level count or the refinement ratio **re-derives its estimate after that alteration, in the frozen bytes**, or its estimate prices a run that was never going to happen.
+
+**A decomposition that closes by construction is not corroboration.** `§26.2`'s *"1.66 × 1.41 = 2.34, closing the ratio"* is a **tautology**: for any intermediate anchor `A`, `(A/12) × (1683/A) ≡ 1683/720`. It cannot fail. **A decomposition that cannot fail to reconstruct its total has tested nothing**, and this charter will not cite one as evidence again.
+
+### §27.4 ⚠ THE ACCURATE PREDICTOR WAS IN THE FROZEN BYTES AND I THREW IT AWAY
+
+`PREREGISTRATION.md:159` records the pre-freeze smoke's **total as 28.2 core-min**. **The run consumed 28.05 — the discarded number was accurate to 0.53 %.**
+
+It was discarded as *"contention-inflated, not representative"* (`:125-127`) — **my decision**, and I recorded it on the board as a **correction to my own cost instruction**, i.e. as a thing I had got right. The premise is refuted on the one apples-to-apples comparison available: **smoke L2 and graded L2 ran the same 12 800-cell mesh to the same 20 000 iterations in 321 s vs 310 s — 3.5 % apart.** (Honest qualification, retained: smoke L1 *was* ~1.36× slower per iteration, so contention was **not** zero — it was nowhere near large enough to justify discarding the number.)
+
+> **A CONTENTION ARGUMENT IS A MEASUREMENT CLAIM AND IS HELD TO A MEASUREMENT'S STANDARD.** Discarding a datum as contaminated requires **measuring the contamination on a comparable level**, not inferring it from ambient load. `ExecutionTime/ClockTime` is available in every log this team produces and settles it in one line — the same ratio that later showed this run's waste was **measured zero**.
+
+### §27.5 PROVENANCE, BECAUSE IT DECIDES HOW MUCH THE CLAUSE IS WORTH
+
+Found by **`ansys-lane-opus`**, against the supervisor who wrote `L-443`, committed `§26.2`, **and briefed that lane with the wrong number as though it were established**. The lane checked the figure it was handed instead of building on it. **Verified personally in the frozen bytes before acceptance** (`§3` check 3), which is the only reason it is in a charter rather than in a report.
+
+`L-443` carries the same correction as a dated addendum at `c4c63cfa`; the struck text is preserved there, not rewritten.
+
+| amendment | v1.22 |
+|---|---|
+| clause added | **`§27`** (`§27.1`–`§27.5`) |
+| corrected | **`§26.2`**'s worked example — 19.95 → **3.78**; the filed estimate was **3.17× ABOVE** its own method, not 1.66× below |
+| conclusion | `§26.2`'s ruling **SURVIVES AND STRENGTHENS** — the method-true cap of **11.34** would have killed a run that consumed **28.05** |
+| amended | **`§26.3`** — the freeze-time self-check uses **only inputs available at filing**, and **re-prices against configuration changes the same document makes** |
+| banned | citing a decomposition that closes **by construction** as corroboration |
+| found by | **a lane, against this supervisor**, who had briefed it with the wrong number |
+| gates | **0 moved** · bands | **0 moved** · caps | **0 moved** · re-grades | **0** · register bytes | **0** |
+| lines whose number changed above this section | **0** |
