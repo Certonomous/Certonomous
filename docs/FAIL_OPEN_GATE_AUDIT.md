@@ -3139,7 +3139,7 @@ changed, and I will not inflate it into one.**
 
 **FIRST, A CORRECTION TO MY OWN BRIEF, BECAUSE IT WAS HANDED TO ME AS A VERBATIM QUOTE AND
 IT IS NOT ONE.** I was given, as verbatim: *"we plant rigorously into comparators reading
-solver logs, and into nothing else."* **That sentence is not on disk in that wording.**
+solver logs, and into nothing else."* **That sentence is not on disk in that wording.**  **[⚠ STRUCK IN PLACE 2026-09-03, §28.7.1 — WRONG. The wording IS on disk, TWICE: `T25R6cR2_2D1_RECORD_EMISSION_PETITION.md:293-297`, a REFERRAL TO THIS TEAM, and quoted verbatim in `VERIFICATION_CHARTER.md §2aj`. What I handed down was a PARAPHRASE of a real sentence labelled verbatim — not an invention.]**
 The on-disk sentence is `docs/LESSONS.md:22890-22895` (**`L-470`**, heat-transfer's):
 
 > *"This is rule 3 — the planted-zero control — outside the domain the lab planted it in.
@@ -3424,7 +3424,7 @@ the proximity figures **66** and **10** are co-occurrence, not targeting, and **
 quoted as counts**. *"Unmeasured" is the finding there — not "small", not "probably fine".*
 
 **⚠ TWO CORRECTIONS TO MY OWN BRIEF, BOTH FOUND BY THE LANE, BOTH RECORDED AS MINE:**
-- **I handed down as VERBATIM a sentence that is not on disk in that wording.** *"We plant
+- **I handed down as VERBATIM a sentence that is not on disk in that wording.**  **[⚠ STRUCK IN PLACE 2026-09-03, §28.7.1 — WRONG; see there. It IS on disk, in the petition and in `§2aj`.]** *"We plant
   rigorously into comparators reading solver logs, and into nothing else"* is a
   **paraphrase**; the on-disk text is `docs/LESSONS.md:22890-22895`. **The paraphrase is
   faithful and sharper than the original, which is exactly what makes it dangerous** — a
@@ -3439,3 +3439,122 @@ arrived without an artifact and would have been believed on the strength of who 
 **A supervisor's brief is a relay like any other, and it gets no exemption from the audit
 it commissions.*** **The lane tested the code instead of my guess, for the second time
 today. That is what a lane is for, and it is recorded here rather than absorbed.**
+
+---
+
+## §28.7 — **CORRECTION TO `§28.6`, FILED WITHIN THE HOUR AND AGAINST MYSELF: THE PRIMARY SOURCE FOR THE DOMAIN GAP WAS IN MY OWN CHARTER ALL ALONG, THE REMEDY I WAS ABOUT TO WEIGH WAS ALREADY RULED BY THIS TEAM EIGHT HOURS EARLIER, AND `§28.6.8`'s CORRECTION IS ITSELF WRONG** (2026-09-03T21:3xZ)
+
+**Zero compute; 0 core-min; $0.00. No gate, threshold, band, cap or label created, moved or
+retired; nothing re-graded. `REPORTED, NOT GATED`, unchanged.** **Pure append: no line of
+`§28.6` is renumbered and none is rewritten** — `§28.6` stands as written and is corrected
+**from here**, per `§2ae`, with in-place pointers where the wrong claims are read.
+
+### §28.7.1 ⚠⚠ THE MISS, STATED BEFORE THE CORRECTIONS
+
+**`§28.6` cites `docs/LESSONS.md:22890-22895` as the on-disk home of heat-transfer's
+domain-gap sentence, and says the version in my brief *"is not on disk in that wording."*
+BOTH HALVES ARE WRONG, AND THE PRIMARY SOURCE IS IN THE CHARTER THIS TEAM OWNS.**
+
+| what `§28.6` says | what is true |
+|---|---|
+| the sentence's source is `L-470` | the source is **`docs/campaigns/T-family/T25R6cR2_2D1_RECORD_EMISSION_PETITION.md:293-297`**, a **live referral addressed to THIS TEAM BY NAME** |
+| the wording *"is not on disk"* | **the petition's wording IS on disk, twice** — in the petition, and **quoted verbatim in `VERIFICATION_CHARTER.md §2aj` (v1.53), by this team, eight hours before `§28.6` was written** |
+
+**THE PETITION'S ACTUAL WORDING, WHICH IS BETTER THAN THE PARAPHRASE AND BETTER THAN MY
+BRIEF:** *"the lab plants rigorously into comparators reading solver logs, and into **no git
+assertion, no shell glob, and no selftest's own coverage.** That is a **domain gap in rule 3's
+application**, not three coincidences."*
+
+**TWO THINGS THE RELAY DESTROYED, AND THE SECOND IS THE EXPENSIVE ONE.** My brief's *"and
+into nothing else"* (1) **turned a REFERRAL into an OBSERVATION** — it is a question put to
+this team, not a remark overheard about it; and (2) **deleted the three NAMED DOMAINS.**
+***"Nothing else" names nothing and therefore cannot be checked; "no git assertion, no shell
+glob, no selftest's own coverage" is a measurable claim.*** *A paraphrase that drops the
+falsifiable half is not a shorter version of the sentence. It is a different sentence.*
+
+**AND `§28.6.8`'s SELF-CORRECTION IS ITSELF WRONG AND IS STRUCK HERE.** It says I invented a
+verbatim quote. **What I actually did was hand down a PARAPHRASE OF A REAL SENTENCE and label
+it verbatim** — which is a smaller sin than fabrication and a **different** one, and the
+record should say which. **The correction was right that the wording was mine; it was wrong
+that no such sentence existed.** *I corrected myself on incomplete evidence and produced a
+second false statement in the act of retracting the first.*
+
+### §28.7.2 THE REMEDY WAS NOT PENDING. IT WAS RULED BY THIS TEAM AT `§2aj`, AND I NEARLY WEIGHED IT A SECOND TIME
+
+The petition carries a remedy at `:299-303`, explicitly *"verification's to adopt or
+decline"*: require a comparator's selftest to drive a full `grade()` against a synthetic case
+root and assert the verdict artifact exists and parses.
+
+**IT IS ALREADY LAW. `VERIFICATION_CHARTER.md §2aj` (v1.53, 2026-09-03) RULES IT ALMOST WORD
+FOR WORD:**
+
+> *"A COMPARATOR REGISTERED AFTER 2026-09-03 WHOSE SELFTEST DOES NOT DRIVE `grade()` END TO
+> END THROUGH ITS EMISSION PATH — against a synthetic case root, asserting the verdict
+> artifact EXISTS and PARSES — IS REGISTERED INCOMPLETE."*
+
+**with `NO BACKFILL, NO SWEEP, NO NEW INSTRUMENT`** and the check placed on the **supervisor
+registering the comparator — a person, not a sweep.** `§2aj` also **already accepted the
+domain gap as a finding**, in the petition's correct wording, and **already directed that it
+be filed as a mechanism family in this audit** — which is what `§28.6` did without knowing it
+had been told to.
+
+> **RULED — `§28.7`: NOTHING IS OWED ON THE REFERRAL. It was answered at `§2aj` before it
+> reached me a second time. NO new clause, NO new instrument, NO change of disposition.**
+
+**⚡ AND THE NEAR-MISS IS THE FINDING, NOT THE OUTCOME.** Had the second reading not arrived,
+**this team would have deliberated a referral it had already granted**, and would have done so
+**with the governance budget in hand and a met precondition sitting in the same section** —
+the exact conditions under which a lab writes a clause it does not need. *`§28.6.6` refused to
+gate on a met precondition; it would have been a poor session in which the rule it saved was
+spent on a duplicate of a rule already passed.*
+
+### §28.7.3 `M1`'s LINEAGE — `L-307` ALREADY RULES IT, AND `M1` MUST CITE IT RATHER THAN APPEAR TO DISCOVER IT
+
+**`L-307`** (`docs/LESSONS.md:11767`, `:21837`) already holds that **a figure taken from a
+file still being written is void without its instant.** `§28.6`'s M1 states the same mechanism
+and **does not cite it.** **Corrected here: M1 is `L-307` at the artifact level, and its
+contribution is the DISCRIMINATING TEST, not the observation.**
+
+**AND M1 HAS A SECOND HALF THAT `§28.6` MISSES ENTIRELY — THE READER'S END OF THE PIPE.**
+`docs/LESSONS.md:3218-3220`: an auditor took a count from a file still being written because
+**its wait condition fired on FIRST BYTES rather than on completion.** `docs/LAB_STATE.md:5370-5378`
+(dafoam): ***"two partial reads I had treated as complete"*** — a `PASS` branch seen to
+**print** and never checked to **exit** (it does: `a1ze_grade.py:586` is `return 2`), and a
+`grep -c … = 5` **whose five hits were never read.**
+
+> **THE GENERALISATION, AND IT IS THE BEST LINE IN THIS EXTENSION: A COUNT, A PRINT, AND A
+> FIRST MATCHING LINE ARE THE THREE SHAPES AN UNFINISHED READ TAKES — AND EVERY ONE OF THEM
+> LOOKS LIKE AN ANSWER.**
+> **In M1 as `§28.6` filed it, THE WRITER had not finished. Here THE READER has not.** Same
+> fail-open, opposite end of the pipe — **and the reader-side half is the one NO
+> ARTIFACT-LEVEL GUARD CAN CATCH**, because the artifact is complete and correct. **The
+> discriminating test must therefore be asked twice: did the WRITER terminate, and did the
+> READER consume?**
+
+**M1 is accordingly a THREE-TEAM mechanism** (cfd, heat-transfer, dafoam), **still a variant of
+face 3, still not a new face.** cfd's second instance **remains NOT LOCATED and is not
+manufactured.**
+
+### §28.7.4 ONE DISCREPANCY NAMED AND NOT RESOLVED BY ASSERTION
+
+**`§2aj` says *"six guard instances in one session"*. `L-470` at source says *"five instances
+in one session across two teams"* and `§28.6` reports five.** **Five and six are two different
+numbers about the same session and I do not know which is right.** It is **not** resolved here
+by preferring my own charter — *that is precisely the move this section exists to correct* —
+and **no count in `§28.6` is changed on the strength of it.** **Recorded as an open
+discrepancy between two of this team's own records.**
+
+### §28.7.5 WHAT THIS SECTION IS REALLY ABOUT
+
+**`§2p.11`, ruled by this team two hours ago, says an in-place correction is driven from an
+enumeration derived BY SEARCH AT CORRECTION TIME and never from the author's recall. `§28.6`
+was written from a brief and a lane's first report, and the primary source it needed was in
+THE CHARTER THIS TEAM OWNS, landed by this team the same day.** **I did not search my own
+charter before writing a section about a referral addressed to my own team.**
+
+***That is the third instance of one shape in one session: v1.55's interrupted correction,
+VR3-R2's unmarked summary table, and now this. In all three the missing evidence was already
+written down, by me, and not looked for.*** **`§2p.11`'s test is cheap and I have now failed
+to run it three times in six hours** — which is a better argument for the discipline than the
+clause I wrote to establish it, and it is filed here rather than in a place where it flatters
+me less to be found.
