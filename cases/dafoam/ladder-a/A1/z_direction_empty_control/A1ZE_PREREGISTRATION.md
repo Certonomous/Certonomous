@@ -843,3 +843,146 @@ core-min.** The queue row remains parked at `A1ZE_QUEUE_ROW.parked.json`, outsid
 driver as a diff. The live `W3_chain_r2` container was not touched.
 
 **SUBMISSIONS PARKED.**
+
+---
+---
+
+# ADDENDUM B — 2026-09-03 — **v1.2** — THE MEDIAN FORM IS MEASURED, IN BOTH TOOLCHAIN ROWS, AND UPSTREAM'S OWN COMMENT SAYS WHY IT EXISTS
+
+**`lines whose number changed above this section: 0`** — asserted mechanically, not by eye: the
+disk file's first **731** lines are byte-identical to the blob at
+`03120e2244d52aee5dd79f7e0ea66b4b2940f7fd` under `cmp`, and `a1ze_chain_driver.sh`'s `G-FREEZE`
+re-executes exactly that comparison before any arm runs. **Addendum A's 114 lines are likewise
+untouched.**
+
+**LAWFUL BECAUSE ZERO COMPUTE HAS BEEN SPENT, AND THE CONDITION IS CHECKED BY EXECUTION IN THE
+AMENDING INVOCATION:** `/home/ubuntu/certonomous-runs/A1ZE` **does not exist** (`ls` returned
+*"No such file or directory"* at this stamp), no `Sc/Ec/S3/E3` unit directory exists anywhere, and
+no queue row has been filed. **NO GATE, THRESHOLD, CAP OR LABEL CHANGES HERE, AND NONE MAY.**
+
+## B.1 §10 ITEM 5 IS UPGRADED FROM **INFERRED** TO **MEASURED**
+
+Line 667 of the frozen text reads that the median form rests on a lane's read of `DAUtility.C` and
+that *"that file is not on this box (searched; zero hits)"*. **That sentence is false, and it is
+false in a specific way: it was true of the HOST filesystem and is stated as though it were true of
+the toolchain.** The file is in the image, and under `DAFOAM_CHARTER.md` **§6** the image *is* the
+toolchain identity. The frozen bytes are not edited; this is their correction of record.
+
+> **⚠ THE CHARTER CITATION IS ALSO CORRECTED.** The clause was cited to §11. **§11 is the lesson and
+> numerics NUMBERING clause.** Toolchain identity is **§6** — *"Shipped and patched are always two
+> rows, and toolchain identity is an image ID and a library hash, never a version string."* The
+> right clause matters here, because §6 is precisely what the next section had to satisfy.
+
+## B.2 ⚠⚠ THE MEASUREMENT WAS SCOPED TO THE WRONG IMAGE, AND §6 IS THE CLAUSE THAT CATCHES IT
+
+The finding was measured in **`dafoam/opt-packages:latest`**, `sha256:9d45679d55fd…`, on the grounds
+that it matches the live `W3_chain_r2` row. **It does — and `W3_chain_r2` is not this item.**
+
+**A1ZE's registered image is `dafoam-idwarp-rot:v1`, `sha256:2927768a16ac…`** — the PATCHED build,
+named in `a1ze_chain_driver.sh` and asserted by its `G-IMG` before any arm runs. **They are two
+different images, both present on this box.** Under §6 they are **two rows**, and a library hash
+measured in one is not a fact about the other. *This is the same "true in one scope, stated as
+another" pattern the correction itself was written to name, one level down.*
+
+**BOTH ROWS MEASURED, read-only, at this stamp** — `docker run --rm --network=none` with no volume
+and no mount, `md5sum` and `sed` only. **No run root, no solver, no arithmetic tested, nothing
+graded.** That is toolchain identification under §6, not the prohibited invocation of a driver or
+container to test its own arithmetic.
+
+| toolchain row | image | id | `DAUtility.C` md5 |
+|---|---|---|---|
+| **shipped** | `dafoam/opt-packages:latest` | `sha256:9d45679d55fd…` | `d5fb5b0a781b11a780133901a8c2241c` |
+| **patched — A1ZE's registered image** | `dafoam-idwarp-rot:v1` | `sha256:2927768a16ac…` | **`d5fb5b0a781b11a780133901a8c2241c`** |
+
+**The two are byte-identical, so the finding does transfer — and it is now MEASURED to transfer
+rather than assumed to.** Path in both:
+`/home/dafoamuser/dafoam/repos/dafoam/src/adjoint/DAUtility/DAUtility.C`.
+
+**`SolverPerformance<vector>` overload, read from the image:** `vector initRes = solverP.initialResidual();`
+**:782**; `scalarList initResList = {initRes[0], initRes[1], initRes[2]};` **:783**; `sort(initResList);`
+**:784**; `if (initResList[1] > primalMaxRes)` **:786**; `primalMaxRes = initResList[1];` **:788**.
+**`sort`, then index 1 of three — the median, with a hash.** The `<scalar>` overload for contrast:
+`scalar initRes = solverP.initialResidual();` **:747**; `if (initRes > primalMaxRes)` **:749** — a
+true max.
+
+## B.3 ⚠ UPSTREAM'S OWN COMMENT NAMES THIS EXACT CONFIGURATION — AND IT CUTS AGAINST `d3f47bfa`, NOT FOR IT
+
+`DAUtility.C:775-780`, verbatim from the image:
+
+> *"for vectors, we need to use the median value for the residual / this is because we often need to
+> run 2D simulations with symmetry BC, so one component of the residual vector, which is related to
+> the symmetry BC, may be high while the other two components' residuals are low. In this case, we
+> can use the median value for the residual vector, which better represents the convergence."*
+
+**Upstream anticipated a one-cell-thick 2-D mesh with `symmetry` bounding planes, expected exactly
+the high z-component this lab measured, and built the median to tolerate it.** §1's *"the provenance
+is INFERRED"* is therefore strengthened into something sharper: **`symmetry` on these planes is
+documented upstream design intent, not an oversight inherited by accident.**
+
+> **REGISTERED BEFORE COMPUTE, BECAUSE IT MOVES THE ODDS AGAINST THE COMMIT UNDER TEST AND MUST BE
+> SAID BEFORE THE ANSWER EXISTS: this raises, not lowers, the prior that `empty` is not what this
+> toolchain expects on this case family.** It is direct evidence that upstream *chose* `symmetry`
+> deliberately for 2-D. **`G-EMPTY` `BLOCKED` on a treatment arm — IDWarp or the adjoint refusing
+> `empty` — is the outcome this comment makes more likely, and §3b.0 already registers that as
+> condemning `d3f47bfa`.** It remains INFERRED that the adjoint or the warping *requires* `symmetry`;
+> what is now measured is that the residual criterion was written around it.
+
+## B.4 THE MEDIAN FORM REPRODUCES D19T'S DECLARED NUMBERS — SO IT IS CONFIRMED FROM BEHAVIOUR TOO, NOT ONLY FROM SOURCE
+
+Computed at this stamp from D19T's own logs, evaluating `max(median(U0,U1,U2), p, nuTilda)` per
+iteration and minimising over iterations:
+
+| arm | tol | declarations | best declared | **median form** | agrees? |
+|---|---|---|---|---|---|
+| `T08` | 1e-8 | 22 | 9.087147e-09 | **9.089292e-09** | ✅ 4 s.f., and it declares |
+| `T10` | 1e-10 | 22 | 9.038369e-11 | **9.034983e-11** | ✅ 4 s.f., and it declares |
+| `T12` | 1e-12 | **0** | — | **1.743972e-12** | ✅ above tol, so it does **not** declare |
+
+**Three arms, three reproductions, including the one that produced no declaration at all.** A source
+read says what the code contains; this says the code's behaviour is what we observe.
+
+**AND IT SHARPENS §1a's WORDING WITHOUT MOVING ITS CONCLUSION.** §1a says *"`U2` is not in the
+declared quantity."* Mechanically, `U2` **is** one of the three values fed to the median — it is
+**discarded whenever it is an extreme**, which on these meshes it is (largest at 12 of 14 A1WR
+points). **The conclusion is unchanged and the proof in §1a is unaffected**: a maximum over a set
+can never fall below the minimum ever attained by a member, and `T10` declared 22× at ~9.04e-11
+while `U2`'s best was 1.716383e-10. **`U2` does not set the declared value. That is what §1a
+establishes and all it needs.**
+
+## B.5 `R-DECL`'s REGISTERED EXPECTATION SURVIVES — AND IT IS NOW COMPUTED, NOT ASSERTED
+
+With the median measured, an `empty` plane makes the z-component vanish, so the vector's list is
+`[0, U0, U1]` and the median is `min(U0, U1)`. **The U-channel therefore moves from `max(U0,U1)` to
+`min(U0,U1)` — a real change, and one that makes convergence EASIER, so it had to be checked rather
+than waved through.** Evaluated on every α segment of A1WR `sweep_I`, both forms, against 1e-8:
+
+| α | symmetry — `max(median(U0,U1,U2), p, nuTilda)` | empty — `max(min(U0,U1), p, nuTilda)` | empty declares? |
+|---|---|---|---|
+| 1 | 3.586409e-08 | **1.018184e-08** — lowest in the sweep | **no** |
+| 4 | 1.984672e-08 | 1.247299e-08 | **no** |
+| 10 | 1.340732e-08 | 1.340732e-08 | **no** |
+| **12 — this item's operating point** | **2.997861e-08** | **2.795397e-08** | **no** |
+| 13 | 4.145549e-07 | 4.145549e-07 | **no** |
+
+**No segment reaches 1e-8 under either form. The closest the `empty` form ever gets is
+1.018184e-08 at α = 1 — within 2 % of the tolerance and still above it.** At α = 12 the improvement
+is **2.997861e-08 → 2.795397e-08, a factor of 1.07**. **`R-DECL`'s registered expectation — that
+NEITHER arm declares — stands, unmoved, and is now backed by a computed margin instead of an
+assertion.** `R-MAXRES` is likewise unaffected: it reads the max over *printed* channels, which is
+a different quantity from the declared one and always was.
+
+**Note the segments where the two columns are IDENTICAL (α = 6–10): at the minimising iteration the
+U-channel was not binding at all — `p` or `nuTilda` was.** So the patch swap cannot move the
+declared value there by construction. **That is a sharper account than either the board block or
+the correction that prompted this addendum, and it is the reason `R-DECL` is REPORTED and gates
+nothing.**
+
+## B.6 WHAT DID NOT CHANGE
+
+No gate, no threshold, no cap, no label, no arm, no anchor, no cost figure, no verdict class and no
+verdict ceiling. `a1ze_grade.py` is **unchanged at `9b755c3b1a043879a664853a3d747c53`**. No
+arithmetic anywhere in this registration depends on the median form; B.5 shows what the form implies
+and changes nothing on the strength of it.
+
+**Zero solver core-min. Read-only image identification only, well under 0.02 core-min, disclosed
+rather than omitted. SUBMISSIONS PARKED.**
