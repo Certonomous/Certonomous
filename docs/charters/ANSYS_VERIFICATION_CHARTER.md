@@ -1767,3 +1767,73 @@ Roughly **48 figure-heavy cases** in the manual's never-run set have no printed 
 | new cap | `u_read ≥ tol/3` → case **capped at `GATE REACHED`** |
 | gates | **0 moved** · bands | **0 moved** · caps | **0 moved (one NEW cap defined)** · re-grades | **0** · register bytes | **0** |
 | lines whose number changed above this section | **0** |
+
+---
+
+## Amendment — v1.21, 2026-09-03 — **§26: SANAA'S COMPUTE-ENVELOPE LAW REGISTERED. THIS TEAM DRAWS NOTHING FROM THE ENVELOPE AND ADOPTS ALL OF ITS CAP DISCIPLINE — AND THE ~3× CAP RULE MAKES THE ESTIMATE LOAD-BEARING IN A DIRECTION THAT KILLS RUNS RATHER THAN OVERSPENDING THEM.**
+
+### §26.1 THE LAW, AND WHAT PART OF IT REACHES THIS TERRITORY
+
+Sanaa, 2026-09-03 (~18:00Z), recorded verbatim at
+`etc/sessions/2026-09-03T1800Z_sanaa_compute_envelope.md`. The operative clauses,
+in her words:
+
+> *"1. The per-case dollar approval loop is abolished. I set one standing envelope: $1,000 for the benchmark ladder (Rungs 0–3), spendable without returning to me. […] 2. What does not change: every run still registers its cost estimate before launch, still carries a hard per-run cap (set by the team at ~3× its own estimate, not by me), still reports predicted-vs-actual, and still names waste. **The estimate is an instrument, not a permission slip.** […] 4. Escalation to me only for: a single run projected over $150, the envelope reaching 80 %, or a rerun of something that already failed twice […]. However before escalating this to me check that you didn't make bugs/errors in how you estimated this exceedance"*
+
+**THE ENVELOPE IS THE INDUSTRIAL LADDER'S (Rungs 0–3). THIS TEAM DRAWS NOTHING FROM IT** and will not report spend against it. Registered here so no future lane reads a $1,000 headroom onto a VMFL case: this campaign's runs are in the **$0.01–$0.10 class** and its largest recorded case is `26.7` core-min. **Clause 2's discipline is adopted in full and binds every registration in this territory**, envelope or no envelope, because it was already this team's law and her wording is tighter than ours.
+
+### §26.2 THE CAP RULE, AND THE DIRECTION ITS FAILURE RUNS — this is the clause worth reading
+
+Caps in this territory are now set at **~3× the registration's own estimate, by this team, in the frozen bytes.** That makes the cap a **function of the estimate**, and it is worth being explicit about which way that fails.
+
+**An under-filed estimate does not overspend. It strangles its own run.** A cap-hit is `rc 124` → **`NOT A RESULT` (budget/kill class)** — the whole run is forfeit and must be re-filed. So under `§26`:
+
+> **AN OPTIMISTIC ESTIMATE IS NOT A CHEAP MISTAKE THAT COSTS A LITTLE MONEY. IT IS AN EXPENSIVE ONE THAT COSTS THE ENTIRE RUN, AND IT COSTS IT AT THE END, AFTER ALL THE COMPUTE HAS BEEN SPENT.**
+
+**The worked example is this team's own, from today.** VMFL046 filed **12.00** core-min. Its own stated method — scale L1's uncontended rate by cell count over all three levels — yields `57 s × (1+4+16) = 1197 s = **19.95** core-min`. The filed figure was **1.66× below its own arithmetic** (`L-443`). Propagated through `§26.2`:
+
+| basis | estimate | ~3× cap it would set |
+|---|---|---|
+| filed | 12.00 | **36.0** |
+| the filed estimate's own stated method | 19.95 | **59.85** |
+| actual consumed | **28.05** | — |
+
+The run consumed 28.05 and the frozen cap was 30, so **nothing was lost here — by 1.95 core-min.** Had the triple carried one more refinement level, or had the box been genuinely contended (it was not: `ExecutionTime/ClockTime` 0.988/0.989/0.998, waste **measured zero**), the filed estimate would have killed a completed solve at its cap. **The margin was luck, and it is recorded as luck.**
+
+### §26.3 THE ARITHMETIC SELF-CHECK IS PROMOTED FROM ESCALATION-TIME TO FREEZE-TIME
+
+Her clause 4 requires an arithmetic self-check **before escalating an exceedance**. In this territory the check runs **earlier — before the freeze — and it is a freeze precondition, not an escalation precondition:**
+
+> **A registration's cost estimate is reconciled against its own stated method, in the frozen bytes, before the freeze commit. The reconciliation is written out (basis, arithmetic, result), and where the filed number differs from what its method yields, THE DIFFERENCE IS EXPLAINED OR THE FILED NUMBER IS CORRECTED.**
+
+Rationale, stated plainly: an escalation-time check catches a bad estimate **after** it has already set a bad cap and, under `§26.2`, possibly already killed a run. **Checking at escalation time is checking after the damage.** This is the `§3` check-4 pattern — the pre-registration is verified as *committed* before compute, not as *intended* — applied to the one field of the pre-registration that nothing had ever verified.
+
+**Honest note on provenance, because it cuts both ways.** This team derived the same finding independently at `L-443` hours before her ruling arrived, from VMFL046's own overrun. **That is corroboration of her rule, not credit for it** — and the corroboration is unflattering: we found it by filing an estimate that failed the check, not by running the check.
+
+### §26.4 THE OTHER CLAUSES, AS THEY LAND HERE
+
+- **Predicted-vs-actual and named waste at every completion** — already binding (`CLAUDE.md` rule 12, `COMPUTE_BUDGET_CHARTER` §6); unchanged, and this team states waste as *measured* where it can measure it, never as an inferred zero.
+- **Node sizing / "never crop a grid to a box"** — has no application here yet: every case in this territory runs serially on the existing box, and no VMFL case has been shortened to fit hardware. **If one ever is, that is a `§26` disclosure in its frozen bytes, not a silent mesh choice.**
+- **The no-blind-retries trigger (a third attempt at a twice-failed thing)** — this territory already carries R2/R3 rungs (VMFL007-R3, VMFL045-R2, VMFL017-R2, VMFL054-R2). **A THIRD attempt at any case whose first two attempts failed is escalated before it is filed**, with the arithmetic self-check done first per her clause 4.
+- **"The box stays full, never idle."** The ansys queue is empty of solver rows **because every remaining candidate needs a pre-registration and a `§3` check-4 freeze**, not because the pipeline was neglected. `§26.5` fixes that.
+
+### §26.5 SEQUENCING — the queue is filled from the CHEAP, SCALAR-REFERENCED end while the digitizer is built
+
+The team's two work streams have opposite compute profiles and are sequenced so the daemon always has ansys rows:
+
+1. **Scalar-referenced never-run cases** (a printed numeric target in the manual, no figure needed) are the **queue-fillers**: cheap, serial, gradeable against a printed number today, no dependency on the digitizer. These are registered and frozen continuously, ranked cheapest-and-lowest-risk first.
+2. **The `§25` digitizer** is built and calibrated in parallel. Its calibration runs are **CPU-trivial** (synthetic plate rendering and image processing) and are queue-fillers of a different, near-zero-cost kind; they must never be described as substantial compute.
+3. **The ~48 figure-heavy cases stay blocked behind `§25.7`** and no amount of queue pressure moves one forward early. **A queue-filling motive is exactly the pressure that would produce a badly-calibrated digitizer**, and `§25.2`'s order-of-operations is not relaxed to keep a daemon busy.
+
+> **THE BOX BEING FULL IS NOT A REASON TO FREEZE A REGISTRATION THAT IS NOT READY.** Idle compute is a failure; a case frozen early to fill a slot is a worse one, because it produces a number that looks like a result. Where the two conflict, the queue waits.
+
+| amendment | v1.21 |
+|---|---|
+| clause added | **`§26`** (`§26.1`–`§26.5`) |
+| authority | Sanaa 2026-09-03 ~18:00Z, verbatim at `§26.1` |
+| envelope | **this team draws NOTHING** from the $1,000 industrial-ladder envelope |
+| adopted in full | per-run cap **~3× the team's own estimate**, set in the frozen bytes; predicted-vs-actual; waste named |
+| tightened beyond her wording | the **arithmetic self-check moves from escalation-time to FREEZE-time** and becomes a freeze precondition (`§26.3`) |
+| worked example, against us | VMFL046's filed 12.00 vs its own method's 19.95 — a 1.66× under-file that would have set a **36.0** cap against **28.05** consumed |
+| gates | **0 moved** · bands | **0 moved** · caps | **cap-SETTING RULE adopted; no existing cap moved** · re-grades | **0** · register bytes | **0** |
+| lines whose number changed above this section | **0** |
