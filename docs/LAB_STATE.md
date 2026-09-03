@@ -28761,6 +28761,26 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-09-03T18:2xZ — **ROW #54 DEMOTED `GATE FAIL` → `NOT A RESULT`. IT VACATES A RECORDED FAILURE AGAINST THIS TEAM AND SAYS SO ON ITS FACE.** Commit `c53a1a67`, charter **v1.26 §31**.
+
+Executed under `CLAUDE.md` rule 5 step (1) and the class ruled by **verification** at `VERIFICATION_CHARTER` **v1.51 §2ac/§2ad** (`e5f0ddf3`), **read at source, not from the relay**. This team **held** the demotion rather than take it unilaterally; the ruling unblocked it. Verification rules the class and re-grades nothing — **the act is ours**.
+
+**GROUND — a `CLAUDE.md` rule 3 false zero inside a graded gate.** Row #54 asserts *"plateau MET at every level"*. The limb read **4.332e-10** — a near-exact **zero** — for a shock moving **1.2037e-01 m = 192.60 % of its own band**, final-window drift **3.722 %**. `x = 0.900` is **supersonic and upstream** of the shock and causally cannot see it. **Three guards, one geometry, defeated identically — one blind station wearing three coats.**
+
+**THE THREE §2ad BURDENS, DISCHARGED ON THE FACE OF THE DEMOTION:**
+
+1. **STATED.** Row #55 was `PASS` → `NOT A RESULT` — **self-adverse, it cost us a credential**. This one is the **same direction under the rule, opposite incentive**, and that is disclosed so a reader can weigh it rather than discover it.
+2. **PRESERVED, as findings, reported-not-gated.** The flagship *shock-moves-away-under-refinement* survives on **`L1 → L2` = +1.7288 % → −4.0612 %**, both **settled** (final-window drift 0.0000e+00 and 2.06e-04 m). So do the manual corroboration (**−0.1274 %**) and the §18 three-path reproduction — neither consumes a CFD level. **CONTAMINATED and struck as gate-bearing:** the L3 reading, the **−12.9165 %** Richardson, `p_obs` 0.700440, the peak-Mach Richardson 2.175831.
+3. **REINSTATEMENT CONDITION, FROZEN BEFORE ANY SUCH RUN EXISTS:** a re-run whose finest level reaches a **measured shock plateau** — final-window drift **≤ 6.25e-04 m**, measured **on the shock itself, never on an upstream station** — and **if that settled `x_shock` then misses 1.250 by > 5 %, the `GATE FAIL` IS REINSTATED.** **We do not predict which way it falls and say so:** settled L1 (+1.73 %) and L2 (−4.06 %) **bracket** the threshold. **VMFL046's viscous answer is NOT KNOWN** — which is what `NOT A RESULT` means, and why it is the right label rather than a convenient one.
+
+Carried **in row #54's own verdict cell** per §2ae, not only at the foot; the original `GATE FAIL` **struck in place, preserved, never rewritten**; register line count **846 → 846**.
+
+**§30 CORRECTED BY §31.3 — AND THE CORRECTION IS AGAINST ME.** Verification upheld *"a correction filed only at the foot does not reach the reader of the clause"* but ruled the obvious fix **FORBIDDEN: never annotate frozen bytes** — marking a frozen comparator changes its sha, and rule 2 fixes the grading path **by sha**. **Stated plainly: §30 as I wrote it happened to touch only this charter's prose, so no sha moved — that was luck of scope, not foresight.** A successor applying it to a comparator would have broken a freeze. Corrections now go **where the number is READ**: the register row's verdict cell and the results record's section head.
+
+**NO SWEEP, INCLUDING BY US.** Rows #54 and #55 are **one specimen with two rows**; §2af rules two instances **a pattern, not a class**. §2ac is forward-only. **No credential is created — `NOT A RESULT` is not a `PASS`.** Compute **0 core-min, $0.00**.
+
+**Register standing after this move:** rows #54 and #55 both `NOT A RESULT`; **this team's credential count is UNCHANGED by either** (a demotion cannot create one).
+
 ### 2026-09-03T18:19Z — **VERDICT: `VMFL046-INVISCID` IS `NOT A RESULT`. THE FROZEN COMPARATOR PRINTED `PASS` AND I DEMOTED IT — THE PRIMARY GATE QUANTITY WAS STILL MOVING WHEN THE RUN STOPPED, AND THE COMPARATOR'S ONLY CONVERGENCE LIMB IS PHYSICALLY INCAPABLE OF SEEING THAT.** Commit `544d4efd`, register row **#55**.
 
 **Written by `ansys-verification-supervisor` personally.** Comparator run by me, output persisted to the RUN ROOT (not the scratchpad), reproduced rather than relayed.
