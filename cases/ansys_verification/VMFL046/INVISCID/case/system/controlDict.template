@@ -1,0 +1,44 @@
+FoamFile { version 2.0; format ascii; class dictionary; object controlDict; }
+application     rhoSimpleFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         __ENDTIME__;
+deltaT          1;
+writeControl    timeStep;
+writeInterval   __ENDTIME__;   // fields (U,T,p) at endTime only -> plant + gate + age guard
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  12;
+timeFormat      general;
+timePrecision   10;
+runTimeModifiable false;
+
+functions
+{
+    // Centreline U,T sampled EVERY 500 iterations (its own writeControl), so the comparator
+    // can test the M(0.9) PLATEAU: converged iff |M(0.9)_endTime - M(0.9)_{endTime-500}| <
+    // delta_M = 4.25e-4 (charter v1.17/v1.18 §22.5, derived from §18's reference-reproduction
+    // spread |1.882125-1.8817|). cellPoint interpolation so sample points do not shift with mesh.
+    centreline
+    {
+        type            sets;
+        libs            ("libsampling.so");
+        writeControl    timeStep;
+        writeInterval   500;
+        interpolationScheme cellPoint;
+        setFormat       raw;
+        fields          (U T);
+        sets
+        (
+            line
+            {
+                type    uniform;
+                axis    x;
+                start   (0.002 0.0 0.0);
+                end     (1.998 0.0 0.0);
+                nPoints 400;
+            }
+        );
+    }
+}
