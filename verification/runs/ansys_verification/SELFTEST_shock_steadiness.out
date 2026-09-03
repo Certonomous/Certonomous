@@ -1,7 +1,13 @@
+REFUSE: no centreline history under /tmp/tmpscky9oim/L_absent
+REFUSE: no centreline history under /tmp/tmpscky9oim/L_empty
+REFUSE: fewer than 2 resolvable shock positions in /tmp/tmpscky9oim/L_one
 SELFTEST plant shock at 1.1000 -> read 1.0988 (err 1.15e-03) PASS
 SELFTEST plant shock at 1.2500 -> read 1.2488 (err 1.15e-03) PASS
 SELFTEST plant shock at 1.3117 -> read 1.3126 (err 8.96e-04) PASS
 SELFTEST throat-vs-shock: read 1.1985, must be the DOWNWARD crossing >1.0  PASS
 SELFTEST plant-null (still history) -> drift 0.000e+00, must be 0  PASS
 SELFTEST plant-detect (known 3.4e-2 drift) -> 3.4000e-02  PASS
+SELFTEST plant-absent-run (no postProcessing tree) -> REFUSED (exit 2) as required  PASS
+SELFTEST plant-empty-run (tree exists, zero samples) -> REFUSED (exit 2) as required  PASS
+SELFTEST plant-single-sample (drift unmeasurable, must not return 0) -> REFUSED (exit 2) as required  PASS
 SELFTEST: ALL PASS

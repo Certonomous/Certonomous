@@ -203,6 +203,56 @@ def selftest():
     ok &= good
     print("SELFTEST plant-detect (known 3.4e-2 drift) -> %.4e  %s"
           % (drift, "PASS" if good else "FAIL"))
+    # -----------------------------------------------------------------------
+    # CALLER-SIDE ARMS (added 2026-09-03 after verification's FAIL_OPEN_GATE_AUDIT
+    # §28: "can the code path distinguish 'ran and found nothing' from 'did not
+    # run'? If not, its zero must refuse. PLANT THE RUN, NOT ONLY THE VALUE.")
+    #
+    # Arms 1-4 above plant VALUES into in-memory profiles. NONE of them ever
+    # exercised history() or analyse() against an ABSENT or EMPTY run, so the
+    # empty-glob and too-few-samples refusals existed in code and were UNPROVEN
+    # by any control. That gap matters specifically because this script's L1 and
+    # L2 readings are NEAR-ZEROS (8.19e-14, 5.79e-13) that were load-bearing:
+    # they carried "the two coarse levels are settled, so the physics conclusion
+    # survives" in BOTH the row #55 and row #54 demotions. A near-zero from a
+    # reader not shown able to refuse an absent run is the caller-side face of
+    # CLAUDE.md rule 3.
+    import tempfile
+    def _must_refuse(label, fn):
+        try:
+            fn()
+        except Refuse:
+            print("SELFTEST %s -> REFUSED (exit 2) as required  PASS" % label)
+            return True
+        except SystemExit:
+            print("SELFTEST %s -> REFUSED (exit 2) as required  PASS" % label)
+            return True
+        print("SELFTEST %s -> DID NOT REFUSE  FAIL" % label)
+        return False
+
+    with tempfile.TemporaryDirectory() as td:
+        # Arm 5: THE RUN DID NOT HAPPEN AT ALL -- no postProcessing tree.
+        ok &= _must_refuse("plant-absent-run (no postProcessing tree)",
+                           lambda: history(os.path.join(td, "L_absent")))
+        # Arm 6: THE DIRECTORY EXISTS AND IS EMPTY -- "ran and found nothing".
+        empty = os.path.join(td, "L_empty", "postProcessing", "centreline")
+        os.makedirs(empty)
+        ok &= _must_refuse("plant-empty-run (tree exists, zero samples)",
+                           lambda: history(os.path.join(td, "L_empty")))
+        # Arm 7: EXACTLY ONE SAMPLE -- a history too short to measure drift at
+        # all. A drift of 0.0 computed from one sample is the false zero this
+        # whole script exists to catch, so it must refuse rather than return 0.
+        one = os.path.join(td, "L_one", "postProcessing", "centreline", "20000")
+        os.makedirs(one)
+        with open(os.path.join(one, "line_T_U.xy"), "w") as fh:
+            for i in range(401):
+                x = 0.0 + 2.0 * i / 400.0
+                m = 1.9 if x < 1.25 else 0.6
+                T = 300.0
+                u = m * math.sqrt(GAMMA * RGAS * T)
+                fh.write("%.6f %.6f %.6f 0 0\n" % (x, T, u))
+        ok &= _must_refuse("plant-single-sample (drift unmeasurable, must not return 0)",
+                           lambda: analyse(os.path.join(td, "L_one")))
     if not ok:
         raise Refuse("SELFTEST FAILED -- the reader cannot be trusted, refusing")
     print("SELFTEST: ALL PASS")
