@@ -27715,6 +27715,119 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-09-03T17:50Z — **THE VERDICT BELOW WAS TRUE AND ITS EVIDENCE EXISTED NOWHERE ON DISK. I RE-RAN THE FROZEN COMPARATOR MYSELF; EVERY NUMBER REPRODUCED EXACTLY. CHARTER v1.19 RECORDS THAT THE RUN REFUTED MY OWN CAP-LIFTING BOUND BY 20.50×.**
+
+**Written by `ansys-verification-supervisor` personally**, re-formed after the accidental fleet-stop. Commit **`4f83564b`** (charter v1.19 + v1.20).
+
+#### ⚠ THE PROCESS DEFECT, FIRST — a verdict is not a verdict without an artifact on disk
+The 16:05Z entry below asserts a fully-numbered `GATE FAIL` and says I ran the comparator personally. **A survey of the run root and the case directory found NO grader output anywhere** — no `GRADE*`, no `*GRADED*.json`, no comparator invocation in any launcher record. The pre-stop instance evidently graded into the **scratchpad, which is wiped (L-186)**. So the board carried numbers that no artifact on disk supported, and nothing distinguished *"the numbers are real and their file is gone"* from *"the numbers were never produced by an execution."*
+
+**I treated the verdict as unverified and re-ran it.** Frozen comparator `cbe98dc821cdbeaba0c27363117b65b7ee199dcf` **hash-verified identical to the `28a4a375` freeze**; `git diff --stat 28a4a375` over the case directory **empty — all 16 frozen-path blobs identical**; `--selftest` **ALL PASS** (both plants fire, known-bad refuses, all five completion arms refuse, both plateau arms behave). **Every number below reproduced exactly.** The verdict stands, and it now cites files that exist:
+`GRADE_VMFL046.out`, `GRADE_VMFL046.err` (empty), `SELFTEST_VMFL046.out`, `DIAGNOSTIC_shock_roache.out`, all in `verification/runs/ansys_verification/VMFL046/`.
+
+> **STANDING RULE ADOPTED: a grading step persists its output into the RUN ROOT before the verdict is written anywhere. A grader's output in the scratchpad is a verdict with no evidence, and the board cannot tell the difference.** Queued for LESSONS.
+
+**One thing I nearly got wrong in the reproduction and caught:** my first diagnostic pass mis-indexed the frozen reader's return (`read_centreline` returns a list of `(x, Mach)` pairs; I took `cl[1]` as a column) and printed a "peak Mach" of 0.3586 — the second row's tuple. **A wrong number, produced by me, from a correct instrument.** Corrected before it left this session; the real peaks are 2.000851 / 2.039722 / 2.069958.
+
+#### THE VERDICT — `GATE FAIL`, reproduced 2026-09-03
+| limb | result |
+|---|---|
+| strict completion (rule 4), all 3 levels | **PASSED** — rc=0, `End`, fields, age guard, `last==endTime==20000` |
+| frozen plateau δ_M = 4.25e-4 over W=500 | **MET at every level** — \|dM\| = 0 / 8.7e-11 / 4.3e-10 |
+| Roache triple on M(0.9) | **CONVERGING**, R = 0.702, p = 0.510, GCI **4.91 %** at Fs = 1.25 |
+| **PRIMARY: shock location within 5 %** | **FAILED — 7.79 %** (L3 x = 1.152576 vs analytical 1.250) |
+| three DEMOTE-ONLY secondaries (§21.3) | none fired — and per §21.3 **that is NOT evidence of quality** |
+
+**Diagnostics, personally re-derived** (not gate limbs): x_shock 1.257629 / 1.192596 / 1.152576 → **+0.61 % / −4.59 % / −7.79 %**; Roache CONVERGING R = 0.615385, p = 0.700440, **Richardson 1.088544 = −12.9165 %**. Peak centreline Mach Richardson **2.175831 vs the manual's printed 2.2 (p. 155) → −1.0986 %**; our analytical peak 2.197198 vs 2.2 → **−0.1274 %**, corroborating the reference instrument against the manual's own printed number.
+
+#### CHARTER v1.19 §24 — MY OWN BOUND, REFUTED BY 20.50×
+§23.3 lifted this case's `GATE REACHED` cap on a bound I re-derived personally on an independent path: `dx_shock/x ≤ 0.63 %`. The grid-converged discrepancy is **−12.9165 %**. **The arithmetic was fine; the METHOD failed** — both derivations computed `sensitivity × ONE ENUMERATED PERTURBATION` (BL displacement thickness) and I presented it as a bound on the **total** model-form discrepancy. Viscous stagnation-pressure loss sat entirely outside it. **The factor-1.6 agreement between the two derivations gave false comfort: both computed the same incomplete quantity, so agreement could never have surfaced the missing channel. An independent check of the wrong quantity is not an independent check.**
+
+**§24.4 narrows §22.2:** an enumerated-channel bound lifts a cap only with (i) a total-discrepancy argument, (ii) validation against a measured comparison of the same two models, or (iii) a **frozen, falsifiable completeness argument**. Mine was (iii) minus the completeness argument — one sentence I never wrote. **Stated in both directions: the cap-lift was outcome-neutral** (primary failed on its own terms; `GATE FAIL` either way) **and that is no defence.** §24.7 opens an audit of every `CLAUSE A` model-form budget in this territory; **no `PASS` row is retracted on suspicion.**
+
+**§24.5 pays the addendum promised at the freeze:** §23.4's "smear symmetric → centroid unbiased" is **STRUCK**, replaced by the lane's shock-WIDTH bound — and **that one is corroborated**: the shock moved *away* from the reference under refinement, which a discretisation bias that refines away cannot produce. **§24.6: the coarse mesh agreed and the fine mesh did not.** At L1 the shock sat 0.61 % from analytical — a single-level submission passes this limb outright, and the pre-freeze smoke's "<1 % agreement", cited as candidacy evidence, **was that coarse-grid reading.** A smoke establishes that a case RUNS, never that it AGREES.
+
+#### CHARTER v1.20 §25 — THE DIGITIZER INSTRUMENT STANDARD (Sanaa's ruling, verbatim at §25.0)
+Prediction, `u_read` and band arithmetic all frozen **before** any read-off; calibration on **synthetic plates only** with PLANT-DETECT, PLANT-NULL and a held-out AXIS tick, all refusing (exit 2) rather than degrading; `u_read = max(`synthetic RMS, half the two-independent-read-off spread, one-pixel floor`)`; folded in quadrature, **never shrinking a band**; **`u_read ≥ tol/3` caps the case at `GATE REACHED`**. Authorises **building**; authorises **no gate** until §25.7 is met per case. **§25.2 is the clause the rest exists to protect** — the first plate we want (Fig. .46.2) yields Ansys's own shock location for a case whose answer I already know is 1.0885. Honest ceiling stated in §25.8: **a large fraction of the ~48 figure-heavy cases will be `GATE REACHED` by construction.**
+
+#### LIVE
+- **Lane (opus):** drafting register row #54 + the calibration row; re-measuring the contention leg itself. **I commit, not the lane.**
+- **Lane (opus 4.8):** building the §25 digitizer + its own costed pre-registration. **Forbidden to touch Fig. .46.2 or any real plate.**
+- **Lane (haiku):** Sanaa's lessons/knowledge audit for this team.
+- **Solvers: none.** Queue daemon pid 1664 alive.
+
+#### RUNGS WITHOUT VERDICTS / NEXT
+Register row #54 + calibration row **NOT YET COMMITTED** (drafting). Cost: **28.05 core-min actual vs 12.00 estimated, ratio 2.337**, cap 30 not crossed, **≈$0.0240 DERIVED not measured**; **waste measured ZERO — which refutes the contention framing in my own launch-time note and in the chief's brief.** *(contention ratios 0.988/0.989/0.998 are from the pre-stop reading — **VERIFY**, lane re-measuring.)* Then: the §24.7 `CLAUSE A` audit; the digitizer freeze (§3 check 4, mine); VMFL046-R2 as a **new registration** against a digitized reference — **row #54's `GATE FAIL` is permanent and no R2 re-grades it.**
+
+### 2026-09-03T16:05:00Z — **VMFL046 VERDICT TAKEN: `GATE FAIL`. THE COARSE MESH AGREED WITH THE REFERENCE AND THE FINE MESH DID NOT — AND THE BOUND I PERSONALLY DERIVED TO LIFT THIS CASE'S CAP IS REFUTED BY 20×.**
+
+**Written by `ansys-verification-supervisor` personally.** The overnight kill kept the run's completion waiter from ever taking the verdict; the run itself had finished clean. I ran the frozen comparator myself against the run root and reproduced its output rather than accepting any transcript.
+
+#### THE VERDICT — register row #54
+**`GATE FAIL`.** Freeze `28a4a375`; comparator blob `cbe98dc821cd…` **hash-verified identical to the freeze AFTER the run**, and all **15** frozen-path blobs re-verified identical (3 code + prereg + 11 case inputs + 1 pycache).
+
+| limb | result |
+|---|---|
+| strict completion (rule 4), all 3 levels | **PASSED** — rc=0, `End`, fields present, age guard clean, `last==endTime==20000` |
+| frozen plateau, δ_M = 4.25e-4 over W=500 | **MET at every level** — \|dM\| = 0 / 8.68e-11 / 4.33e-10, six-to-nine decades of margin |
+| Roache triple on M(0.9) | **CONVERGING**, R = 0.702, p = 0.510, GCI = **4.91 %** at Fs = 1.25 |
+| **PRIMARY: shock location within 5 %** | **FAILED — 7.79 %** (L3 x = 1.15258 vs analytical 1.250) |
+| three DEMOTE-ONLY secondaries | none fired (p 0.510 ∈ [0.5,2.5]; GCI 4.91 % ≤ 15 %; M-dev 3.72 % ≤ 10 %) |
+
+Per §21.3 the secondaries are contaminated-loose, so **their not firing is NOT evidence of quality** and is not reported as such. `primary_ok = False` → **`GATE FAIL`**.
+
+#### ⚠ THE FINDING THAT MATTERS MOST — THE SHOCK MOVES *AWAY* FROM THE REFERENCE UNDER REFINEMENT
+
+| level | nCells | x_shock | deviation |
+|---|---|---|---|
+| L1 | 3 200 | 1.25763 | **0.61 %** |
+| L2 | 12 800 | 1.19260 | 4.59 % |
+| L3 | 51 200 | 1.15258 | **7.79 %** |
+
+Diagnostic Roache on shock location (**not** a gate limb): **CONVERGING**, R = 0.6154, p = 0.700, **Richardson limit 1.0885 = −12.92 %** from analytical. The estimator's resolution is **constant across the triple** (a fixed 400-point sample line at every level, dx = 0.005, the miss = 19.5 sample intervals), so the movement is physics-or-mesh, **not** instrument resolution.
+
+> **THE COARSE MESH AGREED AND THE FINE MESH DID NOT.** At L1 the shock sat **0.61 %** from analytical — a single-level comparison would have **passed** this primary limb outright. The disclosed smoke's "<1 %" shock agreement (PREREG §9), part of what made this a PASS candidate, **was that coarse-grid reading.** The grid triple is the only reason this was caught. *An agreement obtained at the coarsest level is the least trustworthy number in the set, and it is the one that looks most like success.*
+
+#### ⚠ MY OWN MODEL-FORM BOUND IS REFUTED — BY 20×
+Charter **v1.18 §23** lifted this case's `GATE REACHED` cap on a bound **I re-derived personally on an independent path**: shock-location model-form bias **0.18–0.63 %**, "8× below the 5 % band". The grid-converged discrepancy is **12.92 % — 20.5× that upper bound.**
+
+**Two honest qualifications, in both directions.** (a) The refuted bound **did not change this verdict**: the limb failed on its own terms, and under the un-lifted cap the outcome would still have been `GATE FAIL` — the cap-lift was not self-serving in outcome. (b) That is no defence of the reasoning. **Every future case that budgets a model-form difference by this method is now suspect**, and the method — bounding a total discrepancy by a sensitivity argument — is what failed, not one arithmetic slip.
+
+#### THE TWO CHANNELS THAT DID LAND — diagnostics, NOT consolation
+- **M(0.9)** Richardson limit **1.883305** vs analytical 1.882125 → **+0.063 %**.
+- **Peak centreline Mach** — and this is against **the manual's ONLY printed number**: CFD 2.00085 / 2.03972 / 2.06996, Richardson limit **2.1758** vs the manual's **max Mach = 2.2** (p. 155) → **−1.10 %**. Our analytical reference independently gives **2.1972** vs 2.2 → −0.13 %, **corroborating the reference instrument against the manual's own printed value**.
+- **BC fidelity confirmed against the manual:** printed inlet relative 200 kPa / outlet gauge 75 kPa ↔ frozen 301325 / 176325 Pa absolute — exact at 101325 Pa operating. Manual also prints inlet total T 500 K, wall T 328 K, µ = 1.7894e-5, L = 2 m, exit/throat area ratio 3.
+- **Coherent reading, STATED AS OPEN AND UNSETTLED:** inviscid-core quantities are quasi-1D-accurate while shock *position* is set by downstream pressure matching, where viscous losses in the diverging section bite; a viscous shock sitting **upstream** of the inviscid prediction is the physically right direction. **This is a hypothesis, not a finding — this evidence cannot separate genuine viscous model-form error from a setup or discretisation defect, and the decisive inviscid/Euler test HAS NOT BEEN RUN.**
+
+#### A DISCLOSED DEFECT IN THE FROZEN FILE — rule 6, NOT REPAIRED
+`grade_vmfl046.py:10-13` still carries the lane's DRAFT header asserting *"THIS COMPARATOR NEVER EMITS PASS: at most GATE REACHED"* and *"DRAFT … NOT THE FREEZE COMMIT"*. **Stale** — it predates v1.18; the code at 296-311 does emit `PASS` and the constants at :48 correctly cite "§12.2 SAME per v1.18". I read the grading limb as a diff (§3 check 1) and **confirm the logic matches frozen §7 limb-for-limb** — all four constants, the primary/secondary split, both `NOT A RESULT` exits. **Documentation-only; it moved no number.** Frozen files are never edited: disclosed, not repaired.
+
+#### COST CALIBRATION (rule 12) — THE CONTENTION STORY IS REFUTED AND THE ESTIMATOR LESSON IS THE VALUE
+Estimate **12.00** core-min → actual **28.05** (L1 0.95 / L2 6.12 / L3 28.05 running), **ratio 2.337**, cap 30 **not crossed** (1.95 headroom). ≈**$0.0240**, **DERIVED not measured** ($0.0513/core-h, owner-stated; §5).
+
+> **WASTE: MEASURED ZERO — and this REFUTES the contention framing** carried in my own launch-time board note and in the chief's brief ("two sweeps were solving beside it"). `ExecutionTime/ClockTime` = **0.988 / 0.989 / 0.998**: the run held a full core throughout. Contention existed on the box and **cost this run essentially nothing.** The overrun is **100 % misprediction, 0 % waste** (§6 keeps waste separately named — so it is named as *measured* zero, not folded in).
+
+Decomposed, and both factors are misprediction:
+1. **The filed 12 core-min was below what its own stated method yields.** That method was "scale L1's uncontended rate by cell count"; executed faithfully it gives 57 s × (1+4+16) = 1197 s = **19.95** core-min. The filed figure **understated its own model by 1.66×**.
+2. **The linear-in-cells model is itself optimistic:** actual/linear = **1.360** at L2 (310 vs 228 s), **1.443** at L3 (1316 vs 912 s). Per-cell cost is **superlinear** in cell count at fixed iteration count → **1.41×**.
+
+1.66 × 1.41 = 2.34, closing the ratio. **Standing estimator rules adopted: (a) reconcile a filed estimate against its own stated method before freezing — this one was never checked against its own arithmetic; (b) linear-in-cells scaling understates an r=2 refinement by ~1.4× per step on `rhoSimpleFoam`.**
+
+Driver walls **independently corroborated by filesystem mtimes** (23:24:19→23:25:16→23:30:26→23:52:22), and **nothing in the run root was modified after 23:52:22Z** — the poweroff disturbed no artifact.
+
+#### SANAA'S DIGITIZATION RULING (2026-09-03) — APPROVED, AND ITS FIRST TARGET IS THIS CASE
+Her words: *"Digitization approved as its own instrumented task; digitized references carry stated read-off uncertainty, folded into the gate band."* The manual's **Figure .46.2** plots Ansys's own centreline Mach **against their analytical solution** — so digitizing it yields **Ansys's own shock location**, which is exactly the decisive comparison I just recorded as unrun. If their viscous solve also sits upstream of their analytical curve, the −12.92 % is confirmed as real viscous model-form and VMFL046 becomes gradeable **against the manual's own CFD** rather than against our inviscid reference.
+
+> ⚠ **AND THAT IS THE MOST DANGEROUS THING ON MY DESK.** I already know our answer is 1.089. A reference selected, or an uncertainty band sized, *after* knowing it is gate-fitting wearing a new instrument — the same move I refused three times on VMFL054 and VMFL007. **Binding construction, fixed now, before the digitizer exists:** an R2 gate on a digitized reference must freeze both the read-off uncertainty **and** the predicted value **before the digitized shock location is read off**, with u_read derived from planted controls on *synthetic* figures, never from this case's own plate. **Row #54's `GATE FAIL` is permanent whatever R2 says** — R2 is a new registration, never a re-grade of this one.
+
+#### REGISTER STATE
+**54 rows — 10 `PASS` (credentials unchanged), 5 `GATE FAIL`.** No credential earned here.
+
+#### NEXT
+1. Land row #54 + the calibration row (lane drafting; I verify before commit).
+2. **Charter v1.19 — the digitizer instrument standard**, then build it pre-registered and costed: planted synthetic-figure controls with a planted-*failure* arm, u_read from **two independent read-offs whose spread is the empirical floor** (the §18 construction that set δ_M, reused), a `GATE REACHED` cap where u_read dominates the band, and the figure identified by printed caption + page verified against the PDF (rule 15).
+3. Unlocks the **~48 figure-heavy never-run cases** previously named as this campaign's ceiling.
+
 ### 2026-09-02T23:26:26Z — **VMFL046 LAUNCHED BY THE DAEMON; L1 RUNNING. TWO CORRECTIONS FROM THE LANE, BOTH ACCEPTED, ONE A LIVE COST-BASIS FACT. VERDICT PENDING — NOT YET TAKEN.**
 
 **Written by `ansys-verification-supervisor`.** The run is underway; **no verdict exists yet and none is asserted here.** The lane's completion waiter is armed; on finish it runs the FROZEN comparator against the run root and I reproduce it myself and take the verdict, as for VMFL054-R2.
