@@ -216,64 +216,85 @@ the scope error of `L-454`.
 | rate model | `rate(n) = 2.36 x (n/3)^-1.4641` | **DERIVED** from those two MEASURED points; deadline sizing only, never a result |
 | coarse 2,000 it, np=1, 3-way | ~14 s | **DERIVED** from D19T `T12`'s `ExecutionTime 3.62 s` at iteration 500 |
 
-**THE ESTIMATE IS STATED AS A FUNCTION OF OCCUPANCY, never as one number.**
+**THE ESTIMATE IS STATED AS A FUNCTION OF OCCUPANCY, never as one number, and every figure
+below carries its occupancy in its own row.**
 
 | occupancy | rate (it/s) | L3 arm wall | L3 arm core-min | coarse arm core-min | basis of the rate |
 |---|---|---|---|---|---|
-| solo (n=1) | 11.789 | 169.6 s | **2.83** | 0.039 | EXTRAPOLATED |
-| n=2 | 4.273 | 468.1 s | **7.80** | 0.108 | EXTRAPOLATED |
-| **n=3** | **2.360** | 847.5 s | **14.12** | 0.233 | **MEASURED** |
-| **n=8** | **0.5614** | 3,562.9 s | **59.38** | 0.980 | **MEASURED** |
-| **n=14 (registered maximum)** | **0.2474** | 8,084.0 s | **134.73** | **2.226** | **EXTRAPOLATED BEYOND THE MEASURED SPAN** |
+| n=1 (solo) | 11.789 | 169.6 s | 2.83 | 0.039 | **EXTRAPOLATED** |
+| n=2 | 4.273 | 468.1 s | 7.80 | 0.108 | EXTRAPOLATED |
+| **n=3** | **2.360** | 847.5 s | **14.124** | **0.233** | **MEASURED** |
+| **n=8** | **0.5614** | 3,562.9 s | 59.38 | 0.980 | **MEASURED** |
+| **n=14 (registered maximum)** | see §6.1a — **a band, not a point** | | | | |
 
-**WEAKEST NUMBER IN THIS DOCUMENT, FLAGGED: `rate(14) = 0.2474 it/s` extrapolates a power law
-roughly an octave past the last measured point (n=8).** Every figure in the n=14 column
-inherits that weakness. It is used only to size a deadline conservatively, never to claim a
-cost, and the certificate reports predicted-versus-actual against it — which is precisely the
-calibration payoff Sanaa's 2026-09-03 ~21:00Z rule exists to collect.
+### ⚠ 6.1a A LABEL RECONCILIATION, BECAUSE ONE OF MY OWN FIGURES CHANGED SCOPE BETWEEN DRAFTS
 
-### 6.2 THE CAP RULE, AND THE READING THAT WAS REJECTED
+**In the first derivation of this table `14.124` was labelled `pred_quiet`. That label was
+wrong.** It was computed as `2000 / 2.36`, and **2.36 it/s is the MEASURED 3-way rate** — so
+`14.124` has always been the **n=3** figure and "quiet" was an imprecise name for a box already
+carrying two other jobs. The `2.83` solo figure is **new to the second derivation** and is
+`rate(1)` **EXTRAPOLATED**; it did not exist in the first table. **So no number moved — a
+number was renamed and a second was added — but the label was loose in exactly the way that has
+cost this family six corrections in two days, and it is fixed here rather than left for a
+reader to trip over.**
 
-The solver receives `cap - CAP_MARGIN_S x ranks / 60` = **`cap - ranks`**, never `cap` (`L-452`).
-Caps are set on the **effective** budget.
+**CONSEQUENCE FOR THE CAP RULE, and it changes which figure the 3× clause uses.** The `3.0 ×
+estimate` clause exists to cover **estimate uncertainty**, so it must multiply a **MEASURED**
+anchor, not an extrapolated one. **It therefore uses the n=3 MEASURED figure `14.124`, not the
+extrapolated solo `2.83`.** `3 × 14.124 = 42.37` against `3 × 2.83 = 8.49` — neither binds
+here, but the principled input is the measured one and using the extrapolated one would have
+been an accident that happened not to matter.
 
-**Two readings of "3x envelope at the registered maximum occupancy" were evaluated and they
-differ by 2.4x on the L3 arms:**
+### 6.1b `rate(14)` IS A BAND, AND THE CAP IS SIZED ON ITS PESSIMISTIC END
 
-- **(A) PRODUCT** — `effective >= 3.0 x estimate-at-n=14`. Gives L3 caps of **405.5** core-min
-  and a cap sum of **827.0**, for an item whose solo cost is 2.83 core-min per arm. **REJECTED:
-  it compounds two margins that answer different questions.** The occupancy factor already
-  carries the contention allowance (n=14 is 9.5x slower than solo); multiplying by a further 3
-  makes the effective budget ~28x the solo runtime, and a deadline that generous has stopped
-  protecting anything. Sanaa's ceiling is meant to be far above the estimate; **the cap is not
-  the ceiling.**
-- **(B) MAX — ADOPTED** — `effective >= max(3.0 x solo estimate, 1.25 x wall-at-n=14)`. **The
-  3x envelope covers ESTIMATE uncertainty; the occupancy clause covers CONTENTION. They are
-  different risks, so the binding constraint is the MAX of the two, never their product.**
+`rate(14)` extrapolates roughly an octave past the last MEASURED point (n=8), so quoting it as
+a point and clearing the binding clause by five seconds would be **a coin toss dressed as a
+clause**. The band is stated and the allowance is applied **at the input**, never by inflating
+the cap:
 
-### 6.3 The table, EVALUATED — `CAP_MARGIN_S = 60`, `SAFETY = 1.25`, envelope `3.0x`, max occupancy `n = 14`
+| end | model | rate @ n=14 | basis |
+|---|---|---|---|
+| optimistic | saturating throughput, `rate = C/n`, `C = 8 × 0.5614` anchored on the **MEASURED** n=8 point | **0.3208 it/s** | DERIVED from a MEASURED point |
+| central | power law, exponent `−1.4641` fixed by the two **MEASURED** points | **0.2474 it/s** | DERIVED |
+| **pessimistic — THE SIZING INPUT** | central ÷ **1.5 extrapolation allowance**, applied to the extrapolated segment only | **0.1649 it/s** | **DERIVED, and the 1.5 is a stated JUDGEMENT, not a measurement** |
 
-| arm | solo est | est @ n=14 | required effective | **cap** | `TMO` | back-check | **effective** | clauses |
+**Band width optimistic : pessimistic = 1.94×.** The `1.5` allowance is **a judgement and is
+labelled one**: two measured points fix a power law exactly and leave no fitted residual, so no
+uncertainty band can be computed *from the data*, and inventing a statistical one would be
+worse than naming a judgement. It is stated, applied to one segment, and shown in the
+arithmetic.
+
+### 6.3 The table, EVALUATED — sized on the pessimistic band end
+
+`CAP_MARGIN_S = 60`, `SAFETY = 1.25` (contention), envelope `3.0×` (estimate uncertainty, on
+the **MEASURED n=3** anchor), registered maximum occupancy `n = 14`.
+
+| arm | est n=3 (MEAS) | est n=14 central | **est n=14 pessimistic** | required effective | **cap** | `TMO` | back-check | **effective** |
 |---|---|---|---|---|---|---|---|---|
-| `Sc` | 0.233 | 2.226 | 2.782 | **4.0** | **180 s** | 4.000000 | **3.000** | **PASS** |
-| `Ec` | 0.233 | 2.226 | 2.782 | **4.0** | **180 s** | 4.000000 | **3.000** | **PASS** |
-| `S3` | 14.124 | 134.734 | 168.418 | **169.5** | **10110 s** | 169.500000 | **168.500** | **PASS** |
-| `E3` | 14.124 | 134.734 | 168.418 | **169.5** | **10110 s** | 169.500000 | **168.500** | **PASS** |
+| `Sc` | 0.233 | 2.226 | 3.339 | 4.173 | **5.5** | **270 s** | 5.500000 | **4.500** |
+| `Ec` | 0.233 | 2.226 | 3.339 | 4.173 | **5.5** | **270 s** | 5.500000 | **4.500** |
+| `S3` | 14.124 | 134.734 | **202.101** | 252.626 | **254.0** | **15180 s** | 254.000000 | **253.000** |
+| `E3` | 14.124 | 134.734 | **202.101** | 252.626 | **254.0** | **15180 s** | 254.000000 | **253.000** |
 
-**All four arms pass `TMO > 0`, `effective >= max(3x solo, 1.25x wall@14)`, and the exact
-back-check. Evaluated 2026-09-03, not asserted.**
+**All four pass `TMO > 0`, `effective ≥ max(3.0 × est_n3, 1.25 × wall_pessimistic@14)`, and the
+exact back-check. Evaluated, not asserted.**
+
+**⚠ READ THE CLEARANCE CORRECTLY.** `effective / required` is **1.001×** on `S3`/`E3` — **that
+ratio is cap-rounding granularity and is NOT the margin.** The margin now lives at the input:
+**1.5× extrapolation allowance × 1.25× contention safety = 1.875× over the central estimate**,
+and `253.000 / 134.734 = 1.878×` confirms it. Against the MEASURED n=3 anchor the effective
+budget is **17.9×**. Sizing to the requirement and then reporting the requirement's own
+provenance is the honest form; rounding the cap up to manufacture a comfortable-looking ratio
+would smuggle back the inflation reading (A) was rejected for.
 
 | quantity | value |
 |---|---|
-| cap sum | **347.0 core-min** |
-| predicted @ n=14 (the registered figure) | **273.92 core-min** |
-| predicted solo | 5.74 core-min |
+| cap sum | **519.0 core-min** |
+| predicted @ n=14, central | **273.92 core-min** — the registered figure |
+| predicted @ n=3 (MEASURED rate) | 28.71 core-min |
 | **ITEM CEILING** | **360.0 core-min**, checked after every arm, **below the cap sum by design** |
-| fleet safety ceiling | **min(3x cap, remaining box budget)** per arm, monitor-enforced, graceful stop regardless of residual trend (Sanaa ~21:00Z) |
-| dollars | predicted **$0.2342**, ceiling **$0.3078** — **DERIVED at $0.0513/core-h, never measured** |
-
-**Calibration row OWED to `docs/COST_CALIBRATION.md` at item completion**, and it is unusually
-valuable here because it tests `rate(14)` against reality for the first time.
+| fleet safety ceiling | **min(3× cap, remaining box budget)** per arm, monitor-enforced, graceful stop regardless of residual trend |
+| dollars | predicted **$0.2342**, ceiling **$0.3078** — **DERIVED, never measured** |
 
 ---
 
@@ -291,19 +312,19 @@ At launch and at every arm boundary the launcher measures occupancy `n` and `Mem
 TMO  <  1.25 x iterations / rate(n)
 ```
 
-Evaluated for the L3 arms at `TMO = 10110 s`, 2,000 iterations:
+Evaluated for the L3 arms at `TMO = 15180 s`, 2,000 iterations, **on the PESSIMISTIC rate**:
 
 | occupancy `n` | required wall | decision |
 |---|---|---|
 | 8 | 4,453 s | **LAUNCH** |
-| 12 | 8,063 s | **LAUNCH** |
-| **14 (registered maximum)** | **10,105 s** | **LAUNCH** |
-| 16 | 12,287 s | **QUEUE** |
-| 20 | 17,035 s | **QUEUE** |
+| 12 | 12,095 s | **LAUNCH** |
+| **14 (registered maximum)** | **15,158 s** | **LAUNCH** |
+| 16 | 18,431 s | **QUEUE** |
+| 18 | 21,899 s | **QUEUE** |
 
-**The boundary falls exactly at the registered maximum occupancy, which is what "sized at the
-registered maximum" means when it is done honestly** — the deadline covers n=14 with 5 s to
-spare and does not pretend to cover n=16.
+**The boundary falls exactly at the registered maximum occupancy, and it now does so on the
+PESSIMISTIC end of the rate band** — the deadline covers n=14 even if the extrapolation is
+wrong by the full 1.5× allowance, and does not pretend to cover n=16.
 
 ---
 

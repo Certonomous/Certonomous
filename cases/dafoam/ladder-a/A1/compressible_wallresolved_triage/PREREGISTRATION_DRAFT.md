@@ -337,29 +337,49 @@ for every arm:
 with SAFETY = 1.25 and pred_wall_busy_s taken from the 0.5000 it/s MEASURED busy rate.
 ```
 
-### 6.3 The table, **evaluated** — every arm, every clause
+### 6.3 The table, EVALUATED — every arm, BOTH clauses, under the adopted reading (B)
 
-`CAP_MARGIN_S = 60`, `SAFETY = 1.25`, `ranks = 1` throughout, busy rate **0.5000 it/s**:
+**REVISED 2026-09-03 to the family standard set on A1ZE.** The solver receives
+`cap − CAP_MARGIN_S × ranks / 60` = `cap − ranks`, and the cap is set on the **effective**
+budget as
 
-| arm | iters | cap (core-min) | ranks | `TMO` (s) | back-check | pred wall busy (s) | `TMO`/pred | `TMO>0` | `TMO ≥ 1.25·pred` | pred (core-min) |
-|---|---|---|---|---|---|---|---|---|---|---|
-| `MESHA` | — | **3.0** | 1 | **120** | 3.000000 | 45.2 | **2.65×** | PASS | **PASS** | 0.753 |
-| `R0` | 500 | **22.0** | 1 | **1260** | 22.000000 | 1000.0 | **1.26×** | PASS | **PASS** | 16.667 |
-| `A` | 500 | **22.0** | 1 | **1260** | 22.000000 | 1000.0 | **1.26×** | PASS | **PASS** | 16.667 |
-| `B` | 500 | **22.0** | 1 | **1260** | 22.000000 | 1000.0 | **1.26×** | PASS | **PASS** | 16.667 |
-| `C1` | 500 | **22.0** | 1 | **1260** | 22.000000 | 1000.0 | **1.26×** | PASS | **PASS** | 16.667 |
-| `C2` | 500 | **35.0** | 1 | **2040** | 35.000000 | 1600.0 | **1.27×** | PASS | **PASS** | 26.667 |
+```
+effective  >=  max( 3.0 x estimate-at-measured-anchor ,  1.25 x wall-at-registered-max-occupancy )
+```
 
-`C2`'s predicted wall carries a **1.6×** factor for two extra non-orthogonal pressure
-solves per outer iteration — **EXTRAPOLATED, not measured**, and the most uncertain figure
-in this table. Its cap carries the same 1.25 safety on that extrapolated basis; if `C2`
-overruns, that is where the miss will be and the calibration row must say so.
+**The 3.0× envelope covers ESTIMATE UNCERTAINTY; the 1.25× clause covers CONTENTION. They are
+different risks, so the binding constraint is their MAX, never their product** — the product
+form was evaluated on A1ZE and rejected there for compounding two allowances into an effective
+budget ~28× the solo runtime.
 
-`MESHA`'s predicted wall is 14.5 s × 3.1198 = 45.2 s — **DERIVED from a mtime-based figure
-times a measured contention factor**, the weakest basis in the table, which is why its
-headroom is 2.65× rather than 1.26×.
+**Registered maximum occupancy for this item is n = 8, INSIDE the measured span** (compressible
+rates MEASURED at 2-way and 8-way on this exact arm), so **no extrapolation allowance is
+required here** — unlike A1ZE, whose n=14 sits an octave past its last measured point and
+therefore carries a stated 1.5× allowance on the extrapolated segment.
 
-**All six arms pass all three clauses. Evaluated 2026-09-03, not asserted.**
+`CAP_MARGIN_S = 60`, all arms `np = 1`, 500 iterations (`C2` × 1.6 for two extra
+non-orthogonal pressure solves, **EXTRAPOLATED — the weakest number in this table**):
+
+| arm | est @ 2-way | est @ 8-way | `3.0 × est₂` | `1.25 × est₈` | **which binds** | **cap** | `TMO` | back-check | **effective** |
+|---|---|---|---|---|---|---|---|---|---|
+| `MESHA` | 0.753 | 0.753 | **2.260** | 0.942 | **3× estimate** | **3.5** | 150 s | 3.500000 | 2.500 |
+| `R0` | 5.342 | 16.667 | 16.027 | **20.834** | **1.25× at 8-way** | **22.0** | 1260 s | 22.000000 | 21.000 |
+| `A` | 5.342 | 16.667 | 16.027 | **20.834** | **1.25× at 8-way** | **22.0** | 1260 s | 22.000000 | 21.000 |
+| `B` | 5.342 | 16.667 | 16.027 | **20.834** | **1.25× at 8-way** | **22.0** | 1260 s | 22.000000 | 21.000 |
+| `C1` | 5.342 | 16.667 | 16.027 | **20.834** | **1.25× at 8-way** | **22.0** | 1260 s | 22.000000 | 21.000 |
+| `C2` | 8.548 | 26.667 | 25.643 | **33.334** | **1.25× at 8-way** | **34.5** | 2010 s | 34.500000 | 33.500 |
+
+**All six pass `TMO > 0`, the effective clause, and the exact back-check. Evaluated, not
+asserted.**
+
+**⚠ WHICH CLAUSE BINDS — AND A CORRECTION TO WHAT THIS DRAFTER SAID EARLIER.** The
+**contention clause binds on every solver arm**; the 3× envelope binds only on `MESHA`, the one
+arm whose cost does not scale with occupancy. **So this draft's original 1.25× sizing was NOT
+under-capped in effect — the caps barely move: `R0`/`A`/`B`/`C1` unchanged at 22.0, `C2`
+35.0 → 34.5, `MESHA` 3.0 → 3.5.** What was wrong is that it **evaluated only one of the two
+clauses and therefore could not know which governed.** *Reporting this as "the caps were too
+low" would have been false. The defect was in the check, not in the numbers, and that
+distinction is the whole of it.*
 
 ### 6.4 Item totals
 
@@ -368,7 +388,7 @@ headroom is 2.65× rather than 1.26×.
 | sum of arm caps | **126.0 core-min** |
 | **predicted item spend (busy box, the registered figure)** | **94.09 core-min** |
 | predicted item spend (quiet box, optimistic bound) | 30.16 core-min |
-| **ITEM CEILING** | **120.0 core-min**, checked after **every** arm |
+| **ITEM CEILING** | **120.0 core-min**, checked after **every** arm, below the 126.0 cap sum by design |
 | ceiling / predicted | **1.28×** |
 | ceiling < sum of arm caps | **TRUE — deliberate.** The ceiling binds first and stops the chain before every arm could exhaust its own cap |
 | dollars, predicted | 94.09 core-min = 1.568 core-h → **$0.0804 DERIVED** |
