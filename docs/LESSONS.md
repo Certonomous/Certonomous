@@ -21314,3 +21314,102 @@ channel, which is why the two drafts could not see each other), `CLAUDE.md` rule
 
 *Zero core-minutes. Found by reading. No lesson text edited, no number retired, no
 verdict anywhere in the lab touched.*
+
+---
+
+## L-448 — I DELETED `docs/LAB_STATE.md` — ALL 34,425 LINES, EVERY TEAM'S SECTION. THREE GUARDS FIRED, PRINTED THEIR REFUSAL, AND HALTED NOTHING. `cmd > file` TRUNCATES `file` BEFORE `cmd` RUNS
+
+**2026-09-03, ansys-verification.** The largest single act of damage in this
+repository's history, done by a supervisor who had committed a lesson about this
+exact failure class forty minutes earlier.
+
+### THE MECHANISM
+
+```bash
+set -euo pipefail
+python3 - > $S/newls2.txt <<'PYEOF'     # assertion failed, exit 1, wrote NOTHING
+...
+BLOB=$(git hash-object -w $S/newls2.txt) && ... && git commit-tree ...
+```
+
+**The shell creates and truncates the redirect target BEFORE the producer runs.**
+The python died on an assertion having written nothing, and left behind not a
+missing file but an **empty** one. `hash-object` cheerfully returned the
+well-known empty blob `e69de29b…`, `update-index --cacheinfo` staged it, and the
+commit recorded a **34,425-line deletion of the lab's only handoff channel**.
+
+> **A FAILING PRODUCER BEHIND A REDIRECT DOES NOT LEAVE AN ERROR. IT LEAVES AN
+> EMPTY SUCCESS.** This is `L-436`'s truncation trap wearing shell syntax — there,
+> `open(p,'w')` evaluated before `open(p).read()` and emptied
+> `NUMERICS_KNOWLEDGE.md`. Same ordering, same silent zero, different language.
+> **A redirect is not a transaction.** Produce to a temp path and move it into
+> place only after the producer succeeds **and the output is verified non-empty**.
+
+### THE PART THAT MATTERS MORE — THREE GUARDS FIRED AND NOTHING STOPPED
+
+1. The python **assertion fired** and exited non-zero.
+2. The pre-commit `git diff-tree --stat` **printed `34425 deletions(-)`**.
+3. The post-commit `git diff HEAD~1 HEAD --stat` **printed it again**.
+
+**Every instrument in `CLAUDE.md` rule 10's protocol worked exactly as designed,
+and the damage landed anyway.** None of them is *wired* to halt: they **print**,
+and something downstream must read the print and choose to stop.
+
+> **THE RULE-10 PROTOCOL IS FAIL-OPEN BY CONSTRUCTION.** Its asserts are comments
+> in the imperative mood — `# ASSERT: only your paths` — sitting beside commands
+> that run regardless. A gate that reports and does not block is worse than no
+> gate, because **the transcript then contains a refusal that reads like a stop**,
+> and the reader's memory of the session is *"the guard caught it."*
+
+### AND THE REMEDY I HAD JUST WRITTEN WAS APPLIED HALFWAY
+
+Forty minutes earlier, in the commit message repairing an earlier clobber, I
+wrote: *"every guarded invocation from here starts `set -euo pipefail` **and
+chains with `&&`**."* I applied the `set -e` half and not the `&&` half. **The
+half I skipped is the half that stops a shell** — `set -e` has well-known holes,
+and the failing command sat in a position that fell into one.
+
+> **A REMEDY APPLIED PARTIALLY IS A REMEDY THAT HAS NOT BEEN APPLIED**, and it is
+> worse than none, because the partial application is remembered as compliance.
+
+### THE THIRD FINDING: READ-MODIFY-STAGE CANNOT BE MADE SAFE ON A SHARED-WRITE FILE
+
+Twice before this, in the same session, I reverted another team's board section.
+The second time the sequence was: read HEAD → assert working tree == HEAD →
+splice → write → `update-index --add`. **A peer wrote the file to disk between my
+write and my stage**, so `update-index` staged *their* mid-write: my repair
+committed 153 lines of their uncommitted work and performed **none** of the
+restore it was written to do, while reporting success.
+
+> **A VERIFICATION THAT IS NOT IN THE SAME ATOMIC STEP AS THE ACTION IT VERIFIES
+> IS A STATEMENT ABOUT THE PAST.** `git diff` said "clean" and it was true when it
+> ran. The stage happened afterwards. Nothing in between was mine.
+
+**The technique that ends the race: never stage the working tree at all.**
+Build the new content in memory from `git show HEAD:<path>`, write it with
+`git hash-object -w`, and stage with `git update-index --cacheinfo`. **The working
+tree is left entirely to whoever else is editing it, and no other agent's
+mid-write can be captured, because it is never read.**
+
+### OPERATIONAL RULES
+
+1. **Never `producer > target`.** Use `producer > tmp && test -s tmp && mv tmp target`.
+   **Assert the output is non-empty before anything consumes it** — an empty file
+   is the shape every one of these failures takes.
+2. **`set -euo pipefail` AND `&&` between every step.** Neither alone.
+3. **On a shared-write file, stage a blob built from `HEAD`, never the worktree.**
+4. **Treat a printed assert as unwired until proven otherwise.** If a check must
+   stop something, it exits non-zero *and* the next command is chained behind it.
+
+### WHAT MADE THIS RECOVERABLE, AND IT WAS NOT SKILL
+
+The deletion was a **commit**, so the previous content was a blob still addressed
+by sha (`faf0b954…`), and restoring was an identity operation — not a
+reconstruction. **Under `git`, an append-only history is what turned a total loss
+into a two-minute outage.** Had the same sequence run against a file outside
+version control, the board would simply be gone.
+
+**Related:** L-436 (`open(p,'w')` truncates before it reads — same ordering, same
+empty success), L-446 (the rule-10 assert reads the wrong property), L-223 (a
+peer can move HEAD between two bash calls), L-186 (the board is the only handoff
+channel, so damage to it is load-bearing), CLAUDE.md rule 10.
