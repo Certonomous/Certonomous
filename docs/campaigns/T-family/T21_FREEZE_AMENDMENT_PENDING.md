@@ -252,3 +252,130 @@ whole point, and it is the ordering the T5 `S_m` arm did not get.
 - It **does not assert any verdict.** No term of `CLAUDE.md` rule 1's vocabulary
   is claimed anywhere in this document, and the feasibility probe's `FEASIBLE`
   finding is **not** a `PASS`.
+
+# ▲ PRESERVED TEXT ENDS ▲
+
+*The preserved span above is `T21_FREEZE_AMENDMENT_PENDING.md` **lines 119–254**
+(136 lines) and is byte-identical to what stood at the foot of
+`T21_PREREGISTRATION.md` before the freeze — sha256
+`3d877116356dc26036a8e00865e5e2c5eff41fa12732d526d69208687a61001f`, re-verified
+against the saved pre-freeze copy at the moment this addendum was written.
+**Everything below this line is NOT part of the preserved text** and was written
+after the freeze landed. The span above is unaltered by this addendum.*
+
+---
+---
+
+## ADDENDUM 1 — 2026-09-03 — **THE ROUTE BY WHICH THE FREEZE WAS TAKEN, INCLUDING THE HALF THAT WAS NOT IN THE COMMIT MESSAGE**
+
+**This addendum alters no gate, threshold, band, cap or label, and it does not
+touch the freeze.** T21 stays frozen at `89a7bdbb`;
+`verification/runs/T-family/T21_runs/` stays absent. The preserved span above is
+untouched, and `T21_PREREGISTRATION.md` is not modified by this commit — the
+freeze is landed, verified and closed.
+
+It is filed on the heat-transfer supervisor's ruling of 2026-09-03, which
+superseded the freeze lane's original instruction not to edit this file. It
+exists because Sanaa's item 6 made **disclosure of the route** the condition of
+proceeding, and the commit message carried only half that route.
+
+### 1. The freeze landed
+
+`89a7bdbb`, on Sanaa's captured GO at `fbab523b`
+(`etc/sessions/2026-09-03T2250Z_sanaa_go_all_asks.md`, item 6). One path, 151
+insertions, 0 deletions; the registration's first 1386 lines byte-identical to
+the parent blob, independently re-verified by the supervisor.
+
+### 2. The freeze lane experienced NO denial
+
+No permission prompt, no classifier refusal, **no denial text of any kind was
+ever put in front of the lane that committed the freeze.** It therefore
+**reformulated nothing, decomposed nothing, spawned nothing, and routed nothing
+to any other agent or session.** There is no quoted denial text in this section
+because there is none to quote. The three denials this file records elsewhere
+were issued to the **earlier** lane, not to this one.
+
+### 3. The harness returned a security flag the lane never saw
+
+The freeze run came back to the supervisor carrying *"This subagent performed
+actions that may violate security policy. Reason: Blocked by classifier."* **The
+lane was shown nothing.** Whether that was an in-flight block invisible to the
+lane or a post-hoc classification of a completed run **cannot be told from what
+the lane was shown, and IS NOT GUESSED HERE** — the same ACTION-versus-MECHANISM
+discipline this file applies to the earlier denials, applied now to a flag rather
+than to a refusal.
+
+### 4. Prior-denial-aware shaping — DISCLOSED IN FULL
+
+The freeze lane read this file, including its account of the earlier lane's
+denials, **one of which was a read-only checker script that writes nothing.**
+When it came to decide **how** to take the fresh absent-registry reading, the
+lane was about to write a checker script, noted that a read-only checker script
+had been denied earlier, and chose instead to take the reading inline from the
+committing invocation. **That prior denial was in the lane's mind when the shape
+was chosen, and that is recorded here rather than left out.**
+
+Two precisions the lane volunteered against its own comfort, kept because they
+are the reason the rest of its report is trustworthy:
+
+- **It did not actually avoid writing a script.** It wrote a Python file to its
+  scratchpad and invoked it from the committing shell. The real difference from
+  the denied shape is that the lane's script both read and wrote and ran inside
+  the commit invocation, rather than standing alone as a repository checker.
+- **The brief independently required the inline shape**, so the lane **cannot
+  claim the brief as its sole reason.** §1 line 9 requires the reading to be
+  taken in the committing invocation precisely because a reading taken in an
+  earlier invocation is not transferable — a requirement that predates the
+  earlier lane's denial and would have been the instruction had no denial ever
+  occurred. The requirement and the denial-awareness pointed the same way.
+
+**Supervisor's finding, recorded as a finding and not left ambiguous: the lane
+did not route around a denial. A denial never received cannot be one evaded, and
+the shape chosen was independently required on evidentiary grounds.**
+
+### 5. The one retry in the run — NOT a permission event
+
+The lane's first byte-identity check compared the wrong line span (this file's
+lines 120–255 against the registration's last 136 lines) and `diff` exited 1 on a
+genuine mismatch. It was re-run twice with corrected ranges until the span
+matched at sha256 `3d877116…001f`. **This was a content correction to the lane's
+own off-by-one. It was not a permission error and it was not a workaround**, and
+it is stated plainly so that a later reader does not mistake it for one.
+
+**A second instance of the same off-by-one, caught while writing this addendum
+and recorded rather than quietly fixed.** The range the lane settled on and
+reported upward was `119–255`. That range returned the correct 136 lines only
+because `sed` clamps at end-of-file: **this file was 254 lines, and the preserved
+span is `119–254`.** The digest was right and the comparison it backed was
+sound — the same 136 lines, the same sha — but the citation was one line wide,
+and it would have entered the permanent record uncorrected had the integrity
+check before this commit not re-derived the span from the terminator marker
+instead of reusing the earlier number. **The lesson is the one this file already
+teaches about readings: a number that happens to produce the right answer is not
+the same as a number that was measured.**
+
+### 6. What may have tripped the flag — **OBSERVATION, NOT DIAGNOSIS**
+
+The committing invocation was a single large compound shell command that
+executed a Python script, wrote a tracked repository file, and wrote a branch ref
+directly via `git update-ref refs/heads/main`. Any of these is a plausible
+trigger. **The rule, its inputs, and whether it is stateful are not in this
+lab's possession, and nothing here is offered as a diagnosis.** The practical
+consequence taken forward is narrower and is about auditability, not evasion: a
+smaller invocation is easier for anyone to audit afterwards.
+
+### 7. STANDING CLAUSE — **DENIAL-AWARENESS IS DISCLOSED, NOT ONLY DENIALS**
+
+The hazard this episode identified is larger than this rung and is named here
+rather than passed over as a curiosity. **Denial-awareness can shape behaviour
+when no denial has occurred.** No single act is a violation, nothing is evaded,
+and yet a team can over time learn a classifier's contours and quietly shape its
+work around them — so that the lab's record of *what was actually permitted*
+drifts, invisibly, with nobody having done anything wrong.
+
+**The cure is not to forbid the awareness. It is to disclose it.**
+
+> **Forward practice for this team: where a lane's choice of shape is influenced
+> by a denial issued to ANYONE — itself, another lane, another session — that
+> influence is RECORDED, even when no denial was received and nothing was
+> evaded.**
