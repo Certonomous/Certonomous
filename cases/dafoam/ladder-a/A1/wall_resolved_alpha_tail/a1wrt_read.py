@@ -44,15 +44,20 @@ WHAT IS DIFFERENT FROM `a1wr_read.py`, AND WHY EACH DIFFERENCE EXISTS
     control breaking the gate it exists to protect.  F1 now restores mtime as
     well and F1b asserts both.  Where a gate reads stat, stat is state.
 
-2.  `G-COMPLETE` IS IMPLEMENTED.  It is registered in A1WR section 9 and
-    `grep -c 'G-COMPLETE' a1wr_read.py` returns 0 -- a gate promised and never
-    written, leaving A1WR's completeness unadjudicated.  Here it tests rule 4's
-    clauses and REFUSES (exit 2) rather than degrading.
+2.  `G-COMPLETE` IS IMPLEMENTED IN THIS READER, for auditability: one grading
+    path is easier to check than three.  ⚠ AN EARLIER VERSION OF THIS COMMENT
+    CLAIMED A1WR HAD REGISTERED THE GATE AND NEVER IMPLEMENTED IT.  THAT WAS
+    FALSE AND IS WITHDRAWN: A1WR enforces it in `a1wr_runScript_incomp.py:357-362`
+    (`AOA_SWEEP_TRUNCATED ... -- NOT a completion`, then `exit(97)`) and in
+    `a1wr_cmd.sh:68-71`, and it FIRED LIVE on all six cold controls.  See
+    PREREGISTRATION_DRAFT.md section 5.1.  Here the gate additionally draws the
+    distinction the registration turns on: a clause this reader CAN evaluate and
+    that fails is a GATE FAIL; a clause it CANNOT evaluate is a REFUSAL.
 
-3.  `G-CAPS` IS ARITHMETIC, NOT PROSE.  `a1wr_read.py` mentions it in one
-    conditional sentence and computes nothing; A1WR's cap accounting had to be
-    done by hand at grade time.  Here it computes measured core-min against the
-    registered cap and prints the arithmetic.
+3.  `G-CAPS` IS ARITHMETIC IN THIS READER.  (The same withdrawn claim applied
+    here: A1WR enforces its cap in `a1wr_chain_driver.sh:251-257`.)  Here the
+    reader computes measured core-min against the registered per-unit cap and
+    prints the arithmetic, so the grade-time accounting is not done by hand.
 
 4.  `G-REPRO` HAS TWO LIMBS.  The premise it was first designed on -- "a
     converged steady solution is history-independent" -- is FALSE for this data:
@@ -82,7 +87,7 @@ HERE = Path(__file__).resolve().parent
 # STATIC, PINNED INPUTS.  Neither is ever read from a run root.
 # ---------------------------------------------------------------------------
 FIXTURE_PATH = HERE / "a1wrt_fixture.log"
-FIXTURE_MD5 = "6386d179e6e26c0b2ab59467936c00a4"
+FIXTURE_MD5 = "4f6e870f74790af9238266c7cf10a0d2"
 
 REFERENCE_PATH = HERE / "a1wr_alpha12_reference.tsv"
 REFERENCE_MD5 = "26ce1af0b0e93af5b9f71efdc34446a4"
@@ -98,6 +103,17 @@ RANKS = 1                   # np = 1, registered
 YPLUS_THRESHOLD = 1.0       # G-YPLUS
 R1_BAND = 1.0e-3            # G-REPRO limb R1, at the iteration cap
 R2_BAND = 1.0e-4            # G-REPRO limb R2, on the extrapolated plateau
+# G-PATCHPAIR (§3.5): U1's extrapolated plateau vs U2's converged value.
+PATCHPAIR_NOISE = 1.0e-4    # <= this: the repair does not move the coefficients
+PATCHPAIR_INDET = 1.0e-3    # <= this: INDETERMINATE; above: CONTAMINATION
+# Registered per-unit caps (§4.4), each ~3x its own estimate.
+CAP_CORE_MIN_U1 = 97.0
+CAP_CORE_MIN_U2U3 = 767.0
+TMO_S_U1 = 5520
+TMO_S_U2U3 = 45720
+CONTAMINATION = "CONTAMINATION"
+INDETERMINATE = "INDETERMINATE"
+NOISE = "NOISE"
 
 CONVERGED = "CONVERGED"
 NOT_CONVERGED = "NOT CONVERGED"
@@ -124,6 +140,8 @@ PT_BEGIN = re.compile(
 PT_VALUES = re.compile(
     r"^AOA_POINT_VALUES idx=(\d+) alpha=([-+0-9.]+) CL=(\S+) CD=(\S+) "
     r"wall_s=([0-9.]+) err=(.*)$", re.M)
+SOLDIR = re.compile(
+    r"Mesh has (\d+) solution \(non-empty\) directions \(([01]) ([01]) ([01])\)")
 WALL_GOOD = "BCType=nutLowReWallFunction"
 WALL_BAD = "nutUSpaldingWallFunction"
 # G-STALL: a stall/separation word bound to a NUMERIC ANGLE.  It must fire on a
@@ -391,6 +409,86 @@ def g_repro(cold_series, ref_rows) -> tuple[str, list[str]]:
 
 
 # ---------------------------------------------------------------------------
+# G-PATCH -- the patch identity ACTUALLY IN FORCE, from the solver's own line
+# ---------------------------------------------------------------------------
+def g_patch(text: str, expect_n: int) -> tuple[str, list[str]]:
+    """The whole symmetry/empty defect reduced to one line the solver prints
+    about itself.  `symmetry` bounding planes leave 3 solution directions and a
+    z-momentum equation on a one-cell-thick mesh; `empty` leaves 2 and none.
+
+    This reads what RAN.  It does not read the boundary file, because a boundary
+    file is what somebody intended and this line is what the solver did."""
+    m = None
+    for m2 in SOLDIR.finditer(text):
+        m = m2
+    if m is None:
+        raise Refusal("G-PATCH: the log carries no `Mesh has N solution "
+                      "(non-empty) directions` line -- the patch identity that "
+                      "actually ran cannot be read, so it is not asserted")
+    n = int(m.group(1))
+    dirs = (m.group(2), m.group(3), m.group(4))
+    got = "%d (%s %s %s)" % (n, dirs[0], dirs[1], dirs[2])
+    if n != expect_n:
+        raise Refusal("G-PATCH: this unit is registered for %d solution "
+                      "directions and the solver reports %s -- the patch "
+                      "identity in force is not the registered one"
+                      % (expect_n, got))
+    return PASS, ["  solver reports  : Mesh has %s solution directions" % got,
+                  "  registered      : %d  (%s)" % (
+                      expect_n, "symmetry" if expect_n == 3 else "empty"),
+                  "  PASS"]
+
+
+# ---------------------------------------------------------------------------
+# G-PATCHPAIR -- symmetry vs empty, one variable, thresholds from measurement
+# ---------------------------------------------------------------------------
+def g_patchpair(u1_series, u2_final) -> tuple[str, list[str]]:
+    """U1's EXTRAPOLATED PLATEAU against U2's CONVERGED value.
+
+    Not the two values at iteration 4,000: U1 stops at the cap still drifting
+    while U2 is expected to converge, so a cap-vs-cap comparison would fold
+    U1's own residual-state head-room into the answer and call it
+    contamination."""
+    lines, worst, verdicts = [], 0.0, []
+    if not u1_series or u2_final is None:
+        return NOT_A_RESULT, ["  one side of the pair is absent -- reported, "
+                              "never papered over"]
+    for k, nm in ((1, "CL"), (2, "CD")):
+        u1 = [s[k] for s in u1_series]
+        pa, note = plateau(u1)
+        vb = u2_final[k - 1]
+        if pa is None or vb is None:
+            lines.append("  %s NOT QUOTED -- %s" % (nm, note))
+            verdicts.append(None)
+            continue
+        rel = abs(pa - vb) / abs(vb) if vb else float("inf")
+        worst = max(worst, rel)
+        lines.append("  %s  U1 symmetry plateau %.14g (%s)" % (nm, pa, note))
+        lines.append("  %s  U2 empty converged  %.14g" % (nm, vb))
+        lines.append("  %s  -> rel %.6e" % (nm, rel))
+        verdicts.append(rel)
+    if any(v is None for v in verdicts):
+        lines.append("  a channel could not be compared: NOT A RESULT on G-PATCHPAIR")
+        return NOT_A_RESULT, lines
+    if worst <= PATCHPAIR_NOISE:
+        lines.append("  -> NOISE (worst %.3e <= %.1e): the patch repair does not "
+                     "move the coefficients." % (worst, PATCHPAIR_NOISE))
+        return NOISE, lines
+    if worst <= PATCHPAIR_INDET:
+        lines.append("  -> INDETERMINATE (%.3e): between the extrapolation's own "
+                     "error and the residual-state head-room. Reported; neither "
+                     "cleared nor called contamination." % worst)
+        return INDETERMINATE, lines
+    lines.append("  -> CONTAMINATION (%.3e > %.1e), AND IT IS THE FINDING. It is "
+                 "%.1fx the MEASURED residual-state head-room of 1.947e-04, so "
+                 "larger than any iteration-state effect can explain. Its reach "
+                 "is every incompressible number this ladder has produced on a "
+                 "symmetry-bounded 2-D mesh." % (worst, PATCHPAIR_INDET,
+                                                 worst / 1.947e-04))
+    return CONTAMINATION, lines
+
+
+# ---------------------------------------------------------------------------
 # CONTROLS.  Static fixture only.  Read -> mutate -> ASSERT LANDED -> real
 # reader -> assert flip -> restore -> assert restore.
 # ---------------------------------------------------------------------------
@@ -402,7 +500,7 @@ def _one(text: str, cap: int = ENDTIME_CAP) -> dict:
 
 
 def selftest(run: Path | None) -> tuple[list[str], list[str]]:
-    global CONV, YP_PAT, END
+    global CONV, YP_PAT, END, SOLDIR
     out, fails = [], []
     n = [0]
 
@@ -577,6 +675,68 @@ def selftest(run: Path | None) -> tuple[list[str], list[str]]:
         "planted Spalding line -> G-WALLTREAT must refuse",
         "mutation landed and the BAD token is what the check scans for")
 
+    # ---- X: G-PATCH, the patch identity actually in force --------------------
+    v, _ = g_patch(base_all, 3)
+    chk(("X1", "[+]"), v == PASS,
+        "fixture prints 3 solution directions -> PASS as a symmetry unit",
+        "got %s" % v)
+    try:
+        g_patch(base_all, 2)
+        got = "NOT REFUSED"
+    except Refusal:
+        got = "REFUSED"
+    chk(("X2", "[-]"), got == "REFUSED",
+        "3 directions against a unit registered for 2 -> REFUSE",
+        "the registered identity and the one in force disagree; got %s" % got)
+    bx = mutate("X3", base_all, SOLDIR.sub("", base_all))
+    try:
+        g_patch(bx, 3)
+        got = "NOT REFUSED"
+    except Refusal:
+        got = "REFUSED"
+    chk(("X3", "[-]"), got == "REFUSED",
+        "directions line REMOVED -> REFUSE, never assumed",
+        "a patch identity that cannot be read is not asserted; got %s" % got)
+    by = mutate("X5", base_all, base_all.replace(
+        "Mesh has 3 solution (non-empty) directions (1 1 1)",
+        "Mesh has 2 solution (non-empty) directions (1 1 0)"))
+    v, _ = g_patch(by, 2)
+    chk(("X5", "[+]"), v == PASS,
+        "planted `2 (1 1 0)` -> PASS as an empty unit",
+        "the mutation landed and the empty branch reads it; got %s" % v)
+    keepd = SOLDIR
+    SOLDIR = re.compile(r"(?!x)x_matches_nothing_(\d)(\d)(\d)(\d)")
+    try:
+        try:
+            g_patch(base_all, 3)
+            got = "NOT REFUSED"
+        except Refusal:
+            got = "REFUSED"
+    finally:
+        SOLDIR = keepd
+    chk(("X4", "[!]"), got == "REFUSED",
+        "SOLDIR disabled -> X1 must flip",
+        "the mutation control on the patch-identity reader itself")
+
+    # ---- Q: G-PATCHPAIR, symmetry vs empty ----------------------------------
+    ref_rows = read_reference(REFERENCE_PATH)
+    u1 = [(r[0], r[1], r[2]) for r in ref_rows]
+    pl_cl, _ = plateau([r[1] for r in ref_rows])
+    pl_cd, _ = plateau([r[2] for r in ref_rows])
+    v, _ = g_patchpair(u1, (pl_cl, pl_cd))
+    chk(("Q1", "[+]"), v == NOISE,
+        "U2 converged exactly at U1's plateau -> NOISE",
+        "no false alarm on a clean pair; got %s" % v)
+    v, _ = g_patchpair(u1, (pl_cl * (1 + 5e-3), pl_cd))
+    chk(("Q2", "[-]"), v == CONTAMINATION,
+        "U2 shifted 5.0e-3 -> CONTAMINATION",
+        "5x the INDETERMINATE ceiling; the falsifier is registered; got %s" % v)
+    v, _ = g_patchpair(u1, (pl_cl * (1 + 5e-4), pl_cd))
+    chk(("Q3", "[!]"), v == INDETERMINATE,
+        "U2 shifted 5.0e-4 -> INDETERMINATE, not silently cleared",
+        "the middle band exists so an ambiguous answer is not rounded to a "
+        "verdict; got %s" % v)
+
     # ---- K: G-COMPLETE, the gate A1WR registered and never wrote -------------
     full = segment(base_all)
     v, _, cn0 = g_complete(full, [12, 13, 14], 0, ENDTIME_CAP)
@@ -673,7 +833,7 @@ def main(argv: list[str]) -> int:
                          "       a1wrt_read.py --selftest\n")
         return 2
     run = Path(argv[1])
-    cap_cm = CAP_CORE_MIN
+    cap_cm = CAP_CORE_MIN_U2U3
     if "--cap-core-min" in argv:
         cap_cm = float(argv[argv.index("--cap-core-min") + 1])
 
@@ -695,13 +855,34 @@ def main(argv: list[str]) -> int:
         return 2
     lines.append("")
 
-    log = run / "sweep" / "out" / "sweep.log"
-    if not log.is_file():
-        lines.append("NO UNIT LOG AT %s -- nothing to read." % log)
-        lines.append("PENDING: the tail has not produced its log.")
+    # Registered unit layout (§2.1): U1 is its own case tree on `symmetry`;
+    # U2+U3 are ONE process on `empty`.
+    UNITS = [("alpha12_symmetry", 3, CAP_CORE_MIN_U1, [12]),
+             ("tail_empty", 2, CAP_CORE_MIN_U2U3, [12, 13, 14, 15, 16, 17, 18])]
+    missing = [u for u, _, _, _ in UNITS
+               if not (run / u / "out" / "sweep.log").is_file()]
+    if missing:
+        lines.append("UNIT LOG(S) ABSENT: %s" % ", ".join(missing))
+        lines.append("PENDING: the item has not produced every unit's log.")
         sys.stdout.write("\n".join(lines) + "\n")
         return 0
 
+    # ---- G-PATCH, per unit, BEFORE anything is read off the numbers -------
+    lines.append("G-PATCH (the patch identity ACTUALLY IN FORCE, from the solver's own line):")
+    for unit, expect_n, _, _ in UNITS:
+        txt = (run / unit / "out" / "sweep.log").read_text(errors="replace")
+        try:
+            _, pn = g_patch(txt, expect_n)
+        except Refusal as exc:
+            sys.stdout.write("\n".join(lines) + "\n")
+            sys.stderr.write("\nG-PATCH REFUSE (exit 2) on %s: %s\n" % (unit, exc))
+            return 2
+        lines.append("  [%s]" % unit)
+        lines.extend("  " + x for x in pn)
+    lines.append("")
+
+    log = run / "tail_empty" / "out" / "sweep.log"
+    u1_log = run / "alpha12_symmetry" / "out" / "sweep.log"
     text = log.read_text(errors="replace")
     pts = segment(text)
 
@@ -716,7 +897,7 @@ def main(argv: list[str]) -> int:
     lines.append("")
 
     # --- the table --------------------------------------------------------
-    rc_path = run / "sweep" / "out" / "rc"
+    rc_path = run / "tail_empty" / "out" / "rc"
     rc = int(rc_path.read_text().strip()) if rc_path.is_file() else None
     lines.append("THE TAIL -- cold alpha=12 then the continuation, wall-resolved L3")
     lines.append("    idx   alpha    convergence           CL           CD   iters     y+max  mode")
@@ -767,8 +948,8 @@ def main(argv: list[str]) -> int:
 
     # --- G-COMPLETE (implemented) ----------------------------------------
     vc, cn, cannot = g_complete(pts, DECLARED_ALPHAS, rc, ENDTIME_CAP)
-    lines.append("G-COMPLETE (rule 4, all clauses -- REGISTERED IN A1WR SECTION 9 AND NEVER")
-    lines.append("  IMPLEMENTED THERE; implemented here):")
+    lines.append("G-COMPLETE (rule 4, all clauses; a clause that CANNOT be evaluated")
+    lines.append("  is a REFUSAL, not a verdict):")
     lines.extend(cn)
     if cannot:
         lines.append("  REFUSED")
@@ -786,10 +967,35 @@ def main(argv: list[str]) -> int:
     lines.append("")
 
     # --- G-REPRO ----------------------------------------------------------
-    lines.append("G-REPRO (section 3 -- the reproduction control, both limbs):")
-    vr, rn = g_repro(cold_series, read_reference(REFERENCE_PATH))
+    # G-REPRO reads U1 -- A1WR's OWN configuration, `symmetry`, cold -- because
+    # the cold-vs-continued comparison is only valid against it.  Reading it off
+    # the `empty` tail would move two variables at once.
+    u1_pts = segment(u1_log.read_text(errors="replace"))
+    u1_cold = next((series_of(q["text"]) for q in u1_pts
+                    if q["mode"] == "COLD" and abs(q["alpha_deg"] - 12.0) < 1e-9), [])
+    lines.append("G-REPRO (section 3 -- cold-vs-continued, on U1 `symmetry`, both limbs):")
+    vr, rn = g_repro(u1_cold, read_reference(REFERENCE_PATH))
     lines.extend(rn)
     lines.append("  %s" % vr)
+    lines.append("")
+
+    # G-PATCHPAIR reads U1's plateau against U2's CONVERGED alpha=12.
+    u2_final = None
+    for q in pts:
+        if q["mode"] == "COLD" and abs(q["alpha_deg"] - 12.0) < 1e-9:
+            s = series_of(q["text"])
+            if s:
+                u2_final = (s[-1][1], s[-1][2])
+            if classify(q["text"], ENDTIME_CAP)["verdict"] != CONVERGED:
+                lines.append("G-PATCHPAIR: U2's alpha=12 is NOT CONVERGED, so its "
+                             "final value is NOT a converged value. The pair is "
+                             "reported as NOT A RESULT rather than compared "
+                             "against a plateau it does not have.")
+                u2_final = None
+    lines.append("G-PATCHPAIR (section 3.5 -- `symmetry` vs `empty`, one variable):")
+    vq, qn = g_patchpair(u1_cold, u2_final)
+    lines.extend(qn)
+    lines.append("  %s" % vq)
     lines.append("")
 
     # --- non-converged points, reported not removed ------------------------
@@ -832,7 +1038,8 @@ def main(argv: list[str]) -> int:
     (run / "A1WRT_POINTS.json").write_text(json.dumps(
         {"points": rows, "declared": DECLARED_ALPHAS, "endtime_cap": ENDTIME_CAP,
          "cap_core_min": cap_cm, "measured_core_min": wall_total * RANKS / 60.0,
-         "G-COMPLETE": vc, "G-CAPS": vp, "G-REPRO": vr}, indent=2, default=str))
+         "G-COMPLETE": vc, "G-CAPS": vp, "G-REPRO": vr,
+         "G-PATCHPAIR": vq}, indent=2, default=str))
     return 0
 
 

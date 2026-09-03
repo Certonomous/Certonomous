@@ -18,7 +18,9 @@
 > against a 186.02 core-min need.
 
 **Item:** `A1WRT` — NACA0012 α-tail 12…18° on the A1WR wall-resolved L3 mesh,
-**incompressible only** (`DASimpleFoam`).
+**incompressible only** (`DASimpleFoam`), run on a **REPAIRED patch identity
+(`empty`, not `symmetry`)** with a one-variable pair at α = 12 that measures the
+repair itself. **Eight points, three units.**
 **Team:** dafoam **Lane:** lab-lane **Drafted:** 2026-09-03
 **Status:** NO COMPUTE HAS BEEN SPENT ON THIS ITEM. Run root
 `/home/ubuntu/certonomous-runs/A1WRT/` **does not exist** — checked, not
@@ -78,20 +80,72 @@ this item may not be read as evidence about it either way.
 
 ---
 
-## 2. THE DESIGN — COLD α = 12 FIRST, THEN THE CONTINUATION
+## 2. THE DESIGN — A BLOCKING PHYSICS FIX, AND THE PAIR THAT MEASURES IT
 
-**One process, one container, np = 1, one core:**
+### 2.0 The patch identity is repaired, under Sanaa's own classification
 
-1. `0/` reset from `0.orig` **once**, on a fresh case tree, before anything runs.
-2. **α = 12, COLD** — the reproduction control (§3).
-3. **α = 13, 14, 15, 16, 17, 18 — CONTINUED, ascending**, each inheriting its
-   predecessor's converged state **in memory**. This reproduces A1WR §5
-   Stage 2's mechanics exactly rather than approximating them.
+Sanaa, 2026-09-03 ~20:00Z, verbatim
+(`etc/sessions/2026-09-03T2000Z_sanaa_governance_reform.md`, **read at source for
+this draft, not relayed**):
 
-**Seven points total.** No point is retried, relaxed, re-tuned or dropped; a
-point that fails is recorded with its residual history and the sweep continues,
-with every subsequent point flagged `after_exception=TRUE`. **A missing point on
-a polar is a lie by omission.**
+> *Blocking physics fixes — a result can't be produced or trusted without them
+> (**wrong patch identity on a mesh**, a residual print that isn't the max over
+> equations, a boundary condition set wrong, a linear solver failing). These jump
+> every queue, need no petition, and the team fixes them and records a lesson
+> afterward, not before.*
+
+**That names this defect exactly.** The A1WR L3 mesh's two bounding planes are
+`type symmetry`, not `empty`; OpenFOAM therefore assembles a z-momentum equation
+on a mesh one cell thick (§7). **Running the tail on the defective identity would
+knowingly spend ~256 core-min producing seven numbers that cannot be trusted and
+then say so on the certificate.** Under her classification the fix jumps the
+queue, needs no petition, and the lesson is recorded afterward.
+
+**REGISTERED: the tail runs on `empty`.**
+
+### 2.1 Three units, because each comparison must move exactly ONE variable
+
+| unit | patch | start | points | what it isolates |
+|---|---|---|---|---|
+| **U1** `alpha12_symmetry` | `symmetry` | COLD | α = 12 | **cold-vs-continued**, against A1WR's own continued α = 12 (`CL` 1.19079592024, `CD` 0.030665481166). This is `G-REPRO` exactly as §3 registers it, on A1WR's own configuration, unchanged. |
+| **U2** `alpha12_empty` | `empty` | COLD | α = 12 | **`symmetry`-vs-`empty`**, against U1 directly above it. Both COLD, same mesh, same numerics, same operating point, same iteration budget — a true one-variable pair. |
+| **U3** `tail_empty` | `empty` | CONTINUED from U2's converged state, **in the same process as U2** | α = 13…18 | the trustworthy tail |
+
+**Eight points, and the eighth is what makes the other seven interpretable.**
+Comparing a cold `empty` α = 12 directly against A1WR's *continued* `symmetry`
+α = 12 would move cold-vs-continued **and** `symmetry`-vs-`empty` at once and
+measure neither. **U1 is bought precisely to remove that confound** (§4.3 prices
+it at ~32 core-min), and it is the same one-variable discipline this item has
+now applied five times.
+
+U2 and U3 are **one process, one container**: `0/` reset from `0.orig` once
+before U2's cold α = 12, then α = 13…18 ascending, each inheriting its
+predecessor's converged state **in memory**. U1 is its own container and its own
+case tree, because it carries a different mesh boundary file.
+
+**No point is retried, relaxed, re-tuned or dropped**; a point that fails is
+recorded with its residual history and the sweep continues, with every subsequent
+point flagged `after_exception=TRUE`. **A missing point on a polar is a lie by
+omission.**
+
+### 2.2 What "runs on `empty`" actually requires on disk — registered, not waved
+
+`empty` is not a one-word edit. **`G-PATCH` verifies all three by execution
+before any primal:**
+
+1. `constant/polyMesh/boundary`: `symmetry1`/`symmetry2` → `type empty;`
+   (`inGroups 1(empty)`), 130,304 faces each, unchanged.
+2. **Every field in `0.orig/`** — `U p nut nuTilda k omega epsilon` — must carry
+   `type empty;` on those two patches. A mesh patch typed `empty` beside a field
+   patch typed `symmetry` is a case that will not start, and a field left
+   `symmetry` on a mesh patch typed `empty` is the silent-no-op class this lab
+   has been bitten by twice.
+3. **The solver's own log line is the acceptance test, and it is a measurement,
+   not an assertion:** the `empty` units must print
+   **`Mesh has 2 solution (non-empty) directions (1 1 0)`** and U1 must print
+   **`Mesh has 3 solution (non-empty) directions (1 1 1)`**. `G-PATCH` refuses at
+   exit 2 on any other combination. **This is the whole defect reduced to one
+   line the solver prints about itself.**
 
 **`0/` MUST be reset from `0.orig` for a genuinely cold start** — pyDAFoam
 renames a converged solution back into `0/`, so a "cold" start that does not
@@ -202,6 +256,44 @@ two series is the starting state.
 **`G-REPRO` may only turn a `PASS` or `GATE FAIL` INTO `NOT A RESULT`, never the
 reverse** (`CLAUDE.md` rule 5's permitted direction).
 
+### 3.5 `G-PATCHPAIR` — THE SECOND COMPARISON, AND ITS THRESHOLDS ANCHORED ON MEASURED DRIFT
+
+U1 (`symmetry`, cold) against U2 (`empty`, cold). **The like-for-like quantities
+are not the two values at iteration 4,000**, because U1 stops at the cap still
+drifting while U2 is expected to converge and stop early (§7). Comparing those
+two directly would fold U1's own residual-state head-room into the answer and
+call it contamination.
+
+**REGISTERED: the comparison is U1's EXTRAPOLATED PLATEAU against U2's CONVERGED
+VALUE** — each solve's own best estimate of its own fixed point. U1's series and
+its geometric fit are published whole so the extrapolation can be checked.
+
+**The registered prediction, written before the run — and it is the boring one:**
+CL and CD are **unchanged** between `symmetry` and `empty` to within the
+extrapolation's own error, and **the only change is that the `empty` solve
+converges**, because with two solution directions there is no z-momentum equation
+to assemble and therefore no `U2` residual to floor. **It converges because the
+equation that floored is gone, not because anything was tuned. No tolerance is
+relaxed and `endTime` is not raised.**
+
+**The thresholds, anchored on measurement rather than on round numbers:**
+
+| band | verdict | anchor |
+|---|---|---|
+| **\|Δ/x\| ≤ 1.0e-4** | **NOISE** — the repair does not move the coefficients | the plateau extrapolation's own sensitivity: CL's geometric ratio is 0.8681 and CD's is 0.9440, so a ±0.02 error in r moves the remaining term by ≈ ±25 %, i.e. **≈ ±4.9e-05 relative** on CL. The band is that, doubled. |
+| **1.0e-4 < \|Δ/x\| ≤ 1.0e-3** | **INDETERMINATE** — reported, neither cleared nor called contamination | between the extrapolation's error and the residual-state head-room; the instrument cannot separate them |
+| **\|Δ/x\| > 1.0e-3** | **⚠ CONTAMINATION, AND IT IS THE FINDING** | **5.1× the MEASURED residual-state head-room of 1.947e-04** (§3.3), so larger than any iteration-state effect can explain |
+
+**If it lands in the third band the finding is large and its reach is stated in
+advance: it would touch every incompressible number this ladder has produced on
+a `symmetry`-bounded 2-D mesh**, not merely this item. That is registered here so
+it cannot be discovered and then minimised.
+
+**A cheaper coarse-mesh anchor of the same pair is registered separately on
+D19T's 4,032-cell grid**, which also tests the mesh-scaling half of the account
+(floor ~1.7e-10 there against the measured 3.238e-08 here). **Different mesh,
+different item. This item does not register the coarse pair and must not.**
+
 ---
 
 ## 4. COST — REGISTERED BEFORE COMPUTE, FROM MEASURED WALLS
@@ -234,16 +326,34 @@ across the trend** — the α = 0 and cold rows above are contention, not α.
 
 ### 4.3 The estimate
 
-| term | arithmetic | core-min |
-|---|---|---|
-| 7 points × 4,000 iterations × **0.4615 s/it** (MEASURED) | 12,922 s | **215.37** |
-| container start + import | 93.85 s, MEASURED on `a1wr_sweep_I` (container wall 28,146.98 s − last `ExecutionTime` 28,053.13 s) | **1.56** |
-| tail-stiffening allowance on α 14–18, **EXTRAPOLATED** | 5 × 4,000 × 0.4615 × 0.25 = 2,307.5 s | **38.46** |
-| **ESTIMATE** | | **≈ 256 core-min** |
+**Eight points across two containers.** Priced per unit, because each carries its
+own deadline (§4.4).
 
-= 4.267 core-h ≈ **$0.2189 DERIVED, NOT MEASURED** at the owner-stated
+| unit | term | arithmetic | core-min |
+|---|---|---|---|
+| **U1** | 1 point × 4,000 it × **0.4615 s/it** (MEASURED) | 1,846.0 s | 30.77 |
+| **U1** | container start + import | 93.85 s (MEASURED on `a1wr_sweep_I`: container wall 28,146.98 s − last `ExecutionTime` 28,053.13 s) | 1.56 |
+| | **U1 ESTIMATE** | | **≈ 32.33** |
+| **U2+U3** | 7 points × 4,000 it × 0.4615 s/it | 12,922 s | 215.37 |
+| **U2+U3** | container start + import | 93.85 s | 1.56 |
+| **U2+U3** | tail-stiffening allowance on α 14–18, **EXTRAPOLATED** | 5 × 4,000 × 0.4615 × 0.25 = 2,307.5 s | 38.46 |
+| | **U2+U3 ESTIMATE** | | **≈ 255.39** |
+| | **ITEM ESTIMATE** | 32.33 + 255.39 | **≈ 288 core-min** |
+
+= 4.800 core-h ≈ **$0.2462 DERIVED, NOT MEASURED** at the owner-stated
 $0.0513/core-h; `cost_basis` **REPORTED-BY-OWNER** — the box cannot read its own
 billing (`COMPUTE_BUDGET_CHARTER.md` §5).
+
+**Every point is priced at the FULL 4,000 iterations, which is deliberately
+conservative for the `empty` units.** §7 registers that they are expected to
+*converge* and therefore to stop early — possibly well before 4,000. **That
+saving is NOT taken in advance**: an estimate that banks a predicted improvement
+is an estimate arguing for its own hypothesis. If the `empty` units do stop
+early, the actual/predicted ratio comes in low and **that is reported at
+calibration as a favourable misprediction with its cause named**, not quietly
+absorbed. The `empty` solve also drops one momentum equation per iteration, which
+should make it cheaper per iteration; **that is UNMEASURED on this mesh and no
+credit is taken for it either.**
 
 **The term most likely to carry the error is the tail-stiffening allowance**, and
 it is named in advance, exactly as A1WR §7.5 named its own iteration-scaling
@@ -255,8 +365,10 @@ Sanaa, 2026-09-03, verbatim: *"still carries a hard per-run cap (set by the team
 at ~3× its own estimate, not by me) … The estimate is an instrument, not a
 permission slip."*
 
-> **REGISTERED CAP: 768 core-min** = 3.00 × the 256 estimate.
-> = 12.80 core-h ≈ **$0.6566 DERIVED** — under the $25 pre-authorisation and far
+> **REGISTERED CAPS, PER UNIT, EACH ≈ 3× ITS OWN ESTIMATE:**
+> **U1 = 97 core-min** (3.00 × 32.33) · **U2+U3 = 767 core-min** (3.00 × 255.39)
+> · **ITEM CEILING = 864 core-min** = 3.00 × the 288 estimate.
+> = 14.40 core-h ≈ **$0.7387 DERIVED** — under the $25 pre-authorisation and far
 > under the $150 escalation trigger.
 
 **D19T was frozen, md5-pinned, gate-checked and launched TWICE with a deadline
@@ -266,14 +378,25 @@ executed here, in this document, and its result is evaluated:**
 ```
 ranks         = 1                       (np = 1, registered)
 CAP_MARGIN_S  = 300                     (3.2x the MEASURED 93.85 s container start)
-TMO           = int(768 * 60 / 1) - 300
-              = 46080 - 300
-              = 45780 s
+
+TMO_U1        = int( 97 * 60 / 1) - 300 =  5820 - 300 =  5520 s
+TMO_U2U3      = int(767 * 60 / 1) - 300 = 46020 - 300 = 45720 s
 ```
 
-**EVALUATED:** `TMO = 45780`. **`45780 > 0` ✓.** `45780 / 60 = 763.0 core-min
-≤ 768 cap` ✓. **A freeze that cannot print a positive evaluated integer here
-does not launch.**
+**EVALUATED, both of them, here, in this document:**
+
+| unit | `TMO` | `> 0` ? | `TMO/60` core-min | ≤ its cap ? |
+|---|---|---|---|---|
+| U1 | **5,520 s** | ✓ | 92.00 | ≤ 97 ✓ |
+| U2+U3 | **45,720 s** | ✓ | 762.00 | ≤ 767 ✓ |
+
+Back-check: `(5520 + 300) × 1 / 60 = 97.0` and `(46020 - 300 + 300) × 1 / 60 =
+767.0`, both exact. Effective budget `92.00 / 32.33 = 2.85×` (U1) and
+`762.00 / 255.39 = 2.98×` (U2+U3) — both satisfy the ~3× effective-budget rule.
+
+**A freeze that cannot print a positive evaluated integer in this table does not
+launch.** D19T was frozen, md5-pinned, gate-checked and launched **twice** with a
+deadline of exactly 0 s because nobody ever executed this arithmetic.
 
 ### 4.5 The deadline against a BUSY box — the 331.7 core-min lesson, applied
 
@@ -281,15 +404,23 @@ A1WR lost **all six** cold controls and 331.6667 core-min for **zero physics** t
 a 3,300 s deadline sized from a quiet-box rate and spent on a box the same item
 had just filled 14-deep. Registered here rather than repeated:
 
-| box state | s/iteration (MEASURED) | 7 points × 4,000 it | vs the 45,780 s deadline |
-|---|---|---|---|
-| quiet | 0.4615 | 12,922 s + 94 s = **13,016 s** | **28.4 % — finishes comfortably** |
-| moderate contention, 2× | 0.923 | 25,938 s | 56.7 % — finishes |
-| **break-even** | **1.63500** | 45,780 s | **100 % — the ceiling** |
-| A1WR's measured 14-way saturation | 1.781 | 49,868 s | **108.9 % — CAP-STOPPED at ~6.4 of 7 points** |
+**U2+U3**, 7 points × 4,000 it = 28,000 iterations against a 45,720 s deadline:
 
-**The item survives contention up to 3.543× the solo rate** —
-`45,780 s / 28,000 it = 1.63500 s/it`, and `1.63500 / 0.4615 = ` **3.54280**.
+| box state | s/iteration (MEASURED) | 28,000 it | vs the 45,720 s deadline |
+|---|---|---|---|
+| quiet | 0.4615 | 12,922 s + 94 s = **13,016 s** | **28.5 % — finishes comfortably** |
+| moderate contention, 2× | 0.923 | 25,938 s | 56.7 % — finishes |
+| **break-even** | **1.63286** | 45,720 s | **100 % — the ceiling** |
+| A1WR's measured 14-way saturation | 1.781 | 49,868 s | **109.1 % — CAP-STOPPED at ~6.4 of 7 points** |
+
+**U2+U3 survives contention up to 3.538× the solo rate** —
+`45,720 / 28,000 = 1.63286 s/it`, and `1.63286 / 0.4615 = ` **3.53816**.
+
+**U1**, 1 point × 4,000 it against a 5,520 s deadline: break-even
+`5,520 / 4,000 = 1.38000 s/it`, i.e. **2.990× solo**. **U1 therefore has
+MATERIALLY LESS headroom than U2+U3 and is the unit that will cap-stop first
+under load.** That is stated because the two units are not interchangeable and
+the §4.6 arithmetic must be evaluated **per unit**, not once for the item.
 
 **⚠ AND A1WR'S OWN MEASURED WORST CONTENTION IS 1.781 s/it = 3.85915× SOLO,
 WHICH IS ABOVE THAT CEILING. THE ITEM DOES NOT SURVIVE IT.** *(An earlier draft
@@ -314,9 +445,10 @@ bandwidth.** The driver therefore **records box occupancy and MemAvailable at
 launch and at every point boundary into the ledger row**, so contention is
 attributed from measurement at calibration time instead of argued.
 
-**This item is ONE np = 1 process on ONE core.** It consumes 1 of 16 cores, so it
-is a legal filler under the never-idle rule without itself creating the
-saturation that killed A1WR's controls.
+**This item is at most TWO np = 1 processes on two cores** (U1 may run beside
+U2+U3 or before it; U3 is serial with U2 by construction). It consumes 2 of 16
+cores, so it is a legal filler under the never-idle rule without itself creating
+the saturation that killed A1WR's controls.
 
 ### 4.6 `G-CONCURRENCY-PRECOND` — A LAUNCH GATE, BECAUSE §4.5's MARGIN IS NEGATIVE AGAINST MEASURED SATURATION
 
@@ -370,6 +502,8 @@ absorbed into the ratio.
 | gate | subject | verdict rule |
 |---|---|---|
 | `G-COLDSTART` | every field of `0/` read back from disk and asserted `uniform` **before** the first primal | refuse (exit 2) on any nonuniform field — A1WR's mixed `0/` is the precedent |
+| `G-PATCH` | §2.2 — the patch identity ACTUALLY IN FORCE: mesh `boundary` types, every `0.orig/` field's entry on those patches, and the solver's own `Mesh has N solution (non-empty) directions` line | refuse (exit 2) unless U1 prints **3 (1 1 1)** and U2/U3 print **2 (1 1 0)**. **The defect reduced to one line the solver prints about itself** |
+| `G-PATCHPAIR` | §3.5 — U1's extrapolated plateau vs U2's converged value, CL and CD | ≤ 1.0e-4 NOISE; ≤ 1.0e-3 INDETERMINATE, reported; > 1.0e-3 **CONTAMINATION and it is the finding** |
 | `G-REPRO` | §3, both limbs R1 and R2, bands registered above | inside → `CORROBORATED`; R2 outside → tail labels withdrawn, `NOT A RESULT`; control absent → `NOT A RESULT` on the control |
 | `G-COMPLETE` | rule 4, **all** clauses: rc 0, `End` line, last time == `endTime`, fields present, `ExecutionTime` count == `endTime`, every field newer than the case's own datum | refuse (exit 2) rather than degrade, and **the distinction is registered**: a clause the reader CAN evaluate and that fails is a `GATE FAIL`; a clause it CANNOT evaluate is a REFUSAL. *(An earlier draft justified this gate by claiming A1WR had never implemented `G-COMPLETE`. **That claim was FALSE and is withdrawn** — see §5.1. The gate is implemented here because a single grading path is easier to audit than two, not because A1WR lacked one.)* |
 | `G-CAPS` | **arithmetic, not prose**: measured core-min per unit against the 768 cap, computed by the reader and printed | cap-stop ⇒ `NOT A RESULT` on the affected points. *(The same withdrawn claim applied here; A1WR enforces its cap in `a1wr_chain_driver.sh`. See §5.1.)* |
@@ -467,9 +601,9 @@ them on this very mesh, image and solver.
 - **A converged high-α point is not evidence of attached flow.** 2-D steady RANS
   with SA past the onset of significant separation is not a valid model of the
   flow at **any** resolution.
-- **⚠ REGISTERED AS A KNOWN PROPERTY OF THE MESH, NOT AS AN EXPECTATION: EVERY
-  POINT OF THIS TAIL WILL READ `NOT CONVERGED`, AND THE MECHANISM AND ITS
-  MEASURED NUMBER ARE ON THE RECORD BEFORE THE RUN.**
+- **⚠ REGISTERED AS A KNOWN PROPERTY OF THE `symmetry` CONFIGURATION, NOT AS AN
+  EXPECTATION — AND IT IS WHY THE PATCH IS REPAIRED. U1 (`symmetry`) WILL READ
+  `NOT CONVERGED`. U2 AND U3 (`empty`) ARE EXPECTED TO CONVERGE.**
 
   The mesh's two bounding planes are **`type symmetry`, not `empty`** — measured
   in `constant/polyMesh/boundary`, 130,304 faces each — so OpenFOAM reports
@@ -489,33 +623,60 @@ them on this very mesh, image and solver.
   last-iteration residual at **12 of the 14** points, and its floor of
   **3.238e-08 sits ABOVE the registered `primalMinResTol = 1.0e-8`.**
 
-  **So A1WR's points could not have converged, and neither can this tail's. That
-  is arithmetic, not a forecast.** Corroborated on `MAAOA INCOMP` (`U2` 2.48e-08)
-  and on the coarse 4,032-cell mesh (~1.7e-10, i.e. the floor scales with the
-  mesh); killed for the compressible arm, where `p` at 9.29e-01 dominates and the
-  mechanism is the separate one N-C9 documents.
+  **So A1WR's thirteen points could never have converged, and neither can U1's.
+  That is arithmetic, not a forecast.** Corroborated on `MAAOA INCOMP`
+  (`U2` 2.48e-08) and on the coarse 4,032-cell mesh (~1.7e-10, i.e. the floor
+  scales with the mesh); killed for the compressible arm, where `p` at 9.29e-01
+  dominates and the mechanism is the separate one N-C9 documents.
 
-  **AND THE CLAUSE THAT NOW MATTERS MOST: this licenses NOTHING.** It does not
-  license raising `endTime`, **it does not license relaxing 1.0e-8 to 1e-7 to
-  manufacture a convergence**, and it does not license re-tuning. A successor
-  reading this page will reach for exactly that loosening; it is result-shopping,
-  it is forbidden on this item, and a different tolerance or iteration budget is
-  a **NEW rung with its own pre-registration**.
+  **AND THE OTHER HALF OF THE MECHANISM, READ FROM THE INSTALLED SOURCE RATHER
+  THAN INFERRED — IT IS WHY THE LEDGER SAID `err=NONE` WITH ZERO CONVERGENCES.**
+  `DASolver.C:188` stops early only when `primalMaxRes < primalMinResTol`
+  (1.0e-8). `DASolver.C:2745` raises `Primal solution failed!` only when
+  `primalMaxRes / primalMinResTol > primalMinResTolDiff`, and this item's
+  registered `primalMinResTolDiff` is **100** — i.e. only above **1.0e-6**.
+  **There is a deliberate 100× DEAD BAND between the two thresholds, and the
+  measured floor of 3.238e-08 sits inside it** — 3.24× the tolerance, 0.0324× the
+  failure threshold. **A1WR's arm I could neither converge nor be flagged as
+  failed. That is the whole explanation of the "13 clean rows, all `error NONE`"
+  that had zero convergences**, and it is registered here so this item's reader
+  cannot repeat the misreading.
 
-- **THE TAIL STILL RUNS, AT `symmetry`, WITH THE FROZEN NUMERICS UNCHANGED.** It
-  is the faithful extension of A1WR, and `G-REPRO` is only valid against A1WR's
-  own configuration — **changing the patch type would break the very comparison
-  this item exists to make.** The `empty`-versus-`symmetry` control, including
-  whether CL/CD move at all, is a **separate one-variable item** and is not
-  folded in here. One variable per item is the standard that caught this.
+  **REGISTERED EXPECTATION FOR U2 AND U3, AND WHY IT IS NOT A TUNING CLAIM:**
+  with `empty` there are **two** solution directions, so no z-momentum equation
+  is assembled, so there is no `U2` residual to floor, and the remaining four
+  channels have all been MEASURED below 1e-8 on this mesh (U0 1.43e-09,
+  U1 1.74e-09, p 2.59e-09, nuTilda 8.29e-09). **The `empty` units are therefore
+  expected to satisfy 1.0e-8 and stop early. They converge because the equation
+  that floored is GONE, not because anything was relaxed.**
 
-- **REGISTERED CONSEQUENCE FOR EVERY COEFFICIENT THIS ITEM PUBLISHES:** they are
-  **iteration-4,000 states on a configuration with a known residual floor of
-  3.238e-08**. **Whether that floor contaminates CL or CD is UNMEASURED, and is
-  being measured elsewhere.** `G-NOBAND` already forbids presenting any value as
-  grid-converged or inside a band; **this clause additionally forbids presenting
-  any value of this item as a CONVERGED polar.** The two prohibitions are
-  separate and both bind.
+  **AND THE CLAUSE THAT MATTERS MOST: none of this licenses relaxing anything.**
+  It does not license raising `endTime`, **it does not license relaxing 1.0e-8 to
+  1e-7 to manufacture a convergence**, it does not license widening
+  `primalMinResTolDiff`, and it does not license re-tuning. A successor reading
+  this page will reach for exactly one of those; each is result-shopping, all are
+  forbidden on this item, and a different tolerance or iteration budget is a
+  **NEW rung with its own pre-registration.** **The repair is to the mesh's patch
+  identity — a defect — and to nothing else.**
+
+- **`G-REPRO` KEEPS ITS VALIDITY BECAUSE U1 KEEPS A1WR's CONFIGURATION.** U1 runs
+  on `symmetry`, cold, with the frozen numerics unchanged, so the cold-vs-
+  continued comparison against A1WR's own continued α = 12 moves exactly one
+  variable. **The patch repair does not contaminate it, because the repair lives
+  in U2, and U1-vs-U2 is the separate one-variable pair that measures the repair
+  itself** (§3.5). That is what the eighth point buys.
+
+- **REGISTERED CONSEQUENCE, NOW SPLIT BY UNIT BECAUSE THE UNITS DIFFER:**
+  **U1's** coefficients are an iteration-4,000 state on a configuration with a
+  measured residual floor of 3.238e-08 and **may not be presented as a converged
+  value** — only its extrapolated plateau, labelled EXTRAPOLATED, enters §3.5.
+  **U2 and U3's** coefficients may be presented as converged **only if the solver
+  actually printed its own `Minimal residual … satisfied the prescribed
+  tolerance 1e-08` line for that point**; a point that instead ran to the cap is
+  `NOT CONVERGED` like any other, expectation notwithstanding. **`G-NOBAND`
+  independently forbids presenting ANY value of this item as grid-converged or
+  inside a band** — the L3 family still has no Roache triple. **The two
+  prohibitions are separate and both bind.**
 - **No adjoint claim.** Primal only, undeformed geometry, no optimiser, no trim.
 - **The build confound stands and is restated:** the coarse sweeps ran the
   SHIPPED image, this and A1WR run the PATCHED `dafoam-idwarp-rot:v1`.

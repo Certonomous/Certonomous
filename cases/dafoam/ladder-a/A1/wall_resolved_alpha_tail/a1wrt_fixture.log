@@ -1,6 +1,9 @@
 A1WRT_WALLTREAT_SCRIPT_OK useWallFunction False present in staged runScript
 A1WRT_UNIT mode=TAIL declared=7 list=[12 13 14 15 16 17 18] tol=1.0e-8 tmo=45780 omp=1
 A1WRT_COLD_START 0/ reset from 0.orig -- first point of this unit is cold
+Create mesh for time = 0
+    Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)
+    Mesh has 3 solution (non-empty) directions (1 1 1)
 AOA_POINT_BEGIN idx=0 alpha=12.0000000000 mode=COLD continued_from=NONE after_exception=FALSE
 Setting volume coordinates. 
 Setting UMag = 10 AoA = 12 degs at 1(inout)
