@@ -1,0 +1,101 @@
+VR3-R2 -- guard-set attribution over the REGISTERED population
+Gate: verification/campaign/VR3R2_PREREGISTRATION.md
+
+CONTROLS (driven through the production classify_site()/verdict(), same run):
+  ok   NEGATIVE limb: planted unguarded site -> class=UNGUARDED verdict=GATE FAIL rc=1
+       G2 foreign guards seen: [(10, 'len(hits) != 1', 'in a_different_function over pp/*/g.xy')]
+  ok   POSITIVE limb: planted guarded site   -> class=GUARDED verdict=PASS rc=0
+  ok   EMPTY-INPUT arm: empty population         -> verdict=NOT A RESULT rc=2
+  ok   ABSENT-SITE arm: registered site gone   -> located=False verdict=NOT A RESULT rc=2
+  CONTROLS: PASS
+
+Registration frozen at blob ff0af23c4630
+
+PER-SITE CLASSIFICATION (population registered N=12):
+  VMFL001/grade_vmfl001.py:360  hits  in probe_series
+    G1 deciding set   : postProcessing/*/U/gateProbes   [LEXICAL:sorted(glob.glob), wildcard=True]
+    G2 guard measures : NO len(hits) guard in probe_series after line 360
+    G2 foreign guard  : line 179 len(hits) == 1 -- in find_set_file, over the set bound at line None (<unbound>)
+    G2 foreign guard  : line 181 len(hits) > 1 -- in find_set_file, over the set bound at line None (<unbound>)
+    G3 same set?      : NO
+    G4 class          : UNGUARDED
+  VMFL001/R2/grade_vmfl001_r2.py:236  hits  in find_set_file
+    G1 deciding set   : postProcessing/*/%s_*   [LEXICAL:sorted(glob.glob), wildcard=True]
+    G2 guard measures : line 237: len(hits) > 1; line 240: len(hits) != 1
+    G3 same set?      : YES
+    G4 class          : GUARDED
+  VMFL001/R2/grade_vmfl001_r2.py:420  hits  in probe_series
+    G1 deciding set   : postProcessing/*/U/gateProbes   [LEXICAL:sorted(glob.glob), wildcard=True]
+    G2 guard measures : NO len(hits) guard in probe_series after line 420
+    G2 foreign guard  : line 237 len(hits) > 1 -- in find_set_file, over the set bound at line 236 (postProcessing/*/%s_*)
+    G2 foreign guard  : line 240 len(hits) != 1 -- in find_set_file, over the set bound at line 236 (postProcessing/*/%s_*)
+    G3 same set?      : NO
+    G4 class          : UNGUARDED
+  VMFL005/grade_vmfl005.py:152  hits  in find_sfv_file
+    G1 deciding set   : postProcessing/*/surfaceFieldValue.dat   [LEXICAL:sorted(glob.glob), wildcard=True]
+    G2 guard measures : line 153: len(hits) > 1; line 156: len(hits) != 1
+    G3 same set?      : YES
+    G4 class          : GUARDED
+  VMFL019/grade_vmfl019.py:99  hits  in find_probe_file
+    G1 deciding set   : postProcessing/*/U/probesU   [LEXICAL:sorted(glob.glob), wildcard=True]
+    G2 guard measures : line 100: len(hits) != 1
+    G3 same set?      : YES
+    G4 class          : GUARDED
+  VMFL050/grade_vmfl050.py:118  hits  in find_wall_file
+    G1 deciding set   : postProcessing/*/wallT/surfaceFieldValue.dat   [LEXICAL:sorted(glob.glob), wildcard=True]
+    G2 guard measures : line 119: len(hits) != 1
+    G2 foreign guard  : line 127 len(hits) != 1 -- in find_probe_file, over the set bound at line 126 (postProcessing/*/T/probe150)
+    G3 same set?      : YES
+    G4 class          : GUARDED
+  VMFL050/grade_vmfl050.py:126  hits  in find_probe_file
+    G1 deciding set   : postProcessing/*/T/probe150   [LEXICAL:sorted(glob.glob), wildcard=True]
+    G2 guard measures : line 127: len(hits) != 1
+    G2 foreign guard  : line 119 len(hits) != 1 -- in find_wall_file, over the set bound at line 118 (postProcessing/*/wallT/surfaceFieldValue.dat)
+    G3 same set?      : YES
+    G4 class          : GUARDED
+  VMFLGPU001/grade_vmflgpu001.py:249  hits  in find_set_file
+    G1 deciding set   : postProcessing/*/_*.xy/L1_16x64/L2_32x128/L3_64x256   [LEXICAL:sorted(glob.glob), wildcard=True]
+    G2 guard measures : line 250: len(hits) > 1
+    G2 foreign guard  : line 301 len(hits) != 1 -- in gate_values, over the set bound at line 249 (postProcessing/*/_*.xy/L1_16x64/L2_32x128/L3_64x256)
+    G2 foreign guard  : line 377 len(hits) != 1 -- in planted_zero_control, over the set bound at line 249 (postProcessing/*/_*.xy/L1_16x64/L2_32x128/L3_64x256)
+    G2 foreign guard  : line 1495 len(hits) != 1 -- in _plant_negative_arm, over the set bound at line 589 (postProcessing/*/U/gateProbes)
+    G3 same set?      : YES
+    G4 class          : GUARDED
+  VMFLGPU001/grade_vmflgpu001.py:589  hits  in probe_series
+    G1 deciding set   : postProcessing/*/U/gateProbes   [LEXICAL:sorted(glob.glob), wildcard=True]
+    G2 guard measures : NO len(hits) guard in probe_series after line 589
+    G2 foreign guard  : line 250 len(hits) > 1 -- in find_set_file, over the set bound at line 249 (postProcessing/*/_*.xy/L1_16x64/L2_32x128/L3_64x256)
+    G2 foreign guard  : line 301 len(hits) != 1 -- in gate_values, over the set bound at line 249 (postProcessing/*/_*.xy/L1_16x64/L2_32x128/L3_64x256)
+    G2 foreign guard  : line 377 len(hits) != 1 -- in planted_zero_control, over the set bound at line 249 (postProcessing/*/_*.xy/L1_16x64/L2_32x128/L3_64x256)
+    G2 foreign guard  : line 1495 len(hits) != 1 -- in _plant_negative_arm, over the set bound at line 589 (postProcessing/*/U/gateProbes)
+    G3 same set?      : NO
+    G4 class          : UNGUARDED
+  VMFLGPU001-R2/grade_vmflgpu001_r2.py:274  hits  in find_set_file
+    G1 deciding set   : postProcessing/*/_*.xy/L1_16x64/L2_32x128/L3_64x256   [LEXICAL:sorted(glob.glob), wildcard=True]
+    G2 guard measures : line 275: len(hits) > 1
+    G2 foreign guard  : line 326 len(hits) != 1 -- in gate_values, over the set bound at line 274 (postProcessing/*/_*.xy/L1_16x64/L2_32x128/L3_64x256)
+    G2 foreign guard  : line 402 len(hits) != 1 -- in planted_zero_control, over the set bound at line 274 (postProcessing/*/_*.xy/L1_16x64/L2_32x128/L3_64x256)
+    G2 foreign guard  : line 1648 len(hits) != 1 -- in _plant_negative_arm, over the set bound at line 614 (postProcessing/*/U/gateProbes)
+    G3 same set?      : YES
+    G4 class          : GUARDED
+  VMFLGPU001-R2/grade_vmflgpu001_r2.py:614  hits  in probe_series
+    G1 deciding set   : postProcessing/*/U/gateProbes   [LEXICAL:sorted(glob.glob), wildcard=True]
+    G2 guard measures : NO len(hits) guard in probe_series after line 614
+    G2 foreign guard  : line 275 len(hits) > 1 -- in find_set_file, over the set bound at line 274 (postProcessing/*/_*.xy/L1_16x64/L2_32x128/L3_64x256)
+    G2 foreign guard  : line 326 len(hits) != 1 -- in gate_values, over the set bound at line 274 (postProcessing/*/_*.xy/L1_16x64/L2_32x128/L3_64x256)
+    G2 foreign guard  : line 402 len(hits) != 1 -- in planted_zero_control, over the set bound at line 274 (postProcessing/*/_*.xy/L1_16x64/L2_32x128/L3_64x256)
+    G2 foreign guard  : line 1648 len(hits) != 1 -- in _plant_negative_arm, over the set bound at line 614 (postProcessing/*/U/gateProbes)
+    G3 same set?      : NO
+    G4 class          : UNGUARDED
+  VMFLGPU002/grade_vmflgpu002.py:278  hits  in find_fo_file
+    G1 deciding set   : postProcessing/*/surfaceFieldValue.dat   [LEXICAL:sorted(glob.glob), wildcard=True]
+    G2 guard measures : line 279: len(hits) > 1
+    G2 foreign guard  : line 329 len(hits) != 1 -- in flux_at_endtime, over the set bound at line 278 (postProcessing/*/surfaceFieldValue.dat)
+    G2 foreign guard  : line 458 len(hits) != 1 -- in planted_zero_control, over the set bound at line 278 (postProcessing/*/surfaceFieldValue.dat)
+    G2 foreign guard  : line 1654 len(hits) != 1 -- in _plant_negative_arm, over the set bound at line 278 (postProcessing/*/surfaceFieldValue.dat)
+    G3 same set?      : YES
+    G4 class          : GUARDED
+
+Classified 12 of 12 registered sites; UNGUARDED=4 GUARDED=8 REFERENCE=0; missing=0
+CONTROLS: PASS (negative limb proved the GATE FAIL branch reachable in this same run)
+VERDICT: GATE FAIL

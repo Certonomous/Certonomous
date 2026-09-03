@@ -421,3 +421,121 @@ tracked at all is a filing question of its own.
 the run — untracked build artefacts, deleted deliberately against the stale-
 bytecode inversion, and `git status` over both directories is clean of any
 tracked change.
+
+---
+
+# VR3-R2 — **`GATE FAIL`.** FOUR OF THE TWELVE "CARDINALITY-GUARDED SAFE" SITES ARE **NOT SAFE FOR THE REASON CLAIMED** — AND THEY ARE ONE FUNCTION REPLICATED FOUR TIMES
+
+**Registration:** `verification/campaign/VR3R2_PREREGISTRATION.md`, **frozen at `8515ea51`**,
+blob `ff0af23c4630`, **before this run** — the driver's own freeze arm re-derived that blob at
+run time and would have refused otherwise.
+**Driver:** `verification/credibility/vr3r2_guard_set_attribution.py`.
+**Raw record:** `verification/runs/verification/VR3R2_GUARD_SET_ATTRIBUTION/vr3r2_stdout.txt`,
+`RUN_RC.txt` (**rc 1**), `vr3r2_time.txt`.
+
+## 1. THE VERDICT
+
+> **`GATE FAIL`** — 12 of 12 registered sites classified; **UNGUARDED = 4**, GUARDED = 8,
+> REFERENCE = 0, missing = 0. The registered threshold (`§4`) is *"**GATE FAIL** — **any**
+> site resolves **UNGUARDED**"*, and four do.
+
+**Tally re-derived from the per-site rows rather than read off the driver's own summary
+line:** `grep -c` over the record gives **4** `UNGUARDED` and **8** `GUARDED`, agreeing with
+the summary. *A summary line is the thing most likely to be wrong and the least likely to be
+checked.*
+
+## 2. THE CONTROLS FIRED FIRST, AND THE FAILING BRANCH WAS EXECUTED — NOT ASSERTED
+
+All four ran in **this same invocation**, through the **production** `classify_site()` and
+`verdict()` (`§2p.3(d)`), and the driver refuses the whole run if any fails:
+
+| control | required | measured |
+|---|---|---|
+| **NEGATIVE / planted** (rule 3, `§2p.3(e)`) | class `UNGUARDED`, verdict **`GATE FAIL`, rc 1** | **`UNGUARDED`, `GATE FAIL`, rc 1** |
+| **POSITIVE** (`§2p.3(e)`) | class `GUARDED`, verdict `PASS`, rc 0 | **`GUARDED`, `PASS`, rc 0** |
+| **EMPTY-INPUT** (`§2p.2`) | `NOT A RESULT`, rc 2 | **`NOT A RESULT`, rc 2** |
+| **ABSENT-SITE** | `NOT A RESULT`, rc 2, never a skip | **located=False, `NOT A RESULT`, rc 2** |
+
+**This is the whole difference between VR3-R2 and VR3.** VR3's `GATE FAIL` was **unreachable
+in the implementation** — `vr3_guard_set_attribution.py:76-79`, the string `GATE FAIL` absent
+from the file, the `unguarded` list built at `:72` and never read — so its `PASS` **could not
+have come out any other way and therefore carried no information.** Here the failing branch
+was **driven to execution by a planted input before the population was read**, and the
+positive limb proves the instrument has not simply been made to refuse everything.
+
+## 3. THE FOUR — AND THE FINDING IS BETTER THAN "FOUR SITES"
+
+| site | binding | G1 — the deciding set | G4 |
+|---|---|---|---|
+| `VMFL001/grade_vmfl001.py:360` | `hits`, in `probe_series` | `postProcessing/*/U/gateProbes` | **UNGUARDED** |
+| `VMFL001/R2/grade_vmfl001_r2.py:420` | `hits`, in `probe_series` | `postProcessing/*/U/gateProbes` | **UNGUARDED** |
+| `VMFLGPU001/grade_vmflgpu001.py:589` | `hits`, in `probe_series` | `postProcessing/*/U/gateProbes` | **UNGUARDED** |
+| `VMFLGPU001-R2/grade_vmflgpu001_r2.py:614` | `hits`, in `probe_series` | `postProcessing/*/U/gateProbes` | **UNGUARDED** |
+
+> **ALL FOUR ARE THE SAME FUNCTION — `probe_series` — CARRYING THE SAME BINDING OVER THE SAME
+> PATTERN, COPIED INTO FOUR GRADERS. This is ONE defect with four instances, not four
+> defects**, which makes it both easier to repair and easier to have missed: a reviewer who
+> cleared `probe_series` once had no reason to read it again.
+
+Each is a **`LEXICAL` `sorted(glob.glob(...))`** — not the numeric key `grade_vmfl076.py`
+uses — over a pattern whose `*` **is the start-time directory**, and in every case there is
+**no `len(hits)` guard in `probe_series` after the binding.**
+
+**And `VMFL001/grade_vmfl001.py` is the cleanest possible illustration of `DEAD_LEVER_AUDIT`
+§7.4's mechanism.** The module *does* carry cardinality guards — `len(hits) == 1` at `:179`
+and `len(hits) > 1` at `:181` — but both live in **`find_set_file`, a different function, over
+a different set.** *A site carrying prominent, correct-looking cardinality guards is
+nonetheless unguarded on the set that decides the answer.* That is exactly the proposition
+VR3 was registered to test and never tested.
+
+## 4. WHAT THIS DOES AND DOES NOT DO — `§7` OF THE REGISTRATION, HONOURED
+
+- **It widens a CANDIDATE set: 19 → 23.** Four sites previously counted as safe are not safe
+  for the reason claimed.
+- **⚠ IT MOVES NO VERDICT, AND THAT IS NOT A HEDGE — IT IS `DEAD_LEVER_AUDIT` §7.3's STANDING
+  MEASUREMENT.** Every hazard case produced **exactly one** start-time directory, so a
+  one-member ordered set has the same first element under any ordering. **No landed ansys
+  verdict is exposed by this finding**, and nothing here re-grades one.
+- **The exposure is PROSPECTIVE:** these four graders will read the wrong directory the first
+  time a case they grade produces two start-time directories, and **nothing in them will
+  refuse or announce it.**
+- **This team audits the RESULT, not the work.** The repair is ansys-verification's, is barred
+  in frozen comparators post-compute (rule 2), and belongs in successors and unfrozen
+  graders. The lab's reference ordering key is already named — `float(name)` plus numeric
+  sort, arrived at independently twice (`§7.4`, `§6.6`).
+
+## 5. THE POPULATION IS A RECONSTRUCTION, AND SAYING SO IS PART OF THE VERDICT
+
+Ansys's *"12 cardinality-guarded SAFE"* is a **bare count** at `docs/LAB_STATE.md@c7176346`
+with **no enumeration anywhere in the repository**; `DEAD_LEVER_AUDIT.md:1508` states the
+classification basis **conditionally**, so the basis was itself inferred. The registered
+predicate is **validated against the one enumerated half that does exist** — it reproduces
+ansys's **19 hazard sites 19/19 by file and line**, zero missed, zero extra — and the site set
+is **identical at `c7176346` and at HEAD** while the trees genuinely differ.
+
+**The residual disagreement is disclosed and NOT reconciled:** the predicate returns **14** on
+the guarded half where ansys counted **12**, and **`N = 12` after excluding the two
+`grade_vmfl076.py` sites** (`VMFL076/` and `VMFL076-R2/`, each one site at `:677`).
+**Reproducing a reconstruction does not convert it into a measurement**, and this verdict is
+`GATE FAIL` **over the registered reconstruction**, not over a list ansys ever wrote down.
+
+**A correction to VR3's own arithmetic, carried here rather than buried:** VR3 registered
+*"the 11 sites"*, assuming **one** removal for `grade_vmfl076`. **There are two such files.**
+The number 11 has no support; it is 12.
+
+## 6. RULE 12 CALIBRATION — PREDICTED VERSUS ACTUAL
+
+| | registered | actual | ratio |
+|---|---|---|---|
+| graded run | **0.002 core-min** (point) | **0.004167 core-min** (0.25 s wall × 1 rank ÷ 60) | **2.08×** |
+| cap | 0.05 core-min | — | **8.3 % of cap; no overrun** |
+
+**Attribution: MISPREDICTION, not contention and not waste.** The point estimate was grounded
+on the **control invocation alone** (0.03 s) and omitted the cost of parsing **twelve real
+graders**, several of them over 1,600 lines. **No waste is claimed and none is hidden.**
+Zero solver compute. **≈ $3.6×10⁻⁶, DERIVED at $0.0513/core-h and not measured** — the box
+cannot read its own billing (`COMPUTE_BUDGET_CHARTER` §5).
+
+*The estimate was wrong by 2×, and that is the calibration dataset working exactly as Sanaa's
+launch rule intends: an estimate is a prediction, and this one is now on the record as having
+been capable of being wrong.*
