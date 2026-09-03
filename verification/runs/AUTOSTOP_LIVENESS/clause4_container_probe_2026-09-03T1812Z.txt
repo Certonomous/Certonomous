@@ -1,0 +1,26 @@
+CLAUSE-(4) DIRECT PROBE against the REAL dafoam container -- read-only docker, no sudo
+utc=2026-09-03T18:11:06Z
+docker ps -q rc=0  containers='04408abccdf1'
+  container 04408abccdf1  name=/d12y_w3_S3b_c0_am_20260903T172242Z_179692 started=2026-09-03T18:00:11.482476215Z User=0:0
+  docker top raw: PID|336899|337273|
+  clause-(4) awk parse -> host pids: '336899
+337273'
+    /proc/336899 exists on HOST? YES  exe=
+    cpu_ticks 3s: 60 -> 60  delta=0  threshold>20 -> does not fire
+    /proc/337273 exists on HOST? YES  exe=
+    cpu_ticks 3s: 34805 -> 35103  delta=298  threshold>20 -> FIRES: clause (4) keeps the box ALIVE
+
+=== does the OLD (installed) script contain any reader that could see this container or a run-tree write? ===
+  old  auto-stop.sh   'docker': 0 occurrence(s)
+  old  auto-stop.sh   'RUNROOTS': 0 occurrence(s)
+  old  auto-stop.sh   'certonomous-runs': 0 occurrence(s)
+  old  auto-stop.sh   'STATUS.queue': 0 occurrence(s)
+  old  auto-stop.sh   'newer': 2 occurrence(s)
+  old  auto-stop.sh   'QUEUE_ROOT': 0 occurrence(s)
+  patched            'docker': 32 occurrence(s)
+  patched            'RUNROOTS': 4 occurrence(s)
+  patched            'certonomous-runs': 8 occurrence(s)
+  patched            'STATUS.queue': 7 occurrence(s)
+  patched            'QUEUE_ROOT': 4 occurrence(s)
+
+=== newest mtime under the real run root right now (clause (6) subject) ===

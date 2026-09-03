@@ -1,0 +1,104 @@
+ISOLATED RUN of scripts/test_auto_stop_liveness.py
+utc_start=2026-09-03T18:20:11Z  uid=1000  NO sudo
+--script = verification/runs/AUTOSTOP_LIVENESS/isolation/auto_stop_patched.SOLVERS_EMPTIED.NOT_FOR_INSTALL.sh
+  (byte-identical to scripts/auto_stop_patched.sh except the SOLVERS line -- see isolation_variants_diff.txt)
+EXPECTED-INVALID under this isolation, declared BEFORE the run:
+  F1 (clause (1) ALIVE half) must REFUSE  -- SOLVERS is empty, so the planted solver binary cannot match.
+  Z1 (discrimination) must REFUSE         -- Z1 hardcodes /usr/local/bin/auto-stop.sh, which still has a
+                                             populated SOLVERS and so sees the box's real live solvers.
+  Neither is a defect in the patch. Both are witnessed separately below/alongside.
+======================================================================
+planted-control test of /home/ubuntu/Certonomous/verification/runs/AUTOSTOP_LIVENESS/isolation/auto_stop_patched.SOLVERS_EMPTIED.NOT_FOR_INSTALL.sh
+  IDLE_MINUTES=30  RUN_FRESH_MINUTES=30  marker backdated 35min
+  every path injected under tempfile.mkdtemp(); /home/ubuntu/certonomous-runs and the real verification/queue are NEVER read
+  power commands ('sudo', 'shutdown', 'poweroff', 'halt', 'reboot', 'systemctl') shimmed to tripwires on PATH; AUTO_STOP_DRY_RUN=1 exported
+
+  [ok     ] A1  clause(6) run tree written now          expected ALIVE got ALIVE
+            plant: fresh write sweep.log at t-0 under injected RUNROOTS
+            script said: ALIVE: run tree written within 30min (/tmp/autostop_control_6fiqa509/runroot/CASE1/out/sweep.log)
+  [ok     ] A0  clause(6) run tree stale                expected IDLE  got IDLE
+            plant: run root holds only sweep.log, aged 50min
+            script said: idle 35min, shutting down
+  [ok     ] A2  clause(6) scan cannot read the tree     expected ALIVE got ALIVE
+            plant: unreadable dir in run root -> find errors -> backstop BLIND
+            script said: ALIVE: INDETERMINATE: run-tree scan of '/tmp/autostop_control_f83ls0xy/runroot' errored, the backstop is BLIND so it must not report idle: find: ‘/tmp/autostop_control_f83ls0xy/runroot/locked’: Permission denied
+  [ok     ] B1  clause(5a) chain driver, cwd in root    expected ALIVE got ALIVE
+            plant: driver-shaped bash, cwd IN run root, stale tree
+            script said: ALIVE: queue-launched chain driver pid 369448 alive (cwd /tmp/autostop_control_jlv0bqf3/runroot/CASE1)
+  [ok     ] B0  clause(5a) same driver, cwd outside     expected IDLE  got IDLE
+            plant: IDENTICAL driver argv, cwd OUTSIDE repo and run roots
+            script said: idle 35min, shutting down
+  [ok     ] C1  clause(5b) unstamped record, sid live   expected ALIVE got ALIVE
+            plant: unstamped launched record, sid 370979 LIVE
+            script said: ALIVE: queue record still in flight and its session is alive (sid 370979, /tmp/autostop_control_ou22a6ad/repo/verification/queue/cfd/launched/PLANTED_CASE.json)
+  [ok     ] C0  clause(5b) unstamped record, sid dead   expected IDLE  got IDLE
+            plant: unstamped launched record, sid 4194301 DEAD -- the five real stale rows on this box, incl. A1WR_chain.json
+            script said: idle 35min, shutting down
+  [ok     ] C0b clause(5b) stamped record, sid live     expected IDLE  got IDLE
+            plant: STAMPED record (daemon saw completion), sid 372525 live
+            script said: idle 35min, shutting down
+  [ok     ] D1  clause(4) container burning CPU         expected ALIVE got ALIVE
+            plant: container stub reports CPU-burning host pid 373306
+            script said: ALIVE: container process pid 373306 busy (297 CPU ticks in 3s)
+  [ok     ] D0  clause(4) container present but idle    expected IDLE  got IDLE
+            plant: container stub reports IDLE host pid 374091
+            script said: idle 35min, shutting down
+  [ok     ] D2  clause(4) docker daemon down            expected ALIVE got ALIVE
+            plant: docker installed, daemon DOWN (ps rc=1) -> INDETERMINATE
+            script said: ALIVE: INDETERMINATE: '/tmp/autostop_control_4ypdoslp/docker_stub_daemondown ps' failed (rc=1) -- docker is installed but unreadable, so a containerized solve CANNOT be ruled out; holding the box (set DOCKER_BLIND_ALIVE=0 to restore fall-through)
+  [ok     ] D3  clause(4) docker permission denied      expected ALIVE got ALIVE
+            plant: docker installed, PERMISSION DENIED -> INDETERMINATE
+            script said: ALIVE: INDETERMINATE: '/tmp/autostop_control__2vx_rd_/docker_stub_perm ps' failed (rc=1) -- docker is installed but unreadable, so a containerized solve CANNOT be ruled out; holding the box (set DOCKER_BLIND_ALIVE=0 to restore fall-through)
+  [ok     ] D3b clause(4) same, DOCKER_BLIND_ALIVE=0    expected IDLE  got IDLE
+            plant: SAME blind docker, DOCKER_BLIND_ALIVE=0 -> the switch works
+            script said: idle 35min, shutting down
+  [ok     ] D4  clause(4) 'docker top' unreadable       expected ALIVE got ALIVE
+            plant: container UP but 'docker top' unreadable -> cannot judge
+            script said: ALIVE: container(s) up but 'docker top' unreadable ( planted_container_cid) -- cannot judge, treating as work
+  [ok     ] D5  clause(4) no docker executable at all   expected IDLE  got IDLE
+            plant: NO docker executable -> determinate, not indeterminate
+            script said: idle 35min, shutting down
+  [ok     ] E1  clause(0) hold file fresh    [ORIG]     expected ALIVE got ALIVE
+            plant: clause (0) hold file, fresh
+            script said: ALIVE: hold file set 0h ago
+  [ok     ] E0  clause(0) hold file expired  [ORIG]     expected IDLE  got IDLE
+            plant: clause (0) hold file aged 25h -> EXPIRED, must not pin
+            script said: idle 35min, shutting down
+  [REFUSED] F1  clause(1) solver by exe name [ORIG]     expected ALIVE got IDLE
+            plant: clause (1) real binary named simpleFoam
+            script said: idle 35min, shutting down
+  [ok     ] F0  clause(1) same binary, other name       expected IDLE  got IDLE
+            plant: clause (1) IDENTICAL binary, non-solver basename
+            script said: idle 35min, shutting down
+  [ok     ] G1  clause(2) repo worker busy   [ORIG]     expected ALIVE got ALIVE
+            plant: clause (2) python3 burning CPU with cwd in REPO
+            script said: ALIVE: worker pid 380870 busy in repo (299 CPU ticks in 3s)
+  [ok     ] G0  clause(2) repo worker parked            expected IDLE  got IDLE
+            plant: clause (2) python3 in REPO but PARKED -> must not pin
+            script said: idle 35min, shutting down
+  [ok     ] H1  clause(3) transcript fresh   [ORIG]     expected ALIVE got ALIVE
+            plant: clause (3) transcript written at t-0
+            script said: ALIVE: Claude session transcript written within 30min (/tmp/autostop_control_n0jce0t_/sessions/projects/-home-ubuntu-Certonomous/live.jsonl)
+  [ok     ] H0  clause(3) transcript stale              expected IDLE  got IDLE
+            plant: clause (3) transcript aged 50min
+            script said: idle 35min, shutting down
+  [REFUSED] Z1  INSTALLED script, A1's plant [DISCRIM]  expected IDLE  got ALIVE
+            plant: control A1's EXACT plant, run through the INSTALLED script
+            script said: ALIVE: solver or mesher running (buoyantBoussinesqSimpleFoam, pid 342276)
+
+  FLIP CHECK -- a busy control that does not flip the answer is not a control
+    [ok     ] A1 vs A0    clause (6) run-tree freshness: ALIVE vs IDLE
+    [ok     ] B1 vs B0    clause (5a) driver cwd test: ALIVE vs IDLE
+    [ok     ] C1 vs C0    clause (5b) session liveness: ALIVE vs IDLE
+    [ok     ] C1 vs C0b   clause (5b) daemon's status_seen_utc stamp: ALIVE vs IDLE
+    [ok     ] D1 vs D0    clause (4) container CPU test: ALIVE vs IDLE
+    [ok     ] D2 vs D3b   clause (4) INDETERMINATE-therefore-ALIVE: ALIVE vs IDLE
+    [REFUSED] F1 vs F0    clause (1) solver basename match: IDLE vs IDLE
+    [ok     ] G1 vs G0    clause (2) repo worker CPU test: ALIVE vs IDLE
+    [ok     ] H1 vs H0    clause (3) transcript freshness: ALIVE vs IDLE
+    [REFUSED] A1 vs Z1    the patch sees what the INSTALLED script does not: ALIVE vs ALIVE
+
+  controls: 22 passed, 2 failed, 0 skipped
+
+REFUSED: 2 control(s) off their pre-registered verdict; 2 pair(s) did not flip: F1/F0, A1/Z1
+SUITE EXIT CODE: 1

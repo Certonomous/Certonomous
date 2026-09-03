@@ -1,0 +1,101 @@
+HOST RUN of scripts/test_auto_stop_liveness.py against scripts/auto_stop_patched.sh
+utc_start=2026-09-03T18:14:36Z  invoked as uid 1000, NO sudo
+target md5: b2af2e5a6d4f05003cc0b106a3b90d54  scripts/auto_stop_patched.sh
+test   md5: 25ce6b5b16dcd0d4a56d2827533dfe8a  scripts/test_auto_stop_liveness.py
+box state: ansys rhoSimpleFoam 296348 live; 8x T-family buoyantBoussinesqSimpleFoam live; dafoam container churning
+======================================================================
+planted-control test of /home/ubuntu/Certonomous/scripts/auto_stop_patched.sh
+  IDLE_MINUTES=30  RUN_FRESH_MINUTES=30  marker backdated 35min
+  every path injected under tempfile.mkdtemp(); /home/ubuntu/certonomous-runs and the real verification/queue are NEVER read
+  power commands ('sudo', 'shutdown', 'poweroff', 'halt', 'reboot', 'systemctl') shimmed to tripwires on PATH; AUTO_STOP_DRY_RUN=1 exported
+  CONTAMINATION: pid 342276 is buoyantBoussinesqSimpleFoam -- IDLE-half controls will SKIP
+
+  [ok     ] A1  clause(6) run tree written now          expected ALIVE got ALIVE
+            plant: fresh write sweep.log at t-0 under injected RUNROOTS
+            script said: ALIVE: solver or mesher running (buoyantBoussinesqSimpleFoam, pid 342276)
+  [SKIP   ] A0  clause(6) run tree stale                expected IDLE  got SKIP
+            plant: a real solver is running on this box (pid 342276 is buoyantBoussinesqSimpleFoam); clause (1) reads the real /proc and cannot be sandboxed, so an IDLE-half control here would be measuring the box, not the patch
+  [ok     ] A2  clause(6) scan cannot read the tree     expected ALIVE got ALIVE
+            plant: unreadable dir in run root -> find errors -> backstop BLIND
+            script said: ALIVE: solver or mesher running (buoyantBoussinesqSimpleFoam, pid 342276)
+  [ok     ] B1  clause(5a) chain driver, cwd in root    expected ALIVE got ALIVE
+            plant: driver-shaped bash, cwd IN run root, stale tree
+            script said: ALIVE: solver or mesher running (buoyantBoussinesqSimpleFoam, pid 342276)
+  [SKIP   ] B0  clause(5a) same driver, cwd outside     expected IDLE  got SKIP
+            plant: a real solver is running on this box (pid 342276 is buoyantBoussinesqSimpleFoam); clause (1) reads the real /proc and cannot be sandboxed, so an IDLE-half control here would be measuring the box, not the patch
+  [ok     ] C1  clause(5b) unstamped record, sid live   expected ALIVE got ALIVE
+            plant: unstamped launched record, sid 355418 LIVE
+            script said: ALIVE: solver or mesher running (buoyantBoussinesqSimpleFoam, pid 342276)
+  [SKIP   ] C0  clause(5b) unstamped record, sid dead   expected IDLE  got SKIP
+            plant: a real solver is running on this box (pid 342276 is buoyantBoussinesqSimpleFoam); clause (1) reads the real /proc and cannot be sandboxed, so an IDLE-half control here would be measuring the box, not the patch
+  [SKIP   ] C0b clause(5b) stamped record, sid live     expected IDLE  got SKIP
+            plant: a real solver is running on this box (pid 342276 is buoyantBoussinesqSimpleFoam); clause (1) reads the real /proc and cannot be sandboxed, so an IDLE-half control here would be measuring the box, not the patch
+  [ok     ] D1  clause(4) container burning CPU         expected ALIVE got ALIVE
+            plant: container stub reports CPU-burning host pid 355857
+            script said: ALIVE: solver or mesher running (buoyantBoussinesqSimpleFoam, pid 342276)
+  [SKIP   ] D0  clause(4) container present but idle    expected IDLE  got SKIP
+            plant: a real solver is running on this box (pid 342276 is buoyantBoussinesqSimpleFoam); clause (1) reads the real /proc and cannot be sandboxed, so an IDLE-half control here would be measuring the box, not the patch
+  [ok     ] D2  clause(4) docker daemon down            expected ALIVE got ALIVE
+            plant: docker installed, daemon DOWN (ps rc=1) -> INDETERMINATE
+            script said: ALIVE: solver or mesher running (buoyantBoussinesqSimpleFoam, pid 342276)
+  [ok     ] D3  clause(4) docker permission denied      expected ALIVE got ALIVE
+            plant: docker installed, PERMISSION DENIED -> INDETERMINATE
+            script said: ALIVE: solver or mesher running (buoyantBoussinesqSimpleFoam, pid 342276)
+  [SKIP   ] D3b clause(4) same, DOCKER_BLIND_ALIVE=0    expected IDLE  got SKIP
+            plant: a real solver is running on this box (pid 342276 is buoyantBoussinesqSimpleFoam); clause (1) reads the real /proc and cannot be sandboxed, so an IDLE-half control here would be measuring the box, not the patch
+  [ok     ] D4  clause(4) 'docker top' unreadable       expected ALIVE got ALIVE
+            plant: container UP but 'docker top' unreadable -> cannot judge
+            script said: ALIVE: solver or mesher running (buoyantBoussinesqSimpleFoam, pid 342276)
+  [SKIP   ] D5  clause(4) no docker executable at all   expected IDLE  got SKIP
+            plant: a real solver is running on this box (pid 342276 is buoyantBoussinesqSimpleFoam); clause (1) reads the real /proc and cannot be sandboxed, so an IDLE-half control here would be measuring the box, not the patch
+  [ok     ] E1  clause(0) hold file fresh    [ORIG]     expected ALIVE got ALIVE
+            plant: clause (0) hold file, fresh
+            script said: ALIVE: hold file set 0h ago
+  [SKIP   ] E0  clause(0) hold file expired  [ORIG]     expected IDLE  got SKIP
+            plant: a real solver is running on this box (pid 342276 is buoyantBoussinesqSimpleFoam); clause (1) reads the real /proc and cannot be sandboxed, so an IDLE-half control here would be measuring the box, not the patch
+  [ok     ] F1  clause(1) solver by exe name [ORIG]     expected ALIVE got ALIVE
+            plant: clause (1) real binary named simpleFoam
+            script said: ALIVE: solver or mesher running (buoyantBoussinesqSimpleFoam, pid 342276)
+  [SKIP   ] F0  clause(1) same binary, other name       expected IDLE  got SKIP
+            plant: a real solver is running on this box (pid 342276 is buoyantBoussinesqSimpleFoam); clause (1) reads the real /proc and cannot be sandboxed, so an IDLE-half control here would be measuring the box, not the patch
+  [ok     ] G1  clause(2) repo worker busy   [ORIG]     expected ALIVE got ALIVE
+            plant: clause (2) python3 burning CPU with cwd in REPO
+            script said: ALIVE: solver or mesher running (buoyantBoussinesqSimpleFoam, pid 342276)
+  [SKIP   ] G0  clause(2) repo worker parked            expected IDLE  got SKIP
+            plant: a real solver is running on this box (pid 342276 is buoyantBoussinesqSimpleFoam); clause (1) reads the real /proc and cannot be sandboxed, so an IDLE-half control here would be measuring the box, not the patch
+  [ok     ] H1  clause(3) transcript fresh   [ORIG]     expected ALIVE got ALIVE
+            plant: clause (3) transcript written at t-0
+            script said: ALIVE: solver or mesher running (buoyantBoussinesqSimpleFoam, pid 342276)
+  [SKIP   ] H0  clause(3) transcript stale              expected IDLE  got SKIP
+            plant: a real solver is running on this box (pid 342276 is buoyantBoussinesqSimpleFoam); clause (1) reads the real /proc and cannot be sandboxed, so an IDLE-half control here would be measuring the box, not the patch
+  [SKIP   ] Z1  INSTALLED script, A1's plant [DISCRIM]  expected IDLE  got SKIP
+            plant: a real solver is running on this box (pid 342276 is buoyantBoussinesqSimpleFoam); clause (1) reads the real /proc and cannot be sandboxed, so an IDLE-half control here would be measuring the box, not the patch
+
+  FLIP CHECK -- a busy control that does not flip the answer is not a control
+    [SKIP   ] A1 vs A0    clause (6) run-tree freshness  (a half was skipped)
+    [SKIP   ] B1 vs B0    clause (5a) driver cwd test  (a half was skipped)
+    [SKIP   ] C1 vs C0    clause (5b) session liveness  (a half was skipped)
+    [SKIP   ] C1 vs C0b   clause (5b) daemon's status_seen_utc stamp  (a half was skipped)
+    [SKIP   ] D1 vs D0    clause (4) container CPU test  (a half was skipped)
+    [SKIP   ] D2 vs D3b   clause (4) INDETERMINATE-therefore-ALIVE  (a half was skipped)
+    [SKIP   ] F1 vs F0    clause (1) solver basename match  (a half was skipped)
+    [SKIP   ] G1 vs G0    clause (2) repo worker CPU test  (a half was skipped)
+    [SKIP   ] H1 vs H0    clause (3) transcript freshness  (a half was skipped)
+    [SKIP   ] A1 vs Z1    the patch sees what the INSTALLED script does not  (a half was skipped)
+
+  controls: 12 passed, 0 failed, 12 skipped
+    SKIPPED A0: a real solver is running on this box (pid 342276 is buoyantBoussinesqSimpleFoam); clause (1) reads the real /proc and cannot be sandboxed, so an IDLE-half control here would be measuring the box, not the patch
+    SKIPPED B0: a real solver is running on this box (pid 342276 is buoyantBoussinesqSimpleFoam); clause (1) reads the real /proc and cannot be sandboxed, so an IDLE-half control here would be measuring the box, not the patch
+    SKIPPED C0: a real solver is running on this box (pid 342276 is buoyantBoussinesqSimpleFoam); clause (1) reads the real /proc and cannot be sandboxed, so an IDLE-half control here would be measuring the box, not the patch
+    SKIPPED C0b: a real solver is running on this box (pid 342276 is buoyantBoussinesqSimpleFoam); clause (1) reads the real /proc and cannot be sandboxed, so an IDLE-half control here would be measuring the box, not the patch
+    SKIPPED D0: a real solver is running on this box (pid 342276 is buoyantBoussinesqSimpleFoam); clause (1) reads the real /proc and cannot be sandboxed, so an IDLE-half control here would be measuring the box, not the patch
+    SKIPPED D3b: a real solver is running on this box (pid 342276 is buoyantBoussinesqSimpleFoam); clause (1) reads the real /proc and cannot be sandboxed, so an IDLE-half control here would be measuring the box, not the patch
+    SKIPPED D5: a real solver is running on this box (pid 342276 is buoyantBoussinesqSimpleFoam); clause (1) reads the real /proc and cannot be sandboxed, so an IDLE-half control here would be measuring the box, not the patch
+    SKIPPED E0: a real solver is running on this box (pid 342276 is buoyantBoussinesqSimpleFoam); clause (1) reads the real /proc and cannot be sandboxed, so an IDLE-half control here would be measuring the box, not the patch
+    SKIPPED F0: a real solver is running on this box (pid 342276 is buoyantBoussinesqSimpleFoam); clause (1) reads the real /proc and cannot be sandboxed, so an IDLE-half control here would be measuring the box, not the patch
+    SKIPPED G0: a real solver is running on this box (pid 342276 is buoyantBoussinesqSimpleFoam); clause (1) reads the real /proc and cannot be sandboxed, so an IDLE-half control here would be measuring the box, not the patch
+    SKIPPED H0: a real solver is running on this box (pid 342276 is buoyantBoussinesqSimpleFoam); clause (1) reads the real /proc and cannot be sandboxed, so an IDLE-half control here would be measuring the box, not the patch
+    SKIPPED Z1: a real solver is running on this box (pid 342276 is buoyantBoussinesqSimpleFoam); clause (1) reads the real /proc and cannot be sandboxed, so an IDLE-half control here would be measuring the box, not the patch
+
+All 12 controls behaved as pre-registered and every evaluated pair flipped. The reader was shown able to see both a non-zero and a zero.
+SUITE EXIT CODE: 0

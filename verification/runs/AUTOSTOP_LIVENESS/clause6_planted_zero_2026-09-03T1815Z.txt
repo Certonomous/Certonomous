@@ -1,0 +1,19 @@
+CLAUSE-(6) ZERO, PLANTED-CONTROLLED (corrected) -- utc=2026-09-03T18:14:09Z
+FINDING: 'find' on this shell's PATH is find = bfs 4.1.1.
+  bfs REJECTS relative -newermt. My first attempt at this zero used it with 2>/dev/null and read EMPTY.
+  That empty was a swallowed parse error, not an absence. Rule 3 caught it. Using /usr/bin/find + a
+  reference file below -- which is exactly the construction clause (6) of the patch already uses.
+  /usr/bin/find = find (GNU findutils) 4.9.0
+
+-- THE ZERO UNDER TEST: any file under /home/ubuntu/certonomous-runs newer than 30min --
+  result: '/home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3-cylinder-unsteady/S3b_c0_ap_20260903T172242Z_179692.log.ok.20260903T172242Z_179692'   (find rc=0; 124 would mean timeout, i.e. NOT a measured zero)
+
+-- PLANTED POSITIVE CONTROL: same reader, same construction, on a tree with a file touched NOW --
+  reader sees plant: '/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/autostop/plantroot/sub/PLANTED_CONTROL_1234.log'
+  reader on a tree whose only file is aged 90min: 
+    ''  (empty = correct absence)
+  => the reader is shown able to report BOTH a presence and an absence.
+
+-- where the live dafoam container writes --
+
+error: no such object: 04408abccdf1

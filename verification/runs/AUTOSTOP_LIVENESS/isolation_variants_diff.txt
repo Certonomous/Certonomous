@@ -1,0 +1,24 @@
+ISOLATION VARIANTS -- utc=2026-09-03T18:19:58Z
+WHY: clause (1) scans the REAL /proc and cannot be sandboxed. Three foreign teams have live
+     OpenFOAM solvers on this box right now, so clause (1) fires first and holds every
+     IDLE-half control ALIVE -- which is why the suite SKIPPED all 12 of them on the host.
+     These variants empty SOLVERS and change NOTHING else, so the remaining clauses can be
+     witnessed in BOTH directions. They are evidence artifacts. THEY ARE NOT INSTALLABLE.
+     Clause (1)'s own negative control (F0) is INVALID under this isolation and stays unwitnessed.
+
+--- diff /home/ubuntu/Certonomous/scripts/auto_stop_patched.sh  vs  /home/ubuntu/Certonomous/verification/runs/AUTOSTOP_LIVENESS/isolation/auto_stop_patched.SOLVERS_EMPTIED.NOT_FOR_INSTALL.sh ---
+327c327
+< SOLVERS='simpleFoam pimpleFoam rhoSimpleFoam rhoCentralFoam interFoam potentialFoam pisoFoam blockMesh snappyHexMesh checkMesh vspaero vspaero_opt buoyantSimpleFoam buoyantPimpleFoam buoyantBoussinesqSimpleFoam buoyantBoussinesqPimpleFoam chtMultiRegionFoam chtMultiRegionSimpleFoam decomposePar reconstructPar DASimpleFoam DAPimpleFoam'
+---
+> SOLVERS=''   # ISOLATION VARIANT -- NOT FOR INSTALL
+    diff lines: 2  (must be exactly 2: one SOLVERS line out, one in)
+    src md5=b2af2e5a6d4f05003cc0b106a3b90d54  variant md5=306629f38698afc4cda5b82fbf575fe4
+
+--- diff /home/ubuntu/Certonomous/scripts/auto-stop.sh  vs  /home/ubuntu/Certonomous/verification/runs/AUTOSTOP_LIVENESS/isolation/auto_stop_old.SOLVERS_EMPTIED.NOT_FOR_INSTALL.sh ---
+98c98
+< SOLVERS='simpleFoam pimpleFoam rhoSimpleFoam rhoCentralFoam interFoam potentialFoam pisoFoam blockMesh snappyHexMesh checkMesh vspaero vspaero_opt buoyantSimpleFoam buoyantPimpleFoam buoyantBoussinesqSimpleFoam buoyantBoussinesqPimpleFoam chtMultiRegionFoam chtMultiRegionSimpleFoam decomposePar reconstructPar DASimpleFoam DAPimpleFoam'
+---
+> SOLVERS=''   # ISOLATION VARIANT -- NOT FOR INSTALL
+    diff lines: 2  (must be exactly 2: one SOLVERS line out, one in)
+    src md5=7c958c0acceabf988052d6b639023bbc  variant md5=f078af3908c46e50a467f5248d910cd6
+

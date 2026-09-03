@@ -1,0 +1,27 @@
+AUTOSTOP DECISION PROBE -- real box state, DRY_RUN, no sudo, ubuntu uid 1000
+utc=2026-09-03T18:10:45Z
+live: rhoSimpleFoam 296348 (ansys VMFL046_INVISCID/L3); 8x buoyantBoussinesqSimpleFoam 342276-83 (T-family T3_runs/R_fx); docker 04408abccdf1 d12y_w3 (dafoam)
+marker: scratch file backdated 35min so idle=35 >= IDLE_MINUTES=30 forces the decision; the REAL root-owned /tmp/last_job_activity is NEVER written
+
+### PATCHED / real sessions  script=/home/ubuntu/Certonomous/scripts/auto_stop_patched.sh  SESSIONS=/home/ubuntu/.claude*/projects/-home-ubuntu-Certonomous
+ALIVE: solver or mesher running (rhoSimpleFoam, pid 296348)
+  wall_s=0.34
+  rc=0
+
+### OLD     / real sessions  script=/home/ubuntu/Certonomous/scripts/auto-stop.sh  SESSIONS=/home/ubuntu/.claude*/projects/-home-ubuntu-Certonomous
+ALIVE: solver or mesher running (rhoSimpleFoam, pid 296348)
+  wall_s=0.29
+  rc=0
+
+### PATCHED / control room CLOSED (fatal-night clause-3 state)  script=/home/ubuntu/Certonomous/scripts/auto_stop_patched.sh  SESSIONS=/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/autostop/nosessions
+ALIVE: solver or mesher running (rhoSimpleFoam, pid 296348)
+  wall_s=0.29
+  rc=0
+
+### OLD     / control room CLOSED (fatal-night clause-3 state)  script=/home/ubuntu/Certonomous/scripts/auto-stop.sh  SESSIONS=/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/autostop/nosessions
+ALIVE: solver or mesher running (rhoSimpleFoam, pid 296348)
+  wall_s=0.30
+  rc=0
+
+TRIPWIRE file present? NO -- no power command was invoked
+real marker after all runs: root 2026-09-03 18:10:01.444532148 +0000

@@ -1,0 +1,25 @@
+DISCRIMINATION WITNESS -- utc=2026-09-03T18:21:30Z  uid=1000  NO sudo
+Both scripts carry the SAME one-line isolation (SOLVERS=''), so the only thing that
+differs between the two columns is the clauses the patch adds.
+
+=== SCENARIO 1: a run tree written NOW, nothing else alive ===================
+    (the measured 02:25:05Z state: newest mtime under the run root was 7s old)
+--- PATCHED ---
+VERDICT=ALIVE
+SAID: ALIVE: run tree written within 30min (/tmp/autostop_witness_e5NbEP/runroot/CASE1/out/sweep.log)|
+TRIPWIRE: none
+--- OLD (byte-identical logic to /usr/local/bin/auto-stop.sh) ---
+VERDICT=IDLE
+SAID: idle 35min, shutting down|DRY_RUN: would run 'sudo shutdown -h now'|
+TRIPWIRE: none
+
+=== SCENARIO 2: a container burning CPU, run tree STALE ======================
+    (the DAFoam sweeps: host-visible container pids, no host solver binary)
+--- PATCHED ---
+VERDICT=ALIVE   (containerized host pid 386042 burning CPU; run tree deliberately STALE at 50min)
+SAID: ALIVE: container process pid 386042 busy (299 CPU ticks in 3s)|
+TRIPWIRE: none
+--- OLD ---
+VERDICT=IDLE   (containerized host pid 386827 burning CPU; run tree deliberately STALE at 50min)
+SAID: idle 35min, shutting down|DRY_RUN: would run 'sudo shutdown -h now'|
+TRIPWIRE: none
