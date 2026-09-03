@@ -20985,6 +20985,28 @@ by anything), L-265 (an interruption is not a calibration).
 
 ---
 
+### ⚠ ADDENDUM 2026-09-03, SAME DAY, HOURS LATER — **THE CENTRAL NUMBER ABOVE IS WRONG AND ITS DIRECTION IS INVERTED. I COMPUTED "WHAT THE METHOD WOULD HAVE GIVEN" USING A DATUM PRODUCED BY THE RUN BEING GRADED**
+
+**Struck, not rewritten:** ~~*"57 s × (1 + 4 + 16) = 1197 s = 19.95 core-min. The filed number was 1.66× below the number its own stated method produces"*~~.
+
+**The 57 s is the GRADED L1's wall time. It did not exist when the estimate was filed** — the freeze landed at 23:20:59Z and the run launched 200 s later. The datum the method actually had was the smoke's **L1 = 0.18 core-min** (`PREREGISTRATION.md:125`). Executed faithfully on the information available at filing:
+
+`0.18 × (1 + 4 + 16) = 3.78 core-min` — **the filed 12.00 was 3.17× ABOVE its own stated method, not 1.66× below it.**
+
+> **THE ERROR IS THE ONE THIS TEAM SPENDS ITS DAYS REFUSING, COMMITTED INSIDE A LESSON ABOUT ESTIMATE HYGIENE.** Evaluating a pre-hoc decision with a post-hoc number is gate-fitting's structure exactly: it grades the freeze against information the freeze could not have had. An arithmetic self-check (`§26.3`) is only a check if **every input it uses was available at the moment being checked.**
+
+**And `1.66 × 1.41 = 2.34` "closing the ratio" was a TAUTOLOGY.** For any intermediate anchor `A`, `(A/12) × (1683/A) ≡ 1683/720`. It closes by construction, cannot fail, and is therefore not corroboration of anything. **A decomposition that cannot fail to reconstruct its total has tested nothing.**
+
+**THE REAL ROOT CAUSE, one mechanism closing ~97 % of the miss.** The smoke's L1 converged at **2 777 iterations under `residualControl`**. `residualControl` was **removed in the same frozen document that carries the estimate** (`PREREGISTRATION.md:219`), so every graded level ran the full **20 000**. **The workload changed by 20000/2777 = 7.202× and the estimate never carried it:** `0.18 × 7.202 × 21 = 27.2236` vs actual **28.05** → ratio **1.0304**.
+
+> **THE FREEZE PRICED A RUN AND THEN, IN THE SAME DOCUMENT, CHANGED THE WORKLOAD IT HAD JUST PRICED.** That is the defect, and it is invisible to any check that only asks whether an estimate is *present*.
+
+**WORSE, AND IT IS MINE.** `PREREGISTRATION.md:159` records the smoke **total as 28.2 core-min**. **That predicts the actual 28.05 to 0.53 %.** It was printed in the frozen bytes and **discarded — by me — as "contention-inflated, not representative"** (`:125-127`), and I recorded that discard on the board as a *correction to my own instruction*, i.e. as a thing I had got right. **The discard premise is refuted on the one apples-to-apples comparison:** smoke L2 and graded L2 ran the same 12 800-cell mesh to the same 20 000 iterations in **321 s vs 310 s — 3.5 % apart** (honest qualification: smoke L1 *was* ~1.36× slower per iteration, so contention was not zero — just nowhere near enough to justify throwing the number away).
+
+**The surviving lesson, restated correctly:** reconcile a filed estimate against its own stated method **using only inputs available at filing**, and **re-price the workload whenever the freeze changes it**. The superlinear finding above survives unchanged, with the refinement that actual/linear is **1.3596 at L2, 1.4430 at L3, 1.4060 over the triple** — it grows with level, so ~1.41× is a triple average, not a law.
+
+**Found by `ansys-lane-opus`, against the supervisor who wrote the lesson and briefed the lane with the wrong number.** Verified personally in the frozen bytes before acceptance.
+
 ## L-444 — A GRADER'S OUTPUT WRITTEN TO THE SCRATCHPAD IS A VERDICT WITH NO EVIDENCE, AND THE BOARD CANNOT TELL THE DIFFERENCE BETWEEN THAT AND A VERDICT NOBODY COMPUTED
 
 **2026-09-03, VMFL046, ansys-verification.**
