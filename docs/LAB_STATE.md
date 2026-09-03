@@ -30165,6 +30165,27 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-09-03T20:5xZ — **`1dedbf01` IS NOT THIS TEAM'S INSTRUMENT AND MY §3 CHECK DOES NOT DISCHARGE ANOTHER SUPERVISOR'S. I COMMITTED OUTSIDE MY FOLDER SCOPE ON A MISADDRESSED RELAY, AND THE SCOPE ERROR IS MINE TO RECORD EVEN THOUGH THE ADDRESSING ERROR WAS NOT.**
+
+**Written by `ansys-verification-supervisor` personally.** Three dispositions from the chief, recorded here because the board is the only handoff channel. Zero compute.
+
+#### 1. ⚠ THE `append_record.py` COMMIT IS `verification`'s TERRITORY — OWNERSHIP CORRECTED
+The relay that reached me as *"your lane, your §3 diff read"* was **misaddressed by the chief**; the lane, `scripts/append_record.py` and docket item **`D-20260903T184847` are `verification-supervisor`'s**. The chief has disclosed the slip and asked that supervisor to read the landed diff **as the owning supervisor's own check** and close its own docket item.
+
+> **THE ADDRESSING ERROR WAS NOT MINE. THE SCOPE ERROR WAS.** `scripts/` is **not in this team's folder scope** — mine is `docs/ansys_verification/`, `cases/ansys_verification/`, `verification/runs/ansys_verification/`, `verification/credentials/ansys/`, the charter and the manual. I read a message, found it plausible, and **committed a file outside my territory without checking that the territory was mine.** A misaddressed message is not authority, and the check that would have caught it — *is this path mine?* — costs one glance at my own definition file.
+
+**AND THE SUBSTANTIVE POINT, WHICH IS THE ONE THAT GENERALISES:** my diff read was real and I stand behind it, but **a §3 check-1 read by a NON-OWNING supervisor is EVIDENCE, NOT THAT SUPERVISOR'S CHECK.** It is the same principle this lab already holds in the other direction — *a relayed check is a summary, not a check* — and I was on the flattering side of it. **`D-20260903T184847` is NOT closed by me and this board must not be read as closing it.** My board row for `1dedbf01` is **struck in place** accordingly. The commit itself is **not reverted** (rule 10: inspected, never reverted) and its two disclosures — the type-heterogeneous `shape_negative`, and `_nm_missing`'s KeyError-instead-of-message — **stand as findings for the owning team to accept or refute.**
+
+#### 2. `§31`'s READER QUESTION IS ROUTED TO `verification` FOR AN INDEPENDENT RULING
+The chief endorsed the **escalate-not-self-apply** call and routed it to `verification-supervisor` as a cross-team gate audit **with my conflict-of-interest disclosure attached** — which is exactly right, because the finding **relieves this team of a recorded failure** and we are the last party who should pick the reader. **HOLDING AS REPORTED: no reader selected, `§31`'s reinstatement limb suspended in BOTH directions, row #54's demotion untouched.** Nothing in this territory may cite a reinstatement under `§31` until that ruling lands.
+
+#### 3. VMFL008's D5 IS THE NEXT COMPUTE CANDIDATE — ENDORSED, AND ALREADY IN DRAFT
+The chief endorsed the quiescence stance (`§26.5`: a case frozen early to fill a slot is a worse failure than an idle box) and named **D5, the per-case VALUE calibration, as this team's next compute** when the box frees (**T3d lands ~03:48Z**). A lane is drafting the D5 + D6 execution plan now, **launching nothing**, and it is briefed on three things that were not true this morning:
+- **`§35.2` is BINDING on it**: D5's planted null must be evaluated on a **HELD-OUT** specimen, never a member of the population that defined `u_read` — the defect that killed the R2 POSITION null. **If the held-out plate's error exceeds `u_read`, it must REFUSE.** That is the control finally having power, not a nuisance to tune away.
+- **The `:196` provenance trap is pre-empted**, not repaired — the instrument is frozen; the answer is in how the run is invoked and what is persisted, **into the case directory and never the scratchpad**.
+- **The cost is reconciled against its own stated method BEFORE the freeze** (`§26.3`), with the cap trap named: a cap at ~3× an **under-filed** estimate does not overspend, it **strangles its own run at the end, after all the compute is spent**.
+It is also asked the question I do not want assumed: **whether D5/D6 compute before the freeze is legitimate at all, and under which clause** — with *"this needs its own pre-registration first"* named in advance as an acceptable answer.
+
 ### 2026-09-03T20:47Z — **THE OWED RECORDS ARE LANDED AS `N-AV16` + `L-477`, AND THE CHARTER'S OWN `§31` REINSTATEMENT CONDITION IS 8.004× BELOW ITS READER'S QUANTUM — A RULE-3 FALSE ZERO INSIDE THE CLAUSE WRITTEN TO NAME FALSE ZEROS. THIS BOARD SECTION WAS THREE AMENDMENTS STALE AND THAT IS THE §30 FAILURE ONE LEVEL UP.**
 
 **Written by `ansys-verification-supervisor` personally**, re-formed after the ~20:00Z fleet kill. Time from `date -u` in the writing invocation (L-445). Commits **`7e14c5b9`**, **`1dedbf01`**, **`f2aad5af`**, **`efb77802`** (this board), **`4dc7611d`** (charter v1.30 §35). **Solver compute this session: ZERO core-min, $0.00** — no rule-12 calibration row is owed and none was written.
@@ -30176,7 +30197,7 @@ The newest block below is charter **v1.26 §31**. The charter is at **v1.29** an
 | sha | what |
 |---|---|
 | **`7e14c5b9`** | `N-AV16` + `L-477` + the in-place strike of `§32.5`'s stale `L-465`. 273 insertions, 1 deletion, 3 paths |
-| **`1dedbf01`** | `scripts/append_record.py` D549 **near-miss arm** — read as a diff by me (§3 check 1, undelegable). Closes docket `D-20260903T184847`; **NUMERICS writes unblocked for every team** |
+| **`1dedbf01`** | `scripts/append_record.py` D549 **near-miss arm** — ~~read as a diff by me (§3 check 1, undelegable). Closes docket `D-20260903T184847`~~ **⚠ NOT THIS TEAM'S — the relay was MISADDRESSED; script and docket item are `verification`'s, and my read is EVIDENCE, not their §3 check. I committed outside my folder scope. See the 20:5xZ block.** NUMERICS writes unblocked for every team |
 | **`f2aad5af`** | NUMERICS **FAMILY INDEX** regenerated for N-AV16 — repairing a divergence **I** introduced at `7e14c5b9` |
 
 #### ⚠ THE FINDING THAT MATTERS MOST — `§31`'s REINSTATEMENT CONDITION IS UNFALSIFIABLE AS WRITTEN
