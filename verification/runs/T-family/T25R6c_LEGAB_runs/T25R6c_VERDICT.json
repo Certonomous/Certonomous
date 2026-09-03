@@ -1,0 +1,46 @@
+{
+  "case": "W440_C4_L1",
+  "cost_basis": "REPORTED-BY-OWNER; dollars DERIVED at $0.0513/core-h, NOT MEASURED -- this box cannot read its own billing (COMPUTE_BUDGET_CHARTER section 5)",
+  "exit": 4,
+  "grader_git_blob": "39726f664685125bb16d89fd1174686b3a1e813f",
+  "grader_sha256": "6463e00bebff3a7bdd8395ee53fd3e2995ce4e05041375416e59c872960c94f8",
+  "ground": "rule 4 incomplete: t=40.8 field dir: 0 found",
+  "legs_are_independent_because": "r(leg A) and r(leg B) are means over DISJOINT delta sets parsed from TWO SEPARATE log files written by TWO SEPARATE mpirun invocations.  Neither is computed from the other and no term appears in both but ranks and 60, which cancel.  WHAT WOULD BREAK IT: (a) a change in the shared box's per-core throughput between the two windows -- rho would absorb contention as if it were the deltaT regime change (loadavg witnessed and reported); (b) leg B's restart coupling to leg A's output, which G-T6c-1 exists to catch; (c) the single shared parser, whose defects cancel in the ratio only if multiplicative and identical across legs -- hence the planted-zero control in BOTH legs.",
+  "planted_zero": {
+    "legA": {
+      "label": "legA",
+      "lines_rewritten": 34,
+      "other_deltas_that_moved": [],
+      "passed": true,
+      "plant_s": 1.23,
+      "plant_step": 7,
+      "read_back_delta_change": 1.2299999999999995,
+      "tolerance_at_plant_step": 2.83e-06,
+      "tolerance_basis": "1e-6 x max(|E[i]|, |E[i-1]|, PLANT_S) -- relative to the operands differenced, never a bare absolute"
+    },
+    "legB": {
+      "label": "legB",
+      "lines_rewritten": 394,
+      "other_deltas_that_moved": [],
+      "passed": true,
+      "plant_s": 1.23,
+      "plant_step": 7,
+      "read_back_delta_change": 1.23,
+      "tolerance_at_plant_step": 2.5699999999999995e-06,
+      "tolerance_basis": "1e-6 x max(|E[i]|, |E[i-1]|, PLANT_S) -- relative to the operands differenced, never a bare absolute"
+    }
+  },
+  "registration": "docs/campaigns/T-family/T25R6c_PREREGISTRATION.md (frozen 5e51676e, amendment v1.1 pins this grader)",
+  "roache": "NOT INVOKED -- no grid family, no functional at convergence, no order and no GCI is computed or derivable (rule 5 does not apply to a wall-cost measurement inside one transient)",
+  "rule4": [
+    "t=40.8 field dir: 0 found"
+  ],
+  "rung": "T25R6c",
+  "verdict": "NOT A RESULT",
+  "what_this_does_not_do": [
+    "IT AUTHORISES NO LADDER LAUNCH.  T25R5 5.1 is carried IN FORCE: no ladder launches on this result, whatever it says.",
+    "IT DOES NOT MEASURE THE SOAK RATE AT STEP 11,800.  It samples t <= 40.8 s of a soak that runs to t = 900 s; the plateau clause is what licenses reading rho beyond the sampled steps, and that is a weaker claim, registered as the weaker claim.",
+    "IT DOES NOT RE-OPEN, WIDEN OR RETIRE THE A1.3 CEILING OF 20,000 CORE-MIN, which is not this team's to move.",
+    "IT CONSUMES NO OUTPUT OF T25R6a.  It reads only ExecutionTime deltas from logs it produced itself -- which matters here, because T25R6a graded NOT A RESULT (its equivalence control fired)."
+  ]
+}
