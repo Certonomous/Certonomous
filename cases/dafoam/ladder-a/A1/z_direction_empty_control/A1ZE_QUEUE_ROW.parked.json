@@ -1,0 +1,73 @@
+{
+  "_PARKED": "NOT FILED. This row is deliberately OUTSIDE verification/queue/. It enters the queue only after dafoam-supervisor's personal SUPERVISION_CHARTER.md section 3 check 4, which is not delegable. No agent may move this file into verification/queue/ on another agent's say-so.",
+  "team": "dafoam",
+  "case_id": "A1ZE_chain",
+  "prereg_commit": "PENDING -- the sha of the freeze commit that lands A1ZE_PREREGISTRATION.md; filled by the supervisor at enqueue and verified by hashing the disk file against that blob",
+  "prereg_path": "cases/dafoam/ladder-a/A1/z_direction_empty_control/A1ZE_PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/z_direction_empty_control/a1ze_chain_driver.sh"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/z_direction_empty_control",
+  "ranks": 1,
+  "cap_core_min_registered": 532.0,
+  "cost_core_min_estimate": 281.15,
+  "cost_basis": "Two MEASURED rate points, each citing an artifact and its exact lines: n=2 -> 1.649566 it/s (/home/ubuntu/certonomous-runs/A1WR/STAGE12/probe_I/out/sweep.log, Time = 1500, ExecutionTime = 909.33 s, probe_I and probe_C the only units alive 18:19:35-18:35:58Z per CHAIN_LEDGER.tsv); n=6 -> 0.561358 it/s (/home/ubuntu/certonomous-runs/A1WR/STAGE12/cold_I_4/out/sweep.log, Time = 1800, ExecutionTime = 3206.51 s, six COLD units alive 18:35:59-19:31:16Z, that arm exited rc=97 at its deadline which is legitimate for a rate and is stated). Power law rate(n) = 1.649566 x (n/2)^(-0.981155), exponent fixed exactly by those two points -- DERIVED, deadline sizing only, never a result. rate(14) band: power law 0.244454, saturating C/n 0.240582, PESSIMISTIC (sizing input) 0.162970 it/s, the 1.5 extrapolation allowance being a stated JUDGEMENT applied to the extrapolated segment only. Coarse arms scaled by the cell ratio 130304/4032 = 32.3175, deliberately the conservative choice. Cap form: effective >= max(3.0 x estimate-at-a-MEASURED-anchor, 1.25 x wall-at-registered-max-occupancy) -- the MAX of two risks, never their product; the MEASURED anchor is the more conservative n=6. The contention leg binds on all four arms. NOT USED, and named so it cannot be reached for by mistake: the draft's 2.36 it/s 3-way figure, which has no artifact anywhere, and the compressible contention factor 3.1198x (L-454 scope error). Dollars predicted $0.2404, ceiling $0.3164 -- DERIVED at the owner-stated c7a.4xlarge $0.0513/core-h, NEVER measured; the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). Rule-12 calibration row OWED to docs/COST_CALIBRATION.md at completion, against the 281.15 registered figure, with contention, waste and misprediction attributed separately and waste never folded into the ratio.",
+  "memory_floor_gb": 3.0,
+  "enqueued_by": "NOBODY YET -- PARKED. Rule-2 check to be discharged by dafoam-supervisor at enqueue: hash the disk blob of A1ZE_PREREGISTRATION.md against the HEAD blob at prereg_commit, and the disk blob of a1ze_grade.py against its pinned md5 9b755c3b1a043879a664853a3d747c53.",
+  "_schema_note": "Fields above are the validator's REQUIRED_FIELDS plus cap_core_min_registered. Fields below are dafoam annotations the validator ignores.",
+  "arms": [
+    {"arm": "Sc", "mesh": "coarse A1", "cells": 4032, "planes": "symmetry (control, mutation of HEAD)", "alpha_deg": 4, "iterations": 2000, "ranks": 1, "cap_core_min": 9.0, "tmo_s": 480, "est_core_min_at_n6_MEASURED": 1.8374},
+    {"arm": "Ec", "mesh": "coarse A1", "cells": 4032, "planes": "empty (treatment, HEAD template unmodified)", "alpha_deg": 4, "iterations": 2000, "ranks": 1, "cap_core_min": 9.0, "tmo_s": 480, "est_core_min_at_n6_MEASURED": 1.8374},
+    {"arm": "S3", "mesh": "A1WR L3", "cells": 130304, "planes": "symmetry (control, mutation of HEAD)", "alpha_deg": 12, "iterations": 2000, "ranks": 1, "cap_core_min": 257.0, "tmo_s": 15360, "est_core_min_at_n6_MEASURED": 59.3798},
+    {"arm": "E3", "mesh": "A1WR L3", "cells": 130304, "planes": "empty (treatment, HEAD template unmodified)", "alpha_deg": 12, "iterations": 2000, "ranks": 1, "cap_core_min": 257.0, "tmo_s": 15360, "est_core_min_at_n6_MEASURED": 59.3798}
+  ],
+  "deadline_identity": "TMO = int(CAP*60/RANKS) - CAP_MARGIN_S, CAP_MARGIN_S = 60, guard TMO > 0. Every arm additionally clears TMO >= 1.5 x its measured-anchor wall: Sc/Ec 480 s vs 165.4 s (4.35x), S3/E3 15360 s vs 5344.2 s (4.31x). Exact back-check (TMO + 60) * ranks / 60 == cap holds on all four. D19T's MESH arm died on exactly this identity at TMO = 0 s and was never runnable; every row here is asserted by execution in the sizing script, not asserted in prose.",
+  "item_ceiling_core_min": 370.0,
+  "fleet_safety_ceiling": "min(3 x registered cap, remaining box budget) per arm, monitor-enforced, graceful stop regardless of residual trend (Sanaa 2026-09-03 ~21:00Z).",
+  "occupancy_gate": "G-OCC QUEUES, NEVER REFUSES (Sanaa ~21:00Z 'queue, don't launch; queueing is not blocking' and ~22:00Z 'box should never be idle'). Queues only while TMO < 1.25 x iterations / rate(n) on the PESSIMISTIC rate. Boundary evaluated: LAUNCH at n = 2, 6, 8, 12, 14; QUEUE at n = 15, 18. Registered maximum occupancy n = 14. Occupancy read at freeze: one dafoam container live (d12y_w3_S3b_c0_am_..., W3_chain_r2 phase 1, np=1), 16 vCPU, 1-min load average 53.72, MemAvailable 26.9 GiB. That chain is not disturbed by this item and is counted in the occupancy leg.",
+  "gates": {
+    "physics_and_ill_posedness_only": "Every gate is a physics or ill-posedness gate, or a cost gate graded after the fact. Nothing here blocks a launch for a non-physics reason (Sanaa ~21:00Z and ~22:00Z).",
+    "G-DIRN.S": "control arms report N = 3 (1 1 1); else item NOT A RESULT (premise does not reproduce)",
+    "G-DIRN.E": "treatment arms report N = 2; else GATE FAIL -- CONDEMNS d3f47bfa50944c466ff0bad019b36a7b048a0fae",
+    "G-U2.S": "control arms print a U2 equation; else item NOT A RESULT",
+    "G-U2.E": "treatment arms print NO U2 equation; else GATE FAIL -- CONDEMNS d3f47bfa50944c466ff0bad019b36a7b048a0fae",
+    "G-EMPTY": "both planes carry the arm's registered type in the built mesh AND in every 0/ field; else arm BLOCKED (and on a treatment arm that condemns d3f47bfa too -- the upstream-deliberate hypothesis confirmed)",
+    "G-TOL": "no tolerance-satisfied line on either arm; justified on EQUAL ITERATION COUNT alone, not on any convergence account",
+    "G-STAT": "last-10 CL/CD relative spread <= 2 x that pair's own drift anchor; else that pair's coefficient comparison is NOT A RESULT",
+    "G-COEF": "L3 pair GATED on its own alpha = 12 anchor CL 4.830552e-04 / CD 1.116421e-04: within -> GATE REACHED; up to 10x -> NOT A RESULT (indeterminate, registered in advance); above 10x -> GATE FAIL CONTAMINATION. Coarse pair REPORTED only -- its anchor (CL 2.300624e-04 / CD 2.276654e-05) is measured on L3 and is a cross-grid proxy.",
+    "G-CAP / G-CEIL / G-NP / G-BUDGET": "cost and placement, graded after the fact; G-CEIL 370.0 core-min checked after every arm",
+    "R-MAXRES": "REPORTED, NEVER GATED -- min-over-iterations of the max over PRINTED channels, both arms",
+    "R-DECL": "REPORTED, NEVER GATED -- count of tolerance-satisfied declarations; registered expectation is 0 on both arms",
+    "NO_CONVERGENCE_GATE": "Deliberately absent. U2 is measured OUT of the quantity the solver declares on (D19T T10 declared 22x at ~9.04e-11 while U2's best over the whole run was 1.716383e-10), and all 14 A1WR sweep_I alpha points miss 1e-8 with U2 excluded. A gate on 'removing U2 restores convergence' would be unreachable by construction and would condemn a correct commit."
+  },
+  "verdict_class": "G-NOBAND -- no Roache triple exists for any quantity; the two grids are not a refinement pair for this question (N-C9). Nothing is grid-converged and no band may be claimed.",
+  "verdict_ceiling": "GATE REACHED. PASS is unreachable by construction; the frozen grader refuses (exit 2) and prints NOT A RESULT if its own logic ever reaches PASS.",
+  "grader": {
+    "path": "cases/dafoam/ladder-a/A1/z_direction_empty_control/a1ze_grade.py",
+    "md5": "9b755c3b1a043879a664853a3d747c53",
+    "selftest": "a1ze_grade.py --selftest -> A1ZE_BIRTH 7 readers born, both legs proved on P2n and P4, rc 0",
+    "planted_violation": "a copy of the item tree with one byte-level mutation of controls/P2n_noU2.log (U1 initRes -> U2 initRes) returns A1ZE_CONTROLS REFUSED -- CONTROL_FIXTURE_MOVED, A1ZE_VERDICT NOT A RESULT, rc 2. The enforcer fires through the real path.",
+    "readers_proved_on_real_foreign_artifacts": "read_dirn(A1WR sweep_I/out/sweep.log) -> (3, (1,1,1)); read_equations -> ['U0','U1','U2','nuTilda','p']; read_eq_min(...,'U2') -> 3.238410485530894e-08 matching A1WR_STAGE12_RESULTS.md section 16; read_coefs -> 559/559; read_patch_types on the real L3 mesh /home/ubuntu/certonomous-runs/A1WR/L3/constant/polyMesh/boundary -> {'symmetry1':'symmetry','symmetry2':'symmetry'}. A zero from a reader not shown able to see a non-zero is not evidence (rule 3)."
+  },
+  "controls_at_this_commit": "ALL ZERO SOLVER COMPUTE. Six planted-zero controls P1, P2, P2n, P3, P4, P5 on nine static fixtures under controls/, md5-pinned inside the frozen grader and in the registration section 8. P2n and P4 are TWO-SIDED because G-U2.E's entire content is an ABSENCE and a gate never shown to return both answers is not a gate (L-452 addendum). Asserted by execution at grade time: fixture md5 == pin, fixture mtime older than the run root, no fixture inside the run root (L-435). Reader execution on foreign artifacts, well under 0.02 core-min, disclosed rather than omitted.",
+  "run_root": "/home/ubuntu/certonomous-runs/A1ZE -- must be ABSENT at launch. CHECKED BY EXECUTION AT FREEZE: it does not exist, and no Sc/Ec/S3/E3 unit directory exists anywhere.",
+  "arm_construction": "Since d3f47bfa the templates are `empty` at HEAD, so the CONTROL arms are the mutated ones. Ec/E3 copy the HEAD template and assert createPatchDict md5 == b06b32856f75d4813a763af819b6149c; Sc/S3 copy the same template, apply the two-line reversion, and assert md5 == 5e89709961881491e3f05dc97bbcf75c. Both arms of a pair are built from the same parent commit in the same invocation. This is what makes Ec/E3 a test of the COMMIT rather than of a hand-patch.",
+  "condemnation_link": "Registered at BOTH ends by sha. This end: registration section 3b/3b.0. Other end: cases/dafoam/PATCH_IDENTITY_D3F47BFA_UNVERIFIED.md plus README_PATCH_IDENTITY.md inside each of the three template directories.",
+  "verdict_state": "PENDING",
+  "_field_classes": {
+    "physics_critical": [
+      "the arms' own log End line, last Time == endTime, and the 0/ age guard",
+      "rc captured INSIDE the detached wrapper, never around the setsid line",
+      "constant/polyMesh/boundary and every 0/ field's patch types"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "ledger.txt occupancy and MemAvailable rows"
+    ],
+    "note": "Bookkeeping never voids physics (Sanaa universal rule 2026-08-26): a dead poller or a lost ledger row cannot void a completed solve."
+  },
+  "prohibitions": "Launches are DAEMON-ONLY. No agent invokes docker, mpirun, a driver or a launcher for this item. SUBMISSIONS PARKED (rule 7) -- nothing sent, filed, uploaded, registered, posted or commented outside this box. The createPatchDict upstream attribution stays INFERRED and NOT FILED."
+}
