@@ -2115,7 +2115,7 @@ anything.
 1. When an amendment refutes a **number, table cell or worked example** in an earlier clause,
    the earlier text is **marked in place, in the same commit as the refutation** — struck
    (`~~…~~`) with a pointer to the refuting section and the corrected value inline.
-2. The mark is made **without adding or removing a line**, so every later amendment's
+2. **⚠ NEVER ANNOTATE FROZEN BYTES — THE OBVIOUS FIX IS THE WRONG ONE, ruled against this clause at `VERIFICATION_CHARTER` v1.51 `§2ae` and adopted here at `§31.3`.** For an executable comparator or a frozen pre-registration, an in-place marker **changes the sha**, and rule 2 fixes the grading path **by sha** — so marking the artifact destroys the very property that makes the freeze evidence. **The correction must be reachable FROM WHERE THE NUMBER IS READ, NOT FROM WHERE IT WAS WRITTEN:** the **register row's VERDICT CELL** and the **head of the results record's section**, never the comparator's source. This clause's in-place marking therefore applies to **prose records only** (this charter, board, register, results), never to frozen executable or pre-registration bytes. Where it does apply, the mark is made **without adding or removing a line**, so every later amendment's
    `lines whose number changed above this section: 0` assertion survives. Text is appended
    within the existing line. *(This amendment: exactly **3 lines changed in place, 0 added,
    0 removed**; file length **2069 → 2069** before this block.)*
@@ -2139,4 +2139,84 @@ that the corrected numbers make the clause **stronger** (a faithful cap of **11.
 | finding, against the supervisor | the refuted figure was re-issued to **two lanes** in lane briefs hours after `§27` refuted it; caught by reading the calibration ledger, corrected by message before either lane filed |
 | ruled | a refutation is filed **at the point of use in the same commit**, marked without changing any line number |
 | gates | **0 moved** · bands | **0 moved** · caps | **0 moved** · re-grades | **0** · register bytes | **0** |
+| lines whose number changed above this section | **0** |
+
+---
+
+## Amendment — v1.26, 2026-09-03 — **§31: ROW #54 IS DEMOTED `GATE FAIL` → `NOT A RESULT`. IT VACATES A RECORDED FAILURE AGAINST THIS TEAM AND SAYS SO. · §30 IS UPHELD AND ITS METHOD IS CORRECTED: NEVER ANNOTATE FROZEN BYTES.**
+
+### §31.1 THE DEMOTION
+
+Row **#54** (`VMFL046`) is demoted to **`NOT A RESULT`** under `CLAUDE.md` rule 5 step (1),
+the class having been ruled by the verification team at `VERIFICATION_CHARTER` **v1.51
+§2ac/§2ad** (`e5f0ddf3`), read at source. **This team held the demotion rather than take it
+unilaterally, and that ruling unblocked it.** The full record — ground, the three `§2ad`
+disclosure burdens, and the frozen reinstatement condition — is the dated demotion note at
+the foot of `ANSYS_VALIDATION_REGISTER.md`, and the demotion is carried **in row #54's own
+verdict cell** per `§2ae`.
+
+**The ground is a `CLAUDE.md` rule 3 false zero inside a graded gate.** The plateau limb read
+**4.332e-10** — a near-exact zero — for a shock moving **192.60 % of its own tolerance band**,
+because `x = 0.900` is **supersonic and upstream** of the shock and cannot causally see it.
+**Three guards, one geometry, defeated identically: one blind station wearing three coats.**
+
+### §31.2 THE ASYMMETRY, ADOPTED AS THIS TEAM'S OWN STANDING DUTY
+
+`§2ad` ruled that rule 5's permission is symmetric while the **disclosure burden is not**.
+Adopted verbatim as binding on this territory:
+
+> **A DEMOTION THAT RELIEVES THIS TEAM OF A RECORDED FAILURE MUST, ON ITS OWN FACE: (1) STATE
+> THAT IT DOES SO; (2) PRESERVE EVERY FINDING OF THE VACATED VERDICT THAT RESTS ON SETTLED
+> LEVELS, so the adverse content is not lost with the label; (3) NAME, IN ADVANCE, WHAT WOULD
+> HAVE TO BE TRUE FOR THE VERDICT TO BE REINSTATED.** No such burden attaches to demoting our
+> own `PASS` — that act is already against interest.
+
+**Stated against ourselves, because it is the whole point of the clause:** row #55 was
+`PASS` → `NOT A RESULT`, **self-adverse, and cost this team a credential**. Row #54 is
+`GATE FAIL` → `NOT A RESULT`, **same direction under the rule, opposite incentive**. Verification
+recorded that running the unfavourable one first, with zero discretion, is why `§2ad` could be
+written as a duty to disclose rather than a permission to withhold. **That is a reason to hold
+the standard, not a credit to spend: the burden binds this team identically on the next one,
+and a team that treats a good precedent as a licence has already lost it.**
+
+### §31.3 `§30` UPHELD, AND ITS METHOD CORRECTED — THE OBVIOUS FIX IS FORBIDDEN
+
+`§30` said *"a correction filed only at the foot does not reach the reader of the clause."*
+Verification upheld it as naming a real gap in rule 6. **But `§30.3` rule 2 as written would
+have led a successor straight into a worse error**, and `§2ae` names it:
+
+> **NEVER ANNOTATE FROZEN BYTES.** Marking a frozen comparator or pre-registration in place
+> **changes its sha**, and rule 2 fixes the grading path **by sha** — so the marker destroys
+> the very property that makes the freeze evidence.
+
+> **RULED — `§31.3`: THE CORRECTION GOES WHERE THE NUMBER IS READ, NOT WHERE IT WAS WRITTEN.**
+> A reader about to believe a verdict consults the **REGISTER ROW** and the **RESULTS RECORD** —
+> never the comparator's source. So a demoted or corrected verdict carries its correction **in
+> the register row's VERDICT CELL** and **at the head of the results record's section**. The
+> foot amendment **remains required and remains insufficient alone.** `§30`'s in-place marking
+> applies to **prose records only**; `§30.3` rule 2 is marked in place accordingly.
+
+**Honest note on my own compliance:** `§30` was written and committed *before* this ruling, and
+what it marked was this charter's own prose — no frozen byte was touched and no sha moved. **That
+was luck of scope, not foresight**: the clause as drafted did not distinguish prose from frozen
+bytes, and a successor applying it to a comparator would have broken a freeze. The distinction is
+verification's, and it is adopted because it is right, not because it was ordered.
+
+### §31.4 NO SWEEP
+
+Rows #54 and #55 are **ONE specimen with two rows** — the same unconverged finest level, one
+geometry. `§2af` rules two instances **a pattern and not a class** and orders **no sweep**;
+`§2ac` is **forward-only** and schedules no backfill. **This team orders none either**, and
+records that a supervisor who applies a threshold only to other teams' classes has no threshold.
+
+| amendment | v1.26 |
+|---|---|
+| clause added | **`§31`** (`§31.1`–`§31.4`) |
+| verdict moved | row **#54** `GATE FAIL` → **`NOT A RESULT`** — and it **vacates a recorded failure against this team**, disclosed per `§2ad` |
+| findings PRESERVED | the shock-moves-away finding on `L1 → L2` (**+1.7288 % → −4.0612 %**, both settled), reported-not-gated; the manual corroboration (−0.1274 %); the `§18` three-path reproduction |
+| findings CONTAMINATED | the L3 shock reading, the **−12.9165 %** Richardson, `p_obs` 0.700440, the peak-Mach Richardson 2.175831 — all consume the unsettled level |
+| reinstatement condition | **frozen in advance**: finest-level shock final-window drift ≤ **6.25e-04 m**; if the settled `x_shock` then misses 1.250 by > 5 %, the `GATE FAIL` **is reinstated** |
+| method corrected | `§30.3` rule 2 — **never annotate frozen bytes**; correction goes in the register row's verdict cell and the results record's section head |
+| gates | **0 moved** · bands | **0 moved** · caps | **0 moved** · re-grades | **1 (row #54, demotion only)** · credentials created | **0** |
+| solver compute | **0 core-min, $0.00** |
 | lines whose number changed above this section | **0** |
