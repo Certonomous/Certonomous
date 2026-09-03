@@ -654,3 +654,73 @@ CONVERTER's — it must NOT be transplanted to a solve):**
   **down**, from 200 to 23 core-min.
 - Sanaa's $40 personal cap is **carried, not dropped**, and the ~3× figure computed here (**$29.74**)
   **sits below it**, so this amendment widens nothing.
+
+---
+
+## 14. AMENDMENT 2 — 2026-09-03, **BEFORE FIRST COMPUTE**: §11.4's condition-(d) finding is NARROWED, because a completed background search found the phrase does have a home — just not in the certificate
+
+**Appended at the foot. Version 1.1 → 1.2. Lines whose number changed above this section: 0.**
+*(Checked by measurement: the md5 of the file's first 656 lines is
+**`f99780163120bfef93c2a3de1a658d7f`** immediately before this append, and the append adds only
+lines after 656.)*
+
+**THE CONDITION, AND HOW IT WAS CHECKED — rule 2.** Checked by direct filesystem test at
+**2026-09-03T16:33:55Z**, naming the directories that do not exist:
+`verification/runs/RUNG0_MESH_IMPORT_runs`, `verification/runs/RUNG1_M6_runs`,
+`verification/runs/RUNG2_runs`, `verification/runs/RUNG3_runs` — **all four ABSENT.** No compute has
+run under this registration and it is not yet frozen.
+
+**THIS AMENDMENT ALTERS NO GATE, NO THRESHOLD, NO CAP AND NO LABEL.** It narrows one **finding**
+about our schema. §4's gates, §5's estimate and §13.1's cap of 23 core-min are untouched.
+
+### 14.1 Why this exists: a search that was still running when the finding was written
+
+§11.4 was written from a **narrow** grep of `sdk/` and `scripts/` for `what_was_checked`. A **broader**
+search over `verification/`, `scripts/` and `docs/charters/` had been launched earlier, **timed out
+into the background, and returned only after §11.4 was already committed.** Its result is recorded
+here rather than left to contradict a committed record silently.
+
+### 14.2 What the completed search returned, and what it changes
+
+The phrase **"what was checked"** occurs in **10 files**, and as an actual **section heading** in
+four: `verification/campaign/MARGIN_PRECISION_INTERVAL_2026-08-15.md`,
+`verification/campaign/LADDER_V_V15_ROUND7.md`,
+`docs/campaigns/T-family/T20_P10_REFERRAL_26_6_DEADLOCK.md`,
+`docs/campaigns/T-family/demo/README_SOURCES.md`. It also appears in
+`docs/CAPABILITY_GRID.md`'s own verdict vocabulary — *"strongest case cited by path + record sha +
+what was checked"* — and that file's cfd cells carry lines of the literal form
+*"Checked: L2 norm vs exact + observed order vs formal 2 + planted control."*
+
+| §11.4 said | corrected to |
+|---|---|
+| *"**Sanaa's phrase has nowhere to land.**"* | **TOO STRONG, and struck.** It has an **established prose home** — a "what was checked" section in a record, and a `Checked:` line in a capability-grid cell. |
+| *"it needs a new section, in a **shared** `sdk/` file that is not cfd's to edit"* | **True ONLY of the RENDERED PDF.** `sdk/chief_engineer/certificate.py` still has no such section and no `grid_provenance` field, and that is unchanged. |
+
+**THE NARROWED FINDING, which is the one that should be acted on:**
+
+> **Condition (d) is satisfiable TODAY in the prose record and the register cell, with no change to
+> shared `sdk/` code. It is NOT satisfiable in the RENDERED CERTIFICATE PDF, which has no
+> what-was-checked section and no grid-provenance field.**
+> **So the fix splits: the prose half is cfd's and can be done now; the PDF half is a shared-`sdk`
+> change and is the only part that is blocked.**
+
+**Neither the phrase nor the convention is STANDARDISED** — four ad-hoc section headings across three
+families is a practice, not a schema — so a record using it is following a habit rather than meeting
+a requirement. **That is worth saying plainly**, because "there is a convention" and "there is a
+schema" are different claims and only the first is true.
+
+### 14.3 The correction to §12 item 1
+
+§12 item 1 asked Sanaa to rule on *whether* condition (d)'s phrase goes into a new what-was-checked
+section or, as an interim, into the mesh-validity block. **That question is narrowed:** the prose
+record and the register cell can carry it now, and **only the rendered PDF needs her ruling** — and
+that ruling is about a shared `sdk/` file, so it is the chief's routing rather than cfd's to take.
+
+### 14.4 The defect class, named against this lane's own conduct
+
+**A finding was written from a narrow search while a broader one was still running, and the broader
+one contradicted it in one word.** The narrow search was not wrong about what it looked at
+(`sdk/`, `scripts/`); it was wrong about what it **licensed** — an absence in two directories was
+reported as an absence in the repository. **A negative result is only as wide as the population it
+searched, and §11.4 did not state its population.** Recorded here rather than repaired silently,
+because a finding that overstates in the direction of "we are blocked" costs real work.
