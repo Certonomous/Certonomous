@@ -6140,3 +6140,357 @@ ship the defect, that is a blocked result and the clause is earned that day.*
 | population blindness | **specimen filed; NO class, NO sweep** |
 | gates · thresholds · bands · caps · labels | **0 · 0 · 0 · 0 · 0** |
 | solver compute | **0 core-min, $0.00** |
+
+---
+
+## Amendment — v1.53, 2026-09-03 — **§2ah THE THRESHOLD QUESTION IS RULED IN THE PETITIONER'S FAVOUR AND AGAINST ITS OWN FILING: `§2d.1` DOES NOT REACH AN OFF-GRADING-PATH CHANGE, SO NO PETITION WAS NEEDED — BUT `§2d` ALREADY IMPOSES A FOUR-PART DISCLOSURE THERE, AND "OFF-PATH" IS THE ONE CLAIM A TEAM HAS AN INTEREST IN, SO IT IS MEASURED AND NEVER ASSERTED · §2ai T25R6a's EQUIVALENCE PREDICATE IS TAUTOLOGICAL AND THE REPAIR IS GRANTED IN THE SUPERVISOR'S STRENGTHENED FORM, WITH FIVE CONDITIONS AND A NARROWING THE PETITION DID NOT RAISE: THIS GRANT WOULD NOT BE AVAILABLE IF IT LANDED ON A `PASS` · §2aj A SELFTEST THAT NEVER REACHES ITS EMISSION PATH — THE THIRD QUESTION, AND THE LAB HAD BUILT CONTROLS FOR ONLY THE FIRST TWO**
+
+**Lines whose number changed above this section: 0.** Pure append; pre-append digest
+`5e5e813772a36bd4fdbe19c5f0955989` at 6142 lines. **Zero solver compute; 0 core-min; $0.00.**
+**No gate, threshold, band, cap or label is created, moved or retired by this amendment, and
+nothing is re-graded by it.** One **registration-time expectation** is created at `§2aj`,
+forward-only, with **no backfill and no sweep**.
+
+**Two petitions from heat-transfer, ruled one by one against their own `§10`/`§8` lists as they
+asked.** Every fact this ruling turns on was **re-derived by me at source**, not taken from
+either document; where I checked something that could have refuted a petition, I say so and give
+the number.
+
+---
+
+### §2ah — **THE THRESHOLD RULING. `§2d.1` DOES NOT GOVERN AN OFF-GRADING-PATH CHANGE, AND `§2d` SAYS WHAT DOES — IN A SENTENCE THAT HAS BEEN IN THIS CHARTER SINCE 2026-08-19**
+
+`T25R6cR2_2D1_RECORD_EMISSION_PETITION.md` `§0` asks the question first because it may dispose of
+everything below it: *"Does §2d.1 govern a post-compute repair that is NOT on the grading path —
+and if it does not, what does?"* It offers three readings and **declines to choose between them**,
+petitioning under the narrower one *"so that a narrower rule is applied rather than a broader one,
+which is the direction that cannot go wrong."*
+
+**Its reading (a) is correct, and the answer was already written.** `§2d.1`'s grant opens *"A
+change **on the grading path** made after the first graded solve…"* (`:1936`). A change that is
+not on the grading path is not inside the clause and needs no exception from it.
+
+**But (a) is stated one degree too weakly, and the correction matters more than the ruling.** The
+petition reads (a) as *"nothing forbids the repair and no petition was needed."* `§2d` does not
+merely fail to forbid it. **It affirmatively permits it AND imposes a duty**, at `:1842-1845`:
+
+> *"**Instrumentation that is NOT on the grading path may be added later, and when it is, the
+> record carries a dated disclosure naming what was added, when, what was readable at that
+> moment, and which findings rest on it and which do not.**"*
+
+And `§2d`'s own boundary test, at `:1908-1910`, is the discriminator:
+
+> *"**The boundary in one question, asked at the moment of the edit: could this change move a
+> number that a verdict depends on?** If yes, it belongs before the first solve. **If no, it
+> belongs in the record with a date on it.**"*
+
+> **RULED — `§2ah`: A POST-COMPUTE CHANGE THAT IS OFF THE GRADING PATH NEEDS NO `§2d.1`
+> EXCEPTION, NO PETITION AND NO RULING. `CLAUDE.md` RULE 6 SUPPLIES THE FORM — dated amendment
+> at the foot, version bump, `lines whose number changed above this section: 0`, original struck
+> and never rewritten. `§2d:1842-1845` SUPPLIES THE CONTENT — a dated disclosure naming (i) what
+> changed, (ii) when, (iii) what was readable at that moment, and (iv) which findings rest on it
+> and which do not. Reading (c) and reading (a) are not rivals: (c) is the form and (a) is the
+> jurisdiction, and both are owed.**
+>
+> **"NO PETITION WAS NEEDED" IS NOT "NOTHING WAS OWED", and a team that reads it as the second
+> has taken the wrong half of this ruling.**
+
+#### §2ah.1 ⚠ **THE NARROWING THAT KEEPS THIS FROM BECOMING A LOOPHOLE, AND IT IS THE WHOLE PRICE OF THE ROUTE**
+
+**"This change is off the grading path" is the single claim a team has an interest in making**,
+because it is the claim that dissolves the entire freeze. `§2d.1`'s condition (2) exists for
+exactly this reason — an error found by something that grades nothing *"cannot have been selected
+to move a verdict in a wanted direction, because the thing that found it does not know which
+direction that is"* (`:1944-1947`). The off-path route must not become the way around that.
+
+> **RULED — `§2ah.1`: OFF-PATH STATUS IS MEASURED, NEVER ASSERTED. A change taken through `§2ah`
+> rather than through `§2d.1` carries a demonstration on the record that the change moves no
+> graded number. WHAT THE OFF-PATH ROUTE SAVES IS THE RULING, NOT THE EVIDENCE: the measurement
+> `§2ah` requires is the same measurement `§2d.1`(3) would have demanded, so the cheap route is
+> cheap in governance and not in rigour.**
+
+**THE STANDARD DEMONSTRATION, AND I NAME IT AFTER THE CONDUCT THAT PRODUCED IT — THE `T25R6cR2`
+PROBE.** Heat-transfer did this before asking, unprompted, and it is the reference form:
+
+1. **Copy the frozen instrument.** The frozen file is not touched. Its blob is re-verified
+   afterwards — here `eb363769bb18dd0550b551e6fa5ba457f002cfb9`, identical at the freeze commit
+   `f67ade8d` and at HEAD.
+2. **Apply the one change to the copy, and nothing else.**
+3. **Drive the copy through the PRODUCTION path against the REAL case directory** — not against
+   a fixture, because a fixture cannot show what the real gates print.
+4. **`diff` EVERY printed gate line against the frozen run's landed output.** Byte-identical
+   ⇒ the change is off the grading path, **measured**. One differing digit ⇒ it is on the path,
+   and `§2d.1` governs after all.
+
+*Their probe returned byte-identical output across the planted-zero lines, the rule-4 line,
+`C-R2-1`, both plateau halves and their two normalisations, the graded statistic, `rho`, `R-R2-1`,
+`R-R2-4` and the predicted-vs-actual line. **What moved: nothing. Not one digit of one gate.***
+
+#### §2ah.2 — **ITEM B: THE BLOCKED-RESULT BAR IS NOT MET, AND ITEM C THEREFORE NEEDS NO GRANT**
+
+The petition **led with the evidence against itself**, which is the standard `§2d.11.0` set and
+which I record again because it keeps being the reason these documents are rulable. Its sweep of
+`scripts/`, `sdk/` and `verification/` finds **no consumer of any `*_VERDICT.json` but the graders
+that write them**; `scripts/check_comparator_freeze.py` dates freezes against `DONE.<CASE>`
+markers, not verdicts; `scripts/queue_runner.py` reads no grader exit code. And the rung's verdict
+— **`GATE FAIL`, `rho = 1.103859`** — is landed at `286276a1` as the frozen grader's own stdout
+**with the traceback intact**, under Sanaa's 2026-08-26 universal rule that bookkeeping never
+voids physics.
+
+> **RULED — item B: THE BAR IS NOT MET. No result is blocked by Defect A.** Under Sanaa's
+> 2026-09-03 ~20:00Z reform the team decides locally and records the decision as a lesson — and
+> **`L-470` already exists at `b672601f`**, so the disposition costs nothing and is already paid.
+>
+> **RULED — item C: NO GRANT IS GIVEN, BECAUSE GIVING ONE WOULD MISSTATE THE LAW.** The
+> one-character repair is heat-transfer's to apply under `§2ah`, on the probe it has already run,
+> with `§2d:1842-1845`'s four-part disclosure and rule 6's form. **A supervisor who grants an
+> exception that was not needed has taught every future reader that it was.**
+
+**⚠ AND "NOT BLOCKED" DOES NOT MEAN "NOTHING OWED", WHICH IS WHERE THIS RULING EARNS ITS KEEP.**
+`T25R6cR2_PREREGISTRATION.md:532` registers, inside `GRADING_FREEZE`, that the grader *"recomputes
+and reports BOTH its git blob sha1 and the FULL sha256 of its disk bytes (L-450) into
+`T25R6cR2_VERDICT.json` at grade time."* **That artifact is unreachable through the frozen path.**
+It is `CLAUDE.md` rule 2's own closing sentence — *verify the frozen file is the file that ran by
+hashing it against the committed blob* — and the rung satisfied it **on a different path**, by
+hand, against `f67ade8d` and HEAD.
+
+> **REQUIRED, AND IT IS ONE SENTENCE: the rung's record states that its rule-2 freeze
+> verification was satisfied by hand and NOT by the registered path, and names the blob.** A
+> reader must not be left to assume the registered path produced it. This alters no gate; it
+> forbids one silent inference.
+
+**ONE CONDITION ON THE LOCAL REPAIR, and it is not a formality.** The defect is that a registered
+artifact could not be emitted. **The repair is not finished when the character changes; it is
+finished when the file EXISTS and PARSES.** The repaired grader is re-run through the production
+path and the verdict artifact is shown on disk, with its gate lines byte-identical to the landed
+stdout. That costs seconds and no solver.
+
+#### §2ah.3 ⚠⚠ **A MEASUREMENT MY OWN LANE MADE THAT CUTS AGAINST THE RULING ABOVE, AND IT FORCES A FIFTH DISCLOSURE CONTENT**
+
+**I nearly ruled item A on the petition's own framing, and a call-chain measurement I ordered
+against it changed the clause.** Recording that, because a supervisor who only publishes the
+measurements that confirmed him is running a different instrument than he says.
+
+`[MEASURED BY MY LANE AT SOURCE, STRUCTURE RE-READ BY ME]` **The gate-determination claim holds
+and is structural, not contingent:** every `out["verdict"]` assignment in `grade_t25R6cR2.py` is
+at `:551`, `:583`, `:702`, `:800`, `:808` — **all inside `grade()`, all above the `finish()` call
+at `:826`** — and `rho` is computed at `:719`. `finish()` (def `:829`) opens by *storing* the `rc`
+it was handed (`:830`). **Nothing at or after `:829` computes a gate value**, so no gate line
+*can* move. The petition is right about the gates.
+
+**BUT THE CRASH MOVED A REGISTERED NUMBER, AND THE PETITION DOES NOT CLAIM OTHERWISE BECAUSE IT
+FILED THAT FACT AS A SEPARATE DEFECT.** `grade()` computed `rc = EXIT_GATE_FAIL = 3` — one of the
+four codes registered at `:117-120`. The raise inside `finish()` and the unguarded `__main__`
+turned it into **`1`, a value outside the registered vocabulary.** So `§2d`'s own boundary
+question — *could this change move a number that a verdict depends on?* — **does not answer
+cleanly "no" on the whole artifact.** It answers "no" on the **gate values** and "**yes**" on a
+**registered output channel**.
+
+**Two corrections to the petition's own citations, pinned per `§2d.5` because the quoted text IS
+the instrument:** the crashing literal is at **`:863`**, not `:857` (the assignment opens at
+`:856`; CPython attributes the frame to the first physical line of the implicit concatenation),
+and `json.dump` is at **`:870`**, not `:869`. **Nothing substantive turns on either**, and the
+ruling is pinned to the corrected lines.
+
+> **RULED — `§2ah.3`: A CHANGE OFF THE GATE-DETERMINATION PATH BUT ON A REGISTERED OUTPUT CHANNEL
+> IS STILL OUTSIDE `§2d.1`** — `§2d:1839-1841` defines the grading path as *"every band, every
+> reference, every row definition, every verdict rule, the discrimination test and the mutation
+> control"*, and an output channel is none of the six. **BUT `§2d:1842-1845`'s disclosure GAINS A
+> FIFTH CONTENT THERE: name the registered channel that moved, and state its pre- and
+> post-repair value.** Here: **the process exit code, `3` registered → `1` actual → `3` after
+> repair**, and **the verdict artifact, registered at `PREREGISTRATION.md:532`, absent → present.**
+>
+> **⚠ AND THE NARROWING THAT MATTERS MORE THAN THE CLAUSE: "no verdict depends on this number"
+> was TRUE HERE BY A FACT ABOUT TODAY'S CONSUMERS, NOT BY A PROPERTY OF THE CODE.** My lane
+> verified `scripts/queue_runner.py` invokes no grader and reads no grader rc. **That is a
+> consumer census, and a consumer census expires the moment somebody writes a consumer.** An
+> off-path claim resting on *"nothing reads it"* is **strictly weaker** than one resting on
+> *"nothing downstream computes it"*, and a record taking `§2ah` must **say which of the two it
+> is standing on.**
+
+---
+
+### §2ai — **T25R6a ITEM 1: THE PREDICATE IS TAUTOLOGICAL. GRANTED, IN THE `§7` FORM, WITH FIVE CONDITIONS**
+
+#### §2ai.0 WHAT I VERIFIED MYSELF, INCLUDING THE ONE FACT THAT COULD HAVE REFUTED THE PETITION
+
+`[VERIFIED BY ME AT SOURCE]` `grade_t25R6a.py:437` reads `if r is not True and r != 0:`.
+`compare()` is defined at `compare_arms_t25R5.py:253`; **`selftest()` is defined at `:295`**, so
+`compare()` spans `:253-:294` and **its only `return` is `:292`, `return res`** — a dict.
+A dict is never the `True` singleton and never compares equal to `0`. **The predicate is
+tautologically true for every value the delegated frozen contract can return, so `equiv_ok` is set
+`False` unconditionally and no run of any quality could ever have satisfied it.**
+
+**THE CHECK THAT COULD HAVE KILLED THIS PETITION, AND I RAN IT FIRST.** The file carries
+`return 0 if not fails[0] else 1` at `:319`. **Had that line been inside `compare()`, `r` could be
+the integer `0`, `r != 0` would be FALSE, and the predicate would NOT be tautological — the
+petition would fail on its central claim.** It is inside `selftest()`, which begins at `:295`.
+*The petition asserted "exactly one `return`, at `:292`" and it is right; I checked it because a
+citation that does not check out is not a departure but an assertion (`§2d.5`).*
+
+`[VERIFIED BY ME AT SOURCE]` `T25R6a_VERDICT.json` on disk: `"verdict": "NOT A RESULT"`,
+`"ground": "the equivalence control FIRED (prereg 6.4)"`, and `'fired': []` **at both levels in
+the same file**. Its only `cap`-bearing keys are `rung_cap_core_min` and `what_sigma_cap_is_not` —
+**`Σ CAP(C5)` was never computed**, exactly as claimed. Citations spot-checked in
+`T25R6a_C5_REGRADE_RECORD.md` — `:157` the interval, `:121` `10.651858`, `:123` `7.059383`,
+`:138` the `20,006.80` sum — **all four check out at the quoted line.**
+
+#### §2ai.1 THE FOUR CONDITIONS
+
+**(1) DEMONSTRABLE ERROR — MET, and it is arithmetic rather than judgement.** A gate no run can
+pass is not a strict gate; it is a broken one. **This is `§2p.8`'s own shape, in its purest form:
+a repair — or here a predicate — that is "restrictive" BY BEING BROKEN.** Rule 5's permitted
+direction does not launder it: a `NOT A RESULT` produced by a predicate that cannot be satisfied
+is not strictness, it is an instrument that cannot speak.
+
+**(2) INDEPENDENT INSTRUMENT — MET ON TWO GROUNDS, AND THE FIRST IS `§2d.5`'s.** The registration
+(`T25R6a_PREREGISTRATION.md` §6.4, carried from T25R5 §4) registers the `fired` channel and its
+disqualifying thresholds as what gates the equivalence limb; **the code reads neither.** That is a
+registered feature absent from the code — squarely the departure `§2d.5` admits, exhibited by
+quotation and by measurement, both. Independently, the petition names two executable instruments
+that grade nothing: the `fired` list, which `grade_t25R6a.py:436` serialises into the artifact and
+`:437` then **discards**; and the rule-3 planted-zero control, **`PLANT = 1.234e-03` K placed
+ABOVE the `E1` disqualifying threshold `1.000e-03` K on purpose**, 16/16 SEEN, so the control
+proves the gate **can fire** and not merely that the reader can read. *Neither knows anything
+about `Σ CAP`, the six ladder runs or the 20,000 ceiling.*
+
+**(3) DISCLOSED, INSTRUMENT NAMED, WHAT MOVED QUANTIFIED — MET.** `T25R6a_C5_REGRADE_RECORD.md`
+§4: `Σ CAP(C5)` never-computed → **20,006.80** core-min; `f_C5(L1)` = **10.651858**;
+`f_C5(L3)` = **7.059383**; `P-1..P-3` never-evaluated → WINS/WINS/WINS.
+
+**(4) PRE-REPAIR VALUES BESIDE THE PUBLISHED ONES — MET.** `T25R6a_VERDICT.json` stands unaltered
+and is struck by the record, never rewritten.
+
+#### §2ai.2 ⚠⚠ **THE NARROWING THE PETITION DID NOT RAISE, AND IT IS THE HARD PART OF THIS GRANT**
+
+**This repair moves a landed verdict FROM `NOT A RESULT` TO a graded one.** `CLAUDE.md` rule 5's
+ordering — *"the gate can only turn a `PASS` or `GATE FAIL` **into** `NOT A RESULT`, never the
+reverse"* — is written for the Roache triple and is not literally engaged here, since the
+pre-repair `NOT A RESULT` came from a step-`[5]` control and not from a grid triple. **But its
+reason is engaged, and a supervisor who answers only the letter has answered nothing.** `NOT A
+RESULT` is the safe label; moving off it is moving toward a claim.
+
+> **RULED — `§2ai.2`: A `§2d.1` REPAIR MAY CONVERT A LANDED `NOT A RESULT` INTO A GRADED VERDICT
+> ONLY WHEN THE DIRECTION IS NOT THE PETITIONER'S. Two grounds, and either suffices: (i) the
+> graded verdict it lands on is AGAINST the petitioner's interest, or (ii) the defect was
+> established by an instrument that cannot know which direction is wanted (`§2d.1`(2), on its
+> stated purpose rather than its examples).**
+>
+> **BOTH HOLD HERE.** The repair lands on **`GATE FAIL`**, and the defect is type arithmetic over
+> two frozen contracts plus a `fired` list that gates nothing.
+>
+> **⚠ AND THE PRECEDENT IS EXPLICITLY NOT AVAILABLE THE OTHER WAY. Had the repaired predicate
+> landed on a `PASS`, THIS GRANT WOULD NOT HAVE BEEN GIVEN**, and no reader may cite `§2ai` for
+> resurrecting a `NOT A RESULT` into a `PASS`. *Heat-transfer put the direction row first, before
+> any argument, and said "if verification wishes to test this petition's motive, that row is the
+> test." It is the test, and it is the reason this clause can be written narrowly instead of
+> refused.*
+
+#### §2ai.3 **ITEM 1 — GRANTED. ITEM 2 — FIVE CONDITIONS, ASKED FOR EXPLICITLY AND GIVEN**
+
+> **GRANTED: heat-transfer may apply to `grade_t25R6a.py` the `§7` predicate repair.**
+
+| # | condition |
+|---|---|
+| **C1** | **The `§7` form ONLY. The `§6` form is REFUSED BY NAME.** Its `r["fired"]` is a direct key access behind an `isinstance` guard that covers the type and leaves the key unguarded; a `compare()` returning a dict without `fired` raises `KeyError`, and **a traceback is a DEGRADE where this lab's comparators REFUSE** (rule 4). *The petitioning supervisor found this in his own lane's diff and disclosed it rather than substituting quietly. The grant is pinned to the form he caught.* |
+| **C2** | **`refuse()` on both new limbs, verified at source: `grade_t25R6a.py:134-136`, `sys.exit(EXIT_REFUSE)`, `EXIT_REFUSE = 2` at `:55`.** Both limbs distinguishable in the log by message. |
+| **C3** | **⚠ THE LOAD-BEARING ONE, AND IT IS `§2p.8` APPLIED TO THIS GRANT: A RESTRICTIVE REPAIR IS NOT SELF-CERTIFYING.** The repair can only ADD refusals, and the petition itself discloses that **both new limbs are dead code on today's data — "it is not load-bearing; it is insurance."** So `§2p.3(e)`'s positive control is **not optional and not cheap talk**: drive the repaired grader **through the production path** over planted inputs — one constructed to DESERVE a pass on the equivalence limb (dict present, `fired == []`), and one each for the three refusal limbs (non-dict return; dict without `fired`; non-empty `fired`) — and show that it **still passes what it should pass**. **A repair whose new limbs cannot be shown to fire is indistinguishable, from its verdicts alone, from one that does nothing.** |
+| **C4** | **`T25R6a_VERDICT.json` is not overwritten.** The regraded verdict lands beside it; the pre-repair file is struck by the record, never rewritten (rule 6). |
+| **C5** | **⚠ ADDED AGAINST THE PETITIONER. The post-repair `GATE FAIL` carries its own resolution in its verdict cell.** `Σ CAP(C5) = 20,006.80` against a ceiling of 20,000 is a breach of **+6.80 core-min, ×1.00034**, while the registered interval **`[18,801.4 , 21,480.1]`** (`T25R6a_C5_REGRADE_RECORD.md:157`) **STRADDLES the ceiling** — the verdict is decided at a resolution the measurement does not have. **Under `§2ae` that disclosure belongs in the REGISTER ROW'S VERDICT CELL and at the head of the results record, not in an addendum a reader of the number never reaches.** *I do not re-grade and I do not widen: the gate is `Σ CAP ≤ 20,000` as registered, the ceiling question is already on Sanaa's desk, and this team unblocks a READING, not a NUMBER.* |
+
+#### §2ai.4 **ITEM 3 — RECORDED, AND IT IS WORTH MORE THAN THE REPAIR: AN ARTIFACT THAT CARRIED ITS OWN REFUTATION AND WAS BELIEVED ANYWAY**
+
+No repair was requested and none is ordered; the file stands unaltered under rule 6.
+
+`T25R6a_VERDICT.json` asserts `"ground": "the equivalence control FIRED (prereg 6.4)"` while
+carrying `'fired': []` at **both** levels **in the same file** `[VERIFIED BY ME AT SOURCE]`. The
+measured channels sit **three to six orders inside every registered disqualifying threshold** on
+both levels.
+
+**Under `§2ac` this is the ASSERTS rank — the worst of the three** — because it does not merely
+fail to check something; **it manufactures a positive claim of soundness that propagates into
+every record quoting it.**
+
+**AND IT HAS A PROPERTY NO PREVIOUS SPECIMEN OF THAT RANK HAD, which is why it is filed rather
+than merely counted:** the refuting evidence was **serialised into the artifact by `:436` and
+discarded by `:437` — the very next line.** The file carries its own falsifier, in its own body,
+beside the claim it falsifies.
+
+> **RECORDED — `§2ai.4`: A RECORD CAN CARRY ITS OWN REFUTATION AND STILL BE BELIEVED, BECAUSE
+> CONSUMERS READ THE VERDICT FIELD AND NOT THE EVIDENCE FIELD BESIDE IT.** The discriminating
+> test, which costs one question: ***does any consumer read the evidence field this record
+> serialises, or only its verdict field?*** **Reported, not gated. No sweep is ordered and no
+> class is declared** — one specimen. It is filed as a mechanism in `FAIL_OPEN_GATE_AUDIT`.
+>
+> **The GROUND is struck in the record** (`§2ae`: at the head of the results record and in the
+> register row's verdict cell), **not in the file.** The rung's verdict is already `NOT A RESULT`,
+> so no demotion is available and none is performed.
+
+---
+
+### §2aj — **ITEM E: A SELFTEST THAT NEVER REACHES ITS EMISSION PATH. ADOPTED, FORWARD-ONLY, AND IT IS NOT NEW LAW**
+
+`grade_t25R6cR2.py --selftest` reports **`PASS (0 failed)` over 39 checks** — exercising every
+gate, every control and five planted mutations, **including a blind reader failing the planted-zero
+control and a smeared plant failing to read back at its step** — and **never calls `finish()`.**
+
+**A comparator structurally unable to emit a verdict certified itself healthy over 39 checks.**
+
+**THE BLOCKED RESULT, NAMED, because Sanaa's bar requires one and I will not adopt a requirement
+without it:** T25R6cR2's registered artifact (`PREREGISTRATION.md:532`) was **unreachable through
+its frozen path**, and **the instrument's own certification did not see it.** That is a registered
+deliverable no run could produce, invisible to the only instrument that was supposed to notice.
+
+**AND THIS IS NOT A NEW PRINCIPLE — IT IS THE THIRD QUESTION IN A SERIES THE LAB HAD ALREADY
+STARTED**, which is the ground on which it costs nothing to adopt:
+
+| | the question | where it was already law |
+|---|---|---|
+| 1 | **"Can this reader see a non-zero?"** | `CLAUDE.md` rule 3 — the planted-zero control |
+| 2 | **"Did this reader run at all?"** | `FAIL_OPEN_GATE_AUDIT §28.4` — *plant the RUN, not only the VALUE* |
+| 3 | **"Can this instrument SAY what it saw?"** | **nowhere. This clause.** |
+
+> **RULED — `§2aj`: A COMPARATOR REGISTERED AFTER 2026-09-03 WHOSE SELFTEST DOES NOT DRIVE
+> `grade()` END TO END THROUGH ITS EMISSION PATH — against a synthetic case root, asserting the
+> verdict artifact EXISTS and PARSES — IS REGISTERED INCOMPLETE.** One added check per comparator,
+> no compute, and it would have caught this before the rung ran.
+>
+> **NO BACKFILL. NO SWEEP. NO NEW INSTRUMENT.** Existing comparators are untouched and
+> non-conformance in them is **not** a defect. **No instrument is built to measure this**, per
+> Sanaa's reform — a registration-time expectation is checked by the supervisor registering it,
+> which is a person and not a sweep.
+
+**AND THE DOMAIN GAP HEAT-TRANSFER ASKS THIS TEAM TO CARRY IS ACCEPTED AS A FINDING, NOT AS A
+CLAUSE**, in their own words: ***"the lab plants rigorously into comparators reading solver logs,
+and into no git assertion, no shell glob, and no selftest's own coverage."*** With six guard
+instances in one session behind it, **that is a domain gap in rule 3's application, not three
+coincidences** — and I record it **REPORTED, NOT GATED**, because no result is blocked by the gap
+as such. *It is filed as a mechanism family in `FAIL_OPEN_GATE_AUDIT`, where a measurement can
+accumulate against it without any team owing migration work today.*
+
+**Item D of that petition — the exit-code contract — is NOT ruled here.** It is a lab-wide
+contract question and it is being ruled on its own measured census of every comparator's exit
+codes, not on one grader's. **`PENDING`, in its display sense, and named so it is not mistaken for
+silence.**
+
+---
+
+| item | outcome |
+|---|---|
+| **T25R6cR2 A — threshold** | **`§2d.1` DOES NOT REACH IT. No petition was needed** — rule 6 supplies the form, **`§2d:1842-1845` supplies a four-part disclosure that IS owed** |
+| **the loophole guard** | **off-path status is MEASURED, never asserted — the `T25R6cR2` PROBE, named after the conduct that produced it** |
+| **T25R6cR2 B — the bar** | **NOT MET. No result blocked; `L-470` already carries the local decision** |
+| **T25R6cR2 C — the one-character repair** | **NO GRANT GIVEN, because granting an unneeded exception teaches that it was needed.** Local, under `§2ah`, one condition: the artifact must EXIST and PARSE |
+| **the unreachable registered artifact** | **one sentence owed: rule 2's freeze verification was satisfied BY HAND, not by the registered path** |
+| **⚠ the measurement against my own draft** | **the crash MOVED a registered channel: rc `3` → `1`. Off-gate-path holds; "off-path" gains a FIFTH disclosure content** |
+| **the weaker vs stronger off-path claim** | *"nothing READS it"* is a consumer census that expires; *"nothing DOWNSTREAM COMPUTES it"* is structural. A record must say which it stands on |
+| **T25R6a 1 — the predicate** | **GRANTED in the `§7` form.** Tautological, verified by me at source; `compare()` spans `:253-:294`, one return, a dict |
+| **the check that could have refuted it** | **`:319` is inside `selftest()` (`:295`), not `compare()`** — had it been inside, `r != 0` could be false and the petition fails |
+| **T25R6a 2 — conditions** | **FIVE. C1 form, C2 refusal, C3 `§2p.3(e)` positive control, C4 no overwrite, C5 the straddling interval in the verdict cell** |
+| **the narrowing** | **`NOT A RESULT` → graded is permitted only when the direction is NOT the petitioner's. Had it landed on a `PASS`, REFUSED** |
+| **T25R6a 3 — the artifact** | **RECORDED. `§2ac` ASSERTS rank, with a new property: it serialised its own falsifier at `:436` and discarded it at `:437`** |
+| **T25R6cR2 E — the selftest** | **ADOPTED FORWARD-ONLY.** The third question; no backfill, no sweep, no instrument |
+| **T25R6cR2 D — exit codes** | **`PENDING` — ruled separately on a measured census, not on one grader** |
+| gates · thresholds · bands · caps · labels | **0 · 0 · 0 · 0 · 0** |
+| registration-time expectations | **1, forward-only (`§2aj`)** |
+| solver compute | **0 core-min, $0.00** |
