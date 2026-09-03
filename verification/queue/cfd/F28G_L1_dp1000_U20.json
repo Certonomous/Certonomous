@@ -1,0 +1,77 @@
+{
+  "team": "cfd",
+  "case_id": "F28G_L1_dp1000_U20",
+  "prereg_commit": "95974b792dd0b0110db079dadae0804add57ee52",
+  "prereg_path": "verification/campaign/F28G_GRID_CONVERGENCE_PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/F28_DUCTED_ACTUATOR_DISK/run_f28.sh",
+    "--rung",
+    "F28G_L1_dp1000_U20",
+    "--level",
+    "1",
+    "--delta-p",
+    "1000",
+    "--u-inf",
+    "20",
+    "--relax-u",
+    "0.7",
+    "--ranks",
+    "4",
+    "--prereg-path",
+    "verification/campaign/F28G_GRID_CONVERGENCE_PREREGISTRATION.md",
+    "--prereg-commit",
+    "95974b792dd0b0110db079dadae0804add57ee52",
+    "--mesh-subdir",
+    "mesh_A4",
+    "--birth-dir",
+    "verification/runs/F28_runs/mesh_A4",
+    "--check1-token",
+    "cfd-supervisor-2026-09-03;analyse_f28g.py=STRONG-READ-AND-EXECUTED;analyse_f28.py=QUALIFIED-SOURCE-READ-ONLY-NO-SELFTEST-ENTRY-POINT;no-upgrade-clause-applies;verbatim=cases/F28_DUCTED_ACTUATOR_DISK/CHECK1_TOKEN_F28G_2026-09-03.md@d76b5e48"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/F28_runs/_f28g_queue_L1",
+  "ranks": 4,
+  "cost_core_min_estimate": 144.0,
+  "cost_basis": "REGISTERED, NOT RE-DERIVED HERE. The frozen registration section 8 fixes L1 at 15,000 iterations, anchored t_cell 4.05e-6 s, 35,544 cells, 2,159 wall s at 4 ranks = 144 core-min, and caps the THREE-LEVEL TRIPLE at 900 core-min. This lane may not alter a registered term and has not. THE 144 IS A PREDICTION AND THIS FIELD SAYS SO PLAINLY: IT IS NOT MEASURED -- no F28G solve has ever run, so there is no rate measured on this mesh. The rate model is the registration's own super-linear t_cell ~ N^0.55, fitted to the jet-flap lane's MEASUREMENT that cost per cell per iteration is not constant (4.27e-6 s at 39,984 cells against 7.79e-6 s at 89,964 -- 1.82x worse per cell at 2.25x the cells). Dollars are DERIVED, NOT MEASURED, at the owner-stated c7a.4xlarge rate $0.0513/core-h, reported-by-owner because this box cannot read its own billing (COMPUTE_BUDGET_CHARTER section 5): $0.1231 at the estimate and $0.7695 at the registration's 900 core-min triple cap. AN OVERRUN STOPS THE RUN AND DOES NOT GET A NEW BUDGET (rule 12).",
+  "memory_floor_gb": 4.0,
+  "enqueued_by": "cfd lab-lane, 2026-09-03, AFTER cfd-supervisor discharged SUPERVISION_CHARTER section 3 check 4 personally on the three commits this launch depends on -- b3d5b529 (launcher correction), 95974b79 (Amendment 5) and 2bb79d3e (birth certificates) -- and check 1 on BOTH graders in the grading path. ENQUEUEING IS NOT AUTHORISATION AND NO AGENT MESSAGE IS SANAA'S CONSENT (rule 9). WHAT THIS LANE VERIFIED WITH ITS OWN EYES in the invocation that wrote this entry: (a) run_f28.sh --preflight for this exact argv returned rc=0 and printed 'PREFLIGHT COMPLETE AT ZERO COMPUTE', with the self-blob check silent, the registration resolved to F28G's own document, mesh_A4 found, the birth certificate accepted, and the run dir VIRGIN with section 11.1's driven control firing in BOTH directions in that same invocation; (b) the run root named below is ABSENT, with the same reader shown able to read PRESENT on verification/runs/F28_runs/mesh_A4/L1 in this invocation (standing rule 3).",
+  "_schema_note": "Fields above are scripts/queue_entry_check.py REQUIRED_FIELDS. Everything below is a cfd annotation the validator ignores.",
+  "grading_freeze": [
+    "cases/F28_DUCTED_ACTUATOR_DISK/analyse_f28g.py",
+    "cases/F28_DUCTED_ACTUATOR_DISK/analyse_f28.py"
+  ],
+  "grading_freeze_note": "BOTH files are in the grading path and the pin is DECLARED rather than omitted. analyse_f28g.py did NOT exist at the ORIGINAL freeze 00188f82 -- it was committed 30 min 21 s later at a09376a9 -- so the grading path is fixed at AMENDMENT 4's commit 7f032d84 and carried by Amendment 5, NOT at 00188f82. That is a WEAKER guarantee than a grader frozen with its registration, and A4.3 labels it weaker rather than presenting it as equivalent. IF THE FREEZE RECORDER READS THIS ROW AS UNPINNED AGAINST 00188f82, THAT READING IS CORRECT AND IS NOT TO BE SUPPRESSED.",
+  "decomposition_seed": "scotch, numberOfSubdomains 4, read from cases/F28_DUCTED_ACTUATOR_DISK/case/system/decomposeParDict, copied verbatim into the run by run_f28.sh and applied by `decomposePar -force`. Scotch is deterministic for a given mesh and subdomain count on a given build; the method exposes no explicit numeric seed, and this field SAYS SO rather than inventing one. Recorded as scotch-default-v2606, the same string the parent's completed feasibility runs recorded.",
+  "cap_core_min_registered": 900.0,
+  "cap_scope": "900 core-min is the registration's cap for the THREE-LEVEL TRIPLE, not for this row. This row's registered share is 144 core-min.",
+  "cap_enforcement_HONEST_AND_A_GAP": "THE ONLY STRUCTURAL STOP ON THIS RUN IS THE 15,000-ITERATION CAP. run_f28.sh CARRIES NO WALL-CLOCK `timeout` -- established by reading the launcher, not assumed -- so if the true cost per cell per iteration is worse than the registration's anchored 4.05e-6 s, the spend grows with it and NOTHING STOPS THE RUN BEFORE ITERATION 15,000. Sanaa's 2026-09-03 ~21:00Z ruling names a fleet-wide safety ceiling of min(3x registered cap, remaining box budget) as the one hard limit that survives; 3 x 144 = 432 core-min would be that ceiling here. THE MONITOR THAT WOULD ENFORCE IT DOES NOT EXIST YET -- it is on the board as a forward-only item. This row launches with that gap DISCLOSED rather than silently. A level that hits the iteration cap is NOT A RESULT (parent section 8) and the ladder stops there.",
+  "registered_stop_order": "L1 FIRST. L2 only if L1 satisfies every parent section 8 convergence criterion; L3 only if L2 does. THIS ENTRY IS L1 ONLY and files no successor.",
+  "label": "graded -- the parent's Roache gates carried unchanged by F28G section 7: T_total, Fs=1.25, observed order p in [1.3, 2.5], GCI_fine < 3 %, rule-5 ordering one-way.",
+  "relax_u_registered": "0.7, registered PRE-COMPUTE by Amendment 5 A5.2 FROM EVIDENCE, not preference: two COMPLETED parent runs (FEAS_L1_dp1000_U20_A2 and FEAS_L1_dp0_U20_A2, both solver_rc=0) recorded relax_U=0.7, and both runs' system/fvSolution on disk independently read U 0.7. Those are FEASIBILITY rungs whose outputs are never gradeable; what is taken from them is NOT A NUMBER but a configuration that demonstrably converged on L1. HELD FIXED ACROSS L1, L2 AND L3.",
+  "check1_token_scope": "TWO GRADERS, TWO STRENGTHS, NOT INTERCHANGEABLE. analyse_f28g.py STRONG (read personally AND EXECUTED, --selftest rc 0 under python3 -O). analyse_f28.py QUALIFIED, SOURCE-READ ONLY, NOT EXECUTED -- it has NO --selftest entry point (rc 2 with and without -O), so its plants PLANT_PA/FO/SU/DX are DECLARED, NOT EXECUTED, and T_total flows through that file. The supervisor's NO-UPGRADE CLAUSE binds every later reader including this row: the QUALIFIED scope does not become STRONG by the passage of time, by byte-identity to a freeze blob, by a successful run, or by any agent's summary of the token. Verbatim token at cases/F28_DUCTED_ACTUATOR_DISK/CHECK1_TOKEN_F28G_2026-09-03.md, committed d76b5e48.",
+  "predictions_recorded_for_the_certificate": [
+    "The parent comparator analyse_f28.py's controls are DECLARED AND UNEXECUTED; no --selftest entry point exists. Forward-only, rides a successor, does not block (Sanaa 2100Z).",
+    "The grading path is fixed at Amendment 4's commit 7f032d84 rather than at the original freeze 00188f82; a weaker guarantee, and labelled weaker.",
+    "No wall-clock ceiling exists on this run; the only structural stop is the 15,000-iteration cap, and the fleet monitor that would supply a ceiling does not exist yet."
+  ],
+  "mesh_admission": "mesh_A4/L1 certified GATE REACHED against F28G's OWN section 6.1 M1..M6 at 2bb79d3e -- non-orthogonality 57.8773 < 65, skewness 1.24132 < 4, min volume 1.41e-16 > 0 with zero negative cells, max q1 1.24115 <= the level cap 1.25000, refinement ratios and similarity jumps in band. Max aspect ratio 53458.4 is RECORDED AND GATES NOTHING (section 6.2).",
+  "run_root": "/home/ubuntu/Certonomous/verification/runs/F28_runs/F28G_L1_dp1000_U20 -- ABSENT at filing time, with the same reader shown able to read PRESENT on /home/ubuntu/Certonomous/verification/runs/F28_runs/mesh_A4/L1 in the same invocation (standing rule 3). A PREFLIGHT ARTIFACT had occupied this path and was MOVED, NEVER DELETED, to F28G_L1_dp1000_U20.PREFLIGHT_ARTIFACT_2026-09-03T1957Z_PRESERVED/ with a note recording why: run_f28.sh --preflight prints 'ZERO COMPUTE' truthfully but is NOT side-effect-free -- its EXIT trap creates the run root and writes a RUN_STATUS, which is precisely the artifact a later age-guard reader keys on.",
+  "verdict_state": "PENDING -- not yet run",
+  "_field_classes": {
+    "physics_critical": [
+      "RUN_STATUS.F28.F28G_L1_dp1000_U20.txt (solver rc captured INSIDE run_f28.sh on the solver line, never around a setsid line)",
+      "the case's own log.simpleFoam End line, endTime fields and 0/ age guard",
+      "log.checkMesh and the birth certificate's M1..M6"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "LAUNCH_LOG.tsv row",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
+}

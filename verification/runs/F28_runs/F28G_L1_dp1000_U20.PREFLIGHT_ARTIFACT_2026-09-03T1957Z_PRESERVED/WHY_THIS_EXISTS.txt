@@ -1,0 +1,25 @@
+PREFLIGHT ARTIFACT, PRESERVED. NOT A RUN. NO COMPUTE HAPPENED HERE.
+
+Created 2026-09-03T19:57Z by
+  bash cases/F28_DUCTED_ACTUATOR_DISK/run_f28.sh ... --preflight
+which returned rc=0 and printed "PREFLIGHT COMPLETE AT ZERO COMPUTE.  Nothing
+was meshed and nothing solved."  That statement is TRUE ABOUT COMPUTE and FALSE
+ABOUT SIDE EFFECTS: the run's EXIT trap fired on the preflight path too, so the
+run root was created and RUN_STATUS.F28.F28G_L1_dp1000_U20.txt was written.
+
+WHY IT WAS MOVED RATHER THAN LEFT OR DELETED. Left in place, the real run would
+have overwritten this RUN_STATUS with its own -- destroying the only record that
+the preflight ran -- and a later reader keying on the run root's EXISTENCE would
+have found a directory predating the run it is meant to date. Deleted, the
+evidence that the preflight happened would be gone. MOVE, NEVER DELETE.
+
+It holds NO `0/` and NO time directory, so run_f28.sh's own section 11.1 age
+guard would NOT have refused on it; the stricter refusal came from the queue
+entry generator, which requires the run root to be wholly absent.
+
+FINDING, RAISED TO cfd-supervisor AND NOT FIXED HERE: `--preflight` advertises
+zero compute and delivers it, but it is not side-effect-free, and the side effect
+it leaves is precisely the one the age guard reads. A preflight that creates the
+directory whose absence is the pre-compute condition is a small instance of this
+week's family -- an instrument that answers a slightly different question than
+the one asked of it.
