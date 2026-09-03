@@ -539,3 +539,77 @@ Deleting exactly the range §3 names leaves **3 occurrences** of the forbidden t
 Every pin in S2.1, the producer's bytes, the launcher, the pin census and its 14/14, the reader's 17/17, the residual-history refusal of S2.3, the NL-3 split of S2.4, and every prediction, band, cap, label and NO-LAUNCH rc. **NOT ARMED. NOT ENQUEUED. ZERO SOLVER CORE-MINUTES. SUBMISSIONS PARKED.**
 
 **END OF CORRECTION 1.**
+
+---
+
+## ADDENDUM 1 — THE MESH ARM HAD NO STAGING STEP AT ALL. Dated **2026-09-03**. Version **1.1a → 1.2**.
+
+> **lines whose number changed above this section: 0** — asserted by execution against both the pre-append snapshot and `git show HEAD:`.
+
+**⚠ THIS ITEM HAS RUN A CONTAINER.** The MESH arm launched 2026-09-03T21:48:15Z and exited **rc=127** in 1 second, **0.0167 core-min**, named as **waste**. This addendum is lawful after that container because **it moves no gate, no threshold, no prediction, no band, no cap and no label**, and because every change it makes **can only ever refuse MORE, never less**.
+
+### A1.1 The defect — and it is not a missing file
+
+`so3af2_run_arm.sh` created the arm directory with `mkdir -p`, mounted it, and told the container to run `./preProcessing.sh` inside it. **There was no `cp`, no `rsync`, no `tar`, no symlink and no source constant for the MESH arm anywhere in the file.** The run root confirms it from the other end: `MESH/` contained `checkMesh.log` and nothing else, and that file exists only because the redirect created it.
+
+> `bash: line 1: ./preProcessing.sh: No such file or directory`
+
+**The MESH arm could never have run, at any budget, on any box.** `rc=127` is bash saying *command not found*, and it was right. **Eleventh unsatisfiable-by-construction condition of the day; third in this item's lineage.**
+
+### A1.2 ⚠ AND THE SIBLING BRANCH STAGED CORRECTLY — the part that should sting
+
+**The XM arm stages its producer at `:199`. The MESH arm staged nothing.** The author thought about staging, implemented it for one arm, and did not for its neighbour. **That is the `A1ZE` `occ_wait` finding of `S-34` §2 in the same shape — a pattern applied to one branch and not the sibling beside it — twice in one night, in two items, by different hands. It is invisible to every guard we write, because each branch looks correct in isolation.**
+
+### A1.3 THE GENERALISATION, WHICH IS THE REAL FINDING
+
+**All four NO-LAUNCH guards passed and the image digest verified — and every one of them checks an INSTRUMENT, not an INPUT.** Producer md5, forbidden token, reader pin, image digest: the launcher verified everything about the tools and nothing about whether the case was there. **A guard set that checks every instrument and no input will happily launch a container into an empty directory, and here it did.** `A1WRT`'s missing FFD was the same hole and was *masked* by its controlDict abort; here nothing masked it and it cost a container start.
+
+### A1.4 The repair — the staging source, and why THIS source
+
+**`MESH_SRC = /home/ubuntu/certonomous-runs/CURRICULUM-SO3aR2-a1-naca0012-alpha-multipoint-gradient/base`**, pinned by a **tree manifest** `MD5_MESH_SRC_MANIFEST = b7bf0eca3185b7d9af93e61ca122201b` over sorted relative paths **and** content hashes, so a moved file, a renamed file and a changed byte are all visible where a `md5sum *` would see none of them. **Asserted on BOTH SIDES of the copy** — source before, staged tree after.
+
+**Why this source and not another, stated rather than assumed.** §3 registers this item's producer as *derived from* `curriculum_SO3aR2/so3ar2_runScript.py`, so SO-3aR2's own case skeleton is the same lineage and the same case. It carries **exactly 7 entries and 21 files** — `0.orig FFD constant genAirFoilMesh.py preProcessing.sh profiles system` — and **no `constant/polyMesh` and no `0/`**. SO-2MR's skeleton was compared and is **byte-identical as a tree**, so the choice is not load-bearing between the two.
+
+**The staged SET was derived from `preProcessing.sh`'s OWN BYTES, not from the error message.** It runs `python genAirFoilMesh.py` (needs `genAirFoilMesh.py`, `profiles/`), then `plot3dToFoam`, `autoPatch`, `createPatch -overwrite`, `renumberMesh -overwrite` (need `system/`, `constant/`), then `cp -r 0.orig 0` (needs `0.orig/`). **`rc=127` names the FIRST missing thing, never the last.**
+
+**G-COLD, and it guards the opposite error.** Staging *too much* is worse than staging nothing: the parent's own `case/` is a POST-RUN directory carrying `constant/polyMesh` — **the very thing this arm exists to produce** — so copying it would give a mesh arm that inherits a mesh and reports success. The launcher **refuses** if the source carries `constant/polyMesh` or `0/`.
+
+### A1.5 The staging precondition — rc **9**, and it is NOT a fifth NO-LAUNCH branch
+
+**§6's taxonomy of four branches and their rcs 3/4/5/6 is UNCHANGED in what it refuses.** The new assert has its **own rc 9** and its own file `NOLAUNCH_STAGING.txt`, distinct from those four, from the producer's exit **7**, and from the cap's exit **8**. **A change that can only ever refuse MORE is not a weakening, and that is the ground on which it is lawful after a container has run.**
+
+It asserts the working directory contains **the set** `preProcessing.sh genAirFoilMesh.py profiles system constant 0.orig`, that `preProcessing.sh` is **executable** (a present-but-not-executable script answers 126, not 127), and on success **NAMES WHAT IT FOUND** and the file count — not a bare success line.
+
+### A1.6 A taxonomy error the census exposed, repaired in the same pass
+
+A failed `docker run` was reusing **`NOLAUNCH_ROOT.txt` / rc 3**, so *"the run root already exists"* and *"the container could not be started"* were **indistinguishable to any reader of the rc**. It now has its own `NOLAUNCH_DOCKER.txt` / **rc 10**.
+
+### A1.7 Re-pins
+
+| file | md5 | note |
+|---|---|---|
+| `so3af2_run_arm.sh` | `353f9936ef2c08a33c19a1ade8adaecd` | **RE-PINNED**; supersedes `9dec28b7119c901c68d2399d0c3248c2` |
+| `so3af2_pin_selftest.sh` | `e55c6c9ce868eca8bfb777e323cecec0` | **RE-PINNED**; supersedes `039e18f3775e837ac88ed84c34aabf6e` |
+| `so3af2_read.py` | `d5f4149d43abe3a165ffe7e653b78bee` | **UNCHANGED** — the frozen reader is not touched |
+| `so3af2_runScript.py` | `4359b9b7c04a81b9e56231481f4e0ccb` | **UNCHANGED** by this addendum |
+
+**Census re-driven: 18 legs, PASS 17, FAIL 1** — the single FAIL is `NL-3-OUTSIDE` reporting the launcher md5 not yet pinned, which **this table is what fixes**; it is re-driven to 18/18 in the committing invocation and the evidence file carries that run. New legs: the staging manifest clause, the precondition clause **driven BY NAME with the source re-pinned onto doctored bytes so the manifest clause passes and the precondition clause is what fires**, and staging added to the all-guards-satisfiable leg.
+
+**Two census defects found and repaired in this pass, both this lane's own.** (i) The docker stub refused *every* call including `image inspect`, so the digest guard fired first and **every leg beyond it was unreachable** — the suite would have tested four guards and silently skipped the rest while reporting PASS. The stub now answers **only** `image inspect` and refuses everything else, `docker run` included. (ii) The safety leg asserted the real run root was **ABSENT** — true at the Stage-2 amendment and made **false** by the daemon's launch. An assertion that only holds before the item's first container is not a safety property of the census; it now asserts the root's **manifest is unchanged across the run**, which is what this file actually owns.
+
+### A1.8 ⚠ XM MEASURED, NOT ASSUMED — and it is WORSE than the hypothesis
+
+The supervisor predicted XM would carry the same defect *"in a milder form"* and instructed that it be measured. **Measured, it is more severe: four distinct defects, and XM MUST NOT BE QUEUED.**
+
+1. **XM stages one file into an otherwise empty directory.** The producer needs a full case per operating point: `gridFile = os.path.join(os.getcwd(), RUN_DIRS[point])` gives `XM/mp0`, `XM/mp1`, `XM/mp2`, and `OM_DVGEOCOMP(file="FFD/wingFFD.xyz")` is cwd-relative. **Three full case copies plus the FFD, not one directory.**
+2. **⚠ THE PER-POINT DIRECTORIES LAND WHERE THE FROZEN READER DOES NOT LOOK.** The producer creates `XM/mp<i>`; the reader's F3 reads `read_run_dirs(os.path.join(root, "XM", "case"))` — **`XM/case/mp<i>`**. The reader is **FROZEN and unchanged since 2026-08-31**, so this cannot be repaired there, and F3 would score MISS on a separation that had actually worked.
+3. **THE ARTEFACT PATH IS WRONG, AND IT IS THIS LANE'S OWN DEFECT IN THE PRODUCER.** It writes `os.path.join(os.getcwd(), "XM")` with cwd already `/mnt/XM` — **`<root>/XM/XM/so3af2_M.json`, one nested `XM` too many** — while the reader reads `<root>/XM/so3af2_M.json`.
+4. **NOTHING INVOKES THE READER.** `so3af2_read.py` is *pinned* by the launcher and *never called* by it or by anything else. **The item's entire scoring instrument is never run**, and no registered artifact fixes what `--root` it would be given — which is also why findings 2 and 3 cannot be resolved by choosing a convenient `root`.
+
+**No XM repair is attempted here.** Findings 2 and 4 bear on the frozen reader's contract and are the supervisor's to rule on before any XM instrument is written.
+
+### A1.9 What is unchanged
+
+Every prediction F1–F5, every band, both caps, the ceiling, the memory floor, the four NO-LAUNCH branches and their rcs, the plant constants `K_F = 2.0` and `band_REP = 1.0e-4 %`, and **§0.2 in full**. The MESH arm's verdict is **PENDING**; nothing is scored; **waste 0.0167 core-min named as waste and never absorbed into a ratio**. **NOT RE-FIRED. XM NOT QUEUED. SUBMISSIONS PARKED.**
+
+**END OF ADDENDUM 1.**

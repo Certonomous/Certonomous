@@ -99,3 +99,66 @@ correction and is the number NL-2 actually reads.
 Raised by the dafoam-supervisor on his own independent measurement; re-measured
 by this lane before correcting. A disclosure that OVERSTATES a defect is still a
 wrong record.
+
+===========================================================================
+ADDENDUM 1 RE-DRIVE, 2026-09-03T215814Z -- after the MESH staging repair
+===========================================================================
+INSTRUMENT IDENTITY:
+  so3af2_read.py             md5=d5f4149d43abe3a165ffe7e653b78bee lines=560
+  so3af2_runScript.py        md5=4359b9b7c04a81b9e56231481f4e0ccb lines=435
+  so3af2_run_arm.sh          md5=353f9936ef2c08a33c19a1ade8adaecd lines=324
+  so3af2_pin_selftest.sh     md5=e55c6c9ce868eca8bfb777e323cecec0 lines=319
+
+MESH STAGING SOURCE, measured:
+  /home/ubuntu/certonomous-runs/CURRICULUM-SO3aR2-a1-naca0012-alpha-multipoint-gradient/base
+  entries: 0.orig FFD constant genAirFoilMesh.py preProcessing.sh profiles system 
+  files:   21
+  manifest md5: b7bf0eca3185b7d9af93e61ca122201b
+  constant/polyMesh: absent -- G-COLD satisfied
+  0/:                absent -- G-COLD satisfied
+
+SO-3aF2 PIN CENSUS AND NO-LAUNCH SELFTEST
+launcher md5 353f9936ef2c08a33c19a1ade8adaecd
+
+JOB 1 -- PIN CENSUS
+  PIN:MD5_MESH_SRC_MANIFEST  PASS  base b7bf0eca3185b7d9af93e61ca122201b
+  PIN:MD5_PRODUCER           PASS  so3af2_runScript.py 4359b9b7c04a81b9e56231481f4e0ccb
+  PIN:MD5_READER             PASS  so3af2_read.py d5f4149d43abe3a165ffe7e653b78bee
+  PIN-CENSUS                 PASS  driven=3 exist=3 -- EQUAL, so every pin is driven as a COUNT
+  NL-3-OUTSIDE               PASS  launcher md5 353f9936ef2c08a33c19a1ade8adaecd is pinned in the frozen document
+
+JOB 2 -- NO-LAUNCH BRANCHES
+  NL-3 FREEZE (refuses)      PASS  rc=5 wrote NOLAUNCH_FREEZE.txt
+  NL-2 PRODUCER md5          PASS  rc=4 wrote NOLAUNCH_PRODUCER.txt
+  NL-2 PRODUCER token        PASS  rc=4 wrote NOLAUNCH_PRODUCER.txt
+  NL-2 token BY NAME         PASS  refused on the token clause, not on the md5 clause
+  NL-1 ROOT (refuses)        PASS  rc=3 wrote NOLAUNCH_ROOT.txt
+  NL-4 MEM (refuses)         PASS  rc=6 wrote NOLAUNCH_MEM.txt
+  STAGING manifest           PASS  rc=9 wrote NOLAUNCH_STAGING.txt
+  STAGING precondition       PASS  rc=9 wrote NOLAUNCH_STAGING.txt
+  STAGING names the SET      PASS  refused on the precondition clause and NAMED the missing input
+  ALL GUARDS SATISFIABLE     PASS  every guard printed its PASS line INCLUDING staging; the run then ended rc=10 because the stub REFUSES `docker run` -- which is the only place it can end, and NO CONTAINER IS EVER CREATED
+
+SANDBOX DELTAS (printed, not asserted away):
+    48c48
+    < BASE=/home/ubuntu/certonomous-runs/CURRICULUM-SO3aF2-a1-naca0012-multipoint-feasibility
+    ---
+    > BASE=/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/dafoam/freezeahead_lane/so3af2_pin_selftest_858039/pass/base
+
+JOB 3 -- SAFETY
+  REAL ROOT UNTOUCHED        PASS  manifest unchanged across this run: 8e660847ba460c20543fcde09b34e4f9
+  NO CONTAINER STARTED       PASS  docker was reached 11 time(s), ALL of them the STUB. It answers ONLY `image inspect` (with the registered digest, so the legs past that guard are reachable) and REFUSES everything else, `docker run` included -- so no container is ever created. The full transcript is printed below rather than summarised.
+    STUB-DOCKER-CALLED ps --format {{.Names}}
+    STUB-DOCKER-CALLED ps --format {{.Names}}
+    STUB-DOCKER-CALLED ps -q
+    STUB-DOCKER-CALLED image inspect --format {{index .RepoDigests 0}} dafoam/opt-packages:latest
+    STUB-DOCKER-CALLED ps --format {{.Names}}
+    STUB-DOCKER-CALLED ps -q
+    STUB-DOCKER-CALLED image inspect --format {{index .RepoDigests 0}} dafoam/opt-packages:latest
+    STUB-DOCKER-CALLED ps --format {{.Names}}
+    STUB-DOCKER-CALLED ps -q
+    STUB-DOCKER-CALLED image inspect --format {{index .RepoDigests 0}} dafoam/opt-packages:latest
+    STUB-DOCKER-CALLED run -d --name so3af2_MESH_2026-09-03T215814Z --user 0:0 --cpus=1 --cpuset-cpus=0 --memory=4g --memory-swap=4g --oom-score-adj=500 -v /tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/dafoam/freezeahead_lane/so3af2_pin_selftest_858039/pass/base:/mnt -w /mnt/MESH dafoam/opt-packages:latest bash -lc cd /mnt/MESH && ./preProcessing.sh > checkMesh.log 2>&1 && checkMesh >> checkMesh.log 2>&1
+  DECOY SURVIVED             PASS  cleanup was by name, not by sweep
+
+SO3aF2 PIN CENSUS: PASS 18  FAIL 0  NOT RUN 0

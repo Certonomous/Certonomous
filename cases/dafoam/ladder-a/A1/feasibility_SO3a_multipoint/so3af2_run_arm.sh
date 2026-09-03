@@ -61,6 +61,23 @@ IMG_SHIPPED_DIGEST=sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33a
 # ---- own bytes by so3af2_pin_selftest.sh and mapped to a registered target; a
 # ---- pin added here with no target FAILS that census.  "Every pin is driven"
 # ---- is a COUNT, never a claim (the SO-1c defect: twelve pins, four driven).
+# ---- THE MESH ARM'S STAGING SOURCE.  See ADDENDUM 1.  The MESH arm previously
+# ---- staged NOTHING: it created an empty directory, mounted it, and told a
+# ---- container to run a script that was never put there (rc=127, measured
+# ---- 2026-09-03T21:48:15Z).  The source below is SO-3aR2's own pre-mesh
+# ---- skeleton -- the same lineage this item's producer is derived from -- and
+# ---- it is pinned by a MANIFEST md5 over sorted relative paths and content
+# ---- hashes, asserted on BOTH SIDES of the copy.
+MESH_SRC=/home/ubuntu/certonomous-runs/CURRICULUM-SO3aR2-a1-naca0012-alpha-multipoint-gradient/base
+MD5_MESH_SRC_MANIFEST=b7bf0eca3185b7d9af93e61ca122201b
+
+# ---- what the MESH arm must find in its working directory before a container
+# ---- is created.  DERIVED FROM `preProcessing.sh`'s OWN BYTES, not guessed from
+# ---- the error message: it runs `python genAirFoilMesh.py`, then plot3dToFoam,
+# ---- autoPatch, createPatch and renumberMesh (which read system/), then
+# ---- `cp -r 0.orig 0`.  rc=127 named the FIRST missing thing; this names the set.
+MESH_REQUIRES="preProcessing.sh genAirFoilMesh.py profiles system constant 0.orig"
+
 MD5_READER=d5f4149d43abe3a165ffe7e653b78bee     # so3af2_read.py, pinned at the 2026-08-31 freeze, section 8
 MD5_PRODUCER=4359b9b7c04a81b9e56231481f4e0ccb                   # so3af2_runScript.py, pinned at the Stage-2 amendment
 
@@ -188,7 +205,76 @@ echo "SO3AF2_IMAGE_OK row=SHIPPED image=$IMG_SHIPPED digest=$GOT_DIGEST"
 # ---------------------------------------------------------------------------
 # STAGE AND RUN
 # ---------------------------------------------------------------------------
-mkdir -p "$BASE/$ARM"
+# A MANIFEST over a tree: sorted relative paths AND content hashes, so a moved
+# file, a renamed file and a changed byte are all visible. A plain `md5sum *`
+# would not see a path change at all.
+tree_manifest() { ( cd "$1" && find . -type f | sort | xargs md5sum ) | md5sum | cut -d' ' -f1; }
+
+mkdir -p "$BASE"
+WORK="$BASE/$ARM"
+
+if [ "$ARM" = "MESH" ]; then
+  # ---- the source, asserted BEFORE the copy -------------------------------
+  [ -d "$MESH_SRC" ] || nolaunch NOLAUNCH_STAGING.txt 9 \
+    "MESH staging source $MESH_SRC is not a directory. UNMEASURED, not assumed."
+  SRC_MANIFEST="$(tree_manifest "$MESH_SRC")"
+  [ "$SRC_MANIFEST" = "$MD5_MESH_SRC_MANIFEST" ] || nolaunch NOLAUNCH_STAGING.txt 9 \
+    "MESH staging source manifest $SRC_MANIFEST != pinned $MD5_MESH_SRC_MANIFEST. \
+The source tree is not the one this item registered; a copy from it would stage unknown bytes."
+
+  # ---- G-COLD: the source must NOT already carry what MESH exists to make ---
+  # ---- Staging the answer is worse than staging nothing: it would produce a
+  # ---- mesh arm that inherits a mesh and reports success.
+  [ -e "$MESH_SRC/constant/polyMesh" ] && nolaunch NOLAUNCH_STAGING.txt 9 \
+    "G-COLD: $MESH_SRC already carries constant/polyMesh -- that is the OUTPUT this arm exists to produce"
+  [ -e "$MESH_SRC/0" ] && nolaunch NOLAUNCH_STAGING.txt 9 \
+    "G-COLD: $MESH_SRC already carries 0/ -- preProcessing.sh creates it from 0.orig"
+
+  [ -e "$WORK" ] && nolaunch NOLAUNCH_STAGING.txt 9 \
+    "$WORK already exists. Archive by mv, never delete -- an existing arm directory means this is not the run allowed to produce the answer."
+  cp -a "$MESH_SRC" "$WORK" || nolaunch NOLAUNCH_STAGING.txt 9 "cp -a from $MESH_SRC to $WORK failed"
+
+  # ---- the same manifest, asserted AFTER the copy --------------------------
+  DST_MANIFEST="$(tree_manifest "$WORK")"
+  [ "$DST_MANIFEST" = "$MD5_MESH_SRC_MANIFEST" ] || nolaunch NOLAUNCH_STAGING.txt 9 \
+    "staged manifest $DST_MANIFEST != source manifest $MD5_MESH_SRC_MANIFEST -- the copy did not reproduce the tree"
+  echo "SO3AF2_STAGED arm=MESH src=$MESH_SRC manifest=$DST_MANIFEST files=$(find "$WORK" -type f | wc -l)"
+else
+  mkdir -p "$WORK"
+fi
+
+# ---------------------------------------------------------------------------
+# THE STAGING PRECONDITION -- rc 9, and it is NOT a fifth NO-LAUNCH branch.
+#
+# Section 6's taxonomy of FOUR branches and their rcs 3/4/5/6 is UNCHANGED in
+# what it refuses; this assert has its OWN rc, distinct from those four, from the
+# producer's exit 7 and from the cap's exit 8. It can only ever refuse MORE, never
+# less, which is the ground on which it is lawful after a container has run.
+#
+# ALL FOUR EXISTING GUARDS CHECK AN INSTRUMENT, NOT AN INPUT -- producer md5,
+# forbidden token, reader pin, image digest. A guard set that checks every
+# instrument and no input will happily launch a container into an empty
+# directory, and on 2026-09-03 it did.
+# ---------------------------------------------------------------------------
+MISSING=""
+FOUND=""
+for req in $MESH_REQUIRES; do
+  if [ "$ARM" = "MESH" ] && [ ! -e "$WORK/$req" ]; then
+    MISSING="$MISSING $req"
+  elif [ "$ARM" = "MESH" ]; then
+    FOUND="$FOUND $req"
+  fi
+done
+if [ "$ARM" = "MESH" ]; then
+  [ -z "$MISSING" ] || nolaunch NOLAUNCH_STAGING.txt 9 \
+    "STAGING PRECONDITION: the MESH arm invokes ./preProcessing.sh, which needs [$MESH_REQUIRES]; \
+MISSING from $WORK:$MISSING. rc=127 names the FIRST missing thing, never the last, so this names the SET."
+  [ -x "$WORK/preProcessing.sh" ] || nolaunch NOLAUNCH_STAGING.txt 9 \
+    "STAGING PRECONDITION: $WORK/preProcessing.sh is present but NOT EXECUTABLE; \
+the arm invokes it as ./preProcessing.sh and bash would answer 126, not 127."
+  echo "SO3AF2_STAGING_PRECONDITION_PASS arm=MESH found=[$FOUND] executable=preProcessing.sh files=$(find "$WORK" -type f | wc -l)"
+fi
+
 LEDGER="$BASE/ledger.txt"
 NAME="${PREFIX}${ARM}_${STAMP}"
 T0="$(date +%s)"
@@ -205,7 +291,15 @@ sudo -n docker run -d --name "$NAME" \
   --memory=$MEM_CAP --memory-swap=$MEM_CAP --oom-score-adj=500 \
   -v "$BASE":/mnt -w "/mnt/$ARM" "$IMG_SHIPPED" bash -lc "$CMD" > /dev/null
 RC_START=$?
-[ "$RC_START" = "0" ] || nolaunch NOLAUNCH_ROOT.txt 3 "docker run returned $RC_START"
+# A FAILED `docker run` IS NOT THE NL-1 ROOT BRANCH AND MUST NOT WEAR ITS rc.
+# An earlier version reused NOLAUNCH_ROOT.txt / rc 3 here, so "the run root
+# already exists" and "the container could not be started" were indistinguishable
+# to any reader of the rc. Its own file, its own rc 10, distinct from the four
+# registered NO-LAUNCH rcs (3/4/5/6), from the staging precondition (9), from the
+# producer's residual refusal (7) and from the cap (8).
+[ "$RC_START" = "0" ] || nolaunch NOLAUNCH_DOCKER.txt 10 \
+  "docker run returned $RC_START -- the container could not be STARTED. This is NOT NL-1 ROOT \
+and does not mean the run root exists; it means the daemon refused or the invocation was malformed."
 
 sudo -n docker wait "$NAME" > /dev/null 2>&1
 RC="$(sudo -n docker inspect --format '{{.State.ExitCode}}' "$NAME" 2>/dev/null)"

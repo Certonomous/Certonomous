@@ -42,6 +42,17 @@ REAL_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-SO3aF2-a1-naca0012-multipoint
 TMP="${1:-/tmp}/so3af2_pin_selftest_$$"
 PASS=0; FAIL=0
 
+# A manifest of the real run root, taken BEFORE anything runs. "ABSENT" is itself
+# a legitimate value and compares equal to itself.
+real_manifest() {
+  if [ -d "$REAL_BASE" ]; then
+    ( cd "$REAL_BASE" && find . | sort | md5sum ) | cut -d' ' -f1
+  else
+    echo ABSENT
+  fi
+}
+REAL_BASE_BEFORE="$(real_manifest)"
+
 ok()   { PASS=$((PASS+1)); printf '  %-26s PASS  %s\n' "$1" "$2"; }
 bad()  { FAIL=$((FAIL+1)); printf '  %-26s FAIL  %s\n' "$1" "$2"; }
 
@@ -53,6 +64,16 @@ echo "a file this selftest did not create; it must survive cleanup" > "$DECOY"
 cat > "$TMP/bin/docker" <<'STUB'
 #!/usr/bin/env bash
 echo "STUB-DOCKER-CALLED $*" >> "$STUB_LOG"
+# The stub ANSWERS the image-digest lookup with the registered digest and REFUSES
+# everything else. Without this, the digest guard refuses first and EVERY LEG
+# BEYOND IT IS UNREACHABLE -- the suite would have tested the first four guards
+# and silently skipped the rest while reporting PASS. Found by this file's own
+# STAGING legs failing with the digest guard's message instead of their own.
+# `docker run` still hits the refusing path below, so no container is ever made.
+if [ "${1:-}" = "image" ] && [ "${2:-}" = "inspect" ]; then
+  echo "dafoam/opt-packages@sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc"
+  exit 0
+fi
 exit 99
 STUB
 cat > "$TMP/bin/sudo" <<'STUB'
@@ -79,12 +100,25 @@ N_DRIVEN=0
 UNMAPPED=""
 for pin in $PINS; do
   case "$pin" in
-    MD5_READER)   target="$READER" ;;
-    MD5_PRODUCER) target="$PRODUCER" ;;
+    MD5_READER)   target="$READER"; kind=file ;;
+    MD5_PRODUCER) target="$PRODUCER"; kind=file ;;
+    # A TREE MANIFEST, not a file md5, and the table says which so a reader is
+    # not left inferring it. Its target is the MESH staging source named in the
+    # launcher's own bytes -- read from there, never retyped here.
+    MD5_MESH_SRC_MANIFEST)
+                  target="$(grep -oE '^MESH_SRC=.*' "$LAUNCHER" | cut -d= -f2-)"; kind=manifest ;;
     *)            UNMAPPED="$UNMAPPED $pin"; continue ;;
   esac
   want="$(grep -oE "^${pin}=[0-9a-f]{32}" "$LAUNCHER" | cut -d= -f2)"
-  got="$(md5sum "$target" | cut -d' ' -f1)"
+  if [ "$kind" = "manifest" ]; then
+    if [ -d "$target" ]; then
+      got="$( ( cd "$target" && find . -type f | sort | xargs md5sum ) | md5sum | cut -d' ' -f1 )"
+    else
+      got="SOURCE-TREE-ABSENT"
+    fi
+  else
+    got="$(md5sum "$target" | cut -d' ' -f1)"
+  fi
   if [ -z "$want" ]; then
     bad "PIN:$pin" "no 32-hex value on its assignment line"
   elif [ "$want" = "$got" ]; then
@@ -183,12 +217,40 @@ sed -i -e 's|^MEM_FLOOR_GIB=.*|MEM_FLOOR_GIB=999999.0|' \
        -e 's|^POLL_BOUND_S=.*|POLL_BOUND_S=0|' "$D/so3af2_run_arm.sh"
 expect "NL-4 MEM (refuses)" "$D" 6 NOLAUNCH_MEM.txt MESH
 
+# ---- STAGING: a wrong source manifest must REFUSE rc 9 ----------------------
+D="$(mk_sandbox stage_manifest)"
+sed -i 's|^MD5_MESH_SRC_MANIFEST=.*|MD5_MESH_SRC_MANIFEST=00000000000000000000000000000000|' "$D/so3af2_run_arm.sh"
+expect "STAGING manifest" "$D" 9 NOLAUNCH_STAGING.txt MESH
+
+# ---- STAGING: a required input MISSING must REFUSE rc 9, BY NAME.
+# ---- The doctored source is re-pinned so the MANIFEST clause passes and the
+# ---- PRECONDITION clause is what fires -- otherwise this leg would pass for the
+# ---- wrong reason, which is the failure this file exists to make impossible.
+D="$(mk_sandbox stage_missing)"
+SRC_REAL="$(grep -oE '^MESH_SRC=.*' "$LAUNCHER" | cut -d= -f2-)"
+if [ -d "$SRC_REAL" ]; then
+  DOCTORED="$D/doctored_src"
+  cp -a "$SRC_REAL" "$DOCTORED"
+  rm -f "$DOCTORED/genAirFoilMesh.py"          # remove ONE required input by name
+  NEWMAN="$( ( cd "$DOCTORED" && find . -type f | sort | xargs md5sum ) | md5sum | cut -d' ' -f1 )"
+  sed -i -e "s|^MESH_SRC=.*|MESH_SRC=$DOCTORED|" \
+         -e "s|^MD5_MESH_SRC_MANIFEST=.*|MD5_MESH_SRC_MANIFEST=$NEWMAN|" "$D/so3af2_run_arm.sh"
+  expect "STAGING precondition" "$D" 9 NOLAUNCH_STAGING.txt MESH
+  if grep -q "MISSING from" "$D/out.txt" && grep -q "genAirFoilMesh.py" "$D/out.txt"; then
+    ok "STAGING names the SET" "refused on the precondition clause and NAMED the missing input"
+  else
+    bad "STAGING names the SET" "refusal does not name the missing input: $(tail -1 "$D/out.txt")"
+  fi
+else
+  bad "STAGING precondition" "MESH_SRC $SRC_REAL is absent; leg NOT RUN, and NOT RUN is not PASS"
+fi
+
 # ---- THE PASSING DIRECTION.  All four guards must be SATISFIABLE, proved by
 # ---- all four PASS lines appearing before the launcher reaches the container.
 D="$(mk_sandbox pass)"
 RC="$(run_sandbox "$D" MESH)"
 MISS=""
-for tag in SO3AF2_NL3_PASS SO3AF2_NL2_PASS SO3AF2_NL1_PASS SO3AF2_NL4_PASS; do
+for tag in SO3AF2_NL3_PASS SO3AF2_NL2_PASS SO3AF2_NL1_PASS SO3AF2_NL4_PASS SO3AF2_STAGED SO3AF2_STAGING_PRECONDITION_PASS; do
   grep -q "$tag" "$D/out.txt" || MISS="$MISS $tag"
 done
 if [ -z "$MISS" ]; then
@@ -197,9 +259,9 @@ if [ -z "$MISS" ]; then
   # run ends at rc=$RC because the IMAGE-DIGEST guard cannot read a digest from
   # the stub -- NOT at `docker run`, which is never reached. What this leg
   # proves is exactly and only that all four NL guards are SATISFIABLE.
-  ok "ALL FOUR SATISFIABLE" "every NL guard printed its PASS line; the run then ended rc=$RC at the IMAGE-DIGEST guard, which cannot read a digest from the stub -- \`docker run\` is never reached"
+  ok "ALL GUARDS SATISFIABLE" "every guard printed its PASS line INCLUDING staging; the run then ended rc=$RC because the stub REFUSES \`docker run\` -- which is the only place it can end, and NO CONTAINER IS EVER CREATED"
 else
-  bad "ALL FOUR SATISFIABLE" "missing PASS line(s):$MISS -- a guard that cannot pass is unsatisfiable by construction"
+  bad "ALL GUARDS SATISFIABLE" "missing PASS line(s):$MISS -- a guard that cannot pass is unsatisfiable by construction"
 fi
 
 # ---- the diffs, printed so no sandbox delta is taken on trust ----------------
@@ -212,20 +274,29 @@ diff "$LAUNCHER" "$TMP/pass/so3af2_run_arm.sh" | sed 's/^/    /' || true
 # ===========================================================================
 echo
 echo "JOB 3 -- SAFETY"
-if [ -e "$REAL_BASE" ]; then
-  bad "REAL ROOT UNTOUCHED" "$REAL_BASE EXISTS -- this file must never create it"
+REAL_BASE_AFTER="$(real_manifest)"
+# THE REAL RUN ROOT: this file must not CREATE it and must not MODIFY it. An
+# earlier version asserted the root was ABSENT -- true at the Stage-2 amendment,
+# and made FALSE by the daemon's 2026-09-03T21:48:15Z launch. An assertion that
+# only holds before the item's first container is not a safety property of this
+# file; what this file owns is that it changed nothing. Measured as a manifest.
+if [ "$REAL_BASE_BEFORE" = "$REAL_BASE_AFTER" ]; then
+  ok "REAL ROOT UNTOUCHED" "manifest unchanged across this run: $REAL_BASE_BEFORE"
 else
-  ok "REAL ROOT UNTOUCHED" "$REAL_BASE still ABSENT"
+  bad "REAL ROOT UNTOUCHED" "manifest MOVED $REAL_BASE_BEFORE -> $REAL_BASE_AFTER -- this file modified the real run root"
 fi
 if [ -s "$STUB_LOG" ]; then
-  ok "NO CONTAINER STARTED" "docker was reached $(grep -c . "$STUB_LOG") time(s) and every call hit the STUB, which exits 99 and starts nothing"
+  ok "NO CONTAINER STARTED" "docker was reached $(grep -c . "$STUB_LOG") time(s), ALL of them the STUB. It answers ONLY \`image inspect\` (with the registered digest, so the legs past that guard are reachable) and REFUSES everything else, \`docker run\` included -- so no container is ever created. The full transcript is printed below rather than summarised."
   sed 's/^/    /' "$STUB_LOG"
 else
   ok "NO CONTAINER STARTED" "docker was never reached at all"
 fi
 
 # ---- cleanup BY NAME, and the decoy must survive it -------------------------
-for n in nl3 nl2md5 nl2tok nl1 nl4 pass; do
+for n in nl3 nl2md5 nl2tok nl1 nl4 stage_manifest stage_missing pass; do
+  # the staged arm tree and the doctored source are NAMED paths this file created
+  # under its own $TMP -- removed by name, never by glob and never by sweep.
+  rm -rf "$TMP/$n/base/MESH" "$TMP/$n/doctored_src" 2>/dev/null
   rm -f "$TMP/$n/so3af2_run_arm.sh" "$TMP/$n/so3af2_read.py" "$TMP/$n/so3af2_runScript.py" "$TMP/$n/out.txt"
   rm -f "$TMP/$n/base/NOLAUNCH_ROOT.txt" "$TMP/$n/base/NOLAUNCH_PRODUCER.txt" \
         "$TMP/$n/base/NOLAUNCH_FREEZE.txt" "$TMP/$n/base/NOLAUNCH_MEM.txt" \
