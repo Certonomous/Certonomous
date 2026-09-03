@@ -1,0 +1,35 @@
+RUNG0_MESH_IMPORT held entry -- SUPERSEDED, MOVED, NOT DELETED.
+
+Moved 2026-09-03 ~19:15Z by the cfd lab-lane on cfd-supervisor's dispatch.
+MOVE, NEVER DELETE is a standing rule in this family: a lane once deleted a
+STATUS file to clear a path and that is on the supervisor's board as evidence
+destruction. Nothing here was removed; this file records where the entry went
+and why.
+
+FROM: verification/queue/cfd/held/RUNG0_MESH_IMPORT.json
+TO:   verification/queue/cfd/held/superseded/RUNG0_MESH_IMPORT.SUPERSEDED_2026-09-03T191500Z.json
+
+WHY IT IS STALE -- measured on disk in this invocation, not taken on report:
+
+  Attempt 3 of RUNG 0 HAS ALREADY RUN. Three launched records exist, each the
+  daemon's own stamped copy:
+    verification/queue/cfd/launched/RUNG0_MESH_IMPORT.2026-09-03T173002Z.json  (attempt 1)
+    verification/queue/cfd/launched/RUNG0_MESH_IMPORT.2026-09-03T173317Z.json  (attempt 2)
+    verification/queue/cfd/launched/RUNG0_MESH_IMPORT.json                     (attempt 3, mtime 17:47Z)
+
+  The rung's own output is on disk and is NEWER than the held entry:
+    verification/runs/RUNG0_MESH_IMPORT_runs/RESULTS.json   (mtime 2026-09-03 17:49Z, 29,570 bytes)
+  It carries the fired planted controls C0..C4 with their `saw` readings
+  (e.g. C2, the deleted boundary quad: bnd 41984 -> 41983, cells 638976
+  unchanged), so the run this held entry was waiting to schedule has already
+  produced its artifact.
+
+  The held entry's own mtime is 2026-09-03 17:46Z -- one minute BEFORE the
+  attempt-3 launch record it duplicates. Leaving it in held/ would offer the
+  daemon a fourth attempt at a rung that has already answered.
+
+SCOPE NOTE. RUNG 0's successor registration is owned by a DIFFERENT lane. This
+lane moved the stale queue entry and did NOTHING ELSE: it did not read into,
+write to, or alter verification/runs/RUNG0_MESH_IMPORT_runs/ beyond stat-ing
+and reading RESULTS.json to establish the fact above, and it wrote no successor
+record. Two lanes on one item produce two records for one run.
