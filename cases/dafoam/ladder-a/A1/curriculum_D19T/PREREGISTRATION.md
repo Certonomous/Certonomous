@@ -373,3 +373,109 @@ Toolchain, by digest and library hash, never by version string:
 | gates, thresholds, caps, labels | fixed above; after first compute they close, and changes land only as dated addenda that cannot alter a gate, threshold, cap or label |
 
 Amendments before first compute are legal and **must state the condition and how it was checked**, naming the run directory that does not exist.
+
+---
+---
+
+# AMENDMENT 1 — 2026-09-02 — PRE-COMPUTE — THE `MESH` ARM'S CAP LEAVES NO WALL BUDGET; THE CAP IS RAISED ONTO ITS MEASURED ANCHOR AND ONTO TONIGHT'S MEASURED CONTENTION
+
+**`lines whose number changed above this section: 0`**
+
+## Condition: zero solver core-minutes on this item — checked, not asserted
+
+1. **Zero solver core-minutes spent.** `STATUS.queue.D19T_chain` records `launcher_rc=65`, and `launcher.queue.out` ends at the `MESH` abort and the chain stop. No `ledger.txt` was ever created in the run root — the ledger is written only after a container returns (`d19t_run_arm.sh:340-347`) — and the archived root contains only `base/` and `d19r_runScript.py`. **Spend: 0.0 core-min.**
+
+2. **No `d19t_*` container was ever created.** `docker ps -a` across all states returns zero names matching `d19t_`, **from a reader shown able to see a non-zero**: the same census returns 40 containers, including other lanes' `maaoa_*`, `a1wr_*` and `aoa_*`. A zero from a reader not shown able to see a non-zero is not evidence, so the reader was proved sighted before its zero was accepted.
+
+3. **The driver aborted at the cap assert, before any container existed.** The abort line is the one emitted at `d19t_run_arm.sh:154`, which precedes staging (line 249) and `docker run` (line 304). Corroborated on disk: the archived root carries no `MESH/` directory, no `*.log` and no `*.inspect.txt`; and the age-guard launch sentinel `/home/ubuntu/certonomous-runs/.d19t_datums` **does not exist**, while the siblings' `.d19r_datums`, `.d19o_datums` and `.d19m_datums` do — again a zero from a reader shown able to see a non-zero. The sentinel is stamped at line 254, downstream of the abort.
+
+4. **The run root does not exist.** The staged root from the 22:07:08Z fire was **preserved by `mv`, not deleted**, to `/home/ubuntu/certonomous-runs/CURRICULUM-D19T-a1-naca0012-shape7-primal-tightening_partial_20260902T220708Z` (its launch stamp). `test ! -e` on the original passes; `test -d` on the archive passes; and `d19t_chain_driver.sh assert-absent` was re-executed and printed `D19T_ROOT_ABSENT_ASSERTED … 2026-09-02T22:14:12Z`. §7's literal condition therefore holds again **by execution**, and it was re-asserted a second time immediately before this amendment was appended.
+
+At this amendment `PREREGISTRATION.md` was byte-identical to its committed blob `675da997abfcc890debe1206e0b32abafdfe6b8f` before the append. The freeze window is open and this amendment is legal under rule 2 and §10.
+
+## The defect
+
+`d19t_run_arm.sh:153` computes the in-container deadline as `TMO = int(cap × 60 / ranks) − CAP_MARGIN_S`, with `CAP_MARGIN_S = 60` (line 81), and line 154 asserts `TMO > 0`. For all five registered arms, as frozen:
+
+| arm | cap (core-min) | ranks | `int(cap×60/ranks)` | `− 60` = TMO | `test "$TMO" -gt 0` |
+|---|---|---|---|---|---|
+| **`MESH`** | **1.0** | **1** | **60** | **0** | **FAILS → `exit 65`** |
+| `T08` | 4.0 | 2 | 120 | 60 | passes |
+| `T10` | 4.0 | 2 | 120 | 60 | passes |
+| `T12` | 4.0 | 2 | 120 | 60 | passes |
+| `XT10` | 5.0 | 2 | 150 | 90 | passes |
+
+A fixed 60 s teardown margin is subtracted from a `MESH` budget that is itself exactly 60 s of wall, leaving nothing. `MESH` is the **first** arm, and the chain correctly refuses to continue past a failed arm (`d19t_chain_driver.sh:58-63`), so **no D19T arm could ever run, at any time, under any conditions.** The four solver arms were never reached and are not defective.
+
+**The defect was legible in the frozen text and was not read as fatal.** §6's cap table recorded the `MESH` deadline as `0 s + margin`, and the in-script table at `d19t_run_arm.sh:69` carried an inherited annotation that does not evaluate to this item's arithmetic. A deadline written down as zero was never reconciled against the `> 0` assert that consumes it.
+
+## The repair: `MESH` cap 1.0 → **3.0 core-min**, deadline **120 s**
+
+`TMO = int(3.0 × 60 / 1) − 60 =` **120 s**, and the launcher's own back-check (line 155) returns `(120 + 60) × 1 / 60 = 3.000000`, equal to the registered cap exactly. Verified by evaluating the edited file's own tables: all five arms now return `TMO > 0` with exact back-checks (`MESH` 120 s, `T08`/`T10`/`T12` 60 s, `XT10` 90 s).
+
+### The anchor is MEASURED, and it is this document's own
+
+The `MESH` arm — `preProcessing.sh`, `checkMesh`, and the frozen-mesh md5 assert, at np=1 on the same 4,032-cell base — has run to `rc=0` four times in this family:
+
+| item | ledger | wall s | core-min | siblings at launch |
+|---|---|---|---|---|
+| **D19R** | `/home/ubuntu/certonomous-runs/CURRICULUM-D19R-a1-naca0012-subsonic-plateau/ledger.txt` | 11 | 0.183 | 1 |
+| **D19** | `/home/ubuntu/certonomous-runs/CURRICULUM-D19-a1-naca0012-subsonic-opt/ledger.txt` | **28** | **0.467** | **0** |
+| D19O | `/home/ubuntu/certonomous-runs/CURRICULUM-D19O-a1-naca0012-subsonic-optimisation/ledger.txt` | 10 | 0.167 | 0 |
+| D19M | `/home/ubuntu/certonomous-runs/CURRICULUM-D19M-a1-naca0012-subsonic-multipoint/ledger.txt` | 10 | 0.167 | 0 |
+
+D19R is the closest analogue — same image digest as this item's registered PATCHED row, same base, same np=1 — and §6 already tags its 0.183 core-min **MEASURED** as this item's `MESH` prediction. **The anchor is not new evidence; it is the anchor the freeze already used.** Worst case in the family is D19's 28 s / 0.467 core-min.
+
+### Why 3.0 and not 2.0 — decided by a measurement taken on this box tonight
+
+2.0 core-min (a 60 s deadline, 2.14× the worst measured `MESH` wall) was drafted first and is **rejected**, because **three of the four anchor measurements above were taken with an EMPTY sibling census** and the fourth with one sibling. They are quiet-box measurements, and D19T will run against a box carrying 40 containers.
+
+**That is precisely the failure this item's own sibling suffered hours ago.** `A1WR` lost **all six** of its cold controls — `rc=97` from an in-container `rc=124` at the 3,300 s `COLD_TMO`, `wall_s` 3316–3317, no time directory written at all, **331.7 core-min for zero physics** (`docs/LAB_STATE.md` dafoam `S-26` §4). The cause is measured and it is ours: **0.56 it/s under 8-way concurrency against ~2.36 it/s at 3-way** — a deadline sized from a rate measured on a quiet box and then spent on a box the same item had just filled. **A deadline sized without its own concurrency is a deadline sized for a different experiment.**
+
+`S-27` §8 later **narrowed** `S-26` on this point, and the narrowing strengthens the case rather than weakening it: `rc=97` means **timeout, not solver failure**, and **three of the six colds were incompressible and healthy — killed while succeeding**, `cold_I_4` at `p` residual 3.884e-06 and still falling. The 331.7 core-min waste figure stands and its cause is **doubly established**: the deadline, not the physics, is what stopped them. Both blocks are cited here rather than `S-26` alone, because citing a claim its own author has since corrected would be citing a superseded reading.
+
+**Applying that measured contention factor to this arm:** 28 s × (2.36 / 0.56) = **118.0 s** — `DERIVED` from two `MEASURED` figures, not itself measured. **The registered 120 s deadline is the contention-scaled worst case**, not a round number chosen for comfort. It is additionally the enforced in-container wall under which `MESH` completed `rc=0` in both D19O and D19M.
+
+**A second and independent reason 3.0 is better than 2.0.** At a 120 s deadline a contention-stretched `MESH` arm **completes and reports its cost into the ledger**, where `G-CAP` judges it. At 60 s the same arm is killed at the deadline and returns nothing. A number the grader can refuse is strictly more informative than an `rc=124` that yields no number at all — and this item has just spent an evening on the difference.
+
+## `CAP_MARGIN_S` is unchanged at 60 s — and the reason first recorded for that was wrong
+
+The margin stays at `d19t_run_arm.sh:81`, verified byte-identical to the HEAD blob. **The reason first given for keeping it — that 60 s was "deliberately matched" to this family's container kill-grace — was checked and is false:** line 311 uses `timeout -s TERM -k 30`, a **30 s** grace. That premise is withdrawn rather than quietly repaired, and the conclusion survives on a better one:
+
+**`CAP_MARGIN_S` is a global constant serving all five arms, and one arm's mis-sized budget is not a reason to move a global.** Lowering it to rescue `MESH` would silently shorten the teardown allowance of the four solver arms, which are not defective and were never consulted. At 60 s it is **conservative relative to the measured 30 s kill-grace** — it is not claimed to equal it. **The margin was never the defect; the `MESH` budget was, and that is what moved.**
+
+## What else does not move
+
+**No other arm's cap moves.** `T08`, `T10` and `T12` stay at 4.0 and `XT10` at 5.0; their deadlines stay 60, 60, 60 and 90 s.
+
+**The item ceiling is unchanged at 18.0 core-min.** It is a **spend** ceiling checked against the ledger's summed `core_min` (`d19t_chain_driver.sh:65-66`; `d19t_grade.py:753`), **not** an identity on the sum of arm caps. With `MESH` at 3.0 the arm caps sum to 20.0 while the ceiling stays 18.0; that is not an inconsistency but the conservative direction — the ceiling binds and stops the chain before every arm could exhaust its individual cap. Predicted item spend is unchanged at **8.234 core-min**, so §6's `Cap/predicted = 2.19×` stands, as do the derived dollars: 18.0 core-min = 0.30 core-h → **$0.0154 DERIVED** at the owner-stated $0.0513/core-h. Dollars remain derived, never measured — the box cannot read its own billing.
+
+**§6's cap-table row for `MESH` is superseded by:** `| MESH | 3.0 | 120 s |`. **The original row is struck, not rewritten.**
+
+## The instrument re-pin
+
+`d19t_run_arm.sh` changes on **two** lines — the `cap_core_min()` entry at line 84, and the in-script registered-cap comment at line 69, which is corrected in the same edit so the file's own table cannot contradict its code. §8's pin is superseded:
+
+| file | old md5 | new md5 | bytes |
+|---|---|---|---|
+| `d19t_run_arm.sh` | `c1013f8ce5d927428ac75fdc0c76bef4` | **`9b04d68ebed675e2d3df6c55d1e52956`** | 18,962 (unchanged) |
+
+The diff was taken against the **HEAD blob**, not `git status`, and is exactly two changed lines. `bash -n` passes on the result.
+
+**The grading path is NOT affected, and this was EXECUTED rather than inferred.** `d19t_grade.py` is not edited; its md5 **`bc6d694a7805a0d507be024dda8fd4fa`**, pinned at §8, was confirmed unchanged both before and after. `d19t_grade_selftest.py` — which reads `G.ARM_CAP_CORE_MIN` at its line 92 — was run to completion with `__pycache__` cleared first (the stale-bytecode trap that can invert a mutation test): **`D19T GRADER SELFTEST OK`, rc=0**; green leg composes to uncapped `PASS` → capped `GATE REACHED`; **all 12 red legs fire, `RED-CAP` among them**; the blinded `R3` reader refuses the whole grading with `CONTROL_READER_NOT_BORN`; the L-332 assert counter is born. **`RED-CAP` firing is the planted control for the cost gate itself: the cap reader is shown able to return a refusal, so its silence on a real run will mean something.** The pins for `d19t_xf.py`, `d19t_age_guard.py`, `d19t_chain_driver.sh`, `d19t_grade_selftest.py` and `d19r_runScript.py` are unchanged.
+
+## The two-registrations asymmetry — disclosed, and REFERRED UPWARD rather than resolved
+
+The `MESH` cap is registered in **two** executables: the launcher's `cap_core_min()`, and the grader's `ARM_CAP_CORE_MIN` (`d19t_grade.py:84`), which `g_caps()` (line 744) uses as the `G-CAP` per-arm refusal threshold. **This amendment moves only the launcher's. The grader keeps 1.0 core-min for `MESH`.**
+
+**This is disclosed rather than resolved, and the reason it is not resolved is a limit of authority, not an oversight.** Raising the grader's `ARM_CAP_CORE_MIN["MESH"]` would **widen the `G-CAP` gate threshold**, and widening a gate threshold is reserved above this team even before first compute. It is therefore **referred upward, not decided here.**
+
+**Nothing is loosened by the asymmetry.** The two values serve different purposes and equality between them is not required: the launcher's cap answers *"do not let this run away forever"*, the grader's answers *"was this cost anomalous"*. The grader is the **stricter** of the two and remains the binding cost gate — a `MESH` arm costing more than **1.0 core-min is still `GATE FAIL` at grading**, whatever the launcher permitted. On the measured band (0.167–0.467 core-min) a `MESH` arm that completes normally lands well inside 1.0, so the two thresholds cannot disagree about any ordinary run; they differ only in the window `1.0 < spend ≤ 3.0`, where the launcher lets the arm finish and the grader refuses its cost. **That is the safe direction, and it is the informative one: the number is bought, recorded and then judged, instead of being destroyed by a deadline.**
+
+## Gates untouched
+
+**`G-PLACE` is untouched** — cpuset stays `5,13` (`d19t_run_arm.sh:61`), distinct from D19R's `1,15` and D19M's `13`. **`G-NP` is untouched** — `ranks_of()` is unchanged and was verified against the HEAD blob: `MESH` np=1, all solver arms np=2. `MESH`'s np=1 is a registered condition and is exactly what makes this arithmetic what it is; it was **not** adjusted to dodge the assert, which would have confounded the decomposition with the tolerance this item exists to vary.
+
+`G-MANIFEST`, `G-COLD`, `G-ROOT.1`, `G-ROOT.2`, `G-ROW`, `G9-TOOLCHAIN`, `G-EPS`, `G-PLAT7`, the `VERDICT_CEILING = "GATE REACHED"` and its reason, and every threshold, band and label in §3–§5 and §9 are unchanged. **No gate, threshold, label or verdict class moves, and no verdict class is made reachable that was not reachable at the freeze.**
+
+**SUBMISSIONS PARKED.** Nothing in this amendment is sent, filed, uploaded, registered or posted outside this box.

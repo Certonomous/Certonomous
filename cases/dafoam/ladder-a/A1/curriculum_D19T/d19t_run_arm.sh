@@ -66,7 +66,7 @@ container_census() {
 
 # ---- REGISTERED CAP TABLE (PREREGISTRATION.md section 6, verbatim) ----------
 #   arm    ranks  core-min cap  in-container wall  memory   primalMinResTol
-#   MESH     1        1.0            -180+60 s      4g          n/a
+#   MESH     1        3.0            120 s          4g          n/a
 #   T08      2        4.0             ...           4g         1e-8
 #   T10      2        4.0             ...           4g         1e-10
 #   T12      2        4.0             ...           4g         1e-12
@@ -81,7 +81,7 @@ container_census() {
 CAP_MARGIN_S=60
 cap_core_min() {
   case "$1" in
-    MESH)          echo 1.0 ;;
+    MESH)          echo 3.0 ;;
     T08|T10|T12)   echo 4.0 ;;
     XT10)          echo 5.0 ;;
     *)             echo "" ;;
