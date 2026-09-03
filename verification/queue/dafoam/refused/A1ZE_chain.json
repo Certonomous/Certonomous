@@ -1,0 +1,139 @@
+{
+  "team": "dafoam",
+  "case_id": "A1ZE_chain",
+  "prereg_commit": "03120e2244d52aee5dd79f7e0ea66b4b2940f7fd",
+  "prereg_path": "cases/dafoam/ladder-a/A1/z_direction_empty_control/A1ZE_PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/z_direction_empty_control/a1ze_chain_driver.sh"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/z_direction_empty_control",
+  "ranks": 1,
+  "cap_core_min_registered": 532.0,
+  "cost_core_min_estimate": 281.15,
+  "cost_basis": "Two MEASURED rate points, each citing an artifact and its exact lines: n=2 -> 1.649566 it/s (/home/ubuntu/certonomous-runs/A1WR/STAGE12/probe_I/out/sweep.log, Time = 1500, ExecutionTime = 909.33 s, probe_I and probe_C the only units alive 18:19:35-18:35:58Z per CHAIN_LEDGER.tsv); n=6 -> 0.561358 it/s (/home/ubuntu/certonomous-runs/A1WR/STAGE12/cold_I_4/out/sweep.log, Time = 1800, ExecutionTime = 3206.51 s, six COLD units alive 18:35:59-19:31:16Z, that arm exited rc=97 at its deadline which is legitimate for a rate and is stated). Power law rate(n) = 1.649566 x (n/2)^(-0.981155), exponent fixed exactly by those two points -- DERIVED, deadline sizing only, never a result. rate(14) band: power law 0.244454, saturating C/n 0.240582, PESSIMISTIC (sizing input) 0.162970 it/s, the 1.5 extrapolation allowance being a stated JUDGEMENT applied to the extrapolated segment only. Coarse arms scaled by the cell ratio 130304/4032 = 32.3175, deliberately the conservative choice. Cap form: effective >= max(3.0 x estimate-at-a-MEASURED-anchor, 1.25 x wall-at-registered-max-occupancy) -- the MAX of two risks, never their product; the MEASURED anchor is the more conservative n=6. The contention leg binds on all four arms. NOT USED, and named so it cannot be reached for by mistake: the draft's 2.36 it/s 3-way figure, which has no artifact anywhere, and the compressible contention factor 3.1198x (L-454 scope error). Dollars predicted $0.2404, ceiling $0.3164 -- DERIVED at the owner-stated c7a.4xlarge $0.0513/core-h, NEVER measured; the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). Rule-12 calibration row OWED to docs/COST_CALIBRATION.md at completion, against the 281.15 registered figure, with contention, waste and misprediction attributed separately and waste never folded into the ratio.",
+  "memory_floor_gb": 4.0,
+  "enqueued_by": "dafoam-supervisor, on his own two personal SUPERVISION_CHARTER.md section 3 checks: CHECK 4 discharged on A1ZE_PREREGISTRATION.md (his own hashes, three ways, and he ran --selftest and PLANTED HIS OWN control violations rather than believing this lane's), and CHECK 1 discharged on a1ze_chain_driver.sh and a1ze_cmd.sh read line by line AS A DIFF, which produced five findings, all fixed and all driven both ways before this row moved. prereg_commit is 03120e2244d52aee5dd79f7e0ea66b4b2940f7fd and the registration's FROZEN PORTION -- its first 731 lines -- hashes byte-identical to that blob under cmp; addenda A, B and C are appended below it and their line counts (845, 988) also verify against 2a31f940 and cd7d383a. THE DAEMON LAUNCHES THIS; NO AGENT DOES.",
+  "_schema_note": "Fields above are the validator's REQUIRED_FIELDS plus cap_core_min_registered. Fields below are dafoam annotations the validator ignores.",
+  "arms": [
+    {
+      "arm": "Sc",
+      "mesh": "coarse A1",
+      "cells": 4032,
+      "planes": "symmetry (control, mutation of HEAD)",
+      "alpha_deg": 4,
+      "iterations": 2000,
+      "ranks": 1,
+      "cap_core_min": 9.0,
+      "tmo_s": 480,
+      "est_core_min_at_n6_MEASURED": 1.8374
+    },
+    {
+      "arm": "Ec",
+      "mesh": "coarse A1",
+      "cells": 4032,
+      "planes": "empty (treatment, HEAD template unmodified)",
+      "alpha_deg": 4,
+      "iterations": 2000,
+      "ranks": 1,
+      "cap_core_min": 9.0,
+      "tmo_s": 480,
+      "est_core_min_at_n6_MEASURED": 1.8374
+    },
+    {
+      "arm": "S3",
+      "mesh": "A1WR L3",
+      "cells": 130304,
+      "planes": "symmetry (control, mutation of HEAD)",
+      "alpha_deg": 12,
+      "iterations": 2000,
+      "ranks": 1,
+      "cap_core_min": 257.0,
+      "tmo_s": 15360,
+      "est_core_min_at_n6_MEASURED": 59.3798
+    },
+    {
+      "arm": "E3",
+      "mesh": "A1WR L3",
+      "cells": 130304,
+      "planes": "empty (treatment, HEAD template unmodified)",
+      "alpha_deg": 12,
+      "iterations": 2000,
+      "ranks": 1,
+      "cap_core_min": 257.0,
+      "tmo_s": 15360,
+      "est_core_min_at_n6_MEASURED": 59.3798
+    }
+  ],
+  "deadline_identity": "TMO = int(CAP*60/RANKS) - CAP_MARGIN_S, CAP_MARGIN_S = 60, guard TMO > 0. Every arm additionally clears TMO >= 1.5 x its measured-anchor wall: Sc/Ec 480 s vs 165.4 s (4.35x), S3/E3 15360 s vs 5344.2 s (4.31x). Exact back-check (TMO + 60) * ranks / 60 == cap holds on all four. D19T's MESH arm died on exactly this identity at TMO = 0 s and was never runnable; every row here is asserted by execution in the sizing script, not asserted in prose.",
+  "item_ceiling_core_min": 532.0,
+  "fleet_safety_ceiling": "min(3 x registered cap, remaining box budget) per arm, monitor-enforced, graceful stop regardless of residual trend (Sanaa 2026-09-03 ~21:00Z).",
+  "occupancy_gate": "G-OCC QUEUES, NEVER REFUSES (Sanaa ~21:00Z 'queue, don't launch; queueing is not blocking' and ~22:00Z 'box should never be idle'). Queues only while TMO < 1.25 x iterations / rate(n) on the PESSIMISTIC rate. Boundary evaluated: LAUNCH at n = 2, 6, 8, 12, 14; QUEUE at n = 15, 18. Registered maximum occupancy n = 14. Occupancy read at freeze: one dafoam container live (d12y_w3_S3b_c0_am_..., W3_chain_r2 phase 1, np=1), 16 vCPU, 1-min load average 53.72, MemAvailable 26.9 GiB. That chain is not disturbed by this item and is counted in the occupancy leg.",
+  "gates": {
+    "physics_and_ill_posedness_only": "Every gate is a physics or ill-posedness gate, or a cost gate graded after the fact. Nothing here blocks a launch for a non-physics reason (Sanaa ~21:00Z and ~22:00Z).",
+    "G-DIRN.S": "control arms report N = 3 (1 1 1); else item NOT A RESULT (premise does not reproduce)",
+    "G-DIRN.E": "treatment arms report N = 2; else GATE FAIL -- CONDEMNS d3f47bfa50944c466ff0bad019b36a7b048a0fae",
+    "G-U2.S": "control arms print a U2 equation; else item NOT A RESULT",
+    "G-U2.E": "treatment arms print NO U2 equation; else GATE FAIL -- CONDEMNS d3f47bfa50944c466ff0bad019b36a7b048a0fae",
+    "G-EMPTY": "both planes carry the arm's registered type in the built mesh AND in every 0/ field; else arm BLOCKED (and on a treatment arm that condemns d3f47bfa too -- the upstream-deliberate hypothesis confirmed)",
+    "G-TOL": "no tolerance-satisfied line on either arm; justified on EQUAL ITERATION COUNT alone, not on any convergence account",
+    "G-STAT": "last-10 CL/CD relative spread <= 2 x that pair's own drift anchor; else that pair's coefficient comparison is NOT A RESULT",
+    "G-COEF": "L3 pair GATED on its own alpha = 12 anchor CL 4.830552e-04 / CD 1.116421e-04: within -> GATE REACHED; up to 10x -> NOT A RESULT (indeterminate, registered in advance); above 10x -> GATE FAIL CONTAMINATION. Coarse pair REPORTED only -- its anchor (CL 2.300624e-04 / CD 2.276654e-05) is measured on L3 and is a cross-grid proxy.",
+    "G-CAP / G-CEIL / G-NP / G-BUDGET": "cost and placement, graded after the fact; G-CEIL 370.0 core-min checked after every arm",
+    "R-MAXRES": "REPORTED, NEVER GATED -- min-over-iterations of the max over PRINTED channels, both arms",
+    "R-DECL": "REPORTED, NEVER GATED -- count of tolerance-satisfied declarations; registered expectation is 0 on both arms",
+    "NO_CONVERGENCE_GATE": "Deliberately absent. U2 is measured OUT of the quantity the solver declares on (D19T T10 declared 22x at ~9.04e-11 while U2's best over the whole run was 1.716383e-10), and all 14 A1WR sweep_I alpha points miss 1e-8 with U2 excluded. A gate on 'removing U2 restores convergence' would be unreachable by construction and would condemn a correct commit."
+  },
+  "verdict_class": "G-NOBAND -- no Roache triple exists for any quantity; the two grids are not a refinement pair for this question (N-C9). Nothing is grid-converged and no band may be claimed.",
+  "verdict_ceiling": "GATE REACHED. PASS is unreachable by construction; the frozen grader refuses (exit 2) and prints NOT A RESULT if its own logic ever reaches PASS.",
+  "grader": {
+    "path": "cases/dafoam/ladder-a/A1/z_direction_empty_control/a1ze_grade.py",
+    "md5": "9b755c3b1a043879a664853a3d747c53",
+    "selftest": "a1ze_grade.py --selftest -> A1ZE_BIRTH 7 readers born, both legs proved on P2n and P4, rc 0",
+    "planted_violation": "a copy of the item tree with one byte-level mutation of controls/P2n_noU2.log (U1 initRes -> U2 initRes) returns A1ZE_CONTROLS REFUSED -- CONTROL_FIXTURE_MOVED, A1ZE_VERDICT NOT A RESULT, rc 2. The enforcer fires through the real path.",
+    "readers_proved_on_real_foreign_artifacts": "read_dirn(A1WR sweep_I/out/sweep.log) -> (3, (1,1,1)); read_equations -> ['U0','U1','U2','nuTilda','p']; read_eq_min(...,'U2') -> 3.238410485530894e-08 matching A1WR_STAGE12_RESULTS.md section 16; read_coefs -> 559/559; read_patch_types on the real L3 mesh /home/ubuntu/certonomous-runs/A1WR/L3/constant/polyMesh/boundary -> {'symmetry1':'symmetry','symmetry2':'symmetry'}. A zero from a reader not shown able to see a non-zero is not evidence (rule 3)."
+  },
+  "controls_at_this_commit": "ALL ZERO SOLVER COMPUTE. Six planted-zero controls P1, P2, P2n, P3, P4, P5 on nine static fixtures under controls/, md5-pinned inside the frozen grader and in the registration section 8. P2n and P4 are TWO-SIDED because G-U2.E's entire content is an ABSENCE and a gate never shown to return both answers is not a gate (L-452 addendum). Asserted by execution at grade time: fixture md5 == pin, fixture mtime older than the run root, no fixture inside the run root (L-435). Reader execution on foreign artifacts, well under 0.02 core-min, disclosed rather than omitted.",
+  "run_root": "/home/ubuntu/certonomous-runs/A1ZE -- must be ABSENT at launch. CHECKED BY EXECUTION AT FREEZE: it does not exist, and no Sc/Ec/S3/E3 unit directory exists anywhere.",
+  "arm_construction": "Since d3f47bfa the templates are `empty` at HEAD, so the CONTROL arms are the mutated ones. Ec/E3 copy the HEAD template and assert createPatchDict md5 == b06b32856f75d4813a763af819b6149c; Sc/S3 copy the same template, apply the two-line reversion, and assert md5 == 5e89709961881491e3f05dc97bbcf75c. Both arms of a pair are built from the same parent commit in the same invocation. This is what makes Ec/E3 a test of the COMMIT rather than of a hand-patch.",
+  "condemnation_link": "Registered at BOTH ends by sha. This end: registration section 3b/3b.0. Other end: cases/dafoam/PATCH_IDENTITY_D3F47BFA_UNVERIFIED.md plus README_PATCH_IDENTITY.md inside each of the three template directories.",
+  "verdict_state": "PENDING",
+  "_field_classes": {
+    "physics_critical": [
+      "the arms' own log End line, last Time == endTime, and the 0/ age guard",
+      "rc captured INSIDE the detached wrapper, never around the setsid line",
+      "constant/polyMesh/boundary and every 0/ field's patch types"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "ledger.txt occupancy and MemAvailable rows"
+    ],
+    "note": "Bookkeeping never voids physics (Sanaa universal rule 2026-08-26): a dead poller or a lost ledger row cannot void a completed solve."
+  },
+  "prohibitions": "Launches are DAEMON-ONLY. No agent invokes docker, mpirun, a driver or a launcher for this item. SUBMISSIONS PARKED (rule 7) -- nothing sent, filed, uploaded, registered, posted or commented outside this box. The createPatchDict upstream attribution stays INFERRED and NOT FILED.",
+  "prereg_verification": "Rule 6 EXECUTED, not asserted: the registration carries ADDENDUM A appended at its foot, so the whole file is no longer the frozen blob -- but its FIRST 731 LINES are byte-identical to the blob at 03120e2244d52aee5dd79f7e0ea66b4b2940f7fd, verified by cmp at this stamp and re-verified by a1ze_chain_driver.sh's G-FREEZE before any arm runs. That is what 'lines whose number changed above this section: 0' claims, proved rather than believed. ADDENDUM A alters no gate, no threshold, no cap and no label.",
+  "memory_basis": "CORRECTED from 3.0, which was a guess with no measurement behind it. PEAK RSS IS UNMEASURED on this case family and cannot be measured without running something. What IS measured, from /home/ubuntu/certonomous-runs/A1WR/STAGE12/CHAIN_LEDGER.tsv on the IDENTICAL 130,304-cell L3 mesh: six COLD units at --memory=3g with OOMKilled=false on every row, reaching iteration 1800; and two probes at --memory=4g, also OOMKilled=false. A non-OOM observation is an upper bound NOT REACHED, not a peak, and those arms stopped at 1800 of a 4000 endTime so nothing on disk covers a full run. 4 GiB is the conservative size -- the value already demonstrated non-OOM on this mesh -- and is LABELLED A SIZE, NOT A MEASUREMENT. It gates nothing: memory is a resource condition and G-OCC QUEUES on it, never refuses.",
+  "instrument_md5s_at_this_commit": {
+    "A1ZE_PREREGISTRATION.md": "9493af83344d4844b486adf6df1917a9",
+    "a1ze_grade.py": "505b883efb1fedadad88e47dd6d07249",
+    "a1ze_stage.py": "8e62ad7b3557e55bd7316b0d66ba92b9",
+    "a1ze_cmd.sh": "b0e2c8eaf8c16aefb373bb3211a483cd",
+    "a1ze_runScript.py": "d48f48c5e2e41e86981acbf6feccb3c4",
+    "a1ze_chain_driver.sh": "610d951088e9039b261c3b9b13f1aae6"
+  },
+  "launch_path": "ONE detached process, four arms in order (Sc -> Ec -> S3 -> E3, coarse pair first because it is minutes and resolves the mechanism gates cheaply), STOPPING AT THE FIRST NON-ZERO rc and grading what exists. No wait-wrapper, no per-arm queue entries. Every rc is captured INSIDE the thing that produced it: a1ze_cmd.sh writes /mnt/out/rc.txt itself, and the driver reads docker inspect ExitCode and OOMKilled BEFORE docker rm. Nothing infers an rc from a wrapper -- `setsid timeout cmd` exits 0 for every outcome. a1ze_runScript.py is a BYTE-IDENTICAL copy of the already-exercised a1wr_runScript_incomp.py (d48f48c5...), driven in COLD mode with a one-element alpha list at A1WR_PRIMAL_TOL=1e-30 so the stop is the fixed 2000-iteration endTime and nothing else -- which is TRAP 2 and makes G-TOL a verification of the construction rather than a gamble on it.",
+  "one_variable_assert": "a1ze_stage.py stages BOTH arms of a pair in ONE invocation from the SAME sources, then md5-walks both trees and REFUSES unless: the file SETS are identical; the only files that differ are the ones the patch legitimately touches; every differing line is a `type` or `inGroups` line; each differing line carries ITS OWN ARM's registered type; and no allow-listed file is identical between the arms (which would mean the mutation silently did not take). Measured on the clean coarse staging: 38 files compared, exactly 10 differ (the boundary plus the nine 0.orig fields declaring both planes), 44 differing lines, all type/inGroups. DECLARED WIDENING: the supervisor asked for `type` lines only; it is `type` AND `inGroups`, because a patch cannot be `type empty` while its inGroups still reads 1(symmetry) -- the same constraint that forced d3f47bfa to touch 41 files rather than 3. inGroups appears in no registered gate, so NO GATE MOVES. The treatment type is NOT a literal anywhere: it is parsed out of system/createPatchDict at HEAD (md5 asserted b06b3285...) and the control type out of the ancestor blob at d3f47bfa^ (md5 asserted 5e897099...), and staging REFUSES if the two agree, because then the commit under test changed nothing and there is no experiment.",
+  "planted_violations_on_the_staging_assert": "All driven by execution on a scratch copy, real run root untouched. Untouched file edited in one arm -> REFUSED 'A SECOND VARIABLE ... does not touch'. Non-type line changed inside a touched file -> REFUSED 'A SECOND VARIABLE inside case/0.orig/U'. File removed from one arm -> REFUSED 'arm file SETS differ'. Mutation not taking on one file -> REFUSED 'the patch was staged but 1 file(s) are IDENTICAL'. Clean staging -> ADMITTED. A gate that only ever refuses is as useless as one that never does. The in-container G-EMPTY reader was also driven both ways on the real staged bytes: Sc -> 'symmetry' on both planes and in 0.orig/U, Ec -> 'empty' on both.",
+  "structural_stops": "(1) the per-arm TMO INSIDE the container, surviving the death of the driver, the daemon and every agent; (2) the 370.0 core-min ITEM CEILING checked BEFORE every arm, below the 532.0 cap sum by design so the ceiling binds first. G-BUDGET re-derives TMO = int(CAP*60/RANKS) - 60 from the registered cap AT RUN TIME and refuses on a mismatch, on TMO <= 0, or on a failed exact back-check, rather than trusting the table -- that is the D19T identity, checked where D19T's was not. WHAT DOES NOT STOP IT: occupancy and memory. occ_wait() records containers, MemAvailable and loadavg to ledger.txt and WAITS; it has NO refusal branch and cannot consume the entry. d19t_run_arm.sh's G-QUIET refuse-to-launch form is NOT reproduced.",
+  "ledger_row_shape": "STAGE= TASK= rc= wall_s= ranks= core_min= memavail_GiB= inspect=[ExitCode|OOMKilled] log= , modelled on /home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3-cylinder-unsteady/ledger.txt, written to /home/ubuntu/certonomous-runs/A1ZE/ledger.txt with a SPENT_CORE_MIN line after every arm and an OCC row carrying each launch/queue decision.",
+  "toolchain_identity_two_rows": "DAFOAM_CHARTER.md SECTION 6 (not 11 -- 11 is the lesson/numerics NUMBERING clause): toolchain identity is an image ID and a library hash, and shipped and patched are ALWAYS TWO ROWS. A1ZE's registered image is the PATCHED build dafoam-idwarp-rot:v1, sha256:2927768a16ac..., asserted by the driver's G-IMG before any arm runs. The SHIPPED build dafoam/opt-packages:latest, sha256:9d45679d55fd..., is a DIFFERENT image, also on this box, and is what W3_chain_r2 runs. BOTH ROWS MEASURED read-only at freeze (docker run --rm --network=none, no mount, md5sum and sed only -- toolchain identification under section 6, no run root, no solver, nothing graded): /home/dafoamuser/dafoam/repos/dafoam/src/adjoint/DAUtility/DAUtility.C is md5 d5fb5b0a781b11a780133901a8c2241c in BOTH, so the median finding transfers and is MEASURED to transfer rather than assumed to.",
+  "declared_quantity_measured": "MEASURED, not inferred (ADDENDUM B). DAUtility.C SolverPerformance<vector>: initResList = {initRes[0],initRes[1],initRes[2]} at :783, sort(initResList) at :784, initResList[1] compared at :786 and assigned at :788 -- sort then index 1 of three, the MEDIAN. The <scalar> overload at :747/:749 is a true max. Confirmed from BEHAVIOUR as well as source: max(median(U0,U1,U2), p, nuTilda) minimised over iterations reproduces D19T's declared numbers on all three arms -- T08 9.089292e-09 vs declared 9.087147e-09, T10 9.034983e-11 vs 9.038369e-11, T12 1.743972e-12 above its 1e-12 tolerance matching its ZERO declarations. Upstream's own comment at :775-780 says the median exists BECAUSE 2-D simulations with symmetry BC leave one vector component high -- upstream anticipated this exact configuration and designed for it, which RAISES the prior that `empty` is not what this toolchain expects and makes G-EMPTY BLOCKED more likely, not less. That is registered before compute because it moves the odds AGAINST the commit under test.",
+  "R_DECL_confirmed_by_computation": "R-DECL's registered expectation -- NEITHER arm declares -- was ASSERTED and is now COMPUTED. With the median measured, an empty plane makes the vector list [0,U0,U1] so the U-channel moves from max(U0,U1) to min(U0,U1), which makes convergence EASIER and therefore had to be checked. Evaluated on all 14 alpha segments of A1WR sweep_I against 1e-8: NO segment reaches it under either form. Lowest empty-form value in the whole sweep is 1.018184e-08 at alpha=1, within 2 percent of tolerance and still above it. At this item's operating point alpha=12: symmetry 2.997861e-08 -> empty 2.795397e-08, a factor of 1.07. At alpha=6..10 the two forms are IDENTICAL because p or nuTilda was binding at the minimising iteration, so the patch swap cannot move the declared value there by construction. R-DECL stands unmoved, with a computed margin instead of an assertion, and remains REPORTED, gating nothing.",
+  "addenda": "A (launch path, pins, memory 3.0->4.0) and B (v1.2, median form MEASURED in both toolchain rows). NEITHER alters a gate, threshold, cap or label. Rule 6 asserted MECHANICALLY: the disk file's first 731 lines are byte-identical under cmp to the blob at 03120e2244d52aee5dd79f7e0ea66b4b2940f7fd, and its first 845 to the blob at 2a31f940 -- so Addendum A's lines are untouched by Addendum B. The driver's G-FREEZE re-executes the 731-line comparison before any arm runs, and a planted edit inside the frozen portion is caught.",
+  "ceiling_correction": "ADDENDUM C v1.3. The registered 370.0 DID NOT BIND: G-CEIL tests cumulative spend BEFORE an arm and never spend+cap, so the walk 0/9/18/275 never reaches 370 and the worst case is the cap sum, 532.0 core-min = 1.44x the figure called a ceiling. NOT repaired by making G-CEIL predictive at 370, which would have made E3 -- the item's PRINCIPAL TREATMENT ARM and one of the two that verify d3f47bfa -- unreachable by construction, the same defect as A1WR's 1e-8 against its own 3.238410e-08 floor. Repaired by registering the honest bound: ITEM_CEILING = 532.0 core-min = $0.4549 DERIVED. Central prediction UNCHANGED at 281.15 core-min ($0.2404 DERIVED). Every per-arm cap UNCHANGED at 9.0/9.0/257.0/257.0. The previous $0.3164 ceiling figure was wrong and is superseded.",
+  "vacuous_pass_sweep": "Unifying test applied to EVERY guard: can the code path distinguish 'the check ran and found nothing' from 'the check did not run'? If not, its zero refuses. FIXED: (a) occ_wait's census -- a failed docker ps printed nothing and wc -l said 0, MEASURED indistinguishable from an idle box; now records containers=UNMEASURED on a failed read, never 0. (b) G-EMPTY's field limb -- passed vacuously on a 0.orig with no matching field; now counts fields_checked and REFUSES on zero. (c) the pin file -- a TRUNCATED file passes md5sum -c having checked a subset (MEASURED: 1 of 6 lines -> rc 0); entry count asserted ==6 first. NOTE the supervisor's premise did NOT hold for an EMPTY pin file on this box: coreutils 9.4 returns rc 1, so the empty case already failed closed and truncation was the real hazard. (d) grader selftest -- rc 0 with zero control lines would have satisfied it; control count asserted >=7. (e) FOUND BY THIS LANE, not in the check-1 read: the ARM-SELECTION LOOP matched arms by pair name and a mismatch completed SILENTLY as success, so the item could end having run nothing; NPAIR==2 per pair and NRUN==4 overall now refuse. All five driven BOTH WAYS.",
+  "G_GUARDS": "PLANT THE RUN, NOT ONLY THE VALUE. A control proving a reader can SEE a non-zero does not prove the reader EXECUTED. a1ze_cmd.sh emits an execution marker only after each guard has run and counted what it examined -- A1ZE_G_EMPTY_OK ... fields_checked=N, A1ZE_TIMEDIR_SCAN, A1ZE_TOL_VAR_OK, A1ZE_COLD_START -- and the frozen grader makes an arm NOT A RESULT if any marker is missing or fields_checked is zero. Driven four ways: clean -> all 4 markers; one marker removed -> NOT A RESULT; fields_checked=0 -> NOT A RESULT; empty log -> NOT A RESULT.",
+  "tol_variable_name": "A1WR_PRIMAL_TOL, NOT A1ZE_PRIMAL_TOL. a1ze_runScript.py:60 reads os.environ.get('A1WR_PRIMAL_TOL','1.0e-8'); the A1WR prefix survives because the runScript is a byte-identical copy. a1ze_cmd.sh's header had named the wrong variable -- FAIL-OPEN AND SILENT: a successor exporting the wrong name would get the 1.0e-8 DEFAULT, the two arms could stop at different iteration counts, and TRAP 2's third variable would return with no error printed. Header corrected AND the name now asserted on the staged bytes at the point of use (A1ZE_TOL_VAR_OK), because a comment is not a check."
+}

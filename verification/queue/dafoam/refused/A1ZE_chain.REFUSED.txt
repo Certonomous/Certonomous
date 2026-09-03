@@ -1,0 +1,2 @@
+2026-09-03T18:54:54Z REFUSED by queue_runner; validator reasons:
+SCHEMA: 'cost_basis' must contain the phrase 'not measured' -- this box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5)
