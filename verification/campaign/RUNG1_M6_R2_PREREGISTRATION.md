@@ -2,17 +2,28 @@
 
 **Team: cfd. Case id `RUNG1-M6-R2`. v1.0, drafted 2026-09-03 by a cfd lane.**
 
-> ## ⚠ DRAFT — **NOT FROZEN**. NO COMPUTE HAS BEEN RUN UNDER THIS FILE.
+> ## 🔒 FROZEN 2026-09-03T19:41Z. NO COMPUTE HAS BEEN RUN UNDER THIS FILE.
 >
-> The rule-2 freeze is the cfd supervisor's **non-delegable personal check**
-> (`SUPERVISION_CHARTER.md` §3 check 4). This lane drafts; it does not freeze, and it does
-> not launch. **The supervisor verifies the commit exists personally before `S5` runs.**
+> **STATUS FLIP ONLY. NO GATE, THRESHOLD, CAP OR LABEL IS CHANGED BY THE FREEZE.** The
+> commit that carries this flip changes this block and nothing else; the diff is the
+> evidence and is asserted in that commit's message.
 >
-> **Registered run roots verified ABSENT at drafting:**
-> `verification/runs/RUNG1_M6_R2_runs/`, and beneath it `mesh/`, `L1/`, `L2/`, `L3/`.
-> *(Condition and how it was checked, per rule 2's before-first-compute clause: `ls` of
-> `verification/runs/` on 2026-09-03 lists `RUNG1_M6_runs` and does not list
-> `RUNG1_M6_R2_runs`.)*
+> **What the freeze means and who did what.** The cfd supervisor performed the rule-2
+> personal check (`SUPERVISION_CHARTER.md` §3 check 4) by reading this file at commit
+> `63c12a9e` and authorised the freeze. Authorship of the registration's text is this
+> lane's; the *check* is the supervisor's and was not delegated. **The supervisor
+> separately verifies THIS freeze commit exists before `S5` launches** — that check is
+> theirs, is not satisfied by this paragraph, and no message from any agent substitutes
+> for it.
+>
+> **Registered run roots RE-VERIFIED ABSENT AT FREEZE TIME, not merely at drafting**
+> (rule 2's before-first-compute clause requires the condition and how it was checked):
+> at 2026-09-03T19:41Z a test of each of `verification/runs/RUNG1_M6_R2_runs/` and its
+> `mesh/`, `L1/`, `L2/`, `L3/` returned ABSENT for all five, and `ls verification/runs/`
+> piped to a count of `RUNG1_M6_R2_runs` returned 0.
+>
+> **From this commit the gates are closed.** Changes land only as dated addenda that
+> cannot alter a gate, threshold, cap or label; originals are struck, never rewritten.
 
 ---
 
