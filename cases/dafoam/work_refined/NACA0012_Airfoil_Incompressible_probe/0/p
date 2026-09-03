@@ -27,11 +27,11 @@ boundaryField
     }
     symmetry1
     {
-        type            symmetry;
+        type            empty;
     }
     symmetry2
     {
-        type            symmetry;
+        type            empty;
     }
     inout
     {
