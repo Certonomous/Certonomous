@@ -132,3 +132,175 @@ shape as T1c sitting available inside a class recorded as blocked.
 **No rung above is a capability until it has reported.** T1c has, and it **GATE
 FAILED**. T1b is running. Everything else in this table is a plan, and **naming a
 plan as a capability is the error this campaign exists to avoid.**
+
+---
+
+# 5. REFRESH, 2026-09-03 — §2's STATE COLUMN HAS BEEN STALE SINCE 2026-08-24 AND IS SUPERSEDED BY THIS SECTION. THE FAMILY IS ~40 RUNGS, NOT 15
+
+**Written by a heat-transfer `lab-lane` on the supervisor's record-integrity
+brief, 2026-09-03. Zero core-minutes — nothing was run, re-graded or
+re-launched. Every verdict below was read from the rung's own record or grading
+artifact at `HEAD`; none was taken from `LAB_STATE.md`, from the docket, or from
+§2 above.**
+
+## 5.0 WHY NOTHING ABOVE THIS LINE WAS EDITED — measured, not assumed
+
+**§2's `state` column is stale.** Its last substantive update was
+`3dd28411`, **2026-08-24T16:18:52Z**. It records fifteen rungs; the family now
+holds roughly forty. It still shows T1b's L4 arms as "running", T3 as the newest
+result, and it knows nothing of T11 and T13–T25.
+
+**It is not corrected in place, and the reason is a measurement.** At least
+**seven records cite this file BY LINE NUMBER**, and an insertion anywhere above
+them would silently redirect every one (`L-304` — the "lines whose number changed
+above this section: 0" assertion certifies the lines *above*, and every citation
+from elsewhere points *below*):
+
+| citing record | cites |
+|---|---|
+| `docs/LAB_STATE.md:11815` | `T_FAMILY_INDEX.md:38` (T1b's tier and state) |
+| `docs/campaigns/T-family/T6_CANNOT_BE_REGISTERED_2026-08-26.md:20` | `:29` (the tier legend) |
+| the same record, `:26` | `:46` (the T6 row) |
+| `docs/campaigns/T-family/THERMAL_SATURATION_QUEUE_2026-08-25b.md:429` | `:42` (the T2 row) |
+| `docs/papers/forced_convection_heat_transfer/PAPER_INTAKE_2026-08-24.md` `:397`, `:490`, `:532` | `:45` (the T5 row) |
+| `docs/papers/forced_convection_heat_transfer/SIDECAR_VERIFICATION_2026-08-25.md:90` | `:45` |
+| `docs/upstream/UPSTREAM_QUEUE.md:18` | `:75` |
+| `docs/papers/forced_convection_heat_transfer/PAPER_INTAKE_2026-08-24.md:124` | `:84` |
+
+**So the refresh is appended, exactly as §3 was superseded-and-retained rather
+than deleted, and for the same reason: a superseded statement that is deleted
+cannot be checked against what happened. `lines whose number changed above this
+section: 0`.**
+
+## 5.1 ⚠ AN ID WAS REUSED, AND A READER OF §2 WILL BE MISLED BY IT
+
+**§2's `T13` row reads *"rack row | inherits everything | far over $25"*. The
+`T13` that now has a record is a DIFFERENT RUNG.**
+`docs/campaigns/T-family/T13_RESULTS.md:1` is *"T13 results — natural convection
+in a vertical slot, conduction regime (Batchelor 1954 parallel flow), EXACT
+tier"*, and it **PASSES 4 of 4 graded rows**. **The rack row is not this rung and
+has not run.** It survives in the spine table above as *"K2 rack row (campaign
+F14)"*.
+
+**Not corrected here, and not adjudicated:** which rung owns the id `T13` is a
+naming call above a lane's authority, and §2's row is quoted rather than struck
+because it is somebody else's registered id. **It is flagged so no reader
+silently credits the rack row with T13's `PASS`.**
+
+The same shape, benignly: **T11 spawned a family.** `T14` is *"T11b"*, `T18` is
+*"T11c"*, `T17` is *"T11d"* by their own titles, and all four are EXACT-tier
+transient conduction. §2's T11 row (*"transient conjugate module, partial
+EXACT"*) is the ancestor of these, not a contradiction of them.
+
+## 5.2 REPORTED — a rung verdict exists, read from the record named beside it
+
+**Verdict vocabulary is `CLAUDE.md` rule 1's. Where a record's own verdict is
+conditional or split, it is reproduced conditional or split rather than
+flattened.**
+
+| rung | subject | **verdict of record** | read from |
+|---|---|---|---|
+| **T1b** | turbulent pipe vs Dittus–Boelter / Gnielinski | **`PASS`** ×4 as returned by the frozen comparator — **and all four grid triples are `DIVERGENT` or `STAGNANT`, so none is a mesh-converged value; under §8's amendment candidate all four read `NOT A RESULT`** | `T1b_RESULTS.md:12`–`:15` |
+| **T1c** | laminar pipe, closed form | **`GATE FAIL`** — 1 of 4 graded rows failed | `T1c_RESULTS.md:6` |
+| **T1cU** | T1c uncertainty arm | **NO VERDICT FROM THE FIXED VOCABULARY APPLIES** — *"DIAGNOSTIC, NOT GRADED. No band, cannot PASS or GATE FAIL"* | `T1cU_RESULTS.md:3`, `:8` |
+| **T3** | heated backward-facing step | **`NOT A RESULT`** — 4 of 4 graded rows, on gates (1)/(2), ahead of the missing primary | `T3_RESULTS.md:14`, `:22` |
+| **T4** | impinging jet | **`NOT A RESULT`** on all three graded rows; the `Nu` rows remain **`BLOCKED`** (no closed primary) | `T4_RESULTS_2026-08-26.md:53` |
+| **T4b** | impinging-jet successor | **`NOT A RESULT`** — 3 of 3 graded rows, all at gate (1) | `T4b_RESULTS.md:4` |
+| **T5** | heated cube (Meinders) | **`PENDING`** — the frozen comparator wrote **no verdict**; no case had run at that writing | `T5_RESULTS.md:3`, `:58` |
+| **T5b** | cube ladder | **`NOT A RESULT`** — **0 of 6 graded rows `PASS`**, all six failing the y+ gate (`cube_front` 2.310 against a level target of 1.00) | `verification/runs/T-family/T5b_runs/T5B_GRADE_OUTPUT.txt` (TALLY line) |
+| **T8** | buoyant plume | **`NOT A RESULT`** — explicitly *"Not `BLOCKED`. Not `GATE FAIL`. Not `PENDING`"*, on two independent grounds | `T8_VERDICT_2026-08-26.md:1`, `:9`–`:10` |
+| **T9a** | composite wall + fin, closed form | **`GATE FAIL`** — 1 of 3 graded rows failed | `T9a_RESULTS.md:13` |
+| **T9aD** | interface-scheme diagnosis arm | **DIAGNOSIS COMPLETE — 3 `PASS`, 1 `GATE FAIL`, 3 `NOT A RESULT`** of 7 registered rows | `T9aD_RESULTS.md:11`–`:31` |
+| **T9aH** | T9a re-graded under `Gauss harmonic` | **SPLIT BY GRADING PATH AND NEVER MERGED.** Frozen path: **FR0/FR1/FR2 `NOT A RESULT`, FR3/FR4 `GATE REACHED`** | `T9aH_RESULTS.md:365`ff |
+| **T9aR1b** | | **`PASS`** — 1 of 1 **graded** row (the REPORTED rows are a row class, not a verdict) | `T9aR1b_RESULTS.md:4` |
+| **T10a** | view-factor enclosures | **`GATE FAIL`** — box 3 of 4 `PASS`, ceiling fails; both sphere rows `NOT A RESULT` | `T10a_RESULTS.md:32`–`:38` |
+| **T10aR** | T10a ceiling refinement arm | graded **against this arm's own rows only**; *"This arm grades NOTHING against T10a's band. T10a is closed at `GATE FAIL` and stands unchanged"* | `T10aR_RESULTS.md:19`–`:20` |
+| **T10aR2** | second refinement arm | **2 `PASS`, 5 `GATE FAIL`, 2 `NOT A RESULT`**; the B1 2LI triple is `OSCILLATORY` | `T10aR2_RESULTS.md:3` |
+| **T10aVF** | `viewFactorsGen` α-regularisation defect | **VF-1 `PASS`, VF-2 `PASS`, VF-3 `GATE FAIL`** | `T10aVF_RESULTS.md:100`, `:113`, `:129` |
+| **T11** | transient conduction, plane wall, EXACT | **`PASS`** ×3 (G1, G2, G3), every triple `CONVERGING`, planted-zero control `PASS` | `T11_RESULTS.md:3` |
+| **T13** | vertical-slot natural convection, EXACT ⚠ see §5.1 | **`PASS`** — 4 of 4 graded rows | `T13_RESULTS.md:4` |
+| **T14** | 2-D transient conduction, square (T11b), EXACT | **`PASS`** — 3 of 3 graded rows, all triples `CONVERGING` at p ≈ 2 | `T14_RESULTS.md:4` |
+| **T16** | developing laminar mixed convection | **rung `PENDING`** (1 of 3 levels landed); **case `T16_MC_c` `BLOCKED`** — the run meets all six completion limbs and the frozen marker refuses every real OpenFOAM log | `T16_RESULTS.md:7`, `:11` |
+| **T17** | axisymmetric transient cylinder (T11d), EXACT | **`PASS`** ×3 — **and the rung's registered ceiling is `GATE REACHED`, not higher** | `T17_RESULTS.md:9`, `:12` |
+| **T18** | 3-D transient conduction, cube (T11c), EXACT | **`PASS`** — G1, G2, G3 — **registered ceiling `GATE REACHED`** | `T18_RESULTS.md:11`, `:19` |
+| **T23** | Case 3 motor-in-duct CHT, rescaled map | **`PASS`** ×4, zero flags | `T23_RESULTS.md:44`–`:49`, `:60` |
+| **T23G** | T23 grid arm | **`NOT A RESULT`** — all three graded quantities | `T23G_RESULTS.md:3`–`:5` |
+| **T23G2** | second grid arm | **`NOT A RESULT`. CLOSED, RECORD FINAL** — three independent grounds, all established before and independently of eight granted repairs | `T23G2_RESULTS.md:3`–`:13` |
+| **T25R2** | module outer-loop arm | **`GATE FAIL` on O3, and under the propagation registered before compute EVERY ROW OF THE RUNG IS `NOT A RESULT`** | `T25R2_RESULTS.md:1`, `:16` |
+| **T25R3** | module ladder arm | **NO GRADEABLE ROW. No gate was evaluated and no physics number exists** — an absolute `p_rgh` criterion made the convergence standard tighten as the mesh refined (~955× spread in solver effort). The record declines to force a one-word label and says why | `T25R3_RESULTS.md:13`–`:24`, `:46`–`:56` |
+| **T25R4** | module probe arm | **`NOT A RESULT`** | `verification/runs/T-family/T25R4_MODULE_runs/GP_VERDICT.json` (`verdict`) |
+| **T25R5** | linear-solver tuning probe | **CLOSED.** `G-T5` **`PASS` on `C4`** at 60.109097× against a frozen 5.00× gate; **`P-2` LOSES** and **`P-3` LOSES**, both registered as the better outcome; `C2`/`C3` **DISQUALIFIED** (rc 124) | `verification/runs/T-family/T25R5_LINSOLVER_runs/GT5_VERDICT.json` |
+| **E4a** | | **`NOT A RESULT`** — 3 rows `PASS`, 5 `NOT A RESULT` | `E4a_RESULTS.md:12` |
+| **E4a2** | E4a successor | **`PASS`** — all eight registered rows | `E4a2_RESULTS.md:18` |
+
+**`CASE3_MAP_RESULTS.md` is not a rung.** It *"assigns no verdict of its own"*;
+its **16 of 16 `PASS`** is quoted from grading artifacts that already recorded it
+(`CASE3_MAP_RESULTS.md:5`–`:6`, `:39`).
+
+## 5.3 GRADED BUT NO RUNG VERDICT LOCATED — stated plainly rather than omitted
+
+**These have grading output on disk and I could not find a rung-level verdict
+line in any record. I am not supplying one; a lane does not invent a verdict.**
+
+| rung | what exists | what is missing |
+|---|---|---|
+| **T15** | `T15_runs/T15_GRADE_OUTPUT.txt` — **B1, B2, B3, B4 each `PASS`** (ODE residuals, flux identities, similarity solution, independent RK4 route) | **no `*_RESULTS.md` and no rung-verdict line.** A grade output is not a record |
+| **T9aR1c** | `T9aR1c_runs/W1c_GRADE_OUTPUT.txt` — planted-zero **P1/P2/P3 `PASS`**, floor demonstration **F1 `PASS`**, N1–N4 REPORTED; `gate_t9aR1c.json` written | **no `*_RESULTS.md`; no rung verdict** |
+| **T24** | `T24_runs/gate_t24.json` — per-case rows with `B1`/`B2`/`B3` booleans and margins | **no `*_RESULTS.md`; no rung verdict** |
+
+## 5.4 REGISTERED, NOT REPORTED — a pre-registration exists and no results record does
+
+**Fifteen. None of these carries a verdict, and none should be cited as a
+capability (§4 above).**
+
+`T15b` · `T16b` · `T16c` · `T19` · `T19b` · `T20` · `T21` · `T3c` · `T3_R_FF` ·
+`T5c` · `T25R` · `T25R6a` · `T1_FORCED_CONVECTION_CANON` · `T1b_L4_EXT2` ·
+`T1b_L4_PLANTED_ZERO_CONTROL`
+
+- **`T25R6a`** is **in flight at this writing** — a lane is live on it; its run
+  tree `T25R6a_C5_OUTER_runs/` holds `grade_t25R6a.py` and no verdict.
+- **`T3_R_FF`** is the fourth mesh level §2's T3 row records as *"PROPOSED and
+  NOT RUN"*. **It is now registered** (`T3_R_FF_PREREGISTRATION.md`, comparator
+  frozen and hashed at `:333`) and still has no results record. `DONE.R_ff`
+  exists in `T3_runs/` dated 2026-08-30.
+- **`T19`, `T20`, `T16c`** carry registered JSON and/or comparators in their run
+  trees; `check_comparator_freeze.py` reports each as `NO-MARKERS` — out of
+  evidence reach, not graded.
+
+## 5.5 RUN TREES WITH NEITHER A PRE-REGISTRATION NOR A RESULT
+
+- **`T22_runs/`** — a feasibility note, a failed-launch triage, a launcher repair
+  diff and one launch directory. **No pre-registration. No verdict.**
+- **`T25RF_runs/`** — empty beside `T25RF_FEASIBILITY_NOTE.md`. **No verdict.**
+
+## 5.6 IN §2 AND STILL NOT REGISTERED AT ALL
+
+**`T2` · `T7` · `T9b` · `T9c` · `T10b` · `T12`** — named in §2, no
+pre-registration, no run tree, no verdict. `T2`'s state cell is additionally the
+subject of a live tier dispute referred to Sanaa (`LAB_STATE.md:11815`: the
+`FORMULA` tier definition, not its application, is what is disputed, and **T1b is
+in identical standing**).
+
+**`T6` is different and is settled**: ruled **CANNOT BE PRE-REGISTERED OR FIRED,
+`BLOCKED` at `ACQUIRE`**, with zero compute spent —
+`T6_CANNOT_BE_REGISTERED_2026-08-26.md:1`.
+
+## 5.7 WHAT THIS REFRESH DOES NOT DO
+
+- **It changes no verdict, reopens no rung and grades nothing.** Every verdict
+  above is transcribed from a record or a grading artifact, with the path beside
+  it, and where two records disagree the disagreement is reproduced rather than
+  resolved (T1b, §5.2).
+- **It does not re-order the campaign.** The ordering in force remains the
+  2026-08-22 Thermal Buildup Directive section above. **The spine table there is
+  itself stale** — T3 and T8 have both since reported `NOT A RESULT` and T5 is
+  `PENDING` — but re-ordering is the supervisor's and Sanaa's, not a lane's.
+- **It does not adjudicate the `T13` id collision** (§5.1) or the `FORMULA`-tier
+  dispute (§5.6). Both are flagged and left where they belong.
+- **It does not claim completeness of the ~40-rung census.** It was built by
+  enumerating `docs/campaigns/T-family/*_{PREREGISTRATION,RESULTS}.md` and
+  `verification/runs/T-family/*/` at `HEAD` on 2026-09-03. **A rung filed
+  somewhere else would not appear**, and no reader should treat the absence of a
+  row here as proof a rung does not exist.
+
+*Appended at the foot per `L-304`; nothing above edited. Nothing sent (rule 7).*
