@@ -5697,3 +5697,148 @@ Her rule, verbatim: **"A pre-registration mismatch never prevents a launch. It's
 | gates · thresholds · bands · caps · labels | **0 · 0 · 0 · 0 · 0** |
 | solver compute | **0 core-min, $0.00** |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## Amendment — v1.50, 2026-09-03 — **§2p.9 MY OWN `§2p.8` NAMES A GRANT THAT WAS REFUSED, AND THE DEBT IS ON TWO ITEMS NOT THREE · §2p.10 `§2p.3(e)` DISCHARGED FOR `R3` AND `R5` THROUGH THE PRODUCTION PATH · §2ab AN UNREACHABLE VERDICT IS A DEFECT ONLY WHEN NOTHING REACHES IT — WHEN SOMETHING STRICTER PREEMPTS IT, IT IS A PROPERTY. VR3-R2 IS `GATE FAIL`.**
+
+**Lines whose number changed above this section: 0.** Pure append; the file's pre-append
+digest is `971bdad34f566febad9fc5c790b1c9a1` at 5,699 lines and every prior line keeps its
+number. **Zero solver compute; 0 core-min; $0.00.** **No gate, threshold, band, cap or label
+created, moved or retired; nothing re-graded.** `§2p.8` is **STRUCK IN ONE CLAUSE AND LEFT
+LEGIBLE WHERE IT WAS WRITTEN** — the discipline I have required of three other teams this week.
+
+### §2p.9 ⚠⚠ `§2p.8` ASSERTS A GRANT THAT DOES NOT EXIST. THE ERROR IS MINE, IT IS IN A CHARTER, AND IT IS THE CLASS I RULED URGENT THIS MORNING
+
+`§2p.8` at `:4872` reads *"I granted **`R3`, `R5` and `R6`** with the direction analysis
+'restrictive → easy grant on direction'"*, and its outcome table at `:4906` repeats it.
+**`[VERIFIED BY ME AT SOURCE, THREE INDEPENDENT LINES OF MY OWN CHARTER]`:**
+
+| line | what it says |
+|---|---|
+| `:4523` | `§2d.7`'s disposition table — **`R6` — "REFUSED as a `§2d.1` repair; REFERRED prospectively"** |
+| `:4540` | the reasoned refusal — silence is not a departure, **condition (2) has NO OBJECT**, `§2d` stands |
+| `:4567` | `§2d.8`'s outcome table — **refused: "`R6` (no object; referred prospectively)"** |
+
+**`R6` WAS NEVER GRANTED. Zero occurrences of a grant of it anywhere in 5,699 lines**, and
+heat-transfer's own record says the same independently at `T23G2_RESULTS.md:447`, `:471`,
+`:802`.
+
+**THE MECHANISM IS VISIBLE IN MY OWN TEXT AND IS WORTH MORE THAN THE CORRECTION.** The
+**direction analysis** at `:4462-4465` was published in advance for `R3`, `R5` **and** `R6` —
+all three carry *"easy on direction"*. `§2p.8` correctly identified the flaw in **that
+reasoning** and then attached it to *"the grants I made"*. **`R6` had a direction analysis and
+never a grant.** *I generalised from the set I had ANALYSED to the set I had GRANTED, and those
+were different sets. The defect §2p.8 identifies is real and does cover all three analyses;
+the word "granted" is what is false.*
+
+> **STRUCK — `§2p.8`'s "`R3`, `R5` and `R6`" and its table row `:4906`. THE `§2p.3(e)` DEBT IS
+> OWED BY `R3` AND `R5` AND BY NOTHING ELSE.** `R6` has **no grant, therefore no output,
+> therefore nothing to disbelieve**; its `§2p.3(e)` obligation is a **CONDITION on the repair
+> if and when it lands**, in the successor rung's pre-registration where `§2d.7` referred it.
+> **The original sentence is not rewritten and stays legible at `:4872`.**
+
+**AND THE SHAPE IS THE ONE I NAMED URGENT AT `§2w.3` THIS MORNING: A FALSE RECORD, NOT A
+DISCLOSED HOLE.** A charter asserting that a refused item was granted is exactly *"a false
+claim propagated into a second record nobody would think to audit"* — and this time the second
+record is the constitution. **A lane found it because I asked it to check the clause against
+its own table before acting on it.**
+
+### §2p.10 `§2p.3(e)` IS DISCHARGED FOR `R3` AND `R5`, DRIVEN THROUGH THE PRODUCTION PATH
+
+`analyse_t23g2.py` was **not edited**; only inputs were constructed (`§2p.3(d)`). Positive and
+negative limbs ran in the **same invocation**. Both repairs are confirmed **SHIPPED** at HEAD —
+`R3` at `:997`/`:1085`/`:1269` (`c2ce64a5`, amended by `73f2e51a`), `R5` at `:910-926` and
+`:413`/`:529`/`:555` (`91bb04f8`).
+
+- **`R3` / `G-ORDER` — 3 positive limbs `PASS`, 5 negative limbs refuse or void.** The
+  positives include **both band edges at the minimum verdict-changing margin** — p = 0.500001
+  and p = 1.499999 → `PASS`; p = 1.5001 → `GATE FAIL`; non-monotone ladder → `NOT A RESULT`,
+  `OSCILLATORY`; two empty-input arms **REFUSED**.
+- **`R5` — 18/18 registered controls `PASS`** (six quantities × three levels) on the real,
+  untouched artifacts, **plus the live y+ plant**: 181,694 vectors planted, expected ratio
+  `1.000616810` = √(1+PLANT), **worst relative miss `2.219e-16`** across all four wall patches.
+  The negative limbs are genuine: a **blind reader** built by setting a value to `1e20` so that
+  `float(v) + PLANT == float(v)` was **REFUSED**; a **stale unplanted copy** through the real
+  reader returned ratio **exactly 1.0**, proving the discriminator carries signal. The run tree
+  is clean afterwards — **0 `.plant` files** remain.
+
+**THE HONEST GAP, RECORDED BECAUSE A DISCHARGE THAT HIDES ITS LIMIT IS NOT A DISCHARGE:** the
+y+ control's **refusal** path is demonstrated at the `_plant_u_file` layer, **not end to end** —
+driving `control_yplus_field_reader` itself to refusal would have required editing production
+code or corrupting the real case's `U`, and neither is permitted. **That limb remains
+undemonstrated and is named rather than counted.**
+
+### §2aa `G-ORDER`'s `GATE FAIL` IS REACHABLE ON ONE SIDE ONLY, AND NO RECORD SAYS SO
+
+**`[MEASURED, AND VERIFIED BY ME AT BOTH SOURCES]`:** `analyse_t23g2.py:65` sets
+`ORDER_BAND = (0.5, 1.5)`; `scripts/roache_triple.py:170` sets `STAGNANT_FLOOR = 0.5`.
+**The band's lower edge and the triple's stagnation floor are the same number.**
+
+| p | triple state | `G-ORDER` |
+|---|---|---|
+| ≤ 0.04 | DEGENERATE | `NOT A RESULT` |
+| 0.10 – 0.499999 | **STAGNANT** | **`NOT A RESULT`** |
+| 0.500001 – 1.5 | CONVERGING | **`PASS`** |
+| > 1.5 | CONVERGING | **`GATE FAIL`** |
+
+> **There is NO value of `p` that produces a low-side `GATE FAIL`: every `p` below the band is
+> `STAGNANT` or `DEGENERATE` and rule 5 voids the row first. The registered clause "CONVERGING
+> but outside the band → `GATE FAIL`" HAS AN EMPTY LOWER HALF.**
+
+**THIS IS NOT A DEFECT AND I WILL NOT CALL IT ONE.** `NOT A RESULT` is **strictly stricter**
+than `GATE FAIL`, and rule 5 permits exactly that direction. **`R3` is sound.** But `§2d.7`
+recorded `R3`'s direction as *"restrictive — it can only ADD a `GATE FAIL`"*, and **on half its
+domain it adds a `NOT A RESULT` instead.** A future reader who tries to demonstrate
+`G-ORDER`'s failure branch on the low side **will fail to and will not know why.**
+**Reported, not gated** (her ~20:00Z default): a **physics finding about the instrument**, not
+a rule change.
+
+### §2ab ⚠⚠ THE DISCRIMINATOR THIS FORCES ME TO STATE, BECAUSE IT BEARS ON A RULING I MADE THIS MORNING
+
+This morning I withdrew `VR3`'s `PASS` to `NOT A RESULT` partly because its `GATE FAIL` was
+**unreachable in the implementation**. Hours later I record that `G-ORDER`'s `GATE FAIL` is
+**also unreachable on half its domain** — and call `G-ORDER` sound. **Those two must be
+reconciled or one of them is wrong.**
+
+> **RULED — `§2ab`: AN UNREACHABLE VERDICT BRANCH IS A DEFECT WHEN NOTHING REACHES IT, AND A
+> PROPERTY WHEN A STRICTER VERDICT PREEMPTS IT. The test is not "can this branch fire" but
+> "IS THERE AN INPUT THE GATE ANSWERS WRONGLY BECAUSE THE BRANCH DID NOT FIRE."**
+> - **`VR3`:** the only non-`PASS` return was both-totals-zero. **Nothing preempted `GATE
+>   FAIL`; the gate simply could not fail**, so its `PASS` was **uninformative — it could not
+>   have come out any other way.** Defect.
+> - **`G-ORDER`:** every input that would have taken the low-side `GATE FAIL` **takes `NOT A
+>   RESULT` instead, from a gate that DOES fire, in rule 5's one permitted direction.** No
+>   input is answered wrongly. **Property.**
+
+*The discriminator strengthens this morning's ruling rather than weakening it: had `VR3`'s
+unreachable branch been preempted by anything at all, I would have had to rule the other way.
+It was preempted by nothing.*
+
+### §2ab.1 AND THE `VR3` REGISTRATION'S OWN ARITHMETIC WAS WRONG — 11 HAS NO SUPPORT
+
+`VR3_PREREGISTRATION.md:19` registers *"the **11** sites"*, assuming **one** removal for
+`grade_vmfl076`. **There are TWO such files** — `VMFL076/` and `VMFL076-R2/`, each contributing
+one site at `:677`. **The number 11 has no support anywhere; it is 12.** `VR3-R2` registers
+**N = 12** with that arithmetic on its face.
+
+**`VR3-R2` IS `GATE FAIL`** (`8515ea51` frozen; `7c14d198` graded): **12 of 12 sites
+classified, UNGUARDED = 4, GUARDED = 8**, and the four are **one function — `probe_series` —
+replicated into four graders**, each a `LEXICAL sorted(glob.glob(...))` over
+`postProcessing/*/U/gateProbes` with **no `len()` guard in that function**. **It widens a
+CANDIDATE set 19 → 23 and MOVES NO VERDICT** — `DEAD_LEVER_AUDIT` §7.3's standing measurement
+that every hazard case produced exactly one start-time directory still holds.
+
+| item | outcome |
+|---|---|
+| `§2p.8`'s "`R3`, `R5` and `R6`" | **STRUCK — `R6` was REFUSED at `:4523`/`:4540`/`:4567`** |
+| the `§2p.3(e)` debt | **two items, not three** |
+| `R3` / `R5` | **`§2p.3(e)` DISCHARGED** through the production path, both limbs, same run |
+| `R6` | **prospective — no grant, no output, nothing to disbelieve** |
+| the y+ refusal limb | **NOT demonstrated end to end — named, not counted** |
+| `G-ORDER`'s low-side `GATE FAIL` | **EMPTY — `ORDER_BAND[0]` == `STAGNANT_FLOOR` == 0.5.** Reported, not gated |
+| **`§2ab`** | **unreachable + nothing preempts = DEFECT; unreachable + stricter preempts = PROPERTY** |
+| `VR3`'s "11" | **no support — it is 12** |
+| **`VR3-R2`** | **`GATE FAIL` — 4 of 12 UNGUARDED, one function replicated four times** |
+| gates · thresholds · bands · caps · labels | **0 · 0 · 0 · 0 · 0** |
+| solver compute | **0 core-min, $0.00** |
