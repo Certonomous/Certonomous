@@ -6494,3 +6494,226 @@ silence.**
 | gates · thresholds · bands · caps · labels | **0 · 0 · 0 · 0 · 0** |
 | registration-time expectations | **1, forward-only (`§2aj`)** |
 | solver compute | **0 core-min, $0.00** |
+
+---
+
+## Amendment — v1.54, 2026-09-03 — **§2ak THE COMPARATOR EXIT-CODE CONTRACT, RULED ON A CENSUS OF ALL 238 COMPARATORS RATHER THAN ON THE ONE GRADER THAT ASKED. THE PROPOSED FIX IS REFUSED TWICE — ONCE ON PRINCIPLE, BECAUSE A CRASH DRESSED AS A REFUSAL IS `§28`'s TELL DESIGNED IN BY CHARTER, AND ONCE ON MEASUREMENT, BECAUSE `EXIT_REFUSE` IS NOT ONE VALUE. AND THE LAB'S OWN RULE-3 PLANTED-CONTROL REFUSAL CURRENTLY RETURNS THE CRASH CODE.**
+
+**Lines whose number changed above this section: 0.** Pure append; pre-append digest
+`fb45084f0e13d4564835f9954f24a4cd` at 6496 lines. **Zero solver compute; 0 core-min; $0.00.**
+**No gate, threshold, band, cap or label is created, moved or retired. Nothing is re-graded. No
+sweep is ordered, no backfill is scheduled, and NO INSTRUMENT IS BUILT.**
+
+**THE BAR, STATED BEFORE THE RULING AND NOT AFTER IT.** Sanaa's 2026-09-03 ~20:00Z reform
+requires a blocked result to name. **NO RESULT IS BLOCKED — I measured for one and did not find
+it, and I say so rather than manufacture one.** What is blocked is **one team's parked repair and
+a question they formally put to this team**: `T25R6cR2_2D1_RECORD_EMISSION_PETITION.md` `§3.2`
+declines to propose a fix because *"the right shape … is a comparator-contract question for
+verification, not a lane's patch."* **Under her bar that earns an ANSWER, and the answer is
+mostly a REFUSAL — which is the cheapest thing this charter can contain.** Two teams reached this
+hole independently in one session; neither is waiting on a solve.
+
+---
+
+### §2ak.0 — **THE PROPOSED FIX IS REFUSED, AND ON TWO INDEPENDENT GROUNDS**
+
+The petition's proposed shape: *"a top-level handler mapping any unexpected exception onto
+`EXIT_REFUSE`, so that a comparator that cannot record REFUSES rather than returns an unregistered
+code."*
+
+**REFUSAL 1 — ON PRINCIPLE, AND IT IS THE WHOLE OF THIS CLAUSE.**
+
+> **A REFUSAL IS A STATEMENT ABOUT THE RUN, MADE BY A WORKING INSTRUMENT. A CRASH IS A STATEMENT
+> ABOUT THE INSTRUMENT, MADE BY NOBODY.**
+
+| | a REFUSAL | a CRASH |
+|---|---|---|
+| what it is a statement about | **the RUN** | **the INSTRUMENT** |
+| who made it | a working instrument, deliberately | nobody |
+| what it says | *"I am not permitted to grade this"* | *"I could not answer"* |
+| the verdict for the **run** | `NOT A RESULT` | `NOT A RESULT` |
+| the verdict for the **instrument** | **none — it worked** | **a DEFECT FINDING** |
+| can be made to go away by re-running | **no** — the condition must change | **yes** — and that is the hazard |
+
+**The last row is why they may never share a value.** Mapping a crash onto `EXIT_REFUSE` makes
+every instrument defect present as a well-behaved refusal, and **the lab permanently loses the
+ability to count its own instrument failure rate.** *That is `FAIL_OPEN_GATE_AUDIT §28`'s tell —
+the absence of an answer read as the presence of a considered one — except designed in, by
+charter, rather than stumbled into.* **A refusal is a measurement. A crash is the absence of one.**
+
+**REFUSAL 2 — ON MEASUREMENT, AND IT IS FATAL TO THE PROPOSAL AS WORDED.**
+
+> **`EXIT_REFUSE` IS NOT ONE VALUE.** `[VERIFIED BY ME AT SOURCE]` **51 definitions say `2`; two
+> say `3`** — `verification/runs/T-family/T25R4_MODULE_runs/ladder_gate_t25R4.py:25` and
+> `verification/runs/T-family/T23G2_runs/preflight_gate_t23g2.py:49`. And `3` is `EXIT_GATE_FAIL`
+> in three other graders. **A rule reading "return `EXIT_REFUSE`" would emit a `2` in 51 files, a
+> `3` in two, and would silently mean GATE FAIL in the second pair.**
+>
+> **A CONTRACT IS WRITTEN ON A VALUE, NEVER ON A NAME.** The petitioner could not have known this;
+> it is exactly what a census is for.
+
+**Two further name collisions, measured, because the first is not an outlier:**
+`EXIT_NOT_A_RESULT` is `4` in three files and **`1` in `scripts/recipe_audit.py:231`
+`[VERIFIED BY ME AT SOURCE]`** — *in that instrument a `NOT A RESULT` and a crash are byte-identical
+by design.* `EXIT_UNKNOWN` is `3` in six files and `4` in `scripts/append_record.py:378`.
+
+---
+
+### §2ak.1 — **THE MEASURED STATE, BECAUSE I WILL NOT LEGISLATE OVER A POPULATION I HAVE NOT COUNTED**
+
+**Population: 238** — every `analyse_*.py`, `grade_*.py`, `mark_done_*.py`, `compare_*.py` under
+`verification/runs/**`, `cases/**`, `scripts/**`. **Eleven distinct exit values in use:
+`0,1,2,3,4,5,6,7,8,9,64`.**
+
+- **`[MEASURED]` 236 OF 238 RETURN `1` ON AN INTERNAL CRASH.** Only two have a guard wired to the
+  grading entry point: `analyse_t25R2.py:2729-2751` (wired `:2759`) and `mark_done_t25R2.py:551`
+  (wired `:562`).
+- **⚠ `[MEASURED]` 37 REFUSAL CALL SITES IN 8 COMPARATORS ALREADY EXIT `1`.** They pass a *string*
+  to `sys.exit()` / `SystemExit`. `[VERIFIED BY ME ON THIS BOX]` `raise SystemExit("REFUSE: demo")`
+  → **rc 1**; `raise ValueError("boom")` → **rc 1**. **Identical.** The files:
+  `analyse_k0c.py` (9), `analyse_k2e.py` (6), `analyse_t25.py` (5),
+  `K0b_D403_rerun` / `K0b_D406_repair` / `analyse_k0b_mesh.py` (5 each), `analyse_k2b.py` (1),
+  `analyse_L3_plateau.py` (1).
+
+> **⚠⚠ THE CONFLATION THIS CLAUSE FORBIDS ALREADY EXISTS 37 TIMES, MEASURED, BEFORE ANY RULE WAS
+> WRITTEN. In those eight comparators a refusal and a crash are the same value TODAY.**
+
+- **⚠⚠⚠ AND THE WORST SINGLE INSTANCE IS `CLAUDE.md` RULE 3's OWN CONTROL.**
+  `[VERIFIED BY ME AT SOURCE]` `verification/runs/T-family/T25_MODULE_runs/analyse_t25.py:363-365`:
+
+      if not ok:
+          sys.exit("REFUSE: planted control failed; this reader's numbers are "
+                   "not admissible")
+
+  **That returns `1`.** So **the lab's planted-zero refusal is indistinguishable, by exit code,
+  from the reader having died before the control ever ran.** *Rule 3 exists to make exactly that
+  distinction — "a zero from a reader not shown able to see a non-zero is not evidence" — and its
+  transmission channel cannot carry it.* **The reading is not wrong. The reader may never have
+  run, and the value says the same thing either way** (`L-466`, one level down).
+
+- **One composition hazard, recorded not ruled:** `mark_done_t25R6a.py:110-114` accumulates
+  `rc |= mark(...)` across cases and exits the OR. **`2 | 4 = 6`**, which is a defined code with
+  a different meaning elsewhere in the lab. *An exit code is not a set and does not compose.*
+
+---
+
+### §2ak.2 — **THE CONTRACT**
+
+> **RULED — `§2ak`: A COMPARATOR'S INTERNAL ERROR HAS ITS OWN EXIT VALUE, AND IT IS NOT A REFUSAL.
+> THE VALUE IS `70`.**
+>
+> **`EXIT_INSTRUMENT_ERROR = 70`** — `EX_SOFTWARE` from BSD `sysexits.h`, *"an internal software
+> error has been detected"*. **Chosen from outside this lab and not invented here**, and it is the
+> value the census actually permits:
+> - it **collides with none** of the eleven values in use (`0-9`, `64`);
+> - it **cannot be produced accidentally** — an unhandled Python exception returns `1`, and no
+>   comparator in the population returns `70`;
+> - it is **outside the shell's reserved band** (`126`, `127`, `128+N`);
+> - it is **defined by a name outside this repository**, so it cannot drift the way `EXIT_REFUSE`
+>   drifted to two values inside it.
+>
+> **The contract binds the VALUE. `EXIT_INSTRUMENT_ERROR` is its name here, and a file defining
+> that name to another value is non-conforming BY DEFINITION, not by opinion.** Where a comparator
+> encodes verdicts in its exit codes — several do, and their registrations name them — `70` is
+> reserved out of that space and no verdict may occupy it.
+
+**AND THE PART THAT MATTERS MORE THAN THE NUMBER — THE EMISSION DUTY.**
+
+> **On internal error the comparator EMITS ITS RECORD ANYWAY**, from a top-level handler that runs
+> **no grading logic**: verdict `NOT A RESULT`, plus an `instrument_error` block carrying the
+> **exception type**, its **message**, the **file and line of the raise**, and the **comparator's
+> own blob sha**. Then exit `70`.
+>
+> **THE FLOOR, STATED HONESTLY BECAUSE THE OBVIOUS OBJECTION IS CORRECT: THE HANDLER CAN ITSELF
+> FAIL.** A crash in the writer is precisely the case where a writer cannot write. **Then the
+> floor is the traceback on stderr and exit `70`, and nothing else is promised.** *A contract that
+> pretends otherwise is the same species of false assurance it exists to prevent.*
+>
+> **THEREFORE THE CALLER'S DUTY, WHICH IS THE HALF THAT WOULD ACTUALLY HAVE CAUGHT THIS ONE:
+> A MISSING VERDICT ARTIFACT IS NEVER READ AS "NO VERDICT WAS DUE." Absence of the artifact is
+> itself `NOT A RESULT`.** That is `§28`'s caller side, and **it would have caught T25R6cR2 with
+> no exit code at all.**
+
+**THE TWO VERDICTS A CRASH PRODUCES, AND THEY ARE TWO:**
+
+> - **THE RUN IS `NOT A RESULT`.** Not `BLOCKED` — nothing external prevented the work and the
+>   data exists; the instrument failed to judge it. And never a silent absence.
+> - **THE INSTRUMENT IS A DEFECT FINDING** — docketed, **never silent**.
+>   **⚠ A CRASH THAT IS REPAIRED AND RE-RUN TO SUCCESS, WITH NO RECORD THAT IT HAPPENED, HAS
+>   DESTROYED A MEASUREMENT OF THE INSTRUMENT'S OWN RELIABILITY.** *This is the whole reason the
+>   two codes must differ: a crash can be made to go away by re-running, and a refusal cannot.*
+
+**RE-GRADING AFTER THE REPAIR is governed by `§2d`/`§2ah`, not by this clause** — and a crash
+repair takes **`§2ah.3`'s fifth disclosure content**, because **a crash MOVES THE EXIT CODE, which
+is a registered channel.** *That is not a coincidence. The exit code is precisely the registered
+channel a crash falsifies, which is why `§2ah.3` and this clause were forced by the same rung on
+the same afternoon.*
+
+---
+
+### §2ak.3 — **THE REFERENCE IMPLEMENTATION IS ALREADY ON THIS LAB'S DISK, AND IT IS THE PETITIONER'S OWN**
+
+`§2v.5`'s pattern again, and this instance is the sharpest yet.
+
+`verification/runs/T-family/T25R2_MODULE_runs/analyse_t25R2.py:2729-2751` **already implements a
+guarded grading entry point**, wired at `:2759` as `sys.exit(_guarded(sys.argv[1:]))`. Its own
+docstring states this defect better than the petition did, **weeks earlier**:
+
+> *"An instrument with no `except` clause lets an uncaught traceback leave the interpreter with
+> exit status 1 — which in this file's exit vocabulary is 'a gate failed or a row is `NOT A
+> RESULT`', i.e. a **GRADED outcome**. A crash would then be **INDISTINGUISHABLE FROM A
+> MEASUREMENT**."*
+
+> **RECORDED: HEAT-TRANSFER DIAGNOSED THIS DEFECT IN WRITING, IN ITS OWN FILE, BEFORE PETITIONING
+> THIS TEAM FOR A RULE ABOUT IT — AND THE PETITION DOES NOT CITE IT.** No criticism attaches: it
+> is a large team, a large repository, and the petition is one of the best-argued documents this
+> charter has ruled on. **But the lab's best answer to a question was on its own disk while a team
+> was asking for one, and that is a finding about the lab's memory, not about the team.** *It is
+> the same shape as `§2v.5` and as `L-186`: what is not on a board is lost, and what is not
+> indexed is not found.*
+>
+> **`analyse_t25R2.py:2729-2751` IS NAMED AS THE REFERENCE FORM so nobody invents a second one.**
+
+---
+
+### §2ak.4 — **SCOPE, HONESTLY, AND IT IS DELIBERATELY SMALL**
+
+- **REPORTED, NOT GATED. NO RESULT IS BLOCKED** by the 37 conflated refusals or by the 236
+  unguarded crash paths. `[MEASURED]` **No automated consumer reads a grader's exit code:**
+  `scripts/queue_runner.py` invokes no grader and reads none; the four
+  `[ $? -eq 2 ]` checks in `run_f17.sh`, `run_f17c.sh`, `run_f17b`'s and `run_f18.sh` are
+  **pre-launch instrument checks that abort in the safe direction**; and `dafoam`'s
+  `so3_chain_driver.sh:310` has **already ruled the exit status non-load-bearing in a live
+  driver** (`note=comparator-exit-status-NOT-the-verdict`). **Every refusal to date was caught by
+  a human reading stdout.**
+  - *One honest caveat on that list: `run_f17c.sh:105` prints* "the `-O` refusal is not armed"
+    *on any rc ≠ 2 — so it cannot distinguish an unarmed refusal from a crashed grader, and it
+    prints the first diagnosis either way. It aborts, so nothing is graded wrongly; but its
+    MESSAGE is false half the time.*
+- **NO SWEEP. NO BACKFILL. NO NEW INSTRUMENT.** Per Sanaa's standing rule that **no instrument
+  measures another instrument until the first changed a verdict**, **I do not build an exit-code
+  conformance checker, and one may not be built on this clause's authority.**
+- **FORWARD-ONLY.** A comparator **registered after 2026-09-03** conforms. **Existing comparators
+  are non-conforming and that is NOT a defect** until one of them misleads a consumer — on which
+  day it is a blocked result and the enforcement is earned.
+- **ONE ITEM NAMED AND NOT ORDERED:** `analyse_t25.py:363-365`, rule 3's own control refusing at
+  the crash code. **Its owner is heat-transfer and the decision is theirs.** *I name it because it
+  is `CLAUDE.md` rule 3's binding artifact and a charter that knows this and stays silent is worse
+  than one that never measured.*
+
+| item | outcome |
+|---|---|
+| the proposed *"map internal raise onto `EXIT_REFUSE`"* | **REFUSED TWICE — on principle, and on the measurement that `EXIT_REFUSE` is 2 in 51 files and 3 in two** |
+| refusal vs crash | **statement about the RUN vs statement about the INSTRUMENT. Never the same value** |
+| why never the same | **a crash can be made to go away by re-running; a refusal cannot** |
+| the value | **`EXIT_INSTRUMENT_ERROR = 70`**, `EX_SOFTWARE`, chosen from outside this lab, colliding with none of the 11 in use |
+| the emission duty | **emit `NOT A RESULT` + an `instrument_error` block from a handler that grades nothing; floor is traceback + 70** |
+| the caller's duty | **a MISSING artifact is `NOT A RESULT`, never "no verdict was due"** — and this alone would have caught T25R6cR2 |
+| the two verdicts | **RUN → `NOT A RESULT`; INSTRUMENT → a docketed DEFECT FINDING, never silent** |
+| **measured, 238 comparators** | **236 return 1 on a crash · 37 refusal sites in 8 files ALREADY return 1 · 11 distinct values in use** |
+| ⚠ **rule 3's own control** | **`analyse_t25.py:363-365` refuses at rc 1 — the crash code. Named, not ordered; heat-transfer's** |
+| the reference form | **`analyse_t25R2.py:2729-2751`, already on disk, by the petitioning team, weeks earlier, uncited** |
+| blocked result | **NONE. Measured for, not found, and said rather than manufactured** |
+| sweep · backfill · new instrument | **0 · 0 · 0 — and an exit-code conformance checker is FORBIDDEN on this clause's authority** |
+| gates · thresholds · bands · caps · labels | **0 · 0 · 0 · 0 · 0** |
+| solver compute | **0 core-min, $0.00** |
