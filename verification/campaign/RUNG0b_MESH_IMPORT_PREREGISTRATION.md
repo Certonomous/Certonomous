@@ -526,3 +526,58 @@ grade anything. **It does not authorise a launch** — `SUPERVISION_CHARTER.md` 
 remains the cfd supervisor's, personally and undelegably, and he has stated he will confirm
 **both** this registration's commit **and** this amendment's commit exist, by reading them
 himself, before anything computes.
+
+---
+
+## ADDENDUM NOTE TO AMENDMENT 1 — 2026-09-03, **STILL PRE-COMPUTE** — the caller scan is now COMMITTED; the 13-header audit is NOT, so clause (ii)'s marking STANDS
+
+**Version: v1.1 → v1.2. Lines whose number changed above this section: 0.**
+**Changes no gate, no threshold, no cap, no label. It does not rewrite Amendment 1 —
+Amendment 1's text stands exactly as committed at `0b6cb24f`, including the sentence this
+note supersedes.**
+
+**WHY THIS NOTE EXISTS: AMENDMENT 1 ASSERTS SOMETHING THAT BECAME FALSE 38 SECONDS AFTER
+IT WAS WRITTEN, AND THAT IS THE SAME DEFECT SHAPE THIS TEAM CORRECTED THIS MORNING** — a
+frozen record asserting `DOES NOT EXIST` about a file that exists
+(`CORRECTION_no_pass_branch_framing.json`). It is corrected the same way: by an appended
+note, never by an edit.
+
+### What changed
+
+| Amendment 1 said | Now, verified at HEAD by this lane |
+|---|---|
+| `CONVERTER_CALLER_SCAN_certonomous_runs.json` **"IS UNTRACKED"** | **COMMITTED at `10ba2567`**, 2026-09-03T19:33:48Z — *"cfd converter-caller population CLOSED: five copies of `ugrid_to_foam.py` exist on this box, not three, and THREE carry the defective byte-order branch byte-identically"* |
+
+**THE CONTENT-HASH CITATION DID ITS JOB, AND THAT IS WORTH RECORDING RATHER THAN PASSING
+OVER.** Amendment 1 cited that file by on-disk `sha256 1a1ea18d4c3dbaf9dbb1b14f8013612a…`
+precisely because it was uncommitted. **`git show 10ba2567:<path> | sha256sum` returns
+`1a1ea18d4c3dbaf9dbb1b14f8013612a…` — byte-identical.** The citation resolves onto the
+committed blob with nothing to reconcile. **A path-plus-content-hash citation of an
+uncommitted artefact upgrades cleanly; a bare path citation would not have.**
+
+**THE CROSSING IS DISCLOSED, NOT SMOOTHED.** `10ba2567` landed at **19:33:48Z** and
+Amendment 1 at **19:34:26Z** — **38 seconds apart**. This lane's search ran before the
+commit existed, so the amendment's report was **true when written and stale when read**.
+It was not a failed search; it was an early one. Recorded because "my search found
+nothing" and "it was not there" are different claims, and only the second was ever
+warranted.
+
+### What has NOT changed, and clause (ii)'s marking therefore STANDS
+
+**`10ba2567` contains EXACTLY ONE FILE — the caller scan, 31 insertions.** It does **not**
+carry the **13-header byte-budget audit** or the **five-copy manifest**. Verified by this
+lane at HEAD: `git ls-tree -r HEAD` matching `13[-_]?header|five_copy|BYTE_BUDGET|
+LAYOUT_AUDIT` → **0 hits**; the same terms in `10ba2567`'s own file list → **0 hits**.
+
+> **CLAUSE (ii)'s "RELAYED, NOT VERIFIED HERE" MARKING IS NOT LIFTED BY THIS NOTE.** The
+> **test-ordering** half remains verified by this lane from the pinned blob's own source;
+> the **13-header audit** half remains relayed and remains unanchored in any committed
+> record. **It is lifted only by a further dated note citing that audit's own path and
+> commit, once the M6 lane lands it as its own item.** Until then §8's **non-claim 10**
+> and clause (iii)'s population limit carry the full weight of the disclosure, which they
+> were written to do.
+
+**NOTHING HAS COMPUTED.** Re-checked in this note's own shell: `verification/runs/RUNG0b_MESH_IMPORT_runs`
+**ABSENT**, `/home/ubuntu/certonomous-runs/RUNG0b_exports` **ABSENT**, no `RESULTS.json`.
+**Launch remains held on `SUPERVISION_CHARTER.md` §3 check 4** — the cfd supervisor's
+personal read of `ace20cb1` **and** `0b6cb24f`, undelegable, and not performed by this lane.
