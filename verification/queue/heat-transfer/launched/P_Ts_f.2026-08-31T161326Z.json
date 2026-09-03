@@ -1,0 +1,77 @@
+{
+  "team": "heat-transfer",
+  "case_id": "P_Ts_f",
+  "prereg_commit": "b52ed93be3e8937ca9e99823822d3b883abad0b9",
+  "prereg_path": "docs/campaigns/T-family/T19b_PREREGISTRATION.md",
+  "launch_cmd": [
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T19_runs/run_one_t19.sh",
+    "--case-dir",
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T19b_runs/P_Ts_f",
+    "--timeout",
+    "15000",
+    "--ranks",
+    "1",
+    "--no-detach"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/T-family/T19b_runs/P_Ts_f",
+  "ranks": 1,
+  "cost_core_min_estimate": 77.952,
+  "cap_core_min_registered": 250,
+  "cost_basis": "T19_registered.json cases.P_Ts_f: 38400 cells (480 x 80, full gap) x 30,000 SIMPLE iterations -> POINT 77.952 core-min; CAP 250 core-min = timeout 15000 s at 1 rank (timeout = cap x 60 / ranks). T19b PINS that file by sha256 84b3652a5187f04e... and does NOT copy it, so the cap is the registered one and cannot have moved. The rate is BORROWED, NOT MEASURED on this rung: 4.06e-06 core-s per cell-iteration from T1c's completed runs (same solver, closure, Re, Pr). USD DERIVED, NOT MEASURED -- this box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md sec.5): POINT = $0.066649, CAP = $0.213750 at the owner-stated, reported-by-owner $0.0513/core-h. STAGE 2 TOTAL (these four): POINT 181.152 core-min, CAP 600 core-min, $0.154885 derived -- the figure verification's 21 Addendum 1 (2c240b41) authorises.",
+  "memory_floor_gb": 2.0,
+  "role": "graded level -- the FINE of the Roache triple, uniform wall temperature arm; grades G3 (Nu_T); its f.Re is the C_ID identity control. STAGE 2 OF 2, RELEASED by verification's DEAD_LEVER_AUDIT.md 21 ADDENDUM 1 at commit 2c240b41 (2026-08-31T16:04:51Z), which discharged its own condition (d) -- THE GRADED VALUE IS THE FINE LEVEL'S, never the Richardson extrapolate.",
+  "_stage_2_release": {
+    "authority": "verification, DEAD_LEVER_AUDIT.md 21 ADDENDUM 1, commit 2c240b41, VERIFIED BY THIS LANE: the commit exists, is an ancestor of HEAD, and its text was read. Its ruling: '(d) IS DISCHARGED. The 28000/30000 write pair existing on both coarse cases satisfies its intent: the thing that made C_PLATEAU unevaluable is demonstrably gone. Stage 2 -- build and run the m/f four -- is RELEASED, and C_PLATEAU is computed at rung grading, by the frozen grader, exactly as registered. No ad-hoc plateau path is built, and none may be.'",
+    "why_d_was_imprecise": "verification's own words: (d) conflated (1) the gate's INPUTS existing, checkable coarse-only, with (2) the gate's VALUE being computed, which the frozen grader will only do with all six DONE. The dead-lever concern was entirely (1). A gate whose inputs cannot exist is dead; a gate whose inputs exist but whose value is computed at rung completion is an ordinary rung gate.",
+    "conditions_that_would_still_stop_stage_2": "the 28000/30000 write pair absent on either coarse case, or mark_done non-zero on either. BOTH VERIFIED SATISFIED: the full series 2000..28000,30000 is present on both, and mark_done_t19.py returned rc=0 DONE on both.",
+    "C_PLATEAU_state": "NEVER ONCE COMPUTED on real data. It is computed for the first time at rung grading, once this triple completes. A GATE FAIL from it is a SUCCESS for this repair -- it means the lever moves. It will not be rescued or reinterpreted."
+  },
+  "_coarse_pair_result": {
+    "P_q_c": "rc=0 wall_s=63 core_min=1.050 capped=no note=clean; last Time = 30000; 30000 ExecutionTime lines; End x1; ZERO 'SIMPLE solution converged'; writes 0,2000..28000,30000; DONE",
+    "P_Ts_c": "rc=0 wall_s=63 core_min=1.050 capped=no note=clean; last Time = 30000; 30000 ExecutionTime lines; End x1; ZERO 'SIMPLE solution converged'; writes 0,2000..28000,30000; DONE",
+    "against_the_parent": "T19's same two cases stopped at 828 and 541 iterations, both rc=0 and clean. THEY DID NOT CRASH; THEY SUCCEEDED AT THE WRONG EXPERIMENT. One deleted line is the whole difference.",
+    "age_guard_margins": "+63.41 s (P_q_c) and +63.15 s (P_Ts_c), minimum over the four registered fields at 30000 against each case's own 0/T [MEASURED]",
+    "cost_calibration_stage_1": "POINT 5.904 core-min vs MEASURED 2.100 -> 2.811x OVER-prediction, 8.8% of the 24 CAP, no overrun. The registration's own prediction P6 (1.3-2.6 core-min per coarse case) LOST: actual 1.050. Reported as wrong. Attribution: the specimen's 3 wall s covered 828 iterations INCLUDING mesh load and field init, so extrapolating its total-time-per-iteration to 30000 over-predicts once that fixed cost amortises."
+  },
+  "_preflight_measured_by_this_lane": {
+    "utc": "2026-08-31T16:07Z",
+    "builder": "build_t19b.py verified byte-identical to its frozen blob b687db4d at b52ed93b before use",
+    "residualControl_detector": "PASS on all four. Built system/fvSolution carries NO residualControl; the SAME detector returns PRESENT on a copy with build_t19.py:211's line planted back, so the green is not tautological.",
+    "age_guard": "no 0/, 0 numeric time directories, no STATUS.<case> in any of the four at filing time",
+    "mesh": "blockMesh rc=0, checkMesh rc=0 'Mesh OK' on all four; constant/polyMesh/owner present",
+    "provenance": "check_case_provenance.py rc=0 on all four",
+    "fields": "0.orig holds exactly {T, U, alphat, p_rgh} -- the laminar tuple, no nut/k/omega",
+    "ladder": "2400 / 9600 / 38400 cells, r = 2 in BOTH directions, station on a cell face at every level",
+    "falsification_specimen": "INTACT. T19_runs/P_q_c/828/ and T19_runs/P_Ts_c/541/ both present; T19_runs holds ZERO DONE markers. They are the before-half of a pair that now has an after: 828 -> 30000 and 541 -> 30000.",
+    "long_run_declared_in_advance": "T19's registration declares the two FINE cases at roughly 4,680 wall s each, above the 3,600 s marker rule 12 uses to flag a stall. THEY ARE NOT STALLS -- the length was predicted before compute. On the coarse pair's measured 2.811x over-prediction they may land nearer 1,700 s, but that is EXTRAPOLATED, not measured, and the rate is known to RISE with mesh size."
+  },
+  "enqueued_by": "heat-transfer lab-lane, on the heat-transfer-supervisor's stage-2 release instruction of 2026-08-31, which rests on verification's ruling at 2c240b41 (VERIFIED BY THIS LANE) and on Sanaa's queue ruling captured at etc/sessions/2026-08-31T1551Z_sanaa_queue_ruling_yes_yes.md, committed by the chief at 9154c8ef (ALSO VERIFIED BY THIS LANE: file on disk, commit an ancestor of HEAD, committed blob equal to the worktree blob). SUPERVISION_CHARTER sec.3 check 1 was discharged personally by the supervisor on both T19b instruments as diffs; check 4 by the freeze at b52ed93be3e8937ca9e99823822d3b883abad0b9. 181.152 core-min POINT is the figure the ruling authorises.",
+  "_launch": {
+    "utc": "2026-08-31T16:13:26Z",
+    "pid": 115678,
+    "sid": 115678,
+    "status_file": "/home/ubuntu/Certonomous/verification/runs/T-family/T19b_runs/P_Ts_f/STATUS.P_Ts_f",
+    "wrapper_out": "/home/ubuntu/Certonomous/verification/runs/T-family/T19b_runs/P_Ts_f/launcher.queue.out",
+    "started_epoch": 1788192806.3719819,
+    "status_seen_utc": "2026-08-31T16:37:11Z"
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.P_Ts_f (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
+}

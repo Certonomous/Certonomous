@@ -1,0 +1,244 @@
+{
+  "team": "heat-transfer",
+  "case_id": "P_q_f",
+  "prereg_commit": "4d8943d85e001215f76b3451ad7aba75515362df",
+  "prereg_path": "docs/campaigns/T-family/T19_PREREGISTRATION.md",
+  "launch_cmd": [
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T19_runs/run_one_t19.sh",
+    "--case-dir",
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T19_runs/P_q_f",
+    "--timeout",
+    "15000",
+    "--ranks",
+    "1",
+    "--no-detach"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/T-family/T19_runs/P_q_f",
+  "ranks": 1,
+  "cost_core_min_estimate": 77.952,
+  "cap_core_min_registered": 250,
+  "cap_core_min_registered_note": "TRANSCRIBED, NOT REGISTERED HERE. The cap already exists in T19_registered.json and is already enforced by this entry's own --timeout, which run_one_t19.sh:75 REFUSES unless it equals the registered timeout_s exactly. NO VALUE MOVES. THE REGISTRATION IS AUTHORITATIVE: if this field and the cited source disagree, the source wins and this field is the thing that is wrong.",
+  "cap_core_min_registered_source": {
+    "kind": "machine-readable registration",
+    "document": "verification/runs/T-family/T19_runs/T19_registered.json",
+    "json_path": "cases.P_q_f.cap_core_min",
+    "verbatim": "\"cap_core_min\": 250",
+    "scope": "case",
+    "prose_twin": "docs/campaigns/T-family/T19_PREREGISTRATION.md:326-331"
+  },
+  "cost_basis": "T19_registered.json cases.P_q_f: 38,400 cells (480 x 80, full gap) x 30,000 SIMPLE iterations -> POINT 77.952 core-min; CAP 250 core-min = timeout 15000 s at 1 rank (timeout = cap x 60 / ranks). USD DERIVED, NOT MEASURED: POINT = $0.066649, CAP = $0.213750, at the owner-stated $0.0513/core-h (2026-08-21/22). COMPUTE_BUDGET_CHARTER section 5: THE BOX CANNOT READ ITS OWN BILLING, so no dollar figure from this box is ever measured. RATE PROVENANCE, AND IT IS DELIBERATELY NOT T18's: MEASURED, ON THE SAME SOLVER, size-matched per level. Verbatim from T19_registered.json cost.rate_provenance: 'MEASURED, ON THE SAME SOLVER... Taken from T1c's own completed runs at HEAD: L_q_c (4 000 cells, 30 000 iterations, ExecutionTime 294.89 s -> 2.457e-06 core-s per cell-iteration), L_q_m (10 240 cells, 809.07 s -> 2.633e-06), L_q_f (26 112 cells, 3162.26 s -> 4.037e-06) and L_Ts_f (26 112 cells, 3176.51 s -> 4.055e-06). Same solver (buoyantBoussinesqSimpleFoam), same closure (laminar), same schemes family, same iteration count (30 000), same box, serial.' THIS RATE IS STRONGER THAN T18's AND THE DIFFERENCE IS STATED RATHER THAN GLOSSED: T18's rate is BORROWED across a dimension change and carries a measured ~1.7x underprediction on the T17 sibling; T19's is measured on the very solver and iteration count it predicts. THE T17 RATIOS (1.701/1.676/2.141/2.024) ARE NOT IMPORTED HERE and must not be: they calibrate a BORROWED laplacianFoam rate, not this measured buoyantBoussinesqSimpleFoam one, and applying them would be a category error. THE RESIDUAL RISK IS NAMED IN THE REGISTRATION (T19_PREREGISTRATION.md:317-324): the fine level is 38 400 cells against the 26 112 the top rate was measured on -- a 1.47x mesh jump in the direction where the rate has been observed to RISE -- so the expected direction of any miss is UNDER-prediction. NO T19-FAMILY actual/predicted ratio exists yet because no T19 case has ever run; this coarse level is the first datum and a docs/COST_CALIBRATION.md row is owed at its completion. THE CAP STOPS AN OVERRUN; an overrun does not get a new budget (rule 12).",
+  "memory_floor_gb": 2.0,
+  "role": "graded level -- the FINE of the Roache triple, constant wall heat flux arm. T19 is TWO ladders of three: the constant-wall-temperature arm (P_Ts_*) and the constant-wall-heat-flux arm (P_q_*), each needing its own triple under standing rule 5.",
+  "_authorisation": {
+    "registration_permits_this_exact_case": {
+      "verdict": "THE REGISTRATION PERMITS P_q_f. READ PERSONALLY BY THIS LANE.",
+      "quotes": [
+        {
+          "line": "docs/campaigns/T-family/T19_PREREGISTRATION.md:44",
+          "verbatim": "`verification/runs/T-family/T19_runs/{P_q_c,P_q_m,P_q_f,P_Ts_c,P_Ts_m,P_Ts_f}`",
+          "reads": "P_q_f is one of the six registered case directories of this rung, named in the registration's own condition-at-freeze."
+        },
+        {
+          "line": "docs/campaigns/T-family/T19_PREREGISTRATION.md:26",
+          "verbatim": "Two wall arms (uniform temperature, uniform heat flux), six cases, one registered sampling station.",
+          "reads": "the two-arm structure that makes P_q_f (the uniform-heat-flux arm) a registered arm rather than a variant."
+        },
+        {
+          "line": "docs/campaigns/T-family/T19_PREREGISTRATION.md:114",
+          "verbatim": "| walls, q arm | `fixedGradient` **500 K/m** on BOTH walls |",
+          "reads": "this arm's registered wall boundary condition."
+        },
+        {
+          "line": "docs/campaigns/T-family/T19_PREREGISTRATION.md:123",
+          "verbatim": "| `f` | 480 x 80 | 38 400 | 0.0025 | 2.5e-04 |",
+          "reads": "this level's registered mesh."
+        },
+        {
+          "line": "docs/campaigns/T-family/T19_PREREGISTRATION.md:330",
+          "verbatim": "| `P_q_f` / `P_Ts_f` | 38 400 | 77.952 each | **250** each | 15 000 | 1 |",
+          "reads": "POINT core-min, CAP core-min, timeout seconds and ranks, costed in the pre-registration as rule 12 requires."
+        }
+      ],
+      "the_only_condition_the_registration_attaches": {
+        "line": "docs/campaigns/T-family/T19_PREREGISTRATION.md:357-361",
+        "verbatim": "THIS DOCUMENT DOES NOT AUTHORISE A LAUNCH. Nothing has been placed in verification/queue/heat-transfer/, which is a launch button on a one-minute cron tick ... Dropping is the supervisor's, after his own check 4.",
+        "reading": "a WHO condition on the drop, not an exclusion of the case. It is the supervisor's to satisfy and is recorded here as theirs, not claimed by this lane."
+      },
+      "excluded_withheld_or_conditioned_elsewhere": "NO. This lane read the whole registration looking for an exclusion, withholding or precondition on this case and found none. Section 10 (:380-386) says what the document does not do and names no case exclusion. Section 8 (:354) discloses that the LAUNCHER is undriven -- a DISCLOSURE, not a withholding -- and this entry answers it by being part of a first drive on the cheapest level.",
+      "quotes_joined": "T19_PREREGISTRATION.md:44 names '{P_q_c,P_q_m,P_q_f,P_Ts_c,P_Ts_m,P_Ts_f}' as this rung's six registered case directories; :26 registers the structure as 'Two wall arms (uniform temperature, uniform heat flux), six cases, one registered sampling station'; :114 registers this arm's wall condition as '| walls, q arm | `fixedGradient` **500 K/m** on BOTH walls |'; :123 registers this level's mesh as '| `f` | 480 x 80 | 38 400 | 0.0025 | 2.5e-04 |'; and :330 registers its cost as '| `P_q_f` / `P_Ts_f` | 38 400 | 77.952 each | **250** each | 15 000 | 1 |'. The ONLY condition the registration attaches is :357-361, 'THIS DOCUMENT DOES NOT AUTHORISE A LAUNCH ... Dropping is the supervisor's, after his own check 4' -- a WHO condition on the drop, not an exclusion of the case. NO exclusion, withholding or other precondition attaches to this case anywhere in the document, and this lane looked for one rather than assuming there was none."
+    },
+    "enqueueing_is_not_authorisation": "ENQUEUEING IS NOT AUTHORISATION (QUEUE_ENTRY_STANDARD section 1, restated in this rung's own registration). The authorisation is the named supervisor decision recorded in this entry, and the registration's own permitting text quoted below with its line number -- NOT the fact that scripts/queue_entry_check.py passed. THIS DISTINCTION IS NOT DECORATIVE AND WAS PAID FOR TONIGHT: T5_S_m was launched DESPITE its registration excluding it (T5_RESULTS.md:3 'not enqueued'; the 2026-08-26T22:14Z appendix, 'S_m cannot be enqueued' because it 'refuses without M's surface T') and it crashed instantly with FOAM FATAL ERROR: solid not found in table. Valid entries: 1(fluid). It got through because queue_entry_check.py has NO clause asking whether the registration PERMITS the case -- its checks are check_schema, check_commit_exists, check_prereg_at_commit, check_age_guard, check_cwd_launchable, check_ranks and check_team_binding, and not one reads what the pre-registration SAYS. Docketed as D571. The permitting quote in this entry is the MANUAL STAND-IN for that missing clause, performed by a lane reading the registration, and it is the thing that would have stopped T5_S_m.",
+    "launcher_state": "run_one_t19.sh HAS NEVER BEEN DRIVEN. The registration says so itself at T19_PREREGISTRATION.md:354, verbatim: 'THE LAUNCHER HAS NOT BEEN DRIVEN -- ARM A is UNDRIVEN'; bash -n passes and that is all that is claimed. THIS ENTRY IS THEREFORE PART OF A DELIBERATE FIRST DRIVE ON THE CHEAPEST LEVEL, the same discipline the T18 rung applied when it dropped T18_CU_c (cap 3 core-min) as the first drive of run_one_t18.sh before any larger T18 level was enqueued -- the discipline the supervisor endorsed when lifting T18's withholding on exactly that evidence. The exposure is bounded by the registered cap of 12 core-min per coarse case. THE FOUR REMAINING T19 CASES (P_q_m, P_Ts_m, P_q_f, P_Ts_f; CAP 50/50/250/250 = 600 core-min) ARE NOT ENQUEUED BY THIS LANE and are parked as validated drafts in verification/queue/heat-transfer/held/, which queue_runner.list_entries() does NOT glob (it globs <team>/*.json non-recursively, queue_runner.py:439), so a held draft is inert until somebody moves it. THAT IS A SEQUENCING AND BUDGET DECISION BY THIS LANE UNDER THE SUPERVISOR'S EXPLICIT 600 core-min CAP-SUM INSTRUCTION -- IT IS NOT AN INVENTED WITHHOLDING, and T19's registration withholds no level: it registers all six (T19_PREREGISTRATION.md:44, :121-123, :326-331) and conditions them only on the supervisor's own check 4 (:360-361).",
+    "both_arms_together": "TWO WALL ARMS ARE REGISTERED AND BOTH COARSE CASES ARE DROPPED TOGETHER because they are one grid level of one rung, not two independent jobs: T19_PREREGISTRATION.md:26 reads 'Two wall arms (uniform temperature, uniform heat flux), six cases, one registered sampling station.' The arms differ ONLY in the wall boundary condition -- fixedValue 400 K on both walls for P_Ts, fixedGradient 500 K/m on both walls for P_q (:113-114) -- on identical meshes, identical solver, identical iteration count. Combined exposure of the pair is 24 core-min of cap.",
+    "no_withholding_was_lifted_by_this_lane": "T19's registration WITHHOLDS NO LEVEL. It registers all six cases (T19_PREREGISTRATION.md:44 names the six directories, :121-123 the three levels, :326-331 the per-case POINT, cap, timeout and ranks) and conditions them only on the supervisor's own check 4 (:360-361, 'Dropping is the supervisor's, after his own check 4'). The supervisor's brief for this refill instructed this lane to enqueue the levels the registration permits and to honour any withholding it states; there is none to honour, and this lane lifted nothing."
+  },
+  "_preflight_measured_by_this_lane": {
+    "utc": "2026-08-30T23:34:42Z",
+    "rule_2_freeze": {
+      "rule_2_freeze_commit": "4d8943d85e001215f76b3451ad7aba75515362df",
+      "freeze_commit_subject": "heat-transfer FREEZE T19 -- fully developed laminar forced convection between parallel plates, the PLANAR PARTNER OF T1c, EXACT tier: pre-registration FROZEN before any solver ran",
+      "freeze_utc": "2026-08-27T19:35:54Z",
+      "is_ancestor_of_head": true,
+      "head_at_this_write": "03dbcc1454380574b84cb6275373e6f8b46acd4f",
+      "how_checked": "git merge-base --is-ancestor 4d8943d8... HEAD returned rc=0, and git cat-file -e 4d8943d8...:docs/campaigns/T-family/T19_PREREGISTRATION.md returned rc=0. Both rc values read from the command directly, NOT from $? after a pipe. The freeze commit was located with git log --diff-filter=A on the pre-registration path -- it was DERIVED, not taken from any brief.",
+      "registered_json_disk_git_blob": "d63e8a4bf5ef8b3a5982940b044b08c75d9b4da0",
+      "registered_json_blob_at_freeze": "d63e8a4bf5ef8b3a5982940b044b08c75d9b4da0",
+      "registered_json_disk_sha256_first16": "84b3652a5187f04e",
+      "registered_json_sha256_in_freeze_table": "84b3652a5187f04e (T19_PREREGISTRATION.md:374)",
+      "verdict": "THE FROZEN FILE IS THE FILE THAT WILL RUN -- byte-identical under git blob sha1 AND sha256, the sha256 matching the registration's own freeze table written before any solver ran.",
+      "every_instrument_in_the_freeze_table_verified_byte_identical": {
+        "exact_t19.py": "aeaae65c9e849c8a == T19_PREREGISTRATION.md:369",
+        "build_t19.py": "e27c1f02b52da46c == T19_PREREGISTRATION.md:370",
+        "analyse_t19.py": "c2d8120ff510b1c4 == T19_PREREGISTRATION.md:371",
+        "mark_done_t19.py": "a4dee8b3eb2e1af2 == T19_PREREGISTRATION.md:372",
+        "run_one_t19.sh": "e0c0bc1558916611 == T19_PREREGISTRATION.md:373",
+        "T19_registered.json": "84b3652a5187f04e == T19_PREREGISTRATION.md:374",
+        "note": "ALL SIX. Not a sample -- the whole freeze set."
+      }
+    },
+    "rule_4_age_guard_precondition": {
+      "verdict": "PRECONDITION HOLDS",
+      "how_checked": "find -maxdepth 1 -mindepth 1 over the case directory with a posix-extended regex for a numeric or '0' time directory, plus a name test for STATUS*, DONE* and log.solve. Performed by this lane, this session, on this exact case.",
+      "numeric_or_zero_time_dirs_found": [],
+      "status_done_logsolve_found": [],
+      "full_directory_contents": [
+        "0.orig",
+        "BUILD.txt",
+        "CASE.txt",
+        "constant",
+        "log.blockMesh",
+        "log.checkMesh.build",
+        "system"
+      ],
+      "reading": "Rule 4's guard refuses a case where 0/ or a time directory already exists; neither does. 0/T will be touched LAST at launch (run_one_t19.sh, registration :351) and so will correctly date the run allowed to produce the answer. The case is CLEAN and nothing was cleaned by this lane.",
+      "launcher_reasserts_this_independently": "run_one_t19.sh:126 refuses an existing 0/, :128 refuses any existing time directory, :81 refuses an existing STATUS. The precondition is checked by this lane AND re-checked by the launcher at launch."
+    },
+    "timeout_equals_registered": {
+      "entry_timeout_s": 15000,
+      "registered_timeout_s": 15000,
+      "match": true,
+      "enforced_at": "run_one_t19.sh:75 -- [ \"$TIMEOUT_S\" -eq \"$REG_T\" ] || REFUSE"
+    },
+    "cap_equals_registered": {
+      "entry_cap_core_min": 250,
+      "registered_cap_core_min": 250,
+      "match": true
+    },
+    "ranks_registered_serial": "run_one_t19.sh:61 REFUSES any --ranks other than 1: 'T19 is registered SERIAL (ranks 1 on every level)'. This entry declares ranks 1.",
+    "registered_case_parameters_read_by_this_lane": {
+      "cells": 38400,
+      "nx": 480,
+      "ny": 80,
+      "endTime": "30000 -- AN ITERATION COUNT, not a physical time (deltaT = 1, steady ddtSchemes; registration :50-51)",
+      "deltaT": 1,
+      "ranks": 1,
+      "solver": "buoyantBoussinesqSimpleFoam, simulationType laminar, beta = 0, g = 0"
+    },
+    "mesh_present": "constant/polyMesh/owner EXISTS for P_q_f (polyMesh 7.2M on disk). CHECKED BECAUSE IT COULD HAVE BEEN MISSING: the polyMesh directories are NOT in git (registration :376-378) and run_one_t19.sh:131 REFUSES a case with no constant/polyMesh/owner. An unchecked entry here would have been a refusal at launch.",
+    "registered_field_set_present": "0.orig holds exactly [T U alphat p_rgh] -- all four fields run_one_t19.sh:133 requires ('all four 0.orig fields required', registration :351). Verified on disk by this lane.",
+    "disk_headroom_gb": 215
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "rc captured inside the detached wrapper (STATUS.<case>)",
+      "the End line in log.solve",
+      "last written time == endTime",
+      "the registered field tuple present at endTime",
+      "the ExecutionTime count",
+      "the 0/T age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines",
+      "wall_s, timeout_s, ranks, core_min, capped, checkmesh_rc, solver, solver_path, note, started_utc, ended_utc"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342). Registered for T18 at T18_PREREGISTRATION.md:181-185. 'capped' is never a completion conjunct."
+  },
+  "_grading_state": {
+    "t19_has_never_run": "ZERO DONE markers and ZERO completed cases in T19_runs. The registration's own condition-at-freeze (:43-48) recorded the same state -- 'Zero core-minutes in the registered tree' -- and it still holds at this write.",
+    "t19_rung_verdict_now": "PENDING",
+    "ceiling_registered": "GATE REACHED at best, and NEVER HOLDS: every reference is a closed form this rung's own module derives, so under the upheld V/P ruling that scores V and never P the rung cannot reach HOLDS (registration :33-36). Recorded here so no reader of a future PASS mistakes it for a validation.",
+    "what_a_completed_t19_would_earn": "FORCED CONVECTION x LAMINAR x 2-D, EXACT tier, and nothing else -- nothing turbulent, nothing 3-D, nothing conjugate, and nothing for the entrance region, which is solved but NOT graded (registration :29-31)."
+  },
+  "enqueued_by": "heat-transfer lab-lane, on the heat-transfer-supervisor's 2026-08-30 queue-refill brief closing a ZERO-DEPTH heat-transfer queue under Sanaa's 2026-08-30T22:47Z directive that the box never sit idle and that all jobs be queued so work continues if a team dies [lab-attributed], 2026-08-30T23:34:42Z. SCOPE OF THIS ENTRY: P_q_f ALONE. T19 HAS NEVER RUN -- zero DONE markers, zero completed cases, and the registration's own condition-at-freeze of 'Zero core-minutes in the registered tree' (T19_PREREGISTRATION.md:43-48) still holds at this write. THE REGISTRATION PERMITS THIS EXACT CASE, quoted with line numbers: T19_PREREGISTRATION.md:44 names '{P_q_c,P_q_m,P_q_f,P_Ts_c,P_Ts_m,P_Ts_f}' as this rung's six registered case directories; :26 registers the structure as 'Two wall arms (uniform temperature, uniform heat flux), six cases, one registered sampling station'; :114 registers this arm's wall condition as '| walls, q arm | `fixedGradient` **500 K/m** on BOTH walls |'; :123 registers this level's mesh as '| `f` | 480 x 80 | 38 400 | 0.0025 | 2.5e-04 |'; and :330 registers its cost as '| `P_q_f` / `P_Ts_f` | 38 400 | 77.952 each | **250** each | 15 000 | 1 |'. The ONLY condition the registration attaches is :357-361, 'THIS DOCUMENT DOES NOT AUTHORISE A LAUNCH ... Dropping is the supervisor's, after his own check 4' -- a WHO condition on the drop, not an exclusion of the case. NO exclusion, withholding or other precondition attaches to this case anywhere in the document, and this lane looked for one rather than assuming there was none. AND IT WITHHOLDS NO LEVEL: it registers all six cases and conditions them only on the supervisor's own check 4 (T19_PREREGISTRATION.md:360-361, 'Dropping is the supervisor's, after his own check 4'). This lane lifted no withholding and invented none. run_one_t19.sh HAS NEVER BEEN DRIVEN. The registration says so itself at T19_PREREGISTRATION.md:354, verbatim: 'THE LAUNCHER HAS NOT BEEN DRIVEN -- ARM A is UNDRIVEN'; bash -n passes and that is all that is claimed. THIS ENTRY IS THEREFORE PART OF A DELIBERATE FIRST DRIVE ON THE CHEAPEST LEVEL, the same discipline the T18 rung applied when it dropped T18_CU_c (cap 3 core-min) as the first drive of run_one_t18.sh before any larger T18 level was enqueued -- the discipline the supervisor endorsed when lifting T18's withholding on exactly that evidence. The exposure is bounded by the registered cap of 12 core-min per coarse case. THE FOUR REMAINING T19 CASES (P_q_m, P_Ts_m, P_q_f, P_Ts_f; CAP 50/50/250/250 = 600 core-min) ARE NOT ENQUEUED BY THIS LANE and are parked as validated drafts in verification/queue/heat-transfer/held/, which queue_runner.list_entries() does NOT glob (it globs <team>/*.json non-recursively, queue_runner.py:439), so a held draft is inert until somebody moves it. THAT IS A SEQUENCING AND BUDGET DECISION BY THIS LANE UNDER THE SUPERVISOR'S EXPLICIT 600 core-min CAP-SUM INSTRUCTION -- IT IS NOT AN INVENTED WITHHOLDING, and T19's registration withholds no level: it registers all six (T19_PREREGISTRATION.md:44, :121-123, :326-331) and conditions them only on the supervisor's own check 4 (:360-361). TWO WALL ARMS ARE REGISTERED AND BOTH COARSE CASES ARE DROPPED TOGETHER because they are one grid level of one rung, not two independent jobs: T19_PREREGISTRATION.md:26 reads 'Two wall arms (uniform temperature, uniform heat flux), six cases, one registered sampling station.' The arms differ ONLY in the wall boundary condition -- fixedValue 400 K on both walls for P_Ts, fixedGradient 500 K/m on both walls for P_q (:113-114) -- on identical meshes, identical solver, identical iteration count. Combined exposure of the pair is 24 core-min of cap. ENQUEUEING IS NOT AUTHORISATION (QUEUE_ENTRY_STANDARD section 1, restated in this rung's own registration). The authorisation is the named supervisor decision recorded in this entry, and the registration's own permitting text quoted below with its line number -- NOT the fact that scripts/queue_entry_check.py passed. THIS DISTINCTION IS NOT DECORATIVE AND WAS PAID FOR TONIGHT: T5_S_m was launched DESPITE its registration excluding it (T5_RESULTS.md:3 'not enqueued'; the 2026-08-26T22:14Z appendix, 'S_m cannot be enqueued' because it 'refuses without M's surface T') and it crashed instantly with FOAM FATAL ERROR: solid not found in table. Valid entries: 1(fluid). It got through because queue_entry_check.py has NO clause asking whether the registration PERMITS the case -- its checks are check_schema, check_commit_exists, check_prereg_at_commit, check_age_guard, check_cwd_launchable, check_ranks and check_team_binding, and not one reads what the pre-registration SAYS. Docketed as D571. The permitting quote in this entry is the MANUAL STAND-IN for that missing clause, performed by a lane reading the registration, and it is the thing that would have stopped T5_S_m. MEASURED PREFLIGHT BY THIS LANE, not relayed: the freeze commit 4d8943d85e001215f76b3451ad7aba75515362df was DERIVED with git log --diff-filter=A on the pre-registration path rather than taken from any brief, is an ancestor of HEAD 03dbcc1454380574b84cb6275373e6f8b46acd4f, and the pre-registration is present at it (both rc read from the command, not from $? after a pipe); ALL SIX files in the registration's freeze set are byte-identical on disk to their sha256 in that table -- exact_t19.py aeaae65c9e849c8a, build_t19.py e27c1f02b52da46c, analyse_t19.py c2d8120ff510b1c4, mark_done_t19.py a4dee8b3eb2e1af2, run_one_t19.sh e0c0bc1558916611, T19_registered.json 84b3652a5187f04e -- and T19_registered.json's git blob on disk, d63e8a4bf5ef8b3a5982940b044b08c75d9b4da0, equals its blob at the freeze commit, so THE FROZEN FILE IS THE FILE THAT WILL RUN under two independent hash functions; --timeout 15000 EQUALS cases.P_q_f.timeout_s = 15000, which run_one_t19.sh:75 refuses any other value for; cap_core_min_registered 250 EQUALS cases.P_q_f.cap_core_min = 250; cells 38,400 (480 x 80); ranks 1, which run_one_t19.sh:61 requires; constant/polyMesh/owner EXISTS, checked because the polyMesh is deliberately NOT in git and run_one_t19.sh:131 refuses a case without it; 0.orig holds exactly the four registered fields [T U alphat p_rgh] that run_one_t19.sh:133 requires; and the RULE 4 AGE-GUARD PRECONDITION HOLDS -- the case directory contains NO 0/ directory, NO numeric time directory, and no STATUS, DONE or log.solve, its entire contents being [0.orig BUILD.txt CASE.txt constant log.blockMesh log.checkMesh.build system]. RATE PROVENANCE, AND IT IS DELIBERATELY NOT T18's: MEASURED, ON THE SAME SOLVER, size-matched per level. Verbatim from T19_registered.json cost.rate_provenance: 'MEASURED, ON THE SAME SOLVER... Taken from T1c's own completed runs at HEAD: L_q_c (4 000 cells, 30 000 iterations, ExecutionTime 294.89 s -> 2.457e-06 core-s per cell-iteration), L_q_m (10 240 cells, 809.07 s -> 2.633e-06), L_q_f (26 112 cells, 3162.26 s -> 4.037e-06) and L_Ts_f (26 112 cells, 3176.51 s -> 4.055e-06). Same solver (buoyantBoussinesqSimpleFoam), same closure (laminar), same schemes family, same iteration count (30 000), same box, serial.' THIS RATE IS STRONGER THAN T18's AND THE DIFFERENCE IS STATED RATHER THAN GLOSSED: T18's rate is BORROWED across a dimension change and carries a measured ~1.7x underprediction on the T17 sibling; T19's is measured on the very solver and iteration count it predicts. THE T17 RATIOS (1.701/1.676/2.141/2.024) ARE NOT IMPORTED HERE and must not be: they calibrate a BORROWED laplacianFoam rate, not this measured buoyantBoussinesqSimpleFoam one, and applying them would be a category error. THE RESIDUAL RISK IS NAMED IN THE REGISTRATION (T19_PREREGISTRATION.md:317-324): the fine level is 38 400 cells against the 26 112 the top rate was measured on -- a 1.47x mesh jump in the direction where the rate has been observed to RISE -- so the expected direction of any miss is UNDER-prediction. NO T19-FAMILY actual/predicted ratio exists yet because no T19 case has ever run; this coarse level is the first datum and a docs/COST_CALIBRATION.md row is owed at its completion. THE CAP STOPS AN OVERRUN; an overrun does not get a new budget (rule 12). A REFUSAL THIS ENTRY IS DELIBERATELY SHAPED TO AVOID: scripts/queue_entry_check.py REQUIRED_FIELDS (:83-94) and check_schema (:182-184) require 'enqueued_by' to be a NON-EMPTY STRING; an object under that name is REFUSED and swept to refused/. '_enqueued_by' carries the structured record. NOT DISCHARGED BY THIS LANE AND NOT CLAIMED: SUPERVISION_CHARTER section 3 checks 1 and 4 are the SUPERVISOR'S. This lane did NOT drive analyse_t19.py's, mark_done_t19.py's or build_t19.py's selftests and makes no claim about them beyond the registration's own section 5; it did not launch anything, did not start a runner, and did not touch any running process.",
+  "_enqueued_by": {
+    "utc_of_this_write": "2026-08-30T23:34:42Z",
+    "head_at_write": "03dbcc1454380574b84cb6275373e6f8b46acd4f",
+    "decision_owner": "heat-transfer-supervisor's queue-refill brief; this lane drafted and validated. The supervisor's check 4 on T19 is THEIRS and is NOT claimed here as performed.",
+    "cost": {
+      "point_core_min": 77.952,
+      "cap_core_min": 250,
+      "usd_point_derived": 0.066649,
+      "usd_cap_derived": 0.21375,
+      "usd_basis": "DERIVED, NOT MEASURED, at the owner-stated $0.0513/core-h. COMPUTE_BUDGET_CHARTER section 5: the box cannot read its own billing.",
+      "rate_provenance_short": "MEASURED on the same solver (buoyantBoussinesqSimpleFoam, laminar, 30,000 iterations) from T1c's completed runs, size-matched per level. STRONGER than T18's borrowed rate, and the T17 laplacianFoam ratios are deliberately NOT imported here.",
+      "residual_risk": "the fine level is a 1.47x mesh jump above the 26,112 cells the top rate was measured on, in the direction where the rate has been observed to rise; expected direction of any miss is UNDER-prediction (registration :317-324).",
+      "no_t19_actual_exists_yet": true,
+      "calibration_row_owed": "docs/COST_CALIBRATION.md, at completion, per level, per rule 12. NOT written by this lane -- another lane holds that file tonight."
+    },
+    "box_state_at_enqueue": {
+      "loadavg_1min": 36.52,
+      "ncpu": 16,
+      "mem_available_gb": 28.4,
+      "note": "The box is oversubscribed by closure's multimodel_sweep and a dafoam D12R2 chain. NOTHING WAS TOUCHED. The runner's busy ceiling will HOLD this entry until the box frees -- the queue waits, it does not oversubscribe."
+    },
+    "queue_depth_before_this_drop": 0
+  },
+  "grading_paths": [
+    "verification/runs/T-family/T19_runs/analyse_t19.py"
+  ],
+  "_fleet_ceiling": {
+    "rule": "Sanaa 2026-09-03 ~21:00Z, the ONE hard limit that survives: \"a fleet-wide safety ceiling on any single run (e.g. 3x its registered cost cap, or the box's remaining budget, whichever is smaller) ... at the ceiling the monitor stops the run gracefully regardless of residual trend.\"",
+    "source": "etc/sessions/2026-09-03T2100Z_sanaa_launch_rule.md (committed 825285bb; read at source by this lane, not taken from a relay)",
+    "arithmetic": "registered cap 250 core-min x 3 = 750 core-min; at ranks 1 that is 45000 wall s",
+    "term_1_three_x_registered_cap_core_min": 750,
+    "term_2_box_remaining_budget_core_min": null,
+    "term_2_why_null": "NOT MEASURABLE FROM THIS BOX. COMPUTE_BUDGET_CHARTER.md section 5: the box cannot read its own billing. The min() is therefore evaluated on term 1 ALONE, and this field is null rather than a guess. If a remaining-budget figure is ever supplied and is below 750 core-min, IT GOVERNS and this ceiling drops to it.",
+    "ceiling_applied_core_min": 750,
+    "CEILING_IS_INERT_ON_THIS_ROW_AND_HERE_IS_WHY": "The registered timeout on this row is 15000 s = 250 core-min at ranks 1, which is EXACTLY 3x STRICTER than the 750 core-min ceiling. The registered timeout therefore binds first and the fleet ceiling is never reached. That is Sanaa's stated intent -- \"a ceiling far above the estimate, not the estimate itself\" -- and it is recorded so no reader mistakes the ceiling for slack.",
+    "THE_CEILING_AUTHORISES_NO_WIDENING": "Writing this ceiling on the row changes NO behaviour and does NOT license raising --timeout toward it. run_one_t19.sh:75 REFUSES any --timeout that is not EQUAL to the registered timeout_s, in either direction, and rule 12 and CLAUDE.md's reserved list put widening a registered cap outside this lane's authority entirely. The ceiling is protection against the box being eaten; it is not a budget to spend up to."
+  },
+  "_sanaa_2100Z_adjudication": {
+    "adjudicated_utc": "2026-09-03",
+    "adjudicated_by": "heat-transfer lab-lane, on the heat-transfer-supervisor's re-adjudication brief. Sanaa's words were read AT SOURCE by this lane before acting -- an agent's citation of a ruling is not the ruling (CLAUDE.md rule 9).",
+    "rule_source": "etc/sessions/2026-09-03T2100Z_sanaa_launch_rule.md (committed 825285bb; read at source by this lane, not taken from a relay)",
+    "DISPOSITION": "RELEASED TO PENDING",
+    "the_two_original_hold_reasons_and_how_each_now_dispositions": {
+      "reason_1_budget_cap_sum": "SUPERSEDED -> RECORD AND LAUNCH. The original hold cited the supervisor's 600 core-min CAP-sum flag: these four rows add 600 core-min of registered cap on top of T18_CU_f + T18_CU_f_CT's 360, for 984. Under Sanaa's 21:00Z rule that is the COST category, whose handling is explicit: record the mismatch as a prediction, launch, monitor, and write predicted-vs-actual on the certificate. It is NOT a resource gate: 984 core-min = 16.4 core-h = $0.84 DERIVED, NOT MEASURED at $0.0513/core-h, which is nowhere near the box's cycle budget. The prediction is written at P-1 below.",
+      "reason_2_undriven_launcher": "DISCHARGED ON EVIDENCE -- NOT WAIVED, AND THIS IS THE STRONGER OUTCOME. The hold recorded that run_one_t19.sh had never been driven (registration :354, 'ARM A is UNDRIVEN') and set its own release precondition: 'After P_q_c and P_Ts_c have returned rc=0 through run_one_t19.sh'. THAT PRECONDITION IS NOW SATISFIED, verified on disk by this lane: STATUS.P_Ts_c and STATUS.P_q_c both read rc=0, note=clean, checkmesh_rc=0, capped=no, wall 2 s and 3 s, solver buoyantBoussinesqSimpleFoam, started 2026-08-30T23:50:19Z and 23:53:34Z. The launcher has been driven successfully on BOTH arms at the coarse level. This row is released because its own precondition was met, not because the rule was changed."
+    },
+    "THE_SHORT_LIST_THAT_STILL_HOLDS_A_ROW_CHECKED_ONE_BY_ONE": {
+      "1_resource_gate": "DOES NOT FIRE. Measured at adjudication: loadavg 0.82 on 16 cores; 28 GB available of 30 GB. This row's memory_floor is 2.0 GB and it runs at ranks 1. No box-busy, memory or worker-headroom limit is approached. And per Sanaa a resource gate would queue rather than block in any case -- 'queueing is not blocking; the run stays scheduled.'",
+      "2_physically_ill_posed_setup": "DOES NOT FIRE, AND THE EVIDENCE IS EMPIRICAL RATHER THAN A READING OF THE DICTIONARIES. This case's own BUILD.txt records blockMesh rc 0, checkMesh rc 0, 'Mesh OK.', mesh non-orthogonality Max 0 average 0, max skewness 5.33e-13, max aspect ratio 10.0, cell volumes OK. More decisively: THE SAME TWO WALL ARMS ALREADY CONVERGED AT THE COARSE LEVEL with rc=0 and note=clean on the identical boundary-condition set. A setup that is ill-posed does not converge cleanly at any level. There is no missing outlet, no inconsistent boundary condition and no leak. This is a 2-D laminar channel with a registered closed-form reference.",
+      "3_exceeds_box_remaining_cycle_budget": "DOES NOT FIRE. All four released rows together carry 181.152 core-min of POINT and 600 core-min of registered cap = 10 core-h = $0.513 DERIVED, NOT MEASURED at $0.0513/core-h. This row's own share is 77.952 core-min POINT / 250 core-min cap.",
+      "4_no_blind_retries": "DOES NOT FIRE, AND I CHECKED THIS THE HARD WAY BECAUSE IT LOOKED LIKE IT DID. verification/queue/heat-transfer/launched/ holds a record named P_q_f.json, and this case directory holds no output, which together look exactly like a launch that died silently behind a stale LAUNCHED record (the L-344 class). IT IS NOT. That launched record's _launch.wrapper_out and the runner.log line both point at T19b_runs/P_q_f, and its prereg_commit is b52ed93b -- IT BELONGS TO THE T19b RUNG, WHICH SHARES CASE_ID NAMES WITH T19. THIS T19 CASE HAS NEVER BEEN LAUNCHED: zero prior attempts, so this is attempt ONE and the no-blind-retries rule is not engaged. Reported as a finding in its own right: launched/ is keyed on case_id alone and two rungs in this family collide in that namespace."
+    },
+    "PREDICTIONS_RECORDED_IN_SANAA_S_FORM_FOR_THE_CERTIFICATE": {
+      "P-1_cap_sum_flag": "PREDICTION: releasing all four T19 m/f rows raises the team's outstanding CAP-sum to 984 core-min, exceeding the supervisor's 600 core-min CAP-sum flag by 384 core-min of cap. Compare on the certificate: the flag is on CAP (a timeout allowance), not on expected spend, and the four rows' POINT total is 181.152 core-min = 18.4%% of the 984. If the actuals land near POINT, the CAP-sum flag is measuring a quantity ~5x larger than the spend it is meant to guard, and that is the calibration finding.",
+      "P-2_stall_marker": "PREDICTION: the two FINE rows (P_Ts_f, P_q_f) will each run approximately 4,680 wall s, ABOVE rule 12's 3,600 wall-second stall marker. This was registered IN ADVANCE at docs/campaigns/T-family/T19_PREREGISTRATION.md:338-343. A spend report MUST NOT classify these two rows as stalls on the wall-clock marker alone. THIS ROW IS ONE OF THE TWO.",
+      "P-3_cost_against_this_row_s_own_cap": "PREDICTION: this row comes in at approximately 77.952 core-min against its registered cap of 250 core-min, i.e. actual/cap ~ 0.31 and actual/POINT ~ 1.00. Write actual/predicted on the certificate against the POINT 77.952, which is this row's registered estimate and is the denominator; the cap is the guard and is not a denominator.",
+      "P-4_freeze_state": "NO MISMATCH TO PREDICT -- and it is stated rather than left silent, because Sanaa's rule would have released this row even if there were. VERIFIED BY THIS LANE at adjudication: every T19 instrument on disk is byte-identical to the blob the pre-registration commit 4d8943d8 froze -- analyse_t19.py 0bafecd0 (full disk sha256 c2d8120ff510b1c4cbc0dc538645ec57995c778b5a1afad8390cbd85682969d9), run_one_t19.sh 21c774c0, T19_registered.json d63e8a4b, exact_t19.py 053e2b50. The grading path is therefore PINNED, not merely present, and grading_paths is declared on this row so the validator's GRADER-FREEZE clause checks it rather than counting it uncovered."
+    },
+    "WHAT_THIS_ADJUDICATION_DOES_NOT_DO": "It changes no gate, threshold, band, cap or label. cost_core_min_estimate, cap_core_min_registered, ranks, cwd, prereg_commit, prereg_path and the --timeout inside launch_cmd are untouched. Sanaa's 21:00Z rule inverted LAUNCH discipline only: 'The grader is unchanged, and that matters: the frozen grader still judges against the pre-registration.' A row released here that comes in over its predicted cost still gets that written on its certificate by the frozen instrument, afterward, on evidence."
+  },
+  "_hold_history__SUPERSEDED_2026-09-03": {
+    "status": "SUPERSEDED. This row has been RELEASED to verification/queue/heat-transfer/ and is live to the daemon. The block below was TRUE when written on 2026-08-30 and is FALSE now; it is preserved verbatim as the record of why the row was held, and is NOT rewritten. A record may not carry a false present-tense claim about its own state, and it may not quietly lose the reasoning that produced it either.",
+    "superseded_by": "_sanaa_2100Z_adjudication on this row",
+    "original_verbatim": {
+      "state": "HELD DRAFT -- NOT ENQUEUED, NOT LAUNCHABLE FROM HERE",
+      "location_is_inert": "This file sits in verification/queue/heat-transfer/held/. queue_runner.list_entries() globs <team>/*.json NON-RECURSIVELY (queue_runner.py:439), so a file in held/ is never seen by the runner. queue_entry_check.containing_team_dir() likewise returns None for a held/ subdirectory and treats that as NOT a failure, so this draft validates without being live.",
+      "why_held": "TWO reasons, both stated so neither hides behind the other. (1) BUDGET: the supervisor's brief set a 600 core-min CAP-sum flag. T18_CU_f + T18_CU_f_CT is already 360, and the four T19 m/f cases are 50 + 50 + 250 + 250 = 600 more, for 984 in total. Because the runner polls every 60 s, dropping everything and then flagging the overrun would give the supervisor no chance to trim before the runner took them -- so this lane dropped UNDER the ceiling and parked the rest. (2) LAUNCHER: run_one_t19.sh has never been driven (registration :354, 'ARM A is UNDRIVEN'), and these four cases carry 600 core-min of cap on an undriven launcher. The T18 rung's own precedent, which the supervisor endorsed, was to drive the cheapest case first.",
+      "this_is_not_a_withholding": "T19's registration withholds nothing and this lane invented no withholding. This is a SEQUENCING AND BUDGET decision under the supervisor's explicit cap-sum instruction, and it is the supervisor's to reverse.",
+      "how_to_release": "Move the file to verification/queue/heat-transfer/ . It is already fully validated -- scripts/queue_entry_check.py returned ACCEPTED on it as written, 2026-08-30 (ACCEPTED is that instrument's own word; it is NOT a rule-1 gate verdict and must not be reported as PASS) -- and every preflight fact in it was measured, not estimated. Releasing all four adds 600 core-min of cap and 181.152 core-min of POINT.",
+      "recommended_release_order": "After P_q_c and P_Ts_c have returned rc=0 through run_one_t19.sh: the m pair first (100 core-min of cap), then the f pair (500). The f pair is predicted at ~4,680 wall seconds each, ABOVE rule 12's 3,600 wall-second stall marker -- the registration declares this in advance at :338-343 and a spend report MUST NOT classify those two rows as stalls on the wall-clock marker alone."
+    }
+  }
+}
