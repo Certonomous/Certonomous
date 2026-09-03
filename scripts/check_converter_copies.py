@@ -134,20 +134,56 @@ REPO_ROOT = "/home/ubuntu/Certonomous"
 # position ZERO, so the next `import ugrid_to_foam` written anywhere would have resolved
 # to the defective copy silently and PREFERENTIALLY, ahead of the canonical one.
 #
-# THE COUNT IS PREDICATE-DEPENDENT, AND THE PREDICATE IS PART OF THE NUMBER. Census taken
-# 2026-09-03 over every `*.py` in this repository, counting files with a
-# `sys.path.insert(0, X)` where X denotes REPOSITORY `scripts/` (sdk/scripts excluded):
-#     81  X is an explicit join of a repo-root variable with "scripts"
-#     89  ... plus the bare-variable form, `sys.path.insert(0, SCRIPTS)`, resolved to its
-#         assignment in the same file
-#    203  ... plus every other route by which `scripts/` reaches position 0: a file inside
-#         `scripts/` inserting its own directory, and the `_LAB_PATHS_DIR` idiom
-# An earlier reading of this hazard was written as "60+" -- a FLOOR from a single grep
-# pattern, phrased in a shape that reads like a census. That was the error, more than the
-# number was: a count without its predicate cannot be checked, and the three figures above
-# are all correct answers to three different questions. What is NOT predicate-dependent,
-# and is the whole point: in every one of them `scripts/` sits at position ZERO, ahead of
-# everything else on the path.
+# THE COUNT IS PREDICATE-DEPENDENT, AND THE PREDICATE IS PART OF THE NUMBER. FOUR figures
+# were produced for this hazard on 2026-09-03 and NONE OF THEM IS CANONICAL -- ruled by
+# cfd-supervisor, who declined to privilege their own. Each is a correct answer to a
+# different question, so each is recorded with the predicate that produced it and there is
+# deliberately NO HEADLINE NUMBER:
+#
+#    60+  [lane]        a FLOOR from a single grep pattern -- and written in a shape that
+#                       reads like a census, which was the error, more than the number was
+#     83  [supervisor]  a LITERAL-MENTION count: one `grep -rln` over `*.py` for
+#                       `sys.path.(insert|append)` whose argument contains the literal
+#                       string "scripts", in any of three shapes -- `os.path.join(...,
+#                       "scripts")`, a pathlib `/ "scripts"`, or a quoted path ending
+#                       `/scripts`. It RESOLVES NOTHING, so it cannot see
+#                       `sys.path.insert(0, SCRIPTS)`, where the token never appears in
+#                       the call.
+#     81  [lane]        files with `sys.path.insert(0, X)` where X is an EXPLICIT JOIN of
+#                       a repo-root variable with "scripts" (sdk/scripts excluded)
+#     89  [lane]        ... plus the BARE-VARIABLE form, resolved to its assignment in the
+#                       same file
+#    203  [lane]        ... plus every other route by which `scripts/` reaches position 0:
+#                       a file inside `scripts/` inserting its own directory, and the
+#                       `_LAB_PATHS_DIR` idiom
+#
+# 83 and 81 are SIDE BY SIDE, not ranked: the gap is the pathlib and quoted-path shapes the
+# literal-mention grep catches and the explicit-join predicate does not. That the two
+# independently broken-out sub-buckets agree EXACTLY (T-family 19, docs/campaigns/T-family
+# 4, F14-cooling-ladder 5) is the evidence that neither count is wrong -- they measure
+# different sets.
+#
+# A SUPERVISOR'S NUMBER IS NOT EXEMPT FROM THE RULE THE SUPERVISOR JUST ISSUED. Recorded at
+# cfd-supervisor's own direction and in their terms: having ruled that writing a floor in
+# the shape of a census was the error worth more than the number, they then reported "83
+# files" flatly as a correction, carrying the authority of a census -- one predicate's
+# count stated without its predicate. Same object, same defect, one message later, and
+# arriving as a rebuke made it worse rather than better.
+#
+# WHICH FIGURE IS OPERATIONALLY RELEVANT, because a reader reaching for the biggest number
+# will reach for 203 and it is the WRONG ONE for this argument. 203 OVERCOUNTS the
+# shadowing mechanism: a file that lives inside `scripts/` and inserts its own directory
+# does not CREATE the hazard -- its import resolves to the same place with or without the
+# insert, because a script's own directory is already `sys.path[0]`. The mechanism at issue
+# is a grader OUTSIDE `scripts/` putting `scripts/` at position zero and then importing a
+# name that collides, and that population is nearer 89 than 203. (Those in-`scripts/` files
+# are still exposed -- but by default script-directory semantics, not by the insert, which
+# is a different finding and not this one.)
+#
+# AND THE SPREAD WAS NEVER LOAD-BEARING FOR THE DECISION, so no later reader should read it
+# as uncertainty about it. What is NOT predicate-dependent is the only thing the ruling ever
+# rested on: in every one of these files `scripts/` sits at position ZERO, so resolution
+# PREFERS it. THE REMOVAL WAS JUSTIFIED AT A COUNT OF ONE.
 #
 # It is not listed below because requirement (c) would then report NOT A RESULT forever
 # over a deliberate removal.
