@@ -687,3 +687,201 @@ lineage.** D4's F3 is the closest precedent and it is a single-point arm. **If t
 
 **`CLAUDE.md` check-4 — the pre-registration committed before compute — is the SUPERVISOR'S, and this
 lane claims none of it.** Enqueueing is not authorisation.
+
+---
+
+# ADDENDUM 1 — 2026-09-03, PRE-COMPUTE. The launcher and the driver, exactly as §7c anticipated; and the units gate, which is §1a's repair given two call sites and a distinct refusal code
+
+**Version 1.1.** **Lines whose number changed above this section: 0.**
+
+**PRE-COMPUTE, and the condition is CHECKED BY EXECUTION, not asserted** (`CLAUDE.md` rule 2:
+*before first compute, amendments are legal and must state the condition and how it was checked —
+name the run directory that does not exist*):
+
+    ROOT_ABSENCE_RE_ASSERTED_BY_EXECUTION utc=2026-09-03T18:45:34Z
+      /home/ubuntu/certonomous-runs/CURRICULUM-D6RF-a2-wing-multipoint-fd=ABSENT
+
+This item has still burned **0 core-min** and started **no container**; the guard self-test below
+was run with a container census before == after. **NOTHING IN §1–§6 MOVES IN THIS ADDENDUM.** No
+gate, threshold, band, cap, label, prediction or cost is altered, added or removed. What is added is
+the machinery §7c named, plus one instrument that can only turn a launch into a refusal.
+
+## A1.1 The two files §7c named, and one it did not
+
+| file | md5 | role |
+|---|---|---|
+| `d6rf_run_arm.sh` | **`0914d98c1d07aafeac561820f41cad8f`** | the arm launcher |
+| `d6rf_chain_driver.sh` | **`893314019ccce237317c2172b86d4416`** | the detached chain driver |
+| **`d6rf_units_assert.py`** | **`40993d949e44aae3f80bf1a3d2cf4998`** | **THE UNITS GATE** — new, and disclosed as new in A1.2 |
+| `d6rf_guard_selftest.py` | `47179793087af30cbb28a394d0ac07d8` | the driven guard test |
+| `d6rf_guard_selftest_evidence.txt` | `93433b5b75abeb589bbb2bda5f311a35` | its evidence, four drives |
+
+**THE PIN CHAIN IS EXECUTABLE, and it is stated plainly that the grader does not carry it.**
+`d6rf_grade.py` was frozen at `a1d8da49` and is not edited (rule 6), so its `freeze_check` list does
+not name these three files. They are pinned instead where a drift would actually stop a run: the
+**driver asserts the launcher's md5 twice** — once before staging and again before **every** arm —
+and the **launcher asserts the units gate's md5** (`MD5_UNITS`) among its eleven staged-instrument
+hashes, before any container starts and again inside each arm directory after staging. A pin that
+aborts a fire is worth more than a pin a grader reads afterwards, and both exist here.
+
+`d6r_aggregate_memory.py` (md5 `709ab0b98ef0302a3a3a318588f9493f`) is **D6R's, used by path and
+unmodified**; the driver asserts its md5 before it is called. No copy is made and no byte is edited.
+
+## A1.2 ⚠ THE UNITS GATE IS A NEW INSTRUMENT AND IS DISCLOSED AS ONE
+
+§1a registered the repair — the endpoint design variables are driver-scaled and must be descaled
+before the mesh is touched. It did not register **where the descaling is checked**. `d6rf_units_
+assert.py` is that check, and it is new since the freeze.
+
+**It moves no gate, threshold, band, cap, label, prediction or cost, and it cannot.** It reads a
+design-variable file and either returns 0 or refuses; it computes no verdict, writes no artefact and
+touches no band. **It can only turn a launch into a refusal**, which is the one direction a
+strengthening is allowed to move (`D6R` §3a's own rule, carried forward).
+
+**Its refusal codes are registered here, and they are DISTINCT:** **`7`** host-side, **`77`**
+in-container. Neither collides with docker's 125/126/127 or `timeout`'s 124/137, so a units refusal
+can never be read as an infrastructure failure. `77` arrives as the container's own `ExitCode`, the
+chain stops at the first non-zero rc as registered, and the launcher writes
+`D6RF_UNITS_REFUSAL_IN_CONTAINER` onto the ledger so the code is **named** rather than left for a
+reader to look up.
+
+**THE SEVEN CHECKS.** `U1` the file exists and parses; **`U2` `_units` is present AND equals
+`PHYSICAL` — ABSENT IS A REFUSAL, NEVER A DEFAULT**; `U3` `_scaler_source` is present and, where it
+resolves on this filesystem, its md5 matches; **`U4` `_scaler_source_md5` equals the md5 of the
+runscript actually in use** — a marker that vouches for a different producer is a lie about the
+frame; **`U5` `_scalers_applied` equals the scalers parsed out of that runscript** — a marker cannot
+vouch for itself; `U6` CONTROL P, the three pinned witnesses, to 1e-12 relative; **`U7` CONTROL B,
+bounds containment on EVERY component, BEFORE the mesh is touched.**
+
+**TWO CALL SITES, AND BOTH ASSERT (rule 14 — a lesson is not applied until every call site asserts
+it).** Host side, at staging, against any endpoint artefact that survived the product sweep; and in
+the container, `&&`-chained **between** the wrapper that writes the vector and the `mpirun` that
+consumes it. The launcher additionally **refuses to build an arm command that does not contain the
+gate**, so the second call site cannot be removed by editing one line.
+
+**THE LIVE CONTROLS, and they are not fixtures.** The gate is driven against **D4's real crashed
+artefact**, `/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin/F/d4_endpoint_dvs.json` —
+**no `_units` key of any kind, `shape` bit-identical to the driver-scaled frame, 62 of 96 components
+outside `[-1, 1]`, maximum |value| 6.024592** — which **must refuse**, and against **D4's real
+repaired artefact** from arm F3, which **must pass**. A gate that refuses everything is not a gate
+either, and both directions are shown.
+
+**THE DEFORMER REFUSING WAS LUCK. THIS FILE MAKES IT LAW.** Had the excursion been milder — a
+smaller optimum, a scaler nearer 1 — every primal would have converged and the arm would have
+returned a complete, plausible FD table at a wing that was never the design point, and **not one of
+this family's count, plant or order controls would have caught it, because every one of them
+interrogates the TABLE and none interrogates the FRAME.**
+
+## A1.3 The registered exit codes
+
+| rc | meaning |
+|---|---|
+| 0 | the arm's own rc, from `docker inspect .State.ExitCode` |
+| 3 | a `G-ROOT` refusal — wrong base, a forbidden root, a live arm, a live driver |
+| 4 | identity or staging failure — an md5, the image digest, a copy |
+| 5 | `G-COLD` or a §2a staging assertion |
+| **7** | **UNITS REFUSAL, HOST SIDE** |
+| 6 | the item ceiling, or `BLOCKED` at an H5 / aggregate hold bound (re-fireable) |
+| 64 | usage, or an arm this item does not register |
+| 65 | the cap arithmetic |
+| **77** | **UNITS REFUSAL, IN CONTAINER** (arrives as the container's own `ExitCode`) |
+| 124 / 137 | the registered container deadline / an OOM kill — both registered outcomes |
+
+## A1.4 The guards are DRIVEN, and the evidence says on what
+
+`d6rf_run_arm.sh` contains `sudo -n rm -rf "$WORK"`. **A launcher with a destructive step is trusted
+only after its guards are driven and shown to abort on the case they must abort on.**
+`d6rf_guard_selftest.py`, four drives, evidence at `d6rf_guard_selftest_evidence.txt`:
+
+| drive | interpreter | result |
+|---|---|---|
+| `d6rf_units_assert.py --selftest` | `python3` | **25/25 PASS** |
+| `d6rf_units_assert.py --selftest` | `python3 -O` | **25/25 PASS** |
+| `d6rf_guard_selftest.py` | `python3` | **70/70 PASS** |
+| `d6rf_guard_selftest.py` | `python3 -O` | **70/70 PASS** |
+
+**ZERO CONTAINERS CREATED.** The census before and after each guard drive is the same single
+container, `d12y_w3_S3b_c1_ap_20260903T172242Z_179692` — **another team's live chain, on cpuset `1`,
+read read-only by `docker ps` and not signalled, written to or otherwise touched** — and no
+container carrying this item's `d6rf_` prefix has ever existed. The registered run root is asserted
+still absent **after** every drive.
+
+**What the 70 legs actually drive**, so the number is not the claim:
+
+* **The named head fires first, and it says whose evidence it protected.** A launcher pointed at
+  `CURRICULUM-D6R-a2-wing-multipoint` aborts `rc 3` with `G-ROOT.2a`, naming that root, *"arm O_mp's
+  2,257.933 core-min of GRADED evidence"* and *"THIS ITEM'S READ-ONLY SOURCE"*. **This ordering is a
+  correction the self-test forced:** on the first draft `G-ROOT.1` caught D6R's root first and emitted
+  the generic refusal, so the named message was unreachable. **A guard that fires with the wrong
+  message is a guard nobody learns from**, and the check was moved above `G-ROOT.1` and re-driven.
+  A `..` traversal back to that root aborts the same way (`realpath -m`); D4's root and the runs
+  directory itself abort at `G-ROOT.1`, which now also **names** the root it just protected.
+* **The arm guard is an EQUALITY.** `F_m`, `F_mpX`, `REF_of`, `REF_offX`, `O_mp` and `ACC_mp` all
+  abort `rc 64`, from both the launcher and the driver.
+* **THE CAP IDENTITY IS COMPUTED BY THE REAL CODE, NOT READ OFF THE FILE.** Both arms are driven at
+  the registered run root — **which does not exist** — so the launcher runs its real arithmetic and
+  then stops at the L-251 mode check with `rc 4`, having staged nothing. It printed, itself:
+
+      D6RF_CAP_FRAME arm=F_mp    registered_core_min=480.0 ranks=4 deadline_in_container_s=7110
+                                 frame_allowance_s=90 kill_grace_s=60 worst_case_host_core_min=480.000000
+      D6RF_CAP_FRAME arm=REF_off registered_core_min=190.0 ranks=4 deadline_in_container_s=2760
+                                 frame_allowance_s=90 kill_grace_s=60 worst_case_host_core_min=190.000000
+
+  Each `TMO > 0` (the `D19T` identity, executed); each inversion returns its cap exactly; each `TMO`
+  is **also** > 0 under the A1 family's `CAP_MARGIN_S = 60` (7,140 s and 2,790 s); and each is
+  **3.04×** and **3.06×** its measured-anchor wall against the 1.5× floor. §4e's three lineage
+  constants — 90 here, 60 in A1/D19, 180 in SO3 — are recorded in the launcher's own comment so a
+  successor does not read the difference as drift.
+* **The destructive step, with every line number RECOMPUTED from the file:** exactly **one**
+  `sudo -n rm -rf "$WORK"` in executable code, at line **438**; every executable recursive remove
+  targets `"$WORK…"` or the loop variable inside the §2a S5 sweep, so **none can escape the arm
+  directory**; guards end at line **292**, the first executable recursive remove is at line **388**,
+  the first `docker run` at line **567** — **every guard precedes every destructive step, and the
+  destructive step precedes the container.** The three *commented* `rm -rf` occurrences (lines 17,
+  317, 434) are **counted and named rather than hidden** — the D6RACC2 `U15/U16` false positive was a
+  detector that could not tell a statement from prose about a statement.
+* **§2a S5 driven on REAL names.** The launcher's own `is_time_dir` function is extracted and run
+  against the actual listing of `D6R`'s `O_mp/mp04/processor0`: **`0` is KEPT**, **`0.orig` is KEPT —
+  a bare `0.*` glob would have DELETED it, the pristine initial-condition backup** — `constant` is
+  kept, `1000` is swept, and **exactly 76 of the 78 entries are selected** (75 pseudo-times plus the
+  endTime). The launcher then asserts `0/U`, `0.orig/` and `processor*/0/U` **survived**, and asserts
+  the **SOURCE still holds its pseudo-time directories** so D6R's evidence is provably untouched.
+* **§2a S3 driven:** the registered reference-mesh md5 `0fb1935a9b8781b73ac4ccb136e3ec68` matches
+  `base/` **and** all three `mp0k` trees — the double-deformation confound eliminated by measurement,
+  and a moved md5 aborts.
+* **Eleven staged-instrument md5 pins**, the D4 history pin and the reference-mesh pin all checked
+  against the files they name; no stale predecessor cap (`2900.0`, `30.0`, `300.0`, `40.0`, `2000.0`)
+  survives anywhere in the launcher.
+* **The driver:** the item ceiling is `670.0 == 480.0 + 190.0`; cumulative spend is asserted **before
+  every arm** and an overrun aborts rather than continuing; and its `spent_core_min` reader was
+  extracted and **driven on `D6R`'s real `O_mp` ledger row**, returning **2257.933** — **not** that
+  row's `cap_core_min=2900.0`, which a looser regex would have swallowed.
+* **`rc` is captured INSIDE the wrapper**, from the launcher's own exit, which is
+  `docker inspect .State.ExitCode`; nothing reads `$?` of a `setsid` line, because a `setsid` parent
+  returns 0 for every outcome. `docker inspect` is read **before** `docker rm`, and the ledger row
+  carries `ARM= rc= wall_s= ranks= core_min= memavail_GiB= inspect(exit,oomkilled)= log=` as required.
+
+## A1.5 The H5 and aggregate gates HOLD. They never refuse to launch.
+
+Registered here in the form the law requires. Sanaa's ~21:00Z ruling: resource gates *"queue, don't
+launch — but queueing is not blocking; the run stays scheduled"*; her ~22:00Z ruling forbids any
+non-physics gate blocking a run; and the dafoam-supervisor has separately ruled that
+`d19t_run_arm.sh`'s `G-QUIET` refuse-to-launch form **is not to be reproduced anywhere in this
+family**. The driver therefore **waits and retries** — a 24.0 GiB `MemAvailable` window and the
+30.6 GiB aggregate ceiling, each re-taken until it clears, every wait a `H5_HOLD` /
+`AGGREGATE_HOLD` line in `STATUS.<arm>` — and at the 4-hour bound it writes a **re-fireable
+`BLOCKED` that has spent zero compute.** **It never refuses to launch.**
+
+This is expected to bind on the first arm and that is registered rather than discovered: the live
+sibling's 8 GiB plus this item's 20 GiB plus host non-container RSS sits at or just over the ceiling,
+so **holding `F_mp` until that chain finishes is the correct behaviour.**
+
+## A1.6 What is still not established
+
+**No container has ever run `F_mp` or `REF_off`, at any point in this lineage.** `L-316` is stated
+rather than hoped: a self-test proves the **instrument**, never the **case**. The 95 legs above prove
+that the guards fire, that the cap identity is the registered one when the real code computes it,
+that the one recursive remove cannot escape the arm directory, that every guard precedes it, and
+that the units gate is present, distinct and driven in both directions. **They prove nothing about
+whether `F_mp` converges.** `P2` remains the repair's own falsifier, and a chain that still fails is
+the finding — reported, not absorbed, and not given a new budget.

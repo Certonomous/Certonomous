@@ -1,0 +1,381 @@
+=== driven Thu Sep  3 18:44:52 UTC 2026 on ip-172-31-43-247, Python 3.12.3
+
+########## UNITS GATE SELFTEST under python3
+D6RF UNITS GATE SELFTEST -- rc 0 = physical and in bounds, rc 77 = refusal
+
+A. THE TWO LIVE ARTEFACTS ON DISK -- the controls that are not fixtures
+  D4 arm F, THE CRASHED UNMARKED VECTOR (must refuse)        want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U2 {"_units": "ABSENT", "file": "/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin/F/d4_endpoint_dvs.json", "keys_present": 
+  D4 arm F3, THE REPAIRED PHYSICAL VECTOR (must PASS)        want rc=0   got rc=0   PASS
+
+B. THE MARKER -- absent is a refusal, never a default
+  clean D6 multipoint physical vector (must PASS)            want rc=0   got rc=0   PASS
+  no _units key at all                                       want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U2 {"_units": "ABSENT", "file": "/tmp/d6rf_units_st_o3vbt0ba/dv_03.json", "keys_present": ["_scaler_source", "_scaler_source_md5", "
+  _units says DRIVER_SCALED                                  want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U2 {"_units": "DRIVER_SCALED", "file": "/tmp/d6rf_units_st_o3vbt0ba/dv_04.json", "required": "PHYSICAL"}
+  _units lower-case (not the registered literal)             want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U2 {"_units": "physical", "file": "/tmp/d6rf_units_st_o3vbt0ba/dv_05.json", "required": "PHYSICAL"}
+
+C. THE MARKER CANNOT VOUCH FOR ITSELF
+  _scaler_source_md5 absent                                  want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U4 {"_scaler_source_md5": "ABSENT", "file": "/tmp/d6rf_units_st_o3vbt0ba/dv_06.json"}
+  _scaler_source absent                                      want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U3 {"_scaler_source": "ABSENT", "file": "/tmp/d6rf_units_st_o3vbt0ba/dv_07.json"}
+  _scaler_source_md5 does not match the runscript in use     want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U3 {"_scaler_source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6R/d6r_opt_runScript.py", "md5_on_disk": "93edb
+  a PHYSICAL D6 vector graded against D4's runscript (wrong producer) want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U4 {"_scaler_source_md5": "93edb4a231e13a7af065368f61a468ef", "file": "/tmp/d6rf_units_st_o3vbt0ba/dv_09.json", "note": "the marker 
+  _scalers_applied LIES about shape (claims 1.0, registered 10.0) want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U5 {"_scalers_applied": {"patchV_cl04": 0.1, "patchV_cl05": 0.1, "patchV_cl06": 0.1, "shape": 1.0, "twist": 0.1}, "file": "/tmp/d6rf
+  _scalers_applied absent                                    want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U5 {"_scalers_applied": "ABSENT", "file": "/tmp/d6rf_units_st_o3vbt0ba/dv_11.json", "registered": {"patchV_cl04": 0.1, "patchV_cl05"
+  _scaler_source resolves on disk but its md5 has MOVED      want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U3 {"_scaler_source": "/tmp/d6rf_units_st_o3vbt0ba/moved_runscript.py", "md5_on_disk": "77be705b6d98f2d52da783d75f05d21e", "md5_reco
+
+D. THE FRAME ITSELF -- a marked file whose vectors are still scaled
+  marked PHYSICAL but the vectors are DRIVER-SCALED (the live defect) want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U6 {"control_P": "control_pinned: {\"tol_rel\": 1e-12, \"violations\": [{\"dv\": \"patchV_cl04\", \"idx\": 0, \"pinned_value\": 100.
+  one pinned witness off U0 by 0.1 %                         want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U6 {"control_P": "control_pinned: {\"tol_rel\": 1e-12, \"violations\": [{\"dv\": \"patchV_cl05\", \"idx\": 0, \"pinned_value\": 100.
+  one pinned witness left driver-scaled at 10.0              want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U6 {"control_P": "control_pinned: {\"tol_rel\": 1e-12, \"violations\": [{\"dv\": \"patchV_cl06\", \"idx\": 0, \"pinned_value\": 100.
+
+E. BOUNDS CONTAINMENT -- refused HERE, never by the deformer
+  ONE shape component 1e-6 above its [-1,1] bound            want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U7 {"control_B": "control_bounds: {\"first_20\": [{\"dv\": \"shape\", \"excess\": 9.999999999177334e-07, \"idx\": 0, \"lower\": -1.0
+  ONE shape component at the crashed arm's own max |value|   want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U7 {"control_B": "control_bounds: {\"first_20\": [{\"dv\": \"shape\", \"excess\": 5.024592, \"idx\": 0, \"lower\": -1.0, \"upper\": 
+  one twist component below its lower bound                  want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U7 {"control_B": "control_bounds: {\"first_20\": [{\"dv\": \"twist\", \"excess\": 0.5, \"idx\": 0, \"lower\": -10.0, \"upper\": 10.0
+  one angle of attack above its 10 deg upper bound           want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U7 {"control_B": "control_bounds: {\"first_20\": [{\"dv\": \"patchV_cl04\", \"excess\": 0.5, \"idx\": 1, \"lower\": 0.0, \"upper\": 
+  a component exactly ON its bound (must NOT refuse)         want rc=0   got rc=0   PASS
+
+F. STRUCTURE
+  a registered design variable missing from the file         want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U5 {"file": "/tmp/d6rf_units_st_o3vbt0ba/dv_21.json", "registered": ["patchV_cl04", "patchV_cl05", "patchV_cl06", "shape", "twist"],
+  a design variable that is not a numeric vector             want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U5 {"dv": "shape", "file": "/tmp/d6rf_units_st_o3vbt0ba/dv_22.json", "not_a_numeric_vector": "ValueError(\"could not convert string 
+  the file does not parse as JSON                            want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U1 {"file": "/tmp/d6rf_units_st_o3vbt0ba/notjson.json", "json_parse_failed": "JSONDecodeError('Expecting property name enclosed in d
+  the file does not exist                                    want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U1 {"design_variable_file_absent": "/tmp/d6rf_units_st_o3vbt0ba/nope.json"}
+
+D6RF_UNITS_SELFTEST 25/25 PASS
+rc=0
+
+########## UNITS GATE SELFTEST under python3 -O
+D6RF UNITS GATE SELFTEST -- rc 0 = physical and in bounds, rc 77 = refusal
+
+A. THE TWO LIVE ARTEFACTS ON DISK -- the controls that are not fixtures
+  D4 arm F, THE CRASHED UNMARKED VECTOR (must refuse)        want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U2 {"_units": "ABSENT", "file": "/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin/F/d4_endpoint_dvs.json", "keys_present": 
+  D4 arm F3, THE REPAIRED PHYSICAL VECTOR (must PASS)        want rc=0   got rc=0   PASS
+
+B. THE MARKER -- absent is a refusal, never a default
+  clean D6 multipoint physical vector (must PASS)            want rc=0   got rc=0   PASS
+  no _units key at all                                       want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U2 {"_units": "ABSENT", "file": "/tmp/d6rf_units_st_pe8d793o/dv_03.json", "keys_present": ["_scaler_source", "_scaler_source_md5", "
+  _units says DRIVER_SCALED                                  want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U2 {"_units": "DRIVER_SCALED", "file": "/tmp/d6rf_units_st_pe8d793o/dv_04.json", "required": "PHYSICAL"}
+  _units lower-case (not the registered literal)             want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U2 {"_units": "physical", "file": "/tmp/d6rf_units_st_pe8d793o/dv_05.json", "required": "PHYSICAL"}
+
+C. THE MARKER CANNOT VOUCH FOR ITSELF
+  _scaler_source_md5 absent                                  want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U4 {"_scaler_source_md5": "ABSENT", "file": "/tmp/d6rf_units_st_pe8d793o/dv_06.json"}
+  _scaler_source absent                                      want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U3 {"_scaler_source": "ABSENT", "file": "/tmp/d6rf_units_st_pe8d793o/dv_07.json"}
+  _scaler_source_md5 does not match the runscript in use     want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U3 {"_scaler_source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6R/d6r_opt_runScript.py", "md5_on_disk": "93edb
+  a PHYSICAL D6 vector graded against D4's runscript (wrong producer) want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U4 {"_scaler_source_md5": "93edb4a231e13a7af065368f61a468ef", "file": "/tmp/d6rf_units_st_pe8d793o/dv_09.json", "note": "the marker 
+  _scalers_applied LIES about shape (claims 1.0, registered 10.0) want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U5 {"_scalers_applied": {"patchV_cl04": 0.1, "patchV_cl05": 0.1, "patchV_cl06": 0.1, "shape": 1.0, "twist": 0.1}, "file": "/tmp/d6rf
+  _scalers_applied absent                                    want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U5 {"_scalers_applied": "ABSENT", "file": "/tmp/d6rf_units_st_pe8d793o/dv_11.json", "registered": {"patchV_cl04": 0.1, "patchV_cl05"
+  _scaler_source resolves on disk but its md5 has MOVED      want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U3 {"_scaler_source": "/tmp/d6rf_units_st_pe8d793o/moved_runscript.py", "md5_on_disk": "77be705b6d98f2d52da783d75f05d21e", "md5_reco
+
+D. THE FRAME ITSELF -- a marked file whose vectors are still scaled
+  marked PHYSICAL but the vectors are DRIVER-SCALED (the live defect) want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U6 {"control_P": "control_pinned: {\"tol_rel\": 1e-12, \"violations\": [{\"dv\": \"patchV_cl04\", \"idx\": 0, \"pinned_value\": 100.
+  one pinned witness off U0 by 0.1 %                         want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U6 {"control_P": "control_pinned: {\"tol_rel\": 1e-12, \"violations\": [{\"dv\": \"patchV_cl05\", \"idx\": 0, \"pinned_value\": 100.
+  one pinned witness left driver-scaled at 10.0              want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U6 {"control_P": "control_pinned: {\"tol_rel\": 1e-12, \"violations\": [{\"dv\": \"patchV_cl06\", \"idx\": 0, \"pinned_value\": 100.
+
+E. BOUNDS CONTAINMENT -- refused HERE, never by the deformer
+  ONE shape component 1e-6 above its [-1,1] bound            want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U7 {"control_B": "control_bounds: {\"first_20\": [{\"dv\": \"shape\", \"excess\": 9.999999999177334e-07, \"idx\": 0, \"lower\": -1.0
+  ONE shape component at the crashed arm's own max |value|   want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U7 {"control_B": "control_bounds: {\"first_20\": [{\"dv\": \"shape\", \"excess\": 5.024592, \"idx\": 0, \"lower\": -1.0, \"upper\": 
+  one twist component below its lower bound                  want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U7 {"control_B": "control_bounds: {\"first_20\": [{\"dv\": \"twist\", \"excess\": 0.5, \"idx\": 0, \"lower\": -10.0, \"upper\": 10.0
+  one angle of attack above its 10 deg upper bound           want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U7 {"control_B": "control_bounds: {\"first_20\": [{\"dv\": \"patchV_cl04\", \"excess\": 0.5, \"idx\": 1, \"lower\": 0.0, \"upper\": 
+  a component exactly ON its bound (must NOT refuse)         want rc=0   got rc=0   PASS
+
+F. STRUCTURE
+  a registered design variable missing from the file         want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U5 {"file": "/tmp/d6rf_units_st_pe8d793o/dv_21.json", "registered": ["patchV_cl04", "patchV_cl05", "patchV_cl06", "shape", "twist"],
+  a design variable that is not a numeric vector             want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U5 {"dv": "shape", "file": "/tmp/d6rf_units_st_pe8d793o/dv_22.json", "not_a_numeric_vector": "ValueError(\"could not convert string 
+  the file does not parse as JSON                            want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U1 {"file": "/tmp/d6rf_units_st_pe8d793o/notjson.json", "json_parse_failed": "JSONDecodeError('Expecting property name enclosed in d
+  the file does not exist                                    want rc=77  got rc=77  PASS
+        D6RF_UNITS REFUSE U1 {"design_variable_file_absent": "/tmp/d6rf_units_st_pe8d793o/nope.json"}
+
+D6RF_UNITS_SELFTEST 25/25 PASS
+rc=0
+
+########## LAUNCHER/DRIVER GUARD SELFTEST under python3
+D6RF LAUNCHER/DRIVER GUARD SELFTEST -- driven, zero containers
+
+  container census BEFORE: 1 [d12y_w3_S3b_c1_ap_20260903T172242Z_179692]
+
+A. G-ROOT -- the launcher pointed somewhere it must never write
+  U1  BASE = D6R PRESERVED run root -> ABORT rc 3                PASS
+        ABORT G-ROOT.2a BASE resolves to D6R'S PRESERVED RUN ROOT: /home/ubuntu/certonomous-runs/CURRICULUM-D6R-a2-wing-multipoint
+  U2  ...and the abort NAMES D6R's root and what it protects     PASS
+  U3  BASE = D4's run root -> ABORT rc 3                         PASS
+        ABORT G-ROOT.1 BASE is not this item's registered run root.
+  U4  ...and the abort NAMES the root it just protected          PASS
+  U5  a `..` traversal back to D6R's root -> ABORT rc 3 (realpath -m) PASS
+        ABORT G-ROOT.2a BASE resolves to D6R'S PRESERVED RUN ROOT: /home/ubuntu/certonomous-runs/CURRICULUM-D6R-a2-wing-multipoint
+  U6  BASE = the runs directory itself -> ABORT rc 3             PASS
+        ABORT G-ROOT.1 BASE is not this item's registered run root.
+
+B. THE ARM GUARD IS AN EQUALITY, NOT A PREFIX MATCH
+  U7  arm 'F_m' -> ABORT rc 64                                   PASS
+  U7  arm 'F_mpX' -> ABORT rc 64                                 PASS
+  U7  arm 'REF_of' -> ABORT rc 64                                PASS
+  U7  arm 'REF_offX' -> ABORT rc 64                              PASS
+  U7  arm 'O_mp' -> ABORT rc 64                                  PASS
+  U7  arm 'ACC_mp' -> ABORT rc 64                                PASS
+  U8  no arguments -> ABORT rc 64                                PASS
+
+C. THE CAP IDENTITY -- computed by the REAL code, not read off
+     (pointed at the registered run root, WHICH DOES NOT EXIST, so
+      each drive stops at the L-251 mode check with rc 4)
+  U9  the registered run root really is absent                   PASS
+        /home/ubuntu/certonomous-runs/CURRICULUM-D6RF-a2-wing-multipoint-fd
+  U10 F_mp    the launcher printed its own cap frame             PASS
+  U11 F_mp    cap == the registered 480.0                        PASS
+        got 480.0
+  U12 F_mp    TMO == the registered 7110 s                       PASS
+        got 7110
+  U13 F_mp    TMO > 0 (the D19T identity)                        PASS
+        TMO=7110
+  U14 F_mp    frame allowance is 90, kill grace 60, ranks 4      PASS
+  U15 F_mp    the inversion returns the cap exactly              PASS
+        (7110+90)*4/60 = 480.000000
+  U16 F_mp    TMO also > 0 under CAP_MARGIN_S = 60 (7140 s)      PASS
+  U17 F_mp    the drive stopped at the L-251 mode check, rc 4    PASS
+        rc=4
+  U18 F_mp    TMO >= 1.5 x the measured-anchor wall (2335.5 s)   PASS
+        ratio 3.044
+  U10 REF_off the launcher printed its own cap frame             PASS
+  U11 REF_off cap == the registered 190.0                        PASS
+        got 190.0
+  U12 REF_off TMO == the registered 2760 s                       PASS
+        got 2760
+  U13 REF_off TMO > 0 (the D19T identity)                        PASS
+        TMO=2760
+  U14 REF_off frame allowance is 90, kill grace 60, ranks 4      PASS
+  U15 REF_off the inversion returns the cap exactly              PASS
+        (2760+90)*4/60 = 190.000000
+  U16 REF_off TMO also > 0 under CAP_MARGIN_S = 60 (2790 s)      PASS
+  U17 REF_off the drive stopped at the L-251 mode check, rc 4    PASS
+        rc=4
+  U18 REF_off TMO >= 1.5 x the measured-anchor wall (901.0 s)    PASS
+        ratio 3.063
+
+D. THE DESTRUCTIVE STEP -- one, guarded, and it cannot escape
+  U19 exactly ONE `sudo -n rm -rf "$WORK"` in executable code    PASS
+        at line 438
+  U20 EVERY executable recursive remove targets "$WORK..." or the $d inside the swept loop PASS
+        commented `rm -rf` occurrences (counted, not hidden): [17, 317, 434]
+  U21 every named guard is present in executable code            PASS
+        missing: []
+  U22 EVERY guard precedes the first destructive step (guards end line 292, first remove line 388) -- both RECOMPUTED here PASS
+  U23 the first `docker run` (line 567) follows every guard and the destructive step PASS
+
+E. THE UNITS GATE AT BOTH CALL SITES (CLAUDE.md rule 14)
+  U24 call site 1: the launcher runs the gate HOST-side at staging PASS
+  U25 call site 1 refuses with the DISTINCT rc 7                 PASS
+  U26 both arm commands exist                                    PASS
+        found 2
+  U27 call site 2: the gate sits BETWEEN the wrapper and the mpirun in BOTH arm commands PASS
+  U28 the launcher REFUSES an arm command that lacks the gate    PASS
+  U29 the in-container refusal rc 77 is NAMED on the ledger, not left bare PASS
+
+F. THE TIME-DIRECTORY SWEEP -- the REAL function, on REAL names
+  U30 the `is_time_dir` function was extracted from the launcher PASS
+  U31 `0` is KEPT (the initial fields)                           PASS
+  U32 `0.orig` is KEPT -- a bare `0.*` glob would have DELETED it PASS
+  U33 `constant` is KEPT                                         PASS
+  U34 `1000` is SELECTED for the sweep                           PASS
+  U35 exactly 76 of D6R's own 78 entries under mp04/processor0 are swept (75 pseudo-times + the endTime) PASS
+        selected 76
+  U36 the launcher asserts 0/, 0.orig/ and processor*/0/ SURVIVED PASS
+
+G. THE FROZEN PINS
+  U37 the driver's pinned launcher md5 == the launcher on disk   PASS
+        0914d98c1d07aafeac561820f41cad8f
+  U38 every staged-instrument md5 pinned in the launcher matches the file it names (11 pins) PASS
+        mismatched: []
+  U39 the D4 history md5 pin matches the artefact on disk        PASS
+  U40 the reference-mesh md5 pin matches base AND all three mp trees PASS
+  U41 no stale predecessor cap survives in the launcher          PASS
+  U42 the caps in the file are exactly 480.0 and 190.0           PASS
+
+H. THE DRIVER
+  U43 the item ceiling is 670.0 == 480.0 + 190.0                 PASS
+  U44 cumulative spend is asserted BEFORE every arm              PASS
+  U45 the `spent_core_min` reader was extracted from the driver  PASS
+  U46 it reads D6R's real O_mp row as 2257.933, NOT its 2900.0 cap PASS
+        got 2257.933
+  U47 the driver refuses arm 'O_mp' -> rc 64                     PASS
+  U47 the driver refuses arm 'ACC_mp' -> rc 64                   PASS
+  U47 the driver refuses arm 'F_m' -> rc 64                      PASS
+  U48 the driver's H5 and aggregate gates HOLD, never refuse     PASS
+  U49 rc is captured INSIDE the wrapper, from the launcher's own exit PASS
+  U50 the ledger row carries every field the supervisor named    PASS
+  U51 `docker inspect` is read BEFORE `docker rm`                PASS
+
+  container census AFTER: 1 [d12y_w3_S3b_c1_ap_20260903T172242Z_179692]
+  U52 CONTAINER CENSUS BEFORE == AFTER (zero containers created) PASS
+        before=['d12y_w3_S3b_c1_ap_20260903T172242Z_179692'] after=['d12y_w3_S3b_c1_ap_20260903T172242Z_179692']
+  U53 no container carrying this item's prefix exists            PASS
+  U54 the registered run root is STILL absent after every drive  PASS
+        /home/ubuntu/certonomous-runs/CURRICULUM-D6RF-a2-wing-multipoint-fd
+
+D6RF_GUARD_SELFTEST 70/70 PASS
+rc=0
+
+########## LAUNCHER/DRIVER GUARD SELFTEST under python3 -O
+D6RF LAUNCHER/DRIVER GUARD SELFTEST -- driven, zero containers
+
+  container census BEFORE: 1 [d12y_w3_S3b_c1_ap_20260903T172242Z_179692]
+
+A. G-ROOT -- the launcher pointed somewhere it must never write
+  U1  BASE = D6R PRESERVED run root -> ABORT rc 3                PASS
+        ABORT G-ROOT.2a BASE resolves to D6R'S PRESERVED RUN ROOT: /home/ubuntu/certonomous-runs/CURRICULUM-D6R-a2-wing-multipoint
+  U2  ...and the abort NAMES D6R's root and what it protects     PASS
+  U3  BASE = D4's run root -> ABORT rc 3                         PASS
+        ABORT G-ROOT.1 BASE is not this item's registered run root.
+  U4  ...and the abort NAMES the root it just protected          PASS
+  U5  a `..` traversal back to D6R's root -> ABORT rc 3 (realpath -m) PASS
+        ABORT G-ROOT.2a BASE resolves to D6R'S PRESERVED RUN ROOT: /home/ubuntu/certonomous-runs/CURRICULUM-D6R-a2-wing-multipoint
+  U6  BASE = the runs directory itself -> ABORT rc 3             PASS
+        ABORT G-ROOT.1 BASE is not this item's registered run root.
+
+B. THE ARM GUARD IS AN EQUALITY, NOT A PREFIX MATCH
+  U7  arm 'F_m' -> ABORT rc 64                                   PASS
+  U7  arm 'F_mpX' -> ABORT rc 64                                 PASS
+  U7  arm 'REF_of' -> ABORT rc 64                                PASS
+  U7  arm 'REF_offX' -> ABORT rc 64                              PASS
+  U7  arm 'O_mp' -> ABORT rc 64                                  PASS
+  U7  arm 'ACC_mp' -> ABORT rc 64                                PASS
+  U8  no arguments -> ABORT rc 64                                PASS
+
+C. THE CAP IDENTITY -- computed by the REAL code, not read off
+     (pointed at the registered run root, WHICH DOES NOT EXIST, so
+      each drive stops at the L-251 mode check with rc 4)
+  U9  the registered run root really is absent                   PASS
+        /home/ubuntu/certonomous-runs/CURRICULUM-D6RF-a2-wing-multipoint-fd
+  U10 F_mp    the launcher printed its own cap frame             PASS
+  U11 F_mp    cap == the registered 480.0                        PASS
+        got 480.0
+  U12 F_mp    TMO == the registered 7110 s                       PASS
+        got 7110
+  U13 F_mp    TMO > 0 (the D19T identity)                        PASS
+        TMO=7110
+  U14 F_mp    frame allowance is 90, kill grace 60, ranks 4      PASS
+  U15 F_mp    the inversion returns the cap exactly              PASS
+        (7110+90)*4/60 = 480.000000
+  U16 F_mp    TMO also > 0 under CAP_MARGIN_S = 60 (7140 s)      PASS
+  U17 F_mp    the drive stopped at the L-251 mode check, rc 4    PASS
+        rc=4
+  U18 F_mp    TMO >= 1.5 x the measured-anchor wall (2335.5 s)   PASS
+        ratio 3.044
+  U10 REF_off the launcher printed its own cap frame             PASS
+  U11 REF_off cap == the registered 190.0                        PASS
+        got 190.0
+  U12 REF_off TMO == the registered 2760 s                       PASS
+        got 2760
+  U13 REF_off TMO > 0 (the D19T identity)                        PASS
+        TMO=2760
+  U14 REF_off frame allowance is 90, kill grace 60, ranks 4      PASS
+  U15 REF_off the inversion returns the cap exactly              PASS
+        (2760+90)*4/60 = 190.000000
+  U16 REF_off TMO also > 0 under CAP_MARGIN_S = 60 (2790 s)      PASS
+  U17 REF_off the drive stopped at the L-251 mode check, rc 4    PASS
+        rc=4
+  U18 REF_off TMO >= 1.5 x the measured-anchor wall (901.0 s)    PASS
+        ratio 3.063
+
+D. THE DESTRUCTIVE STEP -- one, guarded, and it cannot escape
+  U19 exactly ONE `sudo -n rm -rf "$WORK"` in executable code    PASS
+        at line 438
+  U20 EVERY executable recursive remove targets "$WORK..." or the $d inside the swept loop PASS
+        commented `rm -rf` occurrences (counted, not hidden): [17, 317, 434]
+  U21 every named guard is present in executable code            PASS
+        missing: []
+  U22 EVERY guard precedes the first destructive step (guards end line 292, first remove line 388) -- both RECOMPUTED here PASS
+  U23 the first `docker run` (line 567) follows every guard and the destructive step PASS
+
+E. THE UNITS GATE AT BOTH CALL SITES (CLAUDE.md rule 14)
+  U24 call site 1: the launcher runs the gate HOST-side at staging PASS
+  U25 call site 1 refuses with the DISTINCT rc 7                 PASS
+  U26 both arm commands exist                                    PASS
+        found 2
+  U27 call site 2: the gate sits BETWEEN the wrapper and the mpirun in BOTH arm commands PASS
+  U28 the launcher REFUSES an arm command that lacks the gate    PASS
+  U29 the in-container refusal rc 77 is NAMED on the ledger, not left bare PASS
+
+F. THE TIME-DIRECTORY SWEEP -- the REAL function, on REAL names
+  U30 the `is_time_dir` function was extracted from the launcher PASS
+  U31 `0` is KEPT (the initial fields)                           PASS
+  U32 `0.orig` is KEPT -- a bare `0.*` glob would have DELETED it PASS
+  U33 `constant` is KEPT                                         PASS
+  U34 `1000` is SELECTED for the sweep                           PASS
+  U35 exactly 76 of D6R's own 78 entries under mp04/processor0 are swept (75 pseudo-times + the endTime) PASS
+        selected 76
+  U36 the launcher asserts 0/, 0.orig/ and processor*/0/ SURVIVED PASS
+
+G. THE FROZEN PINS
+  U37 the driver's pinned launcher md5 == the launcher on disk   PASS
+        0914d98c1d07aafeac561820f41cad8f
+  U38 every staged-instrument md5 pinned in the launcher matches the file it names (11 pins) PASS
+        mismatched: []
+  U39 the D4 history md5 pin matches the artefact on disk        PASS
+  U40 the reference-mesh md5 pin matches base AND all three mp trees PASS
+  U41 no stale predecessor cap survives in the launcher          PASS
+  U42 the caps in the file are exactly 480.0 and 190.0           PASS
+
+H. THE DRIVER
+  U43 the item ceiling is 670.0 == 480.0 + 190.0                 PASS
+  U44 cumulative spend is asserted BEFORE every arm              PASS
+  U45 the `spent_core_min` reader was extracted from the driver  PASS
+  U46 it reads D6R's real O_mp row as 2257.933, NOT its 2900.0 cap PASS
+        got 2257.933
+  U47 the driver refuses arm 'O_mp' -> rc 64                     PASS
+  U47 the driver refuses arm 'ACC_mp' -> rc 64                   PASS
+  U47 the driver refuses arm 'F_m' -> rc 64                      PASS
+  U48 the driver's H5 and aggregate gates HOLD, never refuse     PASS
+  U49 rc is captured INSIDE the wrapper, from the launcher's own exit PASS
+  U50 the ledger row carries every field the supervisor named    PASS
+  U51 `docker inspect` is read BEFORE `docker rm`                PASS
+
+  container census AFTER: 1 [d12y_w3_S3b_c1_ap_20260903T172242Z_179692]
+  U52 CONTAINER CENSUS BEFORE == AFTER (zero containers created) PASS
+        before=['d12y_w3_S3b_c1_ap_20260903T172242Z_179692'] after=['d12y_w3_S3b_c1_ap_20260903T172242Z_179692']
+  U53 no container carrying this item's prefix exists            PASS
+  U54 the registered run root is STILL absent after every drive  PASS
+        /home/ubuntu/certonomous-runs/CURRICULUM-D6RF-a2-wing-multipoint-fd
+
+D6RF_GUARD_SELFTEST 70/70 PASS
+rc=0
