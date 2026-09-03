@@ -2825,3 +2825,78 @@ board +2 (foreign:PRESENT)
 | the corrected rule | same invocation **AND** non-zero exit **AND** a recovery path, or the gate gets retired as unusable |
 | the recovery | **build the blob from HEAD + your own hunk**; never stage the shared disk copy |
 | **lines whose number changed above this section** | **0** |
+
+## §28 — **THE TAXONOMY IS COMPLETE AT FOUR FACES AND THEY SHARE ONE TELL: THE ABSENCE OF AN ERROR WAS READ AS THE PRESENCE OF A CHECK. THIS IS `§2p`'s CALLER-SIDE TWIN, AND A LAB THAT FIXES ONLY ONE HALF IS STILL EXPOSED** (2026-09-03T18:5xZ)
+
+**Filed on cfd's request, broadcast to every supervisor via the chief. NO CLAUSE IS OWED
+AND NONE IS WRITTEN** — nothing is blocked, so under Sanaa's ~20:00Z bar the disposition is a
+**lesson**, and **heat-transfer and cfd land it**. **What is filed here is the TAXONOMY**,
+because this audit is where the family lives. **Zero compute; 0 core-min; $0.00. No gate,
+threshold, band, cap or label created, moved or retired; nothing re-graded.**
+
+### §28.1 AN ATTRIBUTION CORRECTION, BECAUSE I HAVE MADE SIX OF THESE TODAY AND WILL NOT SKIP ONE THAT FLATTERS ME
+
+**The broadcast reached me as *"the fourth face of YOUR `L-466` family."* `L-466` IS NOT MINE.**
+`[VERIFIED]` this team landed **`L-464` and no other lesson this session**; `L-465` and `L-466`
+are other teams'. **Independence is not verifiable from git — every commit on this box carries
+one Ubuntu identity — so I state what IS verifiable: what I landed.**
+
+**What IS mine is the FAMILY, and only by lineage:** this is **`§2p`'s twin**, and `§2p` is this
+team's. *An attribution offered generously is still an attribution, and taking it would have
+cost nothing and been false.*
+
+### §28.2 THE FOUR FACES, AND THE TELL THAT MAKES THEM ONE THING
+
+| # | face | the mechanism |
+|---|---|---|
+| 1 | **swallowed refusal** | `L-466` — a `2>/dev/null` turns an instrument's **refusal** into a clean-looking zero |
+| 2 | **passing-on-skips** | a suite reports green over cases it never executed |
+| 3 | **claim-from-completion** | the process **finished**, therefore the thing was **done** |
+| 4 | **dropped-blocked-read** | cfd's new one — a **classifier-blocked** queue read is dropped; **forty minutes blind to idle territory** |
+
+> **THE TELL, AND `L-466` STATES IT BETTER THAN I WOULD HAVE: *"THE READING WAS NOT WRONG. THE
+> READER NEVER RAN."* — because *"a swallowed refusal and a genuine zero are the same empty
+> string."* In every one of the four, THE ABSENCE OF AN ERROR WAS READ AS THE PRESENCE OF A
+> CHECK.**
+
+### §28.3 ⚠ WHY THIS BELONGS IN THIS AUDIT AND NOT BESIDE `§2p`: THEY ARE THE TWO HALVES AND ONLY ONE HAS BEEN WORKED
+
+- **`§2p` IS THE INSTRUMENT-SIDE DEFECT: a check that CANNOT EMIT FAILURE.** VR3's absent
+  `GATE FAIL` branch; `G-RLX-0` never implemented; a zero-denominator returning ∞.
+- **THIS FAMILY IS THE CALLER-SIDE DEFECT: a CALLER that reads NO-ERROR as PASS**, over an
+  instrument that may be perfectly capable of failing — **and never ran.**
+
+> **A LAB THAT REPAIRS ONLY THE INSTRUMENT SIDE IS STILL FULLY EXPOSED.** Every `§2p` control
+> this team has ordered — planted inputs, empty-input arms, production-path mutation — proves
+> the **instrument** can fail. **NOT ONE of them proves the CALLER ever invoked it.** *The
+> planted-zero control asks "can this reader see a non-zero"; this family asks the prior
+> question, "did this reader run at all", and I have been ordering the second question's
+> answer while assuming the first.*
+
+### §28.4 THE ONE THING THAT IS THIS TEAM'S TO ADD — THE MAPPING INTO THE VERDICT VOCABULARY
+
+The broadcast's rule is *"a classifier-blocked measurement is an UNMEASURED QUANTITY, not a
+CLOSED QUESTION."* **That is `CLAUDE.md` rule 1's vocabulary arriving from the caller's side,
+and stating it in the lab's own words is this team's job:**
+
+> **A BLOCKED, REFUSED, SKIPPED OR UNRUN MEASUREMENT IS `NOT A RESULT`. It is never
+> absence-of-failure, never a silent `PASS`, and never a closed question.** Rule 5's one
+> permitted direction already carries this for graded rows; **the four faces are what it looks
+> like when the same event happens BELOW the grader, where no verdict vocabulary was ever
+> applied to it.**
+
+**AND THE OPERATIONAL TEST, which costs nothing and is the reason this is filed rather than
+merely noted:**
+
+> **CAN THIS CODE PATH DISTINGUISH "THE CHECK RAN AND FOUND NOTHING" FROM "THE CHECK DID NOT
+> RUN"? If it cannot, its zero is UNINTERPRETABLE and must refuse.** That is rule 3's planted
+> control asked one step earlier — **plant the RUN, not only the VALUE.**
+
+### §28.5 SCOPE, HONESTLY
+
+**No sweep is ordered and no class is declared beyond this taxonomy.** Four faces measured in
+one day is a strong signal, **but three of the four are other teams' measurements relayed to
+me, and I have re-derived none of them at source** — `L-466` I read at source; faces 2, 3 and 4
+I have **not**. **They are recorded as REPORTED, and this audit's own frames rule (its header)
+requires me to say so rather than let four relayed items read as four measurements of mine.**
+*If a fifth face lands, the first thing owed is a re-derivation of the four, not a fifth entry.*
