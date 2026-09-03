@@ -20813,3 +20813,246 @@ is rule 11's entire point.)
 **Related:** L-399 (a control driven only where it cannot fail), L-321 (a fixture
 sharing the checker's route carries no information), L-273 (plant into a file the
 producer actually wrote), L-316 (a selftest proves the grader, never the case).
+
+---
+
+## L-440 — THE COARSE MESH AGREED WITH THE REFERENCE AND THE FINE MESH DID NOT. AN AGREEMENT OBTAINED AT THE COARSEST LEVEL IS THE LEAST TRUSTWORTHY NUMBER IN THE SET, AND IT IS THE ONE THAT LOOKS MOST LIKE SUCCESS
+
+**2026-09-02/03, VMFL046 (converging–diverging nozzle, VM2026R1 p. 155),
+ansys-verification.**
+
+The primary gate was shock location within 5 % of an analytical quasi-1D
+reference at 1.250. The three-level `rhoSimpleFoam` triple gave:
+
+| level | nCells | x_shock | deviation |
+|---|---|---|---|
+| L1 | 3 200 | 1.257629 | **+0.61 %** |
+| L2 | 12 800 | 1.192596 | −4.59 % |
+| L3 | 51 200 | 1.152576 | **−7.79 %** |
+
+**At L1 the answer sat 0.61 % from the reference. A single-level submission
+passes this limb outright, with eight-fold margin.** The triple is `CONVERGING`
+(R = 0.615385, p = 0.700440) and its Richardson limit is **1.088544, −12.92 %
+from the reference** — the solution is converging steadily *away* from the
+number the coarse grid matched.
+
+**The part that cost something:** the pre-freeze smoke reported *"<1 % shock
+agreement"* and that reading was cited in the pre-registration as evidence the
+case was a `PASS` candidate. **It was the coarse-grid number.** A smoke test
+establishes that a case RUNS. It cannot establish that a case AGREES, and a
+smoke that reports agreement will be believed as if it could.
+
+Why a coarse agreement is *worse* than a coarse disagreement: discretisation
+error is largest where the mesh is coarsest, so a coarse-level match requires
+the discretisation error and the model-form error to be **cancelling**. That
+cancellation is an accident of one mesh, and refinement destroys it. The number
+that looks best is the one produced where the instrument is worst.
+
+**Operationally:** never cite a coarse-level agreement as candidacy evidence;
+never quote a single-level deviation without saying which level it came from;
+and when a deviation grows monotonically under refinement, that is the signal —
+the fine level is not "noisier", it is righter.
+
+**Related:** L-316 (a selftest proves the grader, never the case), CLAUDE.md
+rule 5 (Roache triple gating — the triple is why this was caught at all).
+
+---
+
+## L-441 — A SENSITIVITY ARGUMENT OVER ENUMERATED PERTURBATION CHANNELS IS NOT AN UPPER BOUND ON A TOTAL DISCREPANCY. IT BOUNDS THE CHANNELS YOU HAPPENED TO LIST, AND IT IS SILENT ABOUT HOW MANY THERE ARE
+
+**2026-09-02/03, VMFL046, ansys-verification. The bound was mine, verified by me
+on an independent path, and the run exceeded it by 20.50×.**
+
+The case was capped at `GATE REACHED` because our viscous solve and the
+inviscid analytical reference are different models. The cap was lifted on a
+bound: the model-form effect on shock location is `dx_shock/x ≤ 0.63 %`,
+computed as `sensitivity × perturbation` with the perturbation taken as the
+boundary-layer displacement thickness acting through effective flow area. Two
+derivations, on genuinely independent paths, agreed the sensitivity was O(1) and
+the answer sub-percent.
+
+**The grid-converged discrepancy is −12.92 %. The bound was wrong by 20.50×.**
+
+**The arithmetic was not wrong.** Both derivations correctly computed the
+displacement-thickness channel. The defect is that a bound on *that channel* was
+presented as a bound on *the total difference between two models*. Viscous
+stagnation-pressure loss through the diverging section — which sets the
+downstream state the shock matches against — is not a displacement-thickness
+effect at all, and sat entirely outside the bound.
+
+> **A sensitivity calculation tells you how hard one lever pushes. It tells you
+> nothing about how many levers there are.** `sum over channels I thought of` is
+> a **lower** bound on a discrepancy's structure and never an upper bound on its
+> magnitude.
+
+**The one-sentence check that would have caught it:** *what else could move this
+quantity?* Asked before the freeze, viscous total-pressure loss is named in the
+first minute and the cap is never lifted.
+
+**Institutionalised** as `ANSYS_VERIFICATION_CHARTER.md` §24.4: an
+enumerated-channel bound may lift a cap only with (i) a total-discrepancy
+argument, (ii) validation against a measured comparison of the same two models,
+or (iii) an explicit, frozen, falsifiable **completeness argument**. Without one
+it is recorded in the frozen bytes as UNVALIDATED and lifts nothing.
+
+**Stated in both directions:** the cap-lift was outcome-neutral here — the limb
+failed on its own terms at 7.79 % against a 5 % band, so the verdict is
+`GATE FAIL` either way. A bound wrong by 20.50× that happened not to matter is
+still a bound wrong by 20.50×, and the next case is where it costs something.
+
+**Related:** L-442 (the independence check that could not have caught this),
+L-440 (the coarse agreement that made the case look like a `PASS` candidate).
+
+---
+
+## L-442 — AN INDEPENDENT CHECK OF THE WRONG QUANTITY IS NOT AN INDEPENDENT CHECK. TWO DERIVATIONS THAT AGREE ON AN INCOMPLETE QUANTITY AGREE ABOUT NOTHING THAT MATTERS
+
+**2026-09-02/03, VMFL046, ansys-verification — the companion defect to
+L-441, and the more general of the two.**
+
+`SUPERVISION_CHARTER.md` §3 check 3 requires a direction-changing claim to be
+re-derived independently before it is believed. It was. A lane computed the
+shock-location sensitivity from a generator; the supervisor re-derived it from
+the governing relations on a different path, without reading the lane's code.
+The two disagreed on the key derivative by a factor of 1.6 and **agreed on the
+conclusion**, and that robustness-across-disagreement was explicitly recorded as
+what made the result trustworthy.
+
+**Both were computing the same incomplete quantity. Agreement between them could
+not, even in principle, have surfaced the channel neither had enumerated.** The
+check was independent in *path* and identical in *scope* — and only scope was
+wrong.
+
+> **Independence of method is worthless without independence of framing.** Before
+> spending a check on *is this number right*, spend one sentence on *is this the
+> number the decision needs*. The second question is cheaper and it is the one
+> that fails.
+
+The failure is invisible from inside: two independent paths converging on one
+answer is exactly what a successful check looks like, and the more independent
+the paths, the more convincing the wrong conclusion becomes. **A factor-1.6
+spread that does not change the verdict is evidence about the derivative. It is
+not evidence about the quantity's completeness, and it must not be reported as
+though it were.**
+
+**Operationally:** an independence check states, in one line, **what it assumed
+the quantity was** — so a reader can disagree with the framing without
+re-deriving the arithmetic.
+
+**Related:** L-441, L-321 (a fixture sharing the checker's route carries no
+information), L-399 (a control driven only where it cannot fail).
+
+---
+
+## L-443 — RECONCILE A FILED COST ESTIMATE AGAINST ITS OWN STATED METHOD BEFORE FREEZING IT. VMFL046's ESTIMATE WAS 1.66× BELOW WHAT ITS OWN ARITHMETIC YIELDS, AND NOTHING CHECKS THAT
+
+**2026-09-03, VMFL046, ansys-verification. Estimate 12.00 core-min, actual
+28.05, ratio 2.337, cap 30 not crossed.**
+
+The pre-registration filed **12.00 core-min** and stated its method: *scale L1's
+uncontended per-iteration rate by cell count across the three levels*. Executed
+faithfully that method gives 57 s × (1 + 4 + 16) = 1197 s = **19.95 core-min**.
+**The filed number was 1.66× below the number its own stated method produces**,
+and no check anywhere in the freeze pipeline compares a stated method to the
+figure filed beside it. A comparator freeze verifies that the grading path is
+the one that ran; **nothing verifies that a cost basis computes its own cost.**
+
+The remaining 1.41× is the model itself: measured actual/linear-in-cells is
+**1.360 at L2** (310 s vs 228 s) and **1.443 at L3** (1316 s vs 912 s).
+**Per-cell cost is superlinear in cell count at fixed iteration count on
+`rhoSimpleFoam`** — an r = 2 refinement step costs ~1.4× more than the cell
+count alone predicts, presumably through linear-solver iteration counts growing
+with the condition number. 1.66 × 1.41 = 2.34, which closes the ratio to within
+rounding.
+
+**Waste was measured, and it was zero.** `ExecutionTime/ClockTime` per level was
+0.988 / 0.989 / 0.998 — the run held a full core throughout. Two sweeps were
+running beside it on the box, and **the contention framing carried in the
+supervisor's own launch note and repeated in the dispatch brief is refuted by
+that measurement**: contention existed and cost this run essentially nothing.
+The overrun is **100 % misprediction, 0 % waste** (`COMPUTE_BUDGET_CHARTER.md`
+§6 keeps waste separately named, so it is named as *measured* zero, never folded
+into the ratio).
+
+**Two carry-forward rules:** (a) a filed estimate is reconciled against its own
+stated method before the freeze — one line of arithmetic; (b) linear-in-cells
+scaling understates an r = 2 refinement step by ~1.4× per step on
+`rhoSimpleFoam`, so a three-level triple priced linearly is ~1.4× light at the
+fine level.
+
+**Related:** CLAUDE.md rule 12, L-317 (a cost table's rate cell is never checked
+by anything), L-265 (an interruption is not a calibration).
+
+---
+
+## L-444 — A GRADER'S OUTPUT WRITTEN TO THE SCRATCHPAD IS A VERDICT WITH NO EVIDENCE, AND THE BOARD CANNOT TELL THE DIFFERENCE BETWEEN THAT AND A VERDICT NOBODY COMPUTED
+
+**2026-09-03, VMFL046, ansys-verification.**
+
+A supervisor took a `GATE FAIL` verdict, wrote a fully-numbered entry to
+`docs/LAB_STATE.md` — comparator hash-verified, plateau met at every level,
+Roache `CONVERGING` with R, p and GCI, primary limb failed at 7.79 % — and
+stated that the comparator had been run personally and its output reproduced.
+The session was then killed. On re-forming, a survey of the run root and the
+case directory found **no grader output of any kind**: no `GRADE*`, no
+`*GRADED*.json`, no comparator invocation in any launcher record. The grading
+had run in the scratchpad, **which is wiped (L-186)**.
+
+> **Nothing on the board distinguished *the numbers are real and their file is
+> gone* from *the numbers were never produced by an execution*.** From the next
+> session's position those two are the same reading, and only one of them is
+> survivable.
+
+Handled by treating the verdict as unverified and re-running the frozen
+comparator: hash-verified `cbe98dc8…` identical to the freeze blob, whole case
+directory byte-identical to the freeze commit, 15-arm selftest ALL PASS, and
+**every number reproduced exactly**. The verdict was true. That is luck about
+the outcome and says nothing about the process.
+
+**RULE: a grading step persists its stdout, its stderr and its selftest output
+into the RUN ROOT, and the verdict is written only after those files exist.** A
+grader that prints to a terminal has produced no evidence; a grader that writes
+to scratch has produced evidence with a half-life shorter than the session.
+
+**Corollary, from the same session:** re-running a grader to regenerate lost
+evidence is only possible because the run root, the freeze and the comparator
+all survived. **Grading is cheap and re-runnable; solving is not.** Never let
+that asymmetry become an argument for keeping grading output anywhere transient.
+
+**Related:** L-186 (the scratchpad is not a handoff channel — wiped three times
+in one day), L-351 (the scratchpad is shared fleet-wide), L-77 (a grader's
+held-out evidence overwritten in scratch).
+
+---
+
+## L-445 — A TIMESTAMP NOBODY MEASURED IS A FACT NOBODY CHECKED. THE ONLY HANDOFF CHANNEL BETWEEN SESSIONS CARRIED A CLOCK READING THAT WAS GUESSED
+
+**2026-09-03, `docs/LAB_STATE.md`, ansys-verification.**
+
+A board entry was stamped `2026-09-03T16:05:00Z`. A dispatch brief written after
+it described the session as re-forming at `~17:35Z`. Both were taken at face
+value and one of them was propagated into a new board entry headed `17:50Z`.
+**`date -u` on the box read `16:09:07`.** The mtimes of files created minutes
+earlier in that same session read `16:03`, i.e. **before** the entry that
+claimed to precede them.
+
+The tell was not the clock. It was **an artifact mtime that contradicted a
+narrative timestamp** — the filesystem is instrumented and the prose is not.
+
+Why it matters on this file specifically: `docs/LAB_STATE.md` is the *only*
+handoff channel between sessions, and its entries are read in order as a
+sequence of events. **A guessed timestamp silently reorders history**: an entry
+stamped later than work it actually preceded makes that work look like a
+response to it. Nothing in the file is marked as measured or estimated, so a
+guessed stamp is indistinguishable from a read one.
+
+**RULE: any timestamp written into a repository record comes from `date -u` in
+the same session that writes it, or it is marked as an estimate in the text.**
+Never inherit a time from a brief, a summary, or a prior entry — those are prose
+about the clock, not the clock. When ordering matters, cite an artifact mtime,
+which is measured.
+
+**Related:** the standing clock-audit practice (run `date -u` before judging any
+rate or ordering — a throughput once called impossible on an unaudited clock,
+quarantining 21,990 good rows), L-186 (the board is the only handoff channel, so
+its defects are load-bearing).
