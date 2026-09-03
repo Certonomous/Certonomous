@@ -154,6 +154,10 @@ give different targets, and this team will not silently pick one.** The
 denominator is being re-derived; the first weekly report will state the measured
 total explicitly and ask her to confirm which figure she meant.
 
+> **⚠ SUPERSEDED IN ITS FIGURES BY §7 (same day, measured). The `145` above is
+> WRONG — the measured count is `144`, and neither figure is the denominator.
+> Read §7 before quoting any number from this section.**
+
 ---
 
 ## 3. Limb 3 — the enforcer is itself an instrument
@@ -289,3 +293,108 @@ this section is completed when it reports.
   registration was written.** Freeze is a claim about *order*, and an artifact
   that never had an honest order cannot be rescued by a hash comparison. The
   instrument finds the timestamp; a human reads the diff.
+
+---
+
+## 7. MEASURED UPDATE — same day, and it corrects this document in four places
+
+**Appended 2026-09-03, after the fact-establishment this spec called for
+returned. Sections 1–6 are left standing and are corrected here, never
+rewritten.** Every figure below was re-derived from disk by this supervisor with
+a whole-repo run of the instrument, not relayed.
+
+### 7.1 The coverage figures — **the number this program was briefed on is wrong**
+
+| status | rows `[MEASURED]` |
+|---|---|
+| `NO-MARKERS` | **144** |
+| `FROZEN` | **27** |
+| `UNFROZEN` | **10** |
+| `AMBIGUOUS-SCOPE` | **5** |
+| `AMENDED_AFTER` | **3** |
+| `UNCOMMITTED` · `MODIFIED_AFTER_COMMIT` · `UNDATED-MARKER` | **0 · 0 · 0** |
+| **total walked** | **189** |
+| **JUDGED — i.e. COVERED, §2 sense** | **40 of 189** |
+
+**Coverage today is `40 / 189`.** The briefed `145` is wrong; the measured count
+is `144`; and **neither is the denominator.** The target as stated corresponds to
+no figure this instrument emits. **Referred to Sanaa, not silently
+reinterpreted.**
+
+### 7.2 **§1's premise is wrong: there is no grading step to hook**
+
+`[MEASURED]` The queue daemon performs exactly one state transition — **queued →
+launched**. It moves an entry file into `launched/` and never reads a result.
+**A hook placed "where the daemon grades" would never fire, because no such line
+exists.**
+
+> **RULED: THE HONEST CHOKE POINT IS THE LAUNCH, NOT THE GRADE.** Enforcement
+> attaches to the queue-entry validation that already refuses entries on the live
+> path every tick. This is a correction to the **mechanism** of Sanaa's
+> instruction, not to her ruling, and it serves her intent better: the run is
+> refused **before the compute is spent**, not after.
+
+§1's three outcomes are unaffected — they now govern launch rather than grading.
+
+### 7.3 **A trap §1 did not name, and it would have fired immediately**
+
+> **RULED: `UNFROZEN` IS NOT `ILLEGAL`.** `§2d.1`'s four-condition repair
+> exception exists *because* this instrument's own first pass mis-condemned a
+> lawfully repaired comparator — and that comparator **still reads `UNFROZEN`
+> today**, one of the ten. **An enforcer keyed on the freeze instrument's
+> `UNFROZEN` verdict would refuse every comparator lawfully repaired under
+> `§2d.1`.** The enforcement quantity is the **sha mismatch against the frozen
+> registration — a byte comparison** — never the instrument's timestamp verdict.
+> The two answer different questions and only the first is what she ordered.
+
+### 7.4 **§5's pending question is answered, and the obvious repair was the wrong one**
+
+`[MEASURED]` **Every completion marker in this repository lives in three run
+trees. Zero exist under `cases/`, under `docs/campaigns/`, or in any other run
+subtree.** Of the 144 unjudged rows:
+
+- **9** carry evidence a pairing repair could reach — **5** cross-directory,
+  **4** also cross-convention (a marker carrying no case identity at all);
+- **~135** have **no completion-marker evidence anywhere in the repository** —
+  real graders in campaigns that never adopted the convention the freeze test
+  reads.
+
+> **RULED: THE COVERAGE HOLE IS NOT PRINCIPALLY A PAIRING DEFECT.** It is that
+> four of six teams never adopted the evidence convention. A pairing repair is
+> worth building and **converts 9 rows of 144**. Full coverage needs a completion
+> convention those campaigns do not have — **which is a different piece of work,
+> owned by those teams, and it is the larger half.**
+
+**§5's principle (association is DECLARED, never inferred from a pool) stands
+unchanged** and governs the 9. **What §5 held back is now the finding: a program
+that had built the association machinery first would have spent its effort on
+6 % of the gap and reported a repair.** That restraint is the only reason this
+section states a proportion instead of a plan.
+
+### 7.5 The honest note's two dates are established
+
+`[MEASURED]` The instrument has **three commits ever, the first `2026-08-19`.**
+Four independent searches — tracked sources at HEAD, the whole worktree, crontab
+and system units, and git hooks — find **no executable invocation of it**. The
+one file that names it uses it as a **hash fixture**, not as an enforcer to run.
+
+**So: the instrument existed from 2026-08-19 and fired zero times in the fifteen
+days to this date.** §4's two-date wording is correct as drafted and now carries
+its first date. The second — the wiring date — is still in the future at the time
+of writing.
+
+### 7.6 **⚠ COORDINATION, NOT DESIGN: limb 1 is already being built by another team**
+
+Uncommitted work implementing limb 1 exists in the working tree, authored
+elsewhere and **independently reaching §7.2's conclusion in its own header** —
+that the daemon has no grading step and the launch is the honest choke point.
+**Inspected, not touched** (`CLAUDE.md` rule 10: an unexpected change is
+inspected, never reverted).
+
+**This makes the next step a coordination call before it is a design call.** This
+spec is offered to that work as its specification, not as a rival to it. Two
+things must be reconciled before either is believed: **(a)** its entry-count
+figures and this team's disagree, and the discrepancy must be resolved before
+**either** number is cited in a record; **(b)** §7.3's `UNFROZEN ≠ ILLEGAL`
+constraint must reach it **before** it lands, or it will refuse lawfully repaired
+comparators on day one.
