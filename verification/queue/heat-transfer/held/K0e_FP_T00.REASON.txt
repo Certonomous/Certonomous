@@ -32,3 +32,16 @@ because the solver has now started once.
 
 This entry is re-dropped into verification/queue/heat-transfer/ when that is
 done. It is not refused, not cancelled and not BLOCKED: it is held.
+
+---
+
+APPENDED 2026-09-03T19:4xZ: SUPERSEDED, and NOT to be re-dropped.
+
+K0e_PREREGISTRATION.md is SUPERSEDED by K0eR2_PREREGISTRATION.md (its own
+AMENDMENT 1, v1.0 -> v1.1). This entry names the superseded prereg_commit
+9f51c583 and would launch against a registration whose gate structure has been
+replaced. It stays here as the record of what was queued and why it stopped.
+
+Its successor is verification/queue/heat-transfer/K0eR2_FP_T00.json, which
+carries prereg_commit f306ce66, the div(phi,T) fix, and the corrected gate
+(M4b gated at 0 ULP; M4 reported).

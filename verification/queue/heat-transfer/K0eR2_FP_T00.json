@@ -1,0 +1,49 @@
+{
+  "team": "heat-transfer",
+  "case_id": "K0eR2_FP_T00",
+  "prereg_commit": "f306ce662d2ce205f6fb70dd407e9248e1d7c03b",
+  "prereg_path": "docs/campaigns/F14-cooling-ladder/K0eR2_PREREGISTRATION.md",
+  "launch_cmd": [
+    "/bin/bash",
+    "/home/ubuntu/Certonomous/scripts/launch_k0e.sh",
+    "--arm",
+    "FP_T00",
+    "--root",
+    "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K0eR2_runs",
+    "--timeout",
+    "3150",
+    "--ranks",
+    "2",
+    "--no-detach"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K0eR2_runs/launch/FP_T00",
+  "ranks": 2,
+  "cost_core_min_estimate": 35.0,
+  "cap_core_min_registered": 105.0,
+  "cost_basis": "derived: the MEASURED simpleFoam reference solve on this exact 52224-cell mesh is 28.00 core-min (840 ClockTime s x 2 ranks / 60, 9000 iterations, /home/ubuntu/certonomous-runs/tmr-flatplate-finer/log.simpleFoam) x 1.25 for the added T equation and alphat update (an ESTIMATE, not a measurement: segregated linear solves per outer iteration go 6 -> 7) = 35.00 core-min POINT; cap 105.00 core-min = 3 x POINT (timeout 3150 s at 2 ranks), inside the registered rung CEILING 210.30 (prereg section 7.2); USD $0.0299 at $0.0513/core-h reported-by-owner, DERIVED NOT MEASURED (COMPUTE_BUDGET_CHARTER section 5). The preflight's own rate is deliberately NOT used: 5 iterations at ClockTime 3 s is startup-dominated. An overrun stops the run; it does not get a new budget.",
+  "memory_floor_gb": 1.0,
+  "enqueued_by": "heat-transfer-supervisor via lane [lab-attributed]; SUPERVISION_CHARTER section 3 check 4 (pre-registration committed before compute) was performed on prereg_commit f306ce66 BEFORE this file entered the drop path -- this queue's README correction of 2026-08-27 records that the drop path fires within a minute. Registered at 2 ranks: the GATED row M4b compares PROCESSOR-LOCAL U between the two arms on a decomposition COPIED from the 2-rank reference, not re-derived; launch_k0e.sh refuses any other rank count.",
+  "_registered_predictions": {
+    "M4b_GATED": "PREDICTED 0 ULP. FP_T10 vs FP_T00: the SAME binary at two wall temperatures, so the discrete-operator confound cancels exactly; with beta = 0 the thermal field cannot enter the momentum equation. THIS IS THE ONLY GATED ROW. Non-zero is a hard NOT A RESULT for the rung (prereg section 5.1).",
+    "M4_REPORTED": "PREDICTED NON-ZERO, and REPORTED rather than gated. simpleFoam solves UEqn == -fvc::grad(p); buoyantBoussinesqSimpleFoam solves UEqn == fvc::reconstruct((-ghf*snGrad(rhok) - snGrad(p_rgh))*magSf). Read from the installed v2606 source. Different discrete operators, differing INDEPENDENTLY of beta and g, so M4 conflates 'beta/g leaked' with 'the operators are not identical' and cannot answer its own gating question. M4b at 0 ULP with M4 non-zero is the signature of the operator difference and of nothing else.",
+    "mesh": "max aspect ratio 65467.85, birth-certificate verdict 'flagged'. Under Sanaa 2026-09-03 21:00Z a mesh-quality mismatch is RECORDED AS A PREDICTION AND THE RUN LAUNCHES. Predicted benign: a wall-resolved zero-pressure-gradient boundary-layer mesh is supposed to be extreme in aspect ratio (prereg section 6.2).",
+    "stanton": "PREDICTED |St - St_eq1|/St_eq1 of order 10 percent or less, from Bahrami's own statement. THIS IS A PREDICTION AND NOT A BAND: it cannot produce PASS and cannot produce GATE FAIL (prereg sections 3 and 6.3).",
+    "functions": "PREFLIGHT PASS, established BEFORE this entry was written: forceCoeffs1, yPlus1, wallShearStress1 and the surfaces object all executed and wrote under buoyantBoussinesqSimpleFoam (5 iterations, rc=0), and reconstructPar and writeCellCentres both returned 0. No second blocking physics fix is expected at launch.",
+    "M6": "PREDICTED identically zero kinematic wall heat flux. Stanton is UNDEFINED here, not small -- dT = 0 is the denominator (prereg section 5)."
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.FP_T00 (rc captured inside the detached wrapper by launch_k0e.sh)",
+      "the case's own log.solve End line, endTime 9000 fields, and the 0/T age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
+}
