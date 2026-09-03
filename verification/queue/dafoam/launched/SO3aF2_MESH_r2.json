@@ -34,5 +34,33 @@
   "what_this_item_can_never_conclude": "SECTION 0.2, IN FORCE AFTER THE RUN AS BEFORE IT: this item never calls solve_linear and CANNOT show SO-3aR's adjoint collision is fixed. THE COLLISION PROOF BELONGS TO SO-3aR2, UNDER ITS OWN FREEZE, WITH A FINITE-DIFFERENCE TABLE BESIDE IT AT A STEP PROVED TO LIE IN THE PLATEAU -- DAFOAM_CHARTER.md section 1, and not negotiable. NOTHING THIS ITEM MEASURES MAY BE QUOTED TOWARD IT.",
   "predictions_are_not_gates": "Section 5: F1-F5 are scored HIT/MISS and are NOT gates. A MISS is a FINDING and is never written as GATE FAIL, because this item has no gates.",
   "verdict_state": "PENDING",
-  "calibration_row_owed": "docs/COST_CALIBRATION.md at completion (rule 12): actual/predicted against 0.30 core-min, ratio stated, gap attributed, and the first attempt's 0.0167 core-min named as WASTE separately and never absorbed into the ratio."
+  "calibration_row_owed": "docs/COST_CALIBRATION.md at completion (rule 12): actual/predicted against 0.30 core-min, ratio stated, gap attributed, and the first attempt's 0.0167 core-min named as WASTE separately and never absorbed into the ratio.",
+  "_launch": {
+    "utc": "2026-09-03T22:12:06Z",
+    "pid": 867271,
+    "sid": 867271,
+    "status_file": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/feasibility_SO3a_multipoint/STATUS.queue.SO3aF2_MESH_r2",
+    "wrapper_out": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/feasibility_SO3a_multipoint/launcher.queue.out",
+    "started_epoch": 1788473526.2319868,
+    "status_seen_utc": "2026-09-03T22:13:06Z"
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.SO3aF2_MESH_r2 (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
 }
