@@ -1,0 +1,62 @@
+{
+  "ceiling": 20000.0,
+  "ceiling_is_hard": "20,000 core-min stands.  This rung pre-registers NO widening and grants none; a widening request is a desk item for Sanaa (prereg 7.4).",
+  "ceiling_source": "T25R4 A1.3; reaffirmed by Sanaa 2026-09-03 16:00Z",
+  "censored": {
+    "B0_L1": false,
+    "B0_L3": false,
+    "C5_L1": false,
+    "C5_L3": false
+  },
+  "cost_basis": "REPORTED-BY-OWNER; dollars DERIVED at $0.0513/core-h, NOT MEASURED -- this box cannot read its own billing (COMPUTE_BUDGET_CHARTER section 5)",
+  "cross_campaign_comparison_valid": true,
+  "envelope_note": "The $1,000 benchmark-ladder envelope (Sanaa 18:00Z item 1) covers Rungs 0-3 and is NOT this rung's funding basis.  T25 is not inside it (prereg 1.3).",
+  "equivalence": {
+    "C5_L1": "{'maxdT_coolant': 9.000018508231733e-09, 'maxdT_module': 9.000018508231733e-09, 'maxdT': 9.000018508231733e-09, 'maxdp_rgh': 1.00000761449337e-06, 'maxdU': 2.1389999993459696e-08, 'maxd_k': 1.0177999998361997e-08, 'maxd_omega': 0.003244000021368265, 'maxd_nut': 3.8987999975833784e-12, 'maxd_alphat': 4.678499991930818e-12, 'maxd_p': 1.00000761449337e-06, 'fired': []}",
+    "C5_L3": "{'maxdT_coolant': 4.2100003838640987e-07, 'maxdT_module': 1.899996959764394e-08, 'maxdT': 4.2100003838640987e-07, 'maxdp_rgh': 3.000008291564882e-06, 'maxdU': 2.7800002300182314e-09, 'maxd_k': 8.709999943512514e-10, 'maxd_omega': 0.00016999989748001099, 'maxd_nut': 9.430000183496823e-14, 'maxd_alphat': 1.130999997432311e-13, 'maxd_p': 3.000008291564882e-06, 'fired': []}"
+  },
+  "exit": 4,
+  "f_C5_L2_frozen": 13.5579,
+  "gate": "G-T6a",
+  "ground": "the equivalence control FIRED (prereg 6.4)",
+  "point_estimate_core_min": 40.111,
+  "registration": "docs/campaigns/T-family/T25R6a_PREREGISTRATION.md v1.0",
+  "repro": {
+    "B0_L1": {
+      "band": [
+        118.15,
+        144.41
+      ],
+      "exec_in_band": true,
+      "exec_s": 131.87,
+      "integers": "EXACT",
+      "target_exec_s": 131.28
+    },
+    "B0_L3": {
+      "band": [
+        890.45,
+        1088.33
+      ],
+      "exec_in_band": true,
+      "exec_s": 956.97,
+      "integers": "EXACT",
+      "target_exec_s": 989.39
+    }
+  },
+  "required_uniform_factor": 11.5352,
+  "roache": "NOT INVOKED -- no grid claim, no order, no GCI (prereg 6.5)",
+  "rule4": {
+    "B0_L1": [],
+    "B0_L3": [],
+    "C5_L1": [],
+    "C5_L3": []
+  },
+  "rung": "T25R6a",
+  "rung_cap_core_min": 230.0,
+  "sanaa_rulings": [
+    "etc/sessions/2026-09-03T1600Z_sanaa_five_rulings.md item 4 (bc185687) -- the 20,000 ceiling stands, no widening on an optimistic reading",
+    "etc/sessions/2026-09-03T1800Z_sanaa_compute_envelope.md items 2 and 4 -- per-run cap at ~3x the team's own estimate; arithmetic self-check before any escalation"
+  ],
+  "verdict": "NOT A RESULT",
+  "what_sigma_cap_is_not": "Sigma CAP is the ladder's x4 TIMEOUT ALLOWANCE under the assumption that the 40-step RAMP wall factor holds for the whole run.  40 steps is 0.34 % of the shortest ladder run and it is the ramp, not the soak.  It is NOT a prediction of ladder cost.  The assumption is UNMEASURED and this rung does not test it (prereg 4.2).  NO LADDER LAUNCHES ON THIS RESULT."
+}

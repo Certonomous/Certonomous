@@ -1,0 +1,10 @@
+finished_utc=2026-09-03T17:03:33Z
+finished_utc_basis=the run's own .t.C5_L3.end stamp
+started_utc=2026-09-03T17:01:13Z
+case=C5_L3
+rung=T25R6a
+registration=docs/campaigns/T-family/T25R6a_PREREGISTRATION.md v1.1
+registered_steps=40
+endTime=0.8
+exec_s=135.56
+strict rule met (all conjuncts, including the age guard against the case's own 0/module/T)

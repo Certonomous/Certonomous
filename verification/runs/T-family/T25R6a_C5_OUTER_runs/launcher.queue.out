@@ -1,0 +1,64 @@
+=== T25R6a SEQUENTIAL DRIVER -- registered order, none concurrent ===
+start 2026-09-03T16:42:26Z
+
+=== 2026-09-03T16:42:26Z launching B0_L1 (alone, timeout 396s) ===
+  cap check: L1 cap 13.20 core-min x 60 / 2 ranks = 396s = registered timeout
+  ok   frozen E6 verifier is the registered blob 3a0945445d10
+  ok   outside the two p_rgh blocks: byte-identical to the baseline
+  ok   tolerance 1e-13 x2 and the registered relTol values: as frozen
+  ADMISSIBLE: B0  (full E6: coolant + module fvSolution + both fvSchemes)
+T25R6a B0_L1 rc=0 (124 = CAP STOP; rule 12: an overrun stops the run.
+  prereg 7.3: a cap-stop is a BOUND, not a disqualification -- the grader
+  computes Sigma CAP at the bound and a censored run can never PASS.)
+MARKED      B0_L1 -> /home/ubuntu/Certonomous/verification/runs/T-family/T25R6a_C5_OUTER_runs/DONE.B0_L1  (finished_utc=2026-09-03T16:44:43Z)
+launcher exit rc=0
+=== 2026-09-03T16:44:43Z B0_L1 finished rc=0 ===
+
+=== 2026-09-03T16:44:43Z launching C5_L1 (alone, timeout 396s) ===
+  cap check: L1 cap 13.20 core-min x 60 / 2 ranks = 396s = registered timeout
+  ok   frozen E6 verifier is the registered blob 3a0945445d10
+  ok   outside the two p_rgh blocks: byte-identical to the baseline
+  ok   tolerance 1e-13 x2 and the registered relTol values: as frozen
+  ADMISSIBLE: C5  (full E6: coolant + module fvSolution + both fvSchemes)
+T25R6a C5_L1 rc=0 (124 = CAP STOP; rule 12: an overrun stops the run.
+  prereg 7.3: a cap-stop is a BOUND, not a disqualification -- the grader
+  computes Sigma CAP at the bound and a censored run can never PASS.)
+MARKED      C5_L1 -> /home/ubuntu/Certonomous/verification/runs/T-family/T25R6a_C5_OUTER_runs/DONE.C5_L1  (finished_utc=2026-09-03T16:44:58Z)
+launcher exit rc=0
+=== 2026-09-03T16:44:58Z C5_L1 finished rc=0 ===
+
+=== 2026-09-03T16:44:58Z launching B0_L3 (alone, timeout 2970s) ===
+  cap check: L3 cap 99.00 core-min x 60 / 2 ranks = 2970s = registered timeout
+  ok   frozen E6 verifier is the registered blob 3a0945445d10
+  ok   outside the two p_rgh blocks: byte-identical to the baseline
+  ok   tolerance 1e-13 x2 and the registered relTol values: as frozen
+  ADMISSIBLE: B0  (full E6: coolant + module fvSolution + both fvSchemes)
+T25R6a B0_L3 rc=0 (124 = CAP STOP; rule 12: an overrun stops the run.
+  prereg 7.3: a cap-stop is a BOUND, not a disqualification -- the grader
+  computes Sigma CAP at the bound and a censored run can never PASS.)
+MARKED      B0_L3 -> /home/ubuntu/Certonomous/verification/runs/T-family/T25R6a_C5_OUTER_runs/DONE.B0_L3  (finished_utc=2026-09-03T17:01:05Z)
+launcher exit rc=0
+=== 2026-09-03T17:01:06Z B0_L3 finished rc=0 ===
+
+=== 2026-09-03T17:01:06Z launching C5_L3 (alone, timeout 2970s) ===
+  cap check: L3 cap 99.00 core-min x 60 / 2 ranks = 2970s = registered timeout
+  ok   frozen E6 verifier is the registered blob 3a0945445d10
+  ok   outside the two p_rgh blocks: byte-identical to the baseline
+  ok   tolerance 1e-13 x2 and the registered relTol values: as frozen
+  ADMISSIBLE: C5  (full E6: coolant + module fvSolution + both fvSchemes)
+T25R6a C5_L3 rc=0 (124 = CAP STOP; rule 12: an overrun stops the run.
+  prereg 7.3: a cap-stop is a BOUND, not a disqualification -- the grader
+  computes Sigma CAP at the bound and a censored run can never PASS.)
+MARKED      C5_L3 -> /home/ubuntu/Certonomous/verification/runs/T-family/T25R6a_C5_OUTER_runs/DONE.C5_L3  (finished_utc=2026-09-03T17:03:33Z)
+launcher exit rc=0
+=== 2026-09-03T17:03:33Z C5_L3 finished rc=0 ===
+
+=== SEQUENTIAL RUN COMPLETE -- completion markers ===
+MARKED      B0_L1 -> /home/ubuntu/Certonomous/verification/runs/T-family/T25R6a_C5_OUTER_runs/DONE.B0_L1  (finished_utc=2026-09-03T16:44:43Z)
+MARKED      C5_L1 -> /home/ubuntu/Certonomous/verification/runs/T-family/T25R6a_C5_OUTER_runs/DONE.C5_L1  (finished_utc=2026-09-03T16:44:58Z)
+MARKED      B0_L3 -> /home/ubuntu/Certonomous/verification/runs/T-family/T25R6a_C5_OUTER_runs/DONE.B0_L3  (finished_utc=2026-09-03T17:01:05Z)
+MARKED      C5_L3 -> /home/ubuntu/Certonomous/verification/runs/T-family/T25R6a_C5_OUTER_runs/DONE.C5_L3  (finished_utc=2026-09-03T17:03:33Z)
+
+NOT GRADED HERE.  Grading is a separate, deliberate step:
+  python3 /home/ubuntu/Certonomous/verification/runs/T-family/T25R6a_C5_OUTER_runs/grade_t25R6a.py --grade
+end 2026-09-03T17:03:33Z
