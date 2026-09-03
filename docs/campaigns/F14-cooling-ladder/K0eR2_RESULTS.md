@@ -340,7 +340,7 @@ is `NOT A RESULT`.
 | --- | ---: | ---: | ---: | ---: |
 | `FP_T10` | 35.00 | 105.00 | **94.77** | 2.708 |
 | `FP_T00` | 35.00 | 105.00 | **105.03** | 3.001 |
-| **RUNG (solver)** | **70.10** | **CEILING 210.30** | **199.80** | **2.851** |
+| **RUNG (solver)** | **70.10** | **CEILING 210.30** | **199.80** | **2.8502** |
 
 Basis: `wall s × ranks ÷ 60`. `FP_T10` = 2843 × 2 ÷ 60 = 94.767. `FP_T00` =
 3151 × 2 ÷ 60 = 105.033. Both wall figures from the arms' own `STATUS` files,
@@ -368,7 +368,7 @@ total loss, zero fields written, no restart point, nothing recoverable.
 - **Productive spend: 94.77 core-min** (`FP_T10`, complete and usable).
 
 **The ratio is NOT quietly computed on the productive arm alone, and the waste is
-NOT quietly absorbed into the total.** The rung ratio 2.851 is the honest
+NOT quietly absorbed into the total.** The rung ratio 2.8502 is the honest
 all-in figure against the registered POINT; the 52.6 % waste share sits beside
 it, named, and is not netted out of either column.
 
@@ -378,7 +378,7 @@ The cap fired and stopped the run; it did not fail to hold.
 
 ### 10.3 ATTRIBUTION — TWO DIFFERENT CAUSES, AND THEY ARE NOT MERGED
 
-**The rung ratio 2.851 mixes two unrelated failures, and collapsing them into one
+**The rung ratio 2.8502 mixes two unrelated failures, and collapsing them into one
 explanation would be false.**
 
 **(a) `FP_T10`, ratio 2.708 — a LOW BASE ESTIMATE, with a measured contention
