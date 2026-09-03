@@ -21140,3 +21140,102 @@ constitution, which is not an agent's to make.
 nine files), L-351 (the scratchpad is shared fleet-wide — same class, different
 shared resource), L-186 (the board is the only handoff channel, so damage to it
 is load-bearing), CLAUDE.md rule 10.
+
+## L-447 — A PLANTED CONTROL CAN ALSO FAIL **OPEN**: WHEN THE PLANT IS NOT THE ARGMAX, THE CONTROL PASSES WITHOUT EVER HAVING SEEN ITS OWN PLANT, AND CERTIFIES A READER IT NEVER TESTED
+
+**Raised 2026-09-03, heat-transfer, while triaging why the T3 fourth-level
+comparator refused before grading a single row. The refusal was real and is the
+loud half of this lesson. The quiet half is worse: on a different case the same
+control PASSED, and the pass was empty.**
+
+**This lesson presumes nothing about whether any repair is granted.** It is a
+statement about the arithmetic of a control, and it stays true however
+`VERIFICATION_CHARTER.md` §2d.1 is ruled on the rung that exposed it.
+
+### The control, and the two ways it goes wrong
+
+`verification/runs/T-family/T3_runs/analyse_t3.py:327` decides a rule-3
+planted-zero control with
+
+    return dict(passed=(seen >= PLANT - 1e-15), planted=PLANT,
+
+`PLANT = 1.234e-03` K (`:81`) is added to one cell of a temperature field of
+~300 K, and `seen` is the reader's **maximum change over all cells** between the
+last two checkpoints. One ulp of 300.0 is **6.661e-14 K**.
+
+Measured on all four T3 cases by `probe_planted_zero_t3.py`, committed beside the
+comparator:
+
+| case | drift at the planted cell | `seen` | shortfall | `passed` |
+|---|---|---|---|---|
+| `R_c` | −2.27e-13 | **2.4684 K** | — | **True — VACUOUS** |
+| `R_m` | **exactly 0.0** | 1.2340000000e-03 | −1.1e-14 | True |
+| `R_f` | −3.98e-13 | 1.2339999996e-03 | **+3.87e-13** | False |
+| `R_ff` | −3.41e-13 | 1.2339999997e-03 | **+3.30e-13** | False |
+
+**FAILS CLOSED — the L-438 family.** The predicate demands the reader recover the
+plant to `1e-15` **absolute**, about **1/66th of one ulp** of its own 300 K
+operands. It cannot be met by construction whenever the true field is still
+drifting at the planted cell in the subtracting direction. `R_m` passed by the
+**accident** of a drift that was exactly zero — not by design, and not by the
+control being sound there.
+
+**FAILS OPEN — and this is the new limb.** On `R_c` the predicate returned
+**True**, and the plant had nothing to do with it. `seen = 2.4684 K` is a **real
+2.47 K change at a different cell** — `R_c` sits in a limit cycle — so `seen`
+cleared `PLANT` by a factor of 2000 while the planted cell was **never the
+argmax**. The control asked "is the largest change anywhere at least as big as my
+plant?" when the question it was built to ask is "**can the reader see MY
+plant?**". On any case far from convergence those are different questions, and
+the first answers yes for reasons that have nothing to do with the instrument
+being tested.
+
+### Why the open failure is the dangerous one
+
+L-438 and L-439 are both about controls that **refuse**. A refusal is loud, it
+stops the record, and it looks like rigour even when it is a defect. **A vacuous
+pass is silent.** It writes `passed: True` into the gate JSON, the rung proceeds,
+and every downstream zero inherits a certification that was never earned. The
+whole point of rule 3 is that *a zero from a reader not shown able to see a
+non-zero is not evidence* — and a control that fails open is precisely a reader
+**not shown** able to see a non-zero, wearing a receipt that says it was.
+
+**The tell is available and cheap: if `seen` is not approximately `PLANT`, the
+plant was not the argmax and the pass proves nothing.** A control of this shape
+must assert `abs(seen - PLANT) <= tol` — that the plant IS what the reader
+maximised over — and not merely `seen >= PLANT`. The one-sided predicate is
+satisfiable by the data being noisy, which is the opposite of what it is for.
+
+### What generalises
+
+1. **Quote every planted-control tolerance in ulp of the operands it
+   differences** (L-438), *and* **state which side of the comparison the plant is
+   supposed to dominate.** A one-sided `>=` on a max-over-cells is open at the top.
+2. **A control must be shown to fail in BOTH directions before it is trusted.**
+   A control driven only on a case where it passes has been demonstrated to
+   produce the string `True`, not to work. The five-arm positive/negative limb
+   pattern the lab already requires of birth arms is the right shape here.
+3. **A case in a limit cycle is the worst possible host for a planted control**,
+   because its own dynamics can clear any threshold the plant was meant to clear.
+   Plant into the quietest converged level available, and assert dominance.
+4. **A refusal is a finding about the control until triage says otherwise** — not
+   an error to work around by re-running. Re-running the same comparator without
+   understanding why it could not see its own plant is the blind retry Sanaa's
+   2026-09-03 rule names.
+
+### Provenance, and what is not claimed
+
+The fails-closed limb was already observed in commit `93bf8c24` ("that control is
+decided by the sign of a seven-ulp wiggle and convergence cannot win it"). This
+lane re-derived it independently from the artifacts and the numbers reproduce;
+**it is not claimed as a novel discovery.** The **fails-open limb (`R_c`) is the
+new contribution** and was not previously on record.
+
+Evidence, runnable and committed rather than quoted from a scratch path (L-186,
+rule 13): `verification/runs/T-family/T3_runs/probe_planted_zero_t3.py`. The
+refusal artifact it explains is
+`verification/runs/T-family/T3_runs/T3_R_FF_GRADE_OUTPUT_20260830T224307Z.txt`.
+
+**No repair is registered by this lesson and none is presumed.** `analyse_t3.py`
+is frozen and is not edited (rule 6); `gate_t3_rff.json` is still not written and
+no graded `R_ff` quantity has been computed by anyone.
