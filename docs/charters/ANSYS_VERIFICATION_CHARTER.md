@@ -1790,12 +1790,12 @@ Caps in this territory are now set at **~3× the registration's own estimate, by
 
 > **AN OPTIMISTIC ESTIMATE IS NOT A CHEAP MISTAKE THAT COSTS A LITTLE MONEY. IT IS AN EXPENSIVE ONE THAT COSTS THE ENTIRE RUN, AND IT COSTS IT AT THE END, AFTER ALL THE COMPUTE HAS BEEN SPENT.**
 
-**The worked example is this team's own, from today.** VMFL046 filed **12.00** core-min. Its own stated method — scale L1's uncontended rate by cell count over all three levels — yields `57 s × (1+4+16) = 1197 s = **19.95** core-min`. The filed figure was **1.66× below its own arithmetic** (`L-443`). Propagated through `§26.2`:
+**The worked example is this team's own, from today.** VMFL046 filed **12.00** core-min. Its own stated method — scale L1's uncontended rate by cell count over all three levels — yields `57 s × (1+4+16) = 1197 s = **19.95** core-min`. The filed figure was **1.66× below its own arithmetic** (`L-443`). Propagated through `§26.2`: — ⚠ **THE ARITHMETIC IN THIS PARAGRAPH AND IN THE TABLE BELOW IS REFUTED AND IS RETAINED ONLY AS THE STRUCK ORIGINAL (rule 6). THE `19.95` WAS BUILT FROM THE GRADED RUN'S OWN L1 WALL TIME, A DATUM THAT DID NOT EXIST AT FILING — reconstructing a method's output from a figure the graded run produced is structurally gate-fitting. Executed with the datum actually available (the smoke's L1 = 0.18 core-min) the method gives `0.18 × 21 = 3.78`, so the filed 12.00 was `3.17×` ABOVE its own arithmetic, not 1.66× below it. THE TEACHING OF THIS CLAUSE SURVIVES AND ITS WORKED EXAMPLE DOES NOT. See the dated correction at **`§27`** below (v1.22) and `L-443`'s own strike. **AND THE CORRECTED NUMBERS MAKE THIS CLAUSE STRONGER, NOT WEAKER:** the method executed faithfully on inputs available at filing sets a ~3× cap of **11.34** against **28.05** actually consumed — i.e. **following this estimate's own stated method would have KILLED THE RUN**, which is the exact failure direction this clause was written to name.**
 
 | basis | estimate | ~3× cap it would set |
 |---|---|---|
 | filed | 12.00 | **36.0** |
-| the filed estimate's own stated method | 19.95 | **59.85** |
+| ~~the filed estimate's own stated method~~ **REFUTED, see `§27`** — correct value **3.78**, cap **11.34** | ~~19.95~~ | ~~**59.85**~~ |
 | actual consumed | **28.05** | — |
 
 The run consumed 28.05 and the frozen cap was 30, so **nothing was lost here — by 1.95 core-min.** Had the triple carried one more refinement level, or had the box been genuinely contended (it was not: `ExecutionTime/ClockTime` 0.988/0.989/0.998, waste **measured zero**), the filed estimate would have killed a completed solve at its cap. **The margin was luck, and it is recorded as luck.**
@@ -1834,7 +1834,7 @@ The team's two work streams have opposite compute profiles and are sequenced so 
 | envelope | **this team draws NOTHING** from the $1,000 industrial-ladder envelope |
 | adopted in full | per-run cap **~3× the team's own estimate**, set in the frozen bytes; predicted-vs-actual; waste named |
 | tightened beyond her wording | the **arithmetic self-check moves from escalation-time to FREEZE-time** and becomes a freeze precondition (`§26.3`) |
-| worked example, against us | VMFL046's filed 12.00 vs its own method's 19.95 — a 1.66× under-file that would have set a **36.0** cap against **28.05** consumed |
+| worked example, against us | ~~VMFL046's filed 12.00 vs its own method's 19.95 — a 1.66× under-file that would have set a **36.0** cap against **28.05** consumed~~ **REFUTED at `§27` (v1.22): the method on inputs available at filing gives 3.78, a cap of 11.34 against 28.05 consumed — the filed estimate was 3.17× ABOVE its own method, and following that method faithfully would have KILLED the run** |
 | gates | **0 moved** · bands | **0 moved** · caps | **cap-SETTING RULE adopted; no existing cap moved** · re-grades | **0** · register bytes | **0** |
 | lines whose number changed above this section | **0** |
 
@@ -2065,5 +2065,78 @@ reading a position off a picture.
 | ruled | `§25.4` term A **must dominate the worst demonstrated per-plate error** (max / high-percentile) for any quantity whose error can exceed the pixel floor; the null passing **by construction** is the test |
 | re-file | POSITION re-registered per `§29.3`; VALUE carried as a separate quantity, **not** certified by carving out a failed task |
 | campaign cost | more of the 45 figure-only cases will be `GATE REACHED` by construction than assumed |
+| gates | **0 moved** · bands | **0 moved** · caps | **0 moved** · re-grades | **0** · register bytes | **0** |
+| lines whose number changed above this section | **0** |
+
+---
+
+## Amendment — v1.25, 2026-09-03 — **§30: A CORRECTION FILED ONLY AT THE FOOT DOES NOT REACH THE READER OF THE CLAUSE. `§26.2` WENT ON TEACHING THE REFUTED ARITHMETIC FOR AS LONG AS `§27` SAT FIFTY LINES BELOW IT — AND THE SUPERVISOR PROVED IT BY RE-BRIEFING A LANE WITH THE REFUTED NUMBER HOURS AFTER WRITING THE REFUTATION.**
+
+### §30.1 THE DEFECT
+
+`§27` (v1.22) correctly refuted `§26.2`'s worked example: the `19.95` was reconstructed
+from the **graded run's own L1 wall time**, a datum that did not exist at filing, and the
+method executed on inputs actually available gives **3.78**, making the filed 12.00
+**3.17× ABOVE** its own arithmetic rather than 1.66× below it.
+
+**That correction was filed as an appended section and nothing was marked at the point of
+use.** `§26.2`'s body paragraph, its three-row cap table and the v1.21 summary table all
+continued to state `19.95` and `1.66×` with **no marker and no forward pointer**. A reader
+who greps for the estimator rule, or who is told "read `§26.2`", lands on the refuted
+arithmetic and never reaches `§27`.
+
+> **THIS IS NOT A COSMETIC FILING COMPLAINT. `§26.2` IS THE CLAUSE WHOSE ENTIRE FUNCTION IS
+> TO TEACH HOW TO RECONCILE AN ESTIMATE AGAINST ITS OWN METHOD. ITS TEACHING **IS** ITS
+> WORKED EXAMPLE. AN UNMARKED WRONG WORKED EXAMPLE IN THAT CLAUSE TEACHES THE PRECISE
+> GATE-FITTING-SHAPED ERROR THE CORRECTION EXISTS TO NAME.**
+
+### §30.2 THE PROOF THAT IT REACHES NOBODY — AND IT IS AGAINST THE SUPERVISOR, AGAIN
+
+`§27.4` already records that the wrong figure entered a lane brief because the supervisor
+"briefed that lane with the wrong number as though it were established."
+
+**The same supervisor did it again today, after writing `§27`.** On re-forming this session
+the supervisor dispatched two lanes and handed both the refuted framing verbatim — *"VMFL046
+filed 12.00 core-min under a method that yields 19.95 (1.66× under)"* — as an instruction to
+apply to VMFL024 and to a cost-ranking task. It was caught only because the supervisor then
+read `docs/COST_CALIBRATION.md` row `C-20260903T162543.364120Z-e486a4a1` for an unrelated
+reason, and both lanes were corrected by message in the same turn, before either had filed
+anything.
+
+> **A CORRECTION THE AUTHOR OF THE CORRECTION FORGETS WITHIN HOURS IS NOT AN EFFECTIVE
+> CORRECTION. THE FAILURE IS NOT MEMORY — IT IS THAT THE REFUTED TEXT WAS STILL THE MOST
+> FINDABLE STATEMENT OF THE FACT.** Recall competes with the document; the document was
+> still saying `19.95` in three places and `3.78` in one.
+
+### §30.3 THE RULE — CORRECT AT THE POINT OF USE, NOT ONLY AT THE FOOT
+
+**Binding on this territory from v1.25:**
+
+1. When an amendment refutes a **number, table cell or worked example** in an earlier clause,
+   the earlier text is **marked in place, in the same commit as the refutation** — struck
+   (`~~…~~`) with a pointer to the refuting section and the corrected value inline.
+2. The mark is made **without adding or removing a line**, so every later amendment's
+   `lines whose number changed above this section: 0` assertion survives. Text is appended
+   within the existing line. *(This amendment: exactly **3 lines changed in place, 0 added,
+   0 removed**; file length **2069 → 2069** before this block.)*
+3. The original is **struck, never rewritten** (rule 6). The refuted value stays readable —
+   the reader must be able to see what was believed and what replaced it.
+4. **A correction is not complete when it is written. It is complete when the refuted text
+   can no longer be read as current.**
+
+### §30.4 WHAT THIS DOES AND DOES NOT DO
+
+**No gate, band, cap, threshold, verdict or register byte moves.** No case is re-graded.
+`§26.2`'s operative rule — caps at ~3× the team's own estimate, set in the frozen bytes —
+is **unchanged**; only its worked example is marked, and `§27`'s already-recorded finding
+that the corrected numbers make the clause **stronger** (a faithful cap of **11.34** against
+**28.05** consumed would have **killed the run**) is now stated at the point of use.
+
+| amendment | v1.25 |
+|---|---|
+| clause added | **`§30`** (`§30.1`–`§30.4`) |
+| marked in place | `§26.2` body paragraph, `§26.2` cap table row, v1.21 summary-table row — all three now strike `19.95`/`1.66×` and point to `§27` |
+| finding, against the supervisor | the refuted figure was re-issued to **two lanes** in lane briefs hours after `§27` refuted it; caught by reading the calibration ledger, corrected by message before either lane filed |
+| ruled | a refutation is filed **at the point of use in the same commit**, marked without changing any line number |
 | gates | **0 moved** · bands | **0 moved** · caps | **0 moved** · re-grades | **0** · register bytes | **0** |
 | lines whose number changed above this section | **0** |
