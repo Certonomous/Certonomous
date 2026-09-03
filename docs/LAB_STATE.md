@@ -4959,9 +4959,41 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-03T23:50:46Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-46`, the CLOSING STATE — **`SO3aF2`'s `F1` cannot work as registered: the attribute it reads DOES NOT EXIST**, measured for 0.4 core-min by a field in a note after two arms costing 6.0 failed to reach it. **Both worked items are AT REST** with rest states verified by execution and **registration decisions DEFERRED**. **A false clause inside a line labelled `MEASURED` travelled through me to the chief** — and the sentence to carry is a lane's: *twice tonight "it does not change the ruling" was LUCK rather than DESIGN.* Before it, `S-45`, `S-44`, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
+**Section last written:** 2026-09-03T23:53:12Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-47` — **DESK ITEMS CLOSED**: the **rule-10 hole is fixed in the constitution itself** on Sanaa's GO (`0ee2e7df`, verified by me at HEAD, not taken on relay), and the rule-12 estimate gap is **routed to verification** as a forward-only note. `S-46`'s "on Sanaa's desk" line is **struck by quote** so no successor re-escalates a closed item. **Nothing now on her desk from this family** but the four `NOT FILED` upstream defect classes and FD-vs-adjoint as a fourth `V` instrument. Before it, `S-46` (closing state), `S-45`, `S-44`, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-47 — **DESK ITEMS CLOSED: THE RULE-10 HOLE IS FIXED IN THE CONSTITUTION ITSELF ON SANAA'S GO, AND THE RULE-12 ESTIMATE GAP IS ROUTED TO VERIFICATION. `S-46`'s "ON SANAA'S DESK" LINE IS STRUCK SO NO SUCCESSOR RE-ESCALATES A CLOSED ITEM** (2026-09-03, `date -u` stamp in the committing invocation)
+
+###### 1. STRUCK BY QUOTE FROM `S-46` §5 — NOT REWRITTEN
+
+~~**ON SANAA'S DESK:** the **rule-10 hole** — two empty commits, two lanes, two unrelated mechanisms, one signature, `# ASSERT: only your paths` never saying NON-EMPTY~~
+
+**CLOSED.** Sanaa gave her GO (*"and you have my GO for all ur asks"*, captured verbatim at `fbab523b`) and **the constitution was amended at `0ee2e7df`.**
+
+**VERIFIED BY ME AT HEAD RATHER THAN TAKEN ON RELAY** — the same discipline this section spent the night on, and it does not stop at the chief:
+
+- `CLAUDE.md:114` now reads `git diff-tree --stat $H $T   # ASSERT: NON-EMPTY and only your paths`
+- `CLAUDE.md:115` adds `[ "$T" != "$(git rev-parse $H^{tree})" ] || exit 1 # empty tree == the assertion failing`, citing her GO by date
+- `0ee2e7df` exists, touches `CLAUDE.md`, **2 insertions / 1 deletion**
+
+**The guard two of this family's lanes built independently, after paying for it with two empty commits, is now the constitution's own line.** My board commits from `S-44` onward already carried it, and `S-46`'s carried the display-string fix beside it — **so the fix reached the rule from the lanes upward, which is the direction that makes it durable.**
+
+###### 2. THE RULE-12 ESTIMATE GAP — ROUTED, NOT CLOSED, AND NOT OURS TO DECIDE
+
+**Routed by the chief to the verification team as a forward-only practice note.** Rule 12's text already requires every run costed **in its pre-registration**, so caps-in-the-freeze with estimates-only-in-the-queue-row is a **compliance finding on ONE item (`D6RF2`), flagged as possibly wider without that being claimed.** **Verification decides** whether it becomes a registered check or stays a recorded note. **No team owes a backfill**, and this family's forward-only rule from `S-45` §3 stands unchanged meanwhile.
+
+###### 3. THE `MEASURED`-CLAUSE CORRECTION — CONFIRMED CONTAINED
+
+The chief checked and reports the false *"every sequence-shaped"* clause **did not travel past me** into the user-facing record; the `87 / 298 / four-names-absent` facts did, **and those hold.** **The containment is luck about where the relay stopped, not a property of how the clause was written** — which is the same reading `S-46` §3 gives it, and it does not soften the finding.
+
+**What survives as practice, and it is now the chief's too: a quoted `MEASURED` line carrying a UNIVERSAL gets re-checked against its enumeration before it is repeated.**
+
+###### 4. STATE UNCHANGED
+
+`W3_chain_r2` running, **zero non-zero rc**. Both worked items at rest with verified rest states. **Two registration decisions still DEFERRED** to a fresh reading — `D6RF2`'s `F_mp` and `SO3aF2`'s `F1`. Open and unchased: the frame allowance (**n=1**), the census stall (**cause UNMEASURED**), the `§A14` cross-reference gap. **Owed by me:** the `disarm` findings record and the **`N-D42`** row.
+
+**NOTHING NOW ON SANAA'S DESK FROM THIS FAMILY** except the four standing DAFoam upstream defect classes, all **`NOT FILED`**, and **FD-vs-adjoint as a fourth `V` instrument.** **SUBMISSIONS PARKED.**
 
 ##### UPDATE S-46 — **CLOSING STATE: `SO3aF2`'s `F1` CANNOT WORK AS REGISTERED — THE ATTRIBUTE IT READS DOES NOT EXIST, MEASURED FOR 0.4 CORE-MIN BY A FIELD IN A NOTE AFTER TWO ARMS COSTING 6.0 FAILED TO REACH IT. BOTH WORKED ITEMS ARE AT REST WITH VERIFIED REST STATES AND DEFERRED REGISTRATION DECISIONS. AND A FALSE CLAUSE INSIDE A LINE LABELLED `MEASURED` TRAVELLED THROUGH ME TO THE CHIEF** (2026-09-03, `date -u` stamp in the committing invocation)
 
