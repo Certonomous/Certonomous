@@ -1058,3 +1058,318 @@ graded run refuse at exit 2.
 **STILL OWED, AND IT STILL GATES THE ENQUEUE:** the supervisor's §3 check 4, and
 a personal diff read of the launcher. **Nothing has been launched, enqueued or
 released. Zero compute has been spent on this item.**
+
+---
+
+## ADDENDUM 2 — 2026-09-03T20:40Z — THE 19:38Z ABORT, THE controlDict A1WRT NOW WRITES, AND THE FFD IT WAS NEVER STAGING
+
+**Document version 1.1 → 1.2.**
+**Lines whose number changed above this section: 0.** This addendum is appended
+at the foot and nothing above it was edited. **The figure is COMPUTED, not
+claimed:** in the amending invocation the first 1,060 lines of this file — its
+entire length before this append — were compared byte-for-byte against its blob
+at `HEAD` and are identical; the only hunk in `git diff` for this path is this
+appended section. The pre-append length 1,060 is the same shell's `wc -l`.
+
+**PRE-COMPUTE CONDITION, RE-CHECKED BY EXECUTION, TWICE:** the registered run
+root `/home/ubuntu/certonomous-runs/A1WRT/` is **ABSENT** — `test -e` returned
+**rc 1** at **2026-09-03T20:40:05Z**, and the check was re-run **inside the
+appending invocation itself** at **2026-09-03T20:42:58Z**, which was written to
+refuse the append outright had the root existed. Neither reading is from recall
+and neither is the freeze's earlier one.
+
+**AND THE FREEZE'S SECOND SENTENCE NO LONGER HOLDS, WHICH IS DISCLOSED RATHER
+THAN REPEATED.** The freeze recorded that *no path matching `*A1WRT*` exists
+anywhere under `/home/ubuntu/certonomous-runs/`*. **That is now false**, and this
+addendum says so instead of reprinting the frozen sentence: exactly one such path
+exists, `/home/ubuntu/certonomous-runs/A1WRT_ABORTED_S6_20260903T1938Z/`, the
+staged tree of the aborted launch below, **moved and not deleted** under this
+item's own no-`rm -rf` rule. What rule 2 limb 1 requires is that the registered
+run root be absent, and it is.
+
+**THIS ADDENDUM ALTERS NO GATE, NO THRESHOLD, NO CAP AND NO LABEL.**
+
+---
+
+### A2.1 The launch attempt, disclosed — and why amending is still lawful
+
+**A launch of this item was attempted at 2026-09-03T19:38:15Z and aborted at
+19:38:26Z — eleven seconds.** It is disclosed here by name; this item is not
+described as untouched.
+
+The supervisor's ruling on lawfulness, carried here as his:
+
+> The 2026-09-03T19:38:15Z launch attempt aborted at 11 s with `launcher_rc=5`,
+> **created no container, produced no gate reading and no measurement, and cost
+> ~0 core-min**. No gate could have been chosen to fit an answer that does not
+> exist. The addendum is therefore lawful under rule 2 / rule 6, and it
+> **discloses the launch attempt explicitly** rather than describing the item as
+> untouched.
+
+**The abort's own artefacts corroborate every limb of that, and they were read in
+the amending invocation rather than taken from the report:**
+
+| claim | artefact read | what it says |
+|---|---|---|
+| aborted at S6, both units | `A1WRT_ABORTED_S6_20260903T1938Z/{alpha12_symmetry,tail_empty}_STAGING_EVIDENCE.txt` | last line of each: `ABORT S6 controlDict endTime=1000, registered 4000` |
+| `launcher_rc=5`, 11 s | `STATUS.queue.A1WRT` (untracked, beside this file) | `launcher_rc=5 end=2026-09-03T19:38:26Z` |
+| **no container** | the same tree | **no `out/`, no `rc` artefact, no container log anywhere under it**; `ledger.txt` holds one line, `ITEM=A1WRT` |
+| no gate reading | the same tree | staging stopped at S6, which is **before** `S7` (the image digest) and before any `docker run` |
+
+**ADDENDUM 1's CLOSING SENTENCE IS STRUCK BY THIS ADDENDUM, NOT REWRITTEN.** It
+reads *"Zero compute has been spent on this item."* — true when it was written at
+19:06Z, false after 19:38Z. It stands unedited above and **this line is its
+correction**; the true figure is below.
+
+**Spend, gross:** two units × 11 s wall × 1 rank ≈ **0.37 core-min**, against an
+`ITEM CEILING` of 3,304.0 — recorded, not absorbed. **No calibration row is
+opened in `docs/COST_CALIBRATION.md`**: nothing completed, nothing was graded,
+and a row against a process that produced no result would be a ratio with no
+numerator.
+
+---
+
+### A2.2 (a) NO GATE, THRESHOLD, CAP OR LABEL MOVES — named unchanged
+
+Naming them is the proof, so they are named rather than asserted:
+
+| registered thing | value, as frozen | after this addendum |
+|---|---|---|
+| `endTime` / iteration budget | **4000**, §7, FROZEN | **4000**, unchanged |
+| `primalMinResTol` | **1e-8**, §7, not relaxable | **1e-8**, unchanged |
+| cap, `alpha12_symmetry` | **361.0** core-min | **361.0**, unchanged |
+| cap, `tail_empty` | **2943.0** core-min | **2943.0**, unchanged |
+| `ITEM CEILING` | **3304.0** core-min | **3304.0**, unchanged |
+| frame allowance | **300 s** (§4.4) | **300 s**, unchanged |
+| `TMO` re-derived | 21,360 s / 176,280 s | unchanged |
+| ranks | **np = 1**, one unit one container | unchanged |
+| toolchain row | **patched**, `dafoam-idwarp-rot:v1`, digest `sha256:2927768a16ac…` | unchanged |
+| declared points | 1 and 7 | unchanged |
+| `G-PATCH`, `G-REPRO`, `G-OCC`, `G-COLDSTART`, `G-STALL` | as frozen | **unchanged; none is re-anchored, re-worded or re-thresholded** |
+| verdict labels | as frozen | unchanged |
+
+**What this addendum changes is the STAGING, and only the staging.** Two inputs
+the item was not putting on disk are now put on disk, and both are asserted
+against A1WR's own bytes. No number in the table above is touched.
+
+---
+
+### A2.3 (b) WHAT A1WRT CONTROLS IN `system/controlDict`, AND WHAT IT INHERITS
+
+**This distinction is the item's claim to being one variable, so it is written
+out rather than left to a reader's inference.**
+
+`S6` no longer asserts an inherited `controlDict`. It **writes** one, derived
+from `a1wr_chain_driver.sh`'s own `stage_unit()` heredoc (`:126-154`) with `$et`
+bound, and then **reads it back from disk through the same verifier**. So in the
+literal sense A1WRT writes every byte of the file — and the honest split is
+between the fields it **GATES** and the fields it merely **CARRIES**:
+
+**CONTROLLED — written, then READ BACK FROM DISK and individually gated
+(`a1wrt_controldict.py:verify`, and again in the launcher's own shell so the
+launch record carries the three values itself):**
+
+| field | registered value | gate |
+|---|---|---|
+| `endTime` | **4000** | `!= 4000` → REFUSE, naming §7's freeze |
+| `writeInterval` | **4000** | `!= 4000` → REFUSE (without it the `endTime` state is never written and the age guard has nothing to date) |
+| `deltaT` | **1** | `!= 1` → REFUSE |
+
+An unreadable value in any of the three is **UNMEASURED and refuses**; it is
+never defaulted to the registered number.
+
+**INHERITED — carried verbatim from A1WR's heredoc, chosen by A1WR and not by
+this item:** `startFrom startTime`, `startTime 0`, `stopAt endTime`,
+`writeControl timeStep`, `purgeWrite 0`, `writeFormat ascii`,
+`writePrecision 16`, `writeCompression on`, `timeFormat general`,
+`timePrecision 16`, `runTimeModifiable true`,
+`DebugSwitches { SolverPerformance 0; }`, and the `functions { yPlus1 … }` block.
+**FROM WHERE, exactly:**
+`cases/dafoam/ladder-a/A1/wall_resolved_aoa_polar/a1wr_chain_driver.sh:126-154`,
+md5-pinned at `9bff59b63509e76d5dfa373a42a47074` inside the deriver — **if A1WR's
+template moves, the derivation REFUSES rather than silently re-deriving.**
+
+**These fourteen are not left ungated; they are gated as a BLOCK, and by a
+stronger check than a field test.** The derived bytes are asserted **byte-identical
+to the `controlDict` A1WR's driver ACTUALLY WROTE** for the sweep this tail
+extends — `/home/ubuntu/certonomous-runs/A1WR/STAGE12/sweep_I/case/system/controlDict`,
+md5 `85656349b8c31277e51883d2df9f8217`, 653 bytes — an external artefact this
+instrument did not produce. Where the reference is unavailable the note says
+**UNMEASURED**; where the endTime is not the registered one it says **NOT
+COMPARED**; it claims a comparison only when one was made.
+
+**THE REST OF THE CASE IS INHERITED FROM A1WR'S `L3` MESH DIRECTORY** (`cp -a`
+at `S2`), and the inheritance was MEASURED against `sweep_I/case` in the amending
+invocation rather than assumed:
+
+| inherited file | `L3` vs `sweep_I/case` |
+|---|---|
+| `constant/polyMesh/points.gz` | **IDENTICAL** `7dab2ae9bd9d719757f7b9f555269d3f` |
+| `system/fvSchemes` | **IDENTICAL** `f8c63ea5edf64abb6f4de333ceee60df` |
+| `system/fvSolution` | **IDENTICAL** `68aff91e03f2d622fcb8b02a9c894c69` |
+| `system/createPatchDict` | **IDENTICAL** `5e89709961881491e3f05dc97bbcf75c` |
+| `constant/transportProperties` | **IDENTICAL** `931e6f0f1e263e04eed2ff0a513b2463` |
+| `constant/turbulenceProperties` | **IDENTICAL** `8c78a44cd53f17e62cd71eac0e67585d` |
+| `0.orig/{U,p,nut,nuTilda,k,omega,epsilon}` | **IDENTICAL**, all seven |
+| `system/controlDict` | **DIFFERS** — `endTime 1000` vs `4000`. This is the defect the 19:38Z abort caught, and `S6` now writes over it. |
+| `system/decomposeParDict` | **DIFFERS — DISCLOSED, NOT REPAIRED** (below) |
+
+**`system/decomposeParDict` DIFFERS AND IS DISCLOSED HERE RATHER THAN QUIETLY
+FIXED.** `L3`'s copy carries `numberOfSubdomains 2` plus a `kahipCoeffs` block;
+`sweep_I`'s carries `numberOfSubdomains 1` and no such block
+(`c3f5f05d45f0b9a70d645b107a837727` vs `e6f1b0060944bc86d6dff56480ad2bd4`, the
+latter identical to the incompressible skeleton's, so `sweep_I` inherited the
+skeleton's and A1WR's driver never wrote one). **It is the same defect class as
+the `controlDict`: `L3` is a mesh-generation directory and its `system/` is
+mesh-generation furniture.** It is argued **inert** here, and the argument is
+stated so it can be attacked: `decomposePar` appears **zero times** in both
+`a1wr_cmd.sh` and `a1wr_runScript_incomp.py`, this item runs **np = 1**
+(`RANKS=1`, `--cpus=1`, one container one process), and no decomposition is
+therefore performed. **What is NOT established:** that pyDAFoam never reads the
+dictionary internally — proving that needs a container, which this amendment did
+not open. **`DAFOAM_CHARTER` §5 makes decomposition a first-class disclosure, so
+it is disclosed as an open inherited difference rather than counted as clean, and
+whether `S6` should write it too is left to the supervisor.**
+
+---
+
+### A2.4 (c) THE FFD, AND WHY STAGING IT MOVES NO VARIABLE
+
+`a1wr_runScript_incomp.py:129` constructs `OM_DVGEOCOMP(file="FFD/wingFFD.xyz")`.
+**It is the producer's only external file input** — measured: that is the sole
+`file=`/`open(` reference to an input path in the whole producer — and it is
+**resolved relative to the container's cwd**, which `a1wr_cmd.sh:29` sets with
+`cd /mnt/case`, which this launcher mounts as `-v "$WORK":/mnt/case`. So the
+staged copy must land at `$WORK/FFD/wingFFD.xyz`, and it now does.
+
+**A1WR's `L3` mesh directory has no `FFD/` at all.** A1WR never hit this because
+`stage_unit()` copies a case **skeleton** and overlays `L3`'s `polyMesh`; A1WRT
+stages **from the mesh directory**, which carries the mesh and the fields but not
+the case furniture. The staging introduced the gap.
+
+**Registered source and its md5:**
+
+| | |
+|---|---|
+| `FFD_SRC` | `/home/ubuntu/certonomous-runs/A1WR/STAGE12/sweep_I/case/FFD/wingFFD.xyz` |
+| `MD5_FFD` | **`6ddf378b028d03d8a18270488bee1759`** |
+
+**IT MOVES NO VARIABLE, AND THE EVIDENCE IS A CENSUS RATHER THAN A SAMPLE.**
+**Thirteen** copies of `wingFFD.xyz` exist on this box and **all thirteen carry
+that one md5**: A1WR's nine `STAGE12` unit cases (`sweep_I`, `sweep_C`,
+`cold_{I,C}_{4,14,17}`, `probe_I`, `probe_C`), the three cases in its two
+failed-staging roots, and the incompressible skeleton A1WR's own driver copies
+from (`a1wr_chain_driver.sh:33`, `SKEL_I`). **Staging it restores an input A1WR
+always had; it does not introduce one.**
+
+**Why `sweep_I` and not another path, since the bytes cannot differ today.** The
+choice is made on provenance and on source count. `sweep_I/case` **is** the
+alpha 0..12 incompressible sweep this tail extends — driver `:239`, `CONTINUED`,
+tol `1.0e-8`, `endTime 4000`, the exact configuration `G-REPRO` compares
+against — so these are the bytes the **body's own numbers** were produced with,
+not a template they were copied from. It is also inside A1WR's preserved run
+root, which this launcher already treats as its single read-only source
+(`MESH_SRC`, and `G-ROOT.1a` names that root by name); `SKEL_I` would be a
+**second** external source and is a live curriculum directory another item may
+restage.
+
+**`S5b` asserts the md5 on BOTH SIDES of the copy** — source and staged
+destination — so a corrupt source and a corrupt copy are distinct refusals.
+
+---
+
+### A2.5 (d) THE FFD DEFECT WAS MASKED BY `S6` — ONE ABORT SURFACED TWO BLOCKERS
+
+**The 19:38Z abort stopped at `S6`, which sits before the primal.** The missing
+FFD could only have failed **inside the container**, at
+`a1wr_runScript_incomp.py:129`, after `docker run` — and `a1wr_cmd.sh`'s own
+point-of-use guards (`:31-33`: `runScript.py`, `0.orig`, `points.gz`) **do not
+check for the FFD**, so nothing before the model build would have caught it.
+
+**So the `controlDict` refusal bought the second finding.** Had `S6` inherited
+the wrong `endTime` quietly, the launch would have proceeded to a container that
+died building its model — and the two defects would have been found one at a
+time, the second one having spent real core-minutes to be found. **One abort at
+11 s and ~0 core-min surfaced two blockers, and that is recorded as the value of
+refusing early rather than as a nuisance.**
+
+**This also means `S5b` was never exercised by the 19:38Z attempt.** It is new
+and unexercised by any launch, which is why it is driven directly — see A2.6.
+
+---
+
+### A2.6 (e) THE INSTRUMENT PINS, AND THE DRIVEN EVIDENCE BEHIND THEM
+
+**PINNED AS FROZEN INSTRUMENTS OF THIS ITEM, at their post-repair bytes:**
+
+| instrument | md5 | role |
+|---|---|---|
+| `a1wrt_controldict.py` | **`a77c9bac486dce940707bdf9c00e1a6b`** | **new** — the `controlDict` **deriver**: derives A1WR's own bytes, writes them, reads them back. `S6`'s whole content. |
+| `a1wrt_run_unit.sh` | **`718b5d47bdc857e074c1f6e6fa18f24f`** | the unit launcher, repaired. Supersedes ADDENDUM 1's `288bc6904f908eb852e024ca0d61762c`, which is the pre-repair blob and remains the correct pin for that addendum's text. |
+| `a1wrt_read.py` | `705db5f7e972f6c033cbe303b7a6038f` | **unchanged** — the grading path did not move |
+| `a1wrt_patch_assert.py` | `7f3a2c8e70684daba975ac9a2ee50385` | **unchanged** |
+
+**The grading path is untouched.** `a1wrt_read.py` carries the same md5 the
+freeze pinned. Nothing in this addendum reaches the grader.
+
+**`a1wrt_controldict.py` IS ITSELF PINNED AND DRIVEN AT LAUNCH, at a new `S0b`,
+on the same argument `S0` already makes for the patch instrument.** `S6` both
+writes the control dictionary with this code and reads it back with it, so a
+broken deriver would agree with its own bad bytes; an instrument trusted from a
+selftest that passed once at freeze time is not evidence about this box at this
+moment. `S0b` refuses on **exit 4** if the md5 has moved and on **exit 6** if the
+instrument fails its own controls. **Exit 6 is added to the launcher's registered
+exit-code table** and is the deriver's own `RC_CD_REFUSAL`, so the launcher and
+the instrument agree on one number.
+
+**DRIVEN EVIDENCE, all zero-container and taken in the amending session:**
+
+| suite | interpreter | result |
+|---|---|---|
+| `a1wrt_controldict.py --selftest` | `python3` / `python3 -O` | **13/13 PASS**, 0 FAIL, **0 NOT RUN**, rc 0 in both |
+| `a1wrt_patch_assert.py --selftest` | `python3` / `python3 -O` | **11/11 PASS**, rc 0 in both |
+| `a1wrt_read.py --selftest` | `python3` / `python3 -O` | **39/39 PASS**, rc 0 in both |
+| `S5b` block, extracted from the launcher's own bytes | `bash -u` | **5/5 legs as registered** |
+| `S0b` block, extracted from the launcher's own bytes | `bash -u` | **3/3 legs as registered** |
+
+`S5b`'s five legs: an **undefined** `FFD_SRC` under `set -u` (rc 127, outside the
+registered exit-code set, and the staging evidence file **empty** — no
+`stage_say` ran); an **absent** source (rc 5, naming the path and
+`runScript:129`); a **corrupted** source (rc 4, "the geometry parametrisation has
+MOVED"); a copy that **lands corrupted** (rc 4, "the copy did not land intact");
+and the **correct** source (rc 0, staged copy re-read at the pinned md5).
+`S0b`'s three: correct pin and instrument (rc 0), a **wrong** pin (rc 4), and a
+**mutated** deriver whose pin matches but whose own controls fail (rc 6).
+
+**Two controls were added to the deriver because a note claimed a comparison it
+had not made.** Its external-corroboration branch was guarded on the reference
+file merely existing while the comparison itself additionally required the
+registered `endTime` — so at any other `endTime` **no comparison ran and the note
+still read "BYTE-IDENTICAL to A1WR's own generated controlDict"**. A guard that
+reports a property it did not check is a defect in its own right, even though
+`verify()`'s field assertions would have caught a wrong `endTime` a moment
+later: **the later guard's catch is not this guard's evidence.** The branch now
+answers **COMPARED**, **NOT COMPARED** (with the reason) or **UNMEASURED**, and
+both directions are driven — `D12` fails against the pre-repair form, `D13` fails
+against a "repair" that merely deletes the sentence. Both were confirmed by
+planting each form and driving it.
+
+**One control was demoted, not repaired.** `D2` previously took `chk(..., True,
+…)` when the external reference was absent — a PASS awarded on a literal that
+cannot fail, the same vacuous shape one frame up. A control with nothing to
+compare is now **NOT RUN**, counted in its own column and never folded into
+either PASS or FAIL, and the selftest's closing line names the NOT RUN count
+explicitly rather than leaving a reader to subtract.
+
+---
+
+### A2.7 WHAT IS STILL OWED, AND THE ITEM IS STILL NOT ENQUEUED
+
+**Nothing has been launched, enqueued or released by this addendum.** The
+registered run root is absent, asserted by execution above.
+
+**Still owed, and it still gates the enqueue:** the supervisor's §3 check 1 — a
+**personal diff read** of the changed hunks in `a1wrt_run_unit.sh` and of
+`a1wrt_controldict.py` — and check 4, the freeze blob against disk against
+`HEAD`. Neither is a lane's to perform on his behalf. **Open and referred to
+him:** whether `S6` should also write `system/decomposeParDict`, per A2.3.

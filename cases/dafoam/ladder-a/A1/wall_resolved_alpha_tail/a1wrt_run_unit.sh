@@ -46,6 +46,8 @@
 #   3   G-ROOT refusal (wrong base, another item's root, a live unit, a live driver)
 #   4   identity / staging failure (an md5, the image digest, a copy)
 #   5   G-COLDSTART or a staging assertion
+#   6   controlDict REFUSAL -- distinct, and it is a1wrt_controldict.py's own
+#       RC_CD_REFUSAL, so the launcher and the instrument agree on one number
 #   7   G-PATCH REFUSAL -- distinct, and never a default
 #   64  usage / unknown unit
 #   65  cap arithmetic, or the ITEM CEILING
@@ -77,10 +79,37 @@ MD5_RUNSCRIPT=d48f48c5e2e41e86981acbf6feccb3c4     # a1wr_runScript_incomp.py
 MD5_CMD=eba014f2c538611d2249c3fcf9b3ddd7           # a1wr_cmd.sh
 MD5_IDWARP=85f59e87253e0a71a813f64ca6e4c425        # libidwarp.so, in-container
 A1WR_CASE_DIR=/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/wall_resolved_aoa_polar
+# ---- THE FFD, AND WHY IT IS TAKEN FROM `sweep_I` AND NOT FROM ANYWHERE ELSE --
+# The producer loads `FFD/wingFFD.xyz` relative to its own cwd (a1wr_cmd.sh:29
+# `cd /mnt/case`, and this launcher mounts `-v $WORK:/mnt/case`), so the staged
+# copy must land at `$WORK/FFD/wingFFD.xyz` and nowhere else.  MEASURED, not
+# assumed: `FFD/wingFFD.xyz` is the ONLY external file the producer opens --
+# a1wr_runScript_incomp.py has exactly one such reference, at :129.
+#
+# THERE ARE THIRTEEN COPIES OF THIS FILE ON THIS BOX AND ALL THIRTEEN ARE
+# BYTE-IDENTICAL AT md5 6ddf378b028d03d8a18270488bee1759 -- every unit case
+# under A1WR/STAGE12 (sweep_I, sweep_C, cold_{I,C}_{4,14,17}, probe_I, probe_C),
+# both failed-staging roots, and the incompressible SKELETON A1WR's driver
+# copies from (a1wr_chain_driver.sh:33 SKEL_I).  So the CHOICE of path cannot
+# move a byte today, and it is made on provenance instead:
+#   `sweep_I/case` IS the alpha 0..12 incompressible sweep this item's tail
+#   extends -- driver line 239, CONTINUED, tol 1.0e-8, endTime 4000, the exact
+#   configuration G-REPRO compares against.  These are the bytes the BODY's
+#   numbers were produced with, not a template they were copied from.
+# It is also INSIDE A1WR's preserved run root, which this launcher already
+# treats as its single read-only source (MESH_SRC, and G-ROOT.1a names it).
+# SKEL_I would be a SECOND external source, and it is a live curriculum
+# directory another item may restage; the preserved root is the stabler pin.
+FFD_SRC="$A1WR_ROOT/STAGE12/sweep_I/case/FFD/wingFFD.xyz"
+MD5_FFD=6ddf378b028d03d8a18270488bee1759
 # ---- THIS ITEM'S OWN INSTRUMENT, pinned by the freeze -----------------------
 # Pinned AND DRIVEN below.  A declared-but-unused hash is decoration that reads
 # like a guard, which is the same defect class as an unreachable check.
 MD5_PATCH_ASSERT=7f3a2c8e70684daba975ac9a2ee50385
+# The controlDict DERIVER.  S6 WRITES this item's control dictionary with it and
+# reads it back with it, so it is an instrument of the same standing as the patch
+# asserter and is pinned and DRIVEN at S0b on the same argument.
+MD5_CONTROLDICT=a77c9bac486dce940707bdf9c00e1a6b   # a1wrt_controldict.py
 
 UNIT="${1:-}"; IMG="${2:-}"
 usage() { echo "ABORT usage: a1wrt_run_unit.sh <alpha12_symmetry|tail_empty> <image>"; exit 64; }
@@ -362,6 +391,27 @@ python3 "$HERE/a1wrt_patch_assert.py" --selftest >> "$STAGE_EVID" 2>&1 || {
   exit 7; }
 stage_say "A1WRT_STAGE (S0) OK a1wrt_patch_assert.py drove its own controls on this box, this launch, and passed"
 
+# ---- S0b: THE controlDict DERIVER GETS THE SAME TREATMENT --------------------
+# S6 no longer ASSERTS an inherited controlDict; it WRITES one and reads it back
+# THROUGH THE SAME CODE.  That shape is only as good as the code: a broken
+# deriver would write bad bytes and its own read-back would agree with them.
+# The patch instrument is pinned and driven at S0 for exactly this reason and
+# the deriver is a frozen instrument of the same standing, so it is pinned and
+# driven here.  An instrument trusted because it passed once at freeze time is
+# not evidence about this box at this moment (CLAUDE.md rule 3).
+echo "$MD5_CONTROLDICT  $HERE/a1wrt_controldict.py" | md5sum -c - \
+  || { stage_say "ABORT S0b a1wrt_controldict.py md5 != the freeze pin -- the"
+       stage_say "  controlDict DERIVER has MOVED since the registration froze it."
+       stage_say "  S6 writes this item's control dictionary with it, so a moved"
+       stage_say "  deriver is a moved run.  REFUSED."
+       exit 4; }
+python3 "$HERE/a1wrt_controldict.py" --selftest >> "$STAGE_EVID" 2>&1 || {
+  stage_say "ABORT S0b the controlDict DERIVER FAILED ITS OWN CONTROLS on this box."
+  stage_say "  S6 would write the control dictionary with it and read it back with"
+  stage_say "  it.  See $STAGE_EVID.  No primal runs."
+  exit 6; }
+stage_say "A1WRT_STAGE (S0b) OK a1wrt_controldict.py md5 == pin and drove its own controls on this box, this launch"
+
 # ---- S1: the mesh source, verified BEFORE it is copied ----------------------
 test -d "$MESH_SRC" || { stage_say "ABORT S1 mesh source absent: $MESH_SRC"; exit 5; }
 test -f "$MESH_SRC/constant/polyMesh/points.gz" || { stage_say "ABORT S1 no mesh under $MESH_SRC"; exit 5; }
@@ -477,13 +527,70 @@ echo "$MD5_RUNSCRIPT  $BASE/runScript.py" | md5sum -c - || { stage_say "ABORT S5
 echo "$MD5_CMD  $BASE/cmd.sh"             | md5sum -c - || { stage_say "ABORT S5 staged cmd md5"; exit 4; }
 stage_say "A1WRT_STAGE (S5) OK producer and unit program staged, every md5 asserted on BOTH sides of the copy"
 
-# ---- S6: controlDict endTime, asserted rather than assumed ------------------
+# ---- S5b: THE FFD, WITHOUT WHICH THE PRODUCER CANNOT BUILD ITS MODEL --------
+# `a1wr_runScript_incomp.py:129` does OM_DVGEOCOMP(file="FFD/wingFFD.xyz"), so the
+# FFD is a HARD INPUT of the producer this item inherits unchanged -- and the L3
+# MESH DIRECTORY HAS NO FFD/.  A1WR never hit this because its driver stages from
+# a case SKELETON and overlays L3's polyMesh; A1WRT stages from the mesh
+# directory, which carries the mesh and the fields but not the case furniture.
+# MEASURED: every one of the THIRTEEN wingFFD.xyz copies on this box -- A1WR's
+# nine STAGE12 unit cases, its two failed-staging roots and the SKELETON its
+# driver copies from -- carries md5 6ddf378b028d03d8a18270488bee1759, so staging
+# it here moves no variable: it RESTORES an input A1WR always had.  The source
+# and the reason for that source are registered at FFD_SRC above.
+# THIS DEFECT WAS MASKED BY S6: the launch aborted on the controlDict first and
+# never reached the primal, where this would have failed inside the container.
+test -f "$FFD_SRC" || { stage_say "ABORT S5b the FFD source is absent: $FFD_SRC -- the producer loads it at runScript:129 and cannot build its model without it"; exit 5; }
+echo "$MD5_FFD  $FFD_SRC" | md5sum -c - >> "$STAGE_EVID" 2>&1 \
+  || { stage_say "ABORT S5b FFD md5 -- the geometry parametrisation has MOVED from what A1WR ran"; exit 4; }
+mkdir -p "$WORK/FFD" || { stage_say "ABORT S5b cannot mkdir $WORK/FFD"; exit 5; }
+cp "$FFD_SRC" "$WORK/FFD/wingFFD.xyz" || { stage_say "ABORT S5b stage FFD"; exit 4; }
+echo "$MD5_FFD  $WORK/FFD/wingFFD.xyz" | md5sum -c - >> "$STAGE_EVID" 2>&1 \
+  || { stage_say "ABORT S5b staged FFD md5 -- the copy did not land intact"; exit 4; }
+stage_say "A1WRT_STAGE (S5b) OK FFD staged from $FFD_SRC (A1WR's own alpha 0..12 incompressible sweep case), md5 $MD5_FFD asserted on BOTH sides of the copy"
+
+# ---- S6: the controlDict is now DERIVED AND WRITTEN, THEN READ BACK ---------
+# WHY THIS CHANGED, AND IT IS NOT A WEAKENING.  S6 previously asserted the
+# INHERITED controlDict and refused on a mismatch.  It fired for real on
+# 2026-09-03T19:38:15Z, at 11 s and ~0 core-min, on
+# `endTime=1000, registered 4000`: the L3 mesh directory's controlDict is
+# MESH-GENERATION LEFTOVER, while A1WR's real run cases carry endTime 4000
+# because A1WR's driver WRITES the controlDict per unit (a1wr_chain_driver.sh
+# stage_unit, the heredoc with `endTime $et`).  Inheriting it meant running 1,000
+# iterations and reporting them against a 4,000-iteration registration -- the
+# two-variable trap, introduced by the staging itself.
+#
+# So A1WRT now WRITES the controlDict, exactly as A1WR does, by DERIVING IT FROM
+# A1WR'S OWN HEREDOC BYTES rather than authoring one -- retyping it would let a
+# later divergence in A1WR's template silently split the two items.  The derived
+# bytes are asserted byte-identical to the controlDict A1WR's driver ACTUALLY
+# WROTE for the alpha sweep this item extends.
+#
+# AND S6 ITSELF IS UNCHANGED IN SHAPE AND STILL RUNS -- AFTER the write, as a
+# READ-BACK, the same shape as the rc artefact: write, read back, assert.  It is
+# NOT weakened to "we wrote it, so it must be right", and every branch it had
+# (unreadable endTime is UNMEASURED and refuses; a wrong value refuses naming
+# section 7) is carried inside a1wrt_controldict.py and driven by its controls.
+python3 "$HERE/a1wrt_controldict.py" --write "$WORK" >> "$STAGE_EVID" 2>&1 || {
+  stage_say "ABORT S6 the controlDict could not be DERIVED from A1WR's driver, or"
+  stage_say "  did not read back as written.  See $STAGE_EVID.  No primal runs on a"
+  stage_say "  control dictionary this item cannot show is A1WR's own."
+  exit 6; }
+stage_say "A1WRT_STAGE (S6) OK controlDict DERIVED from a1wr_chain_driver.sh's own heredoc with endTime=$ENDTIME, written, and READ BACK through the same verifier"
+# The read-back, again, in THIS shell, so the launcher's own record carries the
+# three values rather than pointing at another file for them.
 CD="$WORK/system/controlDict"
-test -f "$CD" || { stage_say "ABORT S6 no controlDict at $CD"; exit 5; }
+test -f "$CD" || { stage_say "ABORT S6 no controlDict at $CD after the write"; exit 5; }
 GOT_ET=$(grep -aoE '^\s*endTime\s+[0-9]+\s*;' "$CD" | grep -oE '[0-9]+' | head -1)
 test -n "$GOT_ET" || { stage_say "ABORT S6 controlDict carries no readable endTime -- UNMEASURED, not assumed to be $ENDTIME"; exit 5; }
 test "$GOT_ET" = "$ENDTIME" || { stage_say "ABORT S6 controlDict endTime=$GOT_ET, registered $ENDTIME.  The iteration budget is FROZEN (section 7): a different endTime is a NEW rung with its own pre-registration."; exit 5; }
-stage_say "A1WRT_STAGE (S6) OK controlDict endTime=$GOT_ET == registered $ENDTIME"
+GOT_WI=$(grep -aoE '^\s*writeInterval\s+[0-9]+\s*;' "$CD" | grep -oE '[0-9]+' | head -1)
+GOT_DT=$(grep -aoE '^\s*deltaT\s+[0-9.]+\s*;' "$CD" | grep -oE '[0-9.]+' | head -1)
+test -n "$GOT_WI" || { stage_say "ABORT S6 writeInterval UNMEASURED"; exit 5; }
+test -n "$GOT_DT" || { stage_say "ABORT S6 deltaT UNMEASURED"; exit 5; }
+test "$GOT_WI" = "$ENDTIME" || { stage_say "ABORT S6 writeInterval=$GOT_WI, registered $ENDTIME -- the endTime state would not be written and the age guard would have nothing to date"; exit 5; }
+test "$GOT_DT" = "1" || { stage_say "ABORT S6 deltaT=$GOT_DT, registered 1"; exit 5; }
+stage_say "A1WRT_STAGE (S6) OK endTime=$GOT_ET writeInterval=$GOT_WI deltaT=$GOT_DT, all three read back from disk and asserted"
 
 # ---- S7: the image, BY DIGEST -----------------------------------------------
 GOT_DIGEST=$(sudo -n docker image inspect --format '{{index .RepoDigests 0}}' "$IMG" 2>/dev/null | sed 's/.*@//')
