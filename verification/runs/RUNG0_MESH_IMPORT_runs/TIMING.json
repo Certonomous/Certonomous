@@ -1,0 +1,5 @@
+{"steps":[
+{"grid":"DPW5_L1T_hex","convert_wall_s":10,"checkMesh_wall_s":3,"ranks":1},
+{"grid":"DPW5_L1T_prism","convert_wall_s":14,"checkMesh_wall_s":5,"ranks":1},
+{"grid":"DPW5_L1T_hybrid","convert_wall_s":25,"checkMesh_wall_s":9,"ranks":1},
+{"grid":"HLPW6_h6c1_rans_3a_1","convert_wall_s":27,"checkMesh_wall_s":12,"ranks":1}]}

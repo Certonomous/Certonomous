@@ -204,8 +204,12 @@ def run_controls(scratch: Path) -> list[dict]:
         ):
             case = scratch / tag.split()[0]
             (case / "constant/polyMesh").mkdir(parents=True, exist_ok=True)
-            shutil.copy(donor / "constant/polyMesh/owner",
-                        case / "constant/polyMesh/owner")
+            # `neighbour` is copied too: the reader derives nInternalFaces from it
+            # and REFUSES when it is absent, so a plant that omitted it would be
+            # refused for the WRONG reason and would prove nothing about C3 or C4.
+            for f in ("owner", "neighbour"):
+                shutil.copy(donor / "constant/polyMesh" / f,
+                            case / "constant/polyMesh" / f)
             b = (donor / "constant/polyMesh/boundary").read_text()
             (case / "constant/polyMesh/boundary").write_text(mutate(b))
             clean = R.read_polymesh_identity(donor)
@@ -267,6 +271,50 @@ def run_controls(scratch: Path) -> list[dict]:
                and miss.get("max_non_orthogonality") is None),
         expected="state ABSENT and no number",
         saw=f"state {miss.get('state')}"))
+
+    # ---- C10. THE HEADER-VERSUS-DERIVED CROSS-CHECK MUST REFUSE, NOT PREFER. -------
+    # Added after that cross-check earned its keep twice in one session: it caught the
+    # reader deriving nCells as max(owner)+1, which is only a LOWER BOUND and came out
+    # two cells short on HLPW6 while agreeing exactly on all three DPW5 grids. A guard
+    # never seen to fire is not known to be load-bearing (L-314), so it is planted here.
+    donor2 = None
+    for name, _u, _m in GRIDS:
+        if (REPO / "verification/runs/RUNG0_MESH_IMPORT_runs" / name
+                / "constant/polyMesh/owner").is_file():
+            donor2 = REPO / "verification/runs/RUNG0_MESH_IMPORT_runs" / name
+            break
+    if donor2 is None:
+        out.append(dict(
+            control="C10 header-vs-derived count cross-check", fired=None,
+            expected="a header note contradicting the mesh's own lists REFUSES",
+            saw="NOT RUN -- no imported polyMesh is on disk yet to plant into. This "
+                "control is UNBUILT-FOR-WANT-OF-AN-ARTIFACT on a first run and fires "
+                "on every run thereafter; it is reported, never silently skipped."))
+    else:
+        case = scratch / "C10"
+        (case / "constant/polyMesh").mkdir(parents=True, exist_ok=True)
+        for f in ("boundary", "neighbour"):
+            shutil.copy(donor2 / "constant/polyMesh" / f,
+                        case / "constant/polyMesh" / f)
+        own = (donor2 / "constant/polyMesh/owner").read_text(errors="replace")
+        head, sep, rest = own.partition("\n(")
+        clean = R.read_polymesh_identity(donor2)
+        bad_head = head.replace(f"nCells:{clean['cells']}",
+                                f"nCells:{clean['cells'] + 1}", 1)
+        planted = (bad_head != head)
+        (case / "constant/polyMesh/owner").write_text(bad_head + sep + rest)
+        try:
+            R.read_polymesh_identity(case)
+            fired, saw = False, "the reader ACCEPTED a header contradicting the mesh"
+        except R.Refusal as exc:
+            fired = planted and "CONTRADICTS" in str(exc)
+            saw = str(exc)[:180]
+        out.append(dict(
+            control="C10 a header note contradicting the mesh's own lists REFUSES",
+            fired=fired,
+            expected=f"nCells {clean['cells']} -> {clean['cells'] + 1} in the header "
+                     f"alone must REFUSE, never be preferred over the lists",
+            saw=saw))
 
     # ---- C9. section 7 row 7: the foam_to_ugrid round trip. NOT RUN. --------------
     writer = REPO / "cases/committee-grids/foam_to_ugrid.py"

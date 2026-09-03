@@ -52,16 +52,13 @@
     "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
   },
   "verdict_state": "PENDING -- not yet run. See `label`: no PASS is reachable from this item.",
-  "attempt": 2,
-  "attempt_1_disclosure": "ATTEMPT 1 LAUNCHED 2026-09-03T17:30:02Z (pid 227284, prereg=d127d83d) AND DIED IN UNDER ONE SECOND, BEFORE THE PLANTED CONTROLS AND BEFORE ANY CONVERSION. Spend: ~0.0 core-min (sub-second), NAMED AS WASTE and not absorbed into attempt 2's actual/predicted ratio (COMPUTE_BUDGET_CHARTER section 6). CAUSE, TRIAGED AND MEASURED, NOT INFERRED: the driver ran under `set -u`, and /usr/lib/openfoam/openfoam2606/etc/bashrc line 184 READS WM_PROJECT_DIR BEFORE SETTING IT. An unbound variable inside a SOURCED file kills the sourcing shell outright, so the driver died on the source line -- after stamping RUN_ROOT_CREATED_EPOCH and before its own `fail` handler could write a STATUS. Reproduced directly: `bash -c 'set -u; . <bashrc>'` -> \"line 184: WM_PROJECT_DIR: unbound variable\"; `bash -c '. <bashrc>'` -> rc 0, FOAM_APPBIN set, checkMesh on PATH. THE DEFECT IS THE SILENCE, NOT THE EXIT CODE: from the queue record alone this reads launcher_rc=1, an EMPTY log.controls and NO driver STATUS -- indistinguishable from a launch that simply did nothing. NO MESH, NO NUMBER AND NO GATE WAS PRODUCED OR READ, so nothing about the rung is in question. THE FIX WAS PROVEN BEFORE RELAUNCH, in isolation and with no solve: `set +u` across the source line, `set -u` restored immediately after, then an EXPLICIT refusal if FOAM_APPBIN is empty or checkMesh is absent -- so the next time the environment fails to come up the driver says so at a named exit code instead of vanishing. Verified: the fixed block prints the checkMesh path and returns 0. This is ATTEMPT 2 OF 2; a third attempt of something that has failed twice is an escalation to Sanaa, not a decision for this lane.",
-  "cost_note_attempt_2": "The registered estimate (7.5) and cap (23 core-min) are UNCHANGED and are NOT reset by the retry -- a cap is never raised (rule 12). Attempt 1's sub-second spend is already charged against the item and named as waste. Attempt 2 re-stamps RUN_ROOT_CREATED_EPOCH itself, so every artifact it grades is dated by this run's own age guard and nothing from attempt 1 can satisfy R0-G4.",
   "_launch": {
-    "utc": "2026-09-03T17:33:17Z",
-    "pid": 232473,
-    "sid": 232473,
+    "utc": "2026-09-03T17:30:02Z",
+    "pid": 227284,
+    "sid": 227284,
     "status_file": "/home/ubuntu/Certonomous/cases/committee-grids/STATUS.queue.RUNG0_MESH_IMPORT",
     "wrapper_out": "/home/ubuntu/Certonomous/cases/committee-grids/launcher.queue.out",
-    "started_epoch": 1788456797.4818323,
-    "status_seen_utc": "2026-09-03T17:34:17Z"
+    "started_epoch": 1788456602.4025142,
+    "status_seen_utc": "2026-09-03T17:31:02Z"
   }
 }

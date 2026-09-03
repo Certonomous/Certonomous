@@ -218,35 +218,111 @@ def read_source_identity(ugrid, mapbc):
 
 
 # ------------------------------------------------------------------------- polyMesh
-_NOTE = re.compile(
+# BOTH HEADER FORMS, AND THE FIRST DRAFT KNEW ONLY ONE -- THE SAME DEFECT CLASS AS THE
+# ASPECT-RATIO `=` / `:` TRAP THAT CONTROL C5 EXISTS FOR, COMMITTED IN THIS VERY FILE.
+# OpenFOAM's own mesh writer emits a quoted FoamFile key:
+#     note        "nPoints:124865  nCells:122880  nFaces:370560  nInternalFaces:363648";
+# but `ugrid_to_foam.py` is a hand-rolled writer and emits a COMMENT:
+#     // note: nCells:638976 nFaces:1937920 nInternalFaces:1895936
+# A reader matching only the quoted form read every OpenFOAM-written mesh correctly and
+# EVERY MESH THIS RUNG ACTUALLY IMPORTS as "no note" -- which the reader then refused,
+# producing a GATE FAIL on all four grids from a defect in the READER while the meshes
+# were entirely sound. The numbers were on disk the whole time, in the other form.
+_NOTE_QUOTED = re.compile(
     r'note\s+"[^"]*nCells:\s*(\d+)\s+nFaces:\s*(\d+)\s+nInternalFaces:\s*(\d+)')
+_NOTE_COMMENT = re.compile(
+    r'//\s*note:\s*nCells:\s*(\d+)\s+nFaces:\s*(\d+)\s+nInternalFaces:\s*(\d+)')
 _BOUNDARY_ENTRY = re.compile(
     r"^\s*([A-Za-z_][A-Za-z0-9_.\-]*)\s*$\s*\{(.*?)\}", re.MULTILINE | re.DOTALL)
 _NFACES = re.compile(r"\bnFaces\s+(\d+)\s*;")
 
 
+def _list_body(path: Path):
+    """(declared count, the value tokens) of an OpenFOAM ASCII list file.
+
+    The count is the bare integer standing alone between the FoamFile block and the
+    opening `(`. Returned separately from the values so a file whose DECLARED count
+    disagrees with the number of values it actually holds can be refused rather than
+    silently believed.
+    """
+    txt = path.read_text(errors="replace")
+    op = txt.find("\n(")
+    if op < 0:
+        raise Refusal(f"POLYMESH: {path} has no list body.")
+    head, body = txt[:op], txt[op + 2:]
+    nums = [ln.strip() for ln in head.splitlines()
+            if ln.strip().isdigit()]
+    if not nums:
+        raise Refusal(f"POLYMESH: {path} declares no list count before its body.")
+    cl = body.rfind(")")
+    return int(nums[-1]), (body[:cl] if cl >= 0 else body).split()
+
+
 def read_polymesh_identity(case):
     """(cells, {patch name -> nFaces}) read from constant/polyMesh, WITHOUT checkMesh.
 
-    Cells come from the `owner` file's own FoamFile `note`, which OpenFOAM writes at
-    mesh-write time -- so this reading is independent of the checkMesh log that R0-G3
-    parses. If the note is absent the reader REFUSES rather than falling back to a
-    count it cannot cross-check.
+    THE THREE COUNTS ARE DERIVED FROM THE MESH ITSELF, and the header note -- in
+    EITHER of its two forms -- is a CROSS-CHECK on them, never the sole source:
+
+        nFaces         = the number of entries in `owner`      (its definition)
+        nInternalFaces = the number of entries in `neighbour`  (its definition)
+        nCells         = max(max(owner), max(neighbour)) + 1
+
+    ⚠ `max(owner) + 1` IS ONLY A LOWER BOUND ON nCells, AND THE FIRST DRAFT USED IT.
+    OpenFOAM's `owner` always holds the LOWER of a face's two cell indices, so the
+    highest-indexed cells own NOTHING WHATEVER whenever every one of their faces has a
+    lower-indexed neighbour -- which is the normal condition for an interior cell late
+    in the renumbering. `neighbour` must therefore be scanned too. Measured, and this
+    is why the cross-check below is not decorative: on HLPW6 the owner-only derivation
+    gave 2,661,336 against a header of 2,661,338 -- SHORT BY EXACTLY TWO CELLS -- while
+    all three DPW5 grids agreed to the cell. A READER VALIDATED ON THREE OF THE FOUR
+    GRIDS WOULD HAVE SHIPPED THIS, and it would have produced a GATE FAIL on the one
+    grid whose fourteen named patches the whole ladder is being built for.
+
+    That ordering is deliberate and it is a repair. The first draft read the counts
+    ONLY from a quoted FoamFile `note` and refused when it found none -- and
+    `ugrid_to_foam.py`, a hand-rolled writer, emits the note as a COMMENT instead. The
+    reader therefore refused all four imported meshes and the comparator reported GATE
+    FAIL on grids that were entirely sound. A reading taken from a WRITER'S OPTIONAL
+    ANNOTATION is hostage to which writer produced the file; a reading taken from the
+    mesh's own lists is not. The note is now believed only insofar as it AGREES, and a
+    disagreement REFUSES -- a header that contradicts the mesh it describes is a worse
+    condition than a header that is missing.
     """
     pm = Path(case) / "constant" / "polyMesh"
-    owner, bnd = pm / "owner", pm / "boundary"
-    for p in (owner, bnd):
+    owner, bnd, nbr = pm / "owner", pm / "boundary", pm / "neighbour"
+    for p in (owner, bnd, nbr):
         if not p.is_file():
             raise Refusal(f"POLYMESH: {p} is absent. ABSENT NEVER READS CLEAN.")
 
-    head = owner.read_text(errors="replace")[:4000]
-    m = _NOTE.search(head)
-    if not m:
+    n_faces, own_vals = _list_body(owner)
+    if len(own_vals) != n_faces:
         raise Refusal(
-            f"POLYMESH: {owner} carries no FoamFile `note` with nCells/nFaces/"
-            f"nInternalFaces. REFUSED rather than degraded to a re-count this reader "
-            f"could not cross-check (rule 4: refuse, never degrade).")
-    n_cells, n_faces, n_internal = (int(x) for x in m.groups())
+            f"POLYMESH: {owner} declares {n_faces} entries and holds {len(own_vals)}. "
+            f"REFUSED -- a list whose own count is wrong cannot be the source of a "
+            f"cell count.")
+    n_internal, nbr_vals = _list_body(nbr)
+    if len(nbr_vals) != n_internal:
+        raise Refusal(
+            f"POLYMESH: {nbr} declares {n_internal} entries and holds {len(nbr_vals)}.")
+    n_cells = max(max(int(v) for v in own_vals),
+                  max((int(v) for v in nbr_vals), default=-1)) + 1
+
+    head = owner.read_text(errors="replace")[:4000]
+    m = _NOTE_QUOTED.search(head) or _NOTE_COMMENT.search(head)
+    note_form = None
+    if m:
+        note_form = "quoted FoamFile key" if _NOTE_QUOTED.search(head) else "// comment"
+        h_cells, h_faces, h_internal = (int(x) for x in m.groups())
+        disagree = [f"{k}: header {a} vs derived {b}"
+                    for k, a, b in (("nCells", h_cells, n_cells),
+                                    ("nFaces", h_faces, n_faces),
+                                    ("nInternalFaces", h_internal, n_internal))
+                    if a != b]
+        if disagree:
+            raise Refusal(
+                f"POLYMESH: {owner}'s header note ({note_form}) CONTRADICTS the mesh's "
+                f"own lists: {disagree}. REFUSED -- never choose between them.")
 
     text = bnd.read_text(errors="replace")
     body = text.split("// * * *", 1)[-1]
@@ -263,6 +339,10 @@ def read_polymesh_identity(case):
         boundary_faces=n_faces - n_internal,
         n_patches=len(patches), patches=dict(sorted(patches.items())),
         default_faces_present=("defaultFaces" in patches),
+        counts_basis="DERIVED from the mesh's own lists (nFaces = len(owner), "
+                     "nInternalFaces = len(neighbour), nCells = max(owner)+1); the "
+                     "header note is a CROSS-CHECK and a disagreement REFUSES",
+        header_note_form=note_form,
     )
 
 

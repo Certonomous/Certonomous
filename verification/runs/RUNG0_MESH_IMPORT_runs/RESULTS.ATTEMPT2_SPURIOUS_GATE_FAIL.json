@@ -1,0 +1,111 @@
+{
+  "case_id": "RUNG0_MESH_IMPORT",
+  "controls": [
+    {
+      "control": "C0 absolute, r8 Fortran, big-endian",
+      "expected": "cells 10, bnd 5, {alpha:2, beta:2, gamma:1}",
+      "fired": true,
+      "saw": "cells 10, bnd 5, {'alpha': 2, 'beta': 2, 'gamma': 1}"
+    },
+    {
+      "control": "C0 absolute, b8 raw stream, big",
+      "expected": "cells 10, bnd 5, {alpha:2, beta:2, gamma:1}",
+      "fired": true,
+      "saw": "cells 10, bnd 5, {'alpha': 2, 'beta': 2, 'gamma': 1}"
+    },
+    {
+      "control": "C1 rename one .mapbc group (scratch copy)",
+      "expected": "the renamed patch appears in the emitted name set",
+      "fired": true,
+      "saw": "names ['PLANTED_WALL_RENAME', 'farfield', 'symmetry', 'wall']"
+    },
+    {
+      "control": "C2 delete one boundary quad (scratch copy of the real grid)",
+      "expected": "exactly one patch's face count drops by exactly 1; cells unchanged",
+      "fired": true,
+      "saw": "per-patch drop {'farfield': 0, 'symmetry': 1, 'wall': 0}, bnd 41984 -> 41983, cells 638976 -> 638976"
+    },
+    {
+      "control": "C3 +1 on one nFaces",
+      "expected": "R0-G2a reports UNEQUAL, not equal",
+      "fired": true,
+      "saw": "{'defaultFaces': 6912} -> {'defaultFaces': 6913}"
+    },
+    {
+      "control": "C4 rename one patch",
+      "expected": "R0-G2a reports a NAME-SET MISMATCH",
+      "fired": true,
+      "saw": "['defaultFaces'] -> ['PLANTED_PATCH']"
+    },
+    {
+      "control": "C5 both aspect-ratio label forms yield a NON-NULL value",
+      "expected": "'=' form and ':' form both non-null; a reader matching only '=' silently misses exactly the pathological logs",
+      "fired": true,
+      "saw": "'=' 1.26794919382 / ':' 14426.8"
+    },
+    {
+      "control": "C6 Min volume != Max volume -> a non-trivial derived ratio, never 1",
+      "expected": "ratio > 1 and derived, never 1 and never null",
+      "fired": true,
+      "saw": "min 1.02355e-05 max 90736700000.0 ratio 8864901568071906.0"
+    },
+    {
+      "control": "C7 the verdict line is DISCARDED, the number is PARSED",
+      "expected": "the same log that prints `Non-orthogonality check OK.` yields a parsed maximum ABOVE 70 degrees",
+      "fired": true,
+      "saw": "verdict lines ['Non-orthogonality check OK.', 'Failed 3 mesh check'] at 89.7134 deg"
+    },
+    {
+      "control": "C8 an absent log reads ABSENT, never clean",
+      "expected": "state ABSENT and no number",
+      "fired": true,
+      "saw": "state ABSENT"
+    },
+    {
+      "control": "C9 foam_to_ugrid round trip (section 7 row 7)",
+      "expected": "drop one face from the written file -> R0-G2b reports unequal",
+      "fired": null,
+      "saw": "NOT RUN -- /home/ubuntu/Certonomous/cases/committee-grids/foam_to_ugrid.py DOES NOT EXIST (frozen registration section 9 says so). This control is neither passed nor failed; it is UNBUILT, and R0-G2b is consequently PENDING, never PASS."
+    }
+  ],
+  "per_grid": {
+    "DPW5_L1T_hex": "GATE FAIL",
+    "DPW5_L1T_hybrid": "GATE FAIL",
+    "DPW5_L1T_prism": "GATE FAIL",
+    "HLPW6_h6c1_rans_3a_1": "GATE FAIL"
+  },
+  "prereg": "verification/campaign/RUNG0_MESH_IMPORT_PREREGISTRATION.md",
+  "prereg_commit": "d127d83d4ebf4caaaf0c12c39a063c5f624a03a4",
+  "results": [
+    {
+      "case": "/home/ubuntu/Certonomous/verification/runs/RUNG0_MESH_IMPORT_runs/DPW5_L1T_hex",
+      "grid": "DPW5_L1T_hex",
+      "source": "/home/ubuntu/certonomous-runs/dpw5-committee-probe/grid/L1.T.rev01.p3d.hex.r8.ugrid",
+      "verdict": "GATE FAIL",
+      "why": "imported polyMesh unreadable: POLYMESH: /home/ubuntu/Certonomous/verification/runs/RUNG0_MESH_IMPORT_runs/DPW5_L1T_hex/constant/polyMesh/owner carries no FoamFile `note` with nCells/nFaces/nInternalFaces. REFUSED rather than degraded to a re-count this reader could not cross-check (rule 4: refuse, never degrade)."
+    },
+    {
+      "case": "/home/ubuntu/Certonomous/verification/runs/RUNG0_MESH_IMPORT_runs/DPW5_L1T_prism",
+      "grid": "DPW5_L1T_prism",
+      "source": "/home/ubuntu/certonomous-runs/dpw5-committee-probe/grid/L1.T.rev01.p3d.prism.r8.ugrid",
+      "verdict": "GATE FAIL",
+      "why": "imported polyMesh unreadable: POLYMESH: /home/ubuntu/Certonomous/verification/runs/RUNG0_MESH_IMPORT_runs/DPW5_L1T_prism/constant/polyMesh/owner carries no FoamFile `note` with nCells/nFaces/nInternalFaces. REFUSED rather than degraded to a re-count this reader could not cross-check (rule 4: refuse, never degrade)."
+    },
+    {
+      "case": "/home/ubuntu/Certonomous/verification/runs/RUNG0_MESH_IMPORT_runs/DPW5_L1T_hybrid",
+      "grid": "DPW5_L1T_hybrid",
+      "source": "/home/ubuntu/certonomous-runs/dpw5-committee-probe/grid/L1.T.rev01.p3d.hybrid.r8.ugrid",
+      "verdict": "GATE FAIL",
+      "why": "imported polyMesh unreadable: POLYMESH: /home/ubuntu/Certonomous/verification/runs/RUNG0_MESH_IMPORT_runs/DPW5_L1T_hybrid/constant/polyMesh/owner carries no FoamFile `note` with nCells/nFaces/nInternalFaces. REFUSED rather than degraded to a re-count this reader could not cross-check (rule 4: refuse, never degrade)."
+    },
+    {
+      "case": "/home/ubuntu/Certonomous/verification/runs/RUNG0_MESH_IMPORT_runs/HLPW6_h6c1_rans_3a_1",
+      "grid": "HLPW6_h6c1_rans_3a_1",
+      "source": "/home/ubuntu/certonomous-runs/hlpw6-memory-probe/grid/h6c1_rans_3a_1.b8.ugrid",
+      "verdict": "GATE FAIL",
+      "why": "imported polyMesh unreadable: POLYMESH: /home/ubuntu/Certonomous/verification/runs/RUNG0_MESH_IMPORT_runs/HLPW6_h6c1_rans_3a_1/constant/polyMesh/owner carries no FoamFile `note` with nCells/nFaces/nInternalFaces. REFUSED rather than degraded to a re-count this reader could not cross-check (rule 4: refuse, never degrade)."
+    }
+  ],
+  "root_epoch": 1788456797.4879231,
+  "rung_verdict": "GATE FAIL"
+}
