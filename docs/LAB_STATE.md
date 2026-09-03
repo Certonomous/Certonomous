@@ -13417,6 +13417,111 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+**Section last written:** 2026-09-03T18:21:45Z by a heat-transfer board lane (stamp from `date -u` read in the committing shell invocation). **This block is a PURE INSERTION at the top of the section.** The `**Section last written:**` line immediately below it is the PREVIOUS block's and is deliberately **left unedited** — nothing below this block was renumbered, deleted or rewritten, including that stamp. Read this block first; the one below it is the 2026-09-03T16:55:41Z BOARD REFRESH block and it is still accurate except where corrected here by name.
+
+##### 🔒 **T3d IS LIVE AND UNWATCHED — THERE IS NO FLEET DEADLINE MONITOR ON THIS BOX AND WE DID NOT BUILD ONE. THE §2d.1 PETITION IS FILED. Σ CAP(C5) BREACHES BY 6.80 core-min AGAINST AN INSTRUMENT THAT CANNOT RESOLVE 6.80.** (2026-09-03T18:21:45Z)
+
+*(Lane block. **Pure insertion; everything below stands unedited.** **Every number in this block was re-measured against its own artifact at this write** — not copied from the supervisor's brief, not from an earlier board block, and not from any lane report. Three figures carried to me in the brief were wrong against their artifacts and are corrected below by name. Where a figure could not be verified at this write it is marked **VERIFY** and is not asserted.)*
+
+---
+
+### ⚠ THE ONE THING THE CHIEF SHOULD READ FIRST: T3d IS RUNNING WITH NO MONITOR ATTACHED, AND THE REASON IS THAT NO SUCH INSTRUMENT EXISTS
+
+Sanaa's 22:00Z ruling: *"Runs get watched by their monitor."* Her 20:00Z ruling makes the deadline monitor a general fleet capability for all solver modes including detached: at deadline, classify the **max-over-equations** residual as descending / plateaued-or-oscillating / diverging, and respectively extend bounded and booked, stop gracefully as *"non-convergent, reported not gated"*, or kill — **sidecar attached to the LOG, not to the process.**
+
+**MEASURED STATE, and it is a negative: no monitor sidecar is attached to T3d's log, and none could be, because the fleet instrument does not exist.**
+
+- **Nothing is attached to the process group.** The full session `sid 339965` contains exactly the launcher `bash launch_t3d.sh`, the `timeout` wrapper, `mpirun`, and 8 solver ranks. **No sidecar, no tailer, no watcher.**
+- **`verification/runs/T-family/T3_runs/launch_t3d.sh` (130 lines) contains ZERO occurrences of `monitor`, `sidecar`, `residual`, `classif` or `watch`.** Nothing in the launch path ever intended to attach one.
+- **`scripts/queue_runner.py` (1,965 lines) contains ZERO occurrences of `residual`, `monitor`, `sidecar`, `deadline` or `classify`.** The runner that launches the fleet has no monitor to attach.
+- **The only fleet instrument named "auto stop" is `scripts/auto_stop_patched.sh` — and it is a different instrument answering a different question.** It decides *"is the BOX idle enough to power off"*; it reads process names, cwds and session transcripts. It contains **one** occurrence of the string `residual`, at `:592`, and it is the English word in a comment, not a residual norm. **It cannot classify a residual trajectory and was never meant to.** It is also **NOT INSTALLED** — its own header at `:52` reads *"THIS FILE IS NOT INSTALLED. SANAA INSTALLS IT, OR NOBODY DOES."*
+- **Repo-wide search for a residual-trajectory classifier returns ZERO files.** `plateaued-or-oscillating`, `plateaued_or_oscillating`, `classify.*residual`, `residual.*trajector` across every `.py` and `.sh` outside `.git`: **no hits.**
+
+> **PLANTED CONTROL ON THAT ZERO (standing rule 3 — a zero from a reader not shown able to see a non-zero is not evidence).** The same reader, same trees, searching for the plain word `residual` across `scripts/*.py`, returns **29 files**. **The reader can see; there is nothing to see.**
+
+**WE DID NOT BUILD ONE, AND THAT IS DELIBERATE.** Sanaa's 22:00Z ruling forbids *"the instrumentalisation of instruments instead of running"*; her 20:00Z ruling forbids building an instrument to measure another instrument's reach until the first has changed a verdict once. **This is reported as a GAP FOR THE cfd TEAM, which owns `scripts/queue_runner.py` and `scripts/auto_stop_patched.sh`** — the runner and the monitor. Heat-transfer has written no monitoring instrument and has not touched the run.
+
+**THE RUN WAS NOT DISTURBED.** No kill, no restart, no renice, no signal. Every reading above is from `ps`, from the case's own files, and from `grep` over committed scripts.
+
+### ✅ THE RESIDUAL QUESTION, ANSWERED WITH A MEASUREMENT RATHER THAN A CAVEAT — AND IT IS **NOT** A BLOCKING PHYSICS FIX
+
+Sanaa's 20:00Z ruling names *"a residual print that isn't the max over equations"* as a **blocking physics fix**. **T3d does not have that defect**, and the distinction matters enough to state precisely:
+
+- `log.solve` prints **per-equation initial residuals for all six equations solved** — `Ux`, `Uy`, `T`, `p_rgh`, `omega`, `k` — every iteration. It prints **no aggregate line**: a search for `max.*residual` / `residual.*max` / `SIMPLE solution converged` returns **0** (positive control: `Initial residual` returns **2,097** lines in the same file at the same moment).
+- **So there is no wrong aggregate print. There is no aggregate print at all, and the max over equations is FULLY DERIVABLE from the log** by any monitor that reads all six. A monitor here would have to compute the max, not trust a print — which is the safe shape.
+- **MEASURED, all 567 iterations parsed:** the argmax over the six equations is **`T` in 567 of 567 iterations, without exception.** The rung's registered falsifier `F-2` (`T3d_PREREGISTRATION.md:79`) tracks the **`T` initial residual**, so **on this run the registered single-equation metric IS the max over equations.** That coincidence is **measured, not guaranteed** — it is a property of this flow, and a monitor must still take the max.
+
+### T3d — LIVE, DESCENDING, AND RUNNING WELL UNDER ITS OWN ESTIMATE
+
+*(All figures re-derived at this write by parsing `verification/runs/T-family/T3_runs/R_fx/log.solve` directly.)*
+
+| | |
+|---|---|
+| case | `verification/runs/T-family/T3_runs/R_fx` — the `R_ff` continuation, seeded from `R_ff/118000` (`CASE.txt`); **mesh IDENTICAL to `R_ff`, not a new level** |
+| registration | `docs/campaigns/T-family/T3d_PREREGISTRATION.md`, frozen at `4c869b29` |
+| **⚠CORRECTED — launcher pid** | **`339965`, sid `339965`**, `PPID 1`. **The board, the commit message of `0047fcaa` and `LAUNCH_LOG.tsv`'s own row all record `339312`, and NO SUCH PROCESS EXISTS.** `339312` was almost certainly the daemon parent that exited, leaving the launcher orphaned to init. **The recorded pid cannot be used to find this run.** |
+| solver | pid `342276` (rank 0) + 7 siblings `342277`–`342283`, under `mpirun` pid `342265`, under `timeout` pid `342264` |
+| launched | launcher `2026-09-03T18:03:38Z`; **the `timeout` clock actually starts at `18:04:57Z`** (79 s of `checkMesh` + `decomposePar` first) |
+| cap instrument | `timeout --signal=TERM --kill-after=120 122445` = **16,326 core-min at 8 ranks, the registered CAP exactly** |
+| **iteration** | **567 of `endTime` 24,000**, `ExecutionTime` **829.36 s** |
+| **max-over-equations residual** | **2.716063e-08** (`T`), from **2.8388e-08** at iteration 1 |
+| **trajectory** | **DESCENDING — ×0.8555 per 2,000 iterations.** `F-2`'s plateau threshold is *"factor > 0.98"*, so this is **not** plateaued and **not** diverging. Sanaa's taxonomy class: **descending → extend bounded and booked.** No extension is needed (see ETA). |
+| `P-2` (restart spike) | **NO SPIKE AT ALL.** Iteration 1 reads 2.8388e-08 against `R_ff`'s final 3.182e-08 — it resumed *below* where it left off. `P-2` is on track. |
+| spent | **110.58 core-min** |
+| **⚠CORRECTED — ETA** | **`endTime` ETA `2026-09-04T03:50Z`** (re-derived: 1.4627 s/iter × 24,000 = 9.75 h from 18:04:57Z). The brief's *"~04:00Z"* is **CONFIRMED** by independent re-derivation. **But the `timeout` CAP deadline is `2026-09-05T04:05:42Z`, a full day later** — 122,445 s is a 34.01 h wall budget. **The cap does not bind before the run finishes**, and any board line that reads the cap deadline as 09-04 is wrong. |
+| **projected cost** | **4,680.7 core-min** — **0.86× the registered POINT estimate of 5,442.1**, and **28.7 % of the 16,326 CAP.** Under the registered rate of 0.226755 core-min/iteration the measured rate is **0.1950**. **Calibration row owed at completion under rule 12, not before** — a projection is not an actual and is not being entered in `COST_CALIBRATION.md`. |
+
+### Σ CAP(C5) = 20,006.80 — ON SANAA'S DESK, NO RECOMMENDATION ATTACHED, AND IT IS NOT A WIDENING REQUEST
+
+Re-derived at this write from `verification/runs/T-family/T25R6a_C5_OUTER_runs/T25R6a_C5_REGRADE_RECORD.md` §3.3–§3.4, term by term.
+
+- **`Σ CAP(C5)` = 20,006.80 core-min** against a ceiling of **20,000** — **breach +6.80**, **×1.00034**, i.e. **0.034 %**.
+- **Registered uncertainty: `Σ CAP(C5) ∈ [18,801.4 , 21,480.1] core-min`** (`REGRADE_RECORD:157`), i.e. **−6.02 % / +7.36 %** from `EXEC_BAND = 0.10` propagated through a ratio of two `ExecutionTime`s.
+
+> ### **THE LOAD-BEARING SENTENCE: THE BREACH IS ~197× SMALLER THAN THE MEASUREMENT'S OWN RESOLUTION.**
+> Mean interval half-width **1,339.35 core-min** against a breach of **6.80** = **×197**. **THE MEASUREMENT CANNOT RESOLVE WHICH SIDE OF 20,000 THE LADDER FALLS ON.** The interval straddles the ceiling comfortably.
+
+- **C4, the predecessor, gave `Σ CAP = 24,709.3` — a ×1.2355 breach of 4,709.3 core-min** (`REGRADE_RECORD:310`). **C5 removes 99.86 % of that breach** (`1 − 6.80/4,709.3 = 0.99856`, re-derived here, and `:312` states the same figure).
+- **ON SANAA'S DESK. NO RECOMMENDATION IS ATTACHED, AND THIS IS NOT A WIDENING REQUEST.** Heat-transfer has not asked for the 20,000 ceiling to move and does not ask here. The number is presented with its own interval and its own inability to resolve itself, and the call is hers.
+- **Disclosed against the interval's width:** the four arms ran sequentially inside one 21-minute window, so contention is largely common-mode between a factor's numerator and denominator and partly cancels. **The lab has no measurement of the residual after cancellation, so the WIDER interval is what is quoted** (`REGRADE_RECORD:166-172`).
+
+### §2d.1 PETITION — **FILED**, DIFF **NOT APPLIED**, AWAITING VERIFICATION'S RULING
+
+`docs/campaigns/T-family/T25R6a_2D1_EQUIVALENCE_PREDICATE_PETITION.md`, committed **`951c3c52`**.
+
+- **The error, from two frozen contracts read against each other.** `grade_t25R6a.py:437` is `if r is not True and r != 0:`; `compare_arms_t25R5.py:253` is `def compare(arm_case, base, quiet=False)` whose **single** `return` at `:292` returns the dict built at `:282` (`res["fired"] = fired`). A dict is never the `True` singleton and never `== 0`, so **the predicate is TAUTOLOGICALLY TRUE for every possible return and the gate is UNSATISFIABLE — no run of any quality could ever have passed it.**
+- **The published artifact already contradicted itself on its own face.** `T25R6a_VERDICT.json` states its ground as *"the equivalence control FIRED"* while carrying **`'fired': []` at BOTH levels in the same file** — `grade_t25R6a.py:436` stringifies the whole returned dict into the artifact, so the evidence that nothing fired was serialised beside the claim that something had.
+- **THE REPAIR MOVES THE VERDICT `NOT A RESULT` → `GATE FAIL`. AWAY FROM A PASS.** The petition leads with that, because it is the strongest evidence that nothing was repaired in a wanted direction.
+- **The blocked result named, as Sanaa's 20:00Z ruling requires:** **`G-T6a`** (`Σ CAP(C5) ≤ 20,000`, `T25R6a_PREREGISTRATION.md:473`) is **unevaluable through its frozen path** — the grader returns at step `[5]` and never reaches step `[7]`, so `Σ CAP(C5)` was **never computed by the frozen grader** and the rung cannot reach a verdict on the gate it exists to decide.
+- **THE PETITION CARRIES THE SUPERVISOR'S STRENGTHENED DIFF, not the one the drafting lane proposed.** The regrade record's `isinstance` guard covers the **type** and leaves the **key** unguarded: `r["fired"]` on a dict lacking that key raises `KeyError`, and **a traceback is a DEGRADE where this lab's comparators REFUSE (exit 2)**. The petitioned form adds a `"fired" not in r` limb calling the same `refuse()` — verified at `grade_t25R6a.py:134-136`, `EXIT_REFUSE = 2` at `:55`. **The strengthening moves NO gate and NO threshold; it only adds a refusal, which is the safe direction.**
+- **Precedent followed rather than asserted:** the T3/T5 spine §2d.1 repair was petitioned and **ruled item by item at `ad9eda53` with five binding conditions**, one added by verification against the petitioner. **Heat-transfer applied nothing unilaterally, and has applied nothing here.** `grade_t25R6a.py`, `compare_arms_t25R5.py` and `T25R6a_VERDICT.json` are all **unedited**; no repaired grader has been run; no post-repair verdict exists on disk. **PENDING verification's ruling.**
+
+### THE GRADED AND THE WASTED, SINCE THE LAST BLOCK
+
+| item | verdict | the number, and its artifact |
+|---|---|---|
+| **W1c row F1** | **`PASS`** | Floor demonstration at the coarsest level `W1c_c`: `T_i1` deviation **5.684e-14 K** against the registered floor **1.000e-04 K**. `verification/runs/T-family/T9aR1c_runs/W1c_GRADE_OUTPUT.txt:10`. **NO TRIPLE EXISTS FOR THIS ROW AND NONE IS QUOTED** — it is a single-level floor demonstration, not a Roache row, and rule 5 is not invoked. Its three planted-zero limbs `P1`/`P2`/`P3` (value, permutation, specificity) all **PASS** (`:7-9`). |
+| **W1b row R1** | **`NOT A RESULT`** on its Roache limb | Triple `EXACT`, `order: null`, `GCI_abs: null`, deviation **2.899e-12 K** against a registered **1.000e-06 K** band. **The frozen `gate_t9aR1b.json` STILL READS `"verdict": "PASS"` AND WAS NOT EDITED** (rule 6) — verified by reading the JSON at this write. Repaired by **companion record** `verification/runs/T-family/T9aR1b_runs/T9aR1b_R1_COMPANION_RECORD_2026-09-03.md` **plus the index row** at `docs/campaigns/T-family/T_FAMILY_INDEX.md:215`, under this supervisor's ruling, on `VERIFICATION_CHARTER.md` §2g (v1.16, `:2590`). **The measurement is REPORTED, not discarded.** |
+| **T19 — four arms** | **`NOT A RESULT`** ×4 | `P_Ts_m`, `P_q_m`, `P_Ts_f`, `P_q_f`. `mark_done_t19.py` returns **rc = 1 on all four**; last time / `ExecutionTime` count reached 1,929 / 3,203 / 7,238 / 12,437 against a registered `endTime` of **30,000** — **two physics-critical rule-4 clauses failed, so this is not a bookkeeping loss.** The frozen grader **REFUSED at exit 2**. **No value, no triple, no order, no GCI is quotable and none is quoted.** |
+| **T19 — the spend** | **WASTE, ENTIRE** | **29.050 core-min, all of it named as waste** — `$0.0248` **DERIVED, NOT MEASURED**. `docs/COST_CALIBRATION.md:390` (row `C-20260903T180449.568691Z-0097660a`). **A rung superseded and closed three days earlier (2026-08-31, T19b, `74a9141d`) was re-run in full** because its four pending queue entries were **never retired at supersession**; the daemon consumed them 2026-09-03 17:27:52Z–17:34:22Z. **NO FURTHER T19 ENTRY REMAINS PENDING.** **Carry forward: superseding a rung must retire its pending queue entries IN THE SAME COMMIT.** |
+
+### 📣 DISCLOSURE FOR THE CHIEF — OUR COMMIT `0047fcaa` LANDED 319 OTHER TEAMS' ROWS, AND THE COMMIT MESSAGE DOES NOT SAY SO
+
+**Rule 10 requires a commit message to say when it leaves or lands foreign rows. `0047fcaa`'s does not, and this block is that disclosure.**
+
+- `0047fcaa` (*"heat-transfer: T3d IS LIVE…"*) touched `verification/queue/LAUNCH_LOG.tsv` with **`320 insertions, 0 deletions`** (`git show --numstat`). **Exactly ONE of those 320 rows is ours** — the `heat-transfer T3d_R_fx` row. **The other 319 belong to other teams.**
+- **Breakdown of the 320 landed rows by team, re-derived at this write:** heat-transfer **113**, closure **81**, dafoam **58**, cfd **44**, ansys-verification **18**, verification **6**.
+- **VERIFIED PURELY ADDITIVE. NOTHING WAS CLOBBERED.** Zero lines removed. The committed blob is `daf31bfe75ced31591daf6d73c5b3629ed6a3771`, and `HEAD:verification/queue/LAUNCH_LOG.tsv` is **the same blob** — no one has committed a change to that file since, so nothing landed on top of it either. *(The working copy has since grown by peers' uncommitted appends and no longer hashes to that blob; that is normal and is not a discrepancy.)*
+- **THE POINT OF THE DISCLOSURE: those 319 rows are LANDED, NOT PENDING.** Any team still carrying them as uncommitted work should be told they are at HEAD. **Routing this is the chief's, not ours.**
+- **Also disclosed:** the `T3d_R_fx` row `0047fcaa` landed records `pid 339312 / sid 339312`, which is the **wrong pid** (see the T3d table above). **The row is NOT edited** — it is an append-only launch record, and correcting it in place would rewrite a landed artifact. The correction lives here.
+
+### WHAT I COULD NOT SETTLE AT THIS WRITE
+
+- **VERIFY — whether cfd is already building the deadline monitor.** `verification/runs/AUTOSTOP_LIVENESS/` was being written by another agent *while this block was composed* (three probe files stamped 18:10Z–18:13Z). **I did not read them and I did not coordinate**; that is cfd's territory and the chief's to route. **What I assert is only the negative I measured: no such instrument existed on disk, and nothing was attached to T3d's log.**
+- **VERIFY — the pid `339312` attribution.** That it was the exiting daemon parent is the **most likely** reading (the launcher is `PPID 1`, i.e. orphaned), **not a measurement.** The process is gone and cannot be interrogated. What IS measured: `339312` does not exist, and `339965` does.
+- **NOT CLAIMED — a T3d cost calibration row.** Rule 12 owes one **at process completion**, and this run has not completed. The 4,680.7 core-min above is a **projection from 567 of 24,000 iterations**, explicitly not an actual, and no row has been entered in `COST_CALIBRATION.md` for it.
+
+
 **Section last written:** 2026-09-03T16:55:41Z by a heat-transfer board lane (stamp from `date -u` read in the committing shell invocation). **This block is a PURE INSERTION at the top of the section.** The `**Section last written:**` line immediately below it is the PREVIOUS block's and is deliberately **left unedited** — nothing below this block was renumbered, deleted or rewritten, including that stamp. Read this block first; the one below it is the 2026-09-02T23:31:01Z T23G2/T25R5 closure block and it is still accurate except where corrected here by name.
 
 ##### 🔒 **BOARD REFRESH — TWO NUMBERS ON THIS BOARD WERE WRONG AND ARE CORRECTED. FIVE MORE THINGS WERE STALE AND NOBODY HAD BOOKED THEM: THE SPINE PETITION IS ALREADY RULED, T25R6a IS ALREADY RUNNING, AND THE RULE-12 DEBT THIS BOARD CALLS OPEN IS DISCHARGED.** (2026-09-03T16:55:41Z)
