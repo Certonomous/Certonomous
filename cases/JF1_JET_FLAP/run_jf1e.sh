@@ -70,8 +70,23 @@ done
 #       verification/campaign/JF1E_E2a_GRADING_RECORD.md.  A rung is implemented
 #       here only after the rung below it has been graded and failed.
 #
-# E2c (limitedLinear) is NOT implemented and is refused, so that a rung cannot be
-# run out of the frozen order by a typo (registration section 7 clause 6).
+#   E2c div(phi,k) and div(phi,omega): limitedLinear 1 -> limitedLinear 0.5.
+#       The change from E2b.  E2b's configuration -- the continuation chain, the
+#       k/omega relaxation of 0.5 AND nNonOrthogonalCorrectors 2 -- is INHERITED
+#       UNCHANGED, per section 3's rule that a failed rung hands its
+#       configuration to the next rung as the new baseline.  E2c is therefore NOT
+#       seeded from E2b's output fields, for the same reason E2b was not seeded
+#       from E2a's: that would be two changes.
+#       Section 3.1's reading of the k/omega relaxation pair as ONE control
+#       applies identically to the div(phi,k)/div(phi,omega) scheme pair: it is
+#       one knob -- the convective discretisation of the turbulence transport
+#       pair -- and the frozen section 3 table names the two entries in one cell.
+#       ENABLED 2026-09-02, and only because E2b is graded GATE FAIL in
+#       verification/campaign/JF1E_E2b_GRADING_RECORD.md.  A rung is implemented
+#       here only after the rung below it has been graded and failed.
+#
+# E3 and E4 are NOT implemented and are refused, so that a rung cannot be run out
+# of the frozen order by a typo (registration section 7 clause 6).
 case "${RUNG}" in
   E1)  RUNG_DESC="CONTINUATION, and it is the only change from the
                    2026-08-31 baseline: numerics dictionaries are the same
@@ -84,7 +99,12 @@ case "${RUNG}" in
                    E2a.  Continuation seeding, fvSchemes, k and omega relaxation
                    0.5, U relaxation 0.7 and p field relaxation 0.3 are all
                    INHERITED FROM E2a UNCHANGED." ;;
-  *) echo "REFUSED: --rung must be E1, E2a or E2b (the frozen section 3 order, run in order); got '${RUNG}'"; exit 3 ;;
+  E2c) RUNG_DESC="div(phi,k) and div(phi,omega) limitedLinear 1 -> limitedLinear
+                   0.5, and it is the ONLY change from E2b.  Continuation
+                   seeding, k and omega relaxation 0.5, U relaxation 0.7, p field
+                   relaxation 0.3 and nNonOrthogonalCorrectors 2 are all
+                   INHERITED FROM E2b UNCHANGED." ;;
+  *) echo "REFUSED: --rung must be E1, E2a, E2b or E2c (the frozen section 3 order, run in order); got '${RUNG}'"; exit 3 ;;
 esac
 
 # --- the frozen section 5.2 table, VERBATIM -----------------------------------
@@ -103,7 +123,8 @@ esac
 # less than its registered share -- E1 and E2a keep the 40.0/2400 they ran at,
 # unchanged, because changing them would change what those graded rungs mean.
 case "${RUNG}" in
-  E2b) CAP_CORE_MIN=55.0; WALL_ALLOWANCE_S=3300 ;;   # 4 x 55 = the registered 220
+  E2b) CAP_CORE_MIN=55.0; WALL_ALLOWANCE_S=3300 ;;   # 4 x 55   = the registered 220
+  E2c) CAP_CORE_MIN=37.5; WALL_ALLOWANCE_S=2250 ;;   # 4 x 37.5 = the registered 150
   *)   CAP_CORE_MIN=40.0; WALL_ALLOWANCE_S=2400 ;;
 esac
 
@@ -271,10 +292,18 @@ STAGE="onechange"
 if ! cmp -s "${CASE_DIR}/case/system/fvSchemes" "${RUN_ROOT}/system/fvSchemes"; then
   echo "REFUSED: staged fvSchemes is not byte-identical to the case template"; exit 13
 fi
+# These two asserts run on the FRESHLY COPIED template, before any rung applies
+# its change, so they are a BASELINE assert on every rung including E2c.  For E1,
+# E2a and E2b the staged file must still read `limitedLinear 1` at solve time --
+# a drift to 0.5 there would be E2c's change leaking into a rung that does not own
+# it.  For E2c this is the starting point that the one change below moves to 0.5,
+# on the STAGED COPY only, asserted line by line against E2b's own dictionary.
 grep -qE '^[[:space:]]*div\(phi,k\)[[:space:]]+bounded Gauss limitedLinear 1;' "${RUN_ROOT}/system/fvSchemes" \
-  || { echo "REFUSED: div(phi,k) is not the frozen 'limitedLinear 1' -- that is E2c, a DIFFERENT RUNG"; exit 13; }
+  || { echo "REFUSED: the staged case template's div(phi,k) is not the frozen 'limitedLinear 1'"
+       echo "         -- the baseline this ladder departs from has drifted"; exit 13; }
 grep -qE '^[[:space:]]*div\(phi,omega\)[[:space:]]+bounded Gauss limitedLinear 1;' "${RUN_ROOT}/system/fvSchemes" \
-  || { echo "REFUSED: div(phi,omega) is not the frozen 'limitedLinear 1' -- that is E2c, a DIFFERENT RUNG"; exit 13; }
+  || { echo "REFUSED: the staged case template's div(phi,omega) is not the frozen 'limitedLinear 1'"
+       echo "         -- the baseline this ladder departs from has drifted"; exit 13; }
 # Asserted on the FRESHLY COPIED TEMPLATE, before any rung applies its change:
 # the baseline every rung departs from must still read 1.  For E1 and E2a it must
 # also still read 1 in the run (E2b is a different rung); for E2b this is the
@@ -404,6 +433,134 @@ case "${RUNG}" in
     grep -qE '^[[:space:]]*U[[:space:]]+0\.7;'     "${RUN_ROOT}/system/fvSolution" || { echo "REFUSED: U relaxation left 0.7 -- that is a SECOND, UNREGISTERED change"; exit 13; }
     grep -qE '^[[:space:]]*p[[:space:]]+0\.3;'     "${RUN_ROOT}/system/fvSolution" || { echo "REFUSED: p field relaxation left 0.3 -- that is a SECOND, UNREGISTERED change"; exit 13; }
     ONE_CHANGE="SIMPLE/nNonOrthogonalCorrectors 1 -> 2, asserted as EXACTLY TWO diff lines (one <, one >) against the E2a baseline, which is itself ${E2A_PROOF}; k 0.5, omega 0.5, U 0.7, p 0.3 and both limitedLinear 1 entries all asserted INHERITED UNCHANGED"
+    ;;
+  E2c)
+    # E2c's baseline is E2b's CONFIGURATION, not E2b's output.  The staged
+    # dictionaries are built in three explicit steps and ALL of them are asserted:
+    #
+    #   step 1  reproduce E2a exactly   (k, omega 0.7 -> 0.5)         [fvSolution]
+    #   step 2  reproduce E2b exactly   (nNonOrthogonalCorrectors 1 -> 2)
+    #   step 3  the ONE change of THIS rung, which lives in a DIFFERENT FILE:
+    #           fvSchemes div(phi,k) and div(phi,omega) limitedLinear 1 -> 0.5
+    #
+    # Because this rung's change is in fvSchemes, fvSolution is touched by NO
+    # part of it, and the proof there is the strongest available: the finished
+    # fvSolution must be BYTE-IDENTICAL to the one E2b actually ran, zero diff
+    # lines.  The single-change proof for fvSchemes is a diff against the
+    # fvSchemes E2b actually ran, which must be EXACTLY FOUR lines (two <, two >).
+    #
+    # Registration section 3.1 reads the k/omega relaxation pair as ONE control.
+    # The same reading applies to div(phi,k)/div(phi,omega): the frozen section 3
+    # table names both entries in a single cell as one rung's one change.
+    awk '
+      /^relaxationFactors/           { inRF = 1 }
+      inRF && /equations/            { inEQ = 1 }
+      inEQ && /^[[:space:]]*k[[:space:]]+0\.7;[[:space:]]*$/     { sub(/0\.7;/, "0.5;"); n++ }
+      inEQ && /^[[:space:]]*omega[[:space:]]+0\.7;[[:space:]]*$/ { sub(/0\.7;/, "0.5;"); n++ }
+      inEQ && /^[[:space:]]*}/       { inEQ = 0 }
+                                     { print }
+      END                            { if (n != 2) exit 1 }
+    ' "${RUN_ROOT}/system/fvSolution" > "${RUN_ROOT}/system/fvSolution.E2a_baseline" \
+      || { echo "REFUSED: the inherited E2a rewrite did not change exactly two lines"; exit 13; }
+
+    awk '
+      /^SIMPLE/                                                            { inS = 1 }
+      inS && /^[[:space:]]*nNonOrthogonalCorrectors[[:space:]]+1;[[:space:]]*$/ \
+                                                 { sub(/1;/, "2;"); n++ }
+                                                                           { print }
+      END                                        { if (n != 1) exit 1 }
+    ' "${RUN_ROOT}/system/fvSolution.E2a_baseline" > "${RUN_ROOT}/system/fvSolution.E2b_baseline" \
+      || { echo "REFUSED: the inherited E2b rewrite did not change exactly one line"; exit 13; }
+    cp "${RUN_ROOT}/system/fvSolution.E2b_baseline" "${RUN_ROOT}/system/fvSolution"
+
+    # The reconstruction must be byte-identical to the dictionaries E2b ACTUALLY
+    # RAN.  This is the assert that makes "inherited from E2b unchanged" a
+    # measurement and not a claim.  It is made on BOTH files, because this rung
+    # changes fvSchemes and must prove it departs from E2b's fvSchemes, not
+    # merely from a template that happens to match it.
+    E2B_SOL="${RUNS}/JF1E_E2b_${TAG}_A0/system/fvSolution"
+    E2B_SCH="${RUNS}/JF1E_E2b_${TAG}_A0/system/fvSchemes"
+    if [ ! -f "${E2B_SOL}" ] || [ ! -f "${E2B_SCH}" ]; then
+      echo "REFUSED: E2b's run root for ${TAG} is absent or incomplete, so 'inherited"
+      echo "         from E2b unchanged' cannot be measured.  It is not asserted on trust."
+      echo "         looked for ${E2B_SOL} and ${E2B_SCH}"
+      exit 13
+    fi
+    cmp -s "${E2B_SOL}" "${RUN_ROOT}/system/fvSolution" \
+      || { echo "REFUSED: the reconstructed E2b baseline fvSolution is not byte-identical"
+           echo "         to the fvSolution E2b actually ran (${E2B_SOL}).  E2c would then"
+           echo "         be measuring more than one change."
+           diff "${E2B_SOL}" "${RUN_ROOT}/system/fvSolution" || true
+           exit 13; }
+    cmp -s "${E2B_SCH}" "${RUN_ROOT}/system/fvSchemes" \
+      || { echo "REFUSED: the staged fvSchemes, BEFORE this rung's change, is not"
+           echo "         byte-identical to the fvSchemes E2b actually ran (${E2B_SCH})."
+           diff "${E2B_SCH}" "${RUN_ROOT}/system/fvSchemes" || true
+           exit 13; }
+    cp "${RUN_ROOT}/system/fvSchemes" "${RUN_ROOT}/system/fvSchemes.E2b_baseline"
+
+    # step 3 -- THE ONE CHANGE OF THIS RUNG.  Scoped to the divSchemes block and
+    # to the two named entries.  A bare `sed s/limitedLinear 1/limitedLinear 0.5/g`
+    # would be the same edit today and a silent second change the moment another
+    # limitedLinear entry is added to this dictionary.
+    awk '
+      /^divSchemes/ { inD = 1 }
+      inD && /^[[:space:]]*div\(phi,k\)[[:space:]]+bounded Gauss limitedLinear 1;[[:space:]]*$/ \
+                    { sub(/limitedLinear 1;/, "limitedLinear 0.5;"); n++ }
+      inD && /^[[:space:]]*div\(phi,omega\)[[:space:]]+bounded Gauss limitedLinear 1;[[:space:]]*$/ \
+                    { sub(/limitedLinear 1;/, "limitedLinear 0.5;"); n++ }
+      inD && /^}/   { inD = 0 }
+                    { print }
+      END           { if (n != 2) exit 1 }
+    ' "${RUN_ROOT}/system/fvSchemes.E2b_baseline" > "${RUN_ROOT}/system/fvSchemes.E2c" \
+      || { echo "REFUSED: the E2c rewrite did not change exactly two lines (div(phi,k) and div(phi,omega))"; exit 13; }
+    mv "${RUN_ROOT}/system/fvSchemes.E2c" "${RUN_ROOT}/system/fvSchemes"
+
+    # THE SINGLE-CHANGE PROOF: exactly four changed lines against E2b's fvSchemes.
+    NDIFF_SCH=$(diff "${RUN_ROOT}/system/fvSchemes.E2b_baseline" "${RUN_ROOT}/system/fvSchemes" \
+                  | grep -cE '^[<>]' || true)
+    [ "${NDIFF_SCH}" = "4" ] \
+      || { echo "REFUSED: E2c changed ${NDIFF_SCH} diff lines in fvSchemes against the E2b"
+           echo "         baseline, expected 4 (two <, two >).  One change per rung is the"
+           echo "         ladder's entire evidentiary content."
+           diff "${RUN_ROOT}/system/fvSchemes.E2b_baseline" "${RUN_ROOT}/system/fvSchemes" || true
+           exit 13; }
+    # NOTE: `... | grep -q ...` is NOT usable here.  Under `set -o pipefail`,
+    # `grep -q` exits on its first match and SIGPIPEs the upstream command, so the
+    # pipeline returns non-zero on SUCCESS.  Measured on this very script
+    # 2026-09-02 at E2b: the assert refused a dictionary that was provably
+    # correct.  The diff is captured FIRST into a variable and matched afterwards.
+    DIFF_LINES=$(diff "${RUN_ROOT}/system/fvSchemes.E2b_baseline" "${RUN_ROOT}/system/fvSchemes" || true)
+    case "${DIFF_LINES}" in
+      *'div(phi,k)'*) ;;
+      *) echo "REFUSED: the changed lines do not name div(phi,k)"; echo "${DIFF_LINES}"; exit 13 ;;
+    esac
+    case "${DIFF_LINES}" in
+      *'div(phi,omega)'*) ;;
+      *) echo "REFUSED: the changed lines do not name div(phi,omega)"; echo "${DIFF_LINES}"; exit 13 ;;
+    esac
+
+    # fvSolution is NOT this rung's file and must differ from E2b's by NOTHING.
+    NDIFF_SOL=$(diff "${E2B_SOL}" "${RUN_ROOT}/system/fvSolution" | grep -cE '^[<>]' || true)
+    [ "${NDIFF_SOL}" = "0" ] \
+      || { echo "REFUSED: fvSolution differs from E2b's in ${NDIFF_SOL} diff lines; this rung"
+           echo "         changes fvSchemes only, so any fvSolution change is a SECOND,"
+           echo "         UNREGISTERED change."
+           diff "${E2B_SOL}" "${RUN_ROOT}/system/fvSolution" || true
+           exit 13; }
+
+    grep -qE '^[[:space:]]*div\(phi,k\)[[:space:]]+bounded Gauss limitedLinear 0\.5;' "${RUN_ROOT}/system/fvSchemes" \
+      || { echo "REFUSED: div(phi,k) is not limitedLinear 0.5"; exit 13; }
+    grep -qE '^[[:space:]]*div\(phi,omega\)[[:space:]]+bounded Gauss limitedLinear 0\.5;' "${RUN_ROOT}/system/fvSchemes" \
+      || { echo "REFUSED: div(phi,omega) is not limitedLinear 0.5"; exit 13; }
+    grep -qE '^[[:space:]]*div\(phi,U\)[[:space:]]+bounded Gauss linearUpwind grad\(U\);' "${RUN_ROOT}/system/fvSchemes" \
+      || { echo "REFUSED: div(phi,U) left its frozen linearUpwind scheme -- that is a SECOND, UNREGISTERED change"; exit 13; }
+    grep -qE '^[[:space:]]*nNonOrthogonalCorrectors[[:space:]]+2;' "${RUN_ROOT}/system/fvSolution" || { echo "REFUSED: nNonOrthogonalCorrectors is not the inherited 2"; exit 13; }
+    grep -qE '^[[:space:]]*k[[:space:]]+0\.5;'     "${RUN_ROOT}/system/fvSolution" || { echo "REFUSED: k relaxation is not the inherited 0.5"; exit 13; }
+    grep -qE '^[[:space:]]*omega[[:space:]]+0\.5;' "${RUN_ROOT}/system/fvSolution" || { echo "REFUSED: omega relaxation is not the inherited 0.5"; exit 13; }
+    grep -qE '^[[:space:]]*U[[:space:]]+0\.7;'     "${RUN_ROOT}/system/fvSolution" || { echo "REFUSED: U relaxation left 0.7 -- that is a SECOND, UNREGISTERED change"; exit 13; }
+    grep -qE '^[[:space:]]*p[[:space:]]+0\.3;'     "${RUN_ROOT}/system/fvSolution" || { echo "REFUSED: p field relaxation left 0.3 -- that is a SECOND, UNREGISTERED change"; exit 13; }
+    ONE_CHANGE="fvSchemes divSchemes div(phi,k) and div(phi,omega) limitedLinear 1 -> limitedLinear 0.5, asserted as EXACTLY FOUR diff lines (two <, two >) against the fvSchemes E2b actually ran (${E2B_SCH}); fvSolution asserted byte-identical to the one E2b actually ran (${E2B_SOL}), ZERO diff lines, so nNonOrthogonalCorrectors 2, k 0.5, omega 0.5, U 0.7 and p 0.3 are INHERITED UNCHANGED; div(phi,U) linearUpwind asserted UNCHANGED"
     ;;
 esac
 

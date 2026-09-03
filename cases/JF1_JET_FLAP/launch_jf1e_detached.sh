@@ -5,7 +5,7 @@
 # reads rc around the setsid line reads the launcher's success, not the run's.
 # rc is therefore taken here, inside the detached process, and written to disk.
 #
-# USAGE: launch_jf1e_detached.sh --rung=E1|E2a|E2b
+# USAGE: launch_jf1e_detached.sh --rung=E1|E2a|E2b|E2c
 R="/home/ubuntu/Certonomous/verification/runs/JF1_jet_flap"
 
 RUNG=""
@@ -16,8 +16,8 @@ for a in "$@"; do
   esac
 done
 case "${RUNG}" in
-  E1|E2a|E2b) ;;
-  *) echo "REFUSED: --rung must be E1, E2a or E2b (frozen section 3 order); got '${RUNG}'"; exit 3 ;;
+  E1|E2a|E2b|E2c) ;;
+  *) echo "REFUSED: --rung must be E1, E2a, E2b or E2c (frozen section 3 order); got '${RUNG}'"; exit 3 ;;
 esac
 
 OUT="${R}/JF1E_${RUNG}_LAUNCH_RC.txt"

@@ -2,7 +2,7 @@
 # =============================================================================
 # JF1E CONTINUATION CHAIN, RUN IN SANAA'S ORDER.  ONE RUNG PER INVOCATION.
 #
-# USAGE:  run_jf1e_chain.sh --rung=E1|E2a|E2b
+# USAGE:  run_jf1e_chain.sh --rung=E1|E2a|E2b|E2c
 #
 # The chain STRUCTURE is E1's configuration and every later rung inherits it
 # unchanged (registration section 3: a failed rung hands its configuration to the
@@ -50,14 +50,16 @@ done
 # The cap is enforced HERE as well as per-link, because the per-link wrapper cap
 # times four links is not the registered rung figure: for E1 and E2a it is 160
 # against a registered 150, ABOVE it, so a per-link cap alone would let the rung
-# overspend its registration.  For E2b the per-link cap is 55, exactly 220/4, so
-# the two coincide -- and this cumulative check is still what stops the rung, in
-# the same place, whichever rung is running.
+# overspend its registration.  For E2b the per-link cap is 55, exactly 220/4, and
+# for E2c it is 37.5, exactly 150/4, so for those two the figures coincide -- and
+# this cumulative check is still what stops the rung, in the same place, whichever
+# rung is running.
 case "${RUNG}" in
   E1)  RUNG_CAP_CORE_MIN="150" ;;
   E2a) RUNG_CAP_CORE_MIN="150" ;;
   E2b) RUNG_CAP_CORE_MIN="220" ;;
-  *) echo "REFUSED: --rung must be E1, E2a or E2b (frozen section 3 order); got '${RUNG}'"; exit 3 ;;
+  E2c) RUNG_CAP_CORE_MIN="150" ;;
+  *) echo "REFUSED: --rung must be E1, E2a, E2b or E2c (frozen section 3 order); got '${RUNG}'"; exit 3 ;;
 esac
 
 LOG="${RUNS}/JF1E_${RUNG}_CHAIN.log"
