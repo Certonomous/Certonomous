@@ -569,3 +569,295 @@ E6.  NO T16 GRADED VALUE WAS COMPUTED IN THE INVOCATION THAT WROTE PARTS F AND
 E7.  The three limbs in G2-G4 are NOT VERIFIED by their current controls and
      are recorded as such.  A green limb with no control that reddens it is a
      decoration, and this file names them rather than reporting 40/40.
+
+
+===========================================================================
+AMENDMENT 1 -- 2026-09-03 -- document version 1.0 -> 1.1
+THE STATUS BANNER AT LINES 7-10 IS STRUCK IN PART.  IT WAS OVERTAKEN BY THE
+COMMIT THAT CARRIED IT, AND THEN BY THE GRADE.
+===========================================================================
+
+Landed by a records lane of the heat-transfer team on the supervisor's
+RULING B, [lab-attributed].  NO SOLVER COMPUTE.  NO RE-GRADE.  The comparator
+was NOT re-run, NOT edited, and NOT re-hashed by mutation; every digest below
+was taken by reading bytes already on disk.
+
+---------------------------------------------------------------------------
+0.  THE RULE-6 ASSERTION, MEASURED AND NOT RECITED
+---------------------------------------------------------------------------
+
+    lines whose number changed above this section: 0
+
+MEASURED in the invocation that landed this append:
+
+  - before the append the file was 571 lines and hashed to
+        60d39a56459e909bd4c7ed4062a83040271364605784637080ced2c53a4e5a29
+  - after the append, the FIRST 571 LINES of the file hash to that SAME
+    digest, and `diff` of the pre-append file against the first 571 lines of
+    the post-append file reports NO DIFFERENCES;
+  - `git diff-tree --numstat` for this path at the landing commit reports
+    DELETIONS = 0.
+
+Not one byte at or above line 571 is edited, renumbered, reordered or
+removed.  The assertion above is the OUTPUT of those three checks, not a
+sentence typed beside them.
+
+WHY RULE-6 FORM FOR A FILE THAT SAYS IT IS NOT FROZEN.  Line 8's clause
+`THIS FILE IS NOT FROZEN` STANDS -- this is an instrument description, not a
+pre-registration.  The rule-6 FORM is used anyway, for rule 6's own stated
+reason: other records cite this file BY LINE.  The supervisor's ruling B
+cites `:7-10`; the open rule-4 reading is cited as E4 at `:551-557`.  A file
+cited by line is destroyed as a citation target the moment it is edited in
+place.
+
+---------------------------------------------------------------------------
+1.  WHAT IS STRUCK -- QUOTED VERBATIM, NEVER REWRITTEN
+---------------------------------------------------------------------------
+
+Lines 7-10 read, and STILL READ, exactly this:
+
+    STATUS: THE SUPERVISOR'S PERSONAL DIFF READ IS COMPLETE (2026-08-31) AND ITS
+    FOUR RULINGS ARE RECORDED IN PART F.  THIS FILE IS NOT FROZEN.  THE COMPARATOR
+    IS NOT YET FROZEN AS A GRADING INSTRUMENT.  NO T16c GRADED VALUE HAS BEEN
+    COMPUTED AND `analyse_t16c.py` HAS NEVER BEEN RUN AGAINST THE LIVE T16 TREE.
+
+Those four sentences are left standing in place, unedited, because striking
+text by deleting it destroys the record of what was claimed.  Their status is
+fixed HERE, clause by clause:
+
+  (a) "THE SUPERVISOR'S PERSONAL DIFF READ IS COMPLETE (2026-08-31) AND ITS
+      FOUR RULINGS ARE RECORDED IN PART F."
+      -> STANDS.  Unaffected.
+
+  (b) "THIS FILE IS NOT FROZEN."
+      -> STANDS.  See section 0 above for why the rule-6 form is used anyway.
+
+  (c) "THE COMPARATOR IS NOT YET FROZEN AS A GRADING INSTRUMENT."
+      -> ** STRUCK AND SUPERSEDED. ** STALE.  See section 2.
+
+  (d) "NO T16c GRADED VALUE HAS BEEN COMPUTED AND `analyse_t16c.py` HAS NEVER
+      BEEN RUN AGAINST THE LIVE T16 TREE."
+      -> ** STRUCK AND SUPERSEDED. ** STALE since 2026-09-03.  See section 3.
+
+Two of the four clauses are stale.  That is the whole finding: a
+present-tense status banner left standing after the act it denies -- which is
+the SAME failure mode that AMENDMENT 1 to the frozen registration had JUST
+diagnosed on that document's own line 3.
+
+---------------------------------------------------------------------------
+2.  CLAUSE (c) IS STRUCK BECAUSE THE REGISTRATION PINS THE COMPARATOR AND THE
+    ON-DISK COMPARATOR SATISFIES THAT PIN -- MEASURED
+---------------------------------------------------------------------------
+
+The banner asserts a freeze status the registration never defines.  What the
+frozen registration ACTUALLY pins is two things and no more:
+
+  PIN 1 -- section 5 (`T16c_PREREGISTRATION.md:229-239`): the comparator loads
+  `T16_registered.json` by absolute path and REFUSES (exit 2) unless its
+  SHA-256 is
+      aead91aaab8480f6a4321a3d9eb01536d9ceb4cbfb7a3774426cea608ae72845
+
+  PIN 2 -- the AUTHORISATION line, `T16c_PREREGISTRATION.md:130-132`:
+  "Binding only on the supervisor's freeze commit, with the comparator hashed
+  against its committed blob before any grading."
+
+  CITATION REFINED, AND THE RULING IS UNCHANGED BY IT.  Ruling B cites PIN 2
+  as "section 10".  MEASURED: the string "committed blob" occurs exactly once
+  in the frozen registration, at LINE 131, and line 131 sits inside section 1
+  ("THE TEMPLATE -- the ten registered lines", `:73`) as REGISTERED LINE 10,
+  `10. AUTHORISATION`.  The document ALSO has a `## 10. DECLARED OMISSIONS`
+  at `:314`, which is a different section and contains no such pin.  The
+  ruling's substance is unaffected -- the pin exists, it says what the ruling
+  quotes, and it is at `:130-132`.  The citation is corrected here so that a
+  later reader looking under `## 10.` does not conclude the pin is imaginary.
+
+BOTH PINS ARE MEASURED SATISFIED, at this write, by reading bytes:
+
+  the comparator `analyse_t16c.py`
+      sha256 a91f4c4d1fb66504cc68710a888d841df1549405f47c14010a9e03658ee8f1a2
+      -- on disk, in its blob at commit 46d090f6, AND in its blob at the HEAD
+      current at this write (ef4bd22c).  All three digests are EQUAL.  That
+      IS the PIN 2 condition: the comparator that graded is byte-identical to
+      its committed blob.
+
+  `T16_registered.json`
+      sha256 aead91aaab8480f6a4321a3d9eb01536d9ceb4cbfb7a3774426cea608ae72845
+      -- MEASURED EQUAL to section 5's registered literal.  PIN 1 satisfied.
+
+  the frozen registration prefix
+      the first 19,049 bytes of `T16c_PREREGISTRATION.md` hash to
+      0b425c40974581484f9ce91c44ad7bb3d4956fb1e81dad0ce03e7ba7e01bcd3f
+      and the blob at the freeze commit 8ff2cf36 is EXACTLY 19,049 bytes with
+      that same digest.  The freeze is an exact byte prefix of the on-disk
+      document, so its own AMENDMENT 1 added bytes and changed none.
+
+  provenance only, NOT GATED (and this file's header lists the same values):
+      exact_t16.py   7ecc61a782d9018177b1eea2dabe3dbe049c74179c13e903d80ded2b6487692b
+      build_t16.py   cb19b3e32faf2cdbd94542b87e1cb4666f52547fe78ca01d2e2bca105999abb0
+      analyse_t16.py 1a5c79e57d4144abb165702fd900c0c99aa1c03f5cbb24a547b7a085d4d4562f
+
+THERE IS NO SEPARATE COMPARATOR-FREEZE DOCUMENT TO BE MISSING, AND THAT IS
+MEASURED, NOT ASSUMED.  The frozen registration registers none: the strings
+"comparator_freeze", "freeze document" and "frozen as a grading instrument"
+return ZERO occurrences in it.  `scripts/check_comparator_freeze.py` contains
+ZERO occurrences of the string "T16" and therefore carries no entry for this
+rung.  Clause (c) is therefore stale in a second, sharper sense: it announces
+the absence of a status that the governing document never created.
+
+---------------------------------------------------------------------------
+3.  CLAUSE (d) IS STRUCK BECAUSE T16c HAS BEEN GRADED
+---------------------------------------------------------------------------
+
+`analyse_t16c.py` HAS now been run against the live T16 tree, and a T16c
+graded output DOES exist.
+
+    graded at commit  ea8a3494  (2026-09-03T21:00:21Z)
+    verdict record    docs/campaigns/T-family/T16c_RESULTS.md
+    gate artifact     verification/runs/T-family/T16c_runs/gate_t16c.json
+    grade transcript  verification/runs/T-family/T16c_runs/
+                      T16C_GRADE_OUTPUT_20260903T205559Z.txt
+    calibration row   docs/COST_CALIBRATION.md, id
+                      C-20260903T210054.497332Z-753b0aa2, at commit ae3daf52
+
+NO VERDICT IS ISSUED IN THIS FILE.  Line 30 and E3 (`:550`) stand: this is an
+instrument description.  The verdict is recorded ABOVE, as a FACT ABOUT
+ANOTHER DOCUMENT, so that a reader of the banner is not left believing no
+grade exists.
+
+---------------------------------------------------------------------------
+4.  THE MECHANISM -- THE BANNER WAS OVERTAKEN BY THE COMMIT THAT CARRIED IT
+---------------------------------------------------------------------------
+
+MEASURED: commit 46d090f6, the commit that FIRST LANDED THIS FILE with its
+banner already in it, is timestamped 2026-08-31T20:02:14+00:00, and it is the
+same commit that landed the repaired `analyse_t16c.py` whose blob PIN 2 is
+now measured satisfied against.
+
+The supervisor's ruling records the banner as written at 20:00 on 2026-08-31
+and falsified two minutes later.  This lane cannot measure the moment a
+sentence was typed and does not assert it; what IS measured is the commit
+timestamp above, and it makes the point without needing the typing time: the
+banner's claim about the comparator's standing was already answerable from
+the very commit object that carried the banner.
+
+THE TRANSFERABLE SHAPE, which is why this is worth an amendment at all: a
+STATUS banner is written in the present tense at the top of a file and then
+outlives its own tense.  Two independent instances now sit in this rung --
+the frozen registration's line 3 (diagnosed by ITS amendment 1) and this
+file's lines 7-10 (diagnosed here).  A status sentence should carry the date
+it was true, or it should not be in the present tense.
+
+---------------------------------------------------------------------------
+5.  A DISCLOSED RESIDUE THIS AMENDMENT DOES NOT STRIKE
+---------------------------------------------------------------------------
+
+E1 (`:545-547`) opens "NO T16c GRADED VALUE HAS BEEN COMPUTED" and is the
+SAME present-tense claim as struck clause (d).  Ruling B named lines 7-10 and
+this amendment strikes lines 7-10 ONLY.  E1 is therefore LEFT STANDING and is
+FLAGGED HERE: read it as a statement about 2026-08-31, not about now.
+
+E6 (`:563-568`) makes a claim of the same family but SCOPES IT EXPLICITLY --
+"IN THE INVOCATION THAT WROTE PARTS F AND G" -- and is therefore TRUE AS
+WRITTEN and needs no flag.  The contrast between E1 and E6, in the same file,
+is the cheapest available demonstration of section 4's transferable shape.
+
+---------------------------------------------------------------------------
+6.  FOUR INSTRUMENT FACTS THE GRADE PRODUCED THAT THIS FILE COULD NOT KNOW
+---------------------------------------------------------------------------
+
+Recorded because this is the instrument's description and a reader of it
+needs them.  Each cites `gate_t16c.json` unless stated otherwise.
+
+6.1  ** THE COMPARATOR EXITS 0 ON A `NOT A RESULT`.  A READER CHECKING `$?`
+     WOULD RECORD A CLEAN GRADE. **  The grading invocation returned rc = 0
+     while all four graded rows (`G1`, `G1b`, `G2`, `G3`) read `NOT A RESULT`.
+     The exit code does NOT encode the verdict.  The verdict lives in stdout
+     and in `gate_t16c.json`, and nowhere else.  PART A's split of `C_ORDER`
+     preserved the refuse-with-exit-2 behaviour for GUARD refusals; a gate-(1)
+     `NOT A RESULT` is a different path and is not a refusal.  Anyone wiring
+     this comparator into a runner must read the JSON, not the exit code.
+
+6.2  ** `C_TRANSPOSE` DID NOT FIRE ON ANY LEVEL, AND THAT WITHDRAWS A
+     PUBLISHED DIAGNOSIS. **  Measured `T_slope_rel` against the 0.5
+     threshold:
+         c  -8.6008e-05   margin factor 5813.4   ok
+         m  -7.6997e-05   margin factor 6493.7   ok
+         f  -7.3629e-05   margin factor 6790.8   ok
+     T16's `C_ORDER` refusal published the cause as "a transposed cell
+     ordering or a field that is not the solution"
+     (`T16_runs/T16_GRADE_OUTPUT_20260830T231921Z.txt:10`).  The split
+     authorised by frozen section 6 shows that cause DID NOT HOLD: the
+     ordering was fine and the field was the solution, by 5,813x to 6,791x
+     inside the threshold sized for the defect.  PART A's reason for the
+     split is thereby VINDICATED BY MEASUREMENT and not only by argument.
+
+6.3  ** THE `W1_T` TRIPLE E1/omission 2 SAID WAS NOT IN HAND IS NOW MEASURED,
+     AND IT MESH-CONVERGES TO A NON-ZERO LIMIT. **
+         c 1.2042e-03   m 1.0940e-03   f 1.0504e-03   (monotone)
+         observed order p = 1.338 ; Richardson limit 1.0219e-03
+     Against the registered floor 1e-06 that is 1204.2x / 1094.0x / 1050.4x,
+     with the limit at 1022x.  The fine level's 1050.4x REPRODUCES the ~1050x
+     that frozen section 0.1 relied on from `DEAD_LEVER_AUDIT` section 18.3.
+     ** NO GCI IS QUOTED FOR THIS TRIPLE ANYWHERE. **  It is a gate-(1)
+     witness with no registered band, not a graded row; quoting a GCI on it
+     would be inventing a gate that was never registered.
+     Note for the record: frozen section 0.1(i) DECLINED to use the
+     commissioning brief's `1.204e-03 / 1.094e-03 / 1.050e-03` because no
+     artifact carried them.  Those three figures are now MEASURED and agree
+     to four significant figures.  ** THE REFUSAL WAS STILL CORRECT. **  A
+     number with no artifact is not a result even when it later turns out to
+     be right, and this is the cleanest example of that the rung will get.
+
+6.4  ** `python3 -O` CHANGES NOTHING, AND THE MEASURED REASON IS THAT THE FILE
+     HAS NO `assert` TO STRIP. **  `-O --selftest` gave 40 limbs, 0 failed,
+     rc 0 -- identical to the un-optimised run -- and the separate
+     `-O --selftest-inner` probe returned rc 2 with the S8a refusal text
+     printed, i.e. the guard STILL FIRES under `-O`.  That rc 2 is the
+     positive control, not a discrepancy: a limb that fires under `-O` is
+     the thing being demonstrated.  The supervisor's lane measured the AST
+     `assert` count as 0, with limb `L36`'s counter shown able to see a
+     planted assert (returned 1); this lane independently re-counted textual
+     `assert` statements in `analyse_t16c.py` at this write and also got 0.
+     Every refusal in the file is `sys.exit(2)`.  This is L-332's defect
+     class -- a guard set that is entirely assert-based is one interpreter
+     flag from absent -- meeting a file that happens to be built against it.
+     Reported; nothing needed repair.  (`T16c_RESULTS.md` section 6.3.)
+
+---------------------------------------------------------------------------
+7.  MUTATION COVERAGE, STATED HONESTLY
+---------------------------------------------------------------------------
+
+The grading session ran ** ONE ** mutation control: `M31`, PART G's named
+`EXACT` control for the repaired `L30` limb.  ** COVERAGE BY THIS SESSION'S
+OWN RUN IS 1 OF 40 LIMBS.  THE OTHER 39 ARE NOT VERIFIED BY IT. **  PART G's
+2026-08-31 sweep is CITED, NOT RE-CLAIMED.
+
+The full sweep was ** STOPPED RATHER THAN RUN ** under CLAUDE.md rule 12.
+`M31` alone took 70.4 wall s, from which `T16c_RESULTS.md` section 6.4
+derives the full 41-mutant sweep at ~22 core-min -- against frozen section
+8's hard CAP of 2.0 core-min, an elevenfold breach -- and an overrun stops
+the run rather than getting a new budget.  That stop is recorded here as the correct
+call, and the resulting coverage gap is recorded beside it rather than
+hidden by it.  G2-G4 remain NOT VERIFIED by their current controls, exactly
+as E7 already says.
+
+---------------------------------------------------------------------------
+8.  WHAT THIS AMENDMENT DOES NOT DO
+---------------------------------------------------------------------------
+
+  - It edits NO byte at or above line 571.  Section 0 measures that.
+  - It does NOT touch `analyse_t16c.py`, `analyse_t16.py`, `exact_t16.py`,
+    `build_t16.py`, `T16_registered.json` or the frozen registration.
+  - It adds NO pin.  The F2 exposure -- `exact_t16.py` and `analyse_t16.py`
+    unpinned, and `CONV_FLOOR` / `G_TOL` / `MASS_FLOOR` / `PLAT_FLOOR` with no
+    registered literal at all -- remains OPEN and ESCALATED to verification,
+    exactly as F2 and E4 leave it.  A pin the frozen document does not
+    register is a NEW GATE, and this amendment may not create one.  Closing
+    F2 needs a successor registration (T16d), not a patch.
+  - It does NOT rule the rule-4 reading in B1.  E4 leaves it STILL RAISED,
+    NOT RULED, and it is still that.
+  - It states NO verdict.  Line 30 and E3 stand.
+  - PARTS A, B, C, D, E, F and G stand in full, including all four of the
+    supervisor's rulings in PART F.
+
+END AMENDMENT 1.
