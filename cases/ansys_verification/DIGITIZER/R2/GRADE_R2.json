@@ -1,0 +1,65 @@
+{
+  "n_plates": 24,
+  "sublocator": false,
+  "value": {
+    "dim": "value",
+    "units": "y-data",
+    "statistic": "rms",
+    "u_read": 0.005050505050505051,
+    "terms": {
+      "syn_stat": 0.0006848243799855189,
+      "syn_rms": 0.0006848243799855189,
+      "syn_p95": 0.001014377996328153,
+      "syn_max": 0.0011145256983078333,
+      "half_spread": 1.7480594341146016e-05,
+      "pixel_floor": 0.005050505050505051
+    },
+    "rms_bias": 0.00026509547318760246,
+    "plant_detect": {
+      "delta_3u": 0.015151515151515152,
+      "recovered": 0.015897462671189855,
+      "recovery_err": 0.0007459475196747029,
+      "band_ok": true
+    },
+    "plant_null": {
+      "offset": 0.0007459475196744947,
+      "limit": 0.005050505050505051,
+      "passes_by_construction": false
+    },
+    "verdict": "PASS",
+    "bias_ok": true
+  },
+  "position": {
+    "dim": "position",
+    "units": "x-data",
+    "statistic": "max",
+    "u_read": 0.004701568689011504,
+    "terms": {
+      "syn_stat": 0.004701568689011504,
+      "syn_rms": 0.0026576127410745964,
+      "syn_p95": 0.004504416605646187,
+      "syn_max": 0.004701568689011504,
+      "half_spread": 1.3614659577498855e-07,
+      "pixel_floor": 0.002777777777777778
+    },
+    "rms_bias": 0.002331136302533366,
+    "plant_detect": {
+      "delta_3u": 0.014104706067034511,
+      "recovered": 0.017136306601907236,
+      "recovery_err": 0.003031600534872725,
+      "band_ok": true
+    },
+    "plant_null": {
+      "offset": 0.003242413147258816,
+      "limit": 0.004701568689011504,
+      "passes_by_construction": true
+    },
+    "verdict": "PASS",
+    "bias_ok": true
+  },
+  "axis_negatives": {
+    "log_as_linear_caught": true,
+    "planted_flip_caught": true
+  },
+  "_note": "Reconstructed by ansys-lane-opus48 via calibrate_r2(verbose=False) because the FROZEN R2 CLI (blob c1d275a2) crashed in its own json.dumps on np.bool_ (Circular reference) AFTER grading completed. Numbers are deterministic (seed) and match GRADE_R2.out's stdout. The authorised run is GRADE_R2.out/.err (rc 1 = the serialization crash, NOT an overrun and NOT a verdict failure; wall 4.032 s = 0.0672 core-min, under the 0.3 cap)."
+}

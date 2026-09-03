@@ -1,0 +1,28 @@
+REFUSE (exit 2): AXIS PLANT (x): held-out tick off 3337.297 px > 1.50 (log-as-linear lands here)
+REFUSE (exit 2): AXIS PLANT slope-sign: fitted slope 198 contradicts declared orientation 'up' (a reversed pairing is a self-consistent line the held-out check passes; 28.4)
+Traceback (most recent call last):
+  File "/home/ubuntu/Certonomous/cases/ansys_verification/DIGITIZER/R2/digitize_calibrate_r2.py", line 277, in <module>
+    rep = calibrate_r2(n=args.n, sublocator=args.sublocator, out_dir=args.out)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/Certonomous/cases/ansys_verification/DIGITIZER/R2/digitize_calibrate_r2.py", line 196, in calibrate_r2
+    print(json.dumps(rep, indent=2, default=lambda o: float(o) if isinstance(o, np.floating) else o))
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/json/__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+  File "/usr/lib/python3.12/json/encoder.py", line 202, in encode
+    chunks = list(chunks)
+             ^^^^^^^^^^^^
+  File "/usr/lib/python3.12/json/encoder.py", line 432, in _iterencode
+    yield from _iterencode_dict(o, _current_indent_level)
+  File "/usr/lib/python3.12/json/encoder.py", line 406, in _iterencode_dict
+    yield from chunks
+  File "/usr/lib/python3.12/json/encoder.py", line 406, in _iterencode_dict
+    yield from chunks
+  File "/usr/lib/python3.12/json/encoder.py", line 406, in _iterencode_dict
+    yield from chunks
+  File "/usr/lib/python3.12/json/encoder.py", line 440, in _iterencode
+    yield from _iterencode(o, _current_indent_level)
+  File "/usr/lib/python3.12/json/encoder.py", line 437, in _iterencode
+    raise ValueError("Circular reference detected")
+ValueError: Circular reference detected
