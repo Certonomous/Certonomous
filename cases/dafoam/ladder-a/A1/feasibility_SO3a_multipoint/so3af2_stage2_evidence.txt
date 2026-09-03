@@ -1018,3 +1018,39 @@ JOB 3 -- SAFETY
   DECOY SURVIVED             PASS  cleanup was by name, not by sweep
 
 SO3aF2 PIN CENSUS: PASS 50  FAIL 0  NOT RUN 0
+
+===========================================================================
+THE ENUMERATION, from XM r2's refusal. Captured 2026-09-03T233519Z
+REPORTED AS FACTS. NO CONCLUSION IS DRAWN. Choosing an attribute is the
+supervisor's decision (ADDENDUM 12 section A12.2).
+===========================================================================
+  ITEM=SO3aF2 ARM=XM STAMP=2026-09-03T233357Z rc=7 wall_s=24 ranks=1 core_min=0.4000 cap_core_min=6.0 ceiling=9.0 cpuset=0 mem=4g row=SHIPPED digest=sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc launcher_md5=5e44a11a9020f68c1eb96e3a37bfbc50 reader_md5=d5f4149d43abe3a165ffe7e653b78bee producer_md5=0cbff59668dd1a88c155f6728ed0863c memavail_GiB=27.56 cap_exceeded=0
+
+  scenario: point0   resolved_to: point0/coupling/solver
+  candidates_tried: ['getPrimalResidualHistory', 'primalResidualHistory', 'getResidualHistory', 'residualHistory']
+
+  ARE THE FOUR CANDIDATES PRESENT AT ALL?  [MEASURED]
+    getPrimalResidualHistory     DASolver: False  wrapper: False
+    primalResidualHistory        DASolver: False  wrapper: False
+    getResidualHistory           DASolver: False  wrapper: False
+    residualHistory              DASolver: False  wrapper: False
+    -> NONE of the four exists on either object.
+
+  COUNTS  [MEASURED]
+    DASolver (PYDAFOAM)     : 87 attributes, 21 sequence-shaped, 0 UNREADABLE
+    wrapper  (DAFoamSolver) : 298 attributes, 66 sequence-shaped, 0 UNREADABLE
+
+  NAMES ON DASolver MATCHING resid|hist  [MEASURED]
+    calcPrimalResidualStatistics   {'type': 'method', 'callable': True, 'sequence_shaped': False}
+    getResiduals                   {'type': 'method', 'callable': True, 'sequence_shaped': False}
+    -> both are METHODS and neither is sequence-shaped.
+
+  SEQUENCE-SHAPED list/ndarray/tuple ON DASolver  [MEASURED, a list of facts]
+    basicFamilies              type=list     len=4
+    faces                      type=list     len=16254
+    imOptions                  type=tuple    len=0
+    neighbours                 type=ndarray  len=7938
+    owners                     type=ndarray  len=16254
+    wallList                   type=list     len=1
+    xv                         type=ndarray  len=8316
+    xv0                        type=ndarray  len=8316
