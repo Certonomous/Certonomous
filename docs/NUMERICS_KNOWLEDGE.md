@@ -5984,3 +5984,138 @@ tail after **N-C9** (this team, the wall-resolved compressible / aspect-ratio fa
 | N-K | Data-driven closure benchmark numerics: Pope tensor-basis rank, TBNN / SpaRTA conditioning | N-K1, N-K2, N-K3, N-K4, N-K5, N-K6, N-K7, N-K8, N-K9, N-K10 |
 | N-T | T-family heat-transfer ladder: GCI / Richardson, thermal grid-convergence numerics | N-T1, N-T2, N-T3, N-T4, N-T5, N-T6, N-T7, N-T8, N-T9 |
 | N-X | Cross-cutting V&V numerics: estimators and tolerances general to verification | N-X1, N-X2, N-X3 |
+
+## N-T10. A `buoyantBoussinesqSimpleFoam` per-cell-iteration cost rate does NOT transfer between two laminar forced-convection cases of the same solver, closure and box at COMPARABLE cell count — measured 0.49x to 0.64x, and the registration's own named risk pointed the WRONG WAY
+
+**T19 registered its cost rate from T1c's completed runs — same solver
+(`buoyantBoussinesqSimpleFoam`), same closure (`simulationType laminar`), same
+schemes family, same iteration count, same box, serial — and then named its
+misprediction risk explicitly.** `T19_PREREGISTRATION.md` §7, verbatim:
+
+> *"the borrow crosses a **1.47× mesh jump in the direction where the rate has been observed to rise**. A rate borrowed across a mesh jump made T1b L4 miss by 31.4 %; the same shape is possible here and the expected direction is **under-prediction**."*
+
+**THE MEASUREMENT IS THE OPPOSITE DIRECTION. The registration OVER-priced the rung
+by roughly 2×.** Rate `= ExecutionTime / (cells × iterations)`, core-s per
+cell-iteration, measured from each case's own `log.solve` at 2026-09-03:
+
+| arm | cells | iterations | `ExecutionTime` | **measured rate** | registered, size-matched | **ratio** |
+|---|---:|---:|---:|---:|---:|---:|
+| `P_Ts_m` | 9 600 | 1 929 | 31.21 s | **1.685e-06** | 2.63e-06 | **0.641×** |
+| `P_q_m` | 9 600 | 3 203 | 41.11 s | **1.337e-06** | 2.63e-06 | **0.508×** |
+| `P_Ts_f` | 38 400 | 7 238 | 721.31 s | **2.595e-06** | 4.06e-06 | **0.639×** |
+| `P_q_f` | 38 400 | 12 437 | 946.90 s | **1.983e-06** | 4.06e-06 | **0.488×** |
+| **rung-wide** | | **24 807** | **1 740.53 s** | | **3 196.98 s predicted** | **0.544×** |
+
+**Normalised to the iterations ACTUALLY EXECUTED — 24 807 of the 120 000
+registered, 20.67 %** — because these four arms met their `residualControl` and
+stopped early; comparing spent core-seconds against a 120 000-iteration POINT
+would measure the early stop, not the rate. **The comparison above holds
+iterations fixed and asks only what an iteration cost.**
+
+**ROBUST TO THE BASIS.** Recomputed on the wall-clock basis (`STATUS.*`
+`wall_s × ranks`, `ranks = 1`) the four rates are 1.674e-06, 1.333e-06,
+2.598e-06 and 1.987e-06 — **within 0.7 % of the `ExecutionTime` figures on every
+arm.** This is not an I/O or start-up accounting artefact.
+
+### The cleanest single statement: the same mesh size, twice the rate
+
+**T1c measured 2.633e-06 core-s per cell-iteration at 10 240 cells. T19 measures
+1.337e-06 and 1.685e-06 at 9 600 cells** — a 6.3 % smaller mesh, the same solver,
+the same laminar closure, the same box, the same serial configuration.
+**T1c's rate is 1.97× and 1.56× the two T19 rates at essentially the same cell
+count.** Whatever sets the rate here, **it is not cell count.**
+
+### Mesh size is not the dominant term, and the size of the residual variable is measurable
+
+**Two arms at ONE mesh level differ by 1.309× (fine: 2.595e-06 vs 1.983e-06) and
+1.261× (medium: 1.685e-06 vs 1.337e-06).** The registration modelled the rate as
+a function of cell count alone, on the size-matched ladder
+2.46e-06 → 2.63e-06 → 4.06e-06:
+
+| modelled step | factor | the one-level arm spread as a fraction of it |
+|---|---:|---:|
+| coarse → medium (2 400 → 9 600 cells) | **1.069×** | **the spread is LARGER than the whole step** |
+| medium → fine (9 600 → 38 400) | 1.544× | 85 % |
+| **coarse → fine (the whole modelled ladder)** | **1.650×** | **79 %** |
+
+> **CORRECTION, RECORDED BECAUSE THIS ENTRY WAS DRAFTED WITH IT WRONG.** The
+> claim carried to this lane was that the one-level arm spread *"is larger than
+> the whole coarse-to-fine rate rise the registration modelled."* **MEASURED, IT
+> IS NOT: 1.309 < 1.650.** It is larger than the coarse→medium step (1.069) and
+> **79 % of the whole ladder** — which is the defensible form of the point and is
+> the form recorded here. **An unmodelled variable at fixed mesh size accounts for
+> four-fifths of the variation the registration attributed entirely to mesh size.**
+
+### What the residual variable is NOT — one candidate tested and refuted
+
+**Within each mesh level the arm that ran MORE iterations had the LOWER rate**
+(fine: 12 437 iterations at 1.983e-06 against 7 238 at 2.595e-06; medium: 3 203
+at 1.337e-06 against 1 929 at 1.685e-06) — the signature of a fixed per-run
+start-up term amortised over iterations, and the same shape the **T15**
+calibration measured (a 20-step probe beginning at step 6 over-priced a
+24 000-step run by 9.8 %).
+
+**IT DOES NOT EXPLAIN THE GAP TO T1c, AND IT PREDICTS THE WRONG SIGN.** T1c's
+runs are **30 000 iterations** — longer than every T19 arm — so under a
+start-up-amortisation model T1c should carry the *lowest* rate of all. It carries
+the highest. **The mechanism is NOT IDENTIFIED and this entry asserts none.**
+Named as unexcluded and untested here: the cases' aspect ratios and block
+structure (T19 is 240×40 / 480×80 planar), the linear-solver and relaxation
+settings, and box state at the two measurement times.
+
+### The transferable fact
+
+> **A per-cell-iteration cost rate measured on one case of this solver family
+> bounds the next case's rate to about a factor of 2, and no better — even at the
+> same cell count, the same solver, the same closure and the same box.** A
+> registration that borrows one is registering a **±100 % planning figure**, and
+> its CAP, not its POINT, is the number doing the work. Register the CAP against
+> the borrow and treat the POINT as indicative.
+
+**AND THE DIRECTION OF A NAMED MISPREDICTION RISK IS NOT EVIDENCE ABOUT THE
+DIRECTION OF THE ERROR.** T19 named its risk, argued it carefully from a prior
+measured miss (T1b L4, 31.4 %), and got the sign wrong. **Naming a risk is
+honest; it is not a measurement, and a reader must not treat a registered
+direction as a bound.**
+
+### Relation to `N-T5`, which this does not overturn
+
+**`N-T5` measured `buoyantBoussinesqSimpleFoam` throughput falling ~4.9× with
+cell count on this box across 28 160 → 235 520 cells, and fitted
+`rate ∝ N^(−0.747)` as its Model A.** **Every measurement in `N-T5` stands and
+none is disputed here.** What this entry adds is a **bound on Model A's
+resolution**: at the small-mesh end of that range, and between two cases rather
+than within one family, a variable Model A does not carry moves the rate by
+**1.3× at fixed `N`** and by **1.97× between two comparable `N`**. **`N-T5`
+predicts a trend across a 8.4× cell-count range; it does not predict a rate for a
+new case, and this is the measurement of how much it does not.**
+
+**Sources, all this repository's own artifacts:**
+`verification/runs/T-family/T19_runs/{P_Ts_m,P_q_m,P_Ts_f,P_q_f}/log.solve`
+(iterations and `ExecutionTime`); `verification/runs/T-family/T19_runs/STATUS.*`
+(wall basis); `verification/runs/T-family/T19_runs/T19_registered.json`
+(`cases.*.cells`, `endTime`, `point_core_min`);
+`docs/campaigns/T-family/T19_PREREGISTRATION.md` §7 (the registered rates, their
+T1c provenance and the misprediction-risk paragraph);
+`verification/runs/T-family/T15_runs/COST_CALIBRATION_ROW_DRAFT.txt` (the T15
+start-up figure). **The four arms these rates come from are all `NOT A RESULT`
+under standing rule 4 — see `L-465` and `D587` — and that does not affect this
+entry: a cost rate is measured from iterations executed and wall time spent, and
+neither depends on whether the run reached its registered `endTime`.**
+
+## FAMILY INDEX — regenerated 2026-09-03 (supersedes any earlier FAMILY INDEX block above)
+
+**DERIVED, NOT MAINTAINED.** Regenerated by `scripts/check_numerics_index.py --gen` from the
+tail after **N-T10** (this team, the cost-rate transfer fact) was appended; added as a
+superseding block, **never editing above** (records cite this file by line number).
+**Lines whose number changed above this block: 0.**
+
+| family | scope | entries |
+|---|---|---|
+| N-AV | Ansys Fluid Dynamics Verification Manual — VMFL cases reproduced in the lab's own solvers as pre-registered verdicts | N-AV1, N-AV2, N-AV3, N-AV4, N-AV5, N-AV6, N-AV7, N-AV8, N-AV9, N-AV10, N-AV11, N-AV12, N-AV13, N-AV14, N-AV15 |
+| N-B | Closure line (RANS/LES): β-field correction, feature-library, clip-repair and injection numerics | N-B1, N-B2, N-B3, N-B4, N-B5, N-B6, N-B7, N-B8, N-B9, N-B10, N-B11, N-B12, N-B13, N-B14, N-B15, N-B16, N-B17, N-B18, N-B19, N-B20, N-B22, N-B23, N-B24, N-B25, N-B26, N-B27, N-B28, N-B29, N-B30, N-B31, N-B32, N-B33, N-B34, N-B35, N-B36, N-B37, N-B38, N-B39, N-B40, N-B41, N-B42 |
+| N-C | General CFD meshing: snappyHexMesh / grid-family facts (a LEVEL step is not a grid refinement) | N-C1, N-C2, N-C3, N-C4, N-C5, N-C6, N-C7, N-C8, N-C9, N-C10, N-C11 |
+| N-D | DAFoam adjoint & optimisation: primal/adjoint solver behaviour, gradient verification, optimiser and cost numerics | N-D1, N-D2, N-D3, N-D4, N-D5, N-D6, N-D7, N-D8, N-D9, N-D10, N-D11, N-D12, N-D13, N-D14, N-D15, N-D16, N-D17, N-D18, N-D19, N-D20, N-D21, N-D22, N-D23, N-D24, N-D25, N-D26, N-D27, N-D28, N-D29, N-D30, N-D31, N-D32, N-D33, N-D34, N-D35, N-D36, N-D37, N-D38, N-D39, N-D40, N-D41 |
+| N-K | Data-driven closure benchmark numerics: Pope tensor-basis rank, TBNN / SpaRTA conditioning | N-K1, N-K2, N-K3, N-K4, N-K5, N-K6, N-K7, N-K8, N-K9, N-K10 |
+| N-T | T-family heat-transfer ladder: GCI / Richardson, thermal grid-convergence numerics | N-T1, N-T2, N-T3, N-T4, N-T5, N-T6, N-T7, N-T8, N-T9, N-T10 |
+| N-X | Cross-cutting V&V numerics: estimators and tolerances general to verification | N-X1, N-X2, N-X3 |
