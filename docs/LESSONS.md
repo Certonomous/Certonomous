@@ -22656,3 +22656,179 @@ twelve skips), `verification/runs/AUTOSTOP_LIVENESS/fixed_harness_rerun_2026-09-
 `scripts/test_auto_stop_liveness.py` (`adjudicate()`, `selftest()`),
 `scripts/auto_stop_patched.sh:426-430` (the `scan_err` shape to copy) and `:710-720`
 (the same bfs defect, already documented there and reintroduced anyway).
+
+---
+
+## L-467 — A POPULATION VALIDATES AN INSTRUMENT ONLY FOR THE FEATURES IT ACTUALLY CONTAINS. THREE OF THE FOUR COMMITTEE GRIDS HOLD NOT ONE PYRAMID, SO PASSING ON THEM CERTIFIED A PYRAMID PATH THAT WAS WRONG
+
+**Measured 2026-09-03, cfd, on the RUNG 0 committee grids. The THIRD time this one rung
+has been bitten by the same shape**, which is why it is a lesson rather than an incident.
+
+### The fact, and it is an element census rather than an argument
+
+`cases/committee-grids/foam_to_ugrid.py` was written, selftested against a hand-built
+hexahedron, and run on all four grids. It **REFUSED on HLPW6 alone**, on 962,824
+regenerated triangle rows, because its pyramid node ordering was wrong.
+
+| grid | tet | **pyramid** | prism | hex |
+|---|---|---|---|---|
+| DPW5 L1.T hex | 0 | **0** | 0 | 638,976 |
+| DPW5 L1.T prism | 0 | **0** | 1,277,952 | 0 |
+| DPW5 L1.T hybrid | 2,555,904 | **0** | 425,984 | 0 |
+| HLPW6 `h6c1_rans_3a_1` | 436,961 | **341,341** | 1,883,036 | 0 |
+
+**Three of the four grids contain no pyramid at all.** A writer that passed on those three
+was not "mostly validated" for pyramids — it was **vacuously** validated for them, and the
+three passes carried exactly zero information about the limb that was broken.
+
+### The rule
+
+> **THE POPULATION THAT VALIDATES AN INSTRUMENT MUST BE SHOWN TO CONTAIN THE FEATURE THE
+> INSTRUMENT HANDLES, OR THE VALIDATION IS VACUOUS FOR THAT FEATURE.**
+
+It is **not** "test on all grids" — that is a cost, and it is neither necessary nor
+sufficient. It is: **enumerate the features the instrument branches on, and show, by a
+census rather than an assumption, which members of the population exercise each one.** A
+branch no member exercises is untested however many members pass. Where the census is
+short, either extend the population or **register the gap in terms** — `RUNG0b`'s §3
+carries the table above for exactly this reason, and requires any future reduction of the
+population to state which element types it stops covering.
+
+### The same shape, twice before, on this one rung
+
+1. **The Fortran offset.** The reader's post-header offset was 4 and should have been 8.
+   HLPW6 is a raw C stream and was **never affected**; the three DPW5 grids read boundary
+   tags of `[660176, 657041, 654993]`. **A reader tested on HLPW6 alone would have shipped
+   it** — the mirror image of the pyramid case.
+2. **The `nCells` lower bound.** `max(owner)+1` under-counted **HLPW6 by exactly two
+   cells** and agreed to the cell on all three DPW5 grids. **A reader validated on the
+   three DPW5 grids would have shipped it**, and it would have failed the one grid whose
+   fourteen named patches the whole ladder exists for.
+
+In all three the population was four grids and the failing feature lived in a **strict
+subset of one**. The defect was caught each time by an instrument that **refused rather
+than degraded**, never by the passes.
+
+### What was done about it
+
+The writer's selftest now builds **one of each of the four AFLR3 element types**, and each
+carries its own mutation control. **Two of those mutations had to change kind**, and the
+reason is itself a measured fact worth keeping: **every one of the 24 permutations of a
+tetrahedron's node list regenerates the same four face sets**, so a tet's positional
+convention is entirely unconstrained by its own faces and a node swap there is
+*undetectable and correctly so*; and swapping a pyramid's two **diagonal** base nodes is a
+180-degree rotation that leaves every face set unchanged. **A control that cannot fire is
+worse than no control**, so the tet uses a substitution and the pyramid moves the apex.
+
+**Cited:** `cases/committee-grids/foam_to_ugrid.py` (`d1c5aa5d`; the `PYR_T`/`PYR_Q`
+comment block carries the census, `verify_elements` carries the refusal, `_SYNTH` carries
+the per-type mutations), `verification/campaign/RUNG0b_MESH_IMPORT_PREREGISTRATION.md` §3
+(`ace20cb1`), `verification/runs/RUNG0_MESH_IMPORT_runs/R0G2B_DIAGNOSTIC_NOT_A_GRADED_RUN.json`,
+and `verification/queue/cfd/launched/RUNG0_MESH_IMPORT.json` for the two earlier instances.
+
+---
+
+## L-468 — PRICING A STEP FROM A MEASUREMENT OF THAT STEP WAS ACCURATE TO 12 %. PRICING IT BY ANALOGY TO ANOTHER STEP'S MEASURED RATE OVER-PREDICTED BY 1.6x TO 3.1x
+
+**Measured 2026-09-03, cfd, on RUNG 0's five registered cost line items — the first time
+this lab has been able to score a whole pre-registered cost table line by line against
+measured actuals.**
+
+### The fact
+
+`RUNG0_MESH_IMPORT_PREREGISTRATION.md` §5.1 (frozen `d127d83d`) priced **one** line from a
+**measurement** — the converter at **0.203 core-min/Mcell**, from
+`cases/committee-grids/measurements.jsonl` — and priced the other three **by analogy** to
+that same rate (`checkMesh` *"allowed at 1x the converter rate"*, the export *"1x the
+converter rate"*, both readers *"0.5x"*).
+
+| line item | basis of the estimate | registered raw | measured actual | ratio |
+|---|---|---|---|---|
+| import 4 grids | **MEASUREMENT** | 1.535 | 1.350 | **0.879** |
+| `checkMesh` x 4 | analogy, 1x | 1.535 | 0.500 | **0.326** |
+| reader, source side | analogy, 0.5x | 0.767 | 0.694 | **0.904** → **0.634** |
+| export + reader, exported side | analogy, 1x + 0.5x | 2.302 | 1.135 | **0.493** |
+| raw subtotal | | 6.139 | 3.679 | 0.599 |
+| +22 % contention band | allowance | 1.361 | 0.000 | insurance not drawn |
+| **against the registered 7.5** | | **7.5** | **3.679** | **0.491** |
+
+**The measured line landed inside its own registered ±22 % band. Every analogy landed
+between 0.33 and 0.63.** The source-side reader's apparent **0.904** is an **artefact of
+attribution and is disclosed rather than banked**: its 0.694 actual includes the eleven
+planted controls (0.207 core-min), which are not part of that line item; on the line item
+alone it is **0.634**.
+
+### The rule
+
+> **AN ANALOGY IS NOT A MEASUREMENT, AND A REGISTRATION THAT MIXES THEM SHOULD SAY WHICH
+> LINES ARE WHICH.** Price a step from a measurement of that same step on that same
+> population where one exists. Where it does not, say so in the line, and expect the
+> analogy to run high.
+
+**Specific rate handed forward:** `checkMesh` on committee grids is **~0.066
+core-min/Mcell**, roughly **one third** of the converter rate, **not 1x**.
+
+### Why this is worth a lesson and not just a ledger row
+
+The rung's headline ratio was reported as **0.340** when two of its five items could not
+execute, and **0.491** once all five had run. Both are honest; they answer different
+questions. **What the line-by-line split shows, and the headline cannot, is that the
+misprediction was not spread across the work — it lived in the *basis* of three specific
+estimates.** That is actionable in a way a single ratio never is, and it is exactly what
+Sanaa's 2026-08-23 calibration directive exists to produce. `RUNG0b`'s §5.1 (frozen
+`ace20cb1`) prices **every** line from a measurement taken on the same population on the
+same day, and its ratio at completion is a direct test of whether that method beats the
+analogies.
+
+**Cited:** `docs/COST_CALIBRATION.md` rows `C-20260903T180819.145643Z-49087129` and
+`C-20260903T185415.611316Z-2329f606`;
+`docs/campaigns/IBL-industrial-benchmark-ladder/IBL_COMPUTE_ENVELOPE_LEDGER.md` row
+`E-20260903T185533.392388Z-ec431d97`;
+`verification/campaign/RUNG0_MESH_IMPORT_PREREGISTRATION.md` §5.1;
+`verification/campaign/RUNG0b_MESH_IMPORT_PREREGISTRATION.md` §5.1.
+
+---
+
+## L-469 — A `grep` FILTER ON A REFUSING COMMAND'S OUTPUT HID THE REFUSAL, THE `|| exit 1` FIRED, AND THE HEREDOC THAT WOULD HAVE WRITTEN THE COMMIT MESSAGE NEVER RAN
+
+**Measured 2026-09-03, cfd. A near-miss with a clean outcome, filed because the adjacent
+failure mode — a supervisor committing an empty tree the same session after a heredoc
+broke an `&&` chain — was already on the board and this is its mirror.**
+
+### The mechanism
+
+```
+python3 scripts/append_record.py ... 2>&1 | grep -E "ALLOCATED|WROTE|VERDICT" || exit 1
+cat > $S/msg <<'MSG'
+...
+MSG
+git ... -F $S/msg
+```
+
+`append_record.py` **REFUSED** (exit 9) and printed `REFUSED: ...` / `Nothing was
+written.`. **Neither string matched the grep filter**, so `grep` exited 1, `|| exit 1`
+fired, and the whole invocation ended **before the heredoc ran**. The visible symptom was
+**a command that produced no output at all** — not an error message, not a refusal, just
+silence — and the commit-message file silently did not exist. The next invocation then
+failed with `could not open .../msg6`, which is what surfaced it.
+
+**The refusal was correct and the guard did its job.** What went wrong is that **the
+filter chosen to keep the screen clean also decided which failures were visible**, and it
+had been written to match the success vocabulary only.
+
+### The rule
+
+> **A FILTER OVER A COMMAND'S OUTPUT MUST INCLUDE THAT COMMAND'S REFUSAL VOCABULARY, OR IT
+> IS AN OUTPUT SUPPRESSOR FOR EXACTLY THE CASE YOU NEEDED TO SEE.** Check the **exit
+> status of the command**, never of the filter — `${PIPESTATUS[0]}`, not `$?` — and
+> never let a step that produces an input for a later step sit behind a filter's `||`.
+
+Corollary, and it is the same one the empty-tree incident produced from the other
+direction: **a heredoc inside a conditional chain is a silent no-op when the chain
+short-circuits.** Write the message file as its own step, then `test -s` it, then commit.
+
+**Cited:** this session's `docs/COST_CALIBRATION.md` append (refused, then landed as
+`C-20260903T185415.611316Z-2329f606`); the guard that refused it is
+`scripts/append_record.py`'s tool-allocated-id check, which was **right** — hand-writing a
+tool-allocated id outside a structured `corrects:` field is the `C-217`/`L-404` duplicate
+mechanism in new clothes.
