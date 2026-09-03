@@ -3686,3 +3686,68 @@ made since `L-476` asserts the numstat — added, deleted and path — rather th
 | sweep · backfill · new instrument | **0 · 0 · 0** |
 | gates · thresholds · bands · caps · labels | **0 · 0 · 0 · 0 · 0** |
 | solver compute | **0 core-min, $0.00** |
+
+---
+
+## §28.9 — **THE CALIBRATION RATIO'S PREDICTED VALUE IS NOT PROTECTED, AND THERE ARE NOW TWO WAYS TO DEFEAT IT. THEY ARE DIFFERENT MECHANISMS AND KEEPING THEM APART IS THE POINT. RECORDED, NO INSTRUMENT, NO CLAUSE, NO BACKFILL** (2026-09-03T23:1xZ)
+
+**Zero compute; 0 core-min; $0.00. `REPORTED, NOT GATED`. No gate, threshold, band, cap or label created, moved or retired; nothing re-graded; no team owes migration work.** *This audit is the accumulator by this team's own direction at `VERIFICATION_CHARTER §2aj` — the place a measurement can gather without anyone owing a backfill today.*
+
+### §28.9.1 THE FINDING, VERIFIED AT SOURCE
+
+`CLAUDE.md` rule 12: ***"Every run is costed in its pre-registration; a proposal with no cost is disqualified."***
+
+**`[VERIFIED BY ME AT SOURCE, NOT RELAYED]` `cases/dafoam/ladder-a/A2/curriculum_D6RF2/PREREGISTRATION.md` — the three point estimates `155.70`, `60.07`, `215.77` return `0`, `0`, `0`. The document carries `cap` 15 times.** **The CAPS are frozen; the ESTIMATES are not in the frozen bytes at all.** They exist only in the queue row.
+
+**The referring lane flagged it as possibly wider WITHOUT claiming that**, in their own words — *"generalising from one is the move corrected twice tonight."* **That restraint is correct and I adopt their framing rather than widening it.**
+
+### §28.9.2 ⚠ TWO MEMBERS OF ONE FAMILY, AND TWO DIFFERENT MECHANISMS
+
+The family: **the calibration ledger's `actual / predicted` ratio has no protection on its
+DENOMINATOR.** Sanaa's 2026-08-23 directive makes that ratio the payoff of the whole
+pre-registration design — *"so we can improve the lab's estimates."* **A ratio whose predicted
+value is unprotected cannot serve it.** But the two members fail in **different** ways and
+lumping them would lose the distinction that makes each fixable:
+
+| | mechanism | what breaks |
+|---|---|---|
+| **(a)** recorded at `V-65`, 2026-09-03 — an **INEQUALITY** estimate (*"< 1 core-min"*), live at `SPINE_2D1_GRADING_PATH_PETITION.md:246` | **there is no predicted VALUE to divide by**, so the ratio becomes an upper bound **any small actual satisfies** | ⚠ **UNFALSIFIABLE — a check that cannot fail (`§2p`), squarely this audit's class** |
+| **(b)** this one, D6RF2 — **NO estimate in the frozen bytes at all** | the predicted value **carries no freeze**, so it could have been written, or rewritten, **after the actual was known** | ⚠ **FALSIFIABLE BUT UNATTRIBUTABLE — adjacent to this audit, not inside it, and I say so** |
+
+> ⚡ **AND (b) IS WORSE IN THE ONE DIMENSION RULE 2 CARES ABOUT.** An inequality is at least
+> **inside the freeze** — it is a weak prediction, honestly frozen. **A number living only in
+> a mutable queue row is not a prediction at all in rule 2's sense**, because *"the freeze is
+> the document's entire evidentiary content: it proves the gate could not have been chosen to
+> fit the answer."* **A predicted cost that is not frozen cannot be shown not to have been
+> fitted to the actual.**
+
+*I keep (a) and (b) apart for the same reason I kept the vacuous predicate apart from the
+wrong-object predicate an hour ago at `§28.8`: two failures that share a symptom and differ in
+mechanism need two cures, and a taxonomy that merges them supplies neither.*
+
+### §28.9.3 THE DISCRIMINATING TEST, COSTING NOTHING
+
+> **CAN THE PREDICTED VALUE BE SHOWN TO HAVE EXISTED, IN FROZEN BYTES, BEFORE THE RUN
+> STARTED?** Not *"is there a number in the ledger"* — **`grep` the point estimate against the
+> frozen pre-registration's committed blob.** **If its only copy lives in a mutable row, the
+> ratio measures the arithmetic and NOT the quality of the prediction**, whatever it prints.
+
+### §28.9.4 DISPOSITION — RECORDED, AND THE INTERIM FORM IS ENDORSED AS THE ANSWER
+
+**NO INSTRUMENT AND NO CLAUSE.** `§2p.5`: **two instances is a PATTERN, not a class** — and
+these two are not even the same mechanism, so the population for **(b)** is **ONE**. **Nothing
+is blocked, no verdict moved**, and `§28.6.6`'s ruling governs: a met precondition **permits** a
+gate and does not **compel** one, and here the precondition is not met at all. **No backfill —
+her clause 2. No team is asked to reopen a frozen document.**
+
+> ⚡ **WHAT THE COST ROW ALREADY DID IS THE CORRECT HANDLING AND NEEDS NO RULE TO AUTHORISE IT:
+> it cites the queue-row figures AS WHAT THEY ARE and NAMES THE ABSENCE.** **That disclosure
+> does the work a gate would do, at zero cost, and it is what any team should do on meeting
+> this.** *A number honestly labelled as unfrozen is a usable measurement; the same number
+> presented as a frozen prediction is not.*
+
+**WHAT WOULD MOVE ME, STATED IN ADVANCE SO IT CANNOT BE FITTED LATER:** **a SECOND instance of
+mechanism (b)**, making it a pattern in its own right; **or** a calibration row whose ratio was
+**quoted as evidence of estimate quality** and was wrong because its denominator was written
+after the fact. **Until then a freeze-time assert is an instrument for a population of one, and
+this team has refused three of those today** — two of them against its own findings.
