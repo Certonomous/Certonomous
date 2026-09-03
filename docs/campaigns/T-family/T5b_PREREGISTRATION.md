@@ -536,3 +536,101 @@ comparator's `--selftest`, which prints the condition).
 
 **Nothing in this rung was sent, filed, uploaded, posted, registered or commented
 outside this box (`CLAUDE.md` rule 7).**
+
+---
+
+## AMENDMENT 1 — 2026-09-03 (POST-COMPUTE, DISCLOSURE ONLY): §2's futility limb OVERSTATES the defect count — measured at HEAD it is **ONE**, not two
+
+**Document version 1.0 → 1.1. Lines whose number changed above this section: 0 —
+VERIFIED BY DIFF, not recited.** Pre-append line count **538**; SHA-256 of those 538
+lines **`53dc8386e45353255dfc854fea03debab4c1aae2c533e5284f6be4958bc6d4ff`**, re-hashed
+after the append as the **prefix** of this file and required to match, with a `diff` of
+the pre-append bytes against the post-append prefix required to return no differences.
+**Line 3 still reads "Version 1.0" and is deliberately not edited**, on the T5 precedent
+(`T5_PREREGISTRATION.md`, nine amendments, header untouched throughout): the version
+bump is carried **in the amendment block**, never by editing a frozen line above it. The
+document's version in force is **1.1**, and it is read here.
+
+**Post-compute.** All three T5b cases completed 2026-08-27/28 and the rung is graded
+(`verification/runs/T-family/T5b_runs/T5B_GRADE_OUTPUT.txt`;
+`docs/campaigns/T-family/T5b_RESULTS.md`). This is therefore a **dated addendum** under
+`CLAUDE.md` rule 2, and it **alters no gate, threshold, band, cap or label**, re-grades
+nothing, and moves no verdict. It is disclosure only. Ruled by the heat-transfer
+supervisor `[lab-attributed]`.
+
+### The struck sentence, quoted verbatim and LEFT STANDING IN PLACE
+
+§2, lines 99–101 of this document, unedited and not rewritten:
+
+> *"The legitimate route is a successor rung with the defect repaired, and D2 and D3
+> independently confirm the ruling: even with recovered `y+` data, two of the three
+> defects would still fire."*
+
+**STRUCK as to the count "two". Measured at HEAD, it is ONE.**
+
+### The measurement
+
+**D2 was adopted-repaired, and this document's §1 quotes only the pre-adoption half of
+the record.** §1's D2 quotes T5 AMENDMENT 3's **heading** —
+`T5_PREREGISTRATION.md:1441`, *"`YPLUS_WALLS` on the half domain — **PROPOSED, NOT
+ADOPTED**"* — and its pre-adoption consequence sentence at `:1445`
+(*"Until adopted, §16.3.1's 'a wall not reported -> NOT A RESULT' fires on every level by
+construction."*). **It does not carry the adoption, which is recorded 21 lines later in
+the same file**, at `T5_PREREGISTRATION.md:1466`:
+
+> *"**AMENDMENT 3 — FROZEN 2026-08-26.** The supervisor's personal diff read: blob
+> `9c2c1d44` differs from `17703b78` only by dropping `"cube_side_s"` … `analyse_t5.py`
+> is now blob **`9c2c1d44`** … `analyse_t5.A3_PROPOSED.py` deleted."*
+
+Corroborated twice, independently of that prose:
+
+- **The AMENDMENT 7 freeze-set row**, `T5_PREREGISTRATION.md:1572`:
+  `| verification/runs/T-family/T5_runs/analyse_t5.py | 9c2c1d44cfeb | unchanged (AMENDMENT 3/5) |`
+- **The code itself.** `verification/runs/T-family/T5_runs/analyse_t5.py:53-54` reads
+  `YPLUS_WALLS = ("cube_front", "cube_top", "cube_rear", "cube_side_n", "floor", "roof")`
+  — **six walls, `cube_side_s` absent** — at HEAD blob
+  **`9c2c1d44cfebe6b3baaebc0ad53036b87d1f07d9`**, hashed from the disk bytes and
+  matching the blob at HEAD.
+
+**So, with `y+` data recovered, the count is one:**
+
+| defect | fires with recovered `y+` data? | measured at |
+|---|---|---|
+| **D1** — the function object never executed | the `y+` limb is what "recovered data" supposes away; D1's remaining consequence is the absent local `wallHeatFlux` **field** (§1 D1, third consequence) | §1 |
+| **D2** — a registered wall that cannot exist | **NO — repaired and adopted** | `T5_PREREGISTRATION.md:1466`, `:1572`; `analyse_t5.py:53-54` @ `9c2c1d44` |
+| **D3** — a reader with no writer | **YES.** `analyse_t5.py` still opens `yPlus.json` (`:156`, and the registered `NOT A RESULT` at `:167`), and nothing in this repository has ever written one | `analyse_t5.py:156,167` |
+
+**ONE, not two.**
+
+### Why this is disclosed rather than left alone
+
+**A disclosure that OVERSTATES a defect is still a wrong record, and the direction of the
+error does not excuse it.** *A lab that only polices flattering errors will accumulate the
+unflattering ones.* This one overstates against a rung of our own — it makes T5's position
+look worse than the measurement supports — and that is precisely the class of error that
+goes uncorrected unless somebody makes it a rule to correct it. It is corrected here.
+
+### THE RULING AT §2 (`:88`) IS NOT DISTURBED, AND THIS ADDENDUM SAYS SO IN TERMS
+
+**`postProcess` may NOT be re-run on T5's completed cases to recover `y+`.** That ruling
+stands, unamended and unweakened. **T5's `NOT A RESULT` STANDS.** D1 and D3 both hold, and
+**D3 alone still returns `NOT A RESULT`** on every T5 level by construction, so §2's
+conclusion is untouched by this correction.
+
+**What changes is the GROUND, not the conclusion.** The withdrawal of the repair route and
+the ruling that T5's verdict stands rest on **Sanaa's standing directive of
+2026-08-27T16:54Z §3**, quoted in §2 — *"Answer-changing choices … are never selected by
+agreement with the reference. … Frozen gates never edited post-compute."* — and on that
+alone. They do **not** rest on the futility of the repair, because **the futility limb is
+measurably weaker than the frozen text states**: it is one defect standing, not two. A
+ruling that rests on a directive does not need the futility limb; a ruling that leaned on
+the futility limb would now be leaning on an overstatement, which is why the ground is
+named here rather than left ambiguous.
+
+### Scope
+
+No gate, threshold, band, floor, cap, label, control, prediction or verdict moves. No row
+is re-graded and no frozen file is edited — `T5_PREREGISTRATION.md`, `T5_RESULTS.md`,
+`analyse_t5.py`, `analyse_t5b.py` and `T5B_CAPS.txt` were **read only** to write this.
+T5b's own six `NOT A RESULT` rows are unaffected. **Nothing was sent, filed, uploaded,
+posted, registered or commented outside this box (`CLAUDE.md` rule 7).**
