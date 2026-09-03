@@ -13914,6 +13914,48 @@ Also on the record from the same stdout: `C-R2-1` transient control — the run'
 
 **Marked `VERIFY` — read at source but NOT independently re-derived by this lane at this write:** the `K0cG` GCI absolute values (the ratios 43×–722× are quoted from `K0cG_RESULTS.md`'s own table; the `gate_k0cg.json` carries the states and orders, which **were** re-measured here, but **no GCI field**); `K0cS`'s and `K0cX`'s per-row failure attributions beyond the rung tallies; whether any consumer of `analyse_t1c.iterative_convergence` **outside** the T3 ladder and the three T9a gate files has ever entered the `rng == 0` limb — **only five artifacts were measured and every other consumer is UNMEASURED and is not claimed clean.**
 
+##### ✅ **THE THREE `VERIFY` MARKS ABOVE ARE SETTLED — TWO CLEARED BY RE-DERIVATION, AND CLEARING THEM TURNED UP TWO ERRORS IN THIS SECTION'S OWN FIGURES. `L-472` IS THE LESSON.** (2026-09-03T19:42:46Z)
+
+*(Lane block, GOVERNANCE, below the fold. **PURE INSERTION immediately beneath the `VERIFY` paragraph it settles; nothing above or below is edited, renumbered or rewritten** — the `VERIFY` paragraph at `:13915` stands verbatim, and so do the section F rows at `:13901-13903`. Line citations here point ABOVE this insertion and are therefore stable against it. **Every figure was re-derived by this lane from the named artifact at this write.** Solver cost **0 core-min** — all reads read-only; the live T3d run was not touched.)*
+
+**(a) `K0cG`'s `43× – 722×` ratios — `VERIFY` CLEARED, and the premise the mark rested on was itself wrong.** The mark says *"`gate_k0cg.json` carries the states and orders … but **no GCI field**."* **It does.** `gate_k0cg.json` carries **`GCI_finest_pct`** — on the five `CONVERGING` `kOmegaSST` rows and, correctly under rule 5, on **none** of the five non-`CONVERGING` `kEpsilon` rows (2 `STAGNANT`, 3 `DIVERGENT`), which also carry no `richardson_extrapolate`. **All five ratios re-derive from that one file** as `|finest − reference| ÷ (GCI_finest_pct × finest / 100)`, at the file's own `Fs = 1.25`:
+
+| quantity | `GCI_finest_pct` | GCI absolute | \|deviation\| | **re-derived** | `K0cG_RESULTS.md:31-35` |
+|---|---:|---:|---:|---:|---:|
+| `uv_peak` | 2.872205 | 1.3872e-05 | 5.9702e-04 | **43.04×** | 43× |
+| `Nu_hot` | 0.180013 | 9.9170e-02 | 8.3593 | **84.29×** | 84× |
+| `Sp` | 0.332643 | 2.5479e-03 | 0.28497 | **111.84×** | 112× |
+| `Nu_cold` | 0.070757 | 3.8835e-02 | 9.0650 | **233.42×** | 233× |
+| `Vpeak` | 0.023157 | 5.9146e-05 | 4.2710e-02 | **722.11×** | 722× |
+
+**Every row reproduces to the RESULTS table's own rounding. No GCI was computed by this lane** — the values are read from the artifact, and none is quoted on a non-`CONVERGING` triple.
+
+**(b) `K0cS` and `K0cX` per-row failure attribution — `VERIFY` CLEARED: both gate JSONs carry it in full.**
+
+- **`K0cS`** — `gate_k0cs.json.graded_rows` (20 rows, each with `row`, `model`, `quantity`, `deviation`, `band`, `verdict`, `discriminating`). Measured **14 `GATE FAIL` / 6 `PASS`**; `kOmegaSST` 8 of 10 (`G1` `Nu_hot` 13.383 % vs band 10, `G2` `Nu_cold` 14.337 vs 10, `G3` `Nu_bot` 21.337 vs 20, `G4` `Nu_top` 23.088 vs 20, `G6` `Nu_max_hot` 29.469 vs 20, `G7` `Sp` 0.27315 vs 0.12, `G8` `Vpeak` 19.976 vs 15, `G10` `uv_peak` 56.348 vs 40); `kEpsilon` 6 of 10 (`G1` 20.548, `G2` 19.121, `G3` 38.868, `G4` 39.246, `G5` `Nu_mid_hot` 37.832 vs 12, `G6` 27.959). **All 14 carry `discriminating = true`.** `convergence_refusals = ["S_LS_f"]`, and `mutation_control` shows all 20 rows reachable both ways. **The section F `K0cS` row at `:13901` is corroborated in full, including its `LaunderSharmaKE` **REFUSED** — that model never entered grading; it did not fail its bands.**
+
+- **`K0cX`** — `gate_k0cx.json.graded` carries four model blocks, each with `rows`, `n_rows`, `n_fail`, `reported_never_graded` and `convergence_refusals`. **The three turbulence models fail on the same two physics families, not on scattered rows:** every one of `kOmegaSST` (10 of 14), `kEpsilon` (7 of 14) and `LaunderSharmaKE` (7 of 14) fails **both mid-height peak-velocity magnitudes and the average Nusselt number at both rungs**, plus core stratification `S` — at both rungs for `kOmegaSST`, at the `hi` rung only for `kEpsilon` and `LaunderSharmaKE`. `kOmegaSST` additionally fails the two `y/H = 0.30` mid-width temperatures (1.2077 K and 2.0289 K against 1 K / 2 K bands — **both are near-misses**) where `kEpsilon` and `LaunderSharmaKE` pass them. **Sign is a discriminator the tally hides:** `kOmegaSST` under-predicts `Nu` (4.868 / 5.697 against 5.85 / 7.57) while `kEpsilon` over-predicts it (8.180 / 9.835) — **opposite-sign failures reported as one number.** The `laminar` block is a control, `GATE FAIL` 12 of 14 with two convergence refusals (`X_lo_f_LAM`, `X_hi_f_LAM`), and is **excluded from the rung totals.**
+
+- **⚠ DATED CORRECTION, 2026-09-03, TO THE SECTION F `K0cX` ROW AT `:13902` — the row is NOT rewritten and stands as landed; this line is the correction.** It reads *"24 of 60 graded rows … `kOmegaSST` 10/20, `kEpsilon` 7/20, `LaunderSharmaKE` 7/20."* **The numerators are right and every denominator is wrong.** `gate_k0cx.json` carries `total_graded_rows = **42**` and `total_failed_rows = **24**`, and `n_rows = **14**` per model. **`60` is `len(mutation_control)`** = 3 models × 20, where 20 = 14 graded + 6 `reported_never_graded` (`R3`, `R7`, `R9` at each rung). So the landed row moves six never-graded rows into the denominator of a failure rate. **The correct figure is `24 of 42`, and this board already carries it elsewhere** — in the section rebutting the *"never closed a validation loop"* sentence, which states `K0cX` as **24 of 42** from the same artifact. **Two figures from one file; the one that travelled was the one nobody re-derived.** This is instance (4) of **`L-472`**.
+
+**(c) NEXT ACTIONS — the `D-J1` obligation on T3d has exactly ONE hole left, and it is one checkpoint pair on one level. Three figures CONFIRMED against their artifacts at this write.**
+
+| level | case | `T` `field_range` | `U` `field_range` | `T` `max_change` | pair | `D-J1` `rng > 0` limb |
+|---|---|---:|---:|---:|---|---|
+| `c` | `R_m` | **51.29594654 K** | **11.015461** | 7.8752e-07 | (34000, 36000) | **TAKEN — measured** |
+| `m` | `R_f` | **50.72929201 K** | **11.02573987** | 4.9103e-06 | (76000, 78000) | **TAKEN — measured** |
+| `f` | `R_fx` | **NOT MEASURABLE YET** | **NOT MEASURABLE YET** | — | registered (22000, 24000) | **UNMEASURED** |
+
+Re-derived by read-only calls into the frozen readers themselves — `analyse_t1c.iterative_convergence` and `analyse_t3.iterative_convergence_vector`, the exact functions `A.measure()` calls. **Both `R_m` and `R_f` return `CONVERGED` off a positive range of ~51 K, so the defective limb was not entered on either.** `R_fx` holds `processor*/0` and `processor*/2000` only; **at `t = 2000`, `T` over all 8 processor directories spans 602,128 cells, min 300 K, max 350.2884011 K, range 50.28840106 K** — positive by fifty kelvin, and **the wrong checkpoint**: the graded pair is twenty thousand iterations away.
+
+> **THE REMAINING SCOPE OF THE `D-J1` OBLIGATION IS EXACTLY ONE CHECKPOINT PAIR ON ONE LEVEL — `R_fx` at (22000, 24000) — AND IT IS MEASURABLE ONLY AFTER THE RUN COMPLETES.** Two of three graded levels are already closed at zero solver cost. The discharge procedure is unchanged and is `T3d_DJ1_GRADING_TIME_OBLIGATION.md` §6.
+
+**Not touched:** the live T3d run, `pid 342276` (rank 0 of 8, `R_fx`, elapsed 1 h 33 m at that read). No kill, no restart, no renice, nothing attached; every read read-only.
+
+**Still `VERIFY`, and NOT cleared by this lane:** the third mark above — whether any consumer of `analyse_t1c.iterative_convergence` **outside** the T3 ladder and the three T9a gate files has ever entered the `rng == 0` limb. **Sweeping for that is exactly the instrument Sanaa's 20:00Z ruling forbids until `D-J1` has changed a verdict once, and it has changed none.** It stays a named hole.
+
+---
+
 ---
 
 ##### 🔧 **T3d's PID CORRECTION IS NOW LANDED IN THE RECORDS, NOT JUST ANNOTATED ON THIS BOARD — AND THE FREEZE DEBT CANNOT BE PAID BY ADDING MARKERS: ALL 12 UNFROZEN GRADERS ARE TRUE POSITIVES OF A DEFECT NO MARKER CAN REACH.** (2026-09-03T18:33:50Z)
