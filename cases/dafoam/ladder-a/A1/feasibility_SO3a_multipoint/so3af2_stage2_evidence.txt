@@ -676,3 +676,35 @@ JOB 3 -- SAFETY
   DECOY SURVIVED             PASS  cleanup was by name, not by sweep
 
 SO3aF2 PIN CENSUS: PASS 41  FAIL 0  NOT RUN 0
+
+===========================================================================
+ADDENDUM 9 -- THE CENSUS OVERRAN AND WAS STOPPED. Captured 2026-09-03T230759Z
+===========================================================================
+LEDGER, the two ATTRCENSUS rows (ONE EVENT, NOT TWO -- do not double-count):
+  ITEM=SO3aF2 ARM=ATTRCENSUS STAMP=2026-09-03T230242Z rc=9 wall_s=221 ranks=1 core_min=3.6833 cap_core_min=2.0 ceiling=9.0 cpuset=0 mem=4g row=SHIPPED digest=sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc launcher_md5=feab8825c8789a5c32625845292e74f9 reader_md5=d5f4149d43abe3a165ffe7e653b78bee producer_md5=c268633f67e6d2c785feec2ebfc7326c memavail_GiB=27.25 cap_exceeded=1
+  ITEM=SO3aF2 ARM=ATTRCENSUS STAMP=2026-09-03T230242Z STOPPED_BY_LANE_ON_CAP_OVERRUN wall_s=222 ranks=1 core_min=3.7000 cap_core_min=2.0 cap_exceeded=1 action=STOPPED reason=rule-12-overrun-stops-the-run stopped_by=dafoam-lab-lane note=THIS-IS-AN-INTERVENTION-NOT-A-MEASUREMENT-and-claims-nothing-about-why-it-was-slow
+
+THE WHOLE ARM LOG, 208 bytes, captured BEFORE the stop:
+  Matplotlib is building the font cache; this may take a moment.
+  WARNING 7: VSPAERO Viewer Not Found. 
+  	Expected here: /home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openvsp/vspviewer
+
+STATE AT THE MOMENT OF THE STOP:
+  elapsed 199 s against a registered cap of 120 s wall (2.0 core-min at ranks 1)
+  CPU 1.55 %, memory 294.9 MiB of 4 GiB, log static at 208 bytes for ~2 minutes
+  container status before the stop: running true 2026-09-03T23:03:00.613977908Z 0 4294967296
+
+THE STOP IS AN INTERVENTION, NOT A MEASUREMENT (DAFOAM_CHARTER section 7).
+  It is recorded by name with stopped_by=dafoam-lab-lane and CLAIMS NOTHING
+  about why the run was slow. No diagnosis is offered here.
+
+PRODUCTS:
+  so3af2_attr_census.json : ABSENT -- NO ENUMERATION WAS PRODUCED
+  XM/so3af2_M.json        : ABSENT -- correct
+
+THE CAP COULD NOT STOP THE RUN:
+  the launcher's cap check runs AFTER docker wait returns, so it computed
+  cap_exceeded=1 only because the container had already been stopped by hand.
+  a1wr_chain_driver.sh:173 wraps its arm command in 'timeout -k 60 $((tmo+900))'
+  so its deadline lives INSIDE the container; this launcher has NO deadline.
+  The three prior arms finished in 3, 21 and 3 seconds, so nothing tested it.

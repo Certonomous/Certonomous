@@ -1087,3 +1087,51 @@ New legs: the census instrument **pinned and enumerated** by the pin census (**d
 **NOT QUEUED. NOT FIRED.** Check 1 and check 4 are the supervisor's. The XM arm's `rc=7` stands as the **registered risk landing**; MESH stands **complete and NOT A RESULT**; the item stays **PENDING**; **F1–F5 are unscored**; and **§0.2 binds in full — whatever the census shows, this item never called `solve_linear` and nothing here may be quoted toward SO-3aR's adjoint collision.** **SUBMISSIONS PARKED.**
 
 **END OF ADDENDUM 8.**
+
+---
+
+## ADDENDUM 9 — THE CENSUS OVERRAN ITS CAP AND I STOPPED IT BY HAND. THE CAP COULD NOT STOP IT. Dated **2026-09-03**. Version **1.9 → 1.10**.
+
+> **lines whose number changed above this section: 0** — asserted by execution against both the pre-append snapshot and `git show HEAD:`.
+
+**Moves no gate, no threshold, no prediction, no band, no cap and no label. NO ENUMERATION WAS PRODUCED.**
+
+### A9.1 What happened
+
+`SO3aF2_ATTRCENSUS` launched 2026-09-03T23:02:42Z. At **199 s** — against a registered cap of **2.0 core-min = 120 s wall at ranks 1** — it had produced **208 bytes of log**, static for roughly two minutes, at **1.55 % CPU**. **The cap was already exceeded by 66 %.**
+
+**I stopped it.** `CLAUDE.md` rule 12: *an overrun **stops** the run; it does not get a new budget.*
+
+Final: **`rc=9`, wall 221 s, 3.6833 core-min against a 2.0 cap, `cap_exceeded=1`.** **`so3af2_attr_census.json` was never written. There is no enumeration.** The graded artefact `XM/so3af2_M.json` remains **ABSENT**, which is correct.
+
+### A9.2 ⚠ THE STOP IS AN INTERVENTION, NOT A MEASUREMENT
+
+`DAFOAM_CHARTER.md` §7: *a run that stops because a human or a watchdog intervened on a shared box records that too, **by name**, and claims nothing about the envelope.*
+
+**It is recorded by name in the item's own ledger**, with `stopped_by=dafoam-lab-lane` and the note that it *claims nothing about why it was slow*. **I am not diagnosing why the census was slow and this addendum does not.** The 208 bytes it did emit are recorded verbatim in the evidence file; whatever they suggest, **a stop is not a measurement**, and this lane has read the record of a lab that once published one as if it were.
+
+**Two ledger rows exist for one event** — the launcher's (`wall_s=221`, `core_min=3.6833`, measured to container exit) and the lane's intervention note (`wall_s=222`, `core_min=3.7000`, measured to the stop command returning). **They are the same event and must not be double-counted.** The launcher's is the figure of record.
+
+### A9.3 ⚠ THE REAL FINDING — THE CAP CANNOT STOP A RUN, IT CAN ONLY REPORT ONE
+
+The launcher's cap check runs **after `docker wait` returns**. It computed `cap_exceeded=1` correctly — **but only because I had already stopped the container.** Had I not, `docker wait` would have blocked indefinitely and the registered stop rule would never have fired.
+
+> **THE REGISTERED STOP RULE IS NOT ENFORCED BY THE INSTRUMENT. It is a post-hoc report wearing a stop rule's name.** Rule 12 says an overrun **stops** the run; this launcher's cap **describes** one, afterwards, if something else ends the container first.
+
+**The family's other launchers do not have this hole:** `a1wr_chain_driver.sh:173` wraps its arm command in `timeout -k 60 $((tmo + 900))`, so the deadline lives **inside** the container and fires without anyone watching. **This launcher has no deadline at all**, and the three arms that preceded this one finished in 3, 21 and 3 seconds, so nothing ever tested it.
+
+**That is the same shape as everything else this item has produced tonight: a guard whose predicate was never exercised because the happy path was fast.** It is registered here as a defect; **the repair is not made in this addendum** and is the supervisor's to order.
+
+### A9.4 Cost, and this one IS waste
+
+**3.6833 core-min against a 2.0 cap — an overrun of 84 %.** Item total across six launches: **0.0667 (MESH ×4) + 0.3500 (XM) + 3.6833 (census) = 4.1000 core-min.**
+
+> **WASTE: 3.6833 core-min, ALL OF IT, named as waste and never absorbed into any ratio.** The census produced **no enumeration**, which was its only product. Unlike the XM arm — where the supervisor ruled the spend an answer because it bought three converged primals and a registered refusal — **this run bought nothing.** It is named as a loss because it was one.
+
+**Dollars: $0.00315 DERIVED at $0.0513/core-h, never measured.**
+
+### A9.5 Standing
+
+**No enumeration exists, so the producer's attribute question is exactly where it was.** The XM arm's `rc=7` stands as the registered risk landing; MESH stands complete and **NOT A RESULT**; the item stays **PENDING**; **F1–F5 are unscored**; and **§0.2 binds in full.** **SUBMISSIONS PARKED.**
+
+**END OF ADDENDUM 9.**
