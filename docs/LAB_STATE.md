@@ -4959,9 +4959,91 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-03T22:58:54Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-44` — **`SO-3D-R` scored all five gates and REFUTED ITS OWN REGISTERED PREDICTION in the opposite direction**; `A1WRT` ran both units and has **NO ITEM VERDICT BY CONSTRUCTION**; **`U2` aborted exactly as predicted BEFORE the drop**, establishing that `empty` is categorically unusable on this case family — measured twice, two items, one image digest; `SO3aF2` reached physics on its fourth try and its producer then **REFUSED TO MANUFACTURE A FINDING**; `D6RF2` is on its **third abort before any container, 0.000 core-min of solver compute**; and **two empty commits from two lanes expose a hole in `CLAUDE.md` rule 10 itself**. Before it, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
+**Section last written:** 2026-09-03T23:27:12Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-45` — **the first container ever run in the `D6` lineage refused**, and its refusal establishes a registration defect reaching back through three items: `F_mp` reads a field its history never contained. The **in-container deadline is proven in production** — 199 s stopped by hand became 105 s killed by the container with nobody watching. **I stopped firing an arm because its failures stopped teaching.** A **rule-12 gap**: the estimates are in the queue row and not in the frozen document. And the night's triad — *a check that cannot see, an assertion looking at a ghost, a record that lost the clause naming its own rule* — with the lane synthesis that unifies them. Before it, `S-44`, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-45 — **THE FIRST CONTAINER EVER RUN IN THE `D6` LINEAGE REFUSED, AND ITS REFUSAL ESTABLISHES A REGISTRATION DEFECT REACHING BACK THROUGH THREE ITEMS: `F_mp` READS A FIELD ITS HISTORY NEVER CONTAINED. THE IN-CONTAINER DEADLINE IS PROVEN IN PRODUCTION — 199 s STOPPED BY HAND BECAME 105 s KILLED BY THE CONTAINER WITH NOBODY WATCHING. I STOPPED FIRING AN ARM BECAUSE ITS FAILURES STOPPED TEACHING. AND A rule-12 GAP: THE ESTIMATES ARE IN THE QUEUE ROW AND NOT IN THE FROZEN DOCUMENT** (2026-09-03, `date -u` stamp in the committing invocation)
+
+###### 1. `D6RF2` `F_mp` — **A CONTAINER RAN IN THIS LINEAGE FOR THE FIRST TIME**, and refused in 47 s
+
+Four fires: three aborts at **`spent_before_arm=0.000`** and one arm at **4.6 core-min** — **the first solver compute ever spent on this item.** `rc=2` from the kernel, not a launcher refusal. Every gate passed before it for the first time: `G-DELIVERY OK 8`, **`G-ANCHOR OK readers=2`**, `G-COLD OK`, `CMDFILE`, `RUNAWAY_GUARD`. No `opt_IPOPT.txt`, no time directories beyond `0`/`0.orig`, no endpoint json. **`REF_off` NOT RUN.**
+
+**The refusal:** `D6R_EXTRACT REFUSE per-major CD for cl04 absent from history`.
+
+**⚠ CHECK 2, MINE — THE MESSAGE NAMES `cl04` AND THE CONDITION IS UNIVERSAL.** I read the staged history's raw bytes: it carries **exactly three** `aero_post.functionals.*` keys — `cl04/cl05/cl06 .CL` — and **no `.CD` for any scenario.** The staged file is **byte-identical to D6R's own**, md5 `70fafa07bdee618fef13039433c01114`, so staging did not damage it.
+
+**`F_mp` registered an extraction of a quantity the artefact it reads does not contain and never contained** — not a guard that cannot fire, not an undefined constant: **the item registered reading a field from a file that does not have it.** And it reaches backward — **`D6R`'s and `D6RF`'s own `F_mp` would have failed identically**, and no container had ever run it in any lineage, so nobody could have found it. **Fourth could-never-have-finished defect in D6R's registration**, beside `REF_off`'s 3.16×-short cap, `F_mp`'s in-place staging on 912 optimiser time directories, and `D6RF-BLOCKING-1`.
+
+**⚠ AND THE SHARPER FORM, MEASURED BY A LANE AND BETTER THAN MY OWN:** CD is **not** load-bearing for the FD table's endpoint — the endpoint is built from the DV keys alone and `_final_CD_*` is read by **nothing** in the container. **It is load-bearing for the GRADER'S VERDICT, and the verdict needs `cl05`** (`d6rf2_grade.py:792`, `price < 0` → `NOT A RESULT`). The refusal names `cl04` only because the loop reaches `cl04/CD` first and **never gets to `cl05`.**
+
+> **A refusal names the first missing thing, never the load-bearing one.**
+
+**Both are absent so the outcome is unchanged — which is exactly what makes it dangerous: a successor acting on the message alone would repair `cl04`, get a clean extraction, and the item still would not grade.**
+
+**THE REGISTRATION DECISION IS DEFERRED, AND THE DEFERRAL IS A DECISION, NOT A GAP.** Measured: `d6rf2_fd_endpoint.py:116-117` **already calls** `prob.get_val("<pt>.aero_post.CD")` for every point after `run_model()` — so the CD the grader asks the *history* for is **already measured by the arm's own FD script.** **The repair therefore LOOKS cheap, and that is precisely why I restated the deferral rather than took it:** pointing the grader at another source is a change to a **frozen** registration after first compute, I have not re-read that document tonight, and **"looks repairable" is not a ruling. The moment a fix looks cheap is when a supervisor stops reading the document that says what the item is.** A successor must not read the silence as abandonment.
+
+###### 2. `SO3aF2` — THE IN-CONTAINER DEADLINE IS PROVEN, AND I STOPPED FIRING THE ARM
+
+**The cap could not stop a run.** The launcher's check ran **after `docker wait` returned** — it computed `cap_exceeded=1` only because a lane had already stopped the container **by hand**. Left alone, `docker wait` blocks indefinitely and **the registered stop rule never fires.** *The registered stop rule was a post-hoc report wearing a stop rule's name.*
+
+**Repaired and PROVEN, one run apart on the same arm:**
+
+| | first | second |
+|---|---|---|
+| ended at | **199 s**, `rc=9` | **105 s**, `rc=124` |
+| killed by | **a lane, by hand** | **the container itself** |
+| watching | a lane | **nobody** |
+
+Deadline **inverted from the registered cap** so the two cannot drift, `timeout -k` derived from A1WR's own bytes with distinct values counted, environment assertion running **first and unwrapped** so its refusals cannot be masked by a kill.
+
+**⚠ AND `rc=124` IS NOT AN UNQUALIFIED SUCCESS: it still exceeded its cap** — 2.3000 against 2.0 — because the frame allowance was sized for container start/stop and the process took **33 s to die** after SIGTERM. **The repair converted an unbounded overrun into a bounded one, and a bounded overrun is still an overrun.** Registered as an **open defect** rather than resized on one observation — *an allowance fitted to a single teardown is a constant fitted to one sample.*
+
+**⚠ I STOPPED FIRING THE CENSUS, ON A RULE I HAD LEFT UNSTATED.** My probe rule was *guard in proportion to what a failure costs*, ending when an arm produces a number. **The unstated third condition: the probe regime assumes each failure TEACHES SOMETHING.** The three MESH aborts each taught a distinct defect. **The census failed twice for the SAME unestablished reason — 208 bytes, static, no enumeration. That is not a sequence of findings; it is the same non-finding twice**, and a third fire buys a shorter leash on an unexplained stall. **Cost says the same: 6.0 of the item's 6.4 core-min are the two census attempts — more than everything else in the item combined, for nothing.** Replaced by a measurement against a control: **XM ran the same `run_model` successfully in 21 s**, so the two logs bracket the difference.
+
+**MESH is COMPLETE and NOT A RESULT** — no registered gate covers it, and **no mesh gate was added, because a threshold chosen after seeing the numbers is fitted to the answer.** **XM ran three converged primals and its producer REFUSED at the registered `rc=7`** rather than write a short residual list that would have reached the reader as a manufactured `CONVERGENCE DISAGREEMENT`. **A killed run is not a measurement and a stopped run is not a measurement**; both absences are evidence about nothing.
+
+###### 3. ⚠ A rule-12 GAP — THE ESTIMATES ARE NOT IN THE FROZEN DOCUMENT
+
+**Demonstrated, not asserted:** the per-arm estimates **155.70 / 60.07** and their sum **215.77** return **0 / 0 / 0** hits against the frozen `PREREGISTRATION.md` and **2 / 2 / 1** against the queue row. **The CAPS are in the frozen document; THE ESTIMATES ARE NOT.** Rule 12 requires every run costed **in its pre-registration**.
+
+**RULING:** a genuine gap, and **NOT repairable by editing the frozen document** — a cost back-filled post-compute cannot be distinguished from one chosen to fit. Owed: **name the absence** (done, in the estimate cell); **cite the queue-row figures as what they are and never as the registration's** (done, and a queue entry is a committed record under the entry-committed-before-drop rule); and **FORWARD-ONLY — every future registration in this family carries its per-arm estimates in the frozen document.** No retrofit. *Its charter placement is a separate act for a fresh session; the board holds it meanwhile.*
+
+**Flagged upward as measured on ONE item and possibly wider, without claiming it is.** Generalising from one is the move corrected twice tonight — once in a lane, once in me.
+
+###### 4. THE TRIAD, AND THE LANE'S SYNTHESIS THAT UNIFIES IT
+
+Three artefacts tonight, one shape, **all three passing a casual reading**:
+
+- **the vacuous predicate** — *a check that cannot see*: `# ASSERT: only your paths` on an empty diff; a census printing `driven=4 exist=4 EQUAL` while **both sides were blind through the same regex**; a frozen plant control whose expected signature is **byte-identical to total blindness**;
+- **the stale pin** — *an assertion looking at a ghost*: a driver pinning a launcher md5 the repair had moved;
+- **the lost clause** — *a record that lost the clause naming the rule it was obeying*: an **unquoted heredoc** command-substituting three backtick spans out of an **append-only ledger row**, where the deletion would have been **permanent** and the surviving text **still scanned as prose**.
+
+**⚠ THE SYNTHESIS, A LANE'S AND CARRIED AS THEIRS:** *the reason all three pass a casual reading is the same reason each was cheap to produce — a check with nothing to see, an assertion pointed at a ghost, and a record missing the clause that named its own rule are all things you get by **doing the work slightly incompletely, not by doing it wrongly.*** **They are what "correct and incomplete in the same direction" looks like when it reaches the RECORD rather than the CODE.**
+
+**Beside them, the two closure principles:** **a detection is a list** — always incomplete in the direction that matters, each entry paid for by a past failure — **while a closure is an invariant**; `ENV-0` (*an instrument must always state which of its outcomes occurred, including "neither"*) belongs beside **rule 3**, which closes the reader that saw nothing while `ENV-0` closes the instrument that said nothing. **What generalises is the form, not the instance.**
+
+**And the transitive closure PAID OUT ON ITS FIRST DRIVE**, on an arm nobody was watching: it found `REF_off` missing `d6rf2_fd_endpoint.py` — **the other entry of the same two-element tuple** — which would have aborted identically and which nobody had noticed because the chain stops at the first non-zero. **A list entry would have fixed one arm and left the other to fail later, looking like a new defect.**
+
+###### 5. ⚠ TWO EMPTY COMMITS, AND ONE CONTROLLED EXPERIMENT
+
+`1d4c5696` and `ab1f47dc` — **empty commits whose messages announce real work**, from **two lanes, two unrelated mechanisms, neither having read the other's report**. One identical signature: **`git diff-tree --stat` printed NOTHING and both read the silence as assent.** Rule 10's recipe says `# ASSERT: only your paths` and **never says NON-EMPTY** — **an empty diff DOES contain only your paths.** **L-382's shape in a second place: a success signal that fires on an absence.** Both left in place; rule 10 is `CLAUDE.md` and **nobody here edits it.** *I applied the fix to my own board commits from S-44 onward — the tree asserted to differ from its parent before `commit-tree`.*
+
+**⚠ AND THE CLEANEST RESULT OF THE NIGHT, from a lane's own repeated mistake:** it began a commit invocation with a `cd` into a case directory — **the exact error that had produced its empty commit an hour earlier.** This time the empty-tree guard it had added *after* that incident **aborted before `commit-tree` and HEAD never moved.** Same agent, same error, same hour, **one variable**:
+
+> **The habit did not improve; the instrument did.**
+
+**Everything else on guards tonight is reasoning. This is a measurement.**
+
+###### 6. THE FAMILY'S SIGNATURE DEFECT — SEVEN INSTANCES
+
+**A pattern applied correctly everywhere except one neighbour**, invisible to every guard because each branch reads as correct alone: `A1ZE`'s `occ_wait`; `SO3aF2` staging XM and not MESH; `SO3aF2` sourcing no environment where A1WR's driver does; `D6RF2` staging ten instruments and not the eleventh; **`d6rf2_fd_endpoint.py` staged and `d6rf2_ref_off.py`, its sibling in the same tuple, not**; a hard-coded `arm=XM` label that did not track its branch; and one launcher with an in-container deadline beside one without. **Cure, applied by me twice tonight: check whether the thing you are calling broken is how the sibling items already work.**
+
+###### 7. STATE
+
+`W3_chain_r2` — running, **zero non-zero rc**. **`D6RF2` — STOOD DOWN CLEAN, and verified rather than claimed**: disk == HEAD on all nine touched files, run root **ABSENT**, **three archives intact each preserved by count**, no `rm -rf` ever executed against this item, zero containers, zero queue rows. `REF_off` **unrun**. `A1WRT` — both units run, record landed, **no item verdict exists by construction**; successor **not designed**. `SO3aF2` — MESH complete, XM at the registered `rc=7`, census **stopped**, diagnosing against XM as control. `SO3D` **`NOT A RESULT`**; `SO-3D-R` **five gates scored**.
+
+**OWED BY ME:** the `disarm` findings record and the **`N-D42`** determinism row; the `F_mp` registration decision, **deferred to a fresh reading**; the forward-only estimate rule's charter placement.
 
 ##### UPDATE S-44 — **`SO-3D-R` SCORED ALL FIVE GATES AND REFUTED ITS OWN REGISTERED PREDICTION IN THE OPPOSITE DIRECTION; `A1WRT` RAN BOTH UNITS AND HAS **NO ITEM VERDICT BY CONSTRUCTION**; `U2` ABORTED EXACTLY AS I PREDICTED BEFORE THE DROP, ESTABLISHING THAT `empty` IS CATEGORICALLY UNUSABLE ON THIS CASE FAMILY; `SO3aF2` REACHED PHYSICS ON ITS FOURTH TRY AND THEN ITS PRODUCER **REFUSED TO MANUFACTURE A FINDING**; AND `D6RF2` IS RUNNING THE ONLY UNRUN PHYSICS THIS FAMILY HAS. TWO EMPTY COMMITS FROM TWO LANES EXPOSE A HOLE IN `CLAUDE.md` RULE 10 ITSELF** (2026-09-03, `date -u` stamp in the committing invocation)
 
