@@ -888,3 +888,72 @@ XM therefore gets the full treatment **before** it fires: the staged set derived
 F1–F5, every band, both caps, the ceiling, the memory floor, every rc in the taxonomy, the plant constants, and **§0.2 in full** — this item never calls `solve_linear`, cannot show SO-3aR's adjoint collision is fixed, and **nothing it measures may be quoted toward it**. **SUBMISSIONS PARKED.**
 
 **END OF ADDENDUM 5.**
+
+---
+
+## ADDENDUM 6 — THE XM ARM STAGES A CASE PER OPERATING POINT. Dated **2026-09-03**. Version **1.6 → 1.7**.
+
+> **lines whose number changed above this section: 0** — asserted by execution against both the pre-append snapshot and `git show HEAD:`.
+
+**Moves no gate, no threshold, no prediction, no band, no cap and no label.** **XM IS NOT QUEUED BY THIS ADDENDUM.**
+
+### A6.1 What was wrong — ADDENDUM 1 finding 1
+
+The XM arm staged **one file** into an otherwise empty directory. Measured, it needs **a full case per operating point plus the FFD**: `gridFile = os.path.join(os.getcwd(), RUN_DIRS[point])` and `OM_DVGEOCOMP(file="FFD/wingFFD.xyz")` are both **cwd-relative**, and the frozen reader's F3 reads them at `<root>/XM/case/mp<i>`.
+
+### A6.2 ⚠ WHY THIS ARM GOT THE SLOW TREATMENT AND MESH DID NOT
+
+**The probe regime ended when MESH produced a number, and it does not resume.**
+
+> **A wrong precondition on MESH cost two cents and announced itself. A WRONG PRECONDITION ON XM PRODUCES A PLAUSIBLE `F3 MISS` ON A SEPARATION THAT ACTUALLY WORKED** — a confident wrong answer, which is the only kind this lab cannot recover from cheaply, and the exact failure ADDENDUM 2 found and repaired.
+
+### A6.3 Everything is DERIVED, and each derivation asserts its own uniqueness
+
+| what | derived from | uniqueness |
+|---|---|---|
+| the FFD path | the **producer's** own `OM_DVGEOCOMP(file=…)` | distinct refs **counted**, anything but 1 refuses |
+| `mp0 mp1 mp2` | the **frozen reader's** `RUN_DIRS` list literal | declarations **counted**, anything but 1 refuses |
+| the `case` segment | the **frozen reader's own `read_run_dirs` call** | taken from the call whose result F3 is scored from |
+
+**Nothing is transcribed.** A literal in two files is a divergence waiting to happen, and this item has already paid for one.
+
+> **⚠ AND THE FIRST FFD DERIVATION WAS WRONG, CAUGHT ON THE HOST BEFORE ANY CONTAINER.** `sed 's/.\*file="//'` yielded **`FFD/wingFFD.xyz"` — with the closing quote** — so the existence check tested a path that can never exist and **this arm would have REFUSED ON EVERY LAUNCH, FOREVER.** It was found by *driving* the derivation against the real producer instead of trusting it. **That is what the slow treatment bought, and it is the twelfth unsatisfiable-by-construction condition of the day.**
+
+### A6.4 What the arm now stages, and the guards on it
+
+XM consumes **MESH's output** and refuses **by name** if MESH has not run, if `constant/polyMesh/boundary` is absent, or if neither `0/U` nor `0/U.gz` is there. It then builds the frozen reader's own layout:
+
+```
+<root>/XM/            producer, reader, so3af2_cmd.sh, XM.log, so3af2_M.json
+<root>/XM/case/       FFD/wingFFD.xyz          <- cwd for the producer
+<root>/XM/case/mp0..2 one FULL case each       <- gridFile and run_directory
+```
+
+**G-COLD per point**, because a warm start is silent otherwise: no `processor*`, no numeric time directory but `0`/`0.orig`, `0/U` or `0/U.gz` present, and `constant/polyMesh/boundary` present. **Each refuses by name at rc 9.**
+
+### A6.5 Driven — 36 legs, PASS 36, FAIL 0, NOT RUN 0
+
+Eight legs are new and all use a **fake MESH output**, so **no container is created**:
+
+- the FFD derivation yields exactly one reference **with no trailing quote** — asserted directly, because that was the defect;
+- **XM without MESH** → rc 9, and a second leg proves it refused **naming the missing MESH output** rather than with a generic staging error;
+- **XM without `polyMesh`** → rc 9;
+- **XM stages the reader's layout** → `case/FFD/wingFFD.xyz` and `case/mp0..2` each with `polyMesh` and `0/`, producer and reader beside them;
+- **the layout matches the reader** — the per-point directories sit under `read_run_dirs`' own argument;
+- **G-COLD warm start** → rc 9.
+
+### A6.6 Re-pins
+
+| file | md5 | note |
+|---|---|---|
+| `so3af2_run_arm.sh` | `e4ae5705cdc367aea19109764ebb1d62` | **RE-PINNED**; supersedes `0e9198ac111bcea18168306fe993ee0d` |
+| `so3af2_pin_selftest.sh` | `40691238115c0d1557623e35802f69bd` | **RE-PINNED** |
+| `so3af2_read.py` | `d5f4149d43abe3a165ffe7e653b78bee` | **UNCHANGED — the frozen reader is not touched** |
+| `so3af2_runScript.py` | `c268633f67e6d2c785feec2ebfc7326c` | **UNCHANGED** |
+| `so3af2_env_assert.sh` | `a5b7fcae05aab420d94623582d45f897` | **UNCHANGED** |
+
+### A6.7 What is still owed before XM may fire
+
+**The supervisor's check 1 on the changed hunks and check 4 before it is queued.** **XM IS NOT QUEUED.** The MESH arm stands complete and **NOT A RESULT** (§A5.2); the item stays **PENDING**; F1–F5 are unscored; **§0.2 binds in full** — this item never calls `solve_linear` and nothing it measures may be quoted toward SO-3aR's collision proof. **SUBMISSIONS PARKED.**
+
+**END OF ADDENDUM 6.**

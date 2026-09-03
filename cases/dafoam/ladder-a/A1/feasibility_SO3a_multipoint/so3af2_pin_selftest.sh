@@ -381,6 +381,77 @@ D="$(mk_sandbox a1wrdrift)"
 sed -i 's|^MD5_A1WR_DRIVER=.*|MD5_A1WR_DRIVER=00000000000000000000000000000000|' "$D/so3af2_run_arm.sh"
 expect "A1WR driver drift" "$D" 11 NOLAUNCH_ENV.txt MESH
 
+# ===========================================================================
+# THE XM ARM'S STAGING (ADDENDUM 6). Driven with a FAKE MESH OUTPUT so no
+# container is needed. A wrong precondition here does NOT refuse -- it produces
+# a plausible F3 MISS on a separation that worked -- so every direction is driven.
+# ===========================================================================
+mk_fake_mesh() {   # mk_fake_mesh <base>   -- the minimum MESH output XM consumes
+  local b="$1"
+  mkdir -p "$b/MESH/constant/polyMesh" "$b/MESH/0" "$b/MESH/system" "$b/MESH/FFD"
+  echo "boundary"   > "$b/MESH/constant/polyMesh/boundary"
+  echo "U"          > "$b/MESH/0/U.gz"
+  echo "controlDict"> "$b/MESH/system/controlDict"
+  echo "ffd"        > "$b/MESH/FFD/wingFFD.xyz"
+}
+
+# ---- the FFD reference must derive WITHOUT its closing quote. This is a direct
+# ---- assertion because the first draft yielded `FFD/wingFFD.xyz"` and would
+# ---- have refused on every launch, forever.
+FFD_DERIVED="$(grep -oE 'OM_DVGEOCOMP\(file="[^"]+"' "$PRODUCER" | sed 's/.*file="//; s/"$//' | sort -u)"
+if [ "$FFD_DERIVED" = "FFD/wingFFD.xyz" ]; then
+  ok "XM FFD derivation" "'$FFD_DERIVED' -- exactly one reference, no trailing quote"
+else
+  bad "XM FFD derivation" "derived '$FFD_DERIVED'"
+fi
+
+# ---- XM REFUSES when MESH has not run -----------------------------------
+D="$(mk_sandbox xm_nomesh)"; mkdir -p "$D/base"
+expect "XM without MESH" "$D" 9 NOLAUNCH_STAGING.txt XM
+if grep -q "arm MESH has not run" "$D/out.txt"; then
+  ok "XM without MESH BY NAME" "refused naming the missing MESH output, not a generic staging error"
+else
+  bad "XM without MESH BY NAME" "$(tail -1 "$D/out.txt")"
+fi
+
+# ---- XM REFUSES when MESH exists but carries no mesh ---------------------
+D="$(mk_sandbox xm_nopoly)"; mkdir -p "$D/base/MESH/0"; echo U > "$D/base/MESH/0/U.gz"
+expect "XM without polyMesh" "$D" 9 NOLAUNCH_STAGING.txt XM
+
+# ---- XM STAGES: the passing direction, and it must build the reader's layout
+D="$(mk_sandbox xm_ok)"; mk_fake_mesh "$D/base"
+RC_XM="$(run_sandbox "$D" XM)"
+CASE="$D/base/XM/case"
+XM_OK=1
+grep -q "SO3AF2_STAGED arm=XM" "$D/out.txt" || XM_OK=0
+grep -q "SO3AF2_STAGING_PRECONDITION_PASS arm=XM" "$D/out.txt" || XM_OK=0
+[ -f "$CASE/FFD/wingFFD.xyz" ] || XM_OK=0
+for mp in mp0 mp1 mp2; do
+  [ -f "$CASE/$mp/constant/polyMesh/boundary" ] || XM_OK=0
+  { [ -f "$CASE/$mp/0/U" ] || [ -f "$CASE/$mp/0/U.gz" ]; } || XM_OK=0
+done
+[ -f "$D/base/XM/so3af2_runScript.py" ] || XM_OK=0
+[ -f "$D/base/XM/so3af2_read.py" ] || XM_OK=0
+if [ "$XM_OK" = "1" ]; then
+  ok "XM stages the reader's layout" "case/FFD/wingFFD.xyz + case/mp0..2 each with polyMesh and 0/, producer and reader beside them (run ended rc=$RC_XM at the stub)"
+else
+  bad "XM stages the reader's layout" "rc=$RC_XM; $(tail -1 "$D/out.txt")"
+fi
+
+# ---- and the per-point layout must be where the FROZEN READER looks --------
+if [ -d "$CASE" ] && [ "$(basename "$CASE")" = "case" ]; then
+  ok "XM layout matches the reader" "per-point dirs under <root>/XM/case/, which is read_run_dirs' own argument"
+else
+  bad "XM layout matches the reader" "case dir is $CASE"
+fi
+
+# ---- G-COLD: a time directory in a point must REFUSE ----------------------
+D="$(mk_sandbox xm_warm)"; mk_fake_mesh "$D/base"; mkdir -p "$D/base/MESH/0.0001"
+echo warm > "$D/base/MESH/0.0001/U"
+expect "XM G-COLD warm start" "$D" 9 NOLAUNCH_STAGING.txt XM
+
+rm -rf "$TMP/xm_nomesh/base" "$TMP/xm_nopoly/base" "$TMP/xm_ok/base" "$TMP/xm_warm/base" 2>/dev/null
+
 # ---- THE PASSING DIRECTION.  All four guards must be SATISFIABLE, proved by
 # ---- all four PASS lines appearing before the launcher reaches the container.
 D="$(mk_sandbox pass)"
@@ -429,7 +500,7 @@ else
 fi
 
 # ---- cleanup BY NAME, and the decoy must survive it -------------------------
-for n in nl3 nl2md5 nl2tok nl1 nl4 stage_manifest stage_missing a1wrdrift pass; do
+for n in nl3 nl2md5 nl2tok nl1 nl4 stage_manifest stage_missing a1wrdrift xm_nomesh xm_nopoly xm_ok xm_warm pass; do
   # the staged arm tree and the doctored source are NAMED paths this file created
   # under its own $TMP -- removed by name, never by glob and never by sweep.
   rm -rf "$TMP/$n/base/MESH" "$TMP/$n/doctored_src" 2>/dev/null

@@ -274,7 +274,98 @@ The source tree is not the one this item registered; a copy from it would stage 
     "staged manifest $DST_MANIFEST != source manifest $MD5_MESH_SRC_MANIFEST -- the copy did not reproduce the tree"
   echo "SO3AF2_STAGED arm=MESH src=$MESH_SRC manifest=$DST_MANIFEST files=$(find "$WORK" -type f | wc -l)"
 else
+  # =========================================================================
+  # THE XM ARM -- ADDENDUM 6.  It previously staged ONE FILE into an otherwise
+  # empty directory (ADDENDUM 1 finding 1).  What it actually needs is a FULL
+  # CASE PER OPERATING POINT plus the FFD, and the paths must match the FROZEN
+  # reader's own expressions, because a wrong path here does not refuse -- it
+  # produces a plausible F3 MISS on a separation that actually worked, which is
+  # a confident wrong answer and the one thing this item cannot recover cheaply.
+  #
+  # EVERY REQUIREMENT BELOW IS DERIVED FROM THE PRODUCER'S OR THE READER'S OWN
+  # BYTES.  Nothing is transcribed: a literal in two files is a divergence
+  # waiting to happen, and this item has already paid for one.
+  # =========================================================================
   mkdir -p "$WORK"
+
+  # ---- XM consumes MESH's OUTPUT.  Its absence REFUSES BY NAME. ------------
+  MESH_OUT="$BASE/MESH"
+  [ -d "$MESH_OUT" ] || nolaunch NOLAUNCH_STAGING.txt 9 \
+    "XM requires the MESH arm's output at $MESH_OUT and it is not there -- arm MESH has not run"
+  [ -f "$MESH_OUT/constant/polyMesh/boundary" ] || nolaunch NOLAUNCH_STAGING.txt 9 \
+    "$MESH_OUT carries no constant/polyMesh/boundary -- the mesh MESH exists to produce is absent"
+  { [ -f "$MESH_OUT/0/U" ] || [ -f "$MESH_OUT/0/U.gz" ]; } || nolaunch NOLAUNCH_STAGING.txt 9 \
+    "$MESH_OUT carries neither 0/U nor 0/U.gz -- preProcessing.sh's 'cp -r 0.orig 0' did not land"
+
+  # ---- THE FFD, DERIVED FROM THE PRODUCER'S OWN REFERENCE ------------------
+  # Uniqueness COUNTED, never take-the-first-match (D6RF-BLOCKING-1).
+  # ⚠ THE TRAILING QUOTE MUST BE STRIPPED. A first draft ended the sed at
+  # `s/.*file="//` and yielded `FFD/wingFFD.xyz"` -- WITH the closing quote --
+  # so the existence check below tested a path that can never exist and this arm
+  # would have REFUSED ON EVERY LAUNCH, FOREVER. Caught on the host before any
+  # container, by driving the derivation instead of trusting it.
+  FFD_SET="$(grep -oE 'OM_DVGEOCOMP\(file="[^"]+"' "$PRODUCER" | sed 's/.*file="//; s/"$//' | sort -u)"
+  FFD_N="$(printf '%s\n' "$FFD_SET" | grep -c . || true)"
+  [ "$FFD_N" = "1" ] || nolaunch NOLAUNCH_STAGING.txt 9 \
+    "expected exactly ONE OM_DVGEOCOMP file reference in the producer, found $FFD_N: [$(printf '%s ' $FFD_SET)]"
+  FFD_REL="$FFD_SET"
+  FFD_DIR="$(dirname "$FFD_REL")"
+
+  # ---- THE PER-POINT DIRECTORIES, DERIVED FROM THE FROZEN READER ------------
+  # These names are the reader's, not the launcher's: the reader's F3 reads them
+  # and scores MISS if they are not where it looks.
+  RD_DECL="$(grep -cE '^RUN_DIRS = \[' "$READER" || true)"
+  [ "$RD_DECL" = "1" ] || nolaunch NOLAUNCH_STAGING.txt 9 \
+    "expected exactly ONE list-literal RUN_DIRS declaration in the frozen reader, found $RD_DECL"
+  RUN_DIRS_LIST="$(grep -oE '^RUN_DIRS = \[[^]]*\]' "$READER" | grep -oE '"[^"]+"' | tr -d '"')"
+  RD_N="$(printf '%s\n' "$RUN_DIRS_LIST" | grep -c . || true)"
+  [ "$RD_N" -ge 1 ] || nolaunch NOLAUNCH_STAGING.txt 9 "the frozen reader's RUN_DIRS is empty"
+
+  # ---- THE CASE PATH, DERIVED FROM THE READER'S OWN read_run_dirs CALL ------
+  CASE_SEG="$(grep -oE 'read_run_dirs\(os\.path\.join\(root, "[^"]+", "[^"]+"\)\)' "$READER" \
+              | grep -oE '"[^"]+"' | tr -d '"' | tail -1)"
+  [ -n "$CASE_SEG" ] || nolaunch NOLAUNCH_STAGING.txt 9 \
+    "could not derive the case-directory segment from the frozen reader's read_run_dirs call"
+  CASE_DIR="$WORK/$CASE_SEG"
+  [ -e "$CASE_DIR" ] && nolaunch NOLAUNCH_STAGING.txt 9 \
+    "$CASE_DIR already exists -- archive by mv, never delete"
+  mkdir -p "$CASE_DIR"
+
+  cp -a "$MESH_OUT/$FFD_DIR" "$CASE_DIR/" || nolaunch NOLAUNCH_STAGING.txt 9 \
+    "could not stage $FFD_DIR from $MESH_OUT"
+  [ -f "$CASE_DIR/$FFD_REL" ] || nolaunch NOLAUNCH_STAGING.txt 9 \
+    "$CASE_DIR/$FFD_REL is absent after staging -- the producer reads it relative to its own cwd"
+
+  # ---- ONE FULL CASE COPY PER OPERATING POINT, each G-COLD ----------------
+  for mp in $RUN_DIRS_LIST; do
+    cp -a "$MESH_OUT" "$CASE_DIR/$mp" || nolaunch NOLAUNCH_STAGING.txt 9 "could not stage $mp from $MESH_OUT"
+    rm -f "$CASE_DIR/$mp/so3af2_cmd.sh" "$CASE_DIR/$mp/checkMesh.log" \
+          "$CASE_DIR/$mp/logMeshGeneration.txt" "$CASE_DIR/$mp/volumeMesh.xyz" \
+          "$CASE_DIR/$mp/surfaceMesh.xyz" 2>/dev/null
+    # G-COLD, per point: no decomposition, no time directory but 0 and 0.orig,
+    # and the initial field actually present. A warm start is silent otherwise.
+    [ -n "$(ls -d "$CASE_DIR/$mp"/processor* 2>/dev/null)" ] && nolaunch NOLAUNCH_STAGING.txt 9 \
+      "G-COLD $mp: processor* directories present -- this is not a cold case"
+    for d in "$CASE_DIR/$mp"/*/; do
+      n="$(basename "$d")"
+      case "$n" in
+        0|0.orig|constant|system|FFD|profiles) ;;
+        [0-9]*) nolaunch NOLAUNCH_STAGING.txt 9 "G-COLD $mp: time directory $n present -- this is not a cold case" ;;
+      esac
+    done
+    { [ -f "$CASE_DIR/$mp/0/U" ] || [ -f "$CASE_DIR/$mp/0/U.gz" ]; } || nolaunch NOLAUNCH_STAGING.txt 9 \
+      "G-COLD $mp: neither 0/U nor 0/U.gz is present"
+    [ -f "$CASE_DIR/$mp/constant/polyMesh/boundary" ] || nolaunch NOLAUNCH_STAGING.txt 9 \
+      "G-COLD $mp: constant/polyMesh/boundary is absent -- the point has no mesh"
+  done
+
+  cp "$PRODUCER" "$WORK/so3af2_runScript.py"
+  # THE READER IS STAGED BESIDE THE PRODUCER because the producer DERIVES its
+  # output paths from the reader's own expressions (ADDENDUM 2) rather than
+  # transcribing them. Its md5 was verified against the pin at NL-3 above.
+  cp "$READER" "$WORK/so3af2_read.py"
+  echo "SO3AF2_STAGED arm=XM case=$CASE_SEG ffd=$FFD_REL run_dirs=[$(printf '%s ' $RUN_DIRS_LIST)] points=$RD_N files=$(find "$WORK" -type f | wc -l)"
+  echo "SO3AF2_STAGING_PRECONDITION_PASS arm=XM derived_from=producer+frozen_reader ffd_refs=1 run_dirs_decls=1 case_seg=$CASE_SEG"
 fi
 
 # ---------------------------------------------------------------------------
@@ -319,12 +410,6 @@ if [ "$ARM" = "MESH" ]; then
 cd /mnt/MESH && ./preProcessing.sh > checkMesh.log 2>&1 && checkMesh >> checkMesh.log 2>&1
 ARMCMD
 else
-  cp "$PRODUCER" "$BASE/XM/so3af2_runScript.py"
-  # THE READER IS STAGED BESIDE THE PRODUCER because the producer DERIVES its
-  # output paths from the reader's own expressions (ADDENDUM 2) rather than
-  # transcribing them. Its md5 was verified against the pin at NL-3 above, so
-  # what is staged is the frozen reader and not some other file of that name.
-  cp "$READER" "$BASE/XM/so3af2_read.py"
   cat > "$WORK/so3af2_cmd.sh" <<'ARMCMD'
 cd /mnt/XM && python so3af2_runScript.py -task run_model > XM.log 2>&1
 ARMCMD
