@@ -270,6 +270,14 @@ EXIT CONTRACT
                  placeholder was present without `--allocate-id`; or a minted id
                  was already present in HEAD or the preserved tail. Sanaa's
                  PLUMBING FREEZE directive, 2026-08-31.
+                 ALSO, from the ALLOCATION SCOPE ruling of 2026-09-03:
+                 `--allocate-id` was passed for a record listed in
+                 `ALLOCATION_REFUSED` -- a record over which the constitution
+                 prescribes an INTEGER derivation that MISREADS the minted form.
+                 This is a REFUSAL and deliberately reuses this code rather than
+                 VERIFICATION_CHARTER section 2ak's `70`, which that clause
+                 reserves for a comparator's INTERNAL ERROR and rules is NOT a
+                 refusal.
                  ALSO, from Sanaa's PLUMBING AMENDMENT of 2026-09-03: a
                  `corrects:[...]` field on a row that is not a correction row;
                  a malformed or unterminated `corrects:[...]` field; or a
@@ -687,6 +695,96 @@ if len(set(TOOL_ID_PREFIX.values())) != len(TOOL_ID_PREFIX):  # pragma: no cover
         f"REFUSED: two records share an allocation prefix "
         f"({TOOL_ID_PREFIX}) -- the cross-record non-collision property is the "
         f"prefix, so sharing one destroys it.")
+
+#: RECORDS WHERE ALLOCATION IS REFUSED, and the reason is a MEASUREMENT.
+#:
+#: A record lands here when THE CONSTITUTION PRESCRIBES AN INTEGER DERIVATION
+#: OVER IT THAT MISREADS THE MINTED FORM. That is a narrower test than "the
+#: minted form is unusual here", and the difference decides three of the four
+#: records, so it is spelled out:
+#:
+#:   * MISREAD  -- a prescribed reader PARSES the minted id and gets a WRONG
+#:                 NUMBER. Silent, and it corrupts every later derivation.
+#:   * INVISIBLE -- a reader cannot see the minted id at all. Also a defect, but
+#:                 a DIFFERENT one, and its repair is on the READER, not here.
+#:
+#: MEASURED 2026-09-03, on HEAD's real bytes, one record at a time:
+#:   docs/LESSONS.md            MISREAD.  CLAUDE.md rule 11 prescribes, verbatim,
+#:     `grep -oE '^## L-[0-9]+' docs/LESSONS.md | grep -oE '[0-9]+' | sort -n
+#:      | tail -1`. That expression is a PREFIX match with NO TRAILING ANCHOR,
+#:     while `RECORDS['docs/LESSONS.md']` requires a `.` or whitespace+em-dash
+#:     after the digits. So the tool's reader is blind to the minted id and the
+#:     CONSTITUTION'S reader is WRONG about it. Driven: over HEAD the derivation
+#:     returns 479; over the same file plus ONE minted heading it returns
+#:     20260903 -- about 42,000x the true maximum. ONE use would silently
+#:     renumber every future lesson to a date, and nothing in this module would
+#:     refuse: `parse_record_ids` is content, because `ANCHORED_TOOL_ID`
+#:     recognises the minted id at entry position.
+#:   docs/NUMERICS_KNOWLEDGE.md INVISIBLE, NOT MISREAD -- and therefore NOT here.
+#:     The minted body opens with a DIGIT (`N-20260903T...`), and the family
+#:     expressions that read this record are `N-[A-Z]+`, which requires a
+#:     LETTER. Measured: `re.findall(r'N-[A-Z]+', 'N-20260903T...')` returns
+#:     `[]`. Nothing misreads it; `scripts/check_numerics_index.py` simply does
+#:     not list it. That is the reader's repair and it is already docketed.
+#:   docs/DOCKET.md             INVISIBLE. Rule 11 names docket numbers but
+#:     prescribes no grep for them -- it routes to
+#:     `scripts/check_docket_reconciliation.py`, whose pattern requires the id
+#:     cell to CLOSE after `[A-G]\d+[a-z]?`. Driven over a poisoned docket: 623
+#:     ids parsed before and 623 after, delta 0. And 7 tool ids are already in
+#:     production here.
+#:   docs/COST_CALIBRATION.md   INVISIBLE, and the most-used record of the four:
+#:     96 tool-allocated ids on HEAD (91 distinct). No integer derivation is
+#:     prescribed over it anywhere.
+#:
+#: THE HONEST CAVEAT, WRITTEN DOWN RATHER THAN DISCOVERED LATER: DOCKET's and
+#: COST_CALIBRATION's safety is the ABSENCE OF A PRESCRIBED READER, not
+#: structural immunity. A loose `D-?[0-9]+` or `C-?[0-9]+` would extract
+#: `D-20260903` / `C-20260903` exactly as rule 11's expression does for lessons
+#: (measured). If a future document prescribes such a derivation, that record
+#: belongs in this table THAT DAY. The re-read trigger in `CANNOT_SEE_OWNER`
+#: already covers a heading-grammar change; this is the other half.
+#:
+#: THE ARM GENERALISES UNTESTED, AND THAT IS WRITTEN HERE RATHER THAN LEFT TO BE
+#: DISCOVERED. `docs/LESSONS.md` is the ONLY member of this table, so every
+#: control below it -- the refusal through `main()`, the near-misses, the
+#: rule-11 regression, the clause-parity limbs -- has only ever been driven with
+#: a ONE-ENTRY table. The code is written over `ALLOCATION_REFUSED` generally
+#: and the clause-parity limbs already loop over every member, so a second entry
+#: SHOULD be covered on the day it is added; that is a reasoned expectation and
+#: NOT a measurement. WHOEVER ADDS THE SECOND RECORD: re-run `--selftest` and
+#: check the new record appears in the clause-parity and near-miss limb NAMES,
+#: because a limb that silently covers one record while reading as if it covers
+#: the table is exactly the shape this module refuses elsewhere.
+#:
+#: WHY NOT MINT THE NEXT INTEGER INSTEAD, which is the obvious alternative:
+#: `allocate_id`'s whole property is that it READS NOTHING THE RECORD CONTAINS,
+#: "so the stale-tail failure mode has no mechanism here rather than merely no
+#: instance" (its own docstring). Minting an integer requires reading the tail,
+#: which hands that mechanism straight back -- a repair that reintroduces the
+#: defect the design eliminated is not a repair. The caller uses
+#: `--expect-first-id <integer>` here, which is the arithmetic-checked path.
+ALLOCATION_REFUSED = {
+    "docs/LESSONS.md": (
+        "CLAUDE.md rule 11 prescribes an INTEGER derivation over this record -- "
+        "`grep -oE '^## L-[0-9]+' docs/LESSONS.md | grep -oE '[0-9]+' | sort -n "
+        "| tail -1` -- and that expression has NO TRAILING ANCHOR, so it PARSES "
+        "a minted id's leading DATE as the maximum. Measured 2026-09-03: 479 "
+        "over the record as it stands, 20260903 over the same record plus ONE "
+        "minted heading. One allocated lesson would silently renumber every "
+        "later lesson to a date, and this module would not notice, because its "
+        "own reader recognises the minted form and the constitution's does not. "
+        "USE `--expect-first-id <integer>` INSTEAD: that is the arithmetic-"
+        "checked path and it is judged against HEAD AND the preserved tail. "
+        "Minting the next integer here was considered and REJECTED -- it would "
+        "require reading the tail, which is precisely the stale-tail mechanism "
+        "`allocate_id` was built to have no mechanism for"),
+}
+_ALLOC_REFUSED_EXTRA = sorted(set(ALLOCATION_REFUSED) - set(RECORDS))
+if _ALLOC_REFUSED_EXTRA:  # pragma: no cover - a load-time refusal
+    raise SystemExit(
+        f"REFUSED: ALLOCATION_REFUSED names records that are not registered: "
+        f"{_ALLOC_REFUSED_EXTRA}. A refusal keyed to a path no caller can pass "
+        f"is a guard that cannot fire.")
 
 #: The placeholder a caller writes where the id goes. Deliberately a form that
 #: cannot occur in a lesson, a docket row or a cost row by accident, and that is
@@ -1152,7 +1250,8 @@ def check_allocation(rows_text: str, path: str, *, allocate: bool,
                      apply_smuggle_guard: bool = True,
                      apply_corrects: bool = True,
                      require_correction_marker: bool = True,
-                     require_own_entry: bool = True) -> dict:
+                     require_own_entry: bool = True,
+                     apply_allocation_scope: bool = True) -> dict:
     """The preconditions, BEFORE anything is minted or merged. Pure.
 
     `apply_smuggle_guard=False` reproduces this module WITHOUT the clause that
@@ -1165,11 +1264,30 @@ def check_allocation(rows_text: str, path: str, *, allocate: bool,
     clause C2 and clause C3 respectively. All three exist for the same reason
     and `main()` passes none of them.
 
+    `apply_allocation_scope=False` reproduces this module BEFORE the 2026-09-03
+    scope ruling -- allocation permitted on EVERY registered record, including
+    `docs/LESSONS.md`. It exists so the rule-11 regression control can BUILD the
+    file that would otherwise exist and measure what rule 11 reads off it.
+    `main()` passes none of these knobs.
+
     THE SMUGGLE SCAN BELOW IS UNCHANGED. It runs over `scan_text`, which is the
     rows themselves in every case except an accepted correction-row citation, so
     "refusal unchanged everywhere else" is a property of the construction: there
     is one scan and one message, and the amendment only decides what it sees.
     """
+    # ---- ALLOCATION SCOPE, decided on `path` and `allocate` ALONE -----------
+    # FIRST, because it is settled before a byte of the rows matters and before
+    # anything is minted; and it is a REFUSAL, not an instrument error, so it
+    # takes this module's existing allocation-precondition code rather than
+    # VERIFICATION_CHARTER section 2ak's `70`, which that clause reserves for a
+    # comparator's INTERNAL ERROR and explicitly rules "is not a refusal".
+    # No new exit value is invented: section 2ak's own finding is that
+    # `EXIT_REFUSE` had already drifted to two values, so adding a third
+    # spelling of "refused" is the error it names.
+    if allocate and apply_allocation_scope and path in ALLOCATION_REFUSED:
+        return {"ok": False, "code": EXIT_REFUSED_ALLOCATION, "reason": (
+            f"--allocate-id is REFUSED for {path}. "
+            f"{ALLOCATION_REFUSED[path]}.")}
     scan_text = rows_text
     corrects = None
     if apply_corrects and CORRECTS_OPENER in rows_text:
@@ -1789,43 +1907,78 @@ def _corrects_specimens() -> list[dict]:
         cid = f"{TOOL_ID_PREFIX[path]}-{_CITED_STAMP}"
         corr, ordy = _CORR_ENTRY[path], _ORD_ENTRY[path]
         tag = path.rsplit("/", 1)[-1]
+        # HOW THE ROW CARRIES ITS OWN ID, per record, ADDED 2026-09-03 with the
+        # allocation-scope ruling. Sanaa's `corrects:` amendment is about the
+        # CITATION FIELD, which is orthogonal to how the row's OWN id is
+        # obtained -- but every specimen below used to obtain it by ALLOCATION,
+        # and allocation is now refused on some records. Grading those rows
+        # under the old expectation would have measured the scope refusal and
+        # called it a `corrects:` verdict.
+        #
+        # SO, AND THIS IS THE JUDGEMENT CALL IN THIS EDIT: on a record where
+        # allocation is refused, the specimens carry a LEGACY own-id instead --
+        # which is the path that record actually has (`--expect-first-id` with
+        # an integer). COVERAGE IS PRESERVED, NOT REDUCED: every clause C1, C2,
+        # C3 and the smuggle scan is still exercised on ALL FOUR records, in
+        # each record's own vocabulary; only the way the row gets its own id
+        # changes, and that is the variable the amendment does not speak to.
+        # The scope refusal itself is asserted by its own specimen below rather
+        # than left implicit.
+        refused_here = path in ALLOCATION_REFUSED
+        own = _LEGACY_OWN[path] if refused_here else ph
+        alloc = not refused_here
+        if refused_here:
+            spec_scope = {
+                "name": f"{tag}: --allocate-id is REFUSED here even on a "
+                        f"well-formed correction row (allocation scope)",
+                "path": path, "allocate": True, "accepted": False,
+                "clause": "allocation-scope", "core": False,
+                "rows": _corrects_row(path, ph, f"{corr} corrects:[{cid}]"),
+                "cited": cid}
+            out.append(spec_scope)
 
         def spec(name, rows, allocate, accepted, clause):
             # `cited` is DERIVED from the bytes, never declared: two specimens
             # below (a legacy id in the body, an empty body) deliberately carry
             # NO tool-form id at all, and a control that declared one would
             # then plant a zero it could not see.
+            # `core` marks a specimen produced by THIS SHARED LOOP, i.e. one
+            # every record gets. It is what makes the coverage claim
+            # MEASURABLE instead of a comment: the record-specific extras
+            # appended after the loop are `core: False`, so a set comparison
+            # over the core specimens compares like with like. See
+            # `run_allocation_scope_control`'s clause-parity limbs.
             out.append({"name": f"{tag}: {name}", "path": path, "rows": rows,
                         "allocate": allocate, "accepted": accepted,
-                        "clause": clause,
+                        "clause": clause, "core": True,
                         "cited": cid if cid in rows else ""})
 
         spec("a correction row with a well-formed corrects: field is ACCEPTED",
-             _corrects_row(path, ph, f"{corr} corrects:[{cid}]"),
-             True, True, "ACCEPT")
+             _corrects_row(path, own, f"{corr} corrects:[{cid}]"),
+             alloc, True, "ACCEPT")
         spec("a correction row carrying its own LEGACY id is ACCEPTED too",
              _corrects_row(path, _LEGACY_OWN[path],
                            f"{corr} corrects:[{cid}]"),
              False, True, "ACCEPT")
         spec("the SAME id outside any field still REFUSES (unchanged)",
-             _corrects_row(path, ph, f"{corr} it corrects {cid} in prose"),
-             True, False, "smuggle")
+             _corrects_row(path, own, f"{corr} it corrects {cid} in prose"),
+             alloc, False, "smuggle")
         spec("a corrects: field on a NON-correction row REFUSES (C1/C2)",
-             _corrects_row(path, ph, f"{ordy} corrects:[{cid}]"),
-             True, False, "C2")
+             _corrects_row(path, own, f"{ordy} corrects:[{cid}]"),
+             alloc, False, "C2")
         spec("a LEGACY id inside the field is MALFORMED, not prose (C1)",
-             _corrects_row(path, ph,
+             _corrects_row(path, own,
                            f"{corr} corrects:[{_LEGACY_OWN[path]}]"),
-             True, False, "C1")
+             alloc, False, "C1")
         spec("an UNTERMINATED field REFUSES rather than reading as prose (C1)",
-             _corrects_row(path, ph, f"{corr} corrects:[{cid} and on it goes"),
-             True, False, "C1")
+             _corrects_row(path, own, f"{corr} corrects:[{cid} and on it goes"),
+             alloc, False, "C1")
         spec("whitespace inside the body is MALFORMED (C1)",
-             _corrects_row(path, ph, f"{corr} corrects:[ {cid}]"),
-             True, False, "C1")
+             _corrects_row(path, own, f"{corr} corrects:[ {cid}]"),
+             alloc, False, "C1")
         spec("an EMPTY body is MALFORMED (C1)",
-             _corrects_row(path, ph, f"{corr} corrects:[]"),
-             True, False, "C1")
+             _corrects_row(path, own, f"{corr} corrects:[]"),
+             alloc, False, "C1")
         spec("a correction row with NO id of its own REFUSES (C3)",
              _corrects_row(path, _NO_OWN_ID[path], f"{corr} corrects:[{cid}]"),
              False, False, "C3")
@@ -1838,6 +1991,7 @@ def _corrects_specimens() -> list[dict]:
         "name": "DOCKET.md: the MOTIVATING case -- two CROSS-RECORD C- ids in "
                 "one field on a docket correction row",
         "path": dk, "allocate": True, "accepted": True, "clause": "ACCEPT",
+        "core": False,
         "cited": f"C-{_CITED_STAMP}",
         "rows": _corrects_row(
             dk, ALLOCATE_PLACEHOLDER,
@@ -1849,7 +2003,7 @@ def _corrects_specimens() -> list[dict]:
         "name": "COST_CALIBRATION.md: a plain hand-written id, no field in "
                 "sight, still REFUSES",
         "path": "docs/COST_CALIBRATION.md", "allocate": False,
-        "accepted": False, "clause": "smuggle-untouched",
+        "accepted": False, "clause": "smuggle-untouched", "core": False,
         "cited": f"C-{_CITED_STAMP}",
         "rows": f"| C-{_CITED_STAMP} | 2026-09-03 | verification | a "
                 f"hand-written id in the id cell |\n"})
@@ -1857,10 +2011,297 @@ def _corrects_specimens() -> list[dict]:
         "name": "COST_CALIBRATION.md: a placeholder with no --allocate-id "
                 "still REFUSES",
         "path": "docs/COST_CALIBRATION.md", "allocate": False,
-        "accepted": False, "clause": "placeholder-untouched", "cited": "",
+        "accepted": False, "clause": "placeholder-untouched",
+        "core": False, "cited": "",
         "rows": f"| {ALLOCATE_PLACEHOLDER} | 2026-09-03 | verification | no "
                 f"allocation flag |\n"})
+    # EVERY specimen declares `core` explicitly. A specimen that merely OMITTED
+    # the key would read as non-core and vanish from the clause-parity limbs --
+    # silently shrinking the very assertion that justifies editing a Sanaa
+    # directive's arms. So the omission is a load-time refusal, not a default.
+    _no_core = [s["name"] for s in out if "core" not in s]
+    if _no_core:  # pragma: no cover - a load-time refusal
+        raise SystemExit(
+            f"REFUSED: these corrects: specimens declare no `core` flag, so "
+            f"they would be invisible to the clause-parity limbs: {_no_core}")
     return out
+
+
+#: CLAUDE.md rule 11's derivation, VERBATIM. Copied as a string rather than
+#: paraphrased, because the whole finding is that its exact shape -- a prefix
+#: match with no trailing anchor -- is what misreads a minted id. A paraphrase
+#: that "tidied" it would test a reader the constitution does not prescribe.
+RULE_11_DERIVATION = (
+    "grep -oE '^## L-[0-9]+' {f} | grep -oE '[0-9]+' | sort -n | tail -1")
+
+
+def run_allocation_scope_control() -> tuple[dict, dict, list[str]]:
+    """THE 2026-09-03 ALLOCATION SCOPE RULING, DRIVEN THROUGH `main()` ON DISK.
+
+    Four arms, and the fourth is the one that makes the guard load-bearing
+    rather than decorative:
+
+      A POSITIVE -- the records where allocation is ALLOWED still mint and still
+        round-trip. A refusal that refuses everything is indistinguishable from
+        a correct one by its verdicts alone, so this arm is what separates
+        RESTRICTED from DISABLED.
+      B THE REFUSAL -- `docs/LESSONS.md` refuses through the PRODUCTION path,
+        real argv, and returns `EXIT_REFUSED_ALLOCATION`.
+      C NEAR-MISS -- one byte outside the refusal, which must still be allowed:
+        the SAME record without `--allocate-id`, and the CLOSEST NEIGHBOUR
+        record (NUMERICS, also zero tool ids in production, also an unusual
+        minted form) WITH it. The refusal keys on `(path, allocate)` and both
+        near-misses move exactly one of those two.
+      D THE RULE-11 REGRESSION -- build the file that would exist if the guard
+        were absent, run rule 11's own derivation VERBATIM over it, and require
+        the misread; then run the same rows through `main()` WITH the guard and
+        require that file cannot be produced. Without arm D the refusal is a
+        rule nobody has shown to prevent anything.
+
+    Returns `(planted, negative, notes)`.
+    """
+    planted, negative, notes = {}, {}, []
+    env = _clean_git_env()
+    L = "docs/LESSONS.md"
+
+    def git(repo: Path, *args: str) -> None:
+        done = subprocess.run(["git", "-C", str(repo), *args],
+                              capture_output=True, text=True, env=env)
+        if done.returncode != 0:  # pragma: no cover - a broken box
+            raise RuntimeError(f"git {args[0]} failed in the scope control repo: "
+                               f"{done.stderr.strip()[:200]}")
+
+    def run_main(repo: Path, path: str, rows: Path, *extra: str) -> int:
+        buf_o, buf_e = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(buf_o), contextlib.redirect_stderr(buf_e):
+            return main(["--path", path, "--rows", str(rows),
+                         "--repo", str(repo), *extra])
+
+    # Each record is seeded in ITS OWN vocabulary -- never borrowed, which is
+    # `check_record_reconciliation`'s 2026-08-24 defect (CLAUDE.md rule 14).
+    seed = {
+        L: "# Lessons\n\n## L-1. a seeded legacy lesson.\n",
+        "docs/NUMERICS_KNOWLEDGE.md": "# Numerics\n\n**N-B1. a seeded fact**\n",
+        "docs/DOCKET.md": "| id | date | team | item |\n|---|---|---|---|\n"
+                          "| D1 | 2026-09-03 | verification | a seeded row |\n",
+        "docs/COST_CALIBRATION.md": "| id | date | team | process |\n"
+                                    "|---|---|---|---|\n"
+                                    "| C-1 | 2026-09-03 | verification | a row |\n",
+    }
+    row_form = {
+        L: "## {id} — a lesson whose id the tool allocates\n",
+        "docs/NUMERICS_KNOWLEDGE.md": "**{id}. a fact whose id the tool "
+                                      "allocates**\n",
+        "docs/DOCKET.md": "| {id} | 2026-09-03 | verification | a row |\n",
+        "docs/COST_CALIBRATION.md": "| {id} | 2026-09-03 | verification | a "
+                                    "row |\n",
+    }
+
+    with tempfile.TemporaryDirectory(prefix="append_record_scope_") as td:
+        root = Path(td)
+
+        # A per-call counter, because two ARMS legitimately seed the SAME record
+        # (NUMERICS is both a permitted-allocation record in arm A and the
+        # near-miss neighbour in arm C) and a name derived from the path alone
+        # collided. Each arm must get a repo no other arm has written to, or one
+        # arm's tail becomes another arm's input.
+        _repo_seq = itertools.count(1)
+
+        def fresh(path: str) -> Path:
+            """A throwaway repo seeded with ONE record. No shared index exists
+            here, which is what makes `git add -- <path>` legitimate: CLAUDE.md
+            rule 10's prohibitions are about the SHARED tree."""
+            repo = (root / f"{next(_repo_seq)}_"
+                    f"{path.replace('/', '_').replace('.', '_')}")
+            (repo / "docs").mkdir(parents=True)
+            (repo / path).write_text(seed[path])
+            subprocess.run(["git", "init", "-q", str(repo)], capture_output=True,
+                           text=True, env=env, check=True)
+            git(repo, "config", "user.email", "control@certonomous.invalid")
+            git(repo, "config", "user.name", "append_record scope control")
+            git(repo, "config", "commit.gpgsign", "false")
+            git(repo, "add", "--", path)
+            git(repo, "commit", "-q", "-m", "seed")
+            return repo
+
+        # ---- ARM A: allocation still WORKS where it is allowed -------------
+        allowed = [p for p in sorted(RECORDS) if p not in ALLOCATION_REFUSED]
+        for path in allowed:
+            repo = fresh(path)
+            rows = root / f"rows_{TOOL_ID_PREFIX[path]}.md"
+            rows.write_text(row_form[path].format(id=ALLOCATE_PLACEHOLDER))
+            rc = run_main(repo, path, rows, "--allocate-id")
+            on_disk = (repo / path).read_text()      # bytes written by main()
+            minted = re.findall(tool_id_pattern(path), on_disk)
+            tag = path.rsplit("/", 1)[-1]
+            planted[f"{tag}: --allocate-id STILL MINTS (restricted, not "
+                    f"disabled)"] = (rc == EXIT_OK and len(minted) == 1)
+            # The round-trip, off the bytes the producer wrote, not off a
+            # fixture this function shaped.
+            planted[f"{tag}: the minted id round-trips through "
+                    f"parse_record_ids"] = (
+                bool(minted) and minted[0] in parse_record_ids(on_disk, path))
+        notes.append(
+            f"    allocation still mints on all {len(allowed)} permitted "
+            f"records ({', '.join(p.rsplit('/', 1)[-1] for p in allowed)}), "
+            f"read back off the bytes main() wrote -- so the refusal below is "
+            f"RESTRICTIVE, not a feature switched off")
+
+        # ---- ARM B: the refusal, through the production path ---------------
+        repo_l = fresh(L)
+        rows_l = root / "rows_L.md"
+        rows_l.write_text(row_form[L].format(id=ALLOCATE_PLACEHOLDER))
+        before_l = (repo_l / L).read_text()
+        rc_refuse = run_main(repo_l, L, rows_l, "--allocate-id")
+        after_l = (repo_l / L).read_text()
+        planted["LESSONS.md: --allocate-id REFUSES through main()"] = (
+            rc_refuse == EXIT_REFUSED_ALLOCATION)
+        planted["LESSONS.md: the refusal wrote NOTHING to the record"] = (
+            after_l == before_l)
+        # The code is a REFUSAL code and NOT section 2ak's instrument-error 70.
+        planted["the refusal code is an allocation refusal, not section 2ak's "
+                "instrument-error 70"] = (
+            rc_refuse == EXIT_REFUSED_ALLOCATION and rc_refuse != 70)
+
+        # ---- ARM C: near-misses, one byte outside the refusal --------------
+        # C1: the SAME record, WITHOUT --allocate-id. Must still append.
+        rows_int = root / "rows_L_int.md"
+        rows_int.write_text("## L-2. a lesson with a HAND-DERIVED integer id.\n")
+        rc_int = run_main(repo_l, L, rows_int, "--expect-first-id", "L-2")
+        after_int = (repo_l / L).read_text()
+        planted["LESSONS.md NEAR-MISS: the integer path is UNTOUCHED -- "
+                "--expect-first-id still appends"] = (
+            rc_int == EXIT_OK and "## L-2." in after_int)
+        # C2: the CLOSEST NEIGHBOUR record, WITH --allocate-id. Must still mint.
+        # NUMERICS is the neighbour that matters: it also carries zero tool ids
+        # in production and its minted form is also unusual for the record, so
+        # a refusal written one notch too wide would take it too.
+        N = "docs/NUMERICS_KNOWLEDGE.md"
+        repo_n = fresh(N)
+        rows_n = root / "rows_N.md"
+        rows_n.write_text(row_form[N].format(id=ALLOCATE_PLACEHOLDER))
+        rc_n = run_main(repo_n, N, rows_n, "--allocate-id")
+        planted["NUMERICS NEAR-MISS: allocation is NOT refused there (the "
+                "minted form is INVISIBLE to N-[A-Z]+, never MISREAD)"] = (
+            rc_n == EXIT_OK)
+        # ... and the invisibility claim itself, measured rather than asserted.
+        n_minted = re.findall(tool_id_pattern(N), (repo_n / N).read_text())
+        planted["NUMERICS: the family expression N-[A-Z]+ finds NOTHING in the "
+                "minted id, which is why it is invisible and not misread"] = (
+            bool(n_minted) and re.findall(r"N-[A-Z]+", n_minted[0]) == [])
+
+        # ---- ARM C3: CLAUSE PARITY -- the claim that made it legal to edit
+        # a Sanaa directive's control arms, MEASURED instead of asserted.
+        #
+        # WHY THIS LIMB EXISTS. The scope ruling forced the `corrects:`
+        # specimens on a refused record onto the LEGACY own-id form, and the
+        # justification for touching those arms is "coverage is preserved, not
+        # reduced: every clause is still exercised on ALL FOUR records". As a
+        # COMMENT that claim is worth nothing -- a later edit could drop a
+        # clause from the refused-record branch and nothing would fire, turning
+        # the edit into a silent REDUCTION of her directive's coverage. So the
+        # sentence is a limb.
+        #
+        # The sets are DERIVED FROM THE SPECIMEN LIST, never written down here:
+        # a hand-written expected set would pass by agreeing with itself.
+        # `core` selects the specimens the SHARED per-record loop produces, so
+        # record-specific extras (DOCKET's motivating case, COST's two
+        # untouched-refusal rows, and this ruling's own scope specimen) do not
+        # make like look unlike.
+        core_clauses: dict[str, set] = {}
+        for s in _corrects_specimens():
+            if s["core"]:
+                core_clauses.setdefault(s["path"], set()).add(s["clause"])
+        allowed_sets = {p: frozenset(c) for p, c in core_clauses.items()
+                        if p not in ALLOCATION_REFUSED}
+        refused_sets = {p: frozenset(c) for p, c in core_clauses.items()
+                        if p in ALLOCATION_REFUSED}
+        planted["clause parity: the PERMITTED records all exercise ONE core "
+                "corrects: clause set (so there is a baseline to compare to)"] = (
+            len(set(allowed_sets.values())) == 1 and bool(allowed_sets))
+        # A baseline that exists only because every set is empty would satisfy
+        # the limb above and prove nothing -- the planted-zero shape.
+        planted["clause parity: that baseline is NON-EMPTY, so the comparison "
+                "below is not two empty sets agreeing"] = (
+            bool(allowed_sets) and all(allowed_sets.values()))
+        baseline = (next(iter(allowed_sets.values())) if allowed_sets
+                    else frozenset())
+        planted["clause parity: at least one record is actually REFUSED, so "
+                "this arm has something to measure"] = bool(refused_sets)
+        for p, got in sorted(refused_sets.items()):
+            tag = p.rsplit("/", 1)[-1]
+            missing = sorted(baseline - got)
+            extra = sorted(got - baseline)
+            # The limb NAME carries the computed difference, so a failure says
+            # WHICH clause went missing rather than only that something did.
+            planted[f"{tag}: every core corrects: clause is still exercised on "
+                    f"this REFUSED record -- missing "
+                    f"{missing or 'none'}, unexpected {extra or 'none'}"] = (
+                got == baseline)
+        notes.append(
+            f"    clause parity, derived from the specimen list: permitted "
+            f"records exercise {sorted(baseline)} and every "
+            f"ALLOCATION_REFUSED record exercises the same set -- so the "
+            f"legacy-own-id re-scoping preserved Sanaa's corrects: coverage "
+            f"rather than shrinking it, and that is now a limb rather than a "
+            f"comment")
+
+        # ---- ARM D: THE RULE-11 REGRESSION ---------------------------------
+        # (i) BUILD the file that would exist if the guard were absent. The
+        #     guard is removed at its own knob, so this is this module WITHOUT
+        #     the repair rather than a hand-written imitation of it.
+        pre = check_allocation(rows_l.read_text(), L, allocate=True,
+                               apply_allocation_scope=False)
+        planted["rule-11 regression: with the scope clause REMOVED the same "
+                "call is ACCEPTED, so the limb below measures the guard"] = (
+            pre["ok"])
+        poisoned_rows, poisoned_ids = allocate_into_rows(rows_l.read_text(), L)
+        would_be = before_l + poisoned_rows
+        # (ii) Run rule 11's OWN derivation, verbatim, over both files.
+        f_true = root / "rule11_true.md"; f_true.write_text(before_l)
+        f_pois = root / "rule11_poisoned.md"; f_pois.write_text(would_be)
+
+        def rule11(f: Path) -> str:
+            done = subprocess.run(
+                ["bash", "-c", RULE_11_DERIVATION.format(f=str(f))],
+                capture_output=True, text=True)
+            return done.stdout.strip()
+
+        true_max, poisoned_max = rule11(f_true), rule11(f_pois)
+        planted["rule-11 regression: over the record as it stands the "
+                "derivation returns the TRUE maximum"] = (true_max == "1")
+        planted["rule-11 regression: over the file the tool WOULD have written "
+                "it returns the minted DATE instead"] = (
+            poisoned_max == "20260903" or
+            (poisoned_max.isdigit() and int(poisoned_max) > 10 ** 7))
+        planted["rule-11 regression: and the misread number is ORDERS larger "
+                "than the true maximum, so it wins every sort"] = (
+            poisoned_max.isdigit() and true_max.isdigit()
+            and int(poisoned_max) > int(true_max) * 1000)
+        # (iii) WITH the guard, that file cannot be produced through the tool.
+        planted["rule-11 regression: WITH the guard, main() refuses and the "
+                "poisoned file is NOT produced"] = (
+            rc_refuse == EXIT_REFUSED_ALLOCATION
+            and not re.findall(tool_id_pattern(L), (repo_l / L).read_text()))
+        # NEGATIVE: the poisoned id must NOT be visible to the LEGACY reader --
+        # that asymmetry (tool reader content, constitution reader wrong) is the
+        # whole defect, and if it ever stopped holding the diagnosis changes.
+        negative["the LEGACY LESSONS pattern parses the minted id, which would "
+                 "mean the defect was a plain parse failure"] = bool(
+            parse_ids(poisoned_rows, RECORDS[L]))
+        # NEGATIVE: allocation must not be refused on a record with no
+        # prescribed integer derivation -- that would be DISABLED, not scoped.
+        negative["allocation is refused on COST_CALIBRATION, the most-used "
+                 "record"] = not check_allocation(
+            f"| {ALLOCATE_PLACEHOLDER} | 2026-09-03 | verification | r |\n",
+            "docs/COST_CALIBRATION.md", allocate=True)["ok"]
+        notes.append(
+            f"    rule 11's own derivation, run VERBATIM: {true_max} over the "
+            f"record as it stands, {poisoned_max} over the file --allocate-id "
+            f"would have written ({len(poisoned_ids)} minted id). The guard is "
+            f"what stands between those two numbers")
+
+    return planted, negative, notes
 
 
 def run_corrects_control() -> tuple[dict, dict, list[str]]:
@@ -2742,6 +3183,10 @@ def run_controls() -> tuple[control_kind.ControlLedger, int, list[str]]:
     corr_planted, corr_negative, corr_notes = run_corrects_control()
     notes += corr_notes
 
+    # ---- limb group 6: the 2026-09-03 ALLOCATION SCOPE ruling --------------
+    scope_planted, scope_negative, scope_notes = run_allocation_scope_control()
+    notes += scope_notes
+
     ledger = control_kind.ControlLedger(
         claim_class="worktree-only bytes that match no id pattern")
     ledger.plant("merge preserves the invisible tail",
@@ -2783,6 +3228,14 @@ def run_controls() -> tuple[control_kind.ControlLedger, int, list[str]]:
                             "records' own declarations",
                  planted=corr_planted,
                  negative=corr_negative)
+    ledger.plant("--allocate-id is REFUSED exactly where the constitution "
+                 "prescribes an integer derivation that MISREADS the minted "
+                 "form, and still mints everywhere else (2026-09-03)",
+                 vocabulary="tool-allocated ids in each record's own heading "
+                            "grammar, on disk, plus CLAUDE.md rule 11's own "
+                            "shell derivation run verbatim",
+                 planted=scope_planted,
+                 negative=scope_negative)
 
     failures = [n for n, ok in planted.items() if not ok]
     if overwrite_kept:
@@ -2824,6 +3277,11 @@ def run_controls() -> tuple[control_kind.ControlLedger, int, list[str]]:
     failures += [f"corrects: NEGATIVE WAS matched -- the field scoping is NOT "
                  f"load-bearing: {n}"
                  for n, hit in corr_negative.items() if hit]
+    failures += [f"allocation-scope limb did not hold: {n}"
+                 for n, ok in scope_planted.items() if not ok]
+    failures += [f"allocation-scope NEGATIVE WAS matched -- the refusal is "
+                 f"wider than the measurement that justifies it: {n}"
+                 for n, hit in scope_negative.items() if hit]
     notes.append(
         "    D549 clause 1a proved BOTH WAYS on the same call: repaired -> "
         f"exit {ev_none['code']} (refused); pre-repair gate restored -> exit "
