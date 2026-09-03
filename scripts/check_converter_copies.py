@@ -56,7 +56,9 @@ import hashlib
 import io
 import json
 import os
+import shutil
 import sys
+import tempfile
 import tokenize
 
 # Roots swept for copies. Both sides of the repo boundary, because the defect lived on
@@ -295,12 +297,25 @@ def check(cfg: Config | None = None, as_json: bool = False, emit: bool = True):
 # Planted controls
 # ---------------------------------------------------------------------------
 
-def _fixture(tmp: str):
+def _fixture(parent: str):
     """Build a throwaway tree of real `ugrid_to_foam.py` files and a Config over it.
 
     Three canonical-lineage copies and one second-lineage pair, each in its own
     subdirectory so the sweep finds them by the real filename.
+
+    THE `mkdtemp` ON THE FIRST LINE IS LEDGER-BEARING, NOT STYLE. `lab_check.py`'s
+    write predicate (`_write_primitive`, `lab_check.py:714`) exempts a write only when
+    the ENCLOSING FUNCTION itself calls a tempmaker -- the exemption is per-function and
+    deliberately never module-wide (docket D283), because a blanket once admitted eight
+    writers against the live tree. Measured 2026-09-03: when this helper took a path
+    from its caller instead of making one, `lab_check --list` reclassified the whole
+    module `writes-to-tree: line 306: os.makedirs(...)` and SKIPPED it -- admitted 1
+    became admitted 0, and the checker went inert in the runner it exists to be run by.
+    Making the temp directory HERE restores admission and is the true statement anyway:
+    every write below lands under a directory this function just created.
     """
+    tmp = tempfile.mkdtemp(dir=parent)
+
     def w(rel: str, body: bytes) -> str:
         p = os.path.join(tmp, rel, TARGET)
         os.makedirs(os.path.dirname(p), exist_ok=True)
@@ -342,13 +357,11 @@ def selftest():
     would fire every positive plant. P0 requires exit 0 and an EMPTY problems list on a
     clean fixture, so the positives are only evidence against a background of silence.
     """
-    import shutil
-    import tempfile
     rep = {}
     with tempfile.TemporaryDirectory() as t:
 
         # P0 -- NEGATIVE CONTROL. A clean fixture must be silent.
-        cfg, f = _fixture(os.path.join(t, "p0"))
+        cfg, f = _fixture(t)
         code, report = check(cfg, emit=False)
         rep["P0_clean_fixture_is_silent"] = {
             "exit_code": code, "n_problems": len(report["problems"]),
@@ -358,7 +371,7 @@ def selftest():
                     "unconditionally would pass every positive plant below"}
 
         # P1 -- ONE BYTE differs inside the canonical lineage.
-        cfg, f = _fixture(os.path.join(t, "p1"))
+        cfg, f = _fixture(t)
         with open(f["c2"], "r+b") as fh:
             fh.seek(2)
             fh.write(b"X")
@@ -370,8 +383,10 @@ def selftest():
             if report["lineage_canonical"][p] != report.get("canonical_sha256")]
 
         # P2 -- an UNKNOWN copy appears on disk.
-        cfg, f = _fixture(os.path.join(t, "p2"))
-        stray = os.path.join(t, "p2", "stray", TARGET)
+        cfg, f = _fixture(t)
+        # INSIDE the fixture's own sweep root (cfg.roots[0]), or the sweep never sees it
+        # and P2 stops firing for a reason that has nothing to do with the instrument.
+        stray = os.path.join(cfg.roots[0], "stray", TARGET)
         os.makedirs(os.path.dirname(stray), exist_ok=True)
         shutil.copyfile(f["c1"], stray)
         code, report = check(cfg, emit=False)
@@ -380,7 +395,7 @@ def selftest():
             os.path.relpath(p, t) for p in report["unknown_copies"]]
 
         # P3 -- a KNOWN copy vanishes. NOT A RESULT, never "no divergence".
-        cfg, f = _fixture(os.path.join(t, "p3"))
+        cfg, f = _fixture(t)
         os.remove(f["c3"])
         code, report = check(cfg, emit=False)
         rep["P3_absent_copy_is_NOT_A_RESULT"] = _fired(code, report, "NOT A RESULT")
@@ -401,7 +416,7 @@ def selftest():
         rep["P4_ast_self_check_rejects_bare_assert"] = {"fired": fired4}
 
         # P5 -- DRIFT INSIDE THE SECOND LINEAGE, which is never synced to the canonical.
-        cfg, f = _fixture(os.path.join(t, "p5"))
+        cfg, f = _fixture(t)
         with open(f["s2"], "ab") as fh:
             fh.write(b"# drifted\n")
         code, report = check(cfg, emit=False)
@@ -414,7 +429,7 @@ def selftest():
         # This is the production configuration after the 2026-09-03 removal. The plant
         # requires the word VACUOUS in the report, because a silent pass over a set that
         # cannot disagree with itself is a fail-open wearing a pass.
-        cfg, f = _fixture(os.path.join(t, "p6"))
+        cfg, f = _fixture(t)
         cfg1 = dataclasses.replace(
             cfg, second_lineage=(f["s1"],),
             known=tuple(p for p in cfg.known if p != f["s2"]))
