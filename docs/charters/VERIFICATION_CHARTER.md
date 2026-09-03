@@ -5842,3 +5842,147 @@ that every hazard case produced exactly one start-time directory still holds.
 | **`VR3-R2`** | **`GATE FAIL` — 4 of 12 UNGUARDED, one function replicated four times** |
 | gates · thresholds · bands · caps · labels | **0 · 0 · 0 · 0 · 0** |
 | solver compute | **0 core-min, $0.00** |
+
+---
+
+## Amendment — v1.51, 2026-09-03 — **§2ac THE D12RLX CLASS IS RULED ON ITS SECOND SPECIMEN: A LANDED VERDICT WHOSE LOAD-BEARING PREMISE IS MEASURED FALSE IS `NOT A RESULT`, AND A GATE THAT FIRED AND RETURNED A FALSE VALUE IS WORSE THAN ONE NEVER WRITTEN · §2ad DEMOTING YOUR OWN `GATE FAIL` IS PERMITTED AND CARRIES A DISCLOSURE BURDEN THAT DEMOTING YOUR OWN `PASS` DOES NOT · §2ae "A CORRECTION FILED ONLY AT THE FOOT DOES NOT REACH THE READER OF THE CLAUSE" IS RIGHT, AND THE FIX IS NOT TO ANNOTATE FROZEN BYTES**
+
+**Lines whose number changed above this section: 0.** Pure append; pre-append digest
+`9a0e4573f746fc297c1e85b5b272ad8d` at 5,844 lines. **Zero solver compute; 0 core-min; $0.00.**
+**Nothing is re-graded by this amendment — it states the law; the demotion is
+ansys-verification's to take** (`§2z.3`: the owning team demotes its own verdicts; this team
+rules the class).
+
+### §2ac THE SECOND SPECIMEN, AND IT SHARPENS `§2w` RATHER THAN REPEATING IT
+
+`§2w` ruled the first limb: *a landed verdict whose load-bearing gate was NEVER IMPLEMENTED is
+`NOT A RESULT`.* **The ansys specimen is a different and worse shape: the gate WAS implemented,
+DID fire, and returned a FALSE VALUE.**
+
+**`[VERIFIED BY ME AT SOURCE, ansys-verification's own record]`:** *"L3 excursion 1.2037e-01 m
+= **192.60 % of the band**, final-window **3.722 %**, while its **plateau limb read
+4.332e-10** and row #54 records **'plateau MET at every level'**."*
+
+> **THE NUMBER THAT DECIDES THIS IS `4.332e-10`.** The plateau limb did not report a marginal
+> pass. **It reported a near-exact ZERO for a quantity that was moving by 192.60 % of its own
+> band** — because it watched an **upstream supersonic station that causally cannot see the
+> shock**. **That is `CLAUDE.md` rule 3's shape in a graded gate: a zero from a reader not
+> shown able to see a non-zero.** Three guards, one geometry, **all defeated identically** —
+> which is not three failures but **one blind station wearing three coats**.
+
+> **RULED — `§2ac`: A LANDED VERDICT WHOSE LOAD-BEARING PREMISE IS ASSERTED TRUE IN ITS OWN
+> RECORD AND IS MEASURED FALSE IS `NOT A RESULT`, WHATEVER ITS PRINTED LABEL WAS.** Rule 5's
+> one permitted direction applies: `PASS` → `NOT A RESULT` and `GATE FAIL` → `NOT A RESULT`
+> are both legal; **the reverse is not, ever.**
+>
+> **AND THE THREE CASES RANK, WHICH `§2w.1` DID NOT YET SAY:**
+> 1. **a gate never implemented** — *silent*; produces no verdict (`§2w`);
+> 2. **a gate implemented and unreached** — *inert*; produces no verdict on that branch, and if
+>    a **stricter** verdict preempts it, that is a **PROPERTY**, not a defect (`§2ab`, today);
+> 3. **⚠ a gate implemented, FIRED, and FALSE** — ***asserts***. **It manufactures a positive
+>    claim of soundness, and a false assurance is indistinguishable from a true one at the
+>    point of reading.** **This is the worst of the three and it is the only one that
+>    propagates**, because downstream records quote the assurance rather than re-deriving it —
+>    exactly as `COST_CALIBRATION.md:361` quoted `G-RLX-0`'s non-existent pass in the first
+>    specimen.
+
+### §2ac.1 PARTIAL SCOPE IS CORRECT, AND ansys STATED IT BEFORE BEING ASKED
+
+**A SURVIVING FINDING IS NOT A SURVIVING VERDICT, and the two must not be traded for each
+other.** The row's **graded verdict** is `NOT A RESULT` — rule 5 step (1) voids the row the
+moment any level is not plateaued, and the finest level is not. **But the flagship finding
+—** *the shock moves AWAY from the reference under refinement* **— rests on `L1 → L2`
+(+1.73 % → −4.06 %), movement between two SETTLED levels, and SURVIVES** as a **physics
+finding, reported not gated** (Sanaa's ~20:00Z taxonomy). **The `L3` point and the −12.92 %
+Richardson extrapolation are CONTAMINATED and do not survive**, because the extrapolation
+consumes the non-converged level — and rule 5 forbids quoting a GCI over values that are not
+monotone for the same reason.
+
+> **RULED: a `NOT A RESULT` voids the ROW's VERDICT, never the team's MEASUREMENTS. Findings
+> resting wholly on settled levels are preserved, labelled as findings, and may not be
+> re-described as verdicts; anything consuming the voided level goes with it.** *Ansys drew
+> this line itself, correctly, before any ruling reached them.*
+
+### §2ad ⚠⚠ THE ASYMMETRY THE CHIEF CORRECTLY FLAGGED, AND IT IS THE HARD PART
+
+Row #55 was **`PASS` → `NOT A RESULT`**: **self-adverse** — it cost the team a credential.
+Row #54 is **`GATE FAIL` → `NOT A RESULT`**: **rule 5 permits it identically**, but it
+**RELIEVES the demoting team of a recorded failure.** *Same direction under the rule, opposite
+incentive.* **A rule blind to that difference would let any team launder every failure into
+"we do not know."**
+
+> **RULED — `§2ad`: RULE 5'S PERMISSION IS SYMMETRIC AND THE EVIDENTIARY BAR IS IDENTICAL. WHAT
+> DIFFERS IS THE DISCLOSURE BURDEN. A demotion that relieves the demoting team of a recorded
+> failure must, on the face of the demotion:**
+> 1. **state that it does so** — *"this demotion vacates a `GATE FAIL` against this team"*;
+> 2. **preserve every finding of the vacated `GATE FAIL` that rests on settled levels**, so the
+>    adverse content is not lost with the label;
+> 3. **name what would have to be true for the `GATE FAIL` to be REINSTATED** — the condition,
+>    stated in advance, so a later re-run can settle it rather than re-argue it.
+>
+> **No such burden attaches to demoting one's own `PASS`: the act is already against interest,
+> and requiring extra ceremony of it would tax exactly the behaviour this lab wants.**
+
+**AND THE PRECEDENT THE CHIEF IDENTIFIED IS WHY THIS CLAUSE CAN BE PERMISSIVE RATHER THAN
+SUSPICIOUS.** Ansys ran **the unfavourable one first, with zero discretion** — demoting the
+frozen comparator's **own printed `PASS`** on measured evidence, losing a credential by it.
+**A team that has already demoted its own `PASS` on this evidence has earned the presumption
+of good faith when it demotes its own `GATE FAIL` on the same evidence.** *The precedent is not
+the rule and cannot be — the disclosure burden binds a team with no such record just the same —
+but it is the reason the rule is written as a duty to disclose rather than as a permission to
+withhold.*
+
+### §2ae THE REPAIR FORM — ansys `§30` IS RIGHT AND THE OBVIOUS FIX IS THE WRONG ONE
+
+Their `§30`: ***"a correction filed only at the foot does not reach the reader of the
+clause."*** **Correct, and it names a real gap in rule 6**, which requires the dated amendment
+at the foot and says nothing about the reader who never scrolls there. *I created an instance of
+it myself today: `§2p.8`'s false sentence is struck at v1.50 and a reader of `:4872` still sees
+no mark.*
+
+**THE OBVIOUS FIX IS FORBIDDEN AND MUST BE NAMED AS FORBIDDEN**, because it is what a
+well-meaning successor will reach for: **annotating the frozen artifact at the site.** For an
+**executable comparator** that breaks the sha, and rule 2 fixes the grading path **by sha** —
+so an in-place marker would destroy the very property that makes the freeze evidence. **Never
+annotate frozen bytes.**
+
+> **RULED — `§2ae`: THE CORRECTION MUST BE REACHABLE FROM WHERE THE NUMBER IS READ, NOT FROM
+> WHERE IT WAS WRITTEN.** A reader about to believe a verdict consults the **REGISTER ROW** and
+> the **RESULTS record** — never the comparator's source. **So the obligation lands there: a
+> demoted verdict's REGISTER ROW carries the demotion IN ITS VERDICT CELL**, and the results
+> record carries it **at the head of its section**, not in an addendum at the foot of a
+> different document. **The amendment at the foot remains required and remains insufficient by
+> itself.** *This renumbers nothing, edits no frozen byte, breaks no sha, and costs one cell.*
+
+### §2af CLASS SIZE — AND I APPLY MY OWN `§2p.5` AGAINST MY OWN CLAUSE
+
+D12RLX is one specimen. **Rows #54 and #55 are ONE specimen with two rows** — the same
+unconverged finest level, one geometry, three guards defeated identically. **That is TWO
+instances, and `§2p.5` says two instances is a PATTERN AND NOT A CLASS.**
+
+> **NO SWEEP IS ORDERED.** I have refused a sweep on a two-member population twice today and I
+> refuse my own here. **`§2ac` is stated forward-only**, and under Sanaa's clause 2 it
+> **schedules no backfill**: it creates no migration work for any team, and it applies to
+> verdicts as they are taken. *A supervisor who applies a threshold only to other teams' classes
+> has no threshold.*
+
+**BLOCKED RESULT NAMED, per her governance bar:** ansys-verification's **row #54 verdict**, held
+by them pending this ruling precisely because they would not re-grade a landed verdict
+unilaterally. **This ruling unblocks it.** The action is theirs; this team audits the RESULT,
+not the work.
+
+| item | outcome |
+|---|---|
+| the class | **RULED — premise measured false ⇒ `NOT A RESULT`, whatever the printed label** |
+| the three cases, ranked | **silent (never implemented) < inert (unreached) < ⚠ ASSERTS (fired and false)** |
+| why the third is worst | it **manufactures a positive claim of soundness** and **propagates** into records that quote it |
+| the deciding number | **plateau limb `4.332e-10`** against **192.60 % of band** — rule 3's false zero, inside a graded gate |
+| partial scope | **UPHELD** — `L1→L2` finding survives as a FINDING; `L3` and the −12.92 % Richardson go with the voided level |
+| `GATE FAIL` → `NOT A RESULT` | **PERMITTED**, identical evidentiary bar, **plus a three-limb disclosure burden** |
+| `PASS` → `NOT A RESULT` | **no added burden** — already against interest |
+| ansys's precedent | **the unfavourable demotion ran first, with zero discretion** — the reason `§2ad` is a duty to disclose, not a licence to withhold |
+| **`§30`'s complaint** | **UPHELD** — and the fix is the **register row's verdict cell**, never an annotation on frozen bytes |
+| sweep | **REFUSED — two instances is a pattern, `§2p.5`, applied against my own clause** |
+| who acts | **ansys-verification.** This amendment states the law and re-grades nothing |
+| gates · thresholds · bands · caps · labels | **0 · 0 · 0 · 0 · 0** |
+| solver compute | **0 core-min, $0.00** |
