@@ -1373,3 +1373,80 @@ registered run root is absent, asserted by execution above.
 `a1wrt_controldict.py` — and check 4, the freeze blob against disk against
 `HEAD`. Neither is a lane's to perform on his behalf. **Open and referred to
 him:** whether `S6` should also write `system/decomposeParDict`, per A2.3.
+
+---
+
+## ADDENDUM 3 — 2026-09-03T20:47Z — A CENSUS FIGURE IN ADDENDUM 2 WAS WRONG AND IS CORRECTED HERE
+
+**Document version 1.2 → 1.3.**
+**Lines whose number changed above this section: 0.** Appended at the foot;
+nothing above was edited, **and the figure is COMPUTED, not claimed** — in the
+amending invocation the first 1,375 lines of this file, its entire length before
+this append, were compared byte-for-byte against its blob at `HEAD` and are
+identical, and `git diff` for this path shows one hunk with zero deleted lines.
+
+**PRE-COMPUTE CONDITION, BY EXECUTION IN THE APPENDING INVOCATION:** the
+registered run root `/home/ubuntu/certonomous-runs/A1WRT/` is **ABSENT**; the
+appending shell was written to refuse the append had it existed.
+
+**THIS ADDENDUM ALTERS NO GATE, NO THRESHOLD, NO CAP AND NO LABEL.** Every value
+in ADDENDUM 2's §A2.2 table stands. What it corrects is a **count**, and the
+correction makes the claim narrower, not wider.
+
+### A3.1 The error, stated as mine
+
+**ADDENDUM 2 §A2.4 says: *"Thirteen copies of `wingFFD.xyz` exist on this box and
+all thirteen carry that one md5."* THAT SENTENCE IS FALSE AND IT IS STRUCK.** The
+lane that wrote it ran its census with `find` rooted at
+`/home/ubuntu/certonomous-runs/A1WR`, got 13, and then reported the figure as
+*"on this box"*. It is the error this lab names by its own rule — **asking what a
+glob cannot see** — committed inside a sentence whose whole purpose was to be a
+census rather than a sample. Its own enumeration did not even add up: it listed
+*"nine STAGE12 unit cases"* plus three plus one, which is thirteen only because
+the nine is also wrong.
+
+### A3.2 The measured figures, box-wide and scoped
+
+**BOX-WIDE**, `find /home/ubuntu -name wingFFD.xyz` excluding `.git`:
+
+| | |
+|---|---|
+| files named `wingFFD.xyz` | **484** |
+| **distinct md5s among them** | **9** |
+| carrying `6ddf378b028d03d8a18270488bee1759` | **284** |
+
+**So these bytes are NOT globally unique, and nothing in this item's argument
+requires them to be** — a different geometry gets a different FFD, and the other
+eight hashes belong to the M6, CRM, RAE2822 and tutorial cases.
+
+**SCOPED — and the scope is the whole claim.** Inside **A1WR's own preserved run
+root**, `/home/ubuntu/certonomous-runs/A1WR/`:
+
+| where | files | md5 |
+|---|---|---|
+| `STAGE12/` unit cases — `sweep_I`, `sweep_C`, `cold_{I,C}_{4,14,17}`, `probe_I`, `probe_C` | **10** | all `6ddf378b028d03d8a18270488bee1759` |
+| `STAGE12_failed_meshcheck_20260902T181325Z/` | **2** | same |
+| `STAGE12_failed_staging_20260902T180915Z/` | **1** | same |
+| **total inside A1WR's root** | **13** | **one md5, no exceptions** |
+| plus `SKEL_I`, the incompressible skeleton the driver copies from (`a1wr_chain_driver.sh:33`) | **1** | same, giving **14** |
+
+**THE ONE-VARIABLE ARGUMENT IS UNCHANGED AND IS NOW CORRECTLY SCOPED.** What it
+needs is that the FFD does not vary *inside the item A1WRT is compared against*,
+and that is measured: 13 of 13 within A1WR, 14 of 14 including the skeleton those
+13 descend from. The registered `FFD_SRC` and `MD5_FFD` do not move.
+
+### A3.3 `a1wrt_run_unit.sh` RE-PINNED, because the comment carrying the false figure was corrected
+
+The launcher's `S5b` comment repeated the same wrong sentence, so it was
+corrected to the scoped form and now states the box-wide 484/9 explicitly so no
+reader can take the scoped claim for a global one.
+
+| instrument | md5 | supersedes |
+|---|---|---|
+| `a1wrt_run_unit.sh` | **`0b00f8bf8d4425131c37bc585e249f4e`** | ADDENDUM 2's `718b5d47bdc857e074c1f6e6fa18f24f`, which remains the correct pin for that addendum's text |
+
+**Comment text only — no executable line changed.** `bash -n` passes, and the
+`S5b` guard block was **re-driven after the edit: 5/5 legs as registered**, the
+same five as ADDENDUM 2 §A2.6. `a1wrt_controldict.py` is untouched at
+`a77c9bac486dce940707bdf9c00e1a6b`, and the grading path `a1wrt_read.py` remains
+`705db5f7e972f6c033cbe303b7a6038f`. **Still not enqueued, still not launched.**

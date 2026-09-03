@@ -86,12 +86,18 @@ A1WR_CASE_DIR=/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/wall_resolved_ao
 # assumed: `FFD/wingFFD.xyz` is the ONLY external file the producer opens --
 # a1wr_runScript_incomp.py has exactly one such reference, at :129.
 #
-# THERE ARE THIRTEEN COPIES OF THIS FILE ON THIS BOX AND ALL THIRTEEN ARE
-# BYTE-IDENTICAL AT md5 6ddf378b028d03d8a18270488bee1759 -- every unit case
-# under A1WR/STAGE12 (sweep_I, sweep_C, cold_{I,C}_{4,14,17}, probe_I, probe_C),
-# both failed-staging roots, and the incompressible SKELETON A1WR's driver
-# copies from (a1wr_chain_driver.sh:33 SKEL_I).  So the CHOICE of path cannot
-# move a byte today, and it is made on provenance instead:
+# THE CENSUS, SCOPED -- AND THE SCOPE IS THE POINT.  Within A1WR'S OWN RUN ROOT
+# there are THIRTEEN wingFFD.xyz files and ALL THIRTEEN carry md5
+# 6ddf378b028d03d8a18270488bee1759: its TEN STAGE12 unit cases (sweep_I, sweep_C,
+# cold_{I,C}_{4,14,17}, probe_I, probe_C), TWO in STAGE12_failed_meshcheck and
+# ONE in STAGE12_failed_staging.  The incompressible SKELETON A1WR's driver
+# copies from (a1wr_chain_driver.sh:33, SKEL_I) carries the same md5, making
+# FOURTEEN.  These bytes are NOT globally unique and this comment does not claim
+# they are: box-wide there are 484 files of this name carrying NINE distinct
+# md5s, because a different geometry gets a different FFD.  The claim is the
+# scoped one -- inside the item A1WRT is being compared against, the FFD does not
+# vary -- and it is the only one the one-variable argument needs.  So the CHOICE
+# of path cannot move a byte today, and it is made on provenance instead:
 #   `sweep_I/case` IS the alpha 0..12 incompressible sweep this item's tail
 #   extends -- driver line 239, CONTINUED, tol 1.0e-8, endTime 4000, the exact
 #   configuration G-REPRO compares against.  These are the bytes the BODY's
@@ -533,11 +539,11 @@ stage_say "A1WRT_STAGE (S5) OK producer and unit program staged, every md5 asser
 # MESH DIRECTORY HAS NO FFD/.  A1WR never hit this because its driver stages from
 # a case SKELETON and overlays L3's polyMesh; A1WRT stages from the mesh
 # directory, which carries the mesh and the fields but not the case furniture.
-# MEASURED: every one of the THIRTEEN wingFFD.xyz copies on this box -- A1WR's
-# nine STAGE12 unit cases, its two failed-staging roots and the SKELETON its
-# driver copies from -- carries md5 6ddf378b028d03d8a18270488bee1759, so staging
-# it here moves no variable: it RESTORES an input A1WR always had.  The source
-# and the reason for that source are registered at FFD_SRC above.
+# MEASURED: all THIRTEEN wingFFD.xyz files under A1WR's own run root, and the
+# SKELETON its driver copies from, carry md5 6ddf378b028d03d8a18270488bee1759 --
+# so staging it here moves no variable: it RESTORES an input A1WR always had.
+# The source, the scope of that census and the reason for that source are
+# registered at FFD_SRC above.
 # THIS DEFECT WAS MASKED BY S6: the launch aborted on the controlDict first and
 # never reached the primal, where this would have failed inside the container.
 test -f "$FFD_SRC" || { stage_say "ABORT S5b the FFD source is absent: $FFD_SRC -- the producer loads it at runScript:129 and cannot build its model without it"; exit 5; }
