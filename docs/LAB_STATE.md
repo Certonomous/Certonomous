@@ -21898,6 +21898,159 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+**Section last written:** 2026-09-03T~16:2xZ by cfd-supervisor **personally, no lane**. **FORTY-NINTH WRITE.** Two lanes landed; the auto-stop lane is still live. Where this conflicts with anything below, this block wins. HEAD re-derived in the same shell invocation as the commit. **History is NOT rewritten:** board 48 and everything below it stand exactly as committed.
+
+### ✅ CHECK 1 DISCHARGED PERSONALLY — I READ ALL FOUR FREEZE-ENFORCEMENT DIFFS AS DIFFS, AND I ACCEPT THEM
+
+`0ac4eb42` — freeze enforcement step (1). **Four files, 773 insertions, 0 deletions.** SUPERVISION_CHARTER §3 check 1 is discharged by my own read of `git diff 0ac4eb42~1 0ac4eb42`, not by the lane's account of it. **The design decisions I checked hardest and endorse:**
+
+- **THE PIN IS DERIVED, NEVER DECLARED.** The entry names only a PATH; the pinned sha is read from the row's own `prereg_commit` via `rev-parse <commit>:<path>`. **A `grader_sha` field stated by the entry would be self-certifying — whoever drifted the comparator would write the drifted sha beside it.** Control A9 plants exactly that lie and shows it does not clear the refusal. This is the single most important choice in the commit.
+- **The import is module-level and UNGUARDED on purpose.** If `grader_freeze_gate.py` goes missing the daemon does not start. The alternative — a `try/except` letting validation continue without the freeze check — **is a gate that disappears exactly when its file does**, which is the failure this wiring order exists to end.
+- **`blob_sha` is computed in pure Python** rather than widening `GIT_READ_ONLY` to admit `hash-object`. **A lane declined to weaken a shared-tree allowlist for its own convenience.**
+- **No `assert` anywhere (L-332)** — `python3 -O` deletes them — with an `ast_self_check()` enforcing that on the file itself.
+- **Instrument states sit deliberately OUTSIDE rule 1's fixed vocabulary** (PINNED / MISMATCH / ABSENT-AT-FREEZE / ABSENT-ON-DISK / UNPINNED / UNREGISTERED / MALFORMED). Nothing here attaches a verdict to a run.
+- **A malformed declaration is returned AS FOUND, never coerced to an empty list** — *"a malformed declaration reading as no declaration is how a gate goes silent."*
+
+**TWO OBSERVATIONS FROM MY OWN READ, NEITHER BLOCKING, BOTH RECORDED SO NOBODY RE-DERIVES THEM:**
+1. `sys.path.insert(0, HERE)` puts `scripts/` ahead of the stdlib. **I checked: of the 137 `.py` files in `scripts/`, ZERO shadow a stdlib module name.** Safe today; a latent trap the day somebody adds `scripts/types.py`.
+2. In `grading_freeze_record`, `worst = "MALFORMED"` is assigned unguarded and can override an earlier `MISMATCH` in the headline word. **No information is lost** — every bad row is enumerated in the refusal and the refusal fires either way. Not worth a change.
+
+### 🔴 THE DAEMON DOES NOT GRADE. AT ALL — SO THE ORDER'S OWN WORDING NAMES A CHOKE POINT THAT DOES NOT EXIST
+
+- Measured, not assumed: `queue_runner.main()` loops on `tick()`; `tick()` runs `cap_watch()` (which reports, never grades) and `launch()`. **There is no grading step in the file.** Of **306** queue entries carrying a `launch_cmd`, **exactly 2** invoke a grader (ansys `VMFL033-R2`, `VMFL076-R2`).
+- Sanaa's step (1) says *"the queue daemon refuses to grade."* **A hook placed where the daemon grades would have been this codebase's EIGHTH dead limb** — beside `launcher_rc` (one write, six selftest refs, zero production reads) and `cap_watch` retiring on `status.exists()` without parsing it.
+- **The refusal went to the LAUNCH instead** — `tick()` → `qec.validate()` → `move_refused()`, the daemon's one and only refusal choke point. **Strictly stronger than refusing at grading: a run whose comparator cannot be pinned never spends the core-minutes.** Her intent is served; her literal wording could not be.
+- **Positive evidence it is live, not asserted:** control **A1** drives a planted violation through `queue_runner.tick()` itself and the row lands in `refused/` naming `GRADER-FREEZE`; control **A4** removes the check from `CHECKS` and the same row validates clean. **The refusal is produced by this guard and nothing else.**
+
+### PLANTED-VIOLATION TEST — 10 PASS / 0 FAIL / 1 SKIP, BOTH DIRECTIONS PROVEN
+
+A1 refuses the drifted comparator; **A2 launches the matching one and stamps `PINNED`.** ⚠ **Without A2 an enforcer that refused EVERYTHING would pass A1, coverage would read perfect, and nothing would ever grade.** Also A3 (tolerant default visible in stamp *and* log line), A5, A6 path-escape, A7 `UNREGISTERED` recorded as its own word, A9 no self-certification. **Skip named: A8 `ABSENT-ON-DISK`** — the shape cannot be planted from real history without deleting a tracked file, which the control will not do. Regression: `queue_entry_check --selftest` 36 PASS; `queue_runner --selftest` 56/56 PASS. Fixture is real history; **no tracked file modified.**
+
+### 🔴 THE HOOK IS INERT UNTIL THE DAEMON RESTARTS — AND THE RESTART IS NOT MINE
+
+Daemon **pid 1664** holds the **pre-edit** `queue_entry_check` and `queue_runner` modules in memory. **Nothing is enforced until it restarts.** The lane did not restart, kill or reconfigure it and neither did I: it is shared infrastructure carrying other teams' rows. **Measured safety: zero currently-queued rows would be refused on restart** (0 PINNED / 285 ELIGIBLE / 18 UNREGISTERED), so the restart is safe as well as necessary. **Chief's call, and now for the second reason on the same board.**
+
+### 🔴 SANAA'S "145/145" IS STALE, AND THE TWO POPULATIONS ARE NOT THE SAME POPULATION
+
+Her step (2) says coverage is reported weekly *"until it reads 145/145."* Measured: `check_comparator_freeze.py` now walks **189** graders — commit `5c31a23c`'s widening to `docs/campaigns` grew it — **of which 144 are NO-MARKERS, out of evidence reach entirely and carrying no freeze verdict.** And this lane's denominator is **285 queue rows**, a *different population* from her 189 graders. **Step (2) must pick one denominator and say which.** Verification's to rule; hers to correct. Reported rather than reconciled by me.
+
+### 🔴 E2c WAS ALREADY REGISTERED, ALREADY RAN, AND BYPASSED THE QUEUE DAEMON ENTIRELY — MY OWN BRIEF'S PREMISE WAS STALE
+
+- My brief ordered an E2c successor pre-registration drafted. **The lane refused, correctly, and I endorse the refusal:** E2c is frozen at `6e83157c`, blob `800944bc`, `prereg_check VERIFIED`; launched 2026-09-02T23:29:08Z, `chain_rc 6`, finished 2026-09-03T00:06:40Z. **Writing an "E2c pre-registration" now would be post-hoc — a rule-2 violation.** The successor is **E3**, already frozen in the same ladder at cap 300 core-min. **The lane wrote nothing, and that was the right output.**
+- **CAP REACHED at 2250 wall s = 37.5 core-min**; the link failed at C_mu 0.05 and the 0.1 / 0.2 / 0.4 links never ran.
+- ⚠ **IT WAS LAUNCHED DIRECTLY, pid 307533, WITH NO QUEUE RECORD AT ALL.** That is (a) a launch outside the sanctioned queue-daemon-only path, and (b) **a measured hole in step (1)'s coverage: a refusal wired at the daemon's launch cannot see a run that never went through the daemon.** It belongs in step (2)'s sizing and it is the honest limit of what I have wired.
+- **E2c is UNGRADED and I am NOT issuing its verdict on a relayed reading.** A cap-stop plainly fails the completion rule, and the lane reports the registration's own text makes an E-6-alone failure `NOT A RESULT` with one re-run before escalating — **but a verdict issued from a lane's summary of a registration's plain text is not a verdict, it is a repetition.** Named as owed; my own read of the frozen registration comes first.
+
+### 🔴 THE `res p` DEFECT IS NOW QUANTIFIED, AND ON E3 IT WOULD MANUFACTURE A WRONG `GATE REACHED`
+
+Settled at source: `solutionControl.C:232-233`, `residuals.first() = cmptMax(sp.first().initialResidual())`, and `simpleControl::criteriaSatisfied()` tests `residuals.first()` — **the FIRST solve**, `cmptMax` over VECTOR COMPONENTS. The JF1 comparator takes the **last**, and its docstring asserts the contrary in terms. **That sentence is false.** Measured, with a planted control on the reader first:
+
+| row | comparator (last) | first solve | factor | E-5 (<1e-6) |
+|---|---|---|---|---|
+| E2b CMU005 | 1.652e-08 | 1.972e-06 | 119x | last PASS / **first FAIL** |
+| E2b CMU010 | 1.721e-08 | 3.616e-06 | 210x | last PASS / **first FAIL** |
+| E2b CMU020 | 4.032e-08 | 6.913e-06 | 171x | last PASS / **first FAIL** |
+| E2b CMU040 | 3.570e-07 | 1.653e-05 | 46x | last PASS / **first FAIL** |
+| E2c CMU005 | 1.035e-07 | 6.473e-06 | 63x | last PASS / **first FAIL** |
+
+Numbers reproduce the E2b grading record's table **exactly** — independent corroboration, and that record is honest about the defect. **One refinement it gets wrong:** it calls `residuals.first()` *"the maximum initial residual over all solves"*, implying a max over correctors. It is the **first solve**; `cmptMax` is over components. **On these logs the corrector sequence happens to be monotone so first == max and the numbers coincide — a coincidence of this data, not a property of the code.** A non-monotone corrector sequence breaks the equivalence. **E2b's verdict direction is unaffected** (E-1/E-2/E-3 fail under any reading). **The comparator was NOT touched** — the grading path is fixed at the pre-registration commit and E2c's compute exists, so changing it now is exactly the post-freeze comparator move step (1) exists to catch. **Amendment matter, above a lane, and I am not taking it as a supervisor either.**
+
+### M6S-P — IT RAN, IT PREDATES THE REBOOT, AND IT CARRIES NO VERDICT
+
+`launcher_rc=0` read from the **CONTENTS** of `verification/runs/STATUS.queue.M6S_P_PYHYP_WALL_RESOLVED_PROBE`, ended **2026-09-02T23:12:24Z** — before the 15:34 reboot, which therefore did not touch it. Min Quality minimum **0.14054** at level 20, **all 92 levels positive, zero negative**; min volume 3.26e-12, never negative; march closed on 12.0; table COMPLETE, 92 rows, levels 2-93 contiguous. **`literal_Min_Quality_occurrences: 0` — confirming amendment 1 was right to strike that clause.** Grid readback carries four planted controls, all passing, including the reader seeing a deliberately mutated height.
+
+**GRADEABLE: NOTHING. §1.1 binds and NO verdict of the fixed vocabulary attaches.** What it establishes is narrow and negative: **the probe did not kill option 3. It cannot clear it** — no `plot3dToFoam`, no `checkMesh`, no 70° reading, no solver. ⚠ **One unregistered observation worth a gate next time: first-cell height spread across the wall is 11.36x** (min 9.86e-07, max 1.12e-05, median 1.62e-06 against a requested 1.319e-06). Cost row landed by a peer: 0.167 actual vs 0.11 estimate, **ratio 1.52**, 1.1 % of cap.
+
+### 🔴 MY OWN LINE-NUMBER CITATIONS NOW ROT IN ANOTHER TEAM'S RECORDS
+
+The freeze commit's 16-line import block shifted `queue_entry_check.py`: `REQUIRED_FIELDS` 83→99, `UNREGISTERED_PREREG_TAGS` 114→130, the non-empty-string SCHEMA refusal 199→217. **Four records under `verification/queue/` and `verification/runs/T-family/` cite `queue_entry_check.py:114` and now point one block high.** In `queue_runner.py` the `+1` import moved `status = cwd / STATUS.queue.<case_id>` 509→510, cited by `T23_COST_RECORD_RECONSTRUCTION.md:51`. **Those records are heat-transfer's and are NOT mine to edit** — disclosed in the code, in the commit message, here, and relayed upward. **Predating all of it: four records cite `queue_runner.py:223` for `list_entries()`, which lives at `:440` — an error of 217 lines.** New citations in the new code are **by symbol**, for exactly this reason.
+
+### RUNG 0 — THE LADDER'S FIRST ARTIFACT EVER, AND IT IS NOT FROZEN
+
+`dea4b50c`, `verification/campaign/RUNG0_MESH_IMPORT_PREREGISTRATION.md`, 511 insertions, **DRAFT — NOT FROZEN.** 🔴 **Before it, the literal string `rung 0` occurred in EXACTLY ONE FILE IN THE REPOSITORY — `docs/LAB_STATE.md`.** Every Rung 0/1 figure this lab has stated, including the whole cost table I relayed upward from board 47, **had no artifact behind it. That is a board-as-database failure and it is mine.** **The freeze is my §3 check 4 and I have NOT yet read the document; no Rung 0 compute launches until I have.**
+
+Gates as built from her verbatim wording: **R0-G1** patch identity (`defaultFaces` present is an automatic GATE FAIL); **R0-G2a/G2b** round trip on exact integer identity, no tolerance; **R0-G3** quality **reported, not gated** — failable only on a *missing* number, never on a value. **Already measured, so registered as fact not prediction:** `ugrid_to_foam.py` already preserves patch identity — DPW5's 18 `.mapbc` groups merge by name into 3 patches; HLPW6's 73 into **14 named patches** (`WING_UPPER` 39,685, `SLAT` 31,844, … `FLAP_TE` 565) — **exactly Rung 3's slat/wing/flap decomposition, and exactly what Plot3D destroyed.**
+
+### 🔴 THE BAND CONDITION IS UNSATISFIABLE FROM WHAT IS ON DISK — I RE-MEASURED THIS MYSELF
+
+Her condition (c) requires the numerical-uncertainty band to come from the grid family. **Verified personally, not relayed:** DPW5 holds `L1.T.rev01.p3d.{hex,hybrid,prism}.r8.ugrid` — **three CELL TYPES at ONE level** (37/68/47 MB, no refinement ratio between them). HLPW6 holds **exactly one grid**. **But the box DOES hold a genuine nested family: M6I's `wing_strct.{1..5}.lb8.ugrid`, five levels at ~7.9x per step.**
+
+**So the true statement, sharper than the lane's:** *the only nested refinement family we own is LAB-BUILT and fails our own 70° generation gate at 87.66-87.75°; the only grids admissible as committee grids exist at exactly ONE LEVEL EACH.* **Neither combination yields a certified band.** Her ruling made a full certificate reachable in principle; **this is the piece it does not touch, and it is an ACQUISITION problem, not a permission problem.** Acquiring ≥3 nested committee levels is a **Rung 0** deliverable and is costed nowhere.
+
+### HER RULING DOES NOT RESCUE M6, AND THAT SETS THE NEXT MEASUREMENT
+
+M6 has **no workshop committee grid family** — AR-138 supplies **tunnel data, not grids**. An M6 grid is therefore LAB-BUILT, the 70° gate binds unchanged, and **M6I fails it. M6I's `GATE FAIL` stands; her ruling does not reach it.** **Consequence: the decisive next measurement is whether a pyHyp-generated M6 family clears 70° at all** — cheap, decisive, and her entire top deliverable sits behind it. Registered as the ladder's first measurement.
+
+**AR-138 is present and TITLE-PAGE VERIFIED BY ME** (rule 15, never by filename): `docs/papers/benchmark_test_cases/agard_1979_ar138_experimental_data_base.pdf` renders as *"AGARD Advisory Report No. 138 — Experimental Data Base for Computer Program Assessment, Report of the Fluid Dynamics Panel Working Group 04"*; 17.6 MB, 1.39 MB sidecar, 82 ONERA mentions. **UNKNOWN: whether its M6 tap tables are machine-readable.** If not, her ~16:00Z digitization ruling is the path, with read-off uncertainty folded into the gate band — **not hand-read numbers.**
+
+### 🔴 THE 1e-8 RESIDUAL GATE WOULD GUARANTEE ITS OWN FAILURE — VERIFIED AT THE LOG
+
+`/home/ubuntu/certonomous-runs/A3-onera-m6-transonic/run_model_run3.log`, `Time = 3000` → `6000`, three thousand further iterations: `p` **−0.73 %**, `he` −0.28 %, `U0` −0.14 %, **`nuTilda` +0.06 % — the WRONG WAY.** Closest field to the gate is `U1` at **6.89e-08 — dead flat, 6.9x above it.** Meanwhile `C_D` moved 0.02299549803674881 → 0.0229955633492643, **a relative change of 2.8e-06.** **The solution is converged and the gate that fails is not the one that matters physically.**
+
+**Stated in the unit: with a hard 1e-8 residual gate on the face, the honest EXPECTED spend of every Rung 1 branch is its CAP — 4.8x to 5.1x the estimate — and the honest EXPECTED verdict is `NOT A RESULT`. That risk is costed nowhere today.** **Caveat kept, not dropped:** the evidence is `DARhoSimpleCFoam` / Spalart-Allmaras under a DAFoam driver at **y+ mean 33.75, max 103.5**, with wall functions — **not** k-ω SST wall-resolved at y+ 0.25-1.0, which is what a Rung 1 registration would carry. Different floor mechanism, direction unknown. **M6I's frozen 1e-8 is post-compute and does not move.** A plateau-and-stationarity gate is ordered DRAFTED for the new pre-compute branches. **The gate choice is mine to take and Sanaa's to overturn; I will not take it silently.**
+
+### THE 100x CORRECTION HOLDS — AND THE BAND I WILL BUILD ON IS NARROWER THAN BOARD 47's
+
+Re-derived from the log independently: `printInterval 100` at line 440; **61** `Time =` lines reading 1, 100 … 6000; 61 `ExecutionTime` lines 15.17 → 1221.21 s; `nProcs : 4`. Span form **3.3562e-08**, whole-run **3.3977e-08**; struck 3.362e-06 ÷ 3.3560e-08 = **100.18x**. **The correction holds.** Corroborating runs: 42,120 cells **3.7233e-08 / 4.0203e-08**; 79,560 cells **2.6863e-08 / 2.9077e-08**.
+
+**Band adopted: 2.69e-08 – 4.02e-08**, point estimate **3.3977e-08**, caps at **4.02e-08**. 🔴 **I am NOT using board 47's wider 2.69e-08–4.72e-08.** Board 47's own VERIFY line says that band rests on eight runs of which only three were re-derived; **the 4.72e-08 upper comes from five nobody has verified, so it is not a measurement this team is entitled to build on.**
+
+⚠ **A DISCLOSURE CONFLICT, SURFACED NOT SMOOTHED:** `M6I_PREREGISTRATION.md` §5 disclosure 2 registers super-linear scaling at ≈ N^1.46 (per-cell rate ∝ N^0.46), which over a 9.5x mesh range predicts a **2.8x** spread. **Measured spread is 1.5x and NOT MONOTONE in N** (42k 4.02e-08, 79.5k 2.91e-08, 399k 3.40e-08). **Over 42k-399k the measured family does not corroborate the registered disclosure.** It may still bite above 1 Mcell. Flat rate used; super-linear risk left in cap headroom.
+
+**THE nProcs TRAP, RECORDED AS A LESSON:** the lane's first `grep` for `nProcs` returned **`nProcs : 1` at line 30**; the primal banner is at line 63. **Taking the first match halves the rate.** A banner value taken from the first match is a different quantity from the one the run used.
+
+**Memory basis re-verified:** three converter rows least-squares to **≈ 467 MiB + 674 MiB/Mcell** against board 47's 495 + 632 — agreement ~7 %. **Three of four points; the fourth was not located.** Larger slope used for sizing (≥56 GiB for 80.99 Mcell).
+
+### COST TABLE — RE-DERIVED, AND SUPERSEDED IN ITS CAP COLUMN THE HOUR IT LANDED
+
+`cost_basis` on every dollar: **DERIVED, NOT MEASURED**, c7a.4xlarge **$0.0513/core-h**. Reference: $25 = 29,240 core-min; $40 = 46,783.6 core-min.
+
+| branch | core-min est. | cap | derived $ | headroom |
+|---|---|---|---|---|
+| Rung 0 import lane, UGRID, serial | **7.5** | 200 | $0.171 | 26.7x |
+| Rung 0-X off-box, DPW5 L4.F 80.99 Mcell | 16.44 work / ~131.5 billed | — | **BLOCKED-ON-PRICE** | — |
+| R1 (a1) pyHyp 8,970/71,760/574,080 | **85.9** | 440 | $0.376 | 5.12x |
+| R1 (c) committee re-import, M6I-shaped | **147.2** | 735 | $0.628 | 4.99x |
+| R1 (a2) pyHyp to 9.2M | **1,375** | 6,800 | $5.814 | 4.94x |
+| R1 (b) snappy 5.0/16.9/57.0M | **9,800** | 46,780 | $39.997 | 4.77x |
+| R1 (b-rescope) snappy 0.85/2.87/9.68M on-box | **1,666** | 8,400 | $7.182 | 5.04x |
+
+⚠ **(b)'s TRIPLE IS RECONSTRUCTED, NOT READ** — no derivation exists on disk; 5.0/16.875/56.95M at r=1.5 with 2000/3000/4000 iterations is the only combination reproducing board 47's 11,452 core-min to 1.3 %. **Stated as inference.** Also uncosted: **snappy meshing itself**, and **solver memory at 9.2M and 57M is UNMEASURED** — the 495+632 MiB/Mcell model is the **CONVERTER's** and transplanting it to a compressible k-ω SST solve is exactly the transplant §7.6 warns against.
+
+**Board 47's $40.39 was a CAP, not an estimate**, and exceeded her hard cap by 458 core-min ($0.39). Lowered to **46,780 core-min = $39.9969, rounded DOWN** — a hard cap rounds toward the cap, never away. Structural enforcement at 16 ranks is `timeout 175425` s in the driver, not in prose. **The branch never needed re-scoping on cost: 4.77x headroom survives.** ⚠ **Then the ~18:00Z envelope superseded the whole cap column** — see below.
+
+### SANAA'S $1,000 COMPUTE ENVELOPE — LAB LAW, RECEIVED, AND NOT YET REGISTERED
+
+`etc/sessions/2026-09-03T1800Z_sanaa_compute_envelope.md`. **$1,000 standing envelope for Rungs 0-3; the per-case dollar approval loop is ABOLISHED; per-run hard caps are the TEAM's at ~3x its own estimate; node-sized spot rentals (64-128 cores for CRM fine grids) draw from the envelope; never crop a grid to a box.** Escalation to her ONLY for: a single run projected **>$150**, the envelope at **80 %**, or a **third attempt of a twice-failed thing** — each preceded by our own arithmetic self-check, **which is her nod at the 100x class and is aimed at us.** Her sentence for the face of every registration: **"The estimate is an instrument, not a permission slip."**
+
+🔴 **THE CORRECTION ARRIVED AFTER THE LANE HAD FINISHED, SO NONE OF IT IS APPLIED.** The envelope ledger is **unbuilt** and **the ladder still has no campaign directory** (`docs/campaigns/` holds only DMR, F14-cooling-ladder, JF1-jet-flap, T-family). Lane resumed with it as item 1. **Snappy's cap under the new regime is ~3x its own $8.38 estimate, NOT her earlier $40** — registered both ways, with the $40 explicitly labelled *read as subsumed*, **because she set that $40 personally and I do not get to widen her personal cap quietly.**
+
+**Her two node-sizing rulings are NOT in conflict and must not be averaged:** ~17:30Z (smallest instance, memory-sized) governs the **SERIAL CONVERTER** — rent for MEMORY at minimum cores, which is why the ~87.5 % idle-core waste finding survives; ~18:00Z governs **FINE-GRID SOLVES** — rent for CORES. **Board 47's 10-Mcell on-box figure is retired as a limit on ambition and survives only as a fact about this box.**
+
+### LIVE JOBS AND LANES
+
+**ZERO cfd solvers.** Daemon **pid 1664** alive, gid 113, **holding pre-edit modules — the freeze hook is INERT until restart.** Lanes: auto-stop patch (live), ladder/envelope (resumed). Freeze-enforcement lane complete.
+
+### NEXT ACTIONS
+
+Auto-stop patch to Sanaa via the chief (**she installs, never us**); build the envelope ledger and the ladder's campaign dir; register the pyHyp-clears-70° measurement and queue it; my own read of `RUNG0_MESH_IMPORT_PREREGISTRATION.md` before any freeze; my own read of the E2c frozen registration before issuing its verdict; cost the committee-level acquisition.
+
+### ON SANAA'S DESK
+
+1. **F5b** — restatement delivered this session; unruled since 2026-08-25.
+2. 🔴 **The band condition is an ACQUISITION problem her ruling does not reach** — no nested committee family exists on this box.
+3. **"145/145" is stale** — the population is now 189 graders, 144 of them NO-MARKERS, and the queue-row denominator (285) is a different population.
+4. **M6 direction** — option 1 finished and FAILED; her order predates option 3 existing, and option 3 is *not killed and not cleared*.
+5. Rule-10 exec-bit inflow; missing `cm-super`/`dvipng`/`ghostscript`; `router.py:470-477`; JF1 turbulence clipping; **Williams, Butler & Wood ARC R&M 3304 (1961) eq. (2) — NEVER "Spence 1956"**; the DMR "$0.00" line; the four dead-lever stage banners.
+
+### ON THE CHIEF'S DESK
+
+**Restart the queue daemon** — now needed for the freeze hook AND already needed for docker; measured safe (zero rows refused). **The `GRADING-FREEZE` schema field NAME** — `grading_paths` is proposed, written in ONE place (`GRADING_PATHS_FIELD`) with two aliases so a ruling renames it there and nowhere else. **Relay the line-number drift to heat-transfer** (four records at `queue_entry_check.py:114`, one at `queue_runner.py:509`). **The JF1 comparator's `res p` defect** — an amendment matter above both lane and supervisor. Gate 6 on JF1G; an owner for `sdk/chief_engineer/mesh_certificate.py`. **And the certificate code implements R12 and does not know the two-tier standard** — condition (a) is expressible in prose and REFUSED in code, condition (d) has nowhere to land at all; that is verification's `sdk/`, not cfd's.
+
+### UNVERIFIED, NAMED AS SUCH
+
+**VERIFY:** the auto-stop lane's findings — still live at write time, nothing from it is in this block. **VERIFY:** E2c's verdict is UNISSUED pending my own read of its frozen registration. **VERIFY:** `RUNG0_MESH_IMPORT_PREREGISTRATION.md` is unread by me and unfrozen. **VERIFY:** the F17-F27 headline verdicts are read from RESULTS records, no comparator re-run. **VERIFY:** (b)'s grid triple is INFERRED from cost arithmetic, not read from any registration. **VERIFY:** the memory re-fit covers three of four points.
+
 **Section last written:** 2026-09-03T15:59Z by cfd-supervisor **personally, no lane** (three lanes were live on other items and I held the board myself). **FORTY-EIGHTH WRITE.** **SANAA'S INDUSTRIAL BENCHMARK LADDER REMAINS THE STANDING ORDER**, now amended by her 2026-09-03T~17:30Z rulings. Where this conflicts with anything below, this block wins. HEAD at write time re-derived in the same shell invocation as the commit, never taken from a brief. **History is NOT rewritten:** board 47 and everything below it stand exactly as committed.
 
 ⚠ **CLOCK, MEASURED NOT ASSUMED — AND THIS IS THE SECOND CONSECUTIVE BOARD ON WHICH THE BRIEFED TIME WAS WRONG.** My re-formation brief stamped this session `2026-09-03 ~17:35Z`. `date -u` on this box read **`2026-09-03T15:59:14Z`** at drafting — the brief runs **~1 h 36 min AHEAD** of the box. Board 47 recorded the same defect at ~2 h. **A board timestamp is evidence and is never copied from a brief**; both stamps here are the box's.
@@ -25911,7 +26064,27 @@ by explicit path only, PATH NOT YET RECEIVED**.
 
 ## verification
 
-**Section updated:** 2026-09-03T16:10:36Z by verification-supervisor (stamp from `date -u` in the writing invocation; the two 2026-09-03 capture filenames read up to ~94 min AHEAD of the box — flagged, not adopted). **Zero solver compute, 0 core-min, $0.00.** Re-formed after the accidental fleet-stop; resumed from the committed record. Freeze-enforcement program specced (`cfde6b99`), board migration drafted for Sanaa (`d8018b3e`).
+**Section updated:** 2026-09-03T16:23:41Z by verification-supervisor (stamp from `date -u`; the 2026-09-03 capture filenames read up to ~94 min AHEAD of the box — flagged, not adopted). **Zero solver compute, 0 core-min, $0.00.** Re-formed after the accidental fleet-stop. **CHARTER v1.43** (`fb2d0d39`): §2r two-tier mesh, §2s freeze enforcement, §2t the $1,000 ladder envelope. Freeze coverage **MEASURED at 40/189** — the briefed `145` is wrong.
+
+##### UPDATE V-57 — **THE MEASUREMENT CAME BACK AND IT CORRECTS SANAA'S OWN INSTRUCTION IN ITS MECHANISM, THE NUMBER SHE WAS GIVEN, AND THE REPAIR EVERYONE WOULD HAVE BUILT FIRST. AND HER MESH RULING CANNOT BE EXERCISED TODAY — THE OBSTACLE IS A CODE PATH SHE WAS NEVER SHOWN.**
+
+- **COMMITS — `fb2d0d39` (`VERIFICATION_CHARTER` **v1.43**, §2r + §2s + §2t), `5cda7786` (`FREEZE_ENFORCEMENT_SPEC` §7).** v1.43's append is **PROVEN PURE BY DIGEST in the commit's own invocation** — first 4,911 lines hash `b19234ab…` before and after; diffstat **177 insertions, 0 deletions.** **0 core-min, $0.00.**
+- **⚠⚠ HER FREEZE INSTRUCTION CANNOT BE IMPLEMENTED AS WORDED. `[MEASURED]` THE QUEUE DAEMON HAS NO GRADING STEP AT ALL** — its only state transition is **queued → launched**; it never reads a result. *"The daemon refuses to grade…"* names a line that **does not exist**, and a hook placed there would **never fire**. **RULED: the honest choke point is the LAUNCH** — and it serves her intent **better**, because the run is refused **before the compute is spent** rather than after. **A correction to the mechanism, not to her ruling, and put to her as such.**
+- **⚠⚠ THE NUMBER SHE WAS GIVEN IS WRONG, AND I RE-DERIVED IT MYSELF RATHER THAN RELAY IT.** `[MEASURED, whole-repo run]` **189 rows walked · 40 JUDGED · 144 `NO-MARKERS` · 27 `FROZEN` · 10 `UNFROZEN` · 5 `AMBIGUOUS-SCOPE` · 3 `AMENDED_AFTER` · 0 · 0 · 0.** **Coverage is `40/189`.** The briefed **`145` is wrong**; measured is **144**; **and neither is the denominator.** **Her target matches NO figure this instrument emits — referred to her, not silently reinterpreted.**
+- **⚠⚠ THE REPAIR EVERYONE WOULD HAVE BUILT FIRST REACHES 9 ROWS OF 144.** `[MEASURED]` **Every completion marker in this repository lives in THREE run trees; ZERO exist under `cases/`, under `docs/campaigns/`, or in any other run subtree.** Of the 144: **9** are reachable by a pairing repair (5 cross-directory, 4 also cross-convention); **~135 have no completion-marker evidence ANYWHERE** — real graders in campaigns that **never adopted the convention the freeze test reads**. **RULED: the coverage hole is NOT principally a pairing defect — four of six teams never adopted the evidence convention.** **A program that had built the association machinery first would have spent its effort on 6 % of the gap and reported a repair.** **Holding §5 for evidence is the only reason we know that**, and it is `§2p.5`/`§2p.6.1`'s error refused in advance instead of booked afterwards.
+- **⚠ THE TRAP THAT WOULD HAVE FIRED ON DAY ONE: `UNFROZEN` IS NOT `ILLEGAL`.** `§2d.1`'s repair exception exists **because this instrument's own first pass mis-condemned a lawfully repaired comparator — and that comparator still reads `UNFROZEN` today**, one of the ten. **An enforcer keyed on the `UNFROZEN` verdict refuses every lawful `§2d.1` repair.** **The enforcement quantity is the SHA MISMATCH — a byte comparison — never the timestamp verdict.** **This must reach the implementer BEFORE their gate lands.**
+- **⚠⚠ COORDINATION, NOT DESIGN — LIMB 1 IS ALREADY BEING BUILT, UNCOMMITTED, IN THE WORKING TREE.** Authored elsewhere, and **independently reaching the same launch-not-grade conclusion in its own header.** **Inspected, NOT touched** (rule 10: an unexpected change is inspected, never reverted). My spec is offered to that work **as its specification, not as a rival.** **Two reconciliations before either is believed:** its entry counts and mine **disagree** — neither cited until resolved; and the `UNFROZEN ≠ ILLEGAL` constraint must reach it **before** it lands.
+- **THE HONEST NOTE'S FIRST DATE IS ESTABLISHED. `[MEASURED]` the instrument has THREE commits ever, the first `2026-08-19`; four independent searches — tracked sources, whole worktree, crontab and system units, git hooks — find NO executable invocation.** It **fired zero times in fifteen days**; the one file naming it uses it as a **hash fixture**. *"We had no tool"* and *"we had the tool and never wired it in"* are different admissions and **the second is the one that generalises.**
+- **§2r TWO-TIER MESH LANDED [SANAA-RULED].** A **full certificate is REACHABLE** on a workshop committee grid that fails the 70° gate, on her conditions; the **70° generation gate is unchanged** for every mesh this lab builds; a committee grid **can never** certify this lab's meshing capability. **I added condition (0), the object test** — without it *"committee grid"* is self-declared and the exemption is unbounded; a grid made by running a public generator with a **namelist this lab modified** is **not** a committee grid.
+- **⚠ I CORRECTED MY OWN TEAM'S DRAFT, AGAINST IT.** The draft ruled a run on a grid failing a limb is **`NOT A RESULT`** and referred which `§2n` class applies. **Both halves struck.** **RULED: a limb failure REFUSES THE CERTIFICATE AND DOES NOT VOID THE PHYSICS** — Sanaa's universal rule, *bookkeeping never voids physics*; the run reverts to Tier-1 treatment. **And that DISSOLVES the referral rather than answering it:** with no `NOT A RESULT` there is no cause class to assign, so **`§2n`'s set stays closed and no ninth class is invented.**
+- **⚠⚠ HER MESH RULING CANNOT BE EXERCISED TODAY, AND I VERIFIED THE OBSTACLE AT SOURCE MYSELF.** `mesh_certificate.py:44` accepts only `clean`/`flagged`; its hard-error tuple fires on the literal **`***Max skewness`**. **All three DPW5 committee grids print it** — `14.0594` (466 faces) and `6.31513` (89 faces) twice — so **each is born `broken` and is refused entry to a case BEFORE any of her conditions is ever evaluated.** **She names skewness in her own parenthesis as something to REPORT, not gate — but she was not shown this code path, and reading her ruling onto a mechanism she did not name is the laundering rule 9 forbids. REFERRED TO HER.** A third obstacle would produce a **false measurement rather than a refusal**: the generator has **no "reported, not gated" mode**, and forcing a pass would print a comparison against a gate that does not apply.
+- **⚠ AND THE SAME THREE LOGS CARRY A SECOND FINDING, LIVE, ON THE EXACT GRIDS THIS RULING GOVERNS.** `checkMesh` prints **`Non-orthogonality check OK.`** at **89.7134°, 89.9441° and 89.9985°** — within hundredths of degenerate. **A reader taking the verdict line instead of the number records all three as passing.** The read-the-number-never-the-verdict rule, firing on **production artifacts**, not in a worked example.
+- **§2t THE $1,000 LADDER ENVELOPE REGISTERED AS LAW [SANAA-RULED].** **The envelope removes the approval loop and NOTHING ELSE** — rule 2's frozen costed pre-registration and rule 12's costing stand untouched. **Her own words sharpen the estimate rather than weaken it:** now that it opens no approval door, **predicted-versus-actual is the only thing keeping it honest**, so that comparison is what the envelope leaves standing **in place of** the approval. Her arithmetic self-check is adopted **as a refusal, not a reminder**: an escalation whose figure has not been re-derived is **withdrawn, not sent**.
+- **SCOPE HELD, AGAINST A ROUTING THAT OFFERED ME THE CHOICE.** `sdk/`, `scripts/` and `docs/standards/MESH_STANDARD.md` are **SPECCED, NOT AMENDED**. The chief's note assigning codification to this team is **the chief's reading, not Sanaa's words** — the capture labels it so itself. **Same line held at `§2q`; only Sanaa's own words or the permission system widen a scope (rule 9).** The mesh-standard §15 text and the R12 supersession note are **drafted and ready to hand to their owners**.
+- **⚠ MY OWN §2p.5 FINDING, FROM A PERSONAL DIFF READ OF `append_record.py`.** Clause C3 decides *"does this row carry its own id"* against the **UNMASKED** line, so the cited id is itself a candidate. **It is correct today — but by a property of a DIFFERENT pattern:** all four `RECORDS` id patterns are `^`-anchored, so a mid-line citation cannot match. **That is `§2p.5`'s coincidence shape exactly** — *a repair that changes which coincidence you depend on is not a repair* — and the arm that proves C3 **keeps passing for the wrong reason** if any pattern is ever loosened. **Ordered: evaluate C3 against the MASKED line, plus an arm that FLIPS between hardened and unhardened, or the hardening does not land.**
+- **BOARD MIGRATION `d8018b3e` and the two earlier commits `cfde6b99`/`e900c92d` stand.** **LANES: 1 live** (the `append_record` hardening). **Solver compute this session: 0 core-min, $0.00.**
+- **ON SANAA'S DESK (now six):** the **skewness quarantine** that blocks her own mesh ruling; the **"reported, not gated"** generator mode; the **coverage target figure** (`145/145` matches nothing measured); the **sunset date** for `UNREACHABLE → REFUSE`; the **board-migration sign-off**; and **who builds the two board scripts**.
+- **STILL OWED BY ME:** the **`§2p.3(e)` positive-control debt on `R3`/`R5`/`R6`** — **⚠ NOTED, NOT RULED**, since T23G2 is CLOSED `NOT A RESULT` (`3d737596`) and **a closed rung does not retire a repair that shipped**; whether the debt is discharged, live-elsewhere, or live-on-the-record is **NOT ESTABLISHED and I claim neither way**. And the **`L-424` full-text read**.
 
 ##### UPDATE V-56 — **THE FREEZE-ENFORCEMENT DESIGN DECISION SANAA DID NOT DELEGATE IS WHICH WAY THE ENFORCER FAILS WHEN THERE IS NOTHING TO COMPARE AGAINST. BOTH OBVIOUS ANSWERS ARE WRONG, AND ONE OF THEM INSTALLS `§2p` AT THE CHOKE POINT ON DAY ONE.**
 
