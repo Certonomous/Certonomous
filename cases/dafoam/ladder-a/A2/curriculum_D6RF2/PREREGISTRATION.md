@@ -377,3 +377,109 @@ unchanged, and the reason is recorded rather than the change made quietly.**
 Nothing here is enqueued, nothing is sent, and **§7 stands verbatim: removing one refusal is not
 evidence the arms run. No container has ever run `F_mp` or `REF_off` in this lineage; `L-316` binds;
 the first real container is the first evidence about the case.**
+
+---
+
+## ADDENDUM — 2026-09-03T22:41Z — `G-DELIVERY`: THE GATE EXISTED AND WAS CORRECT; IT WAS NEVER DELIVERED
+
+**Dated pre-compute addendum.** `F_mp` and `REF_off` have **still never run a
+container in this lineage** — the 22:13:11Z launch aborted at **70 s**,
+`rc=4`, **before any container**, at host-side staging. **`spent_before_arm =
+0.000`.** So §7 stands verbatim and this addendum is written while the item is
+still at zero solver compute.
+
+**PRE-COMPUTE CONDITION, BY EXECUTION IN THE AMENDING INVOCATION:** the
+registered run root
+`/home/ubuntu/certonomous-runs/CURRICULUM-D6RF2-a2-wing-multipoint-fd/` is
+**ABSENT** — archived by `mv` below, and asserted absent afterwards.
+
+**THIS ADDENDUM ALTERS NO GATE, NO THRESHOLD, NO CAP AND NO LABEL.** Caps
+480.0 / 190.0, deadlines 7110 / 2760 s, `ranks` 4, the patched toolchain row,
+`G-ANCHOR` itself, the units gate and its two call sites, and every verdict
+label stand exactly as frozen. **Staging a file, and asserting that staged files
+arrived, move nothing** — and an assertion that can only ever *refuse more* is
+never a weakening.
+
+### The defect, measured
+
+`d6rf2_anchor_gate.py` **exists** in the case directory (11,067 bytes) and is
+staged into `$BASE` by `d6rf2_chain_driver.sh:88-94`. **It was never copied into
+the ARM directory `$WORK`**, where `d6rf2_run_arm.sh:623` md5-checks it and
+`:624` executes it. Ten sibling instruments are copied into `$WORK`; that one was
+missed. The launch aborted at `md5sum: .../F_mp/d6rf2_anchor_gate.py: No such
+file or directory` / `ABORT G-ANCHOR gate md5`.
+
+**BOTH ARMS WERE AFFECTED, NOT ONLY `F_mp`.** The reference at `:623`/`:624` is
+**unconditional** — outside the `if [ "$ARM" = "F_mp" ]` block that spans the two
+per-arm staging lists — and **neither** list stages it. `REF_off` would have
+failed identically. **This is not one arm's staging bug; it is a required file no
+arm delivers.**
+
+**`G-ANCHOR` ITSELF IS NOT AT FAULT AND IS NOT EDITED.** It is correct, it is
+md5-pinned, and it was read as a diff and signed off. **The gate was not wrong;
+it was not there.** The supervisor records the reciprocal gap in his own practice:
+the four §3 checks read the *instrument*, and **nothing in them reads the path
+between the instrument and the run.**
+
+### The repair — the class, not the file
+
+**1. The file is staged**, into **both** arms' lists, md5-asserted **on both
+sides of the copy**, the same shape `A1WRT`'s `S5b`/`S5c` proved in a live launch
+the same evening. `F_mp` now stages **seven** instruments and `REF_off` **nine**.
+
+**2. `G-DELIVERY`, and it DERIVES its requirement rather than restating it.** A
+hand-written list of required files is what produced this defect and a second
+hand-written list would produce the next one. **The launcher already states what
+it needs** — every `$WORK/<file>` it md5-checks or executes **is** the
+requirement — so the set is read out of **this launcher's own bytes at run time**,
+never maintained as a parallel copy of the answer. It is **branch-aware** (the
+arm block is located **by pattern, never by line number**), and it **fails closed
+three ways**: the shape cannot be located → refuse; the derived set is **EMPTY** →
+refuse, because a reader that requires nothing has not proved delivery but failed
+to read; any required file absent → refuse **naming each missing file and the
+directory it was expected in**.
+
+**3. A distinct exit code, `8`, registered in the launcher's own table.** `rc=4`
+on a bare `md5sum -c` says an md5 failed and says **nothing about delivery**.
+
+**THE DERIVED SETS, as the guard computes them from the launcher's real bytes:**
+`F_mp` **7** — `d6r_extract_endpoint.py`, `d6rf2_anchor_gate.py`,
+`d6rf2_endpoint_locus.py`, `d6rf2_endpoint_physical.py`, `d6rf2_fd_endpoint.py`,
+`d6rf2_opt_runScript.py`, `d6rf2_units_assert.py`. `REF_off` **9** — the four
+`d4_*`, `d6rf2_anchor_gate.py`, `d6rf2_endpoint_locus.py`,
+`d6rf2_opt_runScript.py`, `d6rf2_ref_off.py`, `d6rf2_units_assert.py`.
+
+**DRIVEN BOTH WAYS, ZERO CONTAINERS:** `F_mp` gate missing → `REFUSE-MISSING 1
+of 7` naming it; `F_mp` present → `OK 7`; **`REF_off` gate missing →
+`REFUSE-MISSING 1 of 9`, which is the measurement proving both arms were
+affected**; `REF_off` present → `OK 9`; six missing → `REFUSE-MISSING 6 of 7`
+naming all six; a file with no arm branch → `REFUSE-SHAPE`. The launcher's `case`
+branch drives 4/4: `OK`→0, `REFUSE-MISSING`→8, `REFUSE-SHAPE`→8, `REFUSE-EMPTY`→8.
+*The two halves were driven separately, because `${BASH_SOURCE[0]}` binds to a
+sourced block rather than to the launcher — and the guard REFUSED with
+`REFUSE-SHAPE` when that was attempted, which is the fail-closed path firing on a
+real mistake.*
+
+### The run root is ARCHIVED, never deleted
+
+`mv` to
+`CURRICULUM-D6RF2-a2-wing-multipoint-fd_ABORTED_G-ANCHOR_20260903T221421Z`.
+**Preservation asserted by count across the move: files 370 → 370, directories
+84 → 84, bytes 44,745,593 → 44,745,593 — all three identical.** It holds
+`ledger.txt`, `STATUS.chain` (`chain=STOPPED_AT_FIRST_NONZERO arm=F_mp rc=4
+not_run=[REF_off]`), `CHAIN_DONE`, the staged `F_mp` tree and two
+staging-evidence artefacts. **The registered run root is now absent, so
+refuse-on-stale-directory stands unweakened. No `rm -rf` was executed.**
+
+### Instrument pins
+
+| instrument | md5 |
+|---|---|
+| `d6rf2_run_arm.sh` | **`eb4ad36dd03f466f80024db57859e8df`** — repaired; supersedes the pin in the launched queue row |
+| `d6rf2_anchor_gate.py` | `e34c0cb62df30e7a1565b896d07a32e6` — **UNCHANGED. It was never the problem.** |
+| `d6rf2_chain_driver.sh` | `5818d2ed385d46f5ec053493c052b7a2` — **UNCHANGED** |
+
+**NOT RE-FIRED, AND NOT TO BE RE-FIRED UNTIL THE SUPERVISOR HAS READ THE CHANGED
+HUNKS AS A DIFF.** §7 stands verbatim: removing one refusal is not evidence the
+arms run, no container has ever run `F_mp` or `REF_off` in this lineage, and
+**the first real container is the first evidence about the case.**

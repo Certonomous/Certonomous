@@ -32,6 +32,10 @@
 #   7   UNITS REFUSAL, HOST SIDE -- distinct, and never a default
 #   64  usage / unknown arm
 #   65  cap arithmetic
+#   8   G-DELIVERY REFUSAL -- an instrument this launcher WILL read at
+#       $WORK was never staged there, or the delivery derivation could not
+#       be performed.  DISTINCT from 4: `rc=4` on a bare `md5sum -c` says
+#       an md5 failed and says nothing about DELIVERY.
 #   77  UNITS REFUSAL, IN CONTAINER (arrives as the container's own ExitCode)
 set -uo pipefail
 
@@ -525,14 +529,16 @@ if [ "$ARM" = "F_mp" ]; then
   cp -a "$BASE/d6r_extract_endpoint.py" "$BASE/d6rf2_fd_endpoint.py" \
         "$BASE/d6rf2_opt_runScript.py" "$BASE/d6rf2_endpoint_locus.py" \
         "$BASE/d6rf2_endpoint_physical.py" "$BASE/d6rf2_units_assert.py" \
+        "$BASE/d6rf2_anchor_gate.py" \
         "$WORK/" || { stage_say "ABORT S6 stage instruments"; exit 4; }
   { echo "$MD5_EXTRACT6  $WORK/d6r_extract_endpoint.py"
     echo "$MD5_FD  $WORK/d6rf2_fd_endpoint.py"
     echo "$MD5_RUNSCRIPT6  $WORK/d6rf2_opt_runScript.py"
     echo "$MD5_LOCUS6  $WORK/d6rf2_endpoint_locus.py"
     echo "$MD5_PHYS6  $WORK/d6rf2_endpoint_physical.py"
-    echo "$MD5_UNITS  $WORK/d6rf2_units_assert.py"; } | md5sum -c - || { stage_say "ABORT S6 staged instrument md5 in the arm directory"; exit 4; }
-  stage_say "D6RF2_STAGE_F_mp (S6) OK six instruments staged, every md5 asserted"
+    echo "$MD5_UNITS  $WORK/d6rf2_units_assert.py"
+    echo "$MD5_ANCHOR_GATE  $WORK/d6rf2_anchor_gate.py"; } | md5sum -c - || { stage_say "ABORT S6 staged instrument md5 in the arm directory"; exit 4; }
+  stage_say "D6RF2_STAGE_F_mp (S6) OK SEVEN instruments staged, every md5 asserted on BOTH sides of the copy -- the seventh is d6rf2_anchor_gate.py, added 2026-09-03 after the 22:13:11Z abort"
   # ------------------------------------------------------------------ S7
   UNITS_RUNSCRIPT=d6rf2_opt_runScript.py
   DVFILE=d6r_endpoint_dvs.json
@@ -567,6 +573,7 @@ else
         "$BASE/d4_endpoint_locus.py" "$BASE/d4_endpoint_physical.py" \
         "$BASE/d6rf2_opt_runScript.py" "$BASE/d6rf2_ref_off.py" \
         "$BASE/d6rf2_endpoint_locus.py" "$BASE/d6rf2_units_assert.py" \
+        "$BASE/d6rf2_anchor_gate.py" \
         "$WORK/" || { stage_say "ABORT stage instruments"; exit 4; }
   { echo "$MD5_EXTRACT4  $WORK/d4_extract_endpoint.py"
     echo "$MD5_RUNSCRIPT4  $WORK/d4_opt_runScript.py"
@@ -575,7 +582,8 @@ else
     echo "$MD5_RUNSCRIPT6  $WORK/d6rf2_opt_runScript.py"
     echo "$MD5_REFOFF  $WORK/d6rf2_ref_off.py"
     echo "$MD5_LOCUS6  $WORK/d6rf2_endpoint_locus.py"
-    echo "$MD5_UNITS  $WORK/d6rf2_units_assert.py"; } | md5sum -c - || { stage_say "ABORT staged instrument md5 in the arm directory"; exit 4; }
+    echo "$MD5_UNITS  $WORK/d6rf2_units_assert.py"
+    echo "$MD5_ANCHOR_GATE  $WORK/d6rf2_anchor_gate.py"; } | md5sum -c - || { stage_say "ABORT staged instrument md5 in the arm directory"; exit 4; }
   # D4's PATCHED history, staged READ-ONLY, md5-asserted, BEFORE the datum so
   # the age guard dates it as an INPUT (the grader exempts it by md5).
   echo "$MD5_D4_HST  $D4_HST_SRC" | md5sum -c - || { stage_say "ABORT D4 OptView.hst md5 (source changed)"; exit 4; }
@@ -586,8 +594,105 @@ else
   rm -f "$WORK/d4_endpoint_dvs.json" "$WORK/d4_endpoint_dvs_PHYSICAL.json" \
         "$WORK/d4_endpoint_dvs_DRIVERSCALED.json" "$WORK/d6r_ref_off.json" \
         "$WORK/d4_major_history.json"
-  stage_say "D6RF2_STAGE_REF_off OK cold copy, G-COLD asserted, eight instruments staged with every md5, D4 history read-only"
+  stage_say "D6RF2_STAGE_REF_off OK cold copy, G-COLD asserted, NINE instruments staged with every md5 (the ninth is d6rf2_anchor_gate.py, added 2026-09-03 after the 22:13:11Z abort), D4 history read-only"
 fi
+
+# ===========================================================================
+# G-DELIVERY -- EVERY INSTRUMENT THIS FILE WILL READ AT $WORK IS PRESENT THERE.
+#
+# THE DEFECT THIS EXISTS FOR, 2026-09-03T22:13:11Z.  D6RF2 launched and aborted
+# 70 s later at rc 4 on `md5sum: .../F_mp/d6rf2_anchor_gate.py: No such file or
+# directory`.  G-ANCHOR is an excellent gate; it was simply never staged where
+# this launcher looks for it.  TEN SIBLING INSTRUMENTS ARE COPIED INTO $WORK AND
+# THAT ONE WAS MISSED -- a pattern applied correctly everywhere except one
+# neighbour, where the neighbours are entries in a list.  BOTH ARMS WERE
+# AFFECTED, not just F_mp: the reference at :623/:624 is UNCONDITIONAL, outside
+# the arm branch, so REF_off would have failed identically.
+#
+# WHY THIS IS DERIVED AND NOT A LIST.  A hand-written list of required files is
+# what produced the defect; a second hand-written list would produce the next
+# one.  THE LAUNCHER ALREADY STATES WHAT IT NEEDS -- every `$WORK/<file>` it
+# md5-checks or executes IS the requirement -- so the set is READ OUT OF THIS
+# FILE'S OWN BYTES at run time rather than maintained as a parallel copy of the
+# answer.  Same shape as a1wrt_controldict.py deriving A1WR's controlDict from
+# A1WR's own heredoc instead of retyping it.
+#
+# IT IS BRANCH-AWARE, because the two arms need different sets: references
+# inside the `if [ "$ARM" = "F_mp" ]` block are F_mp's, references inside its
+# `else` are REF_off's, and references outside both are required by EVERY arm.
+# The branch is located BY PATTERN, never by line number.
+#
+# AND IT FAILS CLOSED IN THREE WAYS, because a derivation that quietly finds
+# nothing is indistinguishable from one that found nothing wrong (rule 3):
+#   - the arm branch cannot be located          -> REFUSE, do not guess
+#   - the derived required set is EMPTY          -> REFUSE; a reader that
+#     requires nothing has not proved delivery, it has failed to read
+#   - any required file is absent from $WORK     -> REFUSE, NAMING each missing
+#     file and the directory it was expected in.  `rc=4` on a bare `md5sum -c`
+#     told a reader nothing about delivery, which is why this rc is its own.
+# ===========================================================================
+DELIVERY=$(python3 - "${BASH_SOURCE[0]}" "$ARM" "$WORK" <<'PYEOF'
+import re, sys, pathlib
+self_path, arm, work = sys.argv[1], sys.argv[2], pathlib.Path(sys.argv[3])
+src = pathlib.Path(self_path).read_text(errors="replace").splitlines()
+opens = [i for i, l in enumerate(src, 1)
+         if re.match(r'^if \[ "\$ARM" = "F_mp" \]; then\s*$', l)]
+if len(opens) != 1:
+    print("REFUSE-SHAPE expected exactly 1 arm-branch opener in %s, found %d "
+          "-- the launcher's shape has MOVED and this guard will not guess"
+          % (self_path, len(opens))); sys.exit()
+o = opens[0]
+# The opener sits at column 0, so its matching `else`/`fi` are the next column-0
+# ones; nested blocks in this file are indented.  Asserted, not assumed.
+els = next((i for i, l in enumerate(src, 1) if i > o and l == "else"), None)
+fin = next((i for i, l in enumerate(src, 1) if els and i > els and l == "fi"), None)
+if not els or not fin:
+    print("REFUSE-SHAPE could not locate the arm branch's else/fi at column 0 "
+          "(if@%s else@%s fi@%s)" % (o, els, fin)); sys.exit()
+pm = re.compile(r'echo "\$MD5_\w+\s+\$WORK/([A-Za-z0-9_.]+)"')
+pe = re.compile(r'python3 "\$WORK/([A-Za-z0-9_.]+)"')
+req = set()
+for i, l in enumerate(src, 1):
+    for p in (pm, pe):
+        m = p.search(l)
+        if not m:
+            continue
+        if o < i < els:
+            region = "F_mp"
+        elif els < i < fin:
+            region = "REF_off"
+        else:
+            region = "BOTH"
+        if region in ("BOTH", arm):
+            req.add(m.group(1))
+if not req:
+    print("REFUSE-EMPTY the derivation found ZERO required instruments for "
+          "arm=%s. A guard that requires nothing has not proved delivery, it "
+          "has failed to read." % arm); sys.exit()
+missing = sorted(n for n in req if not (work / n).is_file())
+if missing:
+    print("REFUSE-MISSING %d of %d required instrument(s) absent from %s: %s"
+          % (len(missing), len(req), work, " ".join(missing))); sys.exit()
+print("OK %d required instruments derived and all present: %s"
+      % (len(req), " ".join(sorted(req))))
+PYEOF
+)
+case "$DELIVERY" in
+  OK\ *) stage_say "D6RF2_G_DELIVERY $DELIVERY" ;;
+  REFUSE-MISSING*)
+    stage_say "ABORT G-DELIVERY arm=$ARM -- $DELIVERY"
+    stage_say "  An instrument this launcher WILL read at \$WORK was never staged"
+    stage_say "  there.  This is the 2026-09-03T22:13:11Z defect class: the gate"
+    stage_say "  exists and is correct; it was not DELIVERED.  The required set"
+    stage_say "  was DERIVED from this launcher's own references, not from a list."
+    stage_say "  NO CONTAINER IS CREATED."
+    exit 8 ;;
+  *)
+    stage_say "ABORT G-DELIVERY arm=$ARM -- the delivery derivation could not be"
+    stage_say "  performed, so delivery is UNMEASURED and is NOT reported as clean."
+    stage_say "  $DELIVERY"
+    exit 8 ;;
+esac
 
 # ===========================================================================
 # THE UNITS GATE, CALL SITE 1 OF 2 (CLAUDE.md rule 14 -- a lesson is not applied
