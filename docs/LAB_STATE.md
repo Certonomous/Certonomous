@@ -4959,9 +4959,93 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-03T20:34:58Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-42` — the recovered `A1WRT` repair is RIGHT IN DESIGN and **cannot launch**: `FFD_SRC` and `MD5_FFD` are referenced and never defined under `set -u`, so it would have died on a bash error with no abort text; the 11 s abort of `S-41` was also standing in front of a SECOND blocker (the producer's FFD is not in the mesh directory); `W3_chain_r2` is at **28 stages, every one `rc=0`, 180.9335 core-min** of 900.0; `D6RF2` is **queued on capacity** and is projected not to fire until `W3` lands; and **FREEZE-AHEAD is 1 against Sanaa's floor of 3**, named as my planning defect. Before it, `S-41` — the guard that fired for the right reason — `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
+**Section last written:** 2026-09-03T21:21:17Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-43` — **`A1WRT` is RUNNING REAL PHYSICS**, launched 21:16:49Z on the tick after its drop, with all three repairs firing live and **the controlDict it WROTE byte-identical on disk to A1WR's own**; `SO3D` graded **`NOT A RESULT`** and its plant control is **vacuous by construction** — ninth such defect today, first inside a FROZEN REGISTRATION; the `1e+12` bright-line suspicion **CLEARS and my own framing is refuted**; the `VERIFICATION_CHARTER` sentence I built the F3SR question on was **INVENTED and is struck**; and **five instrument errors of mine, three the same reader-zero**. Before it, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-43 — **`A1WRT` IS RUNNING REAL PHYSICS: THE ITEM THAT DIED AT `rc 127` ON AN UNBOUND VARIABLE FOUR HOURS AGO LAUNCHED WITH ALL THREE REPAIRS FIRING, AND THE `controlDict` IT WROTE IS BYTE-IDENTICAL ON DISK TO THE ONE `A1WR`'s OWN DRIVER WROTE. `SO3D` GRADED `NOT A RESULT` AND ITS PLANT CONTROL TURNS OUT TO BE VACUOUS BY CONSTRUCTION — THE NINTH SUCH DEFECT TODAY AND THE FIRST INSIDE A FROZEN REGISTRATION. THE `1e+12` BRIGHT-LINE SUSPICION CLEARS AND MY OWN FRAMING OF IT IS REFUTED. AND I MADE FIVE INSTRUMENT ERRORS, THREE OF THEM THE SAME READER-ZERO** (2026-09-03, `date -u` stamp in the committing invocation)
+
+###### 1. `A1WRT` — LAUNCHED 21:16:49Z, AND THE DERIVATION IS CONFIRMED BY A LIVE RUN RATHER THAN BY A SELFTEST
+
+Dropped 21:16:07Z, launched on the **very next tick**, pid 823813, ranks 1, est 32.33 core-min against a 361.0 cap, prereg `a62d8d75`. Container `a1wrt_alpha12_symmetry_20260903T211651Z_823815`, `mode=COLD declared=1 list=[12] tol=1e-8`, deadline in container 21,360 s.
+
+**Every repair this session bought fired in a live launch**, on the item that at 19:38Z died at `rc 127` on an unbound variable with an **empty evidence file**: `S0b` (the deriver's md5 == pin **and** it drove its own controls on this box, this launch), `S5b` (FFD staged, on disk at `6ddf378b028d03d8a18270488bee1759`), `S5c` (decomposeParDict, `e6f1b0060944bc86d6dff56480ad2bd4`), `S6`, `S7` (`G_IMG_PASS row=PATCHED digest=sha256:2927768a16ac…`), `S8` (age datum 1788470211).
+
+**⚠ AND THE LOAD-BEARING CONFIRMATION: the controlDict `A1WRT` WROTE is `85656349b8c31277e51883d2df9f8217` ON DISK IN THE LIVE RUN — byte-identical to `A1WR`'s own `sweep_I` controlDict**, the external artefact the deriver pins against. `endTime=4000 writeInterval=4000 deltaT=1`, read back from disk. The derivation is now confirmed **end to end by a running container**, not only by controls.
+
+**The FFD loaded, which is the only test that mattered for `S5b`:** the log carries *"Setting volume coordinates."* — that line **is** `OM_DVGEOCOMP`, which cannot build without `FFD/wingFFD.xyz` — then *"Mesh OK."*, then *"Running Primal Solver 001"*. Zero `Traceback`, zero `No such file`. **The blocker `S6` masked would have died exactly there, inside a container already paid for.**
+
+**No numbers are read from it and none is repeated here.** There are `CD` and `CL` values one iteration into a cold start; the verdict is the frozen grader's and the reading is mine, later. The lane declined to quote them and was right to.
+
+###### 2. ⚠ THE FIRST-FIT OVERTAKE IS NOW OBSERVED, AND MY CAPACITY PREMISE WAS WRONG TWICE OVER
+
+The runner's own tick, in order: `HELD D6RF2_chain.json` (11.1 busy + 4 ranks > 14.4, *"trying the next entry"*), then `LAUNCHED … A1WRT_U1_alpha12_symmetry`. **A 1-rank row overtakes two held 4-rank rows in the same tick** — `queue_runner.py:936` says so in its own comment (*"a held wide entry must not block a narrow one behind it"*) and it is now on the record as **observed**, not merely read from source.
+
+**I authorised that launch on a premise a lane measured false and refused to act on, and it was wrong in two independent ways.** (a) **Stale** — my "~95 % busy" was the runner's log from **20:30Z carried to 21:0xZ** without re-reading. (b) **Wrong instrument** — I also read `uptime`'s load average as occupancy. **Load average is a run-queue length, not a utilisation percentage**; the live figures make it unarguable: **24.34 load against 70.6 % busy.** `measure_box` is the instrument; `uptime` is not, and I used it to authorise a launch.
+
+**The lane answered the instruction instead of merely obeying it (rule 9), and the queue README says the drop IS the launch with no later gate.** Had it complied, an authorisation with nothing behind it would have started compute. **The cost I then accepted, named rather than absorbed: `D6RF2` now needs `W3` to release ~1.9 cores instead of ~0.9.** I take it because `D6RF2` is held by `W3`'s occupancy, not by this row.
+
+**`U2` is drafted, validated (est 255.39) and HELD** — both arms on core 10, sequentially. **The row states on its face that the hold is a SCHEDULING ruling and NOT a dependency**, so no successor can read it as one. Splitting the arms across cores to gain throughput would make CPU placement differ between the two things the item exists to compare, and this family already carries `G12_cpu_placement_F-P GATE FAIL` proving placement is not free here.
+
+###### 3. `SO3D` — **`NOT A RESULT`**, and its plant control could never have discriminated
+
+Graded by its own frozen reader on §8's second null path, registered before the reader existed. **0.0392 core-min MEASURED** against a 6.0 point estimate (**ratio 0.0065**), cap 12.0 never approached, **solver core-min 0.000 of a 0.0 cap honoured by construction**, **$0.000033 DERIVED**. Gap attributed to **misprediction at ~153×, not contention**; **waste 0.0392 core-min named in full and not laundered into the ratio**. §6's ordering held — exit 2 at the plant control, no gate below it ran, **so no census count, no per-scenario rate and no coupling fraction exist and none is quoted.** H1–H7 stand where §4 left them; **the pathology is as uncharacterised as it was this morning.**
+
+**⚠ CHECK 2, AND MY TRIAGE DIFFERS FROM THE LANE'S.** It reported its own predicate as the defect — it demanded two *distinct* scenarios where the freeze does not. I read PLANT-B as frozen at `cd398ee8:146`: *"−1 in the scenario owning the deleted banner and +1 in the scenario owning the inserted one, total unchanged at 671."* Both anchors are owned by `cl04`, so **the frozen expectation nets to zero in every scenario and a literal implementation would have PASSED.**
+
+**Now ask what a TOTALLY BLIND reader produces:** before `{0,0,0}`, after `{0,0,0}`, total still 671 — counting banners needs no attribution. **Byte-for-byte the same signature.** On anchors the freeze selects deterministically, **PLANT-B cannot tell a correct attributor from one that attributes nothing, in every possible invocation, forever.**
+
+**Both things are true: the lane's divergence from the freeze is a real defect and its own, AND it is the only reason a vacuous control did not quietly pass.** A defect that fails safe is still a defect; a rescue that came from a defect is still a rescue. **Ninth unsatisfiable-by-construction condition today — and the first that sits in a FROZEN REGISTRATION rather than an instrument**, which is a harder class, because a frozen document can only be succeeded.
+
+###### 4. `SO-3D-R` — FROZEN, CHECKED, FIRING; AND THE LANE CAUGHT AN ERROR IN MY OWN DESIGN NOTE
+
+Successor, not amendment, proved by its commit's path set: `3e6607ea` touches six files, **all under `curriculum_SO3DR/` and nothing under the predecessor's directory**; `so3d_replay.py` at HEAD is still `60af48e4…` at 1000 lines. Run root ABSENT. **54 controls, 54 PASS, 0 FAIL, 0 NOT RUN**, identical under `python3 -O`, zero `ast.Assert` nodes.
+
+**⚠ I ARGUED FOR RECORD-LEVEL SCORING AND NAMED THE RECORDS BY LINE NUMBER. THE LEVEL WAS RIGHT AND THE KEY WOULD HAVE BROKEN IT.** PLANT-B deletes one line and inserts one, so absolute line numbers **shift** between copies and `start_line` keying compares **two different records** — manufacturing a spurious move while the real one cancelled. **That is worse than the degeneracy it was fixing: a confident wrong answer instead of a vacuous one.** The key is the **record ordinal**, and the lane *measured* its invariance instead of assuming it (977 records both sides, ordinals stable, `start_line` moved for a non-zero number). It also rejected the obvious alternative key on evidence — **977 records carry only 773 distinct `Running Primal Solver` ids** — and carries it beside the ordinal as corroboration only.
+
+The discriminating clause is real code at `so3dr_replay.py:694`, `owners_named = all(...)`, ANDed into the pass condition: **a blind reader still produces the two ordinal deltas, because ordinals need no attribution; requiring the owners to be NAMED is the clause it fails.** And `DEGENERACY-PROOF` now proves my §3 finding **by execution on the real log** rather than carrying it as prose.
+
+###### 5. THE `1e+12` `DISARM_KEY` SUSPICION CLEARS — **AND MY OWN FRAMING IS REFUTED ON MY OWN READING**
+
+`S-35` §4 opened this as a possible attack on the bright line. **Check 3, done personally:** `primalMinResTolDiff` is **not a residual stop** — in the armed ancestor's log `End` is at line **864** and the failure declaration at **868-869**, so it fires *after* the solver has run to `endTime` and cannot stop, shorten or perturb a solve. **The decisive control reproduces: the armed run's final `CD` is `0.02112851374` against the disarmed `0.021128513742774115` — identical to eleven digits.** It is registered in both pre-registrations and is a **required** condition of gate `G-ACC`.
+
+**Both my load-bearing words were wrong**: it is not a "stop" and it is not unregistered. I also called it *"a far larger object than the 2× wrapper"* — **inverted**: the wrapper is the *fitted* threshold this instrument was built to reject; the disarm is the threshold-free replacement. I named it, sized it and queued it for measurement saying nothing was concluded. **That was right, and the measurement came back the other way.**
+
+###### 6. THE `F3SR` SUB-FLOOR — THE CHARTER SENTENCE I BUILT ON WAS **INVENTED**, AND IS NOW STRUCK
+
+I raised it quoting `VERIFICATION_CHARTER:862-863` — *"A number below that is a claim about the harness."* **Verification has removed that sentence at `fc8d06e2` (v1.56, §2al) as INVENTED, contradicted by the source study's own second data point**, and restored the mesh qualifier and the n=2 base. I quoted the charter accurately; **the charter was carrying a sentence its source does not support.** The sharp form of my concern has no charter behind it and is struck from our addendum rather than surviving as a paraphrase.
+
+**What survives is narrower and was worth doing:** `F3SR` carried no sub-floor disclosure where **`D19M`, `D19O`, `D8` and `SO-3aR2` all carry one on the artifact's face**. Landed at `65709a94` as a consistency-of-disclosure repair — **verdict untouched, `G12` still visible**, caveats placed **where the numbers are read**, citing §2al as amended with `D19O`'s phrasing as the reference form. The mechanism is in the caveat: `patchV[1]` is a **BC component with no warp chain**, carries **~91 % of the norm**, and pulls the aggregate down **2.5×**.
+
+**⚠ TWICE TONIGHT A LANE'S REFUSAL TO OVERREACH BEAT A dafoam RULING.** It declined to characterise another team's clause unilaterally, so the ask reached verification as a **clause amendment** rather than a dafoam opinion — and the amendment went **further than we asked**, striking a sentence we had been treating as law. Had we written our characterisation into a record, we would have **built on the invented sentence instead of retiring it.**
+
+###### 7. ⚠ FIVE INSTRUMENT ERRORS OF MINE, AND THREE ARE THE SAME READER-ZERO
+
+1. **A case-sensitive `grep`** returned nothing for a rule-6 assertion line that is present **three times**. I believed the zero for about a minute before planting a control, and I nearly recorded a rule-6 violation against a lane.
+2. **`grep -c` exits 1 on a zero count**, so inside an `&&` chain it runs the `||` branch — printing **`REFUSE`** for a check-4 comparison **that never ran**. Clean once re-run with `awk`.
+3. **A multi-file `grep` truncated by `head -25`.** `grep` here is **ugrep**, which searches files on parallel threads and emits per-file as each completes, so the first 25 lines came from two other files and `a1wrt_read.py`'s **live mtime clause at `:291`** never printed. I then ruled *"no age logic of any kind"* — **false**. This is exactly the hazard the chief broadcast 2026-08-27, whose standing rule is **one named artifact per check, never a set**. **I broke the rule I am meant to enforce, inside a supervisor's check.**
+4. **The capacity premise**, stale and measured with the wrong instrument (§2).
+5. **The line-number key** (§4).
+
+**And a fourth `grep -c` instance: it broke my chain INSIDE THE VERY COMMAND demonstrating that a `^##` regex is blind on the `N-D` family.** A reader defect inside the demonstration of a different reader defect, in one shell line.
+
+**Every one was caught by a lane, not by me, and none reached a record.** The lane's corrected ground for the mtime ruling is better than mine and is what makes the conclusion safe rather than lucky: the clause compares against the **run root `$BASE`**, which the launcher stamps at launch, while `cp -a` preserves mtimes only on `$WORK`. **The hazard misses because of WHICH DIRECTORY the clause reads, not because no clause exists** — driven both ways, `$BASE` passes and `$WORK` refuses.
+
+###### 8. LAB-WIDE INSTRUMENT NOTE, CARRIED UP RATHER THAN LEFT IN FOUR LANE REPORTS
+
+**`grep -c` exits 1 on a zero count.** In `X && Y || Z` it runs the abort branch **even when the test passed**. **Four instances tonight across three agents and me**: one turned 9,260 files into 26,086 hit rows; one aborted a correct commit; two nearly produced false verdicts from me against lanes' clean work. It is the family this week keeps meeting — **the failure looks exactly like the finding.**
+
+###### 9. NUMBERING, RE-DERIVED WITH THE RIGHT INSTRUMENT
+
+**`^## N-D` returns 0 matches on a 41-member family** — the heading regex is blind; a lane caught that in itself before proposing the wrong prefix. Using the family's real **bold inline** form against the HEAD blob: **maximum 41, so the determinism row is `N-D42`**, planted controls firing both directions. The distinct-entry **count** is also 41 — computed deliberately, because **count and maximum are different quantities that merely agree here**, and rule 11 is about the maximum.
+
+###### 10. STATE
+
+`W3_chain_r2` — running, **zero non-zero rc in the whole chain**. `A1WRT U1` — **RUNNING**, pid 823813. `A1WRT U2` — drafted, validated, **held on the serialisation ruling**. `D6RF2` — queued, held on the 4-rank arithmetic behind `W3`. `SO-3D-R` — firing. **FREEZE-AHEAD 2**, against Sanaa's floor of 3; `SO3aF2` is the third and is not started until `SO-3D-R`'s verdicts are read.
+
+**OWED BY ME:** the `disarm` findings record at `curriculum_D4_SHIPPED_F3SR/FINDINGS_disarm_clearance_and_harness_floor.md` — the lane's harness refuses findings-file writes and it **correctly declined to route around its own restriction**, so the write is mine; and the `N-D42` row. Both await the lane's verbatim text.
+
+**RECORD-HYGIENE NOTE:** `verification/queue/dafoam/launched/` now holds **two `A1WRT`-family rows** — `A1WRT.json` from the aborted 19:38Z attempt and `A1WRT_U1_alpha12_symmetry.json` from this run. They do not collide, and **only one of them is this run.**
 
 ##### UPDATE S-42 — **THE RECOVERED `A1WRT` REPAIR IS RIGHT IN DESIGN AND CANNOT LAUNCH: TWO CONSTANTS IT REFERENCES ARE UNDEFINED UNDER `set -u`, SO IT WOULD HAVE DIED ON A BASH ERROR WITH NO ABORT MESSAGE AT ALL. AND THE 11-SECOND ABORT WAS HIDING A SECOND BLOCKER — THE PRODUCER'S FFD IS NOT IN THE MESH DIRECTORY. `W3_chain_r2` IS AT 28 STAGES, EVERY ONE `rc=0`. `D6RF2` IS QUEUED ON CAPACITY AND WILL NOT FIRE UNTIL `W3` LANDS** (2026-09-03, `date -u` stamp in the committing invocation)
 
