@@ -35,7 +35,8 @@
     "sid": 315473,
     "status_file": "/home/ubuntu/Certonomous/cases/F18b_taylor_green_ext/STATUS.F18b_TG2D_EXT",
     "wrapper_out": "/home/ubuntu/Certonomous/cases/F18b_taylor_green_ext/launcher.queue.out",
-    "started_epoch": 1787766293.0248203
+    "started_epoch": 1787766293.0248203,
+    "status_seen_utc": "2026-08-27T17:00:43Z"
   },
   "_field_classes": {
     "physics_critical": [

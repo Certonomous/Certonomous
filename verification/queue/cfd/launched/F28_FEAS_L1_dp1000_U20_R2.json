@@ -1,0 +1,70 @@
+{
+  "team": "cfd",
+  "case_id": "F28_FEAS_L1_dp1000_U20_R2",
+  "prereg_commit": "FEASIBILITY",
+  "prereg_path": "verification/campaign/F28_DUCTED_ACTUATOR_DISK_PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/F28_DUCTED_ACTUATOR_DISK/run_f28_feasibility.sh",
+    "--rung",
+    "FEAS_L1_dp1000_U20_R2",
+    "--level",
+    "1",
+    "--delta-p",
+    "1000",
+    "--u-inf",
+    "20",
+    "--relax-u",
+    "0.7",
+    "--ranks",
+    "4",
+    "--max-wall-s",
+    "1500"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/F28_runs/_feas_launch_dp1000_U20_R2",
+  "ranks": 4,
+  "cost_core_min_estimate": 10.0,
+  "cost_basis": "DOLLARS ARE DERIVED, NOT MEASURED, at the owner-stated $0.0513/core-h, REPORTED-BY-OWNER: this box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). THE CORE-MINUTE ESTIMATE IS NOT MEASURED EITHER AND THIS FIELD SAYS SO PLAINLY: no simpleFoam solve has ever run on this case, so there is no rate to measure on this mesh and no timing pilot was run before this entry. The figure 10.0 core-min is the frozen registration's own section 10 per-solve L1 estimate, itself derived from Sanaa's directive section 2.8 range of 5-15 core-min per solve; it is a PREDICTION carried forward so that rule 12's estimate-versus-actual calibration has a predicted value to compare against, and it is labelled a prediction rather than dressed as a measurement. THE ENFORCED CEILING IS SEPARATE AND IS REAL: run_f28_feasibility.sh wraps the solver call in `timeout --signal=TERM --kill-after=60 1500`, so this row cannot exceed 1500 wall s x 4 ranks / 60 = 100.0 core-min whatever happens, and a timeout kill is a non-zero rc that STOPS the run rather than buying it a new budget. Derived dollars: $0.0086 at the estimate, $0.0855 at the ceiling. FEASIBILITY SPEND IS REPORTED SEPARATELY FROM THE REGISTRATION'S 400 core-min GATED CAP AND IS NOT ABSORBED INTO IT -- this row is not a gated rung and buys no gated result.",
+  "memory_floor_gb": 2.0,
+  "enqueued_by": "cfd lab-lane, 2026-08-31, on cfd-supervisor's dispatch relaying Sanaa 2026-08-31T15:13Z ('start the L1 feasibility solves on Cases 1 and 2 NOW -- no freeze required for feasibility/physics rungs, never was') and 2026-08-31T15:51Z (unregistered feasibility/physics rungs are queue-legal tagged prereg=FEASIBILITY, outputs never gradeable as verdicts). ENQUEUEING IS NOT AUTHORISATION. NO AGENT MESSAGE IS SANAA'S CONSENT (rule 9) and this lane relies on the ruling only for what it says: that a FEASIBILITY rung needs no freeze. WHAT THIS LANE VERIFIED ON DISK WITH ITS OWN EYES, rather than accepting on report: (a) verification/campaign/F28_DUCTED_ACTUATOR_DISK_PREREGISTRATION.md on disk hashes to sha256 029a445c2d8b9e2b834164ae91e21713cb6131ca22183484e80ef6d9728cfc7b and `git show HEAD:<that path>` hashes identically, so the document on disk IS the committed one; (b) cases/F28_DUCTED_ACTUATOR_DISK/case/constant/fvOptions line 56 and constant/fvOptions.template both state `volumeMode      specific;` verbatim, and the assembled dictionary is re-grepped for that exact string by the launcher before any solver starts; (c) verification/runs/F28_runs holds mesh_L1/L2/L3 with constant/polyMesh present, BIRTH_L1.json records 31752 cells with all three section 5 gates true and stage0_verdict GATE REACHED, and NO time directory, log.simpleFoam or postProcessing tree exists anywhere under verification/runs/F28_runs -- no solver has ever run on this case.",
+  "_schema_note": "Fields above are scripts/queue_entry_check.py REQUIRED_FIELDS. Everything below is a cfd annotation the validator ignores.",
+  "label": "FEASIBILITY",
+  "label_meaning": "NO GATE SCORES ANYTHING ON THIS RUN. No verdict of the fixed vocabulary (PASS / GATE REACHED / GATE FAIL / NOT A RESULT / BLOCKED / PENDING) attaches to it; no GCI, observed order, theory ratio or PASS may be computed, quoted or implied from it. If a feasibility number disagrees with the frozen registration that is a FINDING reported to the supervisor, never a gate failure.",
+  "row": "L1 (31,752 cells, 5-degree wedge), delta_p = 1000 Pa, U_inf = 20 m/s, sigma = 1.0. simpleFoam steady incompressible kOmegaSST low-Re, OpenFOAM v2606, 4 ranks. This is the state the frozen registration sections 9.3, 9.6 and 9.6a all share; running it as FEASIBILITY establishes that the actuator-disk source chain runs, converges and delivers its imposed momentum, and NOTHING MORE.",
+  "why_not_the_gated_launcher": "run_f28.sh REFUSES without --check1-token, the supervisor's own record that they have read analyse_f28.py AS A DIFF (SUPERVISION_CHARTER section 3 check 1). THAT CHECK MAY NOT BE DELEGATED AND THIS LANE DOES NOT MANUFACTURE THAT TOKEN (rule 9). run_f28_feasibility.sh is a SEPARATE script that runs the identical case assembly and issues no verdict; it does not weaken, substitute for or route around the token, and the gated path is untouched.",
+  "source_strength_derivation": "Su_x = delta_p / (rho * t) = 1000 / (1.2 * 0.005) = 166666.666666667 m/s^2, an ACCELERATION. simpleFoam is INCOMPRESSIBLE: its momentum equation is divided by rho and constant/transportProperties carries only nu. Sanaa's CASE 2 section 2.3 writes injectionRateSuSp = delta_p / t in N/m^3, which is a FORCE density and is correct for a compressible solver; the two readings differ by rho = 1.2. THAT FACTOR-OF-1.2 DEPARTURE FROM THE DIRECTIVE'S UNITS IS DISCLOSED IN cases/F28_DUCTED_ACTUATOR_DISK/case/constant/fvOptions lines 23-38 and IS REPORTED TO THE SUPERVISOR, not quietly taken.",
+  "volumeMode_hazard": "vectorSemiImplicitSource's volumeMode is a REQUIRED entry read with a `get` (SemiImplicitSource.C:534) whose class-constructor default is vmAbsolute (:224); `absolute` sets VDash_ = the cell-zone volume (:537-540) and the supplied value is DIVIDED by VDash_ (:348, :357, :367). The wedge disk-zone volume on L1 is 2.96705972839036e-06 m^3 (BIRTH_L1.json geometry_diagnostics), so `absolute` would under-load this source by roughly five orders of magnitude on the wedge -- and the case would still mesh, still run, still converge to tight residuals and produce a smooth, entirely wrong map. `volumeMode specific;` is registered at section 2.4, is present verbatim on disk, and the launcher re-greps the ASSEMBLED dictionary for it and aborts before any compute if it is absent.",
+  "cap_core_min_enforced": 100.0,
+  "rc_and_artifact_discipline": "rc is captured INSIDE run_f28_feasibility.sh, on the line that runs the solver, and never around a setsid line ('setsid timeout cmd' exits 0 for every outcome and would certify a corpse as a completion). STATUS is written by that script's own EXIT trap to RUN_STATUS.F28.<rung>.FEASIBILITY.txt inside the RUN directory -- a filename the queue runner never writes. The queue cwd above is a SEPARATE, otherwise-empty directory precisely so the runner's unconditional truncation of STATUS.* and launcher.queue.out cannot land on any run record (registration section 11.4). writeInterval is 2000 rather than endTime so a wall-cap kill still leaves fields on disk as evidence; that is a DISCLOSED departure from the gated launcher and it does not affect the age guard.",
+  "run_root": "/home/ubuntu/Certonomous/verification/runs/F28_runs/FEAS_L1_dp1000_U20_R2 -- ABSENT at filing time, with the same reader shown able to read PRESENT on /home/ubuntu/Certonomous/verification/runs/F28_runs/FEAS_L1_dp1000_U20 (the preserved R1 abort) in the same invocation, so the absence is evidence and not a blind reader (rule 3).",
+  "verdict_state": "NOT APPLICABLE -- feasibility, no gate",
+  "retry_note_R2": "RETRY R2, AND THE REASON IS A MEASURED DEFECT, NOT A NEW GATE. The R1 attempt (rung FEAS_L1_dp1000_U20 / FEAS_L1_dp0_U20) ABORTED AT phase=assemble AT ZERO COMPUTE, solver_rc=not-run, and its artifacts are PRESERVED under verification/runs/F28_runs/FEAS_L1_dp1000_U20/ and .../FEAS_L1_dp0_U20/ rather than deleted. Cause, found by firing the script rather than by reading it: the unsubstituted-placeholder sweep was a bare `grep -q \"__\"`, and case/system/controlDict.template line 2 CONTAINS THE WORD __PLACEHOLDERS__ IN ITS OWN HEADER COMMENT. The sweep matched the documentation and refused the run. THE SAME DEFECT IS IN THE GATED LAUNCHER run_f28.sh:256-258, which has never been fired for record, and it is REPORTED TO THE SUPERVISOR UNFIXED -- this lane does not edit the gated launcher. run_f28_feasibility.sh now sweeps for the seven REAL tokens by name, which is STRICTER than the bare form, and a planted control was run on that reader in both directions: it FIRES on a live __END_TIME__ and is SILENT on the __PLACEHOLDERS__ prose, while the old bare sweep FIRES on that same prose. A guard never shown able to fire and to stay silent has certified nothing (standing rule 3). R1 SPENT ZERO CORE-MINUTES: it never reached decomposePar.",
+  "_launch": {
+    "utc": "2026-08-31T16:44:16Z",
+    "pid": 159379,
+    "sid": 159379,
+    "status_file": "/home/ubuntu/Certonomous/verification/runs/F28_runs/_feas_launch_dp1000_U20_R2/STATUS.F28_FEAS_L1_dp1000_U20_R2",
+    "wrapper_out": "/home/ubuntu/Certonomous/verification/runs/F28_runs/_feas_launch_dp1000_U20_R2/launcher.queue.out",
+    "started_epoch": 1788194656.8446178,
+    "status_seen_utc": "2026-08-31T16:45:16Z"
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.F28_FEAS_L1_dp1000_U20_R2 (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
+}

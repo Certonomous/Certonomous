@@ -37,7 +37,8 @@
     "sid": 96115,
     "status_file": "/home/ubuntu/Certonomous/cases/JF1_JET_FLAP/STATUS.JF1_L1_BLOWN_CMU005_A0",
     "wrapper_out": "/home/ubuntu/Certonomous/cases/JF1_JET_FLAP/launcher.queue.out",
-    "started_epoch": 1788191943.191225
+    "started_epoch": 1788191943.191225,
+    "status_seen_utc": "2026-08-31T16:23:51Z"
   },
   "_field_classes": {
     "physics_critical": [

@@ -1,0 +1,66 @@
+{
+  "team": "cfd",
+  "case_id": "F28_DIAG_L1_dp0_U20_upwind_R2",
+  "prereg_commit": "FEASIBILITY",
+  "prereg_path": "verification/campaign/F28_DUCTED_ACTUATOR_DISK_PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/F28_DUCTED_ACTUATOR_DISK/run_f28_feasibility.sh",
+    "--rung",
+    "DIAG_L1_dp0_U20_upwind_R2",
+    "--level",
+    "1",
+    "--delta-p",
+    "0",
+    "--u-inf",
+    "20",
+    "--ranks",
+    "4",
+    "--max-wall-s",
+    "75",
+    "--diagnostic"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/F28_runs/_diag_launch_dp0_U20_upwind_R2",
+  "ranks": 4,
+  "cost_core_min_estimate": 3.3,
+  "cost_basis": "DOLLARS ARE DERIVED, NOT MEASURED, at the owner-stated $0.0513/core-h, REPORTED-BY-OWNER: this box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). THE RATE IS NOW MEASURED ON THIS CASE'S OWN L1 MESH rather than predicted: FEAS_L1_dp1000_U20_R3 ran 28 iterations in 8 wall s at 4 ranks before its SIGFPE, i.e. 0.286 wall s per iteration, so 200 iterations x 0.286 x 4 ranks / 60 = 3.3 core-min. THAT RATE IS FROM A DIVERGING RUN and a healthy run may differ; it is stated as the basis actually used, not dressed up. HARD CEILING: run_f28_feasibility.sh wraps the solver in `timeout --kill-after=60 75`, so this row cannot exceed 75 wall s x 4 ranks / 60 = 5.0 core-min, which is the under-5 core-min condition cfd-supervisor attached to authorising it. Derived dollars: $0.0028 at the estimate, $0.0043 at the ceiling.",
+  "memory_floor_gb": 2.0,
+  "enqueued_by": "cfd lab-lane, 2026-08-31, on cfd-supervisor's EXPLICIT authorisation of exactly one diagnostic launch while crash triage remains theirs: 'A first-order, heavily relaxed, SHORT diagnostic arm -- say 200 iterations, upwind, relax U 0.3 / p 0.2 -- is permitted IF AND ONLY IF you label it a diagnostic, it costs under 5 core-min, and you report it as a diagnostic and never as a feasibility result. That is the one launch you may make.' ALL THREE CONDITIONS ARE MET AND ARE MECHANICALLY ENFORCED, not merely promised: the 5 core-min ceiling by the timeout above; the label by run_f28_feasibility.sh stamping LABEL=DIAGNOSTIC into the STATUS file from a variable set before the EXIT trap is installed; the numerics by sed substitutions that are COUNTED, so a substitution which silently matched nothing aborts the run rather than leaving a second-order, lightly-relaxed solve wearing a DIAGNOSTIC label. NO AGENT MESSAGE IS SANAA'S CONSENT (rule 9) and this authorisation is relied on for exactly what it says: one launch, diagnostic only.",
+  "_schema_note": "Fields above are scripts/queue_entry_check.py REQUIRED_FIELDS. Everything below is a cfd annotation the validator ignores.",
+  "label": "DIAGNOSTIC",
+  "cap_core_min_enforced": 5.0,
+  "rc_and_artifact_discipline": "Identical to the sibling row: rc captured inside run_f28_feasibility.sh on the solver line, never around a setsid line; STATUS written by that script's EXIT trap to RUN_STATUS.F28.FEAS_L1_dp0_U20.FEASIBILITY.txt inside the run directory; the queue cwd is a separate otherwise-empty directory so the runner's unconditional truncation of STATUS.* and launcher.queue.out cannot reach any run record (registration section 11.4).",
+  "run_root": "/home/ubuntu/Certonomous/verification/runs/F28_runs/DIAG_L1_dp0_U20_upwind_R2 -- ABSENT at filing time, the same reader shown able to read PRESENT on /home/ubuntu/Certonomous/verification/runs/F28_runs/DIAG_L1_dp0_U20_upwind (the preserved zero-compute refusal) in the same invocation (rule 3).",
+  "verdict_state": "NOT APPLICABLE -- diagnostic probe, no gate, no feasibility number",
+  "label_meaning": "NOT A FEASIBILITY RESULT AND NOT A VERDICT. This is a first-order, heavily relaxed, 200-iteration PROBE authorised by cfd-supervisor 2026-08-31 as the ONE launch permitted while crash triage is open. NO number is reported from it as a result -- not a thrust, not a mass flow, not a pressure jump, not a residual level. The ONLY thing read out of it is WHETHER AND AT WHICH ITERATION the turbulence fields bound. The registration's section 8 permits a first-order run 'for feasibility only', 'LABELLED as such and never graded'; this arm is weaker still and is labelled DIAGNOSTIC rather than FEASIBILITY so it cannot be mistaken for one of the feasibility rows.",
+  "what_it_discriminates": "THE OPEN QUESTION cfd-supervisor named: cause versus symptom. FEAS_L1_dp0_U20_R2 bounds omega AT ITERATION 1 (bounding omega, min: -80.21, max: 4.6976e+08) with delta_p = 0, i.e. with NO momentum source present, and SIGFPEs at wall_s 9. IF heavy relaxation and first-order upwind carry 200 iterations WITHOUT bounding omega, the divergence is numerical stiffness and the second-order scheme set is implicated. IF omega still bounds at iteration 1 under maximal damping, relaxation cannot be the lever and the cause lies in the mesh or the boundary conditions -- because iteration 1 is BEFORE relaxation has had anything to damp. THIS ARM CANNOT PROVE THE POSITIVE CASE: holding for 200 iterations would show the scheme set matters, NOT that the 53,458:1 axis cells are harmless.",
+  "not_a_second_authorised_launch": "THIS IS THE SAME ONE AUTHORISED DIAGNOSTIC LAUNCH, RE-FIRED AFTER A ZERO-COMPUTE REFUSAL. The first attempt (rung DIAG_L1_dp0_U20_upwind) NEVER REACHED THE SOLVER: solver_rc=not-run, phase=assemble, wall_s=not-run, ZERO core-minutes, artifacts preserved at verification/runs/F28_runs/DIAG_L1_dp0_U20_upwind/. It was stopped by the launcher's OWN count control, which is the control working, not failing: the diagnostic scheme substitution matched 4 places where 3 were expected, and the run refused rather than proceeding half-patched. CAUSE, AND IT IS THE THIRD TIME THIS EXACT SHAPE HAS BITTEN THIS CASE: the substitution matched on scheme TEXT ('bounded Gauss linearUpwind grad(U)'), and system/fvSchemes's own header comment QUOTES REGISTRATION SECTION 8 VERBATIM ON ONE LINE, so the edit hit the documentation as well as the entry. The same shape as the bare `grep \"__\"` sweep matching controlDict.template's own `__PLACEHOLDERS__` prose. THE STANDING LESSON FOR THIS REPOSITORY, WHERE DICTIONARIES DOCUMENT THEMSELVES BY QUOTING THEIR OWN CONTENT: a sed or grep aimed at dictionary content must be ANCHORED TO THE ENTRY LINE and never matched on the value text. The substitution is now anchored to `^    div(phi,X)` and the count control is anchored with it. A control that fires at zero compute on a real defect is worth more than the run it stopped.",
+  "_launch": {
+    "utc": "2026-08-31T17:19:57Z",
+    "pid": 182886,
+    "sid": 182886,
+    "status_file": "/home/ubuntu/Certonomous/verification/runs/F28_runs/_diag_launch_dp0_U20_upwind_R2/STATUS.F28_DIAG_L1_dp0_U20_upwind_R2",
+    "wrapper_out": "/home/ubuntu/Certonomous/verification/runs/F28_runs/_diag_launch_dp0_U20_upwind_R2/launcher.queue.out",
+    "started_epoch": 1788196797.4134655,
+    "status_seen_utc": "2026-08-31T17:20:57Z"
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.F28_DIAG_L1_dp0_U20_upwind_R2 (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
+}

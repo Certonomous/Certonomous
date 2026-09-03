@@ -1,0 +1,68 @@
+{
+  "team": "cfd",
+  "case_id": "F28_FEAS_L1_dp0_U20_R2",
+  "prereg_commit": "FEASIBILITY",
+  "prereg_path": "verification/campaign/F28_DUCTED_ACTUATOR_DISK_PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/F28_DUCTED_ACTUATOR_DISK/run_f28_feasibility.sh",
+    "--rung",
+    "FEAS_L1_dp0_U20_R2",
+    "--level",
+    "1",
+    "--delta-p",
+    "0",
+    "--u-inf",
+    "20",
+    "--relax-u",
+    "0.7",
+    "--ranks",
+    "4",
+    "--max-wall-s",
+    "1500"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/F28_runs/_feas_launch_dp0_U20_R2",
+  "ranks": 4,
+  "cost_core_min_estimate": 10.0,
+  "cost_basis": "DOLLARS ARE DERIVED, NOT MEASURED, at the owner-stated $0.0513/core-h, REPORTED-BY-OWNER: this box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). THE CORE-MINUTE ESTIMATE IS NOT MEASURED EITHER AND THIS FIELD SAYS SO: no simpleFoam solve has ever run on this case, so there is no rate to measure on this mesh and no timing pilot preceded this entry. The figure 10.0 core-min is the frozen registration's own section 10 per-solve L1 estimate (Sanaa's directive section 2.8 gives 5-15 core-min per solve); it is a PREDICTION carried forward so rule 12's estimate-versus-actual calibration has something to compare against, labelled a prediction rather than dressed as a measurement. THE ENFORCED CEILING IS REAL AND SEPARATE: run_f28_feasibility.sh wraps the solver in `timeout --signal=TERM --kill-after=60 1500`, so this row cannot exceed 1500 wall s x 4 ranks / 60 = 100.0 core-min, and a timeout kill is a non-zero rc that STOPS the run rather than buying a new budget. Derived dollars: $0.0086 at the estimate, $0.0855 at the ceiling. FEASIBILITY SPEND IS REPORTED SEPARATELY FROM THE REGISTRATION'S 400 core-min GATED CAP AND IS NOT ABSORBED INTO IT.",
+  "memory_floor_gb": 2.0,
+  "enqueued_by": "cfd lab-lane, 2026-08-31, on cfd-supervisor's dispatch relaying Sanaa 2026-08-31T15:13Z and 2026-08-31T15:51Z (feasibility/physics rungs need no freeze and are queue-legal tagged prereg=FEASIBILITY; their outputs are never gradeable as verdicts). ENQUEUEING IS NOT AUTHORISATION and no agent message is Sanaa's consent (rule 9). THIS ROW IS THE UNLOADED TWIN OF F28_FEAS_L1_dp0_U20's sibling row F28_FEAS_L1_dp1000_U20 AND EXISTS FOR ONE REASON: the registration's control C2 (section 6.2) asserts that the disk mass flow is 'positive and INCREASED over the delta_p = 0 baseline', and that baseline is a measurement, not an assumption. A control defined without the thing it is compared against is not a control. Verified on disk by this lane before filing: the L1 mesh exists with all three section 5 gates true (BIRTH_L1.json, 31752 cells, stage0_verdict GATE REACHED) and no time directory, log.simpleFoam or postProcessing tree exists anywhere under verification/runs/F28_runs.",
+  "_schema_note": "Fields above are scripts/queue_entry_check.py REQUIRED_FIELDS. Everything below is a cfd annotation the validator ignores.",
+  "label": "FEASIBILITY",
+  "label_meaning": "NO GATE SCORES ANYTHING ON THIS RUN. No verdict of the fixed vocabulary attaches to it; no GCI, observed order, theory ratio or PASS may be computed, quoted or implied from it. A disagreement with the frozen registration is a FINDING reported to the supervisor, never a gate failure.",
+  "row": "L1 (31,752 cells, 5-degree wedge), delta_p = 0 (Su_x = 0.0 m/s^2, the source is present in the dictionary and contributes nothing), U_inf = 20 m/s, sigma = 1.0. simpleFoam steady incompressible kOmegaSST low-Re, OpenFOAM v2606, 4 ranks.",
+  "what_this_row_is_for": "TWO THINGS, BOTH MEASUREMENTS THIS LANE WOULD OTHERWISE HAVE TO ASSUME. (1) The delta_p = 0 disk mass flow, which is the baseline half of control C2's 'increased over the delta_p = 0 baseline' (section 6.2) -- without it 'increased' has no referent. (2) A NEGATIVE LIMB ON THE PRESSURE READER: the same diskPlaneUp/diskPlaneDown surfaceFieldValue pair that must read a ~1000 Pa jump on the loaded row must read approximately ZERO here. A reader that reports the same jump with the source switched off is blind, and a reader never shown able to report a non-zero AND a zero through the real production path has certified nothing (standing rule 3; Sanaa's control-birth directive 2026-08-28). NOTE THE LIMIT OF THE CLAIM: this is NOT the registration's section 6.2 C4 negative limb, which is a deliberately mis-set delta_p, and it is NOT the section 6.3 pass-through control, which is a GATED run with a registered sign and magnitude assertion. Both of those remain to be run on the gated path. This row is a feasibility measurement that informs them and scores neither.",
+  "cap_core_min_enforced": 100.0,
+  "rc_and_artifact_discipline": "Identical to the sibling row: rc captured inside run_f28_feasibility.sh on the solver line, never around a setsid line; STATUS written by that script's EXIT trap to RUN_STATUS.F28.FEAS_L1_dp0_U20.FEASIBILITY.txt inside the run directory; the queue cwd is a separate otherwise-empty directory so the runner's unconditional truncation of STATUS.* and launcher.queue.out cannot reach any run record (registration section 11.4).",
+  "run_root": "/home/ubuntu/Certonomous/verification/runs/F28_runs/FEAS_L1_dp0_U20_R2 -- ABSENT at filing time, with the same reader shown able to read PRESENT on /home/ubuntu/Certonomous/verification/runs/F28_runs/FEAS_L1_dp0_U20 (the preserved R1 abort) in the same invocation, so the absence is evidence and not a blind reader (rule 3).",
+  "verdict_state": "NOT APPLICABLE -- feasibility, no gate",
+  "retry_note_R2": "RETRY R2, AND THE REASON IS A MEASURED DEFECT, NOT A NEW GATE. The R1 attempt (rung FEAS_L1_dp1000_U20 / FEAS_L1_dp0_U20) ABORTED AT phase=assemble AT ZERO COMPUTE, solver_rc=not-run, and its artifacts are PRESERVED under verification/runs/F28_runs/FEAS_L1_dp1000_U20/ and .../FEAS_L1_dp0_U20/ rather than deleted. Cause, found by firing the script rather than by reading it: the unsubstituted-placeholder sweep was a bare `grep -q \"__\"`, and case/system/controlDict.template line 2 CONTAINS THE WORD __PLACEHOLDERS__ IN ITS OWN HEADER COMMENT. The sweep matched the documentation and refused the run. THE SAME DEFECT IS IN THE GATED LAUNCHER run_f28.sh:256-258, which has never been fired for record, and it is REPORTED TO THE SUPERVISOR UNFIXED -- this lane does not edit the gated launcher. run_f28_feasibility.sh now sweeps for the seven REAL tokens by name, which is STRICTER than the bare form, and a planted control was run on that reader in both directions: it FIRES on a live __END_TIME__ and is SILENT on the __PLACEHOLDERS__ prose, while the old bare sweep FIRES on that same prose. A guard never shown able to fire and to stay silent has certified nothing (standing rule 3). R1 SPENT ZERO CORE-MINUTES: it never reached decomposePar.",
+  "_launch": {
+    "utc": "2026-08-31T16:46:26Z",
+    "pid": 169605,
+    "sid": 169605,
+    "status_file": "/home/ubuntu/Certonomous/verification/runs/F28_runs/_feas_launch_dp0_U20_R2/STATUS.F28_FEAS_L1_dp0_U20_R2",
+    "wrapper_out": "/home/ubuntu/Certonomous/verification/runs/F28_runs/_feas_launch_dp0_U20_R2/launcher.queue.out",
+    "started_epoch": 1788194786.885595,
+    "status_seen_utc": "2026-08-31T16:47:26Z"
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.F28_FEAS_L1_dp0_U20_R2 (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
+}

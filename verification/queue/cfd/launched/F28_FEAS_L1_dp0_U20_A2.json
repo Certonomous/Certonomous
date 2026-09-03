@@ -1,0 +1,71 @@
+{
+  "team": "cfd",
+  "case_id": "F28_FEAS_L1_dp0_U20_A2",
+  "prereg_commit": "FEASIBILITY",
+  "prereg_path": "verification/campaign/F28_DUCTED_ACTUATOR_DISK_PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/F28_DUCTED_ACTUATOR_DISK/run_f28_feasibility.sh",
+    "--rung",
+    "FEAS_L1_dp0_U20_A2",
+    "--level",
+    "1",
+    "--mesh-dir",
+    "/home/ubuntu/Certonomous/verification/runs/F28_runs/mesh_L1_A1",
+    "--birth",
+    "/home/ubuntu/Certonomous/cases/F28_DUCTED_ACTUATOR_DISK/case/mesh/BIRTH_L1_A1.json",
+    "--delta-p",
+    "0",
+    "--u-inf",
+    "20",
+    "--relax-u",
+    "0.7",
+    "--ranks",
+    "4",
+    "--max-wall-s",
+    "1500"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/F28_runs/_feas_launch_dp0_U20_A2",
+  "ranks": 4,
+  "cost_core_min_estimate": 10.0,
+  "cost_basis": "DOLLARS ARE DERIVED, NOT MEASURED, at the owner-stated $0.0513/core-h, REPORTED-BY-OWNER: this box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). THE CORE-MINUTE ESTIMATE IS NOT MEASURED. The three prior F28 feasibility attempts all died with SIGFPE (rc 136) in 7-9 wall s, so there is still no completed simpleFoam solve on this case from which to measure a rate; 10.0 core-min is the frozen registration's own section 10 per-solve L1 PREDICTION, carried forward so rule 12's estimate-versus-actual calibration has a predicted value to compare against. THE ENFORCED CEILING IS REAL AND SEPARATE: run_f28_feasibility.sh wraps the solver in `timeout --signal=TERM --kill-after=60 1500`, so this row cannot exceed 1500 wall s x 4 ranks / 60 = 100.0 core-min whatever happens, and a timeout kill is a non-zero rc that STOPS the run rather than buying it a new budget. Derived dollars: $0.0086 at the estimate, $0.0855 at the ceiling. FEASIBILITY SPEND IS REPORTED SEPARATELY FROM THE REGISTRATION'S 400 core-min GATED CAP AND IS NOT ABSORBED INTO IT -- this row is not a gated rung and buys no gated result.",
+  "memory_floor_gb": 2.0,
+  "enqueued_by": "cfd lab-lane for cfd-supervisor, 2026-08-31, on the supervisor's dispatch to re-run the L1 feasibility pair on the POST-ADDENDUM-1 REBUILT MESH after verification's ruling at 4c3203d8. Sanaa 2026-08-31T15:13Z and 15:51Z make an unregistered feasibility rung queue-legal tagged prereg=FEASIBILITY with outputs never gradeable as verdicts. ENQUEUEING IS NOT AUTHORISATION and NO AGENT MESSAGE IS SANAA'S CONSENT (rule 9). VERIFIED ON DISK BY THIS LANE IN THIS INVOCATION, not accepted on report: (a) make_mesh.py on disk hashes to c27bcd73903c5d0dedb3530eb1cc705914adcccdda1db080b0871da623fbac89 and `git show HEAD:<path>` hashes identically, so the generator that built the mesh below IS the committed guarded one; (b) the pre-registration on disk hashes identically to `git show HEAD:<path>` (blob 500cec94), Addendum 1 included; (c) mesh_L1_A1/constant/polyMesh exists, its checkMesh log reports 31752 cells, max non-orthogonality 57.868895, max skewness 1.2436732 and no negative volumes, and BIRTH_L1_A1.json records all three section 5 gates true with stage0_verdict GATE REACHED; (d) no time directory, log.simpleFoam or postProcessing tree exists under the run_root named below. THIS IS NOT THE GATED LAUNCHER: run_f28.sh still refuses without --check1-token and STAGE 1 IS NOT AUTHORISED -- analyse_f28.py is unread and no agent may supply that token on the supervisor's behalf.",
+  "label": "FEASIBILITY",
+  "label_meaning": "NO GATE SCORES ANYTHING ON THIS RUN. No verdict of the fixed vocabulary attaches to it; no GCI, observed order, theory ratio or PASS may be computed, quoted or implied from it. A feasibility number that disagrees with the frozen registration is a FINDING reported to the supervisor, never a gate failure.",
+  "row": "L1 REBUILT (mesh_L1_A1, 31,752 cells, 5-degree wedge), delta_p = 0 Pa, U_inf = 20 m/s. simpleFoam steady incompressible kOmegaSST low-Re, OpenFOAM v2606, 4 ranks. ZERO-SOURCE CONTROL: with delta_p = 0 there is no momentum source at all, so a divergence here is a property of the MESH AND DISCRETISATION and of nothing else.",
+  "mesh_source": "MESH SOURCE IS OVERRIDDEN AND SAYS SO. --mesh-dir/--birth are new options added by this lane to run_f28_feasibility.sh; BOTH DEFAULTS ARE UNCHANGED, so no existing invocation is redirected. They point this row at the rebuilt ladder mesh_L1_A1 and its certificate BIRTH_L1_A1.json rather than the superseded mesh_L1/BIRTH_L1.json. The launcher now REFUSES a mismatched mesh/certificate pair, and that guard was driven in both directions before this entry was written: silent on the two matched pairs, firing on a wrong-mesh pair and on a wrong-level pair (standing rule 3).",
+  "what_this_row_tests": "Whether the SIGFPE (rc 136) that killed all three prior attempts survives the n == 1 generator repair. THE MORE VALUABLE OUTCOME IS A PERSISTING CRASH: that FALSIFIES the mesh-conditioning hypothesis, and on that reading the lane STOPS and reports the falsification rather than tuning the mesh to chase the crash.",
+  "run_root": "/home/ubuntu/Certonomous/verification/runs/F28_runs/FEAS_L1_dp0_U20_A2 -- ABSENT at filing time, with the same reader shown able to read PRESENT on /home/ubuntu/Certonomous/verification/runs/F28_runs/FEAS_L1_dp0_U20_A1 (the preserved A1 zero-compute abort) in the same invocation (standing rule 3).",
+  "verdict_state": "NOT APPLICABLE -- feasibility, no gate",
+  "cap_core_min_enforced": 100.0,
+  "retry_note_A2": "RETRY A2 ON A MEASURED DEFECT, AT ZERO COMPUTE SPENT. The A1 pair (FEAS_L1_dp0_U20_A1 and FEAS_L1_dp1000_U20_A1) both ABORTED at phase=assemble with solver_rc=not-run and wall_s=not-run; their artifacts are PRESERVED rather than deleted. Cause: run_f28_feasibility.sh injected `writeFields     false;` into the assembled controlDict UNCONDITIONALLY, because when it was written the frozen controlDict.template carried no such entry and every F28 run died at v2606's mandatory readEntry. THE TEMPLATE HAS SINCE BEEN REPAIRED AT HEAD and now carries the entry in all three surfaceFieldValue blocks, so the injection produced SIX and the script's own count assert REFUSED rather than running a half-patched dictionary. The guard did its job. The injection is now IDEMPOTENT -- it injects only when the count is 0, skips when it is 3, refuses on anything else, and keeps the same post-condition of exactly 3. THAT REPAIR WAS DRIVEN IN FOUR DIRECTIONS BEFORE THIS ENTRY WAS WRITTEN (standing rule 3): 0 present -> injects 3 and proceeds; 3 present -> injects nothing and proceeds; 1 present -> refuses; a four-block template with 0 present -> injects 4 and the final assert refuses. THE GATED LAUNCHER run_f28.sh CARRIES THE SAME UNCONDITIONAL INJECTION AND IS NOT TOUCHED BY THIS LANE -- it is reported to the supervisor unfixed. A1 SPENT ZERO CORE-MINUTES: neither arm reached decomposePar.",
+  "_launch": {
+    "utc": "2026-08-31T18:28:38Z",
+    "pid": 256679,
+    "sid": 256679,
+    "status_file": "/home/ubuntu/Certonomous/verification/runs/F28_runs/_feas_launch_dp0_U20_A2/STATUS.F28_FEAS_L1_dp0_U20_A2",
+    "wrapper_out": "/home/ubuntu/Certonomous/verification/runs/F28_runs/_feas_launch_dp0_U20_A2/launcher.queue.out",
+    "started_epoch": 1788200918.3977914,
+    "status_seen_utc": "2026-08-31T18:38:48Z"
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.F28_FEAS_L1_dp0_U20_A2 (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
+}

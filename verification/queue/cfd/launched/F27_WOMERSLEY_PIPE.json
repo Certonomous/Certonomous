@@ -33,5 +33,33 @@
     "--prereg-commit=05ec72c41ee762b49c3dc1d25a6780689b9b9044"
   ],
   "verdict_state": "PENDING",
-  "superseded_prereg_commit": "4bb0226dcac06719b1a16a2d53647fcd5d0b9c9e -- STRUCK, not rewritten, by AMENDMENT 1 (pre-compute, run root absent, 0 core-min spent): a mislabelled scratch-pilot cost corrected from 0.88 core-min on an ExecutionTime basis to 1.20 core-min on the lab's ClockTime x ranks basis. NO gate, threshold, band, cap or label moved. No run ever cited the superseded sha."
+  "superseded_prereg_commit": "4bb0226dcac06719b1a16a2d53647fcd5d0b9c9e -- STRUCK, not rewritten, by AMENDMENT 1 (pre-compute, run root absent, 0 core-min spent): a mislabelled scratch-pilot cost corrected from 0.88 core-min on an ExecutionTime basis to 1.20 core-min on the lab's ClockTime x ranks basis. NO gate, threshold, band, cap or label moved. No run ever cited the superseded sha.",
+  "_launch": {
+    "utc": "2026-08-28T07:54:45Z",
+    "pid": 1783830,
+    "sid": 1783830,
+    "status_file": "/home/ubuntu/Certonomous/cases/F27_WOMERSLEY_PIPE/STATUS.F27_WOMERSLEY_PIPE",
+    "wrapper_out": "/home/ubuntu/Certonomous/cases/F27_WOMERSLEY_PIPE/launcher.queue.out",
+    "started_epoch": 1787903685.8867323,
+    "status_seen_utc": "2026-08-28T07:55:45Z"
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.F27_WOMERSLEY_PIPE (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
 }

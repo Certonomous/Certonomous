@@ -42,7 +42,8 @@
     "sid": 1589600,
     "status_file": "/home/ubuntu/Certonomous/cases/F17c_kovasznay_floor/STATUS.F17c_KV40_FLOOR",
     "wrapper_out": "/home/ubuntu/Certonomous/cases/F17c_kovasznay_floor/launcher.queue.out",
-    "started_epoch": 1787869804.003552
+    "started_epoch": 1787869804.003552,
+    "status_seen_utc": "2026-08-28T02:39:15Z"
   },
   "_field_classes": {
     "physics_critical": [

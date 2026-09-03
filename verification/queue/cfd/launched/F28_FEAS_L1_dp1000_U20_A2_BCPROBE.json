@@ -1,0 +1,72 @@
+{
+  "team": "cfd",
+  "case_id": "F28_FEAS_L1_dp1000_U20_A2_BCPROBE",
+  "prereg_commit": "FEASIBILITY",
+  "prereg_path": "verification/campaign/F28_DUCTED_ACTUATOR_DISK_PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/F28_DUCTED_ACTUATOR_DISK/run_f28_bcprobe.sh",
+    "--rung",
+    "FEAS_L1_dp1000_U20_A2_BCPROBE",
+    "--parent",
+    "FEAS_L1_dp1000_U20_A2",
+    "--ranks",
+    "4",
+    "--max-wall-s",
+    "1500"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/F28_runs/_bcprobe_launch_dp1000_U20_A2",
+  "ranks": 4,
+  "cost_core_min_estimate": 42.0,
+  "cost_basis": "DOLLARS ARE DERIVED, NOT MEASURED, at the owner-stated $0.0513/core-h, REPORTED-BY-OWNER: this box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). THE CORE-MINUTE ESTIMATE IS ITSELF DERIVED FROM A MEASURED RATE, and the rate is the measured part: both completed L1 feasibility arms ran the full 15000-iteration rigor cap on this exact mesh at 4 ranks, giving 23.93-24.83 iterations per wall second. 15000 iterations at that band is 604-627 wall s = 40.3-41.8 core-min, plus decomposePar at about 1 core-min. REGISTERED ESTIMATE 42.0 core-min, which is the figure frozen in the probe's own PRECOMMITTED_READINGS.md section 5 BEFORE the case was launched, and it is carried here unchanged so rule 12's estimate-versus-actual calibration compares against a pre-committed number rather than one chosen afterwards. THE ENFORCED CEILING IS REAL AND SEPARATE: run_f28_bcprobe.sh wraps the solver in `timeout --signal=TERM --kill-after=60 1500`, so this row cannot exceed 1500 wall s x 4 ranks / 60 = 100.0 core-min whatever happens, and a timeout kill is a non-zero rc that STOPS the probe rather than buying it a new budget. Derived dollars: $0.0359 at the estimate, $0.0855 at the ceiling. FEASIBILITY SPEND IS REPORTED SEPARATELY FROM THE REGISTRATION'S 400 core-min GATED CAP AND IS NOT ABSORBED INTO IT -- that gated cap is entirely unspent and this row does not touch it. This row is not a gated rung and buys no gated result.",
+  "memory_floor_gb": 2.0,
+  "enqueued_by": "cfd lab-lane for cfd-supervisor, 2026-08-31. Sanaa 2026-08-31T15:13Z and 15:51Z make an unregistered feasibility rung queue-legal tagged prereg=FEASIBILITY with outputs never gradeable as verdicts. ENQUEUEING IS NOT AUTHORISATION and NO AGENT MESSAGE IS SANAA'S CONSENT (rule 9). THE FROZEN GATED REGISTRATION IS NOT EDITED BY THIS ROW and nothing at or above its Addendum 2 is touched. STAGE 1 IS NOT AUTHORISED: run_f28.sh still refuses without the supervisor's own --check1-token, analyse_f28.py is unread, and this lane neither supplies nor manufactures that token. VERIFIED ON DISK BY THIS LANE IN THIS INVOCATION, not accepted on report: (a) the probe case differs from its parent arm FEAS_L1_dp1000_U20_A2 in exactly the five farfield entries and in nothing else -- system/controlDict, decomposeParDict, fvSchemes, fvSolution, constant/fvOptions, transportProperties, turbulenceProperties and constant/polyMesh (recursive) are byte-identical, and each of 0/U, 0/p, 0/k, 0/omega, 0/nut is byte-identical to the parent's once its farfield entry is excised; (b) that comparison is not this lane's word for it -- it is machine-checked by assert_bcprobe_single_variation.py, which the launcher runs as a PRECONDITION OF THE SOLVE and which is driven to a REFUSAL on three planted perturbations (a second change outside the farfield entry, one field's farfield reverted to the parent form, and a perturbed polyMesh) in the same process before its PASS is trusted (standing rule 3); (c) the run dir holds no numeric time directory, no processor* directory and no log.simpleFoam.",
+  "label": "FEASIBILITY",
+  "label_meaning": "NO GATE SCORES ANYTHING ON THIS RUN. No verdict of the fixed vocabulary attaches to it; no GCI, observed order, theory ratio or PASS may be computed, quoted or implied from it. A feasibility number that disagrees with the frozen registration is a FINDING reported to the supervisor, never a gate failure.",
+  "row": "FARFIELD BC-VARIATION PROBE on the L1 loaded arm. Mesh mesh_L1_A1 (31,752 cells, 5-degree wedge), delta_p = 1000 Pa, U_inf = 20 m/s, simpleFoam steady incompressible kOmegaSST low-Re, OpenFOAM v2606, 4 ranks, 15000-iteration rigor cap. THE SINGLE VARIATION: the farfield patch becomes `slip` on U, p, k, omega and nut. Nothing else changes.",
+  "hypothesis_under_test": "The farfield patch carries p: totalPressure p0=0 with U: inletOutlet inletValue (20 0 0). On a boundary whose normal is radial, a forced axial inflow has a near-zero normal component while the pressure form lets the outer boundary pass mass freely, so THE MASS FLUX THROUGH THE OUTER BOUNDARY IS A FREE PARAMETER THE SIMPLE LOOP NEVER SETTLES. Measured support at dp=0: 41.38 % of `sum local` continuity error on the 256 farfield-adjacent cells, 59.63 % in the outer radial band r in [3.0, 3.577). `slip` sets the boundary-normal flux identically to zero, removing exactly that degree of freedom and nothing else.",
+  "stated_limitation": "REGISTERED IN ADVANCE, IN THE PRE-COMMITTED FILE: `slip` confines the flow and is NOT proposed as the production farfield. This probe identifies a MECHANISM; it does not select a boundary condition. If it confirms, the production form is a separate question and its choice is the supervisor's.",
+  "precommitted_readings": "verification/runs/F28_runs/FEAS_L1_dp1000_U20_A2_BCPROBE/PRECOMMITTED_READINGS.md -- WRITTEN AND FROZEN BEFORE THE CASE WAS DECOMPOSED OR LAUNCHED, which is the whole of its evidentiary value. Note this is NOT verification/runs/F28_runs/PROBE_PRECOMMITTED_READINGS.md, an older withdrawn mesh-conditioning probe whose READING A is explicitly VOID.",
+  "arbiter": "THE ABSOLUTE, REGISTERED CRITERION, NOT THE RESIDUAL. Registration section 8 table: |dT_total| < 0.1 % over the last 2000 iterations. Operationally ptp% = (max(Fx) - min(Fx)) / |mean(Fx)| * 100 over the final 2000 iterations on postProcessing/forcesDuct/0/force.dat column total_x. The reader was validated by reproducing the registration's own published figure exactly: dp=1000 baseline min -0.356179, max -0.295725, mean -0.333725 -> 18.1149 %, against the registration's 18.1149 %. Metric invariant to sign convention and to WEDGE_SCALE = 72, both pure scalar multipliers.",
+  "readings_committed_in_numbers": "Baseline to beat 18.1149 %; registered threshold 0.1 %. READING A HYPOTHESIS CONFIRMED if ptp% < 0.1. READING B HYPOTHESIS SUPPORTED BUT NOT SUFFICIENT if 0.1 <= ptp% < 1.81 (a >=10x reduction; the farfield is a major contributor but does not account for the whole stall). READING C HYPOTHESIS FALSIFIED if ptp% >= 1.81 (less than a 10x reduction; the farfield is exonerated as the leading cause, exactly as the axis columns were). 1.81 % is 18.1149/10, fixed in the frozen file and NOT ADJUSTABLE AFTERWARDS.",
+  "corroborating_channels": "EVIDENCE, NOT THE ARBITER; these may not overturn the reading. (1) p FIRST-SOLVE initial residual at the final iteration, baseline 0.3668997977 -- gating is on the FIRST of the two p solves per outer iteration under nNonOrthogonalCorrectors 1, and TWO EARLIER LANES READ DIFFERENT ONES AND REACHED OPPOSITE CONCLUSIONS, the second corrector solve reading ~2.1e-03 and NOT being the gating quantity. (2) time step continuity errors : sum local at the final iteration, baseline 2.775360385e-04. (3) share of sum local carried by the 256 farfield-adjacent cells, baseline 17.69 % at t=14000. (4) whether any `SIMPLE solution converged` line appears, baseline none.",
+  "what_is_already_established_and_is_not_re-derived": "Both L1 feasibility arms run the full 15000-iteration cap at rc 0 with an End line and NEITHER CONVERGES. p's gating initial residual is flat at ~0.5 with zero decay. The registered absolute criterion fails at 18.11 % peak-to-peak. The unsteadiness is BROADBAND, not periodic: top-four spectral power share 2.2 %, mean drift 0.783 %. THE AXIS ASPECT RATIO IS EXONERATED: 0 of the top-100 continuity-error cells lie in the high-AR set, proven with a planted control rather than a reader that merely failed to find one.",
+  "stop_condition": "EITHER OUTCOME STOPS THE PROBE. On reading A the lane STOPS AND REPORTS and does not proceed toward any gated solve: the gated registration is frozen, does not name a farfield form, and amending it needs a pre-compute amendment naming the BC, which is the supervisor's drafting and not this lane's. On reading B or C the lane stops and reports likewise. NO TUNING FOLLOWS EITHER OUTCOME. A falsification is as valuable as a confirmation here and is reported as one.",
+  "why_a_single_variation_and_not_a_sweep": "A sweep over four farfield forms was CONSIDERED AND REJECTED in the frozen file: it would report which form converges without isolating why, and a mechanism that is not isolated is how a wrong method gets adopted.",
+  "launcher_note": "run_f28_bcprobe.sh is NEW and runs the PRE-ASSEMBLED case rather than assembling one. run_f28_feasibility.sh assembles from templates on every invocation and refuses a run dir holding 0/, so re-using it would have OVERWRITTEN the one variation under test with the template's own farfield form and run a duplicate of the parent wearing the probe's name. The assembly guarantee it gives up is replaced by a machine check that is stronger for this purpose, because it compares against the parent that actually ran. THE GATED LAUNCHER run_f28.sh IS NOT TOUCHED.",
+  "defect_found_while_building_this_row": "FOURTH INSTANCE OF ONE DEFECT SHAPE IN THIS CASE, CAUGHT AT ZERO COMPUTE BY THE CHECKER'S OWN CONTROL. The first anchor written for the farfield excision was `^\\s*farfield\\b`, and it matched 0/U LINE 6 -- a HEADER COMMENT describing the boundary treatment in prose, indented two spaces -- so the control run refused on the unperturbed real pair. run_f28_feasibility.sh already records three instances of the same shape (the bare `__` sweep matching `__PLACEHOLDERS__` in controlDict.template's own header, and the div-scheme substitution matching fvSchemes' quoted section 8 text, twice at different counts). IN THIS REPOSITORY THE DICTIONARIES DOCUMENT THEMSELVES BY QUOTING THEIR OWN CONTENT, so any matcher aimed at dictionary content must be anchored to the ENTRY LINE and scoped to its block, never matched on a name or on value text. The anchor is now `^\\s*farfield\\s*\\{` scoped inside boundaryField; the header comment stays in the compared REMAINDER, so prose is still checked, just never mistaken for an entry.",
+  "documentation_inaccuracy_disclosed_not_edited": "The probe's 0/U header comment lines 5-8 still describe the farfield as a totalPressure/inletOutlet pair, which is no longer true of the probe. IT IS DELIBERATELY NOT EDITED: it is byte-identical to the parent's, which is what makes the single-variation comparison meaningful, and editing prose mid-flight would break that identity to fix a comment. Disclosed here rather than found later.",
+  "run_root": "/home/ubuntu/Certonomous/verification/runs/F28_runs/FEAS_L1_dp1000_U20_A2_BCPROBE -- PRE-ASSEMBLED (constant/, system/, 0/ and PRECOMMITTED_READINGS.md present) and CARRYING NO ANSWER: no numeric time directory, no processor* directory, no log.simpleFoam. The launcher re-checks all three and refuses on any of them, and touches the 0/ fields LAST, immediately before the solver, so the age guard holds.",
+  "retry_note": "RETRY ON A MEASURED DEFECT IN THIS LANE'S OWN LAUNCHER, AT ZERO COMPUTE SPENT. The first attempt (queued 2026-08-31T19:48Z) ABORTED at phase=guards with launcher_rc=1 and solver_rc=not-run; nothing was decomposed, no processor* directory was created, no field was written and NOTHING WAS DELETED. Cause: run_f28_bcprobe.sh inherited its time-directory guard verbatim from run_f28_feasibility.sh as `.*/[0-9]+(\\.[0-9]+)?$`, where it is CORRECT because that script assembles into an empty directory and any `0` it finds is somebody else's answer. HERE `0` IS AN INPUT -- the probe case is pre-assembled and its initial condition is the thing under test -- so the inherited guard refused the only directory it was ever meant to run. THE GUARD DID ITS JOB: it refused rather than running, and it cost nothing to be wrong. The repair adds `-not -name '0'`, excluding EXACTLY the literal `0` and nothing else, and IT WAS DRIVEN IN SIX DIRECTIONS BEFORE THIS ENTRY WAS RE-QUEUED (standing rule 3): the real probe dir and a bare 0-only tree both pass; planted `15000`, `0.0`, `00` and `1` directories each still abort, as does the parent arm's real `14000` answer directory. The guard is NARROWED BY ONE EXACT NAME, NOT WEAKENED. This is the same lesson the first attempt's checker taught an hour earlier from the other side: a guard copied from a script whose preconditions differ is a guard aimed at something other than what it thinks.",
+  "verdict_state": "NOT APPLICABLE -- feasibility, no gate",
+  "cap_core_min_enforced": 100.0,
+  "_schema_note": "Fields above the schema note are the required set (scripts/queue_entry_check.py REQUIRED_FIELDS). Fields below are cfd annotations the validator ignores.",
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.F28_FEAS_L1_dp1000_U20_A2_BCPROBE (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  },
+  "_launch": {
+    "utc": "2026-08-31T19:52:14Z",
+    "pid": 306253,
+    "sid": 306253,
+    "status_file": "/home/ubuntu/Certonomous/verification/runs/F28_runs/_bcprobe_launch_dp1000_U20_A2/STATUS.F28_FEAS_L1_dp1000_U20_A2_BCPROBE",
+    "wrapper_out": "/home/ubuntu/Certonomous/verification/runs/F28_runs/_bcprobe_launch_dp1000_U20_A2/launcher.queue.out",
+    "started_epoch": 1788205934.458421,
+    "status_seen_utc": "2026-08-31T19:53:14Z"
+  }
+}

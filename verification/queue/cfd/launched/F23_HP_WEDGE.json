@@ -31,5 +31,33 @@
   ],
   "verdict_state": "PENDING",
   "amendment_1": "pre-compute, PRE-SPEND PROJECTOR ONLY (L-349, re-freeze 058e7771): new proj_f23.py; cap UNMOVED at 1100; post-level ACTUAL-spend check byte-identical to its HEAD blob; no gate, band, label, ladder, floor or dictionary touched; estimate UNCHANGED at 519.4. Replay at the frozen rates now projects coarse 19.4 / medium 65.7 / fine 443.8, cumulative 519.2 of 1100, HALT=0 at every level -- the old form projected fine 3552.0, cumulative 3627.4, HALT=1. Note the frozen constant here is F17-DERIVED, not measured on F23 (run_f23.sh:42-47), which is the sharper reason to project from the case's own levels. Run root ABSENT.",
-  "projector_effect_at_registered_rates": "fine level projects 443.8 core-min, cumulative 519.2 of 1100 -> PROCEEDS (old form: 3627.4 -> HALT)"
+  "projector_effect_at_registered_rates": "fine level projects 443.8 core-min, cumulative 519.2 of 1100 -> PROCEEDS (old form: 3627.4 -> HALT)",
+  "_launch": {
+    "utc": "2026-08-28T07:03:49Z",
+    "pid": 1771573,
+    "sid": 1771573,
+    "status_file": "/home/ubuntu/Certonomous/cases/F23_HP_WEDGE/STATUS.F23_HP_WEDGE",
+    "wrapper_out": "/home/ubuntu/Certonomous/cases/F23_HP_WEDGE/launcher.queue.out",
+    "started_epoch": 1787900629.9727073,
+    "status_seen_utc": "2026-08-28T07:54:40Z"
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.F23_HP_WEDGE (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
 }
