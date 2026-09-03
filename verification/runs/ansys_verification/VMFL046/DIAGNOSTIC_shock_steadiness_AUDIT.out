@@ -1,0 +1,53 @@
+==============================================================================
+VMFL046-INVISCID  (this run -- Euler arm)   /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL046_INVISCID
+==============================================================================
+  L1  last_iter=20000
+     x_shock (final sample)      = 1.276058 m   (+2.0846 % vs analytical 1.250)
+     SHOCK drift, final W=500    = 8.1934e-14 m =   0.000 % of the 0.0625 m band
+     SHOCK excursion, iter>=3000 = 3.3983e-05 m =    0.05 % of the band
+     GATE QUANTITY M(0.900)      = 1.73877462   |dM| over final W = 0.000e+00
+     ^ frozen plateau threshold delta_M = 4.25e-04 -> plateau limb says CONVERGED
+     [station trap] nearest sample point is x=0.902451, M=1.74154106; offset vs interpolated = 2.766e-03
+  L2  last_iter=20000
+     x_shock (final sample)      = 1.225157 m   (-1.9875 % vs analytical 1.250)
+     SHOCK drift, final W=500    = 5.7865e-13 m =   0.000 % of the 0.0625 m band
+     SHOCK excursion, iter>=3000 = 3.5707e-03 m =    5.71 % of the band
+     GATE QUANTITY M(0.900)      = 1.78190257   |dM| over final W = 0.000e+00
+     ^ frozen plateau threshold delta_M = 4.25e-04 -> plateau limb says CONVERGED
+     [station trap] nearest sample point is x=0.902451, M=1.78502247; offset vs interpolated = 3.120e-03
+  L3  last_iter=20000
+     x_shock (final sample)      = 1.214570 m   (-2.8344 % vs analytical 1.250)
+     SHOCK drift, final W=500    = 4.8404e-03 m =   7.745 % of the 0.0625 m band
+     SHOCK excursion, iter>=3000 = 6.2713e-02 m =  100.34 % of the band
+     GATE QUANTITY M(0.900)      = 1.81222065   |dM| over final W = 2.621e-10
+     ^ frozen plateau threshold delta_M = 4.25e-04 -> plateau limb says CONVERGED
+     BLINDNESS RATIO (shock motion / gate-quantity motion) = 1.85e+07
+     [station trap] nearest sample point is x=0.902451, M=1.81571469; offset vs interpolated = 3.494e-03
+
+==============================================================================
+VMFL046 VISCOUS  (register row #54, GATE FAIL) -- AUDIT   /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL046
+==============================================================================
+  L1  last_iter=20000
+     x_shock (final sample)      = 1.271610 m   (+1.7288 % vs analytical 1.250)
+     SHOCK drift, final W=500    = 0.0000e+00 m =   0.000 % of the 0.0625 m band
+     SHOCK excursion, iter>=3000 = 3.1470e-05 m =    0.05 % of the band
+     GATE QUANTITY M(0.900)      = 1.73872546   |dM| over final W = 0.000e+00
+     ^ frozen plateau threshold delta_M = 4.25e-04 -> plateau limb says CONVERGED
+     [station trap] nearest sample point is x=0.902451, M=1.74149165; offset vs interpolated = 2.766e-03
+  L2  last_iter=20000
+     x_shock (final sample)      = 1.199235 m   (-4.0612 % vs analytical 1.250)
+     SHOCK drift, final W=500    = 2.0605e-04 m =   0.330 % of the 0.0625 m band
+     SHOCK excursion, iter>=3000 = 2.6394e-03 m =    4.22 % of the band
+     GATE QUANTITY M(0.900)      = 1.78180627   |dM| over final W = 8.678e-11
+     ^ frozen plateau threshold delta_M = 4.25e-04 -> plateau limb says CONVERGED
+     BLINDNESS RATIO (shock motion / gate-quantity motion) = 2.37e+06
+     [station trap] nearest sample point is x=0.902451, M=1.78492544; offset vs interpolated = 3.119e-03
+  L3  last_iter=20000
+     x_shock (final sample)      = 1.150705 m   (-7.9436 % vs analytical 1.250)
+     SHOCK drift, final W=500    = 2.3265e-03 m =   3.722 % of the 0.0625 m band
+     SHOCK excursion, iter>=3000 = 1.2037e-01 m =  192.60 % of the band
+     GATE QUANTITY M(0.900)      = 1.81204960   |dM| over final W = 4.332e-10
+     ^ frozen plateau threshold delta_M = 4.25e-04 -> plateau limb says CONVERGED
+     BLINDNESS RATIO (shock motion / gate-quantity motion) = 5.37e+06
+     [station trap] nearest sample point is x=0.902451, M=1.81554188; offset vs interpolated = 3.492e-03
+

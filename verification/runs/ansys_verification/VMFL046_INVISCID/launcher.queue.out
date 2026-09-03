@@ -1,0 +1,6 @@
+=== VMFL046-INVISCID launcher  utc=2026-09-03T17:43:27Z  run_root=/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL046_INVISCID  smoke=0
+input-integrity OK: all case inputs match HEAD 7ca625e0cb42ba04ff45218fbdcf6d7c4cae0387 (caveat: pins to HEAD not prereg_commit; rule 6 is the backstop)
+  L1: rc=0 wall=57s core_min_used=0.95 / cap 84
+  L2: rc=0 wall=230s core_min_used=4.78333 / cap 84
+  L3: rc=0 wall=1373s core_min_used=27.6666 / cap 84
+=== VMFL046-INVISCID launcher done  core_min_used=27.6666  utc=2026-09-03T18:11:08Z
