@@ -50,8 +50,8 @@ instruments before it was written.
 | **G4** | **Rule 5 step (a) — iterative convergence, `C_CONV`.** Initial residuals of the **gated** channels ≤ the registered floor at every iteration of the final 10 % of `endTime`. | `verification/runs/T-family/T13_runs/analyse_t13.py:462` (registered `build_t13.py:334`, floor 1.0e-06); registered at `docs/campaigns/T-family/T13_PREREGISTRATION.md:120` and `T16_PREREGISTRATION.md:266` | **GATING, and gating *only* because it feeds G3.** | **Without this, the verdict on any grid-convergence claim cannot be trusted, because rule 5 step (1) makes a level that is not iteratively converged `NOT A RESULT` before any triple is consulted, so an unenforced convergence floor lets a non-converged level enter the triple that produces the observed order.** *Scope is exactly the channels the triple is built from; see R8 for the residual thresholds that are merely reported alongside — they are not this check and do not inherit its class.* |
 | **G5** | **Rule 5 step (a) — plateau / stationarity.** Every level must have plateaued across the registered window; not plateaued → `NOT A RESULT`. | `verification/runs/T-family/T8_runs/analyse_t8.py:1012` (`grade_row` `:1009`); `T4_runs/analyse_t4.py:356-359`; `T13_runs/analyse_t13.py:397`; `T1_runs/analyse_t1b_cmf_gated.py:17`; `T23G_runs/analyse_t23g.py:617` | **GATING, and gating *only* because it feeds G3.** | **Without this, the verdict on any grid-convergence claim cannot be trusted, because a level still drifting has no settled value to place in the triple, and an observed order computed across drifting levels measures the drift rather than the discretisation error.** |
 | **G6** | **`DONE.<case>` existence as the precondition to grading.** No `DONE` → the comparator refuses; the whole rung is graded or none of it is. | `verification/runs/T-family/T13_runs/analyse_t13.py:425`; `T14_runs/analyse_t14.py:239`; `T15_runs/analyse_t15.py:549`; `T18_runs/analyse_t18.py:268`; `T19b_runs/analyse_t19b.py:454` | **GATING, as the carrier of G2.** | **Without this, the verdict on any rung cannot be trusted, because `DONE.<case>` is the completion rule's certificate, and a comparator that grades without it grades a run never shown to satisfy rule 4 at all.** Class fixed by this team's own L-342 audit, which puts `DONE.<case>` **existence** in PHYSICS-CRITICAL (`docs/campaigns/T-family/L342_FIELD_CLASS_AUDIT_2026-08-26.md`, classification table). *The `DONE` marker's **mtime/timestamp** is INFRASTRUCTURE and is reporting — see R7.* |
-| **G7** | **The y+ SUBLAYER BOUND on the point maximum** — `max(y+) ≤ YPLUS_MAX = 5.0` on every registered wall, and y+ **not measured at all** → `NOT A RESULT`. | `verification/runs/T-family/T5b_runs/analyse_t5b.py:382-387` (bound) and `:371-377` (unmeasured); field class `analyse_t5b.py:68`, `:855` — `yPlus.dat` is a **GATE INPUT and never infrastructure** | **GATING — PROPOSED to the supervisor for ruling, not in his listed tier.** | **Without this, the verdict on any wall-resolved heat-transfer rung cannot be trusted, because a near-wall cell outside the viscous sublayer makes the resolved-wall assumption under the Nusselt reading false, and an unmeasured precondition is not a satisfied one.** **This is the limb the verification ruling deliberately KEPT on the point maximum**: `VERIFICATION_CHARTER` §2d.11.2 — *"A point maximum is the CORRECT statistic for 'was the sublayer ever violated' and the WRONG one for 'how does resolution scale.'"* See R1: the **other** limb drops. |
-| **G8** | **Registered mesh identity** — `checkMesh` cell count must equal the count registered for that level; a mismatch refuses at build. | `verification/runs/T-family/T13_runs/build_t13.py:275`; `T16_runs/build_t16.py:333` | **GATING — PROPOSED to the supervisor for ruling, not in his listed tier.** | **Without this, the verdict on any rung cannot be trusted, because a solve on a mesh that is not the registered mesh produces a number for a different case than the one the pre-registered gate was frozen against, and the refinement ratio `r` that G3 divides by is then not the ratio the triple assumes.** *Distinct from mesh QUALITY, which drops — see R2.* |
+| **G7** | **The y+ SUBLAYER BOUND on the point maximum** — `max(y+) ≤ YPLUS_MAX = 5.0` on every registered wall, and y+ **not measured at all** → `NOT A RESULT`. | `verification/runs/T-family/T5b_runs/analyse_t5b.py:382-387` (bound) and `:371-377` (unmeasured); field class `analyse_t5b.py:68`, `:855` — `yPlus.dat` is a **GATE INPUT and never infrastructure** | **GATING — GRANTED** (supervisor's ruling 2026-09-03, §5.1) | **Without this, the verdict on any wall-resolved heat-transfer rung cannot be trusted, because a near-wall cell outside the viscous sublayer makes the resolved-wall assumption under the Nusselt reading false, and an unmeasured precondition is not a satisfied one.** **This is the limb the verification ruling deliberately KEPT on the point maximum**: `VERIFICATION_CHARTER` §2d.11.2 — *"A point maximum is the CORRECT statistic for 'was the sublayer ever violated' and the WRONG one for 'how does resolution scale.'"* See R1: the **other** limb drops. |
+| **G8** | **Registered mesh identity** — `checkMesh` cell count must equal the count registered for that level; a mismatch refuses at build. | `verification/runs/T-family/T13_runs/build_t13.py:275`; `T16_runs/build_t16.py:333` | **GATING — GRANTED, and gating *only* because it feeds G3** (supervisor's ruling 2026-09-03, §5.2) | **Without this, the verdict on any grid-convergence claim cannot be trusted, because a solve on a mesh that is not the registered mesh produces a number for a different case than the one the pre-registered gate was frozen against, and the refinement ratio `r` that G3 divides by is then not the ratio the triple assumes — an observed order and a GCI computed on a false `r` are not uncertainty estimates, they are arithmetic on the wrong denominator.** *Derived from rule 5 by the same route as G4 and G5, not free-standing. Distinct from mesh QUALITY, which drops — see R2.* |
 
 ---
 
@@ -107,7 +107,78 @@ This pass creates zero work outside heat-transfer territory.
 
 ---
 
-*Classified by heat-transfer, once, per Sanaa's 2026-09-03 order. G7 and G8 are proposals
-awaiting the supervisor's ruling; every other row is final for this pass. This audit
-opens no follow-up question, proposes no new check, and builds no instrument to measure
-another instrument's reach (her clause 2).*
+## 5. Rulings on the two proposals — **BOTH GRANTED** (supervisor, 2026-09-03)
+
+### §5.1 G7 — the y+ **sublayer bound** stays GATING. GRANTED.
+
+A near-wall cell outside the viscous sublayer makes the resolved-wall assumption false,
+so the Nusselt number read off that mesh **is not the quantity the rung claims to
+report**. The `y+ unmeasured → NOT A RESULT` limb is granted on the same ground, and the
+symmetry is recorded deliberately:
+
+> **AN UNMEASURED PRECONDITION IS NOT A SATISFIED ONE.**
+
+This is the **identical principle** already written into this family's own comparator as
+*"an unevaluated step is not a passed one"* — `docs/campaigns/T-family/analyse_t23g2.py:372`
+and `:1062`, and in the sibling form *"an unevaluated gate is not a passed one"* at
+`:160`, `:270`, `:1050`. They are one idea and must read consistently.
+
+**CONSEQUENCE, RECORDED UNSOFTENED.** Gating this clause keeps T23G2's **`G-YPLUS`
+`GATE FAIL` fully load-bearing.** `[VERIFIED AT SOURCE, `T23G2_RESULTS.md:146-148`]` —
+`centrebody_up` max y+ **1.8245 / 1.3539 / 1.0047** at L1/L2/L3 against the registered
+threshold, which the record states as **`max y+ < 1.0` on every wall patch of every
+level** (`T23G2_RESULTS.md:482`) — a **strict** inequality, not `≤`. **Not even the
+finest level clears**, and L3 fails on the fourth decimal, so the strictness is
+load-bearing rather than pedantic. The independent reader `log.yPlus.fluid` gives
+1.8245835202 / 1.3540190129 / 1.0047773564 (`:157-158`); the two readers differ in the
+fourth decimal and **agree on the verdict**. The rung verdict is untouched: **`NOT A
+RESULT`**, on `G-CONV` and `G-YPLUS` (`:792`). That failure keeping its teeth is the
+correct outcome of this classification, not a side effect of it.
+
+### §5.2 G8 — mesh **identity** is GATING, **by derivation from rule 5**. GRANTED.
+
+Recorded as derived, not free-standing, so a later reader can see why it sits in the
+tier: it enters by the **same route as G4 and G5** — through rule 5 step (1) and the
+triple's denominator. An observed order and a GCI computed on a false `r` are **not
+uncertainty estimates; they are arithmetic on the wrong denominator.** `checkMesh`
+"Mesh OK" and skewness stay **REPORTING** (R2), matching Sanaa's clause 7 in terms.
+
+### §5.3 Two judgements endorsed on the record
+
+**(1) A FROZEN GATE IS NEVER RECLASSIFIED RETROACTIVELY.** Stated here in terms because
+the next reader's instinct will be to *"apply the new default everywhere"*, **and that
+instinct would corrupt every closed rung in this family.** Retroactively reclassifying a
+gate already frozen into a committed pre-registration is **precisely the post-hoc gate
+change `CLAUDE.md` rule 2 exists to prevent** — it would let the lab soften a gate
+*after seeing what it did*. **No backfill. No re-grade. No verdict withdrawn.** The
+reform applies to new entries (R4, §3).
+
+**(2) `CLAUDE.md` RULE 12'S "AN OVERRUN STOPS THE RUN" IS UNTOUCHED.** Sanaa's reform
+authorises this team to reclassify **its own** checks. It does not authorise a team to
+retire a **constitutional** clause, and reading a grant of the one as a grant of the
+other is exactly the **permission laundering rule 9 forbids**. Only that clause's
+standing as a *verdict* gate is reclassified; its standing as a compute-budget rule is
+not ours to touch.
+
+### §5.4 The correction that changed this table
+
+The supervisor's brief read the y+ point maximum as reporting and asked for confirmation
+at the ruling rather than acceptance. **Confirmation found that it splits**, and the
+ruling's own sentence is reproduced verbatim so no reader re-derives the error from the
+summary:
+
+> *"A point maximum is the CORRECT statistic for 'was the sublayer ever violated' and the
+> WRONG one for 'how does resolution scale.'"* — `VERIFICATION_CHARTER` §2d.11.2, v1.45, `ad9eda53`
+
+The half that **does** drop is R1, on its measured evidence and not on assertion:
+observed order **0.52–0.54** against the ladder's design **0.99–1.04**, **non-monotone on
+`roof` at p = −0.074**, MAX margin climbing 0.7316 → 0.9253 → 1.1550 while the area
+average stays flat 0.3770 → 0.3986 → 0.4213.
+
+---
+
+**FINAL: 8 GATING (G1–G8, both proposals granted), 13 REPORTING.** *Classified by
+heat-transfer, once, per Sanaa's 2026-09-03 order; proposals ruled the same day. Every
+row is now final for this pass. This audit opens no follow-up question, proposes no
+further check, and builds no instrument to measure another instrument's reach (her
+clause 2). The team returns to physics.*
