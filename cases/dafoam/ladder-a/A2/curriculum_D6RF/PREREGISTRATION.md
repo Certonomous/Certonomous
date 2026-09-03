@@ -885,3 +885,114 @@ that the one recursive remove cannot escape the arm directory, that every guard 
 that the units gate is present, distinct and driven in both directions. **They prove nothing about
 whether `F_mp` converges.** `P2` remains the repair's own falsifier, and a chain that still fails is
 the finding — reported, not absorbed, and not given a new budget.
+
+---
+
+# ADDENDUM 2 — 2026-09-03, PRE-COMPUTE. The S4 guard that could pass on a pair of false zeros, found by the supervisor's check-1 diff read and repaired before any container
+
+**Version 1.2.** **Lines whose number changed above this section: 0.**
+
+**PRE-COMPUTE, condition CHECKED BY EXECUTION:**
+
+    ROOT_ABSENCE_RE_ASSERTED_BY_EXECUTION utc=2026-09-03T18:56:18Z
+      /home/ubuntu/certonomous-runs/CURRICULUM-D6RF-a2-wing-multipoint-fd=ABSENT
+
+Still **0 core-min**, still **no container**. **NOTHING IN §1–§6 OR IN ADDENDUM 1's REGISTERED
+CONTENT MOVES.** No gate, threshold, band, cap, label, prediction or cost is altered. What changes is
+one launcher guard, in the direction of refusing more.
+
+## A2.1 THE DEFECT — a comparison whose two halves could both read zero
+
+`d6rf_run_arm.sh` §2a step S4 asserted that D6R's source was unchanged across the `cp -a` by
+counting the same directory twice and comparing:
+
+    SRC_TIMEDIRS=$(ls -d "$SRC"/mp04/processor0/* 2>/dev/null | wc -l)
+    …  cp -a …
+    POST_TIMEDIRS=$(ls -d "$SRC"/mp04/processor0/* 2>/dev/null | wc -l)
+    test "$POST_TIMEDIRS" = "$SRC_TIMEDIRS" || ABORT "SOURCE CHANGED"
+
+**If that path were wrong, absent or unreadable, BOTH reads yield `0`, `0 = 0` holds, and the step
+announces `SOURCE INTACT` having counted nothing.** That is `CLAUDE.md` rule 3's planted-zero failure
+wearing a bash guard: *a zero from a reader not shown able to see a non-zero is not evidence.* The
+irony is on the record — **`control_bounds` in this item's own `d6rf_endpoint_locus.py` already
+refuses at `n_checked == 0` with the reason written into the code**, and S4 did not apply the same
+discipline to itself.
+
+**FOUND BY THE dafoam-supervisor'S `SUPERVISION_CHARTER.md` §3 CHECK-1 DIFF READ, not by this lane
+and not by the self-test**, which is the check doing exactly the work it exists to do. It is recorded
+that way rather than absorbed.
+
+**Scope, stated honestly and not enlarged.** The *property* was already protected downstream:
+S5's `SRC_REMAIN -gt 1` is a **positive** assertion, and a positive assertion cannot pass on a false
+zero — `0` is not `> 1`, so it refuses. So no run could have proceeded on a destroyed source. What
+was defective was **S4's own evidence line**, which could have printed `SOURCE INTACT` on a
+measurement that never happened. A guard that reports a property it did not check is a defect even
+when a later guard catches the property.
+
+## A2.2 THE REPAIR — every count asserts its own trip count
+
+`count_src_entries()` replaces both `ls | wc -l` reads and **returns the literal `UNMEASURED`**, never
+`0`, when the directory is absent, unreadable, or the listing fails. S4 then:
+
+* **REFUSES on `UNMEASURED`**, naming the vacuous-comparison reason in the abort;
+* **REFUSES on `0`** — a guard whose before and after both read zero cannot detect a change;
+* **REFUSES if the post-copy read is `UNMEASURED` or `0`** before the comparison is attempted;
+* and its success line now **names the number it counted on both sides**, so the record says
+  *"the comparison COUNTED 78 entries on both sides, so it cannot have passed on a pair of false
+  zeros"* rather than an unqualified `SOURCE INTACT`.
+
+S5's `SRC_REMAIN` is moved to the same reader **for symmetry and honesty of the record, and the
+addendum says plainly that its comparison already erred safe**: a reader is entitled to know the
+difference between *"the source has been emptied"* and *"the count could not be taken"*.
+
+**THE NIT, ALSO TAKEN, BECAUSE IT WAS FREE.** The cgroup sampler's v1 branch read
+`cat "$cg" 2>/dev/null || echo 0`, letting a transiently unreadable cgroup contribute a **zero** CPU
+sample. It errs safe in both directions — a zero drags `delivered_cores` **down**, so toward
+`GATE FAIL`, and an absent sample file was already reported `NOT_MEASURED` and never as a pass — but
+a zero that means *"could not read"* is still a planted zero. The tick now emits
+`{"delivered_cores":null,"note":"cgroup read UNMEASURED this tick"}` and the existing `-n "$u"` guard
+skips it.
+
+## A2.3 The revised pins, and what the drives now say
+
+| file | md5 |
+|---|---|
+| `d6rf_run_arm.sh` | **`cecc53b2d12ba03ac8d94b2fbc4d140c`** (was `0914d98c…` in ADDENDUM 1 §A1.1) |
+| `d6rf_chain_driver.sh` | **`6df09d06d85cf880299f430904ee18c8`** (re-pinned to the launcher above) |
+| `d6rf_guard_selftest.py` | `26d4790fabe6549808f0dfb8c2e7a18e` |
+| `d6rf_guard_selftest_evidence.txt` | `a3867b8dad86265e9c74e5656cad1487` |
+| `d6rf_units_assert.py` | `40993d949e44aae3f80bf1a3d2cf4998` — **unchanged** |
+
+**FOUR DRIVES, ZERO CONTAINERS CREATED:** units **25/25** and guards **83/83**, each under `python3`
+and `python3 -O`. Census before == after; no `d6rf_` container has ever existed; the run root asserted
+still absent after every drive.
+
+**THE REPAIR IS DRIVEN ON THE REAL FUNCTION, NOT ASSERTED.** `count_src_entries` is extracted from
+the launcher and run: an **absent** path → `UNMEASURED`; an **unreadable** path (`chmod 000`) →
+`UNMEASURED`; a **genuinely empty** directory → `0`, because a real zero is still zero and the
+control must not fabricate an `UNMEASURED`; **D6R's real `mp04/processor0` → 78**; its `0.*` form →
+**75**. Both the refusal and the non-refusal are shown, which is the same both-directions discipline
+the units gate carries. A further leg asserts **no `ls … | wc -l` survives anywhere else in the
+launcher**, so the repair has no unrepaired call site (rule 14).
+
+**Line numbers, RECOMPUTED after the edit** (ADDENDUM 1 §A1.4's figures are superseded and are struck
+here rather than rewritten there): guards end **292**, the first executable recursive remove is at
+**427**, the single `sudo -n rm -rf "$WORK"` is at **488**, the first `docker run` at **628**; the
+commented `rm -rf` occurrences are lines **17, 317, 484**, counted and named.
+
+## A2.4 A SUPERVISOR'S CORRECTION TO HIMSELF, recorded because it went the safe way
+
+The supervisor's read of ADDENDUM 1 §A1.4 initially counted **five** executable recursive removes
+against a report he took to claim one, then re-read and recorded that **both statements in that
+report were true and his reading was the loose one**: there is exactly one
+`sudo -n rm -rf "$WORK"`, and *separately* every executable recursive remove is confined to the arm
+directory — the loop's `$d` is bounded under `$WORK/mp0{4,5,6}` and gated by `is_time_dir`, and the
+rest are literal `$WORK/…` paths. **A supervisor miscounting destructive operations in the direction
+of over-counting is the safe direction, and it is on the record as his.**
+
+## A2.5 What is still not established
+
+Unchanged from §A1.6 and restated because this addendum adds no evidence about the case: **no
+container has ever run `F_mp` or `REF_off`, at any point in this lineage.** `L-316` — a self-test
+proves the **instrument**, never the **case**. **P2 remains the falsifier, and the first real
+container is the first evidence about the case.**

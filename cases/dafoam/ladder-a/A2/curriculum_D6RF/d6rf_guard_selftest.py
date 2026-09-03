@@ -332,6 +332,64 @@ def main():
         and src.index("State.FinishedAt") < src.index("docker rm"))
 
     # =====================================================================
+    print("\nI. THE S4 VACUOUS-ZERO REPAIR (ADDENDUM 2) -- driven on the REAL "
+          "function")
+    fn = re.search(r"(  count_src_entries\(\) \{[\s\S]*?\n  \})", src)
+    if rec("U55 `count_src_entries` was extracted from the launcher",
+           fn is not None):
+        import tempfile
+        td = tempfile.mkdtemp(prefix="d6rf_s4_")
+        empty = os.path.join(td, "empty"); os.makedirs(empty)
+        denied = os.path.join(td, "denied"); os.makedirs(denied)
+        open(os.path.join(denied, "x"), "w").close()
+        os.chmod(denied, 0o000)
+        real = os.path.join(D6R_ROOT, "O_mp", "mp04", "processor0")
+        body = fn.group(1).replace("local ", "")
+        script = body + '\ncount_src_entries "$1" "${2:-}"\n'
+
+        def cse(path, glob=""):
+            r = subprocess.run(["bash", "-c", script, "x", path, glob],
+                               stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+            return r.stdout.decode().strip()
+
+        got_missing = cse(os.path.join(td, "nope"))
+        rec("U56 an ABSENT path reports UNMEASURED, never 0",
+            got_missing == "UNMEASURED", "got %r" % got_missing)
+        got_denied = cse(denied)
+        rec("U57 an UNREADABLE path reports UNMEASURED, never 0",
+            got_denied == "UNMEASURED", "got %r" % got_denied)
+        got_empty = cse(empty)
+        rec("U58 a genuinely EMPTY directory reports 0 (a real zero is still 0)",
+            got_empty == "0", "got %r" % got_empty)
+        got_real = cse(real)
+        rec("U59 D6R's real mp04/processor0 counts 78 entries",
+            got_real == "78", "got %r" % got_real)
+        got_glob = cse(real, "0.*")
+        rec("U60 the `0.*` form counts D6R's 75 pseudo-time directories",
+            got_glob == "75", "got %r" % got_glob)
+        os.chmod(denied, 0o755)
+    rec("U61 S4 REFUSES on an UNMEASURED source count",
+        "ABORT S4 the source count is UNMEASURED" in src
+        and "pass vacuously" in src)
+    rec("U62 S4 REFUSES on a ZERO source count -- the guard asserts its own "
+        "trip count", "ABORT S4 the source count is ZERO" in src)
+    rec("U63 S4 REFUSES when the POST-copy count is UNMEASURED or 0",
+        "ABORT S4 the post-copy source count is" in src)
+    rec("U64 the S4 evidence line NAMES the number it counted on both sides",
+        "cannot have passed on a pair of false zeros" in src)
+    rec("U65 S5's SOURCE INTACT assertion refuses on UNMEASURED too",
+        "SOURCE INTACT assertion UNMEASURED" in src
+        and "REFUSED rather than reported as 0" in src)
+    rec("U66 no `ls ... | wc -l` survives outside count_src_entries",
+        len([1 for _, t in lines
+             if "wc -l" in t and "count_src_entries" not in t
+             and "n=$(ls" not in t]) == 0)
+    rec("U67 the cgroup sampler reports a transient read as UNMEASURED, "
+        "never as a zero sample",
+        "cgroup read UNMEASURED this tick" in src
+        and 'cat "$cg" 2>/dev/null || echo 0' not in src)
+
+    # =====================================================================
     after = census()
     print("\n  container census AFTER: %d [%s]" % (len(after), ",".join(after)))
     rec("U52 CONTAINER CENSUS BEFORE == AFTER (zero containers created)",

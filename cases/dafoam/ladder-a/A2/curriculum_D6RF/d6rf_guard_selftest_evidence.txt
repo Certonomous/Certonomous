@@ -1,4 +1,4 @@
-=== driven Thu Sep  3 18:44:52 UTC 2026 on ip-172-31-43-247, Python 3.12.3
+=== driven Thu Sep  3 18:55:54 UTC 2026 on ip-172-31-43-247, Python 3.12.3
 
 ########## UNITS GATE SELFTEST under python3
 D6RF UNITS GATE SELFTEST -- rc 0 = physical and in bounds, rc 77 = refusal
@@ -11,27 +11,27 @@ A. THE TWO LIVE ARTEFACTS ON DISK -- the controls that are not fixtures
 B. THE MARKER -- absent is a refusal, never a default
   clean D6 multipoint physical vector (must PASS)            want rc=0   got rc=0   PASS
   no _units key at all                                       want rc=77  got rc=77  PASS
-        D6RF_UNITS REFUSE U2 {"_units": "ABSENT", "file": "/tmp/d6rf_units_st_o3vbt0ba/dv_03.json", "keys_present": ["_scaler_source", "_scaler_source_md5", "
+        D6RF_UNITS REFUSE U2 {"_units": "ABSENT", "file": "/tmp/d6rf_units_st_czhsuea0/dv_03.json", "keys_present": ["_scaler_source", "_scaler_source_md5", "
   _units says DRIVER_SCALED                                  want rc=77  got rc=77  PASS
-        D6RF_UNITS REFUSE U2 {"_units": "DRIVER_SCALED", "file": "/tmp/d6rf_units_st_o3vbt0ba/dv_04.json", "required": "PHYSICAL"}
+        D6RF_UNITS REFUSE U2 {"_units": "DRIVER_SCALED", "file": "/tmp/d6rf_units_st_czhsuea0/dv_04.json", "required": "PHYSICAL"}
   _units lower-case (not the registered literal)             want rc=77  got rc=77  PASS
-        D6RF_UNITS REFUSE U2 {"_units": "physical", "file": "/tmp/d6rf_units_st_o3vbt0ba/dv_05.json", "required": "PHYSICAL"}
+        D6RF_UNITS REFUSE U2 {"_units": "physical", "file": "/tmp/d6rf_units_st_czhsuea0/dv_05.json", "required": "PHYSICAL"}
 
 C. THE MARKER CANNOT VOUCH FOR ITSELF
   _scaler_source_md5 absent                                  want rc=77  got rc=77  PASS
-        D6RF_UNITS REFUSE U4 {"_scaler_source_md5": "ABSENT", "file": "/tmp/d6rf_units_st_o3vbt0ba/dv_06.json"}
+        D6RF_UNITS REFUSE U4 {"_scaler_source_md5": "ABSENT", "file": "/tmp/d6rf_units_st_czhsuea0/dv_06.json"}
   _scaler_source absent                                      want rc=77  got rc=77  PASS
-        D6RF_UNITS REFUSE U3 {"_scaler_source": "ABSENT", "file": "/tmp/d6rf_units_st_o3vbt0ba/dv_07.json"}
+        D6RF_UNITS REFUSE U3 {"_scaler_source": "ABSENT", "file": "/tmp/d6rf_units_st_czhsuea0/dv_07.json"}
   _scaler_source_md5 does not match the runscript in use     want rc=77  got rc=77  PASS
         D6RF_UNITS REFUSE U3 {"_scaler_source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6R/d6r_opt_runScript.py", "md5_on_disk": "93edb
   a PHYSICAL D6 vector graded against D4's runscript (wrong producer) want rc=77  got rc=77  PASS
-        D6RF_UNITS REFUSE U4 {"_scaler_source_md5": "93edb4a231e13a7af065368f61a468ef", "file": "/tmp/d6rf_units_st_o3vbt0ba/dv_09.json", "note": "the marker 
+        D6RF_UNITS REFUSE U4 {"_scaler_source_md5": "93edb4a231e13a7af065368f61a468ef", "file": "/tmp/d6rf_units_st_czhsuea0/dv_09.json", "note": "the marker 
   _scalers_applied LIES about shape (claims 1.0, registered 10.0) want rc=77  got rc=77  PASS
         D6RF_UNITS REFUSE U5 {"_scalers_applied": {"patchV_cl04": 0.1, "patchV_cl05": 0.1, "patchV_cl06": 0.1, "shape": 1.0, "twist": 0.1}, "file": "/tmp/d6rf
   _scalers_applied absent                                    want rc=77  got rc=77  PASS
-        D6RF_UNITS REFUSE U5 {"_scalers_applied": "ABSENT", "file": "/tmp/d6rf_units_st_o3vbt0ba/dv_11.json", "registered": {"patchV_cl04": 0.1, "patchV_cl05"
+        D6RF_UNITS REFUSE U5 {"_scalers_applied": "ABSENT", "file": "/tmp/d6rf_units_st_czhsuea0/dv_11.json", "registered": {"patchV_cl04": 0.1, "patchV_cl05"
   _scaler_source resolves on disk but its md5 has MOVED      want rc=77  got rc=77  PASS
-        D6RF_UNITS REFUSE U3 {"_scaler_source": "/tmp/d6rf_units_st_o3vbt0ba/moved_runscript.py", "md5_on_disk": "77be705b6d98f2d52da783d75f05d21e", "md5_reco
+        D6RF_UNITS REFUSE U3 {"_scaler_source": "/tmp/d6rf_units_st_czhsuea0/moved_runscript.py", "md5_on_disk": "77be705b6d98f2d52da783d75f05d21e", "md5_reco
 
 D. THE FRAME ITSELF -- a marked file whose vectors are still scaled
   marked PHYSICAL but the vectors are DRIVER-SCALED (the live defect) want rc=77  got rc=77  PASS
@@ -54,13 +54,13 @@ E. BOUNDS CONTAINMENT -- refused HERE, never by the deformer
 
 F. STRUCTURE
   a registered design variable missing from the file         want rc=77  got rc=77  PASS
-        D6RF_UNITS REFUSE U5 {"file": "/tmp/d6rf_units_st_o3vbt0ba/dv_21.json", "registered": ["patchV_cl04", "patchV_cl05", "patchV_cl06", "shape", "twist"],
+        D6RF_UNITS REFUSE U5 {"file": "/tmp/d6rf_units_st_czhsuea0/dv_21.json", "registered": ["patchV_cl04", "patchV_cl05", "patchV_cl06", "shape", "twist"],
   a design variable that is not a numeric vector             want rc=77  got rc=77  PASS
-        D6RF_UNITS REFUSE U5 {"dv": "shape", "file": "/tmp/d6rf_units_st_o3vbt0ba/dv_22.json", "not_a_numeric_vector": "ValueError(\"could not convert string 
+        D6RF_UNITS REFUSE U5 {"dv": "shape", "file": "/tmp/d6rf_units_st_czhsuea0/dv_22.json", "not_a_numeric_vector": "ValueError(\"could not convert string 
   the file does not parse as JSON                            want rc=77  got rc=77  PASS
-        D6RF_UNITS REFUSE U1 {"file": "/tmp/d6rf_units_st_o3vbt0ba/notjson.json", "json_parse_failed": "JSONDecodeError('Expecting property name enclosed in d
+        D6RF_UNITS REFUSE U1 {"file": "/tmp/d6rf_units_st_czhsuea0/notjson.json", "json_parse_failed": "JSONDecodeError('Expecting property name enclosed in d
   the file does not exist                                    want rc=77  got rc=77  PASS
-        D6RF_UNITS REFUSE U1 {"design_variable_file_absent": "/tmp/d6rf_units_st_o3vbt0ba/nope.json"}
+        D6RF_UNITS REFUSE U1 {"design_variable_file_absent": "/tmp/d6rf_units_st_czhsuea0/nope.json"}
 
 D6RF_UNITS_SELFTEST 25/25 PASS
 rc=0
@@ -76,27 +76,27 @@ A. THE TWO LIVE ARTEFACTS ON DISK -- the controls that are not fixtures
 B. THE MARKER -- absent is a refusal, never a default
   clean D6 multipoint physical vector (must PASS)            want rc=0   got rc=0   PASS
   no _units key at all                                       want rc=77  got rc=77  PASS
-        D6RF_UNITS REFUSE U2 {"_units": "ABSENT", "file": "/tmp/d6rf_units_st_pe8d793o/dv_03.json", "keys_present": ["_scaler_source", "_scaler_source_md5", "
+        D6RF_UNITS REFUSE U2 {"_units": "ABSENT", "file": "/tmp/d6rf_units_st_wf1wxjb_/dv_03.json", "keys_present": ["_scaler_source", "_scaler_source_md5", "
   _units says DRIVER_SCALED                                  want rc=77  got rc=77  PASS
-        D6RF_UNITS REFUSE U2 {"_units": "DRIVER_SCALED", "file": "/tmp/d6rf_units_st_pe8d793o/dv_04.json", "required": "PHYSICAL"}
+        D6RF_UNITS REFUSE U2 {"_units": "DRIVER_SCALED", "file": "/tmp/d6rf_units_st_wf1wxjb_/dv_04.json", "required": "PHYSICAL"}
   _units lower-case (not the registered literal)             want rc=77  got rc=77  PASS
-        D6RF_UNITS REFUSE U2 {"_units": "physical", "file": "/tmp/d6rf_units_st_pe8d793o/dv_05.json", "required": "PHYSICAL"}
+        D6RF_UNITS REFUSE U2 {"_units": "physical", "file": "/tmp/d6rf_units_st_wf1wxjb_/dv_05.json", "required": "PHYSICAL"}
 
 C. THE MARKER CANNOT VOUCH FOR ITSELF
   _scaler_source_md5 absent                                  want rc=77  got rc=77  PASS
-        D6RF_UNITS REFUSE U4 {"_scaler_source_md5": "ABSENT", "file": "/tmp/d6rf_units_st_pe8d793o/dv_06.json"}
+        D6RF_UNITS REFUSE U4 {"_scaler_source_md5": "ABSENT", "file": "/tmp/d6rf_units_st_wf1wxjb_/dv_06.json"}
   _scaler_source absent                                      want rc=77  got rc=77  PASS
-        D6RF_UNITS REFUSE U3 {"_scaler_source": "ABSENT", "file": "/tmp/d6rf_units_st_pe8d793o/dv_07.json"}
+        D6RF_UNITS REFUSE U3 {"_scaler_source": "ABSENT", "file": "/tmp/d6rf_units_st_wf1wxjb_/dv_07.json"}
   _scaler_source_md5 does not match the runscript in use     want rc=77  got rc=77  PASS
         D6RF_UNITS REFUSE U3 {"_scaler_source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6R/d6r_opt_runScript.py", "md5_on_disk": "93edb
   a PHYSICAL D6 vector graded against D4's runscript (wrong producer) want rc=77  got rc=77  PASS
-        D6RF_UNITS REFUSE U4 {"_scaler_source_md5": "93edb4a231e13a7af065368f61a468ef", "file": "/tmp/d6rf_units_st_pe8d793o/dv_09.json", "note": "the marker 
+        D6RF_UNITS REFUSE U4 {"_scaler_source_md5": "93edb4a231e13a7af065368f61a468ef", "file": "/tmp/d6rf_units_st_wf1wxjb_/dv_09.json", "note": "the marker 
   _scalers_applied LIES about shape (claims 1.0, registered 10.0) want rc=77  got rc=77  PASS
         D6RF_UNITS REFUSE U5 {"_scalers_applied": {"patchV_cl04": 0.1, "patchV_cl05": 0.1, "patchV_cl06": 0.1, "shape": 1.0, "twist": 0.1}, "file": "/tmp/d6rf
   _scalers_applied absent                                    want rc=77  got rc=77  PASS
-        D6RF_UNITS REFUSE U5 {"_scalers_applied": "ABSENT", "file": "/tmp/d6rf_units_st_pe8d793o/dv_11.json", "registered": {"patchV_cl04": 0.1, "patchV_cl05"
+        D6RF_UNITS REFUSE U5 {"_scalers_applied": "ABSENT", "file": "/tmp/d6rf_units_st_wf1wxjb_/dv_11.json", "registered": {"patchV_cl04": 0.1, "patchV_cl05"
   _scaler_source resolves on disk but its md5 has MOVED      want rc=77  got rc=77  PASS
-        D6RF_UNITS REFUSE U3 {"_scaler_source": "/tmp/d6rf_units_st_pe8d793o/moved_runscript.py", "md5_on_disk": "77be705b6d98f2d52da783d75f05d21e", "md5_reco
+        D6RF_UNITS REFUSE U3 {"_scaler_source": "/tmp/d6rf_units_st_wf1wxjb_/moved_runscript.py", "md5_on_disk": "77be705b6d98f2d52da783d75f05d21e", "md5_reco
 
 D. THE FRAME ITSELF -- a marked file whose vectors are still scaled
   marked PHYSICAL but the vectors are DRIVER-SCALED (the live defect) want rc=77  got rc=77  PASS
@@ -119,13 +119,13 @@ E. BOUNDS CONTAINMENT -- refused HERE, never by the deformer
 
 F. STRUCTURE
   a registered design variable missing from the file         want rc=77  got rc=77  PASS
-        D6RF_UNITS REFUSE U5 {"file": "/tmp/d6rf_units_st_pe8d793o/dv_21.json", "registered": ["patchV_cl04", "patchV_cl05", "patchV_cl06", "shape", "twist"],
+        D6RF_UNITS REFUSE U5 {"file": "/tmp/d6rf_units_st_wf1wxjb_/dv_21.json", "registered": ["patchV_cl04", "patchV_cl05", "patchV_cl06", "shape", "twist"],
   a design variable that is not a numeric vector             want rc=77  got rc=77  PASS
-        D6RF_UNITS REFUSE U5 {"dv": "shape", "file": "/tmp/d6rf_units_st_pe8d793o/dv_22.json", "not_a_numeric_vector": "ValueError(\"could not convert string 
+        D6RF_UNITS REFUSE U5 {"dv": "shape", "file": "/tmp/d6rf_units_st_wf1wxjb_/dv_22.json", "not_a_numeric_vector": "ValueError(\"could not convert string 
   the file does not parse as JSON                            want rc=77  got rc=77  PASS
-        D6RF_UNITS REFUSE U1 {"file": "/tmp/d6rf_units_st_pe8d793o/notjson.json", "json_parse_failed": "JSONDecodeError('Expecting property name enclosed in d
+        D6RF_UNITS REFUSE U1 {"file": "/tmp/d6rf_units_st_wf1wxjb_/notjson.json", "json_parse_failed": "JSONDecodeError('Expecting property name enclosed in d
   the file does not exist                                    want rc=77  got rc=77  PASS
-        D6RF_UNITS REFUSE U1 {"design_variable_file_absent": "/tmp/d6rf_units_st_pe8d793o/nope.json"}
+        D6RF_UNITS REFUSE U1 {"design_variable_file_absent": "/tmp/d6rf_units_st_wf1wxjb_/nope.json"}
 
 D6RF_UNITS_SELFTEST 25/25 PASS
 rc=0
@@ -133,7 +133,7 @@ rc=0
 ########## LAUNCHER/DRIVER GUARD SELFTEST under python3
 D6RF LAUNCHER/DRIVER GUARD SELFTEST -- driven, zero containers
 
-  container census BEFORE: 1 [d12y_w3_S3b_c1_ap_20260903T172242Z_179692]
+  container census BEFORE: 1 [d12y_w3_S3b_c1_am_20260903T172242Z_179692]
 
 A. G-ROOT -- the launcher pointed somewhere it must never write
   U1  BASE = D6R PRESERVED run root -> ABORT rc 3                PASS
@@ -194,13 +194,13 @@ C. THE CAP IDENTITY -- computed by the REAL code, not read off
 
 D. THE DESTRUCTIVE STEP -- one, guarded, and it cannot escape
   U19 exactly ONE `sudo -n rm -rf "$WORK"` in executable code    PASS
-        at line 438
+        at line 488
   U20 EVERY executable recursive remove targets "$WORK..." or the $d inside the swept loop PASS
-        commented `rm -rf` occurrences (counted, not hidden): [17, 317, 434]
+        commented `rm -rf` occurrences (counted, not hidden): [17, 317, 484]
   U21 every named guard is present in executable code            PASS
         missing: []
-  U22 EVERY guard precedes the first destructive step (guards end line 292, first remove line 388) -- both RECOMPUTED here PASS
-  U23 the first `docker run` (line 567) follows every guard and the destructive step PASS
+  U22 EVERY guard precedes the first destructive step (guards end line 292, first remove line 427) -- both RECOMPUTED here PASS
+  U23 the first `docker run` (line 628) follows every guard and the destructive step PASS
 
 E. THE UNITS GATE AT BOTH CALL SITES (CLAUDE.md rule 14)
   U24 call site 1: the launcher runs the gate HOST-side at staging PASS
@@ -223,7 +223,7 @@ F. THE TIME-DIRECTORY SWEEP -- the REAL function, on REAL names
 
 G. THE FROZEN PINS
   U37 the driver's pinned launcher md5 == the launcher on disk   PASS
-        0914d98c1d07aafeac561820f41cad8f
+        cecc53b2d12ba03ac8d94b2fbc4d140c
   U38 every staged-instrument md5 pinned in the launcher matches the file it names (11 pins) PASS
         mismatched: []
   U39 the D4 history md5 pin matches the artefact on disk        PASS
@@ -245,20 +245,40 @@ H. THE DRIVER
   U50 the ledger row carries every field the supervisor named    PASS
   U51 `docker inspect` is read BEFORE `docker rm`                PASS
 
-  container census AFTER: 1 [d12y_w3_S3b_c1_ap_20260903T172242Z_179692]
+I. THE S4 VACUOUS-ZERO REPAIR (ADDENDUM 2) -- driven on the REAL function
+  U55 `count_src_entries` was extracted from the launcher        PASS
+  U56 an ABSENT path reports UNMEASURED, never 0                 PASS
+        got 'UNMEASURED'
+  U57 an UNREADABLE path reports UNMEASURED, never 0             PASS
+        got 'UNMEASURED'
+  U58 a genuinely EMPTY directory reports 0 (a real zero is still 0) PASS
+        got '0'
+  U59 D6R's real mp04/processor0 counts 78 entries               PASS
+        got '78'
+  U60 the `0.*` form counts D6R's 75 pseudo-time directories     PASS
+        got '75'
+  U61 S4 REFUSES on an UNMEASURED source count                   PASS
+  U62 S4 REFUSES on a ZERO source count -- the guard asserts its own trip count PASS
+  U63 S4 REFUSES when the POST-copy count is UNMEASURED or 0     PASS
+  U64 the S4 evidence line NAMES the number it counted on both sides PASS
+  U65 S5's SOURCE INTACT assertion refuses on UNMEASURED too     PASS
+  U66 no `ls ... | wc -l` survives outside count_src_entries     PASS
+  U67 the cgroup sampler reports a transient read as UNMEASURED, never as a zero sample PASS
+
+  container census AFTER: 1 [d12y_w3_S3b_c1_am_20260903T172242Z_179692]
   U52 CONTAINER CENSUS BEFORE == AFTER (zero containers created) PASS
-        before=['d12y_w3_S3b_c1_ap_20260903T172242Z_179692'] after=['d12y_w3_S3b_c1_ap_20260903T172242Z_179692']
+        before=['d12y_w3_S3b_c1_am_20260903T172242Z_179692'] after=['d12y_w3_S3b_c1_am_20260903T172242Z_179692']
   U53 no container carrying this item's prefix exists            PASS
   U54 the registered run root is STILL absent after every drive  PASS
         /home/ubuntu/certonomous-runs/CURRICULUM-D6RF-a2-wing-multipoint-fd
 
-D6RF_GUARD_SELFTEST 70/70 PASS
+D6RF_GUARD_SELFTEST 83/83 PASS
 rc=0
 
 ########## LAUNCHER/DRIVER GUARD SELFTEST under python3 -O
 D6RF LAUNCHER/DRIVER GUARD SELFTEST -- driven, zero containers
 
-  container census BEFORE: 1 [d12y_w3_S3b_c1_ap_20260903T172242Z_179692]
+  container census BEFORE: 1 [d12y_w3_S3b_c1_am_20260903T172242Z_179692]
 
 A. G-ROOT -- the launcher pointed somewhere it must never write
   U1  BASE = D6R PRESERVED run root -> ABORT rc 3                PASS
@@ -319,13 +339,13 @@ C. THE CAP IDENTITY -- computed by the REAL code, not read off
 
 D. THE DESTRUCTIVE STEP -- one, guarded, and it cannot escape
   U19 exactly ONE `sudo -n rm -rf "$WORK"` in executable code    PASS
-        at line 438
+        at line 488
   U20 EVERY executable recursive remove targets "$WORK..." or the $d inside the swept loop PASS
-        commented `rm -rf` occurrences (counted, not hidden): [17, 317, 434]
+        commented `rm -rf` occurrences (counted, not hidden): [17, 317, 484]
   U21 every named guard is present in executable code            PASS
         missing: []
-  U22 EVERY guard precedes the first destructive step (guards end line 292, first remove line 388) -- both RECOMPUTED here PASS
-  U23 the first `docker run` (line 567) follows every guard and the destructive step PASS
+  U22 EVERY guard precedes the first destructive step (guards end line 292, first remove line 427) -- both RECOMPUTED here PASS
+  U23 the first `docker run` (line 628) follows every guard and the destructive step PASS
 
 E. THE UNITS GATE AT BOTH CALL SITES (CLAUDE.md rule 14)
   U24 call site 1: the launcher runs the gate HOST-side at staging PASS
@@ -348,7 +368,7 @@ F. THE TIME-DIRECTORY SWEEP -- the REAL function, on REAL names
 
 G. THE FROZEN PINS
   U37 the driver's pinned launcher md5 == the launcher on disk   PASS
-        0914d98c1d07aafeac561820f41cad8f
+        cecc53b2d12ba03ac8d94b2fbc4d140c
   U38 every staged-instrument md5 pinned in the launcher matches the file it names (11 pins) PASS
         mismatched: []
   U39 the D4 history md5 pin matches the artefact on disk        PASS
@@ -370,12 +390,32 @@ H. THE DRIVER
   U50 the ledger row carries every field the supervisor named    PASS
   U51 `docker inspect` is read BEFORE `docker rm`                PASS
 
-  container census AFTER: 1 [d12y_w3_S3b_c1_ap_20260903T172242Z_179692]
+I. THE S4 VACUOUS-ZERO REPAIR (ADDENDUM 2) -- driven on the REAL function
+  U55 `count_src_entries` was extracted from the launcher        PASS
+  U56 an ABSENT path reports UNMEASURED, never 0                 PASS
+        got 'UNMEASURED'
+  U57 an UNREADABLE path reports UNMEASURED, never 0             PASS
+        got 'UNMEASURED'
+  U58 a genuinely EMPTY directory reports 0 (a real zero is still 0) PASS
+        got '0'
+  U59 D6R's real mp04/processor0 counts 78 entries               PASS
+        got '78'
+  U60 the `0.*` form counts D6R's 75 pseudo-time directories     PASS
+        got '75'
+  U61 S4 REFUSES on an UNMEASURED source count                   PASS
+  U62 S4 REFUSES on a ZERO source count -- the guard asserts its own trip count PASS
+  U63 S4 REFUSES when the POST-copy count is UNMEASURED or 0     PASS
+  U64 the S4 evidence line NAMES the number it counted on both sides PASS
+  U65 S5's SOURCE INTACT assertion refuses on UNMEASURED too     PASS
+  U66 no `ls ... | wc -l` survives outside count_src_entries     PASS
+  U67 the cgroup sampler reports a transient read as UNMEASURED, never as a zero sample PASS
+
+  container census AFTER: 1 [d12y_w3_S3b_c1_am_20260903T172242Z_179692]
   U52 CONTAINER CENSUS BEFORE == AFTER (zero containers created) PASS
-        before=['d12y_w3_S3b_c1_ap_20260903T172242Z_179692'] after=['d12y_w3_S3b_c1_ap_20260903T172242Z_179692']
+        before=['d12y_w3_S3b_c1_am_20260903T172242Z_179692'] after=['d12y_w3_S3b_c1_am_20260903T172242Z_179692']
   U53 no container carrying this item's prefix exists            PASS
   U54 the registered run root is STILL absent after every drive  PASS
         /home/ubuntu/certonomous-runs/CURRICULUM-D6RF-a2-wing-multipoint-fd
 
-D6RF_GUARD_SELFTEST 70/70 PASS
+D6RF_GUARD_SELFTEST 83/83 PASS
 rc=0

@@ -342,16 +342,55 @@ if [ "$ARM" = "F_mp" ]; then
   done
   stage_say "D6RF_STAGE_F_mp (S3) OK undeformed reference mesh md5 $MD5_REF_MESH on base and on mp04 mp05 mp06 -- double-deformation confound eliminated by MEASUREMENT"
   # ------------------------------------------------------------------ S4
+  # ===================================================================
+  # EVERY COUNT BELOW ASSERTS ITS OWN TRIP COUNT.  A guard that compares
+  # two reads of the same path passes VACUOUSLY when both reads fail: an
+  # unreadable or mistyped path gives `0` twice, `0 = 0` holds, and the
+  # step announces SOURCE INTACT having counted nothing.  That is the
+  # planted-zero failure in a bash guard (CLAUDE.md rule 3's principle;
+  # the same discipline `control_bounds` already applies in
+  # d6rf_endpoint_locus.py -- "a loop that can iterate zero times asserts
+  # its own trip count").  So: a failed read reports UNMEASURED, never 0,
+  # and a zero count REFUSES.
+  # REPAIR REGISTERED IN ADDENDUM 2, on the dafoam-supervisor's check-1
+  # diff read of this file.
+  # ===================================================================
+  count_src_entries() {   # $1 = directory, $2 = glob suffix ('' = every entry)
+    if [ ! -d "$1" ] || [ ! -r "$1" ]; then echo UNMEASURED; return 0; fi
+    local n
+    if [ -z "${2:-}" ]; then
+      n=$(ls -A -- "$1" 2>/dev/null | wc -l) || { echo UNMEASURED; return 0; }
+    else
+      n=$(ls -d -- "$1"/$2 2>/dev/null | wc -l) || { echo UNMEASURED; return 0; }
+    fi
+    case "$n" in ''|*[!0-9]*) echo UNMEASURED ;; *) echo "$n" ;; esac
+  }
   SRC_HST_MD5=$(md5sum "$SRC/OptView.hst" | cut -d' ' -f1)
-  SRC_TIMEDIRS=$(ls -d "$SRC"/mp04/processor0/* 2>/dev/null | wc -l)
+  SRC_TIMEDIRS=$(count_src_entries "$SRC/mp04/processor0" "")
   stage_say "D6RF_STAGE_F_mp (S4) source pre-copy: OptView.hst md5=$SRC_HST_MD5, entries under mp04/processor0 = $SRC_TIMEDIRS"
+  case "$SRC_TIMEDIRS" in
+    UNMEASURED)
+      stage_say "ABORT S4 the source count is UNMEASURED -- $SRC/mp04/processor0 is absent or unreadable."
+      stage_say "  A comparison of two UNMEASURED reads would pass vacuously and announce"
+      stage_say "  SOURCE INTACT having counted nothing.  This guard asserts its own trip count."
+      exit 5 ;;
+    0)
+      stage_say "ABORT S4 the source count is ZERO under $SRC/mp04/processor0."
+      stage_say "  A guard whose before and after both read 0 cannot detect a change."
+      exit 5 ;;
+  esac
   cp -a "$SRC" "$WORK" || { stage_say "ABORT S4 stage copy of $SRC failed"; exit 4; }
   COPY_EPOCH=$(date -u +%s); echo "$COPY_EPOCH" > "$WORK/.d6rf_copy_epoch"
   POST_HST_MD5=$(md5sum "$SRC/OptView.hst" | cut -d' ' -f1)
-  POST_TIMEDIRS=$(ls -d "$SRC"/mp04/processor0/* 2>/dev/null | wc -l)
+  POST_TIMEDIRS=$(count_src_entries "$SRC/mp04/processor0" "")
   test "$POST_HST_MD5" = "$SRC_HST_MD5" || { stage_say "ABORT S4 SOURCE CHANGED during the copy: OptView.hst md5 $SRC_HST_MD5 -> $POST_HST_MD5"; exit 5; }
+  case "$POST_TIMEDIRS" in
+    UNMEASURED|0)
+      stage_say "ABORT S4 the post-copy source count is $POST_TIMEDIRS -- the comparison cannot be made."
+      exit 5 ;;
+  esac
   test "$POST_TIMEDIRS" = "$SRC_TIMEDIRS" || { stage_say "ABORT S4 SOURCE CHANGED during the copy: mp04/processor0 entries $SRC_TIMEDIRS -> $POST_TIMEDIRS"; exit 5; }
-  stage_say "D6RF_STAGE_F_mp (S4) OK cp -a (mtimes PRESERVED), copy_epoch=$COPY_EPOCH, SOURCE INTACT after the copy"
+  stage_say "D6RF_STAGE_F_mp (S4) OK cp -a (mtimes PRESERVED), copy_epoch=$COPY_EPOCH, SOURCE INTACT after the copy -- and the comparison COUNTED $SRC_TIMEDIRS entries on both sides, so it cannot have passed on a pair of false zeros"
   # ------------------------------------------------------------------ S5
   # DROP THE OPTIMISER'S OUTPUTS FROM THE COPY.  D6RF-DEF-2: pyDAFoam's
   # renameSolution refuses to move onto an existing directory -- D4's arm F2,
@@ -403,7 +442,18 @@ if [ "$ARM" = "F_mp" ]; then
     test -f "$WORK/$mp/processor0/0/U" || { stage_say "ABORT S5 $mp/processor0/0/U was dropped -- the decomposed restart state is KEPT"; exit 5; }
   done
   # AND THE SOURCE IS ASSERTED INTACT: D6R's evidence is not touched.
-  SRC_REMAIN=$(ls -d "$SRC"/mp04/processor0/0.* 2>/dev/null | wc -l)
+  # This is a POSITIVE assertion (`> 1`), so unlike S4's comparison it cannot
+  # pass on a false zero -- a failed read gives 0 and 0 is not > 1, so it
+  # refuses.  The UNMEASURED report is added for SYMMETRY and honesty of the
+  # record, not because the comparison errs unsafely: a reader is entitled to
+  # know the difference between "the source has been emptied" and "the count
+  # could not be taken."
+  SRC_REMAIN=$(count_src_entries "$SRC/mp04/processor0" "0.*")
+  case "$SRC_REMAIN" in
+    UNMEASURED)
+      stage_say "ABORT S5 SOURCE INTACT assertion UNMEASURED: $SRC/mp04/processor0 is absent or unreadable, so this lane cannot say whether D6R's evidence is intact.  REFUSED rather than reported as 0."
+      exit 5 ;;
+  esac
   test "$SRC_REMAIN" -gt 1 || { stage_say "ABORT S5 SOURCE INTACT assertion FAILED: only $SRC_REMAIN pseudo-time dirs remain under $SRC/mp04/processor0 (required > 1) -- D6R's evidence may have been touched"; exit 5; }
   test -f "$WORK/OptView.hst" || { stage_say "ABORT S5 OptView.hst was dropped from the copy"; exit 5; }
   test -f "$WORK/mp04/dRdWColoring_4.bin" || { stage_say "ABORT S5 the cached colouring was dropped from the copy -- the cap is priced with it present"; exit 5; }
@@ -544,7 +594,18 @@ CPUSAMPLE="$BASE/${ARM}_${STAMP}.cpu.jsonl"
       t=$(awk '/^throttled_usec/{print $2}' "$cg" 2>/dev/null)
       n=$(awk '/^nr_throttled/{print $2}' "$cg" 2>/dev/null)
     else
-      u=$(( $(cat "$cg" 2>/dev/null || echo 0) / 1000 )); t=0; n=0
+      # A TRANSIENTLY UNREADABLE cgroup file is UNMEASURED, never 0.  The
+      # predecessor's `|| echo 0` let a failed read contribute a zero CPU
+      # sample; that drags `delivered_cores` DOWN, so it errs toward GATE FAIL
+      # rather than toward a false pass -- but a zero that means "could not
+      # read" is still a planted zero, and the `-n "$u"` guard below already
+      # knows how to skip a sample it does not have.
+      raw=$(cat "$cg" 2>/dev/null)
+      case "$raw" in
+        ''|*[!0-9]*) u=""; echo '{"delivered_cores":null,"note":"cgroup read UNMEASURED this tick"}' >> "$CPUSAMPLE" ;;
+        *) u=$(( raw / 1000 )) ;;
+      esac
+      t=0; n=0
     fi
     if [ -n "$prev" ] && [ -n "$u" ]; then
       python3 -c "
