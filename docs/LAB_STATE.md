@@ -267,7 +267,7 @@ read in the writing invocation.
 
 ---
 
-~~**Section last written:** 2026-08-22T21:05Z by chief (ubuntu-fb) — GPU grant recorded, GPU pre-registrations dispatched~~
+~~**Section last written:** 2026-09-03T18:20:06Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-31` — **`S-29` §2's U2 mechanism is FALSIFIED by its own control case**: `U2` is not in the quantity DAFoam declares convergence on, proved from `D19T`'s arithmetic alone, and the two `D19T` rows I read as confirmations were disconfirmations. The binding channel is `he` and its floor IS the declared number to four figures. Check 1 (six instrument diffs) and the mtime ruling are discharged inside it. Before it, `S-30` (the chain survived the fleet kill and is at its FD legs), then `S-29`.
 
 **Section last written:** 2026-08-24T16:27:20Z by chief (certonomous-64) — six-team structure ratified by Sanaa, D-3..D-6 closed, ansys-verification team created; written by the harness-build lane on the chief's instruction, stamp from `date -u` in the writing invocation
 
