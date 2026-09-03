@@ -245,14 +245,112 @@ if grep -l '@[A-Z]*@' "${RUN_ROOT}"/0/U "${RUN_ROOT}"/0/k "${RUN_ROOT}"/0/omega 
 fi
 
 # --- endTime and residualControl for this pass --------------------------------
-# Both are edited with a REFUSAL if the substitution did not take: a controlDict
-# that silently kept endTime 8000 on a pass-1 run would produce a plausible
-# wrong answer rather than a crash.
+# =============================================================================
+# CLASS FIX, 2026-09-03, cfd lab-lane on cfd-supervisor's instruction, after the
+# rc=9 triage recorded below.  THE INSTANCE WAS A DELIMITER; THE CLASS IS A BLIND
+# GUARD, AND THE CLASS IS WHAT IS FIXED HERE.
+#
+# THE INSTANCE, MEASURED.  The residualControl substitution used `|` as the s///
+# DELIMITER while its own alternation `(p|U|k|omega)` carries four UNESCAPED `|`.
+# sed read the command as s|^( +)(p| ... | with `U` as the replacement and `k` as
+# a flag, died with `sed: -e expression #1, char 13: unknown option to `s'`, rc=1,
+# AND DID NOT EDIT THE FILE.  On pass 1 the value check then correctly REFUSED at
+# rc=9, stage `dicts`, 0 wall s, 0 solver compute -- which is how the defect
+# finally surfaced, preserved at
+# verification/runs/JF1_jet_flap/JF1G_P1_C1_CMU010_A0.attempt1_FAILED_2026-09-03T190419Z_PRESERVED/.
+# Only the DELIMITER changed (`@` for `|`); the regex, the capture groups, the
+# replacement and the -E flag are character-for-character what they were.
+#
+# THE CLASS, AND WHY THE INSTANCE HID FOR TWO DAYS.  BOTH guards below verified
+# THE VALUE and only the value.  A value check cannot distinguish "the
+# substitution RAN and set X" from "the substitution NEVER RAN and X was already
+# the shipped template default" -- and BOTH substitutions here are blind in
+# exactly that way ON PASS 0, because both pass-0 targets EQUAL the template:
+#     endTime          pass-0 target 8000  == case_blown/system/controlDict:21
+#     residualControl  pass-0 target 1e-06 == case/system/fvSolution:46-49
+# So every pass-0 run printed no complaint while substituting nothing at all, and
+# the guard was blindest exactly where the desired value equals the default.
+# This is docs/FAIL_OPEN_GATE_AUDIT.md section 28's caller-side defect arriving in
+# a LAUNCHER rather than in a grader, which is why the fix below is a helper
+# applied to BOTH sites and not a one-line delimiter change.
+#
+# PASS 0 IS NOT CONTAMINATED, CHECKED ON DISK RATHER THAN ASSUMED: the staged
+# system/fvSolution of JF1G_P0_C1, P0_C2 and P0_C3 each read p/U/k/omega 1e-06 and
+# their controlDict reads endTime 8000, which is exactly what the frozen
+# registration prescribes for pass 0.  The broken sed was inert there, not wrong.
+# =============================================================================
 STAGE="dicts"
-sed -i -e "s|^endTime .*|endTime         ${ENDTIME};|" "${RUN_ROOT}/system/controlDict"
+
+# subst_or_refuse <file> <sed-expression> <expected-match-count> <label>
+#
+# Closes the class on three axes, and the middle one is the new one:
+#   (1) sed's EXIT STATUS is captured into a variable ON ITS OWN LINE and a
+#       non-zero value REFUSES.  The delimiter collision exited 1 and NOTHING
+#       LOOKED.  This clause alone would have caught it on day one.
+#   (2) the number of lines the pattern actually MATCHES is counted BEFORE the
+#       file is touched, and must equal the expected count.  This is the clause a
+#       value check cannot have: it fires on an expression that compiles and
+#       matches NOTHING even when the desired value is already sitting in the
+#       file, so the guard can now see its own absence on pass 0.
+#   (3) the value is verified afterwards by the caller, exactly as before -- the
+#       old check is KEPT, not replaced.
+# Writes through a temp file and installs with mv, so a refusal never leaves a
+# half-edited dictionary behind.  No exit status is chained: each is assigned to
+# a variable on the line after the command that produced it, because a guard
+# folded into an && chain is a guard that a broken earlier link silently skips.
+subst_or_refuse() {
+    local target="$1" expr="$2" want="$3" what="$4"
+    local tmp_m tmp_o rc n
+    tmp_m="${target}.matchcount.$$"
+    tmp_o="${target}.subst.$$"
+
+    sed -n -E -e "${expr}p" "${target}" > "${tmp_m}"
+    rc=$?
+    if [ "${rc}" -ne 0 ]; then
+        rm -f "${tmp_m}" "${tmp_o}"
+        echo "REFUSED: the ${what} substitution EXPRESSION FAILED, sed rc=${rc}."
+        echo "         Nothing was written and no value check was consulted: a guard"
+        echo "         that reads only the value cannot tell a no-op from a success"
+        echo "         (docs/FAIL_OPEN_GATE_AUDIT.md section 28)."
+        exit 9
+    fi
+
+    n=$(wc -l < "${tmp_m}")
+    rm -f "${tmp_m}"
+    if [ "${n}" -ne "${want}" ]; then
+        rm -f "${tmp_o}"
+        echo "REFUSED: the ${what} substitution MATCHED ${n} line(s), expected ${want}."
+        echo "         The expression compiled but did not reach what it was written"
+        echo "         for.  THIS REFUSAL FIRES EVEN WHEN THE DESIRED VALUE IS ALREADY"
+        echo "         PRESENT, which is precisely the pass-0 case a value check is"
+        echo "         structurally blind to."
+        exit 9
+    fi
+
+    sed -E -e "${expr}" "${target}" > "${tmp_o}"
+    rc=$?
+    if [ "${rc}" -ne 0 ]; then
+        rm -f "${tmp_o}"
+        echo "REFUSED: the ${what} substitution FAILED on the write pass, sed rc=${rc}."
+        exit 9
+    fi
+
+    mv "${tmp_o}" "${target}"
+    rc=$?
+    if [ "${rc}" -ne 0 ]; then
+        rm -f "${tmp_o}"
+        echo "REFUSED: could not install the substituted ${what} file, mv rc=${rc}."
+        exit 9
+    fi
+}
+
+subst_or_refuse "${RUN_ROOT}/system/controlDict" \
+                "s@^endTime .*@endTime         ${ENDTIME};@" 1 "endTime"
 grep -qE "^endTime +${ENDTIME};" "${RUN_ROOT}/system/controlDict" \
   || { echo "REFUSED: endTime ${ENDTIME} did not take in controlDict"; exit 9; }
-sed -i -E "s|^( +)(p|U|k|omega)( +)1e-0[0-9];|\1\2\3${RESTOL};|" "${RUN_ROOT}/system/fvSolution"
+
+subst_or_refuse "${RUN_ROOT}/system/fvSolution" \
+                "s@^( +)(p|U|k|omega)( +)1e-0[0-9];@\1\2\3${RESTOL};@" 4 "residualControl"
 for fld in p U k omega; do
   grep -qE "^ +${fld} +${RESTOL};" "${RUN_ROOT}/system/fvSolution" \
     || { echo "REFUSED: residualControl ${RESTOL} did not take for ${fld}"; exit 9; }
