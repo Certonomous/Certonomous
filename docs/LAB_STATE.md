@@ -13717,6 +13717,168 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### ⚠ **T25R6c-R2 IS A `GATE FAIL` WHOSE REGISTERED ARTIFACT WAS NEVER EMITTED — AND D-J1 IS BOUND INTO T3d's LIVE GRADING PATH TWICE, WITH `gate_t3d.json` SET TO DROP BOTH DENOMINATORS. THE GRADING-TIME OBLIGATION IS BELOW AND A CLOSER MUST MEET IT.** (2026-09-03T19:30:29Z)
+
+*(Lane block, written 2026-09-03T19:30:29Z — stamp from `date -u` read in the committing shell invocation. **PURE INSERTION at the top of the section; every byte below stands unedited.** Nothing below is renumbered, deleted or rewritten — not the 2026-09-03T18:33:50Z block immediately following, and not the `**Section last written:** 2026-09-03T18:21:45Z` stamp further down, which belongs to an earlier block and is deliberately **left unedited**, exactly as that block left its own predecessor's. **Read this block first.** **Every figure here was RE-MEASURED by this lane against its own artifact at this write** — not copied from the brief, not from an earlier board block, not from any lane report. Three figures carried to this lane were wrong against their artifacts and are corrected below by name. Anything not verified at this write is marked **VERIFY** and is not asserted.)*
+
+---
+
+### ⚠⚠ NEXT ACTIONS — **THE FIRST ONE IS BINDING AND A SESSION SWITCH MUST NOT LOSE IT**
+
+> ## **1. T3d MAY NOT BE CLOSED UNTIL `R_fx`'s OWN MEASURED `field_range` FOR BOTH `T` AND `\|U\|`, AT THE GRADED CHECKPOINT PAIR, IS RECORDED BESIDE THE VERDICT.**
+>
+> **Why this is not paperwork.** `D-J1` — `rel = dmax / rng if rng > 0 else 0.0` — makes a spatially uniform last checkpoint read `CONVERGED` **irrespective of `dmax`**: the guard written to avoid a division by zero substitutes **the value that grades best**. It is bound into T3d's **frozen** grading path **twice**, and `gate_t3d.json` **will not carry either denominator** (§D below). So a closer who writes *"D-J1 did not fire"* without those two figures has asserted `FAIL_OPEN_GATE_AUDIT.md` §28's face (d) — **the absence of an error read as the presence of a check.**
+>
+> **HOW TO DISCHARGE IT — read-only, changes nothing, touches no frozen byte.** After `R_fx` completes, from `verification/runs/T-family/T3_runs/`:
+>
+> ```
+> python3 -c "
+> import sys; sys.path[:0]=['.','../T1_runs']
+> import analyse_t1c as T1C, analyse_t3 as A3
+> t=T1C.iterative_convergence('R_fx','T'); u=A3.iterative_convergence_vector('R_fx','U')
+> print('T', t['state'], t['field_range'], t['max_change'], t['between'])
+> print('U', u['state'], u['field_range'], u['max_change'])"
+> ```
+>
+> These are the **same frozen functions** `A.measure()` calls, invoked out-of-band. **If either range is `0.0` or is not measurable, the level is `NOT A RESULT` and P-1 is UNANSWERED — not answered `CONVERGED`.** The `CONVERGED` the frozen grader would print in that case is the defect's output, not a finding. **Say so in those words.**
+>
+> **Full derivation, interim measurements and honest limits:** `docs/campaigns/T-family/T3d_DJ1_GRADING_TIME_OBLIGATION.md` §6 (landed `2e459dce`).
+>
+> **AND THE HONEST PART: NOTHING ENFORCES THIS.** No script refuses to close T3d without the two figures, and this lane built none — Sanaa 22:00Z forbids *"the instrumentalisation of instruments instead of running"* and 20:00Z forbids building an instrument to measure another instrument's reach until the first has changed a verdict once. **D-J1 has changed no verdict.** The obligation rests on this board being read. **That is a convention, not a mechanism, and it is written as such rather than dressed up as coverage.**
+
+2. **Close T25R6c-R2's record.** The measurement is `GATE FAIL`; the registered artifact was never emitted; the verdict rests on the landed stdout (§B). The §2d.1 petition for the emission repair is `docs/campaigns/T-family/T25R6cR2_2D1_RECORD_EMISSION_PETITION.md` and is **with verification, unruled.**
+3. **The D-J1 forward-only §2d.1 petition** is `docs/campaigns/T-family/T3d_DJ1_2D1_FORWARD_ONLY_PETITION.md` (landed `2e459dce`) — **with verification, unruled.** It asks for the repair **in successor rungs only**, names its blocked result narrowly, requests **no backfill**, and **states the case against itself** on condition (2).
+4. **`COST_CALIBRATION.md` rows owed at completion, not before:** T3d (rule 12), T25R6c-R2. **No projection is being entered as an actual.**
+5. **K0e is REGISTERED AND FROZEN** at `9f51c583` (2026-09-03T19:20:15Z) — **not "being registered", which is what the brief carried.** `K0e_runs/` holds a `launch/` directory and **no compute**. Next action is the launch, not the registration.
+
+---
+
+### A. T3d — **LIVE, DESCENDING, UNDER ITS OWN ESTIMATE, AND STILL WITH NO MONITOR OF ANY KIND ATTACHED**
+
+*(Re-derived at this write by reading `verification/runs/T-family/T3_runs/R_fx/log.solve` and `ps` directly.)*
+
+| | |
+|---|---|
+| case | `verification/runs/T-family/T3_runs/R_fx` — the `R_ff` continuation. Ladder `c = R_m`, `m = R_f`, `f = R_fx` (`analyse_t3d.py:68`) |
+| solver | rank 0 **`pid 342276`**, **8 ranks**, `lstart 2026-09-03T18:04:57Z`, `etime 01:21:41` at this read; cwd confirmed from `/proc/342276/cwd` |
+| **iteration** | **3 256 of `endTime` 24 000**, `ExecutionTime` **4 876.04 s** |
+| **spent** | **650.14 core-min** (4 876.04 × 8 ÷ 60) |
+| **measured rate** | **0.199674 core-min/iteration** against the registered **0.226755** (`T3d_PREREGISTRATION.md:137-139`) — **ratio 0.8806** |
+| **projected total** | **4 792.2 core-min** = **0.881×** the registered POINT of **5 442.1**, and **29.4 %** of the **16 326** CAP. **A PROJECTION, NOT AN ACTUAL** — no `COST_CALIBRATION.md` row is owed until completion (rule 12) |
+| **`endTime` ETA** | **~2026-09-04T04:04Z**, re-derived here: 1.497555 s/iteration × 20 744 remaining = 31 065 s from 19:26:39Z. **This is LATER than the 03:44Z and 03:50Z figures on the two blocks below** — the rate has eased, and the drift is stated rather than smoothed |
+| cap deadline | **2026-09-05T04:05:42Z** (`timeout … 122445` from 18:04:57Z). **The cap does not bind** — a full day past the ETA |
+| **`T` initial residual** | **2.234691003190217e-08**, from 2.8388e-08 at iteration 1 — **DESCENDING.** `F-2`'s plateau threshold is *"factor > 0.98 per 2 000 its"*; this is not plateaued and not diverging |
+| **monitor** | **NONE ATTACHED, AND NONE COULD BE.** Unchanged from the 18:21:45Z block: no fleet residual-trajectory classifier exists on this box, and this team did not build one. **Reported as a gap for `cfd`**, which owns `scripts/queue_runner.py` |
+
+> ### ⚠ **THERE IS NO `P-3`, AND ANY BOARD LINE SAYING OTHERWISE IS WRONG.**
+> **MEASURED:** `grep -c "P-3"` over `docs/campaigns/T-family/T3d_PREREGISTRATION.md` returns **0**. The frozen registration declares **`P-1`, `P-2`, falsifiers `F-1`…`F-4`, and ONE terminal cost point** (`:54-56`, `:68-71`, `:78-81`, `:143-146`). **Corrected here.**
+>
+> **AND A NAMING TRAP THAT WILL CATCH THE NEXT READER:** `analyse_t3d.py` uses `P-1`/`P-2` at `:29-31` and `:152` for the **planted-zero control limbs** (`VERIFICATION_CHARTER` §2d.11.1). That is a **different `P-1`** from the pre-registration's PREDICTION P-1. A grep for `P-1` in the comparator does not find the prediction.
+
+**THE RUN WAS NOT DISTURBED.** No kill, no restart, no renice, no signal, nothing attached.
+
+---
+
+### B. T25R6c-R2 — **`GATE FAIL`, `rho = 1.103859`. THREE CLAUSES, ALL THREE TRUE AT ONCE, AND NONE OF THEM SOFTENS ANOTHER**
+
+*(Every figure read from `verification/runs/T-family/T25R6cR2_LEGAB_runs/T25R6cR2_GRADE_STDOUT.txt` at this write.)*
+
+1. **THE MEASUREMENT IS `GATE FAIL`.** `G-R2: GATE FAIL -- rho = 1.103859 >= 1.0` (`:37`). **A1.2's registered DIRECTION is FALSIFIED.** `P-R2-3` predicted `rho = 1.075209`; the registered prediction was `rho < 1.0`.
+2. **THE REGISTERED ARTIFACT WAS NEVER EMITTED.** The grader **CRASHED at `finish()`** — `grade_t25R6cR2.py:857`, `TypeError: not enough arguments for format string`, in the assembly of a **prose field**. `json.dump` is at **`:870`**, downstream of the crash, so **no `gate_t25R6cR2.json` exists on disk** — measured: the directory holds only `DESIGN_DERIVATION.json`.
+3. **THE VERDICT THEREFORE RESTS ON THE LANDED STDOUT**, `T25R6cR2_GRADE_STDOUT.txt`, and on nothing else. **That is stated as a limitation of the record, not as a defect in the number:** every gate was evaluated and every gate value printed **before** the defective line executed, and no gate reads the field that crashed.
+
+**`G-R2-1` PLATEAU — PASSED, and this is the first time this line's plateau clause licensed reading `rho` at all.**
+
+| | |
+|---|---|
+| `r(steps 41..575)` | 0.396710 s/step |
+| `r(steps 576..1110)` | 0.395308 s/step |
+| **graded statistic** | **0.3546 %** against a threshold of **5.0 %** |
+| span | **1 070 graded leg-B steps** — flat to a **third of a percent** |
+
+Also on the record from the same stdout: `C-R2-1` transient control — the run's own transient ends at leg-B step **27** against a registered exclusion of **40**; settled work **92–94 iterations/step** (`P-R2-5` predicted 92–94: **WINS**). Planted-zero control on the `ExecutionTime` reader **fired in BOTH legs** (1.23 s planted at step 7, read back as a 1.230000 s change **in that delta and in no other**, 0 other deltas moved). Rule-4 completion `COMPLETE` with the age guard against `0/module/T`. `R-R2-4` REPORTED: `rho_work = 0.804976`, `rho_throughput = 1.371294`. Predicted-vs-actual (rule 12, **reported, gating nothing**): **15.0993 core-min actual vs 14.707 point, ratio 1.0267** (`P-R2-4` **WINS**).
+
+> **ROACHE — NOT INVOKED, AND THAT IS A REGISTERED DECISION, NOT AN OMISSION.** `:39-43`: there is no grid family and no functional at convergence; this is a wall-cost measurement inside one transient at one mesh. **NO observed order and NO GCI is computed, quoted, or derivable.** A successor reading a grid-convergence claim off these numbers gets **`NOT A RESULT`**.
+
+---
+
+### C. THE REST OF THE T-FAMILY LINE — **RE-MEASURED, WITH ONE LABEL CORRECTED**
+
+| rung | verdict | measured, at its own artifact |
+|---|---|---|
+| **T24** | **`PASS` 12/12** | Every one of the twelve rows in `T24_runs/gate_t24.json` reads `"verdict": "PASS"`. **CORRECTION TO THE LABEL:** the quoted span is `Q1_degC`, the graded junction temperature — the JSON carries **no populated `T_max`** field (`predicted_Tmax_degC` is a separate key). Measured span **23.589696391 °C** (`T24_P080_U40`) to **81.784365592 °C** (`T24_P230_U10`) |
+| **T15** | **`NOT A RESULT` 4/4** | The comparator **REFUSED (exit 2) UPSTREAM of the rows block**: `REFUSE: planted-zero control S1(FLUCTUATION): a CONSTANT offset of one mean moved sigma/mean by 9.95e-05 -- a working fluctuation reader must be nearly blind to a constant offset; this one is not` (`T15_runs/T15_GRADE_OUTPUT.txt`, last line). The four graded rows registered in `T15_registered.json` are **`S1`, `V1`, `V2`, `V3`** — none was reached. **`B1`–`B4` and the other controls PASSED before the refusal**, which is why the refusal is credible |
+| **W1c** (`T9aR1c`) | **`PASS`** | `F1` floor demonstration at the coarsest level `W1c_c`: `|deviation| = 5.684e-14 K` against the registered floor **1.000e-04 K** (`T9aR1c_runs/W1c_GRADE_OUTPUT.txt`). Planted-zero `P1`/`P2`/`P3` all **PASS**. **NO TRIPLE EXISTS AND NONE IS QUOTED** — single-level floor demonstration, rule 5 not invoked |
+| **W1b** (`T9aR1b`) | **`NOT A RESULT` on its Roache limb** | `T9aR1b_runs/gate_t9aR1b.json` records `"state": "EXACT"` for the triple **and** `"verdict": "PASS"`. Under rule 5 an `EXACT` triple is `NOT A RESULT` whatever the value; `VERIFICATION_CHARTER` §2g (v1.16) ruled the floor exception refused. **THE FROZEN JSON IS UNTOUCHED — sha256 `f3df0aa0a59e6018…`, byte-identical to its HEAD blob, verified at this write.** The frozen record still says `PASS` and always will; the LAB's reading of it is `NOT A RESULT` |
+| **T19** | **all six arms `NOT A RESULT`**, **29.133 core-min** | Six arms `P_Ts_{c,m,f}` and `P_q_{c,m,f}`. Core-min summed from the six `STATUS.P_*` files: 0.033 + 12.033 + 0.517 + 0.050 + 15.817 + 0.683 = **29.133**. **NO `DONE.*` MARKER EXISTS FOR ANY ARM** |
+
+> ### ⚠ **T19's COMPLETION RULE WAS UNSATISFIABLE FROM BIRTH, AND THIS LANE MEASURED THE MECHANISM RATHER THAN INFERRING IT**
+> `T19_registered.json`'s `completion` block demands *"last written time == endTime (30000)"* **and** *"`ExecutionTime` line count == endTime/deltaT = 30000"*. **But every case registers `residualControl { p_rgh 1e-9; U 1e-9; T 1e-9; }` in `system/fvSolution` alongside `stopAt endTime; endTime 30000;`.** A run that converges **stops early and can never satisfy the rule**; a run that does not converge satisfies the count and fails iterative convergence. **The two are mutually exclusive with the registered solver control.**
+> **MEASURED, on the two fine arms:** `P_q_f` — `SIMPLE solution converged in 12437 iterations`, last `Time = 12437`, `ExecutionTime` count **12 437**, and — `writeInterval 2000` — **no time directory at 12437 at all** (last written is `8000`). `P_Ts_f` — converged at **7 238**, count **7 238**, last written `7238`. **rc = 0 on every arm, `capped=no` on every arm.** The 29.133 core-min bought a rule that no outcome could have satisfied.
+
+---
+
+### D. ⚠ **D-J1 — THE DEFECT BOUND INTO T3d's LIVE GRADING PATH. NOTHING IS REPAIRED.**
+
+**The line, at four paths, re-read at source by `grep -n` at this write:** `rel = dmax / rng if rng > 0 else 0.0` — `T1_runs/analyse_t1c.py:229`, `T3_runs/analyse_t3.py:278`, `T9a_runs/analyse_t9a.py:213`, `T9aH_runs/analyse_t9a.py:213`. **When the last checkpoint's field is spatially uniform, `rel = 0.0` irrespective of `dmax`, and `0.0 <= tol` for every registered `tol`.** `state="UNJUDGED"` already exists in the same function and is not used. **`analyse_t10a.py:372` carries the correct form** — `state="CONVERGED" if dmax == 0.0 else "NOT_CONVERGED"`, byte-exact identity, no division — and is the model.
+
+**IT IS BOUND TWICE, NOT ONCE.** Section G (`cc8994fe`) names `analyse_t3d.py:80` (`READER = A.T1C.iterative_convergence`). But the word T3d **gates** on is `M[lv]["convergence_state"]` (`analyse_t3d.py:200`), composed at **`analyse_t3.py:625-631`** from **BOTH** `T1C.iterative_convergence(case,"T")` **AND** `iterative_convergence_vector(case,"U")` (`analyse_t3.py:278`) — the same defective form on two fields. **The `U` limb can only DEMOTE `CONVERGED`; it cannot rescue a free `CONVERGED` from the `T` limb.**
+
+> ### **AND THE ARTIFACT CANNOT SHOW ITS OWN WORK: `analyse_t3d.py:242-245` builds the emitted `measurements` block from a fixed key list carrying `convergence_state` and NEITHER `convergence_T` NOR `convergence_U` — the only two dicts holding `field_range`, i.e. the branch's denominator. `json.dump` is at `:413`. So `gate_t3d.json` will record the WORD `CONVERGED` and not one denominator that produced it.**
+
+**⚠ THE INHERITED PREMISE IS FALSE AS STATED, and it is the whole of the evidence that the branch cannot fire.** Section G asserts every `field_range` in the three T9a gate JSONs lies in **12.1236–49.9756 K**. **Re-measured over all 22 values: minimum `5.002220859751105e-12 K`** (`W_C3`, `T9a_runs/gate_t9a.json`; `5.229594535194337e-12 K` in T9aH) **and maximum `49.98474017626177 K`** (`D_B_x`, `gate_t9aD.json`). The 12.1236 K floor holds only over the **21 non-`W_C3` rows** — and `W_C3` is precisely the *"uniform-temperature solid"* control (`analyse_t9a.py:31`) **shaped to enter the branch. It missed by five picokelvin.** Section G states the interval and its own counterexample two paragraphs apart. **Recorded against this team's interest; section G is a dated frozen record and is cited, not edited.**
+
+**T9aH's live planted control does NOT cover the branch.** It plants 1.234e-03 into `T` and asserts both the magnitude and the state flip — but leaves `field_range` at **~50 K**, so it exercises the `rng > 0` limb **only**. **It proves the instrument CAN fail and says nothing about whether the failing path was ever entered** — §28's face (d) inside our own live control.
+
+**TWO OF THE THREE GRADED LEVELS ARE NOW MEASURED CLEAR**, by read-only calls into the frozen readers themselves — no file written, no comparator run, no solver touched, **0 solver core-min**:
+
+| level | case | `T` `field_range` | `\|U\|` `field_range` | pair | branch |
+|---|---|---:|---:|---|---|
+| `c` | `R_m` | **51.2959 K** | **11.0155** | (34000, 36000) | **`rng > 0` TAKEN** |
+| `m` | `R_f` | **50.7293 K** | **11.0257** | (76000, 78000) | **`rng > 0` TAKEN** |
+| `f` | `R_fx` | — | — | will be (22000, 24000) | **UNMEASURED — the hole the obligation closes** |
+
+`R_fx`'s graded pair does not exist yet; the case holds `processor*/0` and `processor*/2000` only. `T` at `t = 2000`, read across all 8 processor directories — **602 128 cells, 300 K to 350.2884011 K, range 50.28840106 K.** **Positive by fifty kelvin, and the WRONG CHECKPOINT.**
+
+**NOTHING WAS REPAIRED.** `analyse_t1c.py` (`60893b28e284127f…`) and `analyse_t3d.py` (`980ae3b203cb7d75…`) are **byte-identical to their HEAD blobs**, verified at this write. **Rule 6 forbids editing them; a grading-path repair after first compute is `VERIFICATION_CHARTER` §2d.1, verification's and not heat-transfer's.** Sanaa 17:30Z: *"No re-grading of past results unless a specific comparator is shown to have moved."* **No comparator has moved.**
+
+---
+
+### E. ON SANAA'S DESK — **TWO NUMBERS POINTING OPPOSITE WAYS. NO WIDENING IS REQUESTED AND NO RECOMMENDATION IS ATTACHED.**
+
+**E.1 `Σ CAP(C5) = 20 006.80 core-min` against a ceiling of 20 000** — breach **+6.80**, **×1.00034**, i.e. **0.034 %** (`T25R6a_C5_OUTER_runs/T25R6a_C5_REGRADE_RECORD.md:23`, `:138`, `:140`).
+
+> **THE LOAD-BEARING SENTENCE: THE BREACH IS ~197× SMALLER THAN THE MEASUREMENT'S OWN RESOLUTION.** Registered interval **`Σ CAP(C5) ∈ [18 801.4 , 21 480.1]`**, i.e. **−6.02 % / +7.36 %**; mean half-width **1 339.35 core-min** against a breach of **6.80** = **×196.96**. **The measurement cannot resolve which side of 20 000 the ladder falls on.** A ruling that the ladder fits and a ruling that it does not are both consistent with it.
+
+**AND THE FACTOR IT RESTS ON IS SIGHTED AT 1.46× BIAS AND UNTESTED** — `REGRADE_RECORD:340-342`: the T25R4 probe rate `r_C = 0.1594583` core-min/step *"is 1.46× the arm rate — the bias is visible and still unmeasured."* Predecessor `C4` gave `Σ CAP = 24 709.3`, a **×1.2355** breach of **4 709.3**; **C5 removes 99.86 % of it.**
+
+**E.2 `B-R2` ceiling relief — REPORTED, NEVER GATED, GRANTS NO WIDENING.** From `T25R6cR2_GRADE_STDOUT.txt:30-32`: **`rho_blend` (ladder 3500A + 8300B) = 1.073053 → `Σ CAP(C4) × blend` = 26 514.4 core-min against the 20 000 ceiling**, relief threshold 0.809412. **The mixture ambiguity is UNRESOLVED and is not resolved here.** The two numbers point in opposite directions and both are on the desk with their own uncertainty attached. **Heat-transfer has not asked for the 20 000 ceiling to move and does not ask here.**
+
+---
+
+### F. THE F14 COOLING SPINE — **MAPPED, EVERY VERDICT RE-MEASURED**
+
+| rung | verdict | measured |
+|---|---|---|
+| **K0f** | **`GATE REACHED`** | **All ten graded rows `NOT A RESULT`, tally 0 of 10**; unreached column `P` (Blay 1992 `NOT OBTAINED`). The ordered gate stopped at limb (1) on every row: **no level is iteratively CONVERGED** — largest `T` change between the `endTime − 4000` and `endTime` checkpoints is **0.14–13.7 K** against a criterion of `1e-6 × range ≈ 2.0e-5 K` (`K0f_RESULTS.md:3`, `:48`, `:65`, `:213`). Four CONVERGING triples carry their `p` and GCI **beside a `NOT A RESULT` they cannot lift** |
+| **K0cS** | **`GATE FAIL`** | Rung: **14 of 20 graded rows failed; 0 models passed.** `kOmegaSST` GATE FAIL 8/10, `kEpsilon` GATE FAIL 6/10, `LaunderSharmaKE` **REFUSED** (`K0cS_RESULTS.md:18-21`, `:102-104`). The registered headline prediction — *"no model passes this gate"* — **HELD** |
+| **K0cX** | **`GATE FAIL`** | Rung: **24 of 60 graded rows; 0 of 3 models passed.** `kOmegaSST` 10/20, `kEpsilon` 7/20, `LaunderSharmaKE` 7/20 (`K0cX_RESULTS.md:17-21`) |
+| **K0cG** | **grid-convergence read** | **`kOmegaSST`: all five triples `CONVERGING`, observed order `p` = 1.5158 – 4.0783** (`uv_peak` 1.516, `Nu_hot` 2.088, `Nu_cold` 3.121, `Vpeak` 3.698, `Sp` 4.078), read from `K0cG_runs/gate_k0cg.json` at `Fs = 1.25`. **Deviation ÷ GCI = 43× to 722×** (`uv_peak` 43×, `Nu_hot` 84×, `Sp` 112×, `Nu_cold` 233×, `Vpeak` 722× — `K0cG_RESULTS.md:29-35`). **The error is the MODEL, not the mesh, by two to three orders.** `kEpsilon` by contrast: 2 `STAGNANT`, 3 `DIVERGENT`, orders −1.0153 to 0.2393 |
+| **K0d** | **`BLOCKED`** | Not launched; **zero core-seconds spent**. Every graded row `BLOCKED` on Blay 1992 `NOT OBTAINED` (`K0d_PREFLIGHT_EXECUTABILITY_FINDING.md:3`, `:289`) |
+| **K0e** | **REGISTERED AND FROZEN** | **`9f51c583`, 2026-09-03T19:20:15Z** — the forced-convection flat plate. **CORRECTION: the brief carried "authorised and being registered"; it IS registered.** `K0e_PREREGISTRATION.md` on disk is byte-identical to its HEAD blob (490 lines, sha256 `f3b60bc005508c6e…`). `K0e_runs/` holds a `launch/` directory and **NO COMPUTE** |
+
+---
+
+### G. **CARRIED UNMEASURED, EXPLICITLY — THESE ARE HOLES, NOT ZEROS**
+
+1. **The box's remaining compute budget.** **STRUCTURALLY UNREADABLE FROM INSIDE THE BOX** — `COMPUTE_BUDGET_CHARTER.md` §5: the box cannot read its own billing. Every dollar figure this team quotes is **DERIVED at $0.0513/core-h, reported-by-owner, never measured.** Sanaa's 21:00Z fleet safety ceiling is `min(3 × registered cap, remaining box budget)`; **this team cannot evaluate the second term and does not pretend to.**
+2. **The `$1,000` industrial-ladder envelope's consumption.** **NO LEDGER EXISTS ANYWHERE IN THE REPO.** `docs/COST_CALIBRATION.md` is a **400-line per-completion calibration ledger** and carries **no running envelope total**; its four occurrences of the word "envelope" are per-item envelopes, not the ladder's. **Positive control on that zero: the same reader searching the same file for "envelope" returns four hits, so it can see — there is simply no running total to find.** Sanaa's 18:00Z escalation triggers (single run > $150 projected; envelope at 80 %) **cannot be evaluated by anyone on this box today.**
+3. **`K2e`'s and `KV1`'s age guards.** **NOT RE-CHECKABLE BY ANY FUTURE AUDIT.** Measured: `K2e_runs/m48_dT0p3_bou/` and `KV1_runs/KV1a_duct_source/` both hold **`0.orig` and no `0/` directory**, so **there is no `0/T` to date the run against**. Rule 4's age guard reads `0/T` because it is touched last at launch; **with `0/` archived away the guard cannot be re-run, ever.** This is recorded as a permanent gap, not as a pass.
+
+**Marked `VERIFY` — read at source but NOT independently re-derived by this lane at this write:** the `K0cG` GCI absolute values (the ratios 43×–722× are quoted from `K0cG_RESULTS.md`'s own table; the `gate_k0cg.json` carries the states and orders, which **were** re-measured here, but **no GCI field**); `K0cS`'s and `K0cX`'s per-row failure attributions beyond the rung tallies; whether any consumer of `analyse_t1c.iterative_convergence` **outside** the T3 ladder and the three T9a gate files has ever entered the `rng == 0` limb — **only five artifacts were measured and every other consumer is UNMEASURED and is not claimed clean.**
+
+---
+
 ##### 🔧 **T3d's PID CORRECTION IS NOW LANDED IN THE RECORDS, NOT JUST ANNOTATED ON THIS BOARD — AND THE FREEZE DEBT CANNOT BE PAID BY ADDING MARKERS: ALL 12 UNFROZEN GRADERS ARE TRUE POSITIVES OF A DEFECT NO MARKER CAN REACH.** (2026-09-03T18:33:50Z)
 
 *(Lane block. **Pure insertion at the top of the section; every byte below stands unedited**, including the `**Section last written:**` line immediately following, which belongs to the 18:21:45Z block. Every number here was measured by this lane against its own artifact at this write; figures carried in the brief were re-measured and two of the brief's counts were wrong — corrected below by name.)*
