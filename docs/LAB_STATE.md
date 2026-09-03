@@ -267,7 +267,7 @@ read in the writing invocation.
 
 ---
 
-~~**Section last written:** 2026-09-03T18:49:23Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-34` — both chief broadcasts audited against this session and **both found things**: two of my reads were blocked and quietly dropped (re-deriving one surfaced a three-way md5 divergence on a frozen registration — lawful, but I had reported check 4 discharged without it); three guards in a driver I was about to approve cannot tell "checked" from "never ran"; the A1ZE item ceiling does not bind; and **upstream's own comment cuts AGAINST `d3f47bfa`**, registered before compute. Before it, `S-33`, `S-32`, `S-31`, `S-30`, `S-29`.
+~~**Section last written:** 2026-09-03T18:56:47Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-35` — `A1WRT` FROZEN (its load-bearing gate could never have fired); a lane challenged my check-4 hold as the governance Sanaa banned and **the ruling is recorded — right in principle, wrong on this item**; `d4s_primal_accept_wrap.py` NOT USED, settled after the lane caught its own FALSE zero; and **a new item: an FD instrument relaxes its residual stop by 1e+12**. Before it, `S-34` (both broadcasts audited, four abandoned reads of mine), `S-33`, `S-32`, `S-31`, `S-30`, `S-29`.
 
 **Section last written:** 2026-08-24T16:27:20Z by chief (certonomous-64) — six-team structure ratified by Sanaa, D-3..D-6 closed, ansys-verification team created; written by the harness-build lane on the chief's instruction, stamp from `date -u` in the writing invocation
 
@@ -4842,6 +4842,47 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 **Section last written:** 2026-09-03T18:01:38Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-30` — the `W3_chain_r2` chain SURVIVED the usage-limit fleet kill as a detached OS daemon and is at its finite-difference legs (9 stages `rc=0`, 36.10 core-min of a registered 900.0), and `S-29` §6's three "live" pids are corrected: two are dead and the survivor's pid was never right. Before it, `S-29` — `D19T` graded `NOT A RESULT` by its own frozen grader; the `U2` patch-identity mechanism predicts five non-convergences across three items with a fourth arm disconfirming it; the generator fix landed forward-only and UNVERIFIED with `A1ZE` registered as its verification; `D12RLX` referred not withdrawn; and five of the supervisor's own errors are named as his. `S-28` holds `MAAOA`'s conclusion and `D19T`'s original block; `S-27` the closed compressible triage.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-35 — **`A1WRT` FROZEN: ITS LOAD-BEARING GATE WAS ANCHORED ON THE OUTCOME THE ITEM'S OWN REGISTRATION PREDICTS, SO IT COULD NEVER HAVE FIRED. A LANE CHALLENGED MY CHECK-4 HOLD AS THE VERY GOVERNANCE SANAA BANNED — **IT IS RIGHT IN PRINCIPLE AND WRONG ON THIS ITEM**, AND THE RULING IS RECORDED. AND AN FD INSTRUMENT RELAXES ITS RESIDUAL STOP BY 1e+12** (2026-09-03, `date -u` stamp in the committing invocation)
+
+###### 1. `A1WRT` — FROZEN at `a62d8d75`, and the defect is the same shape as `A1ZE`'s was
+
+`G-PATCHPAIR` compared U1's extrapolated plateau against **U2's CONVERGED VALUE** — while §7 of the same document registers that **U2 will not converge**. The gate's `NOT A RESULT` branch was therefore the *predicted* outcome: **a gate that could only fire on the answer the item says will not happen.** Re-anchored plateau-versus-plateau through the same frozen routine, so it returns NOISE / INDETERMINATE / CONTAMINATION either way. Bands re-set to **2.0e-4 / 2.0e-3** — my construction, arithmetic `2 × (4.9e-05 + 4.9e-05) = 1.96e-4`, labelled **DERIVED from a measured sensitivity, not itself measured**. The falsified premise is struck **visibly**, not rewritten. **A new control `Q4` asserts a non-converged U2 still yields a verdict — the control that would have caught the original defect.** Reader selftest **39 controls, both directions, rc 0**.
+
+**Re-measured rather than patched:** the projection is `1.0182e-08 … 2.7954e-08` across **α 1…12**, with α = 0 at 2.2632e-07 and α = 13 at 4.1455e-07 stated separately — **all fourteen points above 1e-8, the registration confirmed and strengthened.** Binding channels **7 `nuTilda` / 7 median-of-`U`**; **`U2` binds at NONE**, which is the load-bearing claim and it holds.
+
+###### 2. ⚠ THE CHALLENGE, AND THE RULING — because a lane put it to me instead of assuming it
+
+The lane argued: **parking a row pending my check 4 is exactly the non-physics hold Sanaa's 2100Z/2200Z rulings forbid**, on a box that must not idle, for an item costing $0.25.
+
+**It is right in principle and I accept the framing: latency is the sin, not the check.** If a registered, funded, well-posed item sits still because a supervisor has not got to it, that hold is the failure she named. `A1ZE` and `D6RF` each received check 1 and check 4 **within minutes** of their lane reporting, and that is the standard I hold myself to.
+
+**It does not reach this item, on facts I read rather than asserted.** `A1WRT`'s `launch_cmd` is **`null`** — the driver does not exist, so **no one can enqueue it and check 4 is not the binding constraint; the absent driver is.** And **the box is not idle**: one container running, `W3_chain_r2`, **84.3667 core-min of a registered 900.0, thirteen stages every one `rc=0`.**
+
+**Where I do not move, and why:** rule 2 and *pre-registration committed before compute* are **Sanaa's own constitution, not governance stacked on it.** Her 2100Z rule puts **resource and procedural** conditions in the record-and-launch class — occupancy, memory, money, supersession. It does not license a run beginning before the document that says what would falsify it exists, because **that document is the entire evidentiary content of the result.** A gate blocking a well-posed run is what she banned; a check that the experiment is *registered* is what makes the run worth having. **RULING: check 4 stands, and it may never become a queue. The duty the challenge creates is on ME — same-session turnaround — not on the check.**
+
+###### 3. `d4s_primal_accept_wrap.py` — **NOT USED**, and the method is the standard
+
+**Settled by artifact:** `/home/ubuntu/certonomous-runs/CURRICULUM-D4-SHIPPED-a2-wing-cdmin/F3/d4_opt_runScript.py:37` carries `"primalMinResTolDiff": 1e3` — **the exact frozen value the wrapper exists to override to 2000.0. The override never happened.** `2000`/`2e3` for that key appears nowhere in any of the four D4 roots; 414 and 418 files were modified *after* the wrapper's mtime, so post-wrapper runs exist and it still was not used.
+
+**⚠ AND THE LANE'S FIRST ZERO WAS FALSE, WHICH IS WHY THIS ONE IS BELIEVABLE.** A repo-wide `grep -r` returned zero for the wrapper's TAG — **while the wrapper file itself contains it twice.** Multi-root `ugrep` missed it. Re-run per-root with a control string through the same reader: **9 / 15 / 14 / 14 hits against 0 for the TAG.** *That is planting the run, not only the value* — the exact discipline the lab is auditing this week, applied by a lane to its own result before reporting it. **My standing ruling holds and is now moot in practice: the wrapper may not be used until committed and registered.**
+
+###### 4. ⚠⚠ A NEW ITEM, AND IT IS BIGGER THAN THE ONE THAT FOUND IT: **`1e+12` INSIDE AN FD INSTRUMENT**
+
+Found incidentally and correctly not chased inside that task: **`d4s_f3s_fd_endpoint.py` sets `primalMinResTolDiff` to `1e+12` via a `DISARM_KEY`**, and it appears in the `F3S`/`F3SR` logs. That **removes the residual-difference stop altogether — in the instrument that produces an FD endpoint table.**
+
+**In this family the FD table is what converts a DAFoam gradient into a result.** A relaxation of that magnitude inside the instrument that produces the table is a far larger object than the 2× wrapper the search was after. **Commissioned as its own item: what it was disarmed for, whether any published FD number rests on a solve that ran under it, and whether it is registered anywhere.** Nothing is concluded here — it is named, sized and queued for measurement.
+
+###### 5. ⚠ TWO MORE ERRORS OF MINE — one is the same error twice
+
+1. **I handed a lane the wrong lineage margin constant for the SECOND time today.** `A1WRT`'s frozen registration uses `CAP_MARGIN_S = 300` (3.2× the measured 93.85 s container start); I gave −60. Earlier I gave D6RF −60 when D6R uses −90. **Three constants live in this family — A1 60, D6 90, A1WRT 300 — and I have now got it wrong twice out of three.** Both lanes registered the correct value and recorded my form as *not registered*.
+2. **I quoted a subrange as the whole range.** My "13 measured points, 1.0182e-08 to 2.7954e-08" is the interval over **α 1…12**; α = 0 and α = 13 both sit outside it. The load-bearing claim survives, **but the lane's note is exact: the decade fix alone would have left the line false in a new way.**
+
+**Seventh instance this session of one pattern: a value true over one span, carried as if it covered another.** The margin constant is a variant of the same disease — a constant true in one lineage, carried into another.
+
+###### 6. STATE
+
+Live: `W3_chain_r2`, driver **179658** at 1h32m, stage `S3b_c1_ap` closed `rc=0`; **13 stages, 84.3667 core-min** of 900.0, $0.0721 **DERIVED**. **`A1ZE`, `D6RF`, `A1WRT` all FROZEN with check 1 and check 4 discharged personally on the first two; each is one bounded repair or one driver from the queue.** No row is in `verification/queue/dafoam/` yet and no lane may launch.
 
 ##### UPDATE S-34 — **BOTH CHIEF BROADCASTS AUDITED AGAINST THIS SESSION AND BOTH FOUND THINGS. TWO OF MY READS WERE BLOCKED AND QUIETLY DROPPED; RE-DERIVING ONE OF THEM SURFACED A THREE-WAY md5 DIVERGENCE ON A FROZEN REGISTRATION. THREE GUARDS IN A DRIVER I WAS ABOUT TO APPROVE CANNOT TELL "CHECKED" FROM "NEVER RAN". AND UPSTREAM'S OWN COMMENT CUTS AGAINST THE COMMIT UNDER TEST** (2026-09-03, `date -u` stamp in the committing invocation)
 
