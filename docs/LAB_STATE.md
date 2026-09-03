@@ -267,7 +267,7 @@ read in the writing invocation.
 
 ---
 
-~~**Section last written:** 2026-09-03T19:03:07Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-36` — **`D6RF` IS QUEUED**, verified by me (row moved not copied, three pins matching disk, 689-line frozen portion `cmp`-ed, driver exists), and the daemon holds it on CAPACITY not on any person. Before it, `S-35` (`A1WRT` frozen, the check-4 ruling, the 1e+12 item), `S-34` (both broadcasts audited), `S-33`, `S-32`, `S-31`, `S-30`, `S-29`.
+~~**Section last written:** 2026-09-03T19:14:26Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-37` — **THE PHYSICS RESULT: DAFoam refuses a 2-direction mesh BY DESIGN** (`DACheckGeometry.C:278`, source md5 `e6b9497656105a2cf6958e5a6d329823`, read by me in the registered image), so `d3f47bfa` does not fix the A1 2-D templates, it BREAKS them — `symmetry` is the requirement, not the defect. Item `NOT A RESULT` from its own frozen grader; the condemnation clause **did not fire** and I compose neither. **4.9 core-min.** Before it, `S-36` (`D6RF` queued, now LAUNCHED), `S-35`, `S-34`, `S-33`, `S-32`, `S-31`, `S-30`, `S-29`.
 
 **Section last written:** 2026-08-24T16:27:20Z by chief (certonomous-64) — six-team structure ratified by Sanaa, D-3..D-6 closed, ansys-verification team created; written by the harness-build lane on the chief's instruction, stamp from `date -u` in the writing invocation
 
@@ -4842,6 +4842,56 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 **Section last written:** 2026-09-03T18:01:38Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-30` — the `W3_chain_r2` chain SURVIVED the usage-limit fleet kill as a detached OS daemon and is at its finite-difference legs (9 stages `rc=0`, 36.10 core-min of a registered 900.0), and `S-29` §6's three "live" pids are corrected: two are dead and the survivor's pid was never right. Before it, `S-29` — `D19T` graded `NOT A RESULT` by its own frozen grader; the `U2` patch-identity mechanism predicts five non-convergences across three items with a fourth arm disconfirming it; the generator fix landed forward-only and UNVERIFIED with `A1ZE` registered as its verification; `D12RLX` referred not withdrawn; and five of the supervisor's own errors are named as his. `S-28` holds `MAAOA`'s conclusion and `D19T`'s original block; `S-27` the closed compressible triage.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-37 — ⚠⚠ **THE PHYSICS RESULT: `A1ZE` RAN AND ANSWERED IN 88 SECONDS. DAFoam REFUSES A 2-DIRECTION MESH BY DESIGN, IN ITS OWN SOURCE, UNCONDITIONALLY — SO `d3f47bfa` DOES NOT FIX THESE TEMPLATES, IT BREAKS THEM. THE ITEM IS `NOT A RESULT` FROM ITS OWN FROZEN GRADER AND THE CONDEMNATION CLAUSE DID NOT FIRE; I AM COMPOSING NEITHER** (2026-09-03, `date -u` stamp in the committing invocation)
+
+###### 1. THE MEASUREMENT
+
+| arm | planes | rc | wall | core-min | outcome |
+|---|---|---|---|---|---|
+| **`Sc`** | **`symmetry`** (control) | **0** | 206 s | 3.4333 | **completed all 2000 iterations** |
+| **`Ec`** | **`empty`** (treatment) | **97** | 88 s | 1.4667 | **`A1ZE_SWEEP_RC rc=134` — SIGABRT, core dumped, ZERO time steps** |
+
+**The staging was correct and the fix did exactly what it intended at the topology level.** `A1ZE_G_EMPTY_OK planes='empty' mesh=2/2 fields_checked=7 of 7 bad=0`, and the solver printed at `Ec/out/sweep.log:465` **`Mesh has 2 solution (non-empty) directions (1 1 0)`** — the `(1 1 1)` defect is gone. **Three lines later it aborted:**
+
+> `--> FOAM FATAL ERROR: (openfoam-2506)`
+> **`Mesh geometric directions is less than 3 and not supported!`**
+> *From `Foam::checkGeometry(...)` in file `DACheckMesh/DACheckGeometry.C` at line 278. FOAM aborting*
+
+**I read that source myself**, in A1ZE's own **registered** image `dafoam-idwarp-rot:v1`, at `/home/dafoamuser/dafoam/repos/dafoam/src/adjoint/lnInclude/DACheckGeometry.C`, md5 **`e6b9497656105a2cf6958e5a6d329823`** — **a DAFoam file, `DA` prefix, in DAFoam's own repo tree, not vanilla OpenFOAM:**
+
+```cpp
+if (mesh.nGeometricD() < 3)
+{
+    FatalErrorInFunction
+        << "Mesh geometric directions is less than 3 and not supported!"
+        << abort(FatalError);
+}
+```
+
+**DAFoam refuses any mesh with fewer than three geometric directions, unconditionally, by design. An `empty` bounding plane gives two.** So **`empty` is categorically unusable with DAFoam on this case family, and `symmetry` on these planes is not an oversight — it is the only thing that runs.** Upstream's median comment now reads as precisely what it claims: they expect 2-D meshes with `symmetry` BCs and built the residual criterion to tolerate the high z-component that follows.
+
+###### 2. ⚠ WHAT I AM **NOT** CLAIMING, AND WHY THAT MATTERS TODAY OF ALL DAYS
+
+**The frozen grader's verdict is `A1ZE_VERDICT NOT A RESULT` and it stands untouched.** The registered condemnation trigger — a `GATE FAIL` on `G-DIRN.E` or `G-U2.E` — **DID NOT FIRE**: the arm never completed, `COMPLETION Ec` read `NOT A RESULT`, and those gates were never reached. `G-EMPTY` on `Ec` **PASSED**; the `BLOCKED` rows are `S3`/`E3`, which never staged.
+
+**Ninety minutes ago I ruled that a hand-composed verdict is a defect whichever way it leans. I am not going to compose a condemnation the registered clause did not deliver, on the strength of evidence I find compelling.** The item is `NOT A RESULT`.
+
+**The forward revert of `d3f47bfa` rests on a DIFFERENT and separately measured fact: the three A1 2-D templates at HEAD cannot run at all.** That is not a graded verdict — it is a broken artefact in this family's tree, and repairing it is ordinary maintenance. **The distinction between "the gate said so" and "the thing is measurably broken" is the whole discipline, and both are recorded rather than merged.**
+
+###### 3. WHAT THE DESIGN BOUGHT — **4.9 core-min for a definitive toolchain answer**
+
+`Sc` + `Ec` = **4.9 core-min of a 532.0 ceiling, $0.0042 DERIVED** at the owner-stated rate, never measured. **The coarse pair ran FIRST by the lane's own design, so a defect that would have cost ~512 core-min on the L3 pair surfaced for under five.** The chain then stopped at the first non-zero rc and graded what existed, exactly as registered.
+
+**And the pre-registration earned its keep.** Before any compute I recorded that upstream's comment *raises* the prior that `empty` is not what this toolchain expects, and that this **moves the odds against the commit under test**. It was registered because it cut against the thing being tested, and the run confirmed it in 88 seconds.
+
+###### 4. THE THREAD IS NOW CLOSED, END TO END
+
+`S-29` claimed a `U2` mechanism predicting five outcomes. `S-31` falsified it from `D19T`'s own arithmetic — `U2` is not what convergence is declared on. `S-33` measured the median with a hash. **`S-37` now measures why the whole framing was inverted: the `symmetry` planes were never the defect. They are the requirement.** The "fix" was the break.
+
+###### 5. STILL OPEN, AND FLAGGED
+
+`G-GUARDS Sc: NOT A RESULT — 4 guard(s) left no execution marker, so they cannot be shown to have run` (`A1ZE_COLD_START`, `A1ZE_G_EMPTY_OK`, `A1ZE_TIMEDIR_SCAN`, `A1ZE_TOL_VAR_OK`). **The vacuous-pass disease INSIDE the frozen grader** — a sweep of mine missed it. Whether it is lawfully repairable or needs a successor item is commissioned; **no frozen instrument is edited to find out.**
 
 ##### UPDATE S-36 — **`D6RF` IS QUEUED. The first row this family has put in front of the daemon this session, and it carries the two arms nobody has ever run** (2026-09-03, `date -u` stamp in the committing invocation)
 
