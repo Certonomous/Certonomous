@@ -1384,3 +1384,154 @@ the file. Neither shows that the registered minimal content — `value (0 0 0)` 
 rung's own case**, which carries an `fvOptions` source and a wedge the probe did
 not build. **Sufficiency is demonstrated by `T21_CYL_c` or not at all**, and §8.3
 already stages exactly that.
+
+---
+
+## AMENDMENT 2 — 2026-09-03 — **THE FREEZE. THE DOCUMENT LEAVES `DRAFT` AND §1 LINE 10's `AUTHORISATION` IS FLIPPED. §1 LINE 9's ABSENT REGISTRY IS DISCHARGED HERE, IN THE COMMITTING INVOCATION, UNDER A LIVE PLANTED CONTROL.**
+
+**lines whose number changed above this section: 0** — this amendment is a **pure
+append**; the assertion was **verified by diff in the committing invocation**, not
+recited. Nothing above is rewritten in place: the superseded text is **struck and
+quoted verbatim below**, per `CLAUDE.md` rule 6. Every line citation made against
+this file elsewhere (§1 lines 126–127, §1 lines 199–205, §6.2 lines 781–818,
+§8.1, §8.3) remains valid at its original line number.
+
+**Whose act this is.** The freeze is the **supervisor's own check-4 act** —
+`CLAUDE.md`'s roster clause reserves *"pre-registration **committed** before
+compute"* to the supervisor personally and forbids its delegation. This lane
+executed the **mechanics** of the amendment and the commit; **the judgement that
+this document is fit to freeze is the supervisor's, not this lane's**, and is
+recorded here as such rather than being quietly absorbed into the paperwork.
+
+---
+
+### A2.1 §1 LINE 9 — **ABSENT REGISTRY: DISCHARGED**
+
+**STRUCK, quoted verbatim** (§1 line 9, document lines 199–202), on the single
+ground that its final sentence has been overtaken by events — this **is** now the
+committing invocation:
+
+> ~~**9. ABSENT REGISTRY.** `verification/runs/T-family/T21_runs/` and every
+> registered case directory must be measured **ABSENT under a live planted
+> control** in the committing invocation. **Not taken here** — this draft is not
+> the committing invocation and a reading taken now is not transferable.~~
+
+**THE READING — TAKEN FRESH IN THIS AMENDMENT'S OWN COMMITTING
+INVOCATION, CONTROL FIRST, AT `2026-09-03T22:59:57Z` (`date -u`, read in that same
+invocation).**
+
+**Not one figure is carried across from the preserved copy.** The reading
+that appears in `docs/campaigns/T-family/T21_FREEZE_AMENDMENT_PENDING.md`
+was taken in a lane invocation that was **denied and never committed**;
+that file rules it **not on the record and not transferable**, and §1
+line 9 says in terms that *a reading taken now is not transferable*. The
+clause is therefore discharged by the rows below and by nothing else.
+Every row was produced by one reader — `os.path.isdir` on the repository
+path — applied identically to the control and to each registered
+directory, in the shell invocation that wrote this commit.
+
+| # | directory | reading |
+|---:|---|---|
+| **0** | **`verification/runs/T-family/T20_runs/`** | **PRESENT — THE LIVE PLANTED CONTROL, READ FIRST** |
+| 1 | `verification/runs/T-family/T21_runs/` | **ABSENT** |
+| 2 | `verification/runs/T-family/T21_runs/T21_CYL_c` | **ABSENT** |
+| 3 | `verification/runs/T-family/T21_runs/T21_CYL_m` | **ABSENT** |
+| 4 | `verification/runs/T-family/T21_runs/T21_CYL_f` | **ABSENT** |
+| 5 | `verification/runs/T-family/T21_runs/T21_CYL_W1` | **ABSENT** |
+| 6 | `verification/runs/T-family/T21_runs/T21_CYL_P1000` | **ABSENT** |
+| 7 | `verification/runs/T-family/T21_runs/T21_CYL_S10` | **ABSENT** |
+
+**The control is what makes the seven absences evidence.** `CLAUDE.md`
+rule 3: a zero from a reader not shown able to see a non-zero is not
+evidence. The **same reader, in the same invocation, immediately before
+the seven negative readings, returned `PRESENT` on `verification/runs/T-family/T20_runs/`**
+— a directory that does exist. A reader that could see nothing at all
+would have produced the identical seven `ABSENT`s and this discharge
+would have been worthless. The guard **refuses with a non-zero exit — and
+so aborts the commit — if the control does not read `PRESENT`, or if any
+registered directory reads anything but `ABSENT`**; the reading therefore
+cannot be recorded without its control.
+
+`verification/runs/T-family/T21_FEASIBILITY_PROBE_2026-09-03/` is a **separate,
+dated directory and is deliberately NOT `T21_runs/`**, precisely so that filing
+the probe could not destroy the condition this clause asserts.
+
+**The clause is discharged as written and its requirement is not weakened for any
+future re-registration.**
+
+---
+
+### A2.2 §1 LINE 10 — **AUTHORISATION: FLIPPED**
+
+**STRUCK, quoted verbatim** (§1 line 10, document lines 204–205):
+
+> ~~**10. AUTHORISATION.** This document authorises **no solve**, and in its present
+> DRAFT state it is not even a candidate for one.~~
+
+**REPLACED BY, and this is the operative text from this amendment forward:**
+
+> **10. AUTHORISATION — FROZEN 2026-09-03.** This document is **FROZEN**. Its
+> gates, thresholds, bands, ladder, criteria order, cap and label are **CLOSED**
+> and may not be altered; from this commit forward changes land only as **dated
+> addenda that cannot alter a gate, threshold, cap or label**, and originals are
+> **struck, never rewritten** (`CLAUDE.md` rule 2). The registered run set of
+> §8.1 is **authorised to be built and run** within the registered **CAP of 20.0
+> core-min, hard — an overrun STOPS the run and does not get a new budget.**
+>
+> **THIS DOCUMENT IS A FROZEN REGISTRATION. IT IS NOT A QUEUE-READY CASE, AND IT
+> MUST NOT BE COUNTED TOWARD FREEZE-AHEAD.** T21 has **no builder, no launcher
+> and no comparator** — §11 says so in terms, and they are a separate act under a
+> separate review in which the supervisor reads measurement-script diffs **as
+> diffs**, personally. Nothing may be enqueued or launched against this document
+> until those three exist and have been reviewed.
+
+---
+
+### A2.3 THE DOCUMENT'S `STATUS` BLOCK — **SUPERSEDED**
+
+**STRUCK, quoted verbatim** (document lines 3–10):
+
+> ~~**STATUS: DRAFT. NOT FROZEN. NOT COMMITTED. AUTHORISES NOTHING.**
+> Drafting was **stopped mid-document on the supervisor's instruction**
+> (2026-08-31) after Sanaa ruled **feasibility-first**: no freeze is required for
+> a feasibility or physics rung, and Case 3's first act is therefore the
+> variant-(b) L1 build, not this gate. **This file is preserved in place because
+> every number in it was derived and every source claim in it was checked against
+> the installed tree; it is intended to become the gated rung's registration
+> later.** Nothing below is binding until a supervisor freezes it by commit.~~
+
+**REPLACED BY:**
+
+> **STATUS: FROZEN 2026-09-03 by commit. Gates CLOSED.** The document is binding
+> from that commit. **It authorises the §8.1 run set within the §7.2 cap and
+> nothing else**, and it remains a **frozen registration and not a queue-ready
+> case** (§A2.2).
+
+**The feasibility-first ruling that stopped this draft is NOT overturned, and
+recording that matters.** Sanaa's ruling was that **no freeze is required for a
+feasibility or physics rung**. That ruling stands untouched. What changed is
+narrower and is a matter of fact rather than of policy: T21 is the **gated
+EXACT-tier rung** the stopped draft always said it was *"intended to become"*,
+and the one open question about whether it could be gated at all — whether the
+registered `regions ( fluid () solid (core housing) )` and the registered solver
+were mutually satisfiable — **has now been measured** (Amendment 1 §A1.1;
+`verification/runs/T-family/T21_FEASIBILITY_PROBE_2026-09-03/`). **The freeze
+follows the feasibility answer; it does not pre-empt it.** That ordering is the
+whole point, and it is the ordering the T5 `S_m` arm did not get.
+
+---
+
+### A2.4 WHAT THIS FREEZE DOES **NOT** DO
+
+- It **does not create** `verification/runs/T-family/T21_runs/`, which §A2.1
+  measured absent and which remains absent at this commit.
+- It **does not build a case, write a builder, a launcher or a comparator, enqueue
+  anything, or launch anything.** §11 stands unchanged.
+- It **does not add T21 to any team's freeze-ahead count** (§A2.2).
+- It **does not resolve** the three questions §11 offers upward to verification —
+  the steady `residualControl` reading (§6.1), the `writePrecision`-versus-band
+  standard (§2.4), and the signed-plant clause (§5.4 clause 10). All three remain
+  open and none is a request for relief.
+- It **does not assert any verdict.** No term of `CLAUDE.md` rule 1's vocabulary
+  is claimed anywhere in this document, and the feasibility probe's `FEASIBLE`
+  finding is **not** a `PASS`.
