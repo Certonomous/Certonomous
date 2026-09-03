@@ -1,0 +1,302 @@
+{
+  "C1_control_against_the_frozen_grader": {
+    "plant_lines_legA": {
+      "got": 34,
+      "ok": true,
+      "target": 34
+    },
+    "plant_lines_legB": {
+      "got": 394,
+      "ok": true,
+      "target": 394
+    },
+    "plateau_statistic": {
+      "got": 0.13939016801493428,
+      "ok": true,
+      "target": 0.13939
+    },
+    "rho_all_steps": {
+      "got": 1.0639972144846797,
+      "ok": true,
+      "target": 1.063997
+    },
+    "why": "This script retypes the T25R6c reader rather than importing the frozen grader, so that editing this design script can never read as editing a frozen comparator.  A RETYPED READER IS A DIFFERENT INSTRUMENT UNTIL IT IS SHOWN TO AGREE.  These four quantities were PUBLISHED by the frozen grader (T25R6c_VERDICT.json and the supervisor's read of it) and this reader must reproduce all four."
+  },
+  "ExecutionTime_is_cpu_time": {
+    "loadavg_did_not_establish_oversubscription": "The A1.2(a) breaking condition fired on /proc/loadavg 51.80 -> 52.96 -> 58.34 on 16 cores.  Field 4 of the SAME witnesses read 9/625, 9/625 and 11/625 RUNNABLE tasks. Linux loadavg is a 1-minute EWMA that counts uninterruptible-sleep tasks as well as runnable ones, so it does not establish CPU oversubscription and 9-11 runnable against 16 cores does not either. THE WITNESS THAT FIRED THE CONDITION DOES NOT SUPPORT THE MECHANISM IT WAS READ AS EVIDENCE FOR.",
+    "measured_ratio_legA": 0.9573333333333333,
+    "measured_ratio_legB": 0.9921428571428571,
+    "ranks_multiplier_is_an_assumption": "core-min = ExecutionTime x 2 / 60 assumes rank 1 burns the same cpu as rank 0.  ExecutionTime cannot see rank 1.  This is the lab's established basis for this rung and R2 keeps it UNCHANGED so R2 and R6c stay comparable -- but it is an ASSUMPTION and is named here as one.",
+    "source_chain": [
+      "OpenFOAM-v2606 src/OpenFOAM/db/Time/Time.H:533 -- '//- Print the elapsed ExecutionTime (cpu-time), ClockTime'",
+      "src/OpenFOAM/db/Time/TimeIO.C:631 -- os << \"ExecutionTime = \" << elapsedCpuTime() << \" s\" << \"  ClockTime = \" << elapsedClockTime() << \" s\"",
+      "src/OSspecific/POSIX/cpuTime/cpuTimeFwd.H -- typedef cpuTimePosix cpuTime  (this build selects the POSIX implementation)",
+      "src/OSspecific/POSIX/cpuTime/cpuTimePosix.C:40-47 -- diff(a,b) = ((a.tms_utime + a.tms_stime) - (b.tms_utime + b.tms_stime)) / sysconf(_SC_CLK_TCK), with value_type::update() calling ::times(this)"
+    ],
+    "verdict": "CPU TIME (user + system) OF THE CALLING PROCESS -- rank 0 only. NOT wall time and NOT a sum over ranks.",
+    "what_is_still_confounded": "The 2.915 % window-rate scatter measured above, at CONSTANT solver work (93 iterations/step to 2.150 %).  That is the machine, it is real, and cpu-time accounting does not remove it. A rho measurement finer than about +/-2.9 % IS NOT ACHIEVABLE ON THIS SHARED BOX at these window lengths, and R2 registers that rather than hoping otherwise.",
+    "why_it_matters": "A1.2(a) assumed a contended box INFLATES the measured rate.  For the DESCHEDULING pathway that is BACKWARDS: a process that loses the CPU accrues LESS cpu-time, not more.  The confound survives by two OTHER pathways, neither of which cpu-time filters: (i) memory-bandwidth and last-level-cache contention, which makes the same work cost more real cycles; (ii) MPI busy-wait -- rank 0 SPINS in a collective while a descheduled peer catches up, and the spin is charged to rank 0 as user cpu-time.  The measured ExecutionTime/ClockTime ratios above (%.4f leg A, %.4f leg B) are the spin-wait signature: a 2-rank job accruing cpu at ~99 %% of wall is either never descheduled or spinning when it is."
+  },
+  "R6c_form_statistic_is_unreachable": {
+    "asymptote_pct": 10.427461139896362,
+    "every_post_transient_window_exceeds_it": true,
+    "finding": "THE T25R6c PLATEAU STATISTIC CANNOT BE SATISFIED BY LENGTHENING LEG B, AT ANY LENGTH.  Its `first` window is FROZEN on leg-B steps 1-40, which are the restart transient and are 10.43 % CHEAPER than the settled level; extending leg B moves only the `last` window, which is drawn from the settled distribution.  The statistic therefore asymptotes to 10.427 %, not to zero, and the 5 % gate would need r(last 40) <= 0.363947 when every one of the 9 observed post-transient windows lies above it.",
+    "first40_anchored_on_the_transient": 0.34575,
+    "max_r_last40_that_would_pass": 0.36394736842105263,
+    "observed_post_transient_40step_min": 0.37124999999999997,
+    "post_transient_40step_mean": 0.38599999999999995,
+    "post_transient_40step_sd": 0.011252083140467769,
+    "probability_any_given_last40_passes": 0.025005434243612346,
+    "this_is_the_answer_to_the_supervisors_question": "The supervisor asked for the leg-B step count at which the R6c statistic falls to 5 %.  DERIVED ANSWER: NO FINITE COUNT.  That is not a refusal to compute it; it is what the computation returns.",
+    "threshold_pct": 5.0
+  },
+  "cost": {
+    "basis": "MEASURED, on T25R6c's own logs: leg A 40 steps x 0.359000 s/step; leg B transient 40 steps x 0.345750 s/step; leg B settled 1070 steps x 0.386000 s/step; x 2 ranks / 60.  SAME case, SAME arm dictionary, SAME mesh, SAME rank count, SAME box.  Not scaled from another rung and not a rule of thumb.",
+    "breakdown_core_min": {
+      "legA": 0.47866666666666663,
+      "legB_settled": 13.767333333333331,
+      "legB_transient": 0.461
+    },
+    "contention_caveat": "These per-step rates were measured under the drift quantified above (2.915 % on a 40-step window).  The point estimate carries that width and the cap is set at ~3x, not at the width.",
+    "cost_basis": "REPORTED-BY-OWNER; dollars DERIVED at $0.0513/core-h, NOT MEASURED -- this box cannot read its own billing (COMPUTE_BUDGET_CHARTER section 5)",
+    "point_core_min": 14.706999999999997,
+    "point_is_a_point_not_an_inequality": "L-463: a POINT estimate with a stated basis.  No inequality is offered as a cost.",
+    "ratio_R2_over_R6c": 2.63960514507927,
+    "t25R6c_actual_core_min": 5.571666666666666,
+    "usd_derived_not_measured": 0.012574484999999998
+  },
+  "drift_floor": {
+    "finding": "p = 0.187, NOT 0.5.  The scatter does NOT average away like independent noise: the box's throughput drifts on timescales comparable to the run, so tripling the window buys about 1.23x instead of 1.73x.  THIS IS THE FLOOR UNDER ANY RATE THIS RUNG CAN MEASURE.",
+    "post_transient_steps": 360,
+    "power_law": {
+      "exponent_p": 0.18682502909348095,
+      "form": "sd_pct(W) = exp(1.762373) * W**(-0.186825)",
+      "intercept_ln": 1.7623729566600321,
+      "log_residual_rms": 0.054812733945354054
+    },
+    "quantisation_note": "A window rate is a telescoping difference (E[end]-E[start])/W, so the 0.01 s ExecutionTime print quantum enters only at two endpoints: <= 0.01/W s/step, 0.065 %% of the level at W = 40.  The scatter above is two orders larger and is NOT print noise.",
+    "scaling": [
+      {
+        "W": 10,
+        "mean": 0.38599999999999995,
+        "n_nonoverlapping": 36,
+        "n_sliding": 176,
+        "sd": 0.01386052977754765,
+        "sd_pct": 3.5908108231988733,
+        "sd_pct_sliding": 3.5180597976849373
+      },
+      {
+        "W": 20,
+        "mean": 0.38599999999999995,
+        "n_nonoverlapping": 18,
+        "n_sliding": 69,
+        "sd": 0.012861250510968293,
+        "sd_pct": 3.331930184188677,
+        "sd_pct_sliding": 3.2395591524952074
+      },
+      {
+        "W": 30,
+        "mean": 0.386,
+        "n_nonoverlapping": 12,
+        "n_sliding": 48,
+        "sd": 0.012020185043702426,
+        "sd_pct": 3.1140375760887116,
+        "sd_pct_sliding": 3.0513040464709587
+      },
+      {
+        "W": 40,
+        "mean": 0.38599999999999995,
+        "n_nonoverlapping": 9,
+        "n_sliding": 33,
+        "sd": 0.011252083140467769,
+        "sd_pct": 2.9150474457170388,
+        "sd_pct_sliding": 2.9225403896631996
+      },
+      {
+        "W": 45,
+        "mean": 0.38599999999999995,
+        "n_nonoverlapping": 8,
+        "n_sliding": 29,
+        "sd": 0.012535382023262534,
+        "sd_pct": 3.247508296182004,
+        "sd_pct_sliding": 2.818277701468268
+      },
+      {
+        "W": 60,
+        "mean": 0.386,
+        "n_nonoverlapping": 6,
+        "n_sliding": 21,
+        "sd": 0.010535653752852668,
+        "sd_pct": 2.729443977422971,
+        "sd_pct_sliding": 2.6844847839638293
+      },
+      {
+        "W": 72,
+        "mean": 0.386,
+        "n_nonoverlapping": 5,
+        "n_sliding": 17,
+        "sd": 0.010419629208350194,
+        "sd_pct": 2.6993858052720707,
+        "sd_pct_sliding": 2.484788557236642
+      },
+      {
+        "W": 90,
+        "mean": 0.386,
+        "n_nonoverlapping": 4,
+        "n_sliding": 13,
+        "sd": 0.009030811456096036,
+        "sd_pct": 2.3395884601285064,
+        "sd_pct_sliding": 2.3095560057721514
+      },
+      {
+        "W": 120,
+        "mean": 0.38599999999999995,
+        "n_nonoverlapping": 3,
+        "n_sliding": 9,
+        "sd": 0.008799068763858544,
+        "sd_pct": 2.2795514932276024,
+        "sd_pct_sliding": 1.6423926229236736
+      },
+      {
+        "W": 180,
+        "n_nonoverlapping": 2,
+        "n_sliding": 5,
+        "sd_pct_sliding": 0.5221212366904866
+      }
+    ],
+    "white_noise_exponent": 0.5,
+    "window_range": [
+      41,
+      400
+    ]
+  },
+  "leg_B_length": {
+    "D_EXCL": 40,
+    "N_B": 1110,
+    "W_half": 535,
+    "W_half_required_raw": 531.4848517659841,
+    "endTime_B": 111.8,
+    "extrapolation_warning": "W_half = 535 is a 3.0x EXTRAPOLATION beyond the longest window the R6c log can form (180 steps). The predicted per-half sd of 1.802 % is therefore REGISTERED AS PREDICTION P-R2-7 and the R2 grader MEASURES it.  If the drift floor is worse than the power law says, the 5 % threshold sits at fewer than 1.96 sd and the R2 registration will have said so in advance.",
+    "predicted_sd_pct_per_half": 1.801623655046089,
+    "required_sd_pct_per_half": 1.803843829557519,
+    "why_not_longer": "Doubling leg B again buys only 0.219 % off the per-half sd at p = 0.187, for double the compute.  The return is flattening and the ladder ceiling is not this team's to spend against.",
+    "z_of_the_5pct_threshold_at_this_length": 1.9624153446421595
+  },
+  "planted_zero_on_this_readers_own_instrument": {
+    "legA": {
+      "lines_rewritten": 34,
+      "other_deltas_that_moved": [],
+      "passed": true,
+      "plant_s": 1.23,
+      "plant_step": 7,
+      "read_back_delta_change": 1.2299999999999995
+    },
+    "legB": {
+      "lines_rewritten": 394,
+      "other_deltas_that_moved": [],
+      "passed": true,
+      "plant_s": 1.23,
+      "plant_step": 7,
+      "read_back_delta_change": 1.23
+    }
+  },
+  "rho": {
+    "drift_floor_pct_on_a_40step_window": 2.9150474457170388,
+    "effect_over_floor": 2.5800236548302657,
+    "r_legA_s_per_step": 0.359,
+    "r_legB_all_steps": 0.38197499999999995,
+    "r_legB_post_transient": 0.38599999999999995,
+    "r_legB_transient": 0.34575,
+    "rho_all_steps": 1.0639972144846797,
+    "rho_post_transient": 1.075208913649025,
+    "rho_post_transient_1sd_band": [
+      1.0438660636755772,
+      1.1065517636224729
+    ],
+    "rho_throughput": 1.335718691652147,
+    "rho_work": 0.8049665849319678,
+    "rho_work_note": "rho_work = (settled leg-B iterations/step) / (leg-A iterations/step) is CONTENTION-FREE -- iteration counts do not depend on how busy the box is.  rho_throughput is what is left, and it is the machine.  Both are REPORTED in R2, GATING NOTHING: they are a new instrument and Sanaa's 2026-09-03 20:00Z default is reported-not-gated.  A raw iteration SUM mixes cheap DILUPBiCGStab sweeps with expensive GAMGPCG ones and the two legs need not share that mixture, so rho_work is NOT offered as a corrected rho.",
+    "which_is_graded_in_R2": "THE POST-TRANSIENT ONE, and that is the STRICTER choice: excluding the 40 cheap transient steps RAISES rho from 1.063997 to 1.075209 and so makes G-R2-2 (rho < 1) HARDER, not easier.  It is chosen on a physical argument fixed BEFORE the run, not from the answer: the ladder runs 8,300 leg-B steps, so a 40-step restart transient is 0.48 % of the mixture and the settled rate is the one that prices the ladder."
+  },
+  "source_logs": {
+    "log.solve.legA": {
+      "bytes": 890092,
+      "path": "T-family/T25R6c_LEGAB_runs/W440_C4_L1/log.solve.legA",
+      "sha256": "7a6d68c4886fbc2de64b2806a8f269f4a6ecf2eacd7d6c516ec9b7a85ae0b41f"
+    },
+    "log.solve.legB": {
+      "bytes": 8869658,
+      "path": "T-family/T25R6c_LEGAB_runs/W440_C4_L1/log.solve.legB",
+      "sha256": "b5359da5fea3b410c6af5a036111444b31ab340441545cfbc892ebed7c97e67f"
+    }
+  },
+  "source_logs_not_in_git": "These two logs total ~9.5 MB and are NOT carried in git.  Every number this derivation rests on, and the FULL per-window table, is written into this file, which IS carried in git -- so the derivation survives the log.  The sha256s above let a reader who still has the logs confirm they are the same bytes.",
+  "transient": {
+    "D_EXCL_REGISTERED_FOR_R2": 40,
+    "D_EXCL_measured": 26,
+    "finding": "From leg-B step 27 onward the solver does the SAME WORK every step: 92..94 iterations, a 2.150 % spread across 360 steps.  EVERYTHING THE COST DOES AFTER THAT POINT IS THE MACHINE, NOT THE PROBLEM -- and the cost varies by several percent, quantified below over the same steps.",
+    "first_settled_step_measured": 27,
+    "iterations_in_the_measured_transient": [
+      149,
+      147,
+      144,
+      112,
+      104,
+      100,
+      96,
+      93,
+      93,
+      86,
+      78,
+      73,
+      71,
+      69,
+      67,
+      66,
+      66,
+      65,
+      65,
+      77,
+      94,
+      93,
+      92,
+      89,
+      76,
+      87
+    ],
+    "legA_iterations_per_step": 115.55,
+    "located_by": "linear-solver iteration count per leg-B step, NOT by cost",
+    "settled_band": [
+      92.0,
+      94.0
+    ],
+    "tail_iterations_max": 94,
+    "tail_iterations_mean": 93.01388888888889,
+    "tail_iterations_min": 92,
+    "tail_iterations_spread_pct": 2.150216514857399,
+    "why_40_not_the_measured_value": "A 1.5x margin over the measured 26, and 40 steps is exactly the T25R6c plateau window -- so R2's excluded region and R6c's `first` window have the SAME length and the two rungs stay comparable.  R2's grader MEASURES its own transient end and returns NOT A RESULT if it exceeds 40, so the margin is a control and not an assumption."
+  },
+  "what": "T25R6c-R2 DESIGN DERIVATION -- inputs to the R2 registration, derived from T25R6c's measured trajectory.  NO VERDICT IS ISSUED HERE and no gate is applied.",
+  "write_control": {
+    "arithmetic_transcribed_from": "OpenFOAM-v2606 src/OpenFOAM/db/Time/Time.C:1117-1131, wcRunTime branch: writeIndex = label(((value() - startTime_) + 0.5*deltaT_) / writeInterval_); write iff writeIndex > writeTimeIndex_.  writeTimeIndex_ is initialised to 0 at src/OpenFOAM/db/Time/TimeState.C:38.  startTime_ is set to the restart time by `startFrom latestTime` at Time.C:180-183.",
+    "chosen": "writeControl runTime; writeInterval 111;",
+    "endTime_B": 111.8,
+    "half_step_tolerance_note": "The + 0.5*deltaT_ term is why runTime is robust to accumulated floating-point drift in value(): the index still crosses even if the final time lands at 111.8 - epsilon.  `timeStep` has no such tolerance and no such independence from leg A.",
+    "n_writes": 1,
+    "rejected_alternative": {
+      "simulated_writes_at_leg_B_step": [
+        1070
+      ],
+      "what": "writeControl timeStep; writeInterval 1150;",
+      "why_rejected": "It works only by arithmetic coincidence with leg A's step count, which is the exact quantity that caused the T25R6c defect.  Change leg A and the write moves again, silently.  runTime does not depend on leg A at all."
+    },
+    "simulated_writes": [
+      {
+        "step": 1110,
+        "t": 111.8
+      }
+    ],
+    "still_a_prediction": "This is a SOURCE-VERIFIED SIMULATION of the branch, not a run of the solver.  It is registered as PREDICTION P-R2-6 and the R2 grader's rule 4 MEASURES it: exactly one field directory at t = 111.8, or NOT A RESULT.",
+    "writes_exactly_once_at_endTime": true
+  }
+}
