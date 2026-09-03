@@ -1049,3 +1049,221 @@ therefore reported, not struck.
     supervisor's rulings in PART F, and AMENDMENT 1 stands in full.
 
 END AMENDMENT 2.
+
+
+===========================================================================
+AMENDMENT 3 -- 2026-09-03 -- document version 1.2 -> 1.3
+B1's RULE-4 READING IS RULED.  READING (a) IS RATIFIED, AND THE
+GENERALISATION IS WORTH MORE THAN THE RULING.
+===========================================================================
+
+Landed by the records lane on the heat-transfer supervisor's RULING,
+[lab-attributed].  The supervisor read B1 and B2 AT SOURCE, personally.  NO
+SOLVER COMPUTE.  NO RE-GRADE.  The comparator was NOT run, NOT edited, NOT
+re-hashed by mutation, and NO PIN WAS ADDED.
+
+THIS AMENDMENT MOVES NO GATE, THRESHOLD, BAND, CAP OR LABEL.  It ratifies a
+reading ALREADY IMPLEMENTED in the comparator that has already graded.  No
+number in this rung changes, and the T16c verdict stands where
+`docs/campaigns/T-family/T16c_RESULTS.md` puts it: `NOT A RESULT`.
+
+---------------------------------------------------------------------------
+0.  THE RULE-6 ASSERTION, MEASURED AND NOT RECITED
+---------------------------------------------------------------------------
+
+    lines whose number changed above this section: 0
+
+MEASURED in the invocation that landed this append, by the same three checks
+AMENDMENT 1 and AMENDMENT 2 used:
+
+  - before the append the file was 1051 lines and hashed to
+        fbb2cf1f89e42cc30148071000dfdffb9d1bd2735d25465884f7c867a4ac9860
+  - after the append, the FIRST 1051 LINES of the file hash to that
+    SAME digest, and `diff` of the pre-append file against the first
+    1051 lines of the post-append file reports NO DIFFERENCES;
+  - `git diff-tree --numstat` for this path at the landing commit reports
+    DELETIONS = 0.
+
+Not one byte at or above line 1051 is edited, renumbered, reordered or
+removed.  AMENDMENT 1 and AMENDMENT 2 are themselves left untouched by this
+append, which is the point of appending rather than revising.
+
+---------------------------------------------------------------------------
+1.  THE QUESTION PUT -- QUOTED FROM B1, WHICH IS LEFT STANDING WHERE IT IS
+---------------------------------------------------------------------------
+
+B1 (`:139-167`) raised a reading and closed with "THE SUPERVISOR SHOULD RULE
+ON THIS READING."  Frozen section 1 line 7 (i) reads
+
+    "strict completion (rule 4) -- unchanged"
+
+and those words admit two readings:
+
+  (a) THIS CLAUSE IS NOT A T16c REPAIR TARGET, so rule 4 applies IN FULL; or
+  (b) DO EXACTLY WHAT T16's COMPARATOR DID -- which was to check only that
+      `DONE.<case>` exists (`analyse_t16.py:541-544`) and to defer every
+      other conjunct of rule 4 to `mark_done_t16.py`.
+
+`analyse_t16c.py` took reading (a).  B1, and E4's third bullet at `:557`,
+left the reading STILL RAISED, NOT RULED.  It is ruled here.
+
+---------------------------------------------------------------------------
+2.  ** RULED: READING (a) IS RATIFIED, AND IT IS NOT A CLOSE CALL. **
+---------------------------------------------------------------------------
+
+Five grounds.  THE FIRST IS SUFFICIENT ALONE; THE FIFTH IS THE ONE THAT
+DECIDES IT, because it decides it on measured evidence rather than on
+construction.
+
+(1) A STANDING RULE BINDS WHETHER OR NOT A BRIEF REPEATS IT.  `CLAUDE.md`
+    says exactly that of its own standing rules, in terms.  A registration
+    therefore CANNOT DISAPPLY a standing rule by describing it as
+    "unchanged".  "Unchanged" is a statement THAT THIS RUNG IS NOT MODIFYING
+    IT.  It is not a grant of exemption from it.
+
+(2) READING (b) MAKES THE REGISTRATION'S OWN CITATION FALSE.  Under (b),
+    "strict completion (rule 4) -- unchanged" would mean "keep checking only
+    that a marker file exists" -- which is NOT strict completion at all, and
+    which would leave the words "rule 4" standing in a frozen document while
+    naming something the clause does not do.  ** A READING THAT MAKES A
+    REGISTRATION'S OWN CITATION FALSE IS THE WRONG READING. **
+
+(3) THE DIRECTION IS ONE-WAY AND SAFE.  Reading (a) can only ever REFUSE
+    where T16 would have graded; it can never let something grade that would
+    otherwise refuse.  That is the same shape as rule 5's ordering -- a gate
+    may only turn a PASS or GATE FAIL *into* NOT A RESULT, never the
+    reverse.  ** A STRICTER READING OF A COMPLETION RULE CANNOT MANUFACTURE
+    A FAVOURABLE VERDICT **, so adopting it cannot be self-serving.  PART B's
+    own heading at `:136` already states this property of every difference
+    beneath it; ground (3) is the observation that it is dispositive here.
+
+(4) NO THRESHOLD MOVES.  Every number involved is the registration's own or
+    rule 4's own text.  The required field tuple is not hard-coded: it is
+    LOADED from the pinned `T16_registered.json`'s `completion.needed_fields`,
+    and the comparator REFUSES if the registration carries none rather than
+    inventing a list.  The tuple was therefore REGISTERED IN ADVANCE and
+    PINNED BY sha256 -- B2's `pin()`, aead91aa...72845 -- and could not have
+    been chosen after the fact to fit an answer.  Section 4 below records
+    this lane's own re-measurement of that pin and that tuple.
+
+(5) ** THE EMPIRICAL GROUND, AND IT IS THE ONE THAT DECIDES IT: DEFERRING TO
+    A MARKER IS A DEFECT THIS TEAM HAS ALREADY PAID FOR, TWICE, AND HAS
+    MEASURED AGAIN THIS SESSION. **  A comparator that trusts `DONE.<case>`
+    inherits whatever that marker's author decided rule 4 meant, silently
+    and without any record at the grading site.  MEASURED this session on
+    T5: `DONE.X_2d` is issued under `FIELDS_X2D = ("U", "p")`, with the
+    age-guard datum falling back to `0/U`, WHILE THE MARKER'S OWN TEXT
+    CLAIMS THE STRICT RULE --
+
+        verification/runs/T-family/T5_runs/mark_done_t5.py:26-28, :97, :114
+
+    re-read at source by this lane in the invocation that landed this
+    append, at HEAD 47dbeab1: `:26` carries `FIELDS_X2D = ("U", "p")`, `:97`
+    selects `FIELDS_CUBE` or `FIELDS_X2D` by case shape, and `:114` takes
+    `0/U` as the age datum where there is no `0/**/T`.  ** A MARKER THAT
+    SAYS "STRICT RULE" AND APPLIES A NARROWER ONE IS INVISIBLE TO ANY
+    COMPARATOR THAT CHECKS ONLY THAT THE MARKER EXISTS.  VERIFYING IN THE
+    COMPARATOR IS THE ENTIRE POINT. **
+
+---------------------------------------------------------------------------
+3.  ** THE GENERALISATION -- RECORDED AS A STANDING READING FOR THIS FAMILY,
+    AND WORTH MORE THAN THE RULING ITSELF **
+---------------------------------------------------------------------------
+
+** A REGISTRATION'S WORD "UNCHANGED", WRITTEN AGAINST A STANDING RULE, MEANS
+THE STANDING RULE APPLIES IN FULL.  IT NEVER MEANS THAT A PREDECESSOR'S
+WEAKER IMPLEMENTATION OF THAT RULE IS PRESERVED. **
+
+Where a registration wants a predecessor's SPECIFIC IMPLEMENTATION, it must
+say so BY NAMING THE FILE AND THE BEHAVIOUR.  It may not do it by writing
+"unchanged", because "unchanged" against a standing rule reads as ground (1)
+above and as nothing else.
+
+Recorded as a READING, not as a rule change.  It amends no charter, creates
+no check, gates nothing and changes no verdict in this rung, and none is
+claimed.
+
+---------------------------------------------------------------------------
+4.  THE FIELD TUPLE -- RATIFIED SEPARATELY, AND ON THE RECORD
+---------------------------------------------------------------------------
+
+`["T", "U", "p_rgh", "phi"]` is NEITHER the thermal-family tuple
+(`T U p_rgh alphat nut k omega`) NOR T19b's laminar tuple
+(`T U p_rgh alphat`), and ** THAT IS CORRECT, NOT A WEAKENING. **
+
+MEASURED BY THIS LANE, at this write, by reading bytes -- nothing here is
+carried over from B1's invocation:
+
+  - `verification/runs/T-family/T16_runs/T16_registered.json` hashes to
+    aead91aaab8480f6a4321a3d9eb01536d9ceb4cbfb7a3774426cea608ae72845,
+    EQUAL to the section 5 registered literal, and its
+    `completion.needed_fields` reads exactly ["T", "U", "p_rgh", "phi"];
+  - the three cases are LAMINAR.  MEASURED: `simulationType  laminar;` at
+    line 9 of `constant/turbulenceProperties` in `T16_MC_c`, `T16_MC_m` and
+    `T16_MC_f`, all three.  No `nut`, `k` or `omega` is therefore ever
+    written, and MEASURED, none is present;
+  - the endTime directories -- `T16_MC_c/10000`, `T16_MC_m/20000`,
+    `T16_MC_f/40000` -- each hold exactly `T`, `U`, `alphat`, `p`, `p_rgh`
+    and `phi`, plus the `uniform` directory, which is not a field.
+
+Requiring the thermal tuple here would refuse THREE COMPLETE SOLVES -- the
+K0d defect, which cost 829 core-minutes.
+
+** AND THE REGISTERED CHOICE IS GENUINE, NOT "WHATEVER IS PRESENT". **  Six
+fields sit on disk at endTime; the registration requires FOUR of them.  It
+requires `phi` and does NOT require `alphat`, and it does not require `p`.
+A tuple that merely enumerated what was found could not do that.  Because
+the choice is FROZEN AND PINNED BEFORE COMPUTE, it cannot have been fitted
+to an outcome -- which is the property that makes ground (4) hold.
+
+ONE MEASURED CORRECTION OF FACT, WHICH MOVES NOTHING AND IS RECORDED RATHER
+THAN APPLIED.  B1 at `:163-164` names `constant/momentumTransport` as the
+file carrying the `simulationType` entry.  MEASURED, in these three cases
+that entry lives at `constant/turbulenceProperties:9`, and
+`constant/momentumTransport` does not exist in them.  ** THE PHYSICAL FACT
+B1 ASSERTS IS CONFIRMED IN FULL -- the cases are laminar, so no nut/k/omega
+is written -- AND ONLY THE FILENAME IN B1's PROSE IS WRONG. **  B1 IS LEFT
+STANDING, UNEDITED; the correction is recorded here instead, exactly as
+AMENDMENT 1 and AMENDMENT 2 recorded theirs.  It moves no gate, threshold,
+band, cap or label, and it changes no verdict.
+
+---------------------------------------------------------------------------
+5.  OPEN ITEMS RECORDED HERE, AND DELIBERATELY NOT RULED
+---------------------------------------------------------------------------
+
+  - `E2` (`:548-549`) is measured E6-SHAPED -- its second sentence scopes it
+    to the lane that wrote it, which makes it TRUE AS WRITTEN -- and it is
+    LEFT STANDING.  ** IT IS NOT STALE. **  AMENDMENT 2 section 4 named it
+    already; this amendment neither strikes nor widens it.
+
+  - ** F2 REMAINS AN OPEN, ESCALATED EXPOSURE ** and is NOT discharged by
+    anything landed tonight.  `exact_t16.py` and `analyse_t16.py` are
+    UNPINNED, and `CONV_FLOOR`, `G_TOL`, `MASS_FLOOR` and `PLAT_FLOOR` carry
+    NO REGISTERED LITERAL AT ALL.  ** NO PIN WAS ADDED HERE AND NONE MAY BE
+    -- a pin the frozen document does not register IS A NEW GATE. **  Closing
+    F2 needs a T16d, never a patch.
+
+---------------------------------------------------------------------------
+6.  WHAT THIS AMENDMENT DOES NOT DO
+---------------------------------------------------------------------------
+
+  - It edits NO byte at or above line 1051.  Section 0 measures that.
+  - It does NOT touch `analyse_t16c.py`, `analyse_t16.py`, `exact_t16.py`,
+    `build_t16.py`, `T16_registered.json` or the frozen registration.
+  - It adds NO pin.  F2 stays OPEN and ESCALATED -- section 5.
+  - ** IT IS NOT A SWEEP. **  No census of this file, the T16c tree or the
+    T-family was run, and none is authorised.  The one discrepancy noticed
+    in passing is NAMED in section 4 and LEFT STANDING.
+  - It does NOT re-grade T16c and computes NO graded value.  The verdict is
+    unchanged at `NOT A RESULT`.
+  - It states NO verdict of its own.  Line 30 and E3 (`:550`) stand.
+  - `E4`'s third bullet at `:557` -- "the rule-4 reading in B1 -> STILL
+    RAISED, NOT RULED" -- is LEFT STANDING AND IS **NOT** STRUCK.  It is an
+    accurate record of the state as of PART F, 2026-08-31, and this
+    amendment is the answer to it rather than a correction of it.  A reader
+    who reaches E4 should read on to here.
+  - PARTS A, B, C, D, E, F and G stand in full, including all four of the
+    supervisor's rulings in PART F, and AMENDMENT 1 and AMENDMENT 2 stand in
+    full.
+
+END AMENDMENT 3.
