@@ -156,3 +156,100 @@ unit. `cost_basis = NOT APPLICABLE — no solver compute was incurred.`
 **Gates, thresholds, bands, caps, labels created, moved or retired: 0 · 0 · 0 ·
 0 · 0. Nothing was re-graded: the rung verdict is `NOT A RESULT` before `R7` and
 `NOT A RESULT` after it.**
+
+---
+
+# ⚠ SECTION 2 — **THE `R8` CAPTURES**, ADDED 2026-09-03
+
+**Appended, not rewritten: lines whose number changed above this section: 0.**
+Everything above concerns `R7` and is unchanged. **Nothing here grades anything
+and no solver was launched to produce any capture below: every one is a read of
+artifacts already on disk. 0 core-min, $0.00, `cost_basis = NOT APPLICABLE — no
+solver compute was incurred.`**
+
+`analyse_t23g2.py`'s `R8` amendment record defers three figures to this file,
+because a figure that counts the lines of the paragraph stating it cannot be
+written into that paragraph without falsifying itself. **They are recorded here.**
+
+## THE SHIPPED `R8` COMPARATOR
+
+| | value `[MEASURED]` |
+|---|---|
+| git blob | `72357dad2bfb39ca74b78ad253cdbca1545d6534` |
+| sha256 | `ba7d54b9678219365592581ca3fd13115514e798c463b7934f6278d52393a095` |
+| file length | **1613 lines** (pre-`R8` `d2187518…`: 1329; frozen `cc723d6f…`: 653) |
+| in-file `R8` amendment record | **161 lines**, a pure comment append below the `__main__` guard, 0 deletions |
+| executable repair | **130 inserted, 7 deleted**, net **123**, all inside `g_ratio` and its single call site |
+
+**Both figures close arithmetically against the file lengths** — `1329 − 7 + 291 =
+1613` `[MEASURED, difflib]`. The `__main__` guard sat at line **1179** before `R8`
+and sits at **1302** after it, moved by the 123 net executable lines above it and
+by nothing else. `RATIO_MIN = 10.0` is at line **106** before and after.
+
+## THE FOUR `R8` CAPTURES
+
+| | file | sha256 | comparator blob that produced it |
+|---|---|---|---|
+| **PRE-REPAIR** | `T23G2_GRADE_PRE_R8.out` | `39f4fce40686f53b337ea1d34f8140d50a073868f7c9d959bc70d7812f163e34` | `d2187518bc3b257d6305db7ac4a4f3c06b746f39` |
+| ⚠ **INTERMEDIATE — NOT THE SHIPPED BLOB** | `T23G2_GRADE_POST_R8.out` | `586027bd4a795afef1a969001ad0fd362a23656f0b1b8bbb81526cd89e271bad` | `83bd7550d518269d8702e6e4d42ef8e6fafd27ce` — **in no commit; unresolvable from git** |
+| **POST-REPAIR, THE SHIPPED BLOB** | `T23G2_GRADE_POST_R8_RECERT.out` | `39af85a626177fd2eeedd6cc14da90349e0087bdda919b55d6a741d3fef11c4e` | `72357dad2bfb39ca74b78ad253cdbca1545d6534` |
+| the diff that discharges §2d.4.1 (3)+(4) | `T23G2_PRE_vs_POST_R8_RECERT.diff` | `14a865eb6a593f7cabf585ff6451f670065319fb37774a7ce1d15afd1c1f7d9d` | — |
+
+**WHY THERE ARE TWO POST-REPAIR CAPTURES, STATED RATHER THAN TIDIED AWAY.**
+`T23G2_GRADE_POST_R8.out` was taken at 23:35Z; the comparator was edited again at
+23:38Z to finish its in-file amendment record, which changed its blob. **A capture
+is evidence only of the blob that produced it**, so the 23:35Z capture is retained
+and **labelled an intermediate**, and the shipped blob was re-captured. The two
+differ in **exactly one line — the `R2` recorder's own fingerprint — and in
+nothing else** `[MEASURED]`. No gate line, no value, no verdict and no exit code
+differs between them.
+
+## WHAT MOVED, PRE-`R8` → SHIPPED POST-`R8`
+
+`diff -u` returns **exactly two hunks** `[MEASURED]`, at capture lines 13 and
+95–118.
+
+- **Line 13** — the `R2` recorder printing its own file's blob, `d2187518` →
+  `72357dad`. Carries no verdict, no value, no gate, no band and no threshold.
+  **Its NON-movement would have been the finding.** The `pre-registration
+  (frozen)` column beside it is unchanged at `cc723d6f…` and still reads `DIFFERS`.
+- **Lines 95–118** — the six `G-RATIO` per-quantity cells, `PASS` →
+  `NOT A RESULT`, and the summary cell `G-RATIO: PASS` → `G-RATIO: NOT A RESULT`,
+  plus the block naming both ruled grounds. **NO NUMBER MOVED**: the finest
+  iterative change is `0.000000e+00` on all six in both, the six smallest
+  inter-level differences are identical in both, the printed ratio is `inf` in
+  both, and `needs >= 10` is printed in both.
+
+**`G-PLATEAU` is unchanged at `PASS`. `RUNG VERDICT: NOT A RESULT` is unchanged
+and the exit code is `3` in both.** **`R8` moves a CELL, not the rung.**
+
+## THE CONTROLS
+
+| | file | sha256 | result `[MEASURED]` |
+|---|---|---|---|
+| §2p.3(e) positive control, driving production `g_ratio` **by import** | `T23G2_R8_GATE_CONTROL_RECERT.out` | `9dc8642e1e8d5c814b6c2948667e3316b3abaf48d0de7fff6f457a73a704ea98` | **9 / 9**, exit 0 |
+| §2p.7 limb (d) mutation demonstration | `T23G2_R8_MUTATION_DEMO_RECERT.out` | `2a8ff4e501ab20996e264ee3f3d4b85884eb6b0a3ffdd25139ea9d362cc07ee6` | **6 / 6 killed**, `M0` green, production sha unchanged, exit 0 |
+
+**Control 2 returns `PASS` and control 3 returns `GATE FAIL` over the SAME
+numerator**, so the only thing separating them is `RATIO_MIN = 10.0` — which is
+what shows the registered threshold is still live and still discriminating after a
+repair that did not touch it. A gate that refused everything would fail both.
+
+**INDEPENDENTLY RE-RUN ON 2026-09-03 BY THE LANDING LANE**, from a cleared
+`__pycache__` in `docs/campaigns/T-family`, `scripts/` and this directory: the
+comparator re-run is **byte-identical** to `T23G2_GRADE_POST_R8_RECERT.out`, the
+gate control returned **9 / 9** and the mutation demonstration **6 / 6**. The
+`_RECERT` captures above are that lane's, less the trailing `EXIT_CODE=` line the
+capturing shell appends.
+
+## THE ONE FIGURE CORRECTED AFTER THE `R8` RECORD WAS DRAFTED
+
+`ADDENDUM A3` (`b1d9070c`) inserted **111 lines, 0 deleted** into
+`T23G2_PREREGISTRATION.md` `[MEASURED: git diff --numstat 976776f4..HEAD; the file
+length closes, 1201 + 111 = 1312]`. **`112`, which appears in
+`analyse_t23g2.py`'s `R8` amendment record and in `T23G2_R8_PREDICTION.md` §2.2,
+is what `git diff | grep -c '^+'` returns: it counts the `+++` header line.**
+Neither of those two texts may be edited — the first because editing it changes the
+shipped blob and invalidates every capture above, the second because it is a
+committed prediction and is struck, never rewritten. **Both are superseded by this
+paragraph.** `T23G2_RESULTS.md` §18.12 carries the same correction.

@@ -1,0 +1,43 @@
+--- T23G2_GRADE_PRE_R8.out   (pre-repair, today's tree)
++++ T23G2_GRADE_POST_R8.out  (post-repair R8)
+@@ -10,7 +10,7 @@
+       post-repair (working tree) : 0b597ba9544819552b085c93a67520c443bbc274
+       pre-registration (frozen)  : b2721aaad40124c2aeb85055aee716fb35805764   DIFFERS
+   docs/campaigns/T-family/analyse_t23g2.py
+-      post-repair (working tree) : d2187518bc3b257d6305db7ac4a4f3c06b746f39
++      post-repair (working tree) : 83bd7550d518269d8702e6e4d42ef8e6fafd27ce
+       pre-registration (frozen)  : cc723d6f65245674f7d80c51de55fe986549477a   DIFFERS
+   docs/campaigns/T-family/t23g_readonly_diagnosis.py
+       post-repair (working tree) : 73804c02d2f1ebbb2cd2ad63796f4b5cfb4d7067
+@@ -95,13 +95,24 @@
+   18 of the 18 registered quantity controls CONSTRUCTED AND PASSED
+ 
+ G-PLATEAU and G-RATIO -- section 5.3, on EVERY graded quantity
+-  Q1  plateau PLAT/PLAT/PLAT | finest iterative change 0.000000e+00, smallest inter-level difference 6.751504e-01, ratio inf (needs >= 10)  PASS
+-  Q2  plateau PLAT/PLAT/PLAT | finest iterative change 0.000000e+00, smallest inter-level difference 6.678506e-01, ratio inf (needs >= 10)  PASS
+-  Q3  plateau PLAT/PLAT/PLAT | finest iterative change 0.000000e+00, smallest inter-level difference 6.708475e-01, ratio inf (needs >= 10)  PASS
+-  Q4  plateau PLAT/PLAT/PLAT | finest iterative change 0.000000e+00, smallest inter-level difference 6.664925e-01, ratio inf (needs >= 10)  PASS
+-  Q5  plateau PLAT/PLAT/PLAT | finest iterative change 0.000000e+00, smallest inter-level difference 2.652514e-05, ratio inf (needs >= 10)  PASS
+-  Q6  plateau PLAT/PLAT/PLAT | finest iterative change 0.000000e+00, smallest inter-level difference 6.676643e-01, ratio inf (needs >= 10)  PASS
+-  G-PLATEAU: PASS    G-RATIO: PASS
++  Q1  plateau PLAT/PLAT/PLAT | finest iterative change 0.000000e+00, smallest inter-level difference 6.751504e-01, ratio inf (needs >= 10)  NOT A RESULT
++  Q2  plateau PLAT/PLAT/PLAT | finest iterative change 0.000000e+00, smallest inter-level difference 6.678506e-01, ratio inf (needs >= 10)  NOT A RESULT
++  Q3  plateau PLAT/PLAT/PLAT | finest iterative change 0.000000e+00, smallest inter-level difference 6.708475e-01, ratio inf (needs >= 10)  NOT A RESULT
++  Q4  plateau PLAT/PLAT/PLAT | finest iterative change 0.000000e+00, smallest inter-level difference 6.664925e-01, ratio inf (needs >= 10)  NOT A RESULT
++  Q5  plateau PLAT/PLAT/PLAT | finest iterative change 0.000000e+00, smallest inter-level difference 2.652514e-05, ratio inf (needs >= 10)  NOT A RESULT
++  Q6  plateau PLAT/PLAT/PLAT | finest iterative change 0.000000e+00, smallest inter-level difference 6.676643e-01, ratio inf (needs >= 10)  NOT A RESULT
++  R8 LIMB 1 (VERIFICATION_CHARTER.md section 2d.10, the licensing-gate clause): levels T23G2_L2 are not iteratively converged or not plateaued, so rule 5
++  step (a) has ALREADY VOIDED the observed order that G-RATIO exists to license.  There is NO ORDER for this gate to license, and a licence
++  issued for a voided claim is a CATEGORY ERROR, not a verdict.
++  applies to: Q1, Q2, Q3, Q4, Q5, Q6
++  R8 LIMB 2 (VERIFICATION_CHARTER.md section 2d.10's second ground, section 2p): the iterative change is EXACTLY 0.0, so this gate's zero-branch
++  returns infinity REGARDLESS OF THE NUMERATOR ENTIRELY.  The numerator was never consulted, so a PASS here would be attributable to the
++  denominator being zero and to NO PROPERTY OF THE LADDER -- a pass from a degenerate path.  The ratio is UNINTERPRETABLE, not meaningless.
++  applies to: Q1, Q2, Q3, Q4, Q5, Q6
++  THE TWO GROUNDS ARE INDEPENDENT AND EITHER ALONE IS SUFFICIENT.  Every number above is PRINTED because it is exactly what an
++  unlicensed gate would have graded, and NEITHER licenses anything: RATIO_MIN = 10 is UNTOUCHED and G-RATIO remains registered
++  on every graded quantity.
++  G-PLATEAU: PASS    G-RATIO: NOT A RESULT
+ 
+ G-ORDER -- on Q4 (core volume-averaged T), band (0.5, 1.5)
+   The band is [0.5, 1.5] and NOT [1.5, 2.5] because the formal order of the

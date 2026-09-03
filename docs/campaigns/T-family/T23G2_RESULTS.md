@@ -194,7 +194,7 @@ it is visible even though rule 5 then supersedes it: `Q3`'s row verdict is
 | `G-CONV` | **`GATE FAIL`** | §1.1 |
 | `G-YPLUS` | **`GATE FAIL`** | §1.2 |
 | `G-PLATEAU` | **`PASS`** | `PLATEAUED` on all six quantities at all three levels |
-| `G-RATIO` | **`PASS`** | ratio ∞ on all six (finest iterative change exactly 0.0; smallest inter-level difference 6.66e-01 to 2.65e-05), threshold ≥ 10 — **and now licensed by a live control, see §4** |
+| `G-RATIO` | **PRE-REPAIR CELL: ~~`PASS`~~** *(as the comparator printed it, and never citable as a passed gate — §18)* → **POST-REPAIR CELL: `NOT A RESULT`** *(repair `R8`, this team's change under `VERIFICATION_CHARTER.md` §2d.10 — §18)* | ratio ∞ on all six (finest iterative change exactly 0.0; smallest inter-level difference 6.66e-01 to 2.65e-05), threshold `RATIO_MIN` ≥ 10 — **all unchanged by the repair and printed in both captures**, and the zero is still licensed by a live control (§4). The `PASS` failed on **two independent grounds, either sufficient**: the gate exists to **license** the observed order, which rule 5 step (a) had already voided (§18.1); and with the iterative change exactly `0.0` the zero-branch returned ∞ **regardless of the numerator entirely**, so the `PASS` was attributable to no property of the ladder (§18.2). The ratio is **uninterpretable, not meaningless** |
 | `G-ORDER` | **PRE-REPAIR CELL: `PASS`** *(as the comparator printed it on 2026-09-02, and never citable as a passed gate — §14)* → **POST-REPAIR CELL: `NOT A RESULT`** *(repair `R7`, granted and executed — §17)* | p(`Q4`) = 0.6111, registered band [0.5, 1.5] at `:833-834`, finest triple `CONVERGING` — **all three unchanged by the repair and printed in both captures.** p(`Q4`) is the observed order of a triple whose grid claim rule 5 step (1) voided, so there is no order to gate; the gate **as first implemented** never consulted the iterative-convergence states (§14) and **now does** (§17) |
 | **rung rollup** | **`NOT A RESULT`** | `NOT A RESULT` present in the verdict set and tested first |
 
@@ -1527,3 +1527,420 @@ record by line.**
 
 **Nothing was re-graded. No solver was launched. No measured number in this record
 changed, and the rung verdict is `NOT A RESULT`, exactly as it was.**
+
+---
+
+## ⚠ 18. AMENDMENT, 2026-09-02 — **`R8` IS EXECUTED. `G-RATIO` MOVES `PASS` → `NOT A RESULT` ON TWO INDEPENDENT GROUNDS, ONE OF WHICH WE DID NOT RAISE. THE RUNG VERDICT DOES NOT MOVE. AND THE REPRODUCTION CONTROL FAILED, WHICH IS WORTH MORE THAN THE REPAIR.**
+
+**Appended 2026-09-02.** As in §14–§17, this record **cannot** assert *"lines
+whose number changed above this section: 0"* — the §2 `G-RATIO` row was rewritten
+in place and line numbers below it shifted, and **the assertion is not made.** The
+scope of every edit is enumerated at §18.9. **Nothing was re-graded, no solver was
+launched, and no measured number in this record changed. The rung verdict is
+`NOT A RESULT`, exactly as it was.**
+
+**THE LAW IS `verification`'s; THE CHANGE IS OURS.** `VERIFICATION_CHARTER.md`
+v1.42 §2d.10 and §2p.8, commit `c4007e42`, ruled on our §6 question — which was
+**put as a question and expressly requested no repair.** The ruling says so in
+terms: *"NOT A PETITION… whether and when `analyse_t23g2.py` is changed is
+heat-transfer's, subject to §2d.1 and to §2d.4.1's full-force (3) and (4). It
+moves a cell, not the rung."* **`R8` is this team's decision, taken under that
+law, and this record should not later be read as compliance with an order that was
+not given.** The ruling was read **at source, as a commit**, before the repair was
+made.
+
+---
+
+### 18.1 GROUND ONE — §2d.10, THE LICENSING-GATE CLAUSE
+
+> **RULED, generally:** *"A GATE WHOSE PURPOSE IS TO LICENSE ANOTHER QUANTITY MUST
+> RETURN `NOT A RESULT` WHENEVER THAT QUANTITY IS ITSELF `NOT A RESULT`. A licence
+> issued for a voided claim is not a verdict — it is a CATEGORY ERROR, an
+> assurance about an object that does not exist."*
+
+`g_ratio`'s own stated purpose, in its opening docstring: *"otherwise the observed
+order is noise, not discretisation."* **It exists to license the observed order.**
+Rule 5 step (a) had already voided that order — `T23G2_L2` is `NOT CONVERGED`, and
+`grade_ladder` says so once per graded quantity in the same output — **so there was
+no order for `G-RATIO` to license, and it returned `PASS` on all six quantities
+anyway.**
+
+**This is the same defect `R7` repaired in `gate_order`, in a second gate**, and
+the mechanism is the same one: a gate reading values that were populated before
+step (a) ran, and grading them as though step (a) had not.
+
+### 18.2 GROUND TWO — **THE GROUND WE DID NOT RAISE**, AND IT IS THE SHARPER ONE
+
+We asked whether `G-RATIO`'s **numerator** was contaminated: `min(abs(d) for d in
+level_diffs)` is drawn from a ladder in which every consecutive difference
+involves `T23G2_L2`. **`verification` added the ground we missed, and we record it
+as theirs.**
+
+> With `iter_change` exactly `0.0`, the zero-branch returns ∞ **REGARDLESS OF THE
+> NUMERATOR ENTIRELY.** The `PASS` is attributable to the **denominator being
+> zero** and to **no property of the ladder** — it would have returned ∞ and
+> `PASS` for **any** numerator, contaminated or pristine. **That is `§2p` in its
+> own right: a pass from a degenerate path.**
+
+*We asked whether the numerator was contaminated. The sharper answer is that on
+this data the numerator was never consulted.* **Either ground alone is
+sufficient**, and the two are unrelated.
+
+**CORROBORATION FROM OUR OWN MUTATION LEDGER, FOUND WHILE DOING THIS.** The
+registered mutation **`J2`** sets `RATIO_MIN = 10.0` → `0.0` and its recorded
+outcome in `T23G2_MUTATION_RESULTS.jsonl` is **`SURVIVED-CHANGED`**: the gate's
+own registered threshold was **already measurably inert on this data**, because
+the zero-branch never reaches the comparison. **The degenerate path was visible in
+an artifact we already owned, and we did not read it that way until the ruling
+named it.**
+
+### 18.3 THE HONEST QUALIFICATION, NOT UPGRADED
+
+The ruling's word is **UNINTERPRETABLE, not meaningless**, and this record uses
+that word. A large ratio could mean *grid differences dominate iterative error*
+(the intended reading) or *a level's iterative error inflated the inter-level
+differences* (the contaminated one). **The instrument cannot distinguish them, and
+not having to is precisely what rule 5 step (a) is for.**
+
+---
+
+### 18.4 THE CELL, BEFORE AND AFTER — **THE §2d.4.1 (3) AND (4) DISCHARGE**
+
+Conditions (3) and (4) **bite in full** here: T23G2 has numbers, so the discharge
+is *"running the comparator over the same data before and after the repair and
+publishing both."*
+
+| | `G-RATIO`, all six quantities | rung verdict | exit code |
+|---|---|---|---|
+| **PRE-REPAIR** (`T23G2_GRADE_PRE_R8.out`) | **`PASS`** | `NOT A RESULT` | `3` |
+| **POST-REPAIR** (`T23G2_GRADE_POST_R8_RECERT.out`, the capture of the **shipped** blob — see §18.12) | **`NOT A RESULT`** | **`NOT A RESULT`** | **`3`** |
+
+**NO NUMBER MOVED** `[MEASURED, asserted programmatically over both captures]`.
+The finest iterative change is `0.000000e+00` on all six in **both**; the six
+smallest inter-level differences are `6.751504e-01`, `6.678506e-01`, `6.708475e-01`,
+`6.664925e-01`, `2.652514e-05`, `6.676643e-01` in **both**; the printed ratio is
+`inf` in **both**; `needs >= 10` is printed in **both**. **`RATIO_MIN = 10.0` and
+`G-RATIO`'s registered meaning at §5.3 are untouched.** Gates, thresholds, bands,
+caps, labels created, moved or retired: **0 · 0 · 0 · 0 · 0**.
+
+**`G-PLATEAU` is unchanged at `PASS`**, and so are `G-MESHSIM` (`PASS`), `G-CONV`
+(`GATE FAIL`), `G-YPLUS` (`GATE FAIL`) and `G-ORDER` (`NOT A RESULT`, under `R7`).
+**`R8` MOVES A CELL, NOT THE RUNG.** The rollup already carried `NOT A RESULT` from
+four independent grounds established before `R8` existed.
+
+**A SECOND, SMALLER DEFECT WAS FOUND AND FIXED WITH IT.** The `G-RATIO` summary
+read `if rst != "PASS": rv = "GATE FAIL"` — which would have relabelled a
+`NOT A RESULT` cell as `GATE FAIL`. That is a rule-1 vocabulary error **and** a
+move in the direction rule 5 forbids. `NOT A RESULT` now dominates in that rollup.
+**It was never reached before `R8`, because the cell had never been anything but
+`PASS`; the repair is what would have exposed it.**
+
+---
+
+### ⚠ 18.5 THE REPRODUCTION CONTROL RAN FIRST AND **DID NOT REPRODUCE** — THE FINDING THIS AMENDMENT IS MOST WORTH READING FOR
+
+Before `g_ratio` was touched, the **unrepaired** comparator was re-run and diffed
+against `T23G2_GRADE_POST_R7.out`. **The diff was not empty** `[MEASURED]`. Two
+causes, both established:
+
+1. **CAPTURE CONVENTION, not drift.** `T23G2_GRADE_POST_R7.out` is stdout **plus a
+   trailing `EXIT_CODE=3` line** appended by the capturing shell. Named here, and
+   reproduced in every `R8` capture, so it is not later read as a missing line.
+2. **A GENUINE TREE MOVEMENT, AND IT IS A PEER'S COMMITTED, LICENSED WORK.** The
+   `R2` recorder's line for `T23G2_PREREGISTRATION.md` moved
+   `b2721aaa` → `0b597ba9`, and its verdict word moved `IDENTICAL` → `DIFFERS`.
+   **Cause named and measured: commit `b1d9070c`, `ADDENDUM A3`**, which corrects
+   §7's comparator **path text** — the repair §2d.4.2 and §2d.9.2 expressly
+   licensed. **111 lines inserted, 0 deleted** (corrected from `112` before this
+   record landed — §18.12), a pure append; the addendum's own
+   head line declares gates 0, thresholds 0, caps 0, labels 0. **It was INSPECTED,
+   NOT REVERTED** (`CLAUDE.md` rule 10).
+
+**CONSEQUENCE, STATED RATHER THAN WORKED AROUND: `T23G2_GRADE_POST_R7.out` can no
+longer be reproduced byte-identically, so it cannot serve as `R8`'s baseline.** A
+fresh **pre-repair** capture was taken from today's tree with the unrepaired code —
+`T23G2_GRADE_PRE_R8.out`, sha256
+`39f4fce40686f53b337ea1d34f8140d50a073868f7c9d959bc70d7812f163e34` — and diffed
+against `R7`'s: **exactly one hunk, the four lines above, and nothing else**
+`[MEASURED]`, retained as `T23G2_PRE_R8_vs_POST_R7.diff`. Every gate line, every
+value, every verdict and the exit code are byte-identical. **That is what restores
+attribution.**
+
+**AND THE BRIEFED STOP CONDITION WAS ALREADY FALSE BEFORE `R8` EXISTED.** The lane
+was briefed to assert the post-repair diff moves **only** the `G-RATIO` lines and
+the comparator's own blob line. **Against `R7`'s capture that is unsatisfiable, and
+would have been unsatisfiable had `R8` never been written** — a third line moved
+for a reason unconnected to this repair. This is **§2q.1's exact shape**: *a stop
+condition names in advance the mechanical consequences that do not count as
+drift.* The condition was **restated against the baseline that makes it
+meaningful**, in writing, **before** the post-repair run — not relaxed afterwards.
+
+### 18.6 PREDICTED VERSUS ACTUAL — THE PREDICTION WAS **COMMITTED BEFORE THE EDIT**
+
+`T23G2_R8_PREDICTION.md` was written **and committed** (`8a84e315`) before
+`g_ratio` was touched. *A judgement recorded in advance is a prediction; the same
+judgement made afterwards is a rationalisation.*
+
+| predicted | actual `[MEASURED]` |
+|---|---|
+| comparator's own working-tree blob line moves; **its non-movement would be the finding** | **MOVED**, `d2187518` → `72357dad` in the **shipped** capture. *(An earlier draft of this row read `→ 83bd7550`, the blob of an intermediate working-tree state captured at 23:35Z before the in-file amendment record was finished. `83bd7550` is in no commit and cannot be resolved; the row is corrected to the blob that ships — §18.12.)* |
+| six `G-RATIO` cells `PASS` → `NOT A RESULT`, **no number moving** | **exactly that**; all numbers byte-identical |
+| summary `G-RATIO: PASS` → `NOT A RESULT`, **`G-PLATEAU` unchanged** | **exactly that** |
+| `RUNG VERDICT`, `EXIT_CODE`, `G-ORDER`, `p(Q4)`, `G-CONV`, `G-YPLUS`, `G-MESHSIM` unchanged | **all unchanged** |
+| nothing else moves | **removed lines outside the declared set: 0** |
+| **three hunks** | **TWO** — and this is the one place the prediction was wrong |
+
+**THE ONE MISS, DECLARED RATHER THAN GLOSSED.** Predicted hunks 2 and 3 — the six
+cells and the summary line — are **contiguous**, so `diff -u` emits them as **one**
+hunk, not two. **The predicted CONTENT is exactly what moved; the predicted COUNT
+of hunks was wrong by one**, for a presentational reason. It is recorded as a miss
+because a prediction that is graded only on the parts it got right is not a
+prediction.
+
+---
+
+### 18.7 **§2p.3(e) SATISFIED — THE GATE WAS SHOWN ABLE TO SAY SOMETHING ELSE, AND THE CONTROL WAS SHOWN ABLE TO FAIL**
+
+The same ruling made this lab law in the same commit: *"EVERY RESTRICTIVE REPAIR
+CARRIES A POSITIVE CONTROL… the same run must show it STILL PASSES WHAT IT SHOULD
+PASS, driven through the PRODUCTION path over a planted input constructed to
+deserve a pass."*
+
+`r8_gate_control_t23g2.py` drives the **production** `g_ratio` **by import** — not
+a copy, not a reimplementation (§2p.7 limb (d)) — and **prints the resolved file
+path and its sha256 on its own face**, so limb (d) need not be taken on trust.
+**9 of 9 passed**, exit 0, artifact `T23G2_R8_GATE_CONTROL.out`.
+
+| control | input | required | measured |
+|---|---|---|---|
+| 1 | as measured: `T23G2_L2 NOT CONVERGED`, `iter_change` `0.0` | `NOT A RESULT`, **both limbs reported** | `NOT A RESULT`, limbs `[1, 2]` |
+| **2** | **POSITIVE PLANT — all `CONVERGED`/`PLATEAUED`, real non-zero iterative change, ratio 666.5** | **`PASS`** | **`PASS`** |
+| **3** | **NEGATIVE PLANT — the SAME numerator, ratio 3.3, below `RATIO_MIN`** | **`GATE FAIL`** | **`GATE FAIL`** |
+| 4 | all converged, `iter_change` exactly `0.0` | `NOT A RESULT`, **limb 2 alone** | `NOT A RESULT`, limbs `[2]` |
+| 5 | `T23G2_L2 NOT CONVERGED`, ratio 666.5 | `NOT A RESULT`, **limb 1 alone** | `NOT A RESULT`, limbs `[1]` |
+| 6 | `T23G2_L3 NOT PLATEAUED`, ratio 666.5 | `NOT A RESULT`, limb 1 alone | `NOT A RESULT`, limbs `[1]` |
+| 7 | iterative states never supplied | refusal | refusal |
+| 8 | exact zero, **no planted-zero control** | refusal (`R5` unweakened) | refusal |
+| 9 | the same input, **refusal must come from `g_ratio`'s OWN line** | refusal, by its text | refusal, text matched |
+
+**Controls 2 and 3 are the pair that matters.** They share a numerator, so the
+**only** thing separating `PASS` from `GATE FAIL` is `RATIO_MIN` — which is what
+shows the registered threshold is **still live and still discriminating** after a
+repair that did not touch it. **Controls 4, 5 and 6 isolate the two grounds from
+each other**, which is what makes *"either alone is sufficient"* checkable rather
+than asserted.
+
+#### ⚠ 18.7.1 THE CONTROL WAS MUTATED, AND THE FIRST ROUND FOUND A BLIND SPOT IN **OUR OWN SUITE**
+
+`r8_mutation_demo_t23g2.py` mutates the lines `R8` actually shipped, re-drives the
+**same** control against each mutated copy, and requires the suite to go **red**.
+It carries an **unmutated NEGATIVE ARM (`M0`)** through the identical machinery
+which must come back **green** — without it, *"the suite went red"* could be an
+artifact of the copying. `__pycache__` is cleared before every run. The production
+comparator's sha256 is taken **before and after** and asserted equal.
+
+**ROUND 1: 5 of 6.** `M5` — removing `g_ratio`'s **own** planted-zero refusal —
+**SURVIVED.** Diagnosed rather than waved through: with that branch gone,
+`roache_triple.assert_plant_control(None)` refuses on the same input **one line
+later**, and a verdict-level control cannot tell the two refusals apart. `R5`'s
+registered feature is `g_ratio`'s **own** explicit refusal, so **control 9 was
+added** to require the refusal to come from that line, by its text.
+
+**ROUND 2: 6 of 6 killed, `M0` green, production sha unchanged** `[MEASURED]`,
+artifact `T23G2_R8_MUTATION_DEMO.out`. **Both rounds are published.** A suite that
+was shown its own blind spot and closed it is better evidence than one that never
+looked.
+
+| mutation | what it breaks | round 1 | round 2 |
+|---|---|---|---|
+| `M0` | *negative arm — no mutation* | **green, as required** | **green, as required** |
+| `M1` | limb 1 never fires | killed | killed |
+| `M2` | limb 2 never fires | killed | killed |
+| `M3` | direction inverted — voided cell returns `PASS` | killed | killed |
+| `M4` | `RATIO_MIN` made inert | killed | killed |
+| `M5` | `R5`'s planted-zero refusal removed | **SURVIVED** | **killed** (control 9) |
+| `M6` | step-(a)-unevaluable refusal removed | killed | killed |
+
+**A REGISTERED MUTATION WAS PROTECTED RATHER THAN SILENTLY RETIRED.** `D5`
+(`T23G2_MUTATION_SET_REGISTERED.md:61`) patches the `control=` argument **together
+with the call's closing paren** as one literal and asserts it occurs exactly once.
+`R8`'s call site therefore keeps `control=` **last** and does not quote that
+literal elsewhere in the file. **A repair that reformats a call site can retire a
+registered mutation without anyone noticing; this was checked, not assumed.**
+
+---
+
+### 18.8 RULE 6 — **MEASURED, AND NOT ASSERTED**
+
+*"Lines whose number changed above this section: 0"* **is not claimed for
+`analyse_t23g2.py` and cannot be**: `R8` inserts executable lines into `g_ratio`
+and into `main`. Measured instead `[MEASURED]`:
+
+| against | inserted | deleted |
+|---|---|---|
+| `d2187518…` — the blob that produced the pre-repair capture | **291** | **7** |
+| of which, the **executable repair** — all **above** the `__main__` guard, inside `g_ratio` and its single call site | **130** | **7** |
+| of which, the **in-file amendment record** — a pure comment append **below** the guard | **161** | **0** |
+| the **frozen** blob `cc723d6f…` at `976776f4` (frozen file 653 lines) | **984** | **24** |
+
+**Both rows close arithmetically against the file lengths** — `1329 − 7 + 291 =
+1613` and `653 − 24 + 984 = 1613` `[MEASURED]`.
+
+`diff -U0` against the pre-repair blob reports hunks at **`:278`, `:292`, `:297`,
+`:304`, `:1076`, `:1091`, `:1094`, `:1098`** — `g_ratio` and its call site — **and
+one at `:1328`, the comment append. Nowhere else.** The `__main__` guard sat at
+line **1179** before `R8` and sits at **1302** after it, moved by the 123 net
+executable lines above it and by nothing else. **The seven deletions** are the old
+`def` line, the old exact-zero `return "PASS"`, the two old tail lines of the
+finite branch, the two old call lines, and the old `if rst != "PASS":` rollup line.
+
+#### ⚠ 18.8.1 THE FIRST COUNT WAS WRONG, AND THE METHOD IS NAMED BECAUSE IT IS THE LAB'S HOUSE IDIOM
+
+The first measurement, by `diff -u | grep -c '^+[^+]'`, returned **118** where the
+true figure is **130**. **That pattern silently skips every inserted BLANK line**,
+which appears in a unified diff as a bare `+`. The figures published above are
+`difflib`'s and they **close against the file lengths; the grep figures do not.**
+**A count that does not close against the file length is not a measurement.**
+
+**This reaches further than `R8`, and we say so rather than leave it.** The same
+grep idiom is what `R7`'s record used, so **`R7`'s stated insert counts are likely
+low by the same mechanism.** It is **REPORTED, NOT SILENTLY CORRECTED** — `R7`'s
+record is not this repair's to edit, and the correction is `R7`'s author's or the
+supervisor's call.
+
+**CITATIONS INTO THE FROZEN TEXT RESOLVE AGAINST THE FROZEN BLOB, NOT AGAINST THE
+WORKING FILE.** The comparator **did not move** — §2d.9.2 closed that permanently
+and `R8` does not reopen it. The post-`R8` sha is recorded **outside** the file, in
+`T23G2_GRADE_CAPTURES.md`, for the same reason `R7`'s was: writing a file's own sha
+into it changes the sha.
+
+### 18.9 COST — RULE 12, PRE-REGISTERED **BEFORE** THE RUN AND COMPARED **AFTER**
+
+| | pre-registered (`T23G2_R8_PREDICTION.md` §1, committed `8a84e315` before the edit) | actual `[MEASURED]` | ratio |
+|---|---|---|---|
+| solver compute | **0 core-min** | **0 core-min** | **1.00** |
+| cost | **$0.00** | **$0.00** | **1.00** |
+| `cost_basis` | NOT APPLICABLE — no solver compute | **NOT APPLICABLE — no solver compute** | — |
+| comparator/control invocations | **5** | **15** | **3.00** |
+
+**THE ONE OVERRUN IS IN INVOCATION COUNT AND IT IS NAMED, NOT ABSORBED.** Ten
+extra invocations were spent: one on the failed reproduction control, one on the
+first mutation round that found `M5`, two re-running the control and the
+comparator after the in-file amendment record changed the comparator's sha, and
+**six on re-certification by a second lane** — three by the lane that produced the
+`_RECERT` captures and three by the landing lane, which re-ran the comparator, the
+gate control and the mutation demonstration from a cleared `__pycache__` rather
+than believing a predecessor's captures (§18.12).
+**Attribution: misprediction of the record-writing sequence, not contention and not
+waste** — but each invocation is a single-rank read of artifacts already on disk,
+under two minutes of wall time, which rounds to **0.0 core-min** at the lab's unit.
+**The core-minute prediction is therefore exact and the invocation prediction was
+low by four.** No solver was launched; no case directory was modified; no mesh was
+built; no field was written. **No new `docs/COST_CALIBRATION.md` row is filed: the
+rung's row already landed, and a 0 → 0 comparison adds nothing to the lab's
+estimates.**
+
+### 18.10 SCOPE OF THE EDIT
+
+**In this record:** §2's `G-RATIO` row now carries **both cells**, pre and post,
+with the superseded `PASS` **struck in place and left readable**, and §18 appended.
+**No sentence was deleted anywhere.** §7's finding stands unchanged and is
+**sharpened, not superseded**, by §18.2: `R5` established that the zeros were
+unlicensed; `R8` establishes that even a licensed zero cannot produce an
+interpretable ratio.
+
+**In the code:** `docs/campaigns/T-family/analyse_t23g2.py` only — `g_ratio`, its
+single call site, and the appended amendment record. **`T23G2_PREREGISTRATION.md`
+was NOT edited by `R8`. `T23G2_GRADE.out` and `T23G2_GRADE_POST_R7.out` were NOT
+edited** — sha256 still
+`40f2fa33f4818cad7834e86257cd9dac8c6b786f24662c87bb0ffe2927261d2b` and
+`dc79492b765a5c7a473119a47ec1364303a7cce420ff42098e6a395adfecc99a`.
+
+**Artifacts:** `T23G2_R8_PREDICTION.md`, `T23G2_GRADE_PRE_R8.out`,
+`T23G2_GRADE_POST_R8.out`, `T23G2_PRE_vs_POST_R8.diff`,
+`T23G2_PRE_R8_vs_POST_R7.diff`, `r8_gate_control_t23g2.py`,
+`T23G2_R8_GATE_CONTROL.out`, `r8_mutation_demo_t23g2.py`,
+`T23G2_R8_MUTATION_DEMO.out`, and the four **re-certification** captures of the
+shipped blob — `T23G2_GRADE_POST_R8_RECERT.out`,
+`T23G2_PRE_vs_POST_R8_RECERT.diff`, `T23G2_R8_GATE_CONTROL_RECERT.out`,
+`T23G2_R8_MUTATION_DEMO_RECERT.out` — all under
+`verification/runs/T-family/T23G2_runs/`, and the capture register
+`T23G2_GRADE_CAPTURES.md` in the same directory.
+
+### ⚠ 18.11 WHAT `R8` DOES **NOT** FIX
+
+- **The rung is still `NOT A RESULT`** and `R8` brings it no closer to a result.
+  What would is §13's list, unchanged: `T23G2_L2` iteratively converged, and the
+  y+ gate met.
+- **§17.6's freeze-coverage hole is untouched.** `check_comparator_freeze.py`'s
+  `POPULATION_ROOTS` still excludes `docs/campaigns`, so **this comparator still
+  has zero freeze coverage** — and `R8` has now edited it twice over with nothing
+  in the lab able to notice. `verification` specced the fix at §2q and **referred
+  it to the chief for `cfd`'s tooling line**; `scripts/` is outside our scope and
+  we did not touch it.
+- **`R3`, `R5` and `R6` now owe §2p.3(e) positive controls**, a debt
+  `verification` booked against its own grants. `R8` discharges the debt for
+  `g_ratio` — which is `R5`'s function — **only for the paths `R8` added**, and
+  controls 8 and 9 exercise `R5`'s refusal. **`R3`'s and `R6`'s controls are not
+  written and are open.**
+
+---
+
+### ⚠ 18.12 WHAT THE LANDING LANE RE-MEASURED AND CORRECTED BEFORE `R8` WAS COMMITTED — 2026-09-03
+
+**`R8`'s code, its two controls and §18 above were authored on 2026-09-02 by a
+first `heat-transfer` lane and were left UNCOMMITTED in the shared working tree.
+Only three files were committed that night (`8a84e315`): the prediction, the
+pre-repair capture and the `PRE_R8`-versus-`POST_R7` diff.** A second lane landed
+the work on 2026-09-03. It did **not** take the first lane's captures on trust,
+because a capture is evidence only of the blob that produced it.
+
+**RE-MEASURED INDEPENDENTLY, FROM A CLEARED `__pycache__`** (stale bytecode has
+inverted a mutation test in this lab before), against the working-tree comparator
+`72357dad2bfb39ca74b78ad253cdbca1545d6534`, sha256
+`ba7d54b9678219365592581ca3fd13115514e798c463b7934f6278d52393a095`:
+
+| re-run | result `[MEASURED]` |
+|---|---|
+| the comparator | `rc = 3`, **`G-RATIO: NOT A RESULT`**, **`RUNG VERDICT: NOT A RESULT`**, wall 54 s single-rank — **byte-identical** to `T23G2_GRADE_POST_R8_RECERT.out` |
+| `r8_gate_control_t23g2.py` | **9 / 9**, `rc = 0`, control 2 `PASS`, control 3 `GATE FAIL` |
+| `r8_mutation_demo_t23g2.py` | **6 / 6 killed**, `M0` green, production sha256 unchanged, `rc = 0` |
+
+**THREE ERRORS WERE FOUND IN THE UNLANDED RECORD AND CORRECTED IN PLACE. None had
+ever been published; each is named here rather than silently repaired.**
+
+1. **A STALE CAPTURE, AND IT IS THE PROVENANCE DEFECT.** `T23G2_GRADE_POST_R8.out`
+   (23:35Z) records the comparator blob **`83bd7550d518269d8702e6e4d42ef8e6fafd27ce`**.
+   The comparator was edited again at 23:38Z — the in-file amendment record was
+   finished — so the blob that **ships** is `72357dad`. **`83bd7550` is in no
+   commit and cannot be resolved from git.** The two captures differ in **that one
+   recorder line and in nothing else** `[MEASURED]`; `T23G2_GRADE_POST_R8_RECERT.out`
+   is the capture of the shipped blob and is what §18.4 and §18.6 now cite.
+   `T23G2_GRADE_POST_R8.out` is **retained, not overwritten**, and is labelled in
+   `T23G2_GRADE_CAPTURES.md` as an intermediate.
+2. **`112` LINES WAS NOT A MEASUREMENT.** §18.5's figure for `ADDENDUM A3` is
+   **`111` inserted, 0 deleted** `[MEASURED: git diff --numstat 976776f4..HEAD,
+   and the file length closes, 1201 + 111 = 1312]`. **`112` is what
+   `git diff | grep -c '^+'` returns — it counts the `+++` header line.** This is
+   §18.8.1's own lesson in the opposite direction: that section names
+   `grep -c '^+[^+]'` for *under*-counting blank lines (it returns 82 here);
+   plain `grep -c '^+'` *over*-counts by exactly one. **Neither closes against the
+   file length, and a count that does not close is not a measurement.**
+   ⚠ **The superseded `112` still stands in two places that this repair may not
+   edit:** the in-file amendment record of `analyse_t23g2.py` (editing it would
+   change the shipped blob and invalidate every capture above), and
+   `T23G2_R8_PREDICTION.md` §2.2, which is a **committed prediction** and is
+   struck, never rewritten. **Both are superseded by this paragraph.**
+3. **The invocation actual in §18.9 was `9` and is `15`**, the six additional
+   invocations being re-certification by the second lane and by the `_RECERT`
+   captures. The **core-minute** prediction is unaffected and remains exact at
+   **0 core-min, $0.00**, `cost_basis = NOT APPLICABLE — no solver compute`: every
+   invocation is a single-rank read of artifacts already on disk. **No solver was
+   launched, no case directory was modified, no field was written.**
+
+**WHAT WAS NOT CHANGED BY THE LANDING LANE:** `analyse_t23g2.py` — **not one
+byte**, deliberately, so that the captures above certify the blob that ships;
+`T23G2_PREREGISTRATION.md`; `T23G2_GRADE.out`; `T23G2_GRADE_POST_R7.out`; and
+every gate, threshold, band, cap and label. **Gates, thresholds, bands, caps,
+labels created, moved or retired by the landing: 0 · 0 · 0 · 0 · 0. The rung
+verdict is `NOT A RESULT`, before `R8` and after it.**

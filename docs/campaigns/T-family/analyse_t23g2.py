@@ -275,7 +275,8 @@ def plateau(series, endtime, rel=False):
     return ("PLATEAUED" if spread <= lim else "NOT PLATEAUED"), spread, lim, len(tail)
 
 
-def g_ratio(name, iter_change, level_diffs, control=None):
+def g_ratio(name, iter_change, level_diffs, control=None,
+            iterative_states=None, plateau_states=None):
     """Sanaa's section 0 point 2, gated: the iterative change on the finest level
     must be at least 10x smaller than the SMALLEST consecutive inter-level
     difference.  Otherwise the observed order is noise, not discretisation.
@@ -290,20 +291,113 @@ def g_ratio(name, iter_change, level_diffs, control=None):
     six G-RATIO passes on a licence that was not there -- standing rule 3's exact
     shape.  The zero-branch now REFUSES unless the control for that reader, at
     that level, was constructed and PASSED.
+
+    AMENDMENT v1.2 -> v1.3, 2026-09-02 -- REPAIR R8.  THE LAW IS STATED AT
+    VERIFICATION_CHARTER.md v1.42 sections 2d.10 and 2p.8, commit c4007e42.  NO
+    REPAIR WAS ORDERED AND NONE WAS PETITIONED: the ruling states that "whether
+    and when analyse_t23g2.py is changed is heat-transfer's, subject to section
+    2d.1 and to section 2d.4.1's full-force (3) and (4)".  R8 IS THIS TEAM'S
+    CHANGE, NOT A COMPLIED-WITH ORDER.
+
+    THE PASS THIS REPAIRS FAILED ON TWO INDEPENDENT GROUNDS, EITHER SUFFICIENT,
+    AND BOTH ARE IMPLEMENTED SEPARATELY BELOW SO THAT NEITHER HIDES THE OTHER.
+
+    LIMB 1 -- section 2d.10, THE LICENSING-GATE CLAUSE, ruled generally: "a gate
+    whose purpose is to LICENSE another quantity must return NOT A RESULT
+    whenever that quantity is itself NOT A RESULT.  A licence issued for a voided
+    claim is not a verdict -- it is a CATEGORY ERROR, an assurance about an
+    object that does not exist."  This function's own stated purpose is the
+    sentence four lines above the first amendment block: "otherwise the observed
+    order is noise, not discretisation."  IT EXISTS TO LICENSE THE OBSERVED
+    ORDER.  Rule 5 step (a) has already voided that order, so there is no order
+    for G-RATIO to license.  The test below MIRRORS step (a) exactly -- the same
+    two tests, on the same two dicts, that roache_triple.grade_ladder applies at
+    :605-618, and that gate_order was taught to read under R7.  No new criterion,
+    no new threshold, no new state name, no reimplementation.
+
+    LIMB 2 -- THE GROUND THE PETITION DID NOT RAISE, ADDED BY THE RULING: "with
+    iter_change exactly 0.0, the zero-branch returns infinity REGARDLESS OF THE
+    NUMERATOR ENTIRELY.  The PASS is attributable to the denominator being zero
+    and to no property of the ladder -- it would have returned infinity and PASS
+    for any numerator, contaminated or pristine.  That is section 2p in its own
+    right: A PASS FROM A DEGENERATE PATH."  The ruling's own words for what the
+    number then is: UNINTERPRETABLE, not meaningless.  A large value could mean
+    grid differences dominate iterative error, or that a level's iterative error
+    inflated the inter-level differences, and the instrument cannot distinguish
+    them.  So the exact-zero branch no longer returns PASS; it returns NOT A
+    RESULT and prints what it would have graded.
+
+    R5's REFUSAL IS DELIBERATELY LEFT IN FRONT OF BOTH LIMBS AND IS NOT
+    WEAKENED.  An exact zero with no planted-zero control still REFUSES (exit 2),
+    which is stronger than any verdict; R8 must not convert an R5 refusal into a
+    NOT A RESULT merely because a later limb would have voided the cell anyway.
+
+    UNTOUCHED BY R8, AND STATED SO IT CANNOT BE ASSUMED OTHERWISE: RATIO_MIN =
+    10.0 at :106 is unchanged -- not widened, not narrowed, not moved -- and
+    G-RATIO's registered meaning at T23G2_PREREGISTRATION.md section 5.3 is
+    unchanged.  The gate is not retired and is still evaluated on every graded
+    quantity.  What changes is ONLY the precondition under which it is
+    interpretable.
+
+    DIRECTION: STRICTLY RESTRICTIVE.  Every path added below can only turn a
+    PASS or a GATE FAIL INTO NOT A RESULT -- the one direction CLAUDE.md rule 5
+    permits -- and no path can turn a non-PASS into a PASS.
+
+    Returns (verdict, ratio, smallest, grounds), where `grounds` is the list of
+    R8 limbs that fired and is EMPTY on PASS and on GATE FAIL.
     """
     smallest = min(abs(d) for d in level_diffs)
     if iter_change <= 0.0:
         # an exact zero passes, and the planted-zero control is what makes an
         # exact zero mean something (rule 3).  Reported, not silently blessed.
+        # R8 LEAVES THIS REFUSAL EXACTLY WHERE R5 PUT IT, AND FIRST.
         if control is None:
             refuse("G-RATIO would PASS %s on an EXACT ZERO iterative change and "
                    "NO planted-zero control was supplied for that reader at the "
                    "finest level.  A zero from a reader not shown able to see a "
                    "non-zero is not evidence (CLAUDE.md rule 3)." % name)
         RT.assert_plant_control(control)
-        return "PASS", float("inf"), smallest
-    ratio = smallest / iter_change
-    return ("PASS" if ratio >= RATIO_MIN else "GATE FAIL"), ratio, smallest
+
+    # What an unlicensed gate would have graded.  Printed either way, so that a
+    # NOT A RESULT never hides the number it declined to interpret.
+    would_be = float("inf") if iter_change <= 0.0 else smallest / iter_change
+
+    # ---- REPAIR R8 -- rule 5 step (a), BEFORE any licence is issued ----------
+    # The mirror of roache_triple.grade_ladder:605-618, on the two dicts that
+    # function is given; the refusal when iterative states were never supplied
+    # is grade_ladder:609-612's refusal, not a new one.
+    if iterative_states is None:
+        refuse("G-RATIO: no iterative-convergence states were supplied for %s; "
+               "step (a) of rule 5 cannot be evaluated for this gate and an "
+               "unevaluated step is not a passed one" % name)
+    bad_it = sorted(k for k, v in iterative_states.items() if v != "CONVERGED")
+    bad_pl = sorted(k for k, v in (plateau_states or {}).items()
+                    if v != "PLATEAUED")
+
+    grounds = []
+    if bad_it or bad_pl:
+        grounds.append(
+            "R8 LIMB 1 (VERIFICATION_CHARTER.md section 2d.10, the licensing-"
+            "gate clause): levels %s are not iteratively converged or not "
+            "plateaued, so rule 5\n  step (a) has ALREADY VOIDED the observed "
+            "order that G-RATIO exists to license.  There is NO ORDER for this "
+            "gate to license, and a licence\n  issued for a voided claim is a "
+            "CATEGORY ERROR, not a verdict."
+            % ",".join(bad_it + bad_pl))
+    if iter_change <= 0.0:
+        grounds.append(
+            "R8 LIMB 2 (VERIFICATION_CHARTER.md section 2d.10's second ground, "
+            "section 2p): the iterative change is EXACTLY 0.0, so this gate's "
+            "zero-branch\n  returns infinity REGARDLESS OF THE NUMERATOR "
+            "ENTIRELY.  The numerator was never consulted, so a PASS here would "
+            "be attributable to the\n  denominator being zero and to NO PROPERTY "
+            "OF THE LADDER -- a pass from a degenerate path.  The ratio is "
+            "UNINTERPRETABLE, not meaningless.")
+    if grounds:
+        return "NOT A RESULT", would_be, smallest, grounds
+
+    ratio = would_be
+    return (("PASS" if ratio >= RATIO_MIN else "GATE FAIL"), ratio, smallest, [])
 
 
 # ==========================================================================
@@ -1074,6 +1168,7 @@ def main(argv):
     # ---- G-PLATEAU and G-RATIO, on EVERY graded quantity -----------------
     note("G-PLATEAU and G-RATIO -- section 5.3, on EVERY graded quantity")
     pl_states, pv, rv = {}, "PASS", "PASS"
+    r8_grounds = {}           # REPAIR R8 -- ground -> the quantities it voided
     for qn in ("Q1", "Q2", "Q3", "Q4", "Q5", "Q6"):
         pl_states[qn] = {}
         for lv in LEVELS:
@@ -1088,14 +1183,42 @@ def main(argv):
                               rel=(qn == "Q5"))
         # REPAIR R5: the finest-level control for THIS quantity is what licenses
         # an exact-zero PASS, and g_ratio now refuses without it.
-        rst, ratio, smallest = g_ratio(qn, sp, diffs,
-                                       control=controls[(qn, LEVELS[-1])])
-        if rst != "PASS":
+        # REPAIR R8: the same two dicts rule 5 step (a) reads are now handed to
+        # the gate that licenses the order, so it cannot license a voided claim.
+        # The keyword order below is LOAD-BEARING and is not cosmetic: the
+        # registered mutation D5 (T23G2_MUTATION_SET_REGISTERED.md:61) patches
+        # the `control=` keyword argument together with the call's CLOSING
+        # PAREN as one literal string, and asserts it occurs EXACTLY ONCE.  R8
+        # therefore keeps `control=` LAST in the argument list, and deliberately
+        # does not quote that literal anywhere else in this file, so a
+        # registered mutation is not silently retired by a repair.
+        rst, ratio, smallest, grounds = g_ratio(
+            qn, sp, diffs, iterative_states=it_states,
+            plateau_states=pl_states[qn],
+            control=controls[(qn, LEVELS[-1])])
+        # REPAIR R8: NOT A RESULT DOMINATES GATE FAIL in this rollup.  It is the
+        # one direction rule 5 permits, and reporting a voided cell as GATE FAIL
+        # would be a verdict-vocabulary error in the strict direction as well.
+        if rst == "NOT A RESULT":
+            rv = "NOT A RESULT"
+        elif rst != "PASS" and rv != "NOT A RESULT":
             rv = "GATE FAIL"
+        for g in grounds:
+            r8_grounds.setdefault(g, []).append(qn)
         note("  %s  plateau %s | finest iterative change %.6e, smallest "
              "inter-level difference %.6e, ratio %.1f (needs >= %.0f)  %s"
              % (qn, "/".join(pl_states[qn][lv][:4] for lv in LEVELS),
                 sp, smallest, ratio, RATIO_MIN, rst))
+    for g in r8_grounds:
+        note("  %s" % g)
+        note("  applies to: %s" % ", ".join(r8_grounds[g]))
+    if r8_grounds:
+        note("  THE TWO GROUNDS ARE INDEPENDENT AND EITHER ALONE IS "
+             "SUFFICIENT.  Every number above is PRINTED because it is exactly "
+             "what an\n  unlicensed gate would have graded, and NEITHER "
+             "licenses anything: RATIO_MIN = %.0f is UNTOUCHED and G-RATIO "
+             "remains registered\n  on every graded quantity."
+             % RATIO_MIN)
     note("  G-PLATEAU: %s    G-RATIO: %s\n" % (pv, rv))
 
     # ---- the order, on Q4 -------------------------------------------------
@@ -1326,4 +1449,165 @@ if __name__ == "__main__":
 # core-min, $0.00.  T23G2_GRADE.out WAS NOT EDITED -- its sha256 is still
 # 40f2fa33f4818cad7834e86257cd9dac8c6b786f24662c87bb0ffe2927261d2b, the value
 # the petition recorded before this repair existed.
+# ==========================================================================
+#
+# ==========================================================================
+# AMENDMENT RECORD -- v1.2 -> v1.3, 2026-09-02.  REPAIR R8, AND ONE OF IT.
+#
+# THE LAW IS STATED AT VERIFICATION_CHARTER.md v1.42 SECTIONS 2d.10 AND 2p.8,
+# COMMIT c4007e42.  THE CHANGE IS THIS TEAM'S.  No repair was ordered and none
+# was petitioned: heat-transfer's section 6 asked whether G-RATIO shared R7's
+# defect and expressly requested no repair.  The ruling states the law and says
+# so in terms -- "whether and when analyse_t23g2.py is changed is
+# heat-transfer's, subject to section 2d.1 and to section 2d.4.1's full-force
+# (3) and (4)".  R8 IS NOT A COMPLIED-WITH ORDER, and the record should not later
+# be read as though it were.  The ruling was read AT SOURCE, as a commit, before
+# this repair was made, and not as a relay of it.
+#
+# WHAT WAS WRONG, ON TWO INDEPENDENT GROUNDS, EITHER SUFFICIENT.
+#
+#   GROUND 1, section 2d.10, the LICENSING-GATE clause, ruled generally: "a gate
+#   whose purpose is to LICENSE another quantity must return NOT A RESULT
+#   whenever that quantity is itself NOT A RESULT.  A licence issued for a voided
+#   claim is not a verdict -- it is a CATEGORY ERROR, an assurance about an
+#   object that does not exist."  g_ratio's own stated purpose, in its opening
+#   docstring, is "otherwise the observed order is noise, not discretisation":
+#   IT EXISTS TO LICENSE THE OBSERVED ORDER.  Rule 5 step (a) had already voided
+#   that order -- T23G2_L2 is NOT CONVERGED and grade_ladder says so once per
+#   graded quantity in the same output -- so there was no order for G-RATIO to
+#   license, and it returned PASS on all six quantities anyway.
+#
+#   GROUND 2, THE ONE THE PETITION DID NOT RAISE AND THE RULING ADDED: with
+#   iter_change exactly 0.0 the zero-branch returned infinity REGARDLESS OF THE
+#   NUMERATOR ENTIRELY.  The PASS was attributable to the denominator being zero
+#   and to NO PROPERTY OF THE LADDER; it would have returned PASS for any
+#   numerator, contaminated or pristine.  That is section 2p in its own right: A
+#   PASS FROM A DEGENERATE PATH.  The petition asked whether the numerator was
+#   contaminated; the sharper answer is that on this data the numerator was never
+#   consulted.
+#
+#   AND THE RULING'S OWN QUALIFICATION, WHICH IS NOT UPGRADED HERE: the ratio is
+#   UNINTERPRETABLE, NOT MEANINGLESS.  A large value could mean grid differences
+#   dominate iterative error, or that a level's iterative error inflated the
+#   inter-level differences, and the instrument cannot distinguish them.
+#
+# WHAT THE CODE NOW DOES.  g_ratio takes the same two dicts rule 5 step (a) reads
+# -- iterative_convergence and plateau -- and applies the SAME TWO TESTS that
+# roache_triple.grade_ladder applies at :605-618, exactly as R7 taught gate_order
+# to do.  Both grounds are evaluated SEPARATELY and BOTH are reported when both
+# hold, because "either alone is sufficient" is only checkable if the instrument
+# does not collapse them into one refusal.  No new criterion, no new threshold,
+# no new state name, no reimplementation.  R5's planted-zero refusal is left
+# exactly where R5 put it, IN FRONT of both limbs and not weakened: an exact zero
+# with no control still REFUSES (exit 2) rather than being downgraded to a NOT A
+# RESULT by a limb that would have voided the cell anyway.
+#
+# THE ROLLUP WAS ALSO WRONG AND IS FIXED WITH IT.  The G-RATIO summary read
+# `if rst != "PASS": rv = "GATE FAIL"`, which would have relabelled a NOT A
+# RESULT cell as GATE FAIL -- a verdict-vocabulary error under CLAUDE.md rule 1
+# and a move in the direction rule 5 forbids.  NOT A RESULT now dominates.
+#
+# UNTOUCHED: RATIO_MIN = 10.0 at :106 and G-RATIO's registered meaning at
+# T23G2_PREREGISTRATION.md section 5.3.  Gates, thresholds, bands, caps and
+# labels created, moved or retired: 0 - 0 - 0 - 0 - 0.  Only the precondition for
+# interpretability moved.  DIRECTION: STRICTLY RESTRICTIVE -- PASS or GATE FAIL
+# into NOT A RESULT, never the reverse.
+#
+# A REGISTERED MUTATION WAS PROTECTED RATHER THAN SILENTLY RETIRED.  The
+# registered mutation D5 (T23G2_MUTATION_SET_REGISTERED.md:61) patches the
+# `control=` argument together with the call's closing paren as ONE literal and
+# asserts it occurs exactly once.  R8's call site therefore keeps `control=` LAST
+# and does not quote that literal anywhere else in this file.  A repair that
+# reformats a call site can retire a registered mutation without anyone noticing,
+# and that was checked rather than assumed.
+#
+# CONDITIONS (3) AND (4), DISCHARGED AND MEASURED.  Pre-repair cell G-RATIO:
+# PASS, on all six quantities.  Post-repair cell G-RATIO: NOT A RESULT, on all
+# six.  RUNG VERDICT: NOT A RESULT, UNCHANGED, exit code 3 in both captures.
+# R8 MOVES A CELL, NOT THE RUNG.  NO NUMBER MOVED: the finest iterative change is
+# 0.000000e+00 in both captures on all six quantities, the six smallest
+# inter-level differences are identical in both, the printed ratio is inf in
+# both, and `needs >= 10` is printed in both.
+#
+# THE REPRODUCTION CONTROL RAN FIRST AND IT DID NOT REPRODUCE, WHICH IS RECORDED
+# RATHER THAN WORKED AROUND.  Re-running the UNREPAIRED comparator no longer
+# reproduces T23G2_GRADE_POST_R7.out byte-identically: the R2 recorder's line for
+# T23G2_PREREGISTRATION.md moved b2721aaa -> 0b597ba9 because commit b1d9070c
+# landed ADDENDUM A3 -- the section 2d.4.2/2d.9.2 record repair -- after R7's
+# capture was taken.  112 lines inserted, 0 deleted, gates 0.  It is a peer's
+# committed, licensed work and it was INSPECTED, NOT REVERTED (rule 10).  A fresh
+# pre-repair baseline was therefore taken from today's tree with the unrepaired
+# code, and it differs from R7's capture in that ONE hunk and nothing else.
+#
+# THE GATE WAS SHOWN ABLE TO SAY SOMETHING ELSE -- section 2p.3(e), which the
+# ruling made lab law in the same commit.  r8_gate_control_t23g2.py drives the
+# PRODUCTION g_ratio BY IMPORT, not a copy (section 2p.7 limb (d)), prints the
+# resolved file path and its sha256 so limb (d) need not be taken on trust, and
+# runs nine controls: 9/9.  Control 2 plants an all-CONVERGED ladder with a real
+# non-zero iterative change and gets PASS back; control 3 plants the SAME
+# numerator with a ratio below RATIO_MIN and gets GATE FAIL back, which is what
+# shows the registered threshold is still live and still discriminating.
+#
+# AND THE CONTROL WAS SHOWN ABLE TO FAIL.  r8_mutation_demo_t23g2.py mutates the
+# lines R8 actually shipped and requires the suite to go red: 6 of 6 killed, with
+# an unmutated NEGATIVE ARM run through the same machinery required to come back
+# green.  THE FIRST RUN WAS 5 OF 6.  Removing g_ratio's own planted-zero refusal
+# left the suite green, because roache_triple.assert_plant_control refuses on the
+# same input one line later and a verdict-level control cannot tell the two
+# apart.  Control 9 was added to require the refusal to come from g_ratio's OWN
+# line, and the demonstration then killed 6 of 6.  BOTH ROUNDS ARE PUBLISHED.
+#
+# RULE 6, MEASURED AND NOT ASSERTED.  "Lines whose number changed above this
+# section: 0" IS NOT CLAIMED and CANNOT BE: R8 inserts executable lines into
+# g_ratio and into main, so line numbers below each insertion move.  MEASURED
+# instead, against the blob that produced the pre-repair capture,
+# d2187518bc3b257d6305db7ac4a4f3c06b746f39, and split into its two parts because
+# they are two different kinds of change:
+#
+#   THE EXECUTABLE REPAIR: 130 lines inserted, 7 deleted, ALL INSIDE g_ratio and
+#   its single call site in main -- diff -U0 reports hunks at :278, :292, :297,
+#   :304, :1076, :1091, :1094 and :1098 and nowhere else.  The seven deletions
+#   are the old def line, the old exact-zero `return "PASS"`, the two old tail
+#   lines of the finite branch, the two old call lines and the old
+#   `if rst != "PASS":` rollup line.
+#
+#   ⚠ THE COUNT WAS WRONG ON THE FIRST MEASUREMENT AND THE METHOD IS NAMED SO
+#   NOBODY REPEATS IT.  Counting with `diff -u | grep -c '^+[^+]'` returned 118
+#   where the true figure is 130: THE PATTERN SILENTLY SKIPS EVERY INSERTED BLANK
+#   LINE, which appears in the diff as a bare `+`.  The figures here are
+#   difflib's, and they CLOSE ARITHMETICALLY against the two file lengths, which
+#   the grep figures do not.  A COUNT THAT DOES NOT CLOSE AGAINST THE FILE LENGTH
+#   IS NOT A MEASUREMENT.  This matters beyond R8: the same grep idiom is the one
+#   R7's record used, so R7's stated counts are LIKELY LOW BY THE SAME MECHANISM.
+#   That is REPORTED, NOT SILENTLY CORRECTED -- R7's record is not this repair's
+#   to edit.
+#
+#   THIS AMENDMENT RECORD: a PURE COMMENT APPEND BELOW the
+#   `if __name__ == "__main__"` guard, 0 deletions.  It adds no executable line
+#   and moves none: the guard sat at line 1179 before R8 and sits at line 1302
+#   after it, moved by the 123 net executable lines above it and by nothing else.
+#
+#   ITS OWN LINE COUNT, AND THE TOTALS THAT INCLUDE IT, ARE RECORDED OUTSIDE
+#   THIS FILE -- in verification/runs/T-family/T23G2_runs/T23G2_GRADE_CAPTURES.md
+#   -- FOR THE SAME REASON THE POST-REPAIR SHA IS: a figure that counts the lines
+#   of the paragraph stating it cannot be written into that paragraph without
+#   falsifying itself.  R7 handled its own sha this way and R8 follows it.  The
+#   frozen file is 653 lines; CITATIONS INTO THE FROZEN TEXT RESOLVE AGAINST THE
+#   FROZEN BLOB cc723d6f65245674f7d80c51de55fe986549477a AND NOT AGAINST THIS
+#   FILE.
+#
+# THIS FILE DELIBERATELY DOES NOT RECORD ITS OWN POST-R8 SHA, because writing
+# that sha into the file changes it.  It is recorded OUTSIDE, in
+# verification/runs/T-family/T23G2_runs/T23G2_GRADE_CAPTURES.md, and the R2
+# recorder prints it on the artifact's face at every run.
+#
+# THE COMPARATOR DID NOT MOVE.  Section 2d.9.2 closed the relocation permanently
+# and R8 does not reopen it.
+#
+# NOTHING WAS GRADED AND NOTHING WAS LAUNCHED BY THE LANE THAT MADE THIS EDIT.
+# Every invocation was a read of artifacts already on disk: 0 core-min, $0.00,
+# cost_basis = NOT APPLICABLE, no solver compute.  T23G2_GRADE.out and
+# T23G2_GRADE_POST_R7.out WERE NOT EDITED -- sha256 still
+# 40f2fa33f4818cad7834e86257cd9dac8c6b786f24662c87bb0ffe2927261d2b and
+# dc79492b765a5c7a473119a47ec1364303a7cce420ff42098e6a395adfecc99a.
 # ==========================================================================

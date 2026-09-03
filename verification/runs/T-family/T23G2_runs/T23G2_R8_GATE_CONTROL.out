@@ -1,0 +1,57 @@
+==========================================================================
+R8 GATE POSITIVE CONTROL -- VERIFICATION_CHARTER.md section 2p.3(e)
+  driving g_ratio from : /home/ubuntu/Certonomous/docs/campaigns/T-family/analyse_t23g2.py
+  sha256 of that file  : 57355d0045bf350c3f90e0a3d6f69f050ca7d6c377c82c555c4dc75663f55d08
+  PRODUCTION PATH?     : YES
+==========================================================================
+--------------------------------------------------------------------------
+CONTROL 1  AS-MEASURED (T23G2_L2 NOT CONVERGED, iter_change 0.0)
+  expect NOT A RESULT  limbs [1, 2]
+  GOT: NOT A RESULT   ratio inf   smallest 0.6664925   limbs [1, 2]
+  CONTROL PASSED
+--------------------------------------------------------------------------
+CONTROL 2  POSITIVE PLANT -- all CONVERGED/PLATEAUED, ratio 666.5
+  expect PASS  limbs []
+  GOT: PASS   ratio 666.4925000000001   smallest 0.6664925   limbs []
+  CONTROL PASSED
+--------------------------------------------------------------------------
+CONTROL 3  NEGATIVE PLANT -- all CONVERGED, ratio 3.3 BELOW RATIO_MIN
+  expect GATE FAIL  limbs []
+  GOT: GATE FAIL   ratio 3.3324625   smallest 0.6664925   limbs []
+  CONTROL PASSED
+--------------------------------------------------------------------------
+CONTROL 4  LIMB 2 ALONE -- all CONVERGED, iter_change EXACTLY 0.0
+  expect NOT A RESULT  limbs [2]
+  GOT: NOT A RESULT   ratio inf   smallest 0.6664925   limbs [2]
+  CONTROL PASSED
+--------------------------------------------------------------------------
+CONTROL 5  LIMB 1 ALONE -- L2 NOT CONVERGED, ratio 666.5
+  expect NOT A RESULT  limbs [1]
+  GOT: NOT A RESULT   ratio 666.4925000000001   smallest 0.6664925   limbs [1]
+  CONTROL PASSED
+--------------------------------------------------------------------------
+CONTROL 6  LIMB 1 ALONE -- L3 NOT PLATEAUED, ratio 666.5
+  expect NOT A RESULT  limbs [1]
+  GOT: NOT A RESULT   ratio 666.4925000000001   smallest 0.6664925   limbs [1]
+  CONTROL PASSED
+--------------------------------------------------------------------------
+CONTROL 7  iterative states ABSENT -> refusal
+  expect REFUSAL
+  GOT: REFUSED: G-RATIO: no iterative-convergence states were supplied for Q
+  CONTROL PASSED
+--------------------------------------------------------------------------
+CONTROL 8  exact zero, NO planted-zero control -> R5 refusal STILL
+  expect REFUSAL
+  GOT: REFUSED: G-RATIO would PASS Q4 on an EXACT ZERO iterative change and 
+  CONTROL PASSED
+--------------------------------------------------------------------------
+CONTROL 9  the SAME input, and the refusal must come from g_ratio's OWN line
+  expect REFUSAL
+  GOT: REFUSED: G-RATIO would PASS Q4 on an EXACT ZERO iterative change and 
+  refusal text contains 'EXACT ZERO iterative change' : True
+  CONTROL PASSED
+--------------------------------------------------------------------------
+R8 GATE CONTROL: 9/9 passed
+  control 2 is the section 2p.3(e) POSITIVE control: the repaired gate still PASSES what it should pass.
+  control 3 is its NEGATIVE plant over the SAME numerator: RATIO_MIN = 10 is still live and still discriminating.
+EXIT_CODE=0

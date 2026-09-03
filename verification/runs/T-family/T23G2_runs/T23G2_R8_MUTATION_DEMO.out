@@ -1,0 +1,45 @@
+==========================================================================
+R8 MUTATION DEMONSTRATION -- section 2p.7 limb (d)
+  production comparator sha256 before: 57355d0045bf350c3f90e0a3d6f69f050ca7d6c377c82c555c4dc75663f55d08
+==========================================================================
+--------------------------------------------------------------------------
+M0  NEGATIVE ARM -- unmutated copy through the same machinery
+    required GREEN (rc 0, 0 controls failed)
+    got rc=0  R8 GATE CONTROL: 9/9 passed  controls failed: 0
+    AS REQUIRED
+--------------------------------------------------------------------------
+M1  limb 1 never fires (section 2d.10 licensing clause removed)
+    expected to flip controls: 1, 5, 6
+    got rc=1  R8 GATE CONTROL: 6/9 passed  controls failed: 3
+    SUITE WENT RED -- mutation KILLED
+--------------------------------------------------------------------------
+M2  limb 2 never fires (section 2p degenerate-path ground removed)
+    expected to flip controls: 1, 4
+    got rc=1  R8 GATE CONTROL: 7/9 passed  controls failed: 2
+    SUITE WENT RED -- mutation KILLED
+--------------------------------------------------------------------------
+M3  DIRECTION INVERTED -- the voided cell returns PASS again
+    expected to flip controls: 1, 4, 5, 6
+    got rc=1  R8 GATE CONTROL: 5/9 passed  controls failed: 4
+    SUITE WENT RED -- mutation KILLED
+--------------------------------------------------------------------------
+M4  RATIO_MIN made inert in the comparison R8 left untouched
+    expected to flip controls: 3
+    got rc=1  R8 GATE CONTROL: 8/9 passed  controls failed: 1
+    SUITE WENT RED -- mutation KILLED
+--------------------------------------------------------------------------
+M5  R5's planted-zero refusal removed
+    expected to flip controls: 9 ONLY -- control 8 CANNOT see this one, and that is why 9 exists
+    got rc=1  R8 GATE CONTROL: 8/9 passed  controls failed: 1
+    SUITE WENT RED -- mutation KILLED
+--------------------------------------------------------------------------
+M6  step-(a)-unevaluable refusal removed, states silently defaulted
+    expected to flip controls: 7
+    got rc=1  R8 GATE CONTROL: 8/9 passed  controls failed: 1
+    SUITE WENT RED -- mutation KILLED
+==========================================================================
+MUTATIONS KILLED: 6 of 6
+NEGATIVE ARM M0 : GREEN, as required
+production comparator sha256 after : 57355d0045bf350c3f90e0a3d6f69f050ca7d6c377c82c555c4dc75663f55d08   UNCHANGED
+==========================================================================
+EXIT_CODE=0
