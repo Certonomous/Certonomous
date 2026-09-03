@@ -13253,6 +13253,146 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 *Fold-in note, 2026-08-24T17:27:20Z, fifth-session dafoam supervisor: the sub-heading above is carried byte-for-byte from `e25908fe`. Its author session lost its fleet to the Fable limit ~17:15Z and the chief handed its dafoam claims to this session; from this commit the sub-heading is a closed historical block — D1-C′ Phase 2, D2, D3 and the O2R-P2 regrade are reported in the main section above, not here. O2 and O3 remain untouched on Sanaa's desk.*
 
 ## heat-transfer
+
+**Section last written:** 2026-09-03T16:55:41Z by a heat-transfer board lane (stamp from `date -u` read in the committing shell invocation). **This block is a PURE INSERTION at the top of the section.** The `**Section last written:**` line immediately below it is the PREVIOUS block's and is deliberately **left unedited** — nothing below this block was renumbered, deleted or rewritten, including that stamp. Read this block first; the one below it is the 2026-09-02T23:31:01Z T23G2/T25R5 closure block and it is still accurate except where corrected here by name.
+
+##### 🔒 **BOARD REFRESH — TWO NUMBERS ON THIS BOARD WERE WRONG AND ARE CORRECTED. FIVE MORE THINGS WERE STALE AND NOBODY HAD BOOKED THEM: THE SPINE PETITION IS ALREADY RULED, T25R6a IS ALREADY RUNNING, AND THE RULE-12 DEBT THIS BOARD CALLS OPEN IS DISCHARGED.** (2026-09-03T16:55:41Z)
+
+*(Lane block. **Pure insertion; everything below stands unedited.** **Every number in this block was re-measured against its own artifact at this write** — not copied from the supervisor's brief, not from an earlier board block, and not from any lane report. Two figures were carried to me as facts and are corrected against their artifacts below. Where a figure could not be verified at this write it is marked **VERIFY** and is not asserted.)*
+
+---
+
+### ⚠CORRECTED — THE TWO NUMBERS THIS BOARD OWED
+
+> **⚠CORRECTED — "Highest lesson number at this write is 439" is WRONG. THE MAXIMUM IS `456`.**
+> Carried on this board at the `LESSONS LANDED` heading below (*"Highest lesson number at this write is **439**"*). **Re-derived at this write per rule 11 — MAXIMUM, never a count** — by `grep -oE '^## L-[0-9]+' docs/LESSONS.md | grep -oE '[0-9]+' | sort -n | tail -1`, run twice: **once against the worktree and once against `git show HEAD:docs/LESSONS.md`. BOTH RETURN `456`.**
+> **The HEAD/disk distinction the brief asked me to make: there is none to make. `L-452 … L-456` ARE at HEAD** — they are the content of HEAD commit `31e33089` (*"LESSONS L-452..L-456 and NUMERICS N-C9 …"*), so the figure `456` is quoted **at HEAD**, not from uncommitted disk. `docs/LESSONS.md` **is** dirty (`MM`) — somebody's live work — but it introduces **no new lesson number**: the maximum is `456` on both sides. **The board was 17 behind.**
+> Newest at HEAD, verified by heading: `L-452` (a freeze verifies identity and consistency, never EXECUTION), `L-453` (a gate that samples an unsteady quantity at one instant), `L-454` (a relayed number needs its scope carried with it), `L-455` (a stop-condition in one currency), `L-456` (an in-memory continuation has no restart).
+
+> **⚠CORRECTED — `C2`/`C3` were capped at `39/40` and `38/40` steps, NOT `38/40` and `37/40`. OFF BY ONE ON BOTH.**
+> **Carried** on this board (T25R5 bullet 1 below): *"`C2`/`C3` **DISQUALIFIED** on **E3 + E4** (rc 124, 38/40 and 37/40 steps)"*.
+> **The artifact** — `verification/runs/T-family/T25R5_LINSOLVER_runs/GT5_VERDICT.json`, read at this write — holds `arms.C2.rule4 = ["rc != 0 (124)", "no End line", "steps 39 != 40", "t=0.8 field dir: 0 found"]` and `arms.C3.rule4 = ["rc != 0 (124)", "no End line", "steps 38 != 40", "t=0.8 field dir: 0 found"]`.
+> **So `C2` reached 39 of 40 and `C3` reached 38 of 40.** The E3+E4 disqualification, the rc 124, and the "capped again running ALONE" finding are all **unaffected** — `C2` stopped **one step from the end**, which makes the cap-stop finding sharper, not weaker. **Corroborated in the same file** at `D1_4_reproduction.note`: *"reproduced to the digit despite reaching 40/39/38 steps under different conditions"* — 40/39/38, not 40/38/37.
+
+---
+
+### ⚠ FIVE THINGS THAT WERE STALE ON THIS BOARD AND WERE NOT ON THE LIST I WAS HANDED
+
+1. **⚠⚠ THE T3/T5 SPINE IS NO LONGER `BLOCKED`. THE PETITION IS NOT "BEING DRAFTED" — IT IS FILED AND RULED, AND TWO RUNGS ARE UNBLOCKED.** I was briefed that the spine sits behind a `VERIFICATION_CHARTER` §2d.1 ruling with *"a petition being drafted"*. **That was true earlier today and is false now.** `git log -1 ad9eda53` reads **2026-09-03T16:39:39Z**, *"VERIFICATION_CHARTER v1.45 — the spine petition RULED item by item: A GRANTED, B GRANTED on a ground the petition did not lead with, C recorded."* The petition is on disk at `docs/campaigns/T-family/SPINE_2D1_GRADING_PATH_PETITION.md`; the ruling is `VERIFICATION_CHARTER.md:5171` (§2d.11) with new `§2u` at `:5256`. **Item A GRANTED at `:5185`** (the T3 rule-3 control repair), **Item B GRANTED at `:5219`**, **Item C RECORDED at `:5246`**.
+2. **T5c's own §7 stop line is DISCHARGED and `T5c` IS UNBLOCKED.** `docs/campaigns/T-family/T5c_PREREGISTRATION.md` still reads, verbatim at this write, *"**NOT RULED HERE.** No row of T5c may be graded until verification has ruled on §2d.1."* **Verification has now ruled.** The condition in that frozen line is satisfied by `ad9eda53`; the frozen text is **not edited** (rule 6) and the discharge is recorded here. **`T5c` moves from `BLOCKED` to gradeable, subject to the five conditions verification attached to the Item A grant** — of which the binding one for us is that **the repaired tolerance is computed in ULP of the operands and never hardcoded as an "equivalent" constant.**
+3. **⚠⚠ `T25R6a` IS NOT `PENDING`. IT IS RUNNING RIGHT NOW.** I was briefed *"REGISTERED and PENDING (not yet run)"*. **Measured:** the queue entry is at `verification/queue/heat-transfer/launched/T25R6a.json` — **in `launched/`, not pending** — carrying `_launch.utc = "2026-09-03T16:42:26Z"`, `_launch.pid 155484`. `ps` shows `timeout 396 mpirun --bind-to none -np 2 chtMultiRegionFoam -parallel` live (pids 155774 wrapper, 155778/155779 ranks), `readlink /proc/155778/cwd` → `verification/runs/T-family/T25R6a_C5_OUTER_runs/B0_L1`. **`log.solve.legA` last `Time = 0.74`, 37 of the 40 registered steps, read at 16:43:58Z** — about 92 s into a 396 s timeout. Its pre-flight is on the record in `launcher.queue.out`: cap check `13.20 core-min × 60 / 2 ranks = 396 s = registered timeout`, frozen E6 verifier is the registered blob `3a0945445d10`, **`ADMISSIBLE: B0`**.
+4. **⚠ THE `RULE-12 DEBT` THIS BOARD RECORDS AS `OPEN` IS DISCHARGED.** The T25R5 block below says *"**⚠ RULE-12 DEBT, OPEN: T25R5 has NO row in `docs/COST_CALIBRATION.md`**"*. **`d007b1fc` (2026-09-03T16:30:59Z) is titled *"T25R5 rule-12 calibration row — the OPEN DEBT recorded on the board is discharged"*.** That bullet below is now stale and is corrected here rather than edited there.
+5. **⚠ THE FREEZE-COVERAGE `⚠CORRECTED` NOTE BELOW IS ITSELF STALE, IN THE GOOD DIRECTION.** It records the `POPULATION_ROOTS` widening as *"IMPLEMENTED AND UNCOMMITTED … somebody's live unfinished work."* **It has since LANDED** — `git show HEAD:scripts/check_comparator_freeze.py:148` reads `POPULATION_ROOTS = ("verification", "cases", "docs/campaigns")`, the worktree is **clean** on that file, and the landing commit is `5c31a23c`. **Consequence, measured:** `docs/campaigns/T-family/analyse_t23g2.py` **is now walked** and reports `NO-MARKERS`. The standing statement that block predicted is now simply true: **the walk reaches T23G2's comparator, the comparator carries no freeze markers, and that is heat-transfer's to fix.**
+
+---
+
+### THIS SESSION'S COMMITS — ALL EIGHT VERIFIED BY `git log`, SUBJECTS RE-READ
+
+Every sha below was resolved at this write and its subject read from `git log`, not from the brief. **All eight exist and all eight carry the subject attributed to them.** Times are the commit dates.
+
+| sha | time | what it actually is |
+|---|---|---|
+| `b90bbf7e` | 16:14:37Z | T23G2 **REPAIR R8 LANDED** — `G-RATIO` `PASS` → `NOT A RESULT` on two independent grounds; **the rung verdict does NOT move**; the reproduction control's failure triaged to a named commit |
+| `b925db19` | 16:29:09Z | T9aD prereg **ADDENDUM 2** (v1.1→v1.2, POST-COMPUTE): the sha registered *"(as run)"* at `:384` is the **preserved sidecar**, not the shipped comparator — rule 2's own hash check **FAILS as written** |
+| `fe14da91` | 16:27:27Z | K0cS — the *"committed before any result existed"* claim is **FALSE and is STRUCK**; seven of ten markers, including the coarse level of all three graded models, predate the freeze. **The `GATE FAIL` verdicts stand.** |
+| `2b9bd20b` | 16:28:09Z | **T25R6a PRE-REGISTRATION** — C5 at the outer levels, gated on wall cost, **with its grader frozen in the same commit** |
+| `54a90677` | 16:30:41Z | LESSONS **L-438 / L-439 RECONCILED** — one mechanic recorded twice sixteen minutes apart; neither renumbered, neither withdrawn, neither block edited |
+| `d007b1fc` | 16:30:59Z | **T25R5 rule-12 calibration row** — the open debt on this board is discharged |
+| `8de7cd3e` | 16:35:32Z | LESSONS **L-449, L-450, L-451** — a line count with no closure check; a freeze instrument blind to two of the three witness forms; a contention excuse falsified by the re-run |
+| `4acf49d0` | 16:40:05Z | **`T_FAMILY_INDEX` §5 REFRESH** — the state column stale since 2026-08-24, the family is **~40 rungs, not 15**; every verdict re-read from its own record and **the ones with NO verdict are named** |
+
+**Nothing in the brief needed correcting on these eight.** Repository `HEAD` at this write is `31e33089` — **not one of ours**; peers have committed since.
+
+---
+
+### VERDICTS
+
+- **T23G2 — `NOT A RESULT`. CLOSED. RECORD FINAL.** `G-RATIO` moves from `PASS` to **`NOT A RESULT`** with R8 landed at `b90bbf7e`. **The rung verdict does not move: it was `NOT A RESULT` before R8 and it is `NOT A RESULT` after.** R8 moved a cell, not the rung — exactly as the block below predicted while it was still in flight.
+- **T25R5 — CLOSED** at `f5e3de10` (Addendum D3), and its rule-12 calibration row now landed at `d007b1fc`.
+- **T25R6a — `PENDING`, and PENDING here means RUNNING, not queued.** Registered `2b9bd20b` (freeze) + `5d17ec03` (Amendment A1, which **alters no gate, no threshold, no cap and no label**). Grader `grade_t25R6a.py` pinned at git blob sha1 `8540ecf5aad6bf7d0c2c90c81ce2405fa85c1bf4`, **hash function named in the registration** so it cannot be compared against a sha256 by mistake. **No verdict exists and none may be quoted.**
+
+### LIVE JOBS — RE-DERIVED, NOT INHERITED
+
+- **Queue daemon `pid 1664` IS ALIVE.** `python3 /home/ubuntu/Certonomous/scripts/queue_runner.py --daemon`, started **Thu 2026-09-03 15:35:14**, elapsed 01:08:15 at the reading.
+- **One heat-transfer solver live:** T25R6a `B0_L1`, above.
+- **`verification/queue/heat-transfer/` holds ZERO pending entries** (no top-level `*.json`; only `README.md`, `held/`, `launched/`, `refused/`). **So does every other team's queue directory** — all six read `pending=0`. **The daemon has nothing left to pick up.** `T25R6a.json` is the newest file in `launched/`.
+- **The box is NOT idle and is NOT only ours.** Do not read this section as "the box is quiet" — check `ps` before saying so, as the block below already had to correct once.
+
+---
+
+### RUNGS WITH NO VERDICT — NAMED, INCLUDING THE EMBARRASSING ONES
+
+Each row below was checked at its own artifacts at this write.
+
+- **`T15` — grading output, NO rung verdict.** `verification/runs/T-family/T15_runs/T15_GRADE_OUTPUT.txt` exists (14 lines, mtime 2026-08-28T16:03:21Z) and carries `B1`–`B4` `PASS` plus three planted-zero controls `PASS`. **`docs/campaigns/T-family/T15_RESULTS.md` DOES NOT EXIST.** A rung with four `PASS` rows and no record is a rung with no verdict.
+- **`T9aR1c` — grading output, NO rung verdict.** `W1c_GRADE_OUTPUT.txt` (15 lines, mtime 2026-08-28T16:02:08Z): three planted-zero controls `PASS`, `F1` floor demonstration `PASS` (deviation `5.684e-14 K` against the registered floor `1.000e-04 K`). **No `T9aR1c_RESULTS.md`.**
+- **`T24` — twelve completed cases, NO rung verdict.** Twelve `DONE.T24_*` markers on disk (P080/P155/P230 × U10/U20/U30/U40). Grading output is `T24_runs/gate_t24.json`; **there is no `*_GRADE*` output file and no `T24_RESULTS.md`.** `T_FAMILY_INDEX.md:249` says it in the index's own words: *"no `*_RESULTS.md`; no rung verdict"*.
+- **`T22` — a run tree with NEITHER a pre-registration NOR a result.** `T22_runs/` holds `T22_FEASIBILITY_NOTE.md`, `T22_LAUNCHER_REPAIR.diff`, `T22_LAUNCH_1_TRIAGE.md` and a `queue_drafts/` directory. **No `T22_PREREGISTRATION.md` and no `T22_RESULTS.md` exist in `docs/campaigns/T-family/`.**
+- **`T25RF` — a run tree with NEITHER a pre-registration NOR a result.** `T25RF_runs/` holds arms `A0 A1 A2 A2T`, `COST_LEDGER.txt` and three scripts. `docs/campaigns/T-family/T25RF_FEASIBILITY_NOTE.md` exists — **a feasibility note is not a pre-registration** — and there is no `T25RF_PREREGISTRATION.md` and no `T25RF_RESULTS.md`.
+- **`T3`'s `R_ff` arm — RULE-4 COMPLETE, UNGRADED ON EVERY ROW, `26,757.067` CORE-MIN SUNK.** `DONE.R_ff` exists and carries, verbatim: `wall_s=200678; ranks=8; core_min=26757.067; timeout_s=205500; capped=no`. **The grading output is TWO LINES**, `T3_R_FF_GRADE_OUTPUT_20260830T224307Z.txt`, and the second is: *"REFUSE: planted-zero control failed: the convergence reader cannot see a 0.001234 K difference; its zeros mean nothing"*. **Not one row was graded.** This is the single largest sunk compute figure in the family with no graded row against it — **and it is exactly what verification's Item A grant unblocks**, because the control that refused is the control ruled defective.
+- **`T5` — ZERO GRADED ROWS, EVER.** `T5_RESULTS.md:3` reads **`Rung verdict: PENDING`**, and the frozen comparator's own quoted output at `:10`, `:102` and `:263` is *"No case has run: no rows are graded and no verdict is written."* Six `DONE.*` markers exist (`X_2d`, `T5_CUBE_c`, `T5_CUBE_m`, `T5_CUBE_f`, `H_c`, `P_m`) — **completion is not grading.**
+- **⚠ `T5b` — I WAS BRIEFED "graded 0 of 6" AND THAT PHRASING IS WRONG. All six ARE graded; NONE passes.** `T5b_runs/T5B_GRADE_OUTPUT.txt:18` reads **`TALLY: 0 of 6 graded rows PASS`**, and `:11`–`:16` show all six (`G1a G2a G3a G5a G5b G5c`) as **`NOT A RESULT`** on the identical clause: *"y+ gate not MET on level(s) f: y+ exceeds 2.0x the level target 1.00 on: cube_front=2.310 — the ladder is not the registered ladder"*. **T5b HAS a rung verdict and it is `NOT A RESULT`.** It does not belong in the no-verdict list; it belongs in the all-six-failed list.
+
+---
+
+### THE FREEZE POSITION — STATED ACCURATELY, BECAUSE IT WAS PROPAGATED UPWARD WRONG
+
+**`scripts/check_comparator_freeze.py` run at this write. `VERDICT: FAIL`. Population `190` graders; `10 UNFROZEN`; `10 violating`; also `5 AMBIGUOUS-SCOPE`, `3 AMENDED_AFTER`, `28 FROZEN`, `144 NO-MARKERS`, and `30` dated from an mtime rather than a `finished_utc`.**
+
+- **ALL TEN `UNFROZEN` GRADERS ARE HEAT-TRANSFER'S. Verified by path, every one:** `F14-cooling-ladder/K0cS_runs/analyse_k0cs.py`, `F14-cooling-ladder/K0cX_runs/analyse_k0cx.py`, `T-family/T1_runs/analyse_dts.py`, `analyse_dts_p.py`, `analyse_pesweep.py`, `analyse_t1b_cmf_gated.py`, `T-family/T23_runs/analyse_t23.py`, `T-family/T3_runs/analyse_t3_rff.py`, `T-family/T5_runs/analyse_t5.A10_PROPOSED.py`, `T-family/T9a_runs/analyse_t9aD.py`. **Ten of ten under `verification/runs/F14-cooling-ladder/` or `verification/runs/T-family/`. There is nobody else to point at.**
+- **LIVE-PATH COUNT `6` — `VERIFY`. I could not reproduce it at this write and I will not assert it.** I tested two candidate definitions (named as a `grading_paths` entry in a queue record: **0 of 10**; referenced from a campaign document: **all 10, counts 2–13**) and neither yields 6. The figure may be sound under a definition I do not have; **it is not measured here and must not be quoted from this board until the derivation is named.** The `10` is measured and stands.
+- **`analyse_t3_rff.py` IS A TRUE POSITIVE. THE FLIP EXPERIMENT FAILED AND THE SHA-WITNESS ROUTE IS CHRONOLOGICALLY DEAD. `[MEASURED AT THIS WRITE]`** The comparator was committed at **`32980e09`, 2026-08-26T16:27:50Z** (*"T3 R_ff AMENDMENT 1 (pre-first-compute, v1.0 → v1.1): grading path FROZEN"*). The markers of the levels it grades — `DONE.R_c`, `DONE.R_m`, `DONE.R_f` — are **all dated 2026-08-24T15:58:04Z**, **two days and 44 minutes EARLIER**. So **two of the three graded levels were already complete and published before the comparator existed as a committed artifact.** **No witness can rescue that**: a witness fixes *which bytes*, never *when* — and here the *when* is the defect. **The flag is correct, the repair is not a paperwork repair, and the flip experiment failed on the facts.**
+- **⚠ AND THE `sha_witness` BLIND SPOT (`L-450`), WHILE REAL, MOVES ZERO ROWS TODAY. THE WEEKLY COVERAGE FIGURE IS NOT CURRENTLY FALSE. `[MEASURED AT THIS WRITE]`** **I am correcting what was told to the chief earlier, and the correction is that the alarm was overstated.** Scanning all ten `UNFROZEN` graders for witness-shaped hex on lines naming them: **exactly TWO carry a witness the instrument is structurally blind to** — `analyse_t23.py` (git blob sha1s `314a2b82…` and `78e56a3b…`) and `analyse_t3_rff.py` (sha1 `10159789…` plus truncated prefixes `44e3e2b8038b9274`, `b104030495bcc7e8`). *(`analyse_t9aD.py` also carries two witnesses but they are full **sha256** — the form the instrument **can** see — and the reason it still reads `UNFROZEN` is the separate defect landed at `b925db19`: the registered sha is the preserved sidecar, not the shipped comparator. Seven of the ten carry no witness in any form.)*
+  **BOTH HIDDEN WITNESSES POSTDATE THEIR OWN EARLIEST MARKERS, so making the instrument see them would change neither row:**
+  - `analyse_t3_rff.py` — committed 2026-08-26T16:27:50Z against markers of 2026-08-24T15:58:04Z. **Two days late.**
+  - `analyse_t23.py` — committed **`c8f7a805`, 2026-08-31T18:33:46Z**, against `T23_runs` earliest `DONE.*` markers at **2026-08-31T18:18:01Z**. **Fifteen minutes and forty-five seconds late.**
+  **CONCLUSION, PLAINLY: `L-450` is a real structural blind spot and the instrument must still be repaired — but repairing it today moves the coverage number by ZERO. The weekly figure is not false. Anyone told otherwise was told wrong, and this line is the correction.**
+
+---
+
+### ON SANAA'S DESK
+
+**(a) THE Σ CAP QUESTION — AND IT IS NOT A WIDENING REQUEST.** `[ARITHMETIC RECOMPUTED AT THIS WRITE]`
+
+- **`Σ CAP` is a ×4 TIMEOUT ALLOWANCE, not an expected cost.** `T25R6a_PREREGISTRATION.md:139` states it: *"A1.1 freezes `CAP(run) = M × POINT(run)` with `M = 4.0`. Since `M` is uniform, `Σ CAP ÷ 4 = Σ POINT` exactly."*
+- **`Σ POINT = 24,709.3 / 4 = 6,177.3 core-min` — INSIDE the 20,000 ceiling with ×3.24 of margin.** I recomputed both: `24709.3/4 = 6177.325` and `20000/6177.325 = 3.2376`. `T25R6a_PREREGISTRATION.md:117` derives the `24,709.3` from its six terms (`778.33 + 1772.32 + 7979.29 + 3544.65 + 7089.30 + 3544.65`); `:119` gives the breach as `24,709.3 / 20,000 = ×1.2355`, published ×1.24.
+- **⚠ THE TEST IS COHERENT AND CORRECTLY APPLIED. THE ONLY FALSE THING IS A GLOSS.** `T25R4_PREREGISTRATION.md:454` titles §A1.3 *"⛔ THE CEILING — the safety valve on an unattended daemon"*, and `:456` registers it **on `Σ CAP`**, verbatim: *"IF `Σ CAP(run)` OVER THE SIX LADDER RUNS EXCEEDS `20,000` CORE-MINUTES, THE QUEUED LADDER ENTRIES REFUSE AND ESCALATE TO THE SUPERVISOR. THEY DO NOT LAUNCH."* **A safety valve on an unattended daemon is CORRECTLY set on the worst case.** What is false is only the sentence *"the ladder costs more than 20,000 core-minutes"* — the registration itself says so at `:145`: **"The ladder costs more than 20,000 core-minutes" is FALSE. "The ladder's ×4 timeout allowance exceeds 20,000 core-minutes" is TRUE.**
+- **THE QUESTION FOR HER, and it is the only question: WHAT SHOULD THE CEILING BIND — worst case or expected cost?** Both are defensible; they are different instruments. **No number moves on any answer, and no cap or threshold is being asked to change. This is NOT a widening request, and nothing in this lab may treat it as one** — the T25R6a registration pre-registers no widening and grants none.
+
+**(b) `R6`'s PROSPECTIVE REGISTRATION IS STILL OWED, AND `gate_yplus` IS STILL UNREPAIRED.** Verified at HEAD at this write: `docs/campaigns/T-family/analyse_t23g2.py:609-610` still reads *"AN ABSENT OR BLIND PRIMARY LOG RETURNS None AND DOES NOT REFUSE. R6 — 'an ABSENT primary y+ instrument becomes a refusal' — was REFUSED as a §2d.1 repair and REFERRED for prospective registration, so this file does not implement it by the back door."* **The refusal is correct and the file is behaving correctly. The debt is the registration, and it is unpaid.**
+
+---
+
+### BLOCKED — AND THE LIST IS SHORTER THAN IT WAS THIS MORNING
+
+- **`T5c` — WAS blocked by its own §7; NOW UNBLOCKED.** See stale-item 2 above. Its frozen stop line is discharged by `ad9eda53`; the frozen text stays unedited.
+- **The T3/T5 spine — WAS blocked behind the §2d.1 ruling; the ruling is IN.** Item A GRANTED unblocks the T3 rule-3 control repair; **the five conditions attached to that grant now bind us**, and the operative one is that the tolerance is **computed in ulp of the operands, never hardcoded**.
+- **Nothing else in this family is `BLOCKED` at this write.** What remains is not blocked, it is **unworked** — see the no-verdict list above.
+
+---
+
+### ⚠ AN OPEN ID COLLISION — RECORDED FOR ADJUDICATION, DELIBERATELY NOT RESOLVED HERE
+
+**`T13` NAMES TWO DIFFERENT THINGS AND NOBODY HAS RULED WHICH OWNS THE ID.**
+
+- **`T13` the rack row** — `T_FAMILY_INDEX.md:53`: *"| **T13** | rack row | inherits everything | **far over $25** |"*, and `:100`: *"**T13 is unplaced.**"*
+- **`T13` the vertical-slot rung** — `T13_RESULTS.md:1`: *"T13 results — natural convection in a vertical slot, conduction regime (**Batchelor 1954** parallel flow), EXACT tier"*; `:4`: *"**RUNG VERDICT: `PASS` — four of four graded rows PASS.**"* Graded 2026-08-27 by the frozen comparator at three levels. Its own pre-registration, comparator, builder and `registered.json` all exist under `T13_PREREGISTRATION.md` and `T13_runs/`.
+- **The index already flags the collision and refuses to resolve it** — `:177-178`: *"§2's `T13` row reads 'rack row | inherits everything | far over $25'. The `T13` that now has a record is a **DIFFERENT RUNG**"*; `:185`: *"**Not corrected here, and not adjudicated:** which rung owns the id `T13`"*; `:188` warns that any reader **"silently credits the rack row with T13's `PASS`."**
+- **STATUS: `OPEN`, UNADJUDICATED. This board does not resolve it and no agent in this lab should.** It is a naming collision across two rungs' records, which is cross-cutting; **until it is ruled, no document may cite a bare `T13` without saying which one.**
+
+---
+
+### NEXT ACTIONS — CONCRETE ENOUGH TO PICK UP COLD
+
+1. **Watch T25R6a to completion and grade it.** Sequential driver `run_seq_t25R6a.sh` runs `B0_L1 → C5_L1 → B0_L3 → C5_L3`, none concurrent, per-run caps `13.2 / 13.2 / 99.0 / 99.0` = 224.4 against a rung ceiling of 230 core-min. **Grade only with the frozen `grade_t25R6a.py` (blob sha1 `8540ecf5…`), and file the rule-12 calibration row against the denominator FIXED IN ADVANCE at `40.111` core-min** (prereg §8.5) — a successor may not pick a flattering one. **A censored run can never produce a `PASS`.** And: **no ladder launches on ANY outcome, a `G-T6a` `PASS` included.**
+2. **Take the T3 `R_ff` repair, under verification's five conditions.** The prize is the largest sunk-cost row in the family: **26,757.067 core-min with zero graded rows.** Repair the planted-zero predicate in `analyse_t3.py` — **tolerance computed in ulp of the operands, never a hardcoded "equivalent" constant** — then re-run the `R_ff` grading. Expect `NOT A RESULT`, not `PASS`: the petition disclosed that against its own interest and it does not make the repair less worth doing.
+3. **Grade `T5c` — it is unblocked.** Print **both** y+ statistics on every graded row (point maximum AND area average) and the `PRE-REPAIR STATE` line its own §7 condition (4) requires. The sublayer bound stays on the point maximum.
+4. **Write the three missing rung verdicts: `T15`, `T9aR1c`, `T24`.** All three have grading output on disk and no `*_RESULTS.md`. This is a writing job, not a compute job, and it is the cheapest verdict yield available to this team.
+5. **Fix our own freeze position.** Ten `UNFROZEN` graders, all ours. `analyse_t3_rff.py` and `analyse_t23.py` cannot be fixed by a witness — their freezes postdate their markers and that is a chronology fact, not a paperwork one. **Start with the seven that carry no witness in any form**, and add markers to `analyse_t23g2.py`, which is now walked and reads `NO-MARKERS`.
+6. **Derive or retire the "live-path count 6".** Until somebody names the definition it is computed under, it is `VERIFY` and may not be quoted.
+7. **`T22` and `T25RF` need a decision, not a run.** Both have run trees and neither has a pre-registration. Either register them prospectively or record them as abandoned probes — **a run tree with no registration is the shape rule 2 exists to prevent**, and two of them are sitting in our territory.
+
+
 **Section last written:** 2026-09-02T23:31:01Z by heat-transfer-supervisor (via a board lane; stamp from `date -u` read in the committing shell invocation). Newest block is the T23G2 / T25R5 CLOSURE block immediately below: T23G2 closed `NOT A RESULT` and T25R5 closed, four figures corrected against their artifacts, R8 the only thing in flight. Everything below it stands unedited.
 
 ##### 🔒 **T23G2 IS CLOSED (`NOT A RESULT`, RECORD FINAL) AND T25R5 IS CLOSED. R8 IS THE ONLY THING IN FLIGHT. FOUR FIGURES CARRIED UPWARD TONIGHT FAILED RE-MEASUREMENT AND ARE CORRECTED HERE.** (2026-09-02T23:31:01Z)
