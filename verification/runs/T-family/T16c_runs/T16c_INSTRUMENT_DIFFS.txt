@@ -861,3 +861,191 @@ as E7 already says.
     supervisor's rulings in PART F.
 
 END AMENDMENT 1.
+
+
+===========================================================================
+AMENDMENT 2 -- 2026-09-03 -- document version 1.1 -> 1.2
+E1 IS STRUCK.  IT IS THE THIRD INSTANCE OF ONE DEFECT INSIDE ONE DOCUMENT,
+AND THE MECHANISM IS WORTH MORE THAN THE CORRECTION.
+===========================================================================
+
+Landed by the same records lane, on the supervisor's EXPLICIT WIDENING of
+RULING B, [lab-attributed].  NO SOLVER COMPUTE.  NO RE-GRADE.  The comparator
+was NOT re-run, NOT edited and NOT re-hashed by mutation.
+
+WHY THIS IS A SECOND AMENDMENT AND NOT A WIDER FIRST ONE.  AMENDMENT 1 struck
+lines 7-10 and lines 7-10 ONLY, because the supervisor's ruling named lines
+7-10.  E1 was FLAGGED there (AMENDMENT 1 section 5) and LEFT STANDING, because
+a lane does not widen a supervisor's ruling on its own initiative.  The
+supervisor has now widened it explicitly, and the widening is landed here as
+its own dated amendment rather than folded back into AMENDMENT 1 -- an
+amendment that grew after the fact would destroy the record of what was
+authorised when.
+
+---------------------------------------------------------------------------
+0.  THE RULE-6 ASSERTION, MEASURED AND NOT RECITED
+---------------------------------------------------------------------------
+
+    lines whose number changed above this section: 0
+
+MEASURED in the invocation that landed this append, by the same three checks
+AMENDMENT 1 used:
+
+  - before the append the file was 863 lines and hashed to
+        af06bb52078826ec22a862556ea88dd1aac37a4a2ee6a8e7e7dd7caa9a7f22aa
+  - after the append, the FIRST 863 LINES of the file hash to that SAME
+    digest, and `diff` of the pre-append file against the first 863 lines of
+    the post-append file reports NO DIFFERENCES;
+  - `git diff-tree --numstat` for this path at the landing commit reports
+    DELETIONS = 0.
+
+Not one byte at or above line 863 is edited, renumbered, reordered or
+removed.  AMENDMENT 1 is itself left untouched by this append, which is the
+point of appending rather than revising.
+
+---------------------------------------------------------------------------
+1.  WHAT IS STRUCK -- QUOTED VERBATIM, NEVER REWRITTEN
+---------------------------------------------------------------------------
+
+Lines 545-547 read, and STILL READ, exactly this:
+
+    E1.  NO T16c GRADED VALUE HAS BEEN COMPUTED.  The comparator has never been run
+         against T16_MC_c/m/f.  Which station section 4 selects on the real solves,
+         and what G1/G1b/G2/G3 then read, are UNKNOWN to this lane by construction.
+
+** STRUCK AND SUPERSEDED, in all three of its sentences. **  The text is left
+standing in place, unedited, because striking by deletion destroys the record
+of what was claimed.  What is now true, and MEASURED:
+
+  - a T16c graded value HAS been computed;
+  - `analyse_t16c.py` HAS been run against `T16_MC_c/m/f`;
+  - section 4 selected NO STATION.  `station.selected = null`,
+    `station.reachable = false` -- the registered UNREACHABLE branch fired.
+    No candidate row on the fine level's 3,840 reaches `W1_T <= 1e-06`; the
+    best is row 4479 at `4.5837e-04`, 458.4x the floor;
+  - `G1`, `G1b`, `G2` and `G3` read ** `NOT A RESULT` **, all four, on that
+    branch.  `value_fine`, `triple`, `triple_state` and `band_verdict` are
+    `null` on every one of them.
+
+    graded at commit  ea8a3494  (2026-09-03T21:00:21Z)
+    verdict record    docs/campaigns/T-family/T16c_RESULTS.md
+    gate artifact     verification/runs/T-family/T16c_runs/gate_t16c.json
+
+NO VERDICT IS ISSUED IN THIS FILE.  Line 30 and E3 (`:550`) STAND.  The four
+rows above are recorded as a FACT ABOUT ANOTHER DOCUMENT, exactly as
+AMENDMENT 1 section 3 recorded it, so that a reader of E1 is not left
+believing the station question is still open.
+
+---------------------------------------------------------------------------
+2.  THE MEASURED BASIS -- THE SAME ONE AMENDMENT 1 RESTS ON, RE-TAKEN HERE
+---------------------------------------------------------------------------
+
+Re-measured at THIS write, by reading bytes.  Nothing below is carried from
+AMENDMENT 1's invocation.
+
+  the comparator, hashed against its committed blob -- the condition
+  registered at REGISTERED LINE 10, `AUTHORISATION`
+  (`T16c_PREREGISTRATION.md:130-132`; NOT `## 10. DECLARED OMISSIONS` at
+  `:314`, which carries no pin -- see AMENDMENT 1 section 2):
+      analyse_t16c.py
+      a91f4c4d1fb66504cc68710a888d841df1549405f47c14010a9e03658ee8f1a2
+      -- EQUAL on disk, in its blob at 46d090f6, and in its blob at the HEAD
+      current at this write.
+
+  the section 5 `sha256` pin:
+      T16_registered.json
+      aead91aaab8480f6a4321a3d9eb01536d9ceb4cbfb7a3774426cea608ae72845
+      -- MEASURED EQUAL to the registered literal.
+
+  the three parent instrument digests this file's own header lists at
+  `:22-27`, each MEASURED EQUAL to its blob at 46d090f6:
+      exact_t16.py   7ecc61a782d9018177b1eea2dabe3dbe049c74179c13e903d80ded2b6487692b
+      build_t16.py   cb19b3e32faf2cdbd94542b87e1cb4666f52547fe78ca01d2e2bca105999abb0
+      analyse_t16.py 1a5c79e57d4144abb165702fd900c0c99aa1c03f5cbb24a547b7a085d4d4562f
+  (PROVENANCE ONLY, NOT GATED.  `gate_t16c.json` reports them under
+  `provenance_reported_not_gated`, which is the honest label: the F2 exposure
+  -- `exact_t16.py` and `analyse_t16.py` unpinned, and `CONV_FLOOR` / `G_TOL`
+  / `MASS_FLOOR` / `PLAT_FLOOR` with no registered literal at all -- is OPEN
+  and ESCALATED, and neither amendment closes it.  A pin the frozen document
+  does not register is a NEW GATE.  Closing F2 needs a T16d.)
+
+---------------------------------------------------------------------------
+3.  ** THE THIRD INSTANCE IN ONE DOCUMENT SET, AND THE MECHANISM -- WHICH IS
+    THE PART WORTH KEEPING **
+---------------------------------------------------------------------------
+
+Three instances of ONE defect, all inside the T16c rung's own paperwork:
+
+  (1) `T16c_PREREGISTRATION.md` line 3 -- struck by that document's
+      AMENDMENT 1(a), 2026-08-31.
+  (2) this file's STATUS banner at `:7-10` -- struck by AMENDMENT 1 above,
+      2026-09-03.
+  (3) E1 at `:545-547` -- struck here.
+
+** THE MECHANISM.  A STATUS SENTENCE WRITTEN IN THE PRESENT TENSE IS
+FALSIFIED BY THE VERY ACT IT DESCRIBES, AND IT DOES NOT ANNOUNCE ITS OWN
+STALENESS.  THE FILE GOES ON READING AS TRUE. **
+
+That is what makes this class of defect different from an ordinary error and
+worth an amendment of its own.  An error is wrong when written and can be
+caught by checking it.  A present-tense status sentence is RIGHT when
+written, and is turned false LATER, by the work the document exists to
+enable -- so the moment of falsification produces no diff, no failing check
+and no reader complaint.  Instance (2) is the sharpest available
+demonstration: the banner was carried into the repository by commit
+46d090f6, timestamped 2026-08-31T20:02:14+00:00, and that SAME commit landed
+the repaired comparator that answers it.  Nothing marked the file.  It read
+as true for three days.
+
+** THE TRANSFERABLE RULE, and it costs nothing to apply: A STATUS SENTENCE
+CARRIES THE DATE IT WAS TRUE, OR IT IS NOT WRITTEN IN THE PRESENT TENSE. **
+`E6` at `:563-568` already does this, in this same file, and is the control
+that proves the rule is applicable rather than merely desirable -- see
+section 4.
+
+This is recorded as a MECHANISM, not as a rule change.  It amends no charter,
+creates no check and gates nothing.  The defect changed no verdict in this
+rung and is not claimed to have.
+
+---------------------------------------------------------------------------
+4.  E6 IS LEFT ALONE, AND E2 IS NAMED RATHER THAN STRUCK
+---------------------------------------------------------------------------
+
+`E6` (`:563-568`) makes a claim of the same family but SCOPES IT EXPLICITLY
+-- "IN THE INVOCATION THAT WROTE PARTS F AND G".  It is TRUE AS WRITTEN and
+is NOT struck.  Do not strike what is accurate.  E1 beside E6, in one file,
+is the cheapest demonstration of section 3's rule that this ladder will get:
+the same author, the same page, one sentence dated and one not, and only the
+undated one went stale.
+
+`E2` (`:548-549`) is NAMED HERE AND LEFT STANDING, deliberately.  It reads
+"The three solves are carried over UNEXAMINED ... This lane inspected the
+comparator, not the fields."  Its first clause has been overtaken in part --
+the grading pass DID read the fields, for rule-4 completion, for the `W1`
+witnesses and for `C_TRANSPOSE` -- but its second sentence scopes it to the
+lane that wrote it, which makes it E6-shaped rather than E1-shaped.  The
+supervisor's widening named E1 only and expressly refused a sweep.  E2 is
+therefore reported, not struck.
+
+---------------------------------------------------------------------------
+5.  WHAT THIS AMENDMENT DOES NOT DO
+---------------------------------------------------------------------------
+
+  - It edits NO byte at or above line 863, AMENDMENT 1 included.  Section 0
+    measures that.
+  - ** IT IS NOT A SWEEP. **  The supervisor's widening authorises striking
+    E1's status claim and NOTHING ELSE.  No census of this file, the T16c
+    tree or the T-family for other stale status sentences was run, and none
+    is authorised.  One further instance noticed in passing is NAMED in
+    section 4 (E2) and LEFT STANDING; one more, outside this file, is named
+    in the report to the supervisor and likewise left standing.
+  - It does NOT touch `analyse_t16c.py`, `analyse_t16.py`, `exact_t16.py`,
+    `build_t16.py`, `T16_registered.json` or the frozen registration.
+  - It adds NO pin.  F2 stays OPEN and ESCALATED.
+  - It does NOT rule the rule-4 reading in B1.  E4 leaves it STILL RAISED,
+    NOT RULED, and it is still that.
+  - It states NO verdict.  Line 30 and E3 stand.
+  - PARTS A, B, C, D, E, F and G stand in full, including all four of the
+    supervisor's rulings in PART F, and AMENDMENT 1 stands in full.
+
+END AMENDMENT 2.
