@@ -4843,6 +4843,61 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
 
+##### UPDATE S-31 — ⚠⚠ **`S-29` §2's MECHANISM IS FALSIFIED BY ITS OWN CONTROL CASE. `U2` IS NOT IN THE QUANTITY DAFoam DECLARES CONVERGENCE ON — PROVED FROM `D19T`'s ARITHMETIC WITHOUT READING ANY SOURCE — AND THE TWO `D19T` ROWS I READ AS CONFIRMATIONS WERE DISCONFIRMATIONS ALL ALONG. THE BINDING CHANNEL IS `he`, AND ITS FLOOR *IS* THE DECLARED NUMBER TO FOUR FIGURES** (2026-09-03, `date -u` stamp in the committing invocation)
+
+###### 1. THE PROOF, AND IT NEEDS NO SOURCE READING
+
+Supervisor check 3, done personally, on `/home/ubuntu/certonomous-runs/CURRICULUM-D19T-a1-naca0012-shape7-primal-tightening/` — a **different case, mesh, tolerance ladder and solver arm** from anything the `U2` story was built on. Per-equation `initRes` floors over each arm's entire run, beside that arm's own convergence declarations:
+
+| arm | tol | `Minimal residual … satisfied` declarations | `he` floor | `p` floor | `U2` floor | best declared |
+|---|---|---|---|---|---|---|
+| `T08` | 1e-8 | **22** | **9.0893e-09** | 3.5784e-09 | 2.1384e-09 | 9.0871e-09 |
+| `T10` | 1e-10 | **22** | **9.0350e-11** | 3.6540e-11 | **1.7164e-10** | 9.0384e-11 |
+| `T12` | 1e-12 | **0** | 4.3667e-13 | **1.7440e-12** | 5.7291e-09 | — |
+
+**`T10` settles it on arithmetic alone.** Its `U2` floor is **1.7164e-10 — 1.72× ABOVE its own 1e-10 tolerance**, so `U2`'s *best value over the whole run* never reached tolerance. And `T10` declared convergence **22 times, at ~9.0e-11**. **A maximum over a set can never fall below the minimum ever attained by a member of that set.** Therefore `U2` is not a member. No source file was read to establish this and none was needed.
+
+**`he` is the binding channel, and the declared number IS its floor:** `T08` 9.0893e-09 against a declared 9.0871e-09; `T10` 9.0350e-11 against 9.0384e-11. **Four significant figures, in both arms, independently.** That is not a coincidence.
+
+**`T12`'s zero convergences are `p`, not `U2`** — `p`'s floor 1.7440e-12 exceeds its 1e-12 tolerance while `he`'s 4.3667e-13 clears it.
+
+###### 2. ⚠ WHAT THIS DOES TO `S-29` §2 — **IT IS MINE, AND IT IS THE SAME ERROR TWICE IN ONE TABLE**
+
+`S-29` §2 claims *"one number predicts five outcomes across three items with no exceptions."* **It is false on `D19T` in both directions, and `D19T` was the block's own converging control:**
+
+- **`T10`**: I tabulated `U2` floor 1.72e-10 against tolerance 1e-10 and wrote *"converges 22/22"* beside it **as if that were the mechanism working**. The floor is **above** the tolerance. Under my own stated mechanism `T10` should have had **zero** convergences, exactly like `A1WR`. It had twenty-two. **That row was a disconfirmation and I recorded it as a confirmation.**
+- **`T12`**: I left the `U2` cell as `—` and let `U2` carry the implication for its zero convergences. The cause is `p`.
+
+**So the finding is not "two-and-a-half items". As a convergence mechanism it does not survive at all.** What survives, and is untouched, is the **mesh-topology fact**: the bounding planes ARE `symmetry` on one-cell-thick 2-D meshes, `createPatchDict` IS byte-identical across the three items at md5 `5e89709961881491e3f05dc97bbcf75c`, and the solver DOES print `Mesh has 3 solution (non-empty) directions (1 1 1)`. That is still a defect and `d3f47bfa` is still very likely the right fix for it. **What is dead is the predicted CONSEQUENCE — that removing `U2` restores convergence. Removing a channel that was never in the criterion cannot change the criterion's value.**
+
+**Also corrected: `A1WR`'s 13 non-convergences are NOT explained by `U2`'s 3.24e-08 floor sitting under a 1e-8 tolerance.** A lane's re-derivation from `sweep_I/out/sweep.log`, which I reproduced against the raw last-iteration block, gives the binding channel as **`nuTilda` at 8 of 13 points and the median-of-`U` at 5. `U2` binds at none.** The projected post-fix criterion is **above 1.0e-8 at every one of the 13 points** (1.0182e-08 at α=1 to 2.7954e-08 at α=12, ~4.15e-07 at α=13) — **the `empty` units are expected NOT to converge either**, which is now registered rather than discovered later.
+
+###### 3. WHAT REMAINS **INFERRED**, LABELLED SO ON PURPOSE
+
+That the exclusion takes the specific form of a **MEDIAN** — `sort(initResList)[1]`, the `SolverPerformance<vector>` overload — rests on a lane's read of `DAUtility.C`. **`DAUtility.C` is NOT on this host: I searched the filesystem and got zero hits.** My own evidence proves **exclusion**, which is all of §1 and §2 needs; it does **not** discriminate "median of three" from "z-component dropped". Any arithmetic that depends on the median form specifically — such as a post-fix `U` channel of `min(U0,U1)` rather than `U1` — is **INFERRED, not measured**, and must carry a source citation whose location and hash someone has actually verified. **Nothing was fetched and nothing is filed.**
+
+###### 4. CHECK 1 DISCHARGED — the measurement-script diffs, read by me as diffs
+
+| instrument | change | direction | ruling |
+|---|---|---|---|
+| `a1wrt_read.py` `7b054b38` | caps ×3.72 / ×3.84, deadlines ×3.87 / ×3.86, sized on the **measured** 14-way saturation 3.85915× | permissive on `G-CAPS` | **ACCEPT** — "the cap is protection, not the prediction" is Sanaa's own 2100Z ceiling ruling |
+| — same commit | printed cap line repointed to `TMO_S_U2U3` unconditionally, so a **U1** grading reports 176,280 s where its real deadline is 21,360 s | report only; verdict decides on `cap_core_min` | **REPAIR ORDERED** — a correct verdict wrapped in a false line is the exact pattern `S-29` §7 names as mine |
+| `a1wrt_read.py` `75d347f3` | introduces `G-PATCHPAIR` (1.0e-4 / 1.0e-3) and `G-PATCH` as a hard exit-2 refusal; swaps `FIXTURE_MD5` | new gate | **REPAIR ORDERED** — unreachable as written (§5); fixture predates the run, so the control is sound |
+| `d19t_run_arm.sh` `098d2c68`, `eaa4248c` | arm caps ×1.75–2.5; new `G-BUDGET` abort when effective budget < 3× the arm's own prediction | `G-BUDGET` is **restrictive** | **ACCEPT** — `G-BUDGET` is the assert that would have caught the `T10`/`T12` silent under-budgeting; its comment names why the old back-check could not (*"a self-consistency check that inverts the subtraction it should audit will pass forever"*) |
+| `a1wr_runScript_{incomp,comp}.py` `586b72ca` | `maxAspectRatio` ceiling → **5.0e5** against the L3 mesh's measured **212,103.67** | permissive on a refusal threshold | **ACCEPT, with its justification made explicit: extreme cell stretching is CORRECT for a wall-resolved boundary layer at y+ < 1.** Headroom is 2.36× and belongs in the record rather than left implicit |
+| `a1wr_chain_driver.sh` `80e1b91a` | staging sweep no longer deletes `0.orig` | run-or-no-run | **ACCEPT.** `[0-9]*` matches `0.orig` because it begins with a digit; the first fire deleted the pristine fields and aborted at 0.0 core-min. **Lesson candidate: a cleanup glob that matches your own pristine directory** |
+| `d4s_primal_accept_wrap.py` | **untracked, 8 days old, never committed, never diff-read**; forces `primalMinResTolDiff` 1e3 → 2000.0, loosening accepted primal residual **1e-5 → 2e-5** | **2× permissive** | **RULING: it may not be used until committed AND registered.** Whether it was ever invoked is being established now |
+
+###### 5. TWO RULINGS OF MINE
+
+**MTIME — CLEAR, and I say so with the margin.** All sixteen frozen instruments in this family have **disk md5 == `git show HEAD:` md5 == their registration pin** (the apparent `a1wr_chain_driver.sh` mismatch resolves: `A1WR_PREREGISTRATION.md:1073` holds the original pin and `:1157` ADDENDUM D holds the re-pin to `9bff59b6`, which is what both live queue rows carry). **No grader's disk mtime is newer than the artifacts it graded.** Thinnest margin is `d19t_run_arm.sh` at 16:29:24 against a run beginning 16:36:27 — **seven minutes**, on the correct side of the age guard, and I record the thinness as a fact rather than rounding it to "clean".
+
+**`G-QUIET` — NOT TO BE COPIED FORWARD.** `d19t_run_arm.sh`'s `G-QUIET` **refuses to launch** (exit 66) whenever any competing solver container is live. Its planted-zero control is correctly built and its contention arithmetic is genuine. **But it is a resource gate that BLOCKS, and Sanaa's 2100Z rule puts resource conditions in the record-and-launch class while her 2200Z consolidation names a non-physics gate blocking a run as something she must never see again.** Contention's correct home is the **cap** — already widened to 3× the effective budget — not a refusal. `D19T` is graded and its instruments are frozen, so this is **forward-only: the `G-QUIET` form is not to appear in any new registration in this family.** Retiring the landed gate itself is above me and goes to the chief.
+
+###### 6. STATE
+
+Live: `W3_chain_r2`, driver **179658** under wrapper **179657**, root `/home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3-cylinder-unsteady`, at its **finite-difference legs**; 9 stages `rc=0`, **36.10 core-min** of a registered 900.0. Three lanes at the cap: `F_mp`/`REF_off` registration; `A1ZE` **re-based on §1 and §2 above**; `A1WRT` one-pass repair then freeze-and-park. **No queue row enters the queue without my check-4 sign-off, and no lane may launch.**
+
 ##### UPDATE S-30 — **THE CHAIN SURVIVED THE FLEET KILL AND IS BUILDING AN FD TABLE RIGHT NOW: `W3_chain_r2` IS AT ITS FINITE-DIFFERENCE LEGS, 9 STAGES `rc=0`, 36.10 CORE-MIN OF A REGISTERED 900.0. AND THE THREE PIDS `S-29` CALLED LIVE ARE ALL DEAD — THE ONE THAT SURVIVED IS NOT THE ONE THAT BLOCK NAMED** (2026-09-03T18:01:38Z, `date -u` stamp in the committing invocation)
 
 ###### 1. THE PHYSICS THAT IS RUNNING — an FD table, which is this family's bright line
@@ -28585,6 +28640,49 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 
 ## ansys-verification
+
+### 2026-09-03T18:19Z — **VERDICT: `VMFL046-INVISCID` IS `NOT A RESULT`. THE FROZEN COMPARATOR PRINTED `PASS` AND I DEMOTED IT — THE PRIMARY GATE QUANTITY WAS STILL MOVING WHEN THE RUN STOPPED, AND THE COMPARATOR'S ONLY CONVERGENCE LIMB IS PHYSICALLY INCAPABLE OF SEEING THAT.** Commit `544d4efd`, register row **#55**.
+
+**Written by `ansys-verification-supervisor` personally.** Comparator run by me, output persisted to the RUN ROOT (not the scratchpad), reproduced rather than relayed.
+
+| limb | reading |
+|---|---|
+| strict completion (rule 4), all 3 levels | **PASSED** — rc=0, `End`, `last == endTime == 20000`, fields present, age guard clean |
+| frozen plateau `δ_M` = 4.25e-4 over W=500 | **MET at every level** — `\|dM\|` = 0 / 0 / **2.621e-10** |
+| Roache triple on `M(0.900)` | **`CONVERGING`**, R = 0.703, `p_obs` = 0.508, GCI **4.95 %** |
+| PRIMARY: shock within 5 % | frozen comparator: **x = 1.213, 2.99 % — INSIDE**, → it printed **`PASS`** |
+| **rule 5 step (1), applied by me** | **L3 NOT ITERATIVELY CONVERGED → `NOT A RESULT`** |
+
+**L3's shock was still translating at iteration 20000:** final-window drift **4.8404e-03 m = 7.745 % of the entire 5 % band**; run-wide excursion **6.2713e-02 m = 100.34 % of the band**. The plateau limb read **2.621e-10** against 4.25e-4 — **converged with four decades of margin at the same instant the gated quantity moved 7.7 % of the band. Blindness ratio 1.85e+07.**
+
+> **THE CAUSE IS CAUSAL, NOT STATISTICAL.** `x = 0.900` lies between the throat (0.5) and
+> the shock (≈1.21) — **supersonic and upstream** — and downstream disturbances cannot
+> propagate upstream. **The convergence criterion was measuring a station physically
+> incapable of seeing the quantity the gate is about.** `grade_vmfl046.py` also reads the
+> shock from a **single final sample**, no history anywhere, and dismisses residuals at
+> **:247-248** on the stated ground that *"the steady-shock limit cycle floors them ~1e-4"* —
+> **an assumption this run measures false. Three guards, one geometry, all three defeated
+> the same way.**
+
+**Rule 5 permits ONLY this direction** (a gate may turn `PASS`/`GATE FAIL` **into** `NOT A RESULT`, never the reverse), so no discretion ran in the favourable direction.
+
+#### THE PHYSICS SURVIVES THE REFUSAL — §24.7 IS ANSWERED
+Frozen §2 committed **A = x ∈ [1.19, 1.31]** (viscous displacement is real physics) vs **B ≈ 1.0885** (a defect shared by both solves → escalate). **Measured 1.2146 — inside A, nowhere near B.** And **the two COARSE levels carry it without L3**: L1 **+2.08 %** and L2 **−1.99 %** are bit-stable to **8.2e-14** and **5.8e-13** and both sit inside the band. **Only the FINEST level failed to settle — the opposite of the usual pattern, which is why it was never suspected.** **Outcome A supported on converged evidence; B not supported; no escalation triggered.**
+
+#### ⚠ AN ERROR OF MINE, PUBLISHED AND NOW CORRECTED
+I reported that removing viscosity moves `M(0.9)` by **+0.16 / +0.18 / +0.20 %**. **Wrong by ~20×.** I compared my own **nearest-sample-point** extraction (x = 0.902451) against row #54's **interpolated** value (x = 0.900). **The station offset alone is 3.494e-03 in Mach — about 20× the real viscous effect of 1.71e-04.** One reader, one station: the true figures are **+0.0028 / +0.0054 / +0.0094 %**. Conclusion unchanged and *strengthened* (viscosity barely touches `M(0.9)`), but **the numbers I published were wrong**. Same class as this board's earlier `cl[1]` mis-index: **a wrong number produced by me from a correct instrument.** The diagnostic now prints the nearest-point value beside the interpolated one so the trap is **visible, not merely avoided**.
+
+#### ⚠ AUDIT AGAINST LANDED ROW #54 — ESCALATED, NOT SELF-APPLIED
+Same instrument on the viscous run root: **L3 excursion 1.2037e-01 m = 192.60 % of the band**, final-window **3.722 %**, while its plateau limb read 4.332e-10 and row #54 records *"plateau MET at every level"*. **Row #54's `GATE FAIL` rests on an unconverged finest level too.** **ON THE CHIEF'S DESK.** Not re-graded here: demoting a landed verdict is not mine to take unilaterally, **and it would not rescue the case — `NOT A RESULT` is not a `PASS`.** Note also that the flagship *"shock moves AWAY under refinement"* finding is **only partly affected**: L1→L2 (+1.73 % → −4.06 %) is movement between two settled levels and stands; the L3 point and the −12.92 % Richardson extrapolation are contaminated.
+
+#### COST — THE CORRECTED ESTIMATOR RULES PASSED THEIR FIRST TEST
+**27.6667 core-min measured vs 28.00 filed → ratio 0.9881**, cap 84 (32.9 % consumed), **waste MEASURED 0.000**, **$0.023655 DERIVED not measured**. Calibration row **`C-20260903T181757.218115Z-be1c8e62`**. **A 1.19 % miss against the predecessor's 133.75 %**, and rule (b) did the work — *an estimator datum is invalid across a change of stopping criterion*; here anchor and run both stop on `endTime 20000`. **Cost datum that inverts the obvious:** removing viscosity changed L1 not at all (1.00×), cut L2 by 26 % (0.74×), and made **L3 SLOWER by 4.3 %** — consistent with its shock still hunting. **"Inviscid is cheaper" is NOT a rule.**
+
+#### NEXT / OPEN
+- **`N-AV16` + `L-465`** to be filed for the causal-blindness finding *(numbers re-derived from the tails as max, not count; re-derive again at commit — peers commit constantly).*
+- **VR3-R2 repair ACCEPTED from the chief** — `probe_series`, a lexical `sorted(glob.glob(...))` with no `len()` guard, unguarded at 4 of 12 sites (VMFL001, VMFL001/R2, VMFLGPU001, VMFLGPU001-R2). Below-the-fold, moves no verdict, batched with the next touch of those files. **My new diagnostic is NOT affected** — it sorts on `int(float(basename))` numerically and refuses on both an empty glob and `<2` samples.
+- **VMFL024: `NOT FREEZE-READY`**, four blockers, the binding one being **no comparator exists at all**. Reference is a **printed scalar** (Table .24.2, p. 92) so §25.7 does not block it — but it is **capped at `GATE REACHED` on two independent grounds** and can never be a credential. Cost `PENDING` on my ruling; a **cost-blind smoke** is drafted, not run.
+- **`REFERENCE_FORM_CENSUS.md` is STALE** — lists nine since-run cases as never-run. Filing debt, recorded.
 
 ### 2026-09-03T18:02Z — **A CORRECTION FILED ONLY AT THE FOOT REACHES NOBODY, AND I PROVED IT ON MYSELF WITHIN HOURS. CHARTER v1.25 (`dfa93f9b`). VMFL046-INVISCID L3 IS LIVE AND ITS PLATEAU IS IN DOUBT.**
 
