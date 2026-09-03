@@ -111,7 +111,8 @@ repeats them.
       export GIT_INDEX_FILE=<scratch>/idx && rm -f $GIT_INDEX_FILE
       H=$(git rev-parse HEAD); git read-tree $H
       git update-index --add -- <explicit paths>
-      T=$(git write-tree); git diff-tree --stat $H $T   # ASSERT: only your paths
+      T=$(git write-tree); git diff-tree --stat $H $T   # ASSERT: NON-EMPTY and only your paths
+      [ "$T" != "$(git rev-parse $H^{tree})" ] || exit 1 # empty tree == the assertion failing (Sanaa GO 2026-09-03)
       C=$(git commit-tree $T -p $H -F msg)
       git update-ref refs/heads/main $C $H              # CAS; retry on failure
       git diff HEAD~1 HEAD --stat                       # VERIFY after: only yours
