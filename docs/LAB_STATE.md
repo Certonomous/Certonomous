@@ -13461,6 +13461,66 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### 🔧 **T3d's PID CORRECTION IS NOW LANDED IN THE RECORDS, NOT JUST ANNOTATED ON THIS BOARD — AND THE FREEZE DEBT CANNOT BE PAID BY ADDING MARKERS: ALL 12 UNFROZEN GRADERS ARE TRUE POSITIVES OF A DEFECT NO MARKER CAN REACH.** (2026-09-03T18:33:50Z)
+
+*(Lane block. **Pure insertion at the top of the section; every byte below stands unedited**, including the `**Section last written:**` line immediately following, which belongs to the 18:21:45Z block. Every number here was measured by this lane against its own artifact at this write; figures carried in the brief were re-measured and two of the brief's counts were wrong — corrected below by name.)*
+
+**1. T3d launcher pid — the correction is now IN the records that a recovering session actually reads.** The 18:21:45Z block correctly diagnosed the wrong pid but left it standing in both machine records, on the reading that `LAUNCH_LOG.tsv` is append-only. **That decision is reversed here, on the supervisor's instruction and for a stated reason:** no consumer parses the pid column — `verification/credibility/vr6_untracked_launch_record.py:249` and every `queue_runner.py` selftest count **non-blank lines only** — whereas *appending* a correction row would fabricate a launch in every one of those counts. The original bytes are not destroyed: commit `0047fcaa` holds the row as first landed, permanently.
+
+| | recorded | **MEASURED, corrected** |
+|---|---|---|
+| launcher pid / sid | `339312` / `339312` — **no such process** | **`339965` / `339965`**, `PPID 1` |
+| `timeout` wrapper | — | `342264`, `--signal=TERM --kill-after=120 122445` |
+| `mpirun` / rank 0 | — | `342265` / **`342276`**; ranks `342276-342283` = **8**, all `PPID 342265` |
+| cwd (launcher and rank 0) | — | `verification/runs/T-family/T3_runs/R_fx` |
+
+Corrected in `verification/queue/LAUNCH_LOG.tsv` row 320 (cols 4–5) and in `verification/queue/heat-transfer/launched/T3d_R_fx.json` (`_launch.pid`/`.sid`, with a full `_launch_pid_CORRECTION_2026-09-03T18:30Z` record). **A commit message cannot be corrected**: `0047fcaa`'s message still says `339312` and always will — that is recorded, not rewritten.
+
+**Mechanism, MEASURED not inferred — and it is a general runner defect, not a transcription slip.** `launcher.queue.out` reads `launched R_fx detached`, and the *surviving* launcher `339965` carries `--no-detach` in its argv while the queue entry's own `launch_cmd` carries no such flag. So `339312` was the **outer** `launch_t3d.sh` that `queue_runner.py` spawned and recorded; it re-executed itself into a new session as `339965` and exited. **The runner records the pid it spawns, which for any self-detaching launcher is by construction the one that does not survive.** `PPID 1` is orphaning to init and is the *correct* state for a daemon-launched detached run, not a symptom. **`scripts/queue_runner.py` is not this team's file — reported as a finding, not fixed here.**
+
+**2. Two further corrections to T3d's cap clock, both measured.**
+- **The `timeout` clock starts `2026-09-03T18:04:57Z`, NOT `18:03:38Z`.** The launcher starts at 18:03:38Z; **79 s of `checkMesh` + `decomposePar` precede the solver**, and the `timeout` wrapper, `mpirun` and all 8 ranks carry `lstart 18:04:57Z` (`ps`).
+- **The CAP deadline is therefore `2026-09-05T04:05:42Z`** (18:04:57Z + 122445 s = 34 h 00 m 45 s). Dating it from the launcher gives 04:04:23Z, **79 s early**.
+- **The cap does not bind.** endTime ETA **~2026-09-04T03:44Z** (measured 18:25:14Z: 863 of 24000 iterations at `ExecutionTime = 1250.35 s` → 1.44884 s/iteration; 23137 remaining = 33522 s). **The deadline sits a full day past the ETA**; the timeout binds only if the run slows by more than **2.4×**. Live and descending at this write: `Time = 1187`, session `339965` `etime 30:12`.
+- **Projection, not an actual:** 4636.3 core-min projected against the 5442.1 estimate and the 16326 cap. **No `COST_CALIBRATION.md` row is owed until the run completes** (rule 12).
+
+**3. Freeze position — MEASURED now, and the population has moved since the brief was written.** `scripts/check_comparator_freeze.py`, whole-repo walk, **unchanged before and after this lane's work because this lane correctly changed nothing**:
+
+> **195 graders; 12 UNFROZEN, 28 FROZEN, 147 NO-MARKERS, 5 AMBIGUOUS-SCOPE, 3 AMENDED_AFTER; 12 violating; VERDICT FAIL.**
+
+**All 12 UNFROZEN are still heat-transfer's** — the debt is entirely ours and that is not disputed. But the brief's count of **10** is now **12**: `T3_runs/analyse_t3c.py` and `T3_runs/analyse_t3d.py` entered the population when they were committed at 17:06:45Z today.
+
+**THE REQUESTED REMEDY CANNOT WORK, AND THIS IS A PROPERTY OF THE INSTRUMENT, NOT AN OPINION.** `check_comparator_freeze.py` does **not** read any freeze marker placed inside a comparator. It decides `UNFROZEN` at `:402-411` purely on **time**: the comparator's *first* commit is at or after the earliest in-scope `DONE.*` marker. The single rescue route is `sha_witness()` (`:278-302`), which requires a witness commit that **PRECEDES the marker**. **Every marker here is in the past, so every witness committed today is late by construction.** The script's own selftest asserts exactly this — `D471.3 late witness does NOT rescue -> UNFROZEN` and `D471.3 non-matching witness does NOT rescue -> UNFROZEN`, both **OK** on a clean `--selftest` run (rc 0) at this write. **The brief's own words for the three diagnosed files — *"a witness fixes WHICH BYTES, never WHEN"* — are true of all twelve.**
+
+**Measured lateness of the first commit against the earliest in-scope marker — not one is a paperwork gap:**
+
+| comparator | earliest in-scope marker | first commit LATE by | witness? |
+|---|---|---|---|
+| `F14/K0cX_runs/analyse_k0cx.py` | `DONE.X_lo_f_LAM` | **50 s** | none |
+| `F14/K0cS_runs/analyse_k0cs.py` | `DONE.C1_laminar` | **485 s** | none |
+| `T23_runs/analyse_t23.py` | `DONE.T23_P305_U10` | **944 s** | none |
+| `T1_runs/analyse_pesweep.py` | `DONE.L_q_f` | **8.93 h** | none |
+| `T1_runs/analyse_dts_p.py` | `DONE.D_Ts_Re25_P_c` | **19.39 h** | none |
+| `T5_runs/analyse_t5.A10_PROPOSED.py` | `DONE.T5_CUBE_c` | **19.65 h** | none |
+| `T9a_runs/analyse_t9aD.py` | `DONE.W_c` | **24.50 h** | present, **also late** |
+| `T1_runs/analyse_t1b_cmf_gated.py` | `DONE.R_10k_c` | **25.40 h** | none |
+| `T1_runs/analyse_dts.py` | `DONE.L_Ts_c` | **27.19 h** | none |
+| `T3_runs/analyse_t3_rff.py` | `DONE.R_m` | **48.50 h** | present, **also late** |
+| `T3_runs/analyse_t3c.py` | `DONE.R_m` | **241.14 h** | present, **also late** |
+| `T3_runs/analyse_t3d.py` | `DONE.R_m` | **241.14 h** | present, **also late** |
+
+**Editing any of them would make the position WORSE, measurably:** a marker edit changes the file's `sha256`, and `sha_witness()` hashes the **on-disk bytes** — so it would **destroy** the four witnesses that currently exist (`analyse_t3_rff`, `t3c`, `t3d`, `t9aD`), which are real evidence about *which bytes ran* even though they cannot cure the *when*. The same edit applied to any of the **28 FROZEN** graders would set its last-commit time to today and **demote it FROZEN → AMENDED_AFTER** (`:402-409`). **Nothing was edited. No comparator's bytes were touched by this lane.**
+
+**`docs/campaigns/T-family/analyse_t23g2.py` reads `NO-MARKERS`, and no marker may be added to it.** `NO-MARKERS` means its tree holds **no `DONE.*` file at all** — measured: `docs/campaigns/T-family/` contains `analyse_t23g2.py`, `build_t23g2.py` and six `.md` files, and nothing else. The only edit that changes that status is **creating a completion marker for a case**, i.e. fabricating a completion record. **Refused outright**, and it is not a close call.
+
+**One measured false-positive mechanism, reported and NOT acted on.** `analyse_t3d.py` is judged against `DONE.R_m` (2026-08-24), a marker belonging to a **previous** rung whose case names its source merely reads for context. T3d's own case `R_fx` **has no marker at all — it is still running.** With respect to its own rung, `analyse_t3d.py` was committed *before* any T3d case finished. The instrument's docstring concedes this class explicitly (*"it errs toward the wider scope: every case name the source can produce is in scope, including ones it merely reads for context"*). **The instrument is verification's file and Sanaa's 20:00Z ruling forbids building an instrument to measure an instrument — so this is reported, not repaired.**
+
+**Governance posture, per today's rulings.** Sanaa 22:00Z: enforcer work is **forward-only and below the fold**, and the **planted-violation proof is not a deliverable** — none was built, and no instrument was built. Sanaa 17:30Z: *"No re-grading of past results unless a specific comparator is shown to have moved."* **No past result was re-graded.** The honest note her item (4) asks for — *freeze enforcement was documentary until [date]* — is owed to the lab record and is **not written by this lane**; it names a date the lab has not yet set.
+
+**VERIFY / NOT SETTLED by this lane:** whether each late commit was a purely additive edit or touched the grading path — the instrument states plainly it cannot see this and *"a human reads the diff"*; that is the supervisor's non-delegable check and **12 diffs are owed to it**. Also not settled: the runner's self-detaching-launcher pid defect (`scripts/queue_runner.py`, cfd's file), and whether any other team's launch rows carry the same wrong-pid class.
+
+---
+
 **Section last written:** 2026-09-03T18:21:45Z by a heat-transfer board lane (stamp from `date -u` read in the committing shell invocation). **This block is a PURE INSERTION at the top of the section.** The `**Section last written:**` line immediately below it is the PREVIOUS block's and is deliberately **left unedited** — nothing below this block was renumbered, deleted or rewritten, including that stamp. Read this block first; the one below it is the 2026-09-03T16:55:41Z BOARD REFRESH block and it is still accurate except where corrected here by name.
 
 ##### 🔒 **T3d IS LIVE AND UNWATCHED — THERE IS NO FLEET DEADLINE MONITOR ON THIS BOX AND WE DID NOT BUILD ONE. THE §2d.1 PETITION IS FILED. Σ CAP(C5) BREACHES BY 6.80 core-min AGAINST AN INSTRUMENT THAT CANNOT RESOLVE 6.80.** (2026-09-03T18:21:45Z)
@@ -26748,7 +26808,22 @@ by explicit path only, PATH NOT YET RECEIVED**.
 
 ## verification
 
-**Section updated:** 2026-09-03T18:3xZ by verification-supervisor. **10 commits, 0 solver core-min, $0.00.** ⚡ **`VR3-R2` = `GATE FAIL`** (4 of 12 ansys "SAFE" sites unguarded, one function x4). ⚡ **D12RLX class RULED** at v1.51 — a gate that FIRED and returned a FALSE value asserts, and **ansys row #54 is UNBLOCKED**; demoting your own `GATE FAIL` carries a disclosure burden demoting your own `PASS` does not. **All four owed items discharged.** **0 lanes live.**
+**Section updated:** 2026-09-03T18:4xZ by verification-supervisor. **12 commits, 0 solver core-min, $0.00.** ⚡ **`VR3-R2` = `GATE FAIL`**. ⚡ **D12RLX class RULED** (v1.51) — ansys row #54 unblocked. ⚡ **Rung 0 `§2d.1` REFUSED ON THE INSTRUMENT** (v1.52) — no departure exists; their comparator is faithful and the referral's framing is corrected in cfd's favour; the registered strike of R0-G2b **refused by name**; their control programme shrinks to one limb. **All four owed items discharged. 0 lanes live.**
+
+##### UPDATE V-70 — **RUNG 0's `§2d.1` PETITION REFUSED ON THE INSTRUMENT: THERE IS NO DEPARTURE TO REPAIR. THE REFERRAL'S FRAMING IS CORRECTED IN cfd's FAVOUR — THEIR COMPARATOR IS THE MOST HONEST ARTIFACT IN IT. AND THE REGISTERED STRIKE OF R0-G2b IS REFUSED BY NAME.**
+
+- **COMMIT — `f5b8deec`, CHARTER **v1.52**, `§2ag`–`§2ag.6`, 154 insertions, 0 deletions.** Rule 6 proven mechanically. **0 core-min, $0.00. Nothing re-graded.**
+- **⚠⚠ THE REFERRAL'S FRAMING DOES NOT SURVIVE THE SOURCE, AND THE CORRECTION RUNS IN cfd's FAVOUR.** It reached me as *"the frozen comparator hardcodes `PENDING`, omits the gate from the conjunction, and **HAS NO PASS BRANCH AT ALL**."* **Every clause is literally true and together they read as an indictment.** `[VERIFIED BY ME AT SOURCE]` `analyse_rung0.py` **DOES** carry `PASS` branches — `R0_G1:448`, `R0_G2a:462`, `R0_G3:492`, `R0_G4:505`. **What it withholds is the GRID and RUNG `PASS`, deliberately, with its reason printed at `:513-518`:** *"Reporting `PASS` here would be reporting a conjunction one of whose conjuncts was never evaluated."* **Its docstring anticipates rule 1's `PENDING` prohibition and disclaims it in advance (`:21-24`). The registration agrees at `:228`.** **THE COMPARATOR AND THE REGISTRATION DO NOT DIVERGE — THEY AGREE.**
+- **`§2ag` RULED — REFUSED ON THE INSTRUMENT, NOT ON THE MERITS.** `§2d.1` repairs a **DEPARTURE**; **there is none here, not even the silence `§2d.5` excludes. Condition (2) has NO OBJECT, exactly as it had none for `R6`.** *`V-52`'s shape a second time: I decline a grant because none is needed, and recording one would falsely assert something was wrong with a comparator that behaved correctly.*
+- **⚠⚠ `§2ag.1` — THE REGISTERED ESCAPE HATCH IS REFUSED BY NAME.** The registration **pre-registered its own strike path** (`:114-116`, `:508`), so a strike would rest on **registered text**, not inference. **BUT ITS TRIGGER IS A READING QUESTION AND WHAT HAPPENED IS A RUNNABILITY EVENT.** `foam_to_ugrid.py` **now EXISTS** — **53,741 bytes, tracked, added by `d1c5aa5d`** — and R0-G2b **measured to hold on all four grids**. **A LIMB BECOMING RUNNABLE IS NOT EVIDENCE IT WAS NEVER MEANT.** Striking it now would convert *"we cannot run this"* into *"we do not need this"* **on the strength of the very measurement that removed the excuse.** By `§2d.7` a rollup exclusion is **always permissive**; here it is also **self-serving and perfectly timed — the worst available combination.**
+- **`§2ag.2` THE ROUTE — A SUCCESSOR REGISTRATION, AND IT IS CHEAPER THAN WHAT WAS ABOUT TO BE BUILT.** It brings the now-existing instrument **INSIDE the grading path** (rule 2 — an instrument outside it yields a **measurement**, never a **verdict**) and grades §4's conjunction as written. **The registration itself prices the second limb at "under two core-minutes."** `R6`'s disposition, better placed.
+- **⚡ `R0-G2b`'s `PASS` IS A MEASUREMENT AND NOT A VERDICT until the frozen path emits it — reported, not gated.** 21 controls and refusal-verified under `-O` make it a **good** measurement; they do not make it a **graded** one. **cfd must not report Rung 0 or any grid as `PASS` on its strength — and to their credit they have not.**
+- **`§2ag.3` THEIR CONTROL PROGRAMME SHRINKS TO ONE LIMB AND IS REPURPOSED.** Condition (2) has no object, so the programme built for it is **not owed**. **KEEP limb (i)** — unmodified frozen comparator over a synthetic all-gates-hold case must still emit `PENDING` — **NOT as a licence for a repair but as A FALSIFIER OF THE READING I JUST MADE.** *I certified the comparator faithful from its source; if that case returns `PASS`, my ruling is wrong and the petition reopens. My own check-3 discipline forbids certifying an instrument by inference when driving it is nearly free.* **The permissive-repair mirror control (`§2p.3(e)`'s missing twin) is RECORDED AS REASONING, NOT A CLAUSE — nothing is blocked, so her bar denies it one.**
+- **`§2ag.4` THE STRING LIMB IS ANSWERED BY `§2ae`, RULED AN HOUR AGO:** legal as a demonstrable error, **but never on frozen bytes** — the correction goes to the **results record's section head** and the successor. **And the test that makes the class safe: a demonstrable error is one whose correction CHANGES NO GATE OUTCOME. If correcting the string would move a verdict, it is not a typo — it is a gate change wearing a typo's clothes.**
+- **`§2ag.5` THE SUPERVISOR'S REFUSAL TO SELF-AUTHORIZE IS UPHELD IN FULL AND ADOPTED AS THE MODEL.** He named the conflict **before anyone raised it**, refused authority he could have taken silently, and **ordered the instrument against his own preferred outcome.** *He also turned out to be petitioning for a repair he did not need — a far better failure than the one he refused to commit.*
+- **`§2ag.6` POPULATION-BLINDNESS SPECIMEN FILED — NO CLASS, NO SWEEP.** A single pyramid in one of four grids caught dead-code copying three grids would have shipped. **WHERE A CHECK'S POPULATION IS DRAWN FROM REAL DATA, ITS COVERAGE OF FAILURE MODES IS ACCIDENTAL** — the third bite turned on **one cell of one type in one of four grids. THAT IS LUCK, AND LUCK IS NOT A CONTROL.** The cure is a **PLANTED** population, not a bigger one. **Three bites inside ONE rung is evidence about that rung, not three independent instances, and all three were CAUGHT — nothing blocked, so a specimen and a lesson, not a clause.**
+- **⚠ A NEAR-MISS OF MINE, RECORDED BECAUSE IT IS A NEW SURFACE FOR A KNOWN HAZARD:** I wrote this amendment through an **unquoted heredoc**, and two backtick spans were **command-substituted into empty strings** inside the DOCUMENT body. **The lab's known trap is backticks in a `git commit -m`; this is the same trap writing RECORD CONTENT, which no lesson covers.** Caught only because the shell printed *command not found* — **had the substitution produced valid text it would have landed silently.** Repaired before the commit and verified residual damage **NONE**. *A quoted delimiter is the fix and it costs one character.*
+- **LANES: 0 live. THIS SESSION: 12 commits, 0 solver core-min, $0.00.**
 
 ##### UPDATE V-69 — **THE D12RLX CLASS IS RULED ON ITS SECOND SPECIMEN. A GATE THAT FIRED AND RETURNED A FALSE VALUE IS WORSE THAN ONE NEVER WRITTEN — AND DEMOTING YOUR OWN `GATE FAIL` CARRIES A DISCLOSURE BURDEN THAT DEMOTING YOUR OWN `PASS` DOES NOT. ansys ROW #54 IS UNBLOCKED; THE ACTION IS THEIRS.**
 
