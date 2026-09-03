@@ -1,0 +1,46 @@
+{
+  "team": "heat-transfer",
+  "case_id": "K0e_FP_T10",
+  "prereg_commit": "9f51c5836c4d64c54d8063ec4e542ff7f256d616",
+  "prereg_path": "docs/campaigns/F14-cooling-ladder/K0e_PREREGISTRATION.md",
+  "launch_cmd": [
+    "/bin/bash",
+    "/home/ubuntu/Certonomous/scripts/launch_k0e.sh",
+    "--arm",
+    "FP_T10",
+    "--root",
+    "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K0e_runs",
+    "--timeout",
+    "3150",
+    "--ranks",
+    "2",
+    "--no-detach"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K0e_runs/launch/FP_T10",
+  "ranks": 2,
+  "cost_core_min_estimate": 35.0,
+  "cap_core_min_registered": 105.0,
+  "cost_basis": "derived: the MEASURED simpleFoam reference solve on this exact 52224-cell mesh is 28.00 core-min (840 ClockTime s x 2 ranks / 60, 9000 iterations, /home/ubuntu/certonomous-runs/tmr-flatplate-finer/log.simpleFoam) x 1.25 for the added T equation and alphat update (an ESTIMATE, not a measurement: segregated linear solves per outer iteration go 6 -> 7) = 35.00 core-min POINT; cap 105.00 core-min = 3 x POINT (timeout 3150 s at 2 ranks), inside the registered rung CEILING 210.30 (prereg section 7.2); USD $0.0299 at $0.0513/core-h reported-by-owner, DERIVED NOT MEASURED (COMPUTE_BUDGET_CHARTER section 5). An overrun stops the run; it does not get a new budget.",
+  "memory_floor_gb": 1.0,
+  "enqueued_by": "heat-transfer-supervisor via lane [lab-attributed]; the supervisor's SUPERVISION_CHARTER section 3 check 4 (pre-registration committed before compute) was performed on prereg_commit 9f51c583 BEFORE this file entered the drop path -- this queue's README correction of 2026-08-27 records that the drop path fires within a minute, so check 4 happens before the drop, never after. Registered at 2 ranks: M4 compares PROCESSOR-LOCAL U against a 2-rank reference whose decomposition is COPIED, not re-derived; any other rank count makes the only gated row meaningless.",
+  "_registered_predictions": {
+    "M4": "PREDICTED NON-ZERO, therefore rung NOT A RESULT. simpleFoam solves UEqn == -fvc::grad(p); buoyantBoussinesqSimpleFoam solves UEqn == fvc::reconstruct((-ghf*snGrad(rhok) - snGrad(p_rgh))*magSf). Read from the installed v2606 source. With g = 0 the buoyancy term is an exact-zero field, but the two pressure-gradient operators are not the same discrete operator. The 0 ULP threshold is NOT weakened by this prediction (prereg section 6.1).",
+    "mesh": "max aspect ratio 65467.85, birth-certificate verdict 'flagged'. Under Sanaa 2026-09-03 21:00Z a mesh-quality mismatch is RECORDED AS A PREDICTION AND THE RUN LAUNCHES. Predicted benign: a wall-resolved zero-pressure-gradient boundary-layer mesh is supposed to be extreme in aspect ratio, and this same mesh produced the momentum solution the lab records (prereg section 6.2).",
+    "stanton": "PREDICTED |St - St_eq1|/St_eq1 of order 10 percent or less, from Bahrami's own statement about two-equation models. THIS IS A PREDICTION AND NOT A BAND: it cannot produce PASS and cannot produce GATE FAIL (prereg sections 3 and 6.3)."
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.FP_T10 (rc captured inside the detached wrapper by launch_k0e.sh)",
+      "the case's own log.solve End line, endTime 9000 fields, and the 0/T age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
+}
