@@ -114,7 +114,7 @@ reader of this item.**
 ## 4.1 What passed, stated first, because it is the part a reader is most likely to lose
 
 * **`G5_endpoint_fd_F-S` = `PASS` and `G5_endpoint_fd_F-P` = `PASS`.** The FD-vs-adjoint bright
-  line of `DAFOAM_CHARTER.md` §1 is **satisfied on both rows**. **⚠ AND BOTH AGGREGATES SIT BELOW `VERIFICATION_CHARTER.md:861-863`'s 2.5–5 % HARNESS-SOUND FLOOR — READ CORRECTION 3 AT THE FOOT BEFORE TAKING EITHER FIGURE AS A SUB-PERCENT VERIFICATION.**
+  line of `DAFOAM_CHARTER.md` §1 is **satisfied on both rows**. ~~**⚠ AND BOTH AGGREGATES SIT BELOW `VERIFICATION_CHARTER.md:861-863`'s 2.5–5 % HARNESS-SOUND FLOOR — READ CORRECTION 3 AT THE FOOT BEFORE TAKING EITHER FIGURE AS A SUB-PERCENT VERIFICATION.**~~ **[⚠ STRUCK 2026-09-03 — CORRECTION 4. Both aggregates sit below the floor of `VERIFICATION_CHARTER.md` §2al AS AMENDED (v1.56, `fc8d06e2`), whose base is n=2 and whose qualifier is the MESH. Read CORRECTION 3 as corrected by CORRECTION 4.]**
 * **`G6_planted_zero_F-S` = `PASS` and `G6_planted_zero_F-P` = `PASS`**, and both
   `G6b_negative_control` gates `PASS`. **The reader was shown able to see a non-zero before its
   zero was taken as evidence** (`CLAUDE.md` rule 3), on both rows.
@@ -547,10 +547,10 @@ cites — remain untouched, and nothing in the repository cites this record by l
 
 ## C3.1 THE NUMBERS AND THE FLOOR
 
-`VERIFICATION_CHARTER.md:861-863`, the fourth of the five reporting-protocol steps, none optional:
+~~`VERIFICATION_CHARTER.md:861-863`, the fourth of the five reporting-protocol steps, none optional:~~ **[⚠ STRUCK 2026-09-03 — CORRECTION 4. Cite `§2al` as amended, v1.56, `fc8d06e2`, not retired line numbers.]**
 
-> *"The harness-sound floor on this stack, for a case with no flagged components, is 2.5 to 5
-> percent vector-norm relative error. A number below that is a claim about the harness."*
+> ~~*"The harness-sound floor on this stack, for a case with no flagged components, is 2.5 to 5~~
+> ~~percent vector-norm relative error. A number below that is a claim about the harness."*~~ **[⚠ STRUCK 2026-09-03 — CORRECTION 4. The second sentence was REMOVED from the charter as INVENTED; "on this stack" is now "for THIS DATASET". The amended clause is quoted in CORRECTION 4.]**
 
 The clause's precondition is met here — `n_sign_flips` `0`, `n_without_plateau` `0`,
 `n_ungradeable` `0`, `n_near_zero` `0`, on both arms — so this row is **inside** the clause's scope,
@@ -566,10 +566,10 @@ not outside it.
 grader md5 `9596c7bf711a934313a9b4d5801481c6`. The ratios are arithmetic on those two values and the
 charter's 2.5 %.]
 
-**Stated plainly, in the form the charter asks for and four sibling records already use
-(`curriculum_D19M/RESULTS.md:99`, `curriculum_D19O/RESULTS.md:86-93`,
-`curriculum_D8/RESULTS.md:322-329`, `curriculum_SO3/RESULTS.md:195`): these are claims about the
-harness. This record does not claim a sub-percent verification of the DAFoam gradient.** The floor
+~~**Stated plainly, in the form the charter asks for and four sibling records already use~~
+~~(`curriculum_D19M/RESULTS.md:99`, `curriculum_D19O/RESULTS.md:86-93`,~~
+~~`curriculum_D8/RESULTS.md:322-329`, `curriculum_SO3/RESULTS.md:195`): these are claims about the~~
+~~harness. This record does not claim a sub-percent verification of the DAFoam gradient.**~~ **[⚠ STRUCK 2026-09-03 — CORRECTION 4: this leaned on the invented sentence.]** The floor
 is **REPORTED HERE, NEVER GATED** — `G5`'s registered band is 5 % and it is unchanged.
 
 ## C3.2 THE SAME TABLE RESTRICTED TO THE FLOOR'S OWN INSTRUMENT
@@ -623,7 +623,7 @@ verification supervisor as a clause question. **Nothing here argues the floor do
 
 ## C3.4 THE FLOOR'S SOURCE STUDY, AND THE SAME-MESH COMPARATOR
 
-The charter states the floor at `:861-863` with no derivation on its face. Its source is
+~~The charter states the floor at `:861-863` with no derivation on its face.~~ **[⚠ STRUCK 2026-09-03 — CORRECTION 4: TRUE WHEN WRITTEN, NO LONGER TRUE. `§2al` (v1.56, `fc8d06e2`) RESTORED the derivation, the n=2 base and the mesh qualifier into the clause itself.]** Its source is
 `/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A_stepsize_study.md:89-90` (md5
 `b6fcde0f55e9b357d43140f591db399b`, 136 lines), whose five recommended steps are the charter's five
 steps nearly verbatim:
@@ -659,6 +659,79 @@ every figure above is read or recomputed from artefacts already on disk. It does
 amended, or propose wording for `VERIFICATION_CHARTER.md`, which is not this team's document and
 whose floor is a threshold. **And it does not diminish `G12_cpu_placement_F-P`, which remains
 `GATE FAIL` and is treated at §4.**
+
+**Nothing in this item or this record is filed, sent, emailed, uploaded, posted or commented outside
+this box, now or ever** (`CLAUDE.md` rule 7; `DAFOAM_CHARTER.md` §10). **SUBMISSIONS PARKED.**
+
+---
+
+# CORRECTION 4 — 2026-09-03. CORRECTION 3 was written against a clause that has since been amended: the sentence it leaned on was **REMOVED FROM THE CHARTER AS INVENTED**
+
+**Ruled by the dafoam-supervisor, 2026-09-03.** Written by a dafoam lane. **ZERO COMPUTE**, nothing
+re-graded, no artefact written, no run root touched, no container invoked. **The verdict does not
+move: `ITEM_two_row_endpoint_fd` remains `PASS`. No gate moves. No threshold moves.** `G5`'s
+registered band is 5 % and is unchanged. `G12_cpu_placement_F-P` remains `GATE FAIL`.
+
+## C4.1 WHAT HAPPENED, AND IT IS NOT A CHANGE OF MIND
+
+CORRECTION 3 was drafted and committed (`65709a94`) against
+`VERIFICATION_CHARTER.md:861-863` as it then stood. **While it was being drafted, the verification
+team amended that clause** — `fc8d06e2`, **`VERIFICATION_CHARTER.md` v1.56, new `§2al`** — and made
+three changes:
+
+1. **`"on this stack"` → `"for THIS DATASET"`.** The transcription had widened one study into a
+   whole stack.
+2. **The n=2 base is RESTORED into the clause**: 2.5-3.0 % at 4,032 cells, and A2's **1.71 % at
+   38,304 cells / 96 DVs**, *"consistent with the floor TIGHTENING ON FINER MESHES."*
+3. **⚠ The sentence *"A number below that is a claim about the harness"* is STRUCK AS INVENTED.**
+   `§2al.2`: it *"APPEARS NOWHERE IN THE SOURCE and is CONTRADICTED BY the source's own SECOND DATA
+   POINT, which is BELOW the floor and is read there as CONFIRMING it. On a FINE MESH a sub-floor
+   number is WHAT THE ESTABLISHING STUDY PREDICTS, not an anomaly and not a claim about the harness."*
+
+**The third change removes the sentence CORRECTION 3 quoted and leaned on.** `§2al.2` names the
+propagation it caused — two frozen pre-registrations, a grader status string, and at least five
+`RESULTS` records. **CORRECTION 3, written after the referral but before the amendment landed, was a
+further propagation of it, and this correction is the lane's own repair of its own record.**
+
+## C4.2 WHAT IS STRUCK ABOVE, AND WHAT SURVIVES UNTOUCHED
+
+**Struck in place, byte-identical inside every `~~…~~`, never reworded or deleted — FIVE sites, all
+markers or citations, none a measurement:** §4.1's pointer marker; C3.1's citation of the retired
+line numbers; C3.1's block quotation of the old clause; C3.1's *"these are claims about the
+harness"* sentence; and C3.4's *"the charter states the floor … with no derivation on its face"*,
+which **was true when written and is no longer true**, because `§2al` restored the derivation into
+the clause itself. **Lines whose number changed above this section: 0** — every strike is inline and
+no line was added or removed.
+
+**EVERY MEASUREMENT IN CORRECTION 3 STANDS UNCHANGED AND IS RE-AFFIRMED HERE.** Nothing measured
+depended on the invented sentence: the aggregates 0.350109 % / 0.163445 %; the restricted
+0.861604 % / 0.391451 %; `patchV[1]`'s 91.37 % / 90.87 % share and the 2.46× / 2.40× ratio; the
+38,304-cell, 96-shape-DV match to the source study's A2 datum. **The amendment changes what the
+charter says about such numbers. It changes none of the numbers.**
+
+## C4.3 THE CAVEAT, RESTATED AGAINST `§2al` AS AMENDED
+
+Following the form of `curriculum_D19O/PREREGISTRATION.md:188` — **its structure, not its wording,
+because D19O's own sentence quotes the struck text and `§2al.2` names it as a propagation site.**
+
+* **The harness floor.** `VERIFICATION_CHARTER.md` **`§2al` as amended (v1.56, `fc8d06e2`)**: the
+  harness-sound floor **for THIS DATASET**, for a case with no flagged components, is **2.5-5 %
+  vector-norm relative error**, on a **stated base of n = 2** — 2.5-3.0 % at 4,032 cells and
+  **1.71 % at 38,304 cells / 96 DVs** — and qualified by the mesh, *"consistent with the floor
+  tightening on finer meshes."* **Published beside every aggregate. Turning it into a gate would
+  convert an honest caveat into a `GATE FAIL` the charter does not authorise.**
+* **This item's figures against it:** F-S **0.350109 %**, F-P **0.163445 %**; restricted to the
+  floor's own warp-chain instrument, **0.861604 %** and **0.391451 %**. This item runs at **38,304
+  cells with 96 shape DVs** — **the mesh and DV count of the amended clause's own second data
+  point.**
+* **This record does not describe either figure as an anomaly, and does not describe it as a claim
+  about the harness.** Under `§2al` as amended, a sub-floor number on a fine mesh is what the
+  establishing study predicts.
+
+**WHAT THIS IS, FINALLY.** A **consistency-of-disclosure** repair, and only that: `curriculum_D19M`,
+`curriculum_D19O`, `curriculum_D8` and `curriculum_SO3` all carry a sub-floor disclosure on the
+artefact's face and this record carried none. **It is not a warning about a `PASS`.** The `PASS` is
+untouched, and was never in question.
 
 **Nothing in this item or this record is filed, sent, emailed, uploaded, posted or commented outside
 this box, now or ever** (`CLAUDE.md` rule 7; `DAFOAM_CHARTER.md` §10). **SUBMISSIONS PARKED.**
