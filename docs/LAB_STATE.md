@@ -23065,6 +23065,104 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+**Section last written:** 2026-09-03T~20:4xZ by cfd-supervisor **personally, no lane**. **FIFTY-THIRD WRITE.** Written after the ~20:00Z usage-limit fleet kill. **THIS BLOCK OPENS BY CORRECTING THE PREMISE I WAS HANDED**, then lands two rulings that boards 51–52 left owed. Where this conflicts with anything below, this block wins. HEAD re-derived and the blob built from `HEAD:docs/LAB_STATE.md` **in the same shell invocation as the commit**. **History is NOT rewritten:** boards 48–52 stand exactly as committed, including their errors.
+
+### 🔴 THE M6 L1 BUILD IS ALIVE. MY BRIEF SAID IT WAS NOT, AND THE BRIEF WAS WRONG
+
+My resume brief recorded *"No pyHyp process visible — the M6 L1 build that was running at fleet death either completed or died with its lane."* **It did neither. It is running, and it survived the fleet kill because it was launched detached** — its docker parent reparented to pid 1.
+
+**The reason the earlier reading missed it is worth keeping, because it will recur:** the build is a **docker container**, so its host-visible command line is `docker run … dafoam-idwarp-rot:v1 … python genWingMesh.py`. **A `ps | grep pyhyp` returns nothing on a live pyHyp run.** Every future census of this territory must match on the container image or the mount path, never on the solver name.
+
+- pids **567638 / 567639 / 567640**, mount `verification/runs/RUNG1_M6_R2_runs/L1/work`, log `…/L1/log.pyhyp`.
+- At 20:28Z: marching **step 44 of N = 93**, ~27 s/step ⇒ derived (**NOT measured**) march ETA ~20:50Z, plus the Plot3D write.
+
+**Nothing was restarted, and that is the point.** L-467's shape — *a "waiting on my monitor" completion is the dead-agent tell; reattach, do not restart* — has a twin here: **a process invisible to your grep is not a dead process, and killing-and-relaunching on that inference would have thrown away ~20 minutes of march.**
+
+### 🔴 THE OVER-DETERMINATION THEOREM — RE-DERIVED BY ME, AND IT KILLS A WHOLE CLASS OF SUCCESSOR DESIGN
+
+**Check 3 discharged personally.** I read the three `work/genWingMesh.py` files and the three `log.pyhyp` headers myself; this is not relayed.
+
+| level | N | s0 | marchDist | pyHyp **Grid Ratio** | checkMesh |
+|---|---|---|---|---|---|
+| **L3** | 24 | 4e-4 | 50.0 | **1.6329** | 8,970 cells, **2 negative-volume cells** (min −4.42594e-09), max AR **1.25943e+95** — **NOT A MESH** |
+| **L2** | 47 | 2e-4 | 50.0 | **1.2739** | 71,760 cells, max non-orth **61.4646**, max skew 2.05915, `Mesh OK.` |
+| **L1** | 93 | 1e-4 | 50.0 | building | pending |
+
+**THE THEOREM.** pyHyp has **no free growth ratio**. The layer spacings must sum to the march distance, so for a geometric distribution the ratio `r` is the root of `s0·(r^N − 1)/(r − 1) = marchDist`. **Fix `marchDist` and choose `(s0, N)`, and `r` is DETERMINED — it is not available to be held constant.** The registered ladder halves `s0` and doubles `N` at fixed `marchDist = 50.0`, so **`r` moves at every level: 1.6329 → 1.2739, a factor of 1.448 across the ladder.**
+
+**Consequence, and it is structural rather than empirical.** The three levels differ in **three** things at once — wall spacing, layer count, and **normal growth ratio** — and the third is not refinement, it is a change in the **distribution** of the discretisation. **An observed order extracted from such a triple is not an order of accuracy.** This is the same defect class as the DPW5 "levels" I hashed on 2026-09-03 (one node set, three cell types): **a family that calls itself refinement while varying something else.** L3 additionally is not a coarse level at all — **a mesh with negative volumes is not a mesh.**
+
+**THE RULING, and it is stateable without the option list.** *Any successor design that holds `marchDist` fixed while varying `s0` and `N` to generate the family is dead on arrival, whatever else it does.* It cannot produce a Roache triple, because `r` is over-determined and moves. **No amount of re-running changes this.** That is the option the arithmetic kills outright, and it kills it at the algebra, not at the measurement.
+
+**The two admissible shapes, and NEITHER IS FREE — this is the real content of the design decision:**
+1. **Hold `r` fixed, let `marchDist` float.** `marchDist = s0·(r^N − 1)/(r − 1)` then varies between levels — a **domain** change, which must be shown not to matter or made demonstrably large enough.
+2. **Hold `r` and `marchDist` fixed, let `s0` float.** Then `s0 = marchDist·(r − 1)/(r^N − 1)` is determined by `N`, so **wall spacing does NOT halve with refinement**, y⁺ moves between levels, and the wall-resolved commitment must be re-declared.
+
+Each trades one contamination for another. **I hold the full ruling only until the five-option list is surfaced from disk, so that it attaches to the options AS WRITTEN rather than to my reconstruction of them** — the theorem above is settled now and does not wait.
+
+### ✅ CHECK 1 DISCHARGED PERSONALLY — `check_converter_copies.py` READ IN FULL, ACCEPTED WITH TWO DEFECTS NAMED
+
+`/home/ubuntu/Certonomous/scripts/check_converter_copies.py`, 14,143 B, **in NO commit**. Read by me line by line, not relayed. **Requirements (a), (b) and (c) are genuinely met** — the `ast` self-check refuses on any `Assert` node in its own source and the file carries none; the sweep uses `os.walk(onerror=…)` and **refuses on any unreadable directory**, so an incomplete sweep is never reported as a clean one; a vanished known copy is `NOT A RESULT` with exit 2. The two-lineage model matches the disk exactly as I measured it. **I accept the instrument. I do not accept it as it stands.**
+
+**DEFECT A — `selftest()` DOES NOT TEST THE SHIPPED CODE, AND THIS IS THE SERIOUS ONE.** Plants 1, 2 and 3 **re-implement the comparison inline inside the test**: `:236` writes its own `drift` comprehension, `:248` its own `unknown`, `:254` its own `missing`. **Delete the shipped `check()`'s divergence branch at `:176-181` entirely and `--selftest` still prints `all_plants_fired: true`.** Only plant 4 touches shipped code. **This is board 52's own fail-open mechanism 2 — *the reader answered a different question* — occurring inside a file written to prevent fail-opens.** A planted control that does not drive the production path is a control of the test, not of the instrument.
+
+**DEFECT B — `prove_invocation()` DOES NOT DO WHAT ITS OWN DOCSTRING PROMISES.** Lines 36-40 promise it *"demonstrates that the CALLER actually runs it, by showing that a planted divergence goes UNDETECTED when the call site is removed and IS detected when it is restored."* The implementation at `:284-290` **greps the caller's source for a substring.** A mention in a comment, a docstring or dead code satisfies it — and this is not hypothetical: **`scripts/lab_check.py:573` already names `ugrid_to_foam.py` inside a docstring.** ⚠ **This is a frozen-file-asserting-a-protection-it-does-not-provide, and it is the SECOND instance of that exact shape in this converter's story** — the first being the converter's own docstring claiming *"the caller's own byte-budget assertion below is what actually proves the choice right"* while that assertion sits only inside the `if fortran:` branch. **The repair may honestly be to weaken the CLAIM rather than strengthen the code: an honest weak check beats a dishonest strong-sounding one.**
+
+### RULING — THERE IS NO CHECKER COLLISION. IT RESOLVED BY ATTRITION BEFORE I ARRIVED
+
+I was handed a collision to arbitrate between two independently-written `check_converter_copies.py`. **Measured: exactly ONE exists anywhere on this box**, and `git log --oneline --all` for the path returns **nothing**. The Rung 0 lane deferred and never wrote one. **I am recording the absence rather than adjudicating a rivalry that does not exist** — the surviving draft stands, with defects A and B repaired **before** it is wired, not after.
+
+### RULING — THE DEDUP END-STATE, ON A MEASURED HAZARD RATHER THAN ON TIDINESS
+
+Census at 20:30Z, taken by me:
+
+| path | sha256 (12) | bytes | bare `assert` | lineage |
+|---|---|---|---|---|
+| `cases/committee-grids/ugrid_to_foam.py` | `824231252815` | 20,262 | 0 | canonical, repaired |
+| `cases/hlpw6/ugrid_to_foam.py` | `824231252815` | 20,262 | 0 | canonical, repaired |
+| `certonomous-runs/dpw5-committee-probe/…` | `824231252815` | 20,262 | 0 | canonical, repaired |
+| **`scripts/ugrid_to_foam.py`** | `670db2cb5a4c` | 15,004 | **5** | second (old) |
+| **`certonomous-runs/hlpw6-memory-probe/…`** | `670db2cb5a4c` | 15,004 | **5** | second (old) |
+
+`463de30e` reached **all three** defective copies. ⚠ **A count reconciliation, so nobody re-derives it:** that commit's *"all eight bare asserts"* refers to the **20,262 B defective lineage** (corroborated independently at `verification/campaign/CFD_BUILD_GUARD_SWEEP_CORRECTION_2026-08-25.md:50`, which records 8 for committee-grids and 8 for hlpw6); the **5** above is the **15,004 B older program**. Different files, different counts, no contradiction.
+
+**RULED: `scripts/ugrid_to_foam.py` is REMOVED. `certonomous-runs/hlpw6-memory-probe/…` STAYS.**
+
+**The reason is a hazard I traced, not housekeeping.** Every production caller names `cases/committee-grids/ugrid_to_foam.py` by explicit absolute path (`run_m1_ugrid_reimport.sh:45`, `analyse_rung0.py:476`), and the only two files that `import ugrid_to_foam` both `sys.path.insert(0, "…/cases/committee-grids")` on the line immediately above the import (`ugrid_layout_verified.py:70-71`, `audit_converter_and_ugrid_headers.py:41-42`). **Nothing resolves to the old copy today.**
+🔴 **But `scripts/` is inserted at `sys.path` position ZERO by at least TEN graders across FOUR teams** — F11, F9, F12, F4 (×3), JF1, and heat-transfer's KV1, K2b and K0b. **The next `import ugrid_to_foam` written in any grader resolves to the old five-bare-assert copy silently and PREFERENTIALLY**, because `insert(0, …)` puts `scripts/` ahead of everything. **That is a loaded gun aimed at a future grader, and you unload it by taking the file off the import path, not by repairing it there** — a repaired duplicate on `sys.path[0]` still shadows the canonical one. The memory-probe copy is outside git, is provenance for its probe, and is **exactly what the checker's second-lineage arm exists to watch**; deleting it destroys evidence.
+
+**Three consequences that create a NEW fail-open if mishandled, and are briefed as such:** (i) the file is **tracked** (`5cce488d`), and the private-index protocol needs **`git update-index --force-remove`** — **`--add` cannot express a deletion and silently no-ops**; (ii) it must leave `KNOWN`, or requirement (c) reports `NOT A RESULT` forever on a file we deliberately removed; (iii) **`SECOND_LINEAGE` then has ONE member, so `len(set(h2.values())) > 1` can never fire — a consistency check that cannot fail is a fail-open wearing a pass**, and it must print its own vacuity.
+
+### RULING — THE WIRING POINT IS NAMED; THE WIRING ITSELF IS ESCALATED, NOT TAKEN
+
+Requirement (d)'s call site is **`scripts/lab_check.py`**, and it is **currently a DEAD LIMB** — `check_converter_copies` appears nowhere in it, which the checker's own `--prove-invocation` reports correctly today. **I am not wiring it this session, on two grounds.** Defect B must be repaired first — **wiring a checker whose invocation-proof is a substring grep installs a second fail-open in the act of closing the first.** And `lab_check.py` is **lab-wide shared infrastructure outside my folder scope**: making it refuse on converter drift changes what fails for **every** team, which is a cross-family decision belonging to the chief. The lane owes me whether `lab_check.py` **gates or merely reports**, what invokes it, and the exact insertion point; **I escalate with those facts in hand, not before.**
+
+### LIVE JOBS AND LANES
+
+**Four cfd `simpleFoam`** on the JF1G grid-convergence study, freeze `038f4bca`, daemon pid 1664: **491048** P1_C2 (timeout 14400 s), **492566** P0_C4 (22800 s), **495268** P1_C4 (72000 s), **496748** P1_C1 (6600 s). ⚠ **Their code of record is a launcher in NO COMMIT**, preserved at **`10eb76f4`** — grade against that blob, never HEAD's `run_jf1g.sh`. **Plus the M6 L1 docker mesh build** (567638). Daemon pid 1664 still predates every enforcer commit.
+**Foreign, not to be touched:** heat-transfer's 8-rank `T3_runs/R_fx` (342264) and 2-rank `K0eR2_runs/FP_T10` (537940); dafoam's `d12y_w3` container chain (179657/179692/578293).
+**Three lanes, at cap:** M6 (L1 completion + five-option list + Cp readiness); queue (F28G watch + JF1G ETAs-vs-timeouts + the true queue-divergence condition, with a planted control); converter (defects A/B + the dedup + the `lab_check.py` facts).
+
+### NEXT ACTIONS
+
+L1 to completion → checkMesh → **hash all three levels' `points` files** (no M6 family is believed until its levels are shown to differ). The **five-option list** surfaced, then the successor-design ruling landed against the options as written. **Cp vs AGARD AR-138 as a COMPUTED COMPARISON** — labelled not-a-graded-gate, not Sanaa's named deliverable, L2−L1 difference labelled **resolution sensitivity, NEVER a band**; the band is the successor registration's to supply, and **Sanaa's named first deliverable remains M6 Cp WITH the family band.** F28G L1 on launch. The `lab_check.py` wiring escalation. RUNG0b's endorse-or-redirect on the register row's one disclosed deviation.
+
+### ON SANAA'S DESK
+
+Unchanged from board 52 and none of it advanced by me tonight: **kill-path arming** (and the standing correction that **silence on a question never asked is not approval**); the **auto-stop install line**, ready, needs her root (`scripts/auto_stop_patched.sh:52-76`); **where "the box's remaining budget" comes from**; **F5b**, unruled since 2026-08-25 — **ten days**; the `$40.39`-vs-`$40.00` snappy cap; and the standing minor list (rule-10 exec-bit inflow; `cm-super`/`dvipng`/`ghostscript`; `router.py:470-477`; JF1 turbulence clipping; **Williams, Butler & Wood ARC R&M 3304 (1961) eq. (2) — NEVER "Spence 1956"**; the DMR "$0.00" line).
+
+### ON THE CHIEF'S DESK
+
+**The `scripts/lab_check.py` wiring** — a cross-family refusal change, escalated deliberately rather than taken. The **queue-daemon restart** (still not mine; the enforcer is now a recorder, so a restart is purely additive). The **Rung 0 comparator-filing rule** — a comparator cannot live inside the run root whose absence is its own freeze proof. **`sdk/chief_engineer/mesh_certificate.py`** reported-not-gated mode, assigned to me and not started.
+
+### COST
+
+**Zero compute of my own this session** — every reading above is a file read or a `ps`. The M6 L1 march is the M6 lane's item and its core-minutes are owed **at that item's completion**, under rule 12's estimate-versus-actual duty, into `docs/COST_CALIBRATION.md`. **No row is owed for this board write** (zero compute, no case directory), per the standing zero-compute ruling.
+
+### UNVERIFIED, NAMED AS SUCH
+
+**VERIFY:** the L1 march ETA (~20:50Z) is **derived from a rate, not measured**. **VERIFY:** the pyHyp "Grid Ratio" printed at `log.pyhyp:13` is pyHyp's own reported figure; I have **not** re-derived it from the layer spacings, and my closed-form check reproduces the trend but not the value to three digits — **the theorem rests on `r` being determined and MOVING, which the three printed values establish; it does not rest on my reproducing pyHyp's smoothing.** **VERIFY:** the M6 branch costs (101.7 / 1,627.0 / 11,595.2 / 1,971.2) are read from the frozen registration by a lane, not re-derived by me. **VERIFY:** attempt 2's 1.7500 core-min is a **step sum**, not a total. **VERIFY:** `1c81275b`'s self-reported *"the launch archiver retires other rungs' live records"* — an evidence-touching defect against other teams that I have **NOT** confirmed repaired. **VERIFY:** the F17–F27 headline verdicts are read from RESULTS records, no comparator re-run. **VERIFY:** my board-52 shared-index hypothesis remains **a hypothesis with a stated test, not a measurement.**
+
 **Section last written:** 2026-09-03T~19:5xZ by cfd-supervisor **personally, no lane**. **FIFTY-SECOND WRITE.** **THIS BLOCK EXISTS PRIMARILY TO STRIKE FOUR FALSE STATEMENTS I PUT ON BOARD 51.** Where this conflicts with anything below, this block wins. HEAD re-derived and the blob built from `HEAD:docs/LAB_STATE.md` **in the same shell invocation as the commit**. **History is NOT rewritten:** boards 48–51 stand exactly as committed, including their errors.
 
 ### 🔴 FOUR STATEMENTS ON BOARD 51 ARE STRUCK. ALL FOUR WERE MINE.
