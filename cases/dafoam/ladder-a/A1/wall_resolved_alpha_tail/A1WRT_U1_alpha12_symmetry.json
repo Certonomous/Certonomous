@@ -1,0 +1,39 @@
+{
+  "_STATE": "DRAFT, BESIDE THE CASE, NOT ENQUEUED. This file is not in verification/queue/dafoam/ and nothing will read it here. It is HELD at the draft path by the lane that wrote it, pending the dafoam-supervisor's decision on a capacity premise MEASURED FALSE after his authorisation -- see _WHY_THIS_IS_HELD. When he rules, this file is MOVED (never copied) into verification/queue/dafoam/A1WRT_U1_alpha12_symmetry.json and this path must be gone afterward: one row, one run.",
+
+  "_WHY_THIS_IS_HELD": "THE AUTHORISATION RESTED ON TWO PREMISES AND BOTH ARE MEASURED FALSE. (1) 'The box is at ~95%': the runner's OWN reader (scripts/queue_runner.py measure_box) returns busy = 69.9%, ~11.2 of 16 cores, MemAvailable 26.2 GB, and verification/queue/runner.log agrees at 69.6-69.7% across every tick of the last several minutes. (2) 'Expect A1WRT to sit behind D6RF2 -- that is queued, not blocked': D6RF2_chain and F28G_L1_dp1000_U20 are HELD ONLY BECAUSE THEY ARE 4-RANK -- the runner's admission rule at queue_runner.py:936 is `busy_cores + ranks > 0.9 * ncpu`, i.e. 11.2 + 4 = 15.2 > 14.4, so they hold. THIS ROW IS ranks=1: 11.2 + 1 = 12.2 <= 14.4, busy 69.9 < the 85% ceiling, MemAvailable 26.2 >= the 8.0 floor. It passes every limb. And the runner does not queue FIFO -- on a held entry it logs 'trying the next entry' and continues -- so this row does not sit behind those two, IT OVERTAKES THEM. Combined with this queue's own README amendment of 2026-09-01 ('THE DROP IS THE LAUNCH ... placing a validated entry in this directory starts compute within about a minute, with no further human step'), the drop is not a queued proposal that waits: it is a launch on the next ~60 s tick. The supervisor authorised expecting a wait. A lane that dropped it anyway would be letting an authorisation stand on a premise it had already measured false, which CLAUDE.md rule 9 forbids -- an instruction is answered, not merely obeyed. NOTHING HERE IS A REFUSAL OF THE RULING: every condition that can be discharged before the move IS discharged below, and one word from the supervisor moves this file.",
+
+  "team": "dafoam",
+  "case_id": "A1WRT_U1_alpha12_symmetry",
+  "prereg_commit": "a62d8d7524b233c747a9d83b9098c3d10042dd49",
+  "prereg_path": "cases/dafoam/ladder-a/A1/wall_resolved_alpha_tail/PREREGISTRATION_DRAFT.md",
+  "prereg_md5_at_freeze": "e58643efd7ab15cfa571daf31749704e",
+  "launch_cmd": ["bash", "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/wall_resolved_alpha_tail/a1wrt_run_unit.sh", "alpha12_symmetry", "dafoam-idwarp-rot:v1"],
+  "cwd": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/wall_resolved_alpha_tail",
+  "ranks": 1,
+  "cost_core_min_estimate": 32.33,
+  "cap_core_min_registered": 361.0,
+  "cost_basis": "c7a.4xlarge at $0.0513/core-h, REPORTED-BY-OWNER, NOT MEASURED -- this box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). 32.33 core-min = 0.5388 core-h = $0.0276 DERIVED, NOT MEASURED. Inside the under-$25 pre-authorised band, and the whole item's ceiling of 3304.0 core-min is $2.82 DERIVED, also inside it.",
+  "memory_floor_gb": 8.0,
+  "enqueued_by": "dafoam lab-lane, 2026-09-03, on the dafoam-supervisor's explicit authorisation of this pass, HELD AT THE DRAFT PATH pending his ruling on the capacity premise in _WHY_THIS_IS_HELD. His SUPERVISION_CHARTER.md section 3 check 1 and check 4 are on record as personally performed against these bytes; this lane performed neither and claims neither.",
+
+  "_provenance_of_the_two_shas": "DERIVED IN THE DRAFTING INVOCATION, NOT COPIED FROM THE ADDENDUM (condition 3). prereg_commit found by `git rev-list --all --max-count=1 --grep='A1WRT: FREEZE'`, verified to exist, verified to be an ANCESTOR OF HEAD, and verified to hold prereg_path via `git cat-file -e`. prereg_md5_at_freeze taken as `git show <sha>:<path> | md5sum` in the same invocation.",
+
+  "instrument_pins": "VERIFIED disk == HEAD IN THE DRAFTING INVOCATION, all seven: a1wrt_run_unit.sh f73191dea23877c99aaf802d21441009 (the launcher, with S5c); a1wrt_controldict.py a77c9bac486dce940707bdf9c00e1a6b (the controlDict deriver, S6); a1wrt_read.py 705db5f7e972f6c033cbe303b7a6038f (THE GRADING PATH -- unchanged since the freeze and it did not move in any pass); a1wrt_patch_assert.py 7f3a2c8e70684daba975ac9a2ee50385 (G-PATCH); a1wrt_drive_guards.sh 72b3caf7c4280afbe97396e3edc2b111 (the standing guard suite); a1wrt_fixture.log 4f6e870f74790af9238266c7cf10a0d2; a1wr_alpha12_reference.tsv 26ce1af0b0e93af5b9f71efdc34446a4.",
+
+  "SUPERSEDED_PINS_DO_NOT_MATCH_THEM": "THE LAUNCHER HAS BEEN RE-PINNED TWICE AND THE DEAD PINS ARE NAMED HERE SO NO READER TREATS ONE AS DRIFT (the L-370 false-drift trap). 288bc6904f908eb852e024ca0d61762c -- SUPERSEDED, correct only for ADDENDUM 1. 718b5d47bdc857e074c1f6e6fa18f24f -- SUPERSEDED, correct only for ADDENDUM 2. 0b00f8bf8d4425131c37bc585e249f4e -- SUPERSEDED, correct only for ADDENDUM 3. THE LIVE PIN IS f73191dea23877c99aaf802d21441009, ADDENDUM 4. A reader finding any of the first three on disk has found a STALE CHECKOUT, not a moved file.",
+
+  "guards_driven": "a1wrt_drive_guards.sh, this session, zero containers: 23/23 legs as registered, 0 mismatched, 0 NOT RUN. a1wrt_patch_assert.py 11/11, a1wrt_read.py 39/39, a1wrt_controldict.py 13/13, each under python3 AND python3 -O; S0b 3 legs; S5b 7; S5c 7. The harness's OWN controls were also driven red: 21/21 with 1 NOT RUN when an instrument is removed, and rc 2 when a copy of the launcher loses one of S5c's two md5 assertions.",
+
+  "what_this_unit_is": "U1, the REPRODUCTION CONTROL. `symmetry`, COLD, one point at alpha = 12, against A1WR's own CONTINUED alpha = 12 (CL 1.19079592024, CD 0.030665481166). This is G-REPRO on A1WR's own configuration, unchanged, and section 4.3 prices it at ~32 core-min precisely to remove the cold-vs-continued confound before the 255-core-min tail is bought.",
+
+  "the_second_row_is_not_written": "U2+U3 `tail_empty` (cap 2943.0, estimate 255.39 core-min, 7 points) IS NOT DRAFTED HERE. One row, one run. Two reasons it is not simply drafted alongside: (a) section 3 registers that U1 does NOT gate U2 -- if the cold alpha = 12 fails outright the tail is STILL run and reported with the control's absence named -- so the two are independent and there is no dependency argument for enqueueing both blind; (b) BOTH UNITS DEFAULT TO THE SAME CORE. a1wrt_run_unit.sh sets CPUSET=\"${A1WRT_CPUSET:-10}\", so two rows enqueued together would both take cpuset 10 and the launcher's G-OCC RECORDS AND QUEUES, IT NEVER REFUSES -- it would not stop the collision. That is referred to the supervisor, not resolved by a lane.",
+
+  "run_root": "/home/ubuntu/certonomous-runs/A1WRT -- asserted ABSENT BY EXECUTION at 2026-09-03T21:04:20Z in the drafting invocation (`test -e` non-zero), and to be re-asserted BY EXECUTION in the moving invocation. The one path matching *A1WRT* under certonomous-runs is A1WRT_ABORTED_S6_20260903T1938Z, the 19:38Z abort's staged tree, MOVED AND NOT DELETED, which is not the registered root.",
+
+  "two_row_rule": "DAFOAM_CHARTER.md section 6. This row is the PATCHED toolchain row: dafoam-idwarp-rot:v1, digest sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35, asserted BY DIGEST and never by tag at the launcher's S7. A shipped-toolchain row is a separate verdict and is not claimed by this one.",
+
+  "calibration_row_owed": "docs/COST_CALIBRATION.md at completion (CLAUDE.md rule 12): actual/predicted against this row's 32.33 core-min, with the gap attributed to contention, waste or misprediction and waste named separately, never absorbed into the ratio. Section 4.3 names in advance the term most likely to carry the error, and for U2 that is the tail-stiffening allowance.",
+
+  "verdict_state": "PENDING"
+}

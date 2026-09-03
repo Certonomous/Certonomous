@@ -1683,3 +1683,184 @@ rc 2** naming the block and the expected-versus-found count.
 **Still not enqueued, still not launched, zero compute.** Outstanding before
 enqueue: **the supervisor's sign-off on the eight state-(iii) files**, and his
 check 1 and check 4 against these new bytes.
+
+---
+
+## ADDENDUM 5 — 2026-09-03T21:08Z — THE EIGHT STATE-(iii) FILES RULED, THE mtime HAZARD REGISTERED AND DEMONSTRATED, AND THE QUEUE ROW DRAFTED BUT HELD
+
+**Document version 1.4 → 1.5.**
+**Lines whose number changed above this section: 0** — **COMPUTED:** in the
+appending invocation the first **1,685** lines of this file, its entire length
+before this append, were compared byte-for-byte against its blob at `HEAD` and
+are identical; `git diff` shows **one hunk, zero deleted lines**.
+
+**PRE-COMPUTE CONDITION, BY EXECUTION IN THE APPENDING INVOCATION:** the
+registered run root `/home/ubuntu/certonomous-runs/A1WRT/` is **ABSENT**; the
+appending shell was written to refuse the append had it existed.
+
+**THIS ADDENDUM ALTERS NO GATE, NO THRESHOLD, NO CAP AND NO LABEL.** `endTime`
+4000 · `primalMinResTol` 1e-8 · caps 361.0 / 2943.0 · ceiling 3304.0 · frame
+allowance 300 s · `TMO` 21,360 / 176,280 s · np = 1 · patched row
+`sha256:2927768a16ac…` · declared points 1 and 7 · `G-PATCH`, `G-REPRO`,
+`G-OCC`, `G-COLDSTART`, `G-STALL`, `G-FIXTURE` **as frozen** · verdict labels as
+frozen. **All unchanged.**
+
+---
+
+### A5.0 THE FINDING OF THIS PASS, AND IT BELONGS ABOVE THE TABLE
+
+**A rule induced from the first two divergent files would have been WRONG on the
+next two, and would have introduced a real defect while believing it was
+removing one.** `L3`'s `controlDict` and `decomposeParDict` are both
+mesh-generation furniture and both are correctly replaced from the body's own
+copy. Generalising that to *"`L3` is stale, take `sweep_I`'s"* and applying it
+mechanically to `surfaceMesh.xyz` and `volumeMesh.xyz` would have **imported a
+description of a different mesh** — because for those two the direction inverts
+and it is `sweep_I`'s copies that are stale. **The exception was found by
+enumerating the set rather than generalising from its first members**, which is
+why the order was to close the class and not to fix a file.
+
+---
+
+### A5.1 (iii-a) `surfaceMesh.xyz` and `volumeMesh.xyz` — RULED: INHERIT `L3`'s
+
+**Ruled by the dafoam-supervisor, 2026-09-03, on his own re-derivation.** He
+independently reproduced the 31-file partition (his grouping: 21 identical + 4
+differing + 6 absent-in-body; the same partition as A4.2's 21 + 2 + 8 regrouped)
+and confirmed the direction inversion against the skeleton:
+
+| | `A1WR/L3` | `sweep_I/case` | the incompressible **skeleton** |
+|---|---|---|---|
+| `surfaceMesh.xyz` | `022ee2e7ba89056b62b683f053a77491` | `ed3e2abaa49ebb8d83eeb1d032aaf405` | **`ed3e2abaa49ebb8d83eeb1d032aaf405`** |
+| `volumeMesh.xyz` | `35d9f01d8f6b676083431c6dce9c5f92` | `406627551850708ea6f64f7057334f4d` | **`406627551850708ea6f64f7057334f4d`** |
+
+`sweep_I`'s copies are **byte-identical to the skeleton's** — stale, left behind
+when `stage_unit()` overlaid `L3`'s `polyMesh` onto the skeleton — and **`L3`'s
+`log.plot3dToFoam` references `volumeMesh`/`.xyz`**, so `L3`'s plot3d files are
+the *input to the conversion that produced `L3`'s own `polyMesh`*. **INHERIT
+from `L3`. Staging from `sweep_I` would have imported a description of a
+different mesh.** Nothing reads either file in any case: `surfaceMesh`,
+`volumeMesh` and `plot3d` are zero hits in the producer, zero in `a1wr_cmd.sh`
+and zero in the frozen grader.
+
+### A5.2 (iii-b) The six `log.*` files — RULED: KEEP. **And the ground is corrected here.**
+
+**RULED KEEP.** The conclusion stands. **The ground given for it does not, and
+the correction is recorded rather than the reasoning quietly repaired.**
+
+The ruling rested on a grep for `mtime|st_mtime|getmtime|AGE|age_|-newer|TIMEDIR`
+across the item's three files reportedly returning *"no age logic of any kind …
+every hit is a comment, a path or `RC_USAGE`"*, and therefore *"there is no age
+clause here to poison."* **THAT RESULT DOES NOT REPRODUCE.** It holds for
+`a1wrt_run_unit.sh` and `a1wrt_controldict.py`. It is **false for
+`a1wrt_read.py`**, which carries a **live age clause** — `G-FIXTURE`, at
+**`a1wrt_read.py:291-294`**:
+
+> `if p.stat().st_mtime >= run.stat().st_mtime:` → `raise Refusal("G-FIXTURE:
+> mtime(%s) >= mtime(run root) -- a fixture not older than the run it grades is
+> not independent of it")`
+
+declared at `:25` and with its own known limitation disclosed at `:30-44`.
+**There IS an age clause in this item.**
+
+**THE CORRECT GROUND, AND IT IS NARROWER AND CHECKABLE.** The clause compares the
+fixture against **the ITEM RUN ROOT `$BASE`**, not against any inherited file —
+`a1wrt_read.py` is given `$BASE` because it reads `<run>/tail_empty/out/rc` at
+`:965-966`. **`$BASE`'s mtime is set by the launcher's own writes at launch
+time** (`mkdir`, then `runScript.py`, `cmd.sh`, the unit directory entry and the
+staging-evidence file), whereas `cp -a` preserves mtimes only on **`$WORK` and
+its contents**. **The six `log.*` files sit inside `$WORK`, where nothing
+compares them to anything.** So the hazard does not reach them — for a reason
+about *which directory the clause reads*, not because no clause exists.
+
+### A5.3 THE LATENT PROPERTY, REGISTERED AS A STANDING WARNING TO A SUCCESSOR — AND DEMONSTRATED
+
+**This is not a defect of this item. It is a trap laid for the next one, and it
+is registered because it is the one that bites.**
+
+`S2` is `cp -a "$MESH_SRC" "$WORK"`, so **`$WORK` and every file under it carry
+`L3`'s PRESERVED mtimes** — `constant/polyMesh/points.gz` is stamped
+**2026-09-01 17:18:35**, and a run executing days later inherits that stamp.
+**Measured and driven both directions, zero compute:**
+
+| the clause at `a1wrt_read.py:291`, evaluated | mtime | verdict |
+|---|---|---|
+| fixture `a1wrt_fixture.log` | 2026-09-03 17:18:42 | — |
+| `run = $BASE`, built as the launcher builds it (`mkdir` + its own writes) | 2026-09-03 21:06:55 | **PASSES** |
+| `run = $WORK`, built by the real `cp -a` from `L3` | **2026-09-01 17:18:37** | **REFUSES** |
+
+**A successor that points the grader's `run` at a UNIT directory instead of the
+item root — or that adds any age clause taking the staged tree's mtimes as its
+datum — reproduces `F3S`'s unsatisfiable-by-construction clause exactly**: a
+fixture newer than a run root that was stamped two days before the run existed.
+**The staged tree's mtimes are the SOURCE's, not this item's. They date `L3`, not
+the run.** Any age datum must come from something the launcher itself wrote —
+which is what `S8` already does for the *fields* age guard, writing
+`$WORK/.a1wrt_age_datum` from a `touch` of `0.orig/*` **last**, after every other
+staging step.
+
+---
+
+### A5.4 THE QUEUE ROW IS DRAFTED AND **HELD**, AND WHY
+
+The supervisor authorised the enqueue with eight conditions. **Seven are
+discharged; one cannot be discharged before the move; and the row is HELD at its
+draft path on a premise of the authorisation that was measured false after it was
+given.**
+
+**Draft path:** `cases/dafoam/ladder-a/A1/wall_resolved_alpha_tail/A1WRT_U1_alpha12_symmetry.json`
+— beside the case, **not** in `verification/queue/dafoam/`, and nothing reads it
+there.
+
+**THE PREMISE THAT FAILED.** The authorisation stated *"the box is at ~95 % and
+`D6RF2` is already held on capacity, so expect A1WRT to sit behind it — that is
+queued, not blocked."* **Measured, with the runner's own reader
+(`scripts/queue_runner.py` `measure_box`) and corroborated by
+`verification/queue/runner.log` across every tick:** the box is at **69.9 %**
+(~11.2 of 16 cores), MemAvailable **26.2 GB**. `D6RF2_chain` and
+`F28G_L1_dp1000_U20` are held **only because they are 4-rank** — the admission
+rule at `queue_runner.py:936` is `busy_cores + ranks > 0.9 × ncpu`, i.e.
+11.2 + 4 = 15.2 > 14.4. **This row is `ranks = 1`: 11.2 + 1 = 12.2 ≤ 14.4, busy
+69.9 < the 85 % ceiling, MemAvailable 26.2 ≥ the 8.0 floor. It passes every
+limb.** And the runner does not queue FIFO — on a held entry it logs *"trying the
+next entry"* and continues — **so this row does not sit behind those two, it
+overtakes them.** With this queue's own README amendment of 2026-09-01 —
+**"THE DROP IS THE LAUNCH … placing a validated entry in this directory starts
+compute within about a minute, with no further human step"** — the drop is not a
+proposal that waits. **It is a launch on the next ~60 s tick.**
+
+**The item is cheap and that is not the point.** 32.33 core-min = **$0.0276
+DERIVED, NOT MEASURED**; the whole item's ceiling of 3,304.0 core-min = **$2.82
+DERIVED** — both far inside the under-$25 pre-authorised band. **What is held is
+not the spend but the premise**: an authorisation given in the expectation of a
+wait, where the measured effect is an immediate launch. `CLAUDE.md` rule 9 — an
+instruction is answered, not merely obeyed.
+
+**CONDITIONS, AS DISCHARGED:**
+
+| # | condition | state |
+|---|---|---|
+| 1 | drafted beside the case, to be **moved** never copied | **DONE** — drafted; the move is what is held |
+| 2 | pins match disk **and** HEAD, verified in the invocation; superseded pin marked SUPERSEDED **in the row** | **DONE** — all seven verified; `288bc690`, `718b5d47` and `0b00f8bf` all named SUPERSEDED against the live `f73191de` |
+| 3 | `prereg_commit` and `prereg_md5_at_freeze` reproduced independently | **DONE** — `a62d8d7524b233c747a9d83b9098c3d10042dd49` found by `git rev-list --grep`, verified to exist, to be an **ancestor of HEAD**, and to hold the path; md5 `e58643efd7ab15cfa571daf31749704e` taken by `git show … \| md5sum` in the same shell |
+| 4 | `launch_cmd` names a driver that **exists** | **DONE** — `a1wrt_run_unit.sh` present and executable; and the image it names, `dafoam-idwarp-rot:v1`, resolves to digest `sha256:2927768a16ac…`, **the digest `S7` requires** |
+| 5 | cap and estimate transcribed, `cost_basis` honest | **DONE** — cap **361.0**, estimate **32.33** (§4.3's U1 line), `REPORTED-BY-OWNER, NOT MEASURED` |
+| 6 | `--require-binding` must ACCEPT and bind to `dafoam/` | **NOT RUN — and it CANNOT be run before the move.** The validator refuses by design outside the team directory; on the draft it reports **`TEAM-BINDING: NOT CHECKED`**, which the supervisor's own condition calls an unchecked condition and not a passing one. Driven both ways: **ACCEPTED** without the flag, **REFUSED (rc 2)** with it, so the check is live and not decorative |
+| 7 | run root **ABSENT BY EXECUTION** at enqueue | **DONE** — `test -e` non-zero at 2026-09-03T21:04:20Z, to be re-asserted in the moving invocation |
+| 8 | queue depth in estimated core-minutes after the drop | **DONE** — `verification/queue/dafoam/` now: **215.77 core-min** (1 row, `D6RF2_chain`). With this row: **248.10 core-min** (2 rows) = **$0.21 DERIVED**. If U2 follows: **503.49 core-min** = **$0.43 DERIVED** |
+
+**Validator, on the draft:** `ACCEPTED … team=dafoam case=A1WRT_U1_alpha12_symmetry
+ranks=1 est=32.33 core-min`, all five mechanical checks — SCHEMA, COMMIT-EXISTS,
+PREREG-AT-COMMIT, AGE-GUARD, RANKS — with TEAM-BINDING reported NOT CHECKED as
+above. Its own controls: **36 controls fired, each shown able to fail**, rc 0.
+
+**ONE ROW, ONE RUN — AND U2 IS DELIBERATELY NOT DRAFTED.** §3 registers that U1
+does **not** gate U2 (*"the cold α = 12 fails outright → `NOT A RESULT` on
+`G-REPRO`; the tail is still run and reported"*), so there is no dependency
+argument for enqueueing both blind. And **both units default to the same core**:
+`a1wrt_run_unit.sh` sets `CPUSET="${A1WRT_CPUSET:-10}"`, so two rows enqueued
+together would both take cpuset 10, and the launcher's `G-OCC` **records and
+queues, it never refuses** — it would not stop the collision. **Referred to the
+supervisor, not resolved by a lane.**
+
+**Nothing has been launched. Zero compute. The run root is absent.**
