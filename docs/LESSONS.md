@@ -22414,3 +22414,62 @@ its denominator in advance for exactly this reason and is the shape to copy.
 comparators, re-grades, graders, digitisers, transcription checks. It is not confined to
 heat-transfer: **any team writing `< X` produces the same unfalsifiable row**, which is
 why this is handed upward rather than imposed sideways.
+
+## L-464 — `git status`'s two `D` columns CANNOT be separated by a whitespace-splitting field extractor, so the commands L-424 prescribes silently merge them; and the measured staged-deletion population is **1**, which is a phantom
+
+**L-424 established the mechanism** — under rule 10's private-index protocol `git update-ref`
+moves `HEAD` without touching `.git/index`, so every path **added** by a commit landed that way
+reads as a **staged deletion**, and the two `D`s "are told apart by which column the `D` is in
+and, decisively, by whether the file is on disk." **That is right, and the instrument almost
+everyone reaches for cannot see the column.**
+
+**THE TRAP, AND I FELL INTO IT WHILE APPLYING THE LESSON.** Porcelain lines are `XY<space>path`,
+so an unstaged deletion is `" D path"` — the column IS a leading space. **`awk` eats leading
+whitespace before assigning `$1`**, so `git status --porcelain | awk '$1=="D"'` matches a
+staged `D ` and an unstaged ` D` **identically**. Run against this repository at
+`5e51676e` it returned **143** paths and I read that as 143 staged deletions.
+
+**The column-correct read is by BYTE POSITION, not by field:** `git status --porcelain=v1 -z`,
+then per NUL-delimited entry `X = entry[0:1]`, `Y = entry[1:2]`, `path = entry[3:]` — and an
+`R`/`C` entry consumes **one extra NUL record** (its source path) which must be skipped or every
+subsequent entry is misaligned. `-z` is not optional: without it a path containing a space
+breaks field extraction a second, independent way.
+
+**MEASURED 2026-09-03 at `5e51676e`, whole repository:**
+
+| | count | on disk | verdict |
+|---|---|---|---|
+| column 1 — **staged** deletion | **1** | 1 present | **phantom** |
+| column 2 — **unstaged** deletion | **143** | **0** present | real absence |
+| both columns `D` | 0 | — | — |
+
+**The single column-1 entry is L-424's phantom in its purest form.**
+`docs/campaigns/T-family/T25R6c_PREREGISTRATION.md`: index blob **empty**, `HEAD` blob
+`23140f80…`, working-file hash `23140f80…` — **HEAD and disk are the same object** — and the
+file was **ADDED by `HEAD`'s own commit `5e51676e`**. *`git status` reports a staged deletion
+for a file that the commit at `HEAD` created.*
+
+> **THE STRUCTURAL STATEMENT, which is what makes this usable without re-measuring:
+> a column-1 `D` is a PHANTOM BY CONSTRUCTION whenever the file is on disk and at `HEAD`.
+> The real-loss population is column-1 `D`s whose file is ABSENT FROM DISK — and that
+> population measured ZERO. The alarming figure is an artifact of the extractor, not of
+> the index.** The count is a **snapshot**: it grows by one for every path added by a
+> peer's `update-ref` commit since the index was last refreshed, and it stays a phantom
+> population the whole time.
+
+**The 143 real absences are not losses either, and their shape confirms L-424's own example.**
+**140 of 143 are `verification/queue/*`** — the queue daemon consuming its own entries, exactly
+the `verification/queue/cfd/F26D.json` case L-424 named as the *real* deletion. One is a
+`__pycache__` `.pyc`. **The remaining two are the only ones worth a human:**
+`verification/runs/T-family/T20_runs/T20_LC_c/log.build` and `log.checkMesh.build` — tracked at
+`HEAD` (added by `5060e626`, whose message records the case as then holding no `0/` and no time
+directory), **absent from the working tree today**, where the case now carries `0/` and ~30 time
+directories. **A later run of the case removed two committed build logs.** They are **not lost** —
+both are recoverable from `HEAD` — and this is reported to the owning team rather than repaired
+here.
+
+**Method, three commands, and the first one is the one that matters:** read the columns by byte
+position under `-z`; for each candidate compare the **three blobs** (`git ls-files -s`,
+`git rev-parse HEAD:<path>`, `git hash-object <path>`); and ask **whether the file is on disk**.
+Never the letter alone, never a snapshot pasted into a brief — **and never a field extractor,
+which is the failure mode L-424 did not name because it named the columns instead.**
