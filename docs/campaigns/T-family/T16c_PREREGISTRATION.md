@@ -519,3 +519,134 @@ it**; closing it needs the same successor registration.
 - It does **not** edit one byte above this section, and does not renumber one
   line above it: **lines whose number changed above this section: 0**.
 - It **files nothing anywhere.** `CLAUDE.md` rule 7.
+
+---
+
+## AMENDMENT 2 — 2026-09-03 — document version 1.1 → 1.2
+
+### §10 DECLARED OMISSIONS ITEM 2 IS **PRESERVED, NOT STRUCK.** `W1_T`'s three values are now measured, and that **increases** the omission's evidentiary force rather than retiring it
+
+**lines whose number changed above this section: 0**
+
+**MEASURED, NOT RECITED**, in the invocation that landed this append:
+
+- before the append the file was **521 lines** and hashed to
+  `bbb658d4f54f05c8b09e7be877c9ed82efd45b26c9c1b5a840b159e7be3b2e5e`;
+- after the append, the **first 521 lines** of the file hash to that
+  **same** digest, and `diff` of the pre-append file against the first
+  521 lines of the post-append file reports **NO DIFFERENCES**;
+- `git diff-tree --numstat` for this path at the landing commit reports
+  **deletions = 0**.
+
+Not one byte at or above line 521 is edited, renumbered, reordered or
+removed. AMENDMENT 1 is left untouched, which is the point of appending rather
+than revising. `CLAUDE.md` rule 6.
+
+Landed by the heat-transfer records lane on the supervisor's **ruling**,
+`[lab-attributed]`. **NO SOLVER COMPUTE. NO RE-GRADE.** No comparator was run,
+edited or re-hashed, and **no pin was added**.
+
+**NO GATE MOVES.** Nothing here alters a gate, threshold, band, cap, label,
+metric, station rule, candidate set, failure branch or cost. **The rung's
+verdict is unchanged at `NOT A RESULT`.** `VERIFICATION_CHARTER.md` §9 forbids
+moving a gate after first compute and none is moved.
+
+---
+
+### (a) THE TEXT, QUOTED VERBATIM — AND IT IS **LEFT STANDING**
+
+§10 **DECLARED OMISSIONS** item 2 (`:318-319`) reads, and **still reads**,
+exactly this:
+
+> 2. **`W1_T`'s three values are not in hand** (§0.1). The rung is unblind on the
+>    **ratio** `~1050×`, not on the triple.
+
+**IT IS NOT STRUCK, AND IT IS NOT REWRITTEN.** It stays where it is, unedited,
+and it stays true — because it is a claim about **the state of knowledge when
+the gates were set**, and nothing that has happened since can make that claim
+false.
+
+---
+
+### (b) WHY IT STANDS — the distinction **this document already drew**, in AMENDMENT 1(a)
+
+AMENDMENT 1(a) struck line 3's present-tense `STATUS` claim and, in the same
+breath, **expressly refused to strike §11**, because §11 *"is accurate **history**
+and only line 3's present-tense status claim is falsified."* That is the whole of
+the reasoning here, applied a second time:
+
+- **A status banner is a claim about the document's own current standing.** The
+  act it describes — the freeze — is exactly what falsifies it. It must be
+  struck, or it goes on reading as true.
+- **A declared omission is a claim about what was and was not known at freeze.**
+  Its entire function is **evidentiary**: it is the document's own record that the
+  rung was **blind to the triple** when its gates were set. **Striking it would
+  destroy the evidence of the blinding.**
+
+§10 item 2 is §11's kind, not line 3's kind. A measurement taken **after** a
+freeze cannot retro-falsify a statement about what was in hand **at** the freeze;
+it can only confirm what that statement was there to record.
+
+---
+
+### (c) THE MEASUREMENT — AND WHY IT **STRENGTHENS** THE OMISSION
+
+Because the registration declared, **before compute**, that it was **unblind on
+the ratio and blind on the triple**, the subsequent agreement of the measured
+fine-level ratio with the pre-registered `~1050×` is **a prediction confirmed,
+not a fit.** That is the strongest form of evidence this lab produces, and at
+present it is visible only from the results record — a reader who starts at this
+registration would not see it. This addendum is where it becomes visible.
+
+**MEASURED**, `verification/runs/T-family/T16c_runs/T16C_GRADE_OUTPUT_20260903T205559Z.txt:22-24`,
+recorded at `docs/campaigns/T-family/T16c_RESULTS.md:72-76`, and carried in
+`verification/runs/T-family/T16c_runs/gate_t16c.json` under
+`witnesses_at_registered_station.{c,m,f}.W1_T_max`:
+
+| level | `W1_T` | floor | ratio to floor |
+|---|---|---|---|
+| `T16_MC_c` | `1.2042e-03` | `1e-06` | 1204.2× |
+| `T16_MC_m` | `1.0940e-03` | `1e-06` | 1094.0× |
+| `T16_MC_f` | `1.0504e-03` | `1e-06` | **1050.4×** |
+
+- **observed order `p = 1.338`** and **Richardson limit `1.0219e-03`** —
+  `docs/campaigns/T-family/T16c_RESULTS.md:84-88`, which records the triple as
+  monotone decreasing with ratio `2.5275`. *(Recomputed independently by this
+  lane from the full-precision `W1_T_max` values in `gate_t16c.json`: ratio
+  `2.5267`, `p = 1.3372`, Richardson limit `1.0219e-03` — agreeing with the
+  record to the precision the record's own five-digit inputs carry.)*
+- **`1050.4×` reproduces the pre-registered `~1050×`** — the fine level's
+  `1.0504e-03` against the `1e-06` floor, `T16c_RESULTS.md:76` and `:78-79`.
+
+`W1_T` is a gate-(1) **witness** with no registered band. It is **not graded**,
+**no GCI is quoted for it**, and none is quoted here. These numbers are recorded
+as the confirmation of a declared blinding, not as a result.
+
+---
+
+### (d) THE PROVENANCE OF THIS OBSERVATION, RECORDED HONESTLY
+
+**This was noticed incidentally, while landing an unrelated amendment. It was not
+found by any census or sweep, and no sweep was run.** No search of this document,
+the T16c tree or the T-family for other statements overtaken by the grading pass
+was performed, and none is authorised by this addendum. Any other such statement
+in this document therefore **stands unexamined** — which is itself a declared
+omission of this amendment, stated here rather than left to be inferred.
+
+---
+
+### (e) WHAT THIS AMENDMENT DOES NOT DO
+
+- It does **not** strike, edit or reword §10 item 2, or any other byte above this
+  section: **lines whose number changed above this section: 0**, measured above.
+- It does **not** move a gate, threshold, band, cap, label or metric.
+- It does **not** re-grade T16c and computes **no graded value**. The verdict
+  stands at **`NOT A RESULT`**, on the registered unreachable branch of §4.
+- It does **not** add a pin, a refusal or a rule. The `exact_t16.py` /
+  `analyse_t16.py` exposure recorded at AMENDMENT 1(c.2) — with `CONV_FLOOR`,
+  `G_TOL`, `MASS_FLOOR` and `PLAT_FLOOR` carrying no registered literal at all —
+  **remains OPEN and ESCALATED**, and closing it still needs a successor
+  registration (**T16d**), not a patch.
+- It **files nothing anywhere.** `CLAUDE.md` rule 7.
+
+**END AMENDMENT 2.**
