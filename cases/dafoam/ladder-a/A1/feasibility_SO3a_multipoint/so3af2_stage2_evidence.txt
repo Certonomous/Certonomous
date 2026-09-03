@@ -855,3 +855,50 @@ PRODUCTS:
   XM/so3af2_M.json        : ABSENT -- correct
   A KILLED RUN IS NOT A MEASUREMENT. The absence of an enumeration is evidence
   about NOTHING, and no diagnosis of the slowness is offered anywhere.
+
+===========================================================================
+THE CENSUS-vs-XM STATIC COMPARISON. Captured 2026-09-03T232451Z
+NO CONTAINER WAS RUN. Artefacts and code only.
+===========================================================================
+Q1 -- WHERE THE CENSUS STOPS RELATIVE TO XM'S LOG.  [MEASURED]
+  ATTRCENSUS.log, all 208 bytes, 3 lines:
+    1  Matplotlib is building the font cache; this may take a moment.
+    2  WARNING 7: VSPAERO Viewer Not Found.
+    3  <tab>Expected here: .../openvsp/vspviewer
+  XM.log lines 1-3:
+    1  WARNING 7: VSPAERO Viewer Not Found.
+    2  <tab>Expected here: .../openvsp/vspviewer
+    3  SO3aF2 PRODUCER path contract DERIVED from the reader: artefact=... case=... run_dirs=[...]
+  THE CENSUS STOPS EXACTLY WHERE XM PRINTED ITS PATH-CONTRACT LINE NEXT.
+  The census never printed that line.
+  'Matplotlib' occurrences: ATTRCENSUS.log 1, XM.log 0. Both redirect 2>&1, so
+  XM did not emit it to a different stream -- it did not emit it.
+
+Q2 -- WHAT THE CENSUS DOES THAT XM DOES NOT.  [MEASURED]
+  Executable statements before the task branch: producer 43, census 43.
+  AST-IDENTICAL ignoring docstrings: TRUE.
+  Module-level imports: 9 in each, SAME NAMES IN THE SAME ORDER
+    (os, argparse, numpy, mpi4py, openmdao.api, mphys.multipoint,
+     dafoam.mphys, mphys.scenario_aerodynamic, pygeo.mphys).
+  Neither file mentions matplotlib: 0 occurrences in both.
+  The prefixes differ by 2,314 bytes AND ALL OF IT IS DOCSTRING.
+  => THE CENSUS STALLS IN CODE THAT IS BYTE-IDENTICAL TO THE PRODUCER'S,
+     WHICH GOT PAST THAT POINT IN 21 SECONDS.
+
+  Same image digest in both runs: sha256:9d45679d55fd
+  SO3AF2_ENV_OK line: IDENTICAL in both container logs
+  Arm commands differ ONLY in directory and script name.
+
+Q3 -- WHAT IS NOT ESTABLISHED.  [UNMEASURED]
+  WHY a matplotlib font-cache build occurs in one container and not the other,
+  from the same image with the same environment: UNMEASURED. Not in the artefacts.
+
+  AND A PRECISION THAT MATTERS: the matplotlib line is the FIRST line, not the
+  last. The LAST line is the VSPAERO warning, which XM also printed. So the font
+  cache had already reported before the point where output stops.
+  THAT THE FONT CACHE IS RELATED TO THE STALL IS UNMEASURED. It is a difference
+  between the runs; its relationship to the stall is not established, and calling
+  it the cause would be taking a correlate for the relation -- the exact error
+  this item has made three times.
+
+  NO REPAIR IS PROPOSED AND NO THIRD FIRE IS REQUESTED.
