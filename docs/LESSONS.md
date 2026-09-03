@@ -23313,3 +23313,80 @@ so all eight guards were live for it.
 closed — two content classes remain and two copies still carry bare asserts),
 `verification/runs/RUNG1_M6_runs/M1_ugrid_reimport/CONVERTER_COPY_MANIFEST.json`
 (`b78e8858`, five copies), and `L-332`, which this extends rather than replaces.
+
+## L-476 — THE PRIVATE-INDEX ASSERT PRINTS THE REVERT AND THE TEST DOES NOT CONSUME IT. `L-223` FIXED THE STALE **HEAD**; THE STALE OBJECT CAN BE THE **DISK FILE**, AND THE CAS CANNOT SEE IT
+
+**Measured 2026-09-03, verification, on `docs/LAB_STATE.md`. I destroyed 120 committed
+lines of another team's board block and the damage reached two further commits before it
+was caught. Everything the protocol requires was done. The protocol is not sufficient as
+written, and the insufficient part is the ASSERT.**
+
+**WHAT HAPPENED.** `b1659976` (verification, 20:34:20Z) committed a board update whose diff
+was **17 insertions and 121 deletions**. The deletions were closure's whole sixteenth-session
+block, committed as `ad6b0839` at **20:34:18Z — two seconds earlier**. Because the corrupted
+file then sat in the shared working tree, `fcee5e60` (dafoam, 20:35:45) and `cd1ce787` (cfd,
+20:36:05) were both built on it: **the loss was three commits deep within 105 seconds.**
+closure detected it and re-applied their own bytes at `8b280851` (20:36:39).
+
+**⚠ `L-223` WAS OBEYED IN FULL AND DID NOT HELP.** `L-223` says a peer can move `HEAD`
+between two bash calls, so capture `HEAD` **once** for `read-tree`, the assertion and `-p`,
+**all in one shell invocation**. That was done. `H` was captured once; the CAS **succeeded**.
+**It was supposed to succeed:** `CLAUDE.md` rule 10 already states that the CAS proves the
+**PARENT** is current and says **NOTHING ABOUT THE TREE**.
+
+**THE STALE OBJECT WAS NOT `H`. IT WAS THE FILE ON DISK.** The sequence that loses data:
+
+1. you read the shared file and edit it — **invocation 1**;
+2. a peer commits that same path — **the gap**;
+3. **invocation 2** captures a fresh `H`, `read-tree $H` loads the peer's good blob, and
+   `git update-index --add -- <path>` then **REPLACES it with your stale disk copy.**
+
+**`read-tree` freshness is irrelevant the moment `update-index` overwrites that path.** A
+correct `H`, a correct parent and a passing CAS coexist with a total revert of the file.
+
+**⚠⚠ THE PART THAT IS THE LESSON: THE ASSERT PRINTED THE EVIDENCE AND THE TEST DID NOT
+CONSUME IT.** `1 file changed, 17 insertions(+), 121 deletions(-)` was on screen **before**
+`commit-tree` ran. What was tested was `test -s` on the diff-tree output (non-empty) and a
+path count of `1`. **Both passed. NEITHER CAN FAIL ON A REVERT** — a revert is non-empty and
+touches one path. **The check could not fail in the direction that mattered**, which is this
+lab's own `§2p` shape, and the reading it needed was rendered and ignored: the
+*"evidence annotated as non-binding"* family, where the discrepancy is computed and printed
+and nothing is wired to it.
+
+**THE FIX, IN TWO PARTS. BOTH ARE REQUIRED; EITHER ALONE STILL LOSES DATA.**
+
+**(1) THE ASSERT MUST CONSUME NUMBERS, NOT PRINT THEM.** Use `--numstat`, not `--stat`, and
+compare with `test` inside the same `&&` chain:
+
+```bash
+NS=$(git diff-tree --numstat -r $H $T)
+test "$(echo "$NS" | wc -l)" = "1"
+test "$(echo "$NS" | cut -f1)" = "$EXPECTED_ADDED"
+test "$(echo "$NS" | cut -f2)" = "0"     # <-- THE LINE THAT WOULD HAVE STOPPED IT
+test "$(echo "$NS" | cut -f3)" = "<your path>"
+```
+
+**For an append-only or insert-only edit the deletion count is a KNOWN CONSTANT, so it is
+assertable, so it must be asserted.** `--stat` is for humans; a human is not a control.
+
+**(2) FOR A SHARED FILE, BUILD THE CONTENT FROM `H` INSIDE THE SAME INVOCATION.** Do not
+carry a disk copy across invocations. Write `git show $H:<path>` to a temp, apply your edit
+to **that**, write the result to the working tree, and `update-index` it — extraction, edit,
+assert, `commit-tree` and CAS in **one** shell invocation. Then the file you commit is
+provably `H`'s content plus your change, which is the property the assert in (1) is checking.
+
+**AND THE ANCHOR MUST REFUSE, NOT GUESS.** The restore that followed asserted its insertion
+point (exactly one section head, exactly one anchor, the anchor inside the right section) and
+**refused when the block was already present at `HEAD`** — which is what stopped a duplicate
+after closure restored their own work concurrently. **A repair script that locates by recall
+is the same class of defect as the one it is repairing.**
+
+**⚠ AND `git status` IS NOT THE READ.** Throughout, `git status --porcelain` reported `MM` on
+the path, from the **SHARED INDEX**, which rule 10 forbids touching or trusting. The
+authoritative comparison is **disk versus `git show HEAD:<path>`**, which showed byte-identical.
+A precondition written against `status` fails on a file no peer has touched.
+
+**THE GENERAL STATEMENT: A PRINTED NUMBER THAT NO TEST CONSUMES IS NOT A CONTROL.** The
+post-commit verify rule 10 requires is real and it is what caught this — but it fires **after
+the ref has moved**, so it is a detector, not a guard. **The guard has to sit before
+`commit-tree`, and it has to be a comparison rather than a rendering.**
