@@ -62,6 +62,14 @@ behaved on the other five walls.** The re-grade measures both statistics on all 
 > not.** This is a new measurement, not a restatement of the registration. On
 > `cube_front` the replacement statistic's observed order is **0.928 / 0.891** against the
 > ladder's design **1.043 / 0.992**, while the point maximum manages **0.538 / 0.524**.
+>
+> **SCOPE, STATED SO IT IS NOT OVERSTATED: this is a result about THIS ladder, on THESE
+> three meshes.** It confirms the 2026-09-03 G7/R1 classification **by measurement rather
+> than by ruling** on the case that classification was made for. **It is NOT a general
+> result about area-averaging**, and nothing here licenses the claim that an area average
+> is the right ladder statistic on another geometry, another wall set or another
+> refinement family. A statistic that behaves on six walls of one cube ladder has been
+> tested on six walls of one cube ladder.
 
 **The comparator reports this against its own interest.** It prints, in terms, that where
 `R_area` were itself to appear non-monotone *"T5c's OWN replacement statistic carries the
@@ -123,6 +131,39 @@ value is printed beside each and explicitly `not graded`.
 **The rule-12 calibration row is OWED to `docs/COST_CALIBRATION.md` and is NOT discharged
 here.** This lane was directed to stay off that file; the row is stated above so whoever
 lands it has the measured figures.
+
+## 5a. ⚠ A DISCLOSED, UNREPAIRED PROPERTY OF THE GRADER — the freeze witness is a git blob SHA-1, not a sha256 of the disk bytes
+
+**Found by this lane during the grading pass, reported rather than repaired, and ruled
+FORWARD-ONLY by the heat-transfer supervisor on 2026-09-03.**
+
+`analyse_t5c.py` records its registration's freeze witness as
+`e73a16cf5ccf4135f2d1e0b478ce9f829b01be2a` — a **40-hex git blob SHA-1**. **L-450
+records that the freeze instrument is blind to exactly that form**, and to truncated
+16-hex, and that a witness must be a **full sha256 of the disk bytes** to be seen. There
+are **zero occurrences of `sha256`** in the grader.
+
+**Why it is not repaired, and the reasons are Sanaa's rather than this team's:**
+
+1. **It changes no verdict.** What is degraded is the freeze **instrument's reporting**,
+   not the freeze itself: the registration really was committed at `e0c5fee8` before any
+   compute, and the grader really was committed at `c9865347` before it had ever run.
+   A witness the instrument cannot read is still a witness.
+2. **Sanaa's 2026-09-03 §2:** a rule requiring a backfill or re-registration must state
+   its cost **and the result it protects**. **No result is protected** by re-witnessing a
+   grader that already graded correctly.
+3. **Her clause 7** puts coverage ratios **forward-only and unreported**.
+
+**The grader is post-compute as of this record** — it has now run — so any repair would
+need the `VERIFICATION_CHARTER` §2d.1 route, and that route is **not being taken**.
+**FORWARD-ONLY ADOPTION:** every **new** grader this team writes carries a **full sha256
+of the disk bytes** as its freeze witness. **No backfill is scheduled** across existing
+T-family comparators.
+
+*Separately assessed and dismissed on evidence:* the concern that the grader's tolerances
+might repeat the T3 bare-absolute defect. They do not — `REL_EXACT = 1e-9` and
+`REL_FACE = 1e-12` are **relative to the operands they difference**, so no threshold sits
+below the arithmetic noise floor and no change is owed.
 
 ## 6. What this record does not do
 
