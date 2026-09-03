@@ -529,7 +529,7 @@ if [ "$ARM" = "F_mp" ]; then
   cp -a "$BASE/d6r_extract_endpoint.py" "$BASE/d6rf2_fd_endpoint.py" \
         "$BASE/d6rf2_opt_runScript.py" "$BASE/d6rf2_endpoint_locus.py" \
         "$BASE/d6rf2_endpoint_physical.py" "$BASE/d6rf2_units_assert.py" \
-        "$BASE/d6rf2_anchor_gate.py" \
+        "$BASE/d6rf2_anchor_gate.py" "$BASE/d6rf2_ref_off.py" \
         "$WORK/" || { stage_say "ABORT S6 stage instruments"; exit 4; }
   { echo "$MD5_EXTRACT6  $WORK/d6r_extract_endpoint.py"
     echo "$MD5_FD  $WORK/d6rf2_fd_endpoint.py"
@@ -537,8 +537,9 @@ if [ "$ARM" = "F_mp" ]; then
     echo "$MD5_LOCUS6  $WORK/d6rf2_endpoint_locus.py"
     echo "$MD5_PHYS6  $WORK/d6rf2_endpoint_physical.py"
     echo "$MD5_UNITS  $WORK/d6rf2_units_assert.py"
-    echo "$MD5_ANCHOR_GATE  $WORK/d6rf2_anchor_gate.py"; } | md5sum -c - || { stage_say "ABORT S6 staged instrument md5 in the arm directory"; exit 4; }
-  stage_say "D6RF2_STAGE_F_mp (S6) OK SEVEN instruments staged, every md5 asserted on BOTH sides of the copy -- the seventh is d6rf2_anchor_gate.py, added 2026-09-03 after the 22:13:11Z abort"
+    echo "$MD5_ANCHOR_GATE  $WORK/d6rf2_anchor_gate.py"
+    echo "$MD5_REFOFF  $WORK/d6rf2_ref_off.py"; } | md5sum -c - || { stage_say "ABORT S6 staged instrument md5 in the arm directory"; exit 4; }
+  stage_say "D6RF2_STAGE_F_mp (S6) OK EIGHT instruments staged, every md5 asserted on BOTH sides of the copy -- the seventh is d6rf2_anchor_gate.py, added 2026-09-03 after the 22:13:11Z abort"
   # ------------------------------------------------------------------ S7
   UNITS_RUNSCRIPT=d6rf2_opt_runScript.py
   DVFILE=d6r_endpoint_dvs.json
@@ -573,7 +574,7 @@ else
         "$BASE/d4_endpoint_locus.py" "$BASE/d4_endpoint_physical.py" \
         "$BASE/d6rf2_opt_runScript.py" "$BASE/d6rf2_ref_off.py" \
         "$BASE/d6rf2_endpoint_locus.py" "$BASE/d6rf2_units_assert.py" \
-        "$BASE/d6rf2_anchor_gate.py" \
+        "$BASE/d6rf2_anchor_gate.py" "$BASE/d6rf2_fd_endpoint.py" \
         "$WORK/" || { stage_say "ABORT stage instruments"; exit 4; }
   { echo "$MD5_EXTRACT4  $WORK/d4_extract_endpoint.py"
     echo "$MD5_RUNSCRIPT4  $WORK/d4_opt_runScript.py"
@@ -583,7 +584,8 @@ else
     echo "$MD5_REFOFF  $WORK/d6rf2_ref_off.py"
     echo "$MD5_LOCUS6  $WORK/d6rf2_endpoint_locus.py"
     echo "$MD5_UNITS  $WORK/d6rf2_units_assert.py"
-    echo "$MD5_ANCHOR_GATE  $WORK/d6rf2_anchor_gate.py"; } | md5sum -c - || { stage_say "ABORT staged instrument md5 in the arm directory"; exit 4; }
+    echo "$MD5_ANCHOR_GATE  $WORK/d6rf2_anchor_gate.py"
+    echo "$MD5_FD  $WORK/d6rf2_fd_endpoint.py"; } | md5sum -c - || { stage_say "ABORT staged instrument md5 in the arm directory"; exit 4; }
   # D4's PATCHED history, staged READ-ONLY, md5-asserted, BEFORE the datum so
   # the age guard dates it as an INPUT (the grader exempts it by md5).
   echo "$MD5_D4_HST  $D4_HST_SRC" | md5sum -c - || { stage_say "ABORT D4 OptView.hst md5 (source changed)"; exit 4; }
@@ -594,7 +596,7 @@ else
   rm -f "$WORK/d4_endpoint_dvs.json" "$WORK/d4_endpoint_dvs_PHYSICAL.json" \
         "$WORK/d4_endpoint_dvs_DRIVERSCALED.json" "$WORK/d6r_ref_off.json" \
         "$WORK/d4_major_history.json"
-  stage_say "D6RF2_STAGE_REF_off OK cold copy, G-COLD asserted, NINE instruments staged with every md5 (the ninth is d6rf2_anchor_gate.py, added 2026-09-03 after the 22:13:11Z abort), D4 history read-only"
+  stage_say "D6RF2_STAGE_REF_off OK cold copy, G-COLD asserted, TEN instruments staged with every md5 (the ninth is d6rf2_anchor_gate.py, added 2026-09-03 after the 22:13:11Z abort), D4 history read-only"
 fi
 
 # ===========================================================================

@@ -708,3 +708,114 @@ copy is asserted **byte-identical by `cmp`**, and the derivation is then re-run
 against the new disk state. **Write, read back, assert** — the shape proven in a
 live launch earlier tonight at `S5b`/`S5c`. **No filename-to-constant map is
 maintained anywhere, which is the whole point.**
+
+---
+
+## ADDENDUM — 2026-09-03T23:16Z — A CONTAINER RAN, THE EXTRACTOR REFUSED, AND THE ARM STAGING LISTS ARE REPAIRED
+
+**⚠ THE FIRST SOLVER COMPUTE EVER SPENT IN THIS LINEAGE: 4.6 core-min.** A
+container ran — `d6rf2_F_mp_20260903T230951Z_937264`, 23:10:12.066Z to
+23:10:59.274Z, `container_wall_s=47`, host `wall_s=69`, `ranks=4` — and exited
+**`rc=2`, which is the KERNEL's exit code** (`source=launcher_exit=docker_inspect_ExitCode`),
+not a launcher refusal. `inspect(exit,oomkilled)=[2 false]`, so not an OOM.
+**0.96 % of the 480.0 cap.** `REF_off` NOT RUN;
+`chain=STOPPED_AT_FIRST_NONZERO`.
+
+**NO GATE, THRESHOLD, CAP OR LABEL MOVES.** Run root asserted ABSENT by execution
+after the archive below.
+
+### Every gate passed first — the first fire that can say so
+
+`G-DELIVERY OK 8 (7 level-0, 1 by closure)` · `G-ANCHOR OK, readers=2`, both at
+anchor `'# OpenMDAO setup'`, `count=1`, header 10,536 chars, all 6 symbols
+present · `G-COLD OK` · `CMDFILE units_gate=present`, `deadline_in_container_s=7110`
+· `RUNAWAY_GUARD cap 480.0 ceiling 1440.0`.
+
+### The refusal, and it is the instrument working
+
+`d6r_extract_endpoint.py:70` refused, with **both of its own frozen-instrument
+controls passing immediately after** (`C1` `1743dd42…` and `C2` `137539e0…`, each
+matching its frozen pin). **The instrument is the file it was frozen as.**
+
+### The measurement the supervisor ordered: is CD load-bearing?
+
+**Answer: NOT for the FD table's endpoint. YES for the grader's verdict — and for
+a DIFFERENT SCENARIO than the one the refusal names.**
+
+- **The endpoint design vector does not touch CD.** `d6r_extract_endpoint.py:53-55`
+  builds it from `KEYS = ("twist","shape","patchV_cl04","patchV_cl05","patchV_cl06")`
+  (`:25`) as `arr[-1, :]` — the last major row. The CD block at `:65-77` runs
+  **after** it and after `_final_J` (`:64`).
+- **`_final_CD_*` is read by NOTHING in the container.** Zero references across
+  all six in-container instruments. `d6rf2_fd_endpoint.py:50` carries the same
+  `DV_KEYS` and no CD.
+- **The GRADER does depend on it.** `d6rf2_grade.py:792`:
+  `cd_mp = _f(hist["CD_cl05"][-1])`, then `price = cd_mp - cd_f`, and a negative
+  price sets `verdict = "NOT A RESULT"` (`:795-797`). It reads
+  `d6r_major_history.json`, which the extractor writes at `:80-83`.
+
+**⚠ AND THE SCOPE POINT SHARPENS: the refusal names `cl04`; the verdict depends
+on `cl05`.** The extractor loops `for pt in POINTS: for q in ("CL","CD")`, so
+`cl04`/`CD` is simply the first missing pair and the loop never reaches `cl05`.
+**A refusal names the first missing thing, never the load-bearing one.** Both are
+absent, so the outcome is unchanged — but a successor acting on the message alone
+would repair the wrong scenario.
+
+**Recorded as an observation and not chased:** `geometry_cl05.thickcon` and
+`geometry_cl05.volcon` are present in the history and their `cl04`/`cl06`
+counterparts are not.
+
+**NO CONCLUSION IS DRAWN BEYOND THE CODE.** Whether `F_mp` can proceed from a
+different source, needs a predecessor re-run with CD recorded, or is dead as
+registered, is a **registration decision and it is the supervisor's** — and it is
+deliberately not made in the same breath as the finding.
+
+### The arm staging lists are REPAIRED, and the repair is PROVED
+
+`G-DELIVERY` supplying `d6rf2_ref_off.py` was a defect **announced, not fixed**.
+Leaving it would make the guard load-bearing for **correctness** rather than
+**detection**, and the next omission would be invisible in the same way.
+
+| arm | was | now | added |
+|---|---|---|---|
+| `F_mp` | 7 | **8** | `d6rf2_ref_off.py` — the file the guard had to supply |
+| `REF_off` | 9 | **10** | `d6rf2_fd_endpoint.py` — **the gap the CLOSURE found on an arm that has never run** |
+
+Both md5-asserted on both sides of the copy, from the existing `MD5_REFOFF` and
+`MD5_FD` constants — **no new constant, no new list.**
+
+**THE PROOF, DRIVEN:** the closure now returns
+**`OK 8 required instruments (8 level-0, 0 by closure)`** for `F_mp` and
+**`OK 10 (10 level-0, 0 by closure)`** for `REF_off`. **`0 by closure` is the
+repair**: the LIST delivers what the CLOSURE requires, so the loud
+`stage_say` lines will not fire on the next fire — and **if they ever fire again,
+that is a new omission, which is exactly what they are for.**
+
+### ⚠ WHY THE REPAIR WAITED FOR THE ARM — A MECHANISM, NOT PRUDENCE
+
+A successor will feel the pull to edit the launcher during a long arm. **It is
+not merely unwise, it is incorrect, for two independent reasons:**
+
+1. **`d6rf2_chain_driver.sh:161` re-asserts the launcher's md5 BEFORE EACH ARM.**
+   Editing mid-chain moves that md5 and **aborts the next arm at `rc=4` on a
+   drifted pin** — the chain would have killed `REF_off` itself.
+2. **bash reads a script incrementally as it executes.** Editing a running script
+   can change what the interpreter reads next.
+
+**Waiting was the only correct order.**
+
+### Pins and archive
+
+`d6rf2_run_arm.sh` **`b45cdcb6be230949c08630639c4749b2`** (supersedes
+`01bc529b…`); `d6rf2_chain_driver.sh` **`cfe78028b41872e5e2177aa492161e3a`**
+(supersedes `686e1cbc…`) — **re-pinned inside the same repair, not after `U37`
+caught it.** Guard suite **97/97 PASS, 0 FAIL, rc 0 both interpreters**.
+
+Run root archived by `mv` to `…_ARM_F_mp_EXTRACT_REFUSE_20260903T231107Z`,
+**preservation asserted by count: files 378 → 378, dirs 85 → 85, bytes
+44,797,355 → 44,797,355.** It holds the container's own saved log
+`F_mp_20260903T230951Z_937264.log`, `F_mp_launch.out`, the staging evidence, the
+ledger and the cpu series. **No `rm -rf`.**
+
+**NOT RE-FIRED.** `REF_off` remains unrun. **And the sentence that stood five
+times tonight is now false: a container has run in this lineage.**

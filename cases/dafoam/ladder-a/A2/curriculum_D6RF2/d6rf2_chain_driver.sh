@@ -51,7 +51,7 @@ H5_FLOOR_GIB=24.0; H5_SAMPLES=45; H5_WINDOW_S=60; AGG_CEILING_GIB=30.6
 AGG_POLL_S=30; AGG_BOUND_S=14400
 H5_RETRY_S=60; H5_BOUND_S=14400
 
-MD5_LAUNCHER=01bc529b5a96f7589ebd8d3941200d1c   # d6rf2_run_arm.sh, RE-PINNED
+MD5_LAUNCHER=b45cdcb6be230949c08630639c4749b2   # d6rf2_run_arm.sh, RE-PINNED
 # 2026-09-03: re-pinned from 01e034e1c611e7fc4f0f4e31d3e34511 after the G-DELIVERY
 # repair added the anchor gate to both arms' staging lists and inserted the derived
 # delivery guard.  THE PIN IS NOT A FORMALITY: this driver asserts it TWICE per fire
