@@ -47,7 +47,17 @@ commit is already validated to exist (COMMIT-EXISTS) and to hold the pre-registr
 (PREREG-AT-COMMIT), so it is the one thing in the row that the row's author cannot
 retrofit.  The disk side is hashed in pure Python (git's blob rule, sha1 over
 `blob <len>\\0<bytes>`), so this instrument needs no git subcommand beyond the
-read-only `rev-parse` that queue_entry_check already allowlists.
+read-only `rev-parse` and `cat-file` that queue_entry_check already allowlists.
+
+AND THE CHOICE OF FILE IS DERIVED TOO, SINCE 2026-09-03 (VERIFICATION_CHARTER §2s.6).
+The paragraph above was true about the SHA and silent about the SCOPE, and that gap was
+the whole of the remaining hole: control A9 proves the drifter cannot write the pinned
+sha, but until `registration_declaration()` existed the drifter could still pick WHICH
+FILE got pinned -- drift comparator X, enqueue a row naming comparator Y, or naming
+nothing at all.  The pin was honest about a file its adversary chose.  §2s.6's
+precedence now governs: THE FROZEN REGISTRATION FIRST, the entry second, and REFUSE if
+both exist and disagree -- never choose.  See `registration_declaration()` for the
+honest note on where this is an adaptation of §2s.6 rather than a transcription of it.
 
 INSTRUMENT STATES ARE NOT GATE VERDICTS.  The words below -- PINNED, MISMATCH,
 ABSENT-AT-FREEZE, ABSENT-ON-DISK, UNPINNED, UNREGISTERED, MALFORMED -- describe this
@@ -64,11 +74,28 @@ therefore grade it anyway" silently reproduces today's state, so UNPINNED is mad
 COUNTABLE in three places, none of them prose:
     1. `_grading_freeze.verdict` stamped on every launched record (queue_runner.launch);
     2. a `GRADER-FREEZE <case>: UNPINNED` line in verification/queue/runner.log;
-    3. `--coverage <queue root>`, which walks the queue and prints
-       pinned / eligible as the fraction step (2) reports weekly.
-UNPINNED is refusal-ELIGIBLE, not refused: flipping `--strict` (or, later, a ruling
-that makes the field required) turns the same reading into a refusal with no change
-to what is measured.
+    3. `--pin-reading <queue root>`, which walks the queue and prints the per-state
+       breakdown with the commit it was walked at.
+UNPINNED is refusal-ELIGIBLE, not refused: flipping `--strict` turns the same reading
+into a refusal with no change to what is measured.
+
+THE SUNSET IS SANAA'S AND NO AGENT SETS IT.  VERIFICATION_CHARTER §2s.2 rules that the
+third outcome (proceed-and-count) "carries a sunset or it is permanent" -- at the sunset
+UNPINNED becomes a refusal.  THE MECHANISM EXISTS HERE (`--strict`, one flag, nothing
+else changes) AND THE DATE DOES NOT.  The date is recorded, when she sets it, in
+`docs/charters/VERIFICATION_CHARTER.md` §2s -- named here so its ABSENCE IS VISIBLE
+RATHER THAN IMPLIED.  `--strict` has no default-on path and never self-activates; no
+figure this file emits may be read as having reached a sunset condition.
+
+THIS FILE EMITS NO §2s.4 COVERAGE FIGURE, DELIBERATELY.  §2s.4's coverage is
+judged / total over the GRADER population that check_comparator_freeze walks (40 of
+189 at its measurement).  `--pin-reading` counts QUEUE ROWS -- a different object over
+a different population, not convertible into that one and not a check on it.  The two
+must never be quoted as though they were the same number.  §2s.9.1 also rules that any
+such figure is meaningless without the commit it was walked at, so every reading this
+file prints carries its HEAD sha; and a stop condition written as a bare count -- the
+"145/145" an earlier draft of this docstring cited -- names a target that RECEDES as
+the lab works, and is not used here.
 
 THE FIELD NAME IS PROPOSED, NOT SETTLED.  `grading_paths` is this lane's proposal;
 the schema field name is an OPEN QUESTION ON THE CHIEF'S DESK (cfd board 47).
@@ -77,7 +104,7 @@ written down; a ruling renames it there and nowhere else.
 
 USAGE
     python3 scripts/grader_freeze_gate.py <entry.json> [<entry.json> ...]
-    python3 scripts/grader_freeze_gate.py --coverage verification/queue
+    python3 scripts/grader_freeze_gate.py --pin-reading verification/queue
     python3 scripts/grader_freeze_gate.py --selftest
 Exit 0 = nothing refused; 2 = at least one entry REFUSED (or the instrument refused
 itself).  Rule 4's precedent: refuse, never degrade.
@@ -89,8 +116,10 @@ from __future__ import annotations
 
 import argparse
 import ast
+import datetime
 import hashlib
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -110,11 +139,24 @@ FULL_SHA_CHARS = set("0123456789abcdef")
 # Sanaa's 2026-08-31 ruling (9154c8ef), already honoured by queue_entry_check: an
 # UNREGISTERED feasibility/physics rung is queue-legal with a tag in place of a freeze
 # sha, and ITS OUTPUTS ARE NEVER GRADEABLE. Such a row has no freeze to pin against and
-# is EXEMPT here -- exempt is not covered, and --coverage counts it in its own column.
+# is EXEMPT here -- exempt is not covered, and --pin-reading counts it in its own column.
 UNREGISTERED_PREREG_TAGS = frozenset({"FEASIBILITY", "PHYSICS"})
 
 # States that must stop a launch. Everything else is a reading, not a refusal.
-REFUSING_STATES = ("MISMATCH", "ABSENT-AT-FREEZE", "ABSENT-ON-DISK", "MALFORMED")
+#
+# THE LAST TWO ARE §2s.6's, ADDED 2026-09-03 WITH D8, AND NEITHER CAN FIRE ON ANY ROW
+# ON DISK TODAY -- measured, not assumed: zero registrations in this repository carry a
+# GRADING_PATHS declaration, so there is nothing yet for a conflict to be between and
+# nothing yet to be unreadable. They refuse a condition that does not exist yet, which
+# is the only honest moment to install a refusal.
+REFUSING_STATES = ("MISMATCH", "ABSENT-AT-FREEZE", "ABSENT-ON-DISK", "MALFORMED",
+                   "DECLARATION-CONFLICT", "REGISTRATION-UNREADABLE")
+
+# Every verdict this instrument can return. One tuple so the coverage tally, the
+# printed breakdown and the states themselves cannot drift apart -- a tally keyed on a
+# hand-written list is how a new state becomes invisible to the count that exists to
+# see it.
+ALL_STATES = ("PINNED", "UNPINNED", "UNREGISTERED") + REFUSING_STATES
 
 
 class Refusal(Exception):
@@ -174,6 +216,114 @@ def declared_paths(entry: dict) -> tuple[list, str | None]:
     return [], None
 
 
+# ------------------------------------------------- D8 / §2s.6: WHERE THE DECLARATION COMES FROM
+# VERIFICATION_CHARTER §2s.6, verbatim: "A declaration is accepted from the frozen
+# registration first (it cannot move after first compute), the comparator's own source
+# second; if both exist and DISAGREE, REFUSE -- never choose."
+#
+# HONEST SCOPE NOTE -- THIS IS AN ADAPTATION, NOT A TRANSCRIPTION, AND SAYING SO IS THE
+# POINT.  §2s.6 governs the pairing COMPARATOR -> RUN TREE inside check_comparator_freeze,
+# and its second-precedence source is the comparator's own source file.  The pairing here
+# is QUEUE ROW -> COMPARATOR and the fallback source is the queue entry.  What is
+# transcribed EXACTLY is the part that carries the enforcement: the PRECEDENCE (frozen
+# registration wins) and the REFUSE-ON-DISAGREEMENT rule (never choose).  What differs is
+# which two objects those rules range over.  Authorised as conformance with an
+# already-ruled clause by cfd-supervisor, 2026-09-03; it creates no gate and moves none.
+#
+# THE DECLARATION FORMAT, and why it is this narrow.  A line whose first non-decoration
+# token is `GRADING_PATHS:` followed by one or more repo-relative paths.  Leading
+# markdown decoration (`>`, `*`, `_`, backtick, `-`) is tolerated because registrations
+# are markdown; anything else on the left is not a declaration.  A registration carrying
+# TWO declarations that disagree is a CONFLICT, not a menu -- §2s.6's "never choose"
+# applies inside one document exactly as it does between two.
+REGISTRATION_DECL_RE = re.compile(r"^[\s>*_`+-]*GRADING_PATHS\s*:\s*(.+?)\s*$", re.MULTILINE)
+
+
+def _split_decl(text: str) -> list[str]:
+    """The paths on one declaration line. Commas or whitespace; markdown stripped."""
+    out = []
+    for tok in re.split(r"[,\s]+", text.strip()):
+        tok = tok.strip().strip("`'\"*_")
+        if tok:
+            out.append(tok)
+    return out
+
+
+def _git_cat_blob(repo: Path, sha: str) -> bytes | None:
+    """Read-only. The blob's bytes, or None if it could not be read.
+
+    `cat-file` is already on queue_entry_check's GIT_READ_ONLY allowlist, so this adds
+    no git capability to the daemon's process.
+    """
+    try:
+        out = subprocess.run(["git", "-C", str(repo), "cat-file", "blob", sha],
+                             capture_output=True, timeout=30)
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    return out.stdout if out.returncode == 0 else None
+
+
+def registration_declaration(entry: dict, repo: Path) -> tuple[list, str]:
+    """(paths, state) read from the FROZEN REGISTRATION BLOB -- never from the entry.
+
+    state is one of:
+      NONE               no registration blob is reachable, or it carries no
+                         declaration. A MISSING or unreachable registration is already
+                         refused upstream by COMMIT-EXISTS / PREREG-AT-COMMIT and is not
+                         double-reported here.
+      DECLARED           exactly one declaration (or several that agree); `paths` holds it.
+      UNREADABLE         the blob EXISTS and its bytes could not be read.
+      CONFLICT-INTERNAL  two declarations in one registration that disagree.
+
+    ⚠ WHY `UNREADABLE` IS A SEPARATE STATE AND NOT FOLDED INTO `NONE`.  This is
+    VERIFICATION_CHARTER §2s.9.2's finding applied to this file before it could happen
+    here.  There, `check_comparator_freeze` initialises `modified = None`, assigns it
+    only when three subprocess calls all succeed, and then writes
+    `"MODIFIED_AFTER_COMMIT" if modified else "FROZEN"` -- so a comparison that COULD
+    NOT BE PERFORMED reports the reassuring answer, and from the row alone "checked and
+    clean" is indistinguishable from "never checked".  Returning `[], "NONE"` on a failed
+    `cat-file` would reproduce that exactly: the authority would be unreadable and the
+    row would silently fall back to the entry's own word, which is the one source §2s.6
+    ranks second.  A guard that cannot read its authority refuses.
+    """
+    sha = entry.get("prereg_commit")
+    ppath = entry.get("prereg_path")
+    if not is_full_sha(sha) or not isinstance(ppath, str) or not ppath.strip():
+        return [], "NONE"
+    rel = _normalise(repo, ppath.strip())
+    if rel is None:
+        return [], "NONE"                      # SCHEMA owns a malformed prereg_path
+    blob = _git_rev_parse(repo, f"{sha}:{rel}")
+    if blob is None:
+        return [], "NONE"                      # PREREG-AT-COMMIT owns a missing prereg
+    raw = _git_cat_blob(repo, blob)
+    if raw is None:
+        return [], "UNREADABLE"                # the blob EXISTS; see the docstring
+    hits = [h for h in REGISTRATION_DECL_RE.findall(raw.decode("utf-8", errors="replace"))]
+    decls = [d for d in (_split_decl(h) for h in hits) if d]
+    if not decls:
+        return [], "NONE"
+    first = tuple(sorted(set(decls[0])))
+    for d in decls[1:]:
+        if tuple(sorted(set(d))) != first:
+            return [], "CONFLICT-INTERNAL"
+    return decls[0], "DECLARED"
+
+
+def _same_paths(repo: Path, a: list, b: list) -> bool:
+    """Do two declarations name the same set of files? Compared on the NORMALISED
+    repo-relative path, so `./x/y.py` and `x/y.py` are one file and not a conflict; a
+    path that will not normalise falls back to its literal text rather than to None,
+    because two different unnormalisable paths must not compare equal."""
+    def key(xs):
+        out = set()
+        for x in xs:
+            n = _normalise(repo, x) if isinstance(x, str) and x.strip() else None
+            out.add(n if n is not None else repr(x))
+        return out
+    return key(a) == key(b)
+
+
 def _normalise(repo: Path, p: str) -> str | None:
     """Repo-relative POSIX path, or None if it escapes the repo."""
     q = Path(p)
@@ -214,6 +364,35 @@ def grading_freeze_record(entry: dict, repo: Path) -> dict:
             "prereg_commit is not a 40-hex sha; the freeze checks upstream own this "
             "row and there is no commit to derive a pin from."),
             field=field, paths=[], prereg_commit=sha, refusal_eligible=False)
+
+    # ---- §2s.6 PRECEDENCE (D8): the frozen registration outranks the entry ----------
+    reg_paths, reg_state = registration_declaration(entry, repo)
+    if reg_state == "UNREADABLE":
+        return dict(verdict="REGISTRATION-UNREADABLE", detail=(
+            f"the frozen registration {entry.get('prereg_path')!r} EXISTS at commit "
+            f"{sha[:8]} and its bytes could not be read, so the authority §2s.6 ranks "
+            f"FIRST could not be consulted. This is refused rather than silently "
+            f"downgraded to the entry's own declaration: 'could not check' and 'nothing "
+            f"to check' must never be the same reading (VERIFICATION_CHARTER §2s.9.2)."),
+            field=field, paths=[], prereg_commit=sha, refusal_eligible=True)
+    if reg_state == "CONFLICT-INTERNAL":
+        return dict(verdict="DECLARATION-CONFLICT", detail=(
+            f"the frozen registration {entry.get('prereg_path')!r} at {sha[:8]} carries "
+            f"TWO GRADING_PATHS declarations that disagree. §2s.6: if declarations exist "
+            f"and disagree, REFUSE -- never choose. A disagreement about which comparator "
+            f"grades a case is precisely the condition in which a silent pick is worst."),
+            field=field, paths=[], prereg_commit=sha, refusal_eligible=True)
+    if reg_state == "DECLARED" and paths and not _same_paths(repo, reg_paths, paths):
+        return dict(verdict="DECLARATION-CONFLICT", detail=(
+            f"the frozen registration at {sha[:8]} declares {sorted(reg_paths)} and this "
+            f"entry's {field!r} declares {sorted(str(p) for p in paths)}. They name "
+            f"different comparators. §2s.6: REFUSE -- never choose. The registration is "
+            f"the senior source because it cannot move after first compute; an entry that "
+            f"contradicts it is the shape a drifted comparator would be hidden behind."),
+            field=field, paths=[], prereg_commit=sha, refusal_eligible=True)
+    if reg_state == "DECLARED":
+        # The senior source spoke. Whether or not the entry agreed, THIS is what is pinned.
+        paths, field = reg_paths, f"the frozen registration ({entry.get('prereg_path')})"
 
     if not paths:
         return dict(verdict="UNPINNED", detail=(
@@ -272,11 +451,28 @@ def refusals(entry: dict, repo: Path, strict: bool = False) -> list[str]:
 
     Empty list = nothing to refuse. A refusal is returned ONLY for a state in
     REFUSING_STATES -- or, under `strict`, also for UNPINNED. `strict` is OFF on the
-    live path today and is the single switch a ruling flips once coverage reaches
-    145/145; nothing else changes when it does.
+    live path today and is the single switch a ruling flips AT THE SUNSET; nothing else
+    changes when it does. THE SUNSET DATE IS SANAA'S, IT DOES NOT EXIST YET, and its
+    home is named in this module's docstring so its absence is visible. The earlier
+    wording here named "coverage reaches 145/145" as the trigger: VERIFICATION_CHARTER
+    §2s.9.1 has since ruled that a stop condition written as a BARE COUNT names a target
+    that RECEDES as the lab works -- every new grader enters the population unjudged, so
+    normal productive work moves the target away faster than evidence accrues. The
+    condition is a ratio at a stated walked commit, never a count, and this flag does not
+    read any figure to decide anything.
     """
     rec = grading_freeze_record(entry, repo)
     v = rec["verdict"]
+    if v in ("DECLARATION-CONFLICT", "REGISTRATION-UNREADABLE"):
+        # A DIFFERENT REFUSAL FROM THE ONE BELOW, and it must not borrow its wording:
+        # nothing here says a comparator moved. The claim is that this row cannot say
+        # WHICH comparator is pinned, which is refused before it spends core-minutes.
+        return [
+            f"GRADER-FREEZE [{v}]: {rec['detail']}\n"
+            "        TO CLEAR: make the frozen registration and the queue entry name the "
+            "same comparator, or remove the entry's declaration and let the registration "
+            "speak alone. Nothing here edits, reverts or stages anything."
+        ]
     if v in REFUSING_STATES:
         lines = []
         for r in rec["paths"]:
@@ -300,30 +496,75 @@ def refusals(entry: dict, repo: Path, strict: bool = False) -> list[str]:
     return []
 
 
-# ---------------------------------------------------------------- coverage (step 2's input)
+# ---------------------------------------------------------------- the queue-row pin reading
 def coverage(root: Path, repo: Path) -> dict:
-    """Walk a queue root and count what freeze enforcement DOES and DOES NOT cover.
+    """Walk a queue root and count what freeze enforcement DOES and DOES NOT reach.
 
-    This is not step (2) -- verification owns that report. It is the reading that makes
-    step (2) sizeable, and it counts off disk so nobody has to take this lane's word.
+    ⚠ THIS IS NOT §2s.4's COVERAGE FIGURE and must never be quoted as one. §2s.4's
+    coverage is judged / total over the GRADER population check_comparator_freeze walks.
+    This counts QUEUE ROWS. Different objects, different populations, not convertible.
+    Verification owns the weekly report; this is a reading off disk so nobody has to take
+    this lane's word for the queue's half.
+
+    TWO REPAIRS, 2026-09-03, each with a control that FAILED BEFORE IT:
+
+    (D1) AN EMPTY POPULATION REFUSES. It used to print `0/0` and return 0 -- verbatim
+    what FREEZE_ENFORCEMENT_SPEC §2 forbids and what §2p.2 already made law, reproduced
+    one level up from where verification had just found the same class in their own
+    instrument. A metric that reads clean on an empty population is the degenerate path
+    wearing the metric's clothes.
+
+    (D2) `refused/` IS WALKED. It used to glob only `*/*.json` and `*/launched/*.json`.
+    A MISMATCH row is refused by tick(), moved to `<team>/refused/`, and so LEFT THE
+    POPULATION ENTIRELY -- measured on a planted row: the walk over the very root holding
+    it reported `total=0, MISMATCH=0`. That made the number improvable BY HIDING A
+    VIOLATION, which §2s.4 names as the one way this kind of metric can leave the lab
+    worse off than no metric at all. Refused rows are now counted in the tally AND
+    reported in their own column, so a violation is visible twice and absorbed nowhere.
     """
     root, repo = Path(root), Path(repo)
-    tally = {k: 0 for k in ("PINNED", "UNPINNED", "UNREGISTERED", "MISMATCH",
-                            "ABSENT-AT-FREEZE", "ABSENT-ON-DISK", "MALFORMED")}
-    rows = []
-    for p in sorted(root.glob("*/*.json")) + sorted(root.glob("*/launched/*.json")):
+    tally = {k: 0 for k in ALL_STATES}
+    refused_tally: dict[str, int] = {}
+    rows, unparsed = [], []
+    walked = ([("queued", p) for p in sorted(root.glob("*/*.json"))]
+              + [("launched", p) for p in sorted(root.glob("*/launched/*.json"))]
+              + [("refused", p) for p in sorted(root.glob("*/refused/*.json"))])
+    for where, p in walked:
         try:
             e = json.loads(p.read_text())
-        except (OSError, json.JSONDecodeError):
+        except (OSError, json.JSONDecodeError) as exc:
+            # COUNTED, not skipped. A row the walk cannot parse is a hole in the reading,
+            # and a hole that is silently dropped is the same defect as D2 in miniature.
+            unparsed.append((str(p), f"{type(exc).__name__}: {exc}"))
             continue
         if not isinstance(e, dict):
+            unparsed.append((str(p), "not a JSON object"))
             continue
         rec = grading_freeze_record(e, repo)
         tally[rec["verdict"]] = tally.get(rec["verdict"], 0) + 1
-        rows.append((str(p), rec["verdict"]))
+        if where == "refused":
+            refused_tally[rec["verdict"]] = refused_tally.get(rec["verdict"], 0) + 1
+        rows.append((str(p), where, rec["verdict"]))
+    total = sum(tally.values())
+    if total == 0:
+        raise Refusal(
+            f"EMPTY POPULATION at {root}: {len(walked)} queue file(s) found, "
+            f"{len(unparsed)} unparseable, 0 rows read. A reading over nothing is "
+            f"REFUSED, not reported as 0/0 and not reported as clean -- an instrument "
+            f"that answers cleanly on an empty input has been shown to pass a repository "
+            f"whose every comparator was rewritten this morning (FREEZE_ENFORCEMENT_SPEC "
+            f"section 2; VERIFICATION_CHARTER section 2p.2).")
     eligible = sum(v for k, v in tally.items() if k != "UNREGISTERED")
     return dict(tally=tally, rows=rows, eligible=eligible, pinned=tally["PINNED"],
-                total=sum(tally.values()))
+                total=total, refused_tally=refused_tally,
+                refused_total=sum(refused_tally.values()), unparsed=unparsed)
+
+
+def walked_at(repo: Path) -> str:
+    """The commit a reading was walked at. §2s.9.1: a figure without its walked commit
+    is meaningless, because the population GREW BY ONE GRADER INSIDE A SINGLE TASK and
+    every new grader enters unjudged by construction."""
+    return _git_rev_parse(repo, "HEAD^{commit}") or "UNKNOWN-HEAD"
 
 
 # ---------------------------------------------------------------- instrument self-check
@@ -344,10 +585,20 @@ def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("entries", nargs="*")
     ap.add_argument("--repo", default=str(Path(__file__).resolve().parent.parent))
-    ap.add_argument("--coverage", metavar="QUEUE_ROOT")
+    ap.add_argument("--pin-reading", dest="pin_reading", metavar="QUEUE_ROOT",
+                    help="walk a queue root and print the per-state breakdown with the "
+                         "commit it was walked at. THIS IS NOT A COVERAGE FIGURE: it "
+                         "counts QUEUE ROWS, while VERIFICATION_CHARTER 2s.4's coverage "
+                         "is judged/total over the GRADER population.")
+    # The old spelling still works so no record that cites it is stranded, but it prints
+    # the rename and the disclaimer rather than quietly answering to the wrong word.
+    ap.add_argument("--coverage", dest="coverage_alias", metavar="QUEUE_ROOT",
+                    help=argparse.SUPPRESS)
     ap.add_argument("--strict", action="store_true",
                     help="also REFUSE an entry that names no comparator (UNPINNED). "
-                         "OFF on the live path; this is the switch a ruling flips.")
+                         "OFF on the live path; the switch a ruling flips AT THE SUNSET. "
+                         "The sunset date is Sanaa's, does not exist yet, and this flag "
+                         "never self-activates.")
     ap.add_argument("--selftest", action="store_true")
     a = ap.parse_args(argv)
 
@@ -362,15 +613,37 @@ def main(argv: list[str]) -> int:
         return EXIT_REFUSE
 
     repo = Path(a.repo)
-    if a.coverage:
-        cov = coverage(Path(a.coverage), repo)
-        print(f"GRADER-FREEZE COVERAGE over {a.coverage} (repo {repo})")
+    target = a.pin_reading or a.coverage_alias
+    if a.coverage_alias:
+        print("NOTE: --coverage is renamed --pin-reading. The old spelling still works "
+              "and the reading is unchanged; the WORD was wrong.")
+    if target:
+        cov = coverage(Path(target), repo)
+        stamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
+        print(f"GRADER-FREEZE QUEUE-ROW PIN READING over {target}")
+        print(f"  walked at HEAD {walked_at(repo)}  {stamp}  (repo {repo})")
+        print(f"  ⚠ NOT the VERIFICATION_CHARTER 2s.4 COVERAGE FIGURE. That is "
+              f"judged/total over the GRADER population; this counts QUEUE ROWS. "
+              f"Different objects over different populations -- neither is convertible "
+              f"into the other and neither checks the other.")
         for k in sorted(cov["tally"]):
-            print(f"  {k:18s} {cov['tally'][k]:5d}")
-        print(f"  {'-'*24}")
-        print(f"  PINNED / ELIGIBLE  {cov['pinned']}/{cov['eligible']}   "
+            print(f"  {k:24s} {cov['tally'][k]:5d}")
+        print(f"  {'-'*30}")
+        print(f"  rows walked              {cov['total']:5d}   "
+              f"(queued + launched + refused)")
+        print(f"  of which in refused/     {cov['refused_total']:5d}   "
+              f"{dict(sorted(cov['refused_tally'].items())) or '{}'}")
+        print(f"  PINNED / ELIGIBLE        {cov['pinned']}/{cov['eligible']}   "
               f"(UNREGISTERED rows are EXEMPT and excluded from the denominator; "
               f"exempt is not covered)")
+        if cov["unparsed"]:
+            print(f"  ⚠ {len(cov['unparsed'])} row(s) could not be parsed and are in NO "
+                  f"tally above -- they are a HOLE in this reading, not a clean result:")
+            for p, why in cov["unparsed"]:
+                print(f"      {p}: {why}")
+        # A refused violation is reported TWICE on purpose -- once in its state's tally
+        # and once in the refused column -- because the defect this repairs was a
+        # violation that vanished from the population by being acted on correctly.
         return 0
 
     if not a.entries:

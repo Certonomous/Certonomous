@@ -480,7 +480,16 @@ def check_grader_freeze(entry: dict, root: Path, entry_path=None) -> list[str]:
     `strict` is False here and the module docstring says why: all 306 entries on disk
     lack the field, so refusing on absence would refuse the lab's whole queue on the
     day it landed. An unpinned row is COUNTED, not passed -- see the `_grading_freeze`
-    stamp queue_runner.launch() writes and `--coverage`.
+    stamp queue_runner.launch() writes and `--pin-reading` (renamed from `--coverage`
+    2026-09-03: it counts QUEUE ROWS and is NOT VERIFICATION_CHARTER 2s.4's coverage
+    figure, which is judged/total over the GRADER population).
+
+    WHICH COMPARATOR IS CHECKED IS NO LONGER THE ENTRY'S TO CHOOSE (2s.6, 2026-09-03).
+    The declaration is read from the FROZEN REGISTRATION first and the entry second, and
+    a disagreement between them REFUSES rather than picking one. Before that, the pinned
+    sha could not be forged but the choice of file could: drift comparator X, enqueue a
+    row naming comparator Y. Still no logic of its own here -- the reading remains
+    grader_freeze_gate.refusals().
     """
     return gfg.refusals(entry, root, strict=False)
 
