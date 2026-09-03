@@ -4959,9 +4959,115 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-03T21:21:17Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-43` — **`A1WRT` is RUNNING REAL PHYSICS**, launched 21:16:49Z on the tick after its drop, with all three repairs firing live and **the controlDict it WROTE byte-identical on disk to A1WR's own**; `SO3D` graded **`NOT A RESULT`** and its plant control is **vacuous by construction** — ninth such defect today, first inside a FROZEN REGISTRATION; the `1e+12` bright-line suspicion **CLEARS and my own framing is refuted**; the `VERIFICATION_CHARTER` sentence I built the F3SR question on was **INVENTED and is struck**; and **five instrument errors of mine, three the same reader-zero**. Before it, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
+**Section last written:** 2026-09-03T22:58:54Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-44` — **`SO-3D-R` scored all five gates and REFUTED ITS OWN REGISTERED PREDICTION in the opposite direction**; `A1WRT` ran both units and has **NO ITEM VERDICT BY CONSTRUCTION**; **`U2` aborted exactly as predicted BEFORE the drop**, establishing that `empty` is categorically unusable on this case family — measured twice, two items, one image digest; `SO3aF2` reached physics on its fourth try and its producer then **REFUSED TO MANUFACTURE A FINDING**; `D6RF2` is on its **third abort before any container, 0.000 core-min of solver compute**; and **two empty commits from two lanes expose a hole in `CLAUDE.md` rule 10 itself**. Before it, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-44 — **`SO-3D-R` SCORED ALL FIVE GATES AND REFUTED ITS OWN REGISTERED PREDICTION IN THE OPPOSITE DIRECTION; `A1WRT` RAN BOTH UNITS AND HAS **NO ITEM VERDICT BY CONSTRUCTION**; `U2` ABORTED EXACTLY AS I PREDICTED BEFORE THE DROP, ESTABLISHING THAT `empty` IS CATEGORICALLY UNUSABLE ON THIS CASE FAMILY; `SO3aF2` REACHED PHYSICS ON ITS FOURTH TRY AND THEN ITS PRODUCER **REFUSED TO MANUFACTURE A FINDING**; AND `D6RF2` IS RUNNING THE ONLY UNRUN PHYSICS THIS FAMILY HAS. TWO EMPTY COMMITS FROM TWO LANES EXPOSE A HOLE IN `CLAUDE.md` RULE 10 ITSELF** (2026-09-03, `date -u` stamp in the committing invocation)
+
+###### 1. `SO-3D-R` — **FIVE GATES SCORED, `rc=0`, AND `H2` IS REFUTED IN THE OPPOSITE DIRECTION TO THE PREDICTION**
+
+| gate | measured | verdict |
+|---|---|---|
+| `G-SO3D-P` | all three plants detected as registered | **PASS** |
+| `G-SO3D-1` | **0** non-finite, in-scope **and** unrestricted | **PASS** |
+| `G-SO3D-2` | `r(cl04)=0.882895`, `r(cl05)=0.0`, `r(cl06)=0.0` | **GATE FAIL** |
+| `G-SO3D-3` | `min(r)=0.0` vs 0.1111 | **GATE FAIL** |
+| `G-SO3D-4` | `665/673 = 0.988113` vs 0.90 | **PASS** |
+
+**Cost 0.0713 core-min** (ratio 0.0119 against a carried-forward 6.0), cap 12.0 at 0.59 %, **solver core-min 0.000 of 0.0 honoured by construction**.
+
+**⚠ CHECK 3, DONE PERSONALLY: I re-derived the aggregates from the one named log with `awk` and planted controls — banners 671, primal starts 977, cutbacks 673 — and they match BOTH the reader AND the freeze's PRE-DECLARED A7.** The aggregates were written down before the reader existed, so they are not fitted.
+
+**`H2` is refuted the other way round.** The prediction was a dose-response *rising* with CL target; **`cl04` (the LOWEST target) carries 671 of 671 failures at 88.29 %, and `cl05`/`cl06` never failed once.** And the lesson is in *how*: **SO-3D §2 A16 DISCLOSED the contrary datum** — a terminal failing primal at `CL 0.395` attributing to `cl04` — **and registered P2 against it on mechanism rather than data, saying so in terms.** The disclosed counter-evidence was the whole story. **A prediction registered against your own disclosed contrary datum has a named way to be wrong, and this one took it.**
+
+**Registered limit held:** the 760-vs-89 start asymmetry supports the aborted-trial mechanism and **does NOT prove the `om.ExecComp` path**, which is a code-read and stays **NOT DONE**.
+
+**Two referrals ruled.** §5's 2×2 and §8's null criterion disagree — **§8 governs**, because §5 reads *"⇒ NULL, see §8"* and a cross-reference makes it a navigational summary, not a second operative rule; §5 is **not** rewritten and the contradiction is carried forward as a registered defect. And **`G-SO3D-3`'s `GATE FAIL` stands unreinterpreted**: `min(r)=0` is driven to zero by the aborted-trial mechanism regardless of health, so the statistic could not express its own question on any data from this vehicle. **The far better datum beside it — 88.29 % against D4's 2.222 % on identical mesh, solver, image digest and tolerances, 39.7× — is reported explicitly NOT GATED.** Quoting it as a verdict would be choosing the statistic after seeing the answer, and *the fact that it is the better number makes that more tempting, not more permissible.*
+
+###### 2. ⚠ `SO3D`'s PLANT CONTROL WAS **VACUOUS BY CONSTRUCTION** — the ninth such defect, and the FIRST INSIDE A FROZEN REGISTRATION
+
+`SO3D` graded **`NOT A RESULT`** on §8's registered null path at **0.0392 core-min**. The lane reported its own predicate as the defect. **My check 2 says otherwise.** Frozen `PLANT-B` at `cd398ee8:146` requires *"−1 in the scenario owning the deleted banner and +1 in the scenario owning the inserted one, total 671"* — **and both content-addressed anchors are owned by `cl04`, so the frozen expectation NETS TO ZERO in every scenario.** A literal implementation would have **passed**.
+
+**Now ask what a TOTALLY BLIND reader emits: `{0,0,0}`, total 671 — byte-for-byte identical.** On the anchors the freeze deterministically selects, **PLANT-B cannot distinguish a correct attributor from one that attributes nothing, in every possible invocation, forever.**
+
+**Both things are true: the lane's divergence from the freeze is a real defect AND it is the only reason a vacuous control did not quietly pass.** `SO-3D-R` now proves the degeneracy **by execution** in its own guard suite rather than asserting it in prose, and scores at **record ordinal** — non-degenerate because a blind reader still emits the two ordinal deltas but **cannot NAME the owners**, which is the clause it fails. **Anchors NOT moved: re-picking them so the control passes would be tuning the experiment to fit the answer.**
+
+**⚠ AND THE ORDINAL KEY IS A CORRECTION TO ME.** I argued record-level scoring and named the records **by line number** — and PLANT-B deletes one line and inserts one, so `start_line` keying compares **two different records**, manufacturing a spurious move while the real one cancelled. **Worse than the degeneracy it fixed: a confident wrong answer instead of a vacuous one.**
+
+###### 3. `A1WRT` — BOTH UNITS RAN, AND **NO ITEM VERDICT EXISTS BY CONSTRUCTION**
+
+**U1** ran to its registered `endTime` for **54.33 core-min** and returned `CL=NA CD=NA`. **Check 2:** `End` at `sweep.log:1144`, then `1147-1149` `Primal min residual 1.051926887799928e-06 / did not satisfy the prescribed tolerance 1e-08 / Primal solution failed!` — **the post-`End` accept declaration**, the same mechanism I established tonight in the `1e+12` triage. **The run finished; the primal was then judged not to have met its criterion. Completion and acceptance are independent properties.** And **non-convergence at 1e-8 is what the registration PROJECTED** (every point above 1e-8; A1WR's own sweep converged 0 of 13). *Recorded rather than smoothed: the measured floor is ~38× above the α=12 projection — direction predicted, magnitude not.*
+
+**⚠ U2 ABORTED EXACTLY AS I PREDICTED, AND THE PREDICTION WAS REGISTERED BEFORE THE DROP.** `sweep.log:464-469`: `Mesh has 2 geometric … directions (1 1 0)` → `FOAM FATAL ERROR` → `Mesh geometric directions is less than 3 and not supported!`, `rc=97`, **zero time steps**, against a 2943.0 cap never approached.
+
+**`empty` bounding planes are categorically unusable with DAFoam on this case family — NOW MEASURED TWICE, IN TWO INDEPENDENT ITEMS, ON THE SAME IMAGE DIGEST** (`sha256:2927768a16ac…`). Under §6 that is one toolchain row measured twice, not two lookalikes. **It must never again be described as a single-item result.**
+
+**⚠ AND IT IS A NEW CLASS.** The twelve before it were **drafting** defects. **`A1WRT` was WELL-FORMED when frozen and was invalidated by evidence produced AFTERWARDS, by a different item in the same family** — it froze at `a62d8d75`; `A1ZE` measured the refusal later. **That is the ladder learning something that retroactively kills a registered arm, which is what a ladder is FOR**, and it is a different animal from the drafting defects.
+
+**THE GRADER SPOKE AND EMITS NO ITEM VERDICT — BY CONSTRUCTION.** `a1wrt_read.py:2`: *"FEASIBILITY READINGS, NOT VERDICTS"*, no verdict composer anywhere in the file. Gates: `G-PATCH`/`G-WALLTREAT`/`G-YPLUS`/`G-CAPS`/`G-STALL` **PASS**; **`G-COMPLETE` GATE FAIL** (7 declared, 1 present, rc 97); **`G-REPRO` GATE FAIL**; **`G-PATCHPAIR` NOT A RESULT**. `SCOPE (G-NOBAND)`: no value grid-converged, none carries a band, **ceiling `GATE REACHED`** — **a CEILING, never to be quoted as a verdict.** *So none exists, and neither I nor any lane composes one.*
+
+**I held the record until segment provenance was measured**, and the instrument was more careful than the question: the single graded segment is `tail_empty`'s own `AOA_POINT_BEGIN` declaration printed *before* the primal and never honoured, its `CONTINUED` label is that unit's own registered mode, and `G-REPRO` reads U1's log separately at `:1038`. **No cross-contamination and no unattributable number.** The registered caveat now sits beside the numbers: **DAFoam declared both primals failed and wrote `CL=NA CD=NA`, while `G-REPRO`'s GATE FAIL rests on coefficients taken from the per-iteration prints.**
+
+###### 4. `SO3aF2` — FOUR ABORTS TO REACH PHYSICS, AND THEN A PRODUCER THAT **REFUSED TO MANUFACTURE A FINDING**
+
+Four MESH attempts, **four distinct conditions**, 0.0667 core-min total: (1) nothing staged; (2) environment never sourced; (3) `set -u` across OpenFOAM's own bashrc; (4) **`rc=0`, `Mesh OK.`**. **MESH is COMPLETE and is NOT A RESULT — no registered gate covers it**, and `checkMesh`'s `Mesh OK.` is its judgement against its own defaults, not this lab's against a pre-registered threshold. **No mesh gate was added, because adding a threshold after seeing the numbers is choosing the threshold to fit the answer.**
+
+**XM then ran, three primals satisfied the prescribed tolerance, and the producer exited `rc=7`:**
+
+> *"refusing to write a short residual_histories list … a short list reaches the reader as a CONVERGENCE DISAGREEMENT, which is a finding about the multipoint assembly this file would have manufactured"*
+
+**That is the one foreseen bounded repair, registered BEFORE the first container.** An infrastructure failure wearing a physics finding's clothes is strictly worse than not running.
+
+**⚠ AND I DECLINED TO READ THE EVIDENCE THAT WOULD HAVE BEEN MOST SATISFYING.** The three per-point directories carry distinct time directories — **443 / 436 / 424** — which is *prima facie* what a working separation looks like. **F3 is UNSCORED because the reader was never invoked, and I am not scoring it by hand PRECISELY BECAUSE IT CUTS IN THE DIRECTION WE WOULD LIKE.** The consequence is the strongest evidence the refusal was principled: **the producer's refusal may have blocked a reading FAVOURABLE to us.**
+
+###### 5. ⚠⚠ TWO EMPTY COMMITS, TWO LANES, TWO MECHANISMS — **A HOLE IN `CLAUDE.md` RULE 10'S OWN RECIPE**
+
+`1d4c5696` and `ab1f47dc` are **empty commits whose messages announce real work**. Mechanisms with nothing in common: one, `update-index --add` refusing a vanished queue row under `set -uo pipefail` with no `-e`; the other, a `cd` making every repo-relative path resolve against the wrong root. **Neither lane had read the other's report.**
+
+**One identical signature: `git diff-tree --stat` printed NOTHING and both read the silence as assent.** Rule 10's recipe says `# ASSERT: only your paths` and **never says the diff must be NON-EMPTY** — **an empty diff DOES contain only your paths.** `commit-tree` legally produces a commit whose tree equals its parent's, and every success signal fires. **This is L-382's shape in a second place: a success signal that fires on an absence.**
+
+**Both empty commits are LEFT IN PLACE** — rewriting landed history is worse — and both lanes added a non-empty assertion, one phrased *"assertion READ, not merely run"*, **which is the whole fix: the check always ran; nobody read it.** **Rule 10 is `CLAUDE.md` and therefore Sanaa's. Nobody here edits it. On her desk: the measured hole, two mechanisms, and the one-line fix.**
+
+###### 6. FOUR FORMULATIONS FROM THE LANES, CARRIED AS THEIRS
+
+1. **⚠ THE ONE SENTENCE, if the chief gets only one:** *"A check whose predicate is satisfied by the absence of what it was meant to examine."* **Three artefacts tonight, one shape** — `# ASSERT: only your paths` on an empty diff; a census printing `driven=4 exist=4 EQUAL` while **both sides were blind through the same regex**; and a frozen plant control whose expected signature is **byte-identical to total blindness**. **All three predicates TRUE and VACUOUS.** *"Assert non-empty" fixes one instance; this names the class.*
+2. **The write-direction twin:** *"an artefact and a statement about it drifting apart"* — the others are checks satisfied by an **absence**; this is an assertion left describing something that **no longer exists**. Rule 14 already names it, *and the lane had that rule in front of it and still shipped the half.*
+3. **CLOSURE beats DETECTION.** A detection is a **list** — always incomplete in the direction that matters, and each entry costs a specific past failure to learn. **A closure is an invariant**: `ENV-0` names *every* unforeseen termination without anticipating it. **It belongs beside rule 3** — rule 3 closes the false negative (a reader that saw nothing), `ENV-0` closes the silence (an instrument that said nothing). **What generalises is ENV-0's FORM, not its instance.**
+4. **A census that enumerates with the same rule it counts with cannot detect its own blindness.**
+
+###### 7. ⚠ MY OWN ERRORS THIS BLOCK — SIX, AND THE READER-ZEROS ARE THE FAMILY
+
+1. **A capacity premise wrong TWICE OVER** — a 20:30Z figure carried to 21:0xZ, **and** `uptime`'s load average read as occupancy. Live figures: **24.34 load against 70.6 % busy**. A lane measured it false and **refused to fire on it**. *Standing form now: a capacity figure is quoted with its clock or not at all, and the lane at the tick measures.*
+2. **A multi-file `grep` truncated by `head`** under ugrep's parallel per-file emission → I ruled *"no age logic of any kind"* when `a1wrt_read.py:291` carries a live mtime clause. **The exact hazard whose standing rule is ONE NAMED ARTIFACT PER CHECK — broken inside a supervisor's check by the supervisor meant to enforce it.**
+3. **A case-sensitive `grep`** returned nothing for a rule-6 assertion present three times; I nearly recorded a violation against a lane.
+4. **`grep -c` exits 1 on zero**, breaking an `&&` chain and printing **`REFUSE`** for a check-4 comparison **that never ran** — twice, once *inside the very command demonstrating a different reader was blind*.
+5. **The line-number key** for `PLANT-B` (§2).
+6. **The U2 prediction magnitude** — "order of 1.5 core-min" against a measured 0.683, **low by 2.1× with the shape exact.** A lane recorded it as its own; the figure is mine.
+
+**All six caught by lanes or by re-derivation, none reaching a record.** *And the ratio is not one I would defend.*
+
+###### 8. THE FAMILY'S SIGNATURE DEFECT, NOW FOUR INSTANCES
+
+**A pattern applied correctly everywhere except one neighbour**, invisible to every guard because each branch reads as correct alone: `A1ZE`'s `occ_wait` (`MemAvailable` handled, `docker ps` census not, one line apart); `SO3aF2` staging XM but not MESH; `SO3aF2` sourcing no environment where A1WR's driver does; `D6RF2` staging ten instruments and not the eleventh. **Cheap cure, applied by me twice tonight: check whether the thing you are calling broken is how the sibling items already work.**
+
+And the guard-side twin, measured twice: **every NO-LAUNCH guard checks an INSTRUMENT and none checks an INPUT** — so a container launches into an empty directory, then into an unloaded environment. **At the registration level too: `SO3aF2` gates the OUTCOME and not the MESH it rests on.**
+
+###### 9. STATE
+
+`W3_chain_r2` — running, **zero non-zero rc**. `A1WRT` — both units run, record landed, **no item verdict exists**; successor design **not decided**. `SO3aF2` — MESH complete, XM refused at the registered `rc=7`, attribute-census diagnostic next. **`SO3D` `NOT A RESULT`; `SO-3D-R` five gates scored.**
+
+**`D6RF2` — THIRD CONSECUTIVE ABORT BEFORE ANY CONTAINER, THIRD DISTINCT REASON, AND CUMULATIVE SOLVER COMPUTE ACROSS ALL THREE FIRES IS STILL `0.000` CORE-MIN.** Launched 22:54:37Z, aborted 69 s later at `rc=3` on `G-ANCHOR`, `spent_before_arm=0.000`, **containers created: 0**. **`G-DELIVERY` PASSED first** and named its seven — so the anchor gate *was* delivered and staging reached `G-ANCHOR` for the first time in this lineage — and then the gate died on `FileNotFoundError: d6rf2_ref_off.py`.
+
+**⚠ TRIAGE (check 2, mine): the guard is not wrong, it is ONE LEVEL TOO SHALLOW.** `d6rf2_ref_off.py` **exists** in the case directory, 4,785 bytes, and was never staged. `d6rf2_anchor_gate.py:53` declares `READERS = ("d6rf2_fd_endpoint.py", "d6rf2_ref_off.py")` — **two readers** — while `G-DELIVERY` derives only from what the **launcher** md5-checks or executes at `$WORK`, and the launcher never names the gate's own `READERS`. **The derivation is one level deep; the dependency is two.** Guard gap and staging gap are **the same gap.**
+
+**⚠ AND IT IS THE SIGNATURE DEFECT FOR THE FIFTH TIME: `d6rf2_fd_endpoint.py` is staged and `d6rf2_ref_off.py`, its sibling in the SAME TWO-ELEMENT TUPLE, is not.**
+
+**Repair ordered as a CLOSURE, not another list entry:** derive transitively by parsing each derived instrument's own module-level filename declarations with `ast`, iterate to a fixed point, refuse on non-convergence — and **assert completeness rather than guessing a depth: no staged instrument may reference a `$WORK` filename outside the derived set.** That turns *"is the closure deep enough?"* from a judgement into a measurement. **Adding one file catches this abort; closing over the references catches the next one, which nobody can yet name.**
+
+**And the chain caught what the guard missed** — `G-DELIVERY` passed, `G-ANCHOR` refused on a file `G-DELIVERY` never knew to require. **That is defence in depth working, not a process failing.**
+
+**OWED BY ME:** the `disarm` findings record and the **`N-D42`** determinism row — max re-derived at **41** from the family's real bold-inline form (**`^## N-D` returns 0 on a 41-member family**), both awaiting a lane's verbatim text.
 
 ##### UPDATE S-43 — **`A1WRT` IS RUNNING REAL PHYSICS: THE ITEM THAT DIED AT `rc 127` ON AN UNBOUND VARIABLE FOUR HOURS AGO LAUNCHED WITH ALL THREE REPAIRS FIRING, AND THE `controlDict` IT WROTE IS BYTE-IDENTICAL ON DISK TO THE ONE `A1WR`'s OWN DRIVER WROTE. `SO3D` GRADED `NOT A RESULT` AND ITS PLANT CONTROL TURNS OUT TO BE VACUOUS BY CONSTRUCTION — THE NINTH SUCH DEFECT TODAY AND THE FIRST INSIDE A FROZEN REGISTRATION. THE `1e+12` BRIGHT-LINE SUSPICION CLEARS AND MY OWN FRAMING OF IT IS REFUTED. AND I MADE FIVE INSTRUMENT ERRORS, THREE OF THEM THE SAME READER-ZERO** (2026-09-03, `date -u` stamp in the committing invocation)
 
