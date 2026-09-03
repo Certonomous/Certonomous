@@ -207,7 +207,8 @@ flattened.**
 | **T4** | impinging jet | **`NOT A RESULT`** on all three graded rows; the `Nu` rows remain **`BLOCKED`** (no closed primary) | `T4_RESULTS_2026-08-26.md:53` |
 | **T4b** | impinging-jet successor | **`NOT A RESULT`** — 3 of 3 graded rows, all at gate (1) | `T4b_RESULTS.md:4` |
 | **T5** | heated cube (Meinders) | **`PENDING`** — the frozen comparator wrote **no verdict**; no case had run at that writing | `T5_RESULTS.md:3`, `:58` |
-| **T5b** | cube ladder | **`NOT A RESULT`** — **0 of 6 graded rows `PASS`**, all six failing the y+ gate (`cube_front` 2.310 against a level target of 1.00) | `verification/runs/T-family/T5b_runs/T5B_GRADE_OUTPUT.txt` (TALLY line) |
+| **T5 arm `S_m`** | T5 medium-solid arm | **`BLOCKED`** — a **registration contradiction**, not a physics outcome: the case registers a `solid` region and the solver finds none. `FOAM FATAL ERROR: solid not found in table. Valid entries: 1(fluid)` (`log.solve:33`–`:34`), `rc=1`, `note=SOLVER_NONZERO_EXIT`. **`core_min = 0.000` — no compute was spent.** This is the arm T21's freeze record cites as the one that **did not get the ordering** (feasibility measured *before* the freeze); T21 got it | `verification/runs/T-family/T5_runs/STATUS.S_m`; `verification/runs/T-family/T5_runs/S_m/log.solve:33` |
+| **T5b** | cube ladder | **`NOT A RESULT`** — **0 of 6 graded rows `PASS`**, all six failing the y+ gate (`cube_front` 2.310 against a level target of 1.00). **⚠ BEHIND A SUCCESSOR'S VERDICT — AND NOT SUPERSEDED AS A MEASUREMENT.** T5c re-graded **these same three completed levels at zero solver compute** and returned **1 `GATE FAIL` (`G2a`), 5 `NOT A RESULT`, 0 of 6 `PASS`** — the y+ clause cleared at every level and the rows were refused on their **grid triples** instead. **T5b's solves are the solves T5c graded**; what stands behind T5c is T5b's **verdict**, not its measurement. Both halves are the reading | `verification/runs/T-family/T5b_runs/T5B_GRADE_OUTPUT.txt:18` (TALLY line); record `T5b_RESULTS.md` (`c543d700`); successor `T5c_RESULTS.md` |
 | **T8** | buoyant plume | **`NOT A RESULT`** — explicitly *"Not `BLOCKED`. Not `GATE FAIL`. Not `PENDING`"*, on two independent grounds | `T8_VERDICT_2026-08-26.md:1`, `:9`–`:10` |
 | **T9a** | composite wall + fin, closed form | **`GATE FAIL`** — 1 of 3 graded rows failed | `T9a_RESULTS.md:13` |
 | **T9aD** | interface-scheme diagnosis arm | **DIAGNOSIS COMPLETE — 3 `PASS`, 1 `GATE FAIL`, 3 `NOT A RESULT`** of 7 registered rows | `T9aD_RESULTS.md:11`–`:31` |
@@ -221,6 +222,7 @@ flattened.**
 | **T13** | vertical-slot natural convection, EXACT ⚠ see §5.1 | **`PASS`** — 4 of 4 graded rows | `T13_RESULTS.md:4` |
 | **T14** | 2-D transient conduction, square (T11b), EXACT | **`PASS`** — 3 of 3 graded rows, all triples `CONVERGING` at p ≈ 2 | `T14_RESULTS.md:4` |
 | **T16** | developing laminar mixed convection | **rung `PENDING`** (1 of 3 levels landed); **case `T16_MC_c` `BLOCKED`** — the run meets all six completion limbs and the frozen marker refuses every real OpenFOAM log | `T16_RESULTS.md:7`, `:11` |
+| **T16c** | T16 re-graded under the repaired comparator | **`NOT A RESULT`** — **all four graded rows** (`G1`, `G1b`, `G2`, `G3`), on the **registered unreachable branch** of the frozen station rule: no `j` in the fine level's 3,840-row candidate set reaches `W1_T <= 1.0e-06`; best is row 4479 at `W1_T = 4.5837e-04`, **458.4× the floor**. The station was **not** relocated, the threshold **not** loosened, the candidate set **not** widened — the branch `T16c_PREREGISTRATION.md:210`–`:217` registered in advance and without appeal. **The ordering guard the predecessor fired on did NOT fire here.** ⚠ **THE EXIT CODE DID NOT CARRY THE VERDICT:** the invocation returned **rc = 0** — *graded, not refused* — while every row reads `NOT A RESULT`; the verdict was read from stdout and `gate_t16c.json`, never from the exit code | `T16c_RESULTS.md` §1; `verification/runs/T-family/T16c_runs/gate_t16c.json` (`station.reachable = false`, `station.selected = null`) (`ea8a3494`) |
 | **T17** | axisymmetric transient cylinder (T11d), EXACT | **`PASS`** ×3 — **and the rung's registered ceiling is `GATE REACHED`, not higher** | `T17_RESULTS.md:9`, `:12` |
 | **T18** | 3-D transient conduction, cube (T11c), EXACT | **`PASS`** — G1, G2, G3 — **registered ceiling `GATE REACHED`** | `T18_RESULTS.md:11`, `:19` |
 | **T23** | Case 3 motor-in-duct CHT, rescaled map | **`PASS`** ×4, zero flags | `T23_RESULTS.md:44`–`:49`, `:60` |
@@ -230,6 +232,8 @@ flattened.**
 | **T25R3** | module ladder arm | **NO GRADEABLE ROW. No gate was evaluated and no physics number exists** — an absolute `p_rgh` criterion made the convergence standard tighten as the mesh refined (~955× spread in solver effort). The record declines to force a one-word label and says why | `T25R3_RESULTS.md:13`–`:24`, `:46`–`:56` |
 | **T25R4** | module probe arm | **`NOT A RESULT`** | `verification/runs/T-family/T25R4_MODULE_runs/GP_VERDICT.json` (`verdict`) |
 | **T25R5** | linear-solver tuning probe | **CLOSED.** `G-T5` **`PASS` on `C4`** at 60.109097× against a frozen 5.00× gate; **`P-2` LOSES** and **`P-3` LOSES**, both registered as the better outcome; `C2`/`C3` **DISQUALIFIED** (rc 124) | `verification/runs/T-family/T25R5_LINSOLVER_runs/GT5_VERDICT.json` |
+| **T25R6a** | C5 outer-level arm — `Σ CAP(C5)` against the ladder ceiling | **`NOT A RESULT`** (`exit` 4). ⚠ **THE GROUND IS STRUCK IN THIS RECORD, NOT IN THE FILE.** The artifact's own `"ground"` reads *"the equivalence control FIRED (prereg 6.4)"* while the same file carries **`'fired': []` at BOTH levels** (`C5_L1`, `C5_L3`) — the record serialised its own falsifier and discarded it on the next line (`VERIFICATION_CHARTER.md` §2ai.4; `[VERIFIED BY ME AT SOURCE]` there). **Do not restate that ground as if it were true.** The verdict `NOT A RESULT` **stands** — no demotion is available and none is performed — and the file is **not edited** (rule 6). ⚠⚠ **THE DISCLOSURE §2ai.3 C5 REQUIRES IN THIS CELL: `Σ CAP(C5) = 20,006.80` core-min against a ceiling of `20,000` — a breach of `+6.80` core-min, `×1.00034` — while the registered interval `[18,801.4 , 21,480.1]` STRADDLES the ceiling, its mean half-width `1,339.35` core-min being `×196.96` the breach. THE MEASUREMENT CANNOT RESOLVE WHICH SIDE OF THE CEILING THE LADDER FALLS ON.** And beside it: **Sanaa ruled 2026-09-03 that the ceiling STANDS at 20,000, no widening** — she was shown the width and ruled anyway. **The caveat is a property of the measurement and NOT a ground for reopening**, and this cell may not be cited as one. *No post-repair grader has been run and no post-repair verdict exists on disk; `Σ CAP(C5)` lives only in the re-grade record, which states on its own face that it is a record and not a graded artifact.* | `verification/runs/T-family/T25R6a_C5_OUTER_runs/T25R6a_VERDICT.json` (`verdict`, `exit`, `equivalence.*.fired`); `T25R6a_C5_REGRADE_RECORD.md:23`, `:138`, `:157`, `:426`–`:430`; ceiling ruling captured at `etc/sessions/2026-09-03T1600Z_sanaa_five_rulings.md:38` (`bc185687`) and restated at `etc/sessions/2026-09-03T2250Z_sanaa_go_all_asks.md:31` (`fbab523b`, item 4); ruling record `e04c6146` |
+| **T25R6c-R2** | leg A / leg B within one run — `G-R2-1` PLATEAU, `G-R2-2` DIRECTION | **`GATE FAIL` — `rho = 1.103859`.** `G-R2-2` **DIRECTION is falsified**: the registered prediction was `rho < 1.0`, the measured ratio is `1.103859 >= 1.0`, so **A1.2's direction does not hold on this rung**. ⚠ **THE EXIT CODE DID NOT CARRY THE VERDICT, IN THE OTHER DIRECTION FROM T16c'S:** the grader **crashed after grading and before recording** — every gate was computed and printed, `T25R6cR2_VERDICT.json` was not written at the time, and the registered exit `3` left the interpreter as `1`. **The verdict stands under Sanaa's 2026-08-26 universal rule that bookkeeping never voids physics**, and the defect is disclosed in the record's head rather than tidied away; the repair has since landed under `VERIFICATION_CHARTER.md` §2ah. `B-R2`'s `rho_blend`-scaled **26,514.4** core-min against the 20,000 ceiling is **REPORTED, NEVER GATED**, and is not resolved by the ceiling ruling | `verification/runs/T-family/T25R6cR2_LEGAB_runs/T25R6cR2_GRADE_STDOUT.txt:26`, `:37` (traceback intact, sha256 `d672c647…6509f`, never edited); record `T25R6cR2_RESULTS.md` (`05364832`) |
 | **E4a** | | **`NOT A RESULT`** — 3 rows `PASS`, 5 `NOT A RESULT` | `E4a_RESULTS.md:12` |
 | **E4a2** | E4a successor | **`PASS`** — all eight registered rows | `E4a2_RESULTS.md:18` |
 
@@ -265,8 +269,37 @@ capability (§4 above).**
 `T5c` · `T25R` · `T25R6a` · `T1_FORCED_CONVECTION_CANON` · `T1b_L4_EXT2` ·
 `T1b_L4_PLANTED_ZERO_CONTROL`
 
-- **`T25R6a`** is **in flight at this writing** — a lane is live on it; its run
-  tree `T25R6a_C5_OUTER_runs/` holds `grade_t25R6a.py` and no verdict.
+> **UPDATE 2026-09-03 — `T25R6a` AND `T16c` NOW CARRY VERDICTS AND HAVE MOVED TO
+> §5.2. `T21` IS NOW FROZEN AND STILL CARRIES NO VERDICT.** The list line above is
+> left standing and unrenumbered; what follows supersedes the entries named, and
+> **nothing else in this section is touched or re-checked.** The count word
+> *"Fifteen"* above is left as written rather than silently re-counted.
+>
+> - **`T25R6a` — SUPERSEDED. Verdict `NOT A RESULT` (`exit` 4), §5.2.** Its
+>   verdict cell carries the §2ai.3 **C5** straddling-interval disclosure and the
+>   **struck ground**.
+> - **`T16c` — SUPERSEDED. Verdict `NOT A RESULT` on all four graded rows, §5.2**
+>   (`T16c_RESULTS.md`, `gate_t16c.json`, `ea8a3494`). The `T16c` mention in the
+>   `NO-MARKERS` bullet below is left standing and is now stale as to `T16c`.
+> - **`T21` — STILL NO VERDICT, AND IT ASSERTS NONE.** `T21_PREREGISTRATION.md`
+>   was **FROZEN 2026-09-03** by commit `89a7bdbb`, in a dated amendment at the
+>   foot; the document's own `STATUS` block is struck there, not rewritten. Its
+>   amendment states in terms: ***"THIS DOCUMENT IS A FROZEN REGISTRATION. IT IS
+>   NOT A QUEUE-READY CASE, AND IT MUST NOT BE COUNTED TOWARD FREEZE-AHEAD."***
+>   T21 has **no builder, no launcher and no comparator**; nothing may be
+>   enqueued or launched against it until those three exist and their diffs have
+>   been read personally as diffs. **`FEASIBLE` from the feasibility probe
+>   (`verification/runs/T-family/T21_FEASIBILITY_PROBE_2026-09-03/`) is NOT a
+>   `PASS`** — the registration says so itself at `T21_PREREGISTRATION.md:1290`,
+>   *"`FEASIBLE` is not offered as a synonym for `PASS`"* — and **no term of
+>   `CLAUDE.md` rule 1 applies to T21 at this writing.**
+
+- **`T25R6a`** ~~is **in flight at this writing** — a lane is live on it; its run
+  tree `T25R6a_C5_OUTER_runs/` holds `grade_t25R6a.py` and no verdict.~~
+  **STRUCK 2026-09-03**, quoted verbatim above the strike-through: the claim
+  *"in flight at this writing"* was already false when read — the four arms had
+  completed and `T25R6a_VERDICT.json` was on disk in that same run tree. **See
+  the T25R6a row in §5.2.**
 - **`T3_R_FF`** is the fourth mesh level §2's T3 row records as *"PROPOSED and
   NOT RUN"*. **It is now registered** (`T3_R_FF_PREREGISTRATION.md`, comparator
   frozen and hashed at `:333`) and still has no results record. `DONE.R_ff`
