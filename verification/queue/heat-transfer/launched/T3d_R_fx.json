@@ -74,5 +74,33 @@
     "ceiling_field_discrepancy_DISCLOSED_NOT_CHANGED": "The supervisor's brief states the fleet safety ceiling for this run as min(3 x 5442 = 16326 core-min, remaining box budget), i.e. 3x the POINT ESTIMATE. The FROZEN registration section 5 records 48978 = 3 x the registered CAP, reading Sanaa's '3x its registered cost cap' literally. THE FROZEN VALUE IS NOT ALTERED HERE -- standing rule 2 forbids an addendum that moves a cap, threshold, gate or label, and this field is transcription, not registration. THE DISCREPANCY IS MOOT IN PRACTICE AND THAT IS WHY IT IS DISCLOSED RATHER THAN ESCALATED: the only instrument that actually stops this run is launch_t3d.sh's timeout --signal=TERM --kill-after=120 122445, which is 122445 s x 8 ranks / 60 = 16326 core-min EXACTLY -- the supervisor's figure. The run is structurally incapable of reaching 48978 core-min, so the effective enforced ceiling IS 16326 core-min.",
     "predicted_rung_outcome": "BLOCKED. Registered in T3d_PREREGISTRATION.md section 3 as a per-row table -- G1 St_peak, G3 St_10H and G4 St_20H move NOT A RESULT -> BLOCKED (gate clause 3 fires on the missing Vogel & Eaton 1985 primary, gate_t3c.json primary_present false); G2 x_peak_H does NOT move and stays NOT A RESULT because its triple is OSCILLATORY and gate clause 2 fires regardless of convergence. NO PASS IS AVAILABLE ON THIS RUNG AND NONE IS PREDICTED. This field states the rung-level word the section 3 table implies; it registers nothing new and moves no gate.",
     "cost_prediction_is_a_POINT_not_an_inequality": "5442.1 core-min = 0.226755 core-min/iteration x 24000 iterations. 5442.1 / 60 = 90.70 core-h; at the owner-stated $0.0513/core-h that is $4.65 -- DERIVED, NOT MEASURED (the box cannot read its own billing, COMPUTE_BUDGET_CHARTER.md section 5). At the 16326 core-min cap: 272.10 core-h = $13.96, also DERIVED, NOT MEASURED."
+  },
+  "_launch": {
+    "utc": "2026-09-03T18:03:38Z",
+    "pid": 339312,
+    "sid": 339312,
+    "status_file": "/home/ubuntu/Certonomous/verification/runs/T-family/T3_runs/R_fx/STATUS.queue.T3d_R_fx",
+    "wrapper_out": "/home/ubuntu/Certonomous/verification/runs/T-family/T3_runs/R_fx/launcher.queue.out",
+    "started_epoch": 1788458618.2056901,
+    "status_seen_utc": "2026-09-03T18:04:38Z"
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.T3d_R_fx (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
   }
 }
