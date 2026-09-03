@@ -22304,3 +22304,80 @@ you did not list — same optimism-in-agreement shape), L-436 (a guard whose two
 sides degrade together cannot fire), the planted-zero control (`rule 3`: a zero
 from a reader not shown able to see a non-zero is not evidence — here, a precision
 from a floor not shown to bound the reader's error is not a precision).
+
+## L-462 — A FROZEN REGISTRATION IS EVIDENCE ABOUT WHAT WAS **PREDICTED**, NOT PROOF THAT IT WAS **RIGHT**. TEST THE REGISTERED PREDICATE BEFORE YOU BUILD ON IT — AND TEST THAT EACH LIMB OF YOUR OWN REPAIR IS LOAD-BEARING
+
+**Raised 2026-09-03, heat-transfer, after T3c graded. Written AFTER the fix, per
+Sanaa's 2026-09-03 ~20:00Z reform: a blocking physics fix jumps the queue and the
+lesson is recorded afterward, not before.**
+
+### The first half: a frozen predicate that repaired half the defect
+
+`T3c_PREREGISTRATION.md` §5.1 registered predicate **P-1** on 2026-08-30 to
+repair T3's rule-3 planted-zero control:
+
+    ok = (got >= PLANT * (1.0 - 1e-9)) and (got <= rec + PLANT + 1e-12)
+
+It was frozen, adopted verbatim from three frozen T-family siblings, and cited
+approvingly in verification's own grant (`VERIFICATION_CHARTER.md` §2d.11.1).
+**Measured before any code was written on it, it still passed `R_c` vacuously:**
+`rec = got = 2.4683725767638407` — identical to the last digit, the plant
+completely invisible, both limbs `True`.
+
+**P-1 repairs the FAILS-CLOSED limb only.** It was written before the fail-open
+limb had been discovered, so it is a registration aimed at half the problem —
+not an error of reasoning by its author, and not something its freeze could
+protect against. **The fail-open was the precise ground the repair was granted
+on, and the registered predicate did not touch it.**
+
+> **A freeze proves a prediction was made before the answer existed. It proves
+> nothing about whether the prediction was correct, and nothing at all about
+> whether it addressed the defect that was later found.** Inheriting a frozen
+> predicate because it is frozen is the same error as inheriting a zero because
+> a reader printed it.
+
+### The second half, which cost more to learn: my own repair had a limb with no evidence behind it
+
+The replacement predicate **P-2** has two limbs — **LIMB A**, that the reader's
+maximum change *is* the change at the planted cell, and **LIMB B**, that its
+magnitude is within `N_ULP × ulp(operands)` of the plant.
+
+**The `§2p.3(e)` mutation control failed on its first run.** It disabled LIMB A
+and expected `R_c` — the case that exposed the fail-open — to wrongly pass. **It
+did not.** `R_c` is refused by **LIMB B alone**: its maximum is 2000× the plant,
+far outside a 32-ulp window. **So the case that motivated the whole repair never
+demonstrated that LIMB A does any work.**
+
+The arm that does is a **decoy cell**: another cell changes by `PLANT + 20 ulp`,
+close enough that LIMB B cannot tell it from the plant, but not the cell the
+control planted. LIMB B passes it; LIMB A refuses it; the mutant passes it. Only
+then is LIMB A shown to carry weight.
+
+**And the decoy is why LIMB A had to become an IDENTITY rather than a tolerance.**
+With the same 32-ulp window on both limbs, the decoy at +20 ulp satisfies LIMB A
+too — the fail-open in a new dress. When the plant *is* the argmax, the two
+quantities are the same subtraction and agree bit-for-bit: measured residual
+**0.00 ulp exactly** on all three real passing levels.
+
+### What generalises
+
+1. **A registered predicate is a hypothesis. Drive it against the case that
+   motivated the repair before writing a line of code on it.**
+2. **A mutation test that the shipped code survives for the wrong reason is worse
+   than no mutation test** — it certifies a limb that is doing nothing.
+   **Mutate each limb separately, and construct the case that isolates it.**
+3. **If two limbs share a tolerance, check whether one is redundant.** A limb that
+   never changes a verdict is decoration, and decoration in a control is the
+   thing controls exist to prevent.
+4. **A tolerance and an identity are different instruments.** Where a quantity is
+   computed twice by the same arithmetic, compare it exactly; a tolerance there
+   only buys room for an impostor.
+
+### Provenance
+
+Predicate and controls: `verification/runs/T-family/T3_runs/analyse_t3c.py`,
+`control_t3c_p2.py` (arm **S-9**, mutations **M1**/**M2**), registered in
+`docs/campaigns/T-family/T3c_PREREGISTRATION.md` AMENDMENT 1 §A1.4. Companion to
+**L-447** (the fail-open finding) and to L-438/L-439 (tolerances quoted in ulp).
+The rung graded `NOT A RESULT` ×4 on `R_ff`'s iterative convergence, which is a
+separate matter and is not what this lesson is about.
