@@ -1135,3 +1135,75 @@ The launcher's cap check runs **after `docker wait` returns**. It computed `cap_
 **No enumeration exists, so the producer's attribute question is exactly where it was.** The XM arm's `rc=7` stands as the registered risk landing; MESH stands complete and **NOT A RESULT**; the item stays **PENDING**; **F1–F5 are unscored**; and **§0.2 binds in full.** **SUBMISSIONS PARKED.**
 
 **END OF ADDENDUM 9.**
+
+---
+
+## ADDENDUM 10 — THE DEADLINE MOVES INSIDE THE CONTAINER. ENFORCEMENT AND REPORT ARE NOW TWO THINGS. Dated **2026-09-03**. Version **1.10 → 1.11**.
+
+> **lines whose number changed above this section: 0** — asserted by execution against both the pre-append snapshot and `git show HEAD:`.
+
+**Moves no gate, no threshold, no prediction, no band, no cap and no label.** It makes the **already-registered** cap enforceable, which strictly increases refusal capability.
+
+### A10.1 The defect
+
+> **The registered stop rule was not enforced by the instrument. It was a post-hoc report wearing a stop rule's name.**
+
+The launcher's cap check runs **after `docker wait` returns**. On 2026-09-03T23:02:42Z it computed `cap_exceeded=1` correctly — **only because a lane had already stopped the container by hand.** Left alone, `docker wait` blocks indefinitely and **the registered stop rule never fires at all.**
+
+**`a1wr_chain_driver.sh:173` has carried the fix all along** — `timeout -k 60 $((tmo + 900))`, so its deadline lives **inside** the container. **One launcher and not its neighbour: the seventh instance of that signature in one night.** And nobody caught it because **the three arms before this finished in 3, 21 and 3 seconds — the guard's predicate was never exercised because the happy path was fast.**
+
+### A10.2 The repair — two things, named separately
+
+**ENFORCEMENT: an in-container deadline.** `timeout -k <K> <D>` now wraps the arm command inside the container, so **it fires with no agent alive** — the standing rule that a task must never depend on an agent being alive at a future instant.
+
+- **`K` is DERIVED from `a1wr_chain_driver.sh`'s own bytes**, distinct values counted, anything but one refusing. Measured: **1 distinct value.**
+- **`D` is INVERTED FROM THE REGISTERED CAP** so the two cannot drift: `cap × 60 / ranks − FRAME_ALLOWANCE_S(15)`. **MESH 165 s, XM 345 s, ATTRCENSUS 105 s.** A non-positive deadline **refuses** — it would kill an arm instantly, which is the "cap 3.16× short" class in a new place.
+- The **environment assertion runs first and unwrapped** (milliseconds, and its own refusals must not be masked by a kill); it then `exec`s the deadline, which owns the solver.
+
+**REPORT: the post-`docker wait` cap check stays, and is named as what it is.** It cannot stop anything; it **records** that a cap was exceeded, which is a different and still useful thing.
+
+> **ONE IS ENFORCEMENT, THE OTHER IS A RECORD, AND THE ITEM NOW HAS BOTH INSTEAD OF A REPORT NAMED AS IF IT WERE ENFORCEMENT.**
+
+**What it would have bought:** the census reached **199 s** before a hand-stop. Its deadline is **105 s**. It would have been killed at 105 s by the container itself, with nobody watching.
+
+### A10.3 Driven — 45 legs, PASS 45, FAIL 0, NOT RUN 0
+
+- **the deadline lets work finish** — `rc=0`, the arm command ran; it does not fire early;
+- **the deadline kills an overrun** — **`rc=124`, `timeout`'s own code**, the arm **STARTED and was CUT OFF** before finishing;
+- **the kill came from inside** — `rc 124` is produced by the arm's own process tree; **no watcher, no polling loop, no agent exists in that leg**;
+- **the deadline is positive for every registered arm**, each inverted from its own cap.
+
+### A10.4 ⚠ THE CONTROLLED RESULT — n=2, same agent, same error, one hour apart
+
+This is recorded because it is a **measurement**, and everything else this item has said about guards is reasoning.
+
+**The same lane made the same mistake twice: beginning a commit invocation with a `cd` into the case directory, so every repo-relative path resolved against the wrong root.**
+
+| | outcome |
+|---|---|
+| **first**, before the guard | `commit-tree` produced an **empty commit** whose message announced work its tree did not contain, and it landed at HEAD |
+| **second**, after the guard | the sequence **aborted before `commit-tree`**; HEAD never moved; the work was redone correctly |
+
+**The only variable was a guard added in between** — comparing the written tree against its parent and refusing an empty one, and reading the `diff-tree` assertion instead of running past it.
+
+> **THE HABIT DID NOT IMPROVE. THE INSTRUMENT DID.**
+>
+> **A rule that requires you to remember it protects nothing; an instrument that reads its own assertion protects you on the night you forget.**
+
+That is the closure-over-detection argument with a measurement under it rather than an example beside it.
+
+### A10.5 Re-pins
+
+| file | md5 | note |
+|---|---|---|
+| `so3af2_run_arm.sh` | `dcf35e6a36988e9047041a2b62df2920` | **RE-PINNED** |
+| `so3af2_pin_selftest.sh` | `940ec695e391b9789b21588f47368216` | **RE-PINNED** |
+| `so3af2_read.py` | `d5f4149d43abe3a165ffe7e653b78bee` | **UNCHANGED — the frozen reader is not touched** |
+| `so3af2_attr_census.py` | `2fd479d881f63b529605b3a45d0154f3` | **UNCHANGED** |
+| `so3af2_runScript.py` | `c268633f67e6d2c785feec2ebfc7326c` | **UNCHANGED** |
+
+### A10.6 Standing
+
+**NOT RE-FIRED.** The census produced **no enumeration** and its absence is **not treated as evidence about anything**. The producer's attribute question is exactly where it was. XM `rc=7` stands as the registered risk landing; MESH complete and **NOT A RESULT**; item **PENDING**; **F1–F5 unscored**; **§0.2 binding.** **SUBMISSIONS PARKED.**
+
+**END OF ADDENDUM 10.**

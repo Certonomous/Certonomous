@@ -498,12 +498,60 @@ fi
 rm -rf "$TMP/ac_ok/base" "$TMP/ac_drift/base" 2>/dev/null
 rm -f "$TMP/ac_ok/so3af2_attr_census.py" "$TMP/ac_drift/so3af2_attr_census.py" 2>/dev/null
 
+# ---- THE IN-CONTAINER DEADLINE (ADDENDUM 10). Driven on the HOST, both ways,
+# ---- because the mechanism is `timeout` and a fake loader exercises it exactly.
+DT="$TMP/deadline"; mkdir -p "$DT/bin"
+printf '#!/bin/bash\necho fake\n' > "$DT/bin/checkMesh"; chmod +x "$DT/bin/checkMesh"
+printf '#!/bin/bash\nexport PATH="%s:$PATH"\nexport FOAM_APPBIN=%s\nexport WM_PROJECT=OpenFOAM\n' \
+  "$DT/bin" "$DT/bin" > "$DT/good.sh"
+
+OUT_IN="$(bash "$ENVA" "$DT/good.sh" timeout -k 60 5 bash -c 'echo ARM-RAN; exit 0' 2>&1)"; RC_IN=$?
+if [ "$RC_IN" = "0" ] && printf '%s' "$OUT_IN" | grep -q ARM-RAN; then
+  ok "DEADLINE lets work finish" "rc=0 and the arm command RAN -- the deadline does not fire early"
+else
+  bad "DEADLINE lets work finish" "rc=$RC_IN"
+fi
+
+OUT_OV="$(bash "$ENVA" "$DT/good.sh" timeout -k 2 2 bash -c 'echo ARM-STARTED; sleep 60; echo ARM-FINISHED' 2>&1)"; RC_OV=$?
+if [ "$RC_OV" = "124" ] && printf '%s' "$OUT_OV" | grep -q ARM-STARTED \
+   && ! printf '%s' "$OUT_OV" | grep -q ARM-FINISHED; then
+  ok "DEADLINE kills an overrun" "rc=124 -- timeout's OWN code; the arm STARTED and was CUT OFF before finishing"
+else
+  bad "DEADLINE kills an overrun" "rc=$RC_OV $(printf '%s' "$OUT_OV" | tr '\n' ' ' | cut -c1-100)"
+fi
+
+# ---- AND THE KILL CAME FROM INSIDE. rc 124 is `timeout`'s own exit code,
+# ---- produced by the process tree that ran the arm -- NOT by a watcher, a
+# ---- polling loop or an agent. In the container that tree IS the container, so
+# ---- the deadline fires with no agent alive, which is the whole point.
+if [ "$RC_OV" = "124" ]; then
+  ok "DEADLINE kill is from inside" "rc 124 is timeout's own code from the arm's own process tree -- no watcher exists in this leg"
+else
+  bad "DEADLINE kill is from inside" "rc=$RC_OV is not timeout's deadline code"
+fi
+
+# ---- the deadline must be POSITIVE for every registered arm, inverted from the
+# ---- cap. A non-positive deadline would kill an arm instantly -- the "cap 3.16x
+# ---- short" class, in a new place.
+DL_BAD=""
+for pair in "MESH 3.0" "XM 6.0" "ATTRCENSUS 2.0"; do
+  set -- $pair
+  d="$(awk -v c="$2" -v r=1 -v f=15 'BEGIN{printf "%d", (c*60.0/r)-f}')"
+  [ "$d" -gt 0 ] || DL_BAD="$DL_BAD $1($d)"
+done
+if [ -z "$DL_BAD" ]; then
+  ok "DEADLINE positive for all arms" "MESH 165s, XM 345s, ATTRCENSUS 105s -- each inverted from its own registered cap"
+else
+  bad "DEADLINE positive for all arms" "non-positive:$DL_BAD"
+fi
+rm -f "$DT/good.sh" "$DT/bin/checkMesh"; rmdir "$DT/bin" "$DT" 2>/dev/null || true
+
 # ---- THE PASSING DIRECTION.  All four guards must be SATISFIABLE, proved by
 # ---- all four PASS lines appearing before the launcher reaches the container.
 D="$(mk_sandbox pass)"
 RC="$(run_sandbox "$D" MESH)"
 MISS=""
-for tag in SO3AF2_NL3_PASS SO3AF2_NL2_PASS SO3AF2_NL1_PASS SO3AF2_NL4_PASS SO3AF2_LOADER_DERIVED SO3AF2_STAGED SO3AF2_STAGING_PRECONDITION_PASS; do
+for tag in SO3AF2_NL3_PASS SO3AF2_NL2_PASS SO3AF2_NL1_PASS SO3AF2_NL4_PASS SO3AF2_DEADLINE_DERIVED SO3AF2_LOADER_DERIVED SO3AF2_STAGED SO3AF2_STAGING_PRECONDITION_PASS; do
   grep -q "$tag" "$D/out.txt" || MISS="$MISS $tag"
 done
 if [ -z "$MISS" ]; then

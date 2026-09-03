@@ -110,6 +110,24 @@ CAP_XM=6.0
 # ---- three primals to its refusal for 0.3500 core-min MEASURED, and this arm
 # ---- runs the same three plus an enumeration.
 CAP_ATTRCENSUS=2.0
+
+# ---- THE IN-CONTAINER DEADLINE. ADDENDUM 10.
+# ---- THE CAP COULD NOT STOP A RUN, IT COULD ONLY REPORT ONE. The cap check
+# ---- below runs AFTER `docker wait` returns, so on 2026-09-03T23:02:42Z it
+# ---- computed cap_exceeded=1 ONLY BECAUSE A LANE HAD ALREADY STOPPED THE
+# ---- CONTAINER BY HAND. Left alone, `docker wait` blocks indefinitely and the
+# ---- registered stop rule NEVER FIRES. A registered stop rule that needs a
+# ---- watcher is a report wearing a stop rule's name.
+# ----
+# ---- THE DEADLINE LIVES INSIDE THE CONTAINER so it fires WITH NO AGENT ALIVE,
+# ---- which is the standing lab rule that a task must never depend on an agent
+# ---- being alive at a future instant. `a1wr_chain_driver.sh` has carried this
+# ---- all along -- one launcher and not its neighbour, the seventh instance of
+# ---- that signature in one night -- and the `-k` value is DERIVED from its
+# ---- bytes rather than retyped, with the distinct count asserted.
+# ---- FRAME_ALLOWANCE_S is the container start/stop overhead the deadline must
+# ---- leave room for, so the deadline fires BEFORE the cap rather than at it.
+FRAME_ALLOWANCE_S=15
 CEILING=9.0
 MEM_FLOOR_GIB=6.0
 MEM_CAP=4g
@@ -244,6 +262,17 @@ LOADER="$LOADER_SET"
 GOT_ENV="$(md5sum "$ENV_ASSERT" | cut -d' ' -f1)"
 [ "$GOT_ENV" = "$MD5_ENV_ASSERT" ] || nolaunch NOLAUNCH_ENV.txt 11 \
   "environment assertion md5 $GOT_ENV != pinned $MD5_ENV_ASSERT"
+KILL_SET="$(grep -oE 'timeout -k [0-9]+' "$A1WR_DRIVER" | awk '{print $3}' | sort -u)"
+KILL_N="$(printf '%s\n' "$KILL_SET" | grep -c . || true)"
+[ "$KILL_N" = "1" ] || nolaunch NOLAUNCH_ENV.txt 11 \
+  "expected exactly ONE distinct `timeout -k` value in $A1WR_DRIVER, found $KILL_N: [$(printf '%s ' $KILL_SET)]"
+KILL_AFTER="$KILL_SET"
+# The deadline in wall seconds, INVERTED FROM THE REGISTERED CAP so the two
+# cannot drift: cap core-min x 60 / ranks, less the frame allowance.
+DEADLINE_S="$(awk -v c="$CAP" -v r="$RANKS" -v f="$FRAME_ALLOWANCE_S" 'BEGIN{printf "%d", (c*60.0/r) - f}')"
+[ "$DEADLINE_S" -gt 0 ] || nolaunch NOLAUNCH_ENV.txt 11 \
+  "derived deadline ${DEADLINE_S}s is not positive for cap $CAP at ranks $RANKS -- a non-positive deadline would kill the arm instantly"
+echo "SO3AF2_DEADLINE_DERIVED deadline_s=$DEADLINE_S kill_after=$KILL_AFTER from_cap=$CAP ranks=$RANKS frame_allowance_s=$FRAME_ALLOWANCE_S k_from=$A1WR_DRIVER distinct=1"
 echo "SO3AF2_LOADER_DERIVED loader=$LOADER from=$A1WR_DRIVER a1wr_md5=$GOT_A1WR distinct=1 env_assert_md5=$GOT_ENV"
 
 # ---------------------------------------------------------------------------
@@ -443,7 +472,12 @@ fi
 # ---- BOTH ARMS GO THROUGH THE ENVIRONMENT ASSERTION.  Repairing MESH and
 # ---- rediscovering this on XM is the sibling-branch defect this item has
 # ---- already produced twice; the two arms differ ONLY in their command file.
-CMD="bash /mnt/so3af2_env_assert.sh $LOADER bash /mnt/$ARM/so3af2_cmd.sh"
+# THE DEADLINE IS INSIDE, WRAPPING THE ARM COMMAND -- A1WR's own shape. The
+# environment assertion runs first and unwrapped (it is milliseconds and its own
+# refusals must not be masked by a kill), then execs the deadline, which owns the
+# solver. `timeout` returns 124 on the deadline and 137 if it must escalate to
+# SIGKILL after -k; both are DISTINCT from every rc this item registers.
+CMD="bash /mnt/so3af2_env_assert.sh $LOADER timeout -k $KILL_AFTER $DEADLINE_S bash /mnt/$ARM/so3af2_cmd.sh"
 
 sudo -n docker run -d --name "$NAME" \
   --user 0:0 --cpus=$RANKS --cpuset-cpus="$CPUSET" \
@@ -472,7 +506,12 @@ sudo -n docker inspect --format \
   '{{.State.ExitCode}} {{.State.OOMKilled}} {{.State.StartedAt}} {{.State.FinishedAt}} {{.HostConfig.CpusetCpus}} {{.HostConfig.Memory}}' \
   "$NAME" > "$BASE/${ARM}_${STAMP}.inspect.txt" 2>&1 || true
 
-# ---- the cap: an overrun STOPS the item; it does not get a new budget --------
+# ---- THE CAP CHECK BELOW IS A REPORT, NOT ENFORCEMENT, AND THE DISTINCTION IS
+# ---- REGISTERED. Enforcement is the in-container deadline above, which fires
+# ---- with nobody watching. THIS runs after `docker wait` returns and therefore
+# ---- cannot stop anything -- it RECORDS that a cap was exceeded, which is a
+# ---- different and still useful thing. The item now has both, instead of a
+# ---- report named as if it were enforcement.
 OVER="$(awk -v c="$CORE_MIN" -v k="$CAP" 'BEGIN{print (c>k)?1:0}')"
 {
   echo "ITEM=$ITEM ARM=$ARM STAMP=$STAMP rc=$RC wall_s=$WALL ranks=$RANKS core_min=$CORE_MIN cap_core_min=$CAP ceiling=$CEILING cpuset=$CPUSET mem=$MEM_CAP row=SHIPPED digest=$GOT_DIGEST launcher_md5=$SELF_MD5 reader_md5=$GOT_READER producer_md5=$GOT_PRODUCER memavail_GiB=$MEMAVAIL_GIB cap_exceeded=$OVER"
