@@ -267,7 +267,7 @@ read in the writing invocation.
 
 ---
 
-~~**Section last written:** 2026-09-03T19:37:39Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-39` — **`D6RF-BLOCKING-1`: a docstring sentence explaining an anchor CONTAINS the anchor and thereby breaks it.** Both arms unrunnable; so were `D6R`'s. Fifth unsatisfiable-by-construction defect of the day, third in D6R's own registration. Successor `D6RF2` ruled; root archived by `mv`; an accidental container (0.8 core-min, named WASTE) is what found it. Before it, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`, `S-35`, `S-34`, `S-33`, `S-32`, `S-31`, `S-30`, `S-29`.
+~~**Section last written:** 2026-09-03T19:46:30Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-40` — `D6RF2` FROZEN, checks 1 and 4 discharged, and **my own blocking ruling was wrong**: the consumers pin the producer md5 and check it six lines BEFORE the anchor, so a docstring reword alone would have refused one step earlier. `G-ANCHOR` lifts each reader's constants by `ast` from the reader itself. Launcher, driver and grader still unwritten; no queue row. Before it, `S-39` (`D6RF-BLOCKING-1`), `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`, `S-35`, `S-34`, `S-33`, `S-32`, `S-31`, `S-30`, `S-29`.
 
 **Section last written:** 2026-08-24T16:27:20Z by chief (certonomous-64) — six-team structure ratified by Sanaa, D-3..D-6 closed, ansys-verification team created; written by the harness-build lane on the chief's instruction, stamp from `date -u` in the writing invocation
 
@@ -4842,6 +4842,41 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 **Section last written:** 2026-09-03T18:01:38Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-30` — the `W3_chain_r2` chain SURVIVED the usage-limit fleet kill as a detached OS daemon and is at its finite-difference legs (9 stages `rc=0`, 36.10 core-min of a registered 900.0), and `S-29` §6's three "live" pids are corrected: two are dead and the survivor's pid was never right. Before it, `S-29` — `D19T` graded `NOT A RESULT` by its own frozen grader; the `U2` patch-identity mechanism predicts five non-convergences across three items with a fourth arm disconfirming it; the generator fix landed forward-only and UNVERIFIED with `A1ZE` registered as its verification; `D12RLX` referred not withdrawn; and five of the supervisor's own errors are named as his. `S-28` holds `MAAOA`'s conclusion and `D19T`'s original block; `S-27` the closed compressible triage.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-40 — **`D6RF2` FROZEN, CHECKS 1 AND 4 DISCHARGED — AND MY OWN BLOCKING RULING WAS WRONG: I RULED ON THE PRODUCER WITHOUT CHECKING THAT ITS CONSUMERS PINNED IT** (2026-09-03, `date -u` stamp in the committing invocation)
+
+###### 1. ⚠ MY RULING WAS NECESSARY AND NOT SUFFICIENT, AND A LANE CAUGHT IT BEFORE BUILDING ON IT
+
+`S-39` ruled the repair was *"a DOCSTRING REWORD and changes NO EXECUTABLE BYTE"* with the successor staging *"its OWN copy of the producer with a new pin."* **Verified by me, and both halves are true of the producer and irrelevant to the outcome:**
+
+`d6r_fd_endpoint.py:31` and `d6r_ref_off.py:30` hardcode **`PRODUCER_MD5 = "93edb4a231e13a7af065368f61a468ef"`** — which **is** the producer's actual md5 — and `d6r_fd_endpoint.py:61` computes `md5_of(PRODUCER)` while the anchor count sits at **`:67`**. **The md5 check runs six lines earlier.** A one-character docstring reword makes both consumers refuse **at the pin, never reaching the anchor at all.**
+
+**I ruled on the producer without checking whether its consumers pinned it.** `D6RF2` therefore derives the **consumers** too — two constants each, the producer's name and its md5, nothing else. **D6R's originals are not edited, not moved, not re-pinned.**
+
+###### 2. CHECKS DISCHARGED
+
+**CHECK 4 — clean.** Freeze blob at `3af45c05` == disk == HEAD, all `c9b8df447aaa484ba49b534caaf5fd68`; freeze is an ancestor of HEAD.
+
+**CHECK 1 — the gate and the deriver, read as diffs.**
+- **`A1` makes `G-ANCHOR` self-maintaining, and it is real:** `ast.parse` on each reader's own source, walking `ast.Assign` → `ast.Name` → `ast.Constant` to lift `PRODUCER`, `PRODUCER_MD5` and `ANCHOR` **out of the reader**, refusing if a reader declares none. **Nothing is transcribed into the gate**, so a reader cannot drift away from the gate that checks it. Better than what I asked for.
+- **`A2` is the clause my ruling did not anticipate** — pinned md5 must equal actual md5. It is the clause that would have caught me.
+- **`A3`** names `D6RF-BLOCKING-1` in its own refusal text and explains the truncation, so the next reader need not reconstruct it. **`A4`** floors the header at 9,000 with both real figures in the comment (10,536 correct, 1,396 broken) — *a count of 1 at the wrong site still refuses.* **`A5`** checks six symbols and **prints its own trip count.**
+- **⚠ `A5`'s existence is owed to a sharp observation: the BROKEN header still carries `daOptions`, because the docstring mentions it.** So a `daOptions`-only check would have passed the truncated header. **A control that happens to test the one symbol the defect preserves is worse than no control.**
+- **The deriver's strongest assertion is genuinely present:** `expect = orig_correct_head.replace(OLD_DOC, NEW_DOC, 1)`, then `if head != expect: fail(...)`, with `orig_correct_head = ANCHOR.join(orig.split(ANCHOR)[:-1])` reconstructing everything before the **last** anchor with the docstring occurrence preserved. **The repaired header is the original's correct header with exactly this item's substitution applied, byte for byte.** That closes the class.
+
+Registered closing line, and it is the rule: **"Name the anchor; never quote it."**
+
+###### 3. THE LANE'S OWN SELF-TEST DEFECT — recorded, not quietly fixed
+
+`d6rf2_units_assert.py --selftest` first reported **`0/25 PASS`. Not one leg was wrong** — it spawned a hard-coded filename that stopped existing at the rename, so every subprocess errored. **A self-test that cannot find itself reports total failure for a reason unrelated to what it tests.** Resolved from `__file__`, re-driven 25/25 under both interpreters.
+
+**The lane's line is the one to keep: *a 0/25 a lane explains away instead of reading is how a broken instrument gets a clean bill.*** It is the same family as the vacuous pass, seen from the other end — **a total failure and a total pass are both answers a broken harness gives without measuring anything.**
+
+###### 4. STATE
+
+Archive executed with **preservation asserted by count**: 617→617 paths, 25→25 top-level, **68,393,914→68,393,914 bytes**; the D6RF root is now ABSENT so refuse-on-stale-directory stands unweakened. Stray `ARM=REF_off rc=2` **annotated, not edited**; launched row **untouched**; 0.800 core-min named **WASTE**, never absorbed. **Outstanding: `d6rf2_run_arm.sh`, `d6rf2_chain_driver.sh`, `d6rf2_grade.py` are NOT written** — commissioned as a dated pre-compute addendum with `G-ANCHOR` invoked at staging before any container. **No queue row until my check 1 on the launcher.** Zero compute.
+
+**§7 kept verbatim, and it is the point: removing one refusal is not evidence the arms run.** No container has ever run `F_mp` or `REF_off` in this lineage; L-316 binds; **the first real container is the first evidence about the case.**
 
 ##### UPDATE S-39 — ⚠⚠ **`D6RF-BLOCKING-1`: A DOCSTRING SENTENCE EXPLAINING AN ANCHOR CONTAINS THE ANCHOR, AND THEREBY BREAKS IT. BOTH ARMS WERE UNRUNNABLE — SO WERE `D6R`'s. THE FIFTH UNSATISFIABLE-BY-CONSTRUCTION DEFECT OF THE DAY, AND AN ACCIDENTAL CONTAINER IS WHAT FOUND IT** (2026-09-03, `date -u` stamp in the committing invocation)
 
