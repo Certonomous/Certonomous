@@ -4909,3 +4909,180 @@ heat-transfer recorded, against itself, a stop-condition defect: **a literal rea
 | my call | **SPEC, not amend** — `scripts/` is outside scope; a routing offering the choice does not widen it (rule 9) |
 | gates · thresholds · bands · caps · labels | **0 · 0 · 0 · 0 · 0** |
 | solver compute | **0 core-min, $0.00** |
+
+---
+
+## Amendment — v1.43, 2026-09-03 — **[SANAA-RULED] §2r TWO-TIER MESH ADMISSIBILITY BINDS CERTIFICATE ISSUANCE · §2s FREEZE ENFORCEMENT AT THE CHOKE POINT, AND THE INSTRUCTION AS WORDED CANNOT BE IMPLEMENTED BECAUSE THE DAEMON HAS NO GRADING STEP · §2t THE $1,000 LADDER ENVELOPE. THREE OF HER RULINGS IN ONE DAY, AND TWO OF THEM MEET A MECHANISM SHE WAS NOT SHOWN.**
+
+**Lines whose number changed above this section: 0.** Nothing above is edited, reordered, inserted or deleted. **Zero solver compute; 0 core-min; $0.00.** **No gate, threshold, band, cap or label is created, moved or retired by this team; nothing is re-graded.** **This amendment does not RULE — it CARRIES three rulings of Sanaa's into the instrument that binds them**, tagged `[SANAA-RULED]`, so no later reader mistakes her authority for this supervisor's. Where a mechanic below and her text disagree, **her text governs and the mechanic is the defect.**
+
+**⚠ THE MASTHEAD OF THIS FILE IS STALE AND HAS BEEN FOR THIRTY-TWO VERSIONS.** Line 3 reads *"Version 1.10, dated 2026-08-22."* The authoritative version is the **highest amendment number**, derived not recalled: `grep -oE '^## Amendment — v1\.[0-9]+' | grep -oE '[0-9]+$' | sort -n | tail -1` → **42**, so this block is **v1.43**. The masthead is **not edited** (rule 6); it is disclosed here, and a reader who takes line 3 as the version is reading a number thirty-two amendments out of date. **Same defect class as CLAUDE.md rule 11: the maximum, never the first thing that looks like a version.**
+
+---
+
+### §2r — TWO-TIER MESH ADMISSIBILITY [SANAA-RULED]
+
+Her ruling, 2026-09-03 ~17:30Z, recorded verbatim at `etc/sessions/2026-09-03T1730Z_sanaa_mesh_standard_and_freeze_enforcement.md`, quoted in full because a paraphrase of a ruling is not the ruling:
+
+> **Two-tier mesh standard — this resolves the R12 question. The 70° gate is our generation standard: every mesh the lab builds must meet it, unchanged. Committee grids are a different object: they exist for comparability with the workshop's own results, where every participant used the same grids. Ruling: committee grids are admissible for validation-against-workshop-data cases without meeting the 70° gate, under these conditions: (a) their measured quality (max non-orthogonality, skewness, the works) is reported on the certificate, not gated; (b) solver-side mitigations (non-orthogonal corrector counts, relaxation) are registered before running; (c) the numerical-uncertainty band still comes from the grid family; (d) the certificate names the grid as "workshop committee family, quality as published" in the what-was-checked section. A full certificate IS reachable this way — a certificate's honesty is disclosure and verification, not our internal birth standard. What committee grids can never do is certify our meshing capability — that stays on in-house grids under 70°.**
+
+**Why it reaches THIS charter.** Her condition (d) is a condition on a **certificate**, and this charter is what binds every number reaching a certificate (its own opening scope sentence). A mesh standard can say what a mesh is; only this charter can refuse to issue.
+
+#### §2r.1 THE ISSUANCE CLAUSE
+
+> **RULED — `§2r`, [SANAA-RULED]. A CERTIFICATE MAY ISSUE ON A MESH THAT DOES NOT MEET THE 70° NON-ORTHOGONALITY GATE, IF AND ONLY IF that mesh is a DECLARED TIER-2 workshop committee grid and ALL of conditions (0) and (a)–(d) are satisfied AND CHECKED. Such a certificate is a FULL certificate — not capped, not chipped down, not confined to a model-form band.** *Her ground, verbatim: "a certificate's honesty is disclosure and verification, not our internal birth standard."*
+>
+> **A mesh over 70° that is NOT a declared Tier-2 grid is unchanged in every respect:** a generation-standard breach, the numerical channel carries it, the fidelity chip is capped.
+
+**Tier 2 is entered by DECLARATION AT PRE-REGISTRATION AND NEVER AFTERWARDS.** A grid promoted to Tier 2 *after* its quality was measured is the shape rule 2 exists to forbid — the exemption would have been chosen to fit the answer. **Condition (0), added by this clause because without it "committee grid" is self-declared and the exemption is unbounded:** the grid must be **published and distributed by the committee itself**, byte-unmodified apart from format conversion, with the sha-256 of both the distributed file and the converted mesh recorded in the frozen registration, and the case must be a validation against that workshop's own data. **A grid produced by running a public generator with a namelist this lab modified is NOT a committee grid** — it is a lab-built mesh and Tier 1 governs it.
+
+**"Checked" is operative, not decorative.** Under `§2k` a number with no artifact is not a measurement; under this clause **a condition with no check is not a condition.**
+
+#### §2r.2 THE CONSEQUENCE OF FAILING A LIMB — **AND I CORRECT MY OWN TEAM'S DRAFT HERE**
+
+The draft this clause was built from ruled that a run completed on a grid failing any limb is **`NOT A RESULT`**, and referred the question of which `§2n` cause class applies. **Both halves are wrong and I strike them before they land.**
+
+> **RULED: A TIER-2 LIMB FAILURE REFUSES THE CERTIFICATE. IT DOES NOT VOID THE PHYSICS.** The run does not become `NOT A RESULT`; it **reverts to Tier-1 treatment** — a generation-standard breach, the numerical channel carrying it, the fidelity chip capped, and no validated force claimed from that mesh. **A disclosure this lab failed to make is a statement about our record, not about what the solver computed.**
+
+**This is Sanaa's own universal rule applied where it points:** *bookkeeping never voids physics* (2026-08-26). A missing registration heading, an absent substring, a sha that was never recorded — these are bookkeeping. **And the correction dissolves the referral rather than answering it: no `§2n` cause class is needed, because there is no `NOT A RESULT` to classify.** `§2n`'s set stays closed and no ninth class is invented.
+
+#### §2r.3 THE CEILING THAT DOES NOT MOVE
+
+> **RULED — [SANAA-RULED], and it takes no exception:** *"What committee grids can never do is certify our meshing capability — that stays on in-house grids under 70°."*
+>
+> **No Tier-2 grid, and no result obtained on one, is admissible as evidence of this lab's meshing capability** — not in the capability grid, not in a credentials entry, not in a certificate's capability claim, not in a report upward. **A Tier-2 certificate certifies the PHYSICS this lab computed and certifies NOTHING about the MESH this lab did not build.** Faithful import is an import capability, not a meshing capability.
+
+#### §2r.4 **⚠⚠ THE RULING CANNOT BE EXERCISED TODAY, AND THE OBSTACLE IS A MECHANISM SHE WAS NOT SHOWN. `[MEASURED BY ME AT SOURCE]`**
+
+**Every committee grid on this box is refused entry to a case BEFORE any of her conditions is ever evaluated, and the refusal fires on SKEWNESS.**
+
+`sdk/chief_engineer/mesh_certificate.py:44` — `ACCEPTED_VERDICTS = ("clean", "flagged")`. Its `_HARD_ERRORS` tuple at `:47-57` fires on the literal `***Max skewness`. **All three DPW5 committee grids print exactly that**, and I read the three logs myself rather than on relay:
+
+| grid | `***Max skewness` | non-orthogonality Max | checkMesh's own verdict line |
+|---|---|---|---|
+| `DPW5_hex_checkMesh.log` | **`14.0594`** `:109`, 466 highly-skew faces | **`89.7134`** `:103` | **`Non-orthogonality check OK.`** `:105` |
+| `DPW5_prism_checkMesh.log` | **`6.31513`** `:107`, 89 faces | **`89.9441`** `:101` | **`Non-orthogonality check OK.`** `:103` |
+| `DPW5_hybrid_checkMesh.log` | **`6.31513`** `:107`, 89 faces | **`89.9985`** `:101` | **`Non-orthogonality check OK.`** `:103` |
+
+So each is born **`broken`** and the admission function refuses it entry. **Her condition (a) names skewness in her own parenthesis and says quality is REPORTED, NOT GATED — but she was not shown this code path, and extending her ruling onto a mechanism she did not name is exactly the permission laundering rule 9 forbids.** **REFERRED TO HER, not read across.**
+
+**⚠ AND THE SAME THREE LOGS CARRY A SECOND FINDING, LIVE, ON THE EXACT GRIDS THIS RULING GOVERNS.** `checkMesh` prints **`Non-orthogonality check OK.`** at **89.71°, 89.94° and 89.9985°** — within hundredths of degenerate. **A reader taking checkMesh's verdict line instead of its number would record all three as passing.** This is the standing rule to read the reported maximum and never the verdict line, and here it is firing on production artifacts rather than in a worked example.
+
+**A THIRD OBSTACLE, and it is the one that would produce a FALSE MEASUREMENT rather than a refusal.** `sdk/chief_engineer/certificate.py:936-999` renders non-orthogonality as `"{v}° vs {gate}° gate"` with a `pass`/`caveat` verdict and offers **no suppression**; the only lever would, if raised to force a pass, **print a comparison against a gate that does not apply.** Condition (a) demands *reported, not gated*. **A certificate that prints `89.71° vs 70° gate — pass` has laundered the exemption into a false measurement and is worse than one that fails.** A "reported, not gated" mode is required and **does not exist**.
+
+> **RULED: NO TIER-2 CERTIFICATE MAY ISSUE UNTIL THE THREE OBSTACLES ABOVE ARE CLEARED.** `§2r` is **DOCUMENTARY FROM TODAY**, and saying so is not a defect in the clause — **it is the clause refusing to pretend.** No grid on this box is a declared Tier-2 grid; **grids admitted: 0; certificates issued: 0.**
+
+**`sdk/` and `docs/standards/` are OUTSIDE this team's folder scope. I SPEC; I DO NOT AMEND — the same line held at `§2q`, and a routing that offers me the choice does not widen the scope (rule 9).** The chief's session note assigning codification to this team is **the chief's reading, not Sanaa's words**, and it is recorded as such in the capture itself.
+
+---
+
+### §2s — FREEZE ENFORCEMENT AT THE CHOKE POINT [SANAA-RULED]
+
+Her wiring order, 2026-09-03 ~17:30Z, verbatim: **(1)** the queue daemon refuses to grade any run whose comparator's sha does not match its frozen registration — enforcement at the choke point first, primitive is fine; **(2)** coverage measured and reported weekly until it reads full; **(3)** a planted violation proves the enforcer fires through the real path; **(4)** an honest note into the lab record. **No re-grading of past results unless a specific comparator is shown to have moved.**
+
+**The law she is enforcing is ALREADY in this charter and only its wiring is new.** `§2d` already requires: *"Verify the frozen file is the file that ran. Hash the comparator at analysis time against the committed blob. A freeze that is claimed and not checked is a claim about intent."* **Her ruling does not add a rule. It notices that the rule was never wired to anything.**
+
+#### §2s.1 **⚠⚠ THE INSTRUCTION AS WORDED CANNOT BE IMPLEMENTED: THERE IS NO GRADING STEP IN THE DAEMON**
+
+`[MEASURED]` The queue daemon performs exactly one state transition — **queued → launched**. It moves an entry file into `launched/` and never reads a result. **There is no line at which a run "transitions to graded", so a hook placed where the daemon grades would never fire.**
+
+> **RULED: THE HONEST CHOKE POINT IS THE LAUNCH, NOT THE GRADE.** Enforcement attaches to the queue-entry validation that already refuses entries on the live path every tick. A comparator whose bytes disagree with its frozen registration **is refused before its run starts**, which is strictly better than refusing after the compute is spent — and it is the only place in this daemon where a refusal can fire at all.
+
+**This is a correction to her instruction's mechanism, not to her ruling**, and it is put to her as such: the intent — *nothing is graded on an unfrozen comparator* — is served better at launch than at a grading step that does not exist.
+
+#### §2s.2 THE THREE OUTCOMES, AND WHY TWO ARE NOT ENOUGH
+
+The enforcer will constantly meet cases with **no reachable freeze evidence**. *Grade anyway* makes it a **no-op on precisely the population that needs it** — `§2p`'s degenerate path installed at the choke point on day one, and it would pass a repository whose every comparator had been rewritten this morning. *Refuse* **halts the lab**, and an enforcer that blocks good work is switched off within a day.
+
+> **RULED — THREE OUTCOMES:**
+> - **`MISMATCH` → REFUSE**, unconditionally, from the day the hook lands.
+> - **`MATCH` → PROCEED.**
+> - **`UNREACHABLE` → PROCEED, AND RECORD THE UNREACHABILITY** in a countable field. Never silently ignored, never confused with a match.
+>
+> **AND THE THIRD OUTCOME CARRIES A SUNSET OR IT IS PERMANENT.** A report-only state with no end date is **documentary enforcement in a second costume** — the very thing being removed. **At the sunset, `UNREACHABLE` becomes `REFUSE`.** The date is Sanaa's; the recommendation is her own limb-2 target, because **the condition she set as the goal is the condition that makes the third outcome unnecessary.**
+
+#### §2s.3 **⚠ A REFUSAL ON `UNFROZEN` ALONE WOULD REFUSE A LAWFULLY REPAIRED COMPARATOR**
+
+`§2d.1`'s four-condition repair exception exists **because this instrument's own first pass mis-condemned a comparator that had been lawfully repaired** — and that comparator still reads `UNFROZEN` today.
+
+> **RULED: `UNFROZEN` IS NOT `ILLEGAL`.** An enforcer keyed on the freeze instrument's `UNFROZEN` status alone will refuse every comparator lawfully repaired under `§2d.1`. **The enforcement quantity is the SHA MISMATCH against the frozen registration — a byte comparison — and not the freeze instrument's timestamp verdict.** The two answer different questions and only the first is what she ordered.
+
+#### §2s.4 COVERAGE — **`REACHABILITY, NOT INNOCENCE`**, AND THE TARGET FIGURE IS NOT ONE THIS LAB EMITS
+
+> **RULED:** a row carrying a judged freeze verdict is **COVERED**, *including* a failing one. A row reported unjudged — no marker, ambiguous scope, undated marker — is **NOT COVERED AT ALL**. **A single number mixing them can be improved BY HIDING VIOLATIONS**, which is the one way this metric could leave the lab worse off than no metric. **Two axes, side by side, never collapsed:** coverage = judged / total; compliance = frozen / judged.
+
+**`[MEASURED BY ME, whole-repo run of the freeze instrument, re-derived rather than relayed]` — and it corrects the figure this program was briefed on:**
+
+| status | rows |
+|---|---|
+| `NO-MARKERS` | **144** |
+| `FROZEN` | **27** |
+| `UNFROZEN` | **10** |
+| `AMBIGUOUS-SCOPE` | **5** |
+| `AMENDED_AFTER` | **3** |
+| `UNCOMMITTED` · `MODIFIED_AFTER_COMMIT` · `UNDATED-MARKER` | **0 · 0 · 0** |
+| **total walked** | **189** |
+| **JUDGED (covered)** | **40 of 189** |
+
+**The `145` this program was briefed on is wrong; the measured figure is `144`, and neither is the denominator.** Coverage today is **40 / 189**, not anything over 145. **The target as stated corresponds to no figure this instrument emits, and it is referred to Sanaa rather than silently reinterpreted.**
+
+#### §2s.5 **⚠ THE REPAIR THE OBVIOUS DIAGNOSIS WOULD HAVE BOUGHT REACHES 9 ROWS OF 144**
+
+The instrument pairs a comparator with completion markers found by **one listing of the comparator's own directory**. The obvious diagnosis is that cross-directory pairing is the coverage hole. **It is not the main one, and measuring before building is what established that.**
+
+`[MEASURED]` **All completion markers in this repository live in three run trees. Zero exist under `cases/`, under `docs/campaigns/`, or in any other run subtree.** Of the 144 unjudged rows: **9** have evidence a pairing repair could reach (5 cross-directory, 4 also cross-convention); **~135 have no completion-marker evidence anywhere in the repository at all** — real graders in campaigns that never adopted the completion-marker convention.
+
+> **RULED: THE COVERAGE HOLE IS NOT PRINCIPALLY A PAIRING DEFECT — IT IS THAT FOUR OF SIX TEAMS NEVER ADOPTED THE EVIDENCE CONVENTION THE FREEZE TEST READS.** A pairing repair is worth building and **converts 9 rows**. Full coverage requires a completion convention those campaigns do not have. **A program that had built the association machinery first would have spent its effort on 6 % of the gap and reported a repair.**
+
+**This is `§2p.5`/`§2p.6.1`'s error refused in advance rather than booked afterwards**, and it is the only reason this clause states a proportion instead of a plan.
+
+#### §2s.6 MARKER ASSOCIATION — THE PRINCIPLE, FOR WHEN THE 9 ARE REPAIRED
+
+> **RULED: ASSOCIATION IS DECLARED, NEVER INFERRED FROM A POOL.** Pooling every marker in reach and letting the source-name scope sort it out is **refused**: the failure mode is a **false `UNFROZEN`** — a false accusation against a team which, at the choke point, becomes **a refusal to launch a sound run**. A declaration is accepted from **the frozen registration first** (it cannot move after first compute), **the comparator's own source second**; **if both exist and DISAGREE, REFUSE — never choose.** The declared tree must **also** carry a marker named by the comparator's own source: **two independent limbs, and the source-name limb is the one that cannot be aimed at a convenient tree.**
+
+**The residual hole, named rather than papered over:** a comparator committed early carrying a declaration that points at a tree populated later. The two-limb requirement is a **mitigation, not a proof.**
+
+#### §2s.7 THE ENFORCER IS AN INSTRUMENT (`§2j`, `§2o`, `§2p`)
+
+Her step (3) is already this charter's `§2j` generalised — *no instrument grades anything until the demonstration is an artefact, driven through the real path, with both limbs.* Required, before any enforcement verdict is believed: **the planted mismatch REFUSES**; **the positive control still PROCEEDS** (`§2p.3(e)` — a refuser that refuses everything is indistinguishable, from its verdicts alone, from a correct one); a **wrong-object control** (a different file moved, the comparator's sha untouched) still proceeds, proving the enforcer is keyed on the right artifact; and the **empty-input arm** does not silently pass. All four drive the **production** path, not a copy (`§2p.3(d)`). **`§2j.4`'s non-retroactivity is the existing charter basis for her "no re-grading of past results", so that instruction needs no new clause.**
+
+#### §2s.8 THE HONEST NOTE — **TWO DATES, AND THE GAP IS THE FINDING**
+
+> **Freeze enforcement was documentary until the day the enforcer was wired to the live path. The enforcing instrument existed from 2026-08-19 — but nothing executable invoked it, so for the fifteen days between, this lab held a freeze enforcer it never ran, and it fired zero times. Every certificate issued before the wiring date relied on process discipline, not tooling. No recorded verdict is withdrawn on this account; a specific comparator shown to have moved is a separate matter and is handled on its own facts.**
+
+**`[MEASURED]` the instrument has three commits, the first 2026-08-19; four independent searches — tracked sources, whole worktree, crontab and system units, git hooks — find no executable invocation of it.** *"We had no tool"* and *"we had the tool and never wired it in"* are different admissions and **the second is the one that generalises.** **It is also this team's own defect:** `§2q` is where this team specced that instrument's widening and correctly recorded `scripts/` as out of its scope — **which is how an instrument comes to be owned by nobody at the moment it needs wiring.**
+
+---
+
+### §2t — THE $1,000 LADDER ENVELOPE, REGISTERED AS LAW [SANAA-RULED]
+
+Her directive, 2026-09-03 ~18:00Z, verbatim at `etc/sessions/2026-09-03T1800Z_sanaa_compute_envelope.md`: **one standing envelope of $1,000 for the benchmark ladder (Rungs 0–3), spendable without returning to her; the per-case dollar approval loop abolished inside it.** What does **not** change, in her words: *"every run still registers its cost estimate before launch, still carries a hard per-run cap (set by the team at ~3× its own estimate, not by me), still reports predicted-vs-actual, and still names waste. **The estimate is an instrument, not a permission slip.**"* Escalation to her only for: **a single run projected over $150**, **the envelope reaching 80 %**, or **a third attempt at something that already failed twice** — and, her instruction, **each escalation is preceded by a check that the exceedance is not itself an arithmetic error.**
+
+> **RULED — `§2t`, [SANAA-RULED]: THE ENVELOPE REMOVES THE APPROVAL LOOP. IT REMOVES NOTHING ELSE.** Every spend inside it still requires a **frozen, costed pre-registration** committed before the solver starts (`CLAUDE.md` rule 2) and a **costed estimate in the lab's measured unit** with an honest `cost_basis` (rule 12). **An envelope is a budget, not a dispensation from the freeze**, and no reading of it licenses a run whose gate was chosen after the answer.
+>
+> **AND THE ESTIMATE'S STATUS IS SHARPENED BY HER OWN WORDS, NOT WEAKENED.** *"The estimate is an instrument, not a permission slip."* An instrument that no longer gates anything is the exact object `§2p` was written about: **now that the estimate opens no approval door, the only thing that keeps it honest is the predicted-versus-actual comparison it is measured against.** That comparison is therefore **not optional bookkeeping inside the envelope — it is what the envelope leaves standing in place of the approval.**
+>
+> **HER ARITHMETIC SELF-CHECK IS ADOPTED AS A REFUSAL, NOT A REMINDER:** an escalation whose triggering figure has not been re-derived is **withdrawn, not sent**. A false exceedance spends her attention, which is the one budget this lab cannot meter.
+
+---
+
+| item | outcome |
+|---|---|
+| authority | **[SANAA-RULED]** ×3 — 2026-09-03 ~17:30Z (mesh, freeze) and ~18:00Z (envelope), quoted verbatim |
+| `§2r` mesh | **full certificate REACHABLE on a Tier-2 committee grid**; Tier-1 70° generation gate **unchanged**; capability ceiling **absolute** |
+| **correction to my own team's draft** | a Tier-2 limb failure **refuses the certificate, does NOT void the physics** — *bookkeeping never voids physics*; **the `§2n` referral is DISSOLVED, not answered** |
+| `§2r` exercisability | **DOCUMENTARY — 3 obstacles `[MEASURED]`**: skewness quarantine before her conditions are reached; checkMesh printing `OK` at 89.7–89.9985°; no *reported-not-gated* mode |
+| grids admitted · certificates issued | **0 · 0** |
+| `§2s` her instruction's mechanism | **CORRECTED — the daemon has NO grading step**; the honest choke point is the **launch** |
+| `§2s` the three outcomes | MISMATCH refuses · MATCH proceeds · **UNREACHABLE proceeds, is counted, and SUNSETS** |
+| `§2s` the trap | **`UNFROZEN` ≠ ILLEGAL** — that key refuses every `§2d.1` lawful repair |
+| `§2s` coverage `[MEASURED]` | **40 judged of 189** · `144` NO-MARKERS · **the briefed `145` is WRONG**; the target matches no emitted figure — **referred, not reinterpreted** |
+| `§2s` the diagnosis that would have been wrong | a pairing repair reaches **9 of 144**; **~135 campaigns never adopted the evidence convention** |
+| `§2s` the honest note | **two dates** — instrument from **2026-08-19**, **zero invocations in fifteen days** |
+| `§2t` envelope | **approval loop removed; rule 2 and rule 12 UNTOUCHED**; the estimate keeps its meaning only through predicted-vs-actual |
+| scope held | `sdk/`, `scripts/`, `docs/standards/` **specced, NOT amended** — a routing offering the choice does not widen scope (rule 9) |
+| referrals opened and NOT decided | **4** — the skewness quarantine; the *reported-not-gated* mode; the coverage target figure; the sunset date |
+| gates · thresholds · bands · caps · labels | **0 · 0 · 0 · 0 · 0** |
+| results re-graded | **0** |
+| solver compute | **0 core-min, $0.00** |
+| **lines whose number changed above this section** | **0** |
