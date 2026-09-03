@@ -1207,3 +1207,56 @@ That is the closure-over-detection argument with a measurement under it rather t
 **NOT RE-FIRED.** The census produced **no enumeration** and its absence is **not treated as evidence about anything**. The producer's attribute question is exactly where it was. XM `rc=7` stands as the registered risk landing; MESH complete and **NOT A RESULT**; item **PENDING**; **F1–F5 unscored**; **§0.2 binding.** **SUBMISSIONS PARKED.**
 
 **END OF ADDENDUM 10.**
+
+---
+
+## ADDENDUM 11 — THE DEADLINE FIRED. `rc=124`, UNATTENDED. AND IT STILL LANDED OVER ITS CAP. Dated **2026-09-03**. Version **1.11 → 1.12**.
+
+> **lines whose number changed above this section: 0** — asserted by execution against both the pre-append snapshot and `git show HEAD:`.
+
+**Moves no gate, no threshold, no prediction, no band, no cap and no label. NO ENUMERATION WAS PRODUCED.**
+
+### A11.1 The repair worked, and here is the measurement
+
+`SO3aF2_ATTRCENSUS_r2` launched 23:17:52Z with a **105 s** in-container deadline.
+
+| | first attempt | this attempt |
+|---|---|---|
+| how it ended | reached **199 s**, **stopped by a lane by hand**, `rc=9` | **killed at its deadline by the container itself**, `rc=124` |
+| who intervened | a lane, watching | **nobody** |
+
+**`rc=124` is `timeout`'s own deadline code.** SIGTERM went at 23:19:37Z; the process died at 23:19:49Z — **33 s later, well inside the 60 s kill-after grace, so SIGKILL was never needed.** No agent was watching, no polling loop existed, nothing was asked to intervene.
+
+**That is the difference between a registered stop rule and an enforced one, measured on the same arm one run apart.**
+
+### A11.2 ⚠ AND IT STILL EXCEEDED ITS OWN CAP — the frame allowance is too small
+
+**`core_min=2.3000` against a cap of `2.0`. `cap_exceeded=1` EVEN THOUGH THE DEADLINE FIRED.**
+
+The deadline is `cap × 60 / ranks − FRAME_ALLOWANCE_S`, with the allowance at **15 s**. **The process took 33 s to die after SIGTERM.** The allowance was sized for container start/stop overhead and **not** for how long a Python/MPI process takes to unwind — so the enforced deadline still lands the total **over** the cap it was inverted from.
+
+> **THE DEADLINE IS NOW ENFORCEMENT, BUT IT IS NOT YET A GUARANTEE THAT THE CAP HOLDS.** Naming that plainly rather than letting `rc=124` read as an unqualified success: **the repair converted an unbounded overrun into a bounded one, and a bounded overrun is still an overrun.** 199 s → 138 s is real; 138 s against a 120 s cap is not yet right.
+
+**No repair is made here.** Sizing the allowance needs the teardown measured rather than guessed, and this is one observation of it. **Registered as an open defect for the supervisor to rule on.**
+
+### A11.3 The census still produced nothing, and that is evidence about nothing
+
+`so3af2_attr_census.json` is **ABSENT** for the second time. The arm log is the **same 208 bytes** as before.
+
+> **THAT IS NOT EVIDENCE THAT THE ATTRIBUTE DOES NOT EXIST, that the object lacks a residual history, or anything else about the model.** The arm was killed before it reached the enumeration. **A killed run is not a measurement**, exactly as a stopped one is not, and **the producer's attribute question is precisely where it was.** No diagnosis of the slowness is offered here or anywhere.
+
+The graded artefact `XM/so3af2_M.json` remains **ABSENT**, which is correct.
+
+### A11.4 Cost
+
+**2.3000 core-min against a 2.0 cap.** Item total across seven launches: **0.0667 (MESH ×4) + 0.3500 (XM) + 3.6833 (census, stopped) + 2.3000 (census, deadline) = 6.4000 core-min.**
+
+> **WASTE: 2.3000 core-min, ALL OF IT.** The arm produced **no enumeration**, which was its only product. **Named as a loss because it was one** — the same ruling as the stopped attempt, and the opposite of XM's, whose spend bought three converged primals and a registered refusal.
+
+**A calibration row is owed and will again DECLINE its ratio**: the run did not do the work the estimate priced.
+
+### A11.5 Standing
+
+**NOT RE-FIRED.** Two attempts have now produced no enumeration, and **the reason for that is not established and is not guessed at here.** XM `rc=7` stands as the registered risk landing; MESH complete and **NOT A RESULT**; item **PENDING**; **F1–F5 unscored**; **§0.2 binding.** **SUBMISSIONS PARKED.**
+
+**END OF ADDENDUM 11.**

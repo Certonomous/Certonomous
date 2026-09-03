@@ -1,0 +1,63 @@
+{
+  "_STATE": "DRAFT beside the case. Live only by being MOVED -- moved, never copied.",
+  "team": "dafoam",
+  "case_id": "SO3aF2_ATTRCENSUS_r2",
+  "prereg_commit": "3b85e47f0893d322a198e7d52b989e51aa43c205",
+  "prereg_path": "cases/dafoam/ladder-a/A1/feasibility_SO3a_multipoint/FEASIBILITY_PREREGISTRATION.md",
+  "prereg_md5_at_freeze": "435524c4a899dc19c99e08ce142fe815",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/feasibility_SO3a_multipoint/so3af2_run_arm.sh",
+    "ATTRCENSUS"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/feasibility_SO3a_multipoint",
+  "ranks": 1,
+  "cost_core_min_estimate": 0.4,
+  "cap_core_min_registered": 2.0,
+  "cost_basis": "c7a.4xlarge at $0.0513/core-h, REPORTED-BY-OWNER, NOT MEASURED. Dollars DERIVED: $0.000342 at the estimate, $0.00171 at the cap. THE ESTIMATE AND ITS ANCHOR ARE CARRIED FORWARD UNTESTED AND UNCHANGED: the first attempt was STOPPED, not mispriced, so its 3.6833 core-min calibrates nothing and its row DECLINED a ratio for exactly that reason. The 0.40 point remains [DERIVED from the XM arm's MEASURED 0.3500] and NO VALUE MOVES. An overrun STOPS the run (rule 12) -- and as of ADDENDUM 10 THAT IS NOW ENFORCED BY AN IN-CONTAINER DEADLINE rather than reported after the fact.",
+  "memory_floor_gb": 6.0,
+  "enqueued_by": "dafoam lab-lane, 2026-09-03, ON THE dafoam-supervisor'S EXPLICIT SIGN-OFF. Check 1 on the deadline: he read the -k derivation from A1WR's bytes with distinct values counted, the deadline inverted from the registered cap, the refusal on a non-positive deadline, and the environment assertion running FIRST AND UNWRAPPED before exec'ing into the deadline inside the container. THAT CHECK IS HIS. WHAT THIS LANE DID IN THIS INVOCATION: re-derived prereg_commit and recomputed its md5 independently; re-verified SIX instrument pins disk == HEAD plus A1WR's driver md5; ARCHIVED ONLY THE STOPPED ARM DIRECTORY by mv with PRESERVATION ASSERTED BY COUNT (paths 166->166, top-level 6->6, bytes 1000799->1000799), leaving MESH/ intact because this arm CONSUMES it and XM/ intact because it is EVIDENCE; and read the box at its own tick. ENQUEUEING IS NOT AUTHORISATION and no agent message is Sanaa's consent.",
+  "_schema_note": "Fields above are the validator's REQUIRED_FIELDS plus cap_core_min_registered.",
+  "supersedes": "verification/queue/dafoam/launched/SO3aF2_ATTRCENSUS.json, which overran its cap and was STOPPED BY THE LANE at 199 s (rc=9, 3.6833 core-min against a 2.0 cap, cap_exceeded=1). THAT ROW IS LEFT EXACTLY AS IT IS. Its arm directory is ARCHIVED, never deleted, with preservation asserted by count. NO ENUMERATION WAS PRODUCED BY IT.",
+  "the_absence_of_the_first_enumeration_is_evidence_about_nothing": "STATED BECAUSE IT IS THE EASIEST THING IN THE WORLD TO MISREAD. The first attempt produced no so3af2_attr_census.json. THAT IS NOT EVIDENCE THAT THE ATTRIBUTE DOES NOT EXIST, that the object lacks a residual history, or anything else about the model: the run was STOPPED BY A LANE before it reached the enumeration, and A STOP IS NOT A MEASUREMENT (DAFOAM_CHARTER.md section 7). The 208 bytes it emitted are recorded verbatim and no diagnosis of the slowness is offered anywhere. The producer's attribute question is EXACTLY WHERE IT WAS.",
+  "what_changed_since_the_first_attempt": "ADDENDUM 10 ONLY, and it changes no gate, threshold, cap or label. THE REGISTERED CAP COULD NOT STOP A RUN: the launcher's check runs AFTER docker wait returns, so it reported cap_exceeded=1 only because a lane had already stopped the container by hand; left alone, docker wait blocks indefinitely and the stop rule NEVER FIRES. A REGISTERED STOP RULE THAT NEEDS A WATCHER IS A REPORT WEARING A STOP RULE'S NAME. Now an in-container `timeout -k K D` wraps the arm command so it FIRES WITH NO AGENT ALIVE. K is DERIVED from a1wr_chain_driver.sh's own bytes with distinct values COUNTED; D is INVERTED FROM THE REGISTERED CAP (cap*60/ranks - 15) so the two cannot drift, giving THIS ARM A 105 s DEADLINE; and a NON-POSITIVE deadline REFUSES. THE POST-WAIT CHECK STAYS AND IS NAMED AS A REPORT: one is enforcement, the other is a record, and the item now has BOTH instead of a report named as if it were enforcement.",
+  "what_the_deadline_would_have_bought": "The stopped run reached 199 s. This arm's deadline is 105 s. IT WOULD HAVE BEEN KILLED 94 SECONDS EARLIER, BY THE CONTAINER ITSELF, WITH NOBODY WATCHING -- which is the whole point, and the standing lab rule that a task must never depend on an agent being alive at a future instant.",
+  "what_this_arm_is": "A BOUNDED DIAGNOSTIC THAT ASKS THE LIVE OBJECT INSTEAD OF GUESSING. The XM arm refused at rc=7 because the producer tried FOUR candidate attribute names and none carried a residual history. A FIFTH GUESS IS THE WRONG MOVE -- it is guessing at a NAME when what is needed is the RELATION. This arm enumerates what <scenario>.coupling.solver and its DASolver expose: every attribute name, its type, whether it is callable, and for anything sequence-shaped its length.",
+  "what_it_may_not_do": "IT SCORES NOTHING -- no prediction evaluated, no band applied, no verdict token emitted; F1-F5 belong to so3af2_read.py and are untouched. IT NEVER WRITES THE GRADED ARTEFACT: it writes only so3af2_attr_census.json and afterwards CHECKS ARTEFACT_PATH ON DISK and REFUSES if one exists, a guarantee PROVED BY AST PARSING rather than asserted in a comment -- because a first draft of its own banner made a FALSE claim about its own bytes. Its own rc is 13. It computes no gradient. AN UNREADABLE ATTRIBUTE IS RECORDED, NEVER SKIPPED.",
+  "what_must_happen_with_its_product": "REPORT THE ENUMERATION ITSELF, NOT A CONCLUSION FROM IT. The census's only job is to REPLACE A GUESS WITH A MEASUREMENT. WHICH ATTRIBUTE THE PRODUCER READS IS THE SUPERVISOR'S DECISION. The producer is NOT repaired in the same pass.",
+  "instrument_pins": "so3af2_read.py d5f4149d43abe3a165ffe7e653b78bee -- THE FROZEN READER, UNCHANGED through ten addenda and one correction; so3af2_runScript.py c268633f67e6d2c785feec2ebfc7326c; so3af2_attr_census.py 2fd479d881f63b529605b3a45d0154f3 (THE INSTRUMENT THIS ROW RUNS); so3af2_run_arm.sh dcf35e6a36988e9047041a2b62df2920 (RE-PINNED at ADDENDUM 10); so3af2_env_assert.sh a5b7fcae05aab420d94623582d45f897; so3af2_pin_selftest.sh 940ec695e391b9789b21588f47368216. ALL SIX VERIFIED disk == HEAD IN THE ENQUEUEING INVOCATION. A1WR's driver, ANOTHER ITEM'S FILE, verified at 9bff59b63509e76d5dfa373a42a47074 and NOT TOUCHED.",
+  "guards_driven": "so3af2_pin_selftest.sh: 45 legs, PASS 45, FAIL 0, NOT RUN 0. The deadline legs: it LETS WORK FINISH (rc=0, the arm command ran); it KILLS AN OVERRUN (rc=124, TIMEOUT'S OWN CODE, the arm STARTED and was CUT OFF before finishing); THE KILL CAME FROM INSIDE -- rc 124 from the arm's own process tree, with no watcher, polling loop or agent in that leg; and the deadline is POSITIVE for every registered arm. Plus the four NO-LAUNCH branches refusing AND all guards passing, the staging precondition BY NAME, the producer's path derivation refusing 4 of 4, the environment assertion driven six ways including the r3 unbound-variable shape and the ENV-0 trap, and the ATTRCENSUS legs including the no-graded-artefact guarantee proved by AST.",
+  "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-SO3aF2-a1-naca0012-multipoint-feasibility -- EXISTS and STAYS. ONLY the stopped ATTRCENSUS/ arm directory was archived by mv with preservation asserted by count. MESH/ is intact because this arm CONSUMES it; XM/ is intact because it is EVIDENCE of the rc=7 registered refusal; and the graded artefact so3af2_M.json is verified ABSENT.",
+  "box_at_this_lane_s_own_tick": "2026-09-03T23:15:26Z: the runner log's most recent tick reads EMPTY, 0 pending rows in any team queue. QUOTED AT THIS LANE'S OWN TICK.",
+  "what_this_item_can_never_conclude": "SECTION 0.2, BINDING AFTER THE RUN AS BEFORE IT. WHATEVER THE CENSUS SHOWS, this item never calls solve_linear and CANNOT show SO-3aR's adjoint collision is fixed. THAT PROOF BELONGS TO SO-3aR2, UNDER ITS OWN FREEZE, WITH A FINITE-DIFFERENCE TABLE BESIDE IT. NOTHING THIS ITEM MEASURES MAY BE QUOTED TOWARD IT.",
+  "verdict_state": "PENDING",
+  "calibration_row_owed": "docs/COST_CALIBRATION.md at completion (rule 12): ITS OWN ROW. The stopped attempt's row DECLINED its ratio and carried the estimate forward UNTESTED; this run is the one that can test it.",
+  "_launch": {
+    "utc": "2026-09-03T23:17:52Z",
+    "pid": 953471,
+    "sid": 953471,
+    "status_file": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/feasibility_SO3a_multipoint/STATUS.queue.SO3aF2_ATTRCENSUS_r2",
+    "wrapper_out": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/feasibility_SO3a_multipoint/launcher.queue.out",
+    "started_epoch": 1788477472.5629196,
+    "status_seen_utc": "2026-09-03T23:20:52Z"
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.SO3aF2_ATTRCENSUS_r2 (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
+}
