@@ -1,0 +1,66 @@
+{
+  "team": "heat-transfer",
+  "case_id": "T3d_R_fx",
+  "prereg_commit": "4c869b292e61c726fcf36fea06dbfdb3612c8265",
+  "prereg_path": "docs/campaigns/T-family/T3d_PREREGISTRATION.md",
+  "launch_cmd": [
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T3_runs/launch_t3d.sh",
+    "--case-dir",
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T3_runs/R_fx",
+    "--timeout",
+    "122445",
+    "--ranks",
+    "8"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/T-family/T3_runs/R_fx",
+  "ranks": 8,
+  "cost_core_min_estimate": 5442.1,
+  "cap_core_min_registered": 16326,
+  "cap_core_min_registered_note": "TRANSCRIBED FROM THE REGISTRATION, NOT REGISTERED HERE. NO VALUE MOVES. The registration is authoritative: if this field and the cited source disagree, the source wins and this field is the thing that is wrong.",
+  "cap_core_min_registered_source": {
+    "kind": "frozen pre-registration, prose",
+    "document": "docs/campaigns/T-family/T3d_PREREGISTRATION.md",
+    "section": "5",
+    "frozen_at_commit": "4c869b292e61c726fcf36fea06dbfdb3612c8265",
+    "arithmetic": "ESTIMATE 5442.1 core-min = 0.226755 core-min/iteration x 24000; CAP = 3 x 5442 = 16326 core-min (Sanaa 2026-09-03 18:00Z cap law); timeout_s = 16326 x 60 / 8 ranks = 122445 s"
+  },
+  "fleet_safety_ceiling_core_min": 48978,
+  "fleet_safety_ceiling_basis": "3 x the registered cap, per Sanaa 2026-09-03 ~21:00Z: min(3x registered cost cap, the box's remaining budget), at which the monitor stops the run GRACEFULLY REGARDLESS OF RESIDUAL TREND. THE BOX'S REMAINING BUDGET IS NOT KNOWN TO THIS LANE, so this field states only the 3x-cap limb of that minimum and is NOT a claim that the box can afford it. If the remaining budget is smaller, the remaining budget is the ceiling.",
+  "cap_enforcement": "THE LAUNCHER'S `timeout` WRAPPER IS THE ONLY THING THAT STOPS THIS RUN. scripts/queue_runner.py REPORTS a cap overrun and does NOT kill. The cap therefore binds only through timeout_s = cap_core_min x 60 / ranks = 16326 x 60 / 8 = 122445 s, and launch_t3d.sh REFUSES at pre-flight any --timeout not equal to 122445 and any --ranks not equal to 8. Both refusals were DRIVEN on 2026-09-03 (exit 2, case tree verified untouched afterward), together with a wrong-case-name refusal and an absent-case refusal. A cap nothing enforces is not a cap -- T3c registered a 0.30 core-min cap with NO instrument hours earlier and overran it to 0.3965.",
+  "cost_basis": "ESTIMATE 5442.1 core-min on a rate that is MEASURED, not analogised: STATUS.R_ff records 26757.067 core-min for 118000 iterations on THIS EXACT MESH (602128 cells) at THESE EXACT RANKS (8), giving 0.226755 core-min per iteration; x 24000 additional iterations = 5442.1. USD 4.653 at estimate and 13.96 at cap are DERIVED, NOT MEASURED, at the owner-stated $0.0513/core-h -- REPORTED-BY-OWNER: this box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). The $1000 envelope is the benchmark ladder's (cfd, Rungs 0-3) and is NOT this rung's funding basis; T3d runs under the standing blanket and the cap above.",
+  "memory_floor_gb": 12,
+  "memory_basis": "ESTIMATED, NOT MEASURED. 602128 cells decomposed over 8 ranks under buoyantBoussinesqSimpleFoam with 9 fields. NO memory record was kept for R_ff's byte-identical run on the same mesh and ranks, so this is a floor chosen with margin and is labelled an estimate. If the runner enforces a memory floor, this number is the thing most likely to be wrong in this entry.",
+  "enqueued_by": "NOT ENQUEUED. This file is STAGED IN held/ by a heat-transfer lab-lane and is deliberately OUTSIDE the runner's scan (scripts/queue_runner.py:223 uses glob, not rglob, so held/ is not read). SUPERVISION_CHARTER.md section 3 CHECK 4 -- pre-registration COMMITTED before compute -- WAS NOT PERFORMED BY THIS LANE and is not delegable to it. Because the live drop path fires within one minute (verification/queue/heat-transfer/README.md, the 2026-08-27 correction; L-348), that check must be discharged BEFORE this file is moved, never after. MOVING THIS FILE IS THE LAUNCH. ENQUEUEING IS NOT AUTHORISATION.",
+  "_prediction_registered_under_sanaa_2100Z": {
+    "rule": "A pre-registration mismatch never prevents a launch. It is recorded as a prediction, the run launches under the monitor, and the outcome is compared to the prediction on the certificate.",
+    "P-1": "R_fx reaches iterative convergence (relative change <= 1e-06 in T between its last two checkpoints) within 24000 additional iterations.",
+    "P-1_basis": "MEASURED from R_ff/log.solve, not assumed: the T initial residual descends monotonically 1.465e-07 -> 3.182e-08 over the final ~22000 iterations sampled at 2000-iteration intervals, a factor 0.2172 = x0.8704 per 2000. Closing the remaining factor of 4.343 needs ln(4.343)/-ln(0.8704) = 10.58 intervals = 21160 iterations; 24000 carries 13 percent margin.",
+    "monitor_class": "DESCENDING -> extend bounded and booked (Sanaa's taxonomy). NOT plateaued, NOT diverging.",
+    "P-2": "The restart produces a residual spike that decays within 2000 iterations. Seeding 0/ from written fields re-initialises the SIMPLE loop; a transient is expected and benign. If it does not decay, P-2 has lost and the run is reported as such.",
+    "falsifiers": {
+      "F-1": "the last checkpoint pair still reads relative > 1e-06 at endTime",
+      "F-2": "the T initial residual plateaus (factor > 0.98 per 2000 its) or rises over any 6000-iteration window after the restart transient",
+      "F-3": "actual cost > 16326 core-min",
+      "F-4": "St_peak at R_fx differs from R_ff's 0.00356254 by more than the level's own GCI of 6.0970 percent"
+    }
+  },
+  "_disclosure_against_interest": "T3d WILL NOT PRODUCE A PASS AND NOBODY SHOULD APPROVE IT EXPECTING ONE. The primary (Vogel & Eaton 1985) is NOT OBTAINED -- gate_t3c.json records primary_present false -- so the frozen ordered gate fires (3) no primary -> BLOCKED on every row whose triple converges. Expected movement: G1 St_peak, G3 St_10H and G4 St_20H from NOT A RESULT to BLOCKED; G2 x_peak_H does not move at all because its triple is OSCILLATORY and gate (2) fires regardless of convergence. THREE ROWS MOVE, ONE DOES NOT, FOR 5442 CORE-MINUTES. See T3d_PREREGISTRATION.md section 3 for the argument that this is worth buying, stated as an argument and not as a fact.",
+  "_verified_on_disk_by_this_lane": {
+    "cells": 602128,
+    "cells_source": "R_fx/constant/polyMesh/owner header nCells",
+    "mesh_identity": "constant/ copied byte-for-byte from R_ff by build_t3d.py; this is NOT a new mesh level, it is the same level continued",
+    "seed": "0.orig/ = T U p_rgh p alphat nut k omega phi copied from R_ff/118000/",
+    "deliberately_not_seeded": "C, Cx, Cy, Cz (function-object cell-centre fields, not solution state) and 118000/uniform (time bookkeeping that would contradict a restart at 0)",
+    "endTime": "24000 ADDITIONAL iterations; the counter restarts at 0 because startFrom latestTime will find only 0/",
+    "writeInterval_purgeWrite": "2000 / 2, unchanged from R_ff",
+    "age_guard": "0.orig/ present; NO 0/ directory, NO numeric time directory, NO processor directory; STATUS.R_fx and DONE.R_fx both ABSENT at the freeze commit",
+    "launcher_refusals_driven": "wrong ranks, wrong timeout, wrong case name, absent case -- all exit 2, case tree verified untouched afterward",
+    "grading_path_sha256": {
+      "analyse_t3d.py": "980ae3b203cb7d75abf3027eea7a9d37c0c4c042dd06216d3f1ebc28a7e77034",
+      "build_t3d.py": "bfc5087be17951d9562378891af2e262f6935fdd89e6b95b8c784b02ed635890",
+      "launch_t3d.sh": "7d0bbe38344b5b12b9546fd3ec194af0d06f580e81a5b9a771d702f114cec367"
+    },
+    "hash_function_named": "ALL hashes here are SHA-256 of the file bytes, recorded in FULL. They are NOT git object ids: git's sha1 prefixes a 'blob <len>\\0' header, so the two can never agree. Full digests are used because check_comparator_freeze.py's sha_witness() greps the full sha256 and can see neither a blob sha1 nor a 16-hex truncation (VERIFICATION_CHARTER.md 2u)."
+  },
+  "_substrate_finding": "THE QUEUE HAS NO ROUTE FOR AN IN-PLACE CONTINUATION, and this entry does not pretend otherwise. R_ff holds 0/ and two numeric time directories, so both queue_entry_check.py:326's AGE-GUARD and launch_t3_rff.sh:48-50's G3 guard refuse it -- correctly, under standing rule 4: a run is never launched into a tree that already holds an answer. R_fx is therefore a FRESH case whose 0.orig IS R_ff's final state, which satisfies the age guard honestly rather than bypassing it. Reported to the supervisor as a finding about the substrate."
+}
