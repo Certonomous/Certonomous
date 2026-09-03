@@ -1,0 +1,176 @@
+R_fx -- T3d continuation of R_ff
+seeded from R_ff/118000 by build_t3d.py
+mesh IDENTICAL to R_ff (not a new level)
+endTime 24000 = ADDITIONAL iterations; the counter restarts at 0
+writeInterval 2000, purgeWrite unchanged from R_ff
+registration: docs/campaigns/T-family/T3d_PREREGISTRATION.md
+
+================================================================================
+LEDGER DEBT AND PREDICTION-POINT STATUS -- appended 2026-09-03T19:1xZ, RUN LIVE
+Read this before writing DONE.R_fx or STATUS.R_fx. Nothing above this line is
+altered.
+================================================================================
+
+WHY THIS IS HERE, AND NOT ONLY IN THE PRE-REGISTRATION.
+T3d_PREREGISTRATION.md section 5 already says "Predicted-versus-actual is OWED to
+docs/COST_CALIBRATION.md at completion". That form of statement has now twice
+failed to produce the row: T15_PREREGISTRATION.md:329 and
+T24_PREREGISTRATION.md:902 each required their row at completion and neither row
+was landed until a human noticed. A requirement stated only inside the frozen
+registration is read once, at freezing, by someone who is not the person closing
+the run. This block is in the case directory instead, because that is what the
+operator of a completing run actually opens.
+HONEST CAVEAT, stated here rather than left for someone else to discover: THIS
+DOES NOT SOLVE THE PROBLEM. It moves an unread proof one file sideways. Nothing
+reads this file, nothing refuses without it, and a closer who does not open
+CASE.txt is in exactly the position of the closer who did not open the
+registration. Its only real advantage is proximity -- it sits beside log.solve
+and the time directories, in the directory the closer must already be in. Treat
+that as a marginal improvement, not a fix.
+
+--------------------------------------------------------------------------------
+ROWS OWED AT COMPLETION -- EXACTLY ONE
+--------------------------------------------------------------------------------
+ONE row in docs/COST_CALIBRATION.md, and no other row anywhere.
+  id            the next free NUMERIC id in the C- series, RE-DERIVED AT COMMIT
+                TIME from the file's own tail per CLAUDE.md rule 11 (the MAXIMUM
+                EXISTING NUMBER, never a count). At 2026-09-03T19:0xZ the maximum
+                numeric id at HEAD was C-227, so C-228 is the likely id -- DO NOT
+                USE THAT FIGURE, re-derive it. Note the ledger carries a SECOND,
+                timestamped id series (C-<ISO8601>-<hex>) written by the automated
+                runner; those are not part of the numeric series and must not be
+                counted into it.
+  team          heat-transfer
+  process/rung  T3d -- R_ff continuation R_fx, 24 000 additional iterations
+  predicted     5 442.1 core-min (T3d_PREREGISTRATION.md section 5, the POINT),
+                priced at a MEASURED basis of 0.226755 core-min/iteration taken
+                from STATUS.R_ff (26 757.067 core-min / 118 000 iterations, same
+                mesh, same 8 ranks). CAP 16 326 core-min. $4.653 at the POINT,
+                DERIVED NOT MEASURED.
+  actual        core-min from STATUS.R_fx once it exists: wall_s * ranks / 60.
+                State GROSS or CLEANED. The 3600-s stall rule matches any row over
+                3600 wall s and this run is a single row far above that, so the
+                figure is GROSS unless a stall is separately identified inside it;
+                say which.
+  ratio         cleaned/predicted, to four figures.
+  gap attrib.   The per-iteration rate is running BELOW the registered basis (see
+                below). Attribute the gap to that misprediction, in the
+                conservative direction, and state the load average the R_ff basis
+                was measured at against the load this run saw -- the C-4 lesson.
+                WASTE, IF ANY, IS NAMED SEPARATELY AND NEVER ABSORBED INTO THE
+                RATIO (COMPUTE_BUDGET_CHARTER section 6).
+  record ref    verification/runs/T-family/T3_runs/STATUS.R_fx and DONE.R_fx,
+                plus the grading artifact analyse_t3d.py writes.
+  rate basis    $0.0513/core-h, c7a.4xlarge, REPORTED-BY-OWNER, NOT MEASURED --
+                this box cannot read its own billing (COMPUTE_BUDGET_CHARTER
+                section 5). cost_basis must say so.
+
+NO OTHER ROW IS OWED BY THIS RUN, and none was landed on 2026-09-03.
+
+--------------------------------------------------------------------------------
+REGISTERED PREDICTION POINTS -- WHAT THE FROZEN DOCUMENT ACTUALLY DECLARES
+--------------------------------------------------------------------------------
+T3d_PREREGISTRATION.md (frozen; worktree bytes verified byte-identical to the
+HEAD blob on 2026-09-03T18:5xZ, sha256 92ca57ff...) declares:
+
+  P-1   (line 54)  R_fx reaches iterative convergence -- relative change <= 1e-06
+                   in T between its last two checkpoints -- within 24 000
+                   additional iterations.
+  P-2   (line 68)  the restart produces a residual spike that decays within 2 000
+                   iterations.
+  F-1..F-4 (line 76 table) the registered falsifiers.
+  COST POINT (line 143) 5 442.1 core-min = 0.226755 x 24 000. CAP 16 326.
+
+THERE IS NO P-3. Any brief or summary naming a "P-3" is naming something the
+frozen document does not contain; do not grade one.
+
+REACHED / NOT REACHED as at 2026-09-03T19:07Z, iteration 2 561 of 24 000:
+
+  P-1   NOT REACHED. It resolves at endTime, or earlier at a checkpoint pair
+        reading <= 1e-06. NO ROW, and none may be written from the trend.
+  P-2   ITS 2 000-ITERATION WINDOW HAS CLOSED, and the measurement is below. It is
+        a PHYSICS prediction, not a cost prediction; COST_CALIBRATION.md is a cost
+        ledger whose columns are predicted/actual core-min, so P-2 DOES NOT LAND
+        THERE in any form. Its disposition belongs to the grading record, and the
+        grading path is analyse_t3d.py -- not this note and not this lane.
+  COST  NOT REACHED. The registration declares ONE terminal cost point, not a
+        schedule of intermediate ones. Writing an interim cost row would mean
+        inventing a checkpoint the freeze does not contain, and would put either a
+        projection or a part-figure into a column whose whole purpose is the
+        lab's estimate-quality record. NOTHING LANDS UNTIL COMPLETION.
+  F-3   NOT REACHED (cost has not exceeded the 16 326 core-min cap; see below).
+
+--------------------------------------------------------------------------------
+MEASURED STATE -- read from ONE named artifact, R_fx/log.solve, at 19:07:18Z
+--------------------------------------------------------------------------------
+  iteration                 2 561 of 24 000 (10.67 %)
+  ExecutionTime             3 723.80 s      ClockTime 3 739 s
+  solver pid 342276 alive, etimes 3 740 s, 8 MPI ranks
+  incurred to date          496.507 core-min (ExecutionTime basis)
+                            498.533 core-min (ClockTime basis)
+  MEASURED RATE             0.193872 core-min/iter (ExecutionTime basis)
+                            0.194664 core-min/iter (ClockTime basis)
+  registered basis          0.226755 core-min/iter -> measured/registered = 0.8585
+  derived ETA               2026-09-04T03:48Z  (1.45998 s/iter, 21 439 remaining)
+
+  PROJECTED TOTAL 4 671.9 core-min. THIS IS A PROJECTION AND IS NOT AN ACTUAL.
+  It must never be entered in COST_CALIBRATION.md, in this row or any other.
+  The same applies to the two earlier readings on record -- 0.196771 core-min/iter
+  at iteration 167 projecting 4 722.5, and a later 4 636.3. All three are
+  projections. The ACTUAL is read from STATUS.R_fx after the run ends, or it does
+  not exist.
+
+  CAP HEADROOM: projected wall ~35 039 s against the registered
+  timeout --signal=TERM --kill-after=120 122445. The timeout is the ONLY thing
+  that will stop this run; there is no monitor.
+
+--------------------------------------------------------------------------------
+P-2 EVIDENCE, RECORDED BUT NOT GRADED
+--------------------------------------------------------------------------------
+Recorded here because the 2 000-iteration window has closed and the log rolls
+forward; the reading is stated so the grader has it, and NO VERDICT IS TAKEN --
+grading P-2 is the frozen comparator's job, not this lane's.
+
+  T initial residual, iteration 1        2.838755e-08
+  T initial residual, maximum over the
+    whole run so far                     2.838755e-08, AT ITERATION 1
+  T initial residual, iteration 2 000    2.448337e-08
+  T initial residual, iteration 2 562    2.350733e-08
+  R_ff terminal T residual (registration
+    section 2, line 61)                  3.182e-08
+
+  Every other solved field behaves the same way. Maxima over 0..2 155 iterations:
+    Ux    6.974604e-09 at iteration 1        (its first value)
+    Uy    3.604887e-09 at iteration 1        (its first value)
+    p_rgh 1.163516e-09 at iteration 9       (5.6 % above its first value)
+    k     2.432581e-09 at iteration 3       (0.02 % above its first value)
+    omega 1.002381e-11 at iteration 114     (0.95 % above its first value)
+
+  READ PLAINLY: THERE IS NO RESTART SPIKE. T's residual starts BELOW R_ff's
+  terminal value and descends monotonically from iteration 1; the largest
+  excursion in any field is p_rgh's 5.6 % at iteration 9. P-2 predicted a spike
+  and then predicted its decay. Whether "no spike at all" counts as P-2 winning,
+  or as P-2's antecedent not occurring, is a reading -- and a reading a grader
+  should take deliberately, because "decays within 2 000 iterations" is TRUE BY
+  ABSENCE over a series that never rose. That is the same shape as the four-faces
+  question (d): a predicate satisfied by nothing having happened.
+
+--------------------------------------------------------------------------------
+ONE THING THE CLOSER SHOULD KNOW BEFORE GRADING P-1
+--------------------------------------------------------------------------------
+analyse_t3d.py:80 binds READER = A.T1C.iterative_convergence, so P-1 is answered
+by analyse_t1c.py:229:
+
+    rel = dmax / rng if rng > 0 else 0.0
+    state = "CONVERGED" if rel <= tol else "NOT_CONVERGED"
+
+If the last checkpoint's T field were spatially uniform (rng == 0), rel is set to
+0.0 regardless of dmax and the state reads CONVERGED for free. R_fx's T carries
+R_ff's range -- tens of kelvin -- so THIS WILL NOT FIRE, and the T3d verdict does
+not depend on it. It is recorded so the closer confirms field_range is non-trivial
+in the grading artifact rather than assuming it. The finding is written up as D-J1
+in docs/campaigns/T-family/GATE_PREDICATE_SATISFIABILITY_READ_2026-09-03.md
+section G. NOTHING IS REPAIRED: analyse_t1c.py is frozen and a grading-path repair
+after first compute is verification's under VERIFICATION_CHARTER section 2d.1.
+
+Do not touch the running solver: no kill, no restart, no renice, attach nothing.
