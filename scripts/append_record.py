@@ -269,7 +269,12 @@ EXIT CONTRACT
                  placeholder to fill, or with `--expect-first-id`; or a
                  placeholder was present without `--allocate-id`; or a minted id
                  was already present in HEAD or the preserved tail. Sanaa's
-                 PLUMBING FREEZE directive, 2026-08-31
+                 PLUMBING FREEZE directive, 2026-08-31.
+                 ALSO, from Sanaa's PLUMBING AMENDMENT of 2026-09-03: a
+                 `corrects:[...]` field on a row that is not a correction row;
+                 a malformed or unterminated `corrects:[...]` field; or a
+                 correction row carrying an accepted citation but no id of its
+                 own at this record's entry position
 
 An id refusal is reported BEFORE a prefix refusal, so 3 and 6 keep precedence
 over 2 exactly as 3 did before this repair. The two D549 refusals, 7 and 8, are
@@ -672,6 +677,150 @@ TOOL_ID_BODY = r"\d{8}T\d{6}\.\d{6}Z-[0-9a-f]{8}"
 #: written id in by spelling it with another record's letter.
 ANY_TOOL_ID = rf"(?<![0-9A-Za-z])([A-Z]{{1,3}}-{TOOL_ID_BODY})(?![0-9A-Za-z-])"
 
+# ------------------------------------------------- THE `corrects:` FIELD
+# Sanaa's PLUMBING AMENDMENT, 2026-09-03, captured verbatim at
+# `etc/sessions/2026-09-03T1600Z_sanaa_five_rulings.md:5-8`:
+#
+#     "Plumbing amendment: append_record.py accepts tool-allocated ids solely
+#     inside a structured corrects: field on correction rows; refusal unchanged
+#     everywhere else. The side-file workaround is retired and its parked ids
+#     migrated."
+#
+# WHAT WAS BROKEN, MEASURED AND DOCKETED BEFORE THIS EXISTED
+# ----------------------------------------------------------
+# `docs/COST_CALIBRATION.md`'s append rule 1 requires a correction to be "a new
+# row naming the row it corrects". `check_allocation`'s smuggle guard refuses
+# (exit 9) any rows file carrying a tool-form id ANYWHERE in its text, "for ANY
+# record's prefix rather than only this record's". Once ids became
+# tool-allocated the two became JOINTLY UNSATISFIABLE, and the refusal was
+# reproduced TWICE on 2026-09-02: on the calibration correction row itself, and
+# again on the docket row filed to describe the collision, which was refused for
+# citing the id of the correction row it described
+# (`docs/DOCKET.md` row `D-20260902T224505.958199Z-e02eb14e`).
+#
+# The workaround adopted then, and RETIRED by this amendment: the rows named
+# their target by date, team, subject and its 8-hex suffix, and the full ids were
+# parked in `docs/campaigns/T-family/T23G2_RESULTS.md` §16.1, a file this tool
+# does not append. Its own disclosure is the argument for this repair -- "it
+# degrades a citation from an exact key to a description, and a reader grepping
+# a full id will not find the row that cites it."
+#
+# THE SCOPING, AND WHY IT IS THREE CLAUSES AND NOT ONE
+# ---------------------------------------------------
+# The guard's purpose was never "no tool id in the bytes". Its purpose is that
+# THIS MODULE IS THE ONLY PRODUCER OF AN ID AT AN ENTRY POSITION, so a duplicate
+# cannot be reintroduced by an edit. A prose citation is not an entry. So the
+# acceptance is scoped by three INDEPENDENT clauses, each with its own planted
+# limb and its own mutation:
+#
+#   (C1) FIELD-SCOPED. The id sits inside a well-formed `corrects:[...]` field.
+#        Anything malformed REFUSES rather than degrading to "not a field" --
+#        a half-written field must not fall through to a message about
+#        smuggling, which would be the right refusal with the wrong diagnosis.
+#   (C2) CORRECTION-ROW-SCOPED. The line carrying that field declares itself a
+#        correction IN ITS OWN RECORD'S VOCABULARY, anchored at the head of the
+#        entry. Measured against the live corpus 2026-09-03, not assumed.
+#   (C3) NEVER AT AN ENTRY POSITION. The line must ALSO carry its own legitimate
+#        id -- an `{{ALLOCATE_ID}}` placeholder about to be filled, or a legacy
+#        id this record's own pattern parses. A row whose only id is a citation
+#        is refused, so an accepted citation can never BE the row's id.
+#
+# The acceptance is implemented as a MASK, not as a second refusal path: every
+# field satisfying C1-C3 is blanked out of a COPY of the rows text and the
+# EXISTING smuggle scan then runs over the residue, byte-for-byte the code it
+# was before. That is what makes "refusal unchanged everywhere else" a property
+# of the construction rather than a claim about it -- there is one scan, and the
+# amendment only decides what it is shown.
+#
+# WHAT WOULD DEFEAT THIS SCOPING, STATED PLAINLY
+# ----------------------------------------------
+#   * A CALLER WHO DECLARES A NON-CORRECTION ROW A CORRECTION. C2 reads a
+#     DECLARATION; no instrument can verify the semantic claim behind it. What
+#     C2 buys is that the declaration is explicit, anchored and greppable -- not
+#     that it is true.
+#   * A CITATION TO AN ID THAT DOES NOT EXIST. Deliberately NOT checked, and the
+#     reason is the case that motivated the amendment: the docket row cites
+#     `C-` ids, so resolution would have to read a DIFFERENT record. Reading a
+#     second record here would give this module a new failure mode and a new
+#     blindness, so the dangling-citation residue is NAMED rather than closed.
+#   * `docs/LESSONS.md` AND `docs/NUMERICS_KNOWLEDGE.md` HAVE NO LIVE CORRECTION
+#     ROW. Measured 2026-09-03: `CORRECTION ROW` occurs 17 times in
+#     COST_CALIBRATION and 0 times in either of those two. Their markers below
+#     are spelled in their own vocabulary and are UNEXERCISED BY THE CORPUS --
+#     only the planted controls drive them. A record must never borrow another's
+#     shapes (this module's standing rule; CLAUDE.md rule 14).
+#
+#: The opener. MEASURED 2026-09-03: `corrects:[` occurs ZERO times anywhere in
+#: the repository, while the bare prose form `corrects:` occurs 4 times in the
+#: guarded records (`corrects: \`C` x3, `corrects: th` x1) -- so the bracket is
+#: what separates the field from every live prose usage, and it is not
+#: decoration. A line carrying this opener is COMMITTED to being a field: if it
+#: then fails to parse, it REFUSES.
+CORRECTS_OPENER = "corrects:["
+
+#: The whole field, opener to close, on ONE line. `[^\]\n]*` cannot cross a line
+#: boundary or swallow a second field.
+CORRECTS_FIELD = re.compile(re.escape(CORRECTS_OPENER) + r"(?P<body>[^\]\n]*)\]")
+
+#: The body: one or more tool-allocated ids, `;`-separated, NO whitespace and
+#: nothing else. DELIBERATELY NARROW. A LEGACY id needs no field -- it was never
+#: refused by the smuggle guard -- so admitting one here would widen the parse
+#: for a case that has no defect, and a widened parse is what has to be argued
+#: about later. A legacy citation in a field is therefore MALFORMED, and the
+#: refusal says so in those words rather than reporting a smuggle.
+CORRECTS_BODY = re.compile(
+    rf"[A-Z]{{1,3}}-{TOOL_ID_BODY}(?:;[A-Z]{{1,3}}-{TOOL_ID_BODY})*")
+
+#: THE CORRECTION DECLARATION, one per record, keyed identically to `RECORDS`.
+#:
+#: MEASURED 2026-09-03 against the real files, both worktree and HEAD's blob,
+#: and the anchor is load-bearing rather than tidy:
+#:   docs/COST_CALIBRATION.md : 17 lines carry `CORRECTION ROW`; ALL 17 open the
+#:                              ENTRY CELL with it, modulo `**` -- the form below
+#:                              matches 17 of 17.
+#:   docs/DOCKET.md           : 1 line carries `CORRECTION ROW` (`:957`) and it
+#:                              opens `**A CORRECTION ROW CANNOT NAME THE ROW IT
+#:                              CORRECTS`. That row is ABOUT the defect; it is
+#:                              NOT a correction row. The anchor EXCLUDES it,
+#:                              and a planted negative drives that exact live
+#:                              line -- an unanchored `CORRECTION ROW` anywhere
+#:                              in the line would classify it wrongly.
+#:   docs/LESSONS.md          : 0 lines. UNEXERCISED BY THE CORPUS.
+#:   docs/NUMERICS_KNOWLEDGE.md: 0 lines. UNEXERCISED BY THE CORPUS.
+#:
+#: TRAP: the table form counts CELLS -- `^\|` then three `[^|]*\|` groups gets
+#: past `| id | date | team |` to the entry cell, so the declaration cannot be
+#: satisfied from the id cell, the date cell or the team cell. It assumes no
+#: cell contains a bare `|`, which is the assumption every one of this record's
+#: patterns already makes.
+_CORRECTION_TABLE_ROW = (r"^\|(?:[^|]*\|){3}[ \t]*(?:\*\*|~~)*[ \t]*"
+                         r"CORRECTION ROW\b")
+CORRECTION_MARKER = {
+    "docs/DOCKET.md": _CORRECTION_TABLE_ROW,
+    "docs/COST_CALIBRATION.md": _CORRECTION_TABLE_ROW,
+    # The heading's own vocabulary: an h2 entry whose TITLE opens `CORRECTION`,
+    # after the id and its period-or-em-dash separator. Spelled from this
+    # record's live heading grammar (`RECORDS`/`CANDIDATE_SHAPES` above), never
+    # borrowed from the table records.
+    "docs/LESSONS.md": r"^##[ \t]*\S+[ \t]*(?:\.|[ \t]+—)[ \t]*"
+                       r"(?:\*\*)*[ \t]*CORRECTION\b",
+    # Either live entry form -- bold or h2 -- whose title opens `CORRECTION`.
+    "docs/NUMERICS_KNOWLEDGE.md": r"^(?:\*\*|## )\S+\.[ \t]*(?:\*\*)*[ \t]*"
+                                  r"CORRECTION\b",
+}
+
+_CORR_MISSING = sorted(set(RECORDS) - set(CORRECTION_MARKER))
+_CORR_EXTRA = sorted(set(CORRECTION_MARKER) - set(RECORDS))
+if _CORR_MISSING or _CORR_EXTRA:  # pragma: no cover - a load-time refusal
+    raise SystemExit(
+        f"REFUSED: CORRECTION_MARKER and RECORDS disagree. Records with an id "
+        f"pattern but no correction declaration: {_CORR_MISSING or 'none'}. "
+        f"Declarations for no registered record: {_CORR_EXTRA or 'none'}. A "
+        f"record with no marker could never file a correction row through this "
+        f"tool, which is the defect this field exists to repair, and one that "
+        f"borrowed another record's marker would accept a shape its own file "
+        f"does not write (CLAUDE.md rule 14; Sanaa 2026-09-03).")
+
 #: Minted strictly in-process and folded into the hash, so two ids minted in the
 #: same microsecond by the SAME process cannot agree even before the urandom
 #: contribution is considered.
@@ -830,17 +979,165 @@ def allocate_into_rows(rows_text: str, path: str, *,
     return "".join(out), ids
 
 
+def scan_corrects(rows_text: str, path: str, *,
+                  require_correction_marker: bool = True,
+                  require_own_entry: bool = True) -> dict:
+    """C1-C3. Decide which `corrects:[...]` fields are ACCEPTED, and MASK them.
+
+    Pure, and it never accepts anything on its own: it returns a MASKED COPY of
+    the rows, and the existing smuggle scan is what refuses. Masking replaces an
+    accepted field with spaces of the SAME LENGTH, so every line number and
+    column reported downstream is the caller's own.
+
+    Returns `{ok, code, reason, masked, cited, rows}` -- `rows` being the line
+    numbers that carried an accepted field, for the report.
+
+    The two mutation knobs reproduce this function with exactly one clause
+    removed, so a planted control can drive each and show its limb flip. Nothing
+    in `main()` passes either.
+    """
+    marker = re.compile(CORRECTION_MARKER[path])
+    entry = re.compile(RECORDS[path], re.M)
+    out, cited, rows = [], [], []
+    for n, line in enumerate(rows_text.splitlines(keepends=True), 1):
+        if CORRECTS_OPENER not in line:
+            out.append(line)
+            continue
+        # (C2) the line must DECLARE itself a correction, in this record's own
+        # vocabulary and ANCHORED at the head of its entry. A citation field on
+        # an ordinary row is refused: the acceptance is for correction rows and
+        # for nothing else (Sanaa 2026-09-03).
+        if require_correction_marker and not marker.search(line):
+            return {"ok": False, "code": EXIT_REFUSED_ALLOCATION, "reason": (
+                f"line {n} of the rows carries a {CORRECTS_OPENER!r} field but "
+                f"is NOT a correction row for {path}: it does not open its "
+                f"entry with this record's correction declaration "
+                f"({CORRECTION_MARKER[path]!r}). Sanaa's 2026-09-03 amendment "
+                f"admits a tool-allocated id SOLELY inside a structured "
+                f"corrects: field ON A CORRECTION ROW, so a citation field "
+                f"anywhere else is refused rather than ignored -- ignoring it "
+                f"would leave the id to be reported as a smuggle, which is the "
+                f"right refusal with the wrong diagnosis. Line: "
+                f"{line.strip()[:160]!r}"),
+                "masked": None, "cited": [], "rows": []}
+        # (C1) every opener on the line must parse. A line carrying the opener
+        # is COMMITTED to being a field; a half-written one refuses.
+        masked, cursor, n_fields = [], 0, 0
+        for m in CORRECTS_FIELD.finditer(line):
+            body = m.group("body")
+            if CORRECTS_BODY.fullmatch(body) is None:
+                return {"ok": False, "code": EXIT_REFUSED_ALLOCATION,
+                        "reason": (
+                            f"line {n} of the rows carries a MALFORMED "
+                            f"corrects: field {m.group(0)[:120]!r}. The body "
+                            f"must be one or more TOOL-ALLOCATED ids, "
+                            f"';'-separated, with no whitespace and nothing "
+                            f"else -- e.g. "
+                            f"{CORRECTS_OPENER}C-20260902T215932.385336Z-"
+                            f"ef920ed2]. A LEGACY id ('C-179', 'D471') needs no "
+                            f"field: the smuggle guard never refused one, so "
+                            f"citing it in prose is unchanged and correct. This "
+                            f"parse is deliberately narrow, and a field that "
+                            f"does not parse is a refusal rather than a "
+                            f"fallback to prose."),
+                        "masked": None, "cited": [], "rows": []}
+            cited.extend(body.split(";"))
+            masked.append(line[cursor:m.start()])
+            masked.append(" " * (m.end() - m.start()))
+            cursor = m.end()
+            n_fields += 1
+        masked.append(line[cursor:])
+        if n_fields == 0:
+            # The opener is present and `CORRECTS_FIELD` matched nothing at all:
+            # it never closes on this line.
+            return {"ok": False, "code": EXIT_REFUSED_ALLOCATION, "reason": (
+                f"line {n} of the rows opens a {CORRECTS_OPENER!r} field that "
+                f"never closes with ']' on that line. The field is one line, "
+                f"opener to close; an unterminated one is refused rather than "
+                f"read as prose."),
+                "masked": None, "cited": [], "rows": []}
+        # (C3) the row must carry its OWN id at its OWN entry position -- a
+        # placeholder about to be filled, or a legacy id this record parses.
+        # This is what makes an accepted citation structurally unable to BE the
+        # row's id: a row whose only id is a citation does not land.
+        #
+        # HARDENED 2026-09-03, ON THE SUPERVISOR'S READING OF THE DIFF, and it
+        # is the difference between correct and correct-for-a-reason. This
+        # clause first read `entry.search(line)` -- the RAW line, which still
+        # carries the cited id inside its `corrects:[...]` field. The cited id
+        # was therefore itself a CANDIDATE for satisfying "the row has its own
+        # id". It could not win TODAY, and only because every pattern in
+        # `RECORDS` happens to be `^`-anchored: with `re.M` on a single line
+        # `^` matches at position 0 alone, so a mid-line citation can never
+        # match. That is a property of a DIFFERENT constant, not of this
+        # clause -- loosen any record's id pattern to an unanchored one and
+        # this clause silently stops guarding, while the arm that "proves" it
+        # keeps passing for the wrong reason. VERIFICATION_CHARTER §2p.5: a
+        # repair that changes which coincidence you depend on is not a repair.
+        # Searching the MASKED line removes the dependency outright -- the
+        # citation is blanked to same-length spaces before this clause looks,
+        # so it cannot be the row's own id under ANY pattern, anchored or not.
+        # The placeholder limb keeps reading the raw line on purpose: a
+        # placeholder is never inside a `corrects:` field (the body parse
+        # admits tool-allocated ids and nothing else), so masking cannot hide
+        # one, and reading the raw line there is the honest statement of what
+        # is being asked. The masked line is what `out` already receives below,
+        # so this clause and the smuggle scan now see the SAME bytes.
+        masked_line = "".join(masked)
+        own = (ALLOCATE_PLACEHOLDER in line) or bool(entry.search(masked_line))
+        if require_own_entry and not own:
+            return {"ok": False, "code": EXIT_REFUSED_ALLOCATION, "reason": (
+                f"line {n} of the rows carries an accepted corrects: field but "
+                f"NO id of its own at {path}'s entry position -- neither "
+                f"{ALLOCATE_PLACEHOLDER!r} nor an id this record's pattern "
+                f"({RECORDS[path]!r}) can parse. A correction row is a NEW ROW "
+                f"and must carry its own id; accepting a citation on a row with "
+                f"no id of its own would let the cited id be the only id in the "
+                f"line, which is the entry-position case the smuggle guard "
+                f"exists to refuse. Write {ALLOCATE_PLACEHOLDER!r} in the id "
+                f"cell and pass --allocate-id."),
+                "masked": None, "cited": [], "rows": []}
+        rows.append(n)
+        out.append(masked_line)
+    return {"ok": True, "code": EXIT_OK, "reason": "",
+            "masked": "".join(out), "cited": cited, "rows": rows}
+
+
 def check_allocation(rows_text: str, path: str, *, allocate: bool,
                      expect_first_id: str | None = None,
-                     apply_smuggle_guard: bool = True) -> dict:
+                     apply_smuggle_guard: bool = True,
+                     apply_corrects: bool = True,
+                     require_correction_marker: bool = True,
+                     require_own_entry: bool = True) -> dict:
     """The preconditions, BEFORE anything is minted or merged. Pure.
 
     `apply_smuggle_guard=False` reproduces this module WITHOUT the clause that
     makes it the sole producer of tool-form ids; it exists so a planted control
     can drive that mutation and show the limb flips. Nothing in `main()` passes
     it.
+
+    `apply_corrects=False` reproduces this module BEFORE Sanaa's 2026-09-03
+    amendment -- no citation is ever accepted -- and the other two knobs remove
+    clause C2 and clause C3 respectively. All three exist for the same reason
+    and `main()` passes none of them.
+
+    THE SMUGGLE SCAN BELOW IS UNCHANGED. It runs over `scan_text`, which is the
+    rows themselves in every case except an accepted correction-row citation, so
+    "refusal unchanged everywhere else" is a property of the construction: there
+    is one scan and one message, and the amendment only decides what it sees.
     """
-    smuggled = re.findall(ANY_TOOL_ID, rows_text)
+    scan_text = rows_text
+    corrects = None
+    if apply_corrects and CORRECTS_OPENER in rows_text:
+        corrects = scan_corrects(
+            rows_text, path,
+            require_correction_marker=require_correction_marker,
+            require_own_entry=require_own_entry)
+        if not corrects["ok"]:
+            return {"ok": False, "code": corrects["code"],
+                    "reason": corrects["reason"]}
+        scan_text = corrects["masked"]
+    smuggled = re.findall(ANY_TOOL_ID, scan_text)
     if smuggled and apply_smuggle_guard:
         return {"ok": False, "code": EXIT_REFUSED_ALLOCATION, "reason": (
             f"the rows HAND-WRITE tool-allocated id(s) {sorted(set(smuggled))}. "
@@ -849,7 +1146,19 @@ def check_allocation(rows_text: str, path: str, *, allocate: bool,
             f"hand-written id is a number somebody chose, which is the {path} "
             f"C-217/L-404 mechanism in new clothes. Write "
             f"{ALLOCATE_PLACEHOLDER!r} and pass --allocate-id instead (Sanaa's "
-            f"PLUMBING FREEZE directive, 2026-08-31).")}
+            f"PLUMBING FREEZE directive, 2026-08-31). "
+            # APPENDED 2026-09-03, and it changes WHAT IS SAID, never WHAT IS
+            # REFUSED: the sentence above was the whole advice when the only way
+            # a tool id could reach the rows was a hand-written entry, and it is
+            # now incomplete for the CITATION case that Sanaa's amendment
+            # admits. The refusal itself, its code and its population are
+            # unchanged, which is what the planted arms measure.
+            f"IF THIS IS A CITATION rather than an id cell -- a correction row "
+            f"naming the row it corrects -- put it in a structured "
+            f"{CORRECTS_OPENER}<id>] field on a row that opens with this "
+            f"record's correction declaration, which is the SOLE place a "
+            f"tool-allocated id is accepted (Sanaa's PLUMBING AMENDMENT, "
+            f"2026-09-03).")}
     has_placeholder = ALLOCATE_PLACEHOLDER in rows_text
     if allocate and expect_first_id:
         return {"ok": False, "code": EXIT_REFUSED_ALLOCATION, "reason": (
@@ -871,7 +1180,9 @@ def check_allocation(rows_text: str, path: str, *, allocate: bool,
             f"passed, so the placeholder would be written into the record "
             f"LITERALLY. A record row whose id reads {ALLOCATE_PLACEHOLDER!r} "
             f"is worse than either intended outcome, so this refuses.")}
-    return {"ok": True, "code": EXIT_OK, "reason": ""}
+    return {"ok": True, "code": EXIT_OK, "reason": "",
+            "cited": corrects["cited"] if corrects else [],
+            "corrects_rows": corrects["rows"] if corrects else []}
 
 
 def check_allocated_unique(allocated: list[str], existing_text: str) -> dict:
@@ -1900,6 +2211,15 @@ def main(argv: list[str] | None = None) -> int:
     print(f"  worktree side    : {wt_file}  ({len(worktree_text)} bytes)")
     print(f"  id pattern       : {pattern}")
     print(f"  appending        : {new_ids if new_ids else '(no ids parsed)'}")
+    if alloc.get("cited"):
+        print(f"  CORRECTS         : {alloc['cited']} -- cited, NOT minted, "
+              f"inside a structured {CORRECTS_OPENER}...] field on correction "
+              f"row(s) at rows line(s) {alloc['corrects_rows']}. This is the "
+              f"SOLE place a tool-allocated id is accepted (Sanaa's PLUMBING "
+              f"AMENDMENT, 2026-09-03); everywhere else the refusal is "
+              f"unchanged. NOT RESOLVED against any record -- a citation may "
+              f"cross records, so this module does not read a second one to "
+              f"check it exists (a NAMED residue)")
     if args.allocate_id:
         print(f"  ALLOCATED        : {allocated} -- minted HERE from a clock "
               f"reading and a hash, derived from nothing this record contains, "
