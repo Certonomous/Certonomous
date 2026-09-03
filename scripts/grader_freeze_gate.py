@@ -677,8 +677,19 @@ def grading_freeze_record(entry: dict, repo: Path) -> dict:
     return rec
 
 
-def refusals(entry: dict, repo: Path) -> list[str]:
+def refusals(entry: dict, repo: Path, strict: bool = False) -> list[str]:
     """ALWAYS EMPTY. THE SHAPE queue_entry_check.CHECKS expects, and it never refuses.
+
+    ⚠ `strict` IS ACCEPTED AND IGNORED, AND IT IS KEPT DELIBERATELY. IT PAID FOR ITSELF.
+    Removing this parameter took the lab's validator DOWN FOR ABOUT TWO MINUTES: while the
+    signature change and its call site were half-applied IN THE SHARED WORKING TREE,
+    `refusals(..., strict=False)` raised TypeError for EVERY TEAM'S entries and nothing
+    could launch through the validator. It self-closed when the second file was saved.
+    A PARAMETER IS AN INTERFACE OTHER CODE CALLS; A FLAG IS A USER AFFORDANCE. Deleting
+    the `--strict` CLI flag was right and it is gone. Deleting the parameter broke every
+    caller in the window between two edits, and on shared queue plumbing that is a
+    lab-wide outage, not a cfd inconvenience. The argument does nothing: nothing refuses
+    at launch under Sanaa's 2026-09-03 ~21:00Z rule, whatever is passed here.
 
     ⚠⚠ THIS FUNCTION USED TO REFUSE AND SANAA RULED THAT IT MUST NOT, 2026-09-03 ~21:00Z
     (etc/sessions/2026-09-03T2100Z_sanaa_launch_rule.md), verbatim:

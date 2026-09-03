@@ -452,15 +452,37 @@ def move_refused(path: Path, reasons: list[str], log: Log) -> None:
     log(f"REFUSED {path} -> {dst}: " + " | ".join(reasons))
 
 
-def archive_previous_records(launched_dir: Path, case_id: str, new_name: str, log: Log) -> list[Path]:
+def archive_previous_records(launched_dir: Path, case_id: str, new_name: str, log: Log,
+                             cwd=None) -> list[Path]:
     """Before a new launch record is written, every CURRENT record the new launch would
-    shadow -- the same file name, or the same case_id under another name (heat-transfer's
-    T5_C.json beside T5_C_v2.json) -- is RENAMED to `<stem>.<its _launch.utc, colons
-    stripped>.json`. Nothing is deleted. A record keyed on case_id alone was read by
-    cap_watch as governing a cwd its owner had already re-armed: ansys VMFL064-R2,
-    2026-08-26 -- CAP_OVERRUN stamped 20:45:38Z against the 17:49:13Z record (elapsed
-    10,585 s), and the 20:45:43Z relaunch then OVERWROTE that record, so the flag named a
-    launch nobody could find any more."""
+    shadow -- the same file name, or the SAME RUN re-armed under another name
+    (heat-transfer's T5_C.json beside T5_C_v2.json) -- is RENAMED to
+    `<stem>.<its _launch.utc, colons stripped>.json`. Nothing is deleted. A record keyed
+    on case_id alone was read by cap_watch as governing a cwd its owner had already
+    re-armed: ansys VMFL064-R2, 2026-08-26 -- CAP_OVERRUN stamped 20:45:38Z against the
+    17:49:13Z record (elapsed 10,585 s), and the 20:45:43Z relaunch then OVERWROTE that
+    record, so the flag named a launch nobody could find any more.
+
+    ⚠ FIXED 2026-09-03: `case_id` ALONE WAS TOO COARSE A KEY, AND IT RETIRED OTHER
+    PEOPLE'S LIVE RECORDS. Two DIFFERENT rungs can share a case_id, and this function
+    archived on a case_id match regardless of which run directory the record belonged to.
+    So launching rung B ARCHIVED RUNG A'S CURRENT RECORD while A was still running -- and
+    because cap_watch watches ONLY current records, A silently stopped being watched. The
+    destination filenames never collided (`dst = launched_dir / path.name`, keyed on the
+    entry file); the damage was done by this MATCHING RULE, which is the subtler half and
+    the reason the reporter nearly drew a false finding from it. One run's record standing
+    in for another's is the same disease as a verdict living in the wrong instrument.
+
+    THE KEY IS NOW (case_id, cwd), which is what "the same run" actually means -- the
+    VMFL064-R2 and T5_C precedents this function exists for BOTH re-arm the SAME cwd, so
+    the behaviour it was built for is unchanged. `cwd` is keyword-with-default so no
+    existing call site can break on the signature; that lesson was paid for an hour ago
+    by removing a parameter and taking the validator down for two minutes.
+
+    WHERE THE DISCRIMINATION CANNOT BE MADE IT IS ARCHIVED AND SAID SO. An old record
+    carrying no `cwd` cannot be shown to be a different run, so it is archived (nothing is
+    ever deleted) and the log line NAMES the uncertainty. "Could not tell" and "checked
+    and matched" must not be the same line in a record path."""
     archived: list[Path] = []
     for p in sorted(launched_dir.glob("*.json")):
         if not is_current_record(p):
@@ -469,7 +491,24 @@ def archive_previous_records(launched_dir: Path, case_id: str, new_name: str, lo
             old = json.loads(p.read_text())
         except (OSError, json.JSONDecodeError):
             old = {}
-        if p.name != new_name and old.get("case_id") != case_id:
+        old_cwd = old.get("cwd")
+        same_case = old.get("case_id") == case_id
+        if p.name == new_name:
+            why = "same entry filename"
+        elif same_case and cwd is not None and old_cwd is not None:
+            # normpath both sides: `/a/b` and `/a/b/` are one directory, and a spurious
+            # "different run" reading here would REVIVE the stale-record defect this
+            # function exists to prevent.
+            if os.path.normpath(str(old_cwd)) != os.path.normpath(str(cwd)):
+                # SAME case_id, DIFFERENT run directory: a different rung entirely. Its
+                # record is left CURRENT so cap_watch keeps watching its live run.
+                continue
+            why = "same case_id and same cwd -- the same run re-armed"
+        elif same_case:
+            why = (f"same case_id, but cwd could NOT be compared "
+                   f"(old={old_cwd!r} new={cwd!r}) -- archived because it could not be "
+                   f"shown to be a different run, not because it was shown to be this one")
+        else:
             continue
         li = old.get("_launch") or {}
         old_utc = str(li.get("utc") or datetime.fromtimestamp(
@@ -481,8 +520,8 @@ def archive_previous_records(launched_dir: Path, case_id: str, new_name: str, lo
             n += 1
             dst = p.with_name(f"{p.stem}.{stamp}.{n}.json")
         os.replace(p, dst)
-        log(f"ARCHIVED previous launch record for {case_id} ({old_utc}, pid {li.get('pid', 'unknown')}) "
-            f"-> {dst.name}")
+        log(f"ARCHIVED previous launch record for {case_id} ({old_utc}, pid "
+            f"{li.get('pid', 'unknown')}) -> {dst.name}  [{why}]")
         archived.append(dst)
     return archived
 
@@ -545,7 +584,10 @@ def launch(entry: dict, path: Path, root: Path, log: Log, archive: bool = True) 
     launched_dir.mkdir(exist_ok=True)
     dst = launched_dir / path.name
     if archive:
-        archive_previous_records(launched_dir, case_id, dst.name, log)
+        # cwd is PASSED so the archiver can tell "the same run re-armed" from "a different
+        # rung that happens to share a case_id". Without it the archiver retires the other
+        # rung's CURRENT record and cap_watch stops watching a live run.
+        archive_previous_records(launched_dir, case_id, dst.name, log, cwd=cwd)
     shutil.move(str(path), str(dst))
     meta = dict(entry)
     meta["_launch"] = dict(utc=utc(), pid=pid, sid=sid, status_file=str(status),
