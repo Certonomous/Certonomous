@@ -22473,3 +22473,104 @@ position under `-z`; for each candidate compare the **three blobs** (`git ls-fil
 `git rev-parse HEAD:<path>`, `git hash-object <path>`); and ask **whether the file is on disk**.
 Never the letter alone, never a snapshot pasted into a brief — **and never a field extractor,
 which is the failure mode L-424 did not name because it named the columns instead.**
+
+## L-465 — SUPERSEDING A RUNG MUST RETIRE ITS PENDING QUEUE ENTRIES **IN THE SAME COMMIT**. A supersession recorded only in prose and in the successor's own gate JSON is invisible to the daemon, and — measured here — invisible to a careful, one-by-one, ten-limb human-style release check as well
+
+**29.050 core-minutes were spent on 2026-09-03 solving a rung that had been closed on
+2026-08-31. All four arms are `NOT A RESULT`. The whole spend is waste.**
+
+**THE SUPERSESSION WAS RECORDED, AND RECORDED WELL.** `74a9141d`, 2026-08-31 16:47:46 Z,
+*"T19b GRADED AND CLOSED"*, landed `verification/runs/T-family/T19b_runs/gate_t19b.json`
+carrying the field **`"supersedes": "T19"`** — machine-readable, in the successor's own graded
+artifact, in a committed file. **What that commit did NOT do is touch T19's four pending queue
+entries.** They stayed exactly where they were, naming `prereg_commit 4d8943d8` and
+`prereg_path docs/campaigns/T-family/T19_PREREGISTRATION.md`, both of which still resolve.
+
+**THE PART THAT MAKES THIS A LESSON RATHER THAN AN OVERSIGHT: THE ROWS WERE NOT SWEPT UP BY AN
+UNSUPERVISED DAEMON. THEY WERE RELEASED DELIBERATELY, BY A LANE THAT CHECKED MORE THAN ANYONE
+WOULD ASK FOR.** `de54efe2`, 2026-09-03 17:29:22 Z, released all four from `held/`. Its message
+is a model of the form. It read Sanaa's launch rule **at source** rather than on relay, citing
+rule 9 in terms — *"An agent's citation of a ruling is not the ruling … a rule that loosens
+launch discipline is the last one to take on relay."* It dispositioned **both** original hold
+reasons separately *"so neither hides behind the other"*, and discharged the second **on
+evidence rather than by waiver**, verifying on disk that the hold's own stated precondition had
+come true. It then walked the blocking short list **one row at a time**: resource gate,
+ill-posed setup (empirically — `blockMesh` rc 0, `checkMesh` "Mesh OK.", non-orthogonality max
+0, skewness 5.33e-13), cycle budget, no-blind-retries. It pinned every instrument to the freeze
+blob. It wrote four registered predictions. **And it caught and retracted a false finding of its
+own** — it had begun writing up four stale `launched/` records as an L-344 silent-death class
+before establishing that those records belong to **T19b**, which shares `case_id` names with
+T19, and it reported that `case_id` namespace collision as a defect in its own right.
+
+> **THAT LANE HELD T19b's OWN `prereg_commit b52ed93b` IN ITS HAND, NAMED IT, AND USED IT TO
+> CLEAR A DIFFERENT SUSPICION. The supersession was ONE DEREFERENCE AWAY. Nothing in the
+> procedure asked for it, because "is this rung superseded?" IS NOT ON THE LIST.**
+
+**A ten-limb check with the right limb missing passes.** The failure is not care, attention or
+diligence — every one of those was present in excess. It is that **the closure of a rung and the
+liveness of its queue rows are two different pieces of state, kept in two different places, with
+nothing linking them.** No amount of care at the release end fixes state that was never written.
+
+**THE REPAIR, and it belongs at the CLOSING end, not the launching end.**
+
+> **A commit that supersedes or closes a rung retires that rung's pending and held queue entries
+> IN THE SAME COMMIT.** Not a follow-up, not a docket item, not a note. **The commit that writes
+> `"supersedes"` is the commit that empties the queue of the thing superseded** — because that
+> commit is the only moment at which one agent demonstrably knows both facts at once.
+
+**Do not build the alternative.** A supersession-checking limb added to the launch path is an
+instrument built to measure an instrument, it runs on every row forever to catch a condition
+that should not exist, and it queues in front of physics. **Retiring the rows costs one
+`git rm` in a commit that is already being written.**
+
+### What was measured
+
+**The four arms, all `NOT A RESULT` on standing rule 4, and all four failed the SAME TWO
+conjuncts** — measured from each case's own `log.solve` at 2026-09-03, not taken from a marker:
+
+| arm | cells | last `Time` | registered `endTime` | `ExecutionTime` lines | `End` | rc | core-min |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| `P_Ts_m` | 9 600 | **1 929** | 30 000 | 1 929 | 1 | 0 | 0.517 |
+| `P_q_m` | 9 600 | **3 203** | 30 000 | 3 203 | 1 | 0 | 0.683 |
+| `P_Ts_f` | 38 400 | **7 238** | 30 000 | 7 238 | 1 | 0 | 12.033 |
+| `P_q_f` | 38 400 | **12 437** | 30 000 | 12 437 | 1 | 0 | 15.817 |
+
+**Zero `DONE.` markers in `T19_runs/`.** Total **29.050 core-min**; **$0.0248 DERIVED, NOT
+MEASURED** at $0.0513/core-h.
+
+### AND A SECOND DEFECT, INDEPENDENT OF THE FIRST, WHICH THE FIRST CONCEALED
+
+**Every one of those four logs ends `SIMPLE solution converged in N iterations`.** The runs did
+not stall, crash or get killed. `system/fvSolution` registers
+`residualControl { p_rgh 1e-9; U 1e-9; T 1e-9; }`, and the solver did exactly what it was told.
+
+**T19's own registered completion rule requires `last written time == endTime` = 30 000**
+(`T19_registered.json` `completion.rule`; `mark_done_t19.py:8` and `:102`, with the
+`ExecutionTime` count clause at `:107-110` keyed to the same number).
+
+> **A REGISTERED `residualControl` AND A REGISTERED `last time == endTime` COMPLETION CLAUSE ARE
+> MUTUALLY EXCLUSIVE THE MOMENT THE SOLVER ACTUALLY CONVERGES. NO T19 ARM COULD EVER HAVE BEEN
+> MARKED COMPLETE.**
+
+**This predates the supersession and is not a consequence of it.** The two COARSE arms ran on
+**2026-08-30**, before T19b closed, converged at **541** and **828** iterations against the same
+`endTime` 30 000, and carry no `DONE.` marker either. **The rung was unmarkable from its first
+run.** Had the queue rows been retired correctly, the lab would have banked 0.083 core-minutes
+of loss and this defect would still be sitting undetected in the registration.
+
+**It also falsifies the release's own registered prediction P-2**, which stated the two fine
+rows would each run *"~4,680 wall s, ABOVE rule 12's 3,600 s stall marker"*. They ran **949 s**
+and **722 s** — 5× and 6× under, and under the stall marker rather than over it. **The
+prediction was wrong for the same single reason: nobody had noticed that this case converges.**
+
+**The generalisation, and it is cheap to apply:** if a registration sets a `residualControl`
+tight enough that the solver can meet it, then `last time == endTime` is not the completion
+clause it needs — the completion clause is *converged OR reached `endTime`*, with the
+distinction recorded. **A rung that registers both has registered a completion rule its own
+solver is forbidden to satisfy**, and it will read `NOT A RESULT` on every arm no matter how
+well it solves.
+
+**Cited:** `74a9141d` (supersession), `de54efe2` (release), `4d8943d8` (T19 freeze),
+`b52ed93b` (T19b freeze), `verification/runs/T-family/T19_runs/STATUS.*`,
+`verification/runs/T-family/T19_runs/*/log.solve`,
+`verification/runs/T-family/T19b_runs/gate_t19b.json`.
