@@ -477,7 +477,7 @@ saw one.
 > directory. **`[MY OWN ADDITION, VERIFIED AT `grade_vmfl001.py:366` ONLY AND NOT GENERALISED TO
 > THE OTHER THREE]`: that site does `for h in hits:` over ALL members, so a second directory
 > would not merely select the wrong one — it would CONCATENATE two series in lexical order,
-> where `"0.1"` precedes `"0.05"`.**
+> where ~~`"0.1"` precedes `"0.05"`~~.** **⚠ WITHDRAWN IN PLACE 2026-09-03 (`§2ae`/`§2p.11`): `sorted(['0.1','0.05'])` == `['0.05','0.1']` — that IS numeric order. The BINDING specimen is `{'0','200','1000'}` → `['0','1000','200']`. See the CORRECTION TO THE CORRECTION immediately below.**
 
 **WHY THE `GATE FAIL` NEVERTHELESS STANDS**, applying my own `§2w.1` discriminator — *does the
 defect DESCRIBE the record, or STAND BETWEEN the run and the reading?*
@@ -607,10 +607,10 @@ positive limb proves the instrument has not simply been made to refuse everythin
 
 | site | binding | G1 — the deciding set | G4 |
 |---|---|---|---|
-| `VMFL001/grade_vmfl001.py:360` | `hits`, in `probe_series` | `postProcessing/*/U/gateProbes` | **UNGUARDED** |
-| `VMFL001/R2/grade_vmfl001_r2.py:420` | `hits`, in `probe_series` | `postProcessing/*/U/gateProbes` | **UNGUARDED** |
-| `VMFLGPU001/grade_vmflgpu001.py:589` | `hits`, in `probe_series` | `postProcessing/*/U/gateProbes` | **UNGUARDED** |
-| `VMFLGPU001-R2/grade_vmflgpu001_r2.py:614` | `hits`, in `probe_series` | `postProcessing/*/U/gateProbes` | **UNGUARDED** |
+| `VMFL001/grade_vmfl001.py:360` | `hits`, in `probe_series` | ~~`postProcessing/*/U/gateProbes`~~ → **`postProcessing/gateProbes/*/U`** ⚠ CORRECTED IN PLACE 2026-09-03 (`§2ae`/`§2p.11`) — see the CORRECTION at the head of this section; the class in the next column is UNAFFECTED | **UNGUARDED** |
+| `VMFL001/R2/grade_vmfl001_r2.py:420` | `hits`, in `probe_series` | ~~`postProcessing/*/U/gateProbes`~~ → **`postProcessing/gateProbes/*/U`** ⚠ CORRECTED IN PLACE 2026-09-03 (`§2ae`/`§2p.11`) — see the CORRECTION at the head of this section; the class in the next column is UNAFFECTED | **UNGUARDED** |
+| `VMFLGPU001/grade_vmflgpu001.py:589` | `hits`, in `probe_series` | ~~`postProcessing/*/U/gateProbes`~~ → **`postProcessing/gateProbes/*/U`** ⚠ CORRECTED IN PLACE 2026-09-03 (`§2ae`/`§2p.11`) — see the CORRECTION at the head of this section; the class in the next column is UNAFFECTED | **UNGUARDED** |
+| `VMFLGPU001-R2/grade_vmflgpu001_r2.py:614` | `hits`, in `probe_series` | ~~`postProcessing/*/U/gateProbes`~~ → **`postProcessing/gateProbes/*/U`** ⚠ CORRECTED IN PLACE 2026-09-03 (`§2ae`/`§2p.11`) — see the CORRECTION at the head of this section; the class in the next column is UNAFFECTED | **UNGUARDED** |
 
 > **ALL FOUR ARE THE SAME FUNCTION — `probe_series` — CARRYING THE SAME BINDING OVER THE SAME
 > PATTERN, COPIED INTO FOUR GRADERS. This is ONE defect with four instances, not four
@@ -679,3 +679,145 @@ cannot read its own billing (`COMPUTE_BUDGET_CHARTER` §5).
 *The estimate was wrong by 2×, and that is the calibration dataset working exactly as Sanaa's
 launch rule intends: an estimate is a prediction, and this one is now on the record as having
 been capable of being wrong.*
+---
+
+## AMENDMENT 1 TO THE VR3-R2 SECTION — 2026-09-03 — **THE `§2ae` CORRECTION WAS FILED AT THE SECTION HEAD AND NEVER REACHED THE PER-SITE TABLE. FIVE ASSERTION SITES OF TWO WITHDRAWN CLAIMS STOOD UNMARKED IN THE BODY OF THIS RECORD, AND FOUR OF THEM WERE THE SUMMARY TABLE.**
+
+**Lines whose number changed above this section: 0.** Pure append. **⚠ FIVE LINES ABOVE THIS
+SECTION CHANGED CONTENT WITHOUT CHANGING NUMBER — `:480`, `:610`, `:611`, `:612`, `:613` — and
+that is what this amendment is about**, so it is stated here rather than left for a reader to
+discover. Legal under `§2ae` (v1.51): this is a **RECORD**, corrected in place. **No frozen
+byte, no comparator, no registration, no capture was touched; no sha that fixes a grading path
+is broken.** **Zero solver compute; 0 core-min; $0.00.** **No gate, threshold, band, cap or
+label created, moved or retired. Nothing re-graded. The `GATE FAIL` does not move.**
+
+### 1. WHAT THE CORRECTION DID AND DID NOT REACH
+
+The correction at the head of this section (`4fa2436d`) was placed there **deliberately and
+correctly**, citing `§2ae`: the correction must be reachable from where the number is read.
+**It reached the section head and it did not reach the table.** Its own first sentence says
+*"THE `G1` PATTERN IS TRANSCRIBED WRONG ON EVERY ROW OF THIS RECORD"* — **it named the rows
+and left them unmarked.** The correction to the correction (`b086eaf6`) withdrew the
+illustrative pair `['0.1','0.05']` and left its assertion standing 24 lines above, inside the
+very correction that withdrew it.
+
+**THIS IS `§2p.11`'s SPECIMEN, REPRODUCED, IN THE SAME WEEK, BY THE TEAM THAT RULED IT** — and
+in the worse of the two forms that clause distinguishes: the sites left unmarked here are a
+**per-site summary table**, which `§2p.11` names as *"read INSTEAD OF the prose, not in
+addition to it."* A reader who goes to §3 for *which four sites* was, until this amendment,
+given four unmarked false patterns and no signal that any correction existed.
+
+### 2. THE COMPLETENESS TEST, RUN AT CORRECTION TIME, STATED AS A PARTITION
+
+`§2p.11`: *"grep the false claim's own distinguishing string; an unmarked hit is an incomplete
+correction."* Both greps were run over this file **before** any marker was written, and both
+were re-run after.
+
+**`postProcessing/*/U/gateProbes` — 5 hits:**
+
+| class | lines | status |
+|---|---|---|
+| assertion sites — the §3 per-site table, `G1` column | `:610`, `:611`, `:612`, `:613` | **4 of 4 NOW MARKED** (0 of 4 before) |
+| quotation inside the head correction | `:440` | **correct as written — already struck** |
+| unrelated-but-matching | none | — |
+
+**`['0.1','0.05']` and its prose form — 7 hits:**
+
+| class | lines | status |
+|---|---|---|
+| assertion site — *"`"0.1"` precedes `"0.05"`"* | `:480` | **1 of 1 NOW MARKED** (0 of 1 before) |
+| quotations inside the correction to the correction | `:515`, `:519`, `:530` | **correct as written** — a correction must quote what it corrects, and `:519` and `:530` are the TRUE statements |
+| unrelated-but-matching — cost figures | `:350`, `:671`, `:676` | **assert nothing about sorting** |
+
+**The partition is the deliverable, not the number.** *5-hits-with-4-marked and
+5-hits-with-4-missed are the same count.*
+
+### 3. THE CORRECTED PATTERN, VERIFIED AT ALL FOUR SITES — NOT INHERITED FROM THE CORRECTION
+
+The head correction cites **one** site. The markers write the corrected pattern onto **four**
+rows, so all four were read at source before the markers were proposed:
+
+| site | pattern, at source | `PROBE_FO` | resolved |
+|---|---|---|---|
+| `VMFL001/grade_vmfl001.py` | `pats` at **`:359`** = `os.path.join(level_dir, "postProcessing", PROBE_FO, "*", "U")`; bound at `:360` | `"gateProbes"` at `:72` | `postProcessing/gateProbes/*/U` |
+| `VMFL001/R2/grade_vmfl001_r2.py` | `pats` at **`:419`**, identical; bound at `:420` | `:89` | same |
+| `VMFLGPU001/grade_vmflgpu001.py` | inline in the binding at **`:589`** | `:159` | same |
+| `VMFLGPU001-R2/grade_vmflgpu001_r2.py` | inline in the binding at **`:614`** | `:174` | same |
+
+**⚠ A PRECISION CORRECTION TO MY OWN CORRECTION, AND IT IS SMALL BUT IT IS THE THIRD TIME.**
+The head correction states *"`grade_vmfl001.py:360` is `os.path.join(level_dir,
+"postProcessing", PROBE_FO, "*", "U")`"*. **`:360` is `hits = sorted(glob.glob(pats))`; the
+`os.path.join` is at `:359`.** The substance is right and the line is off by one — and the
+same one-line indirection holds at `VMFL001/R2`, where the join is at `:419` and the binding
+at `:420`. **Two of the four sites bind through a name; two bind inline.** *A citation that is
+one line off is still a citation nobody can check without noticing.*
+
+### 4. WHAT THIS AMENDMENT DOES NOT DO
+
+- **THE `GATE FAIL` DOES NOT MOVE, AND IT WAS RE-DERIVED HERE RATHER THAN INHERITED.** See §5.
+- **NO SITE CHANGES CLASS.** UNGUARDED = 4, GUARDED = 8, REFERENCE = 0, missing = 0, N = 12.
+- **NOTHING IS RE-GRADED**, no ansys verdict is touched, and the CANDIDATE set stays 19 → 23.
+- **THE FROZEN DRIVER IS NOT TOUCHED.** `vr3r2_guard_set_attribution.py` keeps blob
+  `ff0af23c4630`. Its `G1` limb still owes a successor **by new registration only**; that debt
+  is **PROSPECTIVE** and its trigger — *"before any successor quotes a pattern from it"* —
+  **has not fired**, because after this amendment the record quotes the source-verified
+  pattern and not the instrument's.
+- **THE RAW CAPTURE IS NOT ANNOTATED.**
+  `VR3R2_GUARD_SET_ATTRIBUTION/vr3r2_stdout.txt` prints the wrong pattern at four rows and
+  **must keep printing it.** It is what the instrument printed; it is the evidence that the
+  instrument is defective, and a re-drive reproducing it byte for byte is the check that keeps
+  it evidence. **The correction belongs in the record that READS the capture.**
+
+### 5. THE VERDICT, RE-DERIVED
+
+`[RE-DERIVED FROM THE REGISTRATION AND THE ARTEFACTS, NOT FROM THIS RECORD'S PROSE]`
+
+- **Threshold**, `VR3R2_PREREGISTRATION.md:164`: *"**GATE FAIL** — **any** site resolves **UNGUARDED**."*
+- **Population**, `:111-113`: **N = 12.**
+- **Class definitions**, `:153-156`: **GUARDED** iff *"an attributed **CARDINALITY** guard measures"* the deciding set; **UNGUARDED** iff *"no such guard; any guard present measures a different set."*
+- **Measured**, `vr3r2_stdout.txt:99`: *"Classified 12 of 12 registered sites; UNGUARDED=4 GUARDED=8 REFERENCE=0; missing=0"*; `:101` `VERDICT: GATE FAIL`; `RUN_RC.txt` **`RC=1`**.
+- **Neither withdrawn claim is an input to the class.** `classify_site` sets `cls` from `kind` and `effective` alone; `g1` is returned and printed and never consumed. `has_wildcard` (`:182-183`) is `any(…)` over the multiset — order-independent. **The pattern's ORDER cannot move a class.**
+- **A truthiness guard is not a cardinality guard**, so defect (3)'s blindness could only ever have produced the class it produced.
+
+**`GATE FAIL` STANDS, on the registered threshold, over the registered population, from the
+registered class definitions.** `§2w.1`: both withdrawn claims **DESCRIBE** the record; neither
+**STANDS BETWEEN** the run and the reading.
+
+### 6. ⚡ AND THE ONE LIMB THE CORRECTION EXPLICITLY DECLINED TO GENERALISE, NOW MEASURED
+
+The head correction carries `[MY OWN ADDITION, VERIFIED AT grade_vmfl001.py:366 ONLY AND NOT
+GENERALISED TO THE OTHER THREE]`. **It generalises. Measured at all four:**
+
+| site | truthiness guard | consumes ALL members |
+|---|---|---|
+| `VMFL001:360` | `if not hits: refuse(…)` at `:361` | `for h in hits:` at `:366` |
+| `VMFL001/R2:420` | `:421` | `:426` |
+| `VMFLGPU001:589` | `:590` | `:594` |
+| `VMFLGPU001-R2:614` | `:615` | `:619` |
+
+**All four refuse an empty glob and all four iterate every member.** So the concatenation
+hazard — a crashed-and-resumed run producing a second start-time directory, whose series is
+then spliced in lexical order — **is a property of all four sites, not of one.** *This
+discharges a non-generalisation the correction stated against itself, and it makes the failing
+condition's substance broader, never narrower.*
+
+### 7. WHAT IS NOT DISCHARGED HERE, NAMED SO IT IS NOT READ AS CLEARED
+
+- **`VERIFICATION_CHARTER.md:5828`** (v1.50 `§2ab.1`) asserts the wrong pattern, **unmarked**.
+- **`docs/LAB_STATE.md` block `UPDATE V-68`** asserts the wrong pattern, **unmarked**; block **`UPDATE V-72`** asserts the withdrawn `"0.1"`/`"0.05"` pair, **unmarked**, 16 lines below its own withdrawal.
+- **ansys's latency claim is still theirs and still not re-derived by this team** — `find cases/ansys_verification -type d -name gateProbes` returns nothing on this box.
+- **`VMFLGPU001-R2`'s segmentation is still `NOT A RESULT`** and nothing may cite it as checked.
+
+| item | outcome |
+|---|---|
+| reading sites named by the head correction | **"every row" — named, not enumerated, and none marked** |
+| reading sites found by search at correction time | **5 in this record** — `:480` + the four table rows |
+| marked before this amendment | **0 of 5** |
+| marked now | **5 of 5.** Grep 1: 5 hits, 4 assertion (marked) + 1 quotation. Grep 2: 7 hits, 1 assertion (marked) + 3 quotations + 3 unrelated |
+| why a partition and not a count | **5-with-4-marked and 5-with-4-missed are the same NUMBER** |
+| why the dropped ones are the worst | **all four are the per-site SUMMARY TABLE** |
+| lines renumbered · content-changed above | **0 · 5, all five named** |
+| frozen bytes touched · shas broken · captures annotated | **0 · 0 · 0** |
+| verdict | **`GATE FAIL` — UNCHANGED, and re-derived rather than inherited** |
+| gates · thresholds · bands · caps · labels | **0 · 0 · 0 · 0 · 0** |
+| solver compute | **0 core-min, $0.00** |
