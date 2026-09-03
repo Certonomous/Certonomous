@@ -1,0 +1,6 @@
+case            W1c_f
+date            2026-08-27T22:19:39Z
+blockMesh_rc    0
+checkMesh_rc    0   wall 1.055 s
+checkMesh       cells:            90
+checkMesh       Mesh OK.

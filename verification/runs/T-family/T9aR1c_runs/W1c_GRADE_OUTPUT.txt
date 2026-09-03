@@ -1,0 +1,15 @@
+referent (exact_t9aR1c): q = 19.502681619 W/m2, T_i1 = 348.781082398830 K, T_i2 = 300.024378352023 K
+  route A (closed form) vs route B (flux-continuity linear solve): agree to 3.41e-14 relative
+  cross-check vs T9a registered (docs/campaigns/T-family/T9a_RESULTS.md section 1 table and section 1.1), tol 1e-06 abs: T_i1 3.99e-07, q 3.81e-07, drop1 3.99e-07, drop3 3.52e-07
+  level c: checkpoint-converged True (move 0.000e+00 K) [gate (1) for F1]
+  level m: checkpoint-converged True (move 0.000e+00 K) [REPORTED only]
+  level f: checkpoint-converged True (move 0.000e+00 K) [REPORTED only]
+planted-zero P1 (value)       PASS: plant 0.001234 K in cell 9, T_i1 moved 0.00117524 K, floor 1e-07
+planted-zero P2 (permutation) PASS: cells 9<->10 swapped, T_i1 moved -1.15797 K (identity check vs the reader's own weights: 0.00e+00 K)
+planted-zero P3 (specificity) PASS: plant 0.001234 K in cell 34 (outside the stencil 9,10), T_i1 moved 0.0e+00 K
+F1 [FLOOR_DEMONSTRATION] FLOOR DEMONSTRATION at the COARSEST level W1c_c: T_i1 = 348.781082398830 K, exact = 348.781082398830 K, |deviation| = 5.684e-14 K against the registered floor X = 1.000e-04 K -> PASS
+N1 (REPORTED) |T_i1 - exact| per level: c 5.684e-14 K, m 3.183e-12 K, f 2.899e-12 K
+N2 (REPORTED) mesh-family SPREAD max-min of T_i1 over the 3 level(s) READ (W1c_c,W1c_m,W1c_f): 3.240e-12 K. This is a BOUND on observed variation over the meshes actually built (VERIFICATION_CHARTER 2f.6). It is NOT an error estimate, NOT extrapolated, and it is NOT a GCI and NOT an observed order.
+N3 (REPORTED) q_hot relative deviation: c +5.920e-14, m +3.417e-12, f +3.044e-12
+N4 (REPORTED) |T_i2 - exact| per level (the interface F1 does NOT read): c 5.684e-14 K, m 6.821e-13 K, f 1.876e-12 K
+wrote /home/ubuntu/Certonomous/verification/runs/T-family/T9aR1c_runs/gate_t9aR1c.json

@@ -1,0 +1,205 @@
+{
+  "rung": "T9a-R1c",
+  "parent": "T9a-R1b (W1b)",
+  "predecessor_ruling": "VERIFICATION_CHARTER 2g (v1.16); label ceiling ruled by 2h (v1.17)",
+  "claim": "the discretisation error in T_i1 is below X at 35 cells (W1c_c), and below X at each further level run as reported in N1",
+  "claim_is_not": "(a) NOT grid convergence: no observed order, no GCI, no Richardson extrapolate and no Roache triple is computed anywhere in this comparator. (b) NOT 'the solution is correct to X' -- that is a continuum claim and charter 2f.3 would cap it. (c) NOT 'the answer does not depend on the mesh': charter 2h.4(5) NARROWED 2g.3's own phrase, because this instrument establishes the error at the meshes MEASURED and nothing about finer ones. The claim is bounded by the meshes actually run and extrapolated to none.",
+  "charter_2h_conditions": "PASS is available to this limb under VERIFICATION_CHARTER 2h (v1.17) only where all five of 2h.4 hold; they are declared in docs/campaigns/T-family/T9aR1c_PREREGISTRATION.md section 3a BEFORE compute, and conditions (4) and (5) are wording conditions that no machine check in this file can discharge -- the AST guard proves the ABSENCE OF A TRIPLE, not the wording of the claim.",
+  "rule5_status": "limb (2) UNREACHABLE, NOT WAIVED (charter 2f.2); limb (1) applies IN FULL as gate (1), BINDING on the graded level (charter 2f.7, 2h.4(2))",
+  "label_ceiling": "PASS",
+  "graded_level": "W1c_c",
+  "decoupling": {
+    "levels_read": [
+      "W1c_c",
+      "W1c_m",
+      "W1c_f"
+    ],
+    "level_states": {
+      "W1c_c": "DONE",
+      "W1c_m": "DONE",
+      "W1c_f": "DONE"
+    },
+    "rule": "F1 reads the graded level ALONE. A level that is not DONE is REPORTED as such and cannot touch F1's verdict; there is no all-or-none coupling for a capped, crashed or mispriced level to destroy (the exposure measured on T16, 2026-08-27). A level holding a written time directory with no STATUS file is still a REFUSAL, so a level cannot be dropped from this record by removing its markers."
+  },
+  "referent": {
+    "T_i1": 348.7810823988298,
+    "T_i2": 300.0243783520234,
+    "q": 19.502681618722573,
+    "route_agreement_rel": 3.4064928655652696e-14,
+    "cross_check": {
+      "rung": "T9a",
+      "source": "docs/campaigns/T-family/T9a_RESULTS.md section 1 table and section 1.1",
+      "tol_abs": 1e-06,
+      "registered": {
+        "T_i1": 348.781082,
+        "q": 19.502682,
+        "drop_layer1": 1.218918,
+        "drop_layer3": 0.024378
+      },
+      "abs_deviation": {
+        "T_i1": 3.9882979763206095e-07,
+        "q": 3.812774274081221e-07,
+        "drop_layer1": 3.988298238333243e-07,
+        "drop_layer3": 3.520234046587578e-07
+      }
+    }
+  },
+  "rows": [
+    {
+      "row": "F1",
+      "claim_class": "FLOOR_DEMONSTRATION",
+      "quantity": "|T_i1 - T_i1_exact| at the COARSEST registered level W1c_c, where T_i1 is the interface-1 temperature read as the conductance-weighted mean of the two cells adjacent to the interface face (the parent's reader form, analyse_t9a.measure_wall.iface_T)",
+      "level": "W1c_c",
+      "value_K": 348.7810823988299,
+      "reference_K": 348.7810823988298,
+      "deviation_K": 5.684341886080802e-14,
+      "floor_K": 0.0001,
+      "band_verdict": "PASS",
+      "verdict": "PASS",
+      "note": ""
+    }
+  ],
+  "reported_rows": {
+    "N1_deviation_per_level_K": {
+      "c": 5.684341886080802e-14,
+      "m": 3.183231456205249e-12,
+      "f": 2.8990143619012088e-12
+    },
+    "N2_mesh_family_spread_K": {
+      "value": 3.240074875066057e-12,
+      "levels_read": [
+        "W1c_c",
+        "W1c_m",
+        "W1c_f"
+      ],
+      "kind": "BOUND on observed variation over the meshes actually READ (charter 2f.6)",
+      "not_a": "GCI or observed order; not extrapolated"
+    },
+    "N3_q_hot_relative_deviation": {
+      "c": 5.92037530111611e-14,
+      "m": 3.416876293016458e-12,
+      "f": 3.0438015663492027e-12
+    },
+    "N4_T_i2_deviation_K": {
+      "c": 5.684341886080802e-14,
+      "m": 6.821210263296962e-13,
+      "f": 1.8758328224066645e-12
+    }
+  },
+  "cells": {
+    "c": 35,
+    "m": 56,
+    "f": 90
+  },
+  "gate1": {
+    "ok": true,
+    "why": "",
+    "per_level": {
+      "c": {
+        "ok": true,
+        "checkpoint_move_K": 0.0,
+        "why": "",
+        "binding": true,
+        "role": "gate (1) for F1"
+      },
+      "m": {
+        "ok": true,
+        "checkpoint_move_K": 0.0,
+        "why": "",
+        "binding": false,
+        "role": "REPORTED only"
+      },
+      "f": {
+        "ok": true,
+        "checkpoint_move_K": 0.0,
+        "why": "",
+        "binding": false,
+        "role": "REPORTED only"
+      }
+    },
+    "rule": "standing rule 5 limb (1), which is UNAFFECTED by the no-triple election (charter 2f.2, 2f.7). BINDING on the graded level: F1 is NOT A RESULT if W1c_c fails it. EVALUATED AND REPORTED on the other levels, where it flags their REPORTED rows and touches no verdict."
+  },
+  "controls": {
+    "C_NOTRIPLE": {
+      "status": "PASS",
+      "forbidden_names_checked": 12,
+      "roache_imports": [
+        "PLANT"
+      ]
+    },
+    "C_CLASS": {
+      "F1": "FLOOR_DEMONSTRATION",
+      "N1": "REPORTED",
+      "N2": "REPORTED",
+      "N3": "REPORTED",
+      "N4": "REPORTED"
+    },
+    "C_PZ": {
+      "P1_value": {
+        "status": "PASS",
+        "arm": "value plant at the reader's own stencil cell",
+        "plant_K": 0.001234,
+        "cell": 9,
+        "recovered_K": 0.001175238095243003,
+        "demonstrated_detection_floor_K": 1e-07,
+        "ladder": {
+          "1": 0.9523809523809632,
+          "0.1": 0.09523809523813043,
+          "0.01": 0.009523809523784621,
+          "0.001234": 0.001175238095243003,
+          "0.0001": 9.52380951844134e-05,
+          "1e-05": 9.523809467282263e-06,
+          "1e-06": 9.5238095809691e-07,
+          "1e-07": 9.52381356000842e-08
+        }
+      },
+      "P2_permutation": {
+        "status": "PASS",
+        "arm": "permutation plant: stencil values swapped, no value changed",
+        "cells_swapped": [
+          9,
+          10
+        ],
+        "moved_K": -1.1579717211115508,
+        "predicted_from_the_readers_own_weights_K": -1.1579717211115508,
+        "identity_agreement_K": 0.0,
+        "identity_note": "the predicted/measured agreement is an IDENTITY (charter 2a): the prediction uses the reader's own weights. It is REPORTED, never gated. The GATE is that the move is non-zero."
+      },
+      "P3_specificity": {
+        "status": "PASS",
+        "arm": "far plant outside the stencil must be invisible",
+        "plant_K": 0.001234,
+        "cell": 34,
+        "moved_K": 0.0,
+        "stencil": [
+          9,
+          10
+        ]
+      },
+      "N_negative": {
+        "status": "PASS",
+        "arm": "two reads of identical bytes",
+        "delta_K": 0.0
+      }
+    },
+    "C_SCHEME": "Gauss harmonic corrected",
+    "C_MAP": "every cell's DT checked against the registered layer map inside measure()",
+    "C_REF": {
+      "rung": "T9a",
+      "source": "docs/campaigns/T-family/T9a_RESULTS.md section 1 table and section 1.1",
+      "tol_abs": 1e-06,
+      "registered": {
+        "T_i1": 348.781082,
+        "q": 19.502682,
+        "drop_layer1": 1.218918,
+        "drop_layer3": 0.024378
+      },
+      "abs_deviation": {
+        "T_i1": 3.9882979763206095e-07,
+        "q": 3.812774274081221e-07,
+        "drop_layer1": 3.988298238333243e-07,
+        "drop_layer3": 3.520234046587578e-07
+      }
+    }
+  }
+}
