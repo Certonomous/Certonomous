@@ -1,0 +1,31 @@
+{
+  "root": "/home/ubuntu/certonomous-runs",
+  "needle": "ugrid_to_foam",
+  "extensions": [
+    ".cfg",
+    ".json",
+    ".jsonl",
+    ".log",
+    ".md",
+    ".out",
+    ".py",
+    ".sh",
+    ".txt",
+    ".yaml",
+    ".yml"
+  ],
+  "files_scanned": 9225,
+  "skipped_over_50MB": 0,
+  "unreadable": 0,
+  "wall_s": 44.6,
+  "hits": [
+    "/home/ubuntu/certonomous-runs/dpw5-committee-probe/convert_and_check.sh",
+    "/home/ubuntu/certonomous-runs/dpw5-committee-probe/inspect_ugrid.py",
+    "/home/ubuntu/certonomous-runs/dpw5-committee-probe/measurements.jsonl",
+    "/home/ubuntu/certonomous-runs/dpw5-committee-probe/ugrid_to_foam.py",
+    "/home/ubuntu/certonomous-runs/hlpw6-memory-probe/logs/measurements.jsonl",
+    "/home/ubuntu/certonomous-runs/hlpw6-memory-probe/ugrid_to_foam.py"
+  ],
+  "n_hits": 6,
+  "COMPLETED": true
+}
