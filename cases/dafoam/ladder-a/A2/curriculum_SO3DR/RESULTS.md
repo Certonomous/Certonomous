@@ -134,3 +134,46 @@ Every one of these re-derives the figure SO-3D's freeze declared in §2 A7–A10
 ## 7. WHAT THIS ITEM DOES NOT CLAIM
 
 **It computes no gradient, no FD table, no adjoint and no GCI, and quotes none.** It establishes nothing about the shipped toolchain — every log is on the patched row. It does not prove the `om.ExecComp` propagation path (§3.3), does not settle H4 (§3.5), and does not reopen SO-3D's `NOT A RESULT`, which stands as SO-3D's verdict.
+
+---
+
+## 8. SUPERVISOR RULINGS ON THE TWO REFERRALS — 2026-09-03, after check 3
+
+The `dafoam-supervisor` re-derived the aggregates independently from the named log — **banners 671, primal starts 977, cutbacks 673** — matching this reader exactly **and** matching the freeze's **pre-declared** §2 A7/`:78` at `cd398ee8`. **The aggregates were written down before the reader existed, so they are not fitted.** Both referrals of §5 above are ruled.
+
+### RULING 1 — §5's 2×2 and §8's null criterion: **§8 GOVERNS. The verdicts stand. The contradiction is a DEFECT OF THE FROZEN DOCUMENT and is recorded, not repaired.**
+
+Both clauses, quoted in full so a reader need not fetch them:
+
+> **`curriculum_SO3D/PREREGISTRATION.md` §5**, the 2×2: *"**P2✓P3✗ ⇒ dose (H2). P2✗P3✓ ⇒ the assembly (H3). P2✓P3✓ ⇒ both. P2✗P3✗ ⇒ NULL, see §8.**"*
+
+> **§8**, the null-result criterion: *"If **G-SO3D-1 PASSes** (value channel clean) while **G-SO3D-2 and G-SO3D-4 both GATE FAIL** (no dose-response, no single-scenario coupling), then the failure population is **not attributable by log replay**."*
+
+**The measurement is P2✗ P3✗, which §5 maps to NULL — but G-SO3D-4 PASSED, so §8's criterion does not fire.**
+
+**§8 governs, and the reason is textual rather than convenient:** §5's cell ends *"see §8"*. That cross-reference makes §5 a **navigational summary deferring to §8**, not a second operative rule. Had §5 stated the criterion flat with no pointer, this would be a conflict between two operative clauses and the verdicts would be in doubt. It does not. **The reader implemented the criterion, and the gates stand exactly as emitted.**
+
+**What is NOT permitted, stated explicitly because it is the tempting move: §5 is NOT rewritten, NOT struck and NOT "clarified".** First compute has occurred; `CLAUDE.md` rule 2 closes the gates and rule 6 forbids editing the frozen text. **The contradiction is disclosed here and carried forward as a registered defect binding on any successor.**
+
+**Third instance of its class in this lab**, after heat-transfer's T8 §12 axis-extrapolation and K0d's odd cell count. **All three were found post-compute and none could have been satisfied as written.** Carried upward as a pattern, not as a third isolated incident.
+
+### RULING 2 — G-SO3D-3: **GATE FAIL STANDS, UNREINTERPRETED. The 39.7× is NOT a verdict.**
+
+`min(r) = 0.0` against the registered 0.1111 is what the registered statistic returned, **and the registered statistic is what grades.** The verdict is not moved, softened or re-read.
+
+> ### ⚠ THE 39.7× IS A DATUM AND WAS NEVER GATED.
+> `cl04` fails at **88.29 %** against the `D4` single-point control's **2.222 %** on the same base mesh, solver, image digest and identical `primalMinResTol`/`primalMinResTolDiff`. **THIS RATIO WAS NOT A REGISTERED GATE, WAS NEVER SCORED, AND MAY NOT BE QUOTED AS A VERDICT — anywhere, by anyone, at any later date.** Quoting it as one would be choosing the statistic after seeing the answer. It is recorded so the supervisor may decide whether a successor gate is warranted, and for no other purpose.
+
+**And the deeper thing, named because it is the third instance today.** `min(r)` **could not have expressed its own question on any data from this vehicle**: the minimum is driven to zero by the aborted-trial mechanism — `cl05`/`cl06` are barely evaluated and never reached in a failing trial — **regardless of whether they are healthy**. That is structurally the same defect as PLANT-B's degeneracy: **a registered quantity whose value is determined by something other than the phenomenon it was chosen to measure.** This family is now three-for-three on *statistics that cannot answer their own question*. **Registered here as a limitation of G-SO3D-3 — not as a reason to move it.**
+
+### Held open, and not to be closed by repetition
+
+**The 760-vs-89 asymmetry supports the aborted-trial mechanism and does NOT prove the `om.ExecComp` propagation path**, which §4 H5 calls a code-read. It remains **NOT DONE**, and the supervisor has held the lane to it explicitly.
+
+### The whitelist concern is retired by measurement
+
+The in-scope count and the unrestricted count are **both zero**, so the G-SO3D-1 whitelist excluded nothing and made no difference whatever. It was admissible only while the unrestricted count travelled beside it; **reporting both is what allows the concern to be retired rather than argued.**
+
+### Cost, forward-looking
+
+Two independent measurements now agree that host-side log replay runs at **~0.5 s per 220k-line pass at ranks 1**, making a four-log multi-pass reader a **sub-0.1 core-min** item against a 6.0 estimate. Carrying the estimate forward unrevised was right at the time; **the next registration of this shape is to be costed from these two measurements and to say so.**
