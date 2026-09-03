@@ -59,9 +59,23 @@ done
 date +%s.%N > "$RUN_ROOT/RUN_ROOT_CREATED_EPOCH"
 say "RUN_ROOT_CREATED_EPOCH = $(cat "$RUN_ROOT/RUN_ROOT_CREATED_EPOCH")"
 
+# ⚠ `set -u` MUST BE OFF ACROSS THIS SOURCE LINE, AND ATTEMPT 1 DIED HERE.
+# /usr/lib/openfoam/openfoam2606/etc/bashrc:184 reads WM_PROJECT_DIR before setting it.
+# Under `set -u` that is an UNBOUND VARIABLE, and an unbound variable in a SOURCED file
+# kills the sourcing shell outright -- so the driver died on this line, before the
+# planted controls, before the no-clobber guard could report anything, and before its
+# own `fail` handler existed to write a STATUS. Measured, not inferred:
+#   bash -c 'set -u; . <bashrc>'  ->  "line 184: WM_PROJECT_DIR: unbound variable"
+#   bash -c '. <bashrc>'          ->  rc 0, FOAM_APPBIN set, checkMesh on PATH
+# FROM THE QUEUE RECORD ALONE THIS LOOKS LIKE NOTHING HAPPENED: launcher_rc=1, an empty
+# log.controls, no driver STATUS. That silence is the defect, not the exit code.
+set +u
 . /usr/lib/openfoam/openfoam2606/etc/bashrc >/dev/null 2>&1
+set -u
+[ -n "${FOAM_APPBIN:-}" ] || fail 4 "FOAM_APPBIN unset after sourcing the OpenFOAM bashrc -- the environment did not come up"
 export PATH="$FOAM_APPBIN:$PATH"
 command -v checkMesh >/dev/null || fail 4 "checkMesh not on PATH after sourcing the OpenFOAM bashrc"
+say "OpenFOAM environment up: $(command -v checkMesh)"
 
 # ---- the controls run FIRST, at ZERO conversion cost. ----------------------------
 # A control failure here costs nothing, which is the whole reason they run before the
