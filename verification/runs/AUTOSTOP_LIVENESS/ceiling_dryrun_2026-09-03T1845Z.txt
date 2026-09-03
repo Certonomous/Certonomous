@@ -1,0 +1,25 @@
+FLEET SAFETY CEILING -- DRY RUN. THIS PROGRAM CANNOT KILL; IT HAS NO SIGNAL PATH.
+  utc=2026-09-03T18:45:31Z
+  ceiling = 3 x cap_core_min_registered
+  second term of Sanaa's min(), the box's remaining budget: UNAVAILABLE -- NOT EVALUATED
+    COMPUTE_BUDGET_CHARTER section 5: this instance cannot read its own billing, and no spend cap exists in the repo.
+    It is NOT defaulted to 0 (which would put every run over the ceiling at once) and NOT to infinity (which would
+    silently delete half the rule). A half-computable rule that names the half it computed is honest.
+
+  PLANTED CONTROL FIRST -- the report below is a ZERO, and a zero from a reader not shown able to see a
+  non-zero is not evidence (CLAUDE.md rule 3; L-466 was filed today for exactly this failure):
+    [ok     ] PLANTED_OVER_CEILING     expected 'AT OR OVER CEILING', got 'AT OR OVER CEILING'
+    [ok     ] PLANTED_UNDER_CEILING    expected 'under ceiling', got 'under ceiling'
+    [ok     ] PLANTED_CAPLESS          expected 'NO CEILING (no cap_core_min_registered)', got 'NO CEILING (no cap_core_min_registered)'
+    [ok     ] PLANTED_REFUSED_LAUNCH   expected 'not live', got 'not live'
+    [ok     ] PLANTED_ARGV_EXITED_SOLVE_ALIVE expected 'AT OR OVER CEILING', got 'AT OR OVER CEILING'
+  => the reader is shown able to flag a victim, decline a safe run, decline a capless run, and decline a
+     refused launch. Only now is its zero worth reading.
+
+  LIVE QUEUE, all teams: 317 current launched record(s), 1 still live by BOTH tests (kernel session alive AND STATUS not showing an exited launch argv).
+
+  team            case_id                        ranks   cap    ceiling(3x)  elapsed  margin   verdict
+  --------------------------------------------------------------------------------------------------------------------
+  heat-transfer   T3d_R_fx                          8  16326.00    48978.00    335.07  48642.93  under ceiling
+
+ZERO VICTIMS: no live entry is at or over its ceiling.
