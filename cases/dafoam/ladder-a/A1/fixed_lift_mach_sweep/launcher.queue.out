@@ -1,0 +1,21 @@
+2026-09-02T18:20:40Z MAAOA_G_FREEZE_PASS instruments match MAAOA_MD5.txt
+2026-09-02T18:20:40Z MAAOA_G_IMG_PASS dafoam-idwarp-rot:v1 is the PATCHED build
+2026-09-02T18:20:40Z MAAOA_WAIT_BEGIN precondition=/home/ubuntu/certonomous-runs/A1WR/STAGE12/stage1_gate.json deadline_s=43200
+2026-09-02T18:36:40Z MAAOA_GATEDEP_PASS A1WR stage-1 gate verdict PASS after 960s -- L3 measured wall-resolved on both arms
+2026-09-02T18:36:40Z MAAOA_CHAIN_BEGIN stamp=20260902T182040Z pid=57360 img=dafoam-idwarp-rot:v1 cap_total=900 core-min
+2026-09-02T18:36:41Z MAAOA_LAUNCHED point=MA288 arm=C U0=100.0 cpuset=2 mem=3g omp=1 loadavg=4.60 2.55 1.80
+2026-09-02T18:36:41Z MAAOA_LAUNCHED point=MA400 arm=C U0=138.8762 cpuset=3 mem=3g omp=1 loadavg=4.60 2.55 1.80
+2026-09-02T18:36:42Z MAAOA_LAUNCHED point=MA500 arm=C U0=173.5952 cpuset=4 mem=3g omp=1 loadavg=5.03 2.67 1.84
+2026-09-02T18:36:42Z MAAOA_LAUNCHED point=MA600 arm=C U0=208.3142 cpuset=5 mem=3g omp=1 loadavg=5.03 2.67 1.84
+2026-09-02T18:36:43Z MAAOA_LAUNCHED point=MA650 arm=C U0=225.6738 cpuset=6 mem=3g omp=1 loadavg=5.03 2.67 1.84
+2026-09-02T18:36:44Z MAAOA_LAUNCHED point=MA685 arm=C U0=237.8254 cpuset=7 mem=3g omp=1 loadavg=5.03 2.67 1.84
+2026-09-02T20:08:10Z MAAOA_POINT_DONE point=MA400 rc=97 oom=false wall_s=5488 core_min=91.4667 total=91.4667
+2026-09-02T20:08:10Z MAAOA_LAUNCHED point=INCOMP arm=I U0=10.0 cpuset=3 mem=3g omp=1 loadavg=8.01 8.02 8.52
+2026-09-02T20:09:11Z MAAOA_POINT_DONE point=MA288 rc=97 oom=false wall_s=5550 core_min=92.5 total=183.9667
+2026-09-02T20:09:11Z MAAOA_POINT_DONE point=MA500 rc=97 oom=false wall_s=5549 core_min=92.4833 total=276.45
+2026-09-02T20:09:11Z MAAOA_POINT_DONE point=MA600 rc=97 oom=false wall_s=5549 core_min=92.4833 total=368.9333
+2026-09-02T20:09:11Z MAAOA_POINT_DONE point=MA650 rc=97 oom=false wall_s=5548 core_min=92.4667 total=461.4
+2026-09-02T20:09:11Z MAAOA_POINT_DONE point=MA685 rc=97 oom=false wall_s=5547 core_min=92.45 total=553.85
+2026-09-02T21:58:19Z MAAOA_POINT_DONE point=INCOMP rc=0 oom=false wall_s=6609 core_min=110.15 total=664.0
+2026-09-02T21:58:19Z MAAOA_READER rc=2 out=/home/ubuntu/certonomous-runs/MAAOA/MAAOA_read_20260902T182040Z.txt
+2026-09-02T21:58:19Z MAAOA_CHAIN_END total_core_min=664.0
