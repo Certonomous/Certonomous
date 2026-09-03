@@ -1,0 +1,53 @@
+T25R6c-R2 -- G-R2-1 (PLATEAU) and G-R2-2 (DIRECTION)
+==========================================================================
+
+[1] PLANTED-ZERO CONTROL ON THE ExecutionTime READER, BOTH LEGS (rule 3)
+  ok   legA: 1.23 s planted at step 7, read back from disk as a 1.230000 s change IN THAT DELTA and in no other (0 other deltas moved)
+  ok   legB: 1.23 s planted at step 7, read back from disk as a 1.230000 s change IN THAT DELTA and in no other (0 other deltas moved)
+
+[2] RULE 4 COMPLETION, ALL CONJUNCTS, AGE GUARD vs 0/module/T
+  W1150_C4_L1    COMPLETE
+
+[3] C-R2-1 TRANSIENT CONTROL -- THE RUN'S OWN TRANSIENT, BY SOLVER WORK
+     the run's own transient ends at leg-B step 27; registered exclusion is 40
+     settled work 92..94 iterations/step over the graded 1070 steps (P-R2-5 predicted 92..94: WINS)
+
+[4] G-R2-1 PLATEAU -- EVALUATED FIRST, BEFORE rho IS CONSULTED
+     r(steps 41..575) = 0.396710 s/step
+     r(steps 576..1110) = 0.395308 s/step
+     |d|/second = 0.3546 % ; |d|/first = 0.3534 % ; GRADED 0.3546 %   threshold 5.0 %
+     R-R2-1 (REPORTED): the T25R6c-FORM statistic here is 5.5168 % (P-R2-1 predicted 10.427 %, > 5 %: WINS)
+     R-R2-2 (REPORTED): 27 leg-B windows of 40 steps, rho per window 1.0383 .. 1.1498
+     R-R2-3 (REPORTED): settled work spread 2.150 %; drift floor tabulated at W = 40, 90, 180, 267, 535
+
+[5] G-R2-2 DIRECTION
+     r(leg A)              = 0.358750 s/step over 40 steps at deltaT 0.02
+     r(leg B post-transient) = 0.396009 s/step over 1070 steps at deltaT 0.10
+     rho = 1.103859      registered prediction: rho < 1.0  (P-R2-3 predicted 1.075209)
+     R-R2-4 (REPORTED): rho_work = 0.804976, rho_throughput = 1.371294
+     rho over ALL leg-B steps (comparable to T25R6c's 1.063997) = 1.101497
+
+[6] B-R2 CEILING RELIEF -- REPORTED, NEVER GATED
+     rho_blend (ladder 3500A + 8300B) = 1.073053 -> Sigma CAP(C4) x blend = 26514.4 core-min vs ceiling 20000
+     relief threshold 0.809412.  REPORTED, NEVER GATED, GRANTS NO WIDENING.
+
+[7] PREDICTED-VS-ACTUAL (rule 12) -- REPORTED, GATING NOTHING
+     actual 15.0993 core-min vs point 14.707  ->  ratio 1.0267  (P-R2-4 WINS)
+
+  G-R2: GATE FAIL -- rho = 1.103859 >= 1.0.  A1.2's DIRECTION IS FALSIFIED.
+
+  ROACHE (rule 5) -- NOT INVOKED, AND THAT IS A REGISTERED DECISION.
+  There is no grid family here and no functional at convergence: this is
+  a WALL-COST measurement inside one transient at one mesh.  NO observed
+  order and NO GCI is computed, quoted or derivable.  A successor
+  reading a grid-convergence claim off these numbers gets NOT A RESULT.
+Traceback (most recent call last):
+  File "/home/ubuntu/Certonomous/verification/runs/T-family/T25R6cR2_LEGAB_runs/grade_t25R6cR2.py", line 1105, in <module>
+    sys.exit(grade(root))
+             ^^^^^^^^^^^
+  File "/home/ubuntu/Certonomous/verification/runs/T-family/T25R6cR2_LEGAB_runs/grade_t25R6cR2.py", line 826, in grade
+    return finish(out, rc, root)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/Certonomous/verification/runs/T-family/T25R6cR2_LEGAB_runs/grade_t25R6cR2.py", line 857, in finish
+    "r(leg A) and r(leg B) are means over DISJOINT delta sets parsed from TWO "
+TypeError: not enough arguments for format string
