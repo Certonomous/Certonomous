@@ -48,9 +48,7 @@
   "_field_classes": {
     "physics_critical": [
       "STATUS.T25R6c (rc inside the detached wrapper)",
-      ".rc.W440_C4_L1.legA and .rc.W440_C4_L1.legB (rc captured INSIDE, immediately after each mpirun)",
-      "log.solve.legA and log.solve.legB End lines, endTime, ExecutionTime counts",
-      "the 0/module/T age guard"
+      "the case's own log End line, endTime fields and 0/ age guard"
     ],
     "infrastructure": [
       "_launch.pid",
@@ -62,9 +60,17 @@
       "ESTIMATE_OVERRUN.txt",
       "cost_core_min_estimate",
       "memory_floor_gb",
-      ".load.W440_C4_L1.* loadavg witnesses",
       "runner.log lines"
     ],
-    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342). The loadavg witnesses are INFRASTRUCTURE: their absence weakens the reading of rho's environment and voids no physics."
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  },
+  "_launch": {
+    "utc": "2026-09-03T18:11:43Z",
+    "pid": 351014,
+    "sid": 351014,
+    "status_file": "/home/ubuntu/Certonomous/verification/runs/T-family/T25R6c_LEGAB_runs/W440_C4_L1/STATUS.queue.T25R6c",
+    "wrapper_out": "/home/ubuntu/Certonomous/verification/runs/T-family/T25R6c_LEGAB_runs/W440_C4_L1/launcher.queue.out",
+    "started_epoch": 1788459103.3436043,
+    "status_seen_utc": "2026-09-03T18:15:43Z"
   }
 }
