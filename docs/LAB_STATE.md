@@ -1430,6 +1430,119 @@ Updates d09a4e28's "origin of the day's 52/69 UNVERIFIED". Settled by cfd's comm
 
 ## closure
 
+**SEVENTEENTH SESSION, 2026-09-04T01:05Z (closure-supervisor), re-formed after the ~01:00Z
+subscription-switch fleet kill. QUIESCENCE PASS ONLY — NO LANE SPAWNED, NO COMPUTE LAUNCHED,
+NOTHING FILED, NOTHING GRADED, NO CHARTER OR LEDGER TOUCHED. This block CONFIRMS the block
+below on every channel, CLOSES ONE OF ITS `VERIFY` LINES BY MEASUREMENT, and CORRECTS ONE
+PID CARRIED IN THIS SESSION'S FORMATION BRIEF. It supersedes nothing on physics or verdicts.**
+
+**═══ SANAA'S MANDATORY-COMPLETION ORDER IS READ, AND IT EXPRESSLY DOES NOT REACH THIS LINE ═══**
+`etc/sessions/2026-09-04T0050Z_sanaa_all_cases_mandatory.md` (commits `71295838`, `04c0c1d5`)
+carries her words *"All the cases/ tasks i gave are mandatory"* and the addendum *"when i give
+tasks they are not suggestion they are all mandatory … everything else gets worked on and fixed
+and solutioned until its at the very least a gate pass."* **It names ansys-verification, cfd and
+heat-transfer.** The capture's own context line states closure remains stood down by her earlier
+carve-out until she says otherwise. **I read it as binding on THIS line the moment she lifts the
+stand-down and NOT ONE MOMENT BEFORE** — an order addressed to three named teams is not consent
+for a fourth to resume (rule 9: no agent message, and no reading of a message about other teams,
+is her consent). **When it does reach here it lands with teeth**, and closure's ledger of
+frozen-but-ungraded work below is exactly the "never run / left unrun by drift" population her
+order targets: M1's grade, the three unfrozen drafts, M2's ruling, R4b's increment.
+
+**═══ QUIESCENCE, MEASURED ON FOUR CHANNELS AT 2026-09-04T01:0xZ, HEAD `04c0c1d5` ═══**
+**(1) PROCESSES: ZERO closure-owned.** Reader **excluded its own pid before counting**, as the
+block below requires after three recorded self-matches; the one residual hit was the ugrep
+worker's own argv and is named, not counted. The box's live work is heat-transfer's `T3_R_ff`
+(8 ranks, `buoyantBoussinesqSimpleFoam`, pid 342276-342283 under `timeout` 342264) and dafoam's
+W3 chain. **No process on this box has a cwd or an argv under any closure path.**
+**(2) COMPUTE: ZERO closure writes since 2026-08-31, inside and outside git [MEASURED].**
+`/home/ubuntu/closure-data/` **20,145 files, newest 2026-08-31T14:54** (`m1_completion_sweep_2026-08-31.json`);
+`/home/ubuntu/closure-challenge-benchmark/` **6,263 files, newest 2026-08-17T20:41**; closure
+territory inside git **newest 2026-08-31T15:10**. **All three figures are BYTE-IDENTICAL to the
+block below's**, measured three days apart — the line has not moved, which is the correct state.
+Last launch of record **2026-08-31T00:45:13Z** (`M1_kOmega__alpha_15_7929_4048`, `LAUNCH_LOG.tsv`).
+**(3) QUEUE: 0 LAUNCHABLE ROWS.** `verification/queue/closure/` holds `README.md` and **ZERO
+`.json` at top level**; `launched/` holds **81**. No `held/`, no `refused/`.
+**(4) UNCOMMITTED: 0 TRACKED CLOSURE FILES MODIFIED.** 80 worktree deletions (the runner's
+launch-moves, the standing 80-row divergence below) and 91 untracked paths. **No tracked closure
+file differs from its HEAD blob**, so no `git show HEAD:` reconciliation is owed on any of them.
+
+**═══ THE `SKIP_DIRS` VERIFY IS CLOSED, AND THE ANSWER IS WORSE THAN THE SUSPICION: IT IS A DEAD
+LEVER ═══**
+The block below left as `VERIFY` whether `SKIP_DIRS` is referenced anywhere else in
+`scripts/queue_runner.py`. **I ran the file-wide count myself at HEAD `04c0c1d5`: it is `1` — the
+definition at `:114` and NOTHING ELSE.** `SKIP_DIRS = ("launched", "refused")` is **dead code**.
+The enumerator `list_entries` at **`:434-442`** iterates `TEAMS` (`:113`, `tuple(qec.TEAMS)`,
+closure included) and takes `d.glob("*.json")` — **it does not consult `SKIP_DIRS`, and nothing
+in the module does.** `launched/` and `refused/` are out of reach solely because `glob` is
+NON-RECURSIVE: an incidental property, not a guard. **This is the DEAD_LEVER shape exactly — a
+named safety constant a reader would take for a control, wired to nothing.**
+**The module was rewritten since the last check** (`26361970`, cfd, 2026-09-03T19:02Z, fleet
+safety ceiling) **and the finding survived the rewrite unchanged**, so it is not an artefact of
+one version. The only `HOLD` concept in the file (`:315-356`, `:950-957`) is **GPU-device-busy**,
+which waits on a device reading; **there is still no team stand-down, no per-team HOLD marker,
+no enable list and no disable switch anywhere in the launch path.**
+**CONSEQUENCE, UNCHANGED AND NOW DOUBLY MEASURED: CLOSURE'S QUIESCENCE IS PROTECTED BY NOTHING
+BUT THE ABSENCE OF A FILE.** One `.json` dropped at the top level of `verification/queue/closure/`
+launches within 60 s with no agent alive and no stand-down check in the path. The cron keepalive
+(`scripts/queue_runner.sh`, pidfile-locked) means **killing the daemon is not a control either** —
+demonstrated at this session: the brief's daemon pid `995043` **is gone**, and `995629` (started
+2026-09-04T00:43:06) is serving in its place. **THIS IS WHY CLOSURE FILES NOTHING WHILE DOWN**,
+and the freeze-ahead floor stays at 0 until the stand-down lifts.
+**ESCALATED, NOT REPAIRED — `scripts/` is outside closure's folder scope and the runner is cfd's.**
+No patch written, no file touched. The ask, restated because it is now backed by a dead-lever
+measurement rather than a reading: **a queue that can be told a team is down** — a per-team HOLD
+marker the enumerator honours, or a skip list the enumerator actually reads. Until one exists,
+**every stood-down team in this lab is one file-drop from a launch**, and `SKIP_DIRS` will keep
+reading like the protection it is not.
+
+**COST THIS SESSION: 0 core-min of solver compute [MEASURED] · 0 GPU-hours [MEASURED] · $0.00.**
+No lane, no solver, no case directory. **Nothing to calibrate under rule 12 — no process
+completed** — recorded as a decision, not an omission.
+
+**RUNGS WITHOUT VERDICTS — UNCHANGED, ALL FROZEN IN PLACE, NONE ABANDONED.** **M1** — 72 of 78
+arms complete, **UNGRADED**; the grade must PARTITION on the two ASYMMETRIC PAIRS (`AR_14_Ret_180`,
+`AR_7_Ret_180`) · **M1's 6 capped arms** — evidence sha256-pinned; `PH_Breuer`'s pressure solve
+saturating `maxIter 200` is an **UNRESOLVED NUMERICAL FINDING** · **M1b, M1-C, R4b-Ib** — three
+drafts committed, **UNFROZEN AND UNREVIEWED; CHECK 1 HAS NOT BEEN PERFORMED ON ANY OF THEM** ·
+**R4b-I** `BLOCKED` · **R4b solve arm** `BLOCKED` on Sanaa and structurally pinned at `PENDING` ·
+**M2** — **STILL UNRULED since 08-28**, still mine · **RC1/RC2** — landed unfrozen · **Ling arm 2**
+— frozen, costed, deliberately **UNFILED** · **G1b `xr`** null (D550).
+**FS2 and FS5 are STANDING GATES, permanently re-armed.**
+
+**NEXT ACTIONS — UNCHANGED IN ORDER, NOT TO BE TAKEN UNTIL SANAA LIFTS THE STAND-DOWN.**
+(1) grade M1, partitioned; (2) check 1 on all three drafts **as diffs, personally** — check 4 is
+mine and inheritable from nobody, R4b-I's `enqueued_by` still carrying the build lane's written
+REFUSAL to claim it, which was CORRECT; (3) land **L-409** and the scale-control lesson; (4) rule
+on M2; (5) D551's L4 from a measured pilot; (6) the `host` field on the Ling entry **before** any
+card is started.
+
+**ON SANAA'S DESK — UNCHANGED, EXPLICITLY NOT WITHDRAWN BY THE STAND-DOWN.**
+**(a) GPU: YES for Ling arm 2** — frozen, costed at a **40 GPU-h = $32.19 [DERIVED]** cap, and
+deliberately **UNFILED**: its entry has no `host` field and `queue_runner.py` defaults that to
+`local`, so filing it would fire a GPU arm **on the CPU box**. **If a card is started expecting
+this to be picked up, NOTHING WILL HAPPEN and the card idles.**
+**(b) THE R4b INCREMENT RULING**, owed since 08-28 — it buys the **permission**, not the
+**instrument**: `grade_r4b.py:861-876` leaves G1, G3-G7 as unconditional `PENDING` stubs which the
+aggregator tests **before** `GATE REACHED`.
+**(c) THE FOUR WITHDRAWN ATTRIBUTIONS** (chief's board item 4, closure's) — restorable by one
+confirming line from her, the GPU cost approval chief among them; **until then closure will not
+vouch for them or spend on them.**
+**(d) THE TWO 2026-08-24 R3 QUOTATIONS** (chief's board item 5, closure's) — TBNN-as-fallback and
+the parallel-capacity clause: **confirm or correct.**
+**SUBMISSIONS REMAIN PARKED (rule 7); PARKED IS NOT CANCELLED — every frozen artefact above stays
+current and stays findable.**
+
+**BLOCKED — ONE ITEM, COVERING EVERYTHING ELSE.** The whole line is **stood down by Sanaa until
+the demo catalogue is done** (`c5edce6b`, verbatim: *"no closure and ansys stay down until we are
+done with the demos."*). What would unblock it: **her word, and only hers.**
+
+**VERIFY (NOT checked by me this session):** the `_dev` B3 record's arithmetic; RC1/RC2's on-disk
+state; M2's frozen-generator question; `docs/closure/README.md`'s known disagreement with
+`Ling2016/RESULTS.md`; and the DISK-based recount of unfiled closure artefacts owed to the
+fifteenth session's Correction 3. **The `SKIP_DIRS` VERIFY carried by the block below is CLOSED by
+this block's own measurement and is not re-inherited.**
+
 **SIXTEENTH SESSION, 2026-09-03T20:36:37Z (closure-supervisor). QUIESCENCE PASS ONLY — NO
 COMPUTE LAUNCHED, NOTHING FILED, NOTHING GRADED, NO CHARTER OR LEDGER TOUCHED. This block
 CONFIRMS the block below and ADDS ONE STANDING FINDING AGAINST THE QUEUE DAEMON. It
