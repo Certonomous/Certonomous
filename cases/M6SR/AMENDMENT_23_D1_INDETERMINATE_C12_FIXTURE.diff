@@ -1,0 +1,558 @@
+commit 92a73349d49d7a0c57c001afa263cb68f5a2f405
+Author: Ubuntu <ubuntu@ip-172-31-43-247.us-east-2.compute.internal>
+Date:   Fri Sep 4 22:38:02 2026 +0000
+
+    cfd M6SR THE FINDING UNDER C12: D1 IS INDETERMINATE ON THE REGISTERED REFERENCE, SO THE A-MAP STATION ORDERING IS UNRESOLVED AND SANAA'S DELIVERABLE IS A Cp-VERSUS-STATION FIGURE -- C12's fixture moves and its must-see does not, the old fixture is KEPT as C12b asserting the verdict that is TRUE, and --controls NOW EXITS 0 FOR THE FIRST TIME
+    
+    Amendment 23, PRE-COMPUTE. verification/runs/M6SR_runs is PLANT-VERIFIED ABSENT:
+    0 -> probe -> 1 -> rmdir -> 0, with `test -e` ABSENT and 0 rows from `git ls-files`.
+    NOTHING HAS RUN IN IT. This amendment does not freeze, does not launch and does not drive.
+    
+    THE FINDING UNDER THE FINDING. D1's premise is that the section normal-force series is
+    MONOTONE in span, so that reversing it flips the direction and reveals the ordering. THE
+    REGISTERED REFERENCE IS NOT MONOTONE. Measured Cn by section 1..7: 0.239559 0.278490
+    0.294704 0.263810 0.222974 0.178438 0.210512 -- rises 1->3, falls 3->6, rises 6->7, TWO
+    turning points at sections 3 and 6; strictly_decreasing False, strictly_increasing False,
+    verdict INDETERMINATE, and the reversal is INDETERMINATE too. SO D1 CANNOT SETTLE THE A-MAP
+    STATION ORDERING AT ALL. C12's unsatisfiability was the symptom; this is the disease, and it
+    sat under a red tick everyone had learned to step around.
+    
+    IT BEARS ON SANAA'S NAMED DELIVERABLE. Her first physics is M6 surface Cp AT THE AGARD SPAN
+    STATIONS. If the ordering is unknown the comparison can be plotted against the wrong
+    stations and still look entirely plausible -- A MISLABELLED SPAN STATION PRODUCES A SMOOTH,
+    BELIEVABLE, WRONG FIGURE. Section 16.4 keeps A-MAP REPORTED, NOT GATED, which is correct as
+    a gate decision and is NOT a licence to present the deliverable as if the ordering were
+    known. REGISTERED IN TERMS, and the disclosure now TRAVELS WITH THE DATA:
+    gate_p_figure_data() emits A_MAP_STATION_ORDERING_DISCLOSURE built from the D1 record that
+    call just computed -- never asserted as a constant -- carrying the verdict, the seven Cn
+    values, both monotonicity flags and ordering_resolved_by_D1. Measured live: INDETERMINATE,
+    False. A second discriminator is NAMED AND DELIBERATELY NOT BUILT, on the supervisor's
+    express instruction: local chord length and leading-edge x-station, both GEOMETRIC and
+    therefore independent of the Cp column D1 shares with Gate P. Neither is implemented,
+    neither is registered, and nothing claims the ordering is settled.
+    
+    C12: THE FIXTURE MOVES, THE MUST-SEE DOES NOT. The must-see stays FALSIFIED. The new
+    fixture is synthetic and exact by construction, not by fitting: each of seven sections is a
+    closed rectangular Cp loop, Cp = -A on the upper leg and 0 on the lower, whose closed-loop
+    trapezoidal integral is exactly -A, so Cn = A and the series IS the A list
+    [0.70 0.60 0.50 0.40 0.30 0.20 0.10]. A reader can check that arithmetic without running
+    anything. Reversed it reads FALSIFIED; AND THE POSITIVE TWIN, which the old control did not
+    have, requires the SAME data unreversed to read CORROBORATED -- a fixture that could only
+    ever produce FALSIFIED would prove nothing about the discriminator. NOTHING WAS LOOSENED:
+    the control demands the same verdict and was given data capable of producing it.
+    
+    C12b IS NEW AND IT IS THE OLD FIXTURE, KEPT RATHER THAN DROPPED. The real reference,
+    reversed, must read INDETERMINATE -- which is the TRUE answer for that data, not a failure.
+    It prints the seven Cn values and the turning points and states the consequence, so IF THE
+    REFERENCE EVER CHANGES TO A MONOTONE ONE, C12b GOES RED AND THE CAMPAIGN IS TOLD rather
+    than discovering it at Gate P. C12b is in the mutation target list.
+    
+    SECTION 18.5's GATE IS BYTE-UNCHANGED AND WAS NOT NARROWED. The supervisor declined that
+    option and he was right: the defect was never the gate, it was a control that could not go
+    green. MEASURED CONSEQUENCE -- `--controls` NOW RETURNS rc 0 WITH ALL 32 CONTROLS FIRED,
+    under python3 AND python3 -O, with BYTE-IDENTICAL stdout (11,184 bytes) and stderr. First
+    time in this campaign. Achieved by repairing a fixture, not by weakening a gate or a
+    must-see. --selftest ALSO EXITS 0, with all 30 mutation targets FLIPPED TO RED and C16
+    FIRED at rc 0/0. ast.Assert = 0 with the detector planted and SEEN.
+    
+    B4s's REGISTERED INVOCATION, because the driver's phase vocabulary cannot express the
+    ordered drive. Measured from the driver's own guard expressions: PHASE=stage SKIPS Section
+    18.5's gate (its guard excludes stage) and runs B3c :637 and B4 :719, then EXITS 0 at :741
+    -- B4s :805 is never reached. PHASE=all reaches B4s and then falls straight through to B3z
+    :854 and mpirun rhoSimpleFoam :877 with no stop between. SO "B3c+B4+B4s, halt before the
+    solver" HAS NO PHASE. Registered instead as two verbatim command lines with expected exit
+    codes, the mechanism already ruled for B0/B6/Gate A: `bash cases/M6SR/run_m6sr_b5.sh L3
+    stage` expecting 0, then `python3 cases/M6SR/analyse_m6sr.py --section7-screen --level L3
+    --case verification/runs/M6SR_runs/L3` expecting 0 PASS / 11 BLOCKED / 2 REFUSAL -- the
+    identical invocation the driver makes at :805. No code change, no step-order change, and it
+    stops before the solver BY CONSTRUCTION.
+    
+    THE THROUGH-LINE, AS ONE FINDING RATHER THAN FIVE: ALL FIVE CENSUS-MACHINERY FAULTS WERE
+    READERS THAT COULD NOT DISTINGUISH THEIR SUBJECT FROM SOMETHING ADJACENT TO IT -- a planted
+    instance from a near-miss string, an invocation from an argparse definition, a call site
+    from a definition site, a file's name at its writer from its name at its reader, and a
+    guard's own refusal from an unrelated refusal downstream in the same function. The repair
+    for all five is the same: sharpen the key until it separates the subject from its
+    neighbour. AND C12 IS A SIXTH OF A DIFFERENT SPECIES -- a reader that CAN distinguish
+    perfectly, asked a question its data cannot answer. No sharpening would ever have fixed it;
+    only changing the data, or accepting the answer. Its repair does both.
+    
+    AND A NUMBER THIS LANE GAVE THE SUPERVISOR WAS WRONG AND IS CORRECTED. I reported "direction
+    changes at 3, 4 and 5" and he repeated it in his ruling. That was the set of STEPS whose
+    direction differs from the FIRST step, not turning points. The correct statistic is TWO
+    TURNING POINTS, at sections 3 and 6, which is what "rises 1->3, falls 3->6, rises 6->7"
+    describes. Nothing downstream moves -- the series is non-monotone under either statistic and
+    D1 returns INDETERMINATE either way -- but a wrong number that changes no conclusion is
+    still a wrong number, and it went into a supervisor's hands.
+    
+    COST 3.2667 core-min at 1 rank, MEASURED from the clock, one run of each activity;
+    development re-runs NOT metered and NOT estimated.
+    
+    THE RE-PIN: one pinned executable moved, the comparator. The live row was ENUMERATED BY
+    SEARCH and returns exactly one, which is a measurement and not a relief -- this campaign has
+    three times found more rows than expected. Struck by verbatim quote, machine-verified
+    character for character. The new pin was re-derived INSIDE this commit invocation with an
+    abort, and the unchanged-prefix sha d5503913... re-derived the same way.
+    
+    Rule 6: appended at the foot; lines whose number changed above Section 29: 0, verified by
+    byte-comparing the prefix against HEAD's blob; v1.22 -> v1.23.
+    
+    SUBMISSIONS REMAIN PARKED. No solver ran. No compute occurred under this registration.
+    
+    FOREIGN ROWS LEFT UNCOMMITTED: this commit carries only the two paths in its own diff.
+    Other lanes' in-flight work, including
+    verification/campaign/F28G_L1_RESIDUAL_RECONCILIATION.md and docs/LAB_STATE.md, was
+    INSPECTED AND NOT TOUCHED.
+    
+    Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>
+    Claude-Session: https://claude.ai/code/session_01HvQwXmgymfCLSBd4ri7B2h
+
+diff --git a/cases/M6SR/analyse_m6sr.py b/cases/M6SR/analyse_m6sr.py
+index ee95e7dc..6a59443e 100644
+--- a/cases/M6SR/analyse_m6sr.py
++++ b/cases/M6SR/analyse_m6sr.py
+@@ -1487,6 +1487,40 @@ def gate_p_figure_data(ref, cfd_by_level, meta_by_level, d1):
+             "and still interleaves; that is a graded channel and changing it is a gate "
+             "question, not a lane's."),
+         "D1": d1,
++        # AMENDMENT 23, THE SUPERVISOR'S RULING: "ANY Cp-versus-station figure this campaign
++        # produces MUST carry that disclosure beside it."  It is BUILT FROM THE D1 RECORD
++        # THIS CALL JUST COMPUTED, not asserted as a constant, so it cannot describe a state
++        # the data no longer has -- and if a future reference IS monotone the text changes
++        # with it and control C12b goes red in the same breath.
++        "A_MAP_STATION_ORDERING_DISCLOSURE": {
++            "D1_verdict_on_this_reference": d1["verdict"],
++            "Cn_by_section": d1["Cn_by_section"],
++            "strictly_decreasing": d1["strictly_decreasing"],
++            "strictly_increasing": d1["strictly_increasing"],
++            "ordering_resolved_by_D1": d1["verdict"] in ("CORROBORATED", "FALSIFIED"),
++            "DISCLOSURE": (
++                "D1's premise is that the section normal-force series is MONOTONE in span, "
++                "so that reversing it flips the direction and reveals the ordering. THE "
++                "REGISTERED REFERENCE IS NOT MONOTONE IN EITHER DIRECTION, so D1 returns "
++                "INDETERMINATE and THE A-MAP STATION ORDERING IS UNRESOLVED BY D1. This "
++                "figure's station labels are therefore the A_MAP assumption, NOT a measured "
++                "ordering. A MISLABELLED SPAN STATION PRODUCES A SMOOTH, BELIEVABLE AND "
++                "WRONG FIGURE, which is why this disclosure travels with the data rather "
++                "than living only in the registration. Section 16.4 keeps A-MAP REPORTED, "
++                "NOT GATED -- that is a gate decision and it is NOT a licence to present "
++                "the deliverable as if the ordering were known."),
++            "what_would_settle_it": (
++                "A SECOND, INDEPENDENT DISCRIMINATOR MONOTONE IN SPAN. Candidates NAMED AND "
++                "NOT BUILT (Amendment 23 is explicit that building one here is out of "
++                "scope): local chord length, which falls monotonically root-to-tip on a "
++                "tapered wing and is readable from the surface geometry rather than from "
++                "the Cp column; and leading-edge x-station, which advances monotonically "
++                "with span under this wing's sweep. BOTH ARE GEOMETRIC AND THEREFORE "
++                "INDEPENDENT OF THE Cp DATA D1 SHARES WITH GATE P -- which is the "
++                "circularity D1 already discloses. NEITHER IS IMPLEMENTED, NEITHER IS "
++                "REGISTERED AS A DISCRIMINATOR, AND NOTHING HERE CLAIMS THE ORDERING IS "
++                "SETTLED."),
++        },
+         "experimental": exp,
+         "cfd_by_level": {lv: {str(k): v for k, v in cfd_by_level[lv].items()}
+                          for lv in cfd_by_level},
+@@ -2498,8 +2532,9 @@ def controls(scratch, mutate=None):
+     _rec("C11", ok11, "a corrupted reference produces a REFUSAL, never a silent fallback")
+ 
+     # ---- C12: a scratch reference whose seven sections are REVERSED -> FALSIFIED ------
+-    ok12 = ok13 = False
+-    v12 = v13 = None
++    ok12 = ok13 = ok12b = False
++    v12 = v13 = v12b = None
++    _cn_real, _n_turns, base_v = [], 0, None
+     if os.path.exists(src10):
+         real = read_case_2308(src10, verify_hash=False)
+         rev = {"sections": {i + 1: real["sections"][7 - i]
+@@ -2510,9 +2545,60 @@ def controls(scratch, mutate=None):
+         # C12 IS IMPLEMENTED TO THE LETTER OF SECTION 10, WHICH REGISTERS ITS MUST-SEE AS
+         # "FALSIFIED".  It is NOT loosened to the control's purpose clause.  Loosening a
+         # registered control so that it passes is how a fail-open gets a green tick.
+-        ok12 = (v12 == "FALSIFIED")
++        #
++        # ===============================================================================
++        # AMENDMENT 23 -- THE FIXTURE MOVES; THE MUST-SEE DOES NOT.
++        #
++        # THE DEFECT, MEASURED.  C12's fixture was the REAL AGARD reference, reversed, and
++        # its must-see is FALSIFIED.  FALSIFIED requires the reversed series to be STRICTLY
++        # INCREASING, which requires the as-read series to be STRICTLY DECREASING.  The
++        # registered reference is NOT monotone in either direction -- measured Cn by section
++        # 1..7 = 0.23956 0.27849 0.29470 0.26381 0.22297 0.17844 0.21051, rising 1->3,
++        # falling 3->6, rising 6->7 -- so both it and its reversal return INDETERMINATE and
++        # the must-see was UNSATISFIABLE WITH THE REGISTERED FIXTURE.  That is a property of
++        # the DATA, not a defect in d1_discriminator(): the comparator's own
++        # d1_branch_reachability() shows all three branches reachable.
++        #
++        # THE SUPERVISOR'S RULING, APPLIED LITERALLY: keep the must-see at FALSIFIED and
++        # give the control data CAPABLE OF PRODUCING IT.  "That LOOSENS NOTHING: the control
++        # still demands the same verdict; it is simply given data capable of producing it."
++        # The reversed-AGARD case is NOT dropped -- it becomes C12b below, asserting the
++        # verdict that is TRUE for that data.  The suite gains a limb rather than losing one.
++        # ===============================================================================
++        # A SYNTHETIC REFERENCE WITH AN EXACTLY-CONTROLLED, STRICTLY DECREASING Cn SERIES.
++        # Each section is a closed rectangular loop: Cp = -A along the upper leg (x 0 -> 1),
++        # Cp = 0 along the lower (x 1 -> 0).  The closed-loop trapezoidal integral is then
++        # exactly -A, so Cn = -(-A) = A and the series IS the A list, by construction rather
++        # than by fitting.  A reader can check the arithmetic without running anything.
++        _c12_A = [0.70, 0.60, 0.50, 0.40, 0.30, 0.20, 0.10]
++        _c12_sections = {
++            i + 1: [(1, 0.0, 0.0, -a), (2, 1.0, 0.0, -a), (3, 1.0, 0.0, 0.0),
++                    (4, 0.0, 0.0, 0.0)]
++            for i, a in enumerate(_c12_A)}
++        mono = {"sections": _c12_sections, "titles": real["titles"],
++                "n_sections": 7, "n_taps_total": 28}
++        mono_rev = {"sections": {i + 1: _c12_sections[7 - i] for i in range(7)},
++                    "titles": real["titles"], "n_sections": 7, "n_taps_total": 28}
++        d_mono = d1_discriminator(mono)
++        d_mono_rev = d1_discriminator(mono_rev)
++        v12 = d_mono_rev["verdict"]
++        # THE MUST-SEE, UNCHANGED -- and a POSITIVE TWIN beside it, because a fixture that
++        # could only ever produce FALSIFIED would prove nothing about the discriminator.
++        # The SAME data unreversed must read CORROBORATED, so the fixture is shown able to
++        # produce BOTH directed verdicts and FALSIFIED is not an artifact of its shape.
++        ok12 = (v12 == "FALSIFIED" and d_mono["verdict"] == "CORROBORATED")
+         base_v = d1_discriminator(real)["verdict"]
+         detail["C12_as_read_verdict"] = base_v
++        detail["C12_synthetic_Cn"] = [round(d_mono["Cn_by_section"][k], 6)
++                                      for k in sorted(d_mono["Cn_by_section"],
++                                                      key=lambda s: int(s))]
++        # ---- C12b's readings, taken here so both limbs read ONE evaluation of the data.
++        d_real = d1_discriminator(real)
++        v12b = d1_discriminator(rev)["verdict"]          # the REAL reference, REVERSED
++        _cn_real = [d_real["Cn_by_section"][k]
++                    for k in sorted(d_real["Cn_by_section"], key=lambda s: int(s))]
++        _n_turns = sum(1 for i in range(1, len(_cn_real) - 1)
++                       if (_cn_real[i + 1] > _cn_real[i]) != (_cn_real[i] > _cn_real[i - 1]))
+         # ---- C13: all seven sections carrying the SAME CP block -> INDETERMINATE -----
+         same = {"sections": {i + 1: list(real["sections"][1])
+                              for i in range(len(real["sections"]))},
+@@ -2525,10 +2611,35 @@ def controls(scratch, mutate=None):
+     if mutate == "C13":
+         ok13 = False
+     _rec("C12", ok12,
+-         f"as-read reference -> D1 returns {detail.get('C12_as_read_verdict')}; reversed "
+-         f"reference -> D1 returns {v12}. Section 10 registers C12's MUST-SEE as FALSIFIED. "
+-         "Reversing a NON-MONOTONE Cn series leaves it non-monotone, so when the as-read "
+-         "data is INDETERMINATE this control CANNOT fire as written. Reported, NOT loosened.")
++         f"THE MUST-SEE IS UNCHANGED AT FALSIFIED; THE FIXTURE MOVED (Amendment 23). A "
++         f"SYNTHETIC reference with an exactly-constructed strictly-decreasing Cn series "
++         f"{detail.get('C12_synthetic_Cn')} -- each section a closed rectangular Cp loop "
++         f"whose integral is -A by arithmetic, so the series IS the A list -- reads "
++         f"CORROBORATED unreversed and {v12} REVERSED. The POSITIVE TWIN is what makes the "
++         f"must-see mean something: the same data produces BOTH directed verdicts, so "
++         f"FALSIFIED is not an artifact of the fixture's shape. THE OLD FIXTURE WAS THE REAL "
++         f"AGARD REFERENCE AND ITS MUST-SEE WAS UNSATISFIABLE: that series is non-monotone, "
++         f"so it and its reversal both read {detail.get('C12_as_read_verdict')}. Nothing was "
++         f"loosened -- the control demands the same verdict and was given data capable of "
++         f"producing it.")
++    # ---- C12b: THE REAL REFERENCE, REVERSED -> INDETERMINATE.  THE LIMB C12 USED TO BE. --
++    # It is KEPT, not dropped, and it now asserts the verdict that is TRUE for that data.
++    # This is the control that pins the finding under the finding: D1 CANNOT SETTLE THE
++    # A-MAP STATION ORDERING ON THE REGISTERED REFERENCE, because that reference's Cn series
++    # is not monotone in either direction.  If the reference ever changes to a monotone one,
++    # THIS control goes red and the campaign is told, rather than discovering it at Gate P.
++    ok12b = (v12b == "INDETERMINATE" and base_v == "INDETERMINATE")
++    if mutate == "C12b":
++        ok12b = False
++    _rec("C12b", ok12b,
++         f"the REAL registered reference reads {base_v} as-read and {v12b} REVERSED -- and "
++         f"INDETERMINATE is the TRUE answer for it, not a failure. Cn by section 1..7 = "
++         f"{[round(x, 6) for x in _cn_real]}, which RISES 1->3, FALLS 3->6 and RISES 6->7 "
++         f"({_n_turns} direction changes), so it is monotone in NEITHER direction and "
++         f"reversing it changes nothing. CONSEQUENCE, REGISTERED RATHER THAN LEFT TO BE "
++         f"FOUND AT GATE P: D1 DOES NOT SETTLE THE A-MAP STATION ORDERING ON THIS DATA. Any "
++         f"Cp-versus-station figure this campaign produces carries that disclosure, because "
++         f"a mislabelled span station yields a smooth, believable and wrong figure.")
+     _rec("C13", ok13, f"seven identical sections -> D1 returns {v13}: the third branch is "
+                       "REACHABLE")
+ 
+@@ -3431,7 +3542,8 @@ def main(argv):
+                            "C21", "C22", "C23", "C24",
+                            "C25", "C26", "C27", "C28",        # Amendment 19
+                            "C29", "C30",                      # Amendment 20, item 47
+-                           "C31"):                            # Amendment 21, item 48
++                           "C31",                             # Amendment 21, item 48
++                           "C12b"):                           # Amendment 23, the D1 finding
+                 if target in baseline_red:
+                     reds[target] = None                 # cannot mutate an already-red control
+                     continue
+diff --git a/verification/campaign/M6SR_PREREGISTRATION.md b/verification/campaign/M6SR_PREREGISTRATION.md
+index 50f23832..21fbd6ed 100644
+--- a/verification/campaign/M6SR_PREREGISTRATION.md
++++ b/verification/campaign/M6SR_PREREGISTRATION.md
+@@ -7155,3 +7155,275 @@ item 41). **What was tested is IDENTITY and CURRENCY.**
+ 
+ **AND `verification/runs/M6SR_runs` IS STILL ABSENT AT THIS COMMIT.** The stage drive is held for
+ the supervisor's separate confirmation after check 1.
++
++---
++
++## 29. AMENDMENT 23 — 2026-09-04, **PRE-COMPUTE**. 🔴 **THE FINDING UNDER `C12`: `D1` IS `INDETERMINATE` ON THE REGISTERED REFERENCE, SO THE A-MAP STATION ORDERING IS UNRESOLVED — AND SANAA'S NAMED DELIVERABLE IS A `Cp`-VERSUS-STATION FIGURE.** `C12`'s FIXTURE MOVES AND ITS MUST-SEE DOES NOT; THE OLD FIXTURE IS **KEPT AS `C12b`** ASSERTING THE VERDICT THAT IS **TRUE**. §18.5's GATE IS **NOT** NARROWED — AND `--controls` NOW EXITS **0**.
++
++**Written by a lane under the cfd supervisor's four-part ruling, quoted where applied. It moves
++NO gate, NO threshold, NO cap and NO label. It does not freeze, does not launch and does not
++drive. `verification/runs/M6SR_runs` remains ABSENT.**
++
++### 29.0 THE LAWFULNESS CONDITION — **PLANTED, NOT ASSERTED**
++
++Run directory **`verification/runs/M6SR_runs`**: `find` → **0**; a probe at that exact path → **1**
++(the searcher is shown able to see it); after `rmdir` (which refuses a non-empty directory) → **0**.
++`test -e` **ABSENT**; `git ls-files` **0 rows**. **NO COMPUTE HAS OCCURRED UNDER THIS REGISTRATION.**
++
++---
++
++### 29.1 🔴 **THE FINDING UNDER THE FINDING — `D1` CANNOT SETTLE THE STATION ORDERING**
++
++> **RULED (supervisor, verbatim):** *"D1's whole premise is that the series is MONOTONE, so that
++> reversing it flips the direction and reveals the ordering. IT IS NOT MONOTONE. So D1 RETURNS
++> INDETERMINATE ON THE REAL DATA AND CANNOT SETTLE THE A-MAP STATION ORDERING AT ALL. C12's
++> unsatisfiability is the SYMPTOM; this is the disease, and it has been sitting under a red tick
++> that everyone learned to step around."*
++
++**MEASURED, on the registered reference `case_2308.dat`.** Section normal force
++`Cn(s) = −(closed-loop trapezoidal integral of Cp over d(x/c))`, sections 1…7:
++
++| section | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
++|---|---|---|---|---|---|---|---|
++| `Cn` | 0.239559 | 0.278490 | 0.294704 | 0.263810 | 0.222974 | 0.178438 | 0.210512 |
++
++**It RISES 1→3, FALLS 3→6, and RISES 6→7 — TWO TURNING POINTS, at sections 3 and 6.**
++`strictly_decreasing = False`, `strictly_increasing = False` → **verdict `INDETERMINATE`**
++(`Cn_last_over_first` 0.878747, `Cn_first_over_last` 1.137984, registered margin 0.75).
++**Reversing a non-monotone series leaves it non-monotone, so the reversal is `INDETERMINATE` too.**
++
++> 🔴 **REGISTERED, IN TERMS: `D1` IS `INDETERMINATE` ON THE REGISTERED REFERENCE. THE A-MAP STATION
++> ORDERING IS THEREFORE *UNRESOLVED BY `D1`*, AND EVERY `Cp`-VERSUS-STATION FIGURE THIS CAMPAIGN
++> PRODUCES CARRIES THAT DISCLOSURE BESIDE IT.**
++
++**WHY THIS BEARS ON SANAA'S NAMED DELIVERABLE, stated rather than left to be inferred.** Her first
++physics is *M6 surface `Cp` at the AGARD span stations* with the family band. **If the ordering is
++unknown, the `Cp` comparison can be plotted against the wrong stations and still look entirely
++plausible — a mislabelled span station produces a smooth, believable, WRONG figure.** §16.4 keeps
++A-MAP **REPORTED, NOT GATED**, which is correct as a *gate* decision and **is not a licence to
++present the deliverable as if the ordering were known.**
++
++**THE DISCLOSURE TRAVELS WITH THE DATA, NOT ONLY WITH THIS DOCUMENT.** `gate_p_figure_data()` now
++emits `A_MAP_STATION_ORDERING_DISCLOSURE`, **built from the `D1` record that call just computed**
++— never asserted as a constant — carrying the verdict, the seven `Cn` values, both monotonicity
++flags and `ordering_resolved_by_D1`. **Measured live: `INDETERMINATE`, `False`.** If a future
++reference *is* monotone, the text changes with the data **and control `C12b` goes red in the same
++breath.**
++
++⚠ **A SECOND DISCRIMINATOR IS NAMED AND DELIBERATELY NOT BUILT**, on the supervisor's express
++instruction *"do NOT build it in this pass and do not let it become a fifth thing between us and a
++run."* Candidates: **local chord length**, which falls monotonically root-to-tip on a tapered wing,
++and **leading-edge x-station**, which advances monotonically with span under this wing's sweep.
++**Both are GEOMETRIC and therefore independent of the `Cp` column `D1` shares with Gate P** — which
++is the circularity `D1` already discloses. **Neither is implemented, neither is registered as a
++discriminator, and nothing here claims the ordering is settled.**
++
++---
++
++### 29.2 `C12` — **THE FIXTURE MOVES, THE MUST-SEE DOES NOT**
++
++> **RULED (supervisor, verbatim):** *"I am not amending C12's must-see to its purpose clause. The
++> comparator's own comment is right — 'loosening a registered control so that it passes is how a
++> fail-open gets a green tick' — and I will not be the supervisor who overrides a warning the code
++> left for exactly this moment. … KEEP THE MUST-SEE AS `FALSIFIED`. REPLACE THE FIXTURE."*
++
++**THE NEW FIXTURE IS SYNTHETIC AND ITS SERIES IS EXACT BY CONSTRUCTION, NOT BY FITTING.** Each of
++seven sections is a closed rectangular `Cp` loop — `Cp = −A` along the upper leg (`x` 0→1), `Cp = 0`
++along the lower (1→0). The closed-loop trapezoidal integral is then **exactly `−A`**, so
++`Cn = −(−A) = A` and **the series IS the `A` list**: `[0.70, 0.60, 0.50, 0.40, 0.30, 0.20, 0.10]`.
++**A reader can check that arithmetic without running anything.**
++
++| limb | requirement | measured |
++|---|---|---|
++| **`C12` must-see — UNCHANGED** | the reversed synthetic reference → **`FALSIFIED`** | **`FALSIFIED`** |
++| **`C12` positive twin — NEW** | the SAME data **unreversed** → **`CORROBORATED`** | **`CORROBORATED`** |
++| **`C12b` — the old fixture, KEPT** | the REAL reference, reversed → **`INDETERMINATE`** | **`INDETERMINATE`**, and as-read **`INDETERMINATE`** |
++| **`C13` — unchanged** | seven identical sections → `INDETERMINATE` | `INDETERMINATE` |
++
++**NOTHING WAS LOOSENED: the control demands the same verdict and was given data capable of
++producing it.** **AND THE POSITIVE TWIN IS WHAT MAKES THE MUST-SEE MEAN ANYTHING** — a fixture that
++could only ever produce `FALSIFIED` would prove nothing about the discriminator, so the same data
++is required to produce **both** directed verdicts.
++
++**`C12b` IS THE CONTROL THAT PINS THE §29.1 FINDING.** It asserts the verdict that is **true** for
++the registered reference, prints the seven `Cn` values and the turning points, and states the
++consequence. **If the reference ever changes to a monotone one, `C12b` goes red and the campaign is
++told — rather than discovering it at Gate P.** `C12b` is added to the mutation target list.
++
++---
++
++### 29.3 §18.5's GATE IS **NOT** NARROWED — AND `--controls` NOW EXITS **0**
++
++> **RULED (supervisor, verbatim):** *"the gate's logic — a solve that cannot be graded afterwards
++> wastes 607 of 615 core-min — is SOUND, and 'any control red' is the right key for it. The defect
++> was never the gate; it was a control that could not go green. FIX THE CONTROL AND THE GATE IS
++> CORRECT AS WRITTEN. Narrowing a launch gate to accommodate a broken fixture would be the
++> fail-open by a longer route."*
++
++**§18.5's gate is BYTE-UNCHANGED by this amendment.**
++
++> 🔴 **MEASURED CONSEQUENCE: `python3 cases/M6SR/analyse_m6sr.py --controls` NOW RETURNS `rc 0`,
++> WITH ALL 32 CONTROLS FIRED — under `python3` AND `python3 -O`, with BYTE-IDENTICAL stdout
++> (11,184 bytes) and stderr.** **`X7` / `C12` no longer holds the suite red.** This is the first
++> time in this campaign that `--controls` has exited 0, and it was achieved by **repairing a
++> fixture, not by weakening a gate or a must-see.**
++
++⚠ **WHAT THAT DOES AND DOES NOT UNBLOCK.** §18.5's gate would now pass, so `PHASE=solve` and
++`PHASE=all` are no longer refused at exit 8 for this reason. **It unblocks nothing else**: the
++launch remains the supervisor's, and §29.4 records why the drive still does not use `PHASE=all`.
++
++---
++
++### 29.4 `B4s`'s REGISTERED INVOCATION — **THE DRIVER'S PHASE VOCABULARY CANNOT EXPRESS THE ORDERED DRIVE**
++
++**THE STRUCTURAL FINDING, MEASURED FROM THE DRIVER'S OWN GUARD EXPRESSIONS**, extracted from its
++comment-stripped code and evaluated per phase:
++
++| guard, verbatim | line |
++|---|---|
++| `if [ "$PHASE" = "solve" ] \|\| [ "$PHASE" = "all" ]; then` — §18.5's gate | **436**, closing `fi` **448** |
++| `if [ "$PHASE" = "stage" ] \|\| [ "$PHASE" = "all" ]; then` — the stage block | **571**, closing `fi` **739** |
++| `[ "$PHASE" = "stage" ] && { … exit 0; }` | **741** |
++
++`B3c` **637** and `B4` **719** are **inside** the stage block. **`B4s` 805, `B3z` 854 and
++`mpirun … rhoSimpleFoam` 877 are all AFTER the stage exit.**
++
++| phase | §18.5 gate | stage block | outcome |
++|---|---|---|---|
++| **`stage`** | **SKIPPED** — its own guard excludes stage | RUNS | `B3c` and `B4` execute, **exit 0 at 741. `B4s` NEVER REACHED.** |
++| **`solve`** | evaluates | skipped | `B4s` reached, but `B3c`/`B4` are not run in this invocation |
++| **`all`** | evaluates | RUNS | reaches `B4s` — **and then falls straight through to `B3z` and the SOLVER with no stop between** |
++
++> 🔴 **SO THE ORDERED SCOPE — `B3c`+`B4`+`B4s`, HALTING BEFORE `rhoSimpleFoam` — HAS NO PHASE.**
++> **RULED (supervisor):** *"I specified a run the driver cannot express."*
++
++**THE ACCEPTED SOLUTION USES THE MECHANISM ALREADY RULED FOR `B0`/`B6`/GATE A — a registered
++verbatim command line, no code change and no step-order change**, and it stops before the solver
++**by construction rather than by intention**:
++
++| step | **THE REGISTERED INVOCATION, VERBATIM** | expected exit |
++|---|---|---|
++| **stage** | `bash cases/M6SR/run_m6sr_b5.sh L3 stage` | **0** — runs `B3s`, `B3c`, `B4`; `B4s` is NOT reached |
++| **`B4s`** | `python3 cases/M6SR/analyse_m6sr.py --section7-screen --level L3 --case verification/runs/M6SR_runs/L3` | **0** = `PASS` · **11** = `BLOCKED` · **2** = REFUSAL |
++
++**This is the identical comparator invocation the driver makes at `:805`.** The pass condition is
++**the exit code**, never a reading of stdout — `FZ1`'s shape and item 42's ruling.
++
++---
++
++### 29.5 THE THROUGH-LINE — **ONE FINDING, NOT FIVE. AND `C12` IS A SIXTH OF A DIFFERENT SPECIES.**
++
++> **RULED (supervisor):** *"I want it as ONE finding, not five."*
++
++🔴 **ALL FIVE CENSUS-MACHINERY FAULTS WERE READERS THAT COULD NOT DISTINGUISH THEIR SUBJECT FROM
++SOMETHING ADJACENT TO IT.** Same sentence, five times:
++
++| fault | the subject | the adjacent thing it was confused with |
++|---|---|---|
++| 1 | a planted instance | a near-miss string the anchor could not match |
++| 2 | an **invocation** of a mode | the mode's **argparse definition** |
++| 3 | a function's **call site** | the function's **definition site** |
++| 4 | the file's name **at its writer** | the file's name **at its reader** |
++| 5 | **the guard's own refusal** | an unrelated refusal **downstream in the same function** |
++
++**The repair for all five is the same: sharpen the key until it separates the subject from its
++neighbour.** ⚠ **AND `C12` IS A SIXTH OF A DIFFERENT SPECIES, WHICH IS WHY IT IS DRAWN OUT
++SEPARATELY: a reader that CAN distinguish perfectly, asked a question its data cannot answer.** No
++sharpening of the key would ever have fixed it — only changing the data, or accepting the answer.
++**Its repair was to do both: a fixture that can answer (`C12`), and the honest answer recorded for
++the data that cannot (`C12b`).**
++
++---
++
++### 29.6 ⚠ **A NUMBER THIS LANE GAVE THE SUPERVISOR WAS WRONG, AND IT IS CORRECTED HERE**
++
++**This lane reported the `Cn` series as having *"direction changes at 3, 4 and 5"*, and the
++supervisor repeated that figure back in his ruling.** **IT IS WRONG.** `[3, 4, 5]` was the set of
++**steps whose direction differs from the FIRST step** — i.e. the falling steps — **not turning
++points.** **The correct statistic is TWO TURNING POINTS, at sections 3 and 6**, which is exactly
++what *"rises 1→3, falls 3→6, rises 6→7"* describes.
++
++✅ **NOTHING DOWNSTREAM MOVES.** The series is non-monotone in both directions under either
++statistic, `D1` returns `INDETERMINATE` either way, and every conclusion in §29.1 stands. **The
++correction is recorded because a figure this lane put in a supervisor's hands was wrong, and a
++wrong number that changes no conclusion is still a wrong number.**
++
++---
++
++### 29.7 WHAT THIS AMENDMENT DOES **NOT** DO
++
++1. **It moves NO gate, NO threshold, NO cap and NO label.** `C12`'s must-see is unchanged at
++   `FALSIFIED`; §18.5's gate is byte-unchanged; `D1`'s margin, branches and logic are untouched.
++2. **It does not build a second discriminator.** Two candidates are named and neither is
++   implemented or registered.
++3. **It does not freeze, does not launch and DOES NOT DRIVE THE STAGE.**
++4. **It does not claim the A-MAP ordering is settled.** It registers that it is **not**.
++5. **SUBMISSIONS REMAIN PARKED.**
++
++### 29.8 RULE 6's AMENDMENT ASSERTIONS
++
++- **Appended at the foot. Lines whose number changed above this section: 0**, verified by
++  byte-comparing the prefix against HEAD's blob.
++- **Version bump: v1.22 → v1.23** (Amendment 23).
++- **The unchanged-prefix sha of this file at `e8ccd0e9`** is
++  **`d5503913df5c30be843249b71df5cdc7e2061e0910127ed496f8c9d5fbd571ee`**, re-derived **inside the
++  commit invocation** with the commit aborting if it had moved.
++
++### 29.9 🔴 **THE RE-PIN — ONE PINNED EXECUTABLE MOVED, THE LIVE ROW ENUMERATED BY SEARCH**
++
++**This amendment edits ONE of the ten pinned executables, the comparator.** The live row carrying
++the superseded blob was **ENUMERATED BY SEARCH, NOT ASSUMED** — this campaign has three times found
++more rows than expected (§25.13, §27.11) — and the search returns **exactly one**, which is a
++**measurement, not a relief**. Struck, rule 6, by verbatim quote, machine-verified character for
++character against the line it strikes:
++
++> 🔴 **STRUCK BY QUOTE** *(§27.11's row — the pin that was IN FORCE)*: ~~*"| **`cases/M6SR/analyse_m6sr.py`** (comparator) | **`ee95e7dc340fcfac7f69387803aa827b5b0577dc`** | `021b072eda5a8c5da3a7e83e5e418481c8605bb5935448ca9e8f79a8a4b5497c` | **3618** | **§9 registered** — **RE-PINNED HERE** |"*~~
++
++**THE NEW STANDING PIN**, derived with `git hash-object` on the working tree and **RE-DERIVED
++INSIDE THE SAME SHELL INVOCATION AS THE COMMIT THAT CARRIES THIS SECTION, WITH THE COMMIT ABORTING
++IF IT HAD MOVED**:
++
++| path | git blob sha | sha256 of the file | lines | §9 status |
++|---|---|---|---|---|
++| **`cases/M6SR/analyse_m6sr.py`** (comparator) | **`6a59443ee053db22cd829f1fb7200dd46cdb413d`** | `f323ad42bb9f2b8e845ab789af5bb76644cbf8eff5516d97b78a0056a2bc5aec` | **3730** | **§9 registered** — **RE-PINNED HERE** |
++
++⚠ **THE OTHER NINE PINS ARE UNMOVED AND ARE RE-VERIFIED AT THIS HEAD, NOT ASSUMED** — see §29.11.
++
++### 29.10 COST — RULE 12
++
++| activity | wall s | ranks | **core-min (MEASURED)** |
++|---|---|---|---|
++| the `D1` readings on the real reference and its reversal, and the branch-reachability walk | 9 | 1 | **0.1500** |
++| `--controls` under `python3` and `python3 -O`, and the live figure-disclosure read | 14 | 1 | **0.2333** |
++| `--selftest` (controls + `C16` + the mutation loop) | 173 | 1 | **2.8833** |
++| **TOTAL** | 196 | 1 | **3.2667** |
++
++**All MEASURED from the clock; one run of each activity, with development re-runs NOT metered and
++NOT estimated.** Dollars are **derived** at $0.0513/core-h and **reported-by-owner**. **No
++`COST_CALIBRATION.md` row: nothing completed — no gate graded, no rung run, no compute under the
++registration.**
++
++### 29.11 `FZ1` — RUN IMMEDIATELY **AFTER** THIS COMMIT
++
++`check_comparator_freeze.py` compares HEAD blobs against worktree blobs, so a pre-commit run would
++read `PIN-DRIFT` on the row this amendment re-pins. **Its exit code is taken immediately after this
++commit and recorded in §29.13**, alongside the check-1 diff artifact. **A forward reference, not a
++claim.**
++
++### 29.12 THE STANDING QUESTION — **ANYTHING ELSE BETWEEN THIS DOCUMENT AND A LAWFUL LAUNCH?**
++
++🔴 **THE FIRST RESIDUAL OF EVERY PRIOR AMENDMENT IS NOW CLOSED: `X7`/`C12` NO LONGER HOLDS
++`--controls` RED. `--controls` EXITS 0 WITH ALL 32 CONTROLS FIRED.** What remains:
++
++1. 🔴 **NOTHING HAS EVER RUN IN THE REGISTERED RUN ROOT.** Every statement in Amendments 20–23
++   about what the launch path *will* do is a statement about **code**, not about a run.
++2. 🔴 **THE A-MAP STATION ORDERING IS UNRESOLVED** (§29.1). It does **not** block a launch — §16.4
++   keeps it REPORTED, NOT GATED — but it **qualifies the deliverable**, and the disclosure now
++   travels with the figure data so it cannot be lost between here and a plot.
++3. ⚠ **THE CENSUS IS BOUNDED BY ITS OWN FOUR KEYS.** A defect of a mechanism outside M1–M4 would
++   not have been found by it, and the stage drive is the empirical check on that.
++
++⚠ **WHAT THIS LANE CANNOT SAY, AND DOES NOT.** It has never seen a real M6 `log.checkMesh` produced
++by the registered driver in the registered run root. It did not re-derive the physics or the gates.
++**Check 1 on this diff, check 4, the freeze, the stage drive and the launch are the supervisor's,
++and this lane takes none of them.**

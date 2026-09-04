@@ -7427,3 +7427,35 @@ claim.**
 by the registered driver in the registered run root. It did not re-derive the physics or the gates.
 **Check 1 on this diff, check 4, the freeze, the stage drive and the launch are the supervisor's,
 and this lane takes none of them.**
+
+---
+
+### 29.13 ADDENDUM, SAME SESSION — **`FZ1`'s EXIT CODE, THE CHECK-1 ARTIFACT, AND THE THREE CONDITIONS THE SUPERVISOR NAMED FOR THE DRIVE**
+
+§29.11 forward-referenced this section. Run **immediately after commit `92a73349`**:
+
+> **`FZ1` EXIT CODE `0`. `VERDICT: PASS`. `10 of 10 PIN-OK, 0 violating`** — the re-pinned
+> comparator at its new sha, and the other nine **re-verified at this HEAD, not assumed**. The
+> verifier's **NO-MARKERS** caveat is carried, not dropped (§23.7, item 41): what was tested is
+> **identity and currency**, not a marker-dated freeze margin.
+
+| | |
+|---|---|
+| path | **`cases/M6SR/AMENDMENT_23_D1_INDETERMINATE_C12_FIXTURE.diff`** |
+| content | the **unmodified stdout** of `git --no-pager show 92a73349d49d7a0c57c001afa263cb68f5a2f405` |
+| size | **37,982 bytes, 558 lines** |
+| sha256 | `1b0fd67a43b8ff3b9b41ceb9a02005faf4d180aa4be5a2bb34b14bcae22ae0ce` |
+| equality | **`cmp` against a freshly recomputed `git show`: BYTE-IDENTICAL** |
+| the comparison itself | **PLANT-VERIFIED**: the same `cmp` against a copy with one line appended **DOES** report a difference (rule 3) |
+
+**THE THREE CONDITIONS THE SUPERVISOR NAMED AS UNLOCKING THE DRIVE, EACH MEASURED:**
+
+| # | condition | measured |
+|---|---|---|
+| 1 | the `C12` fixture repair and the `D1` disclosure land, pre-compute, with controls | ✅ commit `92a73349`; `--controls` **rc 0, all 32 fired**; `--selftest` **rc 0, all 30 mutation targets flipped red**, `C16` fired at rc 0/0 |
+| 2 | `B4s`'s command line registered with its expected outcome | ✅ §29.4, two verbatim lines with expected exit codes |
+| 3 | `FZ1` still exits 0 and the run root is still absent | ✅ **`FZ1` = 0**; **`verification/runs/M6SR_runs` ABSENT**, re-verified at this commit |
+
+🔴 **THE DRIVE IS STILL NOT TAKEN.** All three conditions are met and **the confirmation is the
+supervisor's alone.** The run root remains absent until he gives it. **This lane does not read
+"what will unlock it" as "it is unlocked".**
