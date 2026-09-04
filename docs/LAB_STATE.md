@@ -5071,11 +5071,55 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-04T01:50:22Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-53` — **`SO3aF2` ran clean, `F1`–`F5` all HIT — and the item still has NO VERDICT BY CONSTRUCTION, because its frozen §5 registers two FAILURE labels and no success label. It is also 3.15 % over a ceiling NOTHING EVER COMPARED ANYTHING TO. Readings stand; breach stands; neither cancels the other.** Before it, `S-52`, `S-51`, `S-50` (`W3` `NOT A RESULT`), `S-49`, `S-48`, `S-47`…`S-29`.
+**Section last written:** 2026-09-04T01:53:38Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-54` — **`SO3aF2`'s rest state verified by me at the artefacts and it HOLDS, with one refinement: the ITEM is at rest, the DIRECTORY is not clean. "Never once edited" now rests on ONE COMMIT AND ONE BLOB across all of git history, stronger than the md5 it was claimed on.** Before it, `S-53` (`F1`–`F5` all HIT, no verdict by construction, 3.15 % over an unenforced ceiling), `S-52`, `S-51`, `S-50`, `S-49`, `S-48`…`S-29`.
 
 **Section last written:** 2026-09-04T01:08:43Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-48` — **`W3` IS NOT RUNNING AND HAS NOT BEEN SINCE 21:57:49Z; IT REACHED ITS REGISTERED TERMINUS, AND THE REGISTERED FALLBACK DOES NOT RESCUE IT.** `S-47`'s and `S-46`'s *"`W3_chain_r2` running"* lines are **STRUCK BY QUOTE** below — they were true when written and were still being relayed three hours after they stopped being true. Before it, `S-47` — **DESK ITEMS CLOSED**: the **rule-10 hole is fixed in the constitution itself** on Sanaa's GO (`0ee2e7df`, verified by me at HEAD, not taken on relay), and the rule-12 estimate gap is **routed to verification** as a forward-only note. `S-46`'s "on Sanaa's desk" line is **struck by quote** so no successor re-escalates a closed item. **Nothing now on her desk from this family** but the four `NOT FILED` upstream defect classes and FD-vs-adjoint as a fourth `V` instrument. Before it, `S-46` (closing state), `S-45`, `S-44`, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+##### UPDATE S-54 — **`SO3aF2`'s REST STATE VERIFIED BY ME AT THE ARTEFACTS, NOT ON RELAY — AND IT HOLDS, WITH ONE REFINEMENT: THE **ITEM** IS AT REST, THE **DIRECTORY** IS NOT CLEAN. "NEVER ONCE EDITED" NOW RESTS ON BLOB IDENTITY ACROSS ALL OF GIT HISTORY, WHICH IS STRONGER THAN THE `md5` IT WAS CLAIMED ON** (2026-09-04, `date -u` stamp in the committing invocation)
+
+###### 1. THE HEADLINE CLAIM, RE-PROVED ON A BETTER INSTRUMENT THAN THE ONE THAT CARRIED IT
+
+The lane's line — *"sixteen addenda, nine launches, three defect classes closed and one supervisor's ruling overturned, and the scoring instrument was never once edited"* — is the sentence the whole item's evidentiary value rests on. **It was carried by a current `md5`, and an `md5` proves only the file you are holding.** So I proved it differently:
+
+| instrument | reading |
+|---|---|
+| commits that have EVER touched `so3af2_read.py` | **1** — `3b85e47f`, the 2026-08-31 freeze |
+| distinct blobs across all of them | **1** — `8418bc7f30fe354f1735ee09d4b71c13e2c83aa0` |
+| current `md5` | `d5f4149d43abe3a165ffe7e653b78bee`, the freeze value |
+
+> **An `md5` match says the file is right NOW. One commit and one blob says it was never wrong, not even transiently.** The claim survives the stronger test.
+
+###### 2. THE ARTEFACTS, READ BY ME RATHER THAN QUOTED
+
+`XM/so3af2_READ.json` (1,865 B) carries `predictions.F1…F5` **all `True`**, and the details behind them: `F1` `tolerance_lines 3` / `residual_histories 3`; `F2` all three points `CD` and `CL` `True` at **`0.0` % relative** with `J_read == J_ref` exactly; `F3` `mp0 [0,443]`, `mp1 [0,436]`, `mp2 [0,424]`; `F4` `collision_token_count 0`; `F5` `J_recomputed == J_read`. `XM/so3af2_M.json` (11,681 B) carries **exactly 3** `residual_histories`. **Every figure the lane reported reproduces at the artefact.**
+
+**And the artefact carries `NOT_A_GRADIENT_FREEZE` as a TOP-LEVEL KEY** — §0.2's prohibition written into the machine-readable output itself, not only into prose. **A constraint that travels with the data outlives the document that explains it.**
+
+###### 3. ⚠ THE REFINEMENT: THE ITEM IS AT REST; THE DIRECTORY IS NOT CLEAN
+
+`git status --porcelain` on the case directory is **not** empty. Two distinct things in it, and they must not be confused:
+
+- **`FEASIBILITY_PREREGISTRATION.md` shows `MM` — and is BYTE-IDENTICAL to HEAD.** `cmp` against `git show HEAD:` returns equal. **`git status` read STALE**, exactly as this lab's standing note warns (*it once reported dirty files clean while ten agents committed*); **the content check is the instrument, `git status` is not.** The lane's claim is correct.
+- **Four `QUEUE_ENTRY_DRAFT_*.json` are ABSENT FROM DISK and PRESENT AT HEAD** — real worktree deletions. **They are PRE-EXISTING and not this session's**: they appear in the session-start status at `04c0c1d5` (00:47:33Z), before any of tonight's dafoam work. **Rule 10: an unexpected change is INSPECTED, NEVER REVERTED, and the index is the chief's call.** Untouched, named here so nobody mistakes them for fallout of the stand-down.
+
+**So the precise statement, which "at rest" alone would let a successor over-read: every file the item TOUCHED is disk == HEAD, and the DIRECTORY still carries four foreign deletions that are somebody else's unfinished work.** Both true; only the first is ours.
+
+###### 4. THE LANE'S OWN SELF-CAUGHT DEFECT, AND WHY ITS HANDLING IS THE RIGHT ONE
+
+Its evidence file recorded the pre-registration's hash as of when the file was written; ADDENDUM 17 — **which cites that evidence file by name** — was then appended and committed with it, so the recorded value went stale by exactly one append.
+
+**The ordering knot is unavoidable: a file verifying a rest state cannot carry the hash of the document that will cite it.** What was avoidable is that the **previous** evidence file met the same knot and **said so**, and this one did not. **The missing sentence was the defect, not the stale hash.**
+
+**And it was repaired as a POSTSCRIPT rather than a rewrite, on reasoning worth keeping:** refreshing item 1 would have *made the file agree with itself and erased the one thing a reader needs from it — that its figures were taken at a moment, and which moment.* **A record that has been silently brought up to date cannot be distinguished from one that was right all along.** Same principle as the lab's rule on quotations: a tidied record loses the evidence that it is primary.
+
+###### 5. NOTHING CLOSES BECAUSE THE ITEM CAME OUT WELL
+
+**Still open, unchased, and explicitly NOT retired by a clean result:** the ceiling's missing call site (population sweep commissioned); the **frame allowance** (n=1, deliberately unresized on one observation); the **unexplained census stall** (6.0 core-min, parked with its evidence intact); the **cache-state gap for solver arms** (routed up, not amended by us).
+
+**`§0.2` restated BECAUSE it came out well:** this item never called `solve_linear`, it remains `prereg=FEASIBILITY`, it may **never** be cited as a rule-2 gradient freeze, and **nothing it measured may be quoted toward `SO-3aR`'s adjoint collision — least of all now.**
+
+
 ##### UPDATE S-53 — **`SO3aF2` RAN CLEAN AND `F1`–`F5` ALL HIT — AND THE ITEM STILL HAS **NO VERDICT, BY CONSTRUCTION**, BECAUSE ITS FROZEN §5 REGISTERS TWO FAILURE LABELS AND NO SUCCESS LABEL. THE ITEM IS ALSO 3.15 % OVER A CEILING THAT **NOTHING EVER COMPARED ANYTHING TO**. THE READINGS STAND; THE BREACH STANDS; NEITHER CANCELS THE OTHER** (2026-09-04, `date -u` stamp in the committing invocation)
 
 ###### 1. THE PHYSICS — `rc=0`, THE FIRST CLEAN EXIT IN NINE LAUNCHES
