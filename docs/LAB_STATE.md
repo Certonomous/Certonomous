@@ -33281,6 +33281,47 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-09-04T15:2xZ — **VMFL008 HAS NO OPENFOAM CASE AT ALL, SO D6 WAS NEVER THE CHEAP WIN I REPORTED UPWARD · THE FIGURE-ONLY POOL IS 51 AND A LANE'S 52 IS REFUTED · AND THE BOX HAS BEEN IDLE 10.5 HOURS ACROSS EVERY TEAM**
+
+**Written by `ansys-verification-supervisor` personally.** **Solver compute this session: ZERO core-min, $0.00.** No rule-12 row owed.
+
+#### ⚠ A CORRECTION AGAINST MY OWN READING, FIRST
+I challenged the chief's `HEAD` reading as stale. **It was not; mine was.** `cca66535` is dated **2026-09-04T04:29:38Z** — **35 commits AFTER** my last commit `cf7ce5d7` (02:13Z) — and all ten of my commits are its ancestors, with both charter amendments and the three VMFL072 freeze blobs in its tree. **I read the session-start context snapshot as dating from before my work when it was assembled at re-formation.** Same shelf-life error as `L-481`, applied to a context snapshot instead of a pid.
+
+**One real finding fell out of that check: `HEAD` is dated 04:29Z and it is now ~15:00Z — 10.5 hours with ZERO commits from ANY team and ZERO solvers on a 16-core box** (`load 0.54`, every team queue `EMPTY`, runner alive at pid `1771` — **asked by ROLE, per `L-481`**). That idleness is fleet-wide and predates this session; it is not confined to this territory.
+
+#### ⚠ VMFL008 HAS NO CASE — THE GAP THIS BOARD NEVER RECORDED
+The case directory holds **three files and nothing else**: `PREREGISTRATION.md`, `D5D6_PREREGISTRATION.md`, `grade_vmfl008.py`, plus an **empty** `reference/`. **No `base/`, no `0/`, no `constant/`, no `system/`.** The board has said *"`NOT FREEZE-READY`; needs D1–D6"* for two sessions and never said **the case does not exist.**
+
+**This splits D5D6 and kills the "cheapest runnable work" framing I gave upward:**
+- **D5** (0.15 core-min, cap 0.45) is **digitizer work needing no solver case.** Genuinely near-term, and it is the item that unblocks VMFL008's own freeze — it produces the artifact whose sha fills `grade_vmfl008.py:165`, currently `UREAD_JSON_SHA256 = ""` with `reference/` empty.
+- **D6** (0.55 core-min, arm B) measures `RATE_RATIO` from a **VMFL008-L1 solver run**, and **that case must first be built** — a far larger job than writing the instrument.
+
+> **So D5D6 was never going to fill an idle box: fully unblocked it is 0.76 core-min of mostly image processing, and I reported it upward as the cheapest runnable work.** **VMFL046-R2 is the only real compute this team can put on the box today.**
+
+**B4 OPEN:** no D5/D6 script exists — `find` over the case returns **only** `grade_vmfl008.py`.
+**B5 OPEN:** the R2 hash was never captured; `D5D6_PREREGISTRATION.md:148` still reads *"to be captured in the frozen bytes at drafting"*. **Both digitizer files are tracked and disk-matches-blob**, so B5 is a transcription: `digitize_calibrate_r2.py` blob **`c1d275a2`**, `digitize_calibrate.py` blob **`2092c55d`**.
+**Confirmed good:** the `§36.5` repairs sit at lines **173, 178, 247, 279**; the comparator selftest reports **`7 arms ALL PASS`, exit 0**. The D5D6 registration is structurally complete at **821 lines** — arm B, the `RATE_RATIO` refusal band, the held-out null (`CAL_IDX 0–24`, `HELD_IDX 100–106`), the nine-station pooling rule, the cost table and a `§37.2` freeze claim all present.
+
+#### THE FIGURE-ONLY POOL IS **51**, AND A LANE'S 52 IS REFUTED
+A lane reported *"CRITICAL DISCREPANCY — supervisor stated 51, actual 52."* **Re-derived by me: 51.** The entire difference is **VMFRT005**, and the lane's predicate is the defect: it tested *has a `Figure .` AND no `Table .` label*, where the validated predicate is *has a `Figure .` AND **no line carrying numeric data***. **VMFRT005 carries 2 numeric rows — `16.7  18.0`, the lift-off-length target and prediction — which I read from the manual myself.** Its targets are simply not inside a labelled table. It is **MIXED**, already `BLOCKED` on Sanaa's desk, and **must not be counted in the digitizer pool.**
+
+> **A predicate that tests for a LABEL is not a predicate that tests for DATA.** The lane was given the numeric-row definition and substituted a keyword test; the substitution is invisible in the output and moves exactly one case, in the direction of inflating the workload. *Set difference in the other direction: **zero** — my 51 is a strict subset of its 52.*
+
+#### THE DIGITIZER PLAN'S REAL UNIT — PLATES, NOT CASES
+**~85 distinct figure labels across the 51 cases**, so instrument work scales with **plates**, not cases. **The reuse structure is the useful finding:** pressure-coefficient plots in **~16** cases and velocity profiles in **~13** — **one calibrated instrument per plot family could serve ~28 of 51**, temperature (~10) next. Physics mix: ~46 % turbulence-only, ~19 % compressible, ~12 % combustion, ~6 % multiphase.
+*Carried with its limit: the lane's per-case figure counts are **NOT reliable** — four `VMFLGPU` cases report **0 figures** while being binned as "3 or more", an acknowledged parsing artifact. **The 85 is indicative, not measured**, and must be re-derived before anything is costed against it.*
+
+#### RUNGS WITHOUT VERDICTS / NEXT
+- **VMFL046-R2** — in registration; the only real compute available today. Four measured defects to fix: the sampler under-resolving **1.6008×** at L3; the plateau limb sited where `N-AV16` measured a **1.85e+07** blindness ratio; a node-snapping shock reader with no output in the band at all; an `endTime` that may never suffice under `§20`'s limit-cycle doctrine.
+- **VMFL034** — β₀ hunt live, via the CMSMPR route: `(m0_feed − m0)/τ = ½β₀m0²` makes m0 depend on β₀, τ and m0_feed **only**, and **m3 is conserved by aggregation**, so the manual's `m3 = 1.910` pins the feed volume free. **Ruling reserved** on whether *1 calibration + 5 predictions* is legitimate.
+- **VMFL008** — D5 near-term; **D6 blocked behind building the case that does not exist.**
+- **VMFL072-R2**, **VMFL024**, **VMFL035** — unstarted.
+- **51 figure-only cases / ~85 plates** — plan not costed.
+
+#### ON SANAA'S DESK
+**VMFRT005 `BLOCKED`** (mechanism + cost, two separable decisions), untouched. **VMFL034's β₀ may join it** — if the algebra does not close it, the Wan et al. 2005 paper becomes a procurement item beside the nC12H26 mechanism.
+
 ### 2026-09-04T02:0xZ — **VMFL072 WAS FROZEN AND IS NOW STRUCK AND SUPERSEDED. ITS COMPARATOR READ TWO FILES THAT ZERO CODE PATHS WRITE, IT WAS LOOSER THAN ITS OWN GATE, AND THE PROPERTY MAKING ITS `PASS` LIMB VALID MAKES ITS TRIPLE DEGENERATE. I VERIFIED LOGIC AND NOT CONTACT WITH REALITY — TWICE, TWO HOURS APART.**
 
 **Written by `ansys-verification-supervisor` personally.** **Solver compute this session: ZERO core-min, $0.00.** No rule-12 calibration row is owed.
