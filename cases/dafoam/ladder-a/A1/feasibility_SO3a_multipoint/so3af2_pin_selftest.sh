@@ -698,6 +698,96 @@ else
 fi
 rm -f "$DECOY"; rmdir "$TMP" 2>/dev/null || true
 
+# =============================================================================
+# ADDENDUM 15 -- THE RESIDUAL HISTORY IS READ FROM THE LOG, AND THE READER THAT
+# READS IT IS DRIVEN HERE AGAINST A REAL PRESERVED ARTEFACT.
+#
+# The producer imports DAFoam, which is not on the host, so the four functions
+# are extracted by ast and exercised directly -- the same technique JOB 1
+# already uses for `_reader_path_contract` and `_enumerate_for_refusal`.
+# The log driven against is the XM arm's own preserved output, not a fixture:
+# a parser proved only against a fixture it was written beside is proved
+# against its author.
+# =============================================================================
+echo
+echo "JOB 6 -- THE LOG-BORNE RESIDUAL HISTORY (ADDENDUM 15)"
+XMLOG=/home/ubuntu/certonomous-runs/CURRICULUM-SO3aF2-a1-naca0012-multipoint-feasibility/XM/XM.log
+RESID_OUT="${TMPDIR:-/tmp}/so3af2_resid_$$.txt"
+if [ ! -f "$XMLOG" ]; then
+  bad "RESID log present" "$XMLOG is absent -- the preserved artefact this job drives against is gone"
+else
+python3 - "$PRODUCER" "$XMLOG" > "$RESID_OUT" 2>&1 <<'PYR'
+import ast, os, re, sys, json, shutil, tempfile
+prod, log = sys.argv[1], sys.argv[2]
+src = open(prod).read()
+t = ast.parse(src)
+want = {"_own_log_path", "_parse_primal_blocks", "_plant_short_read",
+        "_history_from_blocks"}
+fns = [n for n in ast.walk(t) if isinstance(n, ast.FunctionDef) and n.name in want]
+print("EXTRACTED", len(fns) == len(want))
+ns = {"os": os, "_re": re, "_shutil": shutil, "_tempfile": tempfile}
+# the constants the functions close over, taken from the producer's own bytes
+for line in src.splitlines():
+    s = line.strip()
+    if s.startswith(("_BLOCK =", "_RE_TIME =", "_RE_CD =")):
+        exec(s, ns)
+ns["_RE_RES"] = re.compile(r"^(\S+) initRes: (\S+) finalRes: (\S+) nIters: (\d+)\s*$")
+ns["_RE_RES_LINE"] = re.compile(r"^\S+ initRes: .*\n", re.M)
+exec(compile(ast.Module(body=fns, type_ignores=[]), "<r>", "exec"), ns)
+
+blocks = ns["_parse_primal_blocks"](log)
+withres = sum(1 for b in blocks if b["equations"])
+print("BLOCKS", len(blocks) == 3, withres == 3)
+h = [ns["_history_from_blocks"](blocks, i) for i in range(3)]
+print("SAMPLES", all(x is not None and x["n_samples"] == 5 for x in h))
+print("EQUATIONS", all(sorted(x["equations"]) == ["U0", "U1", "U2", "nuTilda", "p"]
+                       for x in h))
+# the block-to-scenario binding, against the REGISTERED functionals
+CD_REF = [0.01723938072177922, 0.020910510045267394, 0.027268054119716875]
+print("CD_BIND", all(abs(h[i]["CD_final_in_log"] - CD_REF[i])
+                     <= 1.0e-12 * max(1.0, abs(CD_REF[i])) for i in range(3)))
+print("SERIALISABLE", bool(json.dumps(h)))
+# the planted short read, and then the SAME control driven against a parser
+# that cannot see the plant -- a control never shown FAILING is not a control
+ctl = ns["_plant_short_read"](log, blocks)
+print("PLANT", ctl["demonstrated"] is True,
+      ctl["live_blocks_with_residuals"] == 3,
+      ctl.get("planted_blocks_with_residuals") == 2)
+blind = dict(ns)
+blind["_parse_primal_blocks"] = lambda p: ns["_parse_primal_blocks"](log)
+exec(compile(ast.Module(body=[n for n in fns if n.name == "_plant_short_read"],
+                        type_ignores=[]), "<s>", "exec"), blind)
+print("PLANT_BLIND", blind["_plant_short_read"](log, blocks)["demonstrated"] is False)
+# STRUCTURAL: the unregistered substitute is GONE, not merely bypassed, and the
+# repair does not touch printInterval
+gone = [c for c in ("getPrimalResidualHistory", "primalResidualHistory",
+                    "getResidualHistory", "residualHistory")
+        if re.search(r'"%s"' % c, src) or re.search(r"'%s'" % c, src)]
+print("SUBSTITUTE_GONE", gone == [])
+# THE PREDICATE IS EXACTLY WHAT IT CLAIMS. "printInterval not in src" would be
+# a SUBSTRING test over the whole file and would fail on the prose that says the
+# repair leaves printInterval alone -- a check that flags the sentence promising
+# it did not do the thing. The thing to test is whether the producer NAMES
+# printInterval as an option, so the test is: no string LITERAL in the
+# producer's AST is equal to "printInterval". A dict key `"printInterval": 1` is
+# such a literal; a docstring mentioning the word is not.
+lits = [n.value for n in ast.walk(t)
+        if isinstance(n, ast.Constant) and isinstance(n.value, str)]
+print("PRINTINTERVAL_NOT_SET", "printInterval" not in lits)
+PYR
+  grep -q "^EXTRACTED True"   "$RESID_OUT" && ok "RESID functions extract" "the four ADDENDUM 15 functions are present and extractable by ast" || bad "RESID functions extract" "$(grep '^EXTRACTED' "$RESID_OUT")"
+  grep -q "^BLOCKS True True" "$RESID_OUT" && ok "RESID parses the real log" "3 primal blocks, 3 carrying residuals, from the XM arm's own preserved output" || bad "RESID parses the real log" "$(grep '^BLOCKS' "$RESID_OUT")"
+  grep -q "^SAMPLES True"     "$RESID_OUT" && ok "RESID sample count"      "5 samples per primal at the REGISTERED printInterval -- not per-iteration, and not claimed to be" || bad "RESID sample count" "$(grep '^SAMPLES' "$RESID_OUT")"
+  grep -q "^EQUATIONS True"   "$RESID_OUT" && ok "RESID equations"         "U0 U1 U2 p nuTilda in every block" || bad "RESID equations" "$(grep '^EQUATIONS' "$RESID_OUT")"
+  grep -q "^CD_BIND True"     "$RESID_OUT" && ok "RESID block binds to point" "the i-th block's converged CD matches the i-th REGISTERED functional to 1e-12 relative -- the mapping is measured, not assumed" || bad "RESID block binds to point" "$(grep '^CD_BIND' "$RESID_OUT")"
+  grep -q "^SERIALISABLE True" "$RESID_OUT" && ok "RESID serialisable"     "the histories survive json.dumps, which is how the frozen reader receives them" || bad "RESID serialisable" "$(grep '^SERIALISABLE' "$RESID_OUT")"
+  grep -q "^PLANT True True True" "$RESID_OUT" && ok "RESID planted short read" "stripping the last block's initRes lines is SEEN: 3 -> 2 (CLAUDE.md rule 3)" || bad "RESID planted short read" "$(grep '^PLANT ' "$RESID_OUT")"
+  grep -q "^PLANT_BLIND True" "$RESID_OUT" && ok "RESID plant is load-bearing" "driven with a parser that cannot see the plant, the SAME control reads NOT demonstrated -- a control never shown failing is not a control" || bad "RESID plant is load-bearing" "$(grep '^PLANT_BLIND' "$RESID_OUT")"
+  grep -q "^SUBSTITUTE_GONE True" "$RESID_OUT" && ok "RESID substitute removed" "the four attribute names are GONE from the producer -- the unregistered route is removed, not bypassed" || bad "RESID substitute removed" "$(grep '^SUBSTITUTE_GONE' "$RESID_OUT")"
+  grep -q "^PRINTINTERVAL_NOT_SET True" "$RESID_OUT" && ok "RESID printInterval not set" "no string LITERAL in the producer's AST equals printInterval -- the producer never names it as an option, so the registered sampling interval is unchanged. The predicate is a literal test, NOT a substring test over the file, which would flag the prose that promises this" || bad "RESID printInterval not set" "$(grep '^PRINTINTERVAL' "$RESID_OUT")"
+  rm -f "$RESID_OUT"
+fi
+
 echo
 echo "SO3aF2 PIN CENSUS: PASS $PASS  FAIL $FAIL  NOT RUN 0"
 [ "$FAIL" = "0" ] || exit 1

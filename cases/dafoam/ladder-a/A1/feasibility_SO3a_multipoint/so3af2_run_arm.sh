@@ -92,7 +92,7 @@ MD5_A1WR_DRIVER=9bff59b63509e76d5dfa373a42a47074
 MD5_ATTR_CENSUS=2fd479d881f63b529605b3a45d0154f3
 MD5_ENV_ASSERT=a5b7fcae05aab420d94623582d45f897
 MD5_READER=d5f4149d43abe3a165ffe7e653b78bee     # so3af2_read.py, pinned at the 2026-08-31 freeze, section 8
-MD5_PRODUCER=0cbff59668dd1a88c155f6728ed0863c                   # so3af2_runScript.py, pinned at the Stage-2 amendment
+MD5_PRODUCER=f3913ddbe0bafe874755332561407d0f                   # so3af2_runScript.py, RE-PINNED at ADDENDUM 15 (residual history read from the log, which is what section 5 F1 registers)
 
 # ---- THE FORBIDDEN TOKEN, section 6 NL-2 second clause: the structural half of
 # ---- the no-gradient promise.  Written by construction so this file does not

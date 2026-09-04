@@ -1,5 +1,14 @@
 # SO3aF2 `F1` — SUCCESSOR REGISTRATION, **DRAFT ONLY. UNFROZEN. NOT A PRE-REGISTRATION.**
 
+> **⚠ SUPERSEDED 2026-09-04 BY `FEASIBILITY_PREREGISTRATION.md` ADDENDUM 15 AND ITS CORRECTION 1. READ THOSE, NOT THIS.**
+> The supervisor ruled **option a1** — a producer-only addendum to SO3aF2 — and made **three changes** this draft does not carry. **Where they differ, the addendum governs.**
+> 1. **`printInterval` IS NOT CHANGED.** §7 arm `XM2` here proposes `printInterval: 1` at 0.55 core-min; the ruling keeps the registered value, and `XM2` is costed at **0.40** core-min with **no adjustment**, because the registered program is then unchanged. **§10's second falsifier is WITHDRAWN with the option change it was written for** — a prediction kept past the change that motivated it is decoration.
+> 2. **Arm `R0` is a DIAGNOSTIC, not a graded reading; `XM2` is the graded arm.** §5 of this draft leaves the `rc=7` artefact question to the supervisor; it is now ruled — *bookkeeping never voids physics* makes the preserved log's physics readable, and does **not** make an arm whose producer refused the artefact of record.
+> 3. **The addendum states, and this draft does not, that both `F1` readings now come from ONE FILE and therefore SHARE A FAILURE MODE** — a truncated or unwritten log moves both — followed by the discrimination the planted control measured as surviving. **"Registered" is not allowed to do the work that "measured" should.**
+>
+> **Left in place, not rewritten** (`CLAUDE.md` rule 6 applied to a draft by choice rather than by obligation): it is the case that was built, and the record of what was proposed is worth more than a tidy one.
+
+
 > **⚠ THIS FILE IS A DRAFT AND MAY NEVER BE CITED AS A FREEZE.** It registers
 > nothing, freezes nothing, and authorises no compute. It is a case built for the
 > `dafoam-supervisor`, who makes the registration ruling. **NOT QUEUED. NOT

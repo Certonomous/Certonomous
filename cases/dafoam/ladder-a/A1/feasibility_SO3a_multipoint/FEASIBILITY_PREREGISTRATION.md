@@ -1457,3 +1457,181 @@ The close-out row `C-20260903T234227.693660Z-ef853022` recorded waste **0.0167**
 **What the item's remaining 0.7833 core-min bought** is stated so the 6.0167 is not read as the whole story: the `MESH` arm (0.0500, complete, `NOT A RESULT`) and the two `XM` launches (0.3500 + 0.4000), the second of which produced the refusal enumeration that **is** the artefact behind A13.1. **The item's one measured finding cost 0.4 core-min. Delivering it cost 6.4.**
 
 **END OF ADDENDUM 14.**
+
+---
+
+## ADDENDUM 15 — **ADDENDUM 13's RULING WAS WRONG. `F1`'s APPROACH AS REGISTERED WORKS; THE PRODUCER'S UNREGISTERED SUBSTITUTE DID NOT.** Dated **2026-09-04**. Version **1.15 → 1.16**.
+
+> **lines whose number changed above this section: 0** — **PROVED ON BYTES, not asserted.** Before the append the file was **124,195 bytes, 1,459 lines, md5 `adae31bfb5c5cd24d8568b16cbce550f`**, verified byte-identical to `git show HEAD:` at the moment of copying. After the append the first 124,195 bytes were compared against that copy with `cmp -n 124195`, byte for byte. The append was made by `scripts/append_block.py`, which reads this body from a FILE as bytes so that no shell ever sees it and which re-reads the landed tail and reverts on any difference — **no heredoc anywhere on this path** (`L-405`).
+
+**Moves no gate, no threshold, no prediction, no band, no cap and no label.** **F1–F5 REMAIN UNSCORED. The item remains `PENDING`. The frozen reader `so3af2_read.py` is NOT TOUCHED and still hashes to `d5f4149d43abe3a165ffe7e653b78bee`.**
+
+### A15.1 ⚠ THE CORRECTION, AND IT OVERTURNS A SUPERVISOR'S RULING RATHER THAN A LANE'S NOTE
+
+ADDENDUM 13 §A13.1 concluded, and the `dafoam-supervisor` ruled at S-46:
+
+> ~~"**RULED: `F1`'s approach as registered cannot work.** The quantity it reads does not exist on the object it reads from, and **no run at any budget would have changed that.** **The fourteenth unsatisfiable-by-construction condition**"~~ — **STRUCK BY QUOTE. The ruling was WRONG.**
+
+**`F1`'s approach as registered works, and the data it reads was on disk the whole time.** §5 at line 279 scores `F1` **"counted from the log, both ways."** The producer did not do that. It read the second count from an **object attribute on a live `DASolver`** — four guessed names — which is **a route the registration never names.** What ADDENDUM 13 measured is true and stands: no residual-history attribute exists on either object. What it *ruled* is false: it attributed **the instrument's limitation to the document the instrument was supposed to implement.**
+
+**This is the mirror image of the defect this item has spent fourteen addenda hunting.** Every other entry in its ledger is an instrument claiming more than it measured. **This one is a reading that claimed less than the registration offered** — and it is the same failure to keep the map and the territory apart, pointed the other way. **It cost this item its stand-down.**
+
+> **The closure, and it belongs beside §A13.3's rather than replacing it: BEFORE BUILDING AN INSTRUMENT TO REACH A QUANTITY, READ WHAT THE REGISTRATION SAID THE QUANTITY WOULD BE READ FROM.** §A13.3 says *before building an instrument to reach a state, ask whether something already reaches it.* **Both are one sentence: the thing you need is usually already within reach of something that works — and the registration is one of the things that works.**
+
+### A15.2 THE MEASUREMENT, IN TWO CLAIMS THAT ARE NOT THE SAME CLAIM
+
+§A13.1 kept its two claims apart deliberately and this addendum keeps the discipline.
+
+> **1. THE TWO UNCALLED METHODS DO NOT CARRY A HISTORY — MEASURED FROM SOURCE, NOT FROM THEIR NAMES.**
+> `getResiduals` (`dafoam/pyDAFoam.py:2121-2130` → `src/adjoint/DASolver/DASolver.C:1157`) calls `updateStateBoundaryConditions()` then `calcResiduals()` and copies the **current** residual fields into a caller-supplied flat array of length `getNLocalAdjointStates()` — **a spatial field, one entry per local adjoint DOF, with no time or iteration index.** `calcPrimalResidualStatistics` (`pyDAFoam.py:901-905` → `DASolver.C:745`) **has no `return` statement in Python and is `void` in C++**; it recomputes and **prints**. `mphys/mphys_dafoam.py:353-357` calls it with `"print"` immediately after the primal — **that call is the `Printing Primal Residual Statistics.` block in `XM.log`.** **Calling either would not have produced a history, and a fifth guessed name would not have either.**
+
+> **2. A RESIDUAL HISTORY IS OBTAINABLE — MEASURED, AND IT WAS ALREADY ON DISK.**
+> `DAUtility::primalResidualControl` (`src/adjoint/DAUtility/DAUtility.C:735-800`) prints `<var> initRes: <a> finalRes: <b> nIters: <n>` per equation, gated on `printToScreen`, which `DASolver.C:225` sets from `isPrintTime(runTime, printInterval_)` — true when `timeIndex % printInterval == 0 || timeIndex == 1` (`DASolver.C:2765-2771`). **Three histories, five equations each, five samples each, were parsed out of the XM arm's own preserved `XM.log` at ZERO solver core-minutes**, and the identical counts come out of the earlier container's log independently.
+
+**All source citations above are from the image `dafoam/opt-packages:latest`, digest `sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc`** — the digest, not the tag, because DAFOAM_CHARTER §6 makes the identity an image ID and never a version string. It was read by `docker create` + `docker cp` with **no container ever started**: nothing executed, no solver ran, and source that exists only inside image layers is unreadable any other way.
+
+### A15.3 ⚠ A NEGATIVE SEARCH, STATED WITH ITS EXACT PREDICATE
+
+Case-insensitive `hist`, as a **substring**, matches **0 lines** in **seven named files**: `pyDAFoam.py`, `mphys_dafoam.py`, `DASolver.C`, `DASolver.H`, `DASolvers.H`, `pyDASolvers.pyx`, `DAUtility.C`. **That is evidence about those seven files and about nothing else.** DAFoam is not enumerated here and **no universal is claimed over it** — the failure §A14.1 recorded, in a line labelled MEASURED, is not repeated.
+
+### A15.4 THE REPAIR — PRODUCER ONLY, AND THE GRADER IS NOT TOUCHED
+
+Every departure is in `so3af2_runScript_DELTAS_addendum15.diff` beside this file. **Three files change; `so3af2_read.py` is absent from that diff by design, and its absence is the load-bearing fact.**
+
+1. **The four attribute names are GONE from the producer**, not bypassed — the unregistered substitute is removed.
+2. **The log is resolved from the process's own `fd 1`**, not guessed by name: `os.readlink("/proc/self/fd/1")`, refusing unless it names a regular file on disk. The arm redirects `python so3af2_runScript.py -task run_model > XM.log 2>&1` **into the mounted run root**, so fd 1 **is** the log. Resolving it this way means the producer **cannot** read a sibling arm's file, a stale log from an earlier container, or nothing at all if the redirect ever changes — each of which a hard-coded `XM.log` would do without saying so.
+3. **The producer can read its own log while it runs, and that is a property of OpenFOAM rather than a hope.** `Foam::endl` reaches `OSstream::endl()`, whose entire body is `write('\n'); os_.flush();` (`OSstream.C:301-305`, read in the registered image). **Every `Info << … << endl` flushes, so a residual line printed is a residual line on disk.** Verified from source, not inferred from the log's ordering.
+4. **The block-to-scenario mapping is MEASURED, not assumed.** The i-th primal block's converged `CD:` is compared against the functional the model reports for the i-th scenario, to `1.0e-12` relative; a mismatch refuses. **Order is the obvious assumption and it is exactly the kind this item may not make silently** — attaching a history to the wrong point is a confident wrong answer.
+5. **`printInterval` IS NOT CHANGED.** The histories are at the registered sampling interval. **`F1` requires three histories PRESENT and the two counts to AGREE; it does not require per-iteration resolution, and the frozen reader never looks inside a history.** Changing the option would buy nothing `F1` needs and would introduce an unregistered difference between `XM` and `XM2` on an item whose entire remaining value is that its instrument was never edited.
+
+**A DRAFT PREDICTION IS WITHDRAWN WITH THE CHANGE THAT NEEDED IT.** The lane's draft carried a second falsifier — *at `printInterval: 1` each primal's sample count must equal its final time index* — and flagged its own supporting argument as an argument rather than a measurement. **With `printInterval` left alone that falsifier tests nothing that happens, and it is dropped rather than carried.** A prediction kept past the change that motivated it is decoration.
+
+### A15.5 THE PLANTED-ZERO CONTROL, AND A CONTROL SHOWN FAILING
+
+**`CLAUDE.md` rule 3 applies to a THREE exactly as it applies to a zero.** In the same invocation that writes the artefact, the producer strips the `initRes:` lines of the **last** primal block from a **scratch copy**, re-parses **from disk**, and requires the read to come back with exactly one fewer block carrying residuals. **If the planted short read is invisible, the producer REFUSES and writes nothing.** The plant is a precondition on the reading, not a note beside it.
+
+**Driven against the arm's own preserved artefact: live 3 → planted 2, `demonstrated=True`.** And the control was then **shown able to FAIL**: driven with a parser that cannot see the plant, the same control reads `demonstrated=False`. **A control never observed failing is not a control.**
+
+### A15.6 ⚠ BOTH `F1` READINGS NOW COME FROM ONE FILE — THE SHARED FAILURE MODE, NAMED
+
+`n_tol` is counted from `XM/XM.log`; `residual_histories` is now parsed from **the same file**. §5 says *"counted from the log, both ways"*, so this is **registered and not a deviation** — **and "registered" is not permitted to do the work that "measured" should.**
+
+> **THE TWO READINGS SHARE A FAILURE MODE: a truncated, unwritten or unflushed log moves BOTH counts together, and their agreement would then mean nothing.**
+
+**What the guard still catches, measured rather than argued:** the two counts read **different tokens**. A primal that runs but does not converge emits `initRes:` lines and **no** tolerance line; a tolerance line with no residual block is the reverse. The plant of §A15.5 produced exactly `n_tol=3 / n_resid=2` — **the disagreement `so3af2_read.py:306` refuses on.** **The discrimination that survives is the discrimination that was measured; the shared mode is stated so no reader mistakes agreement for independence.**
+
+### A15.7 `VERIFICATION_CHARTER` §2d.1's FOUR CONDITIONS, DISCHARGED IN ORDER
+
+1. **DEMONSTRABLE ERROR, NOT PREFERENCE.** The producer does not perform the reading the frozen document says the scoring is. The attribute census measured **0 of 4 candidates present** across **87** and **298** attributes with **0 UNREADABLE** on either.
+2. **ESTABLISHED BY AN INSTRUMENT INDEPENDENT OF THE HYPOTHESIS.** The attribute census **grades nothing** — §A8.2 registers that it evaluates no prediction, applies no band and emits no verdict token — and its only possible effect on the item was to push toward **refusal**. **It cannot have been selected to move a verdict in a wanted direction.** The instrument is **named**: `so3af2_attr_census.py` / the ADDENDUM 12 refusal enumeration in `XM/XM.log`.
+3. **DISCLOSED, AND WHAT MOVED IS QUANTIFIED.** Producer md5 `0cbff59668dd1a88c155f6728ed0863c` → `f3913ddbe0bafe874755332561407d0f`; **+237 / −37 lines across the producer, +90 in the guard suite, 1 line in the launcher pin**; every hunk in `so3af2_runScript_DELTAS_addendum15.diff`. **Reader md5 unchanged.**
+4. **THE PRE-REPAIR STATE IS RECORDED BESIDE THE PUBLISHED ONE, AND IT IS STATED RATHER THAN LEFT BLANK.** **Pre-repair: `XM` `rc=7`, NO artefact, NO number, F1–F5 unscored.** Nothing was published that this repair replaces, and that is the honest content of the field — not an absence.
+
+### A15.8 THE GUARD SUITE — 10 NEW LEGS, DRIVEN AGAINST A REAL ARTEFACT
+
+**`SO3aF2 PIN CENSUS: PASS 59 FAIL 0 NOT RUN 0`** at this addendum (was 50). **`NOT RUN 0` remains the load-bearing figure.** The ten new legs (JOB 6) drive the four new functions, extracted by `ast`, **against the XM arm's own preserved `XM.log` rather than a fixture** — a parser proved only against a fixture written beside it is proved against its author.
+
+> **⚠ ONE OF THE NEW LEGS FAILED ON ITS FIRST DRIVE, AND ITS DEFECT IS THE ONE THIS ITEM EXISTS TO TEACH.** A leg named *"printInterval untouched"* tested `"printInterval" not in src` — **a substring test over the whole file, which flagged the producer's own prose promising that printInterval was not changed.** A check that fails on the sentence promising it did not do the thing is a check whose predicate is wider than its name. **Repaired to what it means:** no string **literal** in the producer's AST is equal to `"printInterval"` — a dict key `"printInterval": 1` is such a literal, a docstring mentioning the word is not. **Recorded rather than quietly fixed, because §A14's whole subject is a label that overstates its own predicate, and this one was caught by driving it instead of by reading it.**
+
+### A15.9 THE ARMS, RE-PINNED AND COSTED. Rule 12; DAFOAM_CHARTER §18.1, §18.2.
+
+**COST ANCHOR — PROGRAM STATEMENT, all four terms (§18.1).** Anchor: `ledger.txt:6`, `ITEM=SO3aF2 ARM=XM STAMP=2026-09-03T233357Z rc=7 wall_s=24 ranks=1 core_min=0.4000`. **The program that row priced:** ranks **1**; adjoint **NO**; Jacobian colouring **NO**; tree **COLD** (a case staged fresh per operating point into `mp0`/`mp1`/`mp2`, `decomposePar` not run). It covers mesh check, IDWarp init, **three converged primals** (443 / 436 / 424 iterations) and the refusal. **MATCH ASSERTION against `XM2`:** ranks 1 = 1; adjoint NO = NO; colouring NO = NO; tree COLD = COLD. **Matches on all four terms**, and with `printInterval` unchanged there is **no residual difference in the program at all** — the only change is which lines the producer reads after the solves.
+
+| arm | what it does | solver | estimate | cap | basis |
+|---|---|---|---|---|---|
+| **R0** | parse the **preserved** `XM.log`; report the three histories | **NO** | **0.02** core-min | **0.20** | instrument-only. **Cache state: WARM** — 1 file, 97,084 B, 0 copies. Cold, at §18.2's own `≈1.0 s / 1000 files` carry-forward (`C-212`/`C-214`), is still **< 0.02** at one file. |
+| **XM2** | re-run `XM` with the repaired producer; writes `so3af2_M.json` | **YES** | **0.40** core-min | **6.0** *(unchanged)* | the anchor above, **with no adjustment**, because the registered program is unchanged. |
+| **RD** | drive the frozen reader on XM2's artefact; score F1–F5 | **NO** | **0.03** core-min | **0.20** | instrument-only. **Cache state: WARM** — ≈220 files under one run root, 0 copies. |
+
+**Total registered 0.45 core-min, caps 6.40**, inside the item's 9.0 ceiling. **`cost_basis`: REPORTED-BY-OWNER, NOT MEASURED** — wall seconds and ranks from ledger rows; the `$0.0513/core-h` rate is owner-stated and this box cannot read its own billing (`COMPUTE_BUDGET_CHARTER` §5). **Rule 12's estimate-versus-actual comparison is owed at completion** as a row in `docs/COST_CALIBRATION.md`, with waste named separately and never absorbed into the ratio.
+
+> **⚠ `R0` IS A DIAGNOSTIC AND NOT A GRADED READING. `XM2` IS THE GRADED ARM.** Ruled by the `dafoam-supervisor`, 2026-09-04. Sanaa's *"bookkeeping never voids physics"* (2026-08-26) means the preserved log's physics is real and readable — **it does not mean an arm whose producer REFUSED becomes the artefact of record.** `XM2` buys a clean `rc=0` arm for 0.40 core-min **and removes the argument entirely, which is cheaper than the argument.**
+
+### A15.10 Re-pins
+
+| file | md5 | note |
+|---|---|---|
+| `so3af2_runScript.py` | `f3913ddbe0bafe874755332561407d0f` | **RE-PINNED**; every departure in `so3af2_runScript_DELTAS_addendum15.diff` |
+| `so3af2_run_arm.sh` | `8469c92765e95fe0c1833fc0b21194bf` | **RE-PINNED** (the producer pin, one line) |
+| `so3af2_pin_selftest.sh` | `ee0bbe2e0bd33544d137c41e5370fe40` | **RE-PINNED** (JOB 6, ten legs) |
+| `so3af2_read.py` | `d5f4149d43abe3a165ffe7e653b78bee` | **UNCHANGED — the frozen grader is not touched, and this line is what makes ADDENDUM 15 a repair rather than a re-registration** |
+| `so3af2_env_assert.sh` | `a5b7fcae05aab420d94623582d45f897` | **UNCHANGED** |
+| `so3af2_attr_census.py` | `2fd479d881f63b529605b3a45d0154f3` | **UNCHANGED — parked, not deleted; it is the independent instrument of §A15.7 condition 2** |
+
+### A15.11 ROUTES NOT TESTED — an untested route is not a closed one
+
+1. **Calling `getResiduals` / `calcPrimalResidualStatistics` on a live `DASolver`.** Their source is read; they remain **uncalled**. Source reading is strong evidence and is not execution.
+2. **The OpenFOAM `residuals` functionObject — the strongest untested route, and deliberately left untested.** No staged `system/controlDict` carries a `functions` block and no `postProcessing/` directory exists under the case tree. It would write a per-iteration `residuals.dat` **independent of `printInterval`**. It is **not load-bearing for `F1`**, so testing it now would be scope creep — **and it is named here because an untested route is not a closed one.**
+3. **DAFoam source outside the seven files of §A15.3** — `DAResidual*`, `DAGlobalVar`, `DAOption`, the unsteady solvers, `DAFuncObj`. `primalMaxRes` lives in `daGlobalVarPtr_` and is **not exposed through `pyDASolvers.pyx`** (searched); the rest of that tree is unsearched.
+4. **`updateDAOption` (`pyDASolvers.pyx:355`)**, which can change `printInterval` at run time. Never exercised, and this repair does not exercise it.
+
+### A15.12 The two rows. DAFOAM_CHARTER §6.
+
+| row | identity | standing |
+|---|---|---|
+| **SHIPPED** | `dafoam/opt-packages:latest`, `sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc` | **The only row this work has.** Every count and every source citation in this addendum is from this image. |
+| **PATCHED** | **NONE.** No patch is involved, none is proposed, **and no patched row is claimed.** | Stated rather than omitted: §6 requires two rows, and *"there is no patched row"* is a row's worth of information. |
+
+### A15.13 What is unchanged, and what is still owed
+
+**F1–F5, every band, both caps, the ceiling, the memory floor, every rc in the taxonomy (no new rc is registered — `RESIDUAL_LOG_UNRESOLVABLE`, `RESIDUAL_PLANT_NOT_VISIBLE` and `RESIDUAL_HISTORY_SCENARIO_MISMATCH` are new REASONS under the existing producer refusal `rc=7`), the plant constants, and §0.2 in full** — this item never calls `solve_linear`, cannot show SO-3aR's adjoint collision is fixed, and **nothing measured here may be quoted toward it.**
+
+**The two open defects of §A13.5 stand, neither chased nor deleted:** the frame allowance under-covers teardown (**n=1, deliberately unresized**) and the census stall is **UNEXPLAINED**, parked with its evidence intact.
+
+**STILL OWED BEFORE `XM2` MAY FIRE:** the supervisor's **check 1 on the changed hunks, read as a diff**, and **check 4 before it is queued**. **XM2 IS NOT QUEUED AND NOT ARMED.** `MESH` stands complete and **NOT A RESULT**; `XM`'s `rc=7` stands as the registered risk landing and as the pre-repair state of §A15.7; the item stays **PENDING**; **F1–F5 are unscored**. **SUBMISSIONS PARKED.**
+
+**END OF ADDENDUM 15.**
+
+---
+
+## CORRECTION 1 TO ADDENDUM 15 — **TWO FIGURES IN IT ARE WRONG. THE REPAIR AND THE RULING ARE NOT.** Dated **2026-09-04**. Version **1.16 → 1.16a**.
+
+> **lines whose number changed above this section: 0** — **PROVED ON BYTES.** Before the append the file was **143,261 bytes, 1,583 lines**, verified byte-identical to the post-ADDENDUM-15 state at the moment of copying; after the append the first 143,261 bytes were compared with `cmp -n 143261`, byte for byte. Appended by `scripts/append_block.py` from a FILE as bytes; **no heredoc on this path.** **ADDENDUM 15 IS NOT REWRITTEN** — its wrong sentences are struck by quote below and left standing in place (`CLAUDE.md` rule 6).
+
+**Moves no gate, no threshold, no prediction, no band, no cap and no label. F1–F5 REMAIN UNSCORED.**
+
+### C15.1 ⚠ THE GUARD-SUITE FIGURE. STRUCK.
+
+§A15.8 states:
+
+> ~~"`SO3aF2 PIN CENSUS: PASS 59 FAIL 0 NOT RUN 0` at this addendum (was 50)"~~ — **STRUCK.**
+
+**The measured figure is `SO3aF2 PIN CENSUS: PASS 60  FAIL 0  NOT RUN 0`.**
+
+**How the wrong number got written, stated plainly rather than glossed.** `59` was read off the **last drive before the addendum was appended**, when the `NL-3-OUTSIDE` leg was still **failing** — because it checks that the launcher's md5 is pinned in this pre-registration, and the addendum that pins it did not yet exist. That drive read **PASS 59 FAIL 1**. Appending the addendum turned that leg green, which moves the count to **60 PASS, 0 FAIL**. **I wrote a total taken before the change whose whole purpose was to move it.** The arithmetic (50 + 10 new legs = 60) was available the entire time.
+
+**This is `CLAUDE.md` rule 11's shape one document over** — a count re-derived at the wrong moment — and it is the second time in this item's ledger that a figure written by hand, inside a step whose purpose was verification, came out false (§A13.7 was the first). **The remedy both times is the same and it is not diligence: compute the figure at the moment it is written, from the artefact, not from the last thing that scrolled past.**
+
+### C15.2 ⚠ THE DIFF LINE COUNTS. STRUCK.
+
+§A15.7 condition 3 states:
+
+> ~~"**+237 / −37 lines across the producer**, +90 in the guard suite, 1 line in the launcher pin"~~ — **STRUCK.**
+
+**The measured figures, from `git diff --numstat HEAD` rather than from the `--stat` histogram:**
+
+| file | insertions | deletions |
+|---|---|---|
+| `so3af2_runScript.py` | **+201** | **−36** |
+| `so3af2_pin_selftest.sh` | **+90** | **−0** |
+| `so3af2_run_arm.sh` | **+1** | **−1** |
+
+**`237` is not an insertion count at all.** It is `--stat`'s **combined** changed-line figure for the producer (201 + 36), and `−37` is the **whole diff's** deletion total (36 producer + 1 launcher) misattributed to one file. **Two numbers from a summary display were transcribed as if they were per-file insertions and deletions, and they are neither.**
+
+**Why this one matters more than its size.** It sits in **§2d.1 condition 3, whose entire content is "quantify what moved"** — the one place in the addendum where a number is the evidence rather than the decoration. **A quantification that misreads its own instrument's output format is not a quantification.** `--stat` renders a histogram for humans; `--numstat` emits the two numbers; **the addendum cited the histogram.**
+
+### C15.3 WHAT SURVIVES, CHECKED RATHER THAN ASSERTED
+
+**Every md5 in §A15.10 was re-verified against the working files after this correction was drafted, and all six agree:** `so3af2_runScript.py` `f3913ddbe0bafe874755332561407d0f`; `so3af2_run_arm.sh` `8469c92765e95fe0c1833fc0b21194bf`; `so3af2_pin_selftest.sh` `ee0bbe2e0bd33544d137c41e5370fe40`; **`so3af2_read.py` `d5f4149d43abe3a165ffe7e653b78bee`, UNCHANGED**; `so3af2_env_assert.sh` `a5b7fcae05aab420d94623582d45f897`; `so3af2_attr_census.py` `2fd479d881f63b529605b3a45d0154f3`.
+
+**`so3af2_runScript_DELTAS_addendum15.diff` was re-verified to be the CURRENT diff**, byte-for-byte from its sixth line, against `git diff HEAD` over the three files at this reading. **The diff the supervisor's check 1 will read is the diff of the files that will run.**
+
+**Unaffected:** the A15.1 correction of ADDENDUM 13's ruling; both claims of A15.2 and every source citation behind them; the negative-search predicate of A15.3; every clause of the repair in A15.4, including that `printInterval` is not changed; the planted control and its failing-control drive in A15.5; the shared-failure-mode statement of A15.6; §2d.1 conditions 1, 2 and 4; the arm table and cost anchor of A15.9; the re-pins of A15.10; the untested routes of A15.11; and the two rows of A15.12.
+
+> **THE TWO STRUCK FIGURES ARE BOTH BOOKKEEPING AND NEITHER IS PHYSICS — and that is an explanation, never a defence.** §A14.2 already recorded the sharp version of this: *"that is a fact about which sentence happened to be sloppy, not a property of how the line was written."* **Both errors here were made in the same pass, by the same hand, in a document whose subject is figures that overstate what was measured.**
+
+### C15.4 Standing
+
+**Unchanged by this correction.** **XM2 IS NOT QUEUED AND NOT ARMED**; the supervisor's **check 1 on the changed hunks and check 4 before enqueue** are still owed. `MESH` complete and **NOT A RESULT**; `XM` `rc=7` the registered risk landing and the pre-repair state; item **PENDING**; **F1–F5 unscored**; **§0.2 binding.** The two open defects of §A13.5 stand with their evidence. **SUBMISSIONS PARKED.**
+
+**END OF CORRECTION 1 TO ADDENDUM 15.**

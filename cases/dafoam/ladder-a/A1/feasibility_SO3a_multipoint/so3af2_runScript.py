@@ -490,38 +490,159 @@ if MPI.COMM_WORLD.rank == 0:
         print("SO3aF2 PRODUCER REFUSAL: %s %s" % (reason, json.dumps(detail)))
         exit(7)
 
-    def _residual_history(scenario):
-        """One residual history per scenario, or None.
+    # =====================================================================
+    # ADDENDUM 15.  THE RESIDUAL HISTORY IS READ FROM THE LOG.
+    #
+    # Section 5 F1 of the frozen registration scores convergence "counted from
+    # the log, both ways".  The four attribute names this function used to try
+    # were an UNREGISTERED SUBSTITUTE for that, and they are gone -- not
+    # because they failed, but because they were never the registered route.
+    # ADDENDUM 13 ruled that F1's approach as registered could not work; that
+    # ruling was WRONG and is corrected by ADDENDUM 15.  What could not work
+    # was this file's substitute.
+    #
+    # THIS PROCESS CAN READ ITS OWN LOG WHILE IT RUNS, and that is a property
+    # of OpenFOAM rather than a hope: `Foam::endl` reaches
+    # `OSstream::endl()`, whose whole body is `write('\n'); os_.flush();`
+    # (OSstream.C:301-305 in the registered image).  Every `Info << ... << endl`
+    # therefore flushes, so a residual line printed is a residual line on disk.
+    # The arm redirects this script's stdout into the mounted run root
+    # (`python so3af2_runScript.py -task run_model > XM.log 2>&1`), so fd 1 IS
+    # the log.
+    # =====================================================================
+    import re as _re
+    import shutil as _shutil
+    import tempfile as _tempfile
 
-        The lookup chain is explicit and every step is named, because this lane
-        has spent ZERO solver core-minutes and therefore has NOT exercised this
-        API against a live container.  The mphys path `<scenario>.coupling.solver`
-        is corroborated by evidence on disk -- OpenMDAO deprecation warnings in
-        `CURRICULUM-D6R-a2-wing-multipoint/O_mp_20260828T162849Z_1898072.log`
-        name `cl04.coupling.solver` explicitly -- but WHICH attribute carries a
-        residual history is NOT corroborated, and that is this file's principal
-        launch risk, named in the Stage-2 amendment rather than hidden here.
-        Returning None is honest; inventing a list is not."""
-        node = prob.model
-        for part in (scenario, "coupling", "solver"):
-            node = getattr(node, part, None)
-            if node is None:
-                return None
-        das = getattr(node, "DASolver", None)
-        if das is None:
+    _BLOCK = "Running Primal Solver"
+    _RE_TIME = _re.compile(r"^Time = (\d+)\s*$")
+    _RE_RES = _re.compile(
+        r"^(\S+) initRes: (\S+) finalRes: (\S+) nIters: (\d+)\s*$")
+    _RE_RES_LINE = _re.compile(r"^\S+ initRes: .*\n", _re.M)
+    _RE_CD = _re.compile(r"^CD: (\S+) final: (\S+)\s*$")
+
+    def _own_log_path():
+        """The log THIS PROCESS IS WRITING, resolved from its own fd 1 rather
+        than guessed by name.
+
+        Resolving it this way is the point: the producer cannot read a sibling
+        arm's file, cannot read a stale log left by an earlier container, and
+        cannot silently read nothing if the arm's redirect is ever changed --
+        any of which a hard-coded `XM.log` would do without saying so."""
+        try:
+            path = os.readlink("/proc/self/fd/1")
+        except OSError as exc:                     # noqa: BLE001
+            return None, "fd 1 is not resolvable: %s" % exc
+        if not path.startswith("/") or path.endswith(" (deleted)"):
+            return None, "fd 1 does not name a live file on disk: %r" % path
+        if not os.path.isfile(path):
+            return None, "fd 1 resolves to %r, not a regular file" % path
+        return path, None
+
+    def _parse_primal_blocks(path):
+        """Per-primal residual histories, parsed from a solver log ON DISK.
+
+        One block per `Running Primal Solver`.  Within a block, every
+        `<var> initRes: <a> finalRes: <b> nIters: <n>` line is a sample of that
+        equation's residual at the enclosing `Time = <n>`, printed by
+        `DAUtility::primalResidualControl` under `if (printToScreen)`.  The
+        sampling interval is the `printInterval` DAOption; THIS REPAIR DOES NOT
+        CHANGE IT and the histories are therefore at the registered
+        resolution."""
+        blocks, cur, t = [], None, None
+        with open(path, "r", errors="replace") as fh:
+            for line in fh:
+                line = line.rstrip("\n")
+                if line.startswith(_BLOCK):
+                    if cur is not None:
+                        blocks.append(cur)
+                    cur, t = {"times": [], "equations": {}, "CD_final": None}, None
+                    continue
+                if cur is None:
+                    continue
+                m = _RE_TIME.match(line)
+                if m:
+                    t = int(m.group(1))
+                    continue
+                m = _RE_RES.match(line)
+                if m:
+                    try:
+                        a, b, n = float(m.group(2)), float(m.group(3)), int(m.group(4))
+                    except ValueError:
+                        continue
+                    eq = cur["equations"].setdefault(
+                        m.group(1),
+                        {"time": [], "initRes": [], "finalRes": [], "nIters": []})
+                    eq["time"].append(t)
+                    eq["initRes"].append(a)
+                    eq["finalRes"].append(b)
+                    eq["nIters"].append(n)
+                    if t not in cur["times"]:
+                        cur["times"].append(t)
+                    continue
+                m = _RE_CD.match(line)
+                if m:
+                    try:
+                        cur["CD_final"] = float(m.group(2))
+                    except ValueError:
+                        pass
+        if cur is not None:
+            blocks.append(cur)
+        return blocks
+
+    def _plant_short_read(path, blocks):
+        """PLANTED-ZERO CONTROL, run in the SAME invocation as the reading it
+        licenses (`CLAUDE.md` rule 3).
+
+        A parser that has only ever been shown reading THREE histories is not
+        evidence that there are three.  This strips the `initRes:` lines of the
+        LAST primal block from a SCRATCH COPY, re-parses FROM DISK, and requires
+        the read to come back with exactly one fewer block carrying residuals.
+        If the planted short read is invisible, the producer REFUSES and writes
+        nothing -- the plant is a precondition on the reading, not a note
+        beside it."""
+        live = sum(1 for b in blocks if b["equations"])
+        out = {"demonstrated": False, "live_blocks_with_residuals": live,
+               "target": "the LAST primal block's initRes lines",
+               "note": "a reader not shown able to read SHORT is not evidence "
+                       "that the list is COMPLETE"}
+        if live < 1:
+            out["why"] = "no primal block carries residuals; nothing to plant into"
+            return out
+        tdir = _tempfile.mkdtemp(prefix="so3af2_plant_")
+        try:
+            with open(path, "r", errors="replace") as fh:
+                parts = fh.read().split(_BLOCK)
+            if len(parts) < 2:
+                out["why"] = "no %r marker to plant into" % _BLOCK
+                return out
+            parts[-1] = _RE_RES_LINE.sub("", parts[-1])
+            planted_path = os.path.join(tdir, "planted.log")
+            with open(planted_path, "w") as fh:
+                fh.write(_BLOCK.join(parts))
+            planted = sum(1 for b in _parse_primal_blocks(planted_path)
+                          if b["equations"])
+        finally:
+            _shutil.rmtree(tdir, ignore_errors=True)
+        out["planted_blocks_with_residuals"] = planted
+        out["demonstrated"] = (planted == live - 1)
+        return out
+
+    def _history_from_blocks(blocks, i_sc):
+        """The i-th primal's history, or None.  Order is solve order, and the
+        caller CHECKS that against the functional rather than trusting it."""
+        usable = [b for b in blocks if b["equations"]]
+        if i_sc >= len(usable):
             return None
-        for attr in ("getPrimalResidualHistory", "primalResidualHistory",
-                     "getResidualHistory", "residualHistory"):
-            obj = getattr(das, attr, None)
-            if obj is None:
-                continue
-            try:
-                hist = obj() if callable(obj) else obj
-            except Exception:          # noqa: BLE001 -- a raising lookup is a miss
-                continue
-            if hist is not None:
-                return list(hist)
-        return None
+        b = usable[i_sc]
+        return {"scenario_index": i_sc,
+                "times": b["times"],
+                "n_samples": len(b["times"]),
+                "equations": b["equations"],
+                "CD_final_in_log": b["CD_final"],
+                "source": "solver log -- section 5 F1, 'counted from the log'",
+                "resolution": "sampled at the registered printInterval, which "
+                              "this repair does NOT change"}
 
     def _enumerate_for_refusal(scenario):
         """ADDENDUM 12. What the object ACTUALLY exposes, reported INSIDE the
@@ -589,6 +710,31 @@ if MPI.COMM_WORLD.rank == 0:
             out["ENUMERATION_FAILED"] = str(exc)
         return out
 
+    # ---- ADDENDUM 15.  THE LOG IS RESOLVED, PARSED AND ITS READER IS PLANTED
+    # ---- AGAINST, ALL BEFORE ANY HISTORY IS ACCEPTED.
+    import sys as _sys
+    _sys.stdout.flush()
+    _log_path, _log_why = _own_log_path()
+    if _log_path is None:
+        _fail("RESIDUAL_LOG_UNRESOLVABLE", {
+            "why": _log_why,
+            "note": "section 5 F1 is scored 'counted from the log, both ways'. "
+                    "If this process cannot identify the log it is writing, it "
+                    "cannot perform the registered reading, and it refuses "
+                    "rather than substituting a route the registration does "
+                    "not name -- which is the defect ADDENDUM 15 corrects."})
+    _blocks = _parse_primal_blocks(_log_path)
+    _plant = _plant_short_read(_log_path, _blocks)
+    if not _plant["demonstrated"]:
+        _fail("RESIDUAL_PLANT_NOT_VISIBLE", {
+            "log": _log_path, "control": _plant,
+            "note": "CLAUDE.md rule 3. A zero -- or a THREE -- from a reader "
+                    "not shown able to see something else is not evidence."})
+    print("SO3aF2 PRODUCER RESIDUAL SOURCE: log=%s blocks=%d "
+          "blocks_with_residuals=%d plant_demonstrated=%s"
+          % (_log_path, len(_blocks), _plant["live_blocks_with_residuals"],
+             _plant["demonstrated"]))
+
     points, histories = [], []
     for i_sc, sc in enumerate(SCENARIOS):
         try:
@@ -599,7 +745,7 @@ if MPI.COMM_WORLD.rank == 0:
         if cd != cd or cl != cl:
             _fail("FUNCTIONAL_NON_FINITE", {"scenario": sc, "CD": cd, "CL": cl})
         points.append({"alpha": ALPHAS[i_sc], "CD": cd, "CL": cl})
-        h = _residual_history(sc)
+        h = _history_from_blocks(_blocks, i_sc)
         if h is None:
             _fail("RESIDUAL_HISTORY_UNAVAILABLE", {
                 "scenario": sc,
@@ -607,15 +753,34 @@ if MPI.COMM_WORLD.rank == 0:
                         "see (B) -- a short list reaches the reader as a "
                         "CONVERGENCE DISAGREEMENT, which is a finding about the "
                         "multipoint assembly this file would have manufactured",
-                "candidates_tried": ["getPrimalResidualHistory",
-                                     "primalResidualHistory",
-                                     "getResidualHistory",
-                                     "residualHistory"],
+                "route": "solver log, resolved from this process's own fd 1 -- "
+                         "section 5 F1, 'counted from the log, both ways'",
+                "log": _log_path,
+                "blocks_seen": len(_blocks),
+                "blocks_with_residuals": _plant["live_blocks_with_residuals"],
+                "scenarios_wanted": len(SCENARIOS),
+                "planted_control": _plant,
                 "what_the_object_exposes": _enumerate_for_refusal(sc),
                 "this_enumeration_decides_nothing":
                     "ADDENDUM 12. The refusal is unchanged -- same trigger, same "
                     "rc=7, same reason, still no artefact. This field is what the "
                     "refusal REPORTS, not what it DECIDES."})
+        # ---- ADDENDUM 15.  BIND BLOCK i TO SCENARIO i BY MEASUREMENT, NOT BY
+        # ---- ORDER.  The i-th log block is assumed to be the i-th scenario's
+        # ---- primal; that assumption is CHECKED against the functional this
+        # ---- loop just read from the model, so a scenario-ordering change
+        # ---- cannot silently attach the wrong history to the wrong point.
+        _cdl = h["CD_final_in_log"]
+        if _cdl is None or abs(_cdl - cd) > 1.0e-12 * max(1.0, abs(cd)):
+            _fail("RESIDUAL_HISTORY_SCENARIO_MISMATCH", {
+                "scenario": sc, "scenario_index": i_sc,
+                "CD_from_model": cd, "CD_final_in_log_block": _cdl,
+                "note": "the i-th primal block in the log does not carry the "
+                        "functional the model reports for the i-th scenario, so "
+                        "the block-to-scenario mapping is not established. "
+                        "Attaching a history to the wrong point would be a "
+                        "confident wrong answer, which is the one kind this "
+                        "item may not produce."})
         histories.append(h)
 
     if len(histories) != len(SCENARIOS):
