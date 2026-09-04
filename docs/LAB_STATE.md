@@ -14497,6 +14497,151 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### ⚠ **TWO STANDING LINES ON THIS BOARD ARE STALE AND ARE CORRECTED HERE, NOT EDITED: T21 *IS* FROZEN (`89a7bdbb`), AND THE T25 CEILING IS *RULED* BY SANAA AND OFF THE DESK (`e04c6146`). AND NEW STANDING LAW LANDED AT ~00:50Z THAT RE-CLASSIFIES THIS TEAM'S ENTIRE REGISTRATION BACKLOG AS MANDATORY WORK. T3d IS LIVE AT 16 655/24 000, DESCENDING, AND ITS ETA HAS DRIFTED LATER AGAIN — ~04:08Z, NOT THE 03:48Z CARRIED INTO THIS SESSION.** (2026-09-04T01:04:12Z)
+
+*(Supervisor block, written 2026-09-04T01:04:12Z — stamp from `date -u` read in the committing shell invocation. **PURE INSERTION at the top of the `## heat-transfer` section; every byte below stands unedited.** Nothing below is renumbered, deleted or rewritten — not the `2026-09-03T21:58:36Z` T21 block immediately following, whose ⛔ banner this block corrects **by citation and not by edit**, and not any `**Section last written:**` stamp further down, which belongs to an earlier block and is deliberately left alone. Line citations in this block point BELOW it and were taken against the pre-insertion file; they shift by this block's length and are given with their content so they remain findable. **The predecessor supervisor was killed mid-board-refresh at ~01:00Z by Sanaa's subscription switch; this block is the correction that refresh owed.** Every T3d figure below was measured by me at this write from `log.solve` and `ps`, not inherited. Solver compute spent by this block: **0 core-min** — all reads read-only, the live run untouched.)*
+
+---
+
+### 0. ⚖ **NEW STANDING LAW — SANAA, ~00:50Z: EVERY ASSIGNED CASE IS MANDATORY TO COMPLETION. IT BINDS THIS TEAM BY NAME.**
+
+`etc/sessions/2026-09-04T0050Z_sanaa_all_cases_mandatory.md` (`71295838` + addendum `04c0c1d5`). Her words, verbatim, both parts:
+
+> *"I dont need it, just that team must complete all of its cases. especially the never run. And this applies to the cfd and heat transfer teams. All the cases/ tasks i gave are mandatory."*
+
+> *"yes when i give tasks they are not suggestion they are all mandatory. The only ones that dont end up getting ran are the ones we genuinly cannot run with openfoam. ELse, everything else gets worked on and fixed and solutioned until its at the very least a gate pass"*
+
+**What this changes for heat-transfer, concretely, and it is not rhetoric:**
+
+1. **`NOT A RESULT` and `BLOCKED` stop being resting places.** This section currently parks **T19** (six arms `NOT A RESULT`), **T15** (four rows `NOT A RESULT` behind a comparator refusal), **T16c** (`NOT A RESULT`), **W1b/T9aR1b** (`NOT A RESULT` on its Roache limb), **K0eR2** (`NOT A RESULT`), **K0f** (ten rows `NOT A RESULT`), **K0cS`/`K0cX`** (`GATE FAIL`), **T25R6c-R2** (`GATE FAIL`) and **K0d** (`BLOCKED`). Under her order each is a **waypoint owing a successor**, and a successor left unregistered is a violation of the order, not a backlog item.
+2. **The exemption class is exactly one** — genuinely unrunnable with OpenFOAM, *measured and recorded*, never inferred from difficulty. **K0d is the only rung in this territory that plausibly sits in it**, and it does **not** qualify on today's evidence: it is blocked on **Blay 1992 `NOT OBTAINED`** — a *missing paper*, not a missing solver. That is a capability gap of the retrieval kind and it belongs on Sanaa's desk **named**, not filed as an OpenFOAM exemption. **Recorded against this team's convenience.**
+3. **The lawful boundary travels with the order and is quoted here so no successor mistakes the pressure for permission:** gates and thresholds are **NEVER** widened to manufacture a pass (her own T25 ruling), and a verdict is never composed by hand. Working a case to a pass means **fixing OUR side until the physics can speak.** Where a case still fails after the lab's own defects are exhausted and the failure is **measured** to be the model or the physics, that persistent `GATE FAIL` goes to Sanaa **with its evidence** — it is not laundered into a pass and it is not silently parked.
+
+---
+
+### 1. ⚠ **CORRECTION 1 — T21 *IS* FROZEN. THE ⛔ BANNER DIRECTLY BELOW THIS BLOCK IS STALE AND MUST NOT BE ACTED ON.**
+
+The block immediately following opens *"T21 IS **NOT** FROZEN. THE FREEZE IS `BLOCKED` ON A PERMISSION-CLASSIFIER DENIAL, AND `T21_PREREGISTRATION.md` CARRIES 136 UNCOMMITTED APPENDED LINES"* (stamped 2026-09-03T21:58:36Z). **Both clauses were true when written and both are false now.** Measured by me at this write:
+
+| claim on the stale banner | measured at HEAD `04c0c1d5`, 2026-09-04T01:04Z |
+|---|---|
+| freeze is `BLOCKED` on a classifier denial | **FROZEN at `89a7bdbb`** — *"T21 IS FROZEN, on Sanaa's own captured GO and on nothing else — the absent registry is discharged by a FRESH control-first reading taken in this invocation, and the classifier-denial history is disclosed rather than routed around"* |
+| 136 uncommitted appended lines in the shared worktree | **ZERO.** `git diff --stat HEAD -- docs/campaigns/T-family/T21_PREREGISTRATION.md` returns **empty** — disk is byte-identical to its HEAD blob. The 136 lines **landed**; they were not reverted |
+
+> **AND A TRAP THAT WILL CATCH THE NEXT READER, SO IT IS WRITTEN DOWN RATHER THAN LEFT TO BE REDISCOVERED.** The document's **header line 3** still reads `**STATUS: DRAFT. NOT FROZEN. NOT COMMITTED. AUTHORISES NOTHING.**` and **§1 line 10** still reads `**10. AUTHORISATION.** This document authorises **no solve**…`. **These are NOT evidence that T21 is unfrozen.** `CLAUDE.md` rule 6 forbids editing a frozen file in place: the freeze amendment **strikes them at the foot** and never rewrites them above, so the file reads coherently whether or not the freeze completed. **A grep of the header is the wrong instrument here.** The freeze is at the **foot**, in amendment §A2, and `§A2.4 WHAT THIS FREEZE DOES NOT DO` is the authoritative statement of its scope.
+
+**What the freeze does NOT do, from §A2.4 verbatim, because the next lane will otherwise over-read it:** it does **not** create `verification/runs/T-family/T21_runs/` (measured absent, still absent); it does **not** build a case, a builder, a launcher or a comparator, enqueue anything, or launch anything; it does **not** add T21 to any freeze-ahead count; it does **not** assert any verdict, and the feasibility probe's `FEASIBLE` is **not** a `PASS`.
+
+**THEREFORE T21's REMAINING WORK IS THE BUILD-OUT — builder, launcher, comparator — AND IT IS MANDATORY UNDER §0.** It is not a registration task any more. Freeze-ahead: T21's freeze is real, so the **1-against-a-floor-of-3** deficit recorded in the 20:45:58Z block (§E) is measured stale in this team's favour and I am not claiming a number for it at this write — **VERIFY**.
+
+---
+
+### 2. ⚖ **CORRECTION 2 — THE T25 CEILING IS RULED. IT IS OFF SANAA'S DESK AND MUST NOT BE RE-ESCALATED.**
+
+The 19:30:29Z block's **§E.1** puts `Σ CAP(C5) = 20 006.80` against a 20 000 ceiling **on Sanaa's desk**. **She has ruled**, at **`e04c6146`**: *"SANAA RULES THE T25 CEILING STANDS AT 20,000 — the +6.80 core-min breach is ruled against it, the ×196.96 resolution gap travels with the number as a property of the measurement and NOT a ground for reopening, and NOTHING IS RE-GRADED."*
+
+**Three consequences, stated so a successor does not re-litigate a closed item:**
+- the ceiling **stands at 20 000**; the **+6.80 breach is ruled against**, i.e. the ladder does **not** fit;
+- the **×196.96 resolution gap is NOT a ground for reopening** — it travels with the number as a property of the measurement. **This team may not offer it upward again as a reason to revisit.** It was ours to raise once; it has been answered;
+- **nothing is re-graded.**
+
+**§E.1 IS CLOSED BY QUOTE.** §E.2 (`B-R2` ceiling relief, `rho_blend = 1.073053`, reported and never gating) is not a live request either and **no widening is asked for here, as none was asked for there.**
+
+---
+
+### 3. **T3d — LIVE, DESCENDING, UNDER ITS OWN ESTIMATE, AND THE ETA HAS DRIFTED LATER AGAIN. THE DRIFT IS STATED, NOT SMOOTHED.**
+
+*(Every figure re-derived by me at 2026-09-04T01:04:12Z from `verification/runs/T-family/T3_runs/R_fx/log.solve` and `ps -o lstart=,etime= -p 342276`. Nothing inherited from the brief.)*
+
+| | |
+|---|---|
+| case | `verification/runs/T-family/T3_runs/R_fx` — the `R_ff` continuation. Ladder `c = R_m`, `m = R_f`, `f = R_fx` (`analyse_t3d.py:68`) |
+| solver | `buoyantBoussinesqSimpleFoam`, **8 ranks**, rank 0 **pid 342276**, `lstart 2026-09-03T18:04:57Z`, `etime 06:59:14` at this read |
+| **iteration** | **16 655** of `endTime` **24 000** — **69.4 %** |
+| **`ExecutionTime`** | **25 055.59 s**; `ExecutionTime` line count **16 654** |
+| **spent** | **3 340.75 core-min** (25 055.59 × 8 ÷ 60) |
+| **measured rate** | **0.200585 core-min/iteration** against the registered **0.226755** (`T3d_PREREGISTRATION.md:137-139`) — **ratio 0.8846** |
+| **projected total** | **4 814.0 core-min** = **0.885×** the registered POINT of **5 442.1**, and **29.5 %** of the **16 326** CAP. **A PROJECTION, NOT AN ACTUAL** — no `COST_CALIBRATION.md` row is owed until completion (rule 12), and none is entered |
+| **`endTime` ETA** | **~2026-09-04T04:08Z** — 1.50439 s/iteration × 7 345 remaining = 11 049 s from 01:04:12Z. **LATER than the ~03:48Z carried into this session and later than the 19:26Z block's ~04:04Z.** The rate keeps easing; the drift is recorded at each read rather than averaged away |
+| cap deadline | **2026-09-05T04:05:42Z** (`timeout … 122445` from 18:04:57Z). **The cap does not bind** — a full day past the ETA |
+| **`T` initial residual** | **8.290084191783807e-09**, from **2.83875531028159e-08** at iteration 1 — **DESCENDING.** Against `F-2`'s plateau threshold (*"factor > 0.98 per 2 000 its"*): the factor over the 13 399 iterations since the 19:26Z reading of 2.2347e-08 is **0.862 per 2 000 iterations**. **Not plateaued, not diverging** |
+| **monitor** | **STILL NONE ATTACHED, AND NONE COULD BE.** No fleet residual-trajectory classifier exists on this box; this team did not build one, and under Sanaa's 22:00Z bar on *"the instrumentalisation of instruments instead of running"* it will not build one to satisfy a board line. **Reported as a gap for `cfd`**, which owns `scripts/queue_runner.py`. Unchanged since 18:21:45Z and stated as a gap, not as coverage |
+
+**THE RUN WAS NOT DISTURBED BY THIS SESSION.** No kill, no signal, no renice, no restart, nothing attached. Reads only.
+
+---
+
+### 4. 🔒 **T3d's GRADING-TIME OBLIGATION IS RE-ASSERTED AND IS NOW BEING *PREPARED* RATHER THAN LEFT TO A COLD CLOSER**
+
+The 19:30:29Z block's NEXT-ACTION 1 stands **unchanged and unweakened**: **T3d may not be closed until `R_fx`'s own measured `field_range` for BOTH `T` and `|U|`, at the graded checkpoint pair (22 000, 24 000), is recorded beside the verdict.** `D-J1` — `rel = dmax / rng if rng > 0 else 0.0` — makes a spatially uniform last checkpoint read `CONVERGED` **irrespective of `dmax`**, and it is bound into T3d's frozen path **twice** (`T` via `analyse_t1c.py:229`, `|U|` via `analyse_t3.py:278`, composed at `analyse_t3.py:625-631` into the `convergence_state` that `analyse_t3d.py:200` gates on). `gate_t3d.json` **will carry neither denominator** — `analyse_t3d.py:242-245` builds `measurements` from a fixed key list holding `convergence_state` and **neither** `convergence_T` **nor** `convergence_U`, the only two dicts carrying `field_range`.
+
+**If either range is `0.0` or is not measurable, the level is `NOT A RESULT` and P-1 is UNANSWERED — not answered `CONVERGED`. The `CONVERGED` the frozen grader would print in that case is the defect's output, not a finding.**
+
+**WHAT IS NEW AT THIS WRITE:** the 19:30Z block closed with *"NOTHING ENFORCES THIS… the obligation rests on this board being read."* **That is still true of enforcement, and no enforcement instrument is being built** — but a lane is now dispatched to **prepare** the discharge before the run lands, so the obligation does not depend on a cold 04:00Z closer improvising it: a **read-only denominator prober** that imports the frozen readers unmodified (so it cannot drift from the grader), carries **its own planted-zero control** proving it can see the ~51 K it must be able to see before any `0.0` it reports is believed, and refuses `exit 2` rather than degrading; plus a committed **closing runbook** carrying the rule-4 six clauses, the D-J1 step, rule-5 gating, the rule-12 calibration row, and the `rc = 0` trap that T16c demonstrated (four `NOT A RESULT` rows returned `rc = 0`; **read the verdict strings, never `$?`**). **The prober is a measurement script and its diff is mine to read before its output is believed** (`SUPERVISION_CHARTER` §3 check 1) — that read has **not** happened at this write and no number from it is on this board.
+
+**Two of the three levels remain measured clear and are not re-derived here:** `c` = `R_m`, pair (34 000, 36 000), `T` **51.2959 K**, `|U|` **11.0155**; `m` = `R_f`, pair (76 000, 78 000), `T` **50.7293 K**, `|U|` **11.0257** — `rng > 0` taken on both. **Level `f` = `R_fx` is the hole**, and its graded pair does not exist yet.
+
+---
+
+### 5. **DISPATCHED AT THIS WRITE — THREE LANES, THE CAP. WHAT EACH OWES AND WHAT NONE OF THEM MAY DO.**
+
+| lane | item | deliverable | forbidden |
+|---|---|---|---|
+| 1 | **T3d grading preparation** | the D-J1 denominator prober (uncommitted pending my diff read), `T3d_CLOSING_RUNBOOK.md`, a rule-2 hash check that the frozen grading path is still the file that ran, and a fresh cost/ETA derivation | **may not close T3d, may not run the comparator on `R_fx`, may not touch the run** |
+| 2 | **T19 successor — `T19R2`** | verify the unsatisfiable-completion-rule finding at source across all six arms, then register and freeze `T19R2_PREREGISTRATION.md` with a completion rule **demonstrated satisfiable by BOTH a converging and a non-converging run** | **may not launch**; the launch is my check-4 call |
+| 3 | **K0e successor — `K0eR3`** | state K0eR2's degenerate-control conflict exactly, with both horns; **resolve it by design** (planted-perturbation control at zero solver cost is the lab's working model — `analyse_t3.py` `PLANT = 1.234e-03`, `analyse_t10a.py:846`); register and freeze `K0eR3_PREREGISTRATION.md`; and land K0eR2's owed rule-12 calibration row | **may not launch**; **may not widen the gate**; must NAME the new control's blind spot |
+
+**Every one of the three is briefed that a `GATE FAIL` is reported as a `GATE FAIL`** and that Sanaa's mandatory-completion order is executed **through** the lab's law, never around it.
+
+> **WHY T19 WAS TAKEN FIRST OF THE SUCCESSORS, since the order does not rank them and a successor must not think this was arbitrary.** T19's six arms are `NOT A RESULT` for a **registration defect measured to be entirely ours**: `T19_registered.json` demands *"last written time == endTime (30000)"* **and** *"`ExecutionTime` count == 30000"*, while every arm registers `residualControl { p_rgh 1e-9; U 1e-9; T 1e-9; }` beside `stopAt endTime; endTime 30000;`. **A run that converges stops early and can never satisfy the rule; a run that does not converge satisfies the count and fails iterative convergence.** The two are mutually exclusive with the registered solver control — measured on the fine arms (`P_q_f` converged at 12 437 with `writeInterval 2000` and **no time directory at 12 437 at all**; `P_Ts_f` converged at 7 238). **29.133 core-min bought a rule no outcome could have satisfied.** It is the cheapest rung in this territory to convert from `NOT A RESULT` into a real verdict, and its defect is exactly the class Sanaa's addendum orders fixed. **That is a judgement of ordering, not of importance; the others are not deprioritised, they are queued.** *[lab-attributed]*
+
+---
+
+### 6. **STILL OWED, NAMED SO NOTHING RESTS UNOWNED — AND THESE ARE MANDATORY, NOT A BACKLOG**
+
+| item | state | what it is waiting on |
+|---|---|---|
+| **T21 build-out** | frozen `89a7bdbb`; `T21_runs/` **absent** | builder, launcher, comparator. **Not registration.** Next in the lane rotation |
+| **T5 `DS` successor** | `S_m` is `BLOCKED`; the `y+` gate input was measured **recoverable from fields already on disk at zero solver compute** (21:06:17Z block §A) | registration of the successor that uses it. **The two `y+` function objects emit in different lifecycle phases, so one identical `writeControl`/`writeInterval` pair means "every timestep" for one and "never" for the other** — that is the trap the successor must register around |
+| **T9aR1c rung verdict** | `W1c` arm is `PASS` (`F1` floor: `\|deviation\| = 5.684e-14 K` against a registered floor of `1.000e-04 K`; planted-zero `P1`/`P2`/`P3` all PASS) | **the RUNG verdict was never issued.** An arm `PASS` is not a rung verdict and must not be read as one |
+| **K0eR2 degeneracy fingerprint → `NUMERICS_KNOWLEDGE.md`** | the finding is graded and landed (`1b6b710c`) | a **separate** dispatch, deliberately not folded into the K0eR3 lane so it cannot be lost inside a larger task |
+| **T19 six arms** | in flight, lane 2 | — |
+| **K0d** | `BLOCKED`, **zero core-seconds spent** | **Blay 1992 `NOT OBTAINED`** — a retrieval gap, **not** an OpenFOAM exemption (§0.2). Belongs on Sanaa's desk named as a capability request |
+| **T15** | four rows `NOT A RESULT` behind a **credible** comparator refusal (`B1`–`B4` and the other controls PASSED before it fired) | a successor whose fluctuation reader is **not** moved by a constant offset. The refusal is a finding, not an error to work around |
+| **T25R6c-R2 record close** | `GATE FAIL`, `rho = 1.103859`; registered artifact never emitted (grader crashed at `grade_t25R6cR2.py:857` upstream of `json.dump` at `:870`) | the §2d.1 emission petition, **with verification, unruled** |
+| **D-J1 forward-only §2d.1 petition** | `T3d_DJ1_2D1_FORWARD_ONLY_PETITION.md`, landed `2e459dce` | **with verification, unruled.** Asks for repair in successors only, requests **no backfill**, and states the case against itself |
+
+---
+
+### 7. **ON SANAA'S DESK — SHORTER THAN THIS BOARD SAYS, AND ONE ITEM IS NEW**
+
+- **CLOSED: the T25 ceiling** (§2, ruled at `e04c6146`). §E.1 below is closed by quote; do not re-escalate it.
+- **STANDING, unchanged: the box's remaining compute budget is STRUCTURALLY UNREADABLE from inside the box** (`COMPUTE_BUDGET_CHARTER` §5). Every dollar this team quotes is **derived at $0.0513/core-h, reported-by-owner, never measured.** Her 21:00Z fleet ceiling `min(3 × registered cap, remaining box budget)` **cannot be evaluated** by anyone here, and this team does not pretend to evaluate it.
+- **STANDING: the `$1,000` industrial-ladder envelope has NO LEDGER anywhere in the repo.** `docs/COST_CALIBRATION.md` is a per-completion calibration ledger and carries no running total. Her 18:00Z escalation triggers (single run > $150 projected; envelope at 80 %) **cannot be evaluated on this box today.**
+- **NEW, and it is placed rather than parked: K0d's block is a MISSING PAPER, not a missing solver.** Blay 1992 `NOT OBTAINED`. Under §0.2 it does **not** qualify for the OpenFOAM exemption, so it goes to her desk as a **named capability request** rather than being filed away as unrunnable. **No recommendation is attached and no relief is requested.**
+
+---
+
+### 8. **BLOCKED**
+
+| what | why | what would unblock it |
+|---|---|---|
+| **K0d** | Blay 1992 `NOT OBTAINED` — every graded row `BLOCKED`, zero core-seconds spent | the paper, or a registered substitute reference ruled acceptable by verification |
+| **T25R6c-R2 record emission** | §2d.1 petition with verification, unruled | verification's ruling. **Not ours to grant** |
+| **D-J1 repair in successors** | §2d.1 petition with verification, unruled | verification's ruling. **A grading-path repair after first compute is verification's and not heat-transfer's**, and Sanaa's 17:30Z bar stands: *"No re-grading of past results unless a specific comparator is shown to have moved."* **No comparator has moved** |
+| **T5 `S_m`** | `BLOCKED` per the 21:06:17Z block §C; crash triage **discharged** | the `DS` successor registration, which is queued, not the arm |
+
+---
+
+### 9. **MARKED `VERIFY` — READ BUT NOT RE-DERIVED BY ME AT THIS WRITE, AND THEREFORE NOT ASSERTED**
+
+- The freeze-ahead count now that T21 is frozen (§1). The 20:45:58Z block's *"1 against a floor of 3"* predates the freeze and I did not recount.
+- Every rung verdict in §6's table except T3d's live figures, T21's freeze and the T19 mechanism: taken from the 19:30:29Z and 21:xx blocks below, which state they re-measured them at their own writes. **I did not re-open their artifacts at this write and I do not claim them as my own measurements.**
+- `K2e`'s and `KV1`'s age guards remain **permanently un-re-checkable** — both hold `0.orig` and no `0/`, so there is no `0/T` to date a run against. Recorded as a permanent gap, **not** as a pass.
+
+
+---
+
 ##### ⛔ **T21 IS *NOT* FROZEN. THE FREEZE IS `BLOCKED` ON A PERMISSION-CLASSIFIER DENIAL, AND `T21_PREREGISTRATION.md` CARRIES 136 UNCOMMITTED APPENDED LINES IN THE SHARED WORKTREE — DELIBERATE UNFINISHED WORK, **NOT DRIFT**, AND IT MUST NOT BE REVERTED AND MUST NOT BE COMMITTED BY ANYONE BUT ON SANAA'S DECISION.** (2026-09-03T21:58:36Z)
 
 *(Lane block, written 2026-09-03T21:58:36Z — stamp from `date -u` read in the committing shell invocation. **PURE INSERTION at the top of the `## heat-transfer` section; every byte below stands unedited** — not the `2026-09-03T21:39:50Z` T21-probe block immediately following, not the `2026-09-03T21:13:32Z` T16c block, and not any `**Section last written:**` stamp further down, which belongs to an earlier block and is deliberately **left unedited**. The writer proves the insertion mechanically: it removes exactly the inserted span and refuses unless the result is byte-for-byte the HEAD text. **Every figure below was measured by this lane at this write.** Anything this lane could not determine is said to be undetermined rather than guessed — see §D. **`verification/runs/T-family/T21_runs/` is ABSENT and was not created; nothing was built, queued or launched.**)*
@@ -29002,7 +29147,22 @@ by explicit path only, PATH NOT YET RECEIVED**.
 
 ## verification
 
-**Section updated:** 2026-09-03T23:1xZ by verification-supervisor. **19 commits, 0 solver core-min, $0.00. 0 new verdicts.** ⚡ **`§28.9`** — the calibration ratio DENOMINATOR is unprotected, two mechanisms, kept apart; **RECORDED, no instrument** (population of one). ⚡ **`§28.8` THE VACUOUS PREDICATE** — not a fifth face but `§28` tell in LOGIC; cure is **assert the EXISTENTIAL alongside the universal**; `CLAUDE.md:114` carries it, **routed to Sanaa, not touched by me**. Also: **ansys `§31` RULED RESOLVABLE** (v1.57); **v1.56** floor provenance; **`--allocate-id` refuses on LESSONS**; **I destroyed 120 lines of closure board** (`L-476`); **V-77 was false about ansys and is struck**. **0 lanes live.**
+**Section updated:** 2026-09-04T01:2xZ by verification-supervisor. **1 commit, 0 solver core-min, $0.00. 0 new verdicts.** ⚡ **`§4` OF THE NON-CONVERGENCE STANDARD (`431daa7d`)** — Sanaa's mandatory-completion order and her own `(absolute)` anti-gaming clause **DO NOT COLLIDE**; they govern different acts, and the route between them is a **registered SUCCESSOR**, never re-tuning the row that failed. **The failed row is never withdrawn by a passing successor.** ⚠ **The one gap NAMED and ROUTED to her:** her verbatim text names ONE exemption (cannot run with OpenFOAM) and supplies **no stopping point** for a case that runs but persistently fails on the physics — the terminal condition is the **chief's reading**, adopted as the operating rule and flagged as a reading. **Predecessor's closing state VERIFIED BY ME AT HEAD.** **1 lane live (gate-movement baseline census).** **PRIOR SESSION (2026-09-03T23:1xZ, 19 commits):** ⚡ **`§28.9`** — the calibration ratio DENOMINATOR is unprotected, two mechanisms, kept apart; **RECORDED, no instrument** (population of one). ⚡ **`§28.8` THE VACUOUS PREDICATE** — not a fifth face but `§28` tell in LOGIC; cure is **assert the EXISTENTIAL alongside the universal**; `CLAUDE.md:114` carries it, **routed to Sanaa, not touched by me**. Also: **ansys `§31` RULED RESOLVABLE** (v1.57); **v1.56** floor provenance; **`--allocate-id` refuses on LESSONS**; **I destroyed 120 lines of closure board** (`L-476`); **V-77 was false about ansys and is struck**. **0 lanes live.**
+
+##### UPDATE V-83 — **HER MANDATORY-COMPLETION ORDER AND HER OWN `(ABSOLUTE)` ANTI-GAMING CLAUSE LOOK LIKE A CONTRADICTION AND ARE NOT ONE. THEY FORBID DIFFERENT ACTS: ONE FORBIDS **STOPPING**, THE OTHER FORBIDS A **METHOD**. THE ROUTE BETWEEN THEM WAS ALREADY WRITTEN. AND THE FAILED ROW IS NEVER WITHDRAWN BY A PASSING SUCCESSOR.**
+
+- **COMMIT — `431daa7d`, `docs/standards/NONCONVERGENCE_STANDARD.md` **§4**, **+117 / −0**, pure append; her verbatim `§1` untouched.** **0 core-min, $0.00. No gate, threshold, band, cap, label or verdict altered; nothing re-graded; no instrument, no new verdict word, no compute granted.**
+- **PREDECESSOR'S CLOSING STATE VERIFIED BY ME AT HEAD, NOT RELAYED:** all six commits ancestral (`1d081ecd`, `aea2155a`, `70a8f935`, `fc8d06e2`, `d4a50b47`, `faa8abe6`); **`§28.8` at `FAIL_OPEN_GATE_AUDIT.md:3564` and `§28.9` at `:3692`** present in HEAD's blob; charter **v1.56 (`§2al`)** and **v1.57 (`§2am`)** both at HEAD. **Nothing owed from the handoff is missing.**
+- **⚡ THE COLLISION, WHICH NOBODY HAD NAMED.** This standard's `§2.3` says a converged-but-wrong case is `GATE FAIL` and ***"is not an invitation to re-enter the ladder."*** Her 2026-09-04 order says every case is ***"worked on and fixed and solutioned until its at the very least a gate pass."*** **Read carelessly they contradict — AND THE CARELESS READING IS DANGEROUS IN BOTH DIRECTIONS:** a team could cite `§2.3` to **stop** at a first `GATE FAIL`, disobeying her; or cite her order to **re-enter the ladder and tune until the number agrees**, defeating the clause she wrote three days earlier and called `(absolute)`.
+- **RULED: NO CONTRADICTION, AND NEITHER TEXT NEEDS AMENDING.** **`§2.3` prohibits a METHOD** — continuing inside the SAME registered row, moving the gate quantity with convergence aids, wrong-way arms unreported; its own stated reason is *"not a route to a better number."* **Her order prohibits STOPPING.** **The lawful route between them is already written at `§2.1`'s L6/L7 rows: a NEW, SEPARATELY FROZEN REGISTRATION** — which is exactly *"successors get registered."* ***After a `GATE FAIL` you may not keep tuning the row that failed; you register a successor, and the failed row stays exactly where it is.***
+- **⚡⚡ THE COROLLARY THAT WILL CARRY THE MOST WEIGHT, AND IT IS ALREADY LAW — `§2.1`'s L6 row: *"the old row is not overwritten and its verdict is not withdrawn by the swap."*** **A successor that passes does NOT make its predecessor's `GATE FAIL` disappear.** The record of a mandatory-completion campaign is the **SEQUENCE**. ***A campaign that shows only its passing rows produces the exact signature the anti-gaming clause exists to catch — "a single reported arm out of several run" — applied to whole REGISTRATIONS instead of arms.*** **This is the thing I will be auditing for.**
+- **⚠ THE HONEST GAP, NAMED AND ROUTED TO SANAA RATHER THAN DECIDED: her verbatim text names EXACTLY ONE exemption class — *"the ones we genuinly cannot run with openfoam"* — and supplies NO stopping point for a case that RUNS but persistently fails its gate on the physics.** The terminal condition (measured, defect-exhausted model-form `GATE FAIL` → her desk with evidence) is **the CHIEF's reading, labelled as such in his own capture, not her words.** **I ADOPT it as the operating rule and SAY it is a reading** — because the alternative (*every runnable case must eventually PASS*) makes a measured model-form failure an unsatisfiable instruction, leaving the gate as the only thing left to move, **which her own `(absolute)` clause forbids. A reading that makes one of her rules unsatisfiable is the wrong reading.**
+- **WHY IT WENT IN THE STANDARD AND NOT ONLY IN AN AUDIT — `§2ae`'s rule, applied: `NONCONVERGENCE_STANDARD.md` IS CITED BY NAME INSIDE FROZEN PRE-REGISTRATIONS ON THREE TEAMS** `[VERIFIED, git grep]` — closure `G2`/`M2`/`RC1`/`RC2`, dafoam `D18`/`FADR`/`SO1b`, cfd `F12`/`F23b`. **Its content is on the record path of frozen documents.** *A team meeting the collision must meet the resolution at the same file.*
+- **NOT A NEW CLAUSE AND I CHECKED THAT AGAINST MY OWN BAR:** I refused three instruments yesterday for population-of-one. **This is not an instrument** — no gate, no assert, no threshold; it states how two pieces of EXISTING law read together, **and the population is not one: it is every case in three teams' mandatory backlogs, starting tonight.** `§28.6.6` does not bite because **nothing is being gated.**
+- **LANES: 1 live** — gate-movement baseline census (measurement only, no commits, negligible cost): whether any instrument already detects a post-freeze edit to a pre-registration's threshold bytes, and a **baseline taken BEFORE the pressure acts**, since afterwards a repaired case and a widened gate are no longer distinguishable.
+- **NEXT ACTIONS:** (1) read the lane's classifier at source before believing any class-(iii) hit (check 1, not delegated); (2) the cap-overrun ruling routed to me at the chief's `:1315` — whether a cap overrun voids the verdicts of `T5_CUBE_c`, `T4b_IJ_m`, `T4b_IJ_c`, under her bookkeeping rule — **OPEN, NOT RULED**; (3) remain available for checker/mechanism rulings.
+- **ON SANAA'S DESK, NEW:** whether a measured, defect-exhausted, model-form `GATE FAIL` discharges her mandatory-completion order. **Until she says otherwise the operating rule in `§4.5` applies and no gate moves either way.**
+- **BLOCKED:** `C-217` behind stood-down closure — **rc 4 is CORRECT and must not be cleared.** Cutover still **BLOCKED**.
 
 ##### UPDATE V-82 — **THE CALIBRATION RATIO'S **DENOMINATOR** IS UNPROTECTED, AND THERE ARE NOW TWO WAYS TO DEFEAT IT. THEY ARE DIFFERENT MECHANISMS AND I KEPT THEM APART. RECORDED — NO INSTRUMENT, NO CLAUSE, NO BACKFILL.**
 
