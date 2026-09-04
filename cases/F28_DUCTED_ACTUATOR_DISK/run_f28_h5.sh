@@ -78,7 +78,21 @@ case "$MODE" in
 esac
 
 END_TIME=$(( RESTART_TIME + NITER ))
-RUN_DIR="$RUNS/$NAME"
+
+# AMENDMENT 1, 2026-09-04, BEFORE FIRST COMPUTE.  A `--dry-run` MUST NOT CONSUME
+# THE REAL RUN ROOT NAME.  As first written this script assembled into
+# `$RUNS/$NAME` even under `--dry-run`, which had two consequences, both bad:
+# the virgin-directory guard would then REFUSE the real run that followed, and
+# the pre-registration's §11.1 freshness claim -- that the three named run
+# directories do not exist -- would have been falsified by the act of testing.
+# The supervisor cites absences as evidence; a test must not manufacture a
+# presence.  So a dry run assembles into a CLEARLY LABELLED scratch root and
+# leaves the registered names untouched.
+if [ "$DRY" = "1" ]; then
+  RUN_DIR="$RUNS/${NAME}_DRYRUN"
+else
+  RUN_DIR="$RUNS/$NAME"
+fi
 
 echo "mode=$MODE run_dir=$RUN_DIR startTime=$RESTART_TIME endTime=$END_TIME treatment=$TREAT"
 

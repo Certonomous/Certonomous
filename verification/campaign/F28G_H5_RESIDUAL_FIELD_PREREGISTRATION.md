@@ -433,11 +433,36 @@ by a promise.
 comparator:** the gate can only turn a PASS or GATE FAIL **into** `NOT A RESULT`,
 never the reverse.
 
-**On Roache triple gating (standing rule 5):** this arm is a **single-level
-localisation**, not a grid-convergence study. **It has no grid triple, so it
-issues no GCI and quotes none**, and §5.5 ground 1 plus the plateau check of §5.7
-are what stand in for it. **This is a departure from the shape of a graded rung
-and is flagged for the supervisor in §13.**
+### 5.5a 🔴 NAMED LIMITATION — SINGLE-GRID. NO ROACHE VERDICT IS POSSIBLE FROM THIS ARM
+
+**RULED by `cfd-supervisor`, 2026-09-04.** Recorded as a **named limitation**, not
+as a caveat in passing.
+
+> **THIS ARM IS A SINGLE-GRID SPATIAL DIAGNOSTIC AND MAY NEVER PRODUCE A
+> ROACHE-GATED VERDICT.** Standing rule 5 gates on a grid triple. **There is no
+> triple.** A triple that does not exist cannot be `CONVERGING`. Therefore: **no
+> GCI may be computed from this arm, none may be quoted, and no result from it
+> may be labelled grid-converged.**
+
+**Its verdict vocabulary is `PASS` / `GATE FAIL` / `NOT A RESULT` on the spatial
+concentration proposition ALONE.**
+
+**And the proposition must be read for what it is.** §2.1's P asserts **WHERE the
+residual sits on ONE mesh**. It asserts **nothing** about whether that location is
+**mesh-independent**. A `PASS` naming `Z-AXIS` says the residual is concentrated
+near the axis *on the 35,544-cell mesh the parent ran*; it does **not** say the
+concentration would survive refinement, and it may not be quoted as though it
+did. H4 in particular — extreme aspect ratio — is a hypothesis **about** the mesh,
+so a single-mesh result can implicate it but can never confirm it, since the
+confirming experiment is precisely the refinement this arm does not perform.
+
+**THE SAME STRUCTURAL GAP AS RUNG 2.** `cfd-supervisor` directs that this be
+recognisable beside Rung 2's, where only one refinement level exists on the box.
+**Same shape, stated the same way:** a gate that would otherwise be Roache-gated
+is run at one level, so the verdict is sound *about what it measures* and silent
+about mesh convergence — and the silence is declared in the registration rather
+than discovered by a reader. Anyone reading the two side by side should see one
+class, not two coincidences.
 
 ### 5.6 The `Uy` limb
 
@@ -817,15 +842,78 @@ the frozen file is verified to **be** the file that ran by hashing it against th
 committed blob before the arm runs.
 
 ```
-run_f28_h5.sh         blob d6d381dea77accf44bf016f21e6c65413ffd80f8
-analyse_f28_h5.py     blob d00e28767567b07f41a3c71bdea1a9b5beade685
+run_f28_h5.sh         blob 929dba146bf3d0746e247c0a94aad2774fa1237b
+analyse_f28_h5.py     blob e3d7f48c992a1743063e4063cc6ceb668939bdd3
 f28_zone_geometry.py  blob 98863fc92f041799dac443a44d86fff3ac24b930
 ```
+
+#### 9.3a ⚠ TWO AMENDMENTS TO THE GRADING PATH, BEFORE FIRST COMPUTE
+
+**The first two hashes MOVED after check 4 passed on them.** They were
+`d6d381de…` and `d00e2876…` at check 4, and `cfd-supervisor` verified those two
+blobs against the worktree personally. **They are superseded**, and the reason is
+recorded here rather than left for the next hash comparison to discover.
+
+**The condition standing rule 2 requires, and how it was checked.** Rule 2 permits
+amendment **before first compute** and requires the condition to be stated with
+the check that established it. **The condition is that no compute has occurred
+against this registration.** Checked by directory listing of
+`verification/runs/F28_runs/` immediately before amending: **zero** entries
+beginning `H5` — `H5P_C_L1_dp1000_U20`, `H5P_T_L1_dp1000_U20` and
+`H5A_L1_dp1000_U20` **do not exist**, no solver has run, and no `--dry-run` had
+yet been performed. **Neither amendment touches a gate, a threshold, a cap or a
+label**; both are defects in the path that would have prevented the registered
+gates from being evaluated at all.
+
+**AMENDMENT 1 — `run_f28_h5.sh`: `--dry-run` must not consume the real run root
+name.** As written, the dry run assembled into `$RUNS/$NAME` and stopped before
+the solver. Two consequences, both bad: the virgin-directory guard would then
+have **REFUSED the real pilot run that followed**, and §11.1's freshness claim —
+that the three named run directories do not exist — would have been **falsified
+by the act of testing it**. `cfd-supervisor` has been citing absences as evidence
+all day; a test must not manufacture a presence. A dry run now assembles into
+`<NAME>_DRYRUN` and leaves the registered names untouched.
+
+**AMENDMENT 2 — `analyse_f28_h5.py`: `solverInfo.dat` lives under the RESTART
+time, not under `0`.** The comparator hardcoded
+`postProcessing/residuals/0/solverInfo.dat`. **That is the PARENT'S directory
+name, because the parent started at time 0.** A restart from 15000 writes
+`postProcessing/residuals/15000/`. **The hardcoded path would have been missing
+on every single run this comparator exists to grade, and it would have refused
+every arm for a reason that was its own** — a comparator manufacturing its own
+`NOT A RESULT`. It now scans every time-named subdirectory and merges their rows.
+
+**Both defects are now pinned by executable checks, not by these paragraphs.**
+`--selftest` limb 9 requires the reader to find `solverInfo.dat` under
+`postProcessing/residuals/15000`, requires the column selector to pick
+`Uy_initial` rather than the first numeric column, and requires a **refusal**
+when no `.dat` exists anywhere. The suite is now **9 limbs / 25 checks**, all
+firing on both sides.
+
+**How this was found:** by reading the parent's own `postProcessing/` layout and
+`solverInfo.dat` header before launching anything, rather than after. The header
+read also confirmed the column names the comparator assumes (`p_initial`,
+`Uy_initial`) and their positions.
 
 **These three hashes are the freeze.** Before either run launches, each file is
 re-hashed with `git hash-object` and compared against the line above; a mismatch
 means the file that would run is not the file that was registered, and the run
 does not start.
+
+⚠ **HOW TO TEST TRACKEDNESS UNDER THIS LAB'S GIT PROTOCOL — a trap
+`cfd-supervisor` hit while performing check 4, recorded because it will recur.**
+`git ls-files --error-unmatch <path>` reported **both** of these files as **NOT
+TRACKED**, while `git rev-parse HEAD:<path>` resolved both to blobs matching the
+worktree. **Both readings are correct.** `ls-files` reads the **SHARED INDEX**,
+and the rule-10 private-index protocol commits **without ever touching it** — so
+a file can be **fully committed at HEAD and invisible to `ls-files`**.
+
+> **Under this lab's git protocol `git ls-files` UNDER-REPORTS and is the WRONG
+> trackedness test. The authoritative test is the blob at HEAD.** He nearly
+> recorded a false "not tracked" finding; the blob check caught it.
+
+Any check of this document's freeze — check 4's, or a later audit's — must use
+`git rev-parse HEAD:<path>` or `git cat-file`, never `git ls-files`.
 
 ### 9.4 THE PILOT'S FIRST JOB — ruling 3
 

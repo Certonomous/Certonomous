@@ -376,21 +376,40 @@ def completion(case, end_time, n_iter, fields_per_time, times):
 # ---------------------------------------------------------------------------
 
 def dat_scalars(case, field, times):
-    """First-solve initial residual per iteration from solverInfo.dat."""
-    dat = os.path.join(case, "postProcessing", "residuals", "0",
-                       "solverInfo.dat")
-    if not os.path.isfile(dat):
-        raise Refuse("solverInfo.dat missing at %s" % dat)
+    """First-solve initial residual per iteration from solverInfo.dat.
+
+    AMENDMENT 2, 2026-09-04, BEFORE FIRST COMPUTE.  As first written this
+    hardcoded `postProcessing/residuals/0/`.  That is the PARENT'S directory
+    name, because the parent started at time 0.  **A restart from 15000 writes
+    `postProcessing/residuals/15000/`**, so the hardcoded path would have been
+    missing on every run this comparator exists to grade, and the comparator
+    would have refused every arm for a reason that was its own.  It now scans
+    every time-named subdirectory and merges their rows, which is also correct
+    if a run is ever restarted twice.
+    """
+    base = os.path.join(case, "postProcessing", "residuals")
+    if not os.path.isdir(base):
+        raise Refuse("no postProcessing/residuals directory under %s" % case)
+    dats = []
+    for sub in sorted(os.listdir(base)):
+        cand = os.path.join(base, sub, "solverInfo.dat")
+        if os.path.isfile(cand):
+            dats.append(cand)
+    if not dats:
+        raise Refuse(
+            "no solverInfo.dat under %s (looked in every time subdirectory; "
+            "a restart writes it under its startTime, not under 0)" % base)
     header, rows = None, {}
-    with open(dat) as fh:
-        for ln in fh:
-            if ln.startswith("#"):
-                if "Time" in ln:
-                    header = ln.lstrip("#").split()
-                continue
-            parts = ln.split()
-            if parts:
-                rows[int(float(parts[0]))] = parts
+    for dat in dats:
+        with open(dat) as fh:
+            for ln in fh:
+                if ln.startswith("#"):
+                    if "Time" in ln:
+                        header = ln.lstrip("#").split()
+                    continue
+                parts = ln.split()
+                if parts:
+                    rows[int(float(parts[0]))] = parts
     if header is None:
         raise Refuse("solverInfo.dat carries no column header")
     col = "%s_initial" % field
@@ -764,6 +783,36 @@ def selftest():
         check("a drifting ratio is REFUSED", False, "it passed")
     except Refuse:
         check("a drifting ratio is REFUSED", True)
+
+    print("LIMB 9 -- solverInfo.dat is found under the RESTART time, not 0")
+    # A restart from 15000 writes postProcessing/residuals/15000/, never /0/.
+    # The first draft of this comparator hardcoded /0/ and would have refused
+    # every arm it exists to grade, for a reason that was its own.
+    rr = tempfile.mkdtemp(prefix="f28h5_pp_")
+    pp = os.path.join(rr, "postProcessing", "residuals", "15000")
+    os.makedirs(pp)
+    with open(os.path.join(pp, "solverInfo.dat"), "w") as fh:
+        fh.write("# Solver information\n")
+        fh.write("# Time\tUx_initial\tUy_initial\tp_initial\n")
+        fh.write("15040\t1.0\t0.25\t0.30\n")
+    try:
+        got = dat_scalars(rr, "p", [15040])
+        check("reads solverInfo.dat from postProcessing/residuals/15000",
+              abs(got[15040] - 0.30) < 1e-12, "got %r" % got)
+        gy = dat_scalars(rr, "Uy", [15040])
+        check("column selection picks Uy_initial, not the first numeric column",
+              abs(gy[15040] - 0.25) < 1e-12, "got %r" % gy)
+    except Refuse as e:
+        check("reads solverInfo.dat from postProcessing/residuals/15000",
+              False, str(e))
+    # NEGATIVE: no .dat anywhere must REFUSE, not return an empty answer.
+    shutil.rmtree(os.path.join(rr, "postProcessing", "residuals", "15000"))
+    try:
+        dat_scalars(rr, "p", [15040])
+        check("a missing solverInfo.dat is REFUSED", False, "it passed")
+    except Refuse:
+        check("a missing solverInfo.dat is REFUSED", True)
+    shutil.rmtree(rr, ignore_errors=True)
 
     for tmp in (d, g, z):
         shutil.rmtree(tmp, ignore_errors=True)
