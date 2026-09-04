@@ -274,7 +274,30 @@ value, so W3's reader would have gone red · **W5** a rotated axis frame → **R
 The solve driver **runs that suite and REFUSES to launch if any control does not fire.**
 
 **No bare `assert` anywhere in either new file** — verified by **AST parse, not grep**: zero
-`ast.Assert` nodes. Exit vocabulary `0` / `2` / `70` in both.
+`ast.Assert` nodes, and a synthetic file carrying one `assert` reads **1**, so the checker
+discriminates. Exit vocabulary `0` / `2` / `70` in both, verified: `--gate-p` and `--grade`
+on an absent run root both return **2**, identical under `python3 -O`; the driver returns **2**
+on a bad level and a bad phase.
+
+**THE WRITTEN CASE WAS PARSED BY OPENFOAM ITSELF, NOT ONLY BY THIS LANE.** A case was written
+from the real L3 mesh and every dictionary was read back through `foamDictionary` inside the
+solver's own container:
+
+> **All 13 parse: `fvSchemes`, `fvSolution`, `decomposeParDict`, `sampleDict`,
+> `thermophysicalProperties`, `turbulenceProperties` and all seven `0/` fields.**
+> `controlDict`'s `functions{}` resolves to exactly **`forceCoeffs`, `yPlus`, `solverInfo`,
+> `sampleDict`** — so the `#include "sampleDict"` directive resolves and **Gate P's producer is
+> wired into the run**.
+>
+> ⚠ **THIS IS A PARSE, NOT A SOLVE.** No solver has been launched. Dictionary **key
+> acceptance** was established by reading OpenFOAM v2506's own source and shipped tutorials;
+> **runtime acceptance by `rhoSimpleFoam`, `decomposePar`, `mpirun` and `reconstructPar`, and
+> the on-disk layout the `foam` surface writer actually produces, are UNVERIFIED BY
+> EXECUTION.** They are stated as inferences and are named as such.
+
+**The state pair is reproduced by the written case, measured on the real L3 mesh:**
+`|U| = 285.679356 m/s`, **`M = 0.8395000`**, **`Re = 1.1720e7` on the MAC** — the registered
+values, from the registered formulae.
 
 ---
 
