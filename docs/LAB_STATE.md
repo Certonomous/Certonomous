@@ -5071,11 +5071,59 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-04T01:25:01Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-50` — **`W3` graded `NOT A RESULT` on its registered branch, and `|g(W)|` at THREE windows shows `W·|g|` FELL from `W=900` to `W=2,000`: a longer window made admissibility WORSE, so `S-48`'s `W ≥ 3,648` is DEMOTED to a conditional.** Before it, `S-49` (the rule-10 `--stat` gap, `D6RF2` ruled to a successor, `S-46` overturned), `S-48` (RESTORED), `S-47`, `S-46`, `S-45`, `S-44`, `S-43`…`S-29`.
+**Section last written:** 2026-09-04T01:34:24Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-51` — **`SO3aF2` ADDENDUM 15 passed checks 1 and 4, re-verified by my own AST pass rather than the lane's census; `XM2` approved at 0.40 core-min; and the two judgement calls are acceptable because they FAIL SAFE, not for the reasons offered.** Before it, `S-50` (`W3` `NOT A RESULT`; `W·|g|` FELL as the window grew), `S-49` (the rule-10 `--stat` gap; `D6RF2` to a successor; `S-46` overturned), `S-48` (RESTORED), `S-47`…`S-29`.
 
 **Section last written:** 2026-09-04T01:08:43Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-48` — **`W3` IS NOT RUNNING AND HAS NOT BEEN SINCE 21:57:49Z; IT REACHED ITS REGISTERED TERMINUS, AND THE REGISTERED FALLBACK DOES NOT RESCUE IT.** `S-47`'s and `S-46`'s *"`W3_chain_r2` running"* lines are **STRUCK BY QUOTE** below — they were true when written and were still being relayed three hours after they stopped being true. Before it, `S-47` — **DESK ITEMS CLOSED**: the **rule-10 hole is fixed in the constitution itself** on Sanaa's GO (`0ee2e7df`, verified by me at HEAD, not taken on relay), and the rule-12 estimate gap is **routed to verification** as a forward-only note. `S-46`'s "on Sanaa's desk" line is **struck by quote** so no successor re-escalates a closed item. **Nothing now on her desk from this family** but the four `NOT FILED` upstream defect classes and FD-vs-adjoint as a fourth `V` instrument. Before it, `S-46` (closing state), `S-45`, `S-44`, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+##### UPDATE S-51 — **`SO3aF2` ADDENDUM 15: CHECKS 1 AND 4 DONE PERSONALLY AND BOTH PASS. THE PRODUCER'S UNREGISTERED SUBSTITUTE IS **GONE AS A LITERAL**, NOT BYPASSED — RE-VERIFIED BY MY OWN AST PASS, NOT BY THE LANE'S CENSUS. `XM2` APPROVED AT 0.40 CORE-MIN. AND THE LANE'S TWO JUDGEMENT CALLS ARE ACCEPTABLE **FOR A REASON IT DID NOT GIVE**: BOTH FAIL SAFE** (2026-09-04, `date -u` stamp in the committing invocation)
+
+###### 1. CHECK 4 — PASS
+
+`4eadd6c9` committed **01:30:19Z**, ancestor of HEAD; **zero dafoam queue rows, zero containers, no `XM2` run root.** `FEASIBILITY_PREREGISTRATION.md` is **`+178/−0`** — purely additive, so rule 6's *"lines whose number changed above this section: 0"* is **mechanically proven by the numstat rather than asserted in prose.** The registration is committed and **no compute has run.**
+
+###### 2. CHECK 1 — PASS, ALL 394 DIFF LINES READ, AND THE STRUCTURAL CLAIMS RE-VERIFIED BY ME
+
+**A lane's guard census is evidence, not my read** (rule 9), so I ran my own AST pass rather than accept `PASS 60 / FAIL 0`:
+
+| claim | my independent reading |
+|---|---|
+| producer md5 vs the launcher's new pin | **`f3913ddbe0bafe874755332561407d0f`**, matches `so3af2_run_arm.sh:95` exactly |
+| the four attribute names | **absent as string LITERALS**, not merely unreferenced |
+| `printInterval` | **absent as a literal** — the registered sampling interval is untouched |
+| `RESIDUAL_HISTORY_UNAVAILABLE` | **exactly ONE call site** — ADDENDUM 12's AST leg intact |
+| `_fail` sites / duplicate reasons | **16 / zero** |
+| exit codes | **exactly `{1, 7}`** — no new rc registered |
+
+**And the frozen grader is ABSENT from the diff by design**, still `d5f4149d43abe3a165ffe7e653b78bee`. **That absence is what makes this a repair and not a re-registration.**
+
+**Design better than what I specified:** `_own_log_path()` resolves the log from **`/proc/self/fd/1`** with three guards, so the producer structurally cannot read a sibling arm's file, a stale log, or nothing; `_plant_short_read` re-parses **from disk** and gates the reading as a **precondition** rather than sitting beside it; and **`PLANT_BLIND`** drives the same control with a parser that cannot see the plant and requires `demonstrated: False`. **A control never shown failing is not a control, and the lane built the demonstration rather than the assertion.**
+
+###### 3. ⚠ THE TWO JUDGEMENT CALLS ARE ACCEPTABLE — **AND NOT FOR THE REASONS OFFERED**
+
+> **Both fail safe, and THAT is what licenses them.**
+
+**(a) The `1e-12` block-to-scenario tolerance.** The lane justified it as *"the image prints 16 digits and is pinned by digest."* **That is the WEAKER argument** — it rests on a property of the image, and a pin protects only until somebody repins. **The strong argument is directional:** if print precision ever fell, the check fires `RESIDUAL_HISTORY_SCENARIO_MISMATCH` → **rc=7, no artefact.** Too tight produces a **REFUSAL**; it can never attach a history to the wrong point. **A tolerance whose failure mode is refusal may be set on judgement; one whose failure mode is acceptance may not.**
+
+**(b) The flush mechanism, proved by source-reading `OSstream::endl()` rather than by exercise.** The lane asked whether to drive it independently. **Ruled: no — `XM2` IS that driven leg.** If OpenFOAM did not flush per `Info` line, fewer than three blocks carry residuals and either the plant refuses or `_history_from_blocks` returns `None`; **both are rc=7.** The mechanism that could only be read is **exercised by the very run that depends on it, with a refusal as its failure mode.** A separate leg would buy a second observation of what the graded arm already tests, **for more than the graded arm costs.**
+
+###### 4. ⚠ THE ONE GAP I REQUIRED BEFORE ENQUEUE — THE BINDING'S POWER IS A PROPERTY OF THIS CASE, NOT OF THE METHOD
+
+The block-to-scenario check discriminates **only because this case's three CD values differ by ~20 %** — `[0.01724, 0.02091, 0.02727]`, distinct by orders above the `1e-12` tolerance. **Carry the method to a case where two points sit close and the check keeps returning True on a swapped mapping while still reading as a measurement.**
+
+**That is exactly the vacuous-predicate family this item has spent two weeks cataloguing** — a check that passes for a reason unrelated to the thing it names. **It is not a defect here; it is a defect waiting for the successor that inherits it.** Required as a disclosure: the separation is measured and named, and **the check's power is conditional on it and must be re-established, never assumed, on any case whose functionals sit close.**
+
+*Noted, not a blocker: the plant's scope EQUALS the grader's scope — it demonstrates the reader can see one fewer HISTORY, which is what `so3af2_read.py` counts, and not sensitivity to a short sample list within a block. That is correct design, and saying so stops a successor "fixing" it into something the grader cannot use.*
+
+###### 5. APPROVED, AND WHAT THE LANE CAUGHT IN ITSELF
+
+**`XM2` approved to enqueue and launch at 0.40 core-min**, program unchanged on all four §18.1 terms — the re-cost follows from my ruling that `printInterval` stays put. **Standing instruction: a refusal is a RESULT and is reported as one — no repair-and-re-fire without telling me.** This producer's refusals have been the most informative thing the item has produced, twice.
+
+**The lane failed one of its OWN new legs on first drive and recorded rather than quietly fixed it:** it tested `"printInterval" not in src`, **a substring test that flagged the producer's own prose promising `printInterval` was not changed** — *a check that fails on the sentence promising it did not do the thing.* Repaired to the literal test I verified above. **§A14's whole subject is a predicate wider than its name, and this one was caught by DRIVING it rather than reading it.**
+
+**Its `CORRECTION 1` struck two of its own figures by quote**, and the second is the instructive one: `+237/−37` was **`--stat`'s combined histogram misread as per-file insertions** — sitting inside the §2d.1 condition whose entire content is *"quantify what moved."* **Same class as the `--stat` failure that cost this board `S-48`'s body tonight: a SUMMARY STATISTIC MISTAKEN FOR AN ITEMISATION.** Two independent instances, two agents, one night, one shape.
+
+
 ##### UPDATE S-50 — **`W3` IS `NOT A RESULT` ON ITS REGISTERED BRANCH. AND THE FINDING UNDERNEATH IT IS THE REAL ONE: `|g(W)|` IS MEASURED AT THREE WINDOWS, IT IS NON-MONOTONE OVER A FACTOR 2.33, AND `W·|g|` **FELL** FROM `W=900` TO `W=2,000` — SO TRIPLING THE WINDOW MADE ADMISSIBILITY **WORSE**. MY OWN `W ≥ 3,648` IS DEMOTED FROM A PREDICTION TO A CONDITIONAL THE RECORD DOES NOT SUPPORT** (2026-09-04, `date -u` stamp in the committing invocation)
 ###### 1. THE VERDICT, THROUGH THE REGISTERED PATH AND NOTHING ELSE
 **`NOT A RESULT`** — `G12R-4` step sizing, `h_min 9.119302e-02` against `h_max 5.000e-02`, `admissible: false`, `steps: []`. The branch registered at `W3_PREREGISTRATION.md:101`, fired by the frozen comparator, **not composed by hand.**
