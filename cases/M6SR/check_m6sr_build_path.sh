@@ -347,6 +347,107 @@ CONTAINER_S=$((CONTAINER_S + T3 - T0))
   || bad "C6 item 39 did not reproduce (rc '$CAPRC', wall ${CAPW}s). If a bare timeout now bounds a container, the driver's cap comment must be re-measured before it is believed"
 ok "C6' and what DOES end a container is 'docker rm -f' on the recorded name: $((T3-T2)) wall s"
 
+# =======================================================================================
+# C7  ITEM 49 -- ITEM 34's REFUSAL IS NOW IN THIS DRIVER, AND IT IS DRIVEN, NOT GREPPED.
+#
+# Item 34 is THE ONE DEFECT IN THIS CAMPAIGN THAT DID NOT FAIL CLOSED: a 3,330-byte
+# log.checkMesh whose head had been overwritten still returned every maximum Gate A reads and
+# GRADED CLEAN.  The refusal against it lived in run_m6sr_b5.sh and NOT here; this driver was
+# safe only because its mount is $RR/$LEVEL/work while its wrapper log is the PARENT.
+# Section 20.2.4 records that mounting $RR/$LEVEL instead was actively considered and
+# rejected -- so the unsafe shape is one edit away, and C7b makes that edit and requires the
+# guard to catch it.
+# =======================================================================================
+echo
+echo "=== C7  ITEM 49.  THE WRAPPER LOG MAY NOT LIVE INSIDE THE BIND MOUNT ==="
+if grep -q 'INSIDE the bind mount' "$CODE"; then
+  ok "C7a the refusal is in the driver's CODE, not only in a comment (full-comment lines are stripped from \$CODE, so a sentence describing the fix cannot satisfy this)"
+else
+  bad "C7a the driver's CODE carries no 'INSIDE the bind mount' refusal -- item 34's class is unguarded in this file"
+fi
+# C7b  THE MUTATION: move the mount to $RR/$LEVEL, exactly the alternative Section 20.2.4
+# rejected, and require the extracted guard to REFUSE at exit 6.
+MUT49="$WORK/mut49.sh"
+sed 's|-v "\$RR/\$LEVEL/work":|-v "$RR/$LEVEL":|; s|local _mount="\$RR/\$LEVEL/work"|local _mount="$RR/$LEVEL"|' \
+    "$DRIVER" > "$MUT49"
+if ! grep -q 'local _mount="\$RR/\$LEVEL"' "$MUT49"; then
+  bad "C7b the mutation did not apply -- the guard's mount expression was not found, so this limb tests nothing"
+else
+  { awk '$0 ~ "^run_in_container\\(\\)\\{" {p=1} p {print} p && /^\}/ {exit}' "$MUT49"; } > "$WORK/fn49.sh"
+  ( RR="$WORK/rr49"; LEVEL=probe; mkdir -p "$RR/$LEVEL"
+    say(){ :; }; abort(){ echo "$1" > "$RR/abort.txt"; exit "${2:-1}"; }
+    docker_timeout_q(){ :; }; docker_q(){ :; }
+    . "$WORK/fn49.sh"
+    run_in_container checkMesh 5 "true" ) >/dev/null 2>&1
+  RC49=$?
+  MSG49=$(cat "$WORK/rr49/abort.txt" 2>/dev/null)
+  { [ "$RC49" = "6" ] && case "$MSG49" in *"INSIDE the bind mount"*) true ;; *) false ;; esac; } \
+    && ok "C7b THE GUARD IS LIVE: with the mount moved to \$RR/\$LEVEL -- Section 20.2.4's rejected alternative -- the driver REFUSES at exit 6 before starting a container, naming the collision" \
+    || bad "C7b the mutated mount did NOT refuse (rc '$RC49', message '${MSG49:0:90}'). The guard is present in the text and does not fire, which is worse than absent"
+fi
+# C7c  THE NEGATIVE TWIN.  Unmutated, the same extracted guard must NOT fire -- otherwise C7b
+# is a guard that refuses everything and proves nothing about the collision.
+{ awk '$0 ~ "^run_in_container\\(\\)\\{" {p=1} p {print} p && /^\}/ {exit}' "$DRIVER"; } > "$WORK/fn49ok.sh"
+( RR="$WORK/rr49ok"; LEVEL=probe; mkdir -p "$RR/$LEVEL"
+  say(){ :; }; abort(){ echo "$1" > "$RR/abort.txt"; exit "${2:-1}"; }
+  docker_timeout_q(){ :; }; docker_q(){ :; }
+  . "$WORK/fn49ok.sh"
+  run_in_container checkMesh 5 "true" ) >/dev/null 2>&1
+# ⚠ THE TEST IS THE GUARD'S OWN MESSAGE, NOT "did anything abort".  The first version of this
+# limb tested for the mere EXISTENCE of an abort file and FAILED -- because the unmutated run
+# aborts LATER, at the inner-rc check, since this harness stubs the container away and no
+# RC file is ever written.  A control that keys on "something failed" cannot tell the guard
+# under test from an unrelated refusal downstream, and would have named the wrong defect.
+MSG49OK=$(cat "$WORK/rr49ok/abort.txt" 2>/dev/null)
+case "$MSG49OK" in
+  *"INSIDE the bind mount"*)
+    bad "C7c the UNMUTATED driver's MOUNT GUARD also fired -- it refuses the safe topology too, so C7b measures nothing about the collision" ;;
+  *)
+    ok "C7c and the UNMUTATED driver's mount guard does NOT fire: it discriminates the collision from the safe topology rather than refusing everything (the unmutated run does abort further down, at the inner-rc check, because this harness stubs the container away -- that is a DIFFERENT refusal and is not what this limb tests)" ;;
+esac
+
+# =======================================================================================
+# C8  ITEM 50 -- THE ENFORCED BOUND IS DERIVED FROM THE REGISTERED CAP, AND THE CONTROL IS
+# THAT A MUTATED CAP MOVES THE BOUND.
+#
+# Deriving the bounds is the easy half.  What makes it stick is this: before the repair,
+# `CAP_B2_COREMIN=70.0 ; TMO_B2=4200` were TWO INDEPENDENT LITERALS that agreed by arithmetic,
+# and each CAP_B*_COREMIN was used in exactly ONE place besides its declaration -- a `say`
+# string.  Replacing one pair of numbers that happen to agree with another pair that happen
+# to agree would be no repair at all.  SO THE TEST IS MOVEMENT, WITH A NEGATIVE TWIN.
+# =======================================================================================
+echo
+echo "=== C8  ITEM 50.  A MUTATED CAP MUST MOVE THE BOUND ==="
+CAPBLK="$WORK/capblk.sh"
+sed -n '/^CAP_B1_COREMIN=/,/^done$/p' "$CODE" > "$CAPBLK"
+[ -s "$CAPBLK" ] || refuse "could not extract the cap block from the driver's CODE -- an empty extraction would make every C8 limb vacuously green"
+grep -q 'cap_to_wall_s' "$CAPBLK" \
+  && ok "C8a the block that sets the bounds contains a DERIVATION, not three literals" \
+  || bad "C8a the driver's CODE sets TMO_B1/B2/B3 without deriving them from CAP_B*_COREMIN -- item 50 is back"
+if grep -qE '^TMO_B[123]=[0-9]+$' "$CAPBLK"; then
+  bad "C8a' the CODE still assigns a bare integer literal to a TMO_B* -- that is the defect, not the repair"
+else
+  ok "C8a' no TMO_B1/B2/B3 is assigned a bare integer literal anywhere in the driver's CODE"
+fi
+eval_caps(){ ( abort(){ echo "ABORT $1"; exit "${2:-1}"; }
+               . "$CAPBLK" >/dev/null 2>&1
+               echo "$TMO_B1 $TMO_B2 $TMO_B3" ) ; }
+BASE=$(eval_caps)
+# THE NEGATIVE TWIN FIRST: unmutated, the bounds must reproduce Section 2.4's registered caps.
+[ "$BASE" = "60 4200 180" ] \
+  && ok "C8b the derivation reproduces Section 2.4's registered caps EXACTLY -- 1.0/70.0/3.0 core-min at 1 rank -> $BASE wall s, the same three numbers the struck literals carried. NO CAP MOVES." \
+  || bad "C8b the derived bounds are '$BASE', not the registered '60 4200 180'. Item 50's repair must not move a cap"
+# THE PLANT: mutate the CAP and require the BOUND to move with it.
+sed 's/^CAP_B2_COREMIN=70.0$/CAP_B2_COREMIN=35.0/' "$CAPBLK" > "$WORK/capmut.sh"
+grep -q '^CAP_B2_COREMIN=35.0$' "$WORK/capmut.sh" || refuse "the C8 cap mutation did not apply; this limb would test nothing"
+CAPBLK_SAVE="$CAPBLK"; CAPBLK="$WORK/capmut.sh"; MUT=$(eval_caps); CAPBLK="$CAPBLK_SAVE"
+MB2=$(echo "$MUT" | cut -d' ' -f2); BB2=$(echo "$BASE" | cut -d' ' -f2)
+MB1=$(echo "$MUT" | cut -d' ' -f1); MB3=$(echo "$MUT" | cut -d' ' -f3)
+{ [ "$MB2" = "2100" ] && [ "$MB2" != "$BB2" ] \
+  && [ "$MB1" = "$(echo "$BASE" | cut -d' ' -f1)" ] && [ "$MB3" = "$(echo "$BASE" | cut -d' ' -f3)" ]; } \
+  && ok "C8c THE CAP MOVES THE BOUND: halving CAP_B2_COREMIN 70.0 -> 35.0 moved TMO_B2 $BB2 -> $MB2 s, and B1 and B3's bounds did NOT move. Before item 50's repair this mutation would have moved NOTHING -- TMO_B2 was an independent literal and the cap reached only a \`say\` string" \
+  || bad "C8c mutating CAP_B2_COREMIN 70.0 -> 35.0 gave bounds '$MUT' against the baseline '$BASE'. Expected TMO_B2 2100 with B1 and B3 unchanged. The bound is not a function of the cap"
+
 # ---------------------------------------------------------------------------------------
 LEFT=$("$DOCKER_BIN" ps -a --filter "name=m6bc_" --format '{{.Names}}' | tr '\n' ' ')
 [ -z "$LEFT" ] \

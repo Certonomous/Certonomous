@@ -318,9 +318,53 @@ PINTBL
 # Section 2.4 caps, in core-minutes, and the wall-second timeout each one implies at the
 # rank count that step actually runs at.  pyHyp runs 1 rank; every step here is serial.
 RANKS=1
-CAP_B1_COREMIN=1.0    ; TMO_B1=60
-CAP_B2_COREMIN=70.0   ; TMO_B2=4200
-CAP_B3_COREMIN=3.0    ; TMO_B3=180
+# ---------------------------------------------------------------------------------------
+# ITEM 50 -- 🔴 THE REGISTERED CAP AND THE ENFORCED BOUND WERE TWO INDEPENDENT NUMBERS THAT
+# MERELY AGREED.  REPAIRED HERE: THE BOUND IS NOW DERIVED FROM THE CAP.
+#
+# THE DEFECT, MEASURED AND PLANT-VERIFIED (Amendment 22, the M4 census).  These three lines
+# used to read:
+#     🔴 STRUCK BY QUOTE: ~~"CAP_B1_COREMIN=1.0    ; TMO_B1=60"~~
+#     🔴 STRUCK BY QUOTE: ~~"CAP_B2_COREMIN=70.0   ; TMO_B2=4200"~~
+#     🔴 STRUCK BY QUOTE: ~~"CAP_B3_COREMIN=3.0    ; TMO_B3=180"~~
+# Each pair is TWO INDEPENDENT LITERALS ON ONE LINE.  Measured: each `CAP_B*_COREMIN` was
+# used in EXACTLY ONE PLACE besides its own declaration -- a `say` string -- while the number
+# that actually reached `run_in_container`, and therefore `timeout -k`, was the separate
+# literal `TMO_B*`.  This file contained ZERO derived bounds; `run_m6sr_b5.sh` contains two
+# (`TMO_B4` from `$CAP_B4_TOTAL`, `TMO_B5` from `$CAP_B5` and `$RANKS`).
+#
+# THEY AGREED BY ARITHMETIC -- 70.0 x 60 = 4200 at 1 rank -- AND NOTHING ASSERTED IT.  Change
+# a cap in Section 2.4 and update `CAP_B2_COREMIN`, and `TMO_B2` silently keeps the old bound:
+# THE CAP WOULD READ RIGHT IN THE LOG AND BIND WRONG IN THE TIMEOUT.
+#
+# ITEM 39 WAS "THE MECHANISM DOES NOT BIND".  ITEM 50 IS "THE MECHANISM BINDS A NUMBER THAT
+# IS NOT THE REGISTERED CAP."  It is the worse of the two, because the log CERTIFIES it: an
+# unenforced cap is silent, a mis-enforced one prints the registered figure while holding a
+# different one.
+#
+# ALL THREE STEPS RUN AT 1 RANK (pyHyp is serial; Section 2.4's table says so for B1/B2/B3),
+# so core-min x 60 = wall s.  The rank count is written out rather than folded in, so a
+# future multi-rank step cannot inherit a 1-rank conversion silently.
+# ---------------------------------------------------------------------------------------
+CAP_B1_COREMIN=1.0
+CAP_B2_COREMIN=70.0
+CAP_B3_COREMIN=3.0
+B1_RANKS=1 ; B2_RANKS=1 ; B3_RANKS=1        # Section 2.4: all three are serial
+cap_to_wall_s(){                            # core-min, ranks -> integer wall seconds
+  python3 -c "import sys; print(int(float(sys.argv[1]) * 60.0 / float(sys.argv[2])))" "$1" "$2"
+}
+TMO_B1=$(cap_to_wall_s "$CAP_B1_COREMIN" "$B1_RANKS")
+TMO_B2=$(cap_to_wall_s "$CAP_B2_COREMIN" "$B2_RANKS")
+TMO_B3=$(cap_to_wall_s "$CAP_B3_COREMIN" "$B3_RANKS")
+# A DERIVATION THAT SILENTLY YIELDED NOTHING WOULD BE WORSE THAN THE LITERALS IT REPLACED:
+# `run_in_container` with an empty `$tmo` would pass `timeout -k 5s s`, and this driver would
+# lose its bound while still printing the registered cap.  REFUSED, per step.
+for _p in "B1:$TMO_B1" "B2:$TMO_B2" "B3:$TMO_B3"; do
+  case "${_p#*:}" in
+    ''|*[!0-9]*) abort "the bound for ${_p%%:*} derived to '${_p#*:}', which is not a positive integer number of seconds. Item 50's repair makes the BOUND a function of the REGISTERED CAP; a derivation that yields nothing would leave \`timeout -k\` with no argument and silently unbind the step while the log still printed the cap. REFUSED AT ZERO COST." 3 ;;
+    0) abort "the bound for ${_p%%:*} derived to 0 s. A zero cap is not a cap. REFUSED." 3 ;;
+  esac
+done
 
 EST_B1=0.05 ; EST_B2=7.04 ; EST_B3=0.29
 RATE_USD_PER_CORE_H=0.0513
@@ -606,6 +650,35 @@ run_in_container(){
   # below must be able to aim at it WITHOUT having to trust anything the client returned.
   cname="m6sr_${tag}_$$"
   echo "$cname" > "$RR/$LEVEL/CONTAINER_NAME_${tag}.txt"
+  # ---------------------------------------------------------------------------------------
+  # ITEM 49 -- ITEM 34's REFUSAL, PORTED INTO THIS DRIVER.  It existed in `run_m6sr_b5.sh`
+  # and NOT here, and this file was safe only BY ARITHMETIC.
+  #
+  # WHY IT MATTERS MORE THAN THE OTHER GUARDS IN THIS FILE.  Item 34 is THE ONE DEFECT IN
+  # THIS CAMPAIGN THAT DID NOT FAIL CLOSED.  The host opens the wrapper's log with O_TRUNC and
+  # HOLDS THE FD AT OFFSET 0 for the life of the docker client, while the container writes the
+  # SAME INODE through the bind mount with its own fd; anything the client then emits lands at
+  # offset 0 and overwrites the HEAD.  MEASURED on the pinned digest: a 3,330-byte
+  # `log.checkMesh` with the OpenFOAM banner's first 20 bytes replaced STILL returned
+  # state=READ with every maximum Gate A reads -- IT GRADED CLEAN.  Everything else in this
+  # driver fails closed and is therefore self-announcing; that one ISSUED A CERTIFICATE.
+  #
+  # THE STATE BEFORE THIS REPAIR, MEASURED: this driver mounts `$RR/$LEVEL/work` and writes
+  # its wrapper log to `$RR/$LEVEL/log.$tag` -- the mount's PARENT, so outside it, so SAFE.
+  # But `INSIDE the bind mount` occurred ONE time in `run_m6sr_b5.sh`'s comment-stripped code
+  # and ZERO times in this file's: the property held, and nothing checked it.  Section 20.2.4
+  # records that mounting `$RR/$LEVEL` instead was ACTIVELY CONSIDERED AND REJECTED for
+  # exactly this reason -- so the unsafe alternative is ONE EDIT AWAY, in the file that had no
+  # guard against it.  A driver safe by arithmetic is not a driver safe by construction.
+  #
+  # THIS TESTS THE MOUNT, NOT A COPY OF IT: `$RR/$LEVEL/work` below is the literal `-v` source
+  # in the `docker_timeout_q` call, so an edit that moves the mount moves this test with it.
+  # ---------------------------------------------------------------------------------------
+  local _mount="$RR/$LEVEL/work" _wlog="$RR/$LEVEL/log.$tag"
+  case "$_wlog" in
+    "$_mount"|"$_mount"/*)
+      abort "the wrapper log '$_wlog' is INSIDE the bind mount '$_mount'. The host holds that fd at offset 0 for the life of the docker client while the container writes the same inode through the mount, so a client write lands at offset 0 and OVERWRITES THE HEAD of the file. Item 34 measured exactly this: a 3,330-byte log.checkMesh whose banner had been replaced STILL graded CLEAN, because the numeric maxima live near the END and still parsed. A head-corrupted log reads CLEAN, not ABSENT, and that is worse than missing. REFUSED before the container is started." 6 ;;
+  esac
   t0=$(date +%s)
   # ITEM 35 REPAIRED: argv, through docker_timeout_q, correct on BOTH branches -- and the
   # image is addressed by DIGEST ($IMG_PINNED), never by the tag $IMG.
