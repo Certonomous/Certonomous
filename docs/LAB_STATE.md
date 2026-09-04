@@ -5072,9 +5072,108 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-04T01:08:43Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-48` — **`W3` IS NOT RUNNING AND HAS NOT BEEN SINCE 21:57:49Z; IT REACHED ITS REGISTERED TERMINUS, AND THE REGISTERED FALLBACK DOES NOT RESCUE IT.** `S-47`'s and `S-46`'s *"`W3_chain_r2` running"* lines are **STRUCK BY QUOTE** below — they were true when written and were still being relayed three hours after they stopped being true. Before it, `S-47` — **DESK ITEMS CLOSED**: the **rule-10 hole is fixed in the constitution itself** on Sanaa's GO (`0ee2e7df`, verified by me at HEAD, not taken on relay), and the rule-12 estimate gap is **routed to verification** as a forward-only note. `S-46`'s "on Sanaa's desk" line is **struck by quote** so no successor re-escalates a closed item. **Nothing now on her desk from this family** but the four `NOT FILED` upstream defect classes and FD-vs-adjoint as a fourth `V` instrument. Before it, `S-46` (closing state), `S-45`, `S-44`, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
+**Section last written:** 2026-09-04T01:22:38Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-49` — **the `d92356e2` board write was HALF-LOST and rule 10's `--stat` post-commit verify could not see it; `D6RF2`'s refusal was a RESCUE; and `S-46`'s `SO3aF2` `F1` ruling is OVERTURNED.** `S-48` is RESTORED below (its body was lost, its header was not). Before them, `S-47` — **DESK ITEMS CLOSED**; `S-46` (closing state), `S-45`, `S-44`, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37`, `S-36`…`S-29`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-49 — **⚠ THE `d92356e2` BOARD WRITE WAS HALF-LOST AND MY OWN POST-COMMIT VERIFY COULD NOT SEE IT: `--stat` SAID 78 INSERTIONS AND THEY WERE ANOTHER TEAM'S LINES. `D6RF2`'s REFUSAL WAS A **RESCUE** — A `NaN` ENDPOINT WOULD HAVE MANUFACTURED FOUR SILENT `GATE FAIL`s — AND THE CHEAP REPAIR IS DISQUALIFIED BY A NUMBER COMPUTABLE BEFORE MAKING IT. `SO3aF2`'s `F1` IS NOT DEAD: THE REGISTRATION NAMED THE LOG ALL ALONG AND `S-46`'s RULING IS OVERTURNED** (2026-09-04, `date -u` stamp in the committing invocation)
+
+###### 1. ⚠⚠ RULE 10's POST-COMMIT VERIFY IS VACUOUS ON A FILE SIX TEAMS SHARE — MEASURED ON MY OWN COMMIT
+
+`S-48` was written, committed at **`d92356e2`**, and **verified by me** with the recipe `CLAUDE.md` rule 10 gives: `git diff HEAD~1 HEAD --stat` returned `docs/LAB_STATE.md | 78 ++++…`, one file, only my path. **I read that as confirmation and moved on.**
+
+**The 78 lines were `cfd`'s board-56 content, not mine.** At `d92356e2` my *section-last-written* line landed and **the entire `S-48` body did not** — `git show d92356e2:docs/LAB_STATE.md | grep -c "UPDATE S-48"` returns **0** while the header line claiming `S-48` returns **1**. The board has been sitting for nine minutes announcing a block that does not exist.
+
+**THE MECHANISM, AND IT IS LAB-WIDE, NOT DAFOAM'S:** the private-index protocol **isolates by PATH**, and **all six teams write ONE path.** `cfd` rebuilt `docs/LAB_STATE.md` from `HEAD:docs/LAB_STATE.md` and wrote it back to the worktree — its own commit `134b8d75` says so in terms, and says its content rode to HEAD *inside my commit* — so a rebuild from HEAD **silently discards every other team's uncommitted edit to that file**, and whoever commits next carries the survivor.
+
+> **`# ASSERT: only your paths` is satisfied by a diff containing NONE of your lines. On a shared path, `--stat` cannot tell WHOSE content landed — it counts lines, and lines have no owner.**
+
+**This is the same shape as the two empty commits `S-45` §5 recorded, one layer up.** There the guard could not distinguish *my work* from *no work*; here it cannot distinguish *my work* from *somebody else's work*. Rule 10's empty-tree assertion — the fix this family pushed into the constitution at `0ee2e7df` — **fires on neither**, because the tree genuinely differed from its parent both times.
+
+**WHAT I NOW DO, AND IT IS THE ONLY THING THAT ACTUALLY CLOSES IT:** the post-commit check on a shared file asserts **CONTENT**, not statistics — `git show HEAD:<path> | grep -c "<a string unique to my block>"` must return the expected count — and the insert-and-commit run **in ONE shell invocation** so no peer can rebuild the file between the edit and the commit. Both are applied to this commit. **Escalated to the chief as a rule-10 gap affecting every team, not repaired by me: `CLAUDE.md` is not mine to edit** (`S-45` §5's ruling, unchanged).
+
+*`S-48`'s body is restored below, disclosed as a restoration rather than presented as if it had never been lost.*
+
+###### 2. `D6RF2` — RULED: **SUCCESSOR (`D6RF3`), NOT A REPAIR**, and the lane's ground is better than the one I sent it to test
+
+**Check 1/3, mine.** The freeze **names the ARTEFACT, not the quantity** — `curriculum_D6RF/PREREGISTRATION.md:325`: *"`CDᵢ(mp)` is the last row of `d6r_major_history.json`"* — and D6RF2 inherits §3's gates *"in full"* by citation at its `:31`. §3e names no source of its own and so inherits `:325`'s. **That single line decides the question I deferred: it cannot be repaired in place.**
+
+**⚠ AND THE FINDING THAT INVERTS THE WHOLE FRAMING — `D6RF3-DEF-5`. THE REFUSAL WAS A RESCUE.** **687 of 863 `funcs` rows carry non-finite `obj.J`, and the trailing 8 are non-finite.** The extractor takes `arr[-1,:]` = **row 1006, whose `funcs` are all `NaN`**, and `d6rf2_grade.py` carries **zero finiteness guards in 43,462 bytes**. Had CD been present: `price = NaN`; **`NaN < 0.0` is False, so the registered *negative → `NOT A RESULT`* limb DOES NOT FIRE**; `NaN <= 1.0e-3` is False; control falls to `else` → **`GATE FAIL`**, and `gate_off` gives **`GATE FAIL` on all three points.** **Four gated rows of manufactured `GATE FAIL`, silently.**
+
+> **The defect we spent the night calling a blocker was the only thing standing between this item and four fluent, gated, wrong verdicts. A loud absence saved us from a quiet answer.**
+
+**⚠ AND THE CHEAP ROUTE IS DISQUALIFIED BY A NUMBER THAT CAN BE COMPUTED BEFORE THE REPAIR IS MADE.** The lane recovered the endpoint CD from the optimiser's stdout by CL match, and closed the composite identity as its independent control: `0.25·CD04 + 0.50·CD05 + 0.25·CD06` against the history's own `J` — **residual 9.84e-12 absolute, 4.43e-10 relative.** Then:
+
+```
+CD_cl05 (recovered) = 0.02176156349
+CD_f (D4)           = 0.021125978108239574
+price               = +6.3558538e-04   in band [0, 1.0e-3]  ->  PASS
+```
+
+**The §2d.1 repair is VISIBLY OUTCOME-FAVOURABLE BEFORE IT IS MADE, from artefacts alone, with nothing run.** §2d.1's closing sentence governs — *nothing a verdict depends on may be repaired on the authority of the verdict it produces.* **The instrument is clean; the CHOICE would not be.** In a fresh registration the identical number costs nothing, because the source is named before the answer is known. **That is the whole difference, and it is a difference in WHEN, not in WHAT.**
+
+Condition (1) also fails independently on verification's own `§2p.11 R6`: **an input that is ABSENT is not an instrument that DISAGREES**, so condition (2) has no object and §2d stands. **(c) is measured FALSE** — CD is obtainable at zero marginal cost, so there is **no capability gap and nothing for Sanaa's desk on this item.**
+
+**Draft at `cases/dafoam/ladder-a/A2/curriculum_D6RF3/PREREGISTRATION_DRAFT.md`** (612 lines, unfrozen, 0 core-min, no run root, not enqueued), carrying a **two-direction** mutation harness for the finiteness clause — *a restrictive repair is not self-certifying* — a **third** planted-zero control for the moved CD source, per-arm estimates **in the frozen document**, and all four inherited could-never-have-finished defects re-verified rather than copied (912 re-counted as 77 × 4 × 3 with 76 outputs each).
+
+**TWO CORRECTIONS TO ME, BOTH ACCEPTED:** the two-row shipped/patched obligation is `DAFOAM_CHARTER.md` **§6**, not §3 (§2 is the FD table, §3 the plateau sweep) — **I had it wrong in my own brief and in this section's standing language**; and D6RF2's **4.6 core-min is host-side** (`wall_s 69 × 4 ÷ 60`), the container's own being **3.13** — an arm that reached no CFD, `delivered_cores_mean 0.0695`, **and it is not an FD rate.**
+
+###### 3. `SO3aF2` — **`S-46`'s RULING IS OVERTURNED. `F1` IS NOT DEAD AND NEVER WAS**
+
+**Check 3, done personally at the frozen text rather than taken on relay.** `FEASIBILITY_PREREGISTRATION.md:279` scores `F1` **"counted from the log, both ways"**; `so3af2_read.py:295-310` takes `n_tol` from `XM/XM.log` and `n_resid = len(j["residual_histories"])` and **never inspects a history's contents**; the reader's md5 is **`d5f4149d43abe3a165ffe7e653b78bee`**, still its 2026-08-31 freeze.
+
+**The residual history was in the solver log DAFoam already writes, and the registration named the log all along.** `DAUtility::primalResidualControl` prints per-iteration `initRes/finalRes/nIters` per equation, gated on `printToScreen` at `printInterval`. Parsed from the preserved `XM.log`: **3 primal blocks, 3 tolerance lines, 3 residual-statistics blocks, 15 residual lines per equation = 3 primals × 5 samples**, `U0` falling `1.000000e+00 → 2.535852e-08`; **reproduced independently on the earlier `rc=7` container's log.** Planted control in the same invocation: stripping `initRes:` from the third block yields `n_tol=3 / n_resid=2` — **exactly the disagreement the frozen reader refuses on**, so the parser is shown able to see a short read.
+
+**`S-46` ruled *"branch (2): `F1`'s approach as registered CANNOT WORK"* and called it the fourteenth unsatisfiable-by-construction condition. THAT RULING WAS WRONG.** The approach as registered works; what could not work was **the producer's unregistered substitute** — four guessed attribute names where the freeze said *from the log*.
+
+> **⚠ We have spent a week catching instruments that claimed more than they measured. This is the mirror image: a SUPERVISOR who attributed an INSTRUMENT'S limitation to the DOCUMENT it was supposed to implement — and then generalised it into a claim about the registration.** The two are one failure to keep the map and the territory apart, and the second is harder to catch because it arrives wearing a ruling.
+
+**RULED — route (a1): a dated addendum, PRODUCER-ONLY.** No gate, threshold, band, cap, label or prediction moves; **the grader is not touched and its md5 must still read `d5f4149d…` afterwards.** This is not an amendment to the registration — it brings the run **into compliance with it**. §2d.1's condition (2) is met by the attribute census, which **grades nothing** and could only ever push toward refusal.
+
+**THREE CHANGES I MADE TO THE LANE'S DRAFT, and the first is the one worth keeping:** (1) **`printInterval` STAYS at its registered value — do NOT set it to 1.** `F1` needs three histories *present* and the two counts to *agree*; it never looks inside one, and 5 samples per primal already satisfies it. Setting it to 1 buys nothing `F1` needs, introduces an unregistered difference between `XM` and `XM2` on the item whose whole value is an unedited instrument, **and it deletes the need for the lane's own weakest falsifier** — which was only there because of the change. (2) **`R0` is a DIAGNOSTIC, not a graded reading**; `XM2` (0.55 core-min) is the graded arm — I ruled the `rc=7` question the lane correctly declined: *bookkeeping never voids physics* makes the preserved log **readable**, not the **artefact of record**, and 0.55 core-min buys a clean `rc=0` arm more cheaply than the argument costs. (3) The addendum is **committed before `XM2` runs** and **I read the producer diff as a diff** before any output of it is believed.
+
+**And one thing neither of us had said, now required in the addendum:** both `F1` readings come from **one file**, so they **share a failure mode**. That is registered, not a deviation — **but "registered" must not do the work "measured" should**, so the addendum names the shared mode and then shows what the guard still catches.
+
+###### 4. STATE
+
+**Zero dafoam compute running; zero pending queue rows; four `held/` entries with no `REASON` file between them** (`S-48` §5). `W3` at its registered terminus, grading in flight. `D6RF3` drafted, unfrozen, **not queued**. `SO3aF2` addendum in drafting under the ruling above. `A1WRT` both units run, **no item verdict by construction**, successor **not designed**.
+
+**OWED BY ME:** the held-queue census; the forward-only estimate rule's charter placement; `A1WRT`'s successor design. **DISCHARGED THIS SESSION:** the `disarm` findings record (as `F3SR` **CORRECTION 5**, `0fbd1727` — the findings-file path is **unwritable by any agent in this fleet** and I did not route around that) and the **`N-D42`** row.
+
+**ON SANAA'S DESK:** nothing new from this family beyond the four standing `NOT FILED` upstream defect classes and FD-vs-adjoint as a fourth `V` instrument. **To the CHIEF, not to her:** §1's rule-10 gap. **SUBMISSIONS PARKED.**
+
+##### UPDATE S-48 — **RESTORED 2026-09-04 after its body was lost at `d92356e2` (see `S-49` §1). `W3` REACHED ITS REGISTERED TERMINUS AT 21:57:49Z AND NOBODY NOTICED FOR THREE HOURS. THE FALSIFIER IT REGISTERED WAS HIT — BUT BY THE GRADIENT, NOT BY THE WINDOW — SO THE `W = 2,400` FALLBACK THE FREEZE NAMES **DOES NOT RESCUE THIS CASE**. AND THIS FAMILY OCCUPIES ZERO CORES WITH ZERO QUEUED WORK** (2026-09-04, `date -u` stamp in the committing invocation)
+
+###### 1. STRUCK BY QUOTE — NOT REWRITTEN
+
+~~`W3_chain_r2` running, **zero non-zero rc**~~ (`S-47` §4, `S-46` §5, `S-45` §7, `S-43` §10)
+
+**FALSE AT READING TIME.** Verified from `cases/dafoam/curriculum_D12R2/STATUS.W3_chain` and from `ps`: the chain wrote its last line at **2026-09-03T21:57:49Z** and **no dafoam process of any kind is running on this box.** The line was accurate when each block was written; **it was carried into my own briefing three hours after it stopped being true** — I was told at ~01:05Z that W3 was *"still running, writing STATUS.W3_chain continuously."* It had been finished for 3 h 07 m.
+
+**The lesson is not "the board was stale" — it is that a LIVE-STATE line has a shelf life a VERDICT line does not, and the two sit in the same paragraph wearing the same formatting.** A struck verdict stays informative; a struck pid is just wrong. **Live state is re-derived at every reading, never quoted from a previous block.** Second instance in the same briefing: **daemon pid 995043 is DEAD**; the live daemon is **995629 since 00:43:06Z**.
+
+###### 2. THE TERMINUS, READ FROM ITS OWN ARTEFACTS
+
+`phase1` **rc=0**, complete, `SPENT_CORE_MIN=271.2501` of cap 900.0. `plan` **rc=0**. `phase2` **rc=0 and LAUNCHED NOTHING** — the registered no-launch branch. `plan2` **rc=2**: `REFUSAL: G12R-5: only 0 usable sweep steps on disk; a plateau needs at least 3 and one step is never a plateau`. Driver: `chain=STOPPED_AT_FIRST_NONZERO`.
+
+**This is the REGISTERED TERMINUS, not a failure** — `W3_PREREGISTRATION.md:80` says so in terms. **The `rc=2` must never be read as a crash.**
+
+###### 3. ⚠ THE PHYSICS — THE FREEZE PREDICTED THE RIGHT OUTCOME FOR THE WRONG REASON, AND THAT IS WHAT KILLS THE FALLBACK
+
+`step_plan.json`: `admissible: false`, `h_min = 0.0911930188193242` against `h_max = 0.05`, `delta_eff = 0.00044535`, `dominant_term = delta_window`, `W = 2000`, `g_component_0 = 0.48835975139977306`.
+
+`P3` (`:90`) is binary and names its own falsifier: *"falsified iff `|g(2000)| < 0.8907`"*. **Measured `|g| = 0.48836` — 1.82× below the envelope constant and 2.33× below the freeze's own PESSIMISTIC assumption of 1.13984** (`:55`). **The window model was RIGHT:** `delta_window_exact = 4.3857e-04` against a predicted envelope of `4.4535e-04`, and `P1`'s `4.385710e-04` reproduces to the printed digits. **The GRADIENT was half what any of the three registered assumptions allowed for.**
+
+**⚠ CONSEQUENCE: the registered `W = 2,400` fallback (`:55`) DOES NOT RESCUE THIS CASE.** At `W = 2400` the envelope gives `h_min = 100·(0.8907/2400)/0.48836 = 0.0760` — **still 1.52× above `h_max`.** Admissible needs `W ≥ 100·C_ENV/(h_max·|g|) = 89.07/(0.05·0.48836) = 3647`. **The freeze sized its contingency against a window it got right and a gradient it got wrong, so the contingency inherits the error** — firing it would spend the money and land on `admissible: false` a second time.
+
+**MEASURED:** `|g|` at `W = 2000`, this case, this image, np=1. **UNMEASURED:** whether `|g(W)|` is stable as `W` grows — `|g|` is itself a window-averaged quantity on a limit cycle. **`W* = 3647` is a floor computed at a gradient measured at ONE window; it is NOT a prediction that `W = 3647` will be admissible.** Two sentences, deliberately.
+
+**The verdict is `PENDING` the frozen grader and is NOT composed here.** `:101` registers `P3` MISS → **`NOT A RESULT`**, and I expect that — **but a supervisor who writes the verdict before the instrument runs has replaced the instrument with his expectation.**
+
+###### 4. ⚠ ZERO CORES, AND AN EMPTY QUEUE BEHIND THEM
+
+`verification/queue/dafoam/` holds **zero pending entries**. Four in `held/` — `D12R_phase4`, `D6_chain`, `D6_chain_wait.e43bdf61`, `D8R_chain.357a2648` — and **not one carries a `REASON` file or any hold field in its JSON.** **A held entry with no recorded reason is indistinguishable from an abandoned one**, and under Sanaa's 2026-09-04 mandatory-completion order these are assigned work parked without a named cause.
+
 
 ##### UPDATE S-47 — **DESK ITEMS CLOSED: THE RULE-10 HOLE IS FIXED IN THE CONSTITUTION ITSELF ON SANAA'S GO, AND THE RULE-12 ESTIMATE GAP IS ROUTED TO VERIFICATION. `S-46`'s "ON SANAA'S DESK" LINE IS STRUCK SO NO SUCCESSOR RE-ESCALATES A CLOSED ITEM** (2026-09-03, `date -u` stamp in the committing invocation)
 
