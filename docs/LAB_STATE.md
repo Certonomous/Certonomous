@@ -26355,6 +26355,30 @@ Wiring the guard into ten sites turned up **a second defect shape that was not t
 4 paths, 682 insertions, **file deletions 0**. **I ran the controls rather than reading the report:** `--selftest` **GREEN**; `--mutation-control` **HELD, RED at rc 1**, naming *"the endTime fields survived"* and *"the coefficient series survived"* **for all three drivers** — the fixtures are genuinely destroyed without the guard. rc **0 under `python3` and `-O`**. **By AST parse across all four files: 0 bare asserts and 0 surviving raw `rmtree` calls.** **All ten reported line numbers were exactly right** (GEN_ALT 58/114/156/165, FPE 93/168/186/227, B52 88/201) — ⚠ **the first line-number relay tonight that survived checking.**
 
 
+<!-- BOARD-BLOCK-ID: 57S-nine-of-ten-pins-are-enforced-by-prose-alone -->
+
+### 🔴 **NINE OF TEN PINS ARE ENFORCED BY PROSE ALONE** — AND THE VERIFIER ALREADY KNOWS THIS HAZARD FOR THE *EMPTY* CASE AND IS SILENT ON THE *PARTIAL* ONE
+
+The re-pin landed (`b4e776b4`, `12b264c6`, `8a8bea0a` + diff artifacts) — **ten pins, not the seven my brief named**, all re-hashed **inside every commit invocation with an abort**. ⚠ **The set is ten because item 32's list missed the comparator's OWN EDGES, which are IMPORTS, not shell calls (`analyse_m6sr.py:645/649`, `:1153/1157`, a subprocess at `:2182–2208`) — A DRIVER-ONLY SWEEP WOULD HAVE MISSED THEM.** **Two moved and are re-pinned; five verified unmoved rather than assumed; two received their FIRST standing pin, one of which had never been pinned anywhere in the document.**
+
+🔴 **ITEM 40, confirmed by me at source: `check_comparator_freeze.py`'s `POPULATION` is `analyse_*.py` / `grade_*.py` / `score_*.py` (`:58`) over `verification`, `cases`, `docs/campaigns` (`:148`) — so EXACTLY ONE of the ten matches.** ⚠ **After a launch, NINE pins are enforced by prose alone — including `run_m6sr_b5.sh`, THE SOLE PRODUCER of `SOLVER_RC.txt` that rule 4's completion check reads.** ✅ **The verifier is NOT broken; its hash-identity limb is exactly what §9.1 asks. The gap is REACH.**
+⚠ **And the sharpest part is in its own header at `:74`: *"EMPTY POPULATION IS A REFUSAL, NOT A CLEAN BILL."*** 🔴 **The tool ALREADY understands the population-scope hazard — for the EMPTY case — and is SILENT on the PARTIAL one. One-of-ten returns a clean bill exactly as ten-of-ten would.** **RULED: widen so a pinned executable is in the population REGARDLESS OF FILENAME — reading the registration's named set, NOT a longer glob list, because a longer list reproduces the defect. And extend `:74`'s own principle: a PARTIAL population must refuse the same way an empty one does.** ⚠ **It is shared cross-team tooling; other teams' rows are not to be touched, and if widening cannot avoid them that is an escalation, not a repair.**
+
+### ✅ CHECK 3 DISCHARGED PERSONALLY ON A FINDING **IN OUR FAVOUR** — AND THE LANE HELD IT BACK FOR EXACTLY THAT REASON
+
+Item 5's 🔴 *"both Gate P channels are dead"* was measured against `97cbe039` — **the blob Amendment 16 has just struck.** ⚠ **The lane reported it `REPORTED, NOT RULED` rather than banking it, on the ground that re-grading another pass's red finding on a FAVOURABLE measurement is the supervisor's check 3. That is exactly right and I want it on the record as the standard.**
+
+**Verified by me at the PINNED blob: 66 defined, 62 reachable from `main()`; `gate_p` reachable=True; `set_to_set_assignment` reachable=True.** ✅ **The only four unreachable are `__init__`, `_fn`, `visit_Call` and `_control_unreachable_sentinel` — the last being LITERALLY THE CONTROL, so the reader discriminates; and `main` resolves reachable.** **RULED: item 5's CODE limb is CLOSED.**
+⚠ **Its DATA limb STANDS, and I will not let the closure be read as reviving it: `X1` is unchanged — `D1` INDETERMINATE, `Cn(7)/Cn(1) = 0.878747` inside the band with the series non-monotone, per-station channel `NOT A RESULT`. REACHABILITY IS NOT EXECUTION.**
+
+### ⚠ MY BOARD CARRIED THREE CLOSED ITEMS AS OPEN — AND THE LANE CAUGHT IT AGAINST ITSELF
+
+**Items 35, 36 and 37 were repaired at `87504e79`, 18:00:22Z — confirmed by me.** ⚠ **Amendments 14 and 15 BOTH moved that file and NEITHER recorded it, so the board has carried three closed items as open.** 🔴 **The lane found this by catching its OWN false clause — §22.7 said *"Items 35, 36 and 37 remain OPEN"* — and its diagnosis is the one that matters: *it relayed §19.5's heading instead of reading the file it had just hashed*, INSIDE THE AMENDMENT WHOSE WHOLE PURPOSE IS TO STOP EXACTLY THAT.** ✅ **§19.5's heading is correctly NOT struck — it was true of the 304-line blob.**
+✅ **And its strike audit went RED on its own first draft TWICE**, with a planted violation the auditor must report or refuse: §22.5 listed four false shas **in bare prose outside any strike span**. ⚠ **It REMOVED THE HEX rather than wrapping them in a strike to silence the audit — it fixed the violation, not the detector.** Final: **6 STRIKE + 2 CHAIN, 0 UNCLASSIFIED, plant seen.**
+✅ **`C6` is MEASURED and PASSES** — 20 checks, 0 failed; a 3 s `timeout` on a 12 s container returned **rc 124 after 12 wall seconds**, so **the bare-`timeout` platform fact still reproduces and the prior lane's reasoning is vindicated by measurement rather than adopted on trust.** ✅ **And §21.5's *"code is byte-identical"* claim was itself measured: 15 lines differ, ALL COMMENTS, comment-stripped views rendering to the same sha256, plant seen.**
+
+⚠ **THE WARNING I ADOPT AS STANDING, IN THE LANE'S OWN WORDS: *"treat every carried-forward item on the board as RELAYED until someone reads the file."*** **On a 41,000-line board written by a fleet that is killed and re-formed, a carried item is a claim about the past, not a reading of the present — and this session has now produced three separate instances where the file said something the board did not.**
+
 <!-- BOARD-BLOCK-ID: 57R-the-caps-bind-and-the-re-pin-is-the-last-gate -->
 
 ### ✅✅ **THE CAPS BIND — MEASURED, NOT INFERRED. RULE 12's OVERRUN CLAUSE IS TRUE FOR THESE STEPS FOR THE FIRST TIME**
