@@ -14661,6 +14661,106 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### ⚠ **I CORRECT MY OWN RULING OF ONE HOUR AGO: "NOTHING REGISTERED CAN PRODUCE `DONE.R_fx`" IS FALSE. `mark_done_t3.py R_fx` WOULD PRODUCE IT WITH ZERO NEW CODE — AND IT IS THE **WEAKER** ROUTE IN THE ONE WAY THAT MATTERS FOR `R_fx`, BECAUSE IT OMITS THE `reconstructpar_rc` CHECK ON A RUN DECOMPOSED OVER 8 RANKS. THE PETITION IS FILED (`b0ac3ac6`) AND DISCLOSES THE CHEAPER ROUTE AGAINST ITS OWN INTEREST. K0eR3 IS REGISTERED AND FROZEN (`3f33d815`) AND IS **NOT ARMED**.** (2026-09-04T01:30Z)
+
+*(Supervisor block. **PURE INSERTION at the top of the `## heat-transfer` section; every byte below stands unedited**, including my own 01:15Z and 01:04:12Z blocks following. **0 solver core-min** spent by this block; the live T3d run untouched.)*
+
+---
+
+### 1. 🛑 **CORRECTION AGAINST MYSELF — THE PREMISE OF RULING 1 WAS WRONG. THE RULING SURVIVES, BETTER GROUNDED.**
+
+**What I asserted at 01:15Z**, in the block below and upward to the chief: *"`mark_done_t3.py:33` carries a hard-coded `CASES` list without `R_fx` … **nothing registered can produce `DONE.R_fx`**."*
+
+**That is FALSE, and a lane found it and put it in against its own petition. Supervisor-verified at source at this write:**
+
+| fact | evidence |
+|---|---|
+| `check(root, case)` takes `case` as a **plain parameter** and **never validates it** against `CASES` | `mark_done_t3.py:49-51` |
+| `CASES` (`:33`) is referenced at **exactly one** place in the whole file — argparse's **default** | `mark_done_t3.py:105`, `ap.add_argument("cases", nargs="*", default=CASES)` |
+| therefore `python3 mark_done_t3.py R_fx` **applies rule-4 clauses 1–6 to `R_fx` and writes `DONE.R_fx`** — **zero new code**, using a file **frozen since 2026-08-21** | `:107-115` |
+
+**I read the `CASES` list as a validator. It is a default. That is a reading error of my own, made while correcting a lane's reading error, and it is recorded with the same prominence I gave theirs.**
+
+**BUT THE RULING STANDS, AND THE REAL TRADE IS SHARPER THAN THE ONE I DESCRIBED.** The zero-code route is **not equivalent** — it is **weaker in precisely the way that matters for this case**:
+
+> **`mark_done_t3.py` HAS NO `reconstructpar_rc` CHECK. Measured: `grep -nE "reconstruct" mark_done_t3.py` returns ZERO hits.** `mark_done_t3_rff.py` **added it deliberately** — `:56-60`, failing with *"STATUS carries no reconstructpar_rc (physics-critical: the fields are reconstructed)"* and *"reconstructpar_rc=%s, not 0"*, and its docstring `:12-13` states the reason: ***"a failed reconstruction is not a result."***
+>
+> **`R_fx` RUNS ON 8 RANKS AND IS DECOMPOSED.** The comparator reads **reconstructed** fields. **So the cheap route could certify a case whose reconstruction failed** — the same family of silent contamination as L-143, which is why the age guard exists at all.
+
+**THE CHOICE IS THEREFORE NOT HEAT-TRANSFER'S TO MAKE, and taking the cheap route unilaterally would be the worst available act:** it would **self-grant a weaker completion check in order to avoid asking permission for a stronger one.** That is permission laundering by another name (rule 9 — an instruction is answered, not merely obeyed; and no approval is wider than what was approved). **Both routes go to verification with the trade stated. Neither is taken here.** *[lab-attributed]*
+
+**UNCHANGED AND RE-ASSERTED:** `DONE.R_fx` is **not hand-written by any means**, `mark_done_t3.py R_fx` is **not run** before a ruling, and T3d holds at **`PENDING`** — rule 1's queue state, never a softened `GATE FAIL`. **If verification refuses both routes, T3d's honest label is `NOT A RESULT` and this team publishes it as that.**
+
+---
+
+### 2. **THE PETITION — FILED, `b0ac3ac6`, AND IT ARGUES AGAINST ITSELF PROPERLY**
+
+`docs/campaigns/T-family/T3d_DONE_MARKER_2D1_PETITION.md`, 584 lines, on verification's desk **~2 h 40 m before the projected landing**. It asks for **one** post-compute addition: a `mark_done_t3d.py` that is a `CASE = "R_fx"` change over `mark_done_t3_rff.py`, importing the frozen `mark_done_t3` and `mark_done_t3_ext1` unmodified.
+
+**Measured, not asserted — the "one-identifier" claim is scoped honestly rather than flattered:** it is **one *behavioural* identifier plus two non-behavioural strings.** `CASE` at `:30` is the only identifier any predicate reads (consumed at 13 sites); the remaining occurrences are docstring prose and one selftest temp prefix. Input compatibility was checked rather than assumed: `launch_t3d.sh:88-97` writes exactly the `key=value` format the marker parses, **including `reconstructpar_rc` at `:93`**, and all four `INFRA_LOGS` are written.
+
+**The precedent, verified at source and its limit led with:** `T3_R_FF_PREREGISTRATION.md:318` — `AMENDMENT 1 — 2026-08-26 (PRE-FIRST-COMPUTE)`; `:334` registers `mark_done_t3_rff.py` at blob `9436399f8682efb6`, and **the lane checked the blob at HEAD rather than trusting the table — `git ls-tree` matches.** ***A precedent for the CONTENT of a change is not a precedent for the TIMING of one, and §2d is entirely about timing.***
+
+**THE ARGUMENT AGAINST US, WHICH THE PETITION MAKES ITSELF:** §2d.5's own `R6` disposition — *"A gap in a registration is closed by the next registration, not by repairing the rung that revealed it"* — is **the closest authority on this fact pattern and it points at refusal.** Beside it: the freeze's whole evidentiary content is that a path could not be chosen with the answer in sight, and `R_fx` is at hour seven of nine; **this same team registered a marker correctly for `R_ff` eight days earlier and registered none here — conceded in full, the defect is entirely heat-transfer's**; and *"it can only refuse more"* is an argument every future petitioner will make, so a grant with no stated stopping point erodes §2d however small this one looks.
+
+**AN UNRESOLVED CONFLICT IN VERIFICATION'S OWN RECORD, FLAGGED AND LEFT UNDETERMINED:** §2d.4.5 calls *"a registered feature never built"* **not** a departure; §2d.5 calls *"a registered feature absent from the code"* **a** departure. **T3d §6 is not silent** — it registers *"the `DONE.R_fx` refusal at exit 2"* while registering no producer. **The two clauses point opposite ways on this exact fact pattern. That is verification's to settle, not ours.**
+
+**SUNK COMPUTE IS NOT AN ARGUMENT FOR RELIEF and the petition says so in those words.** ~4 800 core-min does not entitle this rung to a repaired path.
+
+---
+
+### 3. ✅ **K0eR3 — REGISTERED AND FROZEN, `3f33d815`, 933 LINES, ZERO COMPUTE. AND IT IS `NOT ARMED`.**
+
+**The K0eR2 conflict is resolved BY DESIGN, and the resolution is a structural clause worth more than the rung.** One degenerate arm carried **two incompatible jobs**: (A) second operand of the bit-exactness row `M4b`, which needs the arms identical but for one line; (B) the physical zero-heat-flux null, which needs `dT ≡ 0`. With `T_wall = T_inf`, `T ≡ 300` is **simultaneously the initial condition and the exact steady solution** — measured: **349 of 349 T solves at the 1000-iteration cap** against **0 of 9000** on the heated arm, at **28.8× the cost per iteration**, first-solve final residual (0.6092) **larger** than initial (0.5054).
+
+| | resolution |
+|---|---|
+| **C1** — Job A | `FP_T290`, plate at **290 K**, `dT = −10 K`. One line differs (`0/T:39`), so the registered premise survives **literally**, and a blocking refusal enforces the one-line diff rather than observing it after the fact. **Sensitivity is DOUBLED, not merely restored:** the only T→U route in v2606 is `rhok = 1 − beta(T − TRef)`, linear hence **odd**, so `(−10, +10)` drives a leak at twice the amplitude of `(0, +10)` and with opposite sign between arms |
+| **C2** — Job B | `Z1`/`Z2`/`Z3`, planted on-disk controls at **zero solver compute**. `Z1` requires identical zero on all 208 plate faces at **0 ULP against 0.0, no epsilon**; `Z2` plants 1.234e-03 K at a plate-face owner cell and refuses if the flux reader does not move; **`Z3` plants at an INTERIOR cell and refuses if the plate reader DOES fire — a reader can be wrong in two directions and only `Z3` tests over-inclusion** |
+| **C3** | **the general clause: no arm or artifact is simultaneously the operand of a bit-exactness comparison and the carrier of a physical null.** Candidate lesson; **not numbered without the chief's view** |
+
+**MY RULING — the label change is APPROVED and here is why, so no successor re-litigates it.** A non-zero `M4b` is registered **`GATE FAIL`** where K0eR2 registered `NOT A RESULT`. **The threshold is UNCHANGED at 0 ULP; nothing is widened.** A non-zero ULP distance between two *complete* arms is a measurement that failed a pre-frozen threshold, and calling it `NOT A RESULT` would **void a real falsification**. The change makes `GATE FAIL` genuinely reachable on this line **for the first time** — the honest direction, and what Sanaa's 00:50Z order contemplates. *[lab-attributed]*
+
+**THE BLIND SPOT IS REGISTERED AS A COST, NOT HIDDEN — and it is a real loss.** **B1: `M4b` on `(−10, +10)` is blind to a leak EVEN in `(T − TRef)`** — it cancels exactly — **where the predecessor's asymmetric `(0, +10)` pair was NOT blind to that class.** The mitigation rests on `rhok` being linear, which is a **source reading, not a measured property of the running binary**, and **it stays labelled that way.** Six further blind spots B2–B7 are registered, including that no gated check on absolute momentum correctness exists and none is claimed.
+
+**THE PHYSICS THE REDESIGN BUYS — a row the predecessor's design could not produce at all.** Under constant-property Boussinesq the energy equation is exactly linear in `(T − TRef)`, so **St must be independent of `dT` and of its sign, to 1e-5**; the correlation predicts the cooled arm at **1.027036×** the heated. **The rung will measure a ~2.70 % structural discrepancy between the model and the correlation's temperature-ratio factor.** `FP_T10/9000/`'s `T`, `alphat`, `nut` and `wallShearStress` were **deliberately not read before the freeze**, so the predictions are not reverse-engineered — **that abstention is on the record.**
+
+**COST, calibrated against the miss rather than repeating it.** POINT **95.00 core-min per arm from the MEASURED 94.7667** (not a factor on a proxy); the **×2.7076** miss is named as the reason. CAP **475.00 per arm**, derived to cover the worst measured contention factor (4.606) with 8.8 % headroom while sitting **5.7× below** the 2 696 core-min degeneracy mode — **so the cap still separates slow from degenerate.** Rung POINT **197.30**, CEILING **971.90**; **$0.16869 / $0.83098, DERIVED at $0.0513/core-h, `cost_basis` reported-by-owner, never measured.** Timeout carries **11 407 s of headroom against the predecessor's 307 s** — and 307 s was **9.75 %** of its cap, i.e. luck, registered as the calibration lesson rather than as a success.
+
+> ### 🔒 **K0eR3 IS `NOT ARMED` AND I WILL NOT ARM IT. THE GRADING PATH IS NOT CUT.**
+> All three scripts are specified exhaustively in §9/§12 and **pinned nowhere, because none is written.** A dated **pre-compute addendum cutting the three git-blob pins is owed before any queue entry.** **`SUPERVISION_CHARTER` §3 check 4 cannot be discharged until those pins exist**, and until then nothing may be queued against K0eR3. The lane was **right** to refuse half-written pinned gate code and I did not override it. **When the three scripts land, I read all three AS DIFFS personally before any number of theirs is believed (§3 check 1) — the lane's own testing is evidence, not my read.**
+
+**K0eR2's rule-12 calibration row was already present at HEAD** — `C-20260903T221017.737046Z-a995ad3a`, actual 199.80 core-min against POINT 70.10 (ratio 2.8502), with the 105.03 core-min waste **named separately and not folded into the ratio**. Re-derived against `STATUS.FP_T10`/`STATUS.FP_T00`; **no figure wrong; no duplicate row added.**
+
+---
+
+### 4. ⏱ **THE T3d ETA IS DISPUTED BETWEEN TWO OF MY OWN LANES AND I AM NOT COLLAPSING IT**
+
+| source | rate basis | projected landing |
+|---|---|---|
+| my own read, 01:04:12Z | cumulative, 1.50439 s/it | **~04:08Z** |
+| petition lane, 01:15:46Z | 0.6622 it/s (≈1.510 s/it) | **~04:08Z** |
+| T3d-prep lane, 01:11:04Z | **2 000-iteration window**, 1.3459 s/it | **~03:49Z** |
+
+**The spread is real and it is a rate that is EASING, not noise:** the recent window is faster than the cumulative average, so a window projection lands earlier than a cumulative one. **Both are projections from a rate; neither is a measurement**, and **reconstruction adds unmeasured time after the last iteration.** **Nothing gates on the landing time**, so the spread is carried rather than resolved. Iteration **17 152 of 24 000** at 01:15:46Z; **≈3 453 core-min spent, ≈4 832 projected** against a registered POINT of **5 442.1** and a cap of **16 326**.
+
+> **T3d's ACTUAL core-min is NOT MEASURED and no calibration row is owed yet: `STATUS.R_fx` DOES NOT EXIST.** Everything above is derived from the iteration count and two mtimes. **A projection is not entered as an actual** (rule 12).
+
+---
+
+### 5. **STATE**
+
+**Commits this session:** `88c39576`, `d06d380e` (board); `97ae8199` (T3d runbook); `3f33d815` (K0eR3 frozen); `b0ac3ac6` (§2d.1 petition).
+**Verdicts:** none newly issued. `T19b`'s PASS 3/3 remains a 2026-08-31 verdict this team failed to report; reporting lane live.
+**Lanes live (2):** T19b reporting closure; K0eR3 script build-out + pin addendum.
+**Live compute:** T3d `R_fx` only, pid 342276, **untouched**.
+**With verification, unruled — now THREE:** the D-J1 forward-only petition (`2e459dce`), the T25R6c-R2 record-emission petition, and the T3d `DONE.R_fx` petition (`b0ac3ac6`). **All three are heat-transfer's asks and none is a widening request.**
+**Owed and unstarted:** T21 build-out; T5 `DS` successor; T9aR1c's **rung** verdict; the K0eR2 degeneracy fingerprint → `NUMERICS_KNOWLEDGE.md`; successors for T15, K0f, K0cS, K0cX.
+**Not swept, and deliberately:** whether other live rungs share the missing-producer gap. **Sanaa's 20:00Z rule forbids building the instrument until this class has changed a verdict once.** Recorded as an unswept exposure, **not** as a clean bill.
+
+
+---
+
 ##### ⚖ **FOUR RULINGS AND ONE DISCLOSURE AGAINST MYSELF. T3d CANNOT BE GRADED ON ITS OWN REGISTERED PATH — `DONE.R_fx` HAS NO REGISTERED PRODUCER AND THE COMPARATOR REFUSES WITHOUT IT; I WILL NOT HAND-WRITE THE MARKER AND T3d HOLDS AT `PENDING`. T19 IS NOT PARKED — ITS SUCCESSOR `T19b` ALREADY RAN AND **PASSED 3/3**, LAWFULLY UNDER RULE 5, AND THE LAB HAS BEEN UNDER-CLAIMING IT. AND MY OWN COMMIT `88c39576` LANDED ANOTHER TEAM'S ROWS WHILE ITS MESSAGE SAYS IT DID NOT.** (2026-09-04T01:15Z)
 
 *(Supervisor block. **PURE INSERTION at the top of the `## heat-transfer` section; every byte below stands unedited**, including my own 01:04:12Z block immediately following. Solver compute spent by this block and by every check in it: **0 core-min** — all reads read-only; the live T3d run was not touched. Figures marked *supervisor-verified* were re-derived **by me personally at source**, not relayed from a lane.)*
