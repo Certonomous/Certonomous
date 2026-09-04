@@ -1,0 +1,9 @@
+foam_libs: NOTE /home/ubuntu/Certonomous/verification/runs/T-family/T5d_runs/T5_CUBE_c/system/controlDict has no FoamFile banner terminator; appending libs entry at end of file
+  measured first layer, T5_CUBE_c level c:
+    cube_front   first cell 7.999998e-05 m  (registered 8.000000e-05)
+    cube_rear    first cell 8.000012e-05 m  (registered 8.000000e-05)
+    cube_side_n  first cell 7.999996e-05 m  (registered 8.000000e-05)
+    cube_top     first cell 8.000001e-05 m  (registered 8.000000e-05)
+    floor        first cell 8.000000e-05 m  (registered 8.000000e-05)
+    roof         first cell 7.999996e-05 m  (registered 8.000000e-05)
+BUILT /home/ubuntu/Certonomous/verification/runs/T-family/T5d_runs/T5_CUBE_c
