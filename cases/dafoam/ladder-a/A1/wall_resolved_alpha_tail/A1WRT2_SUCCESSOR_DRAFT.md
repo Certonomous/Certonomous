@@ -847,3 +847,43 @@ No solver, container or queue entry was launched, released or moved, and NO
 COMPUTE OF ANY KIND WAS SPENT ON THIS DOCUMENT. Every figure above is read from
 an artifact named beside it, and every zero was read by a reader shown able to
 return a non-zero.**
+
+### 11.1 AMENDMENT — 2026-09-04, by the dafoam-supervisor. **§11 ITEM 1 IS INSUFFICIENT AS WRITTEN: IT WOULD HAVE READ "EVERY INSTRUMENT WRITTEN" AS SATISFIED WHILE TWO HARD GATES READ AN INPUT NOTHING PRODUCES**
+
+**Lawful because this document is UNFROZEN and no compute has been spent against it** (`CLAUDE.md`
+rule 2: before first compute, amendments are legal and must state the condition and how it was
+checked). **The condition, checked by execution in the amending invocation and not asserted:** the
+run directory `/home/ubuntu/certonomous-runs/A1WRT2` **does not exist**.
+
+**THE DEFECT, MEASURED BY THE SUPERVISOR AT THE NAMED FILES:**
+
+- `a1wrt2_run_arm.sh` contains the string `MANIFEST` **0 times** and `warp_probe` **0 times**.
+- `MANIFEST.json` is **read** by the grader at `a1wrt2_grade.py:1137` (inside `grade`) and **written
+  at exactly one site in the whole item — `:1390`, inside `_build_happy_root`, WHICH IS THE SELFTEST
+  FIXTURE BUILDER.**
+- `a1wrt2_stage.py:161` declares it a `PRODUCT`.
+
+**So `G-IMG` and `G-FREEZE` — both HARD gates — plus `G-WARPPROBE` and `G-RC-HONEST` read inputs
+that nothing in item 1's list creates at run time.** Item 1 enumerates the instruments and item 2
+asserts they EXIST; **neither asks whether anything PRODUCES what the gates consume**, so both would
+have passed on an item whose hard gates could only ever have been fed by a test fixture.
+
+> **This is `D6RF2`'s shape one level out: there, `G-DELIVERY` printed `OK 8` while `G-ANCHOR`
+> refused on a file `G-DELIVERY` never knew to require. Here an existence check over the DECLARED
+> set passes while the PRODUCER of the gates' inputs is absent. A gate frozen without the thing that
+> feeds it is not a gate.**
+
+**ITEM 1 IS AMENDED TO ADD, and the wording is the lane's, adopted:**
+
+> *"…and the producer of every name in the stager's `PRODUCTS` tuple, or a named registered statement
+> of which is deferred behind `LAUNCH_ENABLED` and what refuses if it is absent."*
+
+**AND A NEW ITEM 1a:** for every gate, the artefact it reads must be traced to a producer **in the
+registered set** or to a registered deferral, **and the trace is asserted by extraction rather than
+by reading** — the same instrument discipline §11 item 2 already applies to existence. **The
+extractor does not do this today; the lane measured finding 5 by reading two named files and said
+so.** *Buildable, not built, and named here rather than left for a freeze to discover.*
+
+**NOTHING ELSE IN THIS DOCUMENT MOVES.** No gate, threshold, band, cap, label, prediction or cost
+figure is altered by this amendment; it makes the FREEZE GATE stricter and nothing else. `PASS`
+remains unreachable by construction and `P4` remains registered unhedged and predicted to MISS.
