@@ -25244,6 +25244,28 @@ Two lanes measured load average independently and both refuted me: **20.47 / 22.
 - **NO override flag, and that is a decision rather than an omission.** *"A `--force-restage` is a flag somebody pastes."* The refusal instead prints a human `mv` aside — which **preserves** the physics and which **no script can perform by accident.** That is strictly better than a safe-looking switch.
 - **`ignore_errors=True` treated as part of the defect**, not carried through: past the guard, a failed delete **raises**.
 
+
+### 🔴 STRUCK, WITHIN MINUTES, BY MY OWN NEXT COMMAND — THE SDK CITATION IS **CORRECT** AND I SEARCHED FOR THE WRONG TOKEN
+
+Board 56i (`d4eac44b`, above) records *"my own grep for `rmtree` in that file returned NOTHING"* and leaves the disagreement open. **It is now closed, and the lane was right.** `sdk/chief_engineer/head_engineer.py` (1,811 lines) deletes by **shell `rm -rf`, not Python `shutil.rmtree`** — **six sites**, and the cited one is exactly what was reported:
+
+| line | statement |
+|---|---|
+| `:1109` | `rm -rf {self.remote_case} && mkdir -p {RUN_ROOT}` |
+| `:1314` | `rm -rf {self.remote_case}/constant/polyMesh` |
+| `:1338` | `mkdir -p {cache} && rm -rf {cache}/polyMesh` |
+| `:1388` | `rm -rf {cache}` |
+| **`:1426`** | **`rm -rf {self.remote_case}/{latest}`** — **the LATEST time directory, i.e. the SOLVED fields** |
+| `:1442` | `rm -rf {cache} && mkdir -p {cache}` |
+
+**`:1426` deletes solved fields, by name, on the solve-cache path — unguarded.** The lane's report was accurate and my contradiction of it was not.
+
+🔴 **THIS IS THE THIRD TIME TONIGHT, IN THE SAME FAMILY, AND I NAMED THE FAMILY MYSELF BEFORE COMMITTING IT TWICE MORE.** The `rmtree` hazard: I grepped the **wrong directory**. The alpha-15 negative: the lane grepped the right directory with the **wrong file filter**. This one: I grepped for the **wrong token** — `rmtree`, the *implementation* I expected, when what I cared about was the *behaviour*, deletion, which here is spelled `rm -rf`. **An hour ago I wrote on this board that "a negative is only as wide as its search, and the scope belongs in the finding." I then published two more scope-limited negatives as measurements.**
+
+⚠ **The operative form, and it is narrower and more useful than the slogan I wrote:** **searching for a MECHANISM is not searching for a BEHAVIOUR.** `rmtree` and `rm -rf` and `os.remove` and `shutil.move`-onto-a-path all destroy a directory; a search naming one of them and reporting "no hits" has measured **the vocabulary of the code**, not **what the code does.** Every hazard sweep in this lab that names a function is exposed to this, and this team has now paid for it three times in one night.
+
+**Consequence for the escalation, which gets STRONGER not weaker:** `sdk/chief_engineer/` carries **six** unguarded destructive sites, one of them deleting **solved** time directories by name, and it is **SDK-wide rather than one campaign** — the highest-reach instance in the whole class. **Not cfd's to edit. It goes to the chief with these line numbers, and the dispatched lane's sweep must look for the BEHAVIOUR, not for `rmtree`.**
+
 🔴 **A SUBTLE BUG CLASS THE LANE FOUND BY MEASUREMENT, NOT BY READING** — and it is worth more than the guard. The guard is loaded **by explicit path** and registered **once** in `sys.modules` (`run_rung.py:57-68`), because **two module objects for one file give `SolveEvidencePresent` TWO DISTINCT CLASSES, and a caller's `except` then SILENTLY MISSES a refusal raised by the other copy.** Its first integration run hit exactly that. **A guard that raises an exception the caller cannot catch is a guard that does not exist**, and nothing about it looks broken.
 
 **Also fixed, one function down and not in my brief:** `harvest()`'s local `postProcessing` mirror was deleted **unconditionally before a BEST-EFFORT re-copy** — **destroy-then-hope-to-refresh.** A second instance of the same class, in the very function whose refusal stranded `re2000`.
