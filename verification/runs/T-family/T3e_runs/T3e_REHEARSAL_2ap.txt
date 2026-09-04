@@ -1,0 +1,59 @@
+SECTION 2ap PAIRED-PIN REHEARSAL
+ LEG 1 -- SUCCESS: the builder's real key block drives the grader
+  [PASS] grader read all 8 keys and named them: H nu Pr Prt dTdn_wall T_in U_in endTime
+  [PASS] grader ran to three graded pairs on synthetic fields
+  [PASS] every T state carries a NON-ZERO field_range beside it (D-J1)
+  [PASS] every |U| state carries a NON-ZERO field_range beside it (D-J1)
+  [PASS] grader reached a verdict: GATE REACHED
+ LEG 2 -- CORRUPTION: one key removed, the grader MUST refuse at exit 2
+  [PASS] H removed -> grader REFUSED at exit 2 (expected 2). A rehearsal that only shows success does not show the check is live.
+
+REHEARSAL PASSED -- both legs
+===== LEG 1b: THE BUILDER'S REAL OUTPUT =====
+built /home/ubuntu/Certonomous/verification/runs/T-family/T3_runs/R_fy
+  seeded 0/ from R_fx/24000: T U p_rgh alphat nut k omega phi
+  CASE.txt carries 7 inherited keys copied BY KEY from R_ff
+  endTime 8000, writeInterval 2000, purgeWrite 0 (all three verified)
+--- the REAL CASE.txt the builder wrote ---
+case              R_fy
+rung              T3e (heated backward-facing step, continuation of R_fx)
+level             fy
+arm               continuation
+H                 0.038
+nu                1.5e-05
+Pr                0.71
+Prt               0.85
+dTdn_wall         10000.0
+T_in              300.0
+U_in              10.35
+endTime           8000
+writeInterval     2000
+purgeWrite        0
+seeded_from       R_fx/24000
+key_donor         R_ff/CASE.txt
+--- drive the grader's key reader on that REAL file ---
+REAL OUTPUT ACCEPTED: 8 keys read, every one named:
+   H            = 0.038
+   nu           = 1.5e-05
+   Pr           = 0.71
+   Prt          = 0.85
+   dTdn_wall    = 10000
+   T_in         = 300
+   U_in         = 10.35
+   endTime      = 8000
+
+===== LEG 3: THE LAUNCHER'S REFUSAL LEGS (producer/consumer, third pair) =====
+launch_t3e.sh is launch_t3d.sh + registered substitutions ONLY:
+  delta proof: reversing the substitutions gives 0 differing lines.
+  [--ranks 4 --timeout 35424] rc=0  ->  REFUSE: --ranks=4; R_fy is registered at 8 ranks (T3e prereg S9)
+  [--ranks 8 --timeout 122445] rc=0  ->  REFUSE: --timeout=122445; registered timeout is 35424 s (cap 4723 core-min x 60 / 8)
+  [wrong case R_fx] -> REFUSE: this launcher is registered for R_fy only; got R_fx
+
+FOUR PRODUCER/CONSUMER MISMATCHES WERE FOUND BY THIS REHEARSAL, ALL BEFORE FREEZE:
+  1. builder must write a STRUCTURED CASE.txt (D-1, designed in and verified)
+  2. builder wrote 0/ where the launcher needs 0.orig/ -- the age guard would
+     have dated the run from a COPIED mtime. FIXED.
+  3. run_one_t3.sh is SERIAL and writes a thin STATUS: wrong for 8 ranks. REJECTED.
+  4. launch_t3d.sh REFUSES any case but R_fx and pins T3d's timeout. Correct
+     design; T3e therefore needs its own launcher. WRITTEN AND DELTA-PROVEN.
+None of the four was detectable by reading either component alone.
