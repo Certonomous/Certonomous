@@ -1,0 +1,173 @@
+W3S INSTRUMENT SELFTEST EVIDENCE -- driven 2026-09-04T18:40:19Z on this box.
+NOT FROZEN.  NOT QUEUED.  NOT LAUNCHED.  ZERO COMPUTE: host python3 only, no container.
+Instrument: w3s_grade.py md5 d24d632cd37f587ebaca7999d9088dec
+Frozen parent: d12y_grade_w3.py md5 3950d30fd09c9b56213a02f5e9864e20 -- UNEDITED (CLAUDE.md rule 6)
+
+=============== python3 w3s_grade.py --assert-audit ===============
+assert statements in this file: 0 (must be 0)
+assert statements OUTSIDE the selftest functions: 0 (must be 0)
+rc=0
+
+=============== python3 -O w3s_grade.py --assert-audit ===============
+assert statements in this file: 0 (must be 0)
+assert statements OUTSIDE the selftest functions: 0 (must be 0)
+rc=0
+
+=============== python3 w3s_grade.py --selftest ===============
+  [OK ] U01 the frozen parent imports and its md5 is the pinned 3950d30fd09c9b56213a02f5e9864e20
+  [OK ] U02 this file carries 0 `assert` STATEMENTS by AST (must be 0; `python3 -O` deletes them and a guard that vanishes under a flag is not a guard)
+  [OK ] U03 the inherited constants agree with the parent: C_ENV=0.8907 h_max=0.05 eps=0.01
+  [OK ] U04 the admissibility requirement W*|g| >= 1781.4000 is DERIVED from C_ENV/eps/h_max, not typed
+  [OK ] U05 the FS-1 bar is 2048.6100 = requirement x margin 1.15
+  [OK ] U06 h_min at the W3 anchor recomputes the artefact's 0.0911930188193242 from 100*C_ENV/(W*|g|)
+  [OK ] U07 BAR-1 the gscan sizing entry point RAISES, always
+  [OK ] U08 BAR-1 it raises even when handed the arguments a real sizing call would take
+  [OK ] U09 BAR-3 accepts an artefact carrying the registered refusal string
+  [OK ] U10 BAR-3 REFUSES a planted admissible=True at the top level
+  [OK ] U10 BAR-3 REFUSES a planted admissible=False at the top level
+  [OK ] U10 BAR-3 REFUSES a planted steps=[0.01, 0.02] at the top level
+  [OK ] U10 BAR-3 REFUSES a planted h_min=0.039 at the top level
+  [OK ] U10 BAR-3 REFUSES a planted h_star=0.01 at the top level
+  [OK ] U10 BAR-3 REFUSES a planted step_plan={'steps': [1]} at the top level
+  [OK ] U11 BAR-3 REFUSES a planted admissible=true NESTED three deep -- the bar walks the object, it does not check the top level
+  [OK ] U12 BAR-3 REFUSES a planted step list inside a LIST element
+  [OK ] U13 BAR-2's detector sees a three-leg manifest as gscan data
+  [OK ] U14 BAR-2's detector does NOT mistake a homogeneous W3 manifest for gscan data
+  [OK ] U15 BAR-2's detector catches a manifest carrying `leg` keys even at one window
+  [OK ] U16 GA-P1 the |g| reader SEES the planted 0.001234 and refuses both zero shapes ['all-zero gradient', 'absent gradient vector']
+  [OK ] U17 GA-1 REFUSES an exactly-zero gradient component by name
+  [OK ] U18 GA-1 REFUSES a non-finite gradient component
+  [OK ] U19 GA-1 REFUSES when the registered sizing component is past the end of the gradient vector
+  [OK ] U20 GA-P2 the binding accepted its clean control AND refused a planted mislabel
+  [OK ] U21 GA-P3 the spend reader SAW the planted 12.345 core-min and returned UNMEASURED in all three named directions
+  [OK ] U22 CEILING a FRESH root (neither root nor ledger) -> rc=0, spent 0.000
+  [OK ] U23 CEILING 68.530 spent + leg A1 cap 70.0 = 138.530 <= ceiling 330.0 -> rc=0
+  [OK ] U24 CEILING 200.0 spent + leg A2 cap 155.0 = 355.0 > 330.0 -> rc=6 and the run STOPS; it does not get a new budget
+  [OK ] U25 CEILING a spend-shaped ledger line with NO core_min= -> rc=65 UNMEASURED, NOT a zero (this is the limb d6rf lacks: its awk would have summed 0)
+  [OK ] U26 CEILING a root that EXISTS with stage logs and NO ledger -> rc=65 UNMEASURED (the limb a1wrt lacks: it reads a missing ledger as 0.0 unconditionally)
+  [OK ] U25b CEILING a MALFORMED core_min=1.2.3 -> rc=65 UNMEASURED. d6rf's `[0-9.]+` matches `1.2` out of it and returns a WRONG NUMBER, and its float() ValueError is not caught at all -- $SPENT comes back EMPTY and its guard FAILS OPEN. The token is captured WHOLE here and validated WHOLE.
+  [OK ] U25c CEILING a spend row carrying `core_min=` -> rc=65 UNMEASURED, never a number
+  [OK ] U25c CEILING a spend row carrying `core_min=-4.0` -> rc=65 UNMEASURED, never a number
+  [OK ] U25c CEILING a spend row carrying `core_min=nan` -> rc=65 UNMEASURED, never a number
+  [OK ] U25c CEILING a spend row carrying `core_min=1e` -> rc=65 UNMEASURED, never a number
+  [OK ] U25d CEILING a LEGITIMATE scientific-notation core_min=6.6780e+01 is READ, not refused -- a validator that refuses everything is not a validator
+  [OK ] U27 CEILING leg A0 already carries an rc=0 ledger row -> rc=6 ALREADY_BOUGHT; a second record for one run is the defect (d6rf:149-153)
+  [OK ] U26b CEILING the ledger-absent case is SPLIT, not blanket: absent root AND absent ledger is FRESH (0.000, U22); present root with logs and absent ledger is UNMEASURED (rc=65, U26). A blanket refusal on an absent ledger would make a first leg unlaunchable forever; a blanket 0.0 is the planted zero.
+  [OK ] U28 CEILING an unregistered leg -> rc=64; there is no cap to compare against
+  [OK ] U29 CEILING spend is CUMULATIVE ACROSS ROOTS: 68.53 + 200.0 + leg cap 100.0 = 368.53 > 330.0 -> rc=6. A per-arm cap alone cannot see an item walking past its ceiling one arm at a time.
+  [OK ] U30 CEILING the registered leg caps sum to 330.0, EXACTLY the item ceiling 330.0 -- checked, not assumed
+  [OK ] U31 FS-0 an exact reproduction of the anchor -> HIT
+  [OK ] U32 FS-0 +0.5 %% (inside the registered +/-1 %% band) -> HIT
+  [OK ] U33 FS-0 +2 %% -> MISS, verdict NOT A RESULT, and the arm stops at leg A0
+  [OK ] U34 FS-1 on the registration's own PREDICTED point set -> MISS (max W*|g| = 1025.85 against the bar 2048.61); Arm B launches nothing
+  [OK ] U35 FS-1 the FALSIFIER: a planted |g(3000)|=0.70 gives W*|g|=2100 > 2048.61 -> HIT at W_adm=3000, Arm B fires. The gate can go both ways.
+  [OK ] U36 FS-1 W_adm is the SMALLEST clearing window (1400, not 3000) -- the rule is registered, not chosen after the data
+  [OK ] U37 FS-1's MISS note SCOPES itself to the measured set and claims no enumeration beyond it
+  [OK ] U38 every verdict this file can emit is in the fixed vocabulary
+W3S SELFTEST units=50 failures=0 python_O=False
+W3S SELFTEST PASS 50/50
+rc=0
+
+=============== python3 -O w3s_grade.py --selftest ===============
+  [OK ] U01 the frozen parent imports and its md5 is the pinned 3950d30fd09c9b56213a02f5e9864e20
+  [OK ] U02 this file carries 0 `assert` STATEMENTS by AST (must be 0; `python3 -O` deletes them and a guard that vanishes under a flag is not a guard)
+  [OK ] U03 the inherited constants agree with the parent: C_ENV=0.8907 h_max=0.05 eps=0.01
+  [OK ] U04 the admissibility requirement W*|g| >= 1781.4000 is DERIVED from C_ENV/eps/h_max, not typed
+  [OK ] U05 the FS-1 bar is 2048.6100 = requirement x margin 1.15
+  [OK ] U06 h_min at the W3 anchor recomputes the artefact's 0.0911930188193242 from 100*C_ENV/(W*|g|)
+  [OK ] U07 BAR-1 the gscan sizing entry point RAISES, always
+  [OK ] U08 BAR-1 it raises even when handed the arguments a real sizing call would take
+  [OK ] U09 BAR-3 accepts an artefact carrying the registered refusal string
+  [OK ] U10 BAR-3 REFUSES a planted admissible=True at the top level
+  [OK ] U10 BAR-3 REFUSES a planted admissible=False at the top level
+  [OK ] U10 BAR-3 REFUSES a planted steps=[0.01, 0.02] at the top level
+  [OK ] U10 BAR-3 REFUSES a planted h_min=0.039 at the top level
+  [OK ] U10 BAR-3 REFUSES a planted h_star=0.01 at the top level
+  [OK ] U10 BAR-3 REFUSES a planted step_plan={'steps': [1]} at the top level
+  [OK ] U11 BAR-3 REFUSES a planted admissible=true NESTED three deep -- the bar walks the object, it does not check the top level
+  [OK ] U12 BAR-3 REFUSES a planted step list inside a LIST element
+  [OK ] U13 BAR-2's detector sees a three-leg manifest as gscan data
+  [OK ] U14 BAR-2's detector does NOT mistake a homogeneous W3 manifest for gscan data
+  [OK ] U15 BAR-2's detector catches a manifest carrying `leg` keys even at one window
+  [OK ] U16 GA-P1 the |g| reader SEES the planted 0.001234 and refuses both zero shapes ['all-zero gradient', 'absent gradient vector']
+  [OK ] U17 GA-1 REFUSES an exactly-zero gradient component by name
+  [OK ] U18 GA-1 REFUSES a non-finite gradient component
+  [OK ] U19 GA-1 REFUSES when the registered sizing component is past the end of the gradient vector
+  [OK ] U20 GA-P2 the binding accepted its clean control AND refused a planted mislabel
+  [OK ] U21 GA-P3 the spend reader SAW the planted 12.345 core-min and returned UNMEASURED in all three named directions
+  [OK ] U22 CEILING a FRESH root (neither root nor ledger) -> rc=0, spent 0.000
+  [OK ] U23 CEILING 68.530 spent + leg A1 cap 70.0 = 138.530 <= ceiling 330.0 -> rc=0
+  [OK ] U24 CEILING 200.0 spent + leg A2 cap 155.0 = 355.0 > 330.0 -> rc=6 and the run STOPS; it does not get a new budget
+  [OK ] U25 CEILING a spend-shaped ledger line with NO core_min= -> rc=65 UNMEASURED, NOT a zero (this is the limb d6rf lacks: its awk would have summed 0)
+  [OK ] U26 CEILING a root that EXISTS with stage logs and NO ledger -> rc=65 UNMEASURED (the limb a1wrt lacks: it reads a missing ledger as 0.0 unconditionally)
+  [OK ] U25b CEILING a MALFORMED core_min=1.2.3 -> rc=65 UNMEASURED. d6rf's `[0-9.]+` matches `1.2` out of it and returns a WRONG NUMBER, and its float() ValueError is not caught at all -- $SPENT comes back EMPTY and its guard FAILS OPEN. The token is captured WHOLE here and validated WHOLE.
+  [OK ] U25c CEILING a spend row carrying `core_min=` -> rc=65 UNMEASURED, never a number
+  [OK ] U25c CEILING a spend row carrying `core_min=-4.0` -> rc=65 UNMEASURED, never a number
+  [OK ] U25c CEILING a spend row carrying `core_min=nan` -> rc=65 UNMEASURED, never a number
+  [OK ] U25c CEILING a spend row carrying `core_min=1e` -> rc=65 UNMEASURED, never a number
+  [OK ] U25d CEILING a LEGITIMATE scientific-notation core_min=6.6780e+01 is READ, not refused -- a validator that refuses everything is not a validator
+  [OK ] U27 CEILING leg A0 already carries an rc=0 ledger row -> rc=6 ALREADY_BOUGHT; a second record for one run is the defect (d6rf:149-153)
+  [OK ] U26b CEILING the ledger-absent case is SPLIT, not blanket: absent root AND absent ledger is FRESH (0.000, U22); present root with logs and absent ledger is UNMEASURED (rc=65, U26). A blanket refusal on an absent ledger would make a first leg unlaunchable forever; a blanket 0.0 is the planted zero.
+  [OK ] U28 CEILING an unregistered leg -> rc=64; there is no cap to compare against
+  [OK ] U29 CEILING spend is CUMULATIVE ACROSS ROOTS: 68.53 + 200.0 + leg cap 100.0 = 368.53 > 330.0 -> rc=6. A per-arm cap alone cannot see an item walking past its ceiling one arm at a time.
+  [OK ] U30 CEILING the registered leg caps sum to 330.0, EXACTLY the item ceiling 330.0 -- checked, not assumed
+  [OK ] U31 FS-0 an exact reproduction of the anchor -> HIT
+  [OK ] U32 FS-0 +0.5 %% (inside the registered +/-1 %% band) -> HIT
+  [OK ] U33 FS-0 +2 %% -> MISS, verdict NOT A RESULT, and the arm stops at leg A0
+  [OK ] U34 FS-1 on the registration's own PREDICTED point set -> MISS (max W*|g| = 1025.85 against the bar 2048.61); Arm B launches nothing
+  [OK ] U35 FS-1 the FALSIFIER: a planted |g(3000)|=0.70 gives W*|g|=2100 > 2048.61 -> HIT at W_adm=3000, Arm B fires. The gate can go both ways.
+  [OK ] U36 FS-1 W_adm is the SMALLEST clearing window (1400, not 3000) -- the rule is registered, not chosen after the data
+  [OK ] U37 FS-1's MISS note SCOPES itself to the measured set and claims no enumeration beyond it
+  [OK ] U38 every verdict this file can emit is in the fixed vocabulary
+W3S SELFTEST units=50 failures=0 python_O=True
+W3S SELFTEST PASS 50/50
+rc=0
+
+=============== python3 w3s_grade.py --olimb ===============
+==============================================================================
+`python3 -O` LIMB -- a battery is flag-proof only if it still CATCHES under -O
+==============================================================================
+  control unmutated --selftest                                  rc=0  OK
+  control unmutated --selftest-narrowing                        rc=0  OK
+  control unmutated --selftest                               -O rc=0  OK
+  control unmutated --selftest-narrowing                     -O rc=0  OK
+  M-A gate mutant: FS1_MARGIN 1.15 -> 0.10                      rc=2  OK
+  M-A gate mutant: FS1_MARGIN 1.15 -> 0.10                   -O rc=2  OK
+  M-B statement type: one check() -> assert                     rc=2  OK
+  M-B statement type: one check() -> assert                  -O rc=2  OK
+  M-C falsifier mutant: FS0_TOL_REL 0.01 -> 10.0                rc=2  OK
+  M-C falsifier mutant: FS0_TOL_REL 0.01 -> 10.0             -O rc=2  OK
+  M-D THE NARROWING mutant: N3, the per-leg registered-windo    rc=2  OK
+  M-D THE NARROWING mutant: N3, the per-leg registered-windo -O rc=2  OK
+  M-E ceiling mutant: an UNMEASURED prior spend read as 0.0     rc=2  OK
+  M-E ceiling mutant: an UNMEASURED prior spend read as 0.0  -O rc=2  OK
+
+  M-D is the one this instrument exists for: deleting the leg-set closure turns
+  the --gscan binding from a NARROWING into a RELAXATION, and the narrowing
+  selftest is what notices.
+
+  -O LIMB PASSES
+rc=0
+
+=============== bash w3s_chain_driver.sh --selfcheck ===============
+  [OK ] S1 PREFLIGHT 0 REFUSES while PREREG_COMMIT is empty (rc=70, NOT_FROZEN)
+  [OK ] S2 PREFLIGHT 1 REFUSES while w3s_stage_and_run.sh is not written (rc=4)
+  [OK ] S3 CEILING a FRESH root -> rc=0 (a blanket refusal on an absent ledger would make a first leg unlaunchable forever)
+  [OK ] S4 CEILING a root with stage logs and NO ledger -> rc=65 UNMEASURED, not 0.0
+  [OK ] S5 CEILING a malformed core_min=1.2.3 -> rc=65 UNMEASURED (d6rf reads 1.2, then its uncaught ValueError empties $SPENT and the guard passes)
+  [OK ] S6 CEILING 200.0 spent + leg A2 cap 155.0 = 355.0 > ceiling 330.0 -> rc=6
+  [OK ] S7 CEILING 1.750 spent + leg A1 cap 70.0 <= ceiling -> rc=0 (the guard is not merely refusing everything)
+  [OK ] S8 CEILING spend sums ACROSS roots: 1.750 + 200.0 + 155.0 > ceiling -> rc=6
+  [OK ] S9 the grader on disk is the pinned d24d632cd37f587ebaca7999d9088dec
+  [OK ] S10 the FROZEN parent is UNEDITED at 3950d30fd09c9b56213a02f5e9864e20 (CLAUDE.md rule 6)
+W3S DRIVER SELFCHECK units=10 failures=0
+W3S DRIVER SELFCHECK PASS 10/10
+rc=0
+
+=============== bash w3s_chain_driver.sh  (no args: MUST be inert) ===============
+W3S_DRIVER start stamp=20260904T184023Z pid=159077 base=/home/ubuntu/Certonomous/cases/dafoam/curriculum_D12R2
+W3S_DRIVER ABORT NOT_FROZEN: PREREG_COMMIT is empty. /home/ubuntu/Certonomous/cases/dafoam/curriculum_D12R2/W3S_PREREGISTRATION_DRAFT.md carries no committed sha,
+W3S_DRIVER   so no gate, threshold, cap or label in it is frozen (CLAUDE.md rule 2). The
+W3S_DRIVER   pre-registration-committed-before-compute check is the supervisor's own and may
+W3S_DRIVER   not be delegated (SUPERVISION_CHARTER.md sec.3 check 4). NOTHING LAUNCHES.
+rc=70

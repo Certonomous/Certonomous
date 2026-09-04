@@ -1,0 +1,257 @@
+# W3S --gscan WINDOW BINDING, READ AS A DIFF AGAINST THE INHERITED GATE.
+#
+# LEFT  (A_inherited.py) : d12y_grade_w3.py:2101-2160  `_w_from_record`   -- FROZEN,
+#                          md5 3950d30fd09c9b56213a02f5e9864e20, NOT EDITED (rule 6).
+# RIGHT (B_gscan.py)     : w3s_grade.py:222-380        `_w_from_record_gscan`
+#
+# The two functions were extracted verbatim from their files to produce this diff; the
+# extraction is reproducible with the same two `def` anchors. The left side is 60 lines,
+# the right 159. THE DIFF IS NOT THE PROOF -- `w3s_grade.py --selftest-narrowing` is,
+# and it DRIVES the left-hand function (imported from the frozen file after its md5 is
+# checked) side by side with the right-hand one on 30 inputs. This file exists so the
+# supervisor can read the CLAUSE, per SUPERVISION_CHARTER.md sec.3 check 1.
+#
+# WHAT TO LOOK FOR, LIMB BY LIMB.
+#   L1 every row carries `W`             KEPT   (same message shape, whole manifest)
+#   L2 every `W` parses as int           KEPT   (whole manifest)
+#   L3 rows agree on ONE `W`             KEPT PER LEG; the manifest-level form is
+#                                        REPLACED by N4, which ENUMERATES the permitted
+#                                        legs instead of merely requiring one window
+#   L4 ledger has exactly one W line     KEPT PER LEG (one per leg, three in total)
+#   L5 the ledger agrees with the rows   KEPT PER LEG
+#   L6 the value IS the typed constant   STRENGTHENED -> N3: the value must be THAT LEG'S
+#                                        registered window, so a leg cannot be mislabelled
+#   ABSENT-LEDGER BRANCH                 KEPT, with the parent's own L-342 reasoning and
+#                                        the same fence: the windows are NOT waived
+#   RETURN TYPE                          scalar int  ->  {leg: W} dict, deliberately, so a
+#                                        caller written for the parent cannot consume this
+#
+# SEVEN LIMBS ADDED THAT THE PARENT CANNOT EXPRESS AT ALL (N1, N2, N3, N4, N5, N6, N7),
+# each driven in DIRECTION 3 of the narrowing selftest WITH the parent shown ACCEPTING the
+# same defect once relabelled -- which is what makes each one an ADDED constraint rather
+# than a renamed one.
+#
+# THE CLAIM THIS FILE DOES *NOT* MAKE, stated because the brief asked for it and it is not
+# satisfiable: "anything the inherited gate refuses, --gscan also refuses" CANNOT hold, as
+# the inherited gate refuses Arm A's own manifest and a --gscan that also refused it would
+# grade nothing. The true statement, driven in DIRECTION 1, is STRONGER on the parent's own
+# domain and weaker nowhere: ON WINDOW-HOMOGENEOUS ROW SETS --gscan REFUSES EVERYTHING,
+# INCLUDING ALL FIVE INPUTS THE PARENT ACCEPTS.
+#
+# NOT FROZEN. NOT QUEUED. NOT LAUNCHED. SUBMISSIONS PARKED (CLAUDE.md rule 7).
+#
+--- /tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/w3s/A_inherited.py	2026-09-04 18:39:36.212288818 +0000
++++ /tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/w3s/B_gscan.py	2026-09-04 18:39:36.212339789 +0000
+@@ -1,60 +1,159 @@
+-def _w_from_record(rows, ledger_path, infra=None):
+-    """W3-A2.  The window graded is the window that ran: every manifest row carries "W",
+-    the rows agree, the ledger carries one W_STEPS=<n> line that agrees, and the value
+-    is the registered W_PRIMARY.  Anything else REFUSES -- a comparator that can grade
+-    the wrong window silently is the W2R-GRADER-DEF-1 defect."""
+-    ws = set()
++def _w_from_record_gscan(rows, ledger_path, infra=None):
++    """W3S-A1.  THE GSCAN BINDING.  Returns {leg: W} -- a DICT, never the parent's scalar,
++    so a caller written against the parent's return type cannot silently consume this one.
++
++    LIMB BY LIMB, against the parent's `_w_from_record` (d12y_grade_w3.py:2101-2160):
++
++      parent L1  every row carries `W`                 -> KEPT, whole manifest
++      parent L2  every `W` parses as int               -> KEPT, whole manifest
++      parent L3  the rows agree on ONE `W`             -> KEPT PER LEG, and REPLACED at the
++                                                          manifest level by the leg-set
++                                                          closure below, which enumerates
++                                                          the permitted windows instead of
++                                                          merely requiring one of them
++      parent L4  ledger carries exactly one W line     -> KEPT PER LEG (one per leg, three)
++      parent L5  the ledger agrees with the rows       -> KEPT PER LEG
++      parent L6  the value IS the one typed constant   -> STRENGTHENED: the value must be
++                                                          THAT LEG'S registered window,
++                                                          from a typed tuple, so a row
++                                                          cannot sit under the wrong leg
++
++    NEW LIMBS THE PARENT CANNOT EXPRESS (each driven in `--selftest-narrowing` with a
++    control showing the parent ACCEPTS the same defect once relabelled):
++      N1 every row carries a `leg` key
++      N2 every `leg` is one of the registered leg names
++      N3 the row's `W` equals its own leg's registered window   (the mislabel limb)
++      N4 the leg set is EXACTLY the registered leg set          (no missing, no extra)
++      N5 the registered legs carry DISTINCT windows             (registration self-check)
++      N6 exactly one S5 row per leg                             (a re-fired stage is a
++                                                                 FINDING, W3-A3's shape)
++      N7 the ledger's per-leg W lines, absent / doubled / disagreeing
++    """
++    if not rows:
++        raise Refusal("W3S-A1: no manifest rows -- an empty set is not a scan")
++
++    # ---- N5.  REGISTRATION SELF-CHECK, before any datum is read.  Two legs sharing a
++    # window would make the scan degenerate while every data limb below still passed.
++    if len(set(REGISTERED_WS)) != len(REGISTERED_WS):
++        raise Refusal("W3S-A1 N5: the registered legs do not carry distinct windows: %r. A "
++                      "scan whose legs share a window measures one point twice."
++                      % (LEGS,))
++    if len(set(LEG_NAMES)) != len(LEG_NAMES):
++        raise Refusal("W3S-A1 N5: duplicate leg name in the registered legs: %r" % (LEGS,))
++
++    # ---- parent L1, verbatim in intent and in message shape.
+     missing = [r.get("name") for r in rows if "W" not in r]
+     if missing:
+-        raise Refusal("W3-A2: %d manifest row(s) carry no W key: %s" % (len(missing), missing[:6]))
++        raise Refusal("W3S-A1: %d manifest row(s) carry no W key: %s"
++                      % (len(missing), missing[:6]))
++    # ---- N1.
++    missing_leg = [r.get("name") for r in rows if "leg" not in r]
++    if missing_leg:
++        raise Refusal("W3S-A1 N1: %d manifest row(s) carry no `leg` key: %s. The parent "
++                      "never reads `leg` and would accept these rows once they agreed on "
++                      "W; a gscan row that cannot say which leg it belongs to cannot be "
++                      "graded against that leg's registered window."
++                      % (len(missing_leg), missing_leg[:6]))
++    # ---- parent L2.
+     for r in rows:
+         try:
+-            ws.add(int(r["W"]))
++            int(r["W"])
+         except (TypeError, ValueError):
+-            raise Refusal("W3-A2: row %r carries an unparseable W=%r" % (r.get("name"), r.get("W")))
+-    if len(ws) != 1:
+-        raise Refusal("W3-A2: manifest rows disagree on W: %s" % sorted(ws))
+-    W_rows = ws.pop()
+-    if not os.path.isfile(ledger_path):
+-        # ---- W3 AMENDMENT 2 (2026-08-27) -- L-342 / R-RC applied to the SECOND WITNESS.
+-        # The ledger is a host-side `tee -a` written by the LAUNCHER, not by the solver:
+-        # its ABSENCE is a bookkeeping failure of exactly the class L-342 names, and the
+-        # same reasoning g0b_manifest_ledger_binding already carries at its own ADDENDUM 1.
+-        # THE WINDOW ITSELF IS PHYSICS AND IS NOT WAIVED. What is lost is only the
+-        # CROSS-READ -- the corroboration between two artifacts. The window still has to
+-        # come from the record and still has to be the registered one, and those fences
+-        # are the reason this is safe:
+-        #   (i)  every manifest row carries `W`        -- refused above, unchanged
+-        #   (ii) the rows AGREE on one value           -- refused above, unchanged
+-        #   (iii) that value IS the registered W_PRIMARY -- refused HERE, before returning
+-        # A wrong window therefore still cannot grade, which is the W2R-GRADER-DEF-1
+-        # defect this gate exists to prevent. Only the corroboration becomes NOT MEASURED.
+-        if W_rows != W_PRIMARY:
+-            raise Refusal("W3-A2: the ledger is absent AND the manifest rows' W=%d is not "
+-                          "the registered W_PRIMARY=%d. The absent ledger buys nothing "
+-                          "here: the window is PHYSICS and the registered value is checked "
+-                          "against a constant this file types, ledger or no ledger."
+-                          % (W_rows, W_PRIMARY))
+-        _note = ("W3-A2: ledger absent at %s -- the manifest<->ledger W CROSS-READ is NOT "
+-                 "MEASURED (INFRASTRUCTURE, L-342). The window is NOT waived: all %d rows "
+-                 "carry W, they agree on %d, and %d IS the registered W_PRIMARY, each "
+-                 "checked. Corroboration lost; the value stands."
+-                 % (ledger_path, len(rows), W_rows, W_rows))
++            raise Refusal("W3S-A1: row %r carries an unparseable W=%r"
++                          % (r.get("name"), r.get("W")))
++    # ---- N2.
++    bad_leg = sorted({str(r.get("leg")) for r in rows if r.get("leg") not in LEG_NAMES})
++    if bad_leg:
++        raise Refusal("W3S-A1 N2: unregistered leg name(s) %s; the registered legs are %s"
++                      % (bad_leg, list(LEG_NAMES)))
++
++    part = {}
++    for r in rows:
++        part.setdefault(r["leg"], []).append(r)
++
++    # ---- N4.  THE LEG-SET CLOSURE.  This is the limb that makes the binding a NARROWING
++    # rather than a relaxation: it does not merely permit several windows, it ENUMERATES
++    # the exact multiset of legs the pre-registration bought, so a manifest that is short
++    # a leg -- or carries one it did not register -- refuses.  It is also why every
++    # window-homogeneous manifest, INCLUDING every manifest the parent ACCEPTS, refuses
++    # here: a single-window manifest is missing two of the three registered legs.
++    if set(part) != set(LEG_NAMES):
++        raise Refusal("W3S-A1 N4: the manifest's leg set %s is not the registered leg set "
++                      "%s. Missing: %s. Extra: %s."
++                      % (sorted(part), list(LEG_NAMES),
++                         sorted(set(LEG_NAMES) - set(part)), sorted(set(part) - set(LEG_NAMES))))
++
++    ledger_present = os.path.isfile(ledger_path)
++    led_lines = []
++    if ledger_present:
++        with open(ledger_path, errors="replace") as f:
++            led_lines = list(f)
++
++    out = {}
++    for leg in LEG_NAMES:
++        lrows = part.get(leg)
++        if not lrows:
++            raise Refusal("W3S-A1 N4: leg %s partitioned to ZERO rows" % leg)
++        # ---- parent L3, PER LEG.
++        ws = set()
++        for r in lrows:
++            ws.add(int(r["W"]))
++        if len(ws) != 1:
++            raise Refusal("W3S-A1: leg %s's manifest rows disagree on W: %s"
++                          % (leg, sorted(ws)))
++        w = ws.pop()
++        # ---- N3 / parent L6 STRENGTHENED.
++        if w != LEG_W[leg]:
++            raise Refusal("W3S-A1 N3: leg %s carries W=%d, its registered window is %d. The "
++                          "parent's single W_PRIMARY constant cannot say which leg a window "
++                          "belongs to; this limb can, and a mislabelled leg is the "
++                          "W2R-GRADER-DEF-1 defect wearing a leg name."
++                          % (leg, w, LEG_W[leg]))
++        # ---- N6.  Exactly one S5 per leg.  A second S5 in one leg is a re-fired stage --
++        # a FINDING, never something for a comparator to pick between (W3-A3's reasoning).
++        s5s = [r for r in lrows if r.get("name") == "S5"]
++        if len(s5s) != 1:
++            raise Refusal("W3S-A1 N6: leg %s carries %d rows named S5, expected exactly 1. "
++                          "A second adjoint row in one leg is a re-fired stage: a FINDING, "
++                          "not something to resolve by sort order." % (leg, len(s5s)))
++        # ---- parent L4/L5 PER LEG (N7), with the parent's own absent-ledger reasoning.
++        if not ledger_present:
++            continue
++        rx = _leg_ledger_re(leg)
++        led = [int(m.group(1)) for m in (rx.match(ln.strip()) for ln in led_lines) if m]
++        if len(led) != 1:
++            raise Refusal("W3S-A1 N7: the ledger carries %d W_STEPS_%s= line(s), expected "
++                          "exactly 1: %s. A record that is present and AMBIGUOUS is not a "
++                          "record." % (len(led), leg, led))
++        if led[0] != w:
++            raise Refusal("W3S-A1 N7: ledger W_STEPS_%s=%d disagrees with leg %s's manifest "
++                          "rows' W=%d (the W2R-GRADER-DEF-1 defect shape)"
++                          % (leg, led[0], leg, w))
++        out[leg] = w
++
++    if not ledger_present:
++        # The parent's own branch, reproduced in its own reasoning: the ledger is a
++        # host-side `tee -a` written by the launcher, so its ABSENCE is a BOOKKEEPING
++        # failure (L-342). THE WINDOWS ARE NOT WAIVED -- N1..N4 and N3's registered-window
++        # pin all ran above against constants this file types, ledger or no ledger. What
++        # is lost is only the CROSS-READ.
++        note = ("W3S-A1: ledger absent at %s -- the manifest<->ledger per-leg W CROSS-READ "
++                "is NOT MEASURED (INFRASTRUCTURE, L-342). The windows are NOT waived: every "
++                "row carries W and `leg`, every leg is registered, the leg set is exactly "
++                "%s, and each leg's W was checked against its own registered window. "
++                "Corroboration lost; the values stand." % (ledger_path, list(LEG_NAMES)))
+         if infra is not None:
+-            infra.append(_note)
++            infra.append(note)
+         else:
+-            sys.stderr.write("INFRASTRUCTURE DEFECT (reported, not fatal): %s\n" % _note)
+-        return W_rows
+-    led = []
+-    with open(ledger_path, errors="replace") as f:
+-        for line in f:
+-            m = re.match(r"^W_STEPS=(\d+)\b", line.strip())
+-            if m:
+-                led.append(int(m.group(1)))
+-    if len(led) != 1:
+-        raise Refusal("W3-A2: ledger carries %d W_STEPS= line(s), expected exactly 1: %s" % (len(led), led))
+-    if led[0] != W_rows:
+-        raise Refusal("W3-A2: ledger W_STEPS=%d disagrees with the manifest rows' W=%d" % (led[0], W_rows))
+-    if W_rows != W_PRIMARY:
+-        raise Refusal("W3-A2: the record's W=%d is not the registered W_PRIMARY=%d" % (W_rows, W_PRIMARY))
+-    return W_rows
++            sys.stderr.write("INFRASTRUCTURE DEFECT (reported, not fatal): %s\n" % note)
++        out = dict(LEG_W)
++
++    if set(out) != set(LEG_NAMES):
++        raise Refusal("W3S-A1: internal -- the binding returned legs %s, not %s"
++                      % (sorted(out), list(LEG_NAMES)))
++    return out
++
++
++# ==================================================================================
++# BAR-3.  THE STRUCTURAL BAR ON `admissible`.
++# ==================================================================================

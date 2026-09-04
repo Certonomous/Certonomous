@@ -1,0 +1,110 @@
+W3S --gscan NARROWING PROOF EVIDENCE -- driven 2026-09-04T18:40:23Z.
+The LEFT-hand gate in every row below is the FROZEN d12y_grade_w3.py::_w_from_record,
+IMPORTED from the file on disk after its md5 was checked against the pin -- not a copy.
+NOT FROZEN.  NOT QUEUED.  NOT LAUNCHED.  ZERO COMPUTE.
+
+=============== python3 w3s_grade.py --selftest-narrowing ===============
+------------------------------------------------------------------------------
+DIRECTION 1 -- ON THE PARENT'S OWN DOMAIN (window-homogeneous row sets),
+               --gscan REFUSES EVERYTHING, the parent's ACCEPTS included.
+------------------------------------------------------------------------------
+  [OK ] D1 5 clean rows at W_PRIMARY + agreeing ledger          parent=ACCEPT gscan=REFUSE
+  [OK ] D1 5 clean rows at W_PRIMARY + ABSENT ledger            parent=ACCEPT gscan=REFUSE
+  [OK ] D1 1 clean row at W_PRIMARY + agreeing ledger           parent=ACCEPT gscan=REFUSE
+  [OK ] D1 33 clean rows at W_PRIMARY + agreeing ledger         parent=ACCEPT gscan=REFUSE
+  [OK ] D1 5 rows at W_PRIMARY, ALL LABELLED leg A0, ledger car parent=ACCEPT gscan=REFUSE
+  [OK ] D1 rows at W_PRIMARY, one missing its W key             parent=refuse gscan=REFUSE
+  [OK ] D1 rows disagreeing (one at 300)                        parent=refuse gscan=REFUSE
+  [OK ] D1 rows and ledger agree on 300, not W_PRIMARY          parent=refuse gscan=REFUSE
+  [OK ] D1 ledger carries two W_STEPS lines                     parent=refuse gscan=REFUSE
+  [OK ] D1 ledger W_STEPS=900 against rows at W_PRIMARY         parent=refuse gscan=REFUSE
+  [OK ] D1 a row carrying an unparseable W                      parent=refuse gscan=REFUSE
+  [OK ] D1-VACUITY the parent ACCEPTED 5 of 11 homogeneous inputs -- the direction is not a battery of inputs the parent also rejected
+  [OK ] D1-TOTAL --gscan accepted 0 of 11 inputs on the parent's own domain (must be 0)
+------------------------------------------------------------------------------
+DIRECTION 2 -- OFF THAT DOMAIN, THE PARENT'S FIVE STRUCTURAL LIMBS STILL RUN,
+               PER LEG.  Each mutation is applied to leg A1 of a three-leg set
+               and to the parent's own single-window equivalent.
+------------------------------------------------------------------------------
+  [OK ] D2-POS the CLEAN three-leg set is ACCEPTED and returns the registered leg map {'A0': 2000, 'A1': 1400, 'A2': 3000}
+  [OK ] D2-POS-PARENT the parent's own clean single-window set is ACCEPTED (returns 2000) -- without this the battery below proves only that both refuse everything
+  [OK ] D2 L1 a row carries no W key                    parent=REFUSE gscan=REFUSE  (both must REFUSE)
+  [OK ] D2 L2 a row carries an unparseable W            parent=REFUSE gscan=REFUSE  (both must REFUSE)
+  [OK ] D2 L3 rows inside one leg disagree on W         parent=REFUSE gscan=REFUSE  (both must REFUSE)
+  [OK ] D2 L4 a leg's ledger line is DOUBLED                    parent=REFUSE gscan=REFUSE  (both must REFUSE)
+  [OK ] D2 L5 a leg's ledger line DISAGREES with its rows       parent=REFUSE gscan=REFUSE  (both must REFUSE)
+------------------------------------------------------------------------------
+DIRECTION 3 -- THE SEVEN REFUSALS THE PARENT CANNOT EXPRESS.  Each is paired
+               with the parent ACCEPTING the same defect once relabelled, which
+               is what makes it an ADDED constraint and not a re-labelled one.
+------------------------------------------------------------------------------
+  [OK ] D3 N1 a row carries no `leg` key                        gscan=REFUSE parent(relabelled)=ACCEPT
+  [OK ] D3 N2 a row carries an unregistered leg `A9`            gscan=REFUSE parent(relabelled)=ACCEPT
+  [OK ] D3 N3 leg A1's rows are filed under leg A0 (the MISLABE gscan=REFUSE parent(relabelled)=ACCEPT
+  [OK ] D3 N4 leg A2 is MISSING entirely                        gscan=REFUSE parent(relabelled)=ACCEPT
+  [OK ] D3 N4 an EXTRA leg `A3` at an unregistered W=2400       gscan=REFUSE parent(relabelled)=ACCEPT
+  [OK ] D3 N6 leg A0 carries a SECOND S5 row (a re-fired stage) gscan=REFUSE parent(relabelled)=ACCEPT
+  [OK ] D3 N3 legs A1 and A2 have their windows SWAPPED -- every leg present, every leg internally homogeneous, the ledger agreeing with the rows, and the whole thing still grading the WRONG WINDOW under the RIGHT LEG NAME (W2R-GRADER-DEF-1's exact shape). gscan=REFUSE parent(relabelled)=ACCEPT
+  [OK ] D3 N7 a leg's ledger line is ABSENT while the others are present  gscan=REFUSE parent(relabelled)=ACCEPT
+------------------------------------------------------------------------------
+DIRECTION 4 -- THE ABSENT-LEDGER BRANCH, which is the parent's OWN L-342
+               reasoning and must not become a way to lose the windows.
+------------------------------------------------------------------------------
+  [OK ] D4 ledger ABSENT + a clean three-leg set -> accepted, CROSS-READ reported as INFRASTRUCTURE (1 note), legs still {'A0': 2000, 'A1': 1400, 'A2': 3000}
+  [OK ] D4 ledger ABSENT + leg A1 at W=1399 -> STILL REFUSED. The absent ledger buys nothing: the window is PHYSICS and is checked against a typed constant
+NARROWING SELFTEST units=30 failures=0 python_O=False
+NARROWING SELFTEST PASS 30/30
+rc=0
+
+=============== python3 -O w3s_grade.py --selftest-narrowing ===============
+------------------------------------------------------------------------------
+DIRECTION 1 -- ON THE PARENT'S OWN DOMAIN (window-homogeneous row sets),
+               --gscan REFUSES EVERYTHING, the parent's ACCEPTS included.
+------------------------------------------------------------------------------
+  [OK ] D1 5 clean rows at W_PRIMARY + agreeing ledger          parent=ACCEPT gscan=REFUSE
+  [OK ] D1 5 clean rows at W_PRIMARY + ABSENT ledger            parent=ACCEPT gscan=REFUSE
+  [OK ] D1 1 clean row at W_PRIMARY + agreeing ledger           parent=ACCEPT gscan=REFUSE
+  [OK ] D1 33 clean rows at W_PRIMARY + agreeing ledger         parent=ACCEPT gscan=REFUSE
+  [OK ] D1 5 rows at W_PRIMARY, ALL LABELLED leg A0, ledger car parent=ACCEPT gscan=REFUSE
+  [OK ] D1 rows at W_PRIMARY, one missing its W key             parent=refuse gscan=REFUSE
+  [OK ] D1 rows disagreeing (one at 300)                        parent=refuse gscan=REFUSE
+  [OK ] D1 rows and ledger agree on 300, not W_PRIMARY          parent=refuse gscan=REFUSE
+  [OK ] D1 ledger carries two W_STEPS lines                     parent=refuse gscan=REFUSE
+  [OK ] D1 ledger W_STEPS=900 against rows at W_PRIMARY         parent=refuse gscan=REFUSE
+  [OK ] D1 a row carrying an unparseable W                      parent=refuse gscan=REFUSE
+  [OK ] D1-VACUITY the parent ACCEPTED 5 of 11 homogeneous inputs -- the direction is not a battery of inputs the parent also rejected
+  [OK ] D1-TOTAL --gscan accepted 0 of 11 inputs on the parent's own domain (must be 0)
+------------------------------------------------------------------------------
+DIRECTION 2 -- OFF THAT DOMAIN, THE PARENT'S FIVE STRUCTURAL LIMBS STILL RUN,
+               PER LEG.  Each mutation is applied to leg A1 of a three-leg set
+               and to the parent's own single-window equivalent.
+------------------------------------------------------------------------------
+  [OK ] D2-POS the CLEAN three-leg set is ACCEPTED and returns the registered leg map {'A0': 2000, 'A1': 1400, 'A2': 3000}
+  [OK ] D2-POS-PARENT the parent's own clean single-window set is ACCEPTED (returns 2000) -- without this the battery below proves only that both refuse everything
+  [OK ] D2 L1 a row carries no W key                    parent=REFUSE gscan=REFUSE  (both must REFUSE)
+  [OK ] D2 L2 a row carries an unparseable W            parent=REFUSE gscan=REFUSE  (both must REFUSE)
+  [OK ] D2 L3 rows inside one leg disagree on W         parent=REFUSE gscan=REFUSE  (both must REFUSE)
+  [OK ] D2 L4 a leg's ledger line is DOUBLED                    parent=REFUSE gscan=REFUSE  (both must REFUSE)
+  [OK ] D2 L5 a leg's ledger line DISAGREES with its rows       parent=REFUSE gscan=REFUSE  (both must REFUSE)
+------------------------------------------------------------------------------
+DIRECTION 3 -- THE SEVEN REFUSALS THE PARENT CANNOT EXPRESS.  Each is paired
+               with the parent ACCEPTING the same defect once relabelled, which
+               is what makes it an ADDED constraint and not a re-labelled one.
+------------------------------------------------------------------------------
+  [OK ] D3 N1 a row carries no `leg` key                        gscan=REFUSE parent(relabelled)=ACCEPT
+  [OK ] D3 N2 a row carries an unregistered leg `A9`            gscan=REFUSE parent(relabelled)=ACCEPT
+  [OK ] D3 N3 leg A1's rows are filed under leg A0 (the MISLABE gscan=REFUSE parent(relabelled)=ACCEPT
+  [OK ] D3 N4 leg A2 is MISSING entirely                        gscan=REFUSE parent(relabelled)=ACCEPT
+  [OK ] D3 N4 an EXTRA leg `A3` at an unregistered W=2400       gscan=REFUSE parent(relabelled)=ACCEPT
+  [OK ] D3 N6 leg A0 carries a SECOND S5 row (a re-fired stage) gscan=REFUSE parent(relabelled)=ACCEPT
+  [OK ] D3 N3 legs A1 and A2 have their windows SWAPPED -- every leg present, every leg internally homogeneous, the ledger agreeing with the rows, and the whole thing still grading the WRONG WINDOW under the RIGHT LEG NAME (W2R-GRADER-DEF-1's exact shape). gscan=REFUSE parent(relabelled)=ACCEPT
+  [OK ] D3 N7 a leg's ledger line is ABSENT while the others are present  gscan=REFUSE parent(relabelled)=ACCEPT
+------------------------------------------------------------------------------
+DIRECTION 4 -- THE ABSENT-LEDGER BRANCH, which is the parent's OWN L-342
+               reasoning and must not become a way to lose the windows.
+------------------------------------------------------------------------------
+  [OK ] D4 ledger ABSENT + a clean three-leg set -> accepted, CROSS-READ reported as INFRASTRUCTURE (1 note), legs still {'A0': 2000, 'A1': 1400, 'A2': 3000}
+  [OK ] D4 ledger ABSENT + leg A1 at W=1399 -> STILL REFUSED. The absent ledger buys nothing: the window is PHYSICS and is checked against a typed constant
+NARROWING SELFTEST units=30 failures=0 python_O=True
+NARROWING SELFTEST PASS 30/30
+rc=0

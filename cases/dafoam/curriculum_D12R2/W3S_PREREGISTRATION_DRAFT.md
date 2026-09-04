@@ -299,6 +299,46 @@ protocol, with waste named separately and never folded into the ratio, and dolla
 **derived, not measured**. The `S5` wall model's own test is whether a fourth and fifth window
 land on its line (`Q5`).
 
+### 6.6 **THE CUMULATIVE ITEM CEILING — A GAP IN §6 AS DRAFTED, CLOSED HERE**
+
+**Added 2026-09-04 by a dafoam `lab-lane`, BEFORE first compute, and stating the condition
+per `CLAUDE.md` rule 2: the Arm A run root `CURRICULUM-D12R2W3S-GSCAN-cylinder-unsteady`
+does not exist and the arm has not run.** §6.1 registers an **arm** cap and no **item**
+ceiling and no **per-leg** caps, so nothing compares anything to anything **between** legs.
+That is the shape `SO3aF2` ran 3.15 % past, and **only 2 of 40 chain drivers in this family
+guard theirs.** Registered now:
+
+| leg | predicted (§6.1) | **registered cap** |
+|---|---|---|
+| setup (`S0`+`S1a`+`S1b`+`S2a`) | 1.75 | **5.0** |
+| `A0` `S5` repeat, `W = 2,000` | 66.78 | **100.0** |
+| `A1` `S5`, `W = 1,400` | 46.34 | **70.0** |
+| `A2` `S5`, `W = 3,000` | 100.84 | **155.0** |
+| **sum** | 215.71 | **330.0 = `ITEM_CEILING_CORE_MIN`, EXACTLY `CAP_CORE_MIN_A`** |
+
+**The sum being exact is checked by the guard, not assumed** — a registration whose parts
+exceed its whole aborts `rc=64` before any leg runs. Before **every** leg the guard reads
+spend to date from the ledger, adds **that leg's** cap, and refuses if the projection clears
+the ceiling: **an overrun stops the run, it does not get a new budget.** Spend is summed
+**across roots**, because a per-arm cap cannot see an item walking past its ceiling one arm
+at a time.
+
+**AND THE READER IS NOT PORTED FROM `d6rf`, WHICH FAILS OPEN.** Measured at
+`d6rf_chain_driver.sh:129-141`: `except IOError: pass` returns **`0.0`** for a missing or
+unreadable ledger — a planted zero in the guard's own input — and its `[0-9.]+` matches
+`1.2` out of a malformed `core_min=1.2.3` while the resulting `ValueError` is **not caught
+at all**, so `$SPENT` returns empty, the projection comparison fails and **the `if`
+evaluates false**. `a1wrt_run_unit.sh:297-305` is the **primary**: it refuses on an
+`UNMEASURED` prior spend rather than assuming zero. The reader here is written fresh inside
+the AST-audited instrument, returns **`UNMEASURED` and never `0.0`** on any read or parse
+failure, and adds three limbs neither parent has — a root that exists with stage logs and
+**no** ledger is `UNMEASURED`; a ledger with **zero** spend rows beside stage logs is
+`UNMEASURED`; the caps are checked to fit the ceiling. **The genuinely fresh case is kept
+separate**: no root *and* no ledger is `0.000`, because a blanket refusal on an absent
+ledger makes a first leg unlaunchable forever. All six branches are driven, plus the
+reader's own **planted non-zero** (`GA-P3`) — a spend reader that silently returns zero
+reports **full headroom**.
+
 ---
 
 ## 7. INSTRUMENTS — TO BE BUILT AND FROZEN BY MD5 AT THE FREEZE COMMIT. **NONE EXISTS YET.**
@@ -307,9 +347,18 @@ land on its line (`Q5`).
 and so the drafting cost is visible rather than discovered later. All drafting is **zero
 compute**.
 
+> **STATUS UPDATE 2026-09-04, by a dafoam `lab-lane`.** Three of the five rows below now
+> exist and are driven; the launcher does not. **Nothing is frozen and nothing has been
+> queued.** `w3s_grade.py` does not COPY any parent gate — it **imports the frozen parent
+> after checking its md5** and calls `g0_completion` and `_w_from_record` directly, so the
+> "every existing gate function byte-identical" assertion is discharged by construction
+> rather than by a diff a reader must trust.
+
 | file | derived from | what changes |
 |---|---|---|
-| `w3s_grade.py` | `d12y_grade_w3.py` (`3950d30fd09c9b56213a02f5e9864e20`, **UNEDITED**) by a disclosed `.diff` | a `--gscan` mode reading `\|g(W)\|` from a multi-window manifest and grading `W·\|g\|` against 2048.6; a **REFUSAL** if `--gscan` is asked for a step plan (§3.1); `W_PRIMARY`/`W_CONTINGENCY` constants; `S2_STEPS`. **Every existing gate function byte-identical**, asserted in the freeze. |
+| `w3s_grade.py` **WRITTEN, md5 `d24d632cd37f587ebaca7999d9088dec`** | `d12y_grade_w3.py` (`3950d30fd09c9b56213a02f5e9864e20`, **UNEDITED**), **imported, not copied** | a `--gscan` mode reading `\|g(W)\|` per leg from a multi-leg manifest and grading `W·\|g\|` against the DERIVED bar (never a typed product); the three-deep structural bar on `admissible` (§7a); `--cumulative-item-ceiling` (§6.6); `--selftest` 50/50, `--selftest-narrowing` 30/30, `--olimb` 5 mutants caught under **both** `python3` and `python3 -O`, `--assert-audit` **0 whole-file and 0 outside the selftests**. |
+| `w3s_chain_driver.sh` **WRITTEN**, pins bumped in the same commit | `d6rf_chain_driver.sh`, `a1wrt_run_unit.sh` | the cumulative item-ceiling guard (§6.6) and **PREFLIGHT 0**, which aborts `rc=70 NOT_FROZEN` while `PREREG_COMMIT` is empty. **The driver is INERT today and its `--selfcheck` proves it, 10/10.** |
+| `w3s_grade_NARROWING.diff` **WRITTEN** | — | the `--gscan` binding extracted beside the inherited `_w_from_record` for the supervisor's §3-check-1 read. **The diff is not the proof**; `--selftest-narrowing` is. |
 | `w3s_stage_and_run.sh` | `d12y_w3_stage_and_run.sh` (`8a92f3f84f72d6806a2e5c5df88d82ef`, **UNEDITED**) | the Arm A 6-stage graph; three `S5` call sites with per-stage `W`; `S2_STEPS`; the `S5` wall bound; roots; container prefix; caps; **the `W` key already written into every manifest row is written PER STAGE for Arm A**, since Arm A's rows carry three different windows — **and `_w_from_record`'s single-`W` refusal must therefore be re-registered for Arm A rather than silently relaxed.** |
 | `w3s_chain_driver.sh` | `d12y_w3_chain_driver.sh` (`2b6ac7bbc6a5593940a0f2d217005b10`) | the arm sequence; `MD5_LAUNCHER` / `MD5_GRADER` pinned **in the same commit as the files they pin** (the `D8R-DRIVER-DEF-1` / `2026-08-28T02:15:29Z` death) |
 | `d12y_run_script.py` | — | **UNCHANGED**, `2790c39a09cd458d5a3263d7f1811da5` |
@@ -325,6 +374,49 @@ compute**.
 > `W` is not one of the three registered values and on any duplicate — strictly *more*
 > constrained than the inherited gate, not less. **The supervisor should read that diff as a
 > diff** (`SUPERVISION_CHARTER.md` §3 check 1, which may not be delegated).
+
+### 7a. **THE BINDING AS BUILT, AND THE ONE CLAIM ABOVE THAT IS NOT SATISFIABLE**
+
+**Added 2026-09-04 by a dafoam `lab-lane`. The paragraph above stands as written and is
+not rewritten; this section records what could and could not be built to it.**
+
+**THE UNSATISFIABLE CLAIM, NAMED.** "Strictly more constrained than the inherited gate"
+cannot mean *`--gscan` refuses everything the inherited gate refuses*, because the
+inherited gate refuses **Arm A's own manifest** — that refusal is the whole reason this
+item needs a successor — and a `--gscan` that also refused it would grade nothing. Any
+freeze resting on the literal sentence would be resting on a proposition that is false by
+construction. **The narrowing is therefore stated over two disjoint domains, and BOTH
+halves are DRIVEN against the frozen parent's own function**, imported from disk after its
+md5 is checked, never re-implemented:
+
+| direction | claim | driven |
+|---|---|---|
+| **D1** | On **window-homogeneous** row sets — the entire domain the inherited gate governs — `--gscan` **REFUSES EVERYTHING**, the parent's accepts included. Not a superset of its refusals: the whole domain. | 11 inputs; the parent **ACCEPTED 5**, `--gscan` accepted **0**. The vacuity guard is itself a unit: a direction in which the parent accepted nothing would prove nothing. |
+| **D2** | Off that domain, the parent's **five structural limbs still run, per leg** (row carries `W`; `W` parses; the leg agrees on one `W`; the ledger carries exactly one line for the leg; the ledger agrees). | 5 mutations, each run through **both** gates; both refuse. Two positive controls first, so the battery is not a battery of refusals. |
+| **D3** | `--gscan` adds **seven** refusals the parent cannot express: no `leg` key, unregistered `leg`, **leg/W mislabel**, missing leg, extra leg, duplicate `S5` in a leg, per-leg ledger line absent / doubled / disagreeing. | 8 units, each paired with the parent **ACCEPTING the same defect once relabelled** — which is what makes each an *added* constraint and not a renamed one. |
+| **D4** | The absent-ledger branch is the parent's own L-342 reasoning and does **not** become a way to lose the windows. | 2 units; with the ledger absent a leg at `W = 1399` is **still refused**, because the window is checked against a typed constant. |
+
+**THE SHARPEST SINGLE UNIT, and the reason the leg pin exists.** Legs `A1` and `A2` with
+their windows **SWAPPED** — every leg present, every leg internally homogeneous, the ledger
+agreeing with the rows — is `W2R-GRADER-DEF-1` wearing a leg name: the wrong window graded
+under the right label. The parent's single `W_PRIMARY` constant cannot see it. **`--gscan`
+refuses it, and that unit is what the `--olimb` narrowing mutant breaks.**
+
+**A MEASURED PROPERTY WORTH THE SUPERVISOR'S ATTENTION, because it looks like a hole and is
+not.** The leg-set closure is **over-determined by three limbs** — `N2` gives
+⊆ `LEG_NAMES`, `N4` gives equality, the per-leg zero-rows refusal gives ⊇ — so **deleting
+any one of the three is masked by the other two**. That was found by trying to build a
+mutant for it and watching the mutant survive. It is a good property of the binding and it
+is why the `--olimb` mutant targets **N3**, the per-leg registered-window pin, which is the
+only limb in the binding nothing else covers.
+
+**ARM A'S STRUCTURAL BAR ON `admissible: true` IS THREE-DEEP**, per §3.1:
+**BAR-1** the sizing entry point for gscan data raises, always;
+**BAR-2** `--plan`/`--plan2`/`--plan3` on a gscan manifest refuses **before any gate runs**;
+**BAR-3** the emitted object is walked and refused if `admissible`, `steps`, `h_min`,
+`h_star` or `step_plan` carries anything but the registered refusal string — **nested at any
+depth**. BAR-3 is the limb that survives a future edit, because a re-introduced step plan
+has to travel through the emitted object to reach a reader. All three are driven.
 
 ---
 
@@ -392,3 +484,69 @@ these is proposed for compute by this draft, and none of them is a gate change.*
 - [ ] instrument md5s asserted against **committed HEAD blobs**, pins bumped in the same commit as the files they pin
 - [ ] the document **committed**, and the sha recorded, **before any container starts**
 - [ ] queue entry drafted with `cost_core_min_estimate`, `cap_core_min_registered`, `cost_basis`, `prereg_commit` — **and enqueueing is not authorisation**
+
+---
+
+## 11. **CORRECTIONS TO §0 AND §6, MEASURED FROM THE ARTEFACTS BEFORE THE FREEZE**
+
+**Added 2026-09-04 by a dafoam `lab-lane`. Every number below was read from the file named
+beside it. §0 is NOT rewritten — it is unfrozen, but a table that is corrected in place
+leaves no record of what was believed.**
+
+**C-1 — §0's `h_min,env` COLUMN CITES ARTEFACTS THAT DO NOT CARRY THOSE NUMBERS.** The
+column is an **envelope recomputation** under W3-A1, not a reading. What the three
+`step_plan.json` files actually carry:
+
+| `W` | `h_min` **in the artefact** | `delta_eff` **in the artefact** | §0's `h_min,env` |
+|---|---|---|---|
+| 300 | **0.1742837908900481** | **0.0017958478225974517** | 0.288136 |
+| 900 | **0.15755327829116114** | **0.0017958478225974517** | 0.086825 |
+| 2,000 | **0.0911930188193242** | 0.00044535 | 0.091193 ✓ |
+
+Only the `W = 2,000` row matches its own artefact. **Either the column is relabelled as a
+recomputation or the numbers are replaced by the artefacts' own — the freeze may not carry
+it as it stands.**
+
+**C-2 — THE `W = 300` AND `W = 900` ROOTS CARRY THE SAME `delta_eff`, TO THE LAST DIGIT.**
+That is not a coincidence: `W2R` was graded under `W2R-GRADER-DEF-1`, where the comparator
+passed the literal `W_PRIMARY = 300` while the launcher ran `W = 900`. **The `W = 900`
+root's `delta_eff` is the `W = 300` window's.** Consequences, stated separately because they
+differ: **`|g(900)| = 1.1398352621255485` is unaffected** — it is the adjoint's own output —
+so §0's `W·|g|` column and `FS-1` survive intact. **Every `delta_eff`-derived quantity at
+`W = 900` does not**, including that row's `h_min`.
+
+**C-3 — THE PRIORS' WINDOWS ARE CORROBORATED FROM THEIR LEDGERS, NOT THEIR STEP PLANS.**
+Both prior `step_plan.json` files carry **no `W` key and no `C_ENV`** — they predate W3-A1
+and W3-A2. Their ledgers each carry **exactly one** `W_STEPS=` line (`300` and `900`,
+measured), so the cross-read is available but only from there. **The comparator reads the
+priors' windows from the ledgers and refuses on disagreement**; where a prior ledger is
+absent the cross-read is recorded `NOT MEASURED` (INFRASTRUCTURE, L-342) rather than waived
+silently.
+
+**C-4 — `|g(W)|` IS COMPONENT 0, NOT A NORM, AND THE ADMISSIBILITY TEST IS COMPONENT-0-ONLY
+WHILE `G12R-6` GRADES ALL FOUR.** Inherited from `d12y_grade_w3.py:2543`
+(`g_comp = float(s5["dobj_dshape"][0])`) and coherent — the sweep `S6_s{k}` perturbs index 0,
+so the plateau and the sizing are on the same component. But at `W = 2,000` the gradient is
+`[0.48836, 0.42401, 0.23027, −1.14264]`, and the same `delta_eff` gives:
+
+| component | `\|g_i\|` | `h_min = 100·C_ENV/(W·\|g_i\|)` | vs `h_max = 0.05` |
+|---|---|---|---|
+| 0 (**the registered sizing component**) | 0.48836 | **0.091193** | 1.82× over |
+| 1 | 0.42401 | 0.105032 | 2.10× over |
+| 2 | 0.23027 | 0.193403 | 3.87× over |
+| 3 | 1.14264 | **0.038975** | **inside** |
+
+**THIS IS FLAGGED AND IS NOT PROPOSED AS A REPAIR, AND THE REASON IS THE RULE ITSELF.**
+Moving the sizing component to the largest would **manufacture admissibility by changing the
+instrument after seeing the answer** — Sanaa's T25 ruling (*no widening on optimism*) and the
+2026-09-04 order (*"it never means adjusting the gate until the answer fits"*). Moving it to
+the **weakest** component (2) would be a tightening and would make the miss worse. **The
+honest statement is the structural one: the step is sized on one component and the bright
+line is then taken at that step on all four, so component 2's noise budget at `h*` is ~2.1×
+the registered 1 %. That is an inherited property of the D12R2 gate, not a W3S choice, and
+it is the supervisor's call whether it belongs on Sanaa's desk beside the window finding.**
+
+**C-5 — THE SUPERVISOR'S OWN FACTORS CHECK OUT.** `delta_eff` fell **4.0324×**
+(0.0017958478225974517 → 0.00044535), `|g|` fell **2.1100×**, `h_min` improved **1.9112×**
+(0.174284 → 0.091193) and is **1.8239×** short of `h_max`. All four reproduce from the
+artefacts. **It is the draft's §0 table, not the supervisor's reading, that does not.**
