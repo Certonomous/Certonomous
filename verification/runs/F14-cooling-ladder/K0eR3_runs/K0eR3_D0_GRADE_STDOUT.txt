@@ -1,0 +1,31 @@
+==============================================================================
+K0eR3 -- forced-convection flat plate, campaign F14 cooling ladder
+prereg (AS GIVEN, not hard-coded): docs/campaigns/F14-cooling-ladder/K0eR3_PREREGISTRATION.md
+this file's GIT BLOB SHA-1 (sha1 of b'blob <len>\0' + content): 6d7b4d2c0825771a87edfda0cc9ba0279569ed1d
+==============================================================================
+
+--- D0  DETERMINISM TWIN (refusal gate, armed BEFORE the arms) ---
+  Two invocations of the SAME case at 200 iterations.  A non-zero
+  M4b arising from solver nondeterminism would be a FALSE GATE FAIL,
+  and this finds it for ~7 core-min instead of ~190.
+  D0_A: DONE
+      clause 1: PASS rc=0
+      clause 2: PASS exactly one End line
+      clause 3: PASS last time == endTime 200
+      clause 4: PASS all of T U p_rgh alphat nut k omega
+      clause 5: PASS ExecutionTime count == 200
+      clause 6: PASS compared 7 field(s), every one newer than 0/T
+  D0_B: DONE
+      clause 1: PASS rc=0
+      clause 2: PASS exactly one End line
+      clause 3: PASS last time == endTime 200
+      clause 4: PASS all of T U p_rgh alphat nut k omega
+      clause 5: PASS ExecutionTime count == 200
+      clause 6: PASS compared 7 field(s), every one newer than 0/T
+  cells compared             52224 x 3 components
+  components at non-zero ULP 0
+  worst ULP distance         0
+  D0       PASS  (0 ULP)
+
+--- P7  THE PREMISE (blocking refusal, not an expectation) ---
+REFUSE: /home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K0eR3_runs/FP_T10 does not exist; the arm FP_T10 was never built.
