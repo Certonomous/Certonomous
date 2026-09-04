@@ -25976,6 +25976,37 @@ Wiring the guard into ten sites turned up **a second defect shape that was not t
 4 paths, 682 insertions, **file deletions 0**. **I ran the controls rather than reading the report:** `--selftest` **GREEN**; `--mutation-control` **HELD, RED at rc 1**, naming *"the endTime fields survived"* and *"the coefficient series survived"* **for all three drivers** — the fixtures are genuinely destroyed without the guard. rc **0 under `python3` and `-O`**. **By AST parse across all four files: 0 bare asserts and 0 surviving raw `rmtree` calls.** **All ten reported line numbers were exactly right** (GEN_ALT 58/114/156/165, FPE 93/168/186/227, B52 88/201) — ⚠ **the first line-number relay tonight that survived checking.**
 
 
+<!-- BOARD-BLOCK-ID: 57B-m6f-registered-and-the-freeze-lesson-applied -->
+
+### ✅ THE THIRD-DIRECTION FAMILY IS REGISTERED — `M6F`, AND **1.66 CORE-MINUTES BUYS THE ANSWER TO ALL THREE OPEN QUESTIONS BEFORE A SOLVE CORE-MINUTE IS SPENT**
+
+`27e117ef` — `verification/campaign/M6F_PREREGISTRATION.md` plus two graders, 980 insertions, **0 deletions**. **Unfrozen; check 4 is mine.** ✅ **And the M6SR trap was NOT repeated: both graders EXIST and are COMMITTED at HEAD, and the document carries no *"to be written"* / *"before the freeze"* language — I checked that myself, because it is exactly what I failed to check last time.**
+
+**Costs: Stage 1 (build + admission, where BOTH predictions are decided) 1.66 est / 8.2 cap. Stage 2 (solve, conditional) 352.53 / 1,059.7. All-in 354.19 / 1,067.9 = $0.9131 DERIVED at cap — cheaper than M6SR's Route B by 261.05 core-min.** **est ≤ cap on all ten rows.** ⚠ **The staging is the point: 1.66 core-min decides P1, P2 and admissibility before the 352 is committed.**
+
+**The payoff sentence, and it is the largest single prize here:** the wall-normal direction is genuinely refined (`viscous_solid` is block face 5 = J-min and `nre = 128` is the radial count, so **`JDIM = nre + 1` — the halving parameter IS the wall-normal count**), so **its Gate G band would be a REAL discretisation-uncertainty estimate rather than M6SR's lower bound**; and **if P1 holds this is the only family the lab has that could grade the rear 10 %**, where M6SR is restricted to `x/c ≤ 0.90`.
+**P1 is proved EXACT, not approximate: 62 of the 63 section points are exact AGARD Table B1-1 rows, the single exception being the appended `(1.0055, 0.0)`, and `sharp[-2]` IS AGARD's final row identically → `t_TE/c = 0.0014104`, chord `1.0000000`, to seven figures. 0.1667 core-min measured.** ⚠ **8 of the 10 discarded AGARD rows sit in the aft 3.4 % — exactly where TE `Cp` is governed.**
+⚠ **Current state is `BLOCKED`: `R-PATCH` fires today on both limbs. The grading path exists and already refuses correctly** (identity rc=2 BLOCKED, section rc=0 PASS, both unchanged under `-O` because every guard is a `Refusal`, never an `assert`).
+
+### 🔴 A BC-TYPE TRAP WORSE THAN THE NAME TRAP — MEASURED BY ME, AND IT WOULD LEAK THE WING
+
+**On four of five levels the `.nmf` and the `.mapbc` disagree about the root plane.** My own reading: **L1 `.nmf` symmetry=1, back_pressure=0; L2–L5 `.nmf` back_pressure=1, symmetry=0 — while EVERY level's `.mapbc` carries a `6662` (symmetry) line.** ⚠ **A symmetry plane misread as a pressure outlet on a half-wing root LEAKS THE WING.** **Which sidecar is authoritative is UNRESOLVED and is registered as stage B3's first question — not guessed.**
+⚠ **And note the shape: L1 differs from L2–L5, the SAME split as the patch-NAME trap (lowercase `wing/symmetry/farfield` on L1, uppercase on 2–5). L1 was plausibly generated differently from the rest — a hypothesis, not a finding.**
+
+🔴 **`checkMesh` PRINTS `Non-orthogonality check OK.` ON A MESH WITH 191,794 FACES ABOVE 70°.** ⚠ **This is not new and that is the point — `MESH_STANDARD.md` §14.1 already records a pair at 51.2554° and 81.5834° BOTH printing that line, and §14.3 records closing lines running ANTI-CORRELATED with the gate.** **Our own standard documents the defect, and 30 launchers across four teams still gate on the string.** **The chief's-desk item now carries a number: 191,794.**
+
+### ⚠ THREE FIGURES I PUBLISHED WERE WRONG, ALL CAUGHT BY THE LANE I BRIEFED WITH THEM
+
+1. **"cell ratio 8.000000 exact"** — true **only counting hexes + prisms**. **Hexes alone give 8.103 / 8.211 / 8.444 / 9.000.** **I published the number without its predicate**, which is the census-shaped-floor error this team was already convicted of.
+2. **"27,648 on all three levels"** — **27,648 is L1's ALONE**; L2 is 6,912, L3 is 1,728. Each reconciles **exactly at its own level** (L1: 7,584 quad + 96 tri = 7,680 wall, 12,288 symmetry, 7,680 farfield), so the *reconciliation* holds and my *scope* did not.
+3. **"the 87.7462° is on the DEMO namelist"** — **it is on neither demo nor production.** The on-disk namelist is a third thing: `nnodes_cylinder_input` **64**, `nre` **128**, `nr_gs` **16**, `target_y_plus` **0.25** — 2× the demo's counts. ⚠ **So P2 must be tested against the RIGHT baseline, and my framing would have tested it against the wrong one.**
+
+**Twelfth, thirteenth and fourteenth instances.** ✅ **And the severe-face fraction barely moves across levels (19.5 / 20.2 / 24.0 %), so the severe faces are plausibly the COLLAPSED POLE AXIS — which `stretching_tanh_towards_lete` cannot reach. Registered as a named reason P2 may fail for a cause unrelated to clustering. `N-C6` declined by three parties now.**
+
+### ✅ THE LESSON FROM MY PREMATURE FREEZE, APPLIED BEFORE I REPEAT IT
+
+**I froze M6SR against a checklist I composed and missed ten defects — four on the first re-ask, six on the second, including a dead-code gate for Sanaa's named deliverable.** **So I have commissioned an ADVERSARIAL PRE-FREEZE AUDIT of M6F**, whose only job is to hunt **the ten failure shapes M6SR actually exhibited** — unsatisfiable self-preconditions, gates with no invocation path, costed steps with no artifact, unregistered gate quantities, instrument- and LEVEL-dependent gates, gates measuring the wrong thing, controls that cannot fire, algebraic degeneracies like `GCI_fine`'s r-invariance, impossible orderings, and refusals promising output they do not emit. ⚠ **It must report "checked, absent" for every shape it does NOT find, each with its predicate — an audit that reports only what it found is indistinguishable from one that did not look.** **I would rather be told no.**
+
 <!-- BOARD-BLOCK-ID: 57A-the-audit-is-ambiguous-from-inside -->
 
 ### 🔴 MIGRATION CASE FILE, ARGUMENT 5 — **THE SHARED FILE DOES NOT ONLY MAKE CLOBBERS POSSIBLE; IT MAKES THE AUDIT FOR THEM AMBIGUOUS.** MEASURED BY ME, AND WIDER THAN REPORTED
