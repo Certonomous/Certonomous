@@ -1369,3 +1369,119 @@ already validated against 2D DNS, before spending 3D money at Re 3900.
 gate:** institutional/library access to either Dong & Karniadakis paper. This
 is the same P3 follow-up already logged against Re 2000 (Norberg 2003 /
 Williamson 1996) and should be batched with it rather than pursued separately.
+
+---
+
+## ADDENDUM 2026-09-04 — `re2000` is STRANDED, and the sanctioned repair used to destroy it
+
+*Dated addendum, appended at the foot. It alters no gate, no threshold, no cap
+and no label: the Re 2000 banded verdict above stands exactly as written. What
+is recorded here is the state of that rung's artifacts on disk, and a
+data-destruction trap in the drivers that has now been closed.*
+
+### The state of the rung on disk
+
+`~/certonomous-runs/f5a-cylinder-ladder/re2000/` holds:
+
+| artifact | state |
+| --- | --- |
+| `90/` | `U p phi uniform yPlus` — fields at `endTime` |
+| `postProcessing/forceCoeffs1/0/coefficient.dat` | **10,191 data rows, last time t = 90 — exactly `endTime`** |
+| `postProcessing/yPlus1/0/yPlus.dat` | 1 data row, last time 90 |
+| `log.blockMesh`, `log.checkMesh` | present |
+| **`log.pimpleFoam`** | **ABSENT** |
+
+Measured cost of the rung: **66.09 core-min**.
+
+### Why that makes it stranded
+
+`verification/runs/F5_runs/run_rung.py::harvest()` raises on a missing
+`log.pimpleFoam`. It therefore **refuses `re2000` permanently**: the rung
+cannot be harvested through the sanctioned path, whatever its physics says.
+
+And the obvious repair — "re-stage it and run it again" — **was the call that
+deleted it**. `stage()`'s first statement was
+`shutil.rmtree(remote_dir, ignore_errors=True)`, unconditional, against this
+exact directory; `cylinder_ladder.py::run_case()` and
+`cylinder_ladder_3d.py::stage()` carried the identical line against the same
+run root. `ignore_errors=True` meant it would not even have complained. The
+only sanctioned path forward destroyed the evidence.
+
+### The ruling that applies
+
+Under Sanaa's universal rule of 2026-08-26 — **bookkeeping never voids
+physics** — `re2000`'s numbers stand and its banded gate above stands. What is
+missing is bookkeeping, not physics. **The repair for missing bookkeeping is
+never deletion of the physics.**
+
+`Cd_mean = 1.5879` and `St = 0.2421` as gated above are cited from this rung's
+`coefficient.dat`, which is still on disk with all 10,191 rows. The rung's
+*wall-time* figure is the one quantity that genuinely depended on the lost log
+(`harvest()` parses the last `ExecutionTime` line); the 66.09 core-min above is
+the measured figure of record from the run's own accounting, and no `harvest()`
+re-derivation of it is possible.
+
+### What was changed, 2026-09-04
+
+A blocking fix, taken under the physics taxonomy's rule that a fix without
+which a result cannot be trusted jumps the queue.
+
+- **New:** `scripts/solve_evidence_guard.py` — refuses to delete any directory
+  holding a time directory `> 0` with field files (reconstructed **or** under
+  `processor*/`, because an un-reconstructed parallel solve keeps its physics
+  only there), or a `postProcessing/**/*.dat` carrying data rows. The refusal
+  names the time directory, the field count, the row count and the last time,
+  so the operator sees the value of what they nearly lost.
+- **There is no override flag, by decision.** A `--force-restage` is a flag
+  somebody pastes. The recovery path the refusal prints instead is a human `mv`
+  of the directory aside, which *preserves* the physics and which no script can
+  do by accident. This follows the doctrine already written into
+  `verification/runs/F4_runs/successor_2026-08-26/grade_f4s.py` — *"`shutil.rmtree`
+  on a case directory is forbidden outright in cfd's territory."*
+- **`ignore_errors=True` was treated as part of the defect** and is not carried
+  through: past the guard, a failed delete is raised, not swallowed.
+- **All three drivers** now call the guard: `run_rung.py::stage()`,
+  `cylinder_ladder.py::run_case()`, `cylinder_ladder_3d.py::stage()`. The same
+  class one function further down — `harvest()` deleting the *local*
+  `postProcessing` mirror unconditionally before a **best-effort** re-copy — is
+  guarded too: the mirror is now removed only when the source can replace its
+  rows.
+- **The warning is written at the point of use**, in `run_rung.py` immediately
+  above `harvest()`'s raise, so the next lane meets it before reaching for the
+  delete.
+
+### Controls (rule 3)
+
+Fixtures only, in a temporary directory; nothing in the control path reads,
+writes or deletes inside `~/certonomous-runs`.
+
+- `python3 scripts/solve_evidence_guard.py --selftest` — 15 controls, GREEN.
+  Plants the `re2000` shape and requires a REFUSAL; requires the refusal text
+  to name `90/`, `10191` and `last time 90`; plants a mesh-only directory and
+  requires it to **still stage** (the guard must not break the ladder to save
+  one rung); covers `processor*/`-only fields, series-only, and header-only
+  series.
+- `python3 scripts/solve_evidence_guard.py --mutation-control` — neuters the
+  detector in a temporary **copy** and requires the suite to go RED. It does:
+  12 of 15 flip; the three that stay green are precisely the negatives, which
+  is correct.
+- An end-to-end control drives the three **real** entrypoints with `_RUN_ROOT`
+  redirected at a fixture and the case builders replaced by a sentinel, so no
+  OpenFOAM is invoked: 15/15 GREEN, and with a mutated guard pre-seeded the
+  three entrypoints **destroy the fixture**, reproducing the original defect
+  exactly and proving the guard is what prevents it.
+- No bare `assert` anywhere in the guard (0 `ast.Assert` nodes, checked by AST
+  parse, not grep); `python3` and `python3 -O` return identical rc.
+- Read-only demonstration against the real rung:
+  `python3 scripts/solve_evidence_guard.py --check ~/certonomous-runs/f5a-cylinder-ladder/re2000`
+  refuses and names all three evidence items. **No compute was launched and
+  nothing under `~/certonomous-runs/` was written, moved or deleted.**
+
+### What is NOT resolved
+
+`re2000` remains unharvestable through `harvest()`. This addendum does not
+change that, and deliberately proposes no code path that would let a rung be
+graded without its solver log — that would trade one defect for a worse one.
+The open question, for the campaign owner and not for this fix, is whether a
+log-free rung whose physics is intact can be graded through some *other*
+explicitly pre-registered route. It is recorded here as open, not answered.

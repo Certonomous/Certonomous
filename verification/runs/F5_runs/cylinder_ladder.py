@@ -48,6 +48,32 @@ if _REPO_ROOT is None:
 _SDK = _REPO_ROOT / "sdk"
 sys.path.insert(0, str(_SDK))
 
+# THE SOLVE-EVIDENCE GUARD.  Loaded by explicit path rather than by putting
+# `scripts/` on sys.path: a guard that can be shadowed is not a guard.  Missing
+# guard == refuse to run, because run_case()'s first act is to delete its own
+# remote directory and without the guard that delete is unconditional.
+import importlib.util as _ilu  # noqa: E402
+
+_GUARD_PATH = _REPO_ROOT / "scripts" / "solve_evidence_guard.py"
+if not _GUARD_PATH.is_file():
+    raise RuntimeError(
+        f"solve-evidence guard not found at {_GUARD_PATH}; refusing to run. "
+        "run_case() deletes its remote directory before building, and without "
+        "the guard that delete is unconditional -- see the guard's docstring "
+        "for the rung it would have destroyed.")
+if "solve_evidence_guard" in sys.modules:
+    # Registered once, reused everywhere: two module objects for one file give
+    # SolveEvidencePresent two distinct classes, and a caller's `except` on one
+    # silently misses the refusal raised by the other.
+    solve_evidence_guard = sys.modules["solve_evidence_guard"]
+else:
+    _spec = _ilu.spec_from_file_location("solve_evidence_guard", _GUARD_PATH)
+    solve_evidence_guard = _ilu.module_from_spec(_spec)
+    sys.modules["solve_evidence_guard"] = solve_evidence_guard
+    _spec.loader.exec_module(solve_evidence_guard)
+safe_rmtree_for_restage = solve_evidence_guard.safe_rmtree_for_restage
+safe_replace_mirror = solve_evidence_guard.safe_replace_mirror
+
 from workflows.tmr_verification import (          # noqa: E402
     _foam, _foam_header, _run_prefix, _copy_best_effort,
     fv_schemes, transport_properties, time_weighted_stats, measure_period,
@@ -449,7 +475,16 @@ def run_case(name: str, out_dir: Path, log: Callable[[str], None] = print, *,
     out_dir.mkdir(parents=True, exist_ok=True)
     case = out_dir / "case"
     remote_dir = _RUN_ROOT / name
-    shutil.rmtree(remote_dir, ignore_errors=True)
+    # WAS: shutil.rmtree(remote_dir, ignore_errors=True) -- unconditional and
+    # silent about its own failures, as the FIRST act of run_case(), so
+    # "re-run the rung" was the same keystroke as "destroy the rung".  Refuses
+    # now when the directory holds time directories > 0 with fields
+    # (reconstructed or under processor*/) or a postProcessing series with data
+    # rows, and names what would have been lost.  No override flag, by
+    # decision: the printed recovery is a human `mv` aside, which preserves the
+    # physics.  See scripts/solve_evidence_guard.py and re2000's condition,
+    # recorded at run_rung.py:harvest().
+    safe_rmtree_for_restage(remote_dir)
     remote_dir.parent.mkdir(parents=True, exist_ok=True)
 
     params = build_case(case, **build_kwargs)
@@ -504,7 +539,10 @@ def run_case(name: str, out_dir: Path, log: Callable[[str], None] = print, *,
         raise RuntimeError(f"{name}: pimpleFoam failed:\n" + "\n".join(tail.splitlines()[-30:]))
     log(f"[{name}] pimpleFoam finished in {timings['pimpleFoam']:.1f}s")
 
-    shutil.rmtree(out_dir / "postProcessing", ignore_errors=True)
+    # WAS: shutil.rmtree(out_dir/"postProcessing", ignore_errors=True) -- the
+    # local mirror destroyed unconditionally, then refreshed BEST-EFFORT.  The
+    # mirror is now removed only when the source can replace its rows.
+    safe_replace_mirror(out_dir / "postProcessing", remote_dir / "postProcessing")
     _copy_best_effort(remote_dir / "postProcessing", out_dir / "postProcessing")
     coeff_files = sorted((out_dir / "postProcessing").rglob("coefficient*.dat"))
     if not coeff_files:

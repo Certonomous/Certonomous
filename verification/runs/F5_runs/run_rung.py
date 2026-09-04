@@ -41,6 +41,34 @@ if _REPO_ROOT is None:
         "guess a repository root" % __file__)
 sys.path.insert(0, str(_REPO_ROOT / "sdk"))
 
+# THE SOLVE-EVIDENCE GUARD.  Loaded by explicit path rather than by putting
+# `scripts/` on sys.path: this module must not be shadowable by anything, and
+# a guard that can be silently replaced is not a guard.  If it is missing, this
+# file refuses to run at all -- staging without the guard is the defect.
+import importlib.util as _ilu  # noqa: E402
+
+_GUARD_PATH = _REPO_ROOT / "scripts" / "solve_evidence_guard.py"
+if not _GUARD_PATH.is_file():
+    raise RuntimeError(
+        f"solve-evidence guard not found at {_GUARD_PATH}; refusing to stage. "
+        "stage() deletes its remote directory, and without the guard that "
+        "delete is unconditional -- see the guard's docstring for the rung it "
+        "would have destroyed.")
+if "solve_evidence_guard" in sys.modules:
+    # Registered once, reused everywhere.  Loading the same file twice under
+    # two module objects would give SolveEvidencePresent two distinct classes,
+    # and a caller's `except solve_evidence_guard.SolveEvidencePresent` would
+    # then silently miss the refusal raised by the other copy.  Measured: the
+    # integration control hit exactly that before this line existed.
+    solve_evidence_guard = sys.modules["solve_evidence_guard"]
+else:
+    _spec = _ilu.spec_from_file_location("solve_evidence_guard", _GUARD_PATH)
+    solve_evidence_guard = _ilu.module_from_spec(_spec)
+    sys.modules["solve_evidence_guard"] = solve_evidence_guard
+    _spec.loader.exec_module(solve_evidence_guard)
+safe_rmtree_for_restage = solve_evidence_guard.safe_rmtree_for_restage
+safe_replace_mirror = solve_evidence_guard.safe_replace_mirror
+
 import cylinder_ladder as CL  # noqa: E402
 from workflows.tmr_verification import (  # noqa: E402
     _foam, _copy_best_effort, time_weighted_stats, measure_period, halves_drift,
@@ -55,7 +83,16 @@ def stage(name: str, out_dir: Path, **build_kwargs) -> dict:
     out_dir.mkdir(parents=True, exist_ok=True)
     case = out_dir / "case"
     remote_dir = _RUN_ROOT / name
-    shutil.rmtree(remote_dir, ignore_errors=True)
+    # WAS: shutil.rmtree(remote_dir, ignore_errors=True) -- unconditional, and
+    # silent about its own failures.  It is the first statement of stage(), so
+    # "re-stage the rung" was the same keystroke as "destroy the rung".  The
+    # guard refuses when the directory holds time directories > 0 with fields
+    # (reconstructed or under processor*/) or a postProcessing series with data
+    # rows, and names what would have been lost.  There is NO override flag,
+    # deliberately: the recovery path it prints is a human `mv` aside, which
+    # preserves the physics.  Past the guard the delete no longer swallows its
+    # errors.
+    safe_rmtree_for_restage(remote_dir)
     remote_dir.parent.mkdir(parents=True, exist_ok=True)
 
     params = CL.build_case(case, **build_kwargs)
@@ -88,14 +125,46 @@ def harvest(name: str, out_dir: Path, ranks: int = 1) -> dict:
 
     log_path = remote_dir / "log.pimpleFoam"
     if not log_path.exists():
-        raise RuntimeError(f"{name}: no log.pimpleFoam in {remote_dir} -- solve did not run")
+        # READ THIS BEFORE YOU REACH FOR stage() AGAIN.
+        #
+        # A missing log.pimpleFoam does NOT mean the solve did not run.  It can
+        # also mean the solve ran, produced its physics, and lost its log.
+        # `re2000` IS THAT CASE and it is STRANDED:
+        #   ~/certonomous-runs/f5a-cylinder-ladder/re2000/ holds 90/ with
+        #   U p phi uniform yPlus, and postProcessing/forceCoeffs1/0/
+        #   coefficient.dat with 10,191 data rows ending at t = 90 -- exactly
+        #   its endTime -- bought at a measured 66.09 core-min.  Only
+        #   log.blockMesh and log.checkMesh survive.
+        # So this raise refuses it FOREVER, and the obvious repair -- "just
+        # re-stage and re-run it" -- used to be the very call that DELETED it.
+        # stage() now refuses instead (see safe_rmtree_for_restage above).
+        #
+        # Under Sanaa's rule of 2026-08-26, BOOKKEEPING NEVER VOIDS PHYSICS:
+        # re2000's numbers stand and its banded gate in
+        # verification/campaign/F5a_cylinder_reynolds_ladder.md stands.  What is
+        # missing is bookkeeping, and THE REPAIR FOR MISSING BOOKKEEPING IS
+        # NEVER DELETION OF THE PHYSICS.  If a rung must be re-run, a human
+        # moves the old directory aside first; nothing here deletes it.
+        raise RuntimeError(
+            f"{name}: no log.pimpleFoam in {remote_dir} -- the solve did not "
+            f"run, OR it ran and lost its log (this is re2000's condition; see "
+            f"the comment above this raise). Do NOT re-stage to 'fix' it "
+            f"without first checking for fields and a coefficient series: "
+            f"python3 {_REPO_ROOT}/scripts/solve_evidence_guard.py --check "
+            f"{remote_dir}")
     _copy_best_effort(log_path, out_dir / "log.pimpleFoam")
     tail = log_path.read_text(errors="replace").splitlines()
     if not any("End" in l or "ExecutionTime" in l for l in tail[-40:]):
         print(f"[{name}] WARNING: log.pimpleFoam does not look terminated cleanly "
               f"(last lines): " + "\n".join(tail[-5:]))
 
-    shutil.rmtree(out_dir / "postProcessing", ignore_errors=True)
+    # WAS: shutil.rmtree(out_dir/"postProcessing", ignore_errors=True) -- the
+    # same defect class one function down.  The local mirror was destroyed
+    # unconditionally and then refreshed BEST-EFFORT: if the remote copy is
+    # gone, the last copy of the series goes with it and the failure only
+    # surfaces later as "no forceCoeffs output".  Now the mirror is removed
+    # only when the source can actually replace its rows.
+    safe_replace_mirror(out_dir / "postProcessing", remote_dir / "postProcessing")
     _copy_best_effort(remote_dir / "postProcessing", out_dir / "postProcessing")
     coeff_files = sorted((out_dir / "postProcessing").rglob("coefficient*.dat"))
     if not coeff_files:

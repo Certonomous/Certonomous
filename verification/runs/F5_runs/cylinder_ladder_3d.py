@@ -106,6 +106,18 @@ from workflows.cylinder_vortex_shedding import (   # noqa: E402
 import cylinder_ladder as CL                        # noqa: E402
 from chief_engineer.head_engineer import parse_coefficient_history  # noqa: E402
 
+# THE SOLVE-EVIDENCE GUARD, taken from the module that already loaded it by
+# explicit path (CL is `cylinder_ladder`, imported above).  Re-derived here
+# rather than assumed, so this file refuses to run if the guard is absent:
+# stage() below deletes its own remote directory and, unguarded, does so
+# unconditionally.  A guard on two of three files is a memory of a guard.
+safe_rmtree_for_restage = getattr(CL, "safe_rmtree_for_restage", None)
+if safe_rmtree_for_restage is None:
+    raise RuntimeError(
+        "cylinder_ladder does not expose safe_rmtree_for_restage; the "
+        "solve-evidence guard is not loaded and this file refuses to stage. "
+        "See scripts/solve_evidence_guard.py.")
+
 _RUN_ROOT = Path.home() / "certonomous-runs" / "f5a-cylinder-ladder"
 
 # ---------------------------------------------------------------------------
@@ -319,7 +331,14 @@ def stage(name: str, out_dir: Path, *, dz_preset: str, end_time: float,
     out_dir.mkdir(parents=True, exist_ok=True)
     case = out_dir / "case"
     remote_dir = _RUN_ROOT / name
-    shutil.rmtree(remote_dir, ignore_errors=True)
+    # WAS: shutil.rmtree(remote_dir, ignore_errors=True) -- unconditional and
+    # silent, as the first act of stage(), against the SAME run root the 2D
+    # ladder writes to.  A 3D rung is the most expensive thing on this ladder,
+    # so this is the file where the trap costs most.  Refuses now when the
+    # directory holds time directories > 0 with fields (reconstructed or under
+    # processor*/) or a postProcessing series with data rows; no override flag,
+    # by decision.  See scripts/solve_evidence_guard.py.
+    safe_rmtree_for_restage(remote_dir)
     remote_dir.parent.mkdir(parents=True, exist_ok=True)
 
     params = build_case_3d(case, dz_preset=dz_preset, end_time=end_time)
