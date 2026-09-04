@@ -5318,11 +5318,54 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-04T19:47:59Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-66` — **`A1WRT2` still cannot freeze, for a BETTER reason than mine: two HARD gates read an input whose only writer is the SELFTEST FIXTURE BUILDER, and §11's own freeze gate would have passed it. Amended pre-freeze, lawfully, condition checked BY EXECUTION.** Before it, `S-65` (`S-63` retracted), `S-64`, `S-63`, `S-62`, `S-61`…`S-29`.
+**Section last written:** 2026-09-04T21:50:06Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-67` — **two rulings on `A1WRT2`: `SEAM`→`TAIL` is a two-tree chain because a single process would leave the item's own falsifier unable to stop the 675 core-min it exists to stop; and rule-4 completion must read BOTH arms, since the ungated one carries the falsifier. Plus an audit pointed at OUR OWN compliance with the bright line.** Before it, `S-66`, `S-65` (`S-63` retracted), `S-64`, `S-63`…`S-29`.
 
 **Section last written:** 2026-09-04T01:08:43Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-48` — **`W3` IS NOT RUNNING AND HAS NOT BEEN SINCE 21:57:49Z; IT REACHED ITS REGISTERED TERMINUS, AND THE REGISTERED FALLBACK DOES NOT RESCUE IT.** `S-47`'s and `S-46`'s *"`W3_chain_r2` running"* lines are **STRUCK BY QUOTE** below — they were true when written and were still being relayed three hours after they stopped being true. Before it, `S-47` — **DESK ITEMS CLOSED**: the **rule-10 hole is fixed in the constitution itself** on Sanaa's GO (`0ee2e7df`, verified by me at HEAD, not taken on relay), and the rule-12 estimate gap is **routed to verification** as a forward-only note. `S-46`'s "on Sanaa's desk" line is **struck by quote** so no successor re-escalates a closed item. **Nothing now on her desk from this family** but the four `NOT FILED` upstream defect classes and FD-vs-adjoint as a fourth `V` instrument. Before it, `S-46` (closing state), `S-45`, `S-44`, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+##### UPDATE S-67 — **TWO RULINGS TAKEN ON `A1WRT2`, AND THE DECIDING ARGUMENT FOR THE FIRST IS NOT BOOKKEEPING: A SINGLE PROCESS WOULD MAKE THE ITEM'S OWN FALSIFIER UNABLE TO STOP THE 675 CORE-MIN IT EXISTS TO STOP. AND I HAVE SENT AN AUDIT AT OUR OWN COMPLIANCE WITH THE BRIGHT LINE WE ENFORCE ON EVERYBODY ELSE** (2026-09-04, `date -u` stamp in the committing invocation)
+
+###### 1. RULING — `SEAM`→`TAIL` IS A TWO-TREE, TWO-ARM CHAIN; §3's *"IN THE SAME PROCESS"* IS STRUCK
+
+The lane implemented two trees because that is what the committed `grade()` reads — two `<ARM>/case` trees, two `out/` dirs, two ledger rows — and flagged the tension rather than resolving it silently. **It was right, and the bookkeeping is the weaker half of the argument.**
+
+**`a1wrt2_grade.py:97` registers `ARM_CAP_CORE_MIN = {"SEAM": 10.0, "TAIL": 675.0}`.** And §3 registers **`G-SEAM` as this item's FALSIFIER**: if it fails, *every tail point is withdrawn as a tail.*
+
+> **A single process spanning both arms would have ALREADY COMPUTED THE TAIL by the time the seam could be graded. The falsifier could not stop the spend it exists to stop — 675 core-min riding on a 10 core-min restart-fidelity check that cannot gate it.** *That is a post-hoc report wearing a stop rule's name, and this family has now met that shape in an in-container deadline, in a queue cap watch, and in `d19t`'s "CHECKED AFTER EVERY ARM".*
+
+**Struck by quote, never rewritten. `TAIL` must not launch unless `SEAM`'s verdict permits it — as a CHECKED PRECONDITION, driven both ways, not a convention.**
+
+###### 2. RULING — `G-RC-HONEST` AND RULE-4 COMPLETION MUST READ **BOTH** ARMS
+
+`grade()` reads `TAIL/out/rc` and **never** `SEAM/out/rc`. **That is precisely the asymmetry §4.1 documents in `A1WRT` — *"U1's rule-4 completion was never gated by anything"* — REPRODUCED IN THE SUCCESSOR WRITTEN TO REPAIR IT.**
+
+**And it lands on the worse arm: `SEAM` is the arm carrying the falsifier, so an ungated `SEAM` means the CONTROL ITSELF IS UNCHECKED.** Ordered fixed, with a driven control on the combination that is invisible today — **`SEAM` rc non-zero while `TAIL` rc is clean.**
+
+**Both rulings only ADD refusals and cannot move a verdict toward `PASS`** — rule 5's one-way direction, made structural rather than promised.
+
+###### 3. ⚠ AN AUDIT POINTED AT US, AND I HAVE TOLD THE LANE TO RULE AGAINST ME IF THAT IS WHAT IT FINDS
+
+I ruled on **one item's draft** that `D6RF`'s two-point (`s_hi`, `s_lo`) flatness check is a plateau **indication, not a proof**, so where it is used **charter §2's bright line is NOT satisfied** and the item must say so on the artefact's face.
+
+**That was one item. The question I have now sent is whether it is true of the LINEAGE, and of how much of it** — every item under `cases/dafoam/` that publishes an FD table, classified **by reading the instrument, not by name**, into multi-point sweep / two-point check / neither.
+
+> **This is an audit of our own compliance with the rule we hold everyone else to** — the bright line is this family's entire product. **The brief tells the lane to quote §2 and §3 verbatim FIRST, because if the charter is looser than I have been enforcing, that is a finding about ME and I want it**, and to say plainly if the `D6RF3` draft was wrong and the lineage is clean — *the more valuable answer, and it costs me a ruling.*
+
+**Scoped so it cannot run away:** no re-grading, no frozen file edited, no item re-fired, and **the blast radius stated precisely and NOT inflated — a verdict does not move merely because a caveat was missing.** If the honest answer is *"no verdict moves and N records need a caveat,"* that is the answer. **And the classifier must be planted against a known multi-point sweep before any "two-point" reading is believed — and if no known-positive exists in the population, that absence is itself the finding, because it means the classifier has no calibration.**
+
+###### 4. THE PRODUCER TRACE, AND WHY IT IS THE FREEZE-CRITICAL ITEM
+
+`A1WRT2`'s §11.1 amendment (`9f555b4f`) now requires every gate's input traced to a producer or a **named** deferral. **The lane found the defect by reading two named files and said so, so the instrument that would have caught it does not exist** — it is being built now, **planted both ways on real trees**, and the missing producers written or their deferral registered with what refuses if the artefact is absent at grade time. **`G-IMG` and `G-FREEZE` are HARD gates: a hard gate fed by nothing is worse than a missing gate, because it REPORTS.**
+
+**`W3S`'s launcher is dispatched under the same discipline** — it is the producer that makes that item's manifest contract real, and it is told to derive the contract **from `w3s_grade.py`'s code, not from my description of a report.** It uses the committed, driven `_common/item_ceiling_guard.py` and is **forbidden** to port `d6rf`'s fail-open form.
+
+###### 5. STATE
+
+**Three lanes, at cap, ALL ZERO-COMPUTE.** Box has room; **nothing of mine is running, nothing frozen, nothing enqueued, no solver started today.** Each of `A1WRT2`, `W3S` and `D6RF3` is blocked on its own honest gate, and **the gates are kept, not worked around.**
+
+**OWED BY ME:** check 1 ×3 as the code lands; **check 4 at every freeze, read AS ARITHMETIC**; the component-sizing point for Sanaa's desk with the component-3 numeric **still held back until its artefact is named**; the remaining `A1ZE` reader audit.
+
+
 ##### UPDATE S-66 — **`A1WRT2` STILL CANNOT FREEZE, AND FOR A BETTER REASON THAN MINE: TWO **HARD** GATES READ AN INPUT WHOSE ONLY WRITER IS THE SELFTEST FIXTURE BUILDER. §11's OWN FREEZE GATE WOULD HAVE PASSED IT. AMENDED PRE-FREEZE, LAWFULLY, WITH THE CONDITION CHECKED BY EXECUTION** (2026-09-04, `date -u` stamp in the committing invocation)
 
 ###### 1. MY GATE IS SATISFIED; A DEEPER ONE IS NOT
