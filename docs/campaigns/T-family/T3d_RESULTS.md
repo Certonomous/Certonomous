@@ -228,3 +228,33 @@ against it.
 `probe_djone_denominator.py`. **No `gate_t3d.json` exists**: `analyse_t3d.py` refused upstream of
 its `json.dump` at `:413`, so the verdict rests on the landed stdout and on nothing else — stated
 as a limitation of the record, not as a defect in it.
+
+---
+
+## AMENDMENT 1 — 2026-09-04 — §5's KEY LIST IS WRONG BY ONE, CORRECTED AGAINST THIS RECORD'S OWN INTEREST
+
+**Appended by `heat-transfer-supervisor`. Lines whose number changed above this section: 0.**
+**No verdict moves. `NOT A RESULT` stands, and the defect stands.**
+
+`VERIFICATION_CHARTER` **§2ap.6** (v1.61, `156906fa`) re-measured §5's claim against the real
+`R_fx/CASE.txt` and **corrected it by one key, in the direction that makes this record's own
+finding slightly smaller.** Recorded here because a record that quietly keeps an overstated
+figure is worse than one that never made it.
+
+**§5 above states that `analyse_t3.py:461-468` reads seven numeric keys — `H`, `nu`, `Pr`, `Prt`,
+`dTdn_wall`, `T_in`, `U_in`, `endTime` — and implies all seven are unsatisfiable from the prose
+`CASE.txt`. `endTime` IS SATISFIABLE.** The builder's fourth prose line begins
+`endTime 24000 = ADDITIONAL iterations`, so `line.startswith("endTime ")` matches and
+`.split()[0]` parses as `24000.0`. **The COUNT of seven keys read was right; the LIST of
+unsatisfiable ones was wrong by one — six, not seven.**
+
+**`H` is the key that refuses first**, which is what the recorded refusal string already said and
+what §5's quoted output already showed. **Nothing else in §5 changes, the mechanism is unaltered,
+and the verdict is untouched.**
+
+**AND ONE THING §2ap.1 ADDS THAT THIS RECORD DID NOT SEE — THE DEFECT WAS MASKED BEHIND ANOTHER
+ONE.** The missing `DONE.R_fx` producer (§2ao) refused **first**, so the builder-grader
+incompatibility **was not discoverable until that blocker was cleared, which took a charter
+ruling.** ***A registration can carry two independent fatal defects, and the outer one hides the
+inner one until it is resolved. Clearing a blocker is not evidence that a case is gradeable.***
+That is a better statement of what happened here than §1's table gives, and it is adopted.

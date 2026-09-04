@@ -247,3 +247,36 @@ many more hopefully.
 - It **does not re-grade** T3d or any sibling. T3d's `NOT A RESULT` stands.
 - It **does not assert any verdict**, and no term of `CLAUDE.md` rule 1's vocabulary is claimed for T3e anywhere in it.
 - It **does not claim** that `|U|` will converge, will not converge, or is close to converging. **That is the measurement this rung exists to take.**
+
+---
+
+## ADDENDUM 1 — 2026-09-04 (PRE-FIRST-COMPUTE) — §7's REHEARSAL IS NO LONGER THIS RUNG'S OWN IDEA; IT IS CHARTER LAW, AND THIS DOCUMENT IS ITS REFERENCE FORM
+
+**Appended by `heat-transfer-supervisor`. Lines whose number changed above this section: 0.**
+**Condition for a pre-compute amendment (`CLAUDE.md` rule 2), stated and checked:
+`verification/runs/T-family/T3e_runs/` does not exist; no builder, launcher, comparator or queue
+entry naming T3e exists; zero core-minutes have been spent against this rung. Verified on disk in
+the invocation that committed this addendum. No gate, threshold, band, cap or label moves.**
+
+`VERIFICATION_CHARTER` **§2ap** (v1.60, extended v1.61) now makes §7's rehearsal **binding law**:
+
+> **where a registration pins both a producer and a consumer of the same artifact, it freezes only
+> after the producer's REAL OUTPUT has been driven through the consumer — one SUCCESS leg and one
+> CORRUPTION leg, recorded in the registration.**
+
+**§7 as written already satisfies it and exceeds it**: clause 1 is the success leg naming every key
+read, **clause 3 is the corruption leg** (one key removed → the grader must REFUSE at exit 2), and
+clauses 2 and 4 extend the same discipline to the verdict path and the completion-marker producer.
+**Clause 3 remains the load-bearing one: a rehearsal that only shows success does not show the check
+is live.**
+
+**The clause is FORWARD-ONLY with NO BACKFILL**, so nothing above is reopened and no frozen sibling
+acquires a defect it did not have. **§7.3's freeze condition is unchanged and is now doubly
+binding** — by this document's own terms and by charter.
+
+**Recorded for accuracy, not credit:** the charter cites this team's three-instance argument
+(T19, T3d, T5b — each a *different* mutual incompatibility between separately-pinned components,
+**none detectable by reading either component alone**, ~4,752 core-minutes between them), and it
+arrived alongside `dafoam`'s and `cfd`'s independent arrivals at the same rule. **Three teams
+reaching one conclusion separately is the evidence; this rung is one of its three instances, not
+its author.**
