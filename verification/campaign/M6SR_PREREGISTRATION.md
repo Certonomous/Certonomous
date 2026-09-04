@@ -4833,3 +4833,86 @@ after this append, both rendering to sha256
 **`70e7b821bf15678891c8e4b235d5d6e6f5c4348142daba6107844691a72b2a2d`**. Other records cite this
 document **by line**, and at least one such citation sits inside an executable check, so this is a
 guarantee and not a courtesy.
+
+### 22.10 ADDENDUM, SAME SESSION — **A CLAIM THIS AMENDMENT ITSELF MADE IS MEASURED FALSE AND IS STRUCK BY QUOTE**, AND THE EIGHTEENTH PASS FINDS **ITEM 40**
+
+**Same session, same pre-compute condition** (`verification/runs/M6SR_runs` still absent, re-checked
+with the plant at the exact searched path after §22 was committed). **No gate, threshold, cap or
+label moves.** §20.6.1 set the precedent for a same-session addendum; **no version bump is taken
+here** because §22.9's bump already covers this amendment.
+
+#### 22.10.1 🔴 **THE LANE'S OWN FALSE CLAIM, STRUCK BY QUOTE. IT WAS RELAYED, NOT MEASURED.**
+
+§22.7 clause 6 asserts, in the present tense, about the file this amendment re-pins:
+
+> 🔴 **STRUCK BY QUOTE:** ~~*"**Items 35, 36 and 37 remain OPEN in `build_m6sr_l1.sh`**"*~~
+
+**MEASURED FALSE. All three were repaired before this amendment was written**, and the lane carried
+the sentence forward from §19.5's heading instead of reading the file it had just hashed. ⚠ **That
+is precisely the failure this campaign's own discipline exists to prevent, committed inside the
+amendment whose entire purpose is to stop the registration naming an instrument it has not
+verified.** It is disclosed here rather than quietly dropped.
+
+**THE MEASUREMENT — the driver's whole blob lineage, comment-stripped, one reader throughout:**
+
+| blob | `$DRUN "docker run …"` one-arg form (item 35) | `docker_q()` argv helper | `IMAGE DIGEST MISMATCH` refusal (item 36) | `M6SR_REGISTERED_RUN_ROOT` assertion (item 37) | lines |
+|---|---|---|---|---|---|
+| `04ae9d58` | **1** | 0 | **0** | **0** | 304 |
+| `a64bc6b8` | **0** | 1 | **1** | **3** | 569 |
+| `596e9493` | 0 | 1 | 1 | 3 | 762 |
+| `cd9daf86` | 0 | 1 | 1 | 3 | 766 |
+| **`caa7d9de`** (pinned, §22.2) | **0** | **1** | **1** | **3** | **828** |
+
+**THE REPAIR LANDED AT `a64bc6b8`, IN COMMIT `87504e79` (2026-09-04T18:00:22Z)**, whose subject
+says so in as many words: *"cfd M6SR ITEMS 35, 36, 37 REPAIRED in `build_m6sr_l1.sh`."* **The
+current sites, read at the pinned blob:** `docker_q()` at `:399` and `docker_timeout_q()` at `:414`
+(argv-passing, used at `:432`, `:447`, `:625`, `:636`, `:637` — **no `$DRUN "…"` one-argument form
+survives anywhere in the code**); the digest pinned at `:298`, resolved at `:432` and **refused at
+`:435–436`, exit 10**, with the message *"a pin on the solver alone pins half the instrument"*; and
+the run root asserted at `:586–589`, **refused at exit 9**.
+
+⚠ **§19.5's HEADING IS *NOT* STRUCK, AND THE DISTINCTION IS THE WHOLE POINT.** *"REPORTED, NOT
+REPAIRED"* was **true of the 304-line blob** — the first row of the table above, the one §22.1
+struck as a pin — when Amendment 13 wrote it, and it cites `:105`, `:53` and `:49`, which are line
+numbers of that 304-line file and of no later one. A dated finding about a blob that no longer
+exists is **history and stands**. What was false is **this lane's restatement of it as a present-tense fact
+about `caa7d9de`.** ⚠ **Amendments 14 and 15 both moved this file and neither recorded the closure**,
+so the registration has carried three closed items as open since `87504e79`. **The supervisor's
+board should be corrected: items 35, 36 and 37 are CLOSED, and the closure is `87504e79`.**
+
+⚠ **THE PIN IS UNAFFECTED AND IS NOT RE-TAKEN.** `caa7d9de787b1dc8cf5e45935afcc5ef425b85fc` is the
+blob either way; **what changes is what the document says is IN it**, not which blob is pinned.
+§22.7 clause 6's remaining sentence — *"re-pinning that file pins the defects along with the
+repairs, which is what a pin is for"* — **stands, and is now a statement about items 25 and 27**,
+which are carried forward unrepaired on the supervisor's express instruction (§18.7).
+
+#### 22.10.2 🔴 ITEM 40 — **NINE OF THE TEN PINS HAVE NO EXECUTABLE ENFORCEMENT AT GRADING TIME**
+
+| # | the finding | how it was measured | consequence |
+|---|---|---|---|
+| **40** 🔴 | **§9.1 names `scripts/check_comparator_freeze.py` as THE verifier, and §22.2 pins TEN executables — but that verifier's POPULATION is `analyse_*.py`, `grade_*.py` and `score_*.py` only. Exactly ONE of the ten matches.** | The verifier's own documented population (its docstring, and its `:821` self-test string) is those three patterns under `verification/`, `cases/` and `docs/campaigns/`. **Run at this HEAD: 207 graders in the population; `cases/M6SR/analyse_m6sr.py` appears and reads `NO-MARKERS`** — *correct* pre-compute, since no completion marker can exist while the run root does not. **None of the other nine appears at all**, and none can: `run_m6sr_b5.sh`, `build_m6sr_l1.sh` and the three suites are shell; `write_m6sr_case.py`, `residual_max_over_equations.py` and `verify_agard_ar138_table_b1_1.py` match no pattern. | ⚠ **This is NOT a defect in the verifier.** Its hash-identity limb (`:367`, `:391–395`) compares **worktree bytes against the HEAD blob**, index-independently, and asks *"is the file that ran the file that was frozen?"* — **exactly what §9.1 requires.** The gap is one of **REACH**: after a launch it will answer that question for the comparator and **for nothing else**, so nine pins — including **the sole producer of `SOLVER_RC.txt`, which rule 4's completion check reads** — are enforced by **prose alone**. **NOT REPAIRED: widening a named verifier's population is a grading-path question and is the supervisor's**, and it is a change to a `scripts/` artifact this document pins. **Stated before a launch is ordered, not at the drop path.** |
+
+⚠ **AN HONEST BOUNDARY ON THAT MEASUREMENT.** The verifier's repo-wide run returned **rc 3
+(`EXIT_VIOLATION`)** on a summary of **5 `AMBIGUOUS-SCOPE`, 4 `AMENDED_AFTER`, 28 `FROZEN`, 158
+`NO-MARKERS`, 12 `UNFROZEN`**. **The 12 violating rows are OTHER campaigns' graders, not M6SR's**
+— M6SR's single row is `NO-MARKERS`. **This lane did not adjudicate them**: they are outside this
+registration and outside this team's territory, and a repo-wide `FAIL` is reported here only so
+that nobody later reads *"the freeze checker passes"* into a run it never made.
+
+#### 22.10.3 WHAT THIS ADDENDUM DOES **NOT** DO
+
+- **It moves NO gate, NO threshold, NO cap and NO label**, and it **does not re-take a single pin**
+  — every sha in §22.2 was re-verified unmoved at this commit and stands.
+- **It touches NO code**, adds **no path to §9's table**, runs **no ladder compute**, and neither
+  freezes nor launches.
+- **It does not repair item 40**, and it does not repair items 25 or 27.
+
+**Cost: host arithmetic and git reads. ZERO container-seconds and zero ladder core-minutes.**
+
+> **`lines whose number changed above this section: 0`**
+
+**Verified, not asserted:** lines **1–4835** of this file — the whole of it up to and including
+§22.9's closing line, and therefore every guaranteed range §15.10 through §22.9 asserts — are
+**byte-identical** before and after this append, both rendering to sha256
+**`5a1287f312cbd93cda84da33991e265e35ba5029d0f4a1086ca0fbd6e336ee4f`** *(the value asserted and
+re-derived inside the commit invocation that carries this section; the commit ABORTS if it moves)*.
