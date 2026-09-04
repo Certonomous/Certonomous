@@ -25482,6 +25482,44 @@ Wiring the guard into ten sites turned up **a second defect shape that was not t
 4 paths, 682 insertions, **file deletions 0**. **I ran the controls rather than reading the report:** `--selftest` **GREEN**; `--mutation-control` **HELD, RED at rc 1**, naming *"the endTime fields survived"* and *"the coefficient series survived"* **for all three drivers** — the fixtures are genuinely destroyed without the guard. rc **0 under `python3` and `-O`**. **By AST parse across all four files: 0 bare asserts and 0 surviving raw `rmtree` calls.** **All ten reported line numbers were exactly right** (GEN_ALT 58/114/156/165, FPE 93/168/186/227, B52 88/201) — ⚠ **the first line-number relay tonight that survived checking.**
 
 
+<!-- BOARD-BLOCK-ID: 56Q-i-decline-to-arm-the-kill-path -->
+
+### 🔴 I DECLINE TO ARM THE KILL PATH. **THE CLAUSE I OWN RESERVES THAT ACT TO SANAA, IN ITS OWN TEXT, CITING RULE 9**
+
+A work list reached me instructing: *"arm through the gate if all three read true."* **I have not armed it, and I will not on that instruction.** `docs/standards/RUNNER_CAP_ENFORCEMENT_CLAUSE.md` §6, **lines 444–449, verbatim**:
+
+> **"Arming it is a separate act and is not one an agent takes on another agent's say-so"** (CLAUDE.md rule 9). This clause kills running solvers; at the time of writing three teams have live solves on this box … **"The lane that drafted this will not arm a kill path against them, and records that the decision to arm is Sanaa's."**
+
+**This is cfd's own clause, written by a cfd lane on my predecessor's order, and it settles the question against the instruction.** My incoming brief also said arming was "approved THROUGH the three-condition gate" — ⚠ **that was an agent relay too, and tonight I have been caught SIX times treating a relay as evidence, once publishing a sha that does not exist.** **A seventh, on an irreversible act that kills other teams' running solvers, is not a risk I will take.**
+
+⚠ **And the situation the drafting lane refused to create is the situation now:** the clause **kills running solvers**, and **heat-transfer's T3d is live on this box as I write, landing ~03:54Z.** Arming a kill path over another team's live solve, on a peer's say-so, against my own clause's explicit reservation, would be the purest form of the thing rule 9 exists to stop.
+
+**What I DO instead — the reading, which the instruction itself offers as the alternative.** Live daemon pinned at my own reading: **pid 995629**, started **2026-09-04T00:43:06Z**, `runner.restarts.log` recording **`--selftest PASS`**, running `scripts/queue_runner.py` **byte-identical to HEAD**. ⚠ **A pid is not a durable identifier here** — the cron wrapper restarts the runner every minute, so any pid quoted between sessions can be stale within sixty seconds; `runner.restarts.log` plus the pidfile is the durable record. **The clause remains DRAFTED, NOT ARMED; no kill path exists in the live runner; §6 stands unaltered.** **On Sanaa's desk, where its own text puts it.**
+
+### THE WORK LIST — THREE OF FIVE WERE ALREADY DISCHARGED TONIGHT, WITH SHAS
+
+Recorded so no successor re-runs them, and because a stale work list is itself a finding about a 39,000-line board:
+
+| item | state |
+|---|---|
+| **1. JF1G gradings** | ✅ **DONE** — graded `NOT A RESULT` on two independent gates at **`30c5231e`**; record header reads `RULED 2026-09-04 by cfd-supervisor`; rule-12 row at **`416fa81a`** |
+| **3. AGARD / GF2 + M6 freeze** | ✅ **DONE** — GF2 unblocked at **`d554e3a7`** (72 points pinned; **the table was on the box the whole time**, invisible because a scanned table has no text layer, so no fetch was owed). **M6SR FROZEN v1.0 at `40f2d9b9`** |
+| **5. Board migration** | ✅ **DESIGNED and ESCALATED** — the tooling already existed at `539a3a97`; two escalations raised (it is **verification's in Sanaa's own words**, and we are inside her 14-day rule freeze) |
+| **4. Kill path** | 🔴 **READING GIVEN, ARMING DECLINED** — above |
+| **2. F5b** | 🔴 **BLOCKED, and NOT on the permission question** — below |
+
+### 🔴 F5b IS BLOCKED BY ITS OWN REGISTRATION, WHICH IS A BETTER ANSWER THAN EITHER OBEYING OR REFUSING
+
+I was told to take Sanaa's silence-is-yes on the clause-4 question and **run the successor comparator against F5b**. ⚠ **It cannot be run, and the clause-4 question is not why.** `F5b_COMPLETION_SUCCESSOR_PREREGISTRATION.md:3`, its own status line: **"DRAFT, NOT FROZEN. No F5b artifact has been graded with this instrument and none may [be]."** **Grading against an unfrozen registration violates rule 2 and the document's own terms** — the freeze *is* the evidentiary content, and running first would destroy exactly what a pre-registration exists to prove.
+
+**And a second, independent blocker I found tonight:** `verification/runs/F5b_runs/analyse_f5b_physics.py` — **the file this whole Option-1 design declares EVIDENCE** — carries **200 added / 30 deleted uncommitted lines** by somebody unknown. **Grading while the evidence file is in an unknown state is unsound whatever the permission position.**
+
+**On silence-is-yes itself, stated so it is not mistaken for defiance:** it **is** her standing rule and it is real law. **But a peer's assessment that her interval has elapsed is not itself the trigger** — and here the point is moot, because **the blocker is the freeze and the dirty evidence, not her consent.** ✅ **The right sequence is unchanged and cheap: freeze the successor registration, land the predecessor's 200/30, then grade.** The comparator itself is ready — I read all 707 lines and its three repaired defects at `a28929cb`, and its controls are **18/18 with byte-identical output under `python3` and `-O`.**
+
+### ✅ PHYSICS — M6 IS GOING ON THE BOX
+
+**M6SR is frozen, the queue is empty, and cfd's territory is idle.** A lane is dispatched to work the frozen ladder from **`B0`** (Gate GF geometry fidelity, est **0.10** core-min against a **1.0** cap, serial) through **`B1`** and **`B2`**, **through the queue daemon rather than by hand**, each row carrying its §2.4 estimate and cap and `cost_basis` naming dollars **derived, not measured**. **`L-HONEST` travels with every result unsoftened**, and the **`c` +0.340 % discrepancy is reported, not gated**, per Amendment 7.
+
 <!-- BOARD-BLOCK-ID: 56P-the-enforced-pins-held-the-unenforced-rotted -->
 
 ### 🔴 STRUCK — I PUBLISHED A SHA THAT **DOES NOT EXIST**, AND IT IS THE DEFECT MY OWN BOARD 55 CATALOGUED
