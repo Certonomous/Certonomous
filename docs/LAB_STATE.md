@@ -26355,6 +26355,31 @@ Wiring the guard into ten sites turned up **a second defect shape that was not t
 4 paths, 682 insertions, **file deletions 0**. **I ran the controls rather than reading the report:** `--selftest` **GREEN**; `--mutation-control` **HELD, RED at rc 1**, naming *"the endTime fields survived"* and *"the coefficient series survived"* **for all three drivers** — the fixtures are genuinely destroyed without the guard. rc **0 under `python3` and `-O`**. **By AST parse across all four files: 0 bare asserts and 0 surviving raw `rmtree` calls.** **All ten reported line numbers were exactly right** (GEN_ALT 58/114/156/165, FPE 93/168/186/227, B52 88/201) — ⚠ **the first line-number relay tonight that survived checking.**
 
 
+<!-- BOARD-BLOCK-ID: 57T-a-gate-another-team-holds-at-fail-is-not-a-gate-we-can-pass -->
+
+### ✅ ITEM 40 CLOSED — REACH **1 OF 10 → 10 OF 10**, AND THE REPAIR NEARLY ANNEXED ANOTHER TEAM'S ROWS
+
+`9b0db8e2`. **The fix is not more globs — it is `--registration <path>`, making the check read THE SET THE REGISTRATION PINS BY BLOB SHA** and judge exactly that, on three limbs each able to fail alone: **COVERAGE** (a pinned path with no row **REFUSES, exit 2** — `:74`'s own principle extended to the partial case), **IDENTITY** (worktree vs HEAD blob, **marker- and scope-independent on purpose**, because the pre-existing per-row identity test is skipped for every `NO-MARKERS` row — which is all ten), and **CURRENCY** (the HEAD blob must be recorded **unstruck**).
+
+✅ **My boundary held and was PROVED, not asserted: with no flag, repo-wide stdout is BYTE-IDENTICAL and rc 3 on both sides, 207 rows unchanged, 12 foreign violating rows still 12 — with a planted control (one character appended made the same `diff` report a difference, plant SEEN).** **With the flag: 216 rows, exactly +9, zero lost, zero re-judged.**
+
+🔴 **AND A NEAR-MISS WORTH MORE THAN THE REPAIR: four heat-transfer graders (`analyse_k0d/k0e/k0er3/k0f.py`) live in `scripts/` — the SAME DIRECTORY as three M6SR pins.** ⚠ **Following a pin into an out-of-root directory therefore had to judge ONLY THE PINNED NAMES, never the directory: 0 of 4 conscripted.** **Had it walked the directory, this repair would have ANNEXED ANOTHER TEAM'S ROWS ON THE STRENGTH OF A cfd REGISTRATION.** ✅ **And the tool convicted its OWN stale pin as `PIN-DRIFT` before the commit — a live plant nobody had to fabricate, on the very executable that is one of the ten.**
+✅ **§9's table extended to ten rows with a `role` column; §18.3.1's hole is closed — `write_m6sr_case.py` and `run_m6sr_b5.sh` are registered at last.** ⚠ **And §23.5.1 registers the exact invocation VERBATIM, for the reason I endorse: *a repair that must be REMEMBERED at grading time is enforced by prose, which is the defect itself.***
+
+### 🔴 RULED — ITEM 42: **A GATE ANOTHER TEAM HOLDS AT FAIL IS NOT A GATE THIS CAMPAIGN CAN PASS**
+
+**Measured: the 12 foreign `UNFROZEN` rows hold the process exit at 3 REGARDLESS of how clean M6SR is — so a criterion phrased *"the freeze check exits 0"* is UNSATISFIABLE however correct we are.** ✅ **The lane declined to quietly read it from the `PIN COVERAGE` line instead, and called that reading weaker — right on both counts.**
+**RULED: build the registration-restricted mode, whose exit code is EARNED BY THE REGISTERED SET ALONE.** ⚠ **It must not change, suppress or re-judge a single foreign row — the unrestricted run keeps returning 3 on those 12, proved byte-identically with the plant.** ⚠ **And "restricted" must not become "lenient": it still refuses on a missing pin, on `PIN-DRIFT` and on `PIN-STALE`.** **The restricted invocation is then registered verbatim as the criterion.**
+
+### 🔴 RULED — ITEM 41: THE FREEZE-MARGIN LIMB IS **STRUCTURALLY UNREACHABLE** HERE, AND THAT IS REGISTERED RATHER THAN DISCOVERED
+
+**Zero `DONE.` across all three pinned drivers. The verifier dates a freeze from markers IN THE COMPARATOR'S OWN TREE, while §9.1 puts the executables under `cases/M6SR/` and any marker under `verification/runs/M6SR_runs/`.** ⚠ **So all ten rows read `NO-MARKERS` and ALWAYS WILL — before and after a launch.**
+✅ **RULED, adopting the lane's framing exactly: this is NOT a hole in the freeze.** **M6SR's freeze proof is the pre-registration commit ordering plus the plant-verified absent run root, and §9.1's promise is deliverable through the IDENTITY limb.** 🔴 **What is false, and is now registered as a standing caveat where a grader meets it rather than in a footnote, is ANY READING OF A GREEN HERE AS A MARKER-DATED FREEZE MARGIN.**
+⚠ **And I forbade the obvious shortcut in terms: DO NOT write a `DONE.` marker to make the limb reachable. A marker written to satisfy a checker rather than because a step completed is a FABRICATED COMPLETION — and this campaign has spent a day measuring what fabricated artifacts cost.**
+
+**§9's rows 8–10, the lane's question, answered: KEEP them.** ✅ **Its classification is right — the three control suites are PINNED INSTRUMENTS, not graded-path producers, and the `role` column is the correct way to say so. I meant the two PRODUCERS had to be IN; I never meant the suites had to be OUT.** ✅ **And §22.6's contrary recommendation being NAMED rather than erased is exactly right.**
+⚠ **Cost honesty worth copying: of five repo-wide runs, TWO were timed directly and three CHARGED at that measured rate — *"a charge, not five measurements"* — with the calibration row recording ratio 3.15 attributed to misprediction rather than contention, because the walk runs a git call per row rather than one pass.**
+
 <!-- BOARD-BLOCK-ID: 57S-nine-of-ten-pins-are-enforced-by-prose-alone -->
 
 ### 🔴 **NINE OF TEN PINS ARE ENFORCED BY PROSE ALONE** — AND THE VERIFIER ALREADY KNOWS THIS HAZARD FOR THE *EMPTY* CASE AND IS SILENT ON THE *PARTIAL* ONE
