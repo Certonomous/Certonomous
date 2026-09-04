@@ -440,6 +440,71 @@ Restating the pre-registration's §7, plus what the sweeps added.
 | upstream queue | `/home/ubuntu/Certonomous/docs/upstream/UPSTREAM_QUEUE.md` |
 | reproducer | `/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF_runs/reproducer/` |
 | builder / runner / analyser | `/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF_runs/{build_t10avf.py,run_t10avf.sh,analyse_t10avf.py}` |
+
+---
+
+## AMENDMENT 1 — 2026-09-04 — **THE RUNG VERDICT, WHICH THIS RECORD NEVER STATED: `GATE FAIL`**
+
+**Appended by `heat-transfer-supervisor`. Lines whose number changed above this section: 0.**
+**No gate, threshold, band or label moves. No row verdict changes. Nothing is re-graded.**
+
+**RUNG VERDICT: `GATE FAIL` — 4 of 9 gated rows `GATE FAIL`, 5 `PASS`.**
+
+**Why this amendment exists.** §7 scored every registered gate and §8 classified the defect, but
+**this record never carried a rung-level verdict line**, so T10aVF sat with its rows graded and its
+rung unstated — the same gap `T9aR1c` had. A cross-team sweep classified it *"ran but ungraded"*;
+that classification is **wrong** (the grader ran and all ten gates are scored), but it pointed at a
+real hole and this closes it.
+
+**THE TALLY, FROM §7 AND NOTHING ELSE.** §4 registers ten gates; **`VF-9` is `REPORTED ONLY, no
+gate`**, so **nine are gated**. §7 scores all nine:
+
+- **`PASS` (5):** `VF-1`, `VF-2`, `VF-5`, `VF-8`, `VF-10`
+- **`GATE FAIL` (4):** `VF-3`, `VF-4`, `VF-6`, `VF-7`
+- **`REPORTED ONLY` (1):** `VF-9` — carries no verdict and is **excluded from the denominator**, not counted as a failure
+
+**THE AGGREGATION IS A READING AND IS LABELLED AS ONE.** §4 states *"Gates are PASS / GATE FAIL
+against these thresholds and nothing else"* and **registers no rung-level aggregation rule**. The
+rung verdict is therefore **not** taken from the registered path — the *rows* are, and the
+aggregation follows this family's standing convention, cited rather than invented: `T24` recorded
+`PASS 12/12`; `T5b` recorded `0 of 6 graded rows PASS` and a rung `NOT A RESULT`; `T19b` recorded
+`PASS` on 3 of 3. **Under that convention a rung with any `GATE FAIL` among its graded rows is
+`GATE FAIL`.** *[lab-attributed]*
+
+**Why not `NOT A RESULT`:** every gated row **was measured** and every gate **was evaluated**;
+nothing refused, and no reader was unable to see what it needed. `NOT A RESULT` is for a row that
+could not be measured. **Why not `PASS`:** four rows missed thresholds frozen before compute.
+
+> ### ⚠ **THE VERDICT IS ABOUT THE REGISTERED GATES. IT IS NOT ABOUT THE FINDING, AND THE TWO MUST NOT BE CONFLATED.**
+> §7 states, and this amendment adopts: **every one of the four `GATE FAIL`s is a threshold this
+> lane set too tightly against the *`alpha`-independent background error*, and not one measured
+> number contradicts `E = n_ev · e(alpha)`.** The failures are cases where a registered tolerance
+> demanded that a *different, already-known, converging* error also be small.
+>
+> **NO THRESHOLD IS MOVED, AND THAT IS WHY THE VERDICT IS `GATE FAIL`.** The record could have been
+> written with looser tolerances and would then have read `PASS 9/9`. It was not, and it is not
+> being rewritten now. **Sanaa's standing rule governs: gates are never widened to fit, and a
+> measured `GATE FAIL` is reported as one.** The substantive finding in §8 — a silent wrong-answer
+> in `viewFactorsGen`'s 2LI coincident-edge regularisation, closed-form in one dictionary key,
+> removed on five geometries and four resolutions by setting that key to its analytically exact
+> value — **stands on its own measurements and is untouched by the four tolerance failures.**
+
+**Under charter §2an this `GATE FAIL` ROUTES rather than terminates.** The defect class is **ours,
+not the physics'**: four tolerances registered without an allowance for a background error the same
+registration already knew about. **The successor's repair is to register better-posed tolerances
+BEFORE compute — separating the `alpha`-dependent term from the converging background — and NOT to
+relax these ones afterwards.** Relaxing a threshold after seeing the number it failed is the thing
+the lab forbids; registering a tolerance that measures what it meant to measure is the thing it
+requires.
+
+**Cost, already recorded in §9 and NOT duplicated:** **~16.1 core-min actual against ~18.5
+registered**, ratio ≈ 0.87, **1.4 % of the 1.00 USD arm cap**; `$0.0138` **derived** at
+$0.0513/core-h, reported-by-owner, never measured. **No solver ran in this arm.**
+
+**`SUBMISSIONS PARKED` and unaffected by this verdict.** The upstream draft carries **`NOT FILED`**
+in its opening lines, and §11.6 records that **no novelty search has been done** — so it must not be
+filed until one is, and filing is Sanaa's decision alone in any case. **A rung verdict is not a
+clearance to send anything.**
 | pre-check tools | `/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF_runs/{vf_rowsum.py,vf_edge_probe.py}` |
 | 34 sweep cases | `/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF_runs/cases/` |
 | machine-readable results | `/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF_runs/{t10avf_analysis.json,t10a_reanalysis.json}` |
