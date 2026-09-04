@@ -1,0 +1,317 @@
+W3S ARM A -- LAUNCHER, CHAIN-DRIVER AND PRODUCER-TRACE EVIDENCE
+Driven 2026-09-04T22:17:10Z by a dafoam lab-lane.
+ZERO COMPUTE: no container started, no solver ran, no run root created.
+LAUNCH_ENABLED=0 and no lane may raise it. PREREG_COMMIT empty. NOT FROZEN,
+NOT PINNED BY ANY FROZEN DOCUMENT, NOT QUEUED, NOT LAUNCHED. SUBMISSIONS PARKED.
+HEAD at drive time: ed202dee5c63f4b954a2e4bbeb150afb1a0a14b6
+
+INSTRUMENT IDENTITIES, MEASURED (md5sum, this directory):
+  w3s_stage_and_run.sh               02e00e3d420abb34b8e9d9eb6b933831
+  w3s_stage_record.py                8ee3b0ad9b8dfe113f83f1a145f6431b
+  w3s_chain_driver.sh                e15be37b5afd53573e4e43eadde9ee66
+  w3s_grade.py                       d24d632cd37f587ebaca7999d9088dec
+  d12y_grade_w3.py                   3950d30fd09c9b56213a02f5e9864e20
+  d12y_w3_stage_and_run.sh           8a92f3f84f72d6806a2e5c5df88d82ef
+  d12y_run_script.py                 2790c39a09cd458d5a3263d7f1811da5
+  item_ceiling_guard.py              1ea97c9245dedbc451d62e1bcfe26eb9
+
+RUN ROOTS -- neither exists, checked at drive time:
+  ABSENT  /home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3S-GSCAN-cylinder-unsteady
+  ABSENT  /home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3S-WINDOW-cylinder-unsteady
+==============================================================================
+$ bash w3s_stage_and_run.sh --selftest
+W3S_LAUNCHER SELFTEST -- host shell, NO container, NO compute, LAUNCH_ENABLED=0
+------------------------------------------------------------------------------
+EXERCISED-FREEZE-refuses-while-PREREG_COMMIT-empty EXERCISED-PASS rc=70 (expected 70)
+EXERCISED-PINS-agree-on-disk-today                 EXERCISED-PASS rc=0 (expected 0)
+EXERCISED-PINS-PLANT-a-drifted-md5-REFUSES-with-MD5_DRIFT EXERCISED-PASS rc=4 and the refusal names MD5_DRIFT
+EXERCISED-PINS-PLANT-an-ABSENT-file-REFUSES-with-MISSING_INSTRUMENT EXERCISED-PASS rc=4 and the refusal names MISSING_INSTRUMENT
+EXERCISED-PINS-this-file-unmutated-PASSES-pins-only EXERCISED-PASS rc=0 (expected 0)
+EXERCISED-PINS-existence-loop-runs-BEFORE-the-md5-loop EXERCISED-PASS one existence loop, ahead of the md5 loop (DAFOAM_CHARTER sec.18.3)
+EXERCISED-BAR0-this-launcher-may-not-ask-for-a-plan EXERCISED-PASS observed=PASS expected=PASS
+EXERCISED-BAR0-PLANT-a-launcher-that-asks-is-BLOCKED EXERCISED-PASS observed=BLOCKED expected=BLOCKED
+EXERCISED-BAR0-a-gscan-only-launcher-PASSES        EXERCISED-PASS observed=PASS expected=PASS
+EXERCISED-BAR0-EXACTLY-4-enumerated-exemptions-E1-E4 EXERCISED-PASS observed=4 expected=4
+EXERCISED-NOBLOCK-this-file-carries-0-swallowed-stage-rcs EXERCISED-PASS observed=0 expected=0
+EXERCISED-NOBLOCK-PLANT-the-reader-CAN-see-the-W3-shape EXERCISED-PASS observed=1 expected=1
+EXERCISED-NOBLOCK-the-PARENT-launcher-carries-the-shape-14-times EXERCISED-PASS observed=14 expected=14
+EXERCISED-REG-caps-sum-EXACTLY-to-the-ceiling      EXERCISED-PASS rc=0 (expected 0)
+EXERCISED-REG-an-unregistered-leg-refuses-rc64     EXERCISED-PASS rc=64 (expected 64)
+EXERCISED-BOOTSTRAP-a-fresh-root-gets-a-ledger     EXERCISED-PASS rc=0 (expected 0)
+EXERCISED-BOOTSTRAP-the-ledger-is-actually-on-disk EXERCISED-PASS /tmp/tmp.1Y0BPrvQgs/fresh/ledger.txt
+EXERCISED-BOOTSTRAP-no-bare-W_STEPS-claim-in-a-3-window-root EXERCISED-PASS the single-window claim is refused in writing
+EXERCISED-BOOTSTRAP-REFUSES-to-zero-a-root-with-orphan-logs EXERCISED-PASS rc=65 (expected 65)
+EXERCISED-CEILING-a-bootstrapped-fresh-root-is-a-real-zero EXERCISED-PASS rc=0 (expected 0)
+EXERCISED-CEILING-200.0-plus-A2s-155.0-cap-exceeds-330.0 EXERCISED-PASS rc=6 (expected 6)
+EXERCISED-CEILING-a-malformed-core_min-is-UNMEASURED-not-1.2 EXERCISED-PASS rc=6 (expected 6)
+EXERCISED-CEILING-1.75-plus-A0s-100.0-cap-is-WITHIN EXERCISED-PASS rc=0 (expected 0)
+EXERCISED-CEILING-an-ABSENT-ledger-REFUSES-it-is-not-a-zero EXERCISED-PASS rc=6 (expected 6)
+EXERCISED-XGUARD-the-graders-ceiling-reads-our-LEG-rows-too EXERCISED-PASS rc=0 (expected 0)
+EXERCISED-XGUARD-the-graders-ceiling-REFUSES-the-same-overrun EXERCISED-PASS rc=6 (expected 6)
+EXERCISED-XGUARD-the-graders-ceiling-REFUSES-the-same-malformed-token EXERCISED-PASS rc=65 (expected 65)
+EXERCISED-XGUARD-a-teed-ITEM_CEILING-line-is-NOT-counted-as-spend EXERCISED-PASS rc=0 (expected 0)
+EXERCISED-XGUARD-both-readers-REFUSE-a-root-with-orphan-logs-and-no-ledger EXERCISED-PASS rc=65 (expected 65)
+EXERCISED-BUDGET-a-fresh-A2-leg-gets-the-7200s-bound EXERCISED-PASS observed=7200 expected=7200
+EXERCISED-BUDGET-a-thin-remainder-SHORTENS-the-timeout-to-300s EXERCISED-PASS observed=300 expected=300
+EXERCISED-BUDGET-an-exhausted-leg-REFUSES-rc6-no-new-budget EXERCISED-PASS rc=6 (expected 6)
+EXERCISED-TRACE-every-consumed-key-has-a-producer  EXERCISED-PASS rc=0 (expected 0)
+EXERCISED-TRACE-the-record-producer-carries-0-ast.Assert EXERCISED-PASS rc=0 (expected 0)
+EXERCISED-TRACE-the-record-producer-carries-0-ast.Assert-under--O EXERCISED-PASS rc=0 (expected 0)
+EXERCISED-TRACE-the-comparator-carries-0-ast.Assert EXERCISED-PASS rc=0 (expected 0)
+EXERCISED-TRACE-the-comparator-still-imports-the-FROZEN-parent EXERCISED-PASS rc=0 (expected 0)
+EXERCISED-RULE4-SETUP-leg-passes-the-FROZEN-parents-own-gate EXERCISED-PASS rc=0 (expected 0)
+EXERCISED-RULE4-A0-leg-passes                      EXERCISED-PASS rc=0 (expected 0)
+EXERCISED-RULE4-A2-leg-passes                      EXERCISED-PASS rc=0 (expected 0)
+EXERCISED-RULE4-the-FROZEN-comparator-GRADES-this-manifest EXERCISED-PASS rc=0 (expected 0)
+EXERCISED-RULE4-BAR-2-refuses-a-plan-request-on-this-manifest EXERCISED-PASS rc=2 (expected 2)
+EXERCISED-FINALIZE-a-complete-leg-reports-BOTH-counts EXERCISED-PASS declared=4 executed=4
+EXERCISED-FINALIZE-a-truncated-leg-NEVER-says-COMPLETE EXERCISED-PASS declared=1 executed=0 blocked=1, token is LEG_NOT_A_RESULT
+EXERCISED-FINALIZE-no-success-token-on-a-truncated-leg EXERCISED-PASS the W3 PHASE1_COMPLETE shape is absent
+EXERCISED-FINALIZE-the-blocked-leg-is-rc6-at-verify-leg EXERCISED-PASS rc=6 (expected 6)
+EXERCISED-LAUNCH-DISABLED-no-container-can-start   EXERCISED-PASS LAUNCH_ENABLED=0 and no lane may raise it
+------------------------------------------------------------------------------
+W3S_LAUNCHER SELFTEST controls=47 EXERCISED-PASS=47 EXERCISED-FAIL=0 NOT-EXERCISED=0
+W3S_LAUNCHER SELFTEST PASS 47/47
+rc=0
+==============================================================================
+$ bash w3s_chain_driver.sh --selfcheck
+  [OK ] S1 PREFLIGHT 0 REFUSES while PREREG_COMMIT is empty (rc=70, NOT_FROZEN)
+  [OK ] S2 PREFLIGHT 1 PASSES: 7 executed files present, 6 pins agree (rc=0)
+  [OK ] S2b every file the chain EXECUTES or IMPORTS is on disk (7 of 7, existence asked before any md5)
+  [OK ] S2c the LAUNCHER's own selftest passes (47 controls, both pin directions planted, 0 NOT EXERCISED)
+  [OK ] S2d the RECORD PRODUCER's selftest passes under python3
+  [OK ] S2e the RECORD PRODUCER's selftest passes under python3 -O (a guard that vanishes under a flag is not a guard)
+  [OK ] S2f every artefact key the FROZEN comparator reads has a producer in the registered set
+  [OK ] S3 CEILING a FRESH root -> rc=0 (a blanket refusal on an absent ledger would make a first leg unlaunchable forever)
+  [OK ] S4 CEILING a root with stage logs and NO ledger -> rc=65 UNMEASURED, not 0.0
+  [OK ] S5 CEILING a malformed core_min=1.2.3 -> rc=65 UNMEASURED (d6rf reads 1.2, then its uncaught ValueError empties $SPENT and the guard passes)
+  [OK ] S6 CEILING 200.0 spent + leg A2 cap 155.0 = 355.0 > ceiling 330.0 -> rc=6
+  [OK ] S7 CEILING 1.750 spent + leg A1 cap 70.0 <= ceiling -> rc=0 (the guard is not merely refusing everything)
+  [OK ] S8 CEILING spend sums ACROSS roots: 1.750 + 200.0 + 155.0 > ceiling -> rc=6
+  [OK ] S9 the grader on disk is the pinned d24d632cd37f587ebaca7999d9088dec
+  [OK ] S10 the FROZEN parent is UNEDITED at 3950d30fd09c9b56213a02f5e9864e20 (CLAUDE.md rule 6)
+W3S DRIVER SELFCHECK units=15 failures=0
+W3S DRIVER SELFCHECK PASS 15/15
+rc=0
+==============================================================================
+$ bash w3s_chain_driver.sh          (the chain itself: it must ABORT at PREFLIGHT 0)
+W3S_DRIVER start stamp=20260904T221726Z pid=236804 base=/home/ubuntu/Certonomous/cases/dafoam/curriculum_D12R2
+W3S_DRIVER ABORT NOT_FROZEN: PREREG_COMMIT is empty. /home/ubuntu/Certonomous/cases/dafoam/curriculum_D12R2/W3S_PREREGISTRATION_DRAFT.md carries no committed sha,
+W3S_DRIVER   so no gate, threshold, cap or label in it is frozen (CLAUDE.md rule 2). The
+W3S_DRIVER   pre-registration-committed-before-compute check is the supervisor's own and may
+W3S_DRIVER   not be delegated (SUPERVISION_CHARTER.md sec.3 check 4). NOTHING LAUNCHES.
+rc=70
+==============================================================================
+THE PRODUCER TRACE -- every key the FROZEN comparator reads, and its producer.
+The consumed set is EXTRACTED FROM THE COMPARATORS' OWN AST; the produced set is
+read back off a fixture manifest this launcher's own producer wrote.
+$ python3 w3s_stage_record.py --producer-trace
+{
+  "consumed_keys": {
+    "W": [
+      "w3s_grade.py::_w_from_record_gscan",
+      "w3s_grade.py::looks_like_gscan"
+    ],
+    "age_guard_detail": [
+      "d12y_grade_w3.py::g0_completion"
+    ],
+    "age_guard_ok": [
+      "d12y_grade_w3.py::REQUIRED_ROW_KEYS",
+      "d12y_grade_w3.py::g0_completion"
+    ],
+    "blocked": [
+      "w3s_grade.py::plan_gscan"
+    ],
+    "coldstart_ok": [
+      "d12y_grade_w3.py::REQUIRED_ROW_KEYS",
+      "d12y_grade_w3.py::g0_completion"
+    ],
+    "dobj_dshape": [
+      "w3s_grade.py::read_g"
+    ],
+    "endTime": [
+      "d12y_grade_w3.py::REQUIRED_ROW_KEYS",
+      "d12y_grade_w3.py::g0_completion"
+    ],
+    "end_line_present": [
+      "d12y_grade_w3.py::REQUIRED_ROW_KEYS",
+      "d12y_grade_w3.py::g0_completion"
+    ],
+    "execution_time_count": [
+      "d12y_grade_w3.py::g0_completion"
+    ],
+    "expected_steps": [
+      "d12y_grade_w3.py::g0_completion"
+    ],
+    "fatal_tokens": [
+      "d12y_grade_w3.py::g0_completion"
+    ],
+    "field_b_md5_ok": [
+      "d12y_grade_w3.py::g0_completion"
+    ],
+    "last_time": [
+      "d12y_grade_w3.py::REQUIRED_ROW_KEYS",
+      "d12y_grade_w3.py::g0_completion"
+    ],
+    "leg": [
+      "w3s_grade.py::_w_from_record_gscan",
+      "w3s_grade.py::read_g"
+    ],
+    "memavail_GiB": [
+      "d12y_grade_w3.py::g0_completion"
+    ],
+    "mesh_check_ok": [
+      "d12y_grade_w3.py::REQUIRED_ROW_KEYS",
+      "d12y_grade_w3.py::g0_completion"
+    ],
+    "mesh_n_cells": [
+      "d12y_grade_w3.py::REQUIRED_ROW_KEYS",
+      "d12y_grade_w3.py::g0_completion"
+    ],
+    "mesh_polymesh_files": [
+      "d12y_grade_w3.py::REQUIRED_ROW_KEYS",
+      "d12y_grade_w3.py::g0_completion"
+    ],
+    "n_cd_lines": [
+      "d12y_grade_w3.py::g0_completion"
+    ],
+    "n_cd_negative": [
+      "d12y_grade_w3.py::g0_completion"
+    ],
+    "name": [
+      "d12y_grade_w3.py::REQUIRED_ROW_KEYS",
+      "d12y_grade_w3.py::g0_completion",
+      "w3s_grade.py::_w_from_record_gscan",
+      "w3s_grade.py::read_g"
+    ],
+    "obj": [
+      "d12y_grade_w3.py::g0_completion"
+    ],
+    "obj_from_log": [
+      "d12y_grade_w3.py::g0_completion"
+    ],
+    "oomkilled": [
+      "d12y_grade_w3.py::REQUIRED_ROW_KEYS",
+      "d12y_grade_w3.py::g0_completion"
+    ],
+    "rc": [
+      "d12y_grade_w3.py::g0_completion"
+    ],
+    "stage_kind": [
+      "d12y_grade_w3.py::REQUIRED_ROW_KEYS",
+      "d12y_grade_w3.py::g0_completion"
+    ],
+    "status": [
+      "d12y_grade_w3.py::g0_completion"
+    ],
+    "task": [
+      "d12y_grade_w3.py::REQUIRED_ROW_KEYS",
+      "d12y_grade_w3.py::g0_completion"
+    ],
+    "time_line_count": [
+      "d12y_grade_w3.py::g0_completion"
+    ]
+  },
+  "excluded_by_name": {
+    "DV_UNITS": "an environment variable in the parent launcher, not a manifest key",
+    "STAGE_KIND": "an environment variable in the parent launcher, not a manifest key"
+  },
+  "findings": [],
+  "item": "W3S",
+  "ledger_line_checks": [
+    {
+      "consumer": "w3s_grade._leg_ledger_re('A0')",
+      "line": "W_STEPS_A0=2000 deltaT=1e-2",
+      "matched": true
+    },
+    {
+      "consumer": "w3s_grade._leg_ledger_re('A1')",
+      "line": "W_STEPS_A1=1400 deltaT=1e-2",
+      "matched": true
+    },
+    {
+      "consumer": "w3s_grade._leg_ledger_re('A2')",
+      "line": "W_STEPS_A2=3000 deltaT=1e-2",
+      "matched": true
+    },
+    {
+      "consumer": "w3s_grade.SPEND_LINE_RE + CORE_MIN_VALUE_RE and item_ceiling_guard.parse_decimal",
+      "line": "LEG=A0 rc=0 wall_s=4073 ranks=1 core_min=67.8833 declared=1 executed=1 blocked=0",
+      "matched": true
+    },
+    {
+      "consumer": "NEITHER spend reader -- checked blind by construction so the leg row is not double-counted",
+      "line": "SDETAIL=S5 cost_leg=A0 rc=0 wall_s=4073 ranks=1 stage_core_min=67.8833 memavail_GiB=20.5 log=S5_x.log",
+      "matched": false
+    }
+  ],
+  "n_consumed_keys": 29,
+  "n_findings": 0,
+  "n_produced_keys": 55,
+  "produced_keys": [
+    "W",
+    "age_datum",
+    "age_guard_detail",
+    "age_guard_ok",
+    "age_sentinel",
+    "age_sentinel_unmoved",
+    "age_staged_postdating",
+    "applied_dvDelta_reported",
+    "applied_dvIndex_reported",
+    "applied_index",
+    "applied_magnitude",
+    "applied_shape_vector",
+    "applied_sign",
+    "blocked",
+    "blocked_by",
+    "cd_max",
+    "cd_min",
+    "coldstart_ok",
+    "core_min",
+    "cost_leg",
+    "dobj_dshape",
+    "docker_exit",
+    "dv_units",
+    "endTime",
+    "end_line_present",
+    "execution_time_count",
+    "expected_steps",
+    "fatal_benign_excluded",
+    "fatal_tokens",
+    "field_b_md5_ok",
+    "fixture",
+    "last_time",
+    "leg",
+    "maxrss_GiB_after_adjoint",
+    "maxrss_GiB_after_primal",
+    "memavail_GiB",
+    "mesh_check_ok",
+    "mesh_n_cells",
+    "mesh_polymesh_files",
+    "nShapes",
+    "n_cd_lines",
+    "n_cd_negative",
+    "n_cl_lines",
+    "name",
+    "obj",
+    "obj_from_log",
+    "oomkilled",
+    "rc",
+    "registered_dvDelta",
+    "registered_dvIndex",
+    "stage_kind",
+    "status",
+    "task",
+    "time_line_count",
+    "wall_s"
+  ],
+  "registered_producers": [
+    "w3s_stage_record.py::build_row      -> every manifest row key",
+    "w3s_stage_record.py::blocked_row    -> the blocked-row shape",
+    "w3s_stage_record.py::w_steps_line   -> W_STEPS_<LEG>= per leg",
+    "w3s_stage_record.py::leg_spend_line -> LEG=<leg> ... core_min= per leg",
+    "w3s_stage_and_run.sh                -> calls all four, one leg per invocation"
+  ],
+  "verdict": "PASS"
+}
+rc=0

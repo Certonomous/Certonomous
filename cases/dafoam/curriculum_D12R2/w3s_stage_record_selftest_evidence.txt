@@ -1,0 +1,161 @@
+W3S ARM A -- RECORD PRODUCER SELFTEST EVIDENCE
+Driven 2026-09-04T22:17:26Z by a dafoam lab-lane. ZERO COMPUTE.
+HEAD at drive time: ed202dee5c63f4b954a2e4bbeb150afb1a0a14b6
+md5 w3s_stage_record.py = 8ee3b0ad9b8dfe113f83f1a145f6431b
+==============================================================================
+$ python3 w3s_stage_record.py --assert-audit
+assert statements in this file: 0 (must be 0)
+assert statements OUTSIDE the selftest functions: 0 (must be 0)
+rc=0
+$ python3 -O w3s_stage_record.py --assert-audit
+assert statements in this file: 0 (must be 0)
+assert statements OUTSIDE the selftest functions: 0 (must be 0)
+rc=0
+==============================================================================
+$ python3 w3s_stage_record.py --selftest
+W3S_STAGE_RECORD SELFTEST  python_O=False  workdir=/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/f1/w3s_stage_record_selftest
+------------------------------------------------------------------------------
+EXERCISED-PIN-parent-grader-exists           EXERCISED-PASS observed=True expected=True
+EXERCISED-PIN-parent-grader-md5              EXERCISED-PASS observed=True expected=True
+EXERCISED-PIN-grader-md5                     EXERCISED-PASS observed=True expected=True
+EXERCISED-PIN-parent-launcher-md5            EXERCISED-PASS observed=True expected=True
+EXERCISED-PIN-ceiling-guard-exists           EXERCISED-PASS observed=True expected=True
+EXERCISED-PIN-absent-dependency-refuses      EXERCISED-PASS observed=True expected=True
+EXERCISED-SCAN-read-from-parent-nonempty     EXERCISED-PASS observed=True expected=True
+EXERCISED-SCAN-benign-exclusion-present      EXERCISED-PASS observed=True expected=True
+EXERCISED-SCAN-trapFpe-banner-EXCLUDED       EXERCISED-PASS observed=[] expected=[]
+EXERCISED-SCAN-real-SIGFPE-CAUGHT            EXERCISED-PASS observed=True expected=True
+EXERCISED-SCAN-FOAM-FATAL-CAUGHT             EXERCISED-PASS observed=True expected=True
+EXERCISED-SCAN-clean-log-is-EMPTY-not-None   EXERCISED-PASS observed=[] expected=[]
+EXERCISED-SCAN-absent-log-is-None-not-EMPTY  EXERCISED-PASS observed=None expected=None
+EXERCISED-LEDGER-W_STEPS-matches-consumer    EXERCISED-PASS observed=True expected=True
+EXERCISED-LEDGER-W_STEPS-unregistered-leg-refuses EXERCISED-PASS observed=True expected=True
+EXERCISED-LEDGER-LEG-row-is-spend-shaped     EXERCISED-PASS observed=True expected=True
+EXERCISED-LEDGER-LEG-row-core_min-parses-WHOLE EXERCISED-PASS observed=True expected=True
+EXERCISED-LEDGER-SDETAIL-invisible-to-w3s_grade EXERCISED-PASS observed=False expected=False
+EXERCISED-LEDGER-SDETAIL-invisible-to-ceiling-guard EXERCISED-PASS observed=False expected=False
+EXERCISED-CEILING-empty-ledger-is-a-real-zero EXERCISED-PASS observed=0 expected=0
+EXERCISED-CEILING-reads-our-LEG-rows         EXERCISED-PASS observed=0 expected=0
+EXERCISED-CEILING-refuses-over-the-ceiling   EXERCISED-PASS observed=65 expected=65
+EXERCISED-CEILING-refuses-a-malformed-token  EXERCISED-PASS observed=65 expected=65
+EXERCISED-CEILING-refuses-an-ABSENT-ledger   EXERCISED-PASS observed=65 expected=65
+EXERCISED-CEILING-caps-sum-EXACTLY-to-the-ceiling EXERCISED-PASS observed=True expected=True
+EXERCISED-BUDGET-fresh-leg-gets-the-registered-wall-bound EXERCISED-PASS observed=7200 expected=7200
+EXERCISED-BUDGET-a-thin-remainder-SHORTENS-the-timeout EXERCISED-PASS observed=300 expected=300
+EXERCISED-BUDGET-an-exhausted-leg-REFUSES-no-new-budget EXERCISED-PASS observed=None expected=None
+EXERCISED-BUDGET-a-malformed-stage_core_min-is-UNMEASURED-not-zero EXERCISED-PASS observed=None expected=None
+EXERCISED-BUDGET-a-root-with-logs-and-no-ledger-is-UNMEASURED EXERCISED-PASS observed=None expected=None
+EXERCISED-BUDGET-another-leg's-spend-is-NOT-charged-to-this-one EXERCISED-PASS observed=0.0 expected=0.0
+EXERCISED-E2E-frozen-comparator-GRADES-our-manifest EXERCISED-PASS observed=0 expected=0
+EXERCISED-E2E-verdict-is-in-the-fixed-vocabulary EXERCISED-PASS observed=True expected=True
+EXERCISED-E2E-FS0-HIT-on-the-anchor-fixture  EXERCISED-PASS observed='HIT' expected='HIT'
+EXERCISED-E2E-FS1-MISS-on-the-registration's-own-points EXERCISED-PASS observed='MISS' expected='MISS'
+EXERCISED-E2E-no-step-plan-reached-the-artefact EXERCISED-PASS observed=True expected=True
+EXERCISED-E2E-window-binding-returned-all-three-legs EXERCISED-PASS observed={'A0': 2000, 'A1': 1400, 'A2': 3000} expected={'A0': 2000, 'A1': 1400, 'A2': 3000}
+EXERCISED-E2E-FS1-HIT-is-reachable-the-gate-goes-both-ways EXERCISED-PASS observed='HIT' expected='HIT'
+EXERCISED-NEG-leg-mislabel-REFUSED-by-the-comparator EXERCISED-PASS observed=2 expected=2
+EXERCISED-NEG-missing-per-leg-W_STEPS-REFUSED EXERCISED-PASS observed=2 expected=2
+EXERCISED-NEG-a-missing-leg-REFUSED-not-graded-as-two-points EXERCISED-PASS observed=2 expected=2
+EXERCISED-NEG-a-BLOCKED-leg-REFUSED-a-blocked-row-is-not-a-third-point EXERCISED-PASS observed=2 expected=2
+EXERCISED-NEG-the-blocked-row-IS-in-the-manifest-same-trace-both-artefacts EXERCISED-PASS observed=1 expected=1
+EXERCISED-RULE4-a-blocked-leg-is-rc6-and-COUNTS-the-blocked-row-IN EXERCISED-PASS observed=(6, 1) expected=(6, 1)
+EXERCISED-RULE4-SETUP-leg-passes-on-a-complete-fixture EXERCISED-PASS observed=0 expected=0
+EXERCISED-RULE4-A2-leg-passes-on-a-complete-fixture EXERCISED-PASS observed=0 expected=0
+EXERCISED-RULE4-truncated-leg-is-rc6-NOT-A-RESULT EXERCISED-PASS observed=6 expected=6
+EXERCISED-RULE4-truncated-leg-reports-BOTH-counts EXERCISED-PASS observed=(1, 0) expected=(1, 0)
+EXERCISED-RULE4-truncated-leg-never-says-PASS EXERCISED-PASS observed='NOT A RESULT' expected='NOT A RESULT'
+EXERCISED-RULE4-unregistered-leg-refuses     EXERCISED-PASS observed=3 expected=3
+EXERCISED-RULE4-stale-age-guard-REFUSED-by-the-frozen-gate EXERCISED-PASS observed=2 expected=2
+EXERCISED-RULE4-nonzero-rc-REFUSED-by-the-frozen-gate EXERCISED-PASS observed=2 expected=2
+EXERCISED-RULE4-step-count-shortfall-REFUSED-by-the-frozen-gate EXERCISED-PASS observed=2 expected=2
+EXERCISED-RULE4-MemAvailable-below-the-14.0-floor-REFUSED EXERCISED-PASS observed=2 expected=2
+EXERCISED-AGE-fields-newer-than-the-sentinel-PASS EXERCISED-PASS observed=True expected=True
+EXERCISED-AGE-a-field-OLDER-than-the-sentinel-REFUSES EXERCISED-PASS observed=False expected=False
+EXERCISED-AGE-a-MOVED-sentinel-REFUSES-the-datum-cannot-date-the-run EXERCISED-PASS observed=False expected=False
+EXERCISED-AGE-a-STAGED-file-post-dating-the-datum-is-REPORTED EXERCISED-PASS observed=True expected=True
+EXERCISED-AGE-a-clean-stage-tree-post-dates-NOTHING EXERCISED-PASS observed=[] expected=[]
+EXERCISED-AGE-missing-sentinel-REFUSES       EXERCISED-PASS observed=False expected=False
+EXERCISED-TRACE-every-consumed-key-has-a-producer EXERCISED-PASS observed=0 expected=0
+EXERCISED-TRACE-it-actually-looked-at-something EXERCISED-PASS observed=True expected=True
+EXERCISED-TRACE-PLANT-a-dropped-key-IS-FLAGGED EXERCISED-PASS observed=2 expected=2
+EXERCISED-TRACE-PLANT-names-the-dropped-key  EXERCISED-PASS observed=['age_guard_ok'] expected=['age_guard_ok']
+EXERCISED-AST-assert-statements-in-this-file EXERCISED-PASS observed=0 expected=0
+EXERCISED-AST-assert-statements-outside-the-selftest EXERCISED-PASS observed=0 expected=0
+------------------------------------------------------------------------------
+W3S_STAGE_RECORD SELFTEST controls=66 EXERCISED-PASS=66 EXERCISED-FAIL=0 NOT-EXERCISED=0 python_O=False
+W3S_STAGE_RECORD SELFTEST PASS 66/66
+rc=0
+==============================================================================
+$ python3 -O w3s_stage_record.py --selftest
+W3S_STAGE_RECORD SELFTEST  python_O=True  workdir=/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/f2/w3s_stage_record_selftest
+------------------------------------------------------------------------------
+EXERCISED-PIN-parent-grader-exists           EXERCISED-PASS observed=True expected=True
+EXERCISED-PIN-parent-grader-md5              EXERCISED-PASS observed=True expected=True
+EXERCISED-PIN-grader-md5                     EXERCISED-PASS observed=True expected=True
+EXERCISED-PIN-parent-launcher-md5            EXERCISED-PASS observed=True expected=True
+EXERCISED-PIN-ceiling-guard-exists           EXERCISED-PASS observed=True expected=True
+EXERCISED-PIN-absent-dependency-refuses      EXERCISED-PASS observed=True expected=True
+EXERCISED-SCAN-read-from-parent-nonempty     EXERCISED-PASS observed=True expected=True
+EXERCISED-SCAN-benign-exclusion-present      EXERCISED-PASS observed=True expected=True
+EXERCISED-SCAN-trapFpe-banner-EXCLUDED       EXERCISED-PASS observed=[] expected=[]
+EXERCISED-SCAN-real-SIGFPE-CAUGHT            EXERCISED-PASS observed=True expected=True
+EXERCISED-SCAN-FOAM-FATAL-CAUGHT             EXERCISED-PASS observed=True expected=True
+EXERCISED-SCAN-clean-log-is-EMPTY-not-None   EXERCISED-PASS observed=[] expected=[]
+EXERCISED-SCAN-absent-log-is-None-not-EMPTY  EXERCISED-PASS observed=None expected=None
+EXERCISED-LEDGER-W_STEPS-matches-consumer    EXERCISED-PASS observed=True expected=True
+EXERCISED-LEDGER-W_STEPS-unregistered-leg-refuses EXERCISED-PASS observed=True expected=True
+EXERCISED-LEDGER-LEG-row-is-spend-shaped     EXERCISED-PASS observed=True expected=True
+EXERCISED-LEDGER-LEG-row-core_min-parses-WHOLE EXERCISED-PASS observed=True expected=True
+EXERCISED-LEDGER-SDETAIL-invisible-to-w3s_grade EXERCISED-PASS observed=False expected=False
+EXERCISED-LEDGER-SDETAIL-invisible-to-ceiling-guard EXERCISED-PASS observed=False expected=False
+EXERCISED-CEILING-empty-ledger-is-a-real-zero EXERCISED-PASS observed=0 expected=0
+EXERCISED-CEILING-reads-our-LEG-rows         EXERCISED-PASS observed=0 expected=0
+EXERCISED-CEILING-refuses-over-the-ceiling   EXERCISED-PASS observed=65 expected=65
+EXERCISED-CEILING-refuses-a-malformed-token  EXERCISED-PASS observed=65 expected=65
+EXERCISED-CEILING-refuses-an-ABSENT-ledger   EXERCISED-PASS observed=65 expected=65
+EXERCISED-CEILING-caps-sum-EXACTLY-to-the-ceiling EXERCISED-PASS observed=True expected=True
+EXERCISED-BUDGET-fresh-leg-gets-the-registered-wall-bound EXERCISED-PASS observed=7200 expected=7200
+EXERCISED-BUDGET-a-thin-remainder-SHORTENS-the-timeout EXERCISED-PASS observed=300 expected=300
+EXERCISED-BUDGET-an-exhausted-leg-REFUSES-no-new-budget EXERCISED-PASS observed=None expected=None
+EXERCISED-BUDGET-a-malformed-stage_core_min-is-UNMEASURED-not-zero EXERCISED-PASS observed=None expected=None
+EXERCISED-BUDGET-a-root-with-logs-and-no-ledger-is-UNMEASURED EXERCISED-PASS observed=None expected=None
+EXERCISED-BUDGET-another-leg's-spend-is-NOT-charged-to-this-one EXERCISED-PASS observed=0.0 expected=0.0
+EXERCISED-E2E-frozen-comparator-GRADES-our-manifest EXERCISED-PASS observed=0 expected=0
+EXERCISED-E2E-verdict-is-in-the-fixed-vocabulary EXERCISED-PASS observed=True expected=True
+EXERCISED-E2E-FS0-HIT-on-the-anchor-fixture  EXERCISED-PASS observed='HIT' expected='HIT'
+EXERCISED-E2E-FS1-MISS-on-the-registration's-own-points EXERCISED-PASS observed='MISS' expected='MISS'
+EXERCISED-E2E-no-step-plan-reached-the-artefact EXERCISED-PASS observed=True expected=True
+EXERCISED-E2E-window-binding-returned-all-three-legs EXERCISED-PASS observed={'A0': 2000, 'A1': 1400, 'A2': 3000} expected={'A0': 2000, 'A1': 1400, 'A2': 3000}
+EXERCISED-E2E-FS1-HIT-is-reachable-the-gate-goes-both-ways EXERCISED-PASS observed='HIT' expected='HIT'
+EXERCISED-NEG-leg-mislabel-REFUSED-by-the-comparator EXERCISED-PASS observed=2 expected=2
+EXERCISED-NEG-missing-per-leg-W_STEPS-REFUSED EXERCISED-PASS observed=2 expected=2
+EXERCISED-NEG-a-missing-leg-REFUSED-not-graded-as-two-points EXERCISED-PASS observed=2 expected=2
+EXERCISED-NEG-a-BLOCKED-leg-REFUSED-a-blocked-row-is-not-a-third-point EXERCISED-PASS observed=2 expected=2
+EXERCISED-NEG-the-blocked-row-IS-in-the-manifest-same-trace-both-artefacts EXERCISED-PASS observed=1 expected=1
+EXERCISED-RULE4-a-blocked-leg-is-rc6-and-COUNTS-the-blocked-row-IN EXERCISED-PASS observed=(6, 1) expected=(6, 1)
+EXERCISED-RULE4-SETUP-leg-passes-on-a-complete-fixture EXERCISED-PASS observed=0 expected=0
+EXERCISED-RULE4-A2-leg-passes-on-a-complete-fixture EXERCISED-PASS observed=0 expected=0
+EXERCISED-RULE4-truncated-leg-is-rc6-NOT-A-RESULT EXERCISED-PASS observed=6 expected=6
+EXERCISED-RULE4-truncated-leg-reports-BOTH-counts EXERCISED-PASS observed=(1, 0) expected=(1, 0)
+EXERCISED-RULE4-truncated-leg-never-says-PASS EXERCISED-PASS observed='NOT A RESULT' expected='NOT A RESULT'
+EXERCISED-RULE4-unregistered-leg-refuses     EXERCISED-PASS observed=3 expected=3
+EXERCISED-RULE4-stale-age-guard-REFUSED-by-the-frozen-gate EXERCISED-PASS observed=2 expected=2
+EXERCISED-RULE4-nonzero-rc-REFUSED-by-the-frozen-gate EXERCISED-PASS observed=2 expected=2
+EXERCISED-RULE4-step-count-shortfall-REFUSED-by-the-frozen-gate EXERCISED-PASS observed=2 expected=2
+EXERCISED-RULE4-MemAvailable-below-the-14.0-floor-REFUSED EXERCISED-PASS observed=2 expected=2
+EXERCISED-AGE-fields-newer-than-the-sentinel-PASS EXERCISED-PASS observed=True expected=True
+EXERCISED-AGE-a-field-OLDER-than-the-sentinel-REFUSES EXERCISED-PASS observed=False expected=False
+EXERCISED-AGE-a-MOVED-sentinel-REFUSES-the-datum-cannot-date-the-run EXERCISED-PASS observed=False expected=False
+EXERCISED-AGE-a-STAGED-file-post-dating-the-datum-is-REPORTED EXERCISED-PASS observed=True expected=True
+EXERCISED-AGE-a-clean-stage-tree-post-dates-NOTHING EXERCISED-PASS observed=[] expected=[]
+EXERCISED-AGE-missing-sentinel-REFUSES       EXERCISED-PASS observed=False expected=False
+EXERCISED-TRACE-every-consumed-key-has-a-producer EXERCISED-PASS observed=0 expected=0
+EXERCISED-TRACE-it-actually-looked-at-something EXERCISED-PASS observed=True expected=True
+EXERCISED-TRACE-PLANT-a-dropped-key-IS-FLAGGED EXERCISED-PASS observed=2 expected=2
+EXERCISED-TRACE-PLANT-names-the-dropped-key  EXERCISED-PASS observed=['age_guard_ok'] expected=['age_guard_ok']
+EXERCISED-AST-assert-statements-in-this-file EXERCISED-PASS observed=0 expected=0
+EXERCISED-AST-assert-statements-outside-the-selftest EXERCISED-PASS observed=0 expected=0
+------------------------------------------------------------------------------
+W3S_STAGE_RECORD SELFTEST controls=66 EXERCISED-PASS=66 EXERCISED-FAIL=0 NOT-EXERCISED=0 python_O=True
+W3S_STAGE_RECORD SELFTEST PASS 66/66
+rc=0
