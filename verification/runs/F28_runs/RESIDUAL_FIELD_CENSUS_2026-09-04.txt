@@ -1,0 +1,50 @@
+F28 SPATIAL-RESIDUAL CENSUS -- transcript
+reader : cases/F28_DUCTED_ACTUATOR_DISK/f28_residual_field_census.py
+         sha256 0b2a300ecbbd24a60a686484e1365653b23113cb13f022bdae1f4fe543628369
+date_utc: 2026-09-04T21:03:47Z
+question: F28G_L1_RESIDUAL_RECONCILIATION.md Addendum 1 section A1.5 -- whether ANY sibling
+          F28 run carries spatial residual fields, which would make superseding item 2
+          cheaper than a re-run.
+
+=== PLANTED CONTROL (standing rule 3) ===
+  positive limb: switch read back = 'true', spatial fields = ['15000/pResidual'] -> SEEN
+  negative limb: switch read back = 'false', spatial fields = [] -> CLEAN
+  reader is LIVE.  A zero below is a reading.
+
+=== CENSUS: every F28 run root under /home/ubuntu/Certonomous/verification/runs/F28_runs ===
+run root                                       writeResidualFields    nTimes   spatial residual fields
+DIAG_L1_dp0_U20_upwind                         false                  1        NONE
+DIAG_L1_dp0_U20_upwind_R2                      false                  1        NONE
+DIAG_mesh_L1_A1                                SWITCH_ABSENT          0        NONE
+DIAG_mesh_L1_aspectRatio                       SWITCH_ABSENT          0        NONE
+DIAG_mesh_L2_A1                                SWITCH_ABSENT          0        NONE
+DIAG_mesh_L2_aspectRatio                       SWITCH_ABSENT          0        NONE
+DIAG_mesh_L3_A1                                SWITCH_ABSENT          0        NONE
+DIAG_mesh_L3_aspectRatio                       SWITCH_ABSENT          0        NONE
+F28G_L1_dp1000_U20                             false                  2        NONE
+FEAS_L1_dp0_U20                                false                  1        NONE
+FEAS_L1_dp0_U20_A1                             false                  1        NONE
+FEAS_L1_dp0_U20_A2                             false                  2        NONE
+FEAS_L1_dp0_U20_R2                             false                  1        NONE
+FEAS_L1_dp1000_U20                             false                  1        NONE
+FEAS_L1_dp1000_U20_A1                          false                  1        NONE
+FEAS_L1_dp1000_U20_A2                          false                  2        NONE
+FEAS_L1_dp1000_U20_A2_BCPROBE                  false                  2        NONE
+FEAS_L1_dp1000_U20_R2                          false                  1        NONE
+FEAS_L1_dp1000_U20_R3                          false                  1        NONE
+_A1_allGeometry_recheck                        SWITCH_ABSENT          0        NONE
+mesh_L1                                        SWITCH_ABSENT          0        NONE
+mesh_L1_A1                                     SWITCH_ABSENT          0        NONE
+mesh_L2                                        SWITCH_ABSENT          0        NONE
+mesh_L2_A1                                     SWITCH_ABSENT          0        NONE
+mesh_L3                                        SWITCH_ABSENT          0        NONE
+mesh_L3_A1                                     SWITCH_ABSENT          0        NONE
+
+run roots examined              : 26
+with writeResidualFields true   : 0
+carrying ANY spatial residual   : 0
+
+=== postProcessing/residuals/ contents, graded rung ===
+['0/solverInfo.dat']
+CENSUS_WALL_S=0.06
+census rc=0

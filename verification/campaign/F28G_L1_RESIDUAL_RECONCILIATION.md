@@ -428,3 +428,173 @@ cheaper than a re-run.
 **Cost of this addendum: 0.000 core-minutes.** Artifact reads and arithmetic only; no solver, no
 queue row, no daemon contact. No `docs/COST_CALIBRATION.md` row is owed under the standing
 zero-compute ruling.
+
+---
+
+## ADDENDUM 2 — 2026-09-04 — A1.5's OPEN SIBLING QUESTION IS CLOSED WITH A MEASURED NEGATIVE, ITEM 1's DISCHARGE IS RECORDED IN THE DOCUMENT THAT ORDERED IT, AND THE ROW THAT LAUNCHED THIS RUNG IS NOT THE ROW THAT WAS COMMITTED
+
+**Version 1.2. lines whose number changed above this section: 0.** A pure append by the `cfd`
+`lab-lane`. Nothing in §0–§8 or in Addendum 1 is edited; Addendum 1's strike of §6.3 stands and
+the struck order is not resurrected. **No gate, threshold, cap or label is altered and no verdict
+moves:** `F28G_L1_dp1000_U20` stands **`NOT A RESULT`** on the two registered grounds of
+`23eeff7e`.
+
+### A2.1 THE TWO DECISION WORDS WERE ISSUED AT `25aeb131`. NOTHING HERE RE-OPENS THEM
+
+Recorded because a brief reaching this lane described both as still owed. Addendum 1 issued them,
+in these words:
+
+- **Decision 1**, §A1.2 — the `writeResidualFields` arm: **"APPROVED IN PRINCIPLE, NOT AUTHORISED
+  TO LAUNCH"**, and *"I rule it REQUIRED rather than optional"*. Its launch condition is stated
+  there in terms: *"no compute launches without its pre-registration COMMITTED"*, the registration
+  to state *"the arm's gate, its threshold, its iteration cap, its label, and its cost in
+  core-minutes"* against **35,544 cells**.
+- **Decision 2**, §A1.3 — H1's two arms: **"DRAFT THE REGISTRATION, BUT NOT ON THE GROUND I WAS
+  GIVEN"**; *"H1's registration is to be drafted — that part of the decision stands — but it is
+  ordered BEHIND the H3 fit, not in front of it, and its drafting must not assert H3's death as
+  motivation."*
+
+**Neither is outstanding as a decision.** What is outstanding is A1.4's **items 2 and 3**, and both
+are blocked on the same thing: a **committed** pre-registration. That check is the supervisor's and
+is undelegable; this addendum does not discharge it and launches nothing.
+
+### A2.2 SUPERSEDING ITEM 1 IS DISCHARGED — AND THIS DOCUMENT DID NOT SAY SO
+
+A1.4 ordered item 1 here. Its discharge landed at `b209c4f6` and `0e8a3d41`
+(`verification/runs/F28_runs/analyse_f28g_h3.py`, 838 + 18 lines) — **in a script, a commit
+message and `docs/LAB_STATE.md`, and not in the document that ordered it.** Recorded here so the
+order carries its own outcome. **This lane did not re-derive H3's figures** — see A2.6.
+
+### A2.3 A1.5's OPEN QUESTION IS CLOSED, AND THE ANSWER MAKES ITEM 2 NO CHEAPER
+
+A1.5 left this open in these words:
+
+> *"I established `writeResidualFields false` for **this** run only; the other seven `F28_runs`
+> logs were not checked for the same switch, so whether any sibling run carries spatial residuals
+> is **open**, and it is the first thing the item-2 registration should check — if a sibling has
+> them, item 2 may be cheaper than a re-run."*
+
+**Measured, tree-wide.** Reader
+`cases/F28_DUCTED_ACTUATOR_DISK/f28_residual_field_census.py`; transcript
+`verification/runs/F28_runs/RESIDUAL_FIELD_CENSUS_2026-09-04.txt`.
+
+| | count |
+|---|---|
+| run roots under `verification/runs/F28_runs/` examined | **26** |
+| solve roots carrying `writeResidualFields` in `system/controlDict` | 12, **every one `false`** |
+| mesh / `DIAG_mesh_*` roots with no such switch (`SWITCH_ABSENT`) | 14 |
+| roots reading `writeResidualFields true` | **0** |
+| roots carrying any field matching `<name>Residual`, in serial **or** `processor*` time directories | **0** |
+
+**Standing rule 3 — the zero is a reading, not a blindness.** The reader plants a scratch case
+carrying `writeResidualFields true` **and** a `15000/pResidual` field and **refuses unless it
+reads both back**; its negative limb flips the switch and removes the field and must come back
+clean. Both limbs fired this invocation, and a decoy `15000/p` is present in the plant and
+correctly **not** matched. `postProcessing/residuals/0/` on the graded rung holds
+`solverInfo.dat` and nothing else, confirming A1.1 independently.
+
+> **ITEM 2 IS A PAID RE-RUN AND CANNOT BE MADE CHEAPER BY BORROWING A SIBLING'S FIELDS.** No F28
+> run this lab has ever executed wrote a spatial residual, so A1.1's finding is not a property of
+> this rung — it is a property of the whole family's `controlDict`.
+
+### A2.4 THE `1.5815e-6` RATE IS THIS RUN'S OWN MEASUREMENT, AND A1.2's COST IS DERIVED HERE AT 35,544 CELLS
+
+A1.5 marked the rate **VERIFY** — *"quoted from §6.2, not re-measured by me"*. **It re-derives from
+this rung's own artifacts and it is an in-case measurement, not a borrowed model.**
+
+- wall **843.21 s** — `_launch.started_epoch` `1788472680.7950` in
+  `verification/queue/cfd/launched/F28G_L1_dp1000_U20.json` to `end=2026-09-03T22:12:04Z` in
+  `verification/runs/F28_runs/F28G_L1_dp1000_U20/RUN_STATUS.F28.F28G_L1_dp1000_U20.txt`;
+- **35,544** cells, **15,000** iterations, **4** ranks;
+- `843.21 / (35,544 × 15,000)` = **1.581523e-06 s/cell/iteration**, against §6.2's **1.5815e-6**.
+
+**The cost A1.2 requires, at this mesh and neither of the two it forbids** (not the 31,752 of the
+FEAS arms, not the 33,864 of `mesh_A2/L1`):
+
+| arm | iterations | wall s | ranks | core-min | derived $ |
+|---|---|---|---|---|---|
+| item 2 — the `writeResidualFields true` arm | 2,000 | 112.43 | 4 | **7.50** | 0.0064 |
+| item 3 — H1's two arms together | 2,000 each | 224.86 | 4 | **14.99** | 0.0128 |
+| **all three** | | | | **22.49** | **0.0192** |
+
+**Dollars are DERIVED at the owner-stated `c7a.4xlarge` rate of $0.0513/core-h and are NEVER
+measured** — the box cannot read its own billing (`COMPUTE_BUDGET_CHARTER` §5).
+
+⚠ **Two costs this table does NOT carry, named rather than absorbed into the estimate:** the extra
+write cost of `writeResidualFields true`, which writes spatial fields the graded run never wrote
+and which is therefore **outside** the rate measured above; and `decomposePar`/`reconstructPar`,
+which on the graded rung produced two 6.7 MB logs. **A cap frozen at 7.50 would be a cap the arm
+can exceed on I/O alone.** The item-2 registration must cost both or state why not.
+
+### A2.5 THE ROW THAT LAUNCHED THIS RUNG IS NOT THE ROW THAT WAS COMMITTED — THE DAEMON OVERWRITES THE EVIDENCE CONTRACT, AND ITS TEMPLATE NAMES A FILE THAT DOES NOT EXIST
+
+Found while establishing the queue state. **The verdict is unaffected and the mechanism is not.**
+
+The row committed at `0c9a67cb` (blob `9657290e28802692b67044f4c482823a8d5b7569`) carries a
+**case-specific** `_field_classes.physics_critical`:
+
+> *"RUN_STATUS.F28.F28G_L1_dp1000_U20.txt (solver rc captured INSIDE run_f28.sh on the solver
+> line, never around a setsid line)"*, *"the case's own log.simpleFoam End line, endTime fields and
+> 0/ age guard"*, *"log.checkMesh and the birth certificate's M1..M6"*.
+
+The copy the daemon left in `verification/queue/cfd/launched/F28G_L1_dp1000_U20.json` (blob
+`732fc975ef0b64b27ef2f25b57039b4e6557640f`) carries instead:
+
+> *"STATUS.F28G_L1_dp1000_U20 (rc inside the detached wrapper)"*, *"the case's own log End line,
+> endTime fields and 0/ age guard"* — **and the `log.checkMesh` / birth-certificate entry is
+> gone.**
+
+**The rewrite is unconditional and it is the daemon's own**, at `scripts/queue_runner.py:598-606`,
+which assigns `meta["_field_classes"]` from a fixed template on every launch.
+
+🔴 **And the template's ONE physics-critical solver-rc source does not exist for this rung.**
+`find verification/runs -name 'STATUS.F28G_L1_dp1000_U20'` returns **nothing**, and the launcher
+says so in its own output: *"STATUS = …/RUN_STATUS.F28.F28G_L1_dp1000_U20.txt (NOT
+STATUS.F28_DUCTED_ACTUATOR_DISK, which queue_runner writes)"*
+(`verification/runs/F28_runs/_f28g_queue_L1/launcher.queue.out`).
+
+**No verdict is disturbed by this**, and that is stated first: the frozen grader read the run root
+directly, `solver_rc=0` is recorded in `RUN_STATUS.F28.F28G_L1_dp1000_U20.txt`, and the refusal was
+issued on the **HIT-CAP physics ground**, which reads no status file at all. **But a grader that
+honoured the launched row's own contract would have found its sole physics-critical rc source
+absent — and under L-342 that is exactly the class entitled to produce `NOT A RESULT`.** A
+bookkeeping template would then have manufactured a physics verdict, which is the inversion
+Sanaa's *bookkeeping never voids physics* ruling exists to forbid.
+
+⚠ **The shape, because it is this week's family again:** a hand-written evidence contract was
+**parsed, committed, reviewed — and then silently replaced at launch by a template that names a
+different file.** Nothing failed, nothing warned, and both rows are on disk looking equally
+authoritative. **REFERRED to `cfd-supervisor` and not fixed here:** `scripts/queue_runner.py` is a
+shared fleet instrument and its evidence template binds every team.
+
+### A2.6 WHAT THIS LANE DID NOT VERIFY, STATED PLAINLY
+
+- **H3's figures are NOT re-derived by this lane.** `analyse_f28g_h3.py --selftest` was started
+  under `python3 -O` and **stopped by this lane after 4 min 44 s wall at ~1,010 % CPU**, because
+  `uptime` read a load average of **24.8 on 16 vCPUs** against heat-transfer's live 8-rank
+  `T3_runs/R_fy`. **It produced no artifact and its 47.83 core-minutes are WASTE, named as waste
+  and not absorbed into any estimate.** It was also launched by this lane **without a
+  pre-registered cost**, which rule 12 disqualifies; that is this lane's error and it is recorded
+  rather than tidied. **Board 57c's H3 numbers therefore stand relayed, not confirmed here.**
+- **The census reads each case's `system/controlDict` as it stands on disk now.** For a completed
+  OpenFOAM run that is the dictionary it ran with unless something later edited it; **this lane did
+  not prove no later edit occurred** on any of the 26 roots.
+- **`docs/LAB_STATE.md` board 58 lists `F28G L1` as `queued`, under a heading reading "RUNGS
+  WITHOUT VERDICTS".** It is **neither**: the queue row was consumed at 2026-09-03T21:58:00Z
+  (`verification/queue/LAUNCH_LOG.tsv:338`) and the rung was graded `NOT A RESULT` at `23eeff7e`.
+  **A board is never edited by a lane and this one is not**; the correction is referred upward.
+- **Nothing outside `verification/runs/F28_runs/` was censused.** A spatial residual written by an
+  F28 run into some other tree would not have been seen.
+
+### A2.7 COST
+
+**Zero solver compute. No solve was launched, no queue row was written, no daemon was contacted.**
+
+| item | core-min | basis |
+|---|---|---|
+| the census, both invocations | **0.002** | 0.04 s + 0.06 s wall, 1 rank, `/usr/bin/time` |
+| the stopped `analyse_f28g_h3.py --selftest` | **47.83** | `ps` cumulative CPU `00:47:50` at stop — **WASTE, no artifact produced** |
+| **total** | **47.83** | derived **$0.0409** at $0.0513/core-h — **DERIVED, NOT MEASURED** |
+
+*Appended by `lab-lane` for `cfd-supervisor`, 2026-09-04. No gate, threshold, cap or label
+altered; no submission made (standing rule 7); no scratch path cited (standing rule 13).*
