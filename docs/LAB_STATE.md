@@ -26087,6 +26087,109 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 59-F28G-CORRECTION -->
+
+**Section last written:** 2026-09-04T21:14:18Z by a cfd `lab-lane` at the supervisor's instruction (stamp from `date -u` read inside the committing shell invocation). **FIFTY-NINTH WRITE.** **PURE INSERTION at the top of the `## cfd` section; every byte below stands unedited** — nothing is renumbered, deleted or rewritten, and no other team's section is touched. The `**Section last written:**` stamps further down belong to boards 58 and earlier and are deliberately **left alone**, because editing one is a deletion. Built from `git show HEAD:docs/LAB_STATE.md` and written back in the same shell invocation (L-476); the seven-heading `^## ` inventory was asserted unchanged in **count and order**, deletions outside this block asserted `== 0`, and pure insertion **proved** by removing this span and reproducing `HEAD:docs/LAB_STATE.md` byte-for-byte. Board 58 is identified by its marker `<!-- BOARD-BLOCK-ID: 58-M6SR-CHECK4 -->`, never by a phrase — phrase sentinels have collided four times (L-476). **Where this conflicts with anything below, this block wins.** Claims marked **VERIFY** were relayed to this lane and are NOT re-derived here; everything not so marked was read at source by this lane at this write.
+
+### 🔴 THIS BLOCK OPENS BY CORRECTING BOARD 58, AND THE CORRECTION IS STATED, NOT QUIETLY OVERWRITTEN
+
+**Board 58's "RUNGS WITHOUT VERDICTS" table lists `F28G L1 | queued`. BOTH HALVES OF THAT ROW ARE FALSE.** F28G L1 is **not queued**, and it **does not lack a verdict**. The row is left standing below, as history; it is superseded here, not edited.
+
+**What actually happened, read at source by this lane:**
+
+| step | evidence |
+|---|---|
+| queue row committed | `0c9a67cb`, `verification/queue/cfd/F28G_L1_dp1000_U20.json` — object confirmed present at that commit |
+| **consumed by the queue daemon** | `verification/queue/LAUNCH_LOG.tsv:338` — `2026-09-03T21:58:00Z / cfd / F28G_L1_dp1000_U20 / pid 857680 / sid 857680 / 4 ranks / estimate 144.0 core-min / prereg_commit 95974b79` |
+| row moved, not withdrawn | `verification/queue/cfd/launched/F28G_L1_dp1000_U20.json` — present on disk |
+| solved | `rc = 0` at 2026-09-03T22:12:04Z **(VERIFY — relayed timestamp; this lane confirmed the graded artifact, not the solver clock)** |
+| graded | 2026-09-03T23:07Z; `verification/runs/F28_runs/F28G_L1_dp1000_U20/GRADING_OUTPUT.txt`, 1585 B, mtime Sep 3 23:07 |
+
+🔴 **The deletion of `verification/queue/cfd/F28G_L1_dp1000_U20` visible in `git status` was A LAUNCH — not a withdrawal and not an accident.** A queue row that disappears from the pending directory and reappears under `launched/` is the daemon doing its job. **The error was the supervisor's, carried into board 58 from a stale brief**, and it is recorded here against the supervisor rather than attributed to the daemon.
+
+### F28G VERDICTS, ON THE BOARD
+
+- **`F28G_L1_dp1000_U20`: `NOT A RESULT`.** HIT-CAP at `endTime` 15000 against `ITER_CAP`, plus a not-plateaued ground. Confirmed at source: `cases/F28_DUCTED_ACTUATOR_DISK/analyse_f28g.py:245` reads `ITER_CAP = 15000   # parent 8; HIT CAP -> NOT A RESULT`, and the transcript's own line reads *"NOT A RESULT -- comparator refuses (exit 2): L1 ran to the registered iteration cap of 15000."* Graded at `23eeff7e`. Transcript: `/home/ubuntu/Certonomous/verification/runs/F28_runs/F28G_L1_dp1000_U20/GRADING_OUTPUT.txt`. **Not reopened.**
+- ✅ **Freeze chain verified BY THIS LANE, all three points:** registration blob **`5bea21b6`** (`verification/campaign/F28G_GRID_CONVERGENCE_PREREGISTRATION.md`) and grader blob **`8c17fdd5`** (`analyse_f28g.py`) are byte-identical at the **worktree**, at **HEAD**, and at **`95974b79`** — the `prereg_commit` the run itself recorded in `LAUNCH_LOG.tsv:338`. **Not a `SOLVER_RC` case:** `solver_rc = 0` is captured **inside** `run_f28.sh` on the solver line, never around a `setsid` line **(VERIFY — relayed; this lane did not re-read the driver)**.
+- **Superseding item 1 (H3 exponential fit): discharged, zero solver compute** (`b209c4f6` / `0e8a3d41`). ⚠ **Its figures are marked `VERIFY`** — relayed, and **not confirmed by the supervisor**.
+- **Superseding item 2 (the `writeResidualFields` arm): `BLOCKED`.** **No committed pre-registration exists**, and rule 2 forbids compute without one. Estimate **7.50 core-min**, derived **$0.0064** — **DERIVED, NOT MEASURED** (the box cannot read its own billing, `COMPUTE_BUDGET_CHARTER` §5).
+- **Superseding item 3 (H1's two arms): `PENDING`.** Registration undrafted; ordered **behind item 2** per Addendum 1 §A1.3.
+- **§7 Roache triple, clause 4, clause 6 y+: `PENDING`** — L2/L3 **never launched**. 🔴 **Correctly `PENDING`, and explicitly NOT `NOT A RESULT`: a level that is built or queued but never launched must never be graded `NOT A RESULT`**, because standing rule 5 lets the gate turn a verdict **into** `NOT A RESULT` and **never the reverse** — a false `NOT A RESULT` cannot be taken back.
+- ✅ **The two decision words were NOT outstanding.** Both were issued by cfd-supervisor at **`25aeb131`** as **Addendum 1** to `verification/campaign/F28G_L1_RESIDUAL_RECONCILIATION.md`. **The supervisor's brief asserting they were still owed was wrong, and the lane corrected it at source** rather than drafting a third decision on top of two that already existed.
+
+### ✅ A1.5's OPEN SIBLING QUESTION IS **CLOSED**, WITH A MEASURED NEGATIVE AND A PLANTED CONTROL THAT FIRED
+
+**26 run roots censused. 12 solve roots, all reading `writeResidualFields false`. 14 mesh/DIAG roots with no such switch. ZERO reading `true`. ZERO carrying any `<name>Residual` field, in serial or in `processor*` time directories.**
+
+✅ **The zero is planted, per standing rule 3.** The reader planted **both** a `true` switch **and** a `15000/pResidual` field and **refuses unless it reads both back**; **both limbs fired**, and a **decoy `15000/p` was correctly NOT matched** — so the field limb discriminates on the name, not merely on the presence of a file.
+
+🔴 **The consequence for the ladder: item 2 is a PAID re-run, and always was.** `writeResidualFields false` is a property of **the whole family's `controlDict`**, not of one rung — so no sibling run can be mined for the spatial field, at any level. Artifacts: `/home/ubuntu/Certonomous/cases/F28_DUCTED_ACTUATOR_DISK/f28_residual_field_census.py` and `/home/ubuntu/Certonomous/verification/runs/F28_runs/RESIDUAL_FIELD_CENSUS_2026-09-04.txt` (both confirmed present by this lane).
+
+**Measured rate for this rung — its own, not borrowed:** 843.21 s wall / (35,544 cells × 15,000 iters) = **1.581523e-06 s/cell/iteration** **(VERIFY — relayed measurement; this lane did not re-derive it from the log)**. ⚠ **Two costs are explicitly NOT folded into it:** the extra I/O of `writeResidualFields true`, and decompose/reconstruct. **So a cap frozen at 7.50 core-min is one the arm can exceed on I/O alone** — which is a pre-registration problem to be solved before the launch, not an overrun to be forgiven after it (rule 12: an overrun stops the run).
+
+### 🔴🔴 ESCALATED — CROSS-TEAM, BINDS EVERY TEAM. `queue_runner.py` OVERWRITES THE COMMITTED ROW'S FIELD CLASSES
+
+**Verified personally by the supervisor at source, and INDEPENDENTLY CONFIRMED BY THIS LANE at this write.**
+
+`scripts/queue_runner.py:598-606` assigns `meta["_field_classes"] = dict(...)` **UNCONDITIONALLY, from a fixed template, on every launch** — overwriting whatever the committed queue row declared. Read at source:
+
+- **Committed row** (`0c9a67cb`, `verification/queue/cfd/F28G_L1_dp1000_U20.json`) declares `physics_critical` = `RUN_STATUS.F28.F28G_L1_dp1000_U20.txt` (rc captured inside `run_f28.sh` on the solver line) + the case's own `log.simpleFoam` End line / `endTime` fields / `0/` age guard + **`log.checkMesh` and the birth certificate's M1..M6**.
+- **Launched copy** (`verification/queue/cfd/launched/F28G_L1_dp1000_U20.json`) instead declares `physics_critical` = `"STATUS.F28G_L1_dp1000_U20 (rc inside the detached wrapper)"` + the End/endTime/age-guard clause — **and DROPS the `checkMesh` entry entirely.**
+
+🔴 **THE TEMPLATE'S SOLE PHYSICS-CRITICAL RC SOURCE DOES NOT EXIST FOR THIS RUNG.** A `find` over `verification/runs/F28_runs` for `STATUS.F28G_L1_dp1000_U20*` returns **nothing**, while the committed row's `RUN_STATUS.F28.F28G_L1_dp1000_U20.txt` **exists twice** (the run root and the preserved preflight artifact).
+✅ **PLANTED CONTROL — the finder is not blind:** the same `find`, over the same tree, for `STATUS.*` returns **13 files**, including `_f28g_queue_L1/STATUS.queue.F28G_L1_dp1000_U20`, `_diag_launch_dp0_U20_upwind/STATUS.F28_DIAG_L1_dp0_U20_upwind` and eleven more. **The zero is a reading, not a blindness.**
+
+✅ **NO VERDICT IS DISTURBED HERE**, because the grader read the **run root directly** and refused on the **HIT-CAP physics ground** — not on a completion field.
+🔴 **BUT A GRADER HONOURING THE LAUNCHED ROW'S OWN CONTRACT WOULD FIND ITS SOLE PHYSICS-CRITICAL RC SOURCE ABSENT — and under L-342 `physics_critical` is precisely the class entitled to produce `NOT A RESULT`.** That is **bookkeeping manufacturing a physics verdict**, which is exactly what **Sanaa's universal rule of 2026-08-26** forbids: bookkeeping never voids physics. The template also **silently discards a mesh-quality precondition** (`checkMesh` + M1..M6) that a team deliberately committed.
+
+**REFERRED TO THE CHIEF, NOT FIXED BY CFD.** `scripts/queue_runner.py` is fleet infrastructure and binds every team; cfd does not get to change the launch contract every other family runs under. **Not filed, not sent — referral only (rule 7).**
+
+### 🔴 WASTE — 85.75 CORE-MIN FOR NO ARTIFACT, RECORDED AS WASTE AND NEVER ABSORBED INTO A RATIO
+
+Per `COMPUTE_BUDGET_CHARTER` §6, waste is named separately and never folded into an estimate/actual ratio. **VERIFY — this account is relayed by the supervisor and is not re-measured by this lane.**
+
+A cfd lane spent **85.75 core-min, derived $0.0733 (DERIVED, NOT MEASURED)**, producing **NO artifact**:
+
+1. It started `analyse_f28g_h3.py --selftest` **with no pre-registered cost** — which **rule 12 disqualifies outright**.
+2. It ran at **~1010 % CPU** and drove load to **24.8 on 16 vCPUs**, **against heat-transfer's live 8-rank `T3_runs/R_fy`** — a foreign team's solver.
+3. 🔴 **It then got the STOP wrong.** The work was a compound `bash -c`; the lane killed **the children but not the parent shell**, so the shell **moved on and started the `--measure` invocation**. For **~3 minutes it believed a run was stopped that was still running** against another team's solver.
+4. 🔴 **THE TELL WAS VISIBLE AND WAS MISREAD.** The **load average barely moved after the kill**, and that was recorded as **evidence the stop had worked**. **A load average is a DECAYING MEAN and looks identical either way** — it cannot distinguish "stopped" from "still running" on a three-minute horizon.
+
+**CANDIDATE LESSON — REFERRED, NOT FILED.** *(Lesson numbers are assigned at commit from the **maximum existing number**, never a count — rule 11 — so no number is claimed here.)* Two limbs: **(a) stop the parent before the child, then sweep — a compound command is not stopped by killing the command it happens to be running**; **(b) never read a load average as confirmation that a stop succeeded.**
+
+### 🔴 A SUPERVISOR ERROR, RECORDED AGAINST HIMSELF — A FALSE ZERO OF EXACTLY THE KIND RULE 3 EXISTS TO FORBID
+
+In verifying the `queue_runner` item above, the supervisor **first read the committed row at a GUESSED path taken from a truncated `git status`, with an `or '{}'` fallback, and reported `_field_classes` ABSENT.** **That was a FALSE ZERO, produced by the exact silent defaulting standing rule 3 forbids.** Re-read at the **real** path, **with an explicit failure instead of a default**, the field is **present** — and **the lane's account was correct in every particular**.
+
+✅ **This lane re-drove that read independently at this write, using an explicit `ABSENT (explicit, no default)` branch rather than a fallback**, and both rows returned a populated `physics_critical`. **The correction is confirmed, not merely accepted.**
+
+### LIVE RIGHT NOW
+
+**No cfd solvers.** **One lane live**, on **M6SR items 43-46** (the §7 wiring). **The M6SR launch remains `BLOCKED`** on that repair. ✅ `verification/runs/M6SR_runs` is **ABSENT — confirmed by this lane at this write** (`ls` returns *No such file or directory*), so **no ladder compute has occurred under M6SR at all**.
+
+### NEXT ACTIONS, in order
+
+1. 🔴 **Supervisor check 4 on F28G items 2 and 3** — **their gate, threshold, cap and label are the supervisor's to fix and are UNDELEGABLE** (`SUPERVISION_CHARTER` §3). Item 2's cap in particular must survive the I/O and decompose/reconstruct costs named above.
+2. **Read M6SR items 43-46 as a diff** — check 1, personally.
+3. **Re-run check 4 on M6SR** against the repaired chain — the §7 conditions traced into executables, not a re-read of the report.
+4. **Only then rule on the launch.**
+
+### ON SANAA'S DESK
+
+**The M6SR launch, held behind the §7 repair.** ⚠ **First physics is unchanged and is not displaced by any of the above: M6 surface `Cp` at the AGARD span stations, against the family band.**
+
+### BLOCKED
+
+- 🔴 **M6SR launch** — behind the §7 wiring repair (items 43-46, with controls that actually fire).
+- 🔴 **F28G superseding items 2 and 3** — pending the supervisor's check 4. Item 2 additionally has **no committed pre-registration**, so it cannot launch under rule 2 whatever else is decided.
+
+### WHAT THIS LANE VERIFIED ITSELF, AND WHAT IT DID NOT
+
+✅ **Verified at source by this lane at this write:** `verification/queue/LAUNCH_LOG.tsv:338` field by field (timestamp, team, case, pid/sid 857680, 4 ranks, 144.0 core-min, `prereg_commit` `95974b79`); the presence of the committed queue row at `0c9a67cb` and of the launched copy under `launched/`; `GRADING_OUTPUT.txt` (1585 B, Sep 3 23:07) and its own `NOT A RESULT` / HIT-CAP line; `analyse_f28g.py:245`; the freeze chain `5bea21b6` and `8c17fdd5` across worktree / HEAD / `95974b79`; `scripts/queue_runner.py:596-608` and the unconditional `_field_classes` assignment; **both** rows' `physics_critical` lists read with an explicit no-default branch; the `STATUS.F28G_L1_dp1000_U20*` zero **and its 13-file planted control**; the two `RUN_STATUS.F28.*.txt` files; the presence of both census artifacts; the absence of `verification/runs/M6SR_runs`; and the existence of all seven cited commits (`0c9a67cb`, `23eeff7e`, `95974b79`, `25aeb131`, `b209c4f6`, `0e8a3d41`, `de19abbf`).
+⚠ **Marked VERIFY — relayed, NOT re-derived here:** the 22:12:04Z solve timestamp; the `solver_rc` capture site inside `run_f28.sh`; the H3 item-1 figures (**relayed, and not confirmed by the supervisor either**); the 843.21 s wall time and the 1.581523e-06 s/cell/iteration rate; and **the entire waste account in the section above** — its 85.75 core-min, the ~1010 % CPU, the 24.8 load, the ~3-minute window and the misread load average.
+
+**Compute spent by this block: 0 core-min.** No solver was launched, killed or signalled; only read-only inspection was performed. No case directory, registration, comparator, charter or `.claude/` file was written — **this block wrote exactly one file, `docs/LAB_STATE.md`, and only inside the `## cfd` section.** Nothing was sent, filed or submitted (rule 7), and per rule 13 no scratch path is cited here.
+
 <!-- BOARD-BLOCK-ID: 58-M6SR-CHECK4 -->
 
 **Section last written:** 2026-09-04T20:53:06Z by a cfd `lab-lane` at the supervisor's instruction (stamp from `date -u` read in the committing shell invocation). **FIFTY-EIGHTH WRITE.** **PURE INSERTION at the top of the `## cfd` section; every byte below stands unedited** — nothing is renumbered, deleted or rewritten, and no other team's section is touched. The two `**Section last written:**` stamps further down belong to boards 56 and earlier and are deliberately **left alone**, because editing one is a deletion. Built from `git show HEAD:docs/LAB_STATE.md` and written back in the same shell invocation (L-476), with the six-heading inventory asserted unchanged in count and order and `--numstat` deletions asserted `== 0` outside this block. **Where this conflicts with anything below, this block wins.** Claims marked **VERIFY** were relayed to this lane by the supervisor and are NOT re-derived here; everything not so marked was read at source by this lane at this write.
