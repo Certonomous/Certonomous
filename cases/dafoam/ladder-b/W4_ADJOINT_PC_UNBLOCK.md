@@ -348,6 +348,60 @@ on the CBFS branch, with all evidence on disk.**
 > `/home/ubuntu/certonomous-runs/S1-cbfs-reinversion/cbfs_inv/dv_to_serial_perm.npy`
 > and `S1_CBFS_WEIGHTED_LOSS_VARIANT.md` §0b.
 
+> **Plateau disclosure, dated 2026-09-04 (added by a dafoam lane; disclosure only —
+> no number, gate or conclusion in this document is changed, withdrawn or contested).**
+> **Two of §5d's three graded cells rest on a single step.** Cell 5491 carries two —
+> `h = 0.05` and `h = 0.1`, whose FD *values* agree to **0.3729 %** — but **cells 6740
+> and 12486 carry `h = 0.05` and nothing else**, so **0.059 % and 0.199 % are
+> single-step numbers**. `VERIFICATION_CHARTER.md` §7's reporting protocol, step 1,
+> requires the opposite: *"Confirm the step sits in the well-converged plateau with a
+> two or three point mini-sweep. **Not assumed.**"* That clause entered the charter at
+> **`commit ea53c110`, 2026-07-30 18:53:17 +0000** — the commit that ADDED that
+> charter, the sentence at line 208 of its blob and absent from its parent — and **this
+> document was committed at `1cd44c04`, 2026-08-04 16:19:02 +0000, four days and
+> twenty-one hours later. The duty was in force when §5d ran, and there is no
+> retroactivity defence.** The §5d table also carries no **sign-match** column, the
+> shape §7 names as *"the shape that catches the failure the standard is built
+> around"*; "zero sign flips" is stated once, in aggregate, for all three components.
+>
+> **What is NOT claimed, and it is most of what this document is for.** The two values
+> are not shown to be wrong. **The sub-LU unblock conclusion does not rest on them at
+> all**: it rests on the adjoint converging (`PetscConvergedReason: 2`, 667 iterations)
+> and on the env-off regression control, both of which
+> `VERIFICATION_cbfs_unblock_supervisor_sweep.md` reproduced independently, cold, with
+> its own driver. **What is unverified here is the plateau precondition, not the
+> gradient.**
+>
+> **`DAFOAM_CHARTER.md` §3 is deliberately NOT cited against these numbers.** §3 is the
+> sharper clause — it forbids *"quoting an FD number from a single step"* in those
+> words and requires the sweep at the graded run's own primal tolerance — but it landed
+> at **`35e06e85`, 2026-08-21 17:42:57 +0000**, seventeen days after this record, and
+> `VERIFICATION_CHARTER.md` §2h.6's non-retroactivity runs in this direction too: a
+> later clause is not charged against a record that could not have read it. The
+> disclosure rests on §7 step 1 alone, which was in force and needs no help.
+>
+> **One measurement taken while writing this, from artefacts already on disk, at zero
+> compute — it runs in this record's FAVOUR, and it is recorded because it does.** This
+> document's graded primal ran at **`primalMinResTol 1e-06`** `[MEASURED,
+> /home/ubuntu/certonomous-runs/W4-adjoint-pc-unblock/cbfs_beta_computetotals.log:371]`,
+> the tolerance `S1_CBFS_REINVERSION_PREREGISTRATION.md` Amendment 1 §B later measured
+> as itself polluting FD. **But the pollution S1 measured is a property of stopping
+> EARLY, not of the tolerance label.** All nine of this record's FD primals stopped at
+> **`Time = 1578–1582`** — a four-iteration spread across nine independent runs
+> `[MEASURED, cbfs_beta/fdlogs/*.log]` — whereas S1's six 1e-6 primals on the repaired
+> case stopped at **383–458** and missed by 25.9–32.2 %, and S1's six 1e-8 primals all
+> ran to the endTime cap of **2500** and agreed to 0.009–0.115 %. **Measured in
+> iterations actually taken, §5d's primals sit far closer to S1's clean 1e-8 sweep than
+> to S1's polluted 1e-6 one**, which is consistent with §5d's own explanation that this
+> case's initial condition already matched its (defective) BCs. **This narrows the risk
+> to these two numbers considerably. It does not discharge §7 step 1**, because a
+> plateau is a statement about the STEP and no second step was run on either cell.
+>
+> **Nothing is relabelled here and the repair is not chosen here.** The second step for
+> these two cells is priced two ways — at this record's own 1e-6, and as a 1e-8
+> re-anchor — in `S1_FD_PLATEAU_PREREGISTRATION.md` §W4, with the reasons on both
+> sides and the discriminating fact named; the choice is the dafoam supervisor's.
+
 ## 6. The liaison memo, answered lead by lead
 
 - **Lead 1.1** (deployed-source shift check): done first — the deployed
