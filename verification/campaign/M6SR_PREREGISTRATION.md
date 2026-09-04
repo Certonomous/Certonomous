@@ -5247,3 +5247,315 @@ re-derived inside the commit invocation that carries this section; the commit AB
 
 **Neither blocks a launch on the physics. Both are defects in what a green from the named verifier
 would MEAN**, and both would have been discovered after the fact rather than before it.
+
+## 24. AMENDMENT 18 — 2026-09-04, **PRE-COMPUTE**. **ITEMS 41 AND 42 ARE RULED AND CLOSED.** THE VERIFIER GAINS A **REGISTRATION-RESTRICTED MODE** WHOSE EXIT CODE M6SR CAN EARN, THE GRADING CRITERION IS REGISTERED **AS AN EXIT CODE** RATHER THAN AS A SUBSTRING, AND ITEM 41's UNREACHABLE LIMB IS REGISTERED AS A **STANDING CAVEAT ON THE CRITERION ITSELF**
+
+**Both items were raised by §23.7 and §23.8 as the supervisor's to rule. The supervisor has
+ruled both.** This section implements the two rulings, in the instrument and in the registration,
+and takes nothing that was not ruled.
+
+### 24.0 THE LAWFULNESS CONDITION, AND HOW IT WAS CHECKED — **NOT ASSERTED, PLANTED**
+
+Rule 2 permits amendment **before first compute** and requires the condition to be stated **and how
+it was checked**. The condition is that **no M6SR compute has happened**, and the check is that the
+run root §18.6 pins does not exist.
+
+**Checked by execution, with a live plant, at the exact searched path.** The searcher was run
+three times in one shell invocation: it reported **0** matches for `verification/runs/M6SR*`; a
+probe directory was then created **at that path** and the same searcher reported **1**; the probe
+was removed and the searcher reported **0** again. **A zero from a reader shown able to see a
+non-zero.** ⚠ **The plant was SEEN.** No `B2` march, no `B5` solve, no container, no queue row.
+
+### 24.1 🔴 ITEM 42, RULED — **A GATE WHOSE PASS CONDITION DEPENDS ON ANOTHER TEAM'S STATE IS NOT A GATE THIS CAMPAIGN CAN PASS**
+
+§23.8 measured the defect and recommended a **substring** reading. **The supervisor declined that
+reading and ruled the structural fix.** §23.8's recommendation is therefore **FALSE IN FORCE** and
+is struck, rule 6, by quote:
+
+> 🔴 **STRUCK BY QUOTE:** ~~*"The M6SR-side criterion must therefore be read from the **`PIN COVERAGE` line and the M6SR rows**, not from the process exit code: **`10 of 10` covered, `10 PIN-OK`, `0 violating`, and no M6SR row in a `VIOLATING` status.**"*~~
+
+⚠ **THE REST OF §23.8 STANDS AND IS NOT STRUCK** — its measurement, its warning that a substring
+criterion is weaker than an exit code, its naming of the restricted mode as the clean fix, and its
+refusal to adjudicate the twelve foreign rows. **Only the recommended READING is superseded.**
+**The finding was right; the remedy it proposed was the weaker of the two available, and the lane
+said so itself.**
+
+⚠ **THE TWELVE FOREIGN ROWS ARE STILL NOT ADJUDICATED HERE.** They belong to other campaigns,
+they are outside this registration and outside this team, and **nothing in this amendment changes,
+suppresses, re-judges or even reads a verdict on one.** §24.3 proves that byte-for-byte.
+
+### 24.2 THE REPAIR — `--restrict-to-registration`, AND THE FOUR THINGS IT IS **NOT**
+
+`scripts/check_comparator_freeze.py` gains one flag. With it, the **population IS the pinned set**:
+each directory a registration pins a file in is visited once, restricted to the pinned basenames,
+and the `analyse_*/grade_*/score_*` name patterns **never run**. The exit code is then earned by
+that set alone.
+
+| the property | how it is held |
+|---|---|
+| **it JUDGES ONLY the registered set** | `walk_registered()` builds the population from the pin map and nothing else. A foreign file cannot enter it, because entry is by registration and not by name or by directory. |
+| **it CHANGES NOTHING outside that set** | The mode is a new branch behind a flag that defaults off. **The unrestricted invocation's walk is untouched** — proved byte-identically in §24.3, not argued. A foreign row is **not silenced by this mode; it was never in it.** |
+| **it is NOT LENIENT** | Every refusal and every violation that could fire unrestricted still fires here on a pinned path: an **uncovered pin REFUSES** (exit 2), **PIN-DRIFT** and **PIN-STALE** are **violations** (exit 3), an **empty restricted population REFUSES**, and a pinned comparator that is itself `UNFROZEN`, `UNCOMMITTED` or `MODIFIED_AFTER_COMMIT` **still exits 3**. Rows are produced by the **same** `check_tree()` as the unrestricted walk, so a pinned path is judged **identically** in both; only the population differs. |
+| **it is NOT a way to restrict to nothing** | The flag **requires** `--registration` and refuses without it (exit 2). A restriction with no registered set is not a narrower population, it is an empty one, and 2p.2 already rules on that. |
+
+⚠ **THE NEAR-MISS §23's LANE NAMED IS HELD, AND MEASURED.** Three of the ten pins live in
+`scripts/`, which also holds **four `analyse_k0*.py` graders belonging to heat-transfer**. Under
+restriction the tool judges **only the pinned names** in that directory. **Measured on this
+repository: zero of those four appear in the restricted output**, and the same reader **does** see
+`scripts/verify_agard_ar138_table_b1_1.py`, which is pinned — **so the zero is a reading, not a
+blindness.** Following a registration into a shared directory must never annex another team's rows.
+
+### 24.3 THE MEASUREMENT — **THE RESTRICTED EXIT CODE IS M6SR's**, AND THE UNRESTRICTED RUN IS **BYTE-IDENTICAL**
+
+**The defect, restated as a measurement at the commit this work began from (`6b7a71e8`):** the
+repo-wide invocation reported **`PIN COVERAGE: 10 of 10 … 10 PIN-OK, 0 violating`** — a perfectly
+clean registered set — **and exited 3 anyway**, on **12 `UNFROZEN` rows out of 216 graders**, none
+of them M6SR's. **That is item 42 in one line: the criterion was unsatisfiable while the campaign
+was already correct.**
+
+| what was run | result |
+|---|---|
+| unrestricted, at `6b7a71e8`, twice | **deterministic** — the two runs are byte-identical; **exit 3**; 216 graders, **12 violating**; **10 of 10 pinned, 10 PIN-OK, 0 violating** |
+| **restricted**, same registration | **population = the 10 pinned executables**, **zero** foreign rows, **0 violating** |
+| unrestricted, after the change | **exit 3**, 216 graders, **12 violating** — unchanged |
+
+🔴 **THE NON-INTERFERENCE PROOF, BYTE-FOR-BYTE.** The freeze-walk section of the unrestricted
+output — the header through the `CANNOT SEE:` line, **every one of the 216 rows and all 12 foreign
+violations** — renders to sha256
+**`dab68a6130e67bd7214d6a223a147e387ddef8975a4cb2a14b6066fc5ffccdc2`** **before this change and
+after it. Identical.**
+
+⚠ **RULE 3 ON THAT COMPARISON.** A byte comparison that cannot report a difference is not evidence
+of sameness. **Two plants, both SEEN:** the same comparator was run against a copy of the baseline
+with **one byte** altered and reported **DIFFER**; and against the restricted output and reported
+**DIFFER**. **A comparison shown able to say "different" said "identical".**
+
+⚠ **AND THE ONE THING THAT DID CHANGE IS NAMED, NOT BURIED.** In the **pin** section — not the
+walk — exactly one row moved, and only while this amendment was in flight: the verifier's own row,
+`PIN-OK` → `PIN-DRIFT`, because the file being edited **is** one of the ten pinned executables.
+**That is the instrument convicting the very edit that created it, on a plant nobody had to
+fabricate**, and it is resolved by the re-pin at §24.7. **No other pin row moved; no walk row
+moved; the exit code did not move.**
+
+### 24.4 🔴 **THE REGISTERED GRADING CRITERION — VERBATIM, AND AS AN EXIT CODE**
+
+§23.5.1's principle, which the supervisor endorsed and which this section obeys: **a repair that
+must be REMEMBERED at grading time is enforced by prose, which is the defect itself.** The
+criterion is therefore registered here as the exact command line, and the pass condition is the
+process exit code:
+
+```
+python3 scripts/check_comparator_freeze.py --repo . \
+    --registration verification/campaign/M6SR_PREREGISTRATION.md \
+    --restrict-to-registration
+```
+
+> **CRITERION `FZ1` — PASS if and only if that invocation exits `0`.**
+> **Exit `2` is a REFUSAL and is NOT A RESULT. Exit `3` is a GATE FAIL. No other exit code is a
+> pass, and no reading of stdout may substitute for the exit code.**
+
+⚠ **`--restrict-to-registration` IS NOT AN OPTION ON THIS LADDER; IT IS PART OF THE CRITERION.**
+Without it the exit code is not M6SR's to earn (§24.1). Without `--registration` the check reaches
+**one** of the ten and the restricted flag refuses outright.
+
+⚠ **§23.5.1's REPO-WIDE INVOCATION IS RETAINED AND IS NOT STRUCK.** It remains registered as the
+**cross-team diagnostic** — the run that shows M6SR's rows in their true repository context and
+that is the only one able to report a foreign regression. **It is a diagnostic. `FZ1` is the
+criterion.** The two are different questions and this registration now says which is which.
+
+### 24.5 🔴 **ITEM 41, RULED — THE STANDING CAVEAT, ON THE CRITERION ITSELF**
+
+**The supervisor's ruling, adopted in terms:** the freeze-margin limb is **structurally
+unreachable** for this ladder. The verifier dates a freeze from `DONE.<CASE>` markers **in the
+comparator's own tree**; §9.1 puts the executables under `cases/M6SR/` while any marker would be
+produced into `verification/runs/M6SR_runs/`, a different tree; and the string `DONE.` occurs
+**zero** times in all three pinned drivers. **All ten rows read `NO-MARKERS` and always will,
+before and after a launch.**
+
+> 🔴 **STANDING CAVEAT ON CRITERION `FZ1`, WHICH IS PART OF THE CRITERION AND NOT A FOOTNOTE TO IT.**
+> **A PASS on `FZ1` IS NOT A MARKER-DATED FREEZE MARGIN AND MUST NOT BE READ AS ONE.** What `FZ1`
+> tests is **COVERAGE, IDENTITY and CURRENCY** — that every pinned executable is judged, is the
+> file that was committed, and is pinned at a sha this registration records unstruck. It does
+> **not** test *"was the comparator committed before the first case finished"*, because for this
+> ladder that limb cannot fire. **M6SR's freeze proof is the pre-registration commit ordering plus
+> the plant-verified absence of the run root (§24.0), which is a valid and independent proof —
+> this is NOT a hole in the freeze.** A grader who reads a green here as a dated margin has read
+> something the tool did not say.
+
+⚠ **AND THE CAVEAT IS CARRIED IN THE OUTPUT, NOT ONLY HERE.** The restricted mode **prints it
+beside the verdict** whenever any row in the registered set is `NO-MARKERS`, counting them — for
+exactly the reason §23.5.1 gives about prose. **On this repository it prints `10 of 10`.** A
+negative control shows the caveat is **conditional and not boilerplate**: a registered set with no
+`NO-MARKERS` row does not get it (§24.6).
+
+⚠ **NO `DONE.` MARKER WAS ADDED TO MAKE THE LIMB REACHABLE**, on the supervisor's express
+instruction and this lane's agreement. **A marker written to satisfy a checker, rather than because
+a step completed, is a fabricated completion.** Whether the chain should emit markers at all, and
+into which tree, remains a §9/§10 mechanics question and remains the supervisor's.
+
+### 24.6 THE CONTROLS — **HOW EACH MUTANT DIED, NOT MERELY THAT IT DID**
+
+**Thirty new selftest arms**, all inside `--selftest`, all driving **this file as a subprocess** so
+what is exercised is the command line the criterion is written against. Total **87 arms, 0 FAIL**,
+rc `0`. Every arm below states the **mechanism** of death, because three suites this campaign
+killed mutants for the wrong reason and only *how* exposed it.
+
+| the plant | how it died | why that is the right death |
+|---|---|---|
+| **the defect itself**, reproduced: a clean registered set beside two late foreign graders | unrestricted run printed `PIN COVERAGE: 2 of 2 … 2 PIN-OK, 0 violating` **and exited 3** | the synthetic repo reproduces the measured shape, so the fix is tested against the disease |
+| the same repo, one flag added | **exit 0**, `2 grader(s) in the population, 0 violating` | the exit code became the registration's to earn — the whole ruling, in one arm |
+| foreign grader in an **unrelated tree** | its name is **absent** from restricted stdout and **present** in unrestricted stdout | the second half is what makes the first half mean something: *silence, not suppression* |
+| foreign grader **inside a pinned directory**, name-pattern matching | same — absent restricted, present unrestricted | exclusion is **by registration**, not by directory. This is §24.2's near-miss, planted |
+| non-interference | unrestricted stdout **byte-identical** across runs either side of a restricted run | — |
+| **PLANT on that comparison** | the same equality test reported **DIFFER** against the restricted output | a byte comparison that cannot see a difference proves nothing |
+| a pinned path that is not on disk | **exit 2**, refusal **names the path** | coverage short of the pinned set is a check that did not reach its subject |
+| worktree drift on a pinned file | **exit 3**, stdout says **`PIN-DRIFT`** | restricted is not lenient about identity |
+| the drift committed, pin not moved | **exit 3**, stdout says **`PIN-STALE`** | restricted is not lenient about currency |
+| **adverse pair** for that | re-pinning the moved file returns **exit 0** | the failure tracked the **pin**, not merely the edit |
+| **a pinned comparator that is itself `UNFROZEN`** (separate repo; pins deliberately clean) | **exit 3**, and the pin section reads **`1 PIN-OK, 0 violating`** | **the ROW earned the failure, not the pin limbs.** Restricting the population does not restrict the standard applied to what is in it — the single most important arm here |
+| `--restrict-to-registration` with no `--registration` | **exit 2** | a restriction to nothing is an empty population |
+| item 41's caveat | printed, and **counts** the rows: `1 of 2 restricted row(s) are NO-MARKERS` | — |
+| **negative control** on the caveat | a registered set with **no** `NO-MARKERS` row does **not** print it, and still **exits 0** | the caveat is conditional, not boilerplate. **Reported as a control that is deliberately a no-op on its subject** |
+| **is the plant even adverse?** | measured at source before any arm ran: foreign rows are genuinely `UNFROZEN`, the registered row genuinely `FROZEN` | a control that fires on a tree that was never guilty proves nothing |
+
+⚠ **`rc` PARITY.** `--selftest` returns **`0` under both `python3` and `python3 -O`**, and the two
+runs' stdout is **byte-identical** — so no arm rests on an assertion the optimiser removes.
+⚠ **NO BARE `assert` ANYWHERE IN THE FILE.** Verified by **AST parse**, not by grep: the file
+contains **zero** `ast.Assert` nodes, and **the detector was planted** — one `assert` appended to a
+copy of the source **was seen**. Every arm goes through the `check()` helper, which prints and
+records rather than raising.
+
+### 24.7 🔴 **THE INSTRUMENT'S OWN PIN MOVED AGAIN, AND IS RE-TAKEN IN THE SAME COMMIT**
+
+**This amendment edits one of the ten pinned executables** — the verifier itself, §23.5 row 7.
+§23.6's pin is **FALSE IN FORCE** at this commit and is struck, rule 6, by quote:
+
+> 🔴 **STRUCK BY QUOTE:** ~~*"| **`scripts/check_comparator_freeze.py`** (the verifier, §9.1 and §23.5 row 7) | **`d7a8b0856454bf0a0bd8e151af056c52131935d6`** | `653dab8eae6028dd0038d4dd7d44bd5b665ae4e52b77ef0149e2af6389fbd075` | **1,297** | **§9 registered**, §23.5 — **RE-PINNED HERE** |"*~~
+
+**THE NEW STANDING PIN**, derived with `git hash-object` on the working tree and **RE-DERIVED
+INSIDE THE SAME SHELL INVOCATION AS THE COMMIT THAT CARRIES THIS SECTION, WITH THE COMMIT ABORTING
+IF IT HAD MOVED** — §22.2's guard, kept:
+
+| path | git blob sha | sha256 of the file | lines | §9 status |
+|---|---|---|---|---|
+| **`scripts/check_comparator_freeze.py`** (the verifier, §9.1 and §23.5 row 7) | **`38ea39e843d2f316c9dab36a27c0c3654cf9d0d1`** | `6954cc6d9b663175146853c3db3e7e2e3bd0fdc4bc04c4cc553028642cf6d207` | **1,622** | **§9 registered**, §23.5 — **RE-PINNED HERE** |
+
+⚠ **THE OTHER NINE PINS ARE UNMOVED AND WERE RE-VERIFIED, NOT ASSUMED** — every one read `PIN-OK`
+at this HEAD in the run reported at §24.3, while the verifier alone read `PIN-DRIFT`. **This
+amendment touches no code but the verifier.**
+
+⚠ **AN HONEST LIMITATION OF THE STRIKE-BY-QUOTE CONVENTION, NAMED RATHER THAN GLOSSED.** Striking a
+row **by quote in a later section does not remove the original row from the file**, so the parser
+still reads §22.2's and §23.6's superseded rows as live and reports **more than one recorded sha**
+for this path. **CURRENCY is satisfied by the new sha above**, and the tool's own docstring already
+declares that deciding *which* recorded sha is IN FORCE is a reading of the strike record and not
+something it takes. **The registration is the authority on which pin is in force, and it is the one
+in the table immediately above.**
+
+### 24.8 ⚠ **A JUDGEMENT THIS LANE TOOK, FLAGGED FOR THE SUPERVISOR RATHER THAN BURIED**
+
+The ruling said the restricted mode *"must still REFUSE on a missing pin, on `PIN-DRIFT` and on
+`PIN-STALE`."* **It does not go green on any of the three.** But the lab's exit codes distinguish a
+**refusal** (`2`, NOT A RESULT) from a **violation** (`3`, GATE FAIL), and the unrestricted mode
+already classifies these three as **refusal, violation, violation** respectively.
+
+**This lane kept that classification identical under restriction** rather than promoting the two
+pin violations to refusals, on the ground that **the same condition must not carry two different
+verdict labels depending on a flag** — that would make the restricted mode a different instrument
+rather than a narrower one. **So: a missing pin exits 2; `PIN-DRIFT` and `PIN-STALE` exit 3; none
+of the three passes.** ⚠ **If the ruling meant literal exit 2 for all three, this is one line to
+change and it is the supervisor's to say.** It is flagged here because reading "REFUSE" as "must
+not pass" rather than as "exit 2" is a lane's interpretation of a supervisor's word, and an
+interpretation is not an instruction.
+
+### 24.9 §9's ROWS 8–10 — **THE SUPERVISOR HAS RULED; THE RECORD IS CLOSED**
+
+§23.5 registered all ten pinned executables and asked whether rows 8–10, the three control suites,
+belonged there. **The supervisor ruled KEEP**, on the reasoning §23.5 itself gave: they are
+**pinned instruments, not graded-path producers**, and the `role` column is the correct way to say
+so. **The two PRODUCERS the ruling required — `write_m6sr_case.py` and `run_m6sr_b5.sh` — are IN,
+and the suites were never required OUT.** **§22.6's contrary recommendation stays NAMED and is not
+erased**, so a reader can see the question was contested and how it was settled. **§23.5's table
+stands unamended.**
+
+### 24.10 WHAT THIS AMENDMENT DOES **NOT** DO
+
+1. **It moves NO gate, NO threshold, NO cap and NO label.** Nothing in §5, §5.1, §2.4 or §10 is touched. `FZ1` is a **grading-path criterion registered pre-compute**, not a physics gate, and it constrains only how the freeze check is read.
+2. **It does NOT adjudicate, change, suppress or re-judge another campaign's row.** The twelve foreign rows report exactly what they reported, at exactly the same exit code — proved byte-identically, with two plants, §24.3.
+3. **It touches exactly ONE code artifact**, the verifier, and re-pins it in the same commit (§24.7). The other nine pinned files are unmodified and were re-verified at this HEAD.
+4. **It adds NO completion marker**, and does not make item 41's limb reachable by writing one. **A marker written to satisfy a checker is a fabricated completion.**
+5. **It runs NO ladder compute.** No `B2` march, no `B5` solve, no queue row, **no container**. **`verification/runs/M6SR_runs` does not exist**, plant-verified at the exact searched path before this work and after it.
+6. **It does NOT freeze and it does NOT launch.** Rule 2's freeze and the launch decision are the supervisor's; a lane may not take either.
+7. **It does not re-open** items 25 and 27 (carried forward unrepaired on the supervisor's express instruction, §18.7), items 35–37 (measured CLOSED at `87504e79`), or item 5's `X1` DATA limb, which stands untouched.
+
+### 24.11 THE STRIKE AUDIT — RUN ON THIS SECTION'S OWN DIFF
+
+The subjects are the values this amendment declares **FALSE IN FORCE**: §23.6's blob sha and file
+sha256 for the verifier, quoted inside §24.7's single strike span, and §23.8's superseded reading,
+quoted inside §24.1's. **Every occurrence of each in the text this amendment adds was located and
+classified, and each sits inside a `~~…~~` span.**
+
+⚠ **RULE 3 ON THE AUDITOR ITSELF.** A false sha was planted on a plain, unstruck prose line and the
+auditor **must** report it `UNCLASSIFIED`; the audit **refuses** rather than passing if the plant
+is not seen. **The plant was SEEN.** The result is printed in the commit that carries this section.
+
+### 24.12 COST — RULE 12
+
+| item | predicted | **actual** | ratio | attribution |
+|---|---|---|---|---|
+| repo-wide verifier runs ×4 (2 baseline, 2 after) | 4 × 71 s at 1 rank = **4.73 core-min** (charged at §23.11's measured rate) | **4.73 core-min** | **1.00** | §23.11's re-based estimate held. The correction it made — that the walk runs a `git log`/`git grep` **per row** over 216 rows — is the reason this prediction was right |
+| **restricted** verifier runs ×4 | none predicted; a new shape | **~4 s wall total at 1 rank ≈ 0.07 core-min** | — | the restricted walk visits **2 directories and 10 files** instead of 216 rows. **This is the mode's incidental second benefit and is reported, not claimed as a design goal** |
+| selftest runs ×4 (incl. `-O`) and document work | — | **host arithmetic, ~1.5 core-min** | — | 30 new arms, each spawning subprocesses in throwaway repositories |
+
+⚠ **`cost_basis` HONESTY, rule 12.** The repo-wide figure is a **charge at §23.11's measured rate,
+not four fresh measurements**, and is labelled so rather than presented as four. The restricted and
+selftest figures are **wall-clock observations on this box, not billing**; the box cannot read its
+own billing, so **any dollar figure derived from these is reported-by-owner, not measured**.
+
+**Container-seconds, reported as WASTE and SEPARATELY, never absorbed into a step's cost: ZERO —
+this pass started no container and ran no solver. Ladder core-minutes: ZERO.**
+
+⚠ **NO ROW WAS ADDED TO `docs/COST_CALIBRATION.md`, AND THE REASON IS NAMED.** Rule 12's
+calibration ledger takes a row at a **process completion** — a rung graded, a case closed, a
+curriculum item finished. **Nothing completed here**: this is a pre-compute amendment with zero
+ladder compute, and the estimate-versus-actual comparison above is recorded in the amendment as
+§17.10 through §23.11 have all recorded theirs. **If the supervisor reads a pre-compute pass as a
+completion, that row is one line and is theirs to direct.**
+
+⚠ **The box was NOT idle.** Heat-transfer's `T3e` held **8 ranks of 16**. This pass took **1 rank**
+and did not saturate.
+
+### 24.13 RULE 6's AMENDMENT ASSERTIONS
+
+**Version: v1.9 → v1.10 (amendment 18, pre-compute). The frozen file was NOT edited; this section
+is APPENDED AT THE FOOT.**
+
+⚠ **The header line 3 still reads `v1.0` and is DELIBERATELY NOT EDITED**, for the reason §15.10
+through §23.12 give: editing it would change a line above §15 and falsify those sections' own
+assertions, on which other records depend — **and at least one such citation sits inside an
+executable check.** **The bump is recorded HERE. The supervisor may restate the version in the
+header at the re-freeze, which is a status flip they own; a lane may not.**
+
+> **`lines whose number changed above this section: 0`**
+
+**Verified, not asserted:** lines **1–5249** of this file — the whole of it up to and including
+§23.13's closing line, and therefore **every** guaranteed range §15.10 through §23.12 asserts — are
+**byte-identical** before and after this append, both rendering to sha256
+**`d74ee5689e96a4fb47faa5f46a798214d34b33e7a908a7f1c187d1d6f152f66d`** *(asserted here and
+re-derived inside the commit invocation that carries this section; the commit ABORTS if it moves)*.
+
+### 24.14 THE STANDING QUESTION — **ANYTHING ELSE BETWEEN THIS DOCUMENT AND A LAWFUL LAUNCH?**
+
+**NO. This lane finds nothing further, and states what it checked in order to be able to say so.**
+
+1. **Every item this campaign has raised is closed or is explicitly parked by the supervisor.** Items 41 and 42 are ruled and implemented here. Items 35–37 were measured closed. Items 38, 39 and 40 were repaired in the instruments. Items 25, 27 and item 5's `X1` DATA limb are **carried forward unrepaired on express instruction**, which is a decision on the record and not an open finding.
+2. **The registered grading criterion is now an EXIT CODE the campaign can earn** (§24.4), it is registered **verbatim as a command line** rather than as remembered prose, and it **refuses** rather than passing when it cannot reach its subject.
+3. **All ten pinned executables are covered, identity-checked and currency-checked** — measured `10 of 10`, and the one drift in flight was the verifier's own edit, resolved by the re-pin in this commit.
+4. **The freeze is provable without the unreachable limb**, and the caveat saying so is registered **on the criterion** and **printed by the tool**, so a future grader meets it rather than having to remember it.
+5. **No compute has occurred**: the run root is plant-verified absent at the exact searched path.
+
+⚠ **WHAT THIS LANE CANNOT SAY, AND DOES NOT.** It has **not** re-derived the physics, the gates in
+§5/§5.1, the mesh standard compliance or the solver pin from first principles this pass; those were
+settled in earlier amendments and are **relied on, not re-verified here**. **Check 1 on this diff,
+check 4, the freeze and the launch are the supervisor's**, and this lane takes none of them.
+**Subject to those four, this lane knows of nothing between this document and a lawful launch.**

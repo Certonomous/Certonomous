@@ -126,6 +126,53 @@ are the only thing the flag adds, and they judge only paths that a named
 registration pins.  This matters because the tool is shared, cross-team
 instrumentation and other campaigns' rows are not this flag's business.
 
+REGISTRATION-RESTRICTED MODE -- AN EXIT CODE A REGISTRATION CAN EARN
+                                                        (M6SR item 42)
+The repo-wide exit code is not any one campaign's to earn.  Measured, on this
+repository: TWELVE rows belonging to other campaigns are UNFROZEN, so the
+process exits 3 no matter how clean the registered set is -- and it was
+perfectly clean, 10 of 10 covered, 10 PIN-OK, 0 violating, at the same run.  A
+grading criterion phrased "the freeze check exits 0" is therefore UNSATISFIABLE
+for such a campaign however correct it is, and no amount of work on its own
+files can make it satisfiable.
+
+The available readings were both bad.  Reading the criterion off a substring of
+stdout ("PIN COVERAGE: 10 of 10") is weaker than an exit code: a run that dies
+before printing that line leaves no substring to fail on, and a grep for a pass
+phrase cannot distinguish "printed and true" from "printed and then refused".
+Ignoring the exit code is worse still.
+
+--restrict-to-registration answers it at the population instead.  It judges
+ONLY the executables the named registration(s) pin, and the exit code is then
+earned by that set alone:
+
+  * the population IS the pinned set.  The name patterns never run, so no file
+    the registration does not pin can enter it, and no directory is walked for
+    anything other than the basenames pinned in it.
+  * NOTHING OUTSIDE THE PINNED SET IS JUDGED, RE-JUDGED, SUPPRESSED OR CHANGED.
+    A foreign row is not silenced by this mode -- it was never in it.  The
+    unrestricted run continues to report every one of those rows exactly as it
+    did, at the same status, and continues to exit 3 on them.  That is the
+    point: this mode narrows what THIS invocation speaks about, and takes away
+    nothing that any other invocation says.
+  * IT IS NOT LENIENT.  Every refusal and every violation that could fire in
+    the unrestricted run still fires here on a pinned path: an uncovered pin
+    REFUSES (exit 2), PIN-DRIFT and PIN-STALE are violations (exit 3), an empty
+    restricted population REFUSES, and a pinned comparator that is itself
+    UNFROZEN, UNCOMMITTED or MODIFIED_AFTER_COMMIT still exits 3.  Restricting
+    the population is not the same as lowering the bar for what is in it.
+  * it REQUIRES --registration.  A restriction with no registered set is not a
+    narrower population, it is an empty one, and 2p.2 already rules on that.
+
+WHAT A GREEN FROM THIS MODE DOES NOT MEAN -- carried in the output, not only
+here, because a caveat a grader has to remember is enforced by prose (M6SR
+item 41).  A restricted row that is NO-MARKERS was tested for IDENTITY and
+CURRENCY and NOT for freeze margin, because the freeze-margin limb dates a
+freeze from completion markers in the comparator's own tree and a campaign
+whose chain writes none can never reach it -- before or after a launch.  When
+any restricted row is NO-MARKERS the run prints that caveat beside the verdict.
+A PASS here is not, and must not be read as, a marker-dated freeze margin.
+
 --------------------------------------------------------------------------
 SHA-WITNESS FREEZE  (D471.3)
 --------------------------------------------------------------------------
@@ -594,6 +641,37 @@ def walk_population(repo, strict_markers=False, roots=POPULATION_ROOTS,
             continue
         take(check_tree(repo, d, strict_markers=strict_markers,
                         restrict=pending[rel]))
+    return rows
+
+
+def walk_registered(repo, pins, strict_markers=False):
+    """The RESTRICTED population -- exactly the executables `pins` names.
+
+    See REGISTRATION-RESTRICTED MODE.  Every pinned directory is visited once,
+    RESTRICTED to the basenames pinned in it, so GRADER_RE never runs and no
+    file the registration does not pin can enter the population.  Nothing
+    outside the pinned set is opened, judged or reported here -- which is the
+    property that makes the exit code the registration's own to earn, and the
+    property that keeps this mode from touching another campaign's row.
+
+    Rows are produced by the SAME check_tree as the unrestricted walk, so a
+    pinned path is judged identically in both; the only difference is which
+    paths are in the population."""
+    by_dir = {}
+    for path in pins:
+        by_dir.setdefault(os.path.dirname(path) or ".", []).append(
+            os.path.basename(path))
+    rows, seen = [], set()
+    for rel in sorted(by_dir):
+        d = repo if rel == "." else os.path.join(repo, rel)
+        if not os.path.isdir(d):
+            continue
+        for x in check_tree(repo, d, strict_markers=strict_markers,
+                            restrict=by_dir[rel]) or ():
+            k = (x["tree"], x["comparator"])
+            if k not in seen:
+                seen.add(k)
+                rows.append(x)
     return rows
 
 
@@ -1112,6 +1190,185 @@ def selftest():
         check("item40 a registration pinning nothing REFUSES",
               run_ep(rpn, "--registration",
                      "verification/campaign/NOPINS.md").returncode, EXIT_REFUSE)
+
+        # ================================================================
+        # M6SR ITEM 42 -- AN EXIT CODE A REGISTRATION CAN EARN.
+        #
+        # The planted repository reproduces the measured defect exactly: a
+        # registered set that is PERFECTLY CLEAN, and foreign rows that hold
+        # the process exit at 3 regardless.  Every arm below runs THIS FILE as
+        # a subprocess, so what is exercised is the command line a grading
+        # criterion would be written against.
+        # ================================================================
+        r42 = scratch_repo("item42")
+
+        # -- the registered set: one grader with a marker, one file outside
+        #    every walk root with none (the M6SR shape).
+        wr(r42, "cases/M/analyse_m.py", 'def m(t):\n    return f"MM_{t}"\n')
+        wr(r42, "tools/help_m.py", "X = 1\n")
+        commit_in(r42, "the registered set", "2026-09-02T00:00:00+00:00")
+        marker(os.path.join(r42, "cases", "M"), "MM_1", "2026-09-03T00:00:00Z")
+
+        # -- FOREIGN ROW 1: another campaign's grader, in a tree this
+        #    registration has nothing to do with, born AFTER its own case
+        #    finished.  This is the twelve-row shape.
+        os.makedirs(os.path.join(r42, "verification", "foreign"))
+        marker(os.path.join(r42, "verification", "foreign"), "FF_1",
+               "2026-09-03T12:00:00Z")
+        commit_in(r42, "a foreign case finishes", "2026-09-03T12:00:00+00:00")
+        wr(r42, "verification/foreign/analyse_f.py",
+           'def m(t):\n    return f"FF_{t}"  # born late\n')
+        # -- FOREIGN ROW 2: the near-miss.  A grader the NAME PATTERNS match,
+        #    sitting INSIDE a directory this registration pins a file in.
+        #    Restricting must exclude it BY REGISTRATION, not by directory.
+        wr(r42, "cases/M/analyse_other.py",
+           'def m(t):\n    return f"MM_{t}"  # another campaign, born late\n')
+        commit_in(r42, "two foreign graders, both late",
+                  "2026-09-04T00:00:00+00:00")
+
+        b42 = {p: blob_of(r42, p) for p in ("cases/M/analyse_m.py",
+                                            "tools/help_m.py")}
+        reg42 = "verification/campaign/REG42.md"
+        wr(r42, reg42, reg_body(sorted(b42.items())))
+        commit_in(r42, "registration pinning two", "2026-09-05T00:00:00+00:00")
+
+        # ---- IS THE PLANT ACTUALLY ADVERSE?  A control that fires on a tree
+        # that was never guilty proves nothing, so the guilt is measured
+        # first, at source, rather than assumed from the way it was built.
+        st42 = {(x["tree"] + "/" + x["comparator"]): x["status"]
+                for x in walk_population(r42)}
+        check("item42 plant is adverse: foreign grader is UNFROZEN",
+              st42.get("verification/foreign/analyse_f.py"), "UNFROZEN")
+        check("item42 plant is adverse: same-directory grader is UNFROZEN",
+              st42.get("cases/M/analyse_other.py"), "UNFROZEN")
+        check("item42 plant is adverse: the REGISTERED grader is clean",
+              st42.get("cases/M/analyse_m.py"), "FROZEN")
+
+        # ---- THE DEFECT, REPRODUCED.  Registered set clean; exit 3 anyway. --
+        u1 = run_ep(r42, "--registration", reg42)
+        check("item42 unrestricted: the pinned set is completely covered",
+              "PIN COVERAGE: 2 of 2" in u1.stdout, True)
+        check("item42 unrestricted: the pinned set has ZERO violations",
+              "2 PIN-OK, 0 violating" in u1.stdout, True)
+        check("item42 unrestricted: and the exit code is 3 REGARDLESS",
+              u1.returncode, EXIT_VIOLATION)
+
+        # ---- THE FIX.  Same repo, same registration, one added flag. --------
+        r1 = run_ep(r42, "--registration", reg42, "--restrict-to-registration")
+        check("item42 RESTRICTED: the registered set earns exit 0",
+              r1.returncode, EXIT_OK)
+        check("item42 RESTRICTED: population is 2 graders, not the walk",
+              "2 grader(s) in the population, 0 violating" in r1.stdout, True)
+
+        # ---- SILENCE, NOT SUPPRESSION.  The foreign rows are not hidden by
+        # this mode; they were never in it.  Both must be absent from the
+        # restricted output and present in the unrestricted one -- the second
+        # half is what makes the first half mean something.
+        for nm in ("analyse_f.py", "analyse_other.py"):
+            check(f"item42 RESTRICTED does not judge foreign {nm}",
+                  nm in r1.stdout, False)
+            check(f"item42 unrestricted still reports foreign {nm}",
+                  nm in u1.stdout, True)
+
+        # ---- NON-INTERFERENCE, BYTE FOR BYTE.  The unrestricted invocation
+        # must be untouched by the existence of the restricted one.  PLANTED:
+        # the same comparison is run against the restricted output, and MUST
+        # report a difference -- a byte comparison that cannot see one is not
+        # evidence of sameness.
+        u2 = run_ep(r42, "--registration", reg42)
+        check("item42 unrestricted output is byte-identical across runs",
+              u1.stdout == u2.stdout, True)
+        check("item42 unrestricted exit code is unchanged",
+              u1.returncode == u2.returncode, True)
+        check("item42 PLANT: that comparison CAN see a difference",
+              u1.stdout == r1.stdout, False)
+
+        # ---- ITEM 41's CAVEAT IS PRINTED WHERE THE GRADER MEETS IT ---------
+        # tools/help_m.py has no marker in its tree, so its freeze-margin limb
+        # cannot fire.  The verdict must say so.
+        check("item41 caveat is printed beside a restricted verdict",
+              "CAVEAT ON THIS VERDICT" in r1.stdout, True)
+        check("item41 caveat counts the unreachable rows",
+              "1 of 2 restricted row(s) are NO-MARKERS" in r1.stdout, True)
+        # NEGATIVE CONTROL -- the caveat is CONDITIONAL, not boilerplate.  A
+        # registration whose every pinned row IS margin-judged must not get it.
+        reg41 = "verification/campaign/REG41.md"
+        wr(r42, reg41, reg_body([("cases/M/analyse_m.py",
+                                  b42["cases/M/analyse_m.py"])]))
+        commit_in(r42, "a registration with no NO-MARKERS row",
+                  "2026-09-05T01:00:00+00:00")
+        r_nc = run_ep(r42, "--registration", reg41, "--restrict-to-registration")
+        check("item41 caveat is ABSENT when every row is margin-judged",
+              "CAVEAT ON THIS VERDICT" in r_nc.stdout, False)
+        check("item41 that negative control still PASSES",
+              r_nc.returncode, EXIT_OK)
+
+        # ---- RESTRICTED IS NOT LENIENT.  Every arm below is the SAME entry
+        # point and the SAME flag as the passing arm above, so a failure here
+        # is the plant and not the mode.
+        # (a) a pinned path that cannot be judged still REFUSES
+        wr(r42, reg42, reg_body(sorted(b42.items())
+                                + [("cases/M/gone.sh", "0" * 40)]))
+        commit_in(r42, "a pin nobody can judge", "2026-09-05T02:00:00+00:00")
+        r_mp = run_ep(r42, "--registration", reg42, "--restrict-to-registration")
+        check("item42 RESTRICTED still REFUSES on an uncovered pin",
+              r_mp.returncode, EXIT_REFUSE)
+        check("item42 that refusal names the uncovered path",
+              "gone.sh" in r_mp.stdout, True)
+        wr(r42, reg42, reg_body(sorted(b42.items())))
+        commit_in(r42, "back to the complete pin set",
+                  "2026-09-05T03:00:00+00:00")
+        # (b) PIN-DRIFT is still a violation under restriction
+        open(os.path.join(r42, "tools/help_m.py"), "a").write("# drift\n")
+        r_dr2 = run_ep(r42, "--registration", reg42, "--restrict-to-registration")
+        check("item42 RESTRICTED still fails on PIN-DRIFT",
+              r_dr2.returncode, EXIT_VIOLATION)
+        check("item42 and names it PIN-DRIFT", "PIN-DRIFT" in r_dr2.stdout, True)
+        # (c) PIN-STALE is still a violation under restriction
+        commit_in(r42, "the drift lands, the pin does not move",
+                  "2026-09-05T04:00:00+00:00")
+        r_st2 = run_ep(r42, "--registration", reg42, "--restrict-to-registration")
+        check("item42 RESTRICTED still fails on PIN-STALE",
+              r_st2.returncode, EXIT_VIOLATION)
+        check("item42 and names it PIN-STALE", "PIN-STALE" in r_st2.stdout, True)
+        # ADVERSE PAIR -- re-pinning clears it, so the failure tracked the pin
+        # and not merely the edit.
+        b42["tools/help_m.py"] = blob_of(r42, "tools/help_m.py")
+        wr(r42, reg42, reg_body(sorted(b42.items())))
+        commit_in(r42, "re-pinned", "2026-09-05T05:00:00+00:00")
+        check("item42 re-pinning clears it and RESTRICTED passes again",
+              run_ep(r42, "--registration", reg42,
+                     "--restrict-to-registration").returncode, EXIT_OK)
+
+        # (d) THE ARM THAT MATTERS MOST: a violation INSIDE the registered set.
+        # Restricting the population must not restrict the standard applied to
+        # what is in it.  Planted so the PIN limbs are clean and the ROW is
+        # not, which isolates the row limb from the pin limbs entirely.
+        r42b = scratch_repo("item42_own_set_violates")
+        os.makedirs(os.path.join(r42b, "cases", "N"))
+        marker(os.path.join(r42b, "cases", "N"), "NN_1", "2026-09-06T00:00:00Z")
+        commit_in(r42b, "the case finishes first", "2026-09-06T00:00:00+00:00")
+        wr(r42b, "cases/N/analyse_n.py",
+           'def m(t):\n    return f"NN_{t}"  # born after its own case\n')
+        commit_in(r42b, "the comparator is born late",
+                  "2026-09-07T00:00:00+00:00")
+        regb = "verification/campaign/REGB.md"
+        wr(r42b, regb, reg_body([("cases/N/analyse_n.py",
+                                  blob_of(r42b, "cases/N/analyse_n.py"))]))
+        commit_in(r42b, "pinned at its current blob",
+                  "2026-09-07T01:00:00+00:00")
+        r_own = run_ep(r42b, "--registration", regb, "--restrict-to-registration")
+        check("item42 RESTRICTED fails on an UNFROZEN row in its OWN set",
+              r_own.returncode, EXIT_VIOLATION)
+        check("item42 and the PIN limbs were clean, so the ROW earned it",
+              "1 PIN-OK, 0 violating" in r_own.stdout, True)
+        check("item42 the failing row is reported UNFROZEN",
+              "UNFROZEN" in r_own.stdout, True)
+
+        # (e) the flag REQUIRES a registration.  Restricting to nothing is an
+        # empty population, and that has never been a clean population.
+        check("item42 --restrict-to-registration alone REFUSES",
+              run_ep(r42, "--restrict-to-registration").returncode, EXIT_REFUSE)
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
     return ok
@@ -1130,6 +1387,14 @@ def main():
                          "be in the population.  Repeatable.  Adds the COVERAGE, "
                          "IDENTITY and CURRENCY limbs; changes nothing about the "
                          "walk when it is not given")
+    ap.add_argument("--restrict-to-registration", action="store_true",
+                    help="judge ONLY the executables the given registration(s) "
+                         "pin, so the EXIT CODE is earned by that set alone. "
+                         "Requires --registration. Judges, re-judges, "
+                         "suppresses and changes NOTHING outside the pinned "
+                         "set -- the unrestricted run still reports every "
+                         "other row exactly as before. Not lenient: every "
+                         "refusal and violation still fires on a pinned path")
     a = ap.parse_args()
     if a.selftest:
         print("SELFTEST -- planted shapes that must fire, and ones that must not")
@@ -1138,6 +1403,15 @@ def main():
     repo = os.path.abspath(a.repo)
     if not os.path.isdir(os.path.join(repo, ".git")):
         refuse(f"REFUSE: {repo} is not a git repository")
+
+    if a.restrict_to_registration and not a.registration:
+        # 2p.2 one level up.  "Restrict to the registered set" with no
+        # registration names an EMPTY set, and an empty population has never
+        # been a clean population.  Refusing here also stops the flag from
+        # being a silent no-op that a criterion could be written against.
+        refuse("REFUSE: --restrict-to-registration requires at least one "
+               "--registration. A restriction with no registered set is not a "
+               "narrower population, it is an empty one (charter 2p.2).")
 
     # ---- registration pins, read BEFORE the walk so they can widen it -------
     pins, extras = {}, {}
@@ -1162,14 +1436,28 @@ def main():
         extras.setdefault(os.path.dirname(path) or ".", []).append(
             os.path.basename(path))
 
-    rows = walk_population(repo, strict_markers=a.strict_markers, extras=extras)
+    if a.restrict_to_registration:
+        rows = walk_registered(repo, pins, strict_markers=a.strict_markers)
+    else:
+        rows = walk_population(repo, strict_markers=a.strict_markers,
+                               extras=extras)
 
     print("COMPARATOR FREEZE -- VERIFICATION_CHARTER.md 2d")
     print("scope: markers are matched PER COMPARATOR from the comparator's own "
           "source (D471.1)")
-    print(f"population: {', '.join(POPULATION_ROOTS)}/  --  "
-          "analyse_*.py, grade_*.py, score_*.py (D471.2; docs/campaigns added "
-          "under charter 2q)")
+    if a.restrict_to_registration:
+        print(f"population: RESTRICTED to the {len(pins)} executable(s) pinned "
+              f"by {', '.join(a.registration)} -- the analyse_/grade_/score_ "
+              f"name patterns are NOT applied")
+        print("THE EXIT CODE BELOW IS EARNED BY THAT SET ALONE. This mode is "
+              "SILENT about every row outside it: it judges none of them, "
+              "re-judges none of them, suppresses none of them and changes "
+              "none of them. The unrestricted invocation still reports them "
+              "unaltered, at the same statuses and the same exit code.")
+    else:
+        print(f"population: {', '.join(POPULATION_ROOTS)}/  --  "
+              "analyse_*.py, grade_*.py, score_*.py (D471.2; docs/campaigns added "
+              "under charter 2q)")
     print("=" * 100)
     if not rows:
         # charter 2p.2, the empty-input test.  A walk that found nothing has not
@@ -1180,6 +1468,14 @@ def main():
         # evidence about what lies beyond it.
         print("  no tree carries a grader.")
         print("ZERO VERDICT: NOT_A_MEASUREMENT -- nothing was in scope")
+        if a.restrict_to_registration:
+            # the same clause, restricted: a mode whose whole population is the
+            # pinned set and which reached NONE of it has not judged that set
+            # clean, it has failed to reach it.
+            refuse("REFUSE: the RESTRICTED population is EMPTY -- not one of "
+                   "the " + str(len(pins)) + " pinned executable(s) could be "
+                   "reached: " + ", ".join(sorted(pins)) + ". An empty "
+                   "population is not a clean population (charter 2p.2).")
         refuse(f"REFUSE: the walk of {', '.join(POPULATION_ROOTS)}/ found ZERO "
                f"comparators. An empty population is not a clean population -- "
                f"it is a check that did not reach its subject (charter 2p.2).")
@@ -1283,9 +1579,38 @@ def main():
                "row: " + ", ".join(uncovered) + ". A partial population is not "
                "a clean population -- it is a check that did not reach its "
                "subject (charter 2p.2, extended to the partial case).")
+    if a.restrict_to_registration:
+        # M6SR item 41, carried WHERE A GRADER MEETS IT.  The freeze-margin limb
+        # dates a freeze from completion markers in the comparator's own tree.
+        # A campaign whose chain writes no marker cannot reach that limb, before
+        # or after a launch, and a NO-MARKERS row is therefore tested for
+        # IDENTITY and CURRENCY and NOT for margin.  Printing this only beside a
+        # restricted verdict is deliberate: this is the invocation a grading
+        # criterion is written against, so this is where the caveat has to be.
+        n_nm = sum(1 for r in rows if r["status"] == "NO-MARKERS")
+        if n_nm:
+            print("-" * 100)
+            print(f"CAVEAT ON THIS VERDICT -- {n_nm} of {len(rows)} restricted "
+                  f"row(s) are NO-MARKERS. The FREEZE-MARGIN limb DID NOT FIRE "
+                  f"for them and cannot fire while their tree carries no "
+                  f"completion marker. What was tested for those rows is "
+                  f"IDENTITY and CURRENCY. A PASS from this mode is NOT a "
+                  f"marker-dated "
+                  f"freeze margin and must not be read as one; a campaign in "
+                  f"this position proves its freeze by commit ordering, not by "
+                  f"this limb.")
     if bad or pin_bad:
         print("VERDICT: FAIL")
         sys.exit(EXIT_VIOLATION)
+    if a.restrict_to_registration:
+        print("ZERO VERDICT: ZERO_IS_A_MEASUREMENT -- every executable the "
+              "named registration PINS is in the population, is the file that "
+              "was committed, is pinned at a sha the registration records "
+              "unstruck, and is either frozen against the cases it names or "
+              "reported as out of evidence reach. This says NOTHING about any "
+              "row outside the pinned set.")
+        print("VERDICT: PASS")
+        sys.exit(EXIT_OK)
     print("ZERO VERDICT: ZERO_IS_A_MEASUREMENT -- every grader in the "
           "population is either frozen against the cases it names or is "
           "reported as out of evidence reach")
