@@ -25976,6 +25976,32 @@ Wiring the guard into ten sites turned up **a second defect shape that was not t
 4 paths, 682 insertions, **file deletions 0**. **I ran the controls rather than reading the report:** `--selftest` **GREEN**; `--mutation-control` **HELD, RED at rc 1**, naming *"the endTime fields survived"* and *"the coefficient series survived"* **for all three drivers** — the fixtures are genuinely destroyed without the guard. rc **0 under `python3` and `-O`**. **By AST parse across all four files: 0 bare asserts and 0 surviving raw `rmtree` calls.** **All ten reported line numbers were exactly right** (GEN_ALT 58/114/156/165, FPE 93/168/186/227, B52 88/201) — ⚠ **the first line-number relay tonight that survived checking.**
 
 
+<!-- BOARD-BLOCK-ID: 57L-one-bug-was-masking-another-and-m6sr-cannot-launch -->
+
+### 🔴🔴 **M6SR CANNOT LAUNCH — AND ONE DEFECT WAS MASKING ANOTHER, WHICH IS THE FINDING**
+
+Amendment 12 landed (`00658ab0`, §18, three paths, zero deletions, rule 6 verified — lines 1–3208 byte-identical before and after). **Its audit then found FIVE more items, and two of them stop the driver dead on THIS box:**
+
+🔴 **Item 28 — the docker call is broken on exactly the branch this box takes.** `run_in_container()` builds `$DRUN "docker run …"`, and with **`DRUN=docker`** that expands to **`docker "docker run …"`** — reproduced: **rc 1, `docker: unknown command: docker docker run…`**. Control: the same string via `sg docker -c` returns **rc 0 / `INSIDE_OK`**. ⚠ **`BARE_RC=0` here, so the driver is correct ONLY on a box where docker is NOT directly reachable — the branch we are actually on has never been exercised.** ✅ **It fails closed at exit 6, so nothing was silently mis-run.**
+
+🔴 **Item 30 — `B4`'s `checkMesh` cannot write its log, and item 28 was MASKING it.** Case dir created **775 `ubuntu:ubuntu`**; container runs **`-u 1002:1002`** → **Permission denied, inner rc 1** on the pinned image with the driver's own mount. Control: after `chmod 777`, **inner rc 0**, file owned 1002:1002. ⚠ **`chmod -R 777` runs in the SOLVE phase only — AFTER stage. So Gate A is unreachable INDEPENDENTLY of item 28, and FIXING 28 DOES NOT FIX 30.**
+
+⚠ **That masking is the durable point, and it generalises past this driver: repair 28 alone, watch the launch get further, and you would reasonably conclude the path works. It would then fail at `B4` — and the next reader would be debugging a "new" bug that was there the whole time.** **Both are dispatched in one pass, with the standing question: is there a THIRD behind them?**
+
+### ✅ THE PIN IS REAL, AND THE VERSION-DEPENDENCE AUDIT I ORDERED WAS **DONE, NOT ASSERTED**
+
+**Fork ESI · v2506 (`api=2506, patch=0`) · image `dafoam-idwarp-rot:v1` · digest `sha256:2927768a…6d35` · binary path AND binary sha256 `d9a2a456…369c`.** **The digest came from `docker inspect` through a JSON parser, not a format template**, and is an **OCI image manifest digest** (`mediaType …oci.image.manifest.v1+json`, size 2301), corroborated by `.RepoDigests`. ⚠ **Registered caveat: it is a LOCAL content address, NOT corroborated against a registry.** ✅ **Reader shown able to say otherwise: `docker run` on the pinned digest rc 0, on an all-zeros digest rc 125.**
+
+✅ **`M6SR_IMAGE` can NAME but cannot SELECT** — four limbs: the pinned image passes (**the known-positive that licenses the negatives**), `dafoam-team:v1` → **exit 7 DIGEST MISMATCH**, `alpine:latest` → 7, `no-such-image:v0` → 7. **The container is then addressed BY DIGEST, closing the tag-repoint TOCTOU.**
+✅ **And the audit's answer is better than the exposure: ALL FOUR version-dependent findings SURVIVE** re-measurement against the box's other ESI tree (native `openfoam2606`) — `EEqn.H`'s `Ekp` ternary **identical**; `momentumTransport` **0** files against `turbulenceProperties` **439**; `solverInfo` present, `residuals` absent; `transonic` unchanged. ⚠ **The trees that WOULD flip them are the Foundation fork and an AD build — and the pinned image ships `OpenFOAM-AD`'s own `rhoSimpleFoam` under two platforms.** 🔴 **Item 31: the image carries THREE `rhoSimpleFoam` and a third tree `Hisa4DAFoam` — FOUR on the box. My "two ESI trees" UNDERCOUNTED, and a digest pin ALONE would not have separated them.** **That is why the resolved path and the binary sha256 are pinned too.**
+
+### ✅ THE RE-HASH **REFUSED ONCE**, AND THAT REFUSAL IS THE PROTOCOL WORKING
+
+⚠ **The first pin (`0b3b73bb…`, 547 lines) was STALE BY COMMIT TIME** — the file had moved to `44fae79b…` (561 lines) **because a second lane's `SOLVER_RC.txt` assert landed in the shared worktree mid-commit.** ✅ **Inspected, never reverted, carried in the commit with authorship attributed and its sharper mechanism written up.** **All seven executables re-hashed INSIDE the commit invocation, each matching or the commit aborted.** ✅ **`§15.3`'s `97cbe039…` struck by quote as superseded while `build_m6sr_l1.sh`'s pin was re-verified UNMOVED — one pin moved and one did not, in the same act.** ⚠ **Item 32: §9 registers TWO executables; the ladder runs SEVEN. All seven now pinned.**
+✅ **My "roughly forty times" on the semispan measures at 42.71×.** ✅ **`C25` is registered and DELIBERATELY NOT IMPLEMENTED, on a principle I endorse: *a document cannot pin a blob and change it in the same breath*.**
+
+🔴 **AND THE PRE-LAUNCH GATE STATES ITS OWN CONSEQUENCE RATHER THAN SOFTENING IT: registered as `X7` — `solve` and `all` run `--controls` under `python3` AND `-O` before `stage`, refusing at exit 8 unless both return 0 and agree. Measured: rc 2 / rc 2, driver aborts, no container, no solver. So WHILE `X4` STANDS, NO `B5` LAUNCHES AT ALL.** ⚠ **The gate we built to protect the spend is the gate that currently forbids the launch Sanaa ordered — and the lane said so plainly instead of hiding it in a caveat.**
+
 <!-- BOARD-BLOCK-ID: 57K-my-literal-instruction-would-have-manufactured-a-false-not-a-result -->
 
 ### 🔴 A LANE **DIVERGED FROM MY INSTRUCTION AND WAS RIGHT** — MY LITERAL WORDING WOULD HAVE MANUFACTURED A **FALSE `NOT A RESULT`**
