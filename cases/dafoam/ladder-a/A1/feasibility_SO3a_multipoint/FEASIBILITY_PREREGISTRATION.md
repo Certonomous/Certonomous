@@ -1817,3 +1817,69 @@ A row lands in **`docs/COST_CALIBRATION.md`** with the ratio, the attribution, a
 **SUBMISSIONS PARKED.**
 
 **END OF ADDENDUM 16.**
+
+---
+
+## ADDENDUM 17 — **THE LABEL: `NO ITEM VERDICT BY CONSTRUCTION`. THE ITEM IS AT REST.** Dated **2026-09-04**. Version **1.17 → 1.18**.
+
+> **lines whose number changed above this section: 0** — **PROVED ON BYTES.** Before the append the file was **169,251 bytes, 1,819 lines**, verified byte-identical to `git show HEAD:` at the moment of copying; after the append the first 169,251 bytes were compared with `cmp -n 169251`, byte for byte. Appended by `scripts/append_block.py` from a FILE as bytes; **no heredoc on this path** (`L-405`).
+
+**Moves no gate, no threshold, no prediction, no band, no cap and no label — it RECORDS the label the registration always implied.**
+
+### A17.1 ⚠ THE LABEL, RULED BY THE `dafoam-supervisor` AND VERIFIED AT SOURCE BY THIS LANE
+
+> ## **`NO ITEM VERDICT BY CONSTRUCTION` — F1–F5 all HIT, reported, not graded.**
+
+**§5 at lines 271–275 says, frozen:** *"The only verdict vocabulary this item may emit is `BLOCKED` (a NO-LAUNCH branch fired) or `NOT A RESULT` (an infrastructure refusal), and both describe the item, never a number."*
+
+**Both of those are FAILURE labels. The registration deliberately registers NO SUCCESS LABEL, because there is no gate to pass.** Neither fired. Nothing else in `CLAUDE.md` rule 1 fits: `PASS`, `GATE REACHED` and `GATE FAIL` each presuppose a gate; `PENDING` is a display state for *not yet run*, and this has run.
+
+**So the item emits NO VERDICT TOKEN AT ALL, and that is the correct outcome rather than a hole in the record.** ADDENDUM 16 §A16.2 declined to write one on a symmetry argument — *a HIT is not licensed to become a PASS because the answer came out well.* **The frozen text reaches the same place more firmly: there was never a success label to reach for.**
+
+**THE STRING `PASS` MAY NOT APPEAR ANYWHERE IN THIS ITEM'S VERDICT, and a successor may not quote the five HITs as one.** The five HITs are a **REPORT**, and the report **is** the product.
+
+### A17.2 THE CEILING BREACH — RECORDED, NOT VOIDING, AND THE CEILING IS **NOT** RAISED
+
+**The readings STAND.** `docs/FAIL_OPEN_GATE_AUDIT.md` §28.10 rules that **a budget overrun on a COMPLETED run does not void its verdict in either direction**: `COMPUTE_BUDGET_CHARTER:197` is prospective and budgetary with no clause connecting an overrun to validity; `queue_runner.py:598-606` already classes `CAP_OVERRUN` as INFRASTRUCTURE under `L-342`; and every overrun-to-`NOT A RESULT` precedent is the **stopped-run** path, where it is rule 4's completion clause that carries the verdict. **A killed run is not a result because it is INCOMPLETE, not because it was expensive.** Sanaa's universal rule is the same sentence shorter: **bookkeeping never voids physics.**
+
+> **AND THE SYMMETRY BINDS THE OTHER WAY, WHICH IS THE HALF THAT NEEDS SAYING OUT LOUD: THE CLEAN RESULT DOES NOT EXCUSE THE BREACH.** §28.10 warns that a spurious cost defect beside a clean run is ready-made ammunition for voiding an inconvenient verdict. **The mirror hazard is a good verdict being used to wave away a real overrun. BOTH STAND, SEPARATELY.**
+
+**Disposition.** The breach is **named** — **9.2833 core-min against the §7 ceiling of 9.0, over by 0.2833, 3.15 %** — in this record and in calibration row `C-20260904T014338.264068Z-a9b68e9b`. **Never absorbed into a ratio; never netted against the arm cap that passed.** **THE CEILING IS NOT RAISED** — rule 12 says an overrun does not get a new budget, and moving 9.0 now would be exactly that. **No further compute fires on this item, ever, without a FRESH registration carrying its own ceiling.**
+
+### A17.3 THE CEILING'S MISSING CALL SITE — CARRIED FORWARD, DELIBERATELY NOT REPAIRED
+
+`so3af2_run_arm.sh:131` sets `CEILING=9.0`; `:517` echoes it into every ledger row; **it appears nowhere else in the case directory** — two occurrences, one file, and nothing compares the cumulative item total against it. **A registered number written into every row and read by nothing.**
+
+**NOT FIXED HERE, and the reason is not laziness.** The item is at rest and nothing further fires, so a launcher edit buys **no enforcement**; and it would spend the one thing this item still has — **an instrument history nobody touched after the fact**. It is recorded as a **carried-forward defect for any successor**. **The valuable question is not this launcher but how much of the family does the same thing, and that sweep is the supervisor's, commissioned separately.**
+
+### A17.4 REST STATE — VERIFIED BY EXECUTION, NOT CLAIMED
+
+Stating a rest state is not checking one, so it was checked. **`so3af2_reststate_evidence_20260904.txt`**, beside this file, is the **output** of the commands. It does **not** supersede `so3af2_reststate_evidence.txt`, which records the 2026-09-03 stand-down and is left untouched beside it.
+
+| what | reading |
+|---|---|
+| disk == HEAD | **13 of 13 files**, including `docs/COST_CALIBRATION.md` and the provenance ledger |
+| **`so3af2_read.py`** | **`d5f4149d43abe3a165ffe7e653b78bee`** — the 2026-08-31 freeze value. **Sixteen addenda, nine launches, three defect classes closed and one supervisor's ruling overturned, and the scoring instrument was never once edited.** |
+| run root | **22 entries, enumerated** |
+| archives | 6, 32, 33, 166, 211, 211 paths — **nothing deleted at any point; every superseded root MOVED**, the last with its count asserted both sides, **211 = 211** |
+| graded artefacts | `so3af2_M.json` 11,681 B with **3** residual histories; `so3af2_READ.json` 1,865 B reading `F1–F5 all True`; `XM.log` 63,350 B / 1,831 lines |
+| live containers / queue rows | **0 / 0 / 0** |
+| guard suite | **`SO3aF2 PIN CENSUS: PASS 60  FAIL 0  NOT RUN 0`** — driven at stand-down, not recalled |
+| item cost | **9.2833 core-min across NINE launches**, computed from the ledger by machine |
+
+### A17.5 OPEN, UNCHASED, AND NOT CLOSED BY A GOOD NIGHT
+
+1. **The ceiling has no call site** (§A17.3).
+2. **The frame allowance under-covers teardown** — **n=1, deliberately unresized**; a constant fitted to a single sample is the shape this family was bitten by repeatedly.
+3. **The census stall is UNEXPLAINED** — two attempts, 6.0 core-min, no enumeration, cause unmeasured, **parked with its evidence intact**.
+4. **The cache-state gap for solver arms** — routed upward with its evidence; **recorded, not amended.**
+
+**None of these is closed by this item having come out well.** A defect parked with its evidence is a finding; a defect quietly dropped because the night ended happily is nothing.
+
+### A17.6 WHAT THIS ITEM STILL DOES NOT CLAIM — restated BECAUSE it came out well
+
+**§0.2 binds in full.** This item **never called `solve_linear`**, cannot show SO-3aR's adjoint collision is fixed, and **nothing it measured may be quoted toward it — least of all now.** It is a **`prereg=FEASIBILITY`** and **may never be cited as a rule-2 gradient freeze.**
+
+**`MESH` complete and `NOT A RESULT`. `XM` complete, `rc=0`, F1–F5 all HIT. Item label: `NO ITEM VERDICT BY CONSTRUCTION`. AT REST. NOTHING QUEUED, NOTHING RUNNING, NOTHING FURTHER FIRES. SUBMISSIONS PARKED.**
+
+**END OF ADDENDUM 17.**

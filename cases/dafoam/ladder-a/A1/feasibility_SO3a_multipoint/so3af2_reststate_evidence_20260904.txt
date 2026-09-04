@@ -1,0 +1,131 @@
+SO3aF2 REST STATE AT THE 2026-09-04 STAND-DOWN -- VERIFIED BY EXECUTION.
+Produced 2026-09-04T014802Z by the dafoam lane on the supervisor's
+instruction to verify rather than assert. Every line below is the OUTPUT of a
+command run at that time. It does NOT supersede so3af2_reststate_evidence.txt,
+which records the 2026-09-03 stand-down and is left untouched beside it.
+
+0. THE LABEL, RULED BY THE dafoam-supervisor 2026-09-04:
+     NO ITEM VERDICT BY CONSTRUCTION -- F1-F5 all HIT, reported, not graded.
+   Verified at source by this lane, FEASIBILITY_PREREGISTRATION.md:271-275:
+   the only tokens this item may emit are BLOCKED and NOT A RESULT, both
+   FAILURE labels. NO SUCCESS LABEL IS REGISTERED, because there is no gate.
+   Neither token fired. The five HITs are a REPORT and the report is the
+   product. The string PASS appears nowhere in this item's verdict.
+
+1. DISK == HEAD on every file this lane touched (md5 of working file vs
+   md5 of 'git show HEAD:<path>').
+     FEASIBILITY_PREREGISTRATION.md                 disk == HEAD  a80df11edfa8afbb3e14b3dc96f2055d
+     so3af2_read.py                                 disk == HEAD  d5f4149d43abe3a165ffe7e653b78bee
+     so3af2_runScript.py                            disk == HEAD  f3913ddbe0bafe874755332561407d0f
+     so3af2_run_arm.sh                              disk == HEAD  8469c92765e95fe0c1833fc0b21194bf
+     so3af2_pin_selftest.sh                         disk == HEAD  ee0bbe2e0bd33544d137c41e5370fe40
+     so3af2_env_assert.sh                           disk == HEAD  a5b7fcae05aab420d94623582d45f897
+     so3af2_attr_census.py                          disk == HEAD  2fd479d881f63b529605b3a45d0154f3
+     so3af2_runScript_DELTAS_addendum15.diff        disk == HEAD  f5d9bff52b974dfc991c8afd267fb29a
+     SO3aF2_F1_SUCCESSOR_DRAFT.md                   disk == HEAD  3d86c81fd1c440a30846915d9f5743fb
+     so3af2_logresid_probe.py                       disk == HEAD  44bff8088b3748d9f1bca9cf88411c25
+     so3af2_logresid_evidence.txt                   disk == HEAD  36d96895f5246ba487594ee5ffe44cd9
+     COST_CALIBRATION.md                            disk == HEAD  92e2f8a53ab671b86b6ec052b35ac287
+     append_block_provenance.jsonl                  disk == HEAD  46eab2c46887cf880e92bcfe808ea89e
+
+2. THE FROZEN GRADER IS STILL THE FILE THAT WAS FROZEN, and it is the one
+   line here that would have been worth anything had the item produced
+   nothing. so3af2_read.py md5:
+     d5f4149d43abe3a165ffe7e653b78bee   (2026-08-31 freeze, commit 3b85e47f0893d322a198e7d52b989e51aa43c205)
+   Sixteen addenda, nine launches, three defect classes closed, one ruling
+   overturned -- and the scoring instrument was never once edited.
+
+3. RUN ROOT, ENUMERATED (not summarised):
+     ATTRCENSUS
+     ATTRCENSUS_2026-09-03T230242Z.container.log
+     ATTRCENSUS_2026-09-03T230242Z.inspect.txt
+     ATTRCENSUS_2026-09-03T231752Z.container.log
+     ATTRCENSUS_2026-09-03T231752Z.inspect.txt
+     ATTRCENSUS_PRESTOP_arm.log
+     ATTRCENSUS_PRESTOP_docker_logs.txt
+     ATTRCENSUS_PRESTOP_inspect.txt
+     ATTRCENSUS_stopped_rc9_20260903T231526Z
+     MESH
+     MESH_2026-09-03T223426Z.container.log
+     MESH_2026-09-03T223426Z.inspect.txt
+     XM
+     XM_2026-09-03T224931Z.container.log
+     XM_2026-09-03T224931Z.inspect.txt
+     XM_2026-09-03T233357Z.container.log
+     XM_2026-09-03T233357Z.inspect.txt
+     XM_2026-09-04T013622Z.container.log
+     XM_2026-09-04T013622Z.inspect.txt
+     XM_rc7_20260903T233132Z
+     XM_rc7_superseded_2026-09-04T013615Z
+     ledger.txt
+     so3af2_env_assert.sh
+
+4. ARCHIVES PRESERVED, BY PATH COUNT AT THIS READING. Nothing was deleted at
+   any point in this item; every superseded root was MOVED.
+     CURRICULUM-SO3aF2-a1-naca0012-multipoint-feasibility_rc127_20260903T220940Z        6 paths
+     CURRICULUM-SO3aF2-a1-naca0012-multipoint-feasibility_rc127r2_20260903T222137Z     32 paths
+     CURRICULUM-SO3aF2-a1-naca0012-multipoint-feasibility_rc1r3_20260903T223143Z       33 paths
+     ATTRCENSUS_stopped_rc9_20260903T231526Z                                          166 paths
+     XM_rc7_20260903T233132Z                                                          211 paths
+     XM_rc7_superseded_2026-09-04T013615Z                                             211 paths
+     XM_rc7_superseded_2026-09-04T013615Z was moved by this lane with the path
+     count asserted on BOTH sides at the time of the move: 211 = 211.
+
+5. THE GRADED ARTEFACTS OF THE COMPLETED ARM:
+     so3af2_M.json    11681 bytes
+     so3af2_READ.json 1865 bytes
+     XM.log           63350 bytes, 1831 lines
+     residual_histories in the artefact: 3
+     predictions read back from so3af2_READ.json: {'F1': True, 'F2': True, 'F3': True, 'F4': True, 'F5': True}
+
+6. NOTHING IS LEFT RUNNING AND NOTHING IS LEFT QUEUED:
+     live containers, any image       : 0
+     live containers, so3af2_ prefix  : 0
+     pending rows verification/queue/dafoam : 0
+
+7. GUARD SUITE AT STAND-DOWN (driven, not recalled):
+     SO3aF2 PIN CENSUS: PASS 60  FAIL 0  NOT RUN 0
+     NOT RUN 0 is the load-bearing figure: a skipped leg is reported NOT RUN,
+     never PASS, and there are none.
+
+8. ITEM COST, COMPUTED FROM THE LEDGER AT THIS READING, NOT RECALLED:
+     MESH        2026-09-03T223426Z  0.0500
+     XM          2026-09-03T224931Z  0.3500
+     ATTRCENSUS  2026-09-03T230242Z  3.6833
+     ATTRCENSUS  2026-09-03T230242Z  3.7000 <- INTERVENTION NOTE, same event as the row above; NOT a second spend
+     ATTRCENSUS  2026-09-03T231752Z  2.3000
+     XM          2026-09-03T233357Z  0.4000
+     XM          2026-09-04T013622Z  2.4833
+     launcher rows sum            : 9.2666
+     archived MESH aborts (A13.4) : 0.0167
+     ITEM TOTAL                   : 9.2833 core-min across NINE launches
+     REGISTERED CEILING (section 7): 9.0000
+     OVER CEILING BY              : 0.2833 core-min (3.15%)  -- NAMED, NOT NETTED,
+                                    NOT ABSORBED, AND THE CEILING IS NOT RAISED.
+     cost_basis: REPORTED-BY-OWNER, NOT MEASURED -- wall seconds and rank
+     count are read from the ledger rows the launcher wrote; the $0.0513/core-h
+     rate is owner-stated and this box cannot read its own billing
+     (COMPUTE_BUDGET_CHARTER section 5).
+
+9. CARRIED FORWARD, OPEN AND UNCHASED -- recorded so a successor inherits them
+   rather than rediscovering them:
+     (a) THE CEILING HAS NO CALL SITE. so3af2_run_arm.sh:131 sets CEILING=9.0
+         and :517 echoes it into every ledger row. Occurrences of CEILING
+         anywhere else in the case directory: 2 total in the launcher, and
+         1 file(s) mention it at all. NOTHING COMPARES THE CUMULATIVE
+         TOTAL TO IT. DELIBERATELY NOT REPAIRED: the item is at rest, editing
+         a launcher post-compute buys no enforcement, and the one thing this
+         item still has is an instrument history nobody touched after the fact.
+     (b) THE FRAME ALLOWANCE UNDER-COVERS TEARDOWN. n=1, DELIBERATELY
+         UNRESIZED -- a constant fitted to a single sample is the shape this
+         family was bitten by repeatedly.
+     (c) THE CENSUS STALL IS UNEXPLAINED. Two attempts, 6.0 core-min, no
+         enumeration, cause UNMEASURED. Parked with its evidence intact.
+     (d) THE CACHE-STATE GAP for solver arms. Routed upward by the supervisor;
+         recorded here, not amended -- a charter clause is not a lane's to write.
+
+10. WHAT THIS ITEM STILL DOES NOT CLAIM, restated because it came out well:
+     section 0.2 binds IN FULL. This item never called solve_linear, cannot
+     show SO-3aR's adjoint collision is fixed, and NOTHING IT MEASURED MAY BE
+     QUOTED TOWARD IT. It is a prereg=FEASIBILITY and may never be cited as a
+     rule-2 gradient freeze. SUBMISSIONS PARKED.
