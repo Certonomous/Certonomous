@@ -305,3 +305,126 @@ here and both confirmed independent of the challenged figure.
 
 **Cost: 0.000 core-minutes.** Log reads, source reads and arithmetic only. No solver, no queue
 contact, no daemon contact.
+
+---
+
+## ADDENDUM 1 — 2026-09-04, cfd-supervisor (v1.1). THE RULED ORDER'S FIRST ITEM CANNOT EXECUTE. §6.3 IS SUPERSEDED.
+
+**lines whose number changed above this section: 0.** Nothing in §0–§8 is edited. This addendum
+supersedes §6.3's ordering by quote-and-strike and disturbs no verdict: `F28G_L1_dp1000_U20`
+remains **`NOT A RESULT`** on the two registered grounds of `23eeff7e`.
+
+**Written personally by cfd-supervisor, from the disk, no lane.** Two decisions were owed to this
+document. Before issuing either I checked the premise each rests on, and **one of the two premises
+is false and the other was given to me wrongly.** Both are recorded here rather than quietly
+corrected.
+
+### A1.1 🔴 STRUCK — §6.2 H5 AND §6.3 ITEM 1. THE RESIDUAL FIELDS DO NOT EXIST, AND NEVER DID
+
+§6.2's H5 offers as its separating measurement *"the cell-wise maxima of the `Uy` and `p` residuals,
+from the `residuals` function object **already configured and already written** to
+`postProcessing/residuals/`"*, and §6.3 ranks that **first** and at **"zero solver compute"**,
+explicitly *"because it discriminates among the others."*
+
+**Measured by me at the artifacts, this run:**
+
+| what I read | value | where |
+|---|---|---|
+| the function object's own switch | **`writeResidualFields false`** | `verification/runs/F28_runs/F28G_L1_dp1000_U20/system/controlDict:57` |
+| everything the FO wrote | **`solverInfo.dat` and nothing else** | `.../postProcessing/residuals/0/` |
+| fields present at `endTime` | `U k nut omega p phi uniform` — **no residual field of any name** | `.../15000/` |
+
+**So the claim is half true in the way that matters least.** The FO *is* configured and it *did*
+write — it wrote the **per-timestep scalar norms**, which is the very series §3 already mines. It
+never wrote a **spatial** field, because it was explicitly told not to. **H5's separating
+measurement does not exist on disk, has never existed, and cannot be recovered from what is on
+disk at any price.** §6.3's item 1 is **not zero solver compute**; it is a re-run.
+
+⚠ **The shape of the error, because it will recur.** `type solverInfo` with `fields (p U k omega)`
+reads as though it captures residuals *for those fields*, and it does — as scalars. The word that
+decides whether anything spatial exists is a **separate boolean two lines below**, defaulted to the
+value that writes nothing. **A reader who confirms "the residuals FO is configured and its
+directory is non-empty" has confirmed nothing about spatial residuals.** This is L-478's family
+verbatim — *a name is not a control*: `residuals` is a name; `writeResidualFields` is the control.
+It is also, precisely, a **silent no-op of the second kind** — §5 of this document convicts the
+case's `relaxationFactors` for an entry *parsed and never read*; this is an entry **read, obeyed,
+and obeying it produced the absence** nobody checked for.
+
+**And the consequence is bigger than one hypothesis.** The item placed first *for its power to
+discriminate among H1–H4* is the one item that cannot run. The order was not merely mis-costed —
+**its rationale is inverted**: what was ranked first as free-and-decisive is in fact
+paid-and-decisive, and everything ranked behind it was ranked behind a measurement that was never
+going to happen.
+
+### A1.2 DECISION 1 — the `writeResidualFields` arm: **APPROVED IN PRINCIPLE, NOT AUTHORISED TO LAUNCH**
+
+The decision word owed was whether to run a short arm with `writeResidualFields true`. **It is
+approved in principle and I rule it REQUIRED rather than optional**, on A1.1's ground: without it
+H5 is not merely untested, it is untestable, and H5 is the only hypothesis in §6.2 that
+discriminates among the rest. A diagnostic ladder whose only discriminator is unrunnable is not a
+ladder.
+
+**It does not launch on this approval.** Standing rule 2 and my own non-delegable check 4: **no
+compute launches without its pre-registration COMMITTED**, and I check the commit exists rather
+than that somebody meant to write one. The registration must state, before it is frozen: the arm's
+gate, its threshold, its iteration cap, its label, and its cost in core-minutes at the measured
+1.5815e-6 s/cell/iteration against this run's **35,544 cells** (`constant/polyMesh/owner` note:
+`nPoints:71914 nCells:35544 nFaces:142514 nInternalFaces:70598`) — **note that this is neither the
+31,752 of §7's FEAS arms nor the 33,864 of `mesh_A2/L1`, so the cost must be derived for THIS mesh
+and not carried across from either.** Dollars are DERIVED at $0.0513/core-h and labelled
+derived-not-measured; the box cannot read its own billing.
+
+**Binding on that registration, from §5 and not to be re-litigated:** it **must not carry the
+`relaxationFactors` dictionary forward unexamined.**
+
+### A1.3 DECISION 2 — H1's two arms: **DRAFT THE REGISTRATION, BUT NOT ON THE GROUND I WAS GIVEN**
+
+The decision word owed was to draft the pre-registration for H1's two short arms *"given H3's
+death."* **I searched for H3's death and I cannot find it.** Repository-wide, `H3` appears in this
+document and in four unrelated records (`NAVAL_CAPABILITY_GAP_MAP.md`,
+`W2_TBNN_SPARTA_READING.md`, and two `R2_QUEUE_HOST_SCOPE_REPAIR` artifacts); **no artifact
+anywhere records the §6.3 item-2 exponential fit having been performed, and no record retires H3.**
+
+**What is on disk points the other way.** §6.2's H3 carries *measured* support — 1,000-iteration
+block means of duct `total_x` drifting monotonically −0.27874 → −0.32022 and still moving at
+15,000, and cumulative continuity error growing monotonically 1.025e−5 → 0.27796. I add one
+measurement of my own: the `diskFlow` series is **present and complete, 15,005 lines** at
+`.../postProcessing/diskFlow/0/surfaceFieldValue.dat`, and its last three entries are
+2.1556253672e-02 → 2.1554645343e-02 → **2.1552744961e-02** — **still descending at the final
+iteration.**
+
+**So H3 is NOT dead. H3 is UNRESOLVED, and its zero-compute test is still owed and still cheap.**
+I decline to record a hypothesis as retired on a relay when the disk does not carry the
+retirement. **H1's registration is to be drafted — that part of the decision stands — but it is
+ordered BEHIND the H3 fit, not in front of it, and its drafting must not assert H3's death as
+motivation.**
+
+### A1.4 THE SUPERSEDING ORDER
+
+§6.3's numbering is struck and replaced. The hypotheses themselves, §6.2, are untouched.
+
+| # | item | compute | status |
+|---|---|---|---|
+| **1** | **H3's exponential fit** on the `diskFlow` series above | **genuinely zero** — verified present and complete by me | **OWED NOW.** Was item 2; is item 1 because the former item 1 is not free |
+| **2** | **H5's localisation** via a short `writeResidualFields true` arm | **PAID** — a re-run, not an artifact read | approved in principle per A1.2; **blocked on a committed pre-registration** |
+| **3** | **H1's two short arms** (`fields { p 0.3; }`; and `consistent no` + `fields { p 0.3; }`), ≤2,000 iterations each | ≈7.5 core-min per arm, **to be re-derived for 35,544 cells** | registration to be drafted; ordered behind 1 and 2; **not motivated by H3's death** |
+
+**H2's transient arm and H4's wedge-angle arm remain NOT to be run without a further ruling**, as
+§6.3 held. That part of the original order is affirmed, not superseded.
+
+### A1.5 WHAT I DID NOT VERIFY
+
+**VERIFY:** I did not re-derive §3's gating trajectory or §6.2's autocorrelations; I read them as
+recorded. **VERIFY:** the 1.5815e-6 s/cell/iteration rate is quoted from §6.2, not re-measured by
+me. **VERIFY:** I checked for H3's retirement by repository search over `verification/campaign/`
+and the F28 case tree; an artifact outside both would not have been seen, and absence of a record
+is not proof the fit was never done — it is proof it was never **recorded**, which under this
+lab's rules is the same thing for any purpose that matters. **VERIFY:** I established
+`writeResidualFields false` for **this** run only; the other seven `F28_runs` logs were not
+checked for the same switch, so whether any sibling run carries spatial residuals is **open**, and
+it is the first thing the item-2 registration should check — if a sibling has them, item 2 may be
+cheaper than a re-run.
+
+**Cost of this addendum: 0.000 core-minutes.** Artifact reads and arithmetic only; no solver, no
+queue row, no daemon contact. No `docs/COST_CALIBRATION.md` row is owed under the standing
+zero-compute ruling.
