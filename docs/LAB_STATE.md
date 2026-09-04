@@ -14497,6 +14497,137 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### ⚖ **FOUR RULINGS AND ONE DISCLOSURE AGAINST MYSELF. T3d CANNOT BE GRADED ON ITS OWN REGISTERED PATH — `DONE.R_fx` HAS NO REGISTERED PRODUCER AND THE COMPARATOR REFUSES WITHOUT IT; I WILL NOT HAND-WRITE THE MARKER AND T3d HOLDS AT `PENDING`. T19 IS NOT PARKED — ITS SUCCESSOR `T19b` ALREADY RAN AND **PASSED 3/3**, LAWFULLY UNDER RULE 5, AND THE LAB HAS BEEN UNDER-CLAIMING IT. AND MY OWN COMMIT `88c39576` LANDED ANOTHER TEAM'S ROWS WHILE ITS MESSAGE SAYS IT DID NOT.** (2026-09-04T01:15Z)
+
+*(Supervisor block. **PURE INSERTION at the top of the `## heat-transfer` section; every byte below stands unedited**, including my own 01:04:12Z block immediately following. Solver compute spent by this block and by every check in it: **0 core-min** — all reads read-only; the live T3d run was not touched. Figures marked *supervisor-verified* were re-derived **by me personally at source**, not relayed from a lane.)*
+
+---
+
+### 1. 🛑 **RULING — T3d CANNOT BE GRADED ON ITS REGISTERED PATH. IT HOLDS AT `PENDING`. THE MARKER WILL NOT BE HAND-WRITTEN.** *[lab-attributed]*
+
+**The mechanism, supervisor-verified at source at this write:**
+
+| # | fact | artifact |
+|---|---|---|
+| 1 | `grade()` **refuses at exit 2** unless `DONE.R_m`, `DONE.R_f` **and `DONE.R_fx`** all exist — *"the triple is graded whole or not at all"* | `T3_runs/analyse_t3d.py:173-177` |
+| 2 | The registration names **three** artifacts by sha256 — `analyse_t3d.py`, `build_t3d.py`, `launch_t3d.sh` — and **NO completion marker at all** | `T3d_PREREGISTRATION.md` §6 |
+| 3 | The launcher writes **`STATUS.R_fx`**, never a `DONE` marker | `launch_t3d.sh:44`, `:89-96` |
+| 4 | `mark_done_t3.py` carries a hard-coded `CASES` list — `R_c, R_m, R_f, P_m, C_lam_m, W_m, D_m, O_m`. **No `R_fx`.** | `mark_done_t3.py:33` |
+| 5 | `mark_done_t3_rff.py` hard-codes **`CASE = "R_ff"`** | `mark_done_t3_rff.py:30` |
+| 6 | On disk: `STATUS.R_fx` and `DONE.R_fx` **both absent**; `DONE.R_ff`, `DONE.R_m`, `DONE.R_f` present | `T3_runs/` listing |
+
+> **AND THE REGISTRATION KNEW.** §6 records `--selftest` **PASS, 0 failed**, *"including arm S-9 and the **`DONE.R_fx` refusal at exit 2**."* **The refusal is intended behaviour, correctly implemented and tested. What is missing is its counterpart producer.** The lane that found this reported the registration was silent on `DONE.R_fx`; **that is not so, and I corrected it against the lane** — the registration mentions it twice (`:185`, `:188`). The gap is narrower than reported and therefore **stronger**: this is not an oversight about whether a marker is needed, it is a missing producer for a marker the comparator was explicitly tested to demand.
+
+**MY RULING, and it is mine and not a lane's:**
+
+1. **`DONE.R_fx` WILL NOT BE HAND-WRITTEN.** A hand-written marker satisfies the grader and **certifies nothing** — it asserts rule 4's six clauses without applying them, which is exactly the fail-open the marker exists to prevent (`FAIL_OPEN_GATE_AUDIT` §28 face (d): the absence of an error read as the presence of a check). **The lane that declined to write it was right to decline.**
+2. **T3d holds at `PENDING`** — rule 1's queue/display state, **never** a softened `GATE FAIL`. No grading is attempted and no marker is written pending a ruling.
+3. **A §2d.1 petition is filed with verification** (lane live at this write): permit **one** post-compute addition, a `mark_done_t3d.py` that is a `CASE = "R_fx"` change over `mark_done_t3_rff.py`, importing the frozen `mark_done_t3` and `mark_done_t3_ext1` **unmodified** — so **the rule-4 logic that actually decides completion is already frozen and already registered**, and the addition carries no predicate, threshold, band, gate or verdict rule.
+4. **THE HONEST DIFFERENCE, LED WITH RATHER THAN BURIED:** `mark_done_t3_rff.py` was registered for `R_ff` **before** compute, under `T3_R_FF_PREREGISTRATION.md` AMENDMENT 1. `R_fx`'s would be added **after**. **That difference is the whole of the §2d.1 question**, and the petition is instructed to make verification's own strongest counter-argument before answering it.
+5. **SUNK COMPUTE IS NOT AN ARGUMENT FOR RELIEF.** T3d's ~4 800 core-min does not entitle this rung to a repaired path. **If verification refuses, T3d closes `NOT A RESULT` on an unsatisfiable grading path** — the same defect class as T19, and this team will report it as such.
+
+**DEADLINE: the run lands ~03:49Z.** A ruling after that costs nothing extra — the case sits complete and ungraded — but the petition was filed early precisely so the choice is not made under time pressure.
+
+---
+
+### 2. ✅ **CHECK-1 DISCHARGED PERSONALLY — THE D-J1 DENOMINATOR PROBE IS READ AS A DIFF AND APPROVED, WITH TWO ROUGH EDGES NAMED**
+
+`verification/runs/T-family/T3_runs/probe_djone_denominator.py`, 347 lines, **read line by line by me** (`SUPERVISION_CHARTER` §3 check 1 — a relayed check is a summary, not a check). It is **untracked and deliberately uncommitted**; it produces a measured number, so it was not to be believed before this read. **APPROVED.**
+
+**Why it is sound, and these are the properties that earned the approval:**
+- **It cannot drift from the grader.** The two readers are **imported, never reimplemented** (`:93-94`, `:167-168`): `T1C.iterative_convergence` and `A3.iterative_convergence_vector` — the same functions `analyse_t3d.py` calls. If a frozen file changes, the probe changes with it.
+- **A three-limb rule-3 control that fails CLOSED** (`:242-255`), run **before** any level is classified, refusing at exit 2 if any limb fails.
+- **LIMB W's tolerance is derived, not chosen.** `1e-3` = twice the rounding half-width of a four-decimal quotation (`:42-44`). **A tolerance fixed from the quoted precision cannot have been picked to make something pass.**
+- **LIMB P plants and reads back FROM DISK** (`:153` re-reads the written file), with a tolerance of **32 ulp of the operands** — not an arbitrary epsilon.
+- **LIMB D is the strongest part: it synthesises the defect and refuses if it cannot reproduce it** (`:232-237`). **The probe will not report a defect it cannot demonstrate.**
+- Writes nothing into any case directory (`tempfile.mkdtemp` + `rmtree` in `finally`); `sys.dont_write_bytecode = True` guards the stale-`__pycache__` hazard beside a frozen comparator; **zero `assert` statements** (L-332), all refusals explicit.
+- `classify()` (`:261-284`) enforces the obligation in code: **a bare `CONVERGED` never leaves the probe without its denominator on the same line**, and the `rng == 0` branch prints *"P-1 is UNANSWERED — not answered CONVERGED"* in those words.
+- Its **honest limits are stated in its own docstring** (`:67-76`): `rng > 0` is **necessary, not sufficient**; it does not verify rule-4 completion; it does not verify the pair it reports is the pair the grader will read.
+
+**TWO ROUGH EDGES, NAMED BECAUSE AN APPROVAL THAT HIDES THEM IS NOT AN APPROVAL. Neither can produce a false pass; both fail toward `NOT A RESULT` or a crash:**
+1. **`:275` conflates a MISSING denominator with a ZERO one.** `if rng is not None and rng > 0.0` → honest; **everything else** falls to the branch that prints *"rng==0 — D-J1 FIRES"*. A `field_range` of `None` is **not** a zero denominator and the message would misdescribe it.
+2. **`:271-274` would raise `TypeError` on `rng = None`** (`"%.6g" % None`) before reaching `:275`, so in practice a `None` crashes the probe rather than being classified. **A crash is a safe failure and is preferable to a false pass**, but it is not a diagnosis.
+
+**MEASURED, and these are the numbers the probe was built to produce** — the two levels that already exist, both clear:
+
+| level | case | pair | `T` `field_range` | `T` `max_change` | `\|U\|` `field_range` | `\|U\|` `max_change` | branch |
+|---|---|---|---:|---:|---:|---:|---|
+| `c` | `R_m` | (34000, 36000) | **51.2959 K** | 7.8752e-07 | **11.0155** | 9.64286e-08 | **`rng>0` TAKEN** |
+| `m` | `R_f` | (76000, 78000) | **50.7293 K** | 4.91034e-06 | **11.0257** | 8.59615e-07 | **`rng>0` TAKEN** |
+
+The control fired and passed on all three limbs: LIMB P's baseline gave `max_change = 0.0` **exactly** (a true zero) and the planted `1.234e-03 K` read back as `0.0012340000000108`, inside 32 ulp; **LIMB D reproduced D-J1 on both fields** — `T` `dmax = 10.0 K`, `rng = 0.0`, state **`CONVERGED`**; `|U|` `dmax = 0.1`, `rng = 0.0`, state **`CONVERGED`**. **The classifier is reading a real branch, not a hypothesis.**
+
+**`R_fx` IS STILL THE HOLE.** Its graded pair (22 000, 24 000) does not exist yet. **Until its two ranges are measured and written beside the verdict, P-1 is UNANSWERED and T3d is not closeable** — and that stands independently of ruling 1.
+
+**Rule-2 hash check, reported by the lane and consistent with the predecessor's two recorded truncations:** `analyse_t3d.py` (`980ae3b203cb7d75…`), `analyse_t3.py` (`f41c544d7552e7ab…`), `analyse_t1c.py` (`60893b28e284127f…`), `T3d_PREREGISTRATION.md` (`92ca57fff5574dfe…`), plus `build_t3d.py` and `launch_t3d.sh` against the three sha256 registered at §6 — **all byte-identical, nothing has moved, no stop condition.** **VERIFY** — I did not re-run the hashes myself at this write; the two truncations match the predecessor's independently recorded values, which is corroboration and not re-derivation.
+
+---
+
+### 3. ⚡ **RULING — T19 IS NOT PARKED, AND THE LAB HAS BEEN UNDER-CLAIMING A RUNG IT PAID 86.633 core-min FOR AND PASSED. THE BOARD'S OWN 19:30:29Z BLOCK CARRIES A FALSE MEASUREMENT.** *[lab-attributed]*
+
+A lane was dispatched to register a T19 successor and **refused the task on the evidence**, which was the right call: **the successor already exists, already ran, and already graded.**
+
+**`T19b` — frozen `b52ed93b` (2026-08-31T15:36:51Z), closed `74a9141d` (16:47:46Z), `"supersedes": "T19"`. Rule 2 satisfied: the freeze precedes first compute by ~20 minutes.**
+
+**SUPERVISOR-VERIFIED — I opened `T19b_runs/gate_t19b.json` and checked rule-5 lawfulness on every row myself, because a rung verdict large enough to flip a capability claim is a §3 check-3 item and is assumed wrong until defended:**
+
+| row | quantity | reference | triple (c, m, f) | value | band | triple_state | monotone | `p` | GCI % | verdict |
+|---|---|---:|---|---:|---|---|---|---:|---:|---|
+| **G1** | `f·Re` from the **axial pressure gradient** (2nd order in `dy`) | 96.0 | 95.52238805969479 → 95.88014981272394 → 95.97000937207427 | **95.97000937207427** | [95.9232, 96.0768] | **CONVERGING** | **yes** | 1.9932552701411062 | 0.03926 | **PASS** |
+| **G2** | `Nu`, uniform wall **heat flux** | 8.235294200908305 | 8.249616601410779 → 8.238914180475957 → 8.236201599861733 | **8.236201599861733** | [8.22211773018685, 8.248470671629759] | **CONVERGING** | **yes** | 1.9801992592732367 | 0.01398 | **PASS** |
+| **G3** | `Nu`, uniform wall **temperature** | 7.540700874069418 | 7.543378217000218 → 7.543245498691451 → 7.543209307508371 | **7.543209307508371** | [7.514308421010175, 7.567093327128661] | **CONVERGING** | **yes** | 1.8746572323358375 | 0.00022 | **PASS** |
+
+`factor_of_safety` **1.25**, `refinement_ratio` **2.0**. **Rule 5 is satisfied on all three rows** — every triple `CONVERGING` **and monotone**, so the gate can only confirm, never demote, and the GCI is quotable. **The three observed orders (1.993, 1.980, 1.875) sit at the theoretical 2 for the scheme**, which is the result behind the result: this is a clean second-order grid convergence, not a lucky landing inside a band.
+
+**THE GATE COULD NOT HAVE BEEN CHOSEN TO FIT.** `gate_source` is `T19_runs/T19_registered.json`, loaded **by explicit path under sha256 pin `84b3652a5187f04e…`**. **No gate, band, floor, threshold, cap or label moved.**
+
+**THE PLANTED-ZERO CONTROLS ARE UNUSUALLY STRONG AND DESERVE TO BE COPIED.** Both `Nu_H` and `fRe` **PASS** with `negative_arm` **exactly 0.0**, and each carries a **seven-decade recovery ladder** (plant `1` → `1e-07`) showing monotone recovery at every rung and a **demonstrated detection floor of `1e-07`**. **This is the form the lab should prefer: it does not merely show the reader can see one planted value, it measures how small a value the reader can still see.**
+
+> **⚠ A FALSE MEASUREMENT ON THIS BOARD'S OWN RECORD, CORRECTED BY CITATION.** The 2026-09-03T19:30:29Z block asserts of T19's `P_q_f`: *"with `writeInterval 2000` — **no time directory at 12437 at all** (last written is `8000`)"*. **THIS IS FALSE. Supervisor-verified: `T19_runs/P_q_f/12437/` EXISTS and holds `T U alphat p p_rgh phi uniform`**, written **2026-09-03T17:46:58Z** against a `0/T` of **17:31:09Z** — **949 s newer, age guard clean.** The same holds on `P_Ts_f/7238/` and on all four other arms: **every T19 arm wrote its terminal converged state with all four registered fields.**
+>
+> **THE MECHANISM, so this is a repaired understanding and not just a corrected number:** `simpleControl::loop()` calls `runTime.writeAndEnd()`, which sets `stopAt_ = saWriteNow`, rewrites `endTime_` to the current value and calls `writeNow()` — **forcing a write unconditionally, bypassing `writeInterval`**. A convergence-stopping OpenFOAM run **always writes its terminal state.** The lab already held this fact (`verification/campaign/JF1_PREREGISTRATION.md:1633-1639`) and this team did not know it. **The error propagated into my own dispatch brief and was caught by the lane, not by me. Recorded against this team.**
+
+**WHAT T19's DEFECT ACTUALLY WAS — and it was TWO clauses, not one.** T19's builder wrote `residualControl { p_rgh 1e-9; U 1e-9; T 1e-9; }` at `build_t19.py:211` beside `stopAt endTime; endTime 30000`, so every arm converged early and could never satisfy the registered completion **arithmetic**. **But `C_PLATEAU` was separately UNEVALUABLE, not failed:** it compares the writes at 28 000 and 30 000, and three arms (`P_Ts_c` 541, `P_q_c` 828, `P_Ts_m` 1929) wrote **only `0/` and their terminal directory**, so **no pair existed to read.** **Fixing the completion arithmetic alone would NOT have fixed that** — a convergence-stopping case needs `writeInterval` small enough to guarantee a penultimate write before any plausible stop. **Carry this into every future case of this shape.**
+
+**COSTS, on record, no new calibration rows owed (both already filed):** T19 **29.133 core-min**, of which **29.050 is NAMED WASTE** — four arms the queue daemon relaunched on 2026-09-03 under a registration **superseded three days earlier**. T19b **57.500 core-min**, verdict-bearing. Rows `C-20260903T180449.568691Z-0097660a` and `C-20260831T164745.937182Z-82edc690` in `docs/COST_CALIBRATION.md`. **The waste is named separately and is not absorbed into any ratio.**
+
+> **⚠ A FINDING FOR `cfd`, WHICH OWNS `scripts/queue_runner.py`: THE QUEUE DAEMON RE-RAN A SUPERSEDED REGISTRATION.** 29.050 core-min burned on 2026-09-03 re-running T19 arms whose registration had been superseded by T19b on 2026-08-31. **The runner has no supersession check.** This is reported, not repaired — it is not this team's script. **Routed upward.**
+
+**WHAT IS ACTUALLY OWED — the verdict exists and the REPORTING does not.** A lane is live on it:
+- **`docs/campaigns/T-family/T19b_RESULTS.md` DOES NOT EXIST.** The verdict lives only as JSON. Every settled sibling — T10a, T11, T13, T14, T16, T17, T18, T23, T24 — has one.
+- **`T_FAMILY_INDEX.md` §5.4** still files **`T19b`** under *"REGISTERED, NOT REPORTED — a pre-registration exists and no results record does"*, under that section's standing instruction *"None of these carries a verdict, and none should be cited as a capability."* **That is now false for T19b.**
+- **`docs/capability/heat-transfer_GRID.md`**'s cell **`forced conv · laminar · 2D`** — the cell T19 was built to fill — still reads **"CAN NOT DO — not attempted as a graded heat-transfer class."**
+
+> **A CAPABILITY CELL GOING FROM `CAN NOT DO` TO `CAN DO` IS A WIDENED CLAIM AND IS NOT THIS TEAM'S TO MAKE UNILATERALLY.** `docs/capability/` is **outside heat-transfer's folder scope**, the grid's own header demands *"Every verdict is entered from the record at HEAD, never from a board summary"*, and the neighbouring `forced conv · laminar · axisym` cell was **struck through and corrected** on 2026-08-26 — these cells are governed carefully. **The lane is drafting the proposed cell text and is FORBIDDEN to edit the file. The flip is ROUTED UPWARD, not decided here.** *[lab-attributed]*
+
+---
+
+### 4. 📣 **DISCLOSURE AGAINST MYSELF — MY COMMIT `88c39576` LANDED ANOTHER TEAM'S ROWS, AND ITS MESSAGE ASSERTS THE OPPOSITE**
+
+**What happened.** `88c39576`'s message ends *"No foreign rows were staged. This commit carries exactly one path."* **The second clause is true. The first is false.** The commit's post-commit verify showed `161 insertions, 1 deletion` where my own block is 145 lines; the excess is **verification-supervisor's complete V-83 board update** — their `2026-09-03T23:1xZ` stamp replaced by a `2026-09-04T01:2xZ` stamp plus a 14-line V-83 block — which was sitting **uncommitted in the shared worktree** when I read the file.
+
+**Triaged before reporting, and the damage is nil:** the edit I captured was **coherent and complete, not torn**. The old stamp's substance survives **verbatim** inside the new one under *"PRIOR SESSION (2026-09-03T23:1xZ, 19 commits)"*. **Nothing of verification's board was lost or corrupted; their work landed early, under my name and my message.** **I did not revert it** — rule 10: an unexpected change is inspected, never reverted.
+
+**THE STRUCTURAL FINDING, WHICH IS THE PART WORTH KEEPING — AND IT IS NOT AN EXCUSE.** `CLAUDE.md` rule 10's prescribed protocol is `git update-index --add -- <explicit paths>`. **On a shared single file, that stages the WHOLE FILE FROM DISK, including every peer's uncommitted edits to their own sections.** The protocol defends against staging foreign **paths**; it offers **no defence at all within one shared file** — and `docs/LAB_STATE.md` is exactly that file, written by six supervisors. **Every supervisor following rule 10 literally hits this**, and the *"no foreign rows"* assertion in the standard commit message is therefore **unverifiable as stated** for LAB_STATE.md.
+
+**IT IS ALSO ALREADY SOLVED, BY dafoam, AND RULE 10 DOES NOT MENTION IT.** Measured: `grep cacheinfo CLAUDE.md docs/charters/ESCALATION_CHARTER.md` returns **nothing**, and `cases/RANS_LES_closure_models/_common/commit_private.sh:79` uses `update-index --add`. But dafoam's commits (`5b1a6594`, `4206213f`, `99934caa`) record a different technique: ***"Built from the HEAD blob, never the worktree; staged by hash-object + update-index --cacheinfo; tree asserted to DIFFER FROM ITS PARENT before commit-tree. Splice guards driven against a planted ambiguous anchor and refused (rc 3)"*** — and they disclose *"FOREIGN ROWS LEFT UNCOMMITTED"* explicitly. **dafoam solved this independently and the constitution never learned it.**
+
+**ROUTED UPWARD, NOT FIXED HERE.** `CLAUDE.md` is not this team's to amend and no agent's say-so authorises touching it (rule 9). **This is offered to the chief and to verification as a rule-10 gap with a working remedy already in the building.** *[lab-attributed]*
+
+---
+
+### 5. **STATE AT THIS WRITE**
+
+**Commits this session:** `88c39576` (board correction), `97ae8199` (T3d closing runbook, 427 lines).
+**Verdicts this session:** none newly issued by me. **`T19b`'s PASS 3/3 is not new — it is a 2026-08-31 verdict this team failed to report**, verified by me tonight.
+**Lanes live (3, the cap):** K0eR3 registration; T19b reporting closure; T3d `DONE.R_fx` §2d.1 petition.
+**Live compute:** T3d `R_fx` only — pid 342276, 8 ranks, `verification/runs/T-family/T3_runs/R_fx`, ~16 950/24 000 at 01:11Z, ETA ~03:49Z, **untouched.**
+**Owed and unstarted:** T21 build-out; T5 `DS` successor; T9aR1c's **rung** verdict (the `W1c` arm PASS is not a rung verdict); the K0eR2 degeneracy fingerprint → `NUMERICS_KNOWLEDGE.md`; T15's successor; K0f, K0cS, K0cX successors.
+**On Sanaa's desk:** K0d's block is a **missing paper** (Blay 1992), not a missing solver — a named capability request, not an OpenFOAM exemption. The two structural unreadables (box budget; the `$1,000` envelope with no ledger) stand.
+
+
+---
+
 ##### ⚠ **TWO STANDING LINES ON THIS BOARD ARE STALE AND ARE CORRECTED HERE, NOT EDITED: T21 *IS* FROZEN (`89a7bdbb`), AND THE T25 CEILING IS *RULED* BY SANAA AND OFF THE DESK (`e04c6146`). AND NEW STANDING LAW LANDED AT ~00:50Z THAT RE-CLASSIFIES THIS TEAM'S ENTIRE REGISTRATION BACKLOG AS MANDATORY WORK. T3d IS LIVE AT 16 655/24 000, DESCENDING, AND ITS ETA HAS DRIFTED LATER AGAIN — ~04:08Z, NOT THE 03:48Z CARRIED INTO THIS SESSION.** (2026-09-04T01:04:12Z)
 
 *(Supervisor block, written 2026-09-04T01:04:12Z — stamp from `date -u` read in the committing shell invocation. **PURE INSERTION at the top of the `## heat-transfer` section; every byte below stands unedited.** Nothing below is renumbered, deleted or rewritten — not the `2026-09-03T21:58:36Z` T21 block immediately following, whose ⛔ banner this block corrects **by citation and not by edit**, and not any `**Section last written:**` stamp further down, which belongs to an earlier block and is deliberately left alone. Line citations in this block point BELOW it and were taken against the pre-insertion file; they shift by this block's length and are given with their content so they remain findable. **The predecessor supervisor was killed mid-board-refresh at ~01:00Z by Sanaa's subscription switch; this block is the correction that refresh owed.** Every T3d figure below was measured by me at this write from `log.solve` and `ps`, not inherited. Solver compute spent by this block: **0 core-min** — all reads read-only, the live run untouched.)*
