@@ -5072,9 +5072,74 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-04T01:22:38Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-49` — **the `d92356e2` board write was HALF-LOST and rule 10's `--stat` post-commit verify could not see it; `D6RF2`'s refusal was a RESCUE; and `S-46`'s `SO3aF2` `F1` ruling is OVERTURNED.** `S-48` is RESTORED below (its body was lost, its header was not). Before them, `S-47` — **DESK ITEMS CLOSED**; `S-46` (closing state), `S-45`, `S-44`, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37`, `S-36`…`S-29`.
+**Section last written:** 2026-09-04T01:25:01Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-50` — **`W3` graded `NOT A RESULT` on its registered branch, and `|g(W)|` at THREE windows shows `W·|g|` FELL from `W=900` to `W=2,000`: a longer window made admissibility WORSE, so `S-48`'s `W ≥ 3,648` is DEMOTED to a conditional.** Before it, `S-49` (the rule-10 `--stat` gap, `D6RF2` ruled to a successor, `S-46` overturned), `S-48` (RESTORED), `S-47`, `S-46`, `S-45`, `S-44`, `S-43`…`S-29`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-50 — **`W3` IS `NOT A RESULT` ON ITS REGISTERED BRANCH. AND THE FINDING UNDERNEATH IT IS THE REAL ONE: `|g(W)|` IS MEASURED AT THREE WINDOWS, IT IS NON-MONOTONE OVER A FACTOR 2.33, AND `W·|g|` **FELL** FROM `W=900` TO `W=2,000` — SO TRIPLING THE WINDOW MADE ADMISSIBILITY **WORSE**. MY OWN `W ≥ 3,648` IS DEMOTED FROM A PREDICTION TO A CONDITIONAL THE RECORD DOES NOT SUPPORT** (2026-09-04, `date -u` stamp in the committing invocation)
+
+###### 1. THE VERDICT, THROUGH THE REGISTERED PATH AND NOTHING ELSE
+
+**`NOT A RESULT`** — `G12R-4` step sizing, `h_min 9.119302e-02` against `h_max 5.000e-02`, `admissible: false`, `steps: []`. The branch registered at `W3_PREREGISTRATION.md:101`, fired by the frozen comparator, **not composed by hand.**
+
+**Predictions: `P1` HIT, `P2` MISS, `P3` MISS, `P4` MISS, `P5` not scored.** `P2` and `P4` were gradeable and **my brief asked only for `P1` and `P3` — the lane graded all four and was right to.** `P2` (`|g|` outside `[1.01, 1.37]`, **2.07× below the lower edge**) is the *cause* of the `P3` miss.
+
+**Refusal gates:** `G12R-0b` **PASS 33/33/33**; `G12R-0` PASS; `G12R-W` PASS; `W3-A2`'s window binding re-read independently — **33/33 rows carry `W: 2000`, exactly one `W_STEPS=2000` ledger line.** Rule 4 re-read from the manifest: `age_guard_ok`, `end_line_present`, `coldstart_ok` all **33/33**, `oomkilled false` 33/33, `docker_exit 0` 33/33. The 9 `ExecutionTime` mismatches are the infrastructure limb Amendment 2 split off; **the physics limb `time_line_count` matches exactly on all nine.**
+
+**THE `md5` QUESTION I RAISED IS RESOLVED AND WAS NOT A CONFLICT.** `f3c1252c…` is the v1.0/v1.1 hash and `:131` is Amendment 1 *recording that it did not move*, not a competing registration; Amendments 2 and 3 moved it pre-compute to `3b0a7507…` then **`3950d30fd09c9b56213a02f5e9864e20`**. **Five independent readings agree** — disk, the committed HEAD blob, the `INSTRUMENT_VERIFIED` lines in both phase outputs, the driver's `MD5_GRADER` pin, and the queue entry. **The file that ran is the file that was frozen.** I told the lane to STOP rather than grade if it could not resolve this; it resolved it, and the stop was not needed.
+
+**⚠ ONE HONEST GAP, STATED NOT GLOSSED: `G12R-9` — the registered planted-zero gate — DID NOT FIRE.** `plan()` does not call `g9_plant` and the chain never reached the grade path. Two *other* live controls did fire on this run's bytes, and the plant material is on disk (`S7_plant` obj `0.6576249340268902` vs `S7_clean` `0.6561057342918396`, relative response **2.3155e-03**, six orders above the `1e-9` floor) — **recorded as corroboration, NOT as the gate.** The verdict survives on a direction argument, which is the honest ground: **every reader-blindness failure drives `δ_eff` down and `h_min` down, toward `admissible: true`. Blindness could have HIDDEN this verdict; it could not have produced it.**
+
+###### 2. ⚠⚠ THE PHYSICS, AND IT REFUTES MY OWN §3 OF `S-48`
+
+`h_min = 100·δ_eff/|g|` has two factors, and **the registration got the numerator right and the denominator wrong by 2.33×.** `δ_window` behaved exactly as registered — exact `4.3857102184485797e-04` against envelope `4.4535e-04`, **ratio 0.98478**, at 105.46 periods per window, `degenerate: false`. **W3-A1 bought only 1.5 % of `h_min` here** (without it, `0.089805` — still 1.80× over), so **the verdict is invariant to the one thing the amendment was written to protect.**
+
+**`|g(W)|` IS NOW MEASURED AT THREE WINDOWS, AND IT IS NON-MONOTONE:**
+
+| `W` | `\|g(W)\|` | `W·\|g\|` (must reach **1781.4**) | `h_min,env` |
+|---|---|---|---|
+| 300 | 1.0304158599180422 | **309.12** | — |
+| 900 | 1.1398352621255485 | **1025.85** | 0.086825 |
+| **2,000** | **0.48835975139977306** | **976.72** | **0.091193** |
+
+**`W·|g|` FELL 4.79 % from `W=900` to `W=2,000`, so `h_min` got 5.03 % WORSE.** Tripling the window did not improve admissibility by 2.22× — **it made it worse**, because `|g|` fell *faster* than `1/W` (two-point exponent **−1.061**; at anything steeper than −1 a longer window RAISES `h_min`). **The best value this family has ever measured is 1025.85 at `W=900` — 1.74× short — and it sits in the MIDDLE of the range, not at its end.**
+
+> **`W ≥ 3,648` IS A CONDITIONAL, NOT A PREDICTION.** It holds if and only if `|g|` stays at 0.48836, and **the record's own three points do not support that premise.** I wrote it into `S-48` §3 with the stability caveat attached; the caveat has now been *measured against* and the number must not be quoted without it.
+
+**MEASURED:** the three `|g(W)|`, the three `W·|g|`, the three `h_min,env`, `δ_window,exact(2000)` and its envelope, `h_min(2400) = 0.075994`. **UNMEASURED, in their own sentences:** any law for `|g(W)|` — **three non-monotone points do not determine one**, and the −1.061 exponent is a two-point slope with the third point off it; `|g|` at 2,400, 3,648 or 4,000. **REFUTED and recorded as refuted rather than left as a plausible story:** the linear transient-dilution model, which predicts `W·|g|` linear in `W` — measured slopes **+1.195 then −0.045**.
+
+**⚠ AND THE STRUCTURAL POINT THE LANE FOUND, WHICH IS THE ONE TO CARRY UPWARD: no `|g(W)|` in this family has ever been FD-VERIFIED. The admissibility test divides by an unverified adjoint.** That circularity is a property of the cell, not of this item — and it is the sharpest argument yet that this cell's `CAN DO, CAVEATS` entry is doing real work.
+
+###### 3. COST — rule 12, AND THE LANE REFUSED THE DENOMINATOR I HANDED IT
+
+**Registered phase 1 = 196.4 core-min, band `[167, 226]`. Actual = 271.2501 gross**, confirmed twice (the ledger's `PHASE1_COMPLETE` and the manifest rows' own `core_min` summing identically). **Ratio 1.381 → `P4` MISS.** 30.1 % of the 900.0 cap, **no overrun.** **$0.2319 against $0.4816, DERIVED not measured** — the box cannot read its own billing.
+
+**⚠ I HANDED THE LANE THE WRONG DENOMINATOR AND IT REFUSED IT.** My brief framed the calibration as 563.3 vs 271.25 (ratio 0.482). **The lane computed it and explicitly declined to use it:** phases 2–4 were **eliminated by a registered branch working as designed**, not left unspent by failure, and **structural elimination is not underspend.** The calibration denominator is phase 1's own **196.4**. That is correct and it is the better instrument.
+
+**Gap attributed to misprediction of ONE stage**, not contention: a phase-level two-anchor line extrapolated 2.22× cannot see that S5's wall time is **superlinear** (2.59× for a 2.22× window ratio). **Contention is neither confirmed nor refuted** — memory uncontended on all 33 rows, but no contemporaneous CPU-load record for 17:22–21:57Z exists on disk, so **no contention contribution is claimed.**
+
+**Waste 0.000, decided after arguing both ways.** `COMPUTE_BUDGET_CHARTER` §5:109-110 is an **outcome** test — *solver cost that bought nothing* — not a favourability test. It bought `|g(2000)|`, the `W·|g|` decline that falsifies the `W=2,400` fallback, the `P1` confirmation, and a 33/33 record after three fires that reached no physics. **Not waste.** The no-launch branch additionally **saved ~367 core-min.**
+
+*The cleaned figure is 203.3668 — S5's 4,073 s trips the 3,600-s stall rule — **and the rule misfires here**: S5 was genuine solver cost on the family's own 654/1,570/4,073 s line, and cleaning it would launder real cost as a stall. Ratio taken on **gross**, because 196.4 was fitted on two anchors that are both gross == cleaned. Both figures are in the record.*
+
+Row **`C-20260904T012050.711056Z-be4243a0`** in `docs/COST_CALIBRATION.md`, allocated against the same HEAD its commit parents, naming `C-222`/`C-224` so no census double-counts.
+
+###### 4. THE SUCCESSOR — RULED, AND IT IS DELIBERATELY **NOT** "RUN IT AT `W = 4,000`"
+
+`W3S`, drafted **unfrozen** at `cases/dafoam/curriculum_D12R2/W3S_PREREGISTRATION_DRAFT.md`. **Registering `W=4,000` blind would spend ~525 core-min on a premise the record falsifies** — which is exactly the trap `S-48` §3 walked us to the edge of.
+
+**Arm A `GSCAN` — APPROVED IN DESIGN, NOT YET FROZEN AND NOT QUEUED.** Three S5 adjoints at `W ∈ {2,000 fresh-root repeat, 1,400, 3,000}`, **215.7 core-min point, band [172.6, 258.8], cap 330.0**, priced from W3's own per-stage anchors on an S5 wall model `−81 + 2.0438·W` s (residuals −18.6/+12.0/−1.6 %). **The `W=2,000` repeat is registered FIRST as a gating control on the finding itself** — the whole design rests on one measurement, and a MISS stops the arm at ~68.5 core-min. **Arm A drops terms from `δ_eff`, so it is BARRED from producing `admissible: true`** and the comparator must refuse if asked for a step plan. **The draft predicts its own primary falsifier will MISS** (`Q4`: the power law gives `W·|g|` ≈ 998/977/953, flat at ~1000, never within 1.7× of 1781.4). **It buys a decisive *no* for 215.7 core-min instead of a hopeful *maybe* for 525, and a registration that predicts its own miss is the opposite of one fitted to its answer.**
+
+**A HARD CONSTRAINT FOUND AND REGISTERED: at `W ≳ 3,560` the S5 adjoint EXCEEDS the inherited 7,200-s stage bound** (8,094 s predicted at `W=4,000`). **Any Arm B at `W ≥ 3,648` needs that bound raised — which is precisely why this needs a successor registration and not W3's fallback fired.**
+
+**Nothing is widened:** `h_max = 0.05` and `EPS_NOISE_TARGET = 0.01` inherited unchanged, and the 16 S3b stages are **kept at 55 % of Arm B's cost** even though `δ_pert` came out **268× below** the deciding term — because removing a term from a maximum can only lower `h_min`. **The declined economy is named so nobody proposes it later.**
+
+**⚠ CHECK 1 IS OUTSTANDING AND BLOCKS THE FREEZE.** Arm A's manifest rows **deliberately disagree on `W`**, and `_w_from_record` refuses exactly that — the gate written for `W2R-GRADER-DEF-1`. The proposal is a **separate `--gscan` binding, strictly MORE constrained** than the inherited gate, never a relaxation. **I read that as a diff before anything freezes or fires.**
+
+###### 5. WHAT THIS MEANS FOR THE MANDATE
+
+Under Sanaa's 2026-09-04 order a `NOT A RESULT` is a waypoint, not a resting place, and this item is being worked. **But the honest shape of the destination is now visible and it is stated in advance rather than discovered late: if `W·|g|` is flat at ~1000 against a requirement of 1781.4, then this cell — 2D · unsteady · incompressible — may admit NO FD-verifiable gradient at any reachable window.** That would be a **measured physics limit, not a lab defect**, and under her order it goes to her **with its evidence**, never laundered into a pass and never parked silently. **Arm A is the cheapest instrument that can tell us which of those two worlds we are in.**
+
 
 ##### UPDATE S-49 — **⚠ THE `d92356e2` BOARD WRITE WAS HALF-LOST AND MY OWN POST-COMMIT VERIFY COULD NOT SEE IT: `--stat` SAID 78 INSERTIONS AND THEY WERE ANOTHER TEAM'S LINES. `D6RF2`'s REFUSAL WAS A **RESCUE** — A `NaN` ENDPOINT WOULD HAVE MANUFACTURED FOUR SILENT `GATE FAIL`s — AND THE CHEAP REPAIR IS DISQUALIFIED BY A NUMBER COMPUTABLE BEFORE MAKING IT. `SO3aF2`'s `F1` IS NOT DEAD: THE REGISTRATION NAMED THE LOG ALL ALONG AND `S-46`'s RULING IS OVERTURNED** (2026-09-04, `date -u` stamp in the committing invocation)
 
