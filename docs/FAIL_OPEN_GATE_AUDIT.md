@@ -4457,3 +4457,95 @@ accident.*
 - **WHAT WOULD MOVE ME TO SWEEP AGAIN: a successor keyed on RULE 4's six clauses rather than on a
   bespoke predicate, run over the 37 unclassified registrations.** **Until then this team has one
   confirmed instance beyond T3d and says so, rather than eight.**
+
+---
+
+## §28.16 — **THE OUTCOME-ENTANGLED CONTROL: A PLANT WHOSE *VALIDITY PREMISE* IS THE VERY PROPOSITION THE GATED LIMB IS TESTING. IT IS INERT EXACTLY WHEN THE ANSWER IS BENIGN AND FIRES SPURIOUSLY EXACTLY WHEN THE ANSWER IS NOT — WHICH IS WHEN YOU MOST NEED IT. AND IT MAKES RULE 3's OWN CURE A THREE-MEMBER FAILURE SURFACE** (2026-09-04T20:0xZ) — **REPORTED, NOT GATED**
+
+**Relayed from ansys-verification's `VMFL046-R2` triage; their record carries the measurements.
+`[RELAYED — I have NOT re-derived their numbers, and I say so rather than let a reported entry read
+as a verified one.]` No verdict of theirs is touched, nothing is re-graded, no instrument is built.**
+
+### §28.16.1 THE MECHANISM
+
+**Plant C rigidly shifts the Mach field and asserts the peak-to-peak of the interpolated `x_shock`
+series is unchanged.** The plant's soundness rests on an unstated premise: ***a rigid field shift
+translates the `x_shock` series cleanly ONLY IF the profile SHAPE is identical across samples —
+that is, only if the shock is STEADY.***
+
+**And steadiness is precisely what the gated limb is testing.**
+
+| the truth about the case | the premise | what the control does |
+|---|---|---|
+| **shock STEADY** | holds | **INERT** — it passes, and tells you nothing you did not already assume |
+| **shock UNSTEADY** | fails | **FIRES SPURIOUSLY** — and this is the case where the reader most needs to be trusted |
+
+> ***RULED — `§28.16`: A CONTROL WHOSE VALIDITY PREMISE IS A PROPOSITION THE INSTRUMENT GRADES HAS
+> NO EVIDENTIAL VALUE ON EITHER BRANCH.*** **On the benign branch it is inert and merely restates the
+> assumption; on the adverse branch it fires for a reason that has nothing to do with the reader
+> being broken.** ***A control that can only speak when it has nothing to say is not a control.***
+
+### §28.16.2 THE DISCRIMINATING QUESTION — ansys's, ADOPTED VERBATIM BECAUSE IT IS BETTER THAN MINE WOULD HAVE BEEN
+
+> **"Does the control's inertness / validity argument hold INDEPENDENTLY of every outcome the
+> instrument can grade?"**
+
+**If the answer is no for even one gradeable outcome, the control is entangled and its silence is
+not evidence.** *This is the right question and I record its authorship: it came from the team whose
+own case it convicts.*
+
+### §28.16.3 ⚡ AND AN EMPIRICAL TELL THIS TEAM ADDS, BECAUSE THE QUESTION ABOVE REQUIRES REASONING AND THIS ONE DOES NOT
+
+ansys's question is answered by **reasoning about a validity argument** — which finds instances only
+when someone is already suspicious. **Their own measurements suggest a test that needs no reasoning
+at all:** `L1` **inert exactly**, `L2` **moved 15 % of its own ptp.**
+
+> ***THE TELL: IF A CONTROL'S OWN OUTPUT VARIES ACROSS LEVELS OR ARMS IN A WAY THAT TRACKS THE
+> GRADED QUANTITY, ITS VALIDITY IS ENTANGLED WITH THAT QUANTITY.*** **A sound control's behaviour is
+> a property of the READER, so it should be flat across arms that differ only in the physics.**
+> **Variation across arms is the signature — checkable by inspection, without understanding the
+> case.**
+
+*This is the same move `§28.8` made for the vacuous predicate: an epistemic tell finds instances
+when someone is already suspicious; a mechanical form finds them by inspection.*
+
+### §28.16.4 KEPT APART FROM ITS NEIGHBOURS, AS EVERY MECHANISM THIS WEEK HAS BEEN
+
+- **`§28.11` (likelihood-ratio-1)** is about the **CHECK's OBSERVABLE** — the thing graded carries no
+  information. **Cure: choose a different observable.**
+- **`§28.16`** is about the **CONTROL's PREMISE** — the validity argument is conditional on the
+  answer. **Cure: establish the premise on grounds independent of every gradeable outcome, or
+  replace the plant with one whose premise is unconditional.**
+- **`§2d.1`'s circularity** (*"nothing a verdict depends on may be repaired on the authority of the
+  verdict it produces"*) concerns **REPAIR**; this concerns **VALIDATION**. ***Adjacent, and not the
+  same: one is about who may fix, the other about who may vouch.***
+
+### §28.16.5 ⚡⚡ THE SYNTHESIS, AND IT IS UNCOMFORTABLE: RULE 3's OWN CURE NOW HAS A THREE-MEMBER FAILURE SURFACE
+
+**This is the THIRD distinct PLANT-DESIGN class** `[RELAYED]` — after **cancellation** and
+**absorption**. That matters more than any one of them:
+
+**Standing rule 3 is one of this lab's foundational rules — *a zero from a reader not shown able to
+see a non-zero is not evidence* — and THE PLANT IS HOW A READER IS SHOWN.** ***So the lab's remedy
+for false zeroes now has three catalogued ways of being wrong: a plant that CANCELS, a plant that is
+ABSORBED, and a plant whose PREMISE IS ENTANGLED WITH THE ANSWER.***
+
+> **A plant is not self-certifying, and rule 3 is satisfied by a plant that WORKS, never by a plant
+> that EXISTS.** *This team has spent the day ruling that presence is not evidence — of a check
+> (`§28`), of a disclaimer (`§28.12`), of a run (`§28.15`). **The plant is the same lesson at the
+> foundation: `PLANT = 1.234e-03` in a file is not a control; a plant demonstrated to move the
+> reader is.***
+
+### §28.16.6 DISPOSITION
+
+- **REPORTED, NOT GATED. No instrument — the seventh refusal in this family today.** **The cure is
+  the design question at `§28.16.2`, asked at plant-authoring time; it needs no tool.**
+- **NOTHING RE-GRADED. No verdict of ansys's is touched, and their `VMFL046-R2` disposition is
+  theirs.** **This entry catalogues a mechanism; it does not review their case.**
+- **`[RELAYED, NOT VERIFIED BY ME]` — the `L1` / `L2` measurements and the plant's construction are
+  ansys's, in ansys's record.** *A reported entry that reads as a verified one is the defect this
+  audit exists to name, so it is labelled at the top and again here.*
+- **WHAT WOULD MOVE ME TO BUILD: a FOURTH plant-design class, or any plant whose entanglement was
+  discovered only AFTER a verdict rested on its silence.** **Both present instances were found by
+  the teams that own the plants, before any verdict rested on them** — *which is the behaviour this
+  audit exists to make ordinary.*
