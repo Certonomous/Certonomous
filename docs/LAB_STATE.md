@@ -5298,11 +5298,57 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-04T15:17:43Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-58` — **`A1WRT`'s no-verdict is an IMPLEMENTATION gap, not `SO3aF2`'s LABEL-SET gap, and the count is THREE; `empty` is a DAFoam source-level refusal that INVERTS `A1WRT`'s own premise; and a live defect DEFEATS RULE 4 — a crashed point's `exit 97` is captured, printed and discarded while the wrapper exits 0.** Before it, `S-57`, `S-56`, `S-55`, `S-54`, `S-53`, `S-52`, `S-51`, `S-50`, `S-49`, `S-48`…`S-29`.
+**Section last written:** 2026-09-04T15:31:32Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-59` — **fourth clobber verified BYTE-IDENTICAL; and my attempt to measure how many clobbers were NEVER caught was confounded twice — once by my own regex, once because another team numbers its blocks `S-N` in the same file. The shared path makes its own audit ambiguous.** Before it, `S-58`, `S-57`, `S-56`, `S-55`, `S-54`, `S-53`, `S-52`, `S-51`, `S-50`, `S-49`, `S-48`…`S-29`.
 
 **Section last written:** 2026-09-04T01:08:43Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-48` — **`W3` IS NOT RUNNING AND HAS NOT BEEN SINCE 21:57:49Z; IT REACHED ITS REGISTERED TERMINUS, AND THE REGISTERED FALLBACK DOES NOT RESCUE IT.** `S-47`'s and `S-46`'s *"`W3_chain_r2` running"* lines are **STRUCK BY QUOTE** below — they were true when written and were still being relayed three hours after they stopped being true. Before it, `S-47` — **DESK ITEMS CLOSED**: the **rule-10 hole is fixed in the constitution itself** on Sanaa's GO (`0ee2e7df`, verified by me at HEAD, not taken on relay), and the rule-12 estimate gap is **routed to verification** as a forward-only note. `S-46`'s "on Sanaa's desk" line is **struck by quote** so no successor re-escalates a closed item. **Nothing now on her desk from this family** but the four `NOT FILED` upstream defect classes and FD-vs-adjoint as a fourth `V` instrument. Before it, `S-46` (closing state), `S-45`, `S-44`, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+##### UPDATE S-59 — **FOURTH CLOBBER VERIFIED BYTE-IDENTICAL. AND WHEN I TRIED TO ANSWER THE QUESTION NOBODY HAS ASKED — *HOW MANY CLOBBERS WERE **NOT** CAUGHT?* — MY AUDIT WAS CONFOUNDED TWICE, ONCE BY MY OWN REGEX AND ONCE BECAUSE ANOTHER TEAM NUMBERS ITS BLOCKS `S-N` IN THE SAME FILE. **THE SHARED FILE MAKES ITS OWN AUDIT AMBIGUOUS**, AND THAT IS A SHARPER ARGUMENT FOR THE MIGRATION THAN FOUR-FOR-FOUR** (2026-09-04, `date -u` stamp in the committing invocation)
+
+###### 1. THE RESTORATION — VERIFIED, AND BYTE-IDENTICAL DESPITE A HAND EDIT
+
+`closure`'s `4f53b759` destroyed 33 non-blank lines of `S-58`, including the escalated rule-4 finding; `bfe7c864` repaired it. **The repair was NOT a straight revert — two lines were dropped by hand on closure's judgment about which of my headers I had superseded.** That is a judgment made about **my** content by another team, so it is the part I checked hardest.
+
+**Result: my dafoam section at HEAD is BYTE-IDENTICAL to my own commit `56e9e909` — 9,988 lines both, `IDENTICAL: True`, ZERO lines lost, ZERO gained.** The two hand-dropped lines were stale stamp headers my own later commits had already superseded — **re-inserting them would have re-introduced a stale stamp, so dropping them was correct.** Spot-checked the escalated content itself: `DEFEATS RULE 4` ×3, `captured, displayed, and thrown away`, `point_end_markers=1`, `A1WR_SWEEP_RC`, `nGeometricD`, `compose_item` ×13 — **all present.**
+
+**Fourth L-223-class clobber in ~24 h, and my section was the victim in three of the four** (verification→me, ansys→me+heat-transfer, closure→me). All four caught, all four repaired.
+
+###### 2. ⚠ THE QUESTION NOBODY HAD ASKED, AND WHY I STILL CANNOT ANSWER IT
+
+**"Four caught" is a DETECTION count, not an OCCURRENCE count.** A clobber that removed a block and was never noticed would leave no trace except a **gap in my own `S-` numbering**. So I went to measure it — and **got it wrong twice before getting a clean number.**
+
+- **Attempt 1** matched `^#+ UPDATE S-16 ` **with a trailing space**. The archive's heading is `#### UPDATE S-16` with no trailing space, so it returned **0 on eleven blocks that exist**. *Fourth instance of that disease in one day — and this time it was inside the very instrument I built to detect silent losses.*
+- **Attempt 2** searched the **whole file** instead of my section. **`closure` numbers its own blocks `S-N` too** — its `S-17` and `S-18b` are in this same file — so my counts were a cross-team sum. `S-24 live=23` was the tell.
+
+> **⚠ I could not cleanly audit my own board, because another team's blocks are indistinguishable from mine by number, in one file. THE SHARED PATH DOES NOT ONLY MAKE THE CLOBBERS POSSIBLE — IT MAKES THE AUDIT FOR THEM AMBIGUOUS.** That is a different and stronger argument for the migration than the four-for-four record, because a clean four-for-four is only reassuring if the denominator is knowable, **and I have just measured that it is not, from inside.**
+
+###### 3. THE CLEAN NUMBER, AND WHAT IT DOES AND DOES NOT ESTABLISH
+
+Scoped strictly to the dafoam section, live and archive:
+
+| | |
+|---|---|
+| live dafoam section | **47 blocks**, `S-1` … `S-58` |
+| `docs/lab_state/dafoam.md` archive | **12 blocks**, `S-1` … `S-21`, all a subset of live |
+| union | **47** |
+| **absent from BOTH** | **`S-12`…`S-20`, `S-24`, `S-25` — eleven numbers** |
+| this session's `S-48`…`S-58` | **all present** |
+
+**WHAT THIS ESTABLISHES: nothing from this session is lost, and the eleven gaps PREDATE it.**
+
+**WHAT IT DOES NOT ESTABLISH, and I will not claim either way: whether those eleven are LOSSES or numbers that were NEVER USED.** The lab has **explicit precedent for the latter** — `CLAUDE.md` rule 11 states that block count, distinct count and highest number are three different figures and that **`L-52` does not exist.** A skipped number in a hand-maintained series is ordinary. **So this is an OPEN QUESTION with its evidence recorded, not a finding**, and anybody who reads it as eleven lost blocks is doing what I did three times today.
+
+**The one thing I would not have known without asking: the audit that would settle it cannot be run reliably from inside the shared file.** After the migration it becomes a one-line check against a per-team file. **That is worth saying to `cfd` as a fifth argument, distinct from the four clobbers.**
+
+###### 4. STATE
+
+**All four items on this session's mandatory queue are DISCHARGED:** `W3` graded (`NOT A RESULT`), `D6RF2` → `D6RF3` drafted, `SO3aF2` `F1` run clean (`F1`–`F5` all HIT, no item verdict by construction), the `disarm` record landed as `F3SR` CORRECTION 5/6 and **`N-D42`** filed. **Plus, beyond the queue:** `D12R` closed `NOT A RESULT` for 0.0161 core-min, `A1WRT2` drafted, the limit classifier landed and independently re-run by me, and the FD-limit desk item **reframed after I found my own supporting claim false.**
+
+**OWED BY ME:** check 1 on `A1WRT2`'s composition code and `W3S`'s `--gscan` binding before either freeze; the `D6RF3` freeze decision; the item-ceiling guard into the driver template (**and my back-fit list needs re-deriving — `S-58` §4 established I named `A1WRT` where `A1WR` was meant**); a ruling on whether `A1WR`'s record needs an addendum for the swallowed-`97`.
+
+**ON SANAA'S DESK:** the reframed FD limit with its evidence and its stated weakening; the four standing `NOT FILED` upstream defect classes. **TO THE CHIEF:** rule 10's `--stat` gap (three mechanisms), the cache-state clause gap (three data points), the swallowed-exit-code class, and §2 above for `cfd`'s migration argument. **SUBMISSIONS PARKED.**
+
+
 ##### UPDATE S-58 — **`A1WRT`'s NO-VERDICT IS A **DIFFERENT** MECHANISM FROM `SO3aF2`'s — IT REGISTERED A SUCCESS LABEL AND NEVER WROTE THE EMITTER — AND THE COUNT IS **THREE**, NOT TWO. `empty` IS A DAFOAM SOURCE-LEVEL REFUSAL, WHICH **INVERTS** `A1WRT`'s OWN §2.0 PREMISE. AND A LIVE DEFECT DEFEATS RULE 4: A CRASHED POINT'S `exit 97` IS CAPTURED, PRINTED, AND DISCARDED** (2026-09-04, `date -u` stamp in the committing invocation)
 
 ###### 1. TWO ITEMS, TWO DIFFERENT DISEASES — MY "PATTERN" RULING SURVIVES AND SHARPENS
