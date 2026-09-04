@@ -5071,11 +5071,52 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-04T01:34:24Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-51` — **`SO3aF2` ADDENDUM 15 passed checks 1 and 4, re-verified by my own AST pass rather than the lane's census; `XM2` approved at 0.40 core-min; and the two judgement calls are acceptable because they FAIL SAFE, not for the reasons offered.** Before it, `S-50` (`W3` `NOT A RESULT`; `W·|g|` FELL as the window grew), `S-49` (the rule-10 `--stat` gap; `D6RF2` to a successor; `S-46` overturned), `S-48` (RESTORED), `S-47`…`S-29`.
+**Section last written:** 2026-09-04T01:43:41Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-52` — **a SECOND board-clobber of this section tonight, by a different team and a different mechanism, and it deleted the block that NAMES the defect. Restoration verified byte-identical by me, not taken on relay. The rule-10 escalation is now corroborated, three instances across three agents.** Before it, `S-51` (`SO3aF2` ADDENDUM 15 passed checks 1 and 4; `XM2` approved), `S-50` (`W3` `NOT A RESULT`), `S-49`, `S-48` (RESTORED), `S-47`…`S-29`.
 
 **Section last written:** 2026-09-04T01:08:43Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-48` — **`W3` IS NOT RUNNING AND HAS NOT BEEN SINCE 21:57:49Z; IT REACHED ITS REGISTERED TERMINUS, AND THE REGISTERED FALLBACK DOES NOT RESCUE IT.** `S-47`'s and `S-46`'s *"`W3_chain_r2` running"* lines are **STRUCK BY QUOTE** below — they were true when written and were still being relayed three hours after they stopped being true. Before it, `S-47` — **DESK ITEMS CLOSED**: the **rule-10 hole is fixed in the constitution itself** on Sanaa's GO (`0ee2e7df`, verified by me at HEAD, not taken on relay), and the rule-12 estimate gap is **routed to verification** as a forward-only note. `S-46`'s "on Sanaa's desk" line is **struck by quote** so no successor re-escalates a closed item. **Nothing now on her desk from this family** but the four `NOT FILED` upstream defect classes and FD-vs-adjoint as a fourth `V` instrument. Before it, `S-46` (closing state), `S-45`, `S-44`, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+##### UPDATE S-52 — **SECOND BOARD-CLOBBER OF MY SECTION TONIGHT, BY A DIFFERENT TEAM AND A DIFFERENT MECHANISM — AND IT DELETED THE BLOCK THAT NAMES THE DEFECT. RESTORATION VERIFIED BY ME AS BYTE-IDENTICAL, NOT TAKEN ON RELAY. THE ESCALATION IS NOW CORROBORATED RATHER THAN SINGLE-SOURCED** (2026-09-04, `date -u` stamp in the committing invocation)
+
+###### 1. VERIFIED BY ME AT HEAD, BECAUSE A RESTORATION REPORTED IS NOT A RESTORATION CHECKED
+
+`verification` reported against itself that its board commit **`f996344f`** staged `docs/LAB_STATE.md` from a stale worktree and destroyed **49 lines** of this section — the whole `S-51` block and the stamp — and that **`99626483`** restored it byte-identical. **I did not take that on relay.** Extracted the `S-51` block from **my own commit `20279e73`** and from **HEAD**, compared:
+
+| check | reading |
+|---|---|
+| `S-51` block, my commit vs HEAD | **48 lines each, BYTE-IDENTICAL `True`** |
+| the `2026-09-04T01:34:24Z` stamp line | **identical** |
+| `S-47` … `S-52` headings present | **all present, none duplicated** — the two apparent duplicate hits are prose references (one inside `S-49`'s own text quoting a `git show` command, one in verification's board entry) |
+| `f996344f` numstat | **`15 / 50`** — 50 lines deleted |
+| `99626483` numstat | **`49 / 1`** — 49 restored |
+
+**The arithmetic closes:** 49 of the 50 deletions were mine; the 1 remaining is the board's own legitimate stamp replacement. **The restoration is complete and correct, and it is verified rather than believed.**
+
+###### 2. ⚠⚠ THE DEFECT DELETED ITS OWN DESCRIPTION
+
+**The 49 lines destroyed were `S-51`** — sitting immediately above `S-49`, whose §1 is the block that *names this exact failure mode*. **A stale-worktree board write erased the record of stale-worktree board writes.** Had the restoration not happened, the escalation would have lost its evidence to the thing it was escalating.
+
+**And the cause verification states against itself is `S-49` §1's finding in different words:** they *"replaced a precise assert with no assert instead of with a precise one"* — the board legitimately deletes one line, so a `deletions == 0` assert could not apply, and **nothing was put in its place** — and their post-commit numstat **showed the damage but printed AFTER `update-ref` instead of gating BEFORE it.**
+
+> **A check that runs after the irreversible step is a report, not a guard.** It is the same shape as `S-45` §2's in-container deadline — *"a post-hoc report wearing a stop rule's name"* — and this family has now met it in a launcher and in a commit path.
+
+###### 3. WHAT THIS DOES TO THE ESCALATION: IT IS NO LONGER SINGLE-SOURCED
+
+`S-49` §1 escalated the rule-10 gap on **one** instance — my own `d92356e2`, where `--stat` reported 78 insertions that were another team's lines. **Tonight it happened a second time, to the same section, by a different team, through a different mechanism**, and a third instance in a different medium sits in `S-51` §5 (a lane's `--stat` histogram misread as per-file counts inside a §2d.1 "quantify what moved" clause).
+
+| # | agent | mechanism | what the guard failed to see |
+|---|---|---|---|
+| 1 | me, `d92356e2` | worktree carried a peer's rebuild | `--stat` counted lines; **lines have no owner** |
+| 2 | verification, `f996344f` | stale worktree staged over live content | the numstat **printed after `update-ref`**, not before |
+| 3 | a dafoam lane | `--stat` histogram read as per-file insertions | a **summary statistic mistaken for an itemisation** |
+
+**Three instances, three agents, one night. The generalisation is safe to make now and it was not safe to make on one:** on a path more than one agent writes, **every pre-commit assertion must be about CONTENT and must GATE the `update-ref`, never follow it.** Verification's corrected practice — deletion count **and the identity of every deleted line** asserted before `update-ref` — is the right shape and is already on their subsequent commits. **My own is the HEAD-blob build with a post-commit content assertion**, applied to every board commit from `2e9737f1` onward; **theirs gates earlier and is the better half.** *The durable fix is neither: it is the per-team board files already on `cfd`'s list, which retires the class by removing the shared path.*
+
+###### 4. AND THE HONEST LIMIT OF MY OWN GUARD, STATED BEFORE SOMEBODY ELSE FINDS IT
+
+**My content assertion runs AFTER `update-ref` too.** It caught the loss at `17de2f65` and it would not have *prevented* it — it makes the damage **visible immediately** rather than nine minutes later, which is a real improvement and is **not** the same as a guard. **By §2's own standard my instrument is also a report wearing a guard's name**, and I am not going to write it up as though it were more. Verification's pre-`update-ref` deletion-identity assert is the part I should adopt, and I will on the next board write rather than claim it now.
+
+
 ##### UPDATE S-51 — **`SO3aF2` ADDENDUM 15: CHECKS 1 AND 4 DONE PERSONALLY AND BOTH PASS. THE PRODUCER'S UNREGISTERED SUBSTITUTE IS **GONE AS A LITERAL**, NOT BYPASSED — RE-VERIFIED BY MY OWN AST PASS, NOT BY THE LANE'S CENSUS. `XM2` APPROVED AT 0.40 CORE-MIN. AND THE LANE'S TWO JUDGEMENT CALLS ARE ACCEPTABLE **FOR A REASON IT DID NOT GIVE**: BOTH FAIL SAFE** (2026-09-04, `date -u` stamp in the committing invocation)
 
 ###### 1. CHECK 4 — PASS
