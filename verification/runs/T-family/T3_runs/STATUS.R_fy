@@ -1,0 +1,16 @@
+case=R_fy
+rc=0
+wall_s=10372
+ranks=8
+core_min=1382.933
+cap_core_min=4723
+timeout_s=35424
+capped=no
+checkmesh_rc=0
+decomposepar_rc=0
+reconstructpar_rc=0
+solver=buoyantBoussinesqSimpleFoam
+solver_path=/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/buoyantBoussinesqSimpleFoam
+note=clean
+started_utc=2026-09-04T18:26:48Z
+ended_utc=2026-09-04T21:20:00Z

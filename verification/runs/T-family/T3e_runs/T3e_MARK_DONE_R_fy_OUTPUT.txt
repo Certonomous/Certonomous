@@ -1,0 +1,9 @@
+T3e -- registered completion producer (T3e_PREREGISTRATION.md section 6)
+date_utc: 2026-09-04T21:47:11Z
+pin: 5da28c733e47a4a6c8046dfdf8674c2af27ab81a
+COMMAND: python3 mark_done_t3.py --root T3_runs R_fy
+--- OUTPUT ---
+1/1 cases meet the strict completion rule
+--- END ---
+exit_code: 0
+DONE.R_fy: PRESENT
