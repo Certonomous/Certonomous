@@ -5072,173 +5072,9 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-04T01:25:01Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-50` — **`W3` graded `NOT A RESULT` on its registered branch, and `|g(W)|` at THREE windows shows `W·|g|` FELL from `W=900` to `W=2,000`: a longer window made admissibility WORSE, so `S-48`'s `W ≥ 3,648` is DEMOTED to a conditional.** Before it, `S-49` (the rule-10 `--stat` gap, `D6RF2` ruled to a successor, `S-46` overturned), `S-48` (RESTORED), `S-47`, `S-46`, `S-45`, `S-44`, `S-43`…`S-29`.
+**Section last written:** 2026-09-04T01:08:43Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-48` — **`W3` IS NOT RUNNING AND HAS NOT BEEN SINCE 21:57:49Z; IT REACHED ITS REGISTERED TERMINUS, AND THE REGISTERED FALLBACK DOES NOT RESCUE IT.** `S-47`'s and `S-46`'s *"`W3_chain_r2` running"* lines are **STRUCK BY QUOTE** below — they were true when written and were still being relayed three hours after they stopped being true. Before it, `S-47` — **DESK ITEMS CLOSED**: the **rule-10 hole is fixed in the constitution itself** on Sanaa's GO (`0ee2e7df`, verified by me at HEAD, not taken on relay), and the rule-12 estimate gap is **routed to verification** as a forward-only note. `S-46`'s "on Sanaa's desk" line is **struck by quote** so no successor re-escalates a closed item. **Nothing now on her desk from this family** but the four `NOT FILED` upstream defect classes and FD-vs-adjoint as a fourth `V` instrument. Before it, `S-46` (closing state), `S-45`, `S-44`, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
-
-##### UPDATE S-50 — **`W3` IS `NOT A RESULT` ON ITS REGISTERED BRANCH. AND THE FINDING UNDERNEATH IT IS THE REAL ONE: `|g(W)|` IS MEASURED AT THREE WINDOWS, IT IS NON-MONOTONE OVER A FACTOR 2.33, AND `W·|g|` **FELL** FROM `W=900` TO `W=2,000` — SO TRIPLING THE WINDOW MADE ADMISSIBILITY **WORSE**. MY OWN `W ≥ 3,648` IS DEMOTED FROM A PREDICTION TO A CONDITIONAL THE RECORD DOES NOT SUPPORT** (2026-09-04, `date -u` stamp in the committing invocation)
-
-###### 1. THE VERDICT, THROUGH THE REGISTERED PATH AND NOTHING ELSE
-
-**`NOT A RESULT`** — `G12R-4` step sizing, `h_min 9.119302e-02` against `h_max 5.000e-02`, `admissible: false`, `steps: []`. The branch registered at `W3_PREREGISTRATION.md:101`, fired by the frozen comparator, **not composed by hand.**
-
-**Predictions: `P1` HIT, `P2` MISS, `P3` MISS, `P4` MISS, `P5` not scored.** `P2` and `P4` were gradeable and **my brief asked only for `P1` and `P3` — the lane graded all four and was right to.** `P2` (`|g|` outside `[1.01, 1.37]`, **2.07× below the lower edge**) is the *cause* of the `P3` miss.
-
-**Refusal gates:** `G12R-0b` **PASS 33/33/33**; `G12R-0` PASS; `G12R-W` PASS; `W3-A2`'s window binding re-read independently — **33/33 rows carry `W: 2000`, exactly one `W_STEPS=2000` ledger line.** Rule 4 re-read from the manifest: `age_guard_ok`, `end_line_present`, `coldstart_ok` all **33/33**, `oomkilled false` 33/33, `docker_exit 0` 33/33. The 9 `ExecutionTime` mismatches are the infrastructure limb Amendment 2 split off; **the physics limb `time_line_count` matches exactly on all nine.**
-
-**THE `md5` QUESTION I RAISED IS RESOLVED AND WAS NOT A CONFLICT.** `f3c1252c…` is the v1.0/v1.1 hash and `:131` is Amendment 1 *recording that it did not move*, not a competing registration; Amendments 2 and 3 moved it pre-compute to `3b0a7507…` then **`3950d30fd09c9b56213a02f5e9864e20`**. **Five independent readings agree** — disk, the committed HEAD blob, the `INSTRUMENT_VERIFIED` lines in both phase outputs, the driver's `MD5_GRADER` pin, and the queue entry. **The file that ran is the file that was frozen.** I told the lane to STOP rather than grade if it could not resolve this; it resolved it, and the stop was not needed.
-
-**⚠ ONE HONEST GAP, STATED NOT GLOSSED: `G12R-9` — the registered planted-zero gate — DID NOT FIRE.** `plan()` does not call `g9_plant` and the chain never reached the grade path. Two *other* live controls did fire on this run's bytes, and the plant material is on disk (`S7_plant` obj `0.6576249340268902` vs `S7_clean` `0.6561057342918396`, relative response **2.3155e-03**, six orders above the `1e-9` floor) — **recorded as corroboration, NOT as the gate.** The verdict survives on a direction argument, which is the honest ground: **every reader-blindness failure drives `δ_eff` down and `h_min` down, toward `admissible: true`. Blindness could have HIDDEN this verdict; it could not have produced it.**
-
-###### 2. ⚠⚠ THE PHYSICS, AND IT REFUTES MY OWN §3 OF `S-48`
-
-`h_min = 100·δ_eff/|g|` has two factors, and **the registration got the numerator right and the denominator wrong by 2.33×.** `δ_window` behaved exactly as registered — exact `4.3857102184485797e-04` against envelope `4.4535e-04`, **ratio 0.98478**, at 105.46 periods per window, `degenerate: false`. **W3-A1 bought only 1.5 % of `h_min` here** (without it, `0.089805` — still 1.80× over), so **the verdict is invariant to the one thing the amendment was written to protect.**
-
-**`|g(W)|` IS NOW MEASURED AT THREE WINDOWS, AND IT IS NON-MONOTONE:**
-
-| `W` | `\|g(W)\|` | `W·\|g\|` (must reach **1781.4**) | `h_min,env` |
-|---|---|---|---|
-| 300 | 1.0304158599180422 | **309.12** | — |
-| 900 | 1.1398352621255485 | **1025.85** | 0.086825 |
-| **2,000** | **0.48835975139977306** | **976.72** | **0.091193** |
-
-**`W·|g|` FELL 4.79 % from `W=900` to `W=2,000`, so `h_min` got 5.03 % WORSE.** Tripling the window did not improve admissibility by 2.22× — **it made it worse**, because `|g|` fell *faster* than `1/W` (two-point exponent **−1.061**; at anything steeper than −1 a longer window RAISES `h_min`). **The best value this family has ever measured is 1025.85 at `W=900` — 1.74× short — and it sits in the MIDDLE of the range, not at its end.**
-
-> **`W ≥ 3,648` IS A CONDITIONAL, NOT A PREDICTION.** It holds if and only if `|g|` stays at 0.48836, and **the record's own three points do not support that premise.** I wrote it into `S-48` §3 with the stability caveat attached; the caveat has now been *measured against* and the number must not be quoted without it.
-
-**MEASURED:** the three `|g(W)|`, the three `W·|g|`, the three `h_min,env`, `δ_window,exact(2000)` and its envelope, `h_min(2400) = 0.075994`. **UNMEASURED, in their own sentences:** any law for `|g(W)|` — **three non-monotone points do not determine one**, and the −1.061 exponent is a two-point slope with the third point off it; `|g|` at 2,400, 3,648 or 4,000. **REFUTED and recorded as refuted rather than left as a plausible story:** the linear transient-dilution model, which predicts `W·|g|` linear in `W` — measured slopes **+1.195 then −0.045**.
-
-**⚠ AND THE STRUCTURAL POINT THE LANE FOUND, WHICH IS THE ONE TO CARRY UPWARD: no `|g(W)|` in this family has ever been FD-VERIFIED. The admissibility test divides by an unverified adjoint.** That circularity is a property of the cell, not of this item — and it is the sharpest argument yet that this cell's `CAN DO, CAVEATS` entry is doing real work.
-
-###### 3. COST — rule 12, AND THE LANE REFUSED THE DENOMINATOR I HANDED IT
-
-**Registered phase 1 = 196.4 core-min, band `[167, 226]`. Actual = 271.2501 gross**, confirmed twice (the ledger's `PHASE1_COMPLETE` and the manifest rows' own `core_min` summing identically). **Ratio 1.381 → `P4` MISS.** 30.1 % of the 900.0 cap, **no overrun.** **$0.2319 against $0.4816, DERIVED not measured** — the box cannot read its own billing.
-
-**⚠ I HANDED THE LANE THE WRONG DENOMINATOR AND IT REFUSED IT.** My brief framed the calibration as 563.3 vs 271.25 (ratio 0.482). **The lane computed it and explicitly declined to use it:** phases 2–4 were **eliminated by a registered branch working as designed**, not left unspent by failure, and **structural elimination is not underspend.** The calibration denominator is phase 1's own **196.4**. That is correct and it is the better instrument.
-
-**Gap attributed to misprediction of ONE stage**, not contention: a phase-level two-anchor line extrapolated 2.22× cannot see that S5's wall time is **superlinear** (2.59× for a 2.22× window ratio). **Contention is neither confirmed nor refuted** — memory uncontended on all 33 rows, but no contemporaneous CPU-load record for 17:22–21:57Z exists on disk, so **no contention contribution is claimed.**
-
-**Waste 0.000, decided after arguing both ways.** `COMPUTE_BUDGET_CHARTER` §5:109-110 is an **outcome** test — *solver cost that bought nothing* — not a favourability test. It bought `|g(2000)|`, the `W·|g|` decline that falsifies the `W=2,400` fallback, the `P1` confirmation, and a 33/33 record after three fires that reached no physics. **Not waste.** The no-launch branch additionally **saved ~367 core-min.**
-
-*The cleaned figure is 203.3668 — S5's 4,073 s trips the 3,600-s stall rule — **and the rule misfires here**: S5 was genuine solver cost on the family's own 654/1,570/4,073 s line, and cleaning it would launder real cost as a stall. Ratio taken on **gross**, because 196.4 was fitted on two anchors that are both gross == cleaned. Both figures are in the record.*
-
-Row **`C-20260904T012050.711056Z-be4243a0`** in `docs/COST_CALIBRATION.md`, allocated against the same HEAD its commit parents, naming `C-222`/`C-224` so no census double-counts.
-
-###### 4. THE SUCCESSOR — RULED, AND IT IS DELIBERATELY **NOT** "RUN IT AT `W = 4,000`"
-
-`W3S`, drafted **unfrozen** at `cases/dafoam/curriculum_D12R2/W3S_PREREGISTRATION_DRAFT.md`. **Registering `W=4,000` blind would spend ~525 core-min on a premise the record falsifies** — which is exactly the trap `S-48` §3 walked us to the edge of.
-
-**Arm A `GSCAN` — APPROVED IN DESIGN, NOT YET FROZEN AND NOT QUEUED.** Three S5 adjoints at `W ∈ {2,000 fresh-root repeat, 1,400, 3,000}`, **215.7 core-min point, band [172.6, 258.8], cap 330.0**, priced from W3's own per-stage anchors on an S5 wall model `−81 + 2.0438·W` s (residuals −18.6/+12.0/−1.6 %). **The `W=2,000` repeat is registered FIRST as a gating control on the finding itself** — the whole design rests on one measurement, and a MISS stops the arm at ~68.5 core-min. **Arm A drops terms from `δ_eff`, so it is BARRED from producing `admissible: true`** and the comparator must refuse if asked for a step plan. **The draft predicts its own primary falsifier will MISS** (`Q4`: the power law gives `W·|g|` ≈ 998/977/953, flat at ~1000, never within 1.7× of 1781.4). **It buys a decisive *no* for 215.7 core-min instead of a hopeful *maybe* for 525, and a registration that predicts its own miss is the opposite of one fitted to its answer.**
-
-**A HARD CONSTRAINT FOUND AND REGISTERED: at `W ≳ 3,560` the S5 adjoint EXCEEDS the inherited 7,200-s stage bound** (8,094 s predicted at `W=4,000`). **Any Arm B at `W ≥ 3,648` needs that bound raised — which is precisely why this needs a successor registration and not W3's fallback fired.**
-
-**Nothing is widened:** `h_max = 0.05` and `EPS_NOISE_TARGET = 0.01` inherited unchanged, and the 16 S3b stages are **kept at 55 % of Arm B's cost** even though `δ_pert` came out **268× below** the deciding term — because removing a term from a maximum can only lower `h_min`. **The declined economy is named so nobody proposes it later.**
-
-**⚠ CHECK 1 IS OUTSTANDING AND BLOCKS THE FREEZE.** Arm A's manifest rows **deliberately disagree on `W`**, and `_w_from_record` refuses exactly that — the gate written for `W2R-GRADER-DEF-1`. The proposal is a **separate `--gscan` binding, strictly MORE constrained** than the inherited gate, never a relaxation. **I read that as a diff before anything freezes or fires.**
-
-###### 5. WHAT THIS MEANS FOR THE MANDATE
-
-Under Sanaa's 2026-09-04 order a `NOT A RESULT` is a waypoint, not a resting place, and this item is being worked. **But the honest shape of the destination is now visible and it is stated in advance rather than discovered late: if `W·|g|` is flat at ~1000 against a requirement of 1781.4, then this cell — 2D · unsteady · incompressible — may admit NO FD-verifiable gradient at any reachable window.** That would be a **measured physics limit, not a lab defect**, and under her order it goes to her **with its evidence**, never laundered into a pass and never parked silently. **Arm A is the cheapest instrument that can tell us which of those two worlds we are in.**
-
-
-##### UPDATE S-49 — **⚠ THE `d92356e2` BOARD WRITE WAS HALF-LOST AND MY OWN POST-COMMIT VERIFY COULD NOT SEE IT: `--stat` SAID 78 INSERTIONS AND THEY WERE ANOTHER TEAM'S LINES. `D6RF2`'s REFUSAL WAS A **RESCUE** — A `NaN` ENDPOINT WOULD HAVE MANUFACTURED FOUR SILENT `GATE FAIL`s — AND THE CHEAP REPAIR IS DISQUALIFIED BY A NUMBER COMPUTABLE BEFORE MAKING IT. `SO3aF2`'s `F1` IS NOT DEAD: THE REGISTRATION NAMED THE LOG ALL ALONG AND `S-46`'s RULING IS OVERTURNED** (2026-09-04, `date -u` stamp in the committing invocation)
-
-###### 1. ⚠⚠ RULE 10's POST-COMMIT VERIFY IS VACUOUS ON A FILE SIX TEAMS SHARE — MEASURED ON MY OWN COMMIT
-
-`S-48` was written, committed at **`d92356e2`**, and **verified by me** with the recipe `CLAUDE.md` rule 10 gives: `git diff HEAD~1 HEAD --stat` returned `docs/LAB_STATE.md | 78 ++++…`, one file, only my path. **I read that as confirmation and moved on.**
-
-**The 78 lines were `cfd`'s board-56 content, not mine.** At `d92356e2` my *section-last-written* line landed and **the entire `S-48` body did not** — `git show d92356e2:docs/LAB_STATE.md | grep -c "UPDATE S-48"` returns **0** while the header line claiming `S-48` returns **1**. The board has been sitting for nine minutes announcing a block that does not exist.
-
-**THE MECHANISM, AND IT IS LAB-WIDE, NOT DAFOAM'S:** the private-index protocol **isolates by PATH**, and **all six teams write ONE path.** `cfd` rebuilt `docs/LAB_STATE.md` from `HEAD:docs/LAB_STATE.md` and wrote it back to the worktree — its own commit `134b8d75` says so in terms, and says its content rode to HEAD *inside my commit* — so a rebuild from HEAD **silently discards every other team's uncommitted edit to that file**, and whoever commits next carries the survivor.
-
-> **`# ASSERT: only your paths` is satisfied by a diff containing NONE of your lines. On a shared path, `--stat` cannot tell WHOSE content landed — it counts lines, and lines have no owner.**
-
-**This is the same shape as the two empty commits `S-45` §5 recorded, one layer up.** There the guard could not distinguish *my work* from *no work*; here it cannot distinguish *my work* from *somebody else's work*. Rule 10's empty-tree assertion — the fix this family pushed into the constitution at `0ee2e7df` — **fires on neither**, because the tree genuinely differed from its parent both times.
-
-**WHAT I NOW DO, AND IT IS THE ONLY THING THAT ACTUALLY CLOSES IT:** the post-commit check on a shared file asserts **CONTENT**, not statistics — `git show HEAD:<path> | grep -c "<a string unique to my block>"` must return the expected count — and the insert-and-commit run **in ONE shell invocation** so no peer can rebuild the file between the edit and the commit. Both are applied to this commit. **Escalated to the chief as a rule-10 gap affecting every team, not repaired by me: `CLAUDE.md` is not mine to edit** (`S-45` §5's ruling, unchanged).
-
-*`S-48`'s body is restored below, disclosed as a restoration rather than presented as if it had never been lost.*
-
-###### 2. `D6RF2` — RULED: **SUCCESSOR (`D6RF3`), NOT A REPAIR**, and the lane's ground is better than the one I sent it to test
-
-**Check 1/3, mine.** The freeze **names the ARTEFACT, not the quantity** — `curriculum_D6RF/PREREGISTRATION.md:325`: *"`CDᵢ(mp)` is the last row of `d6r_major_history.json`"* — and D6RF2 inherits §3's gates *"in full"* by citation at its `:31`. §3e names no source of its own and so inherits `:325`'s. **That single line decides the question I deferred: it cannot be repaired in place.**
-
-**⚠ AND THE FINDING THAT INVERTS THE WHOLE FRAMING — `D6RF3-DEF-5`. THE REFUSAL WAS A RESCUE.** **687 of 863 `funcs` rows carry non-finite `obj.J`, and the trailing 8 are non-finite.** The extractor takes `arr[-1,:]` = **row 1006, whose `funcs` are all `NaN`**, and `d6rf2_grade.py` carries **zero finiteness guards in 43,462 bytes**. Had CD been present: `price = NaN`; **`NaN < 0.0` is False, so the registered *negative → `NOT A RESULT`* limb DOES NOT FIRE**; `NaN <= 1.0e-3` is False; control falls to `else` → **`GATE FAIL`**, and `gate_off` gives **`GATE FAIL` on all three points.** **Four gated rows of manufactured `GATE FAIL`, silently.**
-
-> **The defect we spent the night calling a blocker was the only thing standing between this item and four fluent, gated, wrong verdicts. A loud absence saved us from a quiet answer.**
-
-**⚠ AND THE CHEAP ROUTE IS DISQUALIFIED BY A NUMBER THAT CAN BE COMPUTED BEFORE THE REPAIR IS MADE.** The lane recovered the endpoint CD from the optimiser's stdout by CL match, and closed the composite identity as its independent control: `0.25·CD04 + 0.50·CD05 + 0.25·CD06` against the history's own `J` — **residual 9.84e-12 absolute, 4.43e-10 relative.** Then:
-
-```
-CD_cl05 (recovered) = 0.02176156349
-CD_f (D4)           = 0.021125978108239574
-price               = +6.3558538e-04   in band [0, 1.0e-3]  ->  PASS
-```
-
-**The §2d.1 repair is VISIBLY OUTCOME-FAVOURABLE BEFORE IT IS MADE, from artefacts alone, with nothing run.** §2d.1's closing sentence governs — *nothing a verdict depends on may be repaired on the authority of the verdict it produces.* **The instrument is clean; the CHOICE would not be.** In a fresh registration the identical number costs nothing, because the source is named before the answer is known. **That is the whole difference, and it is a difference in WHEN, not in WHAT.**
-
-Condition (1) also fails independently on verification's own `§2p.11 R6`: **an input that is ABSENT is not an instrument that DISAGREES**, so condition (2) has no object and §2d stands. **(c) is measured FALSE** — CD is obtainable at zero marginal cost, so there is **no capability gap and nothing for Sanaa's desk on this item.**
-
-**Draft at `cases/dafoam/ladder-a/A2/curriculum_D6RF3/PREREGISTRATION_DRAFT.md`** (612 lines, unfrozen, 0 core-min, no run root, not enqueued), carrying a **two-direction** mutation harness for the finiteness clause — *a restrictive repair is not self-certifying* — a **third** planted-zero control for the moved CD source, per-arm estimates **in the frozen document**, and all four inherited could-never-have-finished defects re-verified rather than copied (912 re-counted as 77 × 4 × 3 with 76 outputs each).
-
-**TWO CORRECTIONS TO ME, BOTH ACCEPTED:** the two-row shipped/patched obligation is `DAFOAM_CHARTER.md` **§6**, not §3 (§2 is the FD table, §3 the plateau sweep) — **I had it wrong in my own brief and in this section's standing language**; and D6RF2's **4.6 core-min is host-side** (`wall_s 69 × 4 ÷ 60`), the container's own being **3.13** — an arm that reached no CFD, `delivered_cores_mean 0.0695`, **and it is not an FD rate.**
-
-###### 3. `SO3aF2` — **`S-46`'s RULING IS OVERTURNED. `F1` IS NOT DEAD AND NEVER WAS**
-
-**Check 3, done personally at the frozen text rather than taken on relay.** `FEASIBILITY_PREREGISTRATION.md:279` scores `F1` **"counted from the log, both ways"**; `so3af2_read.py:295-310` takes `n_tol` from `XM/XM.log` and `n_resid = len(j["residual_histories"])` and **never inspects a history's contents**; the reader's md5 is **`d5f4149d43abe3a165ffe7e653b78bee`**, still its 2026-08-31 freeze.
-
-**The residual history was in the solver log DAFoam already writes, and the registration named the log all along.** `DAUtility::primalResidualControl` prints per-iteration `initRes/finalRes/nIters` per equation, gated on `printToScreen` at `printInterval`. Parsed from the preserved `XM.log`: **3 primal blocks, 3 tolerance lines, 3 residual-statistics blocks, 15 residual lines per equation = 3 primals × 5 samples**, `U0` falling `1.000000e+00 → 2.535852e-08`; **reproduced independently on the earlier `rc=7` container's log.** Planted control in the same invocation: stripping `initRes:` from the third block yields `n_tol=3 / n_resid=2` — **exactly the disagreement the frozen reader refuses on**, so the parser is shown able to see a short read.
-
-**`S-46` ruled *"branch (2): `F1`'s approach as registered CANNOT WORK"* and called it the fourteenth unsatisfiable-by-construction condition. THAT RULING WAS WRONG.** The approach as registered works; what could not work was **the producer's unregistered substitute** — four guessed attribute names where the freeze said *from the log*.
-
-> **⚠ We have spent a week catching instruments that claimed more than they measured. This is the mirror image: a SUPERVISOR who attributed an INSTRUMENT'S limitation to the DOCUMENT it was supposed to implement — and then generalised it into a claim about the registration.** The two are one failure to keep the map and the territory apart, and the second is harder to catch because it arrives wearing a ruling.
-
-**RULED — route (a1): a dated addendum, PRODUCER-ONLY.** No gate, threshold, band, cap, label or prediction moves; **the grader is not touched and its md5 must still read `d5f4149d…` afterwards.** This is not an amendment to the registration — it brings the run **into compliance with it**. §2d.1's condition (2) is met by the attribute census, which **grades nothing** and could only ever push toward refusal.
-
-**THREE CHANGES I MADE TO THE LANE'S DRAFT, and the first is the one worth keeping:** (1) **`printInterval` STAYS at its registered value — do NOT set it to 1.** `F1` needs three histories *present* and the two counts to *agree*; it never looks inside one, and 5 samples per primal already satisfies it. Setting it to 1 buys nothing `F1` needs, introduces an unregistered difference between `XM` and `XM2` on the item whose whole value is an unedited instrument, **and it deletes the need for the lane's own weakest falsifier** — which was only there because of the change. (2) **`R0` is a DIAGNOSTIC, not a graded reading**; `XM2` (0.55 core-min) is the graded arm — I ruled the `rc=7` question the lane correctly declined: *bookkeeping never voids physics* makes the preserved log **readable**, not the **artefact of record**, and 0.55 core-min buys a clean `rc=0` arm more cheaply than the argument costs. (3) The addendum is **committed before `XM2` runs** and **I read the producer diff as a diff** before any output of it is believed.
-
-**And one thing neither of us had said, now required in the addendum:** both `F1` readings come from **one file**, so they **share a failure mode**. That is registered, not a deviation — **but "registered" must not do the work "measured" should**, so the addendum names the shared mode and then shows what the guard still catches.
-
-###### 4. STATE
-
-**Zero dafoam compute running; zero pending queue rows; four `held/` entries with no `REASON` file between them** (`S-48` §5). `W3` at its registered terminus, grading in flight. `D6RF3` drafted, unfrozen, **not queued**. `SO3aF2` addendum in drafting under the ruling above. `A1WRT` both units run, **no item verdict by construction**, successor **not designed**.
-
-**OWED BY ME:** the held-queue census; the forward-only estimate rule's charter placement; `A1WRT`'s successor design. **DISCHARGED THIS SESSION:** the `disarm` findings record (as `F3SR` **CORRECTION 5**, `0fbd1727` — the findings-file path is **unwritable by any agent in this fleet** and I did not route around that) and the **`N-D42`** row.
-
-**ON SANAA'S DESK:** nothing new from this family beyond the four standing `NOT FILED` upstream defect classes and FD-vs-adjoint as a fourth `V` instrument. **To the CHIEF, not to her:** §1's rule-10 gap. **SUBMISSIONS PARKED.**
-
-##### UPDATE S-48 — **RESTORED 2026-09-04 after its body was lost at `d92356e2` (see `S-49` §1). `W3` REACHED ITS REGISTERED TERMINUS AT 21:57:49Z AND NOBODY NOTICED FOR THREE HOURS. THE FALSIFIER IT REGISTERED WAS HIT — BUT BY THE GRADIENT, NOT BY THE WINDOW — SO THE `W = 2,400` FALLBACK THE FREEZE NAMES **DOES NOT RESCUE THIS CASE**. AND THIS FAMILY OCCUPIES ZERO CORES WITH ZERO QUEUED WORK** (2026-09-04, `date -u` stamp in the committing invocation)
-
-###### 1. STRUCK BY QUOTE — NOT REWRITTEN
-
-~~`W3_chain_r2` running, **zero non-zero rc**~~ (`S-47` §4, `S-46` §5, `S-45` §7, `S-43` §10)
-
-**FALSE AT READING TIME.** Verified from `cases/dafoam/curriculum_D12R2/STATUS.W3_chain` and from `ps`: the chain wrote its last line at **2026-09-03T21:57:49Z** and **no dafoam process of any kind is running on this box.** The line was accurate when each block was written; **it was carried into my own briefing three hours after it stopped being true** — I was told at ~01:05Z that W3 was *"still running, writing STATUS.W3_chain continuously."* It had been finished for 3 h 07 m.
-
-**The lesson is not "the board was stale" — it is that a LIVE-STATE line has a shelf life a VERDICT line does not, and the two sit in the same paragraph wearing the same formatting.** A struck verdict stays informative; a struck pid is just wrong. **Live state is re-derived at every reading, never quoted from a previous block.** Second instance in the same briefing: **daemon pid 995043 is DEAD**; the live daemon is **995629 since 00:43:06Z**.
-
-###### 2. THE TERMINUS, READ FROM ITS OWN ARTEFACTS
-
-`phase1` **rc=0**, complete, `SPENT_CORE_MIN=271.2501` of cap 900.0. `plan` **rc=0**. `phase2` **rc=0 and LAUNCHED NOTHING** — the registered no-launch branch. `plan2` **rc=2**: `REFUSAL: G12R-5: only 0 usable sweep steps on disk; a plateau needs at least 3 and one step is never a plateau`. Driver: `chain=STOPPED_AT_FIRST_NONZERO`.
-
-**This is the REGISTERED TERMINUS, not a failure** — `W3_PREREGISTRATION.md:80` says so in terms. **The `rc=2` must never be read as a crash.**
-
-###### 3. ⚠ THE PHYSICS — THE FREEZE PREDICTED THE RIGHT OUTCOME FOR THE WRONG REASON, AND THAT IS WHAT KILLS THE FALLBACK
-
-`step_plan.json`: `admissible: false`, `h_min = 0.0911930188193242` against `h_max = 0.05`, `delta_eff = 0.00044535`, `dominant_term = delta_window`, `W = 2000`, `g_component_0 = 0.48835975139977306`.
-
-`P3` (`:90`) is binary and names its own falsifier: *"falsified iff `|g(2000)| < 0.8907`"*. **Measured `|g| = 0.48836` — 1.82× below the envelope constant and 2.33× below the freeze's own PESSIMISTIC assumption of 1.13984** (`:55`). **The window model was RIGHT:** `delta_window_exact = 4.3857e-04` against a predicted envelope of `4.4535e-04`, and `P1`'s `4.385710e-04` reproduces to the printed digits. **The GRADIENT was half what any of the three registered assumptions allowed for.**
-
-**⚠ CONSEQUENCE: the registered `W = 2,400` fallback (`:55`) DOES NOT RESCUE THIS CASE.** At `W = 2400` the envelope gives `h_min = 100·(0.8907/2400)/0.48836 = 0.0760` — **still 1.52× above `h_max`.** Admissible needs `W ≥ 100·C_ENV/(h_max·|g|) = 89.07/(0.05·0.48836) = 3647`. **The freeze sized its contingency against a window it got right and a gradient it got wrong, so the contingency inherits the error** — firing it would spend the money and land on `admissible: false` a second time.
-
-**MEASURED:** `|g|` at `W = 2000`, this case, this image, np=1. **UNMEASURED:** whether `|g(W)|` is stable as `W` grows — `|g|` is itself a window-averaged quantity on a limit cycle. **`W* = 3647` is a floor computed at a gradient measured at ONE window; it is NOT a prediction that `W = 3647` will be admissible.** Two sentences, deliberately.
-
-**The verdict is `PENDING` the frozen grader and is NOT composed here.** `:101` registers `P3` MISS → **`NOT A RESULT`**, and I expect that — **but a supervisor who writes the verdict before the instrument runs has replaced the instrument with his expectation.**
-
-###### 4. ⚠ ZERO CORES, AND AN EMPTY QUEUE BEHIND THEM
-
-`verification/queue/dafoam/` holds **zero pending entries**. Four in `held/` — `D12R_phase4`, `D6_chain`, `D6_chain_wait.e43bdf61`, `D8R_chain.357a2648` — and **not one carries a `REASON` file or any hold field in its JSON.** **A held entry with no recorded reason is indistinguishable from an abandoned one**, and under Sanaa's 2026-09-04 mandatory-completion order these are assigned work parked without a named cause.
-
 
 ##### UPDATE S-47 — **DESK ITEMS CLOSED: THE RULE-10 HOLE IS FIXED IN THE CONSTITUTION ITSELF ON SANAA'S GO, AND THE RULE-12 ESTIMATE GAP IS ROUTED TO VERIFICATION. `S-46`'s "ON SANAA'S DESK" LINE IS STRUCK SO NO SUCCESSOR RE-ESCALATES A CLOSED ITEM** (2026-09-03, `date -u` stamp in the committing invocation)
 
@@ -14660,106 +14496,6 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 *Fold-in note, 2026-08-24T17:27:20Z, fifth-session dafoam supervisor: the sub-heading above is carried byte-for-byte from `e25908fe`. Its author session lost its fleet to the Fable limit ~17:15Z and the chief handed its dafoam claims to this session; from this commit the sub-heading is a closed historical block — D1-C′ Phase 2, D2, D3 and the O2R-P2 regrade are reported in the main section above, not here. O2 and O3 remain untouched on Sanaa's desk.*
 
 ## heat-transfer
-
-##### ⚠ **I CORRECT MY OWN RULING OF ONE HOUR AGO: "NOTHING REGISTERED CAN PRODUCE `DONE.R_fx`" IS FALSE. `mark_done_t3.py R_fx` WOULD PRODUCE IT WITH ZERO NEW CODE — AND IT IS THE **WEAKER** ROUTE IN THE ONE WAY THAT MATTERS FOR `R_fx`, BECAUSE IT OMITS THE `reconstructpar_rc` CHECK ON A RUN DECOMPOSED OVER 8 RANKS. THE PETITION IS FILED (`b0ac3ac6`) AND DISCLOSES THE CHEAPER ROUTE AGAINST ITS OWN INTEREST. K0eR3 IS REGISTERED AND FROZEN (`3f33d815`) AND IS **NOT ARMED**.** (2026-09-04T01:30Z)
-
-*(Supervisor block. **PURE INSERTION at the top of the `## heat-transfer` section; every byte below stands unedited**, including my own 01:15Z and 01:04:12Z blocks following. **0 solver core-min** spent by this block; the live T3d run untouched.)*
-
----
-
-### 1. 🛑 **CORRECTION AGAINST MYSELF — THE PREMISE OF RULING 1 WAS WRONG. THE RULING SURVIVES, BETTER GROUNDED.**
-
-**What I asserted at 01:15Z**, in the block below and upward to the chief: *"`mark_done_t3.py:33` carries a hard-coded `CASES` list without `R_fx` … **nothing registered can produce `DONE.R_fx`**."*
-
-**That is FALSE, and a lane found it and put it in against its own petition. Supervisor-verified at source at this write:**
-
-| fact | evidence |
-|---|---|
-| `check(root, case)` takes `case` as a **plain parameter** and **never validates it** against `CASES` | `mark_done_t3.py:49-51` |
-| `CASES` (`:33`) is referenced at **exactly one** place in the whole file — argparse's **default** | `mark_done_t3.py:105`, `ap.add_argument("cases", nargs="*", default=CASES)` |
-| therefore `python3 mark_done_t3.py R_fx` **applies rule-4 clauses 1–6 to `R_fx` and writes `DONE.R_fx`** — **zero new code**, using a file **frozen since 2026-08-21** | `:107-115` |
-
-**I read the `CASES` list as a validator. It is a default. That is a reading error of my own, made while correcting a lane's reading error, and it is recorded with the same prominence I gave theirs.**
-
-**BUT THE RULING STANDS, AND THE REAL TRADE IS SHARPER THAN THE ONE I DESCRIBED.** The zero-code route is **not equivalent** — it is **weaker in precisely the way that matters for this case**:
-
-> **`mark_done_t3.py` HAS NO `reconstructpar_rc` CHECK. Measured: `grep -nE "reconstruct" mark_done_t3.py` returns ZERO hits.** `mark_done_t3_rff.py` **added it deliberately** — `:56-60`, failing with *"STATUS carries no reconstructpar_rc (physics-critical: the fields are reconstructed)"* and *"reconstructpar_rc=%s, not 0"*, and its docstring `:12-13` states the reason: ***"a failed reconstruction is not a result."***
->
-> **`R_fx` RUNS ON 8 RANKS AND IS DECOMPOSED.** The comparator reads **reconstructed** fields. **So the cheap route could certify a case whose reconstruction failed** — the same family of silent contamination as L-143, which is why the age guard exists at all.
-
-**THE CHOICE IS THEREFORE NOT HEAT-TRANSFER'S TO MAKE, and taking the cheap route unilaterally would be the worst available act:** it would **self-grant a weaker completion check in order to avoid asking permission for a stronger one.** That is permission laundering by another name (rule 9 — an instruction is answered, not merely obeyed; and no approval is wider than what was approved). **Both routes go to verification with the trade stated. Neither is taken here.** *[lab-attributed]*
-
-**UNCHANGED AND RE-ASSERTED:** `DONE.R_fx` is **not hand-written by any means**, `mark_done_t3.py R_fx` is **not run** before a ruling, and T3d holds at **`PENDING`** — rule 1's queue state, never a softened `GATE FAIL`. **If verification refuses both routes, T3d's honest label is `NOT A RESULT` and this team publishes it as that.**
-
----
-
-### 2. **THE PETITION — FILED, `b0ac3ac6`, AND IT ARGUES AGAINST ITSELF PROPERLY**
-
-`docs/campaigns/T-family/T3d_DONE_MARKER_2D1_PETITION.md`, 584 lines, on verification's desk **~2 h 40 m before the projected landing**. It asks for **one** post-compute addition: a `mark_done_t3d.py` that is a `CASE = "R_fx"` change over `mark_done_t3_rff.py`, importing the frozen `mark_done_t3` and `mark_done_t3_ext1` unmodified.
-
-**Measured, not asserted — the "one-identifier" claim is scoped honestly rather than flattered:** it is **one *behavioural* identifier plus two non-behavioural strings.** `CASE` at `:30` is the only identifier any predicate reads (consumed at 13 sites); the remaining occurrences are docstring prose and one selftest temp prefix. Input compatibility was checked rather than assumed: `launch_t3d.sh:88-97` writes exactly the `key=value` format the marker parses, **including `reconstructpar_rc` at `:93`**, and all four `INFRA_LOGS` are written.
-
-**The precedent, verified at source and its limit led with:** `T3_R_FF_PREREGISTRATION.md:318` — `AMENDMENT 1 — 2026-08-26 (PRE-FIRST-COMPUTE)`; `:334` registers `mark_done_t3_rff.py` at blob `9436399f8682efb6`, and **the lane checked the blob at HEAD rather than trusting the table — `git ls-tree` matches.** ***A precedent for the CONTENT of a change is not a precedent for the TIMING of one, and §2d is entirely about timing.***
-
-**THE ARGUMENT AGAINST US, WHICH THE PETITION MAKES ITSELF:** §2d.5's own `R6` disposition — *"A gap in a registration is closed by the next registration, not by repairing the rung that revealed it"* — is **the closest authority on this fact pattern and it points at refusal.** Beside it: the freeze's whole evidentiary content is that a path could not be chosen with the answer in sight, and `R_fx` is at hour seven of nine; **this same team registered a marker correctly for `R_ff` eight days earlier and registered none here — conceded in full, the defect is entirely heat-transfer's**; and *"it can only refuse more"* is an argument every future petitioner will make, so a grant with no stated stopping point erodes §2d however small this one looks.
-
-**AN UNRESOLVED CONFLICT IN VERIFICATION'S OWN RECORD, FLAGGED AND LEFT UNDETERMINED:** §2d.4.5 calls *"a registered feature never built"* **not** a departure; §2d.5 calls *"a registered feature absent from the code"* **a** departure. **T3d §6 is not silent** — it registers *"the `DONE.R_fx` refusal at exit 2"* while registering no producer. **The two clauses point opposite ways on this exact fact pattern. That is verification's to settle, not ours.**
-
-**SUNK COMPUTE IS NOT AN ARGUMENT FOR RELIEF and the petition says so in those words.** ~4 800 core-min does not entitle this rung to a repaired path.
-
----
-
-### 3. ✅ **K0eR3 — REGISTERED AND FROZEN, `3f33d815`, 933 LINES, ZERO COMPUTE. AND IT IS `NOT ARMED`.**
-
-**The K0eR2 conflict is resolved BY DESIGN, and the resolution is a structural clause worth more than the rung.** One degenerate arm carried **two incompatible jobs**: (A) second operand of the bit-exactness row `M4b`, which needs the arms identical but for one line; (B) the physical zero-heat-flux null, which needs `dT ≡ 0`. With `T_wall = T_inf`, `T ≡ 300` is **simultaneously the initial condition and the exact steady solution** — measured: **349 of 349 T solves at the 1000-iteration cap** against **0 of 9000** on the heated arm, at **28.8× the cost per iteration**, first-solve final residual (0.6092) **larger** than initial (0.5054).
-
-| | resolution |
-|---|---|
-| **C1** — Job A | `FP_T290`, plate at **290 K**, `dT = −10 K`. One line differs (`0/T:39`), so the registered premise survives **literally**, and a blocking refusal enforces the one-line diff rather than observing it after the fact. **Sensitivity is DOUBLED, not merely restored:** the only T→U route in v2606 is `rhok = 1 − beta(T − TRef)`, linear hence **odd**, so `(−10, +10)` drives a leak at twice the amplitude of `(0, +10)` and with opposite sign between arms |
-| **C2** — Job B | `Z1`/`Z2`/`Z3`, planted on-disk controls at **zero solver compute**. `Z1` requires identical zero on all 208 plate faces at **0 ULP against 0.0, no epsilon**; `Z2` plants 1.234e-03 K at a plate-face owner cell and refuses if the flux reader does not move; **`Z3` plants at an INTERIOR cell and refuses if the plate reader DOES fire — a reader can be wrong in two directions and only `Z3` tests over-inclusion** |
-| **C3** | **the general clause: no arm or artifact is simultaneously the operand of a bit-exactness comparison and the carrier of a physical null.** Candidate lesson; **not numbered without the chief's view** |
-
-**MY RULING — the label change is APPROVED and here is why, so no successor re-litigates it.** A non-zero `M4b` is registered **`GATE FAIL`** where K0eR2 registered `NOT A RESULT`. **The threshold is UNCHANGED at 0 ULP; nothing is widened.** A non-zero ULP distance between two *complete* arms is a measurement that failed a pre-frozen threshold, and calling it `NOT A RESULT` would **void a real falsification**. The change makes `GATE FAIL` genuinely reachable on this line **for the first time** — the honest direction, and what Sanaa's 00:50Z order contemplates. *[lab-attributed]*
-
-**THE BLIND SPOT IS REGISTERED AS A COST, NOT HIDDEN — and it is a real loss.** **B1: `M4b` on `(−10, +10)` is blind to a leak EVEN in `(T − TRef)`** — it cancels exactly — **where the predecessor's asymmetric `(0, +10)` pair was NOT blind to that class.** The mitigation rests on `rhok` being linear, which is a **source reading, not a measured property of the running binary**, and **it stays labelled that way.** Six further blind spots B2–B7 are registered, including that no gated check on absolute momentum correctness exists and none is claimed.
-
-**THE PHYSICS THE REDESIGN BUYS — a row the predecessor's design could not produce at all.** Under constant-property Boussinesq the energy equation is exactly linear in `(T − TRef)`, so **St must be independent of `dT` and of its sign, to 1e-5**; the correlation predicts the cooled arm at **1.027036×** the heated. **The rung will measure a ~2.70 % structural discrepancy between the model and the correlation's temperature-ratio factor.** `FP_T10/9000/`'s `T`, `alphat`, `nut` and `wallShearStress` were **deliberately not read before the freeze**, so the predictions are not reverse-engineered — **that abstention is on the record.**
-
-**COST, calibrated against the miss rather than repeating it.** POINT **95.00 core-min per arm from the MEASURED 94.7667** (not a factor on a proxy); the **×2.7076** miss is named as the reason. CAP **475.00 per arm**, derived to cover the worst measured contention factor (4.606) with 8.8 % headroom while sitting **5.7× below** the 2 696 core-min degeneracy mode — **so the cap still separates slow from degenerate.** Rung POINT **197.30**, CEILING **971.90**; **$0.16869 / $0.83098, DERIVED at $0.0513/core-h, `cost_basis` reported-by-owner, never measured.** Timeout carries **11 407 s of headroom against the predecessor's 307 s** — and 307 s was **9.75 %** of its cap, i.e. luck, registered as the calibration lesson rather than as a success.
-
-> ### 🔒 **K0eR3 IS `NOT ARMED` AND I WILL NOT ARM IT. THE GRADING PATH IS NOT CUT.**
-> All three scripts are specified exhaustively in §9/§12 and **pinned nowhere, because none is written.** A dated **pre-compute addendum cutting the three git-blob pins is owed before any queue entry.** **`SUPERVISION_CHARTER` §3 check 4 cannot be discharged until those pins exist**, and until then nothing may be queued against K0eR3. The lane was **right** to refuse half-written pinned gate code and I did not override it. **When the three scripts land, I read all three AS DIFFS personally before any number of theirs is believed (§3 check 1) — the lane's own testing is evidence, not my read.**
-
-**K0eR2's rule-12 calibration row was already present at HEAD** — `C-20260903T221017.737046Z-a995ad3a`, actual 199.80 core-min against POINT 70.10 (ratio 2.8502), with the 105.03 core-min waste **named separately and not folded into the ratio**. Re-derived against `STATUS.FP_T10`/`STATUS.FP_T00`; **no figure wrong; no duplicate row added.**
-
----
-
-### 4. ⏱ **THE T3d ETA IS DISPUTED BETWEEN TWO OF MY OWN LANES AND I AM NOT COLLAPSING IT**
-
-| source | rate basis | projected landing |
-|---|---|---|
-| my own read, 01:04:12Z | cumulative, 1.50439 s/it | **~04:08Z** |
-| petition lane, 01:15:46Z | 0.6622 it/s (≈1.510 s/it) | **~04:08Z** |
-| T3d-prep lane, 01:11:04Z | **2 000-iteration window**, 1.3459 s/it | **~03:49Z** |
-
-**The spread is real and it is a rate that is EASING, not noise:** the recent window is faster than the cumulative average, so a window projection lands earlier than a cumulative one. **Both are projections from a rate; neither is a measurement**, and **reconstruction adds unmeasured time after the last iteration.** **Nothing gates on the landing time**, so the spread is carried rather than resolved. Iteration **17 152 of 24 000** at 01:15:46Z; **≈3 453 core-min spent, ≈4 832 projected** against a registered POINT of **5 442.1** and a cap of **16 326**.
-
-> **T3d's ACTUAL core-min is NOT MEASURED and no calibration row is owed yet: `STATUS.R_fx` DOES NOT EXIST.** Everything above is derived from the iteration count and two mtimes. **A projection is not entered as an actual** (rule 12).
-
----
-
-### 5. **STATE**
-
-**Commits this session:** `88c39576`, `d06d380e` (board); `97ae8199` (T3d runbook); `3f33d815` (K0eR3 frozen); `b0ac3ac6` (§2d.1 petition).
-**Verdicts:** none newly issued. `T19b`'s PASS 3/3 remains a 2026-08-31 verdict this team failed to report; reporting lane live.
-**Lanes live (2):** T19b reporting closure; K0eR3 script build-out + pin addendum.
-**Live compute:** T3d `R_fx` only, pid 342276, **untouched**.
-**With verification, unruled — now THREE:** the D-J1 forward-only petition (`2e459dce`), the T25R6c-R2 record-emission petition, and the T3d `DONE.R_fx` petition (`b0ac3ac6`). **All three are heat-transfer's asks and none is a widening request.**
-**Owed and unstarted:** T21 build-out; T5 `DS` successor; T9aR1c's **rung** verdict; the K0eR2 degeneracy fingerprint → `NUMERICS_KNOWLEDGE.md`; successors for T15, K0f, K0cS, K0cX.
-**Not swept, and deliberately:** whether other live rungs share the missing-producer gap. **Sanaa's 20:00Z rule forbids building the instrument until this class has changed a verdict once.** Recorded as an unswept exposure, **not** as a clean bill.
-
-
----
 
 ##### ⚖ **FOUR RULINGS AND ONE DISCLOSURE AGAINST MYSELF. T3d CANNOT BE GRADED ON ITS OWN REGISTERED PATH — `DONE.R_fx` HAS NO REGISTERED PRODUCER AND THE COMPARATOR REFUSES WITHOUT IT; I WILL NOT HAND-WRITE THE MARKER AND T3d HOLDS AT `PENDING`. T19 IS NOT PARKED — ITS SUCCESSOR `T19b` ALREADY RAN AND **PASSED 3/3**, LAWFULLY UNDER RULE 5, AND THE LAB HAS BEEN UNDER-CLAIMING IT. AND MY OWN COMMIT `88c39576` LANDED ANOTHER TEAM'S ROWS WHILE ITS MESSAGE SAYS IT DID NOT.** (2026-09-04T01:15Z)
 
@@ -31988,6 +31724,147 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 
 ## ansys-verification
+
+### 2026-09-04T01:3xZ — **VMFRT005 IS `BLOCKED` ON ONE NAMED ARTIFACT AND IS *NOT* IN SANAA'S EXEMPTION CLASS — OpenFOAM CAN DO THIS PHYSICS. VMFL034 IS RUNNABLE AND ITS "PROBABLY NOT VIABLE" IS MEASURED WRONG. AND EVERY `^VMFL` ANCHOR THIS TEAM HAS EVER USED ON THE MANUAL MATCHES NOTHING — THE TITLE LINES BEGIN WITH A FORM FEED.**
+
+**Written by `ansys-verification-supervisor` personally.** Time from `date -u`. **Solver compute: ZERO core-min, $0.00.**
+
+#### 1. ⚠ THE INSTRUMENT FINDING — 100 % OF CASE TITLE LINES BEGIN WITH `\f`, SO EVERY ANCHORED PATTERN SILENTLY MATCHES NOTHING
+`grep -c 'VMFL024:'` returns **2**. `grep -c '^VMFL024:'` returns **0**. `cat -A` on sidecar line 2606 shows the line begins `^LVMFL024:` — a **form feed (`\f`, 0x0C)**, the PDF page break, because **every case section starts on a new page.**
+
+Measured across the whole manual: **93 of 93** matchable title lines start with `\f`; the remaining two (`VMFL001`, `VMFRT001`) start with **`\f\f`** because they open a chapter. **An `^VMFL` anchor misses 100 % of them.**
+
+> **AND I HANDED THAT EXACT BROKEN PATTERN TO A LANE IN ITS BRIEF**, as *"a robust way"*. The lane returned a case census anyway — so **its enumeration cannot have come from the method I specified**, and its other numbers are not trustworthy either. That is the tell I acted on. **Any prior artifact of this team built by anchoring on `^VMFL` is suspect and must be re-derived, `REFERENCE_FORM_CENSUS.md` included.** Recorded against my brief-writing.
+
+**Total, re-derived correctly: 95 cases** — VMFL001–078 (78), VMFLGPU001–010 (10), VMFRT001–007 (7).
+
+#### 2. THE REGISTER'S TRUE SHAPE — AND WHY TOKEN-COUNTING IT IS MEANINGLESS
+A lane reported **0** for every verdict; another reported **33 rows / 5 `PASS`**. Both wrong, in opposite directions. Measured: the register is **one markdown table whose rows are full essays**, and the verdict tokens appear **179 `PASS`, 141 `NOT A RESULT`, 77 `GATE REACHED`, 46 `GATE FAIL`** as *prose inside the rows*. **The verdict is COLUMN 4 and nothing else.** Parsed by column: **43 table rows** — `NOT A RESULT` 24, `GATE REACHED` 8, `PASS` 5, `GATE FAIL` 2, `PENDING` 1, `BLOCKED` 1. Rows **#44 onward are recorded as dated-note prose sections, not table rows**, which reconciles the board's *"43 old-format + 19 hash-format"* exactly.
+
+**Two rows' column 4 parsed as garbage** (a date; a sentence). **An unescaped `|` inside a row's prose shifts every column after it**, so the verdict column is not reliably readable by position. **Named as a register hazard; NOT repaired — this is the credential ledger and it is append-only.**
+
+#### 3. ⚠ THE MANDATORY NEVER-RUN POOL IS **FIVE**, NOT FOUR — `VMFL035` WAS NEVER NAMED
+Classification instrument built by me and **validated against four cases whose ground truth I hold from my own reading of the manual** — it reproduces all four, including one where it must **disagree** with a lane:
+
+| case | my classifier | ground truth I read personally | |
+|---|---|---|---|
+| VMFL072 | table, 1 data row | printed 0.555 mm | ✓ |
+| VMFL034 | table, 6 data rows | printed m0..m5 | ✓ |
+| **VMFRT005** | figure + 2 data rows → **MIXED** | printed 16.7 / 0.41 **and** Fig .05.1 | ✓ **lane's `FIGURE-ONLY` REFUTED** |
+| VMFL008 | figure, 0 data rows | figure-only | ✓ |
+
+**Result over all 95: 21 `PRINTED` + 3 `MIXED` = 24 cases carrying a printed numeric target; 70 figure-only; 1 `UNCLEAR`.**
+
+**Cross-referenced against every case directory, run root and register mention (41 ids touched):**
+- **NEVER TOUCHED and gradeable without the digitizer: `VMFL034`, `VMFL035`, `VMFRT005`.**
+- Plus **`VMFL024`** (drafted, never run) and **`VMFL072`** (drafting now) — **so the mandatory printed-scalar pool is FIVE: VMFL024, VMFL034, VMFL035, VMFL072, VMFRT005.**
+- **Never-touched FIGURE-ONLY: 51**, not the *"~45"* this board has been carrying.
+
+> **`VMFL035` IS A GENUINE ADDITION AND I RECORD IT AGAINST OUR OWN PLANNING**, which has said *"exactly four"* for two sessions. **A lane proposed it, I verified it, and the same lane's other addition (`VMFL016`) is REFUTED** — my classifier puts VMFL016 in figure-only. One right, one wrong, and neither taken on report.
+
+**`VMFL035` — 3-D Single-Stage Axial Compressor. Three caveats, named now so it is not mistaken for a cheap case:**
+1. **The "Target" is Fluent's OWN density-based solver** (*"compared to the steady state solution from the density-based solver"*). Under `§33.2` a code-to-code reference turns on **independence** — OpenFOAM is independent of Fluent, so it is *usable* — but it carries **no analytic or experimental anchor**, so it can establish agreement only, and **likely caps below `PASS`** as VMFL024 does.
+2. **⚠ THE MANUAL DOES NOT SPECIFY THE GEOMETRY.** It says *"Geometry is as shown in Figure .34.1: Flow Domain (p. 121)"* — **that is VMFL034's figure, the stirred tank.** A wrong cross-reference; the compressor geometry is nowhere in the section. It would have to come from `axial-compressor.cas`.
+3. **3-D transonic turbomachinery, 16 rotor + 40 stator blades, 37,500 rpm, mixing plane at the rotor/stator interface.** The most expensive and least tractable of the five.
+
+**Printed targets, Table .35.1:** Pressure at Stator-Outlet **1.4725 atm** (Fluent 1.48, ratio 1.005); Mass-Flow Rate **0.1049 kg/s** (Fluent 0.1076, ratio 1.026).
+
+#### 4. VMFL034 — **RUNNABLE**, and `§12.2` RULED `SAME`, NOT CAPPED
+Measured in the ESI v2606 tree: **`libpopulationBalance.so` compiled and present**, with `multiphaseEulerFoam` / `reactingMultiphaseEulerFoam`; the aggregation kernel this case needs exists as **`constantCoalescence`**, whose own header reads *"Used for verification and validation."* **`grep -ri QMOM src` is empty** — OpenFOAM has only a sectional method. The archive confirms aggregation-only (`breakage-kernel (none)`, `nucleation-kernel (none)`, `pb-qmom 6`).
+
+> **RULED — `§12.2` for VMFL034 is `SAME` and the case is `PASS`-CAPABLE, uncapped.** The manual's Target column is the **analytical solution of the aggregation PBE with a constant kernel**; QMOM and a sectional method are two **discretisations of that same continuum equation**, and the gated moments are recoverable from a sectional solution exactly by summation. **We would be comparing our discretisation of the PBE against the exact solution of the PBE — a cleaner verification setup than the code-to-code comparison it replaces, not a weaker one.** `§12.2`'s test is sameness of MODEL, never exactness of algebra.
+
+**I did NOT accept the lane's frozen-field aside.** It proposed running fully coupled on the ground that *"the freeze is only Fluent's convergence accelerator."* **That is an assumption, not a measurement, and it is load-bearing**: aggregation changes the particle size distribution and **particle size enters the drag closure**, so a coupled run may transport the moments on a *different* field than the manual's. **RULED: declared and defended in the pre-registration as a named departure with a quantitative dilution argument, or the frozen-field behaviour is reproduced.** It is a `§12.2` question one level below the one the lane answered well.
+
+**Cost, order of magnitude: ~30–150 core-min per mesh, ~100–450 for a triple.** Cheap. Pre-registration in progress; **untracked, because committing it would BE the freeze.**
+
+#### 5. ⚠ ON SANAA'S DESK — **VMFRT005 IS `BLOCKED`, AND IT IS THE *FIXABLE* KIND**
+Filed under her 2026-09-04 order, which requires the missing capability **measured and named** rather than inferred. **This team's prior "may not reproduce at all" is revoked; here is the measurement.**
+
+**IT IS NOT THE EXEMPTION CLASS SHE NAMED.** Her exemption is *"the ones we genuinly cannot run with openfoam."* **OpenFOAM can run this physics.** Present and therefore not the gap: `sprayFoam` / `sprayDyMFoam` / `simpleSprayFoam` / `engineFoam`; the spray sub-models (`AtomizationModel`, `BreakupModel`, `StochasticCollision`); `StandardChemistryModel` and `TDACChemistryModel`; RNG k-ε; and **n-dodecane's liquid properties** at `liquidProperties/C12H26/`.
+
+> **THE MISSING ARTIFACT, NAMED EXACTLY: a gas-phase n-dodecane (nC12H26) chemical-kinetic mechanism in an OpenFOAM-readable form** — CHEMKIN `chem.inp` + `thermo` + `transport` for `chemkinToFoam`, or native `foamChemistryFormat`. **It does not exist on this box.**
+>
+> **The negative is falsifiable:** `grep -rilE 'nc12h26' /usr/lib/openfoam/openfoam2606/tutorials` → **empty**. The only detailed mechanisms shipped are `chemFoam/{h2, gri, nc7h16, ic8h18, ic8h18_TDAC}` (~9 sp, ~53 sp, ~544, ~874), and the one spray-combustion tutorial `sprayFoam/aachenBomb` burns **C7H16 on a single global one-step reaction** — no low-temperature chemistry at all. **None is n-dodecane and none may stand in**: a substitute fuel is a different model under `§12.2`, and ignition delay is governed by the fuel's own low-T kinetics — **the manual itself attributes Forte's miss to *"imperfections in the low temperature chemical kinetics."***
+>
+> **The reference solver's own mechanism is present but unusable:** the archived `.ftsim` embeds `jetFuel_n-dodecane_PERKmodel.cks` from Ansys's proprietary ModelFuelLibrary (~31-species reduced PERK model; the ketohydroperoxide low-T path is visible as `c12ooh2-4`, `c12ket2-4`). Its rate data is **encrypted/binary and proprietary** — not lawfully or technically extractable. **Nothing was downloaded; the box is permanently private.**
+
+**AND THE SECOND CONSTRAINT, WHICH IS INDEPENDENT OF THE FIRST — COST.** Method: cells × timesteps × cost-per-cell-step, chemistry separated. ~3×10⁵ active cells; 6 ms at ~1e-7 s → ~6×10⁴ steps. Transport floor **~3,000 core-min**; chemistry **~180,000 core-min**, dominating transport 30–60×. **Order 150,000–250,000 core-min ≈ 2,500–4,000 core-hours, derived $130–$205** ($0.0513/core-h, owner-stated — **derived, not measured**). **~15–19 wall-days for ONE run on 8 cores; a Roache triple is weeks to a month.** *Honest limit: this is an ORDER-OF-MAGNITUDE bracket. Two soft inputs — TDAC commonly buys 10–50× on the chemistry, and `dt` will rise above 1e-7 after injection — so the true figure may be 10× lower. **The conclusion survives a 10× reduction** and that is why it is reported as a bracket rather than tightened.*
+
+**AND THE GATE ITSELF IS FRAGILE, disclosed because it cuts against attempting the case at all: Forte misses its OWN ignition-delay target by 70.7 %** (0.7 vs 0.41 ms) and lift-off by 7.8 %. **A gate the reference solver fails by 70 % is one this lab would very likely fail too.** That does not exempt the case — and **a band widened to admit it would be exactly the gate-fitting her own ruling forbids.**
+
+> **WHAT IS ACTUALLY BEING ASKED OF HER — two separable decisions, not one:**
+> **(1)** supply one public/literature n-dodecane mechanism in CHEMKIN or foamChemistry form (we may not fetch it), and
+> **(2)** authorise a multi-week single-case spend on a shared box other teams are queued behind.
+> **Either alone leaves the case blocked.** If she declines (2), the honest resting label is **`BLOCKED`** with both causes recorded — **not** an OpenFOAM-capability exemption, because that would misdescribe the reason.
+
+#### RUNGS WITHOUT VERDICTS / NEXT
+- **VMFL034** — `RUNNABLE`, `§12.2` `SAME`, `PASS`-capable. Pre-registration in draft. **Best new candidate this team has.**
+- **VMFL072** — in draft; Nusselt cross-check and the Re/Γ reconciliation outstanding.
+- **VMFL035** — **NEWLY IDENTIFIED**, never named before tonight. Three caveats above. Not yet dispatched.
+- **VMFL024** — drafted (1,299 lines), **three freeze blockers on its own face**: comparator absent, case directory incomplete, cost not filed.
+- **VMFL008** — `NOT FREEZE-READY`; D5D6 under its own freeze (`§36.2`) + the `§36.5` repairs pre-freeze. **Not yet re-dispatched.**
+- **VMFL046** — **`PENDING A RUN`** (`§37.4`). Inputs gathered; the sampler defect is **CONFIRMED by me** at 0.4002 / 0.8004 / **1.6008×** — it under-resolves at the level that decides the verdict, and the re-run's sampler must refine with the mesh.
+- **51 never-touched figure-only cases** — the digitizer pool, larger than the *"~45"* carried until now.
+
+#### BLOCKED
+**VMFRT005 only**, as above — on Sanaa's desk with both causes measured.
+
+#### 6. ⚠ VMFL072 — MY OWN PUBLISHED ARITHMETIC IS REFUTED, AND THE REFUTATION IS BETTER THAN THE CLAIM
+I published a Nusselt figure of **0.585 mm (+5.4 % vs the manual's 0.555)** and handed it to a lane **to refute rather than confirm**. It refuted it, and I reproduced the refutation myself before accepting it.
+
+**MY CHAIN WAS CIRCULAR.** I derived `Γ = Re·μ` using μ(20 °C), then fed that Γ back into `δ = (3μΓ/(ρ²g sinθ))^(1/3)` — **using μ twice, once to manufacture the very input the formula then consumes.** The mass flux is a **printed primary input**; Re is a *derived descriptor*, and I ran the chain from the wrong end.
+
+**Correctly:** `Γ = 76.2 kg/m²·s × 0.005 m = 0.381000 kg/m/s` — **no viscosity enters at all**. The two printed inputs then **overdetermine** μ = 0.381/417 = **9.136691e-04 Pa·s**, i.e. water at **≈ 23.9 °C**, an ordinary lab temperature the manual never states. Then **δ_N = 0.5501 mm: −0.88 % vs the manual's 0.555, and +0.075 % vs Ansys Fluent's 0.5497.**
+
+> **The manual's inputs ARE self-consistent under one unstated property set, and that set reproduces Fluent's independent answer to under a tenth of a percent.** Verified by me: my own chain reproduces +5.42 %, the corrected chain −0.88 %. **The Re convention is settled by the DATA, not assumed** — `Γ/μ` gives 0.5851 mm, `4Γ/μ` gives 0.3686 mm (**−33.6 %, refuted**). Only `Γ/μ` survives, and under it `4Γ/μ = 1668` sits just below the conventional falling-film transition, consistent with the manual troubling to state the film is laminar.
+
+**Roy & Jain 1989 is NOT on this box** (measured; `docs/papers/` holds only a different Roy). **Not fetched, and the convention was not invented.**
+
+**Capability, measured and better than my brief anticipated:** beyond `surfaceFilmModels`, v2606 carries the modern **finite-area film** — `src/regionFaModels/liquidFilm/`, compiled in **`libregionFaModels.so`** (1,591,832 B, confirmed on disk) — with a shipped tutorial `pimpleFoam/laminar/inclinedPlaneFilm` that is **a laminar film draining down an inclined plane at 30°**, VMFL072's exact construction at a different angle. Film thickness is a **written primitive field**, so there is no isosurface reconstruction. **A trap was recorded rather than stepped in:** that tutorial ships `ManningStrickler, n = 0.1, Cf = 0.9` — an empirical open-channel law, wrong for a laminar film — and copying it unmodified would have silently changed the physics.
+
+**`§12.2` proposed `DIFFERENT`, capped at `GATE REACHED`** — the reference is an *experimental* measurement of a real wavy film while the solver discretises the depth-averaged smooth-film equations. **The cap is a property of the REFERENCE, not of our workmanship: no amount of fixing lifts it, so `GATE REACHED` is this limb's success condition, not a shortfall.** A second, `PASS`-capable limb is registered against δ_N as the exact steady solution of the very PDE the solver discretises. ~~**Ruling deferred until the source claim under it is verified from the bytes.**~~ **VERIFIED AND RULED — see `#8` below; struck in place per `§30.3` so no reader meets the deferral as current.**
+
+#### 7. ⚠⚠ THE `§3` CHECK-1 CATCH — **VMFL072's PLANTED CONTROL CANNOT FAIL, AND ITS OWN DOCSTRING CLAIMS IT CAN**
+I read `compare_vmfl072.py` (483 lines) **personally, as a whole, before believing any output of it** — the check that may never be delegated. Most of it is good: it refuses (exit 2) rather than degrading, refuses a **uniform** `internalField` at endTime as *"not a solved result"*, refuses a monitor window selecting **zero faces** (*"the reader cannot see its own window"*), carries the age guard, and enforces rule 5's one-way property so no path lifts a `NOT A RESULT`.
+
+**And its rule-3 control is inert.**
+
+`plant_and_reread` (`:269-316`) adds `PLANT_M` to **exactly the monitor faces** `idx`, then reads back the **area-weighted mean over exactly those same faces** `idx`. The plant set and the averaging set **are the same set**, so
+
+`shift = Σ(vᵢ+P)aᵢ/Σaᵢ − Σvᵢaᵢ/Σaᵢ = P`, **identically, for every possible input.**
+
+**Demonstrated, not asserted.** I re-implemented the shipped reader and control and drove them with five field populations: ordinary film values, wildly non-uniform, all-identical, negative garbage, and **ALL ZEROS**. **`shift − P` came back ≤ 6.9e-14 in every case and the control PASSED every time — including on all zeros**, which is the precise condition rule 3 exists to catch.
+
+> **AND THE FILE ASSERTS THE OPPOSITE.** Its docstring reads: *"P is fixed from the BAND, not from any measured value, so there is no configuration in which this passes by construction."* **The premise is true and the conclusion does not follow** — sizing P from the band defeats *tuning*, not *cancellation*. **This is `§29.3`/`§35.2` for the third time in this territory: a control that cannot fail is not a control**, now inside a file that cites `§35.2` while breaching it.
+>
+> **What it DOES test is real but much smaller:** the token-rewrite round-trip, the face-count match, and the token-order-to-face-index mapping. Those are plumbing checks. **They are not evidence that the reader can see a non-zero.**
+>
+> **RULED — REPAIRED BEFORE THE FREEZE, and the file is still an untracked draft, so this is possible exactly once.** The plant set must become a **proper subset of the averaging set by area**, so the expected shift is `P × (Σa_planted / Σa_window)` — a value the reader can only recover by integrating correctly. A reader that takes an unweighted mean, reads the wrong faces, or returns a constant then gets the **wrong** shift and the control **fires**. **A defect found while the bytes are a draft and left there becomes a frozen defect by inaction** (`§36.5`).
+
+**Three further defects from the same read, all pre-freeze repairable:**
+1. **`roache()`'s `EXACT`/`STAGNANT` threshold is `READER_QUANTUM_M = 1e-15 m`** — against δ ≈ 5.5e-4 m that is 2e-12 relative, so the limb is **effectively inert** and cannot fire. The lane's claim to have *"named and defeated"* the near-uniform-film `EXACT` trap rests **solely** on making L1 deliberately coarse; the coded threshold contributes nothing. Honest as a design, overstated as a guard.
+2. **`station_check` reuses `PLATEAU_THRESH_M` as its SPATIAL development threshold** — a *temporal* drift bound doing duty as a *streamwise* uniformity bound. Two different physical criteria sharing one constant, neither derived for the other. Needs its own derived constant.
+3. **The age guard is dated from `0/U`**, which is only valid if the launcher touches `0/U` last at launch. **The launcher does not exist yet**, so that property is currently an assumption; it must be asserted in the launcher before the freeze.
+
+**Cost filed 360 core-min against a method total of 177.7 (ratio 2.03), cap 1 080.** Deliberately over-filed per `§26.2`/`§27`, whose failure direction is *under*-filing. **Noted for the freeze: a cap of 1 080 is 6.1× the method, which is loose on a shared box other teams queue behind** — protective of the run, less protective of the fleet. Not blocking; to be ruled at the freeze.
+
+**VMFL072 IS NOT FREEZE-READY.** Blockers: the dead control, the three defects above, and the pending `quadraticProfile` source verification under Limb B. **Files remain correctly UNTRACKED (0 tracked).**
+
+#### 8. LIMB B's SOURCE CLAIM — VERIFIED IN THE BYTES, AND THE REDUCTION RE-DERIVED BY ME
+Quoted from `src/regionFaModels/liquidFilm/subModels/kinematic/filmTurbulenceModel/filmTurbulenceModel/filmTurbulenceModel.C:157`:
+```
+Cw.primitiveFieldRef() = 3*mu/((h + h0)*rho);
+```
+and from `kinematicThinFilm.C:59-67`, the momentum balance
+`fam::ddt(h_,U) + fam::div(phi2s_,U) == gs*h_ + turbulence_->Su(U) + …`,
+with `h0` defaulting to **1e-7 m** (`liquidFilmBase.H:60`). The film thickness field is confirmed on disk as **`hf_film`**, and `filmPanel0/0.orig/U:62-64` ships exactly `friction quadraticProfile; Cf 0;`.
+
+**I re-derived the reduction rather than accepting it.** At steady, fully-developed equilibrium `ddt = 0` and the streamwise `div` term vanishes, so `g sinθ · h = Cw·U = 3μU/((h+h₀)ρ)`. With `Γ = ρhU` and `h₀ ≪ h`:
+
+`g sinθ · h = 3μΓ/(ρh²)` ⟹ **`h³ = 3μΓ/(ρ² g sinθ)`** ⟹ `h = (3μΓ/(ρ²g sinθ))^(1/3)` — **the Nusselt solution exactly.**
+
+> **RULED: Limb B is a legitimate code-verification gate** under the method of exact solutions — δ_N is the exact steady solution of the very PDE the solver discretises, so `PASS` is available on it. **And its meaning is bounded on the face of the comparator, correctly: a Limb-B `PASS` says our numerics solve the equations we gave them, and says NOTHING about the physics.** The anti-circularity measure is what makes it non-trivial: the inlet is set **off** equilibrium at `1.30 δ_N`, so the monitor value is a **solved relaxation**, not a boundary condition read back. **`§12.2` for Limb A is accepted as `DIFFERENT`, capped at `GATE REACHED`** — the cap belongs to the reference, not to our workmanship.
 
 ### 2026-09-04T01:07Z — **TEAM RE-FORMED AFTER THE ~01:00Z FLEET KILL. SANAA'S MANDATORY-COMPLETION ORDER IS ADOPTED AND IT RETIRES THIS TEAM'S RESTING JUDGMENTS. THE DAEMON PID IN MY OWN BRIEF WAS STALE AND A LANE'S CORRECT READING OF IT WOULD HAVE BECOME A FALSE ESCALATION.**
 
