@@ -4153,3 +4153,98 @@ fitted to one.* **`§28.11`'s hazard therefore stays OPEN, with its size still u
   appended after a registration's OWN RECORDED FREEZE — anchored on a pin, not on prose — with
   neither a rule-2 gate-unchanged assertion nor a cited authorisation. Until an anchor exists,
   that measurement CANNOT BE TAKEN, and I will not report a number that stands in for it.**
+
+---
+
+## §28.13 — **`§28.11`'s HAZARD IS MEASURED AT LAST, BECAUSE I WAS ANCHORED ON THE WRONG EVENT: RULE 2 TURNS ON **FIRST COMPUTE**, NOT ON THE FREEZE — AND FIRST COMPUTE IS ALREADY MACHINE-READABLE. ZERO VIOLATIONS ON 29.5 % COVERAGE. THE FREEZE-PIN PROPOSAL IS WITHDRAWN FROM SANAA'S DESK. AND THE ANCHOR ITSELF CARRIES A DEFECT THAT IS A REFERRAL IN ITS OWN RIGHT** (2026-09-04T15:5xZ)
+
+### §28.13.1 THE CORRECTION THAT UNBLOCKED IT — AGAINST MYSELF, AGAIN
+
+`§28.12` concluded that `§28.11`'s hazard **could not be measured** without a new lab-wide freeze
+pin, and put that pin on Sanaa's desk. **That conclusion was wrong, and wrong in the same way twice:
+I anchored on the wrong event.**
+
+**Rule 2 does not turn on the freeze. It turns on FIRST COMPUTE** — *"Before first compute,
+amendments are legal … After first compute gates are closed."* **Edits between freeze and first
+compute are EXPRESSLY LAWFUL**, so a freeze anchor was measuring a boundary rule 2 does not police.
+***And unlike the freeze, first compute is already recorded, machine-readably, by the lab's own
+runner.***
+
+> **`§28.12` said the measurement could not be taken. It could — I had simply been asking for the
+> wrong timestamp. A proposal to change six teams' practice rested on that error, and it is
+> withdrawn below.**
+
+### §28.13.2 THE ANCHOR, AND ITS COVERAGE STATED HONESTLY
+
+**`[VERIFIED AT SOURCE]`** `verification/queue/<team>/launched/*.json` carries `_launch.utc` on
+**352 / 352** records, **triple-witnessed**: `_launch.started_epoch` agrees within 90 s on **349/349
+with zero disagreements**, and the `_launch.wrapper_out` filesystem mtime is consistent on
+**349/349**. *That is a genuinely corroborated timestamp, not a single trusted field.*
+
+**⚠ COVERAGE IS THE LIMIT AND IT IS NOT SMALL: the 352 records resolve to only 123 distinct
+pre-registrations out of 417 — 29.5 %. 294 pre-registrations have NO queue launch record and are
+INVISIBLE to this route.** *Stated before the counts, not after.*
+
+### §28.13.3 THE COUNTS — AND NONE OF THE FLAGGED ROWS SURVIVES ADJUDICATION
+
+**91 post-first-compute commits across 33 pre-registrations.** Classified with `§28.12`'s correction
+applied — **a rule-6 line-count assertion does NOT count as a rule-2 gate-unchanged assertion**:
+
+| class | count |
+|---|---|
+| **A** no gate line added | 2 |
+| **B** gate line + genuine **rule-2** assertion | 32 |
+| **C** gate line + authorisation cited | 56 |
+| **D** ⚠ gate line, neither | **1** (3 before adjudication) |
+
+**All three flagged rows adjudicated by reading, and none is a violation:** two on `T5` are lawful
+**pre-compute** amendments against an anchor shown invalid below; the third, `8fc1d764` on `D6RF`,
+**self-labels POST-COMPUTE and carries a substantive rule-2 assertion** — *"may not alter a gate,
+threshold, cap or label. **It does not.**"* — which the classifier missed **only on phrasing**
+(*"may not alter"* vs *"does not alter"*). **Substantively class B.**
+
+> **RULED: on the 29.5 % of pre-registrations reachable by this anchor, the count of gate-carrying
+> lines appended after first compute with NEITHER a rule-2 assertion NOR a cited authorisation is
+> ZERO. `§28.11`'s hazard is REAL IN STRUCTURE AND HAS NO INSTANCES WHERE IT CAN BE SEEN.**
+> **⚠ AND IT IS NOT CLOSED: 70.5 % of the population is unmeasured, and I will not report a
+> measured zero as a population zero.**
+
+**One discipline point kept from the measurement, because it is rule 9:** 44 of the 56 class-C rows
+fired on the bare word *"ruling"* — **often a SUPERVISOR's ruling, which is not Sanaa's consent.**
+Re-tested without crediting that word, **42 of the 44 carry a genuine rule-2 assertion anyway** and
+only 2 fall through. *An authorisation-shaped word is not an authorisation.*
+
+### §28.13.4 ⚠ THE ANCHOR'S OWN DEFECT — AND IT IS A REFERRAL, NOT A FOOTNOTE
+
+**`[VERIFIED AT SOURCE]` `_launch.utc` records that the runner launched a WRAPPER, not that a solver
+ran — and a REFUSED launch still writes a launch record AND A FALSE `rc=0` STATUS AT ZERO ELAPSED.**
+
+Specimen, `T5_X_2d`: `log.launch` reads ***"REFUSE: no `0/**/T`, so the age guard has no datum"***,
+while `STATUS.T5_X_2d` reads **`rc=0 end=2026-08-26T16:28:57Z`** — the same second as launch. **Real
+compute began at 16:44:03** (`0/` written), time dirs 16:47–16:49, `DONE` 16:58:41Z. **All five T5
+amendments labelled "pre-first-compute" (16:34–16:38) are therefore CORRECT**, and my anchor
+**over-flagged** them — *the safe direction, but it is why every D row is adjudicated individually
+rather than reported as a count.*
+
+> **⚡ REFERRED TO cfd AS OWNER OF `queue_runner.py`, AND IT IS `§2ak`'s EXACT SUBJECT: A REFUSAL
+> THAT RECORDS `rc=0` IS A REFUSAL WEARING A SUCCESS CODE.** **Rule 4 reads `rc` as
+> `physics_critical`**, so a false `rc=0` is not a bookkeeping blemish — ***it is a success code on
+> the one field the completion rule trusts most.*** **Not mine to repair; it sits in another team's
+> instrument. Reported, with its specimen and its artifacts named.**
+
+### §28.13.5 DISPOSITION
+
+- **⚡ SANAA'S DESK ITEM #2 — THE MACHINE-READABLE FREEZE PIN — IS WITHDRAWN BY THIS TEAM.** It was
+  built on `§28.13.1`'s error and would have changed six teams' registration practice to obtain a
+  timestamp rule 2 does not use. ***A proposal withdrawn on measurement is worth more than one
+  waiting on a busy owner.*** **Nothing replaces it that requires any team to do anything.**
+- **THE BETTER ANCHOR, NAMED FOR WHOEVER BUILDS NEXT: the FIRST SOLVER ARTIFACT** — the first time
+  directory, or the driver's `begin` line — **not the queue record.** It is immune to
+  `§28.13.4`'s defect because a refused launch produces no solver artifact. **Proposed, not built.**
+- **STILL NO INSTRUMENT — the fourth refusal in this family.** The measured class is **zero where it
+  can be seen**, and `§28.6.6` governs: **a met precondition permits a gate, it does not compel one.**
+- **NOTHING RE-GRADED, NO VIOLATION ALLEGED, NO FROZEN DOCUMENT REOPENED, NO BACKFILL.**
+- **WHAT WOULD MOVE ME, RESTATED: a class-D row that survives adjudication — a gate-carrying line
+  appended after a case's first SOLVER ARTIFACT with neither a rule-2 assertion nor a real
+  authorisation. `§28.11`'s hazard stays OPEN at 70.5 % unmeasured, and is recorded as
+  structurally real with no instances found.**
