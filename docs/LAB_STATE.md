@@ -25482,6 +25482,27 @@ Wiring the guard into ten sites turned up **a second defect shape that was not t
 4 paths, 682 insertions, **file deletions 0**. **I ran the controls rather than reading the report:** `--selftest` **GREEN**; `--mutation-control` **HELD, RED at rc 1**, naming *"the endTime fields survived"* and *"the coefficient series survived"* **for all three drivers** — the fixtures are genuinely destroyed without the guard. rc **0 under `python3` and `-O`**. **By AST parse across all four files: 0 bare asserts and 0 surviving raw `rmtree` calls.** **All ten reported line numbers were exactly right** (GEN_ALT 58/114/156/165, FPE 93/168/186/227, B52 88/201) — ⚠ **the first line-number relay tonight that survived checking.**
 
 
+<!-- BOARD-BLOCK-ID: 56X-model-form-gate-fail-is-a-routing-signal -->
+
+### ✅ RECEIVED AND VERIFIED AT SOURCE — MODEL-FORM `GATE FAIL` IS A **ROUTING SIGNAL, NOT A TERMINUS**
+
+`etc/sessions/2026-09-04T1510Z_sanaa_model_form_closure_ladder.md`, commit **`0910b664`**, 15:07:43Z, her header *"Corrected ruling, paste-ready."* **Her verbatim ruling:** a model-form `GATE FAIL` escalates into a four-rung closure ladder, each rung gated against the same reference — **(1)** exhaust all stock RANS closures, register if none land; **(2) rule out numerical cause per §0**; **(3)** literature closure corrections (analytical, functional/nonlinear and algebraic-stress, curvature/rotation, separation-specific), **each carried with its paper provenance and known-good flow class, applied and gated individually**; **(4)** the lab's own GP-based research closures. **It ships as a documented failure ONLY when the ladder is genuinely exhausted — and even then with the full ladder recorded, because "all known closures fail this flow at these numbers" is itself a result.**
+
+**Two touches on my territory, both accepted, neither reordering anything.** **F6's separated-flow cases — hump, periodic hills, duct — are her named venue** for the ladder's first certified *"correction X recovers this flow where SST could not"*, **sequenced behind M6/CRM exactly as this ladder already runs.** And **any current or future model-form `GATE FAIL` here is now a routing signal, recorded as such rather than shipped as terminal.** **M6SR's launch order stands unchanged and first.**
+
+⚠ **NOTHING IN cfd ROUTES TODAY, and I checked rather than assumed.** **`F28G_L1_dp1000_U20` is `NOT A RESULT`, not `GATE FAIL`** — graded so at `23eeff7e` on two registered grounds and reaffirmed in my Addendum 1. **`NOT A RESULT` ≠ `GATE FAIL`, and the ladder keys on the latter.**
+
+### 🔴 THE HAZARD THIS CREATES, NAMED NOW RATHER THAN AFTER IT BITES — **A ROUTING RULE ATTACHED TO A VERDICT PUTS PRESSURE ON THE VERDICT**
+
+The ruling is right and I am not arguing with it. **But it makes one verdict word expensive and another word attractive, and that is a force on grading that did not exist yesterday:**
+
+- **Downward pressure on `GATE FAIL`** — it now triggers a four-rung programme of work, so there is a quiet incentive to find a reason it is really something else.
+- **Upward pressure on `NOT A RESULT`** — the ladder is now the *productive* path, so there is a quiet incentive to relabel a `NOT A RESULT` **into** a `GATE FAIL` to get a case moving.
+
+⚠ **Both would be manufacturing a routing, and the second is the more tempting because it looks like progress.** ✅ **Her own rung 2 — *"rule out numerical cause per §0"* — is the guard against it, and F28G is the worked example that shows why it sits where it does:** F28G is `NOT A RESULT` because **no level met its `residualControl`** and the run **never printed `SIMPLE solution converged`** — **an ITERATIVE failure, not a model-form one.** **Routing it into a closure ladder would be answering a numerics question with a turbulence model.** **The verdict vocabulary is fixed (rule 1) and a verdict is decided by the frozen gate, never by which downstream path is more useful.**
+
+**Standing consequence for this team:** before any cfd case enters the ladder it must carry **`GATE FAIL` from its frozen gate** — not a `NOT A RESULT` re-read as one — **and rung 2's numerical rule-out must be discharged on the evidence, not asserted.** ⚠ **F28G's own diagnostic order already has that work queued and unfinished** — my superseding item 1, the H3 exponential fit at zero solver compute, is **owed and dispatched.**
+
 <!-- BOARD-BLOCK-ID: 56W-sanaa-ruled-m6-launches-and-the-autostop-first-success -->
 
 ### 🔴 SANAA HAS RULED ON M6 — VERIFIED BY ME AT SOURCE, NOT TAKEN FROM A RELAY
