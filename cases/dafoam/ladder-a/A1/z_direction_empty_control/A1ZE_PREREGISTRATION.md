@@ -1416,3 +1416,341 @@ The record files `cases/dafoam/PATCH_IDENTITY_D3F47BFA_REVERTED.md` and the thre
 commit's own message.
 
 **Zero further solver core-min. SUBMISSIONS PARKED.**
+
+---
+---
+
+# ADDENDUM H — 2026-09-04 — **v1.8** — **THE DISPATCH THAT SENT ME HERE WAS WRONG IN BOTH OF ITS CLAIMS: `G-EMPTY` DID NOT FIRE, AND NOTHING WAS UNGRADED. THE FROZEN VERDICT REPRODUCES BYTE-FOR-BYTE AT ZERO COMPUTE, AND THE REAL OPEN QUESTION WAS A RULE-2 ONE NOBODY HAD ASKED**
+
+**`lines whose number changed above this section: 0`** — the disk file's first **1418** lines were
+`cmp`-identical to the `HEAD` blob before this section was appended, asserted by execution in the
+appending invocation. Addenda A–G untouched. **No gate, threshold, cap or label changes, and after
+first compute none may (rule 2).** This addendum records verification, a lawfulness finding, and
+the rule-12 calibration row. **Zero solver core-min. No container, no solver, no re-fire.**
+
+## H.1 ⚠⚠ THE DISPATCH'S CENTRAL CLAIM IS REFUTED BY THE GRADE OUTPUT ITSELF — `G-EMPTY` PASSED ON `Ec`
+
+The dispatch that opened this pass held that *"`G-EMPTY` HAS FIRED"* on the treatment arm, citing
+`STATUS.A1ZE_chain.log:31`, and that the item therefore *"has a registered result sitting
+ungraded."* **I was told to check that reading rather than inherit it, and to say so plainly if it
+was wrong. It is wrong, in both halves, and this is that answer.**
+
+**Half one — `G-EMPTY` did not fire. It passed.** The line the dispatch cites is not a gate at all:
+`STATUS.A1ZE_chain.log:31` reads `A1ZE_ARM_DONE arm=Ec docker_rc=97 in_container_rc=97 oom=false
+wall_s=88 core_min=1.4667 cumulative=4.9` — an **arm-completion ledger row emitted by the driver**,
+which knows nothing about `G-EMPTY`. `G-EMPTY`'s own reading is in the grader's output, and it is
+the opposite of the claim:
+
+> `/home/ubuntu/certonomous-runs/A1ZE/A1ZE_grade_20260903T190524Z.out:10`
+> **`G-EMPTY Ec: both planes 'empty' in the mesh and in 3 field file(s)`**
+
+`G-EMPTY` reads the **built mesh and the staged `0/` field files** (§5.1). On `Ec` those were
+perfectly correct — the commit under test did its job at the file level — so the gate **continued**,
+exactly as §5.1's `met` column says it must. **`Addendum F.4` had already established this in
+writing before the dispatch was composed**, in terms that leave no room: *"`G-EMPTY` reads the staged
+files, which were perfectly correct, so it passed … the right gate existed and was pointed at the
+wrong artifact."* **The relay overturned a lane's reading by citing a line that does not say what it
+was said to say, while the registration's own record already carried the correct answer.**
+
+**Half two — nothing was ungraded.** `STATUS.A1ZE_chain.log:33` reads
+`A1ZE_GRADED partial -> /home/ubuntu/certonomous-runs/A1ZE/A1ZE_grade_20260903T190524Z.out`. That
+file exists, is 24 lines, and its last line is **`A1ZE_VERDICT NOT A RESULT`**. The item was graded
+by its frozen path at 19:10:19Z on 2026-09-03, and Addenda F and G record the verdict and its
+over-determination. **There was no ungraded result to find.**
+
+**⚠ AND THE ERROR IS THE SAME SHAPE THE DISPATCH WAS WRITTEN TO WARN AGAINST.** The dispatch named
+a family failure mode — *four false absences in two days from readers looking for the wrong field,
+three of them the dispatcher's own* — and instructed me to plant a control before believing any
+zero. **The dispatch then asserted a non-zero from a reader pointed at the wrong artifact.** The
+control that would have caught it costs one file read: *before saying a gate fired, read the gate's
+own printed line, not a line that shares the arm's name.*
+
+**What the dispatch got right, and it is not small.** The framing it was overturning — *"`A1ZE`'s
+central gate cannot be satisfied as registered"* — **is also wrong**, and the dispatch was right to
+refuse it. `A1ZE`'s gates were all satisfiable and most of them were satisfied: `G-DIRN.S`,
+`G-U2.S` and `G-EMPTY` all read clean, and `G-DIRN.E`'s registered threshold of `N = 2` was **MET**
+on the last line DAFoam printed before aborting (F.2). What is unsatisfiable is not a gate but
+`G-COEF`'s **input**, and §H.5 states that through the registration's ladder rather than as prose.
+**Both relayed framings were wrong; they were wrong in opposite directions; and the artefacts
+settle it without needing either.**
+
+## H.2 THE FROZEN PATH, HASHED AND RE-DRIVEN — THE VERDICT REPRODUCES BYTE-FOR-BYTE
+
+**Rule 2's hash check, executed.** `a1ze_grade.py` on disk is md5
+**`8c04f2b747a9f86707b57a8f97218179`**, byte-identical to the committed blob at `HEAD` and to the
+pin at `A1ZE_INSTRUMENT_MD5.txt:2`; `git status --porcelain` reports the file **tracked and clean**.
+The blob is unchanged since commit **`864339ab`** (2026-09-03T19:04:18Z), which landed **66 s before
+the fire-2 chain began at 19:05:24Z** — so the grader on disk today **is** the grader that graded
+this run. `A1ZE_PREREGISTRATION.md` was likewise `cmp`-identical to its `HEAD` blob before this
+section was appended.
+
+**⚠ `§12`'s frozen-grading-path md5 is a superseded pointer, and this is disclosed rather than
+edited.** Line 719 names **`9b755c3b1a043879a664853a3d747c53`** — the blob at the original freeze
+`03120e22`. It is **not** the grader that ran, and it has not been since `c51ef632` (v1.4). Under
+rule 6 that line is **not rewritten**; the correct current value is recorded here and in the pin
+file, which is the artifact `G-PINS` actually asserts (`STATUS.A1ZE_chain.log:3`,
+`6 of 6 instrument pins present and matching`).
+
+**Re-driven at zero compute.** `python3 a1ze_grade.py --root /home/ubuntu/certonomous-runs/A1ZE`
+returned **`rc=0`, empty stderr**, and output **`diff`-identical to
+`A1ZE_grade_20260903T190524Z.out`** — all 24 lines, ending `A1ZE_VERDICT NOT A RESULT`. The seven
+planted-zero controls (`P0`–`P5`, `P2n`) were born again on this invocation and all passed,
+including **`P5`, which proves the patch-type reader distinguishes `symmetry` from `empty` on both
+planes** — the reader whose zero the whole item depends on. **No verdict was composed by hand here
+and none needed to be.**
+
+## H.3 WHAT IS GRADEABLE, WITH THE READER DRIVEN BOTH WAYS FIRST
+
+The dispatch required a planted control on my own enumerator before any absence was reported.
+A four-arm census reader was written that decides `ran` from three independent artifacts — the arm
+directory, `<arm>/out/rc.txt`, and a non-empty docker log `logs/<arm>_*.log` — and was **driven both
+ways on a planted fixture before it was pointed at any real root**: with a synthetic `S3` carrying
+`rc.txt` and a log it reported **`S3 ran=True`**; with those two files removed and nothing else
+changed it reported **`S3 ran=False`**. **The same code path produced both, so its zeros below are
+evidence and not silence.**
+
+| arm | `/home/ubuntu/certonomous-runs/A1ZE` (fire 2) | `A1ZE_partial_20260903T190245Z` (fire 1) |
+|---|---|---|
+| `Sc` | **RAN**, `rc=0`, 1 log 534 B, `sweep.log` 33,885 B | RAN, `rc=97` (the `transportProperties` death, Addendum E) |
+| `Ec` | **RAN**, `rc=97`, 1 log 867 B, `sweep.log` 22,281 B | dir staged, **never launched** — no `rc`, no log |
+| `S3` | **ABSENT** — no directory, no `rc`, no log | ABSENT |
+| `E3` | **ABSENT** — no directory, no `rc`, no log | ABSENT |
+
+**Gates with data, and what they read** (all from the frozen grade output, not re-derived by hand):
+`G-EMPTY` on `Sc` and `Ec` — both continue; `G-EMPTY` on `S3`/`E3` — **`BLOCKED`, boundary file
+absent**, which is the Addendum-E hardening reporting an un-run arm honestly instead of vacuously.
+`COMPLETION Sc` — every clause holds. `COMPLETION Ec` — **`NOT A RESULT`**, `rc=97`, no `End`,
+`last Time = None != 2000`. `G-DIRN.S` — `N=3 (1 1 1)` as registered. `G-U2.S` — `U2` present,
+floor **6.656746e-08**. `G-GUARDS Sc` — `NOT A RESULT` on the Addendum-G path bug.
+`G-COEF` coarse and L3 — **`NOT A RESULT`, an arm of the pair did not complete.**
+
+**Gates with NO data, and it is not a choice:** `G-DIRN.E` and `G-U2.E` print no line, because the
+frozen grader evaluates them only on an arm that passed `COMPLETION` — `Ec` did not, so the arm's
+`NOT A RESULT` short-circuits both. **`G-DIRN.E`'s registered threshold was nonetheless MET as a
+measurement** (`Mesh has 2 solution (non-empty) directions (1 1 0)`, F.1), and the distinction
+between *a threshold met in a log* and *a gate that graded* is the whole of F.4 and is preserved
+here. `G-TOL` prints no line for the same reason.
+
+**⚠ A THIRD INSTANCE OF ADDENDUM G's DEFECT CLASS, FOUND IN THIS PASS AND NEW TO THE RECORD.**
+`G-CAP` returned **`PENDING -- no cost record` on all four arms**, and `G-CEIL` printed **nothing at
+all** (the grader emits it only when a non-zero total accumulates). The reason is measured: the
+grader reads `<arm>/out/core_min.txt`, and **no arm in either run root has ever written that file** —
+census column `core_min_file=None`, 4 of 4 arms, both roots. **The cost was measured and written,
+twice, to two other files**: `ledger.txt` (`STAGE=Sc … core_min=3.4333`, `STAGE=Ec … core_min=1.4667`)
+and `STATUS.A1ZE_chain.log:26,31`. **So `G-CAP` is a reader pointed at a path nothing writes — the
+same one-line defect as `G-GUARDS`, in a different gate, and it fails to the same safe side.** It
+changed no verdict (`PENDING` is not a grade and `NOT A RESULT` was reached independently), and per
+G.3 it **cannot lawfully be repaired for this item**. Registered here as the successor's second
+inherited requirement, beside G.3's first:
+
+> **`G-CAP`/`G-CEIL` must read the arm cost from the artifact the driver actually writes
+> (`ledger.txt` / the chain log), and must be driven on a REAL completed arm before freezing.**
+> Two of this item's three cost/guard readers were pointed at files that never exist, and **both
+> were proved by fixtures that passed while aimed at nothing.** The successor's rule is the one
+> G.3 already states in the guard's words and this extends to the cost gates: *a control that
+> proves a reader can parse a value does not prove the reader can find one.*
+
+## H.4 ⚠⚠ THE REAL OPEN QUESTION NOBODY ASKED: THE GRADING PATH WAS CHANGED **AFTER FIRST COMPUTE**, AND ADDENDUM E NEVER CITED THE CLAUSE THAT MAKES THAT LAWFUL
+
+This is not what I was dispatched to find, and it is the only thing in this pass that could have
+voided the verdict.
+
+**The timeline, from commit timestamps and the chain logs:** freeze `03120e22` 18:25:54Z (grader
+`9b755c3b…`) → v1.4 `c51ef632` 18:57:50Z (grader `505b883e…`, **pre-compute, lawful under rule 2's
+first limb**) → **fire 1 launches 18:58:59Z and spends 0.7 core-min** → v1.5 `864339ab` 19:04:18Z
+(grader `8c04f2b7…`) → fire 2 launches 19:05:24Z and is the graded run. **The v1.5 change to the
+grading path therefore landed AFTER this item's first compute**, when rule 2 says gates are closed —
+the very rule Addendum G invokes 45 minutes later to refuse repairing `G-GUARDS`. **Addendum E
+discloses the change fully and honestly, but nowhere cites `VERIFICATION_CHARTER.md` §2d.1, the only
+clause that permits it.** Left there, the record contains a grading-path change with no stated
+authority, and a reader is entitled to ask whether fire 2 was graded by a frozen instrument at all.
+
+**Read as a diff, which is how it must be read.** `git diff c51ef632 864339ab` on the grader is
+**one added `elif` branch, +9/−1 lines, inside `G-EMPTY`**: where the old code printed
+`both planes '<want>' … in {len(seen)-1} field file(s)` unconditionally, the new code sets
+`arm_state[arm] = "BLOCKED"` when `nfield <= 0`. **Nothing else in the file changed, and
+`864339ab → HEAD` is empty.**
+
+**The four §2d.1 conditions, each answered against an artifact:**
+
+1. **A demonstrable error, not a preference — HOLDS.** The pre-repair grader printed
+   `G-EMPTY Ec: both planes 'empty' in the mesh and in 0 field file(s)` for an arm whose `case/0`
+   did not exist. **A success message from a loop that examined nothing** is an error by this
+   registration's own Addendum C.2 test — *can the code path distinguish "the check ran and found
+   nothing" from "the check did not run"?* — and C.2 already ruled that such a zero must refuse.
+2. **Established by an instrument independent of the hypothesis, one that grades nothing — HOLDS,
+   and this is the load-bearing condition.** The finder was **C.2's unifying sweep**, a question
+   that grades nothing and cannot know which verdict is wanted. **And the repair's direction proves
+   the same thing structurally:** the new branch has exactly one reachable effect, `arm_state = 
+   "BLOCKED"`, and the grader's verdict precedence is `NOT A RESULT` > `GATE FAIL` > `BLOCKED` >
+   `GATE REACHED`. **The change can only move a verdict AWAY from `GATE REACHED`; there is no input
+   on which it can move one toward the answer this item's drafter wanted.** That is precisely the
+   property §2d.1 is cut around — *"an error found by something that grades nothing cannot have been
+   selected to move a verdict in a wanted direction."*
+3. **Disclosed, instrument named, and what moved QUANTIFIED — HOLDS, and I strengthened the
+   quantification by execution.** Addendum E.3 quantified the move on the **fire-1** root. **Nobody
+   had quantified it on the run that was actually graded.** I extracted the pre-repair grader
+   (`c51ef632`, md5 `505b883efb1fedadad88e47dd6d07249`) to scratch, gave it a symlink to this item's
+   own `controls/`, and ran it on `/home/ubuntu/certonomous-runs/A1ZE`. **Its output is `diff`-empty
+   against the frozen grade — every one of the 24 lines identical, same verdict.** The repair moved
+   **exactly nothing** on the graded run, and it could not have: `Ec` staged three `0/` field files,
+   so `nfield = 3` and the new branch is unreachable on this root. *That is a measured zero, and it
+   is a zero from a reader shown finding a non-zero — the same extraction found the pre-repair
+   vacuous line on the fire-1 root, which is where the branch does bite.*
+4. **Pre-repair values recorded beside the published ones — HOLDS.** E.3 quotes both lines verbatim,
+   and §H.4 item 3 now adds the fire-2 comparison.
+
+> **FINDING: the v1.5 grading-path change is LAWFUL under `VERIFICATION_CHARTER.md` §2d.1, on all
+> four conditions, and it is inert on the graded run — measured, not argued. `A1ZE_VERDICT NOT A
+> RESULT` was produced by a grading path that would have produced it identically before the repair.
+> The gap was in the CITATION, not in the conduct, and it is closed here.** Neither the frozen
+> grader nor any line above this section was edited to establish it, and this addendum changes no
+> gate, threshold, cap or label — which is the same limb Addendum G used to refuse repairing
+> `G-GUARDS`, applied consistently.
+
+## H.5 THE VERDICT, THROUGH THE REGISTRATION'S OWN LADDER
+
+**`A1ZE_VERDICT NOT A RESULT`**, emitted by the frozen grader, reproduced at zero compute, and
+reached **over-determinedly** — `COMPLETION Ec` alone forces it, and `G-COEF` on both pairs forces
+it again independently.
+
+**What `G-COEF` did, stated through §5.4 and not through anyone's expectation.** §5.4 grades
+`Δrel = |mean_E − mean_S| / |mean_S|` per pair. **It never reached its bands.** Its gating
+precondition is a completed pair, and the frozen grader printed
+`G-COEF coarse: NOT A RESULT -- an arm of the pair did not complete` and the same for `L3`. **So
+`G-COEF` returned `NOT A RESULT` — the token §5.4 does not itself list, because it is imposed one
+level up by the completion rule (rule 4) before any band is consulted.** No `Δrel` exists, no
+`GATE REACHED`, no `GATE FAIL`, and neither drift anchor (`CL` 4.830552e-04, `CD` 1.116421e-04 on
+L3) was ever compared against anything. **The registered `G-COEF` prediction — *the boring one*,
+coefficients unchanged — is neither confirmed nor refuted. It is untested, and it stays untested.**
+
+**Why it cannot be tested on this toolchain, and this is a measurement, not an inference.**
+`G-COEF` requires an `empty` arm to compare against a `symmetry` arm. DAFoam's own
+`DACheckGeometry.C:276-279` aborts unconditionally on `mesh.nGeometricD() < 3` (F.2, md5
+`e6b9497656105a2cf6958e5a6d329823`, read from the registered image `dafoam-idwarp-rot:v1`), and
+`empty` bounding planes give exactly 2. **There is no `empty` solve to compare, and there cannot
+be one in this image.** §1b's coefficient question is `BLOCKED` **by a measured toolchain refusal**,
+reproduced independently at `A1WRT U2` — not unmeasured by choice, and not a resting state. Under
+the 2026-09-04 mandatory-completion directive this is the named exemption class: the capability gap
+is **measured, sourced to a line of upstream code, and recorded**, and running `S3`/`E3` for 514
+core-min could only re-confirm at L3 what `Ec` established for 1.4667.
+
+**The item's own question — *did `d3f47bfa` reach the solver, and may `empty` be used here* — IS
+answered, and answered decisively.** It is the coefficient question, which was always downstream of
+a working `empty` arm, that this toolchain forecloses.
+
+## H.6 `d3f47bfa` — THE CONSEQUENCE, AT EXACTLY §3b.0's WIDTH AND NOT ONE WORD WIDER
+
+**The state on disk, verified in this pass by hash and not taken from a record:** all three template
+`system/createPatchDict` files — `work/NACA0012_Airfoil_Incompressible`,
+`work_refined/NACA0012_Airfoil_Incompressible_probe`,
+`work_refined/NACA0012_Airfoil_Incompressible_refined` — read md5
+**`5e89709961881491e3f05dc97bbcf75c`**, which §3b names as the **pre-`d3f47bfa`** value. **The
+revert-forward recorded in G.4 has landed.** `cases/dafoam/PATCH_IDENTITY_D3F47BFA_REVERTED.md`
+exists beside the superseded `_UNVERIFIED.md` note.
+
+**What the commit is condemned FOR, in §3b.0's own terms:** the **assembly fact** that a mesh built
+from these templates carries `empty` bounding planes that **DAFoam refuses to run at all**. The
+change is not condemned for being ineffective — F.1 measures that it took effect **perfectly**,
+`N = 2 (1 1 0)`, which is the opposite of what `G-DIRN.E` was pointed at.
+
+**What it is NOT condemned for, quoted from §3b.0 and left at that width:** *"failing to change
+convergence, failing to lower a declared residual, or failing to move `CL` or `CD`."* §1a measures
+`U2` out of the declared quantity, so **no such effect was ever available to it**, and §3b.0
+registered before any compute that *"a gate keyed to that effect would condemn a correct commit for
+failing to do something it was never able to do."* **`G-COEF`'s outcome, whatever it had been, does
+not reach `d3f47bfa`** — §3b.0 says so in terms — and since `G-COEF` produced `NOT A RESULT`, there
+is nothing there to reach with in any case.
+
+**And the condemnation's GROUND, stated as F.4 states it and not upgraded by this pass.** **No
+registered gate condemned this commit by its own letter.** `G-DIRN.E` and `G-U2.E` — the two gates
+§3b names as condemning — were never evaluated. `G-EMPTY` — which §3b.0 does register as condemning
+when it returns `BLOCKED` on a treatment arm — **returned a PASS on `Ec`, because the staged files
+were correct** (§H.1). **The commit is condemned by MEASUREMENT — `DACheckGeometry.C:276` — and by
+the engineering fact that its templates cannot run, and the record says exactly that.** I was
+dispatched on a reading that would have let this be reported as a gate firing. **It did not fire,
+the evidence does not need it to have fired, and a gate that did not fire is not a gate that fired.**
+
+## H.7 RULE-12 CALIBRATION — AND THE WASTE CALL, ARGUED BOTH WAYS BEFORE IT IS MADE
+
+**The item is treated as a COMPLETED PROCESS for rule-12 purposes** on the dafoam supervisor's
+dispatch, which F.5 registered as the trigger (*"a full `COST_CALIBRATION.md` row is owed when the
+supervisor rules on whether this item is complete"*). It has a verdict from its frozen path and its
+remaining question is `BLOCKED` by a measured toolchain refusal. **This is the item's whole spend;
+no unit-level A1ZE row exists and none may be added to this one.**
+
+| quantity | figure | basis |
+|---|---|---|
+| registered prediction | **281.15 core-min** | §6.2, *"predicted @ n=14, central — the registered figure"*, frozen at `03120e22` |
+| item ceiling / cap sum | 370.0 / 532.0 core-min | §6.2 |
+| **actual GROSS** | **5.6 core-min, MEASURED** | fire 1 **0.7** (E.1/E.4) + fire 2 **4.9** (`ledger.txt` `SPENT_CORE_MIN=4.9`; `Sc` 3.4333 + `Ec` 1.4667) |
+| **actual CLEANED** | **5.6 core-min — gross equals cleaned** | `COMPUTE_BUDGET_CHARTER` §2's stall rule matches a row over 3600 wall s; the longest row here is **206 s**. Nothing is subtracted, and **waste is NOT subtracted here** (§6: never laundered into either column) |
+| **ratio (cleaned / predicted)** | **0.020×** | 5.6 / 281.15 |
+| dollars | **$0.004788 DERIVED**, predicted **$0.2404 DERIVED** | $0.0513/core-h, c7a.4xlarge, **owner-stated and NEVER MEASURED** — the box cannot read its own billing (`COMPUTE_BUDGET_CHARTER.md` §5) |
+
+**⚠ THE 0.020× RATIO IS NOT AN ESTIMATOR SUCCESS AND MUST NEVER BE READ AS ONE.** It is
+**TRUNCATION**: the chain stopped at arm 2 of 4, so `S3` and `E3` — **514.0 of the 532.0 cap sum and
+272.7 of the 281.15 central prediction** — never staged. **The rate model was not tested at L3
+scale at all.** Attributing this to good estimating would be the exact laundering rule 12 forbids.
+
+**The one like-for-like calibration point this item actually produced is `Sc`**, the only arm that
+met every completion clause:
+
+| comparison | value | reading |
+|---|---|---|
+| `Sc` actual vs `est @ n=6 (MEASURED)` **1.8374** | **1.87×** | the MEASURED n=6 anchor **UNDER-predicts** under real box load |
+| `Sc` actual vs `est @ n=14 central` **4.2193** | **0.81×** | the contention-sized central figure was **good** |
+| `Sc` actual vs cap **9.0** | 0.38× | cap generous, `cap_exceeded=0` |
+
+**Measured contention at `Sc`'s launch:** `loadavg 33.64 35.20 40.05` on 16 cores with `containers=1`
+of A1ZE's own — i.e. **well above the n=6 anchor's conditions**, which is the attribution.
+**Calibration lesson, and it is the useful output of this row:** §6.1a's decision to size on the
+**pessimistic** end of the `rate(14)` band, and §6.2's decision to take the **MAX** of the `3.0×`
+and `1.25×` legs rather than their product, are both **vindicated by measurement** — the n=6 anchor
+alone would have under-sized by 1.87×. **`Ec`'s 1.4667 is NOT a rate point** — it aborted at 88 s of
+a 480 s `TMO` — and must not be read as one.
+
+### The waste call, argued both ways first, because the charter's test is an OUTCOME test
+
+**FOR calling `Ec`'s 1.4667 waste:** it graded nothing. `G-U2.E` was never evaluated, `G-TOL` never
+printed, `G-COEF` — the gate §5.4 calls *the gate that matters* — returned `NOT A RESULT` on both
+pairs, and the arm ended `rc=97` with a core dump. On the face of it, solver time that produced no
+gate value is *"solver cost that bought nothing."*
+
+**AGAINST, and this is the stronger reading:** the outcome test asks what the spend **bought**, not
+which gate it filled. `Ec` bought the item's single most valuable measurement — `Mesh has 2
+solution (non-empty) directions (1 1 0)` on the last line before the abort, then the abort naming
+its own source. That is what (a) turned Addendum B.3's registered prior into a **confirmed**
+prediction, (b) supplied the engineering fact on which `d3f47bfa` was reverted forward, (c) is
+independently corroborated at `A1WRT U2`, and (d) **makes `S3`/`E3`'s 514 core-min unnecessary**.
+**A spend that converts a 514 core-min open question into a measured, sourced, closed one for
+1.4667 core-min is the opposite of waste under an outcome test.**
+
+> **CALL: `Ec`'s 1.4667 core-min is NOT waste. Fire 2's 4.9 core-min in full is NOT waste.**
+> **Fire 1's 0.7 core-min IS waste and stays named as such** — Addendum E.4 already named it, and
+> it is a lane's own staging mismatch (`constant/transportProperties` against a compressible
+> skeleton) that a file listing catches for free, which is why `G-SOLVERMATCH` now exists. **It is
+> carried separately and is never folded into the 0.020× ratio or into the cleaned column.**
+
+**And the ordering paid for itself a third time.** The coarse-pair-first ordering registered in
+Addendum A meant the toolchain refusal was discovered on a 9.0-cap arm rather than a 257.0-cap one.
+**Measured avoided spend across the item: the 514.0 core-min of `S3`+`E3` that a treatment-arm-last
+ordering would have burned before learning the same fact.**
+
+**The calibration row is landed at `docs/COST_CALIBRATION.md` under that file's append rules and
+rule 10's private-index protocol.**
+
+## H.8 WHAT I COULD NOT ESTABLISH
+
+- **Whether the coefficient question has any answer at all.** Not on this toolchain — F.2 closes
+  that — and this pass did not test whether a different DAFoam build, or a `symmetry`-plus-thin-slab
+  configuration, could pose it. **That is a successor's question and nothing here licenses an answer.**
+- **Whether `G-CAP`'s and `G-GUARDS`' path defects share a single root cause.** Both are readers
+  aimed at files nothing writes, and both were frozen behind fixtures that passed while aimed at
+  nothing — but I did not audit the remaining readers for the same shape, and **an unaudited reader
+  is not a clean one.** Registered for the successor rather than asserted here.
+- **`Ec`'s 1.4667 against a rate model.** The arm aborted; it is a cost figure and not a rate point,
+  and no rate can be extracted from it.
+
+**No frozen instrument was edited. Zero solver core-min. No container was invoked. SUBMISSIONS
+PARKED.**
