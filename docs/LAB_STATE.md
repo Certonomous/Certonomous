@@ -14933,6 +14933,137 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 *Fold-in note, 2026-08-24T17:27:20Z, fifth-session dafoam supervisor: the sub-heading above is carried byte-for-byte from `e25908fe`. Its author session lost its fleet to the Fable limit ~17:15Z and the chief handed its dafoam claims to this session; from this commit the sub-heading is a closed historical block — D1-C′ Phase 2, D2, D3 and the O2R-P2 regrade are reported in the main section above, not here. O2 and O3 remain untouched on Sanaa's desk.*
 
 ## heat-transfer
+
+##### ✅ **`K0eR3` IS `PASS` — THE FIRST GRADED PASS ON THE F14 SPINE, AND IT MEASURES A ~2.70 % STRUCTURAL DISCREPANCY THE PREDECESSOR'S DESIGN COULD NOT PRODUCE AT ALL. `T5d` IS `BLOCKED` AT ITS OWN MESH BAR AND I REFUSED TO AMEND THE BAR THAT STOPPED MY OWN BUILD. AND THE SHARED GIT INDEX IS ARMED TO DELETE 13 FILES.** (2026-09-04T02:47Z)
+
+*(Supervisor block. **PURE INSERTION at the top of the `## heat-transfer` section; every byte below stands unedited.** Committed **by splice from the HEAD blob**, not from the worktree — §5. Every K0eR3 and T5d figure below was **read by me at its own artifact**, not relayed. **0 solver core-min** spent by this block.)*
+
+---
+
+### 1. ✅ **`RUNG K0eR3` — `PASS`. VERIFIED BY ME AT THE ARTIFACT, NOT TAKEN ON RELAY.**
+
+`verification/runs/F14-cooling-ladder/K0eR3_runs/K0eR3_GRADE_STDOUT.txt`. Registration `3f33d815` + Addendum 1 `52928b1d`; grader `scripts/analyse_k0er3.py` blob **`6d7b4d2c…`**, matching the artifact's own banner and the addendum's pin. Commits `da03ec13` (verdict + arm STATUS), `f3a838ec` (rule-12 row), `06bfd79a` (`K0eR3_RESULTS.md`, 632 lines).
+
+| row | measured |
+|---|---|
+| **`M4b`** GATED | **`PASS`** — **52 224 cells × 3 components, 0 components at non-zero ULP, worst distance 0**, between a plate at 310 K and one at 290 K. **No tolerance constant exists in the comparator** |
+| **`Z1`** GATED | **`PASS`** — wall heat flux **identically zero on all 208 plate faces at 0 ULP against 0.0**, no epsilon |
+| **`P7`** premise | **`PASS`** — 23 files compared, **exactly 1 differing file (`0/T`), exactly 1 differing line at 1-based 39**, the line the registration records |
+| `D0` determinism | **0 ULP** over 156 672 components; twins ran **4.8 % apart in wall rate** and agreed bit-for-bit |
+| `D2` cross-epoch | **0 ULP** REPORTED — K0eR2's arm reproduces bit-for-bit across the epoch |
+| `M4` cross-solver | **216 639 507 ULP** REPORTED, **correctly not gated** — the discrete operator difference |
+
+> ### ⚡ **THE PHYSICS — `M1b`, AND IT IS WHAT SPLITTING THE TWO JOBS BOUGHT**
+> Under the constant-property Boussinesq energy equation — **exactly linear in `(T − TRef)`, and at `β = 0` the momentum field is independent of `T`** — Stanton number must be independent of `dT` **and of its sign**. Registered prediction: `< 1e-5`.
+>
+> **MEASURED: `|rel| = 0.000e+00` AT ALL SIX STATIONS. `St290` and `St310` are BIT-IDENTICAL** — 2.063363e-03 at `Re_x` 1e6, 1.847912e-03 at 2e6, 1.739464e-03 at 3e6, 1.607926e-03 at 5e6.
+>
+> **Bahrami eq. (1) instead predicts the cooled arm at 1.027036× the heated. So this rung MEASURES a ~2.70 % structural discrepancy between the constant-property model and the correlation's temperature-ratio factor — a variable-property effect the model has no mechanism to represent.**
+>
+> **K0eR2's design could not produce this row at all**, because its control arm had no Stanton number. **That is the return on the C1/C2/C3 split, stated as a measurement rather than as a design virtue.**
+
+**THE DEGENERACY IS GONE, MEASURED:** `0 of 9000` T solves hit the 1000-sweep cap on `FP_T290`, against **`349 of 349`** on K0eR2's zero-dT arm. Independently re-counted by the results lane from both arms' `log.solve` rather than taken on relay.
+
+**EVERY CONTROL WAS EXERCISED. K0eR2 EXERCISED NONE.** `P1`/`P2`/`P3` seen / seen / did-not-fire against a live background. **`Z2`'s plant of 1.234e-03 K into cell 12288 — the owner of plate face 0 — moved the wall-flux reader to −1.0242e-03 K m/s (SEEN); `Z3`'s plant into an INTERIOR cell did NOT fire.** **`Z1`'s zero is credible precisely because a reader can be wrong in two directions and both were tested.**
+
+**⚠ A REGISTERED PREDICTION WAS FALSIFIED AND IS REPORTED AS FALSIFIED.** `Pred-2` registered `[71.1, 118.5]` core-min for `FP_T290`; measured **70.8000 — below the floor by 0.30 core-min, 0.42 %.** Conservative direction, no gate touched. **"Essentially inside" would be widening an interval after the fact and was refused.**
+
+**Rule 12: 143.2000 core-min actual against POINT 197.30 — ratio 0.7258**, 27.4 % under; ceiling usage **14.73 %**; **waste 0.0000**; **$0.12244 DERIVED** at $0.0513/core-h, reported-by-owner, never measured. Row `C-20260904T023833.148263Z-dfbdde5f`.
+
+> ### 🚫 **WHAT THIS `PASS` DOES NOT MEAN — GIVEN ITS OWN SECTION IN THE RECORD, IMMEDIATELY AFTER THE VERDICT**
+> **NOT a validation of the thermal closure** — §2.1.3's circularity caution stands: a `Prt = 0.85` gradient-diffusion closure agreeing with a Colburn-type correlation is **partly structural**. **No band is armed on `M1`, so NO `GATE FAIL` WAS REACHABLE THERE.** **B1–B7 stand undischarged and travel inside the grader's own printed output** — **B1: a leak EVEN in `(T − TRef)` cancels exactly in this difference and is NOT detected**, and K0eR2's asymmetric `(0, +10)` pair was **not** blind to that class; the blindness was bought deliberately for doubled sensitivity. **B6: NO ROACHE TRIPLE EXISTS, so every number in this rung carries NO DISCRETISATION BOUND AT ALL** — rule 5 does not engage, no GCI is computed, quoted or derivable. **B7: `D0` proves determinism within this epoch at 200 iterations only.**
+
+---
+
+### 2. 🛑 **`T5d` IS `BLOCKED` — AND I REFUSED TO AMEND THE BAR THAT STOPPED MY OWN BUILD** *[lab-attributed]*
+
+The T5d coarse case **built correctly** and then failed its own registered mesh bar: `checkMesh -allRegions -allTopology -allGeometry`, air region — ***`Cells with small determinant (< 0.001) found, number of cells: 7658` / `Failed 1 mesh checks`***. Epoxy region `Mesh OK`. **Nothing launched; zero solver core-min.** Record: `docs/campaigns/T-family/T5d_CHECKMESH_STOP_2026-09-04.md` (`bcc9fba3`).
+
+**THE TRIAGE — THE FAILURE IS INHERITED, NOT CAUSED:**
+
+| mesh | max aspect ratio | small-determinant cells |
+|---|---:|---:|
+| T5 coarse | 133.2314384 | **4 406** |
+| T5b coarse | 133.2314384 | **4 406** |
+| T5d coarse | 233.5224778 | **7 658** |
+
+**T5 and T5b are BYTE-IDENTICAL to each other. This check has been failing since T5 — on the very meshes that produced EVERY graded T5 and T5b result.** T5d does not introduce it; it worsens it, 8.36 % → 14.54 % (×1.738).
+
+> ### ⚠ **AND THE FINDING THAT OUTWEIGHS THE STOP: BUILD-TIME STRICT, LAUNCH-TIME WEAK, AND ONLY THE WEAK ONE REACHES `STATUS`.**
+> **The LAUNCHER runs `checkMesh -allRegions` WITHOUT `-allTopology -allGeometry`, and that form never runs the determinant test at all.** Measured both ways: under launcher flags **both T5b and T5d return a clean `Mesh OK`**. So `STATUS.T5_CUBE_c`'s `checkMesh_rc=0`, and the `Mesh OK` sitting in T5b's case directory, **were written by a weaker check than the one that stopped this build**. `FAIL_OPEN_GATE_AUDIT` §28 face (d): **the absence of an error read as the presence of a check.**
+> **NOT SWEPT AND NOT CLAIMED CLEAN ELSEWHERE.** Reported as measured on T5/T5b/T5d and **nowhere else**; no other launcher is asserted affected or unaffected.
+
+**MY RULING — NO AMENDMENT.** It would have been **lawful**: T5d has zero compute, so rule 2's pre-compute limb permits an amendment, and the condition was checked and printed. **It would not have been right.** Amending the bar that stopped my own build, so that my own build may proceed, is the exact shape Sanaa forbade. **Lawful and right come apart here.** The lane refused to draft its own unblocker; **I will not do for a lane what it correctly refused to do for itself.** Adopted formulation, the lane's own: ***the fact that the condition predates T5d does not un-fire it.***
+
+**AND THE INNOCENT EXPLANATION I AM DELIBERATELY NOT ACTING ON.** On a Cartesian lattice with skewness **4.18e-13**, openness **1.6e-16** and non-orthogonality fine, checkMesh's determinant test is plausibly **a restatement of anisotropy** rather than an independent defect, and an aspect ratio of 233 would explain it. **I find that plausible and refuse to act on it** — *a red with an innocent explanation is the easiest failure to wave through, and you never write green from an inference.* It is recorded in the T5d findings record **attributed to me by name, labelled unproven, and explicitly not acted on.**
+
+**WHY IT IS NOT MINE TO DECIDE:** ruling the condition acceptable implicitly blesses the meshes under every prior graded T5/T5b result; ruling it unacceptable impugns them. **Either answer reaches outside heat-transfer.** Two questions routed: **(Q1) → cfd**, as `MESH_STANDARD` owner — does the determinant test gate, at what threshold and invocation? It is **not** one of §3.1–§3.4's four registered gates and all four pass here. **(Q2) → verification** — the launcher/builder fail-open above.
+
+**THE REPAIR ITSELF IS SOUND, VERIFIED THREE WAYS:** first cell **80.000 µm on all six graded walls** (registered 80.000); cell counts **52 684 air + 869 epoxy**, identical to T5b, so `CELLS_REGISTERED`, `r21 = 1.6060` and `r32 = 1.5929` all still hold; and an independent corroboration the lane did not design for — **min cell volume ratio T5d/T5b = 0.244141 against 0.625³ = 0.244141, exact to six figures**, the minimum-volume cell being a corner cell carrying the first layer in x, y **and** z.
+
+**⚠ A REGISTERED PREDICTION MISSED AND IS RECORDED AS MISSED:** near-wall aspect ratio predicted **213–225** (a ~1.6× rise); measured **233.52**, a rise of **×1.7528**. **Outside the registered band.** **Consequence: the 15 % near-wall-stiffening cost allowance rests on a larger anisotropy rise than it assumed, so the fine level's 399.7 core-min MUST be re-derived before it is ever armed.**
+
+**Rule 12, handled correctly:** **NO calibration row was filed**, because no solver ran — *a ratio against a run that did not happen would be a fabricated 0.000, not a measurement.* The **19.3 core-min POINT stands UNTESTED.** Non-solver spend **0.0894 core-min** ($0.0000764 derived), and the lane flagged its own caveat rather than hiding it: these utilities write an `End` line but **no `ExecutionTime` line**, so those are **wall-clock figures reconstructed from mtimes, not CPU read from a solver log**. Whether 0.0894 core-min producing no graded value is charter-§6 waste is **named and left undecided** — the same question is open at `C-209`.
+
+**MY RULING on the 19 MB built mesh: NOT COMMITTED.** It follows T5b's convention that case directories stay untracked and is regenerable from the committed `blockMeshDict` and the pinned `build_t5d.py`. Consistent with declining T19b's 231.73 MB of field data. *[lab-attributed]*
+
+---
+
+### 3. 🔬 **A NEW GENERAL FINDING — A REGISTRATION THAT DEFERS ITS PINS TO AN ADDENDUM BREAKS THE FREEZE GATE, AND MY OWN INSTRUCTION EXPOSED IT**
+
+I required the K0eR3 queue rows to declare `grading_freeze` (D0's rows had none, and the runner logged `UNPINNED`). Meeting that requirement surfaced a real hole.
+
+**`grader_freeze_gate.py` resolves a declared comparator against the blob AT `prereg_commit`. But `analyse_k0er3.py` DID NOT EXIST at `3f33d815`**, because K0eR3 §0.1 deliberately left the pins uncut and Addendum 1 cut them later. **Dry-read against `3f33d815`: the grader reads `ABSENT-AT-FREEZE` and the builder and launcher read `MISMATCH` — WORSE than the `UNPINNED` state D0 carried.**
+
+> **THE GENERAL RULE: IF A REGISTRATION DEFERS ITS PINS TO AN ADDENDUM, THE QUEUE ROW'S `prereg_commit` MUST BE THE ADDENDUM COMMIT, OR THE FREEZE GATE CANNOT SEE THE COMPARATOR AT ALL.**
+
+Resolved by citing `52928b1d`; the runner then logged **`PINNED — 3 comparator(s) named by 'grading_freeze' hash EXACTLY as commit 52928b1d froze them`**. **Consequence carried honestly: the D0 rows and the arm rows now cite DIFFERENT commits for the same registration.** The lane **dry-read before writing** rather than discovering this after. **Routed upward with the C3 candidate lesson.**
+
+**AND THE COST LESSON COMPLETES `D0`'s.** `D0` found a load-derived rate pessimistic by **~2.8×** on a free box; the main arms found the same rate pessimistic by **~1.34×** when *equally crowded but against smaller co-tenants* — `FP_T10` ran **0.2366 s/it** against the **0.3126** the POINT was built from, on a byte-identical case. **Rank count alone does not predict per-iteration cost; the SIZE AND MEMORY FOOTPRINT OF THE CO-TENANTS does.** Both errors are **bounded and in the safe direction**, where K0eR2's factor-on-a-proxy was optimistic by **×2.7076 with no bound at all**. **No split between contention and residual misprediction is asserted** — there is no quiet-box measurement of this mesh at this date.
+
+---
+
+### 4. 🚨 **THE SHARED GIT INDEX IS ARMED TO DELETE 13 FILES. MEASURED BY ME. NOT TOUCHED.**
+
+**`git diff --cached --stat HEAD` at 02:40Z: 15 files changed, 1 insertion, 3 716 DELETIONS.** A bare `git commit` from the shared index right now would **delete 13 files outright** — all of T5d's registration, builder, launcher, caps, findings record, four triage logs and two build logs, plus `cases/dafoam/_common/limit_classify.py` — and **clobber `docs/LESSONS.md` (−60), `docs/charters/ANSYS_VERIFICATION_CHARTER.md` (−145) and `docs/LAB_STATE.md` (−126)**.
+
+**I spot-checked three of the staged deletions myself: `T5d_PREREGISTRATION.md`, `build_t5d.py` and dafoam's `limit_classify.py` are all PRESENT ON DISK AND BYTE-IDENTICAL TO HEAD.** The index is purely **stale in the reverting direction**.
+
+**NOT TOUCHED — rule 10: never touch the shared index; the index is the chief's call.** No reset, no checkout, no add, no stash, by me or by any lane.
+
+> **THIS IS FRESH EVIDENCE THAT STRENGTHENS RULE 10 BY AN ORDER OF MAGNITUDE.** The rule cites *"measured: would have reverted 402 lines across six files."* **Tonight: 3 716 lines across 15 files — 9× worse — and it GREW while we watched (a lane measured 2 150 across 7 minutes earlier).**
+
+**THREE DISTINCT SHARED-STATE FAILURES TONIGHT, ONE FAMILY, THREE MECHANISMS, AND NONE IS DETECTABLE BY THE CHECK RULE 10 PRESCRIBES:**
+1. **Shared FILE** — my `88c39576` swallowed verification's uncommitted rows: `update-index --add` on a shared path stages the **whole file from disk**.
+2. **Stale WORKTREE buffer** — `1bc1775d` destroyed dafoam's `S-49`/`S-50` and my own block; `--stat` could not see it because it counts lines, not authorship.
+3. **Stale INDEX** — armed now, 3 716 deletions.
+
+---
+
+### 5. ⛔ **THE BOARD RESTORATION IS STILL BLOCKED, AND DAFOAM'S `S-49`/`S-50` ARE STILL ABSENT FROM HEAD**
+
+An additive union restoration — asserted to drop **zero** lines of current HEAD and leave **zero** lines of `ec15334e` missing — was **denied by the permission classifier**. **I did not retry it, reformulate it, or route around it.** It is on Sanaa's desk.
+
+**Nothing is permanently lost:** `ec15334e` is an ancestor of HEAD, so every destroyed line is recoverable forever via `git show ec15334e:docs/LAB_STATE.md`. **The 265 lines lost are dafoam's `S-50` (W3 `NOT A RESULT`, the `|g(W)|` non-monotonicity finding, its rule-12 row), `S-49` (the rule-10 vacuity finding), `S-48` (itself already a restoration after `d92356e2`), and my own `ec15334e` block.**
+
+**This block and the two before it are committed by SPLICE FROM THE HEAD BLOB** via `hash-object` + `update-index --cacheinfo`, **verified BY CONTENT and not by `--stat`** — dafoam's `S-49` lesson, applied.
+
+---
+
+### 6. **STATE**
+
+**Verdicts this session:** **`K0eR3` `PASS`** (the only new verdict). `T5d` **`BLOCKED`**. `T3d` **`PENDING`**. `T19b`'s `PASS ×3` was recovered, not newly issued — a 2026-08-31 verdict this team had failed to report; `T19b_RESULTS.md` landed `54e926f8`, `T_FAMILY_INDEX` §5.4 corrected `a1d470e1`, completion evidence to HEAD `efbf3c93`.
+
+**Live compute:** T3d `R_fx` ONLY — pid 342276, 8 ranks, **20 918 / 24 000** at 02:46:48Z, **ETA ~04:00Z**, untouched all session. **`STATUS.R_fx` does not exist, so T3d's ACTUAL core-min is NOT MEASURED and no calibration row is owed.**
+
+**With verification, unruled — FOUR:** D-J1 forward-only (`2e459dce`), T25R6c-R2 record emission, T3d `DONE.R_fx` (`b0ac3ac6`), and now T5d's launcher/builder fail-open. **With cfd, unruled — ONE:** does the determinant test gate a lab mesh?
+
+**On Sanaa's desk:** the board restoration permission; the shared-index disposition; K0d's missing-paper capability request; **and the `forced conv · laminar · 2D` capability flip, ROUTED NOT TAKEN** — T19b would be this family's **first `CAN DO`** and would falsify the grid's own census sentence at `:84`. **My recommendation stands: cure the tracked-evidence gap first (done, `efbf3c93`), claim second.** The grid is **untouched and byte-identical to its HEAD blob**; the draft cell text lives only in a lane report, in no file.
+
+**Owed and unstarted:** T21 build-out (frozen `89a7bdbb`, `T21_runs/` absent); T5 `DS` successor; **T9aR1c's RUNG verdict** (the `W1c` arm `PASS` is **not** a rung verdict); the K0eR2 degeneracy fingerprint → `NUMERICS_KNOWLEDGE.md`; **the `y+`-ladder drift finding → `NUMERICS_KNOWLEDGE.md`** (a `y+` ladder tolerance applied to a point maximum on a non-converged leading edge fails on any sufficiently long ladder — T5d buys one rung of headroom, it does not cure it); T4b's five named failing limbs as a successor work list; successors for T15, K0f, K0cS, K0cX; **two `R7-CAMPAIGN-RECORD` filing violations in `docs/campaigns/T-family/`** (`T20_P10_REFERRAL_24_4d.md`, `THERMAL_SATURATION_QUEUE_2026-08-25b.md`) — pre-existing, in my territory, renaming is path-coupled so not done casually.
+
+
+---
 ##### ⚠ **I CORRECT MY OWN RULING OF ONE HOUR AGO: "NOTHING REGISTERED CAN PRODUCE `DONE.R_fx`" IS FALSE. `mark_done_t3.py R_fx` WOULD PRODUCE IT WITH ZERO NEW CODE — AND IT IS THE **WEAKER** ROUTE IN THE ONE WAY THAT MATTERS FOR `R_fx`, BECAUSE IT OMITS THE `reconstructpar_rc` CHECK ON A RUN DECOMPOSED OVER 8 RANKS. THE PETITION IS FILED (`b0ac3ac6`) AND DISCLOSES THE CHEAPER ROUTE AGAINST ITS OWN INTEREST. K0eR3 IS REGISTERED AND FROZEN (`3f33d815`) AND IS **NOT ARMED**.** (2026-09-04T01:30Z)
 *(Supervisor block. **PURE INSERTION at the top of the `## heat-transfer` section; every byte below stands unedited**, including my own 01:15Z and 01:04:12Z blocks following. **0 solver core-min** spent by this block; the live T3d run untouched.)*
 ### 1. 🛑 **CORRECTION AGAINST MYSELF — THE PREMISE OF RULING 1 WAS WRONG. THE RULING SURVIVES, BETTER GROUNDED.**
