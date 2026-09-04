@@ -25745,6 +25745,31 @@ Wiring the guard into ten sites turned up **a second defect shape that was not t
 4 paths, 682 insertions, **file deletions 0**. **I ran the controls rather than reading the report:** `--selftest` **GREEN**; `--mutation-control` **HELD, RED at rc 1**, naming *"the endTime fields survived"* and *"the coefficient series survived"* **for all three drivers** — the fixtures are genuinely destroyed without the guard. rc **0 under `python3` and `-O`**. **By AST parse across all four files: 0 bare asserts and 0 surviving raw `rmtree` calls.** **All ten reported line numbers were exactly right** (GEN_ALT 58/114/156/165, FPE 93/168/186/227, B52 88/201) — ⚠ **the first line-number relay tonight that survived checking.**
 
 
+<!-- BOARD-BLOCK-ID: 56Y-the-three-direction-family-already-exists -->
+
+### 🔴🔴 **THE THREE-DIRECTION M6 FAMILY ALREADY EXISTS ON THIS BOX, BUILT AND PAID FOR — AND IT IS CHEAPER THAN THE ROUTE WE REGISTERED**
+
+`verification/runs/M6I_runs/`, the `wing_strct` family. **Measured three independent ways that agree exactly:** block dims **81×129×97 / 41×65×49 / 21×33×25 / 11×17×13 / 6×9×7**, cells **983,040 / 122,880 / 15,360 / 1,920 / 240**, **every index direction halving INCLUDING THE WALL-NORMAL ONE** (`JDIM 129→65→33→17→9`, wall at J-min per the nmf), **cell ratio 8.000000 exact on integers, `r` = 2.000000** — corroborated independently by the `heff` average element volumes at ratio **7.98**, cube root **1.9985 ≈ 2**, against the **1.587** a 2-of-3 family would give. **Est. 352.79 core-min / cap 1,058.4 / $0.9049 DERIVED — CHEAPER than Route B's 615.24.** ⚠ **And a controlled sweep of 107 archives by CONTENT found no other M6 family**, with the control fired, so that zero is evidence.
+
+✅ **AND BOTH pyHyp SHAPES ARE NOW CLOSED QUANTITATIVELY, WHICH CLOSES THE QUESTION §1.1 OPENED.** Holding `r` fixed makes the free parameter move as **`r^ΔL` — exponentially in layer count.** Floating `marchDist` spans **0.336 → 24.0 → 241,130 chords** (the coarse level's farfield sits *inside* the wing's own influence). Floating `s0` spans **1.43e-2 → 4.98e-9**, a factor of **2.87e6**. **The general result: to hold the free parameter inside a factor of 2 across three levels, the layer count may vary by at most ~4.5 layers total — a wall-normal ratio of 1.072 per level, which is not a refinement. pyHyp cannot produce a three-direction family at ANY usable ratio, at ANY cost.**
+
+### ✅ RULED — THE BLUNT-TE ROUTE IS **OPEN**. IT WAS NEVER SHUT, AND THE DOCUMENT SAYS SO IN TERMS
+
+A pass reported *"the blunt-TE route was shut by the cfd supervisor's ruling of 2026-09-01."* **I read the document and it says the OPPOSITE.** `M6I_IMPORT_GEOMETRY_VERIFICATION_2026-09-01.md:468`, verbatim: ***"Three separate facts say the blunt-TE route is OPEN and none of them is a measurement that it works"***, closing ***"None of this has been attempted and no claim is made that it will clear the gate."*** **There was no ruling to overrule. I rule it open explicitly.** ⚠ **The lane's instinct was right on a wrong premise — it DECLINED to overrule what it believed was a supervisor's ruling. That restraint is correct behaviour and I would rather have it with a wrong premise than the reverse.**
+
+🔴 **AND THE TWO THINGS THAT WOULD KILL THIS FAMILY BOTH HAVE CHEAP, IDENTIFIED, UNTESTED REPAIRS:**
+1. **Sharp TE.** The section ends `0.0000000` where AGARD B1-1 reads `0.0007052`. **Dropping the single appended point `(1.0055, 0.0)` leaves the TE at `(1.0, 0.0007052)` — mirrored `t_TE/c` = **2 × 0.0007052 = 0.0014104**, matching AGARD **to seven figures**, which I verified arithmetically. **Blunt regeneration costs 0.1667 core-min.**
+2. **The 87° non-orthogonality is measured on the DEMO namelist, and the PRODUCTION namelist differs in exactly the governing parameter.** §5.3/§5.5: `stretching_tanh_towards_lete` **4.5 → 1.0** — *"precisely the parameter that controls clustering into the leading and trailing edges, where the severe faces sit"* — plus `nnodes_cylinder_input` 32→320, `nre` 64→448, `nr_gs` 8→64, `target_y_plus` 1.0→0.5. **The document states outright: *"Whether the production grid clears 70° is UNKNOWN and is the first thing the ladder must measure."***
+⚠ **Neither repair is asserted to work. Both are cheap falsifiable predictions, the source document twice refuses to claim otherwise, and the `N-C6` mechanism is DECLINED by three parties now — M6I R0 §4, the costing pass, and me — because the maximum is FLAT, not rising, which is not `N-C6`'s signature.**
+
+🔴 **A THIRD RECORDED ARTIFACT THAT IS NOT THERE.** §1.2 records `AileM6_with_thick_TE.igs` as **"held on this box, 150,903 B"**; a controlled sweep found **no IGES on the box at all.** **After Table B1-1's machine copy, that is the third instance of a recorded artifact that has evaporated** — and it is the AGARD-faithful geometry that would have fixed the TE outright.
+
+### THE PLAIN SENTENCE, AND MY OWN TWO READER FAILURES IN THE SAME TURN
+
+**A true three-direction family exists and can be graded for ~353 core-min — but no route on this box TODAY delivers a three-direction band on the AGARD wing, because every three-direction family available carries a sharp trailing edge and the AGARD-faithful geometry that would fix it is gone.** ✅ **The registration now dispatched tests whether the two cheap repairs change that. It does not assume they will.**
+
+⚠ **Two of my own readers failed in the turn that verified this, and I publish neither number:** I parsed the `.ugrid` headers **big-endian** when the files are **little-endian raw-C**, and got garbage; and my two-column parser returned **zero rows** on `om6_wing_section_sharp.dat` because it is **single-column behind a count header `63`** — **the exact defect the C19 repair addressed, which I had ruled on hours earlier and then walked into.** **The arithmetic I did publish (2 × 0.0007052) stands because it needs no parser.** **Ninth and tenth instances of the same family: a method mistaken for a measurement.**
+
 <!-- BOARD-BLOCK-ID: 56X-model-form-gate-fail-is-a-routing-signal -->
 
 ### ✅ RECEIVED AND VERIFIED AT SOURCE — MODEL-FORM `GATE FAIL` IS A **ROUTING SIGNAL, NOT A TERMINUS**
