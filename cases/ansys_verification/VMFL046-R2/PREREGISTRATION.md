@@ -725,3 +725,57 @@ present evidence it points at **refute**, which would confirm the cap rather tha
   `grade_vmfl046_r2.py <that run root>`.
 
 **I froze nothing, committed nothing, launched nothing, and graded nothing.**
+
+---
+
+## DATED ADDENDUM — 2026-09-04T15:4xZ — **THE GRADING PIN §14 LEFT AS "TO BE PINNED" IS COMPLETED HERE. THE DAEMON CAUGHT WHAT I LEFT OPEN AND REFUSED TO READ ITS ABSENCE AS A PASS.**
+
+**This addendum alters NO gate, threshold, band, cap, level, ceiling or label.** It records a
+sha that already existed at the freeze commit. Filed under `CLAUDE.md` rule 2's after-first-compute
+clause (first compute began 2026-09-04T15:35:21Z); the original §14 text is **struck by this
+addendum, not rewritten**.
+
+### THE DEFECT, AS THE DAEMON STATED IT
+On launching, `queue_runner.py` logged:
+
+> `GRADER-FREEZE VMFL046-R2: UNPINNED -- entry declares no 'grading_freeze': no comparator is
+> named, so the sha of the script that will grade case VMFL046-R2 is NOT pinned to freeze
+> f014449a. Nothing is predicted about this run's grading, and that absence is recorded rather
+> than read as a pass.`
+
+**Correct, and the last clause is the part worth keeping.** A guard that records an absence
+instead of treating it as satisfied is the same discipline this charter applies to a planted
+control. **The omission was mine, in two places:** §14 wrote *"Comparator: … — to be pinned by
+blob"* and never completed it, and the queue row omitted the `grading_freeze` field that
+`heat-transfer`'s rows carry (e.g. `T25R6cR2.json`, which declares the same list **identically**
+in its registration §11 and its row so that `VERIFICATION_CHARTER §2s.6`'s registration-first
+precedence finds no conflict to resolve).
+
+### THE PIN, COMPLETED
+| | |
+|---|---|
+| **grading_freeze** | `cases/ansys_verification/VMFL046-R2/grade_vmfl046_r2.py` |
+| **git blob at freeze `f014449a`** | `46d9b7a178fee2164c280fe7b92f43c4252bb790` |
+| **git blob of the working file now** | `46d9b7a178fee2164c280fe7b92f43c4252bb790` |
+| **sha256 of the disk bytes** | `0c7365375a478f80237e0518d7ebb6738acb9c77437fe820e4a8d28cd23c0a1b` |
+| **freeze commit** | `f014449ab8d6702bc2f0a7b2d3dd7782135884d5` |
+
+**The working file and the committed blob are identical**, so rule 2's *"verify the frozen file IS
+the file that ran"* is satisfiable by any later reader with one `git rev-parse`.
+
+### WHAT THIS DOES AND DOES NOT REPAIR
+- **The physics is unaffected.** The comparator was committed **inside the freeze commit itself**,
+  so the grading path was fixed at the pre-registration commit exactly as rule 2 requires, and
+  rule 6 forbids editing it thereafter. Sanaa's universal rule of 2026-08-26 applies: **bookkeeping
+  never voids physics.** This run is not tainted.
+- **What was genuinely lost is an INDEPENDENT check.** The daemon can verify a declared
+  `grading_freeze` without trusting the registration; by omitting it I removed that second reader
+  and left only the document's own word. **A pin the grader checks on itself is weaker than a pin a
+  separate process checks**, and that is the whole reason the field exists.
+- **Recorded as this session's third bookkeeping defect**, after the run root filed before it
+  existed (also caught by this daemon) and the launcher whose `base/` did not exist. **All three
+  are the same shape: I verified the artifact and not its contract with the machinery around it.**
+
+> **RULED for this territory: a registration's grading-path pin is COMPLETED AT THE FREEZE, never
+> left as "to be pinned", and the queue row repeats it verbatim.** `git hash-object` yields the
+> blob before the commit exists, so there is no chicken-and-egg to hide behind.
