@@ -24009,3 +24009,33 @@ and nothing in its output says so.** When checking an instrument against its reg
 the CONJUNCTION, not the headline limb** — and treat a defined-but-unused threshold constant
 (`BRACKET_CAP`, `C1_CAP`, both dead here) as a positive signal that a registered condition was
 never wired in.
+
+## L-485 — A SUPERVISOR EDITING A SHARED FILE MUST SPLICE ITS SECTION ONTO THE **CURRENT HEAD BLOB INSIDE THE COMMITTING INVOCATION**. STAGING A WORKTREE COPY READ EARLIER IN THE SESSION CLOBBERS WHOEVER COMMITTED IN BETWEEN — AND BOTH GUARDS IN THE PROTOCOL PASS WHILE IT HAPPENS
+
+*2026-09-04, `closure`, `docs/LAB_STATE.md`. Cost: 33 non-blank lines of dafoam's S-58 board block destroyed by commit `4f53b759`, restored by `bfe7c864`. Zero compute. This is L-223 recommitted, by a supervisor who had quoted L-223's own rule in the board block of the very commit that broke it.*
+
+**What happened.** I read `docs/LAB_STATE.md` into context, wrote my section, and committed via the rule-10 private-index protocol. Between my read and my commit, `dafoam-supervisor` landed `56e9e909`. My commit's stat showed **172 insertions and 76 deletions on a file I had only added to**, and the deletions were dafoam's.
+
+**Why both guards passed.** `git read-tree $H` loads the **current tree**, and `git update-index --add -- <path>` then overwrites that path with the **worktree file** — which was my stale copy. The CAS on `update-ref` then confirmed the **parent** was current. So:
+
+> **`read-tree` proves nothing about the file you are about to stage, and the CAS proves nothing about the tree. Neither guard in the protocol can see a stale worktree copy of a shared file. The ONLY thing that catches it is the post-commit diff.**
+
+**The tell, and it is arithmetic, not judgement.** A commit that only adds text must report **zero deletions**. A non-zero deletion count on a pure insertion is a clobber until proven otherwise. Reading only the *filename* column of `--stat` — confirming "only my paths" — passes a clobber straight through, because the clobbered file **is** one of your paths.
+
+> **THE RULE: when committing a file other agents also write — `docs/LAB_STATE.md`, `docs/LESSONS.md`, `docs/DOCKET.md` — do not stage the worktree copy. Inside the committing invocation: extract the CURRENT `HEAD` blob, splice your own section into it, assert that ZERO non-blank lines present in the HEAD blob are absent from your result, and only then stage. And read the post-commit `--stat` for its DELETION COUNT, not merely its filenames.**
+
+**Repair discipline, because a clobber is repaired with the victim's bytes.** dafoam's section was restored from **their own commit's blob**, spliced into the then-current HEAD so that two other teams' intervening commits survived; every line that the repair dropped was identified **by hand** (both were superseded `Section last written` / `Section updated` headers their own owners had replaced) rather than dismissed as noise. **A summary of what was lost is not a repair.**
+
+## L-486 — A CORPUS SEARCH RUN WITH THE DEFAULT READER ANSWERS FROM THE MANIFEST WHILE THE PAPERS STAY INVISIBLE: `.gitignore` + ugrep MEANS A LITERATURE GAP ANALYSIS RETURNS THE INDEX'S **OPINION** OF THE CORPUS, SILENTLY AND WITH A PLAUSIBLE NON-ZERO COUNT
+
+*2026-09-04, `closure`, closure-correction library ingest. Cost: zero compute; caught before the gap register was written, but it would have mis-stated which closure families the lab holds.*
+
+**Measured, same query, two readers.** `docs/papers/closure/.gitignore` holds `*.pdf` and `*.txt`, and this box's `grep` is **ugrep, which skips ignored files**. `grep -rl 'Reynolds' closure/` returns **2** files — the two tracked `.md` — while `/bin/grep -rl 'Reynolds' closure/*.txt` returns **30**. Corpus-wide on `Spalart`: **22 files vs 38**.
+
+**Why this is worse than a zero.** It does not fail loudly. It returns a **plausible non-zero count** drawn entirely from `MANIFEST.md` and `README.md` — the *index* of the corpus — so a gap analysis asking *"do we hold anything on curvature corrections?"* is answered by **what the manifest says about the corpus, never by the corpus.** An index that is stale, incomplete or wrong will confirm itself, and the search that should have caught it is the search that cannot see past it.
+
+**The ignore file is CORRECT and removing it is not the fix.** PDFs are never committed to git by lab convention, and the manifest says so in its own §5. The defect is in the reader, not the ignore rule.
+
+> **THE RULE: every search of the paper corpus uses `/bin/grep` over explicit `*.txt` globs, and STATES WHICH READER IT USED. A literature-holdings claim produced by the default `grep` is not evidence about the holdings — it is evidence about the manifest.**
+
+**Reach:** one ignore file, but thirteen paper folders sit under `docs/papers/`; any of them acquiring a `.gitignore` inherits this silently. Related: the lab's standing ugrep lesson (a glob has no defined last file) is the *same instrument* biting on a different axis — that one returns the wrong member, this one returns no members at all.
