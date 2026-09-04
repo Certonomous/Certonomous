@@ -255,10 +255,20 @@ line in any record. I am not supplying one; a lane does not invent a verdict.**
 > against and is why the missing record mattered. **`T9aR1c` remains open.**
 > The struck rows below are kept in place; nothing is renumbered or removed.
 
+> **UPDATE 2026-09-04 — THE THIRD IS NOW SETTLED, and this section is empty of
+> open items.** `T9aR1c_RESULTS.md` was written 2026-09-04. **`T9aR1c` is
+> `PASS`, one of one graded row** — issued by re-running the frozen comparator
+> (`rc = 0`, output byte-identical to the committed `gate_t9aR1c.json`), not
+> composed by hand. **The rung carries NO Roache triple by registration, so it
+> carries no observed order, no GCI and no discretisation bound on any number**;
+> the results record's §9 is the "what this does not establish" section and
+> should be read before the rung is cited. The 2026-09-03 line above saying
+> `T9aR1c` remains open is superseded by this note and is kept in place.
+
 | rung | what exists | what is missing |
 |---|---|---|
 | **~~T15~~ CLOSED 2026-09-03** | `T15_runs/T15_GRADE_OUTPUT.txt` — **B1, B2, B3, B4 each `PASS`** (ODE residuals, flux identities, similarity solution, independent RK4 route) | **SETTLED: `T15_RESULTS.md` written 2026-09-03. RUNG VERDICT `NOT A RESULT` on all four graded rows** (`S1`, `V1`, `V2`, `V3`). **B1–B4 are the `C_REF` reference-route checks, not graded rows** — the frozen comparator **REFUSED (exit 2) at `analyse_t15.py:501`** in the planted-zero control's constant-offset arm, before any graded row was reached, so no value of S1/V1/V2/V3 exists. The run itself is COMPLETE on all six conjuncts of rule 4 (1,195.817 core-min measured) |
-| **T9aR1c** | `T9aR1c_runs/W1c_GRADE_OUTPUT.txt` — planted-zero **P1/P2/P3 `PASS`**, floor demonstration **F1 `PASS`**, N1–N4 REPORTED; `gate_t9aR1c.json` written | **no `*_RESULTS.md`; no rung verdict.** STILL OPEN — and it is the successor `VERIFICATION_CHARTER.md` §2g.3 names for T9aR1b's refused floor limb (`:2800` rules that `PASS` **is** available to it), so its missing verdict is now load-bearing for two rungs |
+| **~~T9aR1c~~ CLOSED 2026-09-04** | `T9aR1c_runs/W1c_GRADE_OUTPUT.txt` — planted-zero **P1/P2/P3 `PASS`**, floor demonstration **F1 `PASS`**, N1–N4 REPORTED; `gate_t9aR1c.json` written | **SETTLED: `T9aR1c_RESULTS.md` written 2026-09-04. RUNG VERDICT `PASS` — one of one graded row `PASS`.** `F1` \|`T_i1` − exact\| = **5.684e-14 K** at the graded level `W1c_c` (35 cells) against the registered floor **1.000e-04 K**, frozen at `8268ffe2` **4 h 27 min** before first compute; freeze set **7 of 7 MATCH** on both channels; completion driven `rc = 0` on all three levels; four planted-zero arms `PASS` with a demonstrated detection floor of **1e-07 K**. **NO ROACHE TRIPLE EXISTS AND NONE IS QUOTED — by registration, `C_NOTRIPLE` `PASS`** — so the rung carries **no observed order, no GCI and no discretisation bound on any number**, and rule 5's limb (2) is `UNREACHABLE, NOT WAIVED` while limb (1) binds in full as gate (1) (checkpoint move 0.000e+00 K). `PASS` is available to this limb by `VERIFICATION_CHARTER` §2h (v1.17). **It does not re-grade T9a-R1b, whose R1 stays `NOT A RESULT`.** One selftest drive now fails by **state dependence** (its precondition was the absence of the rung's own `DONE` markers) — reported, not repaired |
 | **~~T24~~ CLOSED 2026-09-03** | `T24_runs/gate_t24.json` — per-case rows with `B1`/`B2`/`B3` booleans and margins | **SETTLED: `T24_RESULTS.md` written 2026-09-03. RUNG VERDICT `PASS` — 12 of 12 graded rows `PASS`, zero flags.** Twelve `T_max` values 23.589696–81.784366 °C completing the 16-point map with T23's four rows. **B1's tightest margin is +118.2156 K against a 200 °C bound, and the registration itself calls a clean sweep WEAK EVIDENCE before compute.** No triple, no GCI — registered as having none (§1 line 5). y+ breached on 6 of 12 rows, reported and ungated |
 
 ## 5.4 REGISTERED, NOT REPORTED — a pre-registration exists and no results record does
