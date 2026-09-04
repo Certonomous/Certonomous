@@ -7125,3 +7125,33 @@ path. **The registration is the authority on which pin is in force: the one in t
 pre-commit run would read `PIN-DRIFT` on exactly the two rows this amendment re-pins. **Its exit
 code is taken immediately after this commit and recorded in §28.15**, alongside the check-1 diff
 artifact. **This is a forward reference, not a claim.**
+
+---
+
+### 28.15 ADDENDUM, SAME SESSION — **`FZ1`'s EXIT CODE AT AMENDMENT 22's COMMIT, AND THE CHECK-1 DIFF ARTIFACT**
+
+§28.14 forward-referenced this section. `check_comparator_freeze.py` was run **immediately after
+commit `57ffbe5a`**:
+
+> **EXIT CODE `0`. `VERDICT: PASS`. `PIN COVERAGE: 10 of 10 pinned executable(s) judged in the
+> population; 10 PIN-OK, 0 violating.`**
+
+✅ **Both re-pinned executables read `PIN-OK` at their new shas** — `build_m6sr_l1.sh`,
+`check_m6sr_build_path.sh` — **and the other eight were RE-VERIFIED at this HEAD rather than
+assumed.**
+
+⚠ **THE VERIFIER'S NO-MARKERS CAVEAT IS CARRIED, NOT DROPPED.** All ten rows are NO-MARKERS: the
+freeze-margin limb did not fire and cannot while this tree carries no completion marker (§23.7,
+item 41). **What was tested is IDENTITY and CURRENCY.**
+
+| | |
+|---|---|
+| path | **`cases/M6SR/AMENDMENT_22_ITEMS_49_50_CENSUS.diff`** |
+| content | the **unmodified stdout** of `git --no-pager show 57ffbe5a0c3ca93d6a872bf69d986292ac40332c` |
+| size | **50,542 bytes, 678 lines** |
+| sha256 | `c4eafb74aa2ff624ebf33974b27fb710a871414281ead0d4a5bc12be3f69b8cc` |
+| equality | **`cmp` against a FRESHLY RECOMPUTED `git show`: BYTE-IDENTICAL** |
+| the comparison itself | **PLANT-VERIFIED**: the same `cmp` against a copy with one line appended **DOES** report a difference (rule 3) |
+
+**AND `verification/runs/M6SR_runs` IS STILL ABSENT AT THIS COMMIT.** The stage drive is held for
+the supervisor's separate confirmation after check 1.
