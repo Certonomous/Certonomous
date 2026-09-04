@@ -598,3 +598,76 @@ shared fleet instrument and its evidence template binds every team.
 
 *Appended by `lab-lane` for `cfd-supervisor`, 2026-09-04. No gate, threshold, cap or label
 altered; no submission made (standing rule 7); no scratch path cited (standing rule 13).*
+
+---
+
+## ADDENDUM 3 — 2026-09-04 — CORRECTION TO ADDENDUM 2 §A2.7: THE WASTE FIGURE WAS WRONG AT AUTHORSHIP, AND THE REASON IT WAS WRONG IS WORTH MORE THAN THE FIGURE
+
+**Version 1.3. lines whose number changed above this section: 0.** A pure append by the same
+`cfd` `lab-lane`. **No gate, threshold, cap or label is altered and no verdict moves:**
+`F28G_L1_dp1000_U20` stands **`NOT A RESULT`**. Addendum 2 is **struck on one figure only**, by
+quote, and is not rewritten.
+
+### A3.1 THE STRUCK FIGURE
+
+§A2.7 states the stopped H3 run cost **"47.83"** core-minutes and §A2.6 that it was
+*"stopped by this lane after 4 min 44 s wall"*. **The stop was real and the accounting was
+incomplete.** The true spend is **85.75 core-minutes**:
+
+| invocation | wall | CPU at stop | core-min |
+|---|---|---|---|
+| `analyse_f28g_h3.py --selftest` under `python3 -O` (pid 191919) | 4 min 44 s | `00:47:50` | 47.83 |
+| `analyse_f28g_h3.py --measure` (pid 192678) | 3 min 39 s | `00:37:55` | **37.92 — NOT COUNTED IN §A2.7** |
+| **total** | | | **85.75** |
+
+Derived **$0.0733** at the owner-stated $0.0513/core-h — **DERIVED, NOT MEASURED**. **All of it is
+WASTE: neither invocation produced an artifact**, and neither was pre-registered with a cost, which
+rule 12 disqualifies. Both figures are `ps` cumulative CPU read at the moment of each stop.
+
+### A3.2 WHY THE SECOND RUN EXISTED AT ALL — KILLING WHAT YOU LAUNCHED IS NOT STOPPING WHAT YOU LAUNCHED
+
+**The mechanism, because it will recur and it is cheap to defend against.** The work was started as
+a **compound shell command** — a `--selftest` invocation followed by a `--measure` invocation in
+the same `bash -c`. This lane stopped the run by killing the **two visible processes**: the
+`python3` doing the work and the `/usr/bin/time` wrapping it.
+
+> **The parent shell was not killed, so it did what a shell does: it moved on to the next command
+> in the chain and started the second invocation.** For roughly three minutes this lane believed
+> it had stopped a run that was in fact still running, at ~1,040 % CPU, against the same foreign
+> live solver the stop was ordered to protect.
+
+⚠ **The tell was visible and was misread.** Immediately after the kill, `uptime` still read a load
+average of **23.66 on 16 vCPUs** — barely moved from the 24.82 that triggered the stop. **That was
+recorded in §A2.6 as evidence the stop had happened.** A load average is a decaying mean and looks
+the same one second after a real stop as it does when nothing stopped; **the reading that would
+have caught it is a process sweep, which this lane ran only later and for an unrelated reason.**
+
+**The family.** This is the sibling of two hazards already on this box's record — *`setsid` parent
+returns zero* (an outcome captured around the wrong process) and *`pkill` matches its own shell*
+(a signal delivered to the wrong process). This one is the third face: **a signal delivered to the
+right process, and the wrong thing left alive behind it.** The defence is the same in all three
+cases — **do not infer a process state, sweep for it** — and the specific rule is: *stop the
+parent before the child, then sweep; a compound command is not stopped by killing the command it
+happens to be running.*
+
+**A draft `L-` entry carrying this is REFERRED, NOT FILED** — landing a lesson is the supervisor's
+call, not this lane's.
+
+### A3.3 WHAT ADDENDUM 2 SAID THAT STILL STANDS
+
+**Everything except the one figure.** The census of A2.3 (26 run roots, 0 with
+`writeResidualFields true`, 0 carrying any spatial residual field, both planted limbs firing) was
+computed by a separate reader in 0.06 s and is untouched. The in-case rate of A2.4
+(**1.581523e-06 s/cell/iteration**) is arithmetic on `RUN_STATUS` and the launched queue row and is
+untouched. The queue-row finding of A2.5 is blob comparison and a `find`, and is untouched.
+**H3's figures remain relayed and not confirmed by this lane** — that statement is now more true,
+not less, since the invocation that would have confirmed them was stopped twice.
+
+### A3.4 COST OF THIS ADDENDUM
+
+**0.000 core-minutes.** A `ps` read and arithmetic. **No solver was launched, no queue row written,
+no daemon contacted.** The 85.75 core-minutes of A3.1 are attributed **wholly to waste**, are named
+separately, and are **not absorbed into any estimate or ratio** (`COMPUTE_BUDGET_CHARTER` §6).
+
+*Appended by `lab-lane` for `cfd-supervisor`, 2026-09-04. No gate, threshold, cap or label
+altered; no submission made (standing rule 7); no scratch path cited (standing rule 13).*
