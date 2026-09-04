@@ -1,0 +1,56 @@
+FoamFile { version 2.0; format ascii; class dictionary; object controlDict; }
+application     rhoSimpleFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         __ENDTIME__;
+deltaT          1;
+writeControl    timeStep;
+writeInterval   __ENDTIME__;   // fields (U,T,p) at endTime only -> plant + gate + age guard
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  12;
+timeFormat      general;
+timePrecision   10;
+runTimeModifiable false;
+
+functions
+{
+    // R2 DEFECT-1 REPAIR: THE SAMPLER REFINES WITH THE MESH.
+    //   R1 hard-coded `nPoints 400` at EVERY level -> spacing 5.002506266e-03 m identical at
+    //   L1/L2/L3, i.e. sampler/mesh = 0.4002 / 0.8004 / 1.6008 -- UNDER-resolving at L3, the
+    //   level whose settledness decides the verdict, and making the instrument itself a
+    //   level-dependent variable inside a Roache triple.
+    //   R2 RULE: nPoints = 2*(NXA + NXB) + 1  ->  EXACTLY 2 samples per axial cell at every
+    //   level (sampler/mesh = 0.499000 at L1, L2 and L3 alike; the 0.001 shortfall is the
+    //   0.002 m inset at each end of the 2 m domain).
+    //     L1 nPoints 321  spacing 6.23750000e-03  mesh dx 1.25000e-02
+    //     L2 nPoints 641  spacing 3.11875000e-03  mesh dx 6.25000e-03
+    //     L3 nPoints 1281 spacing 1.55937500e-03  mesh dx 3.12500e-03
+    // The sample is written every __SAMPLEINT__ iterations; the GRADED value is 500 and the
+    // comparator refuses any other (SAMPLE_INTERVAL), so the plateau windows (W = endTime/10)
+    // each hold W/500 + 1 samples.  A CLAUSE-B smoke may set it to 1 to prove, in one
+    // iteration, that the sampler actually WRITES nPoints rows (charter §39.5: a selftest on
+    // synthetic data proves logic, never interface).  cellPoint interpolation.
+    centreline
+    {
+        type            sets;
+        libs            ("libsampling.so");
+        writeControl    timeStep;
+        writeInterval   __SAMPLEINT__;
+        interpolationScheme cellPoint;
+        setFormat       raw;
+        fields          (U T);
+        sets
+        (
+            line
+            {
+                type    uniform;
+                axis    x;
+                start   (0.002 0.0 0.0);
+                end     (1.998 0.0 0.0);
+                nPoints __NPOINTS__;
+            }
+        );
+    }
+}

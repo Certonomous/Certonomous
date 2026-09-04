@@ -1,0 +1,14 @@
+FoamFile { version 2.0; format ascii; class volScalarField; object p; }
+// Absolute pressures: inlet total 301325 Pa (=200 kPa gauge + 101325 operating),
+// outlet static 176325 Pa (=75 kPa gauge + 101325). Operating pressure 101325 is a
+// DOCUMENTED assumption (Fluent default); it sets the shock location (PREREGISTRATION.md).
+dimensions      [1 -1 -2 0 0 0 0];
+internalField   uniform 200000;
+boundaryField
+{
+    inlet      { type totalPressure; p0 uniform 301325; gamma 1.4; value uniform 301325; }
+    outlet     { type fixedValue; value uniform 176325; }
+    wall       { type zeroGradient; }
+    centreline { type symmetryPlane; }
+    frontAndBack { type empty; }
+}

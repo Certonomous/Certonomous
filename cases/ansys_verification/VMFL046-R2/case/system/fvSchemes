@@ -1,0 +1,27 @@
+FoamFile { version 2.0; format ascii; class dictionary; object fvSchemes; }
+// Shock-capturing steady compressible schemes, from the v2606 rhoSimpleFoam transonic
+// aerofoil tutorial: linearUpwind (limited gradient) on U and energy, upwind on the
+// pressure-flux terms. Laminar, so no turbulence div terms.
+ddtSchemes      { default steadyState; }
+gradSchemes
+{
+    default         Gauss linear;
+    limited         cellLimited Gauss linear 1;
+    grad(U)         $limited;
+}
+divSchemes
+{
+    default         none;
+    div(phi,U)      bounded Gauss upwind;
+    energy          bounded Gauss upwind;
+    div(phi,e)      $energy;
+    div(phi,K)      $energy;
+    div(phi,Ekp)    $energy;
+    div(phid,p)     Gauss upwind;
+    div((phi|interpolate(rho)),p)  bounded Gauss upwind;
+    div(((rho*nuEff)*dev2(T(grad(U)))))  Gauss linear;
+}
+laplacianSchemes { default Gauss linear corrected; }
+interpolationSchemes { default linear; }
+snGradSchemes   { default corrected; }
+wallDist        { method meshWave; }
