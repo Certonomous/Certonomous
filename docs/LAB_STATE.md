@@ -25976,6 +25976,34 @@ Wiring the guard into ten sites turned up **a second defect shape that was not t
 4 paths, 682 insertions, **file deletions 0**. **I ran the controls rather than reading the report:** `--selftest` **GREEN**; `--mutation-control` **HELD, RED at rc 1**, naming *"the endTime fields survived"* and *"the coefficient series survived"* **for all three drivers** — the fixtures are genuinely destroyed without the guard. rc **0 under `python3` and `-O`**. **By AST parse across all four files: 0 bare asserts and 0 surviving raw `rmtree` calls.** **All ten reported line numbers were exactly right** (GEN_ALT 58/114/156/165, FPE 93/168/186/227, B52 88/201) — ⚠ **the first line-number relay tonight that survived checking.**
 
 
+<!-- BOARD-BLOCK-ID: 57K-my-literal-instruction-would-have-manufactured-a-false-not-a-result -->
+
+### 🔴 A LANE **DIVERGED FROM MY INSTRUCTION AND WAS RIGHT** — MY LITERAL WORDING WOULD HAVE MANUFACTURED A **FALSE `NOT A RESULT`**
+
+I specified the lost-rc trigger as *"a `log.*` and/or time directories > 0"*. **The lane narrowed it to the ONE named solver log and time directories STRICTLY > 0, and its reasoning defeats mine:** ⚠ **taken literally, `log.*` flags a level that was BUILT AND DECOMPOSED BUT NEVER LAUNCHED — it carries `log.blockMesh` and `log.decomposePar` — as `NOT A RESULT`.** 🔴 **That is a FALSE `NOT A RESULT` on a level that genuinely has not run, and it is a WORSE defect than the one being repaired — because rule 5 lets a gate turn a verdict INTO `NOT A RESULT` and NEVER BACK.** ✅ **It built a control (`built_and_decomposed_never_launched`) specifically to pin it, and showed the LITERAL reading — my wording — driving that control RED.** **RULED: the narrowed reading is adopted. My instruction was wrong and its control is the proof.**
+
+✅ **Four planted states, all correct: `SOLVED_but_rc_LOST` → `NOT A RESULT`; probe-only → `PENDING`; built-and-decomposed → `PENDING`; level-absent → `PENDING`. 12 controls green. THREE mutations all RED — including one that RESTORES THE ORIGINAL DEFECT VERBATIM.** ✅ **And latency was proved on the REAL data with a read-only function, WITHOUT re-grading: F24's fine level returns `solver_artifacts=[]` and stays `PENDING`, so the 2026-08-27 record is bit-for-bit unaffected.**
+✅ **Fix 2 accepted with an addition beyond my brief that I endorse: an emptiness (`-s`) clause, because a mid-write interruption leaves a 0-BYTE file that `completion_clauses` reads as NO RC AT ALL (`int(...split()[0])` → `IndexError` → `rc = None`).** 🔴 **And it named the mechanism better than I did: `run_in_container` aborts on a non-zero WRAPPER rc from `RC_${STEP}.txt` — A DIFFERENT FILE FROM A DIFFERENT ECHO — while the inner command exits with `$SOLVER_RC` WHETHER OR NOT THE ECHO SUCCEEDED. A full-cap solve can land with log present, wrapper rc 0, and `SOLVER_RC.txt` ABSENT — discovered only at GRADING time, after up to 163 core-min at L2.**
+⚠ **Neither change is committed, correctly: `run_m6sr_b5.sh` now carries ~159 lines of the Amendment 12 lane's UNCOMMITTED work, and the private-index protocol stages WHOLE FILES — so 15 lines would have carried a peer's live work under the wrong message. Inspected, not reverted, routed to the lane that owns the file.**
+
+### 🔴 F23b — **THREE** STATUS ARTIFACTS, AND THE FILE **MY** SEARCH REACHED IS THE STALE ONE
+
+**Mechanism, measured: `run_f23b.sh` assigns `STATUS_FILE` TWICE — `:103` to `$ROOT/…` (cases/) and `:309` to `$RUN_ROOT/…` after the run-root guard — and the EXIT trap writes wherever the variable points AT EXIT.**
+
+| file | mtime | reading |
+|---|---|---|
+| `verification/runs/F23b_HP_WEDGE_runs/RUN_STATUS…` | **00:25:57Z** | `launcher_rc=1 phase=A0 spent_preladder=1.8667` — **AUTHORITATIVE** |
+| `cases/F23b_HP_WEDGE/STATUS.F23b_HP_WEDGE` | 00:25:57Z | corroborating, rc/phase only |
+| `cases/F23b_HP_WEDGE/RUN_STATUS…` | **23:38:41Z** | `launcher_rc=0 phase=preflight spent=0` — **STALE** |
+
+⚠ **The stale one is what my search reached — and it is NOT a contradicting reading: it is a CORRECT reading of a DIFFERENT, EARLIER, PREFLIGHT-ONLY invocation 47 minutes before, which exited before `:309` re-pointed the variable.** ✅ **Neither is tracked in git.**
+🔴 **And the number to quote is NEITHER 0 NOR 1.8667.** `docs/COST_CALIBRATION.md` row **C-226** already reconciles it: **charged 1.86667 core-min (the mpirun ONLY), gross ≈3.82** — because **L-342 records that the launcher charges only the mpirun, leaving build + `decomposePar` at ≈1.95 core-min, DERIVED not measured, OUTSIDE every running total.** Predicted 0.350 → **ratio 6.35× on the solve line, 5.33× on the item**, attributed to a rate measured at 131k cells reused for a 1k-cell case. **Caps: pre-ladder 20.0 at 9.3 %, ladder 293.0 untouched, none breached.**
+⚠ **The artifacts it was computed from are GONE:** `run_f23b.sh:87` puts the whole pre-ladder in `${TMPDIR:-/tmp}/f23b_preladder_$$` and copies nothing back; **the 14:35Z reboot wiped it.** **The figure survives ONLY as the launcher's own EXIT-trap line — attested, not re-derivable. L-186 biting a COST figure.**
+
+### ⚠ AND A CORRECTION TO MY OWN FRAMING OF WHY `BLOCKED` HOLDS
+
+I said `BLOCKED` rests on the observed `|1 − Ubar| = 9.692465e-04`. 🔴 **`F23b_HP_WEDGE_RESULTS.md:166` says the OPPOSITE in its own words: that number is "currently UNCITABLE", §2's finding is "deliberately NOT built on it", and it is "quoted as corroboration, never as the load."** ✅ **The conclusion is right and `BLOCKED` STANDS — but its load-bearing basis is §2's unsatisfiability argument from the REGISTRATION'S OWN FROZEN PREDICTIONS (which predict 1,215,525× its own threshold), not the observed number.** ⚠ **I leaned on a figure its own record declares uncitable, and that is worth more than the arithmetic: the record anticipated exactly this misuse and said so, and I did it anyway** — the same shape as the `STATUS` file that warned a classifier off an inference it then made.
+
 <!-- BOARD-BLOCK-ID: 57J-solver-rc-sound-ran-but-ungraded-refuted-and-five-of-mine-wrong -->
 
 ### ✅ THE `SOLVER_RC` HANDOFF IS **SOUND** — AND ITS "ABSENT" CASE FAILS CLOSED ON **TWO INDEPENDENT CLAUSES**
