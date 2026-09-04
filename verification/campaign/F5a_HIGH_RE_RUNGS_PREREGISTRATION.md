@@ -919,3 +919,316 @@ this open, not in ignorance of it.
   they are appended and that the 1,371-line prefix is untouched. Whether that appended amendment
   says anything bearing on these rungs was **not** read, and is not claimed either way.
 - **This lane did not freeze this document.** Freezing is check 4 and it is the supervisor's.
+
+---
+
+## 12. AMENDMENT 3 — 2026-09-04T16:05Z, cfd lab-lane. §11.7 IS CLOSED — and AMENDMENT 2'S OWN CORRECTION OF §1(b) CARRIED A SECOND ERROR, WHICH IS WITHDRAWN HERE
+
+> **Lines whose number changed above this section: 0.** Asserted by measurement, not by
+> intention. The file as it stood immediately before this append was 921 lines, md5
+> `e9a88350a6ab19782d2c29ae98f11d36`; this amendment is a single trailing block appended
+> after the old last line, with **zero deletions and zero modifications**, and the byte
+> prefix of the new file over the old file's full length is identical. Both figures are
+> printed in this amendment's commit message. Other records cite this document by section.
+
+**Legality, stated with the condition and how it was checked (rule 2, pre-compute clause).**
+This document is **still not frozen** (line 3) and **still no compute has been spent under
+it**. The condition was re-checked by this lane at **2026-09-04T16:01:20Z**, by naming the
+run directories, not by relaying §11's earlier check:
+
+- `/home/ubuntu/certonomous-runs/f5a-cylinder-ladder/re5000` — **does not exist at all.**
+- `/home/ubuntu/certonomous-runs/f5a-cylinder-ladder/re10000` — holds exactly
+  `0/ constant/ system/ log.blockMesh log.checkMesh`. `90/`, `log.pimpleFoam` and
+  `postProcessing/` were each tested for by name and are each **ABSENT**.
+
+Amendments are therefore legal. **This one changes no gate, no threshold, no cap and no
+label.** It closes §11.7's instrument obligation, strikes one sentence in §1(b), and
+**withdraws a claim made by Amendment 2 itself**.
+
+### 12.1 §1(b)'s parent-record md5 — STRUCK, with the original quoted, not rewritten
+
+**The struck sentence, quoted verbatim from §1(b) and left standing where it is:**
+
+> *"It is cited as evidence **E6** in the **frozen** `verification/campaign/F5b_PHYSICS_PREREGISTRATION.md:112`
+> by md5 `8348d1f7b27df90a5107d3f3bd28afb3`. This lane verified that hash **on disk and at
+> HEAD — both match**."*
+
+**STRUCK as to the words "on disk and at HEAD — both match".** Not as to the rest — see
+§12.3, which withdraws Amendment 2's attack on the word *"frozen"*.
+
+Every figure below was **re-measured by this lane in its own shell invocation**; none is
+carried over from §11.5, because §11.5's figures reached this lane as a relay and a relayed
+check is a summary, not a check.
+
+| reading of `F5a_cylinder_reynolds_ladder.md` | md5 |
+| --- | --- |
+| at the drafting HEAD `f996344f` (this document's own "drafted at HEAD") | `8348d1f7b27df90a5107d3f3bd28afb3` — **§1(b) was correct at authorship** |
+| on disk today | **`a9c3d124644ca4e33413c18406794ba8`** |
+| at today's HEAD | **`a9c3d124644ca4e33413c18406794ba8`** — disk and HEAD agree with each other, and both differ from the recorded value |
+| **`head -1371` of the file today** | **`8348d1f7b27df90a5107d3f3bd28afb3`** — bit-identical to the whole of the pre-edit file |
+
+**Cause, established rather than guessed.** `git log f996344f..HEAD` over that path returns
+**exactly one commit**: **`09cf685483b7485a9dfbecf1239337c2b1fc04bb`** — *"cfd BLOCKING FIX:
+the only sanctioned repair for a lost solver log was the call that DELETED the physics"*.
+Its shape:
+
+- `git show --numstat` → **`116  0`** — 116 insertions, **zero deletions**.
+- **One hunk**, and it is a pure append: 1,371 + 116 = **1,487**, which is the file's line
+  count today, measured.
+- `head -1371` md5s to the pre-edit whole-file hash, above. **That is the proof**, and it is
+  stronger than the hunk header, because it is a hash of the bytes rather than a reading of
+  a diff.
+
+**Disposition, deliberately narrow:**
+
+1. **Rule 6 was HONOURED.** The parent was extended by an appended amendment, not rewritten.
+2. **Every line-numbered citation in this document still resolves.** Verified exhaustively
+   rather than by spot-check: the largest line number this document cites into the parent
+   record is **1371** (`lines 1327–1371`), and the complete citation set — `line 1226`,
+   `line 1344`, `line 1359`, `lines 476–490`, `lines 1310–1320`, `lines 1327–1371` — lies
+   entirely inside the untouched 1–1371 prefix. The four numerals above 1371 that appear in
+   this document (`1409`, `1421`, `1564`, `1586`) were each read in context and are **not
+   citations** — they are a percentage, a first-cell length, a Strouhal number and a ratio.
+   **No argument in §1, §2, §3 or §5 is disturbed.**
+3. **REGISTERED CORRECTION.** The parent record's md5 at the freeze of this document is
+   **`a9c3d124644ca4e33413c18406794ba8`**; `8348d1f7b27df90a5107d3f3bd28afb3` is the md5 of
+   **its first 1,371 lines**, which is what F5b pinned and what §1(b) verified.
+
+### 12.2 A precision correction to §11.5's own evidence — the hunk header it quotes is the `-U0` form and does not say so
+
+§11.5 line 838 reads *"The hunk header is `@@ -1371,0 +1372,116 @@` — a pure append at the
+foot"*. **That header is correct, and it is not what the obvious command prints.** Measured:
+
+| command | hunk header |
+| --- | --- |
+| `git show -U0 09cf6854 -- <parent>` | `@@ -1371,0 +1372,116 @@` — the form §11.5 quotes |
+| `git show 09cf6854 -- <parent>` (default `-U3`) | **`@@ -1369,3 +1369,119 @@`** |
+
+A later reader reproducing §11.5's check with the default command sees a different header
+and may conclude the record is wrong. It is not — the two are the same diff at two context
+widths. **Recorded because an evidence line that cannot be reproduced by the command a
+reader would actually type is a defect even when its content is true.** The append-only
+conclusion does not rest on either header: it rests on `116 0` and on the `head -1371` hash.
+
+### 12.3 🔴 WITHDRAWN: §11.5 item 4's claim that F5b is "NOT FROZEN". §1(b)'s word *"frozen"* STANDS
+
+This is a correction **of Amendment 2, by the same team**, and it is the sharpest finding of
+this amendment because Amendment 2 made it while correcting somebody else's stale reading.
+
+**What §11.5 item 4 asserted:** that §1(b) *"calls `F5b_PHYSICS_PREREGISTRATION.md` **frozen**.
+**It is not.** Its own line 3 reads 'Status: `PENDING` — DRAFT, NOT FROZEN, NOTHING LAUNCHED,
+supervisor read required before freeze.'"*
+
+**Line 3 says that. Line 3 is stale, and F5b says so itself — twice, in its own foot.**
+Measured in F5b by this lane:
+
+| F5b's own record | what it establishes |
+| --- | --- |
+| **Addendum 1**, section *"Struck by this addendum"* | *"The document **is** frozen, at `c1ba1845` (stage 1) and `a80d5f36` (the stage-2 reader)."* The words *"not frozen"* were **struck** there. |
+| **CORRECTION ADDENDUM 2026-08-26T16:37Z** (v1.2 → v1.3) | *"Line 3 of the head still reads … 'DRAFT, NOT FROZEN, NOTHING LAUNCHED' … All were true when stamped; **none has been true since 2026-08-25T16:14:24Z**."* |
+| the same addendum | F5b **FIRED** 2026-08-25T16:14:24Z, **39.426 core-minutes** consumed, graded **`NOT A RESULT`**, calibration row `C-65`. |
+
+**So F5b is frozen, has been fired, and its registration authority is spent.** §1(b)'s word
+*"frozen"* is **correct**, and §11.5 item 4 is **withdrawn**.
+
+⚠ **And §1(b) was in fact UNDERSTATED, not overstated.** The E6 pin does not merely sit in a
+frozen document: line 112 ends at **byte 9,420**, and F5b's **frozen body is the first
+85,802 bytes**, whose sha256 **`c44b913051b05b85d617a94809cef916b5fc762631da13ab6cc6f9ed8177b9df`**
+is asserted by an executable — `verification/runs/F5b_runs/launch_f5b_physics.sh:34–35`
+(`FROZEN_BODY_BYTES=85802`, `FROZEN_BODY_SHA256=c44b9130…`). Both figures were re-measured
+here: `head -c 85802 | sha256sum` reproduces that digest exactly. **§1(b)'s argument — that
+the parent cannot receive the gate because a frozen registration's evidence hash depends on
+it — is therefore stronger than §1(b) claimed, not weaker.**
+
+### 12.4 `F5b:112`'s E6 pin — the instrument is a DATED ADDENDUM, and it is the ONLY instrument
+
+§11.5 item 5 handed this up untouched. It is answered here, and acted on in F5b itself.
+
+**The pin as written can no longer be verified by hashing the file it names.** E6 pins
+`F5a_cylinder_reynolds_ladder.md` by `8348d1f7b27df90a5107d3f3bd28afb3`; that is now the
+hash of the file's first 1,371 lines, not of the file. Because `09cf6854` was append-only,
+**the pinned content is intact** — E6's cited material is *"lines 1325–1370"* and *"line
+484"*, both inside the untouched prefix, and both were confirmed to lie below 1371.
+
+**Two independent measurements fix the instrument, and they agree:**
+
+1. **F5b is post-compute.** Rule 2: *"After first compute gates are closed; changes land only
+   as dated addenda that cannot alter a gate, threshold, cap or label."* F5b consumed 39.426
+   core-minutes on 2026-08-25. **An in-place edit of line 112 is therefore not available at
+   all.**
+2. **Line 112 is byte-inside an executable pin.** Editing it would change the first 85,802
+   bytes and break `launch_f5b_physics.sh:35`. **Not a convention — a check that would fail.**
+
+**E6 is an evidence row, not a gate, threshold, cap or label**, so an addendum may correct
+how it is verified without touching anything rule 2 closes. **A successor document is not
+required and would be the wrong instrument** — a successor is for a new gate, and no gate
+moves here.
+
+**Acted on:** a dated addendum was appended to the foot of
+`verification/campaign/F5b_PHYSICS_PREREGISTRATION.md`, stating both hashes, the append-only
+proof and the commit responsible, and **leaving the frozen body byte-identical** — verified
+after writing by re-running the launcher's own `head -c 85802 | sha256sum` assertion.
+**No frozen content was edited.**
+
+⚠ **Ordinal collision, flagged rather than resolved by this lane.** F5b's document contains
+`ADDENDUM 1`, `ADDENDUM 2` and a `CORRECTION ADDENDUM`, and **no `ADDENDUM 3`** — yet
+`verification/runs/F5b_runs/analyse_f5b_physics.py` cites *"ADDENDUM 3 REPAIR (2026-08-25)"*
+and *"ADDENDUM 3a (2026-09-02)"* at lines 123, 825, 1297, 1306 and 1418, inside **200/30
+uncommitted lines that are another lane's in-flight work**. The addendum appended here
+therefore **claims no ordinal**: it is titled by date and subject. **The dangling
+`ADDENDUM 3` reference is a real defect in F5b and is handed up, not fixed here** — fixing
+it means landing another lane's uncommitted repair, which this lane must not do.
+
+### 12.5 §11.7 IS CLOSED — Cd_mean, −Cpb and G4's Lr/D now have planted controls, and the pin is registered
+
+§11.7 registered the gap and this amendment closes it. The instrument is
+**`verification/runs/F5_runs/analyse_f5a_harvest_controls.py`**.
+
+**REGISTERED GRADING-PATH PIN (rule 2, third bullet):**
+
+| | |
+| --- | --- |
+| path | `verification/runs/F5_runs/analyse_f5a_harvest_controls.py` |
+| **blob sha** | **`07708e8665300e677d1ba2532e334d64dabb69df`** |
+| commit | `63a39503dac6c800a9534fbb011904e040b5f52b` |
+| verified | blob sha read from `HEAD:<path>` and from `git hash-object <path>` — **identical**; and **re-hashed after the selftest ran**, still `07708e86…`, so the file that grades is bit-identical to the file that was exercised |
+
+**Every quantity is read back through the SHIPPED reader**, not a reimplementation — the same
+functions `run_rung.harvest()` calls, reached as module attributes so a mutation can replace
+the shipped statistic itself:
+
+| §4 quantity | shipped reader exercised | plant | read back |
+| --- | --- | --- | --- |
+| **Cd_mean** | `head_engineer.parse_coefficient_history` → `tmr_verification.time_weighted_stats(...)["mean"]` | **1.234567** | **1.234567000000** |
+| **−Cpb** | `cylinder_ladder.base_cpb(...)["cpb_magnitude"]`, incl. the 1/(0.5 ρU²) normalisation | **1.132200** | **1.132200000000** |
+| **Lr/D (G4)** | `cylinder_ladder.recirculation_length(...)` | **0.900000** | **0.900000000000** |
+
+Every expectation is **analytic**, not a previously observed number: the plants are a
+constant plus a whole-period sinusoid (trapezoid mean is the constant exactly) and, for
+Lr/D, a crossing interpolated between −0.40 at x=1.30 and +0.40 at x=1.50, giving
+x_cross = 1.40 and Lr/D = 1.40 − D/2 = **0.90**. A control whose expectation was read off
+the reader it tests is circular; none of these was.
+
+**G4 gets THREE plants, because its registered outcome is a NULL.** Rule 3 refuses a null
+from a reader not shown able to see a non-null:
+
+| control | planted field | reader returns | meaning |
+| --- | --- | --- | --- |
+| **G4-P1** | bubble inside the rake | `lr_over_d = 0.900000` | **the non-null rule 3 demands** |
+| **G4-P2** | no reversed flow | `lr_over_d = None`, `any_reversed_flow = False`, `u_min = +0.0999…` | *there is no bubble* |
+| **G4-P3** | rake wholly reversed | `lr_over_d = None`, `any_reversed_flow = True` | *the bubble is longer than the rake can see* |
+
+**G4-P2 and G4-P3 both return `None` and they mean opposite physical things.** A NULL
+reported without distinguishing them is not a result. **Registered: G4's outcome may be
+reported as `NOT MEASURABLE BY THIS METRIC ON THIS FLOW` only when `any_reversed_flow` is
+recorded beside it**, because that flag is the only thing separating the two nulls.
+
+**Four mutations; the suite went RED on every one, at rc 2 (a registered refusal, not a
+crash):**
+
+| mutation — the SHIPPED statistic replaced | caught by |
+| --- | --- |
+| **M-CD1** `time_weighted_stats` loses its window filter | `C-CD1` |
+| **M-CPB1** `base_cpb` loses the dynamic-pressure normalisation | `C-CPB1` |
+| **M-LR1** `recirculation_length` forgets to subtract D/2 | `G4-P1` |
+| **M-LR2** `recirculation_length` **ALWAYS returns `None`** | **`G4-P1`, and nothing else** |
+
+🔴 **M-LR2 is the whole reason this file exists.** It is the exact shape of a blind reader
+manufacturing G4's registered NULL, and **G4-P2 and G4-P3 cannot see it — they expect
+`None`**. Only the non-null plant catches it. That is rule 3 stated as a test instead of as
+a sentence, and it is measured here rather than asserted.
+
+**Three window controls (`C-CD2`, `C-CPB2`, `G4-P4`) read each plant with the window opened
+wide and require a DIFFERENT answer.** Without them the pre-window garbage is decorative:
+these are what prove the garbage is really on disk, so the window filter is *tested* rather
+than assumed. Measured: Cd reads **4.160124** wide against **1.234567** in-window.
+
+**`C-AST` — the bare-`assert` ban, established by parsing.** `ast.parse` of the module's own
+source finds **0 `ast.Assert` nodes**. ⚠ **grep finds the word "assert" on 15 lines of the
+same file** — which is precisely why the check is an AST walk and not a grep: grep cannot
+tell a statement from the word in a docstring. `python3 -O` deletes every bare assert
+(L-332/L-475), so a guard written as one is not a guard.
+
+**`C-O1` — `-O` parity.** The **full** `--selftest` returns **rc 0 under `python3` and rc 0
+under `python3 -O`**, with `__pycache__` cleared between runs (a stale cache inverts mutation
+tests). Exit vocabulary is **0 / 2 / 70**, and the refusal paths were exercised: an unknown
+argument and a bare `--scratch` each return **2**.
+
+`scripts/check_filing.py` reports **52 violations with the file present and 52 with it
+absent** — measured both ways. It adds none; the 52 are pre-existing and elsewhere.
+
+**Consequence for reporting:** the rule-3 bar that §11.7 raised against `Cd_mean`, `−Cpb`
+and `G4` is **cleared**. The module **grades nothing and launches nothing**; it certifies
+that the harvest path's readers can see what they claim to see.
+
+### 12.6 🔴 THE DURABLE LESSON, in the generalised form this amendment forced
+
+§11.5 recorded it as a hash lesson. **It is larger than hashes, and Amendment 2 proved so by
+falling to the other half of it in the same section.**
+
+> **A pin into a file rots the moment ANY commit touches that file — even a lawful,
+> append-only one that changes not a byte of the pinned content. And a STATUS LINE is a pin
+> too: reading the head of a document without reading its foot is the same failure, wearing
+> different clothes.**
+
+Both halves are measured here, in one document, by one team:
+
+1. **The hash half.** `8348d1f7…` was true at `f996344f` and false at HEAD, changed by an
+   append-only commit that broke nothing it named. **Nothing executable was checking it** —
+   verified: a repository-wide search for that md5 across `*.py` and `*.sh` returns **zero
+   rows**. The pin lived only in prose, so only a human re-read could ever have caught it,
+   and the re-read came after the sentence had already been written twice.
+2. **The status-line half.** §11.5 corrected the hash and, in the same breath, cited F5b's
+   **line 3** as authority on whether F5b is frozen — a line F5b's own foot had superseded
+   **nine days earlier**, in two separate addenda. The correcting lane read the head and
+   not the foot. **The instrument that catches this does not exist either.**
+
+**The lab's amendment convention is what makes the second half systematic**, and this is
+worth stating plainly rather than treating as bad luck: rule 6 forbids rewriting a
+superseded line, so a frozen document's head is *expected* to go stale while the truth
+migrates to its foot. **Every status line in an amended document is therefore a claim about
+the past, and must be read as one.** Any check that resolves a document's status by reading
+its head is wrong by construction.
+
+**Registered as an open instrument gap, handed up and not taken here:** nothing in this
+repository verifies that a prose hash pin still matches the file it names, and nothing
+verifies that a quoted status line has not been superseded by its own document's foot. Both
+are cheap to build and neither is this amendment's scope.
+
+### 12.7 §9's checklist, restated — what this amendment moves
+
+| item | state after this amendment |
+| --- | --- |
+| G1's Cl_rms grading path pinned by blob sha | **CLOSED** — §11.1, blob `8dd0001…` |
+| §6d planted-zero for **Cd_mean, −Cpb, Lr/D** | **CLOSED** — §12.5, blob `07708e86…`, commit `63a39503` |
+| §1(b)'s parent-record hash claim | **STRUCK AND CORRECTED** — §12.1 |
+| §11.5 item 4 (*"F5b is not frozen"*) | **WITHDRAWN** — §12.3; §1(b)'s word *"frozen"* stands |
+| `F5b:112` E6 pin | **CORRECTED BY DATED ADDENDUM IN F5b** — §12.4 |
+| §5e's rank justification | **DEFERRED TO LAUNCH BY REGISTRATION** — §11.6, unchanged |
+| §7 gaps 1, 3, 4, 5 | **OPEN, handed up** — unchanged |
+| F5b's dangling `ADDENDUM 3` reference | **OPEN, handed up** — §12.4; another lane's uncommitted work |
+| a checker for rotted prose pins / stale status lines | **OPEN, newly registered** — §12.6 |
+
+### 12.8 What THIS AMENDMENT could not verify
+
+- **Nothing about Re 5000 or Re 10 000 was verified**, because neither has run. Every
+  projected number in §5 remains a projection. **Zero compute was spent by this amendment.**
+- **The plants prove the readers can SEE; they do not prove the readers are RIGHT.** A
+  planted control establishes that `base_cpb` recovers a known −Cpb from a synthetic probes
+  file. It does **not** establish that the probe is at the physically correct base location,
+  that the rake is long enough for the Re 10 000 bubble, or that `t_start = 0.5·endTime`
+  leaves a stationary window. Those are physics questions and none is answered here.
+- ⚠ **G4-P1 plants a bubble the rake CAN see. Whether the real Re 10 000 rake can see the
+  real bubble is exactly what G4's NULL is about, and this amendment does not answer it** —
+  it only guarantees that if the reader returns a null, the null is a reading.
+- **This lane did not verify the 116 appended lines of the parent record**, only that they
+  are appended and that the 1,371-line prefix is untouched. Whether that appended amendment
+  bears on these rungs was **not** read and is not claimed either way. *(Carried forward
+  from §11.9 and still open.)*
+- **`check_comparator_freeze.py` gives the new module no verdict either**, for the same
+  reason it gives `analyse_f5a_cl_rms.py` none (§11.3: `F5_runs/` carries zero completion
+  markers, so the tool is out of evidence reach). **Its silence is not a pass**, and the blob
+  pin in §12.5 is the only instrument fixing this grading path.
+- **This lane did not freeze this document.** Freezing is check 4 and it is the supervisor's.
+
+*Amendment 3 ends. Status: **DRAFT, NOT FROZEN**, zero compute spent under this document.*
