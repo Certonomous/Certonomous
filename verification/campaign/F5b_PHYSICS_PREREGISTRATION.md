@@ -1376,3 +1376,133 @@ an artifact still on disk; none is re-derived here.
 
 *Correction addendum ends. Status: **FIRED and GRADED `NOT A RESULT`** — completion clause
 4 (and 6) on the `21.9440`/`21.944` literal, 39.426 of 72.0 core-min, calibration row C-65.*
+
+---
+
+## CORRECTION ADDENDUM — 2026-09-04T16:08Z: `§E6`'s pin on `F5a_cylinder_reynolds_ladder.md` CAN NO LONGER BE VERIFIED BY HASHING THE FILE IT NAMES. **v1.3 → v1.4.** Zero compute.
+
+**No ordinal is claimed by this addendum, deliberately.** This document carries `ADDENDUM 1`,
+`ADDENDUM 2` and a `CORRECTION ADDENDUM` (2026-08-26), and **no `ADDENDUM 3`** — yet
+`verification/runs/F5b_runs/analyse_f5b_physics.py` cites *"ADDENDUM 3 REPAIR (2026-08-25)"*
+and *"ADDENDUM 3a (2026-09-02)"* at lines 123, 825, 1297, 1306 and 1418, inside **200
+inserted / 30 deleted uncommitted lines that are another lane's in-flight work**. Claiming
+the ordinal here would collide with that lane. **The dangling `ADDENDUM 3` reference is a
+real defect in this registration and is recorded, not repaired** — repairing it means
+landing another lane's uncommitted work, which this lane must not do.
+
+> **Lines whose number changed above this section: 0.** Asserted by measurement. The file
+> immediately before this append was **1,378 lines / 106,348 bytes**, md5
+> `38ddebc2759c9c8e21d5e9c17726aaaa`; this addendum is a single trailing block after the old
+> last line, **zero deletions, zero modifications**, and the byte prefix of the new file over
+> the old file's full length is identical. Both figures are printed in the commit message.
+
+> ⚠ **THE FROZEN BODY IS UNTOUCHED, AND THIS WAS CHECKED WITH THE LAUNCHER'S OWN ASSERTION,
+> NOT WITH A SIMILAR ONE.** `verification/runs/F5b_runs/launch_f5b_physics.sh:34–35` pins
+> `FROZEN_BODY_BYTES=85802` / `FROZEN_BODY_SHA256=c44b913051b05b85d617a94809cef916b5fc762631da13ab6cc6f9ed8177b9df`.
+> Re-run over this file **after** this append: `head -c 85802 | sha256sum` reproduces
+> `c44b9130…8177b9df` **exactly**. **No frozen content was edited.**
+
+### What is stale — and it is a pin, not a claim about physics
+
+**`§E6`, at line 112 of this document**, pins its evidence file by md5:
+
+> *"| E6 | `verification/campaign/F5a_cylinder_reynolds_ladder.md` | `8348d1f7b27df90a5107d3f3bd28afb3` | The "do not climb to Re 5000 or Re 10,000" ruling (lines 1325–1370) … and line 484, the `f5b_*` directory collision |"*
+
+**STRUCK as to the md5 `8348d1f7b27df90a5107d3f3bd28afb3` being the hash of the named file.**
+The original line is **not rewritten** (rule 6); it stands above with this strike recorded
+against it. Everything else in the row — the path, the cited line ranges, the scoping note —
+**stands unchanged**.
+
+### Both hashes, and the proof that the CONTENT is intact
+
+| reading of `F5a_cylinder_reynolds_ladder.md` | md5 |
+| --- | --- |
+| **as pinned by `§E6`** (and as the file stood when this document was frozen) | `8348d1f7b27df90a5107d3f3bd28afb3` |
+| **on disk today, and at today's HEAD** (they agree) | **`a9c3d124644ca4e33413c18406794ba8`** |
+| **`head -1371` of the file today** | **`8348d1f7b27df90a5107d3f3bd28afb3`** — bit-identical to the whole of the pre-change file |
+
+**The commit responsible, and its shape.** `git log` over that path from this document's
+freeze to HEAD returns **exactly one commit**:
+
+**`09cf685483b7485a9dfbecf1239337c2b1fc04bb`** — *"cfd BLOCKING FIX: the only sanctioned
+repair for a lost solver log was the call that DELETED the physics -- guarded in all three
+F5 drivers, with no override flag by decision"*.
+
+- `git show --numstat` → **`116  0`** — 116 insertions, **zero deletions**.
+- One hunk, a pure append at the foot: 1,371 + 116 = **1,487**, the file's line count today.
+- **`head -1371` hashes to the pinned value**, above. That is the proof, and it is a hash of
+  the bytes rather than a reading of a diff.
+
+**Therefore the change was APPEND-ONLY and rule 6 was honoured** — the evidence file was
+extended by an appended amendment, not rewritten.
+
+### What this means for `§E6`, stated narrowly
+
+1. **The CONTENT `§E6` relies on is INTACT.** `§E6` cites *"lines 1325–1370"* and *"line
+   484"*. Both lie inside the untouched **1–1371** prefix, and both were confirmed to do so
+   by line number. **Nothing `§E6` was offered to prove has changed.**
+2. ⚠ **But the PIN AS WRITTEN can no longer be verified by the operation it invites.**
+   Hashing `F5a_cylinder_reynolds_ladder.md` today returns `a9c3d124…`, not `8348d1f7…`. A
+   reader checking `§E6` the obvious way gets a mismatch and cannot tell an append from a
+   rewrite without doing the work above.
+3. **REGISTERED CORRECTION.** `§E6`'s evidence is verified as: **`head -1371 <file> | md5sum`
+   == `8348d1f7b27df90a5107d3f3bd28afb3`**, with the whole-file md5 recorded as
+   **`a9c3d124644ca4e33413c18406794ba8`** at the date of this addendum. The pinned *content*
+   is unchanged; only the *extent* the hash covers had to be stated.
+
+### Why a DATED ADDENDUM is the correct instrument here — and the only one
+
+Two independent measurements decide it, and they agree.
+
+**(a) This registration is POST-COMPUTE.** Rule 2: *"After first compute gates are closed;
+changes land only as dated addenda that cannot alter a gate, threshold, cap or label."*
+⚠ **Line 3 of this document's head still reads *"Status: `PENDING` — DRAFT, NOT FROZEN,
+NOTHING LAUNCHED"*, and that line has been superseded twice by this document's own foot** —
+by `ADDENDUM 1` (*"The document **is** frozen, at `c1ba1845` … and `a80d5f36`"*, striking the
+words *"not frozen"*) and by the `CORRECTION ADDENDUM` of 2026-08-26 (fired
+**2026-08-25T16:14:24Z**, **39.426 core-minutes** consumed, graded **`NOT A RESULT`**,
+calibration row `C-65`). **An in-place edit of line 112 is not available at all.**
+
+**(b) Line 112 is BYTE-INSIDE an executable pin.** Line 112 ends at **byte 9,420**; the
+frozen body is the **first 85,802 bytes**. Editing line 112 would change those bytes and
+**`launch_f5b_physics.sh:35` would fail**. This is not a convention — it is a check that
+would break.
+
+**`§E6` is an evidence row, not a gate, threshold, cap or label**, so an addendum may correct
+how it is verified without touching anything rule 2 closes. **A successor document would be
+the wrong instrument**: a successor is for a new gate, and no gate moves here.
+
+### The durable point, because it is the reason this addendum exists at all
+
+> **A hash pin rots the moment ANY commit touches the file it names — even a lawful,
+> append-only commit that changes not one byte of the pinned content. Nothing executable was
+> checking this one.**
+
+Verified rather than assumed: a repository-wide search for `8348d1f7b27df90a5107d3f3bd28afb3`
+across `*.py` and `*.sh` returns **zero rows**. The pin lived only in prose, so only a human
+re-read could ever have caught it. ⚠ **The same rot reaches STATUS LINES**: point (a) above
+had to correct a lane that cited this document's **line 3** as authority on whether it is
+frozen — nine days after this document's own foot superseded that line. **The lab's
+amendment convention guarantees a stale head**, because rule 6 forbids rewriting the
+superseded line. **Any check that resolves this document's status by reading its head is
+wrong by construction.**
+
+**Registered as an open instrument gap, handed up:** nothing in this repository verifies that
+a prose hash pin still matches the file it names, and nothing verifies that a quoted status
+line has not been superseded by its own document's foot.
+
+### What this addendum does NOT do
+
+- **It alters no gate, no threshold, no cap and no label.** Every number above is quoted from
+  an artifact still on disk.
+- **It does not reopen the `NOT A RESULT` verdict** of `physics_p1`, nor the `C-65` cost row.
+- **It does not verify the 116 appended lines** of `F5a_cylinder_reynolds_ladder.md` — only
+  that they are appended and that the 1,371-line prefix is untouched. Whether they bear on
+  `§E6`'s scoping note was **not** read and is not claimed either way.
+- **It does not repair the dangling `ADDENDUM 3` reference** in `analyse_f5b_physics.py`;
+  that work is uncommitted and another lane's.
+- **It does not re-freeze anything.** Freezing is the supervisor's check 4.
+
+*Correction addendum ends. Status: **FIRED and GRADED `NOT A RESULT`** — 39.426 of 72.0
+core-min, calibration row C-65; registration authority SPENT. `§E6`'s pin corrected to
+`head -1371`, content intact, frozen body byte-identical.*
