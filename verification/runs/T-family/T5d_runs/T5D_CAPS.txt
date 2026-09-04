@@ -1,0 +1,36 @@
+# T5d REGISTERED CAPS -- core-minutes, ranks 1.  FROZEN WITH THE REGISTRATION.
+#
+# `run_one_t5d.sh` REFUSES unless its --cap-core-min equals the row here for the
+# case.  An argv cannot widen a cap.  This is T5b's T5B_CAPS.txt mechanism,
+# unchanged; only the numbers below are T5d's own.
+#
+# BASIS -- MEASURED, on T5b's OWN triple: the SAME cell counts (52,684 /
+# 212,942 / 882,024 -- T5d changes the first-layer height, not the counts), the
+# same solver, the same endTime 5000, the same ranks, on this box, WITH the
+# repaired function objects already running.  From
+# verification/runs/T-family/T5b_runs/STATUS.T5_CUBE_{c,m,f}
+# (all rc=0, capped=0, note=clean):
+#     c  1007 s    52,684 cells    16.783 core-min
+#     m  5252 s   212,942 cells    87.533 core-min
+#     f 20851 s   882,024 cells   347.517 core-min
+#                                 -------
+#                                 451.833 core-min total
+#
+# POINT = measured x 1.15.  The 15 % is an ALLOWANCE for NEAR-WALL STIFFENING,
+# and it is NOT measured: T5d's first cell is 0.625x T5b's at the same cell
+# count, so the near-wall cell aspect ratio rises by ~1.6x (checkMesh air-region
+# max 133-140 on T5b) and the near-wall expansion ratios rise with it, which can
+# cost extra inner linear-solver sweeps at a FIXED 5000 outer iterations.  This
+# box has no measurement isolating first-layer thinning at fixed cell count, so
+# the figure is declared an allowance and not dressed up as a measurement.
+# NOTE T5b's POINT carried a separate 2 % function-object allowance; T5d needs
+# none, because T5b's ACTUALS already include those field writes.
+#
+# CAP = 2.0 x POINT.  The 2.0 is CONTENTION HEADROOM on a saturated box, not
+# model uncertainty.  Corroborated: T5b used 53.9 % of its cap (worst level m at
+# 56.7 %) on exactly this basis.  The cap is a runaway guard, never a target.
+#
+# case=cap_core_min
+T5_CUBE_c=38.6
+T5_CUBE_m=201.4
+T5_CUBE_f=799.4
