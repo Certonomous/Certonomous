@@ -8,6 +8,16 @@ flow_class:
   - separation_2d
 validation_cases:
   - CBFS
+paper_validation_cases: >-
+  Field inversion and training: the curved backward-facing step (CBFS), printed p. 1-2;
+  the beta_CND data is reused from Ref. [3]'s conditioned field inversion. The paper's
+  own GENERALISATION GUARD is not a separate case but the shielding function f_d, which
+  "is 0 in the boundary layer and is 1 elsewhere" and exists "to preserve the baseline
+  SST model's accuracy in simple wall-attached flows" (p. 1) -- i.e. the guard is built
+  into the model form rather than demonstrated on a held-out attached-flow case in this
+  document. Recorded here rather than dropped: an entry whose guard is a claim in the
+  formulation, not a measured case, is weaker evidence than one with a demonstrated
+  attached-flow result, and the difference must be visible.
 equation_form: >-
   BOTH equations READ DIRECTLY OFF THE PRINTED PAGE by closure-supervisor, 2026-09-04,
   by rendering page 1 at 200 dpi (pdftoppm) and reading the image. This SUPERSEDES the

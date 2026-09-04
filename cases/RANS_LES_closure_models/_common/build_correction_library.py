@@ -111,6 +111,13 @@ REQUIRED_KEYS = (
     "family",
     "flow_class",
     "validation_cases",
+    # SCHEMA Addendum 1 item 3 declares this REQUIRED and this artifact did not
+    # enforce it until 2026-09-04 -- a frozen clause with no binding check is a
+    # DEAD LEVER, the same shape as SKIP_DIRS in the queue runner. It exists so a
+    # paper's own guard case (e.g. SST-QCRC's ZPG flat plate) cannot be dropped
+    # silently just because this lab holds no on-disk id for it, which would
+    # flatter the entry.
+    "paper_validation_cases",
     "equation_form",
     "provenance.path",
     "provenance.title_page_verified",
@@ -686,6 +693,9 @@ def _valid_entry() -> dict:
         "family": "b",
         "flow_class": ["square_duct_secondary_flow"],
         "validation_cases": ["DUCT:AR_3_Ret_360"],
+        "paper_validation_cases": ("Square duct at Re_tau 360; and a ZPG flat plate "
+                                   "as the generalisation guard, which this lab holds "
+                                   "no on-disk id for."),
         "equation_form": ("tau_ij gains a quadratic term; Eq. (1), p. 1 of the source "
                           "PDF, with C_cr1 = 0.3."),
         "provenance": {
@@ -893,6 +903,12 @@ def _selftest_arms():
          _mutate(base, "id", "B_Selftest"), "SCHEMA-2-ID-FORM"),
         ("NEG missing required key claimed_effect",
          _mutate(base, "claimed_effect", _DELETE), "SCHEMA-2-MISSING-KEY"),
+        # SCHEMA Addendum 1 item 3. This arm exists so the key cannot be quietly
+        # dropped from REQUIRED_KEYS later without the suite noticing: the clause
+        # went UNENFORCED from Addendum 1 until 2026-09-04 precisely because no
+        # arm was watching it. A rule with no arm is a rule that can be deleted.
+        ("NEG missing required key paper_validation_cases",
+         _mutate(base, "paper_validation_cases", _DELETE), "SCHEMA-2-MISSING-KEY"),
         ("NEG cost_estimate is prose",
          _mutate(base, "cost_estimate_core_min", "cheap"), "SCHEMA-2-COST-ESTIMATE"),
         ("POS cost_estimate may be the string none",

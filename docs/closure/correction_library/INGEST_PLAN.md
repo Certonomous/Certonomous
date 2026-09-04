@@ -240,3 +240,47 @@ Running it cannot advance the Schmelzer entry toward `REPRODUCED`.
 > **THE RULE THIS GENERALISES TO: a built library whose NAME matches an entry is not that entry's
 > implementation until its EQUATIONS and COEFFICIENTS are checked against the entry's own paper.
 > The symbol table proves a model is loadable; it proves nothing about which model it is.**
+
+---
+
+## 9. SECOND CORRECTION TO §1, 2026-09-04 — TBRF HAS NEVER BEEN TRAINED ON A DUCT, AND THE DUCT-FIRST TARGET IS THE QUADRATIC ROUTE, NOT A DATA-DRIVEN ONE
+
+**Struck, quoted from §1's duct row:** ~~"Kaandorp's TBRF is the best-instrumented duct correction
+we hold"~~ (carried here from the holdings survey and repeated upward by me).
+
+**Measured from the paper itself, Table 2, printed p. 31.** Every reported TBRF configuration is
+trained on **PH5600, PH10595 and CD12600 only**. The square duct SD3500 is a **prediction** case;
+the only duct data touching the fit at all is SD3200 inside the hyperparameter validation set
+(p. 30). **TBRF as published has never been trained on any duct.** Applying it to a duct at rung 3
+is therefore an **extrapolation**, not a transfer of a demonstrated result — and that is exactly
+the distinction the ladder exists to keep visible.
+
+**And the paper measures why it would struggle there.** p. 23: in the square duct the five Pope
+invariants give *"only two distinct 'basis functions' defined by θ, and these are not sufficient"*;
+p. 37: *"of the 5 features, 3 are approximately scaled versions of the other 2."* Table 3 (p. 37)
+quantifies the cost — FS1-only TBRF anisotropy RMSE **0.0995** against **0.0521** with the full
+feature set — and on that same case **TBNN beats TBRF** (0.0871 vs 0.0995).
+
+**⚠ THIS IS EXTERNAL EVIDENCE FOR THIS TEAM'S OWN STANDING GATE.** FS2 — the degeneracy audit,
+permanently re-armed under charter §22.5 — requires per-feature variance, range coverage and
+feature-matrix rank **before any training**, and exists to prevent *"a feature set selected once and
+treated as the only possible set."* **Kaandorp p. 37 is that failure, measured, in a published
+paper, on the exact flow this line proposes to attack first.** FS2 is not lab bureaucracy; it is
+the gate that would have caught this.
+
+**CONSEQUENCE FOR THE DUCT-FIRST PLAN — it is REFINED, not withdrawn, and §1's four reasons are
+untouched.** The duct remains the right first target: the failure is still qualitative, the data is
+still on disk, and reason 1 is now **cited to Spalart p. 253** rather than asserted. What changes is
+**which correction goes first**:
+
+1. **First: the quadratic constitutive route** — the textbook fix for secondary flow of the second
+   kind, cited, and installable with **no build** (`ShihQuadraticKE`, `LienCubicKE` ship;
+   `kOmegaSSTQCR` is compiled here and implements exactly this term).
+2. **Not first: the data-driven entries.** TBRF on a duct is an extrapolation whose feature
+   degeneracy the source paper has already measured. It stays in the library, it is applied at
+   rung 3 in its turn, and its result will be read **knowing** it was never trained there.
+
+**Recording this correction costs the plan nothing and buys the exhaustion claim its credibility.**
+A ladder record that applied TBRF to a duct and reported "the correction did not help" — without
+saying the model had never seen a duct and its features are degenerate there — would be a true
+sentence that misleads. That is the failure mode §4's named-exclusions rule was written against.
