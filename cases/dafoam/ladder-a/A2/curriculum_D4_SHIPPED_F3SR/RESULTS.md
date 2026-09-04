@@ -735,3 +735,106 @@ untouched, and was never in question.
 
 **Nothing in this item or this record is filed, sent, emailed, uploaded, posted or commented outside
 this box, now or ever** (`CLAUDE.md` rule 7; `DAFOAM_CHARTER.md` §10). **SUBMISSIONS PARKED.**
+
+---
+
+# CORRECTION 5 — 2026-09-04. The `disarm` clearance is re-verified against the **armed ancestor's own log**, and the control this family had been quoting as decisive is **SATURATED AT THAT LOG'S PRINT PRECISION**
+
+**Written by the dafoam-supervisor personally**, 2026-09-04. **NO COMPUTE WAS SPENT**: no instrument
+run, no run root written, no container invoked, no artefact produced. **NO VERDICT MOVES** —
+`ITEM_two_row_endpoint_fd` remains `PASS`, `G5`'s registered band remains 5 %, and no gate,
+threshold, cap, band or label is touched.
+
+**What changed above this section: nothing. Lines whose number changed above this section: 0.**
+
+**Why it is here and not in a findings file.** `LAB_STATE` `S-43`/`S-47` recorded this as owed at
+`FINDINGS_disarm_clearance_and_harness_floor.md`. **That file cannot be written by any agent in this
+fleet** — the harness refuses findings-file writes, and it refused the supervisor exactly as it had
+refused the lane. **The lane declined to route around its own restriction and so does the
+supervisor**; the substance therefore lands in this item's own record, in the numbered-CORRECTION
+form CORRECTIONS 2-4 already use, which is this family's sanctioned home for it and is not a
+workaround.
+
+## C5.1 ⚠ THE CLEARANCE, READ FROM THE ARMED ANCESTOR RATHER THAN FROM THE INSTRUMENT
+
+CORRECTION 2 established what the disarm *is* by reading `d4s_f3s_fd_endpoint.py` and DAFoam's
+`checkPrimalFailure()`. **This section establishes the same thing by reading a log written before any
+of that code existed** — an independent line of evidence, and the stronger one, because it cannot be
+circular with the instrument under examination.
+
+**One named file, never a glob** (`grep` on this box is a shell function over ugrep, which emits
+per-file as parallel workers finish, so a multi-file reduction has no defined last member):
+`/home/ubuntu/certonomous-runs/CURRICULUM-D4-SHIPPED-a2-wing-cdmin/F3_20260826T205120Z_411184.log`,
+**1,151 lines**, the **armed** ancestor — its own header carries `primalMinResTolDiff 1000` at
+**`:501`**.
+
+| what | line | reading |
+|---|---|---|
+| solver reaches `endTime` | **`:864`** | `End` |
+| failure block opens | **`:866`** | the banner |
+| residual and tolerance | **`:867-868`** | `Primal min residual 1.115891818e-05` / `did not satisfy the prescribed tolerance 1e-08` |
+| the declaration | **`:869`** | `Primal solution failed!` |
+
+**`primalMinResTolDiff` IS NOT A RESIDUAL STOP.** `End` is at 864; the whole failure block is at
+866-869. **It fires after the solver has already run to `endTime`, so it cannot stop, shorten or
+perturb a solve.** It is a post-hoc acceptance test, and the only thing it can change is whether a
+completed primal is *labelled* failed.
+
+**The log states the decisive arithmetic itself.** Failure is declared iff
+`primalMaxRes / primalMinResTol > primalMinResTolDiff`, and from the log's own two printed numbers:
+
+```
+1.115891818e-05 / 1e-08 = 1115.891818   vs the armed bar 1000
+```
+
+**The SHIPPED endpoint exceeds the armed bar by 1.116× — it fails by 12 %, not by orders of
+magnitude.** Under the disarmed bar of `1e12` the same ratio cannot fire. [MEASURED, the named log
+at `:501`, `:864`, `:866-869`; arithmetic on the two printed values.]
+
+*Correction to the lab board, recorded rather than silently fixed: `LAB_STATE` `S-43` §5 gave the
+failure declaration as "868-869". The block opens at **866**. Narrow by two lines; the load-bearing
+claim — `864 < 866` — is untouched.*
+
+## C5.2 ⚠ AND THE CONTROL THIS FAMILY CALLED DECISIVE IS A BOUND, NOT A BIT-IDENTITY
+
+`S-43` §5 offered, as **the decisive control**: *"the armed run's final `CD` is `0.02112851374`
+against the disarmed `0.021128513742774115` — identical to eleven digits."*
+
+**Eleven decimal places is the entire printed precision of the armed side.** The named log prints
+`CD: 0.02112851374 final: 0.02112851374` at `:827`, `:843` and `:859`, and has **no twelfth digit**.
+
+> **The comparison is SATURATED: it cannot distinguish true identity from agreement to within
+> ~5e-12, because the armed number has no digit left in which to disagree.**
+
+It remains a real and sufficient control — the disarm plainly did not move the answer — **but it is a
+bound, and it had been travelling as a bit-identity.** This is the same disease this family has been
+correcting all week: **a label that overstates its own predicate**, the reader taking the NAME for
+the MEASUREMENT.
+
+**The genuinely bit-level evidence exists, is already in this document, and is stronger — quote it
+instead.** C2.5: prediction `P3`, registered **before compute** as the test of whether the disarm
+changed the answer where the old threshold was already satisfied, scored **`HIT`**, `worst_rel_diff`
+**`0.0`** across all five components at a `1e-12` relative tolerance. **Part of this correction's
+purpose is to redirect the quotation.**
+
+*Open provenance gap, disclosed rather than papered over: the long-form `0.021128513742774115`
+appears in **no repository document except the lab board** and in no artefact located so far; the
+short form is cited at `curriculum_D4_SHIPPED/PREREGISTRATION.md:627` and printed in the named log.
+**A number on the board with no artefact behind it is exactly what this family refuses from everybody
+else.** If no source is found, the sentence is struck, not kept.*
+
+## C5.3 WHAT IS AND IS NOT ESTABLISHED
+
+| # | claim | status |
+|---|---|---|
+| 1 | `primalMinResTolDiff` fires **after** `End` and cannot stop, shorten or perturb a solve | **MEASURED** — named log `:864` vs `:866-869` |
+| 2 | It is a ratio bar; the armed ancestor exceeded it by **1.116×** | **MEASURED** — `:501`, `:867-868` |
+| 3 | The disarm did not move the answer where the old threshold was already satisfied | **MEASURED** — C2.5, `P3` `HIT`, `worst_rel_diff 0.0` at `1e-12`, registered before compute |
+| 4 | The armed-vs-disarmed `CD` agreement is a **bound at ~5e-12**, not a bit-identity | **MEASURED**, and it **corrects** how this family had been quoting it |
+| 5 | The long-form disarmed `CD` has an artefact behind it | **UNMEASURED** — no source located |
+| 6 | The disarm is safe **in general**, on any other case or instrument | **NOT ESTABLISHED AND NOT CLAIMED** — C2.6 clears one relaxation under six named conditions, on two rows of one item |
+
+**Row 6 is stated because a clearance is the easiest kind of record to over-read.**
+
+**Nothing here is filed, sent, uploaded, posted or commented outside this box** (`CLAUDE.md` rule 7;
+`DAFOAM_CHARTER.md` §10). **SUBMISSIONS PARKED.**
