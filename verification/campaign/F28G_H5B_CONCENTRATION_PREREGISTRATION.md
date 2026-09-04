@@ -157,6 +157,72 @@ H4**, whose entire content is the near-axis extreme aspect ratio (checkMesh max
 exclusion at the axis is **evidence against H4**. If it is **not** excluded, H4
 is **not** thereby supported — the gate is one-directional and says so here.
 
+### 4.2a 🔴 G3′ IS LOAD-BEARING, NOT SUPPORTING — A CONSEQUENCE OF THE 1.30× MARGIN
+
+**Registered explicitly rather than left implicit.** The retired gate's raw
+`f1%` of 0.9979 cleared 0.50 by **2.0×**, so its stability requirement was
+**almost decorative** — no plausible snapshot variation could have changed that
+verdict. **This gate clears by 1.30×.**
+
+> **At 1.30×, SNAPSHOT-TO-SNAPSHOT VARIATION CAN DECIDE THE VERDICT. G3′'s
+> "4 of 5" requirement is therefore doing REAL work, not ceremonial work: the
+> concentration verdict is genuinely at risk from instability.**
+
+**Consequence, binding on every reader and on any report:** **a single-snapshot
+`f1%` may NEVER be quoted as the result.** The 0.6496 already on record
+(predecessor §15C.2, §15F.2) is one snapshot of a `NOT A RESULT` run and is
+disqualified three ways over; it is **not** a preview of this gate's outcome.
+
+### 4.2b THE NUMERICAL DETERMINISM RULES — FIXED HERE, BEFORE THE COMPARATOR IS WRITTEN
+
+**`cfd-supervisor`'s instruction, and the reason: at this margin an incidental
+implementation choice could move the third digit and therefore the verdict, and
+"an unregistered implementation detail that can flip a gate is a threshold nobody
+voted on."** These are fixed by this document and **not** by whatever the code
+happens to do:
+
+| # | choice | **REGISTERED RULE** |
+|---|---|---|
+| D1 | how many cells in the top set | **exactly `N_top = floor(0.01 × 35544) = 355`, by COUNT** — never "355 plus ties", never a rank-with-ties set of variable size |
+| D2 | ordering, and tie-breaking | sort by the **total order `(−|d_c|, c)`** — magnitude descending, then **cell index ascending**. A total order, so the result does not depend on sort stability or on input order |
+| D3 | accumulation of both sums | **`math.fsum`**, which is **exactly rounded and therefore order-independent**. This does not *choose* an accumulation order; it **removes the question** |
+| D4 | the density | `d_c = r_c / V_c` then `abs`. `V_c > 0` for every cell, so `abs(r_c/V_c)` and `abs(r_c)/V_c` are identical; D3 governs the sums either way |
+| D5 | the comparison | `f1% >= 0.50` **exactly** — no tolerance, no epsilon. Likewise `share(Z) <= 0.10 × null(Z)` exactly |
+| D6 | zone shares | same `fsum` rule as D3, over the same top-355 set from D1/D2 |
+
+### 4.2c THE FRAGILITY CONTROL — MEASURED, AND THE GATE IS ROBUST TO NUMERICS
+
+He required a control: *"perturb the tie-breaking rule and show the verdict does
+not move, or show by how much it does."* Measured on the pilot's real field,
+before writing the comparator:
+
+| combination | `f1%` |
+|---|---|
+| index ASC + `fsum` | 0.64960682870616526 |
+| index DESC + `fsum` | 0.64960682870616526 |
+| random tie-break + `fsum` | 0.64960682870616526 |
+| index ASC + naive left→right | 0.64960682870616038 |
+| index ASC + naive right→left | 0.64960682870616548 |
+| index ASC + ascending-sorted sum | 0.64960682870616560 |
+
+| | |
+|---|---|
+| **spread, max − min** | **5.218e-15** |
+| margin above threshold | 0.149607 (**1.30×**) |
+| **spread as a fraction of the margin** | **3.49e-14** |
+| **does the verdict move?** | **NO — every combination agrees** |
+
+**And tie-breaking is moot on this data, measured rather than assumed:** all
+**35,544 values are distinct**; the value at rank 355 is `8.9928e+01` and at rank
+356 is `8.9215e+01`, a **0.8 % relative gap**, with exactly **one** cell at the
+cut. D2 is registered anyway, because a future snapshot may tie and the rule must
+not be invented at that moment.
+
+> **THE HONEST SUMMARY, AND THE TWO HALVES POINT OPPOSITE WAYS: this gate is
+> FRAGILE TO PHYSICS AND ROBUST TO NUMERICS.** Snapshot-to-snapshot variation can
+> decide it (§4.2a); implementation choices cannot, by fourteen orders of
+> magnitude. **G3′ carries the risk; the determinism rules carry none of it.**
+
 ### 4.3 GATE G3′ — STABILITY, and the three named conditions
 
 Five snapshots at **15040, 15080, 15120, 15160, 15200** (spacing justified at
