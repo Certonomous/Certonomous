@@ -1430,6 +1430,107 @@ Updates d09a4e28's "origin of the day's 52/69 UNVERIFIED". Settled by cfd's comm
 
 ## closure
 
+**EIGHTEENTH SESSION, 2026-09-04T~15:2xZ (closure-supervisor). THE STAND-DOWN IS SUPERSEDED IN A
+NEW FRAME BY SANAA. STILL ZERO COMPUTE — no solver launched, no case touched, no rung graded.
+Two read-only survey lanes are OUT; their findings are NOT in this block.**
+
+**═══ THE FRAME CHANGE, AND THE PROVENANCE I CHECKED MYSELF ═══**
+Sanaa verbatim at `0910b664` (`etc/sessions/2026-09-04T1510Z_sanaa_model_form_closure_ladder.md`):
+*"this makes the closure work you stood down strategically central again, but in the right frame:
+not a research project running in parallel, but the top rung of a validation ladder every hard
+case can climb."* **Closure's two standing roles are now: (a) the TOP RUNG (rung 4, GP-based
+research closures) of the four-rung model-form ladder every hard case escalates into; (b) OWNER of
+the CLOSURE-CORRECTION LIBRARY** — the closure-modeling literature ingested as installable,
+provenance-tagged options, each mapped to its flow class and its own validation case.
+**PROVENANCE VERIFIED PERSONALLY, NOT TAKEN ON RELAY:** `0910b664` is in HEAD's history, carries
+the file, and the file on disk is **byte-identical to its HEAD blob `e2089d0a`**. **⚠ AND THE
+FIRST COMPARISON LIED:** `git diff 0910b664 -- <path>` reported the file as **`deleted file mode`**
+while it sat on disk, because `git ls-files -s` shows the path is **absent from the shared index**.
+The reliable comparison is against `git show HEAD:<path>` — the trap the lab already knows, met
+here on the authority document for a change of frame. **A supervisor who had accepted that first
+read would have called Sanaa's own directive missing.**
+**I ACCEPT THIS ON THE SAME FOOTING I ACCEPTED `c5edce6b`, WHICH STOOD ME DOWN.** The capture form
+is identical; asymmetric skepticism that accepts a stand-down and doubts a stand-up would be
+self-serving. **Rule 9 is untouched: this is her word in her words, not an agent's relay.**
+
+**═══ SEQUENCING — WHAT IS AUTHORISED NOW IS ZERO-COMPUTE ARCHITECTURE, AND NOTHING ELSE ═══**
+Her note sequences execution **behind M6/CRM's first rungs**, building as the separated-flow cases
+(**F6 hump, periodic hills, duct**) come online. **NO CLOSURE SOLVE RUNS BEFORE THAT POINT** and
+none has. Authorised and begun: the library's architecture and registration — document structure,
+per-entry schema, ingest plan, ladder-record form. **The freeze-ahead floor stays 0 and closure
+still files no queue row**, because the finding below is unrepaired: the runner has no stand-down
+switch, so a filed row launches within 60 s whatever this board says.
+**Her named first target: a certified "correction X recovers this flow where SST could not" on a
+separated-flow case.**
+
+**═══ LANDED THIS SESSION: `docs/closure/correction_library/ARCHITECTURE.md` (DRAFT v0.1) ═══**
+Filed rather than held in scratch **because L-186 forbids the scratchpad as a handoff channel and
+this frame change must survive a session kill.** Its load-bearing content, so a successor need not
+re-derive it:
+**(1) THE LICENCE STATES — the design's whole point.** An entry is `REGISTERED` → `IMPLEMENTED` →
+`REPRODUCED` → or `REFUTED-IN-REPRODUCTION`. **Only `REPRODUCED` is licensed as ladder evidence:
+it has reproduced ITS OWN PAPER'S claimed improvement on ITS OWN PAPER'S validation case, through
+the registered path, against the same reference.** This is §22.2's bright line turned on the
+library itself.
+**(2) WHY, STATED AS THE FAILURE IT PREVENTS.** At rung 3 a correction fails to fix a hard case.
+Two explanations are then indistinguishable: *the correction does not help this flow*, or *we
+implemented it wrong.* **Without the reproduction gate, Sanaa's "rare and valuable" exhaustion
+result — all known closures fail this flow — COLLAPSES, because it is equally consistent with
+"the lab implemented eleven corrections incorrectly."** A ladder record that cannot exclude the
+second is not a certificate.
+**(3) THE EXHAUSTION CLAIM IS TIME-INDEXED BY CONSTRUCTION.** The rung-3 candidate set is
+**DERIVED, NOT CHOSEN** — the library manifest filtered by flow class **at a pinned manifest sha**
+— and every flow-class match that was **excluded is named with its reason**. The claim reads *"all
+known closures in the library at manifest sha S"*, never *"all known closures"*. **An unexplained
+exclusion is how an exhaustion claim gets quietly narrowed until it is true.**
+**(4) THREE STRUCTURAL EXCLUSIONS.** A **band is not a correction** (§22.4 item 2, L-219/L-220,
+D446) and may not enter as an entry; a **post-hoc field correction is not a closure model**
+(§22.2); and **per-case switching is not a model** (§22.1).
+**(5) ⚠ THE TENSION I AM FLAGGING RATHER THAN RESOLVING ALONE, BECAUSE THIS CHARTER ALREADY
+RECORDS IT AS A MISTAKE.** The ladder applies corrections **PER CASE**; §22.1 requires **ONE model
+applied uniformly to all eight cases**. These are DIFFERENT PRODUCTS — a validation instrument and
+a scored benchmark entry — and conflating them **is the round-5 heterogeneous entry, which is
+internal R&D and NOT SENT.** **A ladder-derived per-case correction may NEVER be assembled into a
+benchmark submission as if it were one model.** Whichever charter lands the ladder must carry this
+boundary. **FOR VERIFICATION AND THE CHIEF, NOT FOR ME TO SETTLE.**
+
+**COORDINATION OWED — VERIFICATION IS LANDING THE LADDER AS CHARTER LAW.** They own the record's
+legal status; I own rungs 3-4 and the library. **The two things I must insist on from the library
+side, because without them the exhaustion claim is unfalsifiable: the MANIFEST-SHA PIN and the
+NAMED-EXCLUSIONS rule** (§4 of the architecture). Sent via the chief; I hold no agent id for them.
+**OPEN, NOT ASSUMED:** whether a schema checker may live in `scripts/` (lab convention, outside
+closure's folder scope — adding a new file is not patching another team's instrument, but I will
+not assume it) or under `cases/RANS_LES_closure_models/_common/`. **Chief to route.**
+
+**LANES OUT (2, read-only, zero compute, cap 3 respected):** holdings inventory of
+`docs/papers/closure/` (counts, sidecar orphans, L-144 title-page verification state per entry,
+classification into Sanaa's six families, **gap analysis naming canonical papers NOT HELD**, and
+what we hold on hump / periodic hills / duct); and the implementation-surface survey (which RANS
+models ship with OpenFOAM 2606 needing **no build**, how a correction is installed by dictionary /
+coefficients / `fvModels` / custom library, the `foam_libs` interface **rule 14 requires an entry
+to go through rather than around**, what closure code this lab already wrote, and whether a flow-
+class vocabulary already exists **to reuse rather than rival**). **Their findings are NOT in this
+block and the ingest plan is deliberately NOT written until they land.**
+
+**COST THIS SESSION: 0 core-min solver compute [MEASURED] · 0 GPU-h [MEASURED] · $0.00.** Two
+read-only lanes, no case directory. Nothing to calibrate under rule 12 — no process completed.
+
+**RUNGS WITHOUT VERDICTS — UNCHANGED AND NOT DISCHARGED BY THE FRAME CHANGE.** M1 ungraded
+(partition on the two asymmetric pairs) · M1's 6 capped arms, `PH_Breuer`'s `maxIter 200`
+saturation an unresolved numerical finding · **M1b, M1-C, R4b-Ib — three drafts, CHECK 1 NOT
+PERFORMED ON ANY** · R4b-I and the R4b solve arm `BLOCKED` · **M2 UNRULED since 08-28** · RC1/RC2
+unfrozen · Ling arm 2 frozen and deliberately UNFILED · G1b `xr` null (D550). **FS2 and FS5 remain
+STANDING GATES.** **These now sit inside her mandatory-completion order's reach the moment
+sequencing arrives — they are exactly its "left unrun by drift" population.**
+
+**ON SANAA'S DESK — four items carried, none withdrawn.** (a) GPU YES for Ling arm 2, frozen at
+**40 GPU-h = $32.19 [DERIVED]**, deliberately **UNFILED** — no `host` field, so filing it fires a
+GPU arm **on the CPU box**; (b) the R4b increment ruling, owed since 08-28; (c) the four withdrawn
+attributions; (d) the two 2026-08-24 R3 quotations. **SUBMISSIONS REMAIN PARKED (rule 7).**
+
+**BLOCKED — nothing is blocked on her for the architecture work; it is authorised and running.
+Closure SOLVES remain sequenced behind M6/CRM and the F6 separated-flow cases coming online.**
+
 **SEVENTEENTH SESSION, 2026-09-04T01:05Z (closure-supervisor), re-formed after the ~01:00Z
 subscription-switch fleet kill. QUIESCENCE PASS ONLY — NO LANE SPAWNED, NO COMPUTE LAUNCHED,
 NOTHING FILED, NOTHING GRADED, NO CHARTER OR LEDGER TOUCHED. This block CONFIRMS the block
