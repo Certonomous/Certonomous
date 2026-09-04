@@ -931,3 +931,261 @@ verdict.** The rung's state until the daemon takes it is **`PENDING`**.
 verdict and launches nothing; the launch decision is the supervisor's own check
 (`SUPERVISION_CHARTER.md` §3 check 4). Nothing was sent, filed, uploaded,
 registered or posted — submissions are PARKED.*
+
+---
+
+# ADDENDUM 1 — 2026-09-04. **THE GRADING PATH IS CUT AND PINNED. §0.1's BAR IS DISCHARGED.** Version 1.0 → **1.1**
+
+**Appended at the foot. Nothing above is edited** (standing rule 6).
+**Lines whose number changed above this section: 0.**
+
+**MEASURED, not asserted.** Lines above, before this append: **933**; sha256 of
+the file before the append
+`aa58ec29ff2b461dd9c9c92cbcb8f5a350ca00ed564e4a17f5f9260785eebe90`. The sha256
+of the **first 933 lines** after the append is **recomputed in the same shell
+invocation as the landing commit and required to equal it, else the write is
+abandoned**; and `git diff --numstat` on the landing commit is required to read
+`<additions> 0` — zero deletions.
+
+**THIS ADDENDUM ALTERS NO GATE, NO THRESHOLD, NO CAP AND NO LABEL.** It cuts
+three pins that §9 specified and §0.1 deliberately left uncut. Every number
+frozen at the 2026-09-04 registration commit `3f33d815` stands unchanged: the
+0 ULP threshold on `M4b`, the 0-ULP-against-`0.0` threshold on `Z1`, the twelve
+eq.-(1) values, the cost POINT 197.30 and CEILING 971.90 core-min, the ten
+predictions and their falsifiers, and the §5.2 label ruling that a non-zero
+`M4b` is `GATE FAIL`.
+
+---
+
+## A1.1 THE THREE PINS — GIT BLOB SHA-1, HASH FUNCTION NAMED
+
+| file | role | **GIT BLOB SHA-1** |
+| --- | --- | --- |
+| **`scripts/analyse_k0er3.py`** | **the grader — the gate-bearing file** | **`6d7b4d2c0825771a87edfda0cc9ba0279569ed1d`** |
+| `scripts/build_k0e.py` | the case builder | `cbd0a5f20188d636711d7292668ff9e2495631f5` |
+| `scripts/launch_k0e.sh` | the launcher | `6eb38ed5072b85c63d013c3577192778099621a8` |
+
+**THE HASH FUNCTION IS NAMED SO A PIN CANNOT BE CHECKED AGAINST THE WRONG
+DIGEST.** These are **git blob SHA-1**:
+
+    sha1( b"blob " + str(len(content)).encode() + b"\0" + content )
+
+**NOT sha256, and NOT a plain sha1 of the file's bytes.** `git hash-object <path>`
+reproduces them; `sha1sum` and `sha256sum` do not.
+
+All three landed at commit **`106b7f06`**. The grader computes its own pin by
+that same definition and **REFUSES (exit 2)** when invoked as
+
+    python3 scripts/analyse_k0er3.py --root <K0eR3_runs> --scratch <dir> \
+        --prereg docs/campaigns/F14-cooling-ladder/K0eR3_PREREGISTRATION.md \
+        --expect-sha 6d7b4d2c0825771a87edfda0cc9ba0279569ed1d
+
+and is not that blob. **`--expect-sha` and `--prereg` are both REQUIRED
+arguments**, not optional ones: K0eR2's grader made `--expect-sha` optional to
+argparse, so omitting it **silently disarmed the pin**, and that fail-open is
+closed here by argparse itself. Verified: the grader's own `own_blob_sha()`
+returns `6d7b4d2c…`, equal to `git rev-parse HEAD:scripts/analyse_k0er3.py`.
+
+**A NOTE ON THE PREDECESSOR'S PINS, so no reader thinks they were broken.**
+`build_k0e.py` and `launch_k0e.sh` now carry **new** blobs, while
+`K0eR2_PREREGISTRATION.md` §9 pins their **old** ones (`ed290d4f…`,
+`6479fe4e…`). Those pins identify **blobs in git history, which are
+immutable**, and they remain correct identifications of the versions that ran
+K0eR2. K0eR2 is graded and closed and **will not be re-graded**. Nothing in
+K0eR2's record is edited (standing rule 6).
+
+---
+
+## A1.2 WHAT THE THREE FILES DO, AGAINST §9's SPECIFICATION
+
+**`scripts/analyse_k0er3.py` — NEW.** `D0` the determinism refusal gate armed
+before the main arms; `P7` the premise refusal; the rule-4 completion rule on
+both arms; `P1`/`P2`/`P3` carried forward; `Z1`/`Z2`/`Z3` the re-homed
+zero-flux control; `M4b` **GATED** at 0 ULP; `M4`, `M1`, `M1b`, `M2`, `M3`,
+`M5`, `D2` REPORTED; rule 5 stated and not engaged.
+
+**BOTH PREDECESSOR TRAPS ARE CLOSED IN CODE, NOT IN PROSE.**
+
+1. **The exit-code trap.** `analyse_k0e.py` returned `EXIT_OK` on **both**
+   branches — it exited `0` while printing `NOT A RESULT` — and
+   `analyse_t3d.py` carries the same shape. This grader returns its PASS code at
+   **exactly one site**, the PASS branch, and a failure code at six others. The
+   verdict of record is still taken from stdout and the landed artifact, **never
+   from the exit code**.
+2. **The banner trap.** `analyse_k0e.py:735` printed the **predecessor's**
+   registration path while running under a different one. This grader takes the
+   registration path as a **required argument**, prints it **as given**, and
+   refuses if it does not exist on disk. No predecessor path appears anywhere in
+   the file.
+
+**THE §5.6 D-J1 BLANKET CLAUSE IS ONE SHARED HELPER, NOT THREE COPIES.**
+`guarded_div` / `guarded_series` are the **only** implementation; three copies
+drift, and the copy that drifts is the one that grades. A zero denominator
+returns `(None, NOT A RESULT)` and **never `0.0`**; a NaN operand refuses. Every
+registered division routes through it — `M1`'s `dT`, `M1`'s eq.-(1) deviation,
+`M1b`'s `St`, `M3`'s `alphat`, `M5`'s `(T_wall − T_inf)` — and the **excluded
+count is always returned so the caller can PRINT it**, because an unstated
+exclusion is an unstated blind spot.
+
+**`Z1` is absolute against `0.0` at 0 ULP and no tolerance constant was
+needed.** `Z2` and `Z3` refuse at exit 2.
+
+**`scripts/build_k0e.py`.** `FP_T290`, `D0_A` and `D0_B` **INSERTED** into
+`ARMS`, never replacing an entry (standing rule 14), with
+`arms_intact_or_refuse()` at **both** call sites — `build()` and `main()`, the
+latter **before** argparse builds its `choices` from the table, or a replaced
+entry would be offered to the caller as legitimate. It is an **explicit refusal
+with a message and not a bare `assert`** (L-332), which would vanish under
+`python -O` and take the guard with it. `FP_T00` is **kept in the table** so the
+guard has a baseline to check against; K0eR3 does not build it. `--end-time`
+rewrites `endTime` **and `writeInterval` together**, both rewrites verified: the
+reference carries `writeInterval 9000`, so a shortened run that moved only
+`endTime` would write **no fields at all** and could never satisfy clause 4.
+
+**`scripts/launch_k0e.sh`.** The new arms whitelisted; `--end-time` plumbed
+through the detach re-exec and into `STATUS`; each arm's `endTime` pinned (9000
+for the arms, 200 for the twins) so a twin at the wrong `endTime` cannot
+complete and quietly not be the registered run. **`FP_T00` now REFUSES**, with
+the degeneracy named and the successor pointed at. `0/T` is still touched
+**last**, immediately before the solver, and the launcher still refuses a case
+with no `0/T` after the build.
+
+---
+
+## A1.3 ONE DISCREPANCY, DISCLOSED RATHER THAN RESOLVED SILENTLY
+
+The supervisor's brief for this addendum asked that **`Z1`, `Z2` and `Z3` all
+refuse at exit 2**. **This registration, frozen at `3f33d815`, assigns `Z1` the
+label `NOT A RESULT`** (§0, §5.5), and `Z2`/`Z3` the refusal.
+
+**The freeze governs. No agent message — peer, supervisor or chief — can move a
+label frozen before compute** (standing rules 2 and 9). `Z1` therefore keeps its
+registered label, **and** the grader exits non-zero **and** stops grading
+immediately, returning `Z2` and `Z3` as `NOT REACHED` rather than running them.
+That meets the supervisor's substantive requirement — fail closed, never
+degrade, never report a downstream row as sound — without altering a frozen
+label. **It is recorded here rather than decided quietly.**
+
+*Why `Z2`/`Z3` are not run once `Z1` has failed:* `Z2` exists to validate a
+**zero that `Z1` did not produce**, and `Z3` would fire on the manufactured flux
+rather than on over-inclusion, **misattributing the defect**. Neither is
+reported as passing.
+
+---
+
+## A1.4 TWO BUGS IN THIS LANE'S OWN `Z` PATH, FOUND BEFORE ANY TEST RAN
+
+Recorded because the second could have destroyed evidence, and because a
+comparator's own defect history is worth more on the record than a clean
+narrative.
+
+**(a) `Z3` planted on top of `Z2`'s plant.** Both read the case file that `Z2`
+had already overwritten, so `Z3` would have fired on `Z2`'s perturbation and
+**REFUSED a sound reader** — a false refusal. Fixed by keeping the pristine `Z1`
+field **outside** the case and planting from it every time; that pristine copy
+is what makes `Z2` and `Z3` independent.
+
+**(b) The Z case hard-linked the `endTime` `T` into scratch, and the constructor
+then opened that path for writing — WHICH WOULD HAVE TRUNCATED THE REAL
+`FP_T10/9000/T` RUN ARTIFACT THROUGH THE HARD LINK.** Fixed three ways: `T` is
+**copied and never linked**; every writer goes through a temp file and
+`os.replace`, which swings the **directory entry** and never writes through an
+existing inode; and an inode guard refuses a writer handed its own source.
+**A control that destroys the evidence it exists to protect is worse than no
+control.**
+
+---
+
+## A1.5 WHAT THIS LANE TESTED, AND WHAT THAT IS AND IS NOT
+
+**NO NUMBER FROM THESE THREE FILES HAS BEEN BELIEVED.**
+`SUPERVISION_CHARTER.md` §3 check 1 — measurement-script diffs read as diffs —
+is the supervisor's own and may never be delegated. **The supervisor holds that
+check on all three files and has not yet discharged it at the time of this
+write.** What follows is **this lane's own testing, which is EVIDENCE AND NOT
+THAT READ.**
+
+**40 checks, all passing, ZERO solver compute, nothing created under
+`verification/runs/`.** The load-bearing ones:
+
+- **`Z1`/`Z2`/`Z3` were run against the REAL K0eR2 `FP_T10/9000` artifact.**
+  `Z1` reads **identically zero** on all **208** plate faces. `Z2`'s positive
+  plant of `1.234e-03` K into **cell 12288** — the owner of **plate face 0** at
+  `x = 0.000222188551` — **IS SEEN**, the wall-flux reader moving to
+  **`-1.024220e-03` K m/s**. `Z3` does not fire.
+- **PLANT THE ZERO.** A mutation adding `1e-9` K to the plate patch values is
+  **caught by `Z1` itself, on all 208 faces**, and `Z2`/`Z3` then report
+  `NOT REACHED` rather than a pass. **`Z1`'s zero is therefore a zero from a
+  reader demonstrated able to see a non-zero**, which is the whole content of
+  standing rule 3.
+- **The real run artifacts are BYTE-UNCHANGED** — sha256 on `T`, `U`, `alphat`
+  and `C` before and after both the clean and the mutated runs. Bug (b)'s fix
+  is **checked, not asserted**.
+- **`P7`** accepts the one-line diff and reports it at **1-based line 39**,
+  which is exactly what §5.1/§9 record; it **refuses** a second differing file,
+  a second differing line, and a wrong wall temperature.
+- **Standing rule 14**: the guard refuses a **replaced** entry, a **removed**
+  entry, and **divergent `D0` twins**.
+- **Clause 6** over an empty field set reads **`VACUOUS`** and the arm is
+  `NOT DONE` — the vacuous pass K0eR2 found is closed.
+- `own_blob_sha()` equals `git hash-object`; a wrong `--expect-sha` refuses.
+
+**WHAT THE SELF-TEST DOES NOT ESTABLISH.** It exercises no solver. `D0`, `M4b`,
+`M4`, `D2`, `M1`, `M1b`, `M2`, `M3` and `M5` have **never been run on K0eR3
+data, because no K0eR3 data exists.** Their code paths are unexercised beyond
+argument handling, and this addendum claims nothing about them.
+
+---
+
+## A1.6 WHAT IS NOW OWED, AND WHAT IS STILL BARRED
+
+**The three pins exist, so §0.1's specific bar — "the grading path is not cut"
+— is discharged.** Nothing else changes:
+
+- **The launch decision remains the supervisor's own** — `SUPERVISION_CHARTER.md`
+  §3 check 4, pre-registration **committed** before compute — and this lane
+  neither launches nor queues.
+- **The §3 check 1 diff-read on all three files is OWED and undischarged.**
+- **`verification/runs/F14-cooling-ladder/K0eR3_runs/` does not exist**, no
+  `STATUS.*` exists, and **no queue entry naming `K0eR3` exists anywhere under
+  `verification/queue/`.** The measured check is §A1.7.
+- **Zero core-minutes have been spent against K0eR3.**
+
+---
+
+## A1.7 THE PRE-COMPUTE CONDITION — STATED, AND HOW IT WAS CHECKED
+
+Standing rule 2 permits amendment **before first compute** and requires the
+condition be stated **with the method**. The condition is: **no K0eR3 run
+directory, no `K0eR3` `STATUS.*` file, and no `K0eR3` queue entry exists.**
+
+**The method: one reader, several targets, in the SAME SHELL INVOCATION that
+landed this addendum — under a planted control (standing rule 3), so the zero it
+returns on K0eR3 is a statement about the disk and not about a blind reader.**
+The measured output of that invocation is reproduced verbatim below.
+
+```
+checked  2026-09-04T01:37:21Z   HEAD 6f11612e
+
+TARGET                     run dir     STATUS.* count
+K0eR3_runs                 ABSENT      0
+K0eR2_runs                 PRESENT     2
+K0f_runs                   PRESENT     20
+K0e_runs                   PRESENT     1
+
+queue entries naming K0eR3, anywhere under verification/queue/:
+  0
+  SAME reader, same tree, searching for a string KNOWN present (K0eR2):
+  6
+
+THE PLANTED CONTROL: the directory reader returned ABSENT on K0eR3_runs
+and PRESENT on three siblings; the STATUS counter returned 0 on K0eR3
+and non-zero on K0eR2_runs/K0f_runs/K0e_runs; the queue grep returned 0
+for K0eR3 and NON-ZERO for K0eR2 over the SAME tree.  Every reader is
+demonstrably able to see a non-zero, so every zero above is a statement
+about the disk.  ZERO CORE-MINUTES HAVE BEEN SPENT AGAINST K0eR3.
+```
+
+*Addendum by a heat-transfer lane, 2026-09-04. No verdict is assigned by
+this addendum, nothing was launched or queued, and nothing was sent —
+submissions are PARKED.*
