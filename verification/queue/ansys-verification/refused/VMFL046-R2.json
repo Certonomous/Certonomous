@@ -1,0 +1,36 @@
+{
+  "team": "ansys-verification",
+  "case_id": "VMFL046-R2",
+  "prereg_commit": "f014449ab8d6702bc2f0a7b2d3dd7782135884d5",
+  "prereg_path": "cases/ansys_verification/VMFL046-R2/PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/ansys_verification/VMFL046-R2/run_vmfl046_r2.sh",
+    "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL046-R2"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL046-R2",
+  "ranks": 1,
+  "cost_core_min_estimate": 92,
+  "cost_basis": "DERIVED from R1's OWN MEASURED per-level actuals for the same configuration -- L1 0.94 / L2 5.11 / L3 21.89 core-min (total 27.94), read from each level's final ExecutionTime and verified by the supervisor against the run artifacts. Scaled x3 for the R2 endTime of 60000 (R1 ran 20000), giving 83.82, plus a stated 10% instrumentation margin for the refining sampler (nPoints 321/641/1281 vs R1's flat 400) = 92.20; FILED 92, a round-down (-0.2%). This deliberately avoids R1's 2.33x miss, whose cause was diagnosed at charter section 27.3: R1 priced a run under residualControl and then removed residualControl in the same document, so its estimate described a different workload than the one that ran. Here the basis is the measured actual OF THE CONFIGURATION BEING RE-RUN and the single workload change (endTime x3) is applied explicitly. Section 27's opposite trap -- a cap at ~3x an UNDER-filed estimate strangling its own run after the compute is spent -- is avoided from the other side: the 276 cap sits 9.9x above R1's whole-triple measured actual, and per-level caps 9.3/50.6/216.7 mean an L1 or L2 overrun cannot consume L3's budget. Serial, RANKS=1, matching R1 exactly so the actuals transfer. ~$0.079 DERIVED at $0.0513/core-h c7a.4xlarge, owner-stated -- NOT measured; the box cannot read its own billing (COMPUTE_BUDGET_CHARTER section 5).",
+  "memory_floor_gb": 1.0,
+  "enqueued_by": "ansys-verification-supervisor. Section 3 check 4 taken PERSONALLY on freeze commit f014449a: I ran --selftest myself (38 arms, ALL PASS, rc 0) and ran --paths against the REAL R1 run root myself (MISSING: 0, rc 0), which is L-484's requirement that a comparator be shown to read paths the solver actually writes -- last night a freeze was lost because a selftest passed on fabricated arrays while the instrument read two filenames that ZERO code paths write. I also verified all 11 case/ files exist and that the driver references nothing absent (section 38.1, after I froze a launcher whose base/ did not exist and bash -n did not catch it, because bash -n checks syntax and never path existence). No open gate question remains (section 11.2): the ceiling is ruled GATE REACHED, not PASS, and I confirmed no PASS verdict is reachable anywhere in the comparator. The driver self-verifies every frozen file against HEAD's blob and ABORTS if any R2 case input differs from R1's, so the numerics-unchanged claim is enforced rather than asserted. VMFL046R2_ENDTIME and VMFL046R2_SMOKE are NOT set in launch_cmd -- a bare argv with no env override -- so the graded default endTime 60000 and SAMPLEINT 500 apply and the Clause-B smoke overrides cannot leak into the graded run.",
+  "_obligation": "Charter section 37.4, adopted from VERIFICATION_CHARTER section 2am.10: 'The obligation to re-run VMFL046 under a registration whose finest level reaches a measured plateau SURVIVES this ruling and is owed by ansys-verification.' Row #54's NOT A RESULT may not be cited as an absence of failure. This run discharges the compute half of that obligation.",
+  "_prediction": "NOT PREDICTED, deliberately. R1's settled L1 (+1.73%) and L2 (-4.06%) BRACKET the 5% threshold, and the current unsettled L3 reading of 1.1507 m sits -7.94% out. If R2's settled x_shock misses 1.250 m by more than 5%, the GATE FAIL returns. That is a live and reachable outcome and this registration does not flinch from it.",
+  "_field_classes": {
+    "physics_critical": [
+      "RUN_RC (rc captured inside the detached wrapper)",
+      "each level's log End line, endTime fields, and the 0/ age guard",
+      "the plateau limbs P1/P2/P3 on x_shock",
+      "the Roache triple on x_shock"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.utc",
+      "LAUNCH_LOG.tsv row",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342, and Sanaa's universal rule of 2026-08-26 that bookkeeping never voids physics)"
+  }
+}
