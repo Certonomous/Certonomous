@@ -899,3 +899,232 @@ is a fact about the tool, it is registered here for cross-team citation, and it
 is **reported, not gated** — no verdict in this record moves on it.
 
 **NOTHING IN THIS ITEM IS FILED, SENT, UPLOADED OR POSTED ANYWHERE.**
+
+---
+---
+
+# ADDENDUM 5 — CORRECTION — 2026-09-04 — `a1wr_cmd.sh` MANUFACTURES `rc = 0` FROM A MARKER COUNT AND DISCARDS THE PRODUCER'S OWN EXIT STATUS. §15's SECOND `G-COMPLETE` IMPLEMENTATION CAN OVERRULE THE FIRST, AND ON THREE UNITS IT DID.
+
+**`lines whose number changed above this section: 0`**
+
+Nothing above this line has been edited, struck, renumbered or reflowed. This
+addendum is appended only.
+
+**ZERO COMPUTE. NOTHING RE-GRADED, NOTHING RE-RUN, NO CONTAINER OR QUEUE ENTRY
+TOUCHED.** Every figure below is read from files already on disk — the frozen
+instruments in this case directory and the preserved run roots — each cited by
+path and line.
+
+**`a1wr_cmd.sh` IS NOT EDITED BY THIS ADDENDUM.** It is a frozen instrument
+(`A1WR_STAGE12_MD5.txt`, md5 `eba014f2c538611d2249c3fcf9b3ddd7`) and its md5 is
+asserted on both sides of the copy by every launcher that stages it. **The defect
+below is REPORTED, NOT REPAIRED** (`CLAUDE.md` rule 6). Repair is the
+supervisor's decision and it is not taken here.
+
+**NO VERDICT IN THIS RECORD MOVES.** A1WR remains **`NOT A RESULT`** on §0's
+three independent grounds, none of which is touched by anything below. This is a
+**disclosure repair** — the same class as `curriculum_D4_SHIPPED_F3SR/RESULTS.md`
+CORRECTIONS 2, 3 and 5 — and its whole content is that a reader of this record's
+ledgers was entitled to know something the record did not say.
+
+## 19. THE DEFECT, MEASURED
+
+**THE GAP THIS CLOSES.** §15 of this record lists **two** implementations of
+`G-COMPLETE` and treats them as one gate found in two places:
+
+| the §15 table says | the line |
+|---|---|
+| `a1wr_runScript_incomp.py:357-362` | `AOA_SWEEP_TRUNCATED n_declared=%d n_executed=%d -- NOT a completion`, then `exit(97)` |
+| `a1wr_cmd.sh:68-71` | `A1WR_COUNTS declared=… point_end_markers=…`, counted off `^AOA_POINT_END ` |
+
+**They are not one gate in two places. They are two gates that count different
+things, the outer one runs last, and the outer one wins.** §15 did not say so,
+and this record's ledgers carry the consequence.
+
+### 19.1 The producer's exit status is captured, displayed, and then never read
+
+`a1wr_cmd.sh:63-66` runs the producer under `timeout`, takes its status into
+`SRC`, and prints it:
+
+    timeout -k 60 "$A1WR_TMO" \
+      python /mnt/runScript.py -task sweep > /mnt/out/sweep.log 2>&1
+    SRC=$?
+    echo "A1WR_SWEEP_RC rc=$SRC log=/mnt/out/sweep.log"
+
+**`grep -n SRC a1wr_cmd.sh` returns exactly two lines — `:65` and `:66`.** The
+string does not occur anywhere else in the file. `SRC` is never compared, never
+propagated, and never returned.
+
+### 19.2 The wrapper's own exit status is a marker count, and the marker is printed for a point that crashed
+
+The wrapper's status is decided at `a1wr_cmd.sh:97-102` for the sweep modes:
+
+    if [ "$EXEC" -eq "$DECLARED" ]; then
+      echo "A1WR_ALL_POINTS_EXECUTED declared=$DECLARED"
+      exit 0
+    fi
+    echo "A1WR_TRUNCATED declared=$DECLARED executed=$EXEC -- NOT a completion"
+    exit 97
+
+`EXEC` comes from `:68`, `grep -c '^AOA_POINT_END '`. **In the producer that
+marker is printed OUTSIDE the try/except**, at `a1wr_runScript_incomp.py:340`,
+after the `except Exception as _e:` limb at `:328` has already run; the success
+counter `_executed += 1` is at `:327`, **inside** the `try`, reached only if
+`prob.run_model()` returned. So:
+
+> **`AOA_POINT_END` counts points ATTEMPTED. `n_executed` counts points that
+> produced a number. `a1wr_cmd.sh` grades on the first and the producer exits on
+> the second, and the wrapper's answer is the one the kernel reports.**
+
+The `PROBE` branch at `:89-94` is the same construction with two extra
+conjuncts — `[ "$EXEC" = "1" ]` **and** `PRC = 0` **and** a parseable
+`patch wing y+` line — so it, too, takes `EXEC` for a completion and discards
+`SRC`.
+
+### 19.3 It fired, and the evidence is one unit's own log
+
+`A1WRT` unit `alpha12_symmetry` staged this exact file — the launcher asserts
+`MD5_CMD=eba014f2c538611d2249c3fcf9b3ddd7` on both sides of the copy
+(`a1wrt_run_unit.sh:79`, `:533-538`) and `/home/ubuntu/certonomous-runs/A1WRT/cmd.sh`
+carries that md5 today. Its container log, verbatim, in the order printed:
+
+    A1WR_SWEEP_RC rc=97 log=/mnt/out/sweep.log
+    A1WR_COUNTS declared=1 point_end_markers=1 converged_lines=0 walltreat_lines=1
+    A1WR_ALL_POINTS_EXECUTED declared=1
+
+and the sweep log the count was taken from, at `:1151-1154`:
+
+    AOA_POINT_VALUES idx=0 alpha=12.0 CL=NA CD=NA wall_s=3256.8602 err=AnalysisError("… Primal solution failed!")
+    AOA_POINT_END    idx=0 alpha=12.0
+    AOA_SWEEP_END       n_declared=1 n_executed=0 json=/mnt/out/points.json
+    AOA_SWEEP_TRUNCATED n_declared=1 n_executed=0 -- NOT a completion
+
+**The single declared point produced `CL=NA CD=NA` and an `AnalysisError`. The
+producer declared the unit truncated and exited 97. The container exited 0**
+— `inspect(exit,oomkilled)=[0 false]` in that item's ledger — **and the ledger row
+reads `rc=0 … point_end_markers=1`.**
+
+> **`CLAUDE.md` rule 4's first condition is `rc = 0`. Here `rc = 0` was
+> MANUFACTURED by the wrapper from a count that cannot distinguish a point that
+> solved from a point that raised. The completion rule was defeated, and the
+> authoritative exit status was captured, displayed and discarded.**
+
+The launcher is not at fault and is named so it is not blamed: `a1wrt_run_unit.sh:708`
+takes the kernel's verdict from `docker inspect .State.ExitCode`, exactly as it
+should, and writes it to the `out/rc` artefact the frozen grader reads. **It
+faithfully recorded a number the wrapper had already manufactured.**
+
+## 20. THE REACH, ENUMERATED — AND THE ANSWER IS "NO PUBLISHED NUMBER", WHICH IS LUCK
+
+### 20.1 Every ledger row in this family whose `rc = 0` this wrapper could have manufactured
+
+The scope is every ledger row whose `rc` field was produced by `a1wr_cmd.sh` or
+by a staged copy carrying its md5. **There are ten such rows on disk, in two
+ledgers. Three carry `rc = 0`. All three are enumerated, and all three are
+MEASURED to be manufactured — this is not a "could have":**
+
+| ledger | row | ledger `rc` | producer's own `A1WR_SWEEP_RC` | mode | manufactured? |
+|---|---|---|---|---|---|
+| `A1WR/STAGE12/CHAIN_LEDGER.tsv` | `probe_I` | **0** | **97** | PROBE | **YES** |
+| `A1WR/STAGE12/CHAIN_LEDGER.tsv` | `probe_C` | **0** | **97** | PROBE | **YES** |
+| `A1WR/STAGE12/CHAIN_LEDGER.tsv` | `cold_I_4` | 97 | — | COLD | no — `rc ≠ 0` |
+| `A1WR/STAGE12/CHAIN_LEDGER.tsv` | `cold_I_14` | 97 | — | COLD | no — `rc ≠ 0` |
+| `A1WR/STAGE12/CHAIN_LEDGER.tsv` | `cold_I_17` | 97 | — | COLD | no — `rc ≠ 0` |
+| `A1WR/STAGE12/CHAIN_LEDGER.tsv` | `cold_C_4` | 97 | — | COLD | no — `rc ≠ 0` |
+| `A1WR/STAGE12/CHAIN_LEDGER.tsv` | `cold_C_14` | 97 | — | COLD | no — `rc ≠ 0` |
+| `A1WR/STAGE12/CHAIN_LEDGER.tsv` | `cold_C_17` | 97 | — | COLD | no — `rc ≠ 0` |
+| `A1WRT/ledger.txt` | `alpha12_symmetry` | **0** | **97** | COLD | **YES** — §19.3 |
+| `A1WRT/ledger.txt` | `tail_empty` | 97 | — | CONTINUED | no — `rc ≠ 0` |
+
+`sweep_I` and `sweep_C` have **no ledger rows at all**: the poweroff at
+02:25:05Z killed both containers before the unit-end block ran (§1, §15).
+
+**The two PROBE rows are a different case from the third and the record must not
+flatten them.** `a1wr_cmd.sh:14-21` REGISTERS the producer's failure as the
+expected outcome — *"The primal is EXPECTED to end in DAFoam's 'Primal solution
+failed!' AnalysisError — that is the registered no-convergence-claim of section 5
+Stage 1, not a defect"* — so for a probe, `SRC = 97` is the predicted value and
+discarding it is a design choice made in writing before the run. **What is still
+wrong there is narrower and is a disclosure defect, not a gate defect: the ledger
+row says `rc=0` and carries no channel saying the producer returned 97.** The row
+is not self-describing, and a reader applying rule 4 to it reads a `0` that was
+never the producer's.
+
+**`A1WRT`'s `alpha12_symmetry` is the real defeat.** Its mode is `COLD`, not
+`PROBE`; no registration predicts an `AnalysisError` there; and the wrapper
+returned 0 on a unit whose only point produced no number.
+
+### 20.2 Does any published number depend on one of those `rc = 0` values? — **NO**, and the reader that says so was first shown able to say YES
+
+**THE PLANTED CONTROL, RUN FIRST (`CLAUDE.md` rule 3).** A reader that has only
+ever returned "no rc dependence" is not evidence that none exists. The same
+search — for a read of an `rc` artefact, an `ExitCode`, or a ledger `rc` field —
+was run over three grading instruments, and it is **shown returning a NON-ZERO
+answer before any zero from it is accepted**:
+
+| instrument | rc dependence found? | where |
+|---|---|---|
+| **`a1wrt_read.py`** — the KNOWN POSITIVE | **YES, 2 sites** | `:965` `rc_path = run / "tail_empty" / "out" / "rc"`; `:825` control `K5`, which asserts the `rc` clause fires |
+| `a1wr_stage1_gate.py` (167 lines) | **none** | the token does not occur |
+| `a1wr_read.py` (667 lines) | **none** | the token does not occur |
+
+**The reader can see rc dependence. It sees none in either of A1WR's two frozen
+grading instruments.**
+
+**What that establishes, and what it does not.** No number published in this
+record — the 13-point arm-I polar of §3, the y+ readings of §7 and
+`stage1_gate.json`, the compressible-arm findings of §5, the budget arithmetic of
+§6 — passes through the `rc` field of a manufactured row. `a1wr_stage1_gate.py`
+takes the Stage-1 decision from the probe cases' **y+ bytes on disk** and from
+nothing else; `a1wr_chain_driver.sh` launches Stage 2 on **that gate's** status
+(`:222-232`) and never inspects a probe container's exit code; `a1wr_read.py`
+adjudicates neither `rc` nor completion (§15's surviving narrow finding).
+
+*Two adjacent facts, stated so the "no" is not over-read.* (i) The published
+Stage-1 y+ numbers and the Stage-1 spend of 31.75 core-min **do** come from those
+two probe units — they depend on the ROWS; the claim here is only that no number
+depends on the ROWS' `rc` VALUE. (ii) The timeline at `:49` of this record reads
+*"Stage-1 gate `rc=0`"*. **That is the gate SCRIPT's own exit status** (`GRC`,
+`a1wr_chain_driver.sh:223`), not a container's, and it is unaffected. The
+collision of vocabulary is a reader hazard and is named here rather than left.
+
+### 20.3 **AND THIS IS LUCK, NOT DESIGN. SAID PLAINLY.**
+
+No published A1WR number is contaminated **because A1WR's grading path never
+implemented rule 4's `rc` clause at all.** The same omission that let a
+manufactured `rc = 0` pass unnoticed is the only reason it reached nothing: a
+gate that does not read `rc` cannot be misled by a wrong one.
+
+**Nothing in this record's construction prevented the contamination. Had
+`a1wr_read.py` implemented the `rc` clause — as `a1wrt_read.py:965` does, and as
+rule 4 requires — the three rows above would have entered a verdict as
+completions.** A1WRT is the demonstration that this is not hypothetical: it wrote
+the `rc` artefact its grader reads, and the value it wrote for
+`alpha12_symmetry` is a manufactured `0`. That grader currently reads only the
+tail unit's `rc`, so it did not consume the manufactured one **this time**.
+
+**A record must not be allowed to bank an accident as a defence.**
+
+## 21. WHAT THIS ADDENDUM DOES AND DOES NOT DO
+
+| # | claim | status |
+|---|---|---|
+| 1 | `a1wr_cmd.sh` captures the producer's exit status at `:65`, prints it at `:66`, and never consults it | **MEASURED** — `grep -n SRC` returns those two lines and no others |
+| 2 | The wrapper's own exit status is decided by a marker count (`:97-102`; `:89-94` for `PROBE`) | **MEASURED** — the named lines |
+| 3 | `AOA_POINT_END` is printed for a point that raised | **MEASURED** — `a1wr_runScript_incomp.py:340` sits outside the `try`, `:327` inside it |
+| 4 | A unit whose producer returned 97 exited 0 and was ledgered `rc=0` | **MEASURED** — `A1WRT` `alpha12_symmetry`, log and ledger row |
+| 5 | Three `rc=0` rows exist in this family and all three were manufactured | **MEASURED** — the §20.1 table, ten rows enumerated |
+| 6 | No published number depends on the `rc` value of any of them | **MEASURED**, with the planted control of §20.2 shown returning a positive first |
+| 7 | The wrapper is defective **in general**, on any other item | **NOT ESTABLISHED AND NOT CLAIMED HERE.** The same discard-and-recount shape is present in `a1ze_cmd.sh:117-120,136,140` and `aoa_cmd.sh:74,114,117`; those are **different files with different md5s**, they are named as a lead and not graded, and no verdict of theirs is touched by this addendum |
+
+**It does not edit, patch or propose wording for `a1wr_cmd.sh`**, which is frozen
+and whose repair is the supervisor's call. **It does not move A1WR's verdict**,
+which remains `NOT A RESULT` on §0's grounds. **It does not re-open §15**, whose
+central holding — that `G-COMPLETE` *is* implemented, and that the earlier
+accusation of non-implementation was false — stands; §19 sharpens §15 by showing
+that its two named implementations can disagree and that the outer one decides.
+**It re-grades nothing and re-runs nothing.**
+
+**Nothing in this item or this record is filed, sent, emailed, uploaded, posted
+or commented outside this box, now or ever** (`CLAUDE.md` rule 7;
+`DAFOAM_CHARTER.md` §10). **SUBMISSIONS PARKED.**
