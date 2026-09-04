@@ -28,31 +28,48 @@
 # ==========================================================================
 set -u
 SELF="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REG_END=9000          # the reference's own endTime; K0e matches it exactly
+REG_END=9000          # the reference's own endTime; the K0eR3 arms match it
 REG_RANKS=2           # the reference's own decomposition; M4 requires it
+D0_END=200            # K0eR3's determinism twins, registered at 200 iterations
 
 usage() { cat >&2 <<'U'
-usage: launch_k0e.sh --arm FP_T10|FP_T00 --root DIR --timeout SECONDS
-                     [--ranks 2] [--reference DIR] [--foam-bashrc PATH] [--no-detach]
-  --arm       the registered K0e arm
-  --root      K0e_runs; the case is built at <root>/<arm>, STATUS at <root>/STATUS.<arm>
+usage: launch_k0e.sh --arm FP_T10|FP_T290|FP_T00|D0_A|D0_B --root DIR --timeout SECONDS
+                     [--end-time N] [--ranks 2] [--reference DIR]
+                     [--foam-bashrc PATH] [--no-detach]
+  --arm       the registered arm.  K0eR3 launches FP_T10, FP_T290, D0_A, D0_B.
+              FP_T00 is K0eR2's retired zero-dT arm and is REFUSED below.
+  --root      K0eR3_runs; case at <root>/<arm>, STATUS at <root>/STATUS.<arm>
   --timeout   the arm's registered per-run CAP, converted: cap_core_min x 60 / ranks
+  --end-time  controlDict endTime AND writeInterval.  9000 for FP_T10/FP_T290,
+              200 for D0_A/D0_B.  Defaults to 9000.
 U
 exit 2; }
 
-ARM=""; ROOT=""; TIMEOUT_S=""; RANKS=$REG_RANKS; DETACH=1
+ARM=""; ROOT=""; TIMEOUT_S=""; RANKS=$REG_RANKS; DETACH=1; END_TIME=$REG_END
 SOLVER=buoyantBoussinesqSimpleFoam
 REFERENCE=/home/ubuntu/certonomous-runs/tmr-flatplate-finer
 FOAM_BASHRC=/usr/lib/openfoam/openfoam2606/etc/bashrc
 while [ $# -gt 0 ]; do case "$1" in
   --arm) ARM="${2:-}"; shift 2;; --root) ROOT="${2:-}"; shift 2;;
   --timeout) TIMEOUT_S="${2:-}"; shift 2;; --ranks) RANKS="${2:-}"; shift 2;;
+  --end-time) END_TIME="${2:-}"; shift 2;;
   --reference) REFERENCE="${2:-}"; shift 2;;
   --foam-bashrc) FOAM_BASHRC="${2:-}"; shift 2;; --no-detach) DETACH=0; shift;;
   *) usage;; esac; done
 [ -n "$ARM" ] && [ -n "$ROOT" ] && [ -n "$TIMEOUT_S" ] || usage
-case "$ARM" in FP_T10|FP_T00) ;; *) echo "REFUSE: unregistered arm '$ARM'" >&2; exit 2;; esac
+case "$ARM" in
+  FP_T10|FP_T290|D0_A|D0_B) ;;
+  FP_T00) echo "REFUSE: FP_T00 is K0eR2's zero-dT arm and is RETIRED. It is degenerate by design -- T = 300 is simultaneously its initial condition and its exact solution, its residual normaliser degenerates to round-off, and it was measured needing ~2696 core-min against a 105.00 cap. K0eR3 replaces it with FP_T290 (dT = -10 K) and re-homes the zero-flux control onto the grader's Z1/Z2/Z3 planted controls at zero solver compute. See docs/campaigns/F14-cooling-ladder/K0eR3_PREREGISTRATION.md section 4." >&2; exit 2;;
+  *) echo "REFUSE: unregistered arm '$ARM'" >&2; exit 2;;
+esac
 case "$TIMEOUT_S" in ''|*[!0-9]*) echo "REFUSE: --timeout must be integer seconds" >&2; exit 2;; esac
+case "$END_TIME" in ''|*[!0-9]*|0) echo "REFUSE: --end-time must be a positive integer" >&2; exit 2;; esac
+# The registration fixes each arm's endTime.  A twin run at the wrong endTime
+# would still complete and would silently not be the registered run.
+case "$ARM" in
+  FP_T10|FP_T290) [ "$END_TIME" = "$REG_END" ] || { echo "REFUSE: $ARM is registered at endTime $REG_END; --end-time=$END_TIME" >&2; exit 2; };;
+  D0_A|D0_B)      [ "$END_TIME" = "$D0_END" ]  || { echo "REFUSE: the D0 determinism twins are registered at endTime $D0_END; --end-time=$END_TIME" >&2; exit 2; };;
+esac
 [ "$RANKS" = "$REG_RANKS" ] || { echo "REFUSE: K0e is registered at $REG_RANKS ranks -- the momentum control M4 compares PROCESSOR-LOCAL fields against a 2-rank reference and is meaningless at any other rank count; --ranks=$RANKS" >&2; exit 2; }
 [ -d "$REFERENCE" ] || { echo "REFUSE: no reference case $REFERENCE" >&2; exit 2; }
 
@@ -86,7 +103,8 @@ fi
 if [ "$DETACH" = "1" ] && [ "${K0E_DETACHED:-}" != "1" ]; then
     mkdir -p "$ROOT/launch/$ARM"
     K0E_DETACHED=1 exec setsid "$0" --arm "$ARM" --root "$ROOT" --timeout "$TIMEOUT_S" \
-        --ranks "$RANKS" --reference "$REFERENCE" --foam-bashrc "$FOAM_BASHRC" \
+        --ranks "$RANKS" --end-time "$END_TIME" --reference "$REFERENCE" \
+        --foam-bashrc "$FOAM_BASHRC" \
         --no-detach </dev/null >>"$ROOT/launch/$ARM/log.launch" 2>&1 &
     echo "launched K0e $ARM detached; STATUS will appear at $STATUS"; exit 0
 fi
@@ -96,7 +114,7 @@ T0=0
 write_status() {  # rc wall note
     tmp="$STATUS.tmp.$$"
     printf 'rc=%s wall=%s checkMesh_rc=na timeout_s=%s ranks=%s solver=%s solver_path=%s case=%s arm=%s note=%s endTime=%s reconstruct_rc=%s cellcentres_rc=%s started_utc=%s ended_utc=%s\n' \
-        "$1" "$2" "$TIMEOUT_S" "$RANKS" "$SOLVER" "${SOLVER_PATH:-unresolved}" "$ARM" "$ARM" "$3" "$REG_END" "${RECON_RC:-na}" "${CC_RC:-na}" \
+        "$1" "$2" "$TIMEOUT_S" "$RANKS" "$SOLVER" "${SOLVER_PATH:-unresolved}" "$ARM" "$ARM" "$3" "$END_TIME" "${RECON_RC:-na}" "${CC_RC:-na}" \
         "$(date -u -d "@${T0:-0}" +%Y-%m-%dT%H:%M:%SZ)" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$tmp"
     mv -f "$tmp" "$STATUS"
 }
@@ -109,7 +127,8 @@ SOLVER_PATH="$(command -v "$SOLVER" 2>/dev/null || true)"
 
 # --- build (its own age guard refuses a tree that already holds an answer) --
 if ! python3 "$SELF/build_k0e.py" --arm "$ARM" --reference "$REFERENCE" \
-        --out-root "$ROOT" --foam-bashrc "$FOAM_BASHRC" >>"$LOGDIR/log.build" 2>&1; then
+        --out-root "$ROOT" --end-time "$END_TIME" \
+        --foam-bashrc "$FOAM_BASHRC" >>"$LOGDIR/log.build" 2>&1; then
     echo "REFUSE: build_k0e.py failed for $ARM; no solver started, no STATUS written; see $LOGDIR/log.build" >&2; exit 2; fi
 [ -f "$CASE_DIR/0/T" ] || { echo "REFUSE: no 0/T after build -- the age guard would have no datum" >&2; exit 2; }
 

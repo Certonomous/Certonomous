@@ -26,12 +26,20 @@ time directory.  A run is never built into a tree that already holds an answer.
 Nothing here grades anything.  No verdict is assigned by this file.
 """
 
+import sys
+
+# No .pyc may land beside a pinned build path: a stale __pycache__ has been
+# measured to invert a mutation test in this lab (clean control failing while
+# the mutated case passed).  PYTHONDONTWRITEBYTECODE set in the environment is
+# not relied on, because this file may be invoked by a launcher that does not
+# set it.
+sys.dont_write_bytecode = True
+
 import argparse
 import os
 import re
 import shutil
 import subprocess
-import sys
 
 EXIT_REFUSE = 2
 
@@ -49,10 +57,35 @@ G_VECTOR = "(0 0 0)"  # buoyancy removed again, independently
 ARMS = {
     # arm id      T_inf,  T_wall
     "FP_T10": ("300", "310"),   # thermal arm, dT = 10 K
-    "FP_T00": ("300", "300"),   # zero-dT control, dT = 0 K exactly
+    "FP_T00": ("300", "300"),   # zero-dT control, dT = 0 K exactly -- K0eR2's,
+                                # RETIRED by K0eR3 as degenerate by design and
+                                # KEPT HERE so the rule-14 guard below has a
+                                # baseline to check against.  K0eR3 does not
+                                # build it.
+    # ---- INSERTED BY K0eR3, NEVER REPLACING AN ENTRY (standing rule 14) -----
+    "FP_T290": ("300", "290"),  # cooled arm, dT = -10 K.  M4b's second operand.
+    "D0_A": ("300", "310"),     # determinism twin A -- IDENTICAL spec to FP_T10
+    "D0_B": ("300", "310"),     # determinism twin B -- IDENTICAL spec to D0_A
 }
 
+# STANDING RULE 14: a libs/table entry is INSERTED WITH AN ASSERT, NEVER
+# REPLACED, and the lesson is not applied until EVERY CALL SITE asserts it.
+# This baseline is the K0eR2-registered content of ARMS, frozen at
+# docs/campaigns/F14-cooling-ladder/K0eR2_PREREGISTRATION.md section 4.3.  The
+# check below is an EXPLICIT REFUSAL WITH A MESSAGE and not a bare `assert`
+# (L-332): a bare assert vanishes under `python -O` and takes the guard with it.
+ARMS_BASELINE_K0eR2 = {
+    "FP_T10": ("300", "310"),
+    "FP_T00": ("300", "300"),
+}
+
+# The K0eR3 determinism twins must remain BYTE-IDENTICAL in spec to each other
+# and to FP_T10, or D0 stops being a determinism test and becomes a comparison
+# of two different problems.
+D0_TWINS = ("D0_A", "D0_B")
+
 REF_DEFAULT = "/home/ubuntu/certonomous-runs/tmr-flatplate-finer"
+REG_END_TIME_DEFAULT = 9000
 
 HEADER = """/*--------------------------------*- C++ -*----------------------------------*\\
 | K0e arm field, written by scripts/build_k0e.py                              |
@@ -71,6 +104,42 @@ FoamFile
 def refuse(msg):
     print("REFUSE: " + msg)
     sys.exit(EXIT_REFUSE)
+
+
+def arms_intact_or_refuse():
+    """STANDING RULE 14, AT EVERY CALL SITE.
+
+    The K0eR3 arms were INSERTED into ARMS.  This refuses if that insertion
+    ever becomes a replacement -- if a baseline entry disappears, or if its
+    registered (T_inf, T_wall) pair moves.  A silent replacement would rebuild
+    a K0eR2 arm at a K0eR3 temperature and nothing downstream would notice.
+
+    It also refuses if the two determinism twins ever stop being identical to
+    each other or to FP_T10, because D0 is only a determinism test while they
+    are the SAME problem run twice."""
+    for name, spec in sorted(ARMS_BASELINE_K0eR2.items()):
+        if name not in ARMS:
+            refuse(f"standing rule 14: registered arm {name!r} has been REMOVED "
+                   f"from ARMS.  The K0eR3 arms were inserted, never as a "
+                   f"replacement; refusing rather than building against a table "
+                   f"that no longer matches the registration.")
+        if ARMS[name] != spec:
+            refuse(f"standing rule 14: registered arm {name!r} now reads "
+                   f"{ARMS[name]!r} where the K0eR2 registration fixes {spec!r}. "
+                   f"An entry was REPLACED, not inserted; refusing.")
+    for twin in D0_TWINS:
+        if twin not in ARMS:
+            refuse(f"standing rule 14: determinism twin {twin!r} is absent from "
+                   f"ARMS; D0 cannot be built.")
+        if ARMS[twin] != ARMS["FP_T10"]:
+            refuse(f"D0 twin {twin!r} reads {ARMS[twin]!r} where FP_T10 reads "
+                   f"{ARMS['FP_T10']!r}.  The twins must be the SAME problem as "
+                   f"each other and as FP_T10, or D0 measures a difference in "
+                   f"the problem rather than in the solver; refusing.")
+    if ARMS[D0_TWINS[0]] != ARMS[D0_TWINS[1]]:
+        refuse(f"the two D0 twins differ: {ARMS[D0_TWINS[0]]!r} vs "
+               f"{ARMS[D0_TWINS[1]]!r}.  D0 would then be a comparison of two "
+               f"different problems and could not test determinism; refusing.")
 
 
 def is_time_dir(name):
@@ -127,9 +196,12 @@ def write_field(case, tdir, obj, cls, dims, internal, patches):
     return path
 
 
-def build(arm, ref, out_root, foam_bashrc):
+def build(arm, ref, out_root, foam_bashrc, end_time=REG_END_TIME_DEFAULT):
+    arms_intact_or_refuse()   # STANDING RULE 14 -- CALL SITE 1 of 2
     if arm not in ARMS:
         refuse(f"unknown arm {arm!r}; registered arms are {sorted(ARMS)}")
+    if not isinstance(end_time, int) or end_time <= 0:
+        refuse(f"--end-time must be a positive integer; got {end_time!r}")
     t_inf, t_wall = ARMS[arm]
     case = os.path.join(out_root, arm)
 
@@ -221,6 +293,26 @@ def build(arm, ref, out_root, foam_bashrc):
                     "application     buoyantBoussinesqSimpleFoam;")
     if "buoyantBoussinesqSimpleFoam" not in cd:
         refuse("controlDict rewrite did not take")
+    # endTime, and writeInterval WITH IT.  The reference carries
+    # `endTime 9000; writeInterval 9000;`, so a shortened run that moved only
+    # endTime would write NO FIELDS AT ALL and produce a case the completion
+    # rule could never pass.  Both are rewritten together, and both rewrites
+    # are verified rather than trusted.
+    if end_time != REG_END_TIME_DEFAULT:
+        cd2 = re.sub(r"(?m)^endTime\s+[0-9]+\s*;\s*$",
+                     f"endTime         {end_time};", cd)
+        cd2 = re.sub(r"(?m)^writeInterval\s+[0-9]+\s*;\s*$",
+                     f"writeInterval   {end_time};", cd2)
+        if not re.search(r"(?m)^endTime\s+%d\s*;\s*$" % end_time, cd2):
+            refuse(f"controlDict endTime rewrite to {end_time} did not take; "
+                   f"refusing rather than running to the reference's own "
+                   f"endTime under a registration that asked for {end_time}.")
+        if not re.search(r"(?m)^writeInterval\s+%d\s*;\s*$" % end_time, cd2):
+            refuse(f"controlDict writeInterval rewrite to {end_time} did not "
+                   f"take.  A run whose writeInterval exceeds its endTime "
+                   f"writes no fields and can never satisfy clause 4 of the "
+                   f"strict completion rule; refusing.")
+        cd = cd2
     if "writeCompression" not in cd:
         cd = cd.replace("writeFormat     ascii;",
                         "writeFormat     ascii;\nwriteCompression off;")
@@ -309,6 +401,7 @@ def build(arm, ref, out_root, foam_bashrc):
 
     print(f"BUILT {case}")
     print(f"  arm            {arm}  (T_inf={t_inf} K, T_wall={t_wall} K)")
+    print(f"  endTime        {end_time}  (writeInterval set to match)")
     print(f"  reference      {ref}")
     print(f"  processors     {len(ref_procs)} (decomposition COPIED, not re-derived)")
     print(f"  beta={BETA}  g={G_VECTOR}  Pr={PR}  Prt={PRT}  nu={NU}")
@@ -316,14 +409,20 @@ def build(arm, ref, out_root, foam_bashrc):
 
 
 def main():
+    arms_intact_or_refuse()   # STANDING RULE 14 -- CALL SITE 2 of 2.  The guard
+    # runs BEFORE argparse builds its `choices` from ARMS, because a replaced
+    # entry would otherwise be offered to the caller as a legitimate choice.
     ap = argparse.ArgumentParser()
     ap.add_argument("--arm", required=True, choices=sorted(ARMS))
     ap.add_argument("--reference", default=REF_DEFAULT)
     ap.add_argument("--out-root", required=True)
+    ap.add_argument("--end-time", type=int, default=REG_END_TIME_DEFAULT,
+                    help="controlDict endTime AND writeInterval.  9000 for the "
+                         "K0eR3 arms; 200 for the D0 determinism twins.")
     ap.add_argument("--foam-bashrc",
                     default="/usr/lib/openfoam/openfoam2606/etc/bashrc")
     a = ap.parse_args()
-    return build(a.arm, a.reference, a.out_root, a.foam_bashrc)
+    return build(a.arm, a.reference, a.out_root, a.foam_bashrc, a.end_time)
 
 
 if __name__ == "__main__":
