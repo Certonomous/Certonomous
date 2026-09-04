@@ -1487,6 +1487,40 @@ def gate_p_figure_data(ref, cfd_by_level, meta_by_level, d1):
             "and still interleaves; that is a graded channel and changing it is a gate "
             "question, not a lane's."),
         "D1": d1,
+        # AMENDMENT 23, THE SUPERVISOR'S RULING: "ANY Cp-versus-station figure this campaign
+        # produces MUST carry that disclosure beside it."  It is BUILT FROM THE D1 RECORD
+        # THIS CALL JUST COMPUTED, not asserted as a constant, so it cannot describe a state
+        # the data no longer has -- and if a future reference IS monotone the text changes
+        # with it and control C12b goes red in the same breath.
+        "A_MAP_STATION_ORDERING_DISCLOSURE": {
+            "D1_verdict_on_this_reference": d1["verdict"],
+            "Cn_by_section": d1["Cn_by_section"],
+            "strictly_decreasing": d1["strictly_decreasing"],
+            "strictly_increasing": d1["strictly_increasing"],
+            "ordering_resolved_by_D1": d1["verdict"] in ("CORROBORATED", "FALSIFIED"),
+            "DISCLOSURE": (
+                "D1's premise is that the section normal-force series is MONOTONE in span, "
+                "so that reversing it flips the direction and reveals the ordering. THE "
+                "REGISTERED REFERENCE IS NOT MONOTONE IN EITHER DIRECTION, so D1 returns "
+                "INDETERMINATE and THE A-MAP STATION ORDERING IS UNRESOLVED BY D1. This "
+                "figure's station labels are therefore the A_MAP assumption, NOT a measured "
+                "ordering. A MISLABELLED SPAN STATION PRODUCES A SMOOTH, BELIEVABLE AND "
+                "WRONG FIGURE, which is why this disclosure travels with the data rather "
+                "than living only in the registration. Section 16.4 keeps A-MAP REPORTED, "
+                "NOT GATED -- that is a gate decision and it is NOT a licence to present "
+                "the deliverable as if the ordering were known."),
+            "what_would_settle_it": (
+                "A SECOND, INDEPENDENT DISCRIMINATOR MONOTONE IN SPAN. Candidates NAMED AND "
+                "NOT BUILT (Amendment 23 is explicit that building one here is out of "
+                "scope): local chord length, which falls monotonically root-to-tip on a "
+                "tapered wing and is readable from the surface geometry rather than from "
+                "the Cp column; and leading-edge x-station, which advances monotonically "
+                "with span under this wing's sweep. BOTH ARE GEOMETRIC AND THEREFORE "
+                "INDEPENDENT OF THE Cp DATA D1 SHARES WITH GATE P -- which is the "
+                "circularity D1 already discloses. NEITHER IS IMPLEMENTED, NEITHER IS "
+                "REGISTERED AS A DISCRIMINATOR, AND NOTHING HERE CLAIMS THE ORDERING IS "
+                "SETTLED."),
+        },
         "experimental": exp,
         "cfd_by_level": {lv: {str(k): v for k, v in cfd_by_level[lv].items()}
                          for lv in cfd_by_level},
@@ -2498,8 +2532,9 @@ def controls(scratch, mutate=None):
     _rec("C11", ok11, "a corrupted reference produces a REFUSAL, never a silent fallback")
 
     # ---- C12: a scratch reference whose seven sections are REVERSED -> FALSIFIED ------
-    ok12 = ok13 = False
-    v12 = v13 = None
+    ok12 = ok13 = ok12b = False
+    v12 = v13 = v12b = None
+    _cn_real, _n_turns, base_v = [], 0, None
     if os.path.exists(src10):
         real = read_case_2308(src10, verify_hash=False)
         rev = {"sections": {i + 1: real["sections"][7 - i]
@@ -2510,9 +2545,60 @@ def controls(scratch, mutate=None):
         # C12 IS IMPLEMENTED TO THE LETTER OF SECTION 10, WHICH REGISTERS ITS MUST-SEE AS
         # "FALSIFIED".  It is NOT loosened to the control's purpose clause.  Loosening a
         # registered control so that it passes is how a fail-open gets a green tick.
-        ok12 = (v12 == "FALSIFIED")
+        #
+        # ===============================================================================
+        # AMENDMENT 23 -- THE FIXTURE MOVES; THE MUST-SEE DOES NOT.
+        #
+        # THE DEFECT, MEASURED.  C12's fixture was the REAL AGARD reference, reversed, and
+        # its must-see is FALSIFIED.  FALSIFIED requires the reversed series to be STRICTLY
+        # INCREASING, which requires the as-read series to be STRICTLY DECREASING.  The
+        # registered reference is NOT monotone in either direction -- measured Cn by section
+        # 1..7 = 0.23956 0.27849 0.29470 0.26381 0.22297 0.17844 0.21051, rising 1->3,
+        # falling 3->6, rising 6->7 -- so both it and its reversal return INDETERMINATE and
+        # the must-see was UNSATISFIABLE WITH THE REGISTERED FIXTURE.  That is a property of
+        # the DATA, not a defect in d1_discriminator(): the comparator's own
+        # d1_branch_reachability() shows all three branches reachable.
+        #
+        # THE SUPERVISOR'S RULING, APPLIED LITERALLY: keep the must-see at FALSIFIED and
+        # give the control data CAPABLE OF PRODUCING IT.  "That LOOSENS NOTHING: the control
+        # still demands the same verdict; it is simply given data capable of producing it."
+        # The reversed-AGARD case is NOT dropped -- it becomes C12b below, asserting the
+        # verdict that is TRUE for that data.  The suite gains a limb rather than losing one.
+        # ===============================================================================
+        # A SYNTHETIC REFERENCE WITH AN EXACTLY-CONTROLLED, STRICTLY DECREASING Cn SERIES.
+        # Each section is a closed rectangular loop: Cp = -A along the upper leg (x 0 -> 1),
+        # Cp = 0 along the lower (x 1 -> 0).  The closed-loop trapezoidal integral is then
+        # exactly -A, so Cn = -(-A) = A and the series IS the A list, by construction rather
+        # than by fitting.  A reader can check the arithmetic without running anything.
+        _c12_A = [0.70, 0.60, 0.50, 0.40, 0.30, 0.20, 0.10]
+        _c12_sections = {
+            i + 1: [(1, 0.0, 0.0, -a), (2, 1.0, 0.0, -a), (3, 1.0, 0.0, 0.0),
+                    (4, 0.0, 0.0, 0.0)]
+            for i, a in enumerate(_c12_A)}
+        mono = {"sections": _c12_sections, "titles": real["titles"],
+                "n_sections": 7, "n_taps_total": 28}
+        mono_rev = {"sections": {i + 1: _c12_sections[7 - i] for i in range(7)},
+                    "titles": real["titles"], "n_sections": 7, "n_taps_total": 28}
+        d_mono = d1_discriminator(mono)
+        d_mono_rev = d1_discriminator(mono_rev)
+        v12 = d_mono_rev["verdict"]
+        # THE MUST-SEE, UNCHANGED -- and a POSITIVE TWIN beside it, because a fixture that
+        # could only ever produce FALSIFIED would prove nothing about the discriminator.
+        # The SAME data unreversed must read CORROBORATED, so the fixture is shown able to
+        # produce BOTH directed verdicts and FALSIFIED is not an artifact of its shape.
+        ok12 = (v12 == "FALSIFIED" and d_mono["verdict"] == "CORROBORATED")
         base_v = d1_discriminator(real)["verdict"]
         detail["C12_as_read_verdict"] = base_v
+        detail["C12_synthetic_Cn"] = [round(d_mono["Cn_by_section"][k], 6)
+                                      for k in sorted(d_mono["Cn_by_section"],
+                                                      key=lambda s: int(s))]
+        # ---- C12b's readings, taken here so both limbs read ONE evaluation of the data.
+        d_real = d1_discriminator(real)
+        v12b = d1_discriminator(rev)["verdict"]          # the REAL reference, REVERSED
+        _cn_real = [d_real["Cn_by_section"][k]
+                    for k in sorted(d_real["Cn_by_section"], key=lambda s: int(s))]
+        _n_turns = sum(1 for i in range(1, len(_cn_real) - 1)
+                       if (_cn_real[i + 1] > _cn_real[i]) != (_cn_real[i] > _cn_real[i - 1]))
         # ---- C13: all seven sections carrying the SAME CP block -> INDETERMINATE -----
         same = {"sections": {i + 1: list(real["sections"][1])
                              for i in range(len(real["sections"]))},
@@ -2525,10 +2611,35 @@ def controls(scratch, mutate=None):
     if mutate == "C13":
         ok13 = False
     _rec("C12", ok12,
-         f"as-read reference -> D1 returns {detail.get('C12_as_read_verdict')}; reversed "
-         f"reference -> D1 returns {v12}. Section 10 registers C12's MUST-SEE as FALSIFIED. "
-         "Reversing a NON-MONOTONE Cn series leaves it non-monotone, so when the as-read "
-         "data is INDETERMINATE this control CANNOT fire as written. Reported, NOT loosened.")
+         f"THE MUST-SEE IS UNCHANGED AT FALSIFIED; THE FIXTURE MOVED (Amendment 23). A "
+         f"SYNTHETIC reference with an exactly-constructed strictly-decreasing Cn series "
+         f"{detail.get('C12_synthetic_Cn')} -- each section a closed rectangular Cp loop "
+         f"whose integral is -A by arithmetic, so the series IS the A list -- reads "
+         f"CORROBORATED unreversed and {v12} REVERSED. The POSITIVE TWIN is what makes the "
+         f"must-see mean something: the same data produces BOTH directed verdicts, so "
+         f"FALSIFIED is not an artifact of the fixture's shape. THE OLD FIXTURE WAS THE REAL "
+         f"AGARD REFERENCE AND ITS MUST-SEE WAS UNSATISFIABLE: that series is non-monotone, "
+         f"so it and its reversal both read {detail.get('C12_as_read_verdict')}. Nothing was "
+         f"loosened -- the control demands the same verdict and was given data capable of "
+         f"producing it.")
+    # ---- C12b: THE REAL REFERENCE, REVERSED -> INDETERMINATE.  THE LIMB C12 USED TO BE. --
+    # It is KEPT, not dropped, and it now asserts the verdict that is TRUE for that data.
+    # This is the control that pins the finding under the finding: D1 CANNOT SETTLE THE
+    # A-MAP STATION ORDERING ON THE REGISTERED REFERENCE, because that reference's Cn series
+    # is not monotone in either direction.  If the reference ever changes to a monotone one,
+    # THIS control goes red and the campaign is told, rather than discovering it at Gate P.
+    ok12b = (v12b == "INDETERMINATE" and base_v == "INDETERMINATE")
+    if mutate == "C12b":
+        ok12b = False
+    _rec("C12b", ok12b,
+         f"the REAL registered reference reads {base_v} as-read and {v12b} REVERSED -- and "
+         f"INDETERMINATE is the TRUE answer for it, not a failure. Cn by section 1..7 = "
+         f"{[round(x, 6) for x in _cn_real]}, which RISES 1->3, FALLS 3->6 and RISES 6->7 "
+         f"({_n_turns} direction changes), so it is monotone in NEITHER direction and "
+         f"reversing it changes nothing. CONSEQUENCE, REGISTERED RATHER THAN LEFT TO BE "
+         f"FOUND AT GATE P: D1 DOES NOT SETTLE THE A-MAP STATION ORDERING ON THIS DATA. Any "
+         f"Cp-versus-station figure this campaign produces carries that disclosure, because "
+         f"a mislabelled span station yields a smooth, believable and wrong figure.")
     _rec("C13", ok13, f"seven identical sections -> D1 returns {v13}: the third branch is "
                       "REACHABLE")
 
@@ -3431,7 +3542,8 @@ def main(argv):
                            "C21", "C22", "C23", "C24",
                            "C25", "C26", "C27", "C28",        # Amendment 19
                            "C29", "C30",                      # Amendment 20, item 47
-                           "C31"):                            # Amendment 21, item 48
+                           "C31",                             # Amendment 21, item 48
+                           "C12b"):                           # Amendment 23, the D1 finding
                 if target in baseline_red:
                     reds[target] = None                 # cannot mutate an already-red control
                     continue
