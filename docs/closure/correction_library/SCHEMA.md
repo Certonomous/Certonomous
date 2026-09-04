@@ -115,3 +115,87 @@ A rung-3 exhaustion claim is legal only when every entry with `status: REPRODUCE
 every flow-class match that was excluded **named with its reason**. The claim reads *"all known
 closures in the library at manifest sha S"* — never *"all known closures"*. Entries at
 `REGISTERED` or `IMPLEMENTED` in a matching flow class are listed as **untried**.
+
+---
+
+## Addendum 1, 2026-09-04 — v1.0 → v1.1. FIVE GAPS FOUND BY THE FIRST IMPLEMENTATION, NOT BY REVIEW
+
+**Lines whose number changed above this section: 0.** Nothing above is edited. v1.0's clauses all
+stand; this addendum ADDS the fields v1.0 required a checker to enforce without giving an entry any
+way to state them. **The gaps were found by building the checker, which is the only way this class
+of gap is ever found** — a schema is not testable by reading it.
+
+**1. The `structural.*` declarations — v1.0 refused four pairings that no v1.0 field could express.**
+§4 refuses `fvOptions-source` on an anisotropy correction and §7 refuses bands, post-hoc field
+corrections and per-case switching — but every one of those is a *physics* property, and v1.0 gave
+the entry no key to declare it. **REQUIRED, added:** `structural.modifies_anisotropy_tensor`
+(`yes`/`no`), `structural.is_uncertainty_band`, `structural.is_post_hoc_field_correction`,
+`structural.is_per_case_switching`, `structural.planted_zero_verdict` (`PASS`/`FAIL`/`none`).
+**Declared by the author, never inferred by regex.** A pattern over `equation_form` cannot tell
+*"adds a term to b_ij"* from *"does not modify b_ij"* — the same tokens appear in both and a
+negation inverts the meaning. **A checker that gets physics silently wrong is ARCHITECTURE §0's
+failure (ii) wearing a green tick.** Declared, a wrong assertion is attributable, diffable and
+falsifiable; inferred, it is a hidden heuristic nobody audits.
+
+**2. `family` may be a LIST.** v1.0 said "one of `a`..`f`", singular, and the very first entries
+refute it: SpaRTA is **a+e**, SST-QCRC is **f+b**. A scalar or a list of the same vocabulary is
+valid; every member is checked.
+
+**3. `validation_cases` is SPLIT, because dropping a paper's own guard case makes an entry look
+better than it is.** v1.0 conflated *"case ids on disk"* with *"what the paper validated on"*.
+SpaRTA's converging-diverging channel and SST-QCRC's **ZPG flat plate** have no id in the §3
+vocabulary, and the flat plate is precisely the **generalisation guard** — the case showing the
+correction does not break attached flow. Dropping it silently flatters the entry.
+- `validation_cases` — **on-disk artifact ids only**, §3 vocabulary. What backs a claim here.
+- `paper_validation_cases` — **free text**, REQUIRED: everything the paper validated on, including
+  cases this lab does not hold. **No id is ever coined for a case we do not have.**
+
+**4. `evidence_about_correction` is retained.** §6 makes `REFUTED-IN-REPRODUCTION` *"NO as evidence
+FOR, YES as evidence ABOUT"*, which one boolean cannot carry. The generator emits both; both are
+computed from `status` and neither is readable from an entry.
+
+**5. "Schema complete" in §6 is DEFINED.** It was the ambiguity that blocked the first entry.
+`equation_form` must cite an **equation number AND a page**, or carry the literal token
+`UNVERIFIED`. `UNVERIFIED` **blocks `REPRODUCED`** and surfaces as `equation_form_unverified: true`
+in `library.json`. **An entry that admits a gap outranks one that overstates**, and all three
+Phase-1 entries carry that flag honestly today.
+
+**Enforced by** `cases/RANS_LES_closure_models/_common/build_correction_library.py` (57 selftest
+arms, every rule asserted twice — a valid entry it must PASS and that one rule mutated, which it
+must REFUSE — plus two planted IO controls: `library.json` is not written when any entry is
+invalid, **and the same writer is shown to write for a valid set**, because a refusal-to-write that
+cannot be shown to write is not evidence). **Suite run by the supervisor, not relayed: 57/57, rc 0.**
+Its first run was 37/55 and found a real defect in itself: a `_missing=object()` default argument
+bound a different object than the module-level sentinel, so **every absent key read as present** and
+the missing-key rule was dead. That is what the arms are for.
+
+## Addendum 2, 2026-09-04 — v1.1 → v1.2. `model_type_name` NAMES THIS ENTRY'S PAPER'S MODEL, OR IT IS `none`
+
+**Lines whose number changed above this section: 0.**
+
+**Occasioned by a defect the supervisor found in the first Phase-1 set, in an entry that was
+otherwise honest.** The SpaRTA entry declared `model_type_name: kOmegaSSTSparta` — a model that
+genuinely is built on this box and whose symbol genuinely resolves — while its own
+`contraindications` correctly warned that the built library carries **this lab's R4-discovered
+coefficients** (`R4_sparta_build/MODEL.json`), **not Schmelzer's published ones**.
+
+**The warning was true, and it was in the wrong place.** It lived in prose; `model_type_name` is a
+**machine** field, and the rung-3 candidate filter reads `library.json`, not the commentary. The
+record therefore said *run `kOmegaSSTSparta`* to every reader that matters, and a lane doing exactly
+that would have produced a Schmelzer verdict from a model Schmelzer never published —
+**ARCHITECTURE §0's failure (ii), reached with no bug anywhere, purely by a plausible name match.**
+
+> **THE RULE: `model_type_name` names the model that implements THIS ENTRY'S PAPER. If the only
+> built model with a matching name implements different equations or different coefficients,
+> `model_type_name` is `none` and the near miss is recorded in `near_miss_built_model` (new,
+> optional) and argued in `contraindications`. The symbol table proves a model is LOADABLE; it
+> proves NOTHING about WHICH model it is.**
+
+**This is the same trap in two other places, and both were already handled correctly:**
+`kOmegaSSTQCR` is built but implements the constitutive relation only — **not the field-inversion ω
+correction that is the "C" in QCRC** — so the SST-QCRC entry carries `none`; and TBRF has no
+compiled model at all.
+
+**A prose caveat is not a control.** Where an entry's honest warning and its machine field
+disagree, **the machine field is what the lab will act on**, and the schema must not permit the
+disagreement.

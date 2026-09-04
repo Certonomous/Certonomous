@@ -160,3 +160,83 @@ family (b) before hills family (e). Each carries its own cost estimate under rul
   exception list reconstructed from source.
 - The 33 canonical closure PDFs were **not** independently re-title-page-verified; the manifest's
   recorded strings were relied on for those. Only the two Addendum-3 files were verified afresh.
+
+---
+
+## 6. CORRECTION TO §2 AND §5 OF THIS DOCUMENT, 2026-09-04 — I OVERSTATED WHAT WE HOLD ON THE LEADERBOARD
+
+**Struck, quoted from §2:** ~~"(f) closure-challenge corrections | **method papers of all four top
+leaderboard entries held and title-verified** | **COMPLETE for the current leaderboard**"~~ and from
+§1's hump row: ~~"only via family (f)"~~ read as though family (f) were four usable corrections.
+
+**What is actually true, measured by the supervisor with a live positive control.** The rank-1
+paper we hold — `reissmann_fang_ooi_sandberg_gpem2025_2409.07369.pdf`, correctly retrieved and
+title-page verified as *"Constraining Genetic Symbolic Regression via Semantic Backpropagation"* —
+**contains no turbulence closure at all.** Over 83,859 extracted characters: `Reynolds` **0**,
+`anisotrop` **0**, `eddy visc` **0**, `Navier` **0**, `turbulen` **0**. **The zero is evidence, not
+a broken reader:** the same reader in the same invocation returns `Reynolds` **16** and `anisotrop`
+**7** on Schmelzer. Its sections are Symbolic Regression, Semantic Backpropagation, and a
+**Feynman-lectures** benchmark. It is a *symbolic-regression methods* paper; the turbulence
+application is a different paper.
+
+**McConkey's leaderboard cites rank 1 as [17, 18].** [17] is the held methods paper. **[18] is
+Weatheritt & Sandberg 2016, JCP 325:22–37 — the stress–strain modification — and IT IS NOT HELD.**
+
+**And the file that appears to be it is a different field entirely.**
+`docs/papers/closure/_WRONG_RETRIEVALS/Weatheritt2016_evolutionary_rans.pdf` prints, on page 1,
+*"On the Distinction of Functional and Quality Requirements in Practice"*, Eckhardt, Vogelsang &
+Méndez Fernández, arXiv:1611.08830 **[cs.SE]** — a software-engineering requirements survey.
+**Right author string, right year, right-looking filename, wrong discipline. L-144 in its purest
+form**, and it is why "we hold the top four" was wrong: the corpus contains a plausible-looking
+file for the missing half.
+
+**Consequences, and none of them are cosmetic:**
+1. **Family (f) is NOT complete.** Rank 1's closure half is missing. **Retrieval priority is raised:
+   Weatheritt & Sandberg 2016 (JCP 325:22–37) joins Priority 1 of §2's register.**
+2. **The rank-1 entry is BLOCKED, not written.** `equation_form`, `claimed_effect`,
+   `validation_cases`, `install_stanza` and `model_type_name` are all unsourceable from [17];
+   `validation_cases` has no honest value in the §3 vocabulary at all, because [17]'s validation
+   set is **Feynman equations**. Filed as `ENTRY_BLOCKED_f_gpsr_reissmann2025.md`, one level above
+   `entries/` so the builder cannot parse it into the library. **An entry was not made to fit.**
+3. **The hump gets weaker again, not stronger.** §1 already measured the hump as the thinnest of the
+   three F6 cases; its only route was family (f), and family (f) has now lost its top entry.
+   **The duct-first recommendation is strengthened by this correction, which is exactly why I am
+   recording the correction rather than the convenience.**
+
+## 7. TWO §5 ITEMS DISCHARGED — AND THE DUCT PREMISE IS NOW CITED RATHER THAN ASSERTED
+
+**Struck from §5:** ~~"Whether `Spalart2000` contains QCR2000 — unresolved, and no entry may cite
+it until read."~~ **It does.** Verified by the supervisor: the nonlinear constitutive relation is
+carried as an unnumbered displayed equation, printed **p. 253**, with `cnl1 = 0.3` and a
+square-channel demonstration. **The acronym "QCR" never appears** — the paper's own phrase is
+*"nonlinear constitutive relation"* — which is why the sidecar search for "quadratic constitutive"
+returned zero, **and why that zero was not absence.** The prohibition is lifted; entries may cite it.
+
+**And this converts §1's reason 1 from my domain knowledge into a citation.** §1 flagged, in
+capitals, that the qualitative duct premise was **MY DOMAIN KNOWLEDGE, NOT A MEASUREMENT ON THIS
+BOX**. Spalart states it himself, p. 253, verbatim: with the nonlinear term *"flow is induced
+towards the corners, and the skin friction is much closer to experiment (Gessner et al., 1991)."*
+**It remains an untested premise ON THIS BOX — a citation is not a measurement, and rung 1 still
+owes the SST duct solve — but it is no longer uncited.**
+
+**Its contraindication, quoted from the same page, and it goes straight into the entry:**
+*"However, other flows such as 3D wall jets have led to negative results (A.N. Secundov, personal
+communication, 1999)."* **A correction library without contraindications is a footgun; this is what
+one looks like when the author supplies it.**
+
+## 8. THE TRAP THAT WOULD HAVE MANUFACTURED A FALSE LADDER RESULT
+
+**`kOmegaSSTQCR` is built on this box and its symbol is registered — and it is NOT SST-QCRC.** It
+implements the constitutive relation only, **not the field-inversion ω correction that is the "C"
+in QCRC** and that produced the challenge result. **Running it and recording the outcome as
+SST-QCRC would report a ladder verdict for a model that never ran** — ARCHITECTURE §0's failure
+(ii), reached not by a bug but by a plausible name match. The entry therefore carries
+`model_type_name: none`.
+
+**The same shape applies to SpaRTA:** `kOmegaSSTSparta` is built, but carries **this lab's own
+R4-discovered coefficients** (`R4_sparta_build/MODEL.json`, frozen 2026-08-22), **not Schmelzer's**.
+Running it cannot advance the Schmelzer entry toward `REPRODUCED`.
+
+> **THE RULE THIS GENERALISES TO: a built library whose NAME matches an entry is not that entry's
+> implementation until its EQUATIONS and COEFFICIENTS are checked against the entry's own paper.
+> The symbol table proves a model is loadable; it proves nothing about which model it is.**

@@ -1,0 +1,156 @@
+{
+ "builder_extension": "1.1-draft-structural-block",
+ "entries": [
+  {
+   "band_interaction": "acts_on_k_magnitude",
+   "claimed_effect": "The paper's own claim, quoted from the abstract, printed p. 1: \"The predictions of the discovered models are significantly improved over the k-omega SST also for a true prediction of the flow over periodic hills at Re=37000.\" And, from the results discussion (printed p. 22 region, §4): \"Most of the models show a good or even substantial improvement over the baseline. But, for the set of models, only providing a correction for b_ij^Delta, most but not all lead to an improvement of the resulting velocity field. In contrast to that, if only a correction for R is deployed, the result is a consistent, substantial improvement across all test cases.\" Model discovery and cross-validation were performed on \"three cases of separating flows, i.e. periodic hills (Re=10595), converging-diverging channel (Re=12600) and curved backward-facing step (Re=13700)\" (abstract, p. 1). NOTE: the paper's claims here are QUALITATIVE (\"significantly improved\", \"substantial\"); this lane did not extract a numeric error reduction, and none should be quoted until it does.",
+   "contraindications": "FOUR, three of them stated by the paper itself.\n(1) THE BUILT LIBRARY CARRIES THE LAB'S COEFFICIENTS, NOT SCHMELZER'S. `kOmegaSSTSparta` is built and registered (`nm -DC libspartaTurbulenceModels.so` shows `RASModels::kOmegaSSTSparta`, read by this lane 2026-09-04), but the discovered model it is paired with on this box is the LAB'S OWN, frozen at cases/RANS_LES_closure_models/R4_sparta_build/MODEL.json (frozen_at 2026-08-22, preregistration_sha256 058444309f87a9e1f6faccca2086bf16364df7a06bb7702d155c35b1fcacbbe8), whose R model is {T1, I1*T1, I2*T1, I2^2*T1} and whose bDelta model is {T2, I2*T2, T3}. Those are not Schmelzer's published expressions. A run of `kOmegaSSTSparta` as it stands therefore tests the LAB'S model, not this entry's paper, and cannot advance this entry towards REPRODUCED. Reaching REPRODUCED requires installing Schmelzer's OWN published coefficients on Schmelzer's OWN case against Schmelzer's OWN reference.\n(2) b^Delta MAY NEED SCALING TO CONVERGE AT ALL. The paper, verbatim: \"b_ij^Delta needs to be scaled with xi = 0.1 to achieve convergence, see Section 3.3\". A correction that must be damped by a factor of ten to run is a stability contraindication, and any reproduction must report the xi actually used.\n(3) THE b^Delta CORRECTION ALONE OFTEN DOES NOT HELP. Verbatim: \"for the set of models, only providing a correction for b_ij^Delta, most but not all lead to an improvement of the resulting velocity field.\"\n(4) COMBINING BOTH CORRECTIONS IS NOT UNIFORMLY BETTER. Verbatim: \"Using both a model for b_ij^Delta and R leads to a further improvement, except for test case CBFS13700.\" And the paper reports its own selection surprise: \"Surprisingly, the best model per test case is not always identified on the associated training data.\"",
+   "cost_estimate_core_min": "none",
+   "equation_form": "SpaRTA adds TWO additive model-form corrections to k-omega SST, both discovered by sparse symbolic regression. Transcribed from docs/papers/closure/Schmelzer2020_algebraic_reynolds.pdf.\n(1) AUGMENTED CONSTITUTIVE RELATION -- Eq. (3), printed p. 5:\n    b_ij = -(nu_t / k) S_ij + b_ij^Delta\nwhere, from Eq. (2), printed p. 5, tau_ij = 2k ( b_ij + (1/3) delta_ij ), and the baseline is the linear relation b_ij^o = -(nu_t / k) S_ij. b_ij^Delta is the residual of the baseline constitutive relation given high-fidelity data -- the paper's \"model-form error\" -- and is the term SpaRTA regresses.\n(2) AUGMENTED k AND omega TRANSPORT -- Eqs. (4) and (5), printed p. 5:\n    d_t k   + U_j d_j k   = P_k + R - beta* omega k + d_j[ (nu + sigma_k nu_t) d_j k ]\n    d_t om  + U_j d_j om  = (gamma / nu_t)(P_k + R) - beta om^2\n                            + d_j[ (nu + sigma_om nu_t) d_j om ] + CD_kom\nwith the production itself augmented by b^Delta (printed p. 5, verbatim):\n    P_k = 2k ( b_ij^o + b_ij^Delta ) d_j U_i ,   nu_t = a_1 k / max(a_1 omega, S F_2)\nR is the residual of the k equation, extracted by the paper's own \"k-corrective-frozen-RANS\" procedure (printed p. 5).\n(3) THE ANSATZ THE REGRESSION SEARCHES -- Eq. (8), printed p. 6, the Pope (1975) integrity basis:\n    b_ij(S_ij, Omega_ij) = SUM_{n=1..N} T_ij^(n) alpha_n( I_1, ..., I_5 )\nwith S_ij = tau (1/2)( d_j U_i + d_i U_j ), Omega_ij = tau (1/2)( d_j U_i - d_i U_j ), timescale tau = 1/omega, and alpha_n the scalar coefficient functions that elastic-net symbolic regression makes sparse (printed p. 6, verbatim: \"The Cayley-Hamilton theorem then dictates that the most general form of the anisotropic part of the Reynolds-stress can be expressed as\").\nUNVERIFIED -- needs equation-level read: the SPECIFIC discovered expressions for b_ij^Delta and R published by Schmelzer et al. (their per-case model table, later in the paper) were not transcribed by this lane. Only the model FORM above was read. The numbers currently on this box are the LAB'S OWN discovered coefficients, not Schmelzer's -- see contraindications (1).",
+   "equation_form_unverified": true,
+   "evidence_about_correction": false,
+   "failure_mode": "loud",
+   "family": [
+    "a",
+    "e"
+   ],
+   "flow_class": [
+    "separation_2d",
+    "Re_extrapolation",
+    "geometry_transfer_fixed_Re"
+   ],
+   "id": "a_sparta_schmelzer2020",
+   "install_class": "compiled-library",
+   "install_stanza": "RAS\n{\n    RASModel        kOmegaSSTSparta;\n    turbulence      on;\n    printCoeffs     on;\n}\n",
+   "ladder_evidence": false,
+   "libs_required": [
+    "libspartaTurbulenceModels.so"
+   ],
+   "libs_route": "ensure_libs",
+   "libs_route_justification": "none",
+   "model_type_name": "none",
+   "near_miss_built_model": "kOmegaSSTSparta",
+   "provenance": {
+    "equations": "Eqs. (2), (3), (4), (5) on printed p. 5 and Eq. (8) on printed p. 6 of Schmelzer2020_algebraic_reynolds.pdf. Printed page numbers were confirmed by extracting single PDF pages and reading the page footers, not inferred.",
+    "path": "docs/papers/closure/Schmelzer2020_algebraic_reynolds.pdf",
+    "title_page_quote": "\"arXiv:1905.07510v2 [physics.comp-ph] 28 Feb 2020 / Discovery of Algebraic Reynolds-Stress Models Using Sparse Symbolic Regression. / Martin Schmelzer / Richard P. Dwight / Paola Cinnella\" -- verbatim from page 1, read by closure lab-lane (laneC) on 2026-09-04 via `pdftotext -f 1 -l 1`. Page 1 also carries the author-supplied publication pointer: \"Flow Turbulence Combustion 104, 579603 (2020). https://doi.org/10.1007/s10494-019-00089-x\". NOTE: a SECOND copy of this paper is held at docs/papers/data_driven_rans/schmelzer_dwight_cinnella_ftac2020_s10494-019-00089-x.pdf; this entry cites the docs/papers/closure/ copy, which is the one this lane read.",
+    "title_page_verified": "yes"
+   },
+   "source_file": "entries/a_sparta_schmelzer2020.md",
+   "source_sha256": "49c9d5f8e8c5ee8d60e20d6ce6e196340d9dbc7b89a26cbabec3ba4f87673dc8",
+   "status": "REGISTERED",
+   "structural": {
+    "is_per_case_switching": "no",
+    "is_post_hoc_field_correction": "no",
+    "is_uncertainty_band": "no",
+    "modifies_anisotropy_tensor": "yes",
+    "planted_zero_verdict": "none"
+   },
+   "validation_cases": [
+    "PH_Breuer:PHLL10595",
+    "CBFS:CBFS13700"
+   ],
+   "what_it_cannot_see": "The ansatz (Eq. 8) is a LOCAL algebraic function of S_ij, Omega_ij and their five invariants, so it is blind to everything not encoded in the local mean-velocity gradient: history, upstream separation state, and non-local pressure effects. Eq. (8) as written takes no wall distance and no pressure-gradient input, so it cannot distinguish a shear layer from a boundary layer with the same local invariants. Its training set is three 2-D separating flows -- it has never seen a square duct, which is where this library's first ladder target sits, and secondary flow of the second kind depends on normal-stress anisotropy in a corner geometry absent from all three training cases. Finally, `R` is fitted as a residual of the k equation: it absorbs whatever the baseline got wrong, including numerical and data error, and cannot distinguish those from a genuine model-form deficiency."
+  },
+  {
+   "band_interaction": "does_not",
+   "claimed_effect": "The paper's own claims, quoted. Abstract, printed p. 1: \"The algorithm is trained on several flow cases using DNS/LES data, and used to predict the Reynolds stress anisotropy tensor for new, unseen flows. ... Results are compared to the neural network approach of Ling et al. [J. Fluid Mech, 807(2016):155-...]\". Abstract, printed p. 1: \"...square duct flow case and a backward facing step flow case show good agreement with DNS and experimental data-sets.\" On realizability, printed p. 34: \"In all our studies, we have never observed unrealizable predictions from TBRF, despite no explicit realizability constraint being imposed on the method\" -- and, in the same passage, TBNN achieves its competing accuracy \"at the cost of some unrealizable predictions closest to the wall.\" NOTE: these are QUALITATIVE claims (\"good agreement\"); this lane extracted NO numeric error reduction and none should be quoted until it does. The training/test split is the paper's Table 2, printed p. 28 region, which this lane did not transcribe.",
+   "contraindications": "FOUR.\n(1) NOT INSTALLABLE ON THIS BOX. No TBRF turbulence model exists here. The four user libraries built in FOAM_USER_LIBBIN register, by symbol table read with `nm -DC` on 2026-09-04, only `kOmegaSSTQCR`, `kOmegaSSTCorrected`, `kOmegaSSTFrozen` and `kOmegaSSTSparta`. TBRF additionally needs a trained forest at run time, which is not a coefficient set but a serialised model artifact, and it needs the paper's custom solver. `model_type_name` is `none` and `libs_required` is empty for that reason, and this entry cannot pass IMPLEMENTED until both exist.\n(2) THE SOLVER DOES NOT CONVERGE WITHOUT DELIBERATE STABILISATION, by the paper's own statement. Abstract, printed p. 1, verbatim: \"Stabilization of this solver is necessary, and is achieved by a continuation method and a modified k-equation.\" A propagated-anisotropy RANS solve is not a drop-in; any reproduction must report the continuation schedule and the k-equation modification actually used, and a failure to converge without them is expected behaviour, not a finding.\n(3) A NAMED FAILURE IN THE SHEAR LAYER, which the authors do not explain. Printed p. 34, verbatim: \"Moving away from the wall into the shear layer TBRF erroneously heads too far back towards the two-component boundary at the sections closest to the step. The reason for this is unclear, at similar (shear-layer) locations in the training flows, the turbulence does not exhibit such behaviour. Furthermore TBNN is reasonably accurate here. Diagnostic tools are needed, and will be a focus of future research.\" This is a contraindication for near-separation shear layers specifically.\n(4) A RANDOM FOREST DOES NOT EXTRAPOLATE. INFERRED, not stated by the paper: a tree ensemble predicts by averaging training targets in a leaf, so outside the convex range of its training features it returns the boundary of what it has seen rather than a trend. Applying TBRF at Reynolds numbers or geometries outside its training set is therefore contraindicated on method grounds. Marked INFERRED and not to be cited as the paper's claim.",
+   "cost_estimate_core_min": "none",
+   "equation_form": "TBRF predicts the Reynolds-stress ANISOTROPY TENSOR directly from the local mean flow, on Pope's (1975) integrity basis, and the predicted anisotropy is then used as the turbulence model inside a RANS solve. Transcribed from docs/papers/closure/Kaandorp2020_random_forests.pdf.\n(1) THE TENSOR-BASIS REPRESENTATION -- Eq. (8), printed p. 15:\n    b = h(S, R) = SUM_{m=1..10} T^(m)(S, R) * g^(m)( theta_1, ..., theta_5 )\nverbatim from p. 15: \"where g^(m) are scalar functions of the invariants theta_i. The basis tensors derived from S and R are (Pope, 1975)\", with T^(1) = S, T^(2) = SR - RS, ..., T^(6) = R^2 S + S R^2 - (2/3) I * trace(S R^2), ... S is the normalised mean strain-rate tensor and R the normalised mean rotation-rate tensor.\n(2) WHAT IS LEARNED. The g^(m) are NOT a closed-form expression: they are the output of a Tensor Basis Random Forest -- an ensemble of tensor-basis decision trees, each leaf holding constant values for the ten coefficients (printed p. 18 region: \"For the TBDT, constant values are chosen for the tensor basis coefficients\"), obtained by \"setting the derivative of J with respect to g^(m) in each bin to zero\" for \"the optimum value for the 10 tensor basis coefficients\" (printed p. 19 region). The prediction combines trees by a median rather than a mean over the forest (p. 21 region: \"Instead of taking the mean over all the tensor basis decision trees, it ...\").\n(3) INPUT FEATURES. The five invariants theta = (theta_1, ..., theta_5) of the tensor basis (Pope 1975), extended in the paper with \"invariants based on grad(u_bar), grad(k), and grad(p)\" (printed p. 16 region: \"This is the system we use in the ...\").\n(4) SOLVER-SIDE REQUIREMENT, from the abstract, printed p. 1, verbatim: \"The resulting predictions of turbulence anisotropy are used as a turbulence model within a custom RANS solver. Stabilization of this solver is necessary, and is achieved by a continuation method and a modified k-equation.\"\nUNVERIFIED -- needs equation-level read: the full ten-term basis T^(1)..T^(10), the explicit definitions of theta_1..theta_5, the objective J, the continuation method and the exact form of the modified k-equation were NOT transcribed by this lane. Only the representation (Eq. 8) and the structural facts above were read. There is no closed-form equation to transcribe for g^(m) BY CONSTRUCTION -- the model is a trained forest, and that is a property of the method, not a gap in this reading.",
+   "equation_form_unverified": true,
+   "evidence_about_correction": false,
+   "failure_mode": "loud",
+   "family": [
+    "a",
+    "e"
+   ],
+   "flow_class": [
+    "square_duct_secondary_flow",
+    "separation_2d",
+    "geometry_transfer_fixed_Re"
+   ],
+   "id": "a_tbrf_kaandorp2020",
+   "install_class": "compiled-library",
+   "install_stanza": "# NOT INSTALLABLE ON THIS BOX TODAY. No TBRF RASModel exists here.\n# The stanza a built implementation would take, recorded so the entry is checkable\n# against `nm -DC` the day it is built:\nRAS\n{\n    RASModel        <tbrfModelName>;   // UNBUILT -- see contraindications (1)\n    turbulence      on;\n    printCoeffs     on;\n}\n",
+   "ladder_evidence": false,
+   "libs_required": [],
+   "libs_route": "ensure_libs",
+   "libs_route_justification": "none",
+   "model_type_name": "none",
+   "provenance": {
+    "equations": "Eq. (8), printed p. 15, of Kaandorp2020_random_forests.pdf (confirmed by extracting single PDF pages: the equation appears on PDF page 15 and nowhere on 14 or 16). Supporting structural statements: abstract, printed p. 1; §2 tensor-basis material, printed pp. 15-21; case list, printed p. 27 region; TBRF-vs-TBNN discussion, printed p. 34 region.",
+    "path": "docs/papers/closure/Kaandorp2020_random_forests.pdf",
+    "title_page_quote": "\"arXiv:1810.08794v2 [physics.flu-dyn] 17 Mar 2020 / Data-Driven Modelling of the Reynolds Stress Tensor using Random Forests with Invariance / Mikael L.A. Kaandorp(a,b), Richard P. Dwight(a) / (a) Aerodynamics, Faculty of Aerospace, Delft University of Technology, 2629 HS, Delft, The Netherlands / (b) Institute for Marine and Atmospheric research Utrecht (IMAU), Utrecht University, 3584 CC, Utrecht, The Netherlands ... Preprint submitted to Computers and Fluids -- March 18, 2020\" -- verbatim from page 1, read by closure lab-lane (laneC) on 2026-09-04 via `pdftotext -f 1 -l 1`. FILENAME CORRECTION: the tasking brief named this file `Kaandorp2020_TBRF.pdf`, which DOES NOT EXIST. The file on disk is `Kaandorp2020_random_forests.pdf`, as INGEST_PLAN records. The title page, not the filename, is what verifies it (L-144).",
+    "title_page_verified": "yes"
+   },
+   "source_file": "entries/a_tbrf_kaandorp2020.md",
+   "source_sha256": "773a3824d19d1646122ca859c8269b5e22b10209503fb178e907124fcb84571d",
+   "status": "REGISTERED",
+   "structural": {
+    "is_per_case_switching": "no",
+    "is_post_hoc_field_correction": "no",
+    "is_uncertainty_band": "no",
+    "modifies_anisotropy_tensor": "yes",
+    "planted_zero_verdict": "none"
+   },
+   "validation_cases": [
+    "PH_Breuer",
+    "CBFS:CBFS13700",
+    "DUCT"
+   ],
+   "what_it_cannot_see": "Eq. (8) is a LOCAL map: b at a point is a function of S, R and their invariants at that point (extended with grad(k) and grad(p)), so TBRF cannot see history, upstream separation state, or any non-local effect. It cannot see anything outside the convex hull of its training features -- see contraindication (4) -- and unlike a symbolic model it offers no expression to inspect, so a wrong prediction cannot be traced to a term. The paper reports the model reaching an incorrect turbulence state in the shear layer and states plainly that \"The reason for this is unclear\" (printed p. 34): the method's own authors could not see why. Its square-duct training data is Pinelli et al. (2010) at Re = 1100 to 3500 on the duct semi-height (printed p. 27 region), so it has not seen the aspect ratios or Reynolds numbers outside that range."
+  },
+  {
+   "band_interaction": "acts_on_k_magnitude",
+   "claimed_effect": "The paper's own claims, quoted. On the training case: \"The [Cf] distribution given by the SST-QCRC model fits the LES data [9] much better compared with the baseline SST model\" (printed p. 3, curved backward-facing step). On the guard case: \"The prediction of the SST-QCRC model is almost identical to the prediction of the SST model. Both models align well with the experiment data [10]. The result indicates that the SST-QCRC model won't affect the baseline SST model's accuracy in simple wall attached flows such as the ZPG flat plate\" (printed p. 3). NOTE: the paper states NO quantitative magnitude for either claim -- \"much better\" and \"almost identical\" are its own words and its figures were not digitised by this lane. The only NUMBER attached to this correction is external to the paper: McConkey et al.'s leaderboard overall score 0.0624 at rank 2 (Table 1, \"as of March 2026\"). For the QCR half specifically, Spalart 2000 p. 253 claims: \"The result in the square duct is quite positive: flow is induced towards the corners, and the skin friction is much closer to experiment (Gessner et al., 1991).\"",
+   "contraindications": "THREE, and the first is a trap this box can spring today.\n(1) SST-QCRC IS NOT INSTALLED ON THIS BOX; ONLY ITS QCR HALF IS. `kOmegaSSTQCR` is built and its symbol is registered (`nm -DC /home/ubuntu/OpenFOAM/ubuntu-v2606/platforms/linux64GccDPInt32Opt/lib/libkOmegaSSTQCRTurbulenceModels.so` shows `RASModels::kOmegaSSTQCR`, read by this lane 2026-09-04). That library implements Eq. (1) -- the quadratic Reynolds-stress term -- and NOT Eqs. (2)-(3), the field-inversion correction to the omega destruction term, which is the half that carries the 'C' in QCRC and the half that produced the CBFS result. Running `RASModel kOmegaSSTQCR` and recording it as SST-QCRC would report a ladder result for a model that never ran: ARCHITECTURE §0 failure (ii) exactly. `model_type_name` is therefore `none` for this entry, not `kOmegaSSTQCR`.\n(2) THE QCR TERM IS CONTRAINDICATED ON 3-D WALL JETS, by its own author. Spalart 2000, printed p. 253, verbatim: \"However, other flows such as 3D wall jets have led to negative results (A.N. Secundov, personal communication, 1999). The cnl1 term must also be considered as very preliminary, in the sense that it uses only one of the many quadratic combinations of strain and vorticity. Also note that it is fully empirical, instead of being derived from a more complex model; we simply selected the most intuitively attractive combination. A systematic optimisation has not been performed.\"\n(3) c_nl1 = 0.3 WAS CALIBRATED ON A BOUNDARY LAYER, NOT ON A DUCT. Spalart 2000, p. 253: the constant \"was calibrated in the outer region of a simple boundary layer, by requiring a fair level of anisotropy u'2 > w'2 > v'2\". Wu & Zhang adopt it unchanged and explicitly do not retrain it (\"No data-driven techniques are used to train the parameters of the correction term\", printed p. 1). Any duct result is therefore an extrapolation of that calibration, not a fit to it.",
+   "cost_estimate_core_min": "none",
+   "equation_form": "TWO modifications to Menter's k-omega SST, both transcribed from the source PDF.\n(1) NONLINEAR QUADRATIC CORRECTION TO THE REYNOLDS STRESS. Wu & Zhang Eq. (1), printed p. 1: \"a nonlinear quadratic correction term is added to the Reynolds stress's expression. The correction term (for incompressible flow) is like the QCR term used in the SA-QCR2000 [2] model\", with the constant \"directly adopted from Ref. [2], which is = 0.3\". The symbol glyphs of Eq. (1) DO NOT extract from this PDF (its math font does not map through pdftotext), so the explicit tensor form is taken from the paper's own cited source, which this lane title-page verified and read: Spalart 2000, IJHFF 21(3):252-263, UNNUMBERED displayed equation, printed p. 253 --\n    s_ij(nonlinear) = s_ij - c_nl1 * ( O_ik s_jk + O_jk s_ik )\n    O_ik = ( d_k U_i - d_i U_k ) / sqrt( d_n U_m d_n U_m )\n    c_nl1 = 0.3\nwhere s_ij is \"the Reynolds stress given by the linear model\" and O_ik \"the normalised rotation tensor\" (Spalart 2000, p. 253, verbatim).\n(2) CORRECTION TO THE DESTRUCTION TERM OF THE OMEGA EQUATION. Wu & Zhang Eq. (2), printed p. 1: the destruction term is multiplied by a bracket of the form [(beta_correction - 1) * f_shield + 1], with a shielding function f = 1 - tanh[(8 d)^n] that \"is 0 in the boundary layer and is 1 elsewhere\" and is \"used to deactivate the correction term in the boundary layer to preserve the baseline SST model's accuracy in simple wall-attached flows\". The spatially varying correction field is obtained by field inversion (Singh et al.) and then distilled by symbolic regression (PySR) into Eq. (3), printed p. 2:\n    beta_correction = max( -0.1157 , 0.0058525 * <feature> )\nbounded above by 4 for stability (p. 2). UNVERIFIED -- needs equation-level read: the SUBSCRIPTED SYMBOL NAMES of Eqs. (1)-(3) and the identity of the single feature in Eq. (3) do not extract from this PDF's math font. The paper states only that three input features were used and that \"the definition of the features can be found in Ref. [3]\" (Wu, Zhang & Zhang, AIAA J. 63(2):687-706, 2025), which is held on this box as docs/papers/data_driven_rans/wu_zhang_zhang_2402.16355.pdf but was NOT read by this lane. A rendered (page-image) read of pp. 1-2, or a read of Ref. [3], resolves it.",
+   "equation_form_unverified": true,
+   "evidence_about_correction": false,
+   "failure_mode": "loud",
+   "family": [
+    "f",
+    "b"
+   ],
+   "flow_class": [
+    "square_duct_secondary_flow",
+    "separation_2d"
+   ],
+   "id": "f_sst_qcrc_wu2026",
+   "install_class": "compiled-library",
+   "install_stanza": "RAS\n{\n    RASModel        kOmegaSSTQCR;   // <-- THE QCR HALF ONLY. SEE contraindications.\n    turbulence      on;\n    printCoeffs     on;\n}\n",
+   "ladder_evidence": false,
+   "libs_required": [],
+   "libs_route": "ensure_libs",
+   "libs_route_justification": "none",
+   "model_type_name": "none",
+   "provenance": {
+    "equations": "Eqs. (1) and (2), printed p. 1; Eq. (3), printed p. 2, of wu_zhang_sst_qcrc_challenge_description.pdf. The explicit QCR tensor form is the UNNUMBERED displayed equation on printed p. 253 of docs/papers/closure/Spalart2000_strategies_turbulence_modelling.pdf, title page verified by this lane on 2026-09-04 (\"Strategies for turbulence modelling and simulations / P.R. Spalart / Boeing Commercial Airplanes ... International Journal of Heat and Fluid Flow 21 (2000) 252-263\").",
+    "path": "docs/papers/data_driven_rans/wu_zhang_sst_qcrc_challenge_description.pdf",
+    "title_page_quote": "\"The Training of the SST-QCRC Model / Chenyu Wu1, Yufei Zhang1 / 1. School of Aerospace Engineering, Tsinghua University\" -- verbatim from page 1, read by closure lab-lane (laneC) on 2026-09-04 via `pdftotext -f 1 -l 1`. Page 1 carries NO printed date; the year 2026 in this entry's id is taken from the PDF CreationDate metadata (2026-03-05) and corroborated by McConkey et al., \"Table 1: Leaderboard as of March 2026\", which lists \"Wu and Zhang [19]\" at rank 2 with an overall score of 0.0624.",
+    "title_page_verified": "yes"
+   },
+   "source_file": "entries/f_sst_qcrc_wu2026.md",
+   "source_sha256": "1608e46599acaf9ca84c56025ba1dc52eec3b09e3e6373232e9df5af242b65fa",
+   "status": "REGISTERED",
+   "structural": {
+    "is_per_case_switching": "no",
+    "is_post_hoc_field_correction": "no",
+    "is_uncertainty_band": "no",
+    "modifies_anisotropy_tensor": "yes",
+    "planted_zero_verdict": "none"
+   },
+   "validation_cases": [
+    "CBFS"
+   ],
+   "what_it_cannot_see": "The omega-equation correction is a LOCAL algebraic function of three flow features (Eq. 3), so it cannot see history, upstream state, or anything non-local: two points with the same local features receive the same correction whatever happened to the fluid before them. Its shielding function is an explicit blindness by construction -- f is 0 in the boundary layer, so the correction cannot act there AT ALL, by design. The QCR half is a local algebraic function of the mean-velocity gradient alone and so cannot see anything the gradient does not encode. And the correction field was inverted on ONE case (CBFS): it has never seen a duct, which is the flow class this library's first ladder target sits in."
+  }
+ ],
+ "entry_count": 3,
+ "generated_by": "cases/RANS_LES_closure_models/_common/build_correction_library.py",
+ "ladder_evidence_count": 0,
+ "note": "GENERATED — never hand-edited (SCHEMA §1). `ladder_evidence` is computed from `status` by the generator and is never read from an entry (SCHEMA §6). No timestamp is emitted so a regeneration is a no-op diff.",
+ "schema_version": "1.0"
+}
