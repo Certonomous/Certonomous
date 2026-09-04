@@ -24039,3 +24039,98 @@ never wired in.
 > **THE RULE: every search of the paper corpus uses `/bin/grep` over explicit `*.txt` globs, and STATES WHICH READER IT USED. A literature-holdings claim produced by the default `grep` is not evidence about the holdings — it is evidence about the manifest.**
 
 **Reach:** one ignore file, but thirteen paper folders sit under `docs/papers/`; any of them acquiring a `.gitignore` inherits this silently. Related: the lab's standing ugrep lesson (a glob has no defined last file) is the *same instrument* biting on a different axis — that one returns the wrong member, this one returns no members at all.
+
+## L-487 — A PLANTED CONTROL MUST BE DESIGNED AGAINST **THE REDUCTION**, NOT AGAINST THE FIELD. TWO OF MY PLANT DESIGNS DIED IN TWO DAYS, FOR TWO DIFFERENT REASONS, AND BOTH ARE THIS ONE RULE.
+
+*2026-09-03/04, `ansys-verification`. Both caught before compute; both by lanes, against the supervisor's own prescription.*
+
+`CLAUDE.md` rule 3 says a comparator plants a known perturbation, reads it back, and refuses if the
+reader cannot see it. **What the rule does not say — and what cost two designs — is that the plant
+must move the SPECIFIC STATISTIC the gate reads.** A plant is not tested against the field. It is
+tested against the *reduction* applied to the field.
+
+**FAILURE 1 — CANCELLATION (VMFL072).** The reader took an area-weighted **mean** over a monitor
+window. The plant added `P` to **exactly those faces**. Then
+
+`shift = Σ(vᵢ+P)aᵢ/Σaᵢ − Σvᵢaᵢ/Σaᵢ = P`, **identically, for every possible input** —
+
+so the control passed on ordinary data, on garbage, and **on all zeros**. The plant set and the
+averaging set were the same set, so `P` cancelled out of the data entirely. The supervisor
+prescribed the fix: **make the plant a proper subset of the averaging set**, expected shift
+`P·(Σa_planted/Σa_window)`.
+
+**FAILURE 2 — ABSORPTION (VMFL046-R2). The prescription above is right and INSUFFICIENT.** The
+next gate's statistic was a **peak-to-peak over a window**. A lane measured that an *interior*
+plant of 1e-2 m — a proper subset, exactly as prescribed — left the ptp **unchanged at
+1.1066e-01**, because the window already spread 0.111 m. **The plant fell inside the existing
+range and the reduction never saw it.** A control that passes while proving nothing, again, by a
+different mechanism. The fix is to plant **the window's current extremum**: 1.1066e-01 →
+1.2066e-01.
+
+> **THE RULE: match the plant to the reduction.**
+> - **sum / mean / integral** → plant a **proper subset** (the whole set cancels);
+> - **peak-to-peak / range** → plant the current **extremum** (an interior plant is absorbed);
+> - **max / min** → plant the **argmax / argmin**;
+> - **variance** → plant asymmetrically about the mean;
+> - **a location or crossing** (an argmax, a shock position, a root) → the plant must **move the
+>   feature**, not change values away from it.
+>
+> **And the general test, which is the one to carry: can you write down an input on which this
+> control passes and the reader is still blind?** If you can, the control is inert. For
+> cancellation that input is *anything*; for absorption it is *any field already spread wider than
+> the plant.*
+
+**A CONSTRUCTION THAT MAKES THE DEFECT UNREPEATABLE, not merely fixed:** the repaired VMFL072
+comparator **refuses if its own plant sub-region is ever the whole window** — *"the plant would
+cancel to P identically and could not fail"*. A guard against the degenerate configuration beats a
+correct configuration, because the next editor cannot silently reintroduce it. And VMFL046-R2 keeps
+a **deliberately inert arm** — a full-set plant asserted to move the statistic by only 0.173 % of
+the threshold — as standing proof that the subset design is load-bearing rather than decorative.
+
+**Recorded against the supervisor twice.** The first design was written into a file whose docstring
+claimed *"there is no configuration in which this passes by construction"*; the second was the
+supervisor's own prescribed repair of the first. **Sizing the plant from the band defeats TUNING.
+It does nothing about CANCELLATION, and nothing about ABSORPTION.**
+
+---
+
+## L-488 — A CODE CONVENTION MUST BE ESTABLISHED ON **THE NET BALANCE THE GATE QUANTITY OBEYS**, NEVER ON A SINGLE TERM READ IN ISOLATION.
+
+*2026-09-04, `ansys-verification`, VMFL034. Caught before the input was fixed; would have produced a
+~39 % GATE FAIL containing no physics.*
+
+A gate needed the aggregation-kernel constant β₀. The reference's convention was known: the
+manual's analytical column obeys `(m0_feed − m0)/τ = ½β₀m0²`. **The question was whether OpenFOAM
+implements the same ½.** Because the two conventions differ by **27.8 % in m0 against a ±0.76 %
+band — a factor of ~36 — the gate itself discriminates them**, so the convention had to be read out
+of the source rather than chosen by seeing which value made the answer land. (Choosing it from the
+answer is gate-fitting; that was ruled in advance.)
+
+A lane read the source correctly and concluded wrongly. Its quoted evidence was accurate:
+- the pair loop is a **half range**, `for (label j = 0; j <= i; j++)`;
+- `deathByCoalescence` adds to group `i` always and to `j` only `if (i != j)` — **no explicit ½**;
+- the **birth** term carries an explicit `0.5*` when the source groups are identical.
+
+From the middle bullet it concluded *"the death rate is β₀n², so the implemented relation is
+`(m0_feed − m0)/τ = β₀m0²`."* **The premise is true and the conclusion is false.** Summing over
+that exact loop structure: **death = β₀n², birth = ½β₀n², NET = −½β₀n².** Which is just the
+physics — **each event removes two particles and creates one, net −1, at an event rate of ½β₀n².**
+
+> **THE RULE: a steady-state or conservation balance is a statement about the NET source, and a
+> convention read off one term of it is not a reading of the convention at all.** Before fixing any
+> constant from source, identify **which balance the gate quantity actually obeys**, then sum
+> *every* term that enters it — births and deaths, sources and sinks, and the loop range that
+> multiplies them. A half-range loop, an `if (i != j)` guard and an explicit `0.5` are three
+> different ways of writing the same factor, and they can appear in different terms of the same
+> balance.
+>
+> **The cheap check that settles it: reduce the discrete implementation to the continuum quantity
+> analytically, or drive the loop numerically over a random population and compare the total
+> against the textbook form.** That is minutes of work and it converts an argument about code
+> reading into an arithmetic identity.
+
+**What the wrong reading would have cost:** either β₀ = 0.5 input to "correct" a factor that is not
+there, or a predicted m0 = 0.0951 against a measured 0.1318 recorded as a **~39 % `GATE FAIL` that
+is purely conventional** — a false failure with no physics in it. **And the repair would have
+looked exactly like tuning β₀ until m0 matched.** A convention error does not announce itself as an
+error; it announces itself as a result.
