@@ -14,7 +14,9 @@
 #   Section 2.2   the three normal-direction parameters s0 = 1.0e-4, N = 65, marchDist =
 #                 12.0 are IDENTICAL to both existing levels and this driver moves NONE of
 #                 them.  r = 1.167442 and cells/wing_faces = 64 hold BY CONSTRUCTION.
-#   Section 2.4   the per-step CAPS in core-minutes, enforced STRUCTURALLY by `timeout`.
+#   Section 2.4   the per-step CAPS in core-minutes.  🔴 SEE ITEM 39 BELOW: `timeout` was
+#                 MEASURED NOT TO BOUND A CONTAINER IT STARTED.  The caps in this file
+#                 REPORT an overrun; they do not STOP one.  REPORTED, NOT REPAIRED.
 #   Section 7     the ill-posedness screen: the driver REFUSES a level whose patch names it
 #                 did not expect.
 #   Section 8.5   autoPatch/createPatch/renumberMesh, and `scotch` is NOT used.
@@ -34,9 +36,13 @@
 #
 # COST.  Unit: core-minutes (wall s x ranks / 60).  Dollars are DERIVED, NOT MEASURED, at
 # the owner-stated c7a.4xlarge $0.0513/core-h -- the box cannot read its own billing, so any
-# dollar figure originating here is REPORTED-BY-OWNER.  AN OVERRUN STOPS THE RUN; it does
-# not get a new budget.  Every cap below is enforced by `timeout`, so an overrun is
-# structural rather than a matter of somebody noticing.
+# dollar figure originating here is REPORTED-BY-OWNER.  Rule 12 says AN OVERRUN STOPS THE RUN.
+# 🔴 STRUCK BY QUOTE, 2026-09-04, and the correction is ITEM 39 below:
+#     ~~"Every cap below is enforced by `timeout`, so an overrun is structural rather than a
+#       matter of somebody noticing."~~
+# MEASURED FALSE.  `timeout` bounds the docker CLIENT, not the CONTAINER, and it does not even
+# bound the client: it waits.  A 3 s cap on a 60 s container returned rc 124 AFTER 60 WALL
+# SECONDS.  The cap here REPORTS an overrun after the fact; it does not stop one.
 #
 # NOTHING UNDER /home/ubuntu/certonomous-runs/ IS WRITTEN, MOVED OR DELETED.  The master
 # surface is COPIED OUT of that tree and every product is written under the run root.
@@ -75,9 +81,13 @@
 #   `printf %q` on the `sg` branch.  MEASURED on the pinned digest, both branches:
 #       bare : timeout ...s "$DOCKER_BIN" run ... -> rc 0 / INSIDE_OK
 #       sg   : timeout ...s sg docker -c "docker$(printf ' %q' ...)" -> rc 0 / INSIDE_OK
-#   AND THE CAP STILL BITES, measured rather than assumed -- a container sleeping 30 s under
-#   a 5 s cap returns rc 124 on BOTH branches, so run_in_container's `rc -eq 124 -> abort 6`
-#   overrun path (rule 12, AN OVERRUN STOPS THE RUN) still fires after the repair.
+#   🔴 STRUCK BY QUOTE, 2026-09-04 (ITEM 39): ~~"AND THE CAP STILL BITES, measured rather than
+#   assumed -- a container sleeping 30 s under a 5 s cap returns rc 124 on BOTH branches, so
+#   run_in_container's `rc -eq 124 -> abort 6` overrun path (rule 12, AN OVERRUN STOPS THE RUN)
+#   still fires after the repair."~~  THE rc IS RIGHT AND THE INFERENCE IS WRONG.  rc 124 does
+#   arrive -- but only AFTER the container has run to completion (measured: 61 wall s under a
+#   3 s cap, and never at all under an unbounded payload).  The overrun path fires; the overrun
+#   is not prevented.  See ITEM 39.
 #   THE BRANCH TAKEN IS RECORDED IN THE RUN'S OWN OUTPUT ($RR/$LEVEL/DOCKER_BRANCH.txt and
 #   DOCKER_PREFLIGHT.txt), because item 28's defect survived precisely because no artifact
 #   ever distinguished the two branches.
@@ -127,6 +137,111 @@
 # command substitution, a pipeline, or a `while read` fed by a pipe.  The new binary-pin
 # check deliberately uses a FILE DIFF rather than a loop, so there is no loop body that could
 # become a subshell and swallow an abort.
+#
+# =======================================================================================
+# AMENDMENT 14 AUDIT, ITEM 38 -- REPAIRED IN THIS FILE (2026-09-04).  ITEM 31's EXACT CLASS,
+# ONE FILE OVER, AND IT IS THE LAST THING BETWEEN B1 AND AN L1 MESH.
+#
+#   THE DEFECT.  This driver created `$RR/$LEVEL/system` and then MOUNTED AND WORKED IN
+#   `$RR/$LEVEL/work`, which had no `system/` at all.  A comment-stripped read of the whole
+#   file found ZERO occurrences of `controlDict`, `fvSchemes` or `fvSolution`.  B3's four
+#   utilities are OpenFOAM applications: every one of them constructs a `Foam::Time` from
+#   `<case>/system/controlDict` before it does anything else.
+#   MEASURED at THIS DRIVER'S EXACT MOUNT AND -w SHAPE, on the pinned digest, with a real
+#   3x3x3 plot3d block so the failure is the case files and not a missing input:
+#       plot3dToFoam -noBlank tiny.xyz   ->  inner rc 1
+#       `--> FOAM FATAL ERROR: (openfoam-2506) cannot find file
+#        "/home/dafoamuser/mount/system/controlDict"`
+#   It FAILS CLOSED (run_in_container aborts 6 on a non-zero inner rc) and it has NEVER FIRED:
+#   no run root exists.  This is prevention, not a live repair.
+#
+#   🔴 AND THE ABLATION FOUND A CHAIN, NOT ONE FILE.  The prior pass reported "one missing
+#   file, not a chain" AS FAR AS IT WAS PROVED -- and it was proved only as far as the FIRST
+#   refusal.  Each missing file PREEMPTS the next.  Measured, one probe per row, same mount:
+#       system/ holds                                   | createPatch says
+#       --------------------------------------------------------------------------------
+#       (nothing)                                       | cannot find file .../controlDict
+#       controlDict                                     | cannot find file .../fvSchemes
+#       controlDict + fvSchemes                         | cannot find file .../fvSolution
+#       controlDict + fvSchemes + fvSolution            | cannot find file .../createPatchDict
+#       all four                                        | inner rc 0
+#   `createPatch` and `renumberMesh` build an `fvMesh`, which reads `fvSchemes` and
+#   `fvSolution`; `plot3dToFoam` and `autoPatch 60` need `controlDict` ALONE (measured: both
+#   return inner rc 0 with only that file present).  **SO `createPatchDict` IS GENUINELY
+#   NEEDED**, and the question could only be answered by supplying everything ahead of it --
+#   the earlier reading was preempted twice over, not wrong.
+#
+#   🔴 AND `createPatchDict` IS NOT A FORMALITY -- IT IS WHAT MAKES THE LEVEL ADMISSIBLE.
+#   Section 7's screen requires exactly one `wall`, at least one `symmetry` and at least one
+#   `patch`.  Measured on the same mesh, one probe apart:
+#       createPatch WITHOUT the dict -> inner rc 1, boundary UNCHANGED: wall 1, symmetry 0
+#                                       -> Section 7 would abort at exit 8 (no symmetry plane)
+#       createPatch WITH    the dict -> inner rc 0, boundary becomes wing/inout/sym:
+#                                       wall 1, symmetry 1, patch 3, empty 0  -> SCREEN PASSES
+#   The dict is the thing that turns `auto0..auto5` into a named, correctly TYPED boundary.
+#
+#   THE REPAIR, AND WHY IT IS A COPY AND NOT A WRITE.  Section 8 registers exactly ONE
+#   case-file writer -- `cases/M6SR/write_m6sr_case.py` -- and THAT STAYS TRUE: this driver
+#   AUTHORS NO CASE FILE.  It COPIES FOUR HASH-PINNED DICTIONARIES out of the read-only tree
+#   `/home/ubuntu/certonomous-runs/A3-onera-m6-adjoint-coarse/system/`, exactly as it already
+#   copies the hash-pinned surface master out of that same read-only tree, and it REFUSES on
+#   any hash it did not expect.  Section 8's case is a SOLVE case, is written by that one
+#   writer, and lands in `$RR/$LEVEL/` at step B3c -- these four land in `$RR/$LEVEL/work/`,
+#   are consumed only by B3's mesh utilities, and the two sets never meet.
+#
+#   WHY THAT TREE.  It is the source of THIS FAMILY'S OWN L3 MESH (`run_m6sr_b5.sh` stages
+#   `$CR/A3-onera-m6-adjoint-coarse/constant/polyMesh` for L3), so the dictionaries pinned
+#   here are the ones under which an EXISTING LEVEL of this family was patched.  Measured:
+#   `createPatchDict`, `fvSchemes` and `fvSolution` are BYTE-IDENTICAL between that tree and
+#   `A3-onera-m6-transonic` (the surface master's own tree), so for three of the four the
+#   choice of tree changes nothing at all.  Only `controlDict` differs (endTime 1000 vs 1500,
+#   the sole differing line), and the adjoint-coarse copy is the one that has NOT been touched
+#   since 2026-07-28T00:14 -- the transonic copy was modified at 01:32, an hour AFTER its own
+#   mesh was built at 00:31.  ⚠ mtime is weak evidence and is labelled as such: it is a
+#   reason to prefer the untouched file, NOT proof that this is the file that built L2/L3.
+#
+#   ⚠ WHAT THE MESH-STAGE `controlDict` DOES MOVE, DISCLOSED RATHER THAN LEFT TO BE FOUND.
+#   It carries `writeFormat ascii; writePrecision 16; writeCompression on`, so B3 writes
+#   `points.gz` / `faces.gz` -- as both existing levels already are (measured: the L3 source
+#   polyMesh is `.gz`).  Gate A item A5 hashes the DECOMPRESSED stream
+#   (`analyse_m6sr.points_stream_sha`, which reads `points` or `points.gz`), so NO GATE MOVES.
+#
+#   EXIT CODE.  A dictionary that determines the patch names is part of the BUILD INSTRUMENT,
+#   so a mismatch refuses at the instrument-pin code **10**, alongside the image and binary
+#   pins.  Infrastructure failures (mkdir, cp) keep **3**.  NO NEW EXIT CODE IS INTRODUCED and
+#   the existing vocabulary of this file is unchanged.
+#
+#   ORDERED WITH THE OTHER PINS, ABOVE ITEM 37's RUN-ROOT REFUSAL, AND THAT IS DELIBERATE --
+#   the same reason item 37 is ordered last: below it, this block would be UNREHEARSABLE
+#   anywhere except inside `verification/runs/M6SR_runs/`, the directory whose ABSENCE is this
+#   registration's rule-2 freeze proof.  `cases/M6SR/check_m6sr_build_path.sh` rehearses it.
+#
+# =======================================================================================
+# ITEM 39 -- 🔴 REPORTED, NOT REPAIRED, AND IT IS BIGGER THAN THIS FILE.
+#   AN OUTER `timeout` IS NOT A CAP ON A CONTAINER.  MEASURED ON THE PINNED DIGEST:
+#     * `timeout 3s docker run --rm --name N ... <60 s payload>` returns **rc 124** -- after
+#       **61 WALL SECONDS**.  `timeout` sends SIGTERM to the docker CLIENT; the client proxies
+#       it to the container's pid 1, a `bash -c` waiting on a foreground child, which does not
+#       act on it; and `timeout` then WAITS for the client.  The container runs to completion.
+#     * THE DRIVER'S OWN SHAPE (`timeout ...; rc=$?; docker rm -f "$NAME"`) measured at
+#       **60 wall s under a 3 s cap** -- the `rm -f` is real, but it is not REACHED until the
+#       container has already finished, so it cleans up rather than bounds.
+#     * WITH AN UNBOUNDED PAYLOAD IT NEVER RETURNS AT ALL.  A busy-loop container under a 3 s
+#       cap was still `Up` FOUR MINUTES later at a daemon-reported **100.45 % CPU**, its
+#       wrapper still blocked.  It was ended by `docker rm -f` on the recorded name, in **0
+#       wall s**.  284 container-seconds; reported as WASTE, separately, below.
+#     * `--stop-timeout 2` does NOT cap runtime: a 30 s payload ran **31 s**.  It is only
+#       `docker stop`'s grace period.
+#     * WHAT DOES BOUND IT: killing the client AND then killing the container by its recorded
+#       name.  `timeout -k 5s 3s ...` returned in **8 s** -- but with **rc 137, NOT 124**, and
+#       the container was still `Up` afterwards until `docker rm -f` ended it in 0 wall s.
+#       ⚠ THAT rc IS THE ITEM-35 TRAP AGAIN: this driver's overrun branch tests `rc -eq 124`,
+#       so the bounded shape would MISS it and abort at exit 6 with a misleading cause.
+#   CONSEQUENCE, STATED PLAINLY: **B2's 70.0 core-min cap does not stop B2.**  Rule 12's "an
+#   overrun stops the run" is not delivered by this mechanism for ANY containerised step in
+#   this campaign.  NOT REPAIRED HERE: changing the cap mechanism changes the rc semantics and
+#   Section 2.4's own "enforced structurally" claim, and that is the supervisor's.
+#   **UNTIL IT IS RULED, B1/B2/B3 MUST NOT BE LAUNCHED UNATTENDED.**
 # =======================================================================================
 
 set +u
@@ -216,6 +331,11 @@ if [ -d "$RR/$LEVEL" ]; then
   [ -d "$RR/$LEVEL/constant/polyMesh" ] && abort "$RR/$LEVEL/constant/polyMesh already exists. This driver BUILDS the mesh; it never overwrites one. REFUSED." 4
 fi
 
+# TWO `system/` DIRECTORIES, AND CONFUSING THEM WAS ITEM 38.  `$RR/$LEVEL/system` is the SOLVE
+# case's, filled at B3c by cases/M6SR/write_m6sr_case.py and read by B4/B5, which mount
+# $RR/$LEVEL.  `$RR/$LEVEL/work/system` is the MESH-STAGE one, filled at B3d below and read by
+# B3's utilities, which mount $RR/$LEVEL/work.  This driver fills only the second, and by
+# COPYING pinned files, never by writing one.
 mkdir -p "$RR/$LEVEL/work" "$RR/$LEVEL/constant" "$RR/$LEVEL/system" || abort "could not create the run root" 3
 date -u +%s > "$RR/RUN_ROOT_CREATED_EPOCH" 2>/dev/null
 
@@ -354,6 +474,77 @@ say "build instrument pin VERIFIED: image $RESOLVED_DIGEST, OpenFOAM $P_VER, pyH
 say "  step B0p (pin preflight): $((T1P-T0P)) wall s at 1 rank -- UNBUDGETED in Section 2.4, reported on its own line"
 
 # ---------------------------------------------------------------------------------------
+# 1b2.  ITEM 38 -- THE MESH-STAGE DICTIONARIES, STAGED INTO THE DIRECTORY THE CONTAINER
+#       ACTUALLY LOOKS AT.  Step B3d, UNBUDGETED (host `cp` + `sha256sum`, no container).
+#
+#       THIS DRIVER AUTHORS NO CASE FILE.  Section 8's SOLE writer is
+#       cases/M6SR/write_m6sr_case.py and it stays sole: these four files are COPIED from a
+#       read-only tree under a sha256 pin -- the same act, from the same tree, as the surface
+#       master copy-out below -- and they are the MESH-STAGE dictionaries, not Section 8's
+#       solve case.  Section 8's case is written by that one writer into $RR/$LEVEL/ at B3c.
+#
+#       THE MOUNT IS UNCHANGED AND THAT IS THE RULING.  B3 keeps mounting $RR/$LEVEL/work.
+#       Mounting $RR/$LEVEL instead would put the wrapper's own log inside the bind mount
+#       again, which is item 34's shape -- the ONE defect in this campaign that did not fail
+#       closed, a 3330-byte log.checkMesh at exactly the clean size that GRADED PASS with its
+#       head destroyed.  The `work` mount is immune to that by topology.  THE CASE FILES MOVE
+#       TO THE CONTAINER; THE CONTAINER DOES NOT MOVE TO THE CASE FILES.
+# ---------------------------------------------------------------------------------------
+M6SR_MESHSTAGE_SRC="$CR/A3-onera-m6-adjoint-coarse/system"
+MS_SHA_CONTROLDICT=1cfc194c3599879dced4db5ccc50861bc2bf48001b247176f7ed76ef80fcbf8d
+MS_SHA_FVSCHEMES=4a1b9cf10c60e71abcd920da63bd778457bd7da85876e7d1d1d547ce9e78aa8c
+MS_SHA_FVSOLUTION=0326bdbfc266615c1fe8e94ec7620edf9d266b22ca8d598d2d6539f303ccb88f
+MS_SHA_CREATEPATCHDICT=846e45d721e8be7567bd46a08ba3ae8e0e577b167b64d5308b886a075677140e
+
+# ONE named file per call, hashed at the SOURCE and then READ BACK FROM THE DESTINATION.
+# The read-back is not decoration: a `cp` that silently produced nothing, or produced
+# something else, would otherwise be discovered by B3's FOAM FATAL ERROR minutes later and
+# read as a mesh problem.  NO LOOP: this function is called four times at TOP LEVEL, never
+# in a pipeline or a `while read`, so an abort inside it exits the driver and not a subshell.
+stage_mesh_dict(){
+  local name="$1" want="$2" src dst got back
+  src="$M6SR_MESHSTAGE_SRC/$name"
+  dst="$RR/$LEVEL/work/system/$name"
+  [ -f "$src" ] \
+    || abort "the pinned mesh-stage dictionary is ABSENT: $src. B3's utilities cannot start without it and this driver will not substitute one of its own -- Section 8 registers ONE case-file writer and this is not it. REFUSED AT ZERO COST." 10
+  got=$(sha_of "$src")
+  [ -n "$got" ] \
+    || abort "could not hash the mesh-stage dictionary $src; a missing hash is a REFUSAL, never a fallback." 10
+  [ "$got" = "$want" ] \
+    || abort "MESH-STAGE DICTIONARY MISMATCH: $src has sha256 $got; this driver pins $want. \`createPatchDict\` DETERMINES THE PATCH NAMES AND TYPES -- a different one builds a level Section 7's screen would judge on a different boundary. REFUSED AT ZERO COST." 10
+  cp -- "$src" "$dst" \
+    || abort "could not copy the mesh-stage dictionary $src -> $dst" 3
+  chmod 644 -- "$dst" 2>/dev/null
+  back=$(sha_of "$dst")
+  [ "$back" = "$want" ] \
+    || abort "the mesh-stage dictionary READ BACK FROM DISK at $dst hashes '${back:-ABSENT}', not the pinned $want. What the container will read is the DESTINATION, so the destination is what is verified. REFUSED." 10
+}
+
+mkdir -p "$RR/$LEVEL/work/system" || abort "could not create $RR/$LEVEL/work/system" 3
+chmod 755 "$RR/$LEVEL/work/system" || abort "could not make $RR/$LEVEL/work/system readable to the container uid" 3
+stage_mesh_dict controlDict     "$MS_SHA_CONTROLDICT"
+stage_mesh_dict fvSchemes       "$MS_SHA_FVSCHEMES"
+stage_mesh_dict fvSolution      "$MS_SHA_FVSOLUTION"
+stage_mesh_dict createPatchDict "$MS_SHA_CREATEPATCHDICT"
+
+{ echo "{"
+  echo "  \"step\": \"B3d -- the mesh-stage dictionaries\","
+  echo "  \"why\": \"B3's four utilities construct a Foam::Time from <case>/system/controlDict, and createPatch/renumberMesh build an fvMesh which reads fvSchemes and fvSolution. createPatch additionally requires system/createPatchDict, MEASURED: with the other three present and it absent, inner rc 1, 'cannot find file .../system/createPatchDict', and the boundary is left with symmetry 0 -- Section 7 would abort at exit 8.\","
+  echo "  \"authored_here\": \"NOTHING. Section 8 registers ONE case-file writer, cases/M6SR/write_m6sr_case.py, and this driver is not it. These four files are COPIED under a sha256 pin from a read-only tree.\","
+  echo "  \"source\": \"$M6SR_MESHSTAGE_SRC\","
+  echo "  \"source_basis\": \"the tree whose constant/polyMesh run_m6sr_b5.sh stages as THIS FAMILY'S L3. createPatchDict, fvSchemes and fvSolution are byte-identical to A3-onera-m6-transonic's; only controlDict differs (endTime 1000 vs 1500) and this copy is the one untouched since 2026-07-28T00:14 -- mtime, which is weak evidence and is labelled so.\","
+  echo "  \"destination\": \"$RR/$LEVEL/work/system -- the directory the container is mounted at and -w'd into. The mount is UNCHANGED (item 34 immunity).\","
+  echo "  \"controlDict_side_effect\": \"writeCompression on -> B3 writes points.gz/faces.gz, as both existing levels already are. Gate A item A5 hashes the DECOMPRESSED stream, so no gate moves.\","
+  echo "  \"controlDict_sha256\": \"$MS_SHA_CONTROLDICT\","
+  echo "  \"fvSchemes_sha256\": \"$MS_SHA_FVSCHEMES\","
+  echo "  \"fvSolution_sha256\": \"$MS_SHA_FVSOLUTION\","
+  echo "  \"createPatchDict_sha256\": \"$MS_SHA_CREATEPATCHDICT\","
+  echo "  \"verification\": \"each file hashed at the SOURCE against the pin and then READ BACK FROM THE DESTINATION; any mismatch refuses at exit 10 before a core-minute is spent.\","
+  echo "  \"B3d_UNBUDGETED\": \"Section 2.4's cost table has no row for staging dictionaries. Host cp + sha256sum only, no container. Reported on its own line and NOT folded into any registered row (Section 9.3).\""
+  echo "}"; } > "$RR/$LEVEL/MESH_STAGE_DICTS.json"
+say "B3d: 4 mesh-stage dictionaries staged into $RR/$LEVEL/work/system, each sha256-pinned and READ BACK from disk -- UNBUDGETED, no container"
+
+# ---------------------------------------------------------------------------------------
 # 1c.  ITEM 37 -- THE RUN ROOT IS PINNED TOO.  Item 29's class, in the builder.  This driver
 #      honours $M6SR_RUN_ROOT; cases/M6SR/analyse_m6sr.py reads NO environment at all (its
 #      REPO is derived from __file__ and it takes --run-root), so an operator who exports
@@ -378,9 +569,11 @@ run_in_container(){
   local t0 t1 rc wall
   t0=$(date +%s)
   # ITEM 35 REPAIRED: argv, through docker_timeout_q, correct on BOTH branches -- and the
-  # image is addressed by DIGEST ($IMG_PINNED), never by the tag $IMG.  The cap is still
-  # enforced by `timeout` and rc 124 still reaches the overrun path below (measured on both
-  # branches: a 30 s container under a 5 s cap returns 124).
+  # image is addressed by DIGEST ($IMG_PINNED), never by the tag $IMG.
+  # ⚠ ITEM 39: `timeout` REPORTS the overrun (rc 124 reaches the branch below) but does NOT
+  # STOP it -- it waits for the container.  The `docker rm -f` two lines down is real and is
+  # what ends a container, but it is not reached until the container has already ended itself.
+  # NOT REPAIRED HERE; the cap mechanism is the supervisor's.  Do not read this as a bound.
   docker_timeout_q "$tmo" run --rm --name "m6sr_${tag}_$$" -u 1002:1002 \
       -v "$RR/$LEVEL/work":/home/dafoamuser/mount -w /home/dafoamuser/mount "$IMG_PINNED" \
       bash -c "set +u; source /home/dafoamuser/dafoam/loadDAFoam.sh >/dev/null 2>&1; $cmd; echo \"WRAPPER_RC=\$?\" > RC_${tag}.txt" \
