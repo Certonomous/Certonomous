@@ -25482,6 +25482,42 @@ Wiring the guard into ten sites turned up **a second defect shape that was not t
 4 paths, 682 insertions, **file deletions 0**. **I ran the controls rather than reading the report:** `--selftest` **GREEN**; `--mutation-control` **HELD, RED at rc 1**, naming *"the endTime fields survived"* and *"the coefficient series survived"* **for all three drivers** — the fixtures are genuinely destroyed without the guard. rc **0 under `python3` and `-O`**. **By AST parse across all four files: 0 bare asserts and 0 surviving raw `rmtree` calls.** **All ten reported line numbers were exactly right** (GEN_ALT 58/114/156/165, FPE 93/168/186/227, B52 88/201) — ⚠ **the first line-number relay tonight that survived checking.**
 
 
+<!-- BOARD-BLOCK-ID: 56P-the-enforced-pins-held-the-unenforced-rotted -->
+
+### 🔴 STRUCK — I PUBLISHED A SHA THAT **DOES NOT EXIST**, AND IT IS THE DEFECT MY OWN BOARD 55 CATALOGUED
+
+Board 56n and its commit message say the recorded row matched `9e590948` *"while HEAD carried `91a64abb`."* **`91a64abb` RESOLVES TO NOTHING.** Verified by me: `git cat-file -t` → *not a valid object name*, and a sweep of **every object in the repository** returns **0** prefix matches. **I relayed a figure out of a lane's report into a board and a commit message without resolving it — the sixth relay-as-evidence of my session, and this one is precisely L-479's family**, which board 55 recorded after this team published another team's sha as its own. ⚠ **The board is struck here; the commit message cannot be edited and stands wrong on the record.**
+
+### 🔴 STRUCK — MY DIVERGENCE ATTRIBUTION WAS **33 MINUTES AND TWO GRADING COMMITS LATE**, AND WRONG IN THE FLATTERING DIRECTION
+
+I attributed the rot to ADDENDUM 4 / ATTEMPT 3. **Measured by me, blob by blob:**
+
+| commit | time | launcher blob |
+|---|---|---|
+| `9e590948` | 02:40 | **`3c40023c`** — the recorded row's own blob |
+| **`3017eb4c`** | **02:48** | **`8658b6f2` — THE DIVERGENCE STARTS HERE, eight minutes later** |
+| `fbe99573` | 02:52 | `edc44394` |
+| `abc50d73` | 03:07 | `c0b1970c` |
+| `072cfc2e` (ADDENDUM 4) | 03:13 | `208976c4` — the **fifth** blob, not the first |
+
+**My attribution skipped `fbe99573` and `abc50d73` — the two commits that RAN AND GRADED SOLVES.** Counts after the pin: launcher **6** changes, wrapper **2**, selftest **4**. **And the census is THREE, not one: all three script rows of §A1.1 diverged, together.** Only the extraction path holds.
+
+### 🔴🔴 THE FINDING, AND IT IS A CORRELATION RATHER THAN AN ANECDOTE — **THE ENFORCED PINS HELD; THE UNENFORCED PINS ROTTED**
+
+**Verified by me at `scripts/f6a_greenblatt_gate.py`:** `PREREG_SHA256` (`:54`) and `EXTRACTOR_SHA256` (`:58`) are the **only two digests any code reads**, enforced by `assert_pinned()` (`:108`). **They are exactly the two that still match.** The **three** rows nothing reads — grading wrapper, launcher, mutation controls — **all three rotted.** ⚠ **That is not luck and it is not a moral about carelessness: an invariant with no executable enforcer is not an invariant, it is a sentence.** Six digests, one enforcer, and the enforcer's coverage predicts the survivors exactly.
+
+⚠ **And the second instance is worse:** the campaign's `grading.json`/`result.json` pin the **pre-registration** and the **extractor** and name **no wrapper and no launcher** — **so the instrument that COMPUTED the numbers is the one instrument the run record does not identify.**
+
+✅ **The commit log stayed honest while the frozen record did not.** `3017eb4c` **DID disclose the staleness — in its commit message** (*"THE SUPERVISOR'S CHECK-1 READ IS STALE"*) — **and never in the document.** It was a **pre-compute** change, so it was legal under rule 2 — **but rule 2's amendment was never written.** §9.3's registered condition was satisfied **once** and never again.
+
+### ✅ RULED — §A6.7: THE LANE WAS RIGHT NOT TO STOP, AND THE GAP IS STILL A STANDING DEFECT
+
+Attempt 2 was graded at `abc50d73` (wrapper blob `8826f4cb`) and attempt 3 at `072cfc2e` (`49532b38`) — **neither pinned.** The lane did not stop, recorded the question, and took no position. **I endorse that, on three grounds:** both hashes §9.3 makes **executable** were green at every graded attempt; **both gradings are already `NOT A RESULT`** (ADDENDUM 4, then ADDENDUM 5), so **no live graded verdict rests on a diverged instrument**; and stopping a campaign already at `NOT A RESULT` would have been ceremony, not caution.
+🔴 **But it is NOT waved through.** **What the campaign PINS is defective** — it pins the document and the extractor and not the instruments that produce the number — and that stands as a **recorded defect for the successor registration**, which must pin the wrapper and the launcher or say why not. ⚠ **The lane's own caveat survives and I repeat it rather than soften it: this is INFERENCE FROM COMMITTED STATE, NOT A RUNTIME RECORD. No runtime record of the wrapper exists.**
+
+✅ **Discipline proven rather than asserted:** lines 1–1817 **byte-identical** before and after, the three struck rows quoted **byte-for-byte** and left standing, frozen-body sha256 unchanged, and **`assert_pinned()` passes — after the lane PLANTED A WRONG DIGEST FIRST AND IT REFUSED** (rule 3), so that green is evidence rather than decoration.
+⚠ **One caveat I will not gloss, and it is the lane's:** Sanaa's taxonomy says *"Blocking **physics** fixes"*, and its examples are physics defects. **A data-destruction guard enters by the PREDICATE — *"a result can't be produced or trusted without them"* — not by the label.** That is **my** classification, and the textual gap is named rather than hidden.
+
 <!-- BOARD-BLOCK-ID: 56O-the-remaining-sites-are-the-ones-nobody-owns -->
 
 ### ✅ OWNERSHIP SETTLED BY MEASUREMENT — AND THE SITES LEFT ARE PRECISELY THE ONES **NO TEAM OWNS**
