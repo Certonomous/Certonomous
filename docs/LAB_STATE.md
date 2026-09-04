@@ -5283,11 +5283,70 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-04T15:15:13Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-57` — **⚠ a correction that reaches Sanaa's desk: I wrote that `W` is absent from `D12R`'s condition and no window could help. FALSE — `δ_eff` IS `δ_window`, a function of `W`; it fell 4.03× from `W=300` to `W=2000` and `h_min` improved 1.91×. The window axis is OPEN and still 1.82× short. The desk item is REFRAMED, not withdrawn. `D12R` closed `NOT A RESULT` for 0.0161 core-min.** Before it, `S-56`, `S-55`, `S-54`, `S-53`, `S-52`, `S-51`, `S-50`, `S-49`, `S-48`…`S-29`.
+**Section last written:** 2026-09-04T15:17:43Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-58` — **`A1WRT`'s no-verdict is an IMPLEMENTATION gap, not `SO3aF2`'s LABEL-SET gap, and the count is THREE; `empty` is a DAFoam source-level refusal that INVERTS `A1WRT`'s own premise; and a live defect DEFEATS RULE 4 — a crashed point's `exit 97` is captured, printed and discarded while the wrapper exits 0.** Before it, `S-57`, `S-56`, `S-55`, `S-54`, `S-53`, `S-52`, `S-51`, `S-50`, `S-49`, `S-48`…`S-29`.
 
 **Section last written:** 2026-09-04T01:08:43Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-48` — **`W3` IS NOT RUNNING AND HAS NOT BEEN SINCE 21:57:49Z; IT REACHED ITS REGISTERED TERMINUS, AND THE REGISTERED FALLBACK DOES NOT RESCUE IT.** `S-47`'s and `S-46`'s *"`W3_chain_r2` running"* lines are **STRUCK BY QUOTE** below — they were true when written and were still being relayed three hours after they stopped being true. Before it, `S-47` — **DESK ITEMS CLOSED**: the **rule-10 hole is fixed in the constitution itself** on Sanaa's GO (`0ee2e7df`, verified by me at HEAD, not taken on relay), and the rule-12 estimate gap is **routed to verification** as a forward-only note. `S-46`'s "on Sanaa's desk" line is **struck by quote** so no successor re-escalates a closed item. **Nothing now on her desk from this family** but the four `NOT FILED` upstream defect classes and FD-vs-adjoint as a fourth `V` instrument. Before it, `S-46` (closing state), `S-45`, `S-44`, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+##### UPDATE S-58 — **`A1WRT`'s NO-VERDICT IS A **DIFFERENT** MECHANISM FROM `SO3aF2`'s — IT REGISTERED A SUCCESS LABEL AND NEVER WROTE THE EMITTER — AND THE COUNT IS **THREE**, NOT TWO. `empty` IS A DAFOAM SOURCE-LEVEL REFUSAL, WHICH **INVERTS** `A1WRT`'s OWN §2.0 PREMISE. AND A LIVE DEFECT DEFEATS RULE 4: A CRASHED POINT'S `exit 97` IS CAPTURED, PRINTED, AND DISCARDED** (2026-09-04, `date -u` stamp in the committing invocation)
+
+###### 1. TWO ITEMS, TWO DIFFERENT DISEASES — MY "PATTERN" RULING SURVIVES AND SHARPENS
+
+`S-53` §2 ruled that two items with no expressible verdict is *"a pattern in registration DESIGN, not a gap in the vocabulary."* **The lane establishes the two are not the same failure, and that makes the ruling better rather than weaker.**
+
+| | `SO3aF2` | `A1WRT` |
+|---|---|---|
+| what is missing | **the LABEL** — frozen §5 registers only `BLOCKED` and `NOT A RESULT`, two FAILURE tokens, *"this item has no gates"* | **the CODE** — `PREREGISTRATION_DRAFT.md:61` registers `Verdict ceiling: GATE REACHED` and `:657-659` names `compose_item` / `verdict_before_ceiling` |
+| class | **LABEL-SET gap** | **IMPLEMENTATION gap** |
+
+**Verified by me, with a live positive control on the same reader:** `a1wrt_read.py` carries **`compose_item` 0 times** against **16 `def ` sites** — the file is substantial, so the zero is not an empty-file artefact. `compose_item` is implemented in exactly four tracked graders and A1WRT's reader is not one.
+
+> **⚠ AND THE COUNT IS THREE, NOT TWO.** `a1wr_read.py` also carries **`compose_item` 0** against **11 `def ` sites**, while `A1WR_PREREGISTRATION.md` names `verdict_before_ceiling`. **It never surfaced because A1WR was `NOT A RESULT` on other grounds** — the missing emitter was masked by an unrelated failure. A working one sits one directory away at `a1ze_grade.py:648`.
+
+**The generalisation, and it is the lane's:** *no registration was driven end-to-end against the question **"what does this instrument PRINT if everything goes right?"*** Every one of these items rehearsed its refusals and none rehearsed its success. **A selftest suite that only ever exercises failure paths certifies that the item can decline, not that it can answer.**
+
+###### 2. ⚠ `empty` IS A DAFOAM REFUSAL AT SOURCE — AND IT INVERTS `A1WRT`'s OWN PREMISE
+
+`DACheckGeometry.C:278` rejects `nGeometricD < 3` **unconditionally**: *"Mesh geometric directions is less than 3 and not supported!"* Measured **twice**, independently: `A1ZE` arm `Ec` (`rc=97`, 1.4667 core-min, 19:05Z) and `A1WRT U2` (`rc=97`, 0.683 core-min, 22:33Z).
+
+**So within DAFoam, `symmetry` is not one admissible identity among several on a one-cell mesh — it is the ONLY one.** `A1WRT` §2.0 was written on the opposite premise, and **`A1WRT` froze at 18:31Z, BEFORE `A1ZE` ran**; `DACheckGeometry` occurs **0 times** in the frozen document. **The item could not have known, and its successor must not inherit the premise.** *This also strengthens `S-37`'s standing line — DAFoam refuses a 2-direction mesh BY DESIGN — from a behaviour to a cited source location.*
+
+###### 3. ⚠⚠ A LIVE DEFECT THAT DEFEATS RULE 4, AND NOBODY HAD LOOKED AT IT
+
+`a1wr_cmd.sh` captures the producer's exit status at `:65` (`SRC=$?`), prints it at `:66` (`A1WR_SWEEP_RC rc=$SRC`), and **never consults it again** — `grep -n SRC` over the file returns **exactly those two lines**. The wrapper's own exit status is decided at `:96-102` **by counting `^AOA_POINT_END ` markers**:
+
+```
+if [ "$EXEC" -eq "$DECLARED" ]; then ... exit 0; fi
+echo "... -- NOT a completion"; exit 97
+```
+
+**And the marker is printed for a CRASHED point too.** So `A1WRT U1` printed `AOA_SWEEP_TRUNCATED n_declared=1 n_executed=0 -- NOT a completion` **and** `A1WR_SWEEP_RC rc=97`, and **exited 0** — its ledger row reads `rc=0 … point_end_markers=1`.
+
+> **A completion determination made by counting a marker that FAILURES ALSO PRINT, while the authoritative exit code is captured, displayed, and thrown away.** Rule 4's first condition is `rc = 0`; here `rc = 0` is manufactured by the wrapper from a count that cannot distinguish success from failure.
+
+**`A1WRT`'s grader could not have caught it** — `a1wrt_read.py:949`/`:965` read `tail_empty` only — **so `U1`'s rule-4 completion was gated by nothing at all.** *No published verdict rests on it: A1WR was `NOT A RESULT` on other grounds and A1WRT has no item verdict. **That is luck, not design**, and it is exactly the shape where luck runs out quietly.* **`a1wr_cmd.sh` is another item's frozen instrument: REPORTED, NOT EDITED.** **Escalated as a lab-wide instrument class — an exit code captured and discarded is worse than one never taken, because the record shows it was seen.**
+
+###### 4. THREE CORRECTIONS TO ME, ALL VERIFIED AND ALL ACCEPTED
+
+**(a) `A1WRT` DOES have a cumulative item-ceiling guard, and my `S-56` back-fit list was wrong.** `a1wrt_run_unit.sh:283-317`, **fired live** — and it carries an **UNMEASURED-refusal limb `d6rf` lacks** (`ABORT ITEM CEILING: prior spend is UNMEASURED`). **`A1WRT` has no chain driver at all** — I conflated it with `a1wr_chain_driver.sh`, which is the one that fired four arms in three hours. **The finding stands against A1WR; the item named was wrong.**
+
+**(b) The `rc 127` bytes are NOT in git** — the pre-repair blob references `FFD_SRC` **zero** times; the defect lived uncommitted and was repaired before landing. **A control anchored there has no known-positive in the searched population** — the same lesson this lab paid for in the closure-challenge sweep. The draft commits static fixtures instead.
+
+**(c) The 3.15 % `SO3aF2` overrun is NOT in `CAP_OVERRUN.txt`** and could not be located there. **The substance survives and is worse than I wrote:** that file records two *per-arm* overruns marked *"reported, NOT enforced"*, and the runner cap is **advisory, inert and OFF** by design (D539) — **it reported an overrun it could never stop.**
+
+###### 5. `A1WRT2` — APPROVED IN DESIGN, NOT FROZEN, NOT QUEUED
+
+**The successor is worth running and it is NOT the one the item implies.** The registered deliverable — the tail **α 13…18** — is **completely unbought: zero of seven points ran.** The blocker was `empty`, now measured dead, so it no longer blocks; `U1`'s `4000/` state is on disk as the continuation asset. **The successor is the tail on `symmetry`, continued — and it re-buys nothing.**
+
+**Explicitly NOT proposed, and each would have been waste:** another `empty` arm, another cold-vs-continued probe, and A1ZE's contamination pair — measured or blocked already.
+
+**The honest limit, stated in the draft rather than discovered later:** `PASS` is **unreachable by construction** (no Roache triple → `G-NOBAND`), the tail points **will very likely not converge**, and **no stall angle may be reported.** Ceiling `GATE REACHED`; the real content is a **restart-fidelity gate plus honest per-point certification**, not a physics band. **P4 (`dCL/dα` positive to α=18) is registered unhedged and PREDICTED TO MISS.**
+
+Draft at `wall_resolved_alpha_tail/A1WRT2_SUCCESSOR_DRAFT.md` (`782c2e7d`): **§1 is the success label FIRST**, emitted by `compose_item()` printing `A1WRT2_VERDICT <token>` and nothing else, with **`NO ITEM VERDICT BY CONSTRUCTION` registered as FORBIDDEN** — an `EXIT` trap prints `PENDING` and exits 12 rather than falling silent. **That single clause is the repair for all three items in §1.** Per-arm costs in the frozen document (`SEAM` 3.10, `TAIL` 224.75, item 227.85 point / 367.2 pessimistic, caps 10.0/675.0, ceiling 685.0); the ceiling guard as the **union** of A1WRT's UNMEASURED limb and d6rf's tolerance; charter §2 discharged structurally and **charter §6 discharged BY MEASUREMENT** (`G-WARPPROBE` — non-zero makes a shipped arm owed, and it is priced now); every control **shown able to fail in a named direction**, two of them on real measured known-positives at zero cost.
+
+**OWED BY ME:** check 1 on `A1WRT2`'s composition code before freeze; check 1 on `W3S`'s `--gscan` binding; the `D6RF3` freeze decision; the item-ceiling guard into the driver template; and a ruling on whether `A1WR`'s own record needs an addendum for the swallowed-97 — **the lane correctly declined to take that one.**
+
+
 ##### UPDATE S-57 — **⚠⚠ A CORRECTION THAT REACHES SANAA'S DESK: I WROTE THAT "`W` IS ABSENT FROM `D12R`'s CONDITION AND NO WINDOW COULD HELP IT." **THAT IS FALSE.** `δ_eff` **IS** `δ_window`, WHICH IS A FUNCTION OF `W` — MEASURED, IT FELL **4.03×** FROM `W=300` TO `W=2000` AND `h_min` IMPROVED **1.91×**. THE WINDOW AXIS IS **OPEN**, AND STILL **1.82× SHORT**. THE DESK ITEM IS REFRAMED, NOT WITHDRAWN. `D12R` CLOSED AT `NOT A RESULT` FOR **0.0161 CORE-MIN**** (2026-09-04, `date -u` stamp in the committing invocation)
 
 ###### 1. THE CLOSURE LANDED, AND EVERY REGISTERED PREDICTION HIT
