@@ -241,3 +241,66 @@ checkpoint cadence, ledger mechanics: byte-identical.
 
 *Nothing below this amendment existed when it was committed; the inversion launches
 only after it lands.*
+
+---
+
+## Amendment 2 — dated 2026-09-04, DISCLOSURE ONLY: §C's three numbers rest on a single step, and §7 step 1 was already in force when they were produced
+
+**Appended at the foot; append-only, per `CLAUDE.md` rule 6. THIS AMENDMENT GOVERNS LINES 207–211 — the §C FD table — together with the prose that reads it at `:201-206` and `:213-214`, and it governs nothing else in this file.** It alters no gate, no threshold, no cap and no label. **`S1_CBFS_REINVERSION_RESULT.md:92`'s `PASS` is NOT relabelled here**, and section D states why not. Zero compute: no solver ran to produce anything in this amendment.
+
+### A. What the three numbers actually rest on
+
+The §C table at `:207-211` reports **0.032 % / 0.115 % / 0.009 %** for cells 5363 / 5428 / 5491 against the anchor8 gradient. **Each of the three is a single central difference at a single step, `h = 0.05`.** No second step was run at the amended `primalMinResTol 1e-8` tolerance for any of the three cells.
+
+The ledger is unambiguous about the count: exactly six perturbed primals produced the table — `fd8_5363_plus/minus`, `fd8_5428_plus/minus`, `fd8_5491_plus/minus` `[MEASURED, /home/ubuntu/certonomous-runs/S1-cbfs-reinversion/ledger.csv]` — two per cell, which is **one central difference per cell and not a sweep**.
+
+Two further departures from `VERIFICATION_CHARTER.md` §7's stated table shapes, recorded because they are the same omission read from the other side. The §C table carries **no step column** and **no per-component sign-match column**; §7 names `| idx | analytic | FD (step) | rel. err % | sign match |` as *"the shape that catches the failure the standard is built around"*. "Zero sign flips" is stated once, in aggregate prose at `:213`, for all three components together.
+
+### B. The duty that was in force, and the exact date it entered
+
+`VERIFICATION_CHARTER.md` §7, reporting protocol step 1, verbatim:
+
+> *"Confirm the step sits in the well-converged plateau with a two or three point mini-sweep. Not assumed."*
+
+That clause entered the charter at **`commit ea53c110`, 2026-07-30 18:53:17 +0000** — the commit that ADDED `docs/charters/VERIFICATION_CHARTER.md` to this repository. The sentence stands at line 208 of that commit's blob and is absent from its parent `[MEASURED, git show ea53c110:docs/charters/VERIFICATION_CHARTER.md and ea53c110^]`. **This file froze at `commit 289a9e03`, 2026-08-07 20:14:45 +0000 — 8 days and 1 hour after the duty existed.**
+
+**The duty was live law when §C was produced. There is no retroactivity defence and none is offered here.**
+
+### C. What is deliberately NOT cited against these numbers, and why the distinction is kept
+
+`DAFOAM_CHARTER.md` §3 forbids, in those words, *"Quoting an FD number from a single step"*, and requires the sweep be run at the primal tolerance the graded run uses. It would be the sharper clause. **It is not cited, because it landed at `commit 35e06e85`, 2026-08-21 17:42:57 +0000 — seventeen days after this file froze** `[MEASURED, git log -S over that charter]` — and because §3's own text cites this file's Amendment 1 §B as the incident that earned it.
+
+`VERIFICATION_CHARTER.md` §2h.6 holds that a registration *"cannot retroactively CLAIM THE BENEFIT"* of a later clause. **The mirror of that duty is that a later clause is not CHARGED against a registration that could not have read it**, and this amendment keeps both halves. The disclosure rests on §7 step 1 alone, which was in force and needs no help.
+
+### D. What this does to the verdicts — and the two things it does not touch
+
+- **The FD row's disposition WAITS for the measurement; it is not settled here.** The evidence points to **`NOT A RESULT`** rather than `GATE FAIL`: the value is not shown to be wrong, it is shown to be **unverified at the one precondition §7 step 1 places ahead of reading a value at all**. Relabelling before the second step is bought would replace a number that may well be right with no number, and would leave this family with no defended field-inversion FD figure; that is a bookkeeping act, not a measurement. **The measurement is registered separately** at `cases/dafoam/ladder-b/S1_FD_PLATEAU_PREREGISTRATION.md` — a NEW registration, not an extension of this one, because rule 2 and §2h.6 both forbid bolting new compute onto a frozen document. It is a DRAFT and unfrozen at this writing.
+
+- **G1 and G2 do NOT fall with the FD row.** They have been read as one object with it and they are not one object. G1 (`J_qoi` 0.25847, −74.2 %) and G2 (26.9 %) require only that the gradient be **usable**, and that is established **independently of the FD row's magnitude** by two controls this item ran: eval-1 reproduced the anchor8 baseline `varianceU` bit-identically and the anchor8 gradient with **max abs diff exactly 0**, and the cold final-state control reproduced eval 16's `varianceU` to all digits. **Neither control is an FD comparison, and neither is weakened by a step-size question.** G1 and G2 stand exactly as measured, on the grounds they were registered.
+
+- **Amendment 1 §B is untouched and is corroborated below.** Its tolerance finding is not in question; section E strengthens it.
+
+### E. A corroborating measurement taken while writing this, from artefacts already on disk, at zero compute
+
+Amendment 1 §B attributes the 1e-6 miss to the cold primal *"stopp[ing] at the first 1e-6 crossing (stop iters scattered 383–458 across the six FD runs)"*. The per-run stopping iterations confirm the mechanism and the 1e-8 side of it was never recorded:
+
+| protocol | stopping iteration, each of the six FD primals | §C / §B rel err |
+|---|---|---|
+| 1e-6 — §B's recorded miss | 422 / 458 / 383 / 389 / 384 / 386 | 25.9 % / 32.0 % / 32.2 % |
+| 1e-8 — §C's graded table | **2500 / 2500 / 2500 / 2500 / 2500 / 2500** | 0.032 % / 0.115 % / 0.009 % |
+
+`[MEASURED, log.fd_5363_plus … log.fd_5491_minus and log.fd8_5363_plus … log.fd8_5491_minus in that run root]`. **Every 1e-8 primal ran to the endTime cap of 2500.** So the amendment did not merely tighten a threshold: **it removed the stopping rule from the experiment entirely**, and with it the perturbation-dependent stopping point that made the plus and minus legs of each 1e-6 pair converge to different depths. This is a stronger statement of §B's finding than §B makes, and it changes nothing in §B.
+
+**It also does not discharge section B's duty.** A common, deep stopping point removes one channel of contamination; **a plateau is a statement about the STEP**, and no second step was run.
+
+---
+
+| what this amendment did | figure |
+| --- | --- |
+| gates, thresholds, caps or labels altered, widened, narrowed or retired | **0** |
+| verdicts changed anywhere by this amendment | **0** |
+| clauses or lines above edited or struck | **0** |
+| charter clauses cited that postdate this file's freeze | **0** (`DAFOAM_CHARTER.md` §3 identified and deliberately NOT charged — §C) |
+| solver core-minutes spent to establish it | **0.000** |
+| new measurements taken from existing artefacts at zero compute | **12** (the twelve stopping iterations in §E) |
+| lines whose number changed above this section | **0 — PROVED ON BYTES by `cmp -n 15140` against the `HEAD` blob in the same shell invocation as the append, exit 0** |
