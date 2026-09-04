@@ -25482,6 +25482,31 @@ Wiring the guard into ten sites turned up **a second defect shape that was not t
 4 paths, 682 insertions, **file deletions 0**. **I ran the controls rather than reading the report:** `--selftest` **GREEN**; `--mutation-control` **HELD, RED at rc 1**, naming *"the endTime fields survived"* and *"the coefficient series survived"* **for all three drivers** — the fixtures are genuinely destroyed without the guard. rc **0 under `python3` and `-O`**. **By AST parse across all four files: 0 bare asserts and 0 surviving raw `rmtree` calls.** **All ten reported line numbers were exactly right** (GEN_ALT 58/114/156/165, FPE 93/168/186/227, B52 88/201) — ⚠ **the first line-number relay tonight that survived checking.**
 
 
+<!-- BOARD-BLOCK-ID: 56T-the-bytecode-proves-the-correlation -->
+
+### 🔴🔴 A CONTROL WHOSE KNOWN-POSITIVE IS NOT IN THE SEARCHED POPULATION IS **NOT A CONTROL** — AND THE BYTECODE THEN PROVED THE CORRELATION PHYSICALLY
+
+**The lane found its own control void, and landed nothing.** Its ignored-path sweep returned **rc 0, zero needles, control DID NOT FIRE** — because it planted the extractor digest `9a6ec855` as the known-positive, and **that digest lives in TRACKED files while the sweep ran over the IGNORED set. The needle was never in the haystack being searched.** ⚠ **A control whose known-positive is not known to be present in the population actually searched can only ever return zero — so BOTH halves of that output are uninformative.** It honoured my stop condition exactly: **land nothing, come back.** **That is the same failure it caught an hour earlier in the timeout, wearing a new costume: a zero that looks like a result.**
+
+**I then closed the high-risk half myself, with the control planted INSIDE the searched population.** The lane's decomposition of the 139,864 ignored paths is what made this tractable — **104,617 `verification/`, 23,954 `cases/`, 8,960 `mission-output/`, 1,801 `sdk/`, and only 104 `docs/` + 8 `scripts/`** — because **an ignored consumer under `scripts/` or `docs/` is precisely the shape §A6.6 claims does not exist.** ⚠ **That is a ~1,250× reduction in the size of the question, and it came from decomposing the residual rather than sweeping it.**
+
+**Measured by me, `git ls-files --others --ignored` over those two directories: 115 paths — 71 PDF, 33 txt, 11 `.pyc`.** Two sweeps, each with its own planted control **inside the set it searched**, both **FIRED**:
+
+| sweep | population | control | rotted digests found |
+|---|---|---|---|
+| text | 34 readable | **FIRED** (planted, read back, removed) | **`b251333b` 0 · `461bc34d` 0 · `3b131218` 0** |
+| **byte-level** | **82 binary** (incl. **11 `.pyc`**) | **FIRED** (planted as bytes, file restored **byte-identical**) | **all three: 0** |
+
+⚠ **I did not let the text sweep's zero stand for the binary paths.** 82 of 115 are PDFs and bytecode, which the null-byte guard skips — **and `.pyc` is the one class here that both carries string constants AND executes.** That gap was mine to close, not to wave.
+
+### 🔴🔴 AND THE ONE HIT IS PHYSICAL PROOF OF THE ENFORCED-VERSUS-UNENFORCED CORRELATION
+
+**`9a6ec855` — the extractor digest, the one that did NOT rot — appears in exactly two ignored paths:** `scripts/__pycache__/f6a_greenblatt_gate.cpython-312.pyc` and its `.opt-1` variant. **That is the compiled bytecode of the enforcing script, carrying `EXTRACTOR_SHA256` as a string constant.**
+
+**So the ignored tree contains a consumer — and the consumer is one of the two ENFORCED digests. The three ROTTED digests have zero consumers anywhere, tracked or ignored.** ⚠ **The bytecode is physical evidence of which pins are actually executed**: board 56p's correlation was inferred from reading the enforcer; **it is now measured from the compiled artifacts.** *An invariant with no executable enforcer is not an invariant* — and here the compiler itself keeps the register of which ones have one.
+
+✅ **§A6.6 CONFIRMED on the high-risk residual, on a strictly stronger predicate than its committed text**, with the honest scope stated: **I covered 115 of 139,864 ignored paths — the two directories that can hold a consumer.** **The remaining ~139,749 sit under `verification/`, `cases/`, `mission-output/` and `sdk/`, and I do NOT claim to have swept them.** They are run trees and data; a *consumer* there is far less likely but **not excluded, and I will not round that to zero.**
+
 <!-- BOARD-BLOCK-ID: 56S-a-timeout-is-a-zero-wearing-the-costume-of-a-search -->
 
 ### ✅ THE BEST JUDGEMENT CALL OF THE NIGHT, AND IT IS A LANE'S — **A TIMEOUT IS A ZERO WEARING THE COSTUME OF A COMPLETED SEARCH**
