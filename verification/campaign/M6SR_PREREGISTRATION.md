@@ -6390,3 +6390,41 @@ are registered from `createPatchDict`, so Gate A can be graded on the real ids f
 has never seen a real M6 `log.checkMesh` and did not produce one. It did **not** re-derive the
 physics or the gates. **Check 1 on this diff, check 4, the freeze and the launch are the
 supervisor's, and this lane takes none of them.**
+
+---
+
+### 26.14 ADDENDUM, SAME SESSION — **`FZ1`'s EXIT CODE AT AMENDMENT 20's COMMIT, AND THE CHECK-1 DIFF ARTIFACT**
+
+§26.12 forward-referenced this section because `check_comparator_freeze.py` compares HEAD blobs
+against worktree blobs and therefore cannot be run before the commit it verifies. **It was run
+immediately after commit `26f47940`:**
+
+`python3 scripts/check_comparator_freeze.py --repo . --registration
+verification/campaign/M6SR_PREREGISTRATION.md --restrict-to-registration`
+
+> **EXIT CODE `0`. `VERDICT: PASS`. `PIN COVERAGE: 10 of 10 pinned executable(s) judged in the
+> population; 10 PIN-OK, 0 violating.`**
+
+✅ **All three re-pinned executables read `PIN-OK` at their new shas** — `analyse_m6sr.py`,
+`run_m6sr_b5.sh`, `check_m6sr_launch_path.sh` — **and the other seven were RE-VERIFIED at this HEAD
+rather than assumed**, each reading `PIN-OK` in the same run.
+
+⚠ **THE VERIFIER'S OWN CAVEAT IS CARRIED, NOT DROPPED.** As at every prior amendment, all ten rows
+are **NO-MARKERS**: the freeze-margin limb did not fire and cannot while this tree carries no
+completion marker (§23.7, item 41). **What was tested is IDENTITY and CURRENCY. A `PASS` from this
+mode is not a marker-dated freeze margin and must not be read as one.**
+
+**THE CHECK-1 ARTIFACT.** The whole of Amendment 20's commit is on disk as one file for the
+supervisor's first check:
+
+| | |
+|---|---|
+| path | **`cases/M6SR/AMENDMENT_20_ITEM_47_LAUNCH_PATH.diff`** |
+| content | the **unmodified stdout** of `git --no-pager show 26f47940fba7d6c13bb019cb4c92cbb7d9600820` |
+| size | **106,419 bytes, 1,489 lines** |
+| sha256 | `08f3dc52bcf30dc199a014607c28714a48df08e2e56de84fac12e6973cc2f8b6` |
+| equality | **`cmp` against a FRESHLY RECOMPUTED `git show` of the same sha: BYTE-IDENTICAL** |
+
+**AND THE COMPARISON IS PLANT-VERIFIED (rule 3):** the same `cmp`, run against a copy of the fresh
+output with **one line appended**, **DOES report a difference** — so the equality above is evidence
+and not a comparator that cannot see one.
