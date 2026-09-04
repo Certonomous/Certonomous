@@ -5318,11 +5318,82 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-04T22:23:57Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-70` — **check 4, done AS ARITHMETIC, blocks a freeze: `W3S` leg A2's cap is 29.2 % larger than its own timeout permits — a cap that can NEVER BIND — and at `W=3000` its margin is 24 SECONDS against a model whose own worst residual is 18.6 %. The bound is NOT raised.** Before it, `S-69`, `S-68`, `S-67`, `S-66`, `S-65`…`S-29`.
+**Section last written:** 2026-09-04T22:34:15Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-71` — **I was charging the WRONG CLAUSE: `DAFOAM_CHARTER` §3 postdates these records by SEVENTEEN DAYS and a lane refused to use it, so the disclosures rest on §7 step 1 alone. And a measurement taken AGAINST the audit's own case weakens my W4 framing — recorded precisely because it helps the record under audit.** Before it, `S-70`, `S-69`, `S-68`, `S-67`, `S-66`…`S-29`.
 
 **Section last written:** 2026-09-04T01:08:43Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-48` — **`W3` IS NOT RUNNING AND HAS NOT BEEN SINCE 21:57:49Z; IT REACHED ITS REGISTERED TERMINUS, AND THE REGISTERED FALLBACK DOES NOT RESCUE IT.** `S-47`'s and `S-46`'s *"`W3_chain_r2` running"* lines are **STRUCK BY QUOTE** below — they were true when written and were still being relayed three hours after they stopped being true. Before it, `S-47` — **DESK ITEMS CLOSED**: the **rule-10 hole is fixed in the constitution itself** on Sanaa's GO (`0ee2e7df`, verified by me at HEAD, not taken on relay), and the rule-12 estimate gap is **routed to verification** as a forward-only note. `S-46`'s "on Sanaa's desk" line is **struck by quote** so no successor re-escalates a closed item. **Nothing now on her desk from this family** but the four `NOT FILED` upstream defect classes and FD-vs-adjoint as a fourth `V` instrument. Before it, `S-46` (closing state), `S-45`, `S-44`, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+##### UPDATE S-71 — **⚠ I WAS CHARGING THE WRONG CLAUSE: §3 POSTDATES THESE RECORDS BY SEVENTEEN DAYS AND A LANE REFUSED TO USE IT. THE DISCLOSURES REST ON §7 STEP 1 ALONE. AND A MEASUREMENT TAKEN *AGAINST* THE AUDIT'S OWN CASE WEAKENS MY W4 FRAMING — RECORDED BY THE LANE PRECISELY BECAUSE IT HELPS THE RECORD UNDER AUDIT** (2026-09-04, `date -u` stamp in the committing invocation)
+
+###### 1. ⚠⚠ THE TRAP I WALKED TOWARD AND A LANE DID NOT
+
+I built the ladder-b finding on **two** clauses: `VERIFICATION_CHARTER.md` §7 step 1, and `DAFOAM_CHARTER.md` §3's sharper *"Quoting an FD number from a single step."*
+
+**§3 landed at `35e06e85`, 2026-08-21 17:42:57 — SEVENTEEN DAYS AFTER the last of these records — and its own text cites S1's Amendment 1 §B as the incident that earned it.**
+
+> **Charging §3 against these six numbers would have been `§2h.6`'s error run in reverse: reaching FORWARD to a rule that did not bind, having just spent the day insisting a rule that DID bind was not reached around.** *The clause I most wanted to cite is the one the incident created.*
+
+**Every disclosure placed rests on §7 step 1 ALONE and says in terms that §3 is identified and deliberately NOT charged.** The lane found this unprompted and declined the sharper weapon.
+
+**And the `ea53c110` fact is STRONGER than I had it:** it is not merely a commit where §7 step 1 appears — **it is the commit that ADDED `VERIFICATION_CHARTER.md` to this repository.** The duty is **coeval with the charter itself**; there is no earlier version lacking it. *Correction to me: the W4 gap is **4 d 21 h**, not 5 days; S1's **8 d 1 h** was exact.*
+
+###### 2. ⚠ A MEASUREMENT THAT RUNS AGAINST THE AUDIT'S OWN CASE, TAKEN AND REPORTED ANYWAY
+
+I framed W4's 1e-6 arm as a trap — *"a limb bought at 1e-6 measures the plateau of a protocol since shown defective."* **Nobody had recorded the stopping iterations. They were on disk:**
+
+| protocol | stopping iteration per FD primal | rel err |
+|---|---|---|
+| **W4 §5d at 1e-6** | **1578–1582 — spread of 4 across NINE runs** | 0.085 / 0.059 / 0.199 % |
+| S1 at 1e-6 *(the miss)* | 383–458 — spread of **75** across six | 25.9 / 32.0 / 32.2 % |
+| S1 at 1e-8 *(clean)* | **2500 on all six** — the `endTime` cap | 0.032 / 0.115 / 0.009 % |
+
+> **The pollution S1 measured is a property of STOPPING EARLY, not of the tolerance LABEL.** W4's primals ran ~4× further and stopped at essentially the same iteration regardless of perturbation. **Measured in iterations actually taken, W4's 1e-6 primals sit far closer to S1's CLEAN 1e-8 sweep than to its polluted one.**
+
+**My framing is materially weakened — not refuted, since the residual DEPTH is still unestablished.** And the lane's reason for recording it is the sentence to keep:
+
+> **"A fact that helps the record under audit is exactly the one an auditor may not sit on."**
+
+*Also now MEASURED rather than inferred: W4's tolerance, `primalMinResTol 1e-06`, read from `cbfs_beta_computetotals.log:371` in W4's own run artefact.*
+
+###### 3. COST — MY FIGURE WAS INCOMPLETE, AND MY W4 NUMBER DOES NOT REPRODUCE
+
+**My 45.5 core-min is the plateau limb ALONE and omits `DAFOAM_CHARTER.md` §4's mandated TRIVIAL BASELINE** — the deliberately-wrong-step control, which §4 requires be registered **and run**, and which B3's precedent did run.
+
+| arm | primals | core-min |
+|---|---|---|
+| P — plateau, 3 cells × 2 sides at `h = 0.025` | 6 | **45.533** |
+| **F — §4 trivial baseline, 5363 × 2 sides at `h = 0.5`** | 2 | **15.178** |
+| **total** | **8** | **60.711**, cap 75.0, **$0.0519 DERIVED** |
+
+**And my "~99" for W4's re-anchor does not reproduce on any decomposition that buys a fresh anchor**: Option 2 is **116.400** (6.1×). The 96.433 figure is **Option 2b**, reusing the archived 1e-6 adjoint — **which the lane priced so it could be refused KNOWINGLY, and recommends against, because the adjoint at 1e-8 is not established to equal the adjoint at 1e-6 on this case.**
+
+*The step itself is not the lane's taste either: `N-D21`'s mechanical rule with `s_hi` fixed at the graded 0.05 yields `s_lo = 0.025`, and **its selection limbs are explicitly NOT re-run** — re-choosing a graded step after the answers are known is §3's own third forbidden clause. η registered from an existing log at zero compute, with the **thin-window weakness disclosed** (two samples in the 200-iteration window) and a conservative alternative registered alongside so **no verdict can turn on the window choice**; clearance registered **NON-BINDING with the reason stated**, because a criterion that cannot fail is said to be unable to fail rather than quoted as though it passed.*
+
+###### 4. ⚠ A FIFTH PROPAGATION SITE — AND IT IS A **STANDARD**
+
+`docs/dafoam/V_STANDARD_FD_VS_ADJOINT.md:163-169` **aggregates all six numbers into one table** and makes them the evidentiary basis of a standing argument: that field-DV FD numbers legitimately sit one to two orders below §7 step 4's harness floor. `PRIOR_WORK_INVENTORY.md:568` and `:1343` carry them too.
+
+> **A standard propagates further than a record — it is cited AS AUTHORITY by things that never look at the underlying runs. The disclosure duty is therefore STRONGER here, not weaker.**
+
+**The lane did not touch it** — *"amending a standard on my own reading would be the overreach rule 9 warns about"* — and it was right. **Dispatched with the sub-floor twist attached:** §7 step 4's *"a number below that is a claim about the harness"* **was itself STRUCK as invented on 2026-09-03**, so this standard may be rebutting a withdrawn accusation using numbers whose plateau is unestablished. **That could mean LESS repair than it looks, or more; it is to be measured, not assumed.**
+
+###### 5. ⚠ AND A QUESTION POSSIBLY LARGER THAN THE WHOLE FINDING — ROUTED, NOT RULED
+
+§7 step 5 reads *"Central differences, `step_calc=abs`, **step between 1e-3 and 1e-2**."* **Every FD number in this family uses `h = 0.05` — outside that range on the literal text.**
+
+**Not charged, and it is not ours to charge.** §7 does not state whether the range is **absolute** or **relative to the DV's own units**, and β is a dimensionless multiplier about 1 while a shape DV is a length. **`VERIFICATION_CHARTER.md` is another team's charter and theirs to interpret.** *A family that has just had its own charter reading corrected in its own §20 should be slow to correct somebody else's.* **Referred upward with evidence; the lane is counting how many items sit outside the range and whether any registration acknowledges it.**
+
+###### 6. PLACEMENTS, AND ONE CONDITIONAL THAT FIRED
+
+Four records, four commits, **every line-number safety proved on bytes with `cmp -n` against the HEAD blob in the same invocation, never asserted.** The frozen prereg took a foot addendum through `scripts/append_block.py` (no heredoc, L-405). W4's went in place — and that mattered, because **`W4_M1M2_PREREGISTRATION.md` is itself frozen and cites W4 at fourteen line numbers**; all resolve.
+
+**My Ruling-1 conditional fired and was RUN rather than assumed:** `MATRIX_CONTRIBUTION.md:274` cites the RESULT record at `:92` and `:42`. Both sit above the gate table's end, so the under-table placement leaves them unmoved — **proved by `cmp -n 6294`, exit 0, lines 1–92 byte-identical.** *The lane then said placement at the foot was unnecessary rather than moving it defensively.* **Ruling 4 executed: `GATE PASS` → `PASS`, one line for one line, the editing script asserting the exact audited text before running.**
+
+*And the prior lane's Drafts A–D were **not on disk** — the scratchpad is not a handoff channel (**L-186**) — so all four were **re-authored from the rulings** rather than inherited. Disclosed, not glossed.*
+
+**STATE:** two lanes live, zero compute today. Nothing frozen, nothing enqueued, no solver started. **OWED BY ME:** the `V_STANDARD` placement; the W4 option after the zero-compute decision rule reports; check 1 ×2; the `:92` disposition after the measurement.
+
+
 ##### UPDATE S-70 — **CHECK 4, DONE AS ARITHMETIC, BLOCKS A FREEZE: `W3S` LEG A2's CAP IS **29.2 % LARGER THAN ITS OWN TIMEOUT PERMITS** — A CAP THAT CAN NEVER BIND — AND AT `W=3000` ITS MARGIN IS **24 SECONDS** AGAINST A MODEL WHOSE OWN WORST RESIDUAL IS 18.6 %. THE BOUND IS NOT RAISED** (2026-09-04, `date -u` stamp in the committing invocation)
 
 ###### 1. CHECK 4 IS WHY THIS EXISTS, AND IT IS THE FIRST TIME IT HAS CAUGHT SOMETHING BEFORE A FREEZE
