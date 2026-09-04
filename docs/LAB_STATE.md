@@ -26087,6 +26087,94 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 58-M6SR-CHECK4 -->
+
+**Section last written:** 2026-09-04T20:53:06Z by a cfd `lab-lane` at the supervisor's instruction (stamp from `date -u` read in the committing shell invocation). **FIFTY-EIGHTH WRITE.** **PURE INSERTION at the top of the `## cfd` section; every byte below stands unedited** — nothing is renumbered, deleted or rewritten, and no other team's section is touched. The two `**Section last written:**` stamps further down belong to boards 56 and earlier and are deliberately **left alone**, because editing one is a deletion. Built from `git show HEAD:docs/LAB_STATE.md` and written back in the same shell invocation (L-476), with the six-heading inventory asserted unchanged in count and order and `--numstat` deletions asserted `== 0` outside this block. **Where this conflicts with anything below, this block wins.** Claims marked **VERIFY** were relayed to this lane by the supervisor and are NOT re-derived here; everything not so marked was read at source by this lane at this write.
+
+### 🔴🔴 THE HEADLINE — **CHECK 4 ON M6SR: `GATE FAIL`, AND THE LAUNCH IS REFUSED.** FOUR OF §7's FIVE PRE-LAUNCH CONDITIONS ARE NOT WIRED
+
+**The document names itself the sole blocking authority and then does not enforce four fifths of what it blocks on.** Both halves confirmed by this lane at source, verbatim:
+
+- `verification/campaign/M6SR_PREREGISTRATION.md:796` (§5) — *"Only §7 blocks a launch."*
+- `:1058` (§7) — *"Checked per level **before** launch. A failure here **`BLOCKED`s** the level. Nothing else blocks."*
+
+| §7 condition | wired? | evidence, read at source by this lane |
+|---|---|---|
+| 1 — patch **types** | ✅ **wired twice, and it refuses** | `cases/M6SR/build_m6sr_l1.sh:763-767` aborts with exit 8 on wall≠1, symmetry<1, farfield<1, and again on any `type empty;`; `cases/M6SR/analyse_m6sr.py:1423` carries A9 — *"patch identity per level. BLOCKED on failure (Section 7)"* |
+| 2 — boundary openness ≤ 1e-12 | 🔴 **EXTRACTED, ZERO READERS** | `analyse_m6sr.py:230/:232` are the **only two occurrences of `boundary_openness_max_abs` in the entire tree** (`grep -rn` over `*.py` and `*.sh`); **both are writes.** Nothing ever reads the key back, so nothing can compare it to 1e-12 |
+| 3 — number of regions == 1 | 🔴 **PARSED, NEVER COMPARED** | `:209` regex, `:227` int cast, and no third site inside `cases/M6SR/`. ⚠ **A comparison DOES exist — at `cases/RUNG1_M6/run_r1m0.sh:360` (`"single_connected_region": cm.get("n_regions") == 1`) — in a DIFFERENT campaign's driver, which does not run for M6SR.** A reader who greps the tree rather than the campaign will find a hit and conclude, wrongly, that the condition is enforced |
+| 4 — min cell volume > 0 | 🔴 **PARSED, USED ONLY AS A DENOMINATOR** | `:207` regex; the sole consumer is `:239`, `out["cell_volume_ratio"] = out["max_volume"] / out["min_volume"]`. **A negative minimum volume — inverted cells, which is the exact hazard the condition exists for — fails nothing.** It merely flips the sign of a ratio nothing gates on |
+| 5 — patch **names** against a per-level expected set | 🔴 **NOT IMPLEMENTED AT ALL** | A9 tests **types** and a count `>= 3`. **No expected-name set exists anywhere in `cases/M6SR/`** — this lane's own search for one returned only unrelated assertion prose in the two build/launch-path suites. **VERIFY:** the supervisor's wider sweep (both `.py` and `.sh`, any spelling, filtered to lines carrying a comparison/abort/refusal token) returned **zero hits**; this lane confirmed the campaign directory only |
+
+🔴 **AND THE CONTROLS COULD NOT HAVE CAUGHT IT — CONFIRMED BY THIS LANE, NOT RELAYED.** Both `checkMesh` fixtures in `analyse_m6sr.py` (`_CM_EQ_FORM` and `_CM_COLON_FORM`, ~`:1799-1822`) carry **clean values only**: openness `2.99e-17 / 1.0e-18`, `Number of regions: 1 (OK)`, min volume `1.17547e-10 / 5.0e-11` — **both positive.** **No fixture anywhere exercises a failing openness, a region count ≠ 1, or a negative minimum volume.** A suite whose fixtures are all lawful cannot distinguish "the condition passes" from "the condition is never evaluated." ⚠ **This is the same unrepresentative-fixture shape as F5b, in a second instrument, found the same week.**
+
+### 🔴 THE CONSEQUENCE, RECORDED PLAINLY BECAUSE IT IS THE PART WORTH KEEPING
+
+**Eleven adversarial passes each answered *"nothing else between this document and a lawful launch"* — and §7 was unwired through all eleven.** ⚠ **Not one of the eleven found it.** It was found by the supervisor's own **check-4 read of the document's stated preconditions** — *the precise check that was skipped at the premature freeze `40f2d9b9`*. **The lesson is not that the passes were lazy; it is that a pass which asks "is anything else outstanding?" cannot find a condition that IS registered and simply has no code behind it.** Only reading the document's preconditions **as a list to be traced into executables, one at a time**, finds this class.
+
+### ✅ CHECK 1 ON `3041554b` — **PASS**, WITH THE LANE'S CLAIM CORRECTED IN ITS OWN FAVOUR
+
+**VERIFY (supervisor's measurement, not re-run here):** the diff body of the check-1 artifact is byte-identical to the commit — sha256 `09828bd6…` on both sides — with a planted control seen. **Only the header framing differs, so the lane's phrase *"byte-identical to `git show`"* was FALSE AS WORDED and true in substance.** Recorded that way round deliberately: the substance is accepted and the wording is struck, rather than the wording being quietly widened to fit.
+
+✅ **The load-bearing line `restrict=by_dir[rel]` was verified AT SOURCE BY THIS LANE**, in `scripts/check_comparator_freeze.py`:
+
+- `:472` — `def check_tree(repo, tree, strict_markers=False, extra=(), restrict=None):`
+- `:488-489` — `if restrict is not None:` → `names = [f for f in restrict if os.path.isfile(...)]`
+- `:492` — `GRADER_RE.match(f)` fires **only in the `else` branch**
+
+🔴 **So `restrict` is strictly LIMITING, not additive like `extras`.** ✅ **That is what closes the near-miss STRUCTURALLY rather than merely measuring it once:** the four heat-transfer graders (`analyse_k0d/k0e/k0er3/k0f.py`) that share `scripts/` with three M6SR pins cannot be conscripted by a cfd registration, **because the code path that would have to name them is the one the flag turns off.** A measured zero would have said "none today"; the branch structure says "none, by construction."
+
+### ✅ CRITERION FZ1 AT HEAD — **EXIT 0, VERDICT `PASS`** (VERIFY: run by the supervisor, not re-run by this lane)
+
+**10 graders in the population, 0 violating, PIN COVERAGE 10 of 10, 10 PIN-OK.** ⚠ **Caveat printed by the tool itself rather than buried:** all **10 of 10** restricted rows are `NO-MARKERS`, so **the freeze-margin limb did not fire** — consistent with board 57T's ruling that the limb is structurally unreachable here.
+✅ **PLANTED CONTROL, and it is why the zero counts:** one byte appended to `cases/M6SR/analyse_m6sr.py` drives FZ1 to **EXIT 3 / `PIN-DRIFT` / VERDICT `FAIL`**, and the file was restored to HEAD and verified clean afterwards. **The exit 0 is therefore a reading, not a blindness** (standing rule 3).
+
+### ✅ RULED ON THE LANE'S FLAGGED JUDGEMENT — ITS CLASSIFICATION IS **ADOPTED, NOT OVERRIDDEN**
+
+The lane's **2/3/3** verdict classification under `--restrict-to-registration` stands. ⚠ **The supervisor's word "REFUSE" meant "must not pass" — it did not mean "must exit 2".**
+🔴 **The reasoning the supervisor adopted, and it is the general principle:** promoting `PIN-DRIFT` and `PIN-STALE` to exit 2 *only under a flag* would make **the same condition carry two different verdict labels depending on an argument** — which makes `--restrict-to-registration` **a DIFFERENT instrument rather than a NARROWER one.** ✅ **A restriction may change the population; it may not change the verdict a given condition earns.** **The lane's reasoning was better than the supervisor's wording, and it is recorded that way.**
+
+### RUNGS WITHOUT VERDICTS — nothing here has one, and none is manufactured
+
+| rung | state |
+|---|---|
+| **M6SR** | **`BLOCKED`** on the §7 wiring; items **43-46 dispatched** |
+| **M6F** | **not freezable** — 20 defects; D1 / D3 / D5 need **redrafting, not addenda** |
+| **F5a** | **not freezable** — §7 gaps **1, 3, 4, 5** |
+| **Rung 2 CRM**, then **HLPW** | **`PENDING`** |
+| **F28G L1** | queued |
+| 129-row queue-divergence batch | **`PENDING`** |
+
+### LIVE RIGHT NOW
+
+**No cfd solvers.** **One lane live**, on M6SR items **43-46** (the §7 wiring).
+✅ **No ladder compute has occurred under M6SR at all.** `verification/runs/M6SR_runs` is **ABSENT — confirmed by this lane at this write** (`ls` returns *No such file or directory*). **VERIFY:** the supervisor's plant of that reading (0 → 1 with a probe at that exact path → 0) is relayed, not re-driven here; **this lane confirms the absence, not the plant.**
+
+### NEXT ACTIONS, in order
+
+1. **Read items 43-46 as a diff** — check 1, personally, by the supervisor.
+2. **Re-run check 4 against the repaired chain** — the same trace of §7's five conditions into executables, not a re-read of the report.
+3. **Only then rule on the launch.**
+
+⚠ **Sanaa's first physics is unchanged and is not displaced by any of this: M6 surface `Cp` at the AGARD span stations, against the family band.**
+
+### ON SANAA'S DESK
+
+**The launch — now behind the §7 repair rather than behind the freeze verifier.** The freeze-verifier objection that held it yesterday is discharged (FZ1 exit 0, above); **what holds it today is that four of the five conditions the document says block a launch do not exist in code.**
+
+### BLOCKED
+
+🔴 **M6SR launch.** **Unblocked by:** items 43-46 landing **with firing controls** — fixtures that actually fail on a bad openness, a region count ≠ 1 and a negative minimum volume — **and FZ1 still at exit 0** afterwards. **A repair whose controls all pass on clean fixtures repeats the defect it is repairing.**
+
+### WHAT THIS LANE VERIFIED ITSELF, AND WHAT IT DID NOT
+
+✅ **Verified at source by this lane at this write:** `check_comparator_freeze.py:472/:488-489/:492`; `analyse_m6sr.py:207/:209/:227/:230/:232/:239/:1423` and both `checkMesh` fixtures; `build_m6sr_l1.sh:763-767`; `M6SR_PREREGISTRATION.md:796` and `:1058` verbatim; the tree-wide occurrence counts for `boundary_openness_max_abs` and `n_regions`; the absence of any expected-patch-name set in `cases/M6SR/`; the absence of `verification/runs/M6SR_runs`; and the three commit shas.
+⚠ **Marked VERIFY, relayed and not re-derived:** the FZ1 run and its planted control; the sha256 `09828bd6…` diff-artifact comparison; the supervisor's tree-wide sweep for condition 5.
+⚠ **ONE CORRECTION TO THE COMMISSIONING BRIEF, measured rather than assumed.** The brief listed the last commits as *"`3041554b`, `62bb3fcc`, `6b7a71e8`"*, which reads newest-first. **It is not:** `git log` gives **`6b7a71e8` 20:24:04Z → `3041554b` 20:39:00Z → `62bb3fcc` 20:39:54Z**, and **`62bb3fcc` is HEAD**, with `3041554b` its ancestor by 54 seconds. **The board carries the measured order.** *(A commit order copied from a brief is a claim about the past, not a reading of the present — board 57S's own standing warning, applied to the brief that quoted it.)*
+
+**Compute spent by this block: 0 core-min.** No solver was launched, killed or signalled; no case directory, registration, comparator, charter or `.claude/` file was written; nothing was sent, filed or submitted (rule 7); and per rule 13 no scratch path is cited here.
+
+
 **Section last written:** 2026-09-04T~01:10Z by cfd-supervisor **personally, no lane**. **FIFTY-SIXTH WRITE.** Board 56 was owed — my predecessor was killed mid-refresh by the subscription switch — and it is landed here as my first act after my first commit. **THIS BLOCK OPENS BY STRIKING THREE FACTS IN MY OWN BRIEF.** Where this conflicts with anything below, this block wins. Built from `HEAD:docs/LAB_STATE.md`, written back to the worktree in the same invocation (L-476), inventory asserted over the six team headings, `--numstat` deletions asserted `== 0`. **History is NOT rewritten:** boards 48–55 stand as committed, errors included.
 
 ### 🔴 THE BOX IS HALF IDLE RIGHT NOW, AND ALL SIX TEAM QUEUES ARE EMPTY. THE BINDING CONSTRAINT IS NOT COMPUTE, IT IS REGISTRATIONS
