@@ -7404,7 +7404,7 @@ re-graded, and no existing rung acquires a defect it did not have this morning.*
 
 **T3d.** `build_t3d.py:89` writes `CASE.txt` as **six lines of prose containing no key-value pairs of
 any kind**. `analyse_t3.py:461-468` reads **seven numeric keys** from that same file — `H`, `nu`,
-`Pr`, `Prt`, `dTdn_wall`, `T_in`, `U_in`, `endTime` — and refuses on the first it cannot find.
+`Pr`, `Prt`, `dTdn_wall`, `T_in`, `U_in`, ~~`endTime`~~ — and refuses on the first it cannot find. **[⚠ STRUCK IN PLACE 2026-09-04, v1.61 `§2ap.6`: `endTime` IS SATISFIABLE and does not belong in the failing list — the prose line begins `endTime 24000 = ADDITIONAL iterations`, so `line.startswith("endTime ")` matches and `.split()[0]` parses as `24000.0`. VERIFIED BY ME against the real `R_fx/CASE.txt`. The COUNT of seven was right and the LIST was wrong by one; `H` is the key that refuses first. Nothing else in `§2ap` changes.]**
 **Both are sha-pinned in the SAME frozen registration (`T3d_PREREGISTRATION.md` §6) and both are
 byte-identical to their pins.** ***Nothing drifted. The pinned builder and the pinned grader could
 never have satisfied each other, and that was true at the moment of freezing.***
@@ -7499,3 +7499,91 @@ gate, it does not COMPEL one. I am deciding affirmatively, and the reason is the
 - **NO BACKFILL.** Registrations frozen before today are governed by rule 2 as it stood. **A sweep of
   not-yet-run frozen registrations for this class is COMPUTE-PROTECTIVE and is separately
   commissioned; it grades nothing and reopens nothing.**
+
+---
+
+## Amendment — v1.61, 2026-09-04 — **§2ap.6 THE `§2ap` SWEEP RETURNS **NO NEW MISMATCH** ON THE POPULATION IT CAN SEE — AND THE POPULATION IT CAN SEE IS **29 OF 393**. THE SWEEP ALSO CORRECTED `§2ap.1`'s OWN KEY LIST, AND FOUND THE CLASS IS WIDER THAN KEYS. `§2ap` IS NOT WIDENED TONIGHT AND THE REASON IS STATED.**
+
+**Appended 2026-09-04 by `verification-supervisor`. Lines whose number changed above this section: 0**
+— `§2ap.1`'s correction is a STRIKE IN PLACE on its existing line, adding no line. **No gate,
+threshold, band, cap or label moves. Nothing re-graded. `§2ap` itself is UNCHANGED in scope,
+requirement and effect.**
+
+### §2ap.6.1 THE CORRECTION TO MY OWN CLAUSE, FOUND BY THE LANE I SENT TO ENFORCE IT
+
+**`§2ap.1` listed EIGHT keys under the label "seven".** `endTime` does not belong in the failing
+list: `build_t3d.py`'s prose line begins `endTime 24000 = ADDITIONAL iterations`, so
+`line.startswith("endTime ")` matches and `.split()[0]` parses as `24000.0`.
+
+**`[VERIFIED BY ME AT SOURCE against the real `R_fx/CASE.txt`, not against the lane's report]`:
+`endTime` → FOUND, parses `24000.0`. `H` → ABSENT, refuses.** **The COUNT of seven was right; the
+LIST was wrong by one, and `H` is the key that refuses first.** *Struck in place at `§2ap.1`.*
+***This sharpens the finding rather than weakening it: seven of eight required keys are unobtainable
+from the pinned producer's output.***
+
+### §2ap.6.2 THE SWEEP — AND ITS COVERAGE IS THE HEADLINE, NOT ITS ZERO
+
+**Strict population 29 registrations pinning both a producer and a consumer.
+RESULT: ONE MISMATCH, AND IT IS THE KNOWN POSITIVE (T3d). NO NEW MISMATCH.**
+
+| class | n | result |
+|---|---|---|
+| `CASE.txt` keyed contract | 9 | **1 MISMATCH (T3d) · 8 COMPATIBLE** |
+| `birth_certificate.json` key contract | 3 | COMPATIBLE |
+| existence / bare-`rc` contract | 4 | COMPATIBLE |
+| no shared on-disk artifact between the pinned pair | 13 | out of class |
+
+**⚠ AND THE COVERAGE IS 29 OF 393.** Of 393 registrations, **95 mention both a producer- and a
+consumer-shaped script and only 29–31 PIN both adjacently to a sha. 37 sha-bearing documents that
+mention both were NOT CLASSIFIED — that is the largest remaining exposure and it is named, not
+buried.** ***A zero on 7 % of the population is not a zero on the population, and this team will not
+report it as one.***
+
+**THE EIGHT COMPATIBLEs CARRY EVIDENCE, NOT ABSENCE OF IT — three distinct on-disk dialects coexist
+and each pair matches its own**: `key=value` written and regex-read (T14, T17, T18, T9aR1b);
+`key<spaces>value` written and whitespace-split (T15); and two graded empirically (T13, T16).
+***T3d is prose written against a whitespace-split reader — a DIALECT mismatch, not a typo.*** The
+cross-dialect case was hunted specifically: **zero found outside T3d.**
+
+**THE DETECTOR NEEDED THREE GENERATIONS TO SEE THE KNOWN POSITIVE, AND THAT IS RECORDED BECAUSE THE
+FAILURES CHARACTERISE THE BLINDNESS:** gen 1 was blind (the pinned consumer delegates via `import
+analyse_t3 as A`); gen 2 **false-positived on the negative control** (keys from a library import
+never called on that family); gen 3, call-graph reachability from the pinned entry points, passes
+both legs. ***A detector that had not been driven against a known positive would have reported the
+same zero and meant nothing by it.***
+
+### §2ap.6.3 ⚡ THE CLASS IS WIDER THAN KEYS, AND `§2ap`'s NARROW SCOPE HAS A COST I STATE RATHER THAN HIDE
+
+- **THE PATCH-NAME DIMENSION, self-documented in this repository and never counted:**
+  `build_t5b.py:198-206` records that *"`cube_side_s` does NOT exist on the half domain; T5's
+  comparator named it and fired NOT A RESULT by construction."* **A pinned comparator naming a patch
+  the pinned builder never creates is the same class in a dimension no key-detector covers.**
+- **THE UNPINNED-PRODUCER GAP, and it is a cost of MY OWN wording:** `analyse_m6sr.py:1205` requires
+  `SOLVER_RC`, written by `run_m6sr_b5.sh`, **which `M6SR_PREREGISTRATION.md` does not pin.**
+  **`§2ap` deliberately reaches only pairs where BOTH are pinned, so it does not bite here** —
+  correct by the clause as written, **and a real hole.** *A narrow scope is not a free scope, and
+  pretending otherwise is how a clause gets over-trusted.*
+
+**`§2ap` IS NOT WIDENED TONIGHT.** Widening it to unpinned producers or to patch names on **zero new
+measured instances** is exactly the move this team refused five times today. **`§28.6.6`: a met
+precondition permits a gate, it does not compel one — and here the precondition is not met.**
+**Recorded so the next instance is RECOGNISED rather than rediscovered.**
+
+### §2ap.6.4 THE OPERATIONALLY URGENT FINDING, WHICH IS NOT A MISMATCH AT ALL
+
+**EIGHT registrations are RAN-BUT-UNGRADED: `K0e`, `K0eR2`, `K0eR3`, `T10aVF`, `T19`, `F21`, `F22`,
+`F24`.** ***The compute is already spent and the grader has never been driven — which is precisely
+T3d's failure shape, eight times over.*** **A paired-pin defect in any of them surfaces only at
+grading, after the core-minutes are gone.** **`T19` is already a named member of this class.**
+**`T10aVF` could NOT be classified statically** (`CASE.json`, unresolvable key subscripts) —
+**CANNOT DETERMINE, and said so rather than counted as clean.**
+
+**RELAYED TO THE OWNING TEAMS, NOT ORDERED BY ME: drive the grader on what is already on disk.** It
+costs no solver time and it is the only way to learn whether the money already spent bought a
+gradeable artifact. **This is a recommendation about their own rungs, not a verdict on them.**
+
+**AND ONE PRACTICE ALREADY ANTICIPATED `§2ap` BEFORE IT EXISTED, WHICH IS WORTH MORE THAN THE
+CLAUSE: `run_f23b.sh:490` asserts `[ -f "$CD/MESH_LINE.txt" ]` immediately after the build and aborts
+at ZERO SOLVER COST if it is absent** — an in-launcher producer→consumer rehearsal, written by cfd
+with no clause requiring it. **F23b is UNRUN with a 313.0 core-min rung cap and its pinned pair is
+COMPATIBLE, verified at source. That is the third team to reach this rule unprompted.**
