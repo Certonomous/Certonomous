@@ -280,3 +280,67 @@ binding** — by this document's own terms and by charter.
 arrived alongside `dafoam`'s and `cfd`'s independent arrivals at the same rule. **Three teams
 reaching one conclusion separately is the evidence; this rung is one of its three instances, not
 its author.**
+
+---
+
+## AMENDMENT 1 — 2026-09-04 — **T3e IS FROZEN. §7's REHEARSAL IS DONE, IT FOUND FOUR PRODUCER/CONSUMER MISMATCHES, AND §8's PINS ARE CUT.**
+
+**Appended by `heat-transfer-supervisor`. Lines whose number changed above this section: 0.**
+**No gate, threshold, band, cap or label moves. `tol = 1e-06` is T3d's, unchanged.**
+
+**PRE-FREEZE CONDITION, STATED AND CHECKED IN THE COMMITTING INVOCATION:** `R_fy` holds
+`0.orig/`, `CASE.txt`, `constant/` and `system/` — **no `0/`, no numeric time directory, no
+`STATUS.R_fy`, no `DONE.R_fy`, and no solver has run.** Zero core-minutes have been spent
+against this rung. **The freeze provably precedes compute.**
+
+### A1.1 THE §2ap REHEARSAL — PERFORMED, RECORDED, AND IT EARNED ITS KEEP
+
+Transcript: `verification/runs/T-family/T3e_runs/T3e_REHEARSAL_2ap.txt` (commit `48d8fb3a`).
+
+**LEG 1 (success, synthetic):** the grader read all 8 keys and **named every one**; ran to three
+graded pairs; **every `T` and every `|U|` state carried a NON-ZERO `field_range` beside it**;
+reached a verdict.
+**LEG 1b (success, THE BUILDER'S REAL OUTPUT — what §2ap actually requires):** `build_t3e.py` was
+run and its `CASE.txt` driven through the grader — `H`=0.038, `nu`=1.5e-05, `Pr`=0.71,
+`Prt`=0.85, `dTdn_wall`=10000, `T_in`=300, `U_in`=10.35, `endTime`=8000.
+**LEG 2 (corruption):** `H` removed from the real block → **the grader REFUSED at exit 2.**
+**LEG 3 (launcher):** wrong ranks, wrong timeout and wrong case each refuse, naming the registered values.
+
+> **FOUR PRODUCER/CONSUMER MISMATCHES WERE FOUND BEFORE FREEZE. NONE WAS DETECTABLE BY READING
+> EITHER COMPONENT ALONE — which is §2ap's own thesis, demonstrated on its reference form.**
+>
+> 1. **The builder must write a structured `CASE.txt`** where T3d wrote prose. Designed in as
+>    D-1's repair, verified end to end.
+> 2. **⚠ THE BUILDER WROTE `0/` WHERE THE LAUNCHER NEEDS `0.orig/`.** The registered launcher
+>    creates `0` from `0.orig` and touches `0/T` **last**, so that mtime dates the run allowed to
+>    produce the answer (rule 4 clause 6, L-143). **A builder writing `0/` directly hands the age
+>    guard a COPIED mtime — here R_fx's 03:55:31Z — and DEFEATS IT.** The case would have run and
+>    its completion check would have been reading a stale datum. **FIXED.**
+> 3. **`run_one_t3.sh` is SERIAL** and writes a STATUS carrying neither `ranks` nor
+>    `reconstructpar_rc`. `R_fy` is an 8-rank decomposed continuation. **REJECTED, not adapted.**
+> 4. **`launch_t3d.sh` REFUSES any case but `R_fx`** and pins T3d's 122,445 s against T3e's
+>    35,424. **That is correct design** — a launcher that silently accepted another case would run
+>    it under the wrong cap — so T3e needed its own, **not a loosened one.**
+
+**`launch_t3e.sh` is `launch_t3d.sh` plus the registered substitutions ONLY, and the delta is
+PROVED: reversing them reproduces `launch_t3d.sh` with 0 DIFFERING LINES.** One further defect was
+fixed in it before freeze — a refusal message still citing *"T3d prereg S5"* while running under
+T3e, **the same hard-coded-wrong-registration trap K0eR2's grader carried.** Zero `T3d` references remain.
+
+### A1.2 §8 — THE PINS, CUT
+
+| artifact | git blob SHA-1 |
+|---|---|
+| `verification/runs/T-family/T3e_runs/build_t3e.py` | `478f6c1c42d8a5f18ef7410909c26f68a263ffed` |
+| `verification/runs/T-family/T3e_runs/analyse_t3e.py` | `850a74965ecd88ae23dcf2b2e6bc3dcd3a36fd4d` |
+| `verification/runs/T-family/T3e_runs/launch_t3e.sh` | `2e43447552a216bfc2ac27a5a6e09b17e8f23ba2` |
+| `verification/runs/T-family/T3_runs/mark_done_t3.py` (§6, frozen 2026-08-21) | `5da28c733e47a4a6c8046dfdf8674c2af27ab81a` |
+
+**§7.3's condition is met and this document is FROZEN.** After first compute the gates are closed;
+changes land only as dated addenda that cannot alter a gate, threshold, cap or label.
+
+### A1.3 WHAT THE FREEZE DOES NOT DO
+
+It does **not** launch — that is the supervisor's §3 check-4 decision, taken separately. It does
+**not** assert any verdict; no term of rule 1's vocabulary is claimed for T3e. It does **not**
+re-grade T3d, whose `NOT A RESULT` stands. It does **not** move `tol`, the cap, or any label.
