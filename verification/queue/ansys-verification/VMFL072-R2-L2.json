@@ -6,22 +6,19 @@
   "grading_freeze": [
     "cases/ansys_verification/VMFL072-R2/compare_vmfl072_r2.py"
   ],
-  "grading_freeze_note": "Blob 7ff4abe4a8192cb71e8cd40d439e73baaff4827b, pinned in PREREGISTRATION.md section 9.1 and repeated here VERBATIM so VERIFICATION_CHARTER 2s.6's registration-first precedence finds no conflict, and so the daemon can verify the pin WITHOUT trusting the registration. VMFL046-R2 was launched today with this field ABSENT and the daemon logged GRADER-FREEZE UNPINNED; that is why it is here.",
   "launch_cmd": [
-    "/usr/bin/env",
-    "VMFL072R2_PREREG_SHA=f5c81c2f2febc7f8a267af1d28631af8f9205d89",
     "bash",
-    "/home/ubuntu/Certonomous/cases/ansys_verification/VMFL072-R2/launch_vmfl072_r2.sh",
-    "L2"
+    "-c",
+    "source /usr/lib/openfoam/openfoam2606/etc/bashrc && exec env VMFL072R2_PREREG_SHA=f5c81c2f2febc7f8a267af1d28631af8f9205d89 bash /home/ubuntu/Certonomous/cases/ansys_verification/VMFL072-R2/launch_vmfl072_r2.sh L2"
   ],
   "cwd": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL072-R2",
   "ranks": 1,
   "cost_core_min_estimate": 9,
-  "cost_basis": "Level L2. Per-level cap 9 core-min is the FROZEN value in launch_vmfl072_r2.sh (registered PREREGISTRATION section 8); method estimate for this level is 2.73 core-min, from per-step wall rates MEASURED on this box at the registered configuration (measured/model 1.246/0.887/0.965 at L1/L2/L3 -- accurate to 3.5% at the level that dominates cost). Serial, RANKS=1: core-minutes == wall minutes, so the timeout is exact. Campaign method total 60.66, filed 92, cap 185. Derived $0.0513/core-h owner-stated -- NOT measured; the box cannot read its own billing.",
+  "cost_basis": "Level L2. Per-level cap 9 core-min is the FROZEN value in launch_vmfl072_r2.sh (PREREGISTRATION section 8); method for this level 2.73 core-min from per-step wall rates MEASURED on this box at the registered configuration (measured/model 1.246/0.887/0.965 at L1/L2/L3). Serial RANKS=1 so core-minutes == wall minutes and the timeout is exact. Campaign method 60.66, filed 92, cap 185. $0.0513/core-h owner-stated, DERIVED not measured.",
   "memory_floor_gb": 1.0,
-  "enqueued_by": "ansys-verification-supervisor. Section 3 check 4 taken personally AND gated by an INSTRUMENT for the first time: cases/ansys_verification/FREEZE_CHECK/check_freeze_ready.py returns rc 0, all seven checks PASS, run against the FROZEN COMMIT f5c81c2f and not merely the worktree. Its own selftest is 15/15 with a planted failure and a positive control per check, identical under python3 -O, and pointed at VMFL046-R2 with --freeze f014449a it REFUSES on C3 -- catching a real known-true defect at the commit where it existed. I also ran the comparator selftest myself (33 arms, 0 failed, one mutant per verdict conjunct) and verified verdict() requires C-19 AND C-20 AND C-21 for PASS, which is charter section 39.3's defect repaired. Run root created BEFORE this row: the daemon refused an earlier filing today for exactly that ordering.",
-  "_levels_note": "FIVE independent rows, one per registered level (the frozen driver takes ONE level per invocation and DETACHES). L1/L2/L3 are the exactness-gate levels; B2 is the anti-circularity bracket at the GRADED level L3; C1 is exact-solution retention at L2. GRADE ONLY WHEN ALL FIVE CARRY RC.txt -- the comparator refuses on a missing level.",
-  "_ceiling": "NO ROACHE TRIPLE IS DECLARED (PREREGISTRATION section 7). Limb A ceiling GATE REACHED -- the reference is EXPERIMENTAL (Roy & Jain 1989) and section 12.2 rules DIFFERENT, so the cap belongs to the REFERENCE, not to our workmanship. Limb B is PASS-capable and is declared in the frozen bytes as an exact-retention test EXPECTED to pass.",
+  "_env_correction": "RE-FILED. The first filing of these five rows was LAUNCHED and REFUSED at rc=2 with 'G-00 MISSING EXECUTABLE: blockMesh / makeFaMesh / checkFaMesh / pimpleFoam'. CAUSE, diagnosed and proved: the FROZEN driver runs its G-00 command -v check but NEVER SOURCES the OpenFOAM environment, while VMFL046-R2's driver sources /usr/lib/openfoam/openfoam2606/etc/bashrc at its line 72 BEFORE checking -- which is why that one ran under the daemon. The lane tested this driver in its own shell, which already had OpenFOAM sourced. That is charter section 14/15 exactly: a smoke that sources an environment the launch does not get has proved nothing about the launch. PROVED: all four executables are on PATH after sourcing and missing without it. FIX APPLIED HERE, NOT TO THE FROZEN BYTES (rule 6): launch_cmd now sources the bashrc and execs the driver, so the launcher's ACTUAL environment carries OpenFOAM and G-00 remains a live check that would still catch a broken install. The guard behaved correctly throughout -- rc=2, no level directory created, nothing partial.",
+  "enqueued_by": "ansys-verification-supervisor. Freeze f5c81c2f gated by cases/ansys_verification/FREEZE_CHECK/check_freeze_ready.py (rc 0, seven checks, run against the FROZEN COMMIT). NOTE HONESTLY: that instrument did NOT catch this defect, and could not -- 'is OpenFOAM on PATH under the daemon' is an ENVIRONMENT question, not a path-existence question. Recorded as a named gap in the checker alongside the field-name gap it already declares.",
+  "_levels_note": "FIVE independent rows; the frozen driver takes ONE level per invocation and DETACHES. GRADE ONLY when all five carry RC.txt.",
   "_field_classes": {
     "physics_critical": [
       "RC.txt rc inside the detached wrapper",
@@ -36,6 +33,6 @@
       "cost_core_min_estimate",
       "runner.log lines"
     ],
-    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342; Sanaa's universal rule 2026-08-26)"
+    "rule": "a missing INFRASTRUCTURE field is a BOOKKEEPING DEFECT that voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
   }
 }
