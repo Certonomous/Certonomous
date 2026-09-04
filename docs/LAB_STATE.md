@@ -24386,6 +24386,84 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+**Section last written:** 2026-09-04T~01:10Z by cfd-supervisor **personally, no lane**. **FIFTY-SIXTH WRITE.** Board 56 was owed — my predecessor was killed mid-refresh by the subscription switch — and it is landed here as my first act after my first commit. **THIS BLOCK OPENS BY STRIKING THREE FACTS IN MY OWN BRIEF.** Where this conflicts with anything below, this block wins. Built from `HEAD:docs/LAB_STATE.md`, written back to the worktree in the same invocation (L-476), inventory asserted over the six team headings, `--numstat` deletions asserted `== 0`. **History is NOT rewritten:** boards 48–55 stand as committed, errors included.
+
+### 🔴 THE BOX IS HALF IDLE RIGHT NOW, AND ALL SIX TEAM QUEUES ARE EMPTY. THE BINDING CONSTRAINT IS NOT COMPUTE, IT IS REGISTRATIONS
+
+Measured by me at 01:08Z, not relayed:
+
+| team queue | pending rows |
+|---|---|
+| ansys-verification | **0** |
+| cfd | **0** |
+| closure | **0** |
+| dafoam | **0** |
+| heat-transfer | **0** |
+| verification | **0** |
+| **total** | **0** |
+
+And **exactly one solver is on the box**: heat-transfer's `T3_runs/R_fx`, 8 ranks at ~99.5 % each, 7 h 03 m elapsed. On a 16-vCPU c7a.4xlarge that is **8 of 16 cores busy — the box is half idle at this instant**, not at 03:48Z as my brief framed it. The daemon has logged `EMPTY: no entries in any team queue; nothing launched` on **every tick**.
+
+🔴 **This is the finding of my turn and it reframes the mandatory-completion order.** Sanaa's standing ruling is that idle compute is a failure, and her 2026-09-04 order is that every assigned case is *"worked on and fixed and solutioned until its at the very least a gate pass."* **Those two cannot both be served by a fleet whose entire launch surface is empty.** The daemon is healthy, the ceiling is running, the selftest passed — **there is simply nothing registered for any of them to act on.** The lab is not compute-bound tonight; it is **registration-bound**, and a registration is written by an agent, not bought with money. **cfd's own contribution to the emptiness is real and I own it**; the fleet-wide shape is not mine to fix and goes to the chief below.
+
+### ✅ THE AUTO-STOP PATCH AND THE DAEMON RESTART ARE VERIFIED — BY ME, IN THE TELEMETRY, NOT ON RELAY
+
+The dispatch told me to verify first-tick telemetry. Done, and all four claims hold:
+
+- **The patch is installed.** `/usr/local/bin/auto-stop.sh`, **43,957 B**, root-owned, **Sep 3 22:52**, with the superseded 11,522 B copy preserved beside it as `auto-stop.sh.bak.20260903T225211Z`. The install timestamp sits **one minute before** the capture commit `fbab523b` (22:53:57Z), which is the right order.
+- **The daemon is on the current module.** `scripts/queue_runner.py` worktree copy is **byte-identical to HEAD's blob** (`git diff --quiet HEAD` clean), mtime 2026-09-03 18:59:13Z, and the daemon started **2026-09-04T00:43:06Z** — after it. `verification/queue/runner.restarts.log` records the start with **`--selftest PASS`**, so the fail-closed selftest gate on the runner's own start path actually fired.
+- **The budget term is DROPPED, and I can see it in the artifact rather than in a claim.** `verification/runs/FLEET_CEILING/ceiling_tick_latest.json` carries `multiplier = 3.0` and **`budget_term = UNAVAILABLE -- NOT EVALUATED`**. The ceiling is 3× the registered cap alone, exactly as ruled.
+- **The ceiling is not failing open.** Per tick: **348 records, 345 evaluated, 3 not evaluated (with reasons), 1 live, 0 live and UNPROTECTED, 0 at/over ceiling.** I suspected `live = 1` of blindness because `ps` shows eight processes — **it is correct**: it counts the *run*, and the eight are ranks of one case. I checked it expecting a fail-open and found an instrument doing its job; recorded because a check that vindicates is worth as much as one that convicts.
+
+### 🔴 STRUCK — THREE FACTS IN MY OWN INCOMING BRIEF ARE FALSE. I CHECKED THEM BEFORE ACTING ON ANY OF THEM
+
+1. **"daemon pid 995043"** — **995043 is dead and holds no process.** The live daemon is **995629**. ⚠ **And the mechanism guarantees this recurs:** `crontab` runs `scripts/queue_runner.sh` **every minute**, and that wrapper restarts the runner whenever the pidfile lock is free. **A board line, brief or report that names the queue daemon BY PID is quoting a value the respawner can invalidate within sixty seconds.** The durable identifier is `runner.restarts.log` plus the pidfile — never a pid carried between sessions.
+2. **"W3 (dafoam) running"** — **it is not.** A full process sweep returns the eight T3 ranks and nothing else; no dafoam solver is on the box.
+3. **"H1's two arms to draft prereg given H3's death"** — **H3 is not dead.** See below; I searched for its retirement and the disk carries the opposite.
+
+**The shape, and it is the one board 55 named in my predecessor's own conduct:** a brief is a relay, and **a relay is not evidence** (rule 9). All three were cheap to check and all three would have propagated into records had I acted on them.
+
+### 🔴 F28G — THE RULED DIAGNOSTIC ORDER'S FIRST ITEM CANNOT EXECUTE, AND ITS RATIONALE IS INVERTED
+
+Two decision words were owed. Both issued at `25aeb131`, as **Addendum 1 (v1.1)** to `verification/campaign/F28G_L1_RESIDUAL_RECONCILIATION.md`, frozen §0–§8 untouched, *lines whose number changed above this section: 0*.
+
+**§6.2's H5 and §6.3's item 1 are STRUCK.** H5's separating measurement was described as available *"from the `residuals` function object already configured and already written"*, and §6.3 ranked it **first, at zero solver compute, because it discriminates among the others.** Measured by me at the artifacts: `system/controlDict:57` reads **`writeResidualFields false`**; `postProcessing/residuals/0/` holds **`solverInfo.dat` and nothing else**; `15000/` holds `U k nut omega p phi` and **no residual field of any name.** The FO *is* configured and it *did* write — it wrote the **per-timestep scalar norms**, the very series §3 already mines. **It never wrote a spatial field because it was told not to.** So item 1 is not free; it is a re-run.
+⚠ **The order was not merely mis-costed — its rationale is inverted.** What was ranked first *for being free and decisive* is **paid** and decisive, and everything queued behind it queued behind a measurement that was never going to happen. **L-478's family verbatim — a name is not a control:** `residuals` is the name, `writeResidualFields` is the control.
+
+**DECISION 1 — the `writeResidualFields` arm: APPROVED IN PRINCIPLE, ruled REQUIRED not optional** (without it H5 is not untested but *untestable*, and it is the only discriminator), **and NOT AUTHORISED TO LAUNCH.** Rule 2 and my non-delegable check 4: no compute without a **committed** pre-registration. Its cost must be derived for **this** mesh at **35,544 cells** (`nPoints:71914 nCells:35544 nFaces:142514 nInternalFaces:70598`) — **neither the 31,752 of the FEAS arms nor the 33,864 of `mesh_A2/L1`.**
+
+**DECISION 2 — H1's two arms: draft the registration, but NOT on the ground I was given.** No artifact records the §6.3 item-2 exponential fit ever being performed, and none retires H3. The disk points the other way, and I add a measurement of my own: the `diskFlow` series is **present and complete at 15,005 lines**, and its last three entries **still descend** — 2.1556253672e-02 → 2.1554645343e-02 → **2.1552744961e-02**. **H3 is UNRESOLVED, not dead.** I decline to retire a hypothesis on a relay the disk does not carry.
+
+**Superseding order:** (1) H3's exponential fit — **genuinely zero compute, verified present by me, OWED NOW**; (2) H5's localisation — **paid**, blocked on a committed pre-registration; (3) H1's two arms — behind both, ≈7.5 core-min/arm **to be re-derived at 35,544 cells**. H2's and H4's arms remain not-to-be-run without a further ruling — that part of the original order is **affirmed**, not superseded. The successor **must not carry the `relaxationFactors` dictionary forward unexamined** (§5's silent no-op).
+
+### ✅ GF2 WAS ALREADY UNBLOCKED — MY BRIEF SENT A LANE TO FETCH WHAT WAS ALREADY ON DISK
+
+`d554e3a7`: *"cfd GF2 IS UNBLOCKED: AGARD AR-138 Table B1-1 is pinned at 72 points -- and the table was ON THIS BOX the whole time, invisible because a scanned table has no text layer."* I briefed an M6 lane to acquire it and **corrected the brief mid-flight** rather than let it spend. ⚠ **The residual question is better than the fetch would have been:** a **scanned** table has no text layer, so the 72 numbers left an image by *some* path — transcription, OCR or digitizer — and **if that mechanism is not recorded, the absence is the finding.** Rule 15's title-page verification is being redone by that lane at the title page, not inherited from the commit that asserts it.
+
+### LIVE JOBS AND LANES
+
+**cfd solvers: NONE.** Foreign and the only thing running: heat-transfer's `T3_runs/R_fx`, pids 342276–342283, 8 ranks, 7 h 03 m at this reading. **Three lanes live, cap reached:** JF1G grading (four ended runs, verdicts + calibration rows owed); M6 (Arm A reduced to a rule-15 verification pass, Arm B the eleven M6SR items and the two routes re-costed); never-run census (real classifier with a mandatory planted control, after the prior attempt's stem-pairing false negatives).
+
+### NEXT ACTIONS
+
+**Registrations, because that is the binding constraint.** F28G superseding item 1 (zero compute, owed now) then item 2's pre-registration; the M6SR freeze decision, **mine**, once the lane's eleven items land; JF1G verdicts + calibration rows at `--allocate-id`; the census work order; then the 129-row queue-divergence batch, route (a)/(b) **my call**, not yet taken.
+
+### ON SANAA'S DESK
+
+Unchanged from board 55, plus nothing new from me tonight. **Standing and unactioned:** her Option 1 sat unused while this ladder went several times over on her Option 3.
+
+### ON THE CHIEF'S DESK
+
+🔴 **NEW — ALL SIX TEAM QUEUES ARE EMPTY AND THE BOX IS HALF IDLE.** Zero pending rows fleet-wide at 01:08Z, one solver running, 8 of 16 cores busy. This is **not cfd's to fix alone** and it sits directly against Sanaa's idle-compute ruling and her mandatory-completion order. Carried forward: the checkMesh verdict-string gate (30 launchers, four teams, 19 ansys-verification's); the rule-12 stall-rule scope question, **referred not reinterpreted**; `sdk/chief_engineer/mesh_certificate.py` reported-not-gated mode, assigned to me, **not started**; the `append_record.py` two-registers/two-id-grammars conflict (`COST_CALIBRATION` requires the allocated id, `LESSONS` requires the integer, and the tool warns you of neither) — **verification's or Sanaa's, not cfd's.**
+
+### COST
+
+**0.000 core-minutes this turn.** Artifact reads, source reads and arithmetic only; no solver launched, no queue row touched, no daemon contacted. No `docs/COST_CALIBRATION.md` row is owed under the standing zero-compute ruling. Lane spend is reported when the lanes return.
+
+### UNVERIFIED, NAMED AS SUCH
+
+**VERIFY:** `writeResidualFields false` is established for **this** run only — the other seven `F28_runs` were not checked, so a sibling carrying spatial residuals would make item 2 cheaper than a re-run, and that is the first thing its registration should test. **VERIFY:** the 1.5815e-6 s/cell/iteration rate is quoted from the reconciliation, not re-measured by me. **VERIFY:** §3's gating trajectory and §6.2's autocorrelations are read as recorded, not re-derived. **VERIFY:** H3's non-retirement is established by search over `verification/campaign/` and the F28 case tree; an artifact outside both would not have been seen — though under this lab's rules an unrecorded fit is an unperformed one. **VERIFY:** the queue counts are of root-level `.json` rows excluding `launched/ held/ refused/ done/`; that is my predicate and I state it rather than publish a bare count. **VERIFY:** every board 55 caveat still stands, including that the JF1G aspect-ratio non-monotonicity is measured and its mechanism unexplained.
+
 **Section last written:** 2026-09-03T~21:2xZ by cfd-supervisor **personally, no lane**. **FIFTY-FIFTH WRITE.** **THIS BLOCK IS MOSTLY CORRECTIONS AND ALL OF THEM ARE MINE.** Four statements I put on board 54 or relayed upward are struck. Where this conflicts with anything below, this block wins. Built from `HEAD:docs/LAB_STATE.md`, written back to the worktree in the same invocation (L-476), with an inventory assertion over the six team headings and `--numstat` deletions asserted `== 0`. **History is NOT rewritten:** boards 48–54 stand as committed, errors included.
 
 ### 🔴 STRUCK — THE `n_rad` CAUSE ON BOARD 54 IS FALSE. REFINEMENT IS TWO-DIRECTIONAL
