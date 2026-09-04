@@ -29,6 +29,20 @@
 #                 the strict all-or-nothing completion rule is EVALUATED (never graded) here.
 #   Section 9.2   execution and assertion mechanics -- every line of it, below.
 #   Section 9.3   rule 12's estimate-versus-actual, owed at EVERY step.
+#   Section 18    AMENDMENT 12 -- THE INSTRUMENT IS PINNED, AND THE GRADING PATH IS
+#                 REHEARSED BEFORE THE RUN IS PAID FOR.  Three new refusals, all at ZERO
+#                 SOLVER COST:
+#                   exit 7  the running image's DIGEST, or the resolved solver binary's
+#                           PATH / VERSION / sha256, does not match the pinned one.
+#                   exit 8  the GRADING path's planted controls do not pass, so a solve
+#                           would be ungradable after it was paid for.
+#                   exit 9  the run root is not the one Section 9's frozen path table
+#                           registers, so producer and reader would use different trees.
+#                 A registration that pins `case_2308.dat` and a points sha256 but not the
+#                 solver binary is pinning the DATA AND NOT THE INSTRUMENT.  The container
+#                 carries THREE `rhoSimpleFoam` binaries (v2506, and OpenFOAM-AD's ADF and
+#                 ADR builds) and the box a FOURTH (native openfoam2606); `M6SR_IMAGE` could
+#                 previously swap the whole tree between the freeze and the run.
 #
 # SECTION 9.2, BINDING, AND EACH LINE OF IT IS OBSERVED HERE:
 #   * ASSERTIONS DO NOT GATE.  No `assert`, no bare `set -e`.  Every check is
@@ -77,6 +91,31 @@ CR=/home/ubuntu/certonomous-runs
 CASES=/home/ubuntu/Certonomous/cases/M6SR
 IMG=${M6SR_IMAGE:-dafoam-idwarp-rot:v1}
 RATE_USD_PER_CORE_H=0.0513
+
+# ---------------------------------------------------------------------------------------
+# AMENDMENT 12 RULING 1 -- THE PINNED INSTRUMENT.  These are NOT `${VAR:-default}` forms and
+# NOTHING IN THE ENVIRONMENT CAN CHANGE THEM.  `M6SR_IMAGE` above may still NAME any image;
+# it can no longer SELECT one, because the digest below must match or the driver aborts at
+# exit 7 before a single core-minute is spent.
+#
+# HOW EACH VALUE WAS OBTAINED (recorded, because a pin whose provenance is not stated is a
+# number somebody typed):
+#   digest  `docker inspect dafoam-idwarp-rot:v1` -> `.Id`, which on this daemon
+#           (docker 29.1.3, storage driver overlayfs) is the OCI IMAGE MANIFEST digest:
+#           `.Descriptor` reads mediaType application/vnd.oci.image.manifest.v1+json,
+#           size 2301, digest identical to `.Id`, and `.RepoDigests` carries the same value.
+#           CAVEAT, STATED: it is NOT corroborated against a registry.  The image was built
+#           on this box (Created 2026-08-21T16:09:52Z) and no registry copy was consulted.
+#   version `WM_PROJECT_VERSION` inside the container after sourcing loadDAFoam.sh, and
+#           `META-INFO/api-info` reading `api=2506  patch=0`.
+#   path    `command -v rhoSimpleFoam` inside that container, after the same source.
+#   sha256  `sha256sum` of that resolved path, inside that container.
+M6SR_PINNED_IMAGE_REF=dafoam-idwarp-rot:v1
+M6SR_PINNED_IMAGE_DIGEST=sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35
+M6SR_PINNED_OF_FORK="ESI OpenFOAM (openfoam.com), NOT the OpenFOAM Foundation fork"
+M6SR_PINNED_OF_VERSION=v2506
+M6SR_PINNED_SOLVER_PATH=/home/dafoamuser/dafoam/OpenFOAM/OpenFOAM-v2506/platforms/linux64GccDPInt32Opt/bin/rhoSimpleFoam
+M6SR_PINNED_SOLVER_SHA256=d9a2a45664f519e9f6b4c34741a4c414517889b4cfbe7764b2237ebf9a01369c
 
 say(){ echo "[$(date -u +%H:%M:%SZ)] $*"; }
 abort(){ echo "ABORT: $1"; mkdir -p "$RR/$LEVEL" 2>/dev/null; echo "$1" > "$RR/$LEVEL/STOPPED.txt" 2>/dev/null; exit "${2:-1}"; }
@@ -138,6 +177,125 @@ if [ $BARE_RC -eq 0 ]; then DRUN="docker"; else DRUN="sg docker -c"; fi
 say "docker reachable (bare rc=$BARE_RC, sg rc=$SG_RC); using '$DRUN'"
 
 # ---------------------------------------------------------------------------------------
+# 1b.  AMENDMENT 12 RULING 1 -- THE SOLVER IS PINNED, AND THE PIN REFUSES BEFORE IT SPENDS.
+#
+#      A DELIBERATE DIFFERENCE FROM run_in_container(), STATED RATHER THAN LEFT TO BE
+#      NOTICED.  This helper passes argv, and quotes with `printf %q` on the `sg` branch.
+#      It does NOT use run_in_container()'s `$DRUN "docker run ..."` form, which Amendment
+#      12 records as MEASURED BROKEN on the bare-docker branch (item 28) -- that item is
+#      REPORTED, NOT REPAIRED here, because changing how the solve step invokes docker is a
+#      change to the launch path and belongs to the supervisor.
+# ---------------------------------------------------------------------------------------
+docker_q(){
+  if [ "$BARE_RC" -eq 0 ]; then command docker "$@"; return $?; fi
+  local q; q=$(printf ' %q' "$@")
+  sg docker -c "docker$q"
+}
+
+T0P=$(date +%s)
+RESOLVED_DIGEST=$(docker_q inspect --format '{{.Id}}' "$IMG" 2>/dev/null)
+[ -n "$RESOLVED_DIGEST" ] \
+  || abort "the image '$IMG' does not resolve to a digest on this daemon. An unresolvable image is a REFUSAL, never a fallback to whatever else is on the box (Amendment 12 Ruling 1)." 7
+[ "$RESOLVED_DIGEST" = "$M6SR_PINNED_IMAGE_DIGEST" ] \
+  || abort "IMAGE DIGEST MISMATCH. '$IMG' resolves to $RESOLVED_DIGEST; the registration pins $M6SR_PINNED_IMAGE_DIGEST ($M6SR_PINNED_IMAGE_REF). \$M6SR_IMAGE may NAME an image; it may not SELECT one. Every version-dependent finding in this registration -- the div(phi,Ekp) term, the turbulenceProperties/RASModel spelling, solverInfo-vs-residuals -- was measured INSIDE the pinned image and is worth nothing under a different one. REFUSED AT ZERO SOLVER COST." 7
+
+# The container is henceforth addressed BY DIGEST, never by the tag.  A tag can be re-pointed
+# between this check and the run; a digest cannot.  Verified on this daemon that `docker run`
+# accepts a bare digest (rc 0) and rejects an unknown one (rc 125).
+IMG_PINNED="$M6SR_PINNED_IMAGE_DIGEST"
+
+# ---- THE INSTRUMENT ITSELF, not merely its wrapper.  The pinned image carries THREE
+#      `rhoSimpleFoam` binaries; only one of them is the registered one.
+PROBE_OUT=$(docker_q run --rm -u 1002:1002 "$IMG_PINNED" bash -lc 'set +u; source /home/dafoamuser/dafoam/loadDAFoam.sh >/dev/null 2>&1; B=$(command -v rhoSimpleFoam); printf "VER=%s\nBIN=%s\nSHA=%s\nAPI=%s\n" "$WM_PROJECT_VERSION" "$B" "$(sha256sum "$B" 2>/dev/null | cut -d" " -f1)" "$(cat "$WM_PROJECT_DIR/META-INFO/api-info" 2>/dev/null | tr "\n" ";")"' 2>&1)
+PROBE_RC=$?
+P_VER=$(printf '%s\n' "$PROBE_OUT" | sed -n 's/^VER=//p')
+P_BIN=$(printf '%s\n' "$PROBE_OUT" | sed -n 's/^BIN=//p')
+P_SHA=$(printf '%s\n' "$PROBE_OUT" | sed -n 's/^SHA=//p')
+P_API=$(printf '%s\n' "$PROBE_OUT" | sed -n 's/^API=//p')
+T1P=$(date +%s)
+echo "$((T1P-T0P))" > "$CASE/WALL_B5p.txt"
+
+[ "$PROBE_RC" -eq 0 ] && [ -n "$P_VER" ] && [ -n "$P_BIN" ] && [ -n "$P_SHA" ] \
+  || abort "the solver probe inside the pinned image failed (rc $PROBE_RC). A probe that returns nothing is a REFUSAL, never an assumption that the right binary is there. Output: $PROBE_OUT" 7
+[ "$P_VER" = "$M6SR_PINNED_OF_VERSION" ] \
+  || abort "OPENFOAM VERSION MISMATCH: the image reports WM_PROJECT_VERSION='$P_VER'; the registration pins '$M6SR_PINNED_OF_VERSION'. REFUSED." 7
+[ "$P_BIN" = "$M6SR_PINNED_SOLVER_PATH" ] \
+  || abort "SOLVER BINARY PATH MISMATCH: PATH resolves rhoSimpleFoam to '$P_BIN'; the registration pins '$M6SR_PINNED_SOLVER_PATH'. The pinned image also carries OpenFOAM-AD's ADF and ADR builds of a binary with the SAME NAME, so a path this driver did not expect is a DIFFERENT SOLVER wearing the right name. REFUSED." 7
+[ "$P_SHA" = "$M6SR_PINNED_SOLVER_SHA256" ] \
+  || abort "SOLVER BINARY sha256 MISMATCH at the pinned path: read $P_SHA, pinned $M6SR_PINNED_SOLVER_SHA256. REFUSED." 7
+
+{ echo "{"
+  echo "  \"pinned_by\": \"M6SR_PREREGISTRATION.md Section 18 (Amendment 12, Ruling 1)\","
+  echo "  \"image_ref_named\": \"$IMG\","
+  echo "  \"image_ref_pinned\": \"$M6SR_PINNED_IMAGE_REF\","
+  echo "  \"image_digest_resolved\": \"$RESOLVED_DIGEST\","
+  echo "  \"image_digest_pinned\": \"$M6SR_PINNED_IMAGE_DIGEST\","
+  echo "  \"digest_kind\": \"OCI image manifest digest, read as docker inspect .Id; NOT corroborated against a registry\","
+  echo "  \"openfoam_fork\": \"$M6SR_PINNED_OF_FORK\","
+  echo "  \"openfoam_version\": \"$P_VER\","
+  echo "  \"openfoam_api_info\": \"$P_API\","
+  echo "  \"solver_binary\": \"$P_BIN\","
+  echo "  \"solver_binary_sha256\": \"$P_SHA\","
+  echo "  \"container_run_target\": \"the DIGEST, never the tag -- a tag can be re-pointed between the check and the run\","
+  echo "  \"B5p_preflight_wall_s\": $((T1P-T0P)),"
+  echo "  \"B5p_UNBUDGETED\": \"Section 2.4's cost table has no row for a pin preflight. It is REPORTED ON ITS OWN LINE at 1 rank and is NOT folded into any registered row and NOT absorbed into any ratio (Section 9.3).\""
+  echo "}"; } > "$CASE/SOLVER_PIN.json"
+say "solver pin VERIFIED: $M6SR_PINNED_OF_VERSION at $P_BIN (sha256 ${P_SHA:0:16}...), image $RESOLVED_DIGEST"
+say "  step B5p (pin preflight): $((T1P-T0P)) wall s at 1 rank -- UNBUDGETED in Section 2.4, reported on its own line"
+
+# ---------------------------------------------------------------------------------------
+# 1c.  AMENDMENT 12 -- THE GRADING PATH IS REHEARSED BEFORE THE RUN IS PAID FOR.
+#
+#      The defect this closes, stated exactly: this driver already refuses on the CASE
+#      WRITER's --selftest, but nothing here ever ran the COMPARATOR's --controls.  So a
+#      comparator refusal blocked GRADING and not the LAUNCH, and B5a+B5b+B5c -- 607.63 of
+#      Section 2.4's 615.24 core-min, 98.8 % of the ladder -- could be spent in full and
+#      then be ungradable.  It is the SOLVER_RC class again and it has the same fix:
+#      rehearse the grading path before spending on the run.
+#
+#      SCOPE, NAMED SO NO READER HAS TO INFER IT: this gate guards the phases that reach the
+#      SOLVER (`solve`, `all`).  Phase `stage` alone is NOT gated -- it runs checkMesh, which
+#      is not a solver, and gating it would leave Gate A with no log at all to read.  Both
+#      interpreters are run because Section 9.2 binds every comparator to `python3 -O`
+#      parity, and a gate that only holds under one flag is one flag from absent (L-475).
+# ---------------------------------------------------------------------------------------
+if [ "$PHASE" = "solve" ] || [ "$PHASE" = "all" ]; then
+  T0G=$(date +%s)
+  python3    "$CASES/analyse_m6sr.py" --controls > "$CASE/log.comparator_controls"    2>&1; CRC=$?
+  python3 -O "$CASES/analyse_m6sr.py" --controls > "$CASE/log.comparator_controls_O" 2>&1; CRC_O=$?
+  T1G=$(date +%s)
+  echo "$((T1G-T0G))" > "$CASE/WALL_B5g.txt"
+  say "grading-path rehearsal: analyse_m6sr.py --controls rc=$CRC (python3) / rc=$CRC_O (python3 -O), $((T1G-T0G)) wall s at 1 rank -- step B5g, UNBUDGETED in Section 2.4"
+  [ "$CRC" -eq "$CRC_O" ] \
+    || abort "the comparator's controls return rc $CRC under python3 and rc $CRC_O under python3 -O. Section 9.2 requires byte-identical refusals under both; a grading path that changes with an interpreter flag is not a frozen grading path (L-475, L-332). REFUSED AT ZERO SOLVER COST." 8
+  [ "$CRC" -eq 0 ] \
+    || abort "the GRADING path's planted controls did not pass (rc $CRC; see $CASE/log.comparator_controls). A solve launched now would spend up to $CAP_B5 core-min at this level and then be UNGRADABLE -- 607.63 of Section 2.4's 615.24 core-min across the ladder. A zero from a reader not shown able to see a non-zero is not evidence (rule 3), and neither is a PASS. REFUSED AT ZERO SOLVER COST." 8
+  say "grading-path rehearsal: ALL REGISTERED CONTROLS PASSED under both interpreters"
+fi
+
+# ---------------------------------------------------------------------------------------
+# 1d.  AMENDMENT 12 -- THE RUN ROOT IS PINNED TOO.  Item 29: `M6SR_RUN_ROOT` is a SECOND,
+#      INDEPENDENT env-var divergence of exactly item 26's class.  This driver honours it;
+#      cases/M6SR/analyse_m6sr.py reads NO environment at all (its REPO is derived from
+#      __file__ and it takes --run-root), so an operator who exports M6SR_RUN_ROOT without
+#      passing a matching --run-root sends the PRODUCER and the READER to different trees.
+#      It fails closed -- the comparator finds no case and refuses -- but a pin that only
+#      holds because the other side happens to refuse is not a pin.
+#
+#      WHY THIS CHECK IS ORDERED LAST OF THE THREE, STATED SO IT READS AS A CHOICE AND NOT
+#      AN OVERSIGHT: all three refusals above are at ZERO SOLVER COST and precede `stage`,
+#      so their order is free.  Placed FIRST, this one would make the image pin and the
+#      grading-path rehearsal UNREHEARSABLE anywhere except inside
+#      verification/runs/M6SR_runs/, the directory whose ABSENCE is this registration's own
+#      rule-2 freeze proof.  Placed last, every new refusal above it can be exercised in a
+#      scratch tree and this one then stops the run before a single core-minute is spent.
+# ---------------------------------------------------------------------------------------
+M6SR_REGISTERED_RUN_ROOT=/home/ubuntu/Certonomous/verification/runs/M6SR_runs
+echo "$RR" > "$CASE/RUN_ROOT_USED.txt"
+[ "$RR" = "$M6SR_REGISTERED_RUN_ROOT" ] \
+  || abort "RUN ROOT MISMATCH: this driver was pointed at '$RR' (via \$M6SR_RUN_ROOT); Section 9's frozen path table registers '$M6SR_REGISTERED_RUN_ROOT'. The comparator reads NO environment and defaults to the registered path, so a solve written here would be graded from THERE -- producer and reader in different trees. An export without a matching --run-root is a REFUSAL, not a grade. REFUSED AT ZERO SOLVER COST." 9
+
+# ---------------------------------------------------------------------------------------
 # 2.  THE CONTAINER WRAPPER.  rc IS CAPTURED INSIDE (Section 9.2) -- `setsid timeout cmd`
 #     exits 0 for every outcome, so an rc taken from around the wrapper line is meaningless.
 #     The cap is enforced by `timeout` and AN OVERRUN STOPS THE RUN.
@@ -147,7 +305,7 @@ run_in_container(){
   local t0 t1 rc wall inner
   t0=$(date +%s)
   timeout "${tmo}"s $DRUN "docker run --rm --name m6sr_${tag}_$$ -u 1002:1002 \
-      -v '$CASE':/case -w /case $IMG \
+      -v '$CASE':/case -w /case $IMG_PINNED \
       bash -c 'set +u; source /home/dafoamuser/dafoam/loadDAFoam.sh >/dev/null 2>&1; \
                $cmd; echo \"WRAPPER_RC=\$?\" > RC_${tag}.txt'" \
       > "$CASE/log.$tag" 2>&1
@@ -278,6 +436,20 @@ run_in_container "$STEP" "$TMO_B5" "$RANKS" \
 #     must ALL agree.
 # ---------------------------------------------------------------------------------------
 [ -f "$CASE/log.rhoSimpleFoam" ] || abort "$CASE/log.rhoSimpleFoam is ABSENT after the solve step. The completion rule and G2's reducer both read that ONE artifact; without it there is nothing to grade." 6
+
+# THE SECOND ARTIFACT THE COMPLETION RULE READS.  Section 8.6's clauses `rc_zero` and
+# `rc_read_from_SOLVER_RC_not_around_setsid` (analyse_m6sr.py::completion_clauses) read
+# $CASE/SOLVER_RC.txt, and NOTHING above asserts it: `run_in_container` checks the WRAPPER's
+# rc from RC_${STEP}.txt, which is a DIFFERENT file written by a DIFFERENT echo.  The inner
+# command exits with $SOLVER_RC whether or not the `echo ... > SOLVER_RC.txt` before it
+# succeeded, so a full-cap solve can land with the log present, the wrapper rc 0, and the
+# rc file ABSENT -- and be found ungradable only at grading time, after the whole spend.
+# ASSERTED HERE, AT ZERO FURTHER SOLVER COST.  It FAILS CLOSED and prints what is missing:
+# this driver does NOT create the file and does NOT synthesise an rc.  A FABRICATED rc IS
+# WORSE THAN AN ABSENT ONE -- it would turn an unrecorded crash into a silent `rc_zero`.
+[ -f "$CASE/SOLVER_RC.txt" ] || abort "$CASE/SOLVER_RC.txt is ABSENT after the solve step. Section 8.6's completion clauses rc_zero and rc_read_from_SOLVER_RC_not_around_setsid read THAT file by explicit path; the wrapper rc in $CASE/RC_${STEP}.txt is a different artifact and does not stand in for it. This driver WILL NOT write it and WILL NOT synthesise an rc: a fabricated rc is worse than an absent one. The level is UNGRADABLE as it stands. REFUSED." 6
+[ -s "$CASE/SOLVER_RC.txt" ] || abort "$CASE/SOLVER_RC.txt exists but is EMPTY after the solve step (0 bytes) -- the write was interrupted mid-flight. An empty rc file reads as no rc at all through completion_clauses, and this driver does not repair it. REFUSED." 6
+say "$STEP: SOLVER_RC.txt present, recorded rc=$(cat "$CASE/SOLVER_RC.txt")  -- the artifact Section 8.6's completion clauses read"
 
 RANKS_SEEN=$(python3 -c "
 import re, sys

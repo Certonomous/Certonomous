@@ -3206,3 +3206,479 @@ guaranteed range 1–2229 — are **byte-identical** before and after this appen
 to sha256 **`ddc16dc72104fc04400b65b7b7904a86c8013ca5fac70a86c1b415a83b0d4f13`**. Other records
 cite this document **by line**, and at least one such citation sits inside an executable check,
 so this is a guarantee and not a courtesy.
+
+---
+
+## 18. AMENDMENT 12 — 2026-09-04T1631Z. **THE INSTRUMENT IS PINNED**, §9's EXECUTABLES ARE PINNED BY BLOB SHA, AND THE SIXTEENTH PASS FINDS FIVE MORE
+
+**Drafted and applied by a cfd lab-lane on the cfd supervisor's three rulings of 2026-09-04 and
+their same-day addition. THIS IS NOT A FREEZE AND NOT A RE-FREEZE.**
+`SUPERVISION_CHARTER.md` §3 check 4 is the supervisor's, is not delegated, and is **undischarged
+as this section is written.** **Check 1 — the producer diff, read as a diff — is likewise the
+supervisor's.** **No compute was launched by the lane that wrote it, no step of §2.4's cost table
+was run, no queue row was written, and `verification/runs/M6SR_runs/` still does not exist.**
+
+> **THE DIVISION OF LABOUR.** The three rulings below are the **supervisor's**, taken on the
+> sixteen items §17.9 and its predecessors recorded. **This lane implemented them and did not
+> re-decide any of them.** Where implementing a ruling forced a choice the ruling did not settle,
+> the choice is **named as such, quantified, and handed back**.
+>
+> **`L-HONEST` (§6) IS CARRIED UNALTERED.** The family refines **2 of 3 directions**, the
+> wall-normal discretisation is **identical across levels**, `GCI_fine` is a **LOWER BOUND**,
+> `p_s` is **NOT an observed order**, and **Sanaa's named first deliverable remains owed.**
+>
+> **THIS AMENDMENT MOVES NO GATE, NO THRESHOLD, NO CAP AND NO LABEL.** It registers **pins** and
+> **refusals**, and a pin is not a gate. Not one number in §2.4, §5, §5.1, §7 or §10 is touched,
+> and `X1`–`X6` stand exactly as Amendments 10 and 11 registered them.
+
+### 18.1 THE CONDITION, AND HOW IT WAS CHECKED — RULE 2 REQUIRES BOTH
+
+**THE RUN DIRECTORY THAT DOES NOT EXIST — NAMED, AS RULE 2 REQUIRES:**
+**`verification/runs/M6SR_runs/`**, and with it `verification/runs/M6SR_runs/{L1,L2,L3}/`.
+
+**How checked, at 2026-09-04T1631Z, WITH A LIVE PLANTED CONTROL (rule 3), AFTER every rehearsal
+this amendment ran:**
+
+| path | reader's answer | role |
+|---|---|---|
+| `verification/runs/M6SR_runs` | **ABSENT** on disk; `git ls-tree -r HEAD` returns **0 files** | the run root — **the zero** |
+| `verification/runs/M6I_runs` | `git ls-tree -r HEAD` returns **14 files** | **the planted non-zero**, same reader, same act |
+
+⚠ **AND THE ZERO WAS AT RISK, WHICH IS WHY IT IS RE-CHECKED HERE RATHER THAN CARRIED FROM §17.1.**
+This amendment **rehearsed the driver end to end six times** to measure the refusals it registers.
+`run_m6sr_b5.sh` creates its case directory before any refusal fires, so every rehearsal was run
+with `M6SR_RUN_ROOT` pointed at a scratch tree, and §18.6's new run-root refusal is **deliberately
+ordered LAST of the three** for exactly this reason — placed first it would make the other two
+unrehearsable anywhere except inside the directory whose absence is this document's freeze proof.
+**The reader above was run after all six and still returns ABSENT beside a PRESENT.**
+
+### 18.2 RULING 1 — **THE SOLVER IS PINNED.** FORK, VERSION, IMAGE, DIGEST AND BINARY
+
+**THE RULING, THE SUPERVISOR'S:** *"A registration that pins the data and not the instrument is
+pinning half … Register the OpenFOAM fork, version, image name AND image digest, plus the resolved
+solver binary path. Verify the digest yourself and record HOW you obtained it. And register a
+refusal — the launch aborts at zero solver cost if the running image's digest does not match the
+pinned one."*
+
+#### 18.2.1 THE REGISTRATION
+
+> ### **REGISTERED, AMENDMENT 12 RULING 1 — THE INSTRUMENT.**
+>
+> | what | registered value |
+> |---|---|
+> | **fork** | **ESI OpenFOAM** (openfoam.com). **NOT the OpenFOAM Foundation fork.** |
+> | **version** | **`v2506`**, corroborated by `META-INFO/api-info` reading `api=2506`, `patch=0` |
+> | **image reference** | **`dafoam-idwarp-rot:v1`** |
+> | **image digest** | **`sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35`** |
+> | **resolved solver binary** | **`/home/dafoamuser/dafoam/OpenFOAM/OpenFOAM-v2506/platforms/linux64GccDPInt32Opt/bin/rhoSimpleFoam`** |
+> | **binary sha256** | **`d9a2a45664f519e9f6b4c34741a4c414517889b4cfbe7764b2237ebf9a01369c`** |
+> | **container run target** | **the DIGEST, never the tag** |
+>
+> **The four values live in `cases/M6SR/run_m6sr_b5.sh` as PLAIN ASSIGNMENTS — not
+> `${VAR:-default}` forms — so nothing in the environment can change them.**
+
+#### 18.2.2 HOW THE DIGEST WAS OBTAINED — STATED, BECAUSE A PIN WHOSE PROVENANCE IS NOT STATED IS A NUMBER SOMEBODY TYPED
+
+**Obtained by this lane, on this box, at 2026-09-04T1620Z**, with `docker inspect
+dafoam-idwarp-rot:v1` read through a JSON parser rather than through a format template, because a
+template that mis-maps a field is exactly the silent-wrong-answer family this campaign convicts:
+
+- **`.Id`** = `sha256:2927768a…6d35`.
+- **`.Descriptor`** = `{"mediaType": "application/vnd.oci.image.manifest.v1+json", "size": 2301,
+  "digest": "sha256:2927768a…6d35"}`. **The digest is therefore an OCI IMAGE MANIFEST digest**,
+  not merely a legacy config id: on this daemon (**docker 29.1.3, storage driver `overlayfs`**)
+  `.Id` and the manifest descriptor carry the same content address.
+- **`.RepoDigests`** = `["dafoam-idwarp-rot@sha256:2927768a…6d35"]` — the same value again.
+- **`.Created`** = `2026-08-21T16:09:52.14997014Z`; **`.RootFS.Layers`** = 9 layers, top layer
+  `sha256:55e79185ac255844b71ad1952a68d6db7d31b186b0e6bcb02a996281681c3874`.
+
+⚠ **THE CAVEAT, STATED RATHER THAN LEFT TO BE INFERRED. The digest is NOT corroborated against a
+registry.** The image was built on this box and no registry copy was consulted, so this is a
+**local content address, not a third-party attestation**. It is nevertheless the strongest
+available pin: it changes if any layer changes, and the launch refuses on any change.
+
+**THE READER WAS SHOWN ABLE TO SAY OTHERWISE (rule 3).** `docker run` against the pinned digest
+returns **rc 0**; against
+`sha256:0000000000000000000000000000000000000000000000000000000000000000` it returns **rc 125**,
+`No such image`. A resolver that accepts everything is not a pin.
+
+#### 18.2.3 THE REFUSAL — MEASURED, ON FOUR LIMBS, AT ZERO SOLVER COST
+
+**Implemented in `cases/M6SR/run_m6sr_b5.sh` §1b, which runs BEFORE `stage` and therefore before
+any core-minute of §2.4's table is spent.** New exit code **`7`**. Five clauses: the image must
+resolve; its digest must equal the pinned one; `WM_PROJECT_VERSION` inside it must read `v2506`;
+`command -v rhoSimpleFoam` must resolve to the pinned path; and that binary's sha256 must equal
+the pinned one. The result is written to `<case>/SOLVER_PIN.json`.
+
+| limb | `M6SR_IMAGE` | measured rc | reader's answer |
+|---|---|---|---|
+| **known-positive** | *(unset → the pinned image)* | reaches §18.6's later check | `solver pin VERIFIED: v2506 at …/OpenFOAM-v2506/…/rhoSimpleFoam` |
+| a **sibling DAFoam image** | `dafoam-team:v1` | **7** | `IMAGE DIGEST MISMATCH` |
+| an unrelated image | `alpine:latest` | **7** | `IMAGE DIGEST MISMATCH` |
+| a name that resolves to nothing | `no-such-image:v0` | **7** | `does not resolve to a digest` |
+
+**The positive limb is what licenses the three negatives.** A refusal from a check never shown able
+to accept is not evidence, and the sibling-image limb is the discriminating one: `dafoam-team:v1`
+is a real DAFoam container on this box and would have been an entirely plausible accident.
+
+#### 18.2.4 ⚠ CAN `M6SR_IMAGE` STILL OVERRIDE? — ANSWERED DIRECTLY, AS THE RULING DEMANDED
+
+**NO. `M6SR_IMAGE` can still NAME an image; it can no longer SELECT one.** Measured above: every
+non-pinned name aborts at **exit 7** before the driver stages a mesh, runs `checkMesh` or starts a
+solver. **And the container is thereafter addressed BY DIGEST, not by the tag** — `run_in_container`
+now passes `$IMG_PINNED`, the digest — so a tag re-pointed between the check and the run cannot
+substitute an image either. That time-of-check/time-of-use hole was open in the naive form of this
+fix and is closed.
+
+**What the pin does NOT defend against, stated plainly:** anyone who can edit
+`cases/M6SR/run_m6sr_b5.sh` can change the pinned constant. That is not an environment-variable
+hole; it is a file whose blob sha is pinned by §18.3 below and which
+`scripts/check_comparator_freeze.py` can verify at grading.
+
+#### 18.2.5 🔴 THE VERSION-DEPENDENCE AUDIT THE RULING ORDERED — AND WHAT IT ACTUALLY FOUND
+
+**The ruling states, correctly, that items 11, 12, 15 and 18 — and therefore Amendment 11's
+Rulings 1 and 4 — are version-dependent findings measured inside a container that could change.
+This lane re-measured all four against the box's OTHER ESI tree, native
+`/usr/lib/openfoam/openfoam2606` (`api=2606`, `patch=0`), rather than asserting the exposure:**
+
+| finding | measured in the pinned `v2506` | measured in native `openfoam2606` | verdict |
+|---|---|---|---|
+| item 11 / Ruling 1 — `EEqn.H` requests `div(phi,Ekp)` under `sensibleInternalEnergy` | `fvc::div(phi, volScalarField("Ekp", 0.5*magSqr(U) + p/rho))` | **identical ternary, same two lines** | **SURVIVES** |
+| item 12 / Ruling 4 — `turbulenceProperties` / `RASModel`, not `momentumTransport` | tutorials: `momentumTransport` **0**, `turbulenceProperties` **437** | tutorials: `momentumTransport` **0**, `turbulenceProperties` **439** | **SURVIVES** |
+| item 15 — `solverInfo`, not `residuals` | `solverInfo` ships; `residuals` does not | `etc/caseDicts/postProcessing/numerical/solverInfo` **PRESENT**, `…/residuals` **ABSENT** | **SURVIVES** |
+| item 18 — `transonic` defaults to `no` when unregistered | registration by omission | unchanged across both | **SURVIVES** |
+
+> **✅ SO THE HONEST FINDING IS NARROWER AND SHARPER THAN THE EXPOSURE.** **None of the four flips
+> between the box's two ESI trees.** They would flip against the **OpenFOAM Foundation** fork
+> (`momentumTransport` is that fork's spelling) and against an **algorithmic-differentiation**
+> build. **And that is exactly what `M6SR_IMAGE` could have selected**: the pinned image carries
+> **`OpenFOAM-AD`** alongside `OpenFOAM-v2506`, with **its own `rhoSimpleFoam` binaries** under
+> `platforms/linux64GccDPInt32OptADF` and `…ADR`. **The pin's value is not that the two ESI trees
+> disagree — measured, they do not. It is that nothing prevented a THIRD tree from running under
+> the same command, and the path-and-sha256 limbs of §18.2.3 are what catch that.**
+
+### 18.3 RULING 2 — §9's PATH TABLE IS PINNED BY BLOB SHA, AND §15.3's PIN IS **STRUCK BY QUOTE**
+
+**THE RULING, THE SUPERVISOR'S:** *"Pin every executable in §9 by blob sha, verified at the moment
+you write it, and say which commit each blob comes from … Re-hash immediately before committing."*
+**AND ITS ADDITION:** *"So pin THREE, not two … `cases/M6SR/run_m6sr_b5.sh` — the SOLE PRODUCER of
+`SOLVER_RC.txt` — is not in it. Neither is `write_m6sr_case.py`."*
+
+#### 18.3.1 THE PINS
+
+**Every blob below was re-derived by this lane with `git hash-object` on the working tree, checked
+against `git rev-parse HEAD:<path>`, and re-verified in the same shell invocation as the commit
+that carries this section. Every one read CLEAN — working tree identical to HEAD — before the
+pin was written.**
+
+| §9 registered path | git blob sha | sha256 of the file | lines | blob first appears at |
+|---|---|---|---|---|
+| **`cases/M6SR/analyse_m6sr.py`** (comparator) | **`9b963ad48e016fe2177553507006915e52b4ef98`** | `9042cdf22ff948f8df48d846495ccb0d05e5130d19a0572b6020b728507d9394` | 2,742 | **`8c0ab7a8`** (Amendment 11) |
+| **`cases/M6SR/build_m6sr_l1.sh`** (build driver) | **`04ae9d58220a55fa900b02f77424bb7687da0de1`** | `6459428b4c283c597e72e08f7c7ded3c454cfb8efd0facbbc8b178b42e5abc35` | 304 | **`c1625208`** (Amendment 9) |
+| **`scripts/residual_max_over_equations.py`** (G2's only instrument, §5.1) | **`b5eee67d594c04df90a2201b003039d5959c6eb4`** | `39a5e0d4b19ab5aa9313888e86297e7ff8c0bb7dc0c2e8628479b561d1c0bbd7` | 433 | **`184c00af`** |
+| **`scripts/verify_agard_ar138_table_b1_1.py`** (the `GF2` reference loader) | **`6cc89ced4cbd54e3b6b57403fe7224e6e08a83ab`** | `ee62a6ac6cb8cb6b19cc6cad7f742c8fcf0e434f3ec272449aaa7f38b9c96bde` | 222 | **`96e08380`** (the `C19` repair) |
+| **`scripts/check_comparator_freeze.py`** (named by §9.1 as the verifier) | **`dabd740e56a017edbc04b9c2b866c93c661ce0ab`** | `2871fabbab2bf8a126af49d4cdf6c7c6cb3a7ef9fd107b2afa4e942771b54709` | 904 | **`5c31a23c`** |
+
+**AND THE TWO EXECUTABLES §9's TABLE DOES NOT REGISTER, PINNED HERE AND FLAGGED AS THE GAP THEY
+ARE:**
+
+| path | git blob sha | sha256 of the file | lines | status |
+|---|---|---|---|---|
+| **`cases/M6SR/write_m6sr_case.py`** (§8's sole writer) | **`f2e8f3bc5982e92b9f5697e568c0f31f3c17d0a5`** | `eb8abf930e999ab2af2eac74793229df0ddd096a34f41756a378627ce15c360c` | 1,059 | **NOT in §9's table** |
+| **`cases/M6SR/run_m6sr_b5.sh`** (the sole producer of `SOLVER_RC.txt`, `log.rhoSimpleFoam` and `log.checkMesh`) | **`44fae79bbae918ae101d7d4a9b8ad96bdef66734`** | `5d0bc9df92f272a5d1a22e43708b8cd386f08e352fa282993e65c7d5072bd579` | 561 | **NOT in §9's table**; **CHANGED BY THIS AMENDMENT** (§18.2.3, §18.5, §18.5.1, §18.6) |
+
+⚠ **AND A PIN THAT MOVED WHILE THIS SECTION WAS BEING WRITTEN — RECORDED, BECAUSE IT IS THE
+EXACT ROT RULING 2 EXISTS TO CATCH.** `run_m6sr_b5.sh` hashed to `0b3b73bb…` at 547 lines when the
+first draft of this table was written; the re-hash **immediately before the commit REFUSED**, the
+file having moved to `44fae79b…` at 561 lines. **Inspected, never reverted** (rule 10): the 14 new
+lines are a second lane's `SOLVER_RC.txt` assert, described in §18.5.1, accepted by the supervisor
+and carried in this commit. **The pin above is the re-hashed value and the refusal is why it is
+right.** A table written once and committed later would have pinned a file that no longer existed.
+
+⚠ **THE HOLE, NAMED.** §9.2 states the rule — *"`rc` is captured **inside** the detached wrapper
+and written to `SOLVER_RC.txt`"* — and **pins no artifact that implements it**. §17.11 item 3 named
+only the comparator and the case writer as needing re-pinning; **the producer was not even on that
+list.** **Adding a path to §9's frozen table is a freeze question and is the supervisor's**; this
+lane pins the shas and reports the gap.
+
+#### 18.3.2 §15.3's PIN IS SUPERSEDED AND IS STRUCK BY QUOTE
+
+> ~~*"| **`cases/M6SR/analyse_m6sr.py`** (comparator) | **`97cbe0390318f010f7d1dd8ebe4e870fd72c5e68`** | `168fd0896a4055e1106a1ba0eaaf00e6eca1851109a6aa9b60ebcbde32891f75` | 2,106 |"*~~
+
+**STRUCK.** Amendment 11's Ruling 3 added 121 lines to that file (`split_curve_upper_lower`,
+`C24`, the figure split). The comparator now hashes to `9b963ad4…` at 2,742 lines. **The §15.3 row
+is not edited in place** — rule 6 — **and the current pin is the §18.3.1 table.**
+**`cases/M6SR/build_m6sr_l1.sh`'s §15.3 pin `04ae9d58…` is RE-VERIFIED UNMOVED**, which is the
+control that shows the strike above is a real change and not a re-hashing artefact: **one pin moved
+and one did not, read by the same command in the same act.**
+
+### 18.4 RULING 3 — THE SEMISPAN: `1.19676` IS KEPT, `1.1963` IS REGISTERED BESIDE IT, THE DELTA IS REPORTED
+
+**THE RULING, THE SUPERVISOR'S:** *"KEEP `1.19676`, and register `1.1963` beside it as the
+AGARD-printed alternative with its delta REPORTED … Moving a number that is in force, for an effect
+40× below the one I have already registered as the load-bearing prediction, is churn … Register
+both, use the one in force, report the delta, and name this as a choice that a successor may
+reverse with a reason."*
+
+> ### **REGISTERED, AMENDMENT 12 RULING 3.**
+> **THE STATION REFERENCE SEMISPAN IN FORCE IS `b_semi = 1.19676 m`** — §8.5's STL-measured value,
+> registered by Amendment 11 Ruling 2, and **BYTE-UNCHANGED**: the comparator's `B_SEMI_M` is not
+> touched and the seven station coordinates of §17.3.3 are not touched.
+>
+> **REGISTERED BESIDE IT, AS THE ALTERNATIVE READING ON THE SAME EXPERIMENTAL SIDE:**
+> **`b_semi_AGARD_printed = 1.1963 m`**, AGARD AR-138's printed physical semispan, already carried
+> by §5's `GF4` as a gate reference.
+
+**THE DELTA, RE-DERIVED BY THIS LANE AT FULL PRECISION AND NOT COPIED FROM THE RULING:**
+
+| quantity | value |
+|---|---|
+| `b_semi` in force − AGARD printed | **`0.000460000000000127 m`** (`0.038437 %` of the value in force) |
+| station 7 (`y/b = 0.99`) in force | `0.99 × 1.19676` = **`1.1847924 m`** |
+| station 7 under the AGARD-printed value | `0.99 × 1.1963` = **`1.184337 m`** |
+| **station 7 shift if `1.1963` were adopted** | **`0.0004554000000001057 m`** |
+| the same shift, % of `b_semi` | **`0.03805274240450096 %`** |
+| the same shift, as chordwise shock displacement at §16.4's own rate (1 % of semispan ≈ 0.7 cm) | **`0.0266 cm`** |
+| **prediction `X6`'s registered shift, for comparison** | **`1.62507 %` ≈ `1.1375 cm`** |
+| **ratio `X6` / this** | **`42.71 ×`** |
+
+**✅ The supervisor's "roughly FORTY TIMES SMALLER" is measured at `42.71 ×`, and every station
+stays inside both meshes' wall-patch extent `[0, 1.216405] m` under either value**, so `C22`
+cannot refuse on span either way.
+
+> **REGISTERED AS A REVERSIBLE CHOICE, IN THE SUPERVISOR'S OWN TERMS.** This registration uses
+> `1.19676 m` because it is the value **already in force** and because the effect of moving it is
+> **42.71 × smaller** than the displacement `X6` already registers as load-bearing. **A successor
+> may reverse this with a reason**, and the number they would need — `0.0004554 m` at station 7 —
+> is registered above so the reversal argues against a measurement rather than against a habit.
+> **Churn on a registered number is how a document acquires a fourth semispan**; the document now
+> holds **three, each with its role stated** (§17.3.1), and this amendment adds **none**.
+
+### 18.5 THE PRE-LAUNCH GRADING-PATH GATE — THE `SOLVER_RC` CLASS AGAIN, AND THE SAME FIX
+
+**THE OPERATIONAL FACT THE SUPERVISOR MOST WANTED REGISTERED, RE-MEASURED HERE:**
+`cases/M6SR/run_m6sr_b5.sh` gated on **the WRITER's `--selftest`** and on nothing else. It never
+ran **the COMPARATOR's `--controls`**. So `X4`'s `C12` refusal blocked **GRADING**, not the
+**LAUNCH** — and `B5a`+`B5b`+`B5c`, **607.63 of §2.4's 615.24 core-min, 98.8 % of the ladder**,
+could have been spent in full and then been **ungradable**.
+
+> ### **REGISTERED, AMENDMENT 12: A PRE-LAUNCH GATE ON THE GRADING PATH.**
+> Before the `solve` and `all` phases reach `stage` — and therefore before **any** core-minute of
+> §2.4's table is spent — the driver runs `cases/M6SR/analyse_m6sr.py --controls` under
+> **`python3` AND `python3 -O`**, and **REFUSES (new exit code `8`)** unless both return **rc 0**
+> and the two rc values agree. §9.2 binds every comparator to `-O` parity; **a gate that only
+> holds under one interpreter flag is one flag from absent** (L-475, L-332).
+>
+> **SCOPE, NAMED SO NO READER HAS TO INFER IT.** Phase **`stage` alone is NOT gated.** It runs
+> `checkMesh`, which is not a solver, and gating it would leave Gate A with **no log at all** to
+> read — §5 rules that an absent `checkMesh` log reads `ABSENT` and *"never reads clean"*, so
+> gating `stage` would convert a missing gate into a permanently missing gate. **That is this
+> lane's reading of "at zero SOLVER cost", it is named as a choice, and the supervisor may
+> narrow or widen it.**
+
+**MEASURED, END TO END, ON THE DRIVER ITSELF** (scratch run root, pinned image, level L3, phase
+`solve`): `analyse_m6sr.py --controls` returns **rc 2 under `python3` and rc 2 under `python3 -O`**
+— identical — and the driver **aborts with exit 8** naming `C12`, having started **no container and
+no solver**. Cost of the rehearsal itself: **10 wall s at 1 rank = 0.167 core-min.**
+
+> **REGISTERED PREDICTION `X7`: while `X4` stands — `C12` cannot fire on a non-monotone as-read
+> `Cn` series — `run_m6sr_b5.sh <LEVEL> solve` and `<LEVEL> all` REFUSE at exit 8, at ZERO solver
+> cost. `<LEVEL> stage` is unaffected and still reaches `B4`.** ⚠ **THIS IS A REAL NARROWING OF
+> WHAT THE LADDER CAN DO TODAY AND IT IS NOT HIDDEN: the gate does not loosen `C12` and it does
+> not move a threshold — it moves the moment of the refusal from AFTER 607.63 core-min to
+> BEFORE zero.** **A refusal is not a gate; but a refusal that blocks every solve is a fact the
+> supervisor must see before ordering a launch, and it is stated here rather than at the drop
+> path.**
+
+### 18.5.1 A SECOND LANE'S `SOLVER_RC.txt` ASSERT — CARRIED IN THIS COMMIT, AND ITS MECHANISM IS SHARPER THAN THE ONE THIS LANE WOULD HAVE WRITTEN
+
+**AUTHORSHIP, STATED SO THE RECORD IS NOT THIS LANE'S BY DEFAULT.** Fourteen lines at
+`run_m6sr_b5.sh:440–453` were written by **a different cfd lane**, which found the defect, made the
+change in the shared working tree, **correctly refused to commit it** — the file already carried
+this amendment's uncommitted work and the private-index protocol stages whole files — and handed it
+up. **The supervisor accepted it and directed this lane to carry it.** It is carried unaltered.
+
+**THE DEFECT, AS THAT LANE STATED IT.** §8.6's completion clauses `rc_zero` and
+`rc_read_from_SOLVER_RC_not_around_setsid` read **`<case>/SOLVER_RC.txt`**. `run_in_container()`
+asserts the **wrapper's** rc from **`RC_<STEP>.txt`** — *a different file, written by a different
+`echo`*. The inner command reads
+`… SOLVER_RC=$?; echo $SOLVER_RC > SOLVER_RC.txt; reconstructPar …; exit $SOLVER_RC`, so **it exits
+with `$SOLVER_RC` whether or not the `echo` before it succeeded.**
+
+> 🔴 **A full-cap solve can therefore land with `log.rhoSimpleFoam` present, the wrapper rc 0, and
+> `SOLVER_RC.txt` ABSENT — and be found ungradable only at GRADING TIME, after the entire spend:
+> up to `163` core-min at L2 and `1630` at L1.** **This is the same class as §18.5 and the same
+> loss**, one artifact further down.
+
+**WHAT IT ADDS: two clauses, both exit 6, both after the solve step and at zero further solver
+cost.** An **existence** clause on `SOLVER_RC.txt`, and — beyond what was asked, and endorsed — an
+**emptiness (`-s`)** clause, because a write interrupted mid-flight leaves a **0-byte** file that
+`completion_clauses` reads as **no rc at all** rather than as a bad one. **It does NOT create the
+file and does NOT synthesise an rc**: a fabricated rc would convert an unrecorded crash into a
+silent `rc_zero`, and **a fabricated rc is worse than an absent one.**
+
+**THE PATTERN IS CITED HONESTLY AND NOT OVERSOLD.** `cases/F23b_HP_WEDGE/run_f23b.sh:490` is
+`[ -f "$CD/0/U" ]` — a post-step existence assert on **a downstream reader's artifact**. It is the
+right pattern **in kind**; it is **not** an rc-file assert, and F23b has no equivalent gap because
+it writes `RC.txt` in the shell itself. **Cited as the pattern, not as a precedent for this assert.**
+
+### 18.6 THE RUN ROOT IS PINNED TOO — ITEM 29, THE SECOND ENV-VAR DIVERGENCE
+
+**MEASURED, and independently found by this lane and by the supervisor's rehearsal lane:**
+`run_m6sr_b5.sh` honours **`M6SR_RUN_ROOT`**, while **`cases/M6SR/analyse_m6sr.py` reads NO
+environment at all** — its `REPO` is derived from `__file__` and its run root comes from
+`--run-root`. **`os.environ`/`getenv` occurrences: 0 in the comparator, 0 in the case writer.**
+*(The zero is planted: the identical reader returns **1** on a `scripts/*.py` file that does read
+the environment, so it is not a blind zero.)*
+
+**An operator who exports `M6SR_RUN_ROOT` without passing a matching `--run-root` sends the
+PRODUCER and the READER to different trees.** It fails closed — the comparator finds no case and
+refuses — **but a pin that holds only because the other side happens to refuse is not a pin.**
+
+> ### **REGISTERED, AMENDMENT 12: the run root is `verification/runs/M6SR_runs/` and an export that changes it is a REFUSAL, not a grade.**
+> New exit code **`9`**. The driver writes `<case>/RUN_ROOT_USED.txt` and aborts if `$RR` is not
+> §9's registered path. **Measured: rc 9, with the mismatching path and the registered path both
+> printed.**
+>
+> ⚠ **ORDERED LAST OF THE THREE NEW REFUSALS, AS A NAMED CHOICE (§18.1).** All three are at zero
+> solver cost and precede `stage`, so their order is free; placed first, this one would make
+> §18.2's and §18.5's refusals **unrehearsable outside the very directory whose absence is this
+> registration's rule-2 freeze proof.**
+
+**AND A CONTROL REGISTERED, NOT IMPLEMENTED — SAID PLAINLY RATHER THAN IMPLIED.**
+
+> ### **REGISTERED CONTROL `C25` (§10, `SOLVER_RC` producer):**
+> plant `0`, then `1`, then **delete the file**, through the shipped producer statement.
+> **MUST SEE:** `rc_zero` **True**, then **False**, then **False with the EXISTENCE clause also
+> False → REFUSAL**. **Two clauses, not one: absent must not launder into zero.** **Its positive
+> limb — rc 0 with every other clause perfect — is what licenses its negatives**; a control with
+> only negative limbs proves a reader can refuse and nothing about what it can accept.
+>
+> ⚠ **`C25` IS REGISTERED HERE AND IS NOT IMPLEMENTED IN `controls()`.** The behaviour was measured
+> by the supervisor's rehearsal lane across eight scenarios and found **SOUND**; implementing it
+> would edit `cases/M6SR/analyse_m6sr.py`, **whose blob sha this same amendment pins in §18.3.1.**
+> **A document cannot pin a blob and change it in the same breath** — that is the rot Ruling 2
+> exists to stop. **The implementation is the supervisor's to order, in an amendment that re-pins.**
+
+### 18.7 CARRIED FORWARD, **NOT REPAIRED** — ITEMS 25 AND 27, ON THE SUPERVISOR'S EXPRESS INSTRUCTION
+
+- **ITEM 25.** §8.1 carries **four numerals for a two-component vector and none of the four is the
+  formula's value**: table `285.221` / `15.249`, prose `285.2721` / `15.2494`, formula
+  **`285.2720289804489`** / **`15.250046752474487`**. **The prose misses too** —
+  `285.679356·sin(3.06°) = 15.2500468`, not `15.2494`. **RECORDED, NOT REPAIRED.** The writer
+  already emits the formula's vector — `internalField uniform (285.2720289804489
+  15.250046752474487 0.0)` — read back from disk by control `W3` (§17.5.2, `CH9`).
+- **ITEM 27.** §4.5's RMS is **185 of 271 taps = 68.27 % upper-surface** (23/11 on sections 1–4,
+  31/14 on 5–7). *"Symmetric, so not a bias"* is **right about the COMPARISON and silent about the
+  CURVE**: the RMS a section contributes is **two-thirds an upper-surface statistic**.
+  **GRADED CHANNEL. RECORDED. NOT TOUCHED.** `set_to_set_assignment()` is byte-unchanged.
+
+### 18.8 🔴 FIVE FURTHER ITEMS — THE SIXTEENTH PASS. **ITEMS 28 AND 30 ARE UNRUNNABILITIES, AND 30 IS HIDDEN BEHIND 28**
+
+**The supervisor instructed this lane to assume a sixteenth item existed and to look for it. There
+are five. Recorded, NOT repaired.**
+
+| # | what cannot be satisfied | measured basis | consequence |
+|---|---|---|---|
+| **28** 🔴 | **`run_in_container()`'s docker invocation is BROKEN on exactly the branch this box takes.** | `run_m6sr_b5.sh` selects `DRUN="docker"` when bare docker works and `DRUN="sg docker -c"` otherwise, then writes `$DRUN "docker run --rm … "`. On the **bare** branch that expands to `docker "docker run --rm …"` — one argument. **Reproduced with the exact expansion and a harmless container: `rc=1`, `docker: unknown command: docker docker run --rm …`. CONTROL: the identical string through the `sg docker -c` branch returns `rc=0` and `INSIDE_OK`.** On this box `BARE_RC=0`, so the broken branch is the one taken. | **The driver is correct only on a box where docker is NOT directly reachable.** It **fails closed** — `inner` reads `ABSENT` and the driver aborts at exit 6 with no spend — so this is an **unrunnability, not a wrong answer.** **NOT REPAIRED: changing how the solve step invokes docker is a change to the launch path and is the supervisor's.** This amendment's own new code deliberately uses a different helper (`docker_q`, argv-passing with `printf %q` on the `sg` branch) and says so in the file. |
+| **29** | **`M6SR_RUN_ROOT` is a second, independent env-var divergence of item 26's class, and it appears NOWHERE in this registration.** | `run_m6sr_b5.sh:87` honours it; the comparator reads **0** `os.environ`/`getenv` (planted control: the same reader returns 1 elsewhere). | **REGISTERED AND REFUSED (§18.6, exit 9).** Recorded as an item because the class — *an environment variable can change what the freeze pinned* — was found **twice**, and finding it twice is the finding. |
+| **30** 🔴 | **`B4`'s `checkMesh` CANNOT WRITE ITS LOG, and the defect is HIDDEN BEHIND ITEM 28.** | The driver creates `$CASE` as the host user (**measured `775 ubuntu:ubuntu`**) and runs the container as **`-u 1002:1002`**. Measured on the pinned image with the driver's own mount and workdir: `echo … > RC_probe.txt` in `/case` returns **`Permission denied`, inner rc 1**. **CONTROL: the identical write after `chmod 777` returns inner rc 0 and leaves a file owned by `1002:1002`.** The driver's `chmod -R 777 "$CASE"` runs **in the `solve` phase only**, *after* `stage`. | **In the `stage` phase the container can write neither `log.checkMesh` nor `RC_checkMesh.txt`**, so `inner` reads `ABSENT` and the driver aborts at exit 6. **Gate A reads its named numeric maxima off `log.checkMesh` and §5 rules that an absent log "never reads clean" — so Gate A is unreachable.** 🔴 **This is INDEPENDENT of item 28 and is MASKED by it: fixing 28 does not fix 30, and today 28 fails first so 30 has never been observed.** **NOT REPAIRED.** |
+| **31** | **The container carries MORE `rhoSimpleFoam` binaries than item 26 counted, and one more OpenFOAM-family tree.** | Item 26 recorded *"`OpenFOAM-v2506` **and** `OpenFOAM-AD`"*. Measured inside the pinned image: `/home/dafoamuser/dafoam/OpenFOAM/` holds **`OpenFOAM-v2506`, `OpenFOAM-AD`, `Hisa4DAFoam`, `ThirdParty-v2506`, `sharedBins`, `sharedLibs`**, and `OpenFOAM-AD` ships **`platforms/linux64GccDPInt32OptADF/bin/rhoSimpleFoam` AND `platforms/linux64GccDPInt32OptADR/bin/rhoSimpleFoam`**. With the box's native `openfoam2606` binary that is **four `rhoSimpleFoam` executables reachable from this box, three of them inside the pinned image.** | **A digest pin alone would NOT have separated them — all three live in the pinned image.** This is why §18.2's refusal also pins the **resolved path** and the **binary's sha256**, and why `PATH` resolution is measured rather than assumed. **Recorded so item 26's "two trees" is not carried forward as the count.** |
+| **32** | **§9's frozen path table registers TWO executables and the ladder now runs SEVEN.** | §9's table names `analyse_m6sr.py` and `build_m6sr_l1.sh`. Also executed or depended on: `write_m6sr_case.py`, `run_m6sr_b5.sh`, `scripts/residual_max_over_equations.py`, `scripts/verify_agard_ar138_table_b1_1.py`, `scripts/check_comparator_freeze.py`. **All seven are pinned by blob sha in §18.3.1 — five as registered §9 paths, two as the gap.** | **Adding a path to §9's frozen table is a FREEZE question and is the supervisor's.** A lane pins shas and reports; it may not extend the grading-path table. |
+
+**AND ONE THING CHECKED AND FOUND SOUND, REPORTED BECAUSE A PASS THAT IS NEVER STATED IS
+INDISTINGUISHABLE FROM A CHECK NEVER MADE.** Standing rule 4 names **`0/T`** as the age-guard datum
+for the *thermal* family; this ladder uses **`0/U`**. Measured: `analyse_m6sr.py:1311` documents
+`0/U` as the datum, and `write_m6sr_case.py:502` writes the seven `0/` fields in the order
+`p, T, nut, k, omega, alphat, U` — **`U` last, with an explicit `InternalDefect` raise if that
+order does not cover the field set.** **Producer and reader agree, and the datum is written last.
+No defect.**
+
+### 18.9 COST — RULE 12, AND NONE OF IT IS LADDER COMPUTE
+
+**No step of §2.4's cost table was run and `verification/runs/M6SR_runs` does not exist.** What this
+amendment spent: host arithmetic and read-only inspection of already-existing artifacts; **five
+read-only `docker run --rm` probes** on the pinned image and on `alpine:latest` (no solver, no
+mesh, no solve); **six end-to-end rehearsals of `run_m6sr_b5.sh` into a SCRATCH run root**, each of
+which refused at exit 7, 8 or 9 before staging a mesh; and **two runs of the comparator's
+`--controls`** (10 wall s the pair). **≈ 6 core-min at 1 rank, and it is an ESTIMATE from this
+session's own wall clock, NOT a measurement read from a run log** — no run log exists for it and
+inventing one would be worse than saying so. **Derived at the owner-stated `c7a.4xlarge`
+$0.0513/core-h: ≈ $0.0051 — DERIVED, REPORTED-BY-OWNER, never measured, because the box cannot read
+its own billing** (`COMPUTE_BUDGET_CHARTER.md` §5).
+
+**TWO NEW UNBUDGETED STEPS, NAMED ON THEIR OWN LINES AND NOT FOLDED INTO ANY REGISTERED ROW**
+(§9.3, `COMPUTE_BUDGET_CHARTER.md` §6), exactly as the driver already treats `B3s`:
+
+| step | what | measured | status |
+|---|---|---|---|
+| **`B5p`** | the solver-pin preflight (`docker inspect` + one probe container) | **1 wall s at 1 rank ≈ 0.017 core-min** per level | **UNBUDGETED** — §2.4 has no row |
+| **`B5g`** | the grading-path rehearsal (`--controls` under both interpreters) | **10 wall s at 1 rank ≈ 0.167 core-min** per level | **UNBUDGETED** — §2.4 has no row |
+
+**Together ≤ 0.19 core-min per level, ≤ 0.55 core-min across the ladder — 0.09 % of §2.4's 615.24
+— against the 607.63 core-min an ungradable solve would have wasted.** **§2.4's `est ≤ cap` table
+is untouched; no cap is raised to accommodate these and they are not absorbed into any ratio.**
+
+**§9.3's estimate-versus-actual row is NOT owed yet**, because no `B` step has completed. It falls
+due at `B1`'s completion.
+
+### 18.10 WHAT THIS AMENDMENT DOES **NOT** DO
+
+1. **It moves no gate, no threshold, no cap and no label.** Every change is a **pin** or a
+   **refusal**, and neither is a gate. Not one number in §2.4, §5, §5.1, §7 or §10 is touched.
+   **`X1`–`X6` stand**; `X7` is added as a **prediction**, which is not a verdict.
+2. **It does NOT re-freeze.** `SUPERVISION_CHARTER.md` §3 check 4 belongs to the cfd supervisor and
+   is **undischarged**. **Check 1 — the producer diff, read as a diff — is likewise the
+   supervisor's**, and the diff is filed at
+   **`cases/M6SR/AMENDMENT_12_SOLVER_PIN_AND_GRADING_GATE.diff`**.
+3. **It does NOT add a path to §9's frozen table** (item 32). It pins the shas of all seven
+   executables and reports which two are unregistered.
+4. **It does NOT move the semispan.** `B_SEMI_M = 1.19676` is byte-unchanged and the seven station
+   coordinates of §17.3.3 are byte-unchanged. `1.1963` is registered **beside** it, not instead.
+5. **It does NOT touch `cases/M6SR/analyse_m6sr.py` or `cases/M6SR/write_m6sr_case.py`** — both are
+   pinned here and neither is edited. **`C25` is registered and NOT implemented, and says so.**
+6. **It does NOT repair items 25, 27, 28, 30, 31 or 32.** Two are the supervisor's express "carry,
+   do not repair"; the rest are new and a lane records rather than repairs.
+7. **It does NOT loosen `C12`.** `X4` stands; the new gate refuses **because** `C12` does not fire.
+8. **It does NOT enqueue anything and launched NO compute.** `verification/queue/cfd/` is a live
+   launch path and this lane wrote nothing into it. No `B` step of §2.4 ran.
+9. **It does NOT change `/home/ubuntu/certonomous-runs/`**, which was read only — verified, nothing
+   under it has an mtime inside this session — nor `docs/LAB_STATE.md`.
+10. **It claims no verdict of the fixed vocabulary for any gate.** Every `PASS` / `GATE FAIL` /
+    `NOT A RESULT` above is inside a registered **PREDICTION** or a **quotation**. **No solver has
+    run.**
+11. **SUBMISSIONS REMAIN PARKED (rule 7). Nothing left the box (rule 8).**
+
+> **WHAT M6SR CAN AND CANNOT DO AFTER THIS AMENDMENT, STATED ONCE, PLAINLY.**
+> **CAN:** run `B1`–`B3`; refuse at zero solver cost on a wrong image, a wrong solver binary, a
+> failing grading path or a wrong run root; and produce, once `X4` and items 28 and 30 are
+> resolved, everything §17.9's closing block lists.
+> **CANNOT:** launch `B5` at all while **`X7`** stands — the pre-launch gate refuses on `C12`.
+> **CANNOT:** reach `B4`'s `log.checkMesh`, and therefore Gate A, while **item 28** stands
+> (docker invocation) — and **item 30** (container cannot write the case directory in `stage`)
+> waits behind it.
+> **CANNOT:** grade Gate P's per-station channel — **`X1`**; print a Gate P verdict beside a Gate G
+> band — **`X3`**; `GF2` and `GF4`-semispan are still predicted `GATE FAIL` — **`X2`**.
+> **THE SOLVER BINARY IS NO LONGER UNPINNED. Item 26 is CLOSED by §18.2.**
+
+### 18.11 RULE 6's AMENDMENT ASSERTIONS
+
+**Version: v1.3 → v1.4 (amendment 12, pre-compute). The frozen file was NOT edited; this section is
+APPENDED AT THE FOOT.**
+
+⚠ **The header line 3 still reads `v1.0` and is DELIBERATELY NOT EDITED**, for the reason §15.10,
+§16.9 and §17.12 give: editing it would change a line above §15 and falsify those sections' own
+assertions, on which other records depend. **The bump is recorded HERE, which is where rule 6 puts
+it. The supervisor may restate the version in the header at the re-freeze, which is a status flip
+they own; a lane may not.**
+
+> **`lines whose number changed above this section: 0`**
+
+**Verified, not asserted:** lines **1–3208** of this file — the whole of it up to and including
+§17.12's closing line, and therefore the whole of §15's guaranteed range 1–2022, §16's guaranteed
+range 1–2229 and §17's guaranteed range 1–2690 — are **byte-identical** before and after this
+append, both rendering to sha256
+**`20753aff5fb81868ce6d0529aecdf1df63f03f5d037d87bfcd8609071eb4280e`**. Other records cite this
+document **by line**, and at least one such citation sits inside an executable check, so this is a
+guarantee and not a courtesy.
