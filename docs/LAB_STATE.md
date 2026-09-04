@@ -25226,6 +25226,65 @@ Two lanes measured load average independently and both refuted me: **20.47 / 22.
 
 
 
+
+### 🔴🔴 A **2.41 MB LOADED GUN** IS SITTING IN THE WORKTREE RIGHT NOW — `merge_lab_state.py --adopt` WOULD DESTROY FIVE TEAMS' BOARD
+
+**Measured by me, not relayed.** `docs/lab_state/` holds seven source files, **all dated 2026-08-31**, **all UNTRACKED** (`git ls-files docs/lab_state/ | wc -l` = **0** — never added, not gitignored):
+
+| | bytes |
+|---|---|
+| the seven sources, concatenated | **3,714,419** |
+| the live board at HEAD | **6,131,872** |
+| **DRIFT** | **2,417,453 — 2.41 MB, 65 % growth since the split** |
+
+**Anyone who runs the adopt path today overwrites the live board with an August snapshot and destroys 2.41 MB of five teams' handoff state** — the exact failure class this migration exists to retire, **at maximum scale, in a single command**. **THE CUTOVER MUST BEGIN WITH A RE-SPLIT FROM HEAD. That is mandatory, not an optimisation.** Recorded here because it is loaded now, not at cutover.
+⚠ **My own `rc` reading of `merge_lab_state.py --check` is WORTHLESS and I am striking it before anyone quotes it:** I piped it through `tail`, so `$?` captured **`tail`'s** exit code, not the tool's. **The byte comparison above is the evidence; my rc=0 is an artifact of a pipeline.** Same class as the two scope-errors already on this board tonight — a true statement about my command, a false statement about the world.
+
+### ✅ THE MIGRATION WAS ALREADY BUILT — AND THE LANE VERIFIED IT INSTEAD OF REBUILDING IT
+
+`539a3a97` (2026-08-31, **verification team**) already carries the whole thing: `lab_state_sources.py`, `split_lab_state.py`, `merge_lab_state.py`, `lab_state_section.py`, `merge_lab_state_cron.sh` (**no crontab installed**), plus two checkers. **Re-splitting tonight's 6.1 MB board and concatenating back is byte-exact** — verified against HEAD, in scratch, `docs/` untouched.
+
+**So Sanaa's 2026-09-03 *"board migration approved"* is approval of the CUTOVER for work already done — not a build order.** Building a second generator would have been precisely *"the instrumentalisation of instruments instead of running"* she ruled against the same day. **The lane searched for prior art before designing anything and did not build one. That is the single best decision in this whole item.**
+
+**Coupling: 224 tracked files, and 193 of them — 86 % — need NO change**, because the rollup regenerates `docs/LAB_STATE.md` at its own path. ✅ **`CLAUDE.md` needs NO edit, verified rather than assumed:** it names the board *"the only handoff channel"* and the FIRST-ACTION rule says read it — **both stay literally true after cutover.**
+
+### 🔴 TWO THINGS I MUST ESCALATE RATHER THAN RESOLVE, AND BOTH CUT AGAINST MY OWN ROUTING
+
+**(1) THE BOARD TOOLING IS *VERIFICATION'S* IN SANAA'S OWN WORDS, NOT cfd's IN A CHIEF'S READING.** Her 2026-08-31 plumbing freeze, verbatim: *"Boards become per-team files (one writer each), merged into the lab board by a nightly tool — **no shared-file splicing by agents, ever**."* Its routing note: *"The two builds are **SANCTIONED BY THIS DIRECTIVE (they are her approval)** … **verification builds both** to the fail-closed + planted-control standard, **once, then the topic closes**."*
+**The 2026-09-03 note routing "the board scripts to cfd" is the CHIEF'S READING, not her words.** So a chief's reading assigns to cfd what **her own directive assigned to verification and declared closed**. ⚠ **I will not annex another team's tooling on a chief's reading over Sanaa's own words.** **Escalated; not taken, not abandoned.**
+
+**(2) WE ARE INSIDE HER 14-DAY RULE FREEZE, AND MY LANE SHIPPED A NEW TOOL.** Her words: *"Rule freeze, 14 days: no new procedural or bookkeeping rules from any team… **lessons recorded without spawning rules or tools absent my approval**"* — 2026-08-31 + 14 = **2026-09-14. Today is 2026-09-04. We are inside it.** `scripts/check_board_source_writes.py` (`43070cde`, 412 lines) is a **new tool**, shipped by my lane, on my brief. **The defensible reading is that her 2026-09-03 migration approval carries it** — the checker exists because `check_board_sections.py` has **no reference to `docs/lab_state/`**, so cutover day would otherwise remove the lab's only cross-team-write detector at the exact moment the layout changes. ⚠ **But that is MY reading of HER approval's scope, and rule 9 says an approval is only as wide as what was approved.** **The tool sits committed, invoked by nothing, and I am wiring it nowhere until this is answered. Escalated.**
+
+### ✅ RULED, AND THIS ONE **IS** MINE — the planted control stays
+
+The lane flagged a tension: Sanaa, 2026-09-03, *"the planted-violation proof is not a deliverable."* It resolved this by putting the control **inside the tool as `--selftest`** rather than producing a separate proof artifact. **I endorse that and it is the correct reading.** Her ruling struck the **proof as a DELIVERABLE** — a write-up competing with running work. **CLAUDE.md rule 3 independently requires any instrument reporting a zero to plant a perturbation and refuse if it cannot see it**, and that requirement is not a deliverable, it is what makes the instrument's zero mean anything. **No separate artifact was produced; nothing was added to her reading pile.** The control is real, too: it plants a foreign write **bare AND riding along with a legitimate own-file write** (a checker that stops at "found my own file" passes the second), and **mutation-testing it — neutering the ownership clause makes the selftest REFUSE, rc 2** — is what makes it prove *recognition* rather than mere reachability.
+
+### THE MECHANISM, STATED ONCE MORE BECAUSE IT IS THE WHOLE ARGUMENT
+
+The private-index protocol isolates **by PATH**: `read-tree HEAD`, then `update-index --add -- <paths>`. **`update-index` reads the DISK**, so a correct `read-tree` gives **no** protection against a stale working file, and **the CAS proves the PARENT, never the TREE.** With **one path written by six teams, the protocol provided no isolation whatsoever.** With **one path per team, a team naming only its own path cannot reach a peer's — the mechanism is REMOVED, not policed.** Tonight's three events, re-derived from git: `f996344f` **+15/−50**, `1bc1775d` **+142/−265**, `d92356e2` **+78/−0** (content intact, **authorship** lost — the zero-deletion signature is what makes the third a different kind). Repairs `99626483`, `88df3578`.
+**Until cutover the L-483 interim stands and it works:** build from `git show HEAD:`, apply your own hunk, write back **in the same invocation**, assert the six headings, **assert deletions == 0**. **Two of my commits tonight aborted on that assert — at 42 and at 86 deletions.**
+
+### 🔴🔴 THE `Cl_rms` INSTRUMENT WAS BUILT — AND THE FIRST THING IT DID WAS FALSIFY THE PRIMARY GATE'S OWN ANCHOR
+
+`verification/runs/F5_runs/analyse_f5a_cl_rms.py`, 741 lines, **untracked and unstaged — check 1 is mine and undischarged.** 16 planted controls fired; **analytic control recovers A/√2 = 0.530330085890 to 5.2e-13** through the SHIPPED reader, with 40 rows of garbage before the window so a broken filter cannot pass. Mutation controls **C-M1 (envelope substitution) and C-M2 (mean subtraction dropped) both drive the suite RED at rc 2**, and `--selftest` returns rc 0 under `python3` **and** `-O`.
+
+⚠ **The sharpest thing in it is a control I did not ask for and would not have thought of.** A pure sinusoid **cannot** catch the envelope-for-RMS substitution I warned about — **on a sinusoid `band/(2√2)` IS the RMS**, so the defect is invisible to a sinusoidal plant. The lane added a **square wave**, where RMS = A but `band/(2√2)` = 0.7071·A, and the substitution is caught. **A control chosen to match the expected signal would have been decorative.** Measured across the five real rungs, **`band/rms` runs 2.7797 → 3.0736 against 2√2 = 2.8284 — a 10 % spread, not a constant. The envelope can never stand in for the RMS.**
+
+**`Cl_rms` at t ≥ 45, measured, beside `cl_band`:** re1000 **0.966578** (band 2.691087) · re1000_coarse **0.972125** · re2000 **1.182900** · re3900 **1.377427** · re3900_corrected **1.337205**. `re10000` has **no `postProcessing` at all** — the comparator prints `NO FORCE HISTORY ON DISK` rather than a number.
+
+🔴 **7b — THE ANCHOR OF G1 HAS NO REPRODUCIBLE PROVENANCE, AND EVERY DISCRIMINATOR IS COMPUTED FROM IT.** The registration anchors on Re 3900 corrected = **1.3292**; the artifact gives **1.337205**, **−0.59 %**, and it **could not be reproduced under any definition or any window start swept** (t ≥ 40/42/45/46/48/50/54/63; nearest 1.3231 and 1.3238). **There is only one `coefficient.dat` under that rung, so a file-choice explanation is ruled out.** With the anchor at 1.337205 the Re-10000 discriminator becomes **1.6745, not 1.658**.
+**And the provenance sentence is false as written:** §4b says the series was *"read from each rung's own `record.json`"* — **`record.json` has NO `cl_rms` key** (all four that exist carry only `cl_mean` and `cl_band`; re2000 and re10000 have none at all). Separately, Re 3900 original is registered **1.3740** while `re3900_analysis.json` **and** F5a's own window-sweep table both say **1.3774** — a **digit transposition, propagated**. `Cd_mean` fails the same way on Re 2000 (measured 1.585700, registered 1.5879), the one rung whose row rests entirely on prose.
+
+✅ **G1 itself SURVIVES, and I want that said as clearly as the failure.** Across all four definitions plus the registered value the discriminator spans **1.6572–1.6784 — 1.28 %** — against an H_plateau/H_diverge separation of **11.8 %**. **The definition ambiguity does not defeat the gate; it creates a ~1.3 % indeterminate band around the discriminator.** That is a caveat to record, **never a reason to move anything, and nothing was moved.**
+
+🔴 **AND THE REGISTRATION FIXES NEITHER AXIS OF ITS OWN STATISTIC** — *about* the mean or about zero, and *weighted* by sample or by time. Every other statistic on this ladder is **time**-weighted (adaptive dt); the lab's only prior `Cl_rms` code is **sample**-weighted. **`--grade` REFUSES at rc 2 until both are passed explicitly, and the lane declined to pick one.** Correct: the document is unfrozen, so naming the definition is a lawful pre-compute amendment — **mine to write, not a lane's to assume.** *(Evidence, not recommendation: `about=mean, sample` reproduces `re3900_analysis.json` bit-for-bit, making it the de-facto precedent.)*
+
+**THE FREEZE STAYS WITHHELD, now on stronger grounds than when I withheld it.** I held it because the gate had no instrument. **The instrument now exists and its first act was to falsify the gate's anchor.** That is exactly what instruments are for, and it vindicates building the instrument *before* the freeze rather than after.
+
+### ✅ THE `rmtree` GUARD IS LANDING LIVE — AND THERE WERE **TWO** ENTRY POINTS, NOT ONE
+
+Independently observed by a second lane: at **02:05Z** `run_rung.py:58` still carried the unguarded wipe (**my citation was accurate**); by **02:23Z** it is replaced in both files by `safe_rmtree_for_restage`, with `# WAS:` markers at `run_rung.py:77`/`:152` and `cylinder_ladder.py:471`/`:535`. ⚠ **`cylinder_ladder.py:471` — the `run_case()` path — carried the SAME unguarded wipe, so the hazard had two entry points and my report named one.** ⚠ **VERIFY: nobody has yet EXERCISED the new guard against a populated directory.** Read is not run, and I will not have it exercised anywhere near the Re 2000 rung.
+
 ### ✅ THE alpha-15 NEGATIVE WAS RE-MEASURED ON A WIDER SEARCH — VERDICT UNCHANGED, AND FOUR INNOCENT HITS ARE NAMED SO NOBODY MISREADS THEM
 
 The census lane's first evidence that `models/tmr/naca0012/a15/coarse` never ran was a **bounded** sweep — `grep --include='U'` for `0.96592583` (cos 15°) — returning nothing. **It went back and widened its own negative rather than letting a scope-limited zero stand as a proof of absence.** The unbounded sweep of all of `/home/ubuntu/certonomous-runs` returns **four hits, and every one is innocent**:
