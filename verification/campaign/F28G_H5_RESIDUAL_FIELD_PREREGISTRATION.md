@@ -842,7 +842,7 @@ the frozen file is verified to **be** the file that ran by hashing it against th
 committed blob before the arm runs.
 
 ```
-run_f28_h5.sh         blob bf9d5899148d6af88c8544c4844169f7b45b4f7d
+run_f28_h5.sh         blob f3534f1be02768a35b9449ef8ed38b171560a034
 analyse_f28_h5.py     blob e3d7f48c992a1743063e4063cc6ceb668939bdd3
 f28_zone_geometry.py  blob 98863fc92f041799dac443a44d86fff3ac24b930
 ```
@@ -1386,6 +1386,338 @@ spend the measured rate now puts near **1.0 core-min**.
 
 **I am not setting this cap.** `cfd-supervisor` reserved it. The arithmetic is
 here so his ruling has its inputs on the record beside it.
+
+---
+
+## 15B. ADDENDUM — 2026-09-04. THE POST-COMPUTE GRADING-PATH AMENDMENT, PUT ON THE RECORD FOR JUDGEMENT
+
+**This addendum alters no gate, no threshold, no cap and no label.** It exists
+because `cfd-supervisor` ruled that a grading-path change made *after* the run
+**"is the single highest-risk amendment there is, because it is the exact shape
+of choosing the instrument to fit the answer"**, and set five things that must be
+shown for it to be lawful. Each is answered below, with the check, not the claim.
+
+**On the state he read.** He read HEAD `967e46ef`, where the registration was
+uncommitted and `bf9d5899…` existed nowhere. **That was a real transient window
+in my working tree and he was right to stop on it.** It is closed at `0b8696f8`.
+
+### 15B.1 DEMAND 1 — NAME THE CHANGE EXACTLY, AS A DIFF
+
+The pilot ran between commit `915ab504` (the pre-compute freeze) and `0b8696f8`.
+
+**The GRADER did not move. `git diff 915ab504 HEAD -- analyse_f28_h5.py` is
+EMPTY — not one byte.**
+
+**The LAUNCHER moved by one functional line:**
+
+```diff
+ src = sub_once(src, "writeInterval   15000;",
+-                    "writeInterval   %s;" % niter, "top-level writeInterval")
++                    "writeInterval   %s;" % t1, "top-level writeInterval")
+```
+
+plus the comment block recording why. **That is the entire post-compute change to
+the frozen set.**
+
+### 15B.2 DEMAND 2 — WAS IT FORCED BY A MECHANICAL FACT, NOT BY A NUMBER?
+
+**Yes, and it is checkable in two independent ways.**
+
+**(a) The fact that forced it is arithmetic, not a measurement.** The top-level
+`writeInterval` is compared against the **continuing `timeIndex`**. On a restart
+that counter runs 15001…15072, and **`15072 % 72 = 24 ≠ 0`**, so the write never
+fired at `endTime`. `15072 % 72` is not an observation about the flow, about a
+residual, or about anything a choice could favour. The corrected form,
+`writeInterval = endTime`, gives `endTime % endTime == 0` for **every** endTime —
+it is the unique fix that is independent of the iteration count.
+
+**(b) The change CANNOT move any gate, and this is verifiable by inspection.**
+Amendment 3 changes only **when the solution fields `U p k omega nut phi` are
+written**. In `analyse_f28_h5.py` those six fields are read at **exactly one
+line** — inside `completion()` — and **nowhere else**. Every gate path
+(`age_guard`, the separator report, and the grading loop) reads only
+`residual_field_path(...)`, i.e. `initialResidual:*`. **The residual fields were
+already written correctly at `endTime` by the function object's own `onEnd`,
+which amendment 3 does not touch.**
+
+> **So the amendment can move a run from FAILING rule 4 clause 4 to SATISFYING
+> it, and it can do nothing else. It cannot move `f1%`, cannot move a zone
+> assignment, cannot change which cells count, and cannot change a threshold.**
+
+**And the thresholds are demonstrably unmoved.** Byte-identical at the
+comparator's birth commit `ecc2dec9`, at the pre-compute freeze `915ab504`, and
+at HEAD:
+
+```
+N_CELLS = 35544 · N_TOP = int(0.01 * N_CELLS) = 355
+G1_CONCENTRATION = 0.50 · G2_ZONE_MASS = 0.60 · G3_MIN_SNAPSHOTS = 4
+PLATEAU_LO, PLATEAU_HI = 0.1171, 0.5132
+ARM_SNAPSHOTS = [15040, 15080, 15120, 15160, 15200]
+```
+
+`zone_of()` diffs **IDENTICAL** between `915ab504` and HEAD — **no zone boundary
+moved.** Nothing in his forbidden list — a threshold, a zone definition, a mass
+fraction, the 0.50, the 0.60, which cells count — changed at any point after
+first compute. **Nothing needs striking.**
+
+**(c) The answer-fitting worry is RETIRED, not argued — `cfd-supervisor`'s
+formulation, which is stronger than either of ours and belongs on the record.**
+
+> **The observed `f1%` for `p` was 0.9979 against a threshold of 0.50**, with
+> uniform spread at 0.0099876. §5.2 already committed, before any compute, that
+> **any threshold between roughly 0.05 and 0.8 separates the same two worlds.**
+> **So the measurement is not a close call at ANY threshold in that range, and
+> no post-hoc choice of threshold could have changed the G1 outcome.**
+
+That is what makes the freeze unfalsifiable here: **not our assurances about it,
+but the distance between the reading and every threshold we could have chosen.**
+A registration whose gate survives this test is one a reader need not take on
+trust. *(Note that this concerns the G1 threshold only. §15C.2 records a defect
+in what the gate MEASURES, which no choice of threshold repairs.)*
+
+### 15B.3 DEMAND 3 — WAS THE PILOT'S OUTPUT VISIBLE WHEN I MADE THE CHANGE?
+
+> **YES. And more than the output he had in mind: I had ALREADY COMPUTED
+> `f1% = 0.9979` for `p` and `0.9719` for `Uy` before I wrote amendment 3.**
+
+The order of my actions, stated so a reader can judge rather than take my word:
+
+| # | action |
+|---|---|
+| 1 | ran the pilot control limb |
+| 2 | ran the pilot treatment limb; saw `15072/` held only residual fields |
+| 3 | diagnosed the `15072 % 72 = 24` defect; saw solution fields at `15048` |
+| 4 | ran the comparator — `NOT A RESULT`, six solution fields missing |
+| 5 | **read the residual field content directly, computing `f1% = 0.9979`** |
+| 6 | **wrote amendment 3** |
+
+**I made the change with the concentration number in view.** §15B.2 is why it is
+nonetheless lawful — the change cannot reach that number by any path — but the
+disclosure is owed regardless of the defence, and the defence is worth nothing
+without it. Had I written amendment 3 at step 3, before step 5, the disclosure
+would have been cleaner; **I did not, and I am not going to describe the sequence
+as though I had.**
+
+### 15B.4 DEMAND 4 — THE FROZEN BLOB MUST BE COMMITTED
+
+**Discharged.** `git cat-file -t bf9d5899148d6af88c8544c4844169f7b45b4f7d` →
+`blob`. The registration is committed and clean (`9d84a9bd`).
+
+**And the stronger property, checked rather than assumed: no commit in this
+document's history has ever named a blob it did not contain.**
+
+| commit | §9.3 names | actual blob in that commit |
+|---|---|---|
+| `915ab504` | `929dba14…` | `929dba14…` ✓ |
+| `0b8696f8` | `bf9d5899…` | `bf9d5899…` ✓ |
+
+### 15B.5 DEMAND 5 — THE ORDERING, DISCLOSED
+
+**What I did, both times:** edited the file → hashed the worktree file → wrote
+that hash into §9.3 → **committed the file and the registration together in one
+commit**.
+
+**So:** at every *committed* state the freeze can fire, because the blob and the
+registration naming it enter the tree in the same commit. **But in the working
+tree, between the hash being written and the commit landing, the registration
+named an object that did not yet exist** — the exact window he observed. His
+observation was correct and my workflow produced it.
+
+**The weakness is real and is not defended.** A registration is only checkable at
+commit granularity under this workflow, and "checkable only at commit
+granularity" is precisely the property that let an unverifiable state exist and
+be read. **The ordering he prescribes — commit the file FIRST, then record the
+blob in a SECOND commit — removes the window entirely and is what I will use for
+any further change to this document's frozen set.** It costs one extra commit and
+buys a freeze that is checkable continuously rather than only at landing.
+
+### 15B.6 CONTENTION — asked for explicitly, and reported rather than buried
+
+He recorded three foreign `rhoPimpleFoam` ranks at 99.9 % under `timeout 900` at
+**22:00Z**, load 3.33 on 16 vCPUs, in ansys-verification's lane trees.
+
+**My pilot did not overlap them, on the evidence available — and I cannot prove
+a negative about processes I never saw.**
+
+| fact | value |
+|---|---|
+| my box reading before launching | **21:55:03Z**, load **1.49** on 16 cores, **no** foreign solver in `pgrep` |
+| control limb finished | **21:58:28Z** |
+| treatment limb finished | **21:58:47Z** |
+| his observation | **22:00Z** — **73 s after my pilot ended** |
+| nearest ansys VMFL034-R2 artifacts on disk | **22:04:12Z**, **22:05:50Z** — over 5 minutes later |
+
+**Positive internal evidence against overlap:** both limbs measured **~25 %
+FASTER** per iteration than the parent (0.043111 and 0.042206 s/it against
+0.056214). **Contention slows a run; it does not speed one.** A limb sharing the
+box with three ranks at 99.9 % would show the opposite sign.
+
+**VERIFY — the honest limit:** no `log.rhoPimpleFoam` was found under
+`verification/runs/ansys_verification/`, so I could not read that run's own start
+time; and **fleet agents are invisible to `pgrep` (L-41)**, so my 21:55 sweep
+cannot prove nothing was running. **The attribution therefore records contention
+as NOT DETECTED AND NOT EXCLUDED**, and the calibration ledger carries that in
+those words rather than resolving it in the ratio.
+
+---
+
+## 15C. VERIFICATION LIMB — 2026-09-04. AMENDMENT 3 IS PROVED, AND THE PILOT FOUND A DEFECT IN THE GATE ITSELF
+
+**Authorised by `cfd-supervisor` ruling 1 after check 1 passed on amendment 3.**
+Run root `H5P_V_L1_dp1000_U20`, mode `pilot-verify` (amendment 4, additive only:
+byte-for-byte the `pilot-treatment` configuration, differing only in run-root
+name because `H5P_T` is spent and the virgin guard refuses an existing root).
+**Write cadence only; no physics claim. The arm has not run.**
+
+**The ordering `cfd-supervisor` prescribed at §15B.5 was used for the first time
+here: the launcher was committed ALONE, and its blob `f3534f1b…` was recorded in
+§9.3 in a LATER commit.** There was no window in which this registration named an
+object that did not exist.
+
+### 15C.1 🟢 AMENDMENT 3 IS VERIFIED BY RUNNING, NOT BY READING
+
+**The solution fields land at `endTime`.** `H5P_V_L1_dp1000_U20/15072/` now holds
+`U p k omega nut phi uniform` **together with** all six `initialResidual:*`
+fields, and `processor0/` holds **`0`, `15000`, `15072` and nothing else** — the
+stray `15048` write is gone, so the write fires **once, at endTime**.
+
+**The comparator cleared strict completion for the first time**, reached and
+passed the sentinel age guard, and ran the gates. Every clause of §7 that failed
+on the two spent limbs now passes. **The fix that "a dry run structurally cannot
+test" is tested.**
+
+**Contention, measured rather than assumed.** This limb ran at 22:10Z **alongside
+one to two foreign `rhoPimpleFoam` ranks at ~100 %** (ansys-verification's L2/L3
+probes under `timeout 3000`), load 2.83 on 16 cores — against the two spent limbs
+which ran at 21:57–21:58Z on an idle box. Measured per-iteration rates:
+
+| limb | box | slope |
+|---|---|---|
+| `H5P_C` | idle | 0.043111 s/it |
+| `H5P_T` | idle | 0.042206 s/it |
+| `H5P_V` | **2 foreign ranks at ~100 %** | **0.042399 s/it** |
+
+**Contention cost: not detectable at 4 ranks against 2 foreign ranks on a
+16-core box** — `V` sits between the two idle-box limbs. Recorded as a
+measurement, not as an absence of concern.
+
+### 15C.2 🔴 THE GATE AS FROZEN CANNOT DISCRIMINATE. THE RESIDUAL RANKING IS DOMINATED BY CELL VOLUME
+
+**This is the finding, and it outranks the arm.**
+
+The comparator reached G2 and returned **`Z-ELSEWHERE` at 1.000 — all 355 top
+cells, for both `p` and `Uy`.** The top cells sit at **x ∈ [−2.295, 6.271],
+r ∈ [0.445, 3.562]**, with the argmax at **x = −2.295, r = 3.562** — the outer
+corner of the farfield. The domain runs to r = 3.75; **the duct sits at
+r ≈ 0.117–0.152.** The residual is concentrated **20–30× further out in radius
+than any named feature**, and **none of Z-DISK / Z-DUCT / Z-HUB / Z-AXIS covers
+where it lives.**
+
+**The mechanism, and it is in the source I already quoted.** `GAMGSolverSolve.C`
+sets `finestResidual = tsource() - Apsi` — the **un-normalised** residual of the
+discretised equation. In a finite-volume discretisation each cell's equation is
+integrated over its own volume, **so `|r|` scales with cell volume.** Ranking
+cells by `|r|` therefore ranks them substantially **by size**.
+
+**Measured on this mesh, from the artifacts:**
+
+| check | value |
+|---|---|
+| Spearman rank correlation, `abs(residual)` vs cell size | **ρ = +0.8034** |
+| median cell size of the top-355 by residual | 6.683549e-03 |
+| median cell size, all 35,544 cells | 3.796746e-08 |
+| **ratio** | **176,034×** |
+| overlap: top-355-by-residual ∩ top-355-by-size | **248 of 355** |
+
+**And normalising by cell size moves the answer to a completely different
+place:** `f1%` becomes **0.7175** and the zone tally becomes **Z-DUCT 189,
+Z-HUB 147, Z-ELSEWHERE 16, Z-DISK 3** — the duct and the centrebody, which are
+the physically meaningful regions H5 was built to discriminate among.
+
+> **CONSEQUENCE FOR THE ARM: as frozen, G2 would have returned `Z-ELSEWHERE`
+> with near-certainty, and that answer would have been an artifact of cell
+> volume rather than a statement about the flow. H5's entire purpose is to
+> discriminate among H1–H4, and the frozen gate is structurally incapable of
+> it.** The pilot cost **0.24 core-minutes** and found this **before** the arm
+> spent its 2.67.
+
+**I HAVE CHANGED NOTHING.** Normalising the residual, or reweighting which cells
+count, is squarely inside `cfd-supervisor`'s forbidden list — *"a threshold, a
+zone definition, a mass fraction, the 0.50 or the 0.60, or which cells count"* —
+and this is **after first compute**, with the output in view. **It is referred,
+not fixed.** The normalised figures above are recorded as a **diagnostic from a
+`NOT A RESULT` run**, triple-disqualified exactly as §15A.6 requires, and they
+are **not** a proposed new gate; they are the evidence that the frozen one is
+broken.
+
+**VERIFY — what this does NOT establish.** That the volume-normalised residual is
+the *right* quantity is **not** established here. It is one obvious candidate;
+`|r|` per unit volume, `|r|` scaled by the diagonal, and a normalisation matching
+`normFactor` are others, and choosing among them **after seeing which zones each
+favours is precisely the answer-fitting the freeze exists to prevent.** Any
+replacement gate must be registered before the run that tests it.
+
+### 15C.3 🔴 A SECOND DEFECT: THE COMPARATOR EMITS A FALSE PHYSICS CLAIM FROM A COUNTING SHORTFALL
+
+Also referred, also not fixed. On this limb the comparator printed:
+
+> `G1 GATE FAIL: concentrated in 1 of 1 snapshots, threshold 4. The plateau
+> residual is DIFFUSE.` … `evidence AGAINST H4`
+
+**`f1%` was 0.9979.** The residual is the *most concentrated reading possible* —
+and the comparator called it **DIFFUSE** and turned that into **evidence against
+a hypothesis**, because the *snapshot count* fell short of four.
+
+**The verdict `GATE FAIL` is correct** — the gate genuinely is not satisfied. **The
+attributed reason and the physics gloss are false.** The code conflates three
+distinct outcomes: *diffuse*, *concentrated but unstable across snapshots*, and
+*too few snapshots to judge*. Only the first supports the H4 gloss.
+
+This is the shape this lab hunts in the opposite direction from usual: not
+bookkeeping voiding physics, but **bookkeeping MANUFACTURING a physics
+statement.** It is live on the arm's path too — 3-of-5 concentrated snapshots
+would print "DIFFUSE" and "evidence against H4" for a residual that is anything
+but. **Referred to `cfd-supervisor` with §15C.2; a grader change post-compute is
+his ruling, not mine.**
+
+### 15C.4 THE ARM'S CAP — SET BY THE SUPERVISOR AT 2.67 CORE-MIN
+
+**RULED (ruling 2):** the arm's cap is **2.67 core-min**, at the §15A.8 figure,
+unpadded. **An overrun stops the arm; it does not get a new budget.**
+
+> **REGISTERED IN TERMS, as he required: THE PER-ITERATION SURCHARGE IS AN UPPER
+> BOUND AND NOT A VALUE.** The treatment limb measured **2.1 % faster** than the
+> control, which is below run-to-run noise. **This cap therefore rests on a
+> bound, and it may never later be cited as though it rested on a measured
+> surcharge.**
+
+**But the arm does not run on this cap yet:** §15C.2 must be settled first, or the
+2.67 core-min buys an answer that is an artifact of the mesh.
+
+### 15C.5 RUN ROOTS — WHAT IS ON DISK AND UNTRACKED (ruling 3)
+
+`cfd-supervisor` ruled: commit the evidentiary artifacts, not the bulk, and
+**record the exact paths of the bulk and state plainly that they are on disk and
+untracked**, so that no citation points at a path a reader cannot find and cannot
+tell was never tracked.
+
+**ON DISK AND DELIBERATELY UNTRACKED — the duplicated mesh and `processor*`
+trees:**
+
+```
+verification/runs/F28_runs/H5P_C_L1_dp1000_U20/processor{0,1,2,3}/     ~15 MB
+verification/runs/F28_runs/H5P_T_L1_dp1000_U20/processor{0,1,2,3}/     ~15 MB
+verification/runs/F28_runs/H5P_V_L1_dp1000_U20/processor{0,1,2,3}/     ~15 MB
+verification/runs/F28_runs/H5P_C_L1_dp1000_U20_DRYRUN/                  23 MB
+verification/runs/F28_runs/H5P_T_L1_dp1000_U20_DRYRUN/                  23 MB
+verification/runs/F28_runs/H5A_L1_dp1000_U20_DRYRUN/                    23 MB
+```
+
+These are **copies of `F28G_L1_dp1000_U20`'s mesh and 15000 state** and carry no
+information the parent does not already carry in git. `CLAUDE.md` already puts
+data too large for git outside it; the lab's rule is that a number cites an
+artifact **still on disk**, not that every byte enters git. **Every number in
+§15A and §15C cites a path in this list or a committed one.**
 
 ---
 
