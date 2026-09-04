@@ -90,10 +90,56 @@ process at `beta_final`) reproduced eval 16's varianceU to all digits
 | repair | P1: beta=1 varU < 7.6e-3 | 6.151e-4 (24.8x collapse) | **PASS** |
 | repair | P2: y>2 loss share < 50% at baseline | 25.6% | **PASS** |
 | FD re-anchor | 3 components < 1%, no sign flips | 0.032% / 0.115% / 0.009% | **PASS** (after the 1e-6 protocol defect was fixed by amendment; the 1e-6 miss is on the record) |
-| reinversion | G1: J_qoi ≤ 0.70 within budget | **0.25847** (−74.2%) | **GATE PASS** |
+| reinversion | G1: J_qoi ≤ 0.70 within budget | **0.25847** (−74.2%) | ~~**GATE PASS**~~ → **PASS** — [⚠ VOCABULARY REPAIR 2026-09-04: the original cell read exactly `**GATE PASS**`, struck above BY QUOTE and NOT rewritten (the D-5 precedent for legacy cells). `GATE PASS` is not one of `CLAUDE.md` rule 1's six tokens — `PASS` / `GATE REACHED` / `GATE FAIL` / `NOT A RESULT` / `BLOCKED` / `PENDING`. **The verdict is unchanged in substance: G1 was met and is met.** Independent of the FD-row disposition disclosed below, and it does not wait on it.] |
 | reinversion | G2: >50% top-decile \|beta−1\| in window | 26.9% (3.2x base rate) | **GATE FAIL** |
 | eval-1 control | reproduce anchor8 + gradient | bit-identical, diff 0.0 | PASS |
 | final-state control | cold reproduction of final J | all-digits match | PASS |
+
+> **Plateau disclosure and one vocabulary repair, dated 2026-09-04 (disclosure only;
+> no verdict in the table above is changed by it, and the repair changes a token, not
+> a verdict).**
+>
+> **1 — the FD re-anchor row rests on a single step.** Its three numbers —
+> 0.032 % / 0.115 % / 0.009 % — are **each a single central difference at a single
+> step, `h = 0.05`**: six perturbed primals in total, two per cell, which is one
+> central difference per cell and not a sweep `[MEASURED,
+> /home/ubuntu/certonomous-runs/S1-cbfs-reinversion/ledger.csv]`.
+> `VERIFICATION_CHARTER.md` §7's reporting protocol, step 1, requires that the step be
+> shown to sit in a well-converged plateau by a two- or three-point mini-sweep,
+> *"**Not assumed**"* — and that clause entered the charter at **`commit ea53c110`,
+> 2026-07-30 18:53:17 +0000**, **eight days and one hour before this item's
+> pre-registration froze** at `289a9e03`. **The duty was live law when the row was
+> produced; there is no retroactivity defence.** The row's `PASS` is therefore not yet
+> defended at a precondition the charter places *ahead of reading the value at all*.
+> The frozen pre-registration carries the same disclosure as its **Amendment 2**.
+>
+> **2 — its disposition WAITS for the measurement, and is deliberately not settled
+> here.** The evidence points to **`NOT A RESULT`** rather than `GATE FAIL`: **the
+> value is not shown to be wrong; it is shown to be unverified.** Relabelling before
+> the second step is bought would replace a possibly-correct number with no number,
+> would leave this family with no defended field-inversion FD figure at all, and would
+> be a bookkeeping act rather than a measurement. The second step is registered as a
+> NEW registration at `S1_FD_PLATEAU_PREREGISTRATION.md` (**DRAFT, unfrozen, not
+> queued**) — never bolted onto the frozen pre-registration, which rule 2 and
+> `VERIFICATION_CHARTER.md` §2h.6 both forbid.
+>
+> **3 — G1 and G2 do NOT fall with the FD row, and they have been read as one object
+> when they are not one.** Both gates require only that the gradient be **usable**, and
+> that is established **independently of the FD row's magnitude** by the two control
+> rows at the foot of the table above: eval-1 reproduced the anchor8 baseline
+> `varianceU` **bit-identically** and the anchor8 gradient with **max abs diff exactly
+> 0**, and the cold final-state control reproduced eval 16's `varianceU` to all digits.
+> **Neither control is a finite-difference comparison, and neither is weakened by a
+> step-size question.** **G1's −74.2 % and G2's 26.9 % stand exactly as measured, on
+> the grounds they were registered**, as do the two control rows themselves.
+>
+> **4 — the vocabulary repair at the G1 row above.** That cell originally read
+> **`GATE PASS`**, struck by quote in place; `GATE PASS` is not one of `CLAUDE.md`
+> rule 1's six tokens (`PASS` / `GATE REACHED` / `GATE FAIL` / `NOT A RESULT` /
+> `BLOCKED` / `PENDING`). It is corrected to `PASS` by the D-5 quote-and-strike
+> precedent used for legacy `FAIL` cells — **never by rewriting the original**. **The
+> verdict is unchanged in substance: G1 was met and is met.** The repair is
+> independent of item 1 above and does not wait on it.
 
 Reported with no gate attached, per the prereg: **224 cells pinned** (223 low at 0.2,
 1 high at 4.0 — the failed run had zero; the lower bound is active where the optimizer
