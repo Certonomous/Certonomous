@@ -491,6 +491,342 @@ def literal_tuple(text: str, name: str):
 
 
 # =============================================================================
+# THE PRODUCER TRACE.  Draft section 11 item 1a, added by the
+# dafoam-supervisor's 2026-09-04 section 11.1 amendment.
+#
+# WHAT IT ANSWERS, AND WHY EXISTENCE DID NOT ANSWER IT
+# ----------------------------------------------------
+# `assert_existence` asks whether every DERIVED INSTRUMENT is on disk.
+# `completeness` asks whether every RUN-ROOT NAME the instruments reference is
+# DECLARED by the stager.  Both passed clean on an item in which
+# `MANIFEST.json` -- the sole input of the HARD gates `G-IMG` and `G-FREEZE` --
+# was written at exactly one site in the whole item: `a1wrt2_grade.py:1390`,
+# inside `_build_happy_root`, WHICH IS THE SELFTEST FIXTURE BUILDER.
+#
+# A declaration is not a producer.  `PRODUCTS` is a list of names the RUN MUST
+# CREATE; reading it as evidence that something creates them is the exact
+# confusion the amendment caught, so `PRODUCTS` IS DELIBERATELY EXCLUDED from
+# the producer set below and the exclusion is printed rather than assumed.
+#
+# THE DISCRIMINATOR IS DERIVED, NOT LISTED.  A hand-written list of "fixture
+# builder" function names would have the same failure mode as every other list
+# written from memory (section 18.3).  Instead the module's own call graph is
+# built from its AST and each write site is attributed to the entry point that
+# can reach it:
+#
+#     reachable from `main`      -> GRADED PATH   -> a real producer
+#     reachable ONLY from `selftest` -> FIXTURE   -> NOT a producer
+#     reachable from neither     -> UNREACHED     -> reported, never a producer
+#
+# so moving a producer into a selftest-only helper is caught by construction,
+# and a control drives exactly that move on a real tree.
+#
+# A HARD GATE FED BY NOTHING IS WORSE THAN A MISSING GATE, BECAUSE IT REPORTS.
+# =============================================================================
+
+# Path methods that WRITE, that READ, and that create a DIRECTORY.  Attribute
+# names, matched on the call, so `(root / "x").write_text(...)` is a write and
+# `(root / "x").read_text()` is a read without either being listed by name.
+_WRITE_ATTRS = frozenset({"write_text", "write_bytes", "touch"})
+_DIRWRITE_ATTRS = frozenset({"mkdir", "makedirs"})
+_READ_ATTRS = frozenset({"read_text", "read_bytes", "exists", "is_file",
+                         "is_dir", "stat", "iterdir", "glob", "rglob"})
+# Module-level helpers whose FIRST argument is a path they READ.  Derived from
+# the graders' own shape (`read_text(root / "ledger.txt")`); a name here that
+# does not exist in the file is simply never matched, so the list cannot
+# manufacture a trace.
+_READ_FUNCS = frozenset({"read_text", "md5_of", "_iter_files"})
+
+# The two entry points every instrument in this item has.  `main` is the graded
+# path; `selftest` is the fixture path.  Named here because they are the CLI's
+# own two entry points, and the control `producer/fixture-only-write-is-flagged`
+# demonstrates that the distinction is what does the work.
+_GRADED_ENTRIES = ("main",)
+_FIXTURE_ENTRIES = ("selftest",)
+
+
+def _runroot_rel(node):
+    """A `root / "A" / "B"` chain -> `"A/B"`, or None.
+
+    Rooted on the names this family's graders actually bind a run root to.  A
+    segment that is not a string literal makes the whole reference DYNAMIC and
+    returns None, so an interpolated name is never silently traced."""
+    seg, n = [], node
+    while isinstance(n, ast.BinOp) and isinstance(n.op, ast.Div):
+        if isinstance(n.right, ast.Constant) and isinstance(n.right.value, str):
+            seg.insert(0, n.right.value)
+        else:
+            return None
+        n = n.left
+    if not (isinstance(n, ast.Name) and n.id in ("root", "run_root")):
+        return None
+    return "/".join(seg) if seg else None
+
+
+def _toplevel_funcs(tree: ast.Module) -> dict:
+    return {n.name: n for n in tree.body
+            if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))}
+
+
+def _callgraph(funcs: dict) -> dict:
+    """name -> set of top-level function names it calls.
+
+    Nested `def`s and closures are attributed to their enclosing top-level
+    function, which is what makes `_st_gate_controls`'s inner helpers land on
+    the selftest side rather than nowhere."""
+    names = set(funcs)
+    cg = {}
+    for fname, node in funcs.items():
+        called = set()
+        for x in ast.walk(node):
+            if not isinstance(x, ast.Call):
+                continue
+            f = x.func
+            if isinstance(f, ast.Name) and f.id in names:
+                called.add(f.id)
+            elif isinstance(f, ast.Attribute) and f.attr in names:
+                called.add(f.attr)
+        # a bare reference (passed as a callback, e.g. `_control("x", "fail", fn)`)
+        # is a call for reachability purposes; missing this would strand every
+        # leg that hands its body to `_control`
+        for x in ast.walk(node):
+            if isinstance(x, ast.Name) and x.id in names and x.id != fname:
+                called.add(x.id)
+        cg[fname] = called
+    return cg
+
+
+def _reachable(cg: dict, entries, stop=frozenset()) -> set:
+    """Reachability with CUT NODES.
+
+    ⚠ THE CUT IS LOAD-BEARING AND ITS ABSENCE WAS MEASURED, NOT REASONED.  The
+    first drive of this trace against the real tree reported
+    `MANIFEST.json  TRACED <- a1wrt2_grade.py:1390 in _build_happy_root
+    [GRADED]` -- the exact artefact the section 11.1 amendment was written
+    about, reported CLEAN.  The cause: every one of this item's instruments has
+    `main` dispatch `--selftest` to `selftest()`, so an unstopped walk from
+    `main` reaches every fixture builder and the graded/fixture discriminator
+    collapses to "everything is graded".  A checker that cannot tell the two
+    apart would have printed a clean trace over the defect it exists to find,
+    which is `CLAUDE.md` rule 3 arriving one level up: a reader that has only
+    ever reported "all traced" is not evidence.  The control
+    `producer/fixture-only-write-is-flagged` pins the repaired behaviour."""
+    seen, front = set(), [e for e in entries if e in cg]
+    while front:
+        cur = front.pop()
+        if cur in seen:
+            continue
+        seen.add(cur)
+        if cur in stop:
+            continue
+        front.extend(cg.get(cur, ()))
+    return seen
+
+
+def runroot_io(text: str) -> dict:
+    """Run-root READS and WRITES in one python instrument, each attributed to
+    its enclosing top-level function and to that function's reachability.
+
+    Returns {"read": {rel: [site]}, "write": {rel: [site]},
+             "dirwrite": {rel: [site]}, "graded": set, "fixture": set,
+             "unreached": set}, where a site is (function, lineno, path-role)."""
+    try:
+        tree = ast.parse(text)
+    except SyntaxError as e:
+        refuse("UNPARSEABLE",
+               "a derived instrument does not parse as python: %s" % e, 3)
+    funcs = _toplevel_funcs(tree)
+    cg = _callgraph(funcs)
+    # `selftest` is a CUT NODE on the graded walk: `main --selftest` dispatches
+    # to it, and without the cut every fixture builder reads as graded.
+    graded = _reachable(cg, _GRADED_ENTRIES,
+                        stop=frozenset(_FIXTURE_ENTRIES)) \
+        - set(_FIXTURE_ENTRIES)
+    fixture = _reachable(cg, _FIXTURE_ENTRIES) - graded
+    unreached = set(funcs) - graded - fixture
+
+    owner = {}
+    for fname, node in funcs.items():
+        for x in ast.walk(node):
+            owner[id(x)] = fname
+
+    read, write, dirwrite = {}, {}, {}
+
+    def role(fn):
+        if fn in graded:
+            return "GRADED"
+        if fn in fixture:
+            return "FIXTURE"
+        return "UNREACHED"
+
+    def add(bucket, rel, node):
+        fn = owner.get(id(node), "<module>")
+        bucket.setdefault(rel, []).append((fn, node.lineno, role(fn)))
+
+    for x in ast.walk(tree):
+        if not isinstance(x, ast.Call):
+            continue
+        f = x.func
+        if isinstance(f, ast.Attribute):
+            rel = _runroot_rel(f.value)
+            if rel is None:
+                continue
+            if f.attr in _WRITE_ATTRS:
+                add(write, rel, x)
+            elif f.attr in _DIRWRITE_ATTRS:
+                add(dirwrite, rel, x)
+            elif f.attr in _READ_ATTRS:
+                add(read, rel, x)
+            continue
+        if isinstance(f, ast.Name):
+            if f.id == "open" and x.args:
+                rel = _runroot_rel(x.args[0])
+                if rel is None:
+                    continue
+                mode = ""
+                if len(x.args) > 1 and isinstance(x.args[1], ast.Constant):
+                    mode = str(x.args[1].value)
+                add(write if any(c in mode for c in "wax") else read, rel, x)
+            elif f.id in _READ_FUNCS and x.args:
+                rel = _runroot_rel(x.args[0])
+                if rel is not None:
+                    add(read, rel, x)
+    return {"read": read, "write": write, "dirwrite": dirwrite,
+            "graded": graded, "fixture": fixture, "unreached": unreached}
+
+
+_RE_REDIR = re.compile(r'(?:^|\s)(>>?)\s*("?)([^\s"\';|&)]+)\2')
+
+
+def runroot_writes_shell(text: str, item_rel: str) -> dict:
+    """Run-root WRITES in one shell instrument: every `>` / `>>` redirection
+    whose target resolves under the run root, via the same variable binding the
+    reference extractor uses.  A launcher that redirects the container's stdout
+    into `$RUN_ROOT/$ARM/out/sweep.log` IS that log's producer, and this is what
+    sees it."""
+    env = shell_dir_vars(text, item_rel)
+    out = {}
+    for ln, raw in enumerate(text.splitlines(), 1):
+        line = _strip_comment(raw)
+        for m in _RE_REDIR.finditer(line):
+            tok = m.group(3)
+            mv = re.match(r'^\$\{?(\w+)\}?(/.*)?$', tok)
+            if not mv or mv.group(1) not in env:
+                continue
+            kind, base = env[mv.group(1)]
+            if kind != "RUNROOT":
+                continue
+            tail = (mv.group(2) or "").lstrip("/").rstrip("/.,;")
+            rel = (base + "/" + tail).strip("/") if base else tail
+            if not rel:
+                continue
+            role = "DYNAMIC" if "$" in rel else "GRADED"
+            out.setdefault(rel, []).append(("<shell>", ln, role))
+    return out
+
+
+def deferred_producers(reader, item_rel: str):
+    """The REGISTERED DEFERRAL REGISTRY, read out of the stager's AST.
+
+    An entry is legal only if it NAMES what would produce the artefact and
+    NAMES WHAT REFUSES IF IT IS ABSENT AT GRADE TIME.  A deferral without a
+    refusal is a hole, so an entry missing either key is itself a finding."""
+    text = reader.read(item_rel + "/a1wrt2_stage.py")
+    if text is None:
+        return None, []
+    try:
+        tree = ast.parse(text)
+    except SyntaxError:
+        return None, []
+    for node in tree.body:
+        if (isinstance(node, ast.Assign) and len(node.targets) == 1
+                and isinstance(node.targets[0], ast.Name)
+                and node.targets[0].id == "DEFERRED_PRODUCERS"):
+            try:
+                val = ast.literal_eval(node.value)
+            except Exception:                                    # noqa: BLE001
+                return None, ["DEFERRED_PRODUCERS is not a literal"]
+            bad = []
+            for k, v in (val or {}).items():
+                if not isinstance(v, dict):
+                    bad.append("%s: not a mapping" % k)
+                    continue
+                for key in ("producer", "why_deferred", "refuses_if_absent"):
+                    if not str(v.get(key, "")).strip():
+                        bad.append("%s: missing %s" % (k, key))
+            return val, bad
+    return {}, []
+
+
+def producer_trace(closure: dict, reader, item_rel: str) -> dict:
+    """EVERY RUN-ROOT ARTEFACT A GATE READS ON THE GRADED PATH, TRACED TO A
+    PRODUCER IN THE REGISTERED SET OR TO A NAMED REGISTERED DEFERRAL.
+
+    Neither -> UNTRACED, and `main` returns non-zero on it.  A hard gate fed by
+    nothing is worse than a missing gate, because it reports."""
+    produced, fixture_only, consumed = {}, {}, {}
+    unreached_writes = {}
+    for path in sorted(closure["instruments"]):
+        text = reader.read(path)
+        if text is None:
+            continue
+        if path.endswith(".py"):
+            io = runroot_io(text)
+            for rel, sites in io["read"].items():
+                for s in sites:
+                    if s[2] == "GRADED":
+                        consumed.setdefault(rel, []).append((path,) + s)
+            for bucket in ("write", "dirwrite"):
+                for rel, sites in io[bucket].items():
+                    for s in sites:
+                        tgt = (produced if s[2] == "GRADED"
+                               else fixture_only if s[2] == "FIXTURE"
+                               else unreached_writes)
+                        tgt.setdefault(rel, []).append((path,) + s)
+        elif path.endswith(".sh"):
+            for rel, sites in runroot_writes_shell(text, item_rel).items():
+                for s in sites:
+                    (produced if s[2] == "GRADED"
+                     else unreached_writes).setdefault(rel, []).append(
+                        (path,) + s)
+
+    # The stager's OWN declarations of what IT creates.  `STAGED_INPUTS` and
+    # `STAGED_CASE_DIRS` are things the stager carries in or builds, so they are
+    # producer evidence.  `PRODUCTS` IS NOT, AND THE EXCLUSION IS THE POINT:
+    # it declares what the RUN must create, and reading it as a producer is
+    # exactly the confusion the section 11.1 amendment caught.
+    stager_text = reader.read(item_rel + "/a1wrt2_stage.py")
+    staged = set()
+    if stager_text is not None:
+        for nm in ("STAGED_INPUTS", "STAGED_CASE_DIRS"):
+            staged |= set(literal_tuple(stager_text, nm) or ())
+    for rel in staged:
+        produced.setdefault(rel, []).append(
+            (item_rel + "/a1wrt2_stage.py", "<declared>", 0, "GRADED"))
+
+    deferrals, deferral_defects = deferred_producers(reader, item_rel)
+
+    traced, by_fixture, by_deferral, untraced = {}, {}, {}, {}
+    for rel in sorted(consumed):
+        if rel in produced:
+            traced[rel] = produced[rel]
+        elif deferrals and rel in deferrals:
+            by_deferral[rel] = deferrals[rel]
+        elif rel in fixture_only:
+            by_fixture[rel] = fixture_only[rel]
+        else:
+            untraced[rel] = consumed[rel]
+    return {"consumed": consumed, "produced": produced,
+            "fixture_only": fixture_only, "unreached_writes": unreached_writes,
+            "traced": traced, "by_deferral": by_deferral,
+            "fixture_only_consumed": by_fixture, "untraced": untraced,
+            "deferrals": deferrals, "deferral_defects": deferral_defects,
+            "products_excluded": sorted(
+                set(literal_tuple(stager_text, "PRODUCTS") or ())
+                if stager_text is not None else ())}
+
+
+# =============================================================================
 # THE CLOSURE
 # =============================================================================
 
@@ -675,7 +1011,8 @@ def run_table(reader, item_rel: str, seeds, max_rounds=MAX_ROUNDS,
            "container": sorted(cl["container"]),
            "runroot": sorted(cl["runroot"]), "dynamic": sorted(cl["dynamic"]),
            "why": {k: v for k, v in cl["instruments"].items()},
-           "md5": None, "declared": None, "uncovered": None, "unseeded": None}
+           "md5": None, "declared": None, "uncovered": None, "unseeded": None,
+           "trace": None}
     if absent:
         # EXISTENCE FAILED.  No md5 is computed.  The `md5` field stays None and
         # a control asserts exactly that, because "we hashed everything and it
@@ -686,6 +1023,7 @@ def run_table(reader, item_rel: str, seeds, max_rounds=MAX_ROUNDS,
     dec, unc = completeness(cl, reader, item_rel)
     res["declared"], res["uncovered"] = (sorted(dec) if dec else None), unc
     res["unseeded"] = unseeded_check(reader, item_rel, cl, "a1wrt2_")
+    res["trace"] = producer_trace(cl, reader, item_rel)
     return res
 
 
@@ -739,6 +1077,60 @@ def print_table(res: dict) -> None:
         print("--- ITEM FILES NOT REACHABLE FROM THE SEEDS ---")
         for u in res["unseeded"]:
             print("  UNSEEDED  %s" % u)
+    if res.get("trace"):
+        print_trace(res["trace"])
+
+
+def _site(s) -> str:
+    path, fn, ln, role = s
+    return "%s:%s in %s [%s]" % (path.split("/")[-1], ln, fn, role)
+
+
+def print_trace(t: dict) -> None:
+    """Draft section 11 item 1a.  Every gate input traced to a producer, to a
+    named registered deferral, or REFUSED."""
+    print("")
+    print("--- PRODUCER TRACE: every run-root artefact a gate READS on the")
+    print("    GRADED path, traced to a PRODUCER in the registered set or to a")
+    print("    NAMED REGISTERED DEFERRAL (draft section 11 item 1a) ---")
+    if t["products_excluded"]:
+        print("    `PRODUCTS` IS EXCLUDED FROM THE PRODUCER SET BY DESIGN: it")
+        print("    declares what the RUN must create, not that anything creates")
+        print("    it.  Reading it as a producer is the confusion the 11.1")
+        print("    amendment caught.  Excluded: %s"
+              % ", ".join(t["products_excluded"]))
+    print("")
+    for rel in sorted(t["consumed"]):
+        if rel in t["traced"]:
+            print("  TRACED    %-30s <- %s"
+                  % (rel, "; ".join(_site(s) for s in t["traced"][rel][:2])))
+        elif rel in t["by_deferral"]:
+            d = t["by_deferral"][rel]
+            print("  DEFERRED  %-30s producer: %s" % (rel, d.get("producer")))
+            print("            refuses if absent at grade time: %s"
+                  % d.get("refuses_if_absent"))
+        elif rel in t["fixture_only_consumed"]:
+            print("  UNTRACED  %-30s <-- WRITTEN ONLY BY THE SELFTEST FIXTURE "
+                  "BUILDER" % rel)
+            for s in t["fixture_only_consumed"][rel]:
+                print("            fixture write at %s" % _site(s))
+        else:
+            print("  UNTRACED  %-30s <-- NOTHING IN THE REGISTERED SET WRITES "
+                  "THIS" % rel)
+            for s in t["untraced"][rel][:2]:
+                print("            read at %s" % _site(s))
+    n_bad = len(t["untraced"]) + len(t["fixture_only_consumed"])
+    print("")
+    print("  %d consumed, %d traced to a producer, %d covered by a registered "
+          "deferral, %d UNTRACED"
+          % (len(t["consumed"]), len(t["traced"]), len(t["by_deferral"]),
+             n_bad))
+    if t["deferral_defects"]:
+        print("  DEFERRAL REGISTRY DEFECTS (a deferral without a refusal is a "
+              "hole): %s" % t["deferral_defects"])
+    if n_bad:
+        print("  A HARD GATE FED BY NOTHING IS WORSE THAN A MISSING GATE, "
+              "BECAUSE IT REPORTS.")
 
 
 def main(argv=None) -> int:
@@ -775,6 +1167,23 @@ def main(argv=None) -> int:
         return 6
     if res["unseeded"]:
         return 7
+    # THE PRODUCER TRACE REFUSES.  An untraced gate input -- one nothing in the
+    # registered set writes, or one written only by the selftest fixture builder
+    # -- is a HARD GATE FED BY NOTHING, and this returns non-zero on it rather
+    # than printing a table a reader would skim as clean.
+    t = res.get("trace") or {}
+    n_bad = len(t.get("untraced", {})) + len(t.get("fixture_only_consumed", {}))
+    if t.get("deferral_defects"):
+        print("")
+        print("%s_INSTRUMENTS DEFERRAL REGISTRY DEFECTIVE: %s"
+              % (ITEM, t["deferral_defects"]))
+        return 9
+    if n_bad:
+        print("")
+        print("%s_INSTRUMENTS UNTRACED GATE INPUTS: %s"
+              % (ITEM, sorted(list(t["untraced"]) +
+                              list(t["fixture_only_consumed"]))))
+        return 8
     return 0
 
 
@@ -1037,6 +1446,169 @@ def _leg_completeness() -> None:
     _control("completeness/unregistered-runroot-name-flagged", "fail", planted)
 
 
+def _leg_producer_trace() -> None:
+    """THE PRODUCER TRACE, PLANTED BOTH WAYS ON REAL TREES.
+
+    Draft section 11 item 1a.  An extractor that has only ever reported "all
+    traced" is not evidence (`CLAUDE.md` rule 3), so every limb below is driven
+    on a real copy of this item's own tree with one thing changed."""
+
+    def _tree():
+        """A real copy of the item tree plus the sibling item's frozen producer,
+        under a temp repo root.  Same shape `_leg_completeness` uses."""
+        import shutil as _sh
+        td = tempfile.mkdtemp()
+        root = Path(td)
+        dst = root / ITEM_REL
+        dst.parent.mkdir(parents=True)
+        _sh.copytree(str(HERE), str(dst))
+        prod_rel = ("cases/dafoam/ladder-a/A1/wall_resolved_aoa_polar/"
+                    "a1wr_runScript_incomp.py")
+        (root / prod_rel).parent.mkdir(parents=True, exist_ok=True)
+        (root / prod_rel).write_text("# stand-in\n")
+        return root, dst
+
+    def baseline_is_clean():
+        """THE PRESENT DIRECTION.  Every gate input on the real tree traces to
+        a producer or to a named registered deferral, and NOTHING is untraced."""
+        root, _dst = _tree()
+        res = run_table(DiskReader(root), ITEM_REL, SEEDS, do_md5=False)
+        t = res["trace"]
+        _must(not t["untraced"] and not t["fixture_only_consumed"],
+              "the real tree is NOT clean: untraced=%s fixture-only=%s"
+              % (sorted(t["untraced"]), sorted(t["fixture_only_consumed"])))
+        _must(t["by_deferral"],
+              "no registered deferral was exercised, so the deferral branch is "
+              "untested and 'all traced' could mean 'the branch never ran'")
+        return ("%d gate inputs: %d traced to a producer, %d covered by a "
+                "NAMED registered deferral, 0 untraced"
+                % (len(t["consumed"]), len(t["traced"]), len(t["by_deferral"])))
+    _control("producer/real-tree-traces-clean", "pass", baseline_is_clean)
+
+    def removed_producer_refuses():
+        """THE ABSENT DIRECTION.  The producer of `MANIFEST.json` -- the sole
+        input of the HARD gates `G-IMG` and `G-FREEZE` -- is DELETED from the
+        launcher on a real tree, and the trace must refuse."""
+        root, dst = _tree()
+        lp = dst / "a1wrt2_run_arm.sh"
+        txt = lp.read_text()
+        _must('> "$MANIFEST_PATH"' in txt or "$MANIFEST_PATH" in txt,
+              "the launcher does not name MANIFEST_PATH, so this control is "
+              "not removing what it thinks it is")
+        lp.write_text(txt.replace('MANIFEST_PATH="$RUN_ROOT/MANIFEST.json"',
+                                  'MANIFEST_PATH="/tmp/not_the_run_root.json"', 1))
+        _must("/tmp/not_the_run_root.json" in lp.read_text(),
+              "the mutation did not land on disk")
+        res = run_table(DiskReader(root), ITEM_REL, SEEDS, do_md5=False)
+        t = res["trace"]
+        _must("MANIFEST.json" in t["untraced"]
+              or "MANIFEST.json" in t["fixture_only_consumed"],
+              "the producer of a HARD gate's only input was removed and the "
+              "trace still reported it traced: untraced=%s fixture-only=%s"
+              % (sorted(t["untraced"]), sorted(t["fixture_only_consumed"])))
+        return ("MANIFEST_PATH repointed out of the run root -> MANIFEST.json "
+                "flagged, and it is the ONLY input of the HARD gates G-IMG and "
+                "G-FREEZE")
+    _control("producer/removed-producer-is-flagged", "fail",
+             removed_producer_refuses)
+
+    def fixture_only_is_flagged():
+        """THE SECTION 11.1 SHAPE ITSELF.  A producer MOVED OUT OF THE GRADED
+        PATH INTO A SELFTEST-ONLY HELPER must be flagged FIXTURE-ONLY, not
+        traced.  Existence and md5 agreement both read clean across this move,
+        which is why neither of them caught it."""
+        root, dst = _tree()
+        lp = dst / "a1wrt2_run_arm.sh"
+        lp.write_text(lp.read_text().replace(
+            'MANIFEST_PATH="$RUN_ROOT/MANIFEST.json"',
+            'MANIFEST_PATH="/tmp/not_the_run_root.json"', 1))
+        gp = dst / "a1wrt2_grade.py"
+        txt = gp.read_text()
+        _must("_build_happy_root" in txt, "no fixture builder to point at")
+        res = run_table(DiskReader(root), ITEM_REL, SEEDS, do_md5=False)
+        t = res["trace"]
+        _must("MANIFEST.json" in t["fixture_only_consumed"],
+              "MANIFEST.json is written by `_build_happy_root` and by nothing "
+              "on the graded path, yet the trace did not report it "
+              "FIXTURE-ONLY: %s" % sorted(t["fixture_only_consumed"]))
+        sites = t["fixture_only_consumed"]["MANIFEST.json"]
+        _must(any(s[1] == "_build_happy_root" for s in sites),
+              "the fixture site was not attributed to _build_happy_root: %s"
+              % (sites,))
+        return ("MANIFEST.json attributed to `_build_happy_root` [FIXTURE] and "
+                "reported UNTRACED -- the section 11.1 defect, reproduced by "
+                "extraction on a real tree")
+    _control("producer/fixture-only-write-is-flagged", "fail",
+             fixture_only_is_flagged)
+
+    def cut_node_matters():
+        """THE DISCRIMINATOR ITSELF, DRIVEN.  Without the `selftest` cut node,
+        `main --selftest` reaches every fixture builder and the graded/fixture
+        split collapses.  That is not a hypothesis: it is what the trace's FIRST
+        run against the real tree actually printed, reporting
+        `MANIFEST.json TRACED <- _build_happy_root [GRADED]`."""
+        text = (HERE / "a1wrt2_grade.py").read_text()
+        tree = ast.parse(text)
+        cg = _callgraph(_toplevel_funcs(tree))
+        uncut = _reachable(cg, _GRADED_ENTRIES)
+        cut = _reachable(cg, _GRADED_ENTRIES,
+                         stop=frozenset(_FIXTURE_ENTRIES))
+        _must("_build_happy_root" in uncut,
+              "the UNCUT walk does not reach the fixture builder, so this "
+              "control is not demonstrating the collapse it claims")
+        _must("_build_happy_root" not in cut,
+              "the CUT walk still reaches the fixture builder -- the "
+              "discriminator is not doing anything")
+        return ("uncut walk from `main` reaches _build_happy_root (%d funcs); "
+                "cut walk does not (%d funcs).  Without the cut the trace "
+                "prints a clean table over the defect it exists to find"
+                % (len(uncut), len(cut)))
+    _control("producer/cut-node-is-load-bearing", "pass", cut_node_matters)
+
+    def deferral_without_refusal_is_a_hole():
+        """A DEFERRAL MISSING ITS `refuses_if_absent` IS ITSELF A FINDING."""
+        root, dst = _tree()
+        sp = dst / "a1wrt2_stage.py"
+        txt = sp.read_text()
+        _must('"refuses_if_absent"' in txt,
+              "the registry does not carry a refuses_if_absent key to remove")
+        sp.write_text(txt.replace('"refuses_if_absent":', '"_removed":', 1))
+        _, defects = deferred_producers(DiskReader(root), ITEM_REL)
+        _must(defects,
+              "a deferral with NO refusal was accepted silently -- a deferral "
+              "without a refusal is a hole with a name")
+        return ("`refuses_if_absent` removed -> registry defect reported: %s"
+                % defects)
+    _control("producer/deferral-without-refusal-flagged", "fail",
+             deferral_without_refusal_is_a_hole)
+
+    def products_is_not_a_producer():
+        """`PRODUCTS` DECLARES WHAT THE RUN MUST CREATE AND IS NOT EVIDENCE
+        THAT ANYTHING CREATES IT.  Reading it as a producer is the exact
+        confusion the section 11.1 amendment caught, so the exclusion is
+        driven: every name in `PRODUCTS` is still required to trace on its own
+        merits."""
+        root, _dst = _tree()
+        res = run_table(DiskReader(root), ITEM_REL, SEEDS, do_md5=False)
+        t = res["trace"]
+        _must(t["products_excluded"],
+              "PRODUCTS was not read at all, so the exclusion is vacuous")
+        overlap = [p for p in t["products_excluded"] if p in t["consumed"]]
+        _must(overlap,
+              "no PRODUCTS name is consumed by a gate, so this control proves "
+              "nothing about the exclusion")
+        for p in overlap:
+            _must(p in t["traced"] or p in t["by_deferral"],
+                  "%s is in PRODUCTS and is consumed by a gate, but traces to "
+                  "neither a producer nor a deferral -- and PRODUCTS did not "
+                  "rescue it, which is correct" % p)
+        return ("%d PRODUCTS names excluded from the producer set; the %d of "
+                "them a gate consumes each trace on their own merits"
+                % (len(t["products_excluded"]), len(overlap)))
+    _control("producer/PRODUCTS-is-not-a-producer", "pass",
+             products_is_not_a_producer)
+
+
 def _leg_noassert() -> None:
     def audit():
         for f in (Path(__file__), HERE / "a1wrt2_stage.py",
@@ -1064,6 +1636,7 @@ def selftest() -> int:
             ("SELFTEST-ORDERING", _leg_ordering),
             ("SELFTEST-CONVERGENCE", _leg_convergence),
             ("SELFTEST-COMPLETENESS", _leg_completeness),
+            ("SELFTEST-PRODUCER-TRACE", _leg_producer_trace),
             ("SELFTEST-NOASSERT", _leg_noassert))
     try:
         for name, fn in legs:

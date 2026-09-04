@@ -887,3 +887,265 @@ so.** *Buildable, not built, and named here rather than left for a freeze to dis
 **NOTHING ELSE IN THIS DOCUMENT MOVES.** No gate, threshold, band, cap, label, prediction or cost
 figure is altered by this amendment; it makes the FREEZE GATE stricter and nothing else. `PASS`
 remains unreachable by construction and `P4` remains registered unhedged and predicted to MISS.
+
+### 11.2 AMENDMENT — 2026-09-04, the `dafoam-supervisor`'s TWO RULINGS IMPLEMENTED, AND §11.1 ITEM 1a BUILT. **§3's SAME-PROCESS CLAUSE IS STRUCK BY QUOTE.**
+
+**Lawful because this document is UNFROZEN and no compute has been spent against it**
+(`CLAUDE.md` rule 2 limb 1: before first compute, amendments are legal **and must state the
+condition and how it was checked**). **The condition, CHECKED BY EXECUTION in this amending
+invocation and not asserted:** the run directory `/home/ubuntu/certonomous-runs/A1WRT2`
+**does not exist** — `ls -la` and `ls -d` both returned rc=2, *"No such file or directory"*,
+at **2026-09-04T21:48:07Z** and again at **2026-09-04T22:06:40Z**.
+
+> **⚠ BOTH RULINGS ONLY ADD REFUSALS, AND THAT IS MADE STRUCTURAL RATHER THAN ASSERTED.**
+> Neither can move a verdict toward `PASS`. The composer reaches `GATE REACHED` only when no
+> gate reports `NOT A RESULT`, `BLOCKED` or `GATE FAIL`, so a NEW gate can only move a verdict
+> DOWN; and the two-arm fold uses `worse_of`, which is **monotone downward over all 36 ordered
+> pairs of the six tokens** — driven by `Q-ARMFOLD-add-only`. `PASS` remains unreachable by
+> registration and `P4` remains registered unhedged and predicted to MISS.
+
+---
+
+#### 11.2.1 RULING 1 — §3's *"in the same process"* IS **STRUCK BY QUOTE**
+
+**The struck text, quoted verbatim from §3's arm table, `TAIL` row, `start` column. It is
+STRUCK, NOT REWRITTEN, and the original stands above unaltered (`CLAUDE.md` rule 6):**
+
+> ~~CONTINUED from `SEAM`'s final state, in the same process~~
+
+**REPLACED BY:** *CONTINUED from `SEAM`'s landed final state, in a SEPARATE PROCESS on a
+SEPARATE TREE, and only if `SEAM`'s verdict permits it.*
+
+**THE REASON, AND IT IS NOT BOOKKEEPING.** `G-SEAM` is this item's **registered falsifier**
+(§9): if it fails, every tail point is withdrawn *as a tail*. **A single process spanning both
+arms would have ALREADY COMPUTED THE TAIL by the time the seam could be graded — so the
+falsifier could not stop the spend it exists to stop.** `SEAM` is **10.0** core-min and `TAIL`
+is **675.0** (§5.4). **675 core-min riding on a control that cannot gate it is not a control;
+it is a post-hoc report wearing a stop rule's name** — the shape this family has already met
+in an in-container deadline and in a cap watch.
+
+**THE STOP RULE, AS A CHECKED PRECONDITION AND NOT A CONVENTION.** `a1wrt2_grade.py` gains
+`seam_precondition(root)` and the CLI entry `--seam-precond ROOT`; `a1wrt2_run_arm.sh` gains
+`seam_precondition_guard`, which runs **for the `TAIL` arm only, before the ceiling guard and
+before the container**, and exits **7** on anything but `PASS`, writing a durable
+`note=SEAM_PRECONDITION_REFUSED` row to `STATUS.TAIL`. `SEAM` carries no such precondition —
+**it *is* the precondition**, and a control asserts the guard does not gate it.
+
+**The precondition emits NO item verdict.** §1 reserves `A1WRT2_VERDICT` to `compose_item`; a
+launch guard that printed one would be a second emitter for the exact reason this item exists.
+`Q-SEAMPRE-no-item-verdict` drives that.
+
+**DRIVEN IN BOTH DIRECTIONS, ON REAL TREES, AT ZERO COMPUTE** — six grader controls and five
+launcher controls:
+
+| control | direction | measured |
+|---|---|---|
+| `Q-SEAMPRE-clean-permits` | pass | a clean SEAM arm → `PASS`, TAIL permitted |
+| `Q-SEAMPRE-outside-band-refuses` | fail | SEAM CL perturbed by **6.013254e-03** — the MEASURED `A1WR`-vs-U1 magnitude, 6.0× the 1.0e-03 band → `GATE FAIL`, TAIL refused; restored → `PASS` |
+| `Q-SEAMPRE-rc-refuses` | fail | SEAM rc=97 → `GATE FAIL`, TAIL refused |
+| `Q-SEAMPRE-absent-blocks` | fail | SEAM arm absent → `BLOCKED`. **An unrun falsifier never reads as a cleared one** |
+| `Q-SEAMPRE-rc-absent-blocks` | fail | SEAM rc artefact absent → `BLOCKED` (a missing rc is not rc=0) |
+| `seam-precond/absent-seam-refuses-TAIL-at-7` | launcher | rc=**7** |
+| `seam-precond/clean-seam-permits-TAIL` | launcher | rc=**0** |
+| `seam-precond/seam-rc-97-refuses-TAIL-at-7` | launcher | rc=**7** |
+| `seam-precond/does-not-gate-the-SEAM-arm` | launcher | rc=**0** — the limb without which the control could not tell a working precondition from a launcher that refuses everything |
+| `seam-precond/status-row-durable` | launcher | `STATUS.TAIL` carries the refusal outside stdout |
+
+> **⚠ A CONSEQUENCE THE RULING SURFACED IN THE EXISTING CONTROLS, REPORTED RATHER THAN
+> ABSORBED.** Re-running the launcher selftest unchanged, **two ceiling controls that had
+> always passed came back rc=7**: `ceiling/under-passes-and-prints` and
+> `ceiling/exactly-at-ceiling-passes`. Not a regression — they drove `--arm TAIL` against a run
+> root with **no SEAM arm**, so what they were actually asserting was *"the launcher exits 0"*,
+> which conflates the ceiling limb with every other reason the arm might proceed. **A control
+> that cannot separate the limb it names from the rest of the launcher passes for reasons it
+> does not state.** A clean SEAM arm is now staged into every fixture root that drives `TAIL`,
+> so the ceiling controls test the ceiling and the precondition controls test the precondition.
+
+---
+
+#### 11.2.2 RULING 2 — BOTH ARMS. **AND THE RULING'S PREMISE IS AN UNDERSTATEMENT, MEASURED**
+
+**The ruling is right about the rc clause and is CORRECTED UPWARD on the completion clause.**
+`grade()` read `TAIL/out/rc` at one site and `SEAM/out/rc` at **none** — the §4.1 asymmetry
+reproduced in the successor written to repair it, landing on the arm that carries the
+falsifier. **But a token census over `a1wrt2_grade.py`, run with `G-RC-HONEST` (17 hits) as the
+live positive control so a zero is not believed from a reader never shown able to return a
+non-zero (`CLAUDE.md` rule 3), returned:**
+
+| token | hits in `a1wrt2_grade.py` (pre-amendment) |
+|---|---|
+| `G-RC-HONEST` — **the positive control, known present** | **17** |
+| `endTime` | **0** |
+| `"End"` | **0** |
+| `G-COMPLETE` | **0** |
+| `age guard` | **0** |
+
+**SO THE RULE-4 COMPLETION WAS NOT IMPLEMENTED FOR *EITHER* ARM.** Only rule 4's rc clause
+existed, and only on `TAIL`. The ruling is adopted in the stronger form its own reasoning
+requires.
+
+**`G-COMPLETE` IS ADDED TO THE HARD LIST**, per arm, folded with `worse_of`. It checks: the rc
+artefact **exists** (absent → REFUSE); an `End` line; `AOA_SWEEP_TRUNCATED` **absent**;
+`AOA_SWEEP_END` present (missing → `NOT A RESULT`); and **last time == `endTime`, where
+`endTime` is read out of THE ARM'S OWN staged `system/controlDict`** — never a constant
+retyped in the grader — with an absent or unparseable controlDict **refusing**.
+
+**WHAT `G-COMPLETE` DOES *NOT* CHECK IS NAMED, NOT OMITTED:**
+- **`ExecutionTime` count == `endTime`** — **NOT APPLICABLE and it would be WRONG to assert
+  it.** This producer prints `Time =` at the write interval, not per iteration: `A1WRT` U1
+  carries **41** anchored `^Time = ` lines for **4,000** iterations. A clause copied across
+  families because it appears in rule 4's thermal-family enumeration would fail every good run
+  of this one.
+- **`fields present (T U p_rgh alphat nut k omega)`** — that enumeration is the **thermal**
+  family's; this is incompressible with no `T` and no `p_rgh`. The structural equivalent here
+  is `G-COLDSTART-SEAM`, which asserts the staged `4000/U` is NONUNIFORM.
+- **The age guard** — enforced at **STAGE** time and by construction, not by comparison:
+  `a1wrt2_stage.py` clause (12) asserts before the run that every staged file is NOT NEWER than
+  the datum **and** that every `PRODUCTS` name is ABSENT, *"so a product can only appear by
+  being produced"*.
+- **Per-point terminal times** are **reported, not gated**. Clause 5 binds the **last** point
+  only: this lane could not establish the producer's per-point time bookkeeping across a
+  six-point continued sweep without running it, and **a gate written on a guess would fail good
+  runs, which is a worse defect than the one being repaired.**
+
+**THE CONTROL THE RULING ASKED FOR, DRIVEN — the combination that was invisible:**
+
+| control | measured |
+|---|---|
+| **`Q-ARMFOLD-seam-rc-97`** | **SEAM rc 0→97 with TAIL rc CLEAN: `GATE REACHED` → `GATE FAIL` → restored `GATE REACHED`.** Before this change the grader read `TAIL/out/rc` and nothing else, so this exact combination could not be seen — on the arm carrying the falsifier |
+| `Q-ARMFOLD-seam-no-End` | SEAM's `End` line removed → `GATE FAIL`, restored → `GATE REACHED` |
+| `Q-ARMFOLD-tail-short-of-endTime` | TAIL's last `Time = 8200` → `8100` against the controlDict's `endTime 8200` → `GATE FAIL`, restored |
+| `Q-ARMFOLD-controldict-absent-refuses` | the arm's own controlDict removed → **REFUSE exit 2** |
+| `Q-ARMFOLD-dropped-arm-refuses` | an arm ABSENT from either fold **REFUSES** — the asymmetry reappearing as a missing dict key |
+| `Q-ARMFOLD-add-only` | `worse_of` monotone downward over **all 36** ordered pairs |
+| `Q-ARMFOLD-ordering` | the fold uses the **composer's chain**, not `_OPTIMISM`: chain says `NOT A RESULT` where the ordinal would say `BLOCKED`. The disagreement disclosed at `_OPTIMISM` is pinned by a second test rather than inherited |
+
+---
+
+#### 11.2.3 §11.1 ITEM 1a — THE PRODUCER TRACE, BUILT, PLANTED BOTH WAYS, AND IT FOUND MORE
+
+`a1wrt2_instruments.py` gains `producer_trace`: **every run-root artefact a gate READS on the
+graded path is traced to a PRODUCER in the registered set or to a NAMED REGISTERED DEFERRAL,
+and `main` returns non-zero on anything else.**
+
+**THE DISCRIMINATOR IS DERIVED, NOT LISTED.** A hand-written list of "fixture builder" names
+would carry the same failure mode as every other list written from memory. Instead each
+module's own **call graph** is built from its AST: a write reachable from `main` is a producer;
+one reachable **only** from `selftest` is a fixture; one reachable from neither is reported.
+
+> **⚠ THE FIRST DRIVE OF THIS TRACE PRINTED A CLEAN TABLE OVER THE VERY DEFECT §11.1 IS ABOUT,
+> AND THE CAUSE IS RECORDED BECAUSE IT IS RULE 3 ONE LEVEL UP.** It reported
+> `MANIFEST.json  TRACED <- a1wrt2_grade.py:1390 in _build_happy_root [GRADED]`. **Every
+> instrument in this item has `main` dispatch `--selftest` to `selftest()`**, so an unstopped
+> walk from `main` reaches every fixture builder and the graded/fixture split collapses to
+> *"everything is graded"*. `selftest` is now a **CUT NODE** on the graded walk, and
+> `producer/cut-node-is-load-bearing` drives the difference: the uncut walk reaches
+> `_build_happy_root` (51 functions), the cut walk does not (40). **A checker that has only
+> ever reported "all traced" is not evidence.**
+
+**`PRODUCTS` IS DELIBERATELY EXCLUDED FROM THE PRODUCER SET**, and the exclusion is printed
+rather than assumed: it declares what the RUN must create, **not that anything creates it**.
+Reading it as a producer is precisely the confusion §11.1 caught.
+`producer/PRODUCTS-is-not-a-producer` drives that all 7 of its names still trace on their own
+merits.
+
+**MEASURED, BEFORE ANY REPAIR** — the trace generalises the supervisor's finding from one
+artefact to six:
+
+> **8 gate inputs consumed, 2 traced, 6 UNTRACED** — five written at exactly one site each,
+> all inside `_build_happy_root`, **the selftest fixture builder** (`MANIFEST.json`,
+> `SEAM/out/sweep.log`, `TAIL/out/sweep.log`, `TAIL/out/rc`, `ledger.txt`), and one
+> (`TAIL/out/warp_probe.json`) **written by nothing anywhere.**
+
+**PLANTED BOTH WAYS, ON REAL TREES** (real copies of this item's directory, one thing changed):
+
+| control | direction | measured |
+|---|---|---|
+| `producer/real-tree-traces-clean` | pass | 9 consumed, **8 traced, 1 deferred, 0 untraced** |
+| `producer/removed-producer-is-flagged` | fail | `MANIFEST_PATH` repointed out of the run root → `MANIFEST.json` flagged. **It is the only input of the HARD gates `G-IMG` and `G-FREEZE`** |
+| `producer/fixture-only-write-is-flagged` | fail | the §11.1 shape itself: the producer moved out of the graded path → attributed to `_build_happy_root [FIXTURE]` and reported UNTRACED |
+| `producer/cut-node-is-load-bearing` | pass | 51 functions uncut vs 40 cut |
+| `producer/deferral-without-refusal-flagged` | fail | `refuses_if_absent` removed → registry defect. **A deferral without a refusal is a hole with a name** |
+| `producer/PRODUCTS-is-not-a-producer` | pass | 7 names excluded; all 7 trace on their own merits |
+
+**THE PRODUCERS ARE NOW WRITTEN, IN `a1wrt2_run_arm.sh`, AND DRIVEN AT ZERO COMPUTE:**
+`MANIFEST.json`, `ledger.txt`, both arms' `out/sweep.log` and `out/rc`. The container bodies
+stay **behind `LAUNCH_ENABLED=0`**, which no agent may raise; that is honest rather than a hole
+because **`read_text` REFUSES at exit 2 on an absent artefact**, so a product not yet created
+reads as a refusal and never as a passing gate.
+
+> **⚠ AND `G-IMG` WOULD HAVE BEEN A MIRROR.** `G-IMG` compares the manifest's `image_digest`
+> and `libidwarp_md5` against `PIN_IMG_DIGEST` / `PIN_IDWARP_MD5`. **A producer that wrote
+> those fields FROM those same constants would have made the hard gate compare a pin to a copy
+> of itself and report `PASS` on any image whatsoever.** `measure_image_pins` therefore reads
+> both OUT OF THE IMAGE, and an `UNMEASURED` value makes `G-IMG` **REFUSE at exit 4** — it
+> never falls back to the pin. Driven: `producer/unmeasured-digest-refuses` (REFUSE 4) and
+> `producer/measured-digest-passes` (PASS), so the refusing limb is not merely a gate that
+> refuses everything. **`measure_image_pins` ITSELF IS `NOT EXERCISED`** — driving it needs the
+> pinned image and this item is not frozen — **and is declared in that third state, never
+> counted as a pass.**
+
+---
+
+#### 11.2.4 ⚠ THE FINDING THAT COSTS THIS ITEM A REGISTERED DISCHARGE — §7.2
+
+**`TAIL/out/warp_probe.json` has NO PRODUCER ANYWHERE**, and it is `G-WARPPROBE`'s only input.
+Measured 2026-09-04 over three named files:
+
+| file | `warp_probe` occurrences |
+|---|---|
+| `a1wr_runScript_incomp.py` — the frozen producer this item stages | **0** |
+| `a1wr_cmd.sh` — the frozen container command | **0** |
+| `a1wrt2_run_arm.sh` — this item's own launcher | **0** |
+
+The only write anywhere is `a1wrt2_grade.py:1380`, **inside `_build_happy_root`**.
+
+**IT CANNOT BE REPAIRED BY THIS LANE, AND THE REASON IS A RULE AND NOT A DIFFICULTY.** Emitting
+the probe means counting `warper_init` / `warper_jacvec` calls from inside the running process,
+which means editing `a1wr_runScript_incomp.py` — **another item's FROZEN instrument**
+(`CLAUDE.md` rule 6). **Reported, not repaired.** It is registered in
+`a1wrt2_stage.DEFERRED_PRODUCERS` with its producer, its reason, and its refusal, and the
+refusal is **driven**: `Q-DEFERRAL-warpprobe-absent-refuses` removes the artefact from a real
+happy root and requires the grade to **REFUSE at exit 2**.
+
+> **CONSEQUENCE, STATED HERE RATHER THAN LEFT FOR THE FREEZE TO DISCOVER: §7.2's DISCHARGE IS
+> NOT AVAILABLE AS THIS ITEM STANDS.** §7.2 registers `G-WARPPROBE` as what discharges
+> `DAFOAM_CHARTER.md` §6's two-row obligation — *"with the probe output cited as the
+> discharge"*. **The item was one freeze away from discharging a CHARTER OBLIGATION with a
+> number only its own test fixture could ever produce.** The gate still exists and still
+> refuses; what it can no longer do is **discharge**. **The §6 two-row obligation therefore
+> BINDS** unless a successor writes the producer — which is a **new item**, because it needs a
+> non-frozen producer. Whether §7.2 is rewritten before the freeze or the obligation is carried
+> is **the supervisor's call and is not taken here.**
+
+---
+
+#### 11.2.5 WHAT WAS DRIVEN, AND WHAT WAS NOT
+
+**Every selftest, under `python3` AND under `python3 -O`, rc=0 in both:**
+
+| instrument | legs | controls | EXERCISED-FAIL | EXERCISED-PASS | NOT EXERCISED |
+|---|---|---|---|---|---|
+| `a1wrt2_grade.py` | 7 | **77** | 48 | 29 | **0** |
+| `a1wrt2_instruments.py` | 7 | **17** | 10 | 7 | **0** |
+| `a1wrt2_run_arm.sh` | — | 21 | 20 driven | — | 1 **declared** (`measure_image_pins`) |
+| `a1wrt2_stage.py` | — | unchanged, re-driven clean | — | — | 0 |
+
+`ast.Assert` = **0** in `a1wrt2_grade.py` (2,954 lines), `a1wrt2_instruments.py` (1,666) and
+`a1wrt2_stage.py` (1,254), each audited by its own file's `Q-NOASSERT` / `noassert` control
+shown able to see a planted one. `a1wrt2_instruments.py` with no arguments returns **rc=0**:
+existence clean, coverage clean, **producer trace clean**.
+
+**NOT ESTABLISHED, AND NOT CLAIMED:**
+1. **`measure_image_pins` has never run.** The image digest and `libidwarp` md5 have not been
+   read out of the image by this item's own code. What is driven is the REFUSAL on `UNMEASURED`.
+2. **The producer's per-point time bookkeeping across a six-point continued sweep.** Clause 5
+   binds the last point only, and §11.2.2 says why.
+3. **Whether `startTime 4200 / endTime 8200` is the right TAIL configuration for six points.**
+   The stager writes it and `G-COMPLETE` now reads it back rather than retyping it, so a
+   disagreement would surface as a `GATE FAIL` rather than silently — but the configuration
+   itself is unverified and is **the supervisor's §3 check 4 to read as arithmetic.**
+4. **Nothing about the physics.** No solver ran. `LAUNCH_ENABLED` is still **0**.
+
+**NOT FROZEN. NOT PINNED. NOT ENQUEUED. NOT LAUNCHED. ZERO COMPUTE SPENT.
+SUBMISSIONS PARKED — nothing here is filed, sent, uploaded, posted or registered anywhere.**

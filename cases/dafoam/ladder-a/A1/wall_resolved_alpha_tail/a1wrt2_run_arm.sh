@@ -52,6 +52,10 @@ set -euo pipefail
 LAUNCH_ENABLED=0            # <-- 0 until the freeze and the enqueue land.
 
 ITEM="A1WRT2"
+# The pinned image (draft section 3, inherited by md5).  The TAG is a name; the
+# DIGEST is the identity, and `G-IMG` binds the digest -- which is why
+# `measure_image_pins` reads the digest out of the image instead of this line.
+IMG="dafoam-idwarp-rot:v1"
 ITEM_CEILING_CORE_MIN=685.0
 CEIL_TOL=0.02               # d6rf's float-noise tolerance
 BASE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -62,6 +66,24 @@ LEDGER="$RUN_ROOT/ledger.txt"
 STATUS_DIR="${A1WRT2_STATUS_DIR:-$BASE}"
 STATUS="$STATUS_DIR/STATUS.$ITEM"
 
+# ---- THE RUN-ROOT PRODUCT PATHS, WRITTEN AS LITERALS ------------------------
+# Per-arm paths are spelled out rather than interpolated from $ARM.  Two
+# reasons, and the second is the one that matters:
+#   1. `a1wrt2_instruments.py`'s producer trace resolves a redirection target
+#      through the same variable binding the reference extractor uses; a target
+#      carrying a live `$` inside its tail is DYNAMIC and is never counted as a
+#      producer.  An interpolated path would leave every product of this file
+#      untraced -- which is the finding this section exists to close.
+#   2. The two arms are NOT symmetric.  TAIL carries a launch precondition on
+#      SEAM's verdict (the 2026-09-04 ruling 1) and SEAM carries none, so an
+#      arm dispatch that pretended they were interchangeable would be hiding
+#      the very asymmetry the ruling introduced.
+MANIFEST_PATH="$RUN_ROOT/MANIFEST.json"
+SEAM_OUT="$RUN_ROOT/SEAM/out"
+TAIL_OUT="$RUN_ROOT/TAIL/out"
+SEAM_CASE="$RUN_ROOT/SEAM/case"
+TAIL_CASE="$RUN_ROOT/TAIL/case"
+
 usage() { echo "usage: $0 --arm {SEAM|TAIL} [--selftest]" >&2; exit 64; }
 
 ARM=""
@@ -71,10 +93,14 @@ while [ $# -gt 0 ]; do
     --arm)         ARM="${2:-}"; shift 2 ;;
     --selftest)    SELFTEST=1; shift ;;
     --guards-only) GUARDS_ONLY=1; shift ;;
+    --emit-manifest) EMIT_MANIFEST=1; shift ;;
+    --emit-ledger)   EMIT_LEDGER="${2:-}"; shift 2 ;;
     *)             usage ;;
   esac
 done
 GUARDS_ONLY="${GUARDS_ONLY:-0}"
+EMIT_MANIFEST="${EMIT_MANIFEST:-0}"
+EMIT_LEDGER="${EMIT_LEDGER:-}"
 
 # ---- the registered per-arm caps.  Draft section 5.4. -----------------------
 arm_cap() {
@@ -220,6 +246,142 @@ unbound_guard() {
   fi
 }
 
+# =============================================================================
+# THE PRODUCERS.  Draft section 11 item 1a, added by the dafoam-supervisor's
+# 2026-09-04 section 11.1 amendment.
+#
+# BEFORE THIS SECTION THIS FILE PRODUCED NOTHING.  Measured by extraction:
+# `a1wrt2_instruments.py --` reported 8 run-root artefacts consumed by gates on
+# the graded path, 2 traced, and **6 UNTRACED** -- five of them written at
+# exactly one site each, all inside `a1wrt2_grade.py`'s `_build_happy_root`,
+# WHICH IS THE SELFTEST FIXTURE BUILDER, and one (`TAIL/out/warp_probe.json`)
+# written by nothing anywhere in the registered set.
+#
+# `G-IMG` and `G-FREEZE` ARE HARD GATES AND `MANIFEST.json` IS THEIR ONLY
+# INPUT.  A hard gate fed by nothing is worse than a missing gate, because it
+# reports.
+#
+# ⚠ THE MANIFEST'S TWO PINNED FIELDS ARE **MEASURED**, NEVER COPIED FROM THE
+# PINS.  `G-IMG` compares `image_digest` and `libidwarp_md5` against
+# `a1wrt2_grade.PIN_IMG_DIGEST` / `PIN_IDWARP_MD5`.  A producer that wrote those
+# fields FROM those same constants would make the gate a MIRROR: it would
+# compare a pin to a copy of itself and report PASS on any image whatsoever.
+# So `measure_image_pins` reads them out of the IMAGE, and if it cannot, the
+# manifest records `UNMEASURED` and the gate REFUSES at exit 4 -- it never
+# falls back to the pin.
+# =============================================================================
+
+# Reads the two image-bound facts OUT OF THE IMAGE.  `docker image inspect`
+# does not start a container; the `libidwarp.so` md5 does, for one `md5sum`.
+#
+# ⚠ NOT EXERCISED IN THE 2026-09-04 DRAFTING INVOCATION AND NOT CLAIMED AS
+# DRIVEN.  Driving it needs the image, and this item is NOT FROZEN, so no
+# container was started.  It is declared here in its own third state and is
+# NEVER counted as a passing control (`DAFOAM_CHARTER.md` section 18.5's
+# `NOT EXERCISED`, adopted voluntarily inside this item's registration).  What
+# IS driven, below, is that an UNMEASURED value REFUSES rather than being
+# replaced by the pin -- which is the failure mode that would matter.
+measure_image_pins() {
+  local img="$1" dig warp
+  dig="$(docker image inspect --format '{{index .RepoDigests 0}}' "$img" 2>/dev/null | sed 's/.*@//')"
+  [ -n "$dig" ] || dig="UNMEASURED"
+  warp="$(docker run --rm --entrypoint /bin/sh "$img" -c \
+          'md5sum $(python -c "import idwarp,os;print(os.path.join(os.path.dirname(idwarp.__file__),\"libidwarp.so\"))") 2>/dev/null | cut -d" " -f1' \
+          2>/dev/null)"
+  [ -n "$warp" ] || warp="UNMEASURED"
+  echo "$dig $warp"
+}
+
+# PRODUCES: $RUN_ROOT/MANIFEST.json -- the sole input of the HARD gates G-IMG
+# and G-FREEZE.  Runs on the host, BEFORE the container.
+# ⚠ THE MANIFEST IS WRITTEN BY A LITERAL REDIRECTION AND NOT BY A PATH HANDED
+# TO PYTHON, AND THE REASON IS THE TRACE ITSELF.  The first version of this
+# function passed `$MANIFEST_PATH` as an argv entry and opened it inside the
+# heredoc; the producer trace then reported `MANIFEST.json  UNTRACED <-- WRITTEN
+# ONLY BY THE SELFTEST FIXTURE BUILDER`, because a redirection is what the
+# extractor can see and an argv path is not.  Rather than widen the extractor
+# to follow argv into a heredoc -- which would let a producer be "found" through
+# an inference the reader cannot check -- the producer is written in the form
+# the extractor reads directly.  A producer only a clever checker can find is a
+# producer the next reader will not find either.
+write_manifest() {
+  local arm="$1" img="$2" dig="$3" warp="$4"
+  mkdir -p "$RUN_ROOT"
+  python3 - "$RUN_ROOT" "$arm" "$img" "$dig" "$warp" > "$MANIFEST_PATH" <<'PYEOF'
+import hashlib, json, os, sys
+run_root, arm, img, dig, warp = sys.argv[1:6]
+def md5(p):
+    with open(p, "rb") as fh:
+        return hashlib.md5(fh.read()).hexdigest()
+# The OBSERVED side of G-FREEZE: md5s measured off the STAGED files, IN THE RUN
+# ROOT, never off the item directory.  Hashing the item directory would certify
+# a file the container never saw -- a freeze check on the wrong copy.
+inst = {}
+for name in ("runScript.py", "run_arm.sh"):
+    p = os.path.join(run_root, name)
+    if os.path.exists(p):
+        inst[name] = md5(p)
+sys.stdout.write(json.dumps({
+    "item": "A1WRT2", "arm": arm, "run_root": run_root,
+    "image": img,
+    # MEASURED, never copied from the registered pin.  "UNMEASURED" here makes
+    # G-IMG refuse at exit 4; it must never read as agreement.
+    "image_digest": dig, "libidwarp_md5": warp,
+    "instruments": inst,
+    "env_declared": ["A1WRT2_RUN_ROOT", "A1WRT2_STATUS_DIR", "BASH_SOURCE"],
+}, indent=1, sort_keys=True) + "\n")
+PYEOF
+  echo "${ITEM}_MANIFEST written $MANIFEST_PATH (image_digest=$dig libidwarp_md5=$warp)" >&2
+}
+
+# PRODUCES: $RUN_ROOT/ledger.txt -- read by G-CAPS and G-CEILING, and by this
+# file's own `spent_core_min`.  One row per arm, appended.
+append_ledger_row() {
+  local arm="$1" rc="$2" wall="$3" ranks="$4" cap="$5" cm
+  mkdir -p "$RUN_ROOT"
+  cm="$(python3 -c "print('%.3f' % ($wall * $ranks / 60.0))")"
+  echo "ARM=$arm ROW=PATCHED IMG=$IMG rc=$rc wall_s=$wall ranks=$ranks core_min=$cm cap_core_min=$cap mode=CONTINUED stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$LEDGER"
+  echo "${ITEM}_LEDGER_ROW arm=$arm rc=$rc core_min=$cm cap=$cap"
+}
+
+# =============================================================================
+# RULING 1 OF THE dafoam-supervisor, 2026-09-04 -- THE TAIL'S LAUNCH
+# PRECONDITION ON SEAM'S VERDICT.
+#
+# Draft section 3's *"CONTINUED from `SEAM`'s final state, in the same process"*
+# is STRUCK.  `G-SEAM` is this item's REGISTERED FALSIFIER: if it fails, every
+# tail point is withdrawn AS A TAIL.  A single process spanning both arms would
+# have ALREADY COMPUTED THE TAIL by the time the seam could be graded, so the
+# falsifier could not stop the spend it exists to stop.  SEAM is 10.0 core-min
+# and TAIL is 675.0.  675 core-min riding on a control that cannot gate it is
+# not a control; it is a POST-HOC REPORT WEARING A STOP RULE'S NAME.
+#
+# THIS IS THE STOP RULE, AND IT IS A CHECKED PRECONDITION RATHER THAN A
+# CONVENTION: it runs BEFORE the TAIL container starts, it reads SEAM's own
+# artefacts off disk through the GRADER'S OWN gate functions, and only `PASS`
+# lets the arm proceed.  It is driven in BOTH directions by the selftest.
+# =============================================================================
+seam_precondition_guard() {
+  local v rc
+  set +e
+  v="$(python3 "$BASE/a1wrt2_grade.py" --seam-precond "$RUN_ROOT" 2>&1)"
+  rc=$?
+  set -e
+  echo "$v" | tail -4
+  if [ "$rc" != "0" ]; then
+    echo "ABORT SEAM PRECONDITION: the SEAM arm's verdict does NOT permit TAIL."
+    echo "  TAIL is 675.0 core-min behind a falsifier that has not cleared."
+    echo "  Draft section 9: if G-SEAM fails the tail is not a continuation of"
+    echo "  A1WR's polar and every point in it is WITHDRAWN AS A TAIL, so"
+    echo "  buying it would be buying six solves whose registered purpose is"
+    echo "  already refuted.  An overrun stops the run; so does a refuted one."
+    echo "rc=7 stamp=$(date -u +%Y%m%dT%H%M%SZ) arm=$ARM note=SEAM_PRECONDITION_REFUSED" >> "$STATUS_DIR/STATUS.$ARM"
+    echo "chain=ABORT arm=TAIL reason=SEAM_PRECONDITION stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"
+    exit 7
+  fi
+  echo "${ITEM}_SEAM_PRECOND OK -- SEAM's verdict permits the TAIL arm"
+}
+
 # ---- SELFTEST: both guards driven in BOTH directions, on static fixtures ---
 if [ "$SELFTEST" = "1" ]; then
   echo "${ITEM}_RUN_ARM SELFTEST -- host shell, NO container, NO compute"
@@ -241,6 +403,32 @@ if [ "$SELFTEST" = "1" ]; then
     fi
   }
 
+  # ==========================================================================
+  # ⚠ A CLEAN SEAM ARM IS STAGED INTO EVERY FIXTURE ROOT THAT DRIVES `--arm
+  # TAIL`, AND THE REASON IS A FINDING, NOT PLUMBING.
+  #
+  # Ruling 1 added a launch precondition to the TAIL arm.  Re-running this
+  # selftest unchanged, TWO ceiling controls that had always passed --
+  # `ceiling/under-passes-and-prints` and `ceiling/exactly-at-ceiling-passes`
+  # -- came back rc=7 instead of rc=0.  Not a regression: they drove
+  # `--arm TAIL` against a run root with no SEAM arm, so what they had been
+  # asserting was "the launcher exits 0", which conflates the ceiling limb with
+  # every other reason the arm might or might not proceed.  A control that
+  # cannot separate the limb it names from the rest of the launcher passes for
+  # reasons it does not state.  Staging a clean SEAM makes the ceiling controls
+  # test the CEILING, and the precondition controls below test the
+  # PRECONDITION, on their own.
+  # ==========================================================================
+  mk_seam() {   # $1 = fixture run root
+    python3 -c "
+import sys, tempfile, shutil, pathlib
+sys.path.insert(0, '$BASE')
+import a1wrt2_grade as G
+src = G._build_happy_root(pathlib.Path(tempfile.mkdtemp()))
+shutil.copytree(str(src / 'SEAM'), '$1/SEAM')
+" >/dev/null 2>&1
+  }
+
   # -- ceiling: REFUSE at 6.  A fixture ledger summing 680.0 with TAIL's 675.0
   #    cap projects 1355.0 > 685.0.
   mkdir -p "$TD/over"; printf 'ITEM=A1WRT2\nARM=SEAM core_min=680.0\n' > "$TD/over/ledger.txt"
@@ -249,6 +437,7 @@ if [ "$SELFTEST" = "1" ]; then
 
   # -- ceiling: PASS and PRINT THE CENSUS.  3.10 + 675.0 = 678.10 <= 685.0.
   mkdir -p "$TD/under"; printf 'ITEM=A1WRT2\nARM=SEAM core_min=3.10\n' > "$TD/under/ledger.txt"
+  mk_seam "$TD/under"
   drive "ceiling/under-passes-and-prints" 0 \
     env A1WRT2_STATUS_DIR="$TD" A1WRT2_RUN_ROOT="$TD/under" bash "${BASH_SOURCE[0]}" --arm TAIL --guards-only
 
@@ -285,6 +474,7 @@ if [ "$SELFTEST" = "1" ]; then
   # -- the TOLERANCE limb, which A1WRT's form lacks: 685.0 exactly, +0.0 over,
   #    must NOT trip.  Without `+0.02` this is a coin toss on float noise.
   mkdir -p "$TD/exact"; printf 'ARM=SEAM core_min=10.0\n' > "$TD/exact/ledger.txt"
+  mk_seam "$TD/exact"
   drive "ceiling/exactly-at-ceiling-passes" 0 \
     env A1WRT2_STATUS_DIR="$TD" A1WRT2_RUN_ROOT="$TD/exact" bash "${BASH_SOURCE[0]}" --arm TAIL --guards-only
 
@@ -315,6 +505,112 @@ if [ "$SELFTEST" = "1" ]; then
     echo "CONTROL ceiling/status-row-durable  NOT EXERCISED  -> no STATUS.TAIL row"; FAILED=1
   fi
 
+  # ==========================================================================
+  # THE PRODUCERS, DRIVEN.  Draft section 11 item 1a.
+  # ==========================================================================
+
+  # -- MANIFEST.json is actually PRODUCED, on disk, by this file.
+  mkdir -p "$TD/prod"
+  env A1WRT2_STATUS_DIR="$TD" A1WRT2_RUN_ROOT="$TD/prod" \
+    bash "${BASH_SOURCE[0]}" --arm SEAM --emit-manifest >/dev/null 2>&1 || true
+  if [ -s "$TD/prod/MANIFEST.json" ]; then
+    echo "CONTROL producer/manifest-is-written  EXERCISED  -> $(wc -c < "$TD/prod/MANIFEST.json") bytes at \$RUN_ROOT/MANIFEST.json"
+  else
+    echo "CONTROL producer/manifest-is-written  NOT EXERCISED  -> no MANIFEST.json"; FAILED=1
+  fi
+
+  # -- AND THE MIRROR IS REFUSED.  An UNMEASURED image digest must make G-IMG
+  #    REFUSE at 4, never fall back to the registered pin.  This is the limb
+  #    that matters: a producer that copied the pins into the manifest would
+  #    make the hard gate compare a constant to itself.
+  MIRROR="$(python3 -c "
+import json, sys
+sys.path.insert(0, '$BASE')
+import a1wrt2_grade as G
+m = json.load(open('$TD/prod/MANIFEST.json'))
+try:
+    G.g_img_freeze(m, {})
+except G.Refuse as e:
+    print('REFUSE%d' % e.code)
+else:
+    print('PASSED')
+" 2>&1)"
+  if [ "$MIRROR" = "REFUSE4" ]; then
+    echo "CONTROL producer/unmeasured-digest-refuses  EXERCISED  -> G-IMG REFUSE exit 4 on image_digest=UNMEASURED; the producer never substitutes the pin"
+  else
+    echo "CONTROL producer/unmeasured-digest-refuses  NOT EXERCISED  -> $MIRROR"; FAILED=1
+  fi
+
+  # -- AND A MEASURED-LOOKING DIGEST THAT MATCHES THE PIN PASSES, so the
+  #    refusing limb above is not simply a gate that refuses everything.
+  env A1WRT2_STATUS_DIR="$TD" A1WRT2_RUN_ROOT="$TD/prod" \
+      A1WRT2_FAKE_DIGEST="sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35" \
+      A1WRT2_FAKE_WARPMD5="85f59e87253e0a71a813f64ca6e4c425" \
+    bash "${BASH_SOURCE[0]}" --arm SEAM --emit-manifest >/dev/null 2>&1 || true
+  MIRROR2="$(python3 -c "
+import json, sys
+sys.path.insert(0, '$BASE')
+import a1wrt2_grade as G
+m = json.load(open('$TD/prod/MANIFEST.json'))
+v, _n = G.g_img_freeze(m, {})
+print(v)
+" 2>&1)"
+  if [ "$MIRROR2" = "PASS" ]; then
+    echo "CONTROL producer/measured-digest-passes  EXERCISED  -> G-IMG PASS when the manifest carries the measured digest"
+  else
+    echo "CONTROL producer/measured-digest-passes  NOT EXERCISED  -> $MIRROR2"; FAILED=1
+  fi
+
+  # -- ledger.txt is actually PRODUCED, and G-CAPS reads the row back.
+  env A1WRT2_STATUS_DIR="$TD" A1WRT2_RUN_ROOT="$TD/prod" \
+    bash "${BASH_SOURCE[0]}" --arm SEAM --emit-ledger 186 >/dev/null 2>&1 || true
+  if grep -q 'ARM=SEAM .*core_min=3.100' "$TD/prod/ledger.txt" 2>/dev/null; then
+    echo "CONTROL producer/ledger-row-is-written  EXERCISED  -> 186 wall_s x 1 rank = 3.100 core-min written to \$RUN_ROOT/ledger.txt"
+  else
+    echo "CONTROL producer/ledger-row-is-written  NOT EXERCISED  -> $(cat "$TD/prod/ledger.txt" 2>/dev/null | head -1)"; FAILED=1
+  fi
+
+  # -- measure_image_pins IS NOT DRIVEN AND IS NOT CLAIMED AS DRIVEN.
+  echo "CONTROL producer/image-pins-measured  NOT APPLICABLE  measure_image_pins needs the pinned image; this item is NOT FROZEN and NO container was started, so this limb is declared NOT EXERCISED and is never counted as a pass (DAFOAM_CHARTER 18.5, adopted voluntarily)"
+
+  # ==========================================================================
+  # RULING 1: THE TAIL'S PRECONDITION ON SEAM'S VERDICT, BOTH DIRECTIONS.
+  # ==========================================================================
+  # An ABSENT SEAM arm must refuse TAIL at 7 -- the case that matters most,
+  # because it is the state the run root is in when TAIL would first be
+  # launched by hand.
+  mkdir -p "$TD/nos"; printf 'ARM=SEAM core_min=3.10\n' > "$TD/nos/ledger.txt"
+  drive "seam-precond/absent-seam-refuses-TAIL-at-7" 7 \
+    env A1WRT2_STATUS_DIR="$TD" A1WRT2_RUN_ROOT="$TD/nos" bash "${BASH_SOURCE[0]}" --arm TAIL --guards-only
+
+  # -- and the SAME run root must NOT refuse the SEAM arm, because SEAM is the
+  #    precondition rather than being subject to it.  Without this limb the
+  #    control could not tell a working precondition from a launcher that
+  #    refuses everything.
+  drive "seam-precond/does-not-gate-the-SEAM-arm" 0 \
+    env A1WRT2_STATUS_DIR="$TD" A1WRT2_RUN_ROOT="$TD/nos" bash "${BASH_SOURCE[0]}" --arm SEAM --guards-only
+
+  # -- a CLEAN SEAM arm must PERMIT TAIL.  The happy SEAM tree is built by the
+  #    grader's own fixture builder, so the precondition is driven against the
+  #    same bytes the grader grades.
+  mkdir -p "$TD/ok"; mk_seam "$TD/ok"
+  printf 'ARM=SEAM core_min=3.10\n' > "$TD/ok/ledger.txt"
+  drive "seam-precond/clean-seam-permits-TAIL" 0 \
+    env A1WRT2_STATUS_DIR="$TD" A1WRT2_RUN_ROOT="$TD/ok" bash "${BASH_SOURCE[0]}" --arm TAIL --guards-only
+
+  # -- and a SEAM whose rc is 97 must refuse TAIL at 7, from the same tree.
+  echo "97" > "$TD/ok/SEAM/out/rc"
+  drive "seam-precond/seam-rc-97-refuses-TAIL-at-7" 7 \
+    env A1WRT2_STATUS_DIR="$TD" A1WRT2_RUN_ROOT="$TD/ok" bash "${BASH_SOURCE[0]}" --arm TAIL --guards-only
+  echo "0" > "$TD/ok/SEAM/out/rc"
+
+  # -- THE DURABLE ROW ON A PRECONDITION REFUSAL, as for the ceiling limb.
+  if grep -q 'note=SEAM_PRECONDITION_REFUSED' "$TD/STATUS.TAIL" 2>/dev/null; then
+    echo "CONTROL seam-precond/status-row-durable  EXERCISED  -> STATUS.TAIL carries the refusal outside stdout"
+  else
+    echo "CONTROL seam-precond/status-row-durable  NOT EXERCISED  -> no row"; FAILED=1
+  fi
+
   if [ "$FAILED" = "0" ]; then
     echo "${ITEM}_RUN_ARM SELFTEST OK -- every guard driven in BOTH directions"
     exit 0
@@ -325,9 +621,29 @@ fi
 
 [ -n "$ARM" ] || usage
 
-# --- BOTH GUARDS RUN BEFORE ANYTHING ELSE, AND BEFORE THE CONTAINER ---------
+# --- THE PRODUCER DRIVE PATHS.  Host only, no container, no solver. ----------
+# These exist so the producers written above are DRIVEN rather than merely
+# written.  A producer nothing has ever executed is the same class of evidence
+# as a gate nothing has ever failed.
+if [ "$EMIT_MANIFEST" = "1" ]; then
+  write_manifest "$ARM" "$IMG" "${A1WRT2_FAKE_DIGEST:-UNMEASURED}" \
+                 "${A1WRT2_FAKE_WARPMD5:-UNMEASURED}"
+  exit 0
+fi
+if [ -n "$EMIT_LEDGER" ]; then
+  append_ledger_row "$ARM" 0 "$EMIT_LEDGER" 1 "$(arm_cap "$ARM")"
+  exit 0
+fi
+
+# --- THE GUARDS RUN BEFORE ANYTHING ELSE, AND BEFORE THE CONTAINER ----------
 unbound_guard
 ceiling_guard "$ARM"
+
+# RULING 1: the TAIL arm, and ONLY the TAIL arm, is gated on SEAM's verdict.
+# SEAM carries no such precondition -- it IS the precondition.
+if [ "$ARM" = "TAIL" ]; then
+  seam_precondition_guard
+fi
 
 if [ "$GUARDS_ONLY" = "1" ]; then
   echo "${ITEM}_GUARDS_ONLY -- guards driven, nothing launched"
@@ -346,5 +662,63 @@ if [ "$LAUNCH_ENABLED" != "1" ]; then
   exit 0
 fi
 
-echo "unreachable while LAUNCH_ENABLED=0" >&2
-exit 70
+# =============================================================================
+# THE ARM BODIES.  UNREACHABLE WHILE `LAUNCH_ENABLED=0`, AND WRITTEN ANYWAY,
+# BECAUSE THEY ARE THE PRODUCERS THE GATES' INPUTS ARE TRACED TO.
+#
+# `a1wrt2_grade.read_text` REFUSES at exit 2 on an absent artefact, so a
+# product these bodies have not yet created can never read as a passing gate --
+# it reads as a refusal.  That is what makes writing the producer and not
+# running it an honest state rather than a hole.
+#
+# The two bodies are spelled out separately, with LITERAL paths, for the
+# reasons at `MANIFEST_PATH` above.
+# =============================================================================
+run_seam_arm() {
+  local rc t0 t1
+  mkdir -p "$SEAM_OUT"
+  DIG_WARP="$(measure_image_pins "$IMG")"
+  write_manifest SEAM "$IMG" "${DIG_WARP% *}" "${DIG_WARP#* }"
+  t0="$(date +%s)"
+  set +e
+  timeout 900 docker run --rm --cpuset-cpus="0" --memory=8g \
+    -e OMP_NUM_THREADS=1 -v "$SEAM_CASE:/mnt" -v "$RUN_ROOT:/run_root" \
+    "$IMG" /bin/bash -lc 'cd /mnt && python /run_root/runScript.py -task sweep' \
+    > "$SEAM_OUT/sweep.log" 2>&1
+  rc=$?
+  set -e
+  # THE PRODUCER'S OWN rc, PROPAGATED, NEVER RECOMPUTED FROM MARKERS.  This is
+  # the `a1wr_cmd.sh:96-102` defect (draft section 4.1) refused by construction:
+  # that file decides its unit's status from `grep -c '^AOA_POINT_END '`, which
+  # counts a CRASHED point too, and so exited 0 over its own producer's rc=97.
+  echo "$rc" > "$SEAM_OUT/rc"
+  t1="$(date +%s)"
+  append_ledger_row SEAM "$rc" "$((t1 - t0))" 1 "$(arm_cap SEAM)"
+  return 0
+}
+
+run_tail_arm() {
+  local rc t0 t1
+  mkdir -p "$TAIL_OUT"
+  DIG_WARP="$(measure_image_pins "$IMG")"
+  write_manifest TAIL "$IMG" "${DIG_WARP% *}" "${DIG_WARP#* }"
+  t0="$(date +%s)"
+  set +e
+  timeout 40500 docker run --rm --cpuset-cpus="0" --memory=8g \
+    -e OMP_NUM_THREADS=1 -v "$TAIL_CASE:/mnt" -v "$RUN_ROOT:/run_root" \
+    "$IMG" /bin/bash -lc 'cd /mnt && python /run_root/runScript.py -task sweep' \
+    > "$TAIL_OUT/sweep.log" 2>&1
+  rc=$?
+  set -e
+  echo "$rc" > "$TAIL_OUT/rc"
+  t1="$(date +%s)"
+  append_ledger_row TAIL "$rc" "$((t1 - t0))" 1 "$(arm_cap TAIL)"
+  return 0
+}
+
+case "$ARM" in
+  SEAM) run_seam_arm ;;
+  TAIL) run_tail_arm ;;
+  *)    usage ;;
+esac
+exit 0

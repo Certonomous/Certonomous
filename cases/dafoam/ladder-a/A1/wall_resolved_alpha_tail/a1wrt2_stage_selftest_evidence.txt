@@ -1,21 +1,14 @@
-A1WRT2 STAGER -- SELFTEST EVIDENCE.  NOT FROZEN.  NOT PINNED.
-Captured 2026-09-04T19:41:11Z on this box by a dafoam lab-lane.
-NO COMPUTE, NO CONTAINER, NO QUEUE DROP, NOTHING FILED OR SENT.
-Driver: a1wrt2_stage.py --selftest, under python3 AND python3 -O.
-Both flags: rc 0, legs 5, controls 26, EXERCISED-FAIL 16, EXERCISED-PASS 10,
-NOT-EXERCISED 0, and the CONTROL lines are identical under both flags once
-tempdir names and epoch seconds are masked.
-
-================ python3 (asserts enabled) ================
-
+A1WRT2 STAGER SELFTEST -- EVIDENCE, regenerated 2026-09-04 after DEFERRED_PRODUCERS
+NOT FROZEN. ZERO COMPUTE. SUBMISSIONS PARKED.
+==========================================================================
 G-UNBOUND-PY: PASS -- every name read is bound before it can be read, in every scope
 A1WRT2_STAGE SELFTEST -- host python, NO container, NO compute, NO queue drop, NOT FROZEN
 python 3.12.3   optimisation flag active: none
 
 ---- SELFTEST-SUCCESS-PATH ----
-A1WRT2_STAGE_SEAM (1) G-ROOT OK run_root=/tmp/tmp2rdjtgb6/runroot src=/tmp/tmp2rdjtgb6/src
-A1WRT2_STAGE_SEAM (2) destination /tmp/tmp2rdjtgb6/runroot/SEAM/case does not exist
-A1WRT2_STAGE_SEAM (3) continuation state /tmp/tmp2rdjtgb6/src/4000 (U.gz)
+A1WRT2_STAGE_SEAM (1) G-ROOT OK run_root=/tmp/tmpvmcevpyr/runroot src=/tmp/tmpvmcevpyr/src
+A1WRT2_STAGE_SEAM (2) destination /tmp/tmpvmcevpyr/runroot/SEAM/case does not exist
+A1WRT2_STAGE_SEAM (3) continuation state /tmp/tmpvmcevpyr/src/4000 (U.gz)
 A1WRT2_STAGE_SEAM (4) source census entries=19 files=11
 A1WRT2_STAGE_SEAM (5) copied, mtime semantics = copy2, PRESERVE
 A1WRT2_STAGE_SEAM (6) SOURCE INTACT: 19 entries, 11 witnesses unchanged
@@ -25,17 +18,17 @@ A1WRT2_STAGE_SEAM (8) decompressed 3 fields in 4000, mtimes PRESERVED (writeComp
 A1WRT2_STAGE_SEAM (9) controlDict declares a continuation from 4000
 A1WRT2_STAGE_SEAM (10) staged inputs run_arm.sh, runScript.py (md5 d48f48c5e2e41e86981acbf6feccb3c4 == a1wrt2_grade.PIN_RUNSCRIPT_MD5, IMPORTED not retyped)
 A1WRT2_STAGE_SEAM (11) zero of 7 registered products exist yet
-A1WRT2_STAGE_SEAM (12) AGE DATUM 1788550835 from .a1wrt2_age_ref, TOUCHED LAST -- a RUN-ROOT sentinel nothing in the container writes, not a copied file whose preserved mtime is what defeats an age guard
+A1WRT2_STAGE_SEAM (12) AGE DATUM 1788559751 from .a1wrt2_age_ref, TOUCHED LAST -- a RUN-ROOT sentinel nothing in the container writes, not a copied file whose preserved mtime is what defeats an age guard
 A1WRT2_STAGE_SEAM (12) VERIFIED: every staged file is NOT NEWER than the datum; every PRODUCT name is absent, so a product can only appear by being produced
-A1WRT2_STAGE_SEAM (13) staged-input manifest written and read back: .a1wrt2_staged_inputs_SEAM.json (n=2, datum=1788550835)
+A1WRT2_STAGE_SEAM (13) staged-input manifest written and read back: .a1wrt2_staged_inputs_SEAM.json (n=2, datum=1788559751)
 A1WRT2_STAGE_SEAM READY -- NOTHING WAS LAUNCHED, NO CONTAINER STARTED, NO CORE-MINUTE SPENT
 CONTROL stage/happy-path-stages            EXERCISED-PASS  staged 16 lines, 4000/U present, 0/ and 0.orig/ gone
 CONTROL stage/real-G-COLDSTART-SEAM-passes EXERCISED-PASS  a1wrt2_grade.g_coldstart_seam -> PASS on the staged tree
-CONTROL stage/real-gate-refuses-undecompressed EXERCISED-FAIL  compressed-only tree -> REFUSE: REFUSE G-COLDSTART-SEAM: the staged 4000/U is absent at /tmp/tmp2rdjtg
-CONTROL stage/age-datum-postdates-staging  EXERCISED-PASS  datum=1788550835 newest staged=1788464435 delta=86400s; 0 of 7 products present
-A1WRT2_STAGE_TAIL (1) G-ROOT OK run_root=/tmp/tmp2rdjtgb6/runroot src=/tmp/tmp2rdjtgb6/runroot/SEAM/case
-A1WRT2_STAGE_TAIL (2) destination /tmp/tmp2rdjtgb6/runroot/TAIL/case does not exist
-A1WRT2_STAGE_TAIL (3) continuation state /tmp/tmp2rdjtgb6/runroot/SEAM/case/4200 (U)
+CONTROL stage/real-gate-refuses-undecompressed EXERCISED-FAIL  compressed-only tree -> REFUSE: REFUSE G-COLDSTART-SEAM: the staged 4000/U is absent at /tmp/tmpvmcevp
+CONTROL stage/age-datum-postdates-staging  EXERCISED-PASS  datum=1788559751 newest staged=1788473351 delta=86400s; 0 of 7 products present
+A1WRT2_STAGE_TAIL (1) G-ROOT OK run_root=/tmp/tmpvmcevpyr/runroot src=/tmp/tmpvmcevpyr/runroot/SEAM/case
+A1WRT2_STAGE_TAIL (2) destination /tmp/tmpvmcevpyr/runroot/TAIL/case does not exist
+A1WRT2_STAGE_TAIL (3) continuation state /tmp/tmpvmcevpyr/runroot/SEAM/case/4200 (U)
 A1WRT2_STAGE_TAIL (4) source census entries=13 files=7
 A1WRT2_STAGE_TAIL (5) copied, mtime semantics = copy2, PRESERVE
 A1WRT2_STAGE_TAIL (6) SOURCE INTACT: 13 entries, 7 witnesses unchanged
@@ -45,14 +38,14 @@ A1WRT2_STAGE_TAIL (8) decompressed 0 fields in 4200, mtimes PRESERVED (writeComp
 A1WRT2_STAGE_TAIL (9) controlDict declares a continuation from 4200
 A1WRT2_STAGE_TAIL (10) staged inputs run_arm.sh, runScript.py (md5 d48f48c5e2e41e86981acbf6feccb3c4 == a1wrt2_grade.PIN_RUNSCRIPT_MD5, IMPORTED not retyped)
 A1WRT2_STAGE_TAIL (11) zero of 7 registered products exist yet
-A1WRT2_STAGE_TAIL (12) AGE DATUM 1788550835 from .a1wrt2_age_ref, TOUCHED LAST -- a RUN-ROOT sentinel nothing in the container writes, not a copied file whose preserved mtime is what defeats an age guard
+A1WRT2_STAGE_TAIL (12) AGE DATUM 1788559751 from .a1wrt2_age_ref, TOUCHED LAST -- a RUN-ROOT sentinel nothing in the container writes, not a copied file whose preserved mtime is what defeats an age guard
 A1WRT2_STAGE_TAIL (12) VERIFIED: every staged file is NOT NEWER than the datum; every PRODUCT name is absent, so a product can only appear by being produced
-A1WRT2_STAGE_TAIL (13) staged-input manifest written and read back: .a1wrt2_staged_inputs_TAIL.json (n=2, datum=1788550835)
+A1WRT2_STAGE_TAIL (13) staged-input manifest written and read back: .a1wrt2_staged_inputs_TAIL.json (n=2, datum=1788559751)
 A1WRT2_STAGE_TAIL READY -- NOTHING WAS LAUNCHED, NO CONTAINER STARTED, NO CORE-MINUTE SPENT
 CONTROL stage/SEAM-to-TAIL-chain           EXERCISED-PASS  TAIL staged from SEAM/case (the admitted nesting case)
-A1WRT2_STAGE_SEAM (1) G-ROOT OK run_root=/tmp/tmp6e89_ukr/runroot src=/tmp/tmp6e89_ukr/src
-A1WRT2_STAGE_SEAM (2) destination /tmp/tmp6e89_ukr/runroot/SEAM/case does not exist
-A1WRT2_STAGE_SEAM (3) continuation state /tmp/tmp6e89_ukr/src/4000 (U.gz)
+A1WRT2_STAGE_SEAM (1) G-ROOT OK run_root=/tmp/tmp7hee3hgz/runroot src=/tmp/tmp7hee3hgz/src
+A1WRT2_STAGE_SEAM (2) destination /tmp/tmp7hee3hgz/runroot/SEAM/case does not exist
+A1WRT2_STAGE_SEAM (3) continuation state /tmp/tmp7hee3hgz/src/4000 (U.gz)
 A1WRT2_STAGE_SEAM (4) source census entries=16 files=9
 A1WRT2_STAGE_SEAM (5) copied, mtime semantics = copy2, PRESERVE
 A1WRT2_STAGE_SEAM (6) SOURCE INTACT: 16 entries, 9 witnesses unchanged
@@ -62,26 +55,26 @@ A1WRT2_STAGE_SEAM (8) decompressed 3 fields in 4000, mtimes PRESERVED (writeComp
 A1WRT2_STAGE_SEAM (9) controlDict declares a continuation from 4000
 A1WRT2_STAGE_SEAM (10) staged inputs run_arm.sh, runScript.py (md5 d48f48c5e2e41e86981acbf6feccb3c4 == a1wrt2_grade.PIN_RUNSCRIPT_MD5, IMPORTED not retyped)
 A1WRT2_STAGE_SEAM (11) zero of 7 registered products exist yet
-A1WRT2_STAGE_SEAM (12) AGE DATUM 1788550835 from .a1wrt2_age_ref, TOUCHED LAST -- a RUN-ROOT sentinel nothing in the container writes, not a copied file whose preserved mtime is what defeats an age guard
+A1WRT2_STAGE_SEAM (12) AGE DATUM 1788559751 from .a1wrt2_age_ref, TOUCHED LAST -- a RUN-ROOT sentinel nothing in the container writes, not a copied file whose preserved mtime is what defeats an age guard
 A1WRT2_STAGE_SEAM (12) VERIFIED: every staged file is NOT NEWER than the datum; every PRODUCT name is absent, so a product can only appear by being produced
-A1WRT2_STAGE_SEAM (13) staged-input manifest written and read back: .a1wrt2_staged_inputs_SEAM.json (n=2, datum=1788550835)
+A1WRT2_STAGE_SEAM (13) staged-input manifest written and read back: .a1wrt2_staged_inputs_SEAM.json (n=2, datum=1788559751)
 A1WRT2_STAGE_SEAM READY -- NOTHING WAS LAUNCHED, NO CONTAINER STARTED, NO CORE-MINUTE SPENT
 CONTROL stage/symlinked-zero-dropped-safely EXERCISED-PASS  symlinked 0/ dropped as a link; its target untouched
 
 ---- SELFTEST-REFUSALS ----
-A1WRT2_STAGE_SEAM (1) G-ROOT OK run_root=/tmp/tmp0knzrq7m/runroot src=/tmp/tmp0knzrq7m/no_such_source
-A1WRT2_STAGE_SEAM (2) destination /tmp/tmp0knzrq7m/runroot/SEAM/case does not exist
+A1WRT2_STAGE_SEAM (1) G-ROOT OK run_root=/tmp/tmp_ibvbyj8/runroot src=/tmp/tmp_ibvbyj8/no_such_source
+A1WRT2_STAGE_SEAM (2) destination /tmp/tmp_ibvbyj8/runroot/SEAM/case does not exist
 CONTROL abort/source-absent                EXERCISED-FAIL  -> A1WRT2_STAGE_ABORT_SOURCE_ABSENT
-A1WRT2_STAGE_SEAM (1) G-ROOT OK run_root=/tmp/tmpdtebg_s6/runroot src=/tmp/tmpdtebg_s6/src
-A1WRT2_STAGE_SEAM (2) destination /tmp/tmpdtebg_s6/runroot/SEAM/case does not exist
+A1WRT2_STAGE_SEAM (1) G-ROOT OK run_root=/tmp/tmpz8917x2y/runroot src=/tmp/tmpz8917x2y/src
+A1WRT2_STAGE_SEAM (2) destination /tmp/tmpz8917x2y/runroot/SEAM/case does not exist
 CONTROL abort/source-not-continuable       EXERCISED-FAIL  -> A1WRT2_STAGE_ABORT_SOURCE_NOT_CONTINUABLE
-A1WRT2_STAGE_SEAM (1) G-ROOT OK run_root=/tmp/tmps0lvxg01/runroot src=/tmp/tmps0lvxg01/src
+A1WRT2_STAGE_SEAM (1) G-ROOT OK run_root=/tmp/tmpfyhz_f9e/runroot src=/tmp/tmpfyhz_f9e/src
 CONTROL abort/dest-exists                  EXERCISED-FAIL  -> A1WRT2_STAGE_ABORT_DEST_EXISTS
 CONTROL abort/root-equals-source           EXERCISED-FAIL  -> A1WRT2_STAGE_ABORT_ROOT_EQUALS_SOURCE
 CONTROL abort/root-nested                  EXERCISED-FAIL  -> A1WRT2_STAGE_ABORT_ROOT_NESTED
-A1WRT2_STAGE_SEAM (1) G-ROOT OK run_root=/tmp/tmpyslq1w8z/runroot src=/tmp/tmpyslq1w8z/src
-A1WRT2_STAGE_SEAM (2) destination /tmp/tmpyslq1w8z/runroot/SEAM/case does not exist
-A1WRT2_STAGE_SEAM (3) continuation state /tmp/tmpyslq1w8z/src/4000 (U.gz)
+A1WRT2_STAGE_SEAM (1) G-ROOT OK run_root=/tmp/tmpfubmxnts/runroot src=/tmp/tmpfubmxnts/src
+A1WRT2_STAGE_SEAM (2) destination /tmp/tmpfubmxnts/runroot/SEAM/case does not exist
+A1WRT2_STAGE_SEAM (3) continuation state /tmp/tmpfubmxnts/src/4000 (U.gz)
 A1WRT2_STAGE_SEAM (4) source census entries=19 files=11
 A1WRT2_STAGE_SEAM (5) copied, mtime semantics = copy2, PRESERVE
 A1WRT2_STAGE_SEAM (6) SOURCE INTACT: 19 entries, 11 witnesses unchanged
@@ -89,9 +82,9 @@ A1WRT2_STAGE_SEAM (7) dropped 5 carry-overs: 0.orig/ 0/ log.checkMesh mphys.html
 A1WRT2_STAGE_SEAM (7) 0/ and 0.orig/ are ABSENT from the copy -- a1wr_cmd.sh:32's own `test -d 0.orig` now refuses at its NAMED exit 92 BEFORE any compute, instead of cold-starting silently
 A1WRT2_STAGE_SEAM (8) decompressed 3 fields in 4000, mtimes PRESERVED (writeCompression on -- A1WRT/alpha12_symmetry/system/controlDict:12 -- and g_coldstart_seam reads case/4000/U as text)
 CONTROL abort/uniform-U-refuses            EXERCISED-FAIL  -> A1WRT2_STAGE_ABORT_STAGED_U_NOT_NONUNIFORM
-A1WRT2_STAGE_SEAM (1) G-ROOT OK run_root=/tmp/tmphmokbhof/runroot src=/tmp/tmphmokbhof/src
-A1WRT2_STAGE_SEAM (2) destination /tmp/tmphmokbhof/runroot/SEAM/case does not exist
-A1WRT2_STAGE_SEAM (3) continuation state /tmp/tmphmokbhof/src/4000 (U.gz)
+A1WRT2_STAGE_SEAM (1) G-ROOT OK run_root=/tmp/tmpv23svyq9/runroot src=/tmp/tmpv23svyq9/src
+A1WRT2_STAGE_SEAM (2) destination /tmp/tmpv23svyq9/runroot/SEAM/case does not exist
+A1WRT2_STAGE_SEAM (3) continuation state /tmp/tmpv23svyq9/src/4000 (U.gz)
 A1WRT2_STAGE_SEAM (4) source census entries=19 files=11
 A1WRT2_STAGE_SEAM (5) copied, mtime semantics = copy2, PRESERVE
 A1WRT2_STAGE_SEAM (6) SOURCE INTACT: 19 entries, 11 witnesses unchanged
@@ -99,18 +92,18 @@ A1WRT2_STAGE_SEAM (7) dropped 5 carry-overs: 0.orig/ 0/ log.checkMesh mphys.html
 A1WRT2_STAGE_SEAM (7) 0/ and 0.orig/ are ABSENT from the copy -- a1wr_cmd.sh:32's own `test -d 0.orig` now refuses at its NAMED exit 92 BEFORE any compute, instead of cold-starting silently
 A1WRT2_STAGE_SEAM (8) decompressed 3 fields in 4000, mtimes PRESERVED (writeCompression on -- A1WRT/alpha12_symmetry/system/controlDict:12 -- and g_coldstart_seam reads case/4000/U as text)
 CONTROL abort/controldict-not-continued    EXERCISED-FAIL  -> A1WRT2_STAGE_ABORT_CONTROLDICT_NOT_CONTINUED
-A1WRT2_STAGE_SEAM (1) G-ROOT OK run_root=/tmp/tmpa1nmams1/runroot src=/tmp/tmpa1nmams1/src
-A1WRT2_STAGE_SEAM (2) destination /tmp/tmpa1nmams1/runroot/SEAM/case does not exist
-A1WRT2_STAGE_SEAM (3) continuation state /tmp/tmpa1nmams1/src/4000 (U.gz)
+A1WRT2_STAGE_SEAM (1) G-ROOT OK run_root=/tmp/tmpw39x2log/runroot src=/tmp/tmpw39x2log/src
+A1WRT2_STAGE_SEAM (2) destination /tmp/tmpw39x2log/runroot/SEAM/case does not exist
+A1WRT2_STAGE_SEAM (3) continuation state /tmp/tmpw39x2log/src/4000 (U.gz)
 A1WRT2_STAGE_SEAM (4) source census entries=19 files=11
 A1WRT2_STAGE_SEAM (5) copied, mtime semantics = copy2, PRESERVE
 A1WRT2_STAGE_SEAM (6) SOURCE INTACT: 19 entries, 11 witnesses unchanged
 A1WRT2_STAGE_SEAM (7) dropped 5 carry-overs: 0.orig/ 0/ log.checkMesh mphys.html out/
 A1WRT2_STAGE_SEAM (7) 0/ and 0.orig/ are ABSENT from the copy -- a1wr_cmd.sh:32's own `test -d 0.orig` now refuses at its NAMED exit 92 BEFORE any compute, instead of cold-starting silently
 CONTROL abort/corrupt-gz-refuses           EXERCISED-FAIL  -> A1WRT2_STAGE_ABORT_DECOMPRESS_FAILED
-A1WRT2_STAGE_SEAM (1) G-ROOT OK run_root=/tmp/tmpkapht_bs/runroot src=/tmp/tmpkapht_bs/src
-A1WRT2_STAGE_SEAM (2) destination /tmp/tmpkapht_bs/runroot/SEAM/case does not exist
-A1WRT2_STAGE_SEAM (3) continuation state /tmp/tmpkapht_bs/src/4000 (U.gz)
+A1WRT2_STAGE_SEAM (1) G-ROOT OK run_root=/tmp/tmp2ir5uz1k/runroot src=/tmp/tmp2ir5uz1k/src
+A1WRT2_STAGE_SEAM (2) destination /tmp/tmp2ir5uz1k/runroot/SEAM/case does not exist
+A1WRT2_STAGE_SEAM (3) continuation state /tmp/tmp2ir5uz1k/src/4000 (U.gz)
 A1WRT2_STAGE_SEAM (4) source census entries=19 files=11
 A1WRT2_STAGE_SEAM (5) copied, mtime semantics = copy2, PRESERVE
 A1WRT2_STAGE_SEAM (6) SOURCE INTACT: 19 entries, 11 witnesses unchanged
@@ -119,9 +112,9 @@ A1WRT2_STAGE_SEAM (7) 0/ and 0.orig/ are ABSENT from the copy -- a1wr_cmd.sh:32'
 A1WRT2_STAGE_SEAM (8) decompressed 3 fields in 4000, mtimes PRESERVED (writeCompression on -- A1WRT/alpha12_symmetry/system/controlDict:12 -- and g_coldstart_seam reads case/4000/U as text)
 A1WRT2_STAGE_SEAM (9) controlDict declares a continuation from 4000
 CONTROL abort/pin-mismatch                 EXERCISED-FAIL  -> A1WRT2_STAGE_ABORT_PIN_MISMATCH
-A1WRT2_STAGE_SEAM (1) G-ROOT OK run_root=/tmp/tmp_zvx8d64/runroot src=/tmp/tmp_zvx8d64/src
-A1WRT2_STAGE_SEAM (2) destination /tmp/tmp_zvx8d64/runroot/SEAM/case does not exist
-A1WRT2_STAGE_SEAM (3) continuation state /tmp/tmp_zvx8d64/src/4000 (U.gz)
+A1WRT2_STAGE_SEAM (1) G-ROOT OK run_root=/tmp/tmphdzcaj78/runroot src=/tmp/tmphdzcaj78/src
+A1WRT2_STAGE_SEAM (2) destination /tmp/tmphdzcaj78/runroot/SEAM/case does not exist
+A1WRT2_STAGE_SEAM (3) continuation state /tmp/tmphdzcaj78/src/4000 (U.gz)
 A1WRT2_STAGE_SEAM (4) source census entries=19 files=11
 A1WRT2_STAGE_SEAM (5) copied, mtime semantics = copy2, PRESERVE
 A1WRT2_STAGE_SEAM (6) SOURCE INTACT: 19 entries, 11 witnesses unchanged
@@ -131,7 +124,7 @@ A1WRT2_STAGE_SEAM (8) decompressed 3 fields in 4000, mtimes PRESERVED (writeComp
 A1WRT2_STAGE_SEAM (9) controlDict declares a continuation from 4000
 A1WRT2_STAGE_SEAM (10) staged inputs run_arm.sh, runScript.py (md5 d48f48c5e2e41e86981acbf6feccb3c4 == a1wrt2_grade.PIN_RUNSCRIPT_MD5, IMPORTED not retyped)
 A1WRT2_STAGE_SEAM (11) zero of 7 registered products exist yet
-A1WRT2_STAGE_SEAM (12) AGE DATUM 1788550835 from .a1wrt2_age_ref, TOUCHED LAST -- a RUN-ROOT sentinel nothing in the container writes, not a copied file whose preserved mtime is what defeats an age guard
+A1WRT2_STAGE_SEAM (12) AGE DATUM 1788559751 from .a1wrt2_age_ref, TOUCHED LAST -- a RUN-ROOT sentinel nothing in the container writes, not a copied file whose preserved mtime is what defeats an age guard
 CONTROL abort/staged-input-newer-than-datum EXERCISED-FAIL  -> A1WRT2_STAGE_ABORT_STAGED_INPUT_NEWER_THAN_DATUM
 CONTROL abort/root-not-registered          EXERCISED-FAIL  -> A1WRT2_STAGE_ABORT_ROOT_NOT_REGISTERED
 CONTROL abort/unknown-arm                  EXERCISED-FAIL  -> A1WRT2_STAGE_ABORT_USAGE
@@ -152,217 +145,4 @@ CONTROL norun/registered-run-root-checked  EXERCISED-PASS  /home/ubuntu/certonom
 
 A1WRT2_STAGE_SELFTEST legs=5 controls=26 EXERCISED-FAIL=16 EXERCISED-PASS=10 NOT-EXERCISED=0
 A1WRT2_STAGE_SELFTEST OK -- every control driven in a NAMED direction, the SUCCESS PATH first, and every abort site driven or declared
-
-================ python3 -O (asserts disabled) ================
-
-G-UNBOUND-PY: PASS -- every name read is bound before it can be read, in every scope
-A1WRT2_STAGE SELFTEST -- host python, NO container, NO compute, NO queue drop, NOT FROZEN
-python 3.12.3   optimisation flag active: -O (asserts disabled)
-
----- SELFTEST-SUCCESS-PATH ----
-A1WRT2_STAGE_SEAM (1) G-ROOT OK run_root=/tmp/tmps5jp5bi5/runroot src=/tmp/tmps5jp5bi5/src
-A1WRT2_STAGE_SEAM (2) destination /tmp/tmps5jp5bi5/runroot/SEAM/case does not exist
-A1WRT2_STAGE_SEAM (3) continuation state /tmp/tmps5jp5bi5/src/4000 (U.gz)
-A1WRT2_STAGE_SEAM (4) source census entries=19 files=11
-A1WRT2_STAGE_SEAM (5) copied, mtime semantics = copy2, PRESERVE
-A1WRT2_STAGE_SEAM (6) SOURCE INTACT: 19 entries, 11 witnesses unchanged
-A1WRT2_STAGE_SEAM (7) dropped 5 carry-overs: 0.orig/ 0/ log.checkMesh mphys.html out/
-A1WRT2_STAGE_SEAM (7) 0/ and 0.orig/ are ABSENT from the copy -- a1wr_cmd.sh:32's own `test -d 0.orig` now refuses at its NAMED exit 92 BEFORE any compute, instead of cold-starting silently
-A1WRT2_STAGE_SEAM (8) decompressed 3 fields in 4000, mtimes PRESERVED (writeCompression on -- A1WRT/alpha12_symmetry/system/controlDict:12 -- and g_coldstart_seam reads case/4000/U as text)
-A1WRT2_STAGE_SEAM (9) controlDict declares a continuation from 4000
-A1WRT2_STAGE_SEAM (10) staged inputs run_arm.sh, runScript.py (md5 d48f48c5e2e41e86981acbf6feccb3c4 == a1wrt2_grade.PIN_RUNSCRIPT_MD5, IMPORTED not retyped)
-A1WRT2_STAGE_SEAM (11) zero of 7 registered products exist yet
-A1WRT2_STAGE_SEAM (12) AGE DATUM 1788550835 from .a1wrt2_age_ref, TOUCHED LAST -- a RUN-ROOT sentinel nothing in the container writes, not a copied file whose preserved mtime is what defeats an age guard
-A1WRT2_STAGE_SEAM (12) VERIFIED: every staged file is NOT NEWER than the datum; every PRODUCT name is absent, so a product can only appear by being produced
-A1WRT2_STAGE_SEAM (13) staged-input manifest written and read back: .a1wrt2_staged_inputs_SEAM.json (n=2, datum=1788550835)
-A1WRT2_STAGE_SEAM READY -- NOTHING WAS LAUNCHED, NO CONTAINER STARTED, NO CORE-MINUTE SPENT
-CONTROL stage/happy-path-stages            EXERCISED-PASS  staged 16 lines, 4000/U present, 0/ and 0.orig/ gone
-CONTROL stage/real-G-COLDSTART-SEAM-passes EXERCISED-PASS  a1wrt2_grade.g_coldstart_seam -> PASS on the staged tree
-CONTROL stage/real-gate-refuses-undecompressed EXERCISED-FAIL  compressed-only tree -> REFUSE: REFUSE G-COLDSTART-SEAM: the staged 4000/U is absent at /tmp/tmps5jp5b
-CONTROL stage/age-datum-postdates-staging  EXERCISED-PASS  datum=1788550835 newest staged=1788464435 delta=86400s; 0 of 7 products present
-A1WRT2_STAGE_TAIL (1) G-ROOT OK run_root=/tmp/tmps5jp5bi5/runroot src=/tmp/tmps5jp5bi5/runroot/SEAM/case
-A1WRT2_STAGE_TAIL (2) destination /tmp/tmps5jp5bi5/runroot/TAIL/case does not exist
-A1WRT2_STAGE_TAIL (3) continuation state /tmp/tmps5jp5bi5/runroot/SEAM/case/4200 (U)
-A1WRT2_STAGE_TAIL (4) source census entries=13 files=7
-A1WRT2_STAGE_TAIL (5) copied, mtime semantics = copy2, PRESERVE
-A1WRT2_STAGE_TAIL (6) SOURCE INTACT: 13 entries, 7 witnesses unchanged
-A1WRT2_STAGE_TAIL (7) dropped 0 carry-overs: (none)
-A1WRT2_STAGE_TAIL (7) 0/ and 0.orig/ are ABSENT from the copy -- a1wr_cmd.sh:32's own `test -d 0.orig` now refuses at its NAMED exit 92 BEFORE any compute, instead of cold-starting silently
-A1WRT2_STAGE_TAIL (8) decompressed 0 fields in 4200, mtimes PRESERVED (writeCompression on -- A1WRT/alpha12_symmetry/system/controlDict:12 -- and g_coldstart_seam reads case/4200/U as text)
-A1WRT2_STAGE_TAIL (9) controlDict declares a continuation from 4200
-A1WRT2_STAGE_TAIL (10) staged inputs run_arm.sh, runScript.py (md5 d48f48c5e2e41e86981acbf6feccb3c4 == a1wrt2_grade.PIN_RUNSCRIPT_MD5, IMPORTED not retyped)
-A1WRT2_STAGE_TAIL (11) zero of 7 registered products exist yet
-A1WRT2_STAGE_TAIL (12) AGE DATUM 1788550835 from .a1wrt2_age_ref, TOUCHED LAST -- a RUN-ROOT sentinel nothing in the container writes, not a copied file whose preserved mtime is what defeats an age guard
-A1WRT2_STAGE_TAIL (12) VERIFIED: every staged file is NOT NEWER than the datum; every PRODUCT name is absent, so a product can only appear by being produced
-A1WRT2_STAGE_TAIL (13) staged-input manifest written and read back: .a1wrt2_staged_inputs_TAIL.json (n=2, datum=1788550835)
-A1WRT2_STAGE_TAIL READY -- NOTHING WAS LAUNCHED, NO CONTAINER STARTED, NO CORE-MINUTE SPENT
-CONTROL stage/SEAM-to-TAIL-chain           EXERCISED-PASS  TAIL staged from SEAM/case (the admitted nesting case)
-A1WRT2_STAGE_SEAM (1) G-ROOT OK run_root=/tmp/tmpw38p2l_s/runroot src=/tmp/tmpw38p2l_s/src
-A1WRT2_STAGE_SEAM (2) destination /tmp/tmpw38p2l_s/runroot/SEAM/case does not exist
-A1WRT2_STAGE_SEAM (3) continuation state /tmp/tmpw38p2l_s/src/4000 (U.gz)
-A1WRT2_STAGE_SEAM (4) source census entries=16 files=9
-A1WRT2_STAGE_SEAM (5) copied, mtime semantics = copy2, PRESERVE
-A1WRT2_STAGE_SEAM (6) SOURCE INTACT: 16 entries, 9 witnesses unchanged
-A1WRT2_STAGE_SEAM (7) dropped 4 carry-overs: 0@ log.checkMesh mphys.html out/
-A1WRT2_STAGE_SEAM (7) 0/ and 0.orig/ are ABSENT from the copy -- a1wr_cmd.sh:32's own `test -d 0.orig` now refuses at its NAMED exit 92 BEFORE any compute, instead of cold-starting silently
-A1WRT2_STAGE_SEAM (8) decompressed 3 fields in 4000, mtimes PRESERVED (writeCompression on -- A1WRT/alpha12_symmetry/system/controlDict:12 -- and g_coldstart_seam reads case/4000/U as text)
-A1WRT2_STAGE_SEAM (9) controlDict declares a continuation from 4000
-A1WRT2_STAGE_SEAM (10) staged inputs run_arm.sh, runScript.py (md5 d48f48c5e2e41e86981acbf6feccb3c4 == a1wrt2_grade.PIN_RUNSCRIPT_MD5, IMPORTED not retyped)
-A1WRT2_STAGE_SEAM (11) zero of 7 registered products exist yet
-A1WRT2_STAGE_SEAM (12) AGE DATUM 1788550836 from .a1wrt2_age_ref, TOUCHED LAST -- a RUN-ROOT sentinel nothing in the container writes, not a copied file whose preserved mtime is what defeats an age guard
-A1WRT2_STAGE_SEAM (12) VERIFIED: every staged file is NOT NEWER than the datum; every PRODUCT name is absent, so a product can only appear by being produced
-A1WRT2_STAGE_SEAM (13) staged-input manifest written and read back: .a1wrt2_staged_inputs_SEAM.json (n=2, datum=1788550836)
-A1WRT2_STAGE_SEAM READY -- NOTHING WAS LAUNCHED, NO CONTAINER STARTED, NO CORE-MINUTE SPENT
-CONTROL stage/symlinked-zero-dropped-safely EXERCISED-PASS  symlinked 0/ dropped as a link; its target untouched
-
----- SELFTEST-REFUSALS ----
-A1WRT2_STAGE_SEAM (1) G-ROOT OK run_root=/tmp/tmpnzdgwy32/runroot src=/tmp/tmpnzdgwy32/no_such_source
-A1WRT2_STAGE_SEAM (2) destination /tmp/tmpnzdgwy32/runroot/SEAM/case does not exist
-CONTROL abort/source-absent                EXERCISED-FAIL  -> A1WRT2_STAGE_ABORT_SOURCE_ABSENT
-A1WRT2_STAGE_SEAM (1) G-ROOT OK run_root=/tmp/tmp524a4s9d/runroot src=/tmp/tmp524a4s9d/src
-A1WRT2_STAGE_SEAM (2) destination /tmp/tmp524a4s9d/runroot/SEAM/case does not exist
-CONTROL abort/source-not-continuable       EXERCISED-FAIL  -> A1WRT2_STAGE_ABORT_SOURCE_NOT_CONTINUABLE
-A1WRT2_STAGE_SEAM (1) G-ROOT OK run_root=/tmp/tmpotisamhe/runroot src=/tmp/tmpotisamhe/src
-CONTROL abort/dest-exists                  EXERCISED-FAIL  -> A1WRT2_STAGE_ABORT_DEST_EXISTS
-CONTROL abort/root-equals-source           EXERCISED-FAIL  -> A1WRT2_STAGE_ABORT_ROOT_EQUALS_SOURCE
-CONTROL abort/root-nested                  EXERCISED-FAIL  -> A1WRT2_STAGE_ABORT_ROOT_NESTED
-A1WRT2_STAGE_SEAM (1) G-ROOT OK run_root=/tmp/tmp45r7veu6/runroot src=/tmp/tmp45r7veu6/src
-A1WRT2_STAGE_SEAM (2) destination /tmp/tmp45r7veu6/runroot/SEAM/case does not exist
-A1WRT2_STAGE_SEAM (3) continuation state /tmp/tmp45r7veu6/src/4000 (U.gz)
-A1WRT2_STAGE_SEAM (4) source census entries=19 files=11
-A1WRT2_STAGE_SEAM (5) copied, mtime semantics = copy2, PRESERVE
-A1WRT2_STAGE_SEAM (6) SOURCE INTACT: 19 entries, 11 witnesses unchanged
-A1WRT2_STAGE_SEAM (7) dropped 5 carry-overs: 0.orig/ 0/ log.checkMesh mphys.html out/
-A1WRT2_STAGE_SEAM (7) 0/ and 0.orig/ are ABSENT from the copy -- a1wr_cmd.sh:32's own `test -d 0.orig` now refuses at its NAMED exit 92 BEFORE any compute, instead of cold-starting silently
-A1WRT2_STAGE_SEAM (8) decompressed 3 fields in 4000, mtimes PRESERVED (writeCompression on -- A1WRT/alpha12_symmetry/system/controlDict:12 -- and g_coldstart_seam reads case/4000/U as text)
-CONTROL abort/uniform-U-refuses            EXERCISED-FAIL  -> A1WRT2_STAGE_ABORT_STAGED_U_NOT_NONUNIFORM
-A1WRT2_STAGE_SEAM (1) G-ROOT OK run_root=/tmp/tmpyp4tvvqn/runroot src=/tmp/tmpyp4tvvqn/src
-A1WRT2_STAGE_SEAM (2) destination /tmp/tmpyp4tvvqn/runroot/SEAM/case does not exist
-A1WRT2_STAGE_SEAM (3) continuation state /tmp/tmpyp4tvvqn/src/4000 (U.gz)
-A1WRT2_STAGE_SEAM (4) source census entries=19 files=11
-A1WRT2_STAGE_SEAM (5) copied, mtime semantics = copy2, PRESERVE
-A1WRT2_STAGE_SEAM (6) SOURCE INTACT: 19 entries, 11 witnesses unchanged
-A1WRT2_STAGE_SEAM (7) dropped 5 carry-overs: 0.orig/ 0/ log.checkMesh mphys.html out/
-A1WRT2_STAGE_SEAM (7) 0/ and 0.orig/ are ABSENT from the copy -- a1wr_cmd.sh:32's own `test -d 0.orig` now refuses at its NAMED exit 92 BEFORE any compute, instead of cold-starting silently
-A1WRT2_STAGE_SEAM (8) decompressed 3 fields in 4000, mtimes PRESERVED (writeCompression on -- A1WRT/alpha12_symmetry/system/controlDict:12 -- and g_coldstart_seam reads case/4000/U as text)
-CONTROL abort/controldict-not-continued    EXERCISED-FAIL  -> A1WRT2_STAGE_ABORT_CONTROLDICT_NOT_CONTINUED
-A1WRT2_STAGE_SEAM (1) G-ROOT OK run_root=/tmp/tmpj1wrraoe/runroot src=/tmp/tmpj1wrraoe/src
-A1WRT2_STAGE_SEAM (2) destination /tmp/tmpj1wrraoe/runroot/SEAM/case does not exist
-A1WRT2_STAGE_SEAM (3) continuation state /tmp/tmpj1wrraoe/src/4000 (U.gz)
-A1WRT2_STAGE_SEAM (4) source census entries=19 files=11
-A1WRT2_STAGE_SEAM (5) copied, mtime semantics = copy2, PRESERVE
-A1WRT2_STAGE_SEAM (6) SOURCE INTACT: 19 entries, 11 witnesses unchanged
-A1WRT2_STAGE_SEAM (7) dropped 5 carry-overs: 0.orig/ 0/ log.checkMesh mphys.html out/
-A1WRT2_STAGE_SEAM (7) 0/ and 0.orig/ are ABSENT from the copy -- a1wr_cmd.sh:32's own `test -d 0.orig` now refuses at its NAMED exit 92 BEFORE any compute, instead of cold-starting silently
-CONTROL abort/corrupt-gz-refuses           EXERCISED-FAIL  -> A1WRT2_STAGE_ABORT_DECOMPRESS_FAILED
-A1WRT2_STAGE_SEAM (1) G-ROOT OK run_root=/tmp/tmp7uepe9wk/runroot src=/tmp/tmp7uepe9wk/src
-A1WRT2_STAGE_SEAM (2) destination /tmp/tmp7uepe9wk/runroot/SEAM/case does not exist
-A1WRT2_STAGE_SEAM (3) continuation state /tmp/tmp7uepe9wk/src/4000 (U.gz)
-A1WRT2_STAGE_SEAM (4) source census entries=19 files=11
-A1WRT2_STAGE_SEAM (5) copied, mtime semantics = copy2, PRESERVE
-A1WRT2_STAGE_SEAM (6) SOURCE INTACT: 19 entries, 11 witnesses unchanged
-A1WRT2_STAGE_SEAM (7) dropped 5 carry-overs: 0.orig/ 0/ log.checkMesh mphys.html out/
-A1WRT2_STAGE_SEAM (7) 0/ and 0.orig/ are ABSENT from the copy -- a1wr_cmd.sh:32's own `test -d 0.orig` now refuses at its NAMED exit 92 BEFORE any compute, instead of cold-starting silently
-A1WRT2_STAGE_SEAM (8) decompressed 3 fields in 4000, mtimes PRESERVED (writeCompression on -- A1WRT/alpha12_symmetry/system/controlDict:12 -- and g_coldstart_seam reads case/4000/U as text)
-A1WRT2_STAGE_SEAM (9) controlDict declares a continuation from 4000
-CONTROL abort/pin-mismatch                 EXERCISED-FAIL  -> A1WRT2_STAGE_ABORT_PIN_MISMATCH
-A1WRT2_STAGE_SEAM (1) G-ROOT OK run_root=/tmp/tmp4vsha1a8/runroot src=/tmp/tmp4vsha1a8/src
-A1WRT2_STAGE_SEAM (2) destination /tmp/tmp4vsha1a8/runroot/SEAM/case does not exist
-A1WRT2_STAGE_SEAM (3) continuation state /tmp/tmp4vsha1a8/src/4000 (U.gz)
-A1WRT2_STAGE_SEAM (4) source census entries=19 files=11
-A1WRT2_STAGE_SEAM (5) copied, mtime semantics = copy2, PRESERVE
-A1WRT2_STAGE_SEAM (6) SOURCE INTACT: 19 entries, 11 witnesses unchanged
-A1WRT2_STAGE_SEAM (7) dropped 5 carry-overs: 0.orig/ 0/ log.checkMesh mphys.html out/
-A1WRT2_STAGE_SEAM (7) 0/ and 0.orig/ are ABSENT from the copy -- a1wr_cmd.sh:32's own `test -d 0.orig` now refuses at its NAMED exit 92 BEFORE any compute, instead of cold-starting silently
-A1WRT2_STAGE_SEAM (8) decompressed 3 fields in 4000, mtimes PRESERVED (writeCompression on -- A1WRT/alpha12_symmetry/system/controlDict:12 -- and g_coldstart_seam reads case/4000/U as text)
-A1WRT2_STAGE_SEAM (9) controlDict declares a continuation from 4000
-A1WRT2_STAGE_SEAM (10) staged inputs run_arm.sh, runScript.py (md5 d48f48c5e2e41e86981acbf6feccb3c4 == a1wrt2_grade.PIN_RUNSCRIPT_MD5, IMPORTED not retyped)
-A1WRT2_STAGE_SEAM (11) zero of 7 registered products exist yet
-A1WRT2_STAGE_SEAM (12) AGE DATUM 1788550836 from .a1wrt2_age_ref, TOUCHED LAST -- a RUN-ROOT sentinel nothing in the container writes, not a copied file whose preserved mtime is what defeats an age guard
-CONTROL abort/staged-input-newer-than-datum EXERCISED-FAIL  -> A1WRT2_STAGE_ABORT_STAGED_INPUT_NEWER_THAN_DATUM
-CONTROL abort/root-not-registered          EXERCISED-FAIL  -> A1WRT2_STAGE_ABORT_ROOT_NOT_REGISTERED
-CONTROL abort/unknown-arm                  EXERCISED-FAIL  -> A1WRT2_STAGE_ABORT_USAGE
-
----- SELFTEST-UNBOUND-PY ----
-CONTROL unbound-py/this-file-passes        EXERCISED-PASS  this file -> PASS
-CONTROL unbound-py/planted-rc127-blocks    EXERCISED-FAIL  planted A1WRT rc-127 shape -> BLOCKED, both names reported
-CONTROL unbound-py/real-binding-removed-blocks EXERCISED-FAIL  this file minus one real binding -> BLOCKED, AGE_REF named
-CONTROL unbound-py/unparseable-blocks      EXERCISED-FAIL  unparseable source -> BLOCKED, not silently PASS
-
----- SELFTEST-COVERAGE ----
-CONTROL coverage/every-abort-site-accounted EXERCISED-PASS  18 abort sites: 12 DRIVEN, 6 DECLARED-UNDRIVABLE, 0 undriven
-CONTROL noassert/zero-and-shown-able-to-see-one EXERCISED-PASS  ast.Assert = 0 in this file; auditor sees 1 when one is planted
-CONTROL lists/products-and-inputs-disjoint EXERCISED-PASS  PRODUCTS n=7 and STAGED_INPUTS n=2 are disjoint
-
----- SELFTEST-NORUN ----
-CONTROL norun/registered-run-root-checked  EXERCISED-PASS  /home/ubuntu/certonomous-runs/A1WRT2 exists=False (checked by execution in this invocation; the freeze-shell check is the supervisor's)
-
-A1WRT2_STAGE_SELFTEST legs=5 controls=26 EXERCISED-FAIL=16 EXERCISED-PASS=10 NOT-EXERCISED=0
-A1WRT2_STAGE_SELFTEST OK -- every control driven in a NAMED direction, the SUCCESS PATH first, and every abort site driven or declared
-
-
-================ DRIVEN AGAINST THE REAL A1WRT ASSET ================
-
-Not a synthetic source.  The stager was driven over
-/home/ubuntu/certonomous-runs/A1WRT/alpha12_symmetry -- the real continuation
-asset -- into a TEMPORARY run root, NEVER into the registered
-/home/ubuntu/certonomous-runs/A1WRT2, which was re-checked ABSENT immediately
-afterwards and IS ABSENT.  No compute: file I/O only, no container, no solver.
-
-WHAT IT MEASURED, and the third line is the one that matters:
-
-  * SOURCE INTACT.  78 entries and 61 file witnesses (mtime, size) identical
-    before and after the copy; an independent `find | wc -l` over A1WRT's own
-    tree read 79 before and 79 after.  D6RF's in-place staging class cannot
-    have happened here and the assertion is not a claim, it is a comparison.
-
-  * 10 REAL COMPRESSED FIELDS DECOMPRESSED from the real 4000/ directory, with
-    mtimes preserved.  The staged 4000/U is 8,038,545 bytes, 4000/U.gz is gone,
-    and 0/ and 0.orig/ are both absent from the copy.  Driving the REAL hard
-    gate `a1wrt2_grade.g_coldstart_seam` over that real staged tree returns
-    PASS -- "4000/U nonuniform, 0/ absent".  The coupling between this stager's
-    decompression step and that gate is therefore measured on the real bytes and
-    not only on a fixture.
-
-  * IT THEN REFUSED, BY NAME, AT rc 5:
-    A1WRT2_STAGE_ABORT_CONTROLDICT_NOT_CONTINUED.
-    A1WRT's own system/controlDict carries `startFrom startTime; startTime 0`,
-    so the arm draft section 3 registers as CONTINUED would COLD START.  This is
-    the finding proved BY EXECUTION rather than by reading, and it is reported
-    to the supervisor rather than repaired here: no instrument in draft section
-    11's list derives a CONTINUED controlDict, and a stager that quietly wrote
-    a solver's start condition would be implementing a registered gate where no
-    reviewer would look for it.
-
-  * 13 CARRY-OVERS DROPPED from the copy, named individually in the transcript
-    below, including 0/ and 0.orig/ -- so a1wr_cmd.sh:32's own `test -d 0.orig`
-    refuses at its NAMED exit 92 before a core-minute is spent, instead of
-    a1wr_cmd.sh:51 silently resetting 0/ from 0.orig and producing a cold run
-    the ledger would record as a restart.
-
----- transcript (temp run root path elided) ----
-
-G-UNBOUND-PY: PASS -- every name read is bound before it can be read, in every scope
-A1WRT2_STAGE_SEAM (1) G-ROOT OK run_root=<TEMP RUN ROOT> src=/home/ubuntu/certonomous-runs/A1WRT/alpha12_symmetry
-A1WRT2_STAGE_SEAM (2) destination <TEMP RUN ROOT>/SEAM/case does not exist
-A1WRT2_STAGE_SEAM (3) continuation state /home/ubuntu/certonomous-runs/A1WRT/alpha12_symmetry/4000 (U.gz)
-A1WRT2_STAGE_SEAM (4) source census entries=78 files=61
-A1WRT2_STAGE_SEAM (5) copied, mtime semantics = copy2, PRESERVE
-A1WRT2_STAGE_SEAM (6) SOURCE INTACT: 78 entries, 61 witnesses unchanged
-A1WRT2_STAGE_SEAM (7) dropped 13 carry-overs: .a1wrt_age_datum 0.orig/ 0/ log.autoPatch log.checkMesh log.createPatch log.genmesh log.plot3dToFoam log.renumberMesh mphys.html out/ postProcessing/ reports/
-A1WRT2_STAGE_SEAM (7) 0/ and 0.orig/ are ABSENT from the copy -- a1wr_cmd.sh:32's own `test -d 0.orig` now refuses at its NAMED exit 92 BEFORE any compute, instead of cold-starting silently
-A1WRT2_STAGE_SEAM (8) decompressed 10 fields in 4000, mtimes PRESERVED (writeCompression on -- A1WRT/alpha12_symmetry/system/controlDict:12 -- and g_coldstart_seam reads case/4000/U as text)
-A1WRT2_STAGE_ABORT_CONTROLDICT_NOT_CONTINUED rc=5 -- staged system/controlDict declares neither `startFrom latestTime` nor `startTime 4000`.  A1WRT's own controlDict carries `startFrom startTime; startTime 0` (MEASURED), which would COLD START this arm while the ledger recorded it as a restart.  This file REFUSES rather than authoring a controlDict: no instrument in draft section 11 derives a CONTINUED one, and a stager that quietly wrote a solver's start condition would be implementing a registered gate where no reviewer would look for it.
-
----- the real hard gate, over the real staged tree ----
-
-staged 4000/U exists: True size: 8038545
-4000/U.gz present: False
-0/ present: False  0.orig/ present: False
-g_coldstart_seam -> PASS
-    G-COLDSTART-SEAM: PASS -- 4000/U nonuniform, 0/ absent
-
----- and the registered run root, re-checked by execution ----
-
-ls -d /home/ubuntu/certonomous-runs/A1WRT2
-ls: cannot access '/home/ubuntu/certonomous-runs/A1WRT2': No such file or directory
+rc=0

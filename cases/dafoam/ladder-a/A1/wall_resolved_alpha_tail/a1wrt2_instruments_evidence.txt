@@ -1,118 +1,9 @@
-A1WRT2 INSTRUMENT-TABLE EXTRACTION -- EVIDENCE.  NOT FROZEN.
-DAFOAM_CHARTER.md section 18.3; A1WRT2_SUCCESSOR_DRAFT.md section 11 item 2.
-Captured 2026-09-04T19:41:11Z.  NO COMPUTE.  NOTHING FILED OR SENT.
+A1WRT2 INSTRUMENT TABLE + PRODUCER TRACE -- EVIDENCE, regenerated 2026-09-04
+Run root /home/ubuntu/certonomous-runs/A1WRT2 checked ABSENT BY EXECUTION: rc=2
+NOT FROZEN. NOT PINNED. NOT ENQUEUED. ZERO COMPUTE. SUBMISSIONS PARKED.
+==========================================================================
 
-THE PLANTED CONTROL ON THE CHECKER ITSELF is section 18.3's own worked
-instance: the extraction MUST flag so2a_aggregate_memory.py against the
-5f0e083e tree and MUST NOT flag it against HEAD.  Both directions are below,
-driven over real git trees, and the freeze-side run computes NO md5 at all.
-
-================ 1. SO2a AT THE FREEZE COMMIT 5f0e083e (rc 5) ================
-
-A1WRT2 INSTRUMENT TABLE -- ENUMERATED BY EXTRACTION (DAFOAM_CHARTER 18.3)
-reader: tree:5f0e083e   closure rounds to fixed point: 2   derived: 7
-
---- EXISTENCE, ASSERTED FIRST AND SEPARATELY ---
-  EXISTS  cases/dafoam/ladder-a/A1/curriculum_SO2a/so2a_chain_driver.sh
-  EXISTS  cases/dafoam/ladder-a/A1/curriculum_SO2a/so2a_decomposeParDict
-  EXISTS  cases/dafoam/ladder-a/A1/curriculum_SO2a/so2a_grade.py
-  EXISTS  cases/dafoam/ladder-a/A1/curriculum_SO2a/so2a_runScript.py
-  EXISTS  cases/dafoam/ladder-a/A1/curriculum_SO2a/so2a_run_arm.sh
-  EXISTS  cases/dafoam/ladder-a/A1/curriculum_SO2a/so2a_xg.py
-  ABSENT  cases/dafoam/ladder-a/A1/curriculum_SO2a/so2a_aggregate_memory.py   <-- the frozen code executes or imports this
-  6 present, 1 ABSENT
-
---- IMPORTS PROVIDED BY THE PINNED IMAGE: REPORTED, NOT GATED,
-    AND NEVER COUNTED AS PRESENT (unverifiable without compute) ---
-  IMAGE   dafoam   (dafoam-idwarp-rot:v1; bound at launch by G-IMG, not here)
-  IMAGE   idwarp   (dafoam-idwarp-rot:v1; bound at launch by G-IMG, not here)
-  IMAGE   mphys   (dafoam-idwarp-rot:v1; bound at launch by G-IMG, not here)
-  IMAGE   openmdao   (dafoam-idwarp-rot:v1; bound at launch by G-IMG, not here)
-  IMAGE   pygeo   (dafoam-idwarp-rot:v1; bound at launch by G-IMG, not here)
-
-  NO MD5 WAS COMPUTED.  An md5-agreement figure over the files that ARE present would read as agreement while a dependency the frozen code executes is missing -- which is SO2a exactly.
-
-================ 2. SO2a AT HEAD (rc 0) ================
-
-A1WRT2 INSTRUMENT TABLE -- ENUMERATED BY EXTRACTION (DAFOAM_CHARTER 18.3)
-reader: tree:HEAD   closure rounds to fixed point: 2   derived: 7
-
---- EXISTENCE, ASSERTED FIRST AND SEPARATELY ---
-  EXISTS  cases/dafoam/ladder-a/A1/curriculum_SO2a/so2a_aggregate_memory.py
-  EXISTS  cases/dafoam/ladder-a/A1/curriculum_SO2a/so2a_chain_driver.sh
-  EXISTS  cases/dafoam/ladder-a/A1/curriculum_SO2a/so2a_decomposeParDict
-  EXISTS  cases/dafoam/ladder-a/A1/curriculum_SO2a/so2a_grade.py
-  EXISTS  cases/dafoam/ladder-a/A1/curriculum_SO2a/so2a_runScript.py
-  EXISTS  cases/dafoam/ladder-a/A1/curriculum_SO2a/so2a_run_arm.sh
-  EXISTS  cases/dafoam/ladder-a/A1/curriculum_SO2a/so2a_xg.py
-  7 present, 0 ABSENT
-
---- IMPORTS PROVIDED BY THE PINNED IMAGE: REPORTED, NOT GATED,
-    AND NEVER COUNTED AS PRESENT (unverifiable without compute) ---
-  IMAGE   dafoam   (dafoam-idwarp-rot:v1; bound at launch by G-IMG, not here)
-  IMAGE   idwarp   (dafoam-idwarp-rot:v1; bound at launch by G-IMG, not here)
-  IMAGE   mphys   (dafoam-idwarp-rot:v1; bound at launch by G-IMG, not here)
-  IMAGE   openmdao   (dafoam-idwarp-rot:v1; bound at launch by G-IMG, not here)
-  IMAGE   pygeo   (dafoam-idwarp-rot:v1; bound at launch by G-IMG, not here)
-
---- MD5, COMPUTED ONLY AFTER EXISTENCE PASSED ---
-  709ab0b98ef0302a3a3a318588f9493f  cases/dafoam/ladder-a/A1/curriculum_SO2a/so2a_aggregate_memory.py
-  75921da288d6a410691c4f41f15568a3  cases/dafoam/ladder-a/A1/curriculum_SO2a/so2a_chain_driver.sh
-  e6f1b0060944bc86d6dff56480ad2bd4  cases/dafoam/ladder-a/A1/curriculum_SO2a/so2a_decomposeParDict
-  65b2115e90b050d8e752103a26c43204  cases/dafoam/ladder-a/A1/curriculum_SO2a/so2a_grade.py
-  0557da51f6f179f6de865144343c499f  cases/dafoam/ladder-a/A1/curriculum_SO2a/so2a_runScript.py
-  3683bcd08486d2f9a54035aa2cc4351c  cases/dafoam/ladder-a/A1/curriculum_SO2a/so2a_run_arm.sh
-  85b2a416e75141096967fe7e13b02e28  cases/dafoam/ladder-a/A1/curriculum_SO2a/so2a_xg.py
-
---- RUN-ROOT NAMES: COVERAGE NOT APPLICABLE (no A1WRT2 stager in this item) ---
-  $ARM/.so2a_age_datum               n/a
-  $ARM/.so2a_age_datum_ref           n/a
-  $ARM/0                             n/a
-  $ARM/0.orig                        n/a
-  $ARM/0.orig/U                      n/a
-  $ARM/0.orig/U.gz                   n/a
-  $ARM/0/U                           n/a
-  $ARM/0/U.gz                        n/a
-  $ARM/checkMesh.log                 n/a
-  $ARM/constant/polyMesh             n/a
-  $ARM/dRdWColoring_2.bin            n/a
-  $ARM/logMeshGeneration.txt         n/a
-  $ARM/reports                       n/a
-  $ARM/so2a_F.json                   n/a
-  $ARM/so2a_F.jsonl                  n/a
-  $ARM/so2a_X.json                   n/a
-  $ARM/so2a_X.jsonl                  n/a
-  $ARM/so2a_cmd.sh                   n/a
-  $ARM/surfaceMesh.xyz               n/a
-  $ARM/system/controlDict            n/a
-  $ARM/volumeMesh.xyz                n/a
-  MESH                               n/a
-  MESH/0/U                           n/a
-  MESH/0/U.gz                        n/a
-  MESH/constant/polyMesh/boundary    n/a
-  STATUS.chain                       n/a
-  base                               n/a
-  base/0.orig/U                      n/a
-  base/FFD/wingFFD.xyz               n/a
-  base/constant/polyMesh             n/a
-  base/genAirFoilMesh.py             n/a
-  base/preProcessing.sh              n/a
-  base/profiles/NACA0012PS.profile   n/a
-  base/profiles/NACA0012SS.profile   n/a
-  base/system/decomposeParDict       n/a
-  ledger.txt                         n/a
-  so2a_driver.pid                    n/a
-  so2a_runScript.py                  n/a
-  so2a_xg.py                         n/a
-
---- DYNAMIC REFERENCES: REPORTED, NOT GATED ---
-  RUNROOT:
-  RUNROOT:$ARM
-  RUNROOT:SO2a_grade_
-  RUNROOT:STATUS.
-
-================ 3. A1WRT2's OWN TABLE, WORKING TREE (rc 0) ================
-
+### python3 a1wrt2_instruments.py  (the table + the trace)
 A1WRT2 INSTRUMENT TABLE -- ENUMERATED BY EXTRACTION (DAFOAM_CHARTER 18.3)
 reader: disk:/home/ubuntu/Certonomous   closure rounds to fixed point: 2   derived: 15
 
@@ -137,15 +28,16 @@ reader: disk:/home/ubuntu/Certonomous   closure rounds to fixed point: 2   deriv
 --- IMPORTS PROVIDED BY THE PINNED IMAGE: REPORTED, NOT GATED,
     AND NEVER COUNTED AS PRESENT (unverifiable without compute) ---
   IMAGE   dafoam   (dafoam-idwarp-rot:v1; bound at launch by G-IMG, not here)
+  IMAGE   idwarp   (dafoam-idwarp-rot:v1; bound at launch by G-IMG, not here)
   IMAGE   mphys   (dafoam-idwarp-rot:v1; bound at launch by G-IMG, not here)
   IMAGE   openmdao   (dafoam-idwarp-rot:v1; bound at launch by G-IMG, not here)
   IMAGE   pygeo   (dafoam-idwarp-rot:v1; bound at launch by G-IMG, not here)
 
 --- MD5, COMPUTED ONLY AFTER EXISTENCE PASSED ---
-  adf777e331bd682bf883d49d08fd3351  cases/dafoam/ladder-a/A1/wall_resolved_alpha_tail/a1wrt2_grade.py
-  3e15deee6d57091da8a8e80e910cd855  cases/dafoam/ladder-a/A1/wall_resolved_alpha_tail/a1wrt2_instruments.py
-  df9be6e10711a16ca82372b3e76a21a3  cases/dafoam/ladder-a/A1/wall_resolved_alpha_tail/a1wrt2_run_arm.sh
-  2434d5335217de470def032aeedc95ba  cases/dafoam/ladder-a/A1/wall_resolved_alpha_tail/a1wrt2_stage.py
+  c6c69e42864acb3dfb1dcd525d8e0c86  cases/dafoam/ladder-a/A1/wall_resolved_alpha_tail/a1wrt2_grade.py
+  c8e181496ba274618a7666f38496f525  cases/dafoam/ladder-a/A1/wall_resolved_alpha_tail/a1wrt2_instruments.py
+  20893ee77ed84a10eb6092e9e8d958cc  cases/dafoam/ladder-a/A1/wall_resolved_alpha_tail/a1wrt2_run_arm.sh
+  e1dc4e5c7a024a83db8312d6bb0c49b1  cases/dafoam/ladder-a/A1/wall_resolved_alpha_tail/a1wrt2_stage.py
   (directory -- existence asserted, no md5)  cases/dafoam/ladder-a/A1/wall_resolved_alpha_tail/fixtures
   29c4aa184a72592cfe353d77a9eb2f0e  cases/dafoam/ladder-a/A1/wall_resolved_alpha_tail/fixtures/g_patch_empty_real.log
   5c0cf33d6a93d92199168c4cc500212b  cases/dafoam/ladder-a/A1/wall_resolved_alpha_tail/fixtures/g_patch_symmetry_real.log
@@ -164,10 +56,13 @@ reader: disk:/home/ubuntu/Certonomous   closure rounds to fixed point: 2   deriv
   SEAM/case                          covered
   SEAM/case/4000                     covered
   SEAM/case/4000/U                   covered
+  SEAM/case/system                   covered
+  SEAM/case/system/controlDict       covered
   SEAM/out                           covered
   SEAM/out/rc                        covered
   SEAM/out/sweep.log                 covered
   TAIL                               covered
+  TAIL/case                          covered
   TAIL/out                           covered
   TAIL/out/rc                        covered
   TAIL/out/sweep.log                 covered
@@ -180,11 +75,35 @@ reader: disk:/home/ubuntu/Certonomous   closure rounds to fixed point: 2   deriv
   ITEM:STATUS.
   RUNROOT:$
   RUNROOT:$/$
+  RUNROOT:$/case
+  RUNROOT:$/case/system
+  RUNROOT:$/case/system/controlDict
   RUNROOT:$/out
   RUNROOT:$/out/warp_probe.json
 
-================ 4. SELFTEST, python3 (rc 0) ================
+--- PRODUCER TRACE: every run-root artefact a gate READS on the
+    GRADED path, traced to a PRODUCER in the registered set or to a
+    NAMED REGISTERED DEFERRAL (draft section 11 item 1a) ---
+    `PRODUCTS` IS EXCLUDED FROM THE PRODUCER SET BY DESIGN: it
+    declares what the RUN must create, not that anything creates
+    it.  Reading it as a producer is the confusion the 11.1
+    amendment caught.  Excluded: MANIFEST.json, SEAM/out/rc, SEAM/out/sweep.log, TAIL/out/rc, TAIL/out/sweep.log, TAIL/out/warp_probe.json, ledger.txt
 
+  TRACED    MANIFEST.json                  <- a1wrt2_run_arm.sh:310 in <shell> [GRADED]
+  TRACED    SEAM/out/rc                    <- a1wrt2_run_arm.sh:694 in <shell> [GRADED]
+  TRACED    SEAM/out/sweep.log             <- a1wrt2_run_arm.sh:687 in <shell> [GRADED]
+  TRACED    TAIL/out/rc                    <- a1wrt2_run_arm.sh:713 in <shell> [GRADED]
+  TRACED    TAIL/out/sweep.log             <- a1wrt2_run_arm.sh:710 in <shell> [GRADED]
+  DEFERRED  TAIL/out/warp_probe.json       producer: NONE IN THE REGISTERED SET.  It would have to be emitted from inside the running process by the staged producer `a1wr_runScript_incomp.py`, which is `A1WR`'s FROZEN instrument (md5 d48f48c5e2e41e86981acbf6feccb3c4) and is inherited by this item unchanged.  Writing it here would break two freezes, so it is reported, not repaired.
+            refuses if absent at grade time: a1wrt2_grade.grade() reads it through `read_text`, which calls `check(path.exists())` and raises Refuse(code=2).  An absent probe is a REFUSAL and an item-level `NOT A RESULT`, never a passing G-WARPPROBE.  Driven by the control `Q-DEFERRAL-warpprobe-absent-refuses`.
+  TRACED    ledger.txt                     <- a1wrt2_run_arm.sh:343 in <shell> [GRADED]
+  TRACED    runScript.py                   <- a1wrt2_stage.py:0 in <declared> [GRADED]
+  TRACED    run_arm.sh                     <- a1wrt2_stage.py:0 in <declared> [GRADED]
+
+  9 consumed, 8 traced to a producer, 1 covered by a registered deferral, 0 UNTRACED
+rc=0
+
+### python3 a1wrt2_instruments.py --selftest
 A1WRT2_INSTRUMENTS SELFTEST -- host python, NO compute, NOT FROZEN
 python 3.12.3   optimisation flag active: none
 
@@ -195,7 +114,7 @@ CONTROL so2a/does-not-flag-it-at-HEAD          EXERCISED-PASS  HEAD -> so2a_aggr
 ---- SELFTEST-A1WRT2-TABLE ----
 CONTROL a1wrt2/table-on-disk                   EXERCISED-PASS  15 derived in 2 rounds, 0 ABSENT, 15 md5s
 CONTROL a1wrt2/deliberate-removal-is-seen      EXERCISED-FAIL  baseline 0 ABSENT -> after removal 2 ABSENT (one fixture, one sibling-item producer), md5 NOT computed
-CONTROL a1wrt2/table-at-HEAD                   EXERCISED-PASS  HEAD -> 14 derived, 2 ABSENT: ['cases/dafoam/ladder-a/A1/wall_resolved_alpha_tail/a1wrt2_instruments.py', 'cases/dafoam/ladder-a/A1/wall_resolved_alpha_tail/a1wrt2_stage.py']
+CONTROL a1wrt2/table-at-HEAD                   EXERCISED-PASS  HEAD -> 15 derived, 0 ABSENT: (none)
 CONTROL imports/undeclared-unresolvable-is-flagged EXERCISED-FAIL  undeclared import -> ABSENT; openmdao/dafoam -> IMAGE state, never counted present
 
 ---- SELFTEST-ORDERING ----
@@ -208,39 +127,17 @@ CONTROL convergence/refuses-rather-than-truncating EXERCISED-FAIL  a 9-link chai
 ---- SELFTEST-COMPLETENESS ----
 CONTROL completeness/unregistered-runroot-name-flagged EXERCISED-FAIL  baseline 0 UNCOVERED -> planted $RUN_ROOT/unregistered_thing.json flagged UNCOVERED
 
----- SELFTEST-NOASSERT ----
-CONTROL noassert/zero-across-the-three-instruments EXERCISED-PASS  ast.Assert = 0 in a1wrt2_instruments.py, a1wrt2_stage.py and a1wrt2_grade.py; auditor sees 1 when one is planted
-
-A1WRT2_INSTRUMENTS_SELFTEST legs=6 controls=11 EXERCISED-FAIL=7 EXERCISED-PASS=4 NOT-EXERCISED=0
-A1WRT2_INSTRUMENTS_SELFTEST OK -- the extractor is shown able to report a NON-ZERO, on real history and on this item's own bytes
-
-================ 5. SELFTEST, python3 -O (rc 0) ================
-
-A1WRT2_INSTRUMENTS SELFTEST -- host python, NO compute, NOT FROZEN
-python 3.12.3   optimisation flag active: -O (asserts disabled)
-
----- SELFTEST-SO2A-HISTORICAL-CONTROL ----
-CONTROL so2a/flags-the-missing-dep-at-freeze   EXERCISED-FAIL  5f0e083e -> ABSENT 1 incl. so2a_aggregate_memory.py; md5 table NOT computed
-CONTROL so2a/does-not-flag-it-at-HEAD          EXERCISED-PASS  HEAD -> so2a_aggregate_memory.py DERIVED and PRESENT, not flagged
-
----- SELFTEST-A1WRT2-TABLE ----
-CONTROL a1wrt2/table-on-disk                   EXERCISED-PASS  15 derived in 2 rounds, 0 ABSENT, 15 md5s
-CONTROL a1wrt2/deliberate-removal-is-seen      EXERCISED-FAIL  baseline 0 ABSENT -> after removal 2 ABSENT (one fixture, one sibling-item producer), md5 NOT computed
-CONTROL a1wrt2/table-at-HEAD                   EXERCISED-PASS  HEAD -> 14 derived, 2 ABSENT: ['cases/dafoam/ladder-a/A1/wall_resolved_alpha_tail/a1wrt2_instruments.py', 'cases/dafoam/ladder-a/A1/wall_resolved_alpha_tail/a1wrt2_stage.py']
-CONTROL imports/undeclared-unresolvable-is-flagged EXERCISED-FAIL  undeclared import -> ABSENT; openmdao/dafoam -> IMAGE state, never counted present
-
----- SELFTEST-ORDERING ----
-CONTROL ordering/md5-refuses-without-existence EXERCISED-FAIL  md5_table refuses anything but a clean ExistenceTable
-CONTROL ordering/existence-table-cannot-be-forged EXERCISED-FAIL  an ExistenceTable cannot be forged with a different token
-
----- SELFTEST-CONVERGENCE ----
-CONTROL convergence/refuses-rather-than-truncating EXERCISED-FAIL  a 9-link chain closes in 9 rounds; capped at 3 it REFUSES NONCONVERGENT rather than truncating
-
----- SELFTEST-COMPLETENESS ----
-CONTROL completeness/unregistered-runroot-name-flagged EXERCISED-FAIL  baseline 0 UNCOVERED -> planted $RUN_ROOT/unregistered_thing.json flagged UNCOVERED
+---- SELFTEST-PRODUCER-TRACE ----
+CONTROL producer/real-tree-traces-clean        EXERCISED-PASS  9 gate inputs: 8 traced to a producer, 1 covered by a NAMED registered deferral, 0 untraced
+CONTROL producer/removed-producer-is-flagged   EXERCISED-FAIL  MANIFEST_PATH repointed out of the run root -> MANIFEST.json flagged, and it is the ONLY input of the HARD gates G-IMG and G-FREEZE
+CONTROL producer/fixture-only-write-is-flagged EXERCISED-FAIL  MANIFEST.json attributed to `_build_happy_root` [FIXTURE] and reported UNTRACED -- the section 11.1 defect, reproduced by extraction on a real tree
+CONTROL producer/cut-node-is-load-bearing      EXERCISED-PASS  uncut walk from `main` reaches _build_happy_root (51 funcs); cut walk does not (40 funcs).  Without the cut the trace prints a clean table over the defect it exists to find
+CONTROL producer/deferral-without-refusal-flagged EXERCISED-FAIL  `refuses_if_absent` removed -> registry defect reported: ['TAIL/out/warp_probe.json: missing refuses_if_absent']
+CONTROL producer/PRODUCTS-is-not-a-producer    EXERCISED-PASS  7 PRODUCTS names excluded from the producer set; the 7 of them a gate consumes each trace on their own merits
 
 ---- SELFTEST-NOASSERT ----
 CONTROL noassert/zero-across-the-three-instruments EXERCISED-PASS  ast.Assert = 0 in a1wrt2_instruments.py, a1wrt2_stage.py and a1wrt2_grade.py; auditor sees 1 when one is planted
 
-A1WRT2_INSTRUMENTS_SELFTEST legs=6 controls=11 EXERCISED-FAIL=7 EXERCISED-PASS=4 NOT-EXERCISED=0
+A1WRT2_INSTRUMENTS_SELFTEST legs=7 controls=17 EXERCISED-FAIL=10 EXERCISED-PASS=7 NOT-EXERCISED=0
 A1WRT2_INSTRUMENTS_SELFTEST OK -- the extractor is shown able to report a NON-ZERO, on real history and on this item's own bytes
+rc=0

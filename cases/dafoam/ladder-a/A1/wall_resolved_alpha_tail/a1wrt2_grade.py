@@ -121,10 +121,29 @@ FIXTURES = HERE / "fixtures"
 
 # The hard and soft lists, VERBATIM from draft section 1.  They are data, so the
 # composer cannot silently disagree with the registration about which is which.
+#
+# `G-COMPLETE` IS ADDED BY THE dafoam-supervisor's RULING 2 OF 2026-09-04 and is
+# HARD.  See `g_complete` for what it checks and for the clause it does NOT
+# check and where that one lives instead.  ADDING A GATE TO THE HARD LIST CAN
+# ONLY ADD REFUSALS: the composer's chain reaches `GATE REACHED` only when no
+# gate reports `NOT A RESULT`, `BLOCKED` or `GATE FAIL`, so a new gate can move
+# a verdict DOWN and can never move one up.  `Q-ADDONLY` drives exactly that.
 HARD_GATES = ("G-PATCH", "G-COLDSTART-SEAM", "G-IMG", "G-FREEZE", "G-UNBOUND",
-              "G-NOGRAD", "G-WARPPROBE", "G-FIXTURE", "G-NOBAND", "G-STALL")
+              "G-NOGRAD", "G-WARPPROBE", "G-FIXTURE", "G-NOBAND", "G-STALL",
+              "G-COMPLETE")
 SOFT_GATES = ("G-SEAM", "G-TAILCOUNT", "G-RC-HONEST", "G-YPLUS", "G-CAPS",
               "G-CEILING")
+
+# The two arms, and the arm order in which the chain runs them.  Draft section
+# 3 as amended 2026-09-04: SEAM and TAIL are TWO TREES AND TWO ARMS, not one
+# process, and TAIL does not launch unless SEAM's verdict permits it.
+ARMS = ("SEAM", "TAIL")
+
+# Where each arm's registered `endTime` is READ FROM -- the arm's own staged
+# `system/controlDict`, never a constant retyped here.  A retyped endTime is a
+# second copy of a number the run itself is configured by, and the drift is
+# silent until a good run is failed by a gate that disagrees with the case.
+CONTROLDICT_REL = ("case", "system", "controlDict")
 
 # =============================================================================
 # REFUSAL, AND THE `check` THAT REPLACES `assert`
@@ -976,6 +995,300 @@ def g_rc_honest(rc_text, declared_n: int, executed_n: int) -> tuple:
                     % (executed_n, declared_n)]
 
 
+# =============================================================================
+# RULING 2 OF THE dafoam-supervisor, 2026-09-04: `G-RC-HONEST` AND THE RULE-4
+# COMPLETION MUST READ **BOTH** ARMS.
+#
+# THE RULING'S PREMISE IS RIGHT AND IS AN UNDERSTATEMENT, MEASURED.  Before this
+# change `grade()` read `TAIL/out/rc` at one site and `SEAM/out/rc` at none --
+# which is exactly the asymmetry draft section 4.1 documents in `A1WRT` (*"U1's
+# rule-4 completion was never gated by anything"*), reproduced in the successor
+# written to repair it, and landing on the arm that carries the FALSIFIER.  But
+# a token census over this file, run with `G-RC-HONEST` (17 hits) as the live
+# positive control so a zero is not believed from a reader never shown able to
+# see a non-zero (`CLAUDE.md` rule 3), returned:
+#
+#     endTime 0    "End" 0    G-COMPLETE 0    age guard 0
+#
+# SO THE RULE-4 COMPLETION WAS NOT IMPLEMENTED FOR **EITHER** ARM.  Only rule
+# 4's rc clause existed, and only on TAIL.  The ruling is therefore adopted in
+# the stronger form its own reasoning requires.
+# =============================================================================
+
+# The chain ordering of draft section 1, as data, LEAST optimistic first.  It is
+# the COMPOSER'S ordering and is deliberately NOT `_OPTIMISM`: the two disagree
+# on the `NOT A RESULT`/`BLOCKED` pair and that disagreement is disclosed at
+# `_OPTIMISM` and pinned by `Q-COMPOSE-5-ordering`.  Folding two arms with the
+# ordinal instead of the chain would have answered `BLOCKED` where the composer
+# answers `NOT A RESULT`, so the fold uses the chain and `Q-ARMFOLD-ordering`
+# pins that it does.
+_CHAIN_RANK = {"NOT A RESULT": 0, "BLOCKED": 1, "GATE FAIL": 2,
+               "PENDING": 3, "GATE REACHED": 4, "PASS": 5}
+
+
+def worse_of(a: str, b: str) -> str:
+    """The LESS optimistic of two tokens under the COMPOSER'S chain ordering.
+
+    Used to fold a per-arm gate into the single token the composition is keyed
+    by.  It is monotone downward by construction: `worse_of(x, y)` is never
+    more optimistic than `x`, so reading a SECOND arm can only make a gate's
+    verdict worse or leave it unchanged.  That is what makes ruling 2
+    STRUCTURALLY add-only rather than add-only by inspection."""
+    check(a in _CHAIN_RANK and b in _CHAIN_RANK,
+          "REFUSE: worse_of got a token outside the six: %r %r" % (a, b))
+    return a if _CHAIN_RANK[a] <= _CHAIN_RANK[b] else b
+
+
+def _controldict_endtime(case_root: Path):
+    """The arm's registered `endTime`, READ OUT OF THE ARM'S OWN
+    `system/controlDict`.  Absent or unparseable -> None, and the caller
+    REFUSES on it: a completion gate that cannot find the number the run was
+    configured by must not guess one."""
+    p = case_root
+    for seg in CONTROLDICT_REL:
+        p = p / seg
+    if not p.is_file():
+        return None
+    for line in p.read_text(errors="replace").splitlines():
+        s = line.strip()
+        if s.startswith("endTime") and not s.startswith("endTime;"):
+            tok = s.rstrip(";").split()
+            if len(tok) >= 2:
+                try:
+                    return float(tok[1])
+                except ValueError:
+                    return None
+    return None
+
+
+def g_complete(arm: str, sweep_text: str, rc_text, arm_dir: Path) -> tuple:
+    """`CLAUDE.md` RULE 4, THE COMPLETION RULE, PER ARM.  HARD.
+
+    WHAT IS CHECKED HERE, and every clause refuses or fails rather than
+    degrading (rule 4: comparators refuse, exit 2, rather than degrade):
+
+      1. the `rc` artefact EXISTS.  Absent -> REFUSE.  A missing rc is not a
+         zero rc, and `A1WRT/ledger.txt:3` is the proof that the difference
+         matters: a completion-shaped row, `rc=0 ... point_end_markers=1`, for a
+         unit whose own producer printed `AOA_SWEEP_TRUNCATED n_executed=0`.
+      2. an `End` line is present.
+      3. `AOA_SWEEP_TRUNCATED` is ABSENT -- the producer's own word that the
+         sweep is not a completion, which `a1wr_cmd.sh:96-102` discards.
+      4. `AOA_SWEEP_END` is present.  Missing -> `NOT A RESULT`: an unreadable
+         count is not a zero.
+      5. LAST TIME == `endTime`, where `endTime` is read from THE ARM'S OWN
+         staged `system/controlDict` and not from a constant in this file.
+         Absent or unparseable controlDict -> REFUSE.
+
+    ⚠ WHAT IS **NOT** CHECKED HERE, NAMED RATHER THAN LEFT TO BE ASSUMED:
+
+      * `ExecutionTime` count == `endTime`.  NOT APPLICABLE to this family and
+        it would be WRONG to assert it: this producer prints `Time =` at the
+        write interval, not per iteration -- `A1WRT` U1 carries 41 anchored
+        `^Time = ` lines for 4,000 iterations.  A clause copied across families
+        because it appears in rule 4's thermal-family enumeration would fail
+        every good run of this one.
+      * `fields present (T U p_rgh alphat nut k omega)`.  That enumeration is
+        the THERMAL family's; this is an incompressible aerodynamic case with no
+        `T` and no `p_rgh`.  The corresponding structural check for this family
+        is `G-COLDSTART-SEAM`, which asserts the staged `4000/U` is NONUNIFORM.
+      * THE AGE GUARD.  It is enforced at STAGE time, not here, and by
+        construction rather than by comparison: `a1wrt2_stage.py` clause (12)
+        asserts before the run that every staged file is NOT NEWER than the
+        datum AND that every `PRODUCTS` name is ABSENT, *"so a product can only
+        appear by being produced"*.  A product that exists after the run
+        therefore post-dates the datum without the grader having to re-measure
+        an mtime a copy could have preserved.  It is named here because a
+        rule-4 gate that silently omitted the age clause would read as complete.
+
+    PER-POINT TIMES ARE REPORTED, NOT GATED, AND THE REASON IS STATED.  Clause 5
+    binds the LAST point only.  This lane could not establish the producer's
+    per-point time bookkeeping across a six-point continued sweep without
+    running it, and a gate written on a guess about it would fail good runs --
+    which is a worse defect than the one being repaired."""
+    check(rc_text is not None,
+          "REFUSE G-COMPLETE[%s]: the rc artefact is absent.  A missing rc is "
+          "NOT rc=0 (CLAUDE.md rule 4, first clause)." % arm)
+    notes = []
+    ends = len(re.findall(r"^End\s*$", sweep_text, re.M))
+    trunc = RE_SWEEP_TRUNC.search(sweep_text)
+    sweep_end = RE_SWEEP_END.search(sweep_text)
+    want = _controldict_endtime(arm_dir)
+    check(want is not None,
+          "REFUSE G-COMPLETE[%s]: no parseable `endTime` in the arm's own "
+          "%s.  A completion gate that cannot find the number the run was "
+          "configured by must not guess one."
+          % (arm, "/".join(CONTROLDICT_REL)))
+
+    pts = split_points(sweep_text)
+    per = []
+    for p in pts:
+        ts = [int(t) for t in RE_TIME.findall(p["text"])]
+        per.append((p["alpha"], ts[-1] if ts else None, len(ts)))
+    for alpha, last, n in per:
+        notes.append("  %s alpha %.2f: %d `Time =` lines, last %s"
+                     % (arm, alpha, n, last))
+    notes.insert(0, "G-COMPLETE[%s]: End lines=%d  AOA_SWEEP_END=%s  "
+                    "TRUNCATED=%s  registered endTime=%.10g (from the arm's "
+                    "own controlDict)"
+                    % (arm, ends, bool(sweep_end), bool(trunc), want))
+
+    blind = [a for a, last, _n in per if last is None]
+    if blind:
+        return "NOT A RESULT", notes + [
+            "G-COMPLETE[%s]: NOT A RESULT -- %d point(s) printed NO `Time =` "
+            "line at all: %s.  A point with no time trace did not run, and a "
+            "blind channel is not a completion." % (arm, len(blind), blind)]
+    if trunc:
+        return "GATE FAIL", notes + [
+            "G-COMPLETE[%s]: GATE FAIL -- the producer printed "
+            "AOA_SWEEP_TRUNCATED n_declared=%s n_executed=%s.  The producer's "
+            "own word that this is NOT a completion, and it is propagated here "
+            "rather than recomputed from markers (draft section 4.1)."
+            % (arm, trunc.group(1), trunc.group(2))]
+    if ends < 1:
+        return "GATE FAIL", notes + [
+            "G-COMPLETE[%s]: GATE FAIL -- no `End` line.  CLAUDE.md rule 4's "
+            "second clause: a run is done only if the solver said so." % arm]
+    if sweep_end is None:
+        return "NOT A RESULT", notes + [
+            "G-COMPLETE[%s]: NOT A RESULT -- no AOA_SWEEP_END line; the sweep's "
+            "own summary is unreadable and an unreadable summary is not a "
+            "completion." % arm]
+    last_alpha, last_time, _n = per[-1] if per else (float("nan"), None, 0)
+    if float(last_time) != float(want):
+        return "GATE FAIL", notes + [
+            "G-COMPLETE[%s]: GATE FAIL -- the last point (alpha %.2f) stopped "
+            "at Time = %s, not the registered endTime %.10g.  CLAUDE.md rule "
+            "4's `last time == endTime` clause."
+            % (arm, last_alpha, last_time, want)]
+    return "PASS", notes + [
+        "G-COMPLETE[%s]: PASS -- rc artefact present, End line present, not "
+        "truncated, AOA_SWEEP_END present, last time %s == registered endTime "
+        "%.10g" % (arm, last_time, want)]
+
+
+def g_complete_both(arms: dict) -> tuple:
+    """`G-COMPLETE` over BOTH arms, folded with `worse_of`.
+
+    `arms` is {arm: (sweep_text, rc_text, arm_dir)}.  EVERY registered arm must
+    be present; a missing arm REFUSES rather than being folded away, because an
+    arm that is silently absent from the fold is precisely the asymmetry this
+    gate was added to remove."""
+    missing = [a for a in ARMS if a not in arms]
+    check(not missing,
+          "REFUSE G-COMPLETE: arm(s) absent from the completion fold: %s.  An "
+          "arm dropped from the fold is the asymmetry ruling 2 removed."
+          % (missing,))
+    verdict, notes = "PASS", []
+    for arm in ARMS:
+        sweep, rc, d = arms[arm]
+        v, n = g_complete(arm, sweep, rc, d)
+        notes.extend(n)
+        verdict = worse_of(verdict, v)
+    notes.append("G-COMPLETE: folded over %d arms -> %s (worse_of, chain "
+                 "ordering)" % (len(ARMS), verdict))
+    return verdict, notes
+
+
+def g_rc_honest_both(arms: dict) -> tuple:
+    """`G-RC-HONEST` over BOTH arms, folded with `worse_of`.
+
+    `arms` is {arm: (rc_text, declared_n, executed_n)}.  Before ruling 2 this
+    gate read `TAIL/out/rc` and nothing else, so the combination
+    **SEAM rc NON-ZERO, TAIL rc CLEAN** was INVISIBLE -- and SEAM is the arm
+    carrying `G-SEAM`, this item's registered falsifier, so an ungated SEAM
+    meant the CONTROL ITSELF was unchecked.  `Q-ARMFOLD-seam-rc-97` drives
+    exactly that combination."""
+    missing = [a for a in ARMS if a not in arms]
+    check(not missing,
+          "REFUSE G-RC-HONEST: arm(s) absent from the rc fold: %s" % (missing,))
+    verdict, notes = "PASS", []
+    for arm in ARMS:
+        rc, dec, exe = arms[arm]
+        v, n = g_rc_honest(rc, dec, exe)
+        notes.extend(["  [%s] %s" % (arm, x) for x in n])
+        verdict = worse_of(verdict, v)
+    notes.append("G-RC-HONEST: folded over %d arms -> %s.  Before ruling 2 "
+                 "only TAIL was read, so a non-zero SEAM rc beside a clean "
+                 "TAIL rc could not be seen." % (len(ARMS), verdict))
+    return verdict, notes
+
+
+# =============================================================================
+# RULING 1 OF THE dafoam-supervisor, 2026-09-04: `SEAM` -> `TAIL` IS A TWO-TREE,
+# TWO-ARM CHAIN, AND **TAIL MUST NOT LAUNCH UNLESS SEAM'S VERDICT PERMITS IT**.
+#
+# Draft section 3's *"CONTINUED from `SEAM`'s final state, in the same process"*
+# is STRUCK.  The deciding argument is not bookkeeping:
+#
+#   `G-SEAM` is this item's REGISTERED FALSIFIER -- if it fails, every tail
+#   point is withdrawn AS A TAIL.  A single process spanning both arms would
+#   have ALREADY COMPUTED THE TAIL by the time the seam could be graded, so the
+#   falsifier could not stop the spend it exists to stop.  `SEAM` is 10.0
+#   core-min and `TAIL` is 675.0.  675 core-min riding on a control that cannot
+#   gate it is not a control; it is a POST-HOC REPORT WEARING A STOP RULE'S
+#   NAME.
+#
+# This function is the stop rule.  It is called by `a1wrt2_run_arm.sh` BEFORE
+# the TAIL container starts, and by nothing else, and it is driven in BOTH
+# directions by `SELFTEST-SEAM-PRECONDITION`.
+# =============================================================================
+
+
+def seam_precondition(root: Path) -> tuple:
+    """Returns (token, lines).  `PASS` is the ONLY token that permits TAIL.
+
+    Every other outcome -- SEAM absent, its rc absent, its rc non-zero, its
+    completion failing, `G-SEAM` outside band -- REFUSES the tail.  A
+    precondition that answered anything but PASS and still let the arm run
+    would be the same post-hoc report under a new name."""
+    lines = ["%s_SEAM_PRECOND reading %s" % (ITEM, root / "SEAM")]
+    seam_dir = root / "SEAM"
+    if not seam_dir.is_dir():
+        return "BLOCKED", lines + [
+            "%s_SEAM_PRECOND BLOCKED -- the SEAM arm has not run.  TAIL is 675.0 "
+            "core-min behind a falsifier that has not been read." % ITEM]
+    log_p = seam_dir / "out" / "sweep.log"
+    rc_p = seam_dir / "out" / "rc"
+    if not log_p.is_file() or not rc_p.is_file():
+        return "BLOCKED", lines + [
+            "%s_SEAM_PRECOND BLOCKED -- SEAM produced no %s.  A missing "
+            "artefact is not a passing seam."
+            % (ITEM, "sweep.log" if not log_p.is_file() else "rc")]
+    log = log_p.read_text(errors="replace")
+    rc_text = rc_p.read_text(errors="replace")
+    token = "PASS"
+    try:
+        v, n = g_complete("SEAM", log, rc_text, seam_dir)
+        lines.extend(n)
+        token = worse_of(token, v)
+        v, n = g_rc_honest(rc_text, 1, len(
+            [1 for m in RE_POINT_VALUES.finditer(log)
+             if m.group(3) not in ("NA", "nan", "None")]))
+        lines.extend(n)
+        token = worse_of(token, v)
+        pts = split_points(log)
+        seg = pts[0]["text"] if pts else log
+        v, n = g_seam(seg, "CD: %.17g\nCL: %.17g\n"
+                      % (U1_TERMINAL_CD, U1_TERMINAL_CL))
+        lines.extend(n)
+        token = worse_of(token, v)
+    except Refuse as e:
+        return "NOT A RESULT", lines + [
+            "%s_SEAM_PRECOND NOT A RESULT -- a seam gate REFUSED: %s" % (ITEM, e)]
+    lines.append("%s_SEAM_PRECOND %s" % (ITEM, token))
+    if token != "PASS":
+        lines.append(
+            "%s_SEAM_PRECOND TAIL IS REFUSED.  The falsifier did not clear, so "
+            "the 675.0 core-min tail arm does not launch.  Draft section 9: if "
+            "`G-SEAM` fails, the tail is not a continuation of A1WR's polar and "
+            "every point in it is withdrawn AS A TAIL -- so buying it would be "
+            "buying six solves whose registered purpose is already refuted."
+            % ITEM)
+    return token, lines
+
+
 def g_yplus(sweep_text: str) -> tuple:
     """Draft section 4.  Measured y+ on the `wing` patch, every alpha.  y+max >=
     1.0 anywhere -> GATE FAIL.  A blind channel on a point that ran >= 200
@@ -1167,9 +1480,18 @@ def grade(root: Path) -> tuple:
     soft["G-TAILCOUNT"] = vt
     n_exec = len([1 for m in RE_POINT_VALUES.finditer(tail_log)
                   if m.group(3) not in ("NA", "nan", "None")])
+    seam_exec = len([1 for m in RE_POINT_VALUES.finditer(seam_log)
+                     if m.group(3) not in ("NA", "nan", "None")])
 
-    run("G-RC-HONEST", g_rc_honest,
-        read_text(root / "TAIL" / "out" / "rc"), len(TAIL_ALPHAS), n_exec)
+    # ---- RULING 2: BOTH ARMS.  `SEAM/out/rc` was read at ZERO sites before ---
+    seam_rc = read_text(root / "SEAM" / "out" / "rc")
+    tail_rc = read_text(root / "TAIL" / "out" / "rc")
+    run("G-RC-HONEST", g_rc_honest_both,
+        {"SEAM": (seam_rc, 1, seam_exec),
+         "TAIL": (tail_rc, len(TAIL_ALPHAS), n_exec)})
+    run("G-COMPLETE", g_complete_both,
+        {"SEAM": (seam_log, seam_rc, root / "SEAM"),
+         "TAIL": (tail_log, tail_rc, root / "TAIL")})
     run("G-YPLUS", g_yplus, tail_log)
     run("G-CAPS", g_caps, ledger)
     run("G-CEILING", g_ceiling, ledger)
@@ -1204,6 +1526,12 @@ def main(argv=None) -> int:
     ap.add_argument("--selftest", action="store_true",
                     help="drive every control; SELFTEST-SUCCESS-PATH first")
     ap.add_argument("--root", help="run root to grade")
+    ap.add_argument("--seam-precond", metavar="ROOT", default=None,
+                    help="RULING 1: read the SEAM arm's verdict and say whether "
+                         "it permits the 675.0 core-min TAIL arm to launch.  "
+                         "Prints A1WRT2_SEAM_PRECOND <token>; exit 0 only on "
+                         "PASS, exit 7 otherwise.  Called by "
+                         "a1wrt2_run_arm.sh BEFORE the TAIL container starts.")
     ap.add_argument("--hang-at", default=None,
                     help="internal: stop at this checkpoint and wait, so the "
                          "EXIT trap can be driven by a real kill")
@@ -1218,6 +1546,19 @@ def main(argv=None) -> int:
         sys.stdout.flush()
         signal.pause()
         return 0
+
+    if a.seam_precond:
+        # RULING 1.  This path emits NO item verdict: it is a LAUNCH
+        # PRECONDITION on one arm, not a grade of the item, and printing an
+        # item token here would be exactly the "verdict composed by something
+        # other than `compose_item`" that draft section 1 forbids.  The trap is
+        # disarmed for this path by marking the emission slot used.
+        global _VERDICT_EMITTED
+        _VERDICT_EMITTED = True
+        tok, lines = seam_precondition(Path(a.seam_precond))
+        for line in lines:
+            print(line)
+        return 0 if tok == "PASS" else 7
 
     if a.selftest:
         rc = selftest()
@@ -1322,6 +1663,15 @@ def _build_happy_root(tmp: Path) -> Path:
     root = tmp / "A1WRT2_happy"
     for arm in ("SEAM", "TAIL"):
         (root / arm / "out").mkdir(parents=True)
+    # Each arm's own `system/controlDict`, because `G-COMPLETE` reads the
+    # registered `endTime` OUT OF IT rather than from a constant in this file.
+    # The values are the ones `a1wrt2_stage.py` writes: SEAM 4000 -> 4200,
+    # TAIL `startFrom latestTime; startTime 4200; endTime 8200`.
+    for arm, et in (("SEAM", 4200), ("TAIL", 8200)):
+        (root / arm / "case" / "system").mkdir(parents=True, exist_ok=True)
+        (root / arm / "case" / "system" / "controlDict").write_text(
+            "startFrom latestTime;\nstopAt endTime;\nendTime %d;\n"
+            "writeCompression on;\n" % et)
     (root / "SEAM" / "case" / "4000").mkdir(parents=True)
     (root / "SEAM" / "case" / "4000" / "U").write_text(
         "internalField   nonuniform List<vector>\n130304\n(\n"
@@ -1366,7 +1716,10 @@ def _build_happy_root(tmp: Path) -> Path:
         cl += 0.05 - 0.004 * i
         cd = 0.031 + 0.004 * i
         tail.append("AOA_POINT_BEGIN idx=%d alpha=%.10f\n" % (i, alpha))
-        for t in (100, 2000, 4000):
+        # The per-point time series is SYNTHETIC and is not a prediction of the
+        # producer's bookkeeping across a six-point continued sweep.  Only the
+        # LAST point's terminal time is gated, and `g_complete` states why.
+        for t in (4300, 6000, 8200):
             tail.append(block(t, cl, cd, 0.0387 + 0.004 * i))
         tail.append("AOA_POINT_VALUES idx=%d alpha=%.10f CL=%.12f CD=%.12f "
                     "wall_s=1848.3 err=NONE\n" % (i, alpha, cl, cd))
@@ -1656,6 +2009,281 @@ def _st_compose() -> int:
                 "-- cap_to_ceiling moves only %s under ceiling %r"
                 % (raw, ordinal_would_say, moved[0], CEILING))
     _control("Q-COMPOSE-5-ordering", "fail", q5)
+    return 0
+
+
+def _st_armfold() -> int:
+    """SELFTEST-ARMFOLD -- the dafoam-supervisor's RULING 2, DRIVEN.
+
+    The headline control is the combination the item could not see at all
+    before this change: **SEAM's rc NON-ZERO while TAIL's rc is CLEAN.**  It is
+    driven on the real happy root, by mutating one file and re-grading."""
+    import tempfile as _tf
+
+    def seam_rc_97():
+        with _tf.TemporaryDirectory() as td:
+            root = _build_happy_root(Path(td))
+            _, raw0, final0 = grade(root)
+            _must(final0 == "GATE REACHED",
+                  "baseline is %r, not GATE REACHED -- the control cannot show "
+                  "a FLIP from a baseline that was never green" % final0)
+            (root / "SEAM" / "out" / "rc").write_text("97\n")
+            back = (root / "SEAM" / "out" / "rc").read_text()
+            _must(back.strip() == "97",
+                  "the mutation did not land on disk: %r" % back)
+            _must((root / "TAIL" / "out" / "rc").read_text().strip() == "0",
+                  "TAIL's rc is not clean, so this is not the combination "
+                  "under test")
+            _, raw1, final1 = grade(root)
+            _must(final1 != "GATE REACHED",
+                  "SEAM rc=97 beside a CLEAN TAIL rc composed to %r.  Before "
+                  "ruling 2 the grader read TAIL/out/rc and nothing else, so "
+                  "this is the exact combination that was INVISIBLE, on the "
+                  "arm that carries the falsifier." % final1)
+            _must(final1 == "GATE FAIL",
+                  "SEAM rc=97 composed to %r, expected GATE FAIL" % final1)
+            (root / "SEAM" / "out" / "rc").write_text("0\n")
+            _, _r, final2 = grade(root)
+            _must(final2 == "GATE REACHED",
+                  "the RESTORE did not land: %r.  A control that cannot restore "
+                  "has not shown that its mutation was what moved the verdict."
+                  % final2)
+            return ("SEAM rc 0->97 with TAIL rc CLEAN: %s -> %s -> restored %s"
+                    % (final0, final1, final2))
+    _control("Q-ARMFOLD-seam-rc-97", "fail", seam_rc_97)
+
+    def seam_incomplete():
+        with _tf.TemporaryDirectory() as td:
+            root = _build_happy_root(Path(td))
+            p = root / "SEAM" / "out" / "sweep.log"
+            before = p.read_text()
+            _must("\nEnd\n" in before, "the fixture has no End line to remove")
+            p.write_text(before.replace("\nEnd\n", "\n"))
+            _must("\nEnd\n" not in p.read_text(),
+                  "the End line was not actually removed")
+            _, _r, final = grade(root)
+            _must(final == "GATE FAIL",
+                  "SEAM with no `End` line composed to %r.  Rule 4's second "
+                  "clause was never gated on EITHER arm before this." % final)
+            p.write_text(before)
+            _, _r, final2 = grade(root)
+            _must(final2 == "GATE REACHED", "restore failed: %r" % final2)
+            return "SEAM `End` line removed -> %s, restored -> %s" % (
+                final, final2)
+    _control("Q-ARMFOLD-seam-no-End", "fail", seam_incomplete)
+
+    def tail_short_of_endtime():
+        with _tf.TemporaryDirectory() as td:
+            root = _build_happy_root(Path(td))
+            p = root / "TAIL" / "out" / "sweep.log"
+            before = p.read_text()
+            after = before[::-1].replace("0028 = emiT"[::-1][::-1], "", 0) or before
+            # replace ONLY the LAST `Time = 8200` so the final point stops short
+            idx = before.rfind("Time = 8200")
+            _must(idx > 0, "the fixture has no terminal Time = 8200")
+            after = before[:idx] + "Time = 8100" + before[idx + len("Time = 8200"):]
+            p.write_text(after)
+            _must("Time = 8100" in p.read_text(), "the mutation did not land")
+            _, _r, final = grade(root)
+            _must(final == "GATE FAIL",
+                  "a TAIL last point stopping at 8100 against a registered "
+                  "endTime of 8200 composed to %r" % final)
+            p.write_text(before)
+            _, _r, final2 = grade(root)
+            _must(final2 == "GATE REACHED", "restore failed: %r" % final2)
+            return ("TAIL last Time 8200->8100 vs controlDict endTime 8200: "
+                    "%s, restored %s" % (final, final2))
+    _control("Q-ARMFOLD-tail-short-of-endTime", "fail", tail_short_of_endtime)
+
+    def controldict_absent_refuses():
+        with _tf.TemporaryDirectory() as td:
+            root = _build_happy_root(Path(td))
+            cd = root / "SEAM" / "case" / "system" / "controlDict"
+            cd.unlink()
+            try:
+                grade(root)
+            except Refuse as e:
+                return ("the arm's own controlDict removed -> REFUSE(%d): a "
+                        "completion gate that cannot find the endTime the run "
+                        "was configured by does not guess one" % e.code)
+            raise ValueError("an absent controlDict did NOT refuse")
+    _control("Q-ARMFOLD-controldict-absent-refuses", "fail",
+             controldict_absent_refuses)
+
+    def fold_is_monotone():
+        """RULING 2 IS ADD-ONLY, MADE STRUCTURAL RATHER THAN ASSERTED.
+
+        `worse_of` is checked over ALL 36 ordered pairs of the six tokens: its
+        result is never MORE optimistic than either input.  So reading a second
+        arm can only move a gate's verdict down, and neither ruling can move a
+        verdict toward `PASS`."""
+        n = 0
+        for a in VERDICT_TOKENS:
+            for b in VERDICT_TOKENS:
+                w = worse_of(a, b)
+                _must(_CHAIN_RANK[w] <= _CHAIN_RANK[a]
+                      and _CHAIN_RANK[w] <= _CHAIN_RANK[b],
+                      "worse_of(%r, %r) = %r is MORE optimistic than an input "
+                      "-- the fold is not add-only" % (a, b, w))
+                n += 1
+        _must(n == 36, "expected 36 ordered pairs, drove %d" % n)
+        return "worse_of is monotone downward over all %d ordered pairs" % n
+    _control("Q-ARMFOLD-add-only", "pass", fold_is_monotone)
+
+    def deferral_refusal_is_real():
+        """THE REGISTERED DEFERRAL'S REFUSAL, DRIVEN.
+
+        `a1wrt2_stage.DEFERRED_PRODUCERS` registers `TAIL/out/warp_probe.json`
+        as having NO producer in the registered set, and claims that an absent
+        probe REFUSES at grade time rather than passing.  A deferral whose
+        refusal is only claimed is the same hole under a longer name, so the
+        claim is driven: the artefact is removed from a real happy root and the
+        grade must refuse."""
+        with _tf.TemporaryDirectory() as td:
+            root = _build_happy_root(Path(td))
+            p = root / "TAIL" / "out" / "warp_probe.json"
+            _must(p.is_file(), "the fixture did not build the probe")
+            p.unlink()
+            try:
+                grade(root)
+            except Refuse as e:
+                _must(e.code == 2,
+                      "the absent probe refused with %d, not 2" % e.code)
+                return ("TAIL/out/warp_probe.json removed -> REFUSE exit 2.  "
+                        "G-WARPPROBE's registered deferral REFUSES rather than "
+                        "reporting, so draft section 7.2's discharge cannot be "
+                        "claimed from an absent probe")
+            raise ValueError("an absent warp_probe.json did NOT refuse -- the "
+                             "registered deferral's refusal is not real")
+    _control("Q-DEFERRAL-warpprobe-absent-refuses", "fail",
+             deferral_refusal_is_real)
+
+    def fold_uses_the_chain():
+        """The fold uses the COMPOSER'S CHAIN, not `_OPTIMISM`, and the two
+        disagree on the `NOT A RESULT`/`BLOCKED` pair.  Pinned so a later
+        reconciliation cannot happen silently."""
+        _must(worse_of("NOT A RESULT", "BLOCKED") == "NOT A RESULT",
+              "the fold no longer follows the composer's chain")
+        ordinal_would = min(("NOT A RESULT", "BLOCKED"),
+                            key=lambda t: _OPTIMISM[t])
+        _must(ordinal_would == "BLOCKED",
+              "the ordinal moved; the disclosure at _OPTIMISM must move with it")
+        return ("chain fold says NOT A RESULT; min(_OPTIMISM) would say "
+                "BLOCKED -- the disagreement is pinned, not latent")
+    _control("Q-ARMFOLD-ordering", "pass", fold_uses_the_chain)
+
+    def arm_dropped_refuses():
+        try:
+            g_rc_honest_both({"TAIL": ("0", 6, 6)})
+        except Refuse:
+            pass
+        else:
+            raise ValueError("a dropped arm did NOT refuse in the rc fold")
+        try:
+            g_complete_both({"TAIL": ("End\n", "0", Path("/nonexistent"))})
+        except Refuse as e:
+            return ("an arm ABSENT from either fold REFUSES -- %s.  An arm "
+                    "silently dropped from the fold is the asymmetry ruling 2 "
+                    "removed, reappearing as a missing dict key" % e.code)
+        raise ValueError("a dropped arm did NOT refuse in the completion fold")
+    _control("Q-ARMFOLD-dropped-arm-refuses", "fail", arm_dropped_refuses)
+    return 0
+
+
+def _st_seam_precondition() -> int:
+    """SELFTEST-SEAM-PRECONDITION -- the dafoam-supervisor's RULING 1, DRIVEN
+    IN BOTH DIRECTIONS.
+
+    TAIL is 675.0 core-min and SEAM is 10.0.  The precondition is what makes
+    `G-SEAM` a STOP RULE rather than a post-hoc report."""
+    import tempfile as _tf
+
+    def permits():
+        with _tf.TemporaryDirectory() as td:
+            root = _build_happy_root(Path(td))
+            tok, lines = seam_precondition(root)
+            _must(tok == "PASS",
+                  "a clean SEAM did NOT permit the tail: %r\n%s"
+                  % (tok, "\n".join(lines[-3:])))
+            return "a clean SEAM arm -> PASS, TAIL permitted"
+    _control("Q-SEAMPRE-clean-permits", "pass", permits)
+
+    def refuses_on_band():
+        with _tf.TemporaryDirectory() as td:
+            root = _build_happy_root(Path(td))
+            p = root / "SEAM" / "out" / "sweep.log"
+            before = p.read_text()
+            # The REAL known-positive magnitude: A1WR-vs-U1's CL differs by
+            # 6.013254e-03, 6.0x the 1.0e-03 band.  Applied to the last CL
+            # print, which is what G-SEAM reads.
+            bad = U1_TERMINAL_CL * (1 + 6.013254e-03)
+            idx = before.rfind("CL: ")
+            _must(idx > 0, "no CL print to perturb")
+            eol = before.index("\n", idx)
+            p.write_text(before[:idx] + "CL: %.17g final: %.17g" % (bad, bad)
+                         + before[eol:])
+            _must("%.17g" % bad in p.read_text(),
+                  "the perturbation did not land on disk")
+            tok, lines = seam_precondition(root)
+            _must(tok == "GATE FAIL",
+                  "a SEAM outside the band did NOT refuse the tail: %r" % tok)
+            _must(any("675.0 core-min tail arm does not launch" in l
+                      for l in lines),
+                  "the refusal did not say that the tail does not launch")
+            p.write_text(before)
+            tok2, _l = seam_precondition(root)
+            _must(tok2 == "PASS", "restore failed: %r" % tok2)
+            return ("SEAM CL perturbed by 6.013254e-03 (6.0x the 1.0e-03 band, "
+                    "the MEASURED A1WR-vs-U1 magnitude) -> %s, TAIL refused; "
+                    "restored -> %s" % (tok, tok2))
+    _control("Q-SEAMPRE-outside-band-refuses", "fail", refuses_on_band)
+
+    def refuses_on_rc():
+        with _tf.TemporaryDirectory() as td:
+            root = _build_happy_root(Path(td))
+            (root / "SEAM" / "out" / "rc").write_text("97\n")
+            tok, _l = seam_precondition(root)
+            _must(tok == "GATE FAIL",
+                  "a SEAM rc of 97 did NOT refuse the tail: %r" % tok)
+            return "SEAM rc=97 -> %s, TAIL refused" % tok
+    _control("Q-SEAMPRE-rc-refuses", "fail", refuses_on_rc)
+
+    def refuses_when_absent():
+        with _tf.TemporaryDirectory() as td:
+            root = _build_happy_root(Path(td))
+            import shutil as _sh
+            _sh.rmtree(str(root / "SEAM"))
+            tok, lines = seam_precondition(root)
+            _must(tok == "BLOCKED",
+                  "an ABSENT SEAM arm did not BLOCK the tail: %r" % tok)
+            return ("SEAM arm absent -> %s.  An unrun falsifier never reads as "
+                    "a cleared one" % tok)
+    _control("Q-SEAMPRE-absent-blocks", "fail", refuses_when_absent)
+
+    def refuses_when_rc_absent():
+        with _tf.TemporaryDirectory() as td:
+            root = _build_happy_root(Path(td))
+            (root / "SEAM" / "out" / "rc").unlink()
+            tok, _l = seam_precondition(root)
+            _must(tok == "BLOCKED",
+                  "a SEAM with NO rc artefact did not BLOCK: %r" % tok)
+            return "SEAM rc artefact absent -> %s (a missing rc is not rc=0)" % tok
+    _control("Q-SEAMPRE-rc-absent-blocks", "fail", refuses_when_rc_absent)
+
+    def emits_no_item_verdict():
+        """The precondition is a LAUNCH GUARD, not a grade.  It must not print
+        an item verdict: draft section 1 reserves `A1WRT2_VERDICT` to
+        `compose_item`, and a guard that emitted one would be a second emitter
+        for the exact reason the item exists to remove."""
+        with _tf.TemporaryDirectory() as td:
+            root = _build_happy_root(Path(td))
+            _tok, lines = seam_precondition(root)
+            bad = [l for l in lines if l.startswith("%s_VERDICT" % ITEM)]
+            _must(not bad,
+                  "the precondition emitted an ITEM VERDICT: %s" % bad)
+            return ("the precondition prints %s_SEAM_PRECOND and NEVER "
+                    "%s_VERDICT" % (ITEM, ITEM))
+    _control("Q-SEAMPRE-no-item-verdict", "pass", emits_no_item_verdict)
     return 0
 
 
@@ -2295,6 +2923,8 @@ def selftest() -> int:
             ("SELFTEST-EXIT-TRAP", _st_exit_trap),
             ("SELFTEST-COMPOSE", _st_compose),
             ("SELFTEST-GATE-CONTROLS", _st_gate_controls),
+            ("SELFTEST-ARMFOLD", _st_armfold),
+            ("SELFTEST-SEAM-PRECONDITION", _st_seam_precondition),
             ("SELFTEST-NOASSERT", _st_noassert))
     try:
         for name, fn in legs:

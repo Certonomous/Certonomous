@@ -170,6 +170,65 @@ STAGED_INPUTS = (
     "run_arm.sh",
     "runScript.py",
 )
+
+# =============================================================================
+# THE REGISTERED DEFERRAL REGISTRY.  Draft section 11 item 1a, added by the
+# dafoam-supervisor's 2026-09-04 section 11.1 amendment.
+#
+# A name here is a gate input that NOTHING IN THE REGISTERED SET PRODUCES, kept
+# LEGAL only by naming what would produce it, why it is deferred, and -- the
+# clause that does the work -- WHAT REFUSES IF IT IS ABSENT AT GRADE TIME.
+# `a1wrt2_instruments.producer_trace` reads this dict out of this file's AST and
+# REFUSES on an entry missing any of the three keys: a deferral without a
+# refusal is a hole, and a hole with a name is still a hole.
+#
+# ⚠ THERE IS EXACTLY ONE ENTRY AND IT COSTS THIS ITEM A REGISTERED DISCHARGE.
+# `TAIL/out/warp_probe.json` is `G-WARPPROBE`'s only input, and draft section
+# 7.2 registers that gate as the instrument that DISCHARGES
+# `DAFOAM_CHARTER.md` section 6's two-row (shipped vs patched) obligation --
+# *"with the probe output cited as the discharge"*.  Measured in the 2026-09-04
+# invocation, over three named files:
+#
+#     `warp_probe` in a1wr_runScript_incomp.py (the frozen producer)   0
+#     `warp_probe` in a1wr_cmd.sh              (the frozen container)  0
+#     `warp_probe` in a1wrt2_run_arm.sh        (this item's launcher)  0
+#
+# so the ONLY writer anywhere is `a1wrt2_grade.py:1380`, inside
+# `_build_happy_root`, WHICH IS THE SELFTEST FIXTURE BUILDER.  The item was one
+# freeze away from discharging a CHARTER OBLIGATION with a number only its own
+# test fixture could ever produce.
+#
+# IT CANNOT BE REPAIRED BY THIS LANE AND THE REASON IS A RULE, NOT A
+# DIFFICULTY: emitting the probe means counting `warper_init` / `warper_jacvec`
+# calls from inside the running process, which means editing
+# `a1wr_runScript_incomp.py` -- ANOTHER ITEM'S FROZEN INSTRUMENT
+# (`CLAUDE.md` rule 6).  It is REPORTED, NOT REPAIRED.
+#
+# CONSEQUENCE, STATED RATHER THAN LEFT TO BE DISCOVERED AT THE FREEZE:
+# **draft section 7.2's DISCHARGE IS NOT AVAILABLE AS THIS ITEM STANDS.**  The
+# two-row obligation BINDS unless a successor writes the producer.  The gate
+# still exists and still refuses; what it can no longer do is DISCHARGE.
+DEFERRED_PRODUCERS = {
+    "TAIL/out/warp_probe.json": {
+        "producer": "NONE IN THE REGISTERED SET.  It would have to be emitted "
+                    "from inside the running process by the staged producer "
+                    "`a1wr_runScript_incomp.py`, which is `A1WR`'s FROZEN "
+                    "instrument (md5 d48f48c5e2e41e86981acbf6feccb3c4) and is "
+                    "inherited by this item unchanged.  Writing it here would "
+                    "break two freezes, so it is reported, not repaired.",
+        "why_deferred": "measured 2026-09-04: `warp_probe` occurs 0 times in "
+                        "a1wr_runScript_incomp.py, 0 times in a1wr_cmd.sh and "
+                        "0 times in a1wrt2_run_arm.sh; the only write in the "
+                        "repository is a1wrt2_grade.py:1380, inside the "
+                        "selftest fixture builder `_build_happy_root`.",
+        "refuses_if_absent": "a1wrt2_grade.grade() reads it through "
+                             "`read_text`, which calls `check(path.exists())` "
+                             "and raises Refuse(code=2).  An absent probe is a "
+                             "REFUSAL and an item-level `NOT A RESULT`, never "
+                             "a passing G-WARPPROBE.  Driven by the control "
+                             "`Q-DEFERRAL-warpprobe-absent-refuses`.",
+    },
+}
 # The per-arm case trees this file creates.  Declared as a tuple of string
 # literals because `a1wrt2_instruments.py` reads these three tuples OUT OF THIS
 # FILE'S AST and checks them against the run-root names the GRADER extracts from
