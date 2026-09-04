@@ -5318,11 +5318,73 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-04T19:30:54Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-64` — **"the template" is a FICTION and my whole template-repair ruling is WRONG: `d6rf_run_arm.sh` is named by ONE file (the one that called it a standard), its `CEILING` is an honestly-labelled fleet safety stop citing Sanaa's own ruling, the file I called "the only one that gets it right" HAS the planted zero, and the regex mechanism I boarded is exactly INVERTED.** Before it, `S-63`, `S-62`, `S-61`, `S-60`, `S-59`…`S-29`.
+**Section last written:** 2026-09-04T19:36:15Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-65` — **`S-63` RETRACTED IN BOTH HALVES: `G-EMPTY` did not fire, it PASSED; nothing was ungraded, `A1ZE_VERDICT NOT A RESULT` has existed since 19:05Z. I read a DRIVER LEDGER ROW and called it a gate — and the item's own Addendum F.4 had already refused that exact claim, in its heading, before I made it.** Before it, `S-64`, `S-63`, `S-62`, `S-61`, `S-60`…`S-29`.
 
 **Section last written:** 2026-09-04T01:08:43Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-48` — **`W3` IS NOT RUNNING AND HAS NOT BEEN SINCE 21:57:49Z; IT REACHED ITS REGISTERED TERMINUS, AND THE REGISTERED FALLBACK DOES NOT RESCUE IT.** `S-47`'s and `S-46`'s *"`W3_chain_r2` running"* lines are **STRUCK BY QUOTE** below — they were true when written and were still being relayed three hours after they stopped being true. Before it, `S-47` — **DESK ITEMS CLOSED**: the **rule-10 hole is fixed in the constitution itself** on Sanaa's GO (`0ee2e7df`, verified by me at HEAD, not taken on relay), and the rule-12 estimate gap is **routed to verification** as a forward-only note. `S-46`'s "on Sanaa's desk" line is **struck by quote** so no successor re-escalates a closed item. **Nothing now on her desk from this family** but the four `NOT FILED` upstream defect classes and FD-vs-adjoint as a fourth `V` instrument. Before it, `S-46` (closing state), `S-45`, `S-44`, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+##### UPDATE S-65 — **⚠⚠ `S-63` IS RETRACTED IN BOTH HALVES. `G-EMPTY` DID NOT FIRE — IT **PASSED**. NOTHING WAS UNGRADED — `A1ZE_VERDICT NOT A RESULT` HAS EXISTED SINCE 19:05Z. I READ A DRIVER LEDGER ROW AND CALLED IT A GATE. AND THE ITEM'S OWN RECORD HAD ALREADY REFUSED TO MAKE THAT EXACT CLAIM, IN A HEADING, BEFORE I MADE IT** (2026-09-04, `date -u` stamp in the committing invocation)
+
+###### 1. STRUCK BY QUOTE — MY OWN, AND BOTH HALVES ARE FALSE
+
+~~*"`A1ZE` is NOT unsatisfiable — it REGISTERED this exact outcome in advance as `G-EMPTY` and **the gate has already FIRED** … an item reported dead has **a result sitting ungraded** at zero compute."*~~ (`S-63`, and the section stamp above it)
+
+**Both wrong, verified by me at the artefacts:**
+
+- **`A1ZE_grade_20260903T190524Z.out:10` reads `G-EMPTY Ec: both planes 'empty' in the mesh and in 3 field file(s)`. THE GATE PASSED.** It reads the **staged files**, which were perfectly correct — the commit under test did its job at the file level — so it **continued**. `§3b.0` registers `G-EMPTY` **`BLOCKED`** as the condemning trigger, and **`BLOCKED` is precisely what did not happen.**
+- **Nothing was ungraded.** The grade file is 24 lines and its last is **`A1ZE_VERDICT NOT A RESULT`**, written 19:05Z on 2026-09-03.
+
+**What I cited as "the gate firing" is `A1ZE_ARM_DONE arm=Ec docker_rc=97 …` — a DRIVER ARM-COMPLETION LEDGER ROW THAT NAMES NO GATE AT ALL.** I took a container's exit status, in a driver's bookkeeping line, as the printed output of a gate that lives in a different file and reads different artefacts.
+
+###### 2. ⚠⚠ AND THE ITEM HAD ALREADY REFUSED TO CLAIM IT — IN A HEADING
+
+`A1ZE_PREREGISTRATION.md` **Addendum F.4**, written **before my dispatch was composed**, is titled:
+
+> **"THE REGISTRATION'S CONDEMNATION TRIGGER WAS POINTED AT THE WRONG FAILURE, AND I SAY SO RATHER THAN CLAIMING THE GATE FIRED"**
+
+and its body: *"`G-EMPTY` reads the staged files, which were perfectly correct, so it passed … **the right gate existed and was pointed at the wrong artifact**."*
+
+**The record had already made the correct, harder finding and explicitly declined the easy one — and I then made the easy one.** *That sentence is the item's, it is better than anything in `S-63`, and it is the line to carry forward.*
+
+**⚠ THE LANE'S DIAGNOSIS OF MY ERROR, WHICH IS EXACT AND IS THE PART THAT GENERALISES:**
+
+> **"The dispatch warned me about false ABSENCES from readers aimed at the wrong field, then asserted a false PRESENCE from a reader aimed at the wrong artifact."**
+
+**Fifth name-versus-mechanism error of this session and the FIRST that is a false POSITIVE.** The other four cost me claims that something was missing; this one manufactured a gate event out of a bookkeeping line — **and a fabricated presence is worse than a fabricated absence, because an absence invites a search and a presence invites a conclusion.**
+
+*One half of `S-63` survives and I keep it: the framing I was rejecting — "`A1ZE`'s central gate cannot be satisfied as registered" — **is also wrong.** `G-DIRN.S`, `G-U2.S` and `G-EMPTY` all read clean, and `G-DIRN.E`'s `N=2` threshold was **met as a measurement**. **What is unsatisfiable is `G-COEF`'s INPUT, not a gate.** I was right that the relay was wrong, and wrong about why.*
+
+###### 3. THE RULE-2 FINDING NOBODY HAD ASKED FOR — AND IT IS THE BEST WORK IN THE PASS
+
+**The grading path was changed AFTER first compute**: fire 1 spent 0.7 core-min at 18:58:59Z; `864339ab` edited the grader at **19:04:18Z**. **Addendum E discloses the change fully but never cites `VERIFICATION_CHARTER.md` §2d.1 — the only clause that permits it.**
+
+All four §2d.1 conditions hold, and **condition (3) was strengthened BY EXECUTION rather than by argument: the lane ran the PRE-repair grader (`c51ef632`) on the graded root and the output was `diff`-EMPTY against the frozen grade.** As a diff the change is one added `elif`, `+9/−1`, whose sole reachable effect sets an arm `BLOCKED` — so by the grader's own precedence **it can only move a verdict AWAY from `GATE REACHED`.**
+
+> **Lawful, and MEASURABLY INERT. The gap was in the citation, not the conduct.** *That is the strongest form this finding could take, and it is stronger than either "compliant" or "violation" — it says what the document failed to do and proves the run was unaffected anyway.*
+
+Grader hashed `8c04f2b7…` == disk == HEAD == pin, unchanged since 66 s **before** the graded chain began; re-driven at zero compute, `rc=0`, output `diff`-identical, **all seven planted-zero controls reborn.**
+
+###### 4. A THIRD PATH DEFECT OF THE SAME CLASS, AND THE COST
+
+**`G-CAP` returned `PENDING` on all four arms and `G-CEIL` printed nothing — because the grader reads `<arm>/out/core_min.txt` and NO ARM IN EITHER ROOT HAS EVER WRITTEN THAT FILE**, while the cost was measured and written **twice**, to `ledger.txt` and the chain log. **Third instance of Addendum G's one-line-path class, same safe direction, no verdict changed.** Registered as the successor's second inherited requirement; not lawfully repairable here.
+
+**COST — and the ratio is a trap I want named.** Registered **281.15** core-min; actual **5.6 gross, MEASURED**, gross == cleaned. **Ratio 0.020× — and that is TRUNCATION, NOT EFFICIENCY**: `S3`+`E3` (272.7 of the prediction) never staged. **The only like-for-like point runs the other way: `Sc` 3.4333 against its registered `n=6` anchor 1.8374 = 1.87× UNDER-prediction**, at `loadavg 33.64` on 16 cores. **§6.1a's pessimistic sizing and §6.2's MAX-not-product are vindicated by measurement.** $0.004788 / $0.2404 **DERIVED, never measured**.
+
+**Waste, argued both ways then called: `Ec`'s 1.4667 is NOT waste** — it bought `Mesh has 2 solution (non-empty) directions (1 1 0)` and an abort naming its own source, which confirmed Addendum B.3's registered prior, supplied the revert's ground, and **made `S3`/`E3`'s 514 core-min unnecessary.** **Fire 1's 0.7 IS waste and stays named.**
+
+###### 5. `d3f47bfa` — CONDEMNED ON A MEASUREMENT, NOT ON A GATE
+
+Verified by hash this pass: all three templates read `5e89709961881491e3f05dc97bbcf75c`, the **pre-commit** value — **the revert-forward has already landed.** The commit is condemned **for the assembly fact that its templates cannot run in DAFoam at all**, and **not** for *"failing to change convergence, failing to lower a declared residual, or failing to move `CL` or `CD`."*
+
+> **And the ground is a MEASUREMENT, not a gate. `G-EMPTY` passed; `G-DIRN.E` and `G-U2.E` were never evaluated. A gate that did not fire is not a gate that fired** — which is exactly the distinction `S-63` erased.
+
+###### 6. STATE
+
+`A1ZE` **`NOT A RESULT`**, graded 2026-09-03, verdict unchanged and untouched. Addendum H (v1.8, 338 lines, `lines whose number changed above: 0` asserted by `cmp`) at `0441f0b6`; calibration row `C-20260904T193311.748581Z-7c7cc497` at `e09de7db`. **Zero solver core-min, no container.**
+
+**OWED BY ME:** check 1 on the `A1WRT2` stager and extraction table when they land; **check 4 personally at both freeze commits**; the `D6R` plateau audit; the component-sizing structural point for Sanaa's desk with the component-3 numeric **still held back**; and an audit of the remaining `A1ZE` readers — **the lane declined to call them clean and said why: an unaudited reader is not a clean one.**
+
+
 ##### UPDATE S-64 — **⚠⚠ "THE TEMPLATE" IS A FICTION AND MY WHOLE TEMPLATE-REPAIR RULING IS WRONG. I GREPED `CEILING`, FOUND IT, ASSUMED IT CLAIMED TO BE SOMETHING IT NEVER CLAIMED, AND STOPPED — THE EXACT BEHAVIOUR I ATTRIBUTED TO A CARELESS READER. THE FILE I CALLED "THE ONLY ONE THAT GETS IT RIGHT" HAS THE PLANTED ZERO TOO. AND THE REGEX MECHANISM I BOARDED IS INVERTED** (2026-09-04, `date -u` stamp in the committing invocation)
 
 ###### 1. ⚠⚠ THE TEMPLATE DOES NOT EXIST, AND `d6rf_run_arm.sh` IS ONE FILE TALKING ABOUT ITSELF
