@@ -5318,11 +5318,71 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-04T22:13:25Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-69` — **my own HEAD-blob commit method leaves the WORKTREE STALE, and a freeze-time hash taken off disk would have hashed the wrong document — measured on two files right now. Rule 4 was implemented for NEITHER arm. The producer trace passed on its own defect on its first drive. `G-IMG` would have been a mirror. And the two-row obligation BINDS.** Before it, `S-68`, `S-67`, `S-66`, `S-65`, `S-64`…`S-29`.
+**Section last written:** 2026-09-04T22:23:57Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-70` — **check 4, done AS ARITHMETIC, blocks a freeze: `W3S` leg A2's cap is 29.2 % larger than its own timeout permits — a cap that can NEVER BIND — and at `W=3000` its margin is 24 SECONDS against a model whose own worst residual is 18.6 %. The bound is NOT raised.** Before it, `S-69`, `S-68`, `S-67`, `S-66`, `S-65`…`S-29`.
 
 **Section last written:** 2026-09-04T01:08:43Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-48` — **`W3` IS NOT RUNNING AND HAS NOT BEEN SINCE 21:57:49Z; IT REACHED ITS REGISTERED TERMINUS, AND THE REGISTERED FALLBACK DOES NOT RESCUE IT.** `S-47`'s and `S-46`'s *"`W3_chain_r2` running"* lines are **STRUCK BY QUOTE** below — they were true when written and were still being relayed three hours after they stopped being true. Before it, `S-47` — **DESK ITEMS CLOSED**: the **rule-10 hole is fixed in the constitution itself** on Sanaa's GO (`0ee2e7df`, verified by me at HEAD, not taken on relay), and the rule-12 estimate gap is **routed to verification** as a forward-only note. `S-46`'s "on Sanaa's desk" line is **struck by quote** so no successor re-escalates a closed item. **Nothing now on her desk from this family** but the four `NOT FILED` upstream defect classes and FD-vs-adjoint as a fourth `V` instrument. Before it, `S-46` (closing state), `S-45`, `S-44`, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+##### UPDATE S-70 — **CHECK 4, DONE AS ARITHMETIC, BLOCKS A FREEZE: `W3S` LEG A2's CAP IS **29.2 % LARGER THAN ITS OWN TIMEOUT PERMITS** — A CAP THAT CAN NEVER BIND — AND AT `W=3000` ITS MARGIN IS **24 SECONDS** AGAINST A MODEL WHOSE OWN WORST RESIDUAL IS 18.6 %. THE BOUND IS NOT RAISED** (2026-09-04, `date -u` stamp in the committing invocation)
+
+###### 1. CHECK 4 IS WHY THIS EXISTS, AND IT IS THE FIRST TIME IT HAS CAUGHT SOMETHING BEFORE A FREEZE
+
+**`SUPERVISION_CHARTER.md` §3 check 4 is mine and not delegable, and the lane explicitly left the cap arithmetic to me.** Done as arithmetic, not as a summary:
+
+**(a) THE CAP IS A DEAD LEVER.** `155.0` core-min at `ranks=1` is **9300 s** of wall. The inherited stage bound is **7200 s = 120.0 core-min**. **The cap is 29.2 % larger than anything the timeout permits.**
+
+> **A cap that exceeds its own timeout can never bind — the timeout binds first, always. It is a registered number no execution path can reach**, the dead-lever class already found in `SO3aF2`'s `CEILING`, in `W_CONTINGENCY = 900`, and in eleven more by the sweep. **This one was caught BEFORE the freeze rather than after the spend.**
+
+**(b) AND THE MARGIN IS SMALLER THAN THE MODEL'S OWN ERROR BAR.** On the S5 wall model `−81 + 2.0438·W`, against the 7200 s bound, allowing the model's **own measured worst residual of 18.6 %**:
+
+| `W` | model | worst-residual wall | margin |
+|---|---|---|---|
+| 2000 | 4007 s | 4752 s | **+34.0 %** |
+| 2500 | 5028 s | 5964 s | **+17.2 %** |
+| 2710 | — | 6473 s | **+10.1 %** |
+| **3000** | 6050 s | **7176 s** | **+0.3 % — 24 SECONDS** |
+
+**A timeout is `NOT A RESULT` about convergence — it measures the clock, not the physics — so A2 as drafted could spend ~100 core-min and buy nothing.**
+
+###### 2. RULED
+
+**1. THE STAGE WALL BOUND IS NOT RAISED.** Widening a bound because the arm no longer fits is **widening on optimism — Sanaa's T25 ruling.** *The lane declined to widen it and said so in those words before I asked; that was the correct call and I ratified it rather than instructed it.*
+
+**2. A2's WINDOW COMES DOWN** to one whose **worst-residual** wall clears the bound by ≥10 % — **≈2710 by my arithmetic, to be COMPUTED in the registration from the S5 anchors, not asserted from my number. If the lane's computation disagrees, ITS number wins.**
+
+**And the science cost is stated rather than hidden: the gscan span narrows from 1400–3000 (2.14×) to ~1400–2710 (1.94×).** The arm exists to detect whether `|g(W)|` converges or plateaus and 1.94× resolves that nearly as well — **but a narrowed span that goes unmentioned is a quiet weakening**, so the draft says it.
+
+**3. THE CLASS GETS CLOSED, NOT JUST THE INSTANCE:** assert at freeze time, for **every** leg, that `cap × 60 / ranks < wall_bound`. **A registered cap that exceeds its own timeout should REFUSE TO FREEZE.** *That costs nothing and stops the next item repeating it, rather than documenting that this one did.*
+
+**4. The `MEMAVAIL_POLL_S=30` / `MEMAVAIL_WAIT_BOUND_S=3600` constants are lane-proposed and appear in NO document — register them with their response and bound, or remove them.** The lane's own framing is right: **a launcher is not a registration.**
+
+**5. Two ceiling guards: KEEP BOTH, REGISTER THE DIFFERENCE.** Driven over the same files in five directions and they agree; they differ **by design** on an absent ledger (FRESH `0.0` vs `UNMEASURED`). **Defence in depth beats tidiness — but an unregistered difference will read to a successor as a defect, and it will "fix" the safer one.**
+
+**6. §7's instrument table gains `w3s_stage_record.py` FROM ME, not from the lane** — *"a lane adding rows to a table covering its own files is self-attestation"* is its sentence and it is exactly right.
+
+###### 3. WHAT THE LANE FOUND AGAINST ITSELF, AND IT IS THE THIRD OF ITS CLASS TODAY
+
+**Two pin controls were passing for the wrong reason.** Both returned `rc=4` — and both were failing on `MISSING_INSTRUMENT`, because the mutated copies resolved their instrument paths into the temp directory. **The md5-drift limb was never driven; its green meant nothing.** Repaired to check the **reason**, not the rc.
+
+> **Third instance today of a control passing for a reason unrelated to its name** — after `G-FIXTURE`'s existence-firing-before-containment and `A1WRT2`'s two ceiling limbs. **The lesson is measured now rather than argued: an `rc` is not a reason, and a control asserting only the rc is testing the exit path, not the finding.**
+
+The `finalize_leg` case is the same family in shell: `--verify-leg | parser || echo 0` under `set -o pipefail` returning the two-line string `0\n0`.
+
+###### 4. CORRECTIONS TO ME, ACCEPTED
+
+**The launcher was NOT the only thing blocking the freeze** — the record producer was equally missing, and my framing said otherwise. Draft §3.1's *"6 stages"* is **7**; its early-stop 69.6 should be **68.53** (my 68.5 was right, the draft is not). And two contract details that only came out of the code: **the two leg vocabularies differ** (`LEG_CAP_CORE_MIN` has four keys, `LEG_NAMES` three), and **a `LEG=` row and a `STAGE=` row would be DOUBLE-COUNTED** by `spend_from_root` — both now in the artefact rather than in prose, with the blindnesses **driven, not asserted**.
+
+**Contract binding proved end to end rather than by census:** a fixture written by the new producer is handed to the **frozen** comparator and **grades** — FS-0 HIT, FS-1 MISS, all three legs bound — **and the FS-1 HIT branch is reachable, so the gate goes both ways.** Four negative directions refuse. `66/66`, `47/47`, `15/15`, identical under `-O`, `ast.Assert` **0**.
+
+###### 5. THE RESIDUAL RISK, NAMED BY THE LANE AND KEPT
+
+**No leg body has ever executed.** Everything is producer/consumer binding and guards, driven on host Python and fixtures. **That the container, `d12y_run_script.py` and real OpenFOAM logs produce rows satisfying this contract is NOT MEASURED** — the first SETUP leg is the first test of it.
+
+> **A fixture proves the contract; it does not prove the solver.** *Said by the lane rather than left for the 66/66 to imply otherwise.*
+
+**STATE:** three lanes, all zero-compute. Nothing frozen, nothing enqueued, no solver started today. **OWED BY ME:** check 1 on both remaining diffs; the §7 table row; the `:92` disposition after the second step; the §2 charter repair.
+
+
 ##### UPDATE S-69 — **⚠ MY OWN COMMIT METHOD LEAVES THE WORKTREE STALE, AND A FREEZE-TIME HASH TAKEN OFF DISK WOULD HAVE HASHED THE WRONG DOCUMENT — MEASURED, ON TWO FILES, RIGHT NOW. RULE 4 WAS IMPLEMENTED FOR **NEITHER** ARM. THE PRODUCER TRACE PASSED ON ITS OWN DEFECT ON ITS FIRST DRIVE. AND `G-IMG` WOULD HAVE BEEN A MIRROR** (2026-09-04, `date -u` stamp in the committing invocation)
 
 ###### 1. ⚠⚠ THE HEAD-BLOB METHOD PROTECTS THE COMMIT AND STRANDS THE WORKTREE
