@@ -4392,6 +4392,22 @@ any gate reads, and writes only into a `mktemp` tree it deletes. **But it MUST b
 control suite that can be silently edited is a green with no content. **Recommendation: NO to
 §9, YES to a standing pin in the gap table. The supervisor rules.**
 
+#### 20.6.1 ADDENDUM, SAME SESSION — THE FILE MOVED ONCE MORE, AND WHY
+
+**Two of item 39's four false comments were REWRITTEN rather than STRUCK BY QUOTE** in the
+commit that carries §20. Measured after that commit: of the four sentences the diff deleted,
+two were preserved verbatim inside their replacement and two were not. **This registration's
+discipline is that originals are struck, never rewritten**, so the two were restored as
+`~~quoted~~` strikes in a follow-up commit. **No code changed; the ten deleted lines in that
+commit were ALL comment lines and the non-comment deletion count was ZERO, measured.**
+
+| path | blob sha in §20.6 | blob sha **after this correction** |
+|---|---|---|
+| `cases/M6SR/build_m6sr_l1.sh` | `596e949365ea4ef348f576ab891c2920a119bf37` | **`cd9daf8609b2ea02cc7977ac58b8f1de140b0dc0`** |
+
+⚠ **Still NOT re-pinned** (§20.6). The chain is now `04ae9d58` → `a64bc6b8` → `596e9493` →
+the value above, and **the re-pin remains the supervisor's.**
+
 ### 20.7 WHAT THIS AMENDMENT DOES **NOT** DO
 
 1. **It moves no gate, no threshold, no cap and no label.** §2.4's cost table is unchanged in

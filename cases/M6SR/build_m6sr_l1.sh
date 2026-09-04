@@ -14,9 +14,10 @@
 #   Section 2.2   the three normal-direction parameters s0 = 1.0e-4, N = 65, marchDist =
 #                 12.0 are IDENTICAL to both existing levels and this driver moves NONE of
 #                 them.  r = 1.167442 and cells/wing_faces = 64 hold BY CONSTRUCTION.
-#   Section 2.4   the per-step CAPS in core-minutes.  🔴 SEE ITEM 39 BELOW: `timeout` was
-#                 MEASURED NOT TO BOUND A CONTAINER IT STARTED.  The caps in this file
-#                 REPORT an overrun; they do not STOP one.  REPORTED, NOT REPAIRED.
+#   Section 2.4   the per-step CAPS in core-minutes.  🔴 STRUCK BY QUOTE, 2026-09-04, ITEM 39:
+#                 ~~"the per-step CAPS in core-minutes, enforced STRUCTURALLY by `timeout`."~~
+#                 `timeout` was MEASURED NOT TO BOUND A CONTAINER IT STARTED.  The caps in
+#                 this file REPORT an overrun; they do not STOP one.  REPORTED, NOT REPAIRED.
 #   Section 7     the ill-posedness screen: the driver REFUSES a level whose patch names it
 #                 did not expect.
 #   Section 8.5   autoPatch/createPatch/renumberMesh, and `scotch` is NOT used.
@@ -570,6 +571,9 @@ run_in_container(){
   t0=$(date +%s)
   # ITEM 35 REPAIRED: argv, through docker_timeout_q, correct on BOTH branches -- and the
   # image is addressed by DIGEST ($IMG_PINNED), never by the tag $IMG.
+  # 🔴 STRUCK BY QUOTE, 2026-09-04, ITEM 39: ~~"The cap is still enforced by `timeout` and rc
+  # 124 still reaches the overrun path below (measured on both branches: a 30 s container
+  # under a 5 s cap returns 124)."~~
   # ⚠ ITEM 39: `timeout` REPORTS the overrun (rc 124 reaches the branch below) but does NOT
   # STOP it -- it waits for the container.  The `docker rm -f` two lines down is real and is
   # what ends a container, but it is not reached until the container has already ended itself.
