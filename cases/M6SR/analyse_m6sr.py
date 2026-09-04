@@ -49,6 +49,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if REPO not in sys.path:
@@ -2759,7 +2760,11 @@ def controls(scratch, mutate=None):
                   # launch path ran them; these names are pinned here so a future edit
                   # cannot orphan the screen the way item 5 orphaned Gate P.
                   "section7_screen", "section7_condition_1",
-                  "verify_patch_name_source", "_section7_screen_summary_lines")
+                  "verify_patch_name_source", "_section7_screen_summary_lines",
+                  # Amendment 21, item 48. Rule 4's strict completion,
+                  # INCLUDING the age guard, was called by no control at all
+                  # until C31 and is named here so it cannot be orphaned.
+                  "completion_clauses")
     missing = [n for n in must_reach if n not in reach]
     sentinel_ok = "_control_unreachable_sentinel" not in reach
     if mutate == "C23":
@@ -3036,6 +3041,73 @@ def controls(scratch, mutate=None):
          f"which is the only thing that makes a SECOND entry point safe. The refusal line "
          f"the driver will print is {lines30[0][:150]!r} -- it NAMES the clause and the "
          f"measured value against its threshold, and the clean twin emits NO such line.")
+
+    # ======================================================================================
+    # C31 -- AMENDMENT 21, ITEM 48.  THE AGE GUARD IS SHOWN ABLE TO **FAIL**.
+    #
+    # WHY IT DID NOT EXIST BEFORE, STATED RATHER THAN GLOSSED.  `completion_clauses()` --
+    # standing rule 4's strict all-or-nothing completion, INCLUDING the age guard -- was
+    # called from exactly ONE place in this file, the grade path, and by NO control.  The
+    # single most load-bearing guard in the campaign had never been shown able to fail.
+    #
+    # AND ITEM 48's REPAIR IS PRECISELY WHAT COULD HAVE BROKEN IT.  Moving Section 8's whole
+    # case write ahead of B4 -- the obvious fix -- would have laid `0/U` at STAGE time, so it
+    # would predate every field the solve writes and THE GUARD WOULD PASS UNCONDITIONALLY.
+    # A guard that cannot fail is worse than an absent one because it CERTIFIES.  This
+    # control is what makes the claim "the anchor still dates the launch" checkable.
+    #
+    # IT IS A DELTA, NOT A COLOUR: one synthetic COMPLETED case, graded twice by the REAL
+    # completion_clauses(), once clean and once with ONE field's mtime pushed OLDER than the
+    # anchor, requiring the clean twin to pass, the mutant to fail, and EXACTLY the age-guard
+    # clause to flip.
+    # ======================================================================================
+    def _c31_case(root, et=5):
+        """A synthetic case that satisfies EVERY other rule-4 clause, so only the age guard
+        is under test.  0/U is written LAST, as the real writer writes it."""
+        os.makedirs(os.path.join(root, str(et)), exist_ok=True)
+        os.makedirs(os.path.join(root, "0"), exist_ok=True)
+        _write(os.path.join(root, "SOLVER_RC.txt"), "0\n")
+        _write(os.path.join(root, "log.rhoSimpleFoam"),
+               _synthetic_residual_log("stock", [1e-3] * et) + "End\n")
+        for f in RULE4_FIELDS:                      # 0/ FIRST -- the anchor is the OLDEST
+            _write(os.path.join(root, "0", f), "0\n")
+        time.sleep(0.02)                            # a real solve is not instantaneous
+        for f in RULE4_FIELDS:                      # then endTime, NEWER than the anchor
+            _write(os.path.join(root, str(et), f), "1\n")
+        return root
+
+    c31root = os.path.join(scratch, "c31")
+    clean31 = completion_clauses(_c31_case(os.path.join(c31root, "clean")), 5)
+    # THE PLANT: ONE field at endTime pushed to an mtime OLDER than 0/U -- a field that
+    # cannot have come from this launch.  Nothing else about the case changes.
+    mut31dir = _c31_case(os.path.join(c31root, "stale"))
+    anchor31 = os.path.getmtime(os.path.join(mut31dir, "0", "U"))
+    stale31 = os.path.join(mut31dir, "5", "p")
+    os.utime(stale31, (anchor31 - 3600.0, anchor31 - 3600.0))
+    mut31 = completion_clauses(mut31dir, 5)
+    # AND THE ABSENT-ANCHOR LIMB: no 0/U at all must read FALSE, never clean.
+    noanchor31 = _c31_case(os.path.join(c31root, "noanchor"))
+    os.remove(os.path.join(noanchor31, "0", "U"))
+    abs31 = completion_clauses(noanchor31, 5)
+    AG = "age_guard_every_field_newer_than_0_over_U"
+    moved31 = {k for k, v in mut31.items()
+               if isinstance(v, bool) and k != "ALL" and v != clean31.get(k)}
+    ok31 = (clean31["ALL"] is True and clean31[AG] is True
+            and mut31["ALL"] is False and mut31[AG] is False
+            and moved31 == {AG}
+            and abs31[AG] is False and abs31["ALL"] is False)
+    if mutate == "C31":
+        ok31 = False
+    _rec("C31", ok31,
+         f"one synthetic COMPLETED case, graded twice by the REAL completion_clauses(): "
+         f"clean -> {AG} = {clean31[AG]}, ALL = {clean31['ALL']}; with ONE endTime field "
+         f"(5/p) pushed 3600 s OLDER than the case's own 0/U -> {AG} = {mut31[AG]}, ALL = "
+         f"{mut31['ALL']}, and the clauses that MOVED are {sorted(moved31)} -- the flip is "
+         f"CONFINED to the age guard. Absent-anchor limb: with 0/U removed, {AG} = "
+         f"{abs31[AG]} (never clean). BEFORE THIS CONTROL completion_clauses() WAS CALLED BY "
+         f"NO CONTROL AT ALL, so rule 4's guard had never been shown able to fail -- and "
+         f"item 48's obvious fix, writing 0/ at stage time, would have made it pass "
+         f"UNCONDITIONALLY while still reporting green.")
 
     return fired, detail
 
@@ -3358,7 +3430,8 @@ def main(argv):
                            "C13", "C14", "C15", "C17", "C18", "C19", "C19b", "C20",
                            "C21", "C22", "C23", "C24",
                            "C25", "C26", "C27", "C28",        # Amendment 19
-                           "C29", "C30"):                     # Amendment 20, item 47
+                           "C29", "C30",                      # Amendment 20, item 47
+                           "C31"):                            # Amendment 21, item 48
                 if target in baseline_red:
                     reds[target] = None                 # cannot mutate an already-red control
                     continue

@@ -62,8 +62,19 @@
 #            must still reach the solver line.  Without the clean twin the four mutants prove
 #            only that something failed.
 #
-# USAGE:  check_m6sr_launch_path.sh [--controls]      -- everything, T1..T6
-#         check_m6sr_launch_path.sh --section7-only   -- T0 + T6 ONLY, NO CONTAINER
+#   ITEM 48  Section 19.3 RULED, pre-compute, that Section 8's case is written BEFORE `B4` as
+#            step `B3c`.  Section 19.8 costed it and two later amendments called it "not moved
+#            and not redefined".  MEASURED: `B3c` existed in the registration and IN NO
+#            EXECUTABLE -- the writer ran only in the SOLVE phase, after B4, which is exactly
+#            the placement Section 19.3.1 measured as inner rc 1, no `log.checkMesh`, and
+#            therefore no Gate A and no `B4s`.  REPAIRED by SPLITTING the write: `B3c` writes
+#            `constant/` + `system/` at stage time, `B3z` writes `0/` at solve time.  THE SPLIT
+#            IS NOT TIDINESS -- moving the whole write up would have laid `0/U` at stage time
+#            and made rule 4's age guard PASS UNCONDITIONALLY.  T7 is the ordering control; the
+#            behavioural half is W6/W7 in `write_m6sr_case.py --selftest`.
+#
+# USAGE:  check_m6sr_launch_path.sh [--controls]      -- everything, T1..T7
+#         check_m6sr_launch_path.sh --section7-only   -- T0 + T6 + T7 ONLY, NO CONTAINER
 # EXIT:   0 all checks passed;  1 a check FAILED;  2 the suite REFUSED (plant unseen /
 #         preconditions absent) -- a refusal is NEVER reported as a pass.
 #
@@ -374,6 +385,58 @@ S7_CALLS=$(grep -c '^section7_launch_screen "\$LEVEL" "\$CASE"' "$CODE")
   && ok "T6g the driver's code calls the screen exactly once at top level -- item 47 was a screen that existed and was never invoked, so 'defined' is not the test" \
   || bad "T6g expected exactly one top-level call to section7_launch_screen, found $S7_CALLS"
 
+# =======================================================================================
+# T7  ITEM 48 -- THE RULED STEP ORDER, AND THE GUARD THAT KEEPS THE AGE GUARD NON-VACUOUS.
+#
+# Section 19.3 ruled `B3` -> `B3c` -> `B4` -> `B5` and NOTHING IMPLEMENTED IT: `B3c` existed
+# in the registration, in its cost table and in two later amendments' disclaimers, and in no
+# executable.  Amendment 21 places it -- but SPLIT, because moving the WHOLE case write up
+# would have laid `0/U` at stage time and made rule 4's age guard PASS UNCONDITIONALLY.
+#
+# THIS LIMB IS THE ORDERING AND THE GUARD, ON THE DRIVER'S OWN CODE.  The BEHAVIOURAL half
+# -- that `pre-check` writes no `0/` and `zero` lays the anchor last -- is controls W6 and W7
+# in `write_m6sr_case.py --selftest`, driven on a real mesh, and is NOT duplicated here.
+# =======================================================================================
+echo
+echo "=== T7  ITEM 48.  THE RULED STEP ORDER B3c -> B4 -> B4s -> B3z -> SOLVER ==="
+ln_of(){ grep -n "$1" "$CODE" | cut -d: -f1 | sort -n | head -1; }
+L_B3C=$(ln_of 'phase pre-check')
+L_B4=$(ln_of 'run_in_container checkMesh')
+L_B4S=$(ln_of '^section7_launch_screen "\$LEVEL" "\$CASE"')
+L_B3Z=$(ln_of 'phase zero')
+L_SOLVE=$(ln_of 'mpirun -np \$RANKS rhoSimpleFoam')
+if [ -z "$L_B3C" ] || [ -z "$L_B4" ] || [ -z "$L_B4S" ] || [ -z "$L_B3Z" ] || [ -z "$L_SOLVE" ]; then
+  bad "T7a could not locate all five steps in the driver's code: B3c='${L_B3C:-none}' B4='${L_B4:-none}' B4s='${L_B4S:-none}' B3z='${L_B3Z:-none}' solver='${L_SOLVE:-none}'"
+elif [ "$L_B3C" -lt "$L_B4" ] && [ "$L_B4" -lt "$L_B4S" ] && [ "$L_B4S" -lt "$L_B3Z" ] && [ "$L_B3Z" -lt "$L_SOLVE" ]; then
+  ok "T7a THE RULED ORDER HOLDS IN THE DRIVER'S OWN CODE: B3c $L_B3C < B4 checkMesh $L_B4 < B4s $L_B4S < B3z $L_B3Z < solver $L_SOLVE. B3c is what gives checkMesh a system/ to read; B3z is DELIBERATELY last so rule 4's anchor dates the launch being graded"
+else
+  bad "T7a the ruled order is broken: B3c $L_B3C, B4 $L_B4, B4s $L_B4S, B3z $L_B3Z, solver $L_SOLVE"
+fi
+
+# ---- T7b  B3c MUST NOT write 0/, and the driver REFUSES if it ever does.  This is the
+# anti-vacuity guard: a 0/U written at stage time predates every field the solve writes, so
+# rule 4's age guard would pass unconditionally while still reporting green.
+if grep -qE '^[[:space:]]*\[ -d "\$CASE/0" \][[:space:]]*\\?$' "$CODE" \
+   && grep -q 'B3c wrote \$CASE/0' "$CODE"; then
+  ok "T7b the driver carries its own refusal if B3c ever writes 0/ -- the anti-vacuity guard is in the CODE, not only in a comment (comments are stripped from \$CODE)"
+else
+  bad "T7b the driver's code carries no refusal against B3c writing 0/; a future edit could make rule 4's age guard vacuous with nothing to stop it"
+fi
+
+# ---- T7c  THE TWO PHASES ARE THE ONE REGISTERED WRITER, not a second one.
+W_INVOKE=$(grep -c 'write_m6sr_case.py' "$CODE")
+W_PRE=$(grep -c 'write_m6sr_case.py.*--phase pre-check' "$CODE")
+W_ZERO=$(grep -c 'write_m6sr_case.py.*--phase zero' "$CODE")
+W_ALL=$(grep -c 'write_m6sr_case.py.*--phase all' "$CODE")
+# THE PHASE NAMES ARE CHECKED, NOT MERELY THE PRESENCE OF `--phase`.  `--phase all` at B3c
+# would write 0/ AT STAGE TIME and make rule 4's age guard vacuous -- the exact substitution
+# this split exists to prevent -- and it would satisfy a test that only counted `--phase`.
+if [ "$W_PRE" = "1" ] && [ "$W_ZERO" = "1" ] && [ "$W_ALL" = "0" ]; then
+  ok "T7c both case writes go through the ONE registered writer, as EXACTLY ONE --phase pre-check and EXACTLY ONE --phase zero, with NO --phase all on the launch path (of $W_INVOKE total references). Section 8's single-writer rule is unbroken and the vacuity substitution is excluded by name"
+else
+  bad "T7c expected exactly one --phase pre-check, one --phase zero and NO --phase all; found pre-check=$W_PRE zero=$W_ZERO all=$W_ALL. A --phase all at B3c would lay 0/U at stage time and make rule 4's age guard pass unconditionally"
+fi
+
 if [ "$MODE" = "section7-only" ]; then
   echo
   echo "SECTION-7-ONLY MODE.  NOT RUN, AND NAMED RATHER THAN SILENTLY SKIPPED:"
@@ -382,7 +445,7 @@ if [ "$MODE" = "section7-only" ]; then
   echo "  T3  the case-permission halves (item 30)                  -- REQUIRES A CONTAINER"
   echo "  T4  the missing-controlDict chain (item 31)               -- REQUIRES A CONTAINER"
   echo "  T5  the graded-artifact head corruption (item 32/34)      -- REQUIRES A CONTAINER"
-  echo "THIS MODE REPORTS NOTHING ABOUT THOSE FIVE. A pass here is a pass for T0 and T6 ONLY."
+  echo "THIS MODE REPORTS NOTHING ABOUT THOSE FIVE. A pass here is a pass for T0, T6 and T7 ONLY."
   echo
   echo "checks passed: $PASS   FAILED: $FAIL"
   [ "$FAIL" -eq 0 ] || exit 1

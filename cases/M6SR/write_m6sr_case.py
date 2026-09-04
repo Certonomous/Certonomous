@@ -31,10 +31,12 @@ them to fire.
 NOTHING UNDER /home/ubuntu/certonomous-runs/ IS WRITTEN.  Meshes there are read only.
 """
 
+import hashlib
 import json
 import math
 import os
 import sys
+import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(os.path.dirname(HERE))
@@ -766,17 +768,55 @@ def write_sample_dict(case, pat, axes, stns):
 # =======================================================================================
 # THE ENTRY POINT
 # =======================================================================================
-def write_case(case, level, polymesh_dir=None):
-    if level not in LEVELS:
-        raise Refusal(f"{level!r} is not one of {sorted(LEVELS)}. REFUSED.")
-    spec = LEVELS[level]
-    pm = polymesh_dir or os.path.join(case, "constant", "polyMesh")
-    if not os.path.isdir(pm):
-        raise Refusal(f"{pm} is ABSENT. Section 8.1 attaches boundary conditions BY PATCH "
-                      "TYPE (CH1) and there is no boundary file to read them from. An absent "
-                      "mesh never reads as a default patch set. REFUSED.")
+def mesh_identity_token(polymesh_dir):
+    """A raw-file identity token tying the two write phases to ONE mesh.  -> str.
 
-    # SECTION 8.6 -- THE LAUNCHER REFUSES A CASE WHERE `0` OR ANY TIME DIRECTORY EXISTS.
+    IT IS NOT `points_stream_sha` AND IS NOT OFFERED AS ONE.  That function hashes the
+    DECOMPRESSED stream and belongs to the comparator's Gate A item A5; this hashes the
+    RAW BYTES of exactly the two files BOTH write phases read -- `boundary`, which CH1
+    classifies patches from, and the points file, which the freestream axes come from.
+    Its ONLY job is to refuse a `zero` phase run against a different mesh from the one the
+    `pre-check` phase wrote `system/` for.  It is deliberately a plain hash of named files
+    and NOT an import of the grading path (Section 9.1: this file is a solver INPUT).
+    """
+    parts = []
+    for name in ("boundary", "points", "points.gz"):
+        p = os.path.join(polymesh_dir, name)
+        if os.path.exists(p):
+            with open(p, "rb") as fh:
+                parts.append(f"{name}:{hashlib.sha256(fh.read()).hexdigest()}")
+    if not parts:
+        raise Refusal(f"{polymesh_dir} carries neither a boundary file nor a points file, so "
+                      "no mesh identity token can be taken. A missing token is a REFUSAL, "
+                      "never a fallback.")
+    return hashlib.sha256(" ".join(parts).encode()).hexdigest()
+
+
+# =======================================================================================
+# THE TWO WRITE PHASES -- AMENDMENT 21, ITEM 48, ON THE SUPERVISOR'S RULING.
+#
+# WHY THE CASE WRITE IS SPLIT, AND WHY MOVING THE WHOLE CALL WOULD HAVE BEEN WRONG.
+# Section 19.3 ruled, pre-compute, that Section 8's case is written BEFORE `B4` as step
+# `B3c`, because `checkMesh` cannot start without `system/`.  MEASURED (Amendment 21):
+# `checkMesh -constant` on a case carrying `system/` + `constant/` and NO `0/` returns
+# inner rc 0 and a 3330-byte log ending `Mesh OK.` -- byte-for-byte the same size as the
+# same probe with `0/` present -- while the same mesh with no `system/` returns inner rc 1.
+# SO `checkMesh` NEEDS `system/` AND DOES NOT NEED `0/`.
+#
+# 🔴 AND MOVING THE WHOLE WRITE WOULD HAVE MADE STANDING RULE 4's AGE GUARD VACUOUS.
+# The age guard requires every field at `endTime` to be NEWER than the case's own `0/U`,
+# because `0/U` is touched LAST AT LAUNCH and therefore DATES THE RUN ALLOWED TO PRODUCE
+# THE ANSWER.  Write `0/` at STAGE time and it predates the solve by the whole stage, so
+# every field the solve writes is NECESSARILY newer and THE GUARD PASSES UNCONDITIONALLY.
+# A vacuous guard that reports green is worse than an absent one, because it CERTIFIES.
+# The supervisor refused this exact substitution on another campaign the same day.
+#
+# SO: `pre-check` writes `constant/` + `system/` ONLY, and `zero` writes `0/` at solve
+# time, keeping the anchor on the launch being graded.  THERE IS STILL ONE CASE WRITER
+# (Section 8) -- this is one file with two phases, not a second writer.
+# =======================================================================================
+def _refuse_if_zero_or_time_dirs(case):
+    """SECTION 8.6 -- THE LAUNCHER REFUSES A CASE WHERE `0` OR ANY TIME DIRECTORY EXISTS."""
     if os.path.isdir(os.path.join(case, "0")):
         raise Refusal(f"{case}/0 already exists. The age guard dates the run from the case's "
                       "own 0/U, so a pre-existing 0/ makes standing rule 4 unprovable. "
@@ -786,25 +826,82 @@ def write_case(case, level, polymesh_dir=None):
             raise Refusal(f"a time directory already exists: {case}/{entry}. REFUSED "
                           "(Section 8.6).")
 
+
+def write_case(case, level, polymesh_dir=None, phase="all"):
+    if level not in LEVELS:
+        raise Refusal(f"{level!r} is not one of {sorted(LEVELS)}. REFUSED.")
+    if phase not in ("all", "pre-check", "zero"):
+        raise Refusal(f"{phase!r} is not a write phase. REFUSED.")
+    spec = LEVELS[level]
+    pm = polymesh_dir or os.path.join(case, "constant", "polyMesh")
+    if not os.path.isdir(pm):
+        raise Refusal(f"{pm} is ABSENT. Section 8.1 attaches boundary conditions BY PATCH "
+                      "TYPE (CH1) and there is no boundary file to read them from. An absent "
+                      "mesh never reads as a default patch set. REFUSED.")
+
+    _refuse_if_zero_or_time_dirs(case)
+
+    token = mesh_identity_token(pm)
+    token_path = os.path.join(case, "MESH_IDENTITY_TOKEN.txt")
+
+    if phase == "zero":
+        # THE `zero` PHASE RUNS AT SOLVE TIME, AGAINST A `system/` WRITTEN AT STAGE TIME.
+        # It REFUSES unless that `system/` exists and unless the mesh under it is the SAME
+        # mesh -- otherwise the two halves of one case could describe two meshes and
+        # nothing would announce it.
+        for need in (os.path.join(case, "system", "controlDict"),
+                     os.path.join(case, "constant", "thermophysicalProperties")):
+            if not os.path.exists(need):
+                raise Refusal(
+                    f"phase 'zero' requires the 'pre-check' phase to have run first, and "
+                    f"{need} is ABSENT. This phase writes 0/ ONLY; it does not silently "
+                    f"write the rest of the case. REFUSED.")
+        prev = open(token_path).read().split()[0] if os.path.exists(token_path) else None
+        if prev is None:
+            raise Refusal(
+                f"phase 'zero' found no mesh identity token at {token_path}. The token is "
+                "what ties 0/ to the same mesh system/ was written for; without it that tie "
+                "cannot be checked and this phase will NOT assume it. REFUSED.")
+        if prev != token:
+            raise Refusal(
+                f"MESH IDENTITY MISMATCH: system/ was written for a mesh hashing {prev}, and "
+                f"{pm} now hashes {token}. 0/ attaches boundary conditions BY PATCH TYPE from "
+                "this mesh's boundary file while system/ already names patches from another. "
+                "REFUSED rather than writing half a case against each.")
+
     pat, A = classify_patches(pm)
     uvec, axes = freestream_vector(pm, A)
     stns = stations(A.A_MAP_YB)
 
     written = []
-    written += write_constant(case)
-    written.append(write_fv_schemes(case))
-    written.append(write_fv_solution(case))
-    written.append(write_decompose_par_dict(case, spec["ranks"]))
-    written.append(write_sample_dict(case, pat, axes, stns))
-    written.append(write_control_dict(case, spec["end_time"], uvec, pat))
-    # 0/ LAST, and 0/U last within it -- Section 8.6's age guard.
-    written += write_zero(case, pat, uvec)
+    if phase in ("all", "pre-check"):
+        written += write_constant(case)
+        written.append(write_fv_schemes(case))
+        written.append(write_fv_solution(case))
+        written.append(write_decompose_par_dict(case, spec["ranks"]))
+        written.append(write_sample_dict(case, pat, axes, stns))
+        written.append(write_control_dict(case, spec["end_time"], uvec, pat))
+        written.append(_write(token_path, token + "\n"))
+    if phase in ("all", "zero"):
+        # 0/ LAST, and 0/U last within it -- Section 8.6's age guard.
+        written += write_zero(case, pat, uvec)
 
     mag = math.sqrt(sum(c * c for c in uvec))
     prov = {
         "level": level,
         "case": case,
         "polymesh_read": pm,
+        "write_phase": phase,
+        "mesh_identity_token": token,
+        "write_phase_note": (
+            "AMENDMENT 21, ITEM 48. 'pre-check' writes constant/ + system/ only, at step "
+            "B3c, BEFORE B4's checkMesh -- MEASURED: checkMesh -constant returns inner rc 0 "
+            "and a 3330-byte log ending 'Mesh OK.' on a case with system/ and NO 0/, and "
+            "inner rc 1 with no system/ at all. 'zero' writes 0/ ONLY, at solve time. "
+            "0/ IS NOT WRITTEN EARLY ON PURPOSE: rule 4's age guard dates the run from the "
+            "case's own 0/U, so a 0/U written at stage time would predate every field the "
+            "solve writes and THE GUARD WOULD PASS UNCONDITIONALLY. The token above ties "
+            "the two phases to one mesh and 'zero' REFUSES on a mismatch."),
         "written": written,
         "registration": "verification/campaign/M6SR_PREREGISTRATION.md Section 8",
         "THIS_FILE_IS_A_SOLVER_INPUT_NOT_A_GRADER": (
@@ -897,6 +994,67 @@ def _mutate_k_and_write(case4, pm, pat, uvec, keep, bad):
         K_INF = keep
 
 
+_SELFTEST_REAL_POLYMESH = (
+    "/home/ubuntu/certonomous-runs/A3-onera-m6-adjoint-coarse/constant/polyMesh")
+
+
+def _run_phase_controls(scratch, pm_real, rec, shutil):
+    """W6 and W7 -- Amendment 21, item 48.  Driven on a REAL polyMesh."""
+    # ---- W6.  AMENDMENT 21, ITEM 48 -- THE TWO WRITE PHASES, AND THE PROPERTY THAT MATTERS.
+    # `pre-check` MUST NOT write `0/`.  That is not tidiness: rule 4's age guard dates the run
+    # from the case's own `0/U`, and `0/U` earns that role only by being touched LAST AT
+    # LAUNCH.  Written at STAGE time it predates every field the solve writes, so THE GUARD
+    # PASSES UNCONDITIONALLY -- a guard that cannot fail is worse than an absent one because
+    # it certifies.  Both halves are driven here and read back FROM DISK.
+    w6 = os.path.join(scratch, "w6", "L3")
+    os.makedirs(os.path.join(w6, "constant"), exist_ok=True)
+    shutil.copytree(pm_real, os.path.join(w6, "constant", "polyMesh"))
+    write_case(w6, "L3", phase="pre-check")
+    w6_pre_no_zero = not os.path.isdir(os.path.join(w6, "0"))
+    w6_sys = os.path.exists(os.path.join(w6, "system", "controlDict"))
+    w6_tok = os.path.exists(os.path.join(w6, "MESH_IDENTITY_TOKEN.txt"))
+    time.sleep(0.02)
+    write_case(w6, "L3", phase="zero")
+    w6_zero = os.path.isdir(os.path.join(w6, "0"))
+    u_m = os.path.getmtime(os.path.join(w6, "0", "U"))
+    cd_m = os.path.getmtime(os.path.join(w6, "system", "controlDict"))
+    w6_anchor_last = u_m > cd_m
+    rec("W6", w6_pre_no_zero and w6_sys and w6_tok and w6_zero and w6_anchor_last,
+        f"phase 'pre-check' wrote system/controlDict={w6_sys} and the mesh identity "
+        f"token={w6_tok} and DID NOT write 0/ ({w6_pre_no_zero}); phase 'zero' then wrote 0/ "
+        f"({w6_zero}) with 0/U NEWER than system/controlDict ({w6_anchor_last}). THE ANCHOR "
+        f"IS LAID AT SOLVE TIME, NOT AT STAGE TIME -- a 0/U written by 'pre-check' would "
+        f"predate every field the solve writes and rule 4's age guard would pass "
+        f"UNCONDITIONALLY while still reporting green.")
+
+    # ---- W7.  THE `zero` PHASE'S TWO REFUSALS, EACH PLANTED.  A phase that cannot refuse a
+    # missing `system/` or a MOVED MESH would let one case describe two meshes silently.
+    w7a = os.path.join(scratch, "w7a", "L3")
+    os.makedirs(os.path.join(w7a, "constant"), exist_ok=True)
+    shutil.copytree(pm_real, os.path.join(w7a, "constant", "polyMesh"))
+    try:
+        write_case(w7a, "L3", phase="zero")
+        w7_nosys, m7a = False, "phase 'zero' ran with NO system/ and did not refuse"
+    except Refusal as exc:
+        w7_nosys = "requires the 'pre-check' phase to have run first" in str(exc)
+        m7a = str(exc)[:110]
+    w7b = os.path.join(scratch, "w7b", "L3")
+    os.makedirs(os.path.join(w7b, "constant"), exist_ok=True)
+    shutil.copytree(pm_real, os.path.join(w7b, "constant", "polyMesh"))
+    write_case(w7b, "L3", phase="pre-check")
+    _write(os.path.join(w7b, "MESH_IDENTITY_TOKEN.txt"), "0" * 64 + "\n")   # THE PLANT
+    try:
+        write_case(w7b, "L3", phase="zero")
+        w7_tok, m7b = False, "a MOVED mesh identity token did not refuse"
+    except Refusal as exc:
+        w7_tok = "MESH IDENTITY MISMATCH" in str(exc)
+        m7b = str(exc)[:110]
+    rec("W7", w7_nosys and w7_tok,
+        f"planted a 'zero' phase with no system/ at all -- REFUSED: {m7a}. Planted a MOVED "
+        f"mesh identity token on an otherwise complete case -- REFUSED: {m7b}. Neither "
+        f"refusal existed before Amendment 21, because neither phase existed.")
+
+
 def selftest(scratch):
     """Each control PLANTS a change and READS IT BACK FROM DISK, and the suite refuses if
     any of them does not fire.  A control that cannot be broken is not a control, so W4
@@ -974,6 +1132,22 @@ def selftest(scratch):
         f"0/U mtime {mts['U']!r} is >= every other 0/ field's; Section 8.6's age guard dates "
         "the run from 0/U, so it must be written LAST")
 
+    # ---- W6 / W7 NEED A REAL polyMesh, and that dependency is NAMED rather than hidden.
+    # The W1/W3 fixture is a BOUNDARY FILE ONLY -- W3's own comment says so: "mesh_axes needs
+    # points/faces; the synthetic boundary alone cannot supply them".  `write_case()` derives
+    # the freestream frame from the mesh, so the phase controls cannot run on that fixture.
+    # They use THIS FAMILY'S OWN L3 polyMesh, and if it is absent they go RED WITH A REASON
+    # rather than being skipped -- a control that quietly does not run is worse than one that
+    # fails, and Amendment 20's C29 already takes this shape for the createPatchDict pin.
+    pm_real = _SELFTEST_REAL_POLYMESH
+    if not os.path.isdir(pm_real):
+        rec("W6", False, f"the real polyMesh {pm_real} is ABSENT, so the phase controls "
+                         "could not be driven. THIS IS RED, NOT SKIPPED.")
+        rec("W7", False, f"the real polyMesh {pm_real} is ABSENT, so the phase refusals "
+                         "could not be driven. THIS IS RED, NOT SKIPPED.")
+    else:
+      _run_phase_controls(scratch, pm_real, rec, shutil)
+
     # ---- W4.  THE MUTATION CONTROL.  Break a SHIPPED statistic and require the suite RED.
     # The test is on the DELTA -- exactly W3 must flip -- because 'the suite went red' is
     # worthless once anything is red for an unrelated reason.
@@ -1012,6 +1186,14 @@ def main(argv):
     ap.add_argument("--level", choices=sorted(LEVELS), help="L3 / L2 / L1")
     ap.add_argument("--polymesh", default=None,
                     help="override the polyMesh read for patch types and axes")
+    ap.add_argument("--phase", default="all", choices=("all", "pre-check", "zero"),
+                    help="AMENDMENT 21, ITEM 48. `pre-check` writes constant/ + system/ "
+                         "ONLY, for step B3c before B4's checkMesh -- MEASURED: checkMesh "
+                         "needs system/ and does NOT need 0/. `zero` writes 0/ ONLY, at "
+                         "solve time, so rule 4's age-guard anchor is still touched at the "
+                         "launch being graded; writing 0/ at stage time would make that "
+                         "guard PASS UNCONDITIONALLY. Default `all` is the unchanged "
+                         "single-shot behaviour.")
     ap.add_argument("--selftest", action="store_true",
                     help="run this writer's planted controls and the mutation control")
     ap.add_argument("--scratch", default=None)
@@ -1038,7 +1220,7 @@ def main(argv):
     if not args.case or not args.level:
         ap.print_help()
         return 0
-    prov = write_case(args.case, args.level, args.polymesh)
+    prov = write_case(args.case, args.level, args.polymesh, phase=args.phase)
     print(json.dumps(prov, indent=2, default=str))
     return 0
 

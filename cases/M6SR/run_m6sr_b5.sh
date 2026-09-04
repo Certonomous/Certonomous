@@ -595,6 +595,59 @@ print(A.points_stream_sha('$CASE/constant/polyMesh'))
   say "stage: points-stream sha256 $PSHA  -- PUBLISHED for Gate A item A5"
 
   # ---------------------------------------------------------------------------------------
+  # STEP `B3c` -- SECTION 8's CASE, `constant/` + `system/` ONLY, BEFORE `B4`.
+  # AMENDMENT 21, ITEM 48, ON THE SUPERVISOR'S RULING.
+  #
+  # THE DEFECT THIS CLOSES.  Section 19.3 RULED, pre-compute, that Section 8's case is
+  # written BEFORE `B4` as step `B3c`, ordered `B3`/`B3s` -> `B3c` -> `B4` -> `B5`.
+  # Section 19.8 costed it, and Sections 20.2.4 and 20.7 both said it was "not moved and
+  # not redefined".  MEASURED (item 48): `B3c` existed in the registration, in its cost
+  # table and in two later amendments' disclaimers, AND IN NO EXECUTABLE.  The writer was
+  # invoked only in the SOLVE phase, after B4's checkMesh, which is exactly the placement
+  # Section 19.3.1 measured as inner rc 1, `cannot find file "/case/system/controlDict"`,
+  # abort 6, NO log.checkMesh -- so Gate A had nothing to grade and `B4s` could never fire.
+  #
+  # 🔴 AND THE OBVIOUS FIX -- MOVING THE WHOLE WRITER CALL UP -- WOULD HAVE MADE STANDING
+  # RULE 4's AGE GUARD VACUOUS, WHICH IS WORSE THAN THE DEFECT IT CLOSED.  The age guard
+  # requires every field at `endTime` to be NEWER than the case's own `0/U`, because `0/U`
+  # is touched LAST AT LAUNCH and therefore DATES THE RUN ALLOWED TO PRODUCE THE ANSWER.
+  # A `0/U` written HERE, at stage time, predates the solve by the whole stage, so every
+  # field the solve writes is NECESSARILY newer and THE GUARD PASSES UNCONDITIONALLY.
+  # A vacuous guard that reports green is worse than an absent one: it CERTIFIES.
+  #
+  # SO THE WRITE IS SPLIT, AND THE SPLIT POINT IS MEASURED RATHER THAN ASSUMED.
+  # `checkMesh -constant` on the pinned digest, one probe per row, same mesh:
+  #     case contents                                   | inner rc | log.checkMesh
+  #     ------------------------------------------------------------------------------
+  #     mesh only                                       |    1     | 1545 b, "cannot find
+  #                                                     |          | file .../controlDict"
+  #     mesh + constant/ + system/ + 0/                 |    0     | 3330 b, "Mesh OK."
+  #     mesh + constant/ + system/, 0/ REMOVED          |    0     | 3330 b, "Mesh OK."
+  # `checkMesh` NEEDS `system/` AND DOES NOT NEED `0/`.  The reader is calibrated in both
+  # directions by the first and last rows, so the middle result is not a lone green.
+  #
+  # THERE IS STILL EXACTLY ONE CASE WRITER (Section 8).  `--phase` selects which half of
+  # the ONE writer runs; this driver still authors no case file of its own.
+  # ---------------------------------------------------------------------------------------
+  python3 "$CASES/write_m6sr_case.py" --selftest > "$CASE/log.writer_controls_B3c" 2>&1
+  WRC3=$?
+  [ "$WRC3" -eq 0 ] \
+    || abort "the case writer's PLANTED CONTROLS did not fire before B3c (rc $WRC3; see $CASE/log.writer_controls_B3c). A case written by a writer whose plant did not fire is not evidence (rule 3). REFUSED AT ZERO CONTAINER COST." 6
+  T0C=$(date +%s)
+  python3 "$CASES/write_m6sr_case.py" --case "$CASE" --level "$LEVEL" --phase pre-check \
+      > "$CASE/log.write_case_B3c" 2>&1
+  WRC3=$?
+  T1C=$(date +%s)
+  [ "$WRC3" -eq 0 ] \
+    || abort "B3c: the case writer REFUSED or failed writing constant/ + system/ (rc $WRC3; see $CASE/log.write_case_B3c). B4's checkMesh cannot start without system/controlDict, so this REFUSES here rather than letting B4 fail inside a container." 6
+  [ -f "$CASE/system/controlDict" ] \
+    || abort "B3c returned 0 but $CASE/system/controlDict is ABSENT. B4's checkMesh reads that file first. REFUSED." 70
+  [ -d "$CASE/0" ] \
+    && abort "B3c wrote $CASE/0. IT MUST NOT: rule 4's age guard dates the run from 0/U, and a 0/U written at STAGE time predates every field the solve writes, so the guard would pass UNCONDITIONALLY. A vacuous guard that reports green is worse than an absent one. REFUSED." 13
+  echo "$((T1C-T0C))" > "$CASE/WALL_B3c.txt"
+  say "B3c: constant/ + system/ written BEFORE B4 ($((T1C-T0C)) wall s at 1 rank, UNBUDGETED in Section 2.4); 0/ deliberately NOT written here -- it is step B3z, at solve time, so rule 4's age-guard anchor dates the launch being graded"
+
+  # ---------------------------------------------------------------------------------------
   # AMENDMENT 12 ITEM 30 -- REPAIRED HERE, AND NOT WITH `chmod 777`.
   #
   # THE DEFECT, STATED EXACTLY.  `mkdir -p "$CASE"` above runs as the HOST user (MEASURED:
@@ -783,12 +836,28 @@ WRC=$?
 [ "$WRC" -eq 0 ] || abort "the case writer's PLANTED CONTROLS did not fire (rc $WRC; see $CASE/log.writer_controls). A case written by a writer whose plant did not fire is not evidence (rule 3). REFUSED." 6
 say "case writer: ALL PLANTED CONTROLS FIRED (see $CASE/log.writer_controls)"
 
-python3 "$CASES/write_m6sr_case.py" --case "$CASE" --level "$LEVEL" \
+# ---------------------------------------------------------------------------------------
+# STEP `B3z` -- SECTION 8.1's SEVEN `0/` FIELDS, AND NOTHING ELSE.  AMENDMENT 21, ITEM 48.
+#
+# `constant/` and `system/` were written at `B3c`, in the stage phase, because B4's
+# checkMesh cannot start without `system/`.  `0/` IS WRITTEN HERE AND DELIBERATELY NOT
+# THERE.  Standing rule 4's age guard requires every field at `endTime` to be NEWER than
+# the case's own `0/U`, and `0/U` earns that role only by being touched LAST AT LAUNCH.
+# Written at stage time it would predate the solve by the whole stage and the guard would
+# pass UNCONDITIONALLY -- a guard that cannot fail is worse than no guard, because it
+# certifies.  So the anchor is laid HERE, immediately before the solver step.
+#
+# The writer's `zero` phase REFUSES if `system/` is absent, and re-hashes the mesh against
+# the identity token `B3c` recorded, so the two halves of one case cannot describe two
+# meshes without something saying so.
+# ---------------------------------------------------------------------------------------
+python3 "$CASES/write_m6sr_case.py" --case "$CASE" --level "$LEVEL" --phase zero \
     > "$CASE/log.write_case" 2>&1
 WRC=$?
-[ "$WRC" -eq 0 ] || abort "the case writer REFUSED or failed (rc $WRC; see $CASE/log.write_case). Section 8's case files were NOT written and there is nothing to solve." 6
+[ "$WRC" -eq 0 ] || abort "B3z: the case writer REFUSED or failed writing 0/ (rc $WRC; see $CASE/log.write_case). Section 8.1's seven fields were NOT written and there is nothing to solve." 6
 [ -f "$CASE/0/U" ] || abort "the case writer returned 0 but $CASE/0/U is absent. REFUSED." 70
-say "case written: Section 8's seven 0/ fields, fvSchemes, fvSolution, constant/, controlDict, decomposeParDict, sampleDict"
+[ -f "$CASE/system/controlDict" ] || abort "B3z wrote 0/ but $CASE/system/controlDict is ABSENT, so B3c did not run or its output was removed. A case with an anchor and no controlDict is not a case. REFUSED." 70
+say "case written: B3c wrote constant/ + system/ before B4; B3z has now written Section 8.1's seven 0/ fields, 0/U LAST, so rule 4's age-guard anchor dates THIS launch"
 say "case provenance and EVERY CHOICE MADE: $CASE/CASE_PROVENANCE.json"
 
 # uid 1002 inside the container must be able to write the case it solves.

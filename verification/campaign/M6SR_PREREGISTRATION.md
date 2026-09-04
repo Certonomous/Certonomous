@@ -6428,3 +6428,339 @@ supervisor's first check:
 **AND THE COMPARISON IS PLANT-VERIFIED (rule 3):** the same `cmp`, run against a copy of the fresh
 output with **one line appended**, **DOES report a difference** — so the equality above is evidence
 and not a comparator that cannot see one.
+
+---
+
+## 27. AMENDMENT 21 — 2026-09-04, **PRE-COMPUTE**. **ITEM 48 IS REPAIRED: §19.3's OWN RULED STEP `B3c` NOW EXISTS IN AN EXECUTABLE — AND IT IS *SPLIT*, BECAUSE THE OBVIOUS FIX WOULD HAVE MADE STANDING RULE 4's AGE GUARD *VACUOUS*.** `B3c` WRITES `constant/` + `system/` BEFORE `B4`; NEW STEP `B3z` WRITES `0/` AT SOLVE TIME SO THE ANCHOR STILL DATES THE LAUNCH BEING GRADED. **RULE 4's AGE GUARD GETS ITS FIRST CONTROL EVER.** AND THE `c1625208` GATING LEAD IS **SETTLED: NOT A REGRESSION.**
+
+**Written by a lane under the cfd supervisor's express ruling on item 48, quoted where applied.
+It moves NO gate, NO threshold, NO cap and NO label. It does not freeze and it does not launch.**
+
+### 27.0 THE LAWFULNESS CONDITION, AND HOW IT WAS CHECKED — **NOT ASSERTED, PLANTED**
+
+Run directory: **`verification/runs/M6SR_runs`**, **plant-verified absent** — `find` returns **0**,
+a probe created at that exact path returns **1** (the searcher is shown able to see it), and after
+`rmdir` — which **refuses a non-empty directory** — **0**. `test -e` reads **ABSENT**;
+`git ls-files` returns **0 rows**. **NO COMPUTE HAS OCCURRED UNDER THIS REGISTRATION.**
+
+---
+
+### 27.1 ITEM 48 — THE RULING, AND WHY THE OBVIOUS REPAIR WAS REFUSED
+
+> **RULED (supervisor, verbatim):** *"IMPLEMENTING A STANDING PRE-COMPUTE RULING IS NOT A NEW GATE,
+> so the direction is settled: B3c goes into the executable, ahead of B4's checkMesh. BUT DO NOT
+> SIMPLY MOVE THE `:786` CALL ABOVE `:666` … `write_m6sr_case.py` writes the initial fields as well
+> as `system/`. Rule 4's age guard requires every field at endTime to be NEWER THAN THE CASE'S OWN
+> `0/` ANCHOR, because that anchor is touched LAST AT LAUNCH and therefore DATES THE RUN ALLOWED TO
+> PRODUCE THE ANSWER. If `0/` is written at STAGE time … THE AGE GUARD WOULD PASS UNCONDITIONALLY.
+> It would be VACUOUS, and a vacuous guard that reports green is worse than an absent one, because
+> it CERTIFIES."*
+
+#### 27.1.1 STEP 1 OF THE RULING — **THE CONFLICT, MEASURED BEFORE ANYTHING WAS CHOSEN**
+
+| question | **measured answer** |
+|---|---|
+| Does `write_m6sr_case.py` create `0/`, or only `system/` and `constant/`? | **It creates `0/`.** `:507` writes each of the seven fields into `os.path.join(case, "0", name)`. **So the supervisor's branch (2) applies, not branch (3).** |
+| Does the solve phase run a pre-existing-`0/` guard, and would `B3c` trip it? | **Yes, and yes.** The guard is at `run_m6sr_b5.sh:263`, inside section 1 *"REFUSALS BEFORE ANY WORK"* — it runs on **every invocation, before any phase branch**. A `stage` run that wrote `0/` would make the **next** `solve` invocation abort at **exit 4**. `write_m6sr_case.py:780` carries the same refusal independently. **The conflict is real and is not hypothetical.** |
+| Is the age guard's anchor really `0/U`'s mtime? | **Yes** — `analyse_m6sr.py` `completion_clauses()`: `t0 = os.path.getmtime(case/0/U)`, then every field at `endTime` must satisfy `getmtime(field) > t0`. |
+
+#### 27.1.2 STEP 2 OF THE RULING — **WHAT `checkMesh` ACTUALLY REQUIRES, BY MEASUREMENT**
+
+> *"Establish what checkMesh requires BY MEASUREMENT, not by assumption: run it against a case with
+> `system/` and no `0/` and see whether it completes. §19.3.1 already measured the converse case, so
+> this is the same experiment run the other way."*
+
+**Three arms, one experiment, on the pinned digest `sha256:2927768a…`, the same L3 mesh, the
+driver's own `-v`/`-w`/`-u 1002:1002 --group-add` shape, in a scratch tree — NOT in the run root:**
+
+| arm | case contents | **inner rc** | `log.checkMesh` | last matched line |
+|---|---|---|---|---|
+| **known negative** | mesh only | **1** | 1,545 b | `cannot find file "/case/system/controlDict"` |
+| **known positive** | mesh + `constant/` + `system/` + `0/` | **0** | **3,330 b** | **`Mesh OK.`** |
+| 🔴 **THE EXPERIMENT** | mesh + `constant/` + `system/`, **`0/` REMOVED** | **0** | **3,330 b** | **`Mesh OK.`** |
+
+> **`checkMesh -constant` NEEDS `system/` AND DOES NOT NEED `0/`.** The reader is calibrated in
+> **both** directions by the first and second arms, so the third is not a lone green (rule 3), and
+> the two passing arms produce logs of **the same 3,330 bytes**.
+
+#### 27.1.3 THE REPAIR — **THE WRITE IS SPLIT, AND THERE IS STILL EXACTLY ONE WRITER**
+
+`write_m6sr_case.py` gains **`--phase`**, and §8's single-writer rule is untouched — this is **one
+file with two phases, not a second writer**, and the driver still authors no case file of its own.
+
+| phase | writes | when | why there and nowhere else |
+|---|---|---|---|
+| **`pre-check`** → step **`B3c`** | `constant/` + `system/` + a mesh identity token | **stage, before `B4`** | `checkMesh` cannot construct a `Foam::Time` without `system/controlDict` |
+| **`zero`** → step **`B3z`** | **`0/` only, `0/U` last** | **solve, immediately before the solver** | **the age-guard anchor must be touched at the launch being graded** |
+| `all` *(default)* | everything, unchanged | — | kept so every existing invocation and control still behaves exactly as before |
+
+**THE TWO HALVES ARE TIED TO ONE MESH, NOT ASSUMED TO BE.** `B3c` records a **mesh identity
+token** — `sha256` over the raw bytes of `boundary` and the points file, the two files *both*
+phases read — and `zero` re-hashes and **REFUSES** on a mismatch, and **REFUSES** if `system/` is
+absent at all. ⚠ **The token is NOT `points_stream_sha` and is not offered as one**: that function
+hashes the *decompressed* stream and belongs to Gate A item A5. This is a plain hash of two named
+files whose only job is to stop one case describing two meshes. It is deliberately **not** an
+import of the grading path (§9.1: the writer is a solver **input**).
+
+**AND THE DRIVER REFUSES IF `B3c` EVER WRITES `0/`** — a new exit code **13**, with the reason in
+the refusal text. The anti-vacuity property is enforced in **code**, not promised in a comment.
+
+#### 27.1.4 THE REGISTERED STEP ORDER, AND ITS COST
+
+> **REGISTERED (pre-compute): `B3`/`B3s` → `B3c` → `B4` → `B4s` → `B3z` → `B5`.**
+> **MEASURED in the driver's own comment-stripped code:** `B3c` at line **230** < `B4`'s
+> `checkMesh` at **268** < `B4s` at **312** < `B3z` at **319** < `mpirun … rhoSimpleFoam` at
+> **331**. §19.3's ruled order is now true of an executable for the first time.
+
+| step | wall s at 1 rank (5 runs) | **core-min per level** | across 3 levels | status |
+|---|---|---|---|---|
+| **`B3c`** | 1.174 / 1.100 / 1.106 / 1.105 / 1.107 | **0.0196** (worst case) | **0.0587** | **UNBUDGETED**, own line — §19.8 already carried `B3c` at **0.019**, and **that figure is unchanged and still describes `B3c`** |
+| **`B3z`** | 1.093 / 1.103 / 1.103 / 1.104 / 1.108 | **0.0185** (worst case) | **0.0554** | **UNBUDGETED, NEW** |
+| **both** | ≈ 2.21 | **0.0380** | **0.1141** | **1.9 × 10⁻⁴ of §2.4's 615.24** |
+
+⚠ **THE SPLIT ROUGHLY DOUBLES THE CASE-WRITE COST AND THAT IS SAID, NOT BURIED.** A single-shot
+`--phase all` measures **1.102 s**; the two phases together measure **≈ 2.21 s**, because the mesh
+is read and its patches classified **twice, once per phase**. **That is the price of keeping rule
+4's age guard non-vacuous, and at 0.038 core-min per level it is a price worth paying for a guard
+that would otherwise certify.**
+
+> **§2.4's cost table is unchanged in every cell, including the TOTAL** (est ≈ 615.2, cap 1,903.0).
+> ⚠ **A BUDGETED ROW FOR `B3c` + `B3z` WOULD MOVE THE TOTAL, AND PER THE SUPERVISOR'S INSTRUCTION
+> THAT DECISION IS EXPLICITLY LEFT TO THE SUPERVISOR AND IS NOT TAKEN HERE.**
+
+---
+
+### 27.2 STEP 4 OF THE RULING — 🔴 **RULE 4's AGE GUARD HAD NEVER BEEN SHOWN ABLE TO FAIL. NOW IT HAS.**
+
+> *"EITHER WAY, the age guard gets a planted control proving it can still FAIL … If the guard
+> cannot be shown able to fail after this change, the change is not finished."*
+
+🔴 **A FINDING IN ITS OWN RIGHT, FOUND WHILE BUILDING THAT CONTROL: `completion_clauses()` — rule
+4's strict all-or-nothing completion, INCLUDING the age guard — was called from EXACTLY ONE PLACE
+IN THE COMPARATOR, the grade path, AND BY NO CONTROL AT ALL.** The single most load-bearing guard
+in the campaign had no plant, in twenty amendments. **New control `C31`:**
+
+| | measured |
+|---|---|
+| clean twin | `age_guard_every_field_newer_than_0_over_U` = **True**, `ALL` = **True** |
+| **the plant** — ONE `endTime` field (`5/p`) pushed **3,600 s older** than the case's own `0/U` | guard = **False**, `ALL` = **False** |
+| **clauses that MOVED** | **exactly `['age_guard_every_field_newer_than_0_over_U']`** — the flip is confined |
+| absent-anchor limb — `0/U` removed | guard = **False**, never clean |
+| the mutation control | **`C31` FLIPPED TO RED** when mutated |
+
+**`completion_clauses` is added to `C23`'s `must_reach`**, so it cannot be orphaned the way `gate_p`
+was.
+
+---
+
+### 27.3 THE CONTROLS ON THE SPLIT ITSELF
+
+| control | where | **how it dies** |
+|---|---|---|
+| **`W6`** | `write_m6sr_case.py --selftest` | drives BOTH phases on a **real** polyMesh: `pre-check` wrote `system/controlDict` and the token and **did NOT write `0/`**; `zero` then wrote `0/` with **`0/U` newer than `system/controlDict`**. **The anchor is laid at solve time.** |
+| **`W7`** | same | plants a `zero` phase with **no `system/`** → REFUSED; plants a **moved mesh identity token** on an otherwise complete case → **`MESH IDENTITY MISMATCH`**, REFUSED |
+| **`T7a`** | `check_m6sr_launch_path.sh` | the five-step order on the driver's **comment-stripped code** |
+| **`T7b`** | same | the driver's own **exit-13** refusal against `B3c` writing `0/` is present **in the code**, not only in a comment |
+| **`T7c`** | same | **exactly one `--phase pre-check`, exactly one `--phase zero`, and NO `--phase all`** on the launch path — the phase **names** are checked, because `--phase all` at `B3c` is precisely the vacuity substitution and would satisfy a test that only counted `--phase` |
+| **`MUT4`** — `B3c` deleted (item 48's original state) | driver mutation | `T7a` FAILED (`B3c='none'`), `T7c` FAILED (`pre-check=0`). 13 passed, **2 failed**, exit 1 |
+| **`MUT5`** — `--phase pre-check` → **`--phase all`** (the age-guard vacuity substitution) | driver mutation | `T7a` and `T7c` FAILED, `T7c` naming `all=1`. 13 passed, **2 failed**, exit 1 |
+
+⚠ **`W6`/`W7` NEED A REAL `polyMesh` AND THAT DEPENDENCY IS DECLARED, NOT HIDDEN.** The W1/W3
+fixture is a **boundary file only** — W3's own comment says `mesh_axes` needs points and faces —
+so the phase controls use this family's L3 polyMesh, and **if it is absent they go RED WITH A
+REASON rather than being skipped**, the shape `C29` already takes. **A control that quietly does
+not run is worse than one that fails.**
+
+**MEASURED: `check_m6sr_launch_path.sh --section7-only` → 15 checks passed, 0 failed, exit 0;
+`write_m6sr_case.py --selftest` → 8 of 8 writer controls FIRED, rc 0.**
+
+---
+
+### 27.4 🔴 **THE `c1625208` LEAD, SETTLED — IT IS *NOT* A REGRESSION**
+
+> The supervisor's lead, recorded as a lead and not a finding: *"at `analyse_m6sr.py`'s first commit
+> my pattern for openness/regions/min-volume GATING returned 2 hits, against 7 for merely parsing
+> them — whereas immediately before your Amendment 19 it returned 0 gating hits. That MIGHT mean §7
+> gating existed at birth and was lost, which would make items 43-45 a regression."*
+
+**IT IS SETTLED, AND THE ANSWER IS NO.** Read at source in the birth blob:
+
+| the three `1e-12` occurrences at `c1625208` | its actual role |
+|---|---|
+| `:616` `hull if s <= s1 + 1e-12` | a **geometric hull tolerance** in the planform reader |
+| `:1715` `abs((after14 - before14) - PLANT_CD) < 1e-12` | **control `C14`'s** plant tolerance |
+| `:1867` `(r_synth < 1.0e-12) and (r_bulge > 1.0e-12)` | **control `C20`'s** residual tolerance |
+
+**NONE is boundary openness.** Likewise `n_regions` appears in exactly one comparison,
+`key in ('n_regions', 'n_cells')` — an **int-coercion dispatch on the KEY NAME**, not on the value
+— and `min_volume` in exactly one, `out['min_volume'] is not None`, a **None-check guarding a
+division**. **There is no threshold comparison on any of the three at birth.**
+
+> **VERDICT ON THE LEAD: items 43–45 are an OMISSION FROM BIRTH, NOT A REGRESSION INSIDE M6SR.**
+> The two counts differed because the number of **unrelated** `1e-12` uses grew from **3** at
+> `c1625208` to **6** at `07dbc3ea^` (GCI agreement, `C14`, `C20`, `C24` and the same hull
+> tolerance) — **not because gating appeared or vanished.** The lead was a false positive and the
+> supervisor was right not to report it as fact.
+
+---
+
+### 27.5 ⚠ **A METHOD FINDING THE CENSUS NEEDS BEFORE IT RUNS: THE PRODUCER-KEYED TRANSITIVE CLOSURE DOES *NOT* TERMINATE USEFULLY IN THIS FILE**
+
+While settling the lead this lane built the census key the supervisor endorsed — *"searching
+outward from every expression that PRODUCES THE QUANTITY"* — as an AST fixpoint over **variable
+names**: seed on the three quantity keys, add any variable assigned from a seed, repeat, then
+report every comparison touching a seed. **MEASURED, and it fails:**
+
+| commit | comparisons the transitive key reports | its own **planted** instance |
+|---|---|---|
+| `c1625208` (birth) | **10** | **SEEN** |
+| `07dbc3ea^` | **10** | 🔴 **186 after the plant — NOT SEEN as +1** |
+| now | 🔴 **243** — effectively the whole file | SEEN |
+
+**The seed set leaks through generic local names (`v`, `key`, `m`, `got`, `out`) and swallows
+everything.** 🔴 **THIS LANE THEREFORE DOES NOT USE ANY NUMBER FROM IT**, and reports it because
+the same key is about to be applied to mechanisms M1–M4: **keyed on variable-name dataflow it
+over-collects to uselessness, and at one commit its own plant went unseen — the census would have
+been a reader that could not see what it was given.** The narrow, per-construct reading in §27.4
+is what settled the lead, and a census will need a key bounded by **enumerable members** — step
+ids, read sites, gate rows, cap rows — **not by dataflow closure over names.**
+
+---
+
+### 27.6 🔴 **NO EXISTING READING MOVED — MEASURED**
+
+| measurement | before | after |
+|---|---|---|
+| comparator controls | 30 | **31** (`C31` new) |
+| **existing controls whose state MOVED** | — | **NONE** |
+| comparator reds | `['C12']` | `['C12']` — the pre-existing `X7` blocker, unchanged |
+| writer controls | 6 | **8** (`W6`, `W7` new), all FIRED, rc 0 |
+| `check_m6sr_launch_path.sh --section7-only` | 12 passed / 0 failed | **15 passed / 0 failed** |
+| `--controls` rc under `python3` / `python3 -O` | 2 / 2 | **2 / 2**, stdout and stderr **byte-identical** |
+| `ast.Assert` in `analyse_m6sr.py` | 0 | **0**, detector planted and **SEEN** (0 → 1) |
+
+---
+
+### 27.7 COST — RULE 12, AND **NONE OF IT IS LADDER COMPUTE**
+
+**No ladder compute was authorised or spent; `B0`–`B6` are untouched and the run root remains
+plant-verified absent.** The three `checkMesh` probes of §27.1.2 are **container** compute in a
+**scratch tree**, of exactly the class §20.2's ablation probes already are, and are named on their
+own line rather than folded into any registered row.
+
+| activity | wall s | ranks | **core-min (MEASURED from the clock)** |
+|---|---|---|---|
+| the three `checkMesh` ablation probes (§27.1.2), pinned digest, scratch tree | 39 | 1 | **0.6500** |
+| `--controls` under `python3` and `python3 -O`; the writer `--selftest`; the phase smoke test and its three refusal limbs | 34 | 1 | **0.5667** |
+| `check_m6sr_launch_path.sh --section7-only` ×1 + two driver mutations; the `B3c`/`B3z` timing runs | 21 | 1 | **0.3500** |
+| the `c1625208` lead: birth-blob extraction and the AST readings across three commits | 8 | 1 | **0.1333** |
+| `--selftest` (controls + `C16` + the mutation loop over **29** targets) | see §27.10 | 1 | see §27.10 |
+
+**CHARGED VERSUS MEASURED:** every figure is **MEASURED** — wall seconds × ranks ÷ 60, off the
+clock. Dollars are **derived** at the recorded **$0.0513/core-h** and are **reported-by-owner,
+never measured** (`COMPUTE_BUDGET_CHARTER.md` §5). ⚠ **This is one run of each activity; the
+development re-runs are NOT metered and are NOT estimated.** ⚠ **No `docs/COST_CALIBRATION.md` row
+is filed: nothing completed — no gate graded, no rung run.**
+
+---
+
+### 27.8 WHAT THIS AMENDMENT DOES **NOT** DO
+
+1. **It moves NO gate, NO threshold, NO cap and NO label.** §2.4's table is unchanged in every cell
+   including the TOTAL; `B3c` and `B3z` are UNBUDGETED and on their own lines.
+2. **It does not freeze and it does not launch.** Both are the supervisor's.
+3. **It does not decide the budget line.** Whether `B3c` + `B3z` earn a budgeted row in §2.4 — which
+   would move the TOTAL — is **explicitly left to the supervisor**.
+4. **It has never run `B3c`, `B4` or `B4s` on a real level in the registered run root.** Everything
+   above was driven in scratch. **`verification/runs/M6SR_runs` is still absent.**
+5. **It does not run the M1–M4 census**, which the supervisor ordered for after this lands — and
+   §27.5 is this lane's input to how that census must be keyed.
+6. **SUBMISSIONS REMAIN PARKED.**
+
+### 27.9 RULE 6's AMENDMENT ASSERTIONS
+
+- **Appended at the foot. Lines whose number changed above this section: 0**, verified by
+  byte-comparing the prefix against HEAD's blob.
+- **Version bump:** **v1.20 → v1.21** (Amendment 21).
+- **Frozen rows are STRUCK BY QUOTE, never rewritten** — §27.11's pin rows, each machine-verified
+  character for character against the line it strikes.
+- **The unchanged-prefix sha of this file at `619296bc`** is
+  **`9042767d4f4de1050ceb7c9c9ca675f757d7c428d55b581a8d240efb14194aa5`**, re-derived **inside the
+  commit invocation** with the commit aborting if it had moved.
+
+### 27.10 `--selftest` — **ALL 29 MUTATION TARGETS FLIPPED TO RED**
+
+`python3 cases/M6SR/analyse_m6sr.py --selftest` — **159 wall s at 1 rank = 2.6500 core-min,
+MEASURED.** **All 29 mutation targets FLIPPED TO RED**, `C29`, `C30` and `C31` included: a
+control that cannot be broken is not a control. `C16` FIRED — *python3 vs python3 -O -> rc 2 /
+2, identical control verdicts True*. The suite's rc 2 is the standing `X7`/`C12` red, unchanged.
+
+**TOTAL for this amendment: 0.6500 + 0.5667 + 0.3500 + 0.1333 + 2.6500 = 4.3500 core-min.**
+
+### 27.11 🔴 **THE RE-PIN — FOUR PINNED EXECUTABLES MOVED, AND `write_m6sr_case.py` CARRIED *TWO* LIVE ROWS**
+
+**Four of the ten pinned executables are edited by this amendment.** Every live row carrying a
+superseded blob was **ENUMERATED BY SEARCH, NOT ASSUMED** — §25.13's lesson, and it earned its
+keep again: `write_m6sr_case.py` has **TWO** live rows (§18.3.1's and §22.2's), so striking only
+the later would leave a reader who finds the earlier one with an unstruck, false pin.
+**All five strikes are VERBATIM QUOTES, machine-verified character for character:**
+
+> 🔴 **STRUCK BY QUOTE** *(§26.9's row — the pin that was IN FORCE)*: ~~*"| **`cases/M6SR/analyse_m6sr.py`** (comparator) | **`0526991a37a8bb690b21f480864c56ca9e1508c6`** | `73819ba380e72fd6f72e37f47a626e912e10f8ba7032d31db3e5eb89bae03da2` | **3545** | **§9 registered** — **RE-PINNED HERE** |"*~~
+
+> 🔴 **STRUCK BY QUOTE** *(§26.9's row)*: ~~*"| **`cases/M6SR/run_m6sr_b5.sh`** (sole producer of `SOLVER_RC.txt`, `log.rhoSimpleFoam`, `log.checkMesh`) | **`eab4f187f868881ba880cda53a5470f6726eb2ee`** | `ebc23b710c9daa7743a04375ad4677346be507ed44d476af2e0127ef52833d86` | **942** | **§9 registered** — **RE-PINNED HERE** |"*~~
+
+> 🔴 **STRUCK BY QUOTE** *(§26.9's row)*: ~~*"| **`cases/M6SR/check_m6sr_launch_path.sh`** (launch-path controls) | **`ca0e980d3eaf8bd0145e81b4e5fa5ea0527c8582`** | `c33e7b14c08273cf6c564d4899288f0aaf6d3e3be4f7ba41cd20cda68cad279d` | **591** | **NOT in §9's table** — **RE-PINNED HERE** |"*~~
+
+> 🔴 **STRUCK BY QUOTE** *(§18.3.1's row)*: ~~*"| **`cases/M6SR/write_m6sr_case.py`** (§8's sole writer) | **`f2e8f3bc5982e92b9f5697e568c0f31f3c17d0a5`** | `eb8abf930e999ab2af2eac74793229df0ddd096a34f41756a378627ce15c360c` | 1,059 | **NOT in §9's table** |"*~~
+
+> 🔴 **STRUCK BY QUOTE** *(§22.2's row, carrying the SAME now-superseded blob)*: ~~*"| **`cases/M6SR/write_m6sr_case.py`** (§8's sole case-file writer) | **`f2e8f3bc5982e92b9f5697e568c0f31f3c17d0a5`** | `eb8abf930e999ab2af2eac74793229df0ddd096a34f41756a378627ce15c360c` | 1,059 | **`8c0ab7a8`** (Amendment 11) | **NOT in §9's table** — the gap, §18.3.1 |"*~~
+
+**THE NEW STANDING PINS**, derived with `git hash-object` on the working tree and **RE-DERIVED
+INSIDE THE SAME SHELL INVOCATION AS THE COMMIT THAT CARRIES THIS SECTION, WITH THE COMMIT
+ABORTING IF ANY HAD MOVED**:
+
+| path | git blob sha | sha256 of the file | lines | §9 status |
+|---|---|---|---|---|
+| **`cases/M6SR/analyse_m6sr.py`** (comparator) | **`ee95e7dc340fcfac7f69387803aa827b5b0577dc`** | `021b072eda5a8c5da3a7e83e5e418481c8605bb5935448ca9e8f79a8a4b5497c` | **3618** | **§9 registered** — **RE-PINNED HERE** |
+| **`cases/M6SR/run_m6sr_b5.sh`** (sole producer of `SOLVER_RC.txt`, `log.rhoSimpleFoam`, `log.checkMesh`) | **`21028b4ca05e11263cb5b38b23261a5265ebd5c4`** | `16eb4068a2c5fc50c7a4cb281810d1a95adbadc661103ea3e2e420529d1fdc1c` | **1011** | **§9 registered** — **RE-PINNED HERE** |
+| **`cases/M6SR/check_m6sr_launch_path.sh`** (launch-path controls) | **`7f53ccb53ede7ab280b752cee5651a060be41280`** | `105edb01adc97cd42975b046dcb71cc0e941693d0ccd404e9e2914a227910b81` | **654** | **NOT in §9's table** — **RE-PINNED HERE** |
+| **`cases/M6SR/write_m6sr_case.py`** (§8's sole case-file writer) | **`24dd3be7864603bd0fa770dfc9e006e5148416e4`** | `ccc9421ae1f083344bda29972a2a20ba4fe7fb18d680030a83d43e3c2e424543` | **1241** | **NOT in §9's table** — **RE-PINNED HERE** |
+
+⚠ **THE OTHER SIX PINS ARE UNMOVED AND ARE RE-VERIFIED AT THIS HEAD, NOT ASSUMED** — see §27.12.
+
+⚠ **THE STRIKE-BY-QUOTE LIMITATION, RESTATED.** Striking a row by quote in a later section does
+**not** remove the original from the file, so the verifier may still report more than one
+recorded sha per path. **The registration is the authority on which pin is in force: the one in
+the table immediately above.**
+
+### 27.12 `FZ1` — RUN IMMEDIATELY **AFTER** THIS COMMIT
+
+`check_comparator_freeze.py` compares each pinned path's **HEAD blob** against its **worktree
+blob**, so before the commit those differ by construction for the four files re-pinned above and
+a pre-commit run would read `PIN-DRIFT` on exactly the rows this amendment fixes. **Its exit code
+is taken immediately after this commit and recorded in §27.14**, alongside the check-1 diff
+artifact. **This is a forward reference, not a claim.**
+
+### 27.13 THE STANDING QUESTION — **ANYTHING ELSE BETWEEN THIS DOCUMENT AND A LAWFUL LAUNCH?**
+
+🔴 **THIS LANE WILL NOT ANSWER "NO", AND WILL NOT GUESS A COUNT EITHER.**
+
+1. ⚠ **`X7` / `C12` holds `--controls` at rc 2**, and §18.5's pre-launch grading gate refuses at
+   exit 8 on exactly that. **Pre-existing, unchanged, still on the record.**
+2. 🔴 **NOTHING HAS EVER BEEN RUN IN THE REGISTERED RUN ROOT.** `B3c`, `B4` and `B4s` have been
+   driven only in scratch and only on synthetic or copied inputs. **Until the stage phase is
+   driven for real, every statement here about what the launch path *will* do is a statement
+   about code, not about a run.** The supervisor has ordered that drive, after a census.
+3. 🔴 **AND THIS LANE DECLINES TO PUT A NUMBER ON WHAT REMAINS.** §27.5 measured that the census
+   key proposed for M1–M4 **over-collects to uselessness in this file and at one commit could
+   not see its own planted instance.** A remaining-count from a reader in that state would be
+   worth nothing, and the honest position is that the count is **unknown and bounded only by
+   the census that has not yet run.**
+
+✅ **CLOSED BY THIS AMENDMENT:** item 48 (`B3c` exists, split, with `B3z` keeping the age guard
+non-vacuous), and the `c1625208` lead (settled: **omission, not regression**).
+
+⚠ **WHAT THIS LANE CANNOT SAY, AND DOES NOT.** It has never seen a real M6 `log.checkMesh`
+produced by the registered driver in the registered run root. It did **not** re-derive the
+physics or the gates. **Check 1 on this diff, check 4, the freeze and the launch are the
+supervisor's, and this lane takes none of them.**
