@@ -1,0 +1,31 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2606                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+// VMFL072 -- gravity, EXACTLY as the manual prints it (p.211-212):
+//     gx = 6.305746,  gy = 0,  gz = -7.514896  m/s2
+// = 9.81 * (sin40, 0, -cos40); |g| = 9.810000, implied angle 40.0000 deg
+// (PREREGISTRATION.md 2.1, confirmed to all printed digits).
+//
+// AXIS CONVENTION (see system/blockMeshDict for the full statement):
+//   +x DOWNSLOPE, plate at z = 0 with the gas box above it, so gz < 0 presses
+//   the film onto the plate and gx > 0 drives it toward the outlet.
+//   kinematicThinFilm.C:55 forms gs = g - ns*(ns & g); on the z = 0 plate
+//   gs = (6.305746 0 0), i.e. |gs| = g sin(theta) = the comparator's frozen
+//   G_SIN = 6.305746 m/s2.
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       uniformDimensionedVectorField;
+    object      g;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 1 -2 0 0 0 0];
+value           (6.305746 0 -7.514896);
+
+// ************************************************************************* //

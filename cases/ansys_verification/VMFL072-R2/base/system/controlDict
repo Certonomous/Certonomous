@@ -1,0 +1,83 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2606                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+// VMFL072-R2 -- run control. EVERY value here is fixed by the frozen
+// PREREGISTRATION.md of VMFL072-R2 (NOT by the struck e8cbe305 document).
+//
+//   endTime 10.0            R2 5.2. = 13.9 plate-advection times (0.720 s
+//                           each) and 272 momentum-relaxation times
+//                           tau' = h^2/(9 nu) = 0.03672 s. Set from those two
+//                           physical scales, before compute, never from an
+//                           observed settling step.
+//   writePrecision 12       R2 5.1 -- the registered 1e-15 m file quantum.
+//   writeFormat ascii       compare_vmfl072_r2.py parses ASCII internalField
+//   writeCompression off    blocks by name; there is no .gz path.
+//   200 written time dirs   compare_vmfl072_r2.py EXPECTED_TIME_DIRS = 200,
+//                           completion clause C-05.
+//
+// SERIAL. R2 runs every level on ONE rank. There is no decomposePar and no
+// reconstructPar, so the 200 written directories are the directories the
+// comparator reads. (The struck e8cbe305 reconstructed with -latestTime and
+// produced TWO time directories against a comparator demanding 200 and a
+// plateau limb reading 41 -- charter 39.2 blocker 2. That failure mode does
+// not exist in a serial run and is designed out rather than guarded.)
+//
+// WHY A FIXED TIME STEP. OpenFOAM's adjustTimeStep computes the Courant number
+// on the PRIMARY region only, and this primary region is quiescent air with
+// Courant number MEASURED at exactly 0 ("Courant Number mean: 0 max: 0"), so
+// adjustTimeStep would chase maxDeltaT and would not reproduce the film step
+// R2 8.1 registers. The step is the largest value at or below the maxCo-0.5
+// film step that divides the 0.05 s write interval an integer number of times:
+//     L1  dt = 5.00e-03 s  writeInterval 10 steps  2000 steps
+//     L2  dt = 2.50e-03 s  writeInterval 20 steps  4000 steps
+//     L3  dt = 1.25e-03 s  writeInterval 40 steps  8000 steps
+//     B2  dt = 1.25e-03 s  (L3 geometry -- R2 promotes the bracket to the
+//                           GRADED level; 8000 steps)
+//     C1  dt = 2.50e-03 s  (L2 geometry, U_eq everywhere; 4000 steps)
+//
+// @DELTAT@ and @WRITEINTERVAL@ are substituted by apply_level.sh.
+// ---------------------------------------------------------------------------
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+libs            (regionFaModels);
+
+application     pimpleFoam;
+
+startFrom       startTime;
+startTime       0;
+
+stopAt          endTime;
+endTime         10.0;
+
+deltaT          @DELTAT@;
+
+writeControl    timeStep;
+writeInterval   @WRITEINTERVAL@;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+writePrecision  12;
+writeCompression off;
+
+timeFormat      general;
+timePrecision   6;
+
+runTimeModifiable no;
+
+adjustTimeStep  no;
+maxCo           0.5;
+maxDeltaT       @DELTAT@;
+
+// ************************************************************************* //

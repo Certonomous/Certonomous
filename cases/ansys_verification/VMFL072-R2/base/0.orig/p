@@ -1,0 +1,47 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2606                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+// VMFL072 -- primary (gas) region kinematic pressure.
+//
+// `p` is one of the two primary-region fields the comparator requires to be
+// present at endTime (compare_vmfl072.py REQUIRED_FIELDS_PRIMARY = ("U","p"),
+// PREREGISTRATION.md 5.5 clause 4).
+//
+// Fixed at zero on the two open ends so the pressure has a reference without
+// relying on pRefCell, and zeroGradient elsewhere. The gas is quiescent and,
+// with Cf 0, is dynamically disconnected from the film.
+// ---------------------------------------------------------------------------
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      p;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 2 -2 0 0 0 0];
+
+internalField   uniform 0;
+
+boundaryField
+{
+    "(inlet|outlet)"
+    {
+        type            fixedValue;
+        value           uniform 0;
+    }
+
+    "(film|side|top)"
+    {
+        type            zeroGradient;
+    }
+
+    #includeEtc "caseDicts/setConstraintTypes"
+}
+
+// ************************************************************************* //
