@@ -38,6 +38,56 @@
 #                           would be ungradable after it was paid for.
 #                   exit 9  the run root is not the one Section 9's frozen path table
 #                           registers, so producer and reader would use different trees.
+#   AMENDMENT 12 AUDIT, ITEMS 28 AND 30 -- REPAIRED IN THIS FILE (see Section 1 and
+#                 Section 2 for each defect stated with its measurement and its controls).
+#                 Item 28: the container call was correct ONLY on the `sg docker -c` branch;
+#                 BARE_RC is 0 on this box, so the LIVE branch had never been exercised.
+#                 Item 30: the case directory was not writable by the container's uid at B4,
+#                 and item 28 was MASKING it -- fixing 28 alone does NOT fix 30.
+#                 NEITHER EVER MIS-RAN ANYTHING: both failed closed at exit 6.
+#
+#   ITEM 31, FOUND WHILE REPAIRING THOSE TWO -- REPORTED, NOT REPAIRED HERE.
+#                 With 28 and 30 repaired, B4's checkMesh reaches the container, writes its
+#                 log, and STILL returns inner rc 1:
+#                     --> FOAM FATAL ERROR: cannot find file "/case/system/controlDict"
+#                 `system/controlDict` is written by cases/M6SR/write_m6sr_case.py, which
+#                 this driver invokes in the SOLVE phase (Section 4) -- AFTER B4.  So B4 runs
+#                 checkMesh against a case that has a mesh and no system directory.  MEASURED:
+#                 with the case written first, the SAME checkMesh under the SAME two repairs
+#                 returns inner rc 0 and a 3330-byte log ending `Mesh OK.` / `End`, so there
+#                 is no FOURTH failure behind it -- the chain is exactly three deep.
+#                 IT IS NOT REPAIRED HERE ON PURPOSE.  The fix is to write Section 8's case
+#                 before B4 rather than after it, and that is a change to the REGISTERED STEP
+#                 ORDER (Sections 4, 8, 8.6), not to the launch path.  This driver is also
+#                 forbidden from writing a controlDict of its own -- Section 1 above: "This
+#                 driver writes NO case file of its own -- there is ONE writer and it is that
+#                 one" -- so no repair is available inside this file's own authority.
+#                 IT FAILS CLOSED at exit 6, and Gate A reads a fatal-error log as ABSENT,
+#                 never as clean.
+#
+#   ITEM 32, ALSO FOUND WHILE REPAIRING 28 AND 30 -- REPORTED, NOT REPAIRED, AND IT IS THE
+#            ONE OF THE FOUR THAT DOES **NOT** FAIL CLOSED.
+#                 run_in_container() sends the OUTER wrapper's stdout+stderr to
+#                 `$CASE/log.$tag`.  For the B5 steps that is a wrapper log with a name of its
+#                 own (log.B5a) and the registered artifacts are written separately
+#                 (log.rhoSimpleFoam, log.decomposePar).  For B4 the tag IS `checkMesh`, so
+#                 the outer redirect target and the inner command's output file are THE SAME
+#                 PATH -- `$CASE/log.checkMesh` -- and Gate A reads that file.
+#                 The host shell opens it with O_TRUNC and HOLDS THE FD AT OFFSET 0 for the
+#                 life of the docker client.  MEASURED: with the container writing 39 bytes
+#                 to log.checkMesh and the docker client then emitting one 20-byte line, the
+#                 client's write landed AT OFFSET 0 and OVERWROTE the first 20 bytes of the
+#                 container's content, leaving a spliced file.
+#                 WHY IT IS WORSE THAN THE OTHER THREE: items 28, 30 and 31 all fail closed at
+#                 exit 6.  This one CORRUPTS THE HEAD OF A GRADED ARTIFACT while leaving the
+#                 numeric maxima near the END of the file intact and parseable, so it could
+#                 read CLEAN rather than ABSENT.  It did not fire in any measured run here --
+#                 the docker client emitted nothing on a successful run -- so it is a LATENT
+#                 hazard, not an observed failure.
+#                 NOT REPAIRED HERE: the fix is to give the wrapper its own log path, which
+#                 changes where this driver puts every step's wrapper output, and that is a
+#                 launch-path change wider than the two items this pass was sent to repair.
+#
 #                 A registration that pins `case_2308.dat` and a points sha256 but not the
 #                 solver binary is pinning the DATA AND NOT THE INSTRUMENT.  The container
 #                 carries THREE `rhoSimpleFoam` binaries (v2506, and OpenFOAM-AD's ADF and
@@ -173,23 +223,79 @@ SG_OUT=$(sg docker -c "docker version --format '{{.Server.Version}}'" 2>&1); SG_
 if [ $SG_RC -ne 0 ] && [ $BARE_RC -ne 0 ]; then
   abort "docker unreachable both bare and through 'sg docker -c'. This grades THE DRIVER'S ABILITY TO RUN and nothing about the M6 -- BLOCKED, not GATE FAIL." 5
 fi
-if [ $BARE_RC -eq 0 ]; then DRUN="docker"; else DRUN="sg docker -c"; fi
-say "docker reachable (bare rc=$BARE_RC, sg rc=$SG_RC); using '$DRUN'"
+# WHICH BRANCH THIS BOX TAKES IS RECORDED IN THE RUN'S OWN OUTPUT, not merely printed to a
+# terminal nobody keeps.  Amendment 12 item 28's defect survived precisely because no artifact
+# ever distinguished the two branches: BARE_RC is 0 on this box, so the `sg docker -c` branch
+# has NEVER been exercised here and the bare branch was the broken one.  A later reader must
+# be able to tell which invocation produced a given run without re-deriving it from the box's
+# group membership months afterwards.
+if [ $BARE_RC -eq 0 ]; then DOCKER_BRANCH=bare; else DOCKER_BRANCH=sg; fi
+HOST_UID=$(id -u); HOST_GID=$(id -g)
+# `timeout` execs a PROGRAM.  It cannot exec the shell builtin `command`, so the resolved
+# path is taken ONCE here rather than written as `timeout ...s command docker ...`, which was
+# MEASURED to return rc 127 (`timeout: failed to run command 'command'`).  That rc is not 124
+# and would not have been read as a cap overrun -- it would have aborted at exit 6 with a
+# misleading cause.
+DOCKER_BIN=$(command -v docker 2>/dev/null)
+[ "$DOCKER_BRANCH" != "bare" ] || [ -n "$DOCKER_BIN" ] \
+  || abort "the bare-docker branch was selected (bare rc=$BARE_RC) but 'docker' does not resolve on PATH, so there is no program for \`timeout\` to exec. This driver will not guess a path." 5
+{ echo "branch=$DOCKER_BRANCH"
+  echo "docker_bin=$DOCKER_BIN"
+  echo "host_uid=$HOST_UID"
+  echo "host_gid=$HOST_GID"
+  echo "container_user=1002:1002 (dafoamuser) plus supplementary group $HOST_GID (item 30)"; } \
+  >> "$CASE/DOCKER_PREFLIGHT.txt"
+echo "$DOCKER_BRANCH" > "$CASE/DOCKER_BRANCH.txt"
+say "docker reachable (bare rc=$BARE_RC, sg rc=$SG_RC); invocation branch '$DOCKER_BRANCH'${DOCKER_BIN:+ via $DOCKER_BIN}"
 
 # ---------------------------------------------------------------------------------------
 # 1b.  AMENDMENT 12 RULING 1 -- THE SOLVER IS PINNED, AND THE PIN REFUSES BEFORE IT SPENDS.
 #
-#      A DELIBERATE DIFFERENCE FROM run_in_container(), STATED RATHER THAN LEFT TO BE
-#      NOTICED.  This helper passes argv, and quotes with `printf %q` on the `sg` branch.
-#      It does NOT use run_in_container()'s `$DRUN "docker run ..."` form, which Amendment
-#      12 records as MEASURED BROKEN on the bare-docker branch (item 28) -- that item is
-#      REPORTED, NOT REPAIRED here, because changing how the solve step invokes docker is a
-#      change to the launch path and belongs to the supervisor.
+#      THIS HELPER PASSES ARGV, and quotes with `printf %q` on the `sg` branch.  It is the
+#      form that was always correct; run_in_container() below now uses the same form.
 # ---------------------------------------------------------------------------------------
 docker_q(){
-  if [ "$BARE_RC" -eq 0 ]; then command docker "$@"; return $?; fi
+  if [ "$DOCKER_BRANCH" = "bare" ]; then command docker "$@"; return $?; fi
   local q; q=$(printf ' %q' "$@")
   sg docker -c "docker$q"
+}
+
+# ---------------------------------------------------------------------------------------
+# AMENDMENT 12 ITEM 28 -- REPAIRED HERE.  THE DEFECT, STATED EXACTLY.
+#
+# The frozen driver built its container call as `$DRUN "docker run ..."`.  On the `sg` branch
+# ($DRUN = `sg docker -c`) that is correct: the string is one shell command for `sg` to run.
+# On the BARE branch ($DRUN = `docker`) it expands to `docker "docker run ..."` -- the whole
+# command as a SINGLE ARGUMENT to the docker client.  MEASURED with the exact expansion:
+# rc 1, `docker: unknown command: docker docker run ...`.  Control, same string through
+# `sg docker -c`: rc 0, `INSIDE_OK`.
+#
+# WHY IT SURVIVED: `BARE_RC` is 0 on this box, so the driver was correct ONLY on the branch
+# this box does NOT take.  The live branch had never been exercised.
+# WHAT IT DID NOT DO: it failed CLOSED -- run_in_container aborts at exit 6 on a non-zero
+# inner rc -- so no step was ever silently mis-run and no artifact was ever produced by an
+# invocation this driver did not intend.
+#
+# THE REPAIR, correct on BOTH branches, MEASURED on the pinned digest:
+#   bare : timeout ...s "$DOCKER_BIN" "$@"                      -> rc 0 / INSIDE_OK
+#   sg   : timeout ...s sg docker -c "docker$(printf ' %q' ...)" -> rc 0 / INSIDE_OK
+# The argv form cannot be mis-quoted because nothing re-parses it; the `sg` form is quoted by
+# `printf %q`, exactly as docker_q() above already was.
+#
+# THE CAP SURVIVES THE REPAIR, and this was measured rather than assumed: a container
+# sleeping 30 s under a 5 s cap returns rc 124 on BOTH branches, so run_in_container's
+# `rc -eq 124 -> abort ... 6` overrun path (rule 12, AN OVERRUN STOPS THE RUN) still fires.
+# ---------------------------------------------------------------------------------------
+docker_timeout_q(){
+  local tmo="$1"; shift
+  if [ "$DOCKER_BRANCH" = "bare" ]; then
+    timeout "${tmo}"s "$DOCKER_BIN" "$@"
+    return $?
+  fi
+  local q
+  q=$(printf ' %q' "$@")
+  timeout "${tmo}"s sg docker -c "docker$q"
+  return $?
 }
 
 T0P=$(date +%s)
@@ -304,19 +410,27 @@ run_in_container(){
   local tag="$1" tmo="$2" ranks="$3" cmd="$4"
   local t0 t1 rc wall inner
   t0=$(date +%s)
-  timeout "${tmo}"s $DRUN "docker run --rm --name m6sr_${tag}_$$ -u 1002:1002 \
-      -v '$CASE':/case -w /case $IMG_PINNED \
-      bash -c 'set +u; source /home/dafoamuser/dafoam/loadDAFoam.sh >/dev/null 2>&1; \
-               $cmd; echo \"WRAPPER_RC=\$?\" > RC_${tag}.txt'" \
+  # ITEM 28 REPAIRED: argv, through docker_timeout_q, correct on BOTH branches.
+  # ITEM 30 REPAIRED: `-u 1002:1002` is UNCHANGED -- the container keeps dafoamuser as its
+  # primary identity, so every Amendment 12 pin measurement taken under that user still
+  # describes the running process -- and it gains exactly ONE supplementary group, the host
+  # group that already owns $CASE.  See Section 3's `chmod g+rwX`, which is the other half.
+  docker_timeout_q "$tmo" run --rm --name "m6sr_${tag}_$$" -u 1002:1002 \
+      --group-add "$HOST_GID" \
+      -v "$CASE":/case -w /case "$IMG_PINNED" \
+      bash -c "set +u; source /home/dafoamuser/dafoam/loadDAFoam.sh >/dev/null 2>&1; $cmd; echo \"WRAPPER_RC=\$?\" > RC_${tag}.txt" \
       > "$CASE/log.$tag" 2>&1
   rc=$?
   t1=$(date +%s); wall=$((t1-t0))
-  $DRUN "docker rm -f m6sr_${tag}_$$" >/dev/null 2>&1
+  docker_q rm -f "m6sr_${tag}_$$" >/dev/null 2>&1
   # THE INNER rc, read from the file the wrapper wrote, BY EXPLICIT PATH -- never from $?
   # around the timeout line, and never by `grep log.* | tail -1`.
   inner="ABSENT"
   [ -f "$CASE/RC_${tag}.txt" ] && inner=$(cut -d= -f2 "$CASE/RC_${tag}.txt")
-  echo "$tag outer_rc=$rc inner_rc=$inner wall_s=$wall timeout_s=$tmo ranks=$ranks" \
+  # THE BRANCH IS RECORDED PER STEP, not only once in the preflight: item 28 was a defect
+  # that lived on exactly one branch, so a step's rc is not readable without knowing which
+  # invocation produced it.
+  echo "$tag outer_rc=$rc inner_rc=$inner wall_s=$wall timeout_s=$tmo ranks=$ranks docker_branch=$DOCKER_BRANCH container_user=1002:1002+g$HOST_GID" \
       >> "$CASE/STEP_RC.txt"
   echo "$wall" > "$CASE/WALL_${tag}.txt"
   echo "$inner" > "$CASE/INNER_RC_${tag}.txt"
@@ -365,6 +479,64 @@ print(A.points_stream_sha('$CASE/constant/polyMesh'))
   [ -n "$PSHA" ] || abort "could not compute the decompressed points-stream sha of $CASE/constant/polyMesh (see $CASE/log.pointshash.err). A missing hash is a REFUSAL, never a fallback." 3
   echo "$PSHA" > "$CASE/points_stream.sha256"
   say "stage: points-stream sha256 $PSHA  -- PUBLISHED for Gate A item A5"
+
+  # ---------------------------------------------------------------------------------------
+  # AMENDMENT 12 ITEM 30 -- REPAIRED HERE, AND NOT WITH `chmod 777`.
+  #
+  # THE DEFECT, STATED EXACTLY.  `mkdir -p "$CASE"` above runs as the HOST user (MEASURED:
+  # uid 1000 gid 1000, umask 0002 -> mode 775 ubuntu:ubuntu) and the container runs
+  # `-u 1002:1002` (MEASURED: dafoamuser inside the pinned image).  Neither the uid nor the
+  # gid matches, so the container held only `other` = r-x on the case directory.  MEASURED on
+  # the pinned digest with this driver's own mount: `bash: log.checkMesh: Permission denied`,
+  # inner rc 1, log.checkMesh ABSENT.  The frozen driver's `chmod -R 777 "$CASE"` sits in the
+  # SOLVE phase (Section 4), AFTER this step, so it could never help B4.
+  #
+  # IT WAS MASKED BY ITEM 28 AND IS INDEPENDENT OF IT.  Repairing item 28 alone would have
+  # let the launch path get further and then fail here, and the next reader would have been
+  # debugging a "new" bug that was present all along.  Both are repaired in one pass for
+  # that reason.
+  #
+  # WHY NOT `chmod 777`.  A NARROWER FIX WAS MEASURED TO WORK, so the blunt one is not taken.
+  # The repair is two halves, and NEITHER HALF WORKS ALONE -- both were measured as negative
+  # controls against the real pinned image:
+  #   (i)  `chmod g+rwX "$CASE"` -- THE CASE DIRECTORY ONLY.  Group only, NOT world; NOT
+  #        recursive.  Set EXPLICITLY rather than inherited: this box's umask 0002 already
+  #        yields 775, but under a 022 umask `mkdir -p` yields 755 and the group bit would be
+  #        absent, so a fix resting on the umask would be a fix resting on an accident.
+  #        MEASURED without half (ii): Permission denied.
+  #   (ii) `--group-add $HOST_GID` on the container (in run_in_container above).  uid 1002
+  #        keeps dafoamuser as its PRIMARY identity, so nothing measured under `-u 1002:1002`
+  #        for the Amendment 12 pin is invalidated; it gains exactly one supplementary group,
+  #        the one that already owns this directory.  MEASURED without half (i), on a 755
+  #        directory: Permission denied.
+  # WITH BOTH: inner rc 0 and a 3330-byte log.checkMesh ending `Mesh OK.` / `End`, carrying
+  # the named numeric maxima Gate A reads.  `constant/polyMesh` is NOT touched -- it arrives
+  # world-readable from `cp -a` and checkMesh only READS it, which was measured too.
+  #
+  # THE SOLVE-PHASE `chmod -R 777` IS NEITHER MOVED NOR REMOVED.  Section 4's later steps
+  # (decomposePar, the solver, reconstructPar) write processor*/ and time directories and are
+  # outside this repair.  HONEST CONSEQUENCE, RECORDED RATHER THAN DISCOVERED: once this step
+  # succeeds, log.checkMesh and RC_checkMesh.txt are owned 1002:1002, so the later
+  # `chmod -R 777` cannot chmod those two files and will silently skip them (its stderr is
+  # already discarded).  Nothing re-writes either file -- the guard below skips checkMesh
+  # when its log exists, and the solve step writes RC_<STEP>.txt under a different name -- so
+  # this has no functional effect, but it is stated so no reader has to rediscover it.
+  # ---------------------------------------------------------------------------------------
+  chmod g+rwX "$CASE" 2>/dev/null
+  CASE_GRP_OK=$(python3 -c "
+import os, stat, sys
+m = os.stat('$CASE').st_mode
+sys.stdout.write('1' if (m & stat.S_IWGRP) and (m & stat.S_IXGRP) else '0')
+" 2>/dev/null)
+  [ "$CASE_GRP_OK" = "1" ] \
+    || abort "$CASE is not group-writable+searchable after chmod g+rwX (mode $(stat -c '%a' "$CASE" 2>/dev/null), owner $(stat -c '%u:%g' "$CASE" 2>/dev/null)). The container runs as uid 1002 with supplementary group $HOST_GID and would fail to write log.checkMesh -- Gate A reads NAMED NUMERIC MAXIMA off that file and an absent one reads ABSENT, never clean. REFUSED before the container is started, rather than after it fails." 6
+  { echo "case_dir_mode=$(stat -c '%a' "$CASE" 2>/dev/null)"
+    echo "case_dir_owner=$(stat -c '%u:%g' "$CASE" 2>/dev/null)"
+    echo "container_user=1002:1002"
+    echo "container_supplementary_group=$HOST_GID"
+    echo "fix=chmod g+rwX on the case dir ONLY (not 777, not recursive) + --group-add"; } \
+    > "$CASE/CASE_PERMISSIONS.txt"
+  say "B4 preflight: $CASE mode $(stat -c '%a' "$CASE" 2>/dev/null), container uid 1002 + supplementary group $HOST_GID (item 30 repair; NOT chmod 777)"
 
   # ---- B4's checkMesh.  Section 2.4 gives ONE row (cap 2.0 core-min) for "checkMesh x3",
   # so the cap is a RUNNING budget across the three levels, tracked on disk.
