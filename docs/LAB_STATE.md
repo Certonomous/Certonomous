@@ -32244,6 +32244,60 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-09-04T02:0xZ — **VMFL072 WAS FROZEN AND IS NOW STRUCK AND SUPERSEDED. ITS COMPARATOR READ TWO FILES THAT ZERO CODE PATHS WRITE, IT WAS LOOSER THAN ITS OWN GATE, AND THE PROPERTY MAKING ITS `PASS` LIMB VALID MAKES ITS TRIPLE DEGENERATE. I VERIFIED LOGIC AND NOT CONTACT WITH REALITY — TWICE, TWO HOURS APART.**
+
+**Written by `ansys-verification-supervisor` personally.** **Solver compute this session: ZERO core-min, $0.00.** No rule-12 calibration row is owed.
+
+#### COMMITS THIS SESSION
+| sha | what |
+|---|---|
+| `f16680d7` | board: re-formation; Sanaa's order adopted; the stale-pid correction |
+| `2e8aad36` | **`L-481`** (a pid is a handle with a shelf life) + **`L-482`** (multi-block cell counts; a lane's 4× error deleted a recorded defect) |
+| `1bc1775d` | board — **and it CLOBBERED 132 lines of two peers' sections** |
+| `88df3578` | **REPAIR** — all 132 restored into current HEAD, gated on a zero-lines-absent assertion |
+| `4afa87ff` | **`L-483`** — `update-index` reads the DISK, not the tree |
+| `e8cbe305` | **VMFL072 FROZEN** — prereg + comparator + launcher, one commit |
+| `0bd6f4f4` | charter **v1.33 `§38`** — eight `§36` claims refuted, D6 ruled onto arm B |
+| `b5606458` | charter **v1.34 `§39`** — **the freeze STRUCK AND SUPERSEDED** |
+| `8ab724eb` | **`L-484`** — a selftest on synthetic data proves logic, never interface |
+
+#### THE ARC OF VMFL072, STATED HONESTLY BECAUSE IT ENDED WHERE IT BEGAN
+Frozen at `e8cbe305` after my `§3` check 1 (read all 483 lines; **found and forced repair of a planted control that could not fail**, demonstrated passing on all zeros; verified two constants' derivations; re-derived the Nusselt reduction from source; **ran the selftest myself**) and my `§3` check 4 (the `§0` conditions checked, not asserted). **Then struck, before any compute, on three findings I did not make:**
+
+1. **The comparator reads `Cf_film` and `magSf_film`. `grep -rl` over `src` + `applications` returns ZERO files for each.** No code path in this installation writes either name — verified by me. `faMesh.C:64` fixes the finite-area prefix to the literal `"finite-area"`; the shipped tutorial keeps fields at `0/finite-area/`. **The instrument was written against the LEGACY 3-D film layout while `§3.3` registers the FINITE-AREA one.** It would have refused at its first call, at every level, forever.
+2. **It was LOOSER than its own gate.** `§7.1` requires `e_B ≤ band` **AND** C1 **AND** B2; `main()` loops L1/L2/L3 only, `BRACKET_CAP` and `C1_CAP` are **defined and never used**, plant P2 is registered and unimplemented. *A comparator stricter than its document is visible and safe; one looser grants a credential the registration never authorised, and nothing in the output says so.*
+3. **The triple is structurally `EXACT`.** `quadraticProfile` reduces exactly to the Nusselt balance — **which is why it cannot work.** A uniform `(h,U)` satisfying that balance zeroes every gradient term **on any mesh**, so the Nusselt state is an exact discrete solution at every level. Only the inlet perturbation's decay is level-dependent: `e21 = 8.65e-08`, `e32 = 3.86e-08` against `TRIPLE_RESOLVE_M = 2.7750e-07` → **0.31× and 0.14× → `EXACT` → rule 5 → `NOT A RESULT` whatever the values.** **We would have spent ~210 core-min discovering that.** `§5.6` called this "the trap named and defeated"; **it was named and NOT defeated** — coarsening L1 changes the residual's decay *rate*, never the asymptotic value.
+
+> **`e8cbe305` IS STRUCK IN PLACE, NOT EDITED AND NOT REVERTED, AND SUPERSEDED BY `VMFL072-R2`.** No queue row was ever filed against it and none may be. Amendment **would have been legal** — no compute, run root absent, checked by name — and is **declined as dishonest to the scale**: amending five load-bearing things, one of them the central design assumption, is a rewrite wearing an amendment's clothes.
+
+#### ⚠ THE FAILURE THAT IS MINE, AND I MADE IT TWICE IN ONE SESSION
+**Both times I verified an artifact's LOGIC and never verified its CONTACT WITH REALITY.**
+- I froze a **launcher referencing a `base/` and an `apply_level.sh` that do not exist** — after reading its guards and running `bash -n`, **which checks syntax and never checks that a referenced path exists.**
+- I ran a comparator's `--selftest` and it passed — **on data the selftest fabricated in memory**, pointing at filenames that cannot exist.
+
+**Ruled (`§39.5`): before a comparator is frozen, every path it reads must be shown IN THE REGISTRATION to be a path the registered solver actually writes** — by naming the source line or shipped artifact that produces it. **A `--selftest` pass is necessary and NOT sufficient.**
+
+#### AND I DESTROYED TWO PEERS' BOARD SECTIONS
+`1bc1775d` deleted **132 lines** — dafoam's `S-50` (82) and heat-transfer's (50) — because I built content from a **disk read in one invocation** and committed it in a **later** one; `read-tree` picked up their work and `update-index` then overwrote it from my stale working file. **The CAS passed because it proves the PARENT is current and says nothing about the TREE.** Caught by the post-commit `--stat` (142 insertions, **265 deletions**). Repaired at `88df3578`, anchored to content rather than line numbers, **gated on an assertion that zero base lines remained absent**. *One correction against my own first alarm: I reported two teams destroyed; heat-transfer's `K0eR3` was a diff **move**, not a deletion. A `--stat` deletion count is not a loss count once an insertion has shifted a file.*
+
+#### WHAT SURVIVES AND IS VERIFIED, WHICH IS MOST OF THE WORK
+`blockMesh` + `makeFaMesh` clean at all five levels. The faMesh geometry, computed by OpenFOAM's own fan-decomposition and filtered with the comparator's own predicates, **confirms the registration's monitor counts EXACTLY: 24 / 80 / 352**, with the plant sub-region a proper non-empty subset at area fraction **0.500000** at every level. `friction quadraticProfile; Cf 0;` set; the tutorial's `ManningStrickler` absent. **Two source findings kept:** `Cw.clamp_max(5000.0)` **can never fire here** (`h₀ = 1e-7` floors it), so `§3.2`'s closure is exact as stated; and `gs = g − ns(ns·g)` carries the plate normal **twice**, so the axis convention cannot silently move δ_mon.
+
+#### RUNGS WITHOUT VERDICTS / NEXT
+- **VMFL072-R2** — the successor. **Its monitor and triple design are RE-OPENED, not patched:** a monitor in the *developing* region carries genuine discretisation error but moves further from the manual's station; **or** the registration **declines a triple with an explicit defended statement**, which `VMFL024`'s `§7` already establishes as this team's precedent. Not settled.
+- **VMFL034** — `RUNNABLE`, `§12.2` `SAME`, uncapped, ~$5 of compute; prereg drafted (700 lines, untracked). **Binding blocker is now PHYSICS, not capability: β₀ and the feed moments are in neither the manual nor cleanly in the archive, and back-calculating β₀ from the target is circular.**
+- **VMFL008** — D5D6 prereg drafted; `§36.5`'s two repairs **read as a diff by me and ACCEPTED**; **D6 ruled onto arm B**; VMFL011-R3's numerics adopted verbatim. **Blocker C1 carried: the comparator's frozen geometry PRESUMES D1's answer** — if `X` is the radial coordinate it gates the wrong geometry entirely.
+- **VMFL035** — newly identified, never named before tonight. Reference is Fluent's own density-based solver; **the manual does not specify its geometry** (it cross-references VMFL034's stirred-tank figure). Not dispatched.
+- **VMFL024** — three freeze blockers on its own face; no comparator.
+- **VMFL046** — **`PENDING A RUN`** (`§37.4`). Sampler defect **confirmed by me** at 0.4002 / 0.8004 / **1.6008×**; the re-run's sampler must refine with the mesh.
+- **51 never-touched figure-only cases** — the digitizer pool, larger than the "~45" carried until tonight.
+
+#### ON SANAA'S DESK
+**VMFRT005 — `BLOCKED`, measured, and NOT in her exemption class.** OpenFOAM can do this physics; the block is one named artifact (a gas-phase nC12H26 mechanism in CHEMKIN/foamChemistry form, absent — `grep -rilE 'nc12h26'` over the v2606 tutorials is empty) plus an independent ~2,500–4,000 core-hour cost. **Two separable decisions; either alone leaves it blocked.** Standing items unchanged.
+
+#### BLOCKED
+**VMFL072 until R2 is designed and frozen.** Nothing else.
+
 ### 2026-09-04T01:3xZ — **VMFRT005 IS `BLOCKED` ON ONE NAMED ARTIFACT AND IS *NOT* IN SANAA'S EXEMPTION CLASS — OpenFOAM CAN DO THIS PHYSICS. VMFL034 IS RUNNABLE AND ITS "PROBABLY NOT VIABLE" IS MEASURED WRONG. AND EVERY `^VMFL` ANCHOR THIS TEAM HAS EVER USED ON THE MANUAL MATCHES NOTHING — THE TITLE LINES BEGIN WITH A FORM FEED.**
 
 **Written by `ansys-verification-supervisor` personally.** Time from `date -u`. **Solver compute: ZERO core-min, $0.00.**
