@@ -3123,3 +3123,148 @@ unreproducible: `§36.7`'s "61.1 %" and "45.2 % of cap" columns — no method is
 | gates · thresholds · bands · caps · labels · re-grades | **0 · 0 · 0 · 0 · 0 · 0** |
 | solver compute | **0 core-min, $0.00** |
 | lines whose number changed above this section | **0** |
+
+---
+
+## Amendment — v1.34, 2026-09-04 — **§39: THE VMFL072 FREEZE IS SUPERSEDED. THE FROZEN COMPARATOR READS TWO FILES THAT EXIST IN ZERO CODE PATHS, AND THE PROPERTY THAT MAKES ITS `PASS` LIMB VALID IS THE SAME PROPERTY THAT MAKES ITS GRID TRIPLE STRUCTURALLY DEGENERATE · MY `§3` CHECK 1 VERIFIED LOGIC AND NEVER VERIFIED CONTACT WITH REALITY**
+
+### §39.1 THE RULING
+
+> **`e8cbe305` IS STRUCK IN PLACE AND SUPERSEDED BY A SUCCESSOR REGISTRATION, `VMFL072-R2`.** The
+> frozen bytes are **NOT edited and NOT reverted** (rule 6, rule 10). They stand in history as a
+> recorded registration that **could never have produced a verdict**, and this clause is the strike.
+> **No queue row was ever filed against `e8cbe305` and none may be.**
+
+**Legality:** no compute has occurred — `verification/runs/ansys_verification/VMFL072/` **does not
+exist, checked by name**, which is rule 2's and `§7.3`'s named condition. Amendment would have been
+*legal*; it is **declined as dishonest to the scale of the defect.** Five load-bearing things are
+wrong, one of them the central design assumption. **Amending all five is not an amendment, it is a
+rewrite wearing an amendment's clothes**, and a reader of the frozen document would no longer be
+reading the thing that was frozen.
+
+### §39.2 ⚠ THE COMPARATOR READS FILES THAT EXIST IN **ZERO** CODE PATHS
+
+`compare_vmfl072.py` reads `<time>/film/hf_film`, `<time>/film/Uf_film`,
+`constant/film/Cf_film`, `constant/film/magSf_film`. **Verified by me, not taken on report:**
+
+- `grep -rl Cf_film` over `src` + `applications` → **0 files.** Same for `magSf_film`. **No code
+  path in this installation writes either name.**
+- `faMesh.C:64` — `const Foam::word Foam::faMesh::prefix_("finite-area");`. The finite-area prefix
+  is **literally `finite-area`**, and naming the region "film" only yields `finite-area/film`.
+- The shipped `inclinedPlaneFilm` keeps its film fields at **`0/finite-area/{hf_film, Uf_film}`**,
+  confirming the layout on disk.
+
+**The comparator was written against the LEGACY 3-D `regionModels/surfaceFilmModels` layout while
+`§3.3` registers the FINITE-AREA one.** It would refuse (exit 2) inside `load_geometry` at its
+first call, at every level, permanently. **And the refusal is the honest failure mode** — the
+instrument refuses rather than fabricating, exactly as designed. It simply refuses *always*.
+
+**Second blocker, independent:** `run_inner.sh` reconstructs with `-latestTime`, giving **two** time
+directories, against `EXPECTED_TIME_DIRS = 200` and a plateau limb that reads ~41. Neither is
+fixable from the case side: `apply_level.sh` runs at launcher `:68` and `run_inner.sh` is written
+at `:108`, overwriting anything left behind.
+
+### §39.3 ⚠ THE COMPARATOR IS **MORE PERMISSIVE THAN THE GATE IT IMPLEMENTS** — THE DANGEROUS DIRECTION
+
+`§7.1` requires *"e_B ≤ 0.700 %, **and C1 and B2 both met** → `PASS`"*. The frozen comparator's
+`main()` loops `("L1","L2","L3")` only; **`BRACKET_CAP` and `C1_CAP` are defined and never used**,
+and the `§5.4` plant **P2 is specified in the document and not implemented**. So the code would
+have issued a `PASS` on a condition **strictly weaker than the registered one.**
+
+> **This is the failure direction that matters.** A comparator stricter than its document refuses
+> things it should grade — visible, annoying, safe. **A comparator looser than its document grants
+> a credential the registration did not authorise, and nothing in the output says so.** Recorded
+> against my `§3` check 1: I read the verdict logic and matched it against `§7.1`'s *first* limb and
+> not its conjunction.
+
+### §39.4 ⚠⚠ THE FINDING THAT KILLS THE DESIGN — WHAT MAKES LIMB B VALID IS WHAT MAKES THE TRIPLE DEGENERATE
+
+`§38`/`§3.2` established that `quadraticProfile` reduces **exactly** to the Nusselt balance, and I
+re-derived it. **That is precisely why the grid triple cannot work.**
+
+A spatially uniform `(h, U)` satisfying `g sinθ·h = 3μU/((h+h₀)ρ)` makes **every gradient term
+identically zero on any mesh** — `ddt` vanishes at steady state and `div(phi₂ₛ,U)` vanishes on a
+uniform field at constant Γ. **The Nusselt state is therefore an EXACT DISCRETE SOLUTION AT EVERY
+REFINEMENT LEVEL.** There is no discretisation error at a fully-developed monitor to extrapolate;
+the only level-dependence is the numerical decay of the inlet perturbation over the upstream
+relaxation length. Estimated (a model, stated so it can be checked, **not** a measurement):
+
+| | δ_mon − δ_N |
+|---|---|
+| L1 | 6.199e-07 m |
+| L2 | 5.334e-07 m |
+| L3 | 4.948e-07 m |
+
+→ **e21 = 8.65e-08, e32 = 3.86e-08 against `TRIPLE_RESOLVE_M = 2.7750e-07` — 0.31× and 0.14×.**
+`roache()` returns **`EXACT`**, and `CLAUDE.md` rule 5 step (2) makes that **`NOT A RESULT` on both
+limbs whatever the values.** *Even a 3× error in the estimate leaves `e32` under the threshold.*
+The values themselves would have graded well — e_A ≈ 0.79 % against a 2.72 % band, e_B ≈ 0.09 %
+against 0.700 %.
+
+> **THE CASE AS FROZEN IS STRUCTURALLY INCAPABLE OF ANY VERDICT BUT `NOT A RESULT`, AND WE WOULD
+> HAVE SPENT ~210 CORE-MIN DISCOVERING IT.** `§5.6` names this exact trap and claims a deliberately
+> coarse L1 defeats it. **It does not**: coarseness changes the *decay rate* of an already-tiny
+> residual, never the asymptotic value the monitor sees. **My own board called that design "the
+> trap named and defeated." It was named and not defeated.**
+>
+> **AND THE DEGENERACY IS ITSELF A RESULT WORTH HAVING, which is why R2 must not simply bolt a
+> triple back on:** *the discretisation admits the exact solution at every level* is a strong
+> code-verification statement about the scheme. **The right instrument for it is not Roache.**
+> `VMFL024`'s `§7` already sets this team's precedent — **a registration may decline a triple with
+> an explicit defended statement**, which is what rule 5 requires of a row that has none.
+> **R2's monitor and triple design are re-opened, not patched**; a monitor sited in the
+> *developing* region does carry genuine discretisation error, at the cost of moving further from
+> the manual's stated station. **That trade is a design question and is not settled here.**
+
+### §39.5 ⚠ THE LESSON AGAINST MY OWN CHECK 1 — A SELFTEST ON SYNTHETIC DATA PROVES LOGIC, NEVER INTERFACE
+
+I read all 483 lines, found and forced the repair of a dead planted control, verified two
+constants' derivations, re-derived the physics, and **ran the selftest myself rather than taking
+the lane's word.** It passed: the control fired, six mutants refused, five Roache states
+classified. **And every byte it consumed was fabricated in memory by the selftest.**
+
+> **A comparator selftest on synthetic data proves the comparator's LOGIC and says nothing whatever
+> about its INTERFACE to the solver.** The instrument was internally immaculate and pointed at two
+> filenames that exist in zero code paths.
+>
+> **This is the SAME failure I made two hours earlier**, when I froze a launcher referencing a
+> `base/` that did not exist after reading its guards and running `bash -n`. **Twice in one session
+> I verified the logic and never verified its contact with reality.**
+>
+> **RULED — `§39.5`: before a comparator is frozen, EVERY PATH IT READS MUST BE SHOWN TO BE A PATH
+> THE REGISTERED SOLVER ACTUALLY WRITES** — by naming the source line or the shipped tutorial
+> artifact that produces it, in the registration, checkable by a reader. A `--selftest` pass is
+> **necessary and not sufficient**, and this charter will stop treating it as sufficient.
+
+### §39.6 WHAT SURVIVES INTACT, AND IT IS MOST OF THE WORK
+
+**The case-side build is sound and is verified, not asserted.** `blockMesh` + `makeFaMesh` ran
+clean at all five levels; the faMesh geometry was computed by OpenFOAM's own fan-decomposition and
+filtered with the comparator's own predicates, **confirming the registration's claimed monitor
+counts EXACTLY — 24 / 80 / 352** — and the plant sub-region is a proper, non-empty subset at every
+level with area fraction **0.500000**, so both of the plant's refusals are cleanly avoided.
+`friction quadraticProfile; Cf 0;` is set and the tutorial's `ManningStrickler` is absent.
+
+**Two source findings worth keeping:** `Cw.clamp_max(5000.0)` follows the `quadraticProfile`
+assignment and **can never fire here** — it binds only below `h + h₀ < 5.5e-10 m` while `h₀ = 1e-7`
+floors it, so `§3.2`'s closure is exact as stated. And `gs = g − ns(ns·g)` contains the plate
+normal **twice**, so `|gs|` is sign-independent and the axis convention cannot silently move δ_mon.
+
+**Also carried to R2:** the B2 bracket is estimated at **0.194 % against a 0.200 % cap** — on the
+edge, failing under a 3 % pessimism anywhere; `§5.5` clause 5 calls this an adjustable-step
+transient while `§8.1` tabulates fixed steps, and OpenFOAM's Courant number is computed on the
+**quiescent primary region**, so `adjustTimeStep` would chase `maxDeltaT` rather than the film
+step; `VMFL072_RANKS` does not scale without editing `decomposeParDict`; and **disk is the
+under-registered resource** — ~20 GB for the set at `writePrecision 12`, against 169 GB free.
+
+| amendment | v1.34 |
+|---|---|
+| clause added | **`§39`** (`§39.1`–`§39.6`) |
+| **ruled** | **`e8cbe305` STRUCK AND SUPERSEDED by `VMFL072-R2`** — frozen bytes not edited, not reverted; no queue row ever filed |
+| ⚠ against me | the frozen comparator reads `Cf_film`/`magSf_film`, which **0 code paths write**; it is **looser than its own `§7.1` gate**; and the triple is **structurally `EXACT`** |
+| ⚠ against me | **a `--selftest` on synthetic data proves LOGIC, never INTERFACE** — the second time in one session I verified logic and not contact with reality |
+| ruled | every path a comparator reads must be shown, in the registration, to be one the registered solver **actually writes** |
+| verified, survives | monitor counts **24/80/352 exact**; plant fraction **0.500000** at every level; `clamp_max` provably inert; `gs` sign-independent |
+| gates · thresholds · bands · caps · labels · re-grades | **0 · 0 · 0 · 0 · 0 · 0** |
+| solver compute | **0 core-min, $0.00** |
+| lines whose number changed above this section | **0** |
