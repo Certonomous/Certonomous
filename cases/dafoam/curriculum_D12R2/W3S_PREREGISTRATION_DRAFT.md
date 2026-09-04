@@ -550,3 +550,160 @@ it is the supervisor's call whether it belongs on Sanaa's desk beside the window
 (0.0017958478225974517 → 0.00044535), `|g|` fell **2.1100×**, `h_min` improved **1.9112×**
 (0.174284 → 0.091193) and is **1.8239×** short of `h_max`. All four reproduce from the
 artefacts. **It is the draft's §0 table, not the supervisor's reading, that does not.**
+
+---
+
+## 12. **AMENDMENT, 2026-09-04, BEFORE FIRST COMPUTE — A2'S WINDOW AND CAP COME DOWN, TWO GUARD PARAMETERS ARE REGISTERED, AND THE TWO-CEILING-GUARD DIFFERENCE IS REGISTERED RATHER THAN LEFT INCIDENTAL**
+
+**Added by a dafoam `lab-lane` on the `dafoam-supervisor`'s rulings 2, 4 and 5 of
+2026-09-04, `[lab-attributed]`. Sanaa can overrule any of it.**
+
+**THE `CLAUDE.md` RULE-2 CONDITION, STATED AND CHECKED.** Amendments are legal only
+before first compute. The condition is that **the Arm A run root
+`/home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3S-GSCAN-cylinder-unsteady` DOES NOT
+EXIST and no leg has run.** Checked at the time of writing by `test -e`, returning
+false; both W3S roots are absent, `LAUNCH_ENABLED=0`, `PREREG_COMMIT` is empty and no
+container has ever started for this item. **§0, §3.1, §4, §5 and §6 are NOT rewritten in
+place** — this section supersedes the specific numbers named below and leaves a record of
+what was believed, which is §11's own rule applied to §11's own successor.
+
+### 12.1 `W_A2` : **3,000 → 2,600**, and `CAP_A2` : **155.0 → 115.0 core-min**, and `ITEM_CEILING_CORE_MIN` : **330.0 → 290.0**
+
+**TWO ARITHMETIC DEFECTS, BOTH IN THE SAFE-SEEMING DIRECTION, BOTH FOUND BEFORE COMPUTE.**
+
+**(a) THE `A2` CAP WAS A DEAD LEVER.** `155.0` core-min at `ranks = 1` is **9,300 s** of
+wall. The inherited per-stage bound is **7,200 s = 120.0 core-min**. The cap was **29.2 %
+larger than anything an execution path could reach** — the timeout binds first, always, so
+the registered number could never bind. This is the class already found in `SO3aF2`'s
+`CEILING` and in `W_CONTINGENCY = 900`.
+
+**(b) `W = 3,000` WAS ALREADY OUTSIDE THE BOUND, NOT INSIDE IT — AND THE REASON IS A
+NORMALISATION.** §6.1 and §5-`Q5` quote the `S5` wall model's residuals as
+**−18.6 % / +12.0 % / −1.6 %**. Those are `(model − measured)/measured`. **A timeout asks
+the other question — how much LONGER than the model can the solver take — which is
+`(measured − model)/model`, and that is `+22.91 % / −10.71 % / +1.66 %`.** A model 18.64 %
+*below* a measurement is a measurement **22.91 %** *above* the model; `1/(1−0.1864) − 1 =
+0.2291`. Recomputed on the correct normalisation, refitting the model from the three
+anchors themselves (`wall = −81.0179 + 2.043767·W`, which reproduces §6.1's
+`−81 + 2.0438·W`):
+
+| `W` | model | worst-case wall at **+22.91 %** | vs the 7,200 s bound |
+|---|---|---|---|
+| 2,000 | 4,007 s | 4,925 s | **+46.2 % inside** |
+| 2,600 | 5,233 s | **6,431 s** | **+12.0 % inside** |
+| 2,645 | 5,325 s | 6,544 s | +10.0 % inside — the 10 % crossing |
+| 2,710 | 5,458 s | 6,708 s | +7.3 % — **fails the 10 % rule** |
+| **3,000** | 6,050 s | **7,436 s** | **−3.2 %, i.e. 236 s OUTSIDE** |
+
+**`W = 3,000` is not 24 s inside the bound. It is 236 s outside it**, and the earlier
+reading of "+0.3 % margin" was computed on the same mis-normalised residual. The
+supervisor's ruling 2 asked for a `W` whose worst-residual wall clears the bound by at
+least 10 % and computed **≈ 2,710** on the 18.6 % figure; recomputed on **+22.91 %** the
+crossing is at **2,645**, so the largest round hundred that satisfies the rule is
+**`W_A2 = 2,600`**, under both readings of "clears by 10 %" (10 % of the wall → 2,645;
+10 % of the bound → 2,619). **The supervisor's rule is adopted unchanged; only the input
+residual is corrected.**
+
+**THE RESIDUAL CHOICE IS DOING REAL WORK AND IS STATED RATHER THAN HIDDEN.** `+22.91 %`
+is measured at `W = 300`, the FAR END of the anchor range, where the affine model's
+intercept dominates; the residual SHRINKS with `W` (`+22.91 % → −10.71 % → +1.66 %`).
+Using the nearest anchor's `+1.66 %` would permit `W ≈ 3,100`. **The worst residual is
+adopted deliberately, because a timeout kill is unrecoverable — it is `NOT A RESULT` about
+convergence and buys nothing — while the cost of being conservative is a slightly narrower
+span.**
+
+**THE NEW CAP.** `CAP_A2 = 115.0` core-min `= 6,900 s`, which is **inside the 7,200 s
+bound by 4.3 % (REACHABLE)** and covers the worst-case wall of 6,431 s with **7.3 %
+headroom**, at **1.32×** the model point of 87.21 core-min. `ITEM_CEILING_CORE_MIN`
+falls to **290.0**, which is the caps' exact sum — `5.0 + 100.0 + 70.0 + 115.0` — because
+a ceiling carrying slack nobody registered is not a registration.
+
+| leg | registered cap | `cap × 60 / ranks` | leg wall bound | reachable |
+|---|---|---|---|---|
+| `SETUP` | 5.0 | 300 s | 22,500 s | yes, +7,400 % |
+| `A0` | 100.0 | 6,000 s | 7,200 s | yes, +20.0 % |
+| `A1` | 70.0 | 4,200 s | 7,200 s | yes, +71.4 % |
+| `A2` | **115.0** | **6,900 s** | 7,200 s | **yes, +4.3 %** |
+| *(withdrawn `A2`)* | *155.0* | *9,300 s* | *7,200 s* | ***NO — dead lever*** |
+
+**REVISED COST.** Arm A point **202.08 core-min** (was 215.71): `1.75 + 66.78 + 46.34 +
+87.21`. Band ±20 % `[161.7, 242.5]`. Cap `CAP_CORE_MIN_A = 290.0`. The `FS-0` MISS early
+stop is **68.53 core-min, unchanged**. Dollars **DERIVED, NOT MEASURED**: **$0.1728** at
+point, **$0.2479** at cap, at $0.0513/core-h, **REPORTED-BY-OWNER**.
+
+**THE SCIENCE COST, STATED RATHER THAN HIDDEN — the supervisor's own instruction.** The
+gscan span narrows from **1,400–3,000 (2.14×)** to **1,400–2,600 (1.86×)**. Arm A exists
+to detect whether `|g(W)|` converges or plateaus over `[900, 3000]`; 1.86× resolves that
+nearly as well as 2.14×, and `FS-1`'s MISS finding is scoped to the measured set, which
+now reads `[300, 2600]` rather than `[300, 3000]`. **A narrowed span that goes unmentioned
+is a quiet weakening, and this is the mention.** `Q3`'s prediction is restated at the new
+window: `|g(2600)| = 0.48836·(2600/2000)^(−1.061) = 0.370`, band **`[0.259, 0.481]`**
+(±30 %), giving `W·|g|` ≈ **962**, still a factor 2.13 short of the 2,048.6 bar — so
+`Q4` is unchanged in substance and `FS-1` is still predicted to MISS.
+
+**RULING 3'S DURABLE FORM, BUILT.** `w3s_stage_record.py --cap-reachability` asserts
+`cap × 60 / ranks < wall_bound` for **every** leg and refuses `rc=64` naming each dead
+lever; `w3s_stage_and_run.sh`'s `preflight_registration` calls it before every leg.
+**Its planted control is this item's own withdrawn cap** — a checker reporting zero dead
+levers is first shown reporting the 155.0 one. Driven under `python3` and `python3 -O`.
+
+### 12.2 THE `MemAvailable` GUARD'S RESPONSE AND BOUND, **REGISTERED** (ruling 4)
+
+`MEMAVAIL_FLOOR_GIB = 14.0` is inherited and **not lowered**. What §2 inherited and never
+stated is the guard's **response**, which is what `DAFOAM_CHARTER.md` §18.7 Requirement 1
+now requires at the registration and which W3's own registration omitted — at a cost of
+20 of 33 declared stages.
+
+> **REGISTERED: the floor is guarded by WAIT-AND-RE-POLL under a bounded deadline, and the
+> deadline's expiry TERMINATES the leg with a non-zero rc. `MEMAVAIL_POLL_S = 30`,
+> `MEMAVAIL_WAIT_BOUND_S = 3600`. Every wait is a `MEMAVAIL_WAIT` line in the ledger. At
+> the bound the launcher writes a `blocked` row into BOTH the ledger and the manifest and
+> exits `rc = 6`. THERE IS NO BLOCK-AND-CONTINUE.**
+
+**The discard fraction, per §18.7 Requirement 1.** One block discards **the whole leg**
+(1 of 4 cost legs, and 1 of 3 windows), and because Arm A's question is a **three-point
+comparison** there is no partial answer: the comparator's `N4` leg-set closure refuses a
+two-leg manifest, so the item is **`NOT A RESULT`**. A sustained condition discards the
+same thing — the arm cannot be shortened, only stopped. **That is why the wait exists and
+why its expiry terminates rather than continues.**
+
+**The form matches the quantity, which is the W3 finding.** W3 put the bounded WAIT on the
+sum of registered caps — a quantity that changes only when a container starts or stops —
+and a one-shot BLOCK on live `MemAvailable`, which changes second by second. Here the wait
+is on `MemAvailable`. `3600 s` is chosen against `SO2a`'s measured `waited=540` on the same
+box against the same 20 GiB sibling, at 6.7× that observation.
+
+### 12.3 TWO CEILING GUARDS, BOTH KEPT, AND THE DIFFERENCE **REGISTERED** (ruling 5)
+
+`w3s_chain_driver.sh` asserts the cumulative item ceiling with
+`w3s_grade.py --cumulative-item-ceiling` before each leg; `w3s_stage_and_run.sh` asserts it
+with the committed `cases/dafoam/_common/item_ceiling_guard.py`. **Both are kept: defence
+in depth is worth more than tidiness on a budget guard this family has twice found failing
+open.** They were driven over the SAME files in five directions and agree — a healthy
+ledger, an over-ceiling projection, a malformed `core_min=1.2.3`, a teed `ITEM_CEILING`
+line, and a root with orphan logs and no ledger.
+
+> **REGISTERED: they differ BY DESIGN on exactly one input. An ABSENT ledger is `FRESH
+> 0.000` to `w3s_grade.spend_from_root` and `UNMEASURED` (refuse) to
+> `item_ceiling_guard.read_spend`. That difference is deliberate and is reconciled by the
+> launcher's LEDGER BOOTSTRAP, which creates the ledger before the `_common` census and
+> which itself REFUSES `rc=65` rather than writing a fresh ledger into a root that already
+> holds stage artefacts. A successor must NOT "repair" the disagreement by removing the
+> `UNMEASURED` limb: that limb is the whole reason the `_common` guard exists, and
+> `d6rf_chain_driver.sh` failing open on exactly this input is what bought it.**
+
+### 12.4 WHAT THIS AMENDMENT DOES **NOT** DO
+
+**No gate, threshold, band or label is widened.** `h_max = 0.05`, `EPS_NOISE_TARGET =
+0.01`, `MEMAVAIL_FLOOR_GIB = 14.0`, `C_ENV = 0.8907`, the `FS-0` ±1 % band, the `FS-1`
+margin 1.15 and the 2,048.6 bar are **untouched**. The per-stage wall bound stays at
+**7,200 s and is NOT raised** — widening a bound because the arm no longer fits is widening
+on optimism (Sanaa's T25 ruling), so the **window came down to fit the bound** instead.
+Every cap moved **DOWN**; the item ceiling moved **DOWN**. Nothing here permits an arm,
+a leg or a stage that could previously have been refused to now pass.
+
+**STILL OWED AND NOT DISCHARGED BY THIS SECTION.** §10's checklist is unticked. **No leg
+body has ever executed**, so the container / `d12y_run_script.py` / OpenFOAM side of the
+manifest contract is **NOT MEASURED** — a fixture proves the contract, it does not prove
+the solver, and the first `SETUP` leg is that measurement. **NOT FROZEN. NOT PINNED. NOT
+QUEUED. NOT LAUNCHED. SUBMISSIONS REMAIN PARKED.**

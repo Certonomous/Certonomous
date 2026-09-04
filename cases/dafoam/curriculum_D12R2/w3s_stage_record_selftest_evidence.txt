@@ -1,7 +1,74 @@
 W3S ARM A -- RECORD PRODUCER SELFTEST EVIDENCE
-Driven 2026-09-04T22:17:26Z by a dafoam lab-lane. ZERO COMPUTE.
-HEAD at drive time: ed202dee5c63f4b954a2e4bbeb150afb1a0a14b6
-md5 w3s_stage_record.py = 8ee3b0ad9b8dfe113f83f1a145f6431b
+Driven 2026-09-04T22:30:26Z by a dafoam lab-lane. ZERO COMPUTE.
+Re-driven after the dafoam-supervisor's rulings 2-5 of 2026-09-04: W_A2 3000->2600,
+CAP_A2 155.0->115.0, ITEM_CEILING 330.0->290.0, and the cap-reachability check.
+HEAD at drive time: c48c4f7297839862aeedabb0ba60b0e46f6ec983
+md5 w3s_stage_record.py = 093ac4ed34a51fdd2eb46d09333a99b5
+==============================================================================
+$ python3 w3s_stage_record.py --cap-reachability   (RULING 3, the durable form)
+{
+  "caps_sum_core_min": 290.0,
+  "caps_sum_equals_ceiling": true,
+  "dead_levers": [],
+  "item_ceiling_core_min": 290.0,
+  "legs": [
+    {
+      "cap_core_min": 5.0,
+      "cap_wall_s": 300.0,
+      "declared_stages": [
+        "S0",
+        "S1a",
+        "S1b",
+        "S2a"
+      ],
+      "headroom_pct": 7400.0,
+      "leg": "SETUP",
+      "leg_wall_bound_s": 22500,
+      "ranks": 1,
+      "reachable": true
+    },
+    {
+      "cap_core_min": 100.0,
+      "cap_wall_s": 6000.0,
+      "declared_stages": [
+        "S5"
+      ],
+      "headroom_pct": 19.999999999999996,
+      "leg": "A0",
+      "leg_wall_bound_s": 7200,
+      "ranks": 1,
+      "reachable": true
+    },
+    {
+      "cap_core_min": 70.0,
+      "cap_wall_s": 4200.0,
+      "declared_stages": [
+        "S5"
+      ],
+      "headroom_pct": 71.42857142857142,
+      "leg": "A1",
+      "leg_wall_bound_s": 7200,
+      "ranks": 1,
+      "reachable": true
+    },
+    {
+      "cap_core_min": 115.0,
+      "cap_wall_s": 6900.0,
+      "declared_stages": [
+        "S5"
+      ],
+      "headroom_pct": 4.347826086956519,
+      "leg": "A2",
+      "leg_wall_bound_s": 7200,
+      "ranks": 1,
+      "reachable": true
+    }
+  ],
+  "reason": "every registered cap is reachable inside its own wall bound, and the 4 caps sum to 290.0 == the registered ceiling",
+  "rule": "cap x 60 / ranks < wall_bound, for every leg",
+  "verdict": "PASS"
+}
+rc=0
 ==============================================================================
 $ python3 w3s_stage_record.py --assert-audit
 assert statements in this file: 0 (must be 0)
@@ -13,7 +80,7 @@ assert statements OUTSIDE the selftest functions: 0 (must be 0)
 rc=0
 ==============================================================================
 $ python3 w3s_stage_record.py --selftest
-W3S_STAGE_RECORD SELFTEST  python_O=False  workdir=/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/f1/w3s_stage_record_selftest
+W3S_STAGE_RECORD SELFTEST  python_O=False  workdir=/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/e1/w3s_stage_record_selftest
 ------------------------------------------------------------------------------
 EXERCISED-PIN-parent-grader-exists           EXERCISED-PASS observed=True expected=True
 EXERCISED-PIN-parent-grader-md5              EXERCISED-PASS observed=True expected=True
@@ -40,7 +107,14 @@ EXERCISED-CEILING-refuses-over-the-ceiling   EXERCISED-PASS observed=65 expected
 EXERCISED-CEILING-refuses-a-malformed-token  EXERCISED-PASS observed=65 expected=65
 EXERCISED-CEILING-refuses-an-ABSENT-ledger   EXERCISED-PASS observed=65 expected=65
 EXERCISED-CEILING-caps-sum-EXACTLY-to-the-ceiling EXERCISED-PASS observed=True expected=True
-EXERCISED-BUDGET-fresh-leg-gets-the-registered-wall-bound EXERCISED-PASS observed=7200 expected=7200
+EXERCISED-CAPREACH-the-registered-caps-are-all-reachable EXERCISED-PASS observed=0 expected=0
+EXERCISED-CAPREACH-and-they-sum-EXACTLY-to-the-ceiling EXERCISED-PASS observed=True expected=True
+EXERCISED-CAPREACH-A2-at-W=2600-clears-its-own-timeout EXERCISED-PASS observed=True expected=True
+EXERCISED-CAPREACH-PLANT-the-WITHDRAWN-A2-cap-155.0-IS-a-dead-lever EXERCISED-PASS observed=(64, ['A2']) expected=(64, ['A2'])
+EXERCISED-CAPREACH-the-plant-did-not-leak-into-the-live-registration EXERCISED-PASS observed=115.0 expected=115.0
+EXERCISED-BUDGET-a-fresh-A2-leg-is-CAP-bound-at-6900s-not-bound-bound EXERCISED-PASS observed=6900 expected=6900
+EXERCISED-BUDGET-the-wall-bound-STILL-wins-when-it-is-the-smaller-of-the-two EXERCISED-PASS observed=1000 expected=1000
+EXERCISED-BUDGET-min-is-taken-over-BOTH-so-neither-limb-is-dead EXERCISED-PASS observed=(6000, 500) expected=(6000, 500)
 EXERCISED-BUDGET-a-thin-remainder-SHORTENS-the-timeout EXERCISED-PASS observed=300 expected=300
 EXERCISED-BUDGET-an-exhausted-leg-REFUSES-no-new-budget EXERCISED-PASS observed=None expected=None
 EXERCISED-BUDGET-a-malformed-stage_core_min-is-UNMEASURED-not-zero EXERCISED-PASS observed=None expected=None
@@ -51,7 +125,7 @@ EXERCISED-E2E-verdict-is-in-the-fixed-vocabulary EXERCISED-PASS observed=True ex
 EXERCISED-E2E-FS0-HIT-on-the-anchor-fixture  EXERCISED-PASS observed='HIT' expected='HIT'
 EXERCISED-E2E-FS1-MISS-on-the-registration's-own-points EXERCISED-PASS observed='MISS' expected='MISS'
 EXERCISED-E2E-no-step-plan-reached-the-artefact EXERCISED-PASS observed=True expected=True
-EXERCISED-E2E-window-binding-returned-all-three-legs EXERCISED-PASS observed={'A0': 2000, 'A1': 1400, 'A2': 3000} expected={'A0': 2000, 'A1': 1400, 'A2': 3000}
+EXERCISED-E2E-window-binding-returned-all-three-legs EXERCISED-PASS observed={'A0': 2000, 'A1': 1400, 'A2': 2600} expected={'A0': 2000, 'A1': 1400, 'A2': 2600}
 EXERCISED-E2E-FS1-HIT-is-reachable-the-gate-goes-both-ways EXERCISED-PASS observed='HIT' expected='HIT'
 EXERCISED-NEG-leg-mislabel-REFUSED-by-the-comparator EXERCISED-PASS observed=2 expected=2
 EXERCISED-NEG-missing-per-leg-W_STEPS-REFUSED EXERCISED-PASS observed=2 expected=2
@@ -82,12 +156,12 @@ EXERCISED-TRACE-PLANT-names-the-dropped-key  EXERCISED-PASS observed=['age_guard
 EXERCISED-AST-assert-statements-in-this-file EXERCISED-PASS observed=0 expected=0
 EXERCISED-AST-assert-statements-outside-the-selftest EXERCISED-PASS observed=0 expected=0
 ------------------------------------------------------------------------------
-W3S_STAGE_RECORD SELFTEST controls=66 EXERCISED-PASS=66 EXERCISED-FAIL=0 NOT-EXERCISED=0 python_O=False
-W3S_STAGE_RECORD SELFTEST PASS 66/66
+W3S_STAGE_RECORD SELFTEST controls=73 EXERCISED-PASS=73 EXERCISED-FAIL=0 NOT-EXERCISED=0 python_O=False
+W3S_STAGE_RECORD SELFTEST PASS 73/73
 rc=0
 ==============================================================================
 $ python3 -O w3s_stage_record.py --selftest
-W3S_STAGE_RECORD SELFTEST  python_O=True  workdir=/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/f2/w3s_stage_record_selftest
+W3S_STAGE_RECORD SELFTEST  python_O=True  workdir=/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/e2/w3s_stage_record_selftest
 ------------------------------------------------------------------------------
 EXERCISED-PIN-parent-grader-exists           EXERCISED-PASS observed=True expected=True
 EXERCISED-PIN-parent-grader-md5              EXERCISED-PASS observed=True expected=True
@@ -114,7 +188,14 @@ EXERCISED-CEILING-refuses-over-the-ceiling   EXERCISED-PASS observed=65 expected
 EXERCISED-CEILING-refuses-a-malformed-token  EXERCISED-PASS observed=65 expected=65
 EXERCISED-CEILING-refuses-an-ABSENT-ledger   EXERCISED-PASS observed=65 expected=65
 EXERCISED-CEILING-caps-sum-EXACTLY-to-the-ceiling EXERCISED-PASS observed=True expected=True
-EXERCISED-BUDGET-fresh-leg-gets-the-registered-wall-bound EXERCISED-PASS observed=7200 expected=7200
+EXERCISED-CAPREACH-the-registered-caps-are-all-reachable EXERCISED-PASS observed=0 expected=0
+EXERCISED-CAPREACH-and-they-sum-EXACTLY-to-the-ceiling EXERCISED-PASS observed=True expected=True
+EXERCISED-CAPREACH-A2-at-W=2600-clears-its-own-timeout EXERCISED-PASS observed=True expected=True
+EXERCISED-CAPREACH-PLANT-the-WITHDRAWN-A2-cap-155.0-IS-a-dead-lever EXERCISED-PASS observed=(64, ['A2']) expected=(64, ['A2'])
+EXERCISED-CAPREACH-the-plant-did-not-leak-into-the-live-registration EXERCISED-PASS observed=115.0 expected=115.0
+EXERCISED-BUDGET-a-fresh-A2-leg-is-CAP-bound-at-6900s-not-bound-bound EXERCISED-PASS observed=6900 expected=6900
+EXERCISED-BUDGET-the-wall-bound-STILL-wins-when-it-is-the-smaller-of-the-two EXERCISED-PASS observed=1000 expected=1000
+EXERCISED-BUDGET-min-is-taken-over-BOTH-so-neither-limb-is-dead EXERCISED-PASS observed=(6000, 500) expected=(6000, 500)
 EXERCISED-BUDGET-a-thin-remainder-SHORTENS-the-timeout EXERCISED-PASS observed=300 expected=300
 EXERCISED-BUDGET-an-exhausted-leg-REFUSES-no-new-budget EXERCISED-PASS observed=None expected=None
 EXERCISED-BUDGET-a-malformed-stage_core_min-is-UNMEASURED-not-zero EXERCISED-PASS observed=None expected=None
@@ -125,7 +206,7 @@ EXERCISED-E2E-verdict-is-in-the-fixed-vocabulary EXERCISED-PASS observed=True ex
 EXERCISED-E2E-FS0-HIT-on-the-anchor-fixture  EXERCISED-PASS observed='HIT' expected='HIT'
 EXERCISED-E2E-FS1-MISS-on-the-registration's-own-points EXERCISED-PASS observed='MISS' expected='MISS'
 EXERCISED-E2E-no-step-plan-reached-the-artefact EXERCISED-PASS observed=True expected=True
-EXERCISED-E2E-window-binding-returned-all-three-legs EXERCISED-PASS observed={'A0': 2000, 'A1': 1400, 'A2': 3000} expected={'A0': 2000, 'A1': 1400, 'A2': 3000}
+EXERCISED-E2E-window-binding-returned-all-three-legs EXERCISED-PASS observed={'A0': 2000, 'A1': 1400, 'A2': 2600} expected={'A0': 2000, 'A1': 1400, 'A2': 2600}
 EXERCISED-E2E-FS1-HIT-is-reachable-the-gate-goes-both-ways EXERCISED-PASS observed='HIT' expected='HIT'
 EXERCISED-NEG-leg-mislabel-REFUSED-by-the-comparator EXERCISED-PASS observed=2 expected=2
 EXERCISED-NEG-missing-per-leg-W_STEPS-REFUSED EXERCISED-PASS observed=2 expected=2
@@ -156,6 +237,6 @@ EXERCISED-TRACE-PLANT-names-the-dropped-key  EXERCISED-PASS observed=['age_guard
 EXERCISED-AST-assert-statements-in-this-file EXERCISED-PASS observed=0 expected=0
 EXERCISED-AST-assert-statements-outside-the-selftest EXERCISED-PASS observed=0 expected=0
 ------------------------------------------------------------------------------
-W3S_STAGE_RECORD SELFTEST controls=66 EXERCISED-PASS=66 EXERCISED-FAIL=0 NOT-EXERCISED=0 python_O=True
-W3S_STAGE_RECORD SELFTEST PASS 66/66
+W3S_STAGE_RECORD SELFTEST controls=73 EXERCISED-PASS=73 EXERCISED-FAIL=0 NOT-EXERCISED=0 python_O=True
+W3S_STAGE_RECORD SELFTEST PASS 73/73
 rc=0

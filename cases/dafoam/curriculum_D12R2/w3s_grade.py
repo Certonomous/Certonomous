@@ -83,7 +83,7 @@ PARENT_MD5 = "3950d30fd09c9b56213a02f5e9864e20"
 # Arm A's three legs, ORDERED AND TYPED.  This tuple is the authority on which windows may
 # appear in a gscan manifest; the parent expresses the same idea with ONE scalar constant
 # and therefore cannot express a three-legged scan at all.
-LEGS = (("A0", 2000), ("A1", 1400), ("A2", 3000))
+LEGS = (("A0", 2000), ("A1", 1400), ("A2", 2600))
 LEG_NAMES = tuple(n for n, _ in LEGS)
 LEG_W = dict(LEGS)
 REGISTERED_WS = tuple(w for _, w in LEGS)
@@ -123,8 +123,21 @@ PRIOR_LEGS = (
 # ---- the cumulative item ceiling (T4).  LEG caps sum EXACTLY to the ceiling and the guard
 # ---- REFUSES if they do not -- a registration whose parts exceed its whole is a defect
 # ---- discovered here or not at all.
-LEG_CAP_CORE_MIN = {"SETUP": 5.0, "A0": 100.0, "A1": 70.0, "A2": 155.0}
-ITEM_CEILING_CORE_MIN = 330.0
+# ---- AMENDED 2026-09-04, BEFORE FIRST COMPUTE.  Condition stated and checked: the Arm A
+# ---- run root `/home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3S-GSCAN-cylinder-unsteady`
+# ---- DOES NOT EXIST and the arm has not run (CLAUDE.md rule 2 permits amendment only
+# ---- before first compute, and only with the condition named and checked).
+# ---- WAS: A2 W=3000, cap 155.0, ceiling 330.0.  TWO DEFECTS, both arithmetic:
+# ----   (1) 155.0 core-min at ranks=1 is 9300 s against a 7200 s stage wall bound -- a cap
+# ----       29.2 % larger than any execution path can reach.  A DEAD LEVER.
+# ----   (2) W=3000's worst-case wall is 7436 s, which is 236 s OUTSIDE the 7200 s bound,
+# ----       not inside it.  The draft's "18.6 % worst residual" is (model-measured)/measured;
+# ----       a timeout needs (measured-model)/model, which is +22.91 %.  A model 18.64 %
+# ----       BELOW a measurement is a measurement 22.91 % ABOVE the model.
+# ---- NOW: A2 W=2600 (worst-case wall 6431 s, 12.0 % inside the bound), cap 115.0
+# ---- (6900 s < 7200 s, REACHABLE), ceiling 290.0 = the caps' exact sum.
+LEG_CAP_CORE_MIN = {"SETUP": 5.0, "A0": 100.0, "A1": 70.0, "A2": 115.0}
+ITEM_CEILING_CORE_MIN = 290.0
 CEILING_TOL_CORE_MIN = 0.02
 
 # ---- rule-3 sentinels
@@ -1223,7 +1236,7 @@ def selftest(tmpdir):
         f.write("STAGE=S0 TASK=mesh rc=0 core_min=1.750\n"
                 "STAGE=S5 TASK=compute_totals rc=0 core_min=66.780\n")
     rc, body = cumulative_item_ceiling_census("A1", [r_spent], tmpdir)
-    unit("U23 CEILING 68.530 spent + leg A1 cap 70.0 = %.3f <= ceiling 330.0 -> rc=0"
+    unit("U23 CEILING 68.530 spent + leg A1 cap 70.0 = %.3f <= ceiling 290.0 -> rc=0"
          % body["projected_worst_case"],
          rc == 0 and abs(body["spent_core_min"] - 68.53) < 1e-9)
     r_big = os.path.join(base, "big")
@@ -1231,7 +1244,7 @@ def selftest(tmpdir):
     with open(os.path.join(r_big, "ledger.txt"), "w") as f:
         f.write("STAGE=S5 rc=0 core_min=200.0\n")
     rc, body = cumulative_item_ceiling_census("A2", [r_big], tmpdir)
-    unit("U24 CEILING 200.0 spent + leg A2 cap 155.0 = 355.0 > 330.0 -> rc=6 and the run "
+    unit("U24 CEILING 200.0 spent + leg A2 cap 115.0 = 315.0 > 290.0 -> rc=6 and the run "
          "STOPS; it does not get a new budget", rc == 6 and "ITEM CEILING" in body["reason"])
     r_um = os.path.join(base, "unmeasured")
     os.makedirs(r_um)
@@ -1291,7 +1304,7 @@ def selftest(tmpdir):
          rc == 64)
     rc, body = cumulative_item_ceiling_census("A0", [r_spent, r_big], tmpdir)
     unit("U29 CEILING spend is CUMULATIVE ACROSS ROOTS: 68.53 + 200.0 + leg cap 100.0 = "
-         "368.53 > 330.0 -> rc=6. A per-arm cap alone cannot see an item walking past its "
+         "368.53 > 290.0 -> rc=6. A per-arm cap alone cannot see an item walking past its "
          "ceiling one arm at a time.", rc == 6)
     unit("U30 CEILING the registered leg caps sum to %.1f, EXACTLY the item ceiling %.1f "
          "-- checked, not assumed" % (sum(LEG_CAP_CORE_MIN.values()), ITEM_CEILING_CORE_MIN),
@@ -1301,7 +1314,7 @@ def selftest(tmpdir):
     per = {"A0": {"W": 2000, "abs_g": abs(G_ANCHOR),
                   "W_times_abs_g": 2000 * abs(G_ANCHOR)},
            "A1": {"W": 1400, "abs_g": 0.713, "W_times_abs_g": 1400 * 0.713},
-           "A2": {"W": 3000, "abs_g": 0.318, "W_times_abs_g": 3000 * 0.318}}
+           "A2": {"W": 2600, "abs_g": 0.318, "W_times_abs_g": 2600 * 0.318}}
     unit("U31 FS-0 an exact reproduction of the anchor -> HIT",
          ga_2_fs0(per)["outcome"] == "HIT")
     per_off = dict(per)
@@ -1320,11 +1333,11 @@ def selftest(tmpdir):
          % (r["max_W_times_abs_g"], r["bar"]),
          r["outcome"] == "MISS" and r["arm_b_fires"] is False and r["W_adm"] is None)
     per_hit = dict(per)
-    per_hit["A2"] = {"W": 3000, "abs_g": 0.70, "W_times_abs_g": 2100.0}
+    per_hit["A2"] = {"W": 2600, "abs_g": 0.80, "W_times_abs_g": 2080.0}
     r = ga_3_fs1(per_hit, priors)
-    unit("U35 FS-1 the FALSIFIER: a planted |g(3000)|=0.70 gives W*|g|=2100 > %.2f -> HIT "
-         "at W_adm=3000, Arm B fires. The gate can go both ways." % fs1_bar(),
-         r["outcome"] == "HIT" and r["W_adm"] == 3000 and r["arm_b_fires"] is True)
+    unit("U35 FS-1 the FALSIFIER: a planted |g(2600)|=0.80 gives W*|g|=2080 > %.2f -> HIT "
+         "at W_adm=2600, Arm B fires. The gate can go both ways." % fs1_bar(),
+         r["outcome"] == "HIT" and r["W_adm"] == 2600 and r["arm_b_fires"] is True)
     per_two = dict(per_hit)
     per_two["A1"] = {"W": 1400, "abs_g": 1.6, "W_times_abs_g": 2240.0}
     r = ga_3_fs1(per_two, priors)

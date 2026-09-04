@@ -82,9 +82,9 @@ CEILING_GUARD="$BASE/../_common/item_ceiling_guard.py"
 MD5_PARENT="3950d30fd09c9b56213a02f5e9864e20"
 MD5_PARENT_LAUNCHER="8a92f3f84f72d6806a2e5c5df88d82ef"
 MD5_RUNPY="2790c39a09cd458d5a3263d7f1811da5"
-MD5_GRADER="d24d632cd37f587ebaca7999d9088dec"
-MD5_RECORD="8ee3b0ad9b8dfe113f83f1a145f6431b"
-MD5_LAUNCHER="02e00e3d420abb34b8e9d9eb6b933831"
+MD5_GRADER="3a3ee623fa48cc1d81517638485f376b"
+MD5_RECORD="093ac4ed34a51fdd2eb46d09333a99b5"
+MD5_LAUNCHER="36881e1a51a9898cdc0ae97c129102ef"
 
 # ---- THE FREEZE.  Empty until `dafoam-supervisor` freezes W3S_PREREGISTRATION_DRAFT.md
 # ---- and records the sha here, IN THE FREEZE COMMIT.  Empty means this driver refuses.
@@ -92,7 +92,7 @@ PREREG_COMMIT=""
 PREREG_FILE="$BASE/W3S_PREREGISTRATION_DRAFT.md"
 
 # ---- REGISTERED, and echoed by the grader so the two cannot drift apart silently.
-ITEM_CEILING_CORE_MIN="330.0"
+ITEM_CEILING_CORE_MIN="290.0"
 LEGS="SETUP A0 A1 A2"
 ROOT_ARM_A="/home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3S-GSCAN-cylinder-unsteady"
 
@@ -215,7 +215,7 @@ selfcheck() {
   # has been shown able to refuse.  This driver checks the same seven files with the same
   # ordering; it does not re-plant the same control in a second place.
   bash "$LAUNCHER" --selftest >/dev/null 2>&1; rc=$?
-  unit "S2c the LAUNCHER's own selftest passes (47 controls, both pin directions planted, 0 NOT EXERCISED)" \
+  unit "S2c the LAUNCHER's own selftest passes (50 controls, both pin directions planted, 0 NOT EXERCISED)" \
        "$( [ $rc -eq 0 ] && echo 1 || echo 0 )"
   python3 "$RECORD" --selftest >/dev/null 2>&1; rc=$?
   unit "S2d the RECORD PRODUCER's selftest passes under python3" \
@@ -247,7 +247,7 @@ selfcheck() {
   mkdir -p "$d/over"
   echo "STAGE=S5 rc=0 core_min=200.0 memavail_GiB=20.0" > "$d/over/ledger.txt"
   ceiling_guard A2 --root "$d/over" >/dev/null 2>&1; rc=$?
-  unit "S6 CEILING 200.0 spent + leg A2 cap 155.0 = 355.0 > ceiling $ITEM_CEILING_CORE_MIN -> rc=6" \
+  unit "S6 CEILING 200.0 spent + leg A2 cap 115.0 = 315.0 > ceiling $ITEM_CEILING_CORE_MIN -> rc=6" \
        "$( [ $rc -eq 6 ] && echo 1 || echo 0 )"
   # ---- the HAPPY direction, so the battery is not a battery of refusals.
   mkdir -p "$d/ok"
@@ -257,7 +257,7 @@ selfcheck() {
        "$( [ $rc -eq 0 ] && echo 1 || echo 0 )"
   # ---- CUMULATIVE ACROSS ROOTS, which is the whole point of an item ceiling.
   ceiling_guard A2 --root "$d/ok" --root "$d/over" >/dev/null 2>&1; rc=$?
-  unit "S8 CEILING spend sums ACROSS roots: 1.750 + 200.0 + 155.0 > ceiling -> rc=6" \
+  unit "S8 CEILING spend sums ACROSS roots: 1.750 + 200.0 + 115.0 = 316.75 > ceiling 290.0 -> rc=6" \
        "$( [ $rc -eq 6 ] && echo 1 || echo 0 )"
   # ---- the guard's own instrument identity.
   local got; got=$(md5sum "$GRADER" | cut -d' ' -f1)

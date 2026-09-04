@@ -1,23 +1,37 @@
-W3S ARM A -- LAUNCHER, CHAIN-DRIVER AND PRODUCER-TRACE EVIDENCE
-Driven 2026-09-04T22:17:10Z by a dafoam lab-lane.
-ZERO COMPUTE: no container started, no solver ran, no run root created.
-LAUNCH_ENABLED=0 and no lane may raise it. PREREG_COMMIT empty. NOT FROZEN,
-NOT PINNED BY ANY FROZEN DOCUMENT, NOT QUEUED, NOT LAUNCHED. SUBMISSIONS PARKED.
-HEAD at drive time: ed202dee5c63f4b954a2e4bbeb150afb1a0a14b6
+W3S ARM A -- LAUNCHER, CHAIN-DRIVER, COMPARATOR AND PRODUCER-TRACE EVIDENCE
+Driven 2026-09-04T22:31:14Z by a dafoam lab-lane.
+ZERO COMPUTE: no container, no solver, no run root. LAUNCH_ENABLED=0, PREREG_COMMIT
+empty. NOT FROZEN, NOT PINNED BY ANY FROZEN DOCUMENT, NOT QUEUED, NOT LAUNCHED.
+HEAD at drive time: c48c4f7297839862aeedabb0ba60b0e46f6ec983
 
-INSTRUMENT IDENTITIES, MEASURED (md5sum, this directory):
-  w3s_stage_and_run.sh               02e00e3d420abb34b8e9d9eb6b933831
-  w3s_stage_record.py                8ee3b0ad9b8dfe113f83f1a145f6431b
-  w3s_chain_driver.sh                e15be37b5afd53573e4e43eadde9ee66
-  w3s_grade.py                       d24d632cd37f587ebaca7999d9088dec
-  d12y_grade_w3.py                   3950d30fd09c9b56213a02f5e9864e20
-  d12y_w3_stage_and_run.sh           8a92f3f84f72d6806a2e5c5df88d82ef
-  d12y_run_script.py                 2790c39a09cd458d5a3263d7f1811da5
-  item_ceiling_guard.py              1ea97c9245dedbc451d62e1bcfe26eb9
+INSTRUMENT IDENTITIES, MEASURED:
+  w3s_stage_and_run.sh             36881e1a51a9898cdc0ae97c129102ef
+  w3s_stage_record.py              093ac4ed34a51fdd2eb46d09333a99b5
+  w3s_chain_driver.sh              5bac614acdc8323e933ad7402ada65f8
+  w3s_grade.py                     3a3ee623fa48cc1d81517638485f376b
+  d12y_grade_w3.py                 3950d30fd09c9b56213a02f5e9864e20
+  d12y_w3_stage_and_run.sh         8a92f3f84f72d6806a2e5c5df88d82ef
+  d12y_run_script.py               2790c39a09cd458d5a3263d7f1811da5
+  item_ceiling_guard.py            1ea97c9245dedbc451d62e1bcfe26eb9
 
-RUN ROOTS -- neither exists, checked at drive time:
+RUN ROOTS -- the CLAUDE.md rule-2 amendment condition, checked at drive time:
   ABSENT  /home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3S-GSCAN-cylinder-unsteady
   ABSENT  /home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3S-WINDOW-cylinder-unsteady
+==============================================================================
+$ python3 w3s_grade.py --selftest
+  [OK ] U35 FS-1 the FALSIFIER: a planted |g(2600)|=0.80 gives W*|g|=2080 > 2048.61 -> HIT at W_adm=2600, Arm B fires. The gate can go both ways.
+  [OK ] U36 FS-1 W_adm is the SMALLEST clearing window (1400, not 3000) -- the rule is registered, not chosen after the data
+  [OK ] U37 FS-1's MISS note SCOPES itself to the measured set and claims no enumeration beyond it
+  [OK ] U38 every verdict this file can emit is in the fixed vocabulary
+W3S SELFTEST units=50 failures=0 python_O=False
+W3S SELFTEST PASS 50/50
+rc=0
+$ python3 w3s_grade.py --selftest-narrowing
+  [OK ] D4 ledger ABSENT + a clean three-leg set -> accepted, CROSS-READ reported as INFRASTRUCTURE (1 note), legs still {'A0': 2000, 'A1': 1400, 'A2': 2600}
+  [OK ] D4 ledger ABSENT + leg A1 at W=1399 -> STILL REFUSED. The absent ledger buys nothing: the window is PHYSICS and is checked against a typed constant
+NARROWING SELFTEST units=30 failures=0 python_O=False
+NARROWING SELFTEST PASS 30/30
+rc=0
 ==============================================================================
 $ bash w3s_stage_and_run.sh --selftest
 W3S_LAUNCHER SELFTEST -- host shell, NO container, NO compute, LAUNCH_ENABLED=0
@@ -37,12 +51,14 @@ EXERCISED-NOBLOCK-PLANT-the-reader-CAN-see-the-W3-shape EXERCISED-PASS observed=
 EXERCISED-NOBLOCK-the-PARENT-launcher-carries-the-shape-14-times EXERCISED-PASS observed=14 expected=14
 EXERCISED-REG-caps-sum-EXACTLY-to-the-ceiling      EXERCISED-PASS rc=0 (expected 0)
 EXERCISED-REG-an-unregistered-leg-refuses-rc64     EXERCISED-PASS rc=64 (expected 64)
+EXERCISED-REG-every-registered-cap-is-REACHABLE-inside-its-wall-bound EXERCISED-PASS rc=0 (expected 0)
+EXERCISED-REG-A2s-new-cap-6900s-is-inside-the-7200s-bound EXERCISED-PASS observed=True expected=True
 EXERCISED-BOOTSTRAP-a-fresh-root-gets-a-ledger     EXERCISED-PASS rc=0 (expected 0)
-EXERCISED-BOOTSTRAP-the-ledger-is-actually-on-disk EXERCISED-PASS /tmp/tmp.1Y0BPrvQgs/fresh/ledger.txt
+EXERCISED-BOOTSTRAP-the-ledger-is-actually-on-disk EXERCISED-PASS /tmp/tmp.lmeEzsnrvV/fresh/ledger.txt
 EXERCISED-BOOTSTRAP-no-bare-W_STEPS-claim-in-a-3-window-root EXERCISED-PASS the single-window claim is refused in writing
 EXERCISED-BOOTSTRAP-REFUSES-to-zero-a-root-with-orphan-logs EXERCISED-PASS rc=65 (expected 65)
 EXERCISED-CEILING-a-bootstrapped-fresh-root-is-a-real-zero EXERCISED-PASS rc=0 (expected 0)
-EXERCISED-CEILING-200.0-plus-A2s-155.0-cap-exceeds-330.0 EXERCISED-PASS rc=6 (expected 6)
+EXERCISED-CEILING-200.0-plus-A2s-115.0-cap-exceeds-290.0 EXERCISED-PASS rc=6 (expected 6)
 EXERCISED-CEILING-a-malformed-core_min-is-UNMEASURED-not-1.2 EXERCISED-PASS rc=6 (expected 6)
 EXERCISED-CEILING-1.75-plus-A0s-100.0-cap-is-WITHIN EXERCISED-PASS rc=0 (expected 0)
 EXERCISED-CEILING-an-ABSENT-ledger-REFUSES-it-is-not-a-zero EXERCISED-PASS rc=6 (expected 6)
@@ -51,7 +67,8 @@ EXERCISED-XGUARD-the-graders-ceiling-REFUSES-the-same-overrun EXERCISED-PASS rc=
 EXERCISED-XGUARD-the-graders-ceiling-REFUSES-the-same-malformed-token EXERCISED-PASS rc=65 (expected 65)
 EXERCISED-XGUARD-a-teed-ITEM_CEILING-line-is-NOT-counted-as-spend EXERCISED-PASS rc=0 (expected 0)
 EXERCISED-XGUARD-both-readers-REFUSE-a-root-with-orphan-logs-and-no-ledger EXERCISED-PASS rc=65 (expected 65)
-EXERCISED-BUDGET-a-fresh-A2-leg-gets-the-7200s-bound EXERCISED-PASS observed=7200 expected=7200
+EXERCISED-BUDGET-a-fresh-A2-leg-is-CAP-bound-at-6900s EXERCISED-PASS observed=6900 expected=6900
+EXERCISED-BUDGET-the-wall-bound-STILL-wins-when-it-is-smaller EXERCISED-PASS observed=1000 expected=1000
 EXERCISED-BUDGET-a-thin-remainder-SHORTENS-the-timeout-to-300s EXERCISED-PASS observed=300 expected=300
 EXERCISED-BUDGET-an-exhausted-leg-REFUSES-rc6-no-new-budget EXERCISED-PASS rc=6 (expected 6)
 EXERCISED-TRACE-every-consumed-key-has-a-producer  EXERCISED-PASS rc=0 (expected 0)
@@ -70,41 +87,38 @@ EXERCISED-FINALIZE-no-success-token-on-a-truncated-leg EXERCISED-PASS the W3 PHA
 EXERCISED-FINALIZE-the-blocked-leg-is-rc6-at-verify-leg EXERCISED-PASS rc=6 (expected 6)
 EXERCISED-LAUNCH-DISABLED-no-container-can-start   EXERCISED-PASS LAUNCH_ENABLED=0 and no lane may raise it
 ------------------------------------------------------------------------------
-W3S_LAUNCHER SELFTEST controls=47 EXERCISED-PASS=47 EXERCISED-FAIL=0 NOT-EXERCISED=0
-W3S_LAUNCHER SELFTEST PASS 47/47
+W3S_LAUNCHER SELFTEST controls=50 EXERCISED-PASS=50 EXERCISED-FAIL=0 NOT-EXERCISED=0
+W3S_LAUNCHER SELFTEST PASS 50/50
 rc=0
 ==============================================================================
 $ bash w3s_chain_driver.sh --selfcheck
   [OK ] S1 PREFLIGHT 0 REFUSES while PREREG_COMMIT is empty (rc=70, NOT_FROZEN)
   [OK ] S2 PREFLIGHT 1 PASSES: 7 executed files present, 6 pins agree (rc=0)
   [OK ] S2b every file the chain EXECUTES or IMPORTS is on disk (7 of 7, existence asked before any md5)
-  [OK ] S2c the LAUNCHER's own selftest passes (47 controls, both pin directions planted, 0 NOT EXERCISED)
+  [OK ] S2c the LAUNCHER's own selftest passes (50 controls, both pin directions planted, 0 NOT EXERCISED)
   [OK ] S2d the RECORD PRODUCER's selftest passes under python3
   [OK ] S2e the RECORD PRODUCER's selftest passes under python3 -O (a guard that vanishes under a flag is not a guard)
   [OK ] S2f every artefact key the FROZEN comparator reads has a producer in the registered set
   [OK ] S3 CEILING a FRESH root -> rc=0 (a blanket refusal on an absent ledger would make a first leg unlaunchable forever)
   [OK ] S4 CEILING a root with stage logs and NO ledger -> rc=65 UNMEASURED, not 0.0
   [OK ] S5 CEILING a malformed core_min=1.2.3 -> rc=65 UNMEASURED (d6rf reads 1.2, then its uncaught ValueError empties $SPENT and the guard passes)
-  [OK ] S6 CEILING 200.0 spent + leg A2 cap 155.0 = 355.0 > ceiling 330.0 -> rc=6
+  [OK ] S6 CEILING 200.0 spent + leg A2 cap 115.0 = 315.0 > ceiling 290.0 -> rc=6
   [OK ] S7 CEILING 1.750 spent + leg A1 cap 70.0 <= ceiling -> rc=0 (the guard is not merely refusing everything)
-  [OK ] S8 CEILING spend sums ACROSS roots: 1.750 + 200.0 + 155.0 > ceiling -> rc=6
-  [OK ] S9 the grader on disk is the pinned d24d632cd37f587ebaca7999d9088dec
+  [OK ] S8 CEILING spend sums ACROSS roots: 1.750 + 200.0 + 115.0 = 316.75 > ceiling 290.0 -> rc=6
+  [OK ] S9 the grader on disk is the pinned 3a3ee623fa48cc1d81517638485f376b
   [OK ] S10 the FROZEN parent is UNEDITED at 3950d30fd09c9b56213a02f5e9864e20 (CLAUDE.md rule 6)
 W3S DRIVER SELFCHECK units=15 failures=0
 W3S DRIVER SELFCHECK PASS 15/15
 rc=0
 ==============================================================================
-$ bash w3s_chain_driver.sh          (the chain itself: it must ABORT at PREFLIGHT 0)
-W3S_DRIVER start stamp=20260904T221726Z pid=236804 base=/home/ubuntu/Certonomous/cases/dafoam/curriculum_D12R2
+$ bash w3s_chain_driver.sh          (the chain: it must ABORT at PREFLIGHT 0)
+W3S_DRIVER start stamp=20260904T223126Z pid=253348 base=/home/ubuntu/Certonomous/cases/dafoam/curriculum_D12R2
 W3S_DRIVER ABORT NOT_FROZEN: PREREG_COMMIT is empty. /home/ubuntu/Certonomous/cases/dafoam/curriculum_D12R2/W3S_PREREGISTRATION_DRAFT.md carries no committed sha,
 W3S_DRIVER   so no gate, threshold, cap or label in it is frozen (CLAUDE.md rule 2). The
 W3S_DRIVER   pre-registration-committed-before-compute check is the supervisor's own and may
 W3S_DRIVER   not be delegated (SUPERVISION_CHARTER.md sec.3 check 4). NOTHING LAUNCHES.
 rc=70
 ==============================================================================
-THE PRODUCER TRACE -- every key the FROZEN comparator reads, and its producer.
-The consumed set is EXTRACTED FROM THE COMPARATORS' OWN AST; the produced set is
-read back off a fixture manifest this launcher's own producer wrote.
 $ python3 w3s_stage_record.py --producer-trace
 {
   "consumed_keys": {
@@ -231,7 +245,7 @@ $ python3 w3s_stage_record.py --producer-trace
     },
     {
       "consumer": "w3s_grade._leg_ledger_re('A2')",
-      "line": "W_STEPS_A2=3000 deltaT=1e-2",
+      "line": "W_STEPS_A2=2600 deltaT=1e-2",
       "matched": true
     },
     {

@@ -73,11 +73,11 @@ PARENT_GRADER_MD5 = "3950d30fd09c9b56213a02f5e9864e20"
 PARENT_LAUNCHER_NAME = "d12y_w3_stage_and_run.sh"
 PARENT_LAUNCHER_MD5 = "8a92f3f84f72d6806a2e5c5df88d82ef"
 GRADER_NAME = "w3s_grade.py"
-GRADER_MD5 = "d24d632cd37f587ebaca7999d9088dec"
+GRADER_MD5 = "3a3ee623fa48cc1d81517638485f376b"
 CEILING_GUARD_REL = os.path.join("..", "_common", "item_ceiling_guard.py")
 
 # ---------------------------------------------------------------- registered legs
-LEGS = (("A0", 2000), ("A1", 1400), ("A2", 3000))
+LEGS = (("A0", 2000), ("A1", 1400), ("A2", 2600))
 LEG_NAMES = tuple(n for n, _ in LEGS)
 LEG_W = dict(LEGS)
 
@@ -95,8 +95,12 @@ DECLARED_STAGES = {
 MANIFEST_LEG_OF = {"SETUP": "A0", "A0": "A0", "A1": "A1", "A2": "A2"}
 DECLARED_TOTAL = sum(len(v) for v in DECLARED_STAGES.values())      # 7
 
-LEG_CAP_CORE_MIN = {"SETUP": 5.0, "A0": 100.0, "A1": 70.0, "A2": 155.0}
-ITEM_CEILING_CORE_MIN = 330.0
+# AMENDED 2026-09-04 before first compute; see w3s_grade.py's note for the two arithmetic
+# defects this repairs (a cap larger than its own timeout, and a window whose worst-case
+# wall was OUTSIDE the bound).  These MIRROR w3s_grade.py and the launcher, and
+# `cap_reachability` below is the check that stops the class recurring.
+LEG_CAP_CORE_MIN = {"SETUP": 5.0, "A0": 100.0, "A1": 70.0, "A2": 115.0}
+ITEM_CEILING_CORE_MIN = 290.0
 
 MEMAVAIL_FLOOR_GIB = 14.0
 
@@ -604,6 +608,76 @@ def stage_detail_line(stage, cost_leg, rc, wall_s, core_min, memavail_gib, logna
 
 
 # ==================================================================================
+# CAP REACHABILITY -- A REGISTERED CAP THAT EXCEEDS ITS OWN TIMEOUT REFUSES TO FREEZE
+# ==================================================================================
+# THE RULE, in the supervisor's own words: `cap x 60 / ranks < wall_bound` FOR EVERY LEG.
+#
+# WHY IT IS A CHECK AND NOT A NOTE.  A cap larger than the timeout that guards the same
+# work CAN NEVER BIND -- the timeout fires first, always -- so it is a registered number no
+# execution path can reach.  W3S's own A2 leg was registered at 155.0 core-min = 9300 s
+# against a 7200 s stage wall bound: 29.2 % larger than anything reachable.  This family
+# has now found the same DEAD-LEVER class in `SO3aF2`'s CEILING, in `W_CONTINGENCY = 900`
+# and in eleven more.  Documenting that this item did it stops nothing; a check that
+# refuses the freeze stops the next one.
+#
+# `ranks` is carried per leg rather than assumed, because the conversion from core-minutes
+# to wall seconds is the whole content of the rule and it is wrong at any other rank count.
+LEG_RANKS = {"SETUP": 1, "A0": 1, "A1": 1, "A2": 1}
+# The wall bound available to a leg is the SUM of its declared stages' registered bounds.
+STAGE_WALL_BOUND_S = {"S0": 900, "S1a": 7200, "S1b": 7200, "S2a": 7200, "S5": 7200}
+
+
+def cap_reachability():
+    """Returns (rc, body).  rc=0 only when EVERY registered cap is reachable.
+    rc=64 names every dead lever it found."""
+    rows = []
+    dead = []
+    for leg in COST_LEGS:
+        cap = LEG_CAP_CORE_MIN[leg]
+        ranks = LEG_RANKS[leg]
+        cap_s = cap * 60.0 / float(ranks)
+        bound = sum(STAGE_WALL_BOUND_S[s] for s in DECLARED_STAGES[leg])
+        ok = cap_s < bound
+        row = {"leg": leg, "cap_core_min": cap, "ranks": ranks,
+               "cap_wall_s": cap_s, "leg_wall_bound_s": bound,
+               "declared_stages": list(DECLARED_STAGES[leg]),
+               "reachable": ok,
+               "headroom_pct": 100.0 * (bound / cap_s - 1.0) if cap_s > 0 else None}
+        rows.append(row)
+        if not ok:
+            dead.append(row)
+    total = sum(LEG_CAP_CORE_MIN.values())
+    sums_exactly = abs(total - ITEM_CEILING_CORE_MIN) < 1e-9
+    body = {"rule": "cap x 60 / ranks < wall_bound, for every leg",
+            "legs": rows, "caps_sum_core_min": total,
+            "item_ceiling_core_min": ITEM_CEILING_CORE_MIN,
+            "caps_sum_equals_ceiling": sums_exactly,
+            "dead_levers": dead}
+    if dead:
+        body["verdict"] = "BLOCKED"
+        body["reason"] = (
+            "DEAD LEVER: %s. A cap that exceeds its own timeout can never bind -- the "
+            "timeout binds first, always -- so it is a registered number no execution path "
+            "can reach. THE ITEM DOES NOT FREEZE."
+            % "; ".join("leg %s caps at %.1f core-min = %.0f s against a %d s wall bound"
+                        % (d["leg"], d["cap_core_min"], d["cap_wall_s"],
+                           d["leg_wall_bound_s"]) for d in dead))
+        return 64, body
+    if not sums_exactly:
+        body["verdict"] = "BLOCKED"
+        body["reason"] = ("REGISTRATION INCONSISTENT: the caps sum to %.3f, the registered "
+                          "ceiling is %.3f. A registration whose parts do not equal its "
+                          "whole is a defect found here or not at all."
+                          % (total, ITEM_CEILING_CORE_MIN))
+        return 64, body
+    body["verdict"] = "PASS"
+    body["reason"] = ("every registered cap is reachable inside its own wall bound, and "
+                      "the %d caps sum to %.1f == the registered ceiling"
+                      % (len(rows), total))
+    return 0, body
+
+
+# ==================================================================================
 # THE IN-LEG BUDGET, AND THE ONE THING THAT MAKES A CAP EXECUTABLE
 # ==================================================================================
 SDETAIL_RE = re.compile(r"^SDETAIL=(\S+)\s+cost_leg=(\S+)\b")
@@ -899,7 +973,7 @@ FIXTURE_G = {
 # FS-1: the registration's own PREDICTED points miss the 2048.61 bar; the `hit` variant
 # plants a |g(3000)| large enough to clear it, so the gate is driven in BOTH directions.
 FIXTURE_G_A1 = {"miss": 0.713, "hit": 0.713}
-FIXTURE_G_A2 = {"miss": 0.318, "hit": 0.70}
+FIXTURE_G_A2 = {"miss": 0.318, "hit": 0.80}   # 0.80*2600 = 2080 > the 2048.61 bar
 
 
 def _write(path, text):
@@ -1152,23 +1226,63 @@ def selftest(tmpdir):
     drive("CEILING-caps-sum-EXACTLY-to-the-ceiling",
           lambda: abs(sum(LEG_CAP_CORE_MIN.values()) - ITEM_CEILING_CORE_MIN) < 1e-9, True)
 
+    # ---- 4a. CAP REACHABILITY.  `cap x 60 / ranks < wall_bound`, every leg.
+    drive("CAPREACH-the-registered-caps-are-all-reachable",
+          lambda: cap_reachability()[0], 0)
+    drive("CAPREACH-and-they-sum-EXACTLY-to-the-ceiling",
+          lambda: cap_reachability()[1]["caps_sum_equals_ceiling"], True)
+    drive("CAPREACH-A2-at-W=2600-clears-its-own-timeout",
+          lambda: [r for r in cap_reachability()[1]["legs"] if r["leg"] == "A2"][0]["reachable"],
+          True)
+    # THE PLANTED CONTROL, AND IT IS THIS ITEM'S OWN SUPERSEDED REGISTRATION.  A checker
+    # reporting zero dead levers must first be shown able to report one -- and the one it
+    # is shown is the very cap this item registered and had to withdraw: 155.0 core-min at
+    # ranks=1 is 9300 s against a 7200 s bound.
+    def _plant_dead_lever():
+        saved = dict(LEG_CAP_CORE_MIN)
+        saved_ceiling = ITEM_CEILING_CORE_MIN
+        try:
+            LEG_CAP_CORE_MIN["A2"] = 155.0
+            globals()["ITEM_CEILING_CORE_MIN"] = 330.0
+            rc, body = cap_reachability()
+            return (rc, [d["leg"] for d in body["dead_levers"]])
+        finally:
+            LEG_CAP_CORE_MIN.clear()
+            LEG_CAP_CORE_MIN.update(saved)
+            globals()["ITEM_CEILING_CORE_MIN"] = saved_ceiling
+    drive("CAPREACH-PLANT-the-WITHDRAWN-A2-cap-155.0-IS-a-dead-lever",
+          _plant_dead_lever, (64, ["A2"]))
+    drive("CAPREACH-the-plant-did-not-leak-into-the-live-registration",
+          lambda: LEG_CAP_CORE_MIN["A2"], 115.0)
+
     # ---- 4b. THE IN-LEG BUDGET -> `timeout` CONVERTER, both directions
     def _budgetroot(lines):
         d = tempfile.mkdtemp(dir=tmpdir)
         _write(os.path.join(d, "ledger.txt"), "".join(l + "\n" for l in lines))
         return d
     fresh_root = tempfile.mkdtemp(dir=tmpdir, prefix="budget_fresh_")
-    drive("BUDGET-fresh-leg-gets-the-registered-wall-bound",
-          lambda: stage_timeout(fresh_root, "A2", 7200)[0], 7200)
+    # A CONSEQUENCE OF RULING 3 WORTH STATING RATHER THAN LEAVING AS A DEAD BRANCH: once
+    # every cap is REACHABLE (`cap x 60 / ranks < wall_bound`), the CAP always binds first
+    # on a fresh leg and the stage wall bound becomes a BACKSTOP that cannot fire before
+    # it.  A2's 115.0 core-min cap is 6900 s against a 7200 s bound, so `min(bound,
+    # budget)` returns 6900.  This control expected 7200 while the cap was the withdrawn
+    # 155.0 (9300 s), where the bound won -- the expectation was stale, not the code.
+    drive("BUDGET-a-fresh-A2-leg-is-CAP-bound-at-6900s-not-bound-bound",
+          lambda: stage_timeout(fresh_root, "A2", 7200)[0], 6900)
+    drive("BUDGET-the-wall-bound-STILL-wins-when-it-is-the-smaller-of-the-two",
+          lambda: stage_timeout(fresh_root, "A2", 1000)[0], 1000)
+    drive("BUDGET-min-is-taken-over-BOTH-so-neither-limb-is-dead",
+          lambda: (stage_timeout(fresh_root, "A0", 7200)[0],
+                   stage_timeout(fresh_root, "A0", 500)[0]), (6000, 500))
     drive("BUDGET-a-thin-remainder-SHORTENS-the-timeout",
           lambda: stage_timeout(_budgetroot(
               ["ITEM=W3S",
-               stage_detail_line("S5", "A2", 0, 9000, 150.0, 20.0, "x.log")]),
+               stage_detail_line("S5", "A2", 0, 6600, 110.0, 20.0, "x.log")]),
               "A2", 7200)[0], 300)
     drive("BUDGET-an-exhausted-leg-REFUSES-no-new-budget",
           lambda: stage_timeout(_budgetroot(
               ["ITEM=W3S",
-               stage_detail_line("S5", "A2", 0, 9300, 155.0, 20.0, "x.log")]),
+               stage_detail_line("S5", "A2", 0, 6900, 115.0, 20.0, "x.log")]),
               "A2", 7200)[0], None)
     drive("BUDGET-a-malformed-stage_core_min-is-UNMEASURED-not-zero",
           lambda: leg_spent_from_disk(_budgetroot(
@@ -1397,6 +1511,7 @@ def main(argv):
     ap.add_argument("--leg-spend-line", action="store_true")
     ap.add_argument("--stage-detail-line", action="store_true")
     ap.add_argument("--stage-timeout", action="store_true")
+    ap.add_argument("--cap-reachability", dest="cap_reach", action="store_true")
     ap.add_argument("--bound-s", default="7200")
 
     ap.add_argument("--root")
@@ -1440,6 +1555,10 @@ def main(argv):
             return 0 if (n == 0 and out == 0) else 1
         if a.selftest:
             return selftest(os.path.join(a.tmpdir, "w3s_stage_record_selftest"))
+        if a.cap_reach:
+            rc, body = cap_reachability()
+            print(json.dumps(body, indent=2, sort_keys=True, default=str))
+            return rc
         if a.producer_trace:
             rc, body = producer_trace()
             print(json.dumps(body, indent=2, sort_keys=True, default=str))

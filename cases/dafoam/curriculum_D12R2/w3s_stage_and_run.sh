@@ -80,12 +80,22 @@
 # changes second by second.  A guard is correct only when its FORM matches the BEHAVIOUR
 # of the quantity it watches.  Here the wait is on `MemAvailable`.
 #
-# ! `MEMAVAIL_POLL_S` AND `MEMAVAIL_WAIT_BOUND_S` ARE LANE-PROPOSED AND ARE NOT REGISTERED
-# ! ANYWHERE YET.  `W3S_PREREGISTRATION_DRAFT.md` registers the 14.0 floor by inheritance
-# ! and registers NO response and NO bound.  They MUST be written into the pre-registration
-# ! before the freeze, or this launcher is enforcing a threshold no document carries -- the
-# ! `L-239` / DAFOAM_CHARTER sec.13-PROPOSAL shape, running the other way.  Flagged rather
-# ! than quietly adopted: a launcher is not a registration.
+# `MEMAVAIL_POLL_S = 30` and `MEMAVAIL_WAIT_BOUND_S = 3600` WERE lane-proposed and carried
+# by no document.  They are now REGISTERED in `W3S_PREREGISTRATION_DRAFT.md` sec.12.2,
+# together with the guard's RESPONSE and the fraction a block discards -- the
+# `dafoam-supervisor`'s ruling 4 of 2026-09-04, which put the choice as REGISTER THEM OR
+# REMOVE THEM.  A launcher is not a registration, and a threshold enforced here and written
+# nowhere is the `L-239` / DAFOAM_CHARTER sec.13-PROPOSAL shape running the other way.
+#
+# TWO CEILING GUARDS EXIST AND BOTH ARE KEPT, BY RULING 5, AND THE DIFFERENCE IS REGISTERED
+# (draft sec.12.3) RATHER THAN INCIDENTAL.  `w3s_chain_driver.sh` asserts the ceiling with
+# `w3s_grade.py --cumulative-item-ceiling` BEFORE each leg; this launcher asserts it with
+# the committed `_common/item_ceiling_guard.py`.  They agree in five driven directions and
+# differ BY DESIGN on ONE: an ABSENT ledger is FRESH 0.0 to the grader and UNMEASURED to
+# the `_common` guard.  That is why this launcher BOOTSTRAPS the ledger -- and why the
+# bootstrap itself refuses rc=65 rather than zeroing a root that already holds artefacts.
+# A successor reading the disagreement as a defect and "fixing" the safer one would remove
+# the UNMEASURED limb that is the whole point of the `_common` guard.
 #
 # -----------------------------------------------------------------------------
 # THE MTIME QUESTION, ANSWERED RATHER THAN AVOIDED
@@ -148,8 +158,8 @@ CEILING_GUARD="$BASE/../_common/item_ceiling_guard.py"
 # ---- PINS.  Bumped IN THE SAME COMMIT as the files they pin (the D8R-DRIVER-DEF-1 /
 # ---- 2026-08-28T02:15:29Z death: a driver whose pins lag its instruments by one commit
 # ---- aborts every run and blames the wrong file).
-MD5_RECORD="8ee3b0ad9b8dfe113f83f1a145f6431b"
-MD5_GRADER="d24d632cd37f587ebaca7999d9088dec"
+MD5_RECORD="093ac4ed34a51fdd2eb46d09333a99b5"
+MD5_GRADER="3a3ee623fa48cc1d81517638485f376b"
 MD5_PARENT_GRADER="3950d30fd09c9b56213a02f5e9864e20"
 MD5_PARENT_LAUNCHER="8a92f3f84f72d6806a2e5c5df88d82ef"
 MD5_RUNPY="2790c39a09cd458d5a3263d7f1811da5"
@@ -174,13 +184,20 @@ COST_LEGS="SETUP A0 A1 A2"
 CAP_SETUP="5.0"
 CAP_A0="100.0"
 CAP_A1="70.0"
-CAP_A2="155.0"
-ITEM_CEILING_CORE_MIN="330.0"
+CAP_A2="115.0"
+ITEM_CEILING_CORE_MIN="290.0"
 
 # --- manifest legs and their registered windows (draft sec.3.1) ---
 W_A0=2000        # the FRESH-ROOT REPEAT of the W3 anchor -- the FS-0 gating control
 W_A1=1400        # brackets below the W*|g| peak
-W_A2=3000        # brackets above it
+W_A2=2600        # brackets above it.  AMENDED 2026-09-04 from 3000, BEFORE FIRST COMPUTE
+                 # (condition: the Arm A run root does not exist; checked).  W=3000's
+                 # WORST-CASE wall is 7436 s -- 236 s OUTSIDE the 7200 s stage bound, not
+                 # inside it.  The draft's "18.6 % worst residual" is
+                 # (model-measured)/measured; a timeout needs (measured-model)/model,
+                 # which is +22.91 %.  At W=2600 the worst-case wall is 6431 s, 12.0 %
+                 # inside the bound.  The gscan span narrows 1400-3000 (2.14x) to
+                 # 1400-2600 (1.86x) and that is a real, stated cost.
 
 # --- inherited unchanged from W3_PREREGISTRATION.md sec.0 and sec.5 ---
 DELTAT="1e-2"
@@ -391,7 +408,21 @@ sys.exit(0 if abs(tot - $ITEM_CEILING_CORE_MIN) < 1e-9 else 1)
     say "  not equal its whole is a defect found here or not at all."
     return 64
   fi
-  say "REGISTRATION OK leg=$leg cap=$cap; caps sum to $sum == ceiling $ITEM_CEILING_CORE_MIN"
+  # ---- RULING 3 (dafoam-supervisor, 2026-09-04): A REGISTERED CAP THAT EXCEEDS ITS OWN
+  # ---- TIMEOUT REFUSES TO FREEZE.  `cap x 60 / ranks < wall_bound`, for EVERY leg.
+  # ---- Called, not re-implemented: the arithmetic lives in the AST-audited producer where
+  # ---- it is driven under python3 and python3 -O, and its planted control is THIS ITEM'S
+  # ---- OWN WITHDRAWN A2 CAP -- 155.0 core-min = 9300 s against a 7200 s bound.
+  python3 "$RECORD" --cap-reachability >/dev/null 2>&1
+  if [ $? -ne 0 ]; then
+    say "ABORT DEAD_LEVER: a registered cap exceeds the wall bound that guards the same"
+    say "  work, so the timeout binds first and the cap can NEVER bind. It is a registered"
+    say "  number no execution path can reach. Full census:"
+    python3 "$RECORD" --cap-reachability
+    return 64
+  fi
+  say "REGISTRATION OK leg=$leg cap=$cap; caps sum to $sum == ceiling $ITEM_CEILING_CORE_MIN;"
+  say "  every cap is REACHABLE inside its own wall bound (cap x 60 / ranks < wall_bound)"
   return 0
 }
 
@@ -708,6 +739,16 @@ selftest() {
   # ---- 4. the registration self-check
   expect_rc "REG-caps-sum-EXACTLY-to-the-ceiling" 0 preflight_registration A0
   expect_rc "REG-an-unregistered-leg-refuses-rc64" 64 preflight_registration A9
+  expect_rc "REG-every-registered-cap-is-REACHABLE-inside-its-wall-bound" 0 \
+    python3 "$RECORD" --cap-reachability
+  expect_out "REG-A2s-new-cap-6900s-is-inside-the-7200s-bound" "True" \
+    python3 -c "
+import importlib.util, json, subprocess, sys
+out = subprocess.run([sys.executable, '$RECORD', '--cap-reachability'],
+                     capture_output=True, text=True).stdout
+b = json.loads(out)
+print([r for r in b['legs'] if r['leg'] == 'A2'][0]['reachable'])
+"
 
   # ---- 5. the ledger bootstrap, and the UNMEASURED direction it must preserve
   expect_rc "BOOTSTRAP-a-fresh-root-gets-a-ledger" 0 ledger_bootstrap "$TD/fresh"
@@ -735,7 +776,7 @@ selftest() {
     python3 "$RECORD" --leg-spend-line --cost-leg A0 --rc 0 --wall-s 12000 \
             --core-min 200.0 --declared 1 --executed 1 --blocked 0
   } > "$TD/over/ledger.txt"
-  expect_rc "CEILING-200.0-plus-A2s-155.0-cap-exceeds-330.0" 6 \
+  expect_rc "CEILING-200.0-plus-A2s-115.0-cap-exceeds-290.0" 6 \
     item_ceiling_guard A2 "$TD/over"
   mkdir -p "$TD/malformed"
   echo "LEG=A0 rc=0 core_min=1.2.3" > "$TD/malformed/ledger.txt"
@@ -781,13 +822,17 @@ selftest() {
             --tmpdir "$TD"
 
   # ---- 7. the in-leg budget -> timeout converter
-  expect_out "BUDGET-a-fresh-A2-leg-gets-the-7200s-bound" "7200" \
+  # Ruling 3's consequence: every cap is now REACHABLE, so the CAP binds first on a fresh
+  # leg and the 7200 s stage bound is a backstop.  A2's 115.0 core-min = 6900 s.
+  expect_out "BUDGET-a-fresh-A2-leg-is-CAP-bound-at-6900s" "6900" \
     stage_timeout_for A2 "$TD/fresh" "$STAGE_TMO_S"
+  expect_out "BUDGET-the-wall-bound-STILL-wins-when-it-is-smaller" "1000" \
+    stage_timeout_for A2 "$TD/fresh" 1000
   mkdir -p "$TD/thin"
   {
     echo "ITEM=$ITEM"
     python3 "$RECORD" --stage-detail-line --stage S5 --cost-leg A2 --rc 0 \
-            --wall-s 9000 --core-min 150.0 --memavail 20.0 --log x.log
+            --wall-s 6600 --core-min 110.0 --memavail 20.0 --log x.log
   } > "$TD/thin/ledger.txt"
   expect_out "BUDGET-a-thin-remainder-SHORTENS-the-timeout-to-300s" "300" \
     stage_timeout_for A2 "$TD/thin" "$STAGE_TMO_S"
@@ -795,7 +840,7 @@ selftest() {
   {
     echo "ITEM=$ITEM"
     python3 "$RECORD" --stage-detail-line --stage S5 --cost-leg A2 --rc 0 \
-            --wall-s 9300 --core-min 155.0 --memavail 20.0 --log x.log
+            --wall-s 6900 --core-min 115.0 --memavail 20.0 --log x.log
   } > "$TD/spent/ledger.txt"
   expect_rc "BUDGET-an-exhausted-leg-REFUSES-rc6-no-new-budget" 6 \
     stage_timeout_for A2 "$TD/spent" "$STAGE_TMO_S"
