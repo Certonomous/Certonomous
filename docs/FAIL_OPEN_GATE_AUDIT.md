@@ -3751,3 +3751,153 @@ mechanism (b)**, making it a pattern in its own right; **or** a calibration row 
 **quoted as evidence of estimate quality** and was wrong because its denominator was written
 after the fact. **Until then a freeze-time assert is an instrument for a population of one, and
 this team has refused three of those today** — two of them against its own findings.
+
+---
+
+## §28.10 — **THE MIRROR CASE: A CHECK THAT *FIRES* WHEN NOTHING WAS WRONG, AND WHOSE FILENAME ASSERTS A BREACH ITS OWN ARITHMETIC REFUTES. THE FALSE ALARM PROPAGATED INTO A CHIEF-LEVEL STANDING DIRECTIVE AS FACT AND CONSUMED A RULING. AND IT MANUFACTURES THE EXACT AMMUNITION SANAA'S MANDATORY-COMPLETION ORDER PUTS PRESSURE ON. RECORDED — NO INSTRUMENT, NO CLAUSE** (2026-09-04T01:4xZ)
+
+**Two things land here because they are one chain, and separating them would hide the connection:
+a RULING that was routed to this team and is hereby discharged, and the MEASURED FACT that the
+referral's factual premise does not survive its own artifacts.**
+
+### §28.10.1 THE RULING, WHICH WAS REQUESTED AND IS OWED
+
+Routed to this team by the chief (CHIEF section of `docs/LAB_STATE.md`, *"verification rules"*).
+The question: **does a cap overrun void the verdict of a run that nonetheless COMPLETED?**
+
+> **RULED: NO. A BUDGET OVERRUN ON A COMPLETED RUN DOES NOT VOID ITS VERDICT, IN EITHER
+> DIRECTION.** It is recorded as **named waste** under `COMPUTE_BUDGET_CHARTER` §6 and as a
+> **control failure against the RUNNER**, never against the case.
+
+Three grounds, each verified at source:
+
+1. **THE CHARTER SPEAKS TO BUDGET ONLY, AND SAYS SO EXHAUSTIVELY BY OMISSION.**
+   `COMPUTE_BUDGET_CHARTER.md:197` — *"A budget overrun stops the run. It does not get a new
+   budget."* Its stated reason is **denominator drift in the charter-1 ranking ratio** — an
+   estimating-discipline rationale. **No clause anywhere in that file connects an overrun to a
+   verdict, to validity, or to physics**; the word *physics* does not occur in it. The clause is
+   **prospective and budgetary**: stop, and re-propose with a corrected `cost_basis`.
+2. **THE LAB ALREADY CLASSIFIES THE FIELD, AND IT CLASSIFIES IT AS INFRASTRUCTURE.**
+   `scripts/queue_runner.py:598-606` writes into every launched record a `_field_classes` map
+   placing `CAP_OVERRUN.txt` and `ESTIMATE_OVERRUN.txt` in **`infrastructure`**, under L-342's
+   rule verbatim: *"a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT
+   reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may
+   produce NOT A RESULT."* `physics_critical` holds the rc, the `End` line, the `endTime` fields
+   and the `0/` age guard — **and nothing about money.** This is **Sanaa's own universal
+   bookkeeping rule (2026-08-26): bookkeeping never voids physics.**
+3. **⚡ THE FOUR EXISTING PRECEDENTS ALL POINT THE SAME WAY, AND THE REASON THEY DO IS THE WHOLE
+   DISCRIMINATION.** Four places on disk *do* turn an overrun into `NOT A RESULT` —
+   `cases/F23b_HP_WEDGE/run_f23b.sh:507-511`, `cases/dafoam/ladder-a/A1/wall_resolved_alpha_tail/a1wrt_read.py:371-372`,
+   `cases/F26_RINGLEB/queue_entry_F26D.json`, `cases/ansys_verification/VMFL007_R2/PREREGISTRATION.md:339-341`.
+   **Every one of them is the STOPPED-run path.** F23b states the mechanism exactly: *"A kill
+   leaves an INCOMPLETE level, which rule 4 refuses."* ***The `NOT A RESULT` is carried by rule
+   4's completion clause, never by the budget.*** A killed run is not a result because it is
+   **incomplete**, not because it was **expensive**. A run that completed is not incomplete.
+
+**Interpreting is not altering** — the same distinction this team drew at charter `§2am` tonight.
+Nothing is retired, widened or re-graded by this ruling.
+
+### §28.10.2 ⚠ AND THE REFERRAL'S FACTUAL PREMISE DOES NOT SURVIVE ITS OWN ARTIFACTS
+
+The referral named three cases said to have completed over their caps, one at *"4.2× its cap"*.
+**None of the three exceeded its registered cap. All three finished well UNDER it.**
+
+| case | registered cap | measured actual | ratio vs **cap** | current verdict |
+|---|---|---|---|---|
+| `T5_CUBE_c` | **136.8** core-min (`T5_PREREGISTRATION.md:1431`) | **16.083** | **0.118×** | `PENDING` |
+| `T4b_IJ_m` | **150** core-min (`T4b_registered.json:35` @ `51618879`) | **86.300** | **0.58×** | `NOT A RESULT` |
+| `T4b_IJ_c` | **25** core-min (same, `:22`) | **14.100** | **0.56×** | `NOT A RESULT` |
+
+**`[VERIFIED BY ME AT SOURCE, NOT RELAYED]`** `T5_runs/STATUS.T5_CUBE_c` carries
+`wall_s=965 … timeout_s=8208 … capped=0`, and **8208 s IS the 136.8 core-min cap** — the STATUS
+file confirms the cap and the underspend in the same four lines. **⚠ My own first read grabbed the
+WRONG FILE** — `T5b_runs/STATUS.T5_CUBE_c`, a different rung carrying `cap_core_min=32.8` — and
+the referring lane's number was the correct one. *Recorded because a supervisor's misread that the
+lane got right is exactly the thing that must not be quietly dropped.*
+
+**WHERE 4.2× CAME FROM.** `T5_CUBE_c/CAP_OVERRUN.txt` reads verbatim: *"CAP OVERRUN REPORTED, NOT
+ENFORCED: case T5_C elapsed 11433 s > **1.10 x registered 2736 s (45.6 core-min / 1 ranks)**"*.
+**2736 s is 45.6 core-min — the POINT ESTIMATE — and `1.10 x` is the ESTIMATE trigger.** The
+registered cap is 8208 s, three times larger and never approached. 11433/2736 = 4.18. **And the
+11433 s is not the run's cost either**: it is measured from a **dead 17:41Z launch that crashed at
+solver start and never wrote a STATUS**; the graded run is the 965 s relaunch.
+
+***So a file named `CAP_OVERRUN.txt`, whose first three words are `CAP OVERRUN REPORTED`, compared
+a dead launch's elapsed time against a POINT ESTIMATE and called the result a cap breach — and the
+number refuting it sits in the same sentence.***
+
+### §28.10.3 THE MECHANISM, AND WHY IT IS THE MIRROR OF THIS AUDIT RATHER THAN A MEMBER
+
+**`§28`'s family is checks that PASS when they should FAIL.** This is the reflection: **a check
+that FIRES when nothing was wrong, and whose NAME asserts a breach its own body refutes.** It is
+filed here, not as a curiosity, but because of what it does downstream.
+
+- **THE HEADLINE OUTLIVES THE REFUTATION.** A reader meets the **filename**. The arithmetic that
+  refutes it is one clause later and is not read. *This is `§28`'s tell with the polarity flipped
+  — the presence of an alarm read as the presence of a breach.*
+- **⚡ IT MANUFACTURES THE AMMUNITION FOR THE MANOEUVRE THIS TEAM WAS ASKED TO RULE ON.** Under
+  Sanaa's mandatory-completion order there is standing pressure to reach a gate pass. **A spurious
+  `CAP_OVERRUN.txt` sitting beside a clean run is a ready-made, official-looking cost defect
+  available to anyone who wishes to void an inconvenient verdict and re-run it.** ***Laundering a
+  `GATE FAIL` into a re-run on a bookkeeping technicality is the same family as widening a gate:
+  both reach a pass without the physics changing.*** §28.10.1's ruling forecloses it; this
+  paragraph records that the raw material exists on disk.
+- **AND IT ALREADY COST GOVERNANCE ATTENTION, WHICH IS THE MEASURED HARM.** The false 4.2× entered
+  a **chief-level standing directive as fact** and routed a ruling to this team. *The damage of a
+  false alarm is not noise; it is the decisions taken on it.*
+
+### §28.10.4 TWO INSTANCES, DIFFERENT TEAMS — AND THE DISCRIMINATOR IS ONE SENTENCE ON DISK
+
+**This is a PATTERN under `§2p.5`, not a singleton, and the two members differ in exactly one
+respect that decided the outcome.**
+
+- **cfd / F20 — DEFUSED.** `verification/campaign/F20_ISENTROPIC_VORTEX_RESULTS.md:138` is headed
+  *"THE CAP OVERRUN NOTICE — an infrastructure record, and NOT a cap breach"*, and `:154-158`
+  names the runner defect exactly — *"comparing elapsed wall time against the estimate while
+  calling it a cap"* — records that it *"cannot and does not touch the physics or either
+  verdict"*, and states its purpose: ***"Recorded here so no later reader meets the file cold and
+  reads `CAP OVERRUN` as a rule-12 breach."*** **No damage.**
+- **heat-transfer / T5, T4b — NOT DEFUSED.** Same artifact, same pre-fix trigger, **no note beside
+  it.** A later reader met the file cold. **The damage in the bullet above is the whole difference.**
+
+> **THE DISCRIMINATOR IS `§2ae`'s RULE AGAIN, AND IT DECIDED EVERYTHING: the resolution must be
+> reachable FROM WHERE THE RECORD IS READ.** cfd made it reachable in the same file. On the
+> T-family cases it is not reachable at all. *Same defect, same runner, same week — one cost
+> nothing and one cost a chief directive and a ruling.*
+
+**THE UNDERLYING DEFECT IS ALREADY FIXED AND THAT IS WHY THE ARTIFACTS ARE DANGEROUS, NOT SAFE.**
+`queue_runner.py` now splits the branches: a real cap crossing writes `CAP_OVERRUN.txt` at
+`1.00 x registered CAP`, and the estimate branch writes `ESTIMATE_OVERRUN.txt` whose own text says
+*"No cap was crossed by this record"* (`:713-744`; the miscited string `caps report;
+COMPUTE_BUDGET_CHARTER` returns **0** at HEAD). ***Because the defect is fixed, these three files
+will never be regenerated and will never self-correct. They are fossils that read as current.***
+
+### §28.10.5 DISPOSITION — RECORDED. NO INSTRUMENT, NO CLAUSE, NO BACKFILL
+
+- **NO INSTRUMENT.** This team refused three instruments yesterday for a population of one. **A
+  sweep for misnamed fossils would be an instrument for a defect ALREADY FIXED AT SOURCE** — it
+  would guard a door nobody can walk through again. `§28.6.6` governs: **a met precondition
+  PERMITS a gate, it does not COMPEL one.**
+- **THE CURE IS THE ONE cfd ALREADY DEMONSTRATED, COSTS ONE SENTENCE, AND IS NOT THIS TEAM'S TO
+  WRITE:** a note beside each stale artifact saying what it is. **The three files sit in
+  heat-transfer's run tree and this team does not write in another team's run tree** — relayed,
+  not done.
+- **NOTHING IS RE-GRADED.** `T4b_IJ_m` and `T4b_IJ_c` keep `NOT A RESULT`; `T5_CUBE_c` keeps
+  `PENDING`. **No verdict moves in either direction on cost grounds — that is the ruling applied
+  to its own subject.**
+- **⚡ AND THE MEASUREMENT LEFT TWO ITEMS THAT MATTER TO HER ORDER MORE THAN THIS AUDIT DOES,
+  RELAYED RATHER THAN RULED:** (1) **`T5_CUBE_c` has a clean run on disk that SATISFIES the strict
+  completion rule in every limb, at 0.118× its cap, and NO VERDICT** — under a mandatory-completion
+  order that is a case which has RUN and not been GRADED, and its `PENDING` is instrument-bound,
+  not compute-bound. (2) **`T4b`'s `NOT A RESULT` is PHYSICS, and the failing limbs are named**:
+  `C2 U_c/U_bulk 1.1746` outside ±3 % of 1.2245; `C6.1 p_rgh 2.12e-06 > 1e-06`; `C6.2 growth
+  1.1366 > 1.05`; `C6.3 field change 2.848e-04` and `8.170e-04 > 2e-04`. **Cost appears nowhere in
+  that refusal, and the triples themselves read `CONVERGING`.** *That is a work list, not a
+  blocker.*
+- **WHAT WOULD MOVE ME, STATED IN ADVANCE SO IT CANNOT BE FITTED LATER: a THIRD instance of a
+  misnamed artifact arising from a defect that is NOT already fixed at source; or any record
+  citing a cost artifact as the reason a COMPLETED run's verdict was moved, re-run or withdrawn.**
+  **Measured today across tracked files: ZERO such records exist** — the reader was shown able to
+  see non-zeros first (`CAP OVERRUN REPORTED, NOT ENFORCED` → 10 files; `cap overrun` → 20).
+  **Not searched, and stated rather than glossed:** repository history, untracked drafts, and the
+  out-of-git roots under `/home/ubuntu/`.
