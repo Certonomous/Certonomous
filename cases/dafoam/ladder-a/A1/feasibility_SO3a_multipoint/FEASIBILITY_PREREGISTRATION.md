@@ -1635,3 +1635,67 @@ Every departure is in `so3af2_runScript_DELTAS_addendum15.diff` beside this file
 **Unchanged by this correction.** **XM2 IS NOT QUEUED AND NOT ARMED**; the supervisor's **check 1 on the changed hunks and check 4 before enqueue** are still owed. `MESH` complete and **NOT A RESULT**; `XM` `rc=7` the registered risk landing and the pre-repair state; item **PENDING**; **F1–F5 unscored**; **§0.2 binding.** The two open defects of §A13.5 stand with their evidence. **SUBMISSIONS PARKED.**
 
 **END OF CORRECTION 1 TO ADDENDUM 15.**
+
+---
+
+## DISCLOSURE 1 TO ADDENDUM 15 — **THE BINDING CHECK'S POWER IS CONDITIONAL ON THIS CASE'S CD SPREAD, AND THE TOLERANCE ARGUMENT IS REPLACED BY THE RIGHT ONE.** Dated **2026-09-04**. Version **1.16a → 1.16b**.
+
+> **lines whose number changed above this section: 0** — **PROVED ON BYTES.** Before the append the file was **148,830 bytes, 1,637 lines**, verified byte-identical to `git show HEAD:` at the moment of copying; after the append the first 148,830 bytes were compared with `cmp -n 148830`, byte for byte. Appended by `scripts/append_block.py` from a FILE as bytes; **no heredoc on this path** (`L-405`). **ADDENDUM 15 AND CORRECTION 1 ARE NOT REWRITTEN.**
+
+**Moves no gate, no threshold, no prediction, no band, no cap and no label. F1–F5 REMAIN UNSCORED.** Required by the `dafoam-supervisor` as the condition of enqueue, after **check 1 and check 4 both PASSED** on `4eadd6c9`.
+
+### D15.1 ⚠ THE BLOCK-TO-SCENARIO BINDING PASSES FOR A REASON THIS CASE SUPPLIES, NOT FOR A REASON THE METHOD SUPPLIES
+
+§A15.4 clause 4 says the mapping is **measured, not assumed**. That is true and it is not the whole truth.
+
+> **THE CHECK DISCRIMINATES ONLY BECAUSE THIS CASE'S THREE FUNCTIONALS ARE FAR APART.** It compares the i-th log block's converged `CD` against the i-th scenario's `CD` at `1.0e-12` relative. **A swapped mapping is caught only if the swapped values differ by more than that tolerance.** On a case where two operating points produce nearly equal `CD`, **the check returns `True` on a wrong mapping while still reading as a measurement.**
+
+**The separation, MEASURED rather than characterised** (`CD_REF` at `so3af2_read.py`, the registered values):
+
+| pair | \|ΔCD\| | margin over the 1e-12 absolute tolerance | orders |
+|---|---|---|---|
+| points 0–1 | `3.67112932348818e-03` | `3.671e+09` | **9.56** |
+| points 1–2 | `6.35754407444948e-03` | `6.358e+09` | **9.80** |
+| points 0–2 | `1.00286733979377e-02` | `1.003e+10` | **10.00** |
+
+**The binding figure is the SMALLEST pair: `|ΔCD| = 3.671e-03`, which is 3.671e9 times the tolerance — 9.56 orders of magnitude of margin.** The absolute tolerance is `1.0e-12` and not `1.0e-12 × CD`, because the code's `max(1.0, abs(cd))` floors the scale at 1.0 for functionals this small; that floor is what makes the margin as large as it is, and it is stated because a successor reading `1e-12 relative` would otherwise compute a tolerance ~60× tighter and a margin ~60× larger.
+
+> **⚠ A FIGURE FROM THE ORDERING INSTRUCTION IS CORRECTED HERE RATHER THAN INHERITED.** The supervisor's ordering message put the separation at *"distinct by ~15 orders above the 1e-12 tolerance."* **The measured value is 9.56 orders at the binding pair.** The disclosure was ordered because the *conditionality* is real, and it is; the *magnitude* was an estimate and it is off by more than five orders. **It is corrected by computation, in the document, rather than carried because a supervisor wrote it** — an instruction is answered, not merely obeyed (`ESCALATION` §4.1), and a figure taken on authority is exactly the shape §A14.1 was written about.
+
+**REGISTERED AS A CONDITION ON REUSE, NOT AS A DEFECT HERE.** The check is sound on this case and its margin is measured. **On any case where two points' functionals are close, the discriminating power of this binding MUST BE RE-ESTABLISHED BY MEASUREMENT AND MUST NOT BE ASSUMED** — and a successor that inherits the method inherits this sentence with it. **This is the vacuous-predicate family this item has been cataloguing all week: a check that passes for a reason unrelated to the thing it names.** Here the reason and the name coincide. **The coincidence is a property of the case.**
+
+### D15.2 THE TOLERANCE IS SET TIGHT ON JUDGEMENT, AND THE LICENCE IS THE FAILURE DIRECTION — NOT THE DIGIT COUNT
+
+The lane's justification for `1.0e-12` was that the registered image prints 16 significant digits and is pinned by digest. **That is the weaker argument and it is superseded here rather than repeated**, because it rests on a property of the image, and a pin protects only until somebody re-pins.
+
+> **THE ARGUMENT THAT LICENSES IT IS DIRECTIONAL: EVERY FAILURE MODE OF THIS TOLERANCE IS A REFUSAL.** If print precision ever fell, or the functional drifted in the last digits, the comparison fails and `RESIDUAL_HISTORY_SCENARIO_MISMATCH` fires — **`rc=7`, no artefact, no number.** A tolerance set too tight **cannot** attach a history to the wrong point; it can only decline to attach one at all.
+>
+> **A TOLERANCE WHOSE FAILURE MODE IS REFUSAL MAY BE SET TIGHT ON JUDGEMENT. ONE WHOSE FAILURE MODE IS ACCEPTANCE MAY NOT.** That sentence, and not the digit count, is the record of why this number is allowed to be a judgement call.
+
+### D15.3 THE FLUSH MECHANISM IS DRIVEN BY THE GRADED ARM ITSELF, SO NO SEPARATE LEG IS BUILT
+
+§A15.4 clause 3 rests on source reading: `OSstream::endl()` is `write('\n'); os_.flush();`. The lane asked whether that should be driven independently. **It is already driven, by `XM2`.**
+
+If `endl` did not flush per line, fewer than three blocks would carry residuals, and the run would take one of two paths — `_plant_short_read` reports not-demonstrated → **`RESIDUAL_PLANT_NOT_VISIBLE`**, or `_history_from_blocks` returns `None` → **`RESIDUAL_HISTORY_UNAVAILABLE`**. **Both are `rc=7` and neither writes an artefact.** The mechanism that could only be read is therefore **exercised by the very run that depends on it, with a refusal as its failure mode.** A separate leg would buy a second observation of what the graded arm already tests, **for more than the graded arm costs.** **Registered as a deliberate non-construction, so a successor does not read its absence as an oversight.**
+
+### D15.4 THE PLANT'S SCOPE EQUALS THE GRADER'S SCOPE, AND THAT IS DESIGN RATHER THAN A GAP
+
+`_plant_short_read` demonstrates that the reader can see **one fewer HISTORY**, which is exactly what `so3af2_read.py:298-299` counts — `len(residual_histories)`. **It does not demonstrate sensitivity to a short SAMPLE LIST WITHIN a block**, because **the frozen grader never looks inside a history.**
+
+**Stated so that a successor does not "fix" it.** A plant made sensitive to something the grader cannot read would be a control demonstrating a discrimination that no verdict depends on — **an instrument proving a capability nobody uses, which reads as rigour and is decoration.** The plant is scoped to the grader on purpose.
+
+### D15.5 The supervisor's checks, recorded as discharged
+
+**Check 4 — PASS.** `4eadd6c9` committed 2026-09-04T01:30:19Z; `FEASIBILITY_PREREGISTRATION.md` **+178/−0**, purely additive, so rule 6's *"lines whose number changed above this section: 0"* is **mechanically proven by the numstat** and not merely asserted. Zero dafoam queue rows, zero containers, no `XM2` run root. **The registration was committed before any compute.**
+
+**Check 1 — PASS, read as a diff, and the structural claims RE-VERIFIED BY THE SUPERVISOR'S OWN AST PASS rather than taken from the lane's suite** (`SUPERVISION_CHARTER` §3: a relayed check is a summary, not a check). Producer md5 `f3913ddbe0bafe874755332561407d0f` matching the launcher's new pin; all four attribute names absent **as string literals**; `printInterval` absent as a literal; `RESIDUAL_HISTORY_UNAVAILABLE` at **exactly one** call site, so ADDENDUM 12's AST leg is intact; **16 `_fail` sites with zero duplicate reason strings**; **exit codes exactly `{1, 7}`** — no new rc.
+
+### D15.6 Standing
+
+**`XM2` IS APPROVED TO ENQUEUE AND LAUNCH** on this disclosure landing. Registered cost **0.40 core-min**, cap **6.0**, program unchanged on all four §18.1 terms. **Nothing else changes:** F1–F5 unscored until the frozen reader runs, `MESH` complete and **NOT A RESULT**, item **PENDING**, **§0.2 binding** — this item never calls `solve_linear` and nothing it measures may be quoted toward SO-3aR's adjoint collision. The two open defects of §A13.5 stand with their evidence.
+
+> **AND THE REFUSAL PATHS ARE RESULTS, NOT SETBACKS.** If the plant does not demonstrate, or the binding refuses, **that is reported as a result and the arm is not repaired and re-fired without the supervisor being told.** A refusal from this producer has been the most informative thing this item has produced, twice.
+
+**SUBMISSIONS PARKED.**
+
+**END OF DISCLOSURE 1 TO ADDENDUM 15.**
