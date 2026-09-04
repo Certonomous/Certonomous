@@ -65,28 +65,62 @@
 #                 IT FAILS CLOSED at exit 6, and Gate A reads a fatal-error log as ABSENT,
 #                 never as clean.
 #
-#   ITEM 32, ALSO FOUND WHILE REPAIRING 28 AND 30 -- REPORTED, NOT REPAIRED, AND IT IS THE
-#            ONE OF THE FOUR THAT DOES **NOT** FAIL CLOSED.
-#                 run_in_container() sends the OUTER wrapper's stdout+stderr to
-#                 `$CASE/log.$tag`.  For the B5 steps that is a wrapper log with a name of its
-#                 own (log.B5a) and the registered artifacts are written separately
-#                 (log.rhoSimpleFoam, log.decomposePar).  For B4 the tag IS `checkMesh`, so
-#                 the outer redirect target and the inner command's output file are THE SAME
-#                 PATH -- `$CASE/log.checkMesh` -- and Gate A reads that file.
-#                 The host shell opens it with O_TRUNC and HOLDS THE FD AT OFFSET 0 for the
-#                 life of the docker client.  MEASURED: with the container writing 39 bytes
-#                 to log.checkMesh and the docker client then emitting one 20-byte line, the
-#                 client's write landed AT OFFSET 0 and OVERWROTE the first 20 bytes of the
-#                 container's content, leaving a spliced file.
-#                 WHY IT IS WORSE THAN THE OTHER THREE: items 28, 30 and 31 all fail closed at
-#                 exit 6.  This one CORRUPTS THE HEAD OF A GRADED ARTIFACT while leaving the
-#                 numeric maxima near the END of the file intact and parseable, so it could
-#                 read CLEAN rather than ABSENT.  It did not fire in any measured run here --
-#                 the docker client emitted nothing on a successful run -- so it is a LATENT
-#                 hazard, not an observed failure.
-#                 NOT REPAIRED HERE: the fix is to give the wrapper its own log path, which
-#                 changes where this driver puts every step's wrapper output, and that is a
-#                 launch-path change wider than the two items this pass was sent to repair.
+#   ITEM 32  -- REPAIRED HERE, AND IT IS THE ONE OF THE FOUR THAT DID **NOT** FAIL CLOSED.
+#   (registered as item 34; see THE NUMBERING CROSSWALK below)
+#
+#            THE DEFECT, STATED EXACTLY.  run_in_container() sent the OUTER wrapper's
+#            stdout+stderr to `$CASE/log.$tag`.  For the B5 steps that is a wrapper log with a
+#            name of its own (log.B5a) and the registered artifacts are written separately
+#            (log.rhoSimpleFoam, log.decomposePar).  For B4 the tag IS `checkMesh`, so the
+#            outer redirect target and the inner command's output file were THE SAME PATH --
+#            `$CASE/log.checkMesh` -- and Gate A reads that file.  The host shell opens it with
+#            O_TRUNC and HOLDS THE FD AT OFFSET 0 for the life of the docker client, while the
+#            container opens the SAME inode through the bind mount with its own fd.  Anything
+#            the docker client then writes -- its own diagnostics, or the container's unredirected
+#            stdout, which the client streams back -- lands AT OFFSET 0 and overwrites the head.
+#
+#            MEASURED ON THE PINNED DIGEST, NOT ARGUED (2026-09-04, scratch tree, no run root):
+#              * synthetic: container wrote 65 bytes through the mount, client then emitted a
+#                20-byte line -> file 65 bytes, first 20 REPLACED, remainder byte-intact.
+#              * REAL checkMesh on the L3 mesh, same shape: log.checkMesh 3330 bytes, the first
+#                20 bytes of the OpenFOAM banner replaced by the client's line, and
+#                analyse_m6sr.read_checkmesh() on that file returned state=READ,
+#                max_non_orthogonality_deg 61.49376508, max_skewness 2.306553794,
+#                max_aspect_ratio 608.2069422, `Mesh OK.` and `End` intact.
+#                THE CORRUPTED FILE WOULD HAVE GRADED GATE A CLEAN.  A1 and A2 read within
+#                threshold off a head-corrupted artifact and NOTHING ANNOUNCED IT.
+#            WHY IT IS WORSE THAN THE OTHER THREE: items 28, 30 and 31 all fail closed at exit 6.
+#            This one corrupted the HEAD of a graded artifact while leaving the numeric maxima
+#            near the END intact and parseable, so it read CLEAN rather than ABSENT.  It did not
+#            fire in any measured run -- no run root exists -- so this is PREVENTION, not the
+#            repair of a live corruption.
+#
+#            THE REPAIR, AND WHY IT MAKES THE COLLISION IMPOSSIBLE RATHER THAN UNLIKELY.
+#            The container's ONLY view of this filesystem is `-v "$CASE":/case`.  A path that is
+#            not under $CASE therefore cannot be opened by any process inside the container,
+#            WHATEVER NAME the inner command uses -- the two writers are separated by MOUNT
+#            TOPOLOGY, not by a naming convention that a future tag could break.  The wrapper's
+#            log is moved OUT OF THE MOUNT to `$RR/_wrapper_logs/$LEVEL/log.$tag`, and
+#            run_in_container REFUSES (exit 6) before starting the container if that target is
+#            $CASE or anything under it.  MEASURED after the repair, same real checkMesh:
+#            log.checkMesh 3330 bytes with its head `/*------...` intact, and the client's
+#            20-byte line alone in the wrapper log.
+#            `cases/M6SR/build_m6sr_l1.sh` is ALREADY immune for exactly this reason and was
+#            checked: it mounts `$RR/$LEVEL/work` and writes its wrapper log one level above it.
+#            SECOND, INDEPENDENT GUARD (Section 3): B4 now asserts that log.checkMesh BEGINS
+#            with the OpenFOAM banner, so a head overwrite from any future source is a REFUSAL
+#            and not a clean grade.  That assertion is only safe because the image is pinned by
+#            digest -- the banner is fixed by the pin.
+#
+#   THE NUMBERING CROSSWALK, BECAUSE THE TWO COUNTERS COLLIDE.
+#            M6SR_PREREGISTRATION.md runs ONE GLOBAL item counter and its §18.8 already spends
+#            31 and 32 on different findings (31 = the container carries more rhoSimpleFoam
+#            binaries than item 26 counted; 32 = §9's frozen path table registers two executables
+#            and the ladder runs seven).  The board's "item 31" and "item 32" are NOT those.  In
+#            the registration they are numbered from the tail:
+#                board item 31 (step order)   == registration ITEM 33
+#                board item 32 (shared path)  == registration ITEM 34
+#            Both names are kept here so neither reader is stranded.
 #
 #                 A registration that pins `case_2308.dat` and a points sha256 but not the
 #                 solver binary is pinning the DATA AND NOT THE INSTRUMENT.  The container
@@ -408,7 +442,23 @@ echo "$RR" > "$CASE/RUN_ROOT_USED.txt"
 # ---------------------------------------------------------------------------------------
 run_in_container(){
   local tag="$1" tmo="$2" ranks="$3" cmd="$4"
-  local t0 t1 rc wall inner
+  local t0 t1 rc wall inner wdir wlog
+  # ITEM 32 (registration item 34) REPAIRED: THE WRAPPER'S LOG LEAVES THE BIND MOUNT.
+  # The container sees exactly one host path -- $CASE, mounted at /case, below.  A wrapper log
+  # OUTSIDE $CASE therefore cannot be opened from inside the container by ANY name, so the
+  # host's fd and the inner command's fd can never address one inode.  This is topology, not
+  # naming: it holds for every present and future tag, including tag == checkMesh.
+  wdir="$RR/_wrapper_logs/$LEVEL"
+  wlog="$wdir/log.$tag"
+  # AND IT IS ENFORCED, not merely intended.  If a later edit ever puts the wrapper log back
+  # inside the mount this REFUSES before the container starts, rather than producing a
+  # plausible, gradeable, head-corrupted artifact.  `$CASE` is the literal -v source below, so
+  # this tests the mount and not a copy of it.
+  case "$wlog" in
+    "$CASE"|"$CASE"/*)
+      abort "the wrapper log '$wlog' is INSIDE the bind mount '$CASE'. The host holds that fd at offset 0 for the life of the docker client while the container writes the same inode through the mount, so a client write lands at offset 0 and overwrites the HEAD of the file. For tag 'checkMesh' that file is the artifact Gate A grades, and a head-corrupted checkMesh log reads CLEAN (measured: state=READ with all three maxima parseable), not ABSENT. REFUSED before the container is started." 6 ;;
+  esac
+  mkdir -p "$wdir" || abort "could not create the wrapper-log directory $wdir. The wrapper's output has nowhere to go that is outside the bind mount, and this driver does NOT fall back to a path inside it (item 32/34)." 6
   t0=$(date +%s)
   # ITEM 28 REPAIRED: argv, through docker_timeout_q, correct on BOTH branches.
   # ITEM 30 REPAIRED: `-u 1002:1002` is UNCHANGED -- the container keeps dafoamuser as its
@@ -419,7 +469,7 @@ run_in_container(){
       --group-add "$HOST_GID" \
       -v "$CASE":/case -w /case "$IMG_PINNED" \
       bash -c "set +u; source /home/dafoamuser/dafoam/loadDAFoam.sh >/dev/null 2>&1; $cmd; echo \"WRAPPER_RC=\$?\" > RC_${tag}.txt" \
-      > "$CASE/log.$tag" 2>&1
+      > "$wlog" 2>&1
   rc=$?
   t1=$(date +%s); wall=$((t1-t0))
   docker_q rm -f "m6sr_${tag}_$$" >/dev/null 2>&1
@@ -430,7 +480,7 @@ run_in_container(){
   # THE BRANCH IS RECORDED PER STEP, not only once in the preflight: item 28 was a defect
   # that lived on exactly one branch, so a step's rc is not readable without knowing which
   # invocation produced it.
-  echo "$tag outer_rc=$rc inner_rc=$inner wall_s=$wall timeout_s=$tmo ranks=$ranks docker_branch=$DOCKER_BRANCH container_user=1002:1002+g$HOST_GID" \
+  echo "$tag outer_rc=$rc inner_rc=$inner wall_s=$wall timeout_s=$tmo ranks=$ranks docker_branch=$DOCKER_BRANCH container_user=1002:1002+g$HOST_GID wrapper_log=$wlog" \
       >> "$CASE/STEP_RC.txt"
   echo "$wall" > "$CASE/WALL_${tag}.txt"
   echo "$inner" > "$CASE/INNER_RC_${tag}.txt"
@@ -556,6 +606,18 @@ spent = $SPENT + $W4 * 1 / 60.0
 open('$B4_LEDGER', 'w').write('%.6f\n' % spent)
 print('B4 ledger: %.6f core-min spent of $CAP_B4_TOTAL' % spent)"
     [ -s "$CASE/log.checkMesh" ] || abort "checkMesh produced no log.checkMesh. Gate A reads NAMED NUMERIC MAXIMA off that file; an absent checkMesh log reads ABSENT and NEVER reads clean (Section 5, L-459)." 6
+    # ---- ITEM 32 (registration item 34), SECOND AND INDEPENDENT GUARD: THE HEAD OF THE
+    # GRADED ARTIFACT.  The first guard is topological (the wrapper log is outside the mount);
+    # this one reads the file that was actually produced.  It exists because the failure mode
+    # is a HEAD overwrite that leaves the maxima near the END intact -- "the numbers parsed"
+    # is exactly what would let a corrupted log through, so the numbers are not the check.
+    # MEASURED both ways on the pinned digest: a clean log begins `/*-` (the OpenFOAM banner);
+    # the same log under the shared-path shape began `CLIENT_NOISE_LINE_X` and still returned
+    # every maximum Gate A reads.  Safe as a check only because the image is pinned by digest,
+    # which fixes the banner; an unpinned image would make this a guess.
+    CM_HEAD=$(head -c 3 "$CASE/log.checkMesh" 2>/dev/null)
+    [ "$CM_HEAD" = "/*-" ] \
+      || abort "$CASE/log.checkMesh does not begin with the OpenFOAM banner (first 3 bytes read '${CM_HEAD:-<nothing>}'). checkMesh under the pinned digest ALWAYS opens with '/*-'. Some other writer reached the head of a GRADED artifact. Gate A's maxima live near the END of this file and would still parse, so this refuses on the HEAD and not on the numbers: a head-corrupted checkMesh log reads CLEAN, and that is worse than absent. REFUSED." 6
   fi
 fi
 

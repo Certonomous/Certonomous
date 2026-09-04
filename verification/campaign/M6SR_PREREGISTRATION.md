@@ -3682,3 +3682,426 @@ append, both rendering to sha256
 **`20753aff5fb81868ce6d0529aecdf1df63f03f5d037d87bfcd8609071eb4280e`**. Other records cite this
 document **by line**, and at least one such citation sits inside an executable check, so this is a
 guarantee and not a courtesy.
+
+---
+
+## 19. AMENDMENT 13 — 2026-09-04, **PRE-COMPUTE**. THE ITEM THAT DID **NOT** FAIL CLOSED, THE STEP ORDER, AND THE RE-PIN
+
+**This section is APPENDED AT THE FOOT. No line above it is touched** (rule 6, §18.11's own
+pattern). It carries: **item 34**, a silent corruption of a graded artifact, **REPAIRED**;
+**item 33**, the step order, **RULED, with no registered number moved**; the **re-pin** of
+`run_m6sr_b5.sh`, whose §18.3.1 pin is stale by construction; and **three further items, 35–37,
+all in `build_m6sr_l1.sh`, REPORTED AND NOT REPAIRED**.
+
+### 19.0 THE LAWFULNESS CONDITION, AND HOW IT WAS CHECKED — **NOT ASSERTED, PLANTED**
+
+Rule 2 permits amendment **before first compute**, and closes gates after it. The condition is that
+**`verification/runs/M6SR_runs` does not exist**, and it is checked with a **plant at the exact
+searched path**, because an absence reported by a reader never shown able to report a presence is
+not evidence (rule 3):
+
+| # | act | the reader's answer |
+|---|---|---|
+| 1 | before the plant | `verification/runs/M6SR_runs` reads **ABSENT** |
+| 2 | **`mkdir verification/runs/M6SR_runs`** — the plant, at the exact searched path | reads **PRESENT** — *the reader can see a non-absent run root* |
+| 3 | `rmdir` the plant | reads **ABSENT** again |
+
+**Corroborated by three further readers at the same path after removal:** `ls -d` →
+`No such file or directory`; `find verification/runs -maxdepth 1 -name 'M6SR_runs'` → **empty**;
+`git ls-files` → **empty**. ⚠ **The plant is `mkdir`/`rmdir` and `rmdir` REFUSES a non-empty
+directory**, so the control cannot destroy content by construction — that is why this shape was
+chosen over any that could have removed a tree.
+
+**Therefore: no `B` step of §2.4 has run, `B4`'s running ledger `$RR/B4_SPENT_COREMIN.txt` cannot
+exist because its parent does not, and every change below is a PRE-COMPUTE change.**
+
+### 19.1 THE NUMBERING, FIRST, BECAUSE TWO COUNTERS HAD SILENTLY COLLIDED
+
+🔴 **This registration runs ONE GLOBAL item counter and §18.8 already spends 31 and 32.** The
+supervisor's board, and the committed comments in `cases/M6SR/run_m6sr_b5.sh`, call the two new
+findings "item 31" and "item 32" — **they are not §18.8's 31 and 32.** Numbered from this
+document's own tail, as rule 11's discipline requires:
+
+| board number | registration number | the finding |
+|---|---|---|
+| item 31 | **ITEM 33** | §8's case is written **after** `B4`, so `B4`'s `checkMesh` has no `system/controlDict` |
+| item 32 | **ITEM 34** | the wrapper's redirect target **and** `B4`'s output file were the same path |
+| — | §18.8's own **31** | the container carries more `rhoSimpleFoam` binaries than item 26 counted |
+| — | §18.8's own **32** | §9's frozen path table registers two executables and the ladder runs seven |
+
+**Both numbers are carried in the driver's and the check suite's own headers so neither reader is
+stranded.** Everything below uses the **registration** numbering.
+
+### 19.2 🔴 ITEM 34 — A **SILENT CORRUPTION OF A GRADED ARTIFACT**. **REPAIRED.**
+
+#### 19.2.1 THE DEFECT, STATED EXACTLY
+
+`run_in_container()` sent the **outer wrapper's** stdout+stderr to `$CASE/log.$tag`. For the `B5`
+steps the tag has a name of its own (`log.B5a`) and the registered artifacts are written separately.
+**For `B4` the tag IS `checkMesh`**, so the wrapper's redirect target and the inner command's output
+file were **THE SAME PATH — `$CASE/log.checkMesh` — and that is the file Gate A grades.**
+
+The host shell opens it with `O_TRUNC` and **holds the fd at offset 0** for the life of the docker
+client, while the container opens the **same inode** through the bind mount with its own fd.
+Anything the client then writes — its own diagnostics, or the container's **unredirected stdout,
+which the client streams back** — lands **at offset 0** and overwrites the head.
+
+#### 19.2.2 MEASURED, ON THE REAL PINNED DIGEST, NOT ARGUED
+
+| control | what was done | what came back |
+|---|---|---|
+| synthetic | container wrote 65 bytes to `/case/log.checkMesh` through the mount; the client then emitted a 20-byte line | file **65 bytes**, **first 20 REPLACED**, remainder byte-intact |
+| **real `checkMesh`, L3 mesh** | the same shape, `checkMesh -constant > log.checkMesh 2>&1` plus one host-visible line | `log.checkMesh` **3330 bytes** — *the same size a clean run produces* — with the first 20 bytes of the OpenFOAM banner replaced |
+
+🔴 **AND THE CORRUPTED FILE GRADES.** `analyse_m6sr.read_checkmesh()`, the real Gate A reader, run
+on that exact file:
+
+| what Gate A reads | value off the CORRUPTED file | Gate A's disposition |
+|---|---|---|
+| `state` | **`READ`** — not `ABSENT` | §5's *"an absent log never reads clean"* **does not fire** |
+| `max_non_orthogonality_deg` | **61.49376508** | `A1` threshold 70 → **inside** |
+| `max_skewness` | **2.306553794** | `A2` threshold 4 → **inside** |
+| `max_aspect_ratio` | **608.2069422** | `A3` advisory 1000 → **inside** |
+| `Mesh OK.` / `End` | **both present** | — |
+
+**`read_checkmesh` sets `state` from file EXISTENCE alone and then whole-file-regex-searches for the
+maxima, which live near the END of a `checkMesh` log.** The head overwrite is therefore **invisible
+to every check Gate A makes.** ⚠ **Items 28, 30 and 33 all fail closed at exit 6. This one would
+have produced a plausible, gradeable, WRONG file and nothing would have announced it.**
+
+✅ **IT NEVER FIRED.** No run root exists; the docker client emitted nothing on the successful
+probes taken in Amendment 12. **This is PREVENTION, not the repair of a live corruption**, and it is
+recorded as such rather than as a rescue.
+
+#### 19.2.3 THE REPAIR — **IMPOSSIBLE, NOT MERELY UNLIKELY**
+
+The container's **only** view of this filesystem is `-v "$CASE":/case`. A path that is not under
+`$CASE` therefore **cannot be opened from inside the container by any name**, whatever a present or
+future tag is called. The two writers are separated by **MOUNT TOPOLOGY, not by a naming
+convention**:
+
+1. **The wrapper's log leaves the mount**: `$RR/_wrapper_logs/$LEVEL/log.$tag`.
+2. **And it is ENFORCED, not intended.** `run_in_container()` now **REFUSES at exit 6, before the
+   container starts**, if that target is `$CASE` or anything under it. `$CASE` is the literal `-v`
+   source on the next lines, so the guard tests the mount and not a copy of it. **The class is
+   closed for every future tag, not just for `checkMesh`.**
+3. **A SECOND, INDEPENDENT GUARD at `B4`**: the driver asserts that `log.checkMesh` **begins with
+   the OpenFOAM banner** (`/*-`) and refuses otherwise. ⚠ **It reads the HEAD and not the numbers,
+   because "the maxima still parse" is exactly what let this through.** It is safe as a check only
+   because the image is pinned by digest — the banner is fixed by the pin; under an unpinned image
+   it would be a guess, and that is stated in the driver.
+4. `STEP_RC.txt` now records **`wrapper_log=<path>`** per step, so the wrapper's output is findable
+   and a reader is never left inferring where it went.
+
+**MEASURED AFTER THE REPAIR, same real `checkMesh`:** `log.checkMesh` **3330 bytes with its head
+`/*------…` intact**, and the host-side 20-byte line **alone in the wrapper log**, outside the mount.
+
+✅ **`cases/M6SR/build_m6sr_l1.sh` was checked and is ALREADY immune for exactly this reason** — it
+mounts `$RR/$LEVEL/work` and writes its wrapper log to `$RR/$LEVEL/log.$tag`, **one level above the
+mount**. Reported because a pass that is never stated is indistinguishable from a check never made.
+
+#### 19.2.4 THE CONTROL THAT WOULD HAVE CAUGHT IT — `T5` IN `cases/M6SR/check_m6sr_launch_path.sh`
+
+**Every assertion is on the HEAD.** A control that asked *"do the maxima still parse?"* is precisely
+the control this defect passes.
+
+| limb | what it does | what makes it evidence |
+|---|---|---|
+| **T5a** | deliberately re-creates the **pre-repair** shape on the pinned digest and REQUIRES the head to come back **corrupted** | **the known-positive, and here the known-positive IS the corruption.** If the head comes back intact the suite **REFUSES (exit 2)** — a reader not shown able to see the corruption cannot certify its absence |
+| **T5a'** | runs the **real** `analyse_m6sr.read_checkmesh()` on that corrupted file | prints `READ｜61.49376508｜2.306553794` — **the danger is demonstrated with the grading reader, not asserted** |
+| **T5b** | runs the driver's **own extracted** `run_in_container` with tag `checkMesh`, inner command writing the log **and** emitting a host-visible line | **non-vacuity first**: the planted host-side line must be **found in the wrapper log** or the suite REFUSES. Without that, *"the head is intact"* is a statement about a collision that never happened |
+| **T5b'** | the graded file's head | **FAILS if the first bytes are overwritten** |
+| **T5b''** | the planted line must appear **nowhere** in the graded artifact's first 400 bytes | — |
+| **T5b'''** | the graded file must still parse as a real `checkMesh` log | stops the head test passing on an empty file |
+| **T5b''''** | the wrapper-log path, **read from the driver's own `STEP_RC.txt`**, must be outside `$CASE` | the suite never recomputes that path: a suite that did would stay green after the driver moved it |
+| **T5c** | forces the driver's own computed wrapper target back inside the mount and requires **exit 6** and the refusal text | **the guard is EXERCISED, not grepped** |
+| **T5d/d'** | the comment-stripped **CODE** must no longer carry `> "$CASE/log.$tag"` and must carry exactly one out-of-mount redirect | — |
+| **T5e** | extracts the driver's **own** head-reader line and runs it on **both** files | separates corrupt (`M6S`) from clean (`/*-`) — **non-vacuous in both directions** |
+
+**Suite result: 25 checks, 25 PASS, 0 FAIL, rc 0.**
+
+#### 19.2.5 THE MUTATION BATTERY — **EIGHT MUTATIONS, EIGHT KILLED**
+
+Run against an **isolated copy** of `cases/M6SR/`, so the shared worktree was never mutated. Control
+first: the unmutated copy returns **25 PASS / 0 FAIL / rc 0**.
+
+| # | mutation to `run_m6sr_b5.sh` | outcome |
+|---|---|---|
+| M1 | wrapper redirect reverted to `> "$CASE/log.$tag"` | **KILLED** — rc 2, the planted host-side write is no longer in the wrapper log |
+| M2 | the in-mount refusal deleted | **KILLED** — rc 1, `T5c` |
+| M3 | the `B4` head guard deleted | **KILLED** — rc 2, *"expected exactly ONE code line matching `CM_HEAD=…`, found 0"* |
+| M4 | `wdir` pointed back inside `$CASE` | **KILLED** — rc 2, the guard fires and `T1`'s plant is never written |
+| M5 | `head -c 3` weakened to `head -c 0` | **KILLED** — rc 2, by the **coupling** (the driver's line changed), not by the head test's behaviour. **Stated, because the two are different kills** |
+| M6 | `wrapper_log=` dropped from `STEP_RC.txt` | **KILLED** — rc 2, `T1e`/`T1f` fail and `T5b` cannot find the plant |
+| M7 | `chmod g+rwX "$CASE"` deleted | **KILLED** — rc 2, *"expected exactly ONE code line matching `chmod g+rwX "$CASE"`, found 0"* |
+| M8 | `--group-add "$HOST_GID"` deleted | **KILLED** — rc 2, the coupling assertion |
+
+#### 19.2.6 ⚠ AND A DEFECT IN THE CONTROL SUITE'S **OWN REFUSAL MECHANISM**, FOUND BY READING **HOW** THREE OF THEM DIED
+
+**The suite's `refuse()` did not refuse.** `refuse` writes its message and calls `exit 2`; inside a
+command substitution — `X=$(extract_line …)` — that exits **only the subshell**, and because the
+message went to **stdout** it was **CAPTURED AS X**. **MEASURED:** an unmatchable extraction
+returned rc 2 **and** the value `REFUSE: expected exactly ONE code line matching …`, and the parent
+carried on.
+
+**CONSEQUENCE, AND IT IS NOT COSMETIC.** Three mutations (M3, M5, M7) that **DELETED** a line from
+the driver were still killed — but **downstream**, by an `eval` of that captured refusal text, and
+the transcript then read *"the driver's head reader did not separate them"* when the truth was
+*"the driver's head reader is **gone**"*. ⚠ **A control that fails for the wrong reason names the
+wrong defect, and the next reader debugs the wrong file.** It affected **three call sites**, two of
+them written by the previous lane (`HOST_GID_LINE`, `CHMOD_LINE`) and one by this one (`CM_LINE`);
+`CHMOD_LINE`'s had **no following guard at all**, so a deleted `chmod` would have surfaced as an
+unrelated permission failure two tests later.
+
+**REPAIRED:** refusals go to **stderr**, where they can never become a value; every extraction is
+`… || exit 2`; and a new **`T0`** plants an unmatchable extraction and requires **rc 2 AND no
+value** before anything rests on the mechanism — **rule 3 applied to the machinery rather than to
+the measurement.** **DEMONSTRATED:** after the repair M3, M5 and M7 refuse with the *correct*
+diagnosis, naming the deleted line.
+
+🔴 **This is L-478's family — a name is not a control — in a third place: a refusal that is not a
+refusal.** §18's record already carries the first two (an assertion satisfied by the driver's own
+comment quoting the fix; `timeout … command docker …` returning **rc 127, not 124**, so a cap
+overrun would not have read as one). **All three are the same shape: the control existed, was read,
+and did not do what its name says.**
+
+### 19.3 ITEM 33 — THE STEP ORDER. **RULED — AND NO REGISTERED NUMBER MOVES.**
+
+#### 19.3.1 THE DEFECT, MEASURED
+
+With items 28 and 30 repaired, `B4`'s `checkMesh` reaches the container and returns **inner rc 1**:
+`FOAM FATAL ERROR: cannot find file "/case/system/controlDict"`. §8's case is written by
+`cases/M6SR/write_m6sr_case.py`, which the driver invokes in the **solve** phase — **after `B4`**.
+✅ **It fails closed at exit 6, and the same step against a case written first returns inner rc 0
+with `Mesh OK.` — so nothing else stands behind it.**
+
+#### 19.3.2 🔴 THE REGISTERED TABLE HAS **NO STEP** FOR WRITING §8's CASE — SO THIS IS A **PLACEMENT**, NOT A REORDER
+
+**§2.4's table orders `B0` … `B6` and contains no row for writing the case at all.** §9's frozen
+path table registers **paths, not an order**, and does not register `write_m6sr_case.py` (§18.8's
+own item 32). The `stage`/`solve` split is the **driver's** structure, not this registration's.
+**So there is no registered step to reorder: there is a step that was never placed, and the driver
+placed it late.**
+
+> **RULED (pre-compute): §8's case is written BEFORE `B4`, as step `B3c`, ordered
+> `B3`/`B3s` → `B3c` → `B4` → `B5`.** `B3c` is **UNBUDGETED and named on its own line**, exactly as
+> §18.9 already treats `B3s`, `B5p` and `B5g`. **MEASURED: 1.119 wall s at 1 rank = 0.019 core-min
+> per level, ≤ 0.06 core-min across the ladder** — 0.01 % of §2.4's 615.24.
+
+#### 19.3.3 ⚠ **STATED PLAINLY, BECAUSE THE SUPERVISOR ASKED IT DIRECTLY: NOTHING MOVES.**
+
+**No gate, no threshold, no cap, no label and no estimate moves.** §2.4's cost table is unchanged in
+**every cell, including the TOTAL row** (est ≈ 615.2, cap 1,903.0). `B4` keeps est **0.14** / cap
+**2.0**; `B5a`/`B5b`/`B5c` are untouched; §5's Gate A thresholds (70°, 4, advisory 1000, ratio 4,
+64) are untouched; no verdict label changes.
+
+**THE ALTERNATIVE THAT WAS NOT TAKEN, AND WHAT IT WOULD HAVE COST, SO THE CHOICE IS VISIBLE.**
+`B3c` could instead be given a *budgeted row* in §2.4. That would move the **TOTAL** row — est
+615.2 → 615.3, cap 1,903.0 → 1,904.0. ⚠ **That is a decision, not a consequence of the reorder, and
+it is the supervisor's.** This section takes the option that moves nothing.
+
+#### 19.3.4 ⚠ `B4` NEEDS THE **WHOLE** §8 CASE, NOT "a controlDict" — MEASURED BY ABLATION
+
+Three successive refusals on the pinned digest, each naming the next missing file:
+
+| case contents | `checkMesh` result |
+|---|---|
+| mesh only | `cannot find file "/case/system/controlDict"` |
+| mesh + a hand-written minimal `controlDict` | `FOAM FATAL IO ERROR` — the dictionary is not a valid `FoamFile` |
+| mesh + §8's `controlDict` alone | `Cannot open include file "/case/system/sampleDict"` — §8's `controlDict` `#include`s the function-object dict |
+| mesh + §8's `controlDict` + `sampleDict` | `cannot find file "/case/system/fvSchemes"` |
+| **mesh + the full §8 case** | **inner rc 0, 3330 bytes, `Mesh OK.` / `End`** |
+
+**So `B3c` is the complete writer invocation** (`--selftest` then `--case … --level …`), **not a
+partial one.** The registration says so here rather than leaving a future lane to rediscover it.
+
+#### 19.3.5 🔴 THE ONE CONSEQUENCE FOR GATE A's NUMBERS — MEASURED, NOT ASSUMED
+
+**§8's `controlDict` sets `writePrecision 10`, and that changes what `checkMesh` PRINTS.** Against
+the **independent** prior `checkMesh` of the **same** `polyMesh`, run on 2026-08-08 by a different
+campaign with no §8 case —
+`verification/runs/MESH_AUDIT_runs/2026-08-08/A3-onera-m6-adjoint-coarse__constant__polyMesh.log.checkMesh`:
+
+| Gate A input | 2026-08-08, **no §8 case** | this lane, **case written first** | max relative difference |
+|---|---|---|---|
+| `max_non_orthogonality_deg` | 61.4938 | 61.49376508 | 5.68e-07 |
+| `max_skewness` | 2.30655 | 2.306553794 | 1.65e-06 |
+| `max_aspect_ratio` | 608.207 | 608.2069422 | 9.50e-08 |
+| `min_volume` | 1.17547e-10 | 1.175465721e-10 | 3.64e-06 |
+| `max_volume` | 0.944185 | 0.9441848797 | 1.27e-07 |
+| `boundary_openness_max_abs` | 8.22572e-16 | 8.225723872e-16 | 4.71e-07 |
+| `n_cells` / `n_regions` | 99840 / 1 | 99840 / 1 | **exact** |
+
+**Every value agrees to all six significant figures the earlier log printed; the largest relative
+difference is 3.64e-06 and is pure print-rounding.** ✅ **No Gate A input moves. `B4`'s log will
+simply carry more digits than the 2026-08-08 audit's, and that is recorded here so nobody reads the
+extra digits as a different mesh.**
+
+⚠ **AND WHAT COULD NOT BE SHOWN.** The clean ablation — *"the case files do not influence the
+metrics"* — **cannot be run by subtraction**, because `checkMesh` refuses to start without §8's
+case (§19.3.4). The evidence above is an **independent-instrument agreement**, not an ablation, and
+it is labelled as such. The mesh bytes are identical by `cp -a` from one read-only source, and the
+driver publishes `points_stream.sha256` at `stage`, **before** the case is written, so `A5`'s
+family-identity proof is taken on the mesh independently of the case either way.
+
+#### 19.3.6 THE DRIVER IS **NOT** CHANGED BY THIS SECTION
+
+`cases/M6SR/run_m6sr_b5.sh` still invokes the writer in the `solve` phase, and it still **writes no
+case file of its own** — §1's *"there is ONE writer and it is that one"* is byte-unchanged.
+**Implementing the order is the supervisor's to authorise**; a lane registers the ruling and reports
+the measurement. **Until it is implemented, `B4` fails closed at exit 6 and Gate A is unreachable,
+exactly as §18.10's closing block already states.**
+
+### 19.4 THE RE-PIN — §18.3.1's `run_m6sr_b5.sh` ROW IS **STALE BY CONSTRUCTION** AND IS STRUCK BY QUOTE
+
+✅ **The prior lane was right not to re-pin it in the same commit that changed it** — §18.6's own
+ruling, *"a document cannot pin a blob and change it in the same breath."* The pin is re-taken here,
+in the amendment that the supervisor ordered for the purpose.
+
+#### 19.4.1 STRUCK
+
+> ~~*"| **`cases/M6SR/run_m6sr_b5.sh`** (the sole producer of `SOLVER_RC.txt`, `log.rhoSimpleFoam` and `log.checkMesh`) | **`44fae79bbae918ae101d7d4a9b8ad96bdef66734`** | `5d0bc9df92f272a5d1a22e43708b8cd386f08e352fa282993e65c7d5072bd579` | 561 | **NOT in §9's table**; **CHANGED BY THIS AMENDMENT** (§18.2.3, §18.5, §18.5.1, §18.6) |"*~~
+
+**STRUCK.** The file moved twice after that pin was written: to **`ab3b1ab2d04dba0bb047c42197aa188a981a570a`**
+at commit **`5cf8a009`** (items 28 and 30 repaired), and again here. **§18.3.1's row is not edited in
+place** — rule 6 — **and the current pin is the table below.**
+
+#### 19.4.2 THE CURRENT PINS
+
+| path | git blob sha | sha256 of the file | lines | status |
+|---|---|---|---|---|
+| **`cases/M6SR/run_m6sr_b5.sh`** (sole producer of `SOLVER_RC.txt`, `log.rhoSimpleFoam`, `log.checkMesh`) | **`6e12307edfeeabd40effc9a5eedc6176fab99212`** | `a9f1d3765862ea4a9eef09971eab60df5f2a65443e02ac8a182a869fc29eec7d` | **795** | **NOT in §9's table**; **CHANGED BY THIS AMENDMENT** (§19.2.3) |
+| **`cases/M6SR/check_m6sr_launch_path.sh`** (the launch-path control suite; **NEW at `5cf8a009`**) | **`9b8d44ce7c68a0728db80cc83fb11dbeb77d945d`** | `0da8aad32983d6b737de346db5b6fd1d71e96c64b014d56a51ce1f495ca9372c` | **367** | **NOT in §9's table** — see §19.4.3 |
+| **the superseded intermediate**, recorded so the chain is readable | `ab3b1ab2d04dba0bb047c42197aa188a981a570a` | — | 561 → 631 | **`5cf8a009`**, superseded here |
+
+**Both shas were re-derived with `git hash-object` on the working tree and RE-VERIFIED INSIDE THE
+SAME SHELL INVOCATION AS THE COMMIT that carries this section, with the commit ABORTING if either
+had moved.** ⚠ **It has moved mid-commit before** — §18.3.1 records `0b3b73bb…` → `44fae79b…` when a
+peer's edit landed in the shared worktree — **so the abort is a live guard, not a formality.**
+§18.3.1's other five rows are **not** re-taken here and stand as pinned.
+
+#### 19.4.3 SHOULD `check_m6sr_launch_path.sh` GO INTO §9's TABLE? — **THE LANE'S ANSWER IS NO, AND THE RULING IS THE SUPERVISOR'S**
+
+§18.8's own item 32 rules that *"adding a path to §9's frozen table is a FREEZE question and is the
+supervisor's. A lane pins shas and reports."* **Reported, with a recommendation and its reason:**
+
+- **§9's table is the GRADING path.** `check_m6sr_launch_path.sh` **grades nothing**, produces no
+  artifact any gate reads, and writes only into a `mktemp` scratch tree it deletes. Putting it in
+  §9 would make the grading table mean two different things.
+- **But it MUST be pinned, and it is, above.** A control suite that can be silently edited is a
+  green with no content — and this suite's own history proves the point twice over (§19.2.6, and
+  §18's comment-satisfied assertion). **Pinned in the gap table, not in §9.**
+- **The lane's recommendation: NO to §9; YES to a standing pin.** The supervisor rules.
+
+### 19.5 🔴 THREE FURTHER ITEMS — **ALL IN `cases/M6SR/build_m6sr_l1.sh`** — ITEMS 35, 36, 37. **REPORTED, NOT REPAIRED.**
+
+**The supervisor asked whether a FIFTH failure sits behind 33 and 34. There is one, and it is not in
+the file this pass repaired.** `build_m6sr_l1.sh` is the sole producer of the **L1 mesh** — Gate A's
+third level, `A4`'s cell-count ratios, `A7`'s 24,960-face surface, and every `B5c` core-minute.
+
+| # | what cannot be satisfied | measured basis | consequence |
+|---|---|---|---|
+| **35** 🔴 | **ITEM 28's EXACT DEFECT, UNREPAIRED, IN THE L1 BUILD DRIVER.** `build_m6sr_l1.sh:105` selects `DRUN="docker"` when bare docker works, then line 118 writes `timeout … $DRUN "docker run …"` — the whole command as ONE ARGUMENT. | **Reproduced with the driver's exact expansion on the pinned digest: rc 1, `docker: unknown command: docker docker run --rm --name m6sr_probe_… `, and `RC_probe.txt` ABSENT so `inner` reads ABSENT.** CONTROL: the identical string through `sg docker -c` returns **rc 0 / `INSIDE_OK`**. On this box `BARE_RC=0`, so the broken branch is the one taken. | **`B1`, `B2` and `B3` cannot run**, so the L1 mesh cannot be built, so Gate A has no third level and `B5c` — **543.13 core-min of est, 88 % of the ladder** — is unreachable. **It FAILS CLOSED at exit 6 and has never fired: no run root exists.** **NOT REPAIRED — the same class the supervisor ruled was theirs in §18.8, in a second file, and its blob is pinned by §18.3.1.** |
+| **36** | **AMENDMENT 12 RULING 1's IMAGE PIN LIVES ONLY IN `run_m6sr_b5.sh`.** `build_m6sr_l1.sh:53` reads `IMG=${M6SR_IMAGE:-dafoam-idwarp-rot:v1}` and **never resolves or checks a digest**. | Measured by inspection of the whole file: **zero** occurrences of a digest, `RESOLVED_DIGEST` or an image refusal. | **`$M6SR_IMAGE` can still SELECT the image for `B1`–`B3`** — the steps that BUILD the mesh Gate A grades — while §18.2's refusal protects only the solve. **The instrument is pinned for the solver and unpinned for the mesh.** |
+| **37** | **ITEM 29's CLASS, UNREPAIRED IN THE BUILDER.** `build_m6sr_l1.sh:49` honours `M6SR_RUN_ROOT`; §18.6's exit-9 run-root refusal exists **only** in `run_m6sr_b5.sh:401`. | Measured by inspection: the builder has no `M6SR_REGISTERED_RUN_ROOT` and no run-root assertion. | **The builder can be pointed at a tree the comparator will never read**, silently — producer and reader in different trees, which is exactly what §18.6 refuses on the solve side. |
+
+✅ **AND ONE THING CHECKED AND FOUND SOUND, REPORTED BECAUSE A PASS NEVER STATED IS
+INDISTINGUISHABLE FROM A CHECK NEVER MADE.** **Item 34 does NOT reach `build_m6sr_l1.sh`.** It
+mounts `$RR/$LEVEL/work` and writes its wrapper log to `$RR/$LEVEL/log.$tag` — **outside the
+mount** — and its one reader of a wrapper log (`grep -m1 'Total Faces:' … log.pyhyp`, line 213) is
+reading the container's streamed stdout **by design**, from a file no container can write. **No
+shared path exists in that file.**
+
+### 19.6 CARRIED FORWARD FROM THE ITEMS 28/30 PASS, **NOT RE-LITIGATED**
+
+- **Item 30's fix is narrow and correct**: `chmod g+rwX` on the **case directory only** — group
+  only, not world, not recursive — plus **`--group-add $HOST_GID`**. `-u 1002:1002` is unchanged, so
+  **uid 1002 keeps `dafoamuser` as its PRIMARY identity and every Amendment 12 pin measurement taken
+  under that user still describes the running process.** `--user $(id -u):$(id -g)` was **rejected**
+  because it changes the pinned invocation's user spec. **Both halves measured as necessary by
+  negative controls** (`T3a`, `T3b`, `T3c`), and `T3c` shows the repair does not rest on this box's
+  umask.
+- ⚠ **A TRAP WORTH REGISTERING: `timeout` execs a *program* and cannot exec the shell builtin
+  `command`**, so `timeout …s command docker …` returns **rc 127, NOT 124** — **it would not have
+  read as a cap overrun**, and rule 12's *"an overrun stops the run"* would have been enforced by a
+  code the driver does not treat as an overrun. The resolved binary is captured into `$DOCKER_BIN`
+  and the cap was **re-measured as still biting: rc 124 on both branches** (`T2c`).
+
+### 19.7 PRE-EXISTING, NAMED, AND **NOT ABSORBED BY THIS AMENDMENT**
+
+**Phase `all` aborts at exit 8** because `C12` does not fire in `cases/M6SR/analyse_m6sr.py` at
+`HEAD`, under both `python3` and `python3 -O`. **That is `X4` and `X7` working as registered** —
+§18's pre-launch grading gate refusing at zero solver cost. **Reported; NOT repaired here.** It is
+not a defect of the launch path and it is not this amendment's to close.
+
+### 19.8 COST — RULE 12, AND **NONE OF IT IS LADDER COMPUTE**
+
+**No step of §2.4's cost table was run and `verification/runs/M6SR_runs` does not exist** (§19.0,
+planted). What this amendment spent, all at **1 rank**, counted rather than rounded:
+**8 direct `docker run --rm` probes** on the pinned digest outside the suite (2 item-35 expansion
+probes, 3 real `checkMesh` runs on the already-built L3 mesh, 3 ablation runs that refused);
+**17 full runs of the control suite** (2 controls in the worktree, 1 isolated-copy control, and
+**14 mutant runs** across two batteries — 6 before the refusal repair and 8 after — at **38 wall s**
+measured for a full green run, less for the mutants that refuse early); the mesh copy-outs and
+`write_m6sr_case.py` invocations those cases needed; and host arithmetic. **≈ 11 core-min at 1 rank,
+and it is an ESTIMATE from this session's own wall clock,
+NOT a measurement read from a run log** — no run log exists for it and inventing one would be worse
+than saying so. **Derived at the owner-stated `c7a.4xlarge` $0.0513/core-h: ≈ $0.0094 — DERIVED,
+REPORTED-BY-OWNER, never measured, because the box cannot read its own billing**
+(`COMPUTE_BUDGET_CHARTER.md` §5).
+
+**ONE NEW UNBUDGETED STEP, NAMED ON ITS OWN LINE AND NOT FOLDED INTO ANY REGISTERED ROW** (§9.3,
+`COMPUTE_BUDGET_CHARTER.md` §6), exactly as §18.9 treats `B3s`, `B5p` and `B5g`:
+
+| step | what | measured | status |
+|---|---|---|---|
+| **`B3c`** | §8's case written **before** `B4` (`--selftest` + `--case … --level …`) | **1.119 wall s at 1 rank = 0.019 core-min** per level | **UNBUDGETED** — §2.4 has no row, and §19.3.3 does not create one |
+
+**≤ 0.06 core-min across the ladder — 0.01 % of §2.4's 615.24. §2.4's `est ≤ cap` table is untouched
+and no cap is raised to accommodate it.**
+
+**§9.3's estimate-versus-actual row is NOT owed yet**, because no `B` step has completed. It falls
+due at `B1`'s completion — which **items 35–37 currently prevent**.
+
+### 19.9 WHAT THIS AMENDMENT DOES **NOT** DO
+
+1. **It moves no gate, no threshold, no cap and no label.** §2.4's cost table is unchanged in every
+   cell **including the TOTAL row**; §5's Gate A thresholds are unchanged; `X1`–`X7` stand.
+2. **It does NOT re-freeze.** `SUPERVISION_CHARTER.md` §3 check 4 belongs to the cfd supervisor and
+   is **undischarged**. **Check 1 — the producer diff, read as a diff — is likewise the
+   supervisor's.**
+3. **It does NOT add a path to §9's frozen table.** It pins `check_m6sr_launch_path.sh` in the gap
+   table and recommends against §9 (§19.4.3). The ruling is the supervisor's.
+4. **It does NOT change the driver's step order.** §19.3 RULES the order; implementing it is the
+   supervisor's to authorise (§19.3.6).
+5. **It does NOT touch `cases/M6SR/analyse_m6sr.py`, `cases/M6SR/write_m6sr_case.py` or
+   `cases/M6SR/build_m6sr_l1.sh`** — all three are pinned by §18.3.1 and none is edited. Items 35,
+   36 and 37 are **reported and not repaired**.
+6. **It does NOT repair `C12`.** `X4` and `X7` stand; phase `all`'s exit 8 is the gate working.
+7. **It launched NO ladder compute, enqueued nothing, and wrote nothing into
+   `verification/queue/`.** `verification/runs/M6SR_runs` is **ABSENT**, re-verified with the same
+   plant at the same path after every act above.
+8. **It does NOT change `/home/ubuntu/certonomous-runs/`**, which was read only, nor
+   `docs/LAB_STATE.md`.
+9. **It claims no verdict of the fixed vocabulary for any gate.** No solver has run.
+10. **SUBMISSIONS REMAIN PARKED (rule 7). Nothing left the box (rule 8).**
+
+### 19.10 RULE 6's AMENDMENT ASSERTIONS
+
+**Version: v1.4 → v1.5 (amendment 13, pre-compute). The frozen file was NOT edited; this section is
+APPENDED AT THE FOOT.**
+
+⚠ **The header line 3 still reads `v1.0` and is DELIBERATELY NOT EDITED**, for the reason §15.10,
+§16.9, §17.12 and §18.11 give: editing it would change a line above §15 and falsify those sections'
+own assertions, on which other records depend. **The bump is recorded HERE. The supervisor may
+restate the version in the header at the re-freeze, which is a status flip they own; a lane may
+not.**
+
+> **`lines whose number changed above this section: 0`**
+
+**Verified, not asserted:** lines **1–3684** of this file — the whole of it up to and including
+§18.11's closing line, and therefore the whole of §15's guaranteed range 1–2022, §16's 1–2229,
+§17's 1–2690 and §18's 1–3684 — are **byte-identical** before and after this append, both rendering
+to sha256 **`0b5ebed70a63647579174009ebe50dfa123940d2ceabcd62335542a1bcffaf45`**. Other records cite
+this document **by line**, and at least one such citation sits inside an executable check, so this
+is a guarantee and not a courtesy.
