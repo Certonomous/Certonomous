@@ -5318,11 +5318,67 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-04T22:38:04Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-73` — **I invented a discrepancy that never existed and then EXPLAINED it: the lane said 2619, I boarded "the lane said 2620, a rounding step." And a lane declined half a finding's credit and handed the framing back to me.** Before it, `S-72`, `S-71`, `S-70`, `S-69`, `S-68`…`S-29`.
+**Section last written:** 2026-09-04T22:46:16Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-74` — **the decision rule RAN: W4's residual is pinned to 1e-6 by construction, ~2,900× shallower than the clean reference, so OPTION 2 is ruled. My "six of six" was wrong — six of SEVEN, and the family has TEN. And §7 step 5's range is the SAME transcription defect `§2al` already found, one step over, with frozen dafoam pre-registrations GATING on it.** Before it, `S-73`, `S-72`, `S-71`, `S-70`, `S-69`…`S-29`.
 
 **Section last written:** 2026-09-04T01:08:43Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-48` — **`W3` IS NOT RUNNING AND HAS NOT BEEN SINCE 21:57:49Z; IT REACHED ITS REGISTERED TERMINUS, AND THE REGISTERED FALLBACK DOES NOT RESCUE IT.** `S-47`'s and `S-46`'s *"`W3_chain_r2` running"* lines are **STRUCK BY QUOTE** below — they were true when written and were still being relayed three hours after they stopped being true. Before it, `S-47` — **DESK ITEMS CLOSED**: the **rule-10 hole is fixed in the constitution itself** on Sanaa's GO (`0ee2e7df`, verified by me at HEAD, not taken on relay), and the rule-12 estimate gap is **routed to verification** as a forward-only note. `S-46`'s "on Sanaa's desk" line is **struck by quote** so no successor re-escalates a closed item. **Nothing now on her desk from this family** but the four `NOT FILED` upstream defect classes and FD-vs-adjoint as a fourth `V` instrument. Before it, `S-46` (closing state), `S-45`, `S-44`, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+##### UPDATE S-74 — **THE DECISION RULE RAN AND THE ANSWER IS **OPTION 2**: W4's RESIDUAL IS PINNED TO 1e-6 BY CONSTRUCTION, ~2,900× SHALLOWER THAN THE CLEAN REFERENCE. MY "SIX OF SIX" WAS WRONG — IT IS SIX OF **SEVEN**, AND THE FAMILY HAS **TEN**. AND §7 STEP 5's RANGE IS THE SAME TRANSCRIPTION DEFECT `§2al` ALREADY FOUND, ONE STEP OVER — WITH FROZEN dafoam PRE-REGISTRATIONS **GATING ON IT**** (2026-09-04, `date -u` stamp in the committing invocation)
+
+###### 1. RULED — **OPTION 2**, THE 1e-8 RE-ANCHOR
+
+**The zero-compute decision rule I registered was RUN.** All nine W4 logs read individually, in fixed order: **every one carries `Minimal residual 9.97e-07 satisfied the prescribed tolerance 1e-06`.** Like-for-like against S1's clean 1e-8 column:
+
+| channel | S1 @ 1e-8 | W4 @ 1e-6 | shallower by |
+|---|---|---|---|
+| `U` | 2.64e-10 – 3.90e-10 | 9.969e-07 – 9.977e-07 | **~2,900×** |
+| `p` | 2.02e-08 | 5.91e-07 | ~29× |
+| `ω` | 8.03e-10 – 9.92e-10 | 5.72e-08 | ~64× |
+| Total Residual Norm2 | 3.47e-05 – 3.91e-05 | 1.2925e-03 | ~35× |
+
+**The levels sit AT the threshold — W4's stop is CAUSED BY the 1e-6 crossing, so the residual is pinned there by construction, not merely near it. That is the Option-2 limb. RULED: the 1e-8 re-anchor, 116.400 core-min.** *Cost is not the deciding factor — the gap to Option 1 is ~97 core-min, about eight cents. Correctness is.*
+
+**⚠ AND MY FRAMING IS HALF-CONFIRMED, WITH THE REFUTED HALF GOVERNING.** **Confirmed:** the scatter limb — W4 stops at 1578–1582, **spread 4 = 0.25 %** of run length, against S1's 383–458, **spread 75 ≈ 18 %.** **NOT ESTABLISHED, and it is the load-bearing half:** §B names **two** mechanisms, the scatter **and** *"leaving O(tol) state error that systematically under-develops a one-cell beta perturbation's response."* **The 25.9 % → 0.032 % experiment moved BOTH AT ONCE and therefore SEPARATES NEITHER. No measurement in this family isolates level from scatter.**
+
+> **So *"the pollution is stopping early, not the tolerance label"* is a HYPOTHESIS CONSISTENT WITH THE DATA — not a finding — and it cannot discharge Option 2 on its own.** `S-71` recorded my framing as *"materially weakened"*; **the precise truth is that one half is confirmed and the other is untested, and the untested half is the one that decides.**
+
+*Evidence in W4's favour I did not have and which does not change the ruling: cell 5491's error grows **0.085 % → 0.46 %** from `h=0.05` to `h=0.1` — **truncation-dominated, O(h²)**, the signature of a step ABOVE the noise floor. **That bears on the PLATEAU, not on the LEVEL.***
+
+###### 2. ⚠ MY COUNT WAS WRONG — SIX OF **SEVEN**, AND THE FAMILY HAS **TEN**
+
+`S-71` boarded *"the exposure is SIX OF SIX, not five — every single-step number is cited in §2. The self-inconsistency is total."*
+
+**Wrong. The table carries SEVEN numbers and W4's `0.085 %` (cell 5491) HAS A SECOND STEP at `h=0.1`, the two values agreeing to 0.3729 %. It is the only two-step number in this family.** *A prior lane had this right and BOTH my brief and a later one inherited the wrong count from me.*
+
+**And there is a FOURTH record neither of us had: the weighted arm's `0.033 % / 0.007 % / 0.029 %`** — no step column, six perturbed primals, **three central differences and no second step.**
+
+> **Across the family: TEN numbers, NINE single-step, ONE two-step. The standard's table sees seven of the ten.**
+
+**`AMENDMENT 3` placed by me on `V_STANDARD_FD_VS_ADJOINT.md` (`7e413373`, v1.1 → v1.2), rule 6 PROVED ON BYTES (`cmp -n 76118`).** The file's own `:939-941` requires dated addenda; it is cited by line in at least six documents, so an in-place edit would break them all.
+
+**⚠ AND THE STRIKE CUTS THE OPPOSITE WAY TO THE OBVIOUS ONE — measured, as I asked, rather than assumed.** §3's field-DV conclusion is **over-determined**: it rests on the **warp probe**, an independent instrument, *"established by a planted counter, not by a magnitude"* — and the strike adds a **second** independent reason a sub-floor number is unremarkable. **The sentence now WRONG is §3's own SHAPE-DV concession at `:177-178`**, because the charter withdrew that accusation **for every DV class**. **§3 rebutted an accusation since withdrawn, did not need the rebuttal, and should not have conceded the shape half.**
+
+###### 3. ⚠⚠ TO THE CHIEF, FOR VERIFICATION — AND IT IS LARGER THAN THE SINGLE-STEP FINDING
+
+`VERIFICATION_CHARTER.md:864` reads: *"Central differences, `step_calc=abs`, **step between 1e-3 and 1e-2**."* **No unit, no DV class, no case — and `step_calc=abs` makes the bounds NECESSARILY DIMENSIONAL. A dimensional range with no units has no defined meaning across DV classes.**
+
+**Its provenance settles what it was measured on.** It is transcribed from `A_stepsize_study.md:72-77` — **the SAME source file `§2al` already audited for step 4** — whose heading reads ***"Recommended*** FD step size", and whose bounds are **properties of A1's FFD control points and A1's objective scale**: the lower a noise-floor argument at A1's own primal tolerance, the upper the failure of **one** control point, `idx6`.
+
+> **The transcription dropped "Recommended", dropped the case, dropped the DV class, and dropped both mechanisms. That is DEFECT CLASS 1 IN `§2al`'s OWN TABLE — "a widening" — at the ADJACENT STEP.**
+
+**At least NINE item families use steps outside the range**, in both directions, spanning **A1, A3, A4, A5, A6, B3, S1 and W4** — so `h = 0.05` is not a CBFS anomaly but one instance of a family-wide pattern.
+
+**⚠ AND THIS IS WHAT MAKES IT URGENT RATHER THAN INTERESTING: FROZEN dafoam PRE-REGISTRATIONS GATE ON IT.** `curriculum_D19/PREREGISTRATION.md:128`'s gate **`G19-1b`** restricts the graded candidate set to *"those inside `VERIFICATION_CHARTER.md` §7 step 5's sanctioned range"*; `D19R:164` registers `1e-4`/`3e-4` as **measured but NOT graded** *"because they sit below the sanctioned range"* — **and in the same sentence sets `patchV`'s candidates to `{1e-2, 3e-2}`, where `3e-2` is OUTSIDE the range it just cited.** **The family has already been reading step 5 as relative to the DV's own units, and NO CHARTER TEXT AUTHORISES THAT.**
+
+**REFERRED, NOT CHARGED.** `VERIFICATION_CHARTER.md` is verification's and step 5 is theirs to interpret. **We ask for a reading, assert no defect, and move no verdict.** *A family whose own charter reading was corrected today, in its own §20, should be slow to correct somebody else's — this goes up as evidence, not as a finding.*
+
+###### 4. STATE
+
+**Zero lanes live. Zero solver core-minutes today across ten dispatches.** Nothing frozen, nothing enqueued, no solver started. `A1WRT2`, `W3S` and `D6RF3` each blocked on their own honest gate.
+
+**OWED BY ME:** the freeze commits and their §2b run-root conditions **in their own invocations**; check 1 on `A1WRT2`'s remaining diff; the `:92` disposition after the second step; **the stale `COVERAGE_MATRIX.md:467` marker** (asserts the standard last changed at `4a6ea0b8`; it is **`1fa8bc44`**), reported by the lane and not repaired.
+
+
 ##### UPDATE S-73 — **⚠ I INVENTED A DISCREPANCY THAT NEVER EXISTED AND THEN EXPLAINED IT. THE LANE SAID **2619**; I BOARDED "THE LANE SAID 2620, A ROUNDING STEP." AND A LANE DECLINED HALF A FINDING'S CREDIT AND HANDED THE FRAMING BACK TO ME** (2026-09-04, `date -u` stamp in the committing invocation)
 
 ###### 1. STRUCK BY QUOTE — MINE, AND IT IS A FABRICATION WITH AN EXPLANATION ATTACHED
