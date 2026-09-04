@@ -42,6 +42,92 @@
 # surface is COPIED OUT of that tree and every product is written under the run root.
 #
 # SUBMISSIONS ARE PARKED (standing rule 7).  This driver sends nothing anywhere.
+#
+# =======================================================================================
+# AMENDMENT 12 AUDIT, ITEMS 35, 36 AND 37 -- REPAIRED IN THIS FILE (2026-09-04).
+# All three were MEASURED and REPORTED by an earlier pass (registration Section 19.5) and
+# left unrepaired; this pass repairs them.  Each is stated with its measurement below and
+# each carries a control that was run against the REAL PINNED DIGEST, never a mock.
+#
+# ITEM 35 -- ITEM 28's EXACT DEFECT, IN THIS FILE, AND IT COST 88 % OF THE LADDER.
+#   THE DEFECT.  The frozen driver selected `DRUN="docker"` when bare docker works and then
+#   built the container call as `timeout ...s $DRUN "docker run ..."`.  On the `sg` branch
+#   ($DRUN = `sg docker -c`) that is correct -- the string is one shell command for `sg` to
+#   run.  On the BARE branch it expands to `docker "docker run ..."`, the whole command as a
+#   SINGLE ARGUMENT to the docker client.
+#   MEASURED with this driver's exact expansion, on the pinned digest:
+#       rc 1, `docker: unknown command: docker docker run --rm --name m6sr_probe_... `,
+#       and RC_<tag>.txt ABSENT, so `inner` reads ABSENT.
+#   CONTROL, the identical string through `sg docker -c`:  rc 0, `INSIDE_OK`.
+#   WHY IT SURVIVED: BARE_RC is 0 on this box, so this driver was correct ONLY on the branch
+#   this box does NOT take.  The live branch had never been exercised.
+#   WHAT IT COST: B1, B2 and B3 could not run, so the L1 mesh could not be built, so Gate A
+#   had no third level and B5c -- 543.13 core-min of registered estimate, 88 % of the ladder
+#   -- was UNREACHABLE.  WHAT IT DID NOT DO: it failed CLOSED (exit 6 on a non-zero inner rc)
+#   and it NEVER FIRED -- no run root exists.  This is prevention, not a live repair.
+#
+#   THE REPAIR, AND THE TRAP INSIDE THE OBVIOUS FIX.  `timeout` execs a PROGRAM.  It cannot
+#   exec the shell builtin `command`, so the tempting `timeout ...s command docker ...` was
+#   MEASURED to return rc 127 -- `timeout: failed to run command 'command'` -- which is NOT
+#   124 and would therefore NOT have read as a cap overrun; it would have aborted at exit 6
+#   with a misleading cause.  The resolved binary is therefore captured ONCE, into
+#   $DOCKER_BIN, and docker_timeout_q() below passes ARGV on the bare branch and quotes with
+#   `printf %q` on the `sg` branch.  MEASURED on the pinned digest, both branches:
+#       bare : timeout ...s "$DOCKER_BIN" run ... -> rc 0 / INSIDE_OK
+#       sg   : timeout ...s sg docker -c "docker$(printf ' %q' ...)" -> rc 0 / INSIDE_OK
+#   AND THE CAP STILL BITES, measured rather than assumed -- a container sleeping 30 s under
+#   a 5 s cap returns rc 124 on BOTH branches, so run_in_container's `rc -eq 124 -> abort 6`
+#   overrun path (rule 12, AN OVERRUN STOPS THE RUN) still fires after the repair.
+#   THE BRANCH TAKEN IS RECORDED IN THE RUN'S OWN OUTPUT ($RR/$LEVEL/DOCKER_BRANCH.txt and
+#   DOCKER_PREFLIGHT.txt), because item 28's defect survived precisely because no artifact
+#   ever distinguished the two branches.
+#
+# ITEM 36 -- THE SOLVER PIN DID NOT COVER THE THING THAT BUILDS THE MESH GATE A GRADES.
+#   Amendment 12 Ruling 1's image pin lived ONLY in cases/M6SR/run_m6sr_b5.sh.  This file had
+#   ZERO digest checks, so $M6SR_IMAGE could still SELECT the image for B1/B2/B3 -- the steps
+#   that BUILD the mesh Gate A grades.  A pin on the solver that leaves the mesh builder
+#   unpinned pins HALF THE INSTRUMENT.  The pin is registered and enforced below, at ZERO
+#   COST, and the container is addressed BY DIGEST so the tag-repoint TOCTOU is closed
+#   (measured on this daemon: `docker run` accepts a bare digest, rc 0, and rejects an
+#   unknown one, rc 125).
+#   WHICH BINARIES THIS DRIVER ACTUALLY INVOKES -- pinned by RESOLVED PATH and sha256, not
+#   by digest alone.  It does NOT invoke rhoSimpleFoam and it does NOT invoke ugrid_to_foam:
+#       B1  cgns_utils                                   (conda console script)
+#       B2  python  +  the pyhyp module and its compiled hyp.so   (NOT a standalone binary)
+#       B3  plot3dToFoam, autoPatch, createPatch, renumberMesh    (ESI OpenFOAM v2506)
+#   MEASURED, AND IT DIFFERS FROM THE SOLVER'S CASE -- STATED SO NOBODY INHERITS AN ARGUMENT
+#   THAT DOES NOT TRANSFER: the pinned image carries THREE `rhoSimpleFoam` (the v2506 build
+#   plus OpenFOAM-AD's ADF and ADR builds), which is why Ruling 1 had to pin the solver's
+#   PATH as well as the digest.  A whole-filesystem census inside the pinned image returns
+#   EXACTLY ONE file for each of plot3dToFoam, autoPatch, createPatch, renumberMesh and
+#   cgns_utils.  So the path pin here is NOT disambiguating a name collision -- it is holding
+#   PATH resolution to the registered tree -- and that is a measurement, not an inheritance.
+#
+#   EXIT CODE, AND WHY IT IS NOT THE SIBLING'S 7.  run_m6sr_b5.sh uses exit 7 for its pin
+#   refusal.  THIS FILE ALREADY USES exit 7 for a PHYSICS FINDING (the condemned 390-face
+#   surface, the wrong pyHyp face count) and exit 8 for Section 7's patch screen.  Overloading
+#   either would change what an existing code means, so the instrument-pin refusal here is
+#   exit 10 and the run-root refusal is exit 9 (unused here, and 9 is §18.6's own code).
+#   THE EXISTING EXIT VOCABULARY OF THIS FILE IS UNCHANGED.
+#
+# ITEM 37 -- $M6SR_RUN_ROOT WAS HONOURED WITH NO §18.6-CLASS REFUSAL.  Item 29's class, in
+#   the builder.  cases/M6SR/analyse_m6sr.py reads NO environment at all, so an operator who
+#   exports M6SR_RUN_ROOT without passing a matching --run-root builds the mesh in one tree
+#   and grades from another.  Refused below at exit 9, matching §18.6's shape.
+#   IT IS ORDERED LAST OF THE NEW REFUSALS ON PURPOSE, and this is a choice, not an oversight:
+#   placed first it would make the image pin and the binary pin UNREHEARSABLE anywhere except
+#   inside verification/runs/M6SR_runs/, the directory whose ABSENCE is this registration's
+#   own rule-2 freeze proof.  Placed last, everything above it can be exercised in a scratch
+#   tree and this one then stops the run before a single core-minute is spent.
+#
+# REFUSAL MECHANICS, CHECKED BEFORE ANY RED WAS TRUSTED.  A `refuse()` called inside `$( )`
+# exits only the SUBSHELL, and with its message on stdout it is CAPTURED AS THE VALUE -- a
+# defect that has already made three mutations die of the wrong cause in this campaign.
+# EVERY abort() call site in this file, new and pre-existing, was read: none is inside a
+# command substitution, a pipeline, or a `while read` fed by a pipe.  The new binary-pin
+# check deliberately uses a FILE DIFF rather than a loop, so there is no loop body that could
+# become a subshell and swallow an abort.
+# =======================================================================================
 
 set +u
 set +e
@@ -52,6 +138,46 @@ MASTER="$CR/A3-onera-m6-transonic/m6_surfaceMesh_fine.cgns"
 MASTER_SHA=197efa09d838b276a8967da9532d9c4d57edca18cb777bd640257606d2d83327
 IMG=${M6SR_IMAGE:-dafoam-idwarp-rot:v1}
 LEVEL=L1
+
+# ---------------------------------------------------------------------------------------
+# ITEM 36 -- THE PINNED BUILD INSTRUMENT.  These are NOT `${VAR:-default}` forms and NOTHING
+# IN THE ENVIRONMENT CAN CHANGE THEM.  `M6SR_IMAGE` above may still NAME an image; it can no
+# longer SELECT one, because the digest below must match or this driver aborts at exit 10
+# before a single core-minute is spent.
+#
+# HOW EACH VALUE WAS OBTAINED, because a pin whose provenance is not stated is a number
+# somebody typed (all measured 2026-09-04, in a scratch tree, no run root):
+#   digest    `docker inspect dafoam-idwarp-rot:v1` -> `.Id`.  IDENTICAL to the digest
+#             Amendment 12 Ruling 1 pins in run_m6sr_b5.sh, so the builder and the solver are
+#             now demonstrably the same instrument.  CAVEAT, STATED: it is NOT corroborated
+#             against a registry; the image was built on this box and no registry copy was
+#             consulted.
+#   version   `WM_PROJECT_VERSION` inside that container after sourcing loadDAFoam.sh: v2506.
+#   paths     `command -v <name>` inside that container, after the same source.
+#   sha256    `sha256sum` of each resolved path, inside that container.
+#   pyhyp     `pyhyp.__file__` and the compiled `hyp.so` beside it -- B2 runs `python
+#             genWingMesh.py`, so the marching engine is a MODULE, not a binary on PATH, and
+#             pinning `python` alone would pin the interpreter and not the instrument.
+M6SR_PINNED_IMAGE_REF=dafoam-idwarp-rot:v1
+M6SR_PINNED_IMAGE_DIGEST=sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35
+M6SR_PINNED_OF_FORK="ESI OpenFOAM (openfoam.com), NOT the OpenFOAM Foundation fork"
+M6SR_PINNED_OF_VERSION=v2506
+M6SR_PINNED_PYHYP_VERSION=2.6.1
+M6SR_PINNED_CGNSUTILS_VERSION=2.6.0
+
+# The pinned table of EVERY executable and module this driver invokes, as
+# "<name> <resolved path> <sha256>".  Compared as a whole file against the container's own
+# report; see Section 1c.  ONE diff, ONE refusal, NO loop that could become a subshell.
+read -r -d '' M6SR_PINNED_BUILD_BINARIES <<'PINTBL'
+PIN autoPatch /home/dafoamuser/dafoam/OpenFOAM/OpenFOAM-v2506/platforms/linux64GccDPInt32Opt/bin/autoPatch 88b07730b457ade414c884a1566eb457685833672ab755ca6f21f715626e15d6
+PIN cgns_utils /home/dafoamuser/dafoam/packages/miniconda3/bin/cgns_utils 5c8f0e7501e42d32e87af43150715efc194906c7565c2af982b4a49aab731109
+PIN createPatch /home/dafoamuser/dafoam/OpenFOAM/OpenFOAM-v2506/platforms/linux64GccDPInt32Opt/bin/createPatch fec27bfceff73a6968b431dd791ba81ecf50729f22072eeb6f765106b059835f
+PIN plot3dToFoam /home/dafoamuser/dafoam/OpenFOAM/OpenFOAM-v2506/platforms/linux64GccDPInt32Opt/bin/plot3dToFoam f455b4372636c6bf0fbd9fa82caf304f02e15be34f39693fbc68e566ac9cb040
+PIN pyhyp_hyp_so /home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/pyhyp/hyp.so 53744d52dbb56ef82f7894ec2573c82d1501ff4acf96f8cfe8767335c7317def
+PIN pyhyp_module /home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/pyhyp/__init__.py ae747e8b269ef2cf654ae8caebf1e4baabf255f289a877a09f26a0ed8599b7ef
+PIN python /home/dafoamuser/dafoam/packages/miniconda3/bin/python ae1e0962caeb115196918c6d6d6c55611e92dc580c2796f47f0e9a812377a8fe
+PIN renumberMesh /home/dafoamuser/dafoam/OpenFOAM/OpenFOAM-v2506/platforms/linux64GccDPInt32Opt/bin/renumberMesh 6a7a2278ac33390e931cb5b82f71055e60a5e10d40c080df4270e70e6ae43efd
+PINTBL
 
 # Section 2.4 caps, in core-minutes, and the wall-second timeout each one implies at the
 # rank count that step actually runs at.  pyHyp runs 1 rank; every step here is serial.
@@ -102,8 +228,144 @@ SG_OUT=$(sg docker -c "docker version --format '{{.Server.Version}}'" 2>&1); SG_
 if [ $SG_RC -ne 0 ] && [ $BARE_RC -ne 0 ]; then
   abort "docker unreachable both bare and through 'sg docker -c'. This grades THE DRIVER'S ABILITY TO RUN and nothing about the M6 -- BLOCKED, not GATE FAIL." 5
 fi
-if [ $BARE_RC -eq 0 ]; then DRUN="docker"; else DRUN="sg docker -c"; fi
-say "docker reachable (bare rc=$BARE_RC, sg rc=$SG_RC); using '$DRUN'"
+# ITEM 35, PART 1.  WHICH BRANCH THIS BOX TAKES IS RECORDED IN THE RUN'S OWN OUTPUT, not
+# merely printed to a terminal nobody keeps.  Item 28's defect -- and this file's item 35 --
+# survived precisely because no artifact ever distinguished the two branches: BARE_RC is 0 on
+# this box, so the `sg docker -c` branch has NEVER been exercised here and the bare branch was
+# the broken one.  A later reader must be able to tell which invocation produced a given run
+# without re-deriving it from the box's group membership months afterwards.
+if [ $BARE_RC -eq 0 ]; then DOCKER_BRANCH=bare; else DOCKER_BRANCH=sg; fi
+# `timeout` execs a PROGRAM.  It cannot exec the shell builtin `command`, so the resolved path
+# is taken ONCE here rather than written as `timeout ...s command docker ...`, which was
+# MEASURED to return rc 127 (`timeout: failed to run command 'command'`).  That rc is NOT 124
+# and would not have been read as a cap overrun; it would have aborted at exit 6 with a
+# misleading cause.
+DOCKER_BIN=$(command -v docker 2>/dev/null)
+[ "$DOCKER_BRANCH" != "bare" ] || [ -n "$DOCKER_BIN" ] \
+  || abort "the bare-docker branch was selected (bare rc=$BARE_RC) but 'docker' does not resolve on PATH, so there is no program for \`timeout\` to exec. This driver will not guess a path." 5
+{ echo "branch=$DOCKER_BRANCH"
+  echo "docker_bin=$DOCKER_BIN"
+  echo "host_uid=$(id -u)"
+  echo "host_gid=$(id -g)"; } >> "$RR/$LEVEL/DOCKER_PREFLIGHT.txt"
+echo "$DOCKER_BRANCH" > "$RR/$LEVEL/DOCKER_BRANCH.txt"
+say "docker reachable (bare rc=$BARE_RC, sg rc=$SG_RC); invocation branch '$DOCKER_BRANCH'${DOCKER_BIN:+ via $DOCKER_BIN}"
+
+# ---------------------------------------------------------------------------------------
+# ITEM 35, PART 2.  THE TWO INVOCATION HELPERS.  BOTH PASS ARGV on the bare branch and quote
+# with `printf %q` on the `sg` branch, so neither can be mis-parsed by a second shell.  The
+# argv form cannot be mis-quoted because nothing re-parses it.
+# ---------------------------------------------------------------------------------------
+docker_q(){
+  if [ "$DOCKER_BRANCH" = "bare" ]; then "$DOCKER_BIN" "$@"; return $?; fi
+  local q; q=$(printf ' %q' "$@")
+  sg docker -c "docker$q"
+  return $?
+}
+docker_timeout_q(){
+  local tmo="$1"; shift
+  if [ "$DOCKER_BRANCH" = "bare" ]; then
+    timeout "${tmo}"s "$DOCKER_BIN" "$@"
+    return $?
+  fi
+  local q; q=$(printf ' %q' "$@")
+  timeout "${tmo}"s sg docker -c "docker$q"
+  return $?
+}
+
+# ---------------------------------------------------------------------------------------
+# 1b.  ITEM 36 -- THE BUILD INSTRUMENT IS PINNED, AND THE PIN REFUSES BEFORE IT SPENDS.
+#      Everything here is at ZERO COST against Section 2.4's B1/B2/B3 rows: it is one
+#      `docker inspect` and one short container probe, reported on their own line as step
+#      B0p, UNBUDGETED, and NEVER folded into any registered row (Section 9.3).
+# ---------------------------------------------------------------------------------------
+T0P=$(date +%s)
+RESOLVED_DIGEST=$(docker_q inspect --format '{{.Id}}' "$IMG" 2>/dev/null)
+[ -n "$RESOLVED_DIGEST" ] \
+  || abort "the image '$IMG' does not resolve to a digest on this daemon. An unresolvable image is a REFUSAL, never a fallback to whatever else is on the box (Amendment 12 Ruling 1)." 10
+[ "$RESOLVED_DIGEST" = "$M6SR_PINNED_IMAGE_DIGEST" ] \
+  || abort "IMAGE DIGEST MISMATCH. '$IMG' resolves to $RESOLVED_DIGEST; this driver pins $M6SR_PINNED_IMAGE_DIGEST ($M6SR_PINNED_IMAGE_REF). \$M6SR_IMAGE may NAME an image; it may not SELECT one. This driver BUILDS THE MESH GATE A GRADES -- a pin on the solver alone pins half the instrument. REFUSED AT ZERO COST." 10
+
+# The container is henceforth addressed BY DIGEST, never by the tag.  A tag can be re-pointed
+# between this check and the run; a digest cannot.  Verified on this daemon that `docker run`
+# accepts a bare digest (rc 0) and rejects an unknown one (rc 125).
+IMG_PINNED="$M6SR_PINNED_IMAGE_DIGEST"
+
+# THE INSTRUMENT ITSELF, not merely its wrapper.  The container reports its OWN resolution of
+# every executable and module B1/B2/B3 invoke; the report is compared AS A WHOLE FILE against
+# the pinned table.  A diff, not a loop -- a `while read` fed by a pipe would run its body in
+# a SUBSHELL, where an abort exits only that subshell and its message becomes the value.
+PROBE_OUT=$(docker_q run --rm -u 1002:1002 "$IMG_PINNED" bash -lc 'set +u; source /home/dafoamuser/dafoam/loadDAFoam.sh >/dev/null 2>&1
+echo "VER=$WM_PROJECT_VERSION"
+for b in autoPatch cgns_utils createPatch plot3dToFoam python renumberMesh; do
+  p=$(command -v "$b" 2>/dev/null)
+  echo "PIN $b ${p:-ABSENT} $(sha256sum "$p" 2>/dev/null | cut -d" " -f1)"
+done
+PH=$(python -c "import pyhyp; print(pyhyp.__file__)" 2>/dev/null | tail -1)
+echo "PIN pyhyp_module ${PH:-ABSENT} $(sha256sum "$PH" 2>/dev/null | cut -d" " -f1)"
+HS="$(dirname "${PH:-/nonexistent/x}")/hyp.so"
+echo "PIN pyhyp_hyp_so $HS $(sha256sum "$HS" 2>/dev/null | cut -d" " -f1)"
+echo "PYHYP_VER=$(python -c "import pyhyp; print(pyhyp.__version__)" 2>/dev/null | tail -1)"
+echo "CGNSU_VER=$(python -c "import cgnsutilities; print(cgnsutilities.__version__)" 2>/dev/null | tail -1)"' 2>&1)
+PROBE_RC=$?
+T1P=$(date +%s)
+echo "$((T1P-T0P))" > "$RR/$LEVEL/WALL_B0p.txt"
+
+P_VER=$(printf '%s\n' "$PROBE_OUT" | sed -n 's/^VER=//p' | tail -1)
+P_PYHYP=$(printf '%s\n' "$PROBE_OUT" | sed -n 's/^PYHYP_VER=//p' | tail -1)
+P_CGNSU=$(printf '%s\n' "$PROBE_OUT" | sed -n 's/^CGNSU_VER=//p' | tail -1)
+printf '%s\n' "$PROBE_OUT" > "$RR/$LEVEL/BUILD_PIN_PROBE.txt"
+printf '%s\n' "$PROBE_OUT" | grep '^PIN ' | LC_ALL=C sort > "$RR/$LEVEL/BUILD_PIN_OBSERVED.txt"
+printf '%s\n' "$M6SR_PINNED_BUILD_BINARIES" | grep '^PIN ' | LC_ALL=C sort > "$RR/$LEVEL/BUILD_PIN_EXPECTED.txt"
+
+[ "$PROBE_RC" -eq 0 ] && [ -n "$P_VER" ] \
+  || abort "the build-instrument probe inside the pinned image failed (rc $PROBE_RC). A probe that returns nothing is a REFUSAL, never an assumption that the right binaries are there. See $RR/$LEVEL/BUILD_PIN_PROBE.txt" 10
+[ "$P_VER" = "$M6SR_PINNED_OF_VERSION" ] \
+  || abort "OPENFOAM VERSION MISMATCH: the image reports WM_PROJECT_VERSION='$P_VER'; this driver pins '$M6SR_PINNED_OF_VERSION' ($M6SR_PINNED_OF_FORK). REFUSED." 10
+[ "$P_PYHYP" = "$M6SR_PINNED_PYHYP_VERSION" ] \
+  || abort "pyHyp VERSION MISMATCH: the image reports '$P_PYHYP'; this driver pins '$M6SR_PINNED_PYHYP_VERSION'. B2's march IS pyHyp, so a different pyHyp is a different L1 mesh. REFUSED." 10
+[ "$P_CGNSU" = "$M6SR_PINNED_CGNSUTILS_VERSION" ] \
+  || abort "cgnsutilities VERSION MISMATCH: the image reports '$P_CGNSU'; this driver pins '$M6SR_PINNED_CGNSUTILS_VERSION'. B1's `coarsen` IS cgns_utils, so a different one is a different 24,960-face surface. REFUSED." 10
+
+PIN_DIFF=$(diff -u "$RR/$LEVEL/BUILD_PIN_EXPECTED.txt" "$RR/$LEVEL/BUILD_PIN_OBSERVED.txt" 2>&1)
+[ -z "$PIN_DIFF" ] \
+  || abort "BUILD BINARY PIN MISMATCH -- the container's own resolution of the executables and modules B1/B2/B3 invoke does not match the pinned table. A binary this driver did not expect, at a path this driver did not expect, BUILDS A DIFFERENT MESH under the right name. REFUSED AT ZERO COST. diff (expected vs observed): $PIN_DIFF" 10
+
+{ echo "{"
+  echo "  \"pinned_by\": \"cases/M6SR/build_m6sr_l1.sh, Amendment 12 audit item 36\","
+  echo "  \"scope\": \"the BUILD instrument -- B1/B2/B3. Amendment 12 Ruling 1 pinned only the SOLVE instrument, in run_m6sr_b5.sh.\","
+  echo "  \"image_ref_named\": \"$IMG\","
+  echo "  \"image_ref_pinned\": \"$M6SR_PINNED_IMAGE_REF\","
+  echo "  \"image_digest_resolved\": \"$RESOLVED_DIGEST\","
+  echo "  \"image_digest_pinned\": \"$M6SR_PINNED_IMAGE_DIGEST\","
+  echo "  \"digest_kind\": \"OCI image manifest digest, read as docker inspect .Id; NOT corroborated against a registry\","
+  echo "  \"openfoam_fork\": \"$M6SR_PINNED_OF_FORK\","
+  echo "  \"openfoam_version\": \"$P_VER\","
+  echo "  \"pyhyp_version\": \"$P_PYHYP\","
+  echo "  \"cgnsutilities_version\": \"$P_CGNSU\","
+  echo "  \"binaries_invoked\": \"B1 cgns_utils; B2 python + pyhyp module + hyp.so; B3 plot3dToFoam, autoPatch, createPatch, renumberMesh. This driver invokes NO solver and NO ugrid_to_foam.\","
+  echo "  \"binary_name_census_in_image\": \"whole-filesystem count is 1 for each of cgns_utils, plot3dToFoam, autoPatch, createPatch, renumberMesh -- UNLIKE rhoSimpleFoam, of which the image carries THREE. The path pin here holds PATH resolution to the registered tree; it is not disambiguating a name collision.\","
+  echo "  \"container_run_target\": \"the DIGEST, never the tag -- a tag can be re-pointed between the check and the run\","
+  echo "  \"docker_invocation_branch\": \"$DOCKER_BRANCH\","
+  echo "  \"docker_bin\": \"$DOCKER_BIN\","
+  echo "  \"B0p_preflight_wall_s\": $((T1P-T0P)),"
+  echo "  \"B0p_UNBUDGETED\": \"Section 2.4's cost table has no row for a pin preflight. It is REPORTED ON ITS OWN LINE at 1 rank and is NOT folded into any registered row and NOT absorbed into any ratio (Section 9.3).\""
+  echo "}"; } > "$RR/$LEVEL/BUILD_PIN.json"
+say "build instrument pin VERIFIED: image $RESOLVED_DIGEST, OpenFOAM $P_VER, pyHyp $P_PYHYP, cgnsutilities $P_CGNSU, all 8 pinned paths+sha256 matched"
+say "  step B0p (pin preflight): $((T1P-T0P)) wall s at 1 rank -- UNBUDGETED in Section 2.4, reported on its own line"
+
+# ---------------------------------------------------------------------------------------
+# 1c.  ITEM 37 -- THE RUN ROOT IS PINNED TOO.  Item 29's class, in the builder.  This driver
+#      honours $M6SR_RUN_ROOT; cases/M6SR/analyse_m6sr.py reads NO environment at all (its
+#      REPO is derived from __file__ and it takes --run-root), so an operator who exports
+#      M6SR_RUN_ROOT without passing a matching --run-root BUILDS THE MESH IN ONE TREE AND
+#      GRADES FROM ANOTHER.  It fails closed -- the comparator finds no case and refuses --
+#      but a pin that only holds because the other side happens to refuse is not a pin.
+#      ORDERED LAST OF THE NEW REFUSALS ON PURPOSE; see the header for why.
+# ---------------------------------------------------------------------------------------
+M6SR_REGISTERED_RUN_ROOT=/home/ubuntu/Certonomous/verification/runs/M6SR_runs
+echo "$RR" > "$RR/$LEVEL/RUN_ROOT_USED.txt"
+[ "$RR" = "$M6SR_REGISTERED_RUN_ROOT" ] \
+  || abort "RUN ROOT MISMATCH: this driver was pointed at '$RR' (via \$M6SR_RUN_ROOT); Section 9's frozen path table registers '$M6SR_REGISTERED_RUN_ROOT'. The comparator reads NO environment and defaults to the registered path, so an L1 mesh built here would be graded from THERE -- producer and reader in different trees. An export without a matching --run-root is a REFUSAL, not a grade. REFUSED AT ZERO COST." 9
 
 cp -- "$MASTER" "$RR/$LEVEL/work/m6_surfaceMesh_fine.cgns" || abort "master copy-out failed" 3
 chmod 777 "$RR/$LEVEL/work" || abort "could not make the work directory writable to the container uid" 3
@@ -115,14 +377,17 @@ run_in_container(){
   local tag="$1" tmo="$2" cmd="$3"
   local t0 t1 rc wall
   t0=$(date +%s)
-  timeout "${tmo}"s $DRUN "docker run --rm --name m6sr_${tag}_$$ -u 1002:1002 \
-      -v '$RR/$LEVEL/work':/home/dafoamuser/mount -w /home/dafoamuser/mount $IMG \
-      bash -c 'set +u; source /home/dafoamuser/dafoam/loadDAFoam.sh >/dev/null 2>&1; \
-               $cmd; echo \"WRAPPER_RC=\$?\" > RC_${tag}.txt'" \
+  # ITEM 35 REPAIRED: argv, through docker_timeout_q, correct on BOTH branches -- and the
+  # image is addressed by DIGEST ($IMG_PINNED), never by the tag $IMG.  The cap is still
+  # enforced by `timeout` and rc 124 still reaches the overrun path below (measured on both
+  # branches: a 30 s container under a 5 s cap returns 124).
+  docker_timeout_q "$tmo" run --rm --name "m6sr_${tag}_$$" -u 1002:1002 \
+      -v "$RR/$LEVEL/work":/home/dafoamuser/mount -w /home/dafoamuser/mount "$IMG_PINNED" \
+      bash -c "set +u; source /home/dafoamuser/dafoam/loadDAFoam.sh >/dev/null 2>&1; $cmd; echo \"WRAPPER_RC=\$?\" > RC_${tag}.txt" \
       > "$RR/$LEVEL/log.$tag" 2>&1
   rc=$?
   t1=$(date +%s); wall=$((t1-t0))
-  $DRUN "docker rm -f m6sr_${tag}_$$" >/dev/null 2>&1
+  docker_q rm -f "m6sr_${tag}_$$" >/dev/null 2>&1
   # THE INNER rc, read from the file the wrapper wrote, by explicit path -- never from $?
   # around the timeout/setsid line, and never by `grep log.* | tail -1`.
   local inner="ABSENT"
