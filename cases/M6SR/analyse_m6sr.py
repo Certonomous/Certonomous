@@ -760,6 +760,263 @@ def d1_discriminator(ref):
 
 
 # --------------------------------------------------------------------------------------
+# GATE P's CFD PRODUCER -- Section 8.5's seven registered stations, cut on the SAMPLED WING
+# SURFACE.
+#
+# WHY THIS EXISTS.  Amendment 10 item 5 records, measured by AST call graph, that "There is
+# additionally NO producer of `cfd_sections` anywhere -- no reader samples CFD Cp at the
+# seven registered y/b stations, and the build driver writes no sampleDict", and that in
+# consequence BOTH Gate P channels were dead on the code.  This section is that producer.
+#
+# HOW THE STATIONS ARE CUT, AND WHY THERE IS NO TOLERANCE PARAMETER.  cases/M6SR/
+# write_m6sr_case.py writes system/sampleDict, which samples the WALL PATCH with
+# `interpolate true` through the `foam` surface writer -- giving POINT-valued p on the patch
+# triangulation together with its connectivity.  Cutting that by a constant-span plane is
+# EXACT LINEAR INTERPOLATION ALONG TRIANGLE EDGES.  A face-centre reader would have needed a
+# spanwise binning tolerance, and a binning tolerance is an instrument parameter no lane is
+# entitled to choose.  There is none here.
+#
+# THE SPAN AXIS IS DERIVED, NEVER ASSUMED.  Section 8.5 says "seven constant-y planes"; the
+# comparator's own mesh_axes() records, MEASURED, that on this box's M6 meshes the span runs
+# along z.  "y" is the registration's NOTATION.  Every station coordinate below is placed on
+# the axis mesh_axes() derives from the symmetry patch.
+# --------------------------------------------------------------------------------------
+P_INF_PA = 101325.0                        # Section 3, REGISTERED CHOICE (ISA sea level)
+RHO_INF_KGM3 = 1.224978126                 # Section 3, derived p/(R T)
+U_INF_MS = 285.679356                      # Section 3, derived M a
+B_SEMI_M = 1.19676                         # Section 8.5, the registered semispan
+P_MIN_POINTS_PER_STATION = 10              # below this a "curve" is not a section
+PLANT_SAMPLED_P_PA = 4.321e+03             # C21, planted on the sampled p field
+
+
+def q_inf_pa():
+    """The dynamic pressure Cp is normalised by.  Both constants are Section 3's."""
+    return 0.5 * RHO_INF_KGM3 * U_INF_MS ** 2
+
+
+def registered_stations():
+    """Section 8.5.  The seven registered y/b times the registered semispan.
+
+    A_MAP_YB is Section 4's registered set and Section 16.4 records it read at source in
+    docs/papers/benchmark_test_cases/agard_1979_ar138_experimental_data_base.txt lines
+    13728-13729.  THE SIXTH STATION IS 0.96, WHICH IS WHAT AGARD AR-138 Section 5.1.1
+    PRINTS, and NOT the 0.95 of NASA TMR's widely circulated set -- Section 16.4 registers
+    that divergence as REPORTED, NOT GATED.  Nothing here chooses it; it is read off the
+    frozen constant.
+    """
+    return [{"index": i + 1, "y_over_b": yb, "span_coord_m": yb * B_SEMI_M}
+            for i, yb in enumerate(A_MAP_YB)]
+
+
+def read_surface_scalar(path):
+    """-> list of scalars from an OpenFOAM scalarField list, or a REFUSAL."""
+    if not os.path.exists(path) and os.path.exists(path + ".gz"):
+        path += ".gz"
+    if not os.path.exists(path):
+        raise Refusal(f"{path} is ABSENT. Gate P's CFD channel cannot read surface pressure "
+                      "from a file that is not there, and an absent field never reads as a "
+                      "freestream. REFUSED.")
+    op = gzip.open if path.endswith(".gz") else open
+    with op(path, "rb") as fh:
+        body, declared = _strip_foam_header(fh.read().decode("utf-8", "replace"))
+    vals = []
+    for tok in body.split():
+        if tok.startswith(")"):
+            break
+        try:
+            vals.append(float(tok))
+        except ValueError:
+            break
+    if not vals:
+        raise Refusal(f"{path}: zero scalars parsed. A reader that returns nothing is not "
+                      "evidence of an empty field. REFUSED.")
+    _require_count(path, len(vals), declared)
+    return vals
+
+
+def cut_surface_at_plane(points, faces, values, span_axis, coord):
+    """Exact cut of a triangulated/polygonal surface by the plane <span_axis> = coord.
+
+    -> [((x, y, z), value)] at every edge crossing.  Linear along the edge in BOTH the
+    coordinate and the field, which is what makes the station curve exact rather than binned.
+    """
+    out = []
+    for f in faces:
+        n = len(f)
+        for i in range(n):
+            a, b = f[i], f[(i + 1) % n]
+            if a >= len(points) or b >= len(points):
+                raise Refusal(f"a sampled face indexes point {max(a, b)} but only "
+                              f"{len(points)} points were read. An off-by-one in a reader is "
+                              "not a rounding error; it is a different object. REFUSED.")
+            sa = points[a][span_axis] - coord
+            sb = points[b][span_axis] - coord
+            if sa == 0.0:
+                out.append((points[a], values[a]))
+                continue
+            if sb == 0.0:
+                continue                                  # picked up when b is the `a` end
+            if (sa < 0.0) != (sb < 0.0):
+                t = sa / (sa - sb)
+                pt = tuple(points[a][k] + t * (points[b][k] - points[a][k])
+                           for k in range(3))
+                out.append((pt, values[a] + t * (values[b] - values[a])))
+    return out
+
+
+def cfd_sections_from_surface(surface_dir, span_axis, chord_axis, stations=None,
+                              field="p", plant_pa=0.0):
+    """-> ({station_index: [(x_over_c, Cp)]}, meta) from a `foam`-written sampled surface.
+
+    The shape of the first return value is EXACTLY what Section 4.5's
+    set_to_set_assignment() consumes: a mapping to a list of (x, Cp) pairs.
+
+    `plant_pa` is control C21's hook: a known offset added to the pressure this reader has
+    just read FROM DISK, so the suite can prove the reader can see a non-zero (rule 3).
+    """
+    if not os.path.isdir(surface_dir):
+        raise Refusal(f"{surface_dir} is ABSENT. Gate P's CFD channel has no sampled wing "
+                      "surface. Section 8.5's sampleDict is written by cases/M6SR/"
+                      "write_m6sr_case.py and sampled by the solver at endTime; an absent "
+                      "directory means the solve did not produce it. REFUSED.")
+    pts = read_points(surface_dir)
+    faces = read_faces(surface_dir)
+    vals = read_surface_scalar(os.path.join(surface_dir, "scalarField", field))
+    if len(vals) != len(pts):
+        raise Refusal(
+            f"{surface_dir}: {len(vals)} sampled {field} values against {len(pts)} points "
+            f"({len(faces)} faces). Gate P's cut needs POINT data, which requires "
+            "`interpolate true` in system/sampleDict. A face-centre field would force a "
+            "spanwise binning tolerance, and this comparator refuses to introduce an "
+            "instrument parameter the registration does not register. REFUSED.")
+    if plant_pa:
+        vals = [v + plant_pa for v in vals]
+
+    stns = stations if stations is not None else registered_stations()
+    span_vals = [p[span_axis] for p in pts]
+    lo, hi = min(span_vals), max(span_vals)
+    q = q_inf_pa()
+    out, meta = {}, {"span_axis": "xyz"[span_axis], "chord_axis": "xyz"[chord_axis],
+                     "sampled_span_extent_m": [lo, hi], "n_points": len(pts),
+                     "n_faces": len(faces), "q_inf_Pa": q, "p_inf_Pa": P_INF_PA,
+                     "b_semi_m_REGISTERED": B_SEMI_M, "stations": []}
+    for s in stns:
+        c = s["span_coord_m"]
+        if not (lo <= c <= hi):
+            raise Refusal(
+                f"station {s['index']} (y/b = {s['y_over_b']}) sits at "
+                f"{'xyz'[span_axis]} = {c:.6f} m, OUTSIDE the sampled wing surface's own "
+                f"span extent [{lo:.6f}, {hi:.6f}] m. An empty station is a REFUSAL, never "
+                "an empty curve: a Cp curve with no points would compare as a perfect "
+                "absence rather than as a disagreement. The registered semispan is "
+                f"{B_SEMI_M} m (Section 8.5); this surface's is {hi - lo:.6f} m. REFUSED.")
+        cross = cut_surface_at_plane(pts, faces, vals, span_axis, c)
+        if len(cross) < P_MIN_POINTS_PER_STATION:
+            raise Refusal(
+                f"station {s['index']} (y/b = {s['y_over_b']}) yielded {len(cross)} edge "
+                f"crossings, below the {P_MIN_POINTS_PER_STATION} this reader requires to "
+                "call something a section. REFUSED rather than degrade.")
+        xs = [pt[chord_axis] for pt, _v in cross]
+        x_le, x_te = min(xs), max(xs)
+        chord = x_te - x_le
+        if chord <= 0.0:
+            raise Refusal(f"station {s['index']}: local chord {chord} is not positive; "
+                          "x/c is undefined. REFUSED.")
+        out[s["index"]] = sorted(((pt[chord_axis] - x_le) / chord, (v - P_INF_PA) / q)
+                                 for pt, v in cross)
+        meta["stations"].append({
+            "index": s["index"], "y_over_b": s["y_over_b"], "span_coord_m": c,
+            "n_cut_points": len(cross), "local_chord_m": chord,
+            "x_leading_edge_m": x_le, "x_trailing_edge_m": x_te,
+            "Cp_min": min(cp for _x, cp in out[s["index"]]),
+            "Cp_max": max(cp for _x, cp in out[s["index"]]),
+        })
+    return out, meta
+
+
+def cfd_sections_for_case(case_dir, end_time, polymesh_dir=None, plant_pa=0.0):
+    """Locate the sampled wing surface for one level and cut Section 8.5's seven stations."""
+    axes = mesh_axes(polymesh_dir or os.path.join(case_dir, "constant", "polyMesh"))
+    base = os.path.join(case_dir, "postProcessing", "sampleDict")
+    surf = os.path.join(base, str(int(end_time)), "wingSurface")
+    if not os.path.isdir(surf):
+        # The time directory name is written by OpenFOAM's own time formatting; look for it
+        # BY EXPLICIT ENUMERATION rather than by a glob whose ordering is a coin flip.
+        found = None
+        if os.path.isdir(base):
+            for t in sorted(os.listdir(base)):
+                cand = os.path.join(base, t, "wingSurface")
+                if os.path.isdir(cand):
+                    try:
+                        if abs(float(t) - float(end_time)) < 1e-9:
+                            found = cand
+                    except ValueError:
+                        continue
+        if found is None:
+            raise Refusal(
+                f"no sampled wing surface at {surf} and none at endTime {end_time} under "
+                f"{base}. Section 8.5's sampleDict writes it at writeTime; its absence means "
+                "either the solve did not reach endTime or the function object did not run. "
+                "REFUSED -- an absent sample is not a Cp of zero.")
+        surf = found
+    sections, meta = cfd_sections_from_surface(surf, axes["span"], axes["chord"],
+                                               plant_pa=plant_pa)
+    meta["surface_dir"] = surf
+    meta["derived_axes"] = axes
+    return sections, meta
+
+
+def gate_p_figure_data(ref, cfd_by_level, meta_by_level, d1):
+    """Sanaa's named first physics, as DATA: M6 surface Cp at the AGARD span stations
+    against tunnel data, every level's curve, on the seven registered stations.
+
+    IT IS NOT A VERDICT AND IT GRADES NOTHING.  It is written BEFORE Gate G runs precisely
+    so that Gate G's registered REFUSAL (X3) cannot take the figure down with it: a refusal
+    is a statement about a GATE, and the measured curves are not a gate.  Clause L-HONEST
+    rides on it VERBATIM, as Section 16.4 requires of every figure this ladder can produce.
+    """
+    exp = {}
+    for s in sorted(ref["sections"]):
+        exp[str(s)] = {
+            "y_over_b_under_A_MAP": A_MAP_YB[s - 1] if s - 1 < len(A_MAP_YB) else None,
+            "n_taps": len(ref["sections"][s]),
+            "curve_x_over_c_Cp": sorted((x, cp) for _t, x, _z, cp in ref["sections"][s]),
+        }
+    return {
+        "WHAT_THIS_IS": (
+            "M6 surface Cp at the seven AGARD span stations against the AR-138 tunnel data, "
+            "with every level of the surface-refinement family. DATA, NOT A VERDICT."),
+        "graded_window": f"x/c <= {P_X_OVER_C_GRADED_MAX}",
+        "rear_chord": ("the rear 10 % is PLOTTED and REPORTED, NEVER GRADED -- AGARD's "
+                       "design trailing edge is 0.14104 % chord thick and this geometry is "
+                       "sharp (Section 5)"),
+        "A_MAP": {"mapping": list(A_MAP_YB),
+                  "status": "ASSUMED. Not measured. Not confirmed by any artifact this lab "
+                            "holds (Section 4.1).",
+                  "sixth_station_disclosure": (
+                      "AGARD AR-138 Section 5.1.1 prints 0.96 at the sixth station; NASA "
+                      "TMR's widely circulated set carries 0.95. On a wing swept 30 deg at "
+                      "M = 0.8395 that 1 % of semispan is ~1.2 cm of span. THIS LADDER USES "
+                      "0.96, which is what its own cited source prints (Section 16.4). "
+                      "REPORTED, NOT GATED.")},
+        "D1": d1,
+        "experimental": exp,
+        "cfd_by_level": {lv: {str(k): v for k, v in cfd_by_level[lv].items()}
+                         for lv in cfd_by_level},
+        "cfd_meta_by_level": meta_by_level,
+        "Cp_normalisation": {
+            "p_inf_Pa": P_INF_PA, "rho_inf_kg_m3": RHO_INF_KGM3, "U_inf_m_s": U_INF_MS,
+            "q_inf_Pa": q_inf_pa(),
+            "basis": "Section 3's registered state pair. Cp = (p - p_inf) / (0.5 rho U^2).",
+        },
+        "NOT_A_VERDICT": (
+            "This record grades nothing and carries no label from the fixed vocabulary. "
+            "Gate P's verdict is gate_p()'s, and Gate P sits BEHIND Gate G."),
+        "L_HONEST": L_HONEST,
+    }
+
+
+# --------------------------------------------------------------------------------------
 # GATE G READERS -- forces and residuals.
 # --------------------------------------------------------------------------------------
 _COEFF_HEADER = re.compile(r"^#\s*Time\s+(.*)$", re.M)
@@ -1335,6 +1592,39 @@ def set_to_set_assignment(ref, cfd_sections):
     }
 
 
+def gci_fine_from_gate_g(g):
+    """-> (value, basis).  The band Gate P's numerical channel consumes, or None.
+
+    THIS IS NOT A CHOICE AMONG THE THREE CANDIDATE RATIOS AND MUST NEVER BECOME ONE.  It
+    returns a value ONLY if every candidate agrees, and refuses to select otherwise.
+
+    The basis is Amendment 10 item 7's own measurement: across r in {1.10, 1.5874, 2.000,
+    4.000, 7.77} the GCI_fine came out IDENTICAL TO 15 SIGNIFICANT FIGURES while p_s spanned
+    a factor of 21.5, because p_s is fitted from the same triple, so r**p_s is identically
+    |d32/d21| and r cancels.  THERE IS ONE BAND AND THREE EXPONENTS.  If a future triple
+    ever makes the candidates disagree, that identity has been broken and this returns None
+    rather than picking one -- which would be choosing a gate parameter after the freeze.
+    """
+    triples = g.get("G3_G4_all_candidate_ratios") or {}
+    vals = [t.get("GCI_fine_at_Fs_1.25") for t in triples.values()]
+    named = [v for v in vals if v is not None]
+    if not named or len(named) != len(vals):
+        return None, ("no band: at least one candidate ratio withheld GCI_fine because the "
+                      "three values are not monotone (standing rule 5 -- a GCI is NEVER "
+                      "quoted on a non-monotone triple).")
+    lo, hi = min(named), max(named)
+    if lo == 0.0 or (hi - lo) / abs(lo) > 1.0e-12:
+        return None, (f"the candidate ratios DISAGREE on GCI_fine (range [{lo!r}, {hi!r}]). "
+                      "Amendment 10 item 7 measured them identical to 15 significant figures "
+                      "because r cancels; a disagreement means that identity no longer "
+                      "holds. Selecting one here would be choosing a gate parameter after "
+                      "the freeze (standing rule 2). NO BAND is returned.")
+    return named[0], (
+        f"the {len(named)} candidate refinement ratios agree on GCI_fine to within 1e-12 "
+        "relative, as Amendment 10 item 7 measured: r cancels identically because p_s is "
+        "fitted from the same triple. ONE BAND, THREE EXPONENTS. Nothing is selected here.")
+
+
 def gate_p(ref, cfd_sections, d1, gci_fine, gate_g_label):
     """Gate P, Section 5.  SANAA'S DELIVERABLE -- and Section 12 item 3 says it is NOT
     delivered by this registration.  Cp at the seven published sections against the 271
@@ -1375,8 +1665,16 @@ def gate_p(ref, cfd_sections, d1, gci_fine, gate_g_label):
         "D1": d1,
         "order_independent_channel": channel,
         "band_channels": {
-            "numerical_mesh": {"value": gci_fine, "status":
-                               "measured -- but a LOWER BOUND, not the total (Section 6)"},
+            # TRUTHFULNESS REPAIR, and it moves no threshold: when Gate G yields no band,
+            # `gci_fine` is None and the old unconditional word "measured" would have
+            # annotated an ABSENCE as a measurement -- worse than a discrepancy never
+            # computed.  The VALUE and the BAND are untouched.
+            "numerical_mesh": {
+                "value": gci_fine,
+                "status": ("measured -- but a LOWER BOUND, not the total (Section 6)"
+                           if gci_fine is not None else
+                           "NOT AVAILABLE -- Gate G yielded no band, so there is no "
+                           "numerical channel to put in Gate P's band. NOT a zero.")},
             "reference_accuracy": {"value": P_REFERENCE_ACCURACY_DCP,
                                    "status": "published, AR-138 B1-4 Section 6.1"},
             "read_off": {"value": 0.0,
@@ -1876,7 +2174,173 @@ def controls(scratch, mutate=None):
          "quoted; this lane rejected two more (per-station min-chord, and binned "
          "least-squares) before adopting the convex hull.")
 
+    # ---- C21: PLANT A KNOWN PRESSURE ON THE SAMPLED WING SURFACE AND READ THE Cp BACK ----
+    # Rule 3 on Gate P's CFD channel, which had no reader at all until this producer existed
+    # (Amendment 10 item 5).  A Cp curve from a reader not shown able to see a KNOWN pressure
+    # offset is not evidence.  The surface is written to disk and read back FROM DISK.
+    d21 = os.path.join(scratch, "c21_surface")
+    _synthetic_sampled_surface(d21)
+    stns21 = registered_stations()
+    base21, meta21 = cfd_sections_from_surface(d21, 2, 0, stations=stns21)
+    planted21, _m = cfd_sections_from_surface(d21, 2, 0, stations=stns21,
+                                              plant_pa=PLANT_SAMPLED_P_PA)
+    expect = PLANT_SAMPLED_P_PA / q_inf_pa()
+    worst = 0.0
+    for s in base21:
+        for (x0, c0), (x1, c1) in zip(base21[s], planted21[s]):
+            worst = max(worst, abs((c1 - c0) - expect), abs(x1 - x0))
+    if mutate == "C21":
+        worst = 1.0
+    _rec("C21", worst < 1.0e-9 and len(base21) == len(A_MAP_YB),
+         f"planted {PLANT_SAMPLED_P_PA} Pa on a sampled wing surface written to disk; all "
+         f"{len(base21)} registered stations moved by exactly {expect!r} in Cp (worst "
+         f"deviation {worst!r}); local chords "
+         f"{[round(st['local_chord_m'], 6) for st in meta21['stations']]}")
+
+    # ---- C22: A STATION OUTSIDE THE SAMPLED SPAN MUST REFUSE, NEVER RETURN AN EMPTY CURVE -
+    # An empty Cp curve would compare as a PERFECT ABSENCE rather than as a disagreement,
+    # which is the same class of false zero rule 3 exists for.
+    off = registered_stations()[:1] + [{"index": 99, "y_over_b": 4.18,
+                                        "span_coord_m": 5.0}]
+    try:
+        cfd_sections_from_surface(d21, 2, 0, stations=off)
+        ok22, msg22 = False, "a station outside the sampled span did NOT refuse"
+    except Refusal as exc:
+        ok22 = "OUTSIDE the sampled wing surface" in str(exc)
+        msg22 = f"planted a station at span 5.0 m, outside the surface's own extent; the "\
+                f"reader REFUSED: {str(exc)[:180]}"
+    if mutate == "C22":
+        ok22 = False
+    _rec("C22", ok22, msg22)
+
+    # ---- C23: GATE P HAS AN INVOCATION PATH.  A PERMANENT, EXECUTABLE CONTROL. ------------
+    # Amendment 10 item 5 was found by an AST call graph over this file and recorded that
+    # "48 functions are reachable from main(). gate_p() is NOT."  That defect was invisible
+    # to every other control in this suite because nothing here executed the call graph.  It
+    # does now, and the CONTROL is a name that MUST read unreachable -- a reader that calls
+    # everything reachable is not discriminating.
+    reach = call_graph_reachable_from_main()
+    must_reach = ("gate_p", "set_to_set_assignment", "cfd_sections_from_surface",
+                  "gate_p_figure_data", "gate_g", "gate_r")
+    missing = [n for n in must_reach if n not in reach]
+    sentinel_ok = "_control_unreachable_sentinel" not in reach
+    if mutate == "C23":
+        missing = ["gate_p"]
+    _rec("C23", not missing and sentinel_ok,
+         f"AST call graph over this file: {len(reach)} functions reachable from main(); "
+         f"{sorted(must_reach)} all reachable = {not missing}"
+         + (f"; MISSING {missing}" if missing else "")
+         + f"; the deliberately-unreachable control _control_unreachable_sentinel reads "
+           f"unreachable = {sentinel_ok} (a walker that reaches everything is not a walker)")
+
     return fired, detail
+
+
+def _control_unreachable_sentinel():
+    """C23's CONTROL.  This function is DELIBERATELY never called from anywhere.
+
+    It exists so that C23's call-graph walk can be shown to DISCRIMINATE: a walk that
+    reports every defined function as reachable proves nothing about gate_p.  If this name
+    ever becomes reachable, C23's instrument is broken and C23 goes red.
+    """
+    return "this is never called"
+
+
+def call_graph_reachable_from_main(path=None):
+    """-> set of function names reachable from main() in THIS file, by AST, never by grep.
+
+    A grep for `gate_p(` matches a docstring, a comment and a string literal; an AST walk
+    matches a CALL.  Amendment 10 item 5's finding was made this way and is re-made here on
+    every control run, so a future edit cannot silently orphan Sanaa's deliverable again.
+    """
+    import ast
+    src_path = path or os.path.abspath(__file__)
+    tree = ast.parse(open(src_path, errors="replace").read(), filename=src_path)
+    defined, calls = set(), {}
+
+    class _V(ast.NodeVisitor):
+        def __init__(self):
+            self.stack = []
+
+        def _fn(self, node):
+            defined.add(node.name)
+            self.stack.append(node.name)
+            calls.setdefault(node.name, set())
+            self.generic_visit(node)
+            self.stack.pop()
+
+        visit_FunctionDef = _fn
+        visit_AsyncFunctionDef = _fn
+
+        def visit_Call(self, node):
+            f = node.func
+            name = (f.id if isinstance(f, ast.Name) else
+                    f.attr if isinstance(f, ast.Attribute) else None)
+            if name and self.stack:
+                calls[self.stack[-1]].add(name)
+            self.generic_visit(node)
+
+    _V().visit(tree)
+    if "main" not in defined:
+        raise InternalDefect(f"{src_path} defines no main(); the call graph has no root.")
+    seen, stack = set(), ["main"]
+    while stack:
+        cur = stack.pop()
+        if cur in seen:
+            continue
+        seen.add(cur)
+        for callee in calls.get(cur, ()):
+            if callee in defined and callee not in seen:
+                stack.append(callee)
+    return seen
+
+
+def _synthetic_sampled_surface(d, n_span=13, n_chord=21, span_max=1.25):
+    """C21/C22's fixture: a `foam`-written sampled surface in the EXACT form the readers
+    parse -- points, faces and scalarField/p, with POINT data as `interpolate true` gives.
+
+    The shape is not cosmetic.  read_points()/read_faces() key on _strip_foam_header()'s
+    `// * * *` separator and `<count>\\n(` list opening, and _require_count() checks the
+    declared length.  A fixture in any other shape would make the control pass by not being
+    read at all -- exactly the false zero rule 3 exists for.
+    """
+    pts, vals = [], []
+    for i in range(n_span):
+        z = span_max * i / (n_span - 1.0)
+        for side in (+1, -1):
+            for j in range(n_chord):
+                x = j / (n_chord - 1.0)
+                y = side * 0.06 * math.sin(math.pi * x)
+                pts.append((x, y, z))
+                # A pressure field that VARIES with chord, so a constant Cp offset is
+                # distinguishable from the field itself.
+                vals.append(P_INF_PA - 1.2e4 * math.sin(math.pi * x) * (1.0 + 0.1 * z))
+    per_span = 2 * n_chord
+    faces = []
+    for i in range(n_span - 1):
+        for s in range(2):
+            b0 = i * per_span + s * n_chord
+            b1 = (i + 1) * per_span + s * n_chord
+            for j in range(n_chord - 1):
+                faces.append((b0 + j, b0 + j + 1, b1 + j + 1, b1 + j))
+
+    os.makedirs(os.path.join(d, "scalarField"), exist_ok=True)
+    def hdr(cls, obj):
+        return ("FoamFile\n{\n    version     2.0;\n    format      ascii;\n"
+                f"    class       {cls};\n    object      {obj};\n" + "}\n\n"
+                "// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //\n\n")
+
+    _write(os.path.join(d, "points"),
+           hdr("vectorField", "points") +
+           f"{len(pts)}\n(\n" + "".join(f"({p[0]!r} {p[1]!r} {p[2]!r})\n" for p in pts) + ")\n")
+    _write(os.path.join(d, "faces"),
+           hdr("faceList", "faces") +
+           f"{len(faces)}\n(\n" +
+           "".join(f"{len(f)}({' '.join(str(v) for v in f)})\n" for f in faces) + ")\n")
+    _write(os.path.join(d, "scalarField", "p"),
+           hdr("scalarField", "p") +
+           f"{len(vals)}\n(\n" + "".join(f"{v!r}\n" for v in vals) + ")\n")
+    return d
 
 
 def d1_branch_reachability():
@@ -1967,6 +2431,10 @@ def main(argv):
     ap.add_argument("--gate-a", action="store_true", help="grade Gate A (step B4)")
     ap.add_argument("--grade", action="store_true",
                     help="grade Gate G and Gate P (step B6)")
+    ap.add_argument("--gate-p", action="store_true",
+                    help="Gate P and its figure data ALONE (step B6). Gate G is not run, so "
+                         "the label passed to Gate P is NOT A RESULT; this mode can never "
+                         "produce a PASS.")
     ap.add_argument("--run-root", default=os.path.join(REPO, "verification/runs/M6SR_runs"))
     ap.add_argument("--scratch", default=None)
     args = ap.parse_args(argv[1:])
@@ -1992,7 +2460,8 @@ def main(argv):
             baseline_red = {c for c in fired if not fired[c]}
             reds = {}
             for target in ("C1", "C2", "C3", "C4", "C5", "C6", "C8", "C9", "C10", "C11",
-                           "C13", "C14", "C15", "C17", "C18", "C19", "C19b", "C20"):
+                           "C13", "C14", "C15", "C17", "C18", "C19", "C19b", "C20",
+                           "C21", "C22", "C23"):
                 if target in baseline_red:
                     reds[target] = None                 # cannot mutate an already-red control
                     continue
@@ -2040,20 +2509,71 @@ def main(argv):
         _emit(out)
         return 0
 
-    if args.grade:
+    if args.grade or args.gate_p:
         levels = _discover_levels(args.run_root)
-        cds = [os.path.join(lv["case"], "postProcessing", "forceCoeffs", "0",
-                            "coefficient.dat") for lv in levels]
-        logs = [os.path.join(lv["case"], "log.rhoSimpleFoam") for lv in levels]
-        for lv, et in zip(levels, (3000, 4000, 5000)):
+        end_times = (3000, 4000, 5000)
+        for lv, et in zip(levels, end_times):
             cl = completion_clauses(lv["case"], et)
             if not cl["ALL"]:
                 raise Refusal(
                     f"{lv['id']}: rule-4 strict completion FAILED on "
                     f"{[k for k, v in cl.items() if v is False]}. The comparator REFUSES "
                     "(exit 2) rather than degrade (Section 8.6).")
+
+        # ---- GATE P's DATA, BUILT FIRST AND WRITTEN TO DISK BEFORE GATE G RUNS.
+        # Gate G is registered to REFUSE (exit 2) for want of a registered refinement ratio
+        # (Amendment 10, prediction X3).  A refusal is a statement about a GATE; the measured
+        # Cp curves are not a gate.  Building and PERSISTING them ahead of Gate G is what
+        # keeps Sanaa's named first physics -- "M6 surface Cp at the AGARD span stations
+        # against tunnel data" -- from being taken down by a refusal about a band.
+        ref = read_case_2308()
+        d1 = d1_discriminator(ref)
+        cfd_by_level, meta_by_level = {}, {}
+        for lv, et in zip(levels, end_times):
+            sec, meta = cfd_sections_for_case(lv["case"], et, lv["polymesh"])
+            cfd_by_level[lv["id"]] = sec
+            meta_by_level[lv["id"]] = meta
+        fig = gate_p_figure_data(ref, cfd_by_level, meta_by_level, d1)
+        fig_path = os.path.join(args.run_root, "GATE_P_FIGURE_DATA.json")
+        try:
+            _write(fig_path, json.dumps(fig, indent=2, default=str) + "\n")
+        except OSError as exc:
+            raise Refusal(f"could not persist Gate P's figure data to {fig_path}: {exc}. "
+                          "Data that exists only in a pipe is not an artifact. REFUSED.")
+
+        # Gate P grades the FINEST level.  L1 is levels[-1] because _discover_levels()
+        # returns them COARSE-TO-FINE, as Section 2.2 registers them.
+        finest = levels[-1]["id"]
+
+        if args.gate_p:
+            # STANDALONE GATE P.  Gate G is NOT run in this mode, so Gate P has no Gate G
+            # label and no band.  Gate P sits BEHIND Gate G, so the label passed is
+            # NOT A RESULT -- the strictly conservative direction, and the only one standing
+            # rule 5 permits a downstream gate to move a verdict in.  THIS MODE CAN NEVER
+            # PRODUCE A PASS, and it is here so the figure and the order-independent channel
+            # can be produced without a full grade.
+            p = gate_p(ref, cfd_by_level[finest], d1, None, _verdict("NOT A RESULT"))
+            _emit({"step": "B6 (Gate P only)", "graded_level": finest,
+                   "gate_P": p,
+                   "gate_G": "NOT RUN IN THIS MODE -- Gate P is behind Gate G, so the label "
+                             "passed in is NOT A RESULT. This mode cannot produce a PASS.",
+                   "figure_data": fig_path,
+                   "L_HONEST": L_HONEST, "NOT_CLAIMED": NOT_CLAIMED})
+            return 0
+
+        # ---- GATE G.  UNCHANGED, and its registered refusal is NOT caught.  If it raises,
+        # this exits 2 as the frozen document requires -- and Gate P's figure data is
+        # already on disk at fig_path.
+        cds = [os.path.join(lv["case"], "postProcessing", "forceCoeffs", "0",
+                            "coefficient.dat") for lv in levels]
+        logs = [os.path.join(lv["case"], "log.rhoSimpleFoam") for lv in levels]
         g = gate_g(cds, logs)
-        _emit({"step": "B6", "gate_G": g, "gate_R": gate_r(),
+        gci, gci_basis = gci_fine_from_gate_g(g)
+        p = gate_p(ref, cfd_by_level[finest], d1, gci, g["gate_G_label"])
+        _emit({"step": "B6", "gate_G": g, "gate_P": p, "gate_R": gate_r(),
+               "graded_level": finest,
+               "gate_P_numerical_band_basis": gci_basis,
+               "figure_data": fig_path,
                "L_HONEST": L_HONEST, "NOT_CLAIMED": NOT_CLAIMED})
         return 0
 
