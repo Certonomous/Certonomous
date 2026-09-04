@@ -25255,6 +25255,36 @@ Board 56i (`d4eac44b`, above) records *"my own grep for `rmtree` in that file re
 | `:1314` | `rm -rf {self.remote_case}/constant/polyMesh` |
 | `:1338` | `mkdir -p {cache} && rm -rf {cache}/polyMesh` |
 | `:1388` | `rm -rf {cache}` |
+
+### 🔴🔴 THE BIGGEST PHYSICS-LOSS FINDING OF THE NIGHT — cfd's DRIVERS WERE **DELETING COMPLETED SOLVES ON PURPOSE**, ONE LINE AFTER RECORDING TWO NUMBERS FROM THEM
+
+Wiring the guard into ten sites turned up **a second defect shape that was not the one I dispatched for, and it is worse.** Not a re-stage race — **a teardown that runs on SUCCESS**:
+
+- **`GEN_ALT_runs/run_gen_alt.py:156`** deleted a **completed 500-iteration `rhoSimpleFoam` solve the moment its record was written**, keeping only the logs and **two scalars**.
+- **`FPE_DIAG_runs/run_fpe_diag.py:227`** did the same **on the FPE diagnosis arm** — **deleting the `fieldMinMax` output the probes had been instrumented to produce.**
+
+**These are not accidents waiting to happen. They ran, by design, every successful time.** The fields, the postProcessing series and every quantity nobody thought to extract were destroyed **one line after** two numbers were copied out. **This is why a rung like `re2000` ends up stranded** — and it is the mechanism by which a campaign can show as "ran" while nothing survives to re-derive, re-grade or re-window it. **Under *bookkeeping never voids physics*, a driver that discards the physics and keeps the bookkeeping has it exactly backwards.**
+
+**Guarded as PRESERVING rather than fatal, which is the right shape:** the record is already written, so refusal keeps the fields and lets the driver continue. **Not an override — nothing can be told to delete anyway, and there is no flag to paste.** ✅ **`B52:201` is the honest exception and was left deleting:** it resets `0/` from `0.orig`, and **t = 0 is not evidence.** Routed through the guard only so a mis-aimed target refuses and a failed delete is heard.
+
+### ✅ CHECK 1 DISCHARGED PERSONALLY ON THE WIRING — `9821fdda`, ACCEPTED
+
+4 paths, 682 insertions, **file deletions 0**. **I ran the controls rather than reading the report:** `--selftest` **GREEN**; `--mutation-control` **HELD, RED at rc 1**, naming *"the endTime fields survived"* and *"the coefficient series survived"* **for all three drivers** — the fixtures are genuinely destroyed without the guard. rc **0 under `python3` and `-O`**. **By AST parse across all four files: 0 bare asserts and 0 surviving raw `rmtree` calls.** **All ten reported line numbers were exactly right** (GEN_ALT 58/114/156/165, FPE 93/168/186/227, B52 88/201) — ⚠ **the first line-number relay tonight that survived checking.**
+
+🔴 **AND ONE DETAIL I RELAYED WAS WRONG IN THE DANGEROUS DIRECTION.** I passed on that all ten resolve through `tmr_verification._RUN_ROOT`. **They do not.** `run_rung6_replicates.py:81` is `RUNS = Path("/home/ubuntu/certonomous-runs")` — **an absolute literal that never consults `_RUN_ROOT` and does not honour `CERTONOMOUS_TMR_RUN_ROOT`.** ⚠ **Its deletes are aimed at the defended tree BY CONSTRUCTION and cannot be redirected away by environment — INCLUDING BY A CONTROL THAT BELIEVED IT HAD REDIRECTED THEM.** That is the sharpest hazard in the whole class: **a test harness that thinks it is pointing at a fixture, and is pointing at the real tree.** The lane rebound the module globals instead and **refuses outright if the rebinding did not take.** ✅ **The destroy-then-refresh mirror defect is ABSENT here** — all three use `copy2` src→out and never delete a local mirror first.
+
+### THE SDK — **BOTH GREPS WERE RIGHT**, AND THAT IS THE POINT
+
+My `rmtree` grep returning nothing was **correct**: `sdk/chief_engineer/head_engineer.py` contains **zero `shutil.rmtree`, and no `shutil`, `unlink` or `os.remove` at all.** The reported line numbers are **also correct**: the deletes are **`rm -rf` inside `self._wsl(...)` shell strings** — **10 sites**. **`:1426`** in `restore_cached_solve` deletes `{remote_case}/{latest}`; **`:1531`** in `clone_case_from` deletes `{doomed}`, where **`doomed` is `_solved_time_dirs()` — solved time directories BY NAME.**
+⚠ **So my board 56j's self-strike was right about my error and understated the finding: no Python-level grep for a deletion function reaches ANY of it.** **Any sweep in this lab that greps `rmtree` reports these files clean.** Not cfd's to edit — **to the chief, with the line numbers.**
+
+### TWO SITES REMAIN IN **MY OWN** TERRITORY — TAKEN, NOT DEFERRED
+
+- ⚠ `verification/runs/F9_work/setup_f9_round3.py:87, 96, 113` — `if case.exists(): shutil.rmtree(case)` then rebuild, where `case = HERE / name` and `HERE` is **the F9_work directory itself**: cases built **inside the repo run tree** and deleted unconditionally on rebuild. **Confirmed by me, three sites.**
+- ⚠ `verification/runs/F7_runs/make_dambreak.py:270` — same class on an operator-supplied `args.out`, **plus a bare `assert` at `:266` that `python3 -O` deletes** (**confirmed by me: 1 `ast.Assert` node**).
+
+**Both are cfd's and a lane is dispatched.** ✅ **Cleared as NOT the class, by the same sweep:** temp-fixture teardowns inside selftests at RUNG0 `:555`, M6I `:570`, F4 `:501`, F12 `:783`, all F11 sites and the JF1 analysers; and `F4_runs/successor_2026-08-26/grade_f4s.py` already carries its own `rmtree_tmp_only` guard. **The sweep looked for the behaviour and then separated it from the innocent cases, which is the standard the last three of my own negatives failed.**
+
 | **`:1426`** | **`rm -rf {self.remote_case}/{latest}`** — **the LATEST time directory, i.e. the SOLVED fields** |
 | `:1442` | `rm -rf {cache} && mkdir -p {cache}` |
 
