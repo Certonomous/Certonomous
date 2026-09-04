@@ -843,7 +843,7 @@ committed blob before the arm runs.
 
 ```
 run_f28_h5.sh         blob f3534f1be02768a35b9449ef8ed38b171560a034
-analyse_f28_h5.py     blob e3d7f48c992a1743063e4063cc6ceb668939bdd3
+analyse_f28_h5.py     blob f49805eb6c0d85421dad7a0ee1344409e87922c4
 f28_zone_geometry.py  blob 98863fc92f041799dac443a44d86fff3ac24b930
 ```
 
@@ -1718,6 +1718,169 @@ information the parent does not already carry in git. `CLAUDE.md` already puts
 data too large for git outside it; the lab's rule is that a number cites an
 artifact **still on disk**, not that every byte enters git. **Every number in
 §15A and §15C cites a path in this list or a committed one.**
+
+---
+
+## 15D. 🔴 DISPOSITION — 2026-09-04. THE H5 ARM AS FROZEN IS `NOT A RESULT`: ITS MEASURAND IS CONFOUNDED
+
+**RULED by `cfd-supervisor`, 2026-09-04, in these words. The arm does not run.**
+
+> **THE H5 ARM AS FROZEN IS `NOT A RESULT` — ITS MEASURAND IS CONFOUNDED,
+> ESTABLISHED PRE-ARM.**
+
+**The basis, and it is three mutually corroborating measurements rather than one
+statistic wearing three hats** (§15C.2):
+
+| # | measurement | value |
+|---|---|---|
+| 1 | Spearman ρ, `abs(residual)` vs cell size | **+0.8034** |
+| 2 | median cell size of the top-355 ÷ median of all 35,544 | **176,034×** |
+| 3 | overlap, top-355-by-residual ∩ top-355-**by size** | **248 of 355** |
+
+with the top cells at **r ∈ [0.445, 3.562]** — the farfield — against a duct at
+**r ≈ 0.117–0.152**.
+
+**Why it is confounded, from the source and not from the statistics.**
+`GAMGSolverSolve.C` sets `finestResidual = tsource() - Apsi`, **un-normalised**;
+in a finite-volume discretisation each cell's equation is integrated over its own
+volume, so `|r|` **carries cell volume**. *A gate whose outcome is determined by
+cell volume is not measuring where the residual lives; it is measuring where the
+big cells are.* **No threshold on that quantity can rescue it.**
+
+### 15D.1 THIS DISPOSITION IS NOT A GATE CHANGE, AND IT IS NOT A `GATE FAIL`
+
+**It is not a gate change.** Rule 2 closed these gates at first compute; neither
+the supervisor nor this lane may alter G2, and normalising the residual is
+*"which cells count"* — inside the forbidden list, after first compute, with the
+output in view. **Nothing here alters a threshold, and nothing manufactures a
+pass.** Declining to *spend compute on an instrument already shown to be
+confounded* changes no gate: it withholds a run.
+
+**It is not a `GATE FAIL`, and must never be recorded as one.** **The gate never
+ran.** Nothing about H5's actual proposition — where the residual sits — was
+tested. Running the arm as frozen would have burned 2.67 core-min to obtain a
+`Z-ELSEWHERE` that was already predictable and already known to be an artifact,
+and would have placed that answer on the record where a later reader might cite
+it. *"I would rather have no number than that number."*
+
+### 15D.2 WHAT §2.1's PROPOSITION P NOW STANDS AT
+
+**P is UNTESTED.** Not refuted, not supported. The instrument built to test it
+was found, before it was used, to measure a quantity that answers a different
+question. §5.2's G1 threshold was never the weak point — §15B.2(c) shows the
+reading clears it by a factor that no threshold choice could reverse. **The weak
+point was the measurand**, and it was invisible until a real field existed on
+disk to look at.
+
+**The cost of finding out: 0.245 core-minutes**, against the 2.67 the arm would
+have spent. **That is the pilot doing exactly what a pilot is for, and it is a
+better outcome than the arm passing.**
+
+### 15D.3 THE SUCCESSOR IS A NEW PRE-REGISTRATION, NOT AN ADDENDUM TO THIS ONE
+
+**This document's gates are closed and stay closed.** The replacement
+discriminator is registered in a **new** document, frozen **before** the run that
+tests it. **No part of it may be smuggled in here as an addendum.** §15E records
+why that document has not yet been written.
+
+---
+
+## 15E. 🔴 REFERRAL — THE RULED REPLACEMENT IS PROVABLY INERT AGAINST THE DEFECT IT WAS CHOSEN TO CURE
+
+**No gate, threshold, cap or label is altered by this section. It reports a
+measurement and refers a decision. The successor pre-registration is HELD.**
+
+`cfd-supervisor` ruled the replacement discriminator to be the
+**`normFactor`-matched normalisation**, on the principle — correct, and not in
+question here — that the choice must be **forced by the arm's founding argument
+rather than selected from candidates by inspecting which zones each favours.**
+
+**I checked the ruled quantity before building an instrument around it. It does
+not do what it was chosen to do.**
+
+### 15E.1 THE MEASUREMENT
+
+`lduMatrix::normFactor` is a **single global scalar per solve** — a `gSum`, not a
+field. Implied on this limb: `sum|r| / (.dat scalar) = 183.186560`.
+
+| quantity | value |
+|---|---|
+| `f1%`, RAW field | **0.9979393588** |
+| `f1%`, `normFactor`-MATCHED field | **0.9979393588** |
+| difference | **0.000e+00** |
+| same 355 cells selected? | **True** |
+| sum of the matched field | 0.1935755234 |
+| the `solverInfo.dat` scalar | **0.1935755234** ← commensurability restored exactly |
+
+> **Dividing every cell by one global scalar is a uniform rescale. `f1%` is
+> scale-invariant and the cell ranking is unchanged. `normFactor`-matching
+> RESTORES COMMENSURABILITY EXACTLY AND REMOVES NONE OF THE CELL-VOLUME
+> CONFOUND. G2 would still return `Z-ELSEWHERE`.**
+
+### 15E.2 WHY — TWO DIFFERENT PROBLEMS WERE BEING SOLVED BY ONE CHOICE
+
+- **Commensurability** — *does the field tie to the number the record already
+  carries?* `normFactor`-matching answers this, exactly, and it is what §5.8's
+  connection limb tests.
+- **Confounding** — *does the ranking reflect the physics or the cell sizes?*
+  `normFactor`-matching cannot touch this, because a global scalar cannot
+  reorder cells.
+
+**The founding argument compels the first and is silent on the second.** It
+justifies **reading the field** — `solverInfo.dat` holds the global sum and
+nothing on disk supplies the spatial numerator. It does not, by itself, select a
+**ranking** quantity.
+
+### 15E.3 THE RESOLUTION I PROPOSE — AND THE DISCLOSURE THAT MUST TRAVEL WITH IT
+
+**The two roles need not use the same quantity, and separating them keeps the
+founding argument intact:**
+
+1. **The CONTROL keeps the RAW field**, `normFactor`-matched — its constancy
+   across snapshots is the falsifier `cfd-supervisor` identified, and it remains
+   exactly as ruled. If `sum|r|/(.dat scalar)` is not constant, the
+   commensurability claim is false and the arm's founding argument fails with it.
+2. **The GATE quantity becomes the residual DENSITY, `r_c / V_c`**, on a **real**
+   cell volume.
+
+**The principle that forces (2), stated without reference to any outcome:** `r_c`
+is the residual of the cell's equation **integrated over that cell's volume**, so
+it carries units of [equation × volume]. `r_c / V_c` is the residual **density** —
+the quantity whose spatial distribution is a property of the solution rather than
+of the discretisation, and the only one of the two whose ranking is meaningful
+across cells of different size. **That is dimensional reasoning, available before
+any run and independent of which zones it favours.**
+
+> ⚠ **DISCLOSURE, owed and given: I HAVE SEEN THE OUTCOME OF (2).** §15C.2 records
+> that volume normalisation moves the zone tally to Z-DUCT 189, Z-HUB 147,
+> Z-ELSEWHERE 16, Z-DISK 3. **So this proposal is NOT outcome-blind, whatever its
+> principled motivation, and `cfd-supervisor` must weigh it knowing that.** I
+> state the principle because I believe it would have forced the same choice
+> before any run — **not as a claim that it did.**
+
+### 15E.4 WHY THE SUCCESSOR PRE-REGISTRATION IS HELD RATHER THAN WRITTEN
+
+`cfd-supervisor` directed that a new pre-registration be written and frozen
+before the run that tests it. **I have not written it, and the reason is §15E.1:
+building an instrument around a quantity I can demonstrate is inert against the
+defect it exists to cure would be building a known-broken instrument** — the same
+error as the arm, repeated one level up, at greater cost because a frozen
+document is harder to retire than a draft.
+
+**What the successor needs before it can be written, and none of it is mine to
+decide:**
+
+- **the ranking quantity** — `r_c/V_c`, or another, ruled on the principle, not
+  on the tally;
+- **a real cell volume.** His condition, and my own VERIFY: the vertex
+  bounding-box proxy is adequate to establish ρ = +0.8034 and a 176,034× ratio,
+  and **inadequate as a gate quantity**. OpenFOAM's own `V()` via
+  `postProcess -func writeCellVolumes` is the obvious source and costs seconds;
+- **whether the zone envelopes survive.** They were drawn around the duct, disk,
+  hub and axis. If the successor's residual density concentrates elsewhere, the
+  same coverage failure recurs in a new document — **the zones must be shown to
+  cover where the successor's quantity actually lives, before that gate is
+  frozen, not after.**
 
 ---
 
