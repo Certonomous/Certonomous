@@ -25481,6 +25481,40 @@ Wiring the guard into ten sites turned up **a second defect shape that was not t
 
 4 paths, 682 insertions, **file deletions 0**. **I ran the controls rather than reading the report:** `--selftest` **GREEN**; `--mutation-control` **HELD, RED at rc 1**, naming *"the endTime fields survived"* and *"the coefficient series survived"* **for all three drivers** — the fixtures are genuinely destroyed without the guard. rc **0 under `python3` and `-O`**. **By AST parse across all four files: 0 bare asserts and 0 surviving raw `rmtree` calls.** **All ten reported line numbers were exactly right** (GEN_ALT 58/114/156/165, FPE 93/168/186/227, B52 88/201) — ⚠ **the first line-number relay tonight that survived checking.**
 
+
+<!-- BOARD-BLOCK-ID: 56L-f9-destroyed-four-completions -->
+
+### 🔴🔴🔴 `setup_f9_round3.py` DESTROYED **FOUR COMPLETED SOLVES** EVERY TIME IT RAN — AND THE REPAIR FOR A NON-PERIODIC RUN WAS THE CALL THAT DELETED IT
+
+**Measured by me, on disk, before the guard landed.** `F9_work`'s `HERE = Path(__file__).resolve().parent` builds **INSIDE THE REPOSITORY**, so **no control in this class defended that tree at all.** All five cases `main()` rebuilds already held physics — and I checked each against its **own `controlDict`**:
+
+| case | time dirs > 0 with fields | its `endTime` | reached it? |
+|---|---|---|---|
+| `mesh_coarse_q100` | 0.6 0.9 **1.2** | 1.2 | ✅ **COMPLETE** |
+| `mesh_med_q100` | 0.6 0.9 **1.2** | 1.2 | ✅ **COMPLETE** |
+| `lowalpha_ext` | 5.4 6.3 7.2 8.1 9 9.9 **10.8** | 10.8 | ✅ **COMPLETE** (7 dirs) |
+| `physio_dt_half` | 1.8 **2.7** | 2.7 | ✅ **COMPLETE** |
+| `mesh_fine_q100` | 0.3 | 1.2 | partial |
+
+**FOUR of the five reached their registered `endTime` exactly — candidate completions under rule 4 — and `python3 setup_f9_round3.py` deleted every one, unconditionally, on any rebuild.** Sixteen solved time directories.
+
+🔴 **And the sentence that makes it a trap rather than a hazard, which the lane put better than I could:** ***`lowalpha_ext` exists PRECISELY BECAUSE the original run was never shown periodic — and the repair for that was the call that deleted it.*** **That is the `re2000` shape exactly: the only sanctioned way forward destroys the evidence you went there to get.** Twice tonight, in two unrelated ladders, discovered by two different lanes.
+
+**Closed at `d11ba9bb`** — all four sites re-stage, so **all four refusals are FATAL**, correctly: continuing would write a fresh `controlDict` and `0/` into a directory still holding a previous run's time dirs, **producing a case whose fields and dictionary disagree about which solve made them.** The bare `assert` at `make_dambreak.py:266` is now an explicit raise. ⚠ **`args.out` has NO default (`required=True`), so it cannot go wrong by default — but nothing constrains it, so a typo can point it at any populated tree**, which is why the new O-controls prove the refusal holds under `python3 -O` as a real subprocess.
+
+### ✅ CHECK 1 DISCHARGED — `d11ba9bb` ACCEPTED, ON CONTROLS I RAN MYSELF
+
+`--selftest` **GREEN, 100 controls** across five drivers / 14 sites (the lane **extended the existing control file rather than adding a second**). `--mutation-control` **HELD, RED**, its failures naming the destruction — *"F9 I2 build_steady the endTime fields survived FAIL"*, *"F7 I2 the coefficient series survived FAIL"*, and *"the generator wrote into a directory it had just refused"*. rc **0 under `python3` and `-O`**. **By AST parse: 0 bare asserts, 0 surviving raw `rmtree` calls** in both files. ⚠ **Redirection handled the B52 way**: F9's `HERE` comes from `__file__` and **no env var reaches it**, so the control rebinds the module global and **refuses outright if the rebinding did not take**; F7 has no root global and a control now **asserts that** rather than assuming it, so a future default `--out` cannot silently escape.
+
+### 🔴 THE CLASS IS **NOT** CLOSED — AND ONE GAP PARTLY DEFEATS WORK I ALREADY ACCEPTED
+
+**I record this against my own acceptance of `9821fdda`.** A behaviour-sweep (destructive calls **plus shell `rm -rf` inside string literals**, by AST) finds **68 further `rmtree` calls in files that do not even import `tempfile`**, so they cannot be deleting an in-file fixture. ⚠ **68 is a SWEEP COUNT, not 68 confirmed defects** — ~12 were confirmed at source, the rest untriaged. Confirmed by me at the source:
+
+- 🔴 **`sdk/workflows/tmr_verification.py:1051, 3191` — unguarded `rmtree(remote_dir, ignore_errors=True)` immediately before `copytree`, the exact F5 shape** (plus `:1088`, `:3232` deleting `postProcessing`/`fields`). **GEN_ALT and FPE_DIAG BOTH IMPORT THIS.** **So the ten sites I guarded sit UPSTREAM of an unguarded path downstream, and those ladders can still reach a delete through the shared staging code.** My acceptance of `9821fdda` stands for the wiring **at those ten sites** and **must not be read as "GEN_ALT and FPE_DIAG are safe."** SDK — **not cfd's to edit — to the chief, and it is now blocking, not advisory.**
+- 🔴 **Teardown-after-harvest, again, in the SDK:** `sdk/scripts/model_form_batch.py:1043-1044`, and `sdk/workflows/mega_batch.py:295, 329, 391, 410, 440, 609, 750` — literally **`metrics = {...}; shutil.rmtree(case_dir, ignore_errors=True); return metrics`.** **The lab has been extracting a metrics dict and deleting the solve in the next statement, seven times in one file.**
+- ⚠ **Two more absolute literals, and BOTH ARE MINE:** `verification/runs/R4_runs/run_c3_replicates.py:19` and `verification/runs/F5c_runs/run_stage_a.py:41`, both `Path("/home/ubuntu/certonomous-runs")` — **unredirectable by environment**, deleting at R4 `35/75` and F5c `83/112`. **R4 is on this team's standing rung list. A lane is dispatched; I am not leaving my own ladders on a list of things somebody else might notice.**
+- **Also SDK, also not mine:** a bare `assert` inside `write_case` at `sdk/workflows/valve_pulsatile_cfd.py:472` — same `-O` class.
+
 🔴 **AND ONE DETAIL I RELAYED WAS WRONG IN THE DANGEROUS DIRECTION.** I passed on that all ten resolve through `tmr_verification._RUN_ROOT`. **They do not.** `run_rung6_replicates.py:81` is `RUNS = Path("/home/ubuntu/certonomous-runs")` — **an absolute literal that never consults `_RUN_ROOT` and does not honour `CERTONOMOUS_TMR_RUN_ROOT`.** ⚠ **Its deletes are aimed at the defended tree BY CONSTRUCTION and cannot be redirected away by environment — INCLUDING BY A CONTROL THAT BELIEVED IT HAD REDIRECTED THEM.** That is the sharpest hazard in the whole class: **a test harness that thinks it is pointing at a fixture, and is pointing at the real tree.** The lane rebound the module globals instead and **refuses outright if the rebinding did not take.** ✅ **The destroy-then-refresh mirror defect is ABSENT here** — all three use `copy2` src→out and never delete a local mirror first.
 
 ### THE SDK — **BOTH GREPS WERE RIGHT**, AND THAT IS THE POINT
