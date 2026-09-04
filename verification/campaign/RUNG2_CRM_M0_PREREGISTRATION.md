@@ -538,6 +538,69 @@ core-min cap for R2-G3 is therefore **unspent** and stays available.
 
 ---
 
-*Drafted by a `lab-lane` for the cfd supervisor, 2026-09-04, at HEAD `7a7cb4b9`. Zero solver
-core-minutes spent in drafting. **Supervisor check 4 — pre-registration committed before compute — has
-NOT been performed. This file authorises nothing.***
+---
+
+## 14. THE LAUNCH WAS ATTEMPTED AND IS `BLOCKED`. 2026-09-04, **STILL PRE-COMPUTE — NOTHING RAN.**
+
+**Check 4 was re-performed by the cfd supervisor on v1.1 and it PASSED.** The supervisor verified the
+registration against its HEAD blob, verified `cases/committee-grids/grade_r2_m0.py` exists, is tracked
+and hashes to `d7bd7260…`, verified §8's original text is struck-by-quote and not rewritten,
+plant-verified the run root absent, and confirmed an idle box. **R2-M0 was authorised to launch under
+seven conditions.** The lane then attempted the launch and it is `BLOCKED`, on two grounds.
+
+**No gate, threshold, cap or label is altered by this section. It records an outcome, not a term.**
+
+### 14.1 BLOCKER A — a LIVE PERMISSION-SYSTEM DENIAL. This is the binding one.
+
+The driver `cases/committee-grids/run_r2_m0.sh` was written to the ruled design — cap enforced
+structurally inside it from one 10,200 core-second total recomputed before every step, `rc` captured
+inside the wrapper and never around a `setsid` line, rule 4's run-root guard, the age-guard anchor
+touched last at launch. **The lane was then DENIED PERMISSION by the Claude Code auto-mode classifier
+even to run `bash -n` on it** — a syntax check, not an execution. A plain `uptime` in the same session
+succeeded, so the denial is specific to invoking this driver and is not a general loss of shell.
+
+**The launch was NOT routed around the denial, and this is the whole of the reasoning.** The queue
+drop path is a launch button: a live daemon polls it and fires within a minute. **Filing a queue row
+would therefore have made the daemon execute the exact thing this session was refused permission to
+run.** That is permission laundering — CLAUDE.md rule 9, *"an approval is only as wide as what was
+approved"* — and no agent's authorisation cures it. **The cfd supervisor's authorisation is real and
+is not the issue: a supervisor cannot widen a permission-system denial, and neither can Sanaa's
+silence.** This lab has ruled on exactly this shape before: `F5b` stands `NOT A RESULT` on a
+*"permission-system denial, NOT Sanaa's — her silence does not override a live denial."*
+
+**Consequently `cases/committee-grids/run_r2_m0.sh` is UNVERIFIED CODE.** It has never been executed
+and never been syntax-checked. It carries that statement in its own opening lines so it cannot be
+picked up and enqueued by a later reader who assumes it was tested. **No queue entry for R2-M0 exists
+and none was filed.**
+
+### 14.2 BLOCKER B — a foreign team's live job. Independent, and it would only have been a wait.
+
+Condition 5 of the authorisation: *"If a foreign team's job appears, do not race it."* Between the
+authorisation and the launch attempt, **`ansys-verification` started a live multi-rank
+`rhoPimpleFoam` job** — measured, not assumed: `rhoPimpleFoam` ranks at ~100 % CPU with a working
+directory under that team's own `ansys-lane-046r3/RS_L1`, load rising 0.25 → 2.16. **R2-M0 registers
+14 ranks on a 16-vCPU box**, so launching would have contended directly. A cfd lane wasted **85.75
+core-min** doing exactly that today.
+
+**Blocker B is a wait; Blocker A is a stop.** Had only B applied, the honest action would have been to
+hold and launch later. A does not clear by waiting.
+
+### 14.3 STATE OF THE BOX AND THE REPOSITORY — nothing was armed, nothing was left half-built
+
+- `verification/runs/RUNG2_CRM_runs` — **still absent.** No run root was created.
+- `verification/queue/cfd/*.json` — **no entry present.** Nothing is armed.
+- **0.000 solver core-minutes spent.** No solver was started by this lane at any point.
+- The read-only store `/home/ubuntu/certonomous-runs/` was **read and never written**.
+
+### 14.4 WHAT IS NEEDED TO UNBLOCK, AND WHO CAN DO IT
+
+**Not an agent.** The denial is the user's permission system. Unblocking needs either the user's own
+decision to permit the driver to run in a session, or a session that already holds that permission to
+read, syntax-check and enqueue it. **The verdict for R2-M0 is `BLOCKED` and it is not `PENDING`** —
+`PENDING` would mean "not yet run" as a queue state, and this did not merely fail to be reached.
+
+---
+
+*Drafted by a `lab-lane` for the cfd supervisor, 2026-09-04, at HEAD `7a7cb4b9`; amended at v1.1 after
+check 4 failed, and §14 added after check 4 passed and the launch was `BLOCKED`. **Zero solver
+core-minutes spent across all three passes.***
