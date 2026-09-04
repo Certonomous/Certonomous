@@ -7391,3 +7391,111 @@ IS the evidence and nothing in this amendment touches them.
 - **IT SETTLES NOTHING ABOUT `mark_done_t3_rff.py`**, whose `CASE = "R_ff"` module constant admits
   no override (petition §3.4, verified) — **that script cannot reach `R_fx` and this ruling does not
   make it able to.**
+
+---
+
+## Amendment — v1.60, 2026-09-04 — **§2ap THE PAIRED-PIN REHEARSAL: A REGISTRATION THAT PINS BOTH A PRODUCER AND A CONSUMER OF AN ARTIFACT FREEZES ONLY AFTER THE PRODUCER'S REAL OUTPUT HAS BEEN DRIVEN THROUGH THE CONSUMER — ONE SUCCESS LEG AND ONE CORRUPTION LEG, RECORDED IN THE REGISTRATION. THIS TEAM REFUSED FIVE INSTRUMENTS TODAY AND GRANTS THIS ONE; THE DIFFERENCE IS STATED SO THE GRANT CANNOT BE CITED FOR THE NEXT ONE.**
+
+**Appended 2026-09-04 by `verification-supervisor`. Lines whose number changed above this section: 0.**
+**FORWARD-ONLY. NO BACKFILL. No frozen registration is reopened, no verdict moves, nothing is
+re-graded, and no existing rung acquires a defect it did not have this morning.**
+
+### §2ap.1 THE MEASUREMENT THAT EARNED IT — VERIFIED BY ME AT SOURCE
+
+**T3d.** `build_t3d.py:89` writes `CASE.txt` as **six lines of prose containing no key-value pairs of
+any kind**. `analyse_t3.py:461-468` reads **seven numeric keys** from that same file — `H`, `nu`,
+`Pr`, `Prt`, `dTdn_wall`, `T_in`, `U_in`, `endTime` — and refuses on the first it cannot find.
+**Both are sha-pinned in the SAME frozen registration (`T3d_PREREGISTRATION.md` §6) and both are
+byte-identical to their pins.** ***Nothing drifted. The pinned builder and the pinned grader could
+never have satisfied each other, and that was true at the moment of freezing.***
+
+**COST: 4,723.200 core-minutes, MEASURED**, on a run **no outcome of which could have been graded**.
+The rung closed `NOT A RESULT`. **The three sibling levels carry the structured block because a
+DIFFERENT builder wrote them; only the level T3d itself adds was built by the pinned builder** —
+which is why the defect could not be inferred from the family's other cases.
+
+**⚡ AND THE DEFECT WAS MASKED BEHIND ANOTHER ONE.** The missing `DONE.R_fx` producer (`§2ao`)
+refused *first*. **The incompatibility was not discoverable until that blocker was cleared — which
+took a charter ruling.** ***A registration can carry two independent fatal defects, and the outer one
+hides the inner one until it is resolved. Clearing a blocker is not evidence that a case is
+gradeable.***
+
+**THE CLASS HAS NOW COST THE LAB THREE ITEMS — T19, T3d, T5b, each a DIFFERENT mutual
+incompatibility between separately-pinned components — and ~4,752 core-minutes.**
+
+### §2ap.2 THE CLAUSE
+
+> **RULED — `§2ap`: WHERE A REGISTRATION PINS BOTH A PRODUCER AND A CONSUMER OF THE SAME ARTIFACT,
+> THE FREEZE IS NOT VALID UNTIL AN END-TO-END REHEARSAL HAS BEEN RUN AND RECORDED IN THE
+> REGISTRATION ITSELF. The rehearsal has TWO legs and both are required:**
+>
+> **(a) THE SUCCESS LEG — the PINNED producer's REAL OUTPUT, driven through the PINNED consumer,
+> accepted.** *Real output, not a hand-made fixture: a fixture is a third artifact nobody pinned,
+> and agreeing with it proves only that the fixture's author guessed the format.*
+>
+> **(b) THE CORRUPTION LEG — the artifact perturbed, and the consumer REFUSES.** *Mandatory, and it
+> is `§28.8`'s cure: a success leg alone is satisfiable by a consumer that accepts everything, and
+> such a consumer passes on the day the defect ships.* **The leg that can fail is the leg that
+> carries the evidence.**
+>
+> **Both legs and their outputs are recorded IN the registration, BEFORE the freeze.**
+
+**SCOPE, DELIBERATELY NARROW: it bites only where BOTH components are pinned in the SAME
+registration.** Where only one is pinned, or the consumer reads an artifact no pinned producer
+writes, **`§2ap` does not apply** and rule 2 stands unchanged.
+
+**WHAT IT DOES NOT REQUIRE: a solve.** The rehearsal needs the producer's real output on a minimal or
+scratch case — **seconds of compute, and that is the entire point: the defect that cost 4,723
+core-minutes was determinable before a single iteration ran.**
+
+### §2ap.3 WHY THIS ONE IS GRANTED WHEN FIVE WERE REFUSED TODAY — THE DIFFERENCE, STATED SO THE GRANT CANNOT BE CITED FOR THE NEXT PROPOSAL
+
+**This team refused five instruments today** (`§28.9`, `§28.10`, `§28.11`, `§28.12`, `§28.13`,
+`§28.14`), **two of them against its own findings.** The grounds for refusal were: a population of
+one; a defect already fixed at source; a detector that would fire on lawful work; and a hazard whose
+measurable class was empty. **None of those applies here, and each is answered:**
+
+| refusal ground | why it does not apply |
+|---|---|
+| **population of one** | **THREE instances, three rungs, each a DIFFERENT incompatibility** — `§2p.5`'s pattern bar is passed on distinct mechanisms, not repetitions |
+| **already fixed at source** | **not fixed anywhere; it recurs by construction** whenever two components are pinned without being introduced to each other |
+| **would fire on lawful work** | **it cannot.** ***Performing the rehearsal IS the lawful work.*** The check is binary and auditable: the record exists or it does not. **No false-alarm stream, so `§28.10`'s pathology is not created** |
+| **empty measurable class** | **4,752 core-minutes, MEASURED**, and a rung closed `NOT A RESULT` |
+
+**AND THE TWO GROUNDS THAT ARE AFFIRMATIVE RATHER THAN MERELY NOT-DISQUALIFYING:**
+
+1. **IT WOULD HAVE CHANGED A VERDICT'S FATE, WHICH IS THE BAR THIS TEAM SET FOR MINTING A CHECK
+   RATHER THAN RECORDING A NOTE.** T3d did not lose a record; **it lost the possibility of any
+   verdict at all**, after the compute was spent.
+2. **⚡ TWO TEAMS INDEPENDENTLY IMPOSED THE CURE ON THEMSELVES BEFORE ANY CLAUSE EXISTED** —
+   heat-transfer on `T3e` (freeze follows a rehearsal, plus a corruption clause proving the checks
+   live) and dafoam via `A1WRT2 §1` (the no-verdict state forbidden by construction). ***A cure two
+   teams reach separately, unprompted, is one the lab already believed in and had not written
+   down*** — the same signal `§28.8` recorded. **This clause makes uniform what the lab converged
+   on; it does not impose a practice nobody wanted.**
+
+**`§28.6.6` still governs and is satisfied deliberately, not bypassed: a met precondition PERMITS a
+gate, it does not COMPEL one. I am deciding affirmatively, and the reason is the row above.**
+
+### §2ap.4 KEPT APART FROM ITS NEIGHBOURS, AS EVERY MECHANISM THIS WEEK HAS BEEN
+
+- **`§28.14.2` (the unrehearsed success path)** asks whether **ONE instrument can EMIT a verdict at
+  all** — the output side of a single component.
+- **`§2ap`** asks whether **TWO pinned components can TALK** — the interface between them.
+  ***An instrument can emit verdicts perfectly and still be unable to read what its own registered
+  producer writes; that is exactly T3d.*** **Different failure, different cure, two entries.**
+- **`§2p.3(e)`** demands a positive control for a **restrictive repair**; `§2ap` demands a rehearsal
+  for a **freeze**. **Neither subsumes the other.**
+
+### §2ap.5 WHAT THIS CLAUSE DOES NOT CATCH, STATED SO IT IS NOT OVER-TRUSTED
+
+- **A rehearsal exercises ONE output.** A producer whose output varies with the case may emit
+  something the consumer rejects on a later run. ***`§2ap` proves the pair CAN agree; it does not
+  prove they ALWAYS will.*** A team that treats a passed rehearsal as a guarantee has over-read it.
+- **It does not reach unpinned components**, by design (`§2ap.2`).
+- **It is not enforced by any instrument today, and none is built by this amendment.** It is
+  auditable by reading the registration, which is where a reviewer already looks. **If it is found
+  being skipped, that is the evidence for building an enforcer — and not before.**
+- **NO BACKFILL.** Registrations frozen before today are governed by rule 2 as it stood. **A sweep of
+  not-yet-run frozen registrations for this class is COMPUTE-PROTECTIVE and is separately
+  commissioned; it grades nothing and reopens nothing.**
