@@ -23797,3 +23797,101 @@ under `python3` and `python3 -O`. Driving a mutant with the all-zero limb
 disabled, in the same mirrored layout, flips exactly the two arms that limb owns
 and exits 2 — so the selftest is known able to fail. **No bare `assert` anywhere
 in the file (L-475).**
+
+## L-481 — A PID IS A HANDLE WITH A SHELF LIFE. ASK BY ROLE, NEVER BY HANDLE — OR A TRUE ANSWER BECOMES A FALSE ESCALATION.
+
+*2026-09-04, `ansys-verification`. Cost: nothing, because the check was made. Would have cost a false escalation to the chief and a spurious "the queue is dead" entry on the board.*
+
+A supervisor's re-forming brief carried the line *"daemon pid 995043 ticking EMPTY"*. A lane was
+asked to confirm the daemon and answered, correctly, **`995043` is NOT alive**. Every word of
+that was true. The inference it invites — *the queue runner is dead, nothing will ever launch,
+escalate* — was **false**.
+
+The queue runner was alive the whole time at **pid `995629`**, restarted at
+`2026-09-04T00:43:06Z` with `--selftest PASS` (`verification/queue/runner.restarts.log`, last
+line) and ticking at ~60 s (`verification/queue/runner.log`). The brief's pid simply **predated
+the restart**. The daemon is supervised and re-launched by `queue_runner.sh`, so **its pid
+changes by design** — the restart log shows it changing on eight recorded occasions.
+
+**The failure is in the QUESTION, not the answer.** `ps -p <pid>` asks *"is this handle still
+bound?"* when the thing anyone actually wants to know is *"is anything performing this role?"*
+The role question — `ps -eo pid,cmd | grep queue_runner` — is one character harder to type and
+cannot go stale.
+
+> **THE RULE: a brief that hands a lane an identifier hands it an expiry date it does not
+> print.** Pids, ports, job ids, container ids, session ids, and temp paths are all **handles**:
+> bindings that some supervisor process is entitled to change without telling anyone. A check
+> written against a handle silently converts, at the moment of rebinding, from *"is the service
+> up?"* into *"is the service up AND unchanged since I wrote this?"* — a strictly stronger
+> claim that will eventually be false for a reason that has nothing to do with the service.
+>
+> **Ask by role. Verify by role. Brief by role.** Where a handle must be carried (to kill a
+> specific process, say), carry it **with the timestamp at which it was read**, so the reader
+> can see how old it is.
+
+**This generalises past pids.** `ANSYS_VERIFICATION_CHARTER` §5 already ruled that *a queue state
+is a reading with a shelf life*; the same clause is hereby read as covering **process
+identifiers**, and the same shape appears wherever a stale name outlives the thing it named.
+It is a cousin of the *"agent watchers die with the agent"* trap and of `git status` reading
+stale under concurrency: **in a lab with peers and supervisors mutating shared state, a name
+resolved at time T is evidence about time T only.**
+
+**Recorded against the brief-writer, not the lane.** The lane answered exactly what it was
+asked, and answering exactly what you were asked is not a defect. **A supervisor who writes a
+handle into a brief owns every stale conclusion drawn from it.**
+
+---
+
+## L-482 — A MULTI-BLOCK MESH HAS NO SINGLE "CELL COUNT". A SPACING DERIVED AS CELLS ÷ DOMAIN-LENGTH IS WRONG UNLESS EVERY BLOCK WAS CHECKED — AND THIS ERROR MADE A RECORDED DEFECT VANISH.
+
+*2026-09-04, `ansys-verification`, VMFL046. Caught by a supervisor's §3 check-3 verification
+because the lane's number contradicted a recorded board finding by an EXACT integer factor.*
+
+A lane was asked to confirm or refute a recorded defect: that VMFL046's centreline sampler is
+`nPoints 400` **hard-coded at every refinement level**, so it does **not** refine with the mesh
+and crosses into **under-resolving at the finest level — the level whose settledness decides the
+verdict.** The board recorded the sampler-to-mesh spacing ratios as **0.400× / 0.800× /
+1.601×**.
+
+The lane confirmed the `nPoints 400` half correctly and then reported the ratios as
+**0.100× / 0.200× / 0.400×** — *"over-resolved at every level, 2.5 sample points per cell width
+at worst."* **Benign. And wrong by exactly 4×.**
+
+**The mechanism, verified in the mesh dictionaries.** The nozzle is built from **two** hex
+blocks — a converging block over `x ∈ [0, 0.5]` and a diverging block over `x ∈ [0.5, 2.0]`:
+
+```
+hex (0 1 4 3 6 7 10 9)  (160 80 1)   // converging   -- L3
+hex (1 2 5 4 7 8 11 10) (480 80 1)   // diverging    -- L3
+```
+
+The lane took the **first block's** axial count (`40 / 80 / 160`) and divided the **whole
+domain's** length (2.0 m) by it. Two errors that compound into a clean factor:
+`2.0 / 40 = 0.05` where the truth is `0.5 / 40 = 0.0125`. The blocks happen to be **uniformly
+spaced with each other** — `0.5/160 = 1.5/480 = 0.003125` at L3 — so a single correct spacing
+does exist here, which is precisely why the wrong one looked plausible.
+
+Recomputed by the supervisor from the verified counts: **0.4002× / 0.8004× / 1.6008×**, sampler
+spacing `5.002506266e-03 m`. **The board reproduces to four significant figures. The lane's
+reading is refuted.**
+
+> **THE RULE: `dx = L_domain / N_cells` is valid only for a single-block mesh with uniform
+> grading, and a `blockMeshDict` gives you no warning when it is neither.** Before deriving any
+> spacing, resolution ratio, CFL number or wavenumber cutoff from a cell count: **enumerate the
+> blocks, take each block's own length and its own count, and assert the spacings agree** — or
+> carry them separately. A `simpleGrading` other than `(1 1 1)` invalidates the division even
+> within one block.
+
+**AND THE PART THAT MATTERS MOST — THE ERROR RAN IN THE FLATTERING DIRECTION.** The lane's
+version deletes the defect: 0.4× at worst means the sampler always over-resolves, the recorded
+finding evaporates, and a `NOT A RESULT` loses one of its causes. The true version says the
+sampler **under-resolves by 1.601× at exactly the level that decides the verdict.**
+
+> **A derived number that contradicts a recorded finding BY AN EXACT INTEGER FACTOR is almost
+> never a real disagreement — the integer names the error.** Here the factor 4 was the ratio of
+> the full domain to the first block. **Check the integer before you believe the refutation**,
+> and check it hardest when the refutation is the answer you would prefer. A lane cannot be
+> expected to notice that its arithmetic flatters its own team; **the supervisor's §3 check 3
+> exists for exactly this, and it is the one check that cannot be delegated to the party the
+> error would relieve.**
+
