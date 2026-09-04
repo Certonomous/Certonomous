@@ -269,6 +269,66 @@ def concentration(values):
     return sum(mags[i] for i in top) / total, top
 
 
+def g1_outcome(f1s, times):
+    """Which of THREE distinct conditions caused G1 not to be satisfied.
+
+    POST-COMPUTE REPAIR, 2026-09-04, ruled lawful by `cfd-supervisor` because it
+    ALTERS NO GATE, THRESHOLD, CAP OR LABEL — it makes a MESSAGE TRUE.
+
+    THE DEFECT IT REPAIRS.  The original code printed, on any shortfall,
+    "the plateau residual is DIFFUSE ... evidence AGAINST H4".  On the
+    verification limb it printed exactly that while `f1%` was **0.9979** — the
+    most concentrated reading obtainable.  The VERDICT (`GATE FAIL`) was right;
+    the attributed reason was false, because the code conflated three
+    conditions and asserted the physics conclusion that only one of them
+    supports.  **That is bookkeeping MANUFACTURING a physics statement**, which
+    Sanaa's universal rule forbids, and it was live on every path this
+    comparator is used on.
+
+    The three conditions are exhaustive and mutually exclusive:
+
+      INSUFFICIENT  fewer snapshots exist than the gate requires -- the gate
+                    CANNOT be judged.  NO physics conclusion of any kind.
+      DIFFUSE       enough snapshots, and NONE reached the threshold.  This is
+                    the ONLY condition in which the H4 gloss is legitimate.
+      UNSTABLE      enough snapshots, and SOME reached the threshold but fewer
+                    than the gate requires.  Concentrated, but not stably so.
+                    NOT diffuse, and NO H4 gloss.
+
+    Returns (condition, satisfied, lines).
+    """
+    n = len(times)
+    n_conc = sum(1 for t in times if f1s[t] >= G1_CONCENTRATION)
+
+    if n_conc >= G3_MIN_SNAPSHOTS:
+        return ("SATISFIED", True, [
+            "  G1 PASS: concentrated in %d of %d snapshots (threshold %d)."
+            % (n_conc, n, G3_MIN_SNAPSHOTS)])
+
+    if n < G3_MIN_SNAPSHOTS:
+        return ("INSUFFICIENT", False, [
+            "  G1 NOT JUDGED -- INSUFFICIENT SNAPSHOTS: %d present, %d required."
+            % (n, G3_MIN_SNAPSHOTS),
+            "  NO conclusion about concentration is drawn, and NO hypothesis is",
+            "  supported or opposed.  The gate could not run; it did not fail.",
+            "  (Observed f1%% here: %s -- reported, NOT gated.)"
+            % ", ".join("%.4f" % f1s[t] for t in times)])
+
+    if n_conc == 0:
+        return ("DIFFUSE", False, [
+            "  G1 GATE FAIL -- DIFFUSE: 0 of %d snapshots reached %.2f." % (n, G1_CONCENTRATION),
+            "  This is an INFORMATIVE NEGATIVE: a diffuse residual has no local",
+            "  source, which is evidence AGAINST H4 and leaves H1 and H3 standing."])
+
+    return ("UNSTABLE", False, [
+        "  G1 GATE FAIL -- CONCENTRATED BUT UNSTABLE: %d of %d snapshots reached"
+        % (n_conc, n),
+        "  %.2f, fewer than the %d required.  THE RESIDUAL IS NOT DIFFUSE."
+        % (G1_CONCENTRATION, G3_MIN_SNAPSHOTS),
+        "  NO conclusion is drawn about H4: the H4 gloss belongs to the DIFFUSE",
+        "  condition alone, and this is not it."])
+
+
 def zone_mass(values, top, centres):
     mags = [abs(values[i]) for i in top]
     tot = sum(mags)
@@ -568,7 +628,6 @@ def grade(case, mode):
                           % (scal[t], t, PLATEAU_LO, PLATEAU_HI))
                     return 1
 
-        n_conc = sum(1 for t in times if f1s[t] >= G1_CONCENTRATION)
         print("")
         print("field %s" % field)
         for t in times:
@@ -576,14 +635,12 @@ def grade(case, mode):
             print("  iter %-6d f1%%=%.4f (uniform would be %.4f)  "
                   "top zone %s at %.3f"
                   % (t, f1s[t], UNIFORM_SPREAD, best[0], best[1]))
-        if n_conc < G3_MIN_SNAPSHOTS:
-            print("  G1 GATE FAIL: concentrated in %d of %d snapshots, "
-                  "threshold %d.  The plateau residual is DIFFUSE."
-                  % (n_conc, len(times), G3_MIN_SNAPSHOTS))
-            print("  This is an INFORMATIVE NEGATIVE, registered as such: a "
-                  "diffuse residual has no local source, which is evidence "
-                  "AGAINST H4 and leaves H1 and H3 standing.")
-            verdicts[field] = "GATE FAIL"
+        condition, satisfied, lines = g1_outcome(f1s, times)
+        for ln in lines:
+            print(ln)
+        if not satisfied:
+            verdicts[field] = ("NOT A RESULT" if condition == "INSUFFICIENT"
+                               else "GATE FAIL -- %s" % condition)
             continue
         winners = {}
         for t in times:
@@ -813,6 +870,57 @@ def selftest():
     except Refuse:
         check("a missing solverInfo.dat is REFUSED", True)
     shutil.rmtree(rr, ignore_errors=True)
+
+    print("LIMB 10 -- G1's three conditions each produce their OWN message")
+    # The repaired defect: on ANY shortfall the original printed "DIFFUSE ...
+    # evidence AGAINST H4", including when f1% was 0.9979.  Each condition must
+    # now be named, and the H4 gloss must appear in the DIFFUSE case ONLY.
+    five = [15040, 15080, 15120, 15160, 15200]
+    hi, lo = 0.99, 0.01
+
+    c, sat, lines = g1_outcome(dict((t, hi) for t in five), five)
+    txt = " ".join(lines)
+    check("5 concentrated -> SATISFIED", c == "SATISFIED" and sat, "got %s" % c)
+
+    c, sat, lines = g1_outcome(dict((t, lo) for t in five), five)
+    txt_diffuse = " ".join(lines)
+    check("5 unconcentrated -> DIFFUSE", c == "DIFFUSE" and not sat, "got %s" % c)
+    check("DIFFUSE is the condition that MAY cite H4", "AGAINST H4" in txt_diffuse)
+
+    # THE CASE THAT CAUSED THE DEFECT: concentrated, but too few snapshots agree.
+    mixed = dict((t, hi if t in five[:3] else lo) for t in five)
+    c, sat, lines = g1_outcome(mixed, five)
+    txt_unstable = " ".join(lines)
+    check("3 of 5 concentrated -> UNSTABLE, not DIFFUSE",
+          c == "UNSTABLE" and not sat, "got %s" % c)
+    # NOTE, recorded rather than quietly corrected: the FIRST version of this
+    # assertion was `"DIFFUSE" not in txt_unstable.replace("NOT DIFFUSE","")`
+    # and it FAILED -- because the UNSTABLE message legitimately contains the
+    # word twice, once as "THE RESIDUAL IS NOT DIFFUSE" and once as "the H4
+    # gloss belongs to the DIFFUSE condition alone, and this is not it".  The
+    # BEHAVIOUR was already right; the assertion was crude.  It is replaced by
+    # a precise one -- the UNSTABLE message must never carry the DIFFUSE
+    # VERDICT STRING, and must carry the explicit denial -- rather than
+    # weakened, which would have been the wrong repair.
+    check("UNSTABLE never carries the DIFFUSE verdict string",
+          "GATE FAIL -- DIFFUSE" not in txt_unstable)
+    check("UNSTABLE explicitly DENIES diffuseness",
+          "NOT DIFFUSE" in txt_unstable)
+    check("UNSTABLE does NOT assert anything about H4",
+          "AGAINST H4" not in txt_unstable)
+
+    # THE EXACT SHAPE OF THE VERIFICATION LIMB: one snapshot at f1% = 0.9979.
+    one = [15072]
+    c, sat, lines = g1_outcome({15072: 0.9979}, one)
+    txt_one = " ".join(lines)
+    check("1 snapshot at 0.9979 -> INSUFFICIENT, NOT judged",
+          c == "INSUFFICIENT" and not sat, "got %s" % c)
+    check("INSUFFICIENT does NOT print the diffuse gloss",
+          "DIFFUSE" not in txt_one)
+    check("INSUFFICIENT does NOT assert anything about H4",
+          "AGAINST H4" not in txt_one)
+    check("the three failing conditions produce THREE DISTINCT messages",
+          len({txt_diffuse, txt_unstable, txt_one}) == 3)
 
     for tmp in (d, g, z):
         shutil.rmtree(tmp, ignore_errors=True)
