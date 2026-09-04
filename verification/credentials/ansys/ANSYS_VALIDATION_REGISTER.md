@@ -931,3 +931,27 @@ Row #54's own record asserts **"plateau MET at every level"**, `|dM|` = 0 / 8.7e
 
 ### The successor, and what it must NOT do
 **`VMFL072-R3` is owed.** The remedy is a **numerics/setup change that keeps the anti-circularity property**, since dropping the off-equilibrium inlet would restore the circularity the perturbation exists to defeat. Candidates, to be ruled on measurement and not on preference: a **gentler perturbation** (the registration chose ±30 % with no stability argument behind the magnitude — an unmeasured input, `§24.3`'s failure shape); an **inlet ramp** rather than a step; a **smaller `maxCo`** or sub-stepping for the film region; or **B2's direction only** (0.70 δ_N), which is measured stable at the finest mesh but perturbs one way only. **The gate, the bands and the exactness threshold DO NOT MOVE.** If R3 also dewets, that is a measured persistent property of the depth-averaged film model at this refinement and it goes to Sanaa's desk with its evidence, not into a widened band.
+
+### DATED ADDENDUM to row #57 — 2026-09-04 — **THE HUNT IS NOT VISCOUS, AND THE ROW AS WRITTEN CAN BE READ AS SAYING IT IS. TWO INDEPENDENT FINDINGS ARE SEPARATED HERE.**
+
+**Alters no verdict, gate, band, threshold, cap or label.** Row #57 stands as `NOT A RESULT`.
+
+Row #57 says the L3 non-plateau *"is consistent with `§23.1`'s model-form bound being refuted 8.1× at L3 and growing with refinement."* Both halves are true and **a reader can collapse them into "the shock hunts because of viscosity." That inference is FALSE and this addendum forecloses it.**
+
+**Measured by the supervisor from the existing `VMFL046_INVISCID` artifacts, through the same interpolating reader:**
+
+| level | viscous ptp | **inviscid ptp** | inviscid, in cells |
+|---|---|---|---|
+| L1 | 1.1435e-13 (machine zero) | 1.2057e-13 (machine zero) | ~0 |
+| L2 | 2.4874e-04 | 8.8558e-09 (machine zero) | ~0 |
+| **L3** | 1.1453e-01 (36.7 cells) | **6.2713e-02** | **20.07 cells = 100.3× DELTA_X** |
+
+**The inviscid arm hunts at 20 cells.** μ = 0, slip walls — **no boundary layer, no separation, no shedding.** A straight-walled converging–diverging nozzle at fixed back pressure has **no physical unsteadiness mechanism**, and it hunts anyway. **The instability lives in the DISCRETISATION and the SIMPLE outer iteration, not in the flow.** Viscosity *advances* it — it is why viscous L2 is non-zero where inviscid L2 is machine-zero, and why viscous L3 is ~1.8× the inviscid amplitude — **but it is not the cause.**
+
+**The mechanism, and it explains the scaling row #57 leaves unexplained.** Every convective term in the frozen `fvSchemes` is first-order upwind, whose artificial viscosity is `ν_num ≈ |u|·Δx/2` and therefore **halves with each refinement.** The three levels are three regimes of a **Hopf-type bifurcation of the discrete iteration operator**, not three points on a convergence curve: L1 a stable fixed point (1.15e-13 m is the reader's own roundoff on a profile that has stopped changing), L2 marginal at 0.04 cells, L3 a **saturated periodic orbit at 38.4 cells**. **A quantity that is identically zero on one side of a bifurcation and 38 cells on the other has NO OBSERVED ORDER** — which is exactly why the triple read `DIVERGENT`, and why row #57's nine-orders-across-a-4×-cell-range is not an accuracy statement.
+
+**Supporting evidence, all measured:** the L3 envelope is flat to 1 % over 54 000 iterations with a **positive** fitted slope (+4.15e-07); **80.0 %** of the variance sits in a single mode at a **4 208-iteration period**, with its first harmonic carrying 7.4 %; and the residuals carry **the same period to within 1 %** (≈4 168 iterations) with a floor rather than a slope (+0.06 decades over 50 000 iterations). **This is `§21`'s doctrine made concrete: for a hunting discrete structure a residual floor is not a convergence proxy — it is the oscillation's own waveform.**
+
+> **AND THE GATE REFERENCE IS CONFIRMED SOUND, recorded because both arms converge AWAY from it and someone will eventually ask whether the reference was wrong.** The quasi-1D area–Mach plus Rankine–Hugoniot problem was solved independently for this contour (throat x = 0.5, h = 0.1; exit ratio 3.000) and these boundary conditions (p₀ = 301 325, p_b = 176 325): **shock at 1.248513 m**, **0.12 % from the frozen 1.250**. **The reference is not the defect.**
+
+**Consequence for the successor, and it narrows R3's remedy:** the target is a **numerical** instability, so the remedy must change the **numerics** — which is what branch (b) pre-committed. **Making the model inviscid would be a MODEL change and would break that pre-commitment**; it belongs in its own registration if it is ever wanted.
