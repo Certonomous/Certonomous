@@ -24134,3 +24134,33 @@ there, or a predicted m0 = 0.0951 against a measured 0.1318 recorded as a **~39 
 is purely conventional** — a false failure with no physics in it. **And the repair would have
 looked exactly like tuning β₀ until m0 matched.** A convention error does not announce itself as an
 error; it announces itself as a result.
+
+## L-489 — `pdftotext` DROPS EVERY MATH GLYPH WHILE RETURNING PLAUSIBLE PROSE, AND `pdffonts` SAYS `uni yes` WHILE IT HAPPENS. RENDER THE PAGE AND READ THE IMAGE
+
+*2026-09-04, `closure`, closure-correction library Phase 1. Cost: zero compute. Caught when a lane reported it could not transcribe an equation and reconstructed it from the paper's cited source instead — the honest response, and the reconstruction differed in index arrangement from what the page actually prints.*
+
+**The failure.** `pdftotext -layout` on `wu_zhang_sst_qcrc_challenge_description.pdf` returns, for its Eq. (1):
+
+```
+                               =     −            −
+                                           2                  −                (1)
+                               =2       −        ,   =
+```
+
+Operators, digits, parentheses and the equation number all survive. **Every variable name is gone.** The surrounding prose extracts perfectly, so the file looks fine and the extraction looks successful — there is no error, no warning and no empty output to notice.
+
+**And the obvious check endorses it.** `pdffonts` reports the math font (`CambriaMath`, CID TrueType, Identity-H) as `emb yes sub yes **uni yes**`. **A font manifest asserting a Unicode mapping is not evidence that the text extracts** — this is L-144's shape moved from a paper's identity to a paper's contents: an internally consistent claim about a file that is externally false.
+
+**Why it is dangerous rather than merely annoying.** An equation stripped of its symbols still *looks like an equation*, and the natural repair is to fill the names back in from the standard literature. That reconstruction is **indistinguishable from a reading** once written down, so an entry can end up citing "Eq. (1), p. 1" for a form the page does not print. Here the reconstruction was structurally right and **presented the indices differently from the source**; the next one may not be right at all.
+
+**The instrument that works.**
+
+```
+pdftoppm -r 200 -f <page> -l <page> -png <file.pdf> <stem>   # then READ the .png
+```
+
+Rendered at 200 dpi the equations are fully legible, including subscripts, overbars and fractions. `pdftotext -layout` remains the right tool to **navigate** — the surviving equation numbers and headings locate the page — and is never the tool to **transcribe**.
+
+> **THE RULE: an equation is transcribed from a RENDERED PAGE IMAGE, never from `pdftotext` output, and the record says which page was rendered and who read it. Where a symbol cannot be resolved, transcribe what is PRINTED and mark it unresolved — never normalise it to the standard form the equation "should" have. A plausible reconstruction is worse than a stated gap, because a gap can be closed and a reconstruction cannot be detected.**
+
+**Corollary that paid immediately.** Reading the real Eq. (2) showed the correction field's **null value is 1, not 0** (`beta = [(beta_CND - 1) f_d + 1]` recovers baseline SST exactly at `beta_CND = 1`). A planted-zero control on that entry would have planted and checked the **wrong null** — a rule-3 control testing a condition the model does not have.

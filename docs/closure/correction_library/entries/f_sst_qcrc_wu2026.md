@@ -9,40 +9,54 @@ flow_class:
 validation_cases:
   - CBFS
 equation_form: >-
-  TWO modifications to Menter's k-omega SST, both transcribed from the source PDF.
+  BOTH equations READ DIRECTLY OFF THE PRINTED PAGE by closure-supervisor, 2026-09-04,
+  by rendering page 1 at 200 dpi (pdftoppm) and reading the image. This SUPERSEDES the
+  earlier reconstruction of Eq. (1) from Spalart 2000: the paper's own form is now
+  transcribed and is the authority here.
 
-  (1) NONLINEAR QUADRATIC CORRECTION TO THE REYNOLDS STRESS. Wu & Zhang Eq. (1),
-  printed p. 1: "a nonlinear quadratic correction term is added to the Reynolds
-  stress's expression. The correction term (for incompressible flow) is like the QCR
-  term used in the SA-QCR2000 [2] model", with the constant "directly adopted from
-  Ref. [2], which is = 0.3". The symbol glyphs of Eq. (1) DO NOT extract from this
-  PDF (its math font does not map through pdftotext), so the explicit tensor form is
-  taken from the paper's own cited source, which this lane title-page verified and
-  read: Spalart 2000, IJHFF 21(3):252-263, UNNUMBERED displayed equation, printed
-  p. 253 --
-      s_ij(nonlinear) = s_ij - c_nl1 * ( O_ik s_jk + O_jk s_ik )
-      O_ik = ( d_k U_i - d_i U_k ) / sqrt( d_n U_m d_n U_m )
-      c_nl1 = 0.3
-  where s_ij is "the Reynolds stress given by the linear model" and O_ik "the
-  normalised rotation tensor" (Spalart 2000, p. 253, verbatim).
 
-  (2) CORRECTION TO THE DESTRUCTION TERM OF THE OMEGA EQUATION. Wu & Zhang Eq. (2),
-  printed p. 1: the destruction term is multiplied by a bracket of the form
-  [(beta_correction - 1) * f_shield + 1], with a shielding function
-  f = 1 - tanh[(8 d)^n] that "is 0 in the boundary layer and is 1 elsewhere" and is
-  "used to deactivate the correction term in the boundary layer to preserve the
-  baseline SST model's accuracy in simple wall-attached flows". The spatially varying
-  correction field is obtained by field inversion (Singh et al.) and then distilled by
-  symbolic regression (PySR) into Eq. (3), printed p. 2:
-      beta_correction = max( -0.1157 , 0.0058525 * <feature> )
-  bounded above by 4 for stability (p. 2). UNVERIFIED -- needs equation-level read:
-  the SUBSCRIPTED SYMBOL NAMES of Eqs. (1)-(3) and the identity of the single feature
-  in Eq. (3) do not extract from this PDF's math font. The paper states only that
-  three input features were used and that "the definition of the features can be found
-  in Ref. [3]" (Wu, Zhang & Zhang, AIAA J. 63(2):687-706, 2025), which is held on this
-  box as docs/papers/data_driven_rans/wu_zhang_zhang_2402.16355.pdf but was NOT read
-  by this lane. A rendered (page-image) read of pp. 1-2, or a read of Ref. [3],
-  resolves it.
+  (1) NONLINEAR QUADRATIC CORRECTION TO THE REYNOLDS STRESS -- Wu & Zhang Eq. (1),
+  printed p. 1, verbatim structure:
+      tau_ij   = tau^l_ij - c_r ( O_ik tau^l_kj - tau^l_ik O_kj )
+      tau^l_ij = 2 nu_T S_ij - (2/3) k delta_ij
+      O_ij     = ( d_j U_i - d_i U_j ) / sqrt( d_n U_m d_n U_m )
+      c_r      = 0.3
+  The paper states c_r "is directly adopted from Ref. [2]" (Spalart 2000) and that
+  "No data-driven techniques are used to train the parameters of the correction term."
+  NOTE the index arrangement is the paper's own and differs in presentation from the
+  Spalart form previously recorded here; the antisymmetric structure is the same.
+
+
+  (2) CORRECTION TO THE DESTRUCTION TERM OF THE OMEGA EQUATION -- Wu & Zhang Eq. (2),
+  printed p. 1, verbatim structure:
+      Dw/Dt = (gamma/nu_T) tau_ij d_j U_i - beta theta w^2
+              + d_j[ ( nu + sigma_w nu_T ) d_j w ] + 2 (1 - F_1) (sigma_w2 / w) d_j k d_j w
+      beta  = [ ( beta_CND - 1 ) f_d + 1 ]
+      f_d   = 1 - tanh[ ( 8 r_d )^3 ]
+      r_d   = ( nu + nu_T ) / ( kappa^2 d^2 sqrt( d_n U_m d_n U_m ) )
+  beta_CND is "a spatially varying field that quantifies the error in the omega's
+  equation". f_d "is a shielding function that is 0 in the boundary layer and is 1
+  elsewhere", used "to deactivate the correction term beta_CND in the boundary layer to
+  preserve the baseline SST model's accuracy in simple wall-attached flows". The spatial
+  distribution of beta_CND "is determined by field inversion method proposed by Singh et
+  al. [4]". The paper states this formulation "is identical to the formulation used in
+  the work of Wu et al. [3]".
+
+
+  CONSEQUENCE FOR ANY CONTROL ON THIS ENTRY, derived from Eq. (2) itself: the NULL VALUE
+  OF beta_CND IS 1, NOT 0. Substituting beta_CND = 1 gives beta = [(1-1) f_d + 1] = 1,
+  which recovers baseline SST exactly. A planted-zero control that plants or checks for
+  ZERO would therefore be testing the WRONG NULL, and a field defaulting to 0 does not
+  degrade quietly -- it drives beta -> 1 - f_d, which vanishes in the freestream. Any
+  field-input control for this entry plants a DEPARTURE FROM 1.
+
+
+  ONE SYMBOL READ BUT NOT RESOLVED: the destruction term prints as "beta theta w^2".
+  "theta" is NOT defined anywhere on the page that carries Eq. (2). Transcribed as
+  printed rather than silently normalised to the standard SST "beta w^2".
+  UNVERIFIED -- needs equation-level read: Eq. (3) on p. 2 (the symbolic-regression
+  expression for beta_CND) and the identity of its single feature. Wu, Zhang & Zhang
+  (AIAA J. 2025) is held in this corpus and would close that gap.
 provenance:
   path: docs/papers/data_driven_rans/wu_zhang_sst_qcrc_challenge_description.pdf
   title_page_verified: "yes"
@@ -195,3 +209,26 @@ non-Boussinesq constitutive relation "can, for instance, create secondary flows 
 second kind in a square pipe (Speziale, 1987)" and reports that with it "flow is induced
 towards the corners". It remains an untested premise *on this box*; it is no longer
 uncited.
+
+## Training provenance, read off p. 1-2 by the supervisor — and a cross-team consequence
+
+The paper states plainly where its correction field comes from: *"We performed field inversion on
+the curved backward facing step (CBFS) case. In fact, the data obtained in Ref. [3] using the
+conditioned field inversion is directly used"*, and — the line that matters operationally —
+**"The code used to perform the field inversion is DAFoam, developed by He et al [5]."**
+
+**Consequence, and it is the reason this entry is worth more than its rank-2 placing.** The field
+inversion that produces `beta_CND` was done in **DAFoam**, which this lab already runs as a
+standing capability (the `dafoam` team's whole territory). So the reproduction path for this
+entry's *second* modification is not an unknown toolchain — it is one the lab operates. **This does
+not make the reproduction cheap and it is not a claim that it will work**; DAFoam adjoint work here
+has its own live defects. It means the capability gap for this entry is **narrower than for any
+other family-(f) correction**, and that should be weighed when Phase 2 picks an order.
+
+**Its training case, CBFS, is on disk** (`/home/ubuntu/closure-challenge-benchmark/data/CBFS`).
+So the entry's own reproduction target and its reference data are both present.
+
+**What that does NOT license.** `kOmegaSSTQCR` on this box implements **Eq. (1) only**. Running it
+and reporting the result as SST-QCRC would report a verdict for a model missing the entire second
+modification — the one the field inversion produces and the one that did the work on CBFS. That is
+why `model_type_name` is `none` here, and it is the same trap SCHEMA Addendum 2 was written for.
