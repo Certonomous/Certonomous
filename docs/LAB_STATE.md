@@ -26087,6 +26087,107 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 60-ITEM47 -->
+
+**Section last written:** 2026-09-04T21:22:22Z by a cfd `lab-lane` at the supervisor's instruction (stamp from `date -u` read inside the committing shell invocation). **SIXTIETH WRITE.** **PURE INSERTION at the top of the `## cfd` section; every byte below stands unedited** — nothing is renumbered, deleted or rewritten, and no other team's section is touched. Built from `git show HEAD:docs/LAB_STATE.md` and written back in the same shell invocation (L-476); the seven-heading `^## ` inventory asserted unchanged in **count and order**, deletions outside this block asserted `== 0`, and pure insertion **proved** by removing this span and reproducing `HEAD:docs/LAB_STATE.md` byte-for-byte. ⚠ **Prior boards are referenced by marker id only — 59-F28G-CORRECTION, 58-M6SR-CHECK4 — and NEVER in their full comment form**, for the reason recorded at the foot of this block. Uniqueness of every marker was asserted **on both sides of the splice**. **Where this conflicts with anything below, this block wins.** Claims marked **VERIFY** were relayed and are NOT re-derived here; everything not so marked was read at source by this lane at this write.
+
+### ✅ CORRECTION TO BOARD 59, NOW VERIFIED RATHER THAN INFERRED — ITEMS 43-46 HAVE LANDED
+
+Board 59's LIVE line said a lane was live on M6SR items 43-46 and that the launch was `BLOCKED` on that repair. **That lane's work has landed.** Board 59 declined to change the line on the strength of a commit subject and flagged the discrepancy instead; **the supervisor checked it and the flag was correct**, so the correction is made here on a verified footing.
+
+- **Items 43-46 landed at `07dbc3ea`**, with **`5917bc9a`** the check-1 diff artifact. **They are no longer in flight, and the launch is NOT blocked on them.**
+- 🔴 **A commit subject is a claim by its author, not a reading** — which is why board 59 was right to refuse to board it as fact, and why it is boardable now.
+
+### 🔴🔴 ITEM 47 — **WIRING §7's CONDITIONS INTO `gate_a()` MADE THEM GRADEABLE AND DID NOT MAKE THEM BLOCK A LAUNCH**
+
+**Stated as a verdict, not as a lead. Verified at source by the supervisor personally, and independently re-driven by this lane at this write.**
+
+| measurement | reading |
+|---|---|
+| `--gate-a` in `cases/M6SR/` | **5 textual occurrences, of which exactly ONE is in an executable**: `analyse_m6sr.py:3004`, and it is the **argparse definition** — `ap.add_argument("--gate-a", action="store_true", help="grade Gate A (step B4)")`. The other four are prose inside `AMENDMENT_19_ITEMS_43_46_SECTION7_WIRING.diff` |
+| launch path | `run_m6sr_b5.sh` invokes the comparator **exactly twice**, at **`:429`** and **`:430`**, **both as `--controls`**. **Neither passes `--gate-a`, and no other launch-path script passes it either** |
+| ✅ **PLANTED CONTROL** | the **same search** for `--controls` returns **5 code sites** (`analyse_m6sr.py:2956/:2959/:2997`, `run_m6sr_b5.sh:429/:430`) plus two usage comments. **The `--gate-a` zero is a reading, not a blindness** (standing rule 3) |
+
+⚠ **AND THE TRAP IS THE ONE BOARD 58 ALREADY NAMED FOR CONDITION 3, RECURRING ONE RUNG LATER:** four of the five `--gate-a` hits are **prose in an amendment document**. **A reader who greps the tree and counts hits concludes the flag is wired; a reader who asks which hits are in an executable finds one, and it is a declaration.** ⚠ **This lane's measurement refines the supervisor's wording — he said `--gate-a` occurs "ONLY as the argparse definition", which is true of code and not of the tree — and the refinement is recorded rather than smoothed over, because it is exactly the distinction that makes the finding survive the next grep.**
+
+🔴 **THE CONSEQUENCE, BOARDED IN THESE WORDS: condition 1 is the ONLY §7 condition enforced on the launch path, and it is enforced by the builder and the case writer — NOT by Gate A.** **A supervisor ordering a launch on the strength of §7 would have been relying on a screen the launcher does not run.** §7's own text is *"Checked per level **before** launch"* and *"A failure here **`BLOCKED`s** the level."* **The supervisor has ruled that the launch path must consult it and refuse, and has dispatched it.**
+
+### THE M6SR LAUNCH IS `BLOCKED` ON THREE RECORDED GROUNDS
+
+**All three verified personally by the supervisor at source; limbs re-driven by this lane are marked ✅.**
+
+1. 🔴 **ITEM 47** — §7 is gradeable but not blocking (above). ✅ Re-driven by this lane.
+2. 🔴 **Item 46's refusal.** **VERIFY** — relayed; this lane did not re-derive it.
+3. 🔴 **The pre-existing `X7` / `C12`**, which holds `--controls` at **rc 2**. ✅ **This lane confirmed the gate that acts on it:** `run_m6sr_b5.sh:436-437` reads `[ "$CRC" -eq 0 ] || abort "…REFUSED AT ZERO SOLVER COST." 8`, and `abort()` at `:216` is `exit "${2:-1}"` — **so the `8` is passed explicitly at the call site and the refusal is at exit 8**, as §18.5 requires. The **parity** gate at `:435` refuses at 8 on the same footing. ⚠ **The rc-2 status of `--controls` itself is `VERIFY` — this lane did not run the comparator.**
+
+### ✅ LANDED AT `07dbc3ea` — THE FOUR §7 CLAUSES, EVERY THRESHOLD QUOTED FROM §7, NONE NEW AND NONE WIDENED
+
+✅ **All four clause identifiers confirmed present in `analyse_m6sr.py` by this lane** (`:1629`, `:1638-1640`, `:1644`, `:1649`, and the control sites `:2643`, `:2657`, `:2682`, `:2703`):
+
+- **A10** — boundary openness `<= 1e-12` (§7 condition 2).
+- **A11** — number of regions `== 1` (§7 condition 3).
+- **A12** — min cell volume `> 0` (§7 condition 4), 🔴 **SIGNED — not `!= 0`, not `abs()`.** ✅ Confirmed in the control's own acceptance at `:2683`: `ok27 = ok27 and v27 is not None and v27 < 0.0 and r27 is not None and r27 < 0.0` — the mutant must read back **negative**, which an `abs()` or a `!= 0` screen could not distinguish.
+- **A13** — patch names, per level (§7 condition 5).
+
+🔴 **THE A12 CONTROL PRINTS WHAT THE OLD PATH DID WITH THE SAME INPUT — and this is the part worth keeping.** With a planted **negative** minimum cell volume — *"an inverted cell, the exact hazard Section 7 condition 4 names"* — the old path's **only** use of the value was as the denominator of `cell_volume_ratio`, giving **`-2.248e+10`: a negative ratio, which failed no check whatsoever** (**VERIFY** on the numeral itself; ✅ this lane confirmed the mechanism at `analyse_m6sr.py:313` and the control's text at `:2672`/`:2686`).
+🔴 **AND AT THE BOUNDARY IT WAS WORSE: `Min volume = 0` raised an UNCAUGHT `ZeroDivisionError` that PRE-EMPTED condition 4 entirely** — ✅ confirmed at `analyse_m6sr.py:304`, which records it as measured with **rc 1**. **The exact input the condition exists to catch crashed the reader before the condition could be evaluated.**
+
+✅ **A13's INDEPENDENCE PROOF, and it is a real proof rather than a co-firing.** The mutant is **right types, wrong names** — `PLANT_S7_WRONG_NAMES = ("WING3D", "FARFIELD", "SYMMETRY")` at `:187`, confirmed by this lane — and the fixture comment at `:186` states the requirement outright: *"CORRECT TYPES, WRONG NAMES. It must pass A9 and die at A13."* **A9 reads `PASS` on both twin and mutant while A13 goes `BLOCKED`**, so **the name screen is genuinely independent of the type screen** and is not merely riding on it.
+
+✅ **The regions mutant used `9`, not a bare `2`** — the value **this box has actually observed** from an unmerged conversion. Confirmed at `analyse_m6sr.py:179` and, at source in the campaign it comes from, `cases/RUNG1_M6/read_checkmesh.py:54-58`.
+
+### 🔴 CONDITION 3 IS A **REGRESSION**, AND ITS CONSEQUENCE IS LARGER THAN A MISSED SCREEN
+
+✅ **Confirmed at source by this lane:** `cases/RUNG1_M6/run_r1m0.sh:360` already gated it — `"single_connected_region": cm.get("n_regions") == 1` — **in the campaign M6SR supersedes.** A screen that existed was lost across a campaign boundary.
+
+🔴 **And it does not merely fail to catch a bad mesh — it corrupts a number the ladder already trusts.** ✅ Quoted at source from `cases/RUNG1_M6/read_checkmesh.py:54-58`: with more than one region the block interfaces **become BOUNDARY faces**, and *"checkMesh computes non-orthogonality over INTERNAL faces only, so every block interface would drop out of the statistic and the reported maximum would be **FALSELY OPTIMISTIC**."* **Condition 3 is therefore a precondition for believing Gate A1's own number at all** — not an independent hygiene check sitting beside it. Without it, as that file puts it, *"the 70-degree reading would be unfalsifiable."*
+
+### ✅ THE REPAIR MOVED NO GRADED NUMBER, AND FZ1 CONVICTED ITS OWN STALE PIN
+
+- **The repair moved NO graded number — measured three ways against the `HEAD` blob.** **VERIFY** — relayed; not re-driven here.
+- **FZ1 is at exit 0 after the re-pin.** ⚠ **It was at exit 3 before it** — *the instrument convicting its own stale pin*, which is the behaviour that makes the exit 0 worth anything. ⚠ **TWO live table rows carried the superseded blob, not one.** **VERIFY** — relayed; not re-driven here.
+
+### 🔴 A LESSON THIS LANE EARNED BY COMMITTING THE DEFECT IT DESCRIBES — ADOPTED, REFERRED FOR A NUMBER, NOT NUMBERED HERE
+
+**A uniqueness assert that passes BEFORE a write says nothing about whether the write PRESERVES uniqueness. It belongs on BOTH sides of the splice.**
+
+**Both halves are recorded, including the half against this lane:**
+
+- Board 59 (`98f0c3a2`) ran a `count(marker) == 1` assert on the previous board's marker **before** splicing — and passed it — **and then, in its own preamble, quoted that marker verbatim while explaining that markers exist because phrase sentinels collide.** After the commit the string matched **twice**. **The block announcing the rule broke it.**
+- The next lane's assert — **the same assert** — would then have aborted, or spliced against the wrong offset.
+- ✅ **Found and repaired at `f059bfce`**, by rewriting that one sentence **inside its own span**, with the edit proved byte-confined and the heading inventory re-asserted. **Both markers now match exactly once.**
+- ✅ **This block is written under the repaired discipline:** no marker appears here in its full comment form, and uniqueness was asserted **after** the splice as well as before.
+
+⚠ **Referred for an `L-` number, NOT numbered here.** Numbers are assigned **at the commit that files the lesson, from the MAXIMUM EXISTING NUMBER and never from a count** (standing rule 11). ✅ At this write the maximum in `docs/LESSONS.md` read **488**, measured with `grep -oE '^## L-[0-9]+' … | sort -n | tail -1` — **recorded as a reading at a moment, not as a reservation**, because peers commit constantly and the tail must be re-derived in the filing shell.
+🔴 **Boarded as lab-attributed.** **A lab that only records other people's collisions learns half as fast.**
+
+### LIVE RIGHT NOW
+
+**No cfd solvers.** **Items 43-46 are landed, not in flight.** The §7-must-block repair (item 47) is **dispatched**. ✅ `verification/runs/M6SR_runs` remains **ABSENT** — **no ladder compute has occurred under M6SR at all**.
+
+### NEXT ACTIONS, in order
+
+1. 🔴 **Item 47: make the launch path consult §7 and refuse** — dispatched. **The acceptance bar is the one items 43-46 set: a control that FIRES, i.e. a launch attempt that is actually refused on each of conditions 2-5, not a clean fixture passing.**
+2. 🔴 **Supervisor check 4 on F28G items 2 and 3** — gate, threshold, cap and label are the supervisor's and are **UNDELEGABLE**; item 2's 7.50 core-min cap must still survive the `writeResidualFields` I/O and decompose/reconstruct costs board 59 named.
+3. **Clear `X7` / `C12`** so `--controls` returns rc 0 and the `:436` gate stops refusing at exit 8.
+4. **Re-run check 4 on M6SR**, then **rule on the launch** — and not before all three grounds are cleared.
+
+### ON SANAA'S DESK
+
+**The M6SR launch, now held behind THREE grounds rather than one** — item 47, item 46's refusal, and `X7`/`C12`. ⚠ **First physics is unchanged and is displaced by none of this: M6 surface `Cp` at the AGARD span stations, against the family band.**
+
+### BLOCKED
+
+- 🔴 **M6SR launch** — on **item 47**, **item 46's refusal**, and **`X7`/`C12`** (`--controls` at rc 2, refused at exit 8 by `run_m6sr_b5.sh:436`).
+- 🔴 **F28G superseding items 2 and 3** — pending check 4; item 2 additionally has **no committed pre-registration** and cannot launch under rule 2 whatever else is decided.
+
+### WHAT THIS LANE VERIFIED ITSELF, AND WHAT IT DID NOT
+
+✅ **Verified at source at this write:** the `--gate-a` occurrence census in `cases/M6SR/` and the executable/prose split, `analyse_m6sr.py:3004`; `run_m6sr_b5.sh:429`/`:430` both `--controls`; the `--controls` planted control at five code sites; `run_m6sr_b5.sh:435`/`:436-437` refusing at **exit 8** and `abort()` at `:216`; the A10/A11/A12/A13 clause sites and control sites; A12's signed acceptance at `:2683` and the `cell_volume_ratio` mechanism at `:313`; the `ZeroDivisionError` record at `:304`; `PLANT_S7_WRONG_NAMES` at `:187` and the fixture requirement at `:186`; the regions-9 provenance at `:179` and `cases/RUNG1_M6/read_checkmesh.py:54-58`; the condition-3 regression site `cases/RUNG1_M6/run_r1m0.sh:360`; the absence of `verification/runs/M6SR_runs`; the maximum lesson number 488; and the existence of `07dbc3ea` and `5917bc9a`.
+⚠ **Marked VERIFY — relayed, NOT re-derived here:** item 46's refusal; the rc-2 status of `--controls`; the `-2.248e+10` numeral; that the repair moved no graded number under its three measurements; and FZ1's exit 3 → exit 0 transition and the two stale table rows.
+
+**Compute spent by this block: 0 core-min.** Read-only inspection only; no solver launched, killed or signalled. **Exactly one file written — `docs/LAB_STATE.md`, inside the `## cfd` section only.** `verification/campaign/F28G_L1_RESIDUAL_RECONCILIATION.md` was **not touched**, no other team's section was touched, and no case, registration, comparator, charter or `.claude/` file was written. Nothing sent, filed or submitted (rule 7); per rule 13 no scratch path is cited here.
+
 <!-- BOARD-BLOCK-ID: 59-F28G-CORRECTION -->
 
 **Section last written:** 2026-09-04T21:14:18Z by a cfd `lab-lane` at the supervisor's instruction (stamp from `date -u` read inside the committing shell invocation). **FIFTY-NINTH WRITE.** **PURE INSERTION at the top of the `## cfd` section; every byte below stands unedited** — nothing is renumbered, deleted or rewritten, and no other team's section is touched. The `**Section last written:**` stamps further down belong to boards 58 and earlier and are deliberately **left alone**, because editing one is a deletion. Built from `git show HEAD:docs/LAB_STATE.md` and written back in the same shell invocation (L-476); the seven-heading `^## ` inventory was asserted unchanged in **count and order**, deletions outside this block asserted `== 0`, and pure insertion **proved** by removing this span and reproducing `HEAD:docs/LAB_STATE.md` byte-for-byte. Board 58 is identified by its marker id **58-M6SR-CHECK4** (deliberately NOT reproduced here in its full HTML-comment form, so that this board does not itself become a second match for board 58's marker and break the next lane's uniqueness assert), never by a phrase — phrase sentinels have collided four times (L-476). **Where this conflicts with anything below, this block wins.** Claims marked **VERIFY** were relayed to this lane and are NOT re-derived here; everything not so marked was read at source by this lane at this write.
