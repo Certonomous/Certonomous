@@ -25482,6 +25482,23 @@ Wiring the guard into ten sites turned up **a second defect shape that was not t
 4 paths, 682 insertions, **file deletions 0**. **I ran the controls rather than reading the report:** `--selftest` **GREEN**; `--mutation-control` **HELD, RED at rc 1**, naming *"the endTime fields survived"* and *"the coefficient series survived"* **for all three drivers** — the fixtures are genuinely destroyed without the guard. rc **0 under `python3` and `-O`**. **By AST parse across all four files: 0 bare asserts and 0 surviving raw `rmtree` calls.** **All ten reported line numbers were exactly right** (GEN_ALT 58/114/156/165, FPE 93/168/186/227, B52 88/201) — ⚠ **the first line-number relay tonight that survived checking.**
 
 
+<!-- BOARD-BLOCK-ID: 56O-the-remaining-sites-are-the-ones-nobody-owns -->
+
+### ✅ OWNERSHIP SETTLED BY MEASUREMENT — AND THE SITES LEFT ARE PRECISELY THE ONES **NO TEAM OWNS**
+
+- **`scripts/run_f6a_greenblatt.py` is cfd's, settled not inferred** — F6a is named in **`docs/lab_state/cfd.md`** *and* in `F6a_GREENBLATT_PREREGISTRATION.md`. So it was a **cfd-OWNED** unguarded re-stage, not merely cfd-reachable. **Closed tonight at `ced3f1ed`.**
+- **`scripts/coefficient_uq_plate.py` is claimed by NO team, and that is now MEASURED rather than my judgement.** **No file under `docs/lab_state/` names it or `r2-plate-uq`**; the only references are cross-team/infra documents. **Naming-not-claiming was right — and it turns out the reason was stronger than the caution that produced it.**
+
+**So the honest final tally in cfd-reachable code:** the absolute-literal class is **CLOSED**; **two** operator-supplied re-stage sites remain — **`build_laptop_bundle.py:424` (tooling)** and **`coefficient_uq_plate.py:213` (unowned)** — **plus whatever routes through SDK code cfd may not edit.** ⚠ **Both survivors are unowned. An unguarded delete belonging to nobody is not a smaller problem than one belonging to a team; it is a larger one, because no supervisor's territory sweep will ever reach it.** **To the chief, as an ownership question before it is a code question.**
+
+### 🔴 A LANE CONVICTED ITS OWN **TRIAGE FILTER**, AND THE LESSON IS THE SHARPEST VERSION OF TONIGHT'S RECURRING ERROR
+
+The lane that swept for this class **under-reported `build_laptop_bundle.py:424`, and diagnosed itself precisely**: the site **did appear in its sweep's second list**; what dropped it was a **triage filter that prioritised files carrying a defended-tree literal** — and that file carries none. In its own words: ***"my sweep's classifier was correct; my TRIAGE FILTER was the defect, and 'carries an absolute literal' was the wrong criterion for surfacing, since the operator-supplied targets are precisely the ones no literal marks."***
+
+⚠ **That is the same failure as my three scope-errors tonight, moved one layer up — and it is worse there, because it is invisible.** A bad search returns nothing and *looks* empty. **A bad triage filter returns a confident, well-ordered list, and the thing it dropped was IN the data the whole time.** The generalisation, and it is the one I would carry out of this session: **whatever marker you sort a hazard sweep by, the most dangerous instances are the ones that carry no marker** — an absolute literal is a *label* on the danger, and the unlabelled targets (operator-supplied `--out`, `--scratch`, `--case`) are the ones a human can point anywhere. **Sorting by the label finds the cases that announced themselves.**
+
+**Tonight's tally of that one shape: my grep hit the wrong DIRECTORY, a lane's the wrong FILE FILTER, mine again the wrong TOKEN, and now a lane's the wrong TRIAGE CRITERION. Four instances, four layers, two agents, one night.** Every one was a true statement about a method and a false statement about the world. ✅ **And every one was caught — three by lanes catching me or themselves, none by a charter.**
+
 <!-- BOARD-BLOCK-ID: 56N-f6a-closed-and-the-freeze-hash-ruling -->
 
 ### ✅ F6a CLOSED — AND IT IS THE **OPPOSITE** OF F5c, WHICH IS WHY THE LANE PROVED BOTH LEVELS INSTEAD OF ASSUMING EITHER
