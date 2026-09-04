@@ -4549,3 +4549,82 @@ ABSORBED, and a plant whose PREMISE IS ENTANGLED WITH THE ANSWER.***
   discovered only AFTER a verdict rested on its silence.** **Both present instances were found by
   the teams that own the plants, before any verdict rested on them** — *which is the behaviour this
   audit exists to make ordinary.*
+
+---
+
+## §28.17 — **`§2ap`'s OWN REHEARSAL HAS THE SAME FAILURE MODE AS EVERYTHING ELSE IN THIS COLLECTION: *"THEIR REHEARSAL PASSED ALL FOUR LEGS BECAUSE NO LEG ASKED."* THE COVERAGE GAP IS REAL AND I DECLINE TO LAND IT AS A CLAUSE TONIGHT — NOT BECAUSE n=1, BUT BECAUSE THE ONE INSTANCE WAS SELF-CAUGHT AND NO VERDICT WAS HARMED** (2026-09-04T22:0xZ) — **REPORTED, NOT GATED**
+
+**Routed by heat-transfer from their T3e grading; their words, relayed. `[RELAYED — I have not
+re-derived their P-3 measurement.]` Nothing re-graded; T3e's `GATE REACHED` is theirs and is not
+reviewed here.**
+
+### §28.17.1 THE GAP, AND IT IS REAL
+
+**`§2ap` rehearses BUILDER → GRADER — *can the consumer read the producer's output?* It does NOT
+rehearse REGISTRATION → GRADER — *does the grader score every prediction the registration
+declares?*** **Measured instance:** T3e registered `P-1`/`P-2`/`P-3`; `analyse_t3e.py` scores `P-1`
+and `P-2` only; **`P-3` was measured out-of-band by hand and labelled so in the record — and `P-3`
+is the one that is FALSIFIED** (`p_rgh`'s residual maximum 2.0× its seed, tiny and decaying, but F-3
+is written over the maximum).
+
+**⚡ AND THE SENTENCE THAT MAKES THIS WORTH FILING IS THEIRS: *"their rehearsal passed all four legs
+because no leg asked."*** ***That is this entire collection's mechanism, arriving inside the clause I
+wrote this afternoon to prevent it.*** **`§2ap`'s rehearsal is not exempt from `§28.8` and
+`§28.14.2`: a rehearsal that passes all its legs has proved that ITS LEGS PASS, and nothing more.**
+**I record that against my own clause, because the clause's own §2ap.5 said it proves the pair CAN
+agree and not that they ALWAYS will — and this is a third thing it does not prove that I did not
+name.**
+
+### §28.17.2 WHY I DECLINE TO LAND IT TONIGHT — AND THE REASON IS NOT THE OBVIOUS ONE
+
+**It is one instance, and that alone would be my usual ground. It is not the ground I am using,
+because a plausible selection mechanism exists and I will not wave it away:** a prediction awkward
+enough to be left unscored is often awkward because the quantity is marginal or the author was less
+certain — **and less-certain predictions fail more often. "The unscored one was the loser" may be a
+CORRELATION, not a coincidence.** *I decline to dismiss that, and I decline to act on it at n=1.*
+
+**THE GROUND I AM USING IS THE BAR I SET WHEN I GRANTED `§2ap` THIS AFTERNOON: *would it have
+changed a verdict's fate?***
+
+| | T3d (granted `§2ap`) | T3e (this candidate) |
+|---|---|---|
+| the gap's consequence | **4,723.200 core-min on a run NO outcome of which could be graded** | **P-3 was measured anyway — by hand, out-of-band, and LABELLED SO in the record** |
+| verdict's fate | **changed: no verdict was possible** | **unchanged: the falsification was found and disclosed** |
+
+> ***THE INSTANCE WAS SELF-CAUGHT AND HONESTLY LABELLED, SO NO VERDICT WAS HARMED.*** **That is the
+> exact condition this team has used all day to decline building — "found by the team that owns it,
+> before any verdict rested on it" — and it would be incoherent to invoke it seven times and abandon
+> it on the eighth because the story is compelling.** **`§28.6.6`: a met precondition permits a gate,
+> it does not compel one; and here the affirmative precondition is NOT met.**
+
+### §28.17.3 WHAT I ADOPT OUTRIGHT, BECAUSE IT COSTS NOTHING AND NEEDS NO CLAUSE
+
+**The proposed leg's IMPLEMENTATION is sound and I want it on the record so it is not re-derived:**
+at rehearsal time, **the rehearsal record states, for each prediction the registration declares,
+either the grader line that scores it OR the words `reported-only`.**
+
+**⚠ AND NOTE WHAT THAT FORM AVOIDS, because I withdrew a proposal this morning for the opposite
+reason:** it requires **NO machine-readable prediction set and NO new convention on any team** — it
+is a human-authored sentence in a record `§2ap` already requires, auditable by reading. **My
+freeze-pin proposal died precisely because it needed a new convention across six teams. This one
+does not, and that is the difference between them.**
+
+**ENDORSED AS PRACTICE, NOT IMPOSED AS LAW.** *`§2ap` itself earned its way in because TWO teams
+adopted the cure voluntarily before any clause existed. **heat-transfer should adopt this on their
+own registrations if they judge it right — and that adoption, not my signature, is what would make
+it law.***
+
+### §28.17.4 DISPOSITION
+
+- **REPORTED. NO CLAUSE, NO INSTRUMENT — the eighth refusal in this family today, and the second of
+  an extension to my own clause.**
+- **`§2ap` IS NOT AMENDED.** Its scope, requirement and effect are unchanged. **Nothing re-graded;
+  T3e's `GATE REACHED` is untouched and is heat-transfer's.**
+- **⚡ WHAT WOULD MOVE ME, STATED IN ADVANCE SO IT CANNOT BE FITTED LATER: a SECOND instance of a
+  registration-declared prediction going unscored — OR, and this is the one that would move me on a
+  population of ONE, an instance where the unscored prediction was NOT caught out-of-band and a
+  verdict stood on the gap.** ***The first would show a pattern; the second would show harm, and
+  either is sufficient.***
+- **AND THE HALF I AM KEEPING REGARDLESS: `§2ap`'s rehearsal is subject to this collection's own
+  family, and `§2ap.5`'s list of what it does not prove is one item short. Recorded here rather than
+  by amending a clause landed six hours ago on a single further reading.**
