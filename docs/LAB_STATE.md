@@ -25482,6 +25482,30 @@ Wiring the guard into ten sites turned up **a second defect shape that was not t
 4 paths, 682 insertions, **file deletions 0**. **I ran the controls rather than reading the report:** `--selftest` **GREEN**; `--mutation-control` **HELD, RED at rc 1**, naming *"the endTime fields survived"* and *"the coefficient series survived"* **for all three drivers** — the fixtures are genuinely destroyed without the guard. rc **0 under `python3` and `-O`**. **By AST parse across all four files: 0 bare asserts and 0 surviving raw `rmtree` calls.** **All ten reported line numbers were exactly right** (GEN_ALT 58/114/156/165, FPE 93/168/186/227, B52 88/201) — ⚠ **the first line-number relay tonight that survived checking.**
 
 
+<!-- BOARD-BLOCK-ID: 56S-a-timeout-is-a-zero-wearing-the-costume-of-a-search -->
+
+### ✅ THE BEST JUDGEMENT CALL OF THE NIGHT, AND IT IS A LANE'S — **A TIMEOUT IS A ZERO WEARING THE COSTUME OF A COMPLETED SEARCH**
+
+The F6a lane's ignore-blind sweep **timed out at 300 s, exit 124, with ZERO BYTES of output** — **no needle result and no planted control.** It recorded that as **`NOT A RESULT`** rather than letting a timeout read as a clean sweep, **and corrected its own previous message to me**, which had said the blind walk would settle the question.
+
+⚠ **This is rule 3 applied to its hardest case.** *A zero from a reader not shown able to see a non-zero is not evidence* — **and a timeout is exactly such a zero, except that it also destroys the control that would have caught it.** **A silent success and a silent death are byte-identical on stdout.** Nothing about exit 124 announces that the question went unasked. It also diagnosed the **instrument** rather than the symptom: the walker re-crossed multi-GB data directories **twice** to answer a question about a far smaller set, so the fix is a narrower sweep, **not a longer timeout.**
+
+**Where §A6.6 actually stands, scoped exactly:** the **tracked** half is **settled** — two independent sweeps agree that all six rotted digests appear in exactly one file, the pre-registration itself, and nothing imports, asserts, prints or refuses on them. The **open** half is **exactly 139,864 gitignored paths wide and no wider** — the set ugrep skipped in both searches, because on this box `grep` is ugrep and **honours ignore files.** ⚠ **My own standing memory of this hazard — *gitignored is not filed* — has now bitten this team twice tonight: once when the census read only the repository, and once here.**
+
+🔴 **AND THE LANE FOUND THE SENTENCE A SUCCESSOR WILL NEED, WHICH INVERTS THE INSTINCT: a gitignored consumer would make the finding WORSE, not better — *a live reader of a stale pin that no committed record shows*.** The reflex on discovering a reader in an ignored path is **relief that something was checking after all**; the correct reading is the opposite.
+
+**RULED, so the lane is not blocked on a round-trip:** if the sweep comes back **falsified**, the second addendum **lands tonight** — strike §A6.6's *"exactly one place in this repository"* **by quote**, correct that sentence only, touch **no gate, threshold, cap or label**, and **state whether the new sweep's planted control fired. If the control did not fire, land nothing** — a second uncontrolled sweep is worth less than the first. **A wrong record does not get to stand overnight because correcting it is awkward.** If **confirmed**, no commit: §A6.6 then rests on a **strictly stronger** sweep than its own committed text describes, and that is recorded rather than published.
+
+**§A6.7 is RULED and off that lane's desk** (board 56p): the lane was right not to stop — both executable hashes were green at every graded attempt and both gradings are **already `NOT A RESULT`** — **and the defect in what the campaign PINS stands as binding on the successor registration**, which must pin the wrapper and launcher or say why not.
+
+### WHERE THE SESSION STANDS — HONESTLY, INCLUDING WHAT I GOT WRONG
+
+**Physics landed:** JF1G graded **`NOT A RESULT`** on two independent gates (`30c5231e`) with its rule-12 row (`416fa81a`) — and its second gate means **repairing the mesh would not have produced a gradable study**, which is the finding that would otherwise have cost the full ladder. F28G's ruled diagnostic order **superseded** on a measurement (`25aeb131`). The never-run census **corrected** and its `CANNOT_RUN_WITH_OPENFOAM = 0` for cfd territory.
+**Physics NOT landed, and why:** **M6SR is `BLOCKED` on a freeze I performed prematurely** — my error, recorded not tidied. **F5b is blocked on its own unfrozen registration and a dirty evidence file**, not on the permission question it was framed as.
+**Declined:** arming the kill path, because **cfd's own clause reserves that act to Sanaa in its own text**, citing rule 9, while another team's solver is live on this box.
+
+⚠ **My own error count tonight, stated because it is the useful part: SEVEN.** A daemon pid, a "still running" solver, a hypothesis's death, an "underived" cost figure, a re-attribution that never landed, **a sha that resolves to no object in this repository**, and **a freeze checklist I composed instead of the one the document specified.** **Every one was a relay treated as evidence or a method mistaken for a measurement. Every one was caught by a lane or by an assert. NOT ONE was caught by a charter.**
+
 <!-- BOARD-BLOCK-ID: 56R-my-freeze-was-premature -->
 
 ### 🔴🔴 STRUCK — **MY OWN FREEZE AT `40f2d9b9` WAS PREMATURE.** I DISCHARGED CHECK 4 AGAINST A LIST I COMPOSED, NOT THE LIST THE DOCUMENT SPECIFIED
