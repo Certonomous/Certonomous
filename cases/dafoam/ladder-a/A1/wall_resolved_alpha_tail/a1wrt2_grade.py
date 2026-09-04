@@ -229,6 +229,46 @@ def emit_verdict(token: str) -> None:
 # How optimistic each token is.  The ceiling caps DOWNWARD only: it can turn a
 # PASS into a GATE REACHED and can never turn anything into something better.
 # That is `CLAUDE.md` rule 5's direction, made structural instead of trusted.
+#
+# ============================================================================
+# REQUIRED DISCLOSURE -- TWO ORDERINGS COEXIST IN THIS FILE AND THEY DISAGREE.
+# ============================================================================
+# This file contains TWO orderings of the six tokens and they are NOT the same
+# ordering:
+#
+#   (i)  the COMPOSER'S HAND-ORDERED CHAIN in `compose_item`:
+#          NOT A RESULT -> BLOCKED -> GATE FAIL -> GATE REACHED -> PASS
+#   (ii) the `_OPTIMISM` ORDINAL below:
+#          PASS 5, GATE REACHED 4, GATE FAIL 3, NOT A RESULT 2, BLOCKED 1,
+#          PENDING 0
+#
+# THEY DISAGREE ON THE `NOT A RESULT` / `BLOCKED` PAIR.  The chain tests
+# `NOT A RESULT` FIRST, so it wins when both are present.  The ordinal makes
+# `BLOCKED` (1) the LESS optimistic of the two, so a composition written as
+# `min` over `_OPTIMISM` would answer `BLOCKED` on the same input.  MEASURED,
+# this drafting invocation, with both planted into hard gates:
+#     chain            -> NOT A RESULT
+#     min(_OPTIMISM)   -> BLOCKED
+#
+# (a) `_OPTIMISM` IS USED BY `cap_to_ceiling` AND BY NOTHING ELSE.  It is not
+#     the composition's ordering and must never be mistaken for it.
+# (b) WITH THE REGISTERED CEILING `GATE REACHED` (4), `cap_to_ceiling` MOVES
+#     ONLY `PASS`.  Every other token is identity -- MEASURED across all six:
+#     PASS -> GATE REACHED; GATE REACHED, GATE FAIL, NOT A RESULT, BLOCKED and
+#     PENDING all pass through untouched.  SO THE ORDINAL'S ENTIRE ORDERING
+#     BELOW 4 IS NEVER EXERCISED BY THIS ITEM.
+# (c) THE CHAIN, NOT THE ORDINAL, IS THE COMPOSITION'S AUTHORITY.  Anyone who
+#     moves the ceiling, or who rewrites the composition as `min` over this
+#     ordinal, MUST reconcile the two FIRST -- they would otherwise inherit a
+#     live disagreement with no test between it and a wrong verdict.
+#
+# THIS IS NOT A BUG AND IT IS DISCLOSED ANYWAY, because an unexercised ordering
+# is an untested one, and this one sits inside the function whose entire job is
+# to enforce a direction.  `Q-COMPOSE-5-ordering` below composes with BOTH
+# tokens present and pins the chain's answer, so the disagreement is OBSERVED
+# BY A TEST rather than latent.  Raised by the dafoam-supervisor's
+# SUPERVISION_CHARTER section 3 check 1 diff read, 2026-09-04, and verified
+# independently by this lane before being written down.
 _OPTIMISM = {"PASS": 5, "GATE REACHED": 4, "GATE FAIL": 3,
              "NOT A RESULT": 2, "BLOCKED": 1, "PENDING": 0}
 
@@ -1577,6 +1617,45 @@ def _st_compose() -> int:
               "cap moved a NOT A RESULT -- rule 5's direction is inverted")
         return "cap: PASS->GATE REACHED, GATE FAIL and NOT A RESULT unmoved"
     _control("Q-COMPOSE-4-cap", "pass", q4)
+
+    def q5():
+        """Q-COMPOSE-5-ordering -- PIN THE DISAGREEMENT BETWEEN THE TWO
+        ORDERINGS SO IT IS OBSERVED BY A TEST RATHER THAN LATENT.
+
+        See the disclosure block at `_OPTIMISM`.  The composer's hand-ordered
+        chain and the `_OPTIMISM` ordinal disagree on the
+        `NOT A RESULT`/`BLOCKED` pair.  This control composes with BOTH present
+        and asserts the CHAIN's answer, and it also computes what a
+        `min`-over-`_OPTIMISM` composition WOULD have said, so the divergence
+        is written down by a driven test and not only by a comment.  It changes
+        no logic."""
+        h = dict(green_h)
+        h["G-PATCH"] = "NOT A RESULT"
+        h["G-IMG"] = "BLOCKED"
+        raw, final, _ = compose_item(h, dict(green_s))
+        _must(raw == "NOT A RESULT" and final == "NOT A RESULT",
+              "Q-COMPOSE-5: with BOTH NOT A RESULT and BLOCKED present the "
+              "chain answered %r/%r; the registered chain tests NOT A RESULT "
+              "FIRST, so NOT A RESULT must win." % (raw, final))
+        present = set(h.values()) | set(green_s.values())
+        ordinal_would_say = min(present, key=lambda t: _OPTIMISM[t])
+        _must(ordinal_would_say == "BLOCKED",
+              "Q-COMPOSE-5: the ordinal's answer moved to %r.  If the two "
+              "orderings have been reconciled, this control and the "
+              "disclosure at _OPTIMISM must both be updated deliberately, not "
+              "silently." % ordinal_would_say)
+        # (b) of the disclosure, MEASURED rather than asserted: under the
+        # registered ceiling the ordinal's sub-ceiling order is unexercised.
+        moved = [t for t in VERDICT_TOKENS if cap_to_ceiling(t) != t]
+        _must(moved == ["PASS"],
+              "Q-COMPOSE-5: cap_to_ceiling moves %s under the registered "
+              "ceiling, not PASS alone -- the ordinal's sub-ceiling ordering "
+              "is now EXERCISED and the disagreement is no longer harmless."
+              % moved)
+        return ("chain says %s; min(_OPTIMISM) would say %s; exposure is ZERO "
+                "-- cap_to_ceiling moves only %s under ceiling %r"
+                % (raw, ordinal_would_say, moved[0], CEILING))
+    _control("Q-COMPOSE-5-ordering", "fail", q5)
     return 0
 
 
