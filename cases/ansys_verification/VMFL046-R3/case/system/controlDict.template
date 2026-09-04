@@ -1,0 +1,65 @@
+FoamFile { version 2.0; format ascii; class dictionary; object controlDict; }
+// VMFL046-R3 -- TRANSIENT.  endTime is now PHYSICAL SECONDS, not iterations.
+application     rhoPimpleFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         __ENDTIME__;
+deltaT          1e-8;          // seed only; adjustTimeStep takes over at step 1
+writeControl    adjustableRunTime;
+writeInterval   __ENDTIME__;   // fields (U,T,p) at endTime only -> plant + gate + age guard
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  12;
+writeCompression off;
+timeFormat      general;
+timePrecision   10;
+runTimeModifiable false;
+
+// THE THREE CONSTANTS THE STABILITY PROBE FIXED (PREREGISTRATION §5.3), frozen here:
+adjustTimeStep  yes;
+maxCo           0.5;
+maxDeltaT       1.0e-4;
+
+functions
+{
+    // The R2 refining-sampler rule is CARRIED FORWARD UNCHANGED: nPoints = 2*(NXA+NXB)+1,
+    // i.e. exactly 2 samples per axial cell at every level (sampler/mesh = 0.499000 at
+    // L1, L2 and L3 alike).  R1's flat `nPoints 400` under-resolved by 1.6008x at L3.
+    //     L1 nPoints 321   L2 nPoints 641   L3 nPoints 1281
+    //
+    // WHAT CHANGED, AND IT IS ONLY THE CLOCK: writeControl timeStep/writeInterval 500
+    // (iterations) becomes adjustableRunTime/writeInterval __SAMPLEDT__ (seconds).  The
+    // GRADED value is 5.0e-04 s against endTime 0.080 s -> 160 samples, and the plateau
+    // window W = endTime/10 = 8.0e-03 s therefore holds 16 samples against R2's 13.  A ptp
+    // over MORE samples can only be LARGER, so the plateau limb is STRICTLY STRICTER than
+    // R2's at the same unchanged DELTA_X.  Nothing is loosened.
+    //
+    // adjustableRunTime makes the solver shorten dt to land exactly on each write time;
+    // §12 records the directory names this produced on disk (0.0001, 0.0002, ...), which
+    // is the §39.5 evidence that the comparator's history regex matches what is written.
+    // A CLAUSE-B smoke may override __SAMPLEDT__ to prove, in a handful of steps, that the
+    // sampler WRITES nPoints rows; the comparator refuses any level whose controlDict does
+    // not carry the graded pair.
+    centreline
+    {
+        type            sets;
+        libs            ("libsampling.so");
+        writeControl    adjustableRunTime;
+        writeInterval   __SAMPLEDT__;
+        interpolationScheme cellPoint;
+        setFormat       raw;
+        fields          (U T);
+        sets
+        (
+            line
+            {
+                type    uniform;
+                axis    x;
+                start   (0.002 0.0 0.0);
+                end     (1.998 0.0 0.0);
+                nPoints __NPOINTS__;
+            }
+        );
+    }
+}

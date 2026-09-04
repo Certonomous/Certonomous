@@ -1,0 +1,52 @@
+FoamFile { version 2.0; format ascii; class dictionary; object fvSchemes; }
+// VMFL046-R3 -- THE NUMERICS CHANGE, and it is the whole of branch (b)'s remedy.
+//
+// TWO CHANGES FROM THE R2 FROZEN FILE, BOTH FORCED BY MEASUREMENT (PREREGISTRATION §5):
+//
+//  (1) ddtSchemes steadyState -> Euler.  R2 had NO time derivative at all: rhoSimpleFoam
+//      contains zero fvm::ddt/fvc::ddt terms (measured -- see §5.1), so its "steady state"
+//      is the fixed point of a relaxation iteration, not of the physical equations.  The
+//      hunt R2 measured (80 % of the variance in one 4208-iteration mode, amplitude flat
+//      over 54 000 iterations) is a limit cycle OF THAT ITERATION.  Adding fvm::ddt(rho,U)
+//      puts a diagonal rho/dt on every equation, which is the textbook bound on exactly
+//      the pressure-shock feedback loop that hunts.  THIS IS THE REMEDY.
+//
+//  (2) The five convective schemes: first-order `Gauss upwind` -> second-order TVD
+//      `Gauss vanLeer(V) 1`.  NOT a preference -- FORCED, and the probe carries a control
+//      that proves it (§5.3).  With first-order upwind retained, EVERY transient
+//      configuration tested died at t = 4.1-5.8 ms, INCLUDING one at maxCo 0.05, ten times
+//      finer than configurations that had already failed.  A step-size instability yields
+//      to a smaller step; this one does not, because it is not one: the R2 shock profile is
+//      not stable under a physical time derivative.  vanLeer over limitedLinear because it
+//      reached the same endTime in 5476 steps against 6816 (measured), and because it
+//      carries NO free coefficient -- one fewer number that could be accused of tuning.
+//
+//  (3) `div(phiv,p)` is ADDED because rhoPimpleFoam's pEqn uses the volumetric flux where
+//      rhoSimpleFoam uses phid.  Without it the solver aborts at once with
+//      "Entry 'div(phiv,p)' not found" -- measured, not anticipated.
+//
+// The gradient schemes, laplacian, snGrad, interpolation and wallDist are UNCHANGED.
+ddtSchemes      { default Euler; }
+gradSchemes
+{
+    default         Gauss linear;
+    limited         cellLimited Gauss linear 1;
+    grad(U)         $limited;
+}
+divSchemes
+{
+    default         none;
+    div(phi,U)      Gauss vanLeerV 1;
+    energy          Gauss vanLeer 1;
+    div(phi,e)      $energy;
+    div(phi,K)      $energy;
+    div(phi,Ekp)    $energy;
+    div(phid,p)     Gauss vanLeer 1;
+    div(phiv,p)     Gauss vanLeer 1;
+    div((phi|interpolate(rho)),p)  Gauss vanLeer 1;
+    div(((rho*nuEff)*dev2(T(grad(U)))))  Gauss linear;
+}
+laplacianSchemes { default Gauss linear corrected; }
+interpolationSchemes { default linear; }
+snGradSchemes   { default corrected; }
+wallDist        { method meshWave; }
