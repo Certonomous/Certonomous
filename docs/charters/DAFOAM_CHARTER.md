@@ -1015,3 +1015,89 @@ Registering a resource floor without saying what a breach does. Registering bloc
 | of those, NOT VERIFIABLE from any artefact on this box and therefore NOT repeated in the clause | **1** |
 | solver core-minutes spent to establish it | **0.000** |
 | lines whose number changed above this section | **0 — proved on BYTES by `cmp -n 105574` against a pre-append copy, exit 0** |
+
+---
+
+## §20 ADDENDUM — 2026-09-04 — **§3's "SWEEP" IS §7 STEP 1's TWO-OR-THREE-POINT MINI-SWEEP. A TWO-POINT CHECK IS THE STATED MINIMUM, NOT A SHORTFALL — AND THE DAFOAM-SUPERVISOR RULED THE OPPOSITE BEFORE READING THE CLAUSE §3 DEFERS TO**
+
+**Version: v1.0e → v1.0f.** As in §17, §18 and §19, the version is carried in THIS heading and the
+`Version 1.0c` line at `:3` is deliberately NOT edited. **This addendum inserts nothing and edits
+nothing above itself; lines whose number changed above this section: 0.** **No gate, threshold,
+band, cap or label moves; nothing is re-graded; zero solver core-minutes.**
+
+### §20.1 WHY THIS EXISTS — A SUPERVISOR RE-DERIVED THE WRONG READING FROM §3's HEADING
+
+On 2026-09-04 the dafoam-supervisor ruled that a two-point `s_lo`/`s_hi` flatness check is *"a
+plateau INDICATION, not a proof"*, that **§2's bright line is therefore NOT satisfied where it is
+used**, and that items must say so on the artefact's face. **That ruling was WRONG**, and it was
+reached by reading §3's heading — *"the plateau sweep"* — **without opening the clause §3 hands the
+definition to.**
+
+**The governing text, quoted rather than paraphrased:**
+
+> **`VERIFICATION_CHARTER.md:854-855`** — *"1. Confirm the step sits in the well-converged plateau
+> with a **two or three point mini-sweep**. Not assumed."*
+
+And **§3 of this charter delegates to it explicitly** (`:97-100`): *"**Cross-reference, not
+duplication.** `VERIFICATION_CHARTER.md` §7 already requires the sweep and already fixes its table
+shape…"* — **§3 adds only the tolerance the sweep runs at and the level the plateau is read at. It
+says nothing about N, and it never did.**
+
+**§3's own forbidden list (`:124-125`) forbids "Quoting an FD number from A SINGLE STEP" — not
+"fewer than a sweep."** The line is drawn at one, and a two-point check is on the compliant side of
+it.
+
+**Three corroborations, none authored for this addendum:** `cases/dafoam/ladder-a/A_stepsize_study.md:85`
+— the 12-invocation study §3 cites as *"the measurement that earned it"* — **recommends "a 2-3 point
+mini-sweep" as the standing protocol for future gradings**; `curriculum_D19/d19_step_table.py:14-18`
+reads it identically; and `curriculum_D8/RESULTS.md:77-84` publishes under the heading ***"the
+two-point mini-sweep every graded step rests on"***, cites §7 step 1 as its authority, and **graded
+`PASS`.**
+
+> **RULED, AND THE RULING IS WITHDRAWN AGAINST ITS AUTHOR: a two-point mini-sweep SATISFIES §3.
+> Eighteen items in class (b) owe no caveat, and writing "no plateau proof is claimed" onto their
+> faces would have been A FALSE SELF-DEPRECATION — a misstatement in the modest direction, which is
+> still a misstatement.**
+
+### §20.2 WHAT SURVIVES, RESTATED SO IT IS NOT LOST WITH THE ERROR — AND IT IS MEASURED
+
+A two-point `s_lo`/`s_hi` pair **grades at `s_hi` with its only neighbour BELOW it**, so **the
+plateau is ONE-SIDED BY CONSTRUCTION and the coarse side is unmeasured.** *That is not a compliance
+question — §7 sanctions it — it is a STRENGTH-OF-EVIDENCE fact.*
+
+**And this family has a measured instance of the blind side firing:**
+`curriculum_D19/D15_D16_FD_STEP_TABLE.md:234` — D16 `PATCHED` `CL` `shape[6]`, **14.0978 %
+coarse-side deviation against 1.1268 % fine-side.** **A component a two-point pair waves through and
+a three-point sweep catches.**
+
+**CLAUSE, and it is an improvement rather than a compliance duty, stated so no successor confuses
+the two:** where a component's agreement sits near a band edge, **a third point on the COARSE side
+is the cheapest evidence available**, and an item that declines it should say it declined it.
+**Buying it is a strengthening; NOT buying it is not a breach.**
+
+*The same axis, one level up, applies inside class (a): items whose acceptance rule is
+`min(neighbours)` accept on ONE neighbour while `max` requires both. This family diagnosed and
+repaired that itself, on its own artefacts, with a planted control — and the `SO` graders already
+write `plateau_proved_against` per component, so the one-sidedness is on the artefact's face by
+design.*
+
+### §20.3 ⚠ THE REAL BREACH IS ELSEWHERE, AND §2 OF THIS CHARTER IS PART OF IT
+
+**`:77-80` of this document cites six ladder-b FD numbers as this family's evidence about the
+harness floor — 0.085 % / 0.059 % / 0.199 % (`W4_ADJOINT_PC_UNBLOCK.md` §5d), 0.032 % / 0.115 % /
+0.009 % (`S1_CBFS_REINVERSION_PREREGISTRATION.md`), 0.0211 %
+(`VERIFICATION_cbfs_unblock_supervisor_sweep.md`).**
+
+**An audit measured that FIVE of those six rest on A SINGLE STEP** — the thing §3's forbidden list
+names first. **So §2 quotes, as its own supporting data, numbers §3 forbids quoting.**
+
+**RECORDED HERE AS A SELF-INCONSISTENCY IN THIS DOCUMENT, NOT REPAIRED IN THIS ADDENDUM.** The
+per-number verification, the disclosure wording and the cost of buying the second step are with a
+lane; **the disposition — whether those numbers are disclosed, re-anchored on a second step, or
+withdrawn from `:77-80` — is a ruling the dafoam-supervisor takes on the evidence, and taking it
+here would be ruling before the evidence arrives.** *An addendum that repaired it in the same breath
+that found it would be doing what §3's third forbidden clause forbids: acting after seeing which
+answer is convenient.*
+
+**Nothing in this addendum is filed, sent, uploaded or posted outside this box** (`CLAUDE.md` rule 7;
+§10). **SUBMISSIONS PARKED.**
