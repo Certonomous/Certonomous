@@ -5172,11 +5172,78 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-04T02:15:17Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-56` — **the `DEAD` count counts IDENTIFIERS not BUDGETS (the S8 sub-cap is enforced in all four launchers under another name, so 4 of my 11 are wrong as boarded); `D12R` phase 2 buys NOTHING because `W` is not even in its admissibility condition; and this family now has a MEASURED PHYSICS LIMIT for Sanaa's desk — no FD-verified gradient exists on the 2D unsteady incompressible cell.** Before it, `S-55`, `S-54`, `S-53`, `S-52`, `S-51`, `S-50`, `S-49`, `S-48`…`S-29`.
+**Section last written:** 2026-09-04T15:15:13Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-57` — **⚠ a correction that reaches Sanaa's desk: I wrote that `W` is absent from `D12R`'s condition and no window could help. FALSE — `δ_eff` IS `δ_window`, a function of `W`; it fell 4.03× from `W=300` to `W=2000` and `h_min` improved 1.91×. The window axis is OPEN and still 1.82× short. The desk item is REFRAMED, not withdrawn. `D12R` closed `NOT A RESULT` for 0.0161 core-min.** Before it, `S-56`, `S-55`, `S-54`, `S-53`, `S-52`, `S-51`, `S-50`, `S-49`, `S-48`…`S-29`.
 
 **Section last written:** 2026-09-04T01:08:43Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-48` — **`W3` IS NOT RUNNING AND HAS NOT BEEN SINCE 21:57:49Z; IT REACHED ITS REGISTERED TERMINUS, AND THE REGISTERED FALLBACK DOES NOT RESCUE IT.** `S-47`'s and `S-46`'s *"`W3_chain_r2` running"* lines are **STRUCK BY QUOTE** below — they were true when written and were still being relayed three hours after they stopped being true. Before it, `S-47` — **DESK ITEMS CLOSED**: the **rule-10 hole is fixed in the constitution itself** on Sanaa's GO (`0ee2e7df`, verified by me at HEAD, not taken on relay), and the rule-12 estimate gap is **routed to verification** as a forward-only note. `S-46`'s "on Sanaa's desk" line is **struck by quote** so no successor re-escalates a closed item. **Nothing now on her desk from this family** but the four `NOT FILED` upstream defect classes and FD-vs-adjoint as a fourth `V` instrument. Before it, `S-46` (closing state), `S-45`, `S-44`, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+##### UPDATE S-57 — **⚠⚠ A CORRECTION THAT REACHES SANAA'S DESK: I WROTE THAT "`W` IS ABSENT FROM `D12R`'s CONDITION AND NO WINDOW COULD HELP IT." **THAT IS FALSE.** `δ_eff` **IS** `δ_window`, WHICH IS A FUNCTION OF `W` — MEASURED, IT FELL **4.03×** FROM `W=300` TO `W=2000` AND `h_min` IMPROVED **1.91×**. THE WINDOW AXIS IS **OPEN**, AND STILL **1.82× SHORT**. THE DESK ITEM IS REFRAMED, NOT WITHDRAWN. `D12R` CLOSED AT `NOT A RESULT` FOR **0.0161 CORE-MIN**** (2026-09-04, `date -u` stamp in the committing invocation)
+
+###### 1. THE CLOSURE LANDED, AND EVERY REGISTERED PREDICTION HIT
+
+**`D12R` — `NOT A RESULT` on the registered `G12R-4` branch**, my verdict, reached **without a fourth window being probed.** `h_min = 1.742838e-01` against `h_max = 5.000e-02`, over by `3.4857×`.
+
+| prediction, registered before the run | outcome |
+|---|---|
+| phase 2 `rc=0` | **HIT** |
+| two `NO ADMISSIBLE FD STEP` lines | **HIT** — and the lane flagged, correctly, that `:732` is a single `tee -a` (one line to stdout, one to the ledger), so "two" is a wording ambiguity in **my** prediction, not a discrepancy in the artefact |
+| zero `S6*` directories | **HIT**, and stronger — **zero new top-level entries of any kind**, before/after differenced |
+| `--plan2` `rc=2` at `G12R-5` | **HIT**, verbatim |
+
+**Cost 0.016105 core-min, gross == cleaned — 1.07 % of the 1.5 authorised, $0.0000138 DERIVED.** **Waste 0.0000, argued both ways and decided on the charter's own words: §6 names SOLVER cost, and the `:731` guard refused before the first `docker run`, so there is no solver row to call wasted.** The contrary reading is left standing in the record rather than deleted. **And the lane flagged that this ratio must NOT be averaged into the lab's rate-estimation record — it measures which branch fired, not estimate quality.** That is right and I endorse it.
+
+###### 2. ⚠⚠ THE CORRECTION, AND IT IS THE SHAPE I HAVE BEEN CATALOGUING ALL SESSION — NOW IN MY OWN PHYSICS
+
+I wrote, in `S-56` and in the message that authorised this run: *"for `D12R` the window does not appear at all… `δ_eff` is fixed, so admissibility reduces to `|g| ≥ 3.5917`… widening `W` cannot help because `W` is not in the condition."*
+
+**`δ_eff` IS `δ_window` to every printed digit, and `δ_window` is a function of `W`.** Measured across the siblings by me:
+
+| | `W=300` (`D12R`) | `W=2000` (`W3`) | change |
+|---|---|---|---|
+| `δ_eff` | `1.795848e-03` | `4.453500e-04` | **fell 4.0324×** |
+| `\|g\|` | `1.030416` | `0.488360` | **fell 2.1100×** |
+| `h_min` | `0.174284` | `0.091193` | **improved 1.9112×** |
+
+**A wider window HELPS — it has not helped ENOUGH.** The widest probe on this box is still **1.8239×** short of `h_max`.
+
+> **I conflated "this registration cannot vary `W`" with "`W` does not affect the physics." The first is true — `d12x_stage_and_run.sh` hard-codes `W_STEPS=300` and the frozen `plan()` passes the literal `W_PRIMARY`. The second is false.**
+
+**That is a constraint of the INSTRUMENT reported as a property of the PHYSICS** — the same disease as everything else this session, and this time it was in a claim I sent to Sanaa's desk. *It is also the exact inverse of my `SO3aF2` error, where I took an instrument's limitation to be the registration's. Twice in one session I put the map where the territory belongs.*
+
+###### 3. AND THE `W2R` ANOMALY IS EXPLAINED — IT IS DOCUMENTED BEHAVIOUR, NOT A DEFECT
+
+`S-56` §5 carried W2R's `δ_window(900)` being **bit-identical** to `W=300`'s as an open anomaly. **Resolved, and the explanation was in `W3_PREREGISTRATION.md:22` the whole time:** the frozen `plan()` passes the **literal `W_PRIMARY`**, so **W2R's `h_min = 0.157553` is `δ_window(300)/(0.01·|g(900)|)` — NOT a `W = 900` noise floor.** Only W3's successor comparator reads `W` from the record. **Confirmed on disk: `D12R`, `D12R2` and `W2R` all carry `δ_eff = 1.795848e-03`; only W3's differs.**
+
+**What this does to `S-50`'s table, precisely.** `W·|g| = 309.12 / 1025.85 / 976.72` is computed from `W` and `|g|` alone, and all three `|g|` are genuine measurements — **so `S-50`'s core finding stands: `|g` is non-monotone and `W·|g|` FELL from `W=900` to `W=2000`.** But **`h_min,env(900) = 0.086825` is an ENVELOPE PROJECTION, not a measurement**, because no `δ_window` was ever evaluated at `W=900`. I tabled it beside measured quantities without saying so. **Corrected here.**
+
+**The two framings are about different quantities and both are legitimate:** the **envelope** (`C_ENV/W`, requirement `W·|g| ≥ 1781.4`) is what W3 **registered**, deliberately, because the exact `δ_window` has deep minima at whole periods and *a window chosen on a baseline minimum is chosen to fit an answer it will not see*; the **exact** is what the lane compared. At `W=300` the exact sits **1.653× BELOW** the envelope; at `W=2000` they coincide to 1.000. **That gap is the whole difference between the two readings, and it is the `|sin(πW/P)|` phase term.**
+
+###### 4. ⚠ THE DESK ITEM IS REFRAMED — NOT WITHDRAWN, AND NOT QUIETLY EDITED
+
+**What I put on Sanaa's desk was: "no admissible FD step exists on the 2D unsteady incompressible cell — a measured physics limit."** That claim leaned partly on "the window axis is closed." **It is not closed.** The honest statement, which is what now goes to her:
+
+- **MEASURED:** at **every window this lab has evaluated — 300, 900, 2000 — no admissible FD step exists.** `h_min/h_max` = 3.49× / 3.15× / 1.82×.
+- **MEASURED:** widening the window **does** improve `h_min` (1.91× over 300→2000), but **`|g|` falls with `W` too** — widening the average damps the mean's own sensitivity to the shape DV — so the gain is the **ratio** of two falling quantities, not the window's full leverage.
+- **MEASURED:** on the **envelope** the registration uses for step-sizing, `W·|g|` **turned downward** between 900 and 2000.
+- **ESTIMATED, EXPLICITLY NOT A RESULT:** fitting `h_min ∝ W^-p` on the single measured pair gives `p = 0.3414` → **`W ≈ 11,600`**, and **that is ~4.8× the entire 2,400-sample retained series**, so it **cannot be evaluated on data that exists**. A one-pair fit, contaminated by a phase term differing between the probes (0.1809 vs 0.4574).
+
+> **So the limit is real but its character has changed: it is a MEASURED SHORTFALL AT EVERY EVALUABLE WINDOW plus a DATA-EXTENT bound — not a proof that no window can ever work.** That is a weaker claim than I sent up, and **a desk item that overstates its ground invites a correct rebuttal that then looks like it overturns the finding.**
+
+**`W3S` Arm A (`GSCAN`, 215.7 core-min) is now MORE valuable, not less** — it measures `|g(W)|` at three windows precisely to settle whether this axis converges or plateaus, and it predicts its own falsifier will MISS.
+
+###### 5. TWO MORE CORRECTIONS, BOTH ACCEPTED
+
+**My control constant was wrong: there are 16 `S3b*` DIRECTORIES, not 48** — 48 counts entries (16 dirs + 16 `.log` + 16 `.ok`), and `PREREGISTRATION.md` §3 settles it independently at `16 × 300`. **I passed a wrong number into a lane's planted control**; the lane caught it and planted against the true one anyway.
+
+**A third dead lever, reported not repaired:** `d12x_grade.py:37` defines `W_CONTINGENCY = 900` commented *"fires only on the G12R-4 branch"* — **the branch that just fired** — and the name occurs at exactly **two** sites, its definition and an echo into a `registered` dict. **It never reaches `g3_delta_window`, and the launcher hard-codes `W_STEPS=300` with no `W2` stage. The registered contingency for exactly this outcome could never have fired.** Both instruments are frozen by md5 and rule 6 binds, so it is **recorded, not repaired.**
+
+###### 6. THE HOLD — I WAS RIGHT, FOR A REASON THAT HAS NOW CHANGED
+
+`held/D12R_phase4.json` is **not released.** Its dependency on `step_plan3.json` survives. **But its stated `hold_reason` — *"phase 3 is being launched now and PRODUCES that file"* — is now demonstrably FALSE: `step_plan2.json` can never exist, so phase 3 can never start.** The hold is **permanent on `W = 300`, not stale; only its face is stale.**
+
+**Commits:** `9d811c42` (`curriculum_D12R/RESULTS.md` §9, append-only asserted before staging) and `a8b23162` (`COST_CALIBRATION.md`, 224→225 rows, zero pre-existing lines touched), both content-asserted.
+
+
 ##### UPDATE S-56 — **⚠ THE `DEAD` COUNT COUNTS *IDENTIFIERS*, NOT *BUDGETS*: THE S8 SUB-CAP IS ENFORCED IN ALL FOUR LAUNCHERS UNDER A DIFFERENT NAME, SO 4 OF MY 11 "DEAD" LIMITS HAVE LIVE BUDGETS. AND `D12R` IS ANSWERED: RUNNING PHASE 2 BUYS NOTHING — ITS OWN `step_plan.json` ALREADY SAYS `admissible: false`, AND FOR `D12R` THE WINDOW DOES NOT EVEN APPEAR IN THE CONDITION. **THIS FAMILY NOW HAS A MEASURED PHYSICS LIMIT FOR SANAA'S DESK.**** (2026-09-04, `date -u` stamp in the committing invocation)
 
 ###### 1. THE CLASSIFIER IS LANDED — AND I VERIFIED IT BY RUNNING THE COMMITTED BLOB MYSELF
