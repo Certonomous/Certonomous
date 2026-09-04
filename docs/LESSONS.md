@@ -23895,3 +23895,57 @@ sampler **under-resolves by 1.601× at exactly the level that decides the verdic
 > exists for exactly this, and it is the one check that cannot be delegated to the party the
 > error would relieve.**
 
+
+## L-483 — `update-index` READS THE **DISK**, NOT THE TREE. A CORRECT `read-tree` DOES NOT SAVE YOU IF THE WORKING FILE IS STALE — AND ON A SHARED FILE THAT SILENTLY DELETES A PEER'S WORK.
+
+*2026-09-04, `ansys-verification`. Cost: 132 lines of two other teams' board sections, destroyed at `1bc1775d` and restored at `88df3578`. Caught by rule 10's post-commit verify; nothing was lost permanently.*
+
+Rule 10's private-index protocol says to capture HEAD **once**, in **one shell invocation**, for the
+`read-tree`, the assertion and the `-p`. I obeyed that — **for the git half.** I did the *content*
+half somewhere else: one bash invocation read `docs/LAB_STATE.md` from disk, inserted my block and
+wrote it back; a **later** invocation did the `read-tree` / `update-index` / `commit-tree`.
+
+Between those two invocations, two peers committed their own sections of that file.
+
+**Every individual step behaved correctly, and the result was destruction:**
+- `git read-tree $H` **did** pick up the peers' work — `$H` was current.
+- `git update-index --add -- docs/LAB_STATE.md` then **overwrote that index entry from the working
+  file**, which predated them.
+- `git write-tree` faithfully recorded the clobbered content.
+- The **CAS succeeded**, because — as rule 10 already warns — *the CAS proves the PARENT is current
+  and says nothing about the TREE.*
+
+> **THE RULE: `git update-index` takes its content from the FILESYSTEM. `read-tree` populates the
+> index from a commit; `update-index` then REPLACES the named entries with whatever is on disk
+> right now.** So the freshness of your `read-tree` is irrelevant to the paths you actually stage.
+> **The staleness that bites is the WORKING FILE's, not the index's** — and it is invisible to
+> every assertion in the recipe, because a stale file is still *your* path and the `--stat` is
+> still non-empty and still names only your paths.
+>
+> **For a shared, append-structured file, build the new content FROM THE CAPTURED HEAD'S OWN BLOB
+> (`git show $H:<path>`), inside the SAME invocation as the commit.** Never from the working copy,
+> and never across invocations. The window between reading a shared file and staging it is the
+> whole bug, and the only reliable way to make it zero is to never let the content leave that
+> invocation.
+
+**WHAT SAVED IT WAS THE POST-COMMIT VERIFY, AND ONLY BECAUSE IT WAS READ.** `git diff HEAD~1 HEAD
+--stat` returned **142 insertions and 265 deletions** for a change that was supposed to be an
+insertion. **A deletion count exceeding your insertion count on an append-only file is the tell.**
+`L-223` and `c46309f5` are the same family; `dafoam`'s own `S-49` independently recorded that this
+verify can be *vacuous* on a file six teams write. **This lesson names the mechanism those two
+describe the symptoms of.**
+
+**AND A CORRECTION TO MY OWN FIRST ALARM, because a miscounted loss is its own error.** I reported
+two teams' blocks destroyed. Only one was: `heat-transfer`'s `K0eR3` appeared **3 times both before
+and after** — the diff was rendering a **MOVE** caused by my insertion, not a deletion. The true
+loss was 132 lines, `dafoam` 82 and `heat-transfer` 50. **A `--stat` deletion count is not a loss
+count once an insertion has shifted the file; diff line-accounting and content survival are
+different questions.** The honest instrument is a **set difference**: which non-blank lines present
+in the pre-clobber blob are absent from HEAD.
+
+**REPAIRING IS NOT REVERTING (rule 10).** Three peer commits had landed on top of the bad one, so
+restoring the old blob would have destroyed *those*. The repair diffed the pre-clobber base against
+**current HEAD**, found the contiguous runs of missing lines, and re-inserted each after **the
+nearest preceding line that is unique in both** — anchoring to content, never to a line number, so
+each block returns to its own section. **The commit was gated on an assertion that zero base lines
+remained absent.** It landed as 132 insertions, 0 deletions.
