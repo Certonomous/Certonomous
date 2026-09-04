@@ -5071,11 +5071,81 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-04T01:53:38Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-54` — **`SO3aF2`'s rest state verified by me at the artefacts and it HOLDS, with one refinement: the ITEM is at rest, the DIRECTORY is not clean. "Never once edited" now rests on ONE COMMIT AND ONE BLOB across all of git history, stronger than the md5 it was claimed on.** Before it, `S-53` (`F1`–`F5` all HIT, no verdict by construction, 3.15 % over an unenforced ceiling), `S-52`, `S-51`, `S-50`, `S-49`, `S-48`…`S-29`.
+**Section last written:** 2026-09-04T02:04:21Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-55` — **⚠ I PUBLISHED A FALSE ABSENCE TWICE: my reader asked for `held_reason` and the key is `hold_reason`, one character, so I called four fully-documented held rows "parked without a named cause". Struck. The ceiling sweep lands 377 limits — only 2 of 40 chain drivers guard their item ceiling — and `D12R` phase 2 has NEVER RUN with two phases dammed behind it.** Before it, `S-54`, `S-53`, `S-52`, `S-51`, `S-50`, `S-49`, `S-48`…`S-29`.
 
 **Section last written:** 2026-09-04T01:08:43Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-48` — **`W3` IS NOT RUNNING AND HAS NOT BEEN SINCE 21:57:49Z; IT REACHED ITS REGISTERED TERMINUS, AND THE REGISTERED FALLBACK DOES NOT RESCUE IT.** `S-47`'s and `S-46`'s *"`W3_chain_r2` running"* lines are **STRUCK BY QUOTE** below — they were true when written and were still being relayed three hours after they stopped being true. Before it, `S-47` — **DESK ITEMS CLOSED**: the **rule-10 hole is fixed in the constitution itself** on Sanaa's GO (`0ee2e7df`, verified by me at HEAD, not taken on relay), and the rule-12 estimate gap is **routed to verification** as a forward-only note. `S-46`'s "on Sanaa's desk" line is **struck by quote** so no successor re-escalates a closed item. **Nothing now on her desk from this family** but the four `NOT FILED` upstream defect classes and FD-vs-adjoint as a fourth `V` instrument. Before it, `S-46` (closing state), `S-45`, `S-44`, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+##### UPDATE S-55 — **⚠ I PUBLISHED A FALSE ABSENCE TWICE TONIGHT BECAUSE MY READER LOOKED FOR `held_reason` AND THE KEY IS `hold_reason` — ONE CHARACTER. ALL FOUR HELD ROWS CARRY FULL, DATED REASONS AND I CALLED THEM "PARKED WITHOUT A NAMED CAUSE". THE CEILING SWEEP LANDS: **2 OF 40 CHAIN DRIVERS** GUARD THEIR ITEM CEILING, AND `D12R` PHASE 2 HAS **NEVER RUN** WITH TWO PHASES DAMMED BEHIND IT** (2026-09-04, `date -u` stamp in the committing invocation)
+
+###### 1. ⚠⚠ STRUCK BY QUOTE — MY OWN, AND IT IS THE SAME DISEASE I SPENT THE NIGHT CATALOGUING
+
+~~*"and **not one carries a `REASON` file or any hold field in its JSON**; each carries only ranks and a `prereg_commit`. **A held entry with no recorded reason is indistinguishable from an abandoned one**, and under Sanaa's order these are assigned work parked without a named cause."*~~ (`S-48` §4/§5, repeated in `S-49` §... and `S-53` §4)
+
+**FALSE, and the false half is mine.** Measured now: **every one of the four rows carries `hold_reason` AND `hold_reason_recorded`**, with 29–35 keys each — not "only ranks and a `prereg_commit`".
+
+**THE CAUSE, AND IT IS EXACT: my reader probed the key list `('item','reason','held_reason','note','ranks','est_core_min','cap_core_min','prereg_commit')`. The field is `hold_reason`. I asked for `held_reason`.** One character. The reader printed the two keys it happened to name correctly, **and I published its blindness as a property of the rows.**
+
+> **A reader that asks for the wrong key returns "absent", and "absent" is indistinguishable from the thing not being there. That is the ninth instance of this family in this family's records, the SECOND in my own triage tonight — and unlike CORRECTION 6's JSON-string number, this one reached the board and stayed there through three blocks.**
+
+**What was TRUE and survives:** dafoam's `held/` carries no **sidecar `REASON.txt`**, which is the ansys-verification convention (`held/VMFLGPU001-R2.REASON.txt`). **The reason is ON the row, not BESIDE it.** There is also a 17 KB `held/README.md` naming all four. **My instrument could see the missing file and could not see the present field, and I reported the union as absence.** Four well-documented rows were called abandoned work on this board for over an hour.
+
+###### 2. TWO MORE CORRECTIONS TO ME, BOTH VERIFIED BY ME AT SOURCE
+
+**(a) The "18.0 GiB floor on a 16.0 GiB box" is REFUTED — I should never have repeated it.** `/proc/meminfo` `MemTotal: 32132608 kB` = **30.64 GiB**. `D8R`'s 18.0 GiB floor is satisfiable, **was satisfied**, and the decisive falsifier is that **`D8R` ALREADY RAN TO COMPLETION**: `CHAIN_DONE` reads `arms=[O-P F-P O-S F-S] grader_rc=0`, and `D8R_grade_20260828T021329Z.json` carries **`verdict: PASS`**, 876.867 core-min against 1038.0 predicted (**ratio 0.845**). **A floor that can never pass does not produce four completed arms and a two-row PASS.** I carried this from another team's note without checking the box's own memory.
+
+**(b) `SO3aF2`'s `CEILING` is REPORTS ONLY, not DEAD.** I wrote *"written, displayed, and read by nothing"* — **displayed IS a read** (`:517` into every ledger row). The substance is unchanged and the breach is unchanged; **the label matters because the sweep found 11 limits that are genuinely worse.** And the launcher enforces **more** than I said: `MEM_FLOOR_GIB=6.0` compared at `:206` terminating non-zero **before launch**, `FORBIDDEN_CORE=9` at `:229-234`, `MEM_CAP` reaching `--memory`. **There was also a THIRD layer I never named** — the queue runner's own cap watch, which reported `elapsed 120 s > registered CAP 120 s` on the census arms and stated *"The run was NOT killed."* — **advisory and OFF by design** (`docs/standards/RUNNER_CAP_ENFORCEMENT_CLAUSE.md`, D539), **switching it on reserved to Sanaa.**
+
+###### 3. THE SWEEP — 377 LIMITS, AND THE NUMBER THAT DECIDES THE REPAIR
+
+**377 registered budget limits across 181 files**, from 735 candidate files, with the classifier **refusing (exit 2) until four planted controls passed** — a known-live cap, `SO3aF2`'s known-reporting ceiling, a synthetic DEAD limit and a synthetic LIVE one. **It refused three times and every refusal was a real reader defect** (shell `case`-arm assignments invisible; no transitive def-use, so `CAP → DEADLINE_S → timeout -k` read as a report; a launch detector matching filename *mentions*). **A classifier that had only ever printed DEAD would have passed none of them.**
+
+| class | count | share |
+|---|---:|---:|
+| **ENFORCED** (prospective guard, or a `timeout`/`--memory`/`ulimit` sink) | **164** | 43.5 % |
+| **ENFORCED-WATCHER** (concurrent poll → `docker stop`; **dies with the host shell**) | **41** | 10.9 % |
+| **REPORTS ONLY** | **161** | 42.7 % |
+| **DEAD** | **11** | 2.9 % |
+
+**The lane split my temporal rule and the split is right:** a concurrent watcher that fires `docker stop` **does** stop the run, and collapsing it into "post-hoc report" mislabels 38 live ceilings — while collapsing the other way **is** the `SO3aF2` defect. It also carries the honest caveat this family already measured: **a host-side watcher only enforces while the host process lives, and one demonstrably failed to fire on 2026-09-03.**
+
+**⚠ AND THE SCOPE NUMBER: only TWO drivers compare a CUMULATIVE item spend to its ceiling and abort — `d6rf_chain_driver.sh:164-169` (`exit 6`) and `d6rf2_chain_driver.sh:178-179`. By my own count `find cases/dafoam -name "*chain_driver.sh"` returns 40** (the lane counted 42; the difference is naming and neither of us resolved it — stated rather than smoothed). **So the guard exists in 2 drivers and is absent from ~38. It was invented late and never back-fitted — rule 14's shape at the driver level, and it is the repair that would have caught `SO3aF2`.** Its own comment names the mechanism: *"a per-arm cap alone cannot see an item walking past its own ceiling one arm at a time."*
+
+**The 11 DEAD, each a sole textual occurrence in its own file, hand-verified:** `CAP_S8_CORE_MIN` in four D12-family graders (350.0/350.0/350.0/**400.0**, the last being W3's registered `CAP_S8`); `COST_PER_START_CEILING_CORE_MIN` 25.0 ×2 (D13); `CAP_MARGIN_S` 180 s ×2 (D19M/D19O); `MAX_ITER_CAP=40` (D13 basin); and **`AGG_CEILING_GIB=30.6` ×2 in D19/D19R — a WHOLE aggregate-memory watcher registered and never written**, where D19M/D19O carry the working version. **That last one is a live safety gap, not bookkeeping.**
+
+###### 4. THE HELD QUEUE, PROPERLY READ — THREE ARE TERMINAL, ONE IS STRANDED
+
+| entry | state | basis, verified on disk |
+|---|---|---|
+| `D8R_chain` | **legitimately held — and TERMINAL** | already run and graded, **`PASS` both rows**, 876.867 core-min |
+| `D6_chain` | **legitimately held — SUPERSEDED two generations** (D6R → D6RF → D6RF2) | D6's own `CHAIN_DONE` is `STOPPED_AT_FIRST_NONZERO arm=O_mp rc=124` — one arm, no result |
+| `D6_chain_wait` | **same, and an ACTIVE HAZARD** | its precondition `CURRICULUM-D5…/CHAIN_DONE` **now EXISTS**, so releasing it on a glance fires a **1,694.7 core-min two-generations-obsolete chain immediately** |
+| **`D12R_phase4`** | **⚠ STRANDED** | held on `step_plan3.json`; the stated basis has **expired** |
+
+**`held/` implies a reversibility that three of these do not have.** Three are terminal and belong in a `superseded/` or `completed/` state — **the semantics, not the paperwork, are the hazard.**
+
+**⚠ AND `D12R` IS A NEVER-RUN CASE IN SANAA'S 2026-09-04 SENSE, WHICH MAKES IT MANDATORY AND HIGH PRIORITY:**
+
+| step | state |
+|---|---|
+| phase 1 | **DONE** — 63.95 core-min measured |
+| `--plan` → `step_plan.json` | **PRESENT** |
+| **phase 2** | **⚠ NEVER RUN — no status file, no queue entry, EVER** |
+| `--plan2` → `step_plan2.json` | **ABSENT** |
+| phase 3 | fired **twice** (2026-08-26 `rc=1`, 2026-09-03 `rc=1`), **both aborted at ZERO compute** on `step_plan2.json` absent |
+| phase 4 | **HELD** on `step_plan3.json` |
+
+> **Phase 3 was re-fired twice instead of phase 2 being run once. The hold on phase 4 is real; the reason written beside it expired the same day it was written, and nobody re-checked.**
+
+**The missing work is NOT a solve-and-hope: phase 2 is one registered stage, and `--plan2`/`--plan3` are comparator passes over artefacts.** Dispatched under the mandatory-completion order, pre-registration checked before anything fires.
+
+###### 5. WHAT THE LANE COULD NOT ESTABLISH, CARRIED AS ITS LIMITS AND NOT SMOOTHED
+
+The classifier is **regex plus INTRA-file def-use, not an interpreter** — it cannot see **cross-file** enforcement, so **ENFORCED is a LOWER bound and REPORTS ONLY an UPPER bound.** The 11 DEAD are safe against that (each a sole occurrence in its own file, each read individually), **but 5 non-grader REPORTS-ONLY sites were classified BY NAME AND NOT READ** and any could be a false REPORTS ONLY. **Whether the 41 watcher guards survive agent death is established for ONE of 41.** And the lane **did not re-derive the 9.2833 figure** — it cites the item's own record and says so.
+
+**OWED BY ME:** the classifier is in **scratch**, which is wiped and is never a handoff channel (L-186) — **it moves under `cases/dafoam/_common/` or it does not exist.** Then: the item-ceiling back-fit decision across ~38 drivers, the 11 DEAD limits, `held/` state hygiene, and `D12R` phase 2.
+
+
 ##### UPDATE S-54 — **`SO3aF2`'s REST STATE VERIFIED BY ME AT THE ARTEFACTS, NOT ON RELAY — AND IT HOLDS, WITH ONE REFINEMENT: THE **ITEM** IS AT REST, THE **DIRECTORY** IS NOT CLEAN. "NEVER ONCE EDITED" NOW RESTS ON BLOB IDENTITY ACROSS ALL OF GIT HISTORY, WHICH IS STRONGER THAN THE `md5` IT WAS CLAIMED ON** (2026-09-04, `date -u` stamp in the committing invocation)
 
 ###### 1. THE HEADLINE CLAIM, RE-PROVED ON A BETTER INSTRUMENT THAN THE ONE THAT CARRIED IT
