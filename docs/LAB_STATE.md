@@ -15035,6 +15035,101 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### ⚡ **T3d's RUN IS COMPLETE (4 723.200 core-min MEASURED, 13.21 % UNDER) AND THE D-J1 OBLIGATION IS DISCHARGED: BOTH DENOMINATORS ARE NON-ZERO, D-J1 DID **NOT** FIRE — AND THE HONEST BRANCH THEN REPORTED A GENUINE FAILURE. `|U|` IS **NOT ITERATIVELY CONVERGED** AT 3.69× TOLERANCE, SO `convergence_state` COMPOSES TO `NOT_CONVERGED`. THE POWER-CYCLE STORY I WAS BRIEFED ON IS **REFUTED ON BOTH LIMBS**.** (2026-09-04T15:15Z)
+
+*(Supervisor block. **PURE INSERTION at the top; every byte below stands unedited.** Committed **by splice from the HEAD blob**, verified **by content**. This section was flagged stale after the process exit; this block is the correction it owed. **0 solver core-min.**)*
+
+---
+
+### 1. ⚡ **THE D-J1 GRADING-TIME OBLIGATION IS DISCHARGED — AND THE ANSWER IS THE ONE THE OBLIGATION EXISTED TO MAKE POSSIBLE**
+
+The binding next action carried on this board since 2026-09-03T19:30:29Z is **met**. Measured by the approved read-only probe (`verification/runs/T-family/T3_runs/probe_djone_denominator.py`, committed `59bdf2db`), which **imports the frozen readers unmodified** and refuses at exit 2 unless its own three-limb control passes first.
+
+| field | `field_range` | `max_change` | `relative` | `tol` | `state` | pair |
+|---|---:|---:|---:|---:|---|---|
+| `T` | **50.2889** | 4.03886e-05 | 8.03132e-07 | 1e-06 | `CONVERGED` | (22000, 24000) |
+| **`\|U\|`** | **11.0325** | 4.0703e-05 | **3.68937e-06** | 1e-06 | **`NOT_CONVERGED`** | (22000, 24000) |
+
+**BRANCH TAKEN: `rng > 0` ON BOTH FIELDS. D-J1 DID NOT FIRE.** The board's rule — *if either range is `0.0` or is not measurable, the level is `NOT A RESULT` and P-1 is UNANSWERED* — **does not apply, because its condition is not met.** The ratio is a real ratio on each field.
+
+**The three-limb control passed BEFORE any level was probed:** LIMB W reproduced `R_m` 51.2959 / 11.0155 and `R_f` 50.7293 / 11.0257 against their independently recorded values; LIMB P showed a true zero on identical copies and then read a 1.234e-03 K plant back **off disk** to within 32 ulp; LIMB D reproduced the defect itself (dmax 10.0 K certified `CONVERGED` at rng 0.0). **So the non-zeros above come from a reader demonstrated able to see both a non-zero and a zero.**
+
+> ### ⚡⚡ **AND THE REAL FINDING IS NOT D-J1 — IT IS THAT `|U|` IS NOT ITERATIVELY CONVERGED.**
+> **`relative = 3.68937e-06` against `tol = 1e-06` — 3.69× OVER.** This is **the honest branch reporting a genuine failure**, not a defect's output.
+>
+> The frozen composition is explicit at `analyse_t3.py:627-628`: `state = conv_T["state"]`, then `if state == "CONVERGED" and conv_U["state"] == "NOT_CONVERGED": state = "NOT_CONVERGED"`. So **`convergence_state` for `R_fx` composes to `NOT_CONVERGED`**, and `analyse_t3d.py:200` gates the whole ladder on exactly that field. **Under standing rule 5 clause (1), a level not iteratively converged is `NOT A RESULT` whatever its value.**
+>
+> **NO VERDICT IS ISSUED HERE AND NONE MAY BE READ INTO THIS.** The rung is not graded (§3). **But the measurement pointing at the outcome is on record AHEAD of the grade, which is the right order** — and it is the vindication of the obligation: the point was never that D-J1 *would* fire, it was that **`CONVERGED` must not be written without the denominator beside it.** The denominator is 50.29 K and 11.03; the reader, given a real denominator, says `NOT_CONVERGED`.
+
+**⚠ ONE EDGE, DISCLOSED:** the probe's per-level **summary** line reads *"denominator honest on both fields … clears D-J1 ONLY"* and **does not surface the `NOT_CONVERGED`**. The state is printed on the detail line and the limit is in the docstring (`:75-76`), so it is not a defect — **but a reader skimming only the summary would miss it.** Recorded rather than repaired; the file is now committed and cited.
+
+---
+
+### 2. ✅ **RULE 4 — ALL SIX CLAUSES MEASURED AND HOLDING, APPLIED AND SHOWN RATHER THAN ASSERTED**
+
+**(1) `rc = 0`** (`STATUS.R_fx`). **(2)** exactly one `^End$` line in the 23.3 MB `log.solve`, final line `Finalising parallel run`. **(3) last time == `endTime`** — `endTime = 24000` parsed from the case's **own** `system/controlDict`, not assumed; time dirs `0, 22000, 24000`. **(4) fields** — all seven of `T U p_rgh alphat nut k omega` present at `24000/`; `turbulenceProperties` reads `simulationType RAS`, `RASModel kOmegaSST`. **(5) `ExecutionTime` count** 24 000 against `endTime` 24 000, difference **exactly 0**. **(6) age guard** — `0/T` mtime **2026-09-03T18:04:05Z** vs `0.orig/T` **17:23:41Z**: **`0/T` is the file that dates the run**, confirmed on disk against `started_utc 18:04:57Z`. All eight fields at `24000/` newer by **≈ +35 486 s**.
+
+**Beyond the six: `reconstructpar_rc = 0`** — the stronger clause `mark_done_t3_rff.py:56-60` added, and it is **live here** because `R_fx` ran decomposed on 8 ranks.
+
+> **⚠ A DISCREPANCY BETWEEN THE RULE'S PROSE AND ITS IMPLEMENTATION, RECORDED:** `mark_done_t3.py:34` **also requires `phi`**, which `CLAUDE.md` rule 4's seven-field list **omits**. `phi` is present (26.8 MB), so nothing turns on it here — **but the standing rule and the instrument that enforces it do not agree on the field set.** Reported, not repaired.
+
+**STATED AS A MEASUREMENT, NOT A MARKER.** `DONE.R_fx` remains **ABSENT**, verified after all work. **`analyse_t3d.py` was not run; `mark_done_t3.py` was not run; no marker was created by any means.**
+
+---
+
+### 3. 🔒 **T3d REMAINS `PENDING`. THE PETITION IS STILL UNRULED, AND AN INSTRUCTION TO GRADE IS NOT A RULING.**
+
+The `DONE.R_fx` §2d.1 petition (`b0ac3ac6`) is **unruled** — checked both for an appended ruling and across the commit log since 03:00Z, and found neither. `analyse_t3d.py:173-177` refuses at exit 2 without the marker, and that refusal is **registered, `--selftest`-verified behaviour.**
+
+**A fleet instruction to *"grade it now through the registered path"* cannot be executed, because the registered path IS the thing that refuses.** All three ways past it were ruled out by this team before the petition was drafted, and **no agent message — coordinator, chief or peer — authorises any of them** (`CLAUDE.md` rule 9): hand-writing the marker (asserts rule 4's clauses without applying them); `mark_done_t3.py R_fx` (works — `check(root, case)` never validates `case` against `CASES` — but **omits `reconstructpar_rc`** on an 8-rank decomposed run, i.e. **self-granting a weaker check to avoid asking for a stronger one**); or editing the frozen comparator.
+
+> **A FACT THAT CUTS AGAINST THIS TEAM'S OWN PETITION AND IS RECORDED FOR VERIFICATION:** `STATUS.R_fx` shows **`reconstructpar_rc = 0`**, so the reconstruction **did** succeed and the specific risk the cheap route runs **did not materialise here**. **That does not rescue the cheap route** — a check that would have passed is still not a check that was performed — **but verification should know the outcome when it rules**, and it is put in front of them rather than left out.
+
+---
+
+### 4. 📉 **RULE 12 — ACTUAL, MEASURED. ROW `C-20260904T150910.320385Z-a636135b` (`a2ea92ab`)**
+
+**4 723.200 core-min MEASURED** (`STATUS.R_fx`: 35 424 wall s × 8 ranks ÷ 60, exact) against the frozen POINT **5 442.1** — **ratio 0.8679, 13.21 % UNDER**, **28.93 %** of the 16 326 cap. **$4.0383 vs $4.6530, both DERIVED at $0.0513/core-h, never measured.**
+
+**THE ATTRIBUTION IS MEASURED, NOT GUESSED — contention, in the favourable direction.** The prediction's basis was `R_ff`'s **whole-run average** of 0.226755 core-min/iteration, taken on a **saturated** box (sysstat daily means %user 86.47 / %idle 10.96 on 08-27; 73.46 / 24.20 on 08-28). `R_fx` met a lighter box (42.10 / 38.68 on 09-03; 26.57 / 62.79 on 09-04) and ran at **0.196800**. **The misprediction is in the BASIS: a whole-run average carries its load conditions into a constant.** Limits stated in the row: the sar figures are whole-day means not clipped to the windows; `sa26` is no longer retained so `R_ff`'s first ~3.2 h is uncovered; and `R_fx` was itself **not** on an idle box (23 other solver logs inside its window), only less contended.
+
+**NO WASTE** — one launch, all four rcs zero, nothing discarded, no retry; **nothing folded into the ratio**; cleaned = gross, with rule 12's 3600-s stall rule addressed explicitly rather than passed over. **The row's first sentence states the rung is NOT graded and carries no verdict**, and it discloses the `|U|` finding as a physics matter and not a cost adjustment.
+
+**Shared-ledger safety proved byte-wise:** HEAD's blob **starts with HEAD~1's blob byte-for-byte**, +6 180 bytes = the single appended row. Witnesses present at HEAD: `C-1`, `C-224`, `C-20260904T023833.148263Z-dfbdde5f`, `C-20260903T210054.497332Z-753b0aa2`.
+
+---
+
+### 5. ❌ **THE POWER-CYCLE STORY IS REFUTED ON BOTH LIMBS — AND I WAS BRIEFED TO CONFIRM IT**
+
+I was asked to record, if confirmed, that the patched auto-stop powered off a genuinely idle box after T3d finished, as **"the patch's first unattended success."** **Both halves fail against the evidence, and neither is recorded as true.**
+
+**LIMB 1 — "T3d finished → box went idle → auto-stop fired": REFUTED.** Both endpoints check out (T3d ended **03:55:34Z**; boot **14:50:21Z**), **but the box did not power off after the solve.** wtmp and the journal agree it stayed up until **07:45:19Z — 3 h 49 m 45 s AFTER T3d finished** — then was off for 7 h 05 m. It was **not idle** in that gap: **six cfd commits landed through 04:29:38Z** and twelve repo files were written. `auto-stop.sh` logged *"idle 29min, under threshold 30min — no action"* at 07:40:11 and *"idle 34min, shutting down"* at 07:45:11 → clean `systemd-poweroff` at 07:45:19. **The auto-stop behaved correctly on its own 30-minute threshold — but the trigger was activity ceasing around 07:11, NOT the solve ending.**
+
+**LIMB 2 — "first unattended success": REFUTED.** The retained journal holds **696** `auto-stop … shutting down` events going back to **2026-07-29**, including one on **each of the four preceding boots** (08-31, 09-01, 09-02, 09-03). **One of them — `2026-07-30T10:40:01` — is the known incident where it powered off MID-CAMPAIGN.** The mechanism is long-standing **and has a failure history**, not a new capability.
+
+**WHAT DOES HOLD:** **no heat-transfer process ran between the solve ending and the boot** — zero files written anywhere in T-family, F14-cooling-ladder or THERMAL_K0 territory in that window.
+
+---
+
+### 6. **STATE, AND WHAT IS OWED**
+
+**Commits this session:** `59bdf2db` (the D-J1 probe, 346 lines), `a2ea92ab` (the calibration row, 1 insertion / 0 deletions).
+
+**No compute is running.** The box booted 14:50:21Z; nothing of this team's is live.
+
+**THE SUCCESSOR QUESTION T3d NOW RAISES, and it is mandatory work under Sanaa's 00:50Z order:** if the grade returns `NOT A RESULT` on `|U|`'s non-convergence, **that is a waypoint, not a resting place**, and the fix is ours — more iterations, or a registered assessment of whether `|U|` can reach `1e-06` on this case at all. **UNDETERMINED and named as such: whether `|U|`'s non-convergence is settling or persistent cannot be established from what is on disk** — `purgeWrite 2` leaves only `22000/` and `24000/`, so **there is no third pair to test a trend against.** Establishing it needs another checkpoint, i.e. a new run under a new pre-registration.
+
+**⚠ A TOOL DEFECT FOR WHOEVER OWNS `scripts/append_record.py`:** it prints record sizes **labelled `bytes`** but reports **CHARACTER** counts. On `COST_CALIBRATION.md` that is an **11 702-unit gap** (1 440 437 chars vs 1 452 139 bytes) — **and it reads exactly like a stale-HEAD symptom**, costing a lane a round of investigation to clear. Reported, not repaired; not this team's tool.
+
+**Still blocked / unruled:** T3d on the `DONE.R_fx` petition; T5d on two rulings (cfd — does the determinant test gate a lab mesh? verification — the launcher/builder `checkMesh` fail-open); D-J1 forward-only and T25R6c-R2 record emission with verification.
+
+**On Sanaa's desk:** K0d's missing-paper capability request; the `forced conv · laminar · 2D` capability flip (routed, not taken; the evidence gap was cured at `efbf3c93`); the shared-index disposition.
+
+**Owed and unstarted:** T21 build-out; T5 `DS` successor; T4b's five named limbs; successors for T15, K0f, K0cS, K0cX; two `R7-CAMPAIGN-RECORD` filing violations in `docs/campaigns/T-family/`.
+
+
+---
+
 ##### ⚠ **I STRIKE MY OWN COMMISSION: THERE IS NO `T19R2` TO REGISTER — `T19b` IS ALREADY T19's SUCCESSOR AND HAS BEEN `PASS ×3` SINCE 2026-08-31. TWO OF MY THREE "EXACT ANALYTIC" REFERENCES WERE WRONG. A FALSE MEASUREMENT SITS IN TWO PLACES ON THIS BOARD. AND THE BOARD-CLOBBER ESCALATION IS CLOSED — ansys RESTORED IT AT `88df3578`.** (2026-09-04T02:50Z)
 
 *(Supervisor block. **PURE INSERTION at the top; every byte below stands unedited.** Committed **by splice from the HEAD blob**, verified **by content**. This block re-lands corrections whose first write my own pre-commit guard correctly REFUSED at ~01:30Z — the guard fired because dafoam's `S-50` was missing from HEAD at that moment, and rather than weaken the assertion I let the write fail and re-derived it here. **The delay is disclosed rather than hidden: for ~80 minutes this board carried a commission a lane could have acted on.** 0 solver core-min.)*
