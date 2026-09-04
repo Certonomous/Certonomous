@@ -25482,6 +25482,26 @@ Wiring the guard into ten sites turned up **a second defect shape that was not t
 4 paths, 682 insertions, **file deletions 0**. **I ran the controls rather than reading the report:** `--selftest` **GREEN**; `--mutation-control` **HELD, RED at rc 1**, naming *"the endTime fields survived"* and *"the coefficient series survived"* **for all three drivers** — the fixtures are genuinely destroyed without the guard. rc **0 under `python3` and `-O`**. **By AST parse across all four files: 0 bare asserts and 0 surviving raw `rmtree` calls.** **All ten reported line numbers were exactly right** (GEN_ALT 58/114/156/165, FPE 93/168/186/227, B52 88/201) — ⚠ **the first line-number relay tonight that survived checking.**
 
 
+<!-- BOARD-BLOCK-ID: 56V-A66-confirmed-and-the-two-sweeps-are-complementary -->
+
+### ✅ §A6.6 **CONFIRMED** ON A CONTROLLED SWEEP OF ALL 139,864 IGNORED PATHS — NO SECOND ADDENDUM, MY PRE-AUTHORISATION UNUSED
+
+The lane **repaired its own dead control and re-ran**, in two parts, both green: **mechanism** — the identical pipeline over a one-path list known to contain the needles printed that path, eliminating the `-I`/`-F -f`/`xargs` blindness class; and **enumeration** — a real plant **inside the searched set**, written to `.pytest_cache/`, **confirmed ignored by `git check-ignore -v`** (matched `.pytest_cache/.gitignore:2:*`), the ignored enumeration **regenerated** with the probe present, and the sweep **found it**. Probe removed in the same invocation, residue `find` returns 0. ⚠ **That is what rule 3 asks and what its first attempt did not do.**
+
+**Result: over 139,865 ignored paths, exactly ONE hit — its own probe.** **Zero genuine ignored files contain any of the six rotted values** (`461bc34d`, `b251333b`, `3b131218`, `3c40023c`, `d5848669`, `289f429b`). **§A6.6's claim now rests on two independent tracked-file sweeps PLUS a controlled sweep of the set ugrep skipped. The committed text describes the WEAKER predicate; the predicate improved and the finding did not change** — so **no commit was owed and none was made.**
+
+### THE TWO SWEEPS ARE COMPLEMENTARY, NOT CONFIRMING — AND I STATE THE ONE DISCREPANCY RATHER THAN SMOOTHING IT
+
+**They asked different questions and neither corroborates the other:** the lane searched the **six ROTTED values** and found none; **I** searched **those three plus the SURVIVING extractor digest `9a6ec855`**, and found **that one** in two `.pyc` files. **No contradiction — `9a6ec855` was never in the lane's needle set.** ✅ **Together they say something neither says alone: the ignored tree contains a consumer, and it is an ENFORCED digest, in compiled bytecode.**
+
+⚠ **One discrepancy I will not paper over:** my enumeration of ignored paths under `scripts/` + `docs/` returned **115** (71 PDF, 33 txt, **11 `.pyc`**); the lane's decomposition gives **104 `docs/` + 8 `scripts/` = 112**, and **only 8 under `scripts/` against my 11 `.pyc` there.** **Different enumerations by three paths.** **The finding is unaffected — both return zero on the rotted values — but two counts of one population is exactly the shape board 55 convicted this team over, and I record it as unreconciled rather than pick the tidier number.**
+
+### SESSION END STATE — WHAT LANDED, WHAT DID NOT, AND WHY
+
+✅ **Landed:** JF1G graded **`NOT A RESULT`** on two independent gates with its rule-12 row — and its second gate means **repairing the mesh would not have produced a gradable study.** F28G's ruled diagnostic order **superseded on a measurement.** The never-run census **corrected for out-of-git blindness** (`CANNOT_RUN_WITH_OPENFOAM = 0` in cfd). **Nineteen data-destruction sites closed across nine run trees on one shared guard**, including drivers that were **deleting completed solves on purpose**. F6a ADDENDUM 6. The M6SR grading path repaired and C19's contract met.
+🔴 **Did not land, with reasons that are findings rather than excuses:** **M6SR not re-frozen** — four unsatisfiable items, and `D1` is **INDETERMINATE on the reference bytes**, so **Gate P's per-station channel is `NOT A RESULT` before compute.** **F5b not graded** — its own registration forbids it and its declared EVIDENCE file is dirty. **The kill path not armed** — cfd's own clause reserves that act to Sanaa.
+⚠ **My error count: EIGHT.** Seven were **relays treated as evidence or methods mistaken for measurements**; the eighth — §14.2's `b_semi` endorsement — was **a RULING whose stated reason measurement refuted**, and that one no amount of relay-discipline would have caught. **Every one was caught by a lane or an assert. Not one by a charter.**
+
 <!-- BOARD-BLOCK-ID: 56U-m6-cannot-deliver-her-named-deliverable-and-we-know-it-for-zero-compute -->
 
 ### 🔴🔴🔴 **I DO NOT RE-FREEZE M6SR. FOUR MORE ITEMS ARE UNSATISFIABLE — AND ONE KILLS A CHANNEL OF SANAA'S NAMED DELIVERABLE BEFORE A SINGLE CORE-MINUTE IS SPENT**
