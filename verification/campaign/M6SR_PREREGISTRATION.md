@@ -5559,3 +5559,359 @@ re-derived inside the commit invocation that carries this section; the commit AB
 settled in earlier amendments and are **relied on, not re-verified here**. **Check 1 on this diff,
 check 4, the freeze and the launch are the supervisor's**, and this lane takes none of them.
 **Subject to those four, this lane knows of nothing between this document and a lawful launch.**
+
+---
+
+## 25. AMENDMENT 19 — 2026-09-04, **PRE-COMPUTE**. **§7 DECLARED ITSELF THE SOLE BLOCKING AUTHORITY FOR ELEVEN ADVERSARIAL PASSES WHILE FOUR OF ITS FIVE CONDITIONS WERE WIRED TO NOTHING.** ITEMS **43–46** WIRE ALL FOUR AT §7's OWN STATED THRESHOLDS, EACH UNDER A PLANTED CONTROL THAT FIRES — AND ITEM **47** IS RAISED: **NOTHING ON THE LAUNCH PATH CONSULTS GATE A AT ALL**
+
+**Version 1.19. Lines whose number changed above this section: 0.** This amendment is **appended
+at the foot** and edits nothing above it. **Verified, not asserted:** lines **1–5561** of this
+file — the whole of it up to and including §24.14's closing line, and therefore **every**
+guaranteed range §15.10 through §24.13 asserts — are **byte-identical** before and after this
+append, rendering to sha256
+**`5a166ce54f562e934b79c445aa106ef60e569004a710d00500f281e95276b6d6`** *(asserted here and
+**re-derived inside the commit invocation that carries this section**, with the commit
+**ABORTING** if it moved)*.
+
+### 25.1 🔴 THE FINDING, STATED WITHOUT SOFTENING
+
+**§5 line 796 reads *"Only §7 blocks a launch."* §7 line 1058 reads *"Checked per level BEFORE
+launch. A failure here `BLOCKED`s the level. Nothing else blocks."* It lists FIVE conditions.
+FOUR OF THE FIVE WERE WIRED TO NOTHING.**
+
+| §7 condition | its stated threshold | wiring **before** this amendment |
+|---|---|---|
+| **1** ≥ 3 patches; `wing` wall; symmetry typed `symmetry`; farfield `patch` | — | ✅ **WIRED TWICE** — `build_m6sr_l1.sh:763-767` aborts at exit 8, `analyse_m6sr.py` A9 labels `BLOCKED`, and `write_m6sr_case.py`'s CH1 refuses. **Nothing to do.** |
+| **2** `Boundary openness` ≤ 1e-12 | 1e-12 | 🔴 **NOT GATED.** Extracted at `analyse_m6sr.py:232` into `out["boundary_openness_max_abs"]`. That key occurred **exactly twice in the file — both of them the assignment** (`:230`, `:232`). **ZERO readers.** The threshold `1e-12` appeared **nowhere** against it. |
+| **3** `Number of regions: 1` | 1 | 🔴 **NOT GATED.** Parsed at `:209`, int-coerced at `:227`, **never compared to 1.** |
+| **4** Min cell volume > 0 | > 0 | 🔴 **NOT GATED.** Parsed at `:207`, used **only as the denominator** of `cell_volume_ratio` at `:238-239`. **A NEGATIVE minimum — an inverted cell, the exact hazard — yielded a negative ratio and failed nothing.** |
+| **5** patch **NAMES** matched against the level's own expected set, refusing on mismatch | — | 🔴 **NOT IMPLEMENTED AT ALL.** A9 tests **TYPES** and a count ≥ 3. **No expected-NAME set existed anywhere in `cases/M6SR/`.** |
+
+**AND THE SCOPE IS WIDER THAN THE COMPARATOR.** A grep for `openness`, `number of regions`,
+`min volume` and `1e-12` across **every** `.sh` and the case writer in `cases/M6SR/` returns
+**ZERO hits**. Conditions 2, 3 and 4 were unwired **in every artifact of this campaign**, not
+merely in the grading path.
+
+🔴 **AND THE CONTROLS COULD NOT HAVE CAUGHT IT — THE F5b PATTERN OVER AN UNGATED FIELD.** Both
+checkMesh fixtures in `analyse_m6sr.py` (`_CM_EQ_FORM`, `_CM_COLON_FORM`) carried **CLEAN VALUES
+ONLY**: openness ~1e-17 and ~1e-18, `Number of regions: 1`, a **positive** `Min volume`. There was
+**no fixture anywhere in the file** with a failing openness, with regions ≠ 1, or with a negative
+minimum volume. **The reader was never shown able to see the failure it exists to catch**, so a
+green from it would not have been evidence even after the gate was wired (rule 3).
+
+🔴 **HOW IT WAS FOUND, AND HOW IT WAS NOT.** **This was found by a supervisor's personal check-4
+read of the document's OWN STATED PRECONDITIONS — and by none of the eleven adversarial passes
+that preceded it.** Each of those eleven closed on the sentence *"nothing else between this
+document and a lawful launch."* **The document had been asserting for eleven passes that §7 was
+the one thing that blocks, while four fifths of §7 blocked nothing.** That is recorded here in
+those terms and is not softened: **a screen that is declared and not wired is worse than one never
+declared**, because every later pass reads the declaration and moves on. The supervisor's own note
+that the premature freeze at `40f2d9b9` skipped exactly this check is what put the check back.
+
+### 25.2 THE CONDITION UNDER RULE 2, AND HOW IT WAS CHECKED
+
+**These are PRE-COMPUTE REPAIRS.** Standing rule 2 permits amendment before first compute **and
+requires the condition to be stated with how it was checked, naming the run directory that does not
+exist.** The run directory is **`verification/runs/M6SR_runs`**.
+
+**IT IS PLANT-VERIFIED ABSENT, NOT MERELY REPORTED ABSENT** — a zero from a searcher not shown able
+to see a non-zero is not evidence (rule 3):
+
+| step | searcher `find verification/runs -maxdepth 1 -name M6SR_runs -print \| wc -l` |
+|---|---|
+| **before** | **0** |
+| **with a probe created at that exact path** | **1** — the searcher is SHOWN able to see it |
+| **after `rmdir`** | **0** |
+
+The probe was removed with **`rmdir`**, which **refuses a non-empty directory**, so the removal
+cannot have deleted a run. Corroborated independently: `test -e` reads ABSENT and `git ls-files`
+returns **0 rows**. **NO COMPUTE HAS OCCURRED UNDER THIS REGISTRATION.**
+
+### 25.3 ITEM 43 — CONDITION 2 IS GATED AT **1e-12**
+
+`A10_S7_C2_boundary_openness_le_1e-12`, per level, label **`BLOCKED`** on failure — §7's own label.
+The reading is the **maximum of the absolute values of the three printed components**, which is
+what `read_checkmesh` already extracted and nothing read. **The threshold is §7's, verbatim, and is
+not widened, softened or reinterpreted.**
+
+### 25.4 ITEM 44 — CONDITION 3 IS GATED AT **EXACTLY 1**, AND IT IS A **REGRESSION**, NOT A FIRST-TIME OMISSION
+
+`A11_S7_C3_number_of_regions_equals_1`, per level, label **`BLOCKED`** on failure.
+
+🔴 **THE LAB ALREADY HAD THIS GATE AND M6SR LOST IT.** `cases/RUNG1_M6/run_r1m0.sh:360` — the
+predecessor campaign M6SR supersedes — reads `"single_connected_region": cm.get("n_regions") == 1`.
+**A capability the lab built, and then lost, is a worse finding than one it never built**, and it is
+recorded here as the worse thing rather than the milder one.
+
+🔴 **AND CONDITION 3 IS A PRECONDITION FOR BELIEVING GATE A1, NOT ONLY A BLOCKING SCREEN.**
+`cases/RUNG1_M6/read_checkmesh.py:56` and `run_r1m0.sh:358-359` record the mechanism, measured on
+this box: if a multi-block conversion fails to merge coincident block-interface points, **those
+interfaces become BOUNDARY faces**, and checkMesh computes non-orthogonality **over internal faces
+only** — so every block interface **drops out of the statistic entirely and the reported maximum is
+FALSELY OPTIMISTIC**. Gate **A1** reads exactly that maximum off exactly that file. **An unmerged
+multi-region mesh therefore does not merely slip past §7; it makes Gate A's own number
+unfalsifiable.** That consequence is stated here so a future reader does not treat condition 3 as
+a formality.
+
+### 25.5 ITEM 45 — CONDITION 4 IS GATED **STRICTLY ABOVE ZERO, SIGNED** — AND A LATENT CRASH THAT PRE-EMPTED IT IS REPAIRED
+
+`A12_S7_C4_min_cell_volume_strictly_positive`, per level, label **`BLOCKED`** on failure.
+
+**THE TEST IS `value > 0.0`. IT IS NOT `!= 0` AND IT IS NOT `abs(value) > 0`** — both of those admit
+a **negative** minimum volume, which **is** an inverted cell and **is** the hazard §7 condition 4
+names. The sign is the whole content of the condition, and the pre-amendment code's only use of the
+reading was as a **denominator**, where a negative value merely produced a negative ratio.
+
+🔴 **45b — A LATENT UNCAUGHT CRASH ON THE SAME READING, DISCLOSED RATHER THAN SMUGGLED IN.** The
+ratio guard at `:238` tested `max_volume not in (None, 0.0)` **while dividing by `min_volume`**.
+**Measured:** a log reading `Min volume = 0` — a fully degenerate cell, condition 4's hazard **at its
+boundary** — raised an **uncaught `ZeroDivisionError`**. The module docstring already rules that **a
+crash is NOT a refusal**, and that crash **pre-empted condition 4**: the screen could never have
+reported on the very reading that killed the reader. The guard now tests the **denominator**, which
+is what it was always for. **`max_volume` keeps its exact previous condition, so the ONLY behaviour
+that changes is `min_volume == 0`, which goes from a crash to `None`. No clean reading moves** —
+measured in §25.9.
+
+### 25.6 ITEM 46 — CONDITION 5, THE PATCH-**NAME** SCREEN, AND THE REFUSAL THAT IS THE FEATURE
+
+`A13_patch_names_match_the_registered_per_level_set`, per level.
+
+**THE EXPECTED SET IS READ FROM THIS REGISTRATION, PER LEVEL, AND IS NEVER DERIVED FROM THE MESH
+BEING SCREENED.** The supervisor's ruling, applied literally: *"A screen that reads its expectation
+off the thing it is screening is not a screen."*
+
+| level | expected patch names | basis | behaviour |
+|---|---|---|---|
+| **L2** (399,360) | **`wing` / `inout` / `sym`** | **§2.2 line 363**, recorded pre-compute, read from that level's **own** `constant/polyMesh/boundary` | graded; **`BLOCKED`** on mismatch |
+| **L3** (99,840) | 🔴 **NOT REGISTERED** | §2.2's table carries L3's numerics but states patch identity **for the 399,360 level only**. No line of this document records L3's names. | **REFUSAL (exit 2)** |
+| **L1** (1,597,440) | 🔴 **NOT REGISTERED** | **§7 says so in terms**: the new L1's names *"are produced by `autoPatch 60` + `createPatch` and are NOT predicted here."* | **REFUSAL (exit 2)** |
+
+⚠ **AND §20.2.3's MEASUREMENT IS DELIBERATELY NOT USED AS L1's SET, WITH THE REASON GIVEN.**
+§20.2.3 measured a `createPatch` probe reading *"`wing` (wall) / `inout` (patch) / `sym`
+(symmetry) — **wall 1, symmetry 1, patch 3, empty 0**"*. **THAT IS NOT A COMPLETE NAME SET AND IS
+NOT TREATED AS ONE: three names are given while the counts total FIVE patches, so two patch-typed
+names are unaccounted for.** Registering the three would be **inventing the missing two**. **This
+lane does not do that, and flags the discrepancy to the supervisor rather than resolving it** — it
+is precisely the case where §7's wording and checkMesh's output shape disagree.
+
+🔴 **THE REFUSAL IS THE FEATURE, AND IT IS THE LAWFUL DIRECTION.** An unregistered level raises
+`Unregistered` — the comparator's existing rc-2 class, whose docstring already reads *"A parameter
+the frozen registration does not register. Picking one here would be choosing a gate parameter
+AFTER the freeze, which is exactly what standing rule 2 forbids."* **The comparator names the gap
+and refuses. The fix is an AMENDMENT recording the set, which is pre-compute and lawful.**
+
+⚠ **A CONSEQUENCE STATED PLAINLY: GATE A CANNOT BE GRADED TODAY** on the real ids, because two of
+three levels have no registered name set. **That is the honest state of the campaign and it is not
+a reason to weaken the screen.**
+
+⚠ **AND THE CASE WRITER MAKES CONDITION 5 MORE NECESSARY, NOT LESS.** `write_m6sr_case.py`'s CH1
+attaches boundary conditions **by TYPE**, and its own control at `:913` states that *"if the writer
+attached by NAME rather than by TYPE (CH1) this control could not pass."* **A name-agnostic writer
+will attach freestream conditions to ANY patch typed `patch`, whatever it is called** — which is
+exactly the silent mis-application §7 and prediction P7 warn of.
+
+⚠ **A SECOND FALSE ATTRIBUTION IN THIS DOCUMENT, NAMED.** **Prediction `P7` at line 1371** ends
+*"The launcher **refuses** a level whose patch names it did not expect **(A9)**."* **A9 does not and
+never did check names.** §7's closing sentence makes the same claim without the cross-reference.
+**Both were false when written**; A13 is what makes them true.
+
+### 25.7 THE ABSENT-AND-UNPARSEABLE RULING, AND WHICH LABEL WAS CHOSEN
+
+**AN ABSENT OR UNPARSEABLE READING NEVER READS CLEAN.** §5's Gate A already fixes the principle in
+terms — *"An absent checkMesh log reads ABSENT. It never reads clean."* — and it is applied to all
+three of conditions 2/3/4 without softening: an ABSENT log, and a log that was READ but out of
+which the named value did not parse, both fail the clause.
+
+**THE LABEL CHOSEN IS `BLOCKED`, NOT A REFUSAL, AND THE REASONING IS GIVEN SO IT CAN BE OVERRULED.**
+The finding is about **the LEVEL, not the instrument**: the instrument ran correctly, and what it
+found is that the level **cannot be shown well-posed**. `BLOCKED` is §7's own word for exactly that,
+it is the strictly conservative direction, and it keeps the per-level record readable instead of
+aborting a whole grade on one missing file. **A REFUSAL is reserved for condition 5's unregistered
+case**, which is a statement about **this document** and not about any mesh. ⚠ **If the supervisor
+reads §5's ABSENT rule as requiring exit 2 for conditions 2/3/4 as well, that is one label to
+change and it is the supervisor's to say.**
+
+### 25.8 THE FOUR PLANTED CONTROLS — **`C25`–`C28`**, AND EACH IS A **DELTA**, NOT A COLOUR
+
+**Each control drives the REAL `gate_a()` TWICE on a synthetic three-level tree written to disk and
+read back through the REAL readers: once CLEAN, once with ONE value planted.** It requires **(a)**
+the clean twin to grade `PASS`, **(b)** the mutant to grade `BLOCKED`, and **(c)** **EXACTLY the
+clause under test to flip.** **The negative twin is what makes the positive one mean anything**, and
+the confinement requirement is what stops these four gates from being indistinguishable from each
+other.
+
+| control | the plant | **how the mutant died** |
+|---|---|---|
+| **`C25`** | boundary openness **1e-09** on the middle level — **three orders ABOVE §7's 1e-12** | clean twin `A10 = PASS`, Gate A `PASS`; planted `A10 = BLOCKED`, **Gate A `BLOCKED`**; **clauses that MOVED = `['A10_…']` — exactly one.** Before this amendment the key had **zero readers**, so this exact plant would have changed **nothing**. |
+| **`C26`** | **`Number of regions: 9`** on the finest level | clean twin `A11 = PASS`, Gate A `PASS`; planted `A11 = BLOCKED`, **Gate A `BLOCKED`**; **MOVED = `['A11_…']`.** **`9` is not an invented number**: it is the value **this box has observed** from the exact defect (`cases/RUNG1_M6/read_checkmesh.py:56`, an unmerged nine-block PLOT3D conversion). **A representative fixture is the entire point — an unrepresentative one is the defect this amendment repairs.** |
+| **`C27`** | **`Min volume = -4.2e-11`** — a **NEGATIVE** minimum, an inverted cell — on the coarsest level | clean twin `A12 = PASS`, Gate A `PASS`; planted `A12 = BLOCKED`, **Gate A `BLOCKED`**; **MOVED = `['A12_…']`.** **AND THE CONTROL SHOWS THE OLD BLINDNESS DIRECTLY:** read back from disk the value is `-4.2e-11` and the old path's only use of it, `cell_volume_ratio`, is **`-22480595238.09524`** — **a negative ratio, which failed no check whatsoever.** |
+| **`C28`** | **`('WING3D', 'FARFIELD', 'SYMMETRY')`** on the middle level — **CORRECT TYPES, WRONG NAMES** | clean twin `A13 = PASS`, Gate A `PASS`; planted `A13 = BLOCKED`, **Gate A `BLOCKED`**; **MOVED = `['A13_…']`.** **THE INDEPENDENCE PROOF THE SUPERVISOR REQUIRED: `A9` reads `PASS` on the clean twin and STILL reads `PASS` on the mutant** — the mutant is **invisible to the type screen** and dies **only** at the name screen. **PLUS THE REFUSAL LIMB:** the real ids `('L3','L2','L1')` **REFUSE**, naming `['L3','L1']`. |
+
+**THE `C28` PLANT IS NOT INVENTED EITHER.** It is prediction **`P7`'s MEASURED PRECEDENT** on this
+box: an hcf-generated family produced `wing/symmetry/farfield` on the generator level and
+**`WING3D/SYMMETRY/FARFIELD`** on the coarsened levels.
+
+**EACH OF THE FOUR IS ALSO PROVED BREAKABLE.** `C25`–`C28` are added to `--selftest`'s **mutation
+control**, which corrupts each shipped statistic in turn and requires **exactly that control** to
+flip from FIRED to red. **A control that cannot be broken is not a control.**
+
+**AND THEY ARE PROTECTED FROM SILENT ORPHANING.** `section7_conditions_2_3_4` and
+`section7_condition_5` are added to control **`C23`'s** `must_reach` set, so an AST call-graph walk
+over this file **goes RED** if a future edit orphans them the way item 5's finding recorded
+`gate_p()` being orphaned. **The defect this amendment repairs is exactly "declared but not
+reached", and the repair is defended by the instrument that detects that.**
+
+### 25.9 🔴 **NO EXISTING READING MOVED — MEASURED, NOT ASSERTED**
+
+The supervisor required immediately that **no repair of a blocking screen may move a graded value.**
+It moved none, and that is measured three ways against the **committed `HEAD` blob** of the
+comparator run side by side with the edited file:
+
+1. **`read_checkmesh()` output on BOTH clean fixtures is IDENTICAL** — full-dict equality, old
+   versus new, on `_CM_EQ_FORM` and `_CM_COLON_FORM`. **Both fixture texts are byte-unchanged.**
+2. **NO pre-existing control changed status.** The FIRED / DID-NOT-FIRE status of every control
+   `C1`–`C24` is identical before and after; the only rows that differ are the four new ones.
+3. **`--gate-a` on the REAL levels produces the IDENTICAL refusal** before and after — it refuses
+   on L1's missing points file, which precedes `A13`. **The real grading path's observable output
+   is unchanged.**
+
+⚠ **ONE PRE-EXISTING RED, NAMED SO IT IS NOT MISREAD AS MINE.** `--controls` exits **2** both before
+and after, on **`C12`**, whose own message records that it *"CANNOT fire as written"* against
+non-monotone as-read data and was **"Reported, NOT loosened."** **It is red at `HEAD` too, verbatim.
+This amendment neither caused it nor touched it.** It is already on the record as **`X7`**, and
+§18.5's pre-launch grading gate (`run_m6sr_b5.sh:436`, `[ "$CRC" -eq 0 ]`) **already refuses the
+launch at exit 8 because of it.**
+
+### 25.10 `rc` PARITY, BYTE-IDENTICAL STDOUT, AND **ZERO** `ast.Assert`
+
+⚠ **`rc` PARITY.** `--controls` returns **`2` under `python3` and `2` under `python3 -O`** — the
+same pair as at `HEAD` — and the two runs' stdout is **byte-identical** once the scratch path is
+normalised. **No arm rests on an assertion the optimiser removes.**
+
+⚠ **NO BARE `assert` ANYWHERE IN THE FILE. Verified by AST parse, not by grep, WITH THE DETECTOR
+PLANTED AND SEEN**: the shipped file contains **0** `ast.Assert` nodes, and a copy with **one**
+`assert` appended reads **1**. **The detector was proved able to see one before its zero was
+believed** (rule 3). Every new guard added here is an explicit `raise` or a recorded boolean.
+
+### 25.11 ⚠ **A GREP TRAP, RECORDED SO THE NEXT AUDIT DOES NOT CLEAR THIS ON A FALSE HIT**
+
+A **tree-wide** grep for `Number of regions` returns hits in
+`cases/RUNG1_M6/{run_r1m0.sh,read_checkmesh.py,build_r2_triple.py}` and
+`cases/committee-grids/read_ugrid_identity.py`. **An auditor who greps the TREE rather than THE
+CAMPAIGN will find a gate and conclude condition 3 was enforced for M6SR. IT WAS NOT.** M6SR's
+chain **invokes none of them**; the only `RUNG1_M6` references inside `cases/M6SR/` are **prose in
+comments and abort strings** citing the M0 all-wall-box lesson. **The scoped sweep that found this
+defect was correct for the claim it made, and would have been wrong for a claim about the tree.**
+
+### 25.12 THE COMPARATOR IS A REFERENCE, NOT AN IMPORT — DIVERGENCES DECLARED
+
+`cases/RUNG1_M6/read_checkmesh.py` was read as a reference implementation. **Nothing is imported
+from it** — that would be a cross-campaign dependency and this comparator takes none. Where the two
+differ, and why:
+
+- its `RE_REGIONS` matches the **`:` form only**; this file's `n_regions` pattern matches **`[=:]`**
+  and so also sees the `=` form. **Broader, in the safe direction.**
+- its `NUM` has no `[Dd]` exponent; this file's does. **Broader, same direction.**
+- it gates regions as a **driver completion clause**; this file gates it inside **Gate A**. **That
+  placement difference is a real residual and it is item 47 below, not a detail.**
+
+### 25.13 🔴 **THE INSTRUMENT'S OWN PIN MOVED, AND IS RE-TAKEN IN THE SAME COMMIT**
+
+**This amendment edits one of the ten pinned executables** — the comparator, §23.5 row 1. §22.2's
+pin for it is **FALSE IN FORCE** at this commit and is struck, rule 6, **by quote**:
+
+🔴 **TWO LIVE TABLE ROWS RECORD THE SUPERSEDED BLOB, NOT ONE — AND BOTH ARE STRUCK.** A search of
+this file for `9b963ad4` returns **two table rows** (§18.3.1's and §22.2's) and **three prose
+mentions**. Striking only the most recent would leave a reader who finds the earlier row with an
+unstruck, false pin. **Both rows are struck, rule 6, by VERBATIM quote — each checked character
+for character against the line it strikes, not retyped from memory:**
+
+> 🔴 **STRUCK BY QUOTE** *(§22.2's row — the pin that was IN FORCE)*: ~~*"| **`cases/M6SR/analyse_m6sr.py`** (comparator) | **`9b963ad48e016fe2177553507006915e52b4ef98`** | `9042cdf22ff948f8df48d846495ccb0d05e5130d19a0572b6020b728507d9394` | 2,742 | **`8c0ab7a8`** (Amendment 11) | **§9 registered** — pin UNMOVED since §18.3.1 |"*~~
+
+> 🔴 **STRUCK BY QUOTE** *(§18.3.1's earlier row, carrying the SAME now-superseded blob)*: ~~*"| **`cases/M6SR/analyse_m6sr.py`** (comparator) | **`9b963ad48e016fe2177553507006915e52b4ef98`** | `9042cdf22ff948f8df48d846495ccb0d05e5130d19a0572b6020b728507d9394` | 2,742 | **`8c0ab7a8`** (Amendment 11) |"*~~
+
+⚠ **THE THREE PROSE MENTIONS ARE NAMED, NOT STRUCK** — striking narrative sentences is not this
+convention's purpose and a lane does not rewrite them: **line 3410** (*"The comparator now hashes
+to `9b963ad4…` at 2,742 lines"*), **line 4681** (§22's supersession chain) and **line 4938**
+(*"the blob pinned by §22.2, the one that will run"*) all describe the superseded blob. **Each is
+true of the moment it was written and false in force now**, and this sentence is the notice.
+
+**THE NEW STANDING PIN**, derived with `git hash-object` on the working tree and **RE-DERIVED
+INSIDE THE SAME SHELL INVOCATION AS THE COMMIT THAT CARRIES THIS SECTION, WITH THE COMMIT ABORTING
+IF IT HAD MOVED** — §22.2's guard, kept:
+
+| path | git blob sha | sha256 of the file | lines | §9 status |
+|---|---|---|---|---|
+| **`cases/M6SR/analyse_m6sr.py`** (comparator, §9 and §23.5 row 1) | **`1ed1cee48bb945926cb23832eb3bed6669d53add`** | `efe6aa53bdd7d1b1bf3a365b99a4a0fa166dfdbf58d075d2ad6c557d032b0ec4` | **3,200** | **§9 registered** — **RE-PINNED HERE** |
+
+⚠ **THE OTHER NINE PINS ARE UNMOVED AND WERE RE-VERIFIED, NOT ASSUMED** — every one read **`PIN-OK`**
+at this HEAD in the verifier's own run, while the **comparator alone** read `PIN-DRIFT`: measured
+**`10 of 10` covered, `9 PIN-OK`, `1 violating`**, the instrument convicting this amendment's own
+stale pin on a plant nobody had to fabricate. **This amendment touches no code but the comparator.**
+
+⚠ **THE STRIKE-BY-QUOTE LIMITATION, RESTATED RATHER THAN GLOSSED.** Striking a row by quote in a
+later section **does not remove the original row from the file**, so the parser still reads §22.2's
+superseded row as live and may report more than one recorded sha for this path. **CURRENCY is
+satisfied by the new sha above**, and **the registration is the authority on which pin is in force:
+it is the one in the table immediately above.**
+
+### 25.14 🔴 **ITEM 47 — NEW, AND IT OUTRANKS THESE FOUR REPAIRS: NOTHING ON M6SR's LAUNCH PATH CONSULTS GATE A AT ALL**
+
+| # | the finding | how it was measured | consequence |
+|---|---|---|---|
+| **47** 🔴 | **§7 says its conditions are *"Checked per level BEFORE launch"* and that a failure *"`BLOCKED`s the level"* — but the solve driver never asks Gate A anything.** `run_m6sr_b5.sh` invokes the comparator **exactly twice**, at `:429` and `:430`, **both times as `--controls`**. **It never invokes `--gate-a`.** Its own closing line (`:848`) says *"B4 is Gate A … in `cases/M6SR/analyse_m6sr.py`"* — i.e. Gate A is a **separate, manually-invoked grading step**, and **no refusal anywhere in the driver reads a `BLOCKED` Gate A.** | Measured by enumerating every `analyse_m6sr` reference in `run_m6sr_b5.sh` (7 in comments, 2 executions, 2 `import`s for `points_stream_sha` and a reporting helper) — **none is `--gate-a`.** | ⚠ **WIRING CONDITIONS 2–5 INTO `gate_a()` MAKES THEM GRADEABLE. IT DOES NOT YET MAKE THEM BLOCK A LAUNCH.** Condition 1 is the only §7 condition enforced **on the launch path**, and it is enforced by the **builder** (`build_m6sr_l1.sh` exit 8) and the **case writer** (CH1), **not by Gate A**. **A supervisor ordering a launch on the strength of §7 would be relying on a screen the launcher does not run.** **NOT REPAIRED HERE:** making the driver refuse on a `BLOCKED` Gate A changes **when a launch is permitted** and is a §9/§2.4 step-order question. **Per §22.6 item 32 that is the supervisor's and not a lane's.** |
+
+### 25.15 COST — RULE 12
+
+**No ladder compute was authorised or spent. `B0`–`B6` are untouched and the run root remains
+plant-verified absent.** The only compute is the comparator's own control suite and this document
+work, at **1 rank**:
+
+| activity | wall s | ranks | **core-min (MEASURED from the clock)** |
+|---|---|---|---|
+| `--controls`, `python3` and `python3 -O`, plus the `HEAD` baselines and fixture diffs | 49 | 1 | **0.8167** |
+| `--selftest` (controls ×1 + `C16` + **26** mutation re-runs) | 229 | 1 | **3.8167** |
+| **TOTAL** | | | **4.6334** |
+
+**CHARGED VERSUS MEASURED:** the core-minutes above are **MEASURED** — wall seconds × ranks ÷ 60,
+read off the clock. Any dollar figure is **derived at the recorded $0.0513/core-h and is
+reported-by-owner, never measured**: this box cannot read its own billing
+(`COMPUTE_BUDGET_CHARTER.md` §5).
+
+⚠ **NO `docs/COST_CALIBRATION.md` ROW IS FILED, AND THAT IS DELIBERATE.** Rule 12's
+estimate-versus-actual is owed **at a PROCESS COMPLETION** — a rung graded, a case closed, a
+curriculum item finished. **Nothing completed here**: no gate was graded, no rung ran, and §2.4's
+`B0`–`B6` estimates have no actuals to compare against. **Inventing a calibration row for a
+document edit would put a fabricated actual beside a real estimate**, which is worse than the
+absent row. **The row is owed at `B4`, and `B4` has not run.**
+
+### 25.16 WHAT THIS AMENDMENT DOES **NOT** DO
+
+1. **It moves NO gate, NO threshold, NO cap and NO label.** Every threshold wired here — `1e-12`,
+   `1`, `> 0`, and the per-level name set — **is quoted from §7 and §2.2 and not one of them is
+   chosen, widened, softened or reinterpreted here.** §5, §5.1, §2.4 and §10's registered numbers
+   are untouched.
+2. **It does not freeze and it does not launch.** Both are the supervisor's.
+3. **It does not register L1's or L3's patch names.** It **refuses** for want of them, and says so.
+4. **It does not touch `run_m6sr_b5.sh`, `build_m6sr_l1.sh` or `write_m6sr_case.py`** — item 47 is
+   raised, not repaired.
+5. **It does not re-derive** the physics, §5/§5.1's gates, mesh-standard compliance or the solver
+   pin. Those were settled in earlier amendments and are **relied on, not re-verified here.**
+
+### 25.17 THE STANDING QUESTION — **ANYTHING ELSE BETWEEN THIS DOCUMENT AND A LAWFUL LAUNCH?**
+
+🔴 **YES. TWO THINGS, AND THIS LANE WILL NOT REPEAT THE ELEVENTH PASS'S "NO."**
+
+1. **ITEM 47 (§25.14): nothing on the launch path consults Gate A**, so §7's *"checked per level
+   before launch"* is still not true of conditions 2–5 even after this amendment wires them.
+2. **ITEM 46's REFUSAL (§25.6): Gate A cannot be graded at all on the real level ids** until this
+   registration records L3's and L1's expected patch-name sets. **That is by design and it is the
+   lawful direction**, but it is squarely between this document and a launch.
+
+⚠ **AND ONE PRE-EXISTING BLOCKER, RESTATED:** `X7` / **`C12`** holds `--controls` at rc 2, and
+§18.5's pre-launch grading gate refuses at exit 8 on exactly that. **The launch was already blocked
+before this amendment; it is blocked for three reasons now, and all three are on the record.**
+
+⚠ **WHAT THIS LANE CANNOT SAY, AND DOES NOT.** It checked the document's stated preconditions and
+their wiring; it did **not** re-derive the physics or the gates. **Check 1 on this diff, check 4,
+the freeze and the launch are the supervisor's, and this lane takes none of them.**

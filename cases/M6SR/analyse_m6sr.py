@@ -86,6 +86,53 @@ A4_CELLS = (99840, 399360, 1597440)        # L3, L2, L1
 A4_RATIO_EXACT = 4                         # exactly 4.000 on integers
 A6_CELLS_PER_WING_FACE = 64                # Section 2.2, identical at every level
 
+# --------------------------------------------------------------------------------------
+# SECTION 7 -- THE ILL-POSEDNESS SCREEN.  CONDITIONS 2, 3, 4 AND 5.  Amendment 19.
+#
+# WHY THESE CONSTANTS EXIST AT ALL.  Section 7 names itself "THE ONE THING THAT BLOCKS" and
+# Section 5 says "Only Section 7 blocks a launch."  It lists FIVE conditions.  Measured
+# 2026-09-04 by a supervisor check-4 read of the document's own preconditions: only
+# condition 1 was wired.  Conditions 2, 3 and 4 were EXTRACTED and then never compared to
+# anything -- boundary_openness_max_abs had ZERO readers, n_regions was never compared to 1,
+# and min_volume was used only as the DENOMINATOR of cell_volume_ratio, where a NEGATIVE
+# minimum (an inverted cell -- the exact hazard condition 4 exists for) yields a negative
+# ratio and fails nothing.  Condition 5 did not exist in any form.  Amendment 19 wires all
+# four AT THE THRESHOLDS SECTION 7 ITSELF ALREADY STATES.  Not one threshold is chosen here.
+#
+# NO THRESHOLD BELOW IS NEW, WIDENED OR REINTERPRETED.  Each is quoted from Section 7:
+#   2. "`Boundary openness` <= 1e-12 -- no leaks."
+#   3. "`Number of regions: 1`."
+#   4. "Min cell volume > 0 -- no inverted cells."
+#   5. "Patch names matched against the level's own expected set, refusing on a mismatch."
+# --------------------------------------------------------------------------------------
+S7_C2_BOUNDARY_OPENNESS_MAX = 1.0e-12      # Section 7 condition 2, VERBATIM
+S7_C3_N_REGIONS_REQUIRED = 1               # Section 7 condition 3, VERBATIM
+S7_C4_MIN_CELL_VOLUME_STRICTLY_ABOVE = 0.0  # Section 7 condition 4: STRICTLY GREATER THAN
+
+# Section 7 condition 5.  THE EXPECTED SET IS READ FROM THE REGISTRATION AND IS NEVER
+# DERIVED FROM THE MESH BEING SCREENED -- a screen that reads its expectation off the thing
+# it screens is not a screen.  A level absent from this mapping is UNREGISTERED and the
+# comparator REFUSES (rc 2, the `Unregistered` class): choosing a name set here would be
+# choosing a gate parameter after the freeze, which standing rule 2 forbids.  THE REFUSAL
+# IS THE FEATURE, and it is cleared by AMENDING THE REGISTRATION, which is lawful
+# pre-compute.
+#
+#   L2  REGISTERED.  Section 2.2 records it, pre-compute, read from the level's own
+#       `constant/polyMesh/boundary`: "`wing`(wall) / `inout`(patch) 6240 / `sym`(symmetry)".
+#   L3  NOT REGISTERED.  Section 2.2's table carries L3's numerics but states its patch
+#       identity for the 399,360 level ONLY.  No document line records L3's names.
+#   L1  NOT REGISTERED, and Section 7 says so in terms: the new L1's patch names "are
+#       produced by `autoPatch 60` + `createPatch` and are NOT predicted here."  Section
+#       20.2.3 later MEASURED a createPatch probe reading "`wing` (wall) / `inout` (patch) /
+#       `sym` (symmetry) -- wall 1, symmetry 1, patch 3, empty 0".  THAT IS NOT A COMPLETE
+#       NAME SET AND IS NOT USED AS ONE: three names are given while the counts total FIVE
+#       patches, so two patch-typed names are unaccounted for.  Registering the three would
+#       be inventing the missing two.  L1 therefore REFUSES until the registration records
+#       its full set.
+S7_EXPECTED_PATCH_NAMES = {
+    "L2": frozenset(("wing", "inout", "sym")),
+}
+
 # Gate GF thresholds, Section 5.
 GF_AGARD_T_TE_OVER_C = 0.0014104
 GF1_BAND_FRACTION = 0.10                   # +/- 10 % of 0.0014104
@@ -122,6 +169,22 @@ PLANT_REFERENCE_TE = 3.21e-04              # C19 limb (c)
 PLANT_NON_ORTH_DEG = 88.889                # C3/C4, the L-459 value measured on this box
 PLANT_CP = 1.234e-01                       # C10
 PLANT_CD = 7.531e-03                       # C14
+
+# Amendment 19.  The Section 7 plants.  Each is planted into a SCRATCH fixture, read back
+# FROM DISK through the real readers, and driven through the real gate_a() -- and each has
+# a CLEAN TWIN that must still pass, because a positive control means nothing without one.
+PLANT_S7_OPENNESS = 1.000e-09              # C25: three orders ABOVE the 1e-12 threshold
+# C26 is 9, not a bare 2, and the number is EVIDENCE rather than decoration.  This box has
+# OBSERVED that value from the exact defect: `cases/RUNG1_M6/read_checkmesh.py:56` records
+# "An unmerged conversion shows up as `Number of regions: 9`" for a nine-block PLOT3D grid
+# whose coincident block-interface points `plot3dToFoam` failed to merge.  A representative
+# fixture is the whole point -- an unrepresentative one is the defect this amendment repairs.
+PLANT_S7_N_REGIONS = 9
+PLANT_S7_MIN_VOLUME = -4.200e-11           # C27: NEGATIVE -- an inverted cell, SIGNED
+# C28: the MEASURED PRECEDENT of prediction P7 -- an hcf family on this box produced
+# `wing/symmetry/farfield` on the generator level and `WING3D/SYMMETRY/FARFIELD` on the
+# coarsened levels.  CORRECT TYPES, WRONG NAMES.  It must pass A9 and die at A13.
+PLANT_S7_WRONG_NAMES = ("WING3D", "FARFIELD", "SYMMETRY")
 
 VERDICTS = ("PASS", "GATE REACHED", "GATE FAIL", "NOT A RESULT", "BLOCKED", "PENDING")
 
@@ -235,11 +298,141 @@ def read_checkmesh(path):
         "non_orthogonality_check_OK": "Non-orthogonality check OK." in text,
         "failed_N_mesh_checks": bool(re.search(r"Failed\s+\d+\s+mesh checks", text)),
     }
-    if out["min_volume"] is not None and out["max_volume"] not in (None, 0.0):
+    # MEASURED DEFECT, REPAIRED IN AMENDMENT 19 AND NOT SMUGGLED IN.  The guard here used
+    # to test `max_volume not in (None, 0.0)` while dividing BY `min_volume`, so a log
+    # reading `Min volume = 0` -- a fully degenerate cell, which is condition 4's hazard AT
+    # ITS BOUNDARY -- raised an uncaught ZeroDivisionError.  Measured: rc 1, which is not in
+    # this file's exit vocabulary at all, and the module docstring already rules that A CRASH
+    # IS NOT A REFUSAL.  That crash PRE-EMPTED condition 4: the screen below could never
+    # report on the very reading that killed the reader.  The denominator is now the thing
+    # guarded, which is what the guard was always for.
+    # THE GUARD IS THE OLD ONE PLUS THE DENOMINATOR, AND NOTHING ELSE MOVES.  `max_volume`
+    # keeps its exact old condition, so the ONLY behaviour that changes is `min_volume == 0`,
+    # which went from an uncaught crash to `None`.  No clean reading moves.
+    if (out["min_volume"] not in (None, 0.0)) and (out["max_volume"] not in (None, 0.0)):
         out["cell_volume_ratio"] = out["max_volume"] / out["min_volume"]
     else:
         out["cell_volume_ratio"] = None
     return out
+
+
+# --------------------------------------------------------------------------------------
+# SECTION 7 -- THE ILL-POSEDNESS SCREEN, CONDITIONS 2/3/4 AND 5.  Amendment 19.
+#
+# A FAILURE HERE `BLOCKED`s THE LEVEL.  Section 7's own words, and the label is taken from
+# there rather than chosen: "Checked per level BEFORE launch. A failure here BLOCKEDs the
+# level."
+#
+# AN ABSENT OR UNPARSEABLE READING IS NEVER CLEAN.  Section 5's Gate A already fixes this
+# principle in terms -- "An absent checkMesh log reads ABSENT. It never reads clean." -- and
+# it is applied here without softening.  The label chosen for an absent/unparseable reading
+# is `BLOCKED`, NOT a refusal, and the reason is stated so it can be overruled: the finding
+# is about the LEVEL, not about the instrument.  The instrument ran correctly; what it found
+# is that the level cannot be shown well-posed.  `BLOCKED` is Section 7's own word for
+# exactly that, it is strictly conservative, and it keeps the per-level record readable
+# instead of aborting the whole grade on one missing file.  A REFUSAL is reserved for the
+# case where the REGISTRATION is incomplete (condition 5, below), which is a statement about
+# the document and not about any mesh.
+# --------------------------------------------------------------------------------------
+def section7_conditions_2_3_4(level_id, cm):
+    """Section 7 conditions 2, 3 and 4 for one level.  -> {clause: (ok, detail)}.
+
+    `cm` is a read_checkmesh() record.  Every threshold is the one Section 7 states.
+    """
+    if not isinstance(cm, dict):
+        raise InternalDefect(f"{level_id}: section7_conditions_2_3_4 needs a "
+                             f"read_checkmesh() record, got {type(cm).__name__}.")
+    state = cm.get("state")
+    absent = (state != "READ")
+
+    def _reading(key):
+        """-> (value, why_not) where why_not is None only for a real parsed number."""
+        if absent:
+            return None, (f"checkMesh state is {state!r} -- the log at {cm.get('path')!r} "
+                          "is ABSENT. An absent reading NEVER reads clean (Section 5).")
+        v = cm.get(key)
+        if v is None:
+            return None, (f"the log was READ but {key!r} did not parse out of it. An "
+                          "UNPARSEABLE reading NEVER reads clean; it is not a zero and it "
+                          "is not a pass.")
+        return v, None
+
+    res = {}
+
+    # ---- CONDITION 2: Boundary openness <= 1e-12.  No leaks. -------------------------
+    v2, why2 = _reading("boundary_openness_max_abs")
+    res["S7_C2_boundary_openness_le_1e-12"] = (
+        (v2 is not None and v2 <= S7_C2_BOUNDARY_OPENNESS_MAX),
+        {"level": level_id, "value": v2, "threshold": S7_C2_BOUNDARY_OPENNESS_MAX,
+         "reading_taken_as": "max of the absolute values of the three components",
+         "unreadable_because": why2,
+         "basis": "Section 7 condition 2, verbatim: 'Boundary openness <= 1e-12 -- no "
+                  "leaks.' Wired in Amendment 19; it had ZERO readers before."})
+
+    # ---- CONDITION 3: Number of regions == 1. ----------------------------------------
+    v3, why3 = _reading("n_regions")
+    res["S7_C3_number_of_regions_equals_1"] = (
+        (v3 is not None and v3 == S7_C3_N_REGIONS_REQUIRED),
+        {"level": level_id, "value": v3, "required": S7_C3_N_REGIONS_REQUIRED,
+         "unreadable_because": why3,
+         "basis": "Section 7 condition 3, verbatim: 'Number of regions: 1.' Wired in "
+                  "Amendment 19; it was parsed and int-coerced and never compared."})
+
+    # ---- CONDITION 4: Min cell volume > 0.  THE SIGN IS THE WHOLE POINT. -------------
+    # STRICTLY GREATER THAN ZERO.  NOT `!= 0`, which admits a NEGATIVE volume, and NOT
+    # `abs(...) > 0`, which admits it too.  A negative minimum cell volume IS an inverted
+    # cell, and an inverted cell is precisely what condition 4 exists to catch.  Before
+    # Amendment 19 the only use of this reading was as a DENOMINATOR, where a negative
+    # value merely made the volume ratio negative and failed nothing at all.
+    v4, why4 = _reading("min_volume")
+    res["S7_C4_min_cell_volume_strictly_positive"] = (
+        (v4 is not None and v4 > S7_C4_MIN_CELL_VOLUME_STRICTLY_ABOVE),
+        {"level": level_id, "value": v4,
+         "test": "value > 0.0, SIGNED -- never `!= 0`, never `abs()`",
+         "unreadable_because": why4,
+         "basis": "Section 7 condition 4, verbatim: 'Min cell volume > 0 -- no inverted "
+                  "cells.' Wired in Amendment 19."})
+    return res
+
+
+def section7_condition_5(level_id, patches):
+    """Section 7 condition 5 -- THE PATCH-NAME SCREEN.  -> (state, detail).
+
+    state is one of "MATCH" / "MISMATCH" / "UNREGISTERED".
+
+    THIS IS A NAME SCREEN AND IT IS INDEPENDENT OF A9.  A9 grades patch TYPES and a count
+    of at least three.  A mesh carrying the RIGHT TYPES under the WRONG NAMES passes A9 and
+    must fail here -- that is the whole content of Section 7's closing sentence, "The
+    launcher REFUSES a level whose patch names it did not expect", and of prediction P7,
+    whose MEASURED PRECEDENT on this box is an hcf family that produced `wing/symmetry/
+    farfield` on the generator level and `WING3D/SYMMETRY/FARFIELD` on the coarsened ones.
+    Control C28 plants exactly that mutant and requires it to die HERE while passing A9.
+
+    THE EXPECTED SET COMES FROM THE REGISTRATION, PER LEVEL, AND NEVER FROM THE MESH.
+    """
+    expected = S7_EXPECTED_PATCH_NAMES.get(level_id)
+    got = frozenset(n for n, _t, _f in patches)
+    if expected is None:
+        return "UNREGISTERED", {
+            "level": level_id, "actual_names": sorted(got),
+            "registered_levels": sorted(S7_EXPECTED_PATCH_NAMES),
+            "basis": "Section 7 condition 5 requires the level's OWN expected set. This "
+                     "registration does not record one for this level, and Section 7 says "
+                     "of L1 in terms that its names 'are NOT predicted here'. Adopting the "
+                     "names this mesh happens to carry would make the screen read its "
+                     "expectation off the object it is screening, which is not a screen, "
+                     "and would fix a gate parameter AFTER the freeze (standing rule 2). "
+                     "The comparator REFUSES and the registration must be AMENDED to record "
+                     "the set -- which is lawful pre-compute."}
+    if got == expected:
+        return "MATCH", {"level": level_id, "expected": sorted(expected),
+                         "actual": sorted(got)}
+    return "MISMATCH", {
+        "level": level_id, "expected": sorted(expected), "actual": sorted(got),
+        "unexpected": sorted(got - expected), "missing": sorted(expected - got),
+        "basis": "Section 7 condition 5: 'Patch names matched against the level's own "
+                 "expected set, refusing on a mismatch.' A driver assuming one name set "
+                 "across levels would silently mis-apply boundary conditions (P7)."}
 
 
 # --------------------------------------------------------------------------------------
@@ -1430,7 +1623,46 @@ def gate_a(levels):
           {"per_level": [r["patches"] for r in out["per_level"]],
            "basis": "Section 7 -- 'empty' and 'wall' are NEVER acceptable for the symmetry "
                     "plane. RUNG1_M6's M0 was a closed all-wall box and a branch-killing "
-                    "decision was taken off it."})
+                    "decision was taken off it. A9 GRADES TYPES AND A COUNT. IT DOES NOT "
+                    "GRADE NAMES -- A13 does (Amendment 19)."})
+
+    # ---- A10 / A11 / A12 -- SECTION 7 CONDITIONS 2, 3 AND 4.  Amendment 19. ----------
+    # Section 7 calls itself the ONE thing that blocks and Section 5 says "Only Section 7
+    # blocks a launch."  Until Amendment 19 only condition 1 was wired.  These three are
+    # graded here at the thresholds Section 7 states, per level, with `BLOCKED` -- Section
+    # 7's own label -- on failure and on any ABSENT or UNPARSEABLE reading.
+    s7 = [section7_conditions_2_3_4(rec["id"], rec["checkMesh"]) for rec in out["per_level"]]
+    for clause in ("S7_C2_boundary_openness_le_1e-12",
+                   "S7_C3_number_of_regions_equals_1",
+                   "S7_C4_min_cell_volume_strictly_positive"):
+        name = {"S7_C2_boundary_openness_le_1e-12": "A10_" + clause,
+                "S7_C3_number_of_regions_equals_1": "A11_" + clause,
+                "S7_C4_min_cell_volume_strictly_positive": "A12_" + clause}[clause]
+        _fail(name, all(lv[clause][0] for lv in s7), "BLOCKED",
+              {"per_level": [lv[clause][1] for lv in s7]})
+
+    # ---- A13 -- SECTION 7 CONDITION 5, THE PATCH-NAME SCREEN.  Amendment 19. ---------
+    # A MISMATCH is BLOCKED (the mesh is not the one registered).  An UNREGISTERED level is
+    # a REFUSAL (rc 2) -- a statement about the DOCUMENT, not about any mesh -- and it is
+    # raised AFTER the record is built so the reader sees every other clause first.
+    c5 = [section7_condition_5(rec["id"], rec["patches"]) for rec in out["per_level"]]
+    _fail("A13_patch_names_match_the_registered_per_level_set",
+          all(st == "MATCH" for st, _d in c5), "BLOCKED",
+          {"per_level": [{"state": st, **d} for st, d in c5],
+           "independent_of_A9": "A9 grades TYPES; this grades NAMES. A mesh with correct "
+                                "types and wrong names passes A9 and dies here (C28).",
+           "basis": "Section 7 condition 5 and its closing sentence: 'The launcher REFUSES "
+                    "a level whose patch names it did not expect.'"})
+    unreg = [d["level"] for st, d in c5 if st == "UNREGISTERED"]
+    if unreg:
+        raise Unregistered(
+            f"Section 7 condition 5 requires each level's OWN expected patch-name set, and "
+            f"this registration records none for {unreg}. Section 7 states of L1 that its "
+            f"names 'are NOT predicted here'. This comparator will NOT adopt the names the "
+            f"mesh happens to carry -- that would read the expectation off the object being "
+            f"screened and would fix a gate parameter after the freeze (standing rule 2). "
+            f"REFUSED (exit 2). THE FIX IS AN AMENDMENT recording the set, which is lawful "
+            f"pre-compute; registered so far: {sorted(S7_EXPECTED_PATCH_NAMES)}.")
 
     labels = [c["label"] for c in out["checks"].values() if isinstance(c.get("pass"), bool)]
     if "NOT A RESULT" in labels:
@@ -2304,7 +2536,12 @@ def controls(scratch, mutate=None):
     # everything reachable is not discriminating.
     reach = call_graph_reachable_from_main()
     must_reach = ("gate_p", "set_to_set_assignment", "cfd_sections_from_surface",
-                  "gate_p_figure_data", "gate_g", "gate_r", "split_curve_upper_lower")
+                  "gate_p_figure_data", "gate_g", "gate_r", "split_curve_upper_lower",
+                  # Amendment 19.  Section 7's conditions 2-5 were STATED as the one thing
+                  # that blocks and were WIRED TO NOTHING for eleven adversarial passes.
+                  # They are named here so a future edit cannot orphan them the way item 5
+                  # orphaned Gate P, and so that orphaning goes RED rather than quiet.
+                  "section7_conditions_2_3_4", "section7_condition_5")
     missing = [n for n in must_reach if n not in reach]
     sentinel_ok = "_control_unreachable_sentinel" not in reach
     if mutate == "C23":
@@ -2349,7 +2586,227 @@ def controls(scratch, mutate=None):
          "of the plant, because the taps are not evenly split. A reader that still "
          "interleaved would report that smeared number, so this control discriminates.")
 
+    # ======================================================================================
+    # C25 / C26 / C27 / C28 -- AMENDMENT 19.  THE SECTION 7 SCREEN'S OWN PLANTED CONTROLS.
+    #
+    # WHY THEY EXIST.  Before Amendment 19 the two checkMesh fixtures in this file
+    # (_CM_EQ_FORM, _CM_COLON_FORM) carried CLEAN values ONLY -- openness ~1e-17 and ~1e-18,
+    # "Number of regions: 1", a POSITIVE Min volume.  There was no fixture anywhere in this
+    # file with a failing openness, with regions != 1, or with a negative minimum volume.
+    # That is the F5b unrepresentative-fixture pattern sitting on top of an UNGATED field:
+    # the reader was never shown able to see the failure it exists to catch, so even after
+    # the gate is wired a green from it would not be evidence (rule 3).  These four fixtures
+    # are the missing non-zero.
+    #
+    # EACH CONTROL IS A DELTA, NOT A COLOUR.  Every one drives the REAL gate_a() twice on a
+    # synthetic three-level tree written to disk and read back through the REAL readers: once
+    # CLEAN, once with ONE value planted.  It requires (a) the clean twin to grade PASS,
+    # (b) the mutant to grade BLOCKED, and (c) EXACTLY the clause under test to flip.  A
+    # suite in which the mutant merely "went red somewhere" would not distinguish these four
+    # gates from each other, and the negative twin is what makes the positive one mean
+    # anything at all.
+    # ======================================================================================
+    s7root = os.path.join(scratch, "s7")
+
+    def _s7_run(tag, cm_texts, name_sets, ids=("L2", "L2", "L2")):
+        """Drive the REAL gate_a() on a synthetic tree.  -> {check name: label}."""
+        levels = _s7_fixture_levels(os.path.join(s7root, tag), cm_texts, name_sets, ids=ids)
+        g = gate_a(levels)
+        out = {k: v["label"] for k, v in g["checks"].items()
+               if isinstance(v.get("pass"), bool)}
+        out["_GATE_A"] = g["gate_A_label"]
+        return out
+
+    _S7_CLEAN_NAMES = [("wing", "wall"), ("inout", "patch"), ("sym", "symmetry")]
+    _clean_cm = [_S7_CLEAN_CM, _S7_CLEAN_CM, _S7_CLEAN_CM]
+    _clean_nm = [_S7_CLEAN_NAMES, _S7_CLEAN_NAMES, _S7_CLEAN_NAMES]
+    base_s7 = _s7_run("clean", _clean_cm, _clean_nm)
+
+    def _s7_delta(tag, cm_texts, name_sets, clause):
+        """-> (ok, message).  The clean twin PASSes, the mutant is BLOCKED, and the flip is
+        CONFINED to `clause`."""
+        mut = _s7_run(tag, cm_texts, name_sets)
+        clean_ok = base_s7.get(clause) == "PASS" and base_s7["_GATE_A"] == "PASS"
+        mut_blocked = mut.get(clause) == "BLOCKED" and mut["_GATE_A"] == "BLOCKED"
+        moved = {k for k in mut if k != "_GATE_A" and mut[k] != base_s7.get(k)}
+        return (clean_ok and mut_blocked and moved == {clause},
+                f"clean twin -> {clause} = {base_s7.get(clause)}, Gate A = "
+                f"{base_s7['_GATE_A']}; planted -> {clause} = {mut.get(clause)}, Gate A = "
+                f"{mut['_GATE_A']}; clauses that MOVED = {sorted(moved)}")
+
+    # ---- C25: BOUNDARY OPENNESS ABOVE 1e-12 -> BLOCKED (Section 7 condition 2) --------
+    cm25 = list(_clean_cm)
+    cm25[1] = _S7_CLEAN_CM.replace(
+        "Boundary openness (2.99162e-17 4.31794e-16 -8.22572e-16)",
+        f"Boundary openness (2.99162e-17 {PLANT_S7_OPENNESS:.6e} -8.22572e-16)")
+    ok25, msg25 = _s7_delta("c25", cm25, _clean_nm,
+                            "A10_S7_C2_boundary_openness_le_1e-12")
+    if mutate == "C25":
+        ok25 = False
+    _rec("C25", ok25,
+         f"planted a boundary openness of {PLANT_S7_OPENNESS} on the middle level -- THREE "
+         f"ORDERS ABOVE Section 7's stated 1e-12 -- into a checkMesh log written to disk and "
+         f"read back through the real read_checkmesh(): {msg25}. Before this amendment the "
+         f"key `boundary_openness_max_abs` had ZERO readers and the threshold 1e-12 appeared "
+         f"NOWHERE against it, so this exact plant would have changed nothing at all.")
+
+    # ---- C26: NUMBER OF REGIONS != 1 -> BLOCKED (Section 7 condition 3) ---------------
+    cm26 = list(_clean_cm)
+    cm26[2] = _S7_CLEAN_CM.replace("Number of regions: 1 (OK).",
+                                   f"Number of regions: {PLANT_S7_N_REGIONS} (OK).")
+    ok26, msg26 = _s7_delta("c26", cm26, _clean_nm, "A11_S7_C3_number_of_regions_equals_1")
+    if mutate == "C26":
+        ok26 = False
+    _rec("C26", ok26,
+         f"planted 'Number of regions: {PLANT_S7_N_REGIONS}' on the finest level -- the value "
+         f"THIS BOX HAS OBSERVED from an unmerged multi-block conversion "
+         f"(cases/RUNG1_M6/read_checkmesh.py:56), not an invented number: {msg26}. This "
+         f"reading was parsed and int-coerced before this amendment and was never compared "
+         f"to 1. AND THE STAKE IS NOT ONLY SECTION 7: with more than one region the block "
+         f"interfaces become BOUNDARY faces and drop out of checkMesh's non-orthogonality "
+         f"statistic entirely, so Gate A1's own maximum reads FALSELY OPTIMISTIC. Condition "
+         f"3 is a precondition for believing A1, not merely a blocking screen.")
+
+    # ---- C27: NEGATIVE MIN CELL VOLUME -> BLOCKED (Section 7 condition 4) -------------
+    # THE SIGN IS THE CONTROL.  The old code used this reading ONLY as the denominator of
+    # cell_volume_ratio, where a negative value yields a NEGATIVE RATIO and fails nothing.
+    # This control therefore also reads that ratio back and REPORTS it, so a reader can see
+    # for itself that the pre-amendment path was blind to exactly this plant.
+    cm27 = list(_clean_cm)
+    cm27[0] = _S7_CLEAN_CM.replace("Min volume = 1.17547e-10.",
+                                   f"Min volume = {PLANT_S7_MIN_VOLUME:.6e}.")
+    p27 = _write(os.path.join(scratch, "c27_inverted.checkMesh"), cm27[0])
+    cm27_read = read_checkmesh(p27)                       # READ BACK FROM DISK
+    v27, r27 = cm27_read["min_volume"], cm27_read["cell_volume_ratio"]
+    ok27, msg27 = _s7_delta("c27", cm27, _clean_nm,
+                            "A12_S7_C4_min_cell_volume_strictly_positive")
+    ok27 = ok27 and v27 is not None and v27 < 0.0 and r27 is not None and r27 < 0.0
+    if mutate == "C27":
+        ok27 = False
+    _rec("C27", ok27,
+         f"planted a NEGATIVE minimum cell volume {PLANT_S7_MIN_VOLUME} -- an inverted cell, "
+         f"the exact hazard Section 7 condition 4 names -- on the coarsest level: {msg27}. "
+         f"Read back from disk the value is {v27}, and the OLD path's ONLY use of it, "
+         f"cell_volume_ratio, is {r27}: a negative ratio, which failed no check whatsoever. "
+         f"The test is `> 0`, SIGNED -- never `!= 0` and never `abs()`, both of which admit "
+         f"this plant unchanged.")
+
+    # ---- C28: RIGHT TYPES, WRONG NAMES -> BLOCKED, AND A9 MUST STILL PASS -------------
+    # THE INDEPENDENCE PROOF THE SUPERVISOR REQUIRED.  A9 grades TYPES and a count of at
+    # least three.  This mutant carries wall/patch/symmetry exactly as A9 demands, so A9
+    # MUST stay PASS while A13 goes BLOCKED.  If A9 moved, the two screens would not be
+    # independent and this control would be measuring one gate twice.
+    nm28 = list(_clean_nm)
+    nm28[1] = [(PLANT_S7_WRONG_NAMES[0], "wall"), (PLANT_S7_WRONG_NAMES[1], "patch"),
+               (PLANT_S7_WRONG_NAMES[2], "symmetry")]
+    ok28, msg28 = _s7_delta("c28", _clean_cm, nm28,
+                            "A13_patch_names_match_the_registered_per_level_set")
+    a9_clean = base_s7.get("A9_patch_identity_wall_symmetry_patch")
+    a9_mut = _s7_run("c28_a9", _clean_cm, nm28).get("A9_patch_identity_wall_symmetry_patch")
+    # THE REFUSAL LIMB.  A level whose expected set the registration does NOT record must
+    # REFUSE -- it must not pass, and it must not silently adopt the mesh's own names.
+    try:
+        _s7_run("c28_ids", _clean_cm, _clean_nm, ids=("L3", "L2", "L1"))
+        refusal_ok, refusal_msg = False, "an UNREGISTERED level did NOT refuse"
+    except Unregistered as exc:
+        refusal_ok = "'L3'" in str(exc) and "'L1'" in str(exc)
+        refusal_msg = str(exc)[:160]
+    ok28 = ok28 and a9_clean == "PASS" and a9_mut == "PASS" and refusal_ok
+    if mutate == "C28":
+        ok28 = False
+    _rec("C28", ok28,
+         f"planted the MEASURED P7 precedent {PLANT_S7_WRONG_NAMES} -- CORRECT TYPES "
+         f"(wall/patch/symmetry), WRONG NAMES -- on the middle level: {msg28}. THE "
+         f"INDEPENDENCE PROOF: A9 reads {a9_clean} on the clean twin and STILL reads "
+         f"{a9_mut} on the mutant, so this mutant is INVISIBLE to the type screen and dies "
+         f"only at the name screen. THE REFUSAL LIMB: the real level ids ('L3','L2','L1') "
+         f"REFUSE, because the registration records an expected name set for L2 ALONE -- "
+         f"{refusal_msg}")
+
     return fired, detail
+
+
+# --------------------------------------------------------------------------------------
+# THE SECTION 7 FIXTURE.  Amendment 19.  C25..C28's synthetic three-level Gate A tree.
+#
+# THE FIXTURE IS CLEAN ON EVERY OTHER CLAUSE ON PURPOSE.  It carries the registered cell
+# counts, the 64-cells-per-wing-face ratio, three distinct points streams and three
+# recorded surface shas, so a CLEAN run of it grades Gate A `PASS` END TO END.  That is what
+# makes the planted runs mean something: the mutant's `BLOCKED` is a DELTA AGAINST A PASS,
+# not a second red beside an existing one.
+#
+# A DIVERGENCE FROM THE REFERENCE IMPLEMENTATION, DECLARED RATHER THAN LEFT TO BE FOUND.
+# `cases/RUNG1_M6/read_checkmesh.py` is the predecessor campaign's reader and it already
+# gated `Number of regions == 1` (`run_r1m0.sh:360`).  NOTHING IS IMPORTED FROM IT -- that
+# would be a cross-campaign dependency and this file takes none.  Where the two differ:
+#   * its `RE_REGIONS` matches the `:` form only; this file's `n_regions` pattern matches
+#     `[=:]`, so it also sees the `=` form.  BROADER, in the safe direction.
+#   * its `NUM` has no `[Dd]` exponent; this file's does.  BROADER, same direction.
+#   * it gates regions as a DRIVER completion clause; this file gates it inside Gate A.
+#     That placement difference is a REAL residual and it is reported, not hidden: see the
+#     amendment's note that nothing on M6SR's launch path consults Gate A at all.
+# --------------------------------------------------------------------------------------
+_S7_CLEAN_CM = """\
+Checking geometry...
+    Overall domain bounding box (0 0 0) (1 1 1)
+    Boundary openness (2.99162e-17 4.31794e-16 -8.22572e-16) OK.
+    Max cell openness = 3.01583e-15 OK.
+    Max aspect ratio = 608.207 OK.
+    Min volume = 1.17547e-10. Max volume = 0.944185.  Total volume = 3132.13.  Cell volumes OK.
+    Mesh non-orthogonality Max: 61.4938 average: 13.697
+    Non-orthogonality check OK.
+    Max skewness = 2.30655 OK.
+    Number of regions: 1 (OK).
+"""
+
+# Three distinct 64-hex surface shas for A7, none of them the CONDEMNED 390-face surface A8
+# refuses (Section 1.3).  They are FIXTURE TOKENS and are labelled so here rather than being
+# left to resemble a measurement: no mesh on this box hashes to them.
+_S7_FIXTURE_SURFACE_SHAS = ("a" * 64, "b" * 64, "c" * 64)
+
+
+def _s7_boundary_text(name_types, wall_faces):
+    """An OpenFOAM `constant/polyMesh/boundary` in the EXACT shape read_boundary() parses:
+    the `// * * *` separator, the `<count>\\n(` list opening, and `type` / `nFaces` /
+    `startFace` in every entry.  A fixture in any other shape would make these controls pass
+    by not being read at all -- which is the failure mode they exist to rule out."""
+    blocks, start = [], 0
+    for name, ty in name_types:
+        n = wall_faces if ty == "wall" else 100
+        blocks.append(f"    {name}\n    {{\n        type            {ty};\n"
+                      f"        nFaces          {n};\n"
+                      f"        startFace       {start};\n    }}")
+        start += n
+    return ("FoamFile\n{\n    version     2.0;\n    format      ascii;\n"
+            "    class       polyBoundaryMesh;\n    object      boundary;\n}\n\n"
+            "// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //\n\n"
+            f"{len(name_types)}\n(\n" + "\n".join(blocks) + "\n)\n")
+
+
+def _s7_fixture_levels(root, cm_texts, name_sets, ids=("L2", "L2", "L2")):
+    """Write the synthetic tree and return gate_a()'s `levels`, COARSE-TO-FINE.
+
+    `ids` defaults to L2 at EVERY level because L2 is the only level whose expected patch
+    name set the frozen registration records (Section 2.2).  That is stated rather than
+    hidden: it isolates the clause under test from Section 7 condition 5's REFUSAL, which
+    C28 exercises separately and deliberately with the REAL ids ('L3','L2','L1').
+    """
+    if not (len(cm_texts) == len(name_sets) == len(ids) == 3):
+        raise InternalDefect("the Section 7 fixture takes exactly three levels.")
+    levels = []
+    for i, (lid, cells, cm, names) in enumerate(zip(ids, A4_CELLS, cm_texts, name_sets)):
+        d = os.path.join(root, f"lvl{i}")
+        pm = os.path.join(d, "constant", "polyMesh")
+        os.makedirs(pm, exist_ok=True)
+        _write(os.path.join(d, "log.checkMesh"), cm)
+        _write(os.path.join(pm, "boundary"),
+               _s7_boundary_text(names, cells // A6_CELLS_PER_WING_FACE))
+        # DISTINCT points streams, so A5's all-distinct clause passes on the clean twin.
+        _write(os.path.join(pm, "points"), f"1\n(\n({i}.0 0.0 0.0)\n)\n")
+        levels.append({"id": lid, "cells": cells, "case": d,
+                       "checkmesh": os.path.join(d, "log.checkMesh"), "polymesh": pm,
+                       "surface_sha256": _S7_FIXTURE_SURFACE_SHAS[i]})
+    return levels
 
 
 def _control_unreachable_sentinel():
@@ -2577,7 +3034,8 @@ def main(argv):
             reds = {}
             for target in ("C1", "C2", "C3", "C4", "C5", "C6", "C8", "C9", "C10", "C11",
                            "C13", "C14", "C15", "C17", "C18", "C19", "C19b", "C20",
-                           "C21", "C22", "C23", "C24"):
+                           "C21", "C22", "C23", "C24",
+                           "C25", "C26", "C27", "C28"):        # Amendment 19
                 if target in baseline_red:
                     reds[target] = None                 # cannot mutate an already-red control
                     continue
