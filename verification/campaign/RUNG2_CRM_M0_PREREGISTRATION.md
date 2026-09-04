@@ -1,20 +1,27 @@
-# RUNG 2 pre-registration — NASA CRM / DPW5 — the `R2-M0` COMPRESSIBLE ADMISSION PROBE, and the two blockers that mean the DRAG GATE IS NOT REGISTERED HERE
+# RUNG 2 pre-registration — NASA CRM / DPW5 — the `R2-M0` COMPRESSIBLE ADMISSION PROBE, and the THREE blockers that mean the DRAG GATE IS NOT REGISTERED HERE
 
-**Team: cfd. Case id `RUNG2-CRM-M0`. v1.0, drafted 2026-09-04 by a `lab-lane` for the cfd supervisor.**
+**Team: cfd. Case id `RUNG2-CRM-M0`. v1.1, drafted 2026-09-04 by a `lab-lane` for the cfd supervisor.
+v1.1 carries Amendment 1 (§13), landed PRE-COMPUTE after check 4 FAILED on v1.0.**
 
-> # ⚠ DRAFT — NOT AUTHORISED TO LAUNCH. SUPERVISOR CHECK 4 NOT PERFORMED.
+> # ⚠ DRAFT — NOT AUTHORISED TO LAUNCH. CHECK 4 FAILED ON v1.0 AND HAS NOT BEEN RE-PERFORMED.
 >
 > **NOTHING LAUNCHES AGAINST THIS FILE. NO COMPUTE HAS BEEN RUN UNDER IT.**
+>
+> **Check 4 was performed on v1.0 by the cfd supervisor and it FAILED**: §8 asserted a frozen grading
+> path and named a comparator that did not exist and was not in git, so there was no committed blob
+> to hash against. **§13 records that failure, in full, and its repair.** The repair does not make the
+> check pass — **only the supervisor re-performing check 4 can do that**, and it has not been done.
 >
 > The rule-2 freeze — pre-registration **committed** before compute — is the cfd supervisor's
 > **non-delegable personal check** (`SUPERVISION_CHARTER.md` §3). This lane does not take it and is
 > not authorised to launch any solve. The drafting lane spent **zero solver core-minutes.**
 >
-> Registered run root verified **ABSENT** at drafting under a live planted control (§1.4):
-> `verification/runs/RUNG2_CRM_runs/` and every path beneath it.
+> Registered run root verified **ABSENT** under a live planted control, twice: at drafting (§1.4) and
+> again at amendment by the comparator's own guard (§13) — `verification/runs/RUNG2_CRM_runs/`.
 >
-> **AND READ §4 BEFORE RULING ON §6.** §4 is a blocker this team cannot clear by measurement, by
-> amendment, or by spending. It is a standards question and it is **Sanaa's**.
+> **AND READ §4 AND §4b BEFORE RULING ON §6.** §4 is a standards question this team cannot clear by
+> measurement, amendment or spending, and it is **Sanaa's**. **§4b needs nobody's ruling and survives
+> any ruling on §4** — Rung 2's drag gate is `BLOCKED` on three grounds, not one.
 
 ---
 
@@ -29,7 +36,7 @@ family"*, *"Freeze criteria before the first solve, as always."*
 *"single cruise point (the workshop's design condition), drag and moment against the workshop's data
 envelope — we grade against the scatter band of participants, honestly stated."*
 **THAT GATE IS NOT REGISTERED IN THIS FILE AND CANNOT HONESTLY BE REGISTERED TODAY.** §10 says why,
-in two independent measured reasons, and neither of them is compute.
+in THREE independent measured reasons, and none of them is compute.
 
 **No gate in §6 depends on another team's state.** Every threshold below is read from an artifact
 this team owns or from a file on this box. That property was checked deliberately, because a gate
@@ -206,6 +213,36 @@ yet run". This is "cannot be graded as registered."
 
 ---
 
+## 4b. BLOCKER 3 — THERE IS NO REFINEMENT TRIPLE ON THIS BOX, SO RULE 5 CANNOT BE APPLIED AT ALL. **THIS ONE NEEDS NOBODY'S RULING AND SURVIVES ANY RULING ON §4.**
+
+Recorded as an **independent** blocker, on the cfd supervisor's instruction of 2026-09-04, precisely
+because **if Sanaa rules the §4 mesh-quality tension in this lab's favour, this blocker still
+stands** — and she should know that before she rules, not after.
+
+It is not a judgement. It is a fact about what is on this box:
+
+- **Only level L1.T is here.** Plant-verified in §1.3/§1.4. L2.C (2.16 M hex) and L3.M (5.11 M hex)
+  are published by the workshop and, by this lab's own measured memory law, would fit — but they are
+  **not downloaded, never converted, never `checkMesh`'d.**
+- **L1.T's hex, prism and hybrid files are THREE TOPOLOGIES AT ONE REFINEMENT LEVEL, not a
+  refinement triple.** They share one 660,177-node point distribution; only the element
+  decomposition differs. There is no refinement ratio between them and no `h` to extrapolate in.
+- **Two of those three are measured non-solvable** on this lab's numerics (prism diverges at
+  iteration 143; hybrid at 11), so even a topology comparison has one usable member.
+
+**Consequence, stated in the fixed vocabulary.** Rule 5 gates on a grid triple: a row whose triple is
+not `CONVERGING` is `NOT A RESULT` whatever its value. **A triple that does not exist cannot be
+`CONVERGING`, so a GCI-backed drag verdict is unavailable today regardless of §4's outcome.** Any
+drag number produced from L1.T alone would be a single-level value with no Richardson extrapolation
+and no GCI, and quoting a GCI from three topologies at one level would be quoting a GCI where the
+three values are not a refinement sequence at all.
+
+**Sanaa's order says the grid triple "comes free" from the committee family. On this box, today, it
+does not.** It is purchasable — three consecutive hex levels are within reach — but it has not been
+purchased, and nothing in this pre-registration assumes it has.
+
+---
+
 ## 5. WHAT IS REGISTERED HERE: `R2-M0`, THE COMPRESSIBLE ADMISSION PROBE
 
 **One grid. One geometry. Five arms. No drag claim of any kind.**
@@ -249,7 +286,7 @@ a converged solve and none may be quoted as one.**
 | **R2-G0** | **Reproduction control.** A0 reproduces the known abort. | A0 exits **136** at `Time ≤ 2` with `libfluidThermophysicalModels.so` present in its own stack trace | **8.0** | proceed to G1 | **`NOT A RESULT` for the whole probe** — §3's premise is not reproducible, and no conclusion is drawn from A1–A4 |
 | **R2-G1** | **Admission.** At least one of A1–A4 takes 50 steps. | ≥ 1 arm reaches **`Time = 50`** with **`rc = 0`**, **no signal 8**, and no `NaN`/`inf` token anywhere in its log | **160.0** | **`PASS`** — the compressible path is admissible on a committee hex grid, and Blocker 1 is cleared | **`GATE FAIL`** — all four remedies exhausted; the defect is deeper than configuration and Rung 2 (a) stays `BLOCKED` on Blocker 1 as well as Blocker 2 |
 | **R2-G2** | **Mechanism named by measurement.** | Every arm has a per-iteration `min/max` line for `T`, `p` and `rho` in its log up to its last completed iteration, and the failing arms' last such line is **quoted in the results record** | **0.0** (inside G0/G1's runs) | **`PASS`** | **`NOT A RESULT`** for the mechanism claim — the outcome of G0/G1 stands, but no cause may be named |
-| **R2-G3** | **Planted control on the reader** (rule 3). | The log reader reports **"abort at Time = 2, signal 8"** on the archived 2026-08-01 log and **"no abort"** on a synthetic clean log, in the same invocation | **2.0** | **`PASS`** | **`NOT A RESULT`** for G0 and G1 — a reader not shown able to see both outcomes has not measured either |
+| **R2-G3** | **Planted control on the reader** (rule 3). **ALREADY MEASURED — see §13.** | The log reader reports **"abort at Time = 2, signal 8"** on the archived 2026-08-01 abort log and **"no abort"** on the archived 2026-08-01 **clean** log — two real artifacts, same grid, same box, same day — in the same invocation, plus six further controls | **2.0** (spent: **0.0**, no solve) | **`PASS`** — measured 2026-09-04, **8/8 controls fired** | **`NOT A RESULT`** for G0 and G1 — a reader not shown able to see both outcomes has not measured either |
 | **R2-G4** | *(drag against the DPW participant scatter band)* | — | — | — | **NOT REGISTERED. See §10.** |
 
 **Verdict composition.** The probe's verdict is the **worst** of G0–G3, in the order stated.
@@ -312,11 +349,29 @@ number is not read. The launcher **refuses** a case directory in which a time di
 exists. An arm that aborts by design (A0) is recorded by its **exit code and stack**, never by a
 field, and never counted as completed.
 
-**The grading path is fixed at this document's commit.** The comparator
-`verification/runs/RUNG2_CRM_runs/M0_compressible_admission/grade_r2_m0.py` is hashed against its
-committed blob at grading time and the run refuses on mismatch
-(`scripts/check_comparator_freeze.py`). **It does not exist yet and is not authorised to be written
-until §6 is frozen by the supervisor.**
+> ~~**The grading path is fixed at this document's commit.** The comparator
+> `verification/runs/RUNG2_CRM_runs/M0_compressible_admission/grade_r2_m0.py` is hashed against its
+> committed blob at grading time and the run refuses on mismatch
+> (`scripts/check_comparator_freeze.py`). **It does not exist yet and is not authorised to be written
+> until §6 is frozen by the supervisor.**~~
+>
+> **STRUCK BY AMENDMENT 1 (§13), 2026-09-04, PRE-COMPUTE.** The struck text asserted a freeze it did
+> not have: it named a comparator that did not exist and was not in git, so there was no committed
+> blob to hash against and the stated refusal-on-mismatch could not fire. Original preserved above,
+> never rewritten.
+
+**The grading path is fixed at this document's commit.** The comparator is
+**`cases/committee-grids/grade_r2_m0.py`** — beside the case, where `grade_rung0b.py` already sits
+and is committed — **not** inside the run root. It **EXISTS AND IS COMMITTED** (§13). It is hashed
+against its committed blob at grading time and the run refuses on mismatch
+(`scripts/check_comparator_freeze.py`).
+
+**Why the comparator may not live inside the run root.** Two rules collide there and only this
+placement satisfies both: run outputs belong under `verification/runs/` and executables do not; and
+rule 4's guard **refuses** a case whose run root already exists, while the plant-verified-absent
+discipline requires that root to be absent before launch. A comparator that must be committed before
+launch, but that lives inside the run root, forces the root to exist before launch. **Those cannot
+both hold.** Ruled by the cfd supervisor, 2026-09-04.
 
 ---
 
@@ -342,13 +397,10 @@ Three measured reasons, stated plainly rather than worked around:
    written**. That is exactly the class of gate a pre-registration must not carry.
 2. **§3. There is no compressible solve.** A drag gate whose measurement channel aborts at iteration
    2 has no measurement channel.
-3. **The grid triple does not exist and does not "come free."** Sanaa's order says the committee
-   family makes the triple free. **Only L1.T is on this box.** L2.C (2.16 M) and L3.M (5.11 M) are
-   published and, by this lab's own measured memory law, would fit here — but they are **not
-   downloaded, never converted, and never `checkMesh`'d.** A Roache triple assembled from L1.T's
-   hex/prism/hybrid files would be **three topologies at one refinement level, not a refinement
-   triple**, and two of those three are measured non-solvable. Registering a triple gate today would
-   register a triple that does not exist.
+3. **§4b. The grid triple does not exist and does not "come free."** Rule 5 gates on a triple, and a
+   triple that does not exist cannot be `CONVERGING`. **This reason is INDEPENDENT of reasons 1 and
+   2: it survives any ruling Sanaa makes on §4, and it is not cleared by fixing §3.** Registering a
+   triple gate today would register a triple that does not exist.
 
 ---
 
@@ -372,24 +424,117 @@ with the `min/max T` line present throughout.
 
 **What P is worth, honestly.** P is a **capability** proposition, not a physics one. It settles
 nothing about drag, about CRM, or about this lab's agreement with any workshop. Its whole value is
-that it is the **cheapest** thing that can move a `BLOCKED` off Blocker 1 — 67 core-min against a
+that it is the **cheapest** thing that can move a `BLOCKED` off Blocker 1 — 66.9 core-min against a
 rung Sanaa priced in *"tens of core-hours per fine-grid solve"* — and that its answer is informative
-in **both** directions. **If Sanaa rules on §4 that a committee grid cannot carry a physics gate here,
-P stops being worth 67 core-min for Rung 2's sake and this probe should be cancelled unspent.**
+in **both** directions.
+
+**And it is worth it on its own account, independently of Rung 2.** The cfd supervisor ruled so on
+2026-09-04: a `rhoSimpleFoam` SIGFPE inside `libfluidThermophysicalModels.so` at `Time = 2`, with
+`Time = 1` clean at continuity `2.5642813e-07`, is a **solver-toolchain defect in cfd territory that
+blocks compressible work on imported grids generally**, and it is carried in neither
+`docs/NUMERICS_KNOWLEDGE.md` nor `docs/DOCKET.md`. **Authorised in principle, NOT authorised to
+launch.** If Sanaa's §4 ruling goes against committee grids, the probe's Rung-2 justification
+disappears but its toolchain justification does not — the supervisor decides then whether it still
+buys $0.145 derived.
 
 ---
 
 ## 12. THE RECOMMENDATION THIS LANE MAKES
 
-1. **Rung 2 (a), the drag-band verdict: `BLOCKED`.** Two independent measured blockers, and the
-   binding one (§4) is a standards conflict inside Sanaa's own instruction. **Escalate §4 to Sanaa.**
-   No compute clears it.
-2. **`R2-M0`: launch it only if the supervisor judges it worth 67 core-min on its own account** —
-   as capability work for the mesh-import line and for Rung 3, independent of whether Rung 2 (a)
-   survives §4. It is honest, cheap and falsifiable either way. **If §4 goes against committee grids,
-   cancel it unspent.**
-3. **Do not download L2.C or L3.M, and do not start on HLPW/Rung 3, until §4 is ruled.** Sanaa's own
-   order already forbids Rung 3 before CRM is held; §4 is what decides whether CRM can ever be held.
+1. **Rung 2 (a), the drag-band verdict: `BLOCKED`, on THREE grounds, not two.** §3 (no measurement
+   channel), §4 (the mesh-standard conflict — **Sanaa's alone to rule**), and §4b (**no refinement
+   triple exists on this box, so rule 5 cannot be applied at all**). **§4b needs nobody's ruling and
+   survives any ruling on §4**, which is exactly why Sanaa must see it before she rules on §4.
+   **Escalate §4 and §4b together.** No compute clears either.
+2. **`R2-M0`: authorised in principle by the cfd supervisor, NOT authorised to launch.** Check 4 has
+   been performed once and **FAILED** (§13); it must be redone against this amended document. The
+   supervisor's remaining preconditions are met: the comparator exists at the ruled path, is
+   committed, and **R2-G3 passes 8/8 against the real archived logs with no solve.**
+3. **Do not download L2.C or L3.M, and do not start on HLPW/Rung 3, until §4 and §4b are ruled.**
+   Sanaa's own order already forbids Rung 3 before CRM is held; §4 and §4b together decide whether
+   CRM can be held at all.
+
+---
+
+## 13. AMENDMENT 1 — 2026-09-04, **PRE-COMPUTE**. THE CHECK-4 FAILURE AND ITS REPAIR
+
+**Status of this amendment under rule 2.** This document is a **DRAFT**: it is not frozen, and **no
+compute has been run under it**. Before first compute, amendments are legal **and must state the
+condition and how it was checked.** The condition and its check are stated below. No gate, threshold,
+cap or label is altered by this amendment except where the entry did not previously exist; the
+struck text is preserved verbatim in §8 and is not rewritten.
+
+**THE CONDITION, AND HOW IT WAS CHECKED.** *Condition:* the registered run root
+`verification/runs/RUNG2_CRM_runs` does not exist, and no compute has been run under this document.
+*How checked:* the comparator's own `--guard-absent` mode was run against that exact path three
+times in one invocation — **ABSENT (rc 0) → probe directory created at the exact registered path →
+REFUSED (rc 2) → probe removed → ABSENT (rc 0)**, with a residue check confirming nothing was left
+behind. The guard was therefore shown able to see the non-absence it denies.
+
+### 13.1 What check 4 found, in the supervisor's words and not softened
+
+The cfd supervisor performed check 4 on v1.0 and it **FAILED**. §8 stated *"The grading path is fixed
+at this document's commit"* and named
+`verification/runs/RUNG2_CRM_runs/M0_compressible_admission/grade_r2_m0.py`. **That file did not
+exist and was not in git.** Both readers (`ls`, `git ls-files --error-unmatch`) were run against
+`cases/committee-grids/grade_rung0b.py` as a control in the same invocation and both returned it, so
+the absence was a reading and not a blindness.
+
+**Rule 2 requires the frozen file be verified as the file that ran by hashing it against the
+committed blob. There was no committed blob.** The document asserted a freeze it did not have — a
+precondition stated and not satisfied. **A registration that names a grader which does not exist
+cannot refuse on mismatch, because there is nothing to mismatch against.**
+
+### 13.2 The three repairs
+
+1. **The comparator moved out of the run root** and lives beside the case as
+   `cases/committee-grids/grade_r2_m0.py`, next to the already-committed `grade_rung0b.py`. §8 now
+   carries the reason: committing a grader inside the run root forces the root to exist before
+   launch, which rule 4's guard refuses. Supervisor's ruling, 2026-09-04.
+2. **The comparator was written and committed**, and **R2-G3 was run today against the real archived
+   logs with no solve.**
+3. **Blocker 3 was promoted to its own section (§4b)** as an independent blocker, because it
+   survives any ruling on §4.
+
+### 13.3 R2-G3, MEASURED 2026-09-04 — `PASS`, 8/8 controls fired, 0.000 solver core-min
+
+Run as `python3 cases/committee-grids/grade_r2_m0.py --selftest`. The two controls the supervisor
+required are C1 and C2, and they are **two real archived artifacts on the same grid, the same box and
+the same day** — not a synthetic log:
+
+| control | what it plants or reads | fired |
+|---|---|---|
+| **C0** | the `assert`-detector is planted (`assert True` → 1) and shown silent on clean source (→ 0), then reads this comparator (→ **0 `assert` statements**) | **PASS** |
+| **C1** | the real archived **abort** log → **`ABORTED` at `Time = 2`**, `libfluidThermophysicalModels.so` seen (31×), SIGFPE seen (8×), no `End` | **PASS** |
+| **C2** | the real archived **clean** log → **`COMPLETED`**, `Time = 200`, `ExecutionTime` count 200, `End` present, **0** SIGFPE, **0** thermo frames, **0** NaN/inf | **PASS** |
+| **C3** | the abort signature planted **into** the clean log → classification **flips to `ABORTED`** | **PASS** |
+| **C4** | a `nan` token planted → the R2-G1 scan fires; unplanted → silent | **PASS** |
+| **C5** | the **setsid trap**: `rc = 0` beside a SIGFPE log is **REFUSED**; `rc = 0` beside a clean log is allowed | **PASS** |
+| **C6** | the **age guard**: fields newer than `0/T` pass; `0/T` touched forward → **fail** | **PASS** |
+| **C7** | the run-root guard refuses an existing root and permits an absent one | **PASS** |
+
+**The selftest was shown able to FAIL, so its passes are evidence.** Two mutations of the comparator,
+run from scratch copies, never from the committed file:
+
+- **M1** — the abort control pointed at the clean log: **C1 and C5 report `FAIL`, rc = 2,
+  `R2-G3: NOT A RESULT`.**
+- **M2** — one `assert True` injected: **`REFUSED`, rc = 2**, naming the count.
+
+**`python3` and `python3 -O` parity:** both exit **0** and their stdout is **byte-identical**
+(`cmp` clean). `__pycache__` was cleared before the run so no stale bytecode could invert the
+mutation controls.
+
+**Cost of R2-G3: 0.000 solver core-min.** No solve, no MPI, no case directory. The registered 2.0
+core-min cap for R2-G3 is therefore **unspent** and stays available.
+
+### 13.4 What is still NOT done
+
+- **Check 4 has not been re-performed against this amended document.** It is the cfd supervisor's
+  personal, non-delegable check. **This file still authorises nothing.**
+- The comparator's `--grade` path has **never been exercised on a real arm**, because no arm exists.
+  Its completion clauses were exercised on a synthetic case directory with real mtimes (C6) — that is
+  a control on the clause logic, **not** a demonstration that it grades a real OpenFOAM run
+  correctly, and it is not offered as one.
 
 ---
 
