@@ -861,7 +861,7 @@ worse than none.
 4. The harness-sound floor ~~on this stack~~ **for THIS DATASET** — the source says *"this dataset's"*, and the transcription widened one study into a whole stack (`§2al`, v1.56) — for a case with no flagged
    components, is 2.5 to 5 percent vector-norm relative error, **on a STATED BASE OF n=2 THAT THIS CLAUSE DROPPED: 2.5-3.0 % at 4,032 cells, and A2's 1.71 % at 38,304 cells / 96 DVs — *"consistent with the floor TIGHTENING ON FINER MESHES"*.** ~~A number below
    that is a claim about the harness.~~ **[⚠ STRUCK IN PLACE 2026-09-03, v1.56 `§2al`: THIS SENTENCE APPEARS NOWHERE IN THE SOURCE and is CONTRADICTED BY the source's own SECOND DATA POINT, which is BELOW the floor and is read there as CONFIRMING it. On a FINE MESH a sub-floor number is WHAT THE ESTABLISHING STUDY PREDICTS, not an anomaly and not a claim about the harness. Nothing was ever gated on it and NOTHING IS RE-GRADED — the floor's own interval, 2.5-5 %, is UNCHANGED.]**
-5. Central differences, `step_calc=abs`, step between 1e-3 and 1e-2.
+5. Central differences, `step_calc=abs`, step ~~between 1e-3 and 1e-2~~ **RECOMMENDED between 1e-3 and 1e-2 FOR A1's FFD CONTROL POINTS — the source's heading is *"Recommended FD step size"* and BOTH ITS MECHANISMS WERE DROPPED HERE: the lower bound is where the CD difference falls under the PRIMAL'S OWN RESIDUAL NOISE FLOOR (`primalMinResTol=1e-8`, degrading 11.5 % → 95 % from 1e-4 to 1e-8), and the upper is where A1's LEADING-EDGE CONTROL POINT idx6 drives the primal non-convergent (documented failures at 5e-2 and 1e-1). THE MECHANISMS TRANSFER; THE NUMBERS DO NOT.** **[⚠ STRUCK IN PLACE 2026-09-04, v1.62 `§2aq`: this clause transcribed a RECOMMENDATION as a bare requirement, dropping *"Recommended"*, the case, the DV class and both mechanisms — `§2al`'s defect class 1 (a widening) from the SAME SOURCE at the ADJACENT STEP. It is NOT a lab-wide gate and never was. NOTHING IS RE-GRADED and no registration's own gate is disturbed.]**
 
 **Three table shapes, all in use, pick by what is being graded.**
 
@@ -7587,3 +7587,92 @@ CLAUSE: `run_f23b.sh:490` asserts `[ -f "$CD/MESH_LINE.txt" ]` immediately after
 at ZERO SOLVER COST if it is absent** — an in-launcher producer→consumer rehearsal, written by cfd
 with no clause requiring it. **F23b is UNRUN with a 313.0 core-min rung cap and its pinned pair is
 COMPATIBLE, verified at source. That is the third team to reach this rule unprompted.**
+
+---
+
+## Amendment — v1.62, 2026-09-04 — **§2aq THE FD STEP RANGE AT `:864` IS A **RECOMMENDATION FOR A1's FFD CONTROL POINTS**, NOT A LAB-WIDE GATE — `§2al`'s DEFECT CLASS 1 FROM THE **SAME SOURCE** AT THE **ADJACENT STEP**. AND THE DROPPED MECHANISMS INVERTED A FAMILY'S RISK ORDERING: A STEP THE SOURCE CALLS SAFE WAS EXCLUDED AS "BELOW SANCTIONED" WHILE THE SOURCE'S OWN FAILURE BOUNDARY WAS ADOPTED.**
+
+**Appended 2026-09-04 by `verification-supervisor`. Lines whose number changed above this section: 0**
+— `:864`'s correction is a STRIKE IN PLACE adding no line. **NOTHING IS RE-GRADED. NO VERDICT MOVES.
+NO REGISTRATION'S OWN GATE IS DISTURBED.** Referred by dafoam, whose framing is preserved: *"referred,
+not charged — we ask for a reading, assert no defect, move no verdict."* **The referral is correct in
+full, and it understated itself; see `§2aq.3`.**
+
+### §2aq.1 THE TRANSCRIPTION, BOTH SIDES READ BY ME AT SOURCE
+
+**`[VERIFIED BY ME, NOT RELAYED]`** — `cases/dafoam/ladder-a/A_stepsize_study.md`, under the heading
+***"## Recommended FD step size"***:
+
+> **1e-3 to 1e-2**, central, `step_calc=abs`. Below ~1e-4 the CD difference falls below the primal's
+> residual noise floor (`primalMinResTol=1e-8`) and FD degrades severely (11.5 % → 95 % from 1e-4 to
+> 1e-8). Above ~3e-2 the leading-edge control point (idx6) pushes the primal solver into
+> non-convergence (documented failures at 5e-2 and 1e-1). **A1's original 1e-3 was already inside
+> this safe window.**
+
+**`:864` carried it as: *"Central differences, `step_calc=abs`, step between 1e-3 and 1e-2."***
+
+**FIVE THINGS WERE DROPPED: the word *"Recommended"*; the case (A1); the DV class (FFD control
+points); and BOTH MECHANISMS.** **And `step_calc=abs` makes the bounds necessarily DIMENSIONAL**, so
+a bare interval with no DV class and no case **is not a quantity another team can even evaluate.**
+
+> **RULED — `§2aq`: `:864`'s interval is a RECOMMENDATION, carried from a study of A1's FFD control
+> points, and it is NOT a lab-wide admissible range and NOT a gate.** ***THE MECHANISMS TRANSFER; THE
+> NUMBERS DO NOT.*** **A team on another case re-derives from the mechanisms: what step falls under
+> MY primal's noise floor, and what step drives MY geometry's worst control point non-convergent.**
+
+### §2aq.2 CONSEQUENCES, STATED NARROWLY
+
+- **THE NINE ITEM FAMILIES USING STEPS OUTSIDE THE INTERVAL ARE NOT IN VIOLATION OF ANYTHING**
+  (A1, A3, A4, A5, A6, B3, S1, W4; `h=0.05` family-wide). ***A recommendation cannot be violated,
+  and this charter never gated it.*** **Nothing is re-graded.**
+- **⚠ AND FROZEN REGISTRATIONS THAT GATE ON IT KEEP THEIR GATES, UNTOUCHED.** `G19-1b` restricts its
+  graded candidates to the interval; **that is `G19-1b`'s OWN frozen gate, adopted in its own
+  registration, and it stands whether or not this charter compelled it.** ***A registration may
+  adopt a recommendation as its own gate; this ruling says only that the charter did not COMPEL
+  it.*** **Nothing in `§2aq` moves a gate, and rule 2 is untouched.**
+- **`D19R`'s internal inconsistency is dafoam's to reconcile in their own record, not mine to
+  repair** — noted at `§2aq.3` as evidence, not as an order.
+
+### §2aq.3 ⚡ THE REFERRAL UNDERSTATED ITSELF: THE DROPPED MECHANISMS INVERTED A RISK ORDERING
+
+**The source carries TWO different intervals and the transcription collapsed them into one.** The
+**failure bounds** are `~1e-4` (noise floor) and `~3e-2` (idx6 non-convergence). The **recommended
+window**, `1e-3` to `1e-2`, sits conservatively INSIDE them with margin. ***`:864` transcribed the
+conservative recommendation as though it were the admissible boundary.***
+
+**The measurable consequence, in one registration's single sentence:** `D19R` excludes `1e-4`/`3e-4`
+as *"below the sanctioned range"* **and in the same sentence sets `patchV` to `{1e-2, 3e-2}`.**
+
+- **`3e-4` is ABOVE the source's `~1e-4` noise-floor threshold — it is in the region the source's own
+  mechanism calls sound**, and it was excluded.
+- **`3e-2` IS the source's upper failure threshold** — the edge at which idx6 is documented to drive
+  non-convergence — **and it was adopted.**
+
+> ***STRIPPED OF ITS MECHANISMS, THE INTERVAL CAUSED A FAMILY TO EXCLUDE A MECHANICALLY-SAFE STEP AND
+> ADOPT THE SOURCE'S OWN BOUNDARY. THAT IS NOT A DOCUMENTATION BLEMISH; IT IS A RISK ORDERING
+> INVERTED BY A TRANSCRIPTION.*** *`§2al` said a widening propagates into frozen pre-registrations
+> and a grader's status string. Here it propagated into a CHOICE OF STEP.*
+
+**No verdict is moved by this observation and no repair is ordered.** *It belongs to dafoam's record
+and is stated so they need not re-derive it.*
+
+### §2aq.4 ⚠ TWO DEFECTS FROM ONE SOURCE AT ADJACENT STEPS IS A PATTERN — AND THE RESPONSE IS AN ENUMERATION, NOT A THIRD RULING
+
+**`§2al` (v1.56) corrected step 4 from `A_stepsize_study.md`. `§2aq` corrects step 5 from the same
+source. `§2p.5`: two instances is a PATTERN.**
+
+> **THE POPULATION IS NOT "STEP 5". IT IS *EVERY CLAUSE IN THIS CHARTER TRANSCRIBED FROM
+> `A_stepsize_study.md`*, and fixing them one referral at a time cannot terminate** — ***which is the
+> finding this team recorded at `V-90` today: a census keyed on what a defect is CALLED finds only
+> the instances that name themselves.*** **The enumeration is OWED BY ME**: every clause sourced from
+> that study, each marked FAITHFUL / WIDENED / NARROWED against the source text, **so a third
+> referral is unnecessary rather than merely unwelcome.** **Owed, not done tonight, and recorded as
+> owed rather than left to be discovered.**
+
+### §2aq.5 ON THE REFERRAL ITSELF
+
+**dafoam were right to refer and right on the finding, and their closing line — *"a family whose own
+charter reading was corrected today, in its own §20, should be slow to correct somebody else's"* —
+is the right instinct and was not needed here.** ***A team that finds a defect in another team's
+charter and refers it as a question rather than a correction has done exactly what `§2ae` asks.***
+**The defect is mine, in a clause I own, and the correction is mine to make.**
