@@ -1338,7 +1338,7 @@ A discriminator that structurally cannot falsify is a disclaimer, not a test.
 | P1 | **The new L1 will land near 61° max non-orthogonality**, in family with 61.4938 and 61.1581 | **INFERENCE**, not measurement. The strongest inference available on this box: the two existing levels differ **only** in surface, and surface refinement alone moved non-orthogonality 61.4938 → 61.1581 — slightly **better**. **If L1 exceeds 70°, that is a recorded miss and the run still launches.** |
 | P2 | **Max aspect ratio will FALL again**, continuing 608.207 → 222.355 → ? | **INFERENCE** from the same two-point trend. ⚠ **A two-point trend is not a law**, and `docs/COST_CALIBRATION.md:408` records a measured case where max aspect ratio was **non-monotone** across a four-level ladder while non-orthogonality rose monotonically. **Low confidence, stated.** |
 | P3 | **`y⁺` will be in the TENS, ≈ 32.3, and IDENTICAL at all three levels** | **DERIVED FROM A FLAT-PLATE CORRELATION** (§3.1), not measured. The *identical-across-levels* half is **structural** (§2.2) and is the stronger claim. |
-| P4 | **`B5c` will overrun its 543.13 core-min estimate** | **INFERENCE** from `docs/COST_CALIBRATION.md:408`'s superlinear finding. Direction known (**upward**); the ×2.0 allowance is the correction, and P4 predicts the allowance is **too small**. |
+| P4 | **`B5c` will overrun its 543.13 core-min estimate** | **INFERENCE** from `docs/COST_CALIBRATION.md`'s JF1 **cell-count** superlinear finding. Direction known (**upward**); the ×2.0 allowance is the correction, and P4 predicts the allowance is **too small**. 🔴 **THIS PREDICTION IS RANK-DEPENDENT — SEE §14 AMENDMENT 8c.** It stands as written **at the registered 16 ranks**, where two independent upward terms act; **at 8 ranks it may REVERSE** (the allowance too LARGE), and **at 4 ranks it rests solely on the cell-count finding**. **P4 is graded against the rank count the run actually used, read from its own solver-log banner (§1273), and a miss in the DOWNWARD direction is a genuine miss.** |
 | P5 | **`D1` will return CORROBORATED** | **PREDICTION, and deliberately NOT tested by the drafting lane** (§4.3). If it returns FALSIFIED, `A-MAP` is reversed and every prior M6 `Cp` comparison on this box that assumed root-to-tip is called into question — **which is exactly why `D1` is registered rather than assumed.** |
 | P6 | **The `.mesh-cache` topology's farfield is only ~12.7 chords** — bounding box `(−10.51, −12.69, 0)` to `(12.90, 12.69, 11.97)` | **MEASURED** from its checkMesh log. `marchDist = 12.0` is **tight for a transonic case; expect a blockage-like `Cp` bias, direction and magnitude UNKNOWN and NOT quantified here.** ⚠ **It is IDENTICAL at all three levels — which is required for a family (a moving farfield would be three different problems) and is also this family's largest un-quantified systematic.** |
 | P7 | **Patch names may differ between the existing levels and the newly built L1** | **MEASURED PRECEDENT**: an hcf-generated family on this box produced `wing/symmetry/farfield` on the generator level and `WING3D/SYMMETRY/FARFIELD` on coarsened levels. **A driver assuming one name set would silently mis-apply boundary conditions.** The launcher **refuses** a level whose patch names it did not expect (A9). |
@@ -1447,15 +1447,15 @@ guess.**
 
 ---
 
-## 14. PRE-COMPUTE AMENDMENTS 2–7 — 2026-09-04T0120Z / T0128Z
+## 14. PRE-COMPUTE AMENDMENTS 2–8 — 2026-09-04T0120Z / T0128Z / T0133Z
 
 **Drafted by a cfd lab-lane. NOT a freeze. This section authorises no compute and the supervisor's
 `SUPERVISION_CHARTER.md` §3 check 4 is undischarged.**
 
 > ### THE CONDITION, STATED ONCE FOR AMENDMENTS 2–6 BELOW, AND HOW IT WAS CHECKED
 >
-> *(**Amendment 7** was ruled later the same night and carries **its own** condition statement, at
-> its own timestamp, in its own block — it does not inherit this one.)*
+> *(**Amendments 7 and 8** were ruled later the same night and each carries **its own** condition
+> statement, at its own timestamp, in its own block — neither inherits this one.)*
 >
 > **Condition (rule 2's before-first-compute clause):** this document is a **DRAFT**, is **NOT
 > frozen**, and **no compute has occurred under it**.
@@ -1702,9 +1702,10 @@ surrounding prose, which a `grep` does not read:**
 
 ### WHAT AMENDMENTS 2–6 DO NOT TOUCH
 
-*(**Amendment 7** and **§14.1** follow this block — appended after it, and bound by every line of
-it. Amendment 7 adds no gate, no threshold and does not touch `GF4`; §14.1 registers no number of
-its own and is a pointer, not a gate.)*
+*(**Amendments 7 and 8** and **§14.1** follow this block — appended after it, and bound by every
+line of it. Amendment 7 adds no gate, no threshold and does not touch `GF4`; Amendment 8 registers
+a condition of the cost basis and changes no cost-table cell, no gate and no allowance; §14.1
+registers no number of its own and is a pointer, not a gate.)*
 
 - **No gate, threshold, cap or label moves.** The §2.4 cost **table** is unchanged in every cell.
 - **Clause `L-HONEST` (§6) is UNCHANGED, and is re-affirmed rather than merely left alone.** The
@@ -1849,3 +1850,146 @@ fall inside the **2.69e-08–4.72e-08** eight-run band — **the band `RUNG1_M6_
 explicitly REJECTED because five of its eight runs were never re-derived.**
 **VERDICT: PROVENANCE FOUND, ARITHMETIC UNSOURCED — and superseded either way.** The figures to
 use are **101.7** (conservative rate) and **85.9** (point-estimate rate), both derived above.
+
+---
+
+### AMENDMENT 8 — THE RANK COUNT IS A **CONDITION OF THE COST BASIS**, NOT AN IMPLICIT ASSUMPTION
+
+**Ruled by the cfd supervisor, 2026-09-04, inside their own territory. Implemented by a cfd
+lab-lane. NO gate, threshold, cap or label is created, moved or widened. The ×2.0 superlinear
+allowance is NOT changed. `GF4` is untouched. No cost-table CELL changes.**
+
+> **Condition and how it was checked, at this amendment's own timestamp (2026-09-04T0133Z):** this
+> document is a **DRAFT**, is **NOT frozen**, and **no compute has occurred under it**.
+> **`verification/runs/M6SR_runs`** and **`cases/M6SR`** both **absent**; ⚠ **the same test in the
+> same invocation returned `PRESENT` on `verification/runs/RUNG1_M6_R2_runs` and
+> `verification/runs/M6I_runs`** (rule 3). This lane created neither run root and launched nothing.
+
+#### 8a. 🔴 THE FACT THAT WAS NOT REGISTERED ANYWHERE: **THE RATE'S OWN BASIS IS 4 RANKS**
+
+**Measured by this lane, from the solver log's own banner, per §1273's rule and not from
+`decomposeParDict`:** the registered solve rate **3.40e-8 core-min/cell/iteration** comes from
+`/home/ubuntu/certonomous-runs/A3-onera-m6-transonic/run_model_run3.log`, whose primal banner reads
+**`nProcs : 4`**.
+
+⚠ **AND THE TRAP §1273 WARNS OF FIRED IN THIS VERY FILE, WHICH IS WHY THE RULE IS KEPT:** that
+log's **first** `nProcs` match is **`nProcs : 1`** (line 30); the primal banner is at **line 63**.
+**Taking the first match would have quartered the rate.** The case's own
+`system/decomposeParDict` reads `numberOfSubdomains 2` and **post-dates the run** — a third,
+different, wrong answer. **Three candidate values, one instrument, and only the banner is right.**
+
+> **REGISTERED, AND IT WAS PREVIOUSLY IMPLICIT: `3.40e-8 core-min/cell/iteration` IS A 4-RANK
+> MEASUREMENT.** The registered decompositions are `B5a` **(4 1 1) = 4 ranks**, `B5b`
+> **(8 1 1) = 8**, `B5c` **(16 1 1) = 16**. **`B5a` sits ON the rank basis; `B5b` is 2× off it;
+> `B5c` is 4× off it.**
+
+#### 8b. WHAT THE RANK COUNT DOES AND DOES NOT MOVE — STATED EXACTLY, BECAUSE IT IS EASY TO GET BACKWARDS
+
+**Core-minutes are `wall s × ranks ÷ 60`. The registered rate is already expressed in
+core-minutes. Therefore the CORE-MINUTE ESTIMATE IS IDENTICAL AT EVERY RANK COUNT — by the rate's
+own construction — and what the rank count changes is (1) the WALL time and (2) the SIZE AND SIGN
+OF THE PARALLEL-EFFICIENCY ERROR against the 4-rank basis.**
+
+> **THE ASSUMPTION THIS MAKES EXPLICIT, AND IT WAS NEVER WRITTEN DOWN BEFORE:** applying a
+> **4-rank** core-minute rate at **8** or **16** ranks assumes **PERFECT STRONG SCALING**. Real
+> parallel efficiency is below 1, so core-minutes **RISE** with rank count at fixed work. **The
+> registered estimates therefore carry an unregistered upward bias that grows with the rank
+> extrapolation, and this clause registers it.**
+>
+> ⚠ **NO EFFICIENCY MODEL IS ADOPTED AND NO CORRECTION IS APPLIED.** This lab has **no measured
+> strong-scaling curve for `rhoSimpleFoam` on this box at any mesh size.** The direction is
+> known; the magnitude is **NOT** estimated here, and inventing one would be exactly the
+> laundering this registration exists to avoid.
+
+**REGISTERED, BOTH RANK COUNTS, EACH DERIVED — so whichever the launch gets has a denominator
+waiting for it (§9.3):**
+
+| step | core-min est. | cap | ranks | **est. WALL (min)** | **cap WALL (min)** | rank extrapolation from the 4-rank basis |
+|---|---|---|---|---|---|---|
+| `B5a` | 10.1837 | 31.0 | **4** | **2.546** | 7.750 | **1× — ON BASIS** |
+| `B5b` | 54.3130 | 163.0 | **8** | **6.789** | 20.375 | **2×** |
+| `B5c` **as registered** | 543.1296 | 1630.0 | **16** | **33.946** | 101.875 | **4×** |
+| `B5c` **at 8 ranks** | **543.1296 — UNCHANGED** | 1630.0 | **8** | **67.891** | 203.750 | **2×** |
+| `B5c` **at 4 ranks** | **543.1296 — UNCHANGED** | 1630.0 | **4** | **135.782** | 407.500 | **1× — ON BASIS** |
+
+**The fleet safety ceiling (§2.5) is 4,890 core-min and is likewise rank-invariant in core-minutes,
+but its WALL horizon is not** — and a monitor watching a clock needs it: **305.6 min (5.09 h) at
+16 ranks, 611.3 min (10.19 h) at 8, 1,222.5 min (20.38 h) at 4.** Registered so the monitor's
+deadline is derived rather than guessed at launch.
+
+#### 8c. P4's DIRECTION UNDER EACH RANK COUNT — AND IT NAMES THE PARAMETER
+
+**`P4` (§11) predicts `B5c` will overrun 543.13 core-min and that the ×2.0 allowance is TOO SMALL.
+That prediction is UNCHANGED. It now names the parameter it depends on:**
+
+| rank count | pressures on `B5c`'s core-minutes | **P4's direction** |
+|---|---|---|
+| **16 (registered)** | **TWO** upward terms: the 4× cell extrapolation, **and** a 4× rank extrapolation with efficiency < 1 | **UP — P4 stands as written**, and is supported by two independent mechanisms rather than one |
+| **8** | cell extrapolation unchanged; rank extrapolation only **2×**, so less inflation | **WEAKENED. P4 may REVERSE** — with a smaller total error, the ×2.0 allowance may prove **too LARGE** |
+| **4** | rank term **vanishes** (on basis); the **only** error is cell-count | **P4 rests SOLELY on the cell-count finding**, and is the cleanest test of it available |
+
+> **`P4` IS GRADED AGAINST THE RANK COUNT THE RUN ACTUALLY USED, READ FROM ITS OWN SOLVER-LOG
+> BANNER (§1273), AND THE CERTIFICATE STATES THAT COUNT BESIDE THE VERDICT.** A prediction that
+> reverses with an operational parameter is still falsifiable — **but only if it names the
+> parameter, and now it does.** **If `B5c` runs at 8 or 4 ranks, a P4 miss in the DOWNWARD
+> direction is a genuine miss and is graded as one; it is not re-read as a hit.**
+
+#### 8d. THE BOX CANNOT SUPPLY 16 RANKS RIGHT NOW — MEASURED, AND NOT A REASON TO CHANGE A NUMBER
+
+**Measured by this lane at 2026-09-04T0133Z:** `nproc` = **16**; `/proc/loadavg` = **20.47 / 22.71 /
+23.32**, i.e. the box is **oversubscribed at every averaging window** by foreign work
+(heat-transfer's T-family solve is live). **`hierarchical (16 1 1)` is not currently available.**
+
+> **THIS IS A RESOURCE GATE, AND UNDER SANAA'S 2026-09-03 RULING (`825285bb`) A RESOURCE GATE
+> **QUEUES**, IT DOES NOT BLOCK** — her words: *"Resource gates (box busy, memory): these are real
+> physical limits, not predictions — queue, don't launch. But queueing is not blocking; the run
+> stays scheduled."* **Nothing here blocks this registration, and NO RUNNING SOLVER IS TOUCHED.**
+>
+> **AND THE NUMBER IS NOT MOVED TO FIT THE BOX.** The registered decomposition stays
+> `(16 1 1)`. If the launch takes 8 ranks instead, **that is recorded as the condition it ran
+> under and graded against this table** — not retro-fitted into the registration.
+
+#### 8e. ⚠ A CORRECTION TO THE INSTRUCTION THIS LANE WAS GIVEN, MADE AT SOURCE
+
+**This lane was briefed that a prior pass had "re-attributed the ×2.0 allowance away from cache to
+16-rank parallel inefficiency." IT HAS NOT. That re-attribution IS NOT IN THIS DOCUMENT.**
+
+**Read at source:** §2.4 (`:479`) still states the mechanism as **"working set outgrowing
+cache"**, labelled **INFERRED, not instrumented — no PMU counter is collected here and none is
+claimed** — and its cited basis is `docs/COST_CALIBRATION.md`'s JF1 finding, which is a
+**CELL-COUNT** result (1.448× optimistic at 90k cells, 5.84× at 455k, from a 40k-cell basis).
+**Nothing in the registration ties the ×2.0 to ranks.**
+
+> **THE AMENDMENT IS WRITTEN SO THAT IT DOES NOT DEPEND ON THAT CLAIM.** The rank dependence
+> registered above is a **SEPARATE, NEWLY NAMED CONDITION** of the cost basis — it arises from the
+> rate being a **4-rank measurement**, which is a fact of the log — and it is **NOT** a
+> re-attribution of the ×2.0 allowance, whose stated mechanism and stated basis are **left exactly
+> as they are.** **The ×2.0 is not changed, not re-justified, and not re-explained.**
+>
+> **This matters beyond bookkeeping:** had the amendment been written on the relayed premise, the
+> registration would have carried a mechanism claim **no artifact supports**, and §9.3's
+> calibration row would later have attributed a cost miss to the wrong cause. **The two mechanisms
+> are now separable in the record, which is the only way the calibration can ever tell them apart.**
+
+---
+
+### 14.2 THE SUPERVISOR'S RULINGS ON §13's OPEN ITEMS — RECORDED AS **THEIRS**, WITH AN OWNER
+
+**These are the cfd supervisor's judgements, ruled 2026-09-04, recorded here so each has a named
+owner rather than sitting as an unattributed lane opinion. NO threshold, gate, cap or label is
+changed by any of them — each either ENDORSES a value already registered or ACCEPTS a labelled
+basis already in force.**
+
+| §13 item | ruling | the supervisor's stated reasoning |
+|---|---|---|
+| **10 — `GF1`'s ±10 % band** | ✅ **SET AND SIGNED BY THE SUPERVISOR. Band UNCHANGED at ±10 %.** | `t_TE/c = 0.0014104` puts the band at **`[0.00127, 0.00155]`**; a sharpened surface reads **0.0** and the independent W5 CGNS reads 0.0014104 to seven figures. **The gate must separate "sharpened" from "true TE" and there is nothing whatever in the gap**, so the band's exact width is not load-bearing. ±10 % is **honest about being a round number** rather than pretending to a precision the discrimination does not need. 🔴 **"A band chosen where nothing can land is not a band chosen to fit an answer."** |
+| **1 — off-basis converter rate** | ✅ **ACCEPT as labelled.** | It prices `B3` at **0.2853 against a 3.0 cap — 10.5× margin**; the `ugrid_to_foam.py` → `plot3dToFoam` transfer cannot move the total by anything that matters, and disqualifying it would cost more than it buys. **The honesty label stays; the label is the point.** |
+| **4 — `D1`'s 0.75 margin** | ✅ **ENDORSED.** | 25 % is far above trapezoidal error over 34–45 taps, and the "anything else" branch **fails safe to `NOT A RESULT` rather than to a guess.** A judgement that fails safe is one the supervisor will own. |
+| **6 — `b_semi = 1.19676 m`** | ✅ **ACCEPT — it self-closes at `B0`.** | `GF4` measures semispan on each level's own surface against AGARD's printed **1.1963 m**, and the carried value differs by **0.039 %**, inside `GF4`'s **±0.1 %** band — **so the gate is not pre-decided by the choice.** |
+| **11 — §1.5's relayed CGNS figures** | ✅ **ACCEPT behind their fence**, with one enforcement. | Motivation for `Gate GF`, **never a gate value**. **ENFORCED: they must NEVER be re-quoted downstream as measurements.** |
+| **3 — the ×2.0 allowance** | ⏳ **OPEN, and it is what held the freeze.** | See **Amendment 8**. The allowance itself is **unchanged**; what was missing was that the cost basis's **rank count was never registered**. ⚠ **And see §14 Amendment 8e: the re-attribution of this allowance from cache to rank scaling, which the ruling assumed had happened, HAS NOT happened in this document — the two mechanisms are kept separable so §9.3 can tell them apart.** |
+
+> **NONE OF THESE RULINGS MOVES A NUMBER.** Every one endorses a value that was already registered
+> or accepts a basis already labelled. **§13 items 1, 4, 6, 10 and 11 are hereby CLOSED with an
+> owner; item 3 is closed by Amendment 8 as to its BASIS and remains open as to its MAGNITUDE**,
+> which only the `B5c` run and §9.3's calibration row can settle.
