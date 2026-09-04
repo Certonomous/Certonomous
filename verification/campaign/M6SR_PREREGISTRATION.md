@@ -2227,3 +2227,464 @@ commit `40f2d9b9` — both render to sha256
 **`d4a485d2f52c55adbdd0e8103dd60fd13c1e0ec257362e6d76fd1e83039f72bb`**. Other records cite this
 document **by line**, and at least one such citation sits inside an executable check, so this is a
 guarantee and not a courtesy.
+
+---
+
+## 16. AMENDMENT 10 — 2026-09-04T1513Z. THE FOUR UNSATISFIABLE ITEMS ARE REGISTERED AS **PREDICTIONS**, AND SIX MORE ARE REPORTED
+
+**Drafted by a cfd lab-lane on the cfd supervisor's instruction, under Sanaa's route ruling of
+2026-09-04 ~15:00Z. THIS IS NOT A FREEZE AND NOT A RE-FREEZE.** The `SUPERVISION_CHARTER.md` §3
+check 4 is the supervisor's, is not delegated, and is **undischarged as this section is written.**
+**No compute was launched by the lane that wrote it, and no step of §2.4's cost table was run.**
+
+> **`L-HONEST` (§6) IS CARRIED UNALTERED BY THIS AMENDMENT.** The family refines **2 of 3
+> directions**, the wall-normal discretisation is **identical across levels**, `GCI_fine` is a
+> **LOWER BOUND** on discretisation uncertainty, `p_s` is **NOT an observed order**, and **Sanaa's
+> named first deliverable remains owed.**
+>
+> **THIS AMENDMENT MOVES NO GATE, NO THRESHOLD, NO CAP AND NO LABEL.** Not one number in §2.4,
+> §5, §5.1, §7 or §10 is touched. Sanaa's ruling of 2026-09-04 states in terms: *"Nothing in this
+> order widens a gate or relabels a bound."* **That line is held here absolutely.**
+
+### 16.0 THE AUTHORITY, AND WHAT IT DOES AND DOES NOT SETTLE
+
+**Sanaa's words, verbatim, captured at `etc/sessions/2026-09-04T1500Z_sanaa_m6_route_ruling.md`
+(commit `70d12a46`, 2026-09-04T15:00:46Z):**
+
+> *"M6SR launches now on the committee family; the third-direction family builds in parallel as
+> the standing capability. Both inside the $1,000 ladder envelope. First physics I want to see:
+> M6 surface Cp at the AGARD span stations against tunnel data, with the family band."*
+
+⚠ **THAT BLOCKQUOTE IS THE WHOLE OF HER ORDER.** The capture's *"Context (chief's reading)"*
+section beneath it is **the chief's reading and is not her instruction**, and it is not relied on
+here as authority. In particular, the reading's assertion that *"none of the four is in the
+ill-posed (blocking) class"* is **the chief's classification, not hers**; this amendment reaches
+the same place by a different route — **§7 is the only thing in this registration that blocks a
+launch, and none of the ten items below is a §7 item.**
+
+**HER RULING SETTLES THE ROUTE. IT DOES NOT REPEAL RULE 2.** Under her standing launch law of
+2026-09-03 ~21:00Z (`etc/sessions/2026-09-03T2100Z_sanaa_launch_rule.md`), a non-ill-posed
+unsatisfiable gate is **recorded as a prediction and judged by the frozen grader afterwards**,
+rather than blocking the run. **That is the whole mechanism this section uses.** A prediction is
+not a repair, and recording one confers nothing on the thing predicted.
+
+### 16.1 THE CONDITION, AND HOW IT WAS CHECKED — RULE 2 REQUIRES BOTH
+
+> **Rule 2's window is keyed to FIRST COMPUTE, not to the freeze flag:** *"Before first compute,
+> amendments are legal and must state the condition and how it was checked (name the run directory
+> that does not exist)."*
+
+**THE RUN DIRECTORY THAT DOES NOT EXIST — NAMED, AS RULE 2 REQUIRES:**
+**`verification/runs/M6SR_runs/`**, and with it `verification/runs/M6SR_runs/{L1,L2,L3}/`.
+
+**How checked, at 2026-09-04T1503Z, in ONE invocation, WITH A LIVE PLANTED CONTROL (rule 3):**
+
+| path | reader's answer | role |
+|---|---|---|
+| `verification/runs/M6SR_runs` | **ABSENT** | the run root — **the zero** |
+| `verification/runs/M6SR_runs/L1` | **ABSENT** | the zero |
+| `verification/runs/M6SR_runs/L2` | **ABSENT** | the zero |
+| `verification/runs/M6SR_runs/L3` | **ABSENT** | the zero |
+| `verification/runs/M6I_runs` | **PRESENT** | **the planted non-zero** |
+| `verification/runs/RUNG1_M6_R2_runs` | **PRESENT** | **the planted non-zero** |
+| `cases/M6SR` | **PRESENT** | the §9.1 grading path, which is **supposed** to exist (§15.1) |
+
+**The same reader, in the same invocation, returned PRESENT on three paths and ABSENT on four.
+The zero has a non-zero beside it.** Corroborated against the tree rather than the disk alone:
+`git ls-tree -r --name-only HEAD -- verification/runs/M6SR_runs` returns **0 files**, while the
+identical command on `verification/runs/M6I_runs` returns **14**. **`cases/M6SR` holds exactly the
+two files §9's frozen path table names and nothing else** — no `0/`, no time directory, no
+`log.*`, no `postProcessing`, no mesh. **This lane created no run root and launched nothing.**
+
+### 16.2 THE FOUR §15.6 ITEMS, REGISTERED AS FALSIFIABLE PREDICTIONS
+
+**Each states what the frozen grader is PREDICTED TO RETURN, and why. None is a repair. None
+moves a gate.** Every measurement below was taken by this lane on the pinned artifacts, before any
+compute, so none can have been chosen to fit an answer that does not exist.
+
+---
+
+#### PREDICTION `X1` — `D1` is INDETERMINATE, and Gate P's per-station channel returns **`NOT A RESULT`**
+
+**Measured by this lane, independently of the comparator, by §4.3's own recipe on
+`cases/dafoam/ladder-a/logs_A3/case_2308.dat` at the pinned sha256
+`020c5fcc58060737024eb87d9404f56bc563f3f6f15e337675c47477fa91f0d0` (hash re-verified in the
+reading invocation):**
+
+| section | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
+|---|---|---|---|---|---|---|---|
+| taps | 34 | 34 | 34 | 34 | 45 | 45 | 45 |
+| `Cn` | **0.239559** | **0.278490** | **0.294704** | **0.263810** | **0.222974** | **0.178438** | **0.210512** |
+
+- `Cn` **strictly increasing: FALSE.** `Cn` **strictly decreasing: FALSE.**
+- **`Cn(7)/Cn(1) = 0.878747`**, which lies **INSIDE** §4.3's registered indeterminate band
+  `(0.75, 1.333)`. (`Cn(1)/Cn(7) = 1.137984`.)
+- **PLANTED CONTROL (rule 3), fired in the same invocation:** `+1.000000` added to one tap's `CP`
+  in section 1 moved that section's `Cn` by **`+0.100100`** and left the other six **unchanged to
+  1e-15**. **The reader is shown able to see a non-zero, and to see it in the right place.**
+
+> **REGISTERED PREDICTION `X1`: `D1` returns `INDETERMINATE`, and §4.3's own registered
+> consequence therefore fires — Gate P's PER-STATION channel is `NOT A RESULT`.**
+
+⚠ **THIS RECORDING LAUNDERS NOTHING, AND THE REASON IS STATED SO NO READER CAN MISTAKE IT.**
+The per-station channel **is already `NOT A RESULT` by construction**, by the operation of §4.3's
+own falsification table, on experimental bytes, **with no CFD in existence.** Registering the
+prediction does not downgrade a result obtained later; **there is nothing to downgrade, and there
+never will be, because the outcome is fixed by data that predate the ladder.** The prediction
+exists so the record shows the outcome was known **before** 615 core-min were committed — not so
+that a post-hoc `NOT A RESULT` can be presented as anticipated.
+
+⚠ **AND A DISCREPANCY IN THE FIGURE THIS LANE WAS BRIEFED WITH, RECORDED RATHER THAN ADOPTED.**
+The brief carried `Cn(7)/Cn(1) = 0.8785`. **This lane measures 0.878747 → 0.8787**, agreeing with
+§15.6 item 2's filed `0.8787` and **not** with `0.8785`. Three recipe variants were tried to see
+whether any defensible reading gives `0.8785` — closed-contour trapezoid **0.878747** (§4.3's
+registered recipe), open trapezoid **0.907941**, sorted-by-`x/c` trapezoid **1.023332**. **None
+reproduces 0.8785.** The registered figure is **0.878747**; the `0.8785` is a transcription slip
+and is corrected here rather than propagated. **The verdict is unchanged either way — both sit
+inside `(0.75, 1.333)`.**
+
+---
+
+#### PREDICTION `X2` — `GF4`'s semispan limb: **the instrument is REGISTERED, and it is the WALL-PATCH SPAN EXTENT**
+
+**§5's `GF4` says *"semispan of each level's surface"* and does not say which semispan. §15.6 item
+4 measured that the surface has two, straddling the ±0.1 % tolerance. RULE 2 REQUIRES THE
+INSTRUMENT TO BE FIXED BEFORE THE RUN, SO IT IS FIXED HERE, WITH ITS REASON.**
+
+**Measured by this lane on both existing levels, through the frozen comparator's own
+`planform()` reader (`cases/M6SR/analyse_m6sr.py` at blob `97cbe039…`, §15.3) and independently
+re-derived by a second reader written for this amendment:**
+
+| level | surface faces | **wall-patch span extent** | vs AGARD 1.1963 m | **planform semispan (LE-line)** | vs AGARD 1.1963 m |
+|---|---|---|---|---|---|
+| **L3** `A3-onera-m6-adjoint-coarse` | 1,560 | **1.2164045761791 m** | **+1.6806 % — OUTSIDE ±0.1 %** | **1.1888852562842 m** | **−0.6198 % — OUTSIDE ±0.1 %** |
+| **L2** `.mesh-cache/onera_m6` | 6,240 | **1.2164045761791 m** | **+1.6806 % — OUTSIDE ±0.1 %** | **1.1952992527948 m** | **−0.0837 % — INSIDE ±0.1 %** |
+
+> ### **REGISTERED: `GF4`'s SEMISPAN LIMB IS MEASURED AS THE WALL-PATCH SPAN EXTENT.**
+> **The planform semispan from the leading-edge line is REPORTED BESIDE IT, on every level, and
+> gates nothing.**
+
+**THE FIVE REASONS, EVERY ONE INDEPENDENT OF — AND FOUR OF THEM ADVERSE TO — THE ANSWER IT
+PRODUCES:**
+
+1. **It is the only limb that is a property of the SURFACE FAMILY rather than of a level's
+   discretisation.** Measured: **1.2164045761791 m at BOTH levels — identical to thirteen
+   significant figures** across surfaces that differ by **×4 in face count**. It is the tip cap's
+   outermost node, inherited from the pinned master `197efa09…3327`, and coarsening cannot move it.
+2. **The planform limb is discretisation-dependent and MOVES ACROSS THIS VERY FAMILY.**
+   **1.188885 → 1.195299 m between L3 and L2 — a 0.540 % swing against a ±0.1 % band, 5.4× the
+   tolerance width** — and it therefore returns **GATE FAIL on L3 and PASS on L2 for the same
+   wing**. §5 grades `GF4` **per level**. A per-level gate whose instrument moves with the level's
+   resolution grades the mesh, not the geometry.
+3. **The new L1 has never been built, so the planform limb's value there is UNKNOWN**, and its
+   direction (toward the true tip, as node density rises) is predictable while its magnitude is
+   not. Registering an instrument whose reading on one of the three levels cannot even be bounded
+   would be registering a gate whose outcome nobody can predict for a reason that has nothing to
+   do with the wing.
+4. **AGARD's 1.1963 m is the wing's physical span.** The wall-patch span extent is the same
+   quantity measured on our surface. The **+1.6806 %** it reports is a **real geometry statement**
+   — the ×4 family carries a **rounded tip cap** that extends 2.11 cm beyond AGARD's semispan —
+   and that is exactly the class of finding `Gate GF` was created (§1.5) to surface.
+5. 🔴 **DECISIVELY FOR RULE 2: THE REGISTERED INSTRUMENT PREDICTS `GATE FAIL`. THE ONE REFUSED
+   WOULD HAVE PASSED ON L2.** A reason that selects the instrument which **fails** cannot be a
+   reason chosen to fit an answer. Had this lane wanted a passing gate, the planform limb on L2
+   was sitting there.
+
+> **REGISTERED PREDICTION `X2`: `GF4`'s semispan limb returns `GATE FAIL` on all three levels
+> (L3 and L2 measured at +1.6806 %; L1 predicted in family, since the tip cap is inherited from
+> the pinned master and coarsening does not move it). `GF4`'s SWEEP limb is predicted `PASS` —
+> measured `29.999984266°` (L3) and `29.999984251°` (L2), deviations `−1.573e-05°` and
+> `−1.575e-05°`, both inside the registered `±0.01°`.**
+
+**⚠ AND THE §14.2 RULING THIS REFUTES, STRUCK BY QUOTE AND NOT QUIETLY DROPPED.** §14.2's row on
+§13 item 6 reads, verbatim:
+
+> ~~*"✅ **ACCEPT — it self-closes at `B0`.** `GF4` measures semispan on each level's own surface
+> against AGARD's printed **1.1963 m**, and the carried value differs by **0.039 %**, inside
+> `GF4`'s **±0.1 %** band — **so the gate is not pre-decided by the choice.**"*~~
+
+**STRUCK.** The reasoning is refuted by measurement in **two** places, and the second is new to
+this amendment:
+
+- **The choice of INSTRUMENT decides the verdict** (§15.6 item 4): +1.6806 % against −0.0837 %,
+  on the same surface, against a ±0.1 % band. **The gate WAS pre-decided by the choice.**
+- **AND THE CHOICE OF LEVEL DECIDES IT TOO.** Even holding the instrument fixed at the planform
+  limb — the reading §14.2's `0.039 %` belongs to — the verdict is **PASS on L2 and GATE FAIL on
+  L3.** §14.2's endorsement rested on a single number carried from another document
+  (`b_semi = 1.19676 m`, §8.5) that was never measured on more than one level. **It is the
+  supervisor's own ruling, it is this lane's own §13 item, and it is wrong.**
+
+**Nothing about `§8.5`'s `b_semi = 1.19676 m` changes.** It is consumed only by the `sampleDict`
+cutting-plane stations, gates nothing, and is not touched by this amendment.
+
+---
+
+#### PREDICTION `X3` — Gate G **REFUSES (exit 2)** for want of a registered `r`; and the refusal's own stated basis is **REFUTED BY MEASUREMENT**
+
+**§5's `G3` consumes *"the three-level ratio"* and `G4` consumes *"`GCI_fine` … at `Fs = 1.25`"*.
+**No section of this registration registers the refinement ratio `r`.** §15.6 item 1 records this
+and states that the comparator refuses and prints all three candidates.
+
+> **REGISTERED PREDICTION `X3`: on a family that reaches `CONVERGING` with `G1` and `G2` passed,
+> the frozen comparator raises `Unregistered` and `--grade` exits **`2` (REFUSED)**, having
+> emitted **nothing on stdout**. On any other family it returns `NOT A RESULT` under standing
+> rule 5 clause (1) or (2), with the candidate triples printed.**
+
+**THIS LANE DOES NOT REGISTER `r`, AND SAYS WHY RATHER THAN LEAVING IT IMPLICIT.** `r` is a **gate
+parameter**; §15.9 already rules it is not for a lane to take; and — see below — **no registered
+gate consumes it.** The choice remains entirely the supervisor's.
+
+🔴 **AND TWO MEASURED FINDINGS THAT THE SUPERVISOR NEEDS BEFORE RULING ON IT. BOTH REFUTE
+STATEMENTS THIS DOCUMENT AND ITS COMPARATOR ALREADY CARRY.**
+
+**(a) `GCI_fine` IS `r`-INVARIANT. THE THREE CONVENTIONS GIVE THREE EXPONENTS AND *ONE* BAND.**
+§15.6 item 1's basis reads *"Three defensible conventions exist and give three different bands"*,
+and the comparator's own refusal text repeats *"three different `p_s` and three different
+`GCI_fine`."* **Both are wrong, at the algebra.** The comparator fits `p_s` from the same triple
+it then bands: `p_s = ln|d32/d21| / ln r`, so `r^{p_s} ≡ |d32/d21|` **identically**, and
+
+```
+    GCI_fine  =  Fs · |d21/f1| / (r^{p_s} − 1)  =  Fs · |d21/f1| / (|d32/d21| − 1)
+```
+
+**contains no `r` at all.** Measured by this lane through the comparator's own `roache_triple()`
+on a non-2:1 converging triple `(f3, f2, f1) = (0.017, 0.0131, 0.01177)`:
+
+| `r` | 1.10 | 1.5874 | 2.000 | 4.000 | 7.77 |
+|---|---|---|---|---|---|
+| `p_s` | 11.287332 | 2.328072 | 1.552048 | 0.776024 | 0.524710 |
+| **`GCI_fine`** | **0.07309769942047496** | **0.07309769942047496** | **0.07309769942047496** | **0.07309769942047496** | 0.07309769942047498 |
+
+**`p_s` moves by a factor of 21.5 across that range. `GCI_fine` is identical to fifteen
+significant figures.**
+
+> **THE CONSEQUENCE, STATED AND NOT ACTED ON.** Gate P's numerical band channel consumes
+> **`GCI_fine`**, which the missing `r` **does not affect**. The only registered quantity `r`
+> moves is **`G3`'s `p_s`** — on which §5 registers, in its own words, *"**NO acceptance band …
+> because a band would assert it is an order of accuracy and §6 rules it is not**."* **So the
+> unregistered `r` is load-bearing on nothing that is graded.** **This lane takes no action on
+> that.** Acting on it means either registering `r` or changing the comparator, and **both are the
+> supervisor's**, both after this document's freeze, and neither is a lane's to take. It is
+> registered here so the supervisor rules on the true fact rather than on the filed one.
+
+**(b) THE REFUSAL DOES NOT PRINT THE THREE CANDIDATES IT PROMISES. MEASURED.** §15.6 item 1 files
+that the comparator *"REFUSES (exit 2) at Gate G, prints `p_s` and `GCI_fine` for **all three**
+candidates."* **Measured by this lane, by driving the frozen `gate_g()` to its refusal on a
+synthetic converging, plateaued triple: the `G3_G4_all_candidate_ratios` dict is built into a
+local that the `raise` discards, `_emit()` is never reached, and STDOUT IS EMPTY.** The
+exception's message names the three **conventions** (`r = 2.000, 1.5874, 4.000`) and carries **no
+`p_s` value and no `GCI_fine` value**. **The filed row is WRONG AS FILED, not drifted** — the same
+defect class §15.5 corrected in `PROVENANCE.md:190`, and it is recorded here by the same method:
+**strike-and-quote, never rewriting.** ⚠ **The candidates ARE printed on the non-refusing paths**
+(rule 5 clauses (1) and (2), where `gate_g()` returns rather than raises), which this lane
+confirmed on a synthetic non-plateaued triple — so the claim is right for every family except the
+one it was written for.
+
+**No repair is made.** Repairing it edits the frozen §9.1 grading path (§16.5).
+
+---
+
+#### PREDICTION `X4` — `C12` cannot fire, and the control suite therefore **REFUSES (exit 2)**
+
+**§10's `C12` plants a scratch reference whose seven sections are REVERSED and registers its
+must-see as `FALSIFIED`.** Measured by this lane on the pinned bytes: the as-read `Cn` series is
+**non-monotone** (`X1` above), and **reversing a non-monotone series leaves it non-monotone** —
+as-read `INDETERMINATE`, reversed `INDETERMINATE`, reversed ratio `1.137984`, also inside
+`(0.75, 1.333)`.
+
+> **REGISTERED PREDICTION `X4`: `C12` DOES NOT FIRE. §10's own rule — *"A `PASS` reported by a
+> reader whose plant did not fire is `NOT A RESULT`, not a pass"* — therefore applies, and the
+> comparator's `--controls` / `--selftest` invocation REFUSES (exit 2).**
+
+⚠ **`C12` IS NOT LOOSENED TO ITS PURPOSE CLAUSE, AND THIS IS THE WHOLE POINT OF REGISTERING IT.**
+The tempting repair — reading `C12`'s intent (*"proving `D1` can return a verdict other than the
+one `A-MAP` predicts"*) and satisfying it with a synthetic fixture — **is refused.** A registered
+control is a registered control. The separate demonstration that **all three `D1` branches are
+reachable on synthetic fixtures** already exists in the comparator as
+`d1_branch_reachability()`, is printed under its own heading, and is **explicitly NOT a registered
+control and never a substitute for `C12`.** **This is a FIXTURE LIMIT, not a one-answer
+discriminator** — and the honest consequence of a fixture limit on a registered control is a
+refusal, not a pass.
+
+---
+
+### 16.3 CARRIED FORWARD UNALTERED — `L-HONEST`, AND THE `c` DISCREPANCY
+
+**`L-HONEST` (§6), quoted by reference and never paraphrased, and re-affirmed rather than merely
+left alone:** the family refines **2 of 3 directions**; `s0 = 1.0e-4`, `N = 65` and
+`marchDist = 12.0` are **identical at all three levels**, so `r_normal = 1.167442` and
+`cells / wing_faces = 64` everywhere and **the wall-normal discretisation is IDENTICAL across the
+family**; therefore **`GCI_fine` is a LOWER BOUND on total discretisation uncertainty and `p_s` is
+NOT an observed order**; therefore **Sanaa's named first deliverable — M6 `Cp` WITH the family
+band — is NOT delivered by this registration and REMAINS OWED.** **Every figure, table, plot, JSON
+record and certificate cell derived from this family carries clause `L-HONEST` verbatim.**
+
+**The `c` / planform-MAC discrepancy stays `REPORTED, NOT GATED`** exactly as Amendment 7
+registers it: registered `c = 0.64607 m` against a planform MAC of `0.648267 m`, **+0.340 %**,
+implying `Re = 11.7599 × 10⁶` w.r.t. the planform MAC against the registered `11.72 × 10⁶`. **It
+travels onto the certificate beside the registered `Re`. It gates nothing. `μ∞ = 1.929120e-05` and
+`omega_inf = 2210.901 1/s` are unchanged and the solve runs at the registered state pair.**
+
+### 16.4 THE `A-MAP` STATION SET — A DISCLOSURE, `REPORTED, NOT GATED`
+
+**§4's `A-MAP` registers `y/b = 0.20 / 0.44 / 0.65 / 0.80 / 0.90 / 0.96 / 0.99`, and the
+comparator's `A_MAP_YB` constant carries the same seven values. Read at source by this lane** in
+`docs/papers/benchmark_test_cases/agard_1979_ar138_experimental_data_base.txt`, **lines
+13728–13729**, verbatim:
+
+> *"271 pressure orifices divided in 7 sections (y/b = 0.20/0.44/0.65/0.80/0.90/0.96 and 0.99)"*
+
+> **REGISTERED DISCLOSURE:** AGARD AR-138 §5.1.1's printed sixth station is **`0.96`**. **NASA
+> TMR's widely circulated M6 station set carries `0.95` at that position.** On a wing swept 30° at
+> `M∞ = 0.8395`, a 1 % semispan error at the sixth station is **1.2 cm of span and ~0.7 cm of
+> chordwise shock displacement**, so the divergence is **load-bearing on any `Cp` comparison** and
+> is named here rather than discovered in a figure. **This registration uses `0.96`, which is what
+> its own cited source prints.** ⚠ **This disclosure changes NO gate:** `A-MAP` was already
+> registered as an **ASSUMPTION, not measured, not confirmed by any artifact this lab holds**
+> (§4.1), the seven values were already fixed at the freeze, and Gate P's per-station channel is
+> `NOT A RESULT` under `X1` regardless. **`REPORTED, NOT GATED`.**
+
+**And the honest-labelling law that rides with every figure this ladder can produce, restated
+because Sanaa's order names the figure:** the band M6SR itself can produce is the
+**SURFACE-REFINEMENT sensitivity band, a LOWER BOUND on discretisation uncertainty** — **not** the
+family band. **Every figure carrying it says so, verbatim, by clause `L-HONEST`.** The full family
+band comes from the third-direction family when it lands.
+
+### 16.5 🔴 SIX FURTHER ITEMS THAT CANNOT BE SATISFIED AS THIS DOCUMENT AND ITS GRADING PATH STAND
+
+**Found by this lane on the supervisor's explicit instruction to assume a fifth exists. Recorded,
+NOT repaired. Every one is a threshold-, instrument-, control- or grading-path question, and this
+lane is not entitled to any of them. THEY ARE ON THE SUPERVISOR'S DESK.** Item **5** is
+structural, is the most serious thing in this document, and **bears directly on Sanaa's named
+deliverable**.
+
+| # | what cannot be satisfied | measured basis | consequence |
+|---|---|---|---|
+| **5** | 🔴 **`Gate P` — registered in §5 as "SANAA'S DELIVERABLE" — HAS NO INVOCATION PATH IN THE FROZEN §9.1 GRADING PATH.** | **AST call-graph over `cases/M6SR/analyse_m6sr.py` at blob `97cbe039…`, with a planted control** (a function known to be called reads REACHABLE; a name that does not exist reads unreachable): **48 functions are reachable from `main()`. `gate_p()` is NOT. `set_to_set_assignment()` is NOT.** `gate_p` is defined at line 1338 and has **zero call sites** outside the module docstring; `set_to_set_assignment` is called **only from inside `gate_p`**. `--grade` computes `gate_g()` and `gate_r()` and returns 0. **There is additionally NO producer of `cfd_sections` anywhere** — no reader samples CFD `Cp` at the seven registered `y/b` stations, and the build driver writes no `sampleDict`. | **BOTH Gate P channels are dead — the per-station channel AND §4.5's order-independent channel.** `X1` kills the first on the data; **this kills both on the code.** **615.24 core-min of registered ladder cannot produce Sanaa's named first-physics figure at all**, and making it able to means **writing new grading code into a frozen grading path** — which rule 2 fixes at the pre-registration commit. **NOT a lane's call, and arguably not an addendum's.** |
+| **6** | **§15.6 item 4's "planform semispan … inside the band" holds ON L2 ONLY.** | L3 **1.188885 m = −0.6198 % (OUTSIDE)**; L2 **1.195299 m = −0.0837 % (INSIDE)**. The two levels of one family differ by **0.540 %** on the same instrument, **5.4× the ±0.1 % tolerance**, because the instrument's reach is set by leading-edge **node density**. | **The natural repair to item 4 — adopt the planform limb — FAILS ANYWAY, on L3.** Handled by `X2`, which registers the wall-patch span extent for reasons that include this one. |
+| **7** | **§15.6 item 1's basis and the comparator's refusal text both assert three different `GCI_fine`.** | Measured across `r ∈ {1.10, 1.5874, 2.000, 4.000, 7.77}`: **`GCI_fine` identical to 15 significant figures; `p_s` spans a factor of 21.5.** `r` cancels identically because `p_s` is fitted from the same triple. **And the refusal's promise that "all three are printed" is FALSE on the refusing path — measured, stdout is EMPTY.** | Recorded in `X3`. **Two filed statements are wrong as filed, not drifted.** The `r` question is smaller than the record says; the missing print is a real defect. |
+| **8** | **`GF2` is registered as a GEOMETRY-FIDELITY gate but measures SURFACE RESOLUTION, and its single threshold is applied per level to a family whose purpose is to vary resolution.** | Measured through the frozen readers against the pinned Table B1-1 (`66b2a7bc…4ab7`, 72 points, final ordinate `0.0007052`): **L3 max │Δz│/c = 3.4265e-03 at `x/c = 0.0018364` → OUTSIDE the ≤1.0e-03 threshold; L2 = 9.9259e-04 at `x/c = 0.0012868` → INSIDE, at 0.99× the threshold.** Both maxima sit **at the leading edge**, where a ×4-coarser surface simply has fewer points to resolve LE curvature; the two levels differ by **3.45×**. | **The coarsest level of ANY converging surface family must fail `GF2` as registered**, and the failure says nothing about whether the wing is the right wing. L2 passes by **1 %**. **Predicted: `GF2` → `GATE FAIL` on the family** (the comparator requires every level ≤ threshold), driven by L3's resolution, not by geometry. |
+| **9** | **§2.4 registers *"`B0` runs FIRST"*, and `gate_gf()` cannot run first.** | `gate_gf()` grades **all three levels in one call**; `_discover_levels()` sets L1's mesh to `<run_root>/L1/constant/polyMesh`, which does not exist until **`B3`** completes; `read_boundary()` on an absent mesh **raises `Refusal` → exit 2**. There is no per-level or two-level mode. | **`B0` can only run AFTER `B1`–`B3`.** §2.4's stated purpose — *"so that the finding exists before the spend, not after"* — is **98.8 % preserved** (`B1`–`B3` are 7.38 of 615.24 core-min; `B5` is 607.63) but **the registered ORDER is not satisfiable.** Reported, not repaired. |
+| **10** | **NO REGISTERED ARTIFACT RUNS `B5a`, `B5b` OR `B5c` — 607.63 of 615.24 core-min, 98.8 % of the ladder — AND NONE OF §8's CASE FILES EXISTS.** | §9's frozen path table registers exactly two executables. `build_m6sr_l1.sh` (blob `04ae9d58…`) covers **`B1`, `B2`, `B3` only**; its own closing line reads *"NEXT: B4 is Gate A and B0 is Gate GF … THIS DRIVER GRADES NOTHING."* **Nothing anywhere writes §8.1's seven `0/` fields, §8.2's `fvSchemes`, §8.3's `fvSolution`, §8.4's `constant/`, §8.5's `controlDict` / `decomposeParDict` / `sampleDict`, or launches `rhoSimpleFoam`.** §8's own opening concedes *"Measured: no runnable case exists at any M6 level in any tree on this box."* | **A queue row cannot be written today: its `launch_cmd` has no target for `B5`.** ⚠ **This is NOT necessarily a rule-2 violation** — §8's case files are solver **INPUTS**, not graders, and rule 2 fixes the **grading** path; writing them pre-compute is legal. **It is a LAUNCH-READINESS fact**, and it is stated so the supervisor learns it before ordering a launch rather than at the drop path. |
+
+> **WHAT M6SR CAN AND CANNOT DO TODAY, STATED ONCE, PLAINLY.**
+> **CAN:** run `B1`–`B3` (**7.38 core-min estimated**, caps 1.0 / 70.0 / 3.0) through the
+> registered driver; then grade **`Gate GF`** (`B0`) and **`Gate A`** (`B4`) through the
+> registered comparator.
+> **CANNOT:** run `B5` — no launcher, no case files (item 10). **CANNOT:** grade `Gate P` in any
+> channel — no invocation path, no `Cp` sampler (item 5).
+> **`Gate G` will REFUSE (exit 2) on a converging family** (`X3`), and the control suite will
+> **REFUSE (exit 2)** on `C12` (`X4`).
+> **None of these is a §7 ill-posedness item, so under Sanaa's launch law none of them BLOCKS.
+> They are recorded as predictions and the frozen grader judges after. But a run that cannot
+> reach 98.8 % of its own cost table is a launch-readiness question, not a prediction, and it is
+> the supervisor's.**
+
+### 16.6 COST — RULE 12, AND NONE OF IT IS LADDER COMPUTE
+
+**No step of §2.4's cost table was run. `B0`–`B6` remain unspent and `verification/runs/M6SR_runs`
+does not exist.** What this amendment spent is **read-only measurement on already-existing
+artifacts** — the `case_2308.dat` `Cn` series and its planted control, the two levels' polyMesh
+surfaces through the frozen readers, an AST call-graph, and two synthetic `gate_g()` probes:
+**≈ 6 core-min at 1 rank, and it is an ESTIMATE from this session's own wall clock, NOT a
+measurement read from a run log** — no run log exists for it and inventing one would be worse than
+saying so. **Derived at the owner-stated `c7a.4xlarge` $0.0513/core-h: ≈ $0.0051 — DERIVED,
+REPORTED-BY-OWNER, never measured, because the box cannot read its own billing**
+(`COMPUTE_BUDGET_CHARTER.md` §5).
+
+**§9.3's estimate-versus-actual row is NOT owed yet**, because no `B` step has completed. It falls
+due at `B1`'s completion and the driver already emits it into `BUILD_RESULT.json`.
+
+**`est ≤ cap` RE-VERIFIED ON EVERY ROW OF §2.4's COST TABLE, AT THE SUPERVISOR'S STANDING RULING
+THAT A ROW WHOSE ESTIMATE EXCEEDS ITS OWN CAP MAY NOT LAUNCH. Re-derived here, not assumed:**
+
+| row | est (core-min) | cap (core-min) | est/cap | |
+|---|---|---|---|---|
+| `B0` | 0.1000 | 1.0 | 0.1000 | OK |
+| `B1` | 0.0500 | 1.0 | 0.0500 | OK |
+| `B2` | 7.0400 | 70.0 | 0.1006 | OK |
+| `B3` | 0.2900 | 3.0 | 0.0967 | OK |
+| `B4` | 0.1400 | 2.0 | 0.0700 | OK |
+| `B5a` | 10.1837 | 31.0 | 0.3285 | OK |
+| **`B5b`** | **54.3130** | **163.0** | **0.3332** | **OK — the LARGEST ratio** |
+| `B5c` | 543.1296 | 1630.0 | 0.3332 | OK |
+| `B6` | 0.0000 | 2.0 | 0.0000 | OK |
+| **TOTAL** | **615.24** | **1,903.0** | **0.3233** | **NO ROW EXCEEDS ITS OWN CAP** |
+
+**`B5b` at 0.33321 is the largest ratio, by a hair over `B5c`'s 0.33321 at the fourth decimal
+(54.3130/163 = 0.3332086; 543.1296/1630 = 0.3332083).** ⚠ **A bookkeeping note, recorded so
+nobody "discovers" it later:** summing the table's **printed** cells gives **615.24** (Amendment
+3's figure, and §9.3's calibration denominator); summing the **unrounded** solve figures gives
+**615.2463**. The difference is **0.0004 %** and is immaterial, but the denominator §9.3 divides by
+is **615.24**, the sum of the printed cells, exactly as Amendment 3 registers it.
+
+**Sanaa's envelope.** At the recorded $0.0513/core-h the **$1,000 ladder envelope is 1,169,591
+core-min**; this registration's **cap of 1,903.0 core-min is 0.1627 % of it**, and its estimate
+615.24 is **0.0526 %**. **Derived $1.6271 at cap, $0.5260 at estimate — DERIVED, NOT MEASURED.**
+Her order requires this ladder inside that envelope; **an envelope-ledger row is owed at launch**
+to `docs/campaigns/IBL-industrial-benchmark-ladder/IBL_COMPUTE_ENVELOPE_LEDGER.md`, per §9.3.
+
+### 16.7 WHAT THIS AMENDMENT DOES **NOT** DO
+
+1. **It moves NO gate, NO threshold, NO cap and NO label.** Not one number in §2.4, §5, §5.1, §7
+   or §10 is touched. `X2` **fixes an instrument the frozen text left ambiguous**; it does not
+   move `GF4`'s registered `±0.1 %` band, its `±0.01°` sweep band, or its 0.1 core-min cap.
+2. **It does NOT register `r`**, and it takes no position on which convention is right.
+3. **It does NOT repair the comparator or the driver.** Not `gate_p`'s missing invocation, not the
+   discarded candidate print, not `C12`, not `B0`'s ordering. **Any change to a script that
+   produces or grades a measured number goes to the supervisor as a DIFF, and this lane made
+   none** — `cases/M6SR/analyse_m6sr.py` and `cases/M6SR/build_m6sr_l1.sh` are **byte-unchanged**
+   at the blob shas §15.3 pins.
+4. **It does NOT loosen `C12` to its purpose clause**, and it does not substitute
+   `d1_branch_reachability()` for it.
+5. **It does NOT claim `A-MAP` is confirmed**, and it does not adjudicate `0.96` against `0.95`
+   beyond recording that this registration uses what its own cited source prints.
+6. **It does NOT re-freeze.** `SUPERVISION_CHARTER.md` §3 check 4 belongs to the cfd supervisor
+   and is **undischarged**.
+7. **It does NOT enqueue anything.** `verification/queue/cfd/` is a **live launch path** — the
+   daemon was verified running (pid in `verification/queue/runner.pid`, 60 s tick) at the time of
+   writing — and **this lane wrote nothing into it.**
+8. **It changes nothing in `/home/ubuntu/certonomous-runs/`**, which was read only.
+9. **It claims no verdict of the fixed vocabulary for any gate of this registration.** Every
+   `PASS` / `GATE FAIL` / `NOT A RESULT` word above is inside a **registered PREDICTION**, and a
+   prediction is not a verdict.
+10. **SUBMISSIONS REMAIN PARKED (rule 7). Nothing left the box (rule 8).**
+
+### 16.8 WHAT HAPPENS NEXT, AND WHO MAY DO IT
+
+**The re-freeze is `SUPERVISION_CHARTER.md` §3 check 4 and it belongs to the cfd supervisor.**
+This lane did not re-freeze, launched no compute, wrote nothing into the queue, and changed no
+script that produces or grades a measured number.
+
+**The four §15.6 items are now registered as predictions `X1`–`X4` and are, in this lane's
+reading, launch-compatible under Sanaa's launch law.** **Items 5 through 10 of §16.5 are not
+predictions and are not for a lane:** items 5 and 10 are **launch-readiness facts** about
+executables that do not exist, item 8 is a **gate-design** question, item 9 is an **ordering**
+question, and items 6 and 7 are **corrections to filed statements** in §15.6 and in the
+comparator's own text.
+
+> **`L-HONEST` (§6) is unaltered by this amendment, as it is by every other.** The family refines
+> **2 of 3 directions**, `GCI_fine` is a **LOWER BOUND**, `p_s` is **NOT an observed order**, and
+> **Sanaa's named first deliverable remains owed** — and item 5 establishes that, as the grading
+> path stands, **this ladder has no code path by which to deliver it even in its lower-bound
+> form.**
+
+### 16.9 RULE 6's AMENDMENT ASSERTIONS
+
+**Version: v1.1 → v1.2 (amendment 10, pre-compute). The frozen file was NOT edited; this section
+is APPENDED AT THE FOOT.**
+
+⚠ **The header line 3 still reads `v1.0` and is DELIBERATELY NOT EDITED**, for the reason §15.10
+gives: editing it would change a line above §15 and falsify that section's own assertion, on which
+other records depend. **The bump is recorded HERE, which is where rule 6 puts it.** **The
+supervisor may restate the version in the header at the re-freeze, which is a status flip they
+own; a lane may not.**
+
+> **`lines whose number changed above this section: 0`**
+
+**Verified, not asserted:** lines **1–2229** of this file — the whole of it up to and including
+§15.10's closing line, and therefore the whole of §15's own guaranteed range 1–2022 — are
+**byte-identical** before and after this append, both rendering to sha256
+**`c8b28d88ced04f6238e50c4f7b9f36e4ff98d8e728d6ebd23535fd883a4ddc6b`**. Other records cite this
+document **by line**, and at least one such citation sits inside an executable check, so this is a
+guarantee and not a courtesy.
