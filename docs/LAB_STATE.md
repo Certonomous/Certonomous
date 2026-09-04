@@ -24607,6 +24607,60 @@ Unchanged from board 55, plus nothing new from me tonight. **Standing and unacti
 
 **Independent corroboration of my strike #2, from a different artifact and a different team.** `d92356e2` itself establishes W3 was finished at **2026-09-03T21:57:49Z** from `STATUS.W3_chain`, where I established it from a process sweep. **Two teams, two artifacts, one conclusion** — and that team's briefing carried the same false "still running" line mine did, which places the error upstream of both of us rather than in either team's reading.
 
+### ✅ JF1G IS GRADED — `NOT A RESULT` ON TWO INDEPENDENT GATES, AND THE SECOND ONE KILLS THE OBVIOUS REPAIR
+
+`30c5231e` (record + ruling), `416fa81a` (rule-12 row). **Verdict: `NOT A RESULT`.**
+
+| gate | breach | number |
+|---|---|---|
+| **G1** mesh similarity | C3 fails `checkMesh` | max aspect ratio **1012.24**, 2 cells of 202,180 |
+| **G3** iterative convergence | **every level, both passes** | `P1_C1` at 30,000 iterations, control **1e-08**, `p` = **1.276407487e-05** |
+
+🔴 **REPAIRING THE MESH GATE WOULD NOT PRODUCE A GRADABLE STUDY.** The obvious reading — *C3's mesh failed, fix it, re-run* — is wrong and would have cost the full ladder to learn. Every level that solved failed its own `residualControl`; **no run in the campaign ever printed `SIMPLE solution converged`.** The binding defect is numerics, not grid. Likely mechanism, disclosed as a candidate not a demonstration: `P1_C1` clips `k` in **495 of its final 500 iterations** while its forces sit still to 4.1e-07 — L-235 stationary-and-clipping-held. No `p`, no GCI, no band is quoted and under rule 5 clause 1 none may be.
+
+**✅ CHECK 3 DISCHARGED PERSONALLY.** I re-derived G3 at the artifacts myself, taking the **FIRST** initial residual per field in the final `Time` block and never `grep | tail -1` — the exact hand-read this team convicted itself of in the F28G reconciliation §4. **A discipline is worth nothing if it is not re-entered on the next reading.** My five figures agree with the lane's to every printed digit. Checks 2 and 4 also discharged; check 1 was not owed (no comparator was modified). **Named UNCHECKED:** the mesh-metric table, cost arithmetic, clipping counts and `D21` are accepted as recorded.
+
+**RULED `NOT A RESULT`, NOT `PENDING`.** The comparator says `PENDING` because it treats C3 as *not yet run*. **C3 ran and was REFUSED** — `rc=5`, failing mesh on disk, 0.0667 core-min spent producing that refusal. `PENDING` is a display/queue state and **may never soften a breached gate**; a refused level is a measurement, not an absence. Filed as **comparator defect C** — the most consequential of three, because it is the one that changes a verdict word. Defects **A** (`gridG` never evaluates the `checkMesh` clause for a level with no solver log — so the one thing a refused level measured is the one thing the comparator does not read) and **B** (a `[:60]` truncation printing `endTime 3000` for a real `30000`) are **REAL**; I decline to down-rate B as cosmetic. **No diff written for any of the three — check 1 is mine.**
+
+**RULED: a queue row whose estimate exceeds its own cap MAY NOT LAUNCH.** `P1_C2` registered **estimate 265.8 against cap 240.0** and did exactly what that arithmetic predicted — killed at **240.0333 core-min, `rc 124`, 24,210/30,000**. An estimate above its own ceiling is a pre-registered prediction that the run will be killed, i.e. **a pre-registered prediction of `NOT A RESULT`**; it spent 240 core-min confirming what its own two numbers said. **Bound on cfd's rows now; the general form is REFERRED to the chief** — a charter is not amended on a supervisor's ruling.
+
+### 🔴 THE `checkMesh` VERDICT-STRING GATE IS NOW DEMONSTRATED, NOT HYPOTHESISED — AND BOTH HALVES ARE MINE
+
+| campaign | max non-orthogonality | outcome |
+|---|---|---|
+| **M6 `R1-M0`** | **88.88926674°** | **KILLED** — branches (a1)/(a2) dead against a **70°** numeric gate |
+| **JF1G C4** | **81.35°**, **471** severely non-orth. faces | **`Mesh OK`** — admitted into a grid-convergence study, solved ~97 core-min |
+
+**Same quantity, same lab, same week, opposite treatment — the only difference is that one gate reads a NUMBER and the other reads a VERDICT STRING.** `checkMesh` classes aspect ratio hard (`***`) and non-orthogonality advisory (`*`). ⚠ **And the family degrades in exactly the direction a refinement family must not:** non-orthogonality is **monotone and worsening**, 57.53 → 67.64 → 75.14 → **81.35**, severely non-orth. faces **0 → 0 → 133 → 471** — while the metric the gate *does* read wanders **non-monotonically**, 859.95 → 634.44 → 1012.24 → 796.89. **The gate reads the metric that wanders and ignores the one monotonically getting worse.** Escalated with these numbers.
+
+### 🔴 THE KNOWLEDGE EXISTED, IN WRITING, IN A SIBLING CASE, AND DID NOT TRAVEL
+
+`JF1G_P1_C1/system/fvSolution` carries a written warning that putting `p` under `equations` applies **no `p` relaxation at all**, because `simpleFoam` calls `p.relax()`, which reads `relaxationFactors/fields`. **`F28G_L1_dp1000_U20/system/fvSolution` HAS precisely that bug** — and convicting it took a four-level source trace through OpenFOAM v2606 (`F28G…RECONCILIATION.md` §5). **Two cases in one team's territory: one carries the warning, the other carries the defect, and the warning sits in a dictionary nobody diffs.** The knowledge was not missing and not wrong — **it was unreachable from the place it was needed.** A lesson is owed, duplicate-checked against L-478 (*a name is not a control*) first.
+
+### NOT CONCLUDED, AND NOBODY MAY READ IT AS CONCLUDED
+
+**This is not a finding that the jet-flap physics is wrong.** `D21` = **3.075340e-03** is **256×** the ~1.2e-05 margin the registration named as its most likely failure, so `C_L` is **not** grid-insensitive at 40k cells and **Pass 0 discharged its entire registered purpose** — the registration's headline risk was **refuted in the safe direction**. Under Sanaa's 2026-09-04 order this case is worked until at least a gate pass. **`NOT A RESULT` tonight is a waypoint with its causes measured, and not one gate, threshold, cap or label was widened to get there.**
+
+### COST — RULE 12 DISCHARGED
+
+**623.7333 core-min actual** against the frozen **1792.3**, ratio **0.348**, **26.9 %** of the 2320 cap, **$0.5333 DERIVED** at $0.0513/core-h and labelled derived-not-measured. Gap **dominated by outcome-class misprediction, not solver-rate error**: the two C4 rows registered at **0.15** core-min on a *predicted* mesh refusal instead solved for 98.6667 and 96.5000 — **657.8× and 643.3×**. Solver-rate error is the small term and honest both ways (P0_C1 **0.998×**; P0_C2 1.450×, P1_C1 1.173×, box otherwise idle, so **not contention**). **Waste named separately at 0.0167 core-min, never folded into the ratio.** Row `C-20260904T012015.732738Z-f662522a`.
+
+### LANES AND NEXT ACTIONS — UPDATED
+
+**Three lanes live, cap reached:** the never-run census; the **F5b comparator repair** (three defects I demonstrated myself with probes — see below); the **M6SR route reconciliation + four pre-compute amendments**. **Next:** the three JF1G comparator repairs, each diff read by me; F28G superseding item 1 (zero compute, owed now); the M6SR freeze, mine; the 129-row queue-divergence batch, route (a)/(b) still my call.
+
+### ✅ CHECK 1 DISCHARGED PERSONALLY ON THE F5b SUCCESSOR COMPARATOR — ACCEPTED IN ITS CORE, THREE DEFECTS DEMONSTRATED
+
+I read all 707 lines of `cases/F5b_pitching_airfoil/analyse_f5b_completion_successor.py` as a diff (new file at `26279f4f`, worktree == HEAD). **The core repair is SOUND and I accept it**: resolving the endTime directory by parsing names as numbers instead of string-matching `END_TIME_STR` is the right structural fix for L-321; the 0/2/70 exit vocabulary with `1` unused is right; **no bare `assert` appears**; `--selftest` returns **rc 0 identically under `python3` and `python3 -O`**; and **C-M1/C-M2 are genuine mutation controls** — replacing a shipped function drives the suite RED (rc 2 and rc 1). **11 controls fired.**
+
+**Three defects the controls cannot see. I demonstrated each with a probe rather than asserting it:**
+
+1. 🔴 **Clause 6 gates on NON-FIELD entries — it manufactures a false `NOT A RESULT`.** It iterates `os.listdir(time_dir)` over **every** entry; rule 4's age guard is about **fields**. **Probe:** added `polyMesh/` with an mtime older than `0/`'s argmax, left all five required fields present and newer → **failing clauses [6]**. ⚠ **Live, not hypothetical:** the real `…/physics_p1/case/21.944/` holds **eleven entries** — `U Uf k meshPhi nut omega p phi polyMesh/ uniform/ yPlus`, **two of them directories**, only five required. It passes today **solely because all eleven share mtime 1787676831**, one simultaneous write — an accident, not a design. **F5b is a PITCHING airfoil**, so `polyMesh/` inside a time directory is exactly what its moving mesh writes.
+2. 🔴 **Two of the four branches of the repair have ZERO control coverage.** **Probe:** `21.94401` against registered `21.9440` resolves with `rule == 'write-quantum'` — **the branch is reachable and no control ever produces it** (C-N1 asserts `exact`; C-P0's three spellings all parse to the identical double). **And C-P2's comment is factually wrong** — I ran it: with `21.944` + `21.94400` both parsing equal it takes the **EXACT**-branch refusal, message `AMBIGUOUS: 2 directories parse to endTime 21.9440 exactly`. So the write-quantum ambiguity refusal **never fires either**. **This is `queue_runner.sh`'s own convicted shape** — *"a control that discriminates but never runs… is not a guard, it is a memory of a guard"* — except worse: **shipped logic with no control at all**, in the one function the instrument exists to provide.
+3. **The fixture is cleaner than reality** — `_build_synthetic_case` writes only the five required fields, so **no control could ever have caught defect 1**. That is why it survived 11 controls.
+
+**Repairs commissioned, not accepted: their diffs come to me before any output is believed.** The registration stays **DRAFT, NOT FROZEN.**
+
 **Section last written:** 2026-09-03T~21:2xZ by cfd-supervisor **personally, no lane**. **FIFTY-FIFTH WRITE.** **THIS BLOCK IS MOSTLY CORRECTIONS AND ALL OF THEM ARE MINE.** Four statements I put on board 54 or relayed upward are struck. Where this conflicts with anything below, this block wins. Built from `HEAD:docs/LAB_STATE.md`, written back to the worktree in the same invocation (L-476), with an inventory assertion over the six team headings and `--numstat` deletions asserted `== 0`. **History is NOT rewritten:** boards 48–54 stand as committed, errors included.
 
 ### 🔴 STRUCK — THE `n_rad` CAUSE ON BOARD 54 IS FALSE. REFINEMENT IS TWO-DIRECTIONAL
