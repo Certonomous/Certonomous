@@ -5915,3 +5915,478 @@ before this amendment; it is blocked for three reasons now, and all three are on
 ⚠ **WHAT THIS LANE CANNOT SAY, AND DOES NOT.** It checked the document's stated preconditions and
 their wiring; it did **not** re-derive the physics or the gates. **Check 1 on this diff, check 4,
 the freeze and the launch are the supervisor's, and this lane takes none of them.**
+
+---
+
+## 26. AMENDMENT 20 — 2026-09-04, **PRE-COMPUTE**. **ITEM 47 IS REPAIRED: THE LAUNCH PATH NOW RUNS §7's SCREEN ITSELF AND A BLOCKED LEVEL REFUSES THE SOLVE AT A DISTINCT EXIT CODE.** ITEM 46's CIRCULARITY IS BROKEN AT ITS NON-CIRCULAR SOURCE — **`createPatchDict`** — AND ALL THREE LEVELS' NAME SETS ARE REGISTERED WITH THAT DICT'S PATH AND SHA. §20.2.3's **3-vs-5** DISCREPANCY IS RESOLVED. **AND THE NINETEENTH PASS FINDS ITEM 48: AMENDMENT 13's OWN RULED STEP `B3c` HAS NO IMPLEMENTATION IN ANY EXECUTABLE.**
+
+**This amendment is written by a lane under the cfd supervisor's two express rulings on items 47
+and 46, quoted where each is applied. It moves NO gate, NO threshold, NO cap and NO label. It does
+not freeze and it does not launch; both are the supervisor's.**
+
+### 26.0 THE LAWFULNESS CONDITION, AND HOW IT WAS CHECKED — **NOT ASSERTED, PLANTED**
+
+**These are PRE-COMPUTE repairs.** Standing rule 2 permits amendment before first compute **and
+requires the condition to be stated with how it was checked, naming the run directory that does not
+exist.** The run directory is **`verification/runs/M6SR_runs`**, and it is **plant-verified absent**
+— a zero from a searcher not shown able to see a non-zero is not evidence (rule 3):
+
+| step | `find verification/runs -maxdepth 1 -name M6SR_runs -print \| wc -l` |
+|---|---|
+| **before** | **0** |
+| **with a probe created at that exact path** | **1** — the searcher is SHOWN able to see it |
+| **after `rmdir`** | **0** |
+
+The probe was removed with **`rmdir`**, which **refuses a non-empty directory**, so the removal
+cannot have deleted a run. Corroborated independently: `test -e` reads **ABSENT** and
+`git ls-files verification/runs/M6SR_runs` returns **0 rows**. **NO COMPUTE HAS OCCURRED UNDER THIS
+REGISTRATION**, and none was authorised or spent by this amendment.
+
+---
+
+### 26.1 ITEM 47 — **THE SUPERVISOR'S RULING, AND THE REPAIR**
+
+> **RULED (supervisor, verbatim):** *"§7's screen must be consulted BY THE LAUNCH PATH, and a
+> BLOCKED Gate A must REFUSE the solve. §7's own words are 'Checked per level BEFORE launch' and
+> 'A failure here BLOCKEDs the level' — a screen the launcher never runs does not satisfy its own
+> text, and I will not order a launch on a screen that does not run."*
+
+**THE DEFECT, RESTATED WITHOUT SOFTENING.** §7 calls itself *"THE ONE THING THAT BLOCKS"* and §5
+says *"Only Section 7 blocks a launch."* For **eleven adversarial passes** the solve driver
+`cases/M6SR/run_m6sr_b5.sh` invoked the comparator **exactly twice**, both times as `--controls`,
+and **never once as `--gate-a`**. Amendment 19 wired conditions 2–5 into `gate_a()` and made them
+**gradeable**. **It did not make them block a launch.**
+
+#### 26.1.1 THE NEW STEP `B4s`, AND WHY IT SITS EXACTLY WHERE IT SITS
+
+> **REGISTERED (pre-compute): step `B4s` — §7's five conditions, PER LEVEL, on the launch path,
+> ordered `B4` → `B4s` → `B5`.** It is `cases/M6SR/analyse_m6sr.py --section7-screen --level <id>
+> --case <dir>`, invoked by `run_m6sr_b5.sh` once at top level. **`B4s` is UNBUDGETED and named on
+> its own line, exactly as §18.9 treats `B3s`/`B5p`/`B5g` and §19.8 treats `B3c`.**
+
+- **It cannot run earlier.** §7's conditions 2/3/4 are read from **checkMesh output** and condition
+  5 from the **boundary file**, so the screen can only run **after `B4`** has produced
+  `log.checkMesh`. Phase `stage` alone is deliberately **not** gated: gating it would leave the
+  screen with no log to read — the same reasoning §18.5 already recorded for the grading rehearsal.
+- **It runs before the case writer**, so a `BLOCKED` level costs not even §8's case files.
+- **It is a PER-LEVEL entry point and NOT `--gate-a`, and the reason is stated so it does not read
+  as an evasion.** `--gate-a` grades the **family**: `A4` requires the exact registered cell triple,
+  `A5` three distinct points streams, `A6` the ratio at every level. **The driver runs ONE LEVEL AT
+  A TIME**, so `--gate-a` there would fail family clauses that say nothing about well-posedness and
+  would refuse a **lawful** launch. §7's own words are *"Checked **per level**"*.
+- **It is NOT a second implementation.** Every clause calls the same function `gate_a()` calls —
+  `section7_condition_1` / `section7_conditions_2_3_4` / `section7_condition_5`. Condition 1's
+  predicate was **factored out of `A9`** in this amendment so that one body serves both callers;
+  **control `C30` drives both paths on one synthetic level and requires them to agree clause for
+  clause, in both directions.**
+
+#### 26.1.2 THE EXIT CODES — **DISTINCT, AND THE TWO FINDINGS ARE NOT CONFLATED**
+
+| rc | meaning | what it is a statement about |
+|---|---|---|
+| **0** | `PASS` — all five conditions hold | the mesh |
+| **11** | **`BLOCKED`** — the level cannot be shown well-posed. **The message names WHICH clause blocked and its MEASURED VALUE AGAINST ITS THRESHOLD**, built from the clause details and never from the label; it is never a bare verdict string | **the mesh** |
+| **12** | **REFUSAL** — the comparator returned its rc 2 (an unregistered level, a `createPatchDict` off its pin, an absent mesh), **or** was killed by its own cap (124/137), **or** returned an rc this driver does not recognise | **this document, or the instrument** |
+
+> **A REFUSAL IS REPORTED AS A REFUSAL AND IS NEVER CONVERTED INTO `BLOCKED`.** The supervisor's
+> ruling is explicit that the two are different findings. `BLOCKED` says *this mesh is not
+> well-posed*; a refusal says *this document does not register what the screen needs*, or *the
+> instrument cannot be trusted*. **Both stop the launch. Neither is softened into the other.**
+
+**STANDING RULE 5's ONE-WAY DOOR.** There is **no branch** in which the screen lets the solve
+proceed on anything but rc 0. An unrecognised rc, a crash and a timeout all fall to a refusal.
+**This gate may only turn a launch OFF; it can never manufacture a pass.**
+
+#### 26.1.3 🔴 **THE CONTAINER-CAP CLASS (ITEM 39) CANNOT DEFEAT THIS REFUSAL, AND THE BOUND IS MACHINE-CHECKED**
+
+§20.3 / §21 measured that **an outer `timeout` does not bound a container**: the docker client
+returns while dockerd keeps the container running outside the timeout's process group (a 3 s cap on
+a 60 s container returned rc 124 after **61 wall seconds**; an unbounded payload never returned).
+**That class does not reach `B4s`, and the reason is structural rather than a promise:**
+
+1. **`B4s` starts no container.** It is a host `python3` reading two files, so it is an ordinary
+   child of the driver's own process group and `timeout -k 5 120` does bind it.
+2. **That is asserted on the EXTRACTED, COMMENT-STRIPPED text of the driver's own screen function**
+   — `check_m6sr_launch_path.sh` limb `T6a` requires it to contain neither `docker` nor
+   `run_in_container`. A comment could not satisfy it; comments are stripped for exactly that
+   reason. **Mutation `MUT3`, which inserts one `run_in_container` call into the screen, drives
+   `T6a` RED.**
+3. **And the failure direction is closed either way.** A capped screen returns 124/137, which is an
+   **explicit refusal branch** (`T6a''` asserts the branch exists), not a fall-through.
+
+---
+
+### 26.2 ITEM 46 — **THE EXPECTED NAME SETS, DERIVED FROM `createPatchDict`**
+
+> **RULED (supervisor, verbatim):** *"the expected patch-name set is derived from `createPatchDict`,
+> not from the mesh and not from a measurement of the mesh … The dict is authored in advance,
+> committed, and causally UPSTREAM of the mesh, so reading the expectation from it is not a screen
+> reading its own subject."*
+
+`build_m6sr_l1.sh:215` already stated the principle in terms: *"A dictionary that determines the
+patch names is part of the BUILD INSTRUMENT."*
+
+#### 26.2.1 WHAT THE DICT SPECIFIES — **READ OUT OF THE FILE, NOT SUMMARISED FROM MEMORY**
+
+The pinned `createPatchDict` declares exactly **three** `patches` entries:
+
+| `name` | `patchInfo` type | `constructFrom` | source patches it consumes |
+|---|---|---|---|
+| `wing` | **`wall`** | `patches` | `"wing_.*"`, **`auto0`**, **`auto3`** |
+| `inout` | **`patch`** | `patches` | `"farfield_.*"`, **`auto2`** |
+| `sym` | **`symmetry`** | `patches` | **`auto1`**, `sym` |
+
+**So the set the dict SPECIFIES is exactly `{wing, inout, sym}`, carrying the three types §7
+condition 1 demands.** **ANY OTHER NAME IN THE BOUNDARY IS A SOURCE PATCH THE DICT DID NOT CONSUME**
+— a `createPatch` that did not fully do its job — **and that is precisely what this screen must
+catch.** A survivor is a **MISMATCH** and is **`BLOCKED`**, never quietly admitted.
+
+#### 26.2.2 🔴 **THE 3-vs-5 DISCREPANCY, RESOLVED FROM THE DICT. NEITHER RECORD IS WRONG.**
+
+§25.6 flagged, and refused to paper over, that §20.2.3 reports **three names** beside counts
+totalling **five patches**. **The dict settles it, and the arithmetic closes exactly:**
+
+- The **three** are the names the dict **CREATES**.
+- The **five** are the patches the **RESULTING** boundary carries.
+- The dict consumes **four** source patches by name — `auto0`, `auto1`, `auto2`, `auto3` — and
+  **§20.2.3's own "without the dict" row states the pre-`createPatch` set on that probe as
+  `auto0…auto5`.**
+- **6 source − 4 consumed + 3 created = 5.** The survivors `auto4` and `auto5` are typed `patch`,
+  giving **wall 1, symmetry 1, patch 3, empty 0** — **§20.2.3's counts, exactly, including
+  `empty 0`.**
+
+⚠ **AND THE RESIDUE IS AN ARTIFACT OF THE PROBE, NOT A PROPERTY OF THE M6.** §20.2.1 states that
+those probes ran *"with a real 3×3×3 plot3d block"*; a block has six flat faces, which `autoPatch
+60` splits into six patches, two of which the dict does not name. **This is a reading of §20.2.1's
+own words about which mesh those probes used, and it is labelled as such rather than as a new
+measurement.** ✅ **Corroborated independently, and NOT used as the registration's source:** both
+existing levels' own `constant/polyMesh/boundary` files carry **exactly three patches**,
+`wing`(wall) / `inout`(patch) / `sym`(symmetry) — L3 `1560 / 1560 / 4352`, L2 `6240 / 6240 / 8704`.
+**The registered expectation is taken from the DICT; those two files are named here only as the
+corroboration that the chain leaves no residue on this geometry.**
+
+#### 26.2.3 THE THREE CHAINS — **NAMED SEPARATELY, BECAUSE THE RULING FORBADE ASSUMING ONE MECHANISM**
+
+> *"do not assume all three levels share a mechanism"* — the ruling. They are enumerated, and the
+> measurement that ties L2 in is stated rather than inferred.
+
+| level | the artifact that DETERMINES its names | how the chain reaches that dict |
+|---|---|---|
+| **L1** (1,597,440) | `/home/ubuntu/certonomous-runs/A3-onera-m6-adjoint-coarse/system/createPatchDict` | **`cases/M6SR/build_m6sr_l1.sh` B3** stages that exact file under a sha256 pin — **`:527`** (`MS_SHA_CREATEPATCHDICT`), **`:558`** (`stage_mesh_dict`), refusing at exit 10 on a mismatch (`:544`) — and then runs `createPatch -overwrite` (**`:748`**). **THE PIN IS IN COMMITTED CODE.** |
+| **L3** (99,840) | the **same file**, in its own tree | `/home/ubuntu/certonomous-runs/A3-onera-m6-adjoint-coarse/preProcessing.sh` runs `plot3dToFoam -noBlank volumeMesh.xyz` → `autoPatch 60 -overwrite` → `createPatch -overwrite` → `renumberMesh -overwrite` against that tree's own `system/createPatchDict` — **the very file `build_m6sr_l1.sh` pins.** |
+| **L2** (399,360) | `/home/ubuntu/certonomous-runs/A3-onera-m6-transonic/system/createPatchDict` | `.mesh-cache/onera_m6/polyMesh` is a **MIRROR**: **all five** of its polyMesh files are **byte-identical** to `A3-onera-m6-transonic/constant/polyMesh` (measured, sha256 per file: `points.gz`, `faces.gz`, `owner.gz`, `neighbour.gz`, `boundary`). That tree's `preProcessing.sh` runs the same four-utility chain against its own `createPatchDict`. |
+
+**AND THE THREE DICTS ARE ONE FILE BY CONTENT.** Measured: `A3-onera-m6-adjoint-coarse/system/
+createPatchDict` and `A3-onera-m6-transonic/system/createPatchDict` both hash
+**`846e45d721e8be7567bd46a08ba3ae8e0e577b167b64d5308b886a075677140e`** — the sha256
+`build_m6sr_l1.sh:527` already pinned. **One dictionary determines all three levels' patch names.**
+
+#### 26.2.4 THE REGISTERED SETS
+
+| level | **expected patch-name set** | dict path | dict sha256 | behaviour on mismatch |
+|---|---|---|---|---|
+| **L1** | **`{wing, inout, sym}`** | `…/A3-onera-m6-adjoint-coarse/system/createPatchDict` | `846e45d7…140e` | **`BLOCKED`**, naming both sets |
+| **L2** | **`{wing, inout, sym}`** | `…/A3-onera-m6-transonic/system/createPatchDict` | `846e45d7…140e` | **`BLOCKED`**, naming both sets |
+| **L3** | **`{wing, inout, sym}`** | `…/A3-onera-m6-adjoint-coarse/system/createPatchDict` | `846e45d7…140e` | **`BLOCKED`**, naming both sets |
+
+⚠ **THERE IS NO GIT BLOB SHA FOR THESE DICTS, AND THE RULING ASKED FOR ONE. THE GAP IS NAMED, NOT
+PAPERED OVER.** The dictionaries live **outside version control**, under
+`/home/ubuntu/certonomous-runs/`, so a git blob cannot be quoted for them. **What IS committed is
+the pin**: `build_m6sr_l1.sh:527` carries that sha256 in tracked code, and `:544`/`:550` refuse at
+build time on any other file. **For L2 and L3 no committed line pinned their trees' dicts at all**
+— so the comparator now takes that job: **`verify_patch_name_source()` re-hashes the dict every time
+the screen runs and REFUSES (rc 2) if it is absent or has moved.** An expectation resting on an
+unversioned file is only as good as a check on that file, and the check runs at screen time rather
+than once at authorship. **Control `C29` plants a one-character edit of the real dict and requires
+the pin to reject it.**
+
+⚠ **WHAT THE DICT ALONE CANNOT SAY, STATED BECAUSE THE RULING INVITED A "STOP" IF SO.** The dict
+determines the three names it **creates**. It does **not** determine how many `autoN` patches
+`autoPatch 60` will produce on a mesh it has not seen, and therefore **cannot by itself exclude a
+survivor.** **That is not a reason to leave the level unregistered — it is the reason the screen is
+falsifiable.** The registered expectation is *what the dict specifies*; a survivor is a **mismatch**
+and is **`BLOCKED`**, which is exactly the failure the ruling names (*"createPatch can fail and
+leave `auto0..auto5`"*). **The registration predicts; the screen catches the miss.**
+
+⚠ **THIS DOES NOT OVERTURN §7's SENTENCE THAT L1's NAMES *"are NOT predicted here"*.** That sentence
+is true of **§7**, which declined to predict them, and it is left standing. **This amendment does not
+predict them either — it DERIVES them from the instrument that dictates them**, an instrument §7 did
+not know about and §20.2.3 only discovered later.
+
+---
+
+### 26.3 🔴 **PREDICTION `P7`'s FALSE ATTRIBUTION — STRUCK BY QUOTE (rule 6)**
+
+§25.6 named it and did not strike it. It is struck here. **`P7` at line 1371** ends by crediting a
+check to a clause that has never performed it:
+
+> 🔴 **STRUCK BY QUOTE** *(the closing sentence of §11's `P7` row, line 1371)*: ~~*"The launcher **refuses** a level whose patch names it did not expect (A9)."*~~
+
+**`A9` GRADES TYPES AND A COUNT. IT HAS NEVER GRADED NAMES**, and `gate_a()`'s own A9 detail now says
+so in terms. The name screen is **`A13`** (Amendment 19) and its launch-path limb is **`B4s`
+condition 5** (this amendment). **The sentence was false when written, false when Amendment 19
+made the check exist, and is true of nothing until `B4s` runs.**
+
+⚠ **§7's OWN CLOSING SENTENCE IS *NOT* STRUCK, AND THE DIFFERENCE IS THE POINT.** §7 line 1081 reads
+*"The launcher REFUSES a level whose patch names it did not expect"* — **with no false
+cross-reference.** It named a thing the launcher did not do. **After this amendment the launcher
+does it.** A sentence that was ahead of its implementation is made true by the implementation; a
+sentence that credits the wrong clause stays wrong however much code is written, and is struck.
+
+---
+
+### 26.4 THE CONTROLS — **AND HOW EACH MUTANT DIED, NOT MERELY THAT IT DID**
+
+#### 26.4.1 `T6` — **THE LAUNCH PATH ITSELF, DRIVEN.** `cases/M6SR/check_m6sr_launch_path.sh`
+
+**WHAT WOULD NOT HAVE BEEN ENOUGH.** Amendment 19's `C25`–`C28` already prove `gate_a()` **returns**
+`BLOCKED` for each condition. **That is not this.** `T6` extracts the driver's own
+`section7_launch_screen()` from `run_m6sr_b5.sh`, drives it against a level planted to fail **each**
+clause, and requires that **the solve does not start** — observed as the **absence of a marker** that
+stands for the solver invocation.
+
+| limb | what was planted | **how the mutant died** |
+|---|---|---|
+| **T6b** | *(nothing — the CLEAN TWIN, run FIRST)* | **it did not die: rc 0 and the solver marker WAS written.** Without this the four below prove only that something failed |
+| **T6c/a10** | boundary openness `1e-09`, three orders above §7's `1e-12` | **exit 11, no solver marker**, message names `S7_C2_boundary_openness_le_1e-12` with `value=1e-09 threshold=1e-12` |
+| **T6c/a11** | `Number of regions: 9` | **exit 11, no solver marker**, message names `S7_C3_number_of_regions_equals_1` with the value against the required `1` |
+| **T6c/a12** | `Min volume = -4.2e-11` — an inverted cell | **exit 11, no solver marker**, message names `S7_C4_min_cell_volume_strictly_positive` with the signed value |
+| **T6c/a13** | `WING3D / FARFIELD / SYMMETRY` — **correct types, wrong names** (the measured P7 precedent) | **exit 11, no solver marker**, message names `S7_C5_patch_names_match_…` with **both** sets, `expected=` and `actual=` |
+| **T6d** | the level id `L0_NOT_A_REGISTERED_LEVEL` on the **clean** fixture | **exit 12 — a DIFFERENT code from 11 — no solver marker**, and the message says in terms that a refusal is not a `BLOCKED` |
+| **T6e** | *(the clean twin AGAIN, after all five refusals)* | **rc 0 and the marker written again** — the harness did not simply stop working |
+| **T6a / T6a′ / T6a″** | — | the extracted screen contains no `docker` and no `run_in_container`; it carries `timeout -k 5 120 python3`; and 124/137 is an explicit refusal branch |
+| **T6f** | — | **the step order, on the driver's own comment-stripped code**: `checkMesh` at code line **250** < the screen at **294** < the **earliest** of **two** `mpirun … rhoSimpleFoam` lines, at **312** |
+| **T6g** | — | the screen is called **exactly once at top level** — item 47 was a screen that existed and was never invoked, so *defined* is not the test |
+
+**MEASURED: `check_m6sr_launch_path.sh --section7-only` → 12 checks passed, 0 failed, exit 0.**
+
+⚠ **THE MARKER IS A STAND-IN AND IS LABELLED AS ONE.** It is not `rhoSimpleFoam`; **no solver runs
+in this suite, and none ran in this amendment.** What makes the stand-in load-bearing is **`T6f`**,
+which asserts on the **real driver's own code** that the screen sits after `B4`'s `checkMesh` and
+before the earliest solver line. **Position in the real file plus behaviour in the harness is the
+pair; neither alone would do, and that is said rather than left to be noticed.**
+
+⚠ **AND `--section7-only` IS A NEW MODE THAT NAMES WHAT IT SKIPS.** `T1`–`T5` (items 28/30/31/32)
+start a **real container** on the pinned digest; item 47's repair needs none. The mode prints, on
+stdout, the five tests it did **not** run and why, is **never the default**, and **cannot report a
+pass for anything it skipped.**
+
+#### 26.4.2 THREE MUTATIONS OF THE DRIVER — **EACH DROVE `T6` RED, IN ITS OWN WAY**
+
+Run against a **scratch copy** of `cases/M6SR/`; the tracked files were not touched.
+
+| mutation | **how it died** |
+|---|---|
+| **`MUT1`** — the screen is defined but **never called** (**item 47's exact original defect**) | `T6f` FAILED (*"could not locate … the screen call ('none')"*) and `T6g` FAILED (*"found 0"*). 10 passed, **2 failed**, exit 1 |
+| **`MUT2`** — the `BLOCKED` branch `say`s instead of `abort`ing | **all four `T6c` limbs FAILED, and the tell is the marker: `rc '0', marker PRESENT`.** **THE SOLVE STARTED.** 8 passed, **4 failed**, exit 1. *This is the mutation that proves the marker discriminates.* |
+| **`MUT3`** — one `run_in_container` call inserted into the screen | `T6a` FAILED on the extracted text (*"the screen's code mentions docker or run_in_container"*), and `T6b`/`T6e` FAILED because the clean twin stopped reaching the solver line. 4 passed, **8 failed**, exit 1 |
+
+#### 26.4.3 `C29` AND `C30` — **THE COMPARATOR'S OWN NEW PLANTED CONTROLS**
+
+| control | the plant | **how it died** |
+|---|---|---|
+| **`C29`** | the real `createPatchDict` copied with **one character changed** (`name wing;` → `name WING;`) | the live file hashes `846e45d721e8be75…` and the screen accepts it; the one-character copy hashes `cd4173207a096a61…` and **would be REFUSED**. The same reader **also** refuses an unregistered level. **A pin never shown rejecting a wrong file is not a pin.** |
+| **`C30`** | one synthetic level driven through **both** readers, clean and with the condition-2 plant | the launch screen reads `PASS` clean and `BLOCKED` planted, failing **exactly** `['S7_C2_boundary_openness_le_1e-12']`, while `gate_a()` on the same tree reads `A10 = BLOCKED` and `A9 = PASS`. **They agree in both directions** — the only thing that makes a second entry point safe. It also asserts the driver's refusal line **names the clause and the value against the threshold**, and that **the clean twin emits no such line.** |
+
+#### 26.4.4 🔴 **`C28`'s REFUSAL LIMB WAS BROKEN BY THIS AMENDMENT AND IS RE-POINTED, NOT DELETED**
+
+**Registering all three real levels made `C28`'s refusal limb unreachable**: it drove the real ids
+`('L3','L2','L1')` and required `Unregistered`, which they no longer raise. **A limb that can no
+longer reach its own failure is not a control.** It is re-pointed at `L0_NOT_A_REGISTERED_LEVEL`,
+an id this registration deliberately does not record, so the unregistered branch stays exercised —
+**and a POSITIVE TWIN is added that the old limb did not need: the three real ids must now be
+registered and must grade `PASS`.** Without it, a mapping accidentally emptied would make the
+refusal limb pass for the wrong reason. **The property under test is unchanged.**
+
+---
+
+### 26.5 🔴 **NO EXISTING READING MOVED — MEASURED, NOT ASSERTED**
+
+Both module versions were loaded **in one process** and driven on **identical inputs**:
+
+| measurement | HEAD (`5917bc9a`) | this amendment |
+|---|---|---|
+| controls defined | **28** | **30** (`C29`, `C30` new) |
+| **existing controls whose state MOVED** | — | **NONE** |
+| reds | `['C12']` | `['C12']` — the pre-existing `X7` blocker, unchanged |
+| `gate_a()` on the identical synthetic clean tree, **every clause label** | 12 clauses + `_GATE_A`, all `PASS` | **byte-identical dict — `IDENTICAL: True`** |
+| `--gate-a --run-root <absent>` | `REFUSED: … no points file to hash` | **the same refusal, same text** |
+
+⚠ **ONE SHAPE CHANGED AND IT IS DISCLOSED RATHER THAN LEFT TO BE FOUND.** `A9`'s `detail.per_level`
+now carries the per-level **detail dicts** returned by `section7_condition_1()` instead of raw patch
+tuples. **The patch tuples are still in every one of those dicts under the key `patches`, no label
+moves, and no threshold moves** — but a reader parsing `A9`'s detail positionally would see a
+different shape, so it is named here.
+
+### 26.6 `rc` PARITY, BYTE-IDENTICAL STDOUT, **ZERO** `ast.Assert`, AND THE REACH LIST
+
+| check | measured |
+|---|---|
+| `--controls` under `python3` / `python3 -O` | **rc 2 / rc 2 — parity holds** (rc 2 is `X7`/`C12`, pre-existing) |
+| stdout | **byte-identical, 8,937 bytes** (`cmp`) |
+| stderr | **byte-identical** (`cmp`) |
+| `ast.Assert` nodes in `analyse_m6sr.py` | **0** — and the detector was **planted with one `assert` appended and SEEN**: count went `0 → 1`. A zero from a detector not shown able to see a non-zero is not evidence |
+| `C23`'s `must_reach` | extended by **`section7_screen`, `section7_condition_1`, `verify_patch_name_source`, `_section7_screen_summary_lines`** — so a future edit cannot orphan the launch screen the way item 5 orphaned `gate_p`. `C23` remains discriminating: `_control_unreachable_sentinel` still reads unreachable |
+
+---
+
+### 26.7 🔴 **ITEM 48 — NEW, THE NINETEENTH PASS. AMENDMENT 13's OWN RULED STEP `B3c` HAS NO IMPLEMENTATION IN ANY EXECUTABLE, AND IT SITS DIRECTLY IN FRONT OF `B4` AND `B4s`.**
+
+| # | the finding | how it was measured | consequence |
+|---|---|---|---|
+| **48** 🔴 | **§19.3 RULED, pre-compute: *"§8's case is written BEFORE `B4`, as step `B3c`, ordered `B3`/`B3s` → `B3c` → `B4` → `B5`."*** §19.8 costs `B3c` at **0.019 core-min per level**; §20.2.4 says *"`B3c` is **not moved and not redefined** by this amendment"*; §20.7 says the same. **`B3c` EXISTS IN THIS REGISTRATION, IN ITS COST TABLE, AND IN TWO LATER AMENDMENTS' DISCLAIMERS — AND IN NO EXECUTABLE.** `cases/M6SR/write_m6sr_case.py` is invoked by `run_m6sr_b5.sh` at **`:781`** and **`:786`**, **both AFTER the `stage` exit at `:688`**, and therefore **AFTER `B4`'s `checkMesh` at `:666`**. | **`grep -c 'B3c' cases/M6SR/run_m6sr_b5.sh` = 0**, PLANT-VERIFIED: `0` → a probe line added → **`1`** (the searcher is shown able to see one) → probe removed → `0`. In `build_m6sr_l1.sh`, `B3c` occurs **3 times, all in comments; 0 times in comment-stripped code**, and its single comment-stripped `write_m6sr_case` line is **a JSON string in an `echo`, not an invocation**. | 🔴 **THE CONSEQUENCE IS ALREADY MEASURED, BY §19.3.1 ITSELF:** with the case written after `B4`, `checkMesh` returns **inner rc 1** — `cannot find file "/case/system/controlDict"` — and the driver **aborts at exit 6** with **no `log.checkMesh`**. **So `B4` cannot produce the artifact Gate A grades, and `B4s` — the screen this amendment just wired — can never run on the real ladder either.** It fails **closed** (exit 6) and has never fired, since no run root exists: **this is a live unrunnability, not a live corruption.** **NOT REPAIRED HERE, and the reason is stated:** placing `B3c` moves §8's case write across the driver's `stage`/`solve` phase boundary, which changes what phase `stage` alone does — **a step-order change of exactly the class §22.6 item 32 reserves to the supervisor** — and folding an unrequested repair into this diff would put it in front of check 1 unannounced. |
+
+---
+
+### 26.8 COST — RULE 12, AND **NONE OF IT IS LADDER COMPUTE**
+
+**No ladder compute was authorised or spent. `B0`–`B6` are untouched and the run root remains
+plant-verified absent.** All work was at **1 rank**:
+
+| activity | wall s | ranks | **core-min (MEASURED from the clock)** |
+|---|---|---|---|
+| `--controls` under `python3` **and** `python3 -O` | 10 | 1 | **0.1667** |
+| the HEAD-vs-worktree in-process control diff, the `gate_a` fixture diff, the `ast.Assert` census, and the five timed `B4s` invocations | 11 | 1 | **0.1833** |
+| `check_m6sr_launch_path.sh --section7-only` — ×1 clean + ×3 driver mutations | 2 | 1 | **0.0333** |
+| `--selftest` (controls + `C16` + the mutation loop over **28** targets) | 155 | 1 | **2.5833** |
+| **TOTAL** | **178** | 1 | **2.9666** |
+
+⚠ **THIS IS THE COST OF ONE RUN OF EACH ACTIVITY, AND THAT IS SAID RATHER THAN LEFT TO BE ASSUMED.**
+While developing the repair this lane ran several of these repeatedly — the launch-path suite and
+`--controls` more than once each. **That development compute is NOT separately metered and is
+therefore NOT estimated here**: an invented figure beside these measured ones would be worse than
+the honest gap. **Every number in the table above is a clock reading of a single run.**
+
+#### 26.8.1 `B4s`'s OWN COST — **MEASURED, AND THE NUMBER IS GIVEN RATHER THAN THE WORD "NEGLIGIBLE"**
+
+The supervisor's ruling: *"State the added core-minutes honestly; if the added cost is negligible,
+say the measured number rather than calling it negligible."*
+
+| | measured |
+|---|---|
+| five timed invocations, host `python3`, 1 rank, **no container** | **60 / 59 / 59 / 59 / 60 ms** |
+| worst case, per level | **0.060 wall s × 1 rank ÷ 60 = 0.0010 core-min** |
+| **across all three levels** | **0.0030 core-min** |
+| against §2.4's registered ladder estimate of **615.24 core-min** | **4.9 × 10⁻⁶ of it** |
+
+> **`B4s` is UNBUDGETED and reported on its own line**, exactly as §18.9 treats `B3s`/`B5p`/`B5g`
+> and §19.8 treats `B3c`. **§2.4's cost table is unchanged in every cell, including the TOTAL row**
+> (est ≈ 615.2, cap 1,903.0). **The alternative — a budgeted row — would move the TOTAL, and that
+> is a decision, not a consequence of this repair, and it is the supervisor's.** This section takes
+> the option that moves nothing.
+
+**CHARGED VERSUS MEASURED:** every core-minute above is **MEASURED** — wall seconds × ranks ÷ 60,
+read off the clock. Any dollar figure is **derived** at the recorded **$0.0513/core-h** and is
+**reported-by-owner, never measured**: this box cannot read its own billing
+(`COMPUTE_BUDGET_CHARTER.md` §5).
+
+⚠ **NO `docs/COST_CALIBRATION.md` ROW IS FILED, AND THAT IS DELIBERATE.** Rule 12's
+estimate-versus-actual is owed at a **process completion** — a rung graded, a case closed. **Nothing
+completed here**: no gate was graded and no rung ran. **Inventing a calibration row for a document
+and instrument edit would put a fabricated actual beside a real estimate**, which is worse than the
+absent row. **The row is owed at `B4`, and `B4` has not run** — and per item 48 it cannot yet.
+
+---
+
+### 26.9 🔴 **THE RE-PIN — THREE PINNED EXECUTABLES MOVED, AND EVERY LIVE ROW CARRYING A SUPERSEDED BLOB IS STRUCK**
+
+**This amendment edits THREE of the ten pinned executables.** A search of this file for each
+superseded blob was run **and its count reported** rather than assumed, because §25.13 already
+found **two** live rows where a reader would have expected one.
+
+**`cases/M6SR/analyse_m6sr.py` — ONE live row carried `1ed1cee4`:**
+
+> 🔴 **STRUCK BY QUOTE** *(§25.13's row — the pin that was IN FORCE)*: ~~*"| **`cases/M6SR/analyse_m6sr.py`** (comparator, §9 and §23.5 row 1) | **`1ed1cee48bb945926cb23832eb3bed6669d53add`** | `efe6aa53bdd7d1b1bf3a365b99a4a0fa166dfdbf58d075d2ad6c557d032b0ec4` | **3,200** | **§9 registered** — **RE-PINNED HERE** |"*~~
+
+**`cases/M6SR/run_m6sr_b5.sh` — ONE live row carried `27996a8d`:**
+
+> 🔴 **STRUCK BY QUOTE** *(§22.2's row)*: ~~*"| **`cases/M6SR/run_m6sr_b5.sh`** (sole producer of `SOLVER_RC.txt`, `log.rhoSimpleFoam`, `log.checkMesh`) | **`27996a8dbd31c8edf38923c7ec31924111707f7f`** | `7c51d04f8c34b032430a93a3f64ac0d26d57c3d03a409be919c90fed8f261223` | **850** | **`045a6044`** (Amendment 15, the cap repair) | **NOT in §9's table** — **RE-PINNED HERE**, §22.1(3) |"*~~
+
+**`cases/M6SR/check_m6sr_launch_path.sh` — 🔴 TWO live rows carried `9b8d44ce`, NOT ONE, AND BOTH ARE
+STRUCK.** §19.4's row and §22.2's row both record it; striking only the later would leave a reader
+who finds the earlier one with an unstruck, false pin — **§25.13's lesson, applied by enumeration
+rather than by memory:**
+
+> 🔴 **STRUCK BY QUOTE** *(§22.2's row)*: ~~*"| **`cases/M6SR/check_m6sr_launch_path.sh`** (launch-path controls) | **`9b8d44ce7c68a0728db80cc83fb11dbeb77d945d`** | `0da8aad32983d6b737de346db5b6fd1d71e96c64b014d56a51ce1f495ca9372c` | 367 | **`20aad5c7`** | **NOT in §9's table** — pin UNMOVED since §19.4.2 |"*~~
+
+> 🔴 **STRUCK BY QUOTE** *(§19.4's earlier row, carrying the SAME now-superseded blob)*: ~~*"| **`cases/M6SR/check_m6sr_launch_path.sh`** (the launch-path control suite; **NEW at `5cf8a009`**) | **`9b8d44ce7c68a0728db80cc83fb11dbeb77d945d`** | `0da8aad32983d6b737de346db5b6fd1d71e96c64b014d56a51ce1f495ca9372c` | **367** | **NOT in §9's table** — see §19.4.3 |"*~~
+
+**THE NEW STANDING PINS**, derived with `git hash-object` on the working tree and **RE-DERIVED INSIDE
+THE SAME SHELL INVOCATION AS THE COMMIT THAT CARRIES THIS SECTION, WITH THE COMMIT ABORTING IF ANY
+HAD MOVED** — §22.2's guard, kept:
+
+| path | git blob sha | sha256 of the file | lines | §9 status |
+|---|---|---|---|---|
+| **`cases/M6SR/analyse_m6sr.py`** (comparator) | **`0526991a37a8bb690b21f480864c56ca9e1508c6`** | `73819ba380e72fd6f72e37f47a626e912e10f8ba7032d31db3e5eb89bae03da2` | **3545** | **§9 registered** — **RE-PINNED HERE** |
+| **`cases/M6SR/run_m6sr_b5.sh`** (sole producer of `SOLVER_RC.txt`, `log.rhoSimpleFoam`, `log.checkMesh`) | **`eab4f187f868881ba880cda53a5470f6726eb2ee`** | `ebc23b710c9daa7743a04375ad4677346be507ed44d476af2e0127ef52833d86` | **942** | **§9 registered** — **RE-PINNED HERE** |
+| **`cases/M6SR/check_m6sr_launch_path.sh`** (launch-path controls) | **`ca0e980d3eaf8bd0145e81b4e5fa5ea0527c8582`** | `c33e7b14c08273cf6c564d4899288f0aaf6d3e3be4f7ba41cd20cda68cad279d` | **591** | **NOT in §9's table** — **RE-PINNED HERE** |
+
+⚠ **THE OTHER SEVEN PINS ARE UNMOVED AND WERE RE-VERIFIED AT THIS HEAD, NOT ASSUMED** — see §26.11
+for the verifier's measured exit code and its `PIN-OK` count.
+
+⚠ **THE STRIKE-BY-QUOTE LIMITATION, RESTATED RATHER THAN GLOSSED.** Striking a row by quote in a
+later section **does not remove the original row from the file**, so `check_comparator_freeze.py`
+still reads the superseded rows as live and may report more than one recorded sha per path.
+**CURRENCY is satisfied by the new shas above, and the registration is the authority on which pin is
+in force: it is the one in the table immediately above.**
+
+---
+
+### 26.10 WHAT THIS AMENDMENT DOES **NOT** DO
+
+1. **It moves NO gate, NO threshold, NO cap and NO label.** Every threshold the screen applies —
+   `1e-12`, `1`, `> 0`, the type/count rule, and the per-level name set — **is §7's, quoted, or is
+   the dict's own content.** §2.4's cost table is unchanged in every cell including the TOTAL.
+2. **It does not freeze and it does not launch.** Both are the supervisor's.
+3. **It does not repair item 48**, and §26.7 says why in terms.
+4. **It does not touch `write_m6sr_case.py` or `build_m6sr_l1.sh`.**
+5. **It does not re-derive** the physics, §5/§5.1's gates, mesh-standard compliance or the solver
+   pin. Those were settled in earlier amendments and are **relied on, not re-verified here.**
+6. **It does not claim `B4s` has ever run on a real level.** It has not, and per item 48 it cannot
+   until `B3c` is placed. **Everything above was driven on synthetic levels written to disk and read
+   back through the real readers.**
+7. **SUBMISSIONS REMAIN PARKED.** Nothing was sent, filed, uploaded or registered outside this box.
+
+### 26.11 RULE 6's AMENDMENT ASSERTIONS
+
+- **This section is APPENDED AT THE FOOT.** **Lines whose number changed above this section: 0.**
+- **Version bump:** M6SR pre-registration **v1.19 → v1.20** (Amendment 20).
+- **Frozen rows are STRUCK BY QUOTE, never rewritten** — §26.3's `P7` sentence and §26.9's four pin
+  rows. Each strike was checked character for character against the line it strikes.
+- **The unchanged-prefix sha of this file at `5917bc9a`** — the whole file as committed, before this
+  section — is **`0b293aea1b4be0081b9ee1250d2df24ba382adaaac35a415bdfc4f6cbefb7fcd`**, re-derived
+  **inside the commit invocation** with the commit aborting if it had moved.
+- **`FZ1` exit code at this commit:** see §26.12.
+
+### 26.12 `FZ1` — THE REGISTERED VERIFIER, RUN AT THIS COMMIT
+
+`python3 scripts/check_comparator_freeze.py --repo . --registration
+verification/campaign/M6SR_PREREGISTRATION.md --restrict-to-registration`
+
+⚠ **IT CANNOT BE RUN BEFORE THE COMMIT IT VERIFIES, AND THAT IS A PROPERTY OF THE VERIFIER, NOT AN
+EVASION.** `check_comparator_freeze.py` compares each pinned path's **HEAD blob** against its
+**worktree blob**; before the commit those differ by construction for the three files §26.9
+re-pins, so a pre-commit run would read `PIN-DRIFT` on exactly the rows this amendment is fixing.
+**Its exit code is therefore taken immediately AFTER this commit and recorded in §26.14**, which is
+committed together with the check-1 diff artifact. **This section is a forward reference, not a
+claim.**
+
+### 26.13 THE STANDING QUESTION — **ANYTHING ELSE BETWEEN THIS DOCUMENT AND A LAWFUL LAUNCH?**
+
+🔴 **YES. THIS LANE WILL NOT WRITE A TWELFTH "NO".**
+
+1. 🔴 **ITEM 48 (§26.7): `B3c` has no implementation.** §19.3's own ruling is unexecuted, so `B4`
+   returns inner rc 1 and aborts at exit 6 with no `log.checkMesh` — **which means `B4s`, the screen
+   this amendment just wired, cannot run on the real ladder either.** **This is the blocker that
+   sits in front of item 47's repair, and it is one file's placement away from being closed.**
+2. ⚠ **`X7` / `C12` holds `--controls` at rc 2**, and §18.5's pre-launch grading gate refuses at
+   exit 8 on exactly that. **Pre-existing, unchanged by this amendment, and still on the record.**
+
+✅ **CLOSED BY THIS AMENDMENT, and named so the list is a difference and not a repetition:** item 47
+(the launch path now runs the screen and refuses at 11/12) and item 46 (all three levels' name sets
+are registered from `createPatchDict`, so Gate A can be graded on the real ids for the first time).
+
+⚠ **WHAT THIS LANE CANNOT SAY, AND DOES NOT.** It drove the screen on **synthetic** levels only; it
+has never seen a real M6 `log.checkMesh` and did not produce one. It did **not** re-derive the
+physics or the gates. **Check 1 on this diff, check 4, the freeze and the launch are the
+supervisor's, and this lane takes none of them.**

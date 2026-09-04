@@ -109,29 +109,89 @@ S7_C2_BOUNDARY_OPENNESS_MAX = 1.0e-12      # Section 7 condition 2, VERBATIM
 S7_C3_N_REGIONS_REQUIRED = 1               # Section 7 condition 3, VERBATIM
 S7_C4_MIN_CELL_VOLUME_STRICTLY_ABOVE = 0.0  # Section 7 condition 4: STRICTLY GREATER THAN
 
-# Section 7 condition 5.  THE EXPECTED SET IS READ FROM THE REGISTRATION AND IS NEVER
-# DERIVED FROM THE MESH BEING SCREENED -- a screen that reads its expectation off the thing
-# it screens is not a screen.  A level absent from this mapping is UNREGISTERED and the
-# comparator REFUSES (rc 2, the `Unregistered` class): choosing a name set here would be
-# choosing a gate parameter after the freeze, which standing rule 2 forbids.  THE REFUSAL
-# IS THE FEATURE, and it is cleared by AMENDING THE REGISTRATION, which is lawful
-# pre-compute.
+# Section 7 condition 5.  THE EXPECTED SET IS DERIVED FROM `createPatchDict`, WHICH IS
+# CAUSALLY UPSTREAM OF THE MESH -- NEVER FROM THE MESH BEING SCREENED.
 #
-#   L2  REGISTERED.  Section 2.2 records it, pre-compute, read from the level's own
-#       `constant/polyMesh/boundary`: "`wing`(wall) / `inout`(patch) 6240 / `sym`(symmetry)".
-#   L3  NOT REGISTERED.  Section 2.2's table carries L3's numerics but states its patch
-#       identity for the 399,360 level ONLY.  No document line records L3's names.
-#   L1  NOT REGISTERED, and Section 7 says so in terms: the new L1's patch names "are
-#       produced by `autoPatch 60` + `createPatch` and are NOT predicted here."  Section
-#       20.2.3 later MEASURED a createPatch probe reading "`wing` (wall) / `inout` (patch) /
-#       `sym` (symmetry) -- wall 1, symmetry 1, patch 3, empty 0".  THAT IS NOT A COMPLETE
-#       NAME SET AND IS NOT USED AS ONE: three names are given while the counts total FIVE
-#       patches, so two patch-typed names are unaccounted for.  Registering the three would
-#       be inventing the missing two.  L1 therefore REFUSES until the registration records
-#       its full set.
-S7_EXPECTED_PATCH_NAMES = {
-    "L2": frozenset(("wing", "inout", "sym")),
+# AMENDMENT 20, THE SUPERVISOR'S RULING ON ITEM 46, APPLIED LITERALLY.  Amendment 19 left
+# L1 and L3 UNREGISTERED because the only per-level name statement in the document was read
+# off a mesh, and a screen that reads its expectation off the thing it screens is not a
+# screen.  The ruling names the non-circular source: `cases/M6SR/build_m6sr_l1.sh:215`
+# already states the principle in terms -- "A dictionary that determines the patch names is
+# part of the BUILD INSTRUMENT".  The dict is authored in advance, pinned by sha256 from
+# COMMITTED code, and runs BEFORE the boundary exists.
+#
+# WHAT THE DICT SPECIFIES, READ OUT OF THE FILE ITSELF AND NOT SUMMARISED FROM MEMORY.  The
+# pinned `createPatchDict` (sha256 846e45d7...) declares exactly THREE `patches` entries:
+#       name wing;    patchInfo { type wall; }       constructFrom patches;
+#                     patches ( "wing_.*" auto0 auto3 );
+#       name inout;   patchInfo { type patch; }      patches ( "farfield_.*" auto2 );
+#       name sym;     patchInfo { type symmetry; }   patches ( auto1 sym );
+# so the name set the dict SPECIFIES is exactly {wing, inout, sym}, with the types Section 7
+# condition 1 demands.  ANY OTHER NAME PRESENT IN THE BOUNDARY IS A SOURCE PATCH THE DICT
+# DID NOT CONSUME -- i.e. a createPatch that did not fully do its job -- AND THAT IS EXACTLY
+# WHAT THIS SCREEN MUST CATCH (the supervisor's words: "createPatch can fail and leave
+# auto0..auto5").  A survivor is a MISMATCH and is BLOCKED, not quietly admitted.
+#
+# THE 3-vs-5 DISCREPANCY OF SECTION 20.2.3, RESOLVED FROM THE DICT.  Section 20.2.3 reports
+# three names beside counts totalling FIVE patches.  NEITHER RECORD IS WRONG: the three are
+# the names the dict CREATES, the five are the patches the RESULTING boundary carries.  The
+# dict names the four source patches it consumes -- auto0, auto1, auto2, auto3 -- and
+# Section 20.2.3's OWN "without the dict" row states the pre-createPatch set on that probe
+# as "auto0...auto5".  6 source - 4 consumed + 3 created = 5, and the surviving auto4/auto5
+# are typed `patch`, giving wall 1, symmetry 1, patch 3, empty 0 -- Section 20.2.3's counts
+# EXACTLY.  That residue is an artifact of the 3x3x3 probe BLOCK of Section 20.2.1, whose
+# six flat faces autoPatch 60 splits into six patches; it is NOT a property of the M6
+# geometry.  See Amendment 20 for the corroboration and for what the dict alone cannot say.
+#
+# EVERY LEVEL OF THIS FAMILY IS PATCHED BY THIS ONE DICT, and the three chains are named
+# separately rather than assumed to be one mechanism:
+#   L1  built by `cases/M6SR/build_m6sr_l1.sh` step B3, which stages this dict under a
+#       sha256 pin (`:527` MS_SHA_CREATEPATCHDICT, `:558` stage_mesh_dict) and then runs
+#       `createPatch -overwrite` (`:748`).  THE PIN IS IN COMMITTED CODE.
+#   L3  built by `/home/ubuntu/certonomous-runs/A3-onera-m6-adjoint-coarse/preProcessing.sh`,
+#       whose mesh block is `plot3dToFoam -noBlank volumeMesh.xyz; autoPatch 60 -overwrite;
+#       createPatch -overwrite; renumberMesh -overwrite` against that tree's own
+#       `system/createPatchDict` -- the very file build_m6sr_l1.sh pins.
+#   L2  `.mesh-cache/onera_m6/polyMesh` is a MIRROR: all five of its polyMesh files
+#       (points.gz, faces.gz, owner.gz, neighbour.gz, boundary) are byte-identical to
+#       `/home/ubuntu/certonomous-runs/A3-onera-m6-transonic/constant/polyMesh`, whose
+#       `preProcessing.sh` runs the same four-utility chain against a createPatchDict
+#       carrying THE SAME sha256 846e45d7...  Its determining artifact is that tree's dict.
+#
+# THE DICT IS VERIFIED AT SCREEN TIME, NOT TRUSTED.  These dictionaries live OUTSIDE git,
+# under /home/ubuntu/certonomous-runs/, so there is no git blob to cite for them -- the
+# committed pin is `build_m6sr_l1.sh:527` and the sha256 below.  An expectation resting on
+# an unversioned file is only as good as a check on that file, so `verify_patch_name_source`
+# re-hashes the dict every time the screen runs and REFUSES (rc 2) if it is absent or has
+# moved.  A level absent from this mapping is likewise UNREGISTERED and REFUSES -- choosing
+# a name set at grade time would be choosing a gate parameter after the freeze (rule 2).
+S7_PATCH_NAME_DICT_SHA256 = \
+    "846e45d721e8be7567bd46a08ba3ae8e0e577b167b64d5308b886a075677140e"
+S7_PATCH_NAME_SOURCE = {
+    "L1": {"dict": "/home/ubuntu/certonomous-runs/A3-onera-m6-adjoint-coarse/system/"
+                   "createPatchDict",
+           "chain": "cases/M6SR/build_m6sr_l1.sh B3 -- stages this dict under the sha256 "
+                    "pin at :527/:558 and runs `createPatch -overwrite` at :748",
+           "names": frozenset(("wing", "inout", "sym"))},
+    "L2": {"dict": "/home/ubuntu/certonomous-runs/A3-onera-m6-transonic/system/"
+                   "createPatchDict",
+           "chain": "A3-onera-m6-transonic/preProcessing.sh -- plot3dToFoam / autoPatch 60 "
+                    "/ createPatch / renumberMesh; .mesh-cache/onera_m6/polyMesh is a "
+                    "byte-identical mirror of that tree's constant/polyMesh (all five "
+                    "files, measured)",
+           "names": frozenset(("wing", "inout", "sym"))},
+    "L3": {"dict": "/home/ubuntu/certonomous-runs/A3-onera-m6-adjoint-coarse/system/"
+                   "createPatchDict",
+           "chain": "A3-onera-m6-adjoint-coarse/preProcessing.sh -- the same four-utility "
+                    "chain against that tree's own system/createPatchDict",
+           "names": frozenset(("wing", "inout", "sym"))},
 }
+S7_EXPECTED_PATCH_NAMES = {k: v["names"] for k, v in S7_PATCH_NAME_SOURCE.items()}
+
+# C28/C29's REFUSAL LIMB.  An id this registration deliberately does not record, so the
+# unregistered branch stays REACHABLE now that all three real levels ARE registered.  A
+# refusal path that its own suite can no longer reach is a refusal path nobody is testing.
+_S7_UNREGISTERED_ID = "L0_NOT_A_REGISTERED_LEVEL"
 
 # Gate GF thresholds, Section 5.
 GF_AGARD_T_TE_OVER_C = 0.0014104
@@ -433,6 +493,158 @@ def section7_condition_5(level_id, patches):
         "basis": "Section 7 condition 5: 'Patch names matched against the level's own "
                  "expected set, refusing on a mismatch.' A driver assuming one name set "
                  "across levels would silently mis-apply boundary conditions (P7)."}
+
+
+def section7_condition_1(level_id, patches):
+    """Section 7 condition 1 -- PATCH TYPES AND A COUNT.  -> (ok, detail).
+
+    ONE implementation, called by BOTH gate_a()'s A9 and the launch-path screen.  It is
+    factored out rather than written twice on purpose: two copies of a screen drift, and a
+    launch-path screen that disagreed with the graded gate would be the worst of the three
+    possible states.  NO THRESHOLD MOVES -- this is A9's predicate verbatim.
+    """
+    types = [t for _n, t, _f in patches]
+    ok = (len(patches) >= 3 and types.count("wall") == 1
+          and "symmetry" in types and "patch" in types)
+    return ok, {
+        "level": level_id, "patches": list(patches),
+        "required": ">= 3 patches, EXACTLY ONE typed wall, a symmetry, and a patch",
+        "basis": "Section 7 condition 1 -- 'empty' and 'wall' are NEVER acceptable for the "
+                 "symmetry plane. RUNG1_M6's M0 was a closed all-wall box and a "
+                 "branch-killing decision was taken off it. THIS GRADES TYPES AND A COUNT. "
+                 "IT DOES NOT GRADE NAMES -- condition 5 does."}
+
+
+def verify_patch_name_source(level_id):
+    """Re-hash the `createPatchDict` the level's expected name set is DERIVED FROM.
+
+    -> detail dict.  RAISES Unregistered for a level this registration does not record, and
+    Refusal if the dict is absent or has moved off its pinned sha256.
+
+    WHY THIS EXISTS.  The expectation is derived from a dictionary that lives OUTSIDE git
+    (under /home/ubuntu/certonomous-runs/), so no git blob pins it.  An expectation resting
+    on an unversioned file is only as good as a check on that file, and the check is run
+    EVERY TIME the screen runs rather than once at authorship.  A dict that moved would mean
+    the registered set describes a boundary the build will no longer produce.
+    """
+    src = S7_PATCH_NAME_SOURCE.get(level_id)
+    if src is None:
+        raise Unregistered(
+            f"Section 7 condition 5 requires the level's OWN expected patch-name set, and "
+            f"this registration records none for {level_id!r}. Adopting the names the mesh "
+            f"happens to carry would read the expectation off the object being screened and "
+            f"would fix a gate parameter after the freeze (standing rule 2). REFUSED "
+            f"(exit 2). Registered levels: {sorted(S7_PATCH_NAME_SOURCE)}.")
+    path = src["dict"]
+    if not os.path.isfile(path):
+        raise Refusal(
+            f"{level_id}: the createPatchDict this level's expected patch-name set is "
+            f"DERIVED FROM is ABSENT at {path!r}. The set {sorted(src['names'])} was derived "
+            f"from that file; with the file gone the derivation cannot be re-checked and "
+            f"this screen will NOT fall back to the names the mesh carries. REFUSED.")
+    got = sha256_file(path)
+    if got != S7_PATCH_NAME_DICT_SHA256:
+        raise Refusal(
+            f"{level_id}: the createPatchDict at {path!r} hashes {got}, not the pinned "
+            f"{S7_PATCH_NAME_DICT_SHA256}. That dictionary DETERMINES THE PATCH NAMES, so a "
+            f"different one builds a boundary this registered expectation does not describe "
+            f"(cases/M6SR/build_m6sr_l1.sh:544 refuses on the same grounds at build time). "
+            f"REFUSED rather than screened against a stale expectation.")
+    return {"level": level_id, "createPatchDict": path, "sha256": got,
+            "expected_names": sorted(src["names"]), "chain": src["chain"],
+            "derivation": "the dict's three `patches` entries name wing/inout/sym; any "
+                          "other name in the boundary is a source patch createPatch did "
+                          "not consume, which is a MISMATCH and is BLOCKED."}
+
+
+# --------------------------------------------------------------------------------------
+# SECTION 7's LAUNCH-PATH SCREEN -- ALL FIVE CONDITIONS, ONE LEVEL, BEFORE THE SOLVE.
+#
+# AMENDMENT 20, ITEM 47.  Section 7 says its conditions are "Checked per level BEFORE
+# launch" and that a failure "BLOCKEDs the level".  Until this amendment NOTHING ON THE
+# LAUNCH PATH ASKED GATE A ANYTHING: `run_m6sr_b5.sh` invoked this comparator exactly twice,
+# both times as `--controls`, and never as `--gate-a`.  Wiring conditions 2-5 into gate_a()
+# (Amendment 19) made them GRADEABLE; it did not make them BLOCK A LAUNCH.
+#
+# WHY A PER-LEVEL ENTRY POINT AND NOT `--gate-a`.  gate_a() grades the FAMILY: A4 requires
+# the exact registered cell triple, A5 requires three distinct points streams, A6 the ratio
+# at every level.  The solve driver runs ONE LEVEL AT A TIME, so calling gate_a() there
+# would fail family clauses that have nothing to do with well-posedness and would refuse a
+# lawful launch.  Section 7's own words are "Checked PER LEVEL", and this is that.
+#
+# IT IS NOT A SECOND IMPLEMENTATION.  Every clause below calls the SAME function gate_a()
+# calls -- section7_condition_1 / section7_conditions_2_3_4 / section7_condition_5 -- and
+# control C30 drives both paths on one synthetic level and requires them to agree
+# clause-for-clause.  Two copies of a screen drift; one copy cannot.
+#
+# THE ONE-WAY DOOR (standing rule 5).  This screen can only turn a launch OFF. It returns
+# PASS or BLOCKED or it REFUSES; there is no branch in which it manufactures permission for
+# anything, and the driver treats every non-zero rc -- including a crash, a timeout and an
+# rc this file never emits -- as a refusal to launch.
+# --------------------------------------------------------------------------------------
+def section7_screen(level_id, polymesh_dir, checkmesh_path):
+    """Section 7's five conditions for ONE level.  -> record with `label` PASS or BLOCKED.
+
+    Raises Unregistered / Refusal (both rc 2 at the CLI) for a statement about the DOCUMENT
+    or about the INSTRUMENT rather than about the mesh.  Those are different findings from
+    BLOCKED and the driver reports them differently.
+    """
+    source = verify_patch_name_source(level_id)      # REFUSES before reading any mesh
+    if not os.path.isdir(polymesh_dir):
+        raise Refusal(
+            f"{level_id}: the polyMesh this screen must read is ABSENT at {polymesh_dir!r}. "
+            f"Section 7's conditions are read from checkMesh output and the boundary file; "
+            f"with no mesh there is nothing to screen and this is NOT a pass. REFUSED.")
+    bnd = read_boundary(polymesh_dir)
+    patches = [(b["name"], b["type"], b["nFaces"]) for b in bnd]
+    cm = read_checkmesh(checkmesh_path) if checkmesh_path else {"state": "ABSENT"}
+
+    clauses = {}
+    ok1, d1 = section7_condition_1(level_id, patches)
+    clauses["S7_C1_patch_types_wall_symmetry_patch"] = (ok1, d1)
+    for name, (ok, det) in section7_conditions_2_3_4(level_id, cm).items():
+        clauses[name] = (ok, det)
+    st5, d5 = section7_condition_5(level_id, patches)
+    clauses["S7_C5_patch_names_match_the_registered_per_level_set"] = (st5 == "MATCH", d5)
+
+    failed = [k for k, (ok, _d) in clauses.items() if not ok]
+    rec = {
+        "step": "B4s", "screen": "Section 7 -- the launch-path ill-posedness screen",
+        "level": level_id, "polymesh": polymesh_dir, "checkmesh": checkmesh_path,
+        "expected_patch_name_source": source,
+        "actual_patches": patches,
+        "clauses": {k: {"pass": bool(ok), "label": _verdict("PASS" if ok else "BLOCKED"),
+                        "detail": det} for k, (ok, det) in clauses.items()},
+        "failed_clauses": failed,
+        "label": _verdict("BLOCKED" if failed else "PASS"),
+        "one_way_door": "Section 7 blocks a launch; it never authorises one. Standing rule "
+                        "5's direction applies -- this screen may only turn a launch OFF.",
+    }
+    if st5 == "UNREGISTERED":                 # unreachable while all three are registered
+        raise Unregistered(
+            f"{level_id}: Section 7 condition 5 has no registered expected set. REFUSED.")
+    return rec
+
+
+def _section7_screen_summary_lines(rec):
+    """One machine-readable line per FAILED clause, naming value against threshold.
+
+    The launch driver embeds these in its refusal.  Section 7's ruling is explicit that a
+    blocked launch must name WHICH clause blocked and its measured value against its
+    threshold, and must not print a bare verdict string -- so the summary is built from the
+    clause details and never from the label.
+    """
+    lines = []
+    for name in rec["failed_clauses"]:
+        det = rec["clauses"][name]["detail"]
+        bits = []
+        for key in ("value", "threshold", "required", "test", "expected", "actual",
+                    "unexpected", "missing", "patches", "unreadable_because"):
+            if key in det and det[key] is not None:
+                bits.append(f"{key}={det[key]!r}")
+        lines.append(f"SECTION7_BLOCKED_CLAUSE: level={rec['level']} clause={name} "
+                     + " ".join(bits))
+    return lines
 
 
 # --------------------------------------------------------------------------------------
@@ -1613,18 +1825,18 @@ def gate_a(levels):
           {"condemned_sha256": SHA_SURFACE_390_CONDEMNED,
            "basis": "Section 1.3 -- CONDEMNED, and the MECHANISM IS NOT ESTABLISHED."})
 
-    # A9 -- patch identity per level.  BLOCKED on failure (Section 7).
-    a9 = []
-    for rec in out["per_level"]:
-        types = [t for _n, t, _f in rec["patches"]]
-        a9.append(len(rec["patches"]) >= 3 and types.count("wall") == 1
-                  and "symmetry" in types and "patch" in types)
-    _fail("A9_patch_identity_wall_symmetry_patch", all(a9), "BLOCKED",
-          {"per_level": [r["patches"] for r in out["per_level"]],
+    # A9 -- patch identity per level.  BLOCKED on failure (Section 7 condition 1).
+    # AMENDMENT 20: the predicate now lives in section7_condition_1(), which the launch-path
+    # screen calls too.  ONE implementation, two callers -- a launch screen that disagreed
+    # with the graded gate would be worse than either alone.  NO THRESHOLD MOVES.
+    a9 = [section7_condition_1(rec["id"], rec["patches"]) for rec in out["per_level"]]
+    _fail("A9_patch_identity_wall_symmetry_patch", all(ok for ok, _d in a9), "BLOCKED",
+          {"per_level": [d for _ok, d in a9],
            "basis": "Section 7 -- 'empty' and 'wall' are NEVER acceptable for the symmetry "
                     "plane. RUNG1_M6's M0 was a closed all-wall box and a branch-killing "
                     "decision was taken off it. A9 GRADES TYPES AND A COUNT. IT DOES NOT "
-                    "GRADE NAMES -- A13 does (Amendment 19)."})
+                    "GRADE NAMES -- A13 does (Amendment 19). SHARED with the launch-path "
+                    "screen since Amendment 20."})
 
     # ---- A10 / A11 / A12 -- SECTION 7 CONDITIONS 2, 3 AND 4.  Amendment 19. ----------
     # Section 7 calls itself the ONE thing that blocks and Section 5 says "Only Section 7
@@ -2541,7 +2753,13 @@ def controls(scratch, mutate=None):
                   # that blocks and were WIRED TO NOTHING for eleven adversarial passes.
                   # They are named here so a future edit cannot orphan them the way item 5
                   # orphaned Gate P, and so that orphaning goes RED rather than quiet.
-                  "section7_conditions_2_3_4", "section7_condition_5")
+                  "section7_conditions_2_3_4", "section7_condition_5",
+                  # Amendment 20, item 47.  The LAUNCH-PATH screen and everything it is
+                  # made of.  Section 7's conditions were gradeable but nothing on the
+                  # launch path ran them; these names are pinned here so a future edit
+                  # cannot orphan the screen the way item 5 orphaned Gate P.
+                  "section7_screen", "section7_condition_1",
+                  "verify_patch_name_source", "_section7_screen_summary_lines")
     missing = [n for n in must_reach if n not in reach]
     sentinel_ok = "_control_unreachable_sentinel" not in reach
     if mutate == "C23":
@@ -2705,12 +2923,32 @@ def controls(scratch, mutate=None):
     a9_mut = _s7_run("c28_a9", _clean_cm, nm28).get("A9_patch_identity_wall_symmetry_patch")
     # THE REFUSAL LIMB.  A level whose expected set the registration does NOT record must
     # REFUSE -- it must not pass, and it must not silently adopt the mesh's own names.
+    #
+    # 🔴 AMENDMENT 20 CHANGED WHAT THIS LIMB CAN USE, AND IT IS SAID RATHER THAN QUIETLY
+    # SWAPPED.  Amendment 19 drove this limb with the REAL ids ('L3','L2','L1') because two
+    # of the three were unregistered.  Amendment 20 registers all three FROM createPatchDict
+    # on the supervisor's item-46 ruling, so the real ids no longer refuse -- and a limb that
+    # can no longer reach its own failure is not a control.  It is re-pointed at an id that
+    # IS genuinely unregistered.  The property under test is unchanged: an unregistered level
+    # REFUSES rather than adopting the names the mesh carries.
     try:
-        _s7_run("c28_ids", _clean_cm, _clean_nm, ids=("L3", "L2", "L1"))
+        _s7_run("c28_ids", _clean_cm, _clean_nm, ids=("L3", "L2", _S7_UNREGISTERED_ID))
         refusal_ok, refusal_msg = False, "an UNREGISTERED level did NOT refuse"
     except Unregistered as exc:
-        refusal_ok = "'L3'" in str(exc) and "'L1'" in str(exc)
+        refusal_ok = repr(_S7_UNREGISTERED_ID) in str(exc)
         refusal_msg = str(exc)[:160]
+    # AND THE POSITIVE TWIN THE OLD LIMB DID NOT NEED: the three REAL ids must now be
+    # registered and must NOT refuse. Without it, a mapping accidentally emptied would make
+    # the refusal limb above pass for the wrong reason (rule 3 -- a reader shown only a
+    # refusal has not been shown able to see an acceptance).
+    try:
+        real_ids_ok = _s7_run("c28_real", _clean_cm, _clean_nm,
+                              ids=("L3", "L2", "L1"))["_GATE_A"] == "PASS"
+        real_ids_msg = "the three REAL ids are registered and grade PASS"
+    except Unregistered as exc:
+        real_ids_ok = False
+        real_ids_msg = f"a REAL level id still refuses: {str(exc)[:120]}"
+    refusal_ok = refusal_ok and real_ids_ok
     ok28 = ok28 and a9_clean == "PASS" and a9_mut == "PASS" and refusal_ok
     if mutate == "C28":
         ok28 = False
@@ -2719,9 +2957,85 @@ def controls(scratch, mutate=None):
          f"(wall/patch/symmetry), WRONG NAMES -- on the middle level: {msg28}. THE "
          f"INDEPENDENCE PROOF: A9 reads {a9_clean} on the clean twin and STILL reads "
          f"{a9_mut} on the mutant, so this mutant is INVISIBLE to the type screen and dies "
-         f"only at the name screen. THE REFUSAL LIMB: the real level ids ('L3','L2','L1') "
-         f"REFUSE, because the registration records an expected name set for L2 ALONE -- "
-         f"{refusal_msg}")
+         f"only at the name screen. THE REFUSAL LIMB (re-pointed in Amendment 20, which "
+         f"registered all three real ids from createPatchDict): the unregistered id "
+         f"{_S7_UNREGISTERED_ID!r} REFUSES -- {refusal_msg} -- AND the positive twin holds, "
+         f"{real_ids_msg}")
+
+    # ======================================================================================
+    # C29 / C30 -- AMENDMENT 20.  THE LAUNCH-PATH SCREEN'S OWN PLANTED CONTROLS.
+    # ======================================================================================
+    # ---- C29: THE EXPECTATION'S SOURCE IS PINNED, AND THE PIN IS SHOWN ABLE TO FIRE ------
+    # The expected name set is DERIVED from a createPatchDict that lives OUTSIDE git, so the
+    # only thing standing between the registered set and a silently different boundary is
+    # this hash.  Rule 3: a pin that has never been shown rejecting a wrong file is not
+    # evidence.  The plant is a REAL COPY of the dict with ONE CHARACTER CHANGED, written to
+    # disk and hashed by the SAME sha256_file() the screen uses.
+    src29 = S7_PATCH_NAME_SOURCE["L1"]["dict"]
+    if os.path.isfile(src29):
+        live29 = verify_patch_name_source("L1")           # the CLEAN twin -- must not raise
+        text29 = open(src29, "rb").read()
+        mut29 = _write(os.path.join(scratch, "c29_createPatchDict"),
+                       text29.decode("utf-8", "replace").replace("name wing;", "name WING;"))
+        sha29 = sha256_file(mut29)
+        ok29 = (live29["sha256"] == S7_PATCH_NAME_DICT_SHA256
+                and sha29 != S7_PATCH_NAME_DICT_SHA256
+                and live29["expected_names"] == ["inout", "sym", "wing"])
+        msg29 = (f"the pinned dict at {src29} hashes {live29['sha256'][:16]}... and the "
+                 f"screen accepts it; ONE CHARACTER CHANGED ('name wing;' -> 'name WING;') "
+                 f"hashes {sha29[:16]}... and would be REFUSED. The derived set is "
+                 f"{live29['expected_names']}, read from the dict's three `patches` entries "
+                 f"and NEVER from a mesh.")
+        # THE UNREGISTERED-LEVEL LIMB, on the same reader.
+        try:
+            verify_patch_name_source(_S7_UNREGISTERED_ID)
+            ok29 = False
+            msg29 += " BUT an unregistered level did NOT refuse."
+        except Unregistered:
+            msg29 += " An unregistered level REFUSES through the same reader."
+    else:
+        ok29, msg29 = False, (f"the pinned createPatchDict is ABSENT at {src29}; this "
+                              "control REFUSES rather than reporting green on an absence.")
+    if mutate == "C29":
+        ok29 = False
+    _rec("C29", ok29, msg29)
+
+    # ---- C30: THE LAUNCH-PATH SCREEN AGREES WITH THE GRADED GATE, CLAUSE FOR CLAUSE ------
+    # ITEM 47's REPAIR IS ONLY SAFE IF IT IS NOT A SECOND IMPLEMENTATION.  A launch screen
+    # that disagreed with gate_a() would be worse than no launch screen: the launch would
+    # turn on one reading and the record would carry another.  This drives BOTH paths on the
+    # SAME synthetic level, once clean and once with the condition-2 plant, and requires
+    # them to agree in BOTH directions -- and it requires the screen's own label to MOVE, so
+    # a screen wired to a constant cannot pass it.
+    lv30 = _s7_fixture_levels(os.path.join(s7root, "c30"), _clean_cm, _clean_nm)[1]
+    scr30 = section7_screen("L2", lv30["polymesh"], lv30["checkmesh"])
+    lv30b = _s7_fixture_levels(os.path.join(s7root, "c30b"), cm25, _clean_nm)[1]
+    scr30b = section7_screen("L2", lv30b["polymesh"], lv30b["checkmesh"])
+    gate30 = _s7_run("c30_gate", cm25, _clean_nm)
+    ok30 = (scr30["label"] == "PASS" and scr30["failed_clauses"] == []
+            and scr30b["label"] == "BLOCKED"
+            and scr30b["failed_clauses"] == ["S7_C2_boundary_openness_le_1e-12"]
+            and gate30["A10_S7_C2_boundary_openness_le_1e-12"] == "BLOCKED"
+            and gate30["A9_patch_identity_wall_symmetry_patch"] == "PASS"
+            and scr30b["clauses"]["S7_C1_patch_types_wall_symmetry_patch"]["label"] == "PASS")
+    # AND THE MESSAGE THE DRIVER WILL PRINT MUST NAME THE VALUE AGAINST THE THRESHOLD.
+    lines30 = _section7_screen_summary_lines(scr30b)
+    ok30 = (ok30 and len(lines30) == 1
+            and "value=" in lines30[0] and "threshold=" in lines30[0]
+            and f"{PLANT_S7_OPENNESS}" in lines30[0]
+            and "S7_C2_boundary_openness_le_1e-12" in lines30[0]
+            and _section7_screen_summary_lines(scr30) == [])
+    if mutate == "C30":
+        ok30 = False
+    _rec("C30", ok30,
+         f"one synthetic level, TWO readers: the launch-path screen reads "
+         f"{scr30['label']} clean and {scr30b['label']} with the condition-2 plant, failing "
+         f"EXACTLY {scr30b['failed_clauses']}; gate_a() on the same planted tree reads "
+         f"A10 = {gate30['A10_S7_C2_boundary_openness_le_1e-12']} and A9 = "
+         f"{gate30['A9_patch_identity_wall_symmetry_patch']}. They agree in both directions, "
+         f"which is the only thing that makes a SECOND entry point safe. The refusal line "
+         f"the driver will print is {lines30[0][:150]!r} -- it NAMES the clause and the "
+         f"measured value against its threshold, and the clean twin emits NO such line.")
 
     return fired, detail
 
@@ -3002,6 +3316,14 @@ def main(argv):
                     help="corrupt one shipped statistic; the suite MUST go RED")
     ap.add_argument("--gate-gf", action="store_true", help="grade Gate GF (step B0)")
     ap.add_argument("--gate-a", action="store_true", help="grade Gate A (step B4)")
+    ap.add_argument("--section7-screen", action="store_true",
+                    help="Section 7's five conditions for ONE level, ON THE LAUNCH PATH "
+                         "(step B4s, after B4's checkMesh and BEFORE the solve). "
+                         "EXIT 0 = PASS, 11 = BLOCKED, 2 = REFUSAL. Requires --level and "
+                         "--case. This mode can only turn a launch OFF (rule 5).")
+    ap.add_argument("--level", default=None, help="L3 | L2 | L1, for --section7-screen")
+    ap.add_argument("--case", default=None,
+                    help="the level's case directory, for --section7-screen")
     ap.add_argument("--grade", action="store_true",
                     help="grade Gate G and Gate P (step B6)")
     ap.add_argument("--gate-p", action="store_true",
@@ -3035,7 +3357,8 @@ def main(argv):
             for target in ("C1", "C2", "C3", "C4", "C5", "C6", "C8", "C9", "C10", "C11",
                            "C13", "C14", "C15", "C17", "C18", "C19", "C19b", "C20",
                            "C21", "C22", "C23", "C24",
-                           "C25", "C26", "C27", "C28"):        # Amendment 19
+                           "C25", "C26", "C27", "C28",        # Amendment 19
+                           "C29", "C30"):                     # Amendment 20, item 47
                 if target in baseline_red:
                     reds[target] = None                 # cannot mutate an already-red control
                     continue
@@ -3073,6 +3396,28 @@ def main(argv):
                "result": gate_gf(levels, fired),
                "L_HONEST": L_HONEST, "NOT_CLAIMED": NOT_CLAIMED}
         _emit(out)
+        return 0
+
+    if args.section7_screen:
+        # THE LAUNCH-PATH SCREEN.  Item 47's repair.  Section 7's conditions are read from
+        # checkMesh output and the boundary file, so this can only run AFTER B4's checkMesh;
+        # the driver calls it there and refuses the solve on anything but rc 0.
+        if not args.level or not args.case:
+            raise Refusal("--section7-screen requires --level and --case. A screen that "
+                          "does not know which level it is screening is not a screen.")
+        pm = os.path.join(args.case, "constant", "polyMesh")
+        cmp_ = os.path.join(args.case, "log.checkMesh")
+        rec = section7_screen(args.level, pm, cmp_ if os.path.exists(cmp_) else None)
+        # THE SUMMARY LINES FIRST, so the driver's refusal can NAME the clause and its
+        # measured value against its threshold rather than print a bare verdict string.
+        for line in _section7_screen_summary_lines(rec):
+            print(line)
+        _emit({"result": rec, "L_HONEST": L_HONEST, "NOT_CLAIMED": NOT_CLAIMED})
+        if rec["failed_clauses"]:
+            # 11, NOT 1 and NOT 2.  A REFUSAL (2) is a statement about this document or this
+            # instrument; a BLOCKED level is a statement about the MESH. They are different
+            # findings and the driver must not be able to conflate them.
+            return 11
         return 0
 
     if args.gate_a:

@@ -28,8 +28,17 @@
 #                 ONE row for "checkMesh x3", so it is a RUNNING budget across the three
 #                 levels, tracked on disk and refused when exhausted.
 #   Section 3.2   `hierarchical` decomposition; `scotch` is NOT used.
-#   Section 7     the ill-posedness screen -- the driver REFUSES patch types it did not
-#                 expect, through the case writer's CH1 classification.
+#   Section 7     the ill-posedness screen.  AMENDMENT 20, ITEM 47: this driver now RUNS
+#                 THE SCREEN ITSELF at new step `B4s` -- after B4's checkMesh, before the
+#                 case writer and the solver -- via
+#                 `cases/M6SR/analyse_m6sr.py --section7-screen --level --case`, and a
+#                 BLOCKED level REFUSES the solve at exit 11 naming the clause and its
+#                 measured value against its threshold, a REFUSAL at exit 12.
+#                 BEFORE AMENDMENT 20 THIS LINE DESCRIBED SOMETHING WEAKER AND IT IS NOT
+#                 QUIETLY REPLACED -- what it said was true and was ALL there was:
+#                 "the driver REFUSES patch types it did not expect, through the case
+#                 writer's CH1 classification", i.e. condition 1 only, enforced by another
+#                 file, with conditions 2-5 consulted by NOTHING on the launch path.
 #   Section 8     every case file, written by cases/M6SR/write_m6sr_case.py.
 #   Section 8.6   the launcher REFUSES a case where `0` or any time directory exists, and
 #                 the strict all-or-nothing completion rule is EVALUATED (never graded) here.
@@ -683,6 +692,89 @@ fi
 # ---------------------------------------------------------------------------------------
 [ -d "$CASE/constant/polyMesh" ] || abort "$CASE/constant/polyMesh is ABSENT; run phase 'stage' first." 3
 
+# ---------------------------------------------------------------------------------------
+# 4a.  STEP `B4s` -- SECTION 7's ILL-POSEDNESS SCREEN, ON THE LAUNCH PATH.
+#      AMENDMENT 20, ITEM 47, ON THE SUPERVISOR'S EXPRESS RULING.
+#
+#      THE DEFECT THIS CLOSES, STATED EXACTLY.  Section 7 calls itself "THE ONE THING THAT
+#      BLOCKS", says its five conditions are "Checked per level BEFORE launch" and that a
+#      failure "BLOCKEDs the level".  Until this amendment THIS DRIVER NEVER ASKED GATE A
+#      ANYTHING: it invoked cases/M6SR/analyse_m6sr.py exactly twice, at the grading-path
+#      rehearsal above, BOTH TIMES as `--controls`, and never once as `--gate-a`.  Amendment
+#      19 wired conditions 2-5 into gate_a() and made them GRADEABLE.  It did not make them
+#      BLOCK A LAUNCH.  A supervisor ordering a launch on the strength of Section 7 would
+#      have been relying on a screen the launcher does not run.  THE SUPERVISOR'S RULING:
+#      "Section 7's screen must be consulted BY THE LAUNCH PATH, and a BLOCKED Gate A must
+#      REFUSE the solve."
+#
+#      WHY HERE AND NOWHERE ELSE.  Section 7's conditions are read from checkMesh output and
+#      from the boundary file, so the screen can only run AFTER B4's checkMesh has produced
+#      `log.checkMesh` -- which is why this sits below the `stage` exit and not above it.
+#      It sits ABOVE the case writer, so a BLOCKED level costs not even the case files.
+#      Phase `stage` alone is deliberately NOT gated: gating it would leave the screen with
+#      no checkMesh log to read, which is the same reasoning Amendment 12 recorded for the
+#      grading-path rehearsal.
+#
+#      WHY A PER-LEVEL SCREEN AND NOT `--gate-a`.  `--gate-a` grades the FAMILY -- A4 needs
+#      the exact registered cell triple, A5 three distinct points streams, A6 the ratio at
+#      every level.  This driver runs ONE LEVEL AT A TIME, so `--gate-a` here would fail
+#      family clauses that say nothing about well-posedness and would refuse a LAWFUL
+#      launch.  Section 7's own words are "Checked PER LEVEL"; `--section7-screen` is that,
+#      and it calls the SAME functions gate_a() calls (control C30 drives both paths on one
+#      level and requires them to agree clause for clause).
+#
+#      THE EXIT CODES ARE DISTINCT, AND THE TWO FINDINGS ARE NOT CONFLATED.
+#        exit 11  the LEVEL is BLOCKED -- a statement about the mesh.  The message NAMES the
+#                 clause and its measured value against its threshold; it is never a bare
+#                 verdict string.
+#        exit 12  the comparator REFUSED (its rc 2), or returned an rc this driver does not
+#                 recognise, or was killed by the cap below.  A REFUSAL is a statement about
+#                 THIS DOCUMENT or THE INSTRUMENT -- an unregistered level, a createPatchDict
+#                 that moved off its pin, an absent mesh -- and it is REPORTED AS A REFUSAL
+#                 AND NEVER CONVERTED INTO `BLOCKED`.
+#      STANDING RULE 5's ONE-WAY DOOR: this screen can only turn a launch OFF.  There is no
+#      branch below in which anything other than rc 0 lets the solve proceed.
+#
+#      🔴 THE CONTAINER-CAP CLASS (ITEM 39) CANNOT DEFEAT THIS, AND THE REASON IS STRUCTURAL.
+#      Item 39 measured that an outer `timeout` does NOT bound a container: the docker client
+#      returns while the container it started keeps running under dockerd, outside the
+#      timeout's process group.  THIS SCREEN STARTS NO CONTAINER.  It is a host `python3`
+#      reading two files, so it is an ordinary child in this shell's own process group and
+#      `timeout -k` does bound it.  `cases/M6SR/check_m6sr_launch_path.sh` asserts on the
+#      EXTRACTED TEXT of this function that it contains no `docker` token and no
+#      `run_in_container` call, so the claim is machine-checked and not merely written here.
+#      And the failure direction is closed either way: a timeout returns 124/137, which is
+#      not 0, and the `*)` branch below refuses the launch.
+# ---------------------------------------------------------------------------------------
+section7_launch_screen(){
+  local lvl="$1" case_dir="$2" out rc blk
+  out="$case_dir/log.section7_screen"
+  timeout -k 5 120 python3 "$CASES/analyse_m6sr.py" --section7-screen \
+      --level "$lvl" --case "$case_dir" > "$out" 2>&1
+  rc=$?
+  case "$rc" in
+    0)
+      say "B4s: SECTION 7 SCREEN PASSED for $lvl -- all five conditions, per level, BEFORE the solve (see $out)"
+      ;;
+    11)
+      blk=$(grep '^SECTION7_BLOCKED_CLAUSE:' "$out" 2>/dev/null | tr '\n' ' ')
+      [ -n "$blk" ] || blk="(the comparator returned 11 but printed no clause line; treated as BLOCKED regardless -- an unreadable refusal is still a refusal)"
+      abort "SECTION 7 SCREEN: $lvl is BLOCKED and the solve WILL NOT START. Section 7 is the one thing that blocks and its conditions are checked per level BEFORE launch. THE CLAUSE(S) THAT BLOCKED, WITH THE MEASURED VALUE AGAINST THE THRESHOLD: $blk Full record: $out. A BLOCKED level is not a GATE FAIL and is not softened: the mesh cannot be shown well-posed, so nothing is spent on solving it." 11
+      ;;
+    2)
+      abort "SECTION 7 SCREEN: the comparator REFUSED (exit 2) for $lvl. A REFUSAL IS NOT A 'BLOCKED' AND IS NOT REPORTED AS ONE -- BLOCKED is a statement about the MESH, a refusal is a statement about THIS DOCUMENT or THIS INSTRUMENT (an unregistered level, a createPatchDict that moved off its pinned sha256, an absent mesh). Standing rule 5's direction applies: this screen may only turn a launch OFF, never manufacture a pass, so the refusal STOPS the launch. See $out. THE FIX IS AN AMENDMENT or a repair to the instrument, never a weaker screen." 12
+      ;;
+    124|137)
+      abort "SECTION 7 SCREEN: the screen was killed by its own 120 s cap (rc $rc) for $lvl. It is a host python3 process, not a container, so the cap DOES bind it (item 39's finding is about containers). A screen that did not finish has not passed, and this REFUSES the launch. See $out." 12
+      ;;
+    *)
+      abort "SECTION 7 SCREEN: the comparator returned rc $rc for $lvl, which this driver does not recognise (0 = PASS, 11 = BLOCKED, 2 = REFUSAL, 124/137 = capped). AN UNRECOGNISED rc IS A REFUSAL, NEVER A PASS -- a screen whose result cannot be read has not been passed. See $out." 12
+      ;;
+  esac
+}
+
+section7_launch_screen "$LEVEL" "$CASE"
+
 # The case writer carries Section 8 and REFUSES on any precondition it cannot satisfy.  Its
 # own planted controls must fire before it is trusted to have written what it says it wrote
 # (rule 3): a writer whose plant did not fire is not evidence about the case it produced.
@@ -846,5 +938,5 @@ PYC
 say "$STEP complete for $LEVEL."
 say "Gate P's producer wrote: $CASE/postProcessing/sampleDict/$END_TIME/wingSurface/"
 say "NEXT: B0 is Gate GF, B4 is Gate A and B6 is Gate G + Gate P, all in cases/M6SR/analyse_m6sr.py."
-say "THIS DRIVER GRADES NOTHING."
+say "THIS DRIVER GRADES NOTHING. B4s SCREENED Section 7 per level and REFUSED or let the solve start; it applied no band, computed no gate and printed no verdict of its own."
 exit 0

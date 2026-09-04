@@ -52,12 +52,37 @@
 # NO SOLVER RUNS HERE.  checkMesh on an already-built mesh and a container `echo`; no
 # rhoSimpleFoam, no queue row, no write anywhere under verification/runs/.
 #
-# USAGE:  check_m6sr_launch_path.sh [--controls]     (both forms run the same checks)
+#   ITEM 47  Section 7 called itself "THE ONE THING THAT BLOCKS" and said its five conditions
+#            are "Checked per level BEFORE launch", while NOTHING ON THE LAUNCH PATH CONSULTED
+#            GATE A AT ALL: the driver invoked the comparator exactly twice, both times as
+#            `--controls`.  Amendment 19 made conditions 2-5 GRADEABLE; it did not make them
+#            BLOCK A LAUNCH.  REPAIRED in the driver by step `B4s` (exit 11 BLOCKED / 12
+#            REFUSAL) and T6 below is the control: FOUR MUTANTS, ONE PER CLAUSE, each driven
+#            through the DRIVER'S OWN EXTRACTED SCREEN FUNCTION, plus THE CLEAN TWIN, which
+#            must still reach the solver line.  Without the clean twin the four mutants prove
+#            only that something failed.
+#
+# USAGE:  check_m6sr_launch_path.sh [--controls]      -- everything, T1..T6
+#         check_m6sr_launch_path.sh --section7-only   -- T0 + T6 ONLY, NO CONTAINER
 # EXIT:   0 all checks passed;  1 a check FAILED;  2 the suite REFUSED (plant unseen /
 #         preconditions absent) -- a refusal is NEVER reported as a pass.
+#
+# ⚠ WHAT `--section7-only` IS AND IS NOT.  It exists because T1..T5 start a REAL container on
+# the pinned digest and item 47's repair can be exercised with no container at all -- the
+# screen is a host `python3` reading two files.  IT IS NOT A WAY TO PRINT GREEN WHILE SKIPPING
+# TESTS: it names, on stdout, exactly which tests it did not run and why, it is never the
+# default, and it cannot report a pass for anything it skipped.  A caller who wants the item
+# 28/30/31/32 evidence must run the suite with no flag.
 
 set +u
 set +e
+
+MODE=all
+case "$1" in
+  --section7-only) MODE=section7-only ;;
+  --controls|"")   MODE=all ;;
+  *) echo "usage: $0 [--controls | --section7-only]" >&2; exit 2 ;;
+esac
 
 HERE=$(cd -- "$(dirname -- "$0")" && pwd)
 DRIVER="$HERE/run_m6sr_b5.sh"
@@ -84,13 +109,17 @@ refuse(){ printf 'REFUSE: %s\n' "$1" >&2; exit 2; }
 # ---------------------------------------------------------------------------------------
 [ -f "$DRIVER" ] || refuse "the driver under test is ABSENT: $DRIVER"
 [ -d "$MESH_SRC" ] || refuse "the L3 mesh source is ABSENT: $MESH_SRC (read-only tree)"
-DOCKER_BIN=$(command -v docker 2>/dev/null)
-[ -n "$DOCKER_BIN" ] || refuse "docker does not resolve on PATH"
-docker inspect --format '{{.Id}}' "$IMG_PINNED" >/dev/null 2>&1 \
-  || refuse "the PINNED IMAGE $IMG_PINNED is not on this daemon. This suite does NOT fall back to a mock: a mock proves nothing here."
-
-BARE_OUT=$(docker version --format '{{.Server.Version}}' 2>&1); BARE_RC=$?
-if [ $BARE_RC -eq 0 ]; then DOCKER_BRANCH=bare; else DOCKER_BRANCH=sg; fi
+# THE CONTAINER PRECONDITIONS ARE REQUIRED ONLY BY THE TESTS THAT START A CONTAINER.  In
+# `--section7-only` they are not checked because nothing that runs will use them -- and the
+# tests that need them are not run either, so nothing is being skipped silently.
+if [ "$MODE" != "section7-only" ]; then
+  DOCKER_BIN=$(command -v docker 2>/dev/null)
+  [ -n "$DOCKER_BIN" ] || refuse "docker does not resolve on PATH"
+  docker inspect --format '{{.Id}}' "$IMG_PINNED" >/dev/null 2>&1 \
+    || refuse "the PINNED IMAGE $IMG_PINNED is not on this daemon. This suite does NOT fall back to a mock: a mock proves nothing here."
+  BARE_OUT=$(docker version --format '{{.Server.Version}}' 2>&1); BARE_RC=$?
+  if [ $BARE_RC -eq 0 ]; then DOCKER_BRANCH=bare; else DOCKER_BRANCH=sg; fi
+fi
 
 # ---------------------------------------------------------------------------------------
 # 1.  EXTRACT THE REPAIRED CONSTRUCTS FROM THE DRIVER ITSELF.
@@ -164,6 +193,201 @@ abort(){ echo "ABORT: $1" >> "$CASE/.abort"; exit "${2:-1}"; }
 RR="$WORK/rr"; LEVEL=probe
 mkdir -p "$RR" || refuse "could not create the scratch run root $RR"
 . "$WORK/fns.sh"
+
+# =======================================================================================
+# T6  ITEM 47 -- THE LAUNCH PATH ITSELF REFUSES.  FOUR MUTANTS AND THE CLEAN TWIN.
+#
+# WHAT IS BEING PROVED, AND WHAT WOULD NOT HAVE BEEN ENOUGH.  Amendment 19 already proved
+# that `gate_a()` RETURNS `BLOCKED` for each of Section 7's conditions 2-5 (controls
+# C25-C28).  THAT IS NOT THIS.  This drives THE DRIVER'S OWN `section7_launch_screen()`,
+# extracted from run_m6sr_b5.sh's code, against a level planted to fail each clause, and
+# requires that THE SOLVE DOES NOT START -- observed as the ABSENCE of a marker that stands
+# in for the solver invocation.
+#
+# THE NEGATIVE TWIN IS WHAT MAKES THE POSITIVES MEAN ANYTHING (standing rule 3).  An absent
+# marker proves nothing unless the same harness has been shown able to PRODUCE one, so a
+# CLEAN level is driven through the identical path and MUST reach the marker.  A screen
+# wired to refuse unconditionally would pass all four mutants and fail here.
+#
+# THE MARKER IS A STAND-IN AND IS LABELLED AS ONE.  It is not rhoSimpleFoam; no solver runs
+# in this suite.  What makes the stand-in load-bearing is T6f, which asserts on the DRIVER'S
+# OWN comment-stripped code that the screen's invocation sits AFTER B4's checkMesh and
+# BEFORE the real `mpirun ... rhoSimpleFoam` line.  Position in the real file plus behaviour
+# in the harness is the pair; neither alone would do.
+# =======================================================================================
+echo
+echo "=== T6  ITEM 47.  A BLOCKED SECTION 7 SCREEN REFUSES THE SOLVE ON THE LAUNCH PATH ==="
+
+extract_fn section7_launch_screen > "$WORK/s7fn.sh"
+grep -q '^section7_launch_screen(){' "$WORK/s7fn.sh" \
+  || refuse "could not extract section7_launch_screen() from $DRIVER -- an empty extraction would make every T6 limb vacuously green"
+bash -n "$WORK/s7fn.sh" || refuse "the extracted section7_launch_screen() does not parse"
+
+# T6a  THE CONTAINER-CAP CLASS (ITEM 39) CANNOT REACH THIS SCREEN.  Item 39 measured that an
+# outer `timeout` does not bound a CONTAINER, because the client returns while dockerd keeps
+# the container alive outside the timeout's process group.  The bound on this screen is that
+# it starts no container at all, and that is asserted on the extracted TEXT rather than
+# claimed in a comment -- comments are stripped from $CODE for exactly this reason.
+S7_CODE=$(grep -vE '^[[:space:]]*#' "$WORK/s7fn.sh")
+case "$S7_CODE" in
+  *docker*|*run_in_container*)
+    bad "T6a the screen's code mentions docker or run_in_container, so item 39's unbounded-container class reaches it and the 120 s cap is not a cap" ;;
+  *)
+    ok "T6a the screen starts NO CONTAINER (no 'docker', no 'run_in_container' in its extracted code), so it is an ordinary child of this shell's process group and \`timeout -k\` does bound it -- item 39's finding is about containers and does not reach here" ;;
+esac
+case "$S7_CODE" in
+  *"timeout -k 5 120 python3"*)
+    ok "T6a' and it IS capped: the driver's own line is \`timeout -k 5 120 python3\`, with -k so a process ignoring SIGTERM is still killed" ;;
+  *) bad "T6a' the screen's code carries no \`timeout -k 5 120 python3\` cap" ;;
+esac
+case "$S7_CODE" in
+  *"124|137)"*) ok "T6a'' and a capped screen FAILS CLOSED: rc 124/137 is an explicit refusal branch, not a fall-through" ;;
+  *) bad "T6a'' the screen has no 124/137 branch, so a timeout would fall to an unhandled rc" ;;
+esac
+
+# ---- THE FIXTURES.  Built by the COMPARATOR'S OWN registered fixture writer and planted with
+# the COMPARATOR'S OWN registered plant constants, imported from the module.  Re-typing either
+# here would let this suite stay green after the comparator's fixtures or plants changed.
+python3 - "$WORK/s7cases" "$HERE" <<'PYEOF' || refuse "could not build the Section 7 launch-path fixtures"
+import os, sys
+root, here = sys.argv[1], sys.argv[2]
+sys.path.insert(0, here)
+import analyse_m6sr as A
+
+CLEAN_NAMES = [("wing", "wall"), ("inout", "patch"), ("sym", "symmetry")]
+WRONG = [(A.PLANT_S7_WRONG_NAMES[0], "wall"), (A.PLANT_S7_WRONG_NAMES[1], "patch"),
+         (A.PLANT_S7_WRONG_NAMES[2], "symmetry")]
+cm = A._S7_CLEAN_CM
+plants = {
+    "clean": (cm, CLEAN_NAMES),
+    "a10":   (cm.replace("Boundary openness (2.99162e-17 4.31794e-16 -8.22572e-16)",
+                         "Boundary openness (2.99162e-17 %.6e -8.22572e-16)"
+                         % A.PLANT_S7_OPENNESS), CLEAN_NAMES),
+    "a11":   (cm.replace("Number of regions: 1 (OK).",
+                         "Number of regions: %d (OK)." % A.PLANT_S7_N_REGIONS), CLEAN_NAMES),
+    "a12":   (cm.replace("Min volume = 1.17547e-10.",
+                         "Min volume = %.6e." % A.PLANT_S7_MIN_VOLUME), CLEAN_NAMES),
+    "a13":   (cm, WRONG),
+}
+for tag, (text, names) in plants.items():
+    d = os.path.join(root, tag)
+    pm = os.path.join(d, "constant", "polyMesh")
+    os.makedirs(pm, exist_ok=True)
+    A._write(os.path.join(d, "log.checkMesh"), text)
+    A._write(os.path.join(pm, "boundary"),
+             A._s7_boundary_text(names, A.A4_CELLS[1] // A.A6_CELLS_PER_WING_FACE))
+    A._write(os.path.join(pm, "points"), "1\n(\n(0.0 0.0 0.0)\n)\n")
+print("fixtures written under", root)
+PYEOF
+
+# ---- THE DRIVER-SHAPED HARNESS.  The screen, then the line that stands for the solve.  The
+# extracted `abort` exits, so the marker is reached ONLY if the screen returned.
+CASES="$HERE"
+. "$WORK/s7fn.sh"
+drive(){   # $1 = fixture tag, $2 = level id.  -> rc; SOLVER_STARTED iff the solve was reached
+  local d="$WORK/s7cases/$1"
+  rm -f "$d/SOLVER_STARTED" "$d/.abort"
+  ( CASE="$d"; LEVEL="$2"
+    section7_launch_screen "$2" "$d"
+    : > "$d/SOLVER_STARTED"        # STANDS FOR the solver line; no solver runs in this suite
+  ) > "$d/harness.out" 2>&1
+  return $?
+}
+
+# ---- T6b  THE NEGATIVE TWIN, FIRST, because the four positives are worthless without it.
+drive clean L2; T6_CLEAN_RC=$?
+if [ "$T6_CLEAN_RC" = "0" ] && [ -f "$WORK/s7cases/clean/SOLVER_STARTED" ]; then
+  ok "T6b THE CLEAN TWIN STILL REACHES THE SOLVER LINE: the screen returned rc 0 and the marker standing for the solve was written. The four refusals below are therefore refusals of a SPECIFIC defect and not of everything"
+else
+  bad "T6b the clean level did NOT reach the solver line (rc '$T6_CLEAN_RC', marker $( [ -f "$WORK/s7cases/clean/SOLVER_STARTED" ] && echo present || echo ABSENT )). Every T6c limb below is WITHOUT EVIDENTIAL VALUE while this fails: a screen that refuses everything refuses the mutants too"
+fi
+
+# ---- T6c  THE FOUR MUTANTS.  Each must (i) exit 11, (ii) leave NO solver marker, and
+# (iii) name ITS OWN clause with the measured value against the threshold -- not a bare
+# verdict string, which is the specific thing the supervisor's ruling forbids.
+for M in a10:S7_C2_boundary_openness_le_1e-12 \
+         a11:S7_C3_number_of_regions_equals_1 \
+         a12:S7_C4_min_cell_volume_strictly_positive \
+         a13:S7_C5_patch_names_match_the_registered_per_level_set; do
+  TAG=${M%%:*}; CLAUSE=${M#*:}
+  drive "$TAG" L2; RC=$?
+  D="$WORK/s7cases/$TAG"
+  MARK=$( [ -f "$D/SOLVER_STARTED" ] && echo PRESENT || echo ABSENT )
+  MSG=$(cat "$D/.abort" 2>/dev/null)
+  NAMED=no
+  case "$MSG" in *"$CLAUSE"*) NAMED=yes ;; esac
+  # THE VALUE-AGAINST-THRESHOLD REQUIREMENT.  A13 is a NAME set, so it names both sets rather
+  # than a value and a threshold; the other three must carry both.
+  QUANT=no
+  case "$TAG" in
+    a13) case "$MSG" in *"expected="*) case "$MSG" in *"actual="*) QUANT=yes ;; esac ;; esac ;;
+    *)   case "$MSG" in *"value="*) case "$MSG" in *"threshold="*|*"test="*|*"required="*) QUANT=yes ;; esac ;; esac ;;
+  esac
+  if [ "$RC" = "11" ] && [ "$MARK" = "ABSENT" ] && [ "$NAMED" = "yes" ] && [ "$QUANT" = "yes" ]; then
+    ok "T6c/$TAG THE SOLVE DID NOT START: exit 11, no solver marker, and the refusal NAMES $CLAUSE with its measured value against its threshold"
+  else
+    bad "T6c/$TAG expected exit 11 with no solver marker and a message naming $CLAUSE quantitatively; got rc '$RC', marker $MARK, clause named=$NAMED, value-vs-threshold=$QUANT. Message: ${MSG:-<none>}"
+  fi
+done
+
+# ---- T6d  A REFUSAL IS A REFUSAL AND IS NOT CONVERTED INTO `BLOCKED`.  An unregistered level
+# is a statement about THE DOCUMENT, not about any mesh, and it must stop the launch under its
+# OWN code.  Driven on the CLEAN fixture, so the only thing that differs is the level id.
+drive clean L0_NOT_A_REGISTERED_LEVEL; T6D_RC=$?
+T6D_MSG=$(cat "$WORK/s7cases/clean/.abort" 2>/dev/null)
+T6D_MARK=$( [ -f "$WORK/s7cases/clean/SOLVER_STARTED" ] && echo PRESENT || echo ABSENT )
+case "$T6D_MSG" in *"REFUSAL IS NOT A 'BLOCKED'"*) T6D_NAMED=yes ;; *) T6D_NAMED=no ;; esac
+{ [ "$T6D_RC" = "12" ] && [ "$T6D_MARK" = "ABSENT" ] && [ "$T6D_NAMED" = "yes" ]; } \
+  && ok "T6d an UNREGISTERED level stops the launch at exit 12 -- a DIFFERENT code from BLOCKED's 11 -- and the message says in terms that a refusal is not a BLOCKED. The solve did not start" \
+  || bad "T6d expected exit 12, no solver marker and a refusal message; got rc '$T6D_RC', marker $T6D_MARK, named=$T6D_NAMED"
+rm -f "$WORK/s7cases/clean/SOLVER_STARTED"
+
+# ---- T6e  AND THE CLEAN TWIN AGAIN AFTER THE MUTANTS, on the SAME harness, so the four
+# refusals cannot be an artifact of the harness degrading as it goes.
+drive clean L2; T6E_RC=$?
+{ [ "$T6E_RC" = "0" ] && [ -f "$WORK/s7cases/clean/SOLVER_STARTED" ]; } \
+  && ok "T6e the clean twin STILL reaches the solver line after all five refusals -- the harness did not simply stop working" \
+  || bad "T6e the clean twin no longer reaches the solver line (rc '$T6E_RC') -- the refusals above may be harness decay, not screening"
+
+# ---- T6f  THE STEP ORDER, ASSERTED ON THE DRIVER'S OWN COMMENT-STRIPPED CODE.  This is what
+# makes T6b/T6e's marker a stand-in for the SOLVE and not merely for the next line of a test.
+S7_CALL_LN=$(grep -n '^section7_launch_screen "\$LEVEL" "\$CASE"' "$CODE" | cut -d: -f1)
+CHECKMESH_LN=$(grep -n 'run_in_container checkMesh' "$CODE" | cut -d: -f1)
+# THE CODE CARRIES MORE THAN ONE `mpirun ... rhoSimpleFoam` LINE, so the EARLIEST is taken --
+# the strictest reading, and the only one that means "before ANY solver invocation".  A
+# `tail -1` here would have compared against the LAST one and passed a screen sitting between
+# two solver lines.  The count is reported so a reader is not left guessing which was used.
+SOLVER_ALL=$(grep -n 'mpirun -np \$RANKS rhoSimpleFoam' "$CODE" | cut -d: -f1 | sort -n)
+SOLVER_N=$(printf '%s\n' "$SOLVER_ALL" | grep -c '[0-9]')
+SOLVER_LN=$(printf '%s\n' "$SOLVER_ALL" | head -1)
+if [ -z "$S7_CALL_LN" ] || [ -z "$CHECKMESH_LN" ] || [ -z "$SOLVER_LN" ]; then
+  bad "T6f could not locate all three of the screen call ('${S7_CALL_LN:-none}'), B4's checkMesh ('${CHECKMESH_LN:-none}') and the solver line ('${SOLVER_LN:-none}') in the driver's code"
+elif [ "$CHECKMESH_LN" -lt "$S7_CALL_LN" ] && [ "$S7_CALL_LN" -lt "$SOLVER_LN" ]; then
+  ok "T6f THE SCREEN SITS BETWEEN THEM IN THE DRIVER'S OWN CODE: checkMesh at code line $CHECKMESH_LN < the screen at $S7_CALL_LN < the EARLIEST of $SOLVER_N \`mpirun ... rhoSimpleFoam\` lines, at $SOLVER_LN. Section 7 is read from checkMesh output, so it CANNOT run earlier, and it refuses before a core-minute of solve is spent"
+else
+  bad "T6f the ordering is wrong: checkMesh $CHECKMESH_LN, screen $S7_CALL_LN, solver $SOLVER_LN"
+fi
+
+# ---- T6g  AND THE SCREEN IS ACTUALLY CALLED, exactly once, at top level.
+S7_CALLS=$(grep -c '^section7_launch_screen "\$LEVEL" "\$CASE"' "$CODE")
+[ "$S7_CALLS" = "1" ] \
+  && ok "T6g the driver's code calls the screen exactly once at top level -- item 47 was a screen that existed and was never invoked, so 'defined' is not the test" \
+  || bad "T6g expected exactly one top-level call to section7_launch_screen, found $S7_CALLS"
+
+if [ "$MODE" = "section7-only" ]; then
+  echo
+  echo "SECTION-7-ONLY MODE.  NOT RUN, AND NAMED RATHER THAN SILENTLY SKIPPED:"
+  echo "  T1  the container known-positive plant (items 28/30)      -- REQUIRES A CONTAINER"
+  echo "  T2  the bare-branch argv defect (item 28)                 -- REQUIRES A CONTAINER"
+  echo "  T3  the case-permission halves (item 30)                  -- REQUIRES A CONTAINER"
+  echo "  T4  the missing-controlDict chain (item 31)               -- REQUIRES A CONTAINER"
+  echo "  T5  the graded-artifact head corruption (item 32/34)      -- REQUIRES A CONTAINER"
+  echo "THIS MODE REPORTS NOTHING ABOUT THOSE FIVE. A pass here is a pass for T0 and T6 ONLY."
+  echo
+  echo "checks passed: $PASS   FAILED: $FAIL"
+  [ "$FAIL" -eq 0 ] || exit 1
+  exit 0
+fi
 
 # ---------------------------------------------------------------------------------------
 # 2.  CASE BUILDERS.
