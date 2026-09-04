@@ -1,0 +1,175 @@
+==============================================================================
+K0eR3 -- forced-convection flat plate, campaign F14 cooling ladder
+prereg (AS GIVEN, not hard-coded): docs/campaigns/F14-cooling-ladder/K0eR3_PREREGISTRATION.md
+this file's GIT BLOB SHA-1 (sha1 of b'blob <len>\0' + content): 6d7b4d2c0825771a87edfda0cc9ba0279569ed1d
+==============================================================================
+
+--- D0  DETERMINISM TWIN (refusal gate, armed BEFORE the arms) ---
+  Two invocations of the SAME case at 200 iterations.  A non-zero
+  M4b arising from solver nondeterminism would be a FALSE GATE FAIL,
+  and this finds it for ~7 core-min instead of ~190.
+  D0_A: DONE
+      clause 1: PASS rc=0
+      clause 2: PASS exactly one End line
+      clause 3: PASS last time == endTime 200
+      clause 4: PASS all of T U p_rgh alphat nut k omega
+      clause 5: PASS ExecutionTime count == 200
+      clause 6: PASS compared 7 field(s), every one newer than 0/T
+  D0_B: DONE
+      clause 1: PASS rc=0
+      clause 2: PASS exactly one End line
+      clause 3: PASS last time == endTime 200
+      clause 4: PASS all of T U p_rgh alphat nut k omega
+      clause 5: PASS ExecutionTime count == 200
+      clause 6: PASS compared 7 field(s), every one newer than 0/T
+  cells compared             52224 x 3 components
+  components at non-zero ULP 0
+  worst ULP distance         0
+  D0       PASS  (0 ULP)
+
+--- P7  THE PREMISE (blocking refusal, not an expectation) ---
+  files compared over ['0', 'constant', 'system']: 23
+  differing files            1  (0/T)
+  differing lines            1  at 1-based 39  (registration records 39)
+  plate T_wall               FP_T10 310.0  FP_T290 290.0
+  P7       PASS
+
+--- STRICT COMPLETION RULE (standing rule 4, all-or-nothing) ---
+age-guard datum: <case>/0/T.  K0eR3 is SINGLE-REGION (one mesh, one
+case, no regions), so 0/T is the correct dating file, and
+launch_k0e.sh touches it LAST, immediately before the solver.
+Clause 6 PRINTS the number of fields it compared; a comparison over
+ZERO fields reports VACUOUS and is NOT a pass.
+  FP_T10: DONE
+      clause 1: PASS rc=0
+      clause 2: PASS exactly one End line
+      clause 3: PASS last time == endTime 9000
+      clause 4: PASS all of T U p_rgh alphat nut k omega
+      clause 5: PASS ExecutionTime count == 9000
+      clause 6: PASS compared 7 field(s), every one newer than 0/T
+  FP_T290: DONE
+      clause 1: PASS rc=0
+      clause 2: PASS exactly one End line
+      clause 3: PASS last time == endTime 9000
+      clause 4: PASS all of T U p_rgh alphat nut k omega
+      clause 5: PASS ExecutionTime count == 9000
+      clause 6: PASS compared 7 field(s), every one newer than 0/T
+
+--- P1 P2 P3  PLANTED CONTROLS ON THE ULP READERS (rule 3) ---
+  P1 scalar plant 0.001234 K  -> read back 0.001234 at line 23   SEEN
+  P2 VECTOR plant 0.001234 m/s (x) -> read back 0.001234 at line 23   SEEN
+  P3 negative control 0.0 -> read back 0.0   DID NOT FIRE
+  live background: T 300.0  U (0.9999993635, 5.913965652e-11, 0.0)
+
+--- Z1 Z2 Z3  THE ZERO-FLUX CONTROL, RE-HOMED (rule 3, K0eR3 5.1 C2)
+  Job B at ZERO SOLVER COMPUTE.  K0eR2 projected ~2696 core-min to
+  produce a field whose exact value is known a priori; this
+  constructs it and runs the SAME production wall-flux reader.
+  Z1 constructed exact uniform 300.0 K over 52224 cells; plate value line 1-based 52273
+     plate faces read           208
+     faces at non-zero flux     0   (threshold 0 ULP against 0.0, and there is NO tolerance constant)
+  Z2 positive plant 0.001234 K into cell 12288, the owner of plate face 0 (x = 0.0002221885509), line 12311
+     wall-flux reader moved to  -0.0010242198761604814 K m/s   SEEN
+  Z3 plant 0.001234 K into INTERIOR cell 0 (owns no plate face), line 23
+     plate reader over 208 faces   DID NOT FIRE
+  Z1       PASS  (0 ULP against 0.0 on all 208 faces)
+
+--- M4b  SAME-SOLVER NEUTRALISATION CONTROL, THE GATED ROW ---
+  FP_T10 (plate 310 K, dT = +10) vs FP_T290 (plate 290 K,
+  dT = -10): the SAME binary and the SAME discrete operators,
+  differing ONLY in the wall temperature (P7 above proves it).  The
+  only T-to-U route in v2606 is rhok = 1 - beta*(T - TRef), which is
+  LINEAR and therefore ODD, so this pair drives any leak at TWICE
+  the amplitude of K0eR2's (0, +10) pair and with opposite sign.
+  threshold: 0 ULP, every component of every cell, processor-local.
+  There is no tolerance constant in this comparator.
+  BLIND SPOT B1: a leak EVEN in (T - TRef) cancels exactly in this
+  difference and is NOT detected.  Registered, not discovered.
+  cells compared             52224 x 3 components
+  components at non-zero ULP 0
+  worst ULP distance         0
+  M4b PASS
+
+--- M4  CROSS-SOLVER, REPORTED AND NOT GATED ---
+  simpleFoam/UEqn.H solves UEqn == -fvc::grad(p) while
+  buoyantBoussinesqSimpleFoam solves UEqn == fvc::reconstruct(...).
+  Those are DIFFERENT DISCRETE OPERATORS and they differ
+  INDEPENDENTLY of beta and g, so a non-zero M4 conflates 'beta/g
+  leaked' with 'the operators are not identical'.  A row that cannot
+  answer its own question is not gated.
+  worst ULP distance         216639507   REPORTED
+
+--- D2  CROSS-EPOCH, REPORTED AND NOT GATED ---
+  worst ULP distance         0   REPORTED
+  A non-zero here CANNOT separate solver nondeterminism from a
+  change in the box between 2026-09-03 and now, so it is not
+  gated.  It is why both arms were run FRESH.
+
+--- M1  STANTON vs eq. (1)   REPORTED, NO BAND (K0eR3 section 3) ---
+  FP_T10  (T_wall 310.0 K, dT +10.0 K)
+    Re_x 1.000e+06  actual 1.00517e+06  St 2.063363e-03  eq1 2.111760e-03  dev   -2.292 %
+    Re_x 2.000e+06  actual 2.00567e+06  St 1.847912e-03  eq1 1.839248e-03  dev   +0.471 %
+    Re_x 3.000e+06  actual 2.97299e+06  St 1.739464e-03  eq1 1.700018e-03  dev   +2.320 %
+    Re_x 5.000e+06  actual 5.02523e+06  St 1.607926e-03  eq1 1.530597e-03  dev   +5.052 %
+    Re_x 7.000e+06  actual 7.05503e+06  St 1.531325e-03  eq1 1.430186e-03  dev   +7.072 %
+    Re_x 1.000e+07  actual 9.88891e+06  St 1.457057e-03  eq1 1.336788e-03  dev   +8.997 %
+  FP_T290  (T_wall 290.0 K, dT -10.0 K)
+    Re_x 1.000e+06  actual 1.00517e+06  St 2.063363e-03  eq1 2.168853e-03  dev   -4.864 %
+    Re_x 2.000e+06  actual 2.00567e+06  St 1.847912e-03  eq1 1.888973e-03  dev   -2.174 %
+    Re_x 3.000e+06  actual 2.97299e+06  St 1.739464e-03  eq1 1.745979e-03  dev   -0.373 %
+    Re_x 5.000e+06  actual 5.02523e+06  St 1.607926e-03  eq1 1.571978e-03  dev   +2.287 %
+    Re_x 7.000e+06  actual 7.05503e+06  St 1.531325e-03  eq1 1.468851e-03  dev   +4.253 %
+    Re_x 1.000e+07  actual 9.88891e+06  St 1.457057e-03  eq1 1.372929e-03  dev   +6.128 %
+  stations returned NOT A RESULT on an undefined St: 0
+
+--- M1b  St(FP_T290) vs St(FP_T10) AT MATCHED Re_x   REPORTED ---
+  The constant-property Boussinesq energy equation is EXACTLY LINEAR
+  in (T - TRef) and at beta = 0 the momentum field is independent of
+  T, so q scales linearly with dT and St is INDEPENDENT of dT and of
+  its sign.  Eq. (1) instead predicts the cooled arm at 1.027036x the
+  heated.  This row is impossible under K0eR2's design, whose control
+  arm had no Stanton number at all.
+    Re_x 1.000e+06   St290 2.063363e-03  St310 2.063363e-03  |rel| 0.000e+00
+    Re_x 2.000e+06   St290 1.847912e-03  St310 1.847912e-03  |rel| 0.000e+00
+    Re_x 3.000e+06   St290 1.739464e-03  St310 1.739464e-03  |rel| 0.000e+00
+    Re_x 5.000e+06   St290 1.607926e-03  St310 1.607926e-03  |rel| 0.000e+00
+    Re_x 7.000e+06   St290 1.531325e-03  St310 1.531325e-03  |rel| 0.000e+00
+    Re_x 1.000e+07   St290 1.457057e-03  St310 1.457057e-03  |rel| 0.000e+00
+  stations returned NOT A RESULT: 0
+
+--- M2  Cf   REPORTED (control) ---
+    Re_x 1.000e+06   Cf 3.430407e-03
+    Re_x 2.000e+06   Cf 3.077291e-03
+    Re_x 3.000e+06   Cf 2.898975e-03
+    Re_x 5.000e+06   Cf 2.683021e-03
+    Re_x 7.000e+06   Cf 2.555255e-03
+    Re_x 1.000e+07   Cf 2.432247e-03
+
+--- M3  Prt_eff = nut/alphat   REPORTED, A CONVERGENCE DIAGNOSTIC ---
+    FP_T10   cells 52224  EXCLUDED (alphat == 0) 0  min 0.849950  max 0.850001  max|dev from 0.85| 4.957e-05  exactly 0.85 in 816 cells
+    FP_T290   cells 52224  EXCLUDED (alphat == 0) 0  min 0.849950  max 0.850001  max|dev from 0.85| 4.957e-05  exactly 0.85 in 816 cells
+
+--- M5  THERMAL BL   REPORTED ---
+    FP_T10   x 0.594598  column cells 192  delta_T_99 0.008869112008
+    FP_T290   x 0.594598  column cells 192  delta_T_99 0.008869112008
+
+--- STANDING RULE 5 (Roache triple gating) ---
+  NO TRIPLE IS FORMED.  K0eR3 runs two arms on ONE mesh
+  (52224 cells).  Rule 5 does not engage, NO GCI is
+  computed and none is printed.  EVERY NUMBER ABOVE CARRIES NO
+  DISCRETISATION BOUND AT ALL.
+
+==============================================================================
+RUNG K0eR3 PASS  on M4b (0 ULP) and Z1 (0 flux, 0 ULP).  The
+           momentum field is bit-identical between a plate 20 K
+           apart in wall temperature, so beta and g ARE
+           neutralised against an odd-mode perturbation, and a
+           Stanton error on this rung is attributable to the
+           thermal closure alone.  IT IS NOT A VALIDATION OF
+           THAT CLOSURE -- see the registration section 2.1.3 on
+           circularity -- and no band is armed on the
+           correlation, so no GATE FAIL was reachable there.
+           BLIND SPOTS B1..B7 of section 5.4 stand undischarged.
+           M4 (cross-solver) reads 216639507 ULP, REPORTED.
+           D2 (cross-epoch) reads 0 ULP, REPORTED.
+==============================================================================

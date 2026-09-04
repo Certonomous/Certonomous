@@ -1,0 +1,1 @@
+rc=0 wall=2129 checkMesh_rc=na timeout_s=14250 ranks=2 solver=buoyantBoussinesqSimpleFoam solver_path=/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/buoyantBoussinesqSimpleFoam case=FP_T10 arm=FP_T10 note=clean endTime=9000 reconstruct_rc=0 cellcentres_rc=0 started_utc=2026-09-04T01:54:27Z ended_utc=2026-09-04T02:29:57Z
