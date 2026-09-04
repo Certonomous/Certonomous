@@ -1430,6 +1430,26 @@ Updates d09a4e28's "origin of the day's 52/69 UNVERIFIED". Settled by cfd's comm
 
 ## closure
 
+**SCHEMA v1.0 FROZEN, 2026-09-04T~19:3xZ — `docs/closure/correction_library/SCHEMA.md`.**
+Zero compute; freezing a schema is not a run. The contract a checker and a lane can both be held
+to, separated from `ARCHITECTURE.md`'s reasoning on purpose. **The two clauses that carry the
+design:** (1) **`provenance.title_page_verified: yes` REQUIRES a non-empty `title_page_quote`**,
+and **`status: REGISTERED` requires that `yes`** — *capability without provenance is not an entry*,
+which bites immediately because `ShihQuadraticKE` and `LienCubicKE` are installable on this box
+TODAY and we do not hold their defining papers; (2) **`libs_route` is governed by `failure_mode`,
+not convenience** — `silent` permits `ensure_libs` ONLY, because a correction that fails to load
+silently returns the unperturbed field, *which looks like a plausible physical answer* (L-221's
+measured cost: five re-solves at `it=0` and baseline `U_rms`). §7 makes the three structural
+exclusions machine-refusable; §8 fixes the exhaustion claim to a pinned manifest sha with every
+excluded flow-class match named. **The `yes`-with-no-evidence violation is not hypothetical — it
+is the defect I found in this corpus's OWN manifest today** (Addendum 3 said *title page below*
+with nothing below), so the schema forbids by construction what the manifest did by accident.
+**LANE OUT (1):** the checker `_common/build_correction_library.py` with PLANTED-NEGATIVE selftest
+arms (every rule mutated must REFUSE — a checker that cannot be shown to fail is not evidence),
+plus four Phase-1 `REGISTERED` entries (SST-QCRC, SpaRTA, GPSR, TBRF) whose title pages the lane
+reads itself. **I read the checker as a DIFF before any of it is believed (check 1), and I
+re-verify provenance myself — a relayed verification is exactly what Addendum 3 got wrong.**
+
 **⚠ SESSION-END CORRECTION, 2026-09-04T~16:2xZ — I CLOBBERED DAFOAM AND REPAIRED IT.**
 Commit `4f53b759` **destroyed 33 non-blank lines of dafoam's S-58 block** (their section 9988 →
 9929), including the live rule-4 defect they had just escalated. **L-223, recommitted by me ONE
