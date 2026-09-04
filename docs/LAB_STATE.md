@@ -25976,6 +25976,31 @@ Wiring the guard into ten sites turned up **a second defect shape that was not t
 4 paths, 682 insertions, **file deletions 0**. **I ran the controls rather than reading the report:** `--selftest` **GREEN**; `--mutation-control` **HELD, RED at rc 1**, naming *"the endTime fields survived"* and *"the coefficient series survived"* **for all three drivers** — the fixtures are genuinely destroyed without the guard. rc **0 under `python3` and `-O`**. **By AST parse across all four files: 0 bare asserts and 0 surviving raw `rmtree` calls.** **All ten reported line numbers were exactly right** (GEN_ALT 58/114/156/165, FPE 93/168/186/227, B52 88/201) — ⚠ **the first line-number relay tonight that survived checking.**
 
 
+<!-- BOARD-BLOCK-ID: 57C-h3-splits-and-the-force-is-not-approaching-anything -->
+
+### 🔴🔴 **H3 SPLITS, AND THE SPLIT IS THE FINDING: THE MASS FLOW HAS SETTLED AND THE DUCT FORCE IS NOT APPROACHING ANYTHING AT ALL**
+
+F28G's superseding item 1 is discharged at **zero solver compute** (`b209c4f6`, `0e8a3d41`). **It did not return a yes or a no, and that is worth more than either.**
+
+✅ **`diskFlow` — the series §6.2 actually NAMES — is SETTLED.** τ = **1,785 iterations**, asymptote **A = +2.15781110e-02**, fit rms 4.687e-05 over 14,796 rows. **8.29 time constants elapsed**; residual transient **1.527e-05 of |A|, 65× inside the 1e-03 threshold**; the last value sits 2.54e-05 below the asymptote — **0.54× the fit rms.** **H3's "the mass flow is still drifting" is REFUTED on its own named quantity.**
+
+🔴 **BUT `forcesDuct total_x` — §6.2's own cited SUPPORT for H3 — HAS NO IDENTIFIABLE ASYMPTOTE.** §6.2's block means reproduce exactly (−0.278742 → −0.320216 against the quoted −0.27874 → −0.32022), **and then the exponential model FAILS**: the asymptote spreads **8.5 %** under end-truncation against a 1 % tolerance, walking monotonically −0.3111 → −0.3286 as data is appended while τ grows 4,065 → 5,721; **τ also grows monotonically with window start (4,868 → 7,970 → 14,750 → 28,210) — the power-law tell.** Its tail drifts **−3.6995e-06/iteration at 132.6σ** (Newey–West) = **−17.97 % per further run length**, and **the residual about a STRAIGHT LINE is nearly white** (τ_int 1.0, n_eff 7,500). ⚠ **Over iterations 7,500–15,000 that force is drifting essentially LINEARLY, WITH NO CURVATURE AT ALL.**
+
+⚠ **Why this beats a yes/no: a decay with a quotable asymptote at least tells you how far off you are. This one does not.** **So `H1`, `H4` and `H5` must now explain a force drift that is not an exponential approach to ANYTHING, on a run whose mass flow HAS settled.** `diskPlaneUp` −1.36 %/run-length at 3.48σ, `diskPlaneDown` −8.43 % at 2.98σ, `forcesHub` +5.61 % at 33.9σ — **all EXPONENTIAL MODEL NOT SUPPORTED.** ✅ **The rung is untouched: `F28G_L1_dp1000_U20` stands `NOT A RESULT`.**
+
+✅ **AND THE ZERO IS LICENSED, PROPERLY.** 12 plants + 1 mutation, **written to disk in the real `surfaceFieldValue.dat` layout and read back through the same loader.** **`C-P2b` measures the DETECTION FLOOR on this run's own correlated noise — 1.00e-04, 0.4636 % of the level — so a further transient at or above that WOULD have been seen.** ⚠ **Four instrument defects its own controls caught, all disclosed: planting onto the raw series planted a SECOND exponential (a τ=1200 plant on a τ=2075 series returned 2579 — the CONTROL was wrong, not the fitter); fitting from iteration 1 fit the STARTUP (τ=24.97); and screening on |B| kept exactly the degenerate fits the floor exists to drop. It also self-caught a wrong figure in its own commit message and landed a correction rather than leaving it.**
+
+### ⚠ **1.3292 IS SOURCED. MY "NO REPRODUCIBLE PROVENANCE" WAS WRONG — MY SWEEP WAS INCOMPLETE, NOT THE ANCHOR UNSOURCEABLE**
+
+It is the **trapezoid time-weighted RAW rms of `Cl` about ZERO** on t ≥ 45. Independent recomputation **1.329197** (−0.0002 %); the comparator's census **1.329177**. ⚠ **My 1.337205 is the `about=mean, weighting=sample` cell — a real statistic, correctly computed, simply a DIFFERENT one.** **Fifteenth instance, and the same family as the rest: a negative only as wide as its search.** ✅ **No anchor was moved and I withheld the freeze on a premise that was mine.**
+
+🔴 **AND SOURCING IT EXPOSED SOMETHING BIGGER THAN WHAT I RAISED: §4b's four numbers use THREE DIFFERENT DEFINITIONS** — Re 1000 mean/sample, Re 2000 zero/sample, both Re 3900 zero/time, each matching *something* to 0.003 %. ***"G1 is a trend gate, and a trend across three statistics is not a trend."*** §10 now registers **`about=zero, weighting=time`** uniformly, restates the series **0.964543 / 1.181602 / 1.329177**, and re-derives the discriminator **1.658 → 1.6601, +0.13 % — by arithmetic alone. Cd 1.6668 and −Cpb 2.1309 unaffected. NO GATE WIDENED.**
+
+### THE LAST F5a BLOCKER IS A REGISTRATION DEFECT, NOT AN INSTRUMENT ONE
+
+**The `Cl_rms` comparator refuses correctly** (rc 2 without `--about`/`--weighting`; `--selftest` rc 0, 16 controls, two mutation-reds) — **but it is UNTRACKED, and rule 2 requires the grading path pinned by blob sha at the pre-registration commit.** ✅ **The lane REFUSED to stage another lane's file and noted the blob for dispatch** — correct, and dispatched now with the instruction to **verify the blob at commit time and stop if it differs**, because a changed instrument between the note and the commit is exactly what pinning exists to catch.
+✅ **And it RAN the guard rather than reasoning about it:** `solve_evidence_guard.py` on all seven candidate targets refuses on both completed out-of-git rungs (3 evidence items each), reports safe on the mesh-only `re10000`, and the git mirrors hold no physics at any depth — **the non-recursion defect does NOT bite on F5a.** ⚠ **§5e's load figure is stale in both directions; the outage is independently confirmed at 7 h 05 m 03 s, and the rank count now needs a load reading taken AT LAUNCH rather than from a stale number.**
+
 <!-- BOARD-BLOCK-ID: 57B-m6f-registered-and-the-freeze-lesson-applied -->
 
 ### ✅ THE THIRD-DIRECTION FAMILY IS REGISTERED — `M6F`, AND **1.66 CORE-MINUTES BUYS THE ANSWER TO ALL THREE OPEN QUESTIONS BEFORE A SOLVE CORE-MINUTE IS SPENT**
