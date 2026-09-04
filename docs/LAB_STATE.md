@@ -5318,11 +5318,46 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-04T22:36:42Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-72` — **my check 4 caught the dead-lever cap and then got the MARGIN BACKWARDS: I published `W=3000` as 24 s INSIDE the bound when it is 236 s OUTSIDE it, having normalised a residual the wrong way. And narrowing the window would have silently made the item's falsifier ONE-SIDED.** Before it, `S-71`, `S-70`, `S-69`, `S-68`, `S-67`…`S-29`.
+**Section last written:** 2026-09-04T22:38:04Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-73` — **I invented a discrepancy that never existed and then EXPLAINED it: the lane said 2619, I boarded "the lane said 2620, a rounding step." And a lane declined half a finding's credit and handed the framing back to me.** Before it, `S-72`, `S-71`, `S-70`, `S-69`, `S-68`…`S-29`.
 
 **Section last written:** 2026-09-04T01:08:43Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-48` — **`W3` IS NOT RUNNING AND HAS NOT BEEN SINCE 21:57:49Z; IT REACHED ITS REGISTERED TERMINUS, AND THE REGISTERED FALLBACK DOES NOT RESCUE IT.** `S-47`'s and `S-46`'s *"`W3_chain_r2` running"* lines are **STRUCK BY QUOTE** below — they were true when written and were still being relayed three hours after they stopped being true. Before it, `S-47` — **DESK ITEMS CLOSED**: the **rule-10 hole is fixed in the constitution itself** on Sanaa's GO (`0ee2e7df`, verified by me at HEAD, not taken on relay), and the rule-12 estimate gap is **routed to verification** as a forward-only note. `S-46`'s "on Sanaa's desk" line is **struck by quote** so no successor re-escalates a closed item. **Nothing now on her desk from this family** but the four `NOT FILED` upstream defect classes and FD-vs-adjoint as a fourth `V` instrument. Before it, `S-46` (closing state), `S-45`, `S-44`, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+##### UPDATE S-73 — **⚠ I INVENTED A DISCREPANCY THAT NEVER EXISTED AND THEN EXPLAINED IT. THE LANE SAID **2619**; I BOARDED "THE LANE SAID 2620, A ROUNDING STEP." AND A LANE DECLINED HALF A FINDING'S CREDIT AND HANDED THE FRAMING BACK TO ME** (2026-09-04, `date -u` stamp in the committing invocation)
+
+###### 1. STRUCK BY QUOTE — MINE, AND IT IS A FABRICATION WITH AN EXPLANATION ATTACHED
+
+~~*"the lane said 2620, a rounding step, not a disagreement"*~~ (`S-72` §1)
+
+**Verified at the artefact: `W3S_PREREGISTRATION_DRAFT.md:604` reads `10 % of the bound → 2,619`, and the lane's message said 2619. My own solver printed 2619. We computed the same number to the digit.**
+
+**There was no rounding step, no disagreement, and nothing to explain.** I misread one digit in a relay, **and then attached a diagnosis to it** — *"a rounding step, not a disagreement"* — which made the invented difference look examined rather than imagined.
+
+> **A fabricated micro-fact is bad. A fabricated micro-fact WITH A CAUSAL EXPLANATION is worse, because the explanation is what stops the next reader checking it.** *I have spent this session cataloguing readers that report what they were looking for; this is the same defect in a relay, and the explanation is the part that would have aged into the record as fact.*
+
+**It cost nothing to correct and it was caught only because the lane read its own number back.** *The correction runs from a lane to its supervisor about a digit nobody would ever have queried — which is the only reason it survives at all.*
+
+###### 2. A LANE DECLINED CREDIT I GAVE IT, AND THE SPLIT IT PROPOSES IS CORRECT
+
+I called the `U35` falsifier-reachability catch *"the part I rate highest."* **The lane declined half of it, unprompted:**
+
+> *"What I did was mechanical: I swept the literals that move with the window and computed `0.80 × 2600 = 2080 > 2048.61` in the same edit as the `LEGS` change, before running anything. **What I did not do is write down why it mattered.**"*
+
+**The honest split, which I adopt: the lane made the correct change for the correct arithmetic reason. The CLASS — *narrowing a window silently converts a two-sided falsifier into a one-sided one; a gate that cannot fail, arriving as a side effect of a cap repair* — is MY framing, and it is not in the lane's commit message.**
+
+**Both halves are real and neither is the other.** The change without the framing is a literal swept correctly; the framing without the change is an observation about somebody else's near-miss. *`S-72` gave the lane both and it handed one back.*
+
+> **⚠ AND THE DIRECTION IS THE WHOLE POINT: a claim that grows as it is relayed upward is the failure §18.6 names, and this family has watched it happen — a false clause inside a line labelled `MEASURED` travelled through this supervisor to the chief on 2026-09-03. Here the SAME channel ran in reverse, under nobody's instruction, on a finding the lane could simply have kept.**
+
+**It is the cheapest possible integrity test — a small credit, no observer, no cost to accepting it — and it was passed by the party who stood to gain.**
+
+###### 3. WHAT IS UNCHANGED
+
+**`W_A2 = 2600`, `CAP_A2 = 115.0`, `ITEM_CEILING = 290.0` all stand**, as does my check-4 error at the centre of `S-72`: **`W=3000` is 236 s OUTSIDE the bound, not 24 s inside, and I published the wrong direction.** The `U35` arithmetic stands. **Neither correction here touches a gate, a threshold, a cap or a verdict** — one is a digit in a relay, the other an attribution.
+
+`W3S` is at `c3f8faed`, `LAUNCH_ENABLED=0`, `PREREG_COMMIT` empty, chain aborting `rc=70 NOT_FROZEN`. **The freeze commit and its §2b run-root condition, in its own invocation, are mine and untouched.** **No leg body has ever executed** — carried into the freeze banner unqualified: **a fixture proves the contract; it does not prove the solver.**
+
+
 ##### UPDATE S-72 — **⚠⚠ MY CHECK 4 CAUGHT THE DEAD-LEVER CAP AND THEN GOT THE MARGIN **BACKWARDS**: I REPORTED `W=3000` AS **24 s INSIDE** THE BOUND WHEN IT IS **236 s OUTSIDE** IT. I NORMALISED A RESIDUAL THE WRONG WAY. AND NARROWING THE WINDOW WOULD HAVE SILENTLY MADE THE ITEM'S FALSIFIER ONE-SIDED** (2026-09-04, `date -u` stamp in the committing invocation)
 
 ###### 1. ⚠⚠ THE WORST FAILURE MODE A CHECK 4 HAS
