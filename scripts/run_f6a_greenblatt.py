@@ -19,6 +19,7 @@ Exit codes
   0 ran and graded        3 ss9.2 a registered run directory already EXISTS
   2 comparator REFUSAL    4 GATE M FAIL -> BLOCKED, no solver process started
   5 ss6.3 smoke test abort   6 pin/config assertion failure   7 cap timeout fired
+  8 solve evidence at the ss6.3 smoke re-stage target -> FATAL, nothing deleted
 """
 import argparse
 import json
@@ -33,6 +34,71 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import f6a_greenblatt_gate as G   # noqa: E402
 
 REPO = G.REPO
+
+# ---- SOLVE-EVIDENCE GUARD (shared; scripts/solve_evidence_guard.py) --------
+# ss6.3's smoke directory is `<--scratch>/f6a_smoke` and `--scratch` is
+# OPERATOR-SUPPLIED. Before this block the site was an unconditional
+# `shutil.rmtree(smoke)`, so the blast radius was whatever the operator typed.
+#
+# SINGLE REGISTRATION IS LOAD-BEARING, not tidiness. Two module objects for one
+# file give two DISTINCT `SolveEvidencePresent` classes, and a caller's `except`
+# then silently misses the refusal raised by the other copy -- the guard would
+# still be "wired" and would still not stop anything.
+_GUARD_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                           "solve_evidence_guard.py")
+if not os.path.isfile(_GUARD_PATH):
+    raise RuntimeError(
+        "solve-evidence guard not found at %s; refusing to run. This launcher "
+        "deletes a directory built from an operator-supplied path, and without "
+        "the guard that delete is unconditional -- see the guard's docstring "
+        "for the rung that paid for it." % _GUARD_PATH)
+import importlib.util as _ilu   # noqa: E402
+if "solve_evidence_guard" in sys.modules:
+    solve_evidence_guard = sys.modules["solve_evidence_guard"]
+else:
+    _spec = _ilu.spec_from_file_location("solve_evidence_guard", _GUARD_PATH)
+    solve_evidence_guard = _ilu.module_from_spec(_spec)
+    sys.modules["solve_evidence_guard"] = solve_evidence_guard
+    _spec.loader.exec_module(solve_evidence_guard)
+safe_rmtree_for_restage = solve_evidence_guard.safe_rmtree_for_restage
+refuse_if_solve_evidence = solve_evidence_guard.refuse_if_solve_evidence
+SolveEvidencePresent = solve_evidence_guard.SolveEvidencePresent
+
+
+def safe_restage(target):
+    """Delete `target` for a RE-STAGE, refusing if it -- or any directory ONE
+    LEVEL INSIDE it -- holds solve evidence. Returns True if anything was
+    removed, False if there was nothing there. There is no override flag,
+    deliberately: a `--force-scratch` is a flag somebody pastes.
+
+    WHICH CHECK IS LOAD-BEARING HERE, MEASURED RATHER THAN ASSUMED. The guard
+    scans its target for time directories > 0, `processor*/` time directories
+    and `postProcessing/**/*.dat` with data rows; it does NOT recurse into an
+    arbitrary child. For F6a the TOP-LEVEL check is the load-bearing one:
+    `smoke` is a `copytree` of RUN_CASE, so the case root IS the delete target
+    and `simpleFoam -case smoke` writes its time directories directly into it.
+    Measured 2026-09-04 with `solve_evidence_guard.py --check` against the
+    shape that is copied, `verification/runs/F6a_GREENBLATT_runs/
+    attempt3_Re936k`: 201 evidence items AT THE TOP LEVEL -- time directories
+    50..2000 carrying field files, the same times under `processor0..3`, and
+    `postProcessing` series. Nothing of F6a's own physics sits one level down.
+
+    THE NESTED LEVEL IS THEREFORE DEFENCE IN DEPTH, AND IT IS NOT DECORATION.
+    A sibling driver in this class, `F5c_runs/run_stage_a.py`, deletes
+    `SCRATCH/f5c-stageA-<leg>` while every field it holds lives one level down
+    in `.../case/`, so the bare guard answered "no solve evidence found; safe
+    to re-stage" over a completed 2,000-iteration solve. The parent of THIS
+    delete target is operator-supplied with no default, so `f6a_smoke` can be
+    made to land inside any tree the operator names; a layout that puts a case
+    one level down is exactly what the second level catches.
+    """
+    if not os.path.exists(target):
+        return False
+    refuse_if_solve_evidence(target, action="restage")
+    for child in sorted(os.path.join(target, n) for n in os.listdir(target)):
+        if os.path.isdir(child):
+            refuse_if_solve_evidence(child, action="restage (nested one level)")
+    return safe_rmtree_for_restage(target)
 
 # ---- FROZEN, transcribed with section numbers -----------------------------
 # ---- ATTEMPT 2, under ADDENDUM 2 (supervisor's Ruling 1) -------------------
@@ -339,11 +405,33 @@ def main(argv=None):
 
         if not a.scratch:
             ap.error("--scratch is required for a real launch (ss6.3)")
-        if os.path.abspath(a.scratch).startswith(
-                "/home/ubuntu/Certonomous/verification/runs"):
-            raise G.Refusal("ss6.3: the smoke-test scratch directory MUST be outside "
-                            "verification/runs/. Its output is not evidence and is not "
-                            "cited by any record.")
+        # ss6.3 POLICY TEST -- and it is policy, NOT the safety instrument.
+        # A prefix test can only refuse trees somebody remembered to enumerate,
+        # so it defends the trees named below and nothing else; the operator can
+        # always name a tree that is not on the list. The ACTUAL defence of the
+        # delete is `safe_restage`, which is content-based: it asks the target
+        # what is inside it and refuses on physics, whatever the path is called.
+        # This test is kept because ss6.3 states a real requirement of its own --
+        # smoke output must not sit under an evidence root, since it is not
+        # evidence and is cited by no record -- and it is EXTENDED here rather
+        # than trusted, because the frozen form enumerated only `verification/
+        # runs` while THIS FILE's own RUN_ROOTS already names a second
+        # evidence-bearing tree, `/home/ubuntu/certonomous-runs`. A file that
+        # knows a tree holds its evidence and still lets `--scratch` point at it
+        # is inconsistent with itself. Paths are REALPATH-NORMALISED first: an
+        # un-normalised prefix test is walked past with `..` or a symlink, which
+        # would make it theatre twice over.
+        _scratch_real = os.path.realpath(a.scratch)
+        for _root in ("/home/ubuntu/Certonomous/verification/runs",
+                      "/home/ubuntu/certonomous-runs"):
+            if _scratch_real == _root or _scratch_real.startswith(_root + os.sep):
+                raise G.Refusal(
+                    "ss6.3: the smoke-test scratch directory MUST be outside the "
+                    "evidence roots. %s resolves to %s, which is inside %s. Its "
+                    "output is not evidence and is not cited by any record. "
+                    "(This is the ss6.3 policy check, not the delete guard; the "
+                    "delete itself is guarded by content, not by path.)"
+                    % (a.scratch, _scratch_real, _root))
         build_case(a.repo, RUN_CASE)
 
         # ---- ss5.5 GATE M, ENFORCED BEFORE ANY SOLVER PROCESS ----
@@ -362,8 +450,14 @@ def main(argv=None):
 
         # ---- ss6.3 PRE-FLIGHT SMOKE TEST: a LAUNCH CONDITION, NOT A GATE ----
         smoke = os.path.join(a.scratch, "f6a_smoke")
-        if os.path.exists(smoke):
-            shutil.rmtree(smoke)
+        # SHAPE: RE-STAGE BEFORE A BUILD. The delete exists only so the
+        # `copytree` below can succeed, so a refusal here is FATAL -- the
+        # campaign stops rather than proceeding on a stale or foreign tree. It
+        # is NOT a teardown-after-harvest (that shape is PRESERVING and
+        # non-fatal); this launcher has no teardown site at all -- the smoke
+        # directory is deliberately LEFT ON DISK after the smoke test, and the
+        # only other delete in this file is the one you are reading.
+        safe_restage(smoke)
         shutil.copytree(RUN_CASE, smoke)
         cdp = os.path.join(smoke, "system", "controlDict")
         rewrite_file(cdp, lambda t: re.sub(r"\nendTime\s+\d+;",
@@ -457,6 +551,19 @@ def main(argv=None):
         report["STATUS"] = ("solver finished; grade with scripts/f6a_greenblatt_gate.py "
                             "--case %s --log %s --endtime %s --rc-file %s --declared-endtime %d"
                             % (RUN_CASE, log, eff, os.path.join(RUN_CASE, RC_FILE), ENDTIME))
+    except SolveEvidencePresent as e:
+        # FATAL, and deliberately its OWN class and its OWN exit code. It is not
+        # folded into G.Refusal: an `except G.Refusal` anywhere in this file
+        # would then be able to swallow a refusal that exists to stop physics
+        # being destroyed, and a silent catch is the whole failure mode the
+        # guard was built against. Nothing was deleted when this fires.
+        sys.stderr.write("SOLVE-EVIDENCE REFUSAL (nothing was deleted):\n%s\n" % e)
+        report["VERDICT"] = "NOT A RESULT"
+        report["REFUSAL"] = str(e)
+        report["refusal_kind"] = ("solve evidence present at the ss6.3 smoke "
+                                  "re-stage target; NO DELETE WAS PERFORMED")
+        print(json.dumps(report, indent=2))
+        return 8
     except G.Refusal as e:
         sys.stderr.write("REFUSAL: %s\n" % e)
         report["VERDICT"] = "NOT A RESULT"

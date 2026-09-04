@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """INTEGRATION CONTROLS for the solve-evidence guard's wiring into cfd's own
-GEN_ALT, FPE_DIAG, B52_RUNG6_REPLICATE, F9, F7, R4 and F5c drivers.
+GEN_ALT, FPE_DIAG, B52_RUNG6_REPLICATE, F9, F7, R4, F5c and F6a drivers.
 
 WHAT THIS IS FOR, AND WHAT IT IS NOT FOR.
 
@@ -11,7 +11,7 @@ still happens and the file still mentions a guard.  So these controls exercise
 the DRIVERS' OWN call sites -- the real functions, by name -- and require the
 refusal to arrive from there.
 
-THE SEVEN DRIVERS, and the eighteen delete sites wired:
+THE EIGHT DRIVERS, and the nineteen delete sites wired:
 
   verification/runs/GEN_ALT_runs/run_gen_alt.py
       build_and_certify  (re-stage, FATAL)      smoke_solve (re-stage, FATAL)
@@ -30,15 +30,44 @@ THE SEVEN DRIVERS, and the eighteen delete sites wired:
       stage (re-stage, FATAL)                   solve() 0/ reset (not evidence)
   verification/runs/F5c_runs/run_stage_a.py                      [added 09-04]
       run_leg out_dir (re-stage, FATAL)         run_leg archive dest (FATAL)
+  scripts/run_f6a_greenblatt.py                                  [added 09-04]
+      main() ss6.3 smoke <--scratch>/f6a_smoke (re-stage, FATAL)
 
-NEITHER R4 NOR F5c HAS A TEARDOWN-AFTER-HARVEST SITE.  That was looked for
+F6a WAS THE LAST cfd-OWNED SITE OF THIS SHAPE, and it is the F7 shape exactly:
+the delete target is built from an OPERATOR-SUPPLIED path with no default, so
+the blast radius was whatever was typed.  Its frozen ss6.3 check refused only a
+`verification/runs` prefix, which left `--scratch /home/ubuntu/certonomous-runs`
+open even though THIS SAME FILE's `RUN_ROOTS` already names that tree as
+evidence-bearing.  The prefix test is kept and extended to both evidence roots
+and normalised through realpath, but it is POLICY, not the instrument: a prefix
+test can only refuse trees somebody remembered to enumerate.  Control I5b states
+that as a checked fact -- physics in a scratch matching NO prefix is still
+refused, because the guard asks the target what is inside it.
+
+WHERE F6a's PHYSICS SITS, MEASURED RATHER THAN ASSUMED (the F5c trap).  `smoke`
+is a `copytree` of the case root and `simpleFoam -case smoke` writes into it, so
+for F6a the TOP-LEVEL check is the load-bearing one -- `--check` on the shape
+that is copied, `attempt3_Re936k`, reports 201 evidence items at the top level:
+time directories 50..2000 with field files, the same times under `processor0..3`
+and a postProcessing series.  Nothing of F6a's own physics is one level down.
+The nested level is therefore defence in depth here, and control I3b isolates it
+the way F5c I3b does -- the bare guard is required to find NOTHING at the
+driver's own path first, so a nested refusal cannot be a lucky top-level hit --
+while I4 requires the top-level check to be live, so I1/I2 cannot pass for the
+wrong reason either.
+
+NEITHER R4 NOR F5c NOR F6a HAS A TEARDOWN-AFTER-HARVEST SITE.  That was looked for
 specifically, because it is the shape that turned out to be deleting COMPLETED
-solves on purpose in GEN_ALT, FPE_DIAG and F9.  Both drivers leave their run
-directories on disk after the record is written; every delete in either file is
-listed above.  F5c's archive `dest` LOOKS like a teardown and is not: it is
+solves on purpose in GEN_ALT, FPE_DIAG and F9.  All three drivers leave their
+run directories on disk after the record is written; every delete in each file
+is listed above.  F5c's archive `dest` LOOKS like a teardown and is not: it is
 cleared BEFORE collect.py refills it, and collect.py's non-zero return code is
 only logged, so the delete is not conditional on a successful replacement.  It
-is therefore a re-stage and its refusal is FATAL.
+is therefore a re-stage and its refusal is FATAL.  F6a has no teardown either:
+an AST parse of the whole launcher finds exactly ONE destructive call in the
+file -- the one wired above -- and the smoke directory is deliberately left on
+disk after the pre-flight test, which is why its `scratch` path is reported in
+the launcher's own record.
 
 THE NESTED-EVIDENCE CONTROL, AND WHY IT EXISTS.  The guard scans its target for
 time directories > 0, `processor*/` time directories, and
@@ -130,6 +159,7 @@ DRIVERS = {
     "F7": REPO / "verification/runs/F7_runs/make_dambreak.py",
     "R4": REPO / "verification/runs/R4_runs/run_c3_replicates.py",
     "F5c": REPO / "verification/runs/F5c_runs/run_stage_a.py",
+    "F6a": REPO / "scripts/run_f6a_greenblatt.py",
 }
 
 # The trees these controls exist to defend.  Nothing here may write into any.
@@ -146,9 +176,18 @@ F9_FORBIDDEN_ROOT = REPO / "verification" / "runs" / "F9_work"
 # `verification/runs/F5c_runs/`.  All three are defended: a control that only
 # checked ~/certonomous-runs would have been blind to the archive site, which
 # is the one that holds the ONLY copy of a gitignored postProcessing tree.
+# F6a's own physics is in the repository too: `attempt3_Re936k` currently holds
+# 201 evidence items (time directories 50..2000, `processor0..3`, and a
+# postProcessing series) and `attempt2_Re936k` and `baseline_Re936k` are
+# PRESERVED trees the launcher refuses to run without.  The controls rebind
+# F6a's RUN_CASE away from all of it and B0 refuses if that rebinding did not
+# take.
+F6A_FORBIDDEN_ROOT = REPO / "verification" / "runs" / "F6a_GREENBLATT_runs"
+
 DEFENDED_ROOTS = (
     FORBIDDEN_ROOT,
     F9_FORBIDDEN_ROOT,
+    F6A_FORBIDDEN_ROOT,
     REPO / "demo-output" / "website" / "campaign",
     REPO / "verification" / "runs" / "F5c_runs",
     REPO / "verification" / "runs" / "R4_runs",
@@ -381,6 +420,64 @@ def load_drivers(run_root: Path):
             mod.DRIVER_LOG = mod.HERE / "stage_a_driver.log"
             mod.HERE.mkdir(parents=True, exist_ok=True)
             mod.run_case = sentinel
+        # F6a's roots are absolute literals inside the repository, and its
+        # delete target is `<--scratch>/f6a_smoke` where `--scratch` is
+        # OPERATOR-SUPPLIED with no default -- the same shape as F7's `--out`.
+        # Four module globals are rebound and F6a B0/B0b/B0d refuse if any did
+        # not take.  BOTH BUILDERS ARE REPLACED so no control can start
+        # OpenFOAM: `build_case` becomes a stub that materialises a minimal
+        # case (counted separately -- a stub call is not a compute attempt),
+        # and the `subprocess` module in this driver's globals becomes a shim
+        # that answers `checkMesh` with a Gate-M-passing text and routes EVERY
+        # other binary -- simpleFoam, mpirun, decomposePar -- to the shared
+        # sentinel, so an F6a compute attempt is counted in `calls` with
+        # everyone else's rather than hidden in a private counter.
+        if tag == "F6a":
+            mod.RUN_CASE = str(run_root / "f6a_run_case")
+            mod.RUN_ROOTS = (mod.RUN_CASE,
+                             str(run_root / "f6a_second_root_absent"))
+            mod.PRESERVED_TREES = {}
+            mod._control_build_calls = []
+
+            def _build_case_stub(repo, run_case, dry_run=False,
+                                 _m=mod):     # noqa: ANN001
+                steps = [(str(run_root / "shipped" / n), os.path.join(
+                    run_case, n)) for n in ("0", "constant", "system")]
+                if dry_run:
+                    return steps
+                _m._control_build_calls.append(str(run_case))
+                case = Path(run_case)
+                (case / "0").mkdir(parents=True, exist_ok=True)
+                (case / "0" / "U").write_text("// 0/U\n")
+                (case / "constant" / "polyMesh").mkdir(parents=True,
+                                                       exist_ok=True)
+                (case / "constant" / "polyMesh" / "points").write_text("// p\n")
+                (case / "system").mkdir(parents=True, exist_ok=True)
+                (case / "system" / "controlDict").write_text(
+                    "// controlDict\napplication     simpleFoam;\n"
+                    "endTime         2000;\nwriteInterval   50;\n")
+                return steps
+
+            mod.build_case = _build_case_stub
+
+            _real_subprocess = mod.subprocess
+            _GATE_M_PASSING = ("Mesh non-orthogonality Max: 42.1 average: 5.0\n"
+                               "Max skewness = 1.2 OK.\nEnd\n")
+
+            class _SubprocessShim:
+                """Answers checkMesh; everything else trips the sentinel."""
+                TimeoutExpired = _real_subprocess.TimeoutExpired
+                CompletedProcess = _real_subprocess.CompletedProcess
+                PIPE = _real_subprocess.PIPE
+
+                @staticmethod
+                def run(args, *a, **kw):
+                    if args and args[0] == "checkMesh":
+                        return _real_subprocess.CompletedProcess(
+                            args, 0, _GATE_M_PASSING, "")
+                    return sentinel(args, *a, **kw)
+
+            mod.subprocess = _SubprocessShim
     return mods, calls
 
 
@@ -393,7 +490,8 @@ def behavioural_controls(s: Suite, mods, calls, root: Path) -> None:
     roots = {"B52": ("RUNS",), "F9": ("HERE",), "GEN_ALT": ("RUN_ROOT",),
              "FPE_DIAG": ("RUN_ROOT",),
              "R4": ("RUNS", "HERE", "TEMPLATE", "LOG"),
-             "F5c": ("SCRATCH", "HERE", "DRIVER_LOG")}
+             "F5c": ("SCRATCH", "HERE", "DRIVER_LOG"),
+             "F6a": ("RUN_CASE",)}
     for tag, mod in mods.items():
         for attr in roots.get(tag, ()):
             real = Path(getattr(mod, attr)).resolve()
@@ -421,15 +519,36 @@ def behavioural_controls(s: Suite, mods, calls, root: Path) -> None:
             not f7_roots, f"unexpected root global(s) {f7_roots}: if this file "
             "gained a default --out, the controls below stop defending it")
 
-    # --- I1: ONE guard module object across all seven drivers.
+    # F6a's other three rebindings are a tuple and a dict, so the Path loop
+    # above cannot cover them.  They are checked explicitly rather than
+    # assumed: if RUN_ROOTS still named the real trees, `main()` would refuse
+    # at the ss9.2 freeze condition and every F6a control below would pass for
+    # the wrong reason; if PRESERVED_TREES still named them, it would refuse
+    # even earlier.  A control that green-lights on an early refusal is the
+    # exact failure this file exists to prevent.
+    f6 = mods["F6a"]
+    fixture_prefix = str(root.resolve())
+    s.check("F6a B0d RUN_ROOTS rebound to the fixture root",
+            all(str(Path(r).resolve()).startswith(fixture_prefix)
+                for r in f6.RUN_ROOTS),
+            f"RUN_ROOTS is {f6.RUN_ROOTS}")
+    s.check("F6a B0e PRESERVED_TREES rebound away from the real trees",
+            f6.PRESERVED_TREES == {},
+            f"PRESERVED_TREES is {list(f6.PRESERVED_TREES)}")
+    s.check("F6a B0f both builders were replaced",
+            f6.build_case.__name__ == "_build_case_stub"
+            and f6.subprocess.__name__ == "_SubprocessShim",
+            f"build_case={f6.build_case!r} subprocess={f6.subprocess!r}")
+
+    # --- I1: ONE guard module object across all eight drivers.
     registered = sys.modules.get("solve_evidence_guard")
     same = all(m.solve_evidence_guard is registered for m in mods.values())
-    s.check("I1 all seven drivers share ONE guard module object", same,
+    s.check("I1 all eight drivers share ONE guard module object", same,
             "two module objects means two SolveEvidencePresent classes and an "
             "`except` that silently misses the other copy's refusal")
 
     exc_same = len({id(m.SolveEvidencePresent) for m in mods.values()}) == 1
-    s.check("I1b all seven drivers share ONE SolveEvidencePresent class",
+    s.check("I1b all eight drivers share ONE SolveEvidencePresent class",
             exc_same)
 
     def refuses(tag, label, fn, target: Path, *a, **kw):
@@ -872,6 +991,237 @@ def behavioural_controls(s: Suite, mods, calls, root: Path) -> None:
             out is True and not fc_dest_neg.exists(),
             f"returned {out!r}, exc {type(exc).__name__ if exc else None}")
 
+    # ------------------------------------------------------------------
+    # F6a -- `<--scratch>/f6a_smoke`, the ss6.3 pre-flight smoke re-stage.
+    #
+    # SHAPE: RE-STAGE BEFORE A BUILD, refusal FATAL.  Looked for a
+    # teardown-after-harvest site specifically, because that is the shape found
+    # deleting COMPLETED solves on purpose in GEN_ALT, FPE_DIAG and F9: F6a has
+    # none.  An AST parse of the launcher finds exactly ONE destructive call in
+    # the whole file (the one wired here) and the smoke directory is
+    # deliberately left on disk afterwards.
+    #
+    # These controls drive `main()` ITSELF, not just the wrapper, so the
+    # refusal has to arrive from the driver's own call site with the real
+    # argument parsing, the real ss9.2 freeze condition and the real Gate M
+    # in front of it.
+    import contextlib
+    import io as _io
+    import json as _json
+
+    f6_call = [0]
+
+    def drive_main(argv: list[str]):
+        """Run F6a's real main() with its report captured. Returns (rc, report,
+        exception).
+
+        A FRESH RUN_CASE PER CALL, and that is load-bearing rather than
+        hygiene.  ss9.2 refuses outright (exit 3) when a registered run
+        directory already exists, and the builder stub creates one; without
+        this, the FIRST drive would exercise the site and every later drive
+        would return 3 before reaching any of the code under test -- an early
+        refusal that a naive control reads as success.  The fresh path is
+        re-asserted to be inside the fixture root on every call, so a rebinding
+        that escaped would raise here rather than aim a control at a real tree.
+        """
+        f6_call[0] += 1
+        fresh = root / f"f6a_run_case_{f6_call[0]}"
+        if not str(fresh.resolve()).startswith(str(root.resolve())):
+            raise RuntimeError(f"F6a RUN_CASE {fresh} escaped the fixture root")
+        f6.RUN_CASE = str(fresh)
+        f6.RUN_ROOTS = (str(fresh), str(root / f"f6a_absent_{f6_call[0]}"))
+        buf = _io.StringIO()
+        try:
+            with contextlib.redirect_stdout(buf), \
+                    contextlib.redirect_stderr(_io.StringIO()):
+                rc = f6.main(argv)
+        except BaseException as exc:            # noqa: BLE001 -- reported, not swallowed
+            return None, {}, exc
+        try:
+            rep = _json.loads(buf.getvalue())
+        except ValueError:
+            rep = {}
+        return rc, rep, None
+
+    # F6a I1 -- the wrapper the site calls, over top-level physics.
+    f6_t1 = root / "f6a-scratch-1" / "f6a_smoke"
+    plant_evidence(f6_t1)
+    _, exc = attempt(f6.safe_restage, f6_t1)
+    s.check("F6a I1 safe_restage refuses over solve evidence",
+            isinstance(exc, registered.SolveEvidencePresent),
+            f"raised {type(exc).__name__ if exc else 'nothing'}")
+    s.check("F6a I1 the endTime fields survived", (f6_t1 / "90" / "U").is_file())
+    s.check("F6a I1 the coefficient series survived",
+            (f6_t1 / "postProcessing" / "forceCoeffs1" / "0"
+             / "coefficient.dat").is_file())
+
+    # F6a I2 -- THE SITE ITSELF, through main().  Exit 8, nothing deleted.
+    f6_s2 = root / "f6a-scratch-2"
+    f6_t2 = f6_s2 / "f6a_smoke"
+    plant_evidence(f6_t2)
+    before = len(calls)
+    rc, rep, exc = drive_main(["--scratch", str(f6_s2)])
+    s.check("F6a I2 main() exits 8 at the smoke re-stage over solve evidence",
+            rc == 8, f"rc={rc} exc={type(exc).__name__ if exc else None} {exc}")
+    s.check("F6a I2 the report is NOT A RESULT and says nothing was deleted",
+            rep.get("VERDICT") == "NOT A RESULT"
+            and "NO DELETE WAS PERFORMED" in rep.get("refusal_kind", ""),
+            f"VERDICT={rep.get('VERDICT')!r}")
+    s.check("F6a I2 the refusal names the evidence it would have destroyed",
+            "REFUSING to delete" in rep.get("REFUSAL", ""),
+            rep.get("REFUSAL", "")[:200])
+    s.check("F6a I2 the endTime fields survived", (f6_t2 / "90" / "U").is_file())
+    s.check("F6a I2 the coefficient series survived",
+            (f6_t2 / "postProcessing" / "forceCoeffs1" / "0"
+             / "coefficient.dat").is_file())
+    s.check("F6a I2 the site was actually reached (Gate M passed first)",
+            rep.get("gate_m") is not None,
+            "main() returned before Gate M, so the smoke site never ran and "
+            "this control proves nothing")
+    s.check("F6a I2 no compute was launched", len(calls) == before,
+            f"sentinel reached {len(calls) - before}x")
+
+    # F6a I3 -- THE STRONG NEGATIVE.  A mesh-only smoke directory must be
+    # cleared and the case re-staged over it, all the way into the solver call
+    # where the sentinel stops it.  Reaching the sentinel is the proof it
+    # staged; a refusal is not.
+    f6_s3 = root / "f6a-scratch-3"
+    f6_t3 = f6_s3 / "f6a_smoke"
+    plant_mesh_only(f6_t3)
+    before = len(calls)
+    rc, rep, exc = drive_main(["--scratch", str(f6_s3)])
+    s.check("F6a I3 mesh-only is NOT refused",
+            not isinstance(exc, registered.SolveEvidencePresent),
+            "the guard refused a directory holding no physics -- every normal "
+            "pre-flight smoke test is now broken")
+    s.check("F6a I3 mesh-only staged through to the solver", len(calls) > before,
+            f"never reached simpleFoam: {type(exc).__name__ if exc else ''} {exc}")
+    s.check("F6a I3 the stale mesh-only tree was actually replaced",
+            not (f6_t3 / "log.blockMesh").exists()
+            and (f6_t3 / "system" / "controlDict").is_file(),
+            "the old directory survived the re-stage, so the delete did not "
+            "happen and the negative proves nothing")
+
+    # F6a I3b -- THE NESTED CHECK, ISOLATED.  Physics one level down, under
+    # `f6a_smoke/case`.  The BARE guard is asked directly at the driver's own
+    # path and MUST find nothing there -- that is what makes this a test of the
+    # nested level rather than a lucky top-level hit.  Then the driver must
+    # refuse anyway.  Without the first half you cannot tell a real defence
+    # from luck.
+    f6_s4 = root / "f6a-scratch-4"
+    f6_t4 = f6_s4 / "f6a_smoke"
+    plant_evidence_nested(f6_t4)
+    bare_top = registered.find_solve_evidence(f6_t4)
+    bare_child = registered.find_solve_evidence(f6_t4 / "case")
+    s.check("F6a I3b the bare guard finds NOTHING at the driver's own path",
+            bare_top == [],
+            f"{len(bare_top)} item(s) at the top level: this fixture is not "
+            "nested, so it cannot test the nested check")
+    s.check("F6a I3b the bare guard does find the physics one level down",
+            len(bare_child) > 0, "the fixture planted no evidence at all")
+    before = len(calls)
+    rc, rep, exc = drive_main(["--scratch", str(f6_s4)])
+    s.check("F6a I3b main() still exits 8 -- the refusal came from the NESTED "
+            "check", rc == 8,
+            f"rc={rc}: the driver deleted a directory the bare guard called "
+            "safe while a completed solve sat one level inside it")
+    s.check("F6a I3b the nested endTime fields survived",
+            (f6_t4 / "case" / "90" / "U").is_file())
+    s.check("F6a I3b the nested coefficient series survived",
+            (f6_t4 / "case" / "postProcessing" / "forceCoeffs1" / "0"
+             / "coefficient.dat").is_file())
+    s.check("F6a I3b no compute was launched", len(calls) == before)
+
+    # F6a I4 -- and the converse, measured rather than assumed: for F6a's own
+    # layout the TOP-LEVEL check is the load-bearing one, because `smoke` is a
+    # copytree of the case root and `simpleFoam -case smoke` writes its time
+    # directories directly into it.  I3b proves the nested level works; this
+    # proves the level that actually fires in production is not vestigial.
+    s.check("F6a I4 the bare guard sees F6a's own layout at the top level",
+            len(registered.find_solve_evidence(f6_t1)) > 0,
+            "the top-level check -- the one F6a's real layout depends on -- "
+            "finds nothing, so I1/I2 passed for the wrong reason")
+
+    # F6a I5 -- THE ss6.3 POLICY TEST, EXTENDED.  The frozen form enumerated
+    # only `verification/runs`, so nothing stopped `--scratch
+    # /home/ubuntu/certonomous-runs`.  Both evidence roots are now refused, and
+    # refused through REALPATH so a `..` walk cannot step past the test.
+    # NOTHING IS WRITTEN: these refusals happen before build_case, and the
+    # control asserts the path was not created.
+    policy_cases = [
+        ("certonomous-runs", str(FORBIDDEN_ROOT / "f6a-policy-probe")),
+        ("verification/runs", str(REPO / "verification" / "runs"
+                                  / "f6a-policy-probe")),
+        ("a `..` walk into certonomous-runs",
+         str(root / ".." / ".." / ".." / ".." / ".." / ".." / ".."
+             / "home" / "ubuntu" / "certonomous-runs" / "f6a-policy-probe")),
+    ]
+    for label, probe in policy_cases:
+        rc, rep, exc = drive_main(["--scratch", probe])
+        s.check(f"F6a I5 --scratch inside {label} is REFUSED",
+                rc == 6 and rep.get("VERDICT") == "NOT A RESULT",
+                f"rc={rc} exc={type(exc).__name__ if exc else None}")
+        s.check(f"F6a I5 the {label} refusal names the evidence root",
+                "MUST be outside the evidence roots" in rep.get("REFUSAL", ""),
+                rep.get("REFUSAL", "")[:160])
+        s.check(f"F6a I5 nothing was created for {label}",
+                not Path(probe).exists(), f"{probe} exists")
+
+    # F6a I5b -- the policy test is not the safety instrument, and this states
+    # that as a checked fact: a scratch OUTSIDE every enumerated root, holding
+    # physics, is still refused.  A prefix test alone would have waved it past.
+    f6_s6 = root / "f6a-unenumerated-scratch"
+    f6_t6 = f6_s6 / "f6a_smoke"
+    plant_evidence(f6_t6)
+    rc, rep, exc = drive_main(["--scratch", str(f6_s6)])
+    s.check("F6a I5b physics is refused even where NO prefix test applies",
+            rc == 8, f"rc={rc}: the content check is not what is defending "
+            "this delete -- the path list is, and a path list only refuses "
+            "trees somebody remembered to enumerate")
+    s.check("F6a I5b that physics survived", evidence_intact(f6_t6))
+
+    # F6a I6 -- NO OVERRIDE FLAG.  A `--force-scratch` is a flag somebody
+    # pastes, so its absence is a control, not a convention.
+    f6_src = DRIVERS["F6a"].read_text()
+    f6_tree = ast.parse(f6_src, filename=str(DRIVERS["F6a"]))
+    f6_flags = [c.args[0].value for c in ast.walk(f6_tree)
+                if isinstance(c, ast.Call)
+                and isinstance(c.func, ast.Attribute)
+                and c.func.attr == "add_argument"
+                and c.args and isinstance(c.args[0], ast.Constant)
+                and isinstance(c.args[0].value, str)]
+    s.check("F6a I6 no override flag exists",
+            not [f for f in f6_flags
+                 if "force" in f or "ignore" in f or "no-guard" in f],
+            f"override-shaped flag(s) in {f6_flags}")
+    s.check("F6a I6 no ignore_errors survives in the launcher",
+            not [k for c in ast.walk(f6_tree) if isinstance(c, ast.Call)
+                 for k in c.keywords if k.arg == "ignore_errors"],
+            "ignore_errors=True is part of the defect: past the guard, a "
+            "failed delete must be heard")
+
+    # F6a I7 -- the AST binding between the guarded call and the delete target.
+    # S1/S3 prove there is no bare rmtree and that SOME guarded call exists;
+    # they do not prove the guarded call names the directory that is about to
+    # be overwritten.  This does: `safe_restage(X)` and `copytree(_, X)` must
+    # name the SAME variable, and X must be the smoke path.
+    guarded_names, copy_dsts = set(), set()
+    for node in ast.walk(f6_tree):
+        if not isinstance(node, ast.Call):
+            continue
+        if isinstance(node.func, ast.Name) and node.func.id == "safe_restage" \
+                and node.args and isinstance(node.args[0], ast.Name):
+            guarded_names.add(node.args[0].id)
+        if isinstance(node.func, ast.Attribute) and node.func.attr == "copytree" \
+                and len(node.args) > 1 and isinstance(node.args[1], ast.Name):
+            copy_dsts.add(node.args[1].id)
+    s.check("F6a I7 the guarded delete names the directory copytree overwrites",
+            copy_dsts and copy_dsts <= guarded_names,
+            f"copytree destinations {sorted(copy_dsts)} vs guarded "
+            f"{sorted(guarded_names)}")
+    s.check("F6a I7 that directory is the ss6.3 smoke path", "smoke" in
+            guarded_names, f"guarded names are {sorted(guarded_names)}")
+
 
 # ---------------------------------------------------------------------------
 
@@ -928,6 +1278,67 @@ def optimisation_controls(s: Suite, root: Path) -> None:
             "REFUSING to delete" in outs[1][1], outs[1][1][:300])
     s.check("O2 the physics survived both interpreters", evidence_intact(ev))
 
+    # O3 -- F6a AS SHIPPED, both interpreters, no stubbing at all.  On this box
+    # `attempt3_Re936k` exists, so the launcher refuses at the ss9.2 freeze
+    # condition (exit 3) BEFORE it reaches the ss6.3 policy test.  That is the
+    # honest observed behaviour and it is asserted as such rather than
+    # engineered around; what the -O control needs from it is that both
+    # interpreters agree, and that the defended tree is not touched on the way.
+    f6a = DRIVERS["F6a"]
+    probe = str(FORBIDDEN_ROOT / "f6a-O3-policy-probe")
+    f6a_outs = []
+    for flags in ([], ["-O"]):
+        r = subprocess.run([sys.executable, *flags, str(f6a),
+                            "--scratch", probe],
+                           capture_output=True, text=True, timeout=120)
+        f6a_outs.append((r.returncode, r.stdout + r.stderr))
+    s.check("O3 F6a as shipped: same rc under python3 and python3 -O",
+            f6a_outs[0][0] == f6a_outs[1][0],
+            f"rc {f6a_outs[0][0]} vs -O rc {f6a_outs[1][0]}")
+    s.check("O3 F6a as shipped refuses at ss9.2 before any scratch work",
+            f6a_outs[1][0] == 3
+            and "registered run directory already exists" in f6a_outs[1][1],
+            f"rc {f6a_outs[1][0]}: {f6a_outs[1][1][:160]}")
+    s.check("O3 neither interpreter created the probe directory",
+            not Path(probe).exists(),
+            f"{probe} exists: a refused scratch was written to the defended "
+            "tree anyway")
+
+    # O3b -- and the ss6.3 policy test itself, REACHED, in a real subprocess
+    # under both interpreters.  ss9.2 stands in front of it on this box, so the
+    # runner rebinds only the three root globals -- exactly what the in-process
+    # controls rebind -- and changes nothing else.  Both the enumerated form
+    # and the `..` walk must refuse, and must refuse identically under -O.
+    runner = root / "o3b_runner.py"
+    runner.write_text(
+        "import sys\n"
+        f"sys.path.insert(0, {str(f6a.parent)!r})\n"
+        "import run_f6a_greenblatt as L\n"
+        f"L.RUN_CASE = {str(root / 'o3b_run_case')!r}\n"
+        "L.RUN_ROOTS = (L.RUN_CASE,)\n"
+        "L.PRESERVED_TREES = {}\n"
+        "sys.exit(L.main(sys.argv[1:]))\n")
+    for label, p in (("enumerated", str(FORBIDDEN_ROOT / "f6a-O3b-probe")),
+                     ("`..` walk", str(root / ".." / ".." / ".." / ".." / ".."
+                                       / ".." / ".." / "home" / "ubuntu"
+                                       / "certonomous-runs" / "f6a-O3b-walk"))):
+        outs = []
+        for flags in ([], ["-O"]):
+            r = subprocess.run([sys.executable, *flags, str(runner),
+                                "--scratch", p],
+                               capture_output=True, text=True, timeout=120)
+            outs.append((r.returncode, r.stdout + r.stderr))
+        s.check(f"O3b {label} scratch: same rc under python3 and python3 -O",
+                outs[0][0] == outs[1][0],
+                f"rc {outs[0][0]} vs -O rc {outs[1][0]}")
+        s.check(f"O3b {label} scratch is REFUSED under -O too", outs[1][0] == 6,
+                f"rc {outs[1][0]}: {outs[1][1][:200]}")
+        s.check(f"O3b the {label} -O refusal names the evidence root",
+                "MUST be outside the evidence roots" in outs[1][1],
+                outs[1][1][:200])
+        s.check(f"O3b neither interpreter created the {label} probe",
+                not Path(p).exists(), f"{p} exists")
+
 
 def run_suite() -> int:
     s = Suite()
@@ -957,16 +1368,19 @@ def run_suite() -> int:
         # directory really staged.  What must hold is that no REAL solver ever
         # ran: every compute attempt was intercepted by the sentinel, and the
         # attempts came only from those negative controls.  There are exactly
-        # TWO strong negatives that reach a solver entry point: GEN_ALT I4
-        # (build_and_certify -> tv._foam) and F5c I4 (run_leg -> run_case).
-        # The other negatives -- B52 I4, F9 I5/I6, F7 I3/I4, R4 I5 -- prove
-        # staging structurally because those functions never invoke a solver.
-        s.check("Z1 exactly two compute attempts, both from mesh-only "
-                "negatives, both intercepted by the sentinel", len(calls) == 2,
-                f"{len(calls)} compute attempt(s): {calls[:5]}")
+        # THREE strong negatives that reach a solver entry point: GEN_ALT I4
+        # (build_and_certify -> tv._foam), F5c I4 (run_leg -> run_case) and
+        # F6a I3 (main -> simpleFoam via the subprocess shim).  The other
+        # negatives -- B52 I4, F9 I5/I6, F7 I3/I4, R4 I5 -- prove staging
+        # structurally because those functions never invoke a solver.
+        s.check("Z1 exactly three compute attempts, all from mesh-only "
+                "negatives, all intercepted by the sentinel", len(calls) == 3,
+                f"{len(calls)} compute attempt(s): {calls[:6]}")
         s.check("Z2 no real OpenFOAM binary was invoked",
-                all("SENTINEL" not in c for c in calls) and len(calls) <= 2,
-                f"attempts: {calls[:5]}")
+                all("SENTINEL" not in c for c in calls) and len(calls) <= 3,
+                f"attempts: {calls[:6]}")
+        s.check("Z3 F6a's checkMesh never ran either -- the shim answered it",
+                mods["F6a"].subprocess.__name__ == "_SubprocessShim")
 
     if s.failures:
         print(f"\nRED: {len(s.failures)} control(s) failed: "
