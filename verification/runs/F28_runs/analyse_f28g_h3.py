@@ -99,6 +99,24 @@ parser, the window filter and the fitter are all exercised on the plant.
         and the suite MUST go red.  A control suite that cannot be broken is
         not testing anything.
 
+CORRECTION 2026-09-04, to the commit message of b209c4f6 (this file's first
+commit).  One descriptive figure there was WRONG AT AUTHORSHIP, self-caught on
+re-reading the message against this file's own --measure output:
+
+  STRUCK    "the last value 2.1552745e-02 sits 1.06e-05 BELOW the asymptote
+             (-0.049%)"
+  CORRECT   2.15781110e-02 - 2.15527450e-02 = 2.5366e-05, = 0.1176% of the
+            asymptote, = 0.541 x the fit rms of 4.6873e-05.
+
+The clause "inside the fluctuation rms" survives the correction (0.54 rms is
+inside 1 rms) and the SETTLED verdict does not rest on this figure: it rests on
+A-1 (1.114e-03 against 1e-02), A-2 (1.926 against 2), 8.29 elapsed time
+constants and a residual transient of 1.527e-05 against 1e-03.  Every other
+figure in that message was re-checked in the same pass and holds.  Nothing in
+the code changed; this note is the correction's only content, because rule 10's
+private-index protocol asserts a non-empty tree and forbids landing a
+message-only commit.
+
 EXIT CODES
   0   all controls green / measurement produced
   2   EXIT_REFUSE  -- a registered refusal: a control failed, or the reader
