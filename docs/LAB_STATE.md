@@ -5318,11 +5318,55 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-04T22:34:15Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-71` — **I was charging the WRONG CLAUSE: `DAFOAM_CHARTER` §3 postdates these records by SEVENTEEN DAYS and a lane refused to use it, so the disclosures rest on §7 step 1 alone. And a measurement taken AGAINST the audit's own case weakens my W4 framing — recorded precisely because it helps the record under audit.** Before it, `S-70`, `S-69`, `S-68`, `S-67`, `S-66`…`S-29`.
+**Section last written:** 2026-09-04T22:36:42Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-72` — **my check 4 caught the dead-lever cap and then got the MARGIN BACKWARDS: I published `W=3000` as 24 s INSIDE the bound when it is 236 s OUTSIDE it, having normalised a residual the wrong way. And narrowing the window would have silently made the item's falsifier ONE-SIDED.** Before it, `S-71`, `S-70`, `S-69`, `S-68`, `S-67`…`S-29`.
 
 **Section last written:** 2026-09-04T01:08:43Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-48` — **`W3` IS NOT RUNNING AND HAS NOT BEEN SINCE 21:57:49Z; IT REACHED ITS REGISTERED TERMINUS, AND THE REGISTERED FALLBACK DOES NOT RESCUE IT.** `S-47`'s and `S-46`'s *"`W3_chain_r2` running"* lines are **STRUCK BY QUOTE** below — they were true when written and were still being relayed three hours after they stopped being true. Before it, `S-47` — **DESK ITEMS CLOSED**: the **rule-10 hole is fixed in the constitution itself** on Sanaa's GO (`0ee2e7df`, verified by me at HEAD, not taken on relay), and the rule-12 estimate gap is **routed to verification** as a forward-only note. `S-46`'s "on Sanaa's desk" line is **struck by quote** so no successor re-escalates a closed item. **Nothing now on her desk from this family** but the four `NOT FILED` upstream defect classes and FD-vs-adjoint as a fourth `V` instrument. Before it, `S-46` (closing state), `S-45`, `S-44`, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+##### UPDATE S-72 — **⚠⚠ MY CHECK 4 CAUGHT THE DEAD-LEVER CAP AND THEN GOT THE MARGIN **BACKWARDS**: I REPORTED `W=3000` AS **24 s INSIDE** THE BOUND WHEN IT IS **236 s OUTSIDE** IT. I NORMALISED A RESIDUAL THE WRONG WAY. AND NARROWING THE WINDOW WOULD HAVE SILENTLY MADE THE ITEM'S FALSIFIER ONE-SIDED** (2026-09-04, `date -u` stamp in the committing invocation)
+
+###### 1. ⚠⚠ THE WORST FAILURE MODE A CHECK 4 HAS
+
+`S-70` reported, as my own arithmetic: *"at `W=3000` the margin is +0.3 % — 24 seconds."* **A lane refitted it and I re-derived the refit myself:**
+
+`1/(1 − 0.1864) = 1.2291`. **The draft quotes its residual as `(model − measured)/measured`. A timeout asks the opposite question — how much LONGER than the model the solver may take — which is `(measured − model)/model`. A model 18.64 % BELOW a measurement is a measurement 22.91 % ABOVE it.**
+
+| | factor | worst-case wall at `W=3000` | margin |
+|---|---|---|---|
+| **what I published** | ×1.186 | 7176 s | **+24 s INSIDE** |
+| **what is true** | **×1.2291** | **7436 s** | **−236 s OUTSIDE** |
+
+> **I treated a percentage-OF-THE-MEASUREMENT as a percentage-OF-THE-MODEL. My check 4 correctly caught the dead-lever cap, then reported an arm that DOES NOT FIT as one that BARELY DOES.**
+>
+> **That is the worst failure mode this check has: it scrutinises, publishes a number, and LICENSES the thing it exists to stop.** *A check that is wrong is worse than a check that is absent, because the absent one does not confer permission.*
+
+**Crossings re-derived by me: 2645 (10 % of the wall), 2619 (10 % of the bound)** — the lane said 2620, a rounding step, not a disagreement. **`W_A2 = 2600` is the largest round hundred satisfying both readings. RATIFIED**, with cap **115.0** (6900 s, **4.2 % inside** the bound, reachable) and `ITEM_CEILING` **290.0 = the caps' exact sum**, which I checked: `5.0 + 100.0 + 70.0 + 115.0 = 290.0`.
+
+**And I ratify the CONSERVATIVE residual with the lane's caveat kept, because the caveat is real:** +22.91 % is measured at `W=300` where the affine intercept dominates, the residual shrinks with `W` (+22.91 → −10.71 → +1.66), and **the nearest anchor would permit `W ≈ 3100`.** **The choice is doing real work and the lane said so rather than letting 2600 look inevitable.** I keep the worst residual for its reason: **a timeout kill is unrecoverable and buys nothing — an arm that dies at the wall has measured the clock, not the physics.** *Sizing on the friendliest anchor is choosing the number that makes the arm fit.*
+
+###### 2. ⚠ CHECK 1 PASSES — AND THE CATCH INSIDE THE EDIT IS THE PART THAT MATTERS
+
+The lane edited a **comparator** and said so loudly rather than quietly. Read as a diff by me: **four constants plus five selftest literals that move with them**, and I counted the changed lines touching `def` / `refuse` / `Refusal` / `return` / `if` / `raise` — **ZERO.** No gate, no limb, no refusal path; the narrowing binding byte-unchanged. The in-file amendment block carries the rule-2 condition and both defects with their arithmetic — **the right place for it, because a constant that changes without its reason beside it is how the next reader re-derives the old value.**
+
+**AND THE THING IT WOULD HAVE BEEN EASY TO MISS:** `U35` is the `FS-1` **falsifier**. At the narrowed window the old planted `|g| = 0.70` gives `2600 × 0.70 = 1820` — **BELOW the 2048.61 bar. The HIT branch would have become UNREACHABLE and the falsifier could only ever MISS.** Raising the plant to `0.80` (`2080 > 2048.61`) keeps the gate two-sided.
+
+> **NARROWING A WINDOW SILENTLY CONVERTS A TWO-SIDED FALSIFIER INTO A ONE-SIDED ONE — a gate that cannot fail, arriving as a SIDE EFFECT of a cap repair, and it would have passed every count in the suite.** *This family has catalogued nine unsatisfiable-by-construction conditions; this is the first caught in the act of being created.*
+
+###### 3. ACCEPTED WITHOUT QUALIFICATION
+
+**`ITEM_CEILING` = the caps' exact sum** — *"a ceiling carrying slack nobody registered is not a registration."* **`--cap-reachability`** asserting `cap × 60 / ranks < wall_bound` for **every** leg, refusing `rc=64` and naming each dead lever — **with this item's own WITHDRAWN 155.0 cap as its planted control**, plus a control that the plant did not leak back into the live registration. *The class is now closed in code rather than documented in prose.*
+
+**And a control that failed for the right reason:** once every cap became reachable the **cap** binds first, so A2's fresh timeout is 6900 s, not 7200 — a stale expectation went red, **and both limbs of the `min()` are now driven so neither is dead.** *Fixed by understanding it, not by adjusting it.*
+
+###### 4. STATE
+
+**`W3S` Arm A point 215.71 → 202.08 core-min; span narrows 2.14× → 1.86×, stated in the draft rather than buried; `Q3` restated at `W·|g| ≈ 961`, still 2.13× short, so `FS-1` is still predicted to MISS.** Counts all re-driven: comparator 50/50 + narrowing 30/30, record producer **73/73 both flags**, launcher 50/50, driver 15/15, producer-trace **29 keys 0 findings**, cap-reachability **4 legs 0 dead levers**. `ast.Assert` 0. Zero compute; both run roots absent.
+
+**THE RESIDUAL RISK, NAMED IN EVERY REPORT RATHER THAN LEFT FOR `73/73` TO IMPLY OTHERWISE: no leg body has ever executed. The container / `d12y_run_script.py` / OpenFOAM side of the contract is NOT MEASURED, and the first `SETUP` leg is that measurement. "A fixture proves the contract; it does not prove the solver" goes into the freeze banner.**
+
+**OWED BY ME:** the §7 instrument-table row (mine, not the lane's — self-attestation); the freeze commit and its §2b run-root condition **in its own invocation**; check 1 on `A1WRT2`'s remaining diff; the `V_STANDARD` placement; the `:92` disposition.
+
+
 ##### UPDATE S-71 — **⚠ I WAS CHARGING THE WRONG CLAUSE: §3 POSTDATES THESE RECORDS BY SEVENTEEN DAYS AND A LANE REFUSED TO USE IT. THE DISCLOSURES REST ON §7 STEP 1 ALONE. AND A MEASUREMENT TAKEN *AGAINST* THE AUDIT'S OWN CASE WEAKENS MY W4 FRAMING — RECORDED BY THE LANE PRECISELY BECAUSE IT HELPS THE RECORD UNDER AUDIT** (2026-09-04, `date -u` stamp in the committing invocation)
 
 ###### 1. ⚠⚠ THE TRAP I WALKED TOWARD AND A LANE DID NOT
