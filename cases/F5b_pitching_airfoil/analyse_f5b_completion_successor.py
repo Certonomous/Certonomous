@@ -44,6 +44,22 @@ NO BARE `assert` APPEARS IN THIS FILE (L-332 / L-475: `python3 -O` deletes every
 Every guard raises.  `--selftest` returns the same rc under `python3` and `python3 -O`,
 and that invariance is itself one of the controls.
 
+WHAT THE AGE GUARD GATES  (clause 6; repaired 2026-09-04)
+---------------------------------------------------------
+CLAUDE.md rule 4 states the age guard over FIELDS: "every field at endTime NEWER than the
+case's own `0/T`".  An earlier draft of this file gated every ENTRY returned by
+`os.listdir(endTime)`.  F5b is a PITCHING airfoil -- a moving-mesh case -- and its real
+endTime directory holds eleven entries of which two are DIRECTORIES (`polyMesh/`,
+`uniform/`) and four are non-required fields (`Uf`, `meshPhi`, `phi`, `yPlus`).  A restart,
+a mesh reuse or a `polyMesh` carried from an earlier write leaves one of those older than
+`0/` while every required field is perfect -- and the run then graded NOT A RESULT on a
+mesh directory.  Clause 6 now gates the REQUIRED FIELDS PRESENT and nothing else; every
+other entry is REPORTED with its staleness and gates nothing, the same discipline clause 4
+already applied to REPORTED_NOT_GATED_FIELDS.  The predicate is printed in the clause
+detail so a reader can see exactly what was gated.  `age_guard_partition()` is the shipped
+function that makes the split, and control C-M5 replaces it with the old gate-everything
+behaviour and requires the suite to go RED.
+
 STAGE 1 SCOPE, DECLARED SO IT CANNOT BE MISTAKEN FOR MORE
 ---------------------------------------------------------
 Clauses 1-8 of the frozen registration's section 5 completion rule.  The GATE bodies
@@ -109,6 +125,28 @@ def own_blob_sha():
 
 
 # ===================================================================== THE REPAIR
+def write_quantum(value, significant_figures=SIGNIFICANT_FIGURES):
+    """Half a unit in the last printed place of `value` at `significant_figures` digits.
+
+    A SHIPPED function, not a test helper: `resolve_end_time_dir` calls it, and it is a
+    separate function precisely so a control can MUTATE it.  Narrow it to zero and the
+    write-quantum match branch dies; widen it and the branch matches a directory from a
+    DIFFERENT write.  Controls C-M3 and C-M4 do exactly those two things and require the
+    suite to go RED, so the quantum is load-bearing in both directions.
+    """
+    if value == 0.0:
+        return 0.0
+    magnitude = abs(value)
+    exponent = 0
+    while magnitude >= 10.0:
+        magnitude /= 10.0
+        exponent += 1
+    while magnitude < 1.0:
+        magnitude *= 10.0
+        exponent -= 1
+    return 0.5 * 10.0 ** (exponent - (significant_figures - 1))
+
+
 def resolve_end_time_dir(case_dir, end_time_str=END_TIME_STR):
     """§2p.5: SELECT BY THE TIME WE NEED, and REFUSE if it is not uniquely present.
 
@@ -149,16 +187,10 @@ def resolve_end_time_dir(case_dir, end_time_str=END_TIME_STR):
     for name, value in candidates:
         if value == 0.0:
             continue
-        magnitude = abs(value)
-        exponent = 0
-        while magnitude >= 10.0:
-            magnitude /= 10.0
-            exponent += 1
-        while magnitude < 1.0:
-            magnitude *= 10.0
-            exponent -= 1
-        quantum = 0.5 * 10.0 ** (exponent - (SIGNIFICANT_FIGURES - 1))
-        if abs(value - target) <= quantum:
+        quantum = write_quantum(value)
+        # `quantum > 0.0` is not decoration: a zero quantum must admit NOTHING, not fall
+        # back to exact equality (which the branch above has already decided).
+        if quantum > 0.0 and abs(value - target) <= quantum:
             near.append(name)
     if len(near) == 1:
         return os.path.join(case_dir, near[0]), "write-quantum", candidates
@@ -172,6 +204,31 @@ def resolve_end_time_dir(case_dir, end_time_str=END_TIME_STR):
 
 
 # ============================================================ the completion rule
+def age_guard_partition(time_dir, required=REQUIRED_FIELDS):
+    """Split the endTime directory into what clause 6 GATES and what it only REPORTS.
+
+    A SHIPPED function; control C-M5 replaces it with the old gate-every-entry behaviour
+    and requires the suite to go RED.
+
+    GATED    -- the required fields that are PRESENT on disk.  CLAUDE.md rule 4: "every
+                field at endTime NEWER than the case's own 0/T".  Fields, not entries.
+    REPORTED -- every other entry: non-required fields (Uf, meshPhi, phi, yPlus) and
+                DIRECTORIES (polyMesh/, uniform/), which a moving-mesh case such as this
+                pitching airfoil writes inside its time directories.  Their mtimes are
+                printed beside the verdict and gate NOTHING.
+    ABSENT   -- required fields not on disk.  Their absence is CLAUSE 4's finding; clause 6
+                cannot date a file that is not there, and must not double-count it.
+
+    Returns (gated, reported, absent), each a sorted list of names.
+    """
+    entries = sorted(os.listdir(time_dir))
+    present = set(entries)
+    gated = [f for f in required if f in present]
+    absent = [f for f in required if f not in present]
+    reported = [e for e in entries if e not in set(required)]
+    return gated, reported, absent
+
+
 class Clauses(object):
     def __init__(self):
         self.rows = []
@@ -324,15 +381,31 @@ def check_completion(case_dir, record_path=None):
             detail6 = "0/ is empty -- the guard has no datum and cannot pass"
         else:
             argmax = max(zero_entries, key=lambda pair: pair[1])
-            stale = [(f, os.path.getmtime(os.path.join(time_dir, f)))
-                     for f in os.listdir(time_dir)
-                     if os.path.getmtime(os.path.join(time_dir, f)) <= argmax[1]]
+
+            def _mtime(name):
+                return os.path.getmtime(os.path.join(time_dir, name))
+
+            gated6, reported6, absent6 = age_guard_partition(time_dir)
+            stale = [(f, _mtime(f)) for f in gated6 if _mtime(f) <= argmax[1]]
             ok6 = not stale
-            detail6 = ("max(mtime) over the whole 0/ directory: %s at %.6f (max over the "
-                       "DIRECTORY, so write order cannot defeat the guard)\nfiles at "
-                       "endTime NOT strictly newer: %s\nreported, not gated: argmax is "
-                       "0/nut: %s" % (argmax[0], argmax[1], stale or "none",
-                                      argmax[0] == "nut"))
+            reported_ages = {e: ("NOT strictly newer (%.6f)" % _mtime(e))
+                             if _mtime(e) <= argmax[1] else "newer" for e in reported6}
+            detail6 = (
+                "PREDICATE: this clause gates the REQUIRED FIELDS PRESENT at endTime and "
+                "NOTHING ELSE -- CLAUDE.md rule 4 states the age guard over FIELDS "
+                "('every field at endTime NEWER than the case's own 0/T'), not over every "
+                "entry that happens to sit in the directory.\n"
+                "max(mtime) over the whole 0/ directory: %s at %.6f (max over the "
+                "DIRECTORY, so write order cannot defeat the guard)\n"
+                "GATED (required fields present): %s\n"
+                "gated fields NOT strictly newer: %s\n"
+                "required fields ABSENT -- clause 4's finding, not datable here: %s\n"
+                "REPORTED, NOT GATED (non-required entries, including the polyMesh/ and "
+                "uniform/ directories a moving-mesh case writes at each write and a "
+                "restart or mesh reuse can leave stale without touching the physics): %s\n"
+                "reported, not gated: argmax is 0/nut: %s"
+                % (argmax[0], argmax[1], gated6, stale or "none", absent6 or "none",
+                   reported_ages or "no non-required entries", argmax[0] == "nut"))
     comp.add(6, "age guard", ok6, detail6)
 
     # clause 7 -- the pre-existing-state guard is the LAUNCHER's, and is recorded as such
@@ -389,11 +462,28 @@ def _openfoam_time_name(value):
     return text
 
 
+# The endTime directory of the REAL F5b physics run holds ELEVEN entries --
+# `U Uf k meshPhi nut omega p phi polyMesh/ uniform/ yPlus` -- of which two are
+# DIRECTORIES and only five are required fields.  A fixture that writes the five required
+# fields ALONE is CLEANER THAN ITS SUBJECT, and a control tree simpler than the artifact it
+# will grade cannot see a defect that lives in the extra entries.  These two tuples exist
+# so the fixture is shaped like the thing it grades.  They are FIXTURE shape, taken from a
+# directory listing, NOT constants from the registration: nothing below is required of a
+# run, and no clause is keyed to them.
+FIXTURE_EXTRA_FILES = ("Uf", "meshPhi", "phi", "yPlus")
+FIXTURE_EXTRA_DIRS = ("polyMesh", "uniform")
+
+
 def _build_synthetic_case(root, time_name=None, n_steps=12, wall_seconds=1200.0,
                           drop_field=None, drop_record=False, blank_end_on=None,
                           last_time=None, extra_time_dir=None, stale_field=None,
-                          no_time_dir=False, coeff_rows=None):
-    """A synthetic run tree.  Nothing here reads F5b's artifacts."""
+                          no_time_dir=False, coeff_rows=None, stale_extra=None):
+    """A synthetic run tree, shaped like the real one.  Nothing here reads F5b's artifacts.
+
+    `stale_extra` back-dates NON-REQUIRED entries (files or directories) inside the endTime
+    directory below 0/'s argmax; `stale_field` back-dates a REQUIRED field.  The two knobs
+    are separate because clause 6 must answer them differently.
+    """
     case = os.path.join(root, "case")
     os.makedirs(case)
     end_value = float(END_TIME_STR)
@@ -417,8 +507,25 @@ def _build_synthetic_case(root, time_name=None, n_steps=12, wall_seconds=1200.0,
             with open(path, "w") as fh:
                 fh.write("x\n")
             os.utime(path, (2000.0, 2000.0))
+        # the non-required company the real directory keeps: four extra fields and two
+        # DIRECTORIES, all newer than 0/ unless a control back-dates one.
+        for name in FIXTURE_EXTRA_FILES:
+            path = os.path.join(tdir, name)
+            with open(path, "w") as fh:
+                fh.write("x\n")
+            os.utime(path, (2000.0, 2000.0))
+        for name in FIXTURE_EXTRA_DIRS:
+            sub_dir = os.path.join(tdir, name)
+            os.makedirs(sub_dir)
+            inner = os.path.join(sub_dir, "points" if name == "polyMesh" else "time")
+            with open(inner, "w") as fh:
+                fh.write("x\n")
+            os.utime(inner, (2000.0, 2000.0))
+            os.utime(sub_dir, (2000.0, 2000.0))   # after its contents, or the write wins
         if stale_field:
             os.utime(os.path.join(tdir, stale_field), (500.0, 500.0))
+        for name in (stale_extra or ()):
+            os.utime(os.path.join(tdir, name), (500.0, 500.0))
     if extra_time_dir:
         os.makedirs(os.path.join(case, extra_time_dir))
 
@@ -465,8 +572,18 @@ def _subprocess_rc(args, env=None):
     return proc.returncode, proc.stdout, proc.stderr
 
 
-def run_selftest():
-    """Returns 0 if every control behaved as registered, EXIT_REFUSE otherwise."""
+def run_selftest(include_mutations=True):
+    """Returns 0 if every control behaved as registered, EXIT_REFUSE otherwise.
+
+    `include_mutations=False` is used ONLY by the mutation controls' own child processes,
+    which re-enter this suite with one shipped function replaced.  Without it a mutation
+    that survives the planted controls would reach the mutation block and spawn a further
+    generation of itself without bound -- measured, not feared: C-M4 (a WIDENED write
+    quantum) did exactly that on 2026-09-04 and the suite never returned.  The flag is a
+    PARAMETER, never an environment variable, so no ambient setting can make a top-level
+    `--selftest` skip the mutation controls and still print green: `--selftest` from the
+    command line always takes the default.
+    """
     me = os.path.abspath(__file__)
     fired = []
     root = tempfile.mkdtemp(prefix="f5b_succ_")
@@ -510,15 +627,111 @@ def run_selftest():
         _expect("REFUSE" in out or "REFUSE" in err, "C-P1 refused without saying so")
         fired.append("C-P1 endTime directory absent -> rc 2 through the real entry point")
 
-        # ---- C-P2  two directories inside the write quantum -> REFUSE, never choose -
+        # ---- C-P2  EXACT-branch ambiguity -> REFUSE, never choose --------------------
+        # CORRECTED 2026-09-04.  This control's earlier comment claimed it exercised "two
+        # directories inside the write quantum".  IT DOES NOT, and never did: '21.944' and
+        # '21.94400' parse to the IDENTICAL double, so `exact` holds two names and the
+        # EXACT-branch refusal fires.  The write-quantum branches are a different code path
+        # and had NO control at all; they are C-P2b, C-P2c and C-P2d below.  The refusal
+        # BRANCH is now asserted, not just the exit code, so this control can no longer be
+        # mistaken for coverage it does not provide.
         sub = os.path.join(root, "P2")
         os.makedirs(sub)
         case = _build_synthetic_case(sub, time_name="21.944", extra_time_dir="21.94400")
-        rc, _out, err = _subprocess_rc([me, "--case", case])
+        rc, out, err = _subprocess_rc([me, "--case", case])
         _expect(rc == EXIT_REFUSE,
                 "C-P2 ambiguity owed rc %d, got %d -- the reader chose instead of "
                 "declining" % (EXIT_REFUSE, rc))
-        fired.append("C-P2 two directories resolving to endTime -> rc 2, no choice made")
+        _expect("parse to endTime" in (out + err),
+                "C-P2 refused, but NOT by the exact-parse-equality branch it exists to "
+                "cover: %r" % ((out + err)[-300:],))
+        fired.append("C-P2 two directories parsing to endTime EXACTLY -> rc 2 by the "
+                     "exact branch, no choice made")
+
+        # ---- C-P2b  WRITE-QUANTUM-branch ambiguity -> REFUSE, and BY THAT BRANCH -----
+        # 21.94401 and 21.94399 both sit 1e-5 from 21.9440 -- inside the 5e-5 quantum --
+        # and NEITHER parses equal to it, so the exact branch is empty and the second,
+        # narrower refusal fires.  Before 2026-09-04 no control reached it.
+        sub = os.path.join(root, "P2b")
+        os.makedirs(sub)
+        case = _build_synthetic_case(sub, time_name="21.94401", last_time=END_TIME_STR,
+                                     extra_time_dir="21.94399")
+        # IN-PROCESS first.  A control that only ever asserts a SUBPROCESS's exit code is
+        # blind to any mutation of this module -- the child re-reads the file from disk --
+        # so the branch assertion is made here, where C-M3/C-M4 can reach it.
+        try:
+            bad = resolve_end_time_dir(case)
+            raise ControlFailure(
+                "C-P2b: two directories inside the write quantum and the reader CHOSE "
+                "%r instead of declining" % (bad[0],))
+        except Refusal as exc:
+            _expect("significant-figure write" in str(exc),
+                    "C-P2b refused, but not by the WRITE-QUANTUM branch -- the exact "
+                    "branch or the no-candidate branch answered instead: %s" % exc)
+        rc, out, err = _subprocess_rc([me, "--case", case])
+        _expect(rc == EXIT_REFUSE,
+                "C-P2b write-quantum ambiguity owed rc %d, got %d" % (EXIT_REFUSE, rc))
+        _expect("significant-figure write" in (out + err),
+                "C-P2b refused end-to-end, but not by the WRITE-QUANTUM branch: %r"
+                % ((out + err)[-300:],))
+        fired.append("C-P2b two directories inside the write quantum, neither exact -> "
+                     "rc 2 BY THE WRITE-QUANTUM BRANCH (previously uncovered)")
+
+        # ---- C-P2c  WRITE-QUANTUM MATCH -- the branch that RESOLVES -------------------
+        # The narrower half of the repair.  A directory named 21.94401 against a registered
+        # 21.9440: no parse equality, one candidate inside the quantum, so it resolves and
+        # the rule is 'write-quantum'.  C-N1 and C-P0 can never produce this -- all three
+        # of C-P0's spellings parse to the identical double and resolve by 'exact'.
+        sub = os.path.join(root, "P2c")
+        os.makedirs(sub)
+        case = _build_synthetic_case(sub, time_name="21.94401", last_time=END_TIME_STR)
+        try:
+            path2c, rule2c, _cands = resolve_end_time_dir(case)
+        except Refusal as exc:
+            raise ControlFailure(
+                "C-P2c: a directory 1e-5 from endTime %s -- INSIDE the %d-significant-"
+                "figure write quantum -- did not resolve at all: %s"
+                % (END_TIME_STR, SIGNIFICANT_FIGURES, exc))
+        _expect(rule2c == "write-quantum",
+                "C-P2c resolved by the %r rule; the write-quantum branch was meant to "
+                "answer and did not" % (rule2c,))
+        _expect(os.path.basename(path2c) == "21.94401",
+                "C-P2c resolved %r, expected '21.94401'" % os.path.basename(path2c))
+        comp, _t, rule2c_full = check_completion(case)
+        _expect(comp.all_ok,
+                "C-P2c write-quantum resolution reached the clauses and they failed %r"
+                % (comp.failing(),))
+        _expect(rule2c_full == "write-quantum",
+                "C-P2c: check_completion reported rule %r" % (rule2c_full,))
+        fired.append("C-P2c one directory inside the write quantum, none exact -> RESOLVES "
+                     "by the write-quantum rule and all clauses pass (previously uncovered)")
+
+        # ---- C-P2d  the quantum stays NARROW -----------------------------------------
+        # 21.9445 is 5e-4 from the registered endTime -- TEN quanta away, a DIFFERENT
+        # write.  It must not be adopted.  This is the other direction of C-P2c: together
+        # they pin the quantum's value, not merely the existence of the branch.
+        sub = os.path.join(root, "P2d")
+        os.makedirs(sub)
+        case = _build_synthetic_case(sub, time_name="21.9445", last_time=END_TIME_STR)
+        # IN-PROCESS, for the same reason as C-P2b: a subprocess re-reads the clean file
+        # and would report a widened quantum as green.
+        try:
+            adopted = resolve_end_time_dir(case)
+            raise ControlFailure(
+                "C-P2d adopted %r by the %r rule.  21.9445 is 5e-4 from endTime %s -- TEN "
+                "write quanta, a DIFFERENT write -- and the guard is no longer narrow."
+                % (os.path.basename(adopted[0]), adopted[1], END_TIME_STR))
+        except Refusal:
+            pass
+        rc, out, err = _subprocess_rc([me, "--case", case])
+        _expect(rc == EXIT_REFUSE,
+                "C-P2d adopted a directory 5e-4 from endTime %s end-to-end (rc %d)"
+                % (END_TIME_STR, rc))
+        _expect("does not fall back to the latest" in (out + err),
+                "C-P2d refused, but not by the no-candidate branch: %r"
+                % ((out + err)[-300:],))
+        fired.append("C-P2d a directory ten write quanta away -> rc 2, NOT adopted (the "
+                     "quantum's value is pinned in both directions)")
 
         # ---- C-P3  clause 4, each required field in turn ---------------------------
         for field in REQUIRED_FIELDS:
@@ -542,7 +755,38 @@ def run_selftest():
         _expect(6 in comp.failing(),
                 "C-P4 back-dated an endTime field below max(mtime over 0/) and the age "
                 "guard stayed green: failing %r" % (comp.failing(),))
-        fired.append("C-P4 endTime field older than 0/ -> clause 6 fails")
+        fired.append("C-P4 endTime REQUIRED field older than 0/ -> clause 6 fails")
+
+        # ---- C-P4b  clause 6 gates FIELDS, not every entry ---------------------------
+        # THE DEFECT THIS REPAIRS.  F5b is a PITCHING airfoil; its real endTime directory
+        # carries polyMesh/ and uniform/ beside the fields, and a restart or a mesh reuse
+        # leaves one of them older than 0/ while every required field is perfect.  Gating
+        # on them manufactures a NOT A RESULT out of a sound run.  The fixture now builds
+        # that company (FIXTURE_EXTRA_FILES / FIXTURE_EXTRA_DIRS), so this control can see
+        # it -- a tree simpler than its subject could not.
+        sub = os.path.join(root, "P4b")
+        os.makedirs(sub)
+        case = _build_synthetic_case(sub, stale_extra=("polyMesh", "meshPhi"))
+        comp, _t, _r = check_completion(case)
+        _expect(comp.failing() == [],
+                "C-P4b back-dated polyMesh/ (a DIRECTORY) and meshPhi -- NEITHER is a "
+                "required field, and all five required fields are present and newer -- and "
+                "the completion rule failed clauses %r.  CLAUDE.md rule 4's age guard is "
+                "about FIELDS." % (comp.failing(),))
+        detail6 = comp.rows[5]["detail"]
+        _expect("polyMesh" in detail6 and "meshPhi" in detail6,
+                "C-P4b clause 6 passed but did not REPORT the stale non-gated entries; "
+                "not gated is not the same as not shown")
+        # ...and the guard must still BITE when a required field is stale in that same
+        # company, or the repair has merely disabled clause 6.
+        sub = os.path.join(root, "P4c")
+        os.makedirs(sub)
+        case = _build_synthetic_case(sub, stale_extra=("polyMesh",), stale_field="omega")
+        _expect(6 in check_completion(case)[0].failing(),
+                "C-P4c a stale REQUIRED field alongside a stale polyMesh/ and clause 6 "
+                "stayed green -- the repair disabled the guard instead of narrowing it")
+        fired.append("C-P4b/C-P4c stale polyMesh/ + meshPhi -> clause 6 PASSES and reports "
+                     "them; a stale required field beside them -> clause 6 still FAILS")
 
         # ---- C-P5  clause 1's INDEPENDENT operand (L-320) --------------------------
         sub = os.path.join(root, "P5")
@@ -594,11 +838,22 @@ def run_selftest():
         # L-479's sibling finding: a checker whose entire check() could be deleted with
         # --selftest still reporting every plant fired.  These two controls make that
         # impossible to claim: replace a shipped function, require the suite to go RED.
-        mutants = [
+        # C-M3/C-M4/C-M5 added 2026-09-04: a control that never enters its branch is a
+        # memory of a guard, not a guard.  Each of the three breaks ONE branch of the
+        # repair and requires the suite to go RED, which is what makes C-P2b/C-P2c/C-P2d
+        # and C-P4b coverage rather than decoration.
+        mutants = [] if not include_mutations else [
             ("C-M1", "check_completion",
              "lambda *a, **k: (_AllOk(), '/dev/null', 'exact')"),
             ("C-M2", "resolve_end_time_dir",
              "lambda *a, **k: ('/dev/null', 'exact', [])"),
+            # the write quantum narrowed to nothing: the MATCH branch can never fire
+            ("C-M3", "write_quantum", "lambda *a, **k: 0.0"),
+            # the write quantum widened: it adopts a directory from a DIFFERENT write
+            ("C-M4", "write_quantum", "lambda *a, **k: 1.0"),
+            # clause 6 back to gating EVERY entry -- the defect itself, replanted
+            ("C-M5", "age_guard_partition",
+             "lambda d, *a, **k: (sorted(os.listdir(d)), [], [])"),
         ]
         for tag, target, replacement in mutants:
             program = (
@@ -612,7 +867,11 @@ def run_selftest():
                 "    def failing(self): return []\n"
                 "m.__dict__['_AllOk'] = _AllOk\n"
                 "m.%s = eval(%r, m.__dict__)\n"
-                "sys.exit(m.run_selftest())\n" % (me, target, replacement))
+                # include_mutations=False: the child re-enters the PLANTED controls with one
+                # shipped function replaced, and must NOT re-enter this mutation block --
+                # a surviving mutant would otherwise spawn its own generation without bound.
+                "sys.exit(m.run_selftest(include_mutations=False))\n"
+                % (me, target, replacement))
             rc, _out, _err = _subprocess_rc(["-c", program])
             _expect(rc != 0,
                     "%s replaced the shipped %s() and the control suite STILL reported "
@@ -625,6 +884,10 @@ def run_selftest():
         for line in fired:
             print("  FIRED  %s" % line)
         print("controls fired: %d" % len(fired))
+        print("mutation controls: %s"
+              % ("INCLUDED" if include_mutations
+                 else "NOT re-entered -- this is a nested mutation child, not a top-level "
+                      "selftest, and its green says nothing about the mutation controls"))
         return EXIT_OK
     except ControlFailure as exc:
         print("CONTROL FAILURE: %s" % exc)
