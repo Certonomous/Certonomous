@@ -5071,11 +5071,96 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-04T02:04:21Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-55` — **⚠ I PUBLISHED A FALSE ABSENCE TWICE: my reader asked for `held_reason` and the key is `hold_reason`, one character, so I called four fully-documented held rows "parked without a named cause". Struck. The ceiling sweep lands 377 limits — only 2 of 40 chain drivers guard their item ceiling — and `D12R` phase 2 has NEVER RUN with two phases dammed behind it.** Before it, `S-54`, `S-53`, `S-52`, `S-51`, `S-50`, `S-49`, `S-48`…`S-29`.
+**Section last written:** 2026-09-04T02:15:17Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-56` — **the `DEAD` count counts IDENTIFIERS not BUDGETS (the S8 sub-cap is enforced in all four launchers under another name, so 4 of my 11 are wrong as boarded); `D12R` phase 2 buys NOTHING because `W` is not even in its admissibility condition; and this family now has a MEASURED PHYSICS LIMIT for Sanaa's desk — no FD-verified gradient exists on the 2D unsteady incompressible cell.** Before it, `S-55`, `S-54`, `S-53`, `S-52`, `S-51`, `S-50`, `S-49`, `S-48`…`S-29`.
 
 **Section last written:** 2026-09-04T01:08:43Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-48` — **`W3` IS NOT RUNNING AND HAS NOT BEEN SINCE 21:57:49Z; IT REACHED ITS REGISTERED TERMINUS, AND THE REGISTERED FALLBACK DOES NOT RESCUE IT.** `S-47`'s and `S-46`'s *"`W3_chain_r2` running"* lines are **STRUCK BY QUOTE** below — they were true when written and were still being relayed three hours after they stopped being true. Before it, `S-47` — **DESK ITEMS CLOSED**: the **rule-10 hole is fixed in the constitution itself** on Sanaa's GO (`0ee2e7df`, verified by me at HEAD, not taken on relay), and the rule-12 estimate gap is **routed to verification** as a forward-only note. `S-46`'s "on Sanaa's desk" line is **struck by quote** so no successor re-escalates a closed item. **Nothing now on her desk from this family** but the four `NOT FILED` upstream defect classes and FD-vs-adjoint as a fourth `V` instrument. Before it, `S-46` (closing state), `S-45`, `S-44`, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+##### UPDATE S-56 — **⚠ THE `DEAD` COUNT COUNTS *IDENTIFIERS*, NOT *BUDGETS*: THE S8 SUB-CAP IS ENFORCED IN ALL FOUR LAUNCHERS UNDER A DIFFERENT NAME, SO 4 OF MY 11 "DEAD" LIMITS HAVE LIVE BUDGETS. AND `D12R` IS ANSWERED: RUNNING PHASE 2 BUYS NOTHING — ITS OWN `step_plan.json` ALREADY SAYS `admissible: false`, AND FOR `D12R` THE WINDOW DOES NOT EVEN APPEAR IN THE CONDITION. **THIS FAMILY NOW HAS A MEASURED PHYSICS LIMIT FOR SANAA'S DESK.**** (2026-09-04, `date -u` stamp in the committing invocation)
+
+###### 1. THE CLASSIFIER IS LANDED — AND I VERIFIED IT BY RUNNING THE COMMITTED BLOB MYSELF
+
+`cases/dafoam/_common/limit_classify.py` (`eac40d89`), out of scratch where it would have been wiped (L-186). **I extracted the blob from HEAD and executed it** — not the worktree copy, not the lane's report:
+
+```
+CONTROL  CAP      in so3af2_run_arm.sh: want=ENFORCED     got=ENFORCED
+CONTROL  CEILING  in so3af2_run_arm.sh: want=REPORTS ONLY got=REPORTS ONLY
+CONTROL  PLANTED_DEAD_CAP_CORE_MIN  (synthetic): want=DEAD     got=DEAD
+CONTROL  PLANTED_LIVE_CAP_CORE_MIN  (synthetic): want=ENFORCED got=ENFORCED
+377 limits / 181 files — ENFORCED 165, ENFORCED-WATCHER 41, REPORTS ONLY 160, DEAD 11
+```
+
+**The lane's own correction is confirmed by my run: 164/161 was wrong by one; it is 165/160**, one row moved on a hand-read (`d12y_w2_stage_and_run.sh :: MEM_LIMIT_GIB`, whose guard at `:263` precedes `docker run --memory` at `:380`). It also folded a `sed` exclusion that had been a post-filter into the instrument, which had printed 384/15 raw against 377/11 reported — **exactly the analysis-pass-versus-instrument drift that costs verdicts later**, caught by landing it.
+
+###### 2. ⚠⚠ AND NOW THE CORRECTION TO MY OWN S-55, WHICH A LANE CAUGHT AND I CONFIRMED
+
+I boarded `CAP_S8_CORE_MIN = 350.0` in four D12-family graders as **DEAD**, in a list headed by the words "registered budget limits". **Measured now, across all four families:**
+
+| launcher | `CAP_S8` uses | `S8 SUB-CAP TRIPPED` abort | grader's `CAP_S8_CORE_MIN` |
+|---|---:|---:|---:|
+| `d12r_stage_and_run.sh` | 7 | **1** | 1 (sole, dead) |
+| `d12x_stage_and_run.sh` | 7 | **1** | 1 (sole, dead) |
+| `d12y_stage_and_run.sh` | 7 | **1** | 1 (sole, dead) |
+| `d12y_w3_stage_and_run.sh` | 7 | **1** | 1 (sole, dead) |
+
+**The S8 sub-cap of 350.0 IS ENFORCED in every one of them** — `:104` registers it, `:149-150` aborts if the runtime value differs from the registered one, `:239` compares cumulative S8 spend, `:241` `return 9` with `S8 SUB-CAP TRIPPED … NOT LAUNCHED`. **`CAP_S8_CORE_MIN` appears 0 times in any launcher. The name is dead; the budget is alive under `CAP_S8`.**
+
+> **THE SWEEP CLASSIFIED IDENTIFIERS, NOT LIMITS. A budget can be dead under one name and enforced under another, and the count cannot tell.**
+
+**So `DEAD = 11` must be read as ELEVEN DEAD IDENTIFIERS, and at least FOUR of them sit over live budgets.** My S-55 line reads as though four S8 sub-caps are unenforced. **They are not.** This is the cross-name twin of the cross-file limitation **the sweep lane itself declared** — *ENFORCED is a lower bound, REPORTS ONLY an upper bound* — and it bit exactly where the lane said it would. **The declared limit was right and I quoted the number past it anyway.**
+
+*Also struck from S-55: `AGG_CEILING_GIB` ×2 in D19/D19R called "a live safety gap, not bookkeeping." **Measured: archaeological, not operational.** Both roots are phase-1-only, last touched 2026-08-31/09-01, and the lineage moved to D19M/D19O — **which carry the LIVE version of that same guard**, aborting at `d19m_chain_driver.sh:320` / `d19o_chain_driver.sh:291`. The successor got it right; repairing the ancestors buys tidiness.*
+
+###### 3. THE BACK-FIT — THE LANE'S ANSWER IS CHEAPER AND BETTER THAN MY QUESTION, AND I ADOPT IT
+
+I asked which of ~38 unguarded drivers to back-fit. **The lane answered with the queue's own `launched/` mtimes rather than with an inference about item state, and then proposed not doing most of it.**
+
+**Five unguarded drivers fired within 24 h**, all 2026-09-03: `a1wr_chain_driver.sh` (19:39, 22:13, 22:34 — **four arms in three hours**), `d12y_w3_chain_driver.sh` (21:57), `a1ze_chain_driver.sh` (18:59, 19:06 — **twice in seven minutes**), `d19t_chain_driver.sh` (16:37), `maaoa_chain_driver.sh`. **Three of the five are multi-fire items — which is precisely the "walking past its own ceiling one arm at a time" shape, and none of them can see it.**
+
+**RULED, adopting the lane's recommendation over my own framing:** **do NOT back-fit ~38 drivers.** Put the D6RF guard in **whatever template new drivers are cut from**, and back-fit only the five above plus `D5`, `SO3a`, `SO3aR`, `FADR`, `D4_SHIPPED`. **Under Sanaa's order every finished item gets a SUCCESSOR anyway, and a successor gets a NEW driver — so the population problem closes by attrition instead of by 38 edits.** *Its declared limit, carried: "superseded" and "finished" are readings of run-root artefacts, not a register of item states — the recency evidence is hard, the lifecycle inference is not.*
+
+**And one it flagged rather than hid:** `maaoa_chain_driver.sh`'s `LOOP_BOUND_S` is in the 57-member false-negative risk set, classified **by name and never read**, in a driver that fired this week. **It may be a second dead lever in a live item.**
+
+###### 4. `D12R` — ANSWERED, AND THE ANSWER IS **NO**
+
+**The lane planted a control on its own reader before believing any zero** — the same regex found `PHASE 2 RESUMING` **3 times in W3's ledger** (where a phase 2 did fire) and phases 1/3/4 in D12R's own, and 48 `S3b*` directories, **before** reporting phase-2 markers = 0. *That is the guard my `held_reason` probe lacked.*
+
+**Verified: phase 2 was never invoked at all** — no ledger marker, no `S6*` directory, no `LAUNCH_LOG` row, no queue entry in `held/`, `launched/` or `refused/`.
+
+**⚠ BUT RUNNING IT BUYS NOTHING, AND THE REASON IS ALREADY ON DISK.** `CURRICULUM-D12R-cylinder-unsteady/step_plan.json`, read by me: **`admissible: false`, `steps: []`, `h_min = 0.1742837908900481` against `h_max = 0.05` — 3.4857× over.**
+
+- Phase 2 hits `d12x_stage_and_run.sh:731`, prints `NO ADMISSIBLE FD STEP`, `exit 0` — **zero solver compute, and it does not even record a completion.**
+- `--plan2` then **cannot** produce `step_plan2.json`: it iterates `pj["steps"]`, which is `[]`, and raises the **identical `G12R-5`** refusal W3 hit four hours earlier. **So phase 2 does NOT unblock phase 3.** My framing — *"phase 3 was re-fired twice instead of phase 2 being run once"* — **was right about the sequencing error and WRONG about the remedy. Phase 2 was never the missing input.**
+- **⚠ AND FOR `D12R` THE WINDOW DOES NOT APPEAR AT ALL.** Its `δ_eff` is fixed at `1.7958e-03`, so admissibility reduces to **`|g| ≥ 3.5917` against a measured `1.0304`** — I re-derived it: `0.0017958478/(0.01 × 1.0304159) = 0.17428379`, matching the file to 10 digits. **Widening `W` cannot help this item, because `W` is not in its condition.**
+
+**Two more corrections to me, accepted:** **phase 4 also FIRED once** (2026-08-26, `rc=1`, zero compute) — my table had it only as held; and the phase line numbers are each one below my figures.
+
+**A finding neither of us went looking for:** `D12R`'s and `D12R2`'s `W = 300` plans are **numerically identical to 17 significant figures in every physics field** — a reproducibility result already sitting in the case dir.
+
+###### 5. ⚠ AN ANOMALY THAT TOUCHES `S-50`'s OWN TABLE, NAMED RATHER THAN LEFT TO BE FOUND
+
+**W2R's `delta_window` at `W = 900` is bit-identical to `W = 300`'s** — `0.0017958478225974517` in both `step_plan.json`s. **A block-average peak-to-peak spread over 2 blocks should not equal the spread over 8 blocks to 17 significant figures.** Either W2R carried the value forward instead of recomputing at `W = 900`, or something upstream pinned it.
+
+**What this does and does not touch in `S-50` §3, stated precisely:** the `W·|g|` sequence **309.12 / 1025.85 / 976.72** is computed from `W` and `|g|` alone and **is untouched** — so the non-monotonicity of `|g|` and the "a longer window made admissibility worse" finding **stand**. But `h_min,env(900) = 0.086825` **does** depend on that `δ_window`, and it is now **suspect**. **Carried as open, unresolved, and not quietly dropped.**
+
+###### 6. ⚠⚠ **ON SANAA'S DESK — THE FIRST REAL ITEM THIS FAMILY HAS PUT THERE TONIGHT**
+
+**`D12R` and `W3` together are a MEASURED physics limit, not a lab defect:** on the **2D · unsteady · incompressible** cell, **no admissible FD step exists**, and therefore **no FD-verified gradient — which by this family's bright line means no DAFoam gradient result at all on this cell.**
+
+- `D12R`: needs `|g| ≥ 3.5917`, measured **1.0304**. **`W` is not in the condition.**
+- `W3`: needs `W·|g| ≥ 1781.4`; measured **309.1 / 1025.9 / 976.7** across three windows, **best 1.74× short, and the sequence turns DOWNWARD** because `|g|` collapsed.
+- **The lab's own defects are exhausted on this one:** the comparator was frozen before the answer, `W3-A1` was measured to move `h_min` by only 1.5 %, and every registered refusal gate passed 33/33.
+- **And it was PRE-REGISTERED AS A POSSIBLE GENUINE FINDING BEFORE ANY NUMBER EXISTED** — `D12R/PREREGISTRATION.md` §2.2: *"D12 MAY BE A CASE WHERE THE FD BRIGHT LINE CANNOT BE CROSSED AT ALL. That would be a GENUINE FINDING ABOUT THE METHOD–CASE PAIR, NOT A FAILURE OF EITHER."*
+
+**This is exactly the case Sanaa's 2026-09-04 addendum routes to her: *"where a case still fails its gate after the lab's own defects are exhausted and the failure is MEASURED to be the model/physics itself, that measured persistent GATE FAIL goes to Sanaa with the evidence."* It is not laundered into a pass and it is not silently parked.** **`W3S` Arm A (`GSCAN`, 215.7 core-min) remains the cheapest instrument that could still overturn it**, and it predicts its own falsifier will MISS.
+
+###### 7. AUTHORISED, AND LABELLED AS WHAT IT IS
+
+**Check 4 done by me:** prereg `f9c8b9c840ea80f88c619e06801da96c7f42c266`, committed **2026-08-25 22:44:53Z**, `PREREGISTRATION.md` present at that commit; phase 1 started **12 seconds later** — prediction-first holds by the clock. The three instruments hash **on-disk == HEAD blob**.
+
+**Phase 2 + `--plan2` authorised at ≤ 1.5 core-min ($0.00128 DERIVED, not measured) as a CLOSURE ACTION, NOT AS PHYSICS** — it drives the item to its registered terminus and closes two phases sitting at `rc=1`. **It must be labelled closure in the record, or a reader will think a fourth window was probed.** Predicted in advance and falsifiable: phase 2 `rc=0` with two `NO ADMISSIBLE FD STEP` lines and zero `S6*` directories; `--plan2` `rc=2` at `G12R-5`; `--plan3` unreachable. **It unblocks NO held row** — `D12R_phase4`'s dependency survives, so that hold is **not stale after all**, though its stated reason is.
+
+
 ##### UPDATE S-55 — **⚠ I PUBLISHED A FALSE ABSENCE TWICE TONIGHT BECAUSE MY READER LOOKED FOR `held_reason` AND THE KEY IS `hold_reason` — ONE CHARACTER. ALL FOUR HELD ROWS CARRY FULL, DATED REASONS AND I CALLED THEM "PARKED WITHOUT A NAMED CAUSE". THE CEILING SWEEP LANDS: **2 OF 40 CHAIN DRIVERS** GUARD THEIR ITEM CEILING, AND `D12R` PHASE 2 HAS **NEVER RUN** WITH TWO PHASES DAMMED BEHIND IT** (2026-09-04, `date -u` stamp in the committing invocation)
 
 ###### 1. ⚠⚠ STRUCK BY QUOTE — MY OWN, AND IT IS THE SAME DISEASE I SPENT THE NIGHT CATALOGUING
