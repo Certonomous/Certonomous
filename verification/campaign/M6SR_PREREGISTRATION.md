@@ -1,13 +1,40 @@
 # M6SR pre-registration — ONERA M6 surface pressures against AGARD AR-138, on a SURFACE-REFINEMENT family
 
-**Team: cfd. Case id `M6-SR`. v0.1 DRAFT, drafted 2026-09-03 by a cfd lab-lane.**
+**Team: cfd. Case id `M6-SR`. v1.0 — FROZEN 2026-09-04 by cfd-supervisor. Drafted 2026-09-03 by a cfd lab-lane; amendments 2-8 pre-compute.**
 
-> ## ⚠ THIS FILE IS A **DRAFT**. IT IS **NOT FROZEN**. NO GATE IN IT IS IN FORCE.
+> ## ✅ THIS FILE IS **FROZEN**. EVERY GATE, THRESHOLD, CAP AND LABEL IN IT IS IN FORCE.
 >
-> **Nothing here authorises compute.** No run root named below may be created, and no solver
-> may start, until the cfd supervisor has performed the `SUPERVISION_CHARTER.md` §3 **check 4**
-> (pre-registration committed before compute) **personally** and landed a freeze commit that is
-> a status flip and nothing else.
+> **CHECK 4 IS DISCHARGED. THIS COMMIT IS THE FREEZE, AND IT IS A STATUS FLIP AND NOTHING ELSE
+> — THE DIFF IS THE EVIDENCE.** The `SUPERVISION_CHARTER.md` §3 check 4 was performed
+> **personally by cfd-supervisor**, at the artifacts, not on any lane's report:
+>
+> - **No compute has occurred under this document**, verified **with a live planted control**
+>   (rule 3): `verification/runs/M6SR_runs` **ABSENT** and `cases/M6SR` **ABSENT**, while the
+>   identical reader in the same invocation returned **PRESENT** on `verification/runs/M6I_runs`
+>   and `verification/runs/RUNG1_M6_R2_runs`. **The zero has a non-zero beside it.**
+> - **No gate, threshold, cap or label moved anywhere in amendments 2–8.** Diffed
+>   `d554e3a7 →` this commit: **585 insertions, 10 deletions**, and every one of the ten removed
+>   lines is a strike-with-replacement at an intended site. **`B5c` = 543.13, cap 1,630.0,
+>   TOTAL 615.24 / 1,903.0 are unchanged in value.**
+> - **The solve rate's rank basis was verified at the log banner**, not at `decomposeParDict`:
+>   the rate is a **four-rank** measurement (`nProcs : 4`), so `B5a` sits on basis, `B5b` is 2×
+>   off it and `B5c` is 4× off it. §1273's trap fired in that very file — the **first**
+>   `nProcs` match is `nProcs : 1`, and `decomposeParDict` says 2 and post-dates the run.
+>
+> **AFTER THIS COMMIT THE GATES ARE CLOSED.** Changes land only as **dated addenda that cannot
+> alter a gate, threshold, cap or label**; originals are struck, never rewritten (rule 2, rule 6).
+>
+> ⚠ **In-body references to "DRAFT" inside the dated amendment condition blocks (§211, §417,
+> §815 and their siblings) are HISTORICAL STATEMENTS of the condition at that amendment's own
+> timestamp, and are deliberately not rewritten.** They are the evidence that each amendment was
+> pre-compute. **They are not the current status; this banner is.**
+>
+> 🔴 **WHAT THIS FREEZE DOES NOT DO.** It does **not** make this document Sanaa's named
+> deliverable. `L-HONEST` (§6) stands unaltered: the family refines **2 of 3 directions**, the
+> wall-normal discretisation is **identical across levels**, so `GCI_fine` is a **LOWER BOUND**
+> on discretisation uncertainty and `p_s` is **NOT an observed order**. She asked for M6 `Cp`
+> **with a family band**; this delivers a `Cp` comparison with a **surface-refinement** band.
+> **That gap is measured, it is on her desk, and freezing this document does not close it.**
 >
 > **The lane that wrote this text did not check it.** Authorship is this lane's; the check is
 > the supervisor's and is not delegated. No message from this lane, or from any agent, is
