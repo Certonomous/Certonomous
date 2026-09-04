@@ -1543,13 +1543,62 @@ def read_committed(repo: Path, rev: str, path: str) -> tuple[str | None, str]:
     return completed.stdout, ""
 
 
+def utf8_len(text: str) -> int:
+    """The size of `text` IN BYTES, which is the only size a reader can check.
+
+    WHY THIS EXISTS. Every size this module reported was `len(str)` -- a COUNT
+    OF CHARACTERS -- printed under the label `bytes`. On Python 3 a `str` is a
+    sequence of code points, so `read_text()` and `git show` (run with
+    `text=True`) both hand this module DECODED text, and its length is the
+    character count. For ASCII the two agree and the label is harmless; for the
+    real records they do not. MEASURED 2026-09-04 on `docs/COST_CALIBRATION.md`,
+    both sides, in one invocation:
+
+        HEAD's blob : 1468456 bytes, 1456715 characters, delta 11741
+        worktree    : 1458319 bytes, 1446578 characters, delta 11741
+
+    So the report understated the record by ~11.7k units while naming the unit
+    `bytes`. That is not cosmetic here, and the reason is this module's PURPOSE:
+    the numbers exist so a caller can see a stale HEAD or a short write. Every
+    instrument they would cross-check against speaks BYTES -- `git cat-file -s`,
+    `wc -c`, `ls -l`, and `cmp`, whose "EOF on - after byte 313171" is the very
+    message D369 is named for. A character count is comparable to NONE of them,
+    so a healthy run looked like a 11,741-unit size mismatch: exactly the
+    STALE-HEAD symptom, and it has already cost one lane a full investigation
+    round chasing a phantom.
+
+    THE REPAIR DIRECTION WAS A CHOICE BETWEEN TWO, and it went this way rather
+    than relabelling the output `chars` because the label was never the load-
+    bearing half -- the CROSS-CHECK is. Relabelling would make the report
+    truthful and still leave it uncomparable to git and to the filesystem, which
+    is what the number is for.
+
+    THE MERGE ITSELF IS UNTOUCHED AND WAS NEVER WRONG. The prefix test, the tail
+    slice and the write all operate on `str`, and for valid UTF-8 a character
+    prefix is a byte prefix and back -- UTF-8 is self-synchronising, so no code
+    point boundary can fall inside another. This function changes what is
+    REPORTED, never what is decided or written.
+    """
+    return len(text.encode("utf-8"))
+
+
 def merge(head_text: str, worktree_text: str, rows_text: str) -> dict:
     """The merge itself. Pure, so the controls can drive it on fixtures.
 
     Returns a dict; `ok` False means REFUSE and `merged` is None.
     """
     if not worktree_text.startswith(head_text):
-        # Locate the first differing byte so the refusal is actionable.
+        # Locate the first differing CHARACTER -- `at` indexes `str`, so it is a
+        # character index, NOT a byte offset. It is converted to bytes at the
+        # point of REPORT (`utf8_len(head_text[:at])`), because the reader takes
+        # this offset straight to `cmp`, whose "EOF on - after byte 313171" is
+        # the message D369 is named for, and to `git cat-file -s`. Both speak
+        # BYTES. Do not "tidy" the conversion away: on a record carrying `§`,
+        # `—` or `⚠` the two offsets differ, and a character offset sends the
+        # reader to the wrong place in the file at the exact moment they are
+        # diagnosing a real truncation. A planted control drives this refusal on
+        # a specimen whose divergence sits AFTER multi-byte content and requires
+        # the two offsets to differ before it grades either.
         limit = min(len(head_text), len(worktree_text))
         at = next((i for i in range(limit)
                    if head_text[i] != worktree_text[i]), limit)
@@ -1557,11 +1606,27 @@ def merge(head_text: str, worktree_text: str, rows_text: str) -> dict:
             "ok": False,
             "reason": (
                 "the worktree disagrees with the committed blob inside the "
-                f"committed blob's own bytes, first at byte {at} of "
-                f"{len(head_text)}"
+                f"committed blob's own bytes, first at byte "
+                f"{utf8_len(head_text[:at])} of "
+                f"{utf8_len(head_text)}"
+                # SITE 6, and the subtlest of the family: this ternary decides
+                # whether to say TRUNCATION, and it compared CHARACTER lengths.
+                # A worktree can be character-SHORTER and byte-LONGER at the
+                # same time -- replace 10 ASCII characters with 4 of `§ — ⚠ ⚡`
+                # and it loses 6 characters while gaining 1 byte. Under the
+                # character comparison this module then told the reader the file
+                # had been TRUNCATED while it had actually GROWN on disk, which
+                # is worse than saying nothing: `ls -l` and `git cat-file -s`
+                # would contradict it, and the reader would disbelieve the
+                # refusal rather than the sentence. It selects WORDING only --
+                # `ok` is already False above -- so nothing about what refuses,
+                # when, or with which exit code depends on this line. A planted
+                # control builds exactly that specimen and requires the clause to
+                # be ABSENT, with a genuinely byte-shorter worktree as the
+                # paired positive that requires it to still be PRESENT.
                 + ("; the worktree is SHORTER than the blob, which is a "
                    "truncation, not an append"
-                   if len(worktree_text) < len(head_text) else "")),
+                   if utf8_len(worktree_text) < utf8_len(head_text) else "")),
             "merged": None, "tail": None, "separator_inserted": False,
         }
     tail = worktree_text[len(head_text):]
@@ -2781,6 +2846,344 @@ def _corrects_disk_control() -> tuple[dict, dict, list[str]]:
 
 
 # --------------------------------------------------------------- controls
+#: The near-miss specimen for the size-report control: characters this lab's
+#: records are genuinely full of, every one of them multi-byte in UTF-8. The
+#: point is not decoration -- it is that `len(str)` and `len(bytes)` must DISAGREE
+#: on this text, so the limb below cannot pass by the two happening to coincide.
+#: Measured widths: `§` 2 bytes, `—` 3, `⚠` 3, `⚡` 3, `≈` 3.
+SIZE_CONTROL_MULTIBYTE = "§ — ⚠ ⚡ ≈"
+
+
+def run_size_report_control() -> tuple[dict, dict, list[str]]:
+    """THE REPORTED SIZES ARE BYTES, driven through `main()` on a real record.
+
+    THE DEFECT THIS LIMB EXISTS FOR. Every size in the run report was
+    `len(str)` -- characters -- printed under the label `bytes`. Nothing refused,
+    nothing was mis-written; the report simply named a unit it was not using, and
+    a healthy run therefore LOOKED like an 11,741-unit size mismatch against
+    `git cat-file -s` on `docs/COST_CALIBRATION.md`. That is indistinguishable
+    from the stale-HEAD symptom this module reports sizes in order to expose.
+
+    WHY IT IS DRIVEN THROUGH `main()` AND NOT AGAINST `utf8_len`. Asserting
+    `utf8_len(x) == len(x.encode())` restates the function's own definition and
+    would have passed on the day the defect shipped, because the defect was never
+    in a size function -- there was none -- it was at the four PRINT SITES. So
+    this control reads the REPORT `main()` actually emitted, parses the numbers
+    back out of it, and compares them to the true UTF-8 length of the artifact
+    each one claims to describe. VERIFICATION_CHARTER section 2j's question --
+    who wrote the bytes this control reads? -- answers: `main()` did, on the same
+    argument vector the lab uses.
+
+    THE NEAR-MISS CONTROL, AND WHY THE LIMB IS WORTHLESS WITHOUT IT. On
+    ASCII-only text characters and bytes are EQUAL, so an equality limb over an
+    ASCII specimen passes under the defect and under the repair alike -- it would
+    not have caught this bug and is not a control. Every artifact this limb
+    grades therefore carries `SIZE_CONTROL_MULTIBYTE`, and the FIRST thing
+    asserted is that characters and bytes genuinely DIFFER on each of them. The
+    negative form is the pre-repair behaviour itself, computed alongside: if any
+    reported number equals the CHARACTER count of its artifact, the old defect is
+    back, and it is scored as a negative that must not fire.
+
+    Returns `(planted, negative, notes)`.
+    """
+    planted, negative, notes = {}, {}, []
+    path = "docs/COST_CALIBRATION.md"
+    env = _clean_git_env()
+    mb = SIZE_CONTROL_MULTIBYTE
+
+    def git(repo: Path, *args: str) -> None:
+        done = subprocess.run(["git", "-C", str(repo), *args],
+                              capture_output=True, text=True, env=env)
+        if done.returncode != 0:  # pragma: no cover - a broken box, not a defect
+            raise RuntimeError(f"git {args[0]} failed in the size control repo: "
+                               f"{done.stderr.strip()[:200]}")
+
+    with tempfile.TemporaryDirectory(prefix="append_record_size_") as td:
+        repo = Path(td) / "repo"
+        (repo / "docs").mkdir(parents=True)
+        record = repo / path
+
+        # ---- the committed side: multi-byte, and a legacy id the pattern sees.
+        head_text = (
+            "| id | date | team | process |\n|---|---|---|---|\n"
+            f"| C-1 | 2026-09-04 | verification | a seeded LEGACY row {mb} |\n")
+        record.write_text(head_text)
+        subprocess.run(["git", "init", "-q", str(repo)],
+                       capture_output=True, text=True, env=env, check=True)
+        git(repo, "config", "user.email", "control@certonomous.invalid")
+        git(repo, "config", "user.name", "append_record size control")
+        git(repo, "config", "commit.gpgsign", "false")
+        git(repo, "add", "--", path)
+        git(repo, "commit", "-q", "-m", "seed the size control record")
+
+        # ---- the worktree tail: multi-byte, and DELIBERATELY id-less, so it is
+        # the D369 invisible-tail form. An id here would refuse at exit 6 and the
+        # WROTE line -- one of the four numbers graded -- would never be printed.
+        tail_text = f"\nA peer's unlanded paragraph, no row id, {mb}\n"
+        record.write_text(head_text + tail_text)
+
+        rows = Path(td) / "rows.md"
+        rows_text = f"| C-2 | 2026-09-04 | verification | an appended row {mb} |\n"
+        rows.write_text(rows_text)
+
+        buf_o, buf_e = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(buf_o), contextlib.redirect_stderr(buf_e):
+            rc = main(["--path", path, "--rows", str(rows), "--repo", str(repo)])
+        report = buf_o.getvalue()
+        planted["the graded run reached OK, so all four sizes were printed"] = (
+            rc == EXIT_OK)
+
+        # The four artifacts each reported number claims to describe. `merged` is
+        # read BACK OFF DISK rather than recomputed, so the WROTE limb grades the
+        # bytes that actually landed.
+        merged_text = record.read_text() if rc == EXIT_OK else ""
+        artifacts = {
+            "committed side": head_text,
+            "worktree side": head_text + tail_text,
+            "WORKTREE TAIL": tail_text,
+            "WROTE": merged_text,
+        }
+
+        # ---- THE NEAR-MISS GUARD, asserted BEFORE the equality limbs ----------
+        # If characters and bytes coincided on any of these, that limb would pass
+        # under the defect too and prove nothing.
+        for name, text in artifacts.items():
+            planted[f"NEAR-MISS: {name} is genuinely multi-byte -- its character "
+                    f"count and byte count DIFFER"] = (
+                utf8_len(text) > len(text) > 0)
+
+        # ---- parse the numbers back out of the report main() emitted ----------
+        found = {
+            "committed side": re.search(r"committed side\s*:.*?\((\d+) bytes,",
+                                        report),
+            "worktree side": re.search(r"worktree side\s*:.*?\((\d+) bytes\)",
+                                       report),
+            "WORKTREE TAIL": re.search(r"WORKTREE TAIL\s*:\s*(\d+) bytes beyond",
+                                       report),
+            "WROTE": re.search(r"WROTE\s*:.*?\((\d+) bytes\)", report),
+        }
+        for name, hit in found.items():
+            planted[f"the report actually printed a size for {name!r}"] = bool(hit)
+
+        for name, text in artifacts.items():
+            hit = found[name]
+            reported = int(hit.group(1)) if hit else None
+            planted[f"{name}: the reported size EQUALS the UTF-8 byte length "
+                    f"of what it describes"] = (reported == utf8_len(text))
+            # NEGATIVE: the pre-repair value. `len(str)` is what the four sites
+            # printed before this repair, and on a multi-byte specimen it is a
+            # DIFFERENT number -- so this firing means the defect returned.
+            negative[f"{name}: the report prints the CHARACTER count, which is "
+                     f"what the defect printed"] = (reported == len(text))
+
+        deltas = {n: utf8_len(t) - len(t) for n, t in artifacts.items()}
+        notes.append(
+            "    size report graded on a MULTI-BYTE specimen, so characters and "
+            f"bytes cannot coincide: byte-minus-character delta {deltas}")
+        notes.append(
+            "    the four graded numbers were parsed out of the report main() "
+            f"itself printed (rc {rc}), not recomputed from its inputs; the "
+            "WROTE limb grades the merged file read back off disk")
+
+    # ---- THE FIFTH SITE: the OFFSET inside the exit-2 refusal reason ---------
+    # THE SAME DEFECT ONE LAYER DEEPER, AND THE MOST LOAD-BEARING INSTANCE OF IT.
+    # `merge` scans `str`, so `at` is a CHARACTER index; it was printed as
+    # `first at byte {at}`. That number is what a reader sees AT THE MOMENT THEY
+    # ARE DIAGNOSING A REAL STALE HEAD OR TRUNCATION, and the next thing they do
+    # is take it to `cmp`, which reports a BYTE offset. Handing them a character
+    # offset to compare against a byte offset is the phantom chase this whole
+    # repair exists to end, at the one moment it costs the most.
+    #
+    # THE NEAR-MISS IS SHARPER HERE THAN FOR THE FOUR SIZES, and it is why the
+    # specimen is built the way it is: the DIVERGENCE POINT must sit AFTER the
+    # multi-byte content. A specimen that diverges inside a pure-ASCII prefix has
+    # character offset == byte offset, so it would pass under the defect and
+    # prove nothing -- even if the file as a whole contains multi-byte text
+    # further on. So the marker below is placed after the multi-byte run, and the
+    # difference between the two offsets is asserted BEFORE either is graded.
+    #
+    # THE REFUSAL IS DRIVEN, NOT DESCRIBED: `main()` returns exit 2 here, and the
+    # offset is parsed back out of the reason string it actually emitted.
+    with tempfile.TemporaryDirectory(prefix="append_record_offset_") as td:
+        repo = Path(td) / "repo"
+        (repo / "docs").mkdir(parents=True)
+        record = repo / path
+
+        # The marker is 8 characters and its replacement is 8 characters, so the
+        # worktree is neither shorter nor longer -- this is a pure in-place EDIT
+        # inside the committed bytes, which is the exit-2 case, and the
+        # "SHORTER ... truncation" clause deliberately does NOT fire.
+        marker, edited_marker = "ORIGINAL", "MUTATED!"
+        head_text = (
+            "| id | date | team | process |\n|---|---|---|---|\n"
+            f"| C-1 | 2026-09-04 | verification | a seeded row {mb} {marker} |\n")
+        record.write_text(head_text)
+        subprocess.run(["git", "init", "-q", str(repo)],
+                       capture_output=True, text=True, env=env, check=True)
+        git(repo, "config", "user.email", "control@certonomous.invalid")
+        git(repo, "config", "user.name", "append_record offset control")
+        git(repo, "config", "commit.gpgsign", "false")
+        git(repo, "add", "--", path)
+        git(repo, "commit", "-q", "-m", "seed the offset control record")
+
+        worktree_text = head_text.replace(marker, edited_marker)
+        record.write_text(worktree_text)
+
+        # The expected divergence point, derived INDEPENDENTLY of `merge`'s own
+        # scan: the two strings are identical up to the marker by construction,
+        # and that identity is asserted rather than assumed.
+        at = head_text.index(marker)
+        char_off, byte_off = at, utf8_len(head_text[:at])
+        planted["the offset specimen diverges exactly where the control "
+                "intends"] = (
+            head_text[:at] == worktree_text[:at]
+            and head_text[at] != worktree_text[at])
+
+        # ---- THE NEAR-MISS GUARD, asserted BEFORE the offset is graded -------
+        planted["NEAR-MISS: the divergence sits AFTER multi-byte content, so the "
+                "CHARACTER offset and the BYTE offset genuinely differ"] = (
+            byte_off > char_off > 0)
+
+        rows_off = Path(td) / "rows_off.md"
+        rows_off.write_text(
+            f"| C-2 | 2026-09-04 | verification | a row that never lands {mb} |\n")
+
+        buf_o, buf_e = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(buf_o), contextlib.redirect_stderr(buf_e):
+            rc_off = main(["--path", path, "--rows", str(rows_off),
+                           "--repo", str(repo)])
+        reason = buf_e.getvalue()
+
+        # The refusal fired, with its exit code and its write-nothing property
+        # intact. This repair touched a MESSAGE; if it had touched the logic,
+        # these three limbs are where that would show.
+        planted["the exit-2 refusal still fires on an edit inside the committed "
+                "bytes"] = (rc_off == EXIT_REFUSED_DISAGREES)
+        planted["the refusing run wrote NOTHING -- the record is unchanged"] = (
+            record.read_text() == worktree_text)
+
+        hit = re.search(r"first at byte (\d+) of (\d+)", reason)
+        planted["the refusal reason actually printed an offset and a total"] = (
+            bool(hit))
+        got_off = int(hit.group(1)) if hit else None
+        got_total = int(hit.group(2)) if hit else None
+
+        planted["the refusal offset is the UTF-8 BYTE offset of the divergence"] = (
+            got_off == byte_off)
+        planted["the refusal total is the UTF-8 BYTE length of the committed "
+                "blob"] = (got_total == utf8_len(head_text))
+        # NEGATIVE: the pre-repair values. Both are DIFFERENT numbers on this
+        # specimen, so either one firing means the defect returned.
+        negative["the refusal prints the CHARACTER offset, which is what the "
+                 "defect printed"] = (got_off == char_off)
+        negative["the refusal prints the CHARACTER length of the blob, which is "
+                 "what the defect printed"] = (got_total == len(head_text))
+
+        notes.append(
+            f"    exit-2 refusal DRIVEN (rc {rc_off}) on a specimen whose "
+            f"divergence sits after multi-byte content: character offset "
+            f"{char_off}, byte offset {byte_off}, delta {byte_off - char_off}; "
+            f"blob {len(head_text)} characters / {utf8_len(head_text)} bytes. "
+            f"The offset was parsed back out of the reason string main() emitted")
+
+    # ---- THE SIXTH SITE: the TRUNCATION clause's own comparison --------------
+    # THE SHARPEST NEAR-MISS OF THE FAMILY, and the only site where the defect
+    # produced an outright FALSE SENTENCE rather than a misleading number.
+    #
+    # The clause is selected by comparing the two lengths. Compared as
+    # CHARACTERS, a worktree that replaced a run of ASCII with fewer multi-byte
+    # characters is "shorter" -- while being LONGER on disk. The tool then said
+    # TRUNCATION about a file that had GROWN, and `ls -l` would have flatly
+    # contradicted it. That is worse than an unhelpful number: it teaches the
+    # reader to distrust the refusal itself.
+    #
+    # TWO SPECIMENS, AND THE SECOND IS NOT OPTIONAL. Asserting only that the
+    # clause is ABSENT on specimen (a) would pass just as well if the clause had
+    # been deleted outright -- a reader that can never say "truncation" is not
+    # this module working. So specimen (b) is a genuinely byte-shorter worktree
+    # and requires the clause to still be PRESENT. That is the planted-zero
+    # discipline in its proper shape (CLAUDE.md rule 3): (b) shows the sentence
+    # CAN be produced, which is what makes (a)'s silence a measurement.
+    with tempfile.TemporaryDirectory(prefix="append_record_trunc_") as td:
+        repo = Path(td) / "repo"
+        (repo / "docs").mkdir(parents=True)
+        record = repo / path
+
+        # 10 ASCII characters, replaced by 4 multi-byte ones: -6 characters,
+        # +1 byte. The whole site-6 near-miss lives in that pair of signs.
+        ascii_run, mb_run = "ABCDEFGHIJ", "§—⚠⚡"
+        head_text = (
+            "| id | date | team | process |\n|---|---|---|---|\n"
+            f"| C-1 | 2026-09-04 | verification | a seeded row {ascii_run} |\n")
+        record.write_text(head_text)
+        subprocess.run(["git", "init", "-q", str(repo)],
+                       capture_output=True, text=True, env=env, check=True)
+        git(repo, "config", "user.email", "control@certonomous.invalid")
+        git(repo, "config", "user.name", "append_record truncation control")
+        git(repo, "config", "commit.gpgsign", "false")
+        git(repo, "add", "--", path)
+        git(repo, "commit", "-q", "-m", "seed the truncation control record")
+
+        rows_t = Path(td) / "rows_trunc.md"
+        rows_t.write_text(
+            f"| C-2 | 2026-09-04 | verification | a row that never lands {mb} |\n")
+
+        def refuse_reason(wt_text: str) -> tuple[int, str]:
+            record.write_text(wt_text)
+            bo, be = io.StringIO(), io.StringIO()
+            with contextlib.redirect_stdout(bo), contextlib.redirect_stderr(be):
+                code = main(["--path", path, "--rows", str(rows_t),
+                             "--repo", str(repo)])
+            return code, be.getvalue()
+
+        # ---- specimen (a): CHARACTER-shorter, BYTE-longer -------------------
+        wt_a = head_text.replace(ascii_run, mb_run)
+
+        # THE NEAR-MISS GUARD, asserted BEFORE the clause is graded. If the
+        # specimen were not character-shorter AND byte-longer at once, the limb
+        # below would pass under the defect and prove nothing.
+        planted["NEAR-MISS: the specimen is CHARACTER-SHORTER than the blob"] = (
+            len(wt_a) < len(head_text))
+        planted["NEAR-MISS: the SAME specimen is BYTE-LONGER than the blob, so "
+                "the two comparisons genuinely disagree"] = (
+            utf8_len(wt_a) > utf8_len(head_text))
+
+        rc_a, reason_a = refuse_reason(wt_a)
+        planted["(a) the exit-2 refusal still fires on the byte-longer "
+                "specimen"] = (rc_a == EXIT_REFUSED_DISAGREES)
+        planted["(a) a byte-LONGER worktree is NOT called a truncation"] = (
+            "truncation" not in reason_a)
+        negative["(a) the refusal calls a byte-LONGER worktree a TRUNCATION, "
+                 "which is what the defect said"] = ("truncation" in reason_a)
+
+        # ---- specimen (b): the PAIRED POSITIVE, genuinely byte-shorter ------
+        # Without this the limb above would be satisfied by a clause that can
+        # never fire at all.
+        wt_b = head_text[:-14]
+        planted["NEAR-MISS: specimen (b) is genuinely BYTE-shorter than the "
+                "blob"] = (utf8_len(wt_b) < utf8_len(head_text))
+        rc_b, reason_b = refuse_reason(wt_b)
+        planted["(b) the exit-2 refusal still fires on a real truncation"] = (
+            rc_b == EXIT_REFUSED_DISAGREES)
+        planted["(b) a genuinely byte-shorter worktree IS still called a "
+                "truncation -- the clause can fire, so (a)'s silence is a "
+                "measurement and not a dead reader"] = (
+            "truncation" in reason_b)
+        negative["(b) the truncation clause has gone silent altogether, so (a) "
+                 "proves nothing"] = ("truncation" not in reason_b)
+
+        notes.append(
+            f"    truncation clause graded BOTH WAYS. (a) character-shorter but "
+            f"byte-longer -- blob {len(head_text)} chars / "
+            f"{utf8_len(head_text)} bytes vs worktree {len(wt_a)} chars / "
+            f"{utf8_len(wt_a)} bytes: clause correctly ABSENT (rc {rc_a}). "
+            f"(b) genuinely byte-shorter -- worktree {len(wt_b)} chars / "
+            f"{utf8_len(wt_b)} bytes: clause correctly PRESENT (rc {rc_b}), "
+            f"which is what makes (a) a measurement")
+
+    return planted, negative, notes
+
+
 def run_controls() -> tuple[control_kind.ControlLedger, int, list[str]]:
     """Plant D369's OWN invisible case and prove BOTH forms on it.
 
@@ -3187,6 +3590,10 @@ def run_controls() -> tuple[control_kind.ControlLedger, int, list[str]]:
     scope_planted, scope_negative, scope_notes = run_allocation_scope_control()
     notes += scope_notes
 
+    # ---- limb group 7: the reported sizes are BYTES, not characters ---------
+    size_planted, size_negative, size_notes = run_size_report_control()
+    notes += size_notes
+
     ledger = control_kind.ControlLedger(
         claim_class="worktree-only bytes that match no id pattern")
     ledger.plant("merge preserves the invisible tail",
@@ -3236,6 +3643,17 @@ def run_controls() -> tuple[control_kind.ControlLedger, int, list[str]]:
                             "shell derivation run verbatim",
                  planted=scope_planted,
                  negative=scope_negative)
+    ledger.plant("every size AND every offset this tool reports is a UTF-8 BYTE "
+                 "figure -- the unit it is labelled with, and the unit git, cmp "
+                 "and the filesystem speak (all 5 sites, CLAUDE.md rule 14)",
+                 vocabulary="sizes printed by main() for a record, its worktree, "
+                            "its preserved tail and the merged write, plus the "
+                            "divergence offset inside the exit-2 refusal reason; "
+                            "graded on MULTI-BYTE text, with the divergence "
+                            "placed AFTER it, so characters and bytes cannot "
+                            "coincide",
+                 planted=size_planted,
+                 negative=size_negative)
 
     failures = [n for n, ok in planted.items() if not ok]
     if overwrite_kept:
@@ -3282,6 +3700,11 @@ def run_controls() -> tuple[control_kind.ControlLedger, int, list[str]]:
     failures += [f"allocation-scope NEGATIVE WAS matched -- the refusal is "
                  f"wider than the measurement that justifies it: {n}"
                  for n, hit in scope_negative.items() if hit]
+    failures += [f"size-report limb did not hold: {n}"
+                 for n, ok in size_planted.items() if not ok]
+    failures += [f"size-report NEGATIVE WAS matched -- a reported size is a "
+                 f"CHARACTER count wearing the label 'bytes': {n}"
+                 for n, hit in size_negative.items() if hit]
     notes.append(
         "    D549 clause 1a proved BOTH WAYS on the same call: repaired -> "
         f"exit {ev_none['code']} (refused); pre-repair gate restored -> exit "
@@ -3441,8 +3864,8 @@ def main(argv: list[str] | None = None) -> int:
     print("=" * 78)
     print(f"  record           : {args.path}")
     print(f"  committed side   : {args.rev}:{args.path}  "
-          f"({len(head_text)} bytes, {len(head_ids)} ids)")
-    print(f"  worktree side    : {wt_file}  ({len(worktree_text)} bytes)")
+          f"({utf8_len(head_text)} bytes, {len(head_ids)} ids)")
+    print(f"  worktree side    : {wt_file}  ({utf8_len(worktree_text)} bytes)")
     print(f"  id pattern       : {pattern}")
     print(f"  appending        : {new_ids if new_ids else '(no ids parsed)'}")
     if alloc.get("cited"):
@@ -3528,7 +3951,7 @@ def main(argv: list[str] | None = None) -> int:
 
     tail = got["tail"]
     if tail:
-        print(f"  WORKTREE TAIL    : {len(tail)} bytes beyond the committed "
+        print(f"  WORKTREE TAIL    : {utf8_len(tail)} bytes beyond the committed "
               f"blob, PRESERVED ahead of the appended rows")
         preview = tail if len(tail) <= 200 else tail[:200] + " ..."
         for line in preview.splitlines()[:6]:
@@ -3545,7 +3968,7 @@ def main(argv: list[str] | None = None) -> int:
         print("  --dry-run: nothing written")
     else:
         wt_file.write_text(got["merged"])
-        print(f"  WROTE            : {wt_file} ({len(got['merged'])} bytes)")
+        print(f"  WROTE            : {wt_file} ({utf8_len(got['merged'])} bytes)")
     print("-" * 78)
     print("VERDICT: OK")
     print(f"CANNOT SEE [{CANNOT_SEE_OWNER}]")
