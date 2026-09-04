@@ -5318,11 +5318,64 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-04T21:50:06Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-67` — **two rulings on `A1WRT2`: `SEAM`→`TAIL` is a two-tree chain because a single process would leave the item's own falsifier unable to stop the 675 core-min it exists to stop; and rule-4 completion must read BOTH arms, since the ungated one carries the falsifier. Plus an audit pointed at OUR OWN compliance with the bright line.** Before it, `S-66`, `S-65` (`S-63` retracted), `S-64`, `S-63`…`S-29`.
+**Section last written:** 2026-09-04T22:11:30Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-68` — **my plateau ruling is WITHDRAWN in the charter itself (§20, v1.0f): a two-point mini-sweep IS the charter's proof. And the real breach is in OUR OWN ladder-b — six single-step FD numbers, undisclosed, under a rule that was LIVE LAW when they were produced, and §2 of my charter cites ALL SIX.** Before it, `S-67`, `S-66`, `S-65`, `S-64`, `S-63`…`S-29`.
 
 **Section last written:** 2026-09-04T01:08:43Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-48` — **`W3` IS NOT RUNNING AND HAS NOT BEEN SINCE 21:57:49Z; IT REACHED ITS REGISTERED TERMINUS, AND THE REGISTERED FALLBACK DOES NOT RESCUE IT.** `S-47`'s and `S-46`'s *"`W3_chain_r2` running"* lines are **STRUCK BY QUOTE** below — they were true when written and were still being relayed three hours after they stopped being true. Before it, `S-47` — **DESK ITEMS CLOSED**: the **rule-10 hole is fixed in the constitution itself** on Sanaa's GO (`0ee2e7df`, verified by me at HEAD, not taken on relay), and the rule-12 estimate gap is **routed to verification** as a forward-only note. `S-46`'s "on Sanaa's desk" line is **struck by quote** so no successor re-escalates a closed item. **Nothing now on her desk from this family** but the four `NOT FILED` upstream defect classes and FD-vs-adjoint as a fourth `V` instrument. Before it, `S-46` (closing state), `S-45`, `S-44`, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+##### UPDATE S-68 — **MY PLATEAU RULING IS WITHDRAWN IN THE CHARTER ITSELF (§20, v1.0f) — A TWO-POINT MINI-SWEEP **IS** THE CHARTER'S PROOF, AND WRITING "NO PLATEAU PROOF CLAIMED" WOULD HAVE BEEN A FALSE SELF-DEPRECATION. AND THE REAL BREACH IS IN **OUR OWN LADDER-B**: SIX SINGLE-STEP FD NUMBERS, UNDISCLOSED, UNDER A RULE THAT WAS LIVE LAW WHEN THEY WERE PRODUCED — AND §2 OF MY CHARTER CITES **ALL SIX**** (2026-09-04, `date -u` stamp in the committing invocation)
+
+###### 1. THE WITHDRAWAL, LANDED WHERE IT CANNOT BE RE-DERIVED WRONG
+
+`VERIFICATION_CHARTER.md:854-855`: *"Confirm the step sits in the well-converged plateau with a **two or three point mini-sweep**. Not assumed."* `DAFOAM_CHARTER.md` §3 **delegates** to it (`:97-100`) and adds only the tolerance and the level — **nothing about N**. Its forbidden list draws the line at **"a single step"**.
+
+**I ruled the opposite by reading §3's HEADING and never opening the clause it defers to.** Three corroborations I did not solicit: the 12-invocation founding study **recommends 2–3 points as the standing protocol**; `d19_step_table.py` reads it identically; `curriculum_D8/RESULTS.md` publishes under *"the two-point mini-sweep every graded step rests on"* and **graded `PASS`**.
+
+**Withdrawn in `DAFOAM_CHARTER.md` §20 (`7fca65ce`, v1.0e → v1.0f), rule 6 PROVED ON BYTES (`cmp -n 134405`).** **Eighteen class-(b) items owe no caveat**, and option (A) would have written **a false self-deprecation** onto their faces — *a misstatement in the modest direction is still a misstatement.*
+
+**What survives, recorded as an IMPROVEMENT and not a duty:** a two-point pair grades at `s_hi` with its only neighbour **below**, so **the plateau is one-sided by construction**. **Measured instance of the blind side firing:** D16 `PATCHED` `CL` `shape[6]` — **14.0978 % coarse-side against 1.1268 % fine-side.** Buying a third point is a strengthening; not buying it is not a breach.
+
+###### 2. ⚠⚠ THE REAL BREACH — AND THE DEFENCE I WOULD HAVE REACHED FOR IS REFUTED AT SOURCE
+
+**Six FD numbers in three ladder-b records rest on ONE STEP**, verified per number with a planted control run **both** ways first (the reader was shown finding cell 5491's genuine two-step case, and shown *not* inventing a second step where none exists):
+
+| record | numbers | steps |
+|---|---|---|
+| `S1_CBFS_REINVERSION_PREREGISTRATION.md:209-211` | **0.032 / 0.115 / 0.009 %** | `run_fd8.sh:12` hard-codes `0.05`; `ledger.csv` holds exactly 6 perturbed primals + 1 base |
+| `W4_ADJOINT_PC_UNBLOCK.md:321-322` | **0.059 / 0.199 %** | one row each |
+| `VERIFICATION_cbfs_unblock_supervisor_sweep.md:99` | **0.0211 %** | *"two-sided"* = the central **pair**, not two steps |
+
+**⚠ THE RETROACTIVITY DEFENCE FAILS, AND THIS IS THE FINDING I WOULD NOT HAVE THOUGHT TO CHECK.** §3 is dated 2026-08-22 and postdates every record — so the obvious rebuttal is that a later rule cannot bind an earlier freeze. **But §7 step 1 entered `VERIFICATION_CHARTER.md` at commit `ea53c110`, 2026-07-30 18:53:17 — FIVE DAYS BEFORE W4 RAN and EIGHT DAYS BEFORE THE S1 PREREG FROZE.** **The mini-sweep duty was live law when all six numbers were produced. §3 did not create the duty; it named the consequence of breaching one that already bound.**
+
+**AND THE EXPOSURE IS SIX OF SIX, NOT FIVE — a correction to me.** `DAFOAM_CHARTER.md:77-80` cites seven numbers; **six are the single-step ones** and the seventh (0.085 %) is the two-step one. **Every single-step number is cited in §2. The self-inconsistency is total, not partial.**
+
+**Two more defects the audit found that I had not named:** the S1 §C table has **no step column AND no sign-match column**, yet asserts *"zero sign flips"* beneath it — and §7 step 3 (a component moving >50 % of its magnitude **across one decade of step**) was **not merely omitted, it was UNEXECUTABLE on a single point.** Also `S1_CBFS_REINVERSION_RESULT.md:93` reads **`GATE PASS`**, not in rule 1's vocabulary.
+
+###### 3. THE DISPOSITION — DISCLOSE NOW, BUY THE EVIDENCE, DISPOSE THIRD
+
+**RULED, and the sequencing is the lane's argument and it is right:** the evidence points to **`NOT A RESULT`, not `GATE FAIL`** — *the value is not shown to be WRONG; it is shown to be UNVERIFIED at the one precondition §7 step 1 requires be met before a value is read at all.* **That is the `NOT A RESULT` register in its exact sense**, the same logic rule 5 encodes for a non-CONVERGING triple.
+
+**But I am NOT relabelling before the step is bought**, because relabelling first would leave this family with **NO defended field-inversion FD number at all** and §2's harness-floor paragraph with nothing underneath it. **Buy the evidence, then dispose.** Under Sanaa's order, buying it *is* the fix — **45.5 core-min for the S1 arm, derived $0.039, against an item that already spent 424.80. Ten point seven per cent, for four cents.** *A gate defended by a measurement declined for four cents is weakly defended.*
+
+**AND THE SEPARATION I AM MAKING EXPLICIT, because the two have been read as one object:** `G1` (−74.2 %) and `G2` (26.9 %) depend on the gradient being **USABLE** — established independently by the bit-identical eval-1 control and the cold final-state reproduction — **not on the FD row's MAGNITUDE. Relabelling the FD row does NOT bring the inversion verdicts down with it.**
+
+**A trap the lane found and priced rather than stepping into:** §3 requires the sweep **at the tolerance the graded run uses**, and W4's is `1e-6` — the tolerance later measured as itself polluting FD (**25.9 % → 0.032 % on the tolerance change alone**). **A limb bought at 1e-6 would measure the plateau of a protocol this lab has since shown defective.** Both options priced (19.0 vs ~99 core-min); **the lane recommended and did not choose, which was correct.**
+
+*Free repair, adjacent: `DAFOAM_CHARTER.md:75-76` quotes §7 step 4's "a number below that is a claim about the harness" as LIVE TEXT and spends a paragraph rebutting it — **that sentence was STRUCK as invented on 2026-09-03** (this family's own `S-43` §6 dealt with the same strike). §2 is rebutting an accusation already withdrawn, while resting on numbers §3 forbids quoting.*
+
+###### 4. THIRD TIME A LANE HAS TOLD ME A REQUIREMENT OF MINE WAS NOT SATISFIABLE AS WORDED
+
+I asked for the disclosure *"where the numbers are read and not in a closing paragraph."* **For the FROZEN prereg that is impossible** — the numbers are read at `:207-211` and rule 6 permits only a foot addendum; an in-place insert renumbers every line below and breaks citations into the file. **The lane drafted a foot addendum that names its governed line range in its own first line, and put the read-point note in the NON-FROZEN records instead.**
+
+**Third instance today** — after the `--gscan` narrowing and the `G-UNBOUND` port. **Each time a lane could have satisfied my words and produced something meaningless, and each time it said so instead.**
+
+###### 5. STATE
+
+**Three lanes, at cap, ALL ZERO-COMPUTE.** Nothing frozen, nothing enqueued, no solver started today. **NOT on Sanaa's desk yet, deliberately:** no published verdict has moved; if the disposition relabels `:92`, that IS a verdict change and **it goes to her with the evidence then** — the same discipline as the component-3 numeric, still held back.
+
+**OWED BY ME:** check 1 ×3 as code lands; check 4 at every freeze; the `:92` disposition after the measurement; the §2 charter repair on both halves.
+
+
 ##### UPDATE S-67 — **TWO RULINGS TAKEN ON `A1WRT2`, AND THE DECIDING ARGUMENT FOR THE FIRST IS NOT BOOKKEEPING: A SINGLE PROCESS WOULD MAKE THE ITEM'S OWN FALSIFIER UNABLE TO STOP THE 675 CORE-MIN IT EXISTS TO STOP. AND I HAVE SENT AN AUDIT AT OUR OWN COMPLIANCE WITH THE BRIGHT LINE WE ENFORCE ON EVERYBODY ELSE** (2026-09-04, `date -u` stamp in the committing invocation)
 
 ###### 1. RULING — `SEAM`→`TAIL` IS A TWO-TREE, TWO-ARM CHAIN; §3's *"IN THE SAME PROCESS"* IS STRUCK
