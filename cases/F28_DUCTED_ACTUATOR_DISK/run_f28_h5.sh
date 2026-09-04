@@ -53,6 +53,7 @@ usage: run_f28_h5.sh --mode {pilot-control|pilot-treatment|arm} [--dry-run]
 
   pilot-control    72 iterations, writeResidualFields FALSE, run root H5P_C_L1_dp1000_U20
   pilot-treatment  72 iterations, writeResidualFields TRUE,  ONE snapshot (onEnd)
+  pilot-verify     as pilot-treatment, different run root; verifies AMENDMENT 3 ONLY
   arm             200 iterations, writeResidualFields TRUE,  FIVE snapshots (every 40)
 
   --dry-run  assemble the case and run every guard, then STOP before the solver.
@@ -73,6 +74,20 @@ done
 case "$MODE" in
   pilot-control)   NAME="H5P_C_L1_dp1000_U20"; NITER=72;  TREAT=0; SNAPS="" ;;
   pilot-treatment) NAME="H5P_T_L1_dp1000_U20"; NITER=72;  TREAT=1; SNAPS="onEnd" ;;
+  # AMENDMENT 4, 2026-09-04 -- ADDITIVE ONLY, authorised by cfd-supervisor
+  # ruling 1 after check 1 passed on amendment 3.  `pilot-verify` is
+  # BYTE-FOR-BYTE the `pilot-treatment` configuration and differs ONLY in its
+  # run-root name, because `H5P_T_L1_dp1000_U20` is spent and the virgin guard
+  # refuses an existing root.  It exists to verify ONE mechanical fact --
+  # THAT AMENDMENT 3 MAKES THE SOLUTION FIELDS LAND AT endTime -- which a
+  # `--dry-run` cannot test, because the defect is in SOLVER WRITE BEHAVIOUR.
+  # NO EXISTING MODE'S BEHAVIOUR IS CHANGED by this amendment, so both spent
+  # pilot limbs remain reproducible from their own registered modes.
+  # IT PRODUCES NO PHYSICS CLAIM.  If the write still does not fire at endTime,
+  # the instruction is to STOP AND REPORT -- never to adjust and retry, because
+  # a second silent adjustment after compute is where a lawful mechanical fix
+  # turns into fitting the instrument to the answer.
+  pilot-verify)    NAME="H5P_V_L1_dp1000_U20"; NITER=72;  TREAT=1; SNAPS="onEnd" ;;
   arm)             NAME="H5A_L1_dp1000_U20";   NITER=200; TREAT=1; SNAPS="40" ;;
   *) usage ;;
 esac
