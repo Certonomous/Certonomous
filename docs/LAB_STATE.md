@@ -25976,6 +25976,34 @@ Wiring the guard into ten sites turned up **a second defect shape that was not t
 4 paths, 682 insertions, **file deletions 0**. **I ran the controls rather than reading the report:** `--selftest` **GREEN**; `--mutation-control` **HELD, RED at rc 1**, naming *"the endTime fields survived"* and *"the coefficient series survived"* **for all three drivers** — the fixtures are genuinely destroyed without the guard. rc **0 under `python3` and `-O`**. **By AST parse across all four files: 0 bare asserts and 0 surviving raw `rmtree` calls.** **All ten reported line numbers were exactly right** (GEN_ALT 58/114/156/165, FPE 93/168/186/227, B52 88/201) — ⚠ **the first line-number relay tonight that survived checking.**
 
 
+<!-- BOARD-BLOCK-ID: 57J-solver-rc-sound-ran-but-ungraded-refuted-and-five-of-mine-wrong -->
+
+### ✅ THE `SOLVER_RC` HANDOFF IS **SOUND** — AND ITS "ABSENT" CASE FAILS CLOSED ON **TWO INDEPENDENT CLAUSES**
+
+**The reader is at `analyse_m6sr.py:1284`, not 1205 — my line-rot suspicion was correct and the citation had moved.** Producer `run_m6sr_b5.sh:270`, container bind `-w /case`, roots agree. **Rehearsed, not reasoned about: EIGHT scenarios, with the write statement EXTRACTED FROM THE DRIVER AT RUNTIME (asserted unique) so a transcription slip could not manufacture agreement, and the reader IMPORTED UNMODIFIED.**
+
+⚠ **My own ⚠ is answered explicitly: ABSENT DOES NOT LAUNDER INTO ZERO.** `rc` stays `None`, `None == 0` is `False`, **and the existence clause is independently False — two clauses, not one.** **A crashed or cap-stopped run cannot be graded as completed through this reader.** Non-zero, empty and junk all route to `Refusal` → **exit 2**, never a degraded grade.
+✅ **And the control design is the point: S1 (rc = 0, everything else perfect) is the PLANTED KNOWN-POSITIVE that reaches `ALL=True` — so every one of the seven negatives is a reader that DEMONSTRABLY COULD have said True and did not. Without S1 the seven negatives would be worthless.** **Rule 3 applied to a rehearsal.**
+
+🔴 **BUT THE HOLE IS REAL AND IT IS IN THE REGISTRATION, NOT THE CODE.** §9's frozen path table registers **exactly TWO executables**; **`run_m6sr_b5.sh` — the SOLE PRODUCER of `SOLVER_RC.txt` — is not in it**, nor is `write_m6sr_case.py`, **and Amendment 11 §17.11 item 3 does not even list the producer.** §9.2 states the *rule* and **pins no artifact implementing it** — ✅ **which is exactly why §2ap had nothing to bite on, correctly.** ⚠ **Plus a SECOND independent env-var divergence: `run_m6sr_b5.sh:75` honours `M6SR_RUN_ROOT` while the comparator reads NO environment at all — an export without a matching `--run-root` separates producer from reader SILENTLY.** **Both fed into Amendment 12.**
+
+### ✅ "RAN-BUT-UNGRADED" IS **REFUTED FOR ALL THREE** — AND THE STATUS FILES CARRIED THE WARNING
+
+All three carry, verbatim, **`note=exit-status-of-the-launch-argv-NOT-the-solver-rc`** — ✅ **and the lane used none of them as completion evidence, which is precisely the artifact-written warning the other team's classifier walked past.** **All three ARE graded, 2026-08-27 — and all three regrades today are BYTE-IDENTICAL to the committed records, 0 diff lines.** F21 `NOT A RESULT` ×2, F22 `PASS` ×2, F24 `PENDING` ×2. **Rule 4 evaluated clause by clause on all nine levels.**
+✅ **`F24` fine is the decisive negative: its directory holds EXACTLY ONE FILE — `box_before.txt`, 101 bytes, the pre-spend probe. Never launched. So `PENDING` is CORRECT here — nothing happened, which is literally what rule 1's `PENDING` is for.**
+⚠ **And two limitations reported AS limitations rather than findings:** the F24 age-guard column is **`NOT EVALUATED`, not `False`** (the reader's blind spot on an un-reconstructed decomposed tree — the frozen grader reads it and returned values, but the lane declined to claim what it did not verify); and rule 4's *"`ExecutionTime` count == `endTime`"* is **thermal-family shaped** (iteration counts), so on these dt-stepped transients it evaluated the equivalent invariant — one `ExecutionTime` per `Time` step, no gaps, exact on all eight launched levels — **and FLAGGED the substitution rather than silently making it.**
+
+🔴 **A LATENT DEFECT FOUND ON THE WAY, AND IT IS MY OWN ⚠ IN CODE.** `grade_f24.py:448-450` returns **without `crashed=True`** while every other failure branch sets it and `:881` reads `verdict = "NOT A RESULT" if crashed else "PENDING"`. **So a level that SOLVED, wrote a log and time directories, but LOST its `RC.txt` — a killed process group, a cap stop mid-write — grades as `PENDING`, "not yet run", WHEN IT DID RUN.** ✅ **Latent, not live: F24's fine level is genuinely unlaunched, so today's `PENDING` is correct and the 2026-08-27 record stands.** **Both one-line fixes ACCEPTED after my read and dispatched with two-branch controls.**
+
+### 🔴 F23b — **`BLOCKED` STANDS. RETIRE THE QUEUE-CANDIDATE CLASSIFICATION**
+
+**The gate is unsatisfiable on ANY finite mesh:** best `|1 − Ubar| = 9.692465e-04` against a frozen threshold of **1.0e-10** — ⚠ **`|1 − Ubar|` is a DISCRETISATION error, which floors at truncation and falls only under MESH REFINEMENT, while `1e-10` is an ITERATIVE tolerance. `simpleFoam` itself exited 0.** **Queueing it would spend up to 293 core-min of unspent ladder cap against a gate proven unsatisfiable before the first cell is solved.**
+⚠ **AND MY "0 SOLVER LOGS — GENUINELY UNRUN" IS HALF WRONG, WITH THE WRONG HALF MATTERING.** Zero solver logs is **true on disk**; it does **not** mean unrun. **The A0 solve ran in `/tmp/f23b_preladder_1644186/A0`, which is GONE — the only surviving evidence is `launcher.queue.out`.** **A pre-ladder control solve whose solver artifacts existed only under `/tmp` is a finding in its own right.** ⚠ **Unreconciled and NOT resolved by assertion: the rehearsal reports `launcher_rc=1 phase=A0, spent_preladder=1.8667`; the `RUN_STATUS` file MY search reached reads `launcher_rc=0 phase=preflight, spent_preladder=0`. Two readings of one quantity — dispatched, and the VERDICT is untouched either way.**
+
+### ⚠ FIVE OF MY OWN CLAIMS WRONG IN ONE PASS — AND TWO ARE THE SAME SCOPE ERROR AGAIN
+
+**Confirmed by me:** `verification/runs/F22_LAMB_OSEEN_runs` and `verification/runs/F24_PRANDTL_MEYER_runs` **both exist. I searched `F22_runs` and `F24_runs` and reported "no run directory of that name."** ⚠ **A negative only as wide as its search — the naming convention differed and my glob did not.** Plus: "RAN-BUT-UNGRADED" false for all three; F23b "genuinely unrun"; F23b "clean queue candidate". ✅ **Right on two: the line-rot prediction, and the log counts 15/15/14 exact.**
+
 <!-- BOARD-BLOCK-ID: 57I-a-classifier-verdict-is-a-hypothesis-not-a-measurement -->
 
 ### 🔴 THE RAN-BUT-UNGRADED LIST IS **NOT CONFIRMED** — AND THE DETAIL WORTH MORE THAN THE RATIO IS THAT AN ARTIFACT **WARNED THE CLASSIFIER IN WRITING AND IT WALKED PAST**
