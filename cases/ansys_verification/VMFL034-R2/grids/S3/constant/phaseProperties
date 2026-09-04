@@ -1,0 +1,285 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: v2606  VMFL034-R2                      |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      phaseProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// VMFL034-R2 -- constant-kernel aggregation in a CMSMPR box.
+//   phase 'air'   = the DISPERSED, AGGREGATING PARTICLE PHASE (velocityGroup +
+//                   sectional sizeGroups). Name inherited from the template
+//                   (PREREGISTRATION s.D.1 disclosure: no air, no bubbles here).
+//   phase 'water' = continuous carrier (rho=998.2, mu=0.00103 via thermo);
+//                   constant drag diameter 1e-5 m (flow decoupled by construction;
+//                   single shared dispersed velocity via velocityGroup).
+// Sectional grid is NOMINAL O(1) (Ruling 4), geometric d in [0.45, 22.0].
+// THIS INSTANCE: 64 size groups -- one level of the r=2 (N_g/2N_g/4N_g)
+//   section-7 triple 16/32/64. The sizeGroups list below is emitted by the PINNED
+//   generator gen_sizegroups.py (Wheeler quadrature + Kumar-Ramkrishna fixed pivot)
+//   from the frozen archive feed moments; it is FROZEN material, not synthesised at
+//   grade time.
+// coalescenceModels: constant rate 2000 [m3/s] = beta0_OF = Da/(alpha2*tau) =
+//   100/(1e-2*5) at the RESCALED tau=5 s (PREREGISTRATION s.C.A/RULING A).
+
+type            populationBalanceTwoPhaseSystem;
+
+phases          (air water);
+
+populationBalances (bubbles);
+
+air
+{
+    type            purePhaseModel;
+    diameterModel   velocityGroup;
+    velocityGroupCoeffs
+    {
+        populationBalance    bubbles;
+
+        formFactor      0.5235987756;   // pi/6, spheres
+
+        sizeGroups
+        (
+            f0{d 4.50000000e-01; value 0.0;}
+            f1{d 4.78658057e-01; value 0.0;}
+            f2{d 5.09141190e-01; value 0.01526508271;}
+            f3{d 5.41565628e-01; value 0.0006627297792;}
+            f4{d 5.76055003e-01; value 0.0;}
+            f5{d 6.12740819e-01; value 0.0;}
+            f6{d 6.51762955e-01; value 0.0;}
+            f7{d 6.93270200e-01; value 0.0;}
+            f8{d 7.37420815e-01; value 0.0;}
+            f9{d 7.84383143e-01; value 0.0;}
+            f10{d 8.34336247e-01; value 0.0;}
+            f11{d 8.87470593e-01; value 0.0;}
+            f12{d 9.43988778e-01; value 0.0;}
+            f13{d 1.00410630e+00; value 0.0;}
+            f14{d 1.06805238e+00; value 0.0;}
+            f15{d 1.13607083e+00; value 0.3506008152;}
+            f16{d 1.20842102e+00; value 0.1589077361;}
+            f17{d 1.28537879e+00; value 0.0;}
+            f18{d 1.36723759e+00; value 0.0;}
+            f19{d 1.45430953e+00; value 0.0;}
+            f20{d 1.54692661e+00; value 0.0;}
+            f21{d 1.64544197e+00; value 0.0;}
+            f22{d 1.75023123e+00; value 0.03231137913;}
+            f23{d 1.86169396e+00; value 0.4422522571;}
+            f24{d 1.98025514e+00; value 0.0;}
+            f25{d 2.10636684e+00; value 0.0;}
+            f26{d 2.24050991e+00; value 0.0;}
+            f27{d 2.38319582e+00; value 0.0;}
+            f28{d 2.53496862e+00; value 0.0;}
+            f29{d 2.69640701e+00; value 0.0;}
+            f30{d 2.86812654e+00; value 0.0;}
+            f31{d 3.05078194e+00; value 0.0;}
+            f32{d 3.24506968e+00; value 0.0;}
+            f33{d 3.45173056e+00; value 0.0;}
+            f34{d 3.67155254e+00; value 0.0;}
+            f35{d 3.90537378e+00; value 0.0;}
+            f36{d 4.15408584e+00; value 0.0;}
+            f37{d 4.41863701e+00; value 0.0;}
+            f38{d 4.70003602e+00; value 0.0;}
+            f39{d 4.99935579e+00; value 0.0;}
+            f40{d 5.31773762e+00; value 0.0;}
+            f41{d 5.65639546e+00; value 0.0;}
+            f42{d 6.01662058e+00; value 0.0;}
+            f43{d 6.39978649e+00; value 0.0;}
+            f44{d 6.80735414e+00; value 0.0;}
+            f45{d 7.24087757e+00; value 0.0;}
+            f46{d 7.70200975e+00; value 0.0;}
+            f47{d 8.19250894e+00; value 0.0;}
+            f48{d 8.71424536e+00; value 0.0;}
+            f49{d 9.26920834e+00; value 0.0;}
+            f50{d 9.85951390e+00; value 0.0;}
+            f51{d 1.04874128e+01; value 0.0;}
+            f52{d 1.11552992e+01; value 0.0;}
+            f53{d 1.18657196e+01; value 0.0;}
+            f54{d 1.26213829e+01; value 0.0;}
+            f55{d 1.34251703e+01; value 0.0;}
+            f56{d 1.42801465e+01; value 0.0;}
+            f57{d 1.51895715e+01; value 0.0;}
+            f58{d 1.61569128e+01; value 0.0;}
+            f59{d 1.71858589e+01; value 0.0;}
+            f60{d 1.82803329e+01; value 0.0;}
+            f61{d 1.94445081e+01; value 0.0;}
+            f62{d 2.06828233e+01; value 0.0;}
+            f63{d 2.20000000e+01; value 0.0;}
+        );
+    }
+
+    residualAlpha   1e-6;
+}
+
+water
+{
+    type            purePhaseModel;
+    diameterModel   constant;
+    constantCoeffs
+    {
+        d               1e-5;   // Ruling 3: constant drag diameter, flow decoupled
+    }
+
+    residualAlpha   1e-6;
+}
+
+populationBalanceCoeffs
+{
+    bubbles
+    {
+        continuousPhase water;
+
+        coalescenceModels
+        (
+            constant
+            {
+                rate    rate [0 3 -1 0 0 0 0] 2000;
+            }
+        );
+
+        binaryBreakupModels
+        ();
+
+        breakupModels
+        ();
+
+        driftModels
+        ();
+
+        nucleationModels
+        ();
+    }
+}
+
+blending
+{
+    default
+    {
+        type            linear;
+        minFullyContinuousAlpha.air 0.7;
+        minPartlyContinuousAlpha.air 0.3;
+        minFullyContinuousAlpha.water 0.7;
+        minPartlyContinuousAlpha.water 0.3;
+    }
+
+    drag
+    {
+        type            linear;
+        minFullyContinuousAlpha.air 0.7;
+        minPartlyContinuousAlpha.air 0.5;
+        minFullyContinuousAlpha.water 0.7;
+        minPartlyContinuousAlpha.water 0.5;
+    }
+}
+
+surfaceTension
+(
+    (air and water)
+    {
+        type            constant;
+        sigma           0.07;
+    }
+);
+
+aspectRatio
+(
+    (air in water)
+    {
+        type            constant;
+        E0              1.0;
+    }
+
+    (water in air)
+    {
+        type            constant;
+        E0              1.0;
+    }
+);
+
+drag
+(
+    (air in water)
+    {
+        type            SchillerNaumann;
+        residualRe      1e-3;
+        swarmCorrection
+        {
+            type        none;
+        }
+    }
+
+    (water in air)
+    {
+        type            SchillerNaumann;
+        residualRe      1e-3;
+        swarmCorrection
+        {
+            type        none;
+        }
+    }
+
+    (air and water)
+    {
+        type            segregated;
+        m               0.5;
+        n               8;
+        swarmCorrection
+        {
+            type        none;
+        }
+    }
+);
+
+virtualMass
+(
+    (air in water)
+    {
+        type            constantCoefficient;
+        Cvm             0.5;
+    }
+
+    (water in air)
+    {
+        type            constantCoefficient;
+        Cvm             0.5;
+    }
+);
+
+heatTransfer
+(
+    (air in water)
+    {
+        type            RanzMarshall;
+        residualAlpha   1e-4;
+    }
+
+    (water in air)
+    {
+        type            RanzMarshall;
+        residualAlpha   1e-4;
+    }
+);
+
+phaseTransfer
+(
+);
+
+lift
+(
+);
+
+wallLubrication
+(
+);
+
+turbulentDispersion
+(
+);
+
+pMin            10000;
+
+
+// ************************************************************************* //

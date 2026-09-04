@@ -1,0 +1,100 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2606                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// VMFL034 CMSMPR box: square side 0.1 m; inlet opening 0.02 m (left, mid-height),
+// outlet opening 0.02 m (right, mid-height); top/bottom walls moving toward outlet.
+// 2-D (single cell in z, depth 0.01 m; empty front/back). tau = V/Q = 100 s is
+// independent of the z depth (both V and Q carry it).
+
+scale   1;
+
+vertices
+(
+    // z = 0 plane
+    (0    0     0)      // 0
+    (0.1  0     0)      // 1
+    (0.1  0.04  0)      // 2
+    (0    0.04  0)      // 3
+    (0.1  0.06  0)      // 4
+    (0    0.06  0)      // 5
+    (0.1  0.1   0)      // 6
+    (0    0.1   0)      // 7
+    // z = 0.01 plane
+    (0    0     0.01)   // 8
+    (0.1  0     0.01)   // 9
+    (0.1  0.04  0.01)   // 10
+    (0    0.04  0.01)   // 11
+    (0.1  0.06  0.01)   // 12
+    (0    0.06  0.01)   // 13
+    (0.1  0.1   0.01)   // 14
+    (0    0.1   0.01)   // 15
+);
+
+blocks
+(
+    // band 0: y in [0, 0.04]
+    hex (0 1 2 3 8 9 10 11)    (50 20 1) simpleGrading (1 1 1)
+    // band 1: y in [0.04, 0.06]  (carries inlet on left, outlet on right)
+    hex (3 2 4 5 11 10 12 13)  (50 10 1) simpleGrading (1 1 1)
+    // band 2: y in [0.06, 0.1]
+    hex (5 4 6 7 13 12 14 15)  (50 20 1) simpleGrading (1 1 1)
+);
+
+edges
+(
+);
+
+patches
+(
+    patch inlet
+    (
+        (3 11 13 5)
+    )
+    patch outlet
+    (
+        (2 4 12 10)
+    )
+    wall topWall
+    (
+        (7 6 14 15)
+    )
+    wall bottomWall
+    (
+        (0 1 9 8)
+    )
+    wall fixedWalls
+    (
+        (0 3 11 8)     // left, band 0
+        (5 7 15 13)    // left, band 2
+        (1 2 10 9)     // right, band 0
+        (4 6 14 12)    // right, band 2
+    )
+    empty frontAndBack
+    (
+        (0 3 2 1)      // z=0, band 0
+        (3 5 4 2)      // z=0, band 1
+        (5 7 6 4)      // z=0, band 2
+        (8 9 10 11)    // z=0.01, band 0
+        (11 10 12 13)  // z=0.01, band 1
+        (13 12 14 15)  // z=0.01, band 2
+    )
+);
+
+mergePatchPairs
+(
+);
+
+
+// ************************************************************************* //
