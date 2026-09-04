@@ -5071,11 +5071,78 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-04T01:43:41Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-52` — **a SECOND board-clobber of this section tonight, by a different team and a different mechanism, and it deleted the block that NAMES the defect. Restoration verified byte-identical by me, not taken on relay. The rule-10 escalation is now corroborated, three instances across three agents.** Before it, `S-51` (`SO3aF2` ADDENDUM 15 passed checks 1 and 4; `XM2` approved), `S-50` (`W3` `NOT A RESULT`), `S-49`, `S-48` (RESTORED), `S-47`…`S-29`.
+**Section last written:** 2026-09-04T01:50:22Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-53` — **`SO3aF2` ran clean, `F1`–`F5` all HIT — and the item still has NO VERDICT BY CONSTRUCTION, because its frozen §5 registers two FAILURE labels and no success label. It is also 3.15 % over a ceiling NOTHING EVER COMPARED ANYTHING TO. Readings stand; breach stands; neither cancels the other.** Before it, `S-52`, `S-51`, `S-50` (`W3` `NOT A RESULT`), `S-49`, `S-48`, `S-47`…`S-29`.
 
 **Section last written:** 2026-09-04T01:08:43Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-48` — **`W3` IS NOT RUNNING AND HAS NOT BEEN SINCE 21:57:49Z; IT REACHED ITS REGISTERED TERMINUS, AND THE REGISTERED FALLBACK DOES NOT RESCUE IT.** `S-47`'s and `S-46`'s *"`W3_chain_r2` running"* lines are **STRUCK BY QUOTE** below — they were true when written and were still being relayed three hours after they stopped being true. Before it, `S-47` — **DESK ITEMS CLOSED**: the **rule-10 hole is fixed in the constitution itself** on Sanaa's GO (`0ee2e7df`, verified by me at HEAD, not taken on relay), and the rule-12 estimate gap is **routed to verification** as a forward-only note. `S-46`'s "on Sanaa's desk" line is **struck by quote** so no successor re-escalates a closed item. **Nothing now on her desk from this family** but the four `NOT FILED` upstream defect classes and FD-vs-adjoint as a fourth `V` instrument. Before it, `S-46` (closing state), `S-45`, `S-44`, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+##### UPDATE S-53 — **`SO3aF2` RAN CLEAN AND `F1`–`F5` ALL HIT — AND THE ITEM STILL HAS **NO VERDICT, BY CONSTRUCTION**, BECAUSE ITS FROZEN §5 REGISTERS TWO FAILURE LABELS AND NO SUCCESS LABEL. THE ITEM IS ALSO 3.15 % OVER A CEILING THAT **NOTHING EVER COMPARED ANYTHING TO**. THE READINGS STAND; THE BREACH STANDS; NEITHER CANCELS THE OTHER** (2026-09-04, `date -u` stamp in the committing invocation)
+
+###### 1. THE PHYSICS — `rc=0`, THE FIRST CLEAN EXIT IN NINE LAUNCHES
+
+`ARM=XM STAMP=2026-09-04T013622Z rc=0 wall_s=149 ranks=1 core_min=2.4833 cap 6.0 cap_exceeded=0`. Scored by the **untouched** frozen reader — `so3af2_read.py` still `d5f4149d43abe3a165ffe7e653b78bee`, **verified by me after the run**, with its own 17/17 selftest immediately before grading.
+
+| id | reading | |
+|---|---|---|
+| **F1** | tolerance lines **3**, residual histories **3**, **the two readings AGREE** | **HIT** |
+| **F2** | all three `CD` and `CL` reproduce at **0 % relative**; `J` reproduces | **HIT** |
+| **F3** | `mp0 [0,443]`, `mp1 [0,436]`, `mp2 [0,424]` — **three distinct run directories** | **HIT** |
+| **F4** | collision token count **0** | **HIT** |
+| **F5** | `J` recomputed == `J` read == `0.02180598162892116` | **HIT** |
+
+**The planted control fired on the GRADED RUN, not only in the suite** — `blocks=3 blocks_with_residuals=3 plant_demonstrated=True`, with direction B reading `live_reads_HIT=True, planted_reads_HIT=False`. §5's registered prediction, **written before any solver ran, was F1–F5 all HIT.** Confirmed. **`F3` and `F4` carried the real information — neither had ever been observed on this case in a multipoint assembly — and both landed.**
+
+###### 2. ⚠ THE RULING ON THE LABEL: **NO ITEM VERDICT EXISTS, BY CONSTRUCTION**
+
+**The lane declined to write a label and was right.** Its reason was symmetry — *§5 forbids a MISS being written as `GATE FAIL`, so a HIT is not licensed to become a `PASS` because the answer came out well.* **My reason is firmer, and it is the frozen text**, read by me at `FEASIBILITY_PREREGISTRATION.md:271-274`:
+
+> *"These are predictions, not gates… The only verdict vocabulary this item may emit is `BLOCKED` (a NO-LAUNCH branch fired) or `NOT A RESULT` (an infrastructure refusal), and both describe the item, never a number."*
+
+**Those two are the item's FAILURE labels. The registration deliberately registers NO SUCCESS LABEL, because there is no gate to pass.** Neither fired — and nothing else in rule 1 fits: `PASS`, `GATE REACHED` and `GATE FAIL` all presuppose a gate; `PENDING` is a display state for *not yet run*.
+
+**So the item emits no verdict token at all, and that is the CORRECT outcome rather than a hole in the work. The five HITs are a REPORT, and the report is the product.** `PASS` is not written anywhere near this item, and **no successor may quote the five HITs as one.**
+
+**⚠ AND THE FINDING IS MINE, NOT THE LANE'S: this family has now completed TWO items with no expressible verdict** — `A1WRT` and `SO3aF2`. **Two is a pattern in registration DESIGN, not a gap in the vocabulary.** An item whose predictions can all land and still leave nothing sayable was designed without asking what success would be called. **That is repaired in future registrations by me; it is not repaired in these two.**
+
+###### 3. THE CEILING BREACH — RECORDED, NOT VOIDING, AND THE CEILING IS **NOT** RAISED
+
+**9.2833 core-min against §7's registered ceiling of 9.0 — over by 0.2833, 3.15 %**, computed from the ledger by machine rather than by hand. The **arm's** cap passed (2.4833 of 6.0) and **the lane refused to let that excuse it**, correctly: 9.0 is the **item** ceiling.
+
+**THE READINGS STAND.** Verification's `FAIL_OPEN_GATE_AUDIT` §28.10 (`420c36bd`), **read by me at source and not on relay**, rules that a budget overrun on a **COMPLETED** run does not void its verdict in either direction — `COMPUTE_BUDGET_CHARTER:197` is prospective and budgetary with no clause tying an overrun to validity; `queue_runner.py:598-606` already classes `CAP_OVERRUN` as INFRASTRUCTURE under L-342; and every overrun-to-`NOT A RESULT` precedent is the **stopped-run** path, where rule 4's completion clause carries the verdict. **A killed run is not a result because it is INCOMPLETE, not because it was expensive.** Sanaa's rule, shorter: **bookkeeping never voids physics.**
+
+**⚠ AND THE SYMMETRY BINDS BOTH WAYS, WHICH IS THE HALF THAT NEEDS SAYING ALOUD.** §28.10 warns that a spurious cost defect beside a clean run is *"ready-made ammunition for voiding an inconvenient verdict and re-running it."* **The mirror hazard is a good result used to wave away a real overrun.** Both stand, separately, and neither pays for the other.
+
+**Disposition:** breach **named** at 3.15 %, never absorbed into a ratio and never netted against the arm cap that passed; **the ceiling is NOT raised** — rule 12 says an overrun does not get a new budget, and raising 9.0 now would be precisely that; **no further compute on this item without a FRESH registration carrying its own ceiling.**
+
+###### 4. ⚠⚠ AND THE CEILING WAS NEVER AN INSTRUMENT — IT WAS A NUMBER
+
+**Verified by me:** `so3af2_run_arm.sh:131` sets `CEILING=9.0`; `:517` echoes `ceiling=$CEILING` into **every ledger row**; and **the value appears nowhere else in any file in that case directory.** The launcher enforces only the per-arm `CAP`.
+
+> **A registered limit that is written into every row, displayed on every line, and compared to nothing. The item ran 3.15 % past it and nothing noticed, because nothing could.**
+
+`CLAUDE.md` **rule 14's** shape — *a lesson is not applied until EVERY call site asserts it* — **in the item that named the dead-lever class.** It is also §A9.3 one level up **and worse**: the arm cap at least reports and aborts; **the ceiling only reports.**
+
+**RULED — NOT repaired in `SO3aF2`.** The item is at rest, nothing further fires, and editing a launcher post-compute for a finished item buys no enforcement while spending the one asset it still has: an instrument history nobody touched after the fact. **Carried forward as a defect for any successor.**
+
+**THE QUESTION WORTH MONEY IS THE POPULATION, NOT THIS LAUNCHER — commissioned as a zero-compute sweep:** across `cases/dafoam/`, every registered budget limit classified **ENFORCED** (its value reaches a comparison whose false branch aborts — with both sites named), **REPORTS ONLY**, or **DEAD**, with the classifier itself planted against a known-enforced and a known-dead example first. **A classifier that has only ever printed DEAD is not evidence that a limit is dead.** The held-queue census I owe rides with it.
+
+###### 5. THE COST GAP — AND A CHARTER CLAUSE THAT DOES NOT REACH SOLVER ARMS
+
+Predicted 0.40, actual **2.4833 — 6.21×**; against the ORIGINAL §7 point of 1.20 it is **2.07×**, and it sits **above that two-anchor bracket's upper bound of 1.533**, so **the original estimate failed in the same direction as the re-anchor.** Row `C-20260904T014338.264068Z-a9b68e9b`. **None of the 2.4833 is waste**; the item's standing waste stays **6.0167** and is not absorbed into the ratio.
+
+**MEASURED: the entire miss is OUTSIDE the solve.** Solver `ExecutionTime` at the third primal **14.13 s this run against 14.11 s in the anchor**, identical iteration counts — **the physics did not slow down; everything around it did**, container 137.1 s against 24.4 s, non-solver in-container ~10 s → ~123 s. **EXCLUDED BY MEASUREMENT:** the repair itself (one ~97 KB read plus a scratch copy, solver time unchanged) and contention (0 containers, dedicated cpuset, `MemAvailable` 27.62 GiB). **MEASURED:** the box ran no container for **2 h 02 m 40 s** beforehand, where the anchors sat 13–15 min apart inside a burst of six.
+
+**ATTRIBUTED AND EXPLICITLY NOT MEASURED: page-cache state.** The lane's own line, and it is the one to keep: *"I can measure where the gap is, not what caused it"* — cache residency at 01:36 cannot be recovered — **"this item has already published one stop as if it were measured."**
+
+**⚠ THE TRANSFERABLE PART, ESCALATED AND DELIBERATELY NOT WRITTEN BY US:** the four registered cost-anchor terms **all matched correctly** — ranks, adjoint, colouring, cold tree — **and the estimate still missed 6.21×, because those four terms do not include cache state, and the clause that does is scoped to items that "run no solver."** `XM2` runs a solver, so **no clause required a cache-state token, and cache state is where the whole miss lives.** Paid for twice already by instrument-only items (**C-212 at 20.1×, C-214 at 4.7×**); this is the same mechanism **arriving where the clause does not reach.** **RECORDED, NOT AMENDED — a charter clause is not a lane's to write and it is not mine either; this is cross-family and goes up with its three data points.**
+
+###### 6. STATE
+
+`SO3aF2` **standing down with a verified rest state**; **`§0.2` binds in full and a good result did not soften it — this item never called `solve_linear` and NOTHING it measured may be quoted toward `SO-3aR`'s adjoint collision, least of all now that it came out well.** `W3` `NOT A RESULT`, `W3S` drafted unfrozen. `D6RF3` drafted unfrozen. `A1WRT` no item verdict by construction, successor **not designed**.
+
+**OPEN, UNCHASED, AND NOT CLOSED BY A GOOD NIGHT:** the frame allowance (**n=1, unresized on one observation**) and the **unexplained census stall**. **OWED BY ME:** the ceiling-sweep and held-queue findings when the lane lands them; check 1 on `W3S`'s `--gscan` binding; `A1WRT`'s successor; the forward-only estimate rule's charter placement; **and now the registration-design repair from §2.**
+
+
 ##### UPDATE S-52 — **SECOND BOARD-CLOBBER OF MY SECTION TONIGHT, BY A DIFFERENT TEAM AND A DIFFERENT MECHANISM — AND IT DELETED THE BLOCK THAT NAMES THE DEFECT. RESTORATION VERIFIED BY ME AS BYTE-IDENTICAL, NOT TAKEN ON RELAY. THE ESCALATION IS NOW CORROBORATED RATHER THAN SINGLE-SOURCED** (2026-09-04, `date -u` stamp in the committing invocation)
 
 ###### 1. VERIFIED BY ME AT HEAD, BECAUSE A RESTORATION REPORTED IS NOT A RESTORATION CHECKED
