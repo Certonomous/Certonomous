@@ -25482,6 +25482,36 @@ Wiring the guard into ten sites turned up **a second defect shape that was not t
 4 paths, 682 insertions, **file deletions 0**. **I ran the controls rather than reading the report:** `--selftest` **GREEN**; `--mutation-control` **HELD, RED at rc 1**, naming *"the endTime fields survived"* and *"the coefficient series survived"* **for all three drivers** — the fixtures are genuinely destroyed without the guard. rc **0 under `python3` and `-O`**. **By AST parse across all four files: 0 bare asserts and 0 surviving raw `rmtree` calls.** **All ten reported line numbers were exactly right** (GEN_ALT 58/114/156/165, FPE 93/168/186/227, B52 88/201) — ⚠ **the first line-number relay tonight that survived checking.**
 
 
+<!-- BOARD-BLOCK-ID: 56W-sanaa-ruled-m6-launches-and-the-autostop-first-success -->
+
+### 🔴 SANAA HAS RULED ON M6 — VERIFIED BY ME AT SOURCE, NOT TAKEN FROM A RELAY
+
+`etc/sessions/2026-09-04T1500Z_sanaa_m6_route_ruling.md`, commit **`70d12a46`**, 15:00:46Z. **Her verbatim words:**
+
+> *"M6SR launches now on the committee family; the third-direction family builds in parallel as the standing capability. Both inside the $1,000 ladder envelope. First physics I want to see: M6 surface Cp at the AGARD span stations against tunnel data, with the family band."*
+
+**This answers the route decision my four-unsatisfiable finding put to her (board `80ffcbdb`), and it answers it BOTH ways: run the committee family now AND build the three-direction family as a standing capability.** ⚠ **Her capture's own text states: *"Nothing in this order widens a gate or relabels a bound."* I hold that line absolutely.**
+
+**What her ruling does and does not change.** It resolves the **route**; it does **not** repeal rule 2. Under her standing launch law a non-ill-posed unsatisfiable gate is **recorded as a prediction and judged by the frozen grader after**, rather than blocking the run — **and none of the four is ill-posed-class.** **So the lawful sequence is: pre-compute Amendment 10 recording all four as falsifiable predictions → MY check 4 freeze → queue row → daemon fires it.** **Amendment 10 is dispatched; the freeze is mine and I have not delegated it.**
+⚠ **`D1`'s per-station channel and the observed-order limb are ALREADY `NOT A RESULT` by construction, so recording them launders nothing** — and the amendment must say that explicitly, so nobody reads a registered prediction as a downgrade obtained after seeing the answer. **`L-HONEST` rides unaltered: what M6SR can produce is the SURFACE-REFINEMENT sensitivity band, a LOWER BOUND, and every figure says so. The full family band comes from the parallel family.**
+
+### ✅ THE AUTO-STOP PATCH'S FIRST UNATTENDED SUCCESS — CONFIRMED FROM ITS OWN JOURNAL, AND ITS LIVENESS GUARD HELD ME OFF FOR AN HOUR FIRST
+
+⚠ **My first look found NOTHING** — no `auto-stop` log at either guessed path. **Instead of publishing "no evidence" (my three scope-errors last night were exactly that), I read the installed script for its OWN sink: `logger -t auto-stop` at `/usr/local/bin/auto-stop.sh:291`. It logs to the JOURNAL, not to a file. The evidence was never missing; MY SEARCH WAS.**
+
+**The trace, `journalctl -b -1 -t auto-stop`:** repeated **`ALIVE: Claude session transcript written within 30min`** from 06:10 through 07:10 — **the liveness guard refusing to stop while I worked** — then a clean idle climb **07:15 `idle 4min` → 07:40 `idle 29min, under threshold 30min -- no action`** → **07:45:11 `idle 34min, shutting down`.** Clean `systemd-poweroff` at 07:45:19, dockerd graceful, last ceiling tick **0 live**, and the daemon's own **`runner.log`: `EXIT reason=SIGTERM pid=995629`**. Back up **14:50:22Z**, daemon **pid 1771**, `--selftest PASS`.
+
+🔴 **This is exactly the failure the patch was written to fix** — the old behaviour powered the box off **mid-campaign** on 2026-07-30 because filming looked idle. **The liveness detection demonstrably works now.**
+
+⚠ **AND THE SAME LOG IS THE SHARPEST MEASUREMENT YET OF THE REGISTRATION-BOUND PROBLEM.** It stopped because **all six queues read 0**, and they read 0 because **nothing of cfd's was frozen and runnable.** **Downtime 7.083 h × 16 vCPU = 113.3 core-h ≈ $5.81 DERIVED** (not measured). **Read it both ways, because both are true: spend correctly avoided, AND 113.3 core-h the mandatory-completion order had work for and could not reach. The instrument succeeded; the pipeline it protects was empty.** **Her ruling is what fills it.**
+
+### THE WORK LIST — TWO ITEMS ARRIVED AS PENDING FOR THE SECOND TIME
+
+Re-verified this session so a third arrival is unnecessary: **JF1G** carries `RULED 2026-09-04 by cfd-supervisor` (`30c5231e`, rule-12 row `416fa81a`); **GF2/AGARD** was unblocked at **`d554e3a7`** — **there is no fetch to dispatch, the table was on the box the whole time.** ⚠ **A list that re-issues discharged items twice is a symptom of a 40,000-line interleaved board — which is what the per-team migration exists to retire.**
+**F5b: both blockers re-checked, UNCHANGED** — its registration still reads **`DRAFT, NOT FROZEN`** and forbids grading **in its own words**, and its declared EVIDENCE file still carries **200 added / 30 deleted** uncommitted lines. **Neither is a permission question; the silence-is-yes interval, however long, does not reach either.**
+**Kill path: refusal stands.** ⚠ **The box being idle removes the live-solvers argument and changes nothing** — the clause's reservation to Sanaa was never conditional on it.
+⚠ **The scratchpad was WIPED by the power-cycle** and two of my writes failed on it mid-command. **L-186 exactly: temp only, never a handoff channel, and no repository document may cite a scratch path.** Recreated; nothing was lost because nothing durable lived there.
+
 <!-- BOARD-BLOCK-ID: 56V-A66-confirmed-and-the-two-sweeps-are-complementary -->
 
 ### ✅ §A6.6 **CONFIRMED** ON A CONTROLLED SWEEP OF ALL 139,864 IGNORED PATHS — NO SECOND ADDENDUM, MY PRE-AUTHORISATION UNUSED
