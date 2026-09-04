@@ -1,0 +1,1 @@
+REFUSE: no DONE.P_Ts_c -- the whole rung is graded or none of it is; mark_done_t19.py rules
