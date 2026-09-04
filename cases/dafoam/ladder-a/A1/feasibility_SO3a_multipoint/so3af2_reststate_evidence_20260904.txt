@@ -129,3 +129,36 @@ which records the 2026-09-03 stand-down and is left untouched beside it.
      show SO-3aR's adjoint collision is fixed, and NOTHING IT MEASURED MAY BE
      QUOTED TOWARD IT. It is a prereg=FEASIBILITY and may never be cited as a
      rule-2 gradient freeze. SUBMISSIONS PARKED.
+
+-----------------------------------------------------------------------------
+POSTSCRIPT, ADDED 2026-09-04 IMMEDIATELY AFTER THE COMMIT THAT LANDED THIS FILE.
+A STALE FIGURE IN ITEM 1, DISCLOSED RATHER THAN QUIETLY REFRESHED.
+
+Item 1 records FEASIBILITY_PREREGISTRATION.md as "disk == HEAD
+a80df11edfa8afbb3e14b3dc96f2055d". THAT WAS TRUE WHEN THIS FILE WAS WRITTEN AND
+IT IS NO LONGER THE FILE'S HASH. ADDENDUM 17 -- which records the label ruling
+and cites this evidence file by name -- was appended to the pre-registration
+AFTER this file was generated, and the two were committed together.
+
+  hash recorded in item 1 above : a80df11edfa8afbb3e14b3dc96f2055d
+  pre-registration now, on disk : 3a60d4848dac6aa7fa7b9bfbfdd77f06
+  pre-registration now, at HEAD : 3a60d4848dac6aa7fa7b9bfbfdd77f06  (equal)
+
+So the CLAIM item 1 makes -- disk == HEAD -- still holds, at a different value.
+The recorded VALUE is stale by exactly one append, and the append is ADDENDUM 17.
+
+This is the ordering knot every one of these evidence files hits: a file that
+verifies a rest state cannot record the hash of the document that will cite it,
+because that document is not written yet. The 2026-09-03 evidence file met the
+same knot and said so in its own item 1. THIS ONE DID NOT, AND THAT IS THE
+DEFECT -- not the stale hash, which is unavoidable, but the missing sentence,
+which was not.
+
+Left disclosed here rather than refreshed in place. Rewriting item 1 would make
+this file agree with itself and would erase the one thing a reader needs to know
+about it: that its figures were taken at a moment, and which moment.
+
+Every other figure in this file was re-checked at this postscript and none moved:
+13 of 13 disk == HEAD (the pre-registration now at the value above), guard suite
+PASS 60 FAIL 0 NOT RUN 0, zero containers, zero queue rows, item total 9.2833
+core-min, and so3af2_read.py still d5f4149d43abe3a165ffe7e653b78bee.
