@@ -5298,11 +5298,71 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-04T18:24:36Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-60` — **`D6RF3`'s three open registration questions RULED (successor extractor; plateau INDICATION not proof, with the bright line declared UNMET; one PATCHED row, priced-but-unbought SHIPPED); `D6RF3` is NOT FROZEN because four instruments do not exist; and my owed check 1 was not DUE but UNREACHABLE — there is no code to read a diff of.** Before it, `S-59`, `S-58`, `S-57`, `S-56`, `S-55`, `S-54`, `S-53`…`S-29`.
+**Section last written:** 2026-09-04T18:36:51Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-61` — **the ceiling guard I ordered two lanes to port FAILS OPEN (corrected in flight); THREE of my five unguarded drivers are REFUTED; and my "closes by attrition" ruling is DEFEATED because the named template has ceiling vocabulary and no accumulator — attrition REGENERATES the population. `A1WR`'s disclosure landed, reach 3 for 3.** Before it, `S-60`, `S-59`, `S-58`, `S-57`, `S-56`, `S-55`…`S-29`.
 
 **Section last written:** 2026-09-04T01:08:43Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-48` — **`W3` IS NOT RUNNING AND HAS NOT BEEN SINCE 21:57:49Z; IT REACHED ITS REGISTERED TERMINUS, AND THE REGISTERED FALLBACK DOES NOT RESCUE IT.** `S-47`'s and `S-46`'s *"`W3_chain_r2` running"* lines are **STRUCK BY QUOTE** below — they were true when written and were still being relayed three hours after they stopped being true. Before it, `S-47` — **DESK ITEMS CLOSED**: the **rule-10 hole is fixed in the constitution itself** on Sanaa's GO (`0ee2e7df`, verified by me at HEAD, not taken on relay), and the rule-12 estimate gap is **routed to verification** as a forward-only note. `S-46`'s "on Sanaa's desk" line is **struck by quote** so no successor re-escalates a closed item. **Nothing now on her desk from this family** but the four `NOT FILED` upstream defect classes and FD-vs-adjoint as a fourth `V` instrument. Before it, `S-46` (closing state), `S-45`, `S-44`, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+##### UPDATE S-61 — **⚠⚠ THE CEILING GUARD I ORDERED TWO LANES TO PORT **FAILS OPEN** — CORRECTED IN FLIGHT. THREE OF MY FIVE UNGUARDED DRIVERS ARE **REFUTED**. AND MY "CLOSES BY ATTRITION" RULING IS **DEFEATED BY THE TEMPLATE**: NEW LAUNCHERS ARE CUT FROM A FILE WITH CEILING VOCABULARY AND NO SPEND MECHANISM. `A1WR`'s DISCLOSURE LANDED AND THE REACH IS **3 FOR 3**** (2026-09-04, `date -u` stamp in the committing invocation)
+
+###### 1. ⚠⚠ THE REFERENCE GUARD FAILS OPEN, AND I HAD JUST TOLD TWO LANES TO COPY IT
+
+`d6rf_chain_driver.sh:129-141` — the form this family treats as the reference, and the one I named in **both** briefs dispatched an hour ago. **Verified by me at source:**
+
+1. **`except IOError: pass` returns `0.0`.** A missing or unreadable ledger is indistinguishable from *nothing has been spent*. **A planted zero inside the guard's own input** — rule 3 violated in the instrument this family holds up as correct.
+2. **Worse, and the lane's find: a `ValueError` is UNCAUGHT.** The regex `[0-9.]+` matches a malformed token like `1.2.3`; `float()` raises; `$SPENT` returns **empty**; `PROJ` becomes empty; the comparison python fails; the `if` is false — **and the guard silently PASSES.** **That is fail-OPEN, not merely a wrong number.**
+
+**`a1wrt_run_unit.sh:297-305` is the ONLY file in this family that gets it right**, and its own comment says why: *"A zero that means 'could not read' is a planted zero (`CLAUDE.md` rule 3)."* **Both lanes corrected in flight**: A1WRT's UNMEASURED limb is the **primary**; from `d6rf` take **only the projection arithmetic**; write the spend reader fresh so any read or parse failure yields `UNMEASURED` and `UNMEASURED` refuses; **drive it three ways — ledger absent, ledger malformed, projection over.** *A guard shown only refusing on happy-path arithmetic has not been shown to refuse when its input is broken, which is the case that actually happens.*
+
+###### 2. ⚠⚠ AND MY "CLOSES BY ATTRITION" RULING IS DEFEATED — BY THE TEMPLATE ITSELF
+
+`S-56` ruled: don't back-fit ~38 drivers, put the guard in the template new drivers are cut from, and **the population closes by attrition** because every finished item gets a successor and a successor gets a new driver.
+
+**`a1wrt_run_unit.sh:16` names the template verbatim: *"DERIVED from `curriculum_D6RF/d6rf_run_arm.sh`, which is this family's standard."*** And that file, measured by me: **`SPENT` 0, `spent_core_min` 0, `ITEM_CEILING` 0.**
+
+> **A launcher cut from the named template inherits NO cumulative item-ceiling guard. Attrition does not close the population — IT REGENERATES IT, once per successor.**
+
+*Correction to the lane in the same breath: it reported the template as carrying **"zero ceiling, spend or `spent_core_min` tokens."* **`CEILING` appears 9 times and `ceiling` 4.** The substance survives and is sharper for the correction — **the template has ceiling VOCABULARY and no ACCUMULATOR**, which is worse than having neither, because a reader greping for `CEILING` finds it and stops.*
+
+**AMENDED RULING: the template repair is now the FIRST item, not a side-effect.** Attrition only works if what is inherited is correct; here it propagates the defect. **A file that says `CEILING` must accumulate and project, or it must not say `CEILING`.**
+
+###### 3. THREE OF MY FIVE UNGUARDED DRIVERS ARE REFUTED — READ BY MECHANISM, NOT BY NAME
+
+| driver | my call | measured |
+|---|---|---|
+| `a1wr_chain_driver.sh` | unguarded | **CONFIRMED** — no item ceiling at all; the one projection at `:251` gates **only the optional duplicate control**, while the Stage-1/2 launches project nothing. *A name-based sweep finds `G-CAPS` here and calls it guarded.* |
+| `d19t_chain_driver.sh` | unguarded | **CONFIRMED — by its own comment**: `:64` reads *"THE ITEM CEILING, **CHECKED AFTER EVERY ARM**"*, compared at `:66` after the arm returned. **Post-hoc, and it says so.** |
+| `d12y_w3_chain_driver.sh` | unguarded | **REFUTED** — the guard is in `d12y_w3_stage_and_run.sh:268-272/340-346`, ledger-sourced and **restart-safe**. **The exact `A1WRT` mistake repeated by me: the guard hiding in a differently-named file.** |
+| `a1ze_chain_driver.sh` | unguarded | **REFUTED** — `G-CEIL:175-181` refuses before every arm (`return 70`). **Two real weaknesses**: it tests `SPEND >= CEILING`, **not** `SPEND + cap`, so the last arm can start at 531.9/532.0 and run its full cap; and `SPEND=0` is in-process, **never read from disk** |
+| `maaoa_chain_driver.sh` | unguarded | **REFUTED** — `:228-233` sums, adds the arm's cap, and refuses before launch. Same restart-blindness |
+
+**⚠ AND THE `a1ze` DOUBLE-FIRE MEASURES THE RESTART-BLINDNESS RATHER THAN ARGUING IT:** two ledgers, `20260903T185859Z` reaching `SPENT_CORE_MIN=0.7`, then `20260903T190524Z` — **6 min 25 s later** — **starting its accumulator at zero** and reaching 4.9. **Fire 1's spend is invisible to fire 2's ceiling.**
+
+**Two more classifier false negatives beyond its disclosed limits:** its abort vocabulary misses **`return 70`** from a shell function and **`continue`** inside a queue loop. The lane **did not lean on the classifier** and read the mechanism instead — correct, and the classifier's header must gain these.
+
+###### 4. `A1WR`'s DISCLOSURE LANDED — AND MY FRAMING WAS WRONG TWICE
+
+`ADDENDUM 5 — CORRECTION` appended to `A1WR_STAGE12_RESULTS.md` (§19–§21); `a1wr_cmd.sh` **untouched**, md5 unchanged; *lines whose number changed above this section: 0* **checked by `diff`, not declared.**
+
+**(a) The `n_executed=0 -- NOT a completion` line is the PRODUCER's** (`a1wr_runScript_incomp.py:360`), not the wrapper's. **The wrapper's own truncation branch NEVER FIRED** — its count agreed with `DECLARED`, so it printed `A1WR_ALL_POINTS_EXECUTED declared=1`. **Two gates counting different things, and the OUTER one wins.**
+
+**(b) The mechanism is sharper than "the marker is printed for a crashed point too": `AOA_POINT_END` at `:340` sits OUTSIDE the try/except while `_executed += 1` at `:327` sits INSIDE it. So the marker counts points ATTEMPTED and the producer counts points that PRODUCED A NUMBER.** The two counters were never measuring the same thing.
+
+**THE REACH IS 3 FOR 3, not "could have been":** `probe_I`, `probe_C` and `alpha12_symmetry` all carry ledger `rc=0` against a producer `A1WR_SWEEP_RC` of **97**. The two probes are the softer case — `a1wr_cmd.sh:14-21` **registered** the `AnalysisError` as the expected Stage-1 outcome in writing before the run, so for them it is a disclosure defect. **`alpha12_symmetry` is the real defeat: mode `COLD`, no registered expectation of failure.**
+
+**NO PUBLISHED NUMBER IS AFFECTED — AND THE REASON IS THE FINDING.** Planted control first: `a1wrt_read.py` has **two** real `rc` dependences (`:965`, `:825`); against that known-positive, `a1wr_stage1_gate.py` and `a1wr_read.py` return **zero**. **Why: `A1WR`'s grading path never implemented rule 4's `rc` clause at all.** **A gate that does not read `rc` cannot be misled by a wrong one — so we were saved by a second gap, not by a guard.** The addendum says so in those terms.
+
+###### 5. AND A SECOND MANUFACTURED COMPLETION, DIFFERENT FILE, DIFFERENT ROUTE
+
+`maaoa_chain_driver.sh:218` sets `LOOP_BOUND_S=86400` with the comment *"running out of patience is an ERROR, not a pass."* **The code falsifies the comment twelve lines later:** after the bound `break`s, control falls through to the reader at `:245` and `exit 0` at `:257`, and `:255` writes **`rc=0 phase=COMPLETE`**. **Nothing between `:243` and `:257` records that the bound fired, and no variable carries it.** An item that ran out of patience with points `NOT RUN` **reports itself complete**. Same class as §4, reached by a different route.
+
+###### 6. THE LANE'S LIMITS, KEPT
+
+**No defensible "N drivers lack the guard" figure exists, and the reason is the trap:** 121 shell files issue `docker run` across 78 case directories; **the mechanism is not named consistently** — `d12y_w3` calls its ceiling `CAP_CORE_MIN` — so **no name-based population count is trustworthy, including one the lane produced.** A real count needs the mechanism read file by file. **And the recency list has decayed:** at 18:28Z only **one** of the five is inside 24 h; A1WR and MAAOA were already outside it when I boarded them. **Directory mtime is a proxy for last fire, not the fire itself.**
+
+**OWED BY ME:** the template repair (now first); check 1 ×3; the `D6R`-lineage plateau audit; the classifier's abort-vocabulary gap. **SUBMISSIONS PARKED.**
+
+
 ##### UPDATE S-60 — **SANAA SAID "ALL TEAMS CONTINUE" AND THE BOX WAS IDLE, SO I RULED `D6RF3`'s THREE OPEN REGISTRATION QUESTIONS AND PUT THREE LANES ON THE UNWRITTEN INSTRUMENTS. `D6RF3` IS **NOT FROZEN** — FOUR INSTRUMENTS DO NOT EXIST. AND MY "OWED CHECK 1" WAS NOT DUE: THERE IS NO CODE TO READ A DIFF OF, WHICH IS ITSELF THE BLOCKER** (2026-09-04, `date -u` stamp in the committing invocation)
 
 ###### 1. THE CHECK-1 ITEMS WERE NOT WHAT I THOUGHT THEY WERE
