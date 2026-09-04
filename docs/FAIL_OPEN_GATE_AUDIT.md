@@ -4039,3 +4039,117 @@ generator is not an improvement on a silent instrument; `§28.10` measured what 
   in the census's fourth class — a gate-carrying line appended after freeze with neither a
   disclaimer nor a cited authorisation. A count of ZERO closes this as a latent structural hazard
   with no instances, and I will say so in those words and build nothing.**
+
+---
+
+## §28.12 — **I SPECIFIED THE CENSUS'S CLASSIFIER AND SPECIFIED IT WRONG, ONE HOUR AFTER WRITING `§28.11`, IN THE EXACT MANNER `§28.11` DESCRIBES. THE PRE-REGISTERED CLOSURE CONDITION RETURNED ITS ZERO AND I DECLINE TO CLOSE ON IT. AND THE ROOT CAUSE IS THAT RULE 2's FREEZE IS NOWHERE RECORDED IN MACHINE-READABLE FORM** (2026-09-04T02:3xZ)
+
+**This section is filed against this team's own work, by the lane it briefed, against the brief it
+was given.**
+
+### §28.12.1 THE DEFECT IN MY OWN SPECIFICATION
+
+`§28.11` commissioned a census whose discriminating class was *"a gate line appended with NEITHER a
+disclaimer that no gate moved NOR a cited authorisation."* **I wrote the class-B definition to
+accept, via an "and/or", either the sentence *"alters NO gate, NO threshold, NO cap and NO label"*
+**or** the sentence *"lines whose number changed above this section: 0."***
+
+> **⚠ THOSE TWO SENTENCES ANSWER DIFFERENT QUESTIONS, AND I TREATED THEM AS INTERCHANGEABLE.**
+> *"Lines whose number changed above this section: 0"* is a **RULE 6** assertion — it says **no
+> text above moved**. Rule 2 asks whether **a gate was altered**. ***A pure append can move a gate;
+> that is the whole content of `§28.11`. So the rule-6 assertion is ORTHOGONAL to the rule-2
+> question, and my classifier accepted the first as evidence of the second.***
+
+**`[VERIFIED BY ME AT SOURCE, NOT RELAYED]` The proof is my own calibration commit.** `0a62c5c6` —
+whose subject says ***"A GATE CHANGE ON A FROZEN REGISTRATION"*** and which is lawful only because
+Sanaa approved it personally — contains `**Lines whose number changed above this section: 0.** This
+is a pure append`, and contains **ZERO** rule-2 gate-unchanged assertions. **The count of the
+latter is 0, and correctly so: it DID alter a gate.** ***My classifier returned class B —
+"disclaimed" — for the one commit on the record that indisputably moved a gate.***
+
+**AND THIS IS `§28.11`'s OWN MECHANISM, COMMITTED BY ME, ONE HOUR AFTER I NAMED IT.** `§28.11`
+says: *a check keying on an observable equally probable under both hypotheses transfers no
+information.* **The rule-6 assertion is present in lawful and gate-altering appends alike** — it is
+a **likelihood-ratio-1 observable**, and I built the census's safe harbour on it. *The taxonomy
+caught its author within the hour, which is the only reason it is worth having.*
+
+### §28.12.2 THE SIZE OF THE SINK, MEASURED
+
+- **32 of 286** class-B events carry **both** a disclaimer **and** a cited Sanaa authorisation.
+  ***An append that disclaims AND invokes an approval is the signature of a gate change being
+  MADE, not one being restated*** — an append that moved nothing needs no approval. **All 32 are
+  invisible in the D column under my rule.** Named among them: `0a62c5c6` and `9f7a7488` (F28),
+  `440aca3d` (F23b), `07667a58` (A1WR), `2a43ca26` (RUNG0), `75d347f3` (A1WRT), `1af060a9` (ACTD).
+- **7 further B events rest on the rule-6 line-count assertion ALONE**, with no gate-unchanged
+  assertion anywhere in the append: `8fc1d764` (D6RF), `c1acb8e7` and `0cf8f4f6` (K0f),
+  `b925db19` (T9aD), `bbbcdf71` (F25_DUCT3D), plus two.
+- **⚠ None of this alleges a violation.** Every one may be entirely lawful — 32 of them cite an
+  approval, which is the lawful route. **What is established is only that the census could not
+  tell, and that my classifier reported them as clean.**
+
+### §28.12.3 ⚡ THE ROOT CAUSE, AND IT IS DEEPER THAN EITHER CLASSIFIER: THE FREEZE IS NOT RECORDED
+
+**Rule 2 says a registration is *"frozen by sha."* NOTHING IN THIS REPOSITORY RECORDS WHICH SHA.**
+Every freeze-drift instrument here must therefore **guess the freeze from commit-message prose**,
+and a prose regex fails in both directions. **Measured, and confirmed by me at source:**
+
+- **`FROZEN` matches inside `UNFROZEN`.** Subjects reading *"NOT THE FREEZE COMMIT"*, *"NOT
+  FROZEN"*, *"STILL UNFROZEN"* are scored as freezes: **10 files under the newest-match rule, 19
+  under the oldest.** **7 of the 11 wider-rule class-D hits sit on such files** — they are artifacts
+  of the proxy, not findings.
+- **⚠ AND THE DESCRIPTIVE SUBJECT BEATS THE DECLARATIVE ONE. `[VERIFIED BY ME]`** For F28 the
+  newest subject matching the regex is **`b50cd1ca`** — *"…THE **FROZEN** TEXT GRADED A QUANTITY IT
+  NEVER DEFINED…"*, where the word is **descriptive prose** — while the actual freeze,
+  **`76ce0ed5`** *"F28 DUCTED ACTUATOR DISK IS **FROZEN** — ARMED, NEVER RUN"*, ranks **third**.
+  ***The proxy therefore zeroes out all seven of F28's genuine post-freeze commits — including BOTH
+  of the calibration commits I supplied to validate the census.*** *The instrument was blind to the
+  very file I chose to calibrate it with.*
+- **147 of 415** prereg-named tracked files carry **no freeze-matching subject at all** and are
+  **wholly invisible** to any such census — 55 in `verification/campaign/`, 17 in `cases/dafoam/`,
+  11 in F14-cooling-ladder.
+- **And post-freeze ≠ post-compute.** Rule 2 closes gates at **first compute**, not at freeze.
+  Several hits are pre-compute amendments, which rule 2 **expressly permits**.
+
+> ***THE STRUCTURAL FINDING: rule 2's freeze is real, is load-bearing, and is recorded ONLY IN
+> PROSE. No instrument can anchor on it. That — not a weak regex — is why both this lab's
+> freeze-drift instruments are blind, and it is why mine was too.***
+
+### §28.12.4 THE PRE-REGISTERED CLOSURE CONDITION RETURNED ITS ZERO AND I DECLINE TO CLOSE ON IT
+
+`§28.11` stated, in advance and in these words: *"A count of ZERO closes this as a latent
+structural hazard with no instances and I will say so in those words."*
+
+**The count came back: class D = 2 under the registered rule, 11 under the wider one, and NONE of
+the 11 reads as an unauthorised, undisclaimed gate alteration.** By the letter of my own
+pre-registration, that is the zero, and closure is available.
+
+> **I DECLINE IT. THE ZERO IS IN A COLUMN MY OWN CLASSIFIER DEFINED WRONGLY, AND A ZERO FROM A
+> READER NOT SHOWN ABLE TO SEE A NON-ZERO IS NOT EVIDENCE (rule 3).** The lane's plants prove the
+> classifier can see **its own** class D — but `§28.12.1` proves the class was **specified to
+> exclude the real instances.** ***The question I REGISTERED was answered. The question I MEANT was
+> not. Taking the closure would be grading the observable I happened to measure instead of the one
+> the hazard lives in — which is the exact error `§28.11` exists to name.***
+
+**⚠ AND I RECORD THAT THE EXIT WAS AVAILABLE AND PRE-AUTHORISED BY MY OWN HAND, because a
+pre-registration that is only honoured when its answer is inconvenient is not a pre-registration.**
+*The freeze exists to stop a gate being fitted to an answer; it must equally stop a CLOSURE being
+fitted to one.* **`§28.11`'s hazard therefore stays OPEN, with its size still unmeasured.**
+
+### §28.12.5 DISPOSITION — STILL NO INSTRUMENT, AND THE CURE IS ROUTED RATHER THAN IMPOSED
+
+- **NO INSTRUMENT, THIRD REFUSAL IN THIS FAMILY TONIGHT.** **A better regex is not the cure** — the
+  defect is the absence of the anchor, and no classifier built on prose can be sound.
+- **THE CURE IS A MACHINE-READABLE FREEZE PIN** — the freezing sha recorded in the registration or
+  beside it, so an instrument can ask *"has this file changed since ITS OWN freeze"* instead of
+  guessing. **It costs almost nothing per registration and it would make both existing instruments
+  sound at once.**
+- **⚠ AND IT IS NOT MINE TO IMPOSE. A new required field in every team's pre-registrations changes
+  six teams' practice**; that is a cross-family convention, and under the lab's running-first
+  posture tonight it is **PROPOSED, ROUTED, AND NOT ENACTED.** *This team has spent the night
+  ruling that pressure never reaches a gate; it will not answer that by pushing an unrequested
+  convention onto every team at 02:30.*
+- **NOTHING IS RE-GRADED, NO VIOLATION IS ALLEGED, NO FROZEN DOCUMENT IS REOPENED, NO BACKFILL.**
+- **WHAT WOULD MOVE ME TO BUILD, RESTATED AND NARROWED SO IT CANNOT BE FITTED: a gate-carrying line
+  appended after a registration's OWN RECORDED FREEZE — anchored on a pin, not on prose — with
+  neither a rule-2 gate-unchanged assertion nor a cited authorisation. Until an anchor exists,
+  that measurement CANNOT BE TAKEN, and I will not report a number that stands in for it.**
