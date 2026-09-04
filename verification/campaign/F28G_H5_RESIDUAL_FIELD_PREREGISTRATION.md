@@ -2002,6 +2002,155 @@ failure it exists to catch. `--selftest`, all eight fired:
 
 ---
 
+## 15G. PART 4 DISCHARGED, AND BOTH HALVES CAME BACK DIFFERENT FROM THE RULING — 2026-09-04
+
+**No gate, threshold, cap or label altered. The successor is still not drafted;
+§15G.4 says why, and it is a different reason from last time.** Compute: two
+`postProcess` calls, **0.54 s total = 0.009 core-min**, in the already-scratch
+DRYRUN root.
+
+### 15G.1 PART 4(b) — `writeCellCentres` RUN. THE APPROXIMATE CENTRE CHANGED NOTHING
+
+`postProcess -func writeCellCentres`, 0.29 s. Comparing OpenFOAM's real
+volume-weighted centres against my vertex-mean approximation:
+
+| | |
+|---|---|
+| centre displacement, max / median | 3.165971e-03 / 6.349223e-06 |
+| **cells whose ZONE ASSIGNMENT changes** | **0 of 35,544** |
+| coverage, `p` density, with REAL centres | **0.9970** — Z-DUCT 0.5262, Z-HUB 0.4707 |
+
+**Identical to the approximate-centre figure to four decimals.** His concern was
+exactly right in principle — *"a coverage figure computed from approximate
+centres cannot certify an envelope"* — and the answer is that this one happens to
+be unaffected. **That is now measured rather than assumed**, which is the whole
+point of running it, and the VERIFY is discharged rather than argued away.
+
+### 15G.2 🔴 PART 4(a) — NO EPSILON IS WARRANTED. MY OWN CHARACTERISATION WAS WRONG
+
+He ruled the leading-edge clip *"allowed, as a precision tolerance and not a
+boundary move"*, with the epsilon *"derived from the coordinate precision"*. **He
+ruled that on my words — I wrote that the centroids "round a hair negative" — and
+those words were wrong.**
+
+**Measured.** The two clipped cells sit at real centres
+
+```
+x = -2.513737320e-06     and     x = -1.526503059e-05     (both at r = 0.139729)
+```
+
+and the `Cx` values straddling the duct leading edge form a **continuum**:
+`+7.136e-07, -2.514e-06, +2.771e-06, -4.802e-06, +4.843e-06, +5.147e-06 …`
+
+**These cells do not round negative. They ARE negative.** The mesh resolves the
+leading edge at ~10⁻⁶ m and there is a real, ordered sequence of cells on both
+sides of `x = 0`. Double-precision resolution at that magnitude is **5.50e-22**;
+the clipped cells sit **10¹⁵–10¹⁶ times** coarser than that. **There is no
+precision ambiguity to absorb.**
+
+> **So an "epsilon justified by centroid precision" would be a FICTION — it would
+> be a boundary move wearing arithmetic's clothes, which is precisely the
+> distinction he drew when he said the two "would look identical in a diff".**
+> The honest disposition is the third option neither of us listed: **change
+> nothing.** `Z-DUCT` is defined from `x ≥ 0`, the duct leading edge; two cells
+> immediately upstream of it carry **0.3 %** of the top-1 % mass and are
+> **correctly** reported as outside. 0.3 % is immaterial to any gate, and the
+> zone definition is right as it stands.
+
+**Recorded as my error propagating into a ruling.** He authorised a repair on a
+description I gave him, and checking the coordinates rather than re-reading my
+own sentence is what caught it.
+
+### 15G.3 THE NULLS — AND THE TWO NULLS DIFFER BY FOUR ORDERS OF MAGNITUDE
+
+He directed that the null be *"what each zone would carry under uniform density —
+its VOLUME FRACTION"*. **There are two distinct nulls and they belong to
+different statistics**, so both are published:
+
+| zone | cells | **count fraction** | **volume fraction** |
+|---|---|---|---|
+| Z-DISK | 700 | 0.019694 | 1.663321e-06 |
+| Z-DUCT | 8,923 | 0.251041 | 3.767350e-05 |
+| Z-HUB | 4,405 | 0.123931 | 3.115737e-06 |
+| Z-AXIS | 3,350 | 0.094249 | 9.009345e-05 |
+| **Z-ELSEWHERE** | 18,166 | 0.511085 | **0.9998675** |
+
+- **Volume fraction** is the null for a share of **total residual mass** — and it
+  independently re-explains the original failure: **Z-ELSEWHERE is 51 % of the
+  cells and 99.99 % of the volume**, so a volume-carrying quantity lands there by
+  construction.
+- **Count fraction** is the null for the successor's actual statistic — a share
+  of the **top-N-by-density** mass — because under uniform density every cell
+  ties and the top-N is an arbitrary subset, so each zone's expected share is its
+  share of **cells**.
+
+**The gate statistic needs the count null, not the volume null.** Flagged rather
+than silently substituted.
+
+### 15G.4 🔴 THE MEASUREMENT THAT CHANGES THE SUCCESSOR'S FEASIBILITY
+
+Observed against null, `p` density, real centres:
+
+| statistic | observed | null | **× null** |
+|---|---|---|---|
+| **f1% (concentration)** | 0.6496 | 0.009988 | **65.04×** |
+| Z-DUCT share | 0.5262 | 0.251041 | **2.10×** |
+| Z-HUB share | 0.4707 | 0.123931 | **3.80×** |
+| NAMED union (coverage) | 0.9970 | 0.488915 | **2.04×** |
+| DUCT+HUB together | 0.9970 | 0.374972 | **2.66×** |
+| **Z-DISK share** | **0.0000** | 0.019694 | **0.00×** |
+| **Z-AXIS share** | **0.0000** | 0.094249 | **0.00×** |
+
+> **The CONCENTRATION gate stays sharp at 65× null. EVERY LOCATION gate is
+> 2–4× null.** The original G1 was defensible precisely because it sat **50×**
+> above its null, so no threshold choice inside a wide band could change the
+> answer (§15B.2c). **No attribution threshold on these zones can have that
+> headroom, because the four named zones already occupy 48.9 % of the cells.**
+> A "one zone dominates" gate against a 25 % null is knife-edge by construction,
+> and his own DUCT+HUB alternative is 2.66× — better, still not sharp.
+
+**The sharp location statements available are the NEGATIVE ones.** Z-DISK and
+Z-AXIS carry **0.0000** against nulls of 0.0197 and 0.0942 — the residual density
+is **absent** from the disk and the axis. **Exclusion has the headroom that
+attribution lacks**, and Z-AXIS at zero bears directly on H4, whose whole content
+is the near-axis aspect ratio. *(Z-DISK at zero is independently consistent with
+§6.1, which exonerated the actuator disk by measurement.)*
+
+> ⚠ **DISCLOSURE, owed again: I HAVE SEEN THESE NUMBERS.** Proposing an
+> exclusion-shaped gate after observing that the exclusions are the sharp
+> statistic is outcome-informed, exactly as the density proposal was. I state it
+> as a **design option for ruling, not as a choice I have made**, and the
+> published-alternatives discipline of §15E applies to it identically.
+
+### 15G.5 WHY THE SUCCESSOR IS HELD ONE MORE TIME
+
+He directed: *"Do prerequisite 4(b) and the epsilon, then bring me the draft
+successor."* **4(b) is done. The epsilon proved unwarranted. And §15G.4 changes
+the premise of the draft**, because thresholds were to be set as a stated
+multiple of the null — and the null measurement shows that **for every location
+statistic the observation sits 2–4× above it**, with the observations already in
+view.
+
+**Choosing a location threshold now would be choosing between "2× null" and
+"3× null" while knowing the answer is 2.10× and 3.80×. That is a threshold set by
+eye against a knife-edge, which is what the null-multiple method exists to
+prevent — and it would satisfy the letter of his ruling while defeating its
+purpose.**
+
+**What I need ruled before drafting, and none of it is mine:**
+
+1. **Whether the successor gates on location at all**, given that no attribution
+   threshold on these zones can achieve meaningful headroom.
+2. **Or whether the location gate is reposed as EXCLUSION** — with the
+   non-blindness discharged by publishing every zone's share beside its null
+   every time, as §15E requires.
+3. **Or whether the successor gates on CONCENTRATION ONLY** (65× null, sharp,
+   and unaffected by all of this), reporting location as measured-but-ungated —
+   noting that "reported but not gated" is the shape L-478's family warns about
+   and would need care.
+
+---
+
 ## 15. VERDICT
 
 **None. This document issues no verdict and is entitled to none.** It is a draft
