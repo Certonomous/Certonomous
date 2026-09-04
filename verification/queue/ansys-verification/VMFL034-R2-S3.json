@@ -1,0 +1,42 @@
+{
+  "team": "ansys-verification",
+  "case_id": "VMFL034-R2-S3",
+  "prereg_commit": "3d4047e5416429fae632cbf9aadc87211f6ead30",
+  "prereg_path": "cases/ansys_verification/VMFL034-R2/PREREGISTRATION.md",
+  "grading_freeze": [
+    "cases/ansys_verification/VMFL034-R2/analyse_vmfl034_r2.py",
+    "cases/ansys_verification/VMFL034-R2/gen_sizegroups.py"
+  ],
+  "grading_freeze_note": "Comparator blob 7f2329485c2d33bd7bf053fc546c94191f979895, pinned in PREREGISTRATION section D and in the driver, and repeated here VERBATIM so VERIFICATION 2s.6's registration-first precedence finds no conflict and the daemon can verify WITHOUT trusting the registration.",
+  "launch_cmd": [
+    "bash",
+    "-c",
+    "exec env FREEZE_COMMIT=3d4047e5416429fae632cbf9aadc87211f6ead30 bash /home/ubuntu/Certonomous/cases/ansys_verification/VMFL034-R2/run_vmfl034_r2.sh /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL034-R2 S3"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL034-R2",
+  "ranks": 1,
+  "cost_core_min_estimate": 2004,
+  "cost_basis": "Level S3 = 64 size groups. Estimate 2004 core-min, per-level cap 4014 (2x). N-squared anchored on the medium (32 groups, ~8.4 core-h) from the STRUCK case's measured 0.24 s/step -- a real datum, not an assumption. Pure N^2 OVER-estimates because the fixed-cell flow solve does not scale with group count, so the figure is conservative. Serial RANKS=1: core-minutes == wall minutes, timeout exact. Triple ~43.9 core-h, running-total cap 5280 core-min. $2.25 DERIVED at $0.0513/core-h owner-stated -- NOT measured; the box cannot read its own billing.",
+  "memory_floor_gb": 2.0,
+  "_triple": "THE TRIPLE WAS CHOSEN BY MEASUREMENT. The Kumar-Ramkrishna feed reconstruction was run through the actual Roache classifier on every candidate r=2 family: 12/24/48 -- the obvious cheap choice -- is DIVERGENT on m4 and m5 and would have graded those limbs NOT A RESULT. 16/32/64 classifies all-CONVERGING at a uniform observed order ~2.0. A constant r=2 also makes the comparator's rref=2.0 CORRECT rather than wrong, which is one of the three defects that made the predecessor f4f80b53 ungradeable.",
+  "_gate": "m0 is DEMOTED to a calibration limb (GATE_LIMBS = [1,2,3,4,5]): beta0_OF = beta0/alpha2 fixes the Damkohler number and m0 is a monotone function of Da alone, so choosing the kernel SETS m0. m1/m2/m4/m5 are the predictive content (fractional volume-moments that do not close, so they test the feed shape); m3 tests volume conservation. Section 12.2 ruled SAME and uncapped -- QMOM and a sectional method are two discretisations of the same aggregation PBE, and the manual's Target column is that PBE's ANALYTICAL solution.",
+  "enqueued_by": "ansys-verification-supervisor. Check 4 gated by check_freeze_ready.py: rc 0, all seven PASS. Check 1 done personally and it CAUGHT A DEFECT: the comparator carried 8 bare asserts, and I proved the consequence rather than citing L-475 -- a constant-PASS mutant of the verdict conjunction was caught under python3 (rc 1) and PASSED under python3 -O (rc 0), so the selftest was vacuous under one interpreter flag. One of the 8 was in the PRODUCTION path, so -O disabled a real guard too. Repaired to explicit raises and re-verified BY ME: mutant rc 1 under BOTH interpreters, clean selftest rc 0 under both, 0 bare asserts. The driver sources the OpenFOAM bashrc at :83 BEFORE command -v at :85-87 -- the fix VMFL072-R2's driver lacked, which cost five rc=2 refusals under the daemon's bare PATH. Run root created BEFORE this row.",
+  "_field_classes": {
+    "physics_critical": [
+      "rc captured inside the detached wrapper",
+      "each level's End line, endTime fields and the 0/alpha.air age guard",
+      "the feed-moment guard",
+      "the well-mixedness refusal",
+      "the m0 calibration refusal",
+      "the planted control"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.utc",
+      "LAUNCH_LOG.tsv row",
+      "cost_core_min_estimate",
+      "runner.log lines"
+    ],
+    "rule": "a missing INFRASTRUCTURE field is a BOOKKEEPING DEFECT voiding only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342; Sanaa 2026-08-26)"
+  }
+}
