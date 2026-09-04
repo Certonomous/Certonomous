@@ -25482,6 +25482,34 @@ Wiring the guard into ten sites turned up **a second defect shape that was not t
 4 paths, 682 insertions, **file deletions 0**. **I ran the controls rather than reading the report:** `--selftest` **GREEN**; `--mutation-control` **HELD, RED at rc 1**, naming *"the endTime fields survived"* and *"the coefficient series survived"* **for all three drivers** — the fixtures are genuinely destroyed without the guard. rc **0 under `python3` and `-O`**. **By AST parse across all four files: 0 bare asserts and 0 surviving raw `rmtree` calls.** **All ten reported line numbers were exactly right** (GEN_ALT 58/114/156/165, FPE 93/168/186/227, B52 88/201) — ⚠ **the first line-number relay tonight that survived checking.**
 
 
+<!-- BOARD-BLOCK-ID: 56U-m6-cannot-deliver-her-named-deliverable-and-we-know-it-for-zero-compute -->
+
+### 🔴🔴🔴 **I DO NOT RE-FREEZE M6SR. FOUR MORE ITEMS ARE UNSATISFIABLE — AND ONE KILLS A CHANNEL OF SANAA'S NAMED DELIVERABLE BEFORE A SINGLE CORE-MINUTE IS SPENT**
+
+I told the lane to assume I had missed a second unsatisfiable item. **There are four.** The grading path is now repaired — `cases/M6SR/analyse_m6sr.py` (blob `97cbe039`, 2,106 lines) and `build_m6sr_l1.sh` (blob `04ae9d58`) are committed at `c1625208`, `M6SR_runs` still **ABSENT** — **but the document still cannot be frozen, and the reason is physics, not bookkeeping.**
+
+🔴 **1 — `D1` IS `INDETERMINATE` ON THE PINNED EXPERIMENTAL BYTES, WITH NO CFD IN EXISTENCE. Re-derived by me:** `Cn` = 0.2396, 0.2785, 0.2947, 0.2638, 0.2230, 0.1784, 0.2105 — **monotone increasing: FALSE, monotone decreasing: FALSE**, and `Cn(7)/Cn(1)` = **0.8785**, **inside** the registered (0.75, 1.333) band. **The ratio is inside the band AND the series is non-monotone, so the discriminator cannot discriminate.** §4.3's own consequence fires: **Gate P's per-station channel is `NOT A RESULT` before a single core-minute is spent.** *(My 0.8785 against the lane's 0.8787 — rounding, conclusion identical.)*
+
+🔴 **2 — `GF4`'s SEMISPAN IS INSTRUMENT-DEPENDENT ACROSS ITS OWN TOLERANCE, AND THIS REFUTES A RULING I MADE.** Measured: wall-patch span extent **1.216405 m = +1.681 %** (**outside** ±0.1 %) against planform semispan from the straight LE **1.1953 m = −0.084 %** (**inside**). **The two instruments STRADDLE the band.** ⚠ **In §14.2 I endorsed `b_semi` on the explicit reasoning that "the gate is not pre-decided by the choice." Measurement says it IS.** **That is my eighth error of this session and the first that is a RULING rather than a relay** — I endorsed a judgement whose stated reason was false, and no amount of care about relays would have caught it. **Struck.**
+
+🔴 **3 — §5's `G3`/`G4` consume a refinement ratio `r` that NO section registers**, while Gate P's numerical band consumes `GCI_fine` directly. **Three defensible conventions give three different bands.** ✅ **The comparator REFUSES at Gate G, prints all three, and adopts none** — exactly right; picking one would be choosing a gate after seeing what it costs.
+
+🔴 **4 — `C12` registers its must-see as `FALSIFIED` and cannot fire on this data** (reversing a non-monotone series leaves it non-monotone). ✅ **Implemented to the letter, allowed to fail, suite refuses. The lane did NOT loosen it to its purpose clause**, and reported the branch-reachability demo separately rather than substituting it for the control. **That restraint is the whole difference between a control and a decoration.**
+
+### ✅ WHAT THE LANE DID TO ITSELF, WHICH IS THE STANDARD
+
+It **rejected two of its own instruments** — per-station min-chord (0.476 m residual on a straight edge) and binned least-squares (**29.702° at 10 bins against 22.195° at 80 bins on the SAME mesh** — instrument-dependent by a third) — keeping the convex-hull reader, which returns **29.9999843°** against AGARD's 30.0000000°. And it **found an off-by-one in its own polyMesh reader**: leaving the list header in place **silently dropped the first face and shifted every `startFace`, pulling an interior face into the wing patch.** ✅ **C17 is the control worth citing:** as-read `t_TE/c` = **0.000000**; with a 2.000e-04 m split planted and read back from disk, **2.4807e-04 on 2 nodes** against the precedent's 2.48170e-04. **The zero is evidence.**
+✅ **C19 repaired: `rc=1` → `rc=2` on limb (a)**, contract met, identical under `-O`, with a new control **C19b** feeding a synthetic count-header lookalike. `PROVENANCE.md:190` corrected **by strike-and-quote**, stating plainly it was **wrong at authorship** — verified at source, both artifacts landing only in `d554e3a7`. **0 `ast.Assert` nodes against 43 raises; exit codes exactly {0, 2, 70}.**
+⚠ **The honest gap, in the lane's own words:** `--gate-gf` / `--gate-a` / `--grade` **are untested by execution** — every reader they use has a control, the wrappers themselves do not. And its ≈5 core-min is a **wall-clock estimate, not a log reading**, except the selftest's exactly-timed 1.725 core-min. **Labelled, not smoothed.**
+
+### 🔴 ON SANAA'S DESK — M6 CANNOT DELIVER WHAT SHE NAMED, AND WE ESTABLISHED THAT FOR **ZERO SOLVER COMPUTE**
+
+**Her named deliverable is M6 `Cp` against AGARD WITH a family band. Two independent, measured limits now stand between this registration and that sentence:**
+1. **`L-HONEST` (§6):** the family refines **2 of 3 directions** — wall-normal discretisation **identical across levels** — so **`GCI_fine` is a LOWER BOUND** and **`p_s` is NOT an observed order.** It is a **surface-refinement** band, not the family band she asked for.
+2. **`D1` INDETERMINATE:** **Gate P's per-station channel is `NOT A RESULT` before compute.**
+
+⚠ **This is not a failure of the ladder — it is the pre-registration doing precisely its job.** **We know M6SR cannot answer her question BEFORE spending the 615.24 core-min it would have cost to find out.** **Not one gate, threshold, cap or label was widened to make the answer nicer**, and no compute was spent to buy this. **The decision now — whether to run it anyway for the surface-refinement band it CAN deliver, or to fund a third-direction family — is hers, and it is on her desk with these numbers.**
+
 <!-- BOARD-BLOCK-ID: 56T-the-bytecode-proves-the-correlation -->
 
 ### 🔴🔴 A CONTROL WHOSE KNOWN-POSITIVE IS NOT IN THE SEARCHED POPULATION IS **NOT A CONTROL** — AND THE BYTECODE THEN PROVED THE CORRELATION PHYSICALLY
