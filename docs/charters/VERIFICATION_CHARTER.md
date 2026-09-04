@@ -7070,3 +7070,212 @@ ansys escalated because *"naming the reader alters a frozen condition, which `ES
 > **RULED: A CASE THAT CANNOT BE RESOLVED TODAY IS NOT A CASE THAT IS CLOSED. `NOT A RESULT` is a statement that the question is OPEN, never that it is settled, and it may not be cited as an absence of failure (`FAIL_OPEN_GATE_AUDIT §28.4`).** **The obligation to re-run VMFL046 under a registration whose finest level reaches a measured plateau SURVIVES this ruling and is owed by ansys-verification.** *A demotion that relieves a team of a recorded failure carries `§2ad`'s disclosure burden; a ruling that leaves the failure unreachable carries the mirror of it, and this clause is that mirror.*
 
 **AND THE ONE THING THAT WOULD REOPEN THIS RULING, STATED IN ADVANCE SO IT CANNOT BE FITTED LATER: if a drift-computing reader is ever brought INSIDE a frozen grading path for this family, `§2am.3`'s textual ground yields to it** — rule 2 prefers an instrument inside the grading path to one outside it, and today there is no such instrument to prefer.
+
+---
+
+## Amendment — v1.58, 2026-09-04 — **§2an A MODEL-FORM `GATE FAIL` IS A ROUTING SIGNAL, NOT A TERMINUS: IT ESCALATES INTO SANAA'S FOUR-RUNG CLOSURE LADDER, EACH RUNG GATED AGAINST THE SAME REFERENCE. ⚠ AND THE LADDER COLLIDES WITH HER OWN `(ABSOLUTE)` ANTI-GAMING CLAUSE UNLESS THREE CONDITIONS HOLD — THEY ARE NAMED HERE AND MADE BINDING. THE EXHAUSTED-LADDER RESULT IS A CERTIFIED PRODUCT, AND ITS CERTIFICATION RESTS ON THE CLOSURES *NOT* TRIED**
+
+**Appended 2026-09-04 by `verification-supervisor`. Lines whose number changed above this section: 0.**
+**No gate, threshold, band, cap or label is moved by this amendment. Nothing is re-graded. Rule 1's
+vocabulary is unchanged; rule 5's ordering is unchanged; §2's freeze law is unchanged; the
+no-gate-widening boundary is unchanged.** This amendment answers, and supersedes, the question this
+team placed on Sanaa's desk on 2026-09-04 (*"does a measured, defect-exhausted, model-form `GATE
+FAIL` discharge the mandatory-completion order"*). **Her ruling supersedes the question's framing
+rather than answering it as posed, and that is recorded as the disposition.**
+
+### §2an.1 SANAA'S TEXT, VERBATIM — THE AUTHORITY
+
+Captured at `etc/sessions/2026-09-04T1510Z_sanaa_model_form_closure_ladder.md`, commit `0910b664`;
+her own header, *"Corrected ruling, paste-ready."* **Quoted, not styled; where the operationalisation
+below appears to add a requirement her text does not state, HER TEXT GOVERNS.**
+
+> [SANAA-DIRECT] Model-form GATE FAIL is a routing signal, not a terminus.
+> When stock closures fail a gate, the case escalates into the closure ladder,
+> in order, each rung gated against the same reference: (1) exhaust all stock
+> RANS closures, register if none land; (2) rule out numerical cause per §0;
+> (3) apply literature closure corrections — analytical terms,
+> functional/nonlinear and algebraic-stress models, curvature/rotation and
+> separation-specific corrections — each carried in the lab docs with its
+> paper provenance and known-good flow class, applied and gated individually;
+> (4) the lab's own research closures (GP-based) as the top rung. A
+> model-form failure ships as a documented failure ONLY when the closure
+> ladder is genuinely exhausted — and even then it ships with the full ladder
+> recorded (which closures and corrections were tried, each deviation),
+> because "all known closures fail this flow at these numbers" is itself a
+> rare and valuable certified result. Process-class failures still halt as
+> before; this ladder is for model-form only.
+
+*(Her standing task in the same directive — build the provenance-tagged closure-correction library —
+is a capability assignment carried by the closure line, not verdict law, and is not restated here.)*
+
+### §2an.2 WHAT CHANGES IN VERDICT LAW, AND WHAT DOES NOT `[lab-attributed]`
+
+**CHANGES:** a `GATE FAIL` whose cause is established as **model-form** no longer terminates a case,
+and no longer travels to Sanaa's desk case by case. **It routes into the four-rung ladder**, each
+rung executed through the ordinary registered path.
+
+**DOES NOT CHANGE — and each is restated because a routing law is exactly where they would be
+quietly lost:**
+
+- **The failing rung keeps its verdict.** `GATE FAIL` on rung 1 is a **`GATE FAIL` on the record,
+  permanently.** A later rung that passes **does not withdraw, overwrite or supersede it** — this is
+  `NONCONVERGENCE_STANDARD` §2.1's L6 rule and §4.4, and it applies unchanged. **The disposition of
+  an escalated case is the SEQUENCE of rung verdicts, never a single word.**
+- **Rule 5's ordering is untouched and still runs FIRST.** A rung whose triple is not `CONVERGING`
+  is `NOT A RESULT` whatever its value, and the gate can only turn a `PASS` or `GATE FAIL` **into**
+  `NOT A RESULT`, never the reverse. **A ladder rung is a rung of the Roache ladder before it is a
+  rung of the closure ladder.**
+- **Rule 2's freeze law is untouched.** **Each rung is its own registered, frozen, costed act.** The
+  ladder creates **no fast path**: rung *N*'s gate, threshold, cap and label are committed before
+  rung *N*'s solver starts.
+- **The no-gate-widening boundary is untouched and is the whole point.** See §2an.3.
+- **Process-class failures halt and triage as before.** Her sentence is explicit; §2an.5 makes the
+  discriminator operational.
+
+### §2an.3 ⚡ THE KEYSTONE: THE LADDER MOVES THE **MODEL** AGAINST A FIXED GATE AND A FIXED REFERENCE
+
+Her binding phrase is ***"each rung gated against the same reference."*** It is not decoration and it
+is the clause that makes the whole ladder lawful.
+
+> **RULED — `§2an.3`: ON AN ESCALATED CASE, THE REFERENCE AND THE GATE ARE INVARIANTS OF THE ENTIRE
+> LADDER. Only the CLOSURE moves.** Every rung is graded against **the same reference value, the same
+> band, the same acceptance criterion** as the rung that failed. **A rung graded against a different
+> reference, a re-derived band, a re-normalised criterion, or a second reference "more appropriate to
+> this closure" IS NOT A RUNG OF THIS LADDER** — it is a new case, and it inherits none of the
+> ladder's standing.
+
+***This is the exact mirror of the act the anti-gaming clause forbids.*** Gate-widening holds the
+model fixed and moves the gate until the answer fits. **The closure ladder holds the gate AND the
+reference fixed and moves the model.** *They are opposites, and that is precisely why one is lawful
+and the other never is.* **A team that finds itself adjusting the reference to make a rung land has
+left the ladder and re-entered the manoeuvre the ladder exists to replace.**
+
+### §2an.4 ⚠⚠ THE COLLISION WITH HER OWN `(ABSOLUTE)` ANTI-GAMING CLAUSE — NAMED, AND RESOLVED BY THREE BINDING CONDITIONS
+
+Her 2026-08-27 anti-gaming clause, still in force, `(absolute)`:
+
+> *"Answer-changing choices (model, scheme class, formulation) are never selected by agreement with
+> the reference."*
+
+**The closure ladder SELECTS A MODEL AND STOPS WHEN A MODEL AGREES WITH THE REFERENCE. Read naively,
+that is the forbidden act performed as policy, and this amendment will not pretend otherwise.**
+
+**RESOLVED — and the resolution is in the anti-gaming clause's own stated tell.** What that clause
+prohibits is **UNDISCLOSED** selection: *"trying several and keeping the one nearest the reference"*,
+where ***"the tell is that the discarded arms are not in the record"*** and *"a single reported arm
+out of several run is the signature this clause exists to catch."* **Her closure ladder mandates the
+opposite — *"it ships with the full ladder recorded (which closures and corrections were tried, each
+deviation)."*** ***The ladder does not evade the anti-gaming clause; it performs the clause's own
+cure, as policy, and makes the disclosure the deliverable.***
+
+**⚠ BUT THAT HOLDS ONLY UNDER THREE CONDITIONS, AND WITHOUT ALL THREE THE LADDER DEGENERATES INTO
+MODEL-SHOPPING WITH A LADDER'S VOCABULARY BOLTED ON. THEY ARE BINDING:**
+
+1. **THE ORDER IS FIXED AND IS HERS.** Rungs are climbed **in her stated order** — stock exhaustion,
+   numerical rule-out, literature corrections, lab research closures. **A rung is not reached until
+   the rung below it is exhausted and registered.** *Choosing which rung to try is choosing by
+   expected agreement; her order removes the choice.*
+2. **EACH RUNG IS REGISTERED AND GATED BEFORE IT RUNS.** Rule 2, without exception. ***The gate a
+   rung will be judged by is frozen before that rung's result exists*** — which is what makes
+   "this rung passed" a finding rather than a selection.
+3. **EVERY RUNG ATTEMPTED IS IN THE RECORD, WITH ITS DEVIATION, INCLUDING THE ONES THAT WENT THE
+   WRONG WAY.** No rung is dropped for being uninformative, embarrassing, or superseded.
+
+**A ladder satisfying all three is a measurement. A ladder missing any one of them is a parameter
+hunt over models, and this charter grades it `NOT A RESULT` under §2c for the same reason a
+multi-dial arm is: it cannot discriminate.**
+
+### §2an.5 THE DISCRIMINATOR — MODEL-FORM IS A **RESIDUAL**, ESTABLISHED BY ELIMINATION, NEVER BY INSPECTION `[lab-attributed]`
+
+Her ladder is *"for model-form only"*, so the classification decides whether a case may enter it.
+**The lab's incentive now runs toward an early model-form finding — it opens the interesting work —
+so the discipline must run the other way.**
+
+> **RULED — `§2an.5`: `MODEL-FORM` IS THE LAST CLASSIFICATION A CASE IS PERMITTED TO REACH, NOT THE
+> FIRST. It is never asserted from the look of a result. It is what REMAINS after every
+> process class below has been cleared AT SOURCE.**
+
+**PROCESS-CLASS — checked first, in this order; any hit stops the case here and it does NOT enter
+the ladder:**
+
+1. **Completion.** The run fails the strict completion rule (rule 4) — `rc ≠ 0`, no `End` line, last
+   time ≠ `endTime`, missing fields, `ExecutionTime` mismatch, or an age-guard failure. **The answer
+   was never produced.**
+2. **Convergence and grid.** Any level not iteratively converged or not plateaued; the triple
+   `DIVERGENT`, `STAGNANT`, `OSCILLATORY` or `EXACT` (rule 5). → `NOT A RESULT`.
+3. **Crash, divergence or refused solve**, not yet triaged (`SUPERVISION` §3 check 2) — **a finding
+   about the case, the method or the toolchain until triage says otherwise.**
+4. **Instrument.** The comparator, reader or grading path is shown wrong; a planted-zero control
+   refuses (rule 3); an exit code is a crash wearing a refusal's clothes (`§2ak`).
+5. **Referent.** The reference value, its band or its provenance is itself in question (`§2al`,
+   `§2am`). ***A disagreement with a reference that is wrong is not a model-form failure.***
+
+**MODEL-FORM — reached only when ALL FIVE are cleared and ALL of the following hold, each verified
+at source and not relayed:** the run satisfies rule 4 in every limb; its triple is `CONVERGING` with
+its GCI quoted at `Fs = 1.25`; the comparator's planted control fired; the reference and its band are
+sound; **and the measured deviation exceeds the pre-registered band.** ***In one line: the numerics
+are demonstrably right and the answer is demonstrably wrong.***
+
+**⚡ AND HER RUNG 2 IS THE DISCRIMINATOR'S OWN AUDIT, PLACED INSIDE THE LADDER.** *"Rule out numerical
+cause"* sits at rung 2 **after** stock exhaustion — which means **the initial model-form
+classification is PROVISIONAL until rung 2 confirms it.** **A case that finds a numerical cause at
+rung 2 EXITS the ladder entirely and returns to process class**, and its rung-1 record stands as what
+it was. *That exit is the ladder's safety valve and it is not optional.*
+
+### §2an.6 ⚡⚡ THE LADDER RECORD'S REGISTERED FORM — AND THE **NOT-TRIED** SET IS THE HALF THAT CERTIFIES IT
+
+Her product claim is precise: *"all known closures fail this flow at these numbers"* is *"itself a
+rare and valuable certified result."* **This team's contribution is to say what that claim requires,
+before the first F6-era case improvises it.**
+
+> **⚠ RULED — `§2an.6`: "ALL KNOWN CLOSURES FAIL" IS A CLAIM ABOUT THE CLOSURES **NOT TRIED** AT
+> LEAST AS MUCH AS THOSE TRIED. IT CANNOT BE CERTIFIED FROM A RECORD THAT LISTS ONLY WHAT WAS RUN.**
+> ***A ladder record enumerating only its attempts is consistent with a faithful exhaustion AND with
+> a lucky early stop — it therefore discriminates neither*** (`FAIL_OPEN_GATE_AUDIT` §28.11, the
+> likelihood-ratio-1 form). **The record must make the difference visible.**
+
+**A ladder record is admissible for an exhaustion claim only if it carries, as a registered
+artifact beside the case:**
+
+- **THE ADMISSIBLE SET, ENUMERATED UP FRONT** — every stock closure and every catalogued literature
+  correction whose declared flow class covers this case, listed **before** climbing;
+- **PER MEMBER, `TRIED` OR `NOT TRIED`**, and for every `NOT TRIED` a **reason from a closed set** —
+  not implemented in this solver / outside its declared flow class / superseded by a listed member /
+  not yet ingested into the library. ***"Not tried" with no reason voids the exhaustion claim,
+  though it does not void the rung verdicts already earned;***
+- **PER ATTEMPT:** rung number; the closure or correction named; **its paper provenance** (her
+  requirement — author, year, and the `docs/papers/` path) and **the flow class the source claims
+  for it**, with a statement of whether THIS case is inside that class; **the sha of that rung's own
+  frozen pre-registration**; **the reference and gate asserted IDENTICAL to rung 1's, BY VALUE**
+  (§2an.3, asserted not claimed); the measured deviation with its uncertainty channels; the rule-1
+  verdict; and the cost in core-minutes;
+- **THE ORDER ACTUALLY CLIMBED**, so that §2an.4's condition 1 is checkable rather than asserted.
+
+**Until a rung's admissible set is enumerated, the case may still climb and still earn rung verdicts
+— it simply may not claim EXHAUSTION.** *The verdicts and the exhaustion claim are separable, and
+this amendment separates them deliberately so that record-keeping never blocks physics
+(Sanaa's bookkeeping rule).*
+
+### §2an.7 ⚠ THE `§0` REFERENT IS FLAGGED, NOT GUESSED
+
+Her rung 2 reads *"rule out numerical cause per §0."* **`[MEASURED]` No document in this repository
+defines a `§0` governing numerical rule-out**; the only `§0` on record is her own 2026-08-27 desk-rulings
+section, which concerns other matters. **Applying `§2am`'s discipline to her text as I applied it to
+ansys's: I identify the reader a document already uses, or I flag it — I do not select one.**
+
+**RULED: the CROSS-REFERENCE is unresolved; the OBLIGATION is not ambiguous and nothing is blocked.**
+Rung 2's substance — *rule out numerical cause* — is fully executable today through instruments
+already binding: **rule 4's completion rule, rule 5's Roache triple and GCI, and the
+`NONCONVERGENCE_STANDARD`'s L0–L4.** A rung-2 record discharging those discharges rung 2. **If Sanaa
+names a different `§0`, that reading governs and this paragraph yields to it.**
+
+### §2an.8 WHAT THIS AMENDMENT DOES NOT DO
+
+- **It creates no verdict word.** Rule 1's vocabulary is unchanged; an escalated case's rungs each
+  take a verdict from it.
+- **It grants no compute and lifts no cap.** Every rung is costed and capped under rule 12.
+- **It re-grades nothing and reopens no frozen document.**
+- **It does not lift closure's stand-down.** Sanaa's directive reframes that line as the ladder's top
+  rung and library owner; **whether and when it resumes is hers, and this charter does not decide it.**
+- **It does not itself build the closure-correction library**, which is a capability assignment to
+  another team, not verdict law.
