@@ -2020,3 +2020,210 @@ basis already in force.**
 > or accepts a basis already labelled. **§13 items 1, 4, 6, 10 and 11 are hereby CLOSED with an
 > owner; item 3 is closed by Amendment 8 as to its BASIS and remains open as to its MAGNITUDE**,
 > which only the `B5c` run and §9.3's calibration row can settle.
+
+---
+
+## 15. AMENDMENT 9 — 2026-09-04T0422Z. THE §9.1 GRADING PATH NOW EXISTS AND IS PINNED BY BLOB SHA
+
+**Drafted by a cfd lab-lane on the cfd supervisor's instruction. THIS IS NOT A FREEZE AND NOT A
+RE-FREEZE.** The `SUPERVISION_CHARTER.md` §3 check 4 is the supervisor's, is not delegated, and is
+**undischarged as this section is written**. **No compute was launched by the lane that wrote it.**
+
+### 15.1 THE CONDITION, AND HOW IT WAS CHECKED — RULE 2 REQUIRES BOTH
+
+> **Rule 2's window is keyed to FIRST COMPUTE, not to the freeze flag:** *"Before first compute,
+> amendments are legal and must state the condition and how it was checked (name the run directory
+> that does not exist)."*
+
+**THE RUN DIRECTORY THAT DOES NOT EXIST — NAMED, AS RULE 2 REQUIRES:**
+**`verification/runs/M6SR_runs/`**, and with it `verification/runs/M6SR_runs/{L1,L2,L3}/`.
+
+**How checked, at 2026-09-04T0422Z, in one invocation, WITH A LIVE PLANTED CONTROL (rule 3):**
+
+| path | reader's answer | role |
+|---|---|---|
+| `verification/runs/M6SR_runs` | **ABSENT** | the run root — **the zero** |
+| `verification/runs/M6I_runs` | **PRESENT** | **the planted non-zero** |
+| `verification/runs/RUNG1_M6_R2_runs` | **PRESENT** | **the planted non-zero** |
+
+**The same reader, in the same invocation, returned PRESENT on two directories and ABSENT on the
+third. The zero has a non-zero beside it.** Corroborated against the tree rather than the disk
+alone: `git ls-tree -r --name-only HEAD -- verification/runs/M6SR_runs` returns **0 files**, while
+the identical command on `verification/runs/M6I_runs` returns **14**.
+
+⚠ **AND ONE THING HAS CHANGED SINCE THE FREEZE BLOCK, STATED PLAINLY RATHER THAN GLOSSED.**
+`cases/M6SR` now **EXISTS** — this amendment created it. That is not a defect and not compute: it
+is **§9.1's own requirement**, which rules that the comparator and driver *"are written and
+committed **before** the freeze, so the freeze can pin their blob shas."* It holds **exactly two
+files, both listed in §9's frozen path table, and nothing else**: no `0/`, no time directory, no
+`log.*`, no `postProcessing`, no mesh. **The no-compute assertion is therefore made about the RUN
+ROOT, which does not exist, and not about `cases/`, which is the grading path and is supposed to.**
+
+### 15.2 WHAT THIS AMENDMENT DOES **NOT** DO
+
+**It moves NO gate, NO threshold, NO cap and NO label.** Not one number in §5, §5.1, §2.4 or §10
+is touched. It adds two blob shas to §9's already-registered paths, records a defect repair in a
+loader §5 already registered, and lists — **without repairing any of them** — items that cannot be
+satisfied as the document stands. **Every one of those is left for the supervisor.**
+
+### 15.3 THE TWO FILES, PINNED BY BLOB SHA AS §9.1 REQUIRES
+
+| §9 registered path | git blob sha | sha256 of the file | lines |
+|---|---|---|---|
+| **`cases/M6SR/analyse_m6sr.py`** (comparator) | **`97cbe0390318f010f7d1dd8ebe4e870fd72c5e68`** | `168fd0896a4055e1106a1ba0eaaf00e6eca1851109a6aa9b60ebcbde32891f75` | 2,106 |
+| **`cases/M6SR/build_m6sr_l1.sh`** (build driver) | **`04ae9d58220a55fa900b02f77424bb7687da0de1`** | `6459428b4c283c597e72e08f7c7ded3c454cfb8efd0facbbc8b178b42e5abc35` | 304 |
+
+**`scripts/check_comparator_freeze.py` can now do at grading what §9.1 says it must: verify that
+the frozen file IS the file that ran.** Before this amendment it could not, because there was no
+file and no sha to verify against.
+
+**Sections implemented, so the mapping is auditable rather than asserted.** The comparator
+implements §1.3 (A8), §1.4 (A5, C5/C6), §2.2 (A4/A6/A7), §4.1 (Gate P's pinned-hash refusal, C11),
+§4.3 (`D1`, C12/C13), §4.5 (the order-independent channel), §5 (Gates A / GF / G / P / R), §5.1
+(G2a/G2b/G2c), §6 (clause `L-HONEST`, quoted **verbatim** on every output), §7 (A9), §8.6 (rule-4
+strict completion), §9.2 (the exit vocabulary and the no-bare-`assert` rule), §10 (C1–C20) and §12
+(printed with every verdict). The driver implements §2.2 (one `coarsen` call on the pinned master;
+`s0`/`N`/`marchDist` unchanged), §2.4 (the `B1`/`B2`/`B3` caps, enforced **structurally** by
+`timeout`), §7 (it REFUSES a level whose patch names it did not expect), §8.5, §8.6 (it REFUSES a
+case where `0` or any time directory exists), §9.2 and §9.3.
+
+**Exit vocabulary, fixed at `0` / `2` / `70`, because a crash is not a refusal.** `0` = the
+instrument ran (a *verdict* may still be `GATE FAIL` or `NOT A RESULT`); `2` = **REFUSAL**; `70` =
+an internal defect of the comparator, which is never a finding about the M6. **Verified by AST
+parse rather than by grep** — `ast.Assert` node count is **0** in both the comparator and the
+repaired loader, against **43** and **5** explicit `raise` nodes; `python3 -O` therefore deletes
+nothing, and control `C16` measured **identical rc and identical control verdicts** under
+`python3` and `python3 -O`.
+
+### 15.4 THE §10 CONTROLS — MEASURED, AND ONE OF THEM DOES NOT FIRE
+
+**19 of the 20 registered controls FIRE. `C12` does not, and it is reported rather than loosened.**
+`C1`–`C11`, `C13`–`C15`, `C17`–`C20` and `C16` all fired; a targeted **mutation control** replaced
+the shipped statistic behind each of eighteen of them in turn and **each mutation flipped exactly
+its own control to red**, so no control in this suite is decorative.
+
+**`C17` is the one worth quoting, because it is this ladder's most load-bearing zero.** As read,
+the 1,560-face level's root section returns **`t_TE/c = 0.000000`**. With a **2.000e-04 m** trailing-edge
+split planted into a scratch copy and **read back from disk**, the same reader returns
+**`t_TE/c = 2.4807e-04` on 2 nodes** — against the worked precedent's `2.48170e-04`, agreeing to
+four significant figures. **The zero is therefore evidence, and `GF1`'s predicted `GATE FAIL` on a
+sharp trailing edge is corroborated by a reader that has been shown able to say otherwise.**
+
+### 15.5 THE `C19` DEFECT — REPAIRED, AND A FILED RECORD CORRECTED AT SOURCE
+
+**§10's `C19` and §5 both register `REFUSAL (exit 2)` on limb (a),
+`verification/runs/M6I_runs/mesh/om6_wing_section_sharp.dat`. Measured before repair: `rc = 1`
+with an `IndexError`.** That file is **single-column** — its first content line is the bare count
+header `63` — so the loader's two-column `parse()` returned **zero rows, not 63**, and the planted-
+control block indexed `rows[-1]` on an empty list. The resulting `IndexError` is **neither**
+`ReferenceStructureError` **nor** `SharpenedReferenceError`, so it **escaped both catch limbs**.
+The loader's own comment claimed this bug class fixed; **that fix treated the wrong site** — the
+file died in the plant block before reaching the structure check the fix guards.
+
+**Repaired:** the count check now runs **before** the plant, with an explicit zero-row refusal that
+names the count-header shape. **Measured after repair — `rc = 2` on limb (a), unchanged `rc = 2` on
+limb (b), unchanged `rc = 0` on limb (c), identical under `python3 -O`.** A new control **`C19b`**
+feeds a synthetic count-header lookalike yielding zero two-column rows and requires `rc = 2`, so
+the defect cannot return silently.
+
+🔴 **`models/onera_m6/PROVENANCE.md:190` filed that fixture as "REFUSED … rc=2", and it does not
+reproduce. It has been corrected by STRIKE-AND-QUOTE, never by rewriting, and the correction says
+what is true: the row was WRONG WHEN WRITTEN, not drifted.** Verified rather than assumed — the
+loader and `PROVENANCE.md` landed in the **same commit `d554e3a7`** and the loader's blob is
+**byte-identical** at `d554e3a7` and at the HEAD preceding the repair.
+
+✅ **AND THE SCOPE, NEITHER INFLATED NOR MINIMISED: THE LOADER DID NOT FAIL OPEN.** `rc = 1` is not
+`rc = 0`; it failed **noisily**, wrote no verdict, and would have stopped any caller checking its
+exit code. **No sharpened file was ever accepted as Table B1-1 and no graded number rests on this.**
+Exactly two things were broken: an **unmet `C19` contract** (a crash is not a refusal), and an
+**overstated filed record** — the second being the worse, because a filed measurement is what a
+later reader trusts *instead of* re-running.
+
+### 15.6 🔴 FOUR THINGS THAT CANNOT BE SATISFIED AS THIS DOCUMENT IS FROZEN
+
+**Recorded, NOT repaired. Every one is a threshold-, instrument- or control-level question, and
+this lane is not entitled to any of them. They are on the supervisor's desk.**
+
+| # | what cannot be satisfied | measured basis | what the comparator does about it |
+|---|---|---|---|
+| **1** | **§5's `G3`/`G4` consume a REFINEMENT RATIO `r` that no section of this document registers.** `G3` says *"from the three-level ratio"*, `G4` says *"`GCI_fine` … at `Fs = 1.25`"*, and Gate P's numerical band channel consumes `GCI_fine` **directly**. | Three defensible conventions exist and give three different bands: `r = 2.000` (linear, in the two refined surface directions), `r = 4^(1/3) = 1.5874` (the conventional 3D cell-count ratio), `r = 4.000` (the raw face/cell ratio). | **REFUSES (exit 2)** at Gate G, prints `p_s` and `GCI_fine` for **all three** candidates, and adopts **none**. Choosing one after the freeze would be choosing a gate parameter to fit an answer. |
+| **2** | **`D1`, evaluated on the pinned experimental bytes, returns `INDETERMINATE` — so §4.3's own consequence fires and Gate P's PER-STATION channel is `NOT A RESULT` before any compute.** | `Cn` = **0.2396, 0.2785, 0.2947, 0.2638, 0.2230, 0.1784, 0.2105** — **non-monotone**, and `Cn(7)/Cn(1) = 0.8787`, inside §4.3's registered indeterminate band `(0.75, 1.333)`. Computed by §4.3's own recipe on `case_2308.dat` at the pinned sha256, **with no CFD in existence**, so it cannot have been chosen to fit an answer. | Reports it. **This is not a defect — it is §4.3 working**, and it means **615 core-min of ladder cannot produce a per-station Gate P verdict as registered.** |
+| **3** | **§10's `C12` registers its must-see as `FALSIFIED` and CANNOT FIRE on this data.** | Reversing a **non-monotone** `Cn` series leaves it non-monotone: as-read `INDETERMINATE`, reversed `INDETERMINATE`. | Implemented **to the letter**, allowed to fail, and the whole suite **REFUSES (exit 2)** as a result. **A registered control is not loosened to its purpose clause so that it passes.** Reported separately, and never substituted for `C12`: all three `D1` branches **are** reachable on synthetic fixtures, so this is a **fixture limit, not a one-answer discriminator**. |
+| **4** | **§5's `GF4` says "semispan of each level's surface" and the surface has TWO semispans that straddle the ±0.1 % tolerance.** | The wing tip is a **ROUNDED CAP**. The wall patch's **span extent** measures **1.216405 m** (**+1.68 %** on AGARD's 1.1963 m — outside the band); the **planform semispan**, from where the straight leading edge ends, measures **≈1.1953 m** (**−0.08 %** — inside it). ⚠ **This also undercuts §14.2's ruling on §13 item 6**, which accepted `b_semi` on the reasoning that the difference was *"0.039 %, inside `GF4`'s ±0.1 % band — so the gate is not pre-decided by the choice."* **Measured, the choice of instrument decides the verdict.** | Reports **both**, labels the semispan limb **`NOT A RESULT`** — which under standing rule 5 can only make a gate worse, never better — and takes no gate decision. |
+
+**A fifth item, resolved rather than escalated, recorded because a successor will hit it:** §5
+writes the root section as *"`y = 0` exactly"*. **Measured, this box's M6 meshes span along `z`**
+(root plane `z = 0`, thickness along `y`, chord along `x`). That is the **registration's notation**,
+not a defect in it, and no gate depends on the letter — so the comparator **derives** the three axes
+from the symmetry patch rather than hardcoding either convention, and **REFUSES** on a mesh where
+they cannot be derived.
+
+### 15.7 THE FIRST FREEZE WAS PREMATURE. THAT RECORD STANDS AND IS NOT TIDIED AWAY
+
+**Recorded by the cfd supervisor at commit `009885a5`, in their own words, and preserved here by
+quote rather than absorbed:**
+
+> *"MY OWN FREEZE WAS PREMATURE — I discharged check 4 against a list I composed rather than the
+> list section 9.1 specified, and M6SR is BLOCKED on its own grading path."*
+
+**The mechanism, stated once so it is not softened.** §9.1 RULES that the comparator and driver
+*"are written and committed **before** the freeze, so the freeze can pin their blob shas."* At the
+freeze commit `40f2d9b9` **neither file existed** — measured: files under `cases/M6SR/` = **0** at
+`40f2d9b9`, **0** at the HEAD preceding this amendment, **0** on disk — and **no blob sha was
+pinned for either**. §9.1 was therefore unsatisfiable at the moment it was declared satisfied, and
+`B0` and `B1` both route through those files, so the ladder could not start.
+
+⚠ **The freeze banner at the head of this file is NOT struck and NOT rewritten.** Its planted-
+control measurement — `verification/runs/M6SR_runs` and `cases/M6SR` both ABSENT, beside two
+PRESENT controls — **was true when it was made**, and it remains the evidence that no compute had
+occurred. **What was wrong was not that measurement but the CHECKLIST it was checked against.**
+Rewriting the banner would destroy the record of the error; **this section is the disclosure, and
+the banner is the artifact it discloses.**
+
+### 15.8 COST — RULE 12, AND NONE OF IT IS LADDER COMPUTE
+
+**No step of §2.4's cost table was run. `B0`–`B6` remain unspent and `verification/runs/M6SR_runs`
+does not exist.** What this amendment spent is **comparator development and its control suite**,
+which §2.4 does not cost and which produces no graded number: **≈ 5 core-min at 1 rank**, of which
+the only exactly-timed figure is the full selftest at **103.5 wall s = 1.725 core-min**. **The rest
+is a wall-clock estimate of this session's own runs and is labelled an ESTIMATE, not a measurement
+read from a log** — no run-log exists for it, and inventing one would be worse than saying so.
+**Derived at the owner-stated `c7a.4xlarge` $0.0513/core-h: ≈ $0.0043 — DERIVED, REPORTED-BY-OWNER,
+never measured, because the box cannot read its own billing** (`COMPUTE_BUDGET_CHARTER.md` §5).
+
+**§9.3's estimate-versus-actual row is NOT owed yet**, because no `B` step has completed. It falls
+due at `B1`'s completion and the driver already emits it into `BUILD_RESULT.json`.
+
+### 15.9 WHAT HAPPENS NEXT, AND WHO MAY DO IT
+
+**The re-freeze is `SUPERVISION_CHARTER.md` §3 check 4 and it belongs to the cfd supervisor. This
+lane did not re-freeze, has launched no compute, and claims no verdict of the fixed vocabulary for
+any gate of this registration.** The four items in §15.6 are **not** for a lane to rule: item 1 is a
+gate parameter, item 4 is a gate instrument, and items 2 and 3 are findings that bear on whether
+this ladder can deliver what §12.2 already says it does not.
+
+> **`L-HONEST` (§6) is unaltered by this amendment, as it is by every other.** The family refines
+> **2 of 3 directions**, `GCI_fine` is a **LOWER BOUND**, `p_s` is **NOT an observed order**, and
+> **Sanaa's named first deliverable remains owed.**
+
+**SUBMISSIONS REMAIN PARKED (rule 7). Nothing left the box (rule 8).**
+
+### 15.10 RULE 6's AMENDMENT ASSERTIONS
+
+**Version: v1.0 → v1.1 (amendment 9, pre-compute). The frozen file was NOT edited; this section is
+APPENDED AT THE FOOT.**
+
+⚠ **The header line 3 still reads `v1.0` and is DELIBERATELY NOT EDITED.** Editing it would change
+a line above this section and would falsify the assertion below, which other records depend on.
+**The bump is recorded HERE, which is where rule 6 puts it** — *"a departure is disclosed in a
+dated amendment appended at the foot, with a version bump"* — and a reader who reaches line 3
+without reaching §15 has not read the document. **The supervisor may restate the version in the
+header at the re-freeze, which is a status flip they own; a lane may not.**
+
+> **`lines whose number changed above this section: 0`**
+
+**Verified, not asserted:** lines 1–2022 of this file are **byte-identical** to the same range at
+commit `40f2d9b9` — both render to sha256
+**`d4a485d2f52c55adbdd0e8103dd60fd13c1e0ec257362e6d76fd1e83039f72bb`**. Other records cite this
+document **by line**, and at least one such citation sits inside an executable check, so this is a
+guarantee and not a courtesy.
