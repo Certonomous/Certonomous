@@ -330,3 +330,60 @@ The citation, shelf, DOI and note columns are editorial and are hand-maintained.
 |---|---|---|
 | Emory, Larsson & Iaccarino 2013, Phys. Fluids 25:110822 | Emory2013_structural_uncertainty_rans.pdf | title page below |
 | Iaccarino, Mishra & Ghili 2017, PRF 2:024605 (accepted ms) | Iaccarino2017_eigenspace_perturbations.pdf | title page below |
+
+## Addendum 4, 2026-09-04 — closure-supervisor. FOUR MEASURED DEFECTS IN THIS FILE, AND THE VERIFICATION EVIDENCE ADDENDUM 3 PROMISED
+
+**Lines whose number changed above this section: 0.** Nothing above is edited; §1's table, §4's
+list and the STATUS COUNTS line are left standing and are STRUCK by this addendum where it says so.
+Occasioned by the closure-correction library ingest (Sanaa `0910b664`); the corpus was surveyed by
+a read-only lane and every claim below was re-measured by the supervisor before landing.
+
+**Defect 1 — STATUS COUNTS (line 41) is STALE BY TWO.** Struck, quoted:
+~~"PDFs on disk: **33 canonical + 6 duplicates + 30 wrong = 69**"~~. Disk holds **71**
+(35 canonical + 6 duplicates + 30 wrong), enumerated 2026-09-04 by
+`find <dir> -maxdepth 1 -type f -name '*.pdf'`. The two extra are Addendum 3's own files.
+
+**Defect 2 — §1's canonical table has 33 rows; disk has 35.** The Addendum-3 files were never
+folded into §1 and therefore carry no shelf code, no sha256, no page count and no printed-title
+row, which this manifest's own on-arrival protocol (line 278) requires. **Supplied here rather
+than by editing §1:**
+
+| Filename | Pages | sha256 | Printed title, page 1, read 2026-09-04 |
+|---|---|---|---|
+| `Emory2013_structural_uncertainty_rans.pdf` | 21 | `1393154c67532c085fcbdf44d8e8df616278563ef2ab5e9708f3f09f5b76c2f2` | "RESEARCH ARTICLE \| OCTOBER 15 2013 / Modeling of structural uncertainties in Reynolds-averaged Navier-Stokes closures / Michael Emory; Johan Larsson; Gianluca Iaccarino / Physics of Fluids 25, 110822 (2013) / https://doi.org/10.1063/1.4824659" |
+| `Iaccarino2017_eigenspace_perturbations.pdf` | 12 | `436770e47c62a9817977d6b272c9370a799a7ac29e7ae69540c2bcd57b014705` | "This is the accepted manuscript made available via CHORUS. The article has been published as: / Eigenspace perturbations for uncertainty estimation of single-point turbulence closures / Gianluca Iaccarino, Aashwin Ananda Mishra, and Saman Ghili / Phys. Rev. Fluids 2, 024605 — Published 27 February 2017" |
+
+**Defect 3 — Addendum 3's verification column said "title page below" and THERE WAS NOTHING BELOW.**
+The file ended at the table. **Both rows asserted a verification whose evidence did not exist** —
+the precise failure this manifest's VERIFICATION RULE was written against, committed by the
+manifest itself. The evidence is now above, read by `pdftotext -f 1 -l 1` **by the supervisor, not
+by relay**, with a negative control: the same reader run on `Menter1994_sst_two_equation.pdf`
+returned the AIAA/Menter title page, proving it reads the file it is handed rather than echoing an
+expectation. **Both files ARE the intended papers.** The identity was sound; the record was not.
+
+**Defect 4 — §4 PENDING-MIT lists 16 titles, TWO OF WHICH ARRIVED on 2026-08-21.** Struck: rows
+for **Emory, Larsson & Iaccarino 2013** and **Iaccarino, Mishra & Ghili 2017** are DISCHARGED and
+are on disk. **The outstanding institutional pull is 14, not 16.** Anyone costing or planning
+against §4 has been reading a list two items too long since 2026-08-21.
+
+**A hazard OUTSIDE this folder, recorded here because this manifest is the L-144 record and the
+file is a closure paper.** `docs/papers/1-s2.0-S0021999116000899-main.pdf` is **byte-identical**
+(sha256 `365b4a01f7d66dc068c260959aa09ea91b8334c0259f0956540b0ead9c7dbefd`) to
+`_WRONG_RETRIEVALS/Parish2016_field_inversion_ml_paradigm.pdf`, which this manifest quarantines as
+a wrong retrieval. Its page 1 prints **"ALmost EXact boundary conditions for transient
+Schrödinger–Poisson system", Bian, Pang, Tang & Arnold, J. Comput. Phys. 313 (2016) 233–246** —
+verified by the supervisor. **A known-wrong paper sits unrenamed, unquarantined and sidecar-less at
+the root of `docs/papers/`, one directory above the manifest that documents it as wrong.** Anyone
+reaching for "the Parish FIML paper" by browsing finds it and is not warned. `docs/papers/` root is
+outside closure's folder scope: **ESCALATED, NOT MOVED.**
+
+**An instrument hazard every future corpus search must route around.** This folder's `.gitignore`
+holds `*.pdf` and `*.txt`, and the lab's `grep` is ugrep, which **skips ignored files**. Measured
+2026-09-04, same query both readers: `grep -rl 'Reynolds' closure/` returns **2** files (the two
+tracked `.md`); `/bin/grep -rl 'Reynolds' closure/*.txt` returns **30**. Corpus-wide on 'Spalart':
+**22 files vs 38.** **A literature search run with the default reader answers from the manifest and
+the README while the 33 sidecars stay invisible** — it reports this file's opinion of the corpus
+instead of the corpus, and it fails SILENTLY, with a plausible non-zero count. The ignore file is
+deliberate and correct (§5: "PDFs are never committed to git"); the search consequence is not, and
+is not fixed by removing it. **Every corpus search uses `/bin/grep` over explicit `*.txt` globs, and
+states which reader it used.**

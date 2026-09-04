@@ -1,11 +1,12 @@
 # Closure-correction library — ARCHITECTURE
 
-**STATUS: DRAFT v0.1, 2026-09-04. PRE-INGEST. ZERO COMPUTE — this document registers a DOCUMENT
-STRUCTURE, not a run, and no solver has been launched under it.** Two open questions are named in
-§3 and §1 and are NOT yet answered; two survey lanes were out when this was written and their
-findings are not in it. **Nothing in this file is a verdict.** It is filed rather than kept in
-scratch because L-186 forbids the scratchpad as a handoff channel and this frame change must
-survive a session kill.
+**STATUS: DRAFT v0.2, 2026-09-04. PRE-INGEST. ZERO COMPUTE — this document registers a DOCUMENT
+STRUCTURE, not a run, and no solver has been launched under it. Nothing in this file is a
+verdict.** v0.2 folds in two read-only survey lanes: the install surface is now MEASURED
+(§2.1-2.4) and v0.1's open flow-class question is RESOLVED (§3). The gap register, the retrieval
+priorities and the recommendation on which case should earn the first certified result live in the
+companion `INGEST_PLAN.md`. Filed rather than kept in scratch because L-186 forbids the scratchpad
+as a handoff channel and this frame change must survive a session kill.
 
 **Authority:** Sanaa verbatim at `0910b664`,
 `etc/sessions/2026-09-04T1510Z_sanaa_model_form_closure_ladder.md` — the closure line returns as
@@ -78,7 +79,10 @@ team's instrument, but I will not assume it — chief to route, or it lands unde
 | `provenance` | paper path in `docs/papers/closure/`, title-page verification state per **L-144**, equation numbers, pages | §15: cite only from a title-verified PDF |
 | `claimed_effect` | the paper's own claim, QUOTED, with its magnitude and its reference data | separates their claim from our result |
 | `validation_case` | the paper's own demonstration case + whether we hold that reference data, and where | the reproduction gate needs a target |
-| `install_path` | one of: dictionary-only / coefficient-only / `fvModels` source / custom library build; with the exact `libs` requirement expressed through the lab's `foam_libs` machinery | rule 14, L-221/L-222: `libs` entries are INSERTED WITH AN ASSERT, never replaced |
+| `install_class` | **exactly one of** `dictionary-model` / `dictionary-coefficients` / `field-input` / `fvOptions-source` / `compiled-library`. See §2.2 | prevents an entry claiming "coefficients only" that **silently does nothing**: an unrecognised key in a `<model>Coeffs` sub-dict is ignored without error |
+| `install_stanza` | the literal `constant/turbulenceProperties` content — `RAS { RASModel <name>; turbulence on; }` | **measured correction: this installation is ESI api 2606 and uses `turbulenceProperties`. `momentumTransport` is the OpenFOAM.org name and DOES NOT EXIST here — an entry drafted against it will not run** |
+| `model_type_name` | the string typed into `RASModel` | **checkable at zero compute against the library's symbol table (`nm -DC lib.so \| grep RASModels::`)** — see §2.3 |
+| `libs_required` / `libs_route` | `.so` basenames as they appear in `FOAM_USER_LIBBIN`; route is `ensure_libs` or `replace_with_assert` + a mandatory justification | rule 14, L-221/L-222: `libs` entries are INSERTED WITH AN ASSERT, never replaced. The lab's machinery is `scripts/foam_libs.py` (`ensure_libs`/`assert_libs`, depth-aware, idempotent, refuses on two top-level entries) |
 | `contraindications` | where it is known or measured to make things WORSE | a correction library without contraindications is a footgun; "none known" must be argued, never defaulted |
 | `what_it_cannot_see` | inherited from charter §16, which makes this a mandatory section | the lab's standing honesty clause |
 | `band_interaction` | does this correction act on the `k`-magnitude axis the shelf-D band does not perturb? | §22.4 item 2 — where a band and such a model appear together, the overlap in what NEITHER sees is stated; this field pre-computes it |
@@ -100,21 +104,59 @@ An exhaustion claim counts only `REPRODUCED` entries. `REGISTERED` and `IMPLEMEN
 matching flow class are **named as untried** on the ladder record — an exhaustion claim with
 unnamed gaps is not an exhaustion claim.
 
+### 2.2 The install classes, and the one that cannot be written
+`fvOptions` adds sources; **it cannot modify the momentum equation's Reynolds-stress term.** So an
+anisotropy correction — the `b_ij` / nonlinear-stress shape, which is SpaRTA and TBNN — is **NOT**
+installable by that route and requires `compiled-library`. Only scalar-transport corrections (k and
+omega source terms) may declare `fvOptions-source`. **An entry pairing an anisotropy correction
+with `fvOptions-source` is wrong on its face and the schema checker must refuse it.**
+
+### 2.3 The symbol-table assertion — the cheapest defence against §0 failure (ii)
+Every built library on this box registers its model under a name recoverable from `nm -DC`.
+Therefore **"does the library actually provide the model this entry claims" is a zero-compute,
+mechanically checkable assertion**, and it is checked before any solve. It does not prove the
+correction is implemented correctly — nothing static can — but it removes the cheapest and most
+embarrassing version of failure (ii): a ladder record reporting that a correction did not help,
+when the solver silently ran the baseline because the model name was never registered.
+
+### 2.4 The planted-zero trap that ships INSIDE a stock model
+`GEKO` with `machineLearning true;` reads `Ck` and `Comega` as `volScalarField`s from the case time
+directory under `READ_IF_PRESENT`. That makes it a spatially-varying data-driven correction
+installable with **no compile** — genuinely valuable. **But a missing or misnamed field silently
+becomes zero and the run completes looking like a plausible baseline.** This is rule 3's
+planted-zero failure built into a shipped model. **Any `field-input` entry MUST plant a non-zero
+correction field, read it back, and demonstrate the solve moves — or it is refused.**
+
 ## 3. Controlled vocabularies
 
 **Families** (Sanaa's own list, made enumerable): (a) analytical / algebraic-stress /
 explicit-algebraic; (b) functional / nonlinear eddy-viscosity; (c) curvature and rotation;
 (d) separation-specific; (e) data-informed / data-driven; (f) closure-challenge corrections.
 
-**Flow classes** — proposed, pending lane B's search for an existing lab vocabulary to reuse
-rather than rival:
-`attached-ZPG` · `attached-APG` · `smooth-body-separation-reattachment` ·
-`corner-secondary-flow` · `curvature-rotation-dominated` · `free-shear` ·
-`stagnation-impingement` · `strong-swirl` · `transition-affected`
+**Flow classes — RESOLVED BY MEASUREMENT: no controlled vocabulary exists in this repository**
+(searched four file types against four phrase patterns; every hit is prose usage, never a
+definition — a negative that is a search result, not a proof of absence). **But two de facto
+vocabularies do exist, and the decision is to PROMOTE rather than invent a rival.**
 
-These map onto the families non-accidentally, which is the library's whole utility: duct secondary
-flow ↔ (a)/(b); curvature ↔ (c); hump and hills ↔ (d)/(e); stagnation anomaly ↔ production
-limiters within (a)/(b).
+**Two fields, not one — collapsing them is what forces the invention of a rival.**
+
+- **`flow_class`** — promoted from `docs/closure/CLOSURE_METHOD_CLASSES_INVENTORY.md` §3.8, the
+  lab's only existing flow-class *list*, already tied to per-class evidence and citations:
+  *square duct / secondary flow of the second kind* · *2-D separation (hills, curved step, BFS)* ·
+  *geometry transfer at fixed Re* · *Re extrapolation* · *unsteady RANS* · *3-D complex geometry*.
+  **Adopting it is a decision to PROMOTE a per-method assessment table into a controlled
+  vocabulary, and is recorded as such — it was never declared as one.** It states what an
+  exhaustion claim covers.
+- **`validation_cases`** — the concrete case ids already used by `R4_sparta_build/MODEL.json` and
+  by the benchmark on disk: `PH_Breuer`, `Parm_PH_29`, `DUCT`, `CBFS`, `NASA_2DWMH`, with per-case
+  ids of the shape `AR_3_Ret_360`, `PHLL10595`, `CBFS13700`. It says which artifact backs the claim.
+
+*"2-D separation" and `PHLL10595` are not the same kind of thing, and the ladder needs both.*
+
+**`library.json`'s field vocabulary starts from `cases/RANS_LES_closure_models/R4_sparta_build/MODEL.json`**
+— the closest existing thing in the lab to a machine library entry, already carrying
+`preregistration_sha256`, training cases, symbolic term list, CV error, condition number, seed
+agreement and a `planted_zero_verdict`. Adopted rather than rivalled.
 
 ## 4. The ladder record form — what makes the exhaustion claim falsifiable
 
