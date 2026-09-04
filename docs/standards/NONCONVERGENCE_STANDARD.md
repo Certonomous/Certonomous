@@ -139,3 +139,120 @@ memory census rather than absorbed into the case.
 - **It grants no compute.** Every level's arm is costed and capped under rule 12.
 - **It retires nothing.** Retiring or widening a gate threshold or a charter clause is reserved to
   Sanaa (`CLAUDE.md` FIRST-ACTION rule).
+
+---
+
+## §4 — HOW THIS STANDARD READS UNDER SANAA'S MANDATORY-COMPLETION ORDER (2026-09-04)
+
+**Appended 2026-09-04 by `verification-supervisor`, who owns this standard's text by her own
+2026-08-27 §3 assignment. Lines whose number changed above this section: 0. §1 is untouched.**
+**No gate, threshold, band, cap, label or verdict is altered by this section, and nothing is
+re-graded.** The two-voice rule of the header applies here too: §4.1 is her text and is the
+authority; §4.2–§4.6 are `[lab-attributed]` and are overrulable by her without touching §4.1.
+
+### §4.1 HER TEXT, VERBATIM (the authority)
+
+Captured at `etc/sessions/2026-09-04T0050Z_sanaa_all_cases_mandatory.md`, commits `71295838` and
+`04c0c1d5`. Two statements, the second her clarification of the first:
+
+> I dont need it, just that team must complete all of its cases. especially
+> the never run. And this applies to the cfd and heat transfer teams. All
+> the cases/ tasks i gave are mandatory.
+
+> yes when i give tasks they are not suggestion they are all mandatory. The
+> only ones that dont end up getting ran are the ones we genuinly cannot run
+> with openfoam. ELse, everything else gets worked on and fixed and
+> solutioned until its at the very least a gate pass
+
+### §4.2 THE APPARENT COLLISION, NAMED RATHER THAN GLOSSED `[lab-attributed]`
+
+This standard's §2.3 says of a converged-but-wrong case that its verdict is `GATE FAIL` and that
+**"it is not an invitation to re-enter the ladder."** Her order says every such case is
+**"worked on and fixed and solutioned until its at the very least a gate pass."**
+
+**Read carelessly these contradict, and the careless reading is the dangerous one in both
+directions**: a team could cite §2.3 to stop at a first `GATE FAIL` — disobeying her order — or
+cite her order to re-enter the L0–L7 ladder and tune until the number agrees — defeating the
+anti-gaming clause she herself wrote three days earlier and called `(absolute)`.
+
+**RULED: THERE IS NO CONTRADICTION, AND NEITHER TEXT NEEDS AMENDING.** They govern different
+acts, and the distinction is already written into §2.1's L6/L7 rows.
+
+### §4.3 THE RECONCILIATION, AND IT IS THE OPERATIONAL ANSWER TEAMS NEED `[lab-attributed]`
+
+- **What §2.3 forbids is a specific act: continuing inside the SAME registered row, using
+  convergence aids to move the gate quantity, with the arms that went the wrong way unreported.**
+  Its own stated reason is exact — *"the ladder addresses non-convergence; it is not a route to a
+  better number."* §2.3 is a prohibition on a **method**, not a licence to **stop**.
+- **What her order forbids is stopping.** A first `GATE FAIL` is not a resting place; the case is
+  worked until it passes its gate or until it reaches the terminal condition of §4.5.
+- **The lawful route is the one §2.1 already specifies for every answer-changing change: a NEW,
+  SEPARATELY FROZEN REGISTRATION** — pre-registered arm only, re-frozen as a new registration,
+  model-form implication declared. That is precisely "successors get registered". **Continuing
+  work on a failed case is therefore not re-entry into the old row; it is a new row.**
+
+> **THE ONE-LINE FORM, for a team reading this at the moment it needs it:**
+> ***After a `GATE FAIL` you may not keep tuning the row that failed — you register a successor.
+> The failed row stays exactly where it is.***
+
+### §4.4 ⚠ THE COROLLARY THAT CARRIES THE MOST WEIGHT UNDER THIS ORDER, AND IT IS ALREADY LAW
+
+§2.1's L6 row already states it, and under a standing order to reach a pass it becomes the
+load-bearing sentence of the whole campaign:
+
+> *"The new registration is a new row; the old row is not overwritten and its verdict is not
+> withdrawn by the swap."*
+
+**A successor that passes does not retroactively make its predecessor's `GATE FAIL` disappear, and
+it never edits or withdraws it.** The record of a mandatory-completion campaign is the **sequence**
+— what failed, what was diagnosed, what was changed, what then passed. **A campaign that shows only
+its passing rows has produced the exact signature §2.3's first reading exists to catch**
+(*"a single reported arm out of several run"*), applied to whole registrations instead of arms.
+
+Two further items of existing law are hereby stated as **binding on this campaign without
+alteration**:
+
+1. **The anti-gaming clause is unchanged and takes no exception.** *"Frozen gates never edited
+   post-compute."* No pressure to reach a pass, from any source including a standing order,
+   reaches a frozen gate, threshold, band, cap or label. **`VERIFICATION_CHARTER` §2d.1's
+   four-condition exception remains the only route and it reaches the COMPARATOR, never the gate.**
+2. **Every arm run is reported, including the ones that went the wrong way** (§2.3, first reading).
+
+### §4.5 THE TERMINAL CONDITION — AND ⚠ THE HONEST GAP BETWEEN HER WORDS AND THE READING OF THEM
+
+**Her verbatim text names exactly ONE exemption class: cases *"we genuinly cannot run with
+openfoam."*** By her words alone, a case that RUNS but persistently fails its gate on the physics
+has no stated stopping point.
+
+**The chief's reading supplies one** — and the chief's session capture is explicit that this half
+is *"chief's reading, not her words"*: that where a case still fails after the lab's own defects
+are exhausted and the failure is **measured** to be the model or the physics itself, that measured
+persistent `GATE FAIL` goes to Sanaa with its evidence, rather than being laundered into a pass or
+silently parked.
+
+**This team ADOPTS that reading as the operating rule and simultaneously FLAGS that it is a
+reading.** The distinction matters because the two possible closures differ:
+
+- if her order means *every runnable case must eventually PASS*, then a measured model-form failure
+  is an unsatisfiable instruction and the gate would be the only thing left to move — **which the
+  anti-gaming clause absolutely forbids**;
+- if it means *every runnable case is WORKED to exhaustion and its honest verdict recorded*, the
+  law is consistent and nothing is in tension.
+
+**This team reads it the second way, because the first way is foreclosed by her own `(absolute)`
+clause, and a reading that makes one of her rules unsatisfiable is the wrong reading.**
+**⚠ ROUTED TO SANAA, NOT DECIDED HERE: whether a measured, defect-exhausted, model-form `GATE FAIL`
+discharges her order. Until she says otherwise the operating rule above applies, and no gate moves
+either way.**
+
+### §4.6 WHAT THIS SECTION DOES NOT DO `[lab-attributed]`
+
+- **It creates no verdict word, no gate, no threshold and no instrument.** It states how two pieces
+  of existing law read together.
+- **It re-grades nothing and reopens no frozen document.** Rows already carrying verdicts keep them.
+- **It grants no compute and lifts no cap.** Every successor registration is costed and capped under
+  standing rule 12 exactly as §2.0 requires.
+- **It is placed HERE, in the standard itself, deliberately**, because this standard is cited **by
+  name inside frozen pre-registrations** on three teams (closure `G2`/`M2`/`RC1`/`RC2`, dafoam
+  `D18`/`FADR`/`SO1b`, cfd `F12`/`F23b`) — so a team meeting the collision meets the resolution at
+  the same file. *A resolution must be reachable from where the conflicting row is read.*
