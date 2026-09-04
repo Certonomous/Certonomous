@@ -1884,6 +1884,124 @@ decide:**
 
 ---
 
+## 15F. PREREQUISITES 2 AND 3, MEASURED — 2026-09-04. THE SUCCESSOR IS STILL NOT WRITTEN
+
+**No gate, threshold, cap or label is altered.** `cfd-supervisor` accepted the
+§15E refutation **as his error, not as a refinement**, ruled the role separation,
+and directed that prerequisites 2 and 3 be established **as measurements** before
+any successor is drafted. They are below. **Instrument:**
+`cases/F28_DUCTED_ACTUATOR_DISK/f28_h5_coverage_probe.py`, blob
+`a34be22ed89ea8f9db606f0eaee8d7ee5981df17`, committed before this record.
+
+**Compute: 0.25 s single-core `postProcess` = 0.004 core-min**, run in the
+already-scratch `H5A_L1_dp1000_U20_DRYRUN` root so that **no evidence-bearing run
+root was touched.**
+
+### 15F.1 PREREQUISITE 2 — REAL CELL VOLUMES, AND HOW WRONG THE PROXY WAS
+
+From `postProcess -func writeCellVolumes` (artifact
+`verification/runs/F28_runs/H5A_L1_dp1000_U20_DRYRUN/0/V`, **on disk and
+untracked** — it is derived from the tracked parent mesh and regenerates in
+0.25 s by that command):
+
+| | |
+|---|---|
+| real cell volume, min / median / max | 1.406118e-16 / 2.870220e-08 / **4.687060e-02** |
+| **max / min ratio** | **3.333e+14 — fourteen orders of magnitude** |
+
+**That is far past the 176,034× the bounding-box proxy showed**, and it makes the
+dimensional argument stronger than when it was made: raw `r_c` compares
+quantities integrated over cells differing by 10¹⁴ in volume.
+
+**The proxy, quantified against real `V`:** Spearman **+0.9843**, but the
+`proxy/real` ratio ranges **1.000 → 416.544**. **It ranks well and scales
+badly** — exactly adequate for the rank correlation that convicted the frozen
+gate, and exactly inadequate as a gate quantity. **Not carried forward**, as
+ruled. Both halves of my own VERIFY are now measured rather than asserted.
+
+### 15F.2 PREREQUISITE 3 — COVERAGE. SATISFIED FOR `p`, FAILED FOR `Uy`
+
+All three candidates reported together, which is how the supervisor ruled the
+non-blindness of the density proposal is discharged: **a selection made with the
+outcome in view is laundered by hiding the alternatives and discharged by
+publishing them.**
+
+| field | candidate | `f1%` | **covered by named zones** | top zones |
+|---|---|---|---|---|
+| `p` | raw | 0.9979 | **0.0000 — UNCOVERED** | Z-ELSEWHERE 1.000 |
+| `p` | `normFactor`-matched | 0.9979 | **0.0000 — UNCOVERED** | Z-ELSEWHERE 1.000 |
+| `p` | **density `r_c/V_c`** | 0.6496 | **0.9970 — COVERED** | Z-DUCT 0.526, Z-HUB 0.471 |
+| `Uy` | raw | 0.9719 | **0.0000 — UNCOVERED** | Z-ELSEWHERE 1.000 |
+| `Uy` | `normFactor`-matched | 0.9719 | **0.0000 — UNCOVERED** | Z-ELSEWHERE 1.000 |
+| `Uy` | **density `r_c/V_c`** | 0.3537 | **0.2492 — UNCOVERED** | Z-ELSEWHERE 0.751, Z-DUCT 0.234 |
+
+**Three things follow, and the second is the one that justifies the whole
+prerequisite.**
+
+1. **The inertness of `normFactor`-matching is confirmed a second time and
+   independently** — identical `f1%` and identical coverage to raw, on both
+   fields.
+2. **🔴 PREREQUISITE 3 IS SATISFIED FOR `p` AND FAILS FOR `Uy`.** The named zones
+   cover where `p`'s residual density lives (99.70 %). They do **not** cover
+   `Uy`'s: **258 of 355 top cells and 75.1 % of the mass fall outside every
+   envelope**, spread over x ∈ [−0.030, 2.513], r ∈ [0.116, 3.213], with the
+   largest at x = 0.19999, **r = 2.898**. That is **real spread, not a boundary
+   artifact**. **Freezing a successor gate on `Uy` with these zones would
+   reproduce the identical defect in a new document** — which is precisely what
+   the coverage prerequisite exists to prevent, and it caught it before the
+   document existed.
+3. **A smaller finding worth an envelope fix.** `p`'s only **2** uncovered cells
+   sit at **x = −0.0000, r = 0.13973** — the **duct leading edge**. `Z-DUCT`
+   starts at exactly `x ≥ 0.0000` and those centroids round a hair negative, so
+   they are clipped by **boundary precision, not by physics**. A successor
+   envelope should begin slightly upstream of the duct.
+
+### 15F.3 A CONSEQUENCE FOR THE SUCCESSOR'S THRESHOLDS, FLAGGED AND NOT ACTED ON
+
+Under density, `p` splits **Z-DUCT 0.526 / Z-HUB 0.471**, so **no single zone
+reaches the frozen G2 threshold of 0.60** — the frozen rule would return
+`MULTI-ZONE`. And `Uy`'s density `f1%` of **0.3537** falls **below** the frozen
+G1 threshold of 0.50.
+
+**Whether that means the threshold, the zones, or the H1–H4 mapping needs
+rework is `cfd-supervisor`'s ruling. I have touched none of them**, and I record
+the numbers here so that whatever he rules is ruled against facts. **Note that
+these figures come from a single snapshot on a `NOT A RESULT` run** and cannot
+support a physics conclusion; they bear on instrument design only.
+
+### 15F.4 THE PLANTED CONTROL ON THE COVERAGE TEST ITSELF
+
+A coverage test that could not report **uncovered** would certify the exact
+failure it exists to catch. `--selftest`, all eight fired:
+
+- a concentration placed **outside every named envelope** is reported
+  **UNCOVERED** and attributed to `Z-ELSEWHERE` — **not silently binned as
+  though that were an answer**;
+- the **same** concentration moved **inside `Z-DUCT`** is reported **COVERED**;
+- the two limbs must **differ** by more than 0.98;
+- a **half-in/half-out** plant reports ≈0.5, not 0 or 1;
+- an **all-zero** field is **REFUSED**, not reported as zero coverage.
+
+### 15F.5 WHAT IS STILL NOT ESTABLISHED
+
+- **VERIFY:** all coverage figures come from **one snapshot** of a `NOT A RESULT`
+  run. Whether `p`'s density coverage or `Uy`'s failure is **stable across
+  snapshots** is untested — and stability is exactly what G3 exists to test.
+- **VERIFY:** cell **centres** are still the vertex mean, not OpenFOAM's
+  volume-weighted centroid. Real volumes are now used for the *quantity*; the
+  *zone assignment* still uses the approximate centre. `postProcess -func
+  writeCellCentres` would close it and has not been run.
+- **VERIFY:** no alternative zone set has been tested for `Uy`. Whether **any**
+  envelope covers `Uy`'s density is open, and a zone set drawn to cover it
+  **after** seeing where it lies would be the fitting this campaign has twice
+  now avoided.
+- **A judgement flagged for ruling rather than made silently:** I did **not**
+  file a `COST_CALIBRATION.md` row for the 0.004 core-min, judging a prerequisite
+  measurement not to be a rung, case or curriculum item completing. If that
+  reading of rule 12 is wrong, the row is owed.
+
+---
+
 ## 15. VERDICT
 
 **None. This document issues no verdict and is entitled to none.** It is a draft
