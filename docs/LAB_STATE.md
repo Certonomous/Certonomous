@@ -33774,6 +33774,59 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-09-04T15:5xZ — **VMFL046-R2 IS FROZEN, QUEUED AND RUNNING. THE `§37.4` OBLIGATION REACHES COMPUTE. L1 IS DONE AT 0.91× ITS ESTIMATE. AND THE DAEMON CAUGHT TWO DEFECTS IN MY OWN FILING.**
+
+**Written by `ansys-verification-supervisor` personally.**
+
+#### LIVE — THIS TEAM OWNS COMPUTE FOR THE FIRST TIME IN THIS SESSION
+| | |
+|---|---|
+| launched | **2026-09-04T15:35:21Z**, pid **25075** (solver pid 26001) |
+| cwd | `verification/runs/ansys_verification/VMFL046-R2` |
+| ranks | **1** (serial, matching R1 so its actuals transfer) |
+| freeze | **`f014449a`** · prereg `09f2662b` · comparator `46d9b7a1` · driver `cb85d07d` |
+| **L1** | **COMPLETE** — `rc=0`, one `End`, `Time = 60000`, wall 154 s, **2.567 core-min** vs filed 2.82 → **0.91×** |
+| **L2** | running, `Time = 52590 / 60000`, budget 50.6 core-min, timeout 3036 s; on rate ≈ **15.4 core-min vs filed 15.33 → ≈1.01×** |
+| **L3** | pending, filed ≈ 65.7 core-min, per-level cap 216.7 |
+| filed / cap | **92 / 276 core-min**; $0.079 **DERIVED**, not measured |
+| ETA | ≈ **17:00Z** |
+
+**The estimate is tracking, and that is the point of the exercise.** R1 missed by **2.33×** because `§27.3` showed it priced a run under `residualControl` and removed `residualControl` in the same document. R2's basis is R1's own measured per-level actuals **for the configuration being re-run**, with the single workload change (endTime ×3) applied explicitly. **Running total ≈ 18.0 core-min against ≈ 18.2 filed.**
+
+**The driver's own launch checks passed on real bytes, and one is worth naming:** *"R1-parity OK: all 10 numerics inputs byte-identical to `cases/ansys_verification/VMFL046/case/`"* — **the numerics-unchanged claim of `§6` is ENFORCED, not asserted.** The driver also disclosed its own limit unprompted: input-integrity pins to **HEAD, not `prereg_commit`**, naming rule 6 as the backstop.
+
+#### THE FREEZE, AND THE RULINGS INSIDE IT
+Four measured R1 defects fixed: the sampler now **refines with the mesh** (nPoints 321/641/1281, ratio **0.499000 identically at all three levels**, against R1's flat 400 that under-resolved by **1.6008×** at the level deciding the verdict); the plateau moves off the station where `N-AV16` measured a **1.85e+07** blindness ratio onto **`x_shock` itself**; the shock reader **interpolates** instead of snapping to nodes; and both branches are pre-registered with the no-plateau remedy changing the **numerics**, never the gate. The threshold is **adopted unchanged from `§31`** and sits **5.2e+10× ABOVE** its reader's measured resolution — where last night's sat **8.004× BELOW** its reader's quantum and was unfalsifiable.
+
+**`§38`/`§39` rulings written in:** `§21.1`'s VMFL046 application **OVERTURNED** (its premise described the *reader*, not the quantity; its own a-priori arithmetic under-estimated the measured hunt by **~18×**, a third `§24.6` instance) — the rule stands. **The ceiling is `GATE REACHED`, not `PASS`:** I computed the inviscid−viscous shock difference myself from the raw T and U fields at the case's own γ, getting **+0.356 / +2.074 / +5.109 %** of 1.250 — `§23.1`'s ≤0.63 % bound refuted **8.1× at L3 and growing with refinement**, so `§23.3`'s cap-lift is unvalidated under `§24.4`. **I confirmed no `PASS` verdict is reachable anywhere in the comparator.**
+
+**`§31`'s reinstatement limb is ESCALATED, not self-applied** — a lane measured that a two-sample drift test is a **PHASE DETECTOR**: 1.2037e-01 m of swing reads as 2.3265e-03 of "drift" when the sampled pair straddles a turning point. **It would relieve this team of a possible reinstatement of a recorded `GATE FAIL`, so we are the last party who should rule it**, and the interest is disclosed in the same breath.
+
+#### ⚠ THREE BOOKKEEPING DEFECTS OF MINE TODAY, ALL THE SAME SHAPE
+1. **I filed the queue row before creating the run root.** The daemon refused it inside one tick: *"cwd does not exist … Popen(cwd=) raises FileNotFoundError, so this entry would be recorded LAUNCHED and die."* **That guard converted a silent dead launch into a loud refusal.** Refused row kept at `queue/ansys-verification/refused/` as the record; `§11.4` makes cwd the run root, so the root must exist **before** filing.
+2. **My row omitted `grading_freeze`.** The daemon logged `GRADER-FREEZE … UNPINNED` and — the clause worth keeping — *"that absence is recorded rather than read as a pass."* `§14` had said *"to be pinned by blob"* and never completed it. **Repaired by dated addendum `9145dff7`**: blob `46d9b7a1`, working file identical, sha256 recorded. **Physics untainted** — the comparator was committed *inside* the freeze commit, so rule 2's grading-path fixing holds and Sanaa's *bookkeeping never voids physics* governs. **What was lost is an INDEPENDENT check**: the daemon can verify a declared pin without trusting the registration.
+3. **Last night: a launcher frozen whose `base/` did not exist**, after `bash -n` passed — which checks syntax, never path existence.
+
+> **All three: I verified the artifact and not its CONTRACT WITH THE MACHINERY AROUND IT.** **RULED — a registration's grading-path pin is COMPLETED AT THE FREEZE, never deferred, and the queue row repeats it verbatim.** `git hash-object` yields the blob before the commit exists, so there is no chicken-and-egg to hide behind.
+
+#### ⚠ AND A FOURTH, AGAINST MY OWN MONITORING
+I armed an `until` loop on `grep … runner.log` for a pattern the **15:33:16Z refusal already satisfied**, so it exited instantly on a stale line and I reported the launch state wrongly upward before correcting it. **`L-481` a third time in one day: a predicate that can be satisfied by HISTORY tells you nothing about the PRESENT.** The repair was a **state-based** predicate — *the row has left the pending directory* — which cannot match history and which reports **where it went** rather than assuming success.
+
+#### VMFL034 — BLOCKER A **RESOLVED**, AND NOT BY BACK-CALCULATION
+**β₀ = 1** and feed moments **(1, 1.108, 1.39, 1.91, 2.8210001, 4.4229999)** lifted from the archive's plain-ASCII members and confirmed twice independently. Two **forward** checks then landed on the manual's analytical column consuming **no target**: **m3 is conserved** by aggregation — feed 1.91 vs target 1.910, **exact** — and **m0 closes**, `50m0² + m0 − 1 = 0` → **0.131774 vs 0.132, −0.171 %**. Together these confirm β₀, the m0 = 1 normalisation, and that the manual's "analytical" column **is** the constant-kernel CMSMPR solution. **Wan et al. 2005 is confirmed absent from the box and was not needed.**
+
+**⚠ AND I CAUGHT A CONVENTION ERROR THAT WOULD HAVE MANUFACTURED A FALSE `GATE FAIL`.** A lane read the OpenFOAM source accurately and concluded wrongly: from *"the death term carries no explicit ½"* it inferred the implemented relation is `β₀m0²`. **The premise is true and the conclusion false.** Summing over the actual half-range loop (`populationBalanceModel.C:671`, death `:334-341`, birth `:274-286`): **death = β₀n², birth = ½β₀n², NET = −½β₀n²** — each event removing two particles and creating one. **The steady balance uses the NET, so `β₀ = 1` goes in unchanged.** The two conventions differ by **27.8 % in m0 against a ±0.76 % band**, so the wrong reading would have produced a **~39 % `GATE FAIL` containing no physics**, and its repair would have looked exactly like tuning β₀ until m0 matched. **`L-488`.**
+
+#### RUNGS WITHOUT VERDICTS / NEXT
+- **VMFL046-R2** — **RUNNING.** Verdict pending; rule-12 calibration row owed at completion. **We do not predict which way it falls:** R1's settled L1 (+1.73 %) and L2 (−4.06 %) bracket the 5 % threshold and the unsettled L3 sat −7.94 % out. **If R2's settled `x_shock` misses 1.250 m by more than 5 %, the `GATE FAIL` returns.**
+- **VMFL034** — case + comparator in build; Blocker A resolved, cost unfiled pending a costed smoke.
+- **VMFL008** — D5 near-term; **D6 blocked behind building a case that does not exist.** B4 (no D5/D6 script) and B5 (R2 hash uncaptured) open.
+- **VMFL072-R2**, **VMFL024**, **VMFL035** — unstarted.
+- **51 figure-only cases / ~85 plates** (85 indicative, not measured) — plan not costed.
+
+#### ON SANAA'S DESK
+**VMFRT005 `BLOCKED`** — mechanism procurement + cost, two separable decisions, untouched. **`§31`'s reinstatement limb** now escalated to the chief for verification's ruling, with this team's conflict of interest disclosed.
+
 ### 2026-09-04T15:2xZ — **VMFL008 HAS NO OPENFOAM CASE AT ALL, SO D6 WAS NEVER THE CHEAP WIN I REPORTED UPWARD · THE FIGURE-ONLY POOL IS 51 AND A LANE'S 52 IS REFUTED · AND THE BOX HAS BEEN IDLE 10.5 HOURS ACROSS EVERY TEAM**
 
 **Written by `ansys-verification-supervisor` personally.** **Solver compute this session: ZERO core-min, $0.00.** No rule-12 row owed.
