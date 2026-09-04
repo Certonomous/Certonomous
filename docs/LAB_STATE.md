@@ -5318,11 +5318,56 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-04T19:36:15Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-65` — **`S-63` RETRACTED IN BOTH HALVES: `G-EMPTY` did not fire, it PASSED; nothing was ungraded, `A1ZE_VERDICT NOT A RESULT` has existed since 19:05Z. I read a DRIVER LEDGER ROW and called it a gate — and the item's own Addendum F.4 had already refused that exact claim, in its heading, before I made it.** Before it, `S-64`, `S-63`, `S-62`, `S-61`, `S-60`…`S-29`.
+**Section last written:** 2026-09-04T19:47:59Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-66` — **`A1WRT2` still cannot freeze, for a BETTER reason than mine: two HARD gates read an input whose only writer is the SELFTEST FIXTURE BUILDER, and §11's own freeze gate would have passed it. Amended pre-freeze, lawfully, condition checked BY EXECUTION.** Before it, `S-65` (`S-63` retracted), `S-64`, `S-63`, `S-62`, `S-61`…`S-29`.
 
 **Section last written:** 2026-09-04T01:08:43Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-48` — **`W3` IS NOT RUNNING AND HAS NOT BEEN SINCE 21:57:49Z; IT REACHED ITS REGISTERED TERMINUS, AND THE REGISTERED FALLBACK DOES NOT RESCUE IT.** `S-47`'s and `S-46`'s *"`W3_chain_r2` running"* lines are **STRUCK BY QUOTE** below — they were true when written and were still being relayed three hours after they stopped being true. Before it, `S-47` — **DESK ITEMS CLOSED**: the **rule-10 hole is fixed in the constitution itself** on Sanaa's GO (`0ee2e7df`, verified by me at HEAD, not taken on relay), and the rule-12 estimate gap is **routed to verification** as a forward-only note. `S-46`'s "on Sanaa's desk" line is **struck by quote** so no successor re-escalates a closed item. **Nothing now on her desk from this family** but the four `NOT FILED` upstream defect classes and FD-vs-adjoint as a fourth `V` instrument. Before it, `S-46` (closing state), `S-45`, `S-44`, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+##### UPDATE S-66 — **`A1WRT2` STILL CANNOT FREEZE, AND FOR A BETTER REASON THAN MINE: TWO **HARD** GATES READ AN INPUT WHOSE ONLY WRITER IS THE SELFTEST FIXTURE BUILDER. §11's OWN FREEZE GATE WOULD HAVE PASSED IT. AMENDED PRE-FREEZE, LAWFULLY, WITH THE CONDITION CHECKED BY EXECUTION** (2026-09-04, `date -u` stamp in the committing invocation)
+
+###### 1. MY GATE IS SATISFIED; A DEEPER ONE IS NOT
+
+`a1wrt2_stage.py` now exists — **26 controls, 0 NOT EXERCISED, `ast.Assert` 0, both flags** — and the instrument table resolves **15 derived in 2 rounds to a fixed point, 15 present, 0 ABSENT**, with existence **structurally** before md5 (`md5_table()` takes an `ExistenceTable` only a clean pass can construct). **111 controls across the four instruments, 0 NOT EXERCISED.** So `S-63`'s stated blocker is cleared.
+
+**But the item still cannot freeze, on a finding the lane surfaced and I verified at the named files:**
+
+- `a1wrt2_run_arm.sh` contains `MANIFEST` **0 times** and `warp_probe` **0 times**;
+- `MANIFEST.json` is **read** at `a1wrt2_grade.py:1137` and **written at exactly one site in the item — `:1390`, inside `_build_happy_root`, the SELFTEST FIXTURE BUILDER**;
+- `a1wrt2_stage.py:161` declares it a `PRODUCT`.
+
+**`G-IMG` and `G-FREEZE` — both HARD — plus `G-WARPPROBE` and `G-RC-HONEST` read inputs that nothing in the registered set produces at run time.**
+
+> **§11 item 1 enumerates instruments and item 2 asserts they EXIST. Neither asks whether anything PRODUCES what the gates CONSUME — so both would have passed on an item whose hard gates could only ever have been fed by a test fixture.**
+
+**This is `D6RF2`'s shape one level out.** There, `G-DELIVERY` printed `OK 8` while `G-ANCHOR` refused on a file `G-DELIVERY` never knew to require. **Here an existence check over the DECLARED set passes while the PRODUCER of the gates' inputs is absent. A gate frozen without the thing that feeds it is not a gate.**
+
+**AMENDED at `9f555b4f`** — lawful under rule 2 as a pre-first-compute amendment, **with the condition stated and CHECKED BY EXECUTION in the amending invocation**: `/home/ubuntu/certonomous-runs/A1WRT2` does not exist. Item 1 gains the producer requirement (the lane's wording, adopted); **new item 1a requires every gate's input traced to a producer or a registered deferral, ASSERTED BY EXTRACTION rather than by reading** — the discipline item 2 already applies to existence. **The extractor does not do this today; the lane measured it by reading two named files and said so. Buildable, not built, named rather than left for a freeze to discover.** No gate, threshold, band, cap, label or cost moves.
+
+###### 2. THE SECOND TIME THIS SESSION A LANE TOLD ME A REQUIREMENT OF MINE WAS UNSATISFIABLE AS WORDED
+
+I wrote *"make the stager subject to `a1wrt2_run_arm.sh`'s `G-UNBOUND`."* **Not satisfiable: a Python file has no `$` expansions and no `set -u`, so `g_unbound` would return `BLOCKED` on it for a reason that says nothing about Python.** The lane ported the **question** — `symtable` over the stager's own bytes before staging — **and labelled the port as a port**, then noted that literal subjection would require the stager to be shell and §11's registered filename to change. **My call, correctly not taken.**
+
+**That is twice today** — the `--gscan` narrowing was the first. **Both times a lane could have produced something that satisfied my words and meant nothing, and said so instead.** *A specification is not evidence, and mine has now been the weakest link twice.*
+
+**Three more corrections accepted:** §11 item 1's *"None exists"* was stale in **both** our directions — **nine fixtures existed**; only the stager was absent. §3's *"TAIL continued from SEAM's final state, in the same process"* is **in tension with the committed grader**, which reads two separate `<ARM>/case` trees, two `out/` dirs and two ledger rows — **needs a ruling, and I have not taken it.** And **`grade()` reads `TAIL/out/rc` and never `SEAM/out/rc`** — *the one-arm gating asymmetry §4.1 documents in `A1WRT` ("U1's rule-4 completion was never gated by anything"), reproduced in the successor written to repair it.* **Surfaced by the extraction; the gate is not written.**
+
+###### 3. THE DRIVE THAT MATTERED, AND THE LIMIT IT LEAVES
+
+The stager was driven **against the real `A1WRT` asset** into a temporary root: source intact (78 entries / 61 witnesses identical before and after), **10 real compressed fields decompressed**, staged `4000/U` = 8,038,545 bytes, and **the real `g_coldstart_seam` over that real staged tree returns PASS** — then it **refused by name at `rc 5`: `A1WRT2_STAGE_ABORT_CONTROLDICT_NOT_CONTINUED`.**
+
+**Age guard, which side it is on, answered rather than assumed:** the datum is a **dedicated run-root sentinel touched last**, not a copied file, **so mtime preservation cannot defeat it** — and `PRODUCTS`/`STAGED_INPUTS` are asserted disjoint, every staged file asserted not newer than the datum, every product name asserted absent at the end, **so a product can only appear by being produced.**
+
+**And the abort-site census fired for real during development: 18 sites enumerated from the AST, 12 DRIVEN, 6 DECLARED-UNDRIVABLE-with-reason, 0 undriven — it named two sites the lane had not driven.** *An instrument that catches its own author mid-build is worth more than one that passes.*
+
+**Honest limit kept: the stager's happy path has NEVER completed end-to-end on the real asset** — by design it refuses at step 9, so steps 10–13 are exercised only on synthetic sources whose *shapes* were matched and whose *bytes* are not real. **Stated by the lane, not discovered by me.**
+
+###### 4. STATE
+
+**Zero lanes live. Zero compute today across all five dispatches. Nothing frozen, nothing enqueued, no solver started.** `A1WRT2` blocked on its own amended §11; `W3S` blocked on an unwritten launcher; `D6RF3` blocked on four unwritten instruments.
+
+**OWED BY ME:** the §3 SEAM→TAIL ruling; the `TAIL/out/rc`-only gating asymmetry; check 4 at every freeze; the `D6R` plateau audit; the component-sizing point for Sanaa's desk with the component-3 numeric **still held back**; the remaining `A1ZE` reader audit.
+
+
 ##### UPDATE S-65 — **⚠⚠ `S-63` IS RETRACTED IN BOTH HALVES. `G-EMPTY` DID NOT FIRE — IT **PASSED**. NOTHING WAS UNGRADED — `A1ZE_VERDICT NOT A RESULT` HAS EXISTED SINCE 19:05Z. I READ A DRIVER LEDGER ROW AND CALLED IT A GATE. AND THE ITEM'S OWN RECORD HAD ALREADY REFUSED TO MAKE THAT EXACT CLAIM, IN A HEADING, BEFORE I MADE IT** (2026-09-04, `date -u` stamp in the committing invocation)
 
 ###### 1. STRUCK BY QUOTE — MY OWN, AND BOTH HALVES ARE FALSE
