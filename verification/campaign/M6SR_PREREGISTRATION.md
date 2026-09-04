@@ -4571,3 +4571,265 @@ and falsify those sections' own assertions, on which other records depend. **The
 HERE.**
 
 > **`lines whose number changed above this section: 0`**
+
+---
+
+## 22. AMENDMENT 16 — 2026-09-04, **PRE-COMPUTE**. **THE RE-PIN.** EVERY EXECUTABLE THE LADDER RUNS IS PINNED BY BLOB SHA, THREE SUPERSEDED PINS ARE **STRUCK BY QUOTE**, AND `C6` IS SETTLED BY **MEASUREMENT** RATHER THAN BY REASONING
+
+**WHY THIS AMENDMENT EXISTS, IN THE PRIOR LANE'S OWN WORDS.** §21.5 closed with *"IT DOES NOT
+RE-PIN … the re-pin is the supervisor's to order, and a lane may not take it"*, and the lane that
+wrote it added that **a launch before the re-pin would run an instrument the registration does not
+name.** The supervisor has now ordered it. **This amendment takes the re-pin and nothing else.**
+
+**THE PRE-COMPUTE CONDITION, STATED AND CHECKED, NOT ASSUMED.** Rule 2 permits an amendment before
+first compute and requires the condition to be named and how it was checked. **The run directory
+that does not exist is `verification/runs/M6SR_runs`.** Checked **with a plant at the exact searched
+path**, in one invocation, by the same reader throughout:
+
+| step | reader `[ -d verification/runs/M6SR_runs ]` |
+|---|---|
+| before the plant | `ABSENT` |
+| **with the plant present** | **`PRESENT`** — the reader is shown able to see a present tree |
+| plant removed | `ABSENT` |
+| independent `find -maxdepth 1 -name 'M6SR_runs'` | **0 hits** |
+
+**No ladder compute has been run.** No gate, threshold, cap or label moves in this amendment.
+
+### 22.1 THE THREE SUPERSEDED PINS, **STRUCK BY QUOTE**
+
+Rule 6: originals are struck, never rewritten. **The three rows below are pin claims that are IN
+FORCE and are MEASURED FALSE at this HEAD.**
+
+**(1) §15.3's `build_m6sr_l1.sh` row** — §18.3.2 struck §15.3's *comparator* row and expressly
+re-verified this one as unmoved **at that date**. It has moved four times since.
+
+> 🔴 **STRUCK BY QUOTE:** ~~*"| **`cases/M6SR/build_m6sr_l1.sh`** (build driver) | **`04ae9d58220a55fa900b02f77424bb7687da0de1`** | `6459428b4c283c597e72e08f7c7ded3c454cfb8efd0facbbc8b178b42e5abc35` | 304 |"*~~
+
+**(2) §18.3.1's `build_m6sr_l1.sh` row** — the same blob, pinned a second time, with its
+first-appearance commit.
+
+> 🔴 **STRUCK BY QUOTE:** ~~*"| **`cases/M6SR/build_m6sr_l1.sh`** (build driver) | **`04ae9d58220a55fa900b02f77424bb7687da0de1`** | `6459428b4c283c597e72e08f7c7ded3c454cfb8efd0facbbc8b178b42e5abc35` | 304 | **`c1625208`** (Amendment 9) |"*~~
+
+**(3) §19.4.2's `run_m6sr_b5.sh` row** — stale by construction exactly as §19.4's own predecessor
+row was, and for the same reason: Amendment 15's cap repair moved the file in the commit that
+carried it.
+
+> 🔴 **STRUCK BY QUOTE:** ~~*"| **`cases/M6SR/run_m6sr_b5.sh`** (sole producer of `SOLVER_RC.txt`, `log.rhoSimpleFoam`, `log.checkMesh`) | **`6e12307edfeeabd40effc9a5eedc6176fab99212`** | `a9f1d3765862ea4a9eef09971eab60df5f2a65443e02ac8a182a869fc29eec7d` | **795** | **NOT in §9's table**; **CHANGED BY THIS AMENDMENT** (§19.2.3) |"*~~
+
+⚠ **§18.3.1's `run_m6sr_b5.sh` row (`44fae79b…`) is NOT struck again here** — §19.4.1 already
+struck it, and striking a struck row twice would make the record harder to read, not safer.
+
+### 22.2 THE PINS — **ALL TEN EXECUTABLES THE LADDER RUNS**, RE-HASHED INSIDE THE COMMIT
+
+**Every blob below was re-derived with `git hash-object` on the working tree, checked against
+`git rev-parse HEAD:<path>`, and RE-HASHED A SECOND TIME INSIDE THE SAME SHELL INVOCATION AS THE
+COMMIT THAT CARRIES THIS SECTION, WITH THE COMMIT ABORTING IF ANY ONE OF THE TEN HAD MOVED.**
+⚠ This is a live guard, not a formality: §18.3.1 records a file moving between the drafting of its
+pin table and the commit (`0b3b73bb…` → `44fae79b…`), and §20.6.1 records a second such move.
+
+**THE SEVEN CODE ARTIFACTS THAT PRODUCE OR GRADE:**
+
+| path | git blob sha | sha256 of the file | lines | blob first appears at | §9 status |
+|---|---|---|---|---|---|
+| **`cases/M6SR/analyse_m6sr.py`** (comparator) | **`9b963ad48e016fe2177553507006915e52b4ef98`** | `9042cdf22ff948f8df48d846495ccb0d05e5130d19a0572b6020b728507d9394` | 2,742 | **`8c0ab7a8`** (Amendment 11) | **§9 registered** — pin UNMOVED since §18.3.1 |
+| **`cases/M6SR/build_m6sr_l1.sh`** (build driver, `B1`–`B3`) | **`caa7d9de787b1dc8cf5e45935afcc5ef425b85fc`** | `6c6f0a8f7c595d130fcaa75cf953763c78716c80a219a94493df4ae4eaf3eb90` | **828** | **`045a6044`** (Amendment 15, the cap repair) | **§9 registered** — **RE-PINNED HERE**, §22.1(1) and (2) |
+| **`scripts/residual_max_over_equations.py`** (`G2`'s only instrument, §5.1) | **`b5eee67d594c04df90a2201b003039d5959c6eb4`** | `39a5e0d4b19ab5aa9313888e86297e7ff8c0bb7dc0c2e8628479b561d1c0bbd7` | 433 | **`184c00af`** | **§9 registered** — pin UNMOVED |
+| **`scripts/verify_agard_ar138_table_b1_1.py`** (the `GF2` reference loader) | **`6cc89ced4cbd54e3b6b57403fe7224e6e08a83ab`** | `ee62a6ac6cb8cb6b19cc6cad7f742c8fcf0e434f3ec272449aaa7f38b9c96bde` | 222 | **`96e08380`** (the `C19` repair) | **§9 registered** — pin UNMOVED |
+| **`scripts/check_comparator_freeze.py`** (named by §9.1 as the verifier) | **`dabd740e56a017edbc04b9c2b866c93c661ce0ab`** | `2871fabbab2bf8a126af49d4cdf6c7c6cb3a7ef9fd107b2afa4e942771b54709` | 904 | **`5c31a23c`** | **§9 registered** — pin UNMOVED |
+| **`cases/M6SR/write_m6sr_case.py`** (§8's sole case-file writer) | **`f2e8f3bc5982e92b9f5697e568c0f31f3c17d0a5`** | `eb8abf930e999ab2af2eac74793229df0ddd096a34f41756a378627ce15c360c` | 1,059 | **`8c0ab7a8`** (Amendment 11) | **NOT in §9's table** — the gap, §18.3.1 |
+| **`cases/M6SR/run_m6sr_b5.sh`** (sole producer of `SOLVER_RC.txt`, `log.rhoSimpleFoam`, `log.checkMesh`) | **`27996a8dbd31c8edf38923c7ec31924111707f7f`** | `7c51d04f8c34b032430a93a3f64ac0d26d57c3d03a409be919c90fed8f261223` | **850** | **`045a6044`** (Amendment 15, the cap repair) | **NOT in §9's table** — **RE-PINNED HERE**, §22.1(3) |
+
+**AND THE THREE CONTROL SUITES — PINNED FOR THE FIRST TIME AS A COMPLETE SET.** A control suite
+that can be silently edited is a green with no content (§19.4.3), and **`check_m6sr_cap_binds.sh`
+has never been pinned anywhere in this document until now:**
+
+| path | git blob sha | sha256 of the file | lines | blob first appears at | §9 status |
+|---|---|---|---|---|---|
+| **`cases/M6SR/check_m6sr_launch_path.sh`** (launch-path controls) | **`9b8d44ce7c68a0728db80cc83fb11dbeb77d945d`** | `0da8aad32983d6b737de346db5b6fd1d71e96c64b014d56a51ce1f495ca9372c` | 367 | **`20aad5c7`** | **NOT in §9's table** — pin UNMOVED since §19.4.2 |
+| **`cases/M6SR/check_m6sr_build_path.sh`** (build-path controls, items 38/39) | **`dd9f7c4ab87f2e464e3905cf1037093e8814520c`** | `aa416ff44cb3d8f26873e2a25f5a9db4af925129656f7597f991f6467ecfd9d9` | **360** | **`045a6044`** | **NOT in §9's table** — **FIRST STANDING PIN**; §20.6 reported a sha but expressly declined to pin |
+| **`cases/M6SR/check_m6sr_cap_binds.sh`** (the cap-binding controls, `K1`–`K6`) | **`6ea8c368cce364a4f27cbb2e5d37f26680d4b152`** | `8feafa99dc31db987ff246d79c7258d01a472082ccca8e796fed51b36ab647b3` | **358** | **`045a6044`** | **NOT in §9's table** — **NEVER PINNED BEFORE THIS SECTION** |
+
+#### 22.2.1 TEN IS THE WHOLE SET, AND THAT IS MEASURED RATHER THAN ASSERTED
+
+Item 32 recorded *"§9's frozen path table registers TWO executables and the ladder now runs
+SEVEN."* **It now runs TEN**, and the closure was re-derived here rather than carried forward:
+
+- The two drivers were read **comment-stripped** and every `.py`/`.sh` name in their **code** was
+  enumerated. `build_m6sr_l1.sh` invokes `analyse_m6sr.py` and `write_m6sr_case.py`;
+  `run_m6sr_b5.sh` invokes the same two. **Neither driver invokes a script outside this set.**
+- The comparator's own dependency edges are **imports and one subprocess**, not shell calls, which
+  a driver-only sweep would have missed: `analyse_m6sr.py:645/649` imports
+  `verify_agard_ar138_table_b1_1`, `:1153/1157` imports `residual_max_over_equations`, and
+  `:2182–2208` shells out to `scripts/verify_agard_ar138_table_b1_1.py` for `C19`.
+  `write_m6sr_case.py:330` imports `analyse_m6sr`. **The closure is exactly the ten above.**
+- ⚠ **Read comment-stripped for the same reason `C1''` exists**: these filenames appear far more
+  often in the drivers' prose than in their code.
+
+### 22.3 THE MOVEMENT CHAIN — **HISTORY, DELIBERATELY NOT STRUCK**, AND THE JUDGEMENT IS NAMED
+
+§19.4.2 set the precedent by recording `ab3b1ab2…` as *"the superseded intermediate, recorded so
+the chain is readable"* — a history row, not a strike. §20.6 and §20.6.1 are of that kind: they
+carry blob shas under headings that read **"STALE BY CONSTRUCTION, AND DELIBERATELY NOT RE-TAKEN
+HERE"** and **"Still NOT re-pinned"**. **They are movement reports, not pins in force, so they are
+NOT struck.** The full chains, so no reader can mistake an intermediate for a current value:
+
+| file | chain, oldest → **current** |
+|---|---|
+| `cases/M6SR/build_m6sr_l1.sh` | `04ae9d58` (§15.3, §18.3.1 — **struck, §22.1**) → `a64bc6b8` (`87504e79`) → `596e9493` (§20.6) → `cd9daf86` (§20.6.1) → **`caa7d9de`** |
+| `cases/M6SR/run_m6sr_b5.sh` | `0b3b73bb` (drafted, never committed as a pin) → `44fae79b` (§18.3.1 — struck at §19.4.1) → `ab3b1ab2` (`5cf8a009`) → `6e12307e` (§19.4.2 — **struck, §22.1**) → **`27996a8d`** |
+| `cases/M6SR/check_m6sr_build_path.sh` | `e49ab600` (§20.6, reported not pinned) → **`dd9f7c4a`** |
+| `cases/M6SR/analyse_m6sr.py` | `97cbe039` (§15.3 — struck at §18.3.2) → **`9b963ad4`** |
+
+⚠ **THIS JUDGEMENT IS THE LANE'S AND IS FLAGGED FOR THE SUPERVISOR TO OVERRULE.** If the
+supervisor reads §20.6's *"blob sha **after**"* column or §20.6.1's *"blob sha **after this
+correction**"* column as pin claims in force rather than as dated movement reports, then
+`596e9493`, `cd9daf86` and `e49ab600` require strikes too. **The lane's reading is that they are
+history and that their own headings say so. The lane did not strike them, and says so here rather
+than leaving the decision invisible.**
+
+### 22.4 `C6` — **REASONED BEFORE, MEASURED NOW.** IT PASSES.
+
+**THE GAP THE PRIOR LANE NAMED AGAINST ITSELF.** §21.5 asserted that
+`check_m6sr_build_path.sh` check `C6` still passes after the cap repair, on the argument that `C6`
+probes a **bare `timeout`** directly rather than the drivers' helper, and therefore pins the
+**platform fact the repair works around** rather than the drivers' old shape. **That lane did not
+run the suite and said so.** An argument that a check still passes is not the check passing.
+
+**RUN. MEASURED. THE SUITE EXITS 0: 20 checks passed, 0 failed, and the refusal path is planted
+and read back before anything rests on it.**
+
+| check | measured |
+|---|---|
+| **`C6`** | **`PASS`** — a **3 s** `timeout` on a **12 s** container returned **rc 124 after 12 WALL SECONDS**. The bare-`timeout` platform fact **still reproduces**: the cap **reports** the overrun, it does not **stop** it. |
+| `C6'` | `PASS` — `docker rm -f` on the recorded name ends the container in **0 wall s**. This is limb 2 of §21.2's repair, measured by the suite that pins the defect. |
+| `C4b` | `PASS` — the driver's own extracted `B3` chain returns **inner rc 0** in the real pinned container. **This known-positive is what licenses every refusal beside it** (rule 3). |
+| `C4a` / `C5a` | `PASS` — item 38 and the `createPatchDict` limb both still reproduce, failing closed. |
+| `SWEEP` | `PASS` — **no container this suite started is left on the daemon.** |
+
+✅ **`C6` IS GREEN, AND THE PRIOR LANE'S REASONING IS VINDICATED BY MEASUREMENT RATHER THAN
+ADOPTED ON TRUST.** The finding it keeps executable is intact: if a bare `timeout` ever begins
+bounding a container on this daemon, `C6` goes RED and §21.2's repair must be re-argued.
+
+#### 22.4.1 AND THE SUITE'S CODE IS PROVED BYTE-IDENTICAL ACROSS ITS MOVE — WITH A LIVE PLANT
+
+§21.5's claim that the suite's *"code is byte-identical"* across `e49ab600` → `dd9f7c4a` was also
+an assertion. **Measured here:** the two blobs differ by **15 lines**, and a **comment-stripped
+view of each renders to the same sha256
+`b8899667705ea82c1d2511efa506eea12246f6c903d5993ca2dde5c17fbce9fa`**. Every one of the 15 changed
+lines is a comment, and both changes are the two `"REPORTED, NOT REPAIRED"` sentences correctly
+converted to `~~quoted~~` strikes. ⚠ **PLANTED CONTROL, because an equality is worthless from a
+comparator not shown able to report an inequality:** one character appended to a single line of
+the new comment-stripped view makes the **same comparison** report a difference. **The plant was
+SEEN.**
+
+### 22.5 THE STRIKE AUDIT — MACHINE-VERIFIED, BECAUSE THE EYE HAS ALREADY MISSED THIS ONCE
+
+§20.6.1 records a prior lane catching **itself** deleting a four-line block and striking only the
+fourth line — *"that audit is what caught it, not my eye."* **The same audit was run on this
+section before it was committed.** Its subjects are the **four shas this amendment declares FALSE
+IN FORCE**: the two blob shas and the two file sha256s **quoted inside §22.1's three strike
+spans** — named structurally here, and deliberately not re-typed, for the reason the audit itself
+discovered below. Every occurrence of each of them in the text this amendment adds was located and
+classified, and **each one sits either inside a `~~…~~` strike span in §22.1 or on a line of
+§22.3's explicitly-labelled history chain.** The result is printed in the commit that carries this
+section.
+
+⚠ **THE AUDIT WENT RED ON THIS SECTION'S OWN FIRST DRAFT, AND THAT IS WHY IT IS WORTH RUNNING.**
+The first draft of this very paragraph listed the four shas literally, in plain prose, outside any
+strike span. **The auditor classified all four as `UNCLASSIFIED` and refused the commit.** The
+values were **not** wrapped in a strike to silence it — a strike would have been a lie, since the
+paragraph is describing them rather than quoting a superseded row — they were **removed**, and the
+paragraph now names them by reference. **Machine-caught, not eye-caught, exactly as §20.6.1
+predicted.**
+
+⚠ **RULE 3, ON THE AUDITOR ITSELF.** A clean audit from a reader never shown able to report a
+violation is not evidence. **The audit plants one:** a false sha is injected on a plain, unstruck,
+non-chain prose line and the auditor must report it `UNCLASSIFIED`. **The plant was SEEN**, and
+the audit **refuses (exit 2)** rather than reporting a pass if it is not.
+
+⚠ **The audit's scope is those four shas and nothing wider**; a sha this amendment treats as
+history (§22.3) is by construction outside it, which is exactly why §22.3 names that judgement
+instead of burying it.
+
+### 22.6 §9's FROZEN TABLE — **STILL THE SUPERVISOR'S.** THIS AMENDMENT DOES NOT EXTEND IT.
+
+Item 32's ruling stands: *"adding a path to §9's frozen table is a FREEZE question and is the
+supervisor's. A lane pins shas and reports."* **Five of the ten above are §9-registered paths and
+five are not.** The recommendations of §19.4.3 and §20.6 are restated unchanged and a third is
+added, all three for the same reason — **§9's table is the GRADING path, and a control suite
+grades nothing, produces no artifact any gate reads, and writes only into a `mktemp` tree it
+deletes:**
+
+| file | lane's recommendation |
+|---|---|
+| `check_m6sr_launch_path.sh` | **NO** to §9; **YES** to a standing pin (given, §22.2) |
+| `check_m6sr_build_path.sh` | **NO** to §9; **YES** to a standing pin (given, §22.2) |
+| `check_m6sr_cap_binds.sh` | **NO** to §9; **YES** to a standing pin (given, §22.2) |
+
+⚠ **`write_m6sr_case.py` and `run_m6sr_b5.sh` are a DIFFERENT question and the lane makes no
+recommendation on them.** They are **producers on the graded path** — one writes §8's case, the
+other is the sole producer of `SOLVER_RC.txt`, `log.rhoSimpleFoam` and `log.checkMesh`, which
+Gate A and rule 4's completion check both read. **§18.3.1 named that as a hole and it is still
+open.** It is a freeze question, it is the supervisor's, and **this section does not answer it.**
+
+### 22.7 WHAT THIS AMENDMENT DOES **NOT** DO
+
+1. **It moves NO gate, NO threshold, NO cap and NO label.** Not one number in §5, §5.1, §2.4 or
+   §10 is touched. **Pins and refusals are not gates**, and a strike of a superseded hash changes
+   what a comparator must match, never what a gate must beat.
+2. **It does NOT add a path to §9's frozen table** (§22.6).
+3. **It touches NO code.** Not one of the ten pinned files is edited by this amendment — that is
+   the precondition for pinning them at all, §18.6's *"a document cannot pin a blob and change it
+   in the same breath."*
+4. **It runs NO ladder compute.** No `B2` march, no `B5` solve, no queue row.
+   **`verification/runs/M6SR_runs` does not exist**, verified with a plant at the exact searched
+   path both before this work and after it.
+5. **It does NOT freeze and it does NOT launch.** Rule 2's freeze and the launch decision are the
+   supervisor's; a lane may not take either.
+6. **It does NOT re-litigate items 25, 27, 28, 30, 33, 35, 36, 37** or any other carried-forward
+   finding. **Items 35, 36 and 37 remain OPEN in `build_m6sr_l1.sh`**, and re-pinning that file
+   pins the defects along with the repairs — **which is what a pin is for.**
+
+### 22.8 COST — RULE 12, AND **NONE OF IT IS LADDER COMPUTE**
+
+| item | predicted | **actual** | ratio | attribution |
+|---|---|---|---|---|
+| `check_m6sr_build_path.sh`, whole suite | cap **420 s** wall at 1 rank = **7.0 core-min** ceiling | **14 s** wall at 1 rank = **0.233 core-min** | **0.033** | the cap was set as a **ceiling**, not an estimate — the suite's containers are seconds-long by design (§ the file's own header: *"no solver runs here, and no pyHyp march"*). **Misprediction, not contention.** |
+| hashing, diffing, document work | — | **host arithmetic, ~0** | — | — |
+
+**Container-seconds, reported as WASTE and SEPARATELY, never absorbed into a step's cost: 14 s at
+1 rank = 0.233 core-min**, of which the suite's own counter attributes **12 s** to `C6`'s
+deliberately-overrunning container. ⚠ **Honest caveat on that counter:** it is second-granular, so
+`C4`/`C5`'s sub-second containers round to **0** and the 12 s is a **lower bound** on container
+time, not a total; **14 s of harness wall is the upper bound and is what is charged.**
+
+⚠ **EVERY CONTAINER THIS PASS STARTED WAS BOUND BY THE MECHANISM UNDER TEST.** The suite is
+**pinned and was NOT edited** to add a bound; the bound was applied **around** it, with §21.2's
+three limbs: `timeout -k 15s 420s`, an **UNCONDITIONAL** `docker rm -f` sweep of the suite's own
+`m6bc_` name prefix that runs on **every** outcome and not only on the cap, and a **124/137**
+branch. **Measured: harness rc 0 in 14 s; containers left before the sweep — NONE; after — NONE.**
+The suite's own `SWEEP` check agrees independently.
+
+⚠ **The box was NOT idle.** Heat-transfer's `T3e` held **8 ranks of 16** (load average 8.04 at
+launch). This pass took **1 rank for 14 s** and did not saturate.
+
+### 22.9 RULE 6's AMENDMENT ASSERTIONS
+
+**Version: v1.7 → v1.8 (amendment 16, pre-compute). The frozen file was NOT edited; this section
+is APPENDED AT THE FOOT.**
+
+⚠ **The header line 3 still reads `v1.0` and is DELIBERATELY NOT EDITED**, for the reason §15.10,
+§16.9, §17.12, §18.11, §19.10, §20.8 and §21.6 give: editing it would change a line above §15 and
+falsify those sections' own assertions, on which other records depend. **The bump is recorded
+HERE. The supervisor may restate the version in the header at the re-freeze, which is a status
+flip they own; a lane may not.**
+
+> **`lines whose number changed above this section: 0`**
+
+**Verified, not asserted:** lines **1–4573** of this file — the whole of it up to and including
+§21.6's closing line, and therefore the whole of §15's guaranteed range 1–2022, §16's 1–2229,
+§17's 1–2690, §18's 1–3684, §19's 1–4107 and §20's 1–4107 — are **byte-identical** before and
+after this append, both rendering to sha256
+**`70e7b821bf15678891c8e4b235d5d6e6f5c4348142daba6107844691a72b2a2d`**. Other records cite this
+document **by line**, and at least one such citation sits inside an executable check, so this is a
+guarantee and not a courtesy.
