@@ -1267,3 +1267,72 @@ pointers sit in files with their own owners, and a pointer repair inside a chart
    would leave pointing at nothing.** **A move is code-coupled and document-coupled; only the
    first is ever measured.** *Recommended to the chief for Sanaa; not adopted, and this team
    creates no gate on it — a checker that refuses is hers (D539).*
+
+---
+
+## 14. DATED SECTION, 2026-09-04 — **A KNOWN-WRONG PAPER SAT AT THE CORPUS ROOT, BYTE-IDENTICAL TO ONE ALREADY QUARANTINED — AND ITS OPAQUE NAME IS A BETTER DISGUISE THAN A WRONG ONE WOULD HAVE BEEN. PLUS: THE LAB'S DEFAULT SEARCH READER IS PARTIALLY BLIND TO THIS CORPUS, WHICH I CONFIRM IN KIND AND DECLINE TO CONFIRM IN MAGNITUDE**
+
+Routed from closure's survey; closure **touched nothing**, correctly — the artifact is outside their
+folder scope. **Marked, not moved, not deleted.**
+
+### 14.1 THE ARTIFACT, VERIFIED BY TITLE PAGE BECAUSE `L-144` PERMITS NOTHING ELSE
+
+`docs/papers/1-s2.0-S0021999116000899-main.pdf`, md5 `8c694202d1f1861c13c3da561012ab2e`, **tracked**.
+**`[VERIFIED BY ME, PAGE 1, READ PERSONALLY — not by filename, not by hash]`**:
+
+> **"ALmost EXact boundary conditions for transient Schrödinger–Poisson system"** — Bian, Pang, Tang
+> & Arnold, *J. Comput. Phys.* **313** (2016) 233–246, doi `10.1016/j.jcp.2016.02.025`.
+
+**A quantum-transport paper about absorbing boundary conditions and resonant tunneling diodes.**
+Nothing in this lab may cite it. **It is BYTE-IDENTICAL to
+`docs/papers/closure/_WRONG_RETRIEVALS/Parish2016_field_inversion_ml_paradigm.pdf`** — *already
+quarantined once, under its false name, with a second copy left discoverable at the root.*
+
+**⚡ AND THE INTERESTING PART IS THAT THE ROOT COPY'S NAME MAKES NO FALSE CLAIM AT ALL.**
+`1-s2.0-S0021999116000899-main.pdf` is a raw Elsevier PII — it asserts nothing, so nothing about it
+is falsifiable by inspection. **But `S0021999116000899` IS a genuine 2016 *Journal of Computational
+Physics* article id, which is exactly what a correctly-retrieved Parish & Duraisamy 2016
+field-inversion paper would look like.**
+
+> ***AN OPAQUE-BUT-PLAUSIBLE NAME IS A BETTER DISGUISE THAN A WRONG ONE.*** A wrong name can be
+> checked against the title page and caught — that is how the closure copy WAS caught. **A name that
+> claims nothing invites the reader to supply the claim themselves**, and a reader hunting Parish
+> 2016 who finds a JCP-2016 PII at the papers root has every surface reason to think they have it.
+> **This is `L-144`'s exact subject arriving from the direction `L-144` does not describe: not a
+> manifest that is internally consistent and externally false, but a filename that is internally
+> EMPTY and externally suggestive.**
+
+**ACTION TAKEN — the minimum that makes the hazard visible where it is READ (`§2ae`):** a marker,
+`docs/papers/1-s2.0-S0021999116000899-main.WRONG.md`, filed **beside** the artifact so it appears in
+the same directory listing, carrying the title-page verification and the byte-identity.
+
+**NOT DONE, each for a stated reason:** not **deleted** (the convention is move-or-mark); not
+**moved** into `closure/_WRONG_RETRIEVALS/` (**another team's tree and manifest, and closure is
+stood down** — this team has declined to write in other teams' trees three times today and does not
+make an exception for a tidy-up); not **renamed** (**nine root PDFs fail `FILING_CHARTER` R8's
+`author_year_identifier.pdf` form and none carries the required `.txt` sidecar — only THIS one is
+known-wrong in CONTENT**, and the filing-structure question belongs to that charter's owner).
+**REFERRED, not decided here.**
+
+### 14.2 THE READER-BLINDNESS ENTRY — CONFIRMED IN KIND, DECLINED IN MAGNITUDE
+
+Closure's `L-486` records that the papers corpus is **partially invisible to the lab's default search
+reader** (`grep` here is ugrep, which skips gitignored files), citing **2 hits versus 30 across 13
+paper folders**.
+
+**`[MEASURED BY ME]` The PHENOMENON reproduces and is real.** On my own probe over `docs/papers/`:
+**ugrep 58 files, `/bin/grep` 106** — **48 files invisible to the lab's default reader** — with
+`docs/papers/closure/_DUPLICATES` the one folder wholly unreachable.
+
+**⚠ BUT L-486's SPECIFIC FIGURES DO NOT REPRODUCE ON MY PROBE, AND I DECLINE TO REPEAT THEM AS
+MINE.** My search term differs from theirs, so 2/30/13 and 58/106/1 are **not comparable
+measurements of the same quantity** and I do not claim theirs is wrong — only that **I did not
+measure it and will not restate it as though I had.** *Same discipline this team applied to a routed
+figure earlier today: the artifact is the authority, never the routing note.*
+
+**WHY IT BELONGS IN THIS AUDIT'S READER-BLINDNESS FAMILY, AND IT IS NOT A FOOTNOTE HERE:** `§14.1`'s
+duplicate **is discoverable by `ls` and by hash but was NOT surfaced by the corpus's ordinary
+search path.** ***A corpus whose default reader cannot see part of itself cannot certify its own
+contents*** — and this audit's whole subject is whether external referents are what they claim.
+**RECORDED. No instrument, no clause** — the cure is a reader flag at the call site, which belongs
+to whoever owns the search convention, not to this audit.
