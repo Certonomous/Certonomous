@@ -1,0 +1,257 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: v2606  VMFL034                         |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      phaseProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// VMFL034 -- constant-kernel aggregation in a CMSMPR box.
+//   phase 'air'   = the DISPERSED, AGGREGATING PARTICLE PHASE (velocityGroup +
+//                   sectional sizeGroups). Name inherited from the template.
+//   phase 'water' = continuous carrier (rho=998.2, mu=0.00103 via thermo);
+//                   constant drag diameter 1e-5 m (Ruling 3: flow decoupled by
+//                   construction; single shared dispersed velocity via velocityGroup).
+// Sectional grid is NOMINAL O(1) (Ruling 4), geometric d in [0.45, 22.0], 35 groups.
+// coalescenceModels: constant rate 100 [m3/s].
+//   *** rate = 2000, NOT 1: see PREREGISTRATION.md s.B.5/RULING A. Input kernel
+//   beta0_OF = Da/(N_feed*tau) = 100/(alpha2*tau) = 100/(1e-2*5) = 2000 at the
+//   RESCALED tau=5 s. (=1/alpha2 * 100/tau.) beta0=1 applies ONLY at alpha2~=1.
+//   The net-1/2 convention (populationBalanceModel.C birth 0.5 @ i==j, half-range
+//   loop :671, deathByCoalescence :334-341) is already correct in the source and
+//   needs NO conversion factor -- this factor is the SEPARATE alpha2 number-density
+//   scale, not the 1/2 convention. PENDING SUPERVISOR CONFIRMATION. ***
+// breakup / binaryBreakup / drift / nucleation: ALL EMPTY (aggregation only).
+
+type            populationBalanceTwoPhaseSystem;
+
+phases          (air water);
+
+populationBalances (bubbles);
+
+air
+{
+    type            purePhaseModel;
+    diameterModel   velocityGroup;
+    velocityGroupCoeffs
+    {
+        populationBalance    bubbles;
+
+        formFactor      0.5235987756;   // pi/6, spheres
+
+        sizeGroups
+        (
+            f0{d 4.50000000e-01; value 0;}
+            f1{d 5.04539492e-01; value 0.01407919889;}
+            f2{d 5.65689109e-01; value 0.001848613591;}
+            f3{d 6.34249991e-01; value 0;}
+            f4{d 7.11120374e-01; value 0;}
+            f5{d 7.97307361e-01; value 0;}
+            f6{d 8.93940113e-01; value 0;}
+            f7{d 1.00228465e+00; value 0;}
+            f8{d 1.12376041e+00; value 0.3635959616;}
+            f9{d 1.25995891e+00; value 0.1459125896;}
+            f10{d 1.41266451e+00; value 0;}
+            f11{d 1.58387785e+00; value 0;}
+            f12{d 1.77584206e+00; value 0.2784678713;}
+            f13{d 1.99107211e+00; value 0.1960957649;}
+            f14{d 2.23238780e+00; value 0;}
+            f15{d 2.50295069e+00; value 0;}
+            f16{d 2.80630549e+00; value 0;}
+            f17{d 3.14642654e+00; value 0;}
+            f18{d 3.52776989e+00; value 0;}
+            f19{d 3.95533162e+00; value 0;}
+            f20{d 4.43471335e+00; value 0;}
+            f21{d 4.97219560e+00; value 0;}
+            f22{d 5.57482010e+00; value 0;}
+            f23{d 6.25048200e+00; value 0;}
+            f24{d 7.00803337e+00; value 0;}
+            f25{d 7.85739911e+00; value 0;}
+            f26{d 8.80970701e+00; value 0;}
+            f27{d 9.87743356e+00; value 0;}
+            f28{d 1.10745674e+01; value 0;}
+            f29{d 1.24167924e+01; value 0;}
+            f30{d 1.39216937e+01; value 0;}
+            f31{d 1.56089872e+01; value 0;}
+            f32{d 1.75007789e+01; value 0;}
+            f33{d 1.96218535e+01; value 0;}
+            f34{d 2.20000000e+01; value 0;}
+        );
+    }
+
+    residualAlpha   1e-6;
+}
+
+water
+{
+    type            purePhaseModel;
+    diameterModel   constant;
+    constantCoeffs
+    {
+        d               1e-5;   // Ruling 3: constant drag diameter, flow decoupled
+    }
+
+    residualAlpha   1e-6;
+}
+
+populationBalanceCoeffs
+{
+    bubbles
+    {
+        continuousPhase water;
+
+        coalescenceModels
+        (
+            constant
+            {
+                rate    rate [0 3 -1 0 0 0 0] 2000;
+            }
+        );
+
+        binaryBreakupModels
+        ();
+
+        breakupModels
+        ();
+
+        driftModels
+        ();
+
+        nucleationModels
+        ();
+    }
+}
+
+blending
+{
+    default
+    {
+        type            linear;
+        minFullyContinuousAlpha.air 0.7;
+        minPartlyContinuousAlpha.air 0.3;
+        minFullyContinuousAlpha.water 0.7;
+        minPartlyContinuousAlpha.water 0.3;
+    }
+
+    drag
+    {
+        type            linear;
+        minFullyContinuousAlpha.air 0.7;
+        minPartlyContinuousAlpha.air 0.5;
+        minFullyContinuousAlpha.water 0.7;
+        minPartlyContinuousAlpha.water 0.5;
+    }
+}
+
+surfaceTension
+(
+    (air and water)
+    {
+        type            constant;
+        sigma           0.07;
+    }
+);
+
+aspectRatio
+(
+    (air in water)
+    {
+        type            constant;
+        E0              1.0;
+    }
+
+    (water in air)
+    {
+        type            constant;
+        E0              1.0;
+    }
+);
+
+drag
+(
+    (air in water)
+    {
+        type            SchillerNaumann;
+        residualRe      1e-3;
+        swarmCorrection
+        {
+            type        none;
+        }
+    }
+
+    (water in air)
+    {
+        type            SchillerNaumann;
+        residualRe      1e-3;
+        swarmCorrection
+        {
+            type        none;
+        }
+    }
+
+    (air and water)
+    {
+        type            segregated;
+        m               0.5;
+        n               8;
+        swarmCorrection
+        {
+            type        none;
+        }
+    }
+);
+
+virtualMass
+(
+    (air in water)
+    {
+        type            constantCoefficient;
+        Cvm             0.5;
+    }
+
+    (water in air)
+    {
+        type            constantCoefficient;
+        Cvm             0.5;
+    }
+);
+
+heatTransfer
+(
+    (air in water)
+    {
+        type            RanzMarshall;
+        residualAlpha   1e-4;
+    }
+
+    (water in air)
+    {
+        type            RanzMarshall;
+        residualAlpha   1e-4;
+    }
+);
+
+phaseTransfer
+(
+);
+
+lift
+(
+);
+
+wallLubrication
+(
+);
+
+turbulentDispersion
+(
+);
+
+pMin            10000;
+
+
+// ************************************************************************* //

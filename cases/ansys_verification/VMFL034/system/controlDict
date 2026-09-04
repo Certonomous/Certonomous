@@ -1,0 +1,73 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: v2606  VMFL034                         |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// GRADED settings at the RESCALED operating point (PREREGISTRATION s.RESCALE,
+// Ruling C): walls 6.0/6.06 m/s, inlet 0.1 m/s => tau=5 s; endTime=25 s (5 tau).
+// This preserves Da=100 and the six feed moments EXACTLY; well-mixedness is
+// MEASURED by the comparator, which REFUSES if the CMSMPR premise fails.
+// The smoke runs a copy in scratch. This lane launches NO graded run.
+
+application     reactingTwoPhaseEulerFoam;
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         25;           // 5 tau (RESCALED tau = 5 s); see PREREGISTRATION s.RESCALE
+
+deltaT          1e-4;
+
+writeControl    runTime;
+
+writeInterval   5;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  8;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   8;
+
+runTimeModifiable yes;
+
+adjustTimeStep  yes;
+
+maxCo           0.5;
+
+maxDeltaT       0.01;
+
+functions
+{
+    numberDensity.diameter.bubbles
+    {
+        type                sizeDistribution;
+        libs                (phaseFunctionObjects);
+        writeControl        runTime;
+        writeInterval       50;
+        log                 true;
+        functionType        numberDensity;
+        abszissaType        diameter;
+        selectionMode       cellZone;
+        cellZone            outletZone;
+        populationBalance   bubbles;
+    }
+}
+
+
+// ************************************************************************* //
