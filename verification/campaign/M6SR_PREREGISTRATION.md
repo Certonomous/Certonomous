@@ -6764,3 +6764,30 @@ non-vacuous), and the `c1625208` lead (settled: **omission, not regression**).
 produced by the registered driver in the registered run root. It did **not** re-derive the
 physics or the gates. **Check 1 on this diff, check 4, the freeze and the launch are the
 supervisor's, and this lane takes none of them.**
+
+---
+
+### 27.14 ADDENDUM, SAME SESSION — **`FZ1`'s EXIT CODE AT AMENDMENT 21's COMMIT, AND THE CHECK-1 DIFF ARTIFACT**
+
+§27.12 forward-referenced this section. `check_comparator_freeze.py` was run **immediately after
+commit `81d58a43`**:
+
+> **EXIT CODE `0`. `VERDICT: PASS`. `PIN COVERAGE: 10 of 10 pinned executable(s) judged in the
+> population; 10 PIN-OK, 0 violating.`**
+
+✅ **All four re-pinned executables read `PIN-OK` at their new shas** — `analyse_m6sr.py`,
+`run_m6sr_b5.sh`, `check_m6sr_launch_path.sh`, `write_m6sr_case.py` — **and the other six were
+RE-VERIFIED at this HEAD rather than assumed.**
+
+⚠ **THE VERIFIER'S OWN CAVEAT IS CARRIED, NOT DROPPED.** All ten rows are **NO-MARKERS**: the
+freeze-margin limb did not fire and cannot while this tree carries no completion marker (§23.7,
+item 41). **What was tested is IDENTITY and CURRENCY, not a marker-dated freeze margin.**
+
+| | |
+|---|---|
+| path | **`cases/M6SR/AMENDMENT_21_ITEM_48_B3C_SPLIT.diff`** |
+| content | the **unmodified stdout** of `git --no-pager show 81d58a43166ba6cadf2cb42b485afcc3efbcfbd8` |
+| size | **71,535 bytes, 1,049 lines** |
+| sha256 | `69fe82df85d316041c2c4cd37fafaefda58233c7814512f69976383c4e08f4dc` |
+| equality | **`cmp` against a FRESHLY RECOMPUTED `git show`: BYTE-IDENTICAL** |
+| the comparison itself | **PLANT-VERIFIED**: the same `cmp` against a copy with one line appended **DOES** report a difference (rule 3) |
