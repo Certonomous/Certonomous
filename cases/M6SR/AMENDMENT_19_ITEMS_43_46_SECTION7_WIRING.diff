@@ -1,0 +1,966 @@
+commit 07dbc3ea420e4cc01ea6954ac49baf8e09ff6e2e
+Author: Ubuntu <ubuntu@ip-172-31-43-247.us-east-2.compute.internal>
+Date:   Fri Sep 4 21:08:09 2026 +0000
+
+    cfd M6SR ITEMS 43-46: SECTION 7 CALLED ITSELF THE ONE THING THAT BLOCKS FOR ELEVEN ADVERSARIAL PASSES WHILE FOUR OF ITS FIVE CONDITIONS WERE WIRED TO NOTHING -- all four are wired at Section 7's own thresholds, each under a planted control that fires; and item 47 is raised: NOTHING ON THE LAUNCH PATH CONSULTS GATE A AT ALL
+    
+    THE FINDING, found by a supervisor's personal check-4 read of the document's own stated
+    preconditions and by NONE of the eleven adversarial passes that each closed on "nothing
+    else between this document and a lawful launch":
+    
+      cond 1 (patch types)        WIRED TWICE -- nothing to do
+      cond 2 (openness <= 1e-12)  NOT GATED. The key had ZERO readers; 1e-12 appeared nowhere
+      cond 3 (regions == 1)       NOT GATED. Parsed, int-coerced, never compared to 1
+      cond 4 (min volume > 0)     NOT GATED. Used ONLY as a denominator, where a NEGATIVE
+                                  minimum -- an inverted cell, the exact hazard -- gave a
+                                  negative ratio and failed nothing
+      cond 5 (patch NAMES)        NOT IMPLEMENTED AT ALL. A9 tests TYPES
+    
+    Wider than the comparator: a sweep of every .sh and the case writer in cases/M6SR/ for
+    openness, regions, min volume and 1e-12 returns ZERO hits. And the controls could not have
+    caught it -- both checkMesh fixtures carried CLEAN values only, the F5b unrepresentative-
+    fixture pattern sitting on top of an ungated field.
+    
+    WIRED HERE, at the thresholds Section 7 ITSELF states. Not one is chosen, widened or
+    reinterpreted: A10 openness <= 1e-12, A11 regions == 1, A12 min volume > 0 (SIGNED, never
+    != 0 and never abs()), A13 patch names against a PER-LEVEL set read from the REGISTRATION.
+    Label BLOCKED on failure, Section 7's own word. An ABSENT or UNPARSEABLE reading is BLOCKED,
+    never clean. An UNREGISTERED level REFUSES at exit 2 -- and THAT REFUSAL IS THE FEATURE:
+    only L2's names are recorded (Section 2.2), so Gate A cannot be graded on the real ids until
+    the registration is amended, which is lawful pre-compute. Section 20.2.3's measurement is
+    deliberately NOT adopted as L1's set: it names three patches while its counts total five.
+    
+    CONDITION 3 IS A REGRESSION, NOT A FIRST-TIME OMISSION -- RUNG1_M6's run_r1m0.sh:360 already
+    gated it, and the mechanism is load-bearing beyond Section 7: with more than one region the
+    block interfaces become boundary faces and drop out of checkMesh's non-orthogonality
+    statistic, so GATE A1's OWN NUMBER reads falsely optimistic.
+    
+    FOUR PLANTED CONTROLS, each a DELTA and not a colour -- the real gate_a() driven twice on a
+    synthetic tree, clean twin PASS and mutant BLOCKED with EXACTLY one clause moving:
+      C25 openness 1e-09 -> A10 BLOCKED, moved = [A10] alone
+      C26 regions 9 (the value THIS BOX has observed) -> A11 BLOCKED, moved = [A11] alone
+      C27 min volume -4.2e-11 -> A12 BLOCKED; the old path's only use of it read -2.2e+10, a
+          negative ratio that failed no check whatsoever
+      C28 WING3D/FARFIELD/SYMMETRY, RIGHT TYPES WRONG NAMES -> A13 BLOCKED while A9 STILL READS
+          PASS: the independence proof. Plus the refusal limb on the real ids.
+    All four flip to red under the mutation control; none stayed green. rc parity 2/2 under
+    python3 and python3 -O with byte-identical stdout. ZERO ast.Assert in the file, on a
+    detector planted and SEEN.
+    
+    NO EXISTING READING MOVED, measured against the HEAD blob three ways: read_checkmesh output
+    IDENTICAL on both clean fixtures, no pre-existing control changed status, and --gate-a on the
+    real levels gives the IDENTICAL refusal. C12 is red at HEAD too and is untouched.
+    
+    ITEM 47, RAISED AND NOT REPAIRED, AND IT OUTRANKS THESE FOUR: run_m6sr_b5.sh invokes the
+    comparator exactly twice, both times as --controls, and NEVER as --gate-a. Wiring conditions
+    2-5 into gate_a() makes them GRADEABLE; it does not yet make them BLOCK A LAUNCH. Changing
+    that is a step-order question and is the supervisor's.
+    
+    Also repaired and disclosed: an uncaught ZeroDivisionError on Min volume = 0 that PRE-EMPTED
+    condition 4 entirely. The guard now tests the denominator; max_volume keeps its exact old
+    condition so no clean reading moves.
+    
+    Amendment 19 appended at the foot, version 1.19, lines whose number changed above it: 0,
+    prefix sha re-derived inside this invocation. The comparator's own pin moved and is re-taken
+    here; BOTH live table rows carrying the superseded blob are struck by verbatim quote. The
+    other nine pins read PIN-OK at this HEAD and were re-verified, not assumed.
+    
+    No ladder compute. Run root plant-verified absent (0 -> 1 with a probe -> 0). 4.6334
+    core-min measured for controls and selftest; no COST_CALIBRATION row is filed because
+    nothing COMPLETED.
+    
+    Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>
+    Claude-Session: https://claude.ai/code/session_01HvQwXmgymfCLSBd4ri7B2h
+
+diff --git a/cases/M6SR/analyse_m6sr.py b/cases/M6SR/analyse_m6sr.py
+index 9b963ad4..1ed1cee4 100644
+--- a/cases/M6SR/analyse_m6sr.py
++++ b/cases/M6SR/analyse_m6sr.py
+@@ -86,6 +86,53 @@ A4_CELLS = (99840, 399360, 1597440)        # L3, L2, L1
+ A4_RATIO_EXACT = 4                         # exactly 4.000 on integers
+ A6_CELLS_PER_WING_FACE = 64                # Section 2.2, identical at every level
+ 
++# --------------------------------------------------------------------------------------
++# SECTION 7 -- THE ILL-POSEDNESS SCREEN.  CONDITIONS 2, 3, 4 AND 5.  Amendment 19.
++#
++# WHY THESE CONSTANTS EXIST AT ALL.  Section 7 names itself "THE ONE THING THAT BLOCKS" and
++# Section 5 says "Only Section 7 blocks a launch."  It lists FIVE conditions.  Measured
++# 2026-09-04 by a supervisor check-4 read of the document's own preconditions: only
++# condition 1 was wired.  Conditions 2, 3 and 4 were EXTRACTED and then never compared to
++# anything -- boundary_openness_max_abs had ZERO readers, n_regions was never compared to 1,
++# and min_volume was used only as the DENOMINATOR of cell_volume_ratio, where a NEGATIVE
++# minimum (an inverted cell -- the exact hazard condition 4 exists for) yields a negative
++# ratio and fails nothing.  Condition 5 did not exist in any form.  Amendment 19 wires all
++# four AT THE THRESHOLDS SECTION 7 ITSELF ALREADY STATES.  Not one threshold is chosen here.
++#
++# NO THRESHOLD BELOW IS NEW, WIDENED OR REINTERPRETED.  Each is quoted from Section 7:
++#   2. "`Boundary openness` <= 1e-12 -- no leaks."
++#   3. "`Number of regions: 1`."
++#   4. "Min cell volume > 0 -- no inverted cells."
++#   5. "Patch names matched against the level's own expected set, refusing on a mismatch."
++# --------------------------------------------------------------------------------------
++S7_C2_BOUNDARY_OPENNESS_MAX = 1.0e-12      # Section 7 condition 2, VERBATIM
++S7_C3_N_REGIONS_REQUIRED = 1               # Section 7 condition 3, VERBATIM
++S7_C4_MIN_CELL_VOLUME_STRICTLY_ABOVE = 0.0  # Section 7 condition 4: STRICTLY GREATER THAN
++
++# Section 7 condition 5.  THE EXPECTED SET IS READ FROM THE REGISTRATION AND IS NEVER
++# DERIVED FROM THE MESH BEING SCREENED -- a screen that reads its expectation off the thing
++# it screens is not a screen.  A level absent from this mapping is UNREGISTERED and the
++# comparator REFUSES (rc 2, the `Unregistered` class): choosing a name set here would be
++# choosing a gate parameter after the freeze, which standing rule 2 forbids.  THE REFUSAL
++# IS THE FEATURE, and it is cleared by AMENDING THE REGISTRATION, which is lawful
++# pre-compute.
++#
++#   L2  REGISTERED.  Section 2.2 records it, pre-compute, read from the level's own
++#       `constant/polyMesh/boundary`: "`wing`(wall) / `inout`(patch) 6240 / `sym`(symmetry)".
++#   L3  NOT REGISTERED.  Section 2.2's table carries L3's numerics but states its patch
++#       identity for the 399,360 level ONLY.  No document line records L3's names.
++#   L1  NOT REGISTERED, and Section 7 says so in terms: the new L1's patch names "are
++#       produced by `autoPatch 60` + `createPatch` and are NOT predicted here."  Section
++#       20.2.3 later MEASURED a createPatch probe reading "`wing` (wall) / `inout` (patch) /
++#       `sym` (symmetry) -- wall 1, symmetry 1, patch 3, empty 0".  THAT IS NOT A COMPLETE
++#       NAME SET AND IS NOT USED AS ONE: three names are given while the counts total FIVE
++#       patches, so two patch-typed names are unaccounted for.  Registering the three would
++#       be inventing the missing two.  L1 therefore REFUSES until the registration records
++#       its full set.
++S7_EXPECTED_PATCH_NAMES = {
++    "L2": frozenset(("wing", "inout", "sym")),
++}
++
+ # Gate GF thresholds, Section 5.
+ GF_AGARD_T_TE_OVER_C = 0.0014104
+ GF1_BAND_FRACTION = 0.10                   # +/- 10 % of 0.0014104
+@@ -123,6 +170,22 @@ PLANT_NON_ORTH_DEG = 88.889                # C3/C4, the L-459 value measured on
+ PLANT_CP = 1.234e-01                       # C10
+ PLANT_CD = 7.531e-03                       # C14
+ 
++# Amendment 19.  The Section 7 plants.  Each is planted into a SCRATCH fixture, read back
++# FROM DISK through the real readers, and driven through the real gate_a() -- and each has
++# a CLEAN TWIN that must still pass, because a positive control means nothing without one.
++PLANT_S7_OPENNESS = 1.000e-09              # C25: three orders ABOVE the 1e-12 threshold
++# C26 is 9, not a bare 2, and the number is EVIDENCE rather than decoration.  This box has
++# OBSERVED that value from the exact defect: `cases/RUNG1_M6/read_checkmesh.py:56` records
++# "An unmerged conversion shows up as `Number of regions: 9`" for a nine-block PLOT3D grid
++# whose coincident block-interface points `plot3dToFoam` failed to merge.  A representative
++# fixture is the whole point -- an unrepresentative one is the defect this amendment repairs.
++PLANT_S7_N_REGIONS = 9
++PLANT_S7_MIN_VOLUME = -4.200e-11           # C27: NEGATIVE -- an inverted cell, SIGNED
++# C28: the MEASURED PRECEDENT of prediction P7 -- an hcf family on this box produced
++# `wing/symmetry/farfield` on the generator level and `WING3D/SYMMETRY/FARFIELD` on the
++# coarsened levels.  CORRECT TYPES, WRONG NAMES.  It must pass A9 and die at A13.
++PLANT_S7_WRONG_NAMES = ("WING3D", "FARFIELD", "SYMMETRY")
++
+ VERDICTS = ("PASS", "GATE REACHED", "GATE FAIL", "NOT A RESULT", "BLOCKED", "PENDING")
+ 
+ 
+@@ -235,13 +298,143 @@ def read_checkmesh(path):
+         "non_orthogonality_check_OK": "Non-orthogonality check OK." in text,
+         "failed_N_mesh_checks": bool(re.search(r"Failed\s+\d+\s+mesh checks", text)),
+     }
+-    if out["min_volume"] is not None and out["max_volume"] not in (None, 0.0):
++    # MEASURED DEFECT, REPAIRED IN AMENDMENT 19 AND NOT SMUGGLED IN.  The guard here used
++    # to test `max_volume not in (None, 0.0)` while dividing BY `min_volume`, so a log
++    # reading `Min volume = 0` -- a fully degenerate cell, which is condition 4's hazard AT
++    # ITS BOUNDARY -- raised an uncaught ZeroDivisionError.  Measured: rc 1, which is not in
++    # this file's exit vocabulary at all, and the module docstring already rules that A CRASH
++    # IS NOT A REFUSAL.  That crash PRE-EMPTED condition 4: the screen below could never
++    # report on the very reading that killed the reader.  The denominator is now the thing
++    # guarded, which is what the guard was always for.
++    # THE GUARD IS THE OLD ONE PLUS THE DENOMINATOR, AND NOTHING ELSE MOVES.  `max_volume`
++    # keeps its exact old condition, so the ONLY behaviour that changes is `min_volume == 0`,
++    # which went from an uncaught crash to `None`.  No clean reading moves.
++    if (out["min_volume"] not in (None, 0.0)) and (out["max_volume"] not in (None, 0.0)):
+         out["cell_volume_ratio"] = out["max_volume"] / out["min_volume"]
+     else:
+         out["cell_volume_ratio"] = None
+     return out
+ 
+ 
++# --------------------------------------------------------------------------------------
++# SECTION 7 -- THE ILL-POSEDNESS SCREEN, CONDITIONS 2/3/4 AND 5.  Amendment 19.
++#
++# A FAILURE HERE `BLOCKED`s THE LEVEL.  Section 7's own words, and the label is taken from
++# there rather than chosen: "Checked per level BEFORE launch. A failure here BLOCKEDs the
++# level."
++#
++# AN ABSENT OR UNPARSEABLE READING IS NEVER CLEAN.  Section 5's Gate A already fixes this
++# principle in terms -- "An absent checkMesh log reads ABSENT. It never reads clean." -- and
++# it is applied here without softening.  The label chosen for an absent/unparseable reading
++# is `BLOCKED`, NOT a refusal, and the reason is stated so it can be overruled: the finding
++# is about the LEVEL, not about the instrument.  The instrument ran correctly; what it found
++# is that the level cannot be shown well-posed.  `BLOCKED` is Section 7's own word for
++# exactly that, it is strictly conservative, and it keeps the per-level record readable
++# instead of aborting the whole grade on one missing file.  A REFUSAL is reserved for the
++# case where the REGISTRATION is incomplete (condition 5, below), which is a statement about
++# the document and not about any mesh.
++# --------------------------------------------------------------------------------------
++def section7_conditions_2_3_4(level_id, cm):
++    """Section 7 conditions 2, 3 and 4 for one level.  -> {clause: (ok, detail)}.
++
++    `cm` is a read_checkmesh() record.  Every threshold is the one Section 7 states.
++    """
++    if not isinstance(cm, dict):
++        raise InternalDefect(f"{level_id}: section7_conditions_2_3_4 needs a "
++                             f"read_checkmesh() record, got {type(cm).__name__}.")
++    state = cm.get("state")
++    absent = (state != "READ")
++
++    def _reading(key):
++        """-> (value, why_not) where why_not is None only for a real parsed number."""
++        if absent:
++            return None, (f"checkMesh state is {state!r} -- the log at {cm.get('path')!r} "
++                          "is ABSENT. An absent reading NEVER reads clean (Section 5).")
++        v = cm.get(key)
++        if v is None:
++            return None, (f"the log was READ but {key!r} did not parse out of it. An "
++                          "UNPARSEABLE reading NEVER reads clean; it is not a zero and it "
++                          "is not a pass.")
++        return v, None
++
++    res = {}
++
++    # ---- CONDITION 2: Boundary openness <= 1e-12.  No leaks. -------------------------
++    v2, why2 = _reading("boundary_openness_max_abs")
++    res["S7_C2_boundary_openness_le_1e-12"] = (
++        (v2 is not None and v2 <= S7_C2_BOUNDARY_OPENNESS_MAX),
++        {"level": level_id, "value": v2, "threshold": S7_C2_BOUNDARY_OPENNESS_MAX,
++         "reading_taken_as": "max of the absolute values of the three components",
++         "unreadable_because": why2,
++         "basis": "Section 7 condition 2, verbatim: 'Boundary openness <= 1e-12 -- no "
++                  "leaks.' Wired in Amendment 19; it had ZERO readers before."})
++
++    # ---- CONDITION 3: Number of regions == 1. ----------------------------------------
++    v3, why3 = _reading("n_regions")
++    res["S7_C3_number_of_regions_equals_1"] = (
++        (v3 is not None and v3 == S7_C3_N_REGIONS_REQUIRED),
++        {"level": level_id, "value": v3, "required": S7_C3_N_REGIONS_REQUIRED,
++         "unreadable_because": why3,
++         "basis": "Section 7 condition 3, verbatim: 'Number of regions: 1.' Wired in "
++                  "Amendment 19; it was parsed and int-coerced and never compared."})
++
++    # ---- CONDITION 4: Min cell volume > 0.  THE SIGN IS THE WHOLE POINT. -------------
++    # STRICTLY GREATER THAN ZERO.  NOT `!= 0`, which admits a NEGATIVE volume, and NOT
++    # `abs(...) > 0`, which admits it too.  A negative minimum cell volume IS an inverted
++    # cell, and an inverted cell is precisely what condition 4 exists to catch.  Before
++    # Amendment 19 the only use of this reading was as a DENOMINATOR, where a negative
++    # value merely made the volume ratio negative and failed nothing at all.
++    v4, why4 = _reading("min_volume")
++    res["S7_C4_min_cell_volume_strictly_positive"] = (
++        (v4 is not None and v4 > S7_C4_MIN_CELL_VOLUME_STRICTLY_ABOVE),
++        {"level": level_id, "value": v4,
++         "test": "value > 0.0, SIGNED -- never `!= 0`, never `abs()`",
++         "unreadable_because": why4,
++         "basis": "Section 7 condition 4, verbatim: 'Min cell volume > 0 -- no inverted "
++                  "cells.' Wired in Amendment 19."})
++    return res
++
++
++def section7_condition_5(level_id, patches):
++    """Section 7 condition 5 -- THE PATCH-NAME SCREEN.  -> (state, detail).
++
++    state is one of "MATCH" / "MISMATCH" / "UNREGISTERED".
++
++    THIS IS A NAME SCREEN AND IT IS INDEPENDENT OF A9.  A9 grades patch TYPES and a count
++    of at least three.  A mesh carrying the RIGHT TYPES under the WRONG NAMES passes A9 and
++    must fail here -- that is the whole content of Section 7's closing sentence, "The
++    launcher REFUSES a level whose patch names it did not expect", and of prediction P7,
++    whose MEASURED PRECEDENT on this box is an hcf family that produced `wing/symmetry/
++    farfield` on the generator level and `WING3D/SYMMETRY/FARFIELD` on the coarsened ones.
++    Control C28 plants exactly that mutant and requires it to die HERE while passing A9.
++
++    THE EXPECTED SET COMES FROM THE REGISTRATION, PER LEVEL, AND NEVER FROM THE MESH.
++    """
++    expected = S7_EXPECTED_PATCH_NAMES.get(level_id)
++    got = frozenset(n for n, _t, _f in patches)
++    if expected is None:
++        return "UNREGISTERED", {
++            "level": level_id, "actual_names": sorted(got),
++            "registered_levels": sorted(S7_EXPECTED_PATCH_NAMES),
++            "basis": "Section 7 condition 5 requires the level's OWN expected set. This "
++                     "registration does not record one for this level, and Section 7 says "
++                     "of L1 in terms that its names 'are NOT predicted here'. Adopting the "
++                     "names this mesh happens to carry would make the screen read its "
++                     "expectation off the object it is screening, which is not a screen, "
++                     "and would fix a gate parameter AFTER the freeze (standing rule 2). "
++                     "The comparator REFUSES and the registration must be AMENDED to record "
++                     "the set -- which is lawful pre-compute."}
++    if got == expected:
++        return "MATCH", {"level": level_id, "expected": sorted(expected),
++                         "actual": sorted(got)}
++    return "MISMATCH", {
++        "level": level_id, "expected": sorted(expected), "actual": sorted(got),
++        "unexpected": sorted(got - expected), "missing": sorted(expected - got),
++        "basis": "Section 7 condition 5: 'Patch names matched against the level's own "
++                 "expected set, refusing on a mismatch.' A driver assuming one name set "
++                 "across levels would silently mis-apply boundary conditions (P7)."}
++
++
+ # --------------------------------------------------------------------------------------
+ # READER 2 -- polyMesh.  A5/A6/A7/A9, Section 7, and the Gate GF surface.
+ # --------------------------------------------------------------------------------------
+@@ -1430,7 +1623,46 @@ def gate_a(levels):
+           {"per_level": [r["patches"] for r in out["per_level"]],
+            "basis": "Section 7 -- 'empty' and 'wall' are NEVER acceptable for the symmetry "
+                     "plane. RUNG1_M6's M0 was a closed all-wall box and a branch-killing "
+-                    "decision was taken off it."})
++                    "decision was taken off it. A9 GRADES TYPES AND A COUNT. IT DOES NOT "
++                    "GRADE NAMES -- A13 does (Amendment 19)."})
++
++    # ---- A10 / A11 / A12 -- SECTION 7 CONDITIONS 2, 3 AND 4.  Amendment 19. ----------
++    # Section 7 calls itself the ONE thing that blocks and Section 5 says "Only Section 7
++    # blocks a launch."  Until Amendment 19 only condition 1 was wired.  These three are
++    # graded here at the thresholds Section 7 states, per level, with `BLOCKED` -- Section
++    # 7's own label -- on failure and on any ABSENT or UNPARSEABLE reading.
++    s7 = [section7_conditions_2_3_4(rec["id"], rec["checkMesh"]) for rec in out["per_level"]]
++    for clause in ("S7_C2_boundary_openness_le_1e-12",
++                   "S7_C3_number_of_regions_equals_1",
++                   "S7_C4_min_cell_volume_strictly_positive"):
++        name = {"S7_C2_boundary_openness_le_1e-12": "A10_" + clause,
++                "S7_C3_number_of_regions_equals_1": "A11_" + clause,
++                "S7_C4_min_cell_volume_strictly_positive": "A12_" + clause}[clause]
++        _fail(name, all(lv[clause][0] for lv in s7), "BLOCKED",
++              {"per_level": [lv[clause][1] for lv in s7]})
++
++    # ---- A13 -- SECTION 7 CONDITION 5, THE PATCH-NAME SCREEN.  Amendment 19. ---------
++    # A MISMATCH is BLOCKED (the mesh is not the one registered).  An UNREGISTERED level is
++    # a REFUSAL (rc 2) -- a statement about the DOCUMENT, not about any mesh -- and it is
++    # raised AFTER the record is built so the reader sees every other clause first.
++    c5 = [section7_condition_5(rec["id"], rec["patches"]) for rec in out["per_level"]]
++    _fail("A13_patch_names_match_the_registered_per_level_set",
++          all(st == "MATCH" for st, _d in c5), "BLOCKED",
++          {"per_level": [{"state": st, **d} for st, d in c5],
++           "independent_of_A9": "A9 grades TYPES; this grades NAMES. A mesh with correct "
++                                "types and wrong names passes A9 and dies here (C28).",
++           "basis": "Section 7 condition 5 and its closing sentence: 'The launcher REFUSES "
++                    "a level whose patch names it did not expect.'"})
++    unreg = [d["level"] for st, d in c5 if st == "UNREGISTERED"]
++    if unreg:
++        raise Unregistered(
++            f"Section 7 condition 5 requires each level's OWN expected patch-name set, and "
++            f"this registration records none for {unreg}. Section 7 states of L1 that its "
++            f"names 'are NOT predicted here'. This comparator will NOT adopt the names the "
++            f"mesh happens to carry -- that would read the expectation off the object being "
++            f"screened and would fix a gate parameter after the freeze (standing rule 2). "
++            f"REFUSED (exit 2). THE FIX IS AN AMENDMENT recording the set, which is lawful "
++            f"pre-compute; registered so far: {sorted(S7_EXPECTED_PATCH_NAMES)}.")
+ 
+     labels = [c["label"] for c in out["checks"].values() if isinstance(c.get("pass"), bool)]
+     if "NOT A RESULT" in labels:
+@@ -2304,7 +2536,12 @@ def controls(scratch, mutate=None):
+     # everything reachable is not discriminating.
+     reach = call_graph_reachable_from_main()
+     must_reach = ("gate_p", "set_to_set_assignment", "cfd_sections_from_surface",
+-                  "gate_p_figure_data", "gate_g", "gate_r", "split_curve_upper_lower")
++                  "gate_p_figure_data", "gate_g", "gate_r", "split_curve_upper_lower",
++                  # Amendment 19.  Section 7's conditions 2-5 were STATED as the one thing
++                  # that blocks and were WIRED TO NOTHING for eleven adversarial passes.
++                  # They are named here so a future edit cannot orphan them the way item 5
++                  # orphaned Gate P, and so that orphaning goes RED rather than quiet.
++                  "section7_conditions_2_3_4", "section7_condition_5")
+     missing = [n for n in must_reach if n not in reach]
+     sentinel_ok = "_control_unreachable_sentinel" not in reach
+     if mutate == "C23":
+@@ -2349,9 +2586,229 @@ def controls(scratch, mutate=None):
+          "of the plant, because the taps are not evenly split. A reader that still "
+          "interleaved would report that smeared number, so this control discriminates.")
+ 
++    # ======================================================================================
++    # C25 / C26 / C27 / C28 -- AMENDMENT 19.  THE SECTION 7 SCREEN'S OWN PLANTED CONTROLS.
++    #
++    # WHY THEY EXIST.  Before Amendment 19 the two checkMesh fixtures in this file
++    # (_CM_EQ_FORM, _CM_COLON_FORM) carried CLEAN values ONLY -- openness ~1e-17 and ~1e-18,
++    # "Number of regions: 1", a POSITIVE Min volume.  There was no fixture anywhere in this
++    # file with a failing openness, with regions != 1, or with a negative minimum volume.
++    # That is the F5b unrepresentative-fixture pattern sitting on top of an UNGATED field:
++    # the reader was never shown able to see the failure it exists to catch, so even after
++    # the gate is wired a green from it would not be evidence (rule 3).  These four fixtures
++    # are the missing non-zero.
++    #
++    # EACH CONTROL IS A DELTA, NOT A COLOUR.  Every one drives the REAL gate_a() twice on a
++    # synthetic three-level tree written to disk and read back through the REAL readers: once
++    # CLEAN, once with ONE value planted.  It requires (a) the clean twin to grade PASS,
++    # (b) the mutant to grade BLOCKED, and (c) EXACTLY the clause under test to flip.  A
++    # suite in which the mutant merely "went red somewhere" would not distinguish these four
++    # gates from each other, and the negative twin is what makes the positive one mean
++    # anything at all.
++    # ======================================================================================
++    s7root = os.path.join(scratch, "s7")
++
++    def _s7_run(tag, cm_texts, name_sets, ids=("L2", "L2", "L2")):
++        """Drive the REAL gate_a() on a synthetic tree.  -> {check name: label}."""
++        levels = _s7_fixture_levels(os.path.join(s7root, tag), cm_texts, name_sets, ids=ids)
++        g = gate_a(levels)
++        out = {k: v["label"] for k, v in g["checks"].items()
++               if isinstance(v.get("pass"), bool)}
++        out["_GATE_A"] = g["gate_A_label"]
++        return out
++
++    _S7_CLEAN_NAMES = [("wing", "wall"), ("inout", "patch"), ("sym", "symmetry")]
++    _clean_cm = [_S7_CLEAN_CM, _S7_CLEAN_CM, _S7_CLEAN_CM]
++    _clean_nm = [_S7_CLEAN_NAMES, _S7_CLEAN_NAMES, _S7_CLEAN_NAMES]
++    base_s7 = _s7_run("clean", _clean_cm, _clean_nm)
++
++    def _s7_delta(tag, cm_texts, name_sets, clause):
++        """-> (ok, message).  The clean twin PASSes, the mutant is BLOCKED, and the flip is
++        CONFINED to `clause`."""
++        mut = _s7_run(tag, cm_texts, name_sets)
++        clean_ok = base_s7.get(clause) == "PASS" and base_s7["_GATE_A"] == "PASS"
++        mut_blocked = mut.get(clause) == "BLOCKED" and mut["_GATE_A"] == "BLOCKED"
++        moved = {k for k in mut if k != "_GATE_A" and mut[k] != base_s7.get(k)}
++        return (clean_ok and mut_blocked and moved == {clause},
++                f"clean twin -> {clause} = {base_s7.get(clause)}, Gate A = "
++                f"{base_s7['_GATE_A']}; planted -> {clause} = {mut.get(clause)}, Gate A = "
++                f"{mut['_GATE_A']}; clauses that MOVED = {sorted(moved)}")
++
++    # ---- C25: BOUNDARY OPENNESS ABOVE 1e-12 -> BLOCKED (Section 7 condition 2) --------
++    cm25 = list(_clean_cm)
++    cm25[1] = _S7_CLEAN_CM.replace(
++        "Boundary openness (2.99162e-17 4.31794e-16 -8.22572e-16)",
++        f"Boundary openness (2.99162e-17 {PLANT_S7_OPENNESS:.6e} -8.22572e-16)")
++    ok25, msg25 = _s7_delta("c25", cm25, _clean_nm,
++                            "A10_S7_C2_boundary_openness_le_1e-12")
++    if mutate == "C25":
++        ok25 = False
++    _rec("C25", ok25,
++         f"planted a boundary openness of {PLANT_S7_OPENNESS} on the middle level -- THREE "
++         f"ORDERS ABOVE Section 7's stated 1e-12 -- into a checkMesh log written to disk and "
++         f"read back through the real read_checkmesh(): {msg25}. Before this amendment the "
++         f"key `boundary_openness_max_abs` had ZERO readers and the threshold 1e-12 appeared "
++         f"NOWHERE against it, so this exact plant would have changed nothing at all.")
++
++    # ---- C26: NUMBER OF REGIONS != 1 -> BLOCKED (Section 7 condition 3) ---------------
++    cm26 = list(_clean_cm)
++    cm26[2] = _S7_CLEAN_CM.replace("Number of regions: 1 (OK).",
++                                   f"Number of regions: {PLANT_S7_N_REGIONS} (OK).")
++    ok26, msg26 = _s7_delta("c26", cm26, _clean_nm, "A11_S7_C3_number_of_regions_equals_1")
++    if mutate == "C26":
++        ok26 = False
++    _rec("C26", ok26,
++         f"planted 'Number of regions: {PLANT_S7_N_REGIONS}' on the finest level -- the value "
++         f"THIS BOX HAS OBSERVED from an unmerged multi-block conversion "
++         f"(cases/RUNG1_M6/read_checkmesh.py:56), not an invented number: {msg26}. This "
++         f"reading was parsed and int-coerced before this amendment and was never compared "
++         f"to 1. AND THE STAKE IS NOT ONLY SECTION 7: with more than one region the block "
++         f"interfaces become BOUNDARY faces and drop out of checkMesh's non-orthogonality "
++         f"statistic entirely, so Gate A1's own maximum reads FALSELY OPTIMISTIC. Condition "
++         f"3 is a precondition for believing A1, not merely a blocking screen.")
++
++    # ---- C27: NEGATIVE MIN CELL VOLUME -> BLOCKED (Section 7 condition 4) -------------
++    # THE SIGN IS THE CONTROL.  The old code used this reading ONLY as the denominator of
++    # cell_volume_ratio, where a negative value yields a NEGATIVE RATIO and fails nothing.
++    # This control therefore also reads that ratio back and REPORTS it, so a reader can see
++    # for itself that the pre-amendment path was blind to exactly this plant.
++    cm27 = list(_clean_cm)
++    cm27[0] = _S7_CLEAN_CM.replace("Min volume = 1.17547e-10.",
++                                   f"Min volume = {PLANT_S7_MIN_VOLUME:.6e}.")
++    p27 = _write(os.path.join(scratch, "c27_inverted.checkMesh"), cm27[0])
++    cm27_read = read_checkmesh(p27)                       # READ BACK FROM DISK
++    v27, r27 = cm27_read["min_volume"], cm27_read["cell_volume_ratio"]
++    ok27, msg27 = _s7_delta("c27", cm27, _clean_nm,
++                            "A12_S7_C4_min_cell_volume_strictly_positive")
++    ok27 = ok27 and v27 is not None and v27 < 0.0 and r27 is not None and r27 < 0.0
++    if mutate == "C27":
++        ok27 = False
++    _rec("C27", ok27,
++         f"planted a NEGATIVE minimum cell volume {PLANT_S7_MIN_VOLUME} -- an inverted cell, "
++         f"the exact hazard Section 7 condition 4 names -- on the coarsest level: {msg27}. "
++         f"Read back from disk the value is {v27}, and the OLD path's ONLY use of it, "
++         f"cell_volume_ratio, is {r27}: a negative ratio, which failed no check whatsoever. "
++         f"The test is `> 0`, SIGNED -- never `!= 0` and never `abs()`, both of which admit "
++         f"this plant unchanged.")
++
++    # ---- C28: RIGHT TYPES, WRONG NAMES -> BLOCKED, AND A9 MUST STILL PASS -------------
++    # THE INDEPENDENCE PROOF THE SUPERVISOR REQUIRED.  A9 grades TYPES and a count of at
++    # least three.  This mutant carries wall/patch/symmetry exactly as A9 demands, so A9
++    # MUST stay PASS while A13 goes BLOCKED.  If A9 moved, the two screens would not be
++    # independent and this control would be measuring one gate twice.
++    nm28 = list(_clean_nm)
++    nm28[1] = [(PLANT_S7_WRONG_NAMES[0], "wall"), (PLANT_S7_WRONG_NAMES[1], "patch"),
++               (PLANT_S7_WRONG_NAMES[2], "symmetry")]
++    ok28, msg28 = _s7_delta("c28", _clean_cm, nm28,
++                            "A13_patch_names_match_the_registered_per_level_set")
++    a9_clean = base_s7.get("A9_patch_identity_wall_symmetry_patch")
++    a9_mut = _s7_run("c28_a9", _clean_cm, nm28).get("A9_patch_identity_wall_symmetry_patch")
++    # THE REFUSAL LIMB.  A level whose expected set the registration does NOT record must
++    # REFUSE -- it must not pass, and it must not silently adopt the mesh's own names.
++    try:
++        _s7_run("c28_ids", _clean_cm, _clean_nm, ids=("L3", "L2", "L1"))
++        refusal_ok, refusal_msg = False, "an UNREGISTERED level did NOT refuse"
++    except Unregistered as exc:
++        refusal_ok = "'L3'" in str(exc) and "'L1'" in str(exc)
++        refusal_msg = str(exc)[:160]
++    ok28 = ok28 and a9_clean == "PASS" and a9_mut == "PASS" and refusal_ok
++    if mutate == "C28":
++        ok28 = False
++    _rec("C28", ok28,
++         f"planted the MEASURED P7 precedent {PLANT_S7_WRONG_NAMES} -- CORRECT TYPES "
++         f"(wall/patch/symmetry), WRONG NAMES -- on the middle level: {msg28}. THE "
++         f"INDEPENDENCE PROOF: A9 reads {a9_clean} on the clean twin and STILL reads "
++         f"{a9_mut} on the mutant, so this mutant is INVISIBLE to the type screen and dies "
++         f"only at the name screen. THE REFUSAL LIMB: the real level ids ('L3','L2','L1') "
++         f"REFUSE, because the registration records an expected name set for L2 ALONE -- "
++         f"{refusal_msg}")
++
+     return fired, detail
+ 
+ 
++# --------------------------------------------------------------------------------------
++# THE SECTION 7 FIXTURE.  Amendment 19.  C25..C28's synthetic three-level Gate A tree.
++#
++# THE FIXTURE IS CLEAN ON EVERY OTHER CLAUSE ON PURPOSE.  It carries the registered cell
++# counts, the 64-cells-per-wing-face ratio, three distinct points streams and three
++# recorded surface shas, so a CLEAN run of it grades Gate A `PASS` END TO END.  That is what
++# makes the planted runs mean something: the mutant's `BLOCKED` is a DELTA AGAINST A PASS,
++# not a second red beside an existing one.
++#
++# A DIVERGENCE FROM THE REFERENCE IMPLEMENTATION, DECLARED RATHER THAN LEFT TO BE FOUND.
++# `cases/RUNG1_M6/read_checkmesh.py` is the predecessor campaign's reader and it already
++# gated `Number of regions == 1` (`run_r1m0.sh:360`).  NOTHING IS IMPORTED FROM IT -- that
++# would be a cross-campaign dependency and this file takes none.  Where the two differ:
++#   * its `RE_REGIONS` matches the `:` form only; this file's `n_regions` pattern matches
++#     `[=:]`, so it also sees the `=` form.  BROADER, in the safe direction.
++#   * its `NUM` has no `[Dd]` exponent; this file's does.  BROADER, same direction.
++#   * it gates regions as a DRIVER completion clause; this file gates it inside Gate A.
++#     That placement difference is a REAL residual and it is reported, not hidden: see the
++#     amendment's note that nothing on M6SR's launch path consults Gate A at all.
++# --------------------------------------------------------------------------------------
++_S7_CLEAN_CM = """\
++Checking geometry...
++    Overall domain bounding box (0 0 0) (1 1 1)
++    Boundary openness (2.99162e-17 4.31794e-16 -8.22572e-16) OK.
++    Max cell openness = 3.01583e-15 OK.
++    Max aspect ratio = 608.207 OK.
++    Min volume = 1.17547e-10. Max volume = 0.944185.  Total volume = 3132.13.  Cell volumes OK.
++    Mesh non-orthogonality Max: 61.4938 average: 13.697
++    Non-orthogonality check OK.
++    Max skewness = 2.30655 OK.
++    Number of regions: 1 (OK).
++"""
++
++# Three distinct 64-hex surface shas for A7, none of them the CONDEMNED 390-face surface A8
++# refuses (Section 1.3).  They are FIXTURE TOKENS and are labelled so here rather than being
++# left to resemble a measurement: no mesh on this box hashes to them.
++_S7_FIXTURE_SURFACE_SHAS = ("a" * 64, "b" * 64, "c" * 64)
++
++
++def _s7_boundary_text(name_types, wall_faces):
++    """An OpenFOAM `constant/polyMesh/boundary` in the EXACT shape read_boundary() parses:
++    the `// * * *` separator, the `<count>\\n(` list opening, and `type` / `nFaces` /
++    `startFace` in every entry.  A fixture in any other shape would make these controls pass
++    by not being read at all -- which is the failure mode they exist to rule out."""
++    blocks, start = [], 0
++    for name, ty in name_types:
++        n = wall_faces if ty == "wall" else 100
++        blocks.append(f"    {name}\n    {{\n        type            {ty};\n"
++                      f"        nFaces          {n};\n"
++                      f"        startFace       {start};\n    }}")
++        start += n
++    return ("FoamFile\n{\n    version     2.0;\n    format      ascii;\n"
++            "    class       polyBoundaryMesh;\n    object      boundary;\n}\n\n"
++            "// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //\n\n"
++            f"{len(name_types)}\n(\n" + "\n".join(blocks) + "\n)\n")
++
++
++def _s7_fixture_levels(root, cm_texts, name_sets, ids=("L2", "L2", "L2")):
++    """Write the synthetic tree and return gate_a()'s `levels`, COARSE-TO-FINE.
++
++    `ids` defaults to L2 at EVERY level because L2 is the only level whose expected patch
++    name set the frozen registration records (Section 2.2).  That is stated rather than
++    hidden: it isolates the clause under test from Section 7 condition 5's REFUSAL, which
++    C28 exercises separately and deliberately with the REAL ids ('L3','L2','L1').
++    """
++    if not (len(cm_texts) == len(name_sets) == len(ids) == 3):
++        raise InternalDefect("the Section 7 fixture takes exactly three levels.")
++    levels = []
++    for i, (lid, cells, cm, names) in enumerate(zip(ids, A4_CELLS, cm_texts, name_sets)):
++        d = os.path.join(root, f"lvl{i}")
++        pm = os.path.join(d, "constant", "polyMesh")
++        os.makedirs(pm, exist_ok=True)
++        _write(os.path.join(d, "log.checkMesh"), cm)
++        _write(os.path.join(pm, "boundary"),
++               _s7_boundary_text(names, cells // A6_CELLS_PER_WING_FACE))
++        # DISTINCT points streams, so A5's all-distinct clause passes on the clean twin.
++        _write(os.path.join(pm, "points"), f"1\n(\n({i}.0 0.0 0.0)\n)\n")
++        levels.append({"id": lid, "cells": cells, "case": d,
++                       "checkmesh": os.path.join(d, "log.checkMesh"), "polymesh": pm,
++                       "surface_sha256": _S7_FIXTURE_SURFACE_SHAS[i]})
++    return levels
++
++
+ def _control_unreachable_sentinel():
+     """C23's CONTROL.  This function is DELIBERATELY never called from anywhere.
+ 
+@@ -2577,7 +3034,8 @@ def main(argv):
+             reds = {}
+             for target in ("C1", "C2", "C3", "C4", "C5", "C6", "C8", "C9", "C10", "C11",
+                            "C13", "C14", "C15", "C17", "C18", "C19", "C19b", "C20",
+-                           "C21", "C22", "C23", "C24"):
++                           "C21", "C22", "C23", "C24",
++                           "C25", "C26", "C27", "C28"):        # Amendment 19
+                 if target in baseline_red:
+                     reds[target] = None                 # cannot mutate an already-red control
+                     continue
+diff --git a/verification/campaign/M6SR_PREREGISTRATION.md b/verification/campaign/M6SR_PREREGISTRATION.md
+index 7f3e2402..e59df141 100644
+--- a/verification/campaign/M6SR_PREREGISTRATION.md
++++ b/verification/campaign/M6SR_PREREGISTRATION.md
+@@ -5559,3 +5559,359 @@ re-derived inside the commit invocation that carries this section; the commit AB
+ settled in earlier amendments and are **relied on, not re-verified here**. **Check 1 on this diff,
+ check 4, the freeze and the launch are the supervisor's**, and this lane takes none of them.
+ **Subject to those four, this lane knows of nothing between this document and a lawful launch.**
++
++---
++
++## 25. AMENDMENT 19 — 2026-09-04, **PRE-COMPUTE**. **§7 DECLARED ITSELF THE SOLE BLOCKING AUTHORITY FOR ELEVEN ADVERSARIAL PASSES WHILE FOUR OF ITS FIVE CONDITIONS WERE WIRED TO NOTHING.** ITEMS **43–46** WIRE ALL FOUR AT §7's OWN STATED THRESHOLDS, EACH UNDER A PLANTED CONTROL THAT FIRES — AND ITEM **47** IS RAISED: **NOTHING ON THE LAUNCH PATH CONSULTS GATE A AT ALL**
++
++**Version 1.19. Lines whose number changed above this section: 0.** This amendment is **appended
++at the foot** and edits nothing above it. **Verified, not asserted:** lines **1–5561** of this
++file — the whole of it up to and including §24.14's closing line, and therefore **every**
++guaranteed range §15.10 through §24.13 asserts — are **byte-identical** before and after this
++append, rendering to sha256
++**`5a166ce54f562e934b79c445aa106ef60e569004a710d00500f281e95276b6d6`** *(asserted here and
++**re-derived inside the commit invocation that carries this section**, with the commit
++**ABORTING** if it moved)*.
++
++### 25.1 🔴 THE FINDING, STATED WITHOUT SOFTENING
++
++**§5 line 796 reads *"Only §7 blocks a launch."* §7 line 1058 reads *"Checked per level BEFORE
++launch. A failure here `BLOCKED`s the level. Nothing else blocks."* It lists FIVE conditions.
++FOUR OF THE FIVE WERE WIRED TO NOTHING.**
++
++| §7 condition | its stated threshold | wiring **before** this amendment |
++|---|---|---|
++| **1** ≥ 3 patches; `wing` wall; symmetry typed `symmetry`; farfield `patch` | — | ✅ **WIRED TWICE** — `build_m6sr_l1.sh:763-767` aborts at exit 8, `analyse_m6sr.py` A9 labels `BLOCKED`, and `write_m6sr_case.py`'s CH1 refuses. **Nothing to do.** |
++| **2** `Boundary openness` ≤ 1e-12 | 1e-12 | 🔴 **NOT GATED.** Extracted at `analyse_m6sr.py:232` into `out["boundary_openness_max_abs"]`. That key occurred **exactly twice in the file — both of them the assignment** (`:230`, `:232`). **ZERO readers.** The threshold `1e-12` appeared **nowhere** against it. |
++| **3** `Number of regions: 1` | 1 | 🔴 **NOT GATED.** Parsed at `:209`, int-coerced at `:227`, **never compared to 1.** |
++| **4** Min cell volume > 0 | > 0 | 🔴 **NOT GATED.** Parsed at `:207`, used **only as the denominator** of `cell_volume_ratio` at `:238-239`. **A NEGATIVE minimum — an inverted cell, the exact hazard — yielded a negative ratio and failed nothing.** |
++| **5** patch **NAMES** matched against the level's own expected set, refusing on mismatch | — | 🔴 **NOT IMPLEMENTED AT ALL.** A9 tests **TYPES** and a count ≥ 3. **No expected-NAME set existed anywhere in `cases/M6SR/`.** |
++
++**AND THE SCOPE IS WIDER THAN THE COMPARATOR.** A grep for `openness`, `number of regions`,
++`min volume` and `1e-12` across **every** `.sh` and the case writer in `cases/M6SR/` returns
++**ZERO hits**. Conditions 2, 3 and 4 were unwired **in every artifact of this campaign**, not
++merely in the grading path.
++
++🔴 **AND THE CONTROLS COULD NOT HAVE CAUGHT IT — THE F5b PATTERN OVER AN UNGATED FIELD.** Both
++checkMesh fixtures in `analyse_m6sr.py` (`_CM_EQ_FORM`, `_CM_COLON_FORM`) carried **CLEAN VALUES
++ONLY**: openness ~1e-17 and ~1e-18, `Number of regions: 1`, a **positive** `Min volume`. There was
++**no fixture anywhere in the file** with a failing openness, with regions ≠ 1, or with a negative
++minimum volume. **The reader was never shown able to see the failure it exists to catch**, so a
++green from it would not have been evidence even after the gate was wired (rule 3).
++
++🔴 **HOW IT WAS FOUND, AND HOW IT WAS NOT.** **This was found by a supervisor's personal check-4
++read of the document's OWN STATED PRECONDITIONS — and by none of the eleven adversarial passes
++that preceded it.** Each of those eleven closed on the sentence *"nothing else between this
++document and a lawful launch."* **The document had been asserting for eleven passes that §7 was
++the one thing that blocks, while four fifths of §7 blocked nothing.** That is recorded here in
++those terms and is not softened: **a screen that is declared and not wired is worse than one never
++declared**, because every later pass reads the declaration and moves on. The supervisor's own note
++that the premature freeze at `40f2d9b9` skipped exactly this check is what put the check back.
++
++### 25.2 THE CONDITION UNDER RULE 2, AND HOW IT WAS CHECKED
++
++**These are PRE-COMPUTE REPAIRS.** Standing rule 2 permits amendment before first compute **and
++requires the condition to be stated with how it was checked, naming the run directory that does not
++exist.** The run directory is **`verification/runs/M6SR_runs`**.
++
++**IT IS PLANT-VERIFIED ABSENT, NOT MERELY REPORTED ABSENT** — a zero from a searcher not shown able
++to see a non-zero is not evidence (rule 3):
++
++| step | searcher `find verification/runs -maxdepth 1 -name M6SR_runs -print \| wc -l` |
++|---|---|
++| **before** | **0** |
++| **with a probe created at that exact path** | **1** — the searcher is SHOWN able to see it |
++| **after `rmdir`** | **0** |
++
++The probe was removed with **`rmdir`**, which **refuses a non-empty directory**, so the removal
++cannot have deleted a run. Corroborated independently: `test -e` reads ABSENT and `git ls-files`
++returns **0 rows**. **NO COMPUTE HAS OCCURRED UNDER THIS REGISTRATION.**
++
++### 25.3 ITEM 43 — CONDITION 2 IS GATED AT **1e-12**
++
++`A10_S7_C2_boundary_openness_le_1e-12`, per level, label **`BLOCKED`** on failure — §7's own label.
++The reading is the **maximum of the absolute values of the three printed components**, which is
++what `read_checkmesh` already extracted and nothing read. **The threshold is §7's, verbatim, and is
++not widened, softened or reinterpreted.**
++
++### 25.4 ITEM 44 — CONDITION 3 IS GATED AT **EXACTLY 1**, AND IT IS A **REGRESSION**, NOT A FIRST-TIME OMISSION
++
++`A11_S7_C3_number_of_regions_equals_1`, per level, label **`BLOCKED`** on failure.
++
++🔴 **THE LAB ALREADY HAD THIS GATE AND M6SR LOST IT.** `cases/RUNG1_M6/run_r1m0.sh:360` — the
++predecessor campaign M6SR supersedes — reads `"single_connected_region": cm.get("n_regions") == 1`.
++**A capability the lab built, and then lost, is a worse finding than one it never built**, and it is
++recorded here as the worse thing rather than the milder one.
++
++🔴 **AND CONDITION 3 IS A PRECONDITION FOR BELIEVING GATE A1, NOT ONLY A BLOCKING SCREEN.**
++`cases/RUNG1_M6/read_checkmesh.py:56` and `run_r1m0.sh:358-359` record the mechanism, measured on
++this box: if a multi-block conversion fails to merge coincident block-interface points, **those
++interfaces become BOUNDARY faces**, and checkMesh computes non-orthogonality **over internal faces
++only** — so every block interface **drops out of the statistic entirely and the reported maximum is
++FALSELY OPTIMISTIC**. Gate **A1** reads exactly that maximum off exactly that file. **An unmerged
++multi-region mesh therefore does not merely slip past §7; it makes Gate A's own number
++unfalsifiable.** That consequence is stated here so a future reader does not treat condition 3 as
++a formality.
++
++### 25.5 ITEM 45 — CONDITION 4 IS GATED **STRICTLY ABOVE ZERO, SIGNED** — AND A LATENT CRASH THAT PRE-EMPTED IT IS REPAIRED
++
++`A12_S7_C4_min_cell_volume_strictly_positive`, per level, label **`BLOCKED`** on failure.
++
++**THE TEST IS `value > 0.0`. IT IS NOT `!= 0` AND IT IS NOT `abs(value) > 0`** — both of those admit
++a **negative** minimum volume, which **is** an inverted cell and **is** the hazard §7 condition 4
++names. The sign is the whole content of the condition, and the pre-amendment code's only use of the
++reading was as a **denominator**, where a negative value merely produced a negative ratio.
++
++🔴 **45b — A LATENT UNCAUGHT CRASH ON THE SAME READING, DISCLOSED RATHER THAN SMUGGLED IN.** The
++ratio guard at `:238` tested `max_volume not in (None, 0.0)` **while dividing by `min_volume`**.
++**Measured:** a log reading `Min volume = 0` — a fully degenerate cell, condition 4's hazard **at its
++boundary** — raised an **uncaught `ZeroDivisionError`**. The module docstring already rules that **a
++crash is NOT a refusal**, and that crash **pre-empted condition 4**: the screen could never have
++reported on the very reading that killed the reader. The guard now tests the **denominator**, which
++is what it was always for. **`max_volume` keeps its exact previous condition, so the ONLY behaviour
++that changes is `min_volume == 0`, which goes from a crash to `None`. No clean reading moves** —
++measured in §25.9.
++
++### 25.6 ITEM 46 — CONDITION 5, THE PATCH-**NAME** SCREEN, AND THE REFUSAL THAT IS THE FEATURE
++
++`A13_patch_names_match_the_registered_per_level_set`, per level.
++
++**THE EXPECTED SET IS READ FROM THIS REGISTRATION, PER LEVEL, AND IS NEVER DERIVED FROM THE MESH
++BEING SCREENED.** The supervisor's ruling, applied literally: *"A screen that reads its expectation
++off the thing it is screening is not a screen."*
++
++| level | expected patch names | basis | behaviour |
++|---|---|---|---|
++| **L2** (399,360) | **`wing` / `inout` / `sym`** | **§2.2 line 363**, recorded pre-compute, read from that level's **own** `constant/polyMesh/boundary` | graded; **`BLOCKED`** on mismatch |
++| **L3** (99,840) | 🔴 **NOT REGISTERED** | §2.2's table carries L3's numerics but states patch identity **for the 399,360 level only**. No line of this document records L3's names. | **REFUSAL (exit 2)** |
++| **L1** (1,597,440) | 🔴 **NOT REGISTERED** | **§7 says so in terms**: the new L1's names *"are produced by `autoPatch 60` + `createPatch` and are NOT predicted here."* | **REFUSAL (exit 2)** |
++
++⚠ **AND §20.2.3's MEASUREMENT IS DELIBERATELY NOT USED AS L1's SET, WITH THE REASON GIVEN.**
++§20.2.3 measured a `createPatch` probe reading *"`wing` (wall) / `inout` (patch) / `sym`
++(symmetry) — **wall 1, symmetry 1, patch 3, empty 0**"*. **THAT IS NOT A COMPLETE NAME SET AND IS
++NOT TREATED AS ONE: three names are given while the counts total FIVE patches, so two patch-typed
++names are unaccounted for.** Registering the three would be **inventing the missing two**. **This
++lane does not do that, and flags the discrepancy to the supervisor rather than resolving it** — it
++is precisely the case where §7's wording and checkMesh's output shape disagree.
++
++🔴 **THE REFUSAL IS THE FEATURE, AND IT IS THE LAWFUL DIRECTION.** An unregistered level raises
++`Unregistered` — the comparator's existing rc-2 class, whose docstring already reads *"A parameter
++the frozen registration does not register. Picking one here would be choosing a gate parameter
++AFTER the freeze, which is exactly what standing rule 2 forbids."* **The comparator names the gap
++and refuses. The fix is an AMENDMENT recording the set, which is pre-compute and lawful.**
++
++⚠ **A CONSEQUENCE STATED PLAINLY: GATE A CANNOT BE GRADED TODAY** on the real ids, because two of
++three levels have no registered name set. **That is the honest state of the campaign and it is not
++a reason to weaken the screen.**
++
++⚠ **AND THE CASE WRITER MAKES CONDITION 5 MORE NECESSARY, NOT LESS.** `write_m6sr_case.py`'s CH1
++attaches boundary conditions **by TYPE**, and its own control at `:913` states that *"if the writer
++attached by NAME rather than by TYPE (CH1) this control could not pass."* **A name-agnostic writer
++will attach freestream conditions to ANY patch typed `patch`, whatever it is called** — which is
++exactly the silent mis-application §7 and prediction P7 warn of.
++
++⚠ **A SECOND FALSE ATTRIBUTION IN THIS DOCUMENT, NAMED.** **Prediction `P7` at line 1371** ends
++*"The launcher **refuses** a level whose patch names it did not expect **(A9)**."* **A9 does not and
++never did check names.** §7's closing sentence makes the same claim without the cross-reference.
++**Both were false when written**; A13 is what makes them true.
++
++### 25.7 THE ABSENT-AND-UNPARSEABLE RULING, AND WHICH LABEL WAS CHOSEN
++
++**AN ABSENT OR UNPARSEABLE READING NEVER READS CLEAN.** §5's Gate A already fixes the principle in
++terms — *"An absent checkMesh log reads ABSENT. It never reads clean."* — and it is applied to all
++three of conditions 2/3/4 without softening: an ABSENT log, and a log that was READ but out of
++which the named value did not parse, both fail the clause.
++
++**THE LABEL CHOSEN IS `BLOCKED`, NOT A REFUSAL, AND THE REASONING IS GIVEN SO IT CAN BE OVERRULED.**
++The finding is about **the LEVEL, not the instrument**: the instrument ran correctly, and what it
++found is that the level **cannot be shown well-posed**. `BLOCKED` is §7's own word for exactly that,
++it is the strictly conservative direction, and it keeps the per-level record readable instead of
++aborting a whole grade on one missing file. **A REFUSAL is reserved for condition 5's unregistered
++case**, which is a statement about **this document** and not about any mesh. ⚠ **If the supervisor
++reads §5's ABSENT rule as requiring exit 2 for conditions 2/3/4 as well, that is one label to
++change and it is the supervisor's to say.**
++
++### 25.8 THE FOUR PLANTED CONTROLS — **`C25`–`C28`**, AND EACH IS A **DELTA**, NOT A COLOUR
++
++**Each control drives the REAL `gate_a()` TWICE on a synthetic three-level tree written to disk and
++read back through the REAL readers: once CLEAN, once with ONE value planted.** It requires **(a)**
++the clean twin to grade `PASS`, **(b)** the mutant to grade `BLOCKED`, and **(c)** **EXACTLY the
++clause under test to flip.** **The negative twin is what makes the positive one mean anything**, and
++the confinement requirement is what stops these four gates from being indistinguishable from each
++other.
++
++| control | the plant | **how the mutant died** |
++|---|---|---|
++| **`C25`** | boundary openness **1e-09** on the middle level — **three orders ABOVE §7's 1e-12** | clean twin `A10 = PASS`, Gate A `PASS`; planted `A10 = BLOCKED`, **Gate A `BLOCKED`**; **clauses that MOVED = `['A10_…']` — exactly one.** Before this amendment the key had **zero readers**, so this exact plant would have changed **nothing**. |
++| **`C26`** | **`Number of regions: 9`** on the finest level | clean twin `A11 = PASS`, Gate A `PASS`; planted `A11 = BLOCKED`, **Gate A `BLOCKED`**; **MOVED = `['A11_…']`.** **`9` is not an invented number**: it is the value **this box has observed** from the exact defect (`cases/RUNG1_M6/read_checkmesh.py:56`, an unmerged nine-block PLOT3D conversion). **A representative fixture is the entire point — an unrepresentative one is the defect this amendment repairs.** |
++| **`C27`** | **`Min volume = -4.2e-11`** — a **NEGATIVE** minimum, an inverted cell — on the coarsest level | clean twin `A12 = PASS`, Gate A `PASS`; planted `A12 = BLOCKED`, **Gate A `BLOCKED`**; **MOVED = `['A12_…']`.** **AND THE CONTROL SHOWS THE OLD BLINDNESS DIRECTLY:** read back from disk the value is `-4.2e-11` and the old path's only use of it, `cell_volume_ratio`, is **`-22480595238.09524`** — **a negative ratio, which failed no check whatsoever.** |
++| **`C28`** | **`('WING3D', 'FARFIELD', 'SYMMETRY')`** on the middle level — **CORRECT TYPES, WRONG NAMES** | clean twin `A13 = PASS`, Gate A `PASS`; planted `A13 = BLOCKED`, **Gate A `BLOCKED`**; **MOVED = `['A13_…']`.** **THE INDEPENDENCE PROOF THE SUPERVISOR REQUIRED: `A9` reads `PASS` on the clean twin and STILL reads `PASS` on the mutant** — the mutant is **invisible to the type screen** and dies **only** at the name screen. **PLUS THE REFUSAL LIMB:** the real ids `('L3','L2','L1')` **REFUSE**, naming `['L3','L1']`. |
++
++**THE `C28` PLANT IS NOT INVENTED EITHER.** It is prediction **`P7`'s MEASURED PRECEDENT** on this
++box: an hcf-generated family produced `wing/symmetry/farfield` on the generator level and
++**`WING3D/SYMMETRY/FARFIELD`** on the coarsened levels.
++
++**EACH OF THE FOUR IS ALSO PROVED BREAKABLE.** `C25`–`C28` are added to `--selftest`'s **mutation
++control**, which corrupts each shipped statistic in turn and requires **exactly that control** to
++flip from FIRED to red. **A control that cannot be broken is not a control.**
++
++**AND THEY ARE PROTECTED FROM SILENT ORPHANING.** `section7_conditions_2_3_4` and
++`section7_condition_5` are added to control **`C23`'s** `must_reach` set, so an AST call-graph walk
++over this file **goes RED** if a future edit orphans them the way item 5's finding recorded
++`gate_p()` being orphaned. **The defect this amendment repairs is exactly "declared but not
++reached", and the repair is defended by the instrument that detects that.**
++
++### 25.9 🔴 **NO EXISTING READING MOVED — MEASURED, NOT ASSERTED**
++
++The supervisor required immediately that **no repair of a blocking screen may move a graded value.**
++It moved none, and that is measured three ways against the **committed `HEAD` blob** of the
++comparator run side by side with the edited file:
++
++1. **`read_checkmesh()` output on BOTH clean fixtures is IDENTICAL** — full-dict equality, old
++   versus new, on `_CM_EQ_FORM` and `_CM_COLON_FORM`. **Both fixture texts are byte-unchanged.**
++2. **NO pre-existing control changed status.** The FIRED / DID-NOT-FIRE status of every control
++   `C1`–`C24` is identical before and after; the only rows that differ are the four new ones.
++3. **`--gate-a` on the REAL levels produces the IDENTICAL refusal** before and after — it refuses
++   on L1's missing points file, which precedes `A13`. **The real grading path's observable output
++   is unchanged.**
++
++⚠ **ONE PRE-EXISTING RED, NAMED SO IT IS NOT MISREAD AS MINE.** `--controls` exits **2** both before
++and after, on **`C12`**, whose own message records that it *"CANNOT fire as written"* against
++non-monotone as-read data and was **"Reported, NOT loosened."** **It is red at `HEAD` too, verbatim.
++This amendment neither caused it nor touched it.** It is already on the record as **`X7`**, and
++§18.5's pre-launch grading gate (`run_m6sr_b5.sh:436`, `[ "$CRC" -eq 0 ]`) **already refuses the
++launch at exit 8 because of it.**
++
++### 25.10 `rc` PARITY, BYTE-IDENTICAL STDOUT, AND **ZERO** `ast.Assert`
++
++⚠ **`rc` PARITY.** `--controls` returns **`2` under `python3` and `2` under `python3 -O`** — the
++same pair as at `HEAD` — and the two runs' stdout is **byte-identical** once the scratch path is
++normalised. **No arm rests on an assertion the optimiser removes.**
++
++⚠ **NO BARE `assert` ANYWHERE IN THE FILE. Verified by AST parse, not by grep, WITH THE DETECTOR
++PLANTED AND SEEN**: the shipped file contains **0** `ast.Assert` nodes, and a copy with **one**
++`assert` appended reads **1**. **The detector was proved able to see one before its zero was
++believed** (rule 3). Every new guard added here is an explicit `raise` or a recorded boolean.
++
++### 25.11 ⚠ **A GREP TRAP, RECORDED SO THE NEXT AUDIT DOES NOT CLEAR THIS ON A FALSE HIT**
++
++A **tree-wide** grep for `Number of regions` returns hits in
++`cases/RUNG1_M6/{run_r1m0.sh,read_checkmesh.py,build_r2_triple.py}` and
++`cases/committee-grids/read_ugrid_identity.py`. **An auditor who greps the TREE rather than THE
++CAMPAIGN will find a gate and conclude condition 3 was enforced for M6SR. IT WAS NOT.** M6SR's
++chain **invokes none of them**; the only `RUNG1_M6` references inside `cases/M6SR/` are **prose in
++comments and abort strings** citing the M0 all-wall-box lesson. **The scoped sweep that found this
++defect was correct for the claim it made, and would have been wrong for a claim about the tree.**
++
++### 25.12 THE COMPARATOR IS A REFERENCE, NOT AN IMPORT — DIVERGENCES DECLARED
++
++`cases/RUNG1_M6/read_checkmesh.py` was read as a reference implementation. **Nothing is imported
++from it** — that would be a cross-campaign dependency and this comparator takes none. Where the two
++differ, and why:
++
++- its `RE_REGIONS` matches the **`:` form only**; this file's `n_regions` pattern matches **`[=:]`**
++  and so also sees the `=` form. **Broader, in the safe direction.**
++- its `NUM` has no `[Dd]` exponent; this file's does. **Broader, same direction.**
++- it gates regions as a **driver completion clause**; this file gates it inside **Gate A**. **That
++  placement difference is a real residual and it is item 47 below, not a detail.**
++
++### 25.13 🔴 **THE INSTRUMENT'S OWN PIN MOVED, AND IS RE-TAKEN IN THE SAME COMMIT**
++
++**This amendment edits one of the ten pinned executables** — the comparator, §23.5 row 1. §22.2's
++pin for it is **FALSE IN FORCE** at this commit and is struck, rule 6, **by quote**:
++
++🔴 **TWO LIVE TABLE ROWS RECORD THE SUPERSEDED BLOB, NOT ONE — AND BOTH ARE STRUCK.** A search of
++this file for `9b963ad4` returns **two table rows** (§18.3.1's and §22.2's) and **three prose
++mentions**. Striking only the most recent would leave a reader who finds the earlier row with an
++unstruck, false pin. **Both rows are struck, rule 6, by VERBATIM quote — each checked character
++for character against the line it strikes, not retyped from memory:**
++
++> 🔴 **STRUCK BY QUOTE** *(§22.2's row — the pin that was IN FORCE)*: ~~*"| **`cases/M6SR/analyse_m6sr.py`** (comparator) | **`9b963ad48e016fe2177553507006915e52b4ef98`** | `9042cdf22ff948f8df48d846495ccb0d05e5130d19a0572b6020b728507d9394` | 2,742 | **`8c0ab7a8`** (Amendment 11) | **§9 registered** — pin UNMOVED since §18.3.1 |"*~~
++
++> 🔴 **STRUCK BY QUOTE** *(§18.3.1's earlier row, carrying the SAME now-superseded blob)*: ~~*"| **`cases/M6SR/analyse_m6sr.py`** (comparator) | **`9b963ad48e016fe2177553507006915e52b4ef98`** | `9042cdf22ff948f8df48d846495ccb0d05e5130d19a0572b6020b728507d9394` | 2,742 | **`8c0ab7a8`** (Amendment 11) |"*~~
++
++⚠ **THE THREE PROSE MENTIONS ARE NAMED, NOT STRUCK** — striking narrative sentences is not this
++convention's purpose and a lane does not rewrite them: **line 3410** (*"The comparator now hashes
++to `9b963ad4…` at 2,742 lines"*), **line 4681** (§22's supersession chain) and **line 4938**
++(*"the blob pinned by §22.2, the one that will run"*) all describe the superseded blob. **Each is
++true of the moment it was written and false in force now**, and this sentence is the notice.
++
++**THE NEW STANDING PIN**, derived with `git hash-object` on the working tree and **RE-DERIVED
++INSIDE THE SAME SHELL INVOCATION AS THE COMMIT THAT CARRIES THIS SECTION, WITH THE COMMIT ABORTING
++IF IT HAD MOVED** — §22.2's guard, kept:
++
++| path | git blob sha | sha256 of the file | lines | §9 status |
++|---|---|---|---|---|
++| **`cases/M6SR/analyse_m6sr.py`** (comparator, §9 and §23.5 row 1) | **`1ed1cee48bb945926cb23832eb3bed6669d53add`** | `efe6aa53bdd7d1b1bf3a365b99a4a0fa166dfdbf58d075d2ad6c557d032b0ec4` | **3,200** | **§9 registered** — **RE-PINNED HERE** |
++
++⚠ **THE OTHER NINE PINS ARE UNMOVED AND WERE RE-VERIFIED, NOT ASSUMED** — every one read **`PIN-OK`**
++at this HEAD in the verifier's own run, while the **comparator alone** read `PIN-DRIFT`: measured
++**`10 of 10` covered, `9 PIN-OK`, `1 violating`**, the instrument convicting this amendment's own
++stale pin on a plant nobody had to fabricate. **This amendment touches no code but the comparator.**
++
++⚠ **THE STRIKE-BY-QUOTE LIMITATION, RESTATED RATHER THAN GLOSSED.** Striking a row by quote in a
++later section **does not remove the original row from the file**, so the parser still reads §22.2's
++superseded row as live and may report more than one recorded sha for this path. **CURRENCY is
++satisfied by the new sha above**, and **the registration is the authority on which pin is in force:
++it is the one in the table immediately above.**
++
++### 25.14 🔴 **ITEM 47 — NEW, AND IT OUTRANKS THESE FOUR REPAIRS: NOTHING ON M6SR's LAUNCH PATH CONSULTS GATE A AT ALL**
++
++| # | the finding | how it was measured | consequence |
++|---|---|---|---|
++| **47** 🔴 | **§7 says its conditions are *"Checked per level BEFORE launch"* and that a failure *"`BLOCKED`s the level"* — but the solve driver never asks Gate A anything.** `run_m6sr_b5.sh` invokes the comparator **exactly twice**, at `:429` and `:430`, **both times as `--controls`**. **It never invokes `--gate-a`.** Its own closing line (`:848`) says *"B4 is Gate A … in `cases/M6SR/analyse_m6sr.py`"* — i.e. Gate A is a **separate, manually-invoked grading step**, and **no refusal anywhere in the driver reads a `BLOCKED` Gate A.** | Measured by enumerating every `analyse_m6sr` reference in `run_m6sr_b5.sh` (7 in comments, 2 executions, 2 `import`s for `points_stream_sha` and a reporting helper) — **none is `--gate-a`.** | ⚠ **WIRING CONDITIONS 2–5 INTO `gate_a()` MAKES THEM GRADEABLE. IT DOES NOT YET MAKE THEM BLOCK A LAUNCH.** Condition 1 is the only §7 condition enforced **on the launch path**, and it is enforced by the **builder** (`build_m6sr_l1.sh` exit 8) and the **case writer** (CH1), **not by Gate A**. **A supervisor ordering a launch on the strength of §7 would be relying on a screen the launcher does not run.** **NOT REPAIRED HERE:** making the driver refuse on a `BLOCKED` Gate A changes **when a launch is permitted** and is a §9/§2.4 step-order question. **Per §22.6 item 32 that is the supervisor's and not a lane's.** |
++
++### 25.15 COST — RULE 12
++
++**No ladder compute was authorised or spent. `B0`–`B6` are untouched and the run root remains
++plant-verified absent.** The only compute is the comparator's own control suite and this document
++work, at **1 rank**:
++
++| activity | wall s | ranks | **core-min (MEASURED from the clock)** |
++|---|---|---|---|
++| `--controls`, `python3` and `python3 -O`, plus the `HEAD` baselines and fixture diffs | 49 | 1 | **0.8167** |
++| `--selftest` (controls ×1 + `C16` + **26** mutation re-runs) | 229 | 1 | **3.8167** |
++| **TOTAL** | | | **4.6334** |
++
++**CHARGED VERSUS MEASURED:** the core-minutes above are **MEASURED** — wall seconds × ranks ÷ 60,
++read off the clock. Any dollar figure is **derived at the recorded $0.0513/core-h and is
++reported-by-owner, never measured**: this box cannot read its own billing
++(`COMPUTE_BUDGET_CHARTER.md` §5).
++
++⚠ **NO `docs/COST_CALIBRATION.md` ROW IS FILED, AND THAT IS DELIBERATE.** Rule 12's
++estimate-versus-actual is owed **at a PROCESS COMPLETION** — a rung graded, a case closed, a
++curriculum item finished. **Nothing completed here**: no gate was graded, no rung ran, and §2.4's
++`B0`–`B6` estimates have no actuals to compare against. **Inventing a calibration row for a
++document edit would put a fabricated actual beside a real estimate**, which is worse than the
++absent row. **The row is owed at `B4`, and `B4` has not run.**
++
++### 25.16 WHAT THIS AMENDMENT DOES **NOT** DO
++
++1. **It moves NO gate, NO threshold, NO cap and NO label.** Every threshold wired here — `1e-12`,
++   `1`, `> 0`, and the per-level name set — **is quoted from §7 and §2.2 and not one of them is
++   chosen, widened, softened or reinterpreted here.** §5, §5.1, §2.4 and §10's registered numbers
++   are untouched.
++2. **It does not freeze and it does not launch.** Both are the supervisor's.
++3. **It does not register L1's or L3's patch names.** It **refuses** for want of them, and says so.
++4. **It does not touch `run_m6sr_b5.sh`, `build_m6sr_l1.sh` or `write_m6sr_case.py`** — item 47 is
++   raised, not repaired.
++5. **It does not re-derive** the physics, §5/§5.1's gates, mesh-standard compliance or the solver
++   pin. Those were settled in earlier amendments and are **relied on, not re-verified here.**
++
++### 25.17 THE STANDING QUESTION — **ANYTHING ELSE BETWEEN THIS DOCUMENT AND A LAWFUL LAUNCH?**
++
++🔴 **YES. TWO THINGS, AND THIS LANE WILL NOT REPEAT THE ELEVENTH PASS'S "NO."**
++
++1. **ITEM 47 (§25.14): nothing on the launch path consults Gate A**, so §7's *"checked per level
++   before launch"* is still not true of conditions 2–5 even after this amendment wires them.
++2. **ITEM 46's REFUSAL (§25.6): Gate A cannot be graded at all on the real level ids** until this
++   registration records L3's and L1's expected patch-name sets. **That is by design and it is the
++   lawful direction**, but it is squarely between this document and a launch.
++
++⚠ **AND ONE PRE-EXISTING BLOCKER, RESTATED:** `X7` / **`C12`** holds `--controls` at rc 2, and
++§18.5's pre-launch grading gate refuses at exit 8 on exactly that. **The launch was already blocked
++before this amendment; it is blocked for three reasons now, and all three are on the record.**
++
++⚠ **WHAT THIS LANE CANNOT SAY, AND DOES NOT.** It checked the document's stated preconditions and
++their wiring; it did **not** re-derive the physics or the gates. **Check 1 on this diff, check 4,
++the freeze and the launch are the supervisor's, and this lane takes none of them.**
