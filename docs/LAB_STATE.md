@@ -25225,6 +25225,26 @@ Two lanes measured load average independently and both refuted me: **20.47 / 22.
 **What survives, corrected and narrower:** **8 of 16 vCPUs carry SOLVER work**, and **all six team queues are genuinely empty** — that part is measured and unchanged, and it is still the finding. **What does not survive is "the box is half idle" and the urgency I hung on it.** Launching queue work onto a box already carrying a transient fleet is not free, and the honest recommendation is that the queue emptiness is a **standing** problem while the load was a **transient** one. **A rank count is not a load measurement, and I used one as the other.**
 
 
+
+### ✅ THE alpha-15 NEGATIVE WAS RE-MEASURED ON A WIDER SEARCH — VERDICT UNCHANGED, AND FOUR INNOCENT HITS ARE NAMED SO NOBODY MISREADS THEM
+
+The census lane's first evidence that `models/tmr/naca0012/a15/coarse` never ran was a **bounded** sweep — `grep --include='U'` for `0.96592583` (cos 15°) — returning nothing. **It went back and widened its own negative rather than letting a scope-limited zero stand as a proof of absence.** The unbounded sweep of all of `/home/ubuntu/certonomous-runs` returns **four hits, and every one is innocent**:
+
+| hit | what it is |
+|---|---|
+| `f12_terminal_departure_2026-08-25/case/62/k` | turbulent kinetic energy, interior array |
+| `f12_energy_bound_discriminator_2026-08-25/arm0/case/62/k` | same |
+| `r4-ahmed-c3b/0/phi` | face flux, interior array |
+| `r4-ahmed-c3b/processor1/0/phi` | same, decomposed copy |
+
+**All four are interior field arrays where the digits occur as one cell value among thousands. None is a boundary condition, and neither case is a NACA0012** — two are the F12 `rhoSimpleFoam` family, one is an Ahmed body. **No `0/U` boundary entry anywhere out of git carries an alpha-15 inlet vector.** The verdict is unchanged and now rests on a wider search: the shared coarse grid (sha `d744d73…`) has run **at alpha 0 only**, and **alpha 15 has never been solved.**
+
+⚠ **Recorded because a successor WILL run this grep and WILL get four hits.** A bare hit count on `0.96592583` reads as "alpha 15 ran"; it does not. **The discriminator is whether the number appears in a BOUNDARY entry of `0/U` or as one value inside an interior array** — and only the former is evidence of a run at incidence.
+
+🔴 **The shape is the same one that caught me an hour earlier, and it is worth naming as a class rather than as two incidents.** My `rmtree` negative came from grepping the wrong directory; this lane's alpha-15 negative came from grepping the right directory with the wrong file filter. **Both were true statements about a search and false statements about the world, and both were published as measurements.** The lane caught its own; **mine was caught by a lane.** **A negative is only as wide as its search, and the search's scope belongs in the finding — not in the method section nobody reads.**
+
+**Not owed here:** the `rmtree` recording the census lane asked about is **already dispatched** — the guard lane carries instructions to write it at the point of use, beside `harvest()`'s raise and in the F5 campaign record, so the warning meets the next lane *before* it reaches for the delete.
+
 ### 🔴 THE `rmtree` TRAP IS **CONFIRMED**, IT IS WORSE THAN ONE LINE, AND MY GREP WAS THE THING AT FAULT
 
 **Verified by me at the source.** `verification/runs/F5_runs/run_rung.py:58` — the **first statement of `stage()`** — is `shutil.rmtree(remote_dir, ignore_errors=True)`, against `_RUN_ROOT = ~/certonomous-runs/f5a-cylinder-ladder` (`:50`) and `remote_dir = _RUN_ROOT / name` (`:57`). **Two siblings carry it against the same root:** `cylinder_ladder.py:452` and `cylinder_ladder_3d.py:322`.
