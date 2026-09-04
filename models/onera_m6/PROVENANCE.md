@@ -187,16 +187,70 @@ able to refuse is not evidence either:
 |---|---|---|
 | the filed Table B1-1 | ACCEPTED | **0** |
 | `quarantine/nasa_foilmod_SHARPENED_NOT_TABLE_B1_1.dat` | REFUSED — zero final ordinate | **2** |
-| `verification/runs/M6I_runs/mesh/om6_wing_section_sharp.dat` (the box's own lookalike) | REFUSED — 63 points, not 72 | **2** |
+| `verification/runs/M6I_runs/mesh/om6_wing_section_sharp.dat` (the box's own lookalike) | ~~REFUSED — 63 points, not 72~~ **STRUCK — see the 2026-09-04 correction below** | ~~**2**~~ **STRUCK** |
 
 ⚠ **A DEFECT IN THIS LANE'S OWN INSTRUMENT, FOUND BY ITS OWN CONTROL AND DISCLOSED.** The first
 form of the script caught only the sharpened-TE exception in its control block, so the 63-point
 lookalike raised a **structure** error straight through it: the program **died with a traceback
 and `rc=1` instead of refusing with `rc=2`.** A crash is not a refusal. This is the exact contract
-ruled at HEAD `5577cec9` (the comparator exit-code contract). Fixed, re-run, and the fix is
-commented at the site so it cannot be quietly undone. **A `-O` control was also run** (L-475: an
+ruled at HEAD `5577cec9` (the comparator exit-code contract). ~~Fixed, re-run, and the fix is
+commented at the site so it cannot be quietly undone.~~ **STRUCK — THE FIX TREATED THE WRONG
+SITE. See the correction below.** **A `-O` control was also run** (L-475: an
 entirely assert-based guard is one interpreter flag from absent): under `python3 -O` the sharpened
 file still returns **`rc=2`**, confirming the guards are `raise`-based, not `assert`-based.
+
+### 4a. 🔴 CORRECTION, 2026-09-04 — THE ROW ABOVE WAS **WRONG WHEN IT WAS WRITTEN**, NOT DRIFTED
+
+**Struck by quote, never rewritten (standing rule 6).** The struck row above claimed
+`om6_wing_section_sharp.dat` was **"REFUSED … rc=2"**. **It does not reproduce, and it never did.**
+
+**Measured 2026-09-04, before any repair, on the file at its recorded path:**
+
+```
+    python3    scripts/verify_agard_ar138_table_b1_1.py \
+               verification/runs/M6I_runs/mesh/om6_wing_section_sharp.dat   ->  rc = 1
+    python3 -O (the same command)                                           ->  rc = 1
+    last line of both:  IndexError: list index out of range     (at :73)
+```
+
+**⚠ THIS WAS NOT DRIFT.** `scripts/verify_agard_ar138_table_b1_1.py` and this document
+**landed in the SAME commit `d554e3a7`**, and **neither has moved since**: the script's
+blob is byte-identical at `d554e3a7` and at the HEAD preceding this correction (sha256 of
+both renderings: `5bb37f27e4b6f80659e5433364bd2c887d84b245d9fe4fe7db064619bf9614e5`).
+**The row was therefore false at authorship.** It was almost certainly written from the
+*intent* of the fix rather than from a re-run of the command.
+
+**THE MECHANISM, AND WHY THE COMMENTED FIX DID NOT COVER IT.** That file is **single-column**:
+its first content line is the bare count header **`63`**, followed by 63 abscissae and 63
+ordinates on separate lines — **127 non-blank lines, every one carrying exactly ONE field**.
+`parse()` keeps only two-field lines, so it returns **ZERO rows, not 63**. `load_reference()`
+then applied its planted ordinate *first*, and `rows[:-1] + [(rows[-1][0], _plant)]` indexed
+`rows[-1]` on an empty list. The resulting **`IndexError` is neither `ReferenceStructureError`
+nor `SharpenedReferenceError`, so it escaped BOTH catch limbs** in `main()`. **The commented fix
+guarded the structure check; the file died in the plant block before ever reaching it. The fix
+treated the wrong site.**
+
+**REPAIRED 2026-09-04.** The count check now runs **before** the plant, and an explicit
+zero-row refusal names the count-header shape. **Measured after the repair:**
+
+| file fed to the loader | result | rc, `python3` | rc, `python3 -O` |
+|---|---|---|---|
+| the filed Table B1-1 | ACCEPTED | **0** | **0** |
+| `quarantine/nasa_foilmod_SHARPENED_NOT_TABLE_B1_1.dat` | REFUSED — zero final ordinate | **2** | **2** |
+| `verification/runs/M6I_runs/mesh/om6_wing_section_sharp.dat` | REFUSED — **ZERO two-column rows parsed** | **2** | **2** |
+
+**AND THE SCOPE OF THE DAMAGE, NEITHER INFLATED NOR MINIMISED.** **The loader did NOT fail
+open.** `rc = 1` is not `rc = 0`: the program died loudly, wrote no verdict, and would have
+stopped any caller that checks its exit code. **No sharpened file was ever accepted as
+Table B1-1, and no graded number rests on this defect.** What was actually broken is two
+things and only two: **(i)** the registered `C19` contract says **REFUSAL (exit 2)** on that
+fixture and the program delivered a crash instead — *a crash is not a refusal*; and
+**(ii)** this document filed an rc that did not reproduce, which is the more serious of the
+two, because a filed measurement is what a later reader trusts instead of re-running.
+
+**A CONTROL NOW FIRES ON THIS EXACT SHAPE** so the defect cannot return silently: control
+`C19b` in `cases/M6SR/analyse_m6sr.py` feeds a synthetic count-header lookalike that yields
+zero two-column rows and **requires `rc = 2`**.
 
 ---
 

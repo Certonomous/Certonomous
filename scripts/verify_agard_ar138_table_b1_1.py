@@ -69,13 +69,32 @@ def load_reference(path, _plant=None):
     the caller can prove this refusal can also PASS a non-zero.
     """
     rows = parse(path)
-    if _plant is not None:
-        rows = rows[:-1] + [(rows[-1][0], _plant)]
 
+    # ---- THE COUNT CHECK RUNS BEFORE THE PLANT, AND THAT ORDER IS THE FIX -------------
+    # DEFECT REPAIRED 2026-09-04.  The plant block below indexes rows[-1].  An earlier
+    # form of this function applied the plant FIRST, so a candidate yielding ZERO
+    # two-column rows raised IndexError -- which is neither ReferenceStructureError nor
+    # SharpenedReferenceError, escaped BOTH catch limbs in main(), and produced rc=1 with
+    # a traceback.  A CRASH IS NOT A REFUSAL: the registered C19 contract is REFUSE
+    # (exit 2) rather than degrade, and rc=1 is neither.  Measured on
+    # verification/runs/M6I_runs/mesh/om6_wing_section_sharp.dat, which is a SINGLE-COLUMN
+    # file whose first content line is the count header `63`; parse() sees no two-field
+    # line at all and returns 0 rows.  The earlier comment at the catch limbs claimed this
+    # bug class fixed; that fix treated the WRONG SITE -- the file died in the plant block
+    # before ever reaching the structure check the fix guards.
+    if not rows:
+        raise ReferenceStructureError(
+            f"{path}: ZERO two-column rows parsed. Table B1-1 has {N_POINTS} rows of "
+            "`x/l z/l`. A file whose first content line is a bare COUNT HEADER followed by "
+            "single-column ordinates has exactly this shape, and one is on record on this "
+            "box. A reader that sees nothing is not evidence of an empty table. REFUSED.")
     if len(rows) != N_POINTS:
         raise ReferenceStructureError(
             f"{path}: {len(rows)} points, Table B1-1 has {N_POINTS}. "
             "A different count is a FINDING, never something to round to.")
+
+    if _plant is not None:
+        rows = rows[:-1] + [(rows[-1][0], _plant)]
 
     xs = [x for x, _ in rows]
     if any(b <= a for a, b in zip(xs, xs[1:])):
