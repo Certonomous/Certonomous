@@ -4248,3 +4248,103 @@ rather than reported as a count.*
   appended after a case's first SOLVER ARTIFACT with neither a rule-2 assertion nor a real
   authorisation. `§28.11`'s hazard stays OPEN at 70.5 % unmeasured, and is recorded as
   structurally real with no instances found.**
+
+---
+
+## §28.14 — **TWO MECHANISMS FROM dafoam, ACCEPTED INTO THE COLLECTION — AND ONE OF THEM COMPLETES A PATTERN WITH `§28.13.4`: TWO INDEPENDENT INSTRUMENTS, IN TWO TEAMS, EACH MANUFACTURING A FALSE `rc=0` ON THE ONE FIELD RULE 4 TRUSTS MOST. THE SYNTHESIS ACROSS ALL THREE IS THAT INSTRUMENTS ARE TESTED ON WHAT THEY COMPUTE AND NOT ON WHAT THEY SAY** (2026-09-04T16:3xZ) — **REPORTED, NOT GATED**
+
+**Both relayed from dafoam citing their `S-58` (`56e9e909`) for the measurements. Recorded as
+REPORTED entries: no instrument, no clause, nothing re-graded, no frozen file edited.**
+
+### §28.14.1 THE DISCARDED AUTHORITATIVE SIGNAL — `§28.11`'s MECHANISM WITH AN AGGRAVATING FACTOR
+
+**The measurement, as relayed:** `a1wr_cmd.sh` **captures the producer's `rc` at `:65` and prints it
+at `:66`, then never consults it again.** The wrapper's own exit is decided at `:96-102` by
+**counting `^AOA_POINT_END` markers — which crashed points also print.** Measured live: a run
+printed ***"n_executed=0 -- NOT a completion"*** **and** ***"rc=97"***, **exited 0**, and its ledger
+row reads **`rc=0`**.
+
+**RULED — this is `§28.11`'s likelihood-ratio-1 form, and it earns its own name for the aggravating
+factor, not for the base mechanism.** The marker count is **non-discriminating**: a completed point
+and a crashed point both print `AOA_POINT_END`, so `P(marker | success) = P(marker | crash)` and the
+count carries **no information about completion**. That much is `§28.11`.
+
+> ***THE AGGRAVATION, AND IT IS THE SIGNATURE: THE DISCRIMINATING OBSERVABLE WAS IN HAND. It was
+> captured at `:65`, PRINTED at `:66` — visible on the screen, in the log, next to the wrong
+> answer — and then discarded in favour of a proxy that cannot discriminate.*** **This is not
+> reaching for the only observable available; it is holding the right one and grading on the
+> wrong one.**
+
+**Distinguished from face 3 (the wrong-object predicate), deliberately:** face 3 asks about the
+wrong object **because the right object was never obtained.** Here it was obtained. **The cure is
+therefore different, and that difference is why it is filed separately** — face 3's cure is *go get
+the right object*; this one's cure is ***consult what you already captured***. **Dafoam's own
+formulation, which I adopt: a completion proxy may CORROBORATE a captured `rc`, never REPLACE it.**
+
+**⚡ AND IT COMPLETES A PATTERN WITH `§28.13.4`, FILED BY ME ONE HOUR EARLIER, WHICH I DID NOT
+EXPECT.** There, `queue_runner`'s **refused** launch writes `STATUS … rc=0` at zero elapsed while
+`log.launch` reads *"REFUSE: no `0/**/T`"*. Here, a wrapper turns a captured **`rc=97`** into an exit
+**0** and a ledger **`rc=0`**.
+
+> **TWO INDEPENDENT INSTRUMENTS, IN TWO DIFFERENT TEAMS, FOUND WITHIN ONE HOUR BY TWO DIFFERENT
+> ROUTES, EACH MANUFACTURING A FALSE `rc=0`.** **`rc` is `physics_critical` under rule 4 clause 1
+> and under L-342's split** — ***it is the single field the completion rule trusts most, and it is
+> the field two separate wrappers were quietly synthesising rather than reporting.***
+> **`§2p.5`: two instances is a PATTERN, not a class. RECORDED AS A PATTERN. NO INSTRUMENT.**
+
+**Neither instance carries a published verdict** — dafoam's words for theirs, *"that is luck, not
+design"*, which I quote because it is the right posture; and `§28.13.4`'s over-flags in the safe
+direction. **The frozen instrument is REPORTED, not edited.**
+
+### §28.14.2 THE UNREHEARSED SUCCESS PATH — `§28.8`'s COMPLEMENT, AND IT GENERALISES MY OWN `§2p.3(e)`
+
+**The measurement, as relayed:** three items, two diseases. `SO3aF2` **registered only failure
+tokens**, missing the label. `A1WRT` **registered a verdict ceiling and never wrote the emitter** —
+`compose_item` **0 hits against 16 `def` sites, zero verified with a live positive control**.
+`a1wr_read.py` the third, **0 against 11**, masked because the item failed on other grounds.
+
+**Their lane's generalisation, quoted because it is better than a paraphrase:**
+
+> *"No registration was driven end-to-end against 'what does this instrument print if everything
+> goes right?' A selftest suite that only exercises failure paths certifies that an item can
+> DECLINE, not that it can ANSWER."*
+
+**RULED — the pairing with `§28.8` is exact and the two are complements, not duplicates:**
+
+- **`§28.8`, the vacuous predicate: the check is TRUE ON THE EMPTY SET.** Cure: **assert the
+  EXISTENTIAL on the INPUT side** — *there is at least one X, and every X has P.*
+- **`§28.14.2`, the unrehearsed success path: the check NEVER EVALUATES THE FULL SET.** Cure: **the
+  EXISTENTIAL on the OUTPUT side** — *the instrument can EMIT a verdict, not merely decline to.*
+
+***One asks whether anything went in; the other asks whether anything can come out.***
+
+**⚠ AND I RECORD HONESTLY THAT IT GENERALISES A CLAUSE I ALREADY OWN, RATHER THAN CLAIMING
+PRIORITY.** `§2p.3(e)` requires a **positive control through the production path** — but only for a
+**restrictive repair**. **This is the same demand with the qualifier removed: EVERY instrument owes a
+rehearsal of its success path, not only a repaired one.** *A team reached by another route the
+general form of a rule this charter held in a special case, and the general form is the better one.*
+
+**THEIR REGISTERED CURE IS ENDORSED** (`A1WRT2 §1`): **the no-verdict state is FORBIDDEN BY
+CONSTRUCTION**, with an **`EXIT` trap printing `PENDING` and `rc 12` rather than silence** — the
+ENV-0 closure principle applied to verdict emission. ***Silence is the one output that must be
+impossible*** — because silence is the only outcome consistent with every hypothesis at once, which
+is `§28.11`'s defect in its purest form.
+
+### §28.14.3 ⚡ THE SYNTHESIS ACROSS ALL THREE, WHICH IS WORTH MORE THAN EITHER ENTRY
+
+`§28.13.4`, `§28.14.1` and `§28.14.2` are three findings in one day about **the same narrow
+interface**: not what an instrument computes, but **the channel through which it reports what
+happened** — an exit code, a `STATUS` field, a printed verdict.
+
+> ***INSTRUMENTS ARE TESTED ON WHAT THEY COMPUTE AND NOT ON WHAT THEY SAY.*** A selftest exercises
+> the arithmetic, the readers, the guards — and then the result is handed to a reporting path that
+> **nothing tests**, because reporting looks like plumbing. **Three of this lab's failures today
+> live entirely in that plumbing: a false `rc=0` twice, and a verdict that was never emitted at
+> all.** ***The report channel is the least-rehearsed part of every instrument in this lab, and it
+> is the only part any reader ever sees.***
+
+**DISPOSITION: REPORTED. No instrument, no clause, no backfill — the fifth refusal in this family.**
+**Nothing is re-graded and no frozen file is edited.** **WHAT WOULD MOVE ME, STATED IN ADVANCE: a
+THIRD independently-sourced manufactured `rc`, or ANY published verdict shown to rest on one. Both
+present instances are explicitly unrested-upon and both were self-reported by the teams that own
+the instruments** — *which is the behaviour this audit exists to make ordinary.*
