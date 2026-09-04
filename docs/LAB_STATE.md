@@ -26130,6 +26130,146 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 61-PERMISSION-STOP -->
+
+**Section last written:** 2026-09-04T22:03:17Z by a cfd `lab-lane` at the supervisor's instruction (stamp from `date -u` read inside the committing shell invocation). **SIXTY-FIRST WRITE.** **PURE INSERTION at the top of the `## cfd` section; every byte below stands unedited** — nothing is renumbered, deleted or rewritten, and no other team's section is touched. Built from `git show HEAD:docs/LAB_STATE.md` and written back in the same shell invocation (L-476); the seven-heading `^## ` inventory asserted unchanged in **count and order**, deletions outside this block asserted `== 0`, and pure insertion **proved** by removing this span and reproducing `HEAD:docs/LAB_STATE.md` byte-for-byte. Every marker asserted to match **exactly once on both sides of the splice**. ⚠ **Prior boards are named by id in prose only — 60-ITEM47, 59-F28G-CORRECTION, 58-M6SR-CHECK4 — never in their full comment form**, because board 60's hygiene assert refuses any block that reproduces a prior marker verbatim. **Where this conflicts with anything below, this block wins.** Claims marked **VERIFY** were relayed to this lane and are NOT re-derived here; everything not so marked was read at source by this lane at this write.
+
+### 🔴🔴🔴 THE HEADLINE — R2-M0 IS `BLOCKED` ON A PERMISSION-SYSTEM DENIAL, AND THE REFUSAL TO ROUTE AROUND IT IS THE CALL OF THE SESSION
+
+**Verdict: `BLOCKED`.** Supervisor check 4 passed and R2-M0 was authorised under seven conditions. The lane built `cases/committee-grids/run_r2_m0.sh` to all seven:
+
+- the **cap enforced STRUCTURALLY inside the driver**, from one 10,200 core-second total **recomputed before every step** and divided by that step's rank count — not an outer wall-clock timeout;
+- **rc captured INSIDE the wrapper, never around a `setsid` line** (the `setsid` parent returns 0 for every outcome);
+- **rule 4's run-root guard at a named exit code**;
+- the **age-guard anchor `0/T` touched last at launch**;
+- the OpenFOAM bashrc sourced with **`set -u` lifted only across the source line**, because v2606's `etc/bashrc:184` reads `WM_PROJECT_DIR` before setting it.
+
+🔴 **THE PERMISSION SYSTEM THEN DENIED THE LANE `bash -n` ON THAT DRIVER — a SYNTAX CHECK, not an execution.** A plain `uptime` in the same session succeeded, so **the denial is specific to invoking the driver**, not a dead session.
+
+🔴 **THE LANE REFUSED TO ROUTE AROUND IT, AND THE SUPERVISOR AFFIRMS THAT REFUSAL AS THE MOST IMPORTANT CALL OF THE SESSION.** `verification/queue/cfd/` **is a launch button**: a live daemon polls it and fires within a minute. **Filing the queue row would have made the daemon execute precisely what the session had just been refused permission to run.** That is **permission laundering under standing rule 9**.
+
+🔴 **A SUPERVISOR'S AUTHORISATION CANNOT WIDEN A PERMISSION-SYSTEM DENIAL, AND NEITHER CAN SANAA'S SILENCE.** The supervisor's authorisation removed the **supervisory** obstacle; it could not remove this one — they are different obstacles and only one of them is his to clear. **The lab has ruled this exact shape before: F5b was left `NOT A RESULT` on a "permission-system denial, NOT Sanaa's".**
+
+✅ **AND THE SUPERVISOR DID NOT ROUTE AROUND IT EITHER** — he did not attempt the syntax check himself, did not file the queue row, and did not dispatch a second lane to do either. **A supervisor who re-runs a denied command on a lane's behalf has laundered the denial through his own permissions; declining to is the same call the lane made, one level up.**
+
+🔴 **UNBLOCKING IS SANAA'S ALONE.** Either she permits the driver to run, or **a session already holding that permission** reads it, syntax-checks it and enqueues it. No amount of agent-level agreement substitutes.
+
+✅ **CONSEQUENCE MADE LOUD, NOT QUIET — and this lane confirmed it at source.** `run_r2_m0.sh` is **UNVERIFIED CODE — never executed, never syntax-checked** — and it carries that statement in **its own opening lines** (`cases/committee-grids/run_r2_m0.sh:1-14`), so no later reader enqueues it believing it was tested. Its header reads, verbatim: *"THIS DRIVER HAS NEVER BEEN EXECUTED AND HAS NEVER EVEN BEEN SYNTAX-CHECKED"* and *"DO NOT ENQUEUE THIS UNTIL IT HAS BEEN READ AND SYNTAX-CHECKED BY A SESSION THAT IS PERMITTED TO RUN IT."*
+
+⚠ **THE VERDICT IS DELIBERATELY `BLOCKED` AND NOT `PENDING`.** `PENDING` is a **queue/display state** meaning *"not yet run"* (standing rule 1; `VERIFICATION` §9). **This did not merely fail to be reached — it was stopped, by a named mechanism, and the mechanism is still in place.** Boarding it `PENDING` would have made a live obstruction look like a backlog item.
+
+### 🔴 BLOCKER B — INDEPENDENT OF BLOCKER A, AND THIS LANE RE-MEASURED IT WORSE
+
+The supervisor verified a foreign live solver personally. ✅ **This lane re-read it at this write and it has GROWN:**
+
+| reading | at the supervisor's check (21:57:48Z) | ✅ re-measured by this lane (22:00:09Z) |
+|---|---|---|
+| live `rhoPimpleFoam` solver processes | 1, at 99.9% CPU, 455 s elapsed | **3, all at 99.9% CPU** |
+| wrapper | `timeout 500` | **`timeout 900`** — 9 wrapper processes present |
+| owning team | `ansys-lane-046r3`, `RS_L1` | ✅ **confirmed `ansys-lane-046r3`**, three sibling working trees (`K`, `L`, `M`) |
+| load average | 2.15 | **3.33** |
+| box | — | ✅ `nproc` = **16** |
+
+🔴 **R2-M0 registers 14 ranks on 16 vCPUs and would have contended head-on.** ⚠ **The supervisor's EARLIER reading of load 0.05 with no foreign solver was CORRECT WHEN TAKEN AND IS NOW STALE.** **The lane re-read rather than trusting it — which is the only reason the contention was caught at all**, and this lane re-read again rather than trusting the lane, which is the only reason the escalation from one solver to three is on the board.
+
+⚠ **Blocker B alone would only have meant WAITING. Blocker A does not clear by waiting.** Conflating them would have produced the comfortable conclusion that R2-M0 is merely queued behind another team.
+
+### ✅ STATE, CHECKED READ-ONLY — CONFIRMED BY THIS LANE AT THIS WRITE
+
+- ✅ `verification/runs/RUNG2_CRM_runs` — **ABSENT**. No R2-M0 compute has occurred.
+- ✅ `verification/queue/cfd/` holds **ZERO armed JSON rows** (contents: `README.md`, `held/`, `launched/` only). **The launch button was not pressed.**
+- `/home/ubuntu/certonomous-runs/` **read, never written**. **VERIFY** — relayed.
+- **0.000 solver core-minutes across all three passes.**
+- 🔴 **NO `docs/COST_CALIBRATION.md` row filed, and the reason is recorded rather than left as an omission: there is no ACTUAL to compare against the estimate.** Standing rule 12 requires an estimate-versus-actual comparison **at every process completion**; **no process completed**. **A calibration row with no compute behind it would be worse than none** — it would put a fabricated ratio into the ledger the lab uses to improve its estimates.
+
+### ✅ F28G H5 — SUPERVISOR CHECK 4 **PASSES**, AND THIS LANE CORRECTS THE CITATION IT WAS HANDED
+
+**The verdict stands: check 4 PASSES.** ⚠ **But the supporting citation relayed to this lane was WRONG IN BOTH HALVES, and boarding it as given would have put SUPERSEDED blob hashes on the record as the live freeze.**
+
+✅ **Re-derived at source by this lane:**
+
+| claim as relayed | ✅ measured |
+|---|---|
+| registration byte-identical to its HEAD blob | **TRUE.** `F28G_H5_RESIDUAL_FIELD_PREREGISTRATION.md`, HEAD blob and worktree both `6c72ba98…` |
+| `run_f28_h5.sh` blob `d6d381de`, `analyse_f28_h5.py` blob `d00e2876` | 🔴 **SUPERSEDED.** The live freeze is **`929dba14…`** and **`e3d7f48c…`**; both HEAD blobs hash **identically to the worktree** |
+| "§9.3 records both at lines 820-821, matching" | 🔴 **WRONG LINES.** §9.3 is the freeze and the hashes sit at **`:845-846`**. Lines 820-821 are the `controlDict` rewrite discussion and record nothing about blobs |
+| files live in `cases/F28G/` | 🔴 **No such path.** Both are in **`cases/F28_DUCTED_ACTUATOR_DISK/`** |
+| two frozen executables | ⚠ **THREE.** §9.3 also freezes **`f28_zone_geometry.py` blob `98863fc9…`** — ✅ also matching the worktree |
+
+✅ **WHY CHECK 4 STILL PASSES, AND THIS IS THE POINT: THE HASHES MOVED LEGALLY.** §9.3a records the move openly — *"The first two hashes MOVED after check 4 passed on them… **They are superseded**, and the reason is recorded here rather than left for the next hash comparison to discover."* **Two amendments, both BEFORE FIRST COMPUTE**, under standing rule 2's exception, **with the condition stated and the check named**: no compute against this registration, established by directory listing of `verification/runs/F28_runs/` **immediately before amending** — **zero entries beginning `H5`**. ✅ **Neither amendment touches a gate, threshold, cap or label**; both repair defects that would have prevented the registered gates from being evaluated at all.
+
+⚠ **AMENDMENT 1 is worth boarding on its own merits: `--dry-run` was consuming the REAL run root name.** As written, the dry run assembled into `$RUNS/$NAME`, so **the virgin-directory guard would then have REFUSED the real pilot that followed**, and §11.1's freshness claim — that the three named run directories do not exist — would have been **falsified by the act of testing it.** In the registration's own words: *"a test must not manufacture a presence."* Dry runs now assemble into `<NAME>_DRYRUN`. 🔴 **This lab has been citing ABSENCES as evidence all day; a self-falsifying freshness check is the exact failure that would have quietly retired that whole class of evidence.**
+
+**AUTHORISED:** `--dry-run` **FIRST**, then **the pilot** (cap **4.600 core-min**, expected **0.970**). 🔴 **NOT the arm** — its cap is a **formula whose only inputs are the pilot's measurements**, so **it does not yet have a cost, and rule 12 disqualifies a proposal without one.**
+
+🔴 **THE PILOT'S FIRST JOB COULD KILL THE ARM: NO `initialResidual:*` FILE HAS EVER BEEN PRODUCED ON THIS BOX.** That such a file is written, non-empty, **35,544 values** and reconstructable **WITH A COLON IN ITS FILENAME** is **inferred from `IOobject.C:43-50` and NEVER OBSERVED.** ⚠ **If the colon breaks `reconstructPar` or any downstream reader, the arm does not run — AND THAT IS WORTH MORE THAN THE ARM**, because it is a fact about this box's I/O that no amount of successful solving would have surfaced. ✅ Consistent with the registration's own `:1120`: *"`run_f28_h5.sh` HAS NEVER BEEN EXECUTED, not even `--dry-run`."*
+
+✅ **PARENT TIME DIRECTORIES, INDEPENDENTLY MEASURED BY THE SUPERVISOR:** `processor0` holds `0`, `15000`, `constant` — **ONE solve time directory, not 15,000**, across 4 processor dirs. **The ~23 MB copy stands; the 39 GB restart worry does not arise.** **VERIFY** — relayed; not re-driven by this lane.
+
+🔴 **RULED, §5.5 — THIS ARM IS A SINGLE-GRID SPATIAL DIAGNOSTIC AND MAY NEVER PRODUCE A ROACHE-GATED VERDICT.** **No triple exists; a triple that does not exist cannot be `CONVERGING`; no GCI may be computed or quoted** (standing rule 5). **Its proposition is about WHERE the residual sits on ONE mesh — never whether that location is mesh-independent.** ⚠ **Recognisably the SAME structural gap Rung 2 carries**, and naming it in the registration rather than at grading time is what stops a single-grid number from being dressed as a converged one.
+
+### 🔴 A REPO-WIDE GIT SUBTLETY — RECORDED BECAUSE IT NEARLY PRODUCED A FALSE FINDING, AND ✅ REPRODUCED BY THIS LANE
+
+`git ls-files --error-unmatch` reported **both H5 executables NOT TRACKED**, while `git rev-parse HEAD:<path>` resolved both to blobs **matching the worktree byte-for-byte**.
+
+✅ **This lane reproduced BOTH readings at this write, on both files.** **BOTH ARE CORRECT.** `ls-files` reads **the SHARED INDEX**, and the **private-index protocol (standing rule 10) commits without ever touching it** — so **a file can be fully committed at `HEAD` and invisible to `ls-files`.**
+
+🔴 **BOARDED AS A LAB-WIDE RULE: UNDER THIS LAB'S GIT PROTOCOL, `git ls-files` UNDER-REPORTS AND IS THE WRONG TRACKEDNESS TEST. The authoritative test is the blob at `HEAD`.** ⚠ **The supervisor nearly filed a false "not tracked" finding against a lane** — a finding that would have been reproducible, confidently wrong, and aimed at somebody who had done nothing wrong. **It joins the existing family of tools that read stale or blind under this protocol** (`git status` under concurrency; a cleanliness check that asks git being blind to exactly the clutter it hunts).
+
+### ✅ M6SR TREND — **CONVERGING, NOT BREEDING** — AND A DIAGNOSIS OF METHOD
+
+The chief asked whether M6SR is converging or breeding. **Measured with live controls** (2,106 / 389 lines, 22 aborts) — **VERIFY** on the numerals; not re-driven by this lane:
+
+- At **`run_m6sr_b5.sh`'s FIRST commit**: **`--gate-a` = 0 AND `--controls` = 0**; comment-stripped **`B3c` = 0**.
+- 🔴 **ITEMS 47 AND 48 ARE THEREFORE CONGENITAL — present since the driver's first line, NOT created by any repair.**
+- **Verdict: CONVERGING.** A **pre-existing stratum exposed in launch order** — ⚠ *you cannot discover that B4 produces no log until something runs after B4.*
+
+🔴 **AND A DIAGNOSIS OF METHOD, which is the more valuable half: ELEVEN passes of prose audit found NONE of it; TWO passes of "make the next step actually run" found BOTH.**
+
+🔴 **THE SUPERVISOR WITHDREW HIS OWN COUNT OF 2.** It was produced by **enumerating LABELS** — *"item 47"*, *"item 48"* — **which is the key verification already proved cannot terminate: a census keyed on what a defect is CALLED finds only instances that name themselves.** ⚠ **A withdrawn supervisor count is boarded as loudly as a lane's, because a count nobody withdraws becomes a denominator.**
+
+**ADOPTED INSTEAD — an exhaustive census keyed on MECHANISM over the EXECUTABLE surface**, each mechanism **bounded by a table in the registration**:
+
+- **M1** — unimplemented ruled steps.
+- **M2** — paths **consumed but not produced**.
+- **M3** — screens **registered but not run**.
+- **M4** — caps **registered but not enforced**.
+
+🔴 **Per verification's §2an.6, the census must return BOTH the affected set AND the NOT-AFFECTED set, with each member's reason, and state whether they SUM.** **A certification assembled only from what passed cannot carry the claim** — it has no denominator.
+🔴 **The census gets its OWN PLANTED CONTROL** (standing rule 3): seed a known instance of **each** mechanism and **require the census to find it**. ⚠ **Because this campaign has already been burned by a control shaped like the bug**, a control that only proves the census can find what the census was written to look for is not a control.
+✅ **The stage drive (`B3`/`B3c`/`B4`/`B4s`, NO SOLVE) is DEMOTED to the CONTROL ON THE CENSUS: if it hits something the census missed, THE MECHANISM KEY IS WRONG — and that is the most valuable outcome available**, not a setback.
+
+### LIVE RIGHT NOW
+
+✅ **No cfd solvers** — confirmed by this lane at 22:00:09Z. ⚠ **Three FOREIGN `rhoPimpleFoam` processes at 99.9% belong to `ansys-verification`, not to us.** **Two cfd lanes:** the **M6SR mechanism census**; **F28G H5 `--dry-run` then pilot**.
+
+### NEXT ACTIONS, in order
+
+1. **Check 1 on the M6SR census diff** — read as a diff, personally, undelegable.
+2. **Re-run check 4 on M6SR after `B3c`.**
+3. **Rule the H5 arm's cap from the pilot's measured numbers** — it cannot be ruled before them.
+
+### ON SANAA'S DESK — FOUR ITEMS
+
+1. 🔴 **THE R2-M0 PERMISSION DENIAL — HERS ALONE.** No agent at any level can clear it, and no agent tried.
+2. **The committee-grid tension.** `MESH_STANDARD` hard-gates **70 deg / skew 4** against a **measured 89.7134 / 14.0594**. ✅ Quoted at source by this lane: `docs/charters/SUPERVISOR_RULINGS.md:227-234` scopes R12 to *"MODEL-FORM BANDING ONLY"*, and its condition (2) reads *"physics gates and credential verdicts still require compliant meshes — **this exemption never travels to them**"*. ⚠ **So the exemption cannot be stretched to cover R2-M0's physics.**
+3. ✅ **`scripts/queue_runner.py:598-606` overwrites every team's `_field_classes` from a FIXED TEMPLATE** — confirmed at source by this lane: `meta["_field_classes"] = dict(physics_critical=[…], infrastructure=[…], rule=…)`, an unconditional assignment. **It binds every team**, and no team registered it.
+4. **The 35,544-cell provenance gap** — **no `mesh_*` root in `F28_runs` matches the graded rung's mesh.** **VERIFY** — relayed.
+
+### BLOCKED
+
+- 🔴 **R2-M0** — on **the permission-system denial** (Blocker A, does not clear by waiting) and, separately, **head-on rank contention with `ansys-verification`** (Blocker B, would clear by waiting).
+- 🔴 **Rung 2 (a)** — on three grounds. **VERIFY** — relayed.
+- 🔴 **M6SR** — on **the mechanism census** plus the pre-existing **`X7`/`C12`**.
+- 🔴 **The F28G H5 ARM** — on **the pilot**, which must supply the only inputs its cap formula has.
+
+### WHAT THIS LANE VERIFIED ITSELF, AND WHAT IT DID NOT
+
+✅ **Read at source at this write:** `cases/committee-grids/run_r2_m0.sh` exists and its `:1-14` header carries the unverified-code statement verbatim; `verification/runs/RUNG2_CRM_runs` **absent**; `verification/queue/cfd/` holding **zero** armed JSON rows; the three live foreign `rhoPimpleFoam` at 99.9% under `timeout 900` in `ansys-lane-046r3` working trees, load 3.33, `nproc` 16, at 22:00:09Z; the H5 registration's HEAD-blob/worktree identity (`6c72ba98…`); **all three** frozen H5 blobs (`929dba14…`, `e3d7f48c…`, `98863fc9…`) matching the worktree; §9.3 at `:845-848` and §9.3a at `:850-875` including the amendment condition and its check; `:1120`'s never-executed statement; the `ls-files`-versus-`HEAD`-blob divergence, reproduced on both executables; `SUPERVISOR_RULINGS.md:227-234`; `scripts/queue_runner.py:598-606`.
+⚠ **Marked VERIFY — relayed, NOT re-derived here:** the seven authorisation conditions and the driver's internal construction (the file was **not** read in full, and **not** syntax-checked — this lane holds the same denial); the F5b precedent; `/home/ubuntu/certonomous-runs/` read-not-written; the parent `processor0` time-directory listing; the M6SR first-commit zero counts, the 2,106/389/22 control figures and the congenital finding; the `35,544` cell count and the `IOobject.C:43-50` inference; the `F28_runs` mesh-provenance gap; Rung 2 (a)'s three grounds; `X7`/`C12`'s rc-2 status.
+
+**Compute spent by this block: 0 core-min.** Read-only inspection only; **no solver launched, killed or signalled, and no foreign process touched.** 🔴 **This lane did NOT attempt `bash -n` on `run_r2_m0.sh` and did NOT file a queue row** — the denial binds it exactly as it binds the lane that met it. **Exactly one file written — `docs/LAB_STATE.md`, inside the `## cfd` section only.** No case, registration, comparator, charter or `.claude/` file was written, and no other team's section was touched. Nothing sent, filed or submitted (rule 7); per rule 13 no scratch path is cited here, which is why the foreign solvers' working trees are named by lane id rather than by their paths.
+
 <!-- BOARD-BLOCK-ID: 60-ITEM47 -->
 
 **Section last written:** 2026-09-04T21:22:22Z by a cfd `lab-lane` at the supervisor's instruction (stamp from `date -u` read inside the committing shell invocation). **SIXTIETH WRITE.** **PURE INSERTION at the top of the `## cfd` section; every byte below stands unedited** — nothing is renumbered, deleted or rewritten, and no other team's section is touched. Built from `git show HEAD:docs/LAB_STATE.md` and written back in the same shell invocation (L-476); the seven-heading `^## ` inventory asserted unchanged in **count and order**, deletions outside this block asserted `== 0`, and pure insertion **proved** by removing this span and reproducing `HEAD:docs/LAB_STATE.md` byte-for-byte. ⚠ **Prior boards are referenced by marker id only — 59-F28G-CORRECTION, 58-M6SR-CHECK4 — and NEVER in their full comment form**, for the reason recorded at the foot of this block. Uniqueness of every marker was asserted **on both sides of the splice**. **Where this conflicts with anything below, this block wins.** Claims marked **VERIFY** were relayed and are NOT re-derived here; everything not so marked was read at source by this lane at this write.
