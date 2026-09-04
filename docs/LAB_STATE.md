@@ -26450,6 +26450,157 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 62-D1-UNRESOLVED -->
+
+**Section last written:** 2026-09-04T22:39:25Z by a cfd `lab-lane` at the supervisor's instruction (stamp from `date -u` read inside the committing shell invocation). **SIXTY-SECOND WRITE.** **PURE INSERTION** — proven, not asserted: the committing invocation removed this block's exact span from the post-splice text and reproduced the HEAD blob byte-for-byte before the commit was allowed to form.
+
+**PROVENANCE OF EVERYTHING BELOW, STATED ONCE AND PLAINLY — `VERIFY`.** This lane's single task was the board write. **The measurements, verdicts and rulings recorded here were relayed to it by the cfd supervisor and were NOT re-derived at source by the writing lane.** Every number below carries the value the supervisor stated; none of them was re-read from its artifact by this lane, and no cited path was opened by it. That is a limitation of THIS RECORD's chain of custody, not a claim about the findings. Where a reader needs certainty, the artifact — not this block — is the authority.
+
+---
+
+### THE HEADLINE — D1 DOES NOT DISCRIMINATE ON THE REAL REFERENCE, AND IT REACHES SANAA'S NAMED DELIVERABLE
+
+Chasing the long-standing X7/C12 red uncovered **a physics finding sitting underneath it**. D1 is the discriminator for A-MAP: whether the AGARD span stations run **root-to-tip or tip-to-root**. It returns `CORROBORATED` if the section normal-force series is strictly decreasing within margin 0.75, `FALSIFIED` if strictly increasing, `INDETERMINATE` otherwise.
+
+**MEASURED**, the as-read Cn series, sections 1..7:
+
+| section | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
+|---|---|---|---|---|---|---|---|
+| Cn | 0.23956 | 0.27849 | 0.29470 | 0.26381 | 0.22297 | 0.17844 | 0.21051 |
+
+It **RISES 1→3, FALLS 3→6, RISES 6→7** — direction changes at indices 3, 4 and 5. `strictly_decreasing` False, `strictly_increasing` False, **verdict `INDETERMINATE`**. `Cn_last_over_first` 0.8787, `Cn_first_over_last` 1.1380, margin 0.75.
+
+**D1'S PREMISE IS THAT THE SERIES IS MONOTONE. IT IS NOT.** So **D1 CANNOT SETTLE THE A-MAP STATION ORDERING AT ALL** — and this sat under a red tick the team had learned to step around.
+
+**CONSEQUENCE FOR THE DELIVERABLE, recorded because it is the campaign's whole point.** Sanaa's named first physics is **M6 surface Cp AT THE AGARD SPAN STATIONS** with the family band. If the ordering is unresolved, **a Cp figure could be plotted against the wrong stations AND STILL LOOK ENTIRELY PLAUSIBLE** — a mislabelled span station yields a smooth, believable, wrong figure. Section 16.4 has A-MAP as **REPORTED, NOT GATED**, which is a correct gate decision **and is NOT a licence to present the deliverable as though the ordering were known.**
+
+**RULED:** the `INDETERMINATE` verdict, its seven values and its three direction changes are registered, and **ANY Cp-versus-station figure this campaign produces must carry that disclosure beside it.**
+
+---
+
+### C12 IS A THIRD CATEGORY — UNSATISFIABLE, NOT BROKEN
+
+The supervisor framed it as *"either the comparator is broken or the suite is"*. **Measured, NEITHER.**
+
+- **The comparator is sound.** `d1_branch_reachability()` returns all three branches with `all_three_reachable` True, so the `FALSIFIED` branch works.
+- **The suite is sound.** C13, the twin, fires — seven identical sections → `INDETERMINATE`.
+- **THE THIRD CATEGORY: C12's registered MUST-SEE is UNSATISFIABLE WITH THE REGISTERED FIXTURE.** It reverses the real AGARD reference and requires `FALSIFIED`; `FALSIFIED` requires the reversed series to be strictly increasing, which requires the as-read series to be strictly decreasing; the registered reference is not, **and no correct code makes it so. Reversing a non-monotone series leaves it non-monotone.** Same family as section 15.6's unsatisfiable items — a control the registration cannot satisfy against data the registration also registers.
+
+**RULED:** keep C12's MUST-SEE at `FALSIFIED`; **REPLACE THE FIXTURE** with a synthetic strictly-decreasing series so the branch is genuinely exercised; and **ADD a limb** keeping the reversed-AGARD case and requiring `INDETERMINATE`, which is the true answer for that data. **That loosens nothing and the suite ends stronger.**
+
+**The supervisor DECLINED to amend the must-see to its purpose clause** — the comparator's own comment warns that *"loosening a registered control so that it passes is how a fail-open gets a green tick"* — **and DECLINED to narrow section 18.5's launch gate**, because the gate's logic is sound and **the defect was never the gate.**
+
+---
+
+### THE PHASE VOCABULARY CANNOT EXPRESS THE ORDERED DRIVE
+
+Measured from the driver's own guards, evaluated per phase: section 18.5's gate at `:436-448` is guarded on `solve|all`; the stage block is `:571-739`; the stage exit is `:741`. **B3c `:637` and B4 `:719` are INSIDE the stage block; B4s `:805`, B3z `:854` and `mpirun` `:877` are AFTER the stage exit.**
+
+| PHASE | what happens |
+|---|---|
+| `stage` | the 18.5 gate is **SKIPPED** (its guard excludes `stage`), **B3c and B4 RUN**, exit 0 at `:741`, **B4s NEVER REACHED** |
+| `solve` | gate evaluates → C12 red → **abort 8 at `:446`** |
+| `all` | gate evaluates → **abort 8 at `:446`, BEFORE the stage block. Nothing runs.** |
+
+So **WITH C12 RED NO PHASE REACHES B4s**, and **EVEN WITH C12 GREEN there is no phase that runs B3c+B4+B4s and halts before `rhoSimpleFoam`** — **the supervisor specified a scope the driver cannot express.**
+
+**ACCEPTED FIX, no code change:** run `PHASE=stage`, then invoke B4s as a **REGISTERED VERBATIM COMMAND LINE** — the identical invocation the driver makes at `:805`, with its expected outcome registered. The same mechanism ruled for B0/B6/Gate A.
+
+---
+
+### M6SR ITEMS 49 AND 50 LANDED; SUPERVISOR CHECK 1 `PASS`
+
+Commits `57ffbe5a` and `e8ccd0e9`; **FZ1 = 0, 10 of 10 PIN-OK; run root still ABSENT.**
+
+**ITEM 50, verified by the supervisor independently:** `cap_to_wall_s()` is a **real derivation**, `int(core_min * 60.0 / ranks)`; **all three bounds call it**; **NO `TMO_B*` is assigned a bare integer anywhere in comment-stripped code**; the arithmetic **reproduces the struck literals exactly** at 60/4200/180, so **NO CAP MOVED**. Control **C8c** halves `CAP_B2` 70.0→35.0, moving `TMO_B2` 4200→2100 **while B1 and B3 do not move** — movement, confinement and an unmutated twin, so **it cannot be satisfied by a fresh pair of numbers that merely agree.**
+
+**ITEM 49:** item 34's mount/log refusal ported into the build driver; suite **27 passed, 0 failed**.
+
+**CENSUS CLOSED AND IN THE RECORD at section 28.2**, both sets, every member with a reason, sums visible: **M1 0+17=17/17, M2 0+25=25/25, M3 4+2+6=12/12, M4 3+4+2=9/9.**
+
+**OBSERVATION HELD AT n=1, NOT PROMOTED.** C6 failed once, passed on re-run, and **was NOT re-run until green**. Three re-probes at its exact shape returned rc 124 at **12, 13 and 12 wall s against a 3 s cap**, so **item 39's premise is INTACT 3 of 3**. The failing run had a container **CREATED BUT NEVER STARTED** (`StartedAt 0001-01-01`) — one event, two symptoms, seen once in five runs. **Reported as an observation with evidence, explicitly NOT characterised as a mechanism.**
+
+---
+
+### THE THROUGH-LINE, AS ONE FINDING AND NOT SIX
+
+Five census-machinery faults, all caught by a discrimination limb, **ALL THE SAME SENTENCE: a reader that could not distinguish its subject from something adjacent to it** —
+
+- the plant from a near-miss string;
+- the invocation from the argparse definition;
+- the call site from the definition site;
+- the file's writer-name from its reader-name;
+- the guard's own refusal from an unrelated refusal downstream.
+
+**C12 is a SIXTH OF A DIFFERENT SPECIES — a reader that CAN distinguish, asked a question its data cannot answer.** The first five are fixed by sharpening the key; **that one is not.**
+
+---
+
+### F28G H5 — THE SUPERVISOR'S OWN RULING WAS WRONG, AND A LANE REFUTED IT WITH A MEASUREMENT
+
+The supervisor ruled **normFactor-matching** as the principled replacement for the confounded G2 measurand. **IT IS PROVABLY INERT AGAINST THE CONFOUND:** normFactor is a **SINGLE GLOBAL SCALAR PER SOLVE**, so it cannot reorder cells. **f1% raw and f1% normFactor-matched are the same number, 0.9979393588, difference exactly 0.000e+00, the same 355 cells** — and later independently reconfirmed on a second observable, **identical COVERAGE as well, on both fields.**
+
+**THE ERROR: two problems were conflated by one choice.** **COMMENSURABILITY** — does the field tie to the number the record carries? normFactor answers this exactly. **CONFOUNDING** — does the ranking reflect physics or cell size? A global scalar cannot touch it. **The founding argument compels the first and is SILENT on the second.** Recorded as **the supervisor's error, not a refinement**: a valid derivation answering a question he had stopped asking, **which would have survived any review checking logic rather than premise.**
+
+**RULED INSTEAD:** residual density **r_c/V_c on a REAL cell volume, forced dimensionally.** Real volumes now measured: **min 1.406118e-16, median 2.870220e-08, max 4.687060e-02, MAX/MIN 3.333e+14 — FOURTEEN ORDERS OF MAGNITUDE**, far past the proxy's 176,034×, so **the dimensional ground is STRONGER than the evidence it was adopted on.** The bounding-box proxy correlates at **Spearman +0.9843** but **proxy/real ranges 1.000 to 416.544** — it **ranks well and scales badly**: adequate for the rank correlation that convicted the frozen gate, **inadequate as a gate quantity, NOT carried forward.**
+
+---
+
+### PREREQUISITE 3 CAUGHT A DEFECT BEFORE THE DOCUMENT EXISTED
+
+Coverage, **all three candidates published together as ruled**:
+
+| field / candidate | coverage | status |
+|---|---|---|
+| p, raw | 0.0000 | UNCOVERED |
+| p, normFactor | 0.0000 | UNCOVERED |
+| **p, DENSITY** | **0.9970** | **COVERED** (Z-DUCT 0.526, Z-HUB 0.471) |
+| Uy, raw | 0.0000 | UNCOVERED |
+| Uy, normFactor | 0.0000 | UNCOVERED |
+| **Uy, DENSITY** | **0.2492** | **UNCOVERED** |
+
+**258 of 355 top cells and 75.1% of Uy's density mass fall OUTSIDE EVERY ENVELOPE**, spread x in [-0.030, 2.513], r to 2.898 — **real spread, not a boundary artifact.**
+
+**RULED:** the successor **gates on p ONLY.** **Uy is REPORTED UNCOVERED as a permanent finding about the ZONE MODEL and is NOT fixed** — drawing an envelope after seeing where Uy lies **is the fitting this campaign has twice avoided.** If Uy is ever gated, **zones must be derived independently and pre-registered first.**
+
+**RULED:** the successor's thresholds are **FRESH, not inherited** — the frozen 0.50 and 0.60 belong to a **retired gate on a confounded quantity.** Since the splits **have now been SEEN**, the threshold must be expressed as a **STATED MULTIPLE OF THE NULL**, the null being **each zone's VOLUME FRACTION — a property of the mesh and not of any run**; every zone's share is reported beside its null **every time.** **A threshold anchored to geometry cannot be tuned by an observation.**
+
+**REGISTERED AS A LIVE ALTERNATIVE so it is not later presented as a discovery:** if p's density genuinely splits **near-evenly Z-DUCT/Z-HUB**, a **SINGLE-ZONE concentration gate may be THE WRONG SHAPE OF QUESTION for this flow.**
+
+The frozen H5 arm stays **`NOT A RESULT`** on a confounded measurand **and is NOT RUN** — declining to spend **2.67 core-min** on an instrument already shown confounded **alters no threshold and manufactures no pass.**
+
+---
+
+### QUEUE DIVERGENCE — cfd TEAM-CAUSED RESIDUE IS 0, MEASURED
+
+- **The 129 figure DOES NOT REPRODUCE** (nearest 130 and 144), **and that was reported as a finding rather than rounded.**
+- **144 deleted PENDING rows are ALL LAUNCHES, ZERO withdrawals** — including the 144th, which an exact-basename matcher calls a withdrawal **and is an archiver rename.**
+- Sense (ii): **180 raw differences collapse to 1** after subtracting the daemon's keys; **one daemon behaviour was NOT reported as 180 findings.**
+- Sense (iii): **no divergence — 366 log rows and 366 run roots.**
+- **ZERO rows where the divergence could change a verdict.**
+
+**Route A executed at `2fad7ce2` with an ANNOTATION the supervisor required.** Attempt 3 was launched **2026-09-03T17:46:32Z, SEVEN HOURS BEFORE THIS SESSION EXISTED**, and the row's claim of supervisor authorisation **CITES NO ARTIFACT.** **This session CAN NEITHER CONFIRM NOR DENY IT AND DOES NOT ENDORSE IT**; the commit **reconciles the record of a logged event, it does not ratify the decision.** Committing it unannotated **would have laundered an unverifiable authorisation** — and **that the authority is a PRIOR cfd-supervisor session's rather than Sanaa's does not make it acceptable** (standing rule 9). Post-commit residue **180 → 0 with the plant still firing.**
+
+**CARRIED UP, OUTRANKING THE CENSUS.** A mesh reader derived `nCells` as `max(owner)+1`, which is **ONLY A LOWER BOUND** — `owner` holds the lower of a face's two cell indices, so **highest-indexed cells own nothing when all their faces have lower-indexed neighbours.** It read **HLPW6 SHORT BY EXACTLY TWO CELLS (2,661,336 against 2,661,338)** while **all three DPW5 grids agreed exactly.** **A READER VALIDATED ON THREE OF THE FOUR GRIDS WOULD HAVE SHIPPED IT, and it would have failed the one grid the ladder exists for.** The error is **CORRELATED WITH MESH STRUCTURE**, so **testing more grids of the kinds that already passed would never have found it.**
+
+---
+
+### LIVE / NEXT / DESK / BLOCKED
+
+**LIVE.** **NO cfd solver has run today.** Total cfd compute for the session **0.728 core-min** (F28G pilot 0.479 + verification limb 0.245 + prerequisites 0.004), plus **~2.4 core-min** of M6SR control/suite work and **~4 core-min** of queue inspection. **Two lanes:** M6SR on the C12 fixture and the D1 disclosure; F28G on `writeCellCentres` and the leading-edge epsilon.
+
+**NEXT.** After C12's repair and the registered B4s command line, **THE SUPERVISOR WILL CONFIRM THE M6SR STAGE DRIVE.** He has **stated in advance what unlocks it, so no lane has to guess.** **Understand what it costs: the drive is FIRST COMPUTE and closes standing rule 2's amendment window PERMANENTLY.**
+
+**ON SANAA'S DESK, five:**
+
+1. **The R2-M0 PERMISSION-SYSTEM DENIAL — hers alone.** A lane refused to file a queue row that would have made the daemon execute what the session was refused permission to run, **and the supervisor did not route around it either.**
+2. **The committee-grid tension.** `MESH_STANDARD` hard-gates 70 deg and skew 4 against measured **89.7134** and **14.0594**, with `SUPERVISOR_RULINGS.md:227-234` scoping R12 to **MODEL-FORM BANDING ONLY** and its condition (2) reading *"physics gates and credential verdicts still require compliant meshes — this exemption never travels to them"*.
+3. **`scripts/queue_runner.py:598-606` overwriting every team's `_field_classes` from a fixed template** — binding all six teams.
+4. **The 35,544-cell provenance gap** — no `mesh_*` root in `F28_runs` matches the graded rung's mesh.
+5. **Queue route B, lab-wide reconciliation** — cfd owns **1 of 144** launch pairs and **0 of 28** never-committed rows; **closure owns 80.**
+
+**BLOCKED.** R2-M0 on the permission denial; **Rung 2 (a)** on three grounds; **M6SR** on the C12 fixture and then the drive; **the H5 arm permanently as frozen**, its successor on two prerequisite measurements.
+
 <!-- BOARD-BLOCK-ID: 61-PERMISSION-STOP -->
 
 **Section last written:** 2026-09-04T22:03:17Z by a cfd `lab-lane` at the supervisor's instruction (stamp from `date -u` read inside the committing shell invocation). **SIXTY-FIRST WRITE.** **PURE INSERTION at the top of the `## cfd` section; every byte below stands unedited** — nothing is renumbered, deleted or rewritten, and no other team's section is touched. Built from `git show HEAD:docs/LAB_STATE.md` and written back in the same shell invocation (L-476); the seven-heading `^## ` inventory asserted unchanged in **count and order**, deletions outside this block asserted `== 0`, and pure insertion **proved** by removing this span and reproducing `HEAD:docs/LAB_STATE.md` byte-for-byte. Every marker asserted to match **exactly once on both sides of the splice**. ⚠ **Prior boards are named by id in prose only — 60-ITEM47, 59-F28G-CORRECTION, 58-M6SR-CHECK4 — never in their full comment form**, because board 60's hygiene assert refuses any block that reproduces a prior marker verbatim. **Where this conflicts with anything below, this block wins.** Claims marked **VERIFY** were relayed to this lane and are NOT re-derived here; everything not so marked was read at source by this lane at this write.
