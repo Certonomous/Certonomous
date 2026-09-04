@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """INTEGRATION CONTROLS for the solve-evidence guard's wiring into cfd's own
-GEN_ALT, FPE_DIAG, B52_RUNG6_REPLICATE, F9 and F7 drivers.
+GEN_ALT, FPE_DIAG, B52_RUNG6_REPLICATE, F9, F7, R4 and F5c drivers.
 
 WHAT THIS IS FOR, AND WHAT IT IS NOT FOR.
 
@@ -11,7 +11,7 @@ still happens and the file still mentions a guard.  So these controls exercise
 the DRIVERS' OWN call sites -- the real functions, by name -- and require the
 refusal to arrive from there.
 
-THE FIVE DRIVERS, and the fourteen delete sites wired:
+THE SEVEN DRIVERS, and the eighteen delete sites wired:
 
   verification/runs/GEN_ALT_runs/run_gen_alt.py
       build_and_certify  (re-stage, FATAL)      smoke_solve (re-stage, FATAL)
@@ -26,8 +26,36 @@ THE FIVE DRIVERS, and the fourteen delete sites wired:
       build_restart (re-stage, FATAL)
   verification/runs/F7_runs/make_dambreak.py                     [added 09-04]
       main() --out (re-stage, FATAL)
+  verification/runs/R4_runs/run_c3_replicates.py                 [added 09-04]
+      stage (re-stage, FATAL)                   solve() 0/ reset (not evidence)
+  verification/runs/F5c_runs/run_stage_a.py                      [added 09-04]
+      run_leg out_dir (re-stage, FATAL)         run_leg archive dest (FATAL)
 
-F9 IS THE SHARPEST OF THE FIVE AND IS NOT UNDER THE SHARED RUN ROOT AT ALL.
+NEITHER R4 NOR F5c HAS A TEARDOWN-AFTER-HARVEST SITE.  That was looked for
+specifically, because it is the shape that turned out to be deleting COMPLETED
+solves on purpose in GEN_ALT, FPE_DIAG and F9.  Both drivers leave their run
+directories on disk after the record is written; every delete in either file is
+listed above.  F5c's archive `dest` LOOKS like a teardown and is not: it is
+cleared BEFORE collect.py refills it, and collect.py's non-zero return code is
+only logged, so the delete is not conditional on a successful replacement.  It
+is therefore a re-stage and its refusal is FATAL.
+
+THE NESTED-EVIDENCE CONTROL, AND WHY IT EXISTS.  The guard scans its target for
+time directories > 0, `processor*/` time directories, and
+`postProcessing/**/*.dat` with data rows.  It does not recurse into an
+arbitrary child.  F5c's `run_leg` deletes `SCRATCH/f5c-stageA-<leg>` while
+`run_case` writes the whole OpenFOAM case one level down in `.../case/`, so the
+obvious wiring -- guard the directory the driver names -- answers "no solve
+evidence found; safe to re-stage" over a completed solve.  Measured 2026-09-04
+with `solve_evidence_guard.py --check`: `f5c-stageA-A1` reported SAFE while
+`f5c-stageA-A1/case` reported a time directory `2000/` with seven fields and a
+series ending at t = 2000, and all four of A1..A4 have that shape.  Both
+drivers therefore call a `safe_restage` wrapper that ALSO refuses on any
+directory one level down, and controls R4 I5 and F5c I3 drive that path through
+the drivers' own functions.  A guard that answers "safe" over physics is worse
+than no guard, because it is believed.
+
+F9 IS THE SHARPEST OF THE SEVEN AND IS NOT UNDER THE SHARED RUN ROOT AT ALL.
 Its `HERE = Path(__file__).resolve().parent` puts every case it builds INSIDE
 THE REPOSITORY, in `verification/runs/F9_work/`, and on 2026-09-04 all five
 cases `main()` rebuilds already existed there holding sixteen solved time
@@ -48,14 +76,21 @@ F9.  A refusal that works arrives before the sentinel; a refusal that does not
 work trips it loudly instead of starting OpenFOAM.  That is deliberate: the
 sentinel is a control in its own right.
 
-NOTHING UNDER ~/certonomous-runs IS TOUCHED, AND NOTHING UNDER F9_work IS
-TOUCHED.  Every fixture is built in a temporary directory.  GEN_ALT and
-FPE_DIAG are redirected with CERTONOMOUS_TMR_RUN_ROOT, set before
-`tmr_verification` is imported.  B52 CANNOT be redirected that way -- its
-`RUNS` is an absolute literal that never consults `_RUN_ROOT` -- so its module
-globals are rebound after import.  F9's `HERE` is derived from `__file__` and
-is likewise rebound after import.  A refusal below aborts the whole run if
-either rebinding did not take.
+NOTHING UNDER ANY DEFENDED TREE IS TOUCHED.  Every fixture is built in a
+temporary directory.  GEN_ALT and FPE_DIAG are redirected with
+CERTONOMOUS_TMR_RUN_ROOT, set before `tmr_verification` is imported.  B52, R4
+and F5c CANNOT be redirected that way -- each holds an ABSOLUTE LITERAL run
+root (`RUNS`, `RUNS`, `SCRATCH`) that never consults `_RUN_ROOT`, so no
+environment variable reaches them, including inside a control that believes it
+has redirected them.  Their module globals are rebound after import.  F9's
+`HERE` is derived from `__file__` and is likewise rebound.  R4 and F5c also
+carry an absolute `HERE` inside the REPOSITORY (and R4 a `TEMPLATE` under it),
+so those are rebound too and `demo-output/website/campaign` joins the defended
+roots.  Controls B0 and B0b check EVERY rebound global of every driver against
+EVERY defended root and REFUSE the whole run if a rebinding did not take -- a
+control that silently ran against the real tree is the worst outcome available
+here, and that tree holds `re2000`, a completed gated rung whose solver log is
+already gone and which cannot be re-created.
 
 THE -O CONTROL.  `make_dambreak.py` carried a bare `assert` that `python3 -O`
 deletes outright, so under -O a non-integer `1.25*yres` was silently rounded
@@ -93,15 +128,31 @@ DRIVERS = {
             / "run_rung6_replicates.py"),
     "F9": REPO / "verification/runs/F9_work/setup_f9_round3.py",
     "F7": REPO / "verification/runs/F7_runs/make_dambreak.py",
+    "R4": REPO / "verification/runs/R4_runs/run_c3_replicates.py",
+    "F5c": REPO / "verification/runs/F5c_runs/run_stage_a.py",
 }
 
-# The trees these controls exist to defend.  Nothing here may write into either.
+# The trees these controls exist to defend.  Nothing here may write into any.
 FORBIDDEN_ROOT = Path.home() / "certonomous-runs"
 # F9 does not use the shared run root at all: it builds IN the repository, and
 # the sixteen solved time directories currently sitting there are exactly what
 # its guard defends.  A control that only checked ~/certonomous-runs would have
 # been blind to F9's entire blast radius.
 F9_FORBIDDEN_ROOT = REPO / "verification" / "runs" / "F9_work"
+
+# R4 and F5c both carry an absolute `HERE` under `demo-output/website/campaign`
+# -- R4's `TEMPLATE` is `HERE/"c3"`, F5c's archive destination is
+# `HERE/"stage_a_<leg>"` -- and F5c's real record lives in
+# `verification/runs/F5c_runs/`.  All three are defended: a control that only
+# checked ~/certonomous-runs would have been blind to the archive site, which
+# is the one that holds the ONLY copy of a gitignored postProcessing tree.
+DEFENDED_ROOTS = (
+    FORBIDDEN_ROOT,
+    F9_FORBIDDEN_ROOT,
+    REPO / "demo-output" / "website" / "campaign",
+    REPO / "verification" / "runs" / "F5c_runs",
+    REPO / "verification" / "runs" / "R4_runs",
+)
 
 
 # ---------------------------------------------------------------------------
@@ -171,6 +222,20 @@ def evidence_intact(d: Path) -> bool:
                  / "coefficient.dat").is_file())
 
 
+def plant_evidence_nested(d: Path, child: str = "case") -> Path:
+    """The F5c shape: the physics is ONE LEVEL DOWN, under `case/`.
+
+    Measured on disk 2026-09-04, this is not a hypothetical layout:
+    `~/certonomous-runs/f5c-stageA-A1` reports "no solve evidence found" to the
+    guard while `.../f5c-stageA-A1/case` reports a time directory `2000/` with
+    seven fields and a series ending at t = 2000.  A wrapper that does not look
+    one level down deletes that while printing that it was safe.
+    """
+    d.mkdir(parents=True, exist_ok=True)
+    plant_evidence(d / child)
+    return d
+
+
 # ---------------------------------------------------------------------------
 # the mutation vector
 
@@ -236,7 +301,8 @@ def structural_controls(s: Suite) -> None:
         guarded = sum(
             1 for n in ast.walk(tree)
             if isinstance(n, ast.Call) and isinstance(n.func, ast.Name)
-            and n.func.id in ("safe_rmtree_for_restage", "rmtree_after_harvest")
+            and n.func.id in ("safe_rmtree_for_restage", "rmtree_after_harvest",
+                              "safe_restage")
         )
         s.check(f"{tag} S3 delete sites route through the guard", guarded > 0,
                 "no guarded delete call found at all")
@@ -247,7 +313,7 @@ def structural_controls(s: Suite) -> None:
 
 
 def load_drivers(run_root: Path):
-    """Import the three drivers with their run roots redirected.  Returns
+    """Import every driver with its run root redirected.  Returns
     (modules, sentinel_calls).  Raises nothing the caller cannot see.
     """
     os.environ["CERTONOMOUS_TMR_RUN_ROOT"] = str(run_root)
@@ -292,6 +358,29 @@ def load_drivers(run_root: Path):
             mod.HERE = run_root / "f9_work"
             (run_root / "f9_work").mkdir(parents=True, exist_ok=True)
             mod.v._foam = sentinel
+        # R4's RUNS is an absolute literal, exactly like B52's, and its HERE
+        # (hence TEMPLATE, hence LOG) is an absolute literal inside the
+        # repository.  All four are rebound; B0/B0b below refuse if any did
+        # not take.  `stage()` copies FROM template, so the template is built
+        # by the R4 negative control rather than here.
+        if tag == "R4":
+            mod.RUNS = run_root
+            mod.HERE = run_root / "r4_here"
+            mod.TEMPLATE = mod.HERE / "c3"
+            mod.LOG = mod.HERE / "c3_replicates_driver.log"
+            mod.HERE.mkdir(parents=True, exist_ok=True)
+        # F5c's SCRATCH is an absolute literal and its HERE -- the ARCHIVE
+        # destination, the only copy of a gitignored postProcessing tree -- is
+        # an absolute literal inside the repository.  `run_case` is the solver
+        # entry point and is replaced by the sentinel; it is a module global of
+        # this driver (`from workflows.backstep_case import ... run_case`), so
+        # rebinding it here is what the driver will actually call.
+        if tag == "F5c":
+            mod.SCRATCH = run_root
+            mod.HERE = run_root / "f5c_here"
+            mod.DRIVER_LOG = mod.HERE / "stage_a_driver.log"
+            mod.HERE.mkdir(parents=True, exist_ok=True)
+            mod.run_case = sentinel
     return mods, calls
 
 
@@ -301,27 +390,27 @@ def behavioural_controls(s: Suite, mods, calls, root: Path) -> None:
     # F7 is absent from this loop BY CONSTRUCTION, not by oversight: it holds no
     # root global at all, its only target is the `--out` argv the control itself
     # supplies, and B0b below states that as a checked fact rather than a claim.
-    roots = {"B52": "RUNS", "F9": "HERE", "GEN_ALT": "RUN_ROOT",
-             "FPE_DIAG": "RUN_ROOT"}
+    roots = {"B52": ("RUNS",), "F9": ("HERE",), "GEN_ALT": ("RUN_ROOT",),
+             "FPE_DIAG": ("RUN_ROOT",),
+             "R4": ("RUNS", "HERE", "TEMPLATE", "LOG"),
+             "F5c": ("SCRATCH", "HERE", "DRIVER_LOG")}
     for tag, mod in mods.items():
-        attr = roots.get(tag)
-        if attr is None:
-            continue
-        real = Path(getattr(mod, attr)).resolve()
-        bad = []
-        for forbidden in (FORBIDDEN_ROOT, F9_FORBIDDEN_ROOT):
-            f = forbidden.resolve()
-            if real == f or f in real.parents:
-                bad.append(str(f))
-        s.check(f"{tag} B0 {attr} redirected away from every defended tree",
-                not bad, f"{attr} is {real}, inside {bad}")
-        if bad:
-            print("  REFUSING to continue: controls never touch "
-                  f"{', '.join(bad)}")
-            return
-        s.check(f"{tag} B0b {attr} was actually rebound to the fixture root",
-                str(real).startswith(str(root.resolve())),
-                f"{attr} is {real}, not under the fixture root {root}")
+        for attr in roots.get(tag, ()):
+            real = Path(getattr(mod, attr)).resolve()
+            bad = []
+            for forbidden in DEFENDED_ROOTS:
+                f = forbidden.resolve()
+                if real == f or f in real.parents:
+                    bad.append(str(f))
+            s.check(f"{tag} B0 {attr} redirected away from every defended tree",
+                    not bad, f"{attr} is {real}, inside {bad}")
+            if bad:
+                print("  REFUSING to continue: controls never touch "
+                      f"{', '.join(bad)}")
+                return
+            s.check(f"{tag} B0b {attr} was actually rebound to the fixture "
+                    "root", str(real).startswith(str(root.resolve())),
+                    f"{attr} is {real}, not under the fixture root {root}")
 
     # F7 carries no root global; assert that rather than assume it, because if
     # a future edit gave it one, the loop above would silently skip it.
@@ -332,15 +421,15 @@ def behavioural_controls(s: Suite, mods, calls, root: Path) -> None:
             not f7_roots, f"unexpected root global(s) {f7_roots}: if this file "
             "gained a default --out, the controls below stop defending it")
 
-    # --- I1: ONE guard module object across all five drivers.
+    # --- I1: ONE guard module object across all seven drivers.
     registered = sys.modules.get("solve_evidence_guard")
     same = all(m.solve_evidence_guard is registered for m in mods.values())
-    s.check("I1 all five drivers share ONE guard module object", same,
+    s.check("I1 all seven drivers share ONE guard module object", same,
             "two module objects means two SolveEvidencePresent classes and an "
             "`except` that silently misses the other copy's refusal")
 
     exc_same = len({id(m.SolveEvidencePresent) for m in mods.values()}) == 1
-    s.check("I1b all five drivers share ONE SolveEvidencePresent class",
+    s.check("I1b all seven drivers share ONE SolveEvidencePresent class",
             exc_same)
 
     def refuses(tag, label, fn, target: Path, *a, **kw):
@@ -574,6 +663,215 @@ def behavioural_controls(s: Suite, mods, calls, root: Path) -> None:
             exc is None and (f7_new / "system" / "controlDict").is_file(),
             f"exc {type(exc).__name__ if exc else None}: {exc}")
 
+    # ---- R4 ----------------------------------------------------------------
+    # `RUNS` is an absolute literal.  Two sites: stage() is a RE-STAGE (FATAL),
+    # solve()'s `0/` reset is a genuinely-not-evidence reset that must KEEP
+    # deleting.  There is no teardown-after-harvest site in this file; that was
+    # looked for specifically and every delete it contains is exercised here.
+    r4 = mods["R4"]
+    refuses("R4", "I2 stage", r4.stage, root / "r4-ahmed-c3b",
+            "c3b", (99, 21, 58))
+
+    # R4 I3 -- the L-42 reuse check in main() is NOT what protects this site.
+    # It skips re-staging only when BOTH log.simpleFoam AND
+    # postProcessing/forceCoeffs1 exist.  A case whose SOLVER LOG IS GONE but
+    # whose fields are not -- the exact `re2000` shape the guard was written
+    # for -- passes straight through it and reaches stage()'s delete.  This
+    # fixture is that case: fields and a series, no log.
+    r4_nolog = root / "r4-ahmed-nolog"
+    plant_evidence(r4_nolog)
+    before = len(calls)
+    _, exc = attempt(r4.stage, "nolog", (99, 21, 58))
+    s.check("R4 I3 a case with fields but NO solver log still refuses",
+            isinstance(exc, registered.SolveEvidencePresent),
+            f"raised {type(exc).__name__ if exc else 'nothing'} -- the L-42 "
+            "reuse check does not cover this shape and never did")
+    s.check("R4 I3 the endTime fields survived", (r4_nolog / "90" / "U").is_file())
+    s.check("R4 I3 no compute was launched", len(calls) == before)
+
+    # R4 I4 -- nested evidence one level down.  Defence in depth here (R4's own
+    # cases carry their physics at the top level) but it is the same wrapper
+    # F5c depends on, so it is proved at both sites, not assumed at one.
+    r4_nested = root / "r4-ahmed-nested"
+    plant_evidence_nested(r4_nested)
+    _, exc = attempt(r4.stage, "nested", (99, 21, 58))
+    s.check("R4 I4 evidence one level down refuses re-stage",
+            isinstance(exc, registered.SolveEvidencePresent),
+            f"raised {type(exc).__name__ if exc else 'nothing'}")
+    s.check("R4 I4 the nested endTime fields survived",
+            (r4_nested / "case" / "90" / "U").is_file())
+    s.check("R4 I4 the nested coefficient series survived",
+            (r4_nested / "case" / "postProcessing" / "forceCoeffs1" / "0"
+             / "coefficient.dat").is_file())
+
+    # R4 I5 -- the NEGATIVE.  stage() never invokes a solver, so the proof it
+    # staged is structural, as for B52: the mesh-only fixture is replaced from
+    # the template, `0.orig` survives the ignore filter, and the new draw's hex
+    # triple is written.
+    r4_tmpl = r4.TEMPLATE
+    (r4_tmpl / "system").mkdir(parents=True, exist_ok=True)
+    (r4_tmpl / "system" / "blockMeshDict").write_text(
+        "hex (0 1 2 3 4 5 6 7) (10 10 10) simpleGrading (1 1 1)\n")
+    (r4_tmpl / "0.orig").mkdir(parents=True, exist_ok=True)
+    (r4_tmpl / "0.orig" / "U").write_text("// pristine U\n")
+    (r4_tmpl / "constant").mkdir(parents=True, exist_ok=True)
+    (r4_tmpl / "constant" / "marker").write_text("from the template\n")
+    r4_neg = root / "r4-ahmed-meshonly"
+    plant_mesh_only(r4_neg)
+    out, exc = attempt(r4.stage, "meshonly", (99, 21, 58))
+    s.check("R4 I5 stage mesh-only is NOT refused",
+            not isinstance(exc, registered.SolveEvidencePresent),
+            "the guard refused a directory that holds no physics")
+    s.check("R4 I5 the mesh-only fixture was replaced from the template",
+            (r4_neg / "constant" / "marker").is_file()
+            and not (r4_neg / "log.blockMesh").exists(),
+            f"exc {type(exc).__name__ if exc else None}: {exc}")
+    s.check("R4 I5 0.orig survived staging (the pristine fields)",
+            (r4_neg / "0.orig" / "U").is_file())
+    r4_bmd = r4_neg / "system" / "blockMeshDict"
+    s.check("R4 I5 the new draw's divisions were written",
+            r4_bmd.is_file() and "(99 21 58) simpleGrading" in r4_bmd.read_text())
+
+    # R4 I6 -- the 0/ reset.  t = 0 is NOT evidence, so it must still delete,
+    # or every replicate's solve path is broken to save nothing.
+    r4_zero = root / "r4-ahmed-zero"
+    plant_mesh_only(r4_zero)
+    out, exc = attempt(r4.safe_restage, r4_zero / "0")
+    s.check("R4 I6 the 0/ reset still deletes (t=0 is not evidence)",
+            out is True and not (r4_zero / "0").exists(),
+            f"returned {out!r}, exc {type(exc).__name__ if exc else None}")
+
+    # R4 I7 -- and the same call MIS-AIMED refuses, which is what routing the
+    # reset through the guard buys: `ignore_errors=True` would have erased this.
+    r4_mis = root / "r4-ahmed-misaimed"
+    plant_evidence(r4_mis)
+    out, exc = attempt(r4.safe_restage, r4_mis)
+    s.check("R4 I7 a mis-aimed reset target REFUSES",
+            isinstance(exc, registered.SolveEvidencePresent)
+            and evidence_intact(r4_mis),
+            f"returned {out!r}, exc {type(exc).__name__ if exc else None}")
+
+    # ---- F5c ---------------------------------------------------------------
+    # `SCRATCH` is an absolute literal; so is `HERE`, which is the ARCHIVE and
+    # holds the only copy of a gitignored postProcessing tree.  Two sites, both
+    # RE-STAGE, both FATAL.  No teardown-after-harvest site exists in this file.
+    fc = mods["F5c"]
+
+    # F5c I2 -- top-level evidence at the run directory.
+    fc_ev = root / "f5c-stageA-A1"
+    plant_evidence(fc_ev)
+    before = len(calls)
+    _, exc = attempt(fc.run_leg, fc.LEGS[0])
+    s.check("F5c I2 run_leg refuses re-stage over solve evidence",
+            isinstance(exc, registered.SolveEvidencePresent),
+            f"raised {type(exc).__name__ if exc else 'nothing'}")
+    s.check("F5c I2 the endTime fields survived", (fc_ev / "90" / "U").is_file())
+    s.check("F5c I2 the coefficient series survived",
+            (fc_ev / "postProcessing" / "forceCoeffs1" / "0"
+             / "coefficient.dat").is_file())
+    s.check("F5c I2 no compute was launched", len(calls) == before)
+
+    # F5c I3 -- THE ONE THAT MATTERS, and the reason `safe_restage` exists.
+    # This is the real on-disk shape: `f5c-stageA-A2` is empty apart from
+    # `case/`, and `case/` holds an 8,000-iteration solve.  A bare
+    # `safe_rmtree_for_restage(out_dir)` reports "safe to re-stage" here and
+    # deletes it.  Without this control the wiring would look complete and be
+    # decorative for all four of A1..A4.
+    fc_nested = root / "f5c-stageA-A2"
+    plant_evidence_nested(fc_nested)
+    before = len(calls)
+    _, exc = attempt(fc.run_leg, fc.LEGS[1])
+    s.check("F5c I3 NESTED case/ evidence refuses re-stage",
+            isinstance(exc, registered.SolveEvidencePresent),
+            f"raised {type(exc).__name__ if exc else 'nothing'} -- the guard "
+            "does not recurse; a wrapper that does not look one level down "
+            "deletes a completed solve while printing that it was safe")
+    s.check("F5c I3 the nested endTime fields survived",
+            (fc_nested / "case" / "90" / "U").is_file())
+    s.check("F5c I3 the nested coefficient series survived",
+            (fc_nested / "case" / "postProcessing" / "forceCoeffs1" / "0"
+             / "coefficient.dat").is_file())
+    s.check("F5c I3 no compute was launched", len(calls) == before)
+    # F5c I3b -- and the refusal above must be coming from the WRAPPER, not
+    # from the bare guard, or the control proves nothing about the one-level
+    # check.  The guard's own detector is asked directly and must find NOTHING
+    # at the directory the driver names: that emptiness is the defect, and the
+    # refusal in I3 therefore has only one possible source.
+    s.check("F5c I3b the bare guard finds NOTHING at the directory the driver "
+            "names -- so I3's refusal came from the nested check",
+            registered.find_solve_evidence(fc_nested) == [],
+            "the bare guard already saw this evidence, so I3 does not prove "
+            "the nested check does anything")
+    s.check("F5c I3b the bare guard DOES see it one level down",
+            len(registered.find_solve_evidence(fc_nested / "case")) > 0)
+
+    # F5c I4 -- the NEGATIVE, in its STRONG form: a mesh-only run directory
+    # must stage all the way through into the solver, where the sentinel stops
+    # it.  Reaching the sentinel is the proof it staged.
+    fc_neg = root / "f5c-stageA-A3"
+    plant_mesh_only(fc_neg)
+    before = len(calls)
+    _, exc = attempt(fc.run_leg, fc.LEGS[2])
+    s.check("F5c I4 mesh-only is NOT refused",
+            not isinstance(exc, registered.SolveEvidencePresent),
+            "the guard refused a directory that holds no physics -- the "
+            "ladder is broken for every normal re-stage")
+    s.check("F5c I4 mesh-only staged through to compute", len(calls) > before,
+            f"never reached the solver: {type(exc).__name__ if exc else ''}"
+            f" {exc}")
+
+    # F5c I5 -- the ARCHIVE site, reached for real.  `run_case` is swapped for
+    # a STUB that returns a record without launching anything, so the driver
+    # runs on past the solver call to the archive delete at its own call site.
+    # The stub is counted separately from the sentinel so Z1 stays exact: a
+    # stub call is NOT a compute attempt, because the stub is what replaced
+    # compute.
+    stub_calls: list[str] = []
+
+    def run_case_stub(level, out_dir, **kw):
+        stub_calls.append(str(out_dir))
+        case = Path(out_dir) / "case"
+        (case / "system").mkdir(parents=True, exist_ok=True)
+        (case / "log.checkMesh").write_text("End\n")
+        return {"x_r_over_h": 5.6, "x_r_over_h_nearwall_U": 5.6,
+                "x_r_over_h_history": [], "mesh_certificate": {"verdict": "OK"},
+                "levers_verified_active": {"verified": []}}
+
+    arch_leg = dict(fc.LEGS[0])
+    arch_leg["name"] = "ARCH"
+    fc_dest = fc.HERE / "stage_a_ARCH"
+    plant_evidence(fc_dest)
+    real_run_case = fc.run_case
+    fc.run_case = run_case_stub
+    before = len(calls)
+    try:
+        _, exc = attempt(fc.run_leg, arch_leg)
+    finally:
+        fc.run_case = real_run_case
+    s.check("F5c I5 the ARCHIVE destination refuses over solve evidence",
+            isinstance(exc, registered.SolveEvidencePresent),
+            f"raised {type(exc).__name__ if exc else 'nothing'} -- collect.py's "
+            "non-zero rc is only logged, so this delete is not conditional on "
+            "a successful replacement and the archive is the only copy")
+    s.check("F5c I5 the archived endTime fields survived",
+            (fc_dest / "90" / "U").is_file())
+    s.check("F5c I5 the archived coefficient series survived",
+            (fc_dest / "postProcessing" / "forceCoeffs1" / "0"
+             / "coefficient.dat").is_file())
+    s.check("F5c I5 the archive site was actually reached", len(stub_calls) == 1,
+            f"the stub was called {len(stub_calls)}x: the control did not get "
+            "past the solver call, so it did not exercise the archive site")
+    s.check("F5c I5 no compute was launched", len(calls) == before)
+
+    # F5c I6 -- and an archive with no data rows still clears, or a second
+    # Stage A run can never write its record.
+    fc_dest_neg = fc.HERE / "stage_a_MESHONLY"
+    plant_mesh_only(fc_dest_neg)
+    out, exc = attempt(fc.safe_restage, fc_dest_neg)
+    s.check("F5c I6 a mesh-only archive destination still clears",
+            out is True and not fc_dest_neg.exists(),
+            f"returned {out!r}, exc {type(exc).__name__ if exc else None}")
+
 
 # ---------------------------------------------------------------------------
 
@@ -654,16 +952,20 @@ def run_suite() -> int:
         print("\nOPTIMISATION CONTROLS (python3 vs python3 -O, real "
               "subprocesses, temporary fixtures)")
         optimisation_controls(s, root)
-        # Z1 is NOT "the sentinel was never reached" -- the mesh-only negative
-        # is REQUIRED to reach it, because getting that far is what proves the
+        # Z1 is NOT "the sentinel was never reached" -- the mesh-only negatives
+        # are REQUIRED to reach it, because getting that far is what proves the
         # directory really staged.  What must hold is that no REAL solver ever
         # ran: every compute attempt was intercepted by the sentinel, and the
-        # only attempt came from that one negative control.
-        s.check("Z1 exactly one compute attempt, from the mesh-only negative, "
-                "and the sentinel intercepted it", len(calls) == 1,
+        # attempts came only from those negative controls.  There are exactly
+        # TWO strong negatives that reach a solver entry point: GEN_ALT I4
+        # (build_and_certify -> tv._foam) and F5c I4 (run_leg -> run_case).
+        # The other negatives -- B52 I4, F9 I5/I6, F7 I3/I4, R4 I5 -- prove
+        # staging structurally because those functions never invoke a solver.
+        s.check("Z1 exactly two compute attempts, both from mesh-only "
+                "negatives, both intercepted by the sentinel", len(calls) == 2,
                 f"{len(calls)} compute attempt(s): {calls[:5]}")
         s.check("Z2 no real OpenFOAM binary was invoked",
-                all("SENTINEL" not in c for c in calls) and len(calls) <= 1,
+                all("SENTINEL" not in c for c in calls) and len(calls) <= 2,
                 f"attempts: {calls[:5]}")
 
     if s.failures:

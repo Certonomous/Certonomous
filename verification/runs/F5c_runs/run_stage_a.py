@@ -37,6 +37,75 @@ sys.path.insert(0, str(REPO / "sdk"))
 from workflows.backstep_case import STEP_LEVELS, run_case  # noqa: E402
 from chief_engineer import lever_echo  # noqa: E402
 
+# THE SOLVE-EVIDENCE GUARD.  Loaded BY EXPLICIT PATH rather than by putting
+# `scripts/` on sys.path: this module must not be shadowable, and a guard that
+# can be silently replaced is not a guard.  If it is missing this file refuses
+# to run at all -- deleting without the guard IS the defect.  Pattern copied
+# from verification/runs/GEN_ALT_runs/run_gen_alt.py:39-61 exactly, including
+# the single-registration branch: loading the same file twice under two module
+# objects gives SolveEvidencePresent two DISTINCT classes, and a caller's
+# `except SolveEvidencePresent` then silently misses the refusal raised by the
+# other copy -- the guard looks wired and is not.
+#
+# SCRATCH below is an ABSOLUTE LITERAL.  No environment variable can redirect
+# this file -- including inside a control that believes it has redirected it.
+# Anything testing this driver must rebind the module globals and refuse if the
+# rebinding did not take; scripts/check_restage_guard_wiring.py does exactly
+# that (controls F5c B0 / B0b).
+import importlib.util as _ilu  # noqa: E402
+
+_GUARD_PATH = REPO / "scripts" / "solve_evidence_guard.py"
+if not _GUARD_PATH.is_file():
+    raise RuntimeError(
+        f"solve-evidence guard not found at {_GUARD_PATH}; refusing to run. "
+        "This driver deletes its run directories under the shared run root, "
+        "and without the guard those deletes are unconditional -- see the "
+        "guard's docstring for the rung that paid for it.")
+if "solve_evidence_guard" in sys.modules:
+    solve_evidence_guard = sys.modules["solve_evidence_guard"]
+else:
+    _spec = _ilu.spec_from_file_location("solve_evidence_guard", _GUARD_PATH)
+    solve_evidence_guard = _ilu.module_from_spec(_spec)
+    sys.modules["solve_evidence_guard"] = solve_evidence_guard
+    _spec.loader.exec_module(solve_evidence_guard)
+safe_rmtree_for_restage = solve_evidence_guard.safe_rmtree_for_restage
+refuse_if_solve_evidence = solve_evidence_guard.refuse_if_solve_evidence
+SolveEvidencePresent = solve_evidence_guard.SolveEvidencePresent
+
+
+def safe_restage(target) -> bool:
+    """Delete `target` for a RE-STAGE, refusing if it -- or any directory ONE
+    LEVEL INSIDE it -- holds solve evidence.  Returns True if anything was
+    removed, False if there was nothing there.  There is no override.
+
+    THE NESTED CHECK IS LOAD-BEARING IN THIS FILE, and it is the reason this
+    wrapper exists rather than a bare `safe_rmtree_for_restage` call.
+    `run_leg` deletes `SCRATCH/f5c-stageA-<leg>`, but `run_case` puts the whole
+    OpenFOAM case one level down in `.../case/`.  The guard scans its target
+    for time directories > 0, `processor*/` time directories and
+    `postProcessing/**/*.dat` with data rows; it does not recurse into an
+    arbitrary child.  Measured on disk 2026-09-04 with
+    `solve_evidence_guard.py --check`:
+
+        f5c-stageA-A1        -> "no solve evidence found; safe to re-stage."
+        f5c-stageA-A1/case   -> REFUSING: time directory 2000/ with 7 field
+                                files (U k nut omega p phi yPlus) and a series
+                                with 4 data rows, last time 2000
+
+    All four of f5c-stageA-A1..A4 have that shape today.  So the obvious wiring
+    -- guard the directory the driver names -- would have deleted four
+    completed solves while printing that it was safe.  A guard that answers
+    "safe" over physics is worse than none, because it is believed.
+    """
+    target = Path(target)
+    if not target.exists():
+        return False
+    refuse_if_solve_evidence(target, action="restage")
+    for child in sorted(p for p in target.iterdir() if p.is_dir()):
+        refuse_if_solve_evidence(child, action="restage (nested one level)")
+    return safe_rmtree_for_restage(target)
+
+
 HERE = REPO / "demo-output" / "website" / "campaign" / "F5c_runs"
 SCRATCH = Path("/home/ubuntu/certonomous-runs")
 DRIVER_LOG = HERE / "stage_a_driver.log"
@@ -80,7 +149,15 @@ def fvsolution_hash(record: dict) -> str | None:
 def run_leg(leg: dict) -> dict:
     level = next(l for l in STEP_LEVELS if l.name == leg["level"])
     out_dir = SCRATCH / f"f5c-stageA-{leg['name']}"
-    shutil.rmtree(out_dir, ignore_errors=True)
+    # WAS: shutil.rmtree(out_dir, ignore_errors=True) -- unconditional, silent
+    # about its own failures, and the first statement of the leg, so "re-run
+    # Stage A" was the same keystroke as "destroy the Stage A that already
+    # ran".  RE-STAGE site: refusal is FATAL and deliberately not caught,
+    # because continuing would mkdir over a directory that still exists.
+    # `safe_restage` and not `safe_rmtree_for_restage`: the physics is one
+    # level down under `case/` and the bare guard cannot see it -- see the
+    # measured readings in that function's docstring.
+    safe_restage(out_dir)
     out_dir.mkdir(parents=True)
     log(f"{leg['name']}: {leg['level']} {level.cells} cells, "
         f"{'SIMPLEC' if leg['consistent'] else 'SIMPLE'} "
@@ -109,7 +186,19 @@ def run_leg(leg: dict) -> dict:
     # on are lifted out with the existing collector or they do not survive --
     # which is exactly how the original six runs were lost.
     dest = HERE / f"stage_a_{leg['name']}"
-    shutil.rmtree(dest, ignore_errors=True)
+    # WAS: shutil.rmtree(dest, ignore_errors=True).  This one is NOT a teardown
+    # after a harvest -- it is a RE-STAGE of the ARCHIVE, cleared BEFORE
+    # collect.py refills it -- so refusal is FATAL here too, and that
+    # classification is the whole point.  Look at what follows: collect.py's
+    # non-zero return code is only LOGGED (a few lines down), never raised.  So
+    # the old line destroyed the previous leg's archive and then tolerated the
+    # failure of the thing meant to replace it; the archive is the only copy of
+    # `postProcessing`, which is gitignored, and losing it is exactly how the
+    # original six F5c runs were lost.  Because the delete is not conditional
+    # on a successful replacement, `safe_replace_mirror` -- which permits the
+    # delete whenever the source carries at least as many rows -- was
+    # considered and rejected as too weak for this site.
+    safe_restage(dest)
     result = subprocess.run(
         [sys.executable, str(HERE / "collect.py"), str(out_dir), str(dest)],
         capture_output=True, text=True)

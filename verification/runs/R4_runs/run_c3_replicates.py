@@ -15,6 +15,74 @@ REPO = Path("/home/ubuntu/Certonomous"); sys.path.insert(0, str(REPO/"sdk"))
 from workflows import tmr_verification as tv
 from chief_engineer import lever_echo, mesh_certificate
 
+# THE SOLVE-EVIDENCE GUARD.  Loaded BY EXPLICIT PATH rather than by putting
+# `scripts/` on sys.path: this module must not be shadowable, and a guard that
+# can be silently replaced is not a guard.  If it is missing this file refuses
+# to run at all -- deleting without the guard IS the defect.  Pattern copied
+# from verification/runs/GEN_ALT_runs/run_gen_alt.py:39-61 exactly, including
+# the single-registration branch, which is load-bearing and not tidiness:
+# loading the same file twice under two module objects gives
+# SolveEvidencePresent two DISTINCT classes, and a caller's `except
+# SolveEvidencePresent` then silently misses the refusal raised by the other
+# copy -- the guard looks wired and is not.
+#
+# RUNS below is an ABSOLUTE LITERAL and never consults tmr_verification's
+# _RUN_ROOT, so NO environment variable can redirect this file -- including
+# inside a control that believes it has redirected it.  Anything testing this
+# driver must rebind the module globals and refuse if the rebinding did not
+# take; scripts/check_restage_guard_wiring.py does exactly that (control R4 B0).
+import importlib.util as _ilu  # noqa: E402
+
+_GUARD_PATH = REPO/"scripts"/"solve_evidence_guard.py"
+if not _GUARD_PATH.is_file():
+    raise RuntimeError(
+        f"solve-evidence guard not found at {_GUARD_PATH}; refusing to run. "
+        "This driver deletes its run directories under the shared run root, "
+        "and without the guard those deletes are unconditional -- see the "
+        "guard's docstring for the rung that paid for it.")
+if "solve_evidence_guard" in sys.modules:
+    solve_evidence_guard = sys.modules["solve_evidence_guard"]
+else:
+    _spec = _ilu.spec_from_file_location("solve_evidence_guard", _GUARD_PATH)
+    solve_evidence_guard = _ilu.module_from_spec(_spec)
+    sys.modules["solve_evidence_guard"] = solve_evidence_guard
+    _spec.loader.exec_module(solve_evidence_guard)
+safe_rmtree_for_restage = solve_evidence_guard.safe_rmtree_for_restage
+refuse_if_solve_evidence = solve_evidence_guard.refuse_if_solve_evidence
+SolveEvidencePresent = solve_evidence_guard.SolveEvidencePresent
+
+
+def safe_restage(target) -> bool:
+    """Delete `target` for a RE-STAGE, refusing if it -- or any directory ONE
+    LEVEL INSIDE it -- holds solve evidence.  Returns True if anything was
+    removed, False if there was nothing there.  There is no override.
+
+    WHY THE EXTRA LEVEL, measured rather than assumed.  The guard scans its
+    target for time directories > 0, `processor*/` time directories and
+    `postProcessing/**/*.dat` with data rows.  It does NOT recurse into an
+    arbitrary child.  A sibling driver in this same class,
+    `F5c_runs/run_stage_a.py`, deletes `<root>/f5c-stageA-A1` while every field
+    it holds lives one level down in `.../case/`, so the bare guard answered
+    "no solve evidence found; safe to re-stage" for a directory carrying a
+    completed 2,000-iteration solve.  Measured 2026-09-04 with
+    `solve_evidence_guard.py --check`.  A guard that answers "safe" there is a
+    decoration, so both drivers in this class check one level down as well.
+
+    R4's own targets carry their physics at the top level -- `r4-ahmed-c3b`
+    holds `203/` with six fields, the same time under processor0..3, and 203
+    coefficient rows -- so the nested check is defence in depth here rather
+    than the load-bearing part.  It is present so that a layout change cannot
+    silently reopen the hole.
+    """
+    target = Path(target)
+    if not target.exists():
+        return False
+    refuse_if_solve_evidence(target, action="restage")
+    for child in sorted(p for p in target.iterdir() if p.is_dir()):
+        refuse_if_solve_evidence(child, action="restage (nested one level)")
+    return safe_rmtree_for_restage(target)
+
+
 HERE = REPO/"demo-output/website/campaign/R4_runs"
 RUNS = Path("/home/ubuntu/certonomous-runs")
 TEMPLATE = HERE/"c3"
@@ -32,7 +100,22 @@ def log(m):
 
 def stage(name, div):
     r = RUNS/f"r4-ahmed-{name}"
-    shutil.rmtree(r, ignore_errors=True)
+    # WAS: shutil.rmtree(r, ignore_errors=True) -- unconditional, silent about
+    # its own failures, and the FIRST statement of the staging function, so
+    # "re-draw this replicate" was the same keystroke as "destroy whatever is
+    # at that name" under the shared run root.  RE-STAGE site: refusal is FATAL
+    # and deliberately not caught, because continuing here would copytree into
+    # a directory that still exists.
+    #
+    # The L-42 reuse check in main() is NOT a substitute and this is why: it
+    # skips re-staging only when BOTH `log.simpleFoam` and
+    # `postProcessing/forceCoeffs1` are present.  A case whose solver log is
+    # gone but whose fields are not -- exactly the `re2000` shape this guard
+    # was written for -- falls straight through that check and reaches this
+    # line.  Measured on disk 2026-09-04: `r4-ahmed-c3b` holds `203/` with
+    # U k nut omega p phi, the same time under processor0..3, and a
+    # coefficient series of 203 data rows ending at t = 203.
+    safe_restage(r)
 
     def _ignore(_dir, names):
         # Time directories are PURELY numeric ("0", "220"); `0.orig` is not, and
@@ -46,11 +129,17 @@ def stage(name, div):
         return out
 
     shutil.copytree(TEMPLATE, r, ignore=_ignore)
-    assert (r/"0.orig").is_dir(), f"{name}: 0.orig did not survive staging"
+    # RAISE, not `assert`: `python3 -O` deletes assert statements outright, and
+    # this file's two asserts were the only thing standing between a silently
+    # mis-staged case and a solve.  F7's `make_dambreak.py` carried exactly
+    # this defect and built a case at a resolution nobody asked for under -O.
+    if not (r/"0.orig").is_dir():
+        raise RuntimeError(f"{name}: 0.orig did not survive staging")
     b = r/"system"/"blockMeshDict"; t = b.read_text()
     import re
     t2,n = re.subn(r"\(\d+ \d+ \d+\) simpleGrading", f"({div[0]} {div[1]} {div[2]}) simpleGrading", t, 1)
-    assert n==1, f"{name}: no hex triple"
+    if n != 1:
+        raise RuntimeError(f"{name}: no hex triple (substituted {n} times)")
     b.write_text(t2, newline="\n"); return r
 
 def mesh(r, name):
@@ -72,7 +161,15 @@ def solve(r, name):
     ok,why = mesh_certificate.certificate_admits(r/"constant")
     log(f"{name}: G2 -> {ok} ({why})")
     if not ok: raise RuntimeError(f"{name}: mesh refused: {why}")
-    shutil.rmtree(r/"0", ignore_errors=True); shutil.copytree(r/"0.orig", r/"0")
+    # WAS: shutil.rmtree(r/"0", ignore_errors=True).  GENUINELY-NOT-EVIDENCE
+    # RESET: `0/` is t = 0 and t = 0 is not evidence, so this must keep
+    # deleting or the solve path is broken for every replicate.  It is routed
+    # through the guard anyway for the two things `ignore_errors=True` took
+    # away: a MIS-AIMED target (a wrong `r`, a layout change, `0` standing for
+    # a case directory rather than a time directory) now REFUSES instead of
+    # being erased, and a FAILED DELETE is now heard instead of swallowed.
+    # `ignore_errors=True` is part of the defect and is not reproduced.
+    safe_restage(r/"0"); shutil.copytree(r/"0.orig", r/"0")
     t0=time.monotonic()
     for a,l in ((["potentialFoam","-writephi"],"log.potentialFoam"),
                 (["decomposePar","-force"],"log.decomposePar")):
