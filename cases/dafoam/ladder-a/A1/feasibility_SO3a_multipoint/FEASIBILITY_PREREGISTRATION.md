@@ -1699,3 +1699,121 @@ If `endl` did not flush per line, fewer than three blocks would carry residuals,
 **SUBMISSIONS PARKED.**
 
 **END OF DISCLOSURE 1 TO ADDENDUM 15.**
+
+---
+
+## ADDENDUM 16 — **THE ARM RAN CLEAN, `F1`–`F5` ALL HIT, AND THE ITEM IS OVER ITS REGISTERED CEILING.** Dated **2026-09-04**. Version **1.16b → 1.17**.
+
+> **lines whose number changed above this section: 0** — **PROVED ON BYTES.** Before the append the file was **157,255 bytes, 1,701 lines**, verified byte-identical to `git show HEAD:` at the moment of copying; after the append the first 157,255 bytes were compared with `cmp -n 157255`, byte for byte. Appended by `scripts/append_block.py` from a FILE as bytes; **no heredoc on this path** (`L-405`).
+
+**Moves no gate, no threshold, no prediction, no band, no cap and no label.** It **reports** the scoring the frozen reader performed and **discloses a ceiling breach**.
+
+### A16.1 THE ARM. `rc=0`. THE FIRST CLEAN EXIT THIS ITEM HAS PRODUCED.
+
+`ITEM=SO3aF2 ARM=XM STAMP=2026-09-04T013622Z rc=0 wall_s=149 ranks=1 core_min=2.4833 cap_core_min=6.0 cap_exceeded=0 reader_md5=d5f4149d43abe3a165ffe7e653b78bee producer_md5=f3913ddbe0bafe874755332561407d0f` — `ledger.txt`.
+
+The superseded `XM/` root was archived **by `mv`, never deleted**, to `XM_rc7_superseded_2026-09-04T013615Z`, **path count asserted on both sides: 211 = 211.** Because the root was moved rather than cleaned, **every file under the new `XM/` postdates the launch by construction** — this item's analogue of the age guard, and it is **structural rather than checked**, which is stated so it is not mistaken for a verified guard.
+
+The producer's own line, from the live run: **`SO3aF2 PRODUCER RESIDUAL SOURCE: log=/mnt/XM/XM.log blocks=3 blocks_with_residuals=3 plant_demonstrated=True`**. **The planted short-read control fired on the graded run, not only in the suite.**
+
+### A16.2 ⚠ PHYSICS FIRST — `F1`–`F5` ALL **HIT**, SCORED BY THE FROZEN READER
+
+The reader drove its own selftest first: **`SO3aF2 READER SELFTEST PASS 17/17`**, `failures=0`. Its md5 at the moment of grading was **`d5f4149d43abe3a165ffe7e653b78bee`** — the 2026-08-31 freeze value. `reader rc=0`.
+
+| id | reading | HIT/MISS |
+|---|---|---|
+| **F1** | `tolerance_lines = 3`, `residual_histories = 3`, **the two readings AGREE** | **HIT** |
+| **F2** | all three `CD` and `CL` reproduce at **`0 %` relative**, `J` reproduces | **HIT** |
+| **F3** | `mp0 [0, 443]`, `mp1 [0, 436]`, `mp2 [0, 424]` — three distinct run directories, each with its own time directory | **HIT** |
+| **F4** | `collision_token_count = 0` | **HIT** |
+| **F5** | `J_recomputed = J_read = 0.02180598162892116` | **HIT** |
+
+**Both of the reader's controls demonstrated in the same invocation as the reading they license.** Direction A: planted `4.1821020090534787e-08`, seen `4.1821020091425964e-08`, `empty_structure_refused=True`. Direction B: `live_reads_HIT=True`, `planted_reads_HIT=False`, `plant_is_sufficient=True` — **the reproduction check was shown able to read MISS**, which is what makes its HIT mean anything.
+
+> **⚠ THESE ARE `HIT`s AND THEY ARE NOT A `PASS`.** §5 registers F1–F5 as **predictions, not gates**, and §0 says this item has no gates. *"A MISS is a FINDING and is never written as `GATE FAIL`"* — **the symmetry binds in the other direction too, and a HIT is not licensed to become a PASS because the answer came out well.** The only verdict vocabulary this item may emit is `BLOCKED` or `NOT A RESULT`, about the item. **The item's label is the supervisor's to rule and is not written here.**
+
+**§5's registered prediction was `F1–F5 all HIT`, written before any solver ran. It is confirmed.** F3 and F4 were the two carrying real information — never before observed on this case in a multipoint assembly — and both landed: **the `run_directory` separation takes effect, and the SO-3aR2 collision token does not reach the primal path.**
+
+### A16.3 ADDENDUM 13's RULING IS NOW FALSIFIED BY EXECUTION, NOT ONLY BY ARGUMENT
+
+§A15.1 struck the ruling on the strength of reading the frozen text. **The arm has now produced the thing the ruling said no run at any budget could produce**: three residual histories, read from the log, scored by the untouched grader. **`F1` was satisfiable the whole time, at the registered `printInterval`, from a file the item had already written twice.**
+
+### A16.4 ⚠⚠ **THE ITEM IS OVER ITS REGISTERED CEILING. 9.2833 core-min AGAINST 9.0.**
+
+**Computed from the ledger by machine, not by hand** (§A13.7's lesson: the one line done in prose is the line that came out false):
+
+| | core-min |
+|---|---|
+| launcher rows, excluding the intervention note that duplicates one event | **9.2666** |
+| archived `MESH` aborts (§A13.4) | **0.0167** |
+| **ITEM TOTAL** | **9.2833** |
+| **REGISTERED CEILING (§7)** | **9.0000** |
+| **OVER BY** | **0.2833 core-min — 3.15 %** |
+
+**THE ARM'S OWN CAP WAS NOT EXCEEDED** — 2.4833 against 6.0, `cap_exceeded=0` — **and that does not excuse the breach.** §7 registers **9.0 as the ITEM ceiling**, not an arm cap, and `CLAUDE.md` rule 12 is unambiguous: *an overrun stops the run; it does not get a new budget.* **The breach is recorded here rather than netted against the arm cap that passed.**
+
+**NO FURTHER COMPUTE FIRES ON THIS ITEM.** The disposition of the breach is **not the lane's** — it is routed to the `dafoam-supervisor` with this addendum, and the ceiling is **not raised here, by anyone, for any reason.**
+
+### A16.5 ⚠ THE CEILING HAS NO CALL SITE — AND IT IS §A9.3's DEFECT ONE LEVEL UP
+
+**`so3af2_run_arm.sh:131` sets `CEILING=9.0` and writes `ceiling=9.0` into every ledger row. Nothing ever compares the cumulative item total against it.** The launcher checks only the **per-arm** cap, and it checks that **after** `docker wait` returns, where it can report but not enforce.
+
+> **§A9.3 recorded that the cap could not stop a run, only report one, and ADDENDUM 10 moved enforcement inside the container to fix it. The ITEM CEILING was never given the same treatment, and it is worse: the cap at least reports. The ceiling is a registered number that is WRITTEN INTO EVERY ROW AND READ BY NOTHING.**
+
+**That is `CLAUDE.md` rule 14's shape exactly — a lesson with no call site — and the item that named the class is the item that repeated it.** Had a cumulative check existed, this arm's registered 0.40 would still have been under-budget on paper; **the check would have fired only after the fact, which is precisely the enforcement/report distinction ADDENDUM 10 already litigated.** **The repair is NOT made here and is the supervisor's to order.**
+
+### A16.6 THE COST GAP, WITH MEASURED AND ATTRIBUTED KEPT APART
+
+**Predicted 0.40 core-min (§A15.9), actual 2.4833 — ratio 6.21×.** Against the item's **original** §7 registration for `XM` (point **1.20**, bracket `[0.5833, 1.533]` from two measured figures) the ratio is **2.07×**, and **2.4833 sits ABOVE that bracket's upper bound** — so the original two-anchor bracket failed too, in the same direction.
+
+**MEASURED — the entire miss is OUTSIDE the solve:**
+
+| | this run | the anchor (`233357Z`) |
+|---|---|---|
+| container duration, from `docker inspect` | **137.1 s** | **24.4 s** |
+| cumulative solver `ExecutionTime` at the third primal | **14.13 s** | **14.11 s** |
+| implied in-container **non-solver** time | **≈123 s** | **≈10 s** |
+| iterations, per point | 443 / 436 / 424 | 443 / 436 / 424 |
+
+**The three primals cost the same to within 0.02 s. The physics did not get slower; everything around it did.**
+
+**EXCLUDED BY MEASUREMENT, not by argument:**
+- **The repair is not the cause.** Its added work is one ≈97 KB file read and one scratch copy, and the solver time is unchanged.
+- **Contention is not the cause.** Zero other containers at launch (`SO3AF2_NL1_PASS live_prefix_containers=0`, `docker ps -q` = 0), a dedicated cpuset, `MemAvailable 27.62 GiB` against a 6.0 floor.
+
+**MEASURED — the one environmental difference:** the box ran **no container for 2 h 02 m 40 s** before this arm (previous ledger stamp `2026-09-03T233357Z`, this one `2026-09-04T013622Z`), whereas the two anchors sat **13–15 minutes apart inside a burst of six containers**.
+
+> **ATTRIBUTED, AND EXPLICITLY NOT MEASURED: page-cache state.** The gap's **location** is measured — outside the solve, in image and interpreter startup. Its **cause** is not. **Cache residency at 01:36 cannot be measured retroactively and was not measured**, so "cold cache" is this addendum's **attribution**, carrying the same weight as §A13.5's *"the census stall is unexplained"* and no more. **A hypothesis that fits is not a measurement, and this item has already published one stop as if it were.**
+
+### A16.7 ⚠ THE FOUR §18.1 TERMS ALL MATCHED, AND THE ESTIMATE STILL MISSED 6.21×
+
+§A15.9 asserted a match on all four terms — ranks 1 = 1, adjoint NO = NO, colouring NO = NO, tree COLD = COLD — **and that assertion was correct.** The registered program was identical to the anchor's in every term the charter names.
+
+> **A MEASURED INSTANCE OF A GAP IN THE CHARTER'S OWN COVERAGE.** `DAFOAM_CHARTER` **§18.1's four terms do not include page-cache state**, and **§18.2's cache-state duty is scoped to "an instrument-only item — one that reads preserved artefacts and runs no solver."** **`XM2` runs a solver, so no clause required it to carry a cache-state token — and cache state is where the entire 6.21× lives.** §18.2 was paid for twice by instrument-only items (`C-212` at 20.1×, `C-214` at 4.7×); **this row is the same mechanism arriving on a solver arm, where the clause does not reach.**
+
+**NO AMENDMENT IS PROPOSED HERE.** Charter clauses are not a lane's to write, and *"retiring or amending a standard"* is reserved. **The measurement is recorded and routed; the ruling is the supervisor's and Sanaa's.**
+
+### A16.8 Rule 12's calibration duty, discharged
+
+A row lands in **`docs/COST_CALIBRATION.md`** with the ratio, the attribution, and **waste named separately and never absorbed into the ratio** (`COMPUTE_BUDGET_CHARTER` §6). **This arm produced its artefact and its scoring, so none of its 2.4833 core-min is waste** — the item's standing waste figure remains **6.0167** from §A14.3, unchanged by this arm. **`cost_basis`: REPORTED-BY-OWNER, NOT MEASURED** — wall seconds and ranks from the launcher's ledger row; the `$0.0513/core-h` rate is owner-stated and this box cannot read its own billing (`COMPUTE_BUDGET_CHARTER` §5).
+
+### A16.9 Re-pins — **nothing moved**
+
+| file | md5 | note |
+|---|---|---|
+| `so3af2_read.py` | `d5f4149d43abe3a165ffe7e653b78bee` | **UNCHANGED, and verified at the moment of grading.** Fifteen addenda, nine launches, and the scoring instrument has never been edited. |
+| `so3af2_runScript.py` | `f3913ddbe0bafe874755332561407d0f` | **UNCHANGED by this addendum** — it is the file that ran, and the ledger row records it. |
+| `so3af2_run_arm.sh` | `8469c92765e95fe0c1833fc0b21194bf` | **UNCHANGED by this addendum** |
+| `so3af2_pin_selftest.sh` | `ee0bbe2e0bd33544d137c41e5370fe40` | **UNCHANGED by this addendum** |
+
+### A16.10 Standing
+
+**`XM` COMPLETE, `rc=0`, artefact written, F1–F5 scored HIT by the untouched frozen reader.** `MESH` complete and **NOT A RESULT**. **The item's own label is NOT written here and is the supervisor's to rule.**
+
+**§0.2 BINDS IN FULL AND IS NOT SOFTENED BY A GOOD RESULT:** this item never called `solve_linear`, cannot show SO-3aR's adjoint collision is fixed, and **nothing it measured may be quoted toward that.** It is a **`prereg=FEASIBILITY`** and **may never be cited as a rule-2 gradient freeze.**
+
+**OPEN, AND ON THE SUPERVISOR'S DESK BY THIS ADDENDUM:** (1) the **ceiling breach**, 9.2833 against 9.0 — **no further compute on this item until it is ruled**; (2) the **ceiling has no call site**; (3) the **§18.1/§18.2 cache-state gap for solver arms**. **Still open from §A13.5, neither chased nor deleted:** the frame allowance under-covers teardown (**n=1**, unresized) and the census stall is **UNEXPLAINED**.
+
+**SUBMISSIONS PARKED.**
+
+**END OF ADDENDUM 16.**
