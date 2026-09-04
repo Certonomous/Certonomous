@@ -78,6 +78,54 @@ whose every comparator lives outside its walk roots and the old code answered
 exit 0.  A population of zero is now a refusal (exit 2); the reach of a check
 is not evidence of the state of what it cannot reach.
 
+PARTIAL POPULATION IS ALSO NOT A CLEAN BILL  (M6SR item 40)
+The clause above understood the hazard for the EMPTY case and was SILENT on the
+PARTIAL one, so "I checked 1 of 10" returned exactly what "I checked 10 of 10"
+returned.  Measured, on this repository: the M6SR ladder runs TEN pinned
+executables and the name patterns above matched exactly ONE of them -- three
+live under scripts/, which is outside every walk root, and six are .sh drivers
+and control suites, which no analyse_/grade_/score_ pattern can match.  The
+sole producer of SOLVER_RC.txt, which the strict completion rule reads, was
+among the nine outside.
+
+THE FIX IS NOT MORE GLOBS.  A longer pattern list reproduces the defect with a
+longer list: it still decides the population from FILE NAMES, which is a
+property of nobody's registration.  Instead --registration <path> makes the
+check read the set the REGISTRATION ITSELF PINS, and judge exactly that.  Three
+limbs, each of which can fail on its own:
+
+  COVERAGE  every pinned path must be judged.  A pinned path that the walk does
+            not reach is INJECTED into the population by explicit path,
+            whatever it is called and wherever it lives.  One that cannot be
+            judged at all -- gone from disk, unreadable tree -- makes the run
+            REFUSE (exit 2), because a coverage figure short of the pinned set
+            is the partial-population shape this clause exists to stop.
+  IDENTITY  for every pinned path, the worktree bytes must equal the HEAD blob.
+            This is marker-independent and scope-independent ON PURPOSE: it is
+            the "is the file that ran the file that was frozen" question, and
+            it must not be silently skipped for a row that happens to be
+            NO-MARKERS or AMBIGUOUS-SCOPE, which is where the per-row identity
+            test above lives.  Failure is PIN-DRIFT, a violation (exit 3).
+  CURRENCY  the HEAD blob of a pinned path must be one of the blob shas the
+            registration actually records for it in an unstruck row.  A file
+            that moved and whose new blob NOBODY wrote down is unpinned in
+            fact however many pin tables the document carries.  Failure is
+            PIN-STALE, a violation (exit 3).
+
+WHAT THE PIN LIMBS DELIBERATELY DO NOT DECIDE.  A registration may record
+several blob shas for one path across successive amendments, some superseded
+and not all of them struck.  Which one is IN FORCE is a reading of the strike
+record, not of the file system, and this check does not take it: CURRENCY asks
+only the unambiguous question -- is the current blob recorded ANYWHERE unstruck
+-- and says so.  Text inside a ~~strike span~~ is dropped before parsing, so a
+pin the document has formally superseded cannot satisfy CURRENCY.
+
+--registration is OPT-IN and additive.  With no --registration the walk, the
+rows, the counts and the exit code are exactly what they were; the pin limbs
+are the only thing the flag adds, and they judge only paths that a named
+registration pins.  This matters because the tool is shared, cross-team
+instrumentation and other campaigns' rows are not this flag's business.
+
 --------------------------------------------------------------------------
 SHA-WITNESS FREEZE  (D471.3)
 --------------------------------------------------------------------------
@@ -155,6 +203,17 @@ CASE_CHAR = "[A-Za-z0-9_.+-]+"
 
 VIOLATING = ("UNCOMMITTED", "UNFROZEN", "MODIFIED_AFTER_COMMIT")
 UNJUDGED = ("AMBIGUOUS-SCOPE", "NO-MARKERS", "UNDATED-MARKER")
+
+# --- registration pin parsing -- see PARTIAL POPULATION above ---------------
+# A pin is a MARKDOWN TABLE ROW that carries both a backticked repo-relative
+# executable path and a full 40-hex git blob sha.  Both conditions are load
+# bearing: prose naming a file is not a pin, and a movement chain that carries
+# only ABBREVIATED shas is history rather than a pin claim -- the registration
+# that drove this says so of its own chain table in as many words.
+STRIKE_SPAN = re.compile(r"~~.*?~~", re.S)
+PIN_PATH = re.compile(r"`([A-Za-z0-9_][A-Za-z0-9_./+-]*\.(?:py|sh))`")
+PIN_BLOB = re.compile(r"\b[0-9a-f]{40}\b")
+PIN_VIOLATING = ("PIN-DRIFT", "PIN-STALE", "PIN-UNCOMMITTED")
 
 
 def refuse(msg):
@@ -273,6 +332,64 @@ def scope_markers(path, markers):
 
 
 # --------------------------------------------------------------------------
+# registration pins
+# --------------------------------------------------------------------------
+def registered_pins(reg_path):
+    """{repo-relative path: [blob sha, ...]} for every UNSTRUCK pin row.
+
+    Struck spans are removed FIRST, and are replaced by the newline count they
+    contained so that nothing above them changes line, because a superseded pin
+    the document has formally struck must not be able to satisfy CURRENCY.
+    Returns None if the registration cannot be read at all."""
+    try:
+        src = open(reg_path, errors="replace").read()
+    except OSError:
+        return None
+    src = STRIKE_SPAN.sub(lambda m: "\n" * m.group(0).count("\n"), src)
+    pins = {}
+    for line in src.splitlines():
+        if not line.lstrip().startswith("|"):
+            continue
+        blobs = PIN_BLOB.findall(line)
+        if not blobs:
+            continue
+        for p in PIN_PATH.findall(line):
+            pins.setdefault(p, [])
+            for b in blobs:
+                if b not in pins[p]:
+                    pins[p].append(b)
+    return pins
+
+
+def pin_rows(repo, pins, judged_keys):
+    """One row per pinned path: coverage, worktree identity, pin currency."""
+    out = []
+    for rel in sorted(pins):
+        row = dict(path=rel, recorded=pins[rel])
+        full = os.path.join(repo, rel)
+        row["exists_on_disk"] = os.path.isfile(full)
+        row["covered"] = (os.path.dirname(rel), os.path.basename(rel)) in judged_keys
+        rc_h, head_blob, _ = git(repo, "rev-parse", f"HEAD:{rel}")
+        row["head_blob"] = head_blob if rc_h == 0 and head_blob else None
+        rc_d, disk_blob, _ = git(repo, "hash-object", "--", full) \
+            if row["exists_on_disk"] else (1, "", "")
+        row["disk_blob"] = disk_blob if rc_d == 0 and disk_blob else None
+
+        if not row["exists_on_disk"]:
+            row["status"] = "PIN-ABSENT"
+        elif row["head_blob"] is None:
+            row["status"] = "PIN-UNCOMMITTED"
+        elif row["disk_blob"] != row["head_blob"]:
+            row["status"] = "PIN-DRIFT"
+        elif row["head_blob"] not in pins[rel]:
+            row["status"] = "PIN-STALE"
+        else:
+            row["status"] = "PIN-OK"
+        out.append(row)
+    return out
+
+
+# --------------------------------------------------------------------------
 # sha witness
 # --------------------------------------------------------------------------
 def sha_witness(repo, relc, disk_sha):
@@ -305,11 +422,29 @@ def sha_witness(repo, relc, disk_sha):
 # --------------------------------------------------------------------------
 # the check
 # --------------------------------------------------------------------------
-def check_tree(repo, tree, strict_markers=False):
+def check_tree(repo, tree, strict_markers=False, extra=(), restrict=None):
+    """`extra` are basenames a REGISTRATION pins in this tree.  They join the
+    population by explicit path, whatever they are called: that is the whole
+    point of the pin limbs, since a name pattern is a property of nobody's
+    registration.  Everything downstream judges them identically.
+
+    `restrict`, when given, limits this tree to those basenames and suppresses
+    the name patterns entirely.  It is used for a pinned directory OUTSIDE the
+    walk roots, so that following one registration's pin into, say, scripts/
+    judges THAT registration's files and does not quietly conscript four other
+    campaigns' graders that happen to share the directory."""
     rel = os.path.relpath(tree, repo)
-    graders = sorted(f for f in os.listdir(tree)
-                     if GRADER_RE.match(f)
-                     and os.path.isfile(os.path.join(tree, f)))
+    try:
+        present = os.listdir(tree)
+    except OSError:
+        return None
+    if restrict is not None:
+        names = [f for f in restrict if os.path.isfile(os.path.join(tree, f))]
+    else:
+        names = [f for f in present
+                 if GRADER_RE.match(f) and os.path.isfile(os.path.join(tree, f))] \
+            + [f for f in extra if os.path.isfile(os.path.join(tree, f))]
+    graders = sorted(set(names))
     if not graders:
         return None
     markers = read_markers(tree)
@@ -425,18 +560,40 @@ def check_tree(repo, tree, strict_markers=False):
     return out
 
 
-def walk_population(repo, strict_markers=False, roots=POPULATION_ROOTS):
-    """Every grader under every population root -- see POPULATION."""
-    rows = []
+def walk_population(repo, strict_markers=False, roots=POPULATION_ROOTS,
+                    extras=None):
+    """Every grader under every population root -- see POPULATION.
+
+    `extras` is {repo-relative dir: [basename, ...]} of paths a registration
+    PINS.  A pinned directory the roots already reach gets its names ADDED to
+    that tree's population; one the roots never reach is visited afterwards
+    RESTRICTED to the pinned names.  With extras empty this function is exactly
+    what it was, which is the property the --registration flag rests on."""
+    rows, seen = [], set()
+
+    def take(r):
+        for x in r or ():
+            k = (x["tree"], x["comparator"])
+            if k not in seen:
+                seen.add(k)
+                rows.append(x)
+
+    pending = {d: list(n) for d, n in (extras or {}).items()}
     for root in roots:
         base = os.path.join(repo, root)
         if not os.path.isdir(base):
             continue
         for dp, dn, fn in os.walk(base):
             dn[:] = [d for d in dn if d not in (".git", "__pycache__")]
-            r = check_tree(repo, dp, strict_markers=strict_markers)
-            if r:
-                rows.extend(r)
+            rel = os.path.relpath(dp, repo)
+            take(check_tree(repo, dp, strict_markers=strict_markers,
+                            extra=pending.pop(rel, ())))
+    for rel in sorted(pending):
+        d = os.path.join(repo, rel)
+        if not os.path.isdir(d):
+            continue
+        take(check_tree(repo, d, strict_markers=strict_markers,
+                        restrict=pending[rel]))
     return rows
 
 
@@ -790,6 +947,171 @@ def selftest():
         check("D471.4 dated marker survives strict mode",
               r[0]["status"], "FROZEN")
         check("D471.4 dated marker basis", r[0]["marker_time_basis"], "finished_utc")
+
+        # ================================================================
+        # ITEM 40 -- PARTIAL POPULATION.  The shape measured on the real
+        # repository: a registration pins TEN executables and the name patterns
+        # match ONE, because three live outside every walk root and six are .sh.
+        # Reproduced in miniature, with the adverse control the D471.2 and 2q
+        # arms above insist on -- the OLD walk must be shown to MISS them.
+        # ================================================================
+        rpn = scratch_repo("pinned_population")
+
+        def wr(rp, rel, body, ex=False):
+            f = os.path.join(rp, rel)
+            os.makedirs(os.path.dirname(f), exist_ok=True)
+            open(f, "w").write(body)
+            if ex:
+                os.chmod(f, 0o755)
+            return f
+
+        def blob_of(rp, rel):
+            return git(rp, "rev-parse", f"HEAD:{rel}")[1]
+
+        def run_ep(rp, *args):
+            return subprocess.run([sys.executable, me, "--repo", rp] + list(args),
+                                  capture_output=True, text=True)
+
+        # one grader the patterns DO match, one .sh inside a walk root they
+        # cannot match, one file outside every walk root, and -- the trap -- a
+        # FOREIGN grader sharing that outside directory.
+        wr(rpn, "cases/PIN/analyse_pin.py", 'def m(t):\n    return f"PN_{t}"\n')
+        wr(rpn, "cases/PIN/run_pin.sh", '#!/bin/sh\necho pin\n', ex=True)
+        wr(rpn, "tools/helper_pin.py", "X = 1\n")
+        wr(rpn, "tools/analyse_foreign.py", "Y = 2\n")   # another campaign's
+        commit_in(rpn, "the pinned set and one foreign grader",
+                  "2026-09-01T00:00:00+00:00")
+
+        pinned3 = ["cases/PIN/analyse_pin.py", "cases/PIN/run_pin.sh",
+                   "tools/helper_pin.py"]
+        b = {p: blob_of(rpn, p) for p in pinned3}
+
+        def reg_body(rows, extra_text=""):
+            out = ["# registration\n\n| path | git blob sha |\n|---|---|\n"]
+            for p, sha in rows:
+                out.append(f"| **`{p}`** (pinned) | **`{sha}`** |\n")
+            out.append(extra_text)
+            return "".join(out)
+
+        reg = "verification/campaign/REG.md"
+        wr(rpn, reg, reg_body([(p, b[p]) for p in pinned3]))
+        commit_in(rpn, "registration pinning three", "2026-09-01T01:00:00+00:00")
+
+        # ---- ADVERSE CONTROL: the OLD walk misses two of the three ----------
+        old = walk_population(rpn)
+        old_names = {(x["tree"], x["comparator"]) for x in old}
+        check("item40 old walk finds the glob-matching grader",
+              ("cases/PIN", "analyse_pin.py") in old_names, True)
+        check("item40 old walk MISSES the .sh in a walk root",
+              ("cases/PIN", "run_pin.sh") in old_names, False)
+        check("item40 old walk MISSES the file outside every root",
+              ("tools", "helper_pin.py") in old_names, False)
+
+        # ---- COVERAGE: the pinned set is judged, whatever it is called ------
+        p3 = registered_pins(os.path.join(rpn, reg))
+        check("item40 registration parses to its pinned set",
+              sorted(p3), sorted(pinned3))
+        ext = {}
+        for pth in p3:
+            ext.setdefault(os.path.dirname(pth) or ".", []).append(
+                os.path.basename(pth))
+        neu = walk_population(rpn, extras=ext)
+        new_names = {(x["tree"], x["comparator"]) for x in neu}
+        check("item40 the .sh is now IN the population",
+              ("cases/PIN", "run_pin.sh") in new_names, True)
+        check("item40 the out-of-root file is now IN the population",
+              ("tools", "helper_pin.py") in new_names, True)
+        # THE RESTRICT CONTROL.  Following a pin into tools/ must judge the
+        # pinned file and must NOT conscript the other campaign's grader that
+        # happens to share the directory -- this tool is shared instrumentation.
+        check("item40 following a pin does NOT conscript a foreign grader",
+              ("tools", "analyse_foreign.py") in new_names, False)
+        # ADDITIVE, the 2q(e) shape: nothing previously walked is lost or moved
+        was2 = {(x["tree"], x["comparator"]): x["status"] for x in old}
+        now2 = {(x["tree"], x["comparator"]): x["status"] for x in neu}
+        check("item40 widening loses no previously-walked grader",
+              sorted(k for k in was2 if k not in now2), [])
+        check("item40 widening changes no previously-returned verdict",
+              sorted(k for k, v in was2.items() if now2.get(k) != v), [])
+
+        # ---- the flag is OPT-IN: without it, nothing at all changes ---------
+        check("item40 no --registration leaves the population untouched",
+              len(walk_population(rpn)), len(old))
+
+        # ---- PARTIAL POPULATION REFUSES (the item 40 ruling) ----------------
+        # A registration pinning a path that cannot be judged must refuse, the
+        # way an empty population already did.  Planted by pinning a path that
+        # is not on disk.
+        wr(rpn, reg, reg_body([(p, b[p]) for p in pinned3]
+                              + [("cases/PIN/vanished.sh", "0" * 40)]))
+        commit_in(rpn, "registration pins a path that is not there",
+                  "2026-09-01T02:00:00+00:00")
+        r_part = run_ep(rpn, "--registration", reg)
+        check("item40 a pinned path with no row REFUSES", r_part.returncode,
+              EXIT_REFUSE)
+        check("item40 the refusal names the uncovered path",
+              "vanished.sh" in r_part.stdout, True)
+        # POSITIVE CONTROL ON THAT REFUSAL (2p.3(e)) -- it restricted, it did
+        # not disable.  The same entry point on the COMPLETE pin set must NOT
+        # refuse.  A refusal that fires on everything proves nothing.
+        wr(rpn, reg, reg_body([(p, b[p]) for p in pinned3]))
+        commit_in(rpn, "back to the complete pin set",
+                  "2026-09-01T03:00:00+00:00")
+        r_full = run_ep(rpn, "--registration", reg)
+        check("item40 the COMPLETE pin set does not refuse",
+              r_full.returncode != EXIT_REFUSE, True)
+        check("item40 coverage is reported as N of N",
+              "PIN COVERAGE: 3 of 3" in r_full.stdout, True)
+        check("item40 a complete, current pin set is clean",
+              r_full.returncode, EXIT_OK)
+
+        # ---- STRIKE SPANS ARE DROPPED --------------------------------------
+        # A pin the document has formally struck must not be resurrected as a
+        # coverage obligation.  Planted with a struck row naming a path that
+        # does not exist: if the strike is honoured the run is unchanged; if it
+        # is not, the run refuses on a path nobody pins any more.
+        wr(rpn, reg, reg_body([(p, b[p]) for p in pinned3],
+                              "\n> STRUCK BY QUOTE: ~~| **`cases/PIN/struck.sh`**"
+                              " | **`" + "1" * 40 + "`** |~~\n"))
+        commit_in(rpn, "a struck row", "2026-09-01T04:00:00+00:00")
+        check("item40 a STRUCK pin row is not a live pin",
+              sorted(registered_pins(os.path.join(rpn, reg))), sorted(pinned3))
+        check("item40 a struck row does not make the run refuse",
+              run_ep(rpn, "--registration", reg).returncode, EXIT_OK)
+
+        # ---- PIN-DRIFT: worktree bytes are not the committed bytes ----------
+        open(os.path.join(rpn, "tools/helper_pin.py"), "a").write("# drift\n")
+        r_dr = run_ep(rpn, "--registration", reg)
+        check("item40 uncommitted drift on a pinned file is PIN-DRIFT",
+              "PIN-DRIFT" in r_dr.stdout, True)
+        check("item40 PIN-DRIFT is a violation", r_dr.returncode, EXIT_VIOLATION)
+
+        # ---- PIN-STALE: the file moved and the pin did not ------------------
+        commit_in(rpn, "the pinned file moves, the registration does not",
+                  "2026-09-01T05:00:00+00:00")
+        r_st = run_ep(rpn, "--registration", reg)
+        check("item40 a moved file whose new blob is recorded nowhere is "
+              "PIN-STALE", "PIN-STALE" in r_st.stdout, True)
+        check("item40 PIN-STALE is a violation", r_st.returncode, EXIT_VIOLATION)
+        # ADVERSE PAIR -- re-pin the moved file and the same run goes green, so
+        # PIN-STALE is shown to track the pin and not merely the edit.
+        b["tools/helper_pin.py"] = blob_of(rpn, "tools/helper_pin.py")
+        wr(rpn, reg, reg_body([(p, b[p]) for p in pinned3]))
+        commit_in(rpn, "re-pinned", "2026-09-01T06:00:00+00:00")
+        check("item40 re-pinning clears PIN-STALE",
+              run_ep(rpn, "--registration", reg).returncode, EXIT_OK)
+
+        # ---- a registration that pins NOTHING is a refusal, not a pass ------
+        # The 2p.2 principle one level up: a parser that read a document and
+        # found no pin has failed to reach a pin set, not verified an empty one.
+        wr(rpn, "verification/campaign/NOPINS.md",
+           "# registration\n\nThis one names `cases/PIN/run_pin.sh` in prose "
+           "only, with no blob sha anywhere.\n")
+        commit_in(rpn, "a registration with no pins",
+                  "2026-09-01T07:00:00+00:00")
+        check("item40 a registration pinning nothing REFUSES",
+              run_ep(rpn, "--registration",
+                     "verification/campaign/NOPINS.md").returncode, EXIT_REFUSE)
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
     return ok
@@ -803,6 +1125,11 @@ def main():
     ap.add_argument("--strict-markers", action="store_true",
                     help="refuse (exit 2) rather than date a freeze from a "
                          "marker that carries no finished_utc")
+    ap.add_argument("--registration", action="append", default=[], metavar="PATH",
+                    help="a pre-registration whose PINNED executables must all "
+                         "be in the population.  Repeatable.  Adds the COVERAGE, "
+                         "IDENTITY and CURRENCY limbs; changes nothing about the "
+                         "walk when it is not given")
     a = ap.parse_args()
     if a.selftest:
         print("SELFTEST -- planted shapes that must fire, and ones that must not")
@@ -812,7 +1139,30 @@ def main():
     if not os.path.isdir(os.path.join(repo, ".git")):
         refuse(f"REFUSE: {repo} is not a git repository")
 
-    rows = walk_population(repo, strict_markers=a.strict_markers)
+    # ---- registration pins, read BEFORE the walk so they can widen it -------
+    pins, extras = {}, {}
+    for reg in a.registration:
+        p = registered_pins(reg if os.path.isabs(reg) else os.path.join(repo, reg))
+        if p is None:
+            refuse(f"REFUSE: registration {reg} could not be read")
+        if not p:
+            # the 2p.2 shape, one level up: a parser that read a registration
+            # and found no pin at all has not verified a pin set, it has failed
+            # to reach one.  Reporting that as coverage would be the exact
+            # defect this flag exists to close.
+            refuse(f"REFUSE: {reg} pins ZERO executables by blob sha. A "
+                   f"registration from which no pin is readable is a parser "
+                   f"that did not reach its subject, not a clean pin set.")
+        for path, blobs in p.items():
+            pins.setdefault(path, [])
+            for b in blobs:
+                if b not in pins[path]:
+                    pins[path].append(b)
+    for path in pins:
+        extras.setdefault(os.path.dirname(path) or ".", []).append(
+            os.path.basename(path))
+
+    rows = walk_population(repo, strict_markers=a.strict_markers, extras=extras)
 
     print("COMPARATOR FREEZE -- VERIFICATION_CHARTER.md 2d")
     print("scope: markers are matched PER COMPARATOR from the comparator's own "
@@ -887,10 +1237,53 @@ def main():
           "purely additive; whether a disclosure exists; a case a comparator "
           "reads but its source cannot be shown to name; a sha witness in a "
           "file no longer at HEAD.")
+    # ---- the pin limbs -- COVERAGE, IDENTITY, CURRENCY ----------------------
+    pin_bad, uncovered = 0, []
+    if pins:
+        judged = {(r["tree"], r["comparator"]) for r in rows}
+        prows = pin_rows(repo, pins, judged)
+        print("-" * 100)
+        print(f"REGISTRATION PINS -- {', '.join(a.registration)}")
+        for pr in sorted(prows, key=lambda x: (x["status"] == "PIN-OK", x["path"])):
+            cov = "covered" if pr["covered"] else "NOT IN THE POPULATION"
+            print(f"  {pr['status']:16s} {pr['path']}   [{cov}]")
+            print(f"      HEAD blob {pr['head_blob'] or '-'}   worktree blob "
+                  f"{pr['disk_blob'] or '-'}   {len(pr['recorded'])} sha(s) "
+                  f"recorded unstruck")
+            if pr["status"] == "PIN-STALE":
+                print(f"      the HEAD blob is recorded NOWHERE unstruck in this "
+                      f"registration -- the file moved and the pin did not")
+            if pr["status"] == "PIN-DRIFT":
+                print(f"      the worktree file is NOT the committed file; a pin "
+                      f"names bytes that are not the bytes that would run")
+            if not pr["covered"]:
+                uncovered.append(pr["path"])
+            if pr["status"] in PIN_VIOLATING:
+                pin_bad += 1
+        n_ok = sum(1 for pr in prows if pr["status"] == "PIN-OK")
+        print(f"  PIN COVERAGE: {len(prows) - len(uncovered)} of {len(prows)} "
+              f"pinned executable(s) judged in the population; {n_ok} PIN-OK, "
+              f"{pin_bad} violating")
+        print("PIN LIMBS CANNOT SEE: which of several recorded shas is the one "
+              "IN FORCE when a registration carries superseded, unstruck pin "
+              "rows -- that is a reading of the strike record, not of the file "
+              "system.")
+
     if any(r["status"] == "UNDATED-MARKER" for r in rows):
         refuse("REFUSE: --strict-markers and at least one in-scope marker "
                "carries no finished_utc")
-    if bad:
+    if uncovered:
+        # the PARTIAL-POPULATION arm.  Exactly the reason the empty arm above
+        # refuses: a coverage figure short of the pinned set is a check that did
+        # not reach its subject, and "I checked 1 of 10" must not return what
+        # "I checked 10 of 10" returns.
+        print("ZERO VERDICT: NOT_A_MEASUREMENT -- part of the pinned set was "
+              "never in scope")
+        refuse("REFUSE: " + str(len(uncovered)) + " pinned executable(s) got no "
+               "row: " + ", ".join(uncovered) + ". A partial population is not "
+               "a clean population -- it is a check that did not reach its "
+               "subject (charter 2p.2, extended to the partial case).")
+    if bad or pin_bad:
         print("VERDICT: FAIL")
         sys.exit(EXIT_VIOLATION)
     print("ZERO VERDICT: ZERO_IS_A_MEASUREMENT -- every grader in the "
