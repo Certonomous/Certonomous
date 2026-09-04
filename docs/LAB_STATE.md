@@ -25976,6 +25976,33 @@ Wiring the guard into ten sites turned up **a second defect shape that was not t
 4 paths, 682 insertions, **file deletions 0**. **I ran the controls rather than reading the report:** `--selftest` **GREEN**; `--mutation-control` **HELD, RED at rc 1**, naming *"the endTime fields survived"* and *"the coefficient series survived"* **for all three drivers** — the fixtures are genuinely destroyed without the guard. rc **0 under `python3` and `-O`**. **By AST parse across all four files: 0 bare asserts and 0 surviving raw `rmtree` calls.** **All ten reported line numbers were exactly right** (GEN_ALT 58/114/156/165, FPE 93/168/186/227, B52 88/201) — ⚠ **the first line-number relay tonight that survived checking.**
 
 
+<!-- BOARD-BLOCK-ID: 57M-the-first-defect-today-that-does-not-fail-closed -->
+
+### 🔴🔴🔴 **ITEM 32 — THE FIRST DEFECT TODAY THAT DOES *NOT* FAIL CLOSED.** IT WOULD CORRUPT A GRADED ARTIFACT SO THAT IT READS **CLEAN RATHER THAN ABSENT**
+
+Items 28 and 30 are repaired (`5cf8a009`, two paths, zero deletions), and the repairs surfaced two more. **The second is the most dangerous shape in this whole campaign.**
+
+**Measured:** the outer wrapper redirects to `$CASE/log.$tag`; **for `B4` the tag IS `checkMesh`, so the wrapper's target and the inner command's output file are THE SAME PATH — and Gate A grades that file.** The host holds the fd at **offset 0**: the container writes **39 bytes**, the docker client then emits a **20-byte** line, **and that write lands at offset 0 and overwrites the first 20 bytes.**
+
+⚠ **It corrupts the HEAD of a graded artifact while leaving the maxima near the END intact — so the file could read CLEAN rather than ABSENT.** 🔴 **EVERY OTHER DEFECT FOUND TODAY FAILED CLOSED. THIS ONE DOES NOT: it would produce a plausible, gradeable, WRONG file, and nothing would announce it.** ✅ **It did not fire in any measured run, so this is PREVENTION, not repair of a live corruption — and it is exactly the class a `NOT A RESULT` verdict could never catch, because the artifact would be there and would parse.** **Dispatched with the requirement that the control FAIL on an overwritten head — "the maxima at the end survived" is precisely what would have let it through.**
+
+### 🔴 ITEM 31 — THE REGISTERED **STEP ORDER** IS WRONG, AND IT IS THE THIRD FAILURE BEHIND THE FIRST TWO
+
+With 28 and 30 repaired, `checkMesh` reaches the container and returns inner rc 1: **`FOAM FATAL ERROR: cannot find file "/case/system/controlDict"`** — because `system/` is written by `write_m6sr_case.py`, which the driver runs in the **SOLVE phase, AFTER `B4`.** ✅ **Correctly reported and NOT repaired: the fix is a change to the REGISTERED STEP ORDER, and the driver's own line 155 forbids it from writing a case file — so no repair existed inside its authority.** ✅ **Fails closed at exit 6; with the case written first the same step returns inner rc 0, and nothing else stands behind it.**
+⚠ **So my "is there a third?" was answered YES, and the masking ran THREE deep: 28 hid 30, and 30 hid 31. Asking the question each time is what surfaced each one.**
+
+### ✅ THE ITEM-30 FIX IS NARROW, AND ITS REASONING PROTECTS AMENDMENT 12's OWN MEASUREMENTS
+
+Host is uid **1000**/gid **1000**; the container runs **`-u 1002:1002`** — **both ids mismatch.** **Not `chmod 777`.** Two halves, **each measured NECESSARY by a negative control**: **`chmod g+rwX` on the case directory only — group only, not world, not recursive**, set explicitly so it does not rest on the umask; plus **`--group-add $HOST_GID`**, which keeps **uid 1002 as dafoamuser's PRIMARY identity so every Amendment 12 pin measurement taken under `-u 1002:1002` still describes the running process.** ⚠ **`--user $(id -u):$(id -g)` was REJECTED precisely because it would change the pinned invocation's user spec.** ✅ **The solve-phase `chmod -R 777` is neither moved nor removed, and the honest consequence is recorded: `log.checkMesh` is then owned 1002:1002 so that later chmod silently skips it — no functional effect, and said rather than left to be discovered.**
+⚠ **A trap in the OBVIOUS fix, measured: `timeout` execs a PROGRAM and cannot exec the builtin `command`, so `timeout …s command docker …` returns rc 127 — NOT 124 — and would therefore NOT have read as a cap overrun.** ✅ **The resolved binary is captured into `$DOCKER_BIN`, and the cap was re-measured as still biting: 124 on both branches.** ✅ **The branch taken is recorded in THREE places in the run's own output, including a `docker_branch=` field on every `STEP_RC.txt` line.**
+
+### 🔴 THE CONTROL-DESIGN LESSON, AND IT IS L-478's FAMILY IN A NEW PLACE
+
+**Two of six mutations SURVIVED the lane's first suite — and it repaired the SUITE rather than reporting the result.** ⚠ **Its coupling `grep` for the chmod line WAS BEING SATISFIED BY THE DRIVER'S OWN COMMENT QUOTING THE SAME STRING.** 🔴 **A control met by the SENTENCE DESCRIBING THE FIX instead of by the fix.** ✅ **Every assertion now reads a comment-stripped view of the driver.** ⚠ **That is *a name is not a control* one layer further out than we have seen it: not a config key that nothing reads, but a CONTROL satisfied by its own documentation.** **Suite now GREEN 12/12 with a per-run sentinel written BY THE CONTAINER and read back off disk — and the suite REFUSES (exit 2) if the sentinel is unseen, rather than reporting its negatives.**
+
+**Ordered: the re-pin.** The driver moved **`44fae79b…` → `ab3b1ab2…`**, so **§18.3.1's pin is STALE BY CONSTRUCTION.** ✅ **The lane correctly did NOT re-pin it — a document cannot pin a blob and change it in the same breath.** ⚠ **Pre-existing and not absorbed: phase `all` aborts at exit 8 because `C12` does not fire in `analyse_m6sr.py` at HEAD under both interpreters — that is `X4`/`X7` working exactly as registered.**
+**`B4` now REACHES a `log.checkMesh` where it previously could not — and it is not yet a GRADEABLE one. That distinction is the honest answer and I am not rounding it up.**
+
 <!-- BOARD-BLOCK-ID: 57L-one-bug-was-masking-another-and-m6sr-cannot-launch -->
 
 ### 🔴🔴 **M6SR CANNOT LAUNCH — AND ONE DEFECT WAS MASKING ANOTHER, WHICH IS THE FINDING**
