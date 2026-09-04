@@ -4916,3 +4916,58 @@ that nobody later reads *"the freeze checker passes"* into a run it never made.
 **byte-identical** before and after this append, both rendering to sha256
 **`5a1287f312cbd93cda84da33991e265e35ba5029d0f4a1086ca0fbd6e336ee4f`** *(the value asserted and
 re-derived inside the commit invocation that carries this section; the commit ABORTS if it moves)*.
+
+#### 22.10.4 ⚠ **ITEM 5's CODE LIMB APPEARS CLOSED AT THE PINNED BLOB — REPORTED IN OUR FAVOUR, AND THEREFORE HELD TO A HIGHER STANDARD, NOT A LOWER ONE**
+
+**WHY THIS IS STATED AT ALL.** §22 exists so that no launch runs an instrument the registration
+does not name. **The reverse error is also live:** a supervisor deciding whether to launch reads
+item 5 as 🔴 *"BOTH Gate P channels are dead … 615.24 core-min of registered ladder cannot produce
+Sanaa's named first-physics figure at all."* **That is a claim about a blob this amendment has just
+struck as a pin**, and it was never re-measured against the blob the ladder will actually run.
+
+⚠ **A FINDING THAT FAVOURS US IS THE EASIEST ONE TO GET WRONG**, so it is stated with the control
+first and the result second, and it is **REPORTED, NOT RULED.**
+
+**THE CONTROL — THE SAME READER REPRODUCES ITEM 5 EXACTLY ON ITEM 5's OWN SUBJECT.** An AST call
+graph over the module (edges from every `ast.Call` inside a `FunctionDef`, by `Name.id` or
+`Attribute.attr`; reachability by transitive closure from `main`) was run on **both** blobs:
+
+| blob | functions defined | reachable from `main()` | **defined but UNREACHABLE** | `cfd_sections` occurrences |
+|---|---|---|---|---|
+| `97cbe039` — **item 5's own subject**, struck as a pin at §18.3.2 | 50 | **48** | **exactly two: `gate_p`, `set_to_set_assignment`** | 6 |
+| **`9b963ad4`** — **the blob pinned by §22.2, the one that will run** | 66 | **62** | four: `__init__`, `_control_unreachable_sentinel`, `_fn`, `visit_Call` | **15** |
+
+**The top row REPRODUCES ITEM 5 TO THE FUNCTION NAME AND THE COUNT** — item 5 recorded *"48
+functions are reachable from `main()`. `gate_p()` is NOT. `set_to_set_assignment()` is NOT."*
+**A reader that reproduces the historical NO is licensed to report the current YES**, which is the
+only reason the bottom row is stated at all. ⚠ **The bottom row's own control is stronger than a
+missing-name plant:** the reader still reports **four** defined-but-unreachable functions on the
+pinned blob — one of them named **`_control_unreachable_sentinel`**, which the comparator appears
+to carry for exactly this purpose. **A reachability reader that finds nothing unreachable is a
+fail-open wearing a pass; this one does not.**
+
+**AT THE PINNED BLOB, `gate_p` AND `set_to_set_assignment` ARE BOTH REACHABLE FROM `main()`**, and
+`cfd_sections` occurrences have gone **6 → 15**. **`sampleDict` appears 9 times** across
+`write_m6sr_case.py`, `build_m6sr_l1.sh` and `run_m6sr_b5.sh`, where item 5 recorded that *"the
+build driver writes no `sampleDict`."*
+
+#### WHAT THIS DOES **NOT** ESTABLISH — AND THE LIMITS ARE THE POINT
+
+1. ⚠ **REACHABILITY IS NOT EXECUTION.** The call graph resolves an attribute call by its
+   **attribute name alone**, so it **over-approximates**: it proves `gate_p` is no longer
+   orphaned, **not** that a `--grade` run reaches it, nor that it returns a value. **Item 5's
+   claim is contradicted on its own instrument; it is not disproved on the physics.**
+2. ⚠ **IT SAYS NOTHING ABOUT `X1`.** §17.8 rules that *"`X1` STANDS"* — the prediction that `D1`
+   is indeterminate and Gate P's per-station channel returns **`NOT A RESULT`**. That is the
+   **DATA** limb and it is **untouched here**; item 5 was the **CODE** limb. **A live invocation
+   path for a channel predicted to return `NOT A RESULT` is not a deliverable.**
+3. ⚠ **THE READER IS NOT A FILED ARTIFACT.** It is a throwaway AST walk, fully described above so
+   it is reproducible, but **it is not a pinned control suite and this document does not cite
+   it.** A finding that moves a 🔴 item in the lab's favour deserves an executable control, and
+   **that control does not exist yet.**
+
+🔴 **THEREFORE: REPORTED, NOT RULED. THIS LANE DOES NOT DECLARE ITEM 5 CLOSED.** Item 5 was
+authored by another pass, it is registered 🔴, and re-grading another lane's finding on a
+favourable measurement is exactly the move the supervision charter reserves as **check 3 —
+big-claim verification before belief, done personally and never delegated.** **The measurement is
+handed up; the ruling is the supervisor's.**
