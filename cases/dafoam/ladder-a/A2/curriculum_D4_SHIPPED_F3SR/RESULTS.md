@@ -838,3 +838,52 @@ else.** If no source is found, the sentence is struck, not kept.*
 
 **Nothing here is filed, sent, uploaded, posted or commented outside this box** (`CLAUDE.md` rule 7;
 `DAFOAM_CHARTER.md` §10). **SUBMISSIONS PARKED.**
+
+---
+
+# CORRECTION 6 — 2026-09-04. CORRECTION 5's disclosed provenance gap is **CLOSED BY CITATION, NOT BY STRIKING**: the long-form `CD` has six artefacts. It was missed because it is stored as a JSON **STRING**, and a numeric search is blind to it
+
+**Written by the dafoam-supervisor personally**, 2026-09-04, in the same session as CORRECTION 5. **NO COMPUTE.** **NO VERDICT MOVES.** **Lines whose number changed above this section: 0.**
+
+## C6.1 STRUCK BY QUOTE FROM C5.2 — NOT REWRITTEN
+
+> ~~*Open provenance gap … the long-form `0.021128513742774115` appears in **no repository document except the lab board** and in no artefact located so far … **If no source is found, the sentence is struck, not kept.**~~*
+
+**A source WAS found — six of them — so the sentence is KEPT, and it is now cited.** The undertaking in C5.2 was to strike on absence; the honest discharge of that undertaking is to record the presence with equal prominence.
+
+## C6.2 THE ARTEFACTS, AND THE KEY
+
+The value is the **`CD_baseline` of the `F-S` (SHIPPED, disarmed) arm** — which is exactly the disarmed counterpart the armed-vs-disarmed comparison requires, not some other run's number:
+
+| artefact | key |
+|---|---|
+| `/home/ubuntu/certonomous-runs/CURRICULUM-D4S-F3SR-a2-wing-cdmin/F-S/d4s_f3s_fd_endpoint.json` | `"CD_baseline": "0.021128513742774115"` |
+| `/home/ubuntu/certonomous-runs/CURRICULUM-D4S-F3SR-a2-wing-cdmin/F-S/d4s_f3s_accept.jsonl` line 1 | `"CD": "0.021128513742774115"` |
+
+and the same pair in `CURRICULUM-D4S-F3S-a2-wing-cdmin/F-S/`, plus each run root's `d4s_f3s_fd_endpoint.jsonl` — **six files.** [MEASURED: 1 occurrence in the named `.json`, 1 line in the named `.jsonl`.]
+
+## C6.3 ⚠ WHY THE FIRST SEARCH MISSED IT, AND IT IS THE SAME DISEASE THIS RECORD IS ABOUT
+
+**The value is stored as a JSON STRING, not as a number.** A reader that walks the parsed object comparing floats returns **zero matches on a file that contains the value** — I ran exactly that reader and it reported `exact matches: 0` while a byte search on the same named file returned 1.
+
+> **A numeric search for a number stored as text is a reader that cannot see, and its output is `absent` — indistinguishable from the number genuinely not being there.**
+
+**That is the ninth instance of this family in this item's records and the first inside my own triage.** The lesson generalises past JSON: **before reporting an absence, show the reader able to find the thing in a case where it IS present** — rule 3's principle applied to a search rather than to a comparator.
+
+## C6.4 AND C5.2's READING IS CONFIRMED AND NOW QUANTIFIED
+
+With both numbers in hand the saturation claim stops being an argument and becomes arithmetic:
+
+```
+armed, as printed   0.02112851374            (11 decimals -- the log's full precision)
+disarmed, full      0.021128513742774115
+absolute difference 2.7741142716e-12
+relative difference 1.3129718e-10
+half-width of the armed value's last printed digit   5e-12
+```
+
+**The difference sits INSIDE the armed side's own rounding interval** — `2.774e-12 < 5e-12` — so the armed print is exactly what the disarmed value rounds to at 11 decimals. **The two are consistent with being the same number, and the armed side cannot resolve it further.** C5.2's conclusion stands unchanged and is now stated with its numbers: **a bound at ~5e-12, not a bit-identity.**
+
+**The bit-level claim remains C2.5's** — `P3` `HIT`, `worst_rel_diff = 0.0` at `1e-12` relative, registered before compute. **Quote that one.**
+
+**Nothing here is filed, sent, uploaded, posted or commented outside this box** (`CLAUDE.md` rule 7; `DAFOAM_CHARTER.md` §10). **SUBMISSIONS PARKED.**
