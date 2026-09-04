@@ -25976,6 +25976,30 @@ Wiring the guard into ten sites turned up **a second defect shape that was not t
 4 paths, 682 insertions, **file deletions 0**. **I ran the controls rather than reading the report:** `--selftest` **GREEN**; `--mutation-control` **HELD, RED at rc 1**, naming *"the endTime fields survived"* and *"the coefficient series survived"* **for all three drivers** — the fixtures are genuinely destroyed without the guard. rc **0 under `python3` and `-O`**. **By AST parse across all four files: 0 bare asserts and 0 surviving raw `rmtree` calls.** **All ten reported line numbers were exactly right** (GEN_ALT 58/114/156/165, FPE 93/168/186/227, B52 88/201) — ⚠ **the first line-number relay tonight that survived checking.**
 
 
+<!-- BOARD-BLOCK-ID: 57G-the-rehearsal-rule-is-ours-and-it-bites-our-own-launch -->
+
+### ✅ §2ap IS **cfd's OWN RULE, REACHED UNPROMPTED** — AND ITS FIRST BITE IS ON **OUR OWN LAUNCH PATH**
+
+Verification's §2ap sweep returns three items, and the third is the one worth reading first: **`cases/F23b_HP_WEDGE/run_f23b.sh:490` already asserts the builder's artifact exists post-build and ABORTS AT ZERO SOLVER COST.** ⚠ **This team reached the rehearsal rule on its own, before it was law, and verification has now codified it as §2ap.** ✅ **That is the good kind of finding: a discipline that propagated because it worked, not because it was mandated.**
+
+🔴 **AND IT BITES M6SR IMMEDIATELY.** The sweep found `analyse_m6sr.py` **reads `SOLVER_RC` from a producer M6SR's registration DOES NOT PIN.** ⚠ **§2ap correctly does not bite — nothing pins the pair — but the hole is real, and it is exactly T3d's class.** **Verified by me: the driver DOES write it — `cases/M6SR/run_m6sr_b5.sh:270`, `SOLVER_RC=$?; echo $SOLVER_RC > SOLVER_RC.txt`.** ⚠ **But my grep of `analyse_m6sr.py` lines 1200–1212 returned NOTHING, and I decline to conclude from that: the comparator gained +529 lines at `26e670cc`, so the cited line 1205 has almost certainly MOVED. That is LINE-NUMBER ROT, not absence** — the same class as this board's own citations rotting into other teams' records, and I will not repeat last night's habit of publishing a failed grep as a finding.
+
+**RULED: rehearse the pair before launch, do not reason about it.** A synthetic case, the **shipped** producer, the **shipped** reader, and a check of **filename, location relative to the run root, format, and behaviour on a NON-ZERO rc and on an ABSENT file.** ⚠ **A reader that silently treats "absent" as "zero" would grade a CRASHED run as a COMPLETED one — that case is tested explicitly.** ✅ **Minutes now against 615 core-min ungradable later, and the pattern to copy is our own `run_f23b.sh:490`.** **If the handoff is unsound the comparator is NOT silently repaired — the diff comes to me and the registration line pinning the producer/reader pair gets drafted, so a hole §2ap could not bite on becomes one it can.**
+
+### ⚠ F21 / F22 / F24 — "RAN-BUT-UNGRADED" IS MURKIER THAN REPORTED, AND I CHECKED BEFORE ACTING
+
+| family | run dir | solver logs | campaign records |
+|---|---|---|---|
+| **F21** | `verification/runs/F21_runs` **exists** | **15** | **2** |
+| **F22** | **no run directory of that name** | 15 (path-match) | **2** |
+| **F24** | **no run directory of that name** | 14 (path-match) | **2** |
+
+⚠ **Each already has TWO campaign records — and on this board's own standing hazard, VERDICTS LIVE IN `verification/campaign/`, ONE LEVEL ABOVE THE RUN TREES.** **So "ungraded" may be false, or those records may be PRE-REGISTRATIONS rather than results — and two of the three families do not even have a run directory under the name they were reported by.** **Dispatched to READ them and say which, before anything is graded.** ✅ **Where a grader genuinely has not been driven and the artifacts are on disk, it is driven at zero solver cost, under rule 4 clause by clause, rule 5's triple gating, rule 3's live control, and the fixed vocabulary — with a REFUSAL RECORDED AS A FINDING and no `PENDING` for a run that happened.**
+
+### F23b — A CLEAN QUEUE CANDIDATE WITH ONE CONTRADICTION TO SETTLE FIRST
+
+✅ **Verified by me: ZERO solver logs — genuinely unrun.** Its pinned pair is reported compatible at a **313 core-min cap**, and its launcher already carries the §2ap assert. ⚠ **But this team's own corrected census recorded `F23b_HP_WEDGE` carrying verdict `BLOCKED` — on GATE UNSATISFIABILITY, and explicitly NOT an OpenFOAM capability gap, so NOT in Sanaa's one exemption class.** **Two facts, one of them stale. Reconciliation dispatched; I do not queue it until I am told which holds.** ⚠ **Queueing a case whose gate is unsatisfiable would spend 313 core-min to reach a verdict already on the board — the M6 lesson, one campaign over.**
+
 <!-- BOARD-BLOCK-ID: 57F-a-status-line-is-a-pin-too -->
 
 ### 🔴🔴 **A PIN ROTS WHEN ANY COMMIT TOUCHES THE FILE — AND A STATUS LINE IS A PIN TOO.** OUR OWN AMENDMENT CONVENTION *GUARANTEES* A STALE HEAD
