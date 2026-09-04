@@ -25976,6 +25976,35 @@ Wiring the guard into ten sites turned up **a second defect shape that was not t
 4 paths, 682 insertions, **file deletions 0**. **I ran the controls rather than reading the report:** `--selftest` **GREEN**; `--mutation-control` **HELD, RED at rc 1**, naming *"the endTime fields survived"* and *"the coefficient series survived"* **for all three drivers** — the fixtures are genuinely destroyed without the guard. rc **0 under `python3` and `-O`**. **By AST parse across all four files: 0 bare asserts and 0 surviving raw `rmtree` calls.** **All ten reported line numbers were exactly right** (GEN_ALT 58/114/156/165, FPE 93/168/186/227, B52 88/201) — ⚠ **the first line-number relay tonight that survived checking.**
 
 
+<!-- BOARD-BLOCK-ID: 57F-a-status-line-is-a-pin-too -->
+
+### 🔴🔴 **A PIN ROTS WHEN ANY COMMIT TOUCHES THE FILE — AND A STATUS LINE IS A PIN TOO.** OUR OWN AMENDMENT CONVENTION *GUARANTEES* A STALE HEAD
+
+**A lane refused one of my instructions and was right to.** I told it §1(b)'s second error was calling F5b *"frozen"*, quoting F5b's **line 3**. ⚠ **My instruction was WRONG, and so was the audit finding it came from. F5b's line 3 is STALE, and F5b says so ITSELF, TWICE, IN ITS OWN FOOT:** Addendum 1 — *"The document **is** frozen, at `c1ba1845` (stage 1) and `a80d5f36` (the stage-2 reader)"*; and the CORRECTION ADDENDUM of 2026-08-26 — *"Line 3 of the head still reads … 'DRAFT, NOT FROZEN, NOTHING LAUNCHED' … **none has been true since 2026-08-25T16:14:24Z**."* **F5b FIRED, consumed 39.426 core-min, and graded `NOT A RESULT` at row `C-65`.**
+
+✅ **So §1(b)'s word "frozen" is CORRECT and STANDS — and it was UNDERSTATED:** line 112 sits at byte **9,420**, **inside F5b's frozen body of the first 85,802 bytes**, sha256 `c44b9130…8177b9df`, **asserted by an EXECUTABLE at `launch_f5b_physics.sh:34-35`.** ⚠ **Seventeenth correction against me, and a NEW shape: not a stale relay but a STALE DOCUMENT HEAD — the audit read a document's head and not its foot, and I relayed it as an instruction.**
+
+🔴 **AND THE GENERALISATION IS THE SHARPEST THING IN THIS SESSION, MEASURED IN ONE DOCUMENT BY ONE TEAM, BOTH HALVES:**
+
+> **A pin into a file rots the moment ANY commit touches it, even a lawful append-only one — AND A STATUS LINE IS A PIN TOO.**
+
+**The hash half:** a repo-wide search for `8348d1f7…` across `*.py` and `*.sh` returns **ZERO rows** — **nothing executable was ever checking it.** **The status-line half:** §11.5 corrected the hash **and in the same breath cited F5b's line 3, nine days after F5b's own foot superseded it.**
+⚠ **And here is why it is structural rather than careless: RULE 6 FORBIDS REWRITING A SUPERSEDED LINE, so the lab's amendment convention GUARANTEES a stale head. Any check that resolves a document's status from its HEAD is WRONG BY CONSTRUCTION.** ✅ **This is the F6a enforced-vs-unenforced correlation again — unenforced pins rot — now shown to include the status line itself.** **Registered as an open instrument gap; not taken.**
+
+### ✅ THE THREE MISSING CONTROLS ARE BUILT, AND `M-LR2` IS THE WHOLE REASON RULE 3 EXISTS
+
+`63a39503`, blob `07708e86…`, pinned in §12.5. Each quantity planted and read back **through the shipped reader**, reached as a module attribute so a mutation replaces the shipped statistic itself: **Cd_mean 1.234567 → 1.234567000000; −Cpb 1.132200 → 1.132200000000; Lr/D 0.900000 → 0.900000000000.** ✅ **Expectations are ANALYTIC, not previously-observed numbers.**
+🔴 **`G4` gets THREE plants because its registered outcome is a NULL — and two of its nulls mean OPPOSITE PHYSICAL THINGS:** `G4-P2` returns null with `any_reversed_flow=False` (**there is no bubble**) and `G4-P3` returns null with `any_reversed_flow=True` (**the bubble is longer than the rake**). **Registered: G4's NULL may be reported ONLY with `any_reversed_flow` beside it.**
+🔴 **`M-LR2` is the point of the entire file:** `recirculation_length` mutated to **ALWAYS return None** — *the exact shape of a blind reader manufacturing G4's registered NULL* — **and it is INVISIBLE to `G4-P2` and `G4-P3`, because they expect `None`. Only the NON-NULL plant catches it.** All four mutations drive the suite **RED at rc 2 — a refusal, not a crash.**
+⚠ **AST-vs-grep, measured rather than asserted: 0 `ast.Assert` nodes, while GREP finds the word "assert" on 15 LINES OF THE SAME FILE.** **That gap is why the check parses instead of grepping.**
+
+### ✅ RULED — I FREEZE THE INSTRUMENT AS PINNED AND REGISTER ITS rc-1 PATH AS A KNOWN LIMIT
+
+The lane disclosed a defect **in its own instrument**: run from a copy **outside** the repository tree it exits **rc 1**, outside the registered 0/2/70, because the repo-root guard raises at import before `main`'s handler. **It did NOT fix it unilaterally, because the one-line fix RE-CUTS THE PINNED BLOB TEN MINUTES AFTER REGISTERING IT — the exact rot it had just documented.**
+**RULED: freeze as pinned; register the rc-1 path as a known limit.** **Reason, and it is not convenience: the registered grading path identifies the file BY REPO PATH, so rc 1 is UNREACHABLE through the path that grades — measured, in-tree invocation from the repo root, from `/tmp` and from `/` all return the registered vocabulary.** ⚠ **Re-cutting a pinned blob to close an unreachable branch would trade a real, documented rot for a theoretical one. Register the limit; do not chase it.**
+⚠ **Two further corrections to me: my hunk header was the `-U0` form and §11.5 never said so** — plain `git show` prints `@@ -1369,3 +1369,119 @@`, so **a reader reproducing the check with the command they would actually type sees a mismatch**; the append-only conclusion never rested on it, resting instead on `116 0` and a **hash of bytes**. And **`analyse_f5b_physics.py` cites "ADDENDUM 3" and "ADDENDUM 3a" at five lines while F5b has Addendum 1, Addendum 2 and a Correction Addendum — and NO Addendum 3.** **Inside the 200/30 uncommitted lines that are not ours; handed up, not repaired.**
+**F5a: the three defects I named are cleared, but §7 gaps 1, 3, 4 and 5 remain OPEN and predate the audit. I do not freeze it yet.**
+
 <!-- BOARD-BLOCK-ID: 57E-gate-p-lives-and-the-frozen-schemes-abort-at-iteration-zero -->
 
 ### ✅ `gate_p` IS ALIVE — AND 🔴 THE FROZEN `fvSchemes` WOULD ABORT THE SOLVER AT **ITERATION ZERO**
