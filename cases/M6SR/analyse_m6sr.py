@@ -1666,6 +1666,75 @@ def gate_g2(steps, cd, l3_l2_difference):
     }
 
 
+def refinement_ratio_from_registered_counts():
+    """THE REFINEMENT RATIO, DERIVED FROM FROZEN REGISTRATION CONTENT.  -> (r, basis).
+
+    AMENDMENT 24.  `r` was never a free parameter.  Two clauses this registration froze
+    determine it:
+        A4  cell counts 99,840 : 399,360 : 1,597,440, ratios EXACTLY 4.000 on integers
+        A6  cells / wing_faces == 64 EXACTLY, at every level
+    Together they force the SURFACE FACE COUNTS to 1,560 : 6,240 : 24,960.  A surface face
+    count is TWO-DIMENSIONAL, so a linear refinement r scales it by r**2, and
+    r = sqrt(4.000) = 2.000 EXACTLY.
+
+    IT IS COMPUTED HERE, NOT STORED.  Storing 2.0 as a literal would decouple the value from
+    the clauses that force it -- which is item 50's defect exactly, one document up: a number
+    that agrees with its basis until somebody changes the basis.  If A4_CELLS or
+    A6_CELLS_PER_WING_FACE ever moved, r moves with them and control C32 goes red.
+    """
+    faces = []
+    for c in A4_CELLS:
+        if c % A6_CELLS_PER_WING_FACE != 0:
+            raise InternalDefect(
+                f"A4 cell count {c} is not divisible by A6's {A6_CELLS_PER_WING_FACE} cells "
+                "per wing face, so the surface face count this derivation rests on does not "
+                "exist. A6 is an EXACT clause and this is not a rounding matter.")
+        faces.append(c // A6_CELLS_PER_WING_FACE)
+    if not (faces[1] == A4_RATIO_EXACT * faces[0]
+            and faces[2] == A4_RATIO_EXACT * faces[1]):
+        raise InternalDefect(
+            f"the surface face counts {faces} do not stand in the exact ratio "
+            f"{A4_RATIO_EXACT} that A4 registers on integers. The derivation of r rests on "
+            "that exactness and this comparator will NOT take a square root of an "
+            "approximate ratio.")
+    r = math.sqrt(float(A4_RATIO_EXACT))
+    return r, {
+        "r": r,
+        "DERIVED_NOT_CHOSEN": True,
+        "surface_face_counts": faces,
+        "surface_face_ratios": [faces[1] // faces[0], faces[2] // faces[1]],
+        "from_clauses": ["A4 -- cell counts and their exact integer ratio",
+                         "A6 -- cells / wing_faces == 64 EXACTLY at every level"],
+        "derivation": ("surface faces = cells / 64 = 1,560 : 6,240 : 24,960; their ratio is "
+                       "EXACTLY 4.000; a surface face count is TWO-DIMENSIONAL so a linear "
+                       "refinement r scales it by r**2; therefore r = sqrt(4.000) = 2.000 "
+                       "EXACTLY. Checkable by hand without running anything."),
+        "why_not_the_cube_root_of_the_cell_ratio": (
+            "1.5874 = 4**(1/3) would be right for a THREE-dimensional refinement. A6 holds "
+            "the wall-normal direction at 64 layers at EVERY level, so this family refines "
+            "TWO of three directions BY CONSTRUCTION -- clause L-HONEST says exactly that -- "
+            "and the cube root would attribute to the mesh a refinement the mesh does not "
+            "have."),
+        "not_rule_2_fitting": (
+            "A value FORCED by two already-frozen clauses cannot have been selected to fit "
+            "an answer: it was fixed the moment A4 and A6 were frozen and any reader could "
+            "have computed it then. What was missing was the DERIVATION, not the freedom."),
+        "and_the_band_does_not_depend_on_it_anyway": (
+            "p_s is DEFINED as ln(d32/d21)/ln(r), so r**p_s == d32/d21 identically for ANY "
+            "r and r CANCELS from GCI = Fs*|d21/f1|/(r**p_s - 1). GCI_fine -- the quantity "
+            "Gate P's band consumes -- is ALGEBRAICALLY INVARIANT under r. Control C33 "
+            "measures it. The band is therefore safe twice over: once because r is derived "
+            "rather than chosen, and again because the band does not depend on r at all."),
+        "WHAT_THIS_IS_NOT": (
+            "This does NOT weaken Gate G, retire G3's p_s, or move any threshold. Gate G's "
+            "refusal was FORMALLY CORRECT and stops firing only because the parameter it "
+            "named as unregistered is now registered -- the one legitimate way for a "
+            "refusal to end. AND IT IS NOT A CITATION OF LINE 425: that line's `r` is the "
+            "pyHyp WALL-NORMAL GROWTH RATIO 1.167442, a different quantity, and it is NOT "
+            "evidence about the refinement ratio (Amendment 24 records the check)."),
+    }
+
+
 def roache_triple(f3, f2, f1, r):
     """Standing rule 5, at Fs = 1.25.  f1 = FINE.  Returns the triple's classification.
 
@@ -2093,16 +2162,60 @@ def gate_g(levels_cd, levels_logs, l3_l2_difference=None):
                          "not monotone.")
         return out
 
-    raise Unregistered(
-        "GATE G IS UNGRADEABLE AS THE DOCUMENT IS FROZEN. G3 registers a 'surface-refinement "
-        "exponent p_s ... from the three-level ratio' and G4 registers 'GCI_fine on C_D at "
-        "Fs = 1.25', but NO SECTION OF THE FROZEN REGISTRATION REGISTERS THE REFINEMENT "
-        "RATIO r. Three defensible conventions (r = 2.000, 1.5874, 4.000) give three "
-        "different p_s and three different GCI_fine, and Gate P's numerical band channel "
-        "consumes GCI_fine directly. Choosing one HERE would be choosing a gate parameter "
-        "AFTER the freeze -- exactly what standing rule 2 forbids. All three are printed in "
-        "G3_G4_all_candidate_ratios for the supervisor. REFUSED (exit 2): this is an "
-        "addendum item, and no comparator may take it.")
+    # ===================================================================================
+    # AMENDMENT 24.  THE REFUSAL BELOW IS STRUCK BY QUOTE.  IT WAS FORMALLY CORRECT AND IT
+    # IS NOT WEAKENED -- IT STOPS FIRING BECAUSE THE PARAMETER IS NOW REGISTERED, WHICH IS
+    # THE ONLY LEGITIMATE WAY FOR A REFUSAL TO STOP FIRING.
+    #
+    # 🔴 STRUCK BY QUOTE, 2026-09-04, AMENDMENT 24: ~~"GATE G IS UNGRADEABLE AS THE DOCUMENT
+    # IS FROZEN. G3 registers a 'surface-refinement exponent p_s ... from the three-level
+    # ratio' and G4 registers 'GCI_fine on C_D at Fs = 1.25', but NO SECTION OF THE FROZEN
+    # REGISTRATION REGISTERS THE REFINEMENT RATIO r. Three defensible conventions (r =
+    # 2.000, 1.5874, 4.000) give three different p_s and three different GCI_fine, and Gate
+    # P's numerical band channel consumes GCI_fine directly. Choosing one HERE would be
+    # choosing a gate parameter AFTER the freeze -- exactly what standing rule 2 forbids.
+    # All three are printed in G3_G4_all_candidate_ratios for the supervisor. REFUSED (exit
+    # 2): this is an addendum item, and no comparator may take it."~~
+    #
+    # WHY IT NO LONGER HOLDS.  `r` WAS NEVER A FREE PARAMETER.  It is DETERMINED by two
+    # clauses this registration froze long before the question was asked -- A4 (cell counts
+    # 99,840 : 399,360 : 1,597,440, ratios EXACTLY 4.000 on integers) and A6 (cells /
+    # wing_faces == 64 EXACTLY at every level).  Together they force the SURFACE FACE COUNTS
+    # to 1,560 : 6,240 : 24,960, whose ratios are exactly 4.000; a surface face count is
+    # TWO-DIMENSIONAL, so a linear refinement r scales it by r**2, and r = sqrt(4) = 2.000
+    # EXACTLY.  IT IS DERIVED, NOT CHOSEN, and `refinement_ratio_from_registered_counts()`
+    # COMPUTES it from those constants rather than storing the literal -- so if either
+    # frozen count ever moved, r would move with it and control C32 would go red.
+    #
+    # THAT IS WHY THIS IS NOT RULE-2 FITTING.  A value forced by two already-frozen clauses
+    # cannot have been selected to fit an answer: it was fixed the moment A4 and A6 were
+    # frozen, and any reader could have computed it then.  WHAT WAS MISSING WAS THE
+    # DERIVATION, NOT THE FREEDOM.
+    #
+    # ⚠ AND THE CUBE ROOT OF THE CELL RATIO (1.5874) IS NOT APPLICABLE, for a registered
+    # reason and not a preference: A6 holds the wall-normal direction at 64 layers at every
+    # level, so the refinement is TWO-dimensional BY CONSTRUCTION.  Clause L-HONEST says so
+    # in terms -- the family "refines 2 of 3 directions" -- which is also why this document
+    # calls itself a SURFACE-refinement study and registers its GCI as a surface-refinement
+    # band and a LOWER BOUND on total.
+    #
+    # ⚠ AND THE BAND IS SAFE TWICE OVER.  Even if the derivation were disputed, `GCI_fine`
+    # IS ALGEBRAICALLY INVARIANT UNDER r: p_s is DEFINED as ln(d32/d21)/ln(r), so
+    # r**p_s == d32/d21 identically for ANY r, and r CANCELS from
+    # GCI = Fs*|d21/f1|/(r**p_s - 1).  Control C33 measures it across five candidate ratios
+    # and requires ONE bit-identical GCI while p_s spans a factor of 21.5.
+    # ===================================================================================
+    r_reg, r_basis = refinement_ratio_from_registered_counts()
+    out["G3_G4_registered_ratio"] = r_basis
+    out["G3_G4_roache_triple_at_registered_r"] = roache_triple(f3, f2, f1, r_reg)
+    out["gate_G_label"] = _verdict("GATE REACHED")
+    out["reason"] = (
+        "the triple classifies CONVERGING at the REGISTERED refinement ratio r = "
+        f"{r_reg}, DERIVED from A4's cell counts and A6's 64 cells per wing face "
+        "(Amendment 24). The band is reported under Section 6's label L-HONEST: it is a "
+        "SURFACE-refinement band and a LOWER BOUND on total discretisation uncertainty, "
+        "because A6 holds the wall-normal direction fixed and the family refines 2 of 3.")
+    return out
 
 
 def set_to_set_assignment(ref, cfd_sections):
@@ -2872,6 +2985,10 @@ def controls(scratch, mutate=None):
                   # cannot orphan the screen the way item 5 orphaned Gate P.
                   "section7_screen", "section7_condition_1",
                   "verify_patch_name_source", "_section7_screen_summary_lines",
+                  # Amendment 24. The refinement ratio is DERIVED from
+                  # frozen counts; orphaning the derivation would silently
+                  # restore Gate G's refusal.
+                  "refinement_ratio_from_registered_counts",
                   # Amendment 21, item 48. Rule 4's strict completion,
                   # INCLUDING the age guard, was called by no control at all
                   # until C31 and is named here so it cannot be orphaned.
@@ -3220,6 +3337,83 @@ def controls(scratch, mutate=None):
          f"item 48's obvious fix, writing 0/ at stage time, would have made it pass "
          f"UNCONDITIONALLY while still reporting green.")
 
+
+    # ======================================================================================
+    # C32 / C33 -- AMENDMENT 24.  THE REFINEMENT RATIO IS DERIVED, AND THE BAND DOES NOT
+    # DEPEND ON IT ANYWAY.  Two independent protections, one control each.
+    # ======================================================================================
+    # ---- C32: `r` IS COMPUTED FROM THE FROZEN COUNTS AND MOVES IF THEY MOVE ------------
+    # THE SUPERVISOR'S REQUIRED LIMB, VERBATIM: "a limb that the derived r reproduces 2.000
+    # from the registered counts and would MOVE if those counts moved."  Storing 2.0 as a
+    # literal would be ITEM 50's DEFECT ONE DOCUMENT UP -- a number that agrees with its
+    # basis until somebody changes the basis -- so the plant MUTATES THE BASIS and requires
+    # the derived value to follow.
+    r32, b32 = refinement_ratio_from_registered_counts()
+    clean32 = (r32 == 2.0 and b32["surface_face_counts"] == [1560, 6240, 24960]
+               and b32["surface_face_ratios"] == [4, 4])
+    _a4, _a6, _rx = A4_CELLS, A6_CELLS_PER_WING_FACE, A4_RATIO_EXACT
+    moved32 = missed32 = None
+    try:
+        globals()["A4_RATIO_EXACT"] = 9          # THE PLANT: the basis is changed
+        globals()["A4_CELLS"] = (99840, 99840 * 9, 99840 * 81)
+        r32m, _b32m = refinement_ratio_from_registered_counts()
+        moved32 = (r32m == 3.0)                  # sqrt(9) -- the derivation FOLLOWED
+        # AND THE NEGATIVE TWIN: a basis that violates A6's exactness must REFUSE, not round.
+        globals()["A4_CELLS"] = (99841, 99841 * 9, 99841 * 81)
+        try:
+            refinement_ratio_from_registered_counts()
+            missed32 = False
+        except InternalDefect:
+            missed32 = True
+    finally:
+        globals()["A4_CELLS"], globals()["A6_CELLS_PER_WING_FACE"] = _a4, _a6
+        globals()["A4_RATIO_EXACT"] = _rx
+    r32b, _ = refinement_ratio_from_registered_counts()
+    ok32 = clean32 and moved32 is True and missed32 is True and r32b == 2.0
+    if mutate == "C32":
+        ok32 = False
+    _rec("C32", ok32,
+         f"r = {r32} DERIVED from A4's cell counts {list(_a4)} and A6's {_a6} cells per wing "
+         f"face: surface faces {b32['surface_face_counts']}, ratios "
+         f"{b32['surface_face_ratios']}, r = sqrt(4.000) = 2.000 EXACTLY -- checkable by "
+         f"hand. THE PLANT: with the registered ratio changed to 9 the derived r MOVED to "
+         f"3.0 ({moved32}), so the value is COMPUTED FROM THE BASIS AND NOT STORED. THE "
+         f"NEGATIVE TWIN: a cell count not divisible by 64 REFUSES as an InternalDefect "
+         f"({missed32}) rather than rounding -- A6 is an EXACT clause. The basis is restored "
+         f"and r reads {r32b} again.")
+
+    # ---- C33: `GCI_fine` IS ALGEBRAICALLY INVARIANT UNDER `r` --------------------------
+    # THE SECOND PROTECTION, AND IT IS INDEPENDENT OF THE FIRST: even if the derivation were
+    # disputed, the quantity Gate P's band consumes does not depend on r at all.  p_s is
+    # DEFINED as ln(d32/d21)/ln(r), so r**p_s == d32/d21 identically and r cancels from
+    # GCI = Fs*|d21/f1|/(r**p_s - 1).  This is an IDENTITY, not a numerical coincidence, and
+    # the control measures it across five candidate ratios spanning 1.10 to 7.77.
+    _f3, _f2, _f1 = 0.0300, 0.0280, 0.0272
+    t33 = {r: roache_triple(_f3, _f2, _f1, r)
+           for r in (1.10, 1.5874, 2.000, 4.000, 7.77)}
+    g33 = [v["GCI_fine_at_Fs_1.25"] for v in t33.values()]
+    p33 = [v["p_s"] for v in t33.values()]
+    cls33 = {v["classification"] for v in t33.values()}
+    # THE HAND CHECK, computed here from d32/d21 WITHOUT going through r at all.
+    d32_33, d21_33 = t33[2.000]["d32"], t33[2.000]["d21"]
+    gci_hand = G4_FS * abs(d21_33 / _f1) / ((d32_33 / d21_33) - 1.0)
+    ok33 = (len({repr(g) for g in g33}) == 1
+            and cls33 == {"CONVERGING"}
+            and max(p33) / min(p33) > 20.0
+            and abs(gci_hand - g33[0]) < 1e-18)
+    if mutate == "C33":
+        ok33 = False
+    _rec("C33", ok33,
+         f"across r in (1.10, 1.5874, 2.000, 4.000, 7.77) on one CONVERGING triple, "
+         f"GCI_fine is {g33[0]!r} in ALL FIVE CASES -- {len({repr(g) for g in g33})} distinct "
+         f"value, BIT-IDENTICAL -- while p_s spans {min(p33):.6f}..{max(p33):.6f}, a factor "
+         f"of {max(p33)/min(p33):.4f}. THE INVARIANCE IS ALGEBRAIC, NOT NUMERICAL LUCK: p_s "
+         f"is DEFINED as ln(d32/d21)/ln(r), so r**p_s == d32/d21 for ANY r and r CANCELS "
+         f"from GCI = Fs*|d21/f1|/(r**p_s - 1). THE HAND CHECK, computed from d32/d21 "
+         f"WITHOUT r: {gci_hand!r}, which matches to the last bit. SO THE BAND IS SAFE TWICE "
+         f"OVER -- once because r is derived (C32), and again because the band does not "
+         f"depend on r at all.")
+
     return fired, detail
 
 
@@ -3543,7 +3737,8 @@ def main(argv):
                            "C25", "C26", "C27", "C28",        # Amendment 19
                            "C29", "C30",                      # Amendment 20, item 47
                            "C31",                             # Amendment 21, item 48
-                           "C12b"):                           # Amendment 23, the D1 finding
+                           "C12b",                            # Amendment 23, the D1 finding
+                           "C32", "C33"):                     # Amendment 24, the r derivation
                 if target in baseline_red:
                     reds[target] = None                 # cannot mutate an already-red control
                     continue
