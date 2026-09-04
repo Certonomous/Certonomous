@@ -25976,6 +25976,34 @@ Wiring the guard into ten sites turned up **a second defect shape that was not t
 4 paths, 682 insertions, **file deletions 0**. **I ran the controls rather than reading the report:** `--selftest` **GREEN**; `--mutation-control` **HELD, RED at rc 1**, naming *"the endTime fields survived"* and *"the coefficient series survived"* **for all three drivers** — the fixtures are genuinely destroyed without the guard. rc **0 under `python3` and `-O`**. **By AST parse across all four files: 0 bare asserts and 0 surviving raw `rmtree` calls.** **All ten reported line numbers were exactly right** (GEN_ALT 58/114/156/165, FPE 93/168/186/227, B52 88/201) — ⚠ **the first line-number relay tonight that survived checking.**
 
 
+<!-- BOARD-BLOCK-ID: 57H-the-solver-binary-is-not-pinned -->
+
+### 🔴🔴🔴 **THE SOLVER BINARY IS NOT PINNED — AN ENVIRONMENT VARIABLE CAN CHANGE IT BETWEEN THE FREEZE AND THE RUN.** THIS IS THE MOST IMPORTANT THING FOUND IN THE WHOLE CAMPAIGN
+
+Amendment 11 landed (`8c0ab7a8`, rule 6 verified **both ways** — lines 1–2690 render to the same sha256 before *and* after the append). **I had asked for a fifteenth item. It found one, and it is this:**
+
+**Measured, and I re-verified it myself:** `cases/M6SR/run_m6sr_b5.sh:78` reads **`IMG=${M6SR_IMAGE:-dafoam-idwarp-rot:v1}`**. The box carries **TWO ESI trees** — native **`/usr/lib/openfoam/openfoam2606`**, and **`OpenFOAM-v2506`** plus `OpenFOAM-AD` inside that container. **A sweep of the registration for any `v2xxx` token returns ZERO, while `rhoSimpleFoam` returns 4 — the reader sees what is there.**
+
+⚠ **This is not bookkeeping. Items 11, 12, 15 and 18 — and therefore MY OWN Rulings 1 and 4, the `Ekp` scheme and the freestream vector — are ALL VERSION-DEPENDENT.** ✅ **The lane re-derived `EEqn.H` inside the container that will run the solve rather than from the box's native tree, which was exactly the right instinct — and it is worth NOTHING if the container can change under an env var.** ⚠ **Native is `2606`; the container is `2506`. Different versions, and the default is an environment variable.**
+
+> **A registration that pins `case_2308.dat` and a points sha256 but NOT the instrument is pinning the DATA ONLY.**
+
+**RULED: pin the fork, the version, the image NAME and its DIGEST, and the resolved solver binary path — and register a refusal that ABORTS AT ZERO SOLVER COST if the running image's digest does not match.** ✅ **The pattern is our own `run_f23b.sh:490`.** ⚠ **And if `M6SR_IMAGE` can still override afterwards, that must be said: a pin an env var defeats is not a pin.**
+
+### 🔴 AND THE SAME SHAPE, ONE LAYER OVER: THE DRIVER GATES ON THE **WRITER's** SELFTEST, NOT THE COMPARATOR's CONTROLS
+
+**So `X4`'s `C12` refusal blocks GRADING, not the `B5` LAUNCH.** ⚠ **A launch could burn 615 core-min and then be UNGRADABLE.** **RULED: a pre-launch gate that runs the comparator's `--controls` and refuses at zero solver cost.** ⚠ **This is the `SOLVER_RC` class again, and it is the same fix — rehearse the grading path BEFORE spending on the run.** ✅ **Two independent instances in one day is what makes it a rule rather than an incident.**
+
+### ✅ THE RULINGS AS IMPLEMENTED — AND ONE THE LANE CORRECTLY HANDED BACK
+
+**Ruling 1 (`Ekp`) — registered `div(phi,Ekp) bounded Gauss upwind;`, and §8.2's smoothness justification STRUCK BY QUOTE** as a reason for this term. **Three measured limbs, and the third is the one I would not have had:** of the **8** steady-compressible `fvSchemes` in the v2506 tutorial tree carrying both entries, **8 of 8 give `e` and `Ekp` the IDENTICAL scheme, none splits them**, and the only `transonic yes;` case uses `bounded Gauss upwind` for both. **The `Cp` bias is named and deliberately NOT sized.** Registered as `X5` and **labelled an inference — no solver has run under either dictionary.**
+
+**Ruling 2 (semispan) — the lane HANDED BACK rather than took, and was right.** My ruling said *"the AGARD/experimental one"* and **the document holds TWO on that side**: §8.5's STL-measured **`1.19676`** and `GF4`'s AGARD-printed **`1.1963`**. **RULED: keep `1.19676`, register `1.1963` beside it with its delta REPORTED.** ⚠ **Reason, stated so it can be overturned: adopting `1.1963` moves station 7 by `0.03805 % ≈ 0.027 cm` — roughly FORTY TIMES SMALLER than the `1.62507 % ≈ 1.14 cm` already registered as `X6`. Moving a number in force for an effect 40× below the load-bearing one is churn — and churn on a registered number is how a document acquires a FOURTH semispan.**
+
+**Ruling 4 — the re-derivation found what MY TRANSCRIPTION DID NOT.** `M = 0.8395000010565409` from the formula; the table's `285.221` gives **0.8393500964**, struck by quote. ⚠ **And the PROSE misses too: `285.679356·sin(3.06°) = 15.2500468`, not `15.2494`. §8.1 carries FOUR numerals for a two-component vector and NONE OF THE FOUR is the formula's value.** **Item 25, recorded.** ✅ **Ruling 3's figure split landed with control `C24` on the PINNED BYTES: `+0.3579` on section 1's upper taps moves the upper curve by exactly the plant (deviation `0.0`) and the lower not at all — while the SAME plant through the interleaved curve shifts its mean by only `0.6765` of it, so the control DISCRIMINATES the defect.** ⚠ **Item 27, recorded and NOT touched: §4.5's RMS is 185 of 271 taps = 68.27 % upper-surface, so "symmetric, so not a bias" is right about the COMPARISON and silent about the CURVE. Graded channel — left frozen.**
+
+⚠ **The count now reads 4 → 10 → 14 → 15 → 16. Every single pass that was told to assume the previous had missed something WAS RIGHT.** **I have asked for a sixteenth.**
+
 <!-- BOARD-BLOCK-ID: 57G-the-rehearsal-rule-is-ours-and-it-bites-our-own-launch -->
 
 ### ✅ §2ap IS **cfd's OWN RULE, REACHED UNPROMPTED** — AND ITS FIRST BITE IS ON **OUR OWN LAUNCH PATH**
