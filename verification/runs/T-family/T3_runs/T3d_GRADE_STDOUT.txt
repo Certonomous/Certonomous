@@ -1,0 +1,15 @@
+rule-3 control (P-2) on R_f:
+    passed                 True
+    limb_A                 True
+    limb_A_residual_ulp    0.0
+    limb_B                 True
+    limb_B_error_ulp       6.809345245361328
+    drift_ulp              -7.0
+    N_ULP                  32
+    reader_max_change      0.0012339999996129336
+    rec_unplanted          4.910338816443982e-06
+    read_back_delta        0.0012340000000108375
+measuring R_m (level c) ...
+measuring R_f (level m) ...
+measuring R_fx (level f) ...
+REFUSE: H absent from /home/ubuntu/Certonomous/verification/runs/T-family/T3_runs/R_fx/CASE.txt

@@ -1,0 +1,19 @@
+T3d -- application of the frozen rule-4 attestation to R_fx
+Authorised by VERIFICATION_CHARTER.md 2ao (charter v1.59, commit 0525984b);
+ruling notice appended to the petition at a255b897.
+Ruling condition 1: record the invocation and its FULL output.
+Ruling condition 2: if it REFUSES, the refusal is the finding and is not worked around.
+
+date_utc: 2026-09-04T15:47:00Z
+mark_done_t3.py blob at HEAD: 5da28c733e47a4a6c8046dfdf8674c2af27ab81a
+mark_done_t3.py on disk    : 5da28c733e47a4a6c8046dfdf8674c2af27ab81a
+DONE.R_fx before           : ABSENT
+
+COMMAND:
+python3 verification/runs/T-family/T3_runs/mark_done_t3.py --root verification/runs/T-family/T3_runs R_fx
+
+--- BEGIN OUTPUT ---
+1/1 cases meet the strict completion rule
+--- END OUTPUT ---
+exit_code: 0
+DONE.R_fx after: PRESENT
