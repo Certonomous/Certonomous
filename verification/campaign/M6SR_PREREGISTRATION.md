@@ -283,7 +283,10 @@ and a solver from the **overset family**, which this ladder does not use and thi
 does not adopt. **That is an engineering change, not a line item.**
 
 > 🔴 **THE IMPORT COST IS NOT THE OBSTACLE, AND IT IS NAMED SO NOBODY RE-OPENS THE ROUTE ON COST
-> GROUNDS.** The mechanical import prices at **≈ 0.7 core-min** — genuinely negligible, and **the
+> GROUNDS.** The mechanical import prices at ~~**≈ 0.7 core-min**~~ **≈ 0.045 core-min**
+> (**STRUCK — see §14 AMENDMENT 5**: at this registration's own §2.4 rates on Route A's own
+> 185,664 cells, `0.1786 × 0.185664 + 0.0661 × 0.185664 = 0.045432`; the 0.7 was **15.4× too
+> high**) — genuinely negligible, and **the
 > least important number in this analysis.** Route A is closed on **structure**, not on spend.
 > **No amount of budget buys a second and third level out of a one-level file.**
 
@@ -420,7 +423,7 @@ rather than deleted, so a reader can see the ruling was not reverse-engineered:
 | rate | value | basis, and what is wrong with it |
 |---|---|---|
 | converter | **0.1786 core-min/Mcell** | **MEASURED**, `verification/campaign/RUNG0b_MESH_IMPORT_PREREGISTRATION.md:222` — 81 wall s over 7.560154 Mcell. ⚠ **It is a `ugrid_to_foam.py` rate applied to a `plot3dToFoam` conversion. Different program, different input format.** Registered as the best available basis and labelled as an off-basis transfer, not as a measurement of `plot3dToFoam`. |
-| `checkMesh` | **0.0661 core-min/Mcell** | **MEASURED**, same line — 30 wall s over the same 4 grids. ⚠ **A RECONCILIATION, stated so nobody re-derives it wrongly:** that line's prose says `checkMesh` "measured 0.33×" the converter, but its own measured pair gives **0.0661 / 0.1786 = 0.370×**, not 0.33×. **This registration uses the measured 0.0661, the larger and more conservative of the two, and records the 11 % discrepancy in the source rather than silently picking.** |
+| `checkMesh` | **0.0661 core-min/Mcell** | **MEASURED**, same line — 30 wall s over the same 4 grids. ⚠ **A RECONCILIATION, stated so nobody re-derives it wrongly:** that line's prose says `checkMesh` "measured 0.33×" the converter, but its own measured pair gives **0.0661 / 0.1786 = 0.3701×**. ~~records the 11 % discrepancy in the source~~ **CHARACTERISATION STRUCK — see §14 AMENDMENT 2: `RUNG0b:222` attributes the `0.33×` to ITS OWN PREDECESSOR, a different document measuring different grids. It is a PRIOR MEASUREMENT reported beside a current one, NOT an inconsistency, and nothing in the frozen file needs touching.** **This registration uses the measured 0.0661 — RUNG0b's own measurement on RUNG0b's own four grids.** |
 | pyHyp march | **three measured bases, all reported** | see below |
 | solve | **3.40e-8 core-min/cell/iteration** | **MEASURED on this exact geometry and solver class**: `A3-onera-m6-transonic/run_model_run3.log`, 399,360 cells, `Time` 1 → 6000, recorded at `M6I_PREREGISTRATION.md:698` as 3.36e-8 span / **3.40e-8 whole-run**. The whole-run figure is used. |
 
@@ -469,7 +472,10 @@ therefore an allowance, not a prediction of contention, and it is stated as such
 mechanism (working set outgrowing cache) is INFERRED, not instrumented — no PMU counter is
 collected here and none is claimed.**
 
-**All-in: 615.1 core-min estimated, 1,902.0 core-min capped, $1.63 DERIVED at cap.** Under the
+~~**All-in: 615.1 core-min estimated, 1,902.0 core-min capped, $1.63 DERIVED at cap.**~~
+**STRUCK — WRONG IN BOTH FIGURES. See §14 AMENDMENT 3.** **All-in: 615.24 core-min estimated,
+1,903.0 core-min capped, $1.6270 DERIVED at cap** — re-derived from the table's own nine step rows.
+**The TABLE above governs (rule 12 makes it frozen content); this prose was the error.** Under the
 $25 pre-authorisation, and **still costed**, because a blanket is not a per-item reading (rule 9).
 
 ### 2.5 THE FLEET SAFETY CEILING
@@ -485,8 +491,14 @@ $25 pre-authorisation, and **still costed**, because a blanket is not a per-item
 ## 3. THE STATE PAIR — RULED, WITH ITS FULL RATIONALE
 
 **AGARD AR-138 test 2308** fixes **M∞ = 0.8395**, **α = 3.06°**, **Re = 11.72 × 10⁶ on the MAC
-`c = 0.64607 m`**, `S_ref = 0.7532 m²`. Read from the machine file's own zone title, never from
-the OCR sidecar (§4.1).
+`c = 0.64607 m`**, `S_ref = 0.7532 m²`. ~~Read from the machine file's own zone title, never from
+the OCR sidecar (§4.1).~~ **CITATION STRUCK AS FALSE — see §14 AMENDMENT 4.** **`M∞`, `α` and `Re`
+ARE read from the machine file's own zone title** at sha256 `020c5fcc…f0d0` (verified: the title
+reads `Run= 308, Mach= 0.8395, Alpha=  3.06, Re= 11.72x10**6, Section 1`), never from the OCR
+sidecar (§4.1). **`c` and `S_ref` are NOT in that file** — a controlled search returns zero — and
+are **REGISTERED CHOICES** motivated by AGARD AR-138 §2.1.7 / §4.7 (printed page), under §3(a)'s
+existing choice-not-measurement label. **`c` is consumed only by `μ∞` and `omega_inf`; `S_ref` is
+consumed by nothing; NO GATE CONSUMES EITHER** (§14 AMENDMENT 4a/4b/4c).
 
 **Those two dimensionless numbers fix only a PRODUCT.** `Re = ρ U c / μ` with `U = M·√(γRT)`
 constrains `ρ√T/μ`; it does not determine `T∞` and `p∞` separately. **That gap is why this is
@@ -967,7 +979,8 @@ overset topology (`A-F2`). Label: `GATE FAIL`.** §2.1 carries both grounds and 
 **This cell reads `GATE FAIL`, NOT `PENDING`.** `PENDING` would say "not yet run" and would be a
 softened `GATE FAIL` — the exact misuse standing rule 1 forbids. The route was run, it was
 measured, and it failed on structure. **No cap is registered because no compute is spent on it;
-the mechanical import that will never happen prices at ≈ 0.7 core-min and is not the obstacle.**
+the mechanical import that will never happen prices at ~~≈ 0.7~~ **≈ 0.045 core-min** (**STRUCK —
+§14 AMENDMENT 5**) and is not the obstacle.**
 
 ---
 
@@ -1375,9 +1388,15 @@ guess.**
 
 1. **`§2.4`'s converter rate is an off-basis transfer** — a `ugrid_to_foam.py` measurement applied
    to `plot3dToFoam`. Accept, replace, or widen.
-2. **`§2.4`'s `checkMesh` reconciliation**: `RUNG0b:222`'s prose says 0.33× and its own measured
-   pair gives 0.370×. This draft uses the measured 0.0661 and flags the source's internal
-   inconsistency. **That inconsistency is in a frozen file and this lane did not touch it.**
+2. ✅ **CLOSED 2026-09-04 — §14 AMENDMENT 2. THE ITEM WAS MIS-STATED AND IS WITHDRAWN.**
+   ~~`RUNG0b:222`'s prose says 0.33× and its own measured pair gives 0.370×. This draft uses the
+   measured 0.0661 and flags the source's internal inconsistency. That inconsistency is in a frozen
+   file and this lane did not touch it.~~ **There is NO inconsistency.** `RUNG0b:222` attributes the
+   `0.33×` to **its own predecessor** — a different document, a different run, a different grid
+   set — beside its own fresh measurement of `0.0661` on its own four grids. **That is a
+   calibration remark, which is what `docs/COST_CALIBRATION.md` exists to make possible, not a
+   contradiction.** Nothing in the frozen file needs touching and nothing needs supervisor
+   adjudication. **The registration's choice of 0.0661 is unchanged and re-affirmed.**
 3. **The ×2.0 superlinear allowance on `B5c` is a judgement**, not a measurement. It is the single
    largest number in the cost table.
 4. **`D1`'s 0.75 margin threshold is a judgement.** It is defensible but it is not derived.
@@ -1418,3 +1437,270 @@ guess.**
     used in this document as **motivation for `Gate GF`**, never as a gate value, so nothing here
     breaks if one of them is off — but they should not be re-quoted downstream as this lane's
     measurements.
+
+---
+
+## 14. PRE-COMPUTE AMENDMENTS 2–6 — 2026-09-04T0120Z
+
+**Drafted by a cfd lab-lane. NOT a freeze. This section authorises no compute and the supervisor's
+`SUPERVISION_CHARTER.md` §3 check 4 is undischarged.**
+
+> ### THE CONDITION, STATED ONCE FOR ALL FIVE AMENDMENTS BELOW, AND HOW IT WAS CHECKED
+>
+> **Condition (rule 2's before-first-compute clause):** this document is a **DRAFT**, is **NOT
+> frozen**, and **no compute has occurred under it**.
+>
+> **How checked, at 2026-09-04T0120Z, at the moment of this edit:** the two run roots this
+> registration names in §12 — **`verification/runs/M6SR_runs`** and **`cases/M6SR`** — were tested
+> for existence and **both returned absent**. ⚠ **The absence is evidence, not blindness (rule 3):
+> the identical test, in the same invocation, was pointed at
+> `verification/runs/RUNG1_M6_R2_runs` and `verification/runs/M6I_runs` and returned
+> `PRESENT` on both.** A reader that could not see a directory could not have produced those two
+> rows. This lane created neither run root and launched nothing.
+>
+> **NONE of the five amendments below alters ANY gate, threshold, cap or label.** Amendments 2, 3
+> and 5 correct **characterisations and prose arithmetic**; amendment 4 corrects a **citation** and
+> registers an **invariance that was already true**; amendment 6 adds a **disambiguation** and no
+> number. The registered cost **table** at §2.4 is unchanged in every cell.
+
+---
+
+### AMENDMENT 2 — the `checkMesh` 0.33× figure is a PRIOR MEASUREMENT, not an inconsistency
+
+**§13 item 2 characterises `RUNG0b:222` as carrying an "internal inconsistency", and §2.4's rate
+table calls the gap an "11 % discrepancy in the source". BOTH CHARACTERISATIONS ARE WITHDRAWN AS
+WRONG. The NUMBER THIS REGISTRATION USES IS UNCHANGED and remains correct.**
+
+**Read at source before writing this amendment.** `RUNG0b_MESH_IMPORT_PREREGISTRATION.md:222`
+reads, in full:
+
+> `checkMesh` on 4 meshes | **30 wall s** = **0.0661 core-min/Mcell** — **NOT the converter rate**;
+> **the predecessor priced this at 1× and measured 0.33×**
+
+**There is no contradiction in that line, and the reason is grammatical as much as numerical.**
+The `0.0661` is **RUNG0b's own measurement, on RUNG0b's own four grids**. The `0.33×` is
+attributed by RUNG0b, in its own words, to **its predecessor** — a *third* document, a *different*
+run, a *different* grid set. The line is a **calibration remark**: it says the predecessor priced
+`checkMesh` at 1× and measured 0.33×, and that RUNG0b has now measured it again and got 0.0661.
+**A document reporting what an earlier document measured, beside what it measured itself, is doing
+exactly what `docs/COST_CALIBRATION.md` exists to make possible.** It is not disagreeing with
+itself.
+
+⚠ **This is a sharper correction than the one this lane was briefed to make.** The brief described
+0.33× as *RUNG0b's own separate measurement*. It is not RUNG0b's measurement at all — RUNG0b
+attributes it to **its** predecessor. The two figures are therefore **two documents apart**, not
+one, and the case for calling them inconsistent is weaker still.
+
+| | was | is |
+|---|---|---|
+| §2.4 rate table, `checkMesh` row | *"records the 11 % discrepancy in the source"* | **"records that `RUNG0b:222` also reports its OWN predecessor's `0.33×`, measured on different grids — a prior measurement, not a contradiction"** |
+| §13 item 2 | *"flags the source's internal inconsistency… That inconsistency is in a frozen file"* | **"cites the source's own predecessor-calibration remark. There is no inconsistency and nothing in the frozen file needs touching."** |
+
+**THE CHOICE IS UNAFFECTED AND IS RE-AFFIRMED.** `0.0661 core-min/Mcell` is the measurement taken
+on the grids nearest this registration's own work, and `0.0661 / 0.1786 = 0.3701` is its ratio to
+the converter rate on the **same** four grids. **Re-derived by this lane: `0.0661 / 0.1786 =
+0.370100…`.** No cost-table cell moves.
+
+---
+
+### AMENDMENT 3 — the §2.4 PROSE total is wrong in both figures; the TABLE is right
+
+**§2.4's prose at `:472` reads *"All-in: 615.1 core-min estimated, 1,902.0 core-min capped."*
+Both numbers are wrong. The table at `:456` reads `≈ 615.2` and `1,903.0` and is right.**
+
+**Re-derived by this lane from the table's own nine step rows, not copied from either statement:**
+
+| | steps summed | result |
+|---|---|---|
+| estimate | `0.10 + 0.05 + 7.04 + 0.29 + 0.14 + 10.18 + 54.31 + 543.13 + 0` | **615.24 core-min** |
+| cap | `1.0 + 1.0 + 70.0 + 3.0 + 2.0 + 31.0 + 163.0 + 1630.0 + 2.0` | **1,903.0 core-min** |
+
+**And the three solve rows re-derived from the registered rate rather than trusted**, at
+`3.40e-8 core-min/cell/iteration` on the registered `3,000 / 4,000 / 5,000` schedule:
+`B5a = 99,840 × 3,000 × 3.40e-8 = 10.1837`; `B5b = 399,360 × 4,000 × 3.40e-8 = 54.3130`;
+`B5c = 1,597,440 × 5,000 × 3.40e-8 × 2.0 = 543.1296`. **All three reproduce the table to the digit
+printed.**
+
+> **THE PROSE AT `:472` IS STRUCK AND REPLACED BY: "All-in: 615.24 core-min estimated, 1,903.0
+> core-min capped, $1.6270 DERIVED at cap."** The table is unchanged; the prose is corrected **to
+> the table**, never the reverse. **Rule 12 makes the cost table frozen content**, so it is the
+> table that governs and the prose that was in error.
+
+**The `≈ 615.2` in the table's TOTAL cell is a rounding of 615.24 and is not itself wrong**; this
+amendment registers **615.24** as the exact figure so that §9.3's estimate-versus-actual
+calibration row has an unrounded denominator to divide by.
+
+---
+
+### AMENDMENT 4 — `c` and `S_ref` are MIS-CITED. The citation is corrected; no gate moves; and `S_ref` is registered as UNUSED
+
+**§3's opening at `:488` registers `c = 0.64607 m` and `S_ref = 0.7532 m²` and states they were
+*"Read from the machine file's own zone title."* **THEY WERE NOT. THE CITATION IS FALSE AND IS
+CORRECTED HERE.**
+
+**Measured by this lane at the pinned hash, not relayed.** `cases/dafoam/ladder-a/logs_A3/case_2308.dat`,
+sha256 `020c5fcc…f0d0` — re-verified by this lane, matching §4.1. Its zone title, read verbatim:
+
+```
+ZONE T=",Run= 308, Mach= 0.8395, Alpha=  3.06, Re= 11.72x10**6, Section 1", I=  34, F=POINT
+```
+
+**It carries Run, Mach, Alpha, Re and Section. It carries NO chord and NO reference area.** A
+search of the whole file for `0.64607`, `0.7532`, `64607`, `7532`, `chord`, `area` and `ref`
+returns **zero hits on every one**. ⚠ **The zero is controlled: the same file, read by the same
+instrument in the same invocation, yielded the title line and the first data rows above** — the
+reader demonstrably sees this file's contents.
+
+**The true source of both constants is the printed AGARD AR-138 page (§2.1.7 and §4.7) — the
+document §4.1 forbids as a source of numbers.**
+
+#### 4a. THE INVARIANCE, CHECKED GATE BY GATE RATHER THAN ASSERTED — AND IT HOLDS
+
+| gate | does it consume `c` or `S_ref`? | why |
+|---|---|---|
+| **A1–A9** | **NO** | angles, skewness, aspect ratio, integer cell-count ratios, sha256 identity, `cells/wing_faces`, patch types. No length normalisation anywhere. |
+| **GF1–GF4** | **NO** | measured on **each level's own surface**: `t_TE/c` and `max │Δz│/c` normalise by the **root section chord measured on that surface**, not by the MAC; `GF4` compares sweep and semispan to AGARD directly. |
+| **G1** | **NO** | `ΔC_D` over 500 iterations **≤ 1/10 of the `L3–L2` difference in `C_D`**. Both sides are `C_D`; `S_ref` scales both identically and cancels. |
+| **G2c** | **NO** | identical form to `G1`. |
+| **G3 (`p_s`)** | **NO** | an exponent from a **ratio of differences** of `C_D`. Any constant multiplier cancels in numerator and denominator. |
+| **G4 (`GCI_fine`)** | **NO** | a **relative** error at `Fs = 1.25`. A constant multiplier cancels. |
+| **Gate P** | **NO** | `C_p = (p − p∞)/(½ρU²)` — no area, no chord. The abscissa is the data file's own `X/L`, normalised by the **local section chord**, not the MAC. |
+| **Gate R** | **NO** | `GATE FAIL` on level count and topology. No number of this kind appears. |
+
+> ✅ **NO REGISTERED GATE QUOTES AN ABSOLUTE `C_D`.** Every `C_D` appearance in §5 — `G1`, `G2c`,
+> `G3`, `G4` — is a **difference, a ratio of differences, or a relative error.** The invariance is
+> therefore not a convenience; it is a property of how the gates were written. **Had any gate
+> carried an absolute `C_D` threshold, `S_ref` would have been load-bearing and this amendment
+> could not have been written.** It does not.
+
+#### 4b. `S_ref` IS DISSOLVED. IT IS CONSUMED BY NOTHING IN THIS DOCUMENT.
+
+**Measured, not assumed:** `S_ref` (in any spelling) occurs **exactly once** in this
+registration — the §3 line being corrected. **No gate, no `0/` field, no derived quantity in §8,
+and no comparator input uses it.**
+
+> **REGISTERED: `S_ref = 0.7532 m²` is recorded for COMPLETENESS ONLY and is CONSUMED BY NOTHING.
+> Its citation is corrected to "AGARD AR-138 §4.7, printed page — motivation, not a gate value."
+> If it is wrong, NOTHING IN THIS REGISTRATION CHANGES.** §4.1's bar is not crossed, because
+> §4.1 forbids the PDF as a source of **numbers the gates consume**, and this is not one.
+
+#### 4c. 🔴 `c` IS **NOT** INERT, AND THE BRIEF'S "INVARIANT TO BOTH" IS TRUE OF THE GATES BUT NOT OF THE STATE
+
+**This lane was briefed that both constants are dissolvable. `S_ref` is. `c` IS NOT, and saying so
+is the point of checking rather than asserting.** `c = 0.64607` is consumed in **two** places, both
+found by search and both named here:
+
+1. **`:510` — the back-solve `μ∞ = ρ U c / Re`.** Re-derived by this lane:
+   `1.224978126 × 285.679356 × 0.64607 / 11.72e6 = 1.9291196e-05` — reproduces the registered
+   `1.929120e-05` exactly. **`c` sets the Reynolds number the solve actually runs at**: the
+   simulation's Reynolds number with respect to the meshed geometry's true MAC is
+   `11.72e6 × (c_true / 0.64607)`.
+2. **`:1066` — `L_ref = MAC = 0.64607` in `omega_inf = 5 U∞ / L_ref`.** Re-derived: `5 × 285.679356
+   / 0.64607 = 2210.9010`, reproducing the registered `2210.901 1/s`. A freestream turbulence
+   length scale — a registered **choice**, and mild.
+
+**THE RESOLUTION, WHICH DISSOLVES `S_ref` AND RE-CLASSIFIES `c` RATHER THAN CARVING AN EXCEPTION.**
+`c` is not a **reference value being compared against** — the class §4.1 protects. It is a
+**registered choice of the state pair's length scale**, in exactly the class §3 already assigns to
+`T∞` and `p∞`, which §3(a) labels *"IT IS A CHOICE, NOT A MEASUREMENT FROM AR-138. In those
+words."* **`c` joins them under that existing label. §4.1 is not amended, weakened or excepted.**
+
+> **REGISTERED, REPLACING `:488`'s FALSE CITATION:**
+>
+> **`M∞ = 0.8395`, `α = 3.06°`, `Re = 11.72 × 10⁶` are READ FROM THE MACHINE FILE'S OWN ZONE TITLE
+> at sha256 `020c5fcc…f0d0`** — that part of the original sentence is TRUE and is verified above.
+>
+> **`c = 0.64607 m` and `S_ref = 0.7532 m²` are NOT in that file. They are REGISTERED CHOICES,
+> motivated by AGARD AR-138 §2.1.7 and §4.7 (printed page), carried under §3(a)'s existing
+> choice-not-measurement label. `c` is consumed only by `μ∞` and `omega_inf`; `S_ref` is consumed
+> by nothing. NO GATE CONSUMES EITHER.**
+
+**AND AN INDEPENDENT CORROBORATION ON THE BOX'S OWN GEOMETRY, computed by this lane, offered as
+support and NOT as a replacement.** For a linearly tapered planform,
+`MAC = (2/3)·c_r·(1+λ+λ²)/(1+λ)`. At the standard M6 planform (`c_r = 0.8059`, `c_t = 0.4589`,
+`b_semi = 1.1963`) this gives **MAC = 0.648267 m**, **+0.340 %** against the registered `0.64607`;
+the semispan planform area gives **0.756540 m²**, **+0.443 %** against `0.7532`. ⚠ **Neither
+reproduces the registered value exactly, and this lane does NOT claim they do** — they agree to
+about half a percent, which corroborates that the registered constants describe *this* wing and
+does not establish them to the five figures printed. **The registered values stand as choices; this
+is a sanity check, and it is labelled as one.**
+
+> **THE OPEN ITEM THIS LEAVES ON THE SUPERVISOR'S DESK, stated rather than buried:** if the
+> supervisor prefers `c` to be a **measurement** rather than a registered choice, the instrument
+> already exists — **`GF4` measures sweep and semispan on each level's own surface at `B0`**, and
+> the MAC is the same class of planform arithmetic on the same surface, at no additional cap. This
+> lane does **not** register that, because it would add a measurement to `Gate GF` and this
+> amendment is forbidden to touch a gate.
+
+---
+
+### AMENDMENT 5 — Route A's import cost does not reconcile at this registration's own rates
+
+**§2.1 (`:286`) and Gate R (`:970`) both price the mechanical import of the Route A CGNS at
+*"≈ 0.7 core-min."* At this registration's OWN §2.4 rates, on Route A's OWN measured 185,664
+cells, the figure is 15× smaller.**
+
+**Re-derived by this lane from §2.4's two registered rates and §2.1's measured cell count:**
+
+| term | rate (§2.4) | × 0.185664 Mcell | core-min |
+|---|---|---|---|
+| convert | 0.1786 core-min/Mcell | | **0.033160** |
+| `checkMesh` | 0.0661 core-min/Mcell | | **0.012272** |
+| **total** | | | **0.045432** |
+
+`0.7 / 0.045432 = ` **15.4×**.
+
+> **BOTH OCCURRENCES ARE STRUCK AND REPLACED BY "≈ 0.045 core-min."**
+
+**THIS CHANGES NOTHING AND IS FIXED ANYWAY.** Route A is closed on **structure** — `A-F1`, one
+level against `MESH_STANDARD.md` §9.1's three, and `A-F2`, overset topology — and §2.1 says in
+terms that *"no amount of budget buys a second and third level out of a one-level file."* **The
+0.7 was never load-bearing and the correction does not reopen the route.** It is corrected because
+a document about to be frozen should not carry a figure that its own registered rates contradict
+by an order of magnitude, and because `Gate R`'s cell is the one a future lane will read.
+
+---
+
+### AMENDMENT 6 — the `24,960` COLLISION, DISAMBIGUATED
+
+**`24,960` denotes two different things in this document and they are distinguished only by the
+surrounding prose, which a `grep` does not read:**
+
+| occurrence | meaning | where |
+|---|---|---|
+| **24,960 FACES** | the new `L1` level's **surface**, the tutorial's own first-`coarsen` intermediate off the pinned master `197efa09…3327` | §2.2 (`:357`, `:360`, `:370`, `:382`, `:384`), §2.4 (`:430`, `:434`, `:448`, `:449`) |
+| **24,960 CELLS** | the **CONDEMNED** `A3-onera-m6-adjoint-vcoarse` volume build on the 390-face surface `aab44d41…2326` — **23 negative-volume cells**, max AR **2.07741e+95**, max non-orth **135.318**, max skew **55.378** | §1.3 (`:115`) |
+
+> 🔴 **THESE TWO OBJECTS SHARE NO ANCESTOR AND MUST NEVER BE CONFLATED.** The `L1` surface descends
+> from the **99,840-face master by ONE `cgns_utils coarsen` call**; the condemned build descends
+> from the **390-face surface, the master coarsened FOUR times**. **Gate `A8` exists precisely to
+> keep `aab44d41…2326` out of every level**, and it is an `A8` failure — labelled **`NOT A
+> RESULT`** — if the condemned surface ever appears.
+>
+> **REGISTERED CONVENTION, binding on every script, log line, JSON key and figure caption this
+> registration produces:** the new level's surface is written **`24,960 faces`** or
+> **`24960_faces`**, **never the bare integer**; the condemned build is referred to by its
+> **surface hash `aab44d41…2326`** and never by its cell count. **A bare `24,960` in any artifact
+> of this ladder is a defect to be reported, not interpreted.**
+>
+> **No gate, threshold, cap or label changes.** `A8`'s threshold was already the **hash**, not any
+> count — which is why the collision was never able to defeat it, and why this is a naming repair
+> rather than a gate repair.
+
+---
+
+### WHAT THESE FIVE AMENDMENTS DO NOT TOUCH
+
+- **No gate, threshold, cap or label moves.** The §2.4 cost **table** is unchanged in every cell.
+- **Clause `L-HONEST` (§6) is UNCHANGED, and is re-affirmed rather than merely left alone.** The
+  family refines **2 of 3 directions**; `GCI_fine` is a **LOWER BOUND**; `p_s` is **NOT an observed
+  order**; and §6's consequence 3 — **"Sanaa's named first deliverable — M6 `Cp` WITH the family
+  band — is NOT delivered by this registration. It remains owed."** — stands verbatim. **That is a
+  measured finding and it travels upward. It is never a reason to widen a gate.**
+- **`Gate P`'s `x/c ≤ 0.90` restriction is UNCHANGED**, on both of its independent justifications:
+  the sharp trailing edge against AGARD's 0.14104 %-chord design TE, and the wall-interference
+  systematic that **AR-138 B1-4 §6.2 itself declines to correct** at a semispan-to-tunnel-width
+  ratio of 0.7.
+- **§4.1's ruling is UNCHANGED**: the AR-138 PDF is provenance and is never a source of numbers the
+  gates consume.
+- **No predecessor is edited, amended or reinterpreted** (§0).
