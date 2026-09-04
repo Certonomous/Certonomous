@@ -1,0 +1,42 @@
+{
+  "team": "ansys-verification",
+  "case_id": "VMFL046-R3-L1",
+  "prereg_commit": "91f62d73fc7574ebda16354072edc13dbcc27fe5",
+  "prereg_path": "cases/ansys_verification/VMFL046-R3/PREREGISTRATION.md",
+  "grading_freeze": [
+    "cases/ansys_verification/VMFL046-R3/grade_vmfl046_r3.py"
+  ],
+  "grading_freeze_note": "Comparator blob 2f0eb7a8ba0718b484fadcd5f4c128cd9450eff3, pinned in PREREGISTRATION section 9 and repeated here verbatim so the daemon can verify WITHOUT trusting the registration.",
+  "launch_cmd": [
+    "bash",
+    "-c",
+    "exec bash /home/ubuntu/Certonomous/cases/ansys_verification/VMFL046-R3/run_vmfl046_r3.sh /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL046-R3 L1"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL046-R3",
+  "ranks": 1,
+  "cost_core_min_estimate": 9.52,
+  "cost_basis": "Level L1. Estimate 9.52 core-min from a MEASURED per-cell-step rate at THIS level under the frozen configuration (the pre-freeze probe ran all three levels to their own endTime). Per-level cap 30 core-min, >=3x the estimate; running-total cap 540. endTime 0.080 s is derived A PRIORI FROM GEOMETRY ALONE -- ~20 upstream acoustic traverses of the 0.85 m subsonic section at c-u ~ 220 m/s -- so no observed settling time enters it. Serial RANKS=1 by supervisor ruling: parallel would cut wall time without cutting core-minutes, at the price of decomposePar/reconstructPar machinery that would INVALIDATE the section 12 path evidence established on disk. $0.154 DERIVED at $0.0513/core-h owner-stated -- NOT measured.",
+  "memory_floor_gb": 1.0,
+  "_remedy": "Branch (b) of VMFL046-R2's freeze pre-committed a NUMERICS change. R2 graded NOT A RESULT (row #57) because L3 hunted at 184x the plateau threshold -- a LIMIT CYCLE, confirmed by a flat-to-rising envelope over 54000 iterations, an 80%-of-variance single 4208-iteration mode, residuals carrying the same period, and an INVISCID control hunting at 20 cells with no physical unsteadiness mechanism available to it.",
+  "_probe": "THE PRE-FREEZE PROBE REFUTED THE APPROVED DESIGN AND REPLACED IT. Twelve rhoPimpleFoam configurations retaining R2's first-order upwind schemes ALL FAILED at t = 4.1-6.4 ms across maxCo {0.05..1.0}, nOuterCorrectors {2,3,4}, relaxation {0.5..1.0}, transonic yes/no, tight and widened limiters, cold start and restart. The control: maxCo 0.05, TEN TIMES finer than configurations that had already failed, still died at t = 4.11e-03 -- a step-size instability yields to a smaller step and this one does not. THE FINDING: the R2 shock profile is not stable under a physical time derivative; its steadiness at L1/L2 is a property of a relaxation iteration with no time derivative in it. Adding rho/dt does not damp that shock, it EXPOSES it. TVD (vanLeer) is therefore FORCED, not preferred; vanLeer over limitedLinear because it is measurably cheaper and carries NO FREE COEFFICIENT.",
+  "_margin": "maxCo 1.0 was STABLE AT L1 and is REFUSED because it was not tested at L3 -- a deliberate ~2x cost paid for margin at the level that decides the verdict. Both of today's failures (rows #57 and #58) were fine-level instabilities the coarse meshes suppressed.",
+  "enqueued_by": "ansys-verification-supervisor. check_freeze_ready.py rc 0, all seven PASS. Verified personally: selftest rc 0 under BOTH python3 and python3 -O with ZERO bare asserts; all 13 pins match disk; ddtSchemes Euler and vanLeerV/vanLeer present in the frozen fvSchemes; driver sources the v2606 bashrc at :86 BEFORE command -v at :87-88. The R2-parity assert fires in BOTH directions -- it aborts if any of 8 physics inputs DIFFERS and equally if any of 3 numerics inputs is IDENTICAL, so a numerics successor that changed nothing cannot be frozen. Run root created BEFORE this row.",
+  "_field_classes": {
+    "physics_critical": [
+      "rc captured inside the detached wrapper",
+      "each level's End line, endTime fields and the age guard",
+      "the N2 rule-4 departure limbs",
+      "the plateau limbs on x_shock",
+      "plants C1 and C2",
+      "the N4 limiter-binding refusal"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.utc",
+      "LAUNCH_LOG.tsv row",
+      "cost_core_min_estimate",
+      "runner.log lines"
+    ],
+    "rule": "a missing INFRASTRUCTURE field is a BOOKKEEPING DEFECT voiding only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
+}
