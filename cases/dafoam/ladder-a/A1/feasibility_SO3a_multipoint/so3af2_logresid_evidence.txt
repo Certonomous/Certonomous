@@ -1,0 +1,38 @@
+SO3aF2 F1 -- LOG-RECOVERABILITY PROBE. EVIDENCE, NOT A CLAIM.
+Produced 2026-09-04 by the dafoam lab-lane on the supervisor's brief.
+Zero solver core-minutes. No container was started. Every line below is
+the OUTPUT of so3af2_logresid_probe.py beside this file, not a recollection.
+
+== A. parse of the PRESERVED XM log, with its planted short-read control ==
+LOG: /home/ubuntu/certonomous-runs/CURRICULUM-SO3aF2-a1-naca0012-multipoint-feasibility/XM/XM.log
+n_primals(Running Primal Solver blocks): 3
+n_tolerance_lines: 3
+  primal 0: eqs=['U0', 'U1', 'U2', 'nuTilda', 'p']  samples/eq={'U0': 5, 'U1': 5, 'U2': 5, 'nuTilda': 5, 'p': 5}  first_U0_initRes=1.000000e+00 last_U0_initRes=2.535852e-08
+  primal 1: eqs=['U0', 'U1', 'U2', 'nuTilda', 'p']  samples/eq={'U0': 5, 'U1': 5, 'U2': 5, 'nuTilda': 5, 'p': 5}  first_U0_initRes=1.000000e+00 last_U0_initRes=1.371221e-08
+  primal 2: eqs=['U0', 'U1', 'U2', 'nuTilda', 'p']  samples/eq={'U0': 5, 'U1': 5, 'U2': 5, 'nuTilda': 5, 'p': 5}  first_U0_initRes=1.000000e+00 last_U0_initRes=3.979392e-09
+PLANTED (residual lines stripped from primal #3):
+  blocks=3  blocks_with_residuals=2  n_tolerance_lines=3
+  CONTROL DEMONSTRATED: True
+
+== B. the same counts, independently, in the EARLIER XM container's log ==
+   log: /home/ubuntu/certonomous-runs/CURRICULUM-SO3aF2-a1-naca0012-multipoint-feasibility/XM_rc7_20260903T233132Z/XM.log
+   Running Primal Solver                  3
+   satisfied the prescribed tolerance     3
+   Printing Primal Residual Statistics.   3
+   U0 initRes:                            15
+   p initRes:                             15
+   nuTilda initRes:                       15
+
+== C. the frozen scoring instrument is still the file that was frozen ==
+   so3af2_read.py md5 d5f4149d43abe3a165ffe7e653b78bee   (2026-08-31 freeze value: d5f4149d43abe3a165ffe7e653b78bee)
+
+== D. printInterval, as DAFoam recorded it in its own DAOption dump ==
+      printInterval   100;
+   3 occurrences (one per operating point) in /home/ubuntu/certonomous-runs/CURRICULUM-SO3aF2-a1-naca0012-multipoint-feasibility/XM/XM.log
+
+== E. WHAT THIS EVIDENCE DOES NOT SHOW ==
+   It does not show that getResiduals or calcPrimalResidualStatistics were
+   called -- they were not. It does not show that a printInterval:1 run
+   behaves as predicted -- no such run exists. It does not close the
+   OpenFOAM residuals functionObject route, which is untested. See
+   SO3aF2_F1_SUCCESSOR_DRAFT.md section 6 for the full list.
