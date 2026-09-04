@@ -5318,11 +5318,68 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-04T22:11:30Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-68` — **my plateau ruling is WITHDRAWN in the charter itself (§20, v1.0f): a two-point mini-sweep IS the charter's proof. And the real breach is in OUR OWN ladder-b — six single-step FD numbers, undisclosed, under a rule that was LIVE LAW when they were produced, and §2 of my charter cites ALL SIX.** Before it, `S-67`, `S-66`, `S-65`, `S-64`, `S-63`…`S-29`.
+**Section last written:** 2026-09-04T22:13:25Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-69` — **my own HEAD-blob commit method leaves the WORKTREE STALE, and a freeze-time hash taken off disk would have hashed the wrong document — measured on two files right now. Rule 4 was implemented for NEITHER arm. The producer trace passed on its own defect on its first drive. `G-IMG` would have been a mirror. And the two-row obligation BINDS.** Before it, `S-68`, `S-67`, `S-66`, `S-65`, `S-64`…`S-29`.
 
 **Section last written:** 2026-09-04T01:08:43Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-48` — **`W3` IS NOT RUNNING AND HAS NOT BEEN SINCE 21:57:49Z; IT REACHED ITS REGISTERED TERMINUS, AND THE REGISTERED FALLBACK DOES NOT RESCUE IT.** `S-47`'s and `S-46`'s *"`W3_chain_r2` running"* lines are **STRUCK BY QUOTE** below — they were true when written and were still being relayed three hours after they stopped being true. Before it, `S-47` — **DESK ITEMS CLOSED**: the **rule-10 hole is fixed in the constitution itself** on Sanaa's GO (`0ee2e7df`, verified by me at HEAD, not taken on relay), and the rule-12 estimate gap is **routed to verification** as a forward-only note. `S-46`'s "on Sanaa's desk" line is **struck by quote** so no successor re-escalates a closed item. **Nothing now on her desk from this family** but the four `NOT FILED` upstream defect classes and FD-vs-adjoint as a fourth `V` instrument. Before it, `S-46` (closing state), `S-45`, `S-44`, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+##### UPDATE S-69 — **⚠ MY OWN COMMIT METHOD LEAVES THE WORKTREE STALE, AND A FREEZE-TIME HASH TAKEN OFF DISK WOULD HAVE HASHED THE WRONG DOCUMENT — MEASURED, ON TWO FILES, RIGHT NOW. RULE 4 WAS IMPLEMENTED FOR **NEITHER** ARM. THE PRODUCER TRACE PASSED ON ITS OWN DEFECT ON ITS FIRST DRIVE. AND `G-IMG` WOULD HAVE BEEN A MIRROR** (2026-09-04, `date -u` stamp in the committing invocation)
+
+###### 1. ⚠⚠ THE HEAD-BLOB METHOD PROTECTS THE COMMIT AND STRANDS THE WORKTREE
+
+The lane found that `A1WRT2_SUCCESSOR_DRAFT.md` on disk was **40 lines behind HEAD** — my §11.1 amendment (`9f555b4f`) was in git and **never materialised in the working tree**, the file's mtime predating my own commit. **Committing the on-disk file would have silently reverted my amendment.**
+
+**Verified by me right now, and it is not one file:**
+
+| file | disk vs HEAD |
+|---|---|
+| `A1WRT2_SUCCESSOR_DRAFT.md` | disk == HEAD *(the lane restored and re-committed it)* |
+| **`docs/charters/DAFOAM_CHARTER.md`** | **DISK DIFFERS FROM HEAD** |
+| **`docs/LAB_STATE.md`** | **DISK DIFFERS FROM HEAD** |
+
+**Both are files I amended today via the HEAD-blob method** — the method I adopted precisely to stop peers' rebuilds clobbering my work. **It does that. It also means the worktree is now systematically behind for every file I touch that way, and anyone reading disk gets stale bytes.**
+
+> **⚠ AND THE SHARPEST CONSEQUENCE IS THE LANE'S, NOT MINE: "a freeze-time md5 taken off the working tree would have hashed the pre-amendment document."** Rule 2 requires verifying *the frozen file IS the file that ran* by hashing it against the committed blob. **My own method would have made a disk-side hash quietly wrong — on the charter I amended and on the registration I am about to freeze.**
+
+**ADOPTED AS PRACTICE, EFFECTIVE NOW: every hash that reaches a freeze, a pin or a verdict is taken from `git show HEAD:<path>`, NEVER from disk.** *The fix for one hazard created another, and only a lane reading the file rather than trusting the method found it.*
+
+###### 2. MY RULING 2 WAS AN UNDERSTATEMENT
+
+I ordered `G-RC-HONEST` and rule-4 completion to read **both** arms, believing `SEAM` was ungated. **A census with `G-RC-HONEST` (17 hits) as the live positive control returned `endTime` 0, `"End"` 0, `G-COMPLETE` 0, age-guard 0.**
+
+> **`CLAUDE.md` rule 4 — the strict completion rule — was implemented for NEITHER ARM. Only the `rc` clause, only on `TAIL`.** I ordered a symmetry repair on a rule that was almost entirely absent.
+
+New hard gate `G-COMPLETE` per arm, folded with `worse_of`, **reading each arm's `endTime` out of its own staged `controlDict` rather than a retyped constant** — so a disagreement surfaces as `GATE FAIL` rather than silently. **The control I named is driven: `SEAM` rc 0→97 with `TAIL` clean flips `GATE REACHED` → `GATE FAIL` → restored.** Add-only proved **structurally**: `worse_of` is monotone downward over all **36 ordered pairs**. **And what it does NOT check is named** — the `ExecutionTime` clause is thermal-family and would fail every good run here (41 `Time =` lines for 4,000 iterations).
+
+###### 3. ⚠ THE PRODUCER TRACE PASSED ON THE EXACT DEFECT IT WAS BUILT TO FIND
+
+**Its first drive printed `MANIFEST.json TRACED <- _build_happy_root [GRADED]` — a clean table over the defect** — because `main` dispatches `--selftest` to `selftest()`, so an unstopped call-graph walk marks **every fixture builder** as graded code. **`selftest` is now a cut node and the difference is driven: 51 functions uncut, 40 cut.**
+
+> **That is rule 3 one level up: the instrument built to detect a vacuous producer was itself vacuous on its first run, and only a planted comparison found it.** Recorded in the code, not just the report.
+
+Baseline before repair: **8 gate inputs consumed, 2 traced, 6 UNTRACED** — five written only by the fixture builder, one by nothing anywhere. **My one-artefact finding was six.** After: **9 consumed, 8 traced, 1 deferred, 0 untraced**, asserted against the committed tree.
+
+**AND `G-IMG` WOULD HAVE BEEN A MIRROR:** a producer writing `image_digest` from `PIN_IMG_DIGEST` **compares a pin to a copy of itself and passes on ANY image.** Replaced by `measure_image_pins` reading both out of the image, with `UNMEASURED` making `G-IMG` refuse — driven both ways, and **`measure_image_pins` is itself declared `NOT EXERCISED` in a third state rather than counted as passing.**
+
+###### 4. RULING — THE TWO-ROW OBLIGATION **BINDS**
+
+`G-WARPPROBE` has no producer that measures anything: `warp_probe` is **0** in `a1wr_runScript_incomp.py` and **0** in `a1wr_cmd.sh`, both frozen instruments of another item that rule 6 forbids editing. *(Count discrepancy named rather than smoothed: the lane reported 0 in `a1wrt2_run_arm.sh`; I measure **1**, so the count moved between its census and my check — most likely its own repair adding the reference. Not resolved, and not load-bearing for the ruling.)*
+
+**§7.2's heading registers its own failure mode honestly — *"the obligation is DISCHARGED BY A MEASUREMENT, OR IT BINDS"* — and the measurement does not exist. So IT BINDS.**
+
+> **RULED: `A1WRT2` ships ONE row (`PATCHED`), labelled a PATCHED-row verdict everywhere it appears, and is NOT a full charter-§6 verdict about DAFoam.** Same disposition as `D6RF3`. **§7.2 is NOT rewritten — its own conditional already handles this, which is good drafting and should be left standing as the record of a claim that failed its own test.**
+
+**And the lane's framing of the near-miss is the part to keep: the item was one freeze away from discharging a CHARTER OBLIGATION with a number only its own test fixture could produce.**
+
+###### 5. STATE
+
+`a1wrt2_grade.py` **77** controls (48/29/**0 NOT EXERCISED**), `a1wrt2_instruments.py` **17** (10/7/0), launcher 21 with **1 declared** `NOT EXERCISED`; **rc=0 under both flags; `ast.Assert` 0 across 2,954 / 1,666 / 1,254 lines.** Run root checked **ABSENT by execution three times**. `LAUNCH_ENABLED` still **0**.
+
+**Two ceiling controls came back `rc=7` after ruling 1 and the lane reported rather than absorbed it:** they drove `--arm TAIL` against a root with **no SEAM**, so they were asserting *"the launcher exits 0"* and **conflating the ceiling limb with everything else.** A clean SEAM is now staged into every TAIL fixture root so the limbs are separable. *A control that passes because an unrelated thing succeeded is not testing what its name says.*
+
+**OWED BY ME:** check 1 on this diff; **check 4 — §5's cap arithmetic and the `startTime 4200 / endTime 8200` configuration read AS ARITHMETIC, which the lane explicitly left to me**; the `:92` disposition after the second step is bought; the §2 charter repair.
+
+
 ##### UPDATE S-68 — **MY PLATEAU RULING IS WITHDRAWN IN THE CHARTER ITSELF (§20, v1.0f) — A TWO-POINT MINI-SWEEP **IS** THE CHARTER'S PROOF, AND WRITING "NO PLATEAU PROOF CLAIMED" WOULD HAVE BEEN A FALSE SELF-DEPRECATION. AND THE REAL BREACH IS IN **OUR OWN LADDER-B**: SIX SINGLE-STEP FD NUMBERS, UNDISCLOSED, UNDER A RULE THAT WAS LIVE LAW WHEN THEY WERE PRODUCED — AND §2 OF MY CHARTER CITES **ALL SIX**** (2026-09-04, `date -u` stamp in the committing invocation)
 
 ###### 1. THE WITHDRAWAL, LANDED WHERE IT CANNOT BE RE-DERIVED WRONG
