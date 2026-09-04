@@ -25976,6 +25976,31 @@ Wiring the guard into ten sites turned up **a second defect shape that was not t
 4 paths, 682 insertions, **file deletions 0**. **I ran the controls rather than reading the report:** `--selftest` **GREEN**; `--mutation-control` **HELD, RED at rc 1**, naming *"the endTime fields survived"* and *"the coefficient series survived"* **for all three drivers** — the fixtures are genuinely destroyed without the guard. rc **0 under `python3` and `-O`**. **By AST parse across all four files: 0 bare asserts and 0 surviving raw `rmtree` calls.** **All ten reported line numbers were exactly right** (GEN_ALT 58/114/156/165, FPE 93/168/186/227, B52 88/201) — ⚠ **the first line-number relay tonight that survived checking.**
 
 
+<!-- BOARD-BLOCK-ID: 57O-an-outer-timeout-is-not-a-cap-on-a-container -->
+
+### ✅ B1 IS **PROVEN** AND B2 **CONFIRMS THE REGISTERED NUMBER** — THE FIRST POSITIVE PHYSICS RESULT OF THIS WHOLE LAUNCH EFFORT
+
+Items 35/36/37 repaired (`87504e79`). **B1: rc 0 inner and outer, ONE wall second, producing a surface at sha `3b94fd7a…` — and NOT the condemned 390-face surface.** 🔴 **B2 launches, marches, and pyHyp's OWN BANNER READ `Total Faces: 24960` — EXACTLY §2.2's registration.** ⚠ **That is the registered figure confirmed BY THE INSTRUMENT rather than by arithmetic, and it is the first thing in this campaign to come back RIGHT.** It reached marching level 52 of 65 before being stopped; **no `volumeMesh.xyz` exists, so the completion assert is untested.**
+
+### 🔴🔴 **"AN OUTER `timeout` IS NOT A CAP ON A CONTAINER"** — AND IF THAT GENERALISES, RULE 12's OVERRUN CLAUSE IS FALSE FOR EVERY CONTAINERISED STEP
+
+The lane's own waste disclosure carries a finding far bigger than the waste. **B1 completed inside a 1-second cap, B2 launched, and `timeout` killed THE DRIVER BUT NOT THE CONTAINER IT HAD STARTED** — **1618 container-wall-seconds = 26.97 core-min** of unbudgeted pyHyp compute, **named separately, never absorbed, all orphans stopped, $0.023 derived.**
+
+⚠ **If a `timeout` around a driver does not bound a container that driver started, then EVERY containerised step's registered cap is enforced by a mechanism that DOES NOT BIND — and rule 12's *"an overrun stops the run; it does not get a new budget"* is FALSE for that entire class.** **Dispatched to be MEASURED, not redesigned: does killing the wrapper stop the container, and if not, what actually bounds a containerised step?** ✅ **The container name is already recorded per step, so a bounded kill has something to aim at.** 🔴 **ROUTED TO VERIFICATION — this is a cap-enforcement question above one campaign.**
+
+✅ **And the lane found TWO defects in its own suite by reading HOW mutants died rather than WHETHER — for the second pass running.** **`M-36c` reached exit 9 exactly as the clean driver does, so an rc-only oracle called it "survived"; it had NOT — its own pin tables disagreed and it still printed "pin VERIFIED".** **And its first `M-37` design killed the mutant with ITS OWN TIMEOUT rather than the missing refusal — a kill for the wrong reason, which is what produced the 26.97 core-min.** ⚠ **Two suites in two passes have now killed mutants for the wrong reason, and only asking HOW exposed either.**
+
+### 🔴 B3 IS THE FOURTH DEFECT — AND ITS OBVIOUS FIX WOULD RE-OPEN THE ONE DEFECT THAT DID NOT FAIL CLOSED
+
+**The builder creates `$RR/$LEVEL/system` but MOUNTS AND WORKS IN `$RR/$LEVEL/work`, which has no `system/`.** Verified by me: a comment-stripped read finds **ZERO** occurrences of `controlDict`, `fvSchemes` or `fvSolution` in the whole file. `plot3dToFoam` → `FOAM FATAL ERROR … cannot find file ".../system/controlDict"`, rc 1; `autoPatch`, `createPatch`, `renumberMesh` the same class. ✅ **Fails closed at exit 6.**
+
+🔴 **RULED: KEEP THE `work` MOUNT; PUT THE CASE FILES INSIDE IT.** ⚠ **The obvious fix — mounting `$RR/$LEVEL` one level up — changes the registered step shape AND RE-OPENS ITEM 34's LOG-COLLISION ANALYSIS, which the `work` mount is currently IMMUNE to.** **Item 34 was the ONE defect in this campaign that did not fail closed: a corrupted `log.checkMesh` at 3330 bytes — the clean size — that GRADED `PASS` with every Gate A threshold satisfied and the head destroyed.** **I will not trade a fail-closed design for a fail-open one to save a step.** ✅ **§8 registers exactly ONE case-file writer and that stays true — the driver still writes no case file of its own; only WHERE `B3c` lands moves.** ⚠ **And the standing instruction holds: if the `work` mount cannot survive, STOP AND TELL ME — I would rather hold the launch another cycle.**
+⚠ **Residual named and unsettled: `createPatch` normally wants `system/createPatchDict`, and the missing-mesh error PREEMPTS that check — so a FIFTH may sit behind B3. "One missing file, not a chain" is proved only as far as it was probed, and no further.**
+
+### THE WORK LIST — FOUR ITEMS RETURNED AGAIN AND ALL FOUR ARE DISCHARGED OR MEASURED
+
+⚠ **Stated once more with shas so a fifth arrival is unnecessary:** **JF1G graded `NOT A RESULT` at `30c5231e`** with its rule-12 row `416fa81a`. **AGARD/GF2 unblocked at `d554e3a7` — there is NO fetch to do; the table was on the box the whole time.** **F21/F22/F24 are REFUTED, not pending — all three graded 2026-08-27, and all three regrades reproduce BYTE-IDENTICAL, 0 diff lines.** **F5b is blocked by its OWN registration** (*"DRAFT, NOT FROZEN … none may"*) **and by its declared EVIDENCE file carrying 200/30 uncommitted lines — neither is a permission question.** ✅ **Box measured at Sanaa's "all teams continue": zero solvers, zero queued rows.** ⚠ **And it stays that way honestly: nothing of cfd's is lawfully launchable yet, and every reason is measured rather than asserted.**
+
 <!-- BOARD-BLOCK-ID: 57N-the-corruption-was-made-to-grade-and-it-graded-pass -->
 
 ### 🔴🔴🔴 **THE SILENT CORRUPTION WAS MADE TO GRADE — AND IT GRADED `PASS`.** NOT "COULD"; **DID**
