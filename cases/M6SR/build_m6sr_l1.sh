@@ -16,8 +16,13 @@
 #                 them.  r = 1.167442 and cells/wing_faces = 64 hold BY CONSTRUCTION.
 #   Section 2.4   the per-step CAPS in core-minutes.  🔴 STRUCK BY QUOTE, 2026-09-04, ITEM 39:
 #                 ~~"the per-step CAPS in core-minutes, enforced STRUCTURALLY by `timeout`."~~
-#                 `timeout` was MEASURED NOT TO BOUND A CONTAINER IT STARTED.  The caps in
-#                 this file REPORT an overrun; they do not STOP one.  REPORTED, NOT REPAIRED.
+#                 `timeout` was MEASURED NOT TO BOUND A CONTAINER IT STARTED.  🔴 STRUCK BY
+#                 QUOTE, 2026-09-04, ITEM 39 REPAIR: ~~"The caps in this file REPORT an
+#                 overrun; they do not STOP one.  REPORTED, NOT REPAIRED."~~  THEY NOW STOP
+#                 ONE.  The caps are enforced by `timeout -k` + an UNCONDITIONAL `docker kill`
+#                 on the recorded name + an overrun branch accepting 124 AND 137.  §2.4's
+#                 "enforced STRUCTURALLY by `timeout`" stays struck: the enforcement is real
+#                 but it is NOT `timeout` alone, and no single limb of it is a cap.
 #   Section 7     the ill-posedness screen: the driver REFUSES a level whose patch names it
 #                 did not expect.
 #   Section 8.5   autoPatch/createPatch/renumberMesh, and `scotch` is NOT used.
@@ -218,7 +223,10 @@
 #   registration's rule-2 freeze proof.  `cases/M6SR/check_m6sr_build_path.sh` rehearses it.
 #
 # =======================================================================================
-# ITEM 39 -- 🔴 REPORTED, NOT REPAIRED, AND IT IS BIGGER THAN THIS FILE.
+# ITEM 39 -- 🔴 STRUCK BY QUOTE, 2026-09-04: ~~"REPORTED, NOT REPAIRED, AND IT IS BIGGER THAN
+# THIS FILE."~~  IT IS NOW REPAIRED, IN BOTH DRIVERS.  The MEASUREMENT below stands unchanged
+# and is the reason the repair has the shape it has -- it is kept because it is what makes the
+# three limbs legible as three limbs rather than as belt-and-braces.
 #   AN OUTER `timeout` IS NOT A CAP ON A CONTAINER.  MEASURED ON THE PINNED DIGEST:
 #     * `timeout 3s docker run --rm --name N ... <60 s payload>` returns **rc 124** -- after
 #       **61 WALL SECONDS**.  `timeout` sends SIGTERM to the docker CLIENT; the client proxies
@@ -238,11 +246,23 @@
 #       the container was still `Up` afterwards until `docker rm -f` ended it in 0 wall s.
 #       ⚠ THAT rc IS THE ITEM-35 TRAP AGAIN: this driver's overrun branch tests `rc -eq 124`,
 #       so the bounded shape would MISS it and abort at exit 6 with a misleading cause.
-#   CONSEQUENCE, STATED PLAINLY: **B2's 70.0 core-min cap does not stop B2.**  Rule 12's "an
-#   overrun stops the run" is not delivered by this mechanism for ANY containerised step in
-#   this campaign.  NOT REPAIRED HERE: changing the cap mechanism changes the rc semantics and
-#   Section 2.4's own "enforced structurally" claim, and that is the supervisor's.
-#   **UNTIL IT IS RULED, B1/B2/B3 MUST NOT BE LAUNCHED UNATTENDED.**
+#   🔴 STRUCK BY QUOTE, 2026-09-04, ITEM 39 REPAIR: ~~"CONSEQUENCE, STATED PLAINLY: **B2's
+#   70.0 core-min cap does not stop B2.**  Rule 12's "an overrun stops the run" is not
+#   delivered by this mechanism for ANY containerised step in this campaign.  NOT REPAIRED
+#   HERE: changing the cap mechanism changes the rc semantics and Section 2.4's own "enforced
+#   structurally" claim, and that is the supervisor's.
+#   **UNTIL IT IS RULED, B1/B2/B3 MUST NOT BE LAUNCHED UNATTENDED.**"~~
+#   THE REPAIR, IMPLEMENTED IN docker_timeout_q() AND run_in_container() BELOW, IN THREE LIMBS
+#   THAT ARE ONLY A CAP TOGETHER:
+#     (1) `timeout -k ${CAP_KILL_GRACE_S}s <cap>s` -- bounds THE CLIENT.  Without -k the client
+#         is never bounded at all and the wrapper can block forever.
+#     (2) an UNCONDITIONAL `docker kill` + `rm -f` on the RECORDED container name -- bounds THE
+#         CONTAINER.  Unconditional because the client's return says NOTHING about it.
+#     (3) an overrun branch accepting **124 AND 137** -- 137 is the rc a `-k` SIGKILL produces
+#         and is the NORMAL rc for a real containerised overrun on this box.
+#   B2's 70.0 core-min cap NOW STOPS B2, and B1/B2/B3 may be launched unattended.
+#   ⚠ Section 2.4's "enforced STRUCTURALLY by `timeout`" REMAINS STRUCK: the caps are enforced,
+#   but not by `timeout`, and not by any one of these three limbs alone.
 # =======================================================================================
 
 set +u
@@ -382,14 +402,23 @@ docker_q(){
   sg docker -c "docker$q"
   return $?
 }
+# ITEM 39 REPAIRED HERE (2026-09-04).  THE GRACE BETWEEN `timeout`'s SIGTERM AND ITS SIGKILL.
+# A bare `timeout` does not bound a docker client at all: it SIGTERMs the client, the client
+# proxies the signal to the container's `bash -c`, that `bash` is waiting on a foreground child
+# and does not act, and `timeout` THEN WAITS FOR THE CLIENT.  MEASURED: a 3 s cap on a 60 s
+# container returned rc 124 AFTER 61 WALL SECONDS, and under an UNBOUNDED payload the wrapper
+# never returned at all.  `-k` is what makes the CLIENT return; the UNCONDITIONAL `docker kill`
+# in run_in_container() is what ends the CONTAINER.  NEITHER LIMB ALONE IS A CAP.
+CAP_KILL_GRACE_S=5
+
 docker_timeout_q(){
   local tmo="$1"; shift
   if [ "$DOCKER_BRANCH" = "bare" ]; then
-    timeout "${tmo}"s "$DOCKER_BIN" "$@"
+    timeout -k "${CAP_KILL_GRACE_S}"s "${tmo}"s "$DOCKER_BIN" "$@"
     return $?
   fi
   local q; q=$(printf ' %q' "$@")
-  timeout "${tmo}"s sg docker -c "docker$q"
+  timeout -k "${CAP_KILL_GRACE_S}"s "${tmo}"s sg docker -c "docker$q"
   return $?
 }
 
@@ -564,36 +593,69 @@ chmod 777 "$RR/$LEVEL/work" || abort "could not make the work directory writable
 
 # One helper for every containerised step.  rc IS CAPTURED INSIDE THE WRAPPER (Section 9.2)
 # -- `setsid timeout cmd` exits 0 for every outcome, so an rc taken from around the setsid
-# line is meaningless.  The cap is enforced by `timeout` and an overrun STOPS THE RUN.
+# line is meaningless.
+# 🔴 STRUCK BY QUOTE, 2026-09-04, ITEM 39 REPAIR: ~~"The cap is enforced by `timeout` and an
+# overrun STOPS THE RUN."~~  MEASURED FALSE as written -- a bare `timeout` REPORTED an overrun
+# after the fact and never stopped one.  The cap is now enforced by THREE limbs together:
+# `timeout -k` on the client, an UNCONDITIONAL `docker kill` on the recorded container name,
+# and an overrun branch that accepts 137 as well as 124.  An overrun now stops the run.
 run_in_container(){
   local tag="$1" tmo="$2" cmd="$3"
-  local t0 t1 rc wall
+  local t0 t1 rc wall cname
+  # THE CONTAINER NAME IS BOUND TO A VARIABLE AND RECORDED BEFORE THE RUN, because the kill
+  # below must be able to aim at it WITHOUT having to trust anything the client returned.
+  cname="m6sr_${tag}_$$"
+  echo "$cname" > "$RR/$LEVEL/CONTAINER_NAME_${tag}.txt"
   t0=$(date +%s)
   # ITEM 35 REPAIRED: argv, through docker_timeout_q, correct on BOTH branches -- and the
   # image is addressed by DIGEST ($IMG_PINNED), never by the tag $IMG.
   # 🔴 STRUCK BY QUOTE, 2026-09-04, ITEM 39: ~~"The cap is still enforced by `timeout` and rc
   # 124 still reaches the overrun path below (measured on both branches: a 30 s container
   # under a 5 s cap returns 124)."~~
-  # ⚠ ITEM 39: `timeout` REPORTS the overrun (rc 124 reaches the branch below) but does NOT
-  # STOP it -- it waits for the container.  The `docker rm -f` two lines down is real and is
-  # what ends a container, but it is not reached until the container has already ended itself.
-  # NOT REPAIRED HERE; the cap mechanism is the supervisor's.  Do not read this as a bound.
-  docker_timeout_q "$tmo" run --rm --name "m6sr_${tag}_$$" -u 1002:1002 \
+  # 🔴 STRUCK BY QUOTE, 2026-09-04, ITEM 39 REPAIR -- THE WHOLE FOUR-LINE BLOCK, VERBATIM,
+  # because three of its four lines were TRUE OF THE OLD SHAPE and a true finding is struck,
+  # never silently dropped: ~~"⚠ ITEM 39: `timeout` REPORTS the overrun (rc 124 reaches the
+  # branch below) but does NOT STOP it -- it waits for the container.  The `docker rm -f` two
+  # lines down is real and is what ends a container, but it is not reached until the container
+  # has already ended itself.  NOT REPAIRED HERE; the cap mechanism is the supervisor's.  Do
+  # not read this as a bound."~~
+  # IT IS REPAIRED HERE.  The `rm -f` is no longer the only kill and is no longer reached only
+  # after the container ended itself: `timeout -k` now forces the client to return at
+  # cap+grace, and the kill below is UNCONDITIONAL.  This IS now a bound.
+  docker_timeout_q "$tmo" run --rm --name "$cname" -u 1002:1002 \
       -v "$RR/$LEVEL/work":/home/dafoamuser/mount -w /home/dafoamuser/mount "$IMG_PINNED" \
       bash -c "set +u; source /home/dafoamuser/dafoam/loadDAFoam.sh >/dev/null 2>&1; $cmd; echo \"WRAPPER_RC=\$?\" > RC_${tag}.txt" \
       > "$RR/$LEVEL/log.$tag" 2>&1
   rc=$?
   t1=$(date +%s); wall=$((t1-t0))
-  docker_q rm -f "m6sr_${tag}_$$" >/dev/null 2>&1
+  # ⚠ THE KILL IS UNCONDITIONAL, AND THAT IS THE WHOLE POINT.  It is NOT guarded by the rc,
+  # because the entire item-39 finding is that THE CLIENT'S RETURN TELLS YOU NOTHING ABOUT THE
+  # CONTAINER: a client killed by `timeout -k` returns while its container is still `Up` at
+  # 100 % CPU.  `kill` then `rm -f`, both on the RECORDED name, both rc-ignored -- on the happy
+  # path `--rm` has already reaped the container and both are harmless no-ops.
+  docker_q kill "$cname" >/dev/null 2>&1
+  docker_q rm -f "$cname" >/dev/null 2>&1
   # THE INNER rc, read from the file the wrapper wrote, by explicit path -- never from $?
   # around the timeout/setsid line, and never by `grep log.* | tail -1`.
   local inner="ABSENT"
   [ -f "$RR/$LEVEL/work/RC_${tag}.txt" ] && inner=$(cut -d= -f2 "$RR/$LEVEL/work/RC_${tag}.txt")
-  echo "$tag outer_rc=$rc inner_rc=$inner wall_s=$wall timeout_s=$tmo" \
+  echo "$tag outer_rc=$rc inner_rc=$inner wall_s=$wall timeout_s=$tmo grace_s=$CAP_KILL_GRACE_S container=$cname" \
       >> "$RR/$LEVEL/STEP_RC.txt"
   say "$tag: outer rc=$rc  INNER rc=$inner  wall=${wall}s  cap=${tmo}s"
-  if [ "$rc" -eq 124 ]; then
-    abort "$tag exceeded its structural cap of ${tmo} wall s. AN OVERRUN STOPS THE RUN. It does not get a new budget (rule 12)." 6
+  # WHICH rcs MEAN AN OVERRUN, AND WHAT EACH ONE MEANS -- stated here because item 35 was
+  # exactly the failure of an rc that was not 124 not reading as a cap overrun:
+  #   124 = `timeout` reached the cap, sent SIGTERM, and the docker client EXITED ON IT.
+  #   137 = 128+9.  The client did NOT exit on SIGTERM, so `timeout -k` SIGKILLed it at
+  #         cap+grace.  ⚠ THIS IS THE NORMAL rc FOR A CONTAINERISED OVERRUN ON THIS BOX --
+  #         measured: `timeout -k 5s 3s` on a 120 s container returned in 8 s with rc 137,
+  #         NOT 124.  A branch testing only 124 MISSES EVERY REAL OVERRUN and falls through
+  #         to the inner-rc check, aborting at exit 6 with a misleading cause.
+  # ⚠ HONEST AMBIGUITY, NOT PAPERED OVER: 137 can ALSO be a SIGKILL from elsewhere (an OOM
+  # kill of the client) rather than from `-k`.  Both readings STOP THE RUN, so this branch is
+  # safe either way, and `wall` vs `cap` is printed so a reader can tell them apart: a cap
+  # overrun has wall >= cap, a foreign SIGKILL has wall << cap.
+  if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then
+    abort "$tag hit its cap of ${tmo} wall s (outer rc=$rc after ${wall}s; 124=client exited on SIGTERM at the cap, 137=client SIGKILLed by 'timeout -k' at cap+${CAP_KILL_GRACE_S}s). The container '$cname' was killed unconditionally. AN OVERRUN STOPS THE RUN. It does not get a new budget (rule 12)." 6
   fi
   [ "$inner" = "0" ] || abort "$tag inner rc=$inner (outer $rc). A non-zero rc inside the container is a FAILED STEP, whatever the outer wrapper returned." 6
   echo "$wall" > "$RR/$LEVEL/WALL_${tag}.txt"

@@ -4453,3 +4453,121 @@ append, both rendering to sha256
 **`e59c6b1eca3b7466664cf2e24ad7001d6d31c96e0289634d9fb27ed2d4538622`**. Other records cite this
 document **by line**, and at least one such citation sits inside an executable check, so this is
 a guarantee and not a courtesy.
+
+---
+
+## 21. AMENDMENT 15 — 2026-09-04, **PRE-COMPUTE**. **ITEM 39 IS REPAIRED IN BOTH DRIVERS — THE CAPS NOW BIND**, AND §2.4's *"enforced structurally"* IS STRUCK BY QUOTE
+
+**THE PRE-COMPUTE CONDITION, STATED AND CHECKED, NOT ASSUMED.** Rule 2 permits an amendment
+before first compute and requires the condition to be named and checked. **The run directory
+that does not exist is `verification/runs/M6SR_runs`.** It was checked **with a plant at the
+exact searched path**: `check_m6sr_cap_binds.sh` check `K6` creates that directory, confirms the
+reader SEES it, removes it, and only then reports it absent — a reader not shown able to see a
+present tree cannot be trusted to report an absent one (rule 3). **No ladder compute has been
+run; no gate, threshold, cap or label moves in this amendment.**
+
+### 21.1 THE FALSE CLAIM, STRUCK BY QUOTE
+
+§18's implementation list (line 2086) reads that the driver implements *"§2.4 (the `B1`/`B2`/`B3`
+caps, enforced **structurally** by `timeout`)"*.
+
+> 🔴 **STRUCK BY QUOTE:** ~~"the `B1`/`B2`/`B3` caps, enforced **structurally** by `timeout`"~~
+
+**MEASURED FALSE AS WRITTEN, and it stays struck even now that the caps bind** — because the
+enforcement is real but it is **not `timeout`**, and it is not any one mechanism alone. §20.3's
+measurement stands unchanged and is the reason the repair has the shape it has.
+
+### 21.2 THE REPAIR — THREE LIMBS THAT ARE ONLY A CAP TOGETHER
+
+Applied to **both** `cases/M6SR/build_m6sr_l1.sh` and `cases/M6SR/run_m6sr_b5.sh`:
+
+| limb | what | what it bounds | measured consequence of dropping it |
+|---|---|---|---|
+| 1 | `timeout -k ${CAP_KILL_GRACE_S}s <cap>s` on the client, on **both** invocation branches | **the CLIENT** | the wrapper **never returns at all** |
+| 2 | an **UNCONDITIONAL** `docker kill` + `rm -f` on the **recorded** container name | **the CONTAINER** | the client returns looking clean; **the container is still `Up`** |
+| 3 | an overrun branch accepting **`137` as well as `124`** | **the READING** | the real overrun rc **misses the branch** |
+
+`CAP_KILL_GRACE_S = 5`. The container name is bound to `$cname` and written to disk **before**
+the run, so the kill has something to aim at without trusting anything the client returned.
+
+**WHICH rc MEANS WHAT, stated in the code rather than left to a reader:** `124` = `timeout`
+reached the cap, sent SIGTERM, and the client **exited on it**. `137` = 128+9 — the client did
+**not** exit on SIGTERM and `timeout -k` **SIGKILLed** it at cap+grace. ⚠ **`137` is the NORMAL
+rc for a real containerised overrun on this box**, so a branch testing only `124` misses every
+one of them — the item-35 trap exactly. ⚠ **Honest ambiguity, not papered over:** `137` can also
+be a SIGKILL from elsewhere (an OOM kill of the client). **Both readings stop the run**, so the
+branch is safe either way, and `wall` vs `cap` is recorded so a reader can separate them — a cap
+overrun has `wall ≥ cap`, a foreign SIGKILL has `wall ≪ cap`.
+
+⚠ **The kill is UNCONDITIONAL and that is the whole point.** It is not guarded by the rc,
+because the entire item-39 finding is that **the client's return tells you nothing about the
+container.**
+
+### 21.3 THE MEASUREMENT — BEFORE AND AFTER, SAME PAYLOAD, SAME CAP
+
+**New file: `cases/M6SR/check_m6sr_cap_binds.sh`.** It does **not** reimplement the mechanism: it
+**extracts the drivers' own lines** — `docker_q()`, `docker_timeout_q()`, the grace constant,
+both kill lines and the overrun branch condition — from a **comment-stripped, indentation-
+stripped** view and runs **those** against real containers on the pinned digest.
+
+| | unbounded payload under a **3 s** cap | outer rc | containers left `Up` |
+|---|---|---|---|
+| **BEFORE** (bare `timeout`) | **never returned** — still blocked at the suite's **25 s** deadline (a lower bound: the suite stopped waiting, it did not stop being blocked) | — | **1** |
+| **AFTER** (three limbs) | **8 s**, inside cap+grace = 8 s | **137** | **0** |
+
+**`B2`'s 70 core-min cap now stops `B2`; `B5c`'s 1,630 core-min cap now stops `B5c`.** Rule 12's
+*"an overrun stops the run"* is delivered for containerised steps in this campaign.
+
+### 21.4 THE CONTROLS — AND **HOW** EACH MUTANT DIED
+
+**26 checks pass, 0 fail, exit 0.** The refusal path is planted and read back first (an
+unmatchable extraction must return **rc 2 and no value** — a refusal captured as a value is not
+a refusal). **Every mutant is first proved to differ from the control harness**, so no mutation
+is a no-op dressed as a test.
+
+**THE KNOWN-POSITIVE THAT LICENSES EVERY NEGATIVE (`K2`):** a 2 s container under a 20 s cap
+returns **rc 0 in 2 s**, the overrun branch does **not** fire, and it is **not** killed. Without
+it, a mechanism that simply killed everything would pass every "it was stopped" check.
+
+**`K1'` MEASURES that reading a comment-stripped view matters** rather than asserting it:
+`timeout -k` appears **11 times in `build_m6sr_l1.sh` but only 3 times in its CODE** — a
+whole-file grep would be satisfied by the prose describing the fix.
+
+| mutant | limb dropped | **how it died** |
+|---|---|---|
+| `M-1` | 1 (`-k`) | the wrapper **NEVER RETURNED** — still blocked at the 14 s deadline with 1 container `Up`, where the real harness returned in 8 s. `K4a`'s wall bound is violated by an unbounded margin. |
+| `M-2` | 2 (unconditional kill) | the client returned **rc 137 in 8 s, looking exactly like a clean bounded overrun** — but **1 container was still `Up`**. `K4d` goes RED. |
+| `M-3` | 3 (`137`) | the overrun produced **rc 137** and the narrowed branch **did not fire**. `K4c` goes RED; the run would have sailed past its cap and then aborted at exit 6 on the inner rc **with a misleading cause**. |
+
+### 21.5 WHAT THIS AMENDMENT DOES **NOT** DO
+
+- ⚠ **IT DOES NOT RE-PIN.** §9's and §18.3.1's driver blob shas are **stale by construction** —
+  this repair moves both driver blobs. **The re-pin is the supervisor's to order, and a lane may
+  not take it.**
+- It moves **no gate, no threshold, no cap and no label.** The §2.4 cost table is untouched.
+- It does **not** alter `check_m6sr_build_path.sh` check `C6`, whose **code is byte-identical**.
+  `C6` probes a **bare** `timeout` directly, never the driver's helper, so what it pins is the
+  **platform fact that makes this repair necessary** — not the driver's old shape. It still
+  passes, and it should: if a bare `timeout` ever begins bounding a container on this daemon,
+  the repair's shape must be re-argued from scratch.
+
+### 21.6 COST
+
+**Zero ladder core-minutes.** The suite spent **66 container-seconds**, reported as **WASTE,
+separately, never absorbed into a step's cost**. ⚠ **Every container this suite starts is itself
+bound by the mechanism under test**, plus a final sweep — two consecutive earlier passes were
+bitten by the very unboundedness they were measuring (284 container-seconds in one). The
+unbounded payload is `while :; do sleep 1; done`, **not** a busy loop: it is unbounded in exactly
+the way that matters (pid 1 is a `bash` blocked on a foreground child, which is the signal-
+handling path the whole finding turns on) but it does **not** burn a core. The box was **not**
+idle — heat-transfer's T3e held 8 ranks of 16. **This substitution is deliberate and named.**
+
+**Version: v1.6 → v1.7 (amendment 15, pre-compute). The frozen file was NOT edited; this section
+is APPENDED AT THE FOOT.**
+
+⚠ **The header line 3 still reads `v1.0` and is DELIBERATELY NOT EDITED**, for the reason §15.10,
+§16.9, §17.12, §18.11, §19.10 and §20's closing give: editing it would change a line above §15
+and falsify those sections' own assertions, on which other records depend. **The bump is recorded
+HERE.**
+
+> **`lines whose number changed above this section: 0`**

@@ -23,8 +23,13 @@
 #   without it the boundary carries ZERO symmetry patches and Section 7 aborts at exit 8.
 #   B5 below proves both limbs.
 #
-#   ITEM 39  an outer `timeout` IS NOT A CAP ON A CONTAINER.  REPORTED, NOT REPAIRED; C6
-#            below keeps the measurement executable rather than only written down.
+#   ITEM 39  an outer `timeout` IS NOT A CAP ON A CONTAINER.  🔴 STRUCK BY QUOTE, 2026-09-04:
+#            ~~"REPORTED, NOT REPAIRED;"~~ **REPAIRED** in both drivers -- see
+#            `check_m6sr_cap_binds.sh`, which drives the three repaired limbs against real
+#            containers.  C6 below is UNCHANGED and still PASSES: it probes a BARE `timeout`
+#            directly, never the driver's helper, so what it pins is the PLATFORM FACT that
+#            makes the repair necessary, not the driver's old shape.  It keeps the
+#            measurement executable rather than only written down.
 #
 # WHY IT IS COUPLED TO THE DRIVER'S OWN TEXT.  This check does NOT re-type the repaired
 # constructs.  It EXTRACTS them from build_m6sr_l1.sh and runs those, so a mutation to the
@@ -325,7 +330,11 @@ fi
 
 # ---------------------------------------------------------------------------------------
 # C6.  ITEM 39, KEPT EXECUTABLE.  An outer `timeout` does not bound a container it started.
-#      REPORTED, NOT REPAIRED -- this check FAILS ONLY if the finding stops reproducing.
+#      🔴 STRUCK BY QUOTE, 2026-09-04: ~~"REPORTED, NOT REPAIRED"~~ -- the DRIVERS are now
+#      REPAIRED (`timeout -k` + an unconditional kill + a 124/137 branch).  THIS CHECK IS
+#      DELIBERATELY UNCHANGED: it probes a BARE `timeout`, not the driver's helper, so it pins
+#      the PLATFORM FACT the repair exists to work around.  It FAILS ONLY if that fact stops
+#      reproducing -- in which case the repair's shape must be re-argued from scratch.
 # ---------------------------------------------------------------------------------------
 N="m6bc_cap_$$"; T0=$(date +%s)
 timeout 3s "$DOCKER_BIN" run --rm --name "$N" -u 1002:1002 "$IMG_PINNED" \
