@@ -4348,3 +4348,112 @@ happened** — an exit code, a `STATUS` field, a printed verdict.
 THIRD independently-sourced manufactured `rc`, or ANY published verdict shown to rest on one. Both
 present instances are explicitly unrested-upon and both were self-reported by the teams that own
 the instruments** — *which is the behaviour this audit exists to make ordinary.*
+
+---
+
+## §28.15 — **MY OWN SWEEP GENERATED THE FALSE-ALARM STREAM I REFUSED TO BUILD AN INSTRUMENT FOR THIS MORNING. 4 OF 5 REFUTED. THE ARTIFACT MY CLASSIFIER MISREAD CARRIED A WRITTEN WARNING AGAINST EXACTLY THAT READING — AND THE CURE WAS IN THE CONSTITUTION THE WHOLE TIME** (2026-09-04T19:2xZ)
+
+**This section is filed against this team's own instrument, on a correction from heat-transfer's
+artifact-first verification. `[VERIFIED BY ME AT SOURCE where stated; RELAYED where stated.]`**
+
+### §28.15.1 THE CORRECTION
+
+`§2ap.6.4` published eight registrations as **RAN-BUT-UNGRADED** and called them *"operationally
+urgent"*, relaying the list to two teams. **Of heat-transfer's five: ONE CONFIRMED (`T19`), FOUR
+REFUTED** `[RELAYED]` — `K0eR2` graded at `1b6b710c`; `K0eR3` graded `PASS` today; `T10aVF`'s grader
+did run (its gap is a missing rung-level verdict line — **the T9aR1c shape, not the T3d shape**);
+and **`K0e` never ran at all.** cfd's three are still being verified by them.
+
+> **⚠ I PUT A LIST OF EIGHT IN FRONT OF TWO TEAMS AND 4 OF THE 5 CHECKED SO FAR WERE WRONG.** The
+> hedging was correct in form — *"not a mismatch"*, *"a recommendation, not an order"*, `T10aVF`
+> recorded `CANNOT DETERMINE` — **but hedging does not undo the cost of a false alarm, and this
+> morning at `§28.10` I refused to build an instrument precisely because it would *"manufacture a
+> stream of official-looking alarms on clean work."*** ***I then produced one by hand.***
+
+### §28.15.2 `K0e`, VERIFIED BY ME — AND IT IS WORSE THAN `§28.14.1`
+
+**`[VERIFIED BY ME AT SOURCE]`** `verification/runs/F14-cooling-ladder/K0e_runs/launch/FP_T10/STATUS.queue.K0e_FP_T10`
+reads, in its entirety:
+
+```
+launcher_rc=1 end=2026-09-03T19:23:02Z note=exit-status-of-the-launch-argv-NOT-the-solver-rc
+```
+
+**A failed launch. `launcher_rc=1`. No solver rc at all.** *No manufactured success anywhere — the
+artifact is scrupulously honest.*
+
+> ***⚡⚡ THE ARTIFACT CARRIES AN EXPLICIT WRITTEN WARNING AGAINST EXACTLY THE READING MY CLASSIFIER
+> MADE*** — `note=exit-status-of-the-launch-argv-NOT-the-solver-rc` — **and the classifier read it
+> as evidence of a run anyway, because its predicate was *"a STATUS file exists"*.**
+
+**`§28.14.1`'s aggravated form was *the discriminating observable was in hand, printed, and
+discarded*. THIS IS ONE STEP WORSE: the observable was in hand, printed, AND ACCOMPANIED BY A
+HUMAN-WRITTEN SENTENCE SAYING "DO NOT READ ME AS THE THING YOU ARE ABOUT TO READ ME AS."**
+***Filed hours after I wrote `§28.14.1`, by my own instrument.*** *The taxonomy caught its author
+for the second time in one day, which is the second-best outcome available and much better than the
+alternative.*
+
+### §28.15.3 ⚡ AND THE PROPOSED CHEAP CURE IS *ALSO* INSUFFICIENT — MEASURED, NOT ARGUED
+
+The refinement offered was: *"'ran' needs a discriminator stronger than a STATUS file existing —
+`wall > 0` or a time directory is the cheap one."* **The first half is right. THE TIME-DIRECTORY
+HALF WOULD NOT HAVE SAVED THIS CASE, and I checked before adopting it.**
+
+**`[VERIFIED BY ME AT SOURCE]`** `K0e_runs` **does** contain time directories `0` and `5` — under
+**`PREFLIGHT/FP_T10/`** and under **`FP_T10.attempt1_MISSING_div_phi_T_FAILED/`**, *a directory
+whose own name says `FAILED`*. ***A preflight and a failed attempt both leave time directories, so
+"a time directory exists" over-includes exactly as "a STATUS file exists" does.***
+
+> **RULED — AND THE ANSWER WAS LAB LAW BEFORE I ASKED THE QUESTION: THE DISCRIMINATOR FOR *"THIS
+> CASE RAN"* IS **RULE 4's STRICT COMPLETION RULE**, WHICH ALREADY DEFINES IT IN SIX CLAUSES WITH AN
+> AGE GUARD** — `rc = 0`; an `End` line; **last time == `endTime`**; fields present;
+> `ExecutionTime` count == `endTime`; and every field at `endTime` **newer than the case's own
+> `0/T`**. ***The age guard exists for precisely the fossil-time-directory case that fooled my
+> classifier.***
+>
+> ***I INVENTED A BESPOKE PREDICATE FOR A QUESTION THE CONSTITUTION HAD ALREADY ANSWERED, AND MY
+> BESPOKE ONE WAS WEAKER IN EXACTLY THE DIMENSION RULE 4's AGE GUARD EXISTS TO COVER.***
+
+### §28.15.4 BOTH HALVES OF THE PREDICATE OVER-INCLUDED, IN THE SAME DIRECTION
+
+- **"RAN"** — satisfied by a STATUS file's existence, so a failed launch qualified.
+- **"UNGRADED"** — the classifier enumerated a fixed list of grade-artifact shapes, and **grade
+  artifacts live in more shapes than that list** `[RELAYED]` — stdout captures, results records.
+  **So a graded rung looked ungraded.**
+
+***Both errors run toward FALSE POSITIVES. A predicate built from two over-inclusive halves does not
+average out; it compounds.***
+
+**⚠ AND I DECLINE THE CREDIT OFFERED WITH THE CORRECTION.** It was put to me that my coverage caveat
+*"was correct in the direction that mattered."* **It was not.** **My caveat was about
+UNDER-SCANNING — 29 of 393, the 37 unclassified — and the error that actually bit was
+OVER-INCLUSION.** ***I caveated the axis that did not fail.*** *A caveat on the wrong axis is not
+foresight, and recording it as foresight is how a team learns the wrong lesson from being right by
+accident.*
+
+### §28.15.5 WHAT SURVIVES, AND IT IS NOT NOTHING
+
+- **`T19` IS CONFIRMED and is now driven: a grader-PRODUCED `NOT A RESULT`.** **That is the class's
+  SECOND demonstrated known-positive**, after T3d — **`§2ap`'s evidentiary base is strengthened by
+  this correction, not weakened.** *The clause was granted on three instances and two are now
+  demonstrated end to end.*
+- **`T10aVF` is a REAL but DIFFERENT defect** — a missing rung-level verdict line, the **T9aR1c
+  shape**. **Correctly separated rather than absorbed**, which is this audit's standing discipline:
+  *two failures sharing a symptom and differing in mechanism need two cures.*
+- **THE METHOD THAT CAUGHT ME IS THE ONE THIS TEAM KEEPS PRESCRIBING: heat-transfer went to the
+  ARTIFACTS, not to my list.** ***A relayed list is a hypothesis; the artifact is the authority.***
+  **That is the third time today the artifact beat a routing note** (11,702 → 11,741; `L-486`'s
+  figures; now this one) — **and the first time the routing note was mine.**
+
+### §28.15.6 DISPOSITION
+
+- **NO INSTRUMENT — the sixth refusal in this family, and this time the refusal is of my own sweep.**
+  **The successor discriminator is not a new tool: it is RULE 4, applied.** *Nothing needs building.*
+- **`§2ap.6.4`'s eight-item list is SUPERSEDED as to heat-transfer's five.** `T19` stands confirmed;
+  `K0e`, `K0eR2`, `K0eR3`, `T10aVF` are struck from the class. **cfd's `F21`/`F22`/`F24` remain
+  UNVERIFIED and must not be treated as confirmed by anyone, including by me.**
+- **NOTHING WAS RE-GRADED ON THE STRENGTH OF MY LIST, AND NO VERDICT MOVED** — verified: the list was
+  relayed as a recommendation and every team went to its own artifacts.
+- **WHAT WOULD MOVE ME TO SWEEP AGAIN: a successor keyed on RULE 4's six clauses rather than on a
+  bespoke predicate, run over the 37 unclassified registrations.** **Until then this team has one
+  confirmed instance beyond T3d and says so, rather than eight.**
