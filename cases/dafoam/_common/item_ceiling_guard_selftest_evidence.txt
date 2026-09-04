@@ -1,0 +1,76 @@
+item_ceiling_guard.py -- SELFTEST EVIDENCE
+generated 2026-09-04T19:26:51Z  host euid=1000  python 3.12.3
+artefact md5: 1ea97c9245dedbc451d62e1bcfe26eb9
+NO COMPUTE: this selftest launches no container and no solver.
+
+==============================================================================
+RUN 1 -- python3 cases/dafoam/_common/item_ceiling_guard.py --selftest
+==============================================================================
+SELFTEST item_ceiling_guard.py  workdir=/tmp/item_ceiling_guard_selftest_gyv6azo3
+SELFTEST euid=1000 (mode-000 limb needs a non-root euid)
+------------------------------------------------------------------------------
+EXERCISED-PLANT-NONZERO-VISIBLE      observed=12.345         expected=12.345         OK
+EXERCISED-LEDGER-ABSENT              observed=UNMEASURED     expected=UNMEASURED     OK
+EXERCISED-LEDGER-UNREADABLE-000      observed=UNMEASURED     expected=UNMEASURED     OK
+EXERCISED-MALFORMED-TOKEN-REFUSES    observed=UNMEASURED     expected=UNMEASURED     OK
+EXERCISED-CONTRAST-D6RF-REGEX        observed=1.2.3          expected=1.2.3          OK
+EXERCISED-CONTRAST-D6RF-FLOAT-THROWS observed=yes            expected=yes            OK
+EXERCISED-CONTRAST-A1WRT-REGEX       observed=1.2            expected=1.2            OK
+EXERCISED-CONTRAST-A1WRT-FLOAT-THROWS observed=no             expected=no             OK
+EXERCISED-WHOLE-TOKEN-CAPTURED       observed=1.2.3          expected=1.2.3          OK
+EXERCISED-SCIENTIFIC-ACCEPTED        observed=WITHIN_CEILING expected=WITHIN_CEILING OK
+EXERCISED-SCIENTIFIC-SUMMED          observed=153.750        expected=153.750        OK
+EXERCISED-PROJECTION-OVER-CEILING    observed=OVER_CEILING   expected=OVER_CEILING   OK
+EXERCISED-PROJECTION-ARITHMETIC      observed=490.000        expected=490.000        OK
+EXERCISED-EXACTLY-AT-CEILING         observed=WITHIN_CEILING expected=WITHIN_CEILING OK
+EXERCISED-EXACTLY-AT-CEILING-PROJ    observed=480.000        expected=480.000        OK
+EXERCISED-BLIND-READER-REFUSES       observed=UNMEASURED     expected=UNMEASURED     OK
+EXERCISED-BLIND-READER-SAW-LINES     observed=2              expected=2              OK
+EXERCISED-BLIND-READER-PREFIX-FIX    observed=450.000        expected=450.000        OK
+EXERCISED-EMPTY-LEDGER-IS-ZERO       observed=WITHIN_CEILING expected=WITHIN_CEILING OK
+EXERCISED-EMPTY-LEDGER-SPENT         observed=0.000          expected=0.000          OK
+EXERCISED-VALIDATOR-ACCEPTS-LEGIT    observed=[]             expected=[]             OK
+EXERCISED-VALIDATOR-REJECTS-JUNK     observed=[]             expected=[]             OK
+EXERCISED-LEGACY-UNARY-PLUS-PASSES   observed=480.000        expected=480.000        OK
+EXERCISED-GUARD-REFUSES-SAME-LEDGER  observed=UNMEASURED     expected=UNMEASURED     OK
+EXERCISED-CLI-RC-WITHIN              observed=0              expected=0              OK
+EXERCISED-CLI-RC-OVER                observed=65             expected=65             OK
+EXERCISED-CLI-RC-UNMEASURED          observed=65             expected=65             OK
+EXERCISED-CLI-RC-BAD-CAP             observed=64             expected=64             OK
+EXERCISED-REFIRE-SEES-FIRE1          observed=0.700          expected=0.700          OK
+EXERCISED-REFIRE-SEES-BOTH           observed=1.000          expected=1.000          OK
+EXERCISED-AST-ASSERT-COUNT           observed=0              expected=0              OK
+------------------------------------------------------------------------------
+SELFTEST limbs exercised: 31
+SELFTEST RESULT: PASS -- every limb driven, no mismatches, ast.Assert 0
+exit_rc=0
+
+==============================================================================
+RUN 2 -- MUTATION CONTROL (rule 3 applied to this harness itself).
+A green from a harness not shown able to go red is not evidence.  A working
+copy of the guard was mutated at the ABSENT-LEDGER limb to return 0.0 -- i.e.
+the exact defect carried by d6rf_chain_driver.sh:130-146 (except IOError:
+pass), d19t_chain_driver.sh:65 (awk on an absent file prints 0.000) and
+a1wrt_run_unit.sh:285-286 (if not os.path.exists(p): print('0.0')).  The
+mutant was driven from the scratchpad and discarded; the committed file was
+never edited for this control.
+==============================================================================
+EXERCISED-LEDGER-ABSENT              observed=WITHIN_CEILING expected=UNMEASURED     MISMATCH
+EXERCISED-CLI-RC-UNMEASURED          observed=0              expected=65             MISMATCH
+SELFTEST RESULT: GATE FAIL -- 2 mismatch(es)
+  LEDGER-ABSENT: observed WITHIN_CEILING, expected UNMEASURED
+  CLI-RC-UNMEASURED: observed 0, expected 65
+mutant exit_rc=1 (observed)
+
+==============================================================================
+RUN 3 -- the CLI contract, driven.  A caller reads the EXIT CODE only.
+==============================================================================
+$ --check --ledger <190+200 spent> --cap 100.0 --ceiling 480.0
+ITEM_CEILING label=DEMO state=OVER_CEILING spent_core_min=390.000 cap_core_min=100.000 proj_core_min=490.000 ceiling_core_min=480.000 rows=2 uncounted_field_lines=0
+ITEM_CEILING REFUSED: 390.000 core-min already spent + this arm's 100.000 cap = 490.000 core-min projected, over the registered 480.000 ceiling. The overrun is refused BEFORE the arm; it does not get a new budget (CLAUDE.md rule 12).
+rc=65  (65 = REFUSED)
+
+$ --check --ledger <absent> --cap 100.0 --ceiling 480.0
+ITEM_CEILING label=DEMO state=UNMEASURED spent_core_min=UNMEASURED cap_core_min=100.000 proj_core_min=UNMEASURED ceiling_core_min=480.000 rows=0 uncounted_field_lines=0
+ITEM_CEILING REFUSED: ledger does not exist: /tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/does_not_exist.txt
+rc=65  (65 = REFUSED, NOT 0)
