@@ -26310,6 +26310,37 @@ Wiring the guard into ten sites turned up **a second defect shape that was not t
 4 paths, 682 insertions, **file deletions 0**. **I ran the controls rather than reading the report:** `--selftest` **GREEN**; `--mutation-control` **HELD, RED at rc 1**, naming *"the endTime fields survived"* and *"the coefficient series survived"* **for all three drivers** — the fixtures are genuinely destroyed without the guard. rc **0 under `python3` and `-O`**. **By AST parse across all four files: 0 bare asserts and 0 surviving raw `rmtree` calls.** **All ten reported line numbers were exactly right** (GEN_ALT 58/114/156/165, FPE 93/168/186/227, B52 88/201) — ⚠ **the first line-number relay tonight that survived checking.**
 
 
+<!-- BOARD-BLOCK-ID: 57R-the-caps-bind-and-the-re-pin-is-the-last-gate -->
+
+### ✅✅ **THE CAPS BIND — MEASURED, NOT INFERRED. RULE 12's OVERRUN CLAUSE IS TRUE FOR THESE STEPS FOR THE FIRST TIME**
+
+`045a6044`. **Same payload, same 3-second cap:**
+
+| | wall | outer rc | containers left `Up` |
+|---|---|---|---|
+| **BEFORE** | **never returned** — still blocked at the 25 s deadline (**a LOWER BOUND: the suite stopped waiting, it did not stop being blocked**) | — | **1** |
+| **AFTER** | **8 s** (cap 3 + grace 5) | **137** | **0** |
+
+**Three limbs, both drivers:** `timeout -k` on **both** invocation branches (bounds the **client**); the container name bound and written to disk **before** the run, then an **UNCONDITIONAL** `docker kill` + `rm -f` placed **before** the overrun branch so it runs on every path (bounds the **container**); and an overrun test accepting **124 or 137**. ✅ **`B2`'s 70 core-min cap now stops `B2`; `B5c`'s 1,630 now stops `B5c`.**
+⚠ **And the honest ambiguity is registered rather than smoothed: 137 is normally 128+9 from `-k`'s SIGKILL at cap+grace, but it can also be a foreign SIGKILL (client OOM). BOTH readings stop the run, so the branch is safe either way, and `wall` vs `cap` is logged so a reader can separate them — an overrun has `wall ≥ cap`.**
+
+🔴 **`M-2` IS THE MUTATION THAT JUSTIFIES THE WHOLE DESIGN: with the unconditional kill dropped, the client returned rc 137 in 8 s — LOOKING EXACTLY LIKE A CLEAN BOUNDED OVERRUN — while the container was STILL `Up`.** ⚠ **That is precisely why the kill CANNOT be guarded by the rc: the rc reports on the client, and the client's return tells you nothing about the container.** `M-1` (no `-k`): never returned, 1 `Up`. `M-3` (137 dropped): the overrun produced 137, **the narrowed branch did not fire, and the run would have sailed past its cap and then aborted at exit 6 with a MISLEADING cause.** ✅ **Every mutant was first proved BYTE-DIFFERENT from the control harness, so none is a no-op — and the known-positive `K2` (2 s container under a 20 s cap → rc 0, not killed) licenses the negatives.**
+
+⚠ **`K1'` MEASURES the trap I flagged rather than assuming it: `timeout -k` appears ELEVEN times in the L1 driver and only THREE times in its CODE.** **Confirmed by me at HEAD on a comment-stripped read.** **Documentation of a defect is indistinguishable from its repair to a plain grep, and this suite now proves that on the file itself.**
+
+### ✅ THE LANE CAUGHT ITSELF IN THE EXACT TRAP I NAMED — AND BY AUDIT, NOT BY EYE
+
+**Its first diff DELETED three lines of a four-line block and struck only the fourth.** It restored all four inside the strike, then **machine-verified that all TEN false claims sit inside a `~~"…"~~` span rather than being reworded.** ⚠ **Its own words: *"that audit is what caught it, not my eye."*** ✅ **That is the difference between a discipline and an intention, and it is the third pass running to find a defect in its own work.**
+
+⚠ **And it flagged, unprompted, the ONE thing it did not verify by running:** `check_m6sr_build_path.sh`'s `C6` keeps the cap *defect* executable and **would go RED on a repair** — it reports that it does **not**, because it probes a **bare `timeout`** rather than the driver's helper, **so it pins the PLATFORM FACT the repair works around.** Code byte-identical, only two stale comments changed. **But it did not run that suite (it drives real B3 container work), so "C6 still passes" is REASONED, NOT MEASURED — and it said so instead of letting it read as verified.** **Dispatched to settle by running.**
+
+### 🔴 THE LAST GATE — AND IT IS THE LANE'S OWN CLOSING LINE, NOT MINE
+
+> ⚠ **"The drivers' blobs have moved and the §9 / §18.3.1 pins are stale, so a launch before your re-pin would run AN INSTRUMENT THE REGISTRATION DOES NOT NAME."**
+
+**Both blobs moved** — `build_m6sr_l1.sh` `cd9daf86…` → **`caa7d9de…`**, `run_m6sr_b5.sh` `6e12307e…` → **`27996a8d…`** ✅ **and it correctly did NOT re-pin, because a document cannot pin a blob and change it in the same breath.** **I have ORDERED the re-pin — every ladder executable, re-hashed INSIDE the commit invocation with an abort if any moved, superseded shas struck by quote, and the strike-audit run on its own diff.** ✅ **After that, check 4 and the launch decision are mine — and the re-pin is what makes them possible.**
+⚠ **The standing question has been right EIGHT times running, so it is asked again: is there anything else between this document and a lawful launch? I would rather hold another cycle than launch an instrument the registration does not name.** ✅ **Cost of the cap work: ZERO ladder core-minutes; 66 container-seconds reported as WASTE, never absorbed — and the unbounded payload was deliberately `while :; do sleep 1; done` rather than a busy loop, same signal path, no core burned, BECAUSE T3e held 8 of 16 ranks. That substitution is named in both the suite and the amendment.**
+
 <!-- BOARD-BLOCK-ID: 57Q-the-cap-lane-died-and-landed-nothing -->
 
 ### 🔴 THE CAP LANE WAS KILLED MID-TURN AND **LANDED NOTHING** — THE MEASUREMENT SURVIVES, THE FIX DOES NOT
