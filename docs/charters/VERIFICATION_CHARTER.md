@@ -835,21 +835,21 @@ Not working notes.
 No gradient enters a record, a report or an optimisation without a
 finite-difference table beside it.
 
-**The grading standard, current and applied uniformly, including to cases
-graded under the old band:**
+**The grading standard, current, ~~and applied uniformly, including to cases~~
+~~graded under the old band~~ — ⚠ SOURCE SCOPE RESTORED: the study's own heading reads *"Recommended FD tolerance for grading **FUTURE** shape derivatives **ON THIS STACK**"*, so the RETROACTIVITY this clause asserted is not carried from the source — it REVERSES the source's own scope word:** **[⚠ STRUCK IN PLACE 2026-09-04, v1.63 `§2ar`: this clause dropped *"Recommended"*, *"future"*, *"shape derivatives"* and *"on this stack"*, and ADDED a retroactivity the word *"future"* excludes. **This charter MAY set a lab-wide standard on its own authority; what it may NOT do is borrow a study's numbers and silently widen that study's scope to match its own ambition.** NOTHING IS RE-GRADED BY THIS STRIKE, and no grader's or registration's own gate is disturbed.]**
 
 - **PASS** at 5 percent or better on the aggregate **and** zero flagged
   components.
 - **CONDITIONAL** between 5 and 15 percent, and it requires a per-component
   breakdown before it can be graded at all.
 - **FAIL** above 15 percent **or** on any sign-flipped or unstable component,
-  regardless of the aggregate.
+  regardless of the aggregate — **RESTORED: the source reads *"> 15 % or any flagged component → FAIL PENDING INVESTIGATION"* (`A_stepsize_study.md:92-94`). *The source's FAIL is PROVISIONAL and names its own remedy; this clause had made it terminal.*** **[⚠ CORRECTED IN PLACE 2026-09-04, v1.63 `§2ar`. The band VALUES are unchanged and NOTHING IS RE-GRADED; what is restored is that a FAIL from this band carries an investigation obligation, not a full stop.]**
 
 The earlier "1 to 12 percent is normal" band was inferred from a single rung
 and is **retired**. A charter that let a retired band keep grading would be
 worse than none.
 
-**The reporting protocol, five steps, none optional:**
+**The reporting protocol, ~~five steps, none optional~~ RECOMMENDED — five steps:** **[⚠ STRUCK IN PLACE 2026-09-04, v1.63 `§2ar`: the source reads *"Recommended protocol:"* (`A_stepsize_study.md:82-83`); *"none optional"* was added here. ⚠ AND THE LIST IS A REMIX, WHICH IS THE ROOT CAUSE OF `§2aq`: the source's own item 5 IS THE BANDS (`:92-94`), promoted out of this list into the standalone standard above — and step 5 here was filled from a DIFFERENT heading, *"Recommended FD step size"* (`:72-77`). **A recommendation from one section was renumbered into a list captioned "none optional".** Nothing is re-graded.]**
 
 1. Confirm the step sits in the well-converged plateau with a two or three
    point mini-sweep. Not assumed.
@@ -7676,3 +7676,100 @@ charter reading was corrected today, in its own §20, should be slow to correct 
 is the right instinct and was not needed here.** ***A team that finds a defect in another team's
 charter and refers it as a question rather than a correction has done exactly what `§2ae` asks.***
 **The defect is mine, in a clause I own, and the correction is mine to make.**
+
+---
+
+## Amendment — v1.63, 2026-09-04 — **§2ar THE ENUMERATION `§2aq.4` OWED IS DISCHARGED, AND IT TERMINATES: 14 CLAIMS, 9 FAITHFUL, 5 WIDENED, 0 INVENTED POST-STRIKE. THE TWO RULED DEFECTS WERE THE TWO *NUMBER-BEARING* MEMBERS OF A LIST WHOSE **CAPTION** AND WHOSE **BAND CLAUSE** CARRY THE SAME WIDENING UNSTRUCK — AND THE BAND CLAUSE IS THE ONE MEMBER COMPILED INTO CODE.**
+
+**Appended 2026-09-04 by `verification-supervisor`. Lines whose number changed above this section: 0**
+— all three corrections are STRIKES IN PLACE, each preserving its own line count, asserted before the
+write (file line count unchanged at 7,678). **NOTHING IS RE-GRADED. NO VERDICT MOVES. NO GRADER'S OR
+REGISTRATION'S OWN GATE IS DISTURBED, AND NO SDK CONSTANT IS TOUCHED BY A CHARTER EDIT.**
+
+### §2ar.1 THE ENUMERATION, AND THE GOOD NEWS FIRST
+
+**`§2aq.4` predicted the population was not "step 5". It was right, AND IT TERMINATES:** the
+transcription is confined to **`§7` (`:833-897`)** plus one downstream application at `:1139-1144`.
+**14 transcribed claims: FAITHFUL 9 · WIDENED 5 · NARROWED 0 · INVENTED 0 post-strike** (one
+pre-strike, already struck by `§2al`). ***Most of this transcription is faithful and one clause is
+verbatim*** — `:887-888` reproduces the source's failure entry word for word. **Stated plainly
+because a report of an audit that lists only its hits is the defect this charter keeps naming.**
+
+### §2ar.2 THE TWO GATED WIDENINGS — AND THE FIRST IS A REVERSAL, NOT A DROP
+
+**(a) `:838-839`, THE RETROACTIVITY.** Charter: *"applied uniformly, **including to cases graded
+under the old band**"*. Source heading `:79`: *"Recommended FD tolerance for grading **future** shape
+derivatives **on this stack**"*. **`[VERIFIED BY ME AT SOURCE, BOTH SIDES]`**
+
+> ***THIS IS NOT A DROPPED QUALIFIER. IT IS THE REVERSAL OF ONE.*** `§2al` and `§2aq` were widenings
+> by omission; **this clause ASSERTS RETROACTIVITY WHERE THE SOURCE'S OWN WORD IS "FUTURE".**
+
+**(b) `:845-846`, THE PROVISIONAL FAIL.** Source `:92-94`: *"`>15%` or any flagged component → **FAIL
+pending investigation**"*. The charter dropped *"pending investigation"*. ***The source's FAIL names
+its own remedy; the charter's was a full stop.*** **The band VALUES are unchanged; what was lost is
+that this FAIL carries an investigation obligation.**
+
+**⚠ AND THESE TWO ARE COMPILED.** `sdk/workflows/adjoint_optimization.py:449-456` reproduces the
+widened framing — *"applied uniformly across the whole ladder"* — beside `GATE_PASS_PCT = 5.0` and
+`GATE_CONDITIONAL_PCT = 15.0`; `BAND_CONDITIONAL = 0.15` sits in four `d12*` graders; and
+`d10f_grade.py:95` maps **CONDITIONAL → GATE FAIL**. ***`§2al` measured a widening propagating into
+frozen registrations and a status string. This one propagated into a shipped SDK constant and a
+verdict mapping.***
+
+> **⚠⚠ WHETHER ANY VERDICT ACTUALLY RESTS ON EITHER WIDENING IS *NOT ESTABLISHED*, IS BEING MEASURED,
+> AND I ASSERT IT IN NEITHER DIRECTION.** **A charter edit does not change code and does not re-grade
+> a row.** *If a case was re-graded under (a)'s retroactivity, or carries a terminal FAIL the source
+> would have made provisional, that is a matter for the owning team and possibly for Sanaa — and it
+> will be reported when measured, not guessed at now.*
+
+### §2ar.3 THE ROOT CAUSE, AND IT EXPLAINS `§2aq`
+
+**(c) `:852`** read *"five steps, **none optional**"*; the source reads *"**Recommended** protocol:"*.
+**Same dropped word as `§2aq`, one level up — governing the whole list rather than one member.**
+
+**AND THE LIST IS A REMIX.** The source's own **item 5 IS THE BANDS** (`:92-94`), promoted out of the
+list into the standalone standard above — **and charter step 5 was filled with material from a
+DIFFERENT HEADING**, *"Recommended FD step size"* (`:72-77`).
+
+> ***THAT REMIX IS THE MECHANISM THAT MADE `§2aq` POSSIBLE: a RECOMMENDATION from one section was
+> renumbered into a list captioned "none optional."*** **The defect `§2aq` ruled was not a careless
+> sentence; it was the predictable consequence of a structural rearrangement nobody recorded.**
+
+### §2ar.4 THE GENERAL FORM, WHICH IS WHAT THESE THREE AMENDMENTS ARE REALLY ABOUT
+
+> **RULED — `§2ar`: THIS CHARTER MAY SET A LAB-WIDE STANDARD ON ITS OWN AUTHORITY. WHAT IT MAY NOT DO
+> IS BORROW A STUDY'S NUMBERS AND SILENTLY WIDEN THAT STUDY'S SCOPE TO MATCH ITS OWN AMBITION.**
+> ***The numbers came from one stack; the ambition is the lab's. Presenting them as one thing is the
+> defect — in `§2al`, in `§2aq`, and here.***
+
+**A borrowed number must carry the scope it was measured in.** *If this charter wants it wider, it
+must say so in its own voice and own the extrapolation — which is a claim a reader can then check.*
+
+### §2ar.5 TWO JUDGEMENT CALLS I WAS OFFERED AND ONE THIRD CATEGORY I AM NAMING
+
+Two clauses classified FAITHFUL carry named abridgements — `:848-850` drops the source's *reason* for
+retiring the old band, and the *"do not grade on the aggregate alone"* carriage drops its
+justification. **The lane judged neither widens the assertion and offered them for overrule. I AGREE
+AND DO NOT OVERRULE — but they are not simply FAITHFUL either, and forcing them into that box loses
+the thing `§2aq` proved harmful:**
+
+> **A THIRD CATEGORY, NAMED: `MECHANISM-DROPPED, ASSERTION-FAITHFUL`. The claim is unchanged and
+> nothing is widened — but the reader cannot RE-DERIVE it or know WHERE IT TRANSFERS.** ***That is
+> exactly the state `:864` was in before `§2aq`: faithful in its numbers, unusable outside its
+> case.*** **It is not a defect. It is the precursor to one, and it is worth a name so the next
+> transcription notices.**
+
+### §2ar.6 REMAINING, AND OWED
+
+- **`:858-860`** drops *"the idx6 signature"* — mechanism-dropped, not gated, **left standing** and
+  recorded.
+- **`:1139-1144`** (A4's 10.04 %) drops *"UNVERIFIED"*, the non-refutation caveat, and the source's
+  required next action (*"run this identical step-sweep protocol on A4 before re-confirming or
+  reversing its verdict"*). **NOT struck tonight: it is the one place (a)'s retroactivity lands on a
+  specific number, and whether A4's verdict moved — and whether that sweep was ever run — is under
+  measurement. It will be corrected when I know which correction it needs.**
+- **`:835-836`** (*"No gradient enters a record… without a finite-difference table beside it"*)
+  **appears nowhere in the source and is NOT an invented transcription — it is this charter's OWN
+  rule.** ***But it is the scope frame that (a) widened through: the source governs shape derivatives
+  on one stack; `§7` governs every adjoint in the lab.*** **Left standing as the charter's own, and
+  named so no future reader mistakes it for carried material.**
