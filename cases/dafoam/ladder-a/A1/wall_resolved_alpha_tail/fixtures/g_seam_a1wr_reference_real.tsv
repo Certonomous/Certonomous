@@ -1,0 +1,9 @@
+# FIXTURE g_seam_a1wr_reference_real.tsv -- STATIC COMMITTED BYTES
+# PROVENANCE: verbatim line 47 of a1wr_alpha12_reference.tsv, itself extracted
+#   2026-09-03 from /home/ubuntu/certonomous-runs/A1WR/STAGE12/sweep_I/out/sweep.log
+#   (A1WR arm-I, alpha=12, CONTINUED, endTime 4000).
+# MEASURED.  a1wr_alpha12_reference.tsv carries its own banner forbidding its use
+# as a planted-control fixture; this file is a SEPARATE artefact carrying the one
+# terminal row, so that banner is respected and the tsv is not read by any control.
+# columns: time  CL  CD  CM
+4000	1.190795920241148	0.03066548116603767	0.03875163378783598

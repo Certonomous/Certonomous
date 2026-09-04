@@ -1,0 +1,20 @@
+# FIXTURE g_seam_u1_terminal_real.log -- STATIC COMMITTED BYTES
+# PROVENANCE: verbatim lines 1128-1140 of
+#   /home/ubuntu/certonomous-runs/A1WRT/alpha12_symmetry/out/sweep.log
+# MEASURED.  A1WRT U1 alpha=12 COLD, terminal print at Time = 4000:
+#   CL 1.183635361576276   CD 0.03075803313291197
+# Used as BOTH limbs of the G-SEAM control: against the A1WR reference it must
+# read GATE FAIL; against itself it must read PASS.
+U1 initRes: 3.829027783938437e-07 finalRes: 3.31829110813513e-08 nIters: 6
+U2 initRes: 2.273692883821509e-06 finalRes: 2.02614085388016e-07 nIters: 5
+p initRes: 2.769565329685045e-07 finalRes: 2.466271415168914e-08 nIters: 5
+Time step continuity errors : sum local = 3.593433651206037e-09
+                                 global = 2.509847871659002e-11
+                             cumulative = 0.0002557428550773134
+nuTilda initRes: 1.051926887799928e-06 finalRes: 6.720277561819834e-08 nIters: 4
+Bounding nuTilda>1e-16
+CD: 0.03075803313291197 final: 0.03075803313291197
+CL: 1.183635361576276 final: 1.183635361576276
+yPlus min: 0.000173062240383547 max: 0.03866213847808427 mean: 0.008997723990605227
+ExecutionTime = 3259.93 s  ClockTime = 3272 s
+

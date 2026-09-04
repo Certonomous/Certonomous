@@ -1,0 +1,12 @@
+# FIXTURE g_tailcount_u1_truncated_real.log -- STATIC COMMITTED BYTES
+# PROVENANCE: verbatim lines 1149-1154 of
+#   /home/ubuntu/certonomous-runs/A1WRT/alpha12_symmetry/out/sweep.log
+# MEASURED.  This is the A1WRT2_SUCCESSOR_DRAFT section 4.1 defect in its own
+# bytes: one AOA_POINT_END marker for a point the producer scored n_executed=0.
+# KNOWN-POSITIVE DIRECTION: G-TAILCOUNT must read executed=0, NOT 1.
+Primal solution failed!
+********************************************
+AOA_POINT_VALUES idx=0 alpha=12.0000000000 CL=NA CD=NA wall_s=3256.8602 err=AnalysisError("'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!")
+AOA_POINT_END idx=0 alpha=12.0000000000
+AOA_SWEEP_END n_declared=1 n_executed=0 json=/mnt/out/points.json
+AOA_SWEEP_TRUNCATED n_declared=1 n_executed=0 -- NOT a completion

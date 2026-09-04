@@ -1,0 +1,27 @@
+# FIXTURE g_patch_symmetry_real.log -- STATIC COMMITTED BYTES, A1WRT2 CONTROL
+# PROVENANCE: verbatim lines 460-480 of
+#   /home/ubuntu/certonomous-runs/A1WRT/alpha12_symmetry/out/sweep.log
+#   (A1WRT unit U1, ROW=PATCHED, rc=0 as the launcher scored it, 55.317 core-min).
+# MEASURED, not synthesised.  Copied 2026-09-04 by lab-lane (dafoam).
+# KNOWN-NEGATIVE DIRECTION: G-PATCH must NOT refuse on these bytes.
+DAInputPatchVelocity. 
+Setting UMag = 10 AoA = 12 degs at 1(inout)
+Checking mesh quality for time = 0
+    Overall domain bounding box (-17.95631680364001 -19.756730230556 0) (19.06583789329699 19.756730234954 0.1)
+    Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)
+    Mesh has 3 solution (non-empty) directions (1 1 1)
+    Boundary openness (-8.57607784777236e-19 1.736353789601798e-20 8.700583571071995e-15) OK.
+    Max cell openness = 1.114032489311805e-13 OK.
+    Max aspect ratio = 212103.6706991908 OK.
+    Minimum face area = 7.583157840955364e-11. Maximum face area = 0.6740721517548189.  Face area magnitudes OK.
+    Min volume = 7.583157840973414e-12. Max volume = 0.06740721517502982.  Total volume = 114.2820880639016.  Cell volumes OK.
+    Mesh non-orthogonality Max: 31.50306161636344 average: 1.709754998522916
+    Non-orthogonality check OK.
+    Face pyramids OK.
+    Max skewness = 1.396843607244221 OK.
+    Coupled point location match (average 0) OK.
+
+Mesh OK.
+
+Running Primal Solver 001
+Previous solution time -1e+10 not found and nothing deleted.

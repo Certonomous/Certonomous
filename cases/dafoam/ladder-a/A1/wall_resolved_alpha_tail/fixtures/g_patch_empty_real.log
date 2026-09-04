@@ -1,0 +1,49 @@
+# FIXTURE g_patch_empty_real.log -- STATIC COMMITTED BYTES, A1WRT2 CONTROL
+# PROVENANCE: verbatim lines 460-500 of
+#   /home/ubuntu/certonomous-runs/A1WRT/tail_empty/out/sweep.log
+#   (A1WRT unit U2, ROW=PATCHED, rc=97, 0.683 core-min, ledger.txt row 2).
+# MEASURED, not synthesised.  Copied 2026-09-04 by lab-lane (dafoam).
+# The measured lines below are byte-identical to the source; only these
+# comment lines were prepended, and no gate regex matches a "#" line.
+# KNOWN-POSITIVE DIRECTION: G-PATCH must REFUSE (exit 2) on these bytes.
+DAInputPatchVelocity. 
+Setting UMag = 10 AoA = 12 degs at 1(inout)
+Checking mesh quality for time = 0
+    Overall domain bounding box (-17.95631680364001 -19.756730230556 0) (19.06583789329699 19.756730234954 0.1)
+    Mesh has 2 geometric (non-empty/wedge) directions (1 1 0)
+    Mesh has 2 solution (non-empty) directions (1 1 0)
+
+
+--> FOAM FATAL ERROR: (openfoam-2506)
+Mesh geometric directions is less than 3 and not supported!
+
+    From Foam::label Foam::checkGeometry(const polyMesh&, const autoPtr<surfaceWriter>&, const autoPtr<coordSetWriter>&, label)
+    in file DACheckMesh/DACheckGeometry.C at line 278.
+
+FOAM aborting
+
+[stack trace]
+=============
+#1  Foam::error::simpleExit(int, bool) in /home/dafoamuser/dafoam/OpenFOAM/OpenFOAM-v2506/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+#2  Foam::checkGeometry(Foam::polyMesh const&, Foam::autoPtr<Foam::surfaceWriter> const&, Foam::autoPtr<Foam::coordSetWriter> const&, int) in /home/dafoamuser/dafoam/OpenFOAM/sharedLibs/libDASolver.so
+#3  Foam::DACheckMesh::run() const in /home/dafoamuser/dafoam/OpenFOAM/sharedLibs/libDASolver.so
+#4  ? at pyDASolvers.cpp:?
+#5  ? at /usr/local/src/conda/python-3.10.8/Include/internal/pycore_ceval.h:100
+#6  _PyEval_EvalFrameDefault at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+#7  _PyFunction_Vectorcall at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+#8  _PyEval_EvalFrameDefault at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+#9  _PyFunction_Vectorcall at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+#10  _PyEval_EvalFrameDefault at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+#11  _PyFunction_Vectorcall at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+#12  _PyEval_EvalFrameDefault at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+#13  _PyFunction_Vectorcall at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+#14  _PyEval_EvalFrameDefault at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+#15  _PyFunction_Vectorcall at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+#16  _PyEval_EvalFrameDefault at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+#17  _PyFunction_Vectorcall at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+#18  _PyEval_EvalFrameDefault at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+#19  _PyFunction_Vectorcall at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+#20  _PyEval_EvalFrameDefault at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+#21  _PyFunction_Vectorcall at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+#22  _PyEval_EvalFrameDefault at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+#23  _PyFunction_Vectorcall at /usr/local/src/conda/python-3.10.8/Include/object.h:131
