@@ -3,13 +3,17 @@
 **Nothing here may be launched.** This is the successor to the retired H5 arm.
 `cfd-supervisor`'s check 4 is personal and undelegable and **has not happened**.
 
-**⚠ THIS DOCUMENT IS NOT YET FREEZABLE, and that is stated up front rather than
-left to be found.** Standing rule 2 fixes the grading path **at the
-pre-registration commit**, verified by hashing the frozen file against the
-committed blob. **The comparator this document specifies —
-`cases/F28_DUCTED_ACTUATOR_DISK/analyse_f28_h5b.py` — DOES NOT EXIST**, so §8's
-blob slot is empty and there is nothing to hash against. **Freezing it as it
-stands would breach rule 2.**
+**✅ THE RULE-2 OBSTACLE IS CLEARED — updated 2026-09-04.** This document was
+first committed carrying, in this position, a notice that it was **NOT
+FREEZABLE** because the comparator it specifies did not exist and §8's blob slot
+was empty. **`analyse_f28_h5b.py` now exists, is selftested, is mutation-
+controlled, and is committed at blob `347db71584ffc600365e039a88b24806ff2b50a4`**
+(§8), together with the launcher and the coverage probe. All three were committed
+**before** their blobs were recorded here, so no state has ever named a
+non-existent object. **The document is now freezable.**
+
+**It is still a DRAFT and still may not launch.** Freezable is not frozen, and
+frozen is not authorised: **check 4 has not been performed.**
 
 **Date:** 2026-09-04 · **Team:** cfd · **Lane:** `lab-lane`
 **Run root this registers:** `verification/runs/F28_runs/H5A_L1_dp1000_U20` —
@@ -360,7 +364,34 @@ nothing else.
 |---|---|
 | `run_f28_h5.sh` (launcher, unchanged, mode `arm`) | `f3534f1be02768a35b9449ef8ed38b171560a034` |
 | `f28_h5_coverage_probe.py` | `a34be22ed89ea8f9db606f0eaee8d7ee5981df17` |
-| **`analyse_f28_h5b.py`** | **DOES NOT EXIST — this document is not freezable** |
+| **`analyse_f28_h5b.py`** | **`347db71584ffc600365e039a88b24806ff2b50a4`** |
+
+**§8.1 THE DOCUMENT IS NOW FREEZABLE.** All three blobs exist and are committed;
+the file was committed **before** its blob was recorded here, so no state has
+ever named a non-existent object. The banner at the top of this document is
+updated accordingly: **it remains a DRAFT NOT AUTHORISED TO LAUNCH — check 4 has
+not been performed — but the rule-2 obstacle is cleared.**
+
+**§8.2 THE COMPARATOR'S MUTATION CONTROL CONVICTED MY OWN SUITE TWICE.** Recorded
+because a suite that was once blind in a specific way should say where.
+
+| mutation | first suite | after repair |
+|---|---|---|
+| D1 — "355 plus ties", variable-size top set | caught | caught (6 checks) |
+| **D3 — naive accumulation replacing `fsum`** | **PASSED** | caught |
+| D4 — non-positive-volume guard removed | crashed the suite | caught cleanly |
+| **EXCL — Z-DISK and Z-AXIS hard-coded to share 0** | **PASSED** | caught |
+
+- **D3 slipped through** because the limb asserted that `math.fsum` is
+  order-independent — *a fact about the standard library, not about the code
+  under grading*. It now drives `concentration` itself on a field where the two
+  answers differ.
+- **EXCL slipped through** because the limb placed the mass in `Z-DUCT` once, and
+  the two zones the mutation zeroed were expected to be excluded anyway. **The
+  limb now rotates the carrier through all five zones**, so any zone that cannot
+  carry mass is caught. **That mutation is exactly the zone-specific
+  special-casing §4.2's symmetry rule exists to forbid**, and the first suite
+  would have certified it.
 
 **Ordering, as ruled and now used by default: the file is committed FIRST and its
 blob recorded in a LATER commit**, so no state ever names an object that does not
