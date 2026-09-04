@@ -5318,11 +5318,78 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-04T19:23:40Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-63` — **`A1ZE` is NOT unsatisfiable: it REGISTERED this outcome in advance as `G-EMPTY` and the gate has already FIRED, so an item reported dead has a result sitting ungraded at zero compute. `A1WRT2` cannot freeze — its own §11 gate names an instrument that does not exist.** Before it, `S-62`, `S-61`, `S-60`, `S-59`, `S-58`, `S-57`…`S-29`.
+**Section last written:** 2026-09-04T19:30:54Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-64` — **"the template" is a FICTION and my whole template-repair ruling is WRONG: `d6rf_run_arm.sh` is named by ONE file (the one that called it a standard), its `CEILING` is an honestly-labelled fleet safety stop citing Sanaa's own ruling, the file I called "the only one that gets it right" HAS the planted zero, and the regex mechanism I boarded is exactly INVERTED.** Before it, `S-63`, `S-62`, `S-61`, `S-60`, `S-59`…`S-29`.
 
 **Section last written:** 2026-09-04T01:08:43Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-48` — **`W3` IS NOT RUNNING AND HAS NOT BEEN SINCE 21:57:49Z; IT REACHED ITS REGISTERED TERMINUS, AND THE REGISTERED FALLBACK DOES NOT RESCUE IT.** `S-47`'s and `S-46`'s *"`W3_chain_r2` running"* lines are **STRUCK BY QUOTE** below — they were true when written and were still being relayed three hours after they stopped being true. Before it, `S-47` — **DESK ITEMS CLOSED**: the **rule-10 hole is fixed in the constitution itself** on Sanaa's GO (`0ee2e7df`, verified by me at HEAD, not taken on relay), and the rule-12 estimate gap is **routed to verification** as a forward-only note. `S-46`'s "on Sanaa's desk" line is **struck by quote** so no successor re-escalates a closed item. **Nothing now on her desk from this family** but the four `NOT FILED` upstream defect classes and FD-vs-adjoint as a fourth `V` instrument. Before it, `S-46` (closing state), `S-45`, `S-44`, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+##### UPDATE S-64 — **⚠⚠ "THE TEMPLATE" IS A FICTION AND MY WHOLE TEMPLATE-REPAIR RULING IS WRONG. I GREPED `CEILING`, FOUND IT, ASSUMED IT CLAIMED TO BE SOMETHING IT NEVER CLAIMED, AND STOPPED — THE EXACT BEHAVIOUR I ATTRIBUTED TO A CARELESS READER. THE FILE I CALLED "THE ONLY ONE THAT GETS IT RIGHT" HAS THE PLANTED ZERO TOO. AND THE REGEX MECHANISM I BOARDED IS INVERTED** (2026-09-04, `date -u` stamp in the committing invocation)
+
+###### 1. ⚠⚠ THE TEMPLATE DOES NOT EXIST, AND `d6rf_run_arm.sh` IS ONE FILE TALKING ABOUT ITSELF
+
+**243 `.sh` files under `cases/dafoam`. 77 name an ancestor. 166 NAME NONE.** And `d6rf_run_arm.sh` — which I called *"this family's standard"* and made the centre of a ruling — **is named by exactly ONE file: `a1wrt_run_unit.sh:16`, the very file that called it that.**
+
+> **A self-report is not a family fact. I built a repair, an amended ruling and a dispatch on a population of one, having warned a lane two hours earlier that one citation is not a population.**
+
+What exists is a **forest**: roots at D1/D2, a dominant lineage D5 → D15 → D16/D19/AV/SO (`d15_run_arm.sh` named by **10**), and a separate D6R → D6RF branch — **with two thirds of the population declaring no ancestry at all.**
+
+###### 2. ⚠⚠ AND THE DEFECT I CHARGED IS NOT A DEFECT — I READ A DIFFERENT INSTRUMENT'S NAME AND ASSUMED ITS PURPOSE
+
+I boarded: *"the template has ceiling VOCABULARY and no ACCUMULATOR — worse than having neither, because a reader greping `CEILING` finds it and stops."*
+
+**`d6rf_run_arm.sh:717-719`, which I did not read before ruling, says what it is:**
+
+> *"The cap is a RUNAWAY GUARD THAT REPORTS (Sanaa, 2026-08-25); the CEILING is **the fleet safety stop** (Sanaa, 2026-09-03 ~21:00Z): far above the estimate, not the estimate itself, and it stops the run gracefully regardless of trend."*
+
+**It is a per-arm runaway stop, correctly labelled, never claiming to be cumulative — a DIFFERENT INSTRUMENT, doing exactly what it says, and citing Sanaa's own ruling for its design.** `d15_run_arm.sh:400-417` (`4×CAP`) and `d6rf_run_arm.sh:717-734` (`3×CAP`) both watch **this arm's own** core-min, and `d6rf_run_arm.sh` **already carries `UNMEASURED`-never-zero at `:411`, `:417`, `:676`.**
+
+> **I greped `CEILING`, found it, assumed it claimed to be a cumulative item ceiling, and stopped. That is verbatim the behaviour I attributed to a hypothetical careless reader in the sentence charging the defect.** *A launcher cut from that arm inherits an honest instrument, so **`S-61`'s "attrition REGENERATES the defect" is withdrawn.***
+
+*(My `CEILING` 9 vs the lane's 10 is `grep -c` counting LINES against occurrences — both right, different units, and I did not say which I had measured.)*
+
+###### 3. ⚠ THE FILE I PRAISED HAS THE PLANTED ZERO TOO
+
+I boarded `a1wrt_run_unit.sh` as *"the ONLY file in this family that gets it right."* **`:285-286`:**
+
+```
+if not os.path.exists(p):
+    print('0.0'); sys.exit()
+```
+
+**A missing ledger returns `0.0` — the exact planted zero its own comment forbids, on a path its `UNMEASURED` limb never reaches, because that limb covers the EXCEPTION path only.** All three files in the entire family that carry a cumulative item ceiling — `d6rf_chain_driver.sh:130-146`, `d19t_chain_driver.sh:65`, **and `a1wrt_run_unit.sh:285-286`** — **fail open on an absent ledger.** *I praised one of them for the property it lacks, having read the limb that was there instead of looking for the path that was not.*
+
+###### 4. ⚠ AND THE REGEX MECHANISM I BOARDED IS EXACTLY INVERTED
+
+`S-61` said *"both lanes independently shipped `[0-9.]+` readers that silently took `1.2` from `1.2.3`."* **Driven by me just now:**
+
+| pattern | on `core_min=1.2.3` | outcome |
+|---|---|---|
+| **`[0-9.]+`** (d6rf) | captures **`1.2.3` WHOLE** | `float()` **RAISES** — **loud** |
+| **`[0-9]+\.?[0-9]*`** (a1wrt) | captures **`1.2`** | `float()` → **1.2 — SILENT UNDER-COUNT** |
+
+**The dot is INSIDE the character class, so `[0-9.]+` never truncates.** The silent one is a1wrt's — **and because it raises nothing, its `UNMEASURED` limb never fires.**
+
+> **On this input the better-disciplined file is the one that fails MORE SILENTLY.** The louder failure belongs to the file I called broken; the quiet under-count to the file I called correct. **Found by DRIVING both regexes, which is why it is right and my reading was not.**
+
+###### 5. WHAT SURVIVES — NARROWER, MEASURED, AND STILL WORTH THE WORK
+
+**Only 3 files in 243 carry a cumulative item ceiling, and all three fail open on an absent ledger.** That is the real finding, and it is smaller and sharper than the one I ruled on.
+
+`cases/dafoam/_common/item_ceiling_guard.py` (`ef4e67cb`, blob md5 matching disk and evidence) is written and driven: `UNMEASURED` **primary and refusing** with no path returning `0.0` for an unread value; the token captured whole and validated whole with **scientific notation ACCEPTED** and `1.2.3`/`nan`/`inf`/`0x10`/`1_000`/negatives rejected; **a bad token makes the WHOLE read `UNMEASURED`** — *a partial sum is the same failure wearing a smaller number*; spend re-read **from disk on every call** (`REFIRE-SEES-FIRE1` 0.700, `REFIRE-SEES-BOTH` 1.000 — the A1ZE fire-2-starts-at-zero mode); and **a limb neither ancestor has: 0 rows matched while the ledger CONTAINS `core_min=` lines → `UNMEASURED`, not `0.000`.**
+
+**And the trap is removed STRUCTURALLY rather than validated around: no number ever reaches a shell arithmetic context** — arithmetic happens in Python and the caller branches on the exit code — **so the unary-plus fail-open cannot re-enter, including through the guard's own `--cap`/`--ceiling`.**
+
+**31 limbs, 0 mismatches, `ast.Assert` 0 re-derived from source, both flags. Mutation control: a copy with the absent-ledger limb set to `0.0` — the precise defect all three ancestors carry — turns the harness RED on 2 limbs, rc=1. The green is evidence.**
+
+**Honest limit, required and delivered: it guards NOTHING retroactively and nothing inherits it until a launcher is written against it.** Unguarded the morning after: `a1wr_chain_driver.sh` (**worse than I had it** — its `I_SPEND`/`C_SPEND` are in-process, and its one prospective test at `:257` reads that accumulator rather than the ledger: **the A1ZE failure mode in the one place it does check forward**), `d19t_chain_driver.sh`, **and now `a1wrt_run_unit.sh`, which was not on my list.**
+
+###### 6. THE LESSON I OWE, STATED AGAINST MYSELF
+
+**Four rulings this session rested on a name rather than a mechanism** — the back-fit list (twice), the template, and the regex. **Every one was corrected by a lane that read the file or drove the code.** The pattern is not carelessness about facts; it is treating a *token's presence* as evidence of a *token's purpose*.
+
+> **A grep tells you a word is there. It never tells you what the word is doing, and I have now been wrong four times in one direction by forgetting that.**
+
+
 ##### UPDATE S-63 — **`A1ZE` IS NOT UNSATISFIABLE — IT **REGISTERED THIS EXACT OUTCOME IN ADVANCE** AND THE GATE HAS ALREADY FIRED. AN ITEM I WAS TOLD WAS DEAD HAS A RESULT SITTING UNGRADED AT ZERO COMPUTE. AND `A1WRT2` CANNOT FREEZE: ITS OWN §11 GATE NAMES AN INSTRUMENT THAT DOES NOT EXIST** (2026-09-04, `date -u` stamp in the committing invocation)
 
 ###### 1. ⚠ THE A1ZE RULING — READ AT SOURCE BY ME, AND IT REVERSES THE RELAY
