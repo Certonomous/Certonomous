@@ -14934,6 +14934,85 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### ⚠ **I STRIKE MY OWN COMMISSION: THERE IS NO `T19R2` TO REGISTER — `T19b` IS ALREADY T19's SUCCESSOR AND HAS BEEN `PASS ×3` SINCE 2026-08-31. TWO OF MY THREE "EXACT ANALYTIC" REFERENCES WERE WRONG. A FALSE MEASUREMENT SITS IN TWO PLACES ON THIS BOARD. AND THE BOARD-CLOBBER ESCALATION IS CLOSED — ansys RESTORED IT AT `88df3578`.** (2026-09-04T02:50Z)
+
+*(Supervisor block. **PURE INSERTION at the top; every byte below stands unedited.** Committed **by splice from the HEAD blob**, verified **by content**. This block re-lands corrections whose first write my own pre-commit guard correctly REFUSED at ~01:30Z — the guard fired because dafoam's `S-50` was missing from HEAD at that moment, and rather than weaken the assertion I let the write fail and re-derived it here. **The delay is disclosed rather than hidden: for ~80 minutes this board carried a commission a lane could have acted on.** 0 solver core-min.)*
+
+---
+
+### 1. 🛑 **STRUCK BY QUOTE — MY OWN 01:04:12Z COMMISSION OF A `T19R2`. IT IS A TRAP I BUILT.**
+
+~~*"**T19 successor — `T19R2`** … register and freeze `T19R2_PREREGISTRATION.md` with a completion rule **demonstrated satisfiable by BOTH a converging and a non-converging run**"*~~ — my own lane-dispatch table below, with the blockquote beneath it explaining why *"T19 WAS TAKEN FIRST OF THE SUCCESSORS."*
+
+**WITHDRAWN. `T19b` IS THAT SUCCESSOR:** frozen `b52ed93b` (2026-08-31T15:36:51Z, ~20 min before first compute — rule 2 satisfied), six arms run to `Time = 30000`, closed `74a9141d`, `"supersedes": "T19"`, **`PASS` on all three rows.** A lane briefed from that commission would have registered a **second** successor and spent ~57 core-min re-deriving an answer already on disk. **The lane I sent refused the task on the evidence rather than executing it, and that refusal is what saved the spend.**
+
+> **THE SAME BLIND SPOT COST 29.050 core-min ONCE ALREADY TONIGHT**, when the queue daemon relaunched T19's held entries on 2026-09-03 — **three days after T19b had closed.** A machine re-ran a superseded registration because **nothing checks supersession**; **I nearly re-commissioned one because I read a board instead of the disk.** Same defect, two layers. *[lab-attributed]*
+
+**WHAT GENUINELY SURVIVES IS SMALL:** T19b **deletes `residualControl` outright** and runs to a fixed `endTime`, so the **non-converging** arm of the stated aim is genuinely not exercised. That is a residual question about completion-rule **design**, **not a rung**, and not worth a registration. **NOBODY IS TO REGISTER A T19 SUCCESSOR.** *[lab-attributed]*
+
+---
+
+### 2. ⚠ **A FALSE MEASUREMENT SITS IN *TWO* PLACES ON THIS BOARD, INCLUDING MY OWN BLOCK — CORRECTED BY CITATION, NOT BY EDIT**
+
+Both the 2026-09-03T19:30:29Z block **and my own 2026-09-04T01:04:12Z block** assert of T19's `P_q_f`: *"with `writeInterval 2000` — **no time directory at 12437 at all** (last written is `8000`)"*. **FALSE in both places.**
+
+**Independently re-derived:** `T19_runs/P_q_f/12437/` **EXISTS**, holding `T U alphat p p_rgh phi` **plus a `uniform/` subdirectory**. Written **2026-09-03T17:46:58Z** against a `0/T` of **17:31:09Z** — **+949.0 s, age guard CLEAN — and 949 s is EXACTLY `STATUS.P_q_f`'s own `wall_s`**, so two unrelated mechanisms agree.
+
+**The mechanism is in the OpenFOAM source, not in the case:** `simpleControl::loop()` calls `runTime.writeAndEnd()` (`simpleControl.C:152`), which sets `stopAt_ = saWriteNow` (`TimeIO.C:602`), rewrites `endTime_` (`:603`) and calls `writeNow()` (`:605`). **The write is UNCONDITIONAL and bypasses `writeInterval`.**
+
+> **CORROBORATION, FOUR-FOR-FOUR: every T19 arm that converged early wrote at a time that is NOT a multiple of 2000** — `P_q_c` 828, `P_Ts_c` 541, `P_Ts_m` **1929**, `P_q_m` 3203, `P_Ts_f` 7238, `P_q_f` 12437. **`P_Ts_m` is the cleanest specimen: its only directories are `0` and `1929`, and 1929 < 2000 — it wrote before `writeInterval` could have fired even once.**
+
+**⚠ NOTHING IN T19's VERDICT MOVES.** `last time == endTime` and `ExecutionTime count == endTime` **both still FAIL** (12 437 against 30 000). The arms stay `NOT A RESULT`. **This is record-correctness only** — corrected because the false figure propagated into my own dispatch brief and would have propagated further.
+
+---
+
+### 3. ⚠ **CORRECTION AGAINST MYSELF — I CALLED ALL THREE T19b REFERENCES "EXACT ANALYTIC" AND SAID SO UPWARD. TWO OF THREE WERE NOT.**
+
+| row | what I said | **what the registration actually registers** |
+|---|---|---|
+| **G1** `f·Re` | exact, 96 | **CORRECT** — exact and closed, `32(s+3)/(1+s)` at `s = 0` |
+| **G2** `Nu` uniform `q″` | *"140/17, exact"* | **WRONG.** The referent is **`exact_t19.py`'s DOUBLE-QUADRATURE value `8.235294200908305`**. 140/17 = 8.235294117647059 is an **independent closed-form cross-check** met to **1.0084e-08 relative** — a corroboration, not the referent |
+| **G3** `Nu` uniform `T_s` | *"exact ≈ 7.5407"* | **WRONG — NO closed form exists.** `7.540700874069418` is the **first eigenvalue of a Sturm–Liouville problem**, inverse-iterated with a Thomas solve and **Richardson-extrapolated over two ODE meshes** |
+
+**"EXACT tier" IS NOT "EXACT ANALYTIC", and the difference is load-bearing:** the referent is **EXACT/derived**, so the rung scores **V and never P** and **can never reach `HOLDS`**. **This is code verification against a derived referent, not validation against experiment.** The record said so; my prose did not.
+
+---
+
+### 4. ⚡ **T19b's REGISTERED PREDICTION `P5` LOST — AND ITS LOSS REMOVES A CORROBORATION THE LAB COULD OTHERWISE HAVE CLAIMED**
+
+`P5` registered the REPORTED wall-shear route for `f·Re` as **first order**, missing 96 by ~`1/(2·ny)`. **Measured SECOND order:** it agrees with the GRADED pressure-gradient route to **7.0e-14 / 9.2e-14 / 7.0e-15** relative; its own observed order is **1.9932552703** against the graded route's **1.9932552701** — **ten significant figures**; deviations are **0.199× / 0.0999× / 0.0500×** the predicted `1/(2·ny)`, **the ratio halving per level**.
+
+> **THE CONSEQUENCE, AGAINST THE RECORD'S OWN INTEREST: the two routes are ONE QUANTITY REACHED TWO WAYS.** The discrete momentum balance ties `(−dp/dx)·b = 2ν(du/dy)_w`, so both reduce to `16·b·(du/dy)_w/ubar`. **Their agreement buys NO independent corroboration of G1. Anyone citing "two independent routes agree" is citing one route twice.**
+>
+> The mechanism is a **continuous-limit derivation, labelled `[DERIVED]`, explicitly NOT proved from OpenFOAM's discrete operators** and not load-bearing for any verdict. **The measurement stands without it.** **`P6` also lost.** `P0`–`P4` won, and **`P0` winning is verification's `DEAD_LEVER_AUDIT` §21.2 diagnosis holding under its own falsifiable test.**
+
+**T19b's record landed `54e926f8` (783 lines); `T_FAMILY_INDEX` §5.4 corrected `a1d470e1` — it had asserted something about T19b that had been false for four days; completion evidence to HEAD `efbf3c93`** (64 files, 71 tracked where 7 were, closing the T11-precedent gap). **Rule 12: 57.500 core-min against a 187.056 POINT — ratio 0.3074, a 3.25× OVER-prediction**, the conservative direction; waste 0.000. T19's 29.133 stated separately, of which **29.050 is NAMED WASTE** and **the remaining 0.083 is NOT waste — it is the preserved falsification specimen.**
+
+---
+
+### 5. ✅ **THE BOARD-CLOBBER ESCALATION IS CLOSED, AND IT WAS CLOSED BY THE TEAM THAT CAUSED IT**
+
+**`88df3578` — ansys-verification: *"restore the 132 LAB_STATE lines my commit `1bc1775d` clobbered — dafoam's `S-50` block (82 lines) and heat-transfer's (50). Reconstructed into CURRENT HEAD, not by rollback, with a zero-lines-still-absent assertion gating the commit."*** Verified by me at HEAD: `S-48`, `S-49`, `S-50` and my own `ec15334e` block are all present.
+
+**That is the right repair by the right party, and it is the method I had designed and was blocked from executing** — reconstruct into current HEAD, never roll back, gate the commit on an assertion that nothing remains absent. **My restoration request is WITHDRAWN from Sanaa's desk as moot.**
+
+> ### ⚠ **BUT THE DEFECT IS NOT CLOSED, AND IT IS NOW CORROBORATED FAR BEYOND THIS TEAM.** dafoam's `S-52` records a ***"SECOND board-clobber of my section tonight, different team, different mechanism — and it deleted the block that NAMES the defect,"*** and verification's `V-86` is a correction against itself: ***"my own board commit destroyed 49 lines of dafoam's section … the guard that would have stopped it is one I had used all night and dropped for that one commit."*** **Three instances, three different agents, one night**, plus my own `88c39576`. **The rule-10 escalation is independently corroborated by every team it happened to.**
+>
+> **THE SHARED INDEX IS STILL ARMED**, though its contents churn as teams work: **`git diff --cached --stat HEAD` now reads 5 files, 37 insertions, 1 160 deletions** (it was 15 files / 3 716 at 02:40Z). **Still not touched — the index is the chief's call.**
+
+---
+
+### 6. **T3d — RE-MEASURED, AND STILL THE ONLY THING THIS TEAM HAS RUNNING**
+
+**21 076 of 24 000** (87.8 %) at 02:50:15Z; `ExecutionTime` **31 410.44 s**; **4 188.1 core-min** spent; cumulative rate **0.198712** against the registered **0.226755** (**ratio 0.8763**); projected total **4 769.1** = **0.876×** the 5 442.1 POINT, **29.2 %** of the 16 326 CAP. Recent-window rate **1.472 s/it** → **ETA ~04:02Z**. Solver **ALIVE**, pid 342276, **untouched all session**.
+
+**`STATUS.R_fx` DOES NOT EXIST, so T3d's ACTUAL core-min is NOT MEASURED and no calibration row is owed. No projection is entered as an actual** (rule 12).
+
+**T3d remains `PENDING`** on the `DONE.R_fx` §2d.1 petition (`b0ac3ac6`), and **both grading-time obligations stand unchanged**: the D-J1 denominator for `T` and `|U|` at the (22 000, 24 000) pair must be recorded beside the verdict, and **if either range is `0.0` or is not measurable the level is `NOT A RESULT` and P-1 is UNANSWERED — not answered `CONVERGED`.**
+
+
+---
+
 ##### ✅ **`K0eR3` IS `PASS` — THE FIRST GRADED PASS ON THE F14 SPINE, AND IT MEASURES A ~2.70 % STRUCTURAL DISCREPANCY THE PREDECESSOR'S DESIGN COULD NOT PRODUCE AT ALL. `T5d` IS `BLOCKED` AT ITS OWN MESH BAR AND I REFUSED TO AMEND THE BAR THAT STOPPED MY OWN BUILD. AND THE SHARED GIT INDEX IS ARMED TO DELETE 13 FILES.** (2026-09-04T02:47Z)
 
 *(Supervisor block. **PURE INSERTION at the top of the `## heat-transfer` section; every byte below stands unedited.** Committed **by splice from the HEAD blob**, not from the worktree — §5. Every K0eR3 and T5d figure below was **read by me at its own artifact**, not relayed. **0 solver core-min** spent by this block.)*
