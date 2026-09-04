@@ -25856,6 +25856,34 @@ Wiring the guard into ten sites turned up **a second defect shape that was not t
 4 paths, 682 insertions, **file deletions 0**. **I ran the controls rather than reading the report:** `--selftest` **GREEN**; `--mutation-control` **HELD, RED at rc 1**, naming *"the endTime fields survived"* and *"the coefficient series survived"* **for all three drivers** — the fixtures are genuinely destroyed without the guard. rc **0 under `python3` and `-O`**. **By AST parse across all four files: 0 bare asserts and 0 surviving raw `rmtree` calls.** **All ten reported line numbers were exactly right** (GEN_ALT 58/114/156/165, FPE 93/168/186/227, B52 88/201) — ⚠ **the first line-number relay tonight that survived checking.**
 
 
+<!-- BOARD-BLOCK-ID: 56Z-m6sr-cannot-launch-gate-p-is-dead-code -->
+
+### 🔴🔴🔴 **M6SR CANNOT LAUNCH TODAY — AND NOT BECAUSE ANYONE IS WITHHOLDING IT. THERE IS NOTHING TO LAUNCH, AND HER NAMED DELIVERABLE'S GATE IS DEAD CODE**
+
+Amendment 10 landed (`3bf24b2b`, +461/−0, run root still **ABSENT**) registering the four items as predictions `X1`–`X4`. **I asked for a fifth. There are six more, and two of them stop the launch her ruling ordered.**
+
+🔴 **`gate_p` IS UNREACHABLE. Verified by MY OWN AST walk, with a control:** **50 functions defined, 48 reachable from `main()`. `gate_p`: reachable=False, call-sites=0.** `set_to_set_assignment`: reachable=False, called only by `gate_p`. **Control: `gate_g` and `gate_r` are both reachable with one call site each, and `main` resolves reachable — so the reader discriminates and the zero is evidence.** `--grade` computes `gate_g` and `gate_r` and returns 0. **Nothing produces `cfd_sections`; nothing samples CFD `Cp` at the seven `y/b` stations; the driver writes no `sampleDict`.**
+⚠ **So `X1` kills the per-station channel on the DATA, and this kills BOTH channels on the CODE. Sanaa's named first-physics figure — Cp at the AGARD span stations — cannot be produced by this ladder at all.**
+
+🔴 **AND NO REGISTERED ARTIFACT RUNS `B5` — 607.63 of 615.24 core-min, 98.8 % of the registered cost.** `cases/M6SR/` holds exactly two files and `build_m6sr_l1.sh` covers **B1/B2/B3 only**. **A queue row cannot be written today: `launch_cmd` has no target.** ✅ **Correctly classified as a launch-readiness fact, not a rule-2 violation — case files are solver INPUTS, not graders — and all of it is PRE-COMPUTE, so building the missing artifacts is lawful.** **Dispatched.**
+
+### 🔴 `GCI_fine` IS **r-INVARIANT** — WHICH REFUTES MY OWN AMENDMENT-10 INSTRUCTION
+
+Measured across `r ∈ {1.10, 1.5874, 2.000, 4.000, 7.77}`: **`GCI_fine` identical to 15 significant figures (0.07309769942047496) while `p_s` spans a factor of 21.5.** The mechanism is exact: **`p_s` is fitted from the same triple, so `r^p_s ≡ |d32/d21|` and `r` cancels.** ⚠ **I instructed that "three defensible conventions give three different bands." THERE IS ONE BAND AND THREE EXPONENTS. §15.6 item 1's basis and the comparator's own refusal text are both wrong as filed — not drifted.** ⚠ **And the refusal's promise that "all three are printed" is FALSE**: driven to its refusal on a synthetic converging plateaued triple, **stdout is empty — the `raise` discards the dict before `_emit`.** **Nothing was changed; it is registered as found.**
+
+### ✅ THE ANTI-GAMING CALL I MOST WANT ON THE RECORD
+
+**`X2` registers `GF4` on the WALL-PATCH SPAN EXTENT — 1.2164045761791 m, identical to 13 significant figures on both levels, +1.6806 %, predicted `GATE FAIL`.** ⚠ **The lane chose the instrument that FAILS and refused the planform limb because it would have PASSED on L2.** **Five reasons given, four adverse to the answer.** **That is the whole discipline in one decision: when two instruments straddle a band, you register the one that convicts you.** And it refuted my §14.2 endorsement **twice** — the second time newly: **the choice of instrument decides the verdict, and so does the choice of LEVEL.** ⚠ **Item 6 proves it: the planform limb reads −0.0837 % on L2 (inside) and −0.6198 % on L3 (outside) — 5.4× the tolerance apart. The "obvious repair" fails anyway.**
+**Also registered:** **GF2 measures RESOLUTION, not geometry fidelity** (3.4265e-03 on L3 fail vs 9.9259e-04 on L2 pass, both maxima at the LE) — **the coarsest level of any converging surface family must fail it**; and **§2.4's "B0 runs FIRST" is unsatisfiable**, because `gate_gf` grades all three levels in one call while L1's mesh does not exist until B3. **est ≤ cap verified on all nine rows** — largest **B5b at 0.33321**, total 0.3233, cap **0.1627 % of the $1,000 envelope**.
+
+### ⚠ AND MY OWN NUMBER WAS WRONG AGAIN — 0.8785 DOES NOT REPRODUCE
+
+I published `Cn(7)/Cn(1) = 0.8785` twice. **The registered closed-contour recipe gives 0.878747**; open gives 0.907941; sorted-by-x gives 1.023332. **§15.6's filed 0.8787 was right and my slip was mine.** ⚠ **Eleventh instance. The conclusion is untouched — the ratio is inside the band and the series is non-monotone either way — but a figure I published twice was not the one the registered recipe produces, and the difference between three recipes here is 17 %.**
+
+### 🔴 ON SANAA'S DESK — HER ORDER CANNOT BE EXECUTED AS WRITTEN TODAY, WITH THE MEASUREMENT
+
+**She ordered M6SR to launch now and named the first physics she wants.** **Neither can happen today: the launch command has no target, and the gate that would produce her figure has no call site.** ⚠ **This is not a refusal of her order and not a gate being widened or withheld — it is a measured launch-readiness fact, found BEFORE spending any of the 615.24 core-min.** ✅ **The remedy is buildable and pre-compute, and is dispatched: the B5 solve path, and a `sampleDict` producing `cfd_sections` at the seven AGARD stations so `gate_p` has a producer and a caller.** **`X1` stands regardless — building the path revives the AGGREGATE channel and the figure, never the per-station channel.**
+
 <!-- BOARD-BLOCK-ID: 56Y-the-three-direction-family-already-exists -->
 
 ### 🔴🔴 **THE THREE-DIRECTION M6 FAMILY ALREADY EXISTS ON THIS BOX, BUILT AND PAID FOR — AND IT IS CHEAPER THAN THE ROUTE WE REGISTERED**
