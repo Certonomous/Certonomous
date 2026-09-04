@@ -66,6 +66,52 @@ for p in (ROOT / "sdk", ROOT / "models" / "curriculum" / "aortic_valve"):
     if str(p) not in sys.path:
         sys.path.insert(0, str(p))
 
+# THE SOLVE-EVIDENCE GUARD.  Loaded by explicit path rather than by putting
+# `scripts/` on sys.path: this module must not be shadowable by anything, and a
+# guard that can be silently replaced is not a guard.  If it is missing, this
+# file refuses to run at all -- rebuilding without the guard IS the defect.
+#
+# WHY IT IS HERE, with the state that paid for it, measured 2026-09-04.  Every
+# one of the five cases `main()` below rebuilds ALREADY EXISTS in this directory
+# holding completed physics, and `case = HERE / name` puts them INSIDE THE
+# REPOSITORY RUN TREE rather than under the shared run root:
+#
+#   mesh_coarse_q100   3 time directories > 0 with fields (0.6 0.9 1.2)
+#   mesh_fine_q100     1 (0.3)
+#   mesh_med_q100      3 (0.6 0.9 1.2)
+#   lowalpha_ext       7 (5.4 ... 10.8 -- 10.8 IS its endTime)
+#   physio_dt_half     2 (1.8 2.7 -- 2.7 IS its endTime)
+#
+# So `python3 setup_f9_round3.py` was, on this disk, the same keystroke as
+# "destroy sixteen solved time directories", including two runs sitting exactly
+# at their endTime and the restart pair that exists precisely because the
+# originals were never shown periodic.  The guard refuses when the target holds
+# time directories > 0 with fields (reconstructed or under processor*/) or a
+# postProcessing series with data rows, and names what would have been lost.
+# There is no override flag, deliberately: a --force-restage is a flag somebody
+# pastes.  The preserving recovery the refusal prints is a HUMAN `mv` aside.
+import importlib.util as _ilu  # noqa: E402
+
+_GUARD_PATH = ROOT / "scripts" / "solve_evidence_guard.py"
+if not _GUARD_PATH.is_file():
+    raise RuntimeError(
+        f"solve-evidence guard not found at {_GUARD_PATH}; refusing to run. "
+        "This builder deletes its case directories in place under "
+        f"{HERE}, and without the guard those deletes are unconditional.")
+if "solve_evidence_guard" in sys.modules:
+    # Registered ONCE, reused everywhere.  Loading the same file twice under two
+    # module objects gives SolveEvidencePresent two DISTINCT classes, and a
+    # caller's `except SolveEvidencePresent` then silently misses the refusal
+    # raised by the other copy -- the guard appears wired and is not.
+    solve_evidence_guard = sys.modules["solve_evidence_guard"]
+else:
+    _spec = _ilu.spec_from_file_location("solve_evidence_guard", _GUARD_PATH)
+    solve_evidence_guard = _ilu.module_from_spec(_spec)
+    sys.modules["solve_evidence_guard"] = solve_evidence_guard
+    _spec.loader.exec_module(solve_evidence_guard)
+safe_rmtree_for_restage = solve_evidence_guard.safe_rmtree_for_restage
+SolveEvidencePresent = solve_evidence_guard.SolveEvidencePresent
+
 from workflows import valve_pulsatile_cfd as v  # noqa: E402
 
 BASE_MESH = dict(nx_up=60, nx_throat=6, nx_down=90, nr_in=24, nr_out=8)
@@ -83,8 +129,13 @@ def _cells(m):
 
 def build_steady(name: str, mesh: dict, dt0: float) -> Path:
     case = HERE / name
-    if case.exists():
-        shutil.rmtree(case)
+    # WAS: `if case.exists(): shutil.rmtree(case)` -- unconditional, as the
+    # first statement of the builder.  RE-STAGE shape, so a refusal here is
+    # FATAL: continuing would write a new controlDict and 0/ into a directory
+    # that still holds the old run's time directories, and the result would be
+    # a case whose fields and dictionary disagree about which solve produced
+    # them.  Better to stop and make a human move the physics aside.
+    safe_rmtree_for_restage(case)
     v.write_case(case, steady_u=U_Q100, t_cycle=v.T_CYCLE, end_time=1.2,
                  dt0=dt0, write_interval=0.3, **mesh)
     return case
@@ -92,8 +143,8 @@ def build_steady(name: str, mesh: dict, dt0: float) -> Path:
 
 def build_pulsatile(name: str, mesh: dict, dt0: float, end_time: float) -> Path:
     case = HERE / name
-    if case.exists():
-        shutil.rmtree(case)
+    # RE-STAGE shape; refusal FATAL, for the reason given in build_steady.
+    safe_rmtree_for_restage(case)
     v.write_case(case, steady_u=None, t_cycle=v.T_CYCLE, end_time=end_time,
                  dt0=dt0, write_interval=v.T_CYCLE, **mesh)
     return case
@@ -109,8 +160,12 @@ def build_restart(name: str, source: str, t_start: float, t_end: float,
     """
     src = HERE / source
     case = HERE / name
-    if case.exists():
-        shutil.rmtree(case)
+    # RE-STAGE shape; refusal FATAL.  Sharpest of the three: `lowalpha_ext` and
+    # `physio_dt_half` are exactly the two directories on this disk sitting at
+    # their own endTime, and this is the line that used to delete them.  Note
+    # the SOURCE `src` is only ever read (copytree out of it), never deleted --
+    # so nothing here can destroy the parent run either.
+    safe_rmtree_for_restage(case)
     (case).mkdir(parents=True)
     shutil.copytree(src / "constant", case / "constant")
     tdir = src / f"{t_start:g}"

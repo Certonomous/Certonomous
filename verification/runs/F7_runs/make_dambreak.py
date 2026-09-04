@@ -16,8 +16,56 @@ compression; --calpha 0 --sigma 0 --inviscid reproduces its physical model as
 closely as interFoam allows.
 """
 import argparse
+import importlib.util as _ilu
 import os
-import shutil
+import sys
+from pathlib import Path
+
+# THE SOLVE-EVIDENCE GUARD.  Loaded by explicit path -- this module must not be
+# shadowable, and a guard that can be silently replaced is not a guard.  If it
+# is missing, this file refuses to run at all: rebuilding without it IS the
+# defect.
+#
+# WHY IT MATTERS MORE HERE, NOT LESS.  `--out` is OPERATOR-SUPPLIED and has NO
+# default (`required=True`), so there is no safe built-in target to fall back
+# on and nothing in this file constrains where it points.  A mistyped or
+# stale-from-history `--out` -- an F7 rung name typed one character wrong, a
+# path pasted from another ladder -- used to be an unconditional
+# `shutil.rmtree` of whatever was there.  The guard turns that into a refusal
+# that names the time directories and the row count it just declined to
+# destroy.  There is no override flag, deliberately.
+#
+# The repository root is DERIVED BY SEARCHING upward for the marker
+# `scripts/lab_paths.py` rather than by counting segments: MOVE_MAP batch 7
+# changed a sibling file's depth and silently redirected a `parents[N]` literal
+# to /home/ubuntu.  A search has no depth to get wrong.
+_ROOT = next((_p for _p in Path(__file__).resolve().parents
+              if (_p / "scripts" / "lab_paths.py").is_file()), None)
+if _ROOT is None:
+    raise RuntimeError(
+        "cannot locate scripts/lab_paths.py above %s; refusing to guess a "
+        "repository root, and therefore refusing to locate the "
+        "solve-evidence guard by guess" % __file__)
+_GUARD_PATH = _ROOT / "scripts" / "solve_evidence_guard.py"
+if not _GUARD_PATH.is_file():
+    raise RuntimeError(
+        f"solve-evidence guard not found at {_GUARD_PATH}; refusing to run. "
+        "This generator deletes whatever directory --out names, and without "
+        "the guard that delete is unconditional against an operator-supplied "
+        "path.")
+if "solve_evidence_guard" in sys.modules:
+    # Registered ONCE, reused everywhere.  Loading the same file twice under two
+    # module objects gives SolveEvidencePresent two DISTINCT classes, and a
+    # caller's `except SolveEvidencePresent` then silently misses the refusal
+    # raised by the other copy -- the guard appears wired and is not.
+    solve_evidence_guard = sys.modules["solve_evidence_guard"]
+else:
+    _spec = _ilu.spec_from_file_location("solve_evidence_guard", _GUARD_PATH)
+    solve_evidence_guard = _ilu.module_from_spec(_spec)
+    sys.modules["solve_evidence_guard"] = solve_evidence_guard
+    _spec.loader.exec_module(solve_evidence_guard)
+safe_rmtree_for_restage = solve_evidence_guard.safe_rmtree_for_restage
+SolveEvidencePresent = solve_evidence_guard.SolveEvidencePresent
 
 A = 0.05715           # m, Martin & Moyce a = 2 1/4 in
 DOMAIN_L = 15.0       # in units of a
@@ -263,11 +311,29 @@ def main():
     nx = int(round(DOMAIN_L * args.res))
     ny_f = DOMAIN_H * yres
     ny = int(round(ny_f))
-    assert abs(ny - ny_f) < 1e-9, "1.25*yres must be an integer (multiple of 4)"
+    # WAS a bare `assert`, which `python3 -O` DELETES OUTRIGHT (L-332/L-475):
+    # under -O a non-integer 1.25*yres would have been silently rounded and the
+    # case built at a resolution nobody asked for, with the domain height off
+    # by up to half a cell.  An explicit raise survives every optimisation
+    # level, so `python3` and `python3 -O` return the same rc.
+    if abs(ny - ny_f) >= 1e-9:
+        raise SystemExit(
+            "--yres %d gives 1.25*yres = %.10g, which is not an integer: the "
+            "domain height must be a whole number of cells, so yres must be a "
+            "multiple of 4. Refusing to build a case at a resolution nobody "
+            "asked for." % (yres, ny_f))
 
     out = args.out
-    if os.path.exists(out):
-        shutil.rmtree(out)
+    # WAS: `if os.path.exists(out): shutil.rmtree(out)` -- unconditional,
+    # against an OPERATOR-SUPPLIED path with no default.  RE-STAGE shape, so a
+    # refusal here is FATAL: there is nothing sensible to continue into, since
+    # every write below assumes a directory it just created.  The guard admits
+    # a genuinely empty or mesh-only target and refuses one holding time
+    # directories > 0 with fields (reconstructed or under processor*/) or a
+    # postProcessing series with data rows -- and past the guard the delete no
+    # longer swallows its own errors, because `safe_rmtree_for_restage` does
+    # not pass `ignore_errors=True`.
+    safe_rmtree_for_restage(out)
     os.makedirs(out)
 
     nu_w, nu_a = (1e-12, 1e-12) if args.inviscid else (1e-6, 1.48e-5)

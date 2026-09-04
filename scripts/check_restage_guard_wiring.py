@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """INTEGRATION CONTROLS for the solve-evidence guard's wiring into cfd's own
-GEN_ALT, FPE_DIAG and B52_RUNG6_REPLICATE drivers.
+GEN_ALT, FPE_DIAG, B52_RUNG6_REPLICATE, F9 and F7 drivers.
 
 WHAT THIS IS FOR, AND WHAT IT IS NOT FOR.
 
@@ -11,7 +11,7 @@ still happens and the file still mentions a guard.  So these controls exercise
 the DRIVERS' OWN call sites -- the real functions, by name -- and require the
 refusal to arrive from there.
 
-THE THREE DRIVERS, and the ten delete sites wired:
+THE FIVE DRIVERS, and the fourteen delete sites wired:
 
   verification/runs/GEN_ALT_runs/run_gen_alt.py
       build_and_certify  (re-stage, FATAL)      smoke_solve (re-stage, FATAL)
@@ -21,18 +21,47 @@ THE THREE DRIVERS, and the ten delete sites wired:
       stage_bump teardown (PRESERVING)          solve() teardown (PRESERVING)
   verification/runs/B52_RUNG6_REPLICATE_runs/run_rung6_replicates.py
       stage (re-stage, FATAL)                   solve() 0/ reset (FATAL path)
+  verification/runs/F9_work/setup_f9_round3.py                   [added 09-04]
+      build_steady (re-stage, FATAL)            build_pulsatile (FATAL)
+      build_restart (re-stage, FATAL)
+  verification/runs/F7_runs/make_dambreak.py                     [added 09-04]
+      main() --out (re-stage, FATAL)
+
+F9 IS THE SHARPEST OF THE FIVE AND IS NOT UNDER THE SHARED RUN ROOT AT ALL.
+Its `HERE = Path(__file__).resolve().parent` puts every case it builds INSIDE
+THE REPOSITORY, in `verification/runs/F9_work/`, and on 2026-09-04 all five
+cases `main()` rebuilds already existed there holding sixteen solved time
+directories between them -- `lowalpha_ext` out to t = 10.8 and `physio_dt_half`
+out to t = 2.7, each exactly its own endTime.  So this file's controls defend a
+SECOND tree, `F9_FORBIDDEN_ROOT` below, and refuse if a fixture or a rebinding
+would let anything reach it.
+
+F7 HAS NO REDIRECTABLE ROOT BECAUSE IT HAS NO ROOT: `make_dambreak.py --out` is
+operator-supplied with NO default (`required=True`).  Its controls therefore
+pass a fixture path directly as argv, which is the whole target -- nothing can
+leak to a real tree because nothing else is consulted.  That is also exactly
+why the guard matters there: a mistyped `--out` was an unconditional delete.
 
 NO COMPUTE IS LAUNCHED.  `tmr_verification._foam` is replaced by a SENTINEL
-that raises if it is ever called.  A refusal that works arrives before the
-sentinel; a refusal that does not work trips it loudly instead of starting
-OpenFOAM.  That is deliberate: the sentinel is a control in its own right.
+that raises if it is ever called, and `valve_pulsatile_cfd._foam` likewise for
+F9.  A refusal that works arrives before the sentinel; a refusal that does not
+work trips it loudly instead of starting OpenFOAM.  That is deliberate: the
+sentinel is a control in its own right.
 
-NOTHING UNDER ~/certonomous-runs IS TOUCHED.  Every fixture is built in a
-temporary directory.  GEN_ALT and FPE_DIAG are redirected with
-CERTONOMOUS_TMR_RUN_ROOT, set before `tmr_verification` is imported.
-B52 CANNOT be redirected that way -- its `RUNS` is an absolute literal that
-never consults `_RUN_ROOT` -- so its module globals are rebound after import,
-and a refusal below aborts the whole run if that rebinding did not take.
+NOTHING UNDER ~/certonomous-runs IS TOUCHED, AND NOTHING UNDER F9_work IS
+TOUCHED.  Every fixture is built in a temporary directory.  GEN_ALT and
+FPE_DIAG are redirected with CERTONOMOUS_TMR_RUN_ROOT, set before
+`tmr_verification` is imported.  B52 CANNOT be redirected that way -- its
+`RUNS` is an absolute literal that never consults `_RUN_ROOT` -- so its module
+globals are rebound after import.  F9's `HERE` is derived from `__file__` and
+is likewise rebound after import.  A refusal below aborts the whole run if
+either rebinding did not take.
+
+THE -O CONTROL.  `make_dambreak.py` carried a bare `assert` that `python3 -O`
+deletes outright, so under -O a non-integer `1.25*yres` was silently rounded
+and a case was built at a resolution nobody asked for.  Control O1 runs the
+real file as a subprocess under BOTH `python3` and `python3 -O` and requires
+the SAME non-zero rc and the same refusal text from each.
 
 CONTROLS.  `--selftest` runs them all.  `--mutation-control` registers a
 MUTATED copy of the guard in `sys.modules` under the guard's own name BEFORE
@@ -62,10 +91,17 @@ DRIVERS = {
     "FPE_DIAG": REPO / "verification/runs/FPE_DIAG_runs/run_fpe_diag.py",
     "B52": (REPO / "verification/runs/B52_RUNG6_REPLICATE_runs"
             / "run_rung6_replicates.py"),
+    "F9": REPO / "verification/runs/F9_work/setup_f9_round3.py",
+    "F7": REPO / "verification/runs/F7_runs/make_dambreak.py",
 }
 
-# The tree these controls exist to defend.  Nothing here may write into it.
+# The trees these controls exist to defend.  Nothing here may write into either.
 FORBIDDEN_ROOT = Path.home() / "certonomous-runs"
+# F9 does not use the shared run root at all: it builds IN the repository, and
+# the sixteen solved time directories currently sitting there are exactly what
+# its guard defends.  A control that only checked ~/certonomous-runs would have
+# been blind to F9's entire blast radius.
+F9_FORBIDDEN_ROOT = REPO / "verification" / "runs" / "F9_work"
 
 
 # ---------------------------------------------------------------------------
@@ -237,40 +273,74 @@ def load_drivers(run_root: Path):
             "site was NOT refused and the driver carried on into a solve.")
 
     for tag, mod in mods.items():
-        mod.log = lambda msg, _t=tag: None          # keep the repo clean
+        if hasattr(mod, "log"):
+            mod.log = lambda msg, _t=tag: None      # keep the repo clean
         if hasattr(mod, "tv"):
             mod.tv._foam = sentinel
         # B52 cannot be redirected by environment: rebind its literals.
         if tag == "B52":
             mod.RUNS = run_root
             mod.TEMPLATE = run_root / "study-b52-rung8-uq"
+        # F9 cannot be redirected by environment either: its HERE is derived
+        # from __file__ and points at the repository directory holding the real
+        # solved cases.  Rebind it, and silence its solver path too -- `v` is
+        # valve_pulsatile_cfd, whose run_util()/build_and_check() would launch
+        # blockMesh.  setup_f9_round3 never calls them today; the sentinel is
+        # there so that a future edit which does cannot start OpenFOAM from
+        # inside a control.
+        if tag == "F9":
+            mod.HERE = run_root / "f9_work"
+            (run_root / "f9_work").mkdir(parents=True, exist_ok=True)
+            mod.v._foam = sentinel
     return mods, calls
 
 
 def behavioural_controls(s: Suite, mods, calls, root: Path) -> None:
     # --- B0: the redirect actually took.  If it did not, every control below
-    # would be aiming at the defended tree, so this refuses rather than checks.
+    # would be aiming at a defended tree, so this refuses rather than checks.
+    # F7 is absent from this loop BY CONSTRUCTION, not by oversight: it holds no
+    # root global at all, its only target is the `--out` argv the control itself
+    # supplies, and B0b below states that as a checked fact rather than a claim.
+    roots = {"B52": "RUNS", "F9": "HERE", "GEN_ALT": "RUN_ROOT",
+             "FPE_DIAG": "RUN_ROOT"}
     for tag, mod in mods.items():
-        target = mod.RUNS if tag == "B52" else mod.RUN_ROOT
-        real = Path(target).resolve()
-        inside = real == FORBIDDEN_ROOT.resolve() or \
-            FORBIDDEN_ROOT.resolve() in real.parents
-        s.check(f"{tag} B0 run root redirected away from the defended tree",
-                not inside, f"run root is {real}")
-        if inside:
+        attr = roots.get(tag)
+        if attr is None:
+            continue
+        real = Path(getattr(mod, attr)).resolve()
+        bad = []
+        for forbidden in (FORBIDDEN_ROOT, F9_FORBIDDEN_ROOT):
+            f = forbidden.resolve()
+            if real == f or f in real.parents:
+                bad.append(str(f))
+        s.check(f"{tag} B0 {attr} redirected away from every defended tree",
+                not bad, f"{attr} is {real}, inside {bad}")
+        if bad:
             print("  REFUSING to continue: controls never touch "
-                  f"{FORBIDDEN_ROOT}")
+                  f"{', '.join(bad)}")
             return
+        s.check(f"{tag} B0b {attr} was actually rebound to the fixture root",
+                str(real).startswith(str(root.resolve())),
+                f"{attr} is {real}, not under the fixture root {root}")
 
-    # --- I1: ONE guard module object across all three drivers.
+    # F7 carries no root global; assert that rather than assume it, because if
+    # a future edit gave it one, the loop above would silently skip it.
+    f7 = mods["F7"]
+    f7_roots = [n for n in ("RUNS", "HERE", "RUN_ROOT", "OUT", "ROOT")
+                if isinstance(getattr(f7, n, None), (str, Path))]
+    s.check("F7 B0c has no root global to redirect (target is argv only)",
+            not f7_roots, f"unexpected root global(s) {f7_roots}: if this file "
+            "gained a default --out, the controls below stop defending it")
+
+    # --- I1: ONE guard module object across all five drivers.
     registered = sys.modules.get("solve_evidence_guard")
     same = all(m.solve_evidence_guard is registered for m in mods.values())
-    s.check("I1 all three drivers share ONE guard module object", same,
+    s.check("I1 all five drivers share ONE guard module object", same,
             "two module objects means two SolveEvidencePresent classes and an "
             "`except` that silently misses the other copy's refusal")
 
     exc_same = len({id(m.SolveEvidencePresent) for m in mods.values()}) == 1
-    s.check("I1b all three drivers share ONE SolveEvidencePresent class",
+    s.check("I1b all five drivers share ONE SolveEvidencePresent class",
             exc_same)
 
     def refuses(tag, label, fn, target: Path, *a, **kw):
@@ -396,8 +466,169 @@ def behavioural_controls(s: Suite, mods, calls, root: Path) -> None:
             out is True and not (zero_case / "0").exists(),
             f"returned {out!r}, exc {type(exc).__name__ if exc else None}")
 
+    # ---- F9 ----------------------------------------------------------------
+    # All three sites are RE-STAGE, so all three refusals are FATAL.  The names
+    # used here are the real ones `main()` rebuilds, so a reader can see that
+    # the fixture stands in for a directory that genuinely exists on disk.
+    n = mods["F9"]
+    refuses("F9", "I2 build_steady", n.build_steady,
+            n.HERE / "mesh_coarse_q100", "mesh_coarse_q100", n.COARSE_MESH,
+            1e-4)
+    refuses("F9", "I3 build_pulsatile", n.build_pulsatile,
+            n.HERE / "pulsatile_fine", "pulsatile_fine", n.FINE_MESH,
+            2.5e-5, 3.6)
+    # build_restart is the sharpest site: lowalpha_ext and physio_dt_half are
+    # the two real directories sitting at their own endTime.
+    refuses("F9", "I4 build_restart", n.build_restart,
+            n.HERE / "lowalpha_ext", "lowalpha_ext", "pulsatile_lowalpha",
+            5.4, 10.8)
+
+    # F9 negatives.  A mesh-only staging directory MUST still rebuild, or the
+    # whole round-3 setup is broken to save one rung.  Proof that it rebuilt is
+    # structural: the mesh-only marker is gone and write_case's own outputs are
+    # present.
+    f9_neg = n.HERE / "meshonly_steady"
+    plant_mesh_only(f9_neg)
+    out, exc = attempt(n.build_steady, "meshonly_steady", n.COARSE_MESH, 1e-4)
+    s.check("F9 I5 mesh-only is NOT refused by build_steady",
+            not isinstance(exc, registered.SolveEvidencePresent),
+            "the guard refused a directory that holds no physics")
+    s.check("F9 I5 build_steady rebuilt over the mesh-only fixture",
+            (f9_neg / "system" / "blockMeshDict").is_file()
+            and (f9_neg / "0" / "U").is_file()
+            and not (f9_neg / "log.blockMesh").exists(),
+            f"exc {type(exc).__name__ if exc else None}: {exc}")
+
+    # And the restart path's negative, which needs a real source to copy from.
+    src9 = n.HERE / "src_parent"
+    for sub in ("constant/polyMesh", "system", "5.4"):
+        (src9 / sub).mkdir(parents=True)
+    (src9 / "constant" / "polyMesh" / "points").write_text("// points\n")
+    (src9 / "5.4" / "U").write_text("// U\n")
+    (src9 / "system" / "controlDict").write_text(
+        "startTime       0;\nendTime         5.4;\npurgeWrite      3;\n"
+        "maxCo           0.9;\nmaxDeltaT       0.001;\n")
+    f9_rneg = n.HERE / "meshonly_restart"
+    plant_mesh_only(f9_rneg)
+    out, exc = attempt(n.build_restart, "meshonly_restart", "src_parent",
+                       5.4, 10.8)
+    s.check("F9 I6 mesh-only is NOT refused by build_restart",
+            not isinstance(exc, registered.SolveEvidencePresent),
+            f"exc {type(exc).__name__ if exc else None}: {exc}")
+    cd9 = f9_rneg / "system" / "controlDict"
+    s.check("F9 I6 build_restart rebuilt and patched the controlDict",
+            cd9.is_file() and "startTime       5.4;" in cd9.read_text()
+            and "endTime         10.8;" in cd9.read_text()
+            and not (f9_rneg / "log.blockMesh").exists(),
+            f"exc {type(exc).__name__ if exc else None}: {exc}")
+    s.check("F9 I6 the restart SOURCE was never deleted",
+            (src9 / "5.4" / "U").is_file(),
+            "build_restart destroyed the parent run it copies from")
+
+    # ---- F7 ----------------------------------------------------------------
+    # RE-STAGE, FATAL, against an OPERATOR-SUPPLIED --out with no default.  The
+    # target is argv, so the control supplies it directly.
+    d7 = mods["F7"]
+
+    def run_f7(target: Path, *extra: str):
+        argv = sys.argv
+        sys.argv = ["make_dambreak.py", "--out", str(target), "--res", "8",
+                    *extra]
+        try:
+            return attempt(d7.main)
+        finally:
+            sys.argv = argv
+
+    f7_ev = root / "f7-dambreak-r32"
+    plant_evidence(f7_ev)
+    before = len(calls)
+    _, exc = run_f7(f7_ev)
+    s.check("F7 I2 --out over solve evidence refuses",
+            isinstance(exc, registered.SolveEvidencePresent),
+            f"raised {type(exc).__name__ if exc else 'nothing'}")
+    s.check("F7 I2 the endTime fields survived", (f7_ev / "90" / "U").is_file())
+    s.check("F7 I2 the coefficient series survived",
+            (f7_ev / "postProcessing" / "forceCoeffs1" / "0"
+             / "coefficient.dat").is_file())
+    s.check("F7 I2 nothing was overwritten in the refused directory",
+            not (f7_ev / "constant" / "g").exists(),
+            "the generator wrote into a directory it had just refused")
+    s.check("F7 I2 no compute was launched", len(calls) == before)
+
+    f7_neg = root / "f7-dambreak-meshonly"
+    plant_mesh_only(f7_neg)
+    _, exc = run_f7(f7_neg)
+    s.check("F7 I3 mesh-only is NOT refused",
+            not isinstance(exc, registered.SolveEvidencePresent),
+            "the guard refused a directory that holds no physics")
+    s.check("F7 I3 the case was rebuilt over the mesh-only fixture",
+            (f7_neg / "system" / "blockMeshDict").is_file()
+            and (f7_neg / "constant" / "g").is_file()
+            and (f7_neg / "0.orig" / "alpha.water").is_file()
+            and not (f7_neg / "log.blockMesh").exists(),
+            f"exc {type(exc).__name__ if exc else None}: {exc}")
+
+    f7_new = root / "f7-dambreak-fresh"
+    _, exc = run_f7(f7_new)
+    s.check("F7 I4 an absent --out is a no-op delete, then a clean build",
+            exc is None and (f7_new / "system" / "controlDict").is_file(),
+            f"exc {type(exc).__name__ if exc else None}: {exc}")
+
 
 # ---------------------------------------------------------------------------
+
+
+def optimisation_controls(s: Suite, root: Path) -> None:
+    """O-controls: `python3` and `python3 -O` must return the SAME rc.
+
+    `make_dambreak.py` carried a bare `assert` that -O deletes outright, so
+    under -O a non-integer `1.25*yres` was silently rounded and the case was
+    built at a resolution nobody asked for.  These run the REAL file as a
+    subprocess under both interpreters and compare.
+
+    HONEST LIMIT, stated rather than left for a reader to discover: a
+    subprocess starts a fresh interpreter and loads the REAL guard, so these
+    two controls are NOT sensitive to `--mutation-control`'s in-process
+    mutation.  They are an -O control, not a wiring control; the wiring
+    controls above are the ones the mutation must turn red.
+    """
+    import subprocess
+
+    f7 = DRIVERS["F7"]
+
+    def both(label: str, args: list[str]) -> tuple:
+        outs = []
+        for flags in ([], ["-O"]):
+            r = subprocess.run([sys.executable, *flags, str(f7), *args],
+                               capture_output=True, text=True, timeout=120)
+            outs.append((r.returncode, (r.stdout + r.stderr)))
+        s.check(f"O {label}: same rc under python3 and python3 -O",
+                outs[0][0] == outs[1][0],
+                f"rc {outs[0][0]} vs -O rc {outs[1][0]}")
+        return outs
+
+    # O1 -- the assert that -O used to delete.  1.25 * 6 = 7.5, not an integer.
+    tgt = root / "o1-should-never-be-built"
+    outs = both("O1 non-integer yres",
+                ["--out", str(tgt), "--res", "8", "--yres", "6"])
+    s.check("O1 non-integer yres is REFUSED under -O", outs[1][0] != 0,
+            "-O accepted a resolution the un-optimised run rejected; this is "
+            "exactly the bare-assert defect")
+    s.check("O1 the -O refusal names the constraint",
+            "multiple of 4" in outs[1][1], outs[1][1][:200])
+    s.check("O1 no case was built by either interpreter", not tgt.exists(),
+            f"{tgt} exists: a rejected resolution was written to disk anyway")
+
+    # O2 -- the guard refusal itself must be identical under -O.
+    ev = root / "o2-evidence"
+    plant_evidence(ev)
+    outs = both("O2 refusal over solve evidence",
+                ["--out", str(ev), "--res", "8"])
+    s.check("O2 the refusal happens under -O too", outs[1][0] != 0,
+            "-O built over a directory holding physics")
+    s.check("O2 the -O refusal names the evidence",
+            "REFUSING to delete" in outs[1][1], outs[1][1][:300])
+    s.check("O2 the physics survived both interpreters", evidence_intact(ev))
 
 
 def run_suite() -> int:
@@ -413,8 +644,16 @@ def run_suite() -> int:
                 FORBIDDEN_ROOT.resolve() in real.parents:
             print(f"  REFUSE: fixture root {real} is inside {FORBIDDEN_ROOT}")
             return 2
+        for defended in (FORBIDDEN_ROOT, F9_FORBIDDEN_ROOT):
+            d = defended.resolve()
+            if real == d or d in real.parents:
+                print(f"  REFUSE: fixture root {real} is inside {d}")
+                return 2
         mods, calls = load_drivers(root)
         behavioural_controls(s, mods, calls, root)
+        print("\nOPTIMISATION CONTROLS (python3 vs python3 -O, real "
+              "subprocesses, temporary fixtures)")
+        optimisation_controls(s, root)
         # Z1 is NOT "the sentinel was never reached" -- the mesh-only negative
         # is REQUIRED to reach it, because getting that far is what proves the
         # directory really staged.  What must hold is that no REAL solver ever
