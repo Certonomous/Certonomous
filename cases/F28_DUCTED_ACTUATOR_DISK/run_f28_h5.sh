@@ -188,8 +188,20 @@ src = sub_once(src, "startTime       0;",
                     "startTime       %s;" % t0, "startTime")
 src = sub_once(src, "endTime         15000;",
                     "endTime         %s;" % t1, "endTime")
+# AMENDMENT 3, 2026-09-04, AFTER THE PILOT AND BEFORE ANY ARM COMPUTE.
+# THE TOP-LEVEL writeInterval IS COMPARED AGAINST THE CONTINUING timeIndex,
+# NOT AGAINST THE ITERATION COUNT.  This was set to `niter`, which is correct
+# only when startTime is 0.  A restart continues timeIndex from startTime, so
+# the write fires when `timeIndex % writeInterval == 0` with timeIndex running
+# 15001..15072 -- and 15072 % 72 = 24, so IT NEVER FIRED AT endTime.  Measured
+# on both pilot limbs: the solution fields landed at 15048 (15048 % 72 == 0,
+# the one multiple in range) and endTime carried ONLY the function object's
+# `onEnd` residual fields.  Both limbs therefore FAILED standing rule 4 clause
+# 4, and the comparator correctly refused them.
+# Setting writeInterval = endTime makes `endTime % writeInterval == 0` for any
+# endTime, so the write fires at endTime and nowhere else.
 src = sub_once(src, "writeInterval   15000;",
-                    "writeInterval   %s;" % niter, "top-level writeInterval")
+                    "writeInterval   %s;" % t1, "top-level writeInterval")
 
 # The residuals function object, replaced as a WHOLE BLOCK by exact match.
 OLD_FO = """    residuals

@@ -842,12 +842,22 @@ the frozen file is verified to **be** the file that ran by hashing it against th
 committed blob before the arm runs.
 
 ```
-run_f28_h5.sh         blob 929dba146bf3d0746e247c0a94aad2774fa1237b
+run_f28_h5.sh         blob bf9d5899148d6af88c8544c4844169f7b45b4f7d
 analyse_f28_h5.py     blob e3d7f48c992a1743063e4063cc6ceb668939bdd3
 f28_zone_geometry.py  blob 98863fc92f041799dac443a44d86fff3ac24b930
 ```
 
-#### 9.3a ⚠ TWO AMENDMENTS TO THE GRADING PATH, BEFORE FIRST COMPUTE
+#### 9.3a ⚠ THREE AMENDMENTS TO THE GRADING PATH — TWO BEFORE FIRST COMPUTE, ONE AFTER THE PILOT
+
+**AMENDMENT 3 landed after the pilot ran and before any ARM compute**, and is
+recorded in full at §15A.3: the top-level `writeInterval` was compared against
+the continuing `timeIndex` rather than the iteration count, so no solution
+fields were written at `endTime` and both pilot limbs failed rule 4 clause 4.
+The launcher blob above is the amended one; the blob the pilot actually ran was
+`929dba146bf3d0746e247c0a94aad2774fa1237b`. **The condition rule 2 requires: no
+arm compute has occurred — `verification/runs/F28_runs/H5A_L1_dp1000_U20` does
+not exist, checked by directory listing immediately before amending.** No gate,
+threshold, cap or label is touched.
 
 **The first two hashes MOVED after check 4 passed on them.** They were
 `d6d381de…` and `d00e2876…` at check 4, and `cfd-supervisor` verified those two
@@ -1202,6 +1212,180 @@ so that branch is closed.
 does not run**, and the finding is worth more than the arm, because every
 function object in this repository that writes a scoped field name shares the
 exposure.
+
+---
+
+## 15A. PILOT RESULTS — 2026-09-04. AUTHORISED BY CHECK 4; THE ARM STILL HAS NOT RUN
+
+**Authorisation, precisely:** `cfd-supervisor` performed check 4, it passed, and
+he authorised **`--dry-run` and THE PILOT ONLY**, explicitly **not the arm**,
+whose cap he reserved to himself pending these numbers. **The arm has not run.
+`verification/runs/F28_runs/H5A_L1_dp1000_U20` does not exist.**
+
+### 15A.1 THE DRY RUNS — the gap between "verified by reading" and "verified by running" is closed
+
+All three modes ran `--dry-run`, and every guard fired: the
+`solve_evidence_guard` control **refused the parent as it must**, the parent
+fingerprint captured **157 files**, the `controlDict` rewrite reported its
+substitutions, immutability check 1/2 passed, and each stopped **before the
+solver**. **The three registered run-root names remained absent** — amendment 1
+did its job; only `*_DRYRUN` roots were created, and §11.1's freshness claim
+survived being tested.
+
+### 15A.2 🟢 §9.4 IS ANSWERED BY OBSERVATION. THE COLON WORKS
+
+The registration recorded that no `initialResidual:*` file had ever been produced
+on this box and that everything about it was **inferred from `IOobject.C:43-50`**.
+**It is now observed:**
+
+```
+H5P_T_L1_dp1000_U20/15072/   initialResidual:Ux  :Uy  :Uz  :k  :omega  :p
+```
+
+- **All six fields written**, with a **literal colon** in the filename, exactly as
+  the source predicted. `Ux`, `Uy` and `Uz` are separate fields — the wedge drops
+  none, as §11.3 measured.
+- **`reconstructPar` handled them**: the serial `15072/` carries all six
+  reconstructed from `processor*/15072/`. **The colon breaks nothing.**
+- **The comparator reported the separator it actually found:
+  `residual field separator observed: [':']`** — an observation, not the
+  expectation.
+- **Content, read independently:** each field carries exactly **35,544** values.
+  `sum|r|` = **3.546043e+01** for `p` and **7.967183e+02** for `Uy`; range
+  1.251e-17 to 3.919e+00 for `p`. **Not zeros.**
+
+**The arm's stop-condition is therefore not triggered.** Had the colon broken
+`reconstructPar`, the arm would not run and that would have outranked the arm.
+
+### 15A.3 🔴 BOTH LIMBS ARE `NOT A RESULT` — AND THE PILOT FOUND THE DEFECT THAT DID IT
+
+**Standing rule 4 clause 4 failed on both limbs: the solution fields are absent
+at `endTime`.** The comparator refused, naming all six — `U p k omega nut phi` —
+and that refusal is the comparator working, not failing.
+
+**The defect is mine, in the launcher, and it is subtle.** The top-level
+`writeInterval` is compared against the **continuing `timeIndex`**, not against
+the iteration count. I set it to `NITER` (72), which is correct **only when
+`startTime` is 0**. On a restart the counter runs 15001…15072, and
+**`15072 % 72 = 24`**, so the write **never fired at `endTime`**. Measured on
+both limbs: the solution fields landed at **`15048`** — `15048 % 72 == 0`, the
+one multiple in range — while `endTime` carried only the function object's
+`onEnd` residual fields.
+
+**AMENDMENT 3, before any arm compute:** top-level `writeInterval = endTime`, so
+`endTime % writeInterval == 0` for any `endTime`. Verified on both modes against
+a copy of the real dictionary: pilot `15072 % 15072 = 0`, arm `15200 % 15200 = 0`,
+and the arm's five snapshot times remain exact (`15040/15080/15120/15160/15200`,
+all divisible by 40 because 15000 is).
+
+> **This is the pilot doing precisely what a pilot is for: it spent 0.479
+> core-minutes to find a defect that would have made the arm `NOT A RESULT`.**
+> **⚠ The fix is UNTESTED against a real run** — a `--dry-run` cannot exercise
+> it, because the defect is in solver write behaviour, not in assembly. See
+> §15A.7.
+
+### 15A.4 🟢 THE PLATEAU CHECK PASSES — the restart design is validated by measurement
+
+§5.7 registered a refusal: the gating `p` residual must land inside the parent's
+measured last-4,000 band **[0.1171, 0.5132]** or the run did not sample the
+plateau.
+
+> **Measured: `p_initial` at iteration 15072 = `0.193576`. INSIDE the band.**
+
+**The central claim of the restart design — that it samples the state the record
+gates on rather than a proxy — is now measured rather than argued.** It was the
+one thing §13's "not verified" list said was asserted "by construction".
+
+**And amendment 2 is vindicated by a real artifact:** `solverInfo.dat` was
+written to **`postProcessing/residuals/15000/`**, exactly where the original
+hardcoded `/0/` would have missed it on every run.
+
+### 15A.5 THE COST MEASUREMENT — what the pilot existed to produce
+
+| quantity | registered estimate | **measured** | note |
+|---|---|---|---|
+| per-iteration rate, control | 0.056214 s/it (parent's) | **0.043111** s/it | OLS on the `ExecutionTime` series |
+| per-iteration rate, treatment | — | **0.042206** s/it | |
+| **`writeResidualFields` per-iteration surcharge** | allowance 2× | **NOT RESOLVABLE** | **T ran 2.1 % FASTER than C** — the effect is below run-to-run noise on a shared box |
+| one-snapshot write cost | bound 4.349 s | **≈ 0.035 s** | difference of the two limbs' `ExecutionTime` tails; **the bound was ~124× conservative** |
+| bytes per snapshot | 2,750,682 B | **3,595,819 B** | ratio **1.307** — the prediction was **31 % LOW** |
+| `decomposePar` | 0.000 s (structural) | **0.000 s** | correctly predicted; it does not run |
+| **pilot total** | **0.970** core-min | **0.479** core-min | ratio **0.494**; **10.4 % of the 4.600 cap** |
+
+**The honest reading of the surcharge row.** The treatment limb measuring
+*faster* than the control does not mean the surcharge is negative or zero. It
+means **the pilot yields an UPPER BOUND, not a value** — the effect is smaller
+than the noise floor of a two-run comparison on a contended box. That was
+anticipated in §8's attribution rule and is recorded as the outcome, **not
+rewritten as a measurement of zero.**
+
+**A cost the pre-registration did not carry, named rather than absorbed:** case
+assembly — the 23 MB copy plus **two** 157-file parent fingerprints — ≈2.4 s
+single-core per limb, **17 % of actual spend**. §6.2 called it "shell" and never
+costed it. The next estimate must.
+
+**Waste: 0.000 core-min.** No run killed, none overran, none re-run.
+**Calibration row landed:** `docs/COST_CALIBRATION.md`, id
+`C-20260904T220239.662101Z-b467175e`.
+
+### 15A.6 AN INSTRUMENT READING THAT IS NOT A VERDICT, AND MAY NOT BECOME ONE
+
+Computing the concentration ratio was necessary to prove the reader works
+end-to-end. It returned **f1% = 0.9979 for `p`** and **0.9719 for `Uy`**, against
+a uniform-spread value of 0.0099876.
+
+> **THIS IS NOT A RESULT AND MAY NOT BE CITED AS ONE.** It is disqualified
+> **three** times over, each independently sufficient: **(1)** the run it comes
+> from is **`NOT A RESULT`** on rule 4 clause 4 (§15A.3); **(2)** §5.4's
+> structural bar — G1/G2/G3 each require agreement across **4 of 5** snapshots
+> and this is **one**; **(3)** §5.5a — single grid, so no Roache-gated verdict is
+> possible from this arm at all.
+
+It is recorded because concealing an instrument reading is worse than stating it
+with its disqualifications — and because a reader who later finds this number in
+a log must find it already labelled. **The proposition P is tested by the arm,
+under its five-snapshot gates, or it is not tested.**
+
+### 15A.7 WHAT THE PILOT DID NOT ESTABLISH
+
+- **VERIFY: amendment 3 is untested against a real run.** A `--dry-run` cannot
+  exercise it. **Recommendation, and it is the supervisor's to rule:** one
+  verification re-run of a single limb before the arm, ≈0.24 core-min, well
+  inside the pilot's unspent 4.121 core-min. I did not do it: it would run
+  compute against a grading path he has not seen, and he has already had two of
+  these blobs superseded under him.
+- **VERIFY: `T_rec` could not be separated from assembly.** Both sit inside the
+  same 2.31 s of non-solver launcher wall. The arm's cap arithmetic below uses
+  the whole 2.31 s for `T_rec`, which is conservative.
+- **VERIFY: the connection limb (§5.8 limb 2) could not run.** It checks the
+  **constancy** of `sum|r| / (.dat scalar)` across snapshots, and one snapshot
+  has no constancy to check. Single-snapshot ratios were computed and are
+  recorded for the arm to compare against — `p`: **1.831866e+02**, `Uy`:
+  **7.660881e+04** — but **no constancy check was performed.**
+- **VERIFY: the comparator never reached its gates**, because completion refused
+  first. G1/G2/G3, the zone assignment and the cell-centre reader have still
+  **never run against the 35,544-cell mesh**.
+
+### 15A.8 THE ARM'S CAP — the formula's inputs are now measured. THE RULING IS THE SUPERVISOR'S
+
+§6.4 registered the cap as a formula whose only free inputs are the pilot's
+measurements. Substituting them, **as input to his ruling and not as a cap I am
+setting**:
+
+```
+cap_wall = 200 × 0.042206 × 2.0 × 1.5   = 25.324 s   (solve, measured R_p)
+         + 5 × 0.035 × 3.0              =  0.525 s   (five writes, measured W_p)
+         + 5 × 2.31                     = 11.550 s   (reconstruct; T_rec NOT separable from assembly, so the whole non-solver wall is used)
+         + 10 × 0.20                    =  2.000 s   (startup allowance)
+                                        = 39.40 s  →  2.63 core-min at 4 ranks
+```
+
+**Plus case assembly**, which the formula omits and §15A.5 names: ≈2.4 s
+single-core, **0.04 core-min**. **Arm cap ≈ 2.67 core-min**, against an expected
+spend the measured rate now puts near **1.0 core-min**.
+
+**I am not setting this cap.** `cfd-supervisor` reserved it. The arithmetic is
+here so his ruling has its inputs on the record beside it.
 
 ---
 
