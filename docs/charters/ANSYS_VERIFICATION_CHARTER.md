@@ -2949,3 +2949,177 @@ turns on it.)*
 | gates · thresholds · bands · caps · labels · re-grades | **0 · 0 · 0 · 0 · 0 · 0** |
 | solver compute | **0 core-min, $0.00** |
 | lines whose number changed above this section | **0** |
+
+---
+
+## Amendment — v1.33, 2026-09-04 — **§38: EIGHT OF `§36`'s CLAIMS ARE REFUTED BY THE LANE I SENT TO BUILD ON THEM, AND THE WORST OF THEM PUT AN 18 % READER BIAS INTO MY OWN REPLACEMENT FOR THE CLAUSE ABOUT UNNAMED READERS · VMFL072 IS FROZEN AND I FROZE A LAUNCHER THAT CANNOT RUN**
+
+### §38.1 THE FREEZE, AND THE DEFECT I PUT INSIDE IT
+
+**VMFL072 is FROZEN at `e8cbe305`** — `PREREGISTRATION.md` (`e1f522c7`), `compare_vmfl072.py`
+(`f22b74b4`), `launch_vmfl072.sh` (`2fd2becc`), one commit, so the grading path is fixed there
+(`§5.1`). This team's **first freeze from Sanaa's mandatory never-run pool.** `§3` check 4 was
+taken personally: the `§0` conditions were checked, not asserted — no run root, zero VMFL072
+matches under `verification/runs/`, no grading artifact — so the claim *frozen before the run,
+before the data, and before the reading* is `§37.2`-compliant in all three limbs.
+
+> **⚠ AND I FROZE A LAUNCHER THAT CANNOT RUN.** `launch_vmfl072.sh:66,68` copies
+> `cases/ansys_verification/VMFL072/base/.` and executes `apply_level.sh`. **Neither exists.**
+> The case directory held exactly the three frozen files. I read the launcher's *guards* — the
+> freeze gate, the pre-existing-time-dir refusal, the `0/U` age-guard assertion — and ran
+> `bash -n`, **which checks SYNTAX and never checks that a referenced path exists.** A launcher's
+> **dependencies** are part of what a freeze must verify, and I verified its logic instead.
+>
+> **RULED — `§38.1`: a freeze checklist must include, as its own line, THAT EVERY PATH THE
+> LAUNCHER READS OR EXECUTES EXISTS AT THE FREEZE COMMIT.** `§10` of VMFL072's own registration
+> lists the comparator and the prereg and does not list the case inputs; VMFL024's `§14` blocker 2
+> *does* name an incomplete case directory, so this team already knew the failure mode and did not
+> generalise it into a checklist.
+>
+> **What is NOT damaged, stated so the defect is not inflated:** no gate, band, threshold, cap or
+> label is affected; no compute occurred; the run root still does not exist. And the failure mode
+> is **safe and loud** — `set -euo pipefail` makes the missing `cp -r` source abort before the
+> solver is reached, so it cannot produce a wrong number, only no number. **No queue row was filed
+> against it.** Case inputs are being built to the frozen specification, which is completion of a
+> case, not an amendment to a frozen document.
+
+### §38.2 `§36.5`'s TWO REPAIRS — READ AS A DIFF BY ME, ACCEPTED
+
+`grade_vmfl008.py`, still untracked. `§36.5`'s line numbers were **all exact**. Repair (a) adds
+`UREAD_UNITS = "m/s"` and refuses an artifact whose `units` differs; repair (b) adds
+`UREAD_TERM_KEYS` with a presence loop and an `isinstance(t, dict)` check **before** the first
+dereference, so a missing sub-key **refuses (exit 2)** instead of raising `KeyError` → exit 1.
+**Neither touches a gate, band, threshold, cap or label. ACCEPTED under `§3` check 1** — read by
+me in the file, not taken on the lane's report.
+
+> **AND REPAIR (a) HAS MORE TEETH THAN `§36.5` KNEW.** The frozen instrument's own
+> `ValueQuantity.units` is the **dimensionless placeholder `"y-data"`**
+> (`digitize_calibrate.py:337`). So the guard does not merely exclude `"ft/s"` — **it refuses any
+> D5 that reuses the frozen class verbatim**, and thereby converts an abstract clause into a
+> binding design constraint on the instrument D5 must build. `§36.5` argued the guard was absent;
+> it did not know the absent guard was load-bearing.
+
+### §38.3 ⚠ THE REFUTATION THAT MATTERS MOST — `§36.4` NAMES NO READER, AND THE OBVIOUS ONE IS BIASED **+18 %** IN OUR FAVOUR
+
+`§36.4` retired `SW` for `RATE_RATIO`, defined against the datum's `1.0000e-06`. **That datum is a
+whole-run WALL rate.** Measured from the archived datum log, the `[200, 2000]` **CPU-time** window
+rate is **`1.1805556e-06`** — **1.19701× the whole-run rate**, because early SIMPLE iterations cost
+more. **A short-window D6 divided by `1.0000e-06` therefore reads `RATE_RATIO` about 18 % high
+before any physics enters.**
+
+> **THAT IS `§35.1`'s DEFECT, COMMITTED INSIDE MY OWN REPLACEMENT FOR THE CLAUSE `§35.1` WAS ABOUT
+> — every threshold names its reader and that reader's resolution.** `§36.4` named a number and no
+> reader, and the two readers available straddle it, exactly as `§31`'s two shock readers did.
+> **AND THE DIRECTION IS THE DAMNING PART: the bias is ~18 %, nearly half the width of the retired
+> `[1.15, 1.50]`, and it runs toward landing the measurement INSIDE that interval — for a reason
+> that is an artifact of the reader.** A team that wanted its retired interval vindicated could not
+> have chosen better. **RULED: a symmetric CPU-time reader on BOTH sides, its resolution stated
+> (0.0019 arm B / 0.017 arm A against a 4.5-wide refusal band).** Adopted from the lane; I did not
+> find this.
+
+### §38.4 FIVE MORE OF MY CLAIMS, REFUTED AND CORRECTED IN PLACE
+
+1. **`§36.4` attacked a counterfactual the registration never made.** I argued about suppressing
+   swirl *in VMFL008*. `PREREGISTRATION.md:425-426` defines `SW` inside a `§7.2` that scales
+   **VMFL011-R3's** rate — **the "two" is the DATUM's two, and that counterfactual is real and on
+   disk**: the datum's `blockMeshDict.template` sets `frontAndBack { type empty; }`, and
+   `fvMatrixSolve.C:163` reads `if (validComponents[cmpt] == -1) continue;`, so with `empty`
+   patches the z-momentum component is **skipped entirely**. The datum solves two; VMFL008's
+   cyclic sector solves three. **The ruling survives; my reasoning for it was wrong.**
+2. **Two of `§36.4`'s four named channels are not differences at all.** VMFL011-R3 is *also* a
+   closed pure-Neumann cavity (`0/p` all `zeroGradient`, `pRefCell 0`), so "the closed domain and
+   its pressure reference cell" contributes nothing; "pressure-solver sweep counts" is a
+   consequence of a free knob, not an intrinsic difference.
+3. **`§36.4`'s headline claim is FALSE under `§36.7`'s own cheap arm.** Retiring `SW` does not
+   *"remove the only unmeasured multiplier in `§7`"* — a windowed ratio applied to whole-run rates
+   needs a **`SHAPE_FACTOR`**, measured for the datum (`0.835412`) and **unmeasured for VMFL008**.
+   `SW` would be swapped for something equally unbacked. **Only a whole-run D6 delivers the state
+   I claimed.**
+4. **`§36.6` point 1 names the wrong datum.** `PLATE_INTERIOR_PX_H` depends on the interior
+   **height in pixels**, not the aspect ratio, so fixing 495 *and* matching the aspect ratio is
+   perfectly self-consistent and **the incompatibility I asserted does not exist.** The real defect
+   is sharper and invisible from the aspect ratio: if the raster's interior height ≠ 495 at the
+   frozen DPI, a floor calibrated at one raster resolution is applied to a read at another —
+   `§33.1`'s error in a new dress. **D3 reports `H_INT_PX` and `PLATE_INTERIOR_PX_H` is set from
+   it.**
+5. **`§36.6` point 2's unqualified pooling is `§28.5`'s defect at the nine-station scale.** The
+   gate is a **conjunction** over nine stations, and **a pooled RMS sits below the worst station's
+   own RMS by construction** — so pooling alone would have understated the tolerance the gate is
+   judged against. **RULED: `term_A = max(pooled, worst-of-nine)`**, pooling preserved as the
+   reported population but not necessarily the binding number.
+6. **`§36` never invokes `§20.3`.** Neither D6 arm obeys Clause B, so each is a **pre-freeze
+   production run** and must be **declared as one with every revealed quantity named** —
+   *"silence about a revealing smoke is the defect."* Declared.
+
+### §38.5 RULED — D6 TAKES **ARM B**, AND VMFL008 ADOPTS VMFL011-R3's NUMERICS VERBATIM
+
+**`§11.2` forbids a deferred cap, so the arm is chosen here, not left open.**
+
+> **ARM B (whole-run), filed 0.55 core-min, cap 1.65 (method 0.451799, ratio 1.2174).** It costs
+> **0.45 core-min more than arm A** and buys three things arm A cannot: it **removes
+> `SHAPE_FACTOR`** rather than renaming `SW` into it (`§38.4` item 3); it **measures whether
+> `endTime = 20000` is sufficient for the frozen plateau criterion** — an assumption adopted for
+> *cost-datum validity* and nowhere shown adequate, where a non-plateauing L1 forfeits **16.53
+> core-min**; and it makes the contention guard **sound**, since `ClockTime`'s integer-second
+> resolution is weak on a 4 s run and adequate on a 27 s one. **Buying a measured answer to a
+> 16.53 core-min risk for 0.45 core-min is not a close call.**
+
+**`RATE_RATIO` carries a point value 1.30 and NO decision load, deliberately.** The enumerated
+channel table behind `[1.00, 1.80]` **is exactly the move `§24.6` forbids** — *a sensitivity
+argument over enumerated perturbations is not an upper bound on a total discrepancy.* **The cap is
+set from the MEASURED value, always; a measurement outside the interval is a recorded finding, not
+a re-file.** What *is* registered as a rule is a **refusal**: D6 refuses (exit 2) if
+`RATE_RATIO ∉ [0.5, 5.0]` — a claim about the instrument, not about the answer.
+
+**RULED (blocker B3): VMFL008 adopts VMFL011-R3's `fvSolution`/`fvSchemes` VERBATIM** — PCG/DIC
+`relTol 0.01`, PBiCGStab/DILU `relTol 0.1`, `nNonOrthogonalCorrectors 3`, `consistent yes`,
+relaxation 0.7/0.7, `bounded Gauss linear`. Without this the ratio is undefendable: **a
+GAMG-vs-PCG choice moves it by more than the whole interval.** Same discipline `§7.1` already
+applied to the stopping criterion.
+
+### §38.6 THE HELD-OUT NULL, AND A LATENT GEOMETRY HAZARD IN VMFL008's OWN COMPARATOR
+
+**The held-out null satisfies `§35.2`**: `CAL_IDX = range(0,24)` defines `u_read`;
+`HELD_IDX = range(100,106)` is a **disjoint seed block, with disjointness asserted at run time and
+refused if violated** — answering `§35.2`'s own complaint that a flag which asserts rather than
+measures is not evidence. D5 refuses if `null_max > u_read`. **It can fail because
+`null_max ≤ u_read` is a contingent claim about a population the tolerance never saw** — it fails
+if the calibration family under-samples the shape space, or if `term_A` is an `rms` over a tailed
+distribution, **which is the R1 failure exactly.** *Honest limit carried: for VALUE the floor
+dominates by 4.53×, so this null is expected to pass with room; its power is real but modest.*
+**Anti-gaming frozen: a refusal may not be answered by shrinking `N_HELD`, re-rolling the seed
+block or widening `NULL_K`** — a held-out control with a re-drawable held-out set is a control that
+cannot fail, one indirection further out.
+
+> **⚠ CARRIED FORWARD AS A BLOCKER ON VMFL008's OWN FREEZE (C1): the comparator's frozen geometry
+> PRESUMES D1's answer.** `STATIONS` are `r/R`, `X_SECTION = 0.6`, and `read_sample_file` maps the
+> abscissa to `r` with `V_θ = U_y` at θ = 0. **If D1 finds `X` is the radial coordinate, the
+> section at X = 0.6 m is an axial line at r = 0.6 and the abscissa is `z` — the comparator would
+> be gating the wrong geometry entirely.** `§36.6` makes this argument about
+> `PLATE_INTERIOR_PX_H` and does not make it about D1, where it has more force. **D5 is immune**
+> (its nine stations are fractions of the plotted x-axis span, not physical `r/R`), so D5 does not
+> serialise behind D1.
+
+### §38.7 COST — THE RATE CONFIRMED, ONE BASIS REPLACED, TWO FIGURES OF MINE REFUTED
+
+**Confirmed:** `4.032/66 = 0.06109091 s/op`; `0.117/2 = 0.0585`; **4.43 % apart**, larger used.
+**Replaced:** `§36.7`'s **144-op count was soft and is now 119** on a written design (nine-station
+measurement adds **zero** image ops, verifying `§36.6`'s claim); **filed 0.15 and cap 0.45 both
+survive** on a shown method. *I could not reproduce 144 from any reading of `§36`.*
+**Refuted, twice:** `blockMesh + checkMesh ≈ 2.0 s` **never had to stay assumed** — `log.checkMesh`
+is **0.036 s** after `log.blockMesh` — and *"42 % of D6's filed estimate"* has **the wrong
+referent**: `2.0/6.0 = 33.3 %` of the filed, `41.97 %` of its method's output. **Also
+unreproducible: `§36.7`'s "61.1 %" and "45.2 % of cap" columns — no method is stated for either.**
+
+| amendment | v1.33 |
+|---|---|
+| clause added | **`§38`** (`§38.1`–`§38.7`) |
+| **frozen** | **VMFL072 at `e8cbe305`** — first freeze from the mandatory never-run pool |
+| ⚠ against me | I froze a **launcher that cannot run**; `bash -n` checks syntax, never path existence |
+| ruled | a freeze checklist must verify **every path the launcher reads or executes exists at the freeze commit** |
+| accepted (`§3` check 1) | `grade_vmfl008.py`'s two `§36.5` repairs — read by me as a diff |
+| ⚠ refuted, against me | **`§36.4` names no reader and the obvious one is +18 % biased TOWARD vindicating the interval I retired**; the `SW` counterfactual is the DATUM's; 2 of 4 channels are not differences; the "only unmeasured multiplier" claim is **false**; `§36.6` point 1 names the wrong datum; pooling alone understates the tolerance |
+| ruled | **D6 arm B**; `RATE_RATIO` carries **no decision load** (`§24.6`); VMFL008 adopts **VMFL011-R3's numerics verbatim** |
+| gates · thresholds · bands · caps · labels · re-grades | **0 · 0 · 0 · 0 · 0 · 0** |
+| solver compute | **0 core-min, $0.00** |
+| lines whose number changed above this section | **0** |
