@@ -24,6 +24,42 @@ from workflows import tmr_verification as tv  # noqa: E402
 from scripts import model_form_batch as mfb  # noqa: E402
 from chief_engineer import lever_echo  # noqa: E402
 
+# THE SOLVE-EVIDENCE GUARD.  Loaded by explicit path rather than by putting
+# `scripts/` on sys.path: this module must not be shadowable by anything, and a
+# guard that can be silently replaced is not a guard.  If it is missing, this
+# file refuses to run at all -- deleting without the guard IS the defect.
+# Pattern copied from verification/runs/F5_runs/run_rung.py:44-70, with ONE
+# DELIBERATE DEVIATION recorded here rather than left for a reader to notice:
+# F5 DERIVES its repository root by searching upward for `scripts/lab_paths.py`,
+# because batch 7 changed that file's depth and silently broke a `parents[4]`
+# literal.  This file already carries the absolute `REPO` literal above, which
+# sys.path itself depends on, so an independently-derived second root would be a
+# NEW way for the two to disagree.  The guard is anchored to the same REPO and
+# the is_file() refusal below turns a wrong root into an immediate stop.
+import importlib.util as _ilu  # noqa: E402
+
+_GUARD_PATH = REPO / "scripts" / "solve_evidence_guard.py"
+if not _GUARD_PATH.is_file():
+    raise RuntimeError(
+        f"solve-evidence guard not found at {_GUARD_PATH}; refusing to run. "
+        "This driver deletes its run directories under the shared run root, "
+        "and without the guard those deletes are unconditional -- see the "
+        "guard's docstring for the rung that paid for it.")
+if "solve_evidence_guard" in sys.modules:
+    # Registered ONCE, reused everywhere.  Loading the same file twice under two
+    # module objects gives SolveEvidencePresent two DISTINCT classes, and a
+    # caller's `except SolveEvidencePresent` then silently misses the refusal
+    # raised by the other copy -- the guard appears wired and is not.  Measured:
+    # F5's integration control hit exactly that before this branch existed.
+    solve_evidence_guard = sys.modules["solve_evidence_guard"]
+else:
+    _spec = _ilu.spec_from_file_location("solve_evidence_guard", _GUARD_PATH)
+    solve_evidence_guard = _ilu.module_from_spec(_spec)
+    sys.modules["solve_evidence_guard"] = solve_evidence_guard
+    _spec.loader.exec_module(solve_evidence_guard)
+safe_rmtree_for_restage = solve_evidence_guard.safe_rmtree_for_restage
+SolveEvidencePresent = solve_evidence_guard.SolveEvidencePresent
+
 HERE = REPO / "demo-output" / "website" / "campaign" / "FPE_DIAG_runs"
 H_SRC = mfb.H_SOURCE_CASE
 RUN_ROOT = Path(tv._RUN_ROOT)
@@ -35,6 +71,23 @@ def log(msg: str) -> None:
     print(line, flush=True)
     with DRIVER_LOG.open("a") as handle:
         handle.write(line + "\n")
+
+
+def rmtree_after_harvest(target: Path, what: str) -> bool:
+    """Teardown that can never destroy physics.  Detection is the guard's.
+
+    The staging sites are FATAL on refusal: continuing there would copy into a
+    directory that still exists.  A TEARDOWN refusal is deliberately NOT fatal
+    -- the delete is housekeeping, the record has already been written -- so the
+    physics stays on disk, the operator is told what survived and where, and the
+    driver carries on.  That is not an override flag: nothing here can be told
+    to delete anyway, and there is nothing for anyone to paste.
+    """
+    try:
+        return safe_rmtree_for_restage(target)
+    except SolveEvidencePresent as exc:
+        log(f"{what}: teardown PRESERVED {target} -- {exc}")
+        return False
 
 
 def minmax_fo(fields: str) -> str:
@@ -90,7 +143,15 @@ def grade(remote: Path, out_dir: Path, name: str, wall: float,
 
 def stage_hills_kepsilon(name: str, endtime: int, monitored: bool) -> Path:
     remote = RUN_ROOT / f"fpediag-{name}"
-    shutil.rmtree(remote, ignore_errors=True)
+    # WAS: shutil.rmtree(remote, ignore_errors=True) -- unconditional, and
+    # silent about its own failures, as the FIRST statement of staging.  So
+    # "re-stage this probe" was the same keystroke as "destroy whatever is at
+    # that name", against the shared run root that already strands one gated
+    # rung.  The guard refuses when the directory holds time directories > 0
+    # with fields (reconstructed or under processor*/) or a postProcessing
+    # series with data rows, and names what would have been lost.  Past the
+    # guard the delete no longer swallows its errors.
+    safe_rmtree_for_restage(remote)
     remote.mkdir(parents=True)
     for sub in ("0", "constant", "system"):
         shutil.copytree(H_SRC / sub, remote / sub)
@@ -165,7 +226,10 @@ def stage_bump(name: str, model: str, endtime: int, monitored: bool) -> Path:
     omega_inf = 1.0e-6 * (tv.U_INF / tv.MACH) ** 2 / nu
     nut_inf = tv.K_INF / omega_inf
     case_root = RUN_ROOT / f"fpediag-{name}-case"
-    shutil.rmtree(case_root, ignore_errors=True)
+    # WAS: shutil.rmtree(case_root, ignore_errors=True) -- see
+    # stage_hills_kepsilon.  In the normal path this is a pre-solve scratch
+    # build directory and the guard lets it through untouched.
+    safe_rmtree_for_restage(case_root)
     case_root.mkdir(parents=True)
     case_dir = tv.write_bump_case(case_root, level)
     mfb.patch_case(case_dir, model, nu=nu, k_inf=tv.K_INF, nut_inf=nut_inf,
@@ -183,7 +247,10 @@ def stage_bump(name: str, model: str, endtime: int, monitored: bool) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     tv._stage_and_mesh(level, case_root, out_dir, str(remote),
                        lambda root, lv: case_dir, log)
-    shutil.rmtree(case_root, ignore_errors=True)
+    # WAS: shutil.rmtree(case_root, ignore_errors=True) -- teardown of the
+    # scratch build directory after _stage_and_mesh has copied it out.  Nothing
+    # has solved here yet, so in the normal path this deletes exactly as before.
+    rmtree_after_harvest(case_root, f"{name}-case")
     return remote
 
 
@@ -224,7 +291,15 @@ def solve(remote: Path, name: str, extras: dict, *,
     record = grade(remote, HERE / name, name, wall, result.returncode, extras)
     log(f"{name}: crashed={record['crashed']} fatal={record['fatal']} "
         f"last_iter={record['last_iteration']} {record['core_min']} core-min")
-    shutil.rmtree(remote, ignore_errors=True)
+    # WAS: shutil.rmtree(remote, ignore_errors=True) -- and on THIS arm that is
+    # the sharpest edge of the four, because this is the FPE DIAGNOSIS arm.  At
+    # this line the directory holds the crashed solve's fields, including the
+    # fieldMinMax output the probes were instrumented to produce; grade() copied
+    # out only log.simpleFoam, log.checkMesh, log.potentialFoam and a record of
+    # scalars.  Everything the diagnosis might need to look at AGAIN -- where in
+    # the field the exception arose -- was deleted here the moment the record
+    # was written.  Teardown now preserves instead: see rmtree_after_harvest.
+    rmtree_after_harvest(remote, name)
     return record
 
 

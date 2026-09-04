@@ -36,6 +36,47 @@ sys.path.insert(0, str(REPO / "sdk"))
 from workflows import tmr_verification as tv  # noqa: E402
 from chief_engineer import lever_echo, mesh_certificate  # noqa: E402
 
+# THE SOLVE-EVIDENCE GUARD.  Loaded by explicit path rather than by putting
+# `scripts/` on sys.path: this module must not be shadowable by anything, and a
+# guard that can be silently replaced is not a guard.  If it is missing, this
+# file refuses to run at all -- deleting without the guard IS the defect.
+# Pattern copied from verification/runs/F5_runs/run_rung.py:44-70, with ONE
+# DELIBERATE DEVIATION recorded here rather than left for a reader to notice:
+# F5 DERIVES its repository root by searching upward for `scripts/lab_paths.py`,
+# because batch 7 changed that file's depth and silently broke a `parents[4]`
+# literal.  This file already carries the absolute `REPO` literal above, which
+# sys.path itself depends on, so an independently-derived second root would be a
+# NEW way for the two to disagree.  The guard is anchored to the same REPO and
+# the is_file() refusal below turns a wrong root into an immediate stop.
+#
+# THIS DRIVER IS THE SHARPEST OF THE THREE.  `RUNS` below is an ABSOLUTE literal
+# -- it does NOT read tmr_verification._RUN_ROOT and does NOT honour
+# CERTONOMOUS_TMR_RUN_ROOT -- so its deletes are aimed at the defended tree by
+# construction and cannot be redirected away from it by environment.
+import importlib.util as _ilu  # noqa: E402
+
+_GUARD_PATH = REPO / "scripts" / "solve_evidence_guard.py"
+if not _GUARD_PATH.is_file():
+    raise RuntimeError(
+        f"solve-evidence guard not found at {_GUARD_PATH}; refusing to run. "
+        "This driver deletes case directories under an absolute run-root "
+        "literal, and without the guard those deletes are unconditional -- see "
+        "the guard's docstring for the rung that paid for it.")
+if "solve_evidence_guard" in sys.modules:
+    # Registered ONCE, reused everywhere.  Loading the same file twice under two
+    # module objects gives SolveEvidencePresent two DISTINCT classes, and a
+    # caller's `except SolveEvidencePresent` then silently misses the refusal
+    # raised by the other copy -- the guard appears wired and is not.  Measured:
+    # F5's integration control hit exactly that before this branch existed.
+    solve_evidence_guard = sys.modules["solve_evidence_guard"]
+else:
+    _spec = _ilu.spec_from_file_location("solve_evidence_guard", _GUARD_PATH)
+    solve_evidence_guard = _ilu.module_from_spec(_spec)
+    sys.modules["solve_evidence_guard"] = solve_evidence_guard
+    _spec.loader.exec_module(solve_evidence_guard)
+safe_rmtree_for_restage = solve_evidence_guard.safe_rmtree_for_restage
+SolveEvidencePresent = solve_evidence_guard.SolveEvidencePresent
+
 HERE = REPO / "demo-output" / "website" / "campaign" / "B52_RUNG6_REPLICATE_runs"
 RUNS = Path("/home/ubuntu/certonomous-runs")
 TEMPLATE = RUNS / "study-b52-rung8-uq"
@@ -85,7 +126,15 @@ def log(msg: str) -> None:
 def stage(name: str, divisions: tuple[int, int, int]) -> Path:
     """Copy the verified rung-8 case and change ONLY the hex division line."""
     remote = RUNS / f"study-b52-{name}-uq"
-    shutil.rmtree(remote, ignore_errors=True)
+    # WAS: shutil.rmtree(remote, ignore_errors=True) -- unconditional, and
+    # silent about its own failures, as the FIRST statement of stage().  main()
+    # already refuses to CALL this when a certified admitted mesh is present
+    # (L-42, quoted in the loop below), but that is a caller's discipline, not a
+    # property of stage(): anything else invoking stage() -- a rerun, a
+    # successor, a paste -- got the unconditional delete.  The guard makes the
+    # refusal a property of the delete itself, and names what would have been
+    # lost.  Past the guard the delete no longer swallows its errors.
+    safe_rmtree_for_restage(remote)
     shutil.copytree(TEMPLATE, remote, ignore=shutil.ignore_patterns(
         "processor*", "postProcessing", "log.*", "0", "*.out",
         "polyMesh", "extendedFeatureEdgeMesh"))
@@ -198,7 +247,16 @@ def solve(remote: Path, name: str) -> dict:
                 "core_min_exec": round((exec_t or 0) * RANKS / 60.0, 3),
                 "levers_verified_active":
                     lever_echo.levers_verified_active(log_text)}
-    shutil.rmtree(remote / "0", ignore_errors=True)
+    # WAS: shutil.rmtree(remote / "0", ignore_errors=True), resetting the
+    # initial condition from 0.orig before the solve.  t = 0 is NOT solve
+    # evidence and the guard says so, so this deletes exactly as it did before
+    # and the ladder is unchanged.  It is routed through the guard anyway for
+    # the two things that DID change: a mis-aimed target (a non-zero time
+    # directory reached through this line by a later edit) now refuses instead
+    # of vanishing, and a delete that FAILS is now heard rather than swallowed
+    # into the copytree below, which would otherwise fail with a confusing
+    # FileExistsError several lines from the real cause.
+    safe_rmtree_for_restage(remote / "0")
     shutil.copytree(remote / "0.orig", remote / "0")
     start = time.monotonic()
     pf = tv._foam(["potentialFoam", "-writephi"], remote,
