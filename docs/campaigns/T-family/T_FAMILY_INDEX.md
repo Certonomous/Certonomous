@@ -225,6 +225,7 @@ flattened.**
 | **T16c** | T16 re-graded under the repaired comparator | **`NOT A RESULT`** — **all four graded rows** (`G1`, `G1b`, `G2`, `G3`), on the **registered unreachable branch** of the frozen station rule: no `j` in the fine level's 3,840-row candidate set reaches `W1_T <= 1.0e-06`; best is row 4479 at `W1_T = 4.5837e-04`, **458.4× the floor**. The station was **not** relocated, the threshold **not** loosened, the candidate set **not** widened — the branch `T16c_PREREGISTRATION.md:210`–`:217` registered in advance and without appeal. **The ordering guard the predecessor fired on did NOT fire here.** ⚠ **THE EXIT CODE DID NOT CARRY THE VERDICT:** the invocation returned **rc = 0** — *graded, not refused* — while every row reads `NOT A RESULT`; the verdict was read from stdout and `gate_t16c.json`, never from the exit code | `T16c_RESULTS.md` §1; `verification/runs/T-family/T16c_runs/gate_t16c.json` (`station.reachable = false`, `station.selected = null`) (`ea8a3494`) |
 | **T17** | axisymmetric transient cylinder (T11d), EXACT | **`PASS`** ×3 — **and the rung's registered ceiling is `GATE REACHED`, not higher** | `T17_RESULTS.md:9`, `:12` |
 | **T18** | 3-D transient conduction, cube (T11c), EXACT | **`PASS`** — G1, G2, G3 — **registered ceiling `GATE REACHED`** | `T18_RESULTS.md:11`, `:19` |
+| **T19b** | fully developed laminar forced convection between parallel plates (the planar partner of T1c), EXACT tier — **supersedes `T19`** | **`PASS`** — G1, G2, G3, all three triples `CONVERGING` and strictly monotone at `p` = 1.9933 / 1.9802 / 1.8747, GCI 0.0393 % / 0.0140 % / 0.000225 % at `Fs` = 1.25 — **and the registered ceiling is `GATE REACHED`, not higher** (the referent is EXACT/derived, so the rung scores V and never P). Six of six cases hold all six clauses of rule 4 at `Time = 30000`; gate (1)'s four controls (`C_PLATEAU`, `C_SYM`, `C_MASS`, `C_ID`) are five to eight orders inside their registered floors, with `C_ID` **exactly 0.0**; both planted-zero controls `PASS` with `negative_arm` exactly 0.0 and a demonstrated detection floor of **1e-07** on a seven-decade ladder. **NO GATE, BAND, FLOOR, THRESHOLD OR LABEL MOVED, AND THAT IS A MEASUREMENT:** every one is loaded at grading time from T19's own frozen `T19_registered.json` by absolute path under a **sha256 pin** (`84b3652a5187f04e…`), and the comparator REFUSES rather than grades if the digest fails to reproduce. ⚠ **TWO THINGS THE RECORD STATES AGAINST THE CONVENIENT READING:** (a) **only G1's reference is a closed form** — G2's registered 8.235294200908305 is a quadrature that 140/17 cross-checks to 1.0084e-08 relative, and G3's 7.540700874069418 is a numerically converged Sturm–Liouville eigenvalue with **no closed form at all**; (b) **registered prediction P5 LOSES on both limbs and is reported as wrong** — the REPORTED wall-shear route for `f·Re` is measured **second** order (`p` = 1.9932552703 against the graded route's 1.9932552701) and agrees with the graded pressure route to ≤9.3e-14 relative, because the discrete momentum balance makes them one quantity reached two ways, **so their agreement buys NO independent corroboration of G1** | `T19b_RESULTS.md` §5, §6, §7, §9, §10.1; `verification/runs/T-family/T19b_runs/gate_t19b.json` (`rows[*].verdict`, `triple_state`, `ceiling`, `gate_source.sha256`); frozen `b52ed93b`, closed `74a9141d` |
 | **T23** | Case 3 motor-in-duct CHT, rescaled map | **`PASS`** ×4, zero flags | `T23_RESULTS.md:44`–`:49`, `:60` |
 | **T23G** | T23 grid arm | **`NOT A RESULT`** — all three graded quantities | `T23G_RESULTS.md:3`–`:5` |
 | **T23G2** | second grid arm | **`NOT A RESULT`. CLOSED, RECORD FINAL** — three independent grounds, all established before and independently of eight granted repairs | `T23G2_RESULTS.md:3`–`:13` |
@@ -293,6 +294,43 @@ capability (§4 above).**
 >   `PASS`** — the registration says so itself at `T21_PREREGISTRATION.md:1290`,
 >   *"`FEASIBLE` is not offered as a synonym for `PASS`"* — and **no term of
 >   `CLAUDE.md` rule 1 applies to T21 at this writing.**
+
+> **UPDATE 2026-09-04 — `T19b` NOW CARRIES A VERDICT AND HAS MOVED TO §5.2.** The
+> list line above is left standing and unrenumbered, and the count word
+> *"Fifteen"* is again left as written rather than silently re-counted — **the
+> live figure is stated here instead, which is the correction rather than a
+> rewrite.** Nothing else in this section is touched or re-checked.
+>
+> - **`T19b` — SUPERSEDED. Verdict `PASS` on all three graded rows (G1, G2, G3),
+>   §5.2.** `T19b_RESULTS.md` was written 2026-09-04 for a rung that was frozen
+>   at `b52ed93b` (2026-08-31T15:36:51Z) and **graded and closed at `74a9141d`
+>   (16:47:46Z)** — so for four days its verdict existed only as
+>   `verification/runs/T-family/T19b_runs/gate_t19b.json`, and this section's
+>   standing instruction that *"none should be cited as a capability"* was
+>   applying to a rung that had passed. **The registered ceiling is
+>   `GATE REACHED`, not higher**, and the record's §0.2 states in terms what the
+>   rung does not establish: laminar only, ONE `Re` (100), ONE `Pr` (0.71), ONE
+>   station, 2-D planar, not conjugate, steady, buoyancy off by construction,
+>   code verification and not validation.
+> - **`T19` ITSELF DOES NOT MOVE, and the criterion was read rather than
+>   guessed.** This section's own test is *"a pre-registration exists and no
+>   results record does"*. `T19_PREREGISTRATION.md` exists, **no
+>   `T19_RESULTS.md` exists**, and T19's arms were never graded — the frozen
+>   comparator refused at exit 2 before reading a value, so no rung verdict was
+>   ever produced to move. **Supersession is a statement about which rung carries
+>   the capability claim; it is not a re-grading of the parent, and nothing in
+>   the T19b record grades, re-grades or withdraws anything of T19's.**
+> - **THE LIVE COUNT, stated rather than re-typed into the line above.** Of the
+>   fifteen named, **three have now been superseded by a verdict** — `T25R6a`
+>   and `T16c` on 2026-09-03, `T19b` today — leaving **twelve** standing under
+>   this section's instruction. ⚠ **AND A FOURTH IS FLAGGED AND DELIBERATELY NOT
+>   ADJUDICATED HERE: `T5c`.** `docs/campaigns/T-family/T5c_RESULTS.md` exists on
+>   disk and carries verdicts by the fixed vocabulary (*"1 `GATE FAIL`, 5
+>   `NOT A RESULT`, 0 of 6 `PASS`"*, `T5c_RESULTS.md:1`), and §5.2's `T5b` row
+>   already cites it as the successor record — yet `T5c` is still named in the
+>   list line above and has no row of its own in §5.2. **That is stated as an
+>   observation, with its artifact, and is left for whoever owns T5c; this
+>   update's brief was T19b and it does not reach further.**
 
 - **`T25R6a`** ~~is **in flight at this writing** — a lane is live on it; its run
   tree `T25R6a_C5_OUTER_runs/` holds `grade_t25R6a.py` and no verdict.~~
