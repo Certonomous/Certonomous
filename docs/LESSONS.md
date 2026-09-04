@@ -23949,3 +23949,63 @@ restoring the old blob would have destroyed *those*. The repair diffed the pre-c
 nearest preceding line that is unique in both** — anchoring to content, never to a line number, so
 each block returns to its own section. **The commit was gated on an assertion that zero base lines
 remained absent.** It landed as 132 insertions, 0 deletions.
+
+## L-484 — A `--selftest` ON SYNTHETIC DATA PROVES THE INSTRUMENT'S **LOGIC** AND SAYS NOTHING ABOUT ITS **INTERFACE**. VERIFY THAT EVERY PATH IT READS IS A PATH THE SOLVER ACTUALLY WRITES.
+
+*2026-09-04, `ansys-verification`, VMFL072. Cost: one freeze (`e8cbe305`) struck and superseded
+before any compute. Had it launched, ~210 core-min to reach a permanent refusal.*
+
+A comparator was written, and the supervisor performed `SUPERVISION_CHARTER` §3 check 1 properly by
+every measure the lab had: read all 483 lines as a whole; **found and forced the repair of a
+planted control that could not fail**; verified two frozen constants' derivations independently;
+re-derived the physics reduction from OpenFOAM source; and **ran the `--selftest` personally rather
+than accepting the author's word.** It passed — the control fired, six reader mutants were refused,
+five Roache states classified correctly.
+
+**Every byte that selftest consumed was fabricated in memory by the selftest.**
+
+The instrument read `<time>/film/hf_film`, `constant/film/Cf_film` and
+`constant/film/magSf_film`. Measured afterwards: **`grep -rl Cf_film` over the whole
+`src` + `applications` tree returns ZERO files. Same for `magSf_film`.** No code path in the
+installation writes either name. The finite-area framework the registration selected fixes its
+prefix at `faMesh.C:64` to the literal `"finite-area"`, and the shipped tutorial keeps its fields
+at `0/finite-area/`. **The comparator had been written against a different film framework's
+directory layout than the one the pre-registration registered.**
+
+It would have refused at its first call, at every level, permanently — **and refusing is what it
+was built to do, so nothing in its behaviour would have looked wrong.** A correct instrument,
+internally immaculate, pointed at filenames that cannot exist.
+
+> **THE RULE: a selftest exercises the code paths the AUTHOR thought of, over data the AUTHOR
+> constructed. It cannot test the one assumption the author did not know they were making — that
+> the file names, directory layout and write cadence match what the real producer emits.** Logic
+> and interface are independent failure modes and a selftest only ever reaches the first.
+>
+> **Before freezing any comparator, for EVERY path it reads, name in the registration the source
+> line or the shipped artifact that produces that path** — checkable by a later reader without
+> running anything. Where a real artifact exists, point the instrument at one file of it once.
+> **A `--selftest` pass is NECESSARY AND NOT SUFFICIENT.**
+
+**THE SAME SUPERVISOR MADE THE SAME MISTAKE TWICE IN ONE SESSION, TWO HOURS APART.** Earlier, a
+launcher was frozen that referenced a `base/` directory and an `apply_level.sh` **which did not
+exist** — after its guards had been read (freeze gate, time-directory refusal, age-guard assertion)
+and `bash -n` had passed. **`bash -n` checks syntax and never checks that a referenced path
+exists.** Two instruments, two verifications of internal logic, two failures to verify contact with
+reality.
+
+> **THE GENERALISATION IS THE PART TO CARRY: verification effort concentrates on what a file SAYS
+> and skips what it DEPENDS ON.** Reading code closely feels like the rigorous act, and it is —
+> but rigour applied entirely inside the artifact's own boundary tests half the artifact. **For
+> any script about to be frozen, enumerate its external dependencies — paths read, paths written,
+> commands invoked, files copied — and check each one EXISTS, separately from checking that the
+> logic around it is correct.**
+
+**A THIRD FAILURE OF THE SAME FAMILY, found in the same read and worth naming separately:** the
+comparator's verdict logic was **more permissive than the pre-registration it implemented**. The
+document required `e_B ≤ band` **and** two auxiliary controls met; the code checked only the first.
+**A comparator stricter than its document refuses things it should grade — visible, annoying,
+safe. A comparator looser than its document grants a credential the registration never authorised,
+and nothing in its output says so.** When checking an instrument against its registration, **match
+the CONJUNCTION, not the headline limb** — and treat a defined-but-unused threshold constant
+(`BRACKET_CAP`, `C1_CAP`, both dead here) as a positive signal that a registered condition was
+never wired in.
