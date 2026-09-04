@@ -9,12 +9,16 @@ authorised by it.** The run directories it names —
 `verification/runs/F28_runs/H5A_L1_dp1000_U20` — **do not exist**, and their
 non-existence was checked when this draft was written (§11.1).
 
-**This draft is not yet freezable.** Two named artifacts it depends on do not
-exist yet: the launcher `run_f28_h5.sh` and the comparator `analyse_f28_h5.py`
-(§9). Standing rule 2 fixes the grading path **at the pre-registration commit**,
-so this document cannot be frozen until those two files are committed and their
-blob hashes recorded in §9.3. **Freezing this document as it stands would breach
-rule 2.** That gap is stated here rather than left for the supervisor to find.
+**REVISION 2, 2026-09-04 — the grading path now exists.** Revision 1 of this
+draft recorded that it was **not freezable**, because the launcher and the
+comparator did not exist and rule 2 fixes the grading path at the
+pre-registration commit. `cfd-supervisor` ruled (ruling 3) that the gap was
+correctly self-reported and ordered both files written. **They are now written,
+selftested and committed, and their blob hashes are recorded in §9.3.** This
+revision also carries his rulings 1, 2a, 2b and 4, each marked where it lands.
+
+**It is still a DRAFT and still may not launch.** Check 4 has not been
+performed.
 
 **Date:** 2026-09-04 (box clock) · **Team:** cfd · **Lane:** `lab-lane`
 **Parent rung:** `F28G_L1_dp1000_U20`, graded **`NOT A RESULT`** at `23eeff7e`
@@ -215,9 +219,66 @@ argued.
 templates at time 0, always runs `decomposePar -force`, and reconstructs with
 `reconstructPar -latestTime` (lines 426–543). **It cannot restart, and it cannot
 reconstruct five intermediate snapshots.** So the arm requires a **new launcher**
-(§9.1). That is real work and real risk, and it is the strongest argument for
-running the 2,000-iteration cold-start arm instead. The trade is put to the
-supervisor in §13, not decided here.
+(§9.1). That is real work and real risk, and it was the strongest argument for
+running the 2,000-iteration cold-start arm instead.
+
+### 3.1 RULING 1 — the restart is APPROVED, and the parent's run root is IMMUTABLE
+
+`cfd-supervisor`, 2026-09-04: the restart design is approved. **Condition, not
+negotiable: `F28G_L1_dp1000_U20` is a graded artifact carrying a `NOT A RESULT`
+verdict, and a restart that wrote into its `processor*` directories would mutate
+the evidence for a verdict already on the record.** The lab closed nineteen
+data-destruction sites across nine run trees on the day this was ruled.
+
+**How the launcher discharges it — proved per run, not promised in a comment:**
+
+1. **It copies OUT of the parent and never writes INTO it.** The arm's run root
+   is its own; the parent is opened read-only.
+2. **It fingerprints the parent before and after.** `find -printf '%P %s %T@'`
+   over every file under the parent, sorted, captured **before** the copy,
+   compared **after the copy** and again **after the solve**. Either diff
+   non-empty ⇒ **abort**, with the diff printed. Immutability is a measurement
+   per run, not an assurance.
+3. **It asserts that `scripts/solve_evidence_guard.py` REFUSES the parent.**
+   The parent is a completed solve, so `refuse_if_solve_evidence` **must**
+   raise; if it returns cleanly the launcher stops. **That assertion is a
+   planted control on the guard itself:** if the guard ever stops recognising a
+   completed solve as evidence, this launcher stops rather than proceeding on a
+   protection that has silently lapsed.
+
+**The copy is cheap, and this was measured rather than feared.** The supervisor
+raised the possibility that copying 15,000 time directories would be too
+expensive. **The parent holds ONE time directory per processor, not 15,000** —
+its `writeInterval` equalled its `endTime`, so it wrote fields once. Measured
+2026-09-04:
+
+| what is copied | size |
+|---|---|
+| `processor0..3` (each `constant` + `0` + `15000`) | 3.7 + 3.8 + 3.8 + 3.8 = **15.1 MB** |
+| `constant/` | 7.9 MB |
+| `system/` + `0/` | 24 KB + 24 KB |
+| **total per run root** | **≈ 23 MB** |
+
+No alternative to the copy is needed, and none is proposed.
+
+### 3.2 WHAT THE RESTART INHERITS — named, because an inherited state is a shared assumption
+
+A cold start would inherit none of this. The restart inherits **all** of it, and
+each item is an assumption the arm's result rests on:
+
+- **The parent's decomposition** — `scotch`, 4 subdomains, and the *specific*
+  partition scotch produced for this mesh. The arm does **not** re-run
+  `decomposePar`, so the cell-to-rank map is the parent's exactly.
+- **The parent's `processor*` layout** — including its processor-boundary
+  patches. A residual concentrated **on a processor boundary** would be a
+  decomposition artifact rather than a flow feature; §5.3's zones are geometric
+  and do not test for this, so it is named here as an **uncontrolled**
+  alternative explanation for a Z-ELSEWHERE outcome.
+- **Whatever state the parent's `15000` fields carry** — including the
+  cumulative continuity error that §6.2 H3 measures growing monotonically to
+  0.27796, and the still-drifting operating point. The arm samples that state; it
+  does not correct it and must not be read as independent of it.
+- **The parent's mesh**, whose provenance is an open defect (§12.2).
 
 ---
 
@@ -616,9 +677,50 @@ The comparator **refuses (exit 2) rather than degrades**.
 | 2 | an `End` line | in `log.simpleFoam` |
 | 3 | last time == `endTime` | **15072** (pilot) / **15200** (arm) |
 | 4 | fields present at `endTime` | `U p k omega nut phi`, **plus** on treatment limbs all six `initialResidual:{p,Ux,Uy,Uz,k,omega}` |
-| 5 | `ExecutionTime` count | **⚠ SUBSTITUTED.** The standing form is `count == endTime`, which assumes `startTime = 0`. **These are restarts.** The registered form is `count == endTime − startTime` = **72** (pilot) / **200** (arm). This is a restatement of the clause for a restart, not a relaxation of it, **and it is flagged for the supervisor in §13** because a lane is not entitled to restate a standing completion clause on its own. |
-| 6 | **age guard** | **⚠ SUBSTITUTED.** The standing anchor is the case's own `0/T`, touched last at launch. **This family has no `T`.** The registered anchor is the case's own **`0/p`**, which the launcher touches as its **last action before the solver line**; every field at `endTime` must be **strictly newer** than it. Also flagged in §13. |
+| 5 | `ExecutionTime` count | **SUBSTITUTED — APPROVED by `cfd-supervisor`, ruling 2a.** The standing form is `count == endTime`, which assumes `startTime = 0`. **These are restarts.** The registered form is `count == endTime − startTime` = **72** (pilot) / **200** (arm). Ruled *"a faithful adaptation of the clause, not a weakening of it"* — it fails on exactly the same defect the original catches, and the original is its `startTime = 0` case. |
+| 6 | **age guard** | **SUBSTITUTED — my `0/p` proposal was REFUSED; see §7.1 for what replaces it.** |
 | 7 | virgin-directory guard | the launcher **refuses** if the run directory already exists, or if any time directory `> startTime` exists in it |
+
+### 7.1 RULING 2b — the `0/p` anchor was REFUSED AS VACUOUS, and it deserved to be
+
+**My proposal was to move the age-guard anchor from `0/T` to `0/p`. It is
+refused, and the reasoning is worth more than the substitution.**
+
+Standing rule 4 anchors on `0/T` **because that file is touched LAST AT LAUNCH
+and therefore DATES THE RUN ALLOWED TO PRODUCE THE ANSWER.** In a restart, `0/p`
+is copied in from the parent and carries the **parent's** launch time — hours or
+days earlier. Every field the restart writes is *necessarily* newer than it.
+
+> **The guard would have passed unconditionally. It would have been VACUOUS —
+> and a vacuous guard that reports green is worse than an absent one, because it
+> certifies.**
+
+That is the same family as §5's silent no-op and L-478's *a name is not a
+control*: the mechanism is present, the name is right, and no input exists that
+makes it announce its own uselessness. I proposed it, and I did not see it.
+
+**REGISTERED ANCHOR: `RESTART_SENTINEL`**, written by `run_f28_h5.sh` as its
+**last action before the solver line**, after a `sleep 1` so that it is strictly
+older than any field written afterwards even at 1-second filesystem timestamp
+granularity. Every residual field at every snapshot must be **strictly newer**
+than it. A **missing** sentinel is a **refusal**, not a default to green.
+
+**The guard carries a planted control, and the vacuity is DEMONSTRATED rather
+than asserted.** `analyse_f28_h5.py --selftest`, limb 6, has four sides:
+
+1. a field written **before** the sentinel is **REFUSED** *(the negative side —
+   without it, the guard's green is my word)*;
+2. a field written **after** it **passes**;
+3. a **missing** sentinel is **REFUSED**;
+4. **the refused design is built and shown to pass unconditionally** — a
+   fixture with an inherited `0/p` anchor and a field written later, proving
+   the `0/p` guard would have certified anything. The reason the anchor moved
+   is in the test suite, not only in this paragraph.
+
+A **mutation control** confirms the suite can go red: neutering the staleness
+comparison (`if os.path.getmtime(p) <= t_anchor:` → `if False:`) turns limb 6's
+negative side red and the suite exits 2. A control that cannot fail is not a
+control.
 
 ---
 
@@ -667,39 +769,83 @@ verdict.** The over-estimate is deliberate and is not to be "corrected" later.
 
 ---
 
-## 9. THE GRADING PATH — and the reason this document cannot yet be frozen
+## 9. THE GRADING PATH — written, selftested, committed and hashed
 
-### 9.1 `cases/F28_DUCTED_ACTUATOR_DISK/run_f28_h5.sh` — **DOES NOT EXIST**
+### 9.1 `cases/F28_DUCTED_ACTUATOR_DISK/run_f28_h5.sh`
 
-Required because `run_f28.sh` cannot restart and cannot reconstruct intermediate
-snapshots (§3). Required behaviour: copy the parent's `system/`, `constant/`, `0/`
-and `processor*/{constant,15000}/` into a **new, virgin** run directory; apply
-exactly the §8 dictionary difference; **run no `decomposePar`**; touch `0/p` as
-the last action before the solver line; capture `rc` **inside** the wrapper on the
-solver line; `reconstructPar -time '15040,15080,15120,15160,15200'` for the arm
-(**not** `-latestTime`, which would reconstruct one of five).
+Copies the parent's `system/`, `constant/`, `0/` and
+`processor*/{constant,0,15000}/` into a **new, virgin** run root; applies exactly
+the §8 dictionary difference; **runs no `decomposePar`**; writes
+`RESTART_SENTINEL` as the last action before the solver line (§7.1); captures
+`rc` **inside** this process **on** the solver line, with no `setsid` near it;
+`reconstructPar -time '15040,15080,15120,15160,15200'` for the arm (**not**
+`-latestTime`, which reconstructs one of five and would make the missing four
+look like a physics absence). Discharges ruling 1 as §3.1 sets out. `--dry-run`
+assembles and runs every guard, then **stops before the solver**.
 
-### 9.2 `cases/F28_DUCTED_ACTUATOR_DISK/analyse_f28_h5.py` — **DOES NOT EXIST**
+**The dictionary surgery is done in python with count assertions, not `sed`.**
+`controlDict` carries `writeControl timeStep;` **five** times — once at top level
+and once per function object — and `writeInterval` likewise, so a bare `sed`
+would silently rewrite all of them. Each substitution asserts **exactly one**
+occurrence and refuses otherwise.
 
-Required behaviour: §5's gates on the frozen thresholds; §5.8's three planted
-limbs, **refusing (exit 2)** rather than grading if any fails; §7's seven
-completion clauses; §5.7's plateau refusal; the §8 byte-identity assertions.
+**Verified without creating any run root** (2026-09-04): `bash -n` clean; the
+rewrite block driven against a **copy** of the parent's real `controlDict` for
+all three modes produces exactly and only the intended changes — top-level
+`startTime`/`endTime`/`writeInterval` and, on treatment limbs, the `residuals`
+function object; **the four function-object `writeInterval 1;` lines are
+untouched**. Re-running a rewrite on an already-rewritten dictionary **refuses**
+(`expected exactly 1 occurrence of 'startTime       0;', found 0`), which is the
+count assertion firing.
 
-### 9.3 The freeze, and the gap
+### 9.2 `cases/F28_DUCTED_ACTUATOR_DISK/analyse_f28_h5.py`
 
-Standing rule 2 fixes the grading path **at the pre-registration commit**, and the
-frozen file is verified to **be** the file that ran by hashing it against the
-committed blob. **Neither file exists, so there is nothing to hash, so this
-document is NOT FREEZABLE as it stands.** Recorded plainly rather than papered
-over. The blob hashes go here:
+§5's gates on the frozen thresholds; §5.8's three planted limbs; §7's seven
+completion clauses and §7.1's sentinel guard; §5.7's plateau refusal.
+**It refuses (exit 2) rather than degrades**, everywhere.
+
+`--selftest` runs **eight limbs, 22 checks, each with a positive AND a negative
+side**, and all fire. **Mutation control:** two independent mutations — neutering
+the age-guard comparison, and making the reader accept the suffix form
+`pResidual` — each turn the suite **red** (exit 2). A suite that cannot fail is
+not a suite.
+
+### 9.3 THE FREEZE — blob hashes
+
+Standing rule 2 fixes the grading path **at the pre-registration commit**, and
+the frozen file is verified to **be** the file that ran by hashing it against the
+committed blob before the arm runs.
 
 ```
-run_f28_h5.sh        blob: ____________________  (PENDING — file does not exist)
-analyse_f28_h5.py    blob: ____________________  (PENDING — file does not exist)
+run_f28_h5.sh         blob d6d381dea77accf44bf016f21e6c65413ffd80f8
+analyse_f28_h5.py     blob d00e28767567b07f41a3c71bdea1a9b5beade685
+f28_zone_geometry.py  blob 98863fc92f041799dac443a44d86fff3ac24b930
 ```
 
-`f28_zone_geometry.py`, which produced §5.3's frozen zone bounds, **does** exist
-and is committed with this draft.
+**These three hashes are the freeze.** Before either run launches, each file is
+re-hashed with `git hash-object` and compared against the line above; a mismatch
+means the file that would run is not the file that was registered, and the run
+does not start.
+
+### 9.4 THE PILOT'S FIRST JOB — ruling 3
+
+`cfd-supervisor`: *"Include the §5.8 observation as the FIRST thing the pilot
+does."* Registered accordingly, and it is the first thing the comparator prints:
+
+> **No `initialResidual:*` file has ever been produced on this box.** That it is
+> written, is non-empty, carries 35,544 values, and is readable and
+> reconstructable **with a colon in its filename** is **inferred from
+> `IOobject.C:43-50` and never observed**. The comparator reports the separator
+> it actually found, and says so explicitly when the `':'` form was not seen.
+>
+> **If the colon breaks `reconstructPar` or any downstream reader, the arm does
+> not run — and that is a finding worth more than the arm**, because every
+> function object in this repository that writes a scoped field name shares it.
+
+The comparator's reader accepts `':'` **and** `'_'`, so a platform or
+`InfoSwitch` change is a **diagnosed miss** naming both candidates, never a
+silent zero. It **refuses** the suffix form `pResidual` outright — the shape the
+census hunted (§12.1) — so that this file cannot repeat that defect.
 
 ---
 
@@ -782,28 +928,80 @@ A2.3's negative rests on **two** limbs. They do not fare the same:
   false`; **0** reading true. **Untouched, and decisive on its own:** a run with
   the switch false writes no spatial residual under **any** naming.
 - **Limb 2 — the field names.** "0 roots carrying any field matching
-  `<name>Residual`". **Void.** The pattern
-  `^[A-Za-z][A-Za-z0-9_.]*Residual$` **cannot match `initialResidual:p`**, which
-  is what v2606 actually writes (§2.4). Its zero is a **structural** zero, not a
-  measured one — and its planted control planted `pResidual`, i.e. **the reader's
-  own assumption rather than the artifact the solver produces**. Standing rule 3
-  in its exact failure mode: *a zero from a reader not shown able to see the
-  non-zero it would actually meet.*
+  `<name>Residual`". **Void, and void for a deeper reason than a wrong
+  separator.**
+
+**IT IS A SHAPE DEFECT, NOT A PLATFORM DEFECT** — sharpened by `cfd-supervisor`,
+2026-09-04, and the sharper statement is the one to register. The census pattern
+`^[A-Za-z][A-Za-z0-9_.]*Residual$` is a **SUFFIX** matcher: it requires the name
+to **end** in `Residual`. OpenFOAM writes a **PREFIX** name. **So the limb fails
+under every separator, and the question of which separator is live never
+arises.** Measured, not argued — the pattern run against every candidate:
+
+| candidate | matches? | is it what v2606 writes? |
+|---|---|---|
+| `initialResidual:p` | **False** | **yes**, on this box |
+| `initialResidual_p` | **False** | yes, on a `_WIN32` build |
+| `initialResidualp` | **False** | (separator removed entirely) |
+| `pResidual` | **True** | **no — the solver never writes this** |
+
+**And the part that matters most.** The census's planted control planted
+`15000/pResidual` — **a string that matches the reader's own pattern.**
+
+> **THE PLANT WAS SHAPED LIKE THE BUG.** It therefore fired, satisfied standing
+> rule 3's letter, and confirmed only that the reader can see what the reader
+> expects. **That is worse than no control, because it converts an untested
+> reader into one carrying a certificate.**
 
 **A2.3's conclusion — "ITEM 2 IS A PAID RE-RUN AND CANNOT BE MADE CHEAPER BY
-BORROWING A SIBLING'S FIELDS" — STANDS**, because limb 1 carries it alone, and
-because with 0 roots reading `true` no root could carry the field under any
-naming. **What is owed is the strike of limb 2 and a re-run of the census with
-`initialResidual:` as the plant**, so that its zero becomes a read zero rather
-than a blind one.
+BORROWING A SIBLING'S FIELDS" — STANDS.** Limb 1 carries it alone: a family
+whose 12 solve roots all read `writeResidualFields false` writes no spatial
+field **whatever it would have been called**. `cfd-supervisor` has said he is
+relying on that judgement and is carrying the correction himself, having relayed
+the census upward as a measured negative.
 
-### 12.2 The graded rung's mesh provenance is unmatched among the `mesh_*` roots
+**RULED (`cfd-supervisor`):** strike the field-name limb of §A2.3 **by quote**,
+and re-run the census with `initialResidual:` **and** `initialResidual_` as both
+the **pattern** and the **plant**. **Say both halves** — the conclusion survives;
+its second leg does not.
 
-§7 records that the FEAS arms' mesh directory was never identified. The same
-question for the **graded** rung: `mesh_L1`/`mesh_L1_A1` are 31,752 cells,
-`mesh_L2`/`mesh_L2_A1` 58,292, `mesh_L3` 105,712, and §7 gives `mesh_A2/L1` as
-33,864. **None is 35,544.** This arm sidesteps it by restarting from the rung's
-own mesh (§3), but the question is **open** and is not answered here.
+**This document's own comparator is built to not repeat it**: it matches on the
+prefix form, accepts both separators so a miss is *diagnosed* rather than silent,
+**refuses** `pResidual` outright, and its selftest limb 2 asserts the suffix
+pattern's failure against all three real candidates and its success against
+`pResidual` — so the defect is pinned by an executable check, not by a paragraph.
+
+### 12.2 🔴 OPEN PROVENANCE DEFECT — the graded rung's mesh has no build root on disk
+
+**RULING 4, `cfd-supervisor`, 2026-09-04: this is NOT sidestepped, it is
+ESCALATED. It is a finding about an ALREADY-GRADED rung, not about this arm, and
+it OUTRANKS this arm.** It is recorded here so the restart's convenience cannot
+bury it, and he has taken it to his own desk.
+
+§7 of the ordering document records that the FEAS arms' mesh directory was never
+identified. The same question, asked of the **graded** rung, has a worse answer.
+**Measured cell counts, 2026-09-04:**
+
+| mesh root | cells | matches the graded rung's 35,544? |
+|---|---|---|
+| `mesh_L1`, `mesh_L1_A1` | **31,752** | no |
+| `mesh_L2`, `mesh_L2_A1` | **58,292** | no |
+| `mesh_L3` | **105,712** | no |
+| `mesh_A2/L1` (per §7) | **33,864** | no |
+| `F28G_L1_dp1000_U20/constant/polyMesh` | **35,544** | — it is the only root carrying it |
+
+> **THE GRADED RUNG'S MESH CANNOT BE TRACED TO ANY BUILD ROOT ON DISK.** A
+> `NOT A RESULT` verdict issued at `23eeff7e` therefore rests on an object this
+> lab cannot presently identify.
+
+**What this arm does and does not do about it.** The restart inherits the rung's
+**own** `constant/polyMesh` (§3.2), so the arm and the parent are guaranteed to
+be talking about the same mesh — which makes the arm *internally* consistent and
+**does nothing whatever to identify that mesh**. **The question is OPEN, it is
+not this arm's to answer, and this arm's result inherits the defect.**
+
+Any verdict this arm produces must carry the same qualification the parent's
+does: it is a statement about a mesh whose build provenance is unestablished.
 
 ---
 
@@ -831,20 +1029,43 @@ own mesh (§3), but the question is **open** and is not answered here.
 - **VERIFY:** A 200-iteration continuation is asserted to remain in the parent's
   plateau **by construction**. §5.7's refusal exists because that assertion is
   not itself a measurement.
+- **VERIFY — `run_f28_h5.sh` HAS NEVER BEEN EXECUTED, not even `--dry-run`.**
+  A dry run would create a run root, and §11.1's freshness claim — that the three
+  run directories do not exist — is evidence this draft depends on. So the
+  launcher is verified by `bash -n`, by driving its dictionary-rewrite block
+  against a **copy** of the real `controlDict` for all three modes, and by
+  driving its count assertions to a refusal (§9.1). **Its guard limbs — the
+  parent fingerprint, the `solve_evidence_guard` control, the virgin-directory
+  refusal, the sentinel write — are verified by reading, not by running.** The
+  first `--dry-run` is the right first act after check 4 and before any solver.
+- **VERIFY:** `analyse_f28_h5.py` has been selftested and mutation-controlled,
+  but has **never been run against a real F28 run root**, because none carrying
+  residual fields exists (§12.1). Its mesh reader has not been exercised on the
+  35,544-cell `polyMesh`; only on selftest fixtures.
+- **VERIFY:** The cell-centre calculation is the mean of each cell's **distinct
+  vertices**, not OpenFOAM's volume-weighted centroid. They agree exactly for
+  hexes and differ by a fraction of a cell for the wedge and prism cells here.
+  Stated in the comparator's own docstring as a bound on what the zone gate can
+  claim.
 
-**Not this lane's to decide — put to `cfd-supervisor`:**
+**Put to `cfd-supervisor`, and RULED 2026-09-04 — recorded with the outcomes so
+the questions carry their own answers:**
 
-1. **The restart design itself** (§3). It is cheaper and more faithful, and it
-   costs a **new launcher**. The alternative is §A2.4's 2,000-iteration
-   cold-start arm, which `run_f28.sh` can already run.
-2. **The two completion-clause substitutions** (§7 clauses 5 and 6). Restating
-   `ExecutionTime count == endTime` as `== endTime − startTime`, and moving the
-   age-guard anchor from `0/T` to `0/p`, are restatements for a restart and for a
-   non-thermal family. **A lane is not entitled to restate a standing completion
-   clause**, however faithful the restatement.
-3. **The absence of a grid triple** (§5.5). This arm is a single-level
-   localisation and issues no GCI.
-4. **Whether the arm runs at all** — see §14.
+| # | question | ruling |
+|---|---|---|
+| 1 | **The restart design** (§3) — cheaper and more faithful, costs a new launcher | **APPROVED**, with the parent-immutability condition. §3.1, §3.2. |
+| 2a | `ExecutionTime count == endTime − startTime` (§7 clause 5) | **APPROVED** — *"a faithful adaptation of the clause, not a weakening of it"* |
+| 2b | age-guard anchor `0/T` → `0/p` (§7 clause 6) | **REFUSED AS VACUOUS.** Replaced by `RESTART_SENTINEL` with a four-sided planted control. §7.1. |
+| 3 | the draft is not freezable, the grading path does not exist (§9) | **Correctly self-reported; both files ordered written.** Done, selftested, hashed. §9.1–9.4. |
+| 4 | the 35,544 mesh provenance gap (§12.2) | **ESCALATED to the supervisor's own desk**, and it **outranks this arm**. |
+
+**Still open and still not this lane's:**
+
+- **The absence of a grid triple** (§5.5). This arm is a single-level
+  localisation and issues no GCI. Not yet ruled.
+- **Whether the arm runs at all** — see §14. The cost argument is spent; the
+  question is now only whether the two new files are sound, which is check 4's
+  business and not this lane's to certify.
 
 ---
 
@@ -880,12 +1101,19 @@ own mesh (§3), but the question is **open** and is not answered here.
    argument that decides it is whether the launcher is worth writing, and that is
    §13's question 1.
 
-**What would make me cancel it:** if the supervisor declines the restart design
-(§13.1), the arm reverts to a 2,000-iteration cold start whose relationship to
-the parent's plateau is an argument rather than a construction, at roughly three
-times the cost, to answer a question that only re-ranks hypotheses. **At that
-price and that fidelity I would run H1's two arms first and revisit H5 after**,
-and I would say so rather than run it for form's sake.
+**What would have made me cancel it — and it did not happen.** If the restart
+design had been declined, the arm would have reverted to a 2,000-iteration cold
+start whose relationship to the parent's plateau is an argument rather than a
+construction, at roughly three times the cost, to answer a question that only
+re-ranks hypotheses. **At that price and that fidelity I would have run H1's two
+arms first and revisited H5 after.** The restart was approved (§13, ruling 1),
+so that branch is closed.
+
+**What would still stop it now:** the pilot failing §9.4 — if the colon in
+`initialResidual:p` breaks `reconstructPar` or any downstream reader, **the arm
+does not run**, and the finding is worth more than the arm, because every
+function object in this repository that writes a scoped field name shares the
+exposure.
 
 ---
 
