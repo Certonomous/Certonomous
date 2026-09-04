@@ -1121,3 +1121,49 @@ V-COLUMN CHECK — ADDENDUM (2026-08-25).  Items 14-18 continue the block in §1
 | Version | Date | Change |
 |---|---|---|
 | **1.1** | **2026-08-25** | **AMENDMENT 2**, by the D4-DEF-4 repair lane. Adds §17: checklist items **14–18** continuing §13's block, plus item 19 restating enforcement. **14** — the endpoint locus (pinned witness + bounds containment), which closes the hole D4-DEF-4 fell through: §13 as issued had no item establishing WHERE a design point is. **15** — the units/scaling declaration, with the source-of-the-vector discriminator and the measured `build_a2_shape_frames.py` typed-constant instance. **16** — every gate's refusal made to fire by a deliberate mutant, from three independent instances in one day. **17** — every cost-basis term carries a number or the basis is PARTIAL (D7 P2, ratio 1.915). **18** — staged-tree cold start (D4-DEF-6). **Creates no gate, threshold, band or cap; edits no frozen record; zero compute; nothing filed or sent.** Lines whose number changed above §17: **0**. |
+
+---
+
+## 18. AMENDMENT 3 — 2026-09-04 — **§3's TABLE AGGREGATES SINGLE-STEP NUMBERS, AND §7 STEP 4's OWN STRIKE LANDS ON §3's SHAPE-DV HALF**
+
+**Foot-appended per `:939-941` and `CLAUDE.md` rule 6. Placed by the dafoam-supervisor; drafted by a dafoam lane. DISCLOSURE ONLY — it creates no gate, threshold, band or cap, edits no frozen record, changes no verdict anywhere, and cost zero compute.**
+
+### 18.1 What §3's table at `:163-169` actually aggregates
+
+The table carries **seven** numbers, not six. **Six rest on a single central difference at a single step, `h = 0.05`.** The seventh — W4's `0.085 %`, cell 5491 — **carries a second step, `h = 0.1`** (`W4_ADJOINT_PC_UNBLOCK.md:320`), the two FD *values* agreeing to **0.3729 %**. **It is the only two-step number in this family, and it is not swept in with the rest.**
+
+**The table is also incomplete against a sibling document.** `PRIOR_WORK_INVENTORY.md:1343` aggregates a fourth record this table omits — the weighted arm's **`0.033 % / 0.007 % / 0.029 %`** (`S1_CBFS_WEIGHTED_ARM_PREREGISTRATION.md:105-107`) — whose table carries **no step column** and whose run root holds six perturbed primals, i.e. **three central differences and no second step** [MEASURED: `log.fdw_{5361,5363,5491}_{plus,minus}`, `/home/ubuntu/certonomous-runs/S1-cbfs-weighted-arm/`].
+
+> **Across this family: TEN numbers, NINE single-step, ONE two-step. This table sees seven of the ten.**
+
+*Also stale: `PRIOR_WORK_INVENTORY.md:566` states W4's table as "cells 5491 / 6740 / 12486 at h=0.05", dropping the `h=0.1` row — i.e. dropping precisely the evidence that the family had one two-step cell.*
+
+### 18.2 The duty that was in force
+
+`VERIFICATION_CHARTER.md` §7, reporting protocol step 1: *"Confirm the step sits in the well-converged plateau with a two or three point mini-sweep. **Not assumed.**"* That clause entered at **`ea53c110`, 2026-07-30 18:53:17 +0000 — the commit that ADDED the charter.** **Every number in this table postdates it. There is no retroactivity defence and none is offered.**
+
+**`DAFOAM_CHARTER.md` §3 is identified and DELIBERATELY NOT CHARGED.** It is the sharper clause — it forbids *"Quoting an FD number from a single step"* in those words — but it landed at **`35e06e85`, 2026-08-21 17:42:57 +0000**, after every one of these runs, and **its own text cites S1's Amendment 1 §B as the incident that earned it.** `VERIFICATION_CHARTER.md` §2h.6's non-retroactivity runs in both directions and is honoured in both here.
+
+### 18.3 What survives, and what does not — because they are different things
+
+- **§3's INSTRUMENT claim is UNTOUCHED.** It rests on the warp probe `WARP PROBE: {"warper_init": 0, "warper_jacvec": 0}` (`S1_FIML_FIELD_INVERSION.md:70`) — **an independent measurement, not on the seven values.** A field DV has no mesh warp in its derivative chain, and that is established **by a planted counter, not by a magnitude.**
+- **What does NOT survive is the table's role as CORROBORATION BY MAGNITUDE.** *"Every S1/W4 field-inversion FD number sits one to two orders below the floor"* is a statement about numbers six of which are **unverified at the precondition §7 places ahead of reading a value at all.**
+- **No value here is shown to be WRONG. What is unestablished is the PLATEAU.** The measurement is registered separately at `cases/dafoam/ladder-b/S1_FD_PLATEAU_PREREGISTRATION.md` (a DRAFT, unfrozen at this writing).
+
+### 18.4 §7 step 4's strike, and it cuts §3's **SHAPE-DV** half
+
+`VERIFICATION_CHARTER.md` v1.56 `§2al` (2026-09-03) **STRUCK IN PLACE** the sentence *"A number below that is a claim about the harness"* as **appearing nowhere in the source** and as contradicted by the source's own second data point. **`:129-130` of this document quotes that sentence as live charter text and is STALE at HEAD.**
+
+**The consequence for §3 is the OPPOSITE of the obvious one, and is stated so it is not repaired in the wrong direction.** §3's field-DV conclusion is now **over-determined** — the strike supplies a *second*, independent reason a sub-floor number is unremarkable (on a fine mesh it is **what the establishing study predicts**). **The sentence that is now WRONG is §3's own concession at `:177-178`** — *"A shape-DV number at 0.03 % **is** a claim about the harness and §7 step 4 applies to it in full"* — **because the charter withdrew that accusation for EVERY DV class, shape included.**
+
+> **§3 rebutted an accusation that has since been withdrawn; it did not need the rebuttal, and it should not have conceded the shape-DV half.**
+
+**A gap in the ruling's reach, named rather than assumed closed:** `§2al.3`'s sub-floor census names **D19M, D19O, D8, SO-3aR2**. **The `:163-169` table is NOT in it** — verification has not looked at the CBFS field-DV numbers under `§2al`.
+
+### 18.5 Amendment record, continued
+
+| Version | Date | Change |
+|---|---|---|
+| **1.2** | **2026-09-04** | **AMENDMENT 3.** Discloses that §3's `:163-169` table aggregates **seven** numbers of which **six are single-step**, names the one two-step number, and names **three further single-step numbers the table omits** (the weighted arm). Records `VERIFICATION_CHARTER.md` §7 step 1 as the duty in force and `DAFOAM_CHARTER.md` §3 as identified and **deliberately NOT charged**. Separates §3's warp-probe instrument claim (**untouched**) from the table's corroboration-by-magnitude role (**unestablished**). Records that `:129-130` quotes a sentence **STRUCK at v1.56 `§2al`**, and that the strike falsifies §3's **shape-DV** concession at `:177-178`, **not** its field-DV conclusion. **No value is withdrawn, no verdict moves, no gate/threshold/band/cap is created, altered or retired; no frozen record is edited; zero compute; nothing filed or sent.** **Lines whose number changed above §18: 0.** |
+
+**SUBMISSIONS PARKED.**
