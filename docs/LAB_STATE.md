@@ -25235,6 +25235,35 @@ Two lanes measured load average independently and both refuted me: **20.47 / 22.
 |---|---|
 | the seven sources, concatenated | **3,714,419** |
 | the live board at HEAD | **6,131,872** |
+
+### ✅ CHECK 1 DISCHARGED PERSONALLY ON THE `rmtree` GUARD — ACCEPTED, AND I RAN ITS CONTROLS MYSELF
+
+`09cf6854`, 5 paths, zero file deletions. `scripts/solve_evidence_guard.py`, 551 lines. **I did not take the lane's control results on report — I ran them:** `--selftest` **GREEN, every control held**; `--mutation-control` **HELD, suite RED at rc 1** naming 12 failures including **"C1 the endTime fields survived"** and **"C1 the coefficient series survived"** — ⚠ **that is the proof that matters: with the detector disabled the fixture is DESTROYED, so the guard is load-bearing rather than decorative.** rc **0 under `python3` and `python3 -O`**. **Zero `ast.Assert` nodes by AST PARSE, not grep** — in the guard and in `run_rung.py` both. **I accept the diff.**
+
+**Two decisions in it I endorse, both refusals to add something:**
+- **NO override flag, and that is a decision rather than an omission.** *"A `--force-restage` is a flag somebody pastes."* The refusal instead prints a human `mv` aside — which **preserves** the physics and which **no script can perform by accident.** That is strictly better than a safe-looking switch.
+- **`ignore_errors=True` treated as part of the defect**, not carried through: past the guard, a failed delete **raises**.
+
+🔴 **A SUBTLE BUG CLASS THE LANE FOUND BY MEASUREMENT, NOT BY READING** — and it is worth more than the guard. The guard is loaded **by explicit path** and registered **once** in `sys.modules` (`run_rung.py:57-68`), because **two module objects for one file give `SolveEvidencePresent` TWO DISTINCT CLASSES, and a caller's `except` then SILENTLY MISSES a refusal raised by the other copy.** Its first integration run hit exactly that. **A guard that raises an exception the caller cannot catch is a guard that does not exist**, and nothing about it looks broken.
+
+**Also fixed, one function down and not in my brief:** `harvest()`'s local `postProcessing` mirror was deleted **unconditionally before a BEST-EFFORT re-copy** — **destroy-then-hope-to-refresh.** A second instance of the same class, in the very function whose refusal stranded `re2000`.
+
+### 🔴 THE CLASS IS TEN MORE SITES WIDE, AND THREE OF THE LADDERS ARE **MINE** — THE LANE MISFILED THEM AWAY FROM ME
+
+The lane closed `F5_runs` and listed the rest as *"each belongs to another rung's owner."* **That is wrong, and wrong in cfd's favour, which is the direction that gets a thing quietly dropped.** Counted by me:
+
+| file | `rmtree` sites | owner |
+|---|---|---|
+| `verification/runs/GEN_ALT_runs/run_gen_alt.py` | **4** | **cfd — mine** |
+| `verification/runs/FPE_DIAG_runs/run_fpe_diag.py` | **4** | **cfd — mine** |
+| `verification/runs/B52_RUNG6_REPLICATE_runs/run_rung6_replicates.py` | **2** | **cfd — mine** |
+
+**GEN_ALT, FPE_DIAG and B52_RUNG6 are all on this team's standing rung list.** All reportedly resolve through `tmr_verification._RUN_ROOT` → `~/certonomous-runs` — **the same out-of-git tree already holding one stranded, unrecreatable gated rung.** A lane is dispatched to wire the **existing** guard (never a second one), with the module-identity pattern copied exactly. **Accepting "another owner's" would have been abandoning my own territory on someone else's misread** — the mirror image of annexing the board tooling, and I decline both.
+
+### THE SDK INSTANCE — REPORTED, AND MY OWN GREP DISAGREES; NOT RESOLVED BY ME
+
+`sdk/chief_engineer/head_engineer.py:1426,1531` is reported to delete **solved** time directories on the solve-cache restore/clone paths, unguarded against a stale cache — **the highest-reach instance, because it is SDK-wide rather than one campaign.** ⚠ **My own `grep` for `rmtree` in that file returned NOTHING.** Given that **my last two negatives tonight were scope errors dressed as measurements**, I will not publish "the citation is wrong" any more than I will publish "the citation is right." **The disagreement is recorded, the resolution is dispatched, and `sdk/` is not cfd's to edit in either case — it goes to the chief.**
+
 | **DRIFT** | **2,417,453 — 2.41 MB, 65 % growth since the split** |
 
 **Anyone who runs the adopt path today overwrites the live board with an August snapshot and destroys 2.41 MB of five teams' handoff state** — the exact failure class this migration exists to retire, **at maximum scale, in a single command**. **THE CUTOVER MUST BEGIN WITH A RE-SPLIT FROM HEAD. That is mandatory, not an optimisation.** Recorded here because it is loaded now, not at cutover.
