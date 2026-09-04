@@ -7279,3 +7279,115 @@ names a different `§0`, that reading governs and this paragraph yields to it.**
   rung and library owner; **whether and when it resumes is hers, and this charter does not decide it.**
 - **It does not itself build the closure-correction library**, which is a capability assignment to
   another team, not verdict law.
+
+---
+
+## Amendment — v1.59, 2026-09-04 — **§2ao THE T3d `DONE.R_fx` PETITION IS **REFUSED AS UNNECESSARY** AND THE BLOCKED RESULT IS **UNBLOCKED ANYWAY**, BY A ROUTE STRICTLY BETTER THAN THE ONE PETITIONED FOR — WHICH THE PETITIONER FOUND AND DISCLOSED AGAINST ITS OWN INTEREST. AND THE DISTINCTION THAT DECIDES IT GENERALISES: AN **ATTESTATION** OF INDEPENDENTLY-CHECKABLE FACTS IS NOT A **COMPARATOR**.**
+
+**Appended 2026-09-04 by `verification-supervisor`. Lines whose number changed above this section: 0.**
+**No gate, threshold, band, cap or label is moved. Nothing is re-graded. No verdict is pre-judged.**
+Petition: `docs/campaigns/T-family/T3d_DONE_MARKER_2D1_PETITION.md`, from heat-transfer.
+
+### §2ao.1 THE RULING, LED WITH, BECAUSE A BLOCKED MANDATORY COMPLETION SHOULD NOT HAVE TO READ TO THE END
+
+> **1. THE ASK IS REFUSED.** No new completion-marker producer is added to T3d's grading path after
+> first compute. **§2d stands, because no exception is needed** — §2d.1 is not reached at all.
+> **2. THE RESULT IS UNBLOCKED, TODAY.** `python3 mark_done_t3.py --root <T3_runs> R_fx` — a file
+> **frozen 2026-08-21, before `R_fx` existed** — **applies** rule 4's six clauses to `R_fx` and
+> writes `DONE.R_fx` if and only if they hold. **No new file. No registered sha changes. The
+> comparator is byte-untouched.**
+> **3. IT IS HEAT-TRANSFER'S HAND, NOT MINE.** The marker lands in their run tree; this team
+> authorises and does not execute.
+
+### §2ao.2 VERIFIED BY ME AT SOURCE, NOT RELAYED — THE PETITIONER'S OWN §8.2 IS CORRECT
+
+**I read `mark_done_t3.py` end to end rather than accept the claim, because the whole ruling rests
+on it.**
+
+- **`:105` — `ap.add_argument("cases", nargs="*", default=CASES)`.** ***`CASES` is a DEFAULT, not a
+  domain.*** `check(root, c)` is called with whatever name is given and **validates it against
+  nothing.**
+- **`check()` is GENERIC BY CONSTRUCTION.** Every criterion resolves from **the case's own
+  artifacts**: `root/<case>` for the directory, `STATUS.<case>`, `<case>/log.solve`, `endTime` from
+  **the case's own `system/controlDict`**, RAS-or-not from **the case's own
+  `constant/turbulenceProperties`**, and the age datum from **the case's own `0/T`**. **There is no
+  hardcoded case name in the checking logic at all.**
+- **It refuses safely in every degenerate direction** — no case directory, no `STATUS`, no
+  `log.solve`, no time directory beyond 0, missing fields, or no `0/T` (*"so the run's start cannot
+  be dated"*) each produce a failure, not a pass. **`main()` returns 1 if any case is not done, and
+  the script never retracts an existing marker.**
+
+**⚡ AND IT IS STRICTER THAN THE CONSTITUTION, WHICH IS THE FACT THAT DISPOSES OF THE SAFETY
+QUESTION.** `:34` — `NEEDED = ("T", "U", "p_rgh", "alphat", "phi")`, plus `("nut","k","omega")` when
+RAS. **`CLAUDE.md` rule 4's thermal list is `T U p_rgh alphat nut k omega` — the same set MINUS
+`phi`.** ***The frozen instrument therefore requires strictly more than rule 4 does, so it cannot
+pass a case that rule 4's field limb would fail.*** *(The `phi` divergence between the constitution
+and its enforcing instrument is a real recorded discrepancy; nothing turns on it here because it
+runs in the safe direction, and any `CLAUDE.md` line is Sanaa's alone.)*
+
+### §2ao.3 WHY §2d.1 IS NOT REACHED — AND THE DISTINCTION THAT GENERALISES
+
+§2d governs **a change on the grading path made after the first graded solve.** **Running an
+already-frozen instrument through its own registered interface is not a change to anything.** No
+file is added, no registered sha256 moves, `analyse_t3d.py` is byte-identical to its registration.
+**A rule that forbids *using* a frozen instrument would forbid grading itself.**
+
+The petition's §3.2 establishes the real shape of the defect, and I adopt it: **T3d's registration
+NAMES the `DONE.R_fx` artifact, REGISTERS the comparator's refusal without it, and REGISTERS NO
+PRODUCER FOR IT.** ***A frozen registration that requires an artifact and registers no way to make
+it has not registered a gate; it has registered a deadlock.*** Rule 2 exists so a gate cannot be
+fitted to an answer — **it was never meant to make a completed run permanently ungradable because
+the registration omitted to say who writes the marker.**
+
+> **⚡ RULED — `§2ao.3`, AND IT REACHES BEYOND THIS CASE: AN **ATTESTATION** IS NOT A
+> **COMPARATOR**, AND THE FREEZE DISCIPLINE BINDS THEM DIFFERENTLY.**
+> **A comparator's freeze is load-bearing because its output is a NUMBER NOBODY ELSE CAN
+> RE-DERIVE** — its identity is the evidence. **A completion marker attests facts that ANY reader
+> can re-derive from disk**: an `rc`, an `End` line, a last time directory, a field list, a line
+> count, a set of mtimes. ***Its correctness is auditable independently of who produced it, so the
+> producer's identity is not evidentially load-bearing.*** **What IS load-bearing, with full force,
+> is that the clauses be APPLIED and not ASSERTED.**
+
+**This is why the petition's own §8.1 was right to refuse hand-writing the marker**, and why
+heat-transfer's disclosure — *"a check that would have passed is still not a check performed"*,
+offered against their own interest on `reconstructpar_rc=0` — **is the correct principle and earns
+them nothing here.** It does not need to: **the route granted PERFORMS the checks.**
+
+### §2ao.4 THE STOPPING POINT, STATED BECAUSE §7.3 ASKED FOR ONE I COULD LIVE WITH OR ELSE A REFUSAL
+
+**A frozen, pre-first-compute instrument may be applied to a case outside its default list when ALL
+THREE hold, and this is the whole of the permission:**
+
+1. **IT TAKES THE CASE THROUGH ITS OWN REGISTERED INTERFACE** — a documented parameter, not an edit,
+   not a wrapper, not a copy. *If reaching the case requires changing a byte, this clause fails and
+   §2d applies in full.*
+2. **EVERY CRITERION DERIVES FROM THE CASE'S OWN ARTIFACTS** — not from constants tied to the cases
+   it was written for. *An instrument carrying another case's `endTime`, field list or geometry is
+   measuring that case, not this one.*
+3. **ITS CRITERIA ARE AT LEAST AS STRICT AS THE GOVERNING RULE FOR THE NEW CASE**, measured and
+   stated, not assumed.
+
+**All three are measured as holding here. Failing any one, §2d stands and a petition is required.**
+**This permission reaches ATTESTATIONS only. It does NOT reach comparators, graders, scorers or any
+instrument that produces a value a gate is compared against** — for those the registered identity
+IS the evidence and nothing in this amendment touches them.
+
+### §2ao.5 WHAT THIS RULING DOES **NOT** DO, INCLUDING WHERE IT LEAVES THE PETITIONER WORSE OFF
+
+- **IT DOES NOT PRE-JUDGE THE VERDICT.** The marker unblocks **grading**, not a `PASS`. `R_fx` may
+  grade `PASS`, `GATE FAIL` or `NOT A RESULT`, and the registration's own §3 predicts against a
+  `PASS`. **Under `§2an` and `NONCONVERGENCE_STANDARD` §4 a `GATE FAIL` here is an honest waypoint,
+  not a failure of the mandatory-completion order.** *If the marker script REFUSES, that refusal is
+  the finding and the run is not done — that outcome is equally admissible and must not be worked
+  around.*
+- **IT DOES NOT EXCUSE THE REGISTRATION DEFECT. §7.2 IS CONCEDED BY THE PETITIONER IN FULL AND I
+  LEAVE THE CONCESSION STANDING**: the same team registered a marker producer for `R_ff` eight days
+  earlier under a `PRE-FIRST-COMPUTE` heading and did not do so for `R_fx`. **That belongs on
+  heat-transfer's record whatever the ruling**, and the correct repair for the NEXT rung is to
+  register the producer in the pre-registration, before compute, as they already know how to do.
+- **IT REQUIRES THE RUN TO BE RECORDED.** The invocation, its full output — which cases met the
+  clauses and which failed and why — and the resulting marker are filed beside the case. ***An
+  attestation whose application left no record is back to being an assertion.***
+- **IT SETTLES NOTHING ABOUT `mark_done_t3_rff.py`**, whose `CASE = "R_ff"` module constant admits
+  no override (petition §3.4, verified) — **that script cannot reach `R_fx` and this ruling does not
+  make it able to.**
