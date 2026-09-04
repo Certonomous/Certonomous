@@ -1815,3 +1815,256 @@ subtotal**. **Two rows agree the ×1.0 allowance is the ENTIRE headline miss** �
 **Closed 2026-08-25 by a cfd `lab-lane` on the cfd supervisor's option-3 ruling.
 NOTHING FURTHER LAUNCHES UNDER THIS PRE-REGISTRATION.
 The frozen body and Amendments 1–4 are untouched. SUBMISSIONS PARKED.**
+
+---
+
+## ADDENDUM 6 — 2026-09-04 — **POST-CLOSURE RECORD, NOT A RULING.** §A1.1's three SCRIPT hash rows stopped matching the tree on **2026-08-25 at 02:48Z** and have not matched since. **STRUCK BY QUOTE, never rewritten.** No gate, threshold, cap or label moves; the `NOT A RESULT` row of ADDENDUM 5 stands untouched.
+
+**Document version 1.5 → 1.6.**
+**Lines whose number changed above this section: 0.**
+
+*(Verified mechanically, not asserted. Two independent checks, both run in the amending
+invocation: (i) the bytes above `<!-- FROZEN-BODY-ENDS-HERE -->` — offset 0…68936 — still
+hash to sha256 `9989f1f909b358ae30c663b041598358cf247f6aee2a8b3dcb6bda99543a30cc`, which
+is the digest `scripts/f6a_greenblatt_gate.py:54` REFUSES on, so the one hash in this
+document that something executable actually reads is unchanged by this append; (ii) lines
+1–1817 are byte-identical to the file at commit `14018d5b`, diffed line-for-line, not
+eyeballed. This addendum is pure append.)*
+
+### A6.0 WHAT THIS IS, AND THE FOUR THINGS IT IS NOT
+
+**It is the record that §A1.1 was owed and never got.** A frozen registration that pins an
+instrument by hash has made that hash part of its evidentiary content. A pinned hash that
+has silently stopped matching is a frozen record quietly becoming false.
+
+1. **It alters NO gate, NO threshold, NO cap and NO label**, and it could not: §2.2, §2.3,
+   §3.1, §3.2, §5.5 and §8.5 specify the arithmetic, thresholds, ordering and cap
+   completely in the frozen body, and nothing below touches any of them.
+2. **It does not reopen the closed row.** ADDENDUM 5 closed this campaign: `NOT A RESULT`,
+   TIER `NOT HELD`, `P` `PENDING`. That stands. **NOTHING FURTHER LAUNCHES UNDER THIS
+   PRE-REGISTRATION** and nothing below authorises anything.
+3. **It rules on nothing.** §A6.7 states one question and hands it to the supervisor
+   unanswered.
+4. **It spent ZERO compute.** No solver, no mesher, no `checkMesh`, no MPI rank, no case
+   directory. Hashes, `git cat-file` and reads only.
+
+### A6.1 THE THREE ROWS, STRUCK BY QUOTE — measured 2026-09-04 03:28Z at HEAD `6756d76b`
+
+**The rows as frozen in §A1.1, quoted verbatim and left standing in place above:**
+
+```
+| **grading wrapper** | `scripts/f6a_greenblatt_gate.py` | `b251333b0a6bac6fb9191f41eb67594de12e6baabc4c81dd1213c1d71dd9038b` | `d58486695b8b2d1b7e17cae98f460fb38e2c3fe3` |
+| **launcher** | `scripts/run_f6a_greenblatt.py` | `461bc34dc82f0af6b9bcc7996aa4466872d6fcb72539b277376aecee325f3781` | `3c40023ce298f8119f2b80698711d9f8e72d7c75` |
+| **mutation controls** | `scripts/f6a_greenblatt_selftest.py` | `3b131218f4baf38a9724b8ce928ce4391032aa6df7d3cdc7545df48e3d13dcd9` | `289f429bf5504e7673ec4be6947f818a5521f3a5` |
+```
+
+*(Quoted byte-for-byte from lines 1244–1246, which stand unaltered above. Verified by
+extracting those three lines and diffing them against this block.)*
+
+**WHAT IS TRUE NOW.** Measured with `sha256sum` and `git hash-object` on the working tree,
+clean and byte-identical to HEAD `6756d76b`:
+
+| role | path | recorded sha256 | **on disk 2026-09-04** | recorded blob | **on disk blob** | |
+|---|---|---|---|---|---|---|
+| grading wrapper | `scripts/f6a_greenblatt_gate.py` | `b251333b…` | **`51c22908e6616a96216a98d3020aa13e05103fcb8eb9c0fbe7aedd30fdeb8d3b`** | `d5848669…` | **`49532b3838551aed0cb89a3ab1722aa6b8d1dac1`** | **DIVERGED** |
+| launcher | `scripts/run_f6a_greenblatt.py` | `461bc34d…` | **`81fc578e92907c09ad6adf748e7ede4f0d7b5518acb27829bbc313bf3ed3c72e`** | `3c40023c…` | **`75bbb8d53df6f572667938c3293e8b2acd064a43`** | **DIVERGED** |
+| mutation controls | `scripts/f6a_greenblatt_selftest.py` | `3b131218…` | **`a9fc3156e8c0b1087d384f2e984e8a5ea35396b6698a5a2ff106627b6e058658`** | `289f429b…` | **`53338405fa5f70bceb6e403edb23f35b951e6da5`** | **DIVERGED** |
+| extraction path | `cases/dafoam/f6a_nasa_hump/case/hump_gate_analysis.py` | `9a6ec855…` | `9a6ec8553b863b3b43a1a3ca03970923778f7da5c2bf3e1cfacdfa8f6fd2414f` | `ec263bed…` | `ec263bed8623a81b67106c3880febdca1b3d5eff` | **MATCHES** |
+
+**The row that was reported as the problem is one of three. The row nobody worried about
+is the only one still true.** §A6.6 says why that is not a coincidence.
+
+### A6.2 WHEN THE DIVERGENCE BEGAN — measured commit by commit, not inferred from a reason
+
+`git rev-parse <commit>:<path>` for the pinned blob at every commit that touched any of the
+three files, in order:
+
+| commit | 2026-08-25 | launcher blob | wrapper blob | selftest blob |
+|---|---|---|---|---|
+| **`9e590948`** wrapper+launcher+42 controls — **the commit that WROTE AMENDMENT 1** | 02:40Z | **`3c40023c` ✓ pinned** | **`d5848669` ✓ pinned** | **`289f429b` ✓ pinned** |
+| **`3017eb4c`** PRE-COMPUTE FIX (`decomposePar` never called) | **02:48Z** | **`8658b6f2` ✗** | **`8826f4cb` ✗** | **`2af1b8a1` ✗** |
+| `fbe99573` RUN ATTEMPT 1 | 02:52Z | `edc44394` ✗ | `8826f4cb` ✗ | `998dce5a` ✗ |
+| `9ebc9bfe` ADDENDA 2 and 3 | 02:58Z | `2d28da80` ✗ | `8826f4cb` ✗ | `a7eab8a7` ✗ |
+| `abc50d73` ATTEMPT 2 GRADED | 03:07Z | `c0b1970c` ✗ | `8826f4cb` ✗ | `a7eab8a7` ✗ |
+| `072cfc2e` **ADDENDUM 4 / ATTEMPT 3** | 03:13Z | `208976c4` ✗ | `49532b38` ✗ | `53338405` ✗ |
+| `ced3f1ed` solve-evidence guard | **2026-09-04** 03:25Z | `75bbb8d5` ✗ | `49532b38` ✗ | `53338405` ✗ |
+
+**FOUR FACTS FROM THAT TABLE, each measured:**
+
+1. **All three recorded blobs are EXACT at `9e590948`.** The amendment was true when
+   written. This is not a case of a hash recorded wrong.
+2. **All three stopped matching at the VERY NEXT COMMIT, `3017eb4c`, EIGHT MINUTES LATER.**
+   The pin survived eight minutes.
+3. **`3017eb4c` is itself labelled PRE-COMPUTE and precedes attempt 1 (`fbe99573`, 02:52Z).**
+   **The divergence is PRE-COMPUTE in origin.** Under rule 2 that change was *legal to
+   make* — before first compute, amendments are legal. **What was never done is the
+   amendment rule 2 requires for it.** §9.3's registered condition — *"their paths, sha256
+   digests and blob ids land in this document as a dated pre-compute amendment under
+   rule 2"* — was satisfied **once**, at `9e590948`, and then **never again**, through six
+   subsequent changes to the launcher.
+4. **COUNTS, after the pin: the launcher changed SIX times, the wrapper TWICE, the
+   mutation controls FOUR times.** Every launcher blob in the column is distinct.
+
+**A CORRECTION TO THE REPORTED REASON, and it is the point of this section.** The
+divergence was reported — in `ced3f1ed`'s own message and on the cfd board — as *"consistent
+with the ADDENDUM 4 / ATTEMPT 3 discipline"*. **That is wrong, and it is wrong in the
+direction that makes the defect look smaller.** ADDENDUM 4 / ATTEMPT 3 is `072cfc2e`, the
+**fifth** commit to move the launcher off its pin and the **second** to move the wrapper.
+Attributing the divergence to it misses `3017eb4c`, `fbe99573`, `9ebc9bfe` and `abc50d73`
+entirely — including the two commits that ran and graded solves — and it dates the rot
+**48 minutes and one campaign-defining ruling later than it actually started.**
+
+**AND `3017eb4c` DISCLOSED IT — in the commit message, not in this document.** Its opening
+lines read *"THE SUPERVISOR'S CHECK-1 READ IS STALE ON `scripts/run_f6a_greenblatt.py` AND
+`scripts/f6a_greenblatt_gate.py`. He read and cleared them at `9e590948`."* **The commit log
+stayed honest. The frozen document did not.** A disclosure that lives only in a commit
+message does not reach a reader of the registration, and the registration is what a future
+grader reads. **That is the exact failure mode this addendum exists to close.**
+
+### A6.3 A CITATION THAT RESOLVES TO NOTHING — `91a64abb`
+
+`ced3f1ed`'s message, and the cfd board row derived from it, both state that the recorded
+row *"match[es] commit `9e590948`; HEAD carried `91a64abb`"*.
+
+* **First half CONFIRMED** — §A6.2 row 1, measured independently here.
+* **Second half DOES NOT RESOLVE.** `git cat-file -t 91a64abb` → *"Not a valid object
+  name"*; `git rev-parse --verify` refuses; and a sweep of **every object in the
+  repository** (`git cat-file --batch-all-objects --batch-check`) returns **zero** objects
+  with that prefix, of any type — not a commit, not a tree, not a blob.
+
+**Recorded, not repaired.** It sits in a committed message, which cannot be edited, and on
+a board row. **A hash that resolves to nothing is not a weaker citation than a wrong one —
+it is the same class of defect as the rows above**: a figure that reads as evidence and
+verifies as nothing. Stated here so no future reader spends time looking for it.
+
+### A6.4 TONIGHT'S CHANGE — what it was, why, and why the repair lawfully preceded this record
+
+**`ced3f1ed` (2026-09-04 03:25Z), two files, `+549 / −28`.** Verified at the parent
+`072cfc2e`: `scripts/run_f6a_greenblatt.py` line **365–366** read
+
+> `        if os.path.exists(smoke):`
+> `            shutil.rmtree(smoke)`
+
+over `smoke = os.path.join(a.scratch, "f6a_smoke")` — and `--scratch` is **operator-supplied
+with no default**, refused only on a `verification/runs` prefix. The delete's blast radius
+was whatever an operator typed. The commit routes that one site through the shared
+`scripts/solve_evidence_guard.py` (`safe_rmtree_for_restage` / `refuse_if_solve_evidence`,
+top level plus one nested level), new fatal exit code **8**, nothing deleted on refusal.
+Verified present in the current file at the re-stage site.
+
+**WHY THE FIX LANDED BEFORE THIS RECORD, AND WHY THAT IS LAWFUL AND NOT AN IRREGULARITY.**
+Sanaa's governance reform of 2026-09-03 (`etc/sessions/2026-09-03T2000Z_sanaa_governance_reform.md`)
+classifies items into three kinds, and of the blocking class says, verbatim: *"These jump
+every queue, need no petition, and the team fixes them and records a lesson afterward, not
+before."* **The cfd supervisor classified an unguarded delete built from an operator-supplied
+path as a blocking fix, and on that classification the repair jumping ahead of its record is
+the directive working as written, not a corner cut.**
+
+*Recorded honestly, because a relayed classification is not a measurement:* the directive's
+literal category is **"Blocking physics fixes"** and its named examples are physics defects
+(wrong patch identity, a residual print that is not the max over equations, a boundary
+condition set wrong, a linear solver failing). **A data-destruction guard is not a physics
+correction.** It is carried into the class by the directive's own predicate — *"a result
+can't be produced or trusted without them"* — since a delete that can take completed solves
+destroys the evidence any result stands on. **The classification is the supervisor's; the
+textual gap between the category's name and this item is stated rather than glossed.**
+
+**`ced3f1ed` disclosed the hash divergence in its own message and referred it upward rather
+than editing this document unilaterally. That referral is what produced this addendum.**
+
+### A6.5 THE CENSUS — every hash in this document, checked; none assumed
+
+**A census of one is not a census.** All hashes in this file were enumerated mechanically —
+`grep -nE '[0-9a-f]{64}'` returns exactly **six** lines and `grep -oE '\b[0-9a-f]{40}\b'`
+exactly **six** occurrences, and the two sets are the same six rows. **No hash row in this
+document is outside the table below.**
+
+| line | what it pins | status 2026-09-04 |
+|---|---|---|
+| **1007–1008** | §9.3 extraction path — sha256 + blob | **MATCHES** |
+| **1215** | frozen body above the marker, sha256 `9989f1f9…` | **MATCHES** (recomputed here) |
+| **1244** | §A1.1 grading wrapper | **DIVERGED** |
+| **1245** | §A1.1 launcher | **DIVERGED** |
+| **1246** | §A1.1 mutation controls | **DIVERGED** |
+| **1247** | §A1.1 extraction path *(re-affirmation of 1007)* | **MATCHES** |
+| 1350 | §A1.5 — the same extractor blob cited in prose, not a distinct pin | matches by identity with 1247 |
+
+**Three of six diverged; three hold. The three that diverged are the three script rows of
+§A1.1, and they diverged together, in one commit.**
+
+### A6.6 THE FINDING — and it is the mechanism, not the excuse
+
+**Nothing executable reads the three rows that rotted.** Verified by search across
+`scripts/`, `verification/`, `docs/` and `cases/`: the digests `b251333b`, `461bc34d`,
+`3b131218` and the blobs `d5848669`, `3c40023c`, `289f429b` **appear in exactly one place in
+this repository — lines 1244–1246 of this file.** No script imports them, asserts them,
+prints them or refuses on them.
+
+**And the two hashes that ARE read executably are the two that still hold.** Both live in
+`scripts/f6a_greenblatt_gate.py`: `PREREG_SHA256` at line 54 and `EXTRACTOR_SHA256` at line
+58, both enforced by `assert_pinned()`, which raises `Refusal` (exit 2) on a mismatch with
+*"the campaign STOPS. The clause is not relaxed to match the code."*
+
+> **THAT IS THE FINDING, AND IT IS NOT A DEFENCE. The rows nothing reads are exactly the
+> rows that decayed, and the rows something reads are exactly the rows that survived. "It
+> was never load-bearing" is the reason nobody noticed — it is not a reason the record was
+> allowed to become false.** A registration that pins an instrument by hash and gives that
+> pin no reader has written down a promise it has no way to keep, and the promise fails
+> silently, in eight minutes, without a single check going red.
+
+**A second, narrower instance of the same shape, recorded because it is measured and not
+inferred:** the grading records this campaign wrote — `attempt2_Re936k/grading.json`,
+`attempt3_Re936k/grading.json`, and the two `result.json` files — carry
+`preregistration_sha256` and `extractor_sha256`/`extractor_blob`, **and no field naming the
+wrapper or launcher that produced them.** The instrument that computed the numbers is the
+one instrument the run record does not identify.
+
+### A6.7 WHAT THIS ADDENDUM PUTS ON THE SUPERVISOR'S DESK AND DOES NOT DECIDE
+
+**Stated as a question, unanswered here, because it is a verdict question and this lane does
+not hold one.**
+
+* Attempt 2's grading was recorded at `abc50d73`, where the wrapper in the tree was blob
+  `8826f4cb` — **not** the pinned `d5848669`. Attempt 3's was recorded at `072cfc2e`, where
+  it was `49532b38` — also not pinned.
+* **Honest limit on that statement:** it is the wrapper blob *committed at the commit that
+  recorded each grading*, not a runtime record of the file that executed. §A6.6 explains
+  why no runtime record exists — the grading JSON does not name the wrapper. **This is
+  inference from committed state, and it is labelled as such.**
+* **What is NOT in doubt:** §9.3's re-hash-before-grading clause binds the **extractor**,
+  and the extractor **held at both gradings** — `9a6ec855…` / `ec263bed…`, asserted live by
+  `assert_pinned()` in every run. The frozen-body pin held too. **Both hashes that §9.3
+  makes executable were green for every graded attempt.** §9.3 imposes no equivalent
+  re-check on the wrapper or launcher; it requires only that they be *recorded*.
+* **The standing row is unaffected on its face.** ADDENDUM 4 vacated attempt 2 to `NOT A
+  RESULT` on an unmeasured `rc` limb, and ADDENDUM 5 closed the campaign at `NOT A RESULT` /
+  TIER `NOT HELD` / `P` `PENDING`. **No live graded verdict rests on a diverged instrument,
+  because there is no live graded verdict.**
+
+> **THE QUESTION, for the cfd supervisor and for no agent below him: whether a grading run
+> by a wrapper whose registered hash did not match bears on anything, given that the
+> gradings in question are already `NOT A RESULT` for other reasons. This lane records the
+> facts and takes no position. Nothing here changes a verdict, and nothing here may be read
+> as changing one.**
+
+### A6.8 WHAT THIS ADDENDUM DOES NOT DO
+
+**It writes no code and it changes none.** Not one byte of `scripts/` was touched by the
+work that produced it. **It launches nothing** — zero core-minutes, and the campaign remains
+closed. **It does not backfill the §A1.1 table with today's digests**, and deliberately: a
+frozen row is struck by quote, never rewritten, and re-pinning a closed campaign's
+instruments would manufacture a freeze that never happened. **It proposes no clause, no
+instrument and no rule** — §A6.6's finding is reported, not gated, and if it deserves a
+standing instrument that is verification's call and Sanaa's, not this lane's and not this
+document's. **It sends nothing. SUBMISSIONS ARE PARKED.**
+
+---
+
+**Recorded 2026-09-04 by a cfd `lab-lane` on the cfd supervisor's ruling that an addendum
+was owed — for the PRE-EXISTING divergence as much as for tonight's change; neither
+absorbs the other.
+ZERO COMPUTE: no solver, no mesher, no `checkMesh`, no MPI rank, no case directory.
+NO GATE, THRESHOLD, CAP OR LABEL IS ALTERED. The frozen body and Amendments 1–5 are
+untouched, and the `NOT A RESULT` row of ADDENDUM 5 stands.
+SUBMISSIONS PARKED: nothing here is sent, filed, uploaded, registered, posted or
+commented outside this box.**
