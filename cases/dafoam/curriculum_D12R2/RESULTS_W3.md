@@ -421,8 +421,10 @@ cap-agreement abort); `2026-08-28T02:15:29Z` 0 core-min (`rc=4 grader_md5_drifte
 `C-222`; `2026-08-30T23:10:12Z` **63.2332 core-min**, priced by **`C-222`** (corrected on a
 rendering defect by **`C-224`**).
 
-**Calibration row landed:** `docs/COST_CALIBRATION.md`, appended 2026-09-04, naming `C-222` and
-`C-224` so no census double-counts this item.
+**Calibration row landed:** `docs/COST_CALIBRATION.md` row
+**`C-20260904T012050.711056Z-be4243a0`**, appended 2026-09-04 via
+`scripts/append_record.py --allocate-id`, naming `C-222` and `C-224` so no census double-counts
+this item.
 
 ---
 
