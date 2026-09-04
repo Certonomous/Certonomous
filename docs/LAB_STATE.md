@@ -25482,6 +25482,36 @@ Wiring the guard into ten sites turned up **a second defect shape that was not t
 4 paths, 682 insertions, **file deletions 0**. **I ran the controls rather than reading the report:** `--selftest` **GREEN**; `--mutation-control` **HELD, RED at rc 1**, naming *"the endTime fields survived"* and *"the coefficient series survived"* **for all three drivers** — the fixtures are genuinely destroyed without the guard. rc **0 under `python3` and `-O`**. **By AST parse across all four files: 0 bare asserts and 0 surviving raw `rmtree` calls.** **All ten reported line numbers were exactly right** (GEN_ALT 58/114/156/165, FPE 93/168/186/227, B52 88/201) — ⚠ **the first line-number relay tonight that survived checking.**
 
 
+<!-- BOARD-BLOCK-ID: 56M-decorative-guard-and-class-status -->
+
+### 🔴🔴🔴 THE SHARPEST FINDING OF THE WHOLE CLASS — **THE OBVIOUS WIRING WOULD HAVE BEEN DECORATIVE, DELETING FOUR COMPLETED SOLVES WHILE PRINTING THAT IT WAS SAFE**
+
+**The guard does not recurse.** F5c deletes `SCRATCH/f5c-stageA-<leg>`, but `run_case` writes the case **one level down, under `case/`**. So a bare `safe_rmtree_for_restage(out_dir)` — the obvious, correct-looking wiring — would have **passed its own check and destroyed the physics.**
+
+**I verified this myself on all four legs with the guard's own `--check`:**
+
+| leg | at the path the driver deletes | one level down, at `case/` |
+|---|---|---|
+| **A1 A2 A3 A4** | **"no solve evidence found; safe to re-stage"** | **REFUSING** — `2000/` with 7 fields (`U k nut omega p phi yPlus`), series last time 2000 |
+
+**All four hold completed solves.** ⚠ **A guard reporting "safe" at the exact path it was told to defend, while the evidence sits one directory deeper, is worse than no guard** — it converts a hazard into a hazard **with a reassuring printout.** Both drivers now call a `safe_restage` wrapper composed only from the guard's exported API, which **also refuses on any directory one level down.** No second guard, no override flag. **Control `F5c I3b` asks the bare guard directly and requires it to find NOTHING at the driver's path — which is what proves `I3`'s refusal came from the nested check rather than from luck.**
+
+### ✅ CHECK 1 DISCHARGED — `f4b8bc3b` ACCEPTED, ON CONTROLS I RAN
+
+3 files, 538 insertions, **0 deletions**. Suite extended **100 → 148 controls, 5 → 7 drivers, 14 → 18 sites** (extended, never multiplied). **I ran them:** `--selftest` **GREEN**, `--mutation-control` **HELD RED** with 58 failures **naming the destruction** — *"R4 I2 stage the endTime fields survived"*, *"F5c I3 the nested endTime fields survived"*. rc **0 under `python3` and `-O`**. **By AST parse: 0 bare asserts, 0 surviving raw `rmtree` calls** in both drivers. **Rebinding checks per global** (R4 `RUNS`/`HERE`/`TEMPLATE`/`LOG`; F5c `SCRATCH`/`HERE`/`DRIVER_LOG`), each refusing the whole run if the rebinding did not take. `~/certonomous-runs` **re-listed after: 631 entries before and after, zero modified.**
+
+⚠ **ONE PRECISION AGAINST THE LANE'S OWN PHRASING, AND IT CUTS THE OTHER WAY FROM MOST OF TONIGHT'S CORRECTIONS.** The report says the L-42 reuse check *"does not protect"* `r4-ahmed-c3b`. **Checked by me: `log.simpleFoam` IS present there, so the reuse check DOES protect that directory today.** What is true — and is what the lane built control `R4 I3` for — is that the check requires **both** the log **and** `postProcessing`, so **a rung in the `re2000` shape (fields present, solver log gone) falls straight through into the delete.** **The mechanism is exposed; that particular directory is not, today.** A hazard stated one degree too strongly is still a wrong record.
+
+🔴 **`destroy-then-FAIL`, and it is live:** both drivers' `HERE` points at `demo-output/website/campaign/{R4_runs,F5c_runs}` — **I confirmed it DOES NOT EXIST**; the outputs moved to `verification/runs/`. R4's `TEMPLATE = HERE/"c3"` is therefore stale, so **before tonight's guard a re-run would have deleted `r4-ahmed-c3b` and THEN crashed on the missing template.** Not fixed: changing `HERE` moves where a chief-approved record is read and written. **Reported, not taken.**
+
+### THE CLASS STATUS — THREE PARTS, AND I DECLINE TO ROUND IT UP TO "CLOSED"
+
+1. ✅ **The absolute-literal kind is CLOSED in cfd territory.** No cfd-owned file now holds a hard-coded defended-tree root beside an unguarded destructive call. Verified by **AST parse plus a string-literal scan for `rm -rf` / `rm -r` / `find -delete`** — **not** by grepping `rmtree`, which is the method that failed three times tonight.
+2. 🔴 **NOT closed for what routes through SDK code cfd may not edit.** `sdk/workflows/tmr_verification.py:1051, 3191` remain unguarded, and **R4 imports that module**, so R4 now sits behind a guard **whose upstream is not**. Same for GEN_ALT and FPE_DIAG. **To the chief; blocking.**
+3. 🔴 **Two cfd-reachable unguarded re-stage sites remain that are NOT absolute-literal** — redirectable, so outside tonight's brief, and **I will not round that up either**: `scripts/run_f6a_greenblatt.py:366` (**F6a is cfd's** — `--scratch` is operator-supplied and refused only if it starts with `verification/runs`, so **nothing stops `--scratch /home/ubuntu/certonomous-runs`**; F7's `--out` shape exactly) — **a lane is dispatched** — and `scripts/coefficient_uq_plate.py:213`, where **ownership is genuinely ambiguous** because "R2" names the **closure** R-ladder. **Named, not claimed.**
+
+✅ **And the sweep separated the innocent, which is the standard my own three negatives failed tonight:** scratchpad targets, control fixtures, a heat-transfer analyser, a self-created plants directory — and the five `rm -rf` string hits in `check_launcher_can_launch.py:320-324` are **input text to a glob-detector control, never executed.**
+
 <!-- BOARD-BLOCK-ID: 56L-f9-destroyed-four-completions -->
 
 ### 🔴🔴🔴 `setup_f9_round3.py` DESTROYED **FOUR COMPLETED SOLVES** EVERY TIME IT RAN — AND THE REPAIR FOR A NON-PERIODIC RUN WAS THE CALL THAT DELETED IT
