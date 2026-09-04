@@ -1,0 +1,611 @@
+commit c485e76e0dfc364c161a98241421f440cf63eb75
+Author: Ubuntu <ubuntu@ip-172-31-43-247.us-east-2.compute.internal>
+Date:   Fri Sep 4 22:53:55 2026 +0000
+
+    cfd M6SR THE REFINEMENT RATIO WAS NEVER A FREE PARAMETER: A4 AND A6 ALREADY FORCED IT, SO r = 2.000 IS DERIVED AND NOT CHOSEN -- and GCI_fine is ALGEBRAICALLY INVARIANT under r anyway, so the band is safe twice over; Gate G stops refusing BECAUSE THE PARAMETER IT NAMED IS NOW REGISTERED
+    
+    Amendment 24, PRE-COMPUTE, and it exists only because a CONFIRMED DRIVE WAS STOPPED. The
+    supervisor's confirmation carried one condition: re-confirm nothing is pending that would
+    need a gate, threshold, cap or label to move, and do not start if anything is. The re-check
+    found r. Gate G's own refusal named it: "NO SECTION OF THE FROZEN REGISTRATION REGISTERS THE
+    REFINEMENT RATIO r ... Choosing one HERE would be choosing a gate parameter AFTER the
+    freeze." Had the drive proceeded, Gate G would have refused for the life of the campaign,
+    Gate P would never have received a band, and B6 -- the step carrying Sanaa's named
+    deliverable -- could never have produced a graded result.
+    
+    verification/runs/M6SR_runs is PLANT-VERIFIED ABSENT: 0 -> probe -> 1 -> rmdir -> 0, with
+    test -e ABSENT and 0 rows from git ls-files. NO COMPUTE HAS OCCURRED UNDER THIS
+    REGISTRATION.
+    
+    THE AMBIGUITY TRAP WAS CLEARED FIRST, AND IT DID NOT RESOLVE THE WAY THE RULING ALLOWED FOR.
+    There are two quantities called r in this document. Measured at source in full context: line
+    425's r is 1.167442, the pyHyp WALL-NORMAL GROWTH RATIO -- the same sentence names that value
+    and the next line says "There is no parameter this registration varies IN THE NORMAL
+    DIRECTION". Line 1025 is the same quantity. BOTH ARE ABOUT THE GROWTH RATIO; NEITHER IS ABOUT
+    THE GRID REFINEMENT RATIO. The ruling allowed for the other outcome -- "if it means the
+    refinement ratio, the registration already says r cannot move" -- and that is NOT what the
+    document says. SECTION 425 IS CITED NOWHERE IN THIS AMENDMENT. The derivation rests on A4 and
+    A6 alone. This is the fifth fault's family again: one letter standing for two physical
+    quantities, with a gate parameter hanging on it.
+    
+    THE DERIVATION. A4 fixes the cell counts 99,840 : 399,360 : 1,597,440 with ratios EXACTLY
+    4.000 on integers; A6 requires cells / wing_faces == 64 EXACTLY at every level. Together they
+    force the SURFACE FACE COUNTS to 1,560 : 6,240 : 24,960 -- each an exact division, ratios
+    exactly 4 on integers. A surface face count is TWO-DIMENSIONAL, so a linear refinement r
+    scales it by r squared, and r = sqrt(4.000) = 2.000 EXACTLY. 24,960 is this registration's
+    own surface: it appears 21 times in the document.
+    
+    NOT 1.5874. The cube root of the cell ratio is right for a THREE-dimensional refinement, and
+    A6 holds the wall-normal direction at 64 layers at EVERY level, so this family refines TWO of
+    three directions BY CONSTRUCTION -- clause L-HONEST says exactly that. The cube root would
+    attribute to the mesh a refinement the mesh does not have.
+    
+    WHY THIS IS NOT RULE-2 FITTING: a value FORCED by two already-frozen clauses cannot have been
+    selected to fit an answer. It was fixed the moment A4 and A6 were frozen and any reader could
+    have computed it then. WHAT WAS MISSING WAS THE DERIVATION, NOT THE FREEDOM.
+    
+    AND IT IS COMPUTED, NOT STORED. refinement_ratio_from_registered_counts() derives r from
+    A4_CELLS, A4_RATIO_EXACT and A6_CELLS_PER_WING_FACE at call time. Storing 2.0 as a literal
+    would be ITEM 50's DEFECT ONE DOCUMENT UP -- a number that agrees with its basis until
+    somebody changes the basis. It REFUSES as an InternalDefect on a cell count not divisible by
+    64, or on surface ratios that are not exactly A4_RATIO_EXACT: this comparator will not take a
+    square root of an approximate ratio.
+    
+    THE SECOND PROTECTION, REGISTERED SEPARATELY BECAUSE IT PROTECTS A DIFFERENT THING. p_s is
+    DEFINED as ln(d32/d21)/ln(r), so r**p_s == d32/d21 identically for ANY r and r CANCELS from
+    GCI = Fs*|d21/f1|/(r**p_s - 1). Measured on one CONVERGING triple across r in (1.10, 1.5874,
+    2.000, 4.000, 7.77): GCI_fine is 0.02450980392156884 in ALL FIVE CASES, ONE distinct value,
+    BIT-IDENTICAL, while p_s spans a factor of 21.5116. The hand check computed from d32/d21
+    WITHOUT going through r matches to the last bit. THE BAND IS SAFE TWICE OVER: once because r
+    is derived rather than chosen, and again because the band does not depend on r at all.
+    
+    GATE G IS NOT WEAKENED. Its refusal is STRUCK BY QUOTE in the file with its full text
+    preserved, and it stops firing ONLY because the parameter it named as unregistered is now
+    registered -- the one legitimate way for a refusal to end. Gate G now returns GATE REACHED on
+    a CONVERGING triple at the registered r, with the full derivation record and the triple
+    beside it; G3_G4_all_candidate_ratios is KEPT so every reader still sees all five. Measured
+    on a forced-G1/G2 probe: GATE REACHED, CONVERGING, p_s 1.321928095, GCI_fine
+    0.02450980392156884. And r = 2 buys something beyond the band: p_s = log2(d32/d21) becomes a
+    genuine OBSERVED ORDER OF CONVERGENCE rather than an artifact, so G3 grades something
+    meaningful instead of refusing forever. No threshold moves, G4_FS stays 1.25, G3's p_s is not
+    retired, and items 25, 27, 8 and 6 are untouched.
+    
+    THE CONTROLS. C32 mutates THE BASIS rather than the value: with A4_RATIO_EXACT set to 9 the
+    derived r MOVED to 3.0, so the value is computed from the basis and not stored; the clean twin
+    reads r = 2.0 with faces [1560, 6240, 24960]; and the NEGATIVE TWIN requires a cell count not
+    divisible by 64 to REFUSE as an InternalDefect rather than round. C33 measures the invariance
+    across five ratios -- one bit-identical GCI_fine, p_s spanning 21.5116x -- plus the by-hand
+    check. refinement_ratio_from_registered_counts is added to C23's must_reach so orphaning the
+    derivation cannot silently restore Gate G's refusal.
+    
+    MEASURED: --controls rc 0 with ALL 34 CONTROLS FIRED under python3 and python3 -O, stdout
+    BYTE-IDENTICAL at 12,402 bytes and stderr byte-identical; --selftest rc 0 with all 32
+    mutation targets FLIPPED TO RED and C16 fired at rc 0/0; ast.Assert = 0 with the detector
+    planted and SEEN.
+    
+    SANAA'S DESK: recorded as a disclosure, not a request, in the supervisor's own words --
+    deriving a value two frozen clauses already determine is not setting a gate threshold and not
+    retiring one. If she disagrees, the DERIVATION is the thing to dispute, and the invariance
+    means her answer cannot change the band either way. SUBMISSIONS REMAIN PARKED; nothing is
+    sent and nothing leaves the box.
+    
+    Cost 3.4667 core-min at 1 rank, measured. One pinned executable moved; its live row was
+    ENUMERATED BY SEARCH and returns exactly one, reported as a measurement and not a relief.
+    
+    Rule 6: appended at the foot; lines whose number changed above Section 30: 0, verified by
+    byte-comparing the prefix against HEAD's blob; v1.23 -> v1.24.
+    
+    I HAVE NOT DRIVEN THE STAGE. The run root is absent.
+    
+    FOREIGN ROWS LEFT UNCOMMITTED: this commit carries only the two paths in its own diff.
+    Other lanes' in-flight work, including
+    verification/campaign/F28G_L1_RESIDUAL_RECONCILIATION.md and docs/LAB_STATE.md, was
+    INSPECTED AND NOT TOUCHED.
+    
+    Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>
+    Claude-Session: https://claude.ai/code/session_01HvQwXmgymfCLSBd4ri7B2h
+
+diff --git a/cases/M6SR/analyse_m6sr.py b/cases/M6SR/analyse_m6sr.py
+index 6a59443e..e4f991c0 100644
+--- a/cases/M6SR/analyse_m6sr.py
++++ b/cases/M6SR/analyse_m6sr.py
+@@ -1666,6 +1666,75 @@ def gate_g2(steps, cd, l3_l2_difference):
+     }
+ 
+ 
++def refinement_ratio_from_registered_counts():
++    """THE REFINEMENT RATIO, DERIVED FROM FROZEN REGISTRATION CONTENT.  -> (r, basis).
++
++    AMENDMENT 24.  `r` was never a free parameter.  Two clauses this registration froze
++    determine it:
++        A4  cell counts 99,840 : 399,360 : 1,597,440, ratios EXACTLY 4.000 on integers
++        A6  cells / wing_faces == 64 EXACTLY, at every level
++    Together they force the SURFACE FACE COUNTS to 1,560 : 6,240 : 24,960.  A surface face
++    count is TWO-DIMENSIONAL, so a linear refinement r scales it by r**2, and
++    r = sqrt(4.000) = 2.000 EXACTLY.
++
++    IT IS COMPUTED HERE, NOT STORED.  Storing 2.0 as a literal would decouple the value from
++    the clauses that force it -- which is item 50's defect exactly, one document up: a number
++    that agrees with its basis until somebody changes the basis.  If A4_CELLS or
++    A6_CELLS_PER_WING_FACE ever moved, r moves with them and control C32 goes red.
++    """
++    faces = []
++    for c in A4_CELLS:
++        if c % A6_CELLS_PER_WING_FACE != 0:
++            raise InternalDefect(
++                f"A4 cell count {c} is not divisible by A6's {A6_CELLS_PER_WING_FACE} cells "
++                "per wing face, so the surface face count this derivation rests on does not "
++                "exist. A6 is an EXACT clause and this is not a rounding matter.")
++        faces.append(c // A6_CELLS_PER_WING_FACE)
++    if not (faces[1] == A4_RATIO_EXACT * faces[0]
++            and faces[2] == A4_RATIO_EXACT * faces[1]):
++        raise InternalDefect(
++            f"the surface face counts {faces} do not stand in the exact ratio "
++            f"{A4_RATIO_EXACT} that A4 registers on integers. The derivation of r rests on "
++            "that exactness and this comparator will NOT take a square root of an "
++            "approximate ratio.")
++    r = math.sqrt(float(A4_RATIO_EXACT))
++    return r, {
++        "r": r,
++        "DERIVED_NOT_CHOSEN": True,
++        "surface_face_counts": faces,
++        "surface_face_ratios": [faces[1] // faces[0], faces[2] // faces[1]],
++        "from_clauses": ["A4 -- cell counts and their exact integer ratio",
++                         "A6 -- cells / wing_faces == 64 EXACTLY at every level"],
++        "derivation": ("surface faces = cells / 64 = 1,560 : 6,240 : 24,960; their ratio is "
++                       "EXACTLY 4.000; a surface face count is TWO-DIMENSIONAL so a linear "
++                       "refinement r scales it by r**2; therefore r = sqrt(4.000) = 2.000 "
++                       "EXACTLY. Checkable by hand without running anything."),
++        "why_not_the_cube_root_of_the_cell_ratio": (
++            "1.5874 = 4**(1/3) would be right for a THREE-dimensional refinement. A6 holds "
++            "the wall-normal direction at 64 layers at EVERY level, so this family refines "
++            "TWO of three directions BY CONSTRUCTION -- clause L-HONEST says exactly that -- "
++            "and the cube root would attribute to the mesh a refinement the mesh does not "
++            "have."),
++        "not_rule_2_fitting": (
++            "A value FORCED by two already-frozen clauses cannot have been selected to fit "
++            "an answer: it was fixed the moment A4 and A6 were frozen and any reader could "
++            "have computed it then. What was missing was the DERIVATION, not the freedom."),
++        "and_the_band_does_not_depend_on_it_anyway": (
++            "p_s is DEFINED as ln(d32/d21)/ln(r), so r**p_s == d32/d21 identically for ANY "
++            "r and r CANCELS from GCI = Fs*|d21/f1|/(r**p_s - 1). GCI_fine -- the quantity "
++            "Gate P's band consumes -- is ALGEBRAICALLY INVARIANT under r. Control C33 "
++            "measures it. The band is therefore safe twice over: once because r is derived "
++            "rather than chosen, and again because the band does not depend on r at all."),
++        "WHAT_THIS_IS_NOT": (
++            "This does NOT weaken Gate G, retire G3's p_s, or move any threshold. Gate G's "
++            "refusal was FORMALLY CORRECT and stops firing only because the parameter it "
++            "named as unregistered is now registered -- the one legitimate way for a "
++            "refusal to end. AND IT IS NOT A CITATION OF LINE 425: that line's `r` is the "
++            "pyHyp WALL-NORMAL GROWTH RATIO 1.167442, a different quantity, and it is NOT "
++            "evidence about the refinement ratio (Amendment 24 records the check)."),
++    }
++
++
+ def roache_triple(f3, f2, f1, r):
+     """Standing rule 5, at Fs = 1.25.  f1 = FINE.  Returns the triple's classification.
+ 
+@@ -2093,16 +2162,60 @@ def gate_g(levels_cd, levels_logs, l3_l2_difference=None):
+                          "not monotone.")
+         return out
+ 
+-    raise Unregistered(
+-        "GATE G IS UNGRADEABLE AS THE DOCUMENT IS FROZEN. G3 registers a 'surface-refinement "
+-        "exponent p_s ... from the three-level ratio' and G4 registers 'GCI_fine on C_D at "
+-        "Fs = 1.25', but NO SECTION OF THE FROZEN REGISTRATION REGISTERS THE REFINEMENT "
+-        "RATIO r. Three defensible conventions (r = 2.000, 1.5874, 4.000) give three "
+-        "different p_s and three different GCI_fine, and Gate P's numerical band channel "
+-        "consumes GCI_fine directly. Choosing one HERE would be choosing a gate parameter "
+-        "AFTER the freeze -- exactly what standing rule 2 forbids. All three are printed in "
+-        "G3_G4_all_candidate_ratios for the supervisor. REFUSED (exit 2): this is an "
+-        "addendum item, and no comparator may take it.")
++    # ===================================================================================
++    # AMENDMENT 24.  THE REFUSAL BELOW IS STRUCK BY QUOTE.  IT WAS FORMALLY CORRECT AND IT
++    # IS NOT WEAKENED -- IT STOPS FIRING BECAUSE THE PARAMETER IS NOW REGISTERED, WHICH IS
++    # THE ONLY LEGITIMATE WAY FOR A REFUSAL TO STOP FIRING.
++    #
++    # 🔴 STRUCK BY QUOTE, 2026-09-04, AMENDMENT 24: ~~"GATE G IS UNGRADEABLE AS THE DOCUMENT
++    # IS FROZEN. G3 registers a 'surface-refinement exponent p_s ... from the three-level
++    # ratio' and G4 registers 'GCI_fine on C_D at Fs = 1.25', but NO SECTION OF THE FROZEN
++    # REGISTRATION REGISTERS THE REFINEMENT RATIO r. Three defensible conventions (r =
++    # 2.000, 1.5874, 4.000) give three different p_s and three different GCI_fine, and Gate
++    # P's numerical band channel consumes GCI_fine directly. Choosing one HERE would be
++    # choosing a gate parameter AFTER the freeze -- exactly what standing rule 2 forbids.
++    # All three are printed in G3_G4_all_candidate_ratios for the supervisor. REFUSED (exit
++    # 2): this is an addendum item, and no comparator may take it."~~
++    #
++    # WHY IT NO LONGER HOLDS.  `r` WAS NEVER A FREE PARAMETER.  It is DETERMINED by two
++    # clauses this registration froze long before the question was asked -- A4 (cell counts
++    # 99,840 : 399,360 : 1,597,440, ratios EXACTLY 4.000 on integers) and A6 (cells /
++    # wing_faces == 64 EXACTLY at every level).  Together they force the SURFACE FACE COUNTS
++    # to 1,560 : 6,240 : 24,960, whose ratios are exactly 4.000; a surface face count is
++    # TWO-DIMENSIONAL, so a linear refinement r scales it by r**2, and r = sqrt(4) = 2.000
++    # EXACTLY.  IT IS DERIVED, NOT CHOSEN, and `refinement_ratio_from_registered_counts()`
++    # COMPUTES it from those constants rather than storing the literal -- so if either
++    # frozen count ever moved, r would move with it and control C32 would go red.
++    #
++    # THAT IS WHY THIS IS NOT RULE-2 FITTING.  A value forced by two already-frozen clauses
++    # cannot have been selected to fit an answer: it was fixed the moment A4 and A6 were
++    # frozen, and any reader could have computed it then.  WHAT WAS MISSING WAS THE
++    # DERIVATION, NOT THE FREEDOM.
++    #
++    # ⚠ AND THE CUBE ROOT OF THE CELL RATIO (1.5874) IS NOT APPLICABLE, for a registered
++    # reason and not a preference: A6 holds the wall-normal direction at 64 layers at every
++    # level, so the refinement is TWO-dimensional BY CONSTRUCTION.  Clause L-HONEST says so
++    # in terms -- the family "refines 2 of 3 directions" -- which is also why this document
++    # calls itself a SURFACE-refinement study and registers its GCI as a surface-refinement
++    # band and a LOWER BOUND on total.
++    #
++    # ⚠ AND THE BAND IS SAFE TWICE OVER.  Even if the derivation were disputed, `GCI_fine`
++    # IS ALGEBRAICALLY INVARIANT UNDER r: p_s is DEFINED as ln(d32/d21)/ln(r), so
++    # r**p_s == d32/d21 identically for ANY r, and r CANCELS from
++    # GCI = Fs*|d21/f1|/(r**p_s - 1).  Control C33 measures it across five candidate ratios
++    # and requires ONE bit-identical GCI while p_s spans a factor of 21.5.
++    # ===================================================================================
++    r_reg, r_basis = refinement_ratio_from_registered_counts()
++    out["G3_G4_registered_ratio"] = r_basis
++    out["G3_G4_roache_triple_at_registered_r"] = roache_triple(f3, f2, f1, r_reg)
++    out["gate_G_label"] = _verdict("GATE REACHED")
++    out["reason"] = (
++        "the triple classifies CONVERGING at the REGISTERED refinement ratio r = "
++        f"{r_reg}, DERIVED from A4's cell counts and A6's 64 cells per wing face "
++        "(Amendment 24). The band is reported under Section 6's label L-HONEST: it is a "
++        "SURFACE-refinement band and a LOWER BOUND on total discretisation uncertainty, "
++        "because A6 holds the wall-normal direction fixed and the family refines 2 of 3.")
++    return out
+ 
+ 
+ def set_to_set_assignment(ref, cfd_sections):
+@@ -2872,6 +2985,10 @@ def controls(scratch, mutate=None):
+                   # cannot orphan the screen the way item 5 orphaned Gate P.
+                   "section7_screen", "section7_condition_1",
+                   "verify_patch_name_source", "_section7_screen_summary_lines",
++                  # Amendment 24. The refinement ratio is DERIVED from
++                  # frozen counts; orphaning the derivation would silently
++                  # restore Gate G's refusal.
++                  "refinement_ratio_from_registered_counts",
+                   # Amendment 21, item 48. Rule 4's strict completion,
+                   # INCLUDING the age guard, was called by no control at all
+                   # until C31 and is named here so it cannot be orphaned.
+@@ -3220,6 +3337,83 @@ def controls(scratch, mutate=None):
+          f"item 48's obvious fix, writing 0/ at stage time, would have made it pass "
+          f"UNCONDITIONALLY while still reporting green.")
+ 
++
++    # ======================================================================================
++    # C32 / C33 -- AMENDMENT 24.  THE REFINEMENT RATIO IS DERIVED, AND THE BAND DOES NOT
++    # DEPEND ON IT ANYWAY.  Two independent protections, one control each.
++    # ======================================================================================
++    # ---- C32: `r` IS COMPUTED FROM THE FROZEN COUNTS AND MOVES IF THEY MOVE ------------
++    # THE SUPERVISOR'S REQUIRED LIMB, VERBATIM: "a limb that the derived r reproduces 2.000
++    # from the registered counts and would MOVE if those counts moved."  Storing 2.0 as a
++    # literal would be ITEM 50's DEFECT ONE DOCUMENT UP -- a number that agrees with its
++    # basis until somebody changes the basis -- so the plant MUTATES THE BASIS and requires
++    # the derived value to follow.
++    r32, b32 = refinement_ratio_from_registered_counts()
++    clean32 = (r32 == 2.0 and b32["surface_face_counts"] == [1560, 6240, 24960]
++               and b32["surface_face_ratios"] == [4, 4])
++    _a4, _a6, _rx = A4_CELLS, A6_CELLS_PER_WING_FACE, A4_RATIO_EXACT
++    moved32 = missed32 = None
++    try:
++        globals()["A4_RATIO_EXACT"] = 9          # THE PLANT: the basis is changed
++        globals()["A4_CELLS"] = (99840, 99840 * 9, 99840 * 81)
++        r32m, _b32m = refinement_ratio_from_registered_counts()
++        moved32 = (r32m == 3.0)                  # sqrt(9) -- the derivation FOLLOWED
++        # AND THE NEGATIVE TWIN: a basis that violates A6's exactness must REFUSE, not round.
++        globals()["A4_CELLS"] = (99841, 99841 * 9, 99841 * 81)
++        try:
++            refinement_ratio_from_registered_counts()
++            missed32 = False
++        except InternalDefect:
++            missed32 = True
++    finally:
++        globals()["A4_CELLS"], globals()["A6_CELLS_PER_WING_FACE"] = _a4, _a6
++        globals()["A4_RATIO_EXACT"] = _rx
++    r32b, _ = refinement_ratio_from_registered_counts()
++    ok32 = clean32 and moved32 is True and missed32 is True and r32b == 2.0
++    if mutate == "C32":
++        ok32 = False
++    _rec("C32", ok32,
++         f"r = {r32} DERIVED from A4's cell counts {list(_a4)} and A6's {_a6} cells per wing "
++         f"face: surface faces {b32['surface_face_counts']}, ratios "
++         f"{b32['surface_face_ratios']}, r = sqrt(4.000) = 2.000 EXACTLY -- checkable by "
++         f"hand. THE PLANT: with the registered ratio changed to 9 the derived r MOVED to "
++         f"3.0 ({moved32}), so the value is COMPUTED FROM THE BASIS AND NOT STORED. THE "
++         f"NEGATIVE TWIN: a cell count not divisible by 64 REFUSES as an InternalDefect "
++         f"({missed32}) rather than rounding -- A6 is an EXACT clause. The basis is restored "
++         f"and r reads {r32b} again.")
++
++    # ---- C33: `GCI_fine` IS ALGEBRAICALLY INVARIANT UNDER `r` --------------------------
++    # THE SECOND PROTECTION, AND IT IS INDEPENDENT OF THE FIRST: even if the derivation were
++    # disputed, the quantity Gate P's band consumes does not depend on r at all.  p_s is
++    # DEFINED as ln(d32/d21)/ln(r), so r**p_s == d32/d21 identically and r cancels from
++    # GCI = Fs*|d21/f1|/(r**p_s - 1).  This is an IDENTITY, not a numerical coincidence, and
++    # the control measures it across five candidate ratios spanning 1.10 to 7.77.
++    _f3, _f2, _f1 = 0.0300, 0.0280, 0.0272
++    t33 = {r: roache_triple(_f3, _f2, _f1, r)
++           for r in (1.10, 1.5874, 2.000, 4.000, 7.77)}
++    g33 = [v["GCI_fine_at_Fs_1.25"] for v in t33.values()]
++    p33 = [v["p_s"] for v in t33.values()]
++    cls33 = {v["classification"] for v in t33.values()}
++    # THE HAND CHECK, computed here from d32/d21 WITHOUT going through r at all.
++    d32_33, d21_33 = t33[2.000]["d32"], t33[2.000]["d21"]
++    gci_hand = G4_FS * abs(d21_33 / _f1) / ((d32_33 / d21_33) - 1.0)
++    ok33 = (len({repr(g) for g in g33}) == 1
++            and cls33 == {"CONVERGING"}
++            and max(p33) / min(p33) > 20.0
++            and abs(gci_hand - g33[0]) < 1e-18)
++    if mutate == "C33":
++        ok33 = False
++    _rec("C33", ok33,
++         f"across r in (1.10, 1.5874, 2.000, 4.000, 7.77) on one CONVERGING triple, "
++         f"GCI_fine is {g33[0]!r} in ALL FIVE CASES -- {len({repr(g) for g in g33})} distinct "
++         f"value, BIT-IDENTICAL -- while p_s spans {min(p33):.6f}..{max(p33):.6f}, a factor "
++         f"of {max(p33)/min(p33):.4f}. THE INVARIANCE IS ALGEBRAIC, NOT NUMERICAL LUCK: p_s "
++         f"is DEFINED as ln(d32/d21)/ln(r), so r**p_s == d32/d21 for ANY r and r CANCELS "
++         f"from GCI = Fs*|d21/f1|/(r**p_s - 1). THE HAND CHECK, computed from d32/d21 "
++         f"WITHOUT r: {gci_hand!r}, which matches to the last bit. SO THE BAND IS SAFE TWICE "
++         f"OVER -- once because r is derived (C32), and again because the band does not "
++         f"depend on r at all.")
++
+     return fired, detail
+ 
+ 
+@@ -3543,7 +3737,8 @@ def main(argv):
+                            "C25", "C26", "C27", "C28",        # Amendment 19
+                            "C29", "C30",                      # Amendment 20, item 47
+                            "C31",                             # Amendment 21, item 48
+-                           "C12b"):                           # Amendment 23, the D1 finding
++                           "C12b",                            # Amendment 23, the D1 finding
++                           "C32", "C33"):                     # Amendment 24, the r derivation
+                 if target in baseline_red:
+                     reds[target] = None                 # cannot mutate an already-red control
+                     continue
+diff --git a/verification/campaign/M6SR_PREREGISTRATION.md b/verification/campaign/M6SR_PREREGISTRATION.md
+index c048c94d..c7e0fcc8 100644
+--- a/verification/campaign/M6SR_PREREGISTRATION.md
++++ b/verification/campaign/M6SR_PREREGISTRATION.md
+@@ -7459,3 +7459,243 @@ and this lane takes none of them.**
+ 🔴 **THE DRIVE IS STILL NOT TAKEN.** All three conditions are met and **the confirmation is the
+ supervisor's alone.** The run root remains absent until he gives it. **This lane does not read
+ "what will unlock it" as "it is unlocked".**
++
++---
++
++## 30. AMENDMENT 24 — 2026-09-04, **PRE-COMPUTE, AND THE LAST ACT BEFORE THE WINDOW CLOSES**. 🔴 **THE REFINEMENT RATIO `r` WAS NEVER A FREE PARAMETER: A4 AND A6 ALREADY DETERMINED IT. `r = 2.000` IS *DERIVED*, NOT CHOSEN — AND `GCI_fine` IS *ALGEBRAICALLY INVARIANT* UNDER `r` ANYWAY, SO THE BAND IS SAFE TWICE OVER.** GATE G STOPS REFUSING **BECAUSE THE PARAMETER IT NAMED IS NOW REGISTERED** — THE ONLY LEGITIMATE WAY FOR A REFUSAL TO END.
++
++**Written by a lane under the cfd supervisor's ruling, quoted where applied. It moves NO
++threshold, NO cap and NO label; it REGISTERS A PARAMETER THAT TWO FROZEN CLAUSES ALREADY FORCED.
++It does not freeze and it does not launch. `verification/runs/M6SR_runs` remains ABSENT.**
++
++### 30.0 🔴 **HOW THIS AMENDMENT CAME TO EXIST: A CONFIRMED DRIVE WAS STOPPED**
++
++**The supervisor had CONFIRMED the stage drive.** His confirmation carried one condition — *"as
++your last act before launching, re-confirm that NOTHING is pending that would need a gate,
++threshold, cap or label to move … If ANYTHING is pending, say so and do not start; that window
++will not come back."*
++
++**The re-check found `r`, and the lane did not start.** Gate G's own refusal text named it: *"NO
++SECTION OF THE FROZEN REGISTRATION REGISTERS THE REFINEMENT RATIO r … Choosing one HERE would be
++choosing a gate parameter AFTER the freeze."* **`r` is a gate parameter, it was unregistered, and
++rule 2's window — which shuts on the first byte `B3c` writes — is the only place it could ever be
++registered.** Had the drive proceeded, **Gate G would have refused for the life of the campaign,
++Gate P would never have received a band, and `B6` — the step carrying Sanaa's named deliverable —
++could never have produced a graded result.**
++
++> **The supervisor's words on the stop:** *"You stopped a drive I had already confirmed, because my
++> own instruction told you to check with the window closing. That was the right call and it saved
++> the campaign's deliverable."* **It is recorded here because the check was HIS, and because a
++> campaign that only records what it found is worth less than one that records what nearly went
++> unfound.**
++
++### 30.1 THE LAWFULNESS CONDITION — **PLANTED, NOT ASSERTED**
++
++`find verification/runs -maxdepth 1 -name M6SR_runs | wc -l` → **0**; a probe at that exact path
++→ **1**; after `rmdir` (which refuses a non-empty directory) → **0**. `test -e` **ABSENT**;
++`git ls-files` **0 rows**. **NO COMPUTE HAS OCCURRED UNDER THIS REGISTRATION.**
++
++---
++
++### 30.2 🔴 **THE `r` AMBIGUITY TRAP — CLEARED FIRST, AND IT DID NOT RESOLVE THE WAY THE RULING ALLOWED FOR**
++
++> **The supervisor's warning, verbatim:** *"THERE ARE TWO QUANTITIES CALLED `r` IN THIS DOCUMENT …
++> ESTABLISH WHICH `r` LINE 425 MEANS BEFORE YOU WRITE ANYTHING. … DO NOT let one letter standing
++> for two quantities carry a gate parameter — that is the same defect as `log.$tag` versus
++> `log.pyhyp`, one level up and with a gate hanging on it."*
++
++**MEASURED, at source, in full context:**
++
++| line | the sentence | which `r` |
++|---|---|---|
++| **425** | *"`r = 1.167442` and `cells / wing_faces = 64` at **all three** levels **by construction**, so `r` cannot move."* — followed immediately by *"There is no parameter this registration varies **in the normal direction**"* | 🔴 **the pyHyp WALL-NORMAL GROWTH RATIO** |
++| **1025** | *"the three levels share `s0 = 1.0e-4`, `N = 65` and `marchDist = 12.0` **identically**; therefore `r = 1.167442` … therefore **the wall-normal discretisation is IDENTICAL**"* | 🔴 **the same growth ratio** |
++
++> 🔴 **BOTH LINES ARE ABOUT THE GROWTH RATIO. NEITHER IS ABOUT THE GRID REFINEMENT RATIO.** The
++> ruling allowed for the other outcome — *"If it means the refinement ratio, the registration
++> already says r cannot move and your amendment merely computes what it fixed"* — **and that is NOT
++> what the document says. §425 IS NOT CITED AS SUPPORT ANYWHERE IN THIS AMENDMENT**, and the
++> comparator's derivation record says so in terms. **The derivation below rests on A4 and A6
++> ALONE.**
++
++**THIS IS THE FIFTH FAULT'S FAMILY AGAIN** (§29.5): a reader that cannot distinguish its subject
++from something adjacent to it — here, one letter standing for two physical quantities, **with a
++gate parameter hanging on it.** It was caught because the supervisor named the trap before the
++lane wrote a line.
++
++---
++
++### 30.3 **THE DERIVATION — `r = 2.000` EXACTLY, FORCED BY TWO ALREADY-FROZEN CLAUSES**
++
++| frozen clause | what it fixes |
++|---|---|
++| **`A4`** | cell counts **99,840 : 399,360 : 1,597,440**, ratios **EXACTLY 4.000 on integers** |
++| **`A6`** | **`cells / wing_faces == 64` EXACTLY**, at every level |
++
++**Therefore the SURFACE FACE COUNTS are forced**, and they are checkable by hand:
++
++| level | cells | ÷ 64 | surface faces |
++|---|---|---|---|
++| L3 | 99,840 | exact | **1,560** |
++| L2 | 399,360 | exact | **6,240** |
++| L1 | 1,597,440 | exact | **24,960** |
++
++**Surface-face ratios 6,240 / 1,560 = 4 and 24,960 / 6,240 = 4, EXACTLY, on integers.**
++**A SURFACE FACE COUNT IS TWO-DIMENSIONAL**, so a linear refinement `r` scales it by `r²`:
++
++> 🔴 **`r = √4.000 = 2.000`, EXACTLY. DERIVED, NOT CHOSEN.**
++
++**AND `24,960` IS THIS REGISTRATION'S OWN SURFACE** — it appears **21 times** in this document and
++`build_m6sr_l1.sh` marches *"24,960 × 64"*.
++
++⚠ **WHY NOT `1.5874 = 4^(1/3)`.** That is the right ratio for a **three**-dimensional refinement.
++**`A6` holds the wall-normal direction at 64 layers at EVERY level, so this family refines TWO of
++three directions BY CONSTRUCTION** — clause **`L-HONEST`** says exactly that, and it is why this
++document calls itself a **SURFACE**-refinement study and registers its GCI as a surface-refinement
++band and a **LOWER BOUND** on total. **The cube root would attribute to the mesh a refinement the
++mesh does not have.**
++
++> 🔴 **WHY THIS IS NOT RULE-2 FITTING.** **A value FORCED by two already-frozen clauses cannot have
++> been selected to fit an answer: it was fixed the moment `A4` and `A6` were frozen, and any reader
++> could have computed it then. WHAT WAS MISSING WAS THE DERIVATION, NOT THE FREEDOM.**
++
++**IT IS COMPUTED, NOT STORED.** `refinement_ratio_from_registered_counts()` derives `r` from
++`A4_CELLS`, `A4_RATIO_EXACT` and `A6_CELLS_PER_WING_FACE` **at call time**. Storing `2.0` as a
++literal would be **item 50's defect one document up** — a number that agrees with its basis until
++somebody changes the basis. It **REFUSES** as an `InternalDefect` if a cell count is not divisible
++by 64, or if the surface ratios are not exactly `A4_RATIO_EXACT`: **this comparator will not take a
++square root of an approximate ratio.**
++
++---
++
++### 30.4 **THE SECOND PROTECTION — `GCI_fine` IS ALGEBRAICALLY INVARIANT UNDER `r`**
++
++Registered as a **FACT**, separately from the derivation, because **it protects a different thing**.
++
++`p_s` is **DEFINED** as `ln(d32/d21) / ln(r)`. Therefore `r**p_s ≡ d32/d21` **for any `r`**, and
++`r` **CANCELS** from `GCI = Fs·|d21/f1| / (r**p_s − 1)`.
++
++**MEASURED, on one CONVERGING triple (0.0300 / 0.0280 / 0.0272), across five candidate ratios:**
++
++| `r` | 1.10 | 1.5874 | 2.000 | 4.000 | 7.77 |
++|---|---|---|---|---|---|
++| `p_s` | 9.613776 | 1.982895 | 1.321928 | 0.660964 | 0.446912 |
++| `GCI_fine` | **0.02450980392156884** | ← | ← | ← | ← |
++
++**ONE distinct value, BIT-IDENTICAL, while `p_s` spans a factor of 21.5116.** **THE HAND CHECK,
++computed from `d32/d21` WITHOUT going through `r` at all:** `r**p_s = 2.499999999999991 = d32/d21`
++exactly, and `1.25·|0.0008…/0.0272| / (2.5 − 1) = 0.02450980392156884` — **matching to the last
++bit.**
++
++> 🔴 **SO THE BAND IS SAFE TWICE OVER: once because `r` is DERIVED rather than chosen, and again
++> because the quantity Gate P's band consumes DOES NOT DEPEND ON `r` AT ALL. If the derivation were
++> ever disputed, the band still stands on the identity.**
++
++---
++
++### 30.5 **WHAT CHANGES IN THE COMPARATOR — AND WHAT EXPRESSLY DOES NOT**
++
++Gate G's refusal is **STRUCK BY QUOTE in the file itself**, with the full text preserved. **IT WAS
++FORMALLY CORRECT AND IT IS NOT WEAKENED.**
++
++> **RULED (supervisor, verbatim):** *"I am not weakening Gate G. Its refusal was FORMALLY CORRECT
++> and I am not touching it — the refusal disappears because the parameter becomes registered, which
++> is the only legitimate way for a refusal to stop firing."*
++
++**Gate G now returns `GATE REACHED` on a `CONVERGING` triple at the registered `r`**, with
++`G3_G4_registered_ratio` (the full derivation record) and
++`G3_G4_roache_triple_at_registered_r` beside it. **`G3_G4_all_candidate_ratios` is KEPT**, so every
++reader still sees all five. **MEASURED on a forced-`G1`/`G2` probe: `GATE REACHED`, `CONVERGING`,
++`p_s = 1.321928095`, `GCI_fine = 0.02450980392156884`.**
++
++**AND `r = 2` BUYS SOMETHING BEYOND THE BAND:** with `r` fixed, `p_s = log₂(d32/d21)` is a genuine
++**observed order of convergence** rather than an artifact of an arbitrary ratio — **so `G3` grades
++something meaningful instead of refusing forever.**
++
++**EXPRESSLY NOT DONE:** no threshold moves; `G4_FS` stays 1.25; `G3`'s `p_s` is not retired; standing
++rule 5's ordering is untouched; and items **25, 27, 8 and 6 are not touched**.
++
++---
++
++### 30.6 THE CONTROLS — **`C32` AND `C33`, EACH A DELTA**
++
++| control | the plant | **how it dies** |
++|---|---|---|
++| **`C32`** | **the BASIS is mutated**, not the value: `A4_RATIO_EXACT` set to 9 and the cell counts to match | the derived `r` **MOVED to 3.0** — so the value is **computed from the basis, not stored**. Clean twin: `r = 2.0` with faces `[1560, 6240, 24960]` and ratios `[4, 4]`. **Negative twin:** a cell count not divisible by 64 **REFUSES as an `InternalDefect`** rather than rounding — `A6` is an EXACT clause. The basis is restored and `r` reads 2.0 again |
++| **`C33`** | five candidate ratios spanning 1.10 → 7.77 | **one bit-identical `GCI_fine`** while `p_s` spans **21.5116×**, plus **the hand check** computed from `d32/d21` without `r`, matching to the last bit |
++
++**`refinement_ratio_from_registered_counts` is added to `C23`'s `must_reach`**, so orphaning the
++derivation cannot silently restore Gate G's refusal.
++
++**MEASURED: `--controls` → rc 0, ALL 34 CONTROLS FIRED, under `python3` and `python3 -O`, stdout
++BYTE-IDENTICAL (12,402 bytes) and stderr byte-identical. `ast.Assert` = 0 with the detector planted
++and SEEN.**
++
++---
++
++### 30.7 SANAA'S DESK — **A DISCLOSURE, NOT A REQUEST**
++
++> **The supervisor's words, recorded as his:** *"deriving a value that two frozen clauses already
++> determine is not setting a gate threshold and not retiring one, so it is mine. If she disagrees,
++> THE DERIVATION IS THE THING TO DISPUTE — and the invariance means her answer cannot change the
++> band either way. I would rather she saw it stated plainly than discovered it in a figure
++> caption."*
++
++**SUBMISSIONS REMAIN PARKED. Nothing is sent. This is a record on the desk, not a message off the
++box.**
++
++### 30.8 WHAT THIS AMENDMENT DOES **NOT** DO
++
++1. **It moves NO threshold, NO cap and NO label.** It registers a parameter two frozen clauses
++   already forced.
++2. **It does not weaken Gate G**, retire `G3`'s `p_s`, or touch items 25, 27, 8 or 6.
++3. **It does not cite line 425**, whose `r` is the wall-normal growth ratio (§30.2).
++4. **It does not freeze, does not launch, and has not driven the stage.**
++5. **SUBMISSIONS REMAIN PARKED.**
++
++### 30.9 RULE 6's AMENDMENT ASSERTIONS
++
++- **Appended at the foot. Lines whose number changed above this section: 0**, verified by
++  byte-comparing the prefix against HEAD's blob.
++- **Version bump: v1.23 → v1.24** (Amendment 24).
++- **The unchanged-prefix sha of this file at `86033e48`** is
++  **`93b2c88cc273382c362319e4bbb9b00c2f487fc85de34058b528ec8cbed37c14`**, re-derived **inside the
++  commit invocation** with the commit aborting if it had moved.
++
++### 30.10 🔴 **THE RE-PIN — ONE PINNED EXECUTABLE MOVED, THE LIVE ROW ENUMERATED BY SEARCH**
++
++**The comparator is the only executable this amendment edits.** The live row carrying the
++superseded blob was **ENUMERATED BY SEARCH, NOT ASSUMED** — this campaign has three times found
++more rows than a reader would have expected (§25.13, §27.11) — and the search returns **exactly
++one**, reported as a **measurement, not a relief**. Struck, rule 6, by verbatim quote,
++machine-verified character for character against the line it strikes:
++
++> 🔴 **STRUCK BY QUOTE** *(§29.9's row — the pin that was IN FORCE)*: ~~*"| **`cases/M6SR/analyse_m6sr.py`** (comparator) | **`6a59443ee053db22cd829f1fb7200dd46cdb413d`** | `f323ad42bb9f2b8e845ab789af5bb76644cbf8eff5516d97b78a0056a2bc5aec` | **3730** | **§9 registered** — **RE-PINNED HERE** |"*~~
++
++**THE NEW STANDING PIN**, derived with `git hash-object` and **RE-DERIVED INSIDE THE SAME SHELL
++INVOCATION AS THE COMMIT THAT CARRIES THIS SECTION, WITH THE COMMIT ABORTING IF IT HAD MOVED**:
++
++| path | git blob sha | sha256 of the file | lines | §9 status |
++|---|---|---|---|---|
++| **`cases/M6SR/analyse_m6sr.py`** (comparator) | **`e4f991c05990bb52ce30e793f29d1a1927d2b428`** | `44a1d342e11f99f7c3cbb3a4bee837443f39281757ad796190b7b061986ce22e` | **3925** | **§9 registered** — **RE-PINNED HERE** |
++
++⚠ **THE OTHER NINE PINS ARE UNMOVED AND ARE RE-VERIFIED AT THIS HEAD, NOT ASSUMED** — §30.12.
++
++### 30.11 COST — RULE 12
++
++| activity | wall s | ranks | **core-min (MEASURED)** |
++|---|---|---|---|
++| the `r` derivation from the frozen constants, the `GCI_fine` invariance across five ratios, and the by-hand algebra check | 12 | 1 | **0.2000** |
++| `--controls` under `python3` and `python3 -O`; the Gate G branch probes | 19 | 1 | **0.3167** |
++| `--selftest` (controls + `C16` + the mutation loop over 32 targets) | 177 | 1 | **2.9500** |
++| **TOTAL** | 208 | 1 | **3.4667** |
++
++**All MEASURED from the clock; one run of each activity, development re-runs NOT metered and NOT
++estimated.** Dollars are **derived** at $0.0513/core-h and **reported-by-owner**. **No
++`COST_CALIBRATION.md` row: nothing completed, and no compute has occurred under the registration.**
++
++### 30.12 `FZ1` — RUN IMMEDIATELY **AFTER** THIS COMMIT
++
++`check_comparator_freeze.py` compares HEAD blobs against worktree blobs, so a pre-commit run would
++read `PIN-DRIFT` on the row this amendment re-pins. **Its exit code is taken immediately after the
++commit and recorded in §30.13.** A forward reference, not a claim.

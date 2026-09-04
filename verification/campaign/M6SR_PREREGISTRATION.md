@@ -7699,3 +7699,46 @@ estimated.** Dollars are **derived** at $0.0513/core-h and **reported-by-owner**
 `check_comparator_freeze.py` compares HEAD blobs against worktree blobs, so a pre-commit run would
 read `PIN-DRIFT` on the row this amendment re-pins. **Its exit code is taken immediately after the
 commit and recorded in §30.13.** A forward reference, not a claim.
+
+---
+
+### 30.13 ADDENDUM, SAME SESSION — **`FZ1` = 0, THE CHECK-1 ARTIFACT, AND THE FINAL PRE-COMPUTE RE-CHECK**
+
+Run **immediately after commit `c485e76e`**:
+
+> **`FZ1` EXIT CODE `0`. `VERDICT: PASS`. `10 of 10 PIN-OK, 0 violating`** — the re-pinned
+> comparator at its new sha, the other nine **re-verified at this HEAD, not assumed**. The
+> verifier's **NO-MARKERS** caveat is carried, not dropped.
+
+| | |
+|---|---|
+| path | **`cases/M6SR/AMENDMENT_24_REFINEMENT_RATIO_DERIVED.diff`** |
+| content | the **unmodified stdout** of `git --no-pager show c485e76e0dfc364c161a98241421f440cf63eb75` |
+| size | **39,446 bytes, 611 lines** |
+| sha256 | `4e9dab9e8899adcb945e365dcf02ca340cec0378a67f9ccc6e24ca3277d35449` |
+| equality | **`cmp` against a freshly recomputed `git show`: BYTE-IDENTICAL**, and the `cmp` is **PLANT-VERIFIED** — against a copy with one line appended it **does** report a difference |
+
+#### 30.13.1 🔴 **THE FINAL PRE-COMPUTE RE-CHECK — NOTHING FURTHER IS PENDING THAT NEEDS A GATE, THRESHOLD, CAP OR LABEL TO MOVE**
+
+**Re-run with the window about to close, not remembered from earlier.**
+
+| item | state | does its repair need a gate/threshold/cap/label to move? |
+|---|---|---|
+| **`r`, the refinement ratio** | 🔴 **WAS pending — CLOSED by this amendment**, derived from A4 and A6 | it did, and that is why the drive was stopped |
+| items 28/30/31/34/35/36/37/38/39/40/43–50 | repaired | — |
+| items 41/42 | ruled and closed | — |
+| item 5's CODE limb | closed | — |
+| **items 25 and 27** | carried forward unrepaired **on the supervisor's express instruction** — **not pending** | ⚠ item 27 is a **GRADED CHANNEL** and its own text says changing it is a gate question. **It becomes permanently unfixable when the window shuts, and that is a consequence accepted knowingly, not discovered** |
+| **item 8** (`GF2`'s single threshold per level) and **item 6** (`GF4`'s semispan band, L3 **outside** at −0.6198 %) | registered, graded by the frozen gates | ⚠ same: **permanent after first compute**, accepted knowingly |
+| **item 9** (§2.4's *"`B0` runs FIRST"* is unachievable — `gate_gf()` needs L1's mesh, which `B3` produces) | registered at §16.5 | **no** — step order, not a gate. Does **not** block the L3 stage drive |
+| **A-MAP station ordering** (§29.1) | **UNRESOLVED**, REPORTED NOT GATED, disclosure travels with the figure data | **no** — it qualifies the deliverable, it does not gate it |
+| **`X7`/`C12`** | **CLOSED** — `--controls` exits 0 | — |
+| **the `C6` observation** (§28.8) | open, **n = 1**, labelled a hypothesis | **no** |
+
+> ✅ **NOTHING FURTHER IS PENDING THAT REQUIRES A GATE, THRESHOLD, CAP OR LABEL TO MOVE.** The
+> permanent consequences above are **named** so that they are accepted with open eyes rather than
+> inherited from a shut window.
+
+**AND `verification/runs/M6SR_runs` IS STILL ABSENT AT THIS COMMIT.** The next act under this
+registration is the stage drive, and **the moment `B3c` writes, rule 2's amendment window closes
+permanently.**
