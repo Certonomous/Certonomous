@@ -5318,11 +5318,54 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-04T18:46:51Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-62` — **my `--gscan` narrowing requirement was NOT SATISFIABLE and a lane refused to fake it; check 1 on `A1WRT2` PASSES and this family watched an item print a success token for the first time; and a claim that would weaken the desk item IN OUR FAVOUR is held back until its artefact is named.** Before it, `S-61`, `S-60`, `S-59`, `S-58`, `S-57`, `S-56`…`S-29`.
+**Section last written:** 2026-09-04T19:23:40Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-63` — **`A1ZE` is NOT unsatisfiable: it REGISTERED this outcome in advance as `G-EMPTY` and the gate has already FIRED, so an item reported dead has a result sitting ungraded at zero compute. `A1WRT2` cannot freeze — its own §11 gate names an instrument that does not exist.** Before it, `S-62`, `S-61`, `S-60`, `S-59`, `S-58`, `S-57`…`S-29`.
 
 **Section last written:** 2026-09-04T01:08:43Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-48` — **`W3` IS NOT RUNNING AND HAS NOT BEEN SINCE 21:57:49Z; IT REACHED ITS REGISTERED TERMINUS, AND THE REGISTERED FALLBACK DOES NOT RESCUE IT.** `S-47`'s and `S-46`'s *"`W3_chain_r2` running"* lines are **STRUCK BY QUOTE** below — they were true when written and were still being relayed three hours after they stopped being true. Before it, `S-47` — **DESK ITEMS CLOSED**: the **rule-10 hole is fixed in the constitution itself** on Sanaa's GO (`0ee2e7df`, verified by me at HEAD, not taken on relay), and the rule-12 estimate gap is **routed to verification** as a forward-only note. `S-46`'s "on Sanaa's desk" line is **struck by quote** so no successor re-escalates a closed item. **Nothing now on her desk from this family** but the four `NOT FILED` upstream defect classes and FD-vs-adjoint as a fourth `V` instrument. Before it, `S-46` (closing state), `S-45`, `S-44`, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+##### UPDATE S-63 — **`A1ZE` IS NOT UNSATISFIABLE — IT **REGISTERED THIS EXACT OUTCOME IN ADVANCE** AND THE GATE HAS ALREADY FIRED. AN ITEM I WAS TOLD WAS DEAD HAS A RESULT SITTING UNGRADED AT ZERO COMPUTE. AND `A1WRT2` CANNOT FREEZE: ITS OWN §11 GATE NAMES AN INSTRUMENT THAT DOES NOT EXIST** (2026-09-04, `date -u` stamp in the committing invocation)
+
+###### 1. ⚠ THE A1ZE RULING — READ AT SOURCE BY ME, AND IT REVERSES THE RELAY
+
+A lane reported, in `A1WRT2`'s §11 item 9, that ***"`A1ZE`'s `empty` arms are unreachable inside DAFoam — that item's central gate cannot be satisfied as registered."*** **I said I would read it at source rather than act on the line, and the line is wrong in an important direction.**
+
+**`A1ZE_PREREGISTRATION.md:622` registers `G-EMPTY`:** *"the `empty` arms **build and run**"*, and on failure — *"the mesh warping or the adjoint refuses `empty` → arm `BLOCKED`, **and that condemns `d3f47bfa` too** (§3b.0)."*
+
+**AND IT HAS FIRED, MEASURED:** `STATUS.A1ZE_chain.log:31` — `arm=Ec docker_rc=97 in_container_rc=97 oom=false wall_s=88 core_min=1.4667 cumulative=4.9`; `:32` — `A1ZE_CHAIN_STOP at arm Ec rc=73 -- the chain stops at the first non-zero rc **and grades what exists**.` The cause is external and independently reproduced: `DACheckGeometry.C:278` rejects `nGeometricD < 3` unconditionally, seen again at `A1WRT U2`.
+
+> **This is not a broken registration. It is a REGISTERED OUTCOME that nobody graded. The item predicted DAFoam might refuse `empty`, named the consequence in advance, and was RIGHT.**
+
+**⚠ AND THE ERROR SHAPE IS THE THIRD OF ITS FAMILY IN TWO DAYS, NOW IN BOTH DIRECTIONS.** On `SO3aF2` I took an **instrument's** limitation to be the **registration's** and wrongly declared `F1` dead. Here a lane took a **registered outcome** to be a **broken registration** and wrongly declared `A1ZE` dead. **Same confusion of map and territory, opposite signs, and both would have retired a live item.** *The tell is identical in both cases and cheap to apply: before declaring a registration unsatisfiable, find the clause that would have covered this outcome — and if it exists, the item has a result rather than a defect.*
+
+**DISPATCHED, zero new compute:** grade `A1ZE` through its frozen path on the artefacts that exist. **The lane is told to check MY reading first and to say so plainly if I invented a gate that is not there** — the framing I am overturning came from a competent lane and the reversal must not rest on my authority. **`G-COEF` almost certainly has no data** — the comparison it grades needs the arm DAFoam refused — and what that does to the verdict is for the registration's own ladder, **not my expectation**.
+
+**And the consequence for `d3f47bfa` is stated EXACTLY as narrowly as §3b.0 states it**, which is narrower than a careless reader would take it: a `GATE FAIL` condemns the commit **for the assembly facts** and explicitly **NOT** for *"failing to change convergence, failing to lower a declared residual, or failing to move `CL` or `CD`"* — because such a gate *"would condemn a correct commit for failing to do something it was never able to do."* **Not one word wider.**
+
+*Worth recording from the same read: `A1ZE`'s own record already carries two self-corrections of real quality — a drift anchor taken from a truncated, unsettled α=13 segment (band **6.85× too wide on `CL`**, 5.14× on `CD`), and a cost anchor whose cited artefact does not contain it. The lane's own line: **"the rejected anchors were named; the adopted one was not checked the same way."***
+
+###### 2. `A1WRT2` CANNOT FREEZE, AND I AM HOLDING TO ITS OWN GATE RATHER THAN AROUND IT
+
+Its `§11 [OWED — GATES THE FREEZE]` item 1 requires **every** instrument written. Measured: `a1wrt2_grade.py` **PRESENT**, `a1wrt2_run_arm.sh` **PRESENT**, **`a1wrt2_stage.py` ABSENT.** *A supervisor who freezes past a document's own stated gate has replaced the registration with his judgement of it.*
+
+**Item 2 is the one with a scar behind it, and it is dispatched as the deliverable I care most about:** the instrument table enumerated **by extraction**, every path and local import parsed out of the frozen scripts, resolved, and **asserted to EXIST before any md5 is asserted — existence first, and separately.** Because **an md5-agreement control can read `8 of 8` while a dependency the frozen code executes is absent** — exactly what `D6RF2` produced when `G-DELIVERY` passed `OK 8` and `G-ANCHOR` then refused on a file `G-DELIVERY` never knew to require. Derived **transitively to a fixed point**, refusing on non-convergence rather than guessing a depth, with a **planted control proving the extractor can see a deliberately removed dependency** — *an extractor that has only ever reported "all present" is not evidence.*
+
+The disclosure I required on `A1WRT2` **landed and I verified it at HEAD**: `Q-COMPOSE-5-ordering` present, `ast.Assert` **0** on my own parse of the HEAD blob. **The lane re-derived both halves rather than taking my message**, and made the control do three things — pin the chain's answer, **record what the ordinal would have said**, and assert the moved-set is still exactly `{PASS}` — **so the disagreement fails loudly the moment it stops being harmless** instead of going quiet.
+
+###### 3. THE TEMPLATE REPAIR IS DISPATCHED, AND ITS FIRST TASK MAY REFRAME IT
+
+The lane is told to establish **by measurement** what "the template" actually is, and explicitly: **if the notion is a fiction and each item copies its nearest sibling, that is a MORE important finding than the repair.** I have exactly one citation (`a1wrt_run_unit.sh:16`) and one citation is not a population — *the error I made on the back-fit list, twice.*
+
+The known-good guard goes to `cases/dafoam/_common/` beside the classifier, taking **A1WRT's UNMEASURED limb as primary** and from `d6rf` **only the projection arithmetic**, with the `core_min` token **captured whole and validated whole** — *both lanes that touched this independently shipped `[0-9.]+` readers that silently took `1.2` from `1.2.3`* — and non-decimal content rejected before it can reach a shell arithmetic context, which is the limb that catches the unary-plus trap. **And it must ACCEPT scientific notation: a validator that refuses everything is not a validator.**
+
+**The honest limit is required in the deliverable: it guards nothing retroactively, and nothing inherits it until a launcher is written against it.** The confirmed-unguarded set the morning after remains `a1wr_chain_driver.sh` and `d19t_chain_driver.sh` — the latter **post-hoc by its own `:64` comment.**
+
+###### 4. STATE
+
+**Three lanes, at cap, ALL ZERO-COMPUTE.** Box has room; **nothing of mine is running, nothing frozen, nothing enqueued.** `A1WRT2` and `W3S` are each one instrument short of a freeze, and **W3S's launcher is likewise unwritten** with its manifest contract lacking a producer — named by that lane, not discovered by me.
+
+**OWED BY ME:** check 1 on the stager and the template guard; **check 4 personally at both freeze commits — §5's cap arithmetic read AS ARITHMETIC, not as a summary**; the `D6R` plateau audit; and the component-sizing structural point for Sanaa's desk, **with the component-3 numeric still held back until its artefact is named.**
+
+
 ##### UPDATE S-62 — **⚠ MY NARROWING REQUIREMENT WAS NOT SATISFIABLE, AND A FREEZE RESTING ON IT WOULD HAVE RESTED ON A FALSE PROPOSITION. CHECK 1 ON `A1WRT2` **PASSES** — THE FAMILY WATCHED AN ITEM PRINT A SUCCESS TOKEN FOR THE FIRST TIME. AND A CLAIM THAT WOULD WEAKEN THE DESK ITEM **IN OUR FAVOUR** IS HELD BACK UNTIL ITS ARTEFACT IS NAMED** (2026-09-04, `date -u` stamp in the committing invocation)
 
 ###### 1. ⚠ I SPECIFIED AN IMPOSSIBLE PROOF AND THE LANE REFUSED TO FAKE IT
