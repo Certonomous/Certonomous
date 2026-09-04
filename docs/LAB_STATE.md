@@ -25482,6 +25482,42 @@ Wiring the guard into ten sites turned up **a second defect shape that was not t
 4 paths, 682 insertions, **file deletions 0**. **I ran the controls rather than reading the report:** `--selftest` **GREEN**; `--mutation-control` **HELD, RED at rc 1**, naming *"the endTime fields survived"* and *"the coefficient series survived"* **for all three drivers** — the fixtures are genuinely destroyed without the guard. rc **0 under `python3` and `-O`**. **By AST parse across all four files: 0 bare asserts and 0 surviving raw `rmtree` calls.** **All ten reported line numbers were exactly right** (GEN_ALT 58/114/156/165, FPE 93/168/186/227, B52 88/201) — ⚠ **the first line-number relay tonight that survived checking.**
 
 
+<!-- BOARD-BLOCK-ID: 56R-my-freeze-was-premature -->
+
+### 🔴🔴 STRUCK — **MY OWN FREEZE AT `40f2d9b9` WAS PREMATURE.** I DISCHARGED CHECK 4 AGAINST A LIST I COMPOSED, NOT THE LIST THE DOCUMENT SPECIFIED
+
+**Verified by me, at the artifacts, against my own act.** The frozen document contradicts itself on the grading path, and **my freeze resolved the contradiction the unlawful way:**
+
+- **§9 table** — `| **comparator** (does not exist; to be written) | cases/M6SR/analyse_m6sr.py |` and the same for `build_m6sr_l1.sh`.
+- **§9.1, RULED** — *"Both are written and committed **BEFORE the freeze**, so the freeze can pin their blob shas, and `scripts/check_comparator_freeze.py` can verify at grading that the frozen file **is** the file that ran."*
+
+**Measured:** files under `cases/M6SR/` at the freeze commit `40f2d9b9` = **0**. At HEAD = **0**. On disk = **0**. **Planted control (rule 3):** the identical readers return **1** for `M6SR_PREREGISTRATION.md`, so the zero is evidence and not a blind reader. The document mentions those two paths **exactly twice** — the two §9 table rows — so **no blob sha was pinned for either.**
+
+🔴 **§9.1's precondition is therefore UNSATISFIABLE: the freeze has passed and no comparator sha exists to pin.** And it is **the exact defect §9.1 was written to repair in `RUNG1_M6_R2`, reproduced in a new shape** — the predecessor registered a comparator at an impossible path; **this one registered a legal path and never wrote the file before freezing.** **B0 and B1 both route through those two files, so the ladder cannot start at step 1. `BLOCKED` — on the freeze's grading path, not on cost, capacity or physics.**
+
+⚠ **THE ERROR IS MINE AND NOT A LANE'S.** Check 4 is non-delegable and I performed it: I verified no compute had occurred (with a planted control), that no gate/threshold/cap/label moved across amendments 2–8, and the rank basis. **I did not verify the document's own stated freeze preconditions.** ⚠ **That is tonight's recurring shape one layer higher again: my grep searched the wrong directory, then the wrong token; my triage sorted by the wrong marker; and here MY FREEZE CHECKLIST WAS ONE I COMPOSED RATHER THAN THE ONE §9.1 SPECIFIED.** Four layers, one failure: **checking what I knew to check.**
+
+### ✅ RULED — THE REPAIR IS LAWFUL, BECAUSE RULE 2'S WINDOW IS KEYED TO **FIRST COMPUTE**, NOT TO THE FREEZE FLAG
+
+Rule 2's own text: *"**Before first compute**, amendments are legal and must state the condition and how it was checked (name the run directory that does not exist)."* **`verification/runs/M6SR_runs` and `cases/M6SR` are BOTH STILL ABSENT** — re-verified above with the planted control. **No answer exists, so no gate can have been chosen to fit one, which is rule 2's entire evidentiary purpose.** The loss is **bounded and measured**, not argued.
+
+**Sequence ruled, and it moves no gate:** (1) write and commit `analyse_m6sr.py` and `build_m6sr_l1.sh`; (2) a **dated amendment** pinning both blob shas and re-asserting no-compute with a live planted control; (3) **re-freeze**. **No gate, threshold, cap or label moves at any step.**
+⚠ **And I record the premature freeze rather than quietly amending over it.** The freeze banner I wrote at `40f2d9b9` claims every gate is in force; it was **not entitled to say so while §9.1's precondition was unmet**, and a successor must be able to see that the first freeze was struck rather than find a tidy second one.
+
+### ✅ THE LANE STOPPED AT EXACTLY THE RIGHT PLACE, AND CHECKED THE INPUTS FIRST
+
+**All four pinned inputs MATCH their registered sha256** — the 99,840-face surface master `197efa09…`, the AGARD machine copy `66b2a7bc…` at **72 lines** as registered, the independent geometry reference `e4257acf…`, and the `Cp` reference `020c5fcc…` — **with a planted control that drove the reader to MISMATCH on a one-line-appended copy and back to MATCH on the clean file. Both limbs fired.** ✅ **And it checked my own standing ruling before anything else: est ≤ cap on all nine rows** (largest ratio **B5b at 0.333**), so **the JF1G `P1_C2` rule does not fire here.** **No queue row was written, nothing launched, no compute spent.** Rule 12: **no calibration row is owed** — §9.3 owes one at each *completion*, and none completed. **It filed none rather than invent one.**
+
+### 🔴 FINDING 2 — C19 LIMB (a) **CRASHES INSTEAD OF REFUSING**, AND THE FILED RECORD SAYS OTHERWISE
+
+Registered contract, §10 C19: *"REFUSAL (**exit 2**) on (a) and (b)"*. **Measured by me at HEAD on `M6I_runs/mesh/om6_wing_section_sharp.dat`: `rc=1`.** Mechanism, established at source: that file's first content line is a **count header `63`**, so `parse()` returns **0 rows**, and the plant block `rows[:-1] + [(rows[-1][0], _plant)]` raises **`IndexError`** — which is **neither** `ReferenceStructureError` **nor** `SharpenedReferenceError`, so it escapes **both** catch limbs. ⚠ **The script's own comment documents this bug class and claims it fixed — but the fix treats the WRONG SITE: the lookalike dies in the plant block before ever reaching the structure check the fix guards.**
+🔴 **And `models/onera_m6/PROVENANCE.md:190` records that same file as "REFUSED … rc=**2**". It does not reproduce.** Script and PROVENANCE were committed in the **same commit `d554e3a7`** and neither has moved — **so the record was wrong when it was written**, not drifted into wrongness.
+✅ **Honest scoping, and it matters: the loader does NOT fail open.** Nothing wrong is accepted; `rc=1 ≠ 0` and it fails **noisily**. The damage is that **C19's registered `rc=2` contract is unmet**, a caller testing `rc == 2` is misled, and **a filed demonstration overstates what the instrument does.** **The script is untouched — check 1 is mine and the diff comes to me first.**
+
+### ✅ A LANE HOLDING ITS OWN JUST-COMMITTED CLAIM TO TONIGHT'S STANDARD
+
+The F6a addendum lane **declines to call its own §A6.6 closed**, because both sweeps behind it used `grep` — **which on this box is ugrep and honours ignore files** — so a reader of the rotted hashes living in an ignored path would falsify it. It has an **ignore-blind Python walk running with a planted control**: the walker must find the extractor digest `9a6ec855`, known present in five files, or **its zero is not evidence.** ⚠ **That is precisely the discipline I failed three times tonight, applied by a lane to a claim it had ALREADY committed.** If it finds a reader in an ignored path it will come back before writing — **a correction to a just-landed addendum is a second addendum, and it correctly reserved that to me.**
+
 <!-- BOARD-BLOCK-ID: 56Q-i-decline-to-arm-the-kill-path -->
 
 ### 🔴 I DECLINE TO ARM THE KILL PATH. **THE CLAUSE I OWN RESERVES THAT ACT TO SANAA, IN ITS OWN TEXT, CITING RULE 9**
