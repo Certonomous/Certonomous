@@ -713,3 +713,209 @@ an assumption, and it does not repair the guard for other families.**
   preferred the fluctuation rms would register `about=mean, weighting=time` and get a
   discriminator of 1.6572; that choice is the supervisor's and either is defensible, **but it must
   be made before the run, not after.**
+
+---
+
+## 11. AMENDMENT 2 — 2026-09-04T15:44Z, cfd lab-lane. THE GRADING PATH IS PINNED BY BLOB SHA — and §1(b)'s parent-record hash has MOVED since drafting
+
+**Legality, stated with the condition and how it was checked (rule 2, pre-compute clause).** This
+document is **still not frozen** (line 3) and **still no compute has been spent under it**. The
+condition was re-checked by this lane at **2026-09-04T15:44:11Z**, by naming the run directories
+that do not exist — not by relaying §10's earlier check:
+
+- `/home/ubuntu/certonomous-runs/f5a-cylinder-ladder/re5000` — **the directory does not exist at all.**
+- `/home/ubuntu/certonomous-runs/f5a-cylinder-ladder/re10000` — holds exactly
+  `0/ constant/ system/ log.blockMesh log.checkMesh`. **No `90/`, no `log.pimpleFoam`, no
+  `postProcessing/`.**
+
+Amendments are therefore legal. **This one changes no gate, no threshold, no cap and no label.**
+It fixes a grading path, restates a stale hash, and records two obligations that remain open.
+
+### 11.1 REGISTERED: the grading path for G1's Cl_rms axis, pinned
+
+Rule 2 fixes the grading path at the pre-registration commit and requires the frozen file to be
+verifiable **by hashing it against its committed blob**. §10.6 left this open because the
+comparator was untracked and an untracked file has no committed blob to hash against. It now has one.
+
+| | |
+| --- | --- |
+| grading path | `verification/runs/F5_runs/analyse_f5a_cl_rms.py` |
+| **git blob sha (THE PIN)** | **`8dd000160d950e868d726c3cf0bb4d32af182254`** |
+| sha256 | `788d70c00adda1f9b7309107a25b523282dd2a4577b1de29b776a9119f1f4c0c` |
+| size / lines | 33,117 bytes / 741 lines |
+| commit | **`91cc2bfc1f9defd773b97c293a30491e90876ab5`** — the comparator alone, 741 insertions, **0 deletions, 1 path** |
+| invocation fixed by §10.3 | `--grade --about zero --weighting time` |
+
+**Registered verification, to be executed before grading and again at grading:**
+`git rev-parse HEAD:verification/runs/F5_runs/analyse_f5a_cl_rms.py` **must equal
+`8dd000160d950e868d726c3cf0bb4d32af182254`.** If it does not, the file that ran is not the file
+that was pinned, and the run is **NOT A RESULT** under this document until a dated addendum
+discloses what changed. This was executed against the committed tree at authorship of this
+amendment and **returns the pinned sha**.
+
+⚠ **The blob sha was verified at commit time, not assumed from §10.6's note.** §10.6 recorded
+`8dd0001…` while the file was untracked; this lane re-hashed the file **before** committing, and
+again **after** exercising it, and it was bit-identical both times. A changed instrument between
+the note and the commit is exactly the failure pinning exists to catch, so it was checked rather
+than carried forward.
+
+### 11.2 The instrument was re-exercised by this lane, not relayed
+
+Committing an instrument makes the committing lane its sponsor, so all 741 lines were read and the
+comparator was run rather than believed:
+
+| control | result |
+| --- | --- |
+| `--selftest` | **rc 0, "ALL CONTROLS GREEN"** — 3 analytic plants × 4 definitions, pre-window-garbage control (C-P4), envelope control (C-P3, the only one that can catch a `cl_band` substitution), 2 mutations that **correctly drive the suite red** (C-M1 envelope substitution, C-M2 `about` axis ignored), and `-O` parity (C-O1) |
+| `--grade` with no `--about`/`--weighting` | **rc 2 — the registered refusal fires** |
+| `--census` | reproduces the ladder's own anchors independently: `zero,time` = **0.964543 / 1.181602 / 1.329177**, and `mean,sample` at Re 3900-corrected = **1.337205** — i.e. **both** numbers in the disagreement §10.1 resolved are recovered here |
+| bare `assert` count | **0** (L-332/L-475: `python3 -O` deletes every one) |
+
+### 11.3 `scripts/check_comparator_freeze.py` — it APPLIES, and it returns NO VERDICT on this file
+
+Run by this lane over the whole repository (203 graders in the population):
+
+- The comparator **is in the walk population** — it sits under `verification/` and matches the
+  `analyse_*.py` pattern; it appeared as **row 500** even while untracked, because the tool walks
+  the disk.
+- Its row is **`NO-MARKERS`** — *"no completion marker in this tree — out of evidence reach"*.
+  `verification/runs/F5_runs/` carries **zero `DONE.*` completion markers** (measured), so the tool
+  **cannot compare a commit date against a completion date and gives this comparator no freeze
+  verdict at all.** Committing it does **not** turn that row `FROZEN`.
+- The run's repository-wide `VERDICT: FAIL` (rc 3) is driven by **12 UNFROZEN + 4 AMENDED_AFTER**
+  graders **elsewhere in the repository** — chiefly the T-family trees. **F5a contributes a
+  `NO-MARKERS` row, not a violation.** ⚠ It is recorded here so that a later reader does not read
+  that FAIL as F5a's, and does not read a green from this tool as certifying F5a either.
+
+**Consequence, stated plainly: the blob pin in §11.1 is the ONLY instrument that fixes this grading
+path.** The freeze checker is out of evidence reach here and cannot substitute for it.
+
+### 11.4 The §10.4 re-derivation moves the discriminator by ARITHMETIC ALONE — verified, with a control
+
+This was checked rather than accepted, because "the correction is small" is exactly how a widened
+gate would be described. **§4's own formula** (ratios per Re doubling; 2000→3900 = 0.96347
+doublings, 3900→10 000 = 1.35845) was re-implemented independently and pointed first at the
+quantities the amendment claims are **unaffected** — those are the control:
+
+| quantity | series used | this lane re-derives | §4 / §10 states | |
+| --- | --- | --- | --- | --- |
+| Cd_mean (control) | §4b, unchanged | **1.666816** | 1.667 / 1.6668 | reproduces |
+| −Cpb (control) | §4b, unchanged | **2.130868** | 2.131 / 2.1309 | reproduces |
+| Cl_rms, OLD mixed-definition series | §4b's 0.9666 / 1.1837 / 1.3292 | **1.657798** | §4's 1.658 | reproduces |
+| Cl_rms, NEW `zero,time` series | §10.3's 0.964543 / 1.181602 / 1.329177 | **1.660133** | §10.4's 1.6601 | reproduces |
+
+**The same formula, unchanged, reproduces §4's own three frozen discriminators from §4's own
+inputs, and §10.4's from §10.3's.** The only thing that changed is the input series.
+**NO TOLERANCE, BAND, THRESHOLD OR DECISION RULE WAS TOUCHED**, and none may be. H_plateau and
+H_diverge re-derive as **1.569090 / 1.751177**, matching §10.4's 1.5691 / 1.7512.
+
+*Two rounding disclosures, made rather than smoothed:*
+- §10.4's **"+0.13%"** is computed against §4's **rounded** 1.658. Against the **unrounded**
+  1.657798 the move is **+0.1409%**. Both are correct statements of the same arithmetic; the
+  direction and the order of magnitude are unaffected, and neither figure enters a gate.
+- §10.5's **"1.27%"** definitional spread: the endpoints **1.657176 … 1.678411** reproduce exactly.
+  The spread is **1.281%** of the low end and **1.265%** of the high end. §10.5's conclusion is
+  unchanged — the spread remains far inside the **±5.484%** H_plateau→H_diverge gap, so the
+  definition choice can invert the classification only within ~1.1% of the discriminator, which is
+  precisely the case §10.5 already routes to `INDETERMINATE — DEFINITION-SENSITIVE`.
+
+### 11.5 🔴 §1(b)'s parent-record md5 IS STALE, and §1(b) also calls F5b "frozen" when it is NOT
+
+§1(b) asserts the parent record `F5a_cylinder_reynolds_ladder.md` carries md5
+`8348d1f7b27df90a5107d3f3bd28afb3` and that *"this lane verified that hash on disk and at HEAD —
+both match"*. **That was TRUE when written and is FALSE now.** Measured by this lane:
+
+| reading | md5 |
+| --- | --- |
+| at the drafting HEAD `f996344f` (§'s own "drafted at HEAD") | `8348d1f7b27df90a5107d3f3bd28afb3` — §1(b) was correct at authorship |
+| on disk today, and at today's HEAD | **`a9c3d124644ca4e33413c18406794ba8`** |
+
+**Cause, established rather than guessed.** Commit **`09cf6854`** (*"cfd BLOCKING FIX: the only
+sanctioned repair for a lost solver log was the call that DELETED the physics"*) modified the parent
+record between the drafting HEAD and now. Its shape was measured:
+
+- `git diff --numstat` → **`116  0`** — **116 insertions, ZERO deletions.**
+- The hunk header is **`@@ -1371,0 +1372,116 @@`** — a pure append at the foot, after the old last line.
+- **`head -1371` of the file today md5s to `8348d1f7b27df90a5107d3f3bd28afb3`** — bit-identical to
+  the whole of the pre-edit file.
+
+**Disposition, and it is deliberately narrow:**
+
+1. **Rule 6 was HONOURED.** The parent was extended by an appended amendment, not rewritten.
+2. **Every line-numbered citation in this document still resolves to the same text** — 476–490,
+   1030–1036, 1072–1080, 1086–1096, 1105–1126, 1223–1227, 1310–1320, 1327–1371, 1344, 1359 all sit
+   inside the untouched 1–1371 prefix, spot-verified at 1344 and 1359. **No argument in §1, §2, §3
+   or §5 is disturbed.**
+3. ⚠ **But §1(b)'s sentence is now false as written, and freezing it would freeze a false
+   verification claim.** **REGISTERED CORRECTION: the parent record's md5 at the freeze of this
+   document is `a9c3d124644ca4e33413c18406794ba8`; the md5 `8348d1f7b27df90a5107d3f3bd28afb3`
+   is the md5 of its first 1,371 lines**, which is what F5b pinned and what §1(b) verified.
+4. 🔴 **SECOND ERROR IN THE SAME SENTENCE, and it is not a hash question.** §1(b) calls
+   `F5b_PHYSICS_PREREGISTRATION.md` **"frozen"**. **It is not.** Its own line 3 reads
+   *"Status: `PENDING` — DRAFT, NOT FROZEN, NOTHING LAUNCHED, supervisor read required before
+   freeze."* §1(b)'s argument does not depend on F5b being frozen — the parent is frozen **evidence**
+   on its own footing — but the word is wrong and must not be frozen into this document.
+5. **HANDED UP, NOT ACTED ON:** `F5b_PHYSICS_PREREGISTRATION.md:112` pins E6 by
+   `8348d1f7b27df90a5107d3f3bd28afb3`, which **no longer matches the whole file it names**. Because
+   the change was append-only the pinned *content* is intact, but the pin as written cannot be
+   verified by hashing the named file. **That is F5b's defect, in another document, and this lane
+   did not touch it.**
+
+### 11.6 REGISTERED: the rank count is decided by a LAUNCH-TIME load reading, not by any figure in this document
+
+§5e's *"load average 21.37 / 23.64 / 23.66"* and §10.7's *"38.69 / 22.13 / 10.86"* are **both
+stale and neither governs.** §10.7 established a **7 h 05 m 03 s** outage (boot −1 ended
+2026-09-04 07:45:19Z, boot 0 began 14:50:22Z) that invalidates any reading spanning it.
+
+**Registered pre-launch assertion, zero cost, and it is a hard precondition of launching either
+rung:** immediately before `decomposePar`, a **fresh** load reading is taken and **recorded in the
+run's own record**, and the rank count is justified against **that** reading. **4 ranks remains the
+registered default** (§5e: the only rank count for which this ladder holds a *measured* 83.2%
+efficiency, and the count §5f requires to keep the run under the 20,000 s `--solver-timeout`).
+**Departing from 4 ranks requires a dated addendum naming the reading that forced it.** No figure
+already written in this document may be used as that reading.
+
+### 11.7 ⚠ §6d's planted-zero requirement is CLOSED FOR Cl_rms ONLY — it remains OPEN for Cd_mean, −Cpb and Lr/D
+
+This is measured, not assumed. Of the seven Python modules under `verification/runs/F5_runs/`,
+**exactly one contains a planted control: `analyse_f5a_cl_rms.py`**, the file pinned in §11.1. The
+harvest path that produces `cd_mean` and `cpb` (`run_rung.py`, `gate.py`) plants nothing.
+
+| §4 quantity | planted-zero control | state |
+| --- | --- | --- |
+| **Cl_rms** | `analyse_f5a_cl_rms.py`, C-P1…C-P5 + C-M1/C-M2, verified rc 0 by this lane | **CLOSED** |
+| **Cd_mean** | none on the harvest path | **OPEN** |
+| **−Cpb** | none on the harvest path | **OPEN** |
+| **Lr/D (G4)** | none | **OPEN — and this one is the sharpest**, because G4's registered outcome is a **NULL** (*"NOT MEASURABLE BY THIS METRIC ON THIS FLOW"*), and rule 3 says a null from a reader not shown able to see a non-null is not evidence. §6d says so in its own words. |
+
+**Registered:** §6d is a **grading-time** requirement, so it does not by itself bar the freeze — but
+**two of G1's three gated quantities and the whole of G4 cannot be reported under rule 3 until a
+planted control exists for them.** Building it is a comparator change; this lane **stopped and did
+not take it**, exactly as §6d and §7 already direct. It is recorded here so the freeze is taken with
+this open, not in ignorance of it.
+
+### 11.8 §9's checklist, restated — what this amendment moves
+
+| item | state after this amendment |
+| --- | --- |
+| G1's Cl_rms grading path fixed at the pre-registration commit and hashable against its committed blob (rule 2) | **CLOSED** — §11.1, blob `8dd0001…`, commit `91cc2bfc` |
+| §7 gap 2 (no Cl_rms instrument) | **CLOSED** — instrument exists, is committed, is pinned, and was re-exercised by a second lane |
+| §1(b)'s parent-record hash claim | **CORRECTED** — §11.5; the argument survives, the sentence did not |
+| §5e's rank justification | **DEFERRED TO LAUNCH BY REGISTRATION** — §11.6 |
+| §6d planted-zero, Cd_mean / −Cpb / Lr/D | **OPEN** — §11.7 |
+| §7 gaps 1, 3, 4, 5 | **OPEN, handed up** — unchanged by this amendment |
+
+### 11.9 What THIS AMENDMENT could not verify
+
+- **Nothing about Re 5000 or Re 10 000 was verified**, because neither has run. Every projected
+  number in §5 remains a projection.
+- **The pin proves identity, not correctness.** `8dd0001…` guarantees the file that grades is the
+  file that was registered. It does **not** guarantee the statistic is the physically preferred one
+  — §10.9 already says the lab could defensibly have registered `about=mean, weighting=time` and
+  got 1.657176 instead. That choice is the supervisor's and it is made at the freeze.
+- **`check_comparator_freeze.py` gives this comparator NO verdict** (§11.3). Its silence here is
+  out-of-reach, not a pass, and it is counted as such.
+- **This lane did not verify the 116 appended lines of the parent record.** It verified only that
+  they are appended and that the 1,371-line prefix is untouched. Whether that appended amendment
+  says anything bearing on these rungs was **not** read, and is not claimed either way.
+- **This lane did not freeze this document.** Freezing is check 4 and it is the supervisor's.
