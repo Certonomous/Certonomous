@@ -1,0 +1,734 @@
+AMENDMENT 18 -- M6SR items 41 and 42, ruled and closed.
+Commit 3041554b65d77334b664c0187d2ae098beb504e8 on main, parent 6b7a71e802c6e984c35c065434095f90b5bb0fda.
+This artifact exists for the supervisor's check 1: the measurement-script diff read AS A DIFF.
+It is the complete diff of that commit and nothing else. Files: 2. File deletions: 0.
+
+3041554b65d77334b664c0187d2ae098beb504e8
+Ubuntu
+cfd M6SR ITEMS 41 AND 42 RULED AND CLOSED: the grading criterion was UNSATISFIABLE while the campaign was already correct -- 12 foreign rows held the exit code at 3 against a 10-of-10 clean pinned set. A registration-restricted mode gives M6SR an exit code it can earn, and the unreachable freeze-margin limb is registered as a caveat ON the criterion
+
+ scripts/check_comparator_freeze.py            | 333 +++++++++++++++++++++++++-
+ verification/campaign/M6SR_PREREGISTRATION.md | 312 ++++++++++++++++++++++++
+ 2 files changed, 641 insertions(+), 4 deletions(-)
+
+================================ FULL DIFF ================================
+diff --git a/scripts/check_comparator_freeze.py b/scripts/check_comparator_freeze.py
+index d7a8b085..38ea39e8 100644
+--- a/scripts/check_comparator_freeze.py
++++ b/scripts/check_comparator_freeze.py
+@@ -126,6 +126,53 @@ are the only thing the flag adds, and they judge only paths that a named
+ registration pins.  This matters because the tool is shared, cross-team
+ instrumentation and other campaigns' rows are not this flag's business.
+ 
++REGISTRATION-RESTRICTED MODE -- AN EXIT CODE A REGISTRATION CAN EARN
++                                                        (M6SR item 42)
++The repo-wide exit code is not any one campaign's to earn.  Measured, on this
++repository: TWELVE rows belonging to other campaigns are UNFROZEN, so the
++process exits 3 no matter how clean the registered set is -- and it was
++perfectly clean, 10 of 10 covered, 10 PIN-OK, 0 violating, at the same run.  A
++grading criterion phrased "the freeze check exits 0" is therefore UNSATISFIABLE
++for such a campaign however correct it is, and no amount of work on its own
++files can make it satisfiable.
++
++The available readings were both bad.  Reading the criterion off a substring of
++stdout ("PIN COVERAGE: 10 of 10") is weaker than an exit code: a run that dies
++before printing that line leaves no substring to fail on, and a grep for a pass
++phrase cannot distinguish "printed and true" from "printed and then refused".
++Ignoring the exit code is worse still.
++
++--restrict-to-registration answers it at the population instead.  It judges
++ONLY the executables the named registration(s) pin, and the exit code is then
++earned by that set alone:
++
++  * the population IS the pinned set.  The name patterns never run, so no file
++    the registration does not pin can enter it, and no directory is walked for
++    anything other than the basenames pinned in it.
++  * NOTHING OUTSIDE THE PINNED SET IS JUDGED, RE-JUDGED, SUPPRESSED OR CHANGED.
++    A foreign row is not silenced by this mode -- it was never in it.  The
++    unrestricted run continues to report every one of those rows exactly as it
++    did, at the same status, and continues to exit 3 on them.  That is the
++    point: this mode narrows what THIS invocation speaks about, and takes away
++    nothing that any other invocation says.
++  * IT IS NOT LENIENT.  Every refusal and every violation that could fire in
++    the unrestricted run still fires here on a pinned path: an uncovered pin
++    REFUSES (exit 2), PIN-DRIFT and PIN-STALE are violations (exit 3), an empty
++    restricted population REFUSES, and a pinned comparator that is itself
++    UNFROZEN, UNCOMMITTED or MODIFIED_AFTER_COMMIT still exits 3.  Restricting
++    the population is not the same as lowering the bar for what is in it.
++  * it REQUIRES --registration.  A restriction with no registered set is not a
++    narrower population, it is an empty one, and 2p.2 already rules on that.
++
++WHAT A GREEN FROM THIS MODE DOES NOT MEAN -- carried in the output, not only
++here, because a caveat a grader has to remember is enforced by prose (M6SR
++item 41).  A restricted row that is NO-MARKERS was tested for IDENTITY and
++CURRENCY and NOT for freeze margin, because the freeze-margin limb dates a
++freeze from completion markers in the comparator's own tree and a campaign
++whose chain writes none can never reach it -- before or after a launch.  When
++any restricted row is NO-MARKERS the run prints that caveat beside the verdict.
++A PASS here is not, and must not be read as, a marker-dated freeze margin.
++
+ --------------------------------------------------------------------------
+ SHA-WITNESS FREEZE  (D471.3)
+ --------------------------------------------------------------------------
+@@ -597,6 +644,37 @@ def walk_population(repo, strict_markers=False, roots=POPULATION_ROOTS,
+     return rows
+ 
+ 
++def walk_registered(repo, pins, strict_markers=False):
++    """The RESTRICTED population -- exactly the executables `pins` names.
++
++    See REGISTRATION-RESTRICTED MODE.  Every pinned directory is visited once,
++    RESTRICTED to the basenames pinned in it, so GRADER_RE never runs and no
++    file the registration does not pin can enter the population.  Nothing
++    outside the pinned set is opened, judged or reported here -- which is the
++    property that makes the exit code the registration's own to earn, and the
++    property that keeps this mode from touching another campaign's row.
++
++    Rows are produced by the SAME check_tree as the unrestricted walk, so a
++    pinned path is judged identically in both; the only difference is which
++    paths are in the population."""
++    by_dir = {}
++    for path in pins:
++        by_dir.setdefault(os.path.dirname(path) or ".", []).append(
++            os.path.basename(path))
++    rows, seen = [], set()
++    for rel in sorted(by_dir):
++        d = repo if rel == "." else os.path.join(repo, rel)
++        if not os.path.isdir(d):
++            continue
++        for x in check_tree(repo, d, strict_markers=strict_markers,
++                            restrict=by_dir[rel]) or ():
++            k = (x["tree"], x["comparator"])
++            if k not in seen:
++                seen.add(k)
++                rows.append(x)
++    return rows
++
++
+ # --------------------------------------------------------------------------
+ # selftest
+ # --------------------------------------------------------------------------
+@@ -1112,6 +1190,185 @@ def selftest():
+         check("item40 a registration pinning nothing REFUSES",
+               run_ep(rpn, "--registration",
+                      "verification/campaign/NOPINS.md").returncode, EXIT_REFUSE)
++
++        # ================================================================
++        # M6SR ITEM 42 -- AN EXIT CODE A REGISTRATION CAN EARN.
++        #
++        # The planted repository reproduces the measured defect exactly: a
++        # registered set that is PERFECTLY CLEAN, and foreign rows that hold
++        # the process exit at 3 regardless.  Every arm below runs THIS FILE as
++        # a subprocess, so what is exercised is the command line a grading
++        # criterion would be written against.
++        # ================================================================
++        r42 = scratch_repo("item42")
++
++        # -- the registered set: one grader with a marker, one file outside
++        #    every walk root with none (the M6SR shape).
++        wr(r42, "cases/M/analyse_m.py", 'def m(t):\n    return f"MM_{t}"\n')
++        wr(r42, "tools/help_m.py", "X = 1\n")
++        commit_in(r42, "the registered set", "2026-09-02T00:00:00+00:00")
++        marker(os.path.join(r42, "cases", "M"), "MM_1", "2026-09-03T00:00:00Z")
++
++        # -- FOREIGN ROW 1: another campaign's grader, in a tree this
++        #    registration has nothing to do with, born AFTER its own case
++        #    finished.  This is the twelve-row shape.
++        os.makedirs(os.path.join(r42, "verification", "foreign"))
++        marker(os.path.join(r42, "verification", "foreign"), "FF_1",
++               "2026-09-03T12:00:00Z")
++        commit_in(r42, "a foreign case finishes", "2026-09-03T12:00:00+00:00")
++        wr(r42, "verification/foreign/analyse_f.py",
++           'def m(t):\n    return f"FF_{t}"  # born late\n')
++        # -- FOREIGN ROW 2: the near-miss.  A grader the NAME PATTERNS match,
++        #    sitting INSIDE a directory this registration pins a file in.
++        #    Restricting must exclude it BY REGISTRATION, not by directory.
++        wr(r42, "cases/M/analyse_other.py",
++           'def m(t):\n    return f"MM_{t}"  # another campaign, born late\n')
++        commit_in(r42, "two foreign graders, both late",
++                  "2026-09-04T00:00:00+00:00")
++
++        b42 = {p: blob_of(r42, p) for p in ("cases/M/analyse_m.py",
++                                            "tools/help_m.py")}
++        reg42 = "verification/campaign/REG42.md"
++        wr(r42, reg42, reg_body(sorted(b42.items())))
++        commit_in(r42, "registration pinning two", "2026-09-05T00:00:00+00:00")
++
++        # ---- IS THE PLANT ACTUALLY ADVERSE?  A control that fires on a tree
++        # that was never guilty proves nothing, so the guilt is measured
++        # first, at source, rather than assumed from the way it was built.
++        st42 = {(x["tree"] + "/" + x["comparator"]): x["status"]
++                for x in walk_population(r42)}
++        check("item42 plant is adverse: foreign grader is UNFROZEN",
++              st42.get("verification/foreign/analyse_f.py"), "UNFROZEN")
++        check("item42 plant is adverse: same-directory grader is UNFROZEN",
++              st42.get("cases/M/analyse_other.py"), "UNFROZEN")
++        check("item42 plant is adverse: the REGISTERED grader is clean",
++              st42.get("cases/M/analyse_m.py"), "FROZEN")
++
++        # ---- THE DEFECT, REPRODUCED.  Registered set clean; exit 3 anyway. --
++        u1 = run_ep(r42, "--registration", reg42)
++        check("item42 unrestricted: the pinned set is completely covered",
++              "PIN COVERAGE: 2 of 2" in u1.stdout, True)
++        check("item42 unrestricted: the pinned set has ZERO violations",
++              "2 PIN-OK, 0 violating" in u1.stdout, True)
++        check("item42 unrestricted: and the exit code is 3 REGARDLESS",
++              u1.returncode, EXIT_VIOLATION)
++
++        # ---- THE FIX.  Same repo, same registration, one added flag. --------
++        r1 = run_ep(r42, "--registration", reg42, "--restrict-to-registration")
++        check("item42 RESTRICTED: the registered set earns exit 0",
++              r1.returncode, EXIT_OK)
++        check("item42 RESTRICTED: population is 2 graders, not the walk",
++              "2 grader(s) in the population, 0 violating" in r1.stdout, True)
++
++        # ---- SILENCE, NOT SUPPRESSION.  The foreign rows are not hidden by
++        # this mode; they were never in it.  Both must be absent from the
++        # restricted output and present in the unrestricted one -- the second
++        # half is what makes the first half mean something.
++        for nm in ("analyse_f.py", "analyse_other.py"):
++            check(f"item42 RESTRICTED does not judge foreign {nm}",
++                  nm in r1.stdout, False)
++            check(f"item42 unrestricted still reports foreign {nm}",
++                  nm in u1.stdout, True)
++
++        # ---- NON-INTERFERENCE, BYTE FOR BYTE.  The unrestricted invocation
++        # must be untouched by the existence of the restricted one.  PLANTED:
++        # the same comparison is run against the restricted output, and MUST
++        # report a difference -- a byte comparison that cannot see one is not
++        # evidence of sameness.
++        u2 = run_ep(r42, "--registration", reg42)
++        check("item42 unrestricted output is byte-identical across runs",
++              u1.stdout == u2.stdout, True)
++        check("item42 unrestricted exit code is unchanged",
++              u1.returncode == u2.returncode, True)
++        check("item42 PLANT: that comparison CAN see a difference",
++              u1.stdout == r1.stdout, False)
++
++        # ---- ITEM 41's CAVEAT IS PRINTED WHERE THE GRADER MEETS IT ---------
++        # tools/help_m.py has no marker in its tree, so its freeze-margin limb
++        # cannot fire.  The verdict must say so.
++        check("item41 caveat is printed beside a restricted verdict",
++              "CAVEAT ON THIS VERDICT" in r1.stdout, True)
++        check("item41 caveat counts the unreachable rows",
++              "1 of 2 restricted row(s) are NO-MARKERS" in r1.stdout, True)
++        # NEGATIVE CONTROL -- the caveat is CONDITIONAL, not boilerplate.  A
++        # registration whose every pinned row IS margin-judged must not get it.
++        reg41 = "verification/campaign/REG41.md"
++        wr(r42, reg41, reg_body([("cases/M/analyse_m.py",
++                                  b42["cases/M/analyse_m.py"])]))
++        commit_in(r42, "a registration with no NO-MARKERS row",
++                  "2026-09-05T01:00:00+00:00")
++        r_nc = run_ep(r42, "--registration", reg41, "--restrict-to-registration")
++        check("item41 caveat is ABSENT when every row is margin-judged",
++              "CAVEAT ON THIS VERDICT" in r_nc.stdout, False)
++        check("item41 that negative control still PASSES",
++              r_nc.returncode, EXIT_OK)
++
++        # ---- RESTRICTED IS NOT LENIENT.  Every arm below is the SAME entry
++        # point and the SAME flag as the passing arm above, so a failure here
++        # is the plant and not the mode.
++        # (a) a pinned path that cannot be judged still REFUSES
++        wr(r42, reg42, reg_body(sorted(b42.items())
++                                + [("cases/M/gone.sh", "0" * 40)]))
++        commit_in(r42, "a pin nobody can judge", "2026-09-05T02:00:00+00:00")
++        r_mp = run_ep(r42, "--registration", reg42, "--restrict-to-registration")
++        check("item42 RESTRICTED still REFUSES on an uncovered pin",
++              r_mp.returncode, EXIT_REFUSE)
++        check("item42 that refusal names the uncovered path",
++              "gone.sh" in r_mp.stdout, True)
++        wr(r42, reg42, reg_body(sorted(b42.items())))
++        commit_in(r42, "back to the complete pin set",
++                  "2026-09-05T03:00:00+00:00")
++        # (b) PIN-DRIFT is still a violation under restriction
++        open(os.path.join(r42, "tools/help_m.py"), "a").write("# drift\n")
++        r_dr2 = run_ep(r42, "--registration", reg42, "--restrict-to-registration")
++        check("item42 RESTRICTED still fails on PIN-DRIFT",
++              r_dr2.returncode, EXIT_VIOLATION)
++        check("item42 and names it PIN-DRIFT", "PIN-DRIFT" in r_dr2.stdout, True)
++        # (c) PIN-STALE is still a violation under restriction
++        commit_in(r42, "the drift lands, the pin does not move",
++                  "2026-09-05T04:00:00+00:00")
++        r_st2 = run_ep(r42, "--registration", reg42, "--restrict-to-registration")
++        check("item42 RESTRICTED still fails on PIN-STALE",
++              r_st2.returncode, EXIT_VIOLATION)
++        check("item42 and names it PIN-STALE", "PIN-STALE" in r_st2.stdout, True)
++        # ADVERSE PAIR -- re-pinning clears it, so the failure tracked the pin
++        # and not merely the edit.
++        b42["tools/help_m.py"] = blob_of(r42, "tools/help_m.py")
++        wr(r42, reg42, reg_body(sorted(b42.items())))
++        commit_in(r42, "re-pinned", "2026-09-05T05:00:00+00:00")
++        check("item42 re-pinning clears it and RESTRICTED passes again",
++              run_ep(r42, "--registration", reg42,
++                     "--restrict-to-registration").returncode, EXIT_OK)
++
++        # (d) THE ARM THAT MATTERS MOST: a violation INSIDE the registered set.
++        # Restricting the population must not restrict the standard applied to
++        # what is in it.  Planted so the PIN limbs are clean and the ROW is
++        # not, which isolates the row limb from the pin limbs entirely.
++        r42b = scratch_repo("item42_own_set_violates")
++        os.makedirs(os.path.join(r42b, "cases", "N"))
++        marker(os.path.join(r42b, "cases", "N"), "NN_1", "2026-09-06T00:00:00Z")
++        commit_in(r42b, "the case finishes first", "2026-09-06T00:00:00+00:00")
++        wr(r42b, "cases/N/analyse_n.py",
++           'def m(t):\n    return f"NN_{t}"  # born after its own case\n')
++        commit_in(r42b, "the comparator is born late",
++                  "2026-09-07T00:00:00+00:00")
++        regb = "verification/campaign/REGB.md"
++        wr(r42b, regb, reg_body([("cases/N/analyse_n.py",
++                                  blob_of(r42b, "cases/N/analyse_n.py"))]))
++        commit_in(r42b, "pinned at its current blob",
++                  "2026-09-07T01:00:00+00:00")
++        r_own = run_ep(r42b, "--registration", regb, "--restrict-to-registration")
++        check("item42 RESTRICTED fails on an UNFROZEN row in its OWN set",
++              r_own.returncode, EXIT_VIOLATION)
++        check("item42 and the PIN limbs were clean, so the ROW earned it",
++              "1 PIN-OK, 0 violating" in r_own.stdout, True)
++        check("item42 the failing row is reported UNFROZEN",
++              "UNFROZEN" in r_own.stdout, True)
++
++        # (e) the flag REQUIRES a registration.  Restricting to nothing is an
++        # empty population, and that has never been a clean population.
++        check("item42 --restrict-to-registration alone REFUSES",
++              run_ep(r42, "--restrict-to-registration").returncode, EXIT_REFUSE)
+     finally:
+         shutil.rmtree(tmp, ignore_errors=True)
+     return ok
+@@ -1130,6 +1387,14 @@ def main():
+                          "be in the population.  Repeatable.  Adds the COVERAGE, "
+                          "IDENTITY and CURRENCY limbs; changes nothing about the "
+                          "walk when it is not given")
++    ap.add_argument("--restrict-to-registration", action="store_true",
++                    help="judge ONLY the executables the given registration(s) "
++                         "pin, so the EXIT CODE is earned by that set alone. "
++                         "Requires --registration. Judges, re-judges, "
++                         "suppresses and changes NOTHING outside the pinned "
++                         "set -- the unrestricted run still reports every "
++                         "other row exactly as before. Not lenient: every "
++                         "refusal and violation still fires on a pinned path")
+     a = ap.parse_args()
+     if a.selftest:
+         print("SELFTEST -- planted shapes that must fire, and ones that must not")
+@@ -1139,6 +1404,15 @@ def main():
+     if not os.path.isdir(os.path.join(repo, ".git")):
+         refuse(f"REFUSE: {repo} is not a git repository")
+ 
++    if a.restrict_to_registration and not a.registration:
++        # 2p.2 one level up.  "Restrict to the registered set" with no
++        # registration names an EMPTY set, and an empty population has never
++        # been a clean population.  Refusing here also stops the flag from
++        # being a silent no-op that a criterion could be written against.
++        refuse("REFUSE: --restrict-to-registration requires at least one "
++               "--registration. A restriction with no registered set is not a "
++               "narrower population, it is an empty one (charter 2p.2).")
++
+     # ---- registration pins, read BEFORE the walk so they can widen it -------
+     pins, extras = {}, {}
+     for reg in a.registration:
+@@ -1162,14 +1436,28 @@ def main():
+         extras.setdefault(os.path.dirname(path) or ".", []).append(
+             os.path.basename(path))
+ 
+-    rows = walk_population(repo, strict_markers=a.strict_markers, extras=extras)
++    if a.restrict_to_registration:
++        rows = walk_registered(repo, pins, strict_markers=a.strict_markers)
++    else:
++        rows = walk_population(repo, strict_markers=a.strict_markers,
++                               extras=extras)
+ 
+     print("COMPARATOR FREEZE -- VERIFICATION_CHARTER.md 2d")
+     print("scope: markers are matched PER COMPARATOR from the comparator's own "
+           "source (D471.1)")
+-    print(f"population: {', '.join(POPULATION_ROOTS)}/  --  "
+-          "analyse_*.py, grade_*.py, score_*.py (D471.2; docs/campaigns added "
+-          "under charter 2q)")
++    if a.restrict_to_registration:
++        print(f"population: RESTRICTED to the {len(pins)} executable(s) pinned "
++              f"by {', '.join(a.registration)} -- the analyse_/grade_/score_ "
++              f"name patterns are NOT applied")
++        print("THE EXIT CODE BELOW IS EARNED BY THAT SET ALONE. This mode is "
++              "SILENT about every row outside it: it judges none of them, "
++              "re-judges none of them, suppresses none of them and changes "
++              "none of them. The unrestricted invocation still reports them "
++              "unaltered, at the same statuses and the same exit code.")
++    else:
++        print(f"population: {', '.join(POPULATION_ROOTS)}/  --  "
++              "analyse_*.py, grade_*.py, score_*.py (D471.2; docs/campaigns added "
++              "under charter 2q)")
+     print("=" * 100)
+     if not rows:
+         # charter 2p.2, the empty-input test.  A walk that found nothing has not
+@@ -1180,6 +1468,14 @@ def main():
+         # evidence about what lies beyond it.
+         print("  no tree carries a grader.")
+         print("ZERO VERDICT: NOT_A_MEASUREMENT -- nothing was in scope")
++        if a.restrict_to_registration:
++            # the same clause, restricted: a mode whose whole population is the
++            # pinned set and which reached NONE of it has not judged that set
++            # clean, it has failed to reach it.
++            refuse("REFUSE: the RESTRICTED population is EMPTY -- not one of "
++                   "the " + str(len(pins)) + " pinned executable(s) could be "
++                   "reached: " + ", ".join(sorted(pins)) + ". An empty "
++                   "population is not a clean population (charter 2p.2).")
+         refuse(f"REFUSE: the walk of {', '.join(POPULATION_ROOTS)}/ found ZERO "
+                f"comparators. An empty population is not a clean population -- "
+                f"it is a check that did not reach its subject (charter 2p.2).")
+@@ -1283,9 +1579,38 @@ def main():
+                "row: " + ", ".join(uncovered) + ". A partial population is not "
+                "a clean population -- it is a check that did not reach its "
+                "subject (charter 2p.2, extended to the partial case).")
++    if a.restrict_to_registration:
++        # M6SR item 41, carried WHERE A GRADER MEETS IT.  The freeze-margin limb
++        # dates a freeze from completion markers in the comparator's own tree.
++        # A campaign whose chain writes no marker cannot reach that limb, before
++        # or after a launch, and a NO-MARKERS row is therefore tested for
++        # IDENTITY and CURRENCY and NOT for margin.  Printing this only beside a
++        # restricted verdict is deliberate: this is the invocation a grading
++        # criterion is written against, so this is where the caveat has to be.
++        n_nm = sum(1 for r in rows if r["status"] == "NO-MARKERS")
++        if n_nm:
++            print("-" * 100)
++            print(f"CAVEAT ON THIS VERDICT -- {n_nm} of {len(rows)} restricted "
++                  f"row(s) are NO-MARKERS. The FREEZE-MARGIN limb DID NOT FIRE "
++                  f"for them and cannot fire while their tree carries no "
++                  f"completion marker. What was tested for those rows is "
++                  f"IDENTITY and CURRENCY. A PASS from this mode is NOT a "
++                  f"marker-dated "
++                  f"freeze margin and must not be read as one; a campaign in "
++                  f"this position proves its freeze by commit ordering, not by "
++                  f"this limb.")
+     if bad or pin_bad:
+         print("VERDICT: FAIL")
+         sys.exit(EXIT_VIOLATION)
++    if a.restrict_to_registration:
++        print("ZERO VERDICT: ZERO_IS_A_MEASUREMENT -- every executable the "
++              "named registration PINS is in the population, is the file that "
++              "was committed, is pinned at a sha the registration records "
++              "unstruck, and is either frozen against the cases it names or "
++              "reported as out of evidence reach. This says NOTHING about any "
++              "row outside the pinned set.")
++        print("VERDICT: PASS")
++        sys.exit(EXIT_OK)
+     print("ZERO VERDICT: ZERO_IS_A_MEASUREMENT -- every grader in the "
+           "population is either frozen against the cases it names or is "
+           "reported as out of evidence reach")
+diff --git a/verification/campaign/M6SR_PREREGISTRATION.md b/verification/campaign/M6SR_PREREGISTRATION.md
+index 6fa20bcc..7f3e2402 100644
+--- a/verification/campaign/M6SR_PREREGISTRATION.md
++++ b/verification/campaign/M6SR_PREREGISTRATION.md
+@@ -5247,3 +5247,315 @@ re-derived inside the commit invocation that carries this section; the commit AB
+ 
+ **Neither blocks a launch on the physics. Both are defects in what a green from the named verifier
+ would MEAN**, and both would have been discovered after the fact rather than before it.
++
++## 24. AMENDMENT 18 — 2026-09-04, **PRE-COMPUTE**. **ITEMS 41 AND 42 ARE RULED AND CLOSED.** THE VERIFIER GAINS A **REGISTRATION-RESTRICTED MODE** WHOSE EXIT CODE M6SR CAN EARN, THE GRADING CRITERION IS REGISTERED **AS AN EXIT CODE** RATHER THAN AS A SUBSTRING, AND ITEM 41's UNREACHABLE LIMB IS REGISTERED AS A **STANDING CAVEAT ON THE CRITERION ITSELF**
++
++**Both items were raised by §23.7 and §23.8 as the supervisor's to rule. The supervisor has
++ruled both.** This section implements the two rulings, in the instrument and in the registration,
++and takes nothing that was not ruled.
++
++### 24.0 THE LAWFULNESS CONDITION, AND HOW IT WAS CHECKED — **NOT ASSERTED, PLANTED**
++
++Rule 2 permits amendment **before first compute** and requires the condition to be stated **and how
++it was checked**. The condition is that **no M6SR compute has happened**, and the check is that the
++run root §18.6 pins does not exist.
++
++**Checked by execution, with a live plant, at the exact searched path.** The searcher was run
++three times in one shell invocation: it reported **0** matches for `verification/runs/M6SR*`; a
++probe directory was then created **at that path** and the same searcher reported **1**; the probe
++was removed and the searcher reported **0** again. **A zero from a reader shown able to see a
++non-zero.** ⚠ **The plant was SEEN.** No `B2` march, no `B5` solve, no container, no queue row.
++
++### 24.1 🔴 ITEM 42, RULED — **A GATE WHOSE PASS CONDITION DEPENDS ON ANOTHER TEAM'S STATE IS NOT A GATE THIS CAMPAIGN CAN PASS**
++
++§23.8 measured the defect and recommended a **substring** reading. **The supervisor declined that
++reading and ruled the structural fix.** §23.8's recommendation is therefore **FALSE IN FORCE** and
++is struck, rule 6, by quote:
++
++> 🔴 **STRUCK BY QUOTE:** ~~*"The M6SR-side criterion must therefore be read from the **`PIN COVERAGE` line and the M6SR rows**, not from the process exit code: **`10 of 10` covered, `10 PIN-OK`, `0 violating`, and no M6SR row in a `VIOLATING` status.**"*~~
++
++⚠ **THE REST OF §23.8 STANDS AND IS NOT STRUCK** — its measurement, its warning that a substring
++criterion is weaker than an exit code, its naming of the restricted mode as the clean fix, and its
++refusal to adjudicate the twelve foreign rows. **Only the recommended READING is superseded.**
++**The finding was right; the remedy it proposed was the weaker of the two available, and the lane
++said so itself.**
++
++⚠ **THE TWELVE FOREIGN ROWS ARE STILL NOT ADJUDICATED HERE.** They belong to other campaigns,
++they are outside this registration and outside this team, and **nothing in this amendment changes,
++suppresses, re-judges or even reads a verdict on one.** §24.3 proves that byte-for-byte.
++
++### 24.2 THE REPAIR — `--restrict-to-registration`, AND THE FOUR THINGS IT IS **NOT**
++
++`scripts/check_comparator_freeze.py` gains one flag. With it, the **population IS the pinned set**:
++each directory a registration pins a file in is visited once, restricted to the pinned basenames,
++and the `analyse_*/grade_*/score_*` name patterns **never run**. The exit code is then earned by
++that set alone.
++
++| the property | how it is held |
++|---|---|
++| **it JUDGES ONLY the registered set** | `walk_registered()` builds the population from the pin map and nothing else. A foreign file cannot enter it, because entry is by registration and not by name or by directory. |
++| **it CHANGES NOTHING outside that set** | The mode is a new branch behind a flag that defaults off. **The unrestricted invocation's walk is untouched** — proved byte-identically in §24.3, not argued. A foreign row is **not silenced by this mode; it was never in it.** |
++| **it is NOT LENIENT** | Every refusal and every violation that could fire unrestricted still fires here on a pinned path: an **uncovered pin REFUSES** (exit 2), **PIN-DRIFT** and **PIN-STALE** are **violations** (exit 3), an **empty restricted population REFUSES**, and a pinned comparator that is itself `UNFROZEN`, `UNCOMMITTED` or `MODIFIED_AFTER_COMMIT` **still exits 3**. Rows are produced by the **same** `check_tree()` as the unrestricted walk, so a pinned path is judged **identically** in both; only the population differs. |
++| **it is NOT a way to restrict to nothing** | The flag **requires** `--registration` and refuses without it (exit 2). A restriction with no registered set is not a narrower population, it is an empty one, and 2p.2 already rules on that. |
++
++⚠ **THE NEAR-MISS §23's LANE NAMED IS HELD, AND MEASURED.** Three of the ten pins live in
++`scripts/`, which also holds **four `analyse_k0*.py` graders belonging to heat-transfer**. Under
++restriction the tool judges **only the pinned names** in that directory. **Measured on this
++repository: zero of those four appear in the restricted output**, and the same reader **does** see
++`scripts/verify_agard_ar138_table_b1_1.py`, which is pinned — **so the zero is a reading, not a
++blindness.** Following a registration into a shared directory must never annex another team's rows.
++
++### 24.3 THE MEASUREMENT — **THE RESTRICTED EXIT CODE IS M6SR's**, AND THE UNRESTRICTED RUN IS **BYTE-IDENTICAL**
++
++**The defect, restated as a measurement at the commit this work began from (`6b7a71e8`):** the
++repo-wide invocation reported **`PIN COVERAGE: 10 of 10 … 10 PIN-OK, 0 violating`** — a perfectly
++clean registered set — **and exited 3 anyway**, on **12 `UNFROZEN` rows out of 216 graders**, none
++of them M6SR's. **That is item 42 in one line: the criterion was unsatisfiable while the campaign
++was already correct.**
++
++| what was run | result |
++|---|---|
++| unrestricted, at `6b7a71e8`, twice | **deterministic** — the two runs are byte-identical; **exit 3**; 216 graders, **12 violating**; **10 of 10 pinned, 10 PIN-OK, 0 violating** |
++| **restricted**, same registration | **population = the 10 pinned executables**, **zero** foreign rows, **0 violating** |
++| unrestricted, after the change | **exit 3**, 216 graders, **12 violating** — unchanged |
++
++🔴 **THE NON-INTERFERENCE PROOF, BYTE-FOR-BYTE.** The freeze-walk section of the unrestricted
++output — the header through the `CANNOT SEE:` line, **every one of the 216 rows and all 12 foreign
++violations** — renders to sha256
++**`dab68a6130e67bd7214d6a223a147e387ddef8975a4cb2a14b6066fc5ffccdc2`** **before this change and
++after it. Identical.**
++
++⚠ **RULE 3 ON THAT COMPARISON.** A byte comparison that cannot report a difference is not evidence
++of sameness. **Two plants, both SEEN:** the same comparator was run against a copy of the baseline
++with **one byte** altered and reported **DIFFER**; and against the restricted output and reported
++**DIFFER**. **A comparison shown able to say "different" said "identical".**
++
++⚠ **AND THE ONE THING THAT DID CHANGE IS NAMED, NOT BURIED.** In the **pin** section — not the
++walk — exactly one row moved, and only while this amendment was in flight: the verifier's own row,
++`PIN-OK` → `PIN-DRIFT`, because the file being edited **is** one of the ten pinned executables.
++**That is the instrument convicting the very edit that created it, on a plant nobody had to
++fabricate**, and it is resolved by the re-pin at §24.7. **No other pin row moved; no walk row
++moved; the exit code did not move.**
++
++### 24.4 🔴 **THE REGISTERED GRADING CRITERION — VERBATIM, AND AS AN EXIT CODE**
++
++§23.5.1's principle, which the supervisor endorsed and which this section obeys: **a repair that
++must be REMEMBERED at grading time is enforced by prose, which is the defect itself.** The
++criterion is therefore registered here as the exact command line, and the pass condition is the
++process exit code:
++
++```
++python3 scripts/check_comparator_freeze.py --repo . \
++    --registration verification/campaign/M6SR_PREREGISTRATION.md \
++    --restrict-to-registration
++```
++
++> **CRITERION `FZ1` — PASS if and only if that invocation exits `0`.**
++> **Exit `2` is a REFUSAL and is NOT A RESULT. Exit `3` is a GATE FAIL. No other exit code is a
++> pass, and no reading of stdout may substitute for the exit code.**
++
++⚠ **`--restrict-to-registration` IS NOT AN OPTION ON THIS LADDER; IT IS PART OF THE CRITERION.**
++Without it the exit code is not M6SR's to earn (§24.1). Without `--registration` the check reaches
++**one** of the ten and the restricted flag refuses outright.
++
++⚠ **§23.5.1's REPO-WIDE INVOCATION IS RETAINED AND IS NOT STRUCK.** It remains registered as the
++**cross-team diagnostic** — the run that shows M6SR's rows in their true repository context and
++that is the only one able to report a foreign regression. **It is a diagnostic. `FZ1` is the
++criterion.** The two are different questions and this registration now says which is which.
++
++### 24.5 🔴 **ITEM 41, RULED — THE STANDING CAVEAT, ON THE CRITERION ITSELF**
++
++**The supervisor's ruling, adopted in terms:** the freeze-margin limb is **structurally
++unreachable** for this ladder. The verifier dates a freeze from `DONE.<CASE>` markers **in the
++comparator's own tree**; §9.1 puts the executables under `cases/M6SR/` while any marker would be
++produced into `verification/runs/M6SR_runs/`, a different tree; and the string `DONE.` occurs
++**zero** times in all three pinned drivers. **All ten rows read `NO-MARKERS` and always will,
++before and after a launch.**
++
++> 🔴 **STANDING CAVEAT ON CRITERION `FZ1`, WHICH IS PART OF THE CRITERION AND NOT A FOOTNOTE TO IT.**
++> **A PASS on `FZ1` IS NOT A MARKER-DATED FREEZE MARGIN AND MUST NOT BE READ AS ONE.** What `FZ1`
++> tests is **COVERAGE, IDENTITY and CURRENCY** — that every pinned executable is judged, is the
++> file that was committed, and is pinned at a sha this registration records unstruck. It does
++> **not** test *"was the comparator committed before the first case finished"*, because for this
++> ladder that limb cannot fire. **M6SR's freeze proof is the pre-registration commit ordering plus
++> the plant-verified absence of the run root (§24.0), which is a valid and independent proof —
++> this is NOT a hole in the freeze.** A grader who reads a green here as a dated margin has read
++> something the tool did not say.
++
++⚠ **AND THE CAVEAT IS CARRIED IN THE OUTPUT, NOT ONLY HERE.** The restricted mode **prints it
++beside the verdict** whenever any row in the registered set is `NO-MARKERS`, counting them — for
++exactly the reason §23.5.1 gives about prose. **On this repository it prints `10 of 10`.** A
++negative control shows the caveat is **conditional and not boilerplate**: a registered set with no
++`NO-MARKERS` row does not get it (§24.6).
++
++⚠ **NO `DONE.` MARKER WAS ADDED TO MAKE THE LIMB REACHABLE**, on the supervisor's express
++instruction and this lane's agreement. **A marker written to satisfy a checker, rather than because
++a step completed, is a fabricated completion.** Whether the chain should emit markers at all, and
++into which tree, remains a §9/§10 mechanics question and remains the supervisor's.
++
++### 24.6 THE CONTROLS — **HOW EACH MUTANT DIED, NOT MERELY THAT IT DID**
++
++**Thirty new selftest arms**, all inside `--selftest`, all driving **this file as a subprocess** so
++what is exercised is the command line the criterion is written against. Total **87 arms, 0 FAIL**,
++rc `0`. Every arm below states the **mechanism** of death, because three suites this campaign
++killed mutants for the wrong reason and only *how* exposed it.
++
++| the plant | how it died | why that is the right death |
++|---|---|---|
++| **the defect itself**, reproduced: a clean registered set beside two late foreign graders | unrestricted run printed `PIN COVERAGE: 2 of 2 … 2 PIN-OK, 0 violating` **and exited 3** | the synthetic repo reproduces the measured shape, so the fix is tested against the disease |
++| the same repo, one flag added | **exit 0**, `2 grader(s) in the population, 0 violating` | the exit code became the registration's to earn — the whole ruling, in one arm |
++| foreign grader in an **unrelated tree** | its name is **absent** from restricted stdout and **present** in unrestricted stdout | the second half is what makes the first half mean something: *silence, not suppression* |
++| foreign grader **inside a pinned directory**, name-pattern matching | same — absent restricted, present unrestricted | exclusion is **by registration**, not by directory. This is §24.2's near-miss, planted |
++| non-interference | unrestricted stdout **byte-identical** across runs either side of a restricted run | — |
++| **PLANT on that comparison** | the same equality test reported **DIFFER** against the restricted output | a byte comparison that cannot see a difference proves nothing |
++| a pinned path that is not on disk | **exit 2**, refusal **names the path** | coverage short of the pinned set is a check that did not reach its subject |
++| worktree drift on a pinned file | **exit 3**, stdout says **`PIN-DRIFT`** | restricted is not lenient about identity |
++| the drift committed, pin not moved | **exit 3**, stdout says **`PIN-STALE`** | restricted is not lenient about currency |
++| **adverse pair** for that | re-pinning the moved file returns **exit 0** | the failure tracked the **pin**, not merely the edit |
++| **a pinned comparator that is itself `UNFROZEN`** (separate repo; pins deliberately clean) | **exit 3**, and the pin section reads **`1 PIN-OK, 0 violating`** | **the ROW earned the failure, not the pin limbs.** Restricting the population does not restrict the standard applied to what is in it — the single most important arm here |
++| `--restrict-to-registration` with no `--registration` | **exit 2** | a restriction to nothing is an empty population |
++| item 41's caveat | printed, and **counts** the rows: `1 of 2 restricted row(s) are NO-MARKERS` | — |
++| **negative control** on the caveat | a registered set with **no** `NO-MARKERS` row does **not** print it, and still **exits 0** | the caveat is conditional, not boilerplate. **Reported as a control that is deliberately a no-op on its subject** |
++| **is the plant even adverse?** | measured at source before any arm ran: foreign rows are genuinely `UNFROZEN`, the registered row genuinely `FROZEN` | a control that fires on a tree that was never guilty proves nothing |
++
++⚠ **`rc` PARITY.** `--selftest` returns **`0` under both `python3` and `python3 -O`**, and the two
++runs' stdout is **byte-identical** — so no arm rests on an assertion the optimiser removes.
++⚠ **NO BARE `assert` ANYWHERE IN THE FILE.** Verified by **AST parse**, not by grep: the file
++contains **zero** `ast.Assert` nodes, and **the detector was planted** — one `assert` appended to a
++copy of the source **was seen**. Every arm goes through the `check()` helper, which prints and
++records rather than raising.
++
++### 24.7 🔴 **THE INSTRUMENT'S OWN PIN MOVED AGAIN, AND IS RE-TAKEN IN THE SAME COMMIT**
++
++**This amendment edits one of the ten pinned executables** — the verifier itself, §23.5 row 7.
++§23.6's pin is **FALSE IN FORCE** at this commit and is struck, rule 6, by quote:
++
++> 🔴 **STRUCK BY QUOTE:** ~~*"| **`scripts/check_comparator_freeze.py`** (the verifier, §9.1 and §23.5 row 7) | **`d7a8b0856454bf0a0bd8e151af056c52131935d6`** | `653dab8eae6028dd0038d4dd7d44bd5b665ae4e52b77ef0149e2af6389fbd075` | **1,297** | **§9 registered**, §23.5 — **RE-PINNED HERE** |"*~~
++
++**THE NEW STANDING PIN**, derived with `git hash-object` on the working tree and **RE-DERIVED
++INSIDE THE SAME SHELL INVOCATION AS THE COMMIT THAT CARRIES THIS SECTION, WITH THE COMMIT ABORTING
++IF IT HAD MOVED** — §22.2's guard, kept:
++
++| path | git blob sha | sha256 of the file | lines | §9 status |
++|---|---|---|---|---|
++| **`scripts/check_comparator_freeze.py`** (the verifier, §9.1 and §23.5 row 7) | **`38ea39e843d2f316c9dab36a27c0c3654cf9d0d1`** | `6954cc6d9b663175146853c3db3e7e2e3bd0fdc4bc04c4cc553028642cf6d207` | **1,622** | **§9 registered**, §23.5 — **RE-PINNED HERE** |
++
++⚠ **THE OTHER NINE PINS ARE UNMOVED AND WERE RE-VERIFIED, NOT ASSUMED** — every one read `PIN-OK`
++at this HEAD in the run reported at §24.3, while the verifier alone read `PIN-DRIFT`. **This
++amendment touches no code but the verifier.**
++
++⚠ **AN HONEST LIMITATION OF THE STRIKE-BY-QUOTE CONVENTION, NAMED RATHER THAN GLOSSED.** Striking a
++row **by quote in a later section does not remove the original row from the file**, so the parser
++still reads §22.2's and §23.6's superseded rows as live and reports **more than one recorded sha**
++for this path. **CURRENCY is satisfied by the new sha above**, and the tool's own docstring already
++declares that deciding *which* recorded sha is IN FORCE is a reading of the strike record and not
++something it takes. **The registration is the authority on which pin is in force, and it is the one
++in the table immediately above.**
++
++### 24.8 ⚠ **A JUDGEMENT THIS LANE TOOK, FLAGGED FOR THE SUPERVISOR RATHER THAN BURIED**
++
++The ruling said the restricted mode *"must still REFUSE on a missing pin, on `PIN-DRIFT` and on
++`PIN-STALE`."* **It does not go green on any of the three.** But the lab's exit codes distinguish a
++**refusal** (`2`, NOT A RESULT) from a **violation** (`3`, GATE FAIL), and the unrestricted mode
++already classifies these three as **refusal, violation, violation** respectively.
++
++**This lane kept that classification identical under restriction** rather than promoting the two
++pin violations to refusals, on the ground that **the same condition must not carry two different
++verdict labels depending on a flag** — that would make the restricted mode a different instrument
++rather than a narrower one. **So: a missing pin exits 2; `PIN-DRIFT` and `PIN-STALE` exit 3; none
++of the three passes.** ⚠ **If the ruling meant literal exit 2 for all three, this is one line to
++change and it is the supervisor's to say.** It is flagged here because reading "REFUSE" as "must
++not pass" rather than as "exit 2" is a lane's interpretation of a supervisor's word, and an
++interpretation is not an instruction.
++
++### 24.9 §9's ROWS 8–10 — **THE SUPERVISOR HAS RULED; THE RECORD IS CLOSED**
++
++§23.5 registered all ten pinned executables and asked whether rows 8–10, the three control suites,
++belonged there. **The supervisor ruled KEEP**, on the reasoning §23.5 itself gave: they are
++**pinned instruments, not graded-path producers**, and the `role` column is the correct way to say
++so. **The two PRODUCERS the ruling required — `write_m6sr_case.py` and `run_m6sr_b5.sh` — are IN,
++and the suites were never required OUT.** **§22.6's contrary recommendation stays NAMED and is not
++erased**, so a reader can see the question was contested and how it was settled. **§23.5's table
++stands unamended.**
++
++### 24.10 WHAT THIS AMENDMENT DOES **NOT** DO
++
++1. **It moves NO gate, NO threshold, NO cap and NO label.** Nothing in §5, §5.1, §2.4 or §10 is touched. `FZ1` is a **grading-path criterion registered pre-compute**, not a physics gate, and it constrains only how the freeze check is read.
++2. **It does NOT adjudicate, change, suppress or re-judge another campaign's row.** The twelve foreign rows report exactly what they reported, at exactly the same exit code — proved byte-identically, with two plants, §24.3.
++3. **It touches exactly ONE code artifact**, the verifier, and re-pins it in the same commit (§24.7). The other nine pinned files are unmodified and were re-verified at this HEAD.
++4. **It adds NO completion marker**, and does not make item 41's limb reachable by writing one. **A marker written to satisfy a checker is a fabricated completion.**
++5. **It runs NO ladder compute.** No `B2` march, no `B5` solve, no queue row, **no container**. **`verification/runs/M6SR_runs` does not exist**, plant-verified at the exact searched path before this work and after it.
++6. **It does NOT freeze and it does NOT launch.** Rule 2's freeze and the launch decision are the supervisor's; a lane may not take either.
++7. **It does not re-open** items 25 and 27 (carried forward unrepaired on the supervisor's express instruction, §18.7), items 35–37 (measured CLOSED at `87504e79`), or item 5's `X1` DATA limb, which stands untouched.
++
++### 24.11 THE STRIKE AUDIT — RUN ON THIS SECTION'S OWN DIFF
++
++The subjects are the values this amendment declares **FALSE IN FORCE**: §23.6's blob sha and file
++sha256 for the verifier, quoted inside §24.7's single strike span, and §23.8's superseded reading,
++quoted inside §24.1's. **Every occurrence of each in the text this amendment adds was located and
++classified, and each sits inside a `~~…~~` span.**
++
++⚠ **RULE 3 ON THE AUDITOR ITSELF.** A false sha was planted on a plain, unstruck prose line and the
++auditor **must** report it `UNCLASSIFIED`; the audit **refuses** rather than passing if the plant
++is not seen. **The plant was SEEN.** The result is printed in the commit that carries this section.
++
++### 24.12 COST — RULE 12
++
++| item | predicted | **actual** | ratio | attribution |
++|---|---|---|---|---|
++| repo-wide verifier runs ×4 (2 baseline, 2 after) | 4 × 71 s at 1 rank = **4.73 core-min** (charged at §23.11's measured rate) | **4.73 core-min** | **1.00** | §23.11's re-based estimate held. The correction it made — that the walk runs a `git log`/`git grep` **per row** over 216 rows — is the reason this prediction was right |
++| **restricted** verifier runs ×4 | none predicted; a new shape | **~4 s wall total at 1 rank ≈ 0.07 core-min** | — | the restricted walk visits **2 directories and 10 files** instead of 216 rows. **This is the mode's incidental second benefit and is reported, not claimed as a design goal** |
++| selftest runs ×4 (incl. `-O`) and document work | — | **host arithmetic, ~1.5 core-min** | — | 30 new arms, each spawning subprocesses in throwaway repositories |
++
++⚠ **`cost_basis` HONESTY, rule 12.** The repo-wide figure is a **charge at §23.11's measured rate,
++not four fresh measurements**, and is labelled so rather than presented as four. The restricted and
++selftest figures are **wall-clock observations on this box, not billing**; the box cannot read its
++own billing, so **any dollar figure derived from these is reported-by-owner, not measured**.
++
++**Container-seconds, reported as WASTE and SEPARATELY, never absorbed into a step's cost: ZERO —
++this pass started no container and ran no solver. Ladder core-minutes: ZERO.**
++
++⚠ **NO ROW WAS ADDED TO `docs/COST_CALIBRATION.md`, AND THE REASON IS NAMED.** Rule 12's
++calibration ledger takes a row at a **process completion** — a rung graded, a case closed, a
++curriculum item finished. **Nothing completed here**: this is a pre-compute amendment with zero
++ladder compute, and the estimate-versus-actual comparison above is recorded in the amendment as
++§17.10 through §23.11 have all recorded theirs. **If the supervisor reads a pre-compute pass as a
++completion, that row is one line and is theirs to direct.**
++
++⚠ **The box was NOT idle.** Heat-transfer's `T3e` held **8 ranks of 16**. This pass took **1 rank**
++and did not saturate.
++
++### 24.13 RULE 6's AMENDMENT ASSERTIONS
++
++**Version: v1.9 → v1.10 (amendment 18, pre-compute). The frozen file was NOT edited; this section
++is APPENDED AT THE FOOT.**
++
++⚠ **The header line 3 still reads `v1.0` and is DELIBERATELY NOT EDITED**, for the reason §15.10
++through §23.12 give: editing it would change a line above §15 and falsify those sections' own
++assertions, on which other records depend — **and at least one such citation sits inside an
++executable check.** **The bump is recorded HERE. The supervisor may restate the version in the
++header at the re-freeze, which is a status flip they own; a lane may not.**
++
++> **`lines whose number changed above this section: 0`**
++
++**Verified, not asserted:** lines **1–5249** of this file — the whole of it up to and including
++§23.13's closing line, and therefore **every** guaranteed range §15.10 through §23.12 asserts — are
++**byte-identical** before and after this append, both rendering to sha256
++**`d74ee5689e96a4fb47faa5f46a798214d34b33e7a908a7f1c187d1d6f152f66d`** *(asserted here and
++re-derived inside the commit invocation that carries this section; the commit ABORTS if it moves)*.
++
++### 24.14 THE STANDING QUESTION — **ANYTHING ELSE BETWEEN THIS DOCUMENT AND A LAWFUL LAUNCH?**
++
++**NO. This lane finds nothing further, and states what it checked in order to be able to say so.**
++
++1. **Every item this campaign has raised is closed or is explicitly parked by the supervisor.** Items 41 and 42 are ruled and implemented here. Items 35–37 were measured closed. Items 38, 39 and 40 were repaired in the instruments. Items 25, 27 and item 5's `X1` DATA limb are **carried forward unrepaired on express instruction**, which is a decision on the record and not an open finding.
++2. **The registered grading criterion is now an EXIT CODE the campaign can earn** (§24.4), it is registered **verbatim as a command line** rather than as remembered prose, and it **refuses** rather than passing when it cannot reach its subject.
++3. **All ten pinned executables are covered, identity-checked and currency-checked** — measured `10 of 10`, and the one drift in flight was the verifier's own edit, resolved by the re-pin in this commit.
++4. **The freeze is provable without the unreachable limb**, and the caveat saying so is registered **on the criterion** and **printed by the tool**, so a future grader meets it rather than having to remember it.
++5. **No compute has occurred**: the run root is plant-verified absent at the exact searched path.
++
++⚠ **WHAT THIS LANE CANNOT SAY, AND DOES NOT.** It has **not** re-derived the physics, the gates in
++§5/§5.1, the mesh standard compliance or the solver pin from first principles this pass; those were
++settled in earlier amendments and are **relied on, not re-verified here**. **Check 1 on this diff,
++check 4, the freeze and the launch are the supervisor's**, and this lane takes none of them.
++**Subject to those four, this lane knows of nothing between this document and a lawful launch.**
