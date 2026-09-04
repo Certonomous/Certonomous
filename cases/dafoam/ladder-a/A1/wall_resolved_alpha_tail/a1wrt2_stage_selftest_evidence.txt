@@ -299,3 +299,70 @@ CONTROL norun/registered-run-root-checked  EXERCISED-PASS  /home/ubuntu/certonom
 
 A1WRT2_STAGE_SELFTEST legs=5 controls=26 EXERCISED-FAIL=16 EXERCISED-PASS=10 NOT-EXERCISED=0
 A1WRT2_STAGE_SELFTEST OK -- every control driven in a NAMED direction, the SUCCESS PATH first, and every abort site driven or declared
+
+
+================ DRIVEN AGAINST THE REAL A1WRT ASSET ================
+
+Not a synthetic source.  The stager was driven over
+/home/ubuntu/certonomous-runs/A1WRT/alpha12_symmetry -- the real continuation
+asset -- into a TEMPORARY run root, NEVER into the registered
+/home/ubuntu/certonomous-runs/A1WRT2, which was re-checked ABSENT immediately
+afterwards and IS ABSENT.  No compute: file I/O only, no container, no solver.
+
+WHAT IT MEASURED, and the third line is the one that matters:
+
+  * SOURCE INTACT.  78 entries and 61 file witnesses (mtime, size) identical
+    before and after the copy; an independent `find | wc -l` over A1WRT's own
+    tree read 79 before and 79 after.  D6RF's in-place staging class cannot
+    have happened here and the assertion is not a claim, it is a comparison.
+
+  * 10 REAL COMPRESSED FIELDS DECOMPRESSED from the real 4000/ directory, with
+    mtimes preserved.  The staged 4000/U is 8,038,545 bytes, 4000/U.gz is gone,
+    and 0/ and 0.orig/ are both absent from the copy.  Driving the REAL hard
+    gate `a1wrt2_grade.g_coldstart_seam` over that real staged tree returns
+    PASS -- "4000/U nonuniform, 0/ absent".  The coupling between this stager's
+    decompression step and that gate is therefore measured on the real bytes and
+    not only on a fixture.
+
+  * IT THEN REFUSED, BY NAME, AT rc 5:
+    A1WRT2_STAGE_ABORT_CONTROLDICT_NOT_CONTINUED.
+    A1WRT's own system/controlDict carries `startFrom startTime; startTime 0`,
+    so the arm draft section 3 registers as CONTINUED would COLD START.  This is
+    the finding proved BY EXECUTION rather than by reading, and it is reported
+    to the supervisor rather than repaired here: no instrument in draft section
+    11's list derives a CONTINUED controlDict, and a stager that quietly wrote
+    a solver's start condition would be implementing a registered gate where no
+    reviewer would look for it.
+
+  * 13 CARRY-OVERS DROPPED from the copy, named individually in the transcript
+    below, including 0/ and 0.orig/ -- so a1wr_cmd.sh:32's own `test -d 0.orig`
+    refuses at its NAMED exit 92 before a core-minute is spent, instead of
+    a1wr_cmd.sh:51 silently resetting 0/ from 0.orig and producing a cold run
+    the ledger would record as a restart.
+
+---- transcript (temp run root path elided) ----
+
+G-UNBOUND-PY: PASS -- every name read is bound before it can be read, in every scope
+A1WRT2_STAGE_SEAM (1) G-ROOT OK run_root=<TEMP RUN ROOT> src=/home/ubuntu/certonomous-runs/A1WRT/alpha12_symmetry
+A1WRT2_STAGE_SEAM (2) destination <TEMP RUN ROOT>/SEAM/case does not exist
+A1WRT2_STAGE_SEAM (3) continuation state /home/ubuntu/certonomous-runs/A1WRT/alpha12_symmetry/4000 (U.gz)
+A1WRT2_STAGE_SEAM (4) source census entries=78 files=61
+A1WRT2_STAGE_SEAM (5) copied, mtime semantics = copy2, PRESERVE
+A1WRT2_STAGE_SEAM (6) SOURCE INTACT: 78 entries, 61 witnesses unchanged
+A1WRT2_STAGE_SEAM (7) dropped 13 carry-overs: .a1wrt_age_datum 0.orig/ 0/ log.autoPatch log.checkMesh log.createPatch log.genmesh log.plot3dToFoam log.renumberMesh mphys.html out/ postProcessing/ reports/
+A1WRT2_STAGE_SEAM (7) 0/ and 0.orig/ are ABSENT from the copy -- a1wr_cmd.sh:32's own `test -d 0.orig` now refuses at its NAMED exit 92 BEFORE any compute, instead of cold-starting silently
+A1WRT2_STAGE_SEAM (8) decompressed 10 fields in 4000, mtimes PRESERVED (writeCompression on -- A1WRT/alpha12_symmetry/system/controlDict:12 -- and g_coldstart_seam reads case/4000/U as text)
+A1WRT2_STAGE_ABORT_CONTROLDICT_NOT_CONTINUED rc=5 -- staged system/controlDict declares neither `startFrom latestTime` nor `startTime 4000`.  A1WRT's own controlDict carries `startFrom startTime; startTime 0` (MEASURED), which would COLD START this arm while the ledger recorded it as a restart.  This file REFUSES rather than authoring a controlDict: no instrument in draft section 11 derives a CONTINUED one, and a stager that quietly wrote a solver's start condition would be implementing a registered gate where no reviewer would look for it.
+
+---- the real hard gate, over the real staged tree ----
+
+staged 4000/U exists: True size: 8038545
+4000/U.gz present: False
+0/ present: False  0.orig/ present: False
+g_coldstart_seam -> PASS
+    G-COLDSTART-SEAM: PASS -- 4000/U nonuniform, 0/ absent
+
+---- and the registered run root, re-checked by execution ----
+
+ls -d /home/ubuntu/certonomous-runs/A1WRT2
+ls: cannot access '/home/ubuntu/certonomous-runs/A1WRT2': No such file or directory
