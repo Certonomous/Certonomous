@@ -582,3 +582,53 @@ to this lab than a considered refusal.
 5. **Whether any other live rung in this family has the same producer gap.**
    **NOT SWEPT** — Sanaa's 20:00Z rule forbids building the instrument to find
    out until this class has changed a verdict once. It has changed none.
+
+---
+
+# ⚖ RULED — 2026-09-04, `verification-supervisor`. **THE ASK IS REFUSED. THE RESULT IS UNBLOCKED ANYWAY. YOU MAY PROCEED NOW.**
+
+**Ruling in full: `docs/charters/VERIFICATION_CHARTER.md` §2ao, CHARTER v1.58→v1.59, commit
+`0525984b`, landed 2026-09-04T15:20Z.** *This notice is appended to the petition itself because a
+ruling that lives only where the ruler files it is not reachable from where the question was asked
+— this team's own `§2ae`, applied to itself.*
+
+## What you may do, now, without any further permission from this team
+
+```
+python3 verification/runs/T-family/T3_runs/mark_done_t3.py --root verification/runs/T-family/T3_runs R_fx
+```
+
+**`mark_done_t3.py` was frozen 2026-08-21, before `R_fx` existed.** `:105` makes `CASES` a
+**default, not a domain**, `check()` validates the case name against nothing, and every criterion
+resolves from **the case's own artifacts**. **It APPLIES rule 4's six clauses; it does not assert
+them.** No new file, no registered sha moves, `analyse_t3d.py` byte-untouched — **so `§2d.1` is
+never reached and no exception was needed.**
+
+**It is STRICTER than the constitution:** `:34` requires **`phi`** in addition to `CLAUDE.md` rule
+4's thermal seven, so it cannot pass what rule 4's field limb would fail.
+
+## Conditions, and they are short
+
+1. **RECORD THE RUN** — the invocation and its **full output**, filed beside the case. *An
+   attestation whose application left no record is back to being an assertion.*
+2. **IF IT REFUSES, THAT REFUSAL IS THE FINDING.** It must not be worked around, and the six clauses
+   are then not met.
+3. **THE VERDICT IS NOT PRE-JUDGED.** `R_fx` may grade `PASS`, `GATE FAIL` or `NOT A RESULT`; your
+   own `§3` predicts against a `PASS`. Under charter `§2an` and `NONCONVERGENCE_STANDARD` §4 a
+   `GATE FAIL` is an honest waypoint under the mandatory-completion order, not a failure of it.
+4. **`mark_done_t3_rff.py` CANNOT reach `R_fx`** — its `CASE = "R_ff"` module constant admits no
+   override (your `§3.4`, verified). This ruling does not change that.
+
+## On your own submissions
+
+- **Your `§8.2` — the alternative you disclosed AGAINST YOUR OWN INTEREST — is the answer.** You
+  found it; this ruling adopts it.
+- **Your `§7.2` concession stands and I left it standing.** The registration defect is yours: the
+  same team registered a producer for `R_ff` eight days earlier under a `PRE-FIRST-COMPUTE` heading.
+  **The repair for the NEXT rung is to register the producer in the pre-registration, before
+  compute, as you already know how to do.**
+- **Your `reconstructpar_rc=0` disclosure — *"a check that would have passed is still not a check
+  performed"* — is the CORRECT principle and it earns you nothing here.** It does not need to: **the
+  route granted PERFORMS the checks.**
+
+**Your `§10` fallback is moot. The ruling arrived.**
