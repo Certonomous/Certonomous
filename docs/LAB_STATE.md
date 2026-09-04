@@ -5072,7 +5072,7 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-03T23:53:12Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-47` — **DESK ITEMS CLOSED**: the **rule-10 hole is fixed in the constitution itself** on Sanaa's GO (`0ee2e7df`, verified by me at HEAD, not taken on relay), and the rule-12 estimate gap is **routed to verification** as a forward-only note. `S-46`'s "on Sanaa's desk" line is **struck by quote** so no successor re-escalates a closed item. **Nothing now on her desk from this family** but the four `NOT FILED` upstream defect classes and FD-vs-adjoint as a fourth `V` instrument. Before it, `S-46` (closing state), `S-45`, `S-44`, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
+**Section last written:** 2026-09-04T01:08:43Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-48` — **`W3` IS NOT RUNNING AND HAS NOT BEEN SINCE 21:57:49Z; IT REACHED ITS REGISTERED TERMINUS, AND THE REGISTERED FALLBACK DOES NOT RESCUE IT.** `S-47`'s and `S-46`'s *"`W3_chain_r2` running"* lines are **STRUCK BY QUOTE** below — they were true when written and were still being relayed three hours after they stopped being true. Before it, `S-47` — **DESK ITEMS CLOSED**: the **rule-10 hole is fixed in the constitution itself** on Sanaa's GO (`0ee2e7df`, verified by me at HEAD, not taken on relay), and the rule-12 estimate gap is **routed to verification** as a forward-only note. `S-46`'s "on Sanaa's desk" line is **struck by quote** so no successor re-escalates a closed item. **Nothing now on her desk from this family** but the four `NOT FILED` upstream defect classes and FD-vs-adjoint as a fourth `V` instrument. Before it, `S-46` (closing state), `S-45`, `S-44`, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
 
@@ -31432,6 +31432,82 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 
 ## ansys-verification
+
+### 2026-09-04T01:07Z — **TEAM RE-FORMED AFTER THE ~01:00Z FLEET KILL. SANAA'S MANDATORY-COMPLETION ORDER IS ADOPTED AND IT RETIRES THIS TEAM'S RESTING JUDGMENTS. THE DAEMON PID IN MY OWN BRIEF WAS STALE AND A LANE'S CORRECT READING OF IT WOULD HAVE BECOME A FALSE ESCALATION.**
+
+**Written by `ansys-verification-supervisor` personally.** Time from `date -u` in the writing invocation (L-445). Predecessor killed mid-refresh at ~01:00Z on Sanaa's subscription switch; its three in-flight lanes (D5D6 draft, completion census, board mandate) landed **nothing** — all re-derived here, nothing inherited. **Solver compute this session: ZERO core-min, $0.00.** No rule-12 calibration row is owed and none is written.
+
+#### 1. SANAA'S ORDER, ADOPTED — AND WHAT IT RETIRES IN THIS TERRITORY
+`etc/sessions/2026-09-04T0050Z_sanaa_all_cases_mandatory.md` (`71295838` + `04c0c1d5`), **read in full at source**. Verbatim: *"All the cases/ tasks i gave are mandatory"* and *"the only ones that dont end up getting ran are the ones we genuinly cannot run with openfoam. ELse, everything else gets worked on and fixed and solutioned until its at the very least a gate pass."*
+
+**What this retires here, named plainly because it is this team's own text that is retired:**
+- **`§35`'s *"about two"* genuinely-useful-case count is no longer an operative planning figure.** It was an honest measurement of *value*; it was becoming a resting judgment about *effort*, which is exactly the move the order forbids.
+- **`VMFRT005`'s *"this box's solvers may not reproduce at all"* (`§35`, board 20:47Z) is REVOKED AS A JUDGMENT and re-opened as a MEASUREMENT.** "May not" is an inference from difficulty. The order requires a demonstrated capability gap, named and filed, or a run.
+- **`§26.5` SURVIVES INTACT AND IS NOT A SHELTER.** *A case frozen early to fill a slot is still a worse failure than an idle box* — the order changes the priority of the work, not the law of the freeze. Nothing below launches without a committed pre-registration and my `§3` check 4.
+- **The boundary is recorded because it cuts against us:** gates are **never widened to fit** (her T25 ruling, re-stated in the addendum). Working a case to a pass means fixing OUR side until the physics can speak. A measured, persistent `GATE FAIL` after our own defects are exhausted goes to her **with its evidence**, and is not laundered into a pass.
+
+#### 2. ⚠ THE DAEMON PID IN MY BRIEF WAS STALE — AND THE FALSE ESCALATION WAS ONE RELAY AWAY
+My re-forming brief stated *"daemon pid 995043 ticking EMPTY"*. A lane checked that pid and correctly reported **`995043` NOT alive** — a true statement whose obvious inference (*the queue is dead, nothing will ever launch, escalate*) is **false**.
+
+**Measured by me personally, not taken on the lane's report:** the queue runner is **ALIVE at pid `995629`**, `python3 scripts/queue_runner.py --daemon`, restarted **2026-09-04T00:43:06Z with `--selftest PASS`** (`verification/queue/runner.restarts.log:` last line), ticking at ~60 s (`verification/queue/runner.log`, last tick `01:07:08Z`). **The queue is serviced.** The pid in my brief predates the 00:43Z restart.
+
+> **THE GENERALISABLE PART:** the lane did nothing wrong — it answered the question it was given about the identifier it was given. **A pid is a HANDLE WITH A SHELF LIFE, and a brief that carries one carries an expiry it does not print.** `§5`'s ruling that *a queue state is a reading with a shelf life* already covers queue rows; **it is hereby read as covering process identifiers too.** The check that catches this is not "is 995043 alive" but "**is ANY runner alive**" — ask the question by ROLE, never by handle. Recorded against my brief-writing, not against the lane.
+
+**Live queue fact, fleet-wide:** `01:07:08Z EMPTY: no entries in ANY team queue; nothing launched`. **Every team's queue is empty**, not only ours. One solver holds the box: `buoyantBoussinesqSimpleFoam`, **8 ranks**, pid `342265`, cwd `verification/runs/T-family/T3_runs/R_fx`, elapsed **7.02 h** at the reading, landing ~03:48Z. **This team owns ZERO compute** and, per `§36.2`, correctly launches nothing at that window: **a freeze must land first.**
+
+#### 3. THE MANUAL, READ BY ME — `§4`'s DUTY DISCHARGED, TITLE PAGE VERIFIED (rule 15)
+PDF page 1 read directly and compared to the sidecar's lines 1-13: **"Ansys Fluid Dynamics Verification Manual", ANSYS Inc., Release 2026 R1, March 2026** — matched. Sidecar `368,949 B`, `6,992` lines. I then read all four never-run case sections **before dispatching anything**, and the physics facts below are mine from the manual, not a lane's.
+
+| case | sidecar lines | p. | model | **the printed reference** |
+|---|---|---|---|---|
+| **VMFL024** | 2606- | 91 | VOF, two immiscible liquids, rotating cylinder | interface shape; `§32.3` already showed the "experimental" targets are the **analytic rigid-body asymptote to 2.78e-17** |
+| **VMFL034** | 3245-3330 | 121 | multiphase + **QMOM population balance**, k-ε, **moments on a FROZEN flow field** | Table .34.1, m0..m5 = **0.132 / 0.225 / 0.547 / 1.910 / 9.073 / 53.797** — and the manual states the Target column **IS the analytical solution** |
+| **VMFL072** | 5493-5545 | 211 | **Eulerian Wall Film**, laminar film, 40° plate | Table .72.1, film thickness **Target 0.555 mm** (Roy & Jain 1989, experimental); Fluent 0.5497, ratio 0.99 |
+| **VMFRT005** | 6738-6835 | 265 | **Ansys Forte**, ECN Spray A, nC12, RNG k-ε, Lagrangian spray + chemistry | lift-off **16.7 mm** (Forte 18.0); ignition delay **0.41 ms** (Forte **0.7 ms**) |
+
+**Two readings that change the plan, both mine from the manual text:**
+- **VMFL072 is the strongest never-run candidate this team has.** The manual states the film is **LAMINAR**, and its gravity vector decomposes **exactly** as a 40° inclination of standard gravity (`9.81·sin40 = 6.3057`, `9.81·cos40 = 7.5149`, `|g| = 9.8100` — matching the stated `gx = 6.305746`, `gz = -7.514896`). A laminar film on an inclined plate has a **closed-form Nusselt solution**, so the setup carries its own independent cross-check.
+- **VMFRT005's own reference solver misses its own target by 70.7 %** on ignition delay (0.7 vs 0.41 ms) and 7.8 % on lift-off. **That does not exempt the case** — but any band we could defend is one Forte itself fails, and Sanaa must be told that when she is asked to decide the case.
+
+#### 4. ⚠ AN ARITHMETIC OF MINE, PUBLISHED SO IT CAN BE REFUTED
+Nusselt: `δ = (3·μ·Γ / (ρ²·g·sinθ))^(1/3)`. Taking `Re_film = Γ/μ = 417`, `μ = 1.003e-3`, `ρ = 998.2`, `g·sinθ = 6.305746` → `Γ = 0.4183 kg/m/s` → **`δ = 5.85e-4 m = 0.585 mm`, which is 5.4 % ABOVE the manual's 0.555 mm.**
+
+> **THIS IS HANDED TO A LANE TO CHECK OR REFUTE, NOT TO CONFIRM.** `δ ∝ Γ^(1/3)`, so the **Re definition is load-bearing**: `Γ/μ` vs `4Γ/μ` moves `δ` by `4^(1/3) = 1.587`. And the manual's stated wall mass flux (**76.2 kg/m²·s** over a **5 mm** injection width) must be reconciled against `Re = 417` independently — **if they are inconsistent, that is a finding and it goes in the record, never into a fudge factor.** `§18`/`§33.2` are pre-empted in the brief: the manual's 0.555 mm is **EXPERIMENTAL and is the gate's reference**; Nusselt is a **cross-check on our own setup** and may not be substituted for it.
+
+#### 5. THE NEVER-RUN POOL, MEASURED ON DISK — WORSE THAN THE BOARD IMPLIED
+| case | case dir | prereg | tracked | comparator | run output |
+|---|---|---|---|---|---|
+| **VMFL024** | exists | 85,447 B | **NO** | **none at all** (binding) | none |
+| **VMFL034** | **DOES NOT EXIST** | — | — | — | none |
+| **VMFL072** | **DOES NOT EXIST** | — | — | — | none |
+| **VMFRT005** | **DOES NOT EXIST** | — | — | — | none |
+
+**Three of the four have no case directory whatsoever.** Prior board language ("untracked drafts") was true of VMFL024 and **VMFL078 only**; it must not be read as covering the other three. VMFL008: prereg `34,889 B` + `grade_vmfl008.py` `41,040 B`, **both correctly untracked** (committing them would BE the freeze, `§11.2`). VMFL046: prereg **and** comparator **tracked**; two run roots, 74 M each.
+
+#### 6. DISPATCH — THREE LANES LIVE, AT `§3`'s CAP DISCIPLINE (2 opus + 2 haiku)
+| lane | model | item | Sanaa's priority |
+|---|---|---|---|
+| opus | Opus 5 | **VMFL072** — Re/Γ reconciliation, ESI-2606 film-capability measurement, physics path + `§12.2` sameness, **draft `PREREGISTRATION.md` LEFT UNTRACKED** | **1** (never-run) |
+| opus | Opus 4.8 | **VMFRT005 + VMFL034** — verdict-grade capability determination, **RUNNABLE or BLOCKED-with-the-gap-MEASURED**; "hard/unclear" named in advance as not an acceptable answer | **1** (never-run) |
+| haiku | Haiku | **VMFL046** re-run inputs — levels, plateau evidence, the `nPoints 400` sampler claim confirmed or refuted from the actual files, cost actuals | **3** (`§37.4` obligation) |
+
+**Every brief was handed the fork datum I verified from the LIVE process** — `/usr/lib/openfoam/openfoam2606/`, i.e. the **ESI fork, v2606**, not OpenFOAM.org. That settles a question both lanes were told to answer first and it moves the odds on both: ESI is the fork carrying `regionModels/surfaceFilmModels`, the sectional `populationBalanceModel`, and `sprayFoam`/TDAC. **Handed as a datum to check, not to accept.**
+
+**Both opus lanes are forbidden to `git add` or commit.** Committing IS the freeze; the freeze is my `§3` check 4 and is undelegable.
+
+#### RUNGS WITHOUT VERDICTS
+- **VMFL072 / VMFL034 / VMFRT005** — never-run, **no case directory**. Under Sanaa's order each must reach a verdict or a **measured** BLOCKED. In flight.
+- **VMFL024** — `PREREGISTRATION.md` untracked, **no comparator exists**; capped at `GATE REACHED` on two grounds (`§32.3`). Not yet dispatched; next opus slot.
+- **VMFL008** — `NOT FREEZE-READY`. Needs `D5D6_PREREGISTRATION.md` under its own freeze (`§36.2`), the `§36.5` comparator repairs pre-freeze (`units` never value-checked; `terms` sub-keys `KeyError`→exit 1 instead of refuse→exit 2), and the `RATE_RATIO` interval **re-derived on aggregate-ratio grounds** (`§36.4` — keeping `[1.15, 1.50]` under a new quantity is refused). Filed cost **0.25 core-min**. **Predecessor's draft died unlanded; re-derive.**
+- **VMFL046** — **`PENDING A RUN`**, `§37.4` obligation accepted. **`NOT A RESULT` may NOT be cited as an absence of failure.** Inputs being gathered.
+- **~45 figure-only cases** — now **case-blocking physics-path work** per Sanaa's order, routed through `§36.2`'s per-case-instrument-with-its-own-freeze. Not yet planned or costed.
+
+#### ON SANAA'S DESK
+**Nothing new tonight.** Standing, unchanged: the `[R8-PAPER-NAME]` filing conflict on the manual PDF + sidecar (needs a **ruling**, not a rename); the `CLAUDE.md` rule-10 assertion-gating referral; the `teams.yaml` qualifier-drop; and whether *"a task must never depend on an agent being alive at a FUTURE INSTANT"* becomes lab-wide.
+**Anticipated, NOT yet filed because it is not yet measured:** VMFRT005's capability gap. It reaches her desk **only** with the missing artifact named and the searches that make the negative falsifiable — that is the whole point of her order and I will not pre-empt the measurement with a prediction.
+
+#### BLOCKED
+Nothing blocked. **This team owns zero compute by choice, not by obstruction** (`§36.2`: a freeze must land before D5/D6, and `§26.5` rules which way that conflict resolves).
 
 ### 2026-09-03T20:5xZ — **`1dedbf01` IS NOT THIS TEAM'S INSTRUMENT AND MY §3 CHECK DOES NOT DISCHARGE ANOTHER SUPERVISOR'S. I COMMITTED OUTSIDE MY FOLDER SCOPE ON A MISADDRESSED RELAY, AND THE SCOPE ERROR IS MINE TO RECORD EVEN THOUGH THE ADDRESSING ERROR WAS NOT.**
 
