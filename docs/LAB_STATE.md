@@ -25976,6 +25976,33 @@ Wiring the guard into ten sites turned up **a second defect shape that was not t
 4 paths, 682 insertions, **file deletions 0**. **I ran the controls rather than reading the report:** `--selftest` **GREEN**; `--mutation-control` **HELD, RED at rc 1**, naming *"the endTime fields survived"* and *"the coefficient series survived"* **for all three drivers** — the fixtures are genuinely destroyed without the guard. rc **0 under `python3` and `-O`**. **By AST parse across all four files: 0 bare asserts and 0 surviving raw `rmtree` calls.** **All ten reported line numbers were exactly right** (GEN_ALT 58/114/156/165, FPE 93/168/186/227, B52 88/201) — ⚠ **the first line-number relay tonight that survived checking.**
 
 
+<!-- BOARD-BLOCK-ID: 57E-gate-p-lives-and-the-frozen-schemes-abort-at-iteration-zero -->
+
+### ✅ `gate_p` IS ALIVE — AND 🔴 THE FROZEN `fvSchemes` WOULD ABORT THE SOLVER AT **ITERATION ZERO**
+
+The B5 path and Gate P's producer are built (`2a0c4aa5`, `26e670cc`). **`gate_p` is now `reachable=True` with 2 call sites (was False/0)**, verified by an **independent AST walk carrying two separating controls** — a planted `_control_unreachable_sentinel` reads False/0 and a nonexistent name reads False, so **the walker discriminates** — and **that walk is now permanent control `C23`**. **65 defined, 61 reachable.** ✅ **`C21` plants 4321.0 Pa on a disk-written surface and all seven stations move by exactly `0.086442677805583` in `Cp`, worst deviation `2.78e-17`.** **All 21 mutation targets flipped RED — none stayed green, none skipped.** ✅ **A queue row CAN now be written: `launch_cmd` has a target.**
+
+🔴 **BUT RULING 1 STOPS IT.** Measured: `EEqn.H` in v2506 reads `he.name()=="e" ? div(phi,Ekp) : div(phi,K)`. **§8.4 registers `sensibleInternalEnergy`, so the solver asks for `Ekp` and NEVER `K`** — and under §8.2's `default none;` **it aborts at iteration zero.** ⚠ **And this is not a rename: §8.2 justifies its choice on *"K is smooth, non-shock-bearing"*, and that reason DOES NOT TRANSFER — `Ekp = |U|²/2 + p/ρ`, and `p/ρ` JUMPS ACROSS THE SHOCK.** **RULED: register a scheme appropriate to a shock-bearing quantity and strike the smoothness justification by quote.** ⚠ **A scheme carried across with a reason belonging to a different quantity is the silent-no-op family again — the entry is read, and its justification is about something else.** ✅ **The lane carried the ruled scheme and FLAGGED it rather than quietly fixing it. That was right.**
+
+### 🔴 RULING 2 — **EVERY ONE OF SANAA'S STATIONS SITS ON A SEMISPAN THE WING DOES NOT HAVE.** THREE SEMISPANS IN ONE FROZEN DOCUMENT
+
+Measured: **§8.5 places the stations at `y/b × 1.19676`; `GF4` uses `1.1963`; `X2`'s registered instrument measures the wall patch at `1.216405 m` on BOTH levels.** **§8.5's value is −1.6150 % from the solved wing**, so **`y/b = 0.99` lands at `0.974012` and `0.96` at `0.944496`.**
+
+⚠ **The magnitude is what makes this matter: moving station 7 to 0.99 of the SOLVED wing shifts it `0.019448 m = 1.5988 % of semispan` ≈ 1.1 cm of chordwise shock displacement at §16.4's own rate — LARGER than the 0.96-vs-0.95 divergence §16.4 ALREADY calls load-bearing, and pointing the SAME WAY.**
+
+**RULED: the stations are defined by the EXPERIMENT — AGARD's taps sit at `y/b` of the REAL wing — so the reference semispan is the AGARD/experimental one, and the mesh's `1.216405 m` is a MESH property to be REPORTED, never one that redefines where the stations are.** ⚠ **It is a CHOICE and is registered as one with its reason, and the shift is registered as a FALSIFIABLE PREDICTION with its magnitude — both readings are defensible (the taps are at 0.99 of the real wing; the ×4 family's inherited tip cap extends 2.11 cm beyond it).** ✅ **All seven stations DO fall inside `[0, 1.216405] m`, station 7 clearing the tip by `0.031612 m`, so the reader will not refuse on span — recorded so nobody reads the ruling as a safety claim.** ✅ **The lane used the registered value and changed nothing.**
+
+### RULINGS 3 AND 4 — HER FIGURE CANNOT BE PLOTTED FROM AN INTERLEAVED CURVE
+
+🔴 **§4.5's channel interleaves upper and lower surfaces** — both curves are `sorted((x,cp))` through a single-valued `_interp`. **Symmetric, so not a bias — but a `Cp` vs `x/c` figure REQUIRES upper and lower as SEPARATE curves, and the figure IS Sanaa's named deliverable.** **RULED: split it.** ⚠ Comparator change ⇒ **check 1 is mine.**
+**RULED, unambiguous:** §8.4's `momentumTransport`/`model` is the **Foundation** spelling and this box is **ESI v2506** (`turbulenceProperties`/`RASModel`); and §8.1's table `285.221` contradicts its own prose/formula `285.2721`, giving **M = 0.839350, not the registered 0.8395** — **table value struck by quote, formula's registered.**
+**Also recorded: item 17 — `B4`'s `log.checkMesh` had no producer either, so Gate A was as unrunnable as Gate P**; and the twelve `CH1`–`CH12` writer choices go **into the document**, not only into `CASE_PROVENANCE.json`, **so a pre-compute choice is recorded where the freeze can see it.**
+
+### ⚠ THE COUNT THAT SHOULD DECIDE HOW THIS DOCUMENT IS TREATED
+
+**Successive passes on M6SR found FOUR unsatisfiable items, then TEN, then FOURTEEN.** ⚠ **Each pass was asked to assume the previous one had missed something, and each time it had.** **I have asked for a fifteenth.** ✅ **`X1` stands unchanged — `D1 = INDETERMINATE`, `Cn(7)/Cn(1) = 0.878747`, per-station channel `NOT A RESULT` — and nothing in Amendment 11 revives it.** ✅ **The figure's DATA can now be produced and is persisted to `GATE_P_FIGURE_DATA.json` BEFORE Gate G runs, so `X3`'s refusal cannot take it down** — **a Gate P verdict beside a Gate G band still cannot be.**
+⚠ **Honest limit, the lane's own: no solver ran.** Dictionary **key** acceptance was established from v2506's source and shipped tutorials and all 13 dictionaries **parse** through `foamDictionary` — **but runtime acceptance by `rhoSimpleFoam`/`decomposePar`/`mpirun`, and the exact on-disk layout the `foam` surface writer produces, are INFERENCES. The comparator refuses rather than degrades if the shapes differ — that is a guard, not a measurement.**
+
 <!-- BOARD-BLOCK-ID: 57D-m6f-audit-20-defects-not-freezable -->
 
 ### 🔴🔴🔴 THE ADVERSARIAL PRE-FREEZE AUDIT RETURNED **NOT FREEZABLE — 20 DEFECTS.** I COMMISSIONED IT AFTER FREEZING M6SR BLIND, AND IT PAID FOR ITSELF FOUR TIMES OVER
