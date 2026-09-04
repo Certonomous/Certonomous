@@ -787,6 +787,8 @@ U_INF_MS = 285.679356                      # Section 3, derived M a
 B_SEMI_M = 1.19676                         # Section 8.5, the registered semispan
 P_MIN_POINTS_PER_STATION = 10              # below this a "curve" is not a section
 PLANT_SAMPLED_P_PA = 4.321e+03             # C21, planted on the sampled p field
+PLANT_CP_UPPER_ONLY = 3.579e-01            # C24, planted on the UPPER surface alone
+P_MIN_POINTS_PER_SIDE = 2                  # a curve needs two points to exist at all
 
 
 def q_inf_pa():
@@ -806,6 +808,50 @@ def registered_stations():
     """
     return [{"index": i + 1, "y_over_b": yb, "span_coord_m": yb * B_SEMI_M}
             for i, yb in enumerate(A_MAP_YB)]
+
+
+def split_curve_upper_lower(rows):
+    """-> {'upper', 'lower', ...}.  Rows are (x_over_c, thickness_coord, value).
+
+    AMENDMENT 11, RULING 3.  Amendment 11 item 21 measured that Section 4.5's channel builds
+    BOTH its curves as sorted (x, Cp) through a single-valued _interp(), so upper and lower
+    surface points are INTERLEAVED in x.  At any x/c a wing section carries TWO Cp values.
+    A Cp-vs-x/c FIGURE -- Sanaa's named deliverable -- cannot be plotted from an interleaved
+    curve, so the figure channel is SPLIT here.
+
+    CONVENTION: thickness >= 0.0 is UPPER.  It is the SAME convention section_upper_lower()
+    already uses for GF2's root section: there is one reader in this repository for what
+    "upper" means, and this is not a second one.  A point at exactly zero thickness (a
+    leading-edge tap; MEASURED, section 4 of case_2308.dat carries one) therefore lands in
+    UPPER, deterministically, and the count of such points is REPORTED rather than hidden.
+
+    REFUSES if either side carries fewer than P_MIN_POINTS_PER_SIDE points.  A one-sided
+    section would plot as a PERFECT ABSENCE of the missing surface rather than as a
+    disagreement -- the same class of false zero standing rule 3 exists for, and the same
+    reason C22 refuses an out-of-span station instead of returning an empty curve.
+
+    IT GRADES NOTHING.  Section 4.5's set_to_set_assignment() is BYTE-UNCHANGED by this
+    amendment and still interleaves; changing a graded channel's RMS is a gate question and
+    is not a lane's.
+    """
+    upper, lower, n_zero = [], [], 0
+    for x, t, v in rows:
+        if t == 0.0:
+            n_zero += 1
+        (upper if t >= 0.0 else lower).append((x, v))
+    upper.sort()
+    lower.sort()
+    if len(upper) < P_MIN_POINTS_PER_SIDE or len(lower) < P_MIN_POINTS_PER_SIDE:
+        raise Refusal(
+            f"upper/lower split returned {len(upper)} upper and {len(lower)} points from "
+            f"{len(rows)}; a side below {P_MIN_POINTS_PER_SIDE} points is not a curve. An "
+            "empty or single-point side would PLOT as a perfect absence of that surface "
+            "rather than as a disagreement (standing rule 3). REFUSED rather than degrade.")
+    return {"upper": upper, "lower": lower,
+            "n_upper": len(upper), "n_lower": len(lower),
+            "n_at_exactly_zero_thickness_counted_UPPER": n_zero,
+            "convention": ("thickness >= 0 is UPPER, the same convention "
+                           "section_upper_lower() uses for GF2's root section")}
 
 
 def read_surface_scalar(path):
@@ -896,10 +942,16 @@ def cfd_sections_from_surface(surface_dir, span_axis, chord_axis, stations=None,
     span_vals = [p[span_axis] for p in pts]
     lo, hi = min(span_vals), max(span_vals)
     q = q_inf_pa()
+    # The thickness axis is the remaining one.  It is DERIVED from the two the caller
+    # already derived from the mesh, never assumed -- Amendment 11 item 20 records that
+    # Section 8.5's "constant-y planes" names the wrong axis on this box's meshes.
+    thick_axis = ({0, 1, 2} - {span_axis, chord_axis}).pop()
     out, meta = {}, {"span_axis": "xyz"[span_axis], "chord_axis": "xyz"[chord_axis],
+                     "thickness_axis": "xyz"[thick_axis],
                      "sampled_span_extent_m": [lo, hi], "n_points": len(pts),
                      "n_faces": len(faces), "q_inf_Pa": q, "p_inf_Pa": P_INF_PA,
-                     "b_semi_m_REGISTERED": B_SEMI_M, "stations": []}
+                     "b_semi_m_REGISTERED": B_SEMI_M, "stations": [],
+                     "split_by_station": {}}
     for s in stns:
         c = s["span_coord_m"]
         if not (lo <= c <= hi):
@@ -924,6 +976,13 @@ def cfd_sections_from_surface(surface_dir, span_axis, chord_axis, stations=None,
                           "x/c is undefined. REFUSED.")
         out[s["index"]] = sorted(((pt[chord_axis] - x_le) / chord, (v - P_INF_PA) / q)
                                  for pt, v in cross)
+        # AMENDMENT 11 RULING 3.  The SAME `cross` list, split into two plottable curves.
+        # It is built here rather than by a second cut so there is ONE source of truth for
+        # what this station's points are; it rides in `meta` so that the (sections, meta)
+        # tuple Section 4.5's set_to_set_assignment() consumes is SHAPE-UNCHANGED.
+        meta["split_by_station"][str(s["index"])] = split_curve_upper_lower(
+            [((pt[chord_axis] - x_le) / chord, pt[thick_axis], (v - P_INF_PA) / q)
+             for pt, v in cross])
         meta["stations"].append({
             "index": s["index"], "y_over_b": s["y_over_b"], "span_coord_m": c,
             "n_cut_points": len(cross), "local_chord_m": chord,
@@ -977,10 +1036,19 @@ def gate_p_figure_data(ref, cfd_by_level, meta_by_level, d1):
     """
     exp = {}
     for s in sorted(ref["sections"]):
+        rows = ref["sections"][s]
+        sp = split_curve_upper_lower([(x, z, cp) for _t, x, z, cp in rows])
         exp[str(s)] = {
             "y_over_b_under_A_MAP": A_MAP_YB[s - 1] if s - 1 < len(A_MAP_YB) else None,
-            "n_taps": len(ref["sections"][s]),
-            "curve_x_over_c_Cp": sorted((x, cp) for _t, x, _z, cp in ref["sections"][s]),
+            "n_taps": len(rows),
+            # AMENDMENT 11 RULING 3: THE TWO CURVES A Cp-vs-x/c FIGURE IS PLOTTED FROM.
+            "curve_upper_x_over_c_Cp": sp["upper"],
+            "curve_lower_x_over_c_Cp": sp["lower"],
+            "n_upper": sp["n_upper"], "n_lower": sp["n_lower"],
+            "n_at_exactly_zero_thickness_counted_UPPER":
+                sp["n_at_exactly_zero_thickness_counted_UPPER"],
+            "curve_x_over_c_Cp_INTERLEAVED_NOT_PLOTTABLE":
+                sorted((x, cp) for _t, x, _z, cp in rows),
         }
     return {
         "WHAT_THIS_IS": (
@@ -999,10 +1067,25 @@ def gate_p_figure_data(ref, cfd_by_level, meta_by_level, d1):
                       "M = 0.8395 that 1 % of semispan is ~1.2 cm of span. THIS LADDER USES "
                       "0.96, which is what its own cited source prints (Section 16.4). "
                       "REPORTED, NOT GATED.")},
+        "FIGURE_CURVES": (
+            "AMENDMENT 11 RULING 3. Upper and lower surfaces are SEPARATE curves in this "
+            "record. Amendment 11 item 21 measured that Section 4.5's channel interleaves "
+            "them -- both curves are sorted (x, Cp) through a single-valued _interp() -- and "
+            "a Cp-vs-x/c figure cannot be plotted from an interleaved curve. PLOT "
+            "curve_upper_x_over_c_Cp and curve_lower_x_over_c_Cp; the interleaved list is "
+            "retained under its own name so the two readings can be compared, and it is NOT "
+            "plottable. MEASURED on the pinned case_2308.dat: the taps are NOT evenly split "
+            "-- 185 of 271 (68.27 %) are UPPER-surface taps (23/11 on sections 1-4, 31/14 on "
+            "5-7), so the interleaved curve is implicitly weighted about 2:1 toward the "
+            "upper surface. Section 4.5's RMS channel is BYTE-UNCHANGED by this amendment "
+            "and still interleaves; that is a graded channel and changing it is a gate "
+            "question, not a lane's."),
         "D1": d1,
         "experimental": exp,
         "cfd_by_level": {lv: {str(k): v for k, v in cfd_by_level[lv].items()}
                          for lv in cfd_by_level},
+        "cfd_split_by_level": {lv: meta_by_level[lv].get("split_by_station", {})
+                               for lv in meta_by_level},
         "cfd_meta_by_level": meta_by_level,
         "Cp_normalisation": {
             "p_inf_Pa": P_INF_PA, "rho_inf_kg_m3": RHO_INF_KGM3, "U_inf_m_s": U_INF_MS,
@@ -2221,7 +2304,7 @@ def controls(scratch, mutate=None):
     # everything reachable is not discriminating.
     reach = call_graph_reachable_from_main()
     must_reach = ("gate_p", "set_to_set_assignment", "cfd_sections_from_surface",
-                  "gate_p_figure_data", "gate_g", "gate_r")
+                  "gate_p_figure_data", "gate_g", "gate_r", "split_curve_upper_lower")
     missing = [n for n in must_reach if n not in reach]
     sentinel_ok = "_control_unreachable_sentinel" not in reach
     if mutate == "C23":
@@ -2232,6 +2315,39 @@ def controls(scratch, mutate=None):
          + (f"; MISSING {missing}" if missing else "")
          + f"; the deliberately-unreachable control _control_unreachable_sentinel reads "
            f"unreachable = {sentinel_ok} (a walker that reaches everything is not a walker)")
+
+    # ---- C24: PLANT ON THE UPPER SURFACE ALONE.  THE SPLIT MUST SEE IT THERE AND ONLY -----
+    # AMENDMENT 11 RULING 3.  Rule 3 on the two curves Sanaa's figure is plotted from.  The
+    # plant is ONE-SIDED on purpose: a reader that still interleaves would smear it across
+    # both curves in the ratio of the tap counts, so this control DISCRIMINATES THE VERY
+    # DEFECT item 21 named, rather than merely proving arithmetic works.  It runs on the
+    # PINNED experimental bytes, not on a fixture.
+    ref24 = read_case_2308()
+    rows24 = ref24["sections"][1]
+    base24 = split_curve_upper_lower([(x, z, cp) for _t, x, z, cp in rows24])
+    plant24 = split_curve_upper_lower([(x, z, cp + (PLANT_CP_UPPER_ONLY if z >= 0.0 else 0.0))
+                                       for _t, x, z, cp in rows24])
+    d_up = max(abs((b - a) - PLANT_CP_UPPER_ONLY)
+               for (_x0, a), (_x1, b) in zip(base24["upper"], plant24["upper"]))
+    d_lo = max(abs(b - a) for (_x0, a), (_x1, b) in zip(base24["lower"], plant24["lower"]))
+    n_ok = (base24["n_upper"] + base24["n_lower"] == len(rows24)
+            and base24["n_upper"] == plant24["n_upper"])
+    # The interleaved reading of the SAME plant, for the discrimination limb.
+    inter_shift = (sum(cp + (PLANT_CP_UPPER_ONLY if z >= 0.0 else 0.0)
+                       for _t, _x, z, cp in rows24)
+                   - sum(cp for _t, _x, _z, cp in rows24)) / len(rows24)
+    ok24 = (d_up < 1.0e-12 and d_lo < 1.0e-15 and n_ok
+            and abs(inter_shift - PLANT_CP_UPPER_ONLY) > 1.0e-03)
+    if mutate == "C24":
+        ok24 = False
+    _rec("C24", ok24,
+         f"planted {PLANT_CP_UPPER_ONLY} in Cp on the UPPER-surface taps of section 1 only "
+         f"({base24['n_upper']} upper, {base24['n_lower']} lower of {len(rows24)}): the "
+         f"upper curve moved by exactly the plant (worst deviation {d_up!r}) and the lower "
+         f"curve did not move at all ({d_lo!r}). The SAME plant read through the INTERLEAVED "
+         f"curve shifts its mean by only {inter_shift!r} -- {inter_shift/PLANT_CP_UPPER_ONLY:.4f} "
+         "of the plant, because the taps are not evenly split. A reader that still "
+         "interleaved would report that smeared number, so this control discriminates.")
 
     return fired, detail
 
@@ -2461,7 +2577,7 @@ def main(argv):
             reds = {}
             for target in ("C1", "C2", "C3", "C4", "C5", "C6", "C8", "C9", "C10", "C11",
                            "C13", "C14", "C15", "C17", "C18", "C19", "C19b", "C20",
-                           "C21", "C22", "C23"):
+                           "C21", "C22", "C23", "C24"):
                 if target in baseline_red:
                     reds[target] = None                 # cannot mutate an already-red control
                     continue

@@ -124,9 +124,10 @@ CHOICES_MADE_HERE = [
     },
     {
         "id": "CH2",
-        "what": ("`div(phi,Ekp)` is written, carrying the SCHEME Section 8.2 ruled for "
-                 "`div(phi,K)`. Section 8.2's `div(phi,K)` entry is ALSO written and is "
-                 "never requested by this solver."),
+        "what": ("`div(phi,Ekp)  bounded Gauss upwind;` is written, AS RULED BY AMENDMENT 11 "
+                 "RULING 1. It is NOT Section 8.2's `div(phi,K)` scheme carried across. "
+                 "Section 8.2's `div(phi,K)` entry is ALSO written and is never requested by "
+                 "this solver under `energy sensibleInternalEnergy`."),
         "basis": (
             "MEASURED, not recalled, in the solver that will run: "
             "OpenFOAM-v2506 applications/solvers/compressible/rhoSimpleFoam/EEqn.H reads "
@@ -136,12 +137,20 @@ CHOICES_MADE_HERE = [
             "requests `div(phi,Ekp)`. It NEVER requests `div(phi,K)`. Section 8.2 rules "
             "`div(phi,K)` and sets `default none;`, which makes an unruled term a HARD SOLVER "
             "ABORT -- so the frozen fvSchemes as written CANNOT START. "
-            "SUPERVISOR ITEM: Section 8.2's stated reason for `div(phi,K)` -- 'K = |U|^2/2 is "
-            "a smooth, non-shock-bearing kinematic quantity' -- DOES NOT TRANSFER to Ekp, "
-            "which is |U|^2/2 + p/rho and whose p/rho part DOES jump across the shock. This "
-            "writer carries the ruled scheme onto the term the solver asks for rather than "
-            "silently choosing a different one, and flags that the justification is now "
-            "unsupported."),
+            "WHY THE SCHEME IS NOT CARRIED ACROSS: Section 8.2 justifies `bounded Gauss "
+            "linear` by 'K = |U|^2/2 is a smooth, non-shock-bearing kinematic quantity', and "
+            "THAT REASON DOES NOT TRANSFER -- Ekp = |U|^2/2 + p/rho and the p/rho part jumps "
+            "across the shock. Amendment 11 Ruling 1 registers `bounded Gauss upwind`, the "
+            "scheme Section 8.2 ALREADY ruled for the other half of the same flux "
+            "(`div(phi,e)`), for three measured reasons: (i) EEqn.H sums div(phi,he) and "
+            "div(phi,Ekp) into one total-enthalpy flux, so two different schemes on the two "
+            "halves of one flux is inconsistent; (ii) Ekp enters EXPLICITLY (fvc), so an "
+            "unbounded reconstruction across the shock feeds an unbounded source into the "
+            "implicit he equation -- the negative-temperature route Section 8.2 already names "
+            "for div(phi,e); (iii) in the v2506 tutorial tree, of the 8 fvSchemes under a "
+            "STEADY compressible solver family that carry both entries, 8 of 8 give e and Ekp "
+            "the IDENTICAL scheme and none splits them, and the only TRANSONIC rhoSimpleFoam "
+            "tutorial (squareBend, `transonic yes;`) uses `bounded Gauss upwind` for both."),
     },
     {
         "id": "CH3",
@@ -512,13 +521,20 @@ def write_fv_schemes(case):
         "    div(phi,omega)                                bounded Gauss upwind;\n"
         "    div(phi,e)                                    bounded Gauss upwind;   // Section 8.2\n"
         "    div(phi,K)                                    bounded Gauss linear;   // Section 8.2\n"
-        "    // CHOICE CH2.  MEASURED in OpenFOAM-v2506 rhoSimpleFoam/EEqn.H: with\n"
-        "    // `energy sensibleInternalEnergy` (Section 8.4) the solver requests Ekp and\n"
-        "    // NEVER K.  `default none;` makes an unruled term a hard abort, so Section\n"
-        "    // 8.2 as frozen cannot start.  Section 8.2's ruled scheme is carried across.\n"
-        "    // Its stated reason does NOT transfer: Ekp = |U|^2/2 + p/rho and the p/rho\n"
-        "    // part DOES jump across the shock.  Reported, not resolved here.\n"
-        "    div(phi,Ekp)                                  bounded Gauss linear;\n"
+        "    // CHOICE CH2, AS RULED BY AMENDMENT 11 RULING 1.  MEASURED in OpenFOAM-v2506\n"
+        "    // rhoSimpleFoam/EEqn.H: with `energy sensibleInternalEnergy` (Section 8.4) the\n"
+        "    // solver requests Ekp and NEVER K.  `default none;` makes an unruled term a\n"
+        "    // hard abort, so Section 8.2 as frozen cannot start.\n"
+        "    // THE SCHEME IS NOT CARRIED ACROSS FROM `div(phi,K)`, AND THE REASON IS THE\n"
+        "    // POINT: Section 8.2 justifies `bounded Gauss linear` by 'K = |U|^2/2 is a\n"
+        "    // smooth, non-shock-bearing kinematic quantity', and Ekp = |U|^2/2 + p/rho,\n"
+        "    // whose p/rho part JUMPS ACROSS THE SHOCK.  Amendment 11 Ruling 1 registers a\n"
+        "    // scheme for a SHOCK-BEARING quantity: the same `bounded Gauss upwind` Section\n"
+        "    // 8.2 already ruled for `div(phi,e)`, because EEqn.H sums div(phi,he) and\n"
+        "    // div(phi,Ekp) into ONE total-enthalpy flux and Ekp enters EXPLICITLY (fvc),\n"
+        "    // so an unbounded reconstruction across the shock feeds an unbounded source\n"
+        "    // into the implicit he equation.\n"
+        "    div(phi,Ekp)                                  bounded Gauss upwind;\n"
         "    div(((rho*nuEff)*dev2(T(grad(U)))))           Gauss linear;           // Section 8.2\n"
         "}\n\n"
         "laplacianSchemes     { default Gauss linear limited corrected 0.5; }\n\n"

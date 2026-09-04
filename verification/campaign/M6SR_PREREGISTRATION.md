@@ -2688,3 +2688,521 @@ own; a lane may not.**
 **`c8b28d88ced04f6238e50c4f7b9f36e4ff98d8e728d6ebd23535fd883a4ddc6b`**. Other records cite this
 document **by line**, and at least one such citation sits inside an executable check, so this is a
 guarantee and not a courtesy.
+
+---
+
+## 17. AMENDMENT 11 — 2026-09-04T1613Z. THE SUPERVISOR'S FOUR RULINGS ARE IMPLEMENTED, AND A FIFTEENTH PASS FINDS THREE MORE
+
+**Drafted and applied by a cfd lab-lane on the cfd supervisor's four explicit rulings of
+2026-09-04. THIS IS NOT A FREEZE AND NOT A RE-FREEZE.** `SUPERVISION_CHARTER.md` §3 check 4 is
+the supervisor's, is not delegated, and is **undischarged as this section is written.** **No
+compute was launched by the lane that wrote it, no step of §2.4's cost table was run, and no
+queue row was written.**
+
+> **THE DIVISION OF LABOUR, STATED SO NO READER MISTAKES IT.** The four rulings below are the
+> **supervisor's**, taken on the fourteen items §17 of the working draft
+> (`verification/campaign/M6SR_AMENDMENT_11_DRAFT.md`) recorded. **This lane implemented them
+> and did not re-decide any of them.** Where implementing a ruling forced a choice the ruling
+> did not settle, the choice is **named as such, quantified, and handed back** — it is not
+> taken silently (§17.3.3, §17.9 item 26).
+>
+> **`L-HONEST` (§6) IS CARRIED UNALTERED.** The family refines **2 of 3 directions**, the
+> wall-normal discretisation is **identical across levels**, `GCI_fine` is a **LOWER BOUND**,
+> `p_s` is **NOT an observed order**, and **Sanaa's named first deliverable remains owed.**
+>
+> **THIS AMENDMENT MOVES NO GATE, NO THRESHOLD, NO CAP AND NO LABEL** — with the two
+> exceptions the supervisor's rulings expressly authorise, each of which states its reason and
+> its predicted consequence: **Ruling 1 registers a DIVERGENCE SCHEME** (§17.2) and **Ruling 2
+> registers the STATION REFERENCE SEMISPAN** (§17.3). Not one number in §2.4, §5, §5.1, §7 or
+> §10 is touched, and `X1`–`X4` stand exactly as Amendment 10 registered them.
+
+### 17.1 THE CONDITION, AND HOW IT WAS CHECKED — RULE 2 REQUIRES BOTH
+
+> **Rule 2's window is keyed to FIRST COMPUTE:** *"Before first compute, amendments are legal
+> and must state the condition and how it was checked (name the run directory that does not
+> exist)."*
+
+**THE RUN DIRECTORY THAT DOES NOT EXIST — NAMED, AS RULE 2 REQUIRES:**
+**`verification/runs/M6SR_runs/`**, and with it `verification/runs/M6SR_runs/{L1,L2,L3}/`.
+
+**How checked, at 2026-09-04T1613Z, WITH A LIVE PLANTED CONTROL (rule 3), on the DISK and then
+corroborated against the tree:**
+
+| path | reader's answer | role |
+|---|---|---|
+| `verification/runs/M6SR_runs` | **ABSENT** | the run root — **the zero** |
+| `verification/runs/M6I_runs` | **PRESENT** | **the planted non-zero** |
+| `cases/M6SR` | **PRESENT** | the §9.1 grading path, which is **supposed** to exist |
+
+`git ls-tree -r --name-only HEAD -- verification/runs/M6SR_runs` returns **0 files**; the
+identical command on `verification/runs/M6I_runs` returns **14**. **The same reader, in the
+same act, returned PRESENT beside the zero.** A bare "absent" would not have been evidence.
+
+**Independently: §8's case files and the `B5` launcher are solver INPUTS, not graders.** Rule 2
+fixes the **grading** path at the pre-registration commit; Amendment 10 item 10 already records
+in terms that writing case inputs pre-compute is legal.
+
+### 17.2 RULING 1 — `div(phi,Ekp)` IS REGISTERED, AND §8.2's SMOOTHNESS JUSTIFICATION IS **STRUCK BY QUOTE**
+
+**THE RULING, THE SUPERVISOR'S:** *"Register `div(phi,Ekp)`, and change the REASON, not just
+the name … A scheme carried across with a reason that belongs to a different quantity is
+exactly the 'silent no-op' family this team convicted twice."*
+
+**THE MEASUREMENT, RE-VERIFIED BY THIS LANE INSIDE THE CONTAINER THAT WILL RUN THE SOLVE**, not
+taken from the draft and not from the box's native tree:
+`OpenFOAM-v2506/applications/solvers/compressible/rhoSimpleFoam/EEqn.H` reads
+
+```
+    fvm::div(phi, he)
+  + ( he.name() == "e" ? fvc::div(phi, volScalarField("Ekp", 0.5*magSqr(U) + p/rho))
+                       : fvc::div(phi, volScalarField("K",   0.5*magSqr(U))) )
+```
+
+§8.4 registers **`sensibleInternalEnergy`**, so `he.name() == "e"` and the solver requests
+**`div(phi,Ekp)`** and **never** `div(phi,K)`. Under §8.2's `default none;` — which §8.2 itself
+says *"makes an unruled term a hard solver abort rather than a silent default"* — **the frozen
+`fvSchemes` cannot start the solver.**
+
+> ### **REGISTERED, AMENDMENT 11 RULING 1:**
+> ```
+>     div(phi,Ekp)   bounded Gauss upwind;
+> ```
+
+**⚠ THE SCHEME IS NOT CARRIED ACROSS FROM `div(phi,K)`, AND THE JUSTIFICATION THAT WOULD HAVE
+COME WITH IT IS STRUCK BY QUOTE.** §8.2's third bullet reads, verbatim:
+
+> ~~*"**`div(phi,K)` — `bounded Gauss linear`.** `K = |U|²/2` is a **smooth, non-shock-bearing**
+> kinematic quantity reconstructed from `U`; upwinding it would add dissipation to the energy
+> balance that the momentum equation is not seeing, which is inconsistent. Second-order
+> linear."*~~
+
+**STRUCK, AS A JUSTIFICATION FOR THE TERM THE SOLVER ACTUALLY REQUESTS.** `Ekp = |U|²/2 + p/ρ`,
+and **the `p/ρ` part jumps across the shock** — it is, up to normalisation, the very quantity
+Gate P grades. **A smoothness argument about `K` is not an argument about `Ekp`.** The bullet
+stands unaltered **as a ruling about `div(phi,K)`**, which remains written in the dictionary and
+is **never requested** under `sensibleInternalEnergy`; it would govern only the counterfactual
+`sensibleEnthalpy` configuration this registration does not use.
+
+**THE REASON REGISTERED FOR `bounded Gauss upwind`, STATED IN TERMS OF `Ekp`, IN THREE MEASURED
+LIMBS:**
+
+1. **It is the other half of ONE flux.** `div(phi,he) + div(phi,Ekp) = div(phi,h₀)`: with
+   `he = e`, `e + p/ρ = h` and `h + |U|²/2 = h₀`. §8.2 already ruled **`bounded Gauss upwind`**
+   for `div(phi,e)` on the ground that it is *"internal energy transport across a **transonic
+   shock**"*. **Two different schemes on the two halves of one total-enthalpy flux is
+   inconsistent**, and the inconsistency is not cosmetic: it is a mismatch in the numerical
+   dissipation applied to the two additive parts of the same physical transport.
+2. **`Ekp` enters EXPLICITLY.** Measured in `EEqn.H` above: `he` is `fvm::` (implicit) and `Ekp`
+   is `fvc::` (explicit). An unbounded second-order reconstruction of a shock-bearing quantity
+   in an **explicit source** feeds an unbounded contribution into the implicit `he` equation —
+   **the negative-temperature-and-solver-death route §8.2 already names for `div(phi,e)`**, and
+   it applies with more force to a term that carries no implicit diagonal to damp it.
+3. **The shipped v2506 tree never splits them, and its only transonic case uses exactly this
+   scheme.** Measured across the 17 `fvSchemes` in the v2506 tutorial tree carrying
+   `div(phi,Ekp)`: of the **8** under a **steady compressible** solver family (`rhoSimpleFoam`,
+   `rhoPorousSimpleFoam`, `overRhoSimpleFoam`) that carry a `div(phi,e)` entry too, **8 of 8
+   give `e` and `Ekp` the IDENTICAL scheme and none splits them.** The only case in the tree
+   that differs is the low-Mach buoyant family (`buoyantPimpleFoam`, `Gauss linear` on `Ekp`) —
+   **no shock.** And **`tutorials/compressible/rhoSimpleFoam/squareBend`, the one tutorial in
+   the family carrying `transonic yes;`, uses `bounded Gauss upwind` for both.**
+
+**⚠ THE PREDICTED CONSEQUENCE, REGISTERED AND NOT HIDDEN.** Relative to a second-order
+reconstruction, a bounded first-order upwind on the explicit `Ekp` term adds **numerical
+dissipation to the total-energy flux**. Gate P grades **surface `Cp`**, which is set by the
+momentum solution; the same reasoning §8.2 gives for accepting first order on `div(phi,e)`
+applies here. ⚠ **The magnitude of any resulting `Cp` bias is NOT estimated.** Naming a
+numerical choice is honest; inventing the size of its effect would not be — the same discipline
+§5's `GF1` ruling already imposes.
+
+> **REGISTERED PREDICTION `X5`: with `div(phi,Ekp)` registered, `rhoSimpleFoam` does not abort
+> at iteration zero on an unruled divergence term. With §8.2's frozen `fvSchemes` as written —
+> `default none;` and no `div(phi,Ekp)` entry — it does.** ⚠ **This is a PREDICTION, not a
+> measurement: no solver has been launched under either dictionary. The abort mechanism is
+> §8.2's own stated one, and the term the solver requests is measured from `EEqn.H`; the abort
+> itself is an inference and is labelled one.**
+
+**Implemented in `cases/M6SR/write_m6sr_case.py` as CHOICE `CH2`, whose recorded basis now
+carries this reason and not the struck one.** Verified by emitting the dictionary and reading
+it back: the written `system/fvSchemes` carries `div(phi,Ekp)  bounded Gauss upwind;`.
+
+### 17.3 RULING 2 — **ONE** REFERENCE SEMISPAN FOR THE STATIONS, WITH ITS SOURCE, AND THE SHIFT AS A PREDICTION
+
+**THE RULING, THE SUPERVISOR'S:** *"three semispans in one document is itself the defect.
+Register ONE, with its source, and register the shift as a PREDICTION … the stations are
+defined by the EXPERIMENT — AGARD's taps sit at `y/b` of the REAL wing — so the reference
+semispan is the AGARD/experimental one, and the mesh's 1.216405 m is a MESH property to be
+REPORTED, not one that redefines where the stations are."*
+
+#### 17.3.1 THE THREE SEMISPANS, AND WHAT EACH ONE IS
+
+| value | where it lives | what it actually is |
+|---|---|---|
+| **1.19676 m** | **§8.5**, `sampleDict` cutting planes; comparator constant `B_SEMI_M` | the **station reference** — the semispan the seven `y/b` are multiplied by |
+| **1.1963 m** | **§5, `GF4`** | **AGARD's printed physical semispan**, a **gate reference** for `GF4` |
+| **1.2164045761791 m** | **`X2`**, measured on both levels' wall patch | the **solved wing's** span extent — a **MESH property** |
+
+**Re-measured by this lane: `1.216405 m` on L3 and on L2, identical.** §8.5's `1.19676` is
+**+0.038452 %** from AGARD's `1.1963` and **−1.614971 %** from the wing this ladder will solve.
+
+#### 17.3.2 THE REGISTRATION — ONE VALUE, WITH ITS SOURCE AND ITS REASON
+
+> ### **REGISTERED, AMENDMENT 11 RULING 2: the STATION REFERENCE SEMISPAN is `b_semi = 1.19676 m`, and it is the EXPERIMENTAL/AGARD-side reading, not the solved wing's.**
+> **Source, as §8.5 states it: measured independently from the registered STL master, and
+> corroborated to `+0.038452 %` against AGARD AR-138's printed `1.1963 m` — the one import
+> corroborated on this box.** **The value is UNCHANGED from §8.5. What changes is that it is
+> now REGISTERED AS A CHOICE, with its reason, rather than carried as an unexamined constant.**
+>
+> **THE REASON.** AGARD's taps are at `y/b` of the **REAL** wing: `y/b` is an experimental
+> coordinate and the seven values `0.20 … 0.99` mean nothing except against the wing the taps
+> were drilled into. **The solved wing's `1.216405 m` is a property of OUR MESH** — `X2`
+> reason 4 measures the ×4 family's inherited **rounded tip cap** extending **0.020105 m**
+> beyond AGARD's semispan — **and a mesh artefact may not redefine where an experimental
+> station is.** `1.216405 m` is therefore **REPORTED** — it is `GF4`'s registered instrument
+> and it rides in every `GATE_P_FIGURE_DATA.json` under `sampled_span_extent_m` — and it
+> **does not place a station.**
+
+**⚠ AND WHAT THIS REGISTRATION DOES NOT SETTLE, HANDED BACK RATHER THAN TAKEN.** The ruling
+names *"the AGARD/experimental one"*, and **the document holds TWO values on that side**:
+§8.5's STL-measured `1.19676 m` and `GF4`'s AGARD-printed `1.1963 m`. **This lane registers the
+one already in force (`1.19676`) and did NOT move the number**, because moving it moves every
+station and that is a gate parameter. **The alternative is quantified so the supervisor rules
+on a measured thing:** adopting AGARD's printed `1.1963 m` instead would move station 7 inboard
+by **0.0004554 m = 0.03805 % of semispan ≈ 0.027 cm** of chordwise shock displacement at
+§16.4's rate — **an order of magnitude below the 0.96-vs-0.95 divergence §16.4 already calls
+load-bearing**, and every station stays inside the wall patch. **It is the supervisor's, and it
+is small.**
+
+#### 17.3.3 THE SHIFT, REGISTERED AS A FALSIFIABLE PREDICTION WITH ITS MAGNITUDE
+
+**Every station of the registered set sits INBOARD of the same nominal `y/b` on the solved
+wing, by ~1.6 % of semispan. Re-derived by this lane:**
+
+| station | `y/b` | registered span coord (m) | its `y/b` **of the solved wing** | if placed at `y/b` of the solved wing (m) | shift (m) | shift, % of `b_semi` |
+|---|---|---|---|---|---|---|
+| 1 | 0.20 | 0.2393520 | **0.196770** | 0.2432809 | 0.0039289 | 0.32830 |
+| 2 | 0.44 | 0.5265744 | 0.432894 | 0.5352180 | 0.0086436 | 0.72225 |
+| 3 | 0.65 | 0.7778940 | 0.639503 | 0.7906630 | 0.0127690 | 1.06696 |
+| 4 | 0.80 | 0.9574080 | 0.787080 | 0.9731237 | 0.0157157 | 1.31318 |
+| 5 | 0.90 | 1.0770840 | 0.885465 | 1.0947641 | 0.0176801 | 1.47733 |
+| 6 | 0.96 | 1.1488896 | **0.944496** | 1.1677484 | 0.0188588 | 1.57582 |
+| 7 | 0.99 | 1.1847924 | **0.974012** | 1.2042405 | **0.0194481** | **1.62507** |
+
+> **REGISTERED PREDICTION `X6`: the seven graded stations are placed at `y/b` of the
+> EXPERIMENTAL semispan, so on the SOLVED wing they sit at `y/b` = 0.196770, 0.432894,
+> 0.639503, 0.787080, 0.885465, 0.944496 and 0.974012 — each ~1.6 % of semispan INBOARD of its
+> nominal ring. Placing station 7 at 0.99 of the SOLVED wing instead would move it
+> `0.0194481 m` outboard = `1.62507 %` of semispan ≈ `1.14 cm` of chordwise shock displacement
+> at §16.4's own exchange rate (1 % of semispan ≈ 0.7 cm at `M∞ = 0.8395` on a 30°-swept
+> wing).**
+>
+> **THAT IS LARGER THAN THE `0.96`-vs-`0.95` DIVERGENCE §16.4 ALREADY REGISTERS AS
+> LOAD-BEARING (≈ 0.7 cm), AND IT POINTS THE SAME WAY — inboard-versus-outboard on the same
+> stations.** **It is `REPORTED, NOT GATED`**, exactly as §16.4's is, and it travels on every
+> Gate P figure and certificate cell.
+
+**⚠ BOTH READINGS ARE DEFENSIBLE, AND WHICH ONE THIS REGISTRATION USES IS STATED SO NO READER
+HAS TO INFER IT.** *Experimental-referenced* (registered here) matches the physical coordinate
+the taps were drilled at and is right for the inboard stations. *Solved-wing-referenced* would
+match the aerodynamic place — the outer stations of a wing with a rounded tip cap are not the
+outer stations of AGARD's wing. **This registration uses the EXPERIMENTAL reference, for the
+reason in §17.3.2, and predicts the size of what it thereby gives up in `X6`.**
+
+**✅ AND SO THAT NOBODY READS THE RULING AS A SAFETY CLAIM: all seven registered stations fall
+INSIDE both meshes' wall-patch extent `[0, 1.216405] m`** — station 7 clears the tip by
+**0.031612 m** — **so the comparator will not refuse on span.** That is a statement about the
+reader's refusal condition (`C22`), **not** a statement that the stations are in the right
+place; `X6` is the statement about that, and it is a disclosure of a **1.6 %** displacement.
+
+**Nothing in the comparator changes for this ruling.** `B_SEMI_M = 1.19676` is byte-unchanged.
+
+### 17.4 RULING 3 — SANAA'S FIGURE IS **SPLIT** INTO UPPER AND LOWER CURVES
+
+**THE RULING, THE SUPERVISOR'S:** *"her figure cannot be plotted from an interleaved curve.
+Split it … a `Cp` vs `x/c` figure REQUIRES upper and lower as SEPARATE curves. Sanaa's named
+deliverable is the figure. This is a comparator change: hand me the DIFF, check 1 is mine."*
+
+**THE DEFECT, AS MEASURED (draft item 21):** §4.5's channel builds **both** curves as
+`sorted((x, cp))` and interpolates with `_interp()`, which is **single-valued in `x`**. At any
+`x/c` a wing section carries **two** `Cp` values.
+
+**AND A MEASUREMENT THIS LANE ADDS, WHICH SHARPENS THE ITEM RATHER THAN REPEATING IT.** The
+draft recorded the interleaving as *"symmetric between experiment and CFD so not a bias."* That
+is true of the **comparison**. It is **not** true of the **curve**: measured on the pinned
+`case_2308.dat`, the taps are **not evenly split between the surfaces** —
+
+| sections | upper taps | lower taps |
+|---|---|---|
+| 1–4 | **23** each | **11** each |
+| 5–7 | **31** each | **14** each |
+| **total** | **185** | **86** |
+
+**185 of 271 taps — 68.27 % — are upper-surface taps**, so an interleaved curve is implicitly
+weighted about **2:1 toward the upper surface**. (185 + 86 = 271, AR-138 §5.1.1's own total.)
+**Reported. §4.5's RMS is a graded channel and this amendment does not touch it.**
+
+#### THE CHANGE, AND EXACTLY WHAT IT DOES AND DOES NOT TOUCH
+
+**The DIFF is filed at `cases/M6SR/AMENDMENT_11_RULING_3_FIGURE_SPLIT.diff`** and is to be read
+as a diff. **`SUPERVISION_CHARTER.md` §3 check 1 is the supervisor's and is not delegated.**
+121 insertions, 5 deletions, in `cases/M6SR/analyse_m6sr.py`:
+
+- **NEW `split_curve_upper_lower(rows)`** — rows are `(x_over_c, thickness_coord, value)`;
+  returns sorted `upper` and `lower` curves and their counts. **Convention: `thickness >= 0` is
+  UPPER — the SAME convention the frozen `section_upper_lower()` already uses for `GF2`'s root
+  section.** There is one reader in this repository for what "upper" means and this is not a
+  second one. A point at exactly zero thickness lands in UPPER **deterministically**, and the
+  count of such points is **REPORTED, not hidden** (measured: section 4 of `case_2308.dat`
+  carries exactly one). **It REFUSES if either side carries fewer than 2 points**, because a
+  one-sided section would **plot as a perfect absence of the missing surface rather than as a
+  disagreement** — the false zero rule 3 exists for, and the same reason `C22` refuses an
+  out-of-span station rather than returning an empty curve.
+- **`cfd_sections_from_surface()`** — derives the thickness axis as the remaining one of the
+  three (never assumed; draft item 20 records that §8.5's "constant-`y`" names the wrong axis)
+  and builds the split **from the SAME `cross` list**, so there is one source of truth for what
+  a station's points are and no second cut. It rides in `meta["split_by_station"]`, **so the
+  `(sections, meta)` tuple §4.5's `set_to_set_assignment()` consumes is SHAPE-UNCHANGED.**
+- **`gate_p_figure_data()`** — the experimental record now carries
+  `curve_upper_x_over_c_Cp` / `curve_lower_x_over_c_Cp` with their counts; the interleaved list
+  is retained under the name **`curve_x_over_c_Cp_INTERLEAVED_NOT_PLOTTABLE`** so the two
+  readings can be compared and nobody plots the wrong one; and `cfd_split_by_level` carries the
+  CFD side. A `FIGURE_CURVES` note states the 185/86 asymmetry in the record itself.
+- **NEW PLANTED CONTROL `C24`** (rule 3, on the two curves the figure is plotted from), added
+  to the `--selftest` mutation loop; and `split_curve_upper_lower` added to `C23`'s
+  must-be-reachable set.
+
+> 🔴 **§4.5's GRADED CHANNEL IS BYTE-UNCHANGED. `set_to_set_assignment()` STILL INTERLEAVES.**
+> The supervisor's ruling names **the figure**. §4.5's RMS matrix is a **graded** channel whose
+> force is one-directional under standing rule 5, and **changing what a graded channel measures
+> is a gate question and is not a lane's.** It is recorded here that the RMS is computed on
+> interleaved curves weighted ~2:1 to the upper surface, **and it is left exactly as frozen.**
+
+#### `C24` — THE CONTROL, AND WHY IT DISCRIMINATES RATHER THAN MERELY PASSING
+
+**Planted on the PINNED experimental bytes, not on a fixture:** `+0.3579` in `Cp` on the
+**upper-surface taps of section 1 only** (23 upper, 11 lower of 34).
+
+| limb | measured |
+|---|---|
+| upper curve moves by exactly the plant | worst deviation **0.0** |
+| lower curve does not move at all | **0.0** |
+| counts preserved (`n_upper + n_lower == n_taps`) | **23 + 11 = 34** |
+| **the SAME plant read through the INTERLEAVED curve** | shifts its mean by **0.2421088235294118**, only **0.6765** of the plant |
+
+**A one-sided plant is the point.** A reader that still interleaved would report the smeared
+`0.242…` rather than the planted `0.3579`, so **this control discriminates the very defect item
+21 named** instead of merely proving arithmetic works.
+
+**Measured on the suite as a whole:** `C24` **FIRES**; its targeted mutation **FLIPS EXACTLY
+`C24` TO RED** and nothing else; every other mutation still flips exactly its own control;
+`--controls` returns **rc 2** under `python3` **and** under `python3 -O` with **identical
+control verdicts**; `--gate-p` and `--grade` on an absent run root return **2** under both.
+**Zero `ast.Assert` nodes in the comparator, established by AST parse and not by `grep`, with a
+synthetic one-`assert` file reading `1` so the checker is shown to discriminate.** **The only
+control not firing is `C12`** — **that is prediction `X4`, registered by Amendment 10, and this
+amendment does not loosen it.**
+
+### 17.5 RULING 4 — ITEMS 12 AND 14, CORRECTED
+
+**THE RULING, THE SUPERVISOR'S:** *"correct both, they are unambiguous."*
+
+#### 17.5.1 ITEM 12 — THE FORK IS NAMED, AND THE ESI SPELLING IS REGISTERED
+
+§8.4 registers **`momentumTransport`** with `RAS { model kOmegaSST; … }`. **That is the
+OpenFOAM FOUNDATION spelling.** **This box's solver is ESI OpenFOAM `v2506`**, which reads
+`constant/turbulenceProperties` with the key **`RASModel`**.
+
+**Measured by this lane inside the container that will run the solve:** in the v2506 tutorial
+tree, **`momentumTransport` files: 0. `turbulenceProperties` files: 437.** The nearest analogue
+(`tutorials/compressible/rhoSimpleFoam/aerofoilNACA0012`, external aerofoil, steady RAS) reads
+`RAS { RASModel kOmegaSST; turbulence on; printCoeffs on; }`.
+
+> ### **REGISTERED, AMENDMENT 11 RULING 4: the turbulence dictionary is `constant/turbulenceProperties`, and the key is `RASModel`.**
+> **THE FORK AND VERSION THIS BOX RUNS: ESI OpenFOAM `v2506`, at
+> `/home/dafoamuser/dafoam/OpenFOAM/OpenFOAM-v2506` inside the container image
+> `dafoam-idwarp-rot:v1`, which is what `cases/M6SR/run_m6sr_b5.sh` invokes.**
+> **THE MODEL, THE SWITCHES AND THEIR VALUES ARE UNCHANGED** — `kOmegaSST`, `turbulence on`,
+> `printCoeffs on`. **No gate, threshold, cap or label moves.** Without this, the solver runs
+> with **no turbulence-model dictionary at all.**
+
+#### 17.5.2 ITEM 14 — §8.1's TABLE IS STRUCK BY QUOTE, AND THE **FORMULA** IS REGISTERED
+
+**RE-DERIVED BY THIS LANE, AS THE RULING REQUIRED, AND NOT TAKEN FROM THE BRIEF'S
+TRANSCRIPTION.** At the registered `R = 287.058`, `γ = 1.4`, `T∞ = 288.15 K`:
+`a∞ = √(γRT) = 340.2970287557621 m/s`, and `|U∞| = 285.679356 m/s` gives
+**`M = 0.8395000010565409`** — the registered `0.8395`.
+
+| reading | `U_x` | `U_y` | `|U|` (m/s) | **M** |
+|---|---|---|---|---|
+| §8.1's **TABLE** cell `(285.221 15.249 0)` | 285.221 | 15.249 | 285.6283439051524 | **0.8393500964422276** |
+| §8.1's **PROSE** figures | 285.2721 | 15.2494 | 285.67939239428875 | 0.8395001080051349 |
+| **§8.1's FORMULA `U∞·(cos 3.06°, sin 3.06°, 0)`** | **285.2720289804489** | **15.250046752474487** | **285.679356** | **0.8395000010565409** |
+
+> ~~*"| `U` | m/s | `(285.221 15.249 0)` = `U∞·(cos3.06°, sin3.06°, 0)` | …"*~~
+
+**STRUCK.** The table's vector gives **`M = 0.839350`**, not the registered `0.8395`, and a
+`Re` **0.01786 %** off the registered `11.72 × 10⁶`.
+
+> ### **REGISTERED, AMENDMENT 11 RULING 4: the freestream vector is the one §8.1's own FORMULA gives — `(285.2720289804489, 15.250046752474487, 0)` m/s — reproducing `|U| = 285.679356 m/s`, `M = 0.8395000` and `Re = 1.1720e7` on the MAC.**
+> **The formula is the content the table cell and the prose sentence AGREE on; only the
+> transcribed digits differ. Nothing about the registered state pair of §3 moves.**
+
+**⚠ AND A FINDING THE RULING DID NOT ANTICIPATE, BECAUSE THE RE-DERIVATION WAS DONE RATHER THAN
+COPIED.** §8.1's **PROSE** does not reproduce the formula either. It reads *"`285.679356 ×
+cos(3.06°) = 285.2721`, `285.679356 × sin(3.06°) = 15.2494`"*; the formula gives
+**285.2720290** and **15.2500468**. So **§8.1 carries four numerals for a two-component vector
+and NOT ONE of the four is the formula's value.** The `U_x` prose slip is **+7.1e-05** (7th
+significant figure, immaterial: `ΔM = +2.1e-07`); **the `U_y` prose slip is −6.5e-04 and the
+table's is −1.05e-03**, neither of which the draft or the ruling names. **The registered vector
+above is the FORMULA's, computed at full precision, and this is recorded as draft item 25
+(§17.9) so the slip is struck rather than propagated.** Verified end to end: the case writer
+emits `internalField uniform (285.2720289804489 15.250046752474487 0.0)`, read back from disk
+by control `W3`.
+
+### 17.6 ITEM 17 — GATE A WAS AS UNRUNNABLE AS GATE P, ONE GATE FURTHER BACK. FOUND AND FIXED
+
+**Amendment 10 item 10 found that nothing ran `B5`. Measured by this lane: nothing ran `B4`
+either.** `cases/M6SR/build_m6sr_l1.sh` contains **zero** occurrences of `checkMesh`, and §9's
+frozen path table registers no other executable — while Gate A reads its named numeric maxima
+off `<run_root>/<L>/log.checkMesh` and §5 rules that **"an absent `checkMesh` log reads
+`ABSENT`. It never reads clean."**
+
+**FIXED, in `cases/M6SR/run_m6sr_b5.sh`'s `stage` phase**, which runs `checkMesh` per level.
+§2.4 gives **ONE** `B4` row (cap **2.0 core-min**) for *"checkMesh ×3"*, so the driver treats it
+as a **running budget across the three levels**, ledgered at
+`<run_root>/B4_SPENT_COREMIN.txt` and **refused when exhausted** — an overrun stops the run and
+does not get a new budget (rule 12). **The cap is not moved.**
+
+### 17.7 THE TWELVE WRITER CHOICES `CH1`–`CH12`, REGISTERED **HERE** AND NOT ONLY IN AN OUTPUT ARTIFACT
+
+**They are already reproduced verbatim into every case's `CASE_PROVENANCE.json`. A choice made
+pre-compute must be recorded where the FREEZE can see it, not only where a reader of a run tree
+can.** They are registered here for that reason. **Each is a solver INPUT; none grades
+anything; none moves a gate.**
+
+| id | the choice | why §8 did not settle it |
+|---|---|---|
+| `CH1` | boundary conditions attached **by patch TYPE, never by name** | §7's screen does not predict the patch names |
+| `CH2` | **`div(phi,Ekp)  bounded Gauss upwind`** | **§17.2, Ruling 1** |
+| `CH3` | **`turbulenceProperties` / `RASModel`** | **§17.5.1, Ruling 4** |
+| `CH4` | `lRef = 0.64607` (MAC), `Aref = 0.7532` (`S_ref`) | `forceCoeffs` requires both; draft item 19. Amendment 4a's gate-by-gate invariance holds — G1's and G2c's thresholds are **ratios in which any constant `Aref` cancels** — **the PRINTED `C_D` is not invariant** |
+| `CH5` | `forceCoeffs` writes **every time step** | G1 needs a 500-iteration tail and G2c a 2,000-iteration tail; §8.5's `writeInterval = endTime` would leave **one** sample |
+| `CH6` | **no `Pr` key** | `sutherlandTransport` reads only `As` and `Ts`; **derived `Pr_achieved = 0.6903229`, 4.122 % below §3's registered 0.72** — DERIVED, not measured in a solver run (draft item 13) |
+| `CH7` | **`solverInfo`** | v2506 ships no function object named `residuals` (draft item 15). **Nothing grades on it** — §5.1 names `scripts/residual_max_over_equations.py` as G2's only instrument |
+| `CH8` | freestream built from the **DERIVED** axes, refusing on an unexpected frame | draft item 20: §8.5's "constant-`y` planes" names the wrong axis; the span runs along `z` |
+| `CH9` | **`U∞` from §8.1's FORMULA** | **§17.5.2, Ruling 4** |
+| `CH10` | **`transonic` NOT set** | §8.3 registers it nowhere, so OpenFOAM's default `no` is what runs; registration by omission is still registration (draft item 18) |
+| `CH11` | the **wing patch** is sampled and the seven planes are cut **by the comparator** | an OpenFOAM `cuttingPlane` cuts the **volume** and cannot isolate the wing **surface**; cutting the point-interpolated patch is exact linear interpolation along triangle edges and **introduces no spanwise binning tolerance** |
+| `CH12` | the mesh is **copied** into the run root | `/home/ubuntu/certonomous-runs/` is **READ ONLY** |
+
+**SPECIFIED BY §8 AND TAKEN VERBATIM, CHOSEN IN NOTHING:** all seven `0/` internal values and
+BC types; the whole of `fvSchemes` bar `CH2`; the whole of `fvSolution`, including
+`residualControl` **zero on every equation**; `molWeight 28.964425`, `As 1.571860616e-06`,
+`Ts 110.4`, `Cp 1004.5`; `endTime` 3000/4000/5000; `writeControl timeStep` with
+`writeInterval = endTime`; `hierarchical` with `scotch` **not used**; ranks 4/8/16; caps
+31.0/163.0/1630.0 core-min; the seven `y/b`; and `b_semi = 1.19676 m` (§17.3).
+
+### 17.8 🔴 `X1` STANDS. NOTHING IN THIS AMENDMENT REVIVES IT
+
+**Re-measured by this lane through the frozen reader on the pinned `case_2308.dat`, after every
+change above:**
+
+> **`D1` = `INDETERMINATE`. `Cn(7)/Cn(1) = 0.8787468156097933` → `0.878747`**, inside §4.3's
+> registered indeterminate band `(0.75, 1.333)`; the `Cn` series is **non-monotone**.
+> **Gate P's PER-STATION channel is therefore `NOT A RESULT`, exactly as `X1` predicts.**
+
+**NOTHING HERE TOUCHES THAT.** Ruling 1 is a divergence scheme. Ruling 2 is where a station
+sits, not which experimental section it is. Ruling 3 splits a **figure** and leaves §4.5's
+graded RMS byte-unchanged. Ruling 4 is a dictionary spelling and a freestream transcription.
+**The per-station channel is `NOT A RESULT` by the operation of §4.3's own falsification table,
+on experimental bytes that predate this ladder, with no CFD in existence** — and `X2`, `X3` and
+`X4` likewise stand exactly as Amendment 10 registered them.
+
+### 17.9 🔴 THREE FURTHER ITEMS — THE FIFTEENTH PASS
+
+**The supervisor instructed this lane to assume a fifteenth item existed and to look for it.
+There are three. Recorded, NOT repaired. Item 26 is the serious one.**
+
+| # | what cannot be satisfied | measured basis | consequence |
+|---|---|---|---|
+| **25** | **§8.1's PROSE does not reproduce §8.1's FORMULA EITHER — the defect is wider than Ruling 4 names.** | Formula: `285.679356·cos(3.06°) = 285.2720289804489`, `·sin(3.06°) = 15.250046752474487`. §8.1's prose prints **285.2721** and **15.2494**; its table prints **285.221** and **15.249**. **Four numerals for a two-component vector; none of the four is the formula's value.** `U_x` prose slip +7.1e-05 (`ΔM = +2.1e-07`, immaterial); **`U_y` prose slip −6.5e-04, table slip −1.05e-03.** | Handled **in the same direction as Ruling 4** — the FORMULA is registered (§17.5.2) and reproduces `M = 0.8395000` and `Re = 1.1720e7`. **Recorded so the `U_y` slips are struck too and not left to be discovered in a case file.** |
+| **26** 🔴 | **NO OPENFOAM VERSION AND NO CONTAINER IMAGE IS REGISTERED ANYWHERE IN THIS DOCUMENT — AND THE BOX CARRIES TWO ESI TREES.** | **Measured with a discriminating reader:** a sweep of this file for any version token `v2[0-9]{3}` returns **0**, while `rhoSimpleFoam` returns **4** — the reader can see what is there. On the box: native **`/usr/lib/openfoam/openfoam2606`**; in the solve container `dafoam-idwarp-rot:v1`, **`OpenFOAM-v2506`** *and* **`OpenFOAM-AD`**. And `cases/M6SR/run_m6sr_b5.sh:78` reads **`IMG=${M6SR_IMAGE:-dafoam-idwarp-rot:v1}`** — **an environment variable can change the solver binary between the freeze and the run, silently.** | 🔴 **Every one of items 11, 12, 15 and 18 — and therefore Ruling 1 and Ruling 4 — is a VERSION-DEPENDENT finding.** `momentumTransport` is right for one fork and wrong for the other; `residuals`-vs-`solverInfo` moved at v1912. **A registration that pins `case_2308.dat` and a points-file sha256 but not the solver binary is pinning the data and not the instrument.** **Registering a version, an image and a digest is a grading-path/freeze question and is the supervisor's**; a lane may not pin it. **Stated before a launch is ordered, not at the drop path.** |
+| **27** | **§4.5's RMS is weighted ~2:1 toward the upper surface, and the "symmetric, so not a bias" reading is right about the COMPARISON and silent about the CURVE.** | Measured on the pinned bytes: **185 of 271 taps (68.27 %) are upper-surface** — 23/11 on sections 1–4, 31/14 on 5–7. Both curves interleave, so the comparison is symmetric; but the RMS a section contributes is **two-thirds an upper-surface statistic**. | **NOT REPAIRED.** §4.5's channel is **graded** and its force is one-directional under rule 5; changing what it measures is a gate question. **Reported so the supervisor rules on a measured weighting rather than on the word "symmetric".** The **figure** is split (§17.4) and is unaffected. |
+
+> **WHAT M6SR CAN AND CANNOT DO AFTER THIS AMENDMENT, STATED ONCE, PLAINLY.**
+> **CAN:** run `B1`–`B3`; **stage** L3/L2/L1 and run `B4`'s `checkMesh` (§17.6); grade
+> **`Gate GF`** and **`Gate A`**; write §8's case files with a `div(phi,Ekp)` entry the solver
+> asks for (§17.2) and a turbulence dictionary it reads (§17.5.1); run `B5a`/`B5b`/`B5c`; and
+> **produce Sanaa's named first-physics figure DATA at `<run_root>/GATE_P_FIGURE_DATA.json`
+> with upper and lower surfaces as SEPARATE curves** (§17.4), every level, carrying clause
+> `L-HONEST` verbatim.
+> **CANNOT:** grade Gate P's **per-station** channel — **`X1`**, unchanged.
+> **CANNOT:** print a Gate P **verdict** beside a Gate G band while **`X3`** stands.
+> **`Gate GF`'s `GF2` and `GF4`-semispan limbs are still predicted `GATE FAIL`** (Amendment 10
+> item 8, `X2`); **the control suite still REFUSES (exit 2) on `C12`** (`X4`).
+> **AND THE SOLVER BINARY IS STILL UNPINNED (item 26).**
+
+### 17.10 COST — RULE 12, AND NONE OF IT IS LADDER COMPUTE
+
+**No step of §2.4's cost table was run and `verification/runs/M6SR_runs` does not exist.** What
+this amendment spent is host arithmetic, read-only inspection of already-existing artifacts
+(the pinned `case_2308.dat`, this file, two scripts), **read-only `grep` and `sed` inside the
+solve container** (three `docker run --rm` invocations, no solver, no mesh), the comparator's
+own control suite and its 22-target mutation loop, and the case writer's suite under both
+interpreters: **≈ 11 core-min at 1 rank, and it is an ESTIMATE from this session's own wall
+clock, NOT a measurement read from a run log** — no run log exists for it and inventing one
+would be worse than saying so. **Derived at the owner-stated `c7a.4xlarge` $0.0513/core-h:
+≈ $0.0094 — DERIVED, REPORTED-BY-OWNER, never measured, because the box cannot read its own
+billing** (`COMPUTE_BUDGET_CHARTER.md` §5).
+
+**§9.3's estimate-versus-actual row is NOT owed yet**, because no `B` step has completed. It
+falls due at `B1`'s completion. **§2.4's `est ≤ cap` table is untouched by this amendment** —
+Amendment 10 §16.6 re-derived every row and no row of it moves here.
+
+### 17.11 WHAT THIS AMENDMENT DOES **NOT** DO
+
+1. **It moves no gate, no threshold, no cap and no label**, with the two exceptions the
+   supervisor's rulings expressly authorise — the **`div(phi,Ekp)` scheme** (§17.2) and the
+   **station reference semispan** (§17.3, whose registered VALUE is unchanged from §8.5) —
+   each stating its reason and its predicted consequence. Not one number in §2.4, §5, §5.1, §7
+   or §10 is touched.
+2. **It does NOT re-freeze.** `SUPERVISION_CHARTER.md` §3 check 4 belongs to the cfd supervisor
+   and is **undischarged**. **Check 1 — the comparator diff, read as a diff — is likewise the
+   supervisor's**, and the diff is filed at
+   `cases/M6SR/AMENDMENT_11_RULING_3_FIGURE_SPLIT.diff`.
+3. **It does NOT re-pin the §9 path table.** `cases/M6SR/analyse_m6sr.py` and
+   `cases/M6SR/write_m6sr_case.py` changed in this amendment and **their blob shas must be
+   re-pinned at the freeze**; a lane may not pin a grading path.
+4. **It does NOT enqueue anything.** `verification/queue/cfd/` is a live launch path and this
+   lane wrote nothing into it. **No compute was launched.**
+5. **It does NOT touch §4.5's graded channel.** `set_to_set_assignment()` is byte-unchanged and
+   still interleaves (§17.4, item 27).
+6. **It does NOT revive Gate P's per-station channel. `X1` stands** (§17.8), and `X2`, `X3`,
+   `X4` stand with it. **It does not loosen `C12`.**
+7. **It does NOT register an OpenFOAM version, image or digest** (item 26). It **names** what
+   the driver invokes today and records that nothing pins it.
+8. **It does NOT change `/home/ubuntu/certonomous-runs/`**, which was read only, nor
+   `docs/LAB_STATE.md`.
+9. **It claims no verdict of the fixed vocabulary for any gate.** Every `PASS` / `GATE FAIL` /
+   `NOT A RESULT` above is inside a registered **PREDICTION** or a **quotation**, and a
+   prediction is not a verdict. **No solver has run.**
+10. **SUBMISSIONS REMAIN PARKED (rule 7). Nothing left the box (rule 8).**
+
+### 17.12 RULE 6's AMENDMENT ASSERTIONS
+
+**Version: v1.2 → v1.3 (amendment 11, pre-compute). The frozen file was NOT edited; this
+section is APPENDED AT THE FOOT.**
+
+⚠ **The header line 3 still reads `v1.0` and is DELIBERATELY NOT EDITED**, for the reason
+§15.10 and §16.9 give: editing it would change a line above §15 and falsify that section's own
+assertion, on which other records depend. **The bump is recorded HERE, which is where rule 6
+puts it. The supervisor may restate the version in the header at the re-freeze, which is a
+status flip they own; a lane may not.**
+
+> **`lines whose number changed above this section: 0`**
+
+**Verified, not asserted:** lines **1–2690** of this file — the whole of it up to and including
+§16.9's closing line, and therefore the whole of §15's guaranteed range 1–2022 and §16's
+guaranteed range 1–2229 — are **byte-identical** before and after this append, both rendering
+to sha256 **`ddc16dc72104fc04400b65b7b7904a86c8013ca5fac70a86c1b415a83b0d4f13`**. Other records
+cite this document **by line**, and at least one such citation sits inside an executable check,
+so this is a guarantee and not a courtesy.

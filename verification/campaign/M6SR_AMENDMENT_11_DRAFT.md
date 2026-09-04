@@ -336,3 +336,16 @@ the ratio**.
   **No solver has run.**
 - **SUBMISSIONS ARE PARKED.** Nothing here is sent, filed, uploaded or registered outside
   this box.
+
+---
+
+## STATUS UPDATE — 2026-09-04T1613Z. THIS DRAFT HAS BEEN SUPERSEDED BY AN APPENDED AMENDMENT
+
+**The cfd supervisor ruled on four of the fourteen items above (11, 12+14, 21, 24) and a lane
+implemented those rulings.** The amendment is now **appended at the foot of
+`verification/campaign/M6SR_PREREGISTRATION.md` as §17**, under that document's own rule-6
+discipline (`lines whose number changed above this section: 0`, verified by sha256 over lines
+1–2690). **This file is retained UNALTERED above this line as the working record of the
+fourteen-item pass; §17 is the operative text.** **§17 STILL DOES NOT FREEZE** — check 1 (the
+comparator diff, filed at `cases/M6SR/AMENDMENT_11_RULING_3_FIGURE_SPLIT.diff`) and check 4 are
+the supervisor's, and no queue row was written and no compute launched.
