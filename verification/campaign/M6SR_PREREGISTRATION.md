@@ -81,6 +81,13 @@ not by one.**
 > of 1.448.** No amount of re-running changes this. It is killed at the algebra, not at the
 > measurement.
 
+> 🔴 **BEFORE PROPOSING TO REVIVE BRANCH (a1) OR (a2) ON THE 2026-09-03 GATE RECLASSIFICATION,
+> READ §14.1.** The family this theorem kills **is** branch (a1) — `RUNG1_M6_R2` registers the
+> identical triple, was frozen at `3126345f`, and **has already run**. There is a **second wall**
+> and it is in **Sanaa's own words**: her ill-posedness exception names *"no outlet"* explicitly,
+> and the mesh that carried the 88.889° was a **closed all-wall box** with a single `defaultFaces`
+> wall patch. **The reclassification removed a mesh-quality block; it did not remove that one.**
+
 **The two admissible alternative shapes, and NEITHER IS FREE** (recorded so a future design does
 not rediscover them): (1) hold `r` fixed and let `marchDist` float — a **domain** change across
 levels, which must be shown not to matter; (2) hold `r` **and** `marchDist` fixed and let `s0`
@@ -1440,12 +1447,15 @@ guess.**
 
 ---
 
-## 14. PRE-COMPUTE AMENDMENTS 2–6 — 2026-09-04T0120Z
+## 14. PRE-COMPUTE AMENDMENTS 2–7 — 2026-09-04T0120Z / T0128Z
 
 **Drafted by a cfd lab-lane. NOT a freeze. This section authorises no compute and the supervisor's
 `SUPERVISION_CHARTER.md` §3 check 4 is undischarged.**
 
-> ### THE CONDITION, STATED ONCE FOR ALL FIVE AMENDMENTS BELOW, AND HOW IT WAS CHECKED
+> ### THE CONDITION, STATED ONCE FOR AMENDMENTS 2–6 BELOW, AND HOW IT WAS CHECKED
+>
+> *(**Amendment 7** was ruled later the same night and carries **its own** condition statement, at
+> its own timestamp, in its own block — it does not inherit this one.)*
 >
 > **Condition (rule 2's before-first-compute clause):** this document is a **DRAFT**, is **NOT
 > frozen**, and **no compute has occurred under it**.
@@ -1458,7 +1468,8 @@ guess.**
 > `PRESENT` on both.** A reader that could not see a directory could not have produced those two
 > rows. This lane created neither run root and launched nothing.
 >
-> **NONE of the five amendments below alters ANY gate, threshold, cap or label.** Amendments 2, 3
+> **NONE of the amendments in this section — 2 through 7 — alters ANY gate, threshold, cap or
+> label.** Amendments 2, 3
 > and 5 correct **characterisations and prose arithmetic**; amendment 4 corrects a **citation** and
 > registers an **invariance that was already true**; amendment 6 adds a **disambiguation** and no
 > number. The registered cost **table** at §2.4 is unchanged in every cell.
@@ -1689,7 +1700,11 @@ surrounding prose, which a `grep` does not read:**
 
 ---
 
-### WHAT THESE FIVE AMENDMENTS DO NOT TOUCH
+### WHAT AMENDMENTS 2–6 DO NOT TOUCH
+
+*(**Amendment 7** and **§14.1** follow this block — appended after it, and bound by every line of
+it. Amendment 7 adds no gate, no threshold and does not touch `GF4`; §14.1 registers no number of
+its own and is a pointer, not a gate.)*
 
 - **No gate, threshold, cap or label moves.** The §2.4 cost **table** is unchanged in every cell.
 - **Clause `L-HONEST` (§6) is UNCHANGED, and is re-affirmed rather than merely left alone.** The
@@ -1704,3 +1719,133 @@ surrounding prose, which a `grep` does not read:**
 - **§4.1's ruling is UNCHANGED**: the AR-138 PDF is provenance and is never a source of numbers the
   gates consume.
 - **No predecessor is edited, amended or reinterpreted** (§0).
+
+---
+
+### AMENDMENT 7 — the `c` / planform-MAC discrepancy, REGISTERED AND **REPORTED, NOT GATED**
+
+**Ruled by the cfd supervisor, 2026-09-04, inside their own territory. Implemented here by a cfd
+lab-lane. This amendment ADDS NO GATE, ADDS NO THRESHOLD, AND DOES NOT TOUCH `GF4`.**
+
+> **Condition and how it was checked, re-stated for THIS amendment at its own timestamp
+> (2026-09-04T0128Z), not inherited from the block above:** this document is a **DRAFT**, is **NOT
+> frozen**, and **no compute has occurred under it**. **`verification/runs/M6SR_runs`** and
+> **`cases/M6SR`** were tested for existence and **both returned absent**; ⚠ **the same test, in
+> the same invocation, returned `PRESENT` on `verification/runs/RUNG1_M6_R2_runs` and
+> `verification/runs/M6I_runs`** (rule 3 — the reader is shown able to see a directory that
+> exists). This lane created neither run root and launched nothing.
+
+**WHY THIS IS REGISTERED RATHER THAN LEFT IMPLICIT.** Amendment 4c establishes that `c` is **not**
+inert: it is consumed by `μ∞` (`:510`) and `omega_inf` (`:1066`), and therefore **it sets the
+Reynolds number the solve actually runs at.** A registered choice may be a choice, but a choice
+that sets `Re` **must not be silent about how far it sits from the geometry this ladder will
+actually mesh.** This lab has a standing finding that a printed discrepancy labelled non-binding
+beats one never computed.
+
+**THE DISCREPANCY, STATED WITH ITS ARITHMETIC:**
+
+| quantity | value | how obtained |
+|---|---|---|
+| **registered `c` (MAC)** | **0.64607 m** | **REGISTERED CHOICE**, motivated by AGARD AR-138 §2.1.7 (printed page). **Not** in `case_2308.dat` — see Amendment 4. |
+| planform MAC, computed here | **0.648267 m** | `MAC = (2/3)·c_r·(1+λ+λ²)/(1+λ)` at the standard M6 planform `c_r = 0.8059`, `c_t = 0.4589` |
+| **difference** | **+0.340 %** | `(0.648267 − 0.64607)/0.64607` |
+| registered `S_ref` | 0.7532 m² | **REGISTERED CHOICE**, and **consumed by nothing** (Amendment 4b) |
+| semispan planform area, computed here | 0.756540 m² | `½(c_r + c_t)·b_semi`, `b_semi = 1.1963` |
+| **difference** | **+0.443 %** | — |
+| **implied `Re` w.r.t. the planform MAC** | **11.7599 × 10⁶** | `11.72e6 × (0.648267 / 0.64607)` — a **+0.340 %** shift against the registered `11.72 × 10⁶` |
+
+⚠ **THE CAVEAT FROM AMENDMENT 4, CARRIED HERE VERBATIM AND NOT SOFTENED:** *"Neither reproduces the
+registered value exactly, and this lane does NOT claim they do — they agree to about half a
+percent, which corroborates that the registered constants describe **this** wing and does not
+establish them to the five figures printed. The registered values stand as choices; this is a
+sanity check, and it is labelled as one."*
+
+> ## **REGISTERED: `REPORTED, NOT GATED`.**
+>
+> **The `+0.340 %` MAC discrepancy and the implied `Re = 11.7599 × 10⁶` are RECORDED and TRAVEL
+> ONTO THE CERTIFICATE beside the registered `Re = 11.72 × 10⁶`. They gate NOTHING.**
+>
+> **NO gate, NO threshold, NO cap and NO label is created, moved or widened by this amendment.
+> `GF4` is UNTOUCHED — it continues to measure leading-edge sweep and semispan only, at its
+> registered `±0.01°` and `±0.1 %` and its 0.1 core-min cap, and it acquires no MAC measurement.**
+>
+> **`μ∞ = 1.929120e-05` and `omega_inf = 2210.901 1/s` are UNCHANGED.** The solve runs at the
+> registered state pair. This amendment changes what is **disclosed**, never what is **computed**.
+
+**THE SYSTEMATIC IS SMALL AND IS EXPECTED TO STAY SMALL — AND THAT IS NOT A REASON TO OMIT IT.**
+A **+0.34 %** shift in `Re` on a transonic wing is far below the band Gate P will carry
+(`ΔCp = ±0.02` from AR-138 alone) and far below the discretisation term `L-HONEST` already labels a
+**lower bound**. It is registered because a systematic that is invisible cannot be reasoned about
+later, not because it is expected to matter.
+
+---
+
+### 14.1 🔴 THE SECOND WALL — WHY BRANCHES (a1)/(a2) DO NOT COME BACK, IN SANAA'S OWN WORDS
+
+**Written here, and pointed to from §1.1, because this is the paragraph a future lane proposing to
+revive (a1) or (a2) needs to hit before it spends anything.**
+
+**FIRST, THE FACT THAT IS EASIEST TO MISS: (a1) IS `RUNG1_M6_R2`, AND IT ALREADY RAN.**
+`RUNG1_M6_R2_PREREGISTRATION.md:311` registers step `S3` as the nested pyHyp triple
+**8,970 / 71,760 / 574,080** — **byte-for-byte (a1)'s triple** from `RUNG1_M6_PREREGISTRATION.md:326`.
+That registration was **FROZEN at `3126345f`**, it **ran** (`verification/runs/RUNG1_M6_R2_runs/{L1,L2,L3}`,
+verified present), and it carries a **post-compute Addendum 1** at `7260f6c9`. **The revival is not
+a live option to be re-taken. It happened, and it ended.**
+
+**AND (a1)'s COST IS NOT AN UNSOURCED FIGURE — a claim that has circulated and is wrong.** It is
+derived and reproducible: `8,970×2,000 + 71,760×3,000 + 574,080×4,000 = 2,529,540,000`
+cell-iterations × **4.02e-08** (that registration's conservative rate) = **101.6875 core-min**.
+The same triple at that document's *point-estimate* **3.3977e-08** gives **85.946** — which is the
+`85.9` that appears elsewhere. **One triple, two rates, both stated in the same file.**
+
+**THE TWO WALLS, AND THE SECOND IS THE STRONGER.**
+
+**WALL 1 — the over-determination theorem (§1.1).** Structural, not empirical. `r` moved
+**1.6329 → 1.2739** across the two levels actually built. The family cannot produce a Roache
+triple. **Killed at the algebra.** And (a1)'s coarse level is `390 × 23 = 8,970` — **the CONDEMNED
+390-face surface `aab44d41…2326`** of §1.3, which produced negative-volume cells and an `e+95`
+aspect ratio under two completely different parameter sets. Gate `A8` refuses it by hash.
+
+**WALL 2 — SANAA'S OWN ILL-POSEDNESS EXCEPTION, WHICH THE 2026-09-03 RULINGS DID NOT REMOVE.**
+The rulings `d8d04b06` / `825285bb` / `43b7196e` moved **mesh-quality gates** — skewness,
+non-orthogonality, aspect ratio, `y⁺` — into the **record-as-prediction** class. That is her own
+enumerated list and it is not in dispute. **But the same ruling carries its own exception, in her
+words** (`etc/sessions/2026-09-03T2100Z_sanaa_launch_rule.md`):
+
+> *"Exceptions where 'launch anyway' is wrong: a setup that's physically ill-posed (**no outlet**,
+> inconsistent boundary conditions, geometry with leaks) will diverge and teach nothing — that's a
+> **blocking physics fix**, not a pre-registration mismatch."*
+
+**And the object that carried the 88.88926674° was a CLOSED ALL-WALL BOX** — its
+`constant/polyMesh/boundary` held **one patch, `defaultFaces`, type `wall`, 9,376 faces**: no
+inlet, **no outlet**, no symmetry (recorded on the cfd board against `0a7562c3`).
+
+> **SO THE 88.889° WAS MEASURED ON AN OBJECT THAT HER SURVIVING BLOCKING CLASS ALREADY COVERS.**
+> **A reviver arguing that the gate reclassification lets (a1)/(a2) back in hits this second wall,
+> and it is in HER words rather than ours.** The reclassification removed a **mesh-quality** block;
+> it did not — and by its own text could not — remove the **ill-posedness** block. **That mesh
+> could never have been solved.**
+>
+> ⚠ **AND THE RECLASSIFICATION IS NOT A CLAIM THAT THE MESH IS GOOD.** *A gate moving from BLOCKING
+> to RECORD-AS-PREDICTION changes what the number stops, never what the number is.* The
+> **88.88926674°**, the **206 severely non-orthogonal faces** and the **AR 35,820.56** stand
+> exactly as measured. §7 of this registration is the only thing that blocks a launch, and it
+> blocks on precisely this ground.
+
+**FOR COMPLETENESS, AND BECAUSE THIS REGISTRATION'S OWN ROUTE IS A DIFFERENT OBJECT:** Route B's two
+existing levels measure **61.4938°** and **61.1581°** max non-orthogonality — **under** the 70°
+threshold as it stood before any reclassification — on meshes with **three correctly typed patches**
+(`wing` wall / `inout` patch / `sym` symmetry, §2.2). **Route B does not carry the 88.889°, and
+neither wall above applies to it.**
+
+**⚠ AN UNRESOLVED FIGURE, NAMED RATHER THAN TIDIED AWAY.** A **third** (a1) cost, **103.6 core-min
+(cap 443.6)**, appears on the cfd board and this lane **could not reproduce it**. Its provenance
+is found — it entered at `de1bc520` (2026-09-02, the board write that corrected the M6 cost basis
+by 100×) — but **its arithmetic is not recoverable**: the implied rate is **4.0956e-08
+core-min/cell/iteration**, which matches **none** of the rates any registration names
+(`3.3560e-08`, `3.3977e-08`, `4.02e-08`), and the sibling rows of that table do not scale against
+the later table by any single factor (`a1` 0.9817, `a2` 1.0343, `b` 1.0125). The implied rate does
+fall inside the **2.69e-08–4.72e-08** eight-run band — **the band `RUNG1_M6_PREREGISTRATION.md` §6
+explicitly REJECTED because five of its eight runs were never re-derived.**
+**VERDICT: PROVENANCE FOUND, ARITHMETIC UNSOURCED — and superseded either way.** The figures to
+use are **101.7** (conservative rate) and **85.9** (point-estimate rate), both derived above.
