@@ -6267,3 +6267,239 @@ was appended at `7e14c5b9`; added as a superseding block, **never editing above*
 ---
 
 **N-D42. DAFoam's `primalMinResTolDiff` is a POST-`End` ACCEPTANCE RATIO BAR, not a solver control — it fires after the primal has already run to `endTime`, so it cannot stop, shorten or perturb a solve, and changing it cannot change the computed solution.** Measured on the armed ancestor's own container log, `/home/ubuntu/certonomous-runs/CURRICULUM-D4-SHIPPED-a2-wing-cdmin/F3_20260826T205120Z_411184.log` (1,151 lines, A2 MACH wing, 38,304 cells, np=4, image `dafoam-idwarp-rot:v1`, DAFoam v5.0.0): the option is set to `1000` in the case header at `:501`; **`End` is at `:864`** and the **entire failure block is at `:866-869`** — banner, `Primal min residual 1.115891818e-05`, `did not satisfy the prescribed tolerance 1e-08`, `Primal solution failed!`. **The solver had already finished.** `DASolver::checkPrimalFailure()` declares failure iff `primalMaxRes / primalMinResTol > primalMinResTolDiff`, so the option is a **ratio bar** and the effective accept floor is `primalMinResTol × primalMinResTolDiff`. From the log's own two printed numbers, `1.115891818e-05 / 1e-08 = 1115.891818` against a bar of `1000` — **this endpoint exceeded the armed bar by only 1.116×, i.e. it failed by 12 %, not by orders of magnitude.** **Practical use, and it is the reason this row exists: raising `primalMinResTolDiff` changes what a completed primal is LABELLED, never what it COMPUTED** — so an item that disarms it is changing an acceptance criterion, not a numerical setting, and must be judged as a change to the acceptance rule. Corroborated independently and at a strength the log cannot reach: `curriculum_D4_SHIPPED_F3SR/RESULTS.md` C2.5, where prediction `P3` was registered **before compute** as the test of whether disarming to `1.0e12` moved the answer on the row whose primals already satisfied the armed bar, and scored `HIT` with **`worst_rel_diff = 0.0` across all five graded components at a `1e-12` relative tolerance.** ⚠ **Do NOT cite the armed-vs-disarmed `CD` agreement as a bit-identity:** the armed log prints `CD: 0.02112851374` (`:827`, `:843`, `:859`) to eleven decimal places and no further, so that comparison is **saturated** and bounds the difference at ~5e-12 rather than establishing equality — the `worst_rel_diff = 0.0` figure is the bit-level claim. **Scope, stated:** this option, this DAFoam version, this image; the post-`End` ordering is read from one log and from the source of `checkPrimalFailure()`, and **is NOT claimed to hold for DAFoam's other failure paths**, which have not been examined. Source: `cases/dafoam/ladder-a/A2/curriculum_D4_SHIPPED_F3SR/RESULTS.md` CORRECTION 2 (§C2.1, §C2.4-C2.6) and CORRECTION 5 (§C5.1-C5.3); the named log above; `cases/dafoam/ladder-a/A2/curriculum_D4_SHIPPED/PREREGISTRATION.md:627`.
+
+---
+
+## N-T11. THE CONDITION THAT GIVES A PHYSICAL NULL ARM ITS EVIDENTIARY POWER IS OFTEN THE SAME CONDITION THAT DEGENERATES ITS OWN SOLVE — a zero-`dT` control makes the initial condition an EXACT steady solution, so the residual normaliser degenerates and the tested residual is a ratio of two round-offs: 349 of 349 T solves at the 1000-sweep cap against 0 of 9000 on the thermal arm, ×28.8 per iteration, ×25.7 over the registered ceiling — MEASURED
+
+**The general fact, stated first, because it is the transferable part.** A
+*physical null* arm earns its evidentiary power by removing the physics — the
+driving difference is set identically to zero, so the correct answer is known a
+priori and any non-zero the instrument reports is manufactured by the
+instrument. A *bit-exactness comparison* earns its power the opposite way: the
+two operands must be identical in every operator and every setting except one
+line, so that the discrete-operator confound cancels exactly. **These two
+requirements are in direct conflict whenever the same artifact is asked to do
+both jobs**, because the null condition frequently makes the initial condition
+an exact solution of the equation being solved — and an equation already
+satisfied to machine precision has no well-conditioned residual normaliser.
+**A physical null arm and a bit-exactness comparison operand must not be the
+same artifact.**
+
+### The specimen: K0eR2's `FP_T00`, and the three measurements that read the degeneracy
+
+The K0eR2 forced-convection flat plate (`buoyantBoussinesqSimpleFoam`, 52,224
+cells, 2 ranks) registered a zero-`dT` control arm `FP_T00` — plate, inlet and
+internal field all at 300 K — to serve as a physical zero-heat-flux null **and**
+as the second operand of the `M4b` momentum bit-exactness comparison against the
+heated arm `FP_T10` (plate 310 K). `FP_T00/0/T` sets `internalField uniform
+300`, inlet `fixedValue 300`, plate `fixedValue 300`. **With `T_wall = T_inf`,
+`T ≡ 300` is simultaneously the initial condition and the exact steady
+solution.**
+
+| observation | `FP_T10` (plate 310 K) | `FP_T00` (plate 300 K) |
+|---|---:|---:|
+| T solves reporting `No Iterations 1000` (the smoothSolver's default cap) | **0 of 9000** | **349 of 349** |
+| first solve, `Initial residual` → `Final residual` | falls to `8.18e-08` | **`0.5053587649` → `0.6092429219` (LARGER)** |
+| final `ExecutionTime` | 2813.03 s over 9000 it | 3137 s over 349 it |
+| **s / iteration** | **0.3126** | **8.99** — a factor **28.8** |
+
+The rate is **flat, not improving**: successive `ExecutionTime` deltas run 8.85,
+8.91 and 9.08 s/it, so no longer run would have caught a convergence trend.
+**Extrapolated to the registered `endTime 9000`, `FP_T00` needs ~80,900 s ≈
+2,696 core-min against its own registered 105.00 core-min per-arm ceiling — ×25.7,
+and 12.8× the whole rung's 210.30 core-min ceiling.** There is no version of that
+arm, under its registered cap, in which it finishes as configured. The arm was
+stopped by the cap at `Time = 350` of 9000 and graded **`NOT A RESULT`**; its
+105.03 core-min is total-loss waste under `COMPUTE_BUDGET_CHARTER.md` §6, 52.6 %
+of the rung's spend. Both arms shared one binary, one mesh, one dictionary set
+and one rank count, and then differed in cost by 28.8×.
+
+**⚠ HONEST LIMIT, KEPT RATHER THAN QUIETLY DROPPED: `normFactor` was NEVER
+INSTRUMENTED.** The degenerate-normaliser mechanism is the **reading** the three
+measurements above support; **it is not a measurement of the normaliser**, and
+nothing here upgrades it to one. What is measured is the sweep count, the
+inverted first residual and the cost ratio. A successor that wants the mechanism
+established rather than read must instrument `normFactor` directly.
+
+### The resolution, which is the half worth copying — K0eR3 SPLIT THE TWO JOBS, and it graded `PASS`
+
+K0eR3 did not tune a dictionary. Adding a `maxIter`, loosening a tolerance or
+freezing the T equation would each have made `FP_T00` runnable **by breaking the
+same-operator-set premise the comparison depends on**; any fix that preserved the
+premise left the degeneracy in place. The registration resolved it at the level
+of the control's **design**, in three parts:
+
+1. **The comparison operand became a COOLED plate.** `FP_T290`, plate at 290 K,
+   `dT = −10 K` — still **exactly one differing line** (`0/T` line 39,
+   `value uniform 290` against `uniform 310`), so the one-line premise is
+   preserved literally, and non-degenerate, because a real gradient conditions
+   the normaliser. **The sign of `dT` is irrelevant to well-posedness.** Because
+   the `T`→`U` route `rhok = 1 − beta·(T − TRef)` is *linear, hence odd*, the
+   pair `(−10, +10)` also drives any leak at **twice** the amplitude of the
+   registered `(0, +10)`, with opposite sign between arms — sensitivity is
+   doubled, not merely restored.
+2. **The physical null was re-homed onto a PLANTED, ON-DISK control at ZERO
+   solver compute** (`Z1`): construct the exactly-uniform 300.0 K field by line
+   index and run the **production** wall-heat-flux reader — the same function the
+   graded path calls — on it. The predecessor projected 2,696 core-min to produce
+   a field whose exact value is known a priori; constructing it costs nothing.
+3. **A structural clause, registered so it cannot recur:** *no arm or artifact in
+   this rung is simultaneously the operand of a bit-exactness comparison and the
+   carrier of a physical null.*
+
+**Measured outcome, K0eR3 graded `PASS`:** `M4b` **0 ULP** with `M4` non-zero at
+**216,639,507 ULP**; `Z1` **0 of 208 plate faces at non-zero flux, at 0 ULP
+against `0.0`, with no tolerance constant in the comparator**; the determinism
+twin `D0` **0 ULP** over 156,672 components; the one-line premise `P7` a blocking
+refusal that passed with **exactly 1 differing file and exactly 1 differing
+line**. `FP_T290` completed rule 4 with **0 of 9000** T solves at the sweep cap —
+the degeneracy is gone, not truncated. The null is admissible because it carries
+its own planted controls (standing rule 3): the positive plant `Z2` moved the
+wall-flux reader by −1.0242e−03 K m/s when `1.234e-03` K was planted in the owner
+cell of a named plate face, and the negative plant `Z3` **did not fire** when the
+same perturbation went into an interior cell owning no plate face.
+
+**Scope, stated.** This is one solver (`buoyantBoussinesqSimpleFoam`), one
+smoothSolver/symGaussSeidel configuration and one case family. The general fact
+in the opening paragraph is a **design constraint drawn from one measured
+instance plus its measured repair**, not a survey; no sweep for other instances
+was run and none is claimed. Nothing here proposes a charter or standard change:
+whether the constraint should be written into any standard is not this entry's
+to say.
+
+**Sources, all this repository's own artifacts:**
+`docs/campaigns/F14-cooling-ladder/K0eR2_RESULTS.md` §3.2 (the degeneracy and its
+`normFactor` limit), §3.3 (the cost table and the 2,696 core-min extrapolation),
+§3.4, §4 (the design conflict), §5 (the contamination threat checked and closed —
+`beta 0` and `g (0 0 0)` in both arms, so the round-off churn could not reach the
+momentum equation), §8 (the waste accounting); `K0eR3_PREREGISTRATION.md` §4.1–§4.3
+and **§5.1** (components C1/C2/C3, quoted above) and §5.3 (the rejected
+alternatives); `docs/campaigns/F14-cooling-ladder/K0eR3_RESULTS.md` §0 (the `PASS`
+row table), §5.1–§5.4 (the four gate readings) and §9 (`Z1`/`Z2`/`Z3`, the planted
+controls). The K0eR2 grading commit is `1b6b710c`.
+
+---
+
+## N-T12. A `y+` LADDER TOLERANCE EVALUATED ON A POINT MAXIMUM SITTING WHERE WALL SHEAR IS NOT MESH-CONVERGED DRIFTS MONOTONICALLY UP THE REFINEMENT LADDER AND MUST FAIL ON A LONG ENOUGH ONE — `h` falls 0.625 per level while `y+_max` falls only ≈0.78, so implied peak `u_τ` GROWS ≈1.25 per level and the ratio-to-target climbs 1.4632 → 1.8506 → 2.3100; the failure is a property of the GATE DESIGN, not of the mesh or the case — MEASURED
+
+**The general fact.** A `y+` admission gate written as *"`y+` must not exceed
+`k ×` this level's target"* is a **ratio** test. If the statistic it reads is a
+**point maximum** located where the wall shear is **not mesh-converged**, then
+refinement shrinks the first cell faster than it shrinks the point maximum, the
+ratio drifts monotonically upward, and **the gate must fail on a sufficiently
+long ladder** — on the tightest level first. Nothing has to be built wrong for
+this to happen.
+
+### The specimen: T5b, refused at its admission gate on one wall of one level
+
+T5b (wall-mounted cube, `chtMultiRegionSimpleFoam`) graded **`NOT A RESULT` on
+all 6 graded rows**, every one firing at the **first** clause of the registered
+order — the `y+` gate — before any grid triple was classified. The comparator's
+own line:
+
+> `y+ gate not MET on level(s) f: y+ exceeds 2.0x the level target 1.00 on: cube_front=2.310 -- the ladder is not the registered ladder`
+
+Levels `c` and `m` read `y+: MET`; only `f` failed, and only on `cube_front`.
+**`2.310` sits comfortably inside `y+_max ≤ 5.0`, so the sublayer clause was
+satisfied — it was the LADDER clause that fired.**
+
+### The mechanism, measured from each level's own `constant/air/polyMesh/points`
+
+**Nothing was built wrong.** All six graded walls carry the **same** first-cell
+height on each level, and the ladder refines it by exactly **`R = 1.6`** per
+level to five significant figures — 128.000 / 80.000 / 50.000 µm on
+`cube_front`, `cube_rear`, `floor`, `cube_top`, `roof` and `cube_side_n` alike —
+which is precisely what `build_t5.py`'s own docstring registers (*"ONE refinement
+factor R = 1.6 applied to EVERY direction INCLUDING the first wall layer, so the
+three levels are geometrically similar"*).
+
+From `y+ = (h/2)·u_τ/ν` at `ν = 1.510e-05 m²/s`, with `y+_max` on `cube_front`
+read at `Time = 5000`:
+
+| level | first cell `h` | `y+_max` cube_front | implied peak `u_τ` | level target | **ratio to target** |
+|---|---:|---:|---:|---:|---:|
+| `c` | 128.0 µm | 3.8043 | 0.8976 m/s | 2.6 | **1.4632** |
+| `m` | 80.0 µm | 2.9610 | 1.1178 m/s | 1.6 | **1.8506** |
+| `f` | 50.0 µm | 2.3100 | 1.3953 m/s | 1.00 | **2.3100** |
+
+**`h` falls by 0.625 per level. `y+_max` falls by only ≈0.780 — 0.7783 on the
+`c`→`m` step and 0.7801 on `m`→`f`. The implied peak `u_τ` therefore GROWS by
+≈1.248 per level — 1.2453 then 1.2483** — because the point maximum sits on the
+front-face **leading edge**, where wall shear is not mesh-converged and sharpens
+with refinement. The ratio-to-target consequently climbs the ladder and the
+**tightest** level crosses first. **Level `m` was already at 1.8506 — 92.5 % of
+its own 2.0× bound.** T5b did not fail by an isolated accident on one grid; it
+failed because the drift ran out of room.
+
+### Why the repair cannot be local — and this is the operational half
+
+If the cause were a one-face build error, the repair would be to fix the fine
+level. It is not. **Repairing only the failing level would break the geometric
+similarity that makes the three meshes a Roache triple at all** — trading a `y+`
+refusal for an inconsistent refinement family, which is a worse defect and a
+silent one. **The repair must move all three levels together**, and doing so buys
+a **fixed number of rungs of headroom rather than curing the drift**. T5d
+registers exactly one rung — first layer × **0.625 = 1/R**, one rung of the
+ladder's own refinement ratio, applied through the frozen `build_t5.py` at
+unchanged cell count — giving 80.000 / 50.000 / **31.250** µm, and it says so in
+its own text: *"T5d buys one ladder rung of headroom; a fourth, finer level would
+need another."*
+
+### ⚠ WHAT IS NOT ESTABLISHED — three limits, each load-bearing
+
+1. **The `u_τ` figures are IMPLIED, not measured.** They are back-computed from
+   the measured `y+_max` and the measured `h` through `y+ = (h/2)·u_τ/ν`. No
+   wall-shear field was read directly.
+2. **T5d's predicted post-repair `y+` table is FIRST-ORDER AT FROZEN `u_τ`, NOT
+   SOLVED** — every wall's T5b `y+_max` multiplied by 0.625. It is registered as
+   a prediction with its own falsifier (±25 %), and the binding predicted wall
+   is `cube_front` at **1.4438** against 2.00, headroom ×1.385.
+3. **T5d is currently `BLOCKED`**, at a *separate* bar — its coarse build stopped
+   at its own registered `checkMesh` gate, and the triage found the failure is
+   **inherited from T5**, with a ruling on whether `checkMesh`'s cell-determinant
+   test gates a lab mesh sitting unresolved. **The repair's prediction is
+   therefore UNTESTED, and this entry does not present it as validated.**
+
+**A neutral corroboration of the mechanism, recorded as a fact and NOT as a
+remedy.** The sibling rung T5c grades the *same* runs off an area-weighted `y+`
+statistic instead of the point maximum; under that statistic the `y+` gate reads
+**MET on all three levels** and the rows advance to clause 2 (where they then
+produce 1 `GATE FAIL` and 5 `NOT A RESULT` on grid-triple grounds — 0 of 6 PASS
+either way). That the drift disappears when the point maximum is replaced is
+consistent with the mechanism above. **Whether the gate's statistic SHOULD change
+is not settled here and is not this entry's to settle:** the determinant and mesh
+questions sit with the cfd and verification teams and are **unruled**. This entry
+records the numerics fact and argues no remedy.
+
+**Sources, all this repository's own artifacts:**
+`docs/campaigns/T-family/T5b_RESULTS.md` §0–§1 (the six `NOT A RESULT` rows and
+the comparator's gate line), §1 (the sublayer-vs-ladder distinction), §7 (the `y+`
+measurement provenance) and §8 (the T5c comparison table);
+`docs/campaigns/T-family/T5d_PREREGISTRATION.md` §1.3 (the six-wall first-cell
+table, the `R = 1.6` verification and the implied-`u_τ` table, all measured by
+that lane from each level's own `constant/air/polyMesh/points`), §3 (the
+all-three-levels repair and the 0.625 = 1/R scaling), §4 (the first-order
+prediction table and its falsifier) and §11 (the frozen-artifact sha table);
+`docs/campaigns/T-family/T5d_CHECKMESH_STOP_2026-09-04.md` §8 (the named
+`BLOCKED` blocker and the two questions routed to cfd and verification).
+
+---
+
+## FAMILY INDEX — regenerated 2026-09-04 (supersedes any earlier FAMILY INDEX block above)
+
+**DERIVED, NOT MAINTAINED.** Regenerated by `scripts/check_numerics_index.py --gen` from
+the tail after **N-T11** and **N-T12** (heat-transfer: the null-arm / bit-exactness design
+conflict, and the `y+` ladder-tolerance drift) were appended; added as a superseding
+block, **never editing above** (records cite this file by line number).
+**Lines whose number changed above this block: 0.**
+
+| family | scope | entries |
+|---|---|---|
+| N-AV | Ansys Fluid Dynamics Verification Manual — VMFL cases reproduced in the lab's own solvers as pre-registered verdicts | N-AV1, N-AV2, N-AV3, N-AV4, N-AV5, N-AV6, N-AV7, N-AV8, N-AV9, N-AV10, N-AV11, N-AV12, N-AV13, N-AV14, N-AV15, N-AV16 |
+| N-B | Closure line (RANS/LES): β-field correction, feature-library, clip-repair and injection numerics | N-B1, N-B2, N-B3, N-B4, N-B5, N-B6, N-B7, N-B8, N-B9, N-B10, N-B11, N-B12, N-B13, N-B14, N-B15, N-B16, N-B17, N-B18, N-B19, N-B20, N-B22, N-B23, N-B24, N-B25, N-B26, N-B27, N-B28, N-B29, N-B30, N-B31, N-B32, N-B33, N-B34, N-B35, N-B36, N-B37, N-B38, N-B39, N-B40, N-B41, N-B42 |
+| N-C | General CFD meshing: snappyHexMesh / grid-family facts (a LEVEL step is not a grid refinement) | N-C1, N-C2, N-C3, N-C4, N-C5, N-C6, N-C7, N-C8, N-C9, N-C10, N-C11 |
+| N-D | DAFoam adjoint & optimisation: primal/adjoint solver behaviour, gradient verification, optimiser and cost numerics | N-D1, N-D2, N-D3, N-D4, N-D5, N-D6, N-D7, N-D8, N-D9, N-D10, N-D11, N-D12, N-D13, N-D14, N-D15, N-D16, N-D17, N-D18, N-D19, N-D20, N-D21, N-D22, N-D23, N-D24, N-D25, N-D26, N-D27, N-D28, N-D29, N-D30, N-D31, N-D32, N-D33, N-D34, N-D35, N-D36, N-D37, N-D38, N-D39, N-D40, N-D41, N-D42 |
+| N-K | Data-driven closure benchmark numerics: Pope tensor-basis rank, TBNN / SpaRTA conditioning | N-K1, N-K2, N-K3, N-K4, N-K5, N-K6, N-K7, N-K8, N-K9, N-K10 |
+| N-T | T-family heat-transfer ladder: GCI / Richardson, thermal grid-convergence numerics | N-T1, N-T2, N-T3, N-T4, N-T5, N-T6, N-T7, N-T8, N-T9, N-T10, N-T11, N-T12 |
+| N-X | Cross-cutting V&V numerics: estimators and tolerances general to verification | N-X1, N-X2, N-X3 |
