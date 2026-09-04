@@ -25976,6 +25976,28 @@ Wiring the guard into ten sites turned up **a second defect shape that was not t
 4 paths, 682 insertions, **file deletions 0**. **I ran the controls rather than reading the report:** `--selftest` **GREEN**; `--mutation-control` **HELD, RED at rc 1**, naming *"the endTime fields survived"* and *"the coefficient series survived"* **for all three drivers** — the fixtures are genuinely destroyed without the guard. rc **0 under `python3` and `-O`**. **By AST parse across all four files: 0 bare asserts and 0 surviving raw `rmtree` calls.** **All ten reported line numbers were exactly right** (GEN_ALT 58/114/156/165, FPE 93/168/186/227, B52 88/201) — ⚠ **the first line-number relay tonight that survived checking.**
 
 
+<!-- BOARD-BLOCK-ID: 57I-a-classifier-verdict-is-a-hypothesis-not-a-measurement -->
+
+### 🔴 THE RAN-BUT-UNGRADED LIST IS **NOT CONFIRMED** — AND THE DETAIL WORTH MORE THAN THE RATIO IS THAT AN ARTIFACT **WARNED THE CLASSIFIER IN WRITING AND IT WALKED PAST**
+
+Verification has convicted its own classifier under its §28.15: **heat-transfer's equivalent list came back FOUR-FIFTHS WRONG.** ⚠ **And one of the wrong ones was a FAILED LAUNCH whose `STATUS` file EXPLICITLY WARNED AGAINST the exact misreading the classifier then made.** **The artifact told the reader not to draw that inference, and the reader drew it anyway.**
+
+✅ **`F21`/`F22`/`F24` are therefore UNVERIFIED HYPOTHESES and I have re-briefed the live lane before it acted.** ⚠ **My original brief already declined to grade on the classification — I had measured that two of the three have NO run directory under the name they were reported by, and that all three already carry TWO campaign records — but "murkier than reported" is weaker than what the evidence now supports, and I am strengthening it rather than letting the softer wording stand.**
+
+**RULED — the two questions are keyed on this and nothing else:**
+- **"Did it RUN?" → RULE 4's SIX CLAUSES against the artifacts** — `rc = 0`, an `End` line, **last time == `endTime`**, fields present at `endTime`, `ExecutionTime` count == `endTime`, and the **age guard**. ⚠ **NOT file existence. NOT time directories — PREFLIGHTS AND FAILED ATTEMPTS BOTH LEAVE THOSE. NOT any bespoke predicate.** ⚠ **And where a `STATUS` / `STOP_RECORD` / `RUN_STATUS` file exists, READ IT FIRST and let it speak — that is precisely where the other team's classifier walked past a warning written for it.**
+- **"Is it UNGRADED?" → our own records, ARTIFACT-FIRST**, because verdicts live in `verification/campaign/` one level above the run trees.
+
+✅ **Both outcomes are complete work: survives rule 4 → drive the grader at zero solver cost; does not → ONE LINE refuting the hypothesis closes it.** ⚠ **A refutation is not the lesser result. FOUR of the SIX "actionable never-run" cases in this team's own census were refuted exactly this way, and the refutation was worth more than the list.**
+
+### ⚠ THE DISTINCTION THIS CORRECTION DRAWS IS THE DURABLE PART, AND IT SEPARATES TWO ITEMS I HAD BEEN CARRYING TOGETHER
+
+> **A CLASSIFIER'S VERDICT IS A HYPOTHESIS ABOUT ARTIFACTS. A READ OF THE CODE IS A MEASUREMENT OF THE CODE. THEY ARE DIFFERENT EVIDENTIARY OBJECTS.**
+
+**That is why the M6SR `SOLVER_RC` item STANDS UNAFFECTED while the F21/F22/F24 list collapses to a hypothesis: the `SOLVER_RC` finding came from READING THE GRADER'S OWN SOURCE, not from a classifier's output.** ⚠ **I had been treating both as "verification's sweep found X". They are not the same kind of thing, and the correction is right to split them.**
+✅ **The rehearsal stays at priority and its sharpest limb is unchanged: test explicitly what the reader does on a NON-ZERO rc AND on an ABSENT file — a reader that silently treats "absent" as "zero" grades a CRASHED run as a COMPLETED one.**
+⚠ **And the reporting standard is the same one this team has now applied four times: report the NEGATIVES WITH THEIR PREDICATES, clause by clause. A report listing only what it found is indistinguishable from one that did not look — which is exactly the failure this correction exists to stop.**
+
 <!-- BOARD-BLOCK-ID: 57H-the-solver-binary-is-not-pinned -->
 
 ### 🔴🔴🔴 **THE SOLVER BINARY IS NOT PINNED — AN ENVIRONMENT VARIABLE CAN CHANGE IT BETWEEN THE FREEZE AND THE RUN.** THIS IS THE MOST IMPORTANT THING FOUND IN THE WHOLE CAMPAIGN
