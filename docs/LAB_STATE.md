@@ -5298,11 +5298,58 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-04T18:36:51Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-61` — **the ceiling guard I ordered two lanes to port FAILS OPEN (corrected in flight); THREE of my five unguarded drivers are REFUTED; and my "closes by attrition" ruling is DEFEATED because the named template has ceiling vocabulary and no accumulator — attrition REGENERATES the population. `A1WR`'s disclosure landed, reach 3 for 3.** Before it, `S-60`, `S-59`, `S-58`, `S-57`, `S-56`, `S-55`…`S-29`.
+**Section last written:** 2026-09-04T18:46:51Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-62` — **my `--gscan` narrowing requirement was NOT SATISFIABLE and a lane refused to fake it; check 1 on `A1WRT2` PASSES and this family watched an item print a success token for the first time; and a claim that would weaken the desk item IN OUR FAVOUR is held back until its artefact is named.** Before it, `S-61`, `S-60`, `S-59`, `S-58`, `S-57`, `S-56`…`S-29`.
 
 **Section last written:** 2026-09-04T01:08:43Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-48` — **`W3` IS NOT RUNNING AND HAS NOT BEEN SINCE 21:57:49Z; IT REACHED ITS REGISTERED TERMINUS, AND THE REGISTERED FALLBACK DOES NOT RESCUE IT.** `S-47`'s and `S-46`'s *"`W3_chain_r2` running"* lines are **STRUCK BY QUOTE** below — they were true when written and were still being relayed three hours after they stopped being true. Before it, `S-47` — **DESK ITEMS CLOSED**: the **rule-10 hole is fixed in the constitution itself** on Sanaa's GO (`0ee2e7df`, verified by me at HEAD, not taken on relay), and the rule-12 estimate gap is **routed to verification** as a forward-only note. `S-46`'s "on Sanaa's desk" line is **struck by quote** so no successor re-escalates a closed item. **Nothing now on her desk from this family** but the four `NOT FILED` upstream defect classes and FD-vs-adjoint as a fourth `V` instrument. Before it, `S-46` (closing state), `S-45`, `S-44`, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+##### UPDATE S-62 — **⚠ MY NARROWING REQUIREMENT WAS NOT SATISFIABLE, AND A FREEZE RESTING ON IT WOULD HAVE RESTED ON A FALSE PROPOSITION. CHECK 1 ON `A1WRT2` **PASSES** — THE FAMILY WATCHED AN ITEM PRINT A SUCCESS TOKEN FOR THE FIRST TIME. AND A CLAIM THAT WOULD WEAKEN THE DESK ITEM **IN OUR FAVOUR** IS HELD BACK UNTIL ITS ARTEFACT IS NAMED** (2026-09-04, `date -u` stamp in the committing invocation)
+
+###### 1. ⚠ I SPECIFIED AN IMPOSSIBLE PROOF AND THE LANE REFUSED TO FAKE IT
+
+I required the `--gscan` binding to prove: *"anything the inherited gate refuses, `--gscan` also refuses."* **That is not satisfiable. The inherited gate refuses Arm A's own manifest — that refusal is WHY the successor exists — so a `--gscan` obeying my sentence grades nothing.**
+
+**The lane could have produced something that passed my words and meant nothing. It said so instead.** What it built is *stronger on the parent's own domain and weaker nowhere*, with **every row driving the frozen parent's function imported from disk** rather than a re-implementation: on window-homogeneous sets `--gscan` refuses **all 11** inputs where the parent accepted **5**, with a **vacuity unit** guarding it — *a battery the parent also rejected proves nothing*; the parent's five structural limbs still run **per leg**; and seven added refusals are each **paired with the parent accepting the same defect once relabelled**, which is what makes them added rather than renamed.
+
+> **A supervisor's specification is not evidence. Mine was self-contradictory, and the only reason it did not become a false freeze is that a lane read it against the artefacts instead of satisfying it.**
+
+**And the sharpest unit is one I would not have asked for:** legs with windows **swapped** — every leg present, each homogeneous, ledger agreeing — `W2R-GRADER-DEF-1` wearing a leg name, **invisible to any single `W_PRIMARY` constant.**
+
+*Kept because it is a finding about method: the leg-set closure was **over-determined by three limbs**, so deleting any one was masked by the other two. The lane found that by **building a mutant for it and watching it survive**, then re-pointed the mutant at the only uncovered limb. A mutation that survives is the only way to learn that a test is redundant.*
+
+`d12y_grade_w3.py` is **byte-unchanged** at `3950d30f…` — the successor **imports it after checking that md5** and calls its gates directly, so "every existing gate byte-identical" is **discharged by construction, not by a diff a reader must trust.** Counts: `--selftest` 50/50, `--selftest-narrowing` 30/30, driver 10/10, identical under `-O`; **5 mutants, all caught under both flags**; `ast.Assert` **0**.
+
+###### 2. CHECK 1 ON `A1WRT2` — **PASSES**, AND THE FAMILY SAW SOMETHING IT NEVER HAD
+
+Read personally, and independently parsed by me: **`ast.Assert` 0 across the file**, all three functions present.
+
+**`A1WRT2_VERDICT GATE REACHED` (rc 0) — driven through a SUBPROCESS, not only in-process.** In-process proves the arithmetic; **only the subprocess proves the EMISSION, which is the exact thing all three predecessors lacked.** `cap_to_ceiling` makes rule 5's direction **structural** — it can only cap downward — and `compose_item` checks gate keys in **both** directions, so **a gate cannot be quietly dropped from a composition by being omitted from a dict.**
+
+**My one finding, and it is not a bug: TWO ORDERINGS COEXIST AND DISAGREE.** The composer's hand-ordered chain puts `NOT A RESULT` first; the `_OPTIMISM` ordinal puts `BLOCKED` (1) below `NOT A RESULT` (2). **I computed the exposure and it is currently zero** — with `ceiling = GATE REACHED` (4), `cap_to_ceiling` moves **only `PASS`**, so **the ordinal's whole ordering below 4 is NEVER EXERCISED.** *An unexercised ordering is an untested one, sitting inside the function whose only job is to enforce a direction.* Disclosure plus a pinning control required before freeze; no logic change.
+
+**The lane's own finding, accepted:** because `G-CAPS`/`G-CEILING` emit `GATE REACHED` on their *success* path, a fully green run arrives with `raw` already at the ceiling — **the cap is a no-op on the path that will actually run.** It declined to adjust the gates to make the headline branch fire, which was right: **fitting the gates so the interesting branch triggers is fitting the instrument to the demonstration.**
+
+**And it sharpened my fail-open finding by running d6rf's actual body:** empty `SPENT` in `( $SPENT + $ACAP )` is **Python's unary plus**, so `PROJ` comes back a clean `480.000` and **the guard passes with 100.0 core-min silently dropped.** *A malformed ledger token does not break the guard; it makes the guard confidently wrong.* **Both lanes independently found the same class in their OWN first drafts** — a `[0-9.]+` reader silently taking `1.2` from `1.2.3`.
+
+###### 3. ⚠⚠ THE CLAIM I AM **NOT** PUTTING ON SANAA'S DESK YET, AND WHY THAT IS THE POINT
+
+**VERIFIED BY ME, at `CURRICULUM-D12R2W3.../step_plan.json`: the plan carries `g_component_0` AND NOTHING ELSE.** So **the FD step is sized on ONE component of a multi-component gradient, and the bright line is then taken at that step across ALL components.** That is structural, it is confirmed, and it means **"no admissible FD step exists" has always been a statement about the REGISTERED SIZING COMPONENT, not about the gradient.**
+
+**THE LANE'S MEASUREMENT, NOT MINE, AND HELD BACK: that at `W=2000` component 3 gives `h_min = 0.038975` — INSIDE `h_max`.** I could not confirm it from the step plan, which carries no per-component data.
+
+> **⚠ THAT NUMBER WOULD WEAKEN MY OWN DESK ITEM IN OUR FAVOUR, WHICH IS EXACTLY WHY IT WAITS. A figure that relaxes a limit we reported is the one figure to hold to the highest standard, because the incentive and the evidence point the same way.**
+
+**RULING on the lane's question — SPLIT, and deliberately:** the **structural point goes to Sanaa's desk** beside the window finding, because it is verified and it changes what the existing claim MEANS. **The component-3 numeric does NOT, until it is cited to a named artefact I can read.** And **the sizing component is NOT moved** — the lane was right that selecting it after seeing which one is admissible is precisely what her T25 ruling and the 2026-09-04 order forbid.
+
+*Also carried, unresolved: the draft's §0 `h_min,env` column is an envelope recomputation printed beside artefacts carrying `0.174284` and `0.157553` — only the `W=2000` row matches its own file. And both prior step plans carry **no `W` key at all**, so the comparator cross-reads their windows from the ledgers and refuses on disagreement.*
+
+###### 4. STATE
+
+Neither successor is frozen; **the `w3s` launcher is NOT WRITTEN**, and the manifest contract the comparator demands has no producer yet — **named by the lane rather than left for me to discover.** Zero compute today across all three lanes. **Nothing queues, nothing freezes, no solver starts until I have read the remaining diff and done check 4 at the freeze commit.**
+
+**OWED BY ME:** `A1WRT2`'s disclosure control; the `w3s` launcher; check 4 ×2; the template repair; the `D6R` plateau audit.
+
+
 ##### UPDATE S-61 — **⚠⚠ THE CEILING GUARD I ORDERED TWO LANES TO PORT **FAILS OPEN** — CORRECTED IN FLIGHT. THREE OF MY FIVE UNGUARDED DRIVERS ARE **REFUTED**. AND MY "CLOSES BY ATTRITION" RULING IS **DEFEATED BY THE TEMPLATE**: NEW LAUNCHERS ARE CUT FROM A FILE WITH CEILING VOCABULARY AND NO SPEND MECHANISM. `A1WR`'s DISCLOSURE LANDED AND THE REACH IS **3 FOR 3**** (2026-09-04, `date -u` stamp in the committing invocation)
 
 ###### 1. ⚠⚠ THE REFERENCE GUARD FAILS OPEN, AND I HAD JUST TOLD TWO LANES TO COPY IT
