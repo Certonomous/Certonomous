@@ -3901,3 +3901,141 @@ will never be regenerated and will never self-correct. They are fossils that rea
   see non-zeros first (`CAP OVERRUN REPORTED, NOT ENFORCED` → 10 files; `cap overrun` → 20).
   **Not searched, and stated rather than glossed:** repository history, untracked drafts, and the
   out-of-git roots under `/home/ubuntu/`.
+
+---
+
+## §28.11 — **THE LIKELIHOOD-RATIO-1 CHECK: A CHECK THAT FIRES CORRECTLY, MEASURES A REAL PROPERTY, AND DISCRIMINATES NOTHING — BECAUSE THE OBSERVATION IT GRADES ON IS EQUALLY PROBABLE UNDER BOTH HYPOTHESES. A GATE IN THIS REPOSITORY CAN BE MOVED WITHOUT DELETING A BYTE, AND THE INSTRUMENT COMPUTES THE RIGHT QUANTITY, PRINTS IT, AND DOES NOT GRADE ON IT** (2026-09-04T02:0xZ)
+
+**NOT a fifth face, NOT the vacuous predicate, and I keep it apart from both for the reason `§28.8`
+and `§28.9` were kept apart: two failures sharing a symptom and differing in MECHANISM need two
+cures, and a taxonomy that merges them supplies neither.**
+
+### §28.11.1 THE STRUCTURAL FACT, MEASURED ACROSS THE WHOLE POPULATION
+
+**398 pre-registrations at HEAD. 263 carry a self-declared freeze commit. 88 were touched after
+that freeze. Lines INSERTED after freeze: 16,569. Lines DELETED after freeze: ZERO.**
+
+***Every post-freeze change to a frozen registration in this repository is a pure append.*** That is
+not an anomaly — **it is the lawful form**: rule 2 says changes land *"only as dated addenda."*
+
+**⚡ AND THEREFORE THE PROHIBITED ACT AND THE PERMITTED ACT HAVE THE SAME SIGNATURE.** Rule 2's
+forbidden act — *"addenda … cannot alter a gate, threshold, cap or label"* — **is itself performed
+by appending.** ***A gate in this repository can be moved without deleting a byte.***
+
+### §28.11.2 THE INSTRUMENT, READ BY ME AS SOURCE — IT COMPUTES THE RIGHT QUANTITY AND DISCARDS IT
+
+`scripts/audit_freeze_path_drift.py`, **`[VERIFIED BY ME AT SOURCE, NOT RELAYED]`**:
+
+- **`:68-71`** defines `GATE_LINE` under the comment ***"# lines rule 2 forbids moving after first
+  compute"***. The instrument knows exactly what it is hunting.
+- **`:256`** computes **both** channels: `gate_lines_lost=moved` and **`gate_lines_new=added`**.
+- **`:455-458`** is the verdict, and it reads **only two fields**:
+  `"APPEND-ONLY (consistent with a lawful dated addendum)" if d["appended_only"] and not
+  d["gate_lines_lost"]`.
+- **`:466`** *prints* `gate_lines_new`. **It appears NOWHERE in the verdict expression.**
+- **`:353-359`**, the selftest, asserts on `appended_only` and `gate_lines_lost` and has
+  ***NO ARM FOR `gate_lines_new` AT ALL***.
+
+> ***The instrument measures the exact quantity that would detect the act, prints it as
+> decoration, grades on the one channel the act does not use, and its own selftest never
+> exercises the channel that matters.***
+
+**This is `docs/LESSONS.md`'s "evidence annotated as non-binding" in its purest form: a printed
+discrepancy that binds nothing is worse than one never computed, because its presence on the page
+is read as coverage.**
+
+### §28.11.3 THE MECHANISM, NAMED PRECISELY — AND IT IS NEW TO THIS TAXONOMY
+
+The defect is not that the check is empty (`§28.8`) or that it cannot fail (`§28`'s classic face).
+**It fires. It fails sometimes — on deletions. It measures a true property.** The defect is
+**evidential**:
+
+> **THE LIKELIHOOD-RATIO-1 CHECK: `P(observation | lawful) ≈ P(observation | unlawful)`.**
+> Observing *"append-only"* is **equally probable** whether the addendum lawfully adds prose or
+> unlawfully moves a gate — **because rule 2 requires BOTH to be appends.** ***A test whose
+> observation is equally likely under both hypotheses transfers no information, however
+> correctly it is computed.***
+
+**And the verdict string states the fallacy out loud: `"APPEND-ONLY (consistent with a lawful
+dated addendum)"`.** *Consistent with* is exactly right and exactly useless — **the observation is
+equally consistent with the unlawful one.** The parenthetical is an **inference presented as a
+verdict**.
+
+**THE DISCRIMINATING TEST, MECHANICAL, ONE LINE — the same shape as `§28.8`'s:**
+***Ask what the check would print if the prohibited act HAD occurred. If the answer is "the same
+thing", the check has no evidential content, whatever it computes.***
+
+**Distinguished from its neighbours, deliberately:** `§28.8`'s vacuous predicate is TRUE ON THE
+EMPTY SET — cured by asserting the existential. **This one's set is NON-EMPTY and its predicate is
+TRUE OF REAL DATA** — the cure is not an existential but a **DIFFERENT OBSERVABLE**. `§28.9`'s
+unprotected denominator is an unfalsifiable *quantity*; this is a *comparison* that is perfectly
+falsifiable and simply points nowhere. **Three different cures. Three entries.**
+
+### §28.11.4 ⚠ WHAT I DID **NOT** FIND, STATED PLAINLY BECAUSE IT CUTS AGAINST THE ALARM
+
+**No violation is alleged here, and the two self-declared post-freeze gate changes on the record
+are both LAWFUL. I checked the harder one at source rather than assuming it.**
+
+- **`0a62c5c6`** — F28's absolute stationarity floor, whose own subject says ***"A GATE CHANGE ON A
+  FROZEN REGISTRATION"***, changing `ptp ≤ 0.001·|T_mean|` to `ptp ≤ max(0.001·|T_mean|, T_floor)`.
+  **287 lines added, 0 removed.** **`[VERIFIED BY ME AT SOURCE]`** Sanaa's capture
+  `etc/sessions/2026-08-31T2016Z_sanaa_three_rulings_runner_2h3_f28floor.md` records her words
+  verbatim — ***`"F28 floor": approved`***. **Retiring or widening a gate is reserved to her, and
+  she took the decision herself. LAWFUL, and the approval's WIDTH matches what was done** — the
+  rule-9 question asked and answered rather than assumed.
+- **`b50cd1ca`** — F28 Addendum 7, ruling that `T_total = T_duct + T_hub + T_disk`. **Also
+  appended; also lawful, and on a DIFFERENT ground: it is INTERPRETATION, not alteration.** The
+  frozen text *graded* `T_total` and never *defined* it; the definition is derived from the
+  document's own registered control volume (§9.6, bounded at `x = 3 D`, `r = 15 D`, enclosing duct,
+  centrebody and source) and **independently corroborated** by a second registered identity in the
+  same document (§9.5's `T_total/T_disk = 2σ` reducing at `σ = 1` to `T_duct + T_hub = T_disk`,
+  which is §3.3's cited source sentence in symbols). ***This is exactly charter `§2am`'s pattern —
+  the document names its own reader — and the narrower reading would make §9.6's gate compare a
+  partial force against a total flux.***
+
+> **⚡ AND THAT IS THE POINT, NOT AN ASIDE. cfd handled these two DIFFERENTLY AND DREW THE RIGHT
+> LINE: the criterion change went to Sanaa and got her word; the definition of an undefined term
+> was ruled by the supervisor with derivation plus independent corroboration. THE DISCIPLINE WAS
+> CORRECT. THE INSTRUMENT CANNOT SEE THAT IT WAS.** *`audit_freeze_path_drift.py` returns the same
+> verdict — `APPEND-ONLY`, clean — for the approved gate change, the lawful interpretation, and a
+> hypothetical unlawful widening alike.* **Its discriminating power against the act rule 2 forbids
+> is ZERO, and that is true even though every case it has actually met was lawful.**
+
+### §28.11.5 WHY THE OBVIOUS CURE IS THE WRONG ONE — `§28.10` APPLIED TO MYSELF WITHIN THE HOUR
+
+The obvious repair is *"grade on `gate_lines_new`."* **I decline it, and the reason is the finding
+I filed one section ago.**
+
+**A gate-carrying line appears in LAWFUL appends constantly** — an approved change, an
+interpretation, a results table quoting the gate it was graded against, a cost row naming a cap.
+**Grading on the mere presence of a gate line would fire on all of them.** That manufactures
+exactly `§28.10`'s pathology: **a stream of official-looking alarms on clean work, which are then
+either ignored or available as ammunition to void an inconvenient verdict.** *A false-alarm
+generator is not an improvement on a silent instrument; `§28.10` measured what one of those costs.*
+
+> **THE DISCRIMINATOR IS NOT THE PRESENCE OF A GATE LINE. It is a gate line appended with
+> NEITHER a disclaimer that no gate moved NOR a cited authorisation.** Rule 2 leaves exactly three
+> lawful shapes — the append moves no gate (and lawful addenda say so, in the standard form *"alters
+> NO gate, NO threshold, NO cap and NO label"* plus *"lines whose number changed above this section:
+> 0"*), or it interprets rather than alters, or it carries Sanaa's approval. **The fourth shape is
+> the violation, and ITS SIZE IS TODAY UNKNOWN.**
+
+### §28.11.6 DISPOSITION — RECORDED. NO INSTRUMENT AND NO CLAUSE TONIGHT. THE CENSUS IS COMMISSIONED FIRST
+
+- **NO INSTRUMENT YET, AND NOT FOR THE USUAL REASON.** This is **not** a population of one — the
+  structure is repo-wide (88 files, 16,569 post-freeze inserted lines, 0 deletions) and the
+  instrument's blindness is verified in its own source. **The reason to wait is that I do not yet
+  know the size of the only class that matters**, and building a detector before measuring its
+  target population is how a false-alarm generator gets built. **A census of the 88 is commissioned
+  and is measurement-only.**
+- **NOTHING IS RE-GRADED AND NO VERDICT MOVES.** No violation is alleged; the two examined cases
+  are affirmatively **lawful**.
+- **NO FROZEN DOCUMENT IS REOPENED AND NO BACKFILL IS ORDERED** (her clause 2).
+- **⚠ WHY THIS IS RECORDED TONIGHT RATHER THAN WHEN THE CENSUS RETURNS: Sanaa's mandatory-completion
+  order creates standing pressure to reach a gate pass, and the lawful-looking route to one is an
+  APPENDED addendum.** **A baseline taken AFTER that pressure acts cannot distinguish a repaired
+  case from a moved gate.** *This is the last hour in which the measurement means what it says.*
+- **WHAT WOULD MOVE ME TO BUILD, STATED IN ADVANCE SO IT CANNOT BE FITTED LATER: a NON-ZERO count
+  in the census's fourth class — a gate-carrying line appended after freeze with neither a
+  disclaimer nor a cited authorisation. A count of ZERO closes this as a latent structural hazard
+  with no instances, and I will say so in those words and build nothing.**
