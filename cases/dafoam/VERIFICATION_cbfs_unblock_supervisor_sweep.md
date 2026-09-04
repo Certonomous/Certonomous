@@ -166,3 +166,65 @@ than hidden.
 `vbeta_c6490_{p,m}0.05.npy` built independently), `logs/c6490_{p,m}0.05.log`,
 `logs/regress_verify.log`. Everything else cited above is the lab's own evidence, read in place
 and never modified.
+
+---
+
+## Addendum, 2026-09-04 — the single-step disclosure, placed at the FOOT and not in the body
+
+**Placed at the foot deliberately, and the reason is the point of the placement.** This
+document is an **independent adversarial audit**, and its value comes from being the
+reading of someone who was not the lab producing the numbers. **Amending its body — even
+truthfully, even to add a caveat — damages exactly that property**, because a later hand
+editing an independent audit in place is indistinguishable, to a future reader, from the
+audited party softening it. **So nothing above this line is edited, struck or
+renumbered, and no finding of this sweep is withdrawn.** Zero compute.
+
+### What is disclosed
+
+§3's independently-derived cell **6490** at **0.0211 %** is a **single central difference
+at a single step, `h = 0.05`** — two primals, stated as *"two-sided h=0.05"* at `:99`.
+`VERIFICATION_CHARTER.md` §7's reporting protocol, step 1, requires that the step be shown
+to sit in a well-converged plateau by a two- or three-point mini-sweep, *"**Not
+assumed**"*. That clause entered the charter at **`commit ea53c110`, 2026-07-30 18:53:17
++0000** — the commit that ADDED that charter — and **this document was committed at
+`9c19ccc8`, 2026-08-04 16:36:43 +0000, four days and twenty-one hours later. The duty was
+in force.**
+
+### What this does NOT weaken, and the distinction is the whole of it
+
+§3 was built to defeat three named failure modes: *"a wrong indexing, a stale gradient
+file, or a lucky triple"*. **It defeats all three, and the single step is irrelevant to
+every one of them** — an index permutation, a stale `.npy`, and a fortunate choice of
+three cells are all step-independent, and re-deriving a *fourth* cell the lab never
+published, with this sweep's own driver, in an isolated case copy, is conclusive against
+each. **A single-step number can be conclusive against an indexing error and
+inconclusive about a plateau at the same time. This one is both**, and only the second
+half is disclosed here.
+
+Untouched, and none of it depends on step size: §2's recomputation of the published FD
+table from the raw objectives (0.0854 / 0.4599 / 0.0589 / 0.1989 %, reproducing
+`fd_table.json` exactly); §2's confirmation that `g` at the three published cells matches
+the gradient file to all digits and that the cells sit at |g| ranks 0, 3 and 14; §2(c)'s
+truncation reading; the env-off regression re-run cold by this sweep, matching all
+thirteen residual digits; and §4's ledger reconciliation to the second.
+
+### The clause deliberately NOT cited
+
+`DAFOAM_CHARTER.md` §3 forbids *"quoting an FD number from a single step"* in those words
+and would be the sharper instrument. **It landed at `35e06e85`, 2026-08-21 17:42:57
++0000 — seventeen days after this sweep ran** — and `VERIFICATION_CHARTER.md` §2h.6's
+non-retroactivity runs in this direction as well as its own: a later clause is not
+charged against a record that could not have read it. The disclosure rests on §7 step 1
+alone, which was in force.
+
+### Disposition
+
+**Nothing is relabelled here.** The 0.0211 % row appears downstream at
+`docs/dafoam/V_STANDARD_FD_VS_ADJOINT.md:169`, and the disposition of that table is the
+dafoam supervisor's, waiting on a measurement rather than on an argument. The second
+step for the S1 cells is registered at
+`cases/dafoam/ladder-b/S1_FD_PLATEAU_PREREGISTRATION.md` (**DRAFT, unfrozen, not
+queued**). **No second step is registered for cell 6490 by that draft**, because this
+cell belongs to this sweep and re-opening an independent audit's own probe is the
+auditor's call, not the audited party's — it is named here so the gap is visible rather
+than quietly carried.
