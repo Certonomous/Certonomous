@@ -82,7 +82,8 @@ team's instrument, but I will not assume it — chief to route, or it lands unde
 | `install_class` | **exactly one of** `dictionary-model` / `dictionary-coefficients` / `field-input` / `fvOptions-source` / `compiled-library`. See §2.2 | prevents an entry claiming "coefficients only" that **silently does nothing**: an unrecognised key in a `<model>Coeffs` sub-dict is ignored without error |
 | `install_stanza` | the literal `constant/turbulenceProperties` content — `RAS { RASModel <name>; turbulence on; }` | **measured correction: this installation is ESI api 2606 and uses `turbulenceProperties`. `momentumTransport` is the OpenFOAM.org name and DOES NOT EXIST here — an entry drafted against it will not run** |
 | `model_type_name` | the string typed into `RASModel` | **checkable at zero compute against the library's symbol table (`nm -DC lib.so \| grep RASModels::`)** — see §2.3 |
-| `libs_required` / `libs_route` | `.so` basenames as they appear in `FOAM_USER_LIBBIN`; route is `ensure_libs` or `replace_with_assert` + a mandatory justification | rule 14, L-221/L-222: `libs` entries are INSERTED WITH AN ASSERT, never replaced. The lab's machinery is `scripts/foam_libs.py` (`ensure_libs`/`assert_libs`, depth-aware, idempotent, refuses on two top-level entries) |
+| `libs_required` / `libs_route` | `.so` basenames as they appear in `FOAM_USER_LIBBIN`; route is one of **three** values — see §2.5 | rule 14, L-221/L-222: `libs` entries are INSERTED WITH AN ASSERT, never replaced. The lab's machinery is `scripts/foam_libs.py` (`ensure_libs`/`assert_libs`, depth-aware, idempotent, refuses on two top-level entries) |
+| `failure_mode` | **`loud`** or **`silent`** — what happens if the library does NOT load | this field, not convenience, decides which `libs_route` is legal (§2.5) |
 | `contraindications` | where it is known or measured to make things WORSE | a correction library without contraindications is a footgun; "none known" must be argued, never defaulted |
 | `what_it_cannot_see` | inherited from charter §16, which makes this a mandatory section | the lab's standing honesty clause |
 | `band_interaction` | does this correction act on the `k`-magnitude axis the shelf-D band does not perturb? | §22.4 item 2 — where a band and such a model appear together, the overlap in what NEITHER sees is stated; this field pre-computes it |
@@ -126,6 +127,35 @@ installable with **no compile** — genuinely valuable. **But a missing or misna
 becomes zero and the run completes looking like a plausible baseline.** This is rule 3's
 planted-zero failure built into a shipped model. **Any `field-input` entry MUST plant a non-zero
 correction field, read it back, and demonstrate the solve moves — or it is refused.**
+
+### 2.5 `libs_route` — three values, chosen by FAILURE MODE, not by convenience
+Settled by reading `docs/closure/LIBS_ASSERT_SWEEP.md` (the L-221 sweep: 8 library-load call
+sites, 4 unasserted and one of them a **live** defect). Two facts from it change the field:
+
+1. **A `grep -q '<lib>'` assert is NOT sufficient.** Sweep site #7 records what the naive check
+   cannot see: **a second top-level `libs` entry is a DUPLICATE DICTIONARY KEY, not a longer
+   list.** A controlDict carrying two of them passes `grep -q` and may still not load the library.
+   `foam_libs.ensure_libs` refuses on that condition; a hand-rolled assert does not.
+2. **Assert-without-insert is legal in exactly one circumstance, and the sweep names it.** Site #8
+   is recorded as *"the one place the law is applied in half"* — assert only, no insert — because
+   a missing library there produces an **unknown RAS model**, i.e. a LOUD failure. That is a
+   principled exception, not a shortcut.
+
+| `libs_route` | when legal |
+|---|---|
+| `ensure_libs` | **the default.** Insert-or-replace, re-read from disk, assert. Required whenever `failure_mode: silent` |
+| `assert_only` | **only** when `failure_mode: loud` — a missing library makes the solver refuse an unknown `RASModel` name. Never where the solver would fall back to a stock model |
+| `replace_with_assert` | the R4 precedent only (`R4_sparta_build/r4_lib.py:100-140`), where the entry being replaced names a library **absent from this machine** so merging would load a non-existent `.so`. Requires `libs_route_justification` naming that condition |
+
+**Why `failure_mode` is a schema field and not a note.** L-221's cost was five eigenspace re-solves
+returning `it=0` and the baseline `U_rms` — **the unperturbed field, which looks like a plausible
+physical answer.** A correction that fails to load silently is §0's failure (ii) in its purest
+form: the ladder records "this correction did not help" when the correction never ran.
+
+**⚠ Carried to the chief, not fixed here:** `lint_foam_libs.py` **excludes
+`cases/RANS_LES_closure_models/` by default** (`--include-closure` opts in), and this sweep shows
+closure's tree holds **6 of the 8** library-load call sites in the lab. **The tree with the most of
+this defect class is the one the linter skips unless asked.** `scripts/` is not closure's.
 
 ## 3. Controlled vocabularies
 
