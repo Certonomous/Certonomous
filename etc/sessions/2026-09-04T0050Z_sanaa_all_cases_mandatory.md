@@ -37,3 +37,30 @@ as a deliverable to her.)
   costing, the launch rule, the compute envelope and caps, SUBMISSIONS
   PARKED, permanent privacy. Mandatory completion is executed THROUGH the
   lab's law, never around it.
+
+## ADDENDUM (2026-09-04, ~00:58Z) — her clarification, verbatim
+
+> yes when i give tasks they are not suggestion they are all mandatory. The
+> only ones that dont end up getting ran are the ones we genuinly cannot run
+> with openfoam. ELse, everything else gets worked on and fixed and
+> solutioned until its at the very least a gate pass
+
+## Context (chief's reading, not her words)
+
+- **The exemption class is exactly one**: cases genuinely unrunnable with
+  OpenFOAM (wrong solver family, e.g. a Forte combustion case). "Genuinely"
+  means measured and recorded — a demonstrated capability gap, filed on her
+  desk — never an inference from difficulty.
+- **The completion bar is "worked, fixed, solutioned until at the very least
+  a gate pass"**: a first GATE FAIL or NOT A RESULT is a waypoint, not a
+  resting place — defects get repaired, successors get registered, meshes and
+  numerics get improved, and the case is driven until it passes its gate.
+- **Boundary that keeps this lawful, from her own standing rulings**: gates
+  and thresholds are NEVER widened to manufacture a pass (her T25 ruling:
+  no widening on optimism), and a verdict is never composed by hand. Where a
+  case still fails its gate after the lab's own defects are exhausted and
+  the failure is MEASURED to be the model/physics itself, that measured
+  persistent GATE FAIL goes to Sanaa with the evidence — it does not get
+  laundered into a pass, and it does not get silently parked. Working a case
+  to a pass means fixing OUR side until the physics can speak; it never
+  means adjusting the gate until the answer fits.
