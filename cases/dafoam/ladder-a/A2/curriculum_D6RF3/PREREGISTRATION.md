@@ -887,3 +887,59 @@ three sides agreeing.** And per rule 3 applied to the checker itself — *a chec
 findings must be shown able to report a non-zero* — the defect was **planted back in both
 directions**: renaming the product in `d6rf3_endpoint_physical.py` (re-creating `D6RF2`'s actual
 defect) and in `d6rf3_run_arm.sh`. **Both REFUSED, with the reason asserted, not merely the `rc`.**
+
+---
+
+## 12. FREEZE — **2026-09-05, BY THE dafoam-supervisor.** THE RENAME, THE CONDITION, AND WHAT CHECK 1 ACTUALLY FOUND
+
+**Appended at the foot. Lines whose number changed above this section: 0, proved on bytes by `cmp -n` against the HEAD blob in this same invocation.** **This section is written into `PREREGISTRATION.md`, the renamed file, so that `freeze_check`'s `disk == committed blob at HEAD` holds for it from its first fire.**
+
+### 12.1 THE CONDITION, CHECKED BY EXECUTION HERE AND NOT RECALLED FROM §11 ITEM 5
+
+`§11` item 5 asserted the run root absent on 2026-09-05 and said in its own words that this *"does not discharge item 8, which requires the same assertion in the freeze commit's own invocation."* **It is re-asserted here, by execution, in this invocation:** `/home/ubuntu/certonomous-runs/CURRICULUM-D6RF3-a2-wing-multipoint-fd` **ABSENT**. This item has burned **0 solver core-minutes**. Every amendment above — including §3f's widening from five gates to seven — is therefore a lawful pre-first-compute amendment under `CLAUDE.md` rule 2.
+
+### 12.2 THE RENAME IS PART OF THE FREEZE
+
+`d6rf3_grade.py:1121` names **`cases/dafoam/ladder-a/A2/curriculum_D6RF3/PREREGISTRATION.md`** in its `freeze_check` list. **`PREREGISTRATION_DRAFT.md` → `PREREGISTRATION.md` in this commit.** Without it `freeze_check` refuses `absent_on_disk` on its first line and the item cannot grade at all — §18.3's failure mode on the registration itself.
+
+### 12.3 CHECK 1 — DISCHARGED PERSONALLY, AND IT IS NOT A SUMMARY OF A LANE'S REPORT
+
+`SUPERVISION_CHARTER.md` §3 check 1. I read `d6rf3_grade_DELTAS_from_d6rf2.diff` (1,293 lines) as a diff, and the real `git diff` of the driver repair at `8f66b356`. **What I checked, rather than what I was told:**
+
+* **Every §3f change travels in the RESTRICTIVE direction.** `_ff` raises `NonFinite`, which is folded by `_nar_non_finite` to `NOT A RESULT` and to nothing else. It cannot produce a `PASS`, cannot produce a `GATE FAIL`, and cannot rescue a row — `CLAUDE.md` rule 5's own permitted direction of travel. **A widened refusal is not a widened gate**, and that is why §3f's five→seven widening is legal quite apart from its timing.
+* **The rung renumbering moves REASONS, not TOKENS.** New rungs 0 and 3 are inserted and old rungs 3–7 become 4–8. I checked the claim that this cannot move a row between verdicts: every displaced rung already returned `NOT A RESULT`, so the hoist changes which sentence is printed and nothing else. The reason it is hoisted is right and worth keeping — without it a non-finite `core_min` would be reported as *"completion clause failed on arm X"*, **accusing the run of misbehaving when a bookkeeping field was unreadable.** That is *bookkeeping never voids physics* inverted into bookkeeping slandering physics.
+* **The third planted control cannot drift from what it controls.** `run_planted_controls` calls `cdc.run_cd_control` and `gate_off` calls `cdc.read_cd` — **the same imported function**, not a re-implementation. A control that plants into a copy of the reader controls the copy.
+* **`freeze_check`'s list is extracted from the code, not written from memory**, and `d6rf3_cd_plant_control.py` is on it *because this file imports it*. That is the row a remembered list omits.
+
+**One thing I suspected and checked, and I was WRONG.** The diff computes `c["plateau_pct"]` and prints four metadata fields beside it without ever showing it compared to anything, which is the exact shape of a registered gate that never fires. **It fires.** `d6rf3_grade.py:1162`, `c["plateau_pass"] = c["plateau_pct"] <= PLATEAU_TOL_PCT`, feeding `c["verdict"]` at `:1163` and `per_ok` at `:1217`. The comparison lives in code the diff does not touch, which is why the diff alone could not answer it. **A diff shows what changed; it cannot show what a changed line is compared against.** I record the wrong suspicion because the check that resolved it is the point.
+
+### 12.4 ⚠ THE PLATEAU BAR — WHAT `S1FDP` MEASURED TODAY, AND WHY IT DOES NOT BLOCK THIS ITEM
+
+**Measured today, not argued.** `S1FDP` (`cases/dafoam/ladder-b/S1_FD_PLATEAU_PREREGISTRATION.md`, graded 2026-09-05) registered a falsifier at `h = 0.5` and measured **7.931 %** relative error against the adjoint. **That step's move against its neighbour is 7.902 % — INSIDE a 10 % plateau bar.** So a bar of `10.0` admits a step carrying roughly 8 % adjoint error.
+
+**`PLATEAU_TOL_PCT = 10.0` at `d6rf3_grade.py:127` is that same bar, bounding that same quantity.**
+
+**AND THIS ITEM DOES NOT REST ON IT.** Per component the verdict requires `in_band` **AND** `plateau_pass` **AND** no sign flip. `in_band` is `rel_err_pct <= FD_BAND_PCT = 5.0`. **5.0 is tighter than 10.0 and it binds first**: the component `S1FDP`'s loose bar would wave through fails `G-FD`'s agreement band at 7.9 % > 5.0 % and the item reads `GATE FAIL` anyway. **Here the loose bar is REDUNDANT. In `S1FDP` it was the ONLY discriminator, and that is the whole difference between the two items.**
+
+**WHAT IS OWED IS A REPORT, NOT A GATE MOVE.** The bar is **NOT** changed here: `PLATEAU_TOL_PCT` is Band D, inherited **by citation** from `D6R` §3e, and moving a threshold is not a supervisor's act. **Registered now, before compute, costing nothing:** the result record must print each component's measured `plateau_pct` beside the bar and **state whether the bar was exercised at all**. If every component lands orders of magnitude inside it — as all three of `S1FDP`'s did, at 0.019 %, 0.107 % and 0.026 % against 10 % — **then the bar was never tested and its pass carries no information, and the record says so in those words.** This moves no gate, threshold, cap or label.
+
+### 12.5 ⚠ THE LESSON `S1FDP` PAID 62.33 CORE-MIN FOR, AND WHY THIS ITEM'S FALSIFIERS SURVIVE IT
+
+`S1FDP`'s falsifier had two limbs: *relative error `> 2 %`* (**MET**, 7.931 %) and *"the `h = 0.5` estimate FAILS `P1`'s 10 % bar"* (**NOT MET** — it measures 7.902 % and **passes**). **The second limb was arithmetically bound to fail, and the arithmetic was ON THE PAGE AT REGISTRATION:** that section's own basis paragraph predicted ≈ 3.2 %, against a bar of 10 %. **3.2 < 10 needs no solver.**
+
+**The defect, stated generally: the falsifier was sized against ONE test and then asserted to fail a DIFFERENT test.** Adjoint-agreement and step-plateau are different criteria with different bars, and a falsifier can only falsify the gate it actually fails. **This is mine.** At that freeze I certified the `> 2 %` limb *"read AS ARITHMETIC and not as a summary"* — and read only one of the two limbs that way.
+
+**Applied to this item's §8, which I re-read for exactly this shape:**
+* **`F1`** — its bar is **`eta_raw`, the primal's own repeatability measured in the same run.** A bar set at the measured noise floor cannot be mis-sized against the thing it bounds, because it *is* derived from it. **This is the design the family should prefer**, and it is already here.
+* **`F2`** — binary, no numeric bar, already discharged `30/30` and `10/10` with `NOT EXERCISED = 0`. No sizing to get wrong.
+* **`F3`** — restates `G-FD`'s own thresholds. Same test, same bar; the two cannot diverge.
+
+**None of the three carries `S1FDP`'s defect.** What this item lacks is any falsifier against **`PLATEAU_TOL_PCT`** — which is why §12.4 buys the report instead, at zero compute.
+
+### 12.6 WHAT IS FROZEN, AND WHAT IS STILL OWED
+
+**Frozen by this commit:** the gates `G-OFF`, `G-PRICE`, `G-FD`, `G-DVL`, `G-CAPS`, `G1`, `G9`, `G12`; the bands `FD_BAND_PCT 5.0 / AGG_BAND_PCT 5.0 / PLATEAU_TOL_PCT 10.0` (Band D, by citation); the reported-not-gated rows `R-RED` and `X-CDLOG`, which carry **no threshold and no verdict and move nothing**; the caps and the `TMO + FRAME_ALLOWANCE_S == cap_wall_equivalent_s` identity at residual `0.0 s` on both arms; the labels, including that **this is a ONE-ROW `PATCHED` verdict and is NOT a full `DAFOAM_CHARTER.md` §6 verdict about DAFoam**, with the unbought `SHIPPED` row **priced at 155.70 core-min** so that a successor can buy it.
+
+**STILL OWED, and it is now the whole list:** §11 item 9 — **a queue row that cites this document**, carrying this document's own estimate and no other.
+
+**SUBMISSIONS PARKED.** The four upstream defect classes remain **NOT FILED ANYWHERE**; nothing in this item is sent, filed, posted or commented anywhere outside this box.
