@@ -1149,3 +1149,261 @@ existence clean, coverage clean, **producer trace clean**.
 
 **NOT FROZEN. NOT PINNED. NOT ENQUEUED. NOT LAUNCHED. ZERO COMPUTE SPENT.
 SUBMISSIONS PARKED — nothing here is filed, sent, uploaded, posted or registered anywhere.**
+
+### 11.3 AMENDMENT — 2026-09-05, by `lab-lane` (dafoam) on the `dafoam-supervisor`'s SINGLE-PASS CENSUS ORDER. **THE RULED §7.2 STRIKE IS IMPLEMENTED, AND A SECOND INPUT WITH NO PRODUCER IS MEASURED — THIS ONE STOPS THE STAGER BEFORE ANY GATE IS REACHED.**
+
+**Lawful because this document is UNFROZEN and no compute has been spent against it** (`CLAUDE.md`
+rule 2 limb 1: before first compute, amendments are legal **and must state the condition and how it
+was checked**). **The condition, CHECKED BY EXECUTION in this amending invocation and not asserted:**
+the run directory `/home/ubuntu/certonomous-runs/A1WRT2` **does not exist** — `ls -d` and `ls -la`
+both returned rc=2 in the same shell invocation that appended this section, timestamps printed to
+that invocation's own output.
+
+**`CLAUDE.md` rule 6, asserted by measurement and not by claim: lines whose number changed above this
+section: 0.** The amendment is APPENDED at the foot; the first 1,151 lines of this file were
+compared byte-for-byte against the committed blob `d1b47625f80e3a6f3e642735f74df74fda7944b6` at
+`HEAD` in the appending invocation and are **identical**. Nothing above §11.3 is rewritten, and the
+struck text in §11.3.1 is struck **by quote**, its original standing unaltered at §7.2.
+
+> **⚠ WHAT THIS AMENDMENT DOES AND DOES NOT DO.** It **implements a ruling already issued** (§11.3.1),
+> and it **registers measurements and predictions** (§11.3.2–§11.3.4). **No gate, threshold, band,
+> cap, label or cost figure is altered by this lane.** The two arithmetic defects found in §5 are
+> **REPORTED, NOT REPAIRED HERE** — a cap is a registered figure and moving one is the supervisor's
+> §3 check 4, not a lane's. `PASS` remains unreachable by construction, `P4` remains registered
+> UNHEDGED and predicted to MISS, and the ceiling remains `GATE REACHED`.
+
+---
+
+#### 11.3.1 THE RULED §7.2 STRIKE, IMPLEMENTED. **`DAFOAM_CHARTER.md` §6's TWO-ROW OBLIGATION BINDS AND THIS ITEM SHIPS ONE ROW, LABELLED.**
+
+**The `dafoam-supervisor` ruled on §11.2.4's finding: `G-WARPPROBE` has no producer, cannot get one
+inside this item (its only possible producers are another item's FROZEN instruments), and the
+two-row obligation therefore BINDS. The item ships ONE row, `PATCHED`, labelled as such, and not a
+full charter-§6 verdict.** That ruling is settled and is not reopened here; what follows is its
+implementation in the registration.
+
+**THE STRUCK TEXT, quoted verbatim from §7.2's registered bullet. IT IS STRUCK, NOT REWRITTEN, and
+the original stands above unaltered (`CLAUDE.md` rule 6):**
+
+> ~~Both 0 ⇒ the patched library is provably not in the chain of any number this item produces, the
+> shipped/patched distinction cannot move a value, and the two-row obligation is DISCHARGED — with
+> the probe output cited as the discharge.~~
+
+**REPLACED BY:** *Both 0 ⇒ `G-WARPPROBE` reports `PASS` and that is **all** it reports. **It
+discharges nothing.** `DAFOAM_CHARTER.md` §6's two-row obligation **BINDS** and is carried forward
+unsatisfied. This item ships **ONE ROW — `PATCHED`, `dafoam-idwarp-rot:v1`,
+`sha256:2927768a16ac…`, `libidwarp` md5 `85f59e87253e0a71a813f64ca6e4c425`** — and **every record
+this item produces carries that row LABELLED AS A SINGLE ROW AGAINST A BINDING TWO-ROW
+OBLIGATION**, never as a discharged one.*
+
+**AND THE SECOND BULLET'S CONSEQUENT IS STRUCK IN THE SAME BREATH, because it was the other half of
+a discharge that no longer exists:**
+
+> ~~either ≠ 0 ⇒ `GATE FAIL`, and a SHIPPED-image arm becomes owed before any number from this item
+> enters a record~~
+
+**REPLACED BY:** *either ≠ 0 ⇒ `GATE FAIL`. **The SHIPPED-image arm is owed EITHER WAY** — that is
+what "the obligation binds" means — and the `≠ 0` case additionally makes the patched library
+demonstrably live in the chain, which is a finding about the number and not only about the paperwork.
+Its cost stays registered at **`SEAM` + `TAIL` on the shipped image ≈ 227.85 core-min, cap 675.0**,
+**not** launched under this item's ceiling, and it is a NEW ITEM with its own registration.*
+
+**MEASURED, so the label is not a promise:** `a1wrt2_run_arm.sh:343` already writes
+`ARM=$arm ROW=PATCHED IMG=$IMG …` into `ledger.txt` — **one row, named `PATCHED`, produced by the
+launcher and not by a fixture** (it is one of the five artefacts §11.2.3's producer trace resolves to
+`a1wrt2_run_arm.sh` on the GRADED path). **The registration and the instrument now say the same
+thing**, which is what §11.2.4 said they did not.
+
+**WHAT IS STILL OWED TO THE CHARTER, STATED AND NOT BURIED:** `DAFOAM_CHARTER.md` §6 is **NOT
+SATISFIED BY THIS ITEM.** No reading of this document may cite `A1WRT2` as discharging it.
+
+---
+
+#### 11.3.2 ⚠ THE CENSUS FOUND A SECOND INPUT WITH NO PRODUCER, AND IT IS UPSTREAM OF EVERY GATE: **NOTHING IN THE REGISTERED SET PRODUCES A CONTINUED `system/controlDict`, SO `stage()` REFUSES BOTH ARMS AT CLAUSE (9) AND ZERO OF SEVEN POINTS RUN — AGAIN.**
+
+**This is §11.1's defect one level EARLIER.** §11.1 caught a HARD gate whose input only a fixture
+wrote. This is a **stager PRECONDITION** whose input **nothing writes at all** — and the stager runs
+before the container, so the item would not reach a gate to fail at. **It would `BLOCK` at zero
+physics, which is the exact outcome this item exists to break.**
+
+**MEASURED BY EXECUTION IN THIS INVOCATION, over named files:**
+
+| what was measured | result | artefact |
+|---|---|---|
+| `controlDict` occurrences in the FROZEN producer | **0** | `a1wr_runScript_incomp.py`, md5 `d48f48c5e2e41e86981acbf6feccb3c4` — re-measured here and **matching §3's registered pin** |
+| `controlDict` occurrences in this item's launcher | **0** | `a1wrt2_run_arm.sh` |
+| the stager's stance | **REFUSES, DOES NOT AUTHOR** | `a1wrt2_stage.py:590-611`, clause (9), verbatim: *"This file REFUSES rather than authoring a controlDict: no instrument in draft section 11 derives a CONTINUED one"* |
+| the REAL staging source's `controlDict` | `startFrom startTime; startTime 0; stopAt endTime; endTime 4000; deltaT 1; writeInterval 4000;` | `/home/ubuntu/certonomous-runs/A1WRT/alpha12_symmetry/system/controlDict` |
+| clause (9)'s predicate `("latestTime" in cdt) or _startTime_is(cdt, "4000")` driven against those REAL bytes | **`False` → `abort("CONTROLDICT_NOT_CONTINUED", code 5)`** | the real predicate imported from `a1wrt2_stage.py` and called on the real file |
+
+**THE ZERO IS PLANTED, BOTH LIMBS (`CLAUDE.md` rule 3).** The predicate was first driven against two
+mutations of those same real bytes — `startFrom startTime` → `startFrom latestTime`, and
+`startTime 0` → `startTime 4000` — and **returned `True` on each**, the two limbs separately. **A
+reader shown able to return `True` then returned `False` on the unmutated file.** The mutation was
+asserted to have changed the bytes before the predicate was driven.
+
+> **WHY THE §11.2.3 PRODUCER TRACE DID NOT CATCH IT, REPORTED RATHER THAN ABSORBED.** The trace's own
+> output puts `RUNROOT:$/case/system/controlDict` under **`DYNAMIC REFERENCES: REPORTED, NOT
+> GATED`** — the path is assembled at run time, so it falls out of the traced set and into a bucket
+> that is printed and not enforced. **The instrument that exists to find inputs with no producer
+> printed this one in its own output, in a section headed "not gated", and the item nearly froze
+> over it.** That is a real limit of the trace and it is registered as such below, not repaired here.
+
+**THE MECHANISM IS ALSO MEASURED, AND IT DISCRIMINATES BETWEEN TWO DESIGNS THE REGISTRATION DOES NOT
+DISTINGUISH.** `A1WR`'s 13-point `CONTINUED` sweep and `A1WRT` U1's 1-point `COLD` sweep were parsed
+per point:
+
+| run | mode | points | first `^Time = ` per point | last `^Time = ` per point | anchored `Time =` lines per point |
+|---|---|---|---|---|---|
+| `A1WR/STAGE12/sweep_I` | `CONTINUED` | idx 0…12 complete | **1**, every point | **4000**, every point | **41**, every point |
+| same, idx 13 (α = 13) | — | killed mid-point | 1 | **2500** | 26 |
+| `A1WRT/alpha12_symmetry` | `COLD` | idx 0 | **1** | **4000** | **41** |
+
+**FOURTEEN measured points, and the OpenFOAM time counter RESETS TO 1 AT EVERY POINT.** The
+producer's `CONTINUED` mode is an **in-process warm start** — `prob.run_model()` called once per α on
+one `Top()` problem, the field state carried in memory — **not an OpenFOAM `latestTime` restart.**
+`endTime` is therefore **PER POINT**, not a global counter.
+
+**THREE CONSEQUENCES, EACH STATED AS WHAT IT IS:**
+
+1. **`endTime 8200` is registered nowhere and is wrong under either hypothesis.** The value lives
+   only in fixture builders (`a1wrt2_grade.py:1673`, `a1wrt2_stage.py:957`) — **the same
+   fixture-only-writer shape as `MANIFEST.json`.** Under the MEASURED per-point reset it gives each
+   tail point **8,200** iterations, **2.05×** §3's registered 4,000. Under the alternative
+   global-counter hypothesis it gives the whole six-point arm 4,000 iterations, **≈667 per point,
+   6× too few.** §3's arm table (*"4,000 each"*) and §5's cost line (*"6 points × 4,000 it"*) are
+   the registration; **8200 contradicts both.**
+2. **The registered continuation mechanism has NEVER BEEN RUN.** `startFrom latestTime` appears in
+   **zero** of the fourteen measured points. §3's `start` column, `G-COLDSTART-SEAM`
+   (`a1wrt2_grade.py:448-469`: `4000/U` present and NONUNIFORM, **`0/` REFUSED if it exists**) and
+   `G-COMPLETE`'s `last time == endTime` all encode a disk-restart this producer has not been shown
+   to accept. **§11.2.2 forbids exactly this: *"a gate written on a guess would fail good runs,
+   which is a worse defect than the one being repaired."***
+3. **The falsifier for all of it already exists, is registered, and costs 10 core-min.** `SEAM`'s
+   entire registered job is *"that the restart actually loaded the state"*, and §11.2.1's
+   `seam_precondition_guard` **refuses `TAIL` at rc=7 on anything but `PASS`**. **So the unresolved
+   question is bounded at `SEAM`'s 10.0 core-min cap — 1.46 % of the 685.0 item ceiling — and the
+   675.0 core-min `TAIL` arm cannot be spent on a wrong answer to it.**
+
+**THIS LANE DOES NOT CHOOSE BETWEEN THE TWO DESIGNS AND SAYS SO.** Both are registration-level and
+both move a HARD gate:
+
+* **Design L (`latestTime`)** — commit two static, md5-pinned `controlDict` fixtures under
+  `fixtures/`, stage them by name so clause (9) still **asserts and never authors**, and let `SEAM`
+  test whether this producer honours a disk restart. **Keeps §3, `G-COLDSTART-SEAM` and §5 exactly
+  as registered.** Registered prediction if adopted: **`P-SEAMTIME` — `SEAM`'s log will carry
+  `^Time = ` first 4001 and last 4200. If it carries first 1, the producer resets the counter on a
+  `latestTime` start too, `G-COMPLETE` reports `GATE FAIL`, the seam precondition refuses `TAIL`,
+  and the item stops at ≤ 10.0 core-min with the mechanism MEASURED for the first time.**
+* **Design S (`startTime 0`, the fourteen-times-measured form)** — stage `A1WRT` U1's `4000/` fields
+  as the arm's `0/` and run `startFrom startTime; startTime 0; endTime 200`. **The continuation is
+  then on the only configuration this producer has ever been run with.** But it **REFUSES against
+  `G-COLDSTART-SEAM` as registered**, which aborts when `0/` exists — so adopting it requires
+  striking and replacing that HARD gate's form (its *intent*, "a continued arm actually carries a
+  field", is preserved and would be re-registered on `0/U`).
+
+**BOTH ARE THE SUPERVISOR'S CALL under `SUPERVISION_CHARTER.md` §3 check 4, and neither is taken
+here.** Design L is the smaller change and is the one that **buys the measurement**; Design S is the
+one that is **already measured** and buys the tail. **Design L costs 10 core-min to find out; Design
+S costs a HARD gate's re-registration to avoid finding out.**
+
+---
+
+#### 11.3.3 THE PROCEDURAL GAPS, REGISTERED AS PREDICTIONS RATHER THAN USED AS REASONS NOT TO RUN
+
+**Each is an instrument this item does NOT have. What it would have caught is named, and the risk is
+accepted in writing.** *An unbuilt instrument recorded as a risk is science; an unbuilt instrument
+used as a reason not to run is governance.*
+
+| # | not built | what it would have caught | risk accepted, and its bound |
+|---|---|---|---|
+| **B1** | `measure_image_pins` is **half driven**. Its **digest limb IS NOW MEASURED**: `docker image inspect --format '{{index .RepoDigests 0}}'` on `dafoam-idwarp-rot:v1` returned `sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35`, **exactly `PIN_IMG_DIGEST`**, at **zero compute — `image inspect` starts no container**. Its `libidwarp` md5 limb needs one `docker run md5sum` and stays **`NOT EXERCISED`, declared, never counted as a pass** | a broken md5 one-liner → `warp=UNMEASURED` → `G-IMG` **REFUSES at exit 4** | **BOUNDED AT `SEAM`'s 10.0 core-min.** `G-IMG` is HARD, so `SEAM` grades `NOT A RESULT`, the seam precondition refuses `TAIL` at rc=7, and `TAIL`'s 675.0 is never spent. **The pin itself is corroborated independently and MEASURED**: `A1WRT`'s own unit log line 4 carries `A1WRT_IDWARP_SO_MD5: 85f59e87253e0a71a813f64ca6e4c425` from **inside a container on this same image**. What is unmeasured is this launcher's one-liner, not the value |
+| **B2** | the §11.2.3 producer trace does **not gate DYNAMIC references**; it prints them under `REPORTED, NOT GATED` | **§11.3.2 itself** — the trace printed `RUNROOT:$/case/system/controlDict` in that bucket. **A checker that reports the class it exists to gate, in a section headed "not gated", found the defect and did not stop it** | accepted. The bucket is 8 entries and is printed on every run; a reader who reads the trace's whole output sees them. **Widening the trace to resolve run-time-assembled paths is a NEW ITEM, not a pre-freeze edit** |
+| **B3** | per-point terminal-time bookkeeping is **reported, not gated**; clause 5 binds the LAST point only | a middle point that stopped early while the last one completed | accepted, and now **partly retired by measurement**: §11.3.2's fourteen points show 41 anchored `Time =` lines and last `Time = 4000` for every complete point, so a per-point clause is now derivable — **but deriving it from 14 points of one configuration and freezing it as a gate is exactly the guess §11.2.2 forbids.** Registered as a **successor's** gate |
+| **B4** | `G-UNBOUND` item 3 (the OpenFOAM `etc/bashrc:180` shape) is registered as a **behaviour on a fixture**, not as a citation of a committed blob | a `set +u … set -u` fence repair the gate wrongly forbids | accepted and already disclosed at §8 item 3. **The two static fixtures ARE committed** (`fixtures/g_unbound_positive.sh`, `g_unbound_negative.sh`) and both are driven |
+| **B5** | `a1wr_cmd.sh:65-66` swallowed-rc defect is **REPORTED, NOT REPAIRED** | every future unit of this family that inherits that file by md5 mis-certifying a truncated run as complete | accepted, and it is **not this item's to repair**: `a1wr_cmd.sh` is another item's FROZEN instrument and editing it would break two freezes (`CLAUDE.md` rule 6). **This item does not consume it** — `a1wrt2_run_arm.sh` propagates the producer's own rc at `:694` / `:713` instead of recomputing it from markers, which is the defect refused by construction |
+| **B6** | `A1ZE`'s `empty` arms being unreachable inside DAFoam is **reported to the supervisor**, not acted on | that item's central gate cannot be satisfied as registered | accepted; **it is another team's item and another supervisor's compute** |
+
+---
+
+#### 11.3.4 ⚠ TWO ARITHMETIC DEFECTS IN §5, REPORTED AND **NOT REPAIRED BY THIS LANE** — THEY ARE THE §3 CHECK 4 READING
+
+**A cap is a registered figure. A lane that quietly corrects one has moved a gate.** Both are stated
+as arithmetic so the supervisor can read them as arithmetic.
+
+1. **`SEAM`'s in-container deadline CANNOT ENFORCE its cap.** §5.4 registers `SEAM` cap
+   **10.0 core-min** and in-container deadline **900 s**. At the registered `ranks = 1`,
+   **900 s × 1 ÷ 60 = 15.0 core-min**, which is **1.50× the cap**. **The deadline sits ABOVE the
+   cap, so the mechanism §5.4 relies on — *"the deadline lives INSIDE the container, so the cap
+   stops the run even if the driver, the daemon and every agent die"* — does not hold for `SEAM`.**
+   The figure that would make it hold is **600 s**. **`TAIL` is CONSISTENT and is shown for
+   contrast: 40,500 s × 1 ÷ 60 = 675.0 core-min = its cap exactly.**
+   *This is the `SO3aF2` cap-watch shape §12 already recorded — "a cap that is advisory, inert and
+   off by construction" — appearing in this item's own table.*
+2. **The pessimistic bracket end does not equal its own stated expression.** §5.2 prints
+   **≈ 367.2 core-min** for `6 × 4,000 × 0.814982 / 60 + 38.48 + 3.13`. Evaluated:
+   **24,000 × 0.814982 = 19,559.568 s; ÷ 60 = 325.9928; + 38.48 = 364.4728; + 3.13 = 367.6028.**
+   **The stated expression evaluates to 367.60, not 367.2 — a 0.40 core-min discrepancy.**
+   **The cap claim SURVIVES at both values** and is shown so the supervisor need not re-derive it:
+   **675.0 ÷ 367.60 = 1.8362** and **675.0 ÷ 367.20 = 1.8382**, both **1.84** at the registered two
+   decimal places. **The defect is in the printed bracket end, not in the cap.**
+
+**THE §5 CAP ARITHMETIC, LAID OUT IN FULL FOR THE §3 CHECK 4 READING** (every term from §5.2/§5.4,
+recomputed here from the anchors; **A-CONT = 0.46178 s/it, A-COLD = 0.814982 s/it, ranks = 1**):
+
+| line | expression | value |
+|---|---|---|
+| `SEAM` solve | 200 × 0.46178 ÷ 60 | **1.53927** core-min |
+| `SEAM` container start + import | 93.85 ÷ 60 | **1.56417** |
+| **`SEAM` estimate** | 1.53927 + 1.56417 | **3.10344** (doc prints 3.10) |
+| `SEAM` cap | 3.10344 × 3.2 = 9.931 → registered | **10.0** |
+| `SEAM` cap ÷ estimate | 10.0 ÷ 3.10344 | **3.222×** (doc claims 3.2×) ✓ |
+| `SEAM` deadline as core-min | 900 × 1 ÷ 60 | **15.0 — ABOVE the 10.0 cap ✗ (defect 1)** |
+| `TAIL` solve | 6 × 4,000 × 0.46178 ÷ 60 | **184.712** |
+| `TAIL` container start + import | 93.85 ÷ 60 | **1.56417** |
+| `TAIL` stiffening (EXTRAPOLATED) | 5 × 4,000 × 0.46178 × 0.25 ÷ 60 | **38.4817** |
+| **`TAIL` estimate** | 184.712 + 1.56417 + 38.4817 | **224.758** (doc prints 224.75) |
+| `TAIL` cap ÷ estimate | 675.0 ÷ 224.758 | **3.003×** (doc claims 3.0×) ✓ |
+| `TAIL` deadline as core-min | 40,500 × 1 ÷ 60 | **675.0 = the cap exactly ✓** |
+| **ITEM estimate** | 3.10344 + 224.758 | **227.861** (doc prints 227.85) |
+| **ITEM CEILING** | 10.0 + 675.0 | **685.0 ✓** |
+| pessimistic bracket end | 325.9928 + 38.48 + 3.13 | **367.603 (doc prints 367.2) ✗ (defect 2)** |
+| `TAIL` cap ÷ bracket end | 675.0 ÷ 367.603 | **1.836× → 1.84 ✓ (the claim survives)** |
+| dollars, point | 227.861 ÷ 60 × $0.0513 | **$0.19482 — DERIVED, not measured; `cost_basis` REPORTED-BY-OWNER** |
+| dollars, bracket end | 367.603 ÷ 60 × $0.0513 | **$0.31430 — DERIVED (doc prints $0.31396, consistent with its 367.2)** |
+
+**Every figure above is under the `$25` pre-authorisation and is still costed here, because a
+blanket is not a per-item reading (`CLAUDE.md` rule 9).**
+
+---
+
+#### 11.3.5 WHAT THIS INVOCATION DROVE, AND WHAT IT DID NOT
+
+**Driven on host python, zero compute, zero containers started, `__pycache__` cleared first:**
+
+| instrument | rc | legs | controls | EXERCISED-FAIL | EXERCISED-PASS | NOT EXERCISED |
+|---|---|---|---|---|---|---|
+| `a1wrt2_instruments.py` (no args: existence, coverage, producer trace) | **0** | — | — | — | — | — |
+| `a1wrt2_instruments.py --selftest` | **0** | 7 | **17** | 10 | 7 | **0** |
+| `a1wrt2_grade.py --selftest` (and under `python3 -O`) | **0** | 7 | **77** | 48 | 29 | **0** |
+| `a1wrt2_stage.py --selftest` | **0** | 5 | **26** | 16 | 10 | **0** |
+| `a1wrt2_run_arm.sh --selftest` | **0** | — | 21 | 20 driven | — | **1 declared** (`producer/image-pins-measured`) |
+
+`ast.Assert` = **0** across the three python instruments, audited by each file's own control shown
+able to see a planted one. The producer trace reads **9 gate inputs consumed, 8 traced, 1 covered by
+a NAMED registered deferral, 0 UNTRACED** — **§11.1's `MANIFEST.json` defect is CLOSED**, and the
+five artefacts that were fixture-only in §11.2.3's first measurement now resolve to
+`a1wrt2_run_arm.sh` on the graded path.
+
+**NOT ESTABLISHED, AND NOT CLAIMED — the §11.2.5 list, carried forward and one item retired:**
+1. **`measure_image_pins`'s `libidwarp` limb has never run.** Its **digest limb HAS now**, at zero
+   compute, and matches the pin exactly. *(Partly retired.)*
+2. **Whether this producer honours `startFrom latestTime` at all.** §11.3.2: **zero of fourteen
+   measured points used it.** *(Sharpened from "unverified" to "never once exercised".)*
+3. **The per-point time bookkeeping across a six-point CONTINUED sweep** is now **measured on
+   thirteen points of a different arm** and is still **not gated**, for the §11.2.2 reason.
+4. **Nothing about the physics. No solver ran. `LAUNCH_ENABLED` is still 0.**
+
+**NOT FROZEN. NOT PINNED. NOT ENQUEUED. NOT LAUNCHED. ZERO COMPUTE SPENT — no container was started
+by this invocation and `docker image inspect` starts none.
+SUBMISSIONS PARKED — nothing here is filed, sent, uploaded, posted or registered anywhere.**
