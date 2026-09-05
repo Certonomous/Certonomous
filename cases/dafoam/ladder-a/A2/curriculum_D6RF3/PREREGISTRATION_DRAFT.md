@@ -630,7 +630,8 @@ pin it holds while a dependency the frozen code executes is absent."*
 | `d6rf3_units_assert.py` | the units gate | **YES** | 18,270 | `885ce236ed20d4be0337f4382346500a` | 0 |
 | `d6rf3_opt_runScript.py` | the repaired producer (`D6RF-BLOCKING-1`) | **YES** | 13,122 | `137539e0a99be27f27fdb69e063b2a87` | 0 |
 | `d6rf3_run_arm.sh` | launcher; carries `D6RF3-DEF-6`'s **host-side** repair | **YES** | 58,670 | `58684b91f6aced35f500fc947517a8e4` | — |
-| `d6rf3_chain_driver.sh` | chain driver; calls the **common** item-ceiling guard | **YES** | 16,627 | `9d2c22d2f84abbead31657288097eccf` | — |
+| `d6rf3_chain_driver.sh` | chain driver; calls the **common** item-ceiling guard | **YES** | 18,103 | `71c971c90b0e1c4117de048cdb719694` | — |
+| `d6rf3_final_spend_control.sh` | the control on the driver's completion-path ledger write | **YES** | 4,623 | `3b5b8f8deadb1db231fbe9c2d059296c` | — |
 
 **Cross-item and generated dependencies, all accounted for by the same extraction:**
 `../../../_common/item_ceiling_guard.py` (`1ea97c9245dedbc451d62e1bcfe26eb9`),
@@ -806,6 +807,44 @@ context — the guard answers on its EXIT CODE.** Driven four ways:
 | over ceiling (`600.0` spent + `480.0` cap vs `670.0`) | **65** — refused | 65 |
 | **ABSENT ledger** | **65** — `UNMEASURED`, refuses | **returned `0.000` and PASSED** |
 | **malformed token `core_min=1.2.3`** | **65** — refuses | **`$SPENT` emptied → unary plus → PASSED** |
+
+**⚠ THE REPLACEMENT ORPHANED ONE CALL SITE, AND THE SUPERVISOR'S CHECK 1 CAUGHT IT.** Removing the
+parent's `spent_core_min()` left `FINAL_SPEND=$(spent_core_min)` on the driver's **completion path**.
+An undefined function makes the expansion empty, so the driver wrote **`total_core_min=` into
+`ledger.txt`** — which reads to a human as **zero spend recorded**. It fired **only on
+`chain=COMPLETE`**: the success path, the one least likely to be examined, and the one whose figure
+gets quoted into a cost calibration.
+
+**`bash -n` cannot see it, and "both `bash -n` clean" was true and was the wrong instrument.** An
+undefined function is a **runtime** failure, so a syntax check certifies the file and misses this
+entirely — the same family as `assert` vanishing under `python -O`: *a check whose scope does not
+cover the failure it is trusted for.* The miss on this lane's side was narrower still: the earlier
+sweep grepped the **variable** `SPENT` (case-sensitive) and reported three hits *"all inside the
+comment block"*, never grepping the lowercase **function** name.
+
+**Repaired without re-introducing a local reader.** The figure now comes from the same guard, with
+`--cap 0` so the projection equals the spend itself — **a report, not a second admission test: a
+chain that completed cannot be refused by its own closing line** — and the field is guaranteed
+non-empty, falling back to the guard's own `UNMEASURED` token. Driven by
+`d6rf3_final_spend_control.sh`, **on lines extracted from the real driver at run time rather than
+pasted in**, asserting the field is non-empty, parses, and matches what landed in the ledger:
+
+| ledger handed to the completion path | field written |
+|---|---|
+| clean, two arms (`155.700` + `60.070`) | **`215.770`** |
+| empty (no arms yet) | **`0.000`** |
+| ABSENT | **`UNMEASURED`** |
+| malformed `core_min=1.2.3` | **`UNMEASURED`** |
+
+and the control is **shown able to see the defect it names**: its last limb re-creates the orphaned
+form and requires an observed **`total_core_min=<EMPTY>`**.
+
+**THE CLASS WAS THEN SWEPT, NOT JUST THE INSTANCE**, by diffing parent against successor for every
+identifier the derivation removed — `spent_core_min`, `PROJ`, `SPENT` in the driver; none in the
+launcher — and grepping the successor for calls and expansions of each. **0 orphans remain in
+either file.** *(A first, looser sweep matched command-position words anywhere in the text and
+returned 40 hits, 39 of them prose inside quoted `echo` strings. A sweep whose false-positive rate
+buries its one true finding is not a sweep, and it is recorded here rather than quietly discarded.)*
 
 ### P2 — §3f WIDENED to `G-CAPS` and `G1`, and the widening DRIVEN
 

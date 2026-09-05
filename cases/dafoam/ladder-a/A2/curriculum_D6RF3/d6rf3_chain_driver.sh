@@ -256,7 +256,27 @@ for ARM in $ARMS; do
     exit "$rc"
   fi
 done
-FINAL_SPEND=$(spent_core_min)
+# ---- THE FINAL SPEND, READ THROUGH THE SAME GUARD --------------------------
+# `spent_core_min()` was REMOVED with the fail-open reader above and this call
+# site was left pointing at it -- an undefined function, so `FINAL_SPEND` came
+# back EMPTY and this line wrote `total_core_min=` INTO THE LEDGER, which reads
+# to a human as ZERO SPEND RECORDED. It fired ONLY on `chain=COMPLETE`: the
+# success path, the one least likely to be examined and the one whose figure
+# gets quoted into a cost calibration. `bash -n` cannot see it -- an undefined
+# function is a RUNTIME failure, so a syntax check certifies the file and
+# misses this entirely, the same family as `assert` vanishing under `python -O`.
+#
+# NO LOCAL SPEND READER IS RE-INTRODUCED. The figure comes from the one
+# known-good guard. `--cap 0` makes the projection equal the spend itself, so
+# this is a REPORT and not a second admission test: a chain that completed
+# cannot be refused by its own closing line.
+FINAL_LINE=$(python3 "$CEILING_GUARD" --check --ledger "$BASE/ledger.txt" \
+             --cap 0 --ceiling "$ITEM_CEILING_CORE_MIN" --label "D6RF3/FINAL" 2>&1 | head -1)
+FINAL_SPEND=$(printf '%s' "$FINAL_LINE" | grep -oE 'spent_core_min=[^ ]+' | cut -d= -f2)
+# THE FIELD IS NEVER EMPTY. An unreadable ledger yields the guard's own
+# `UNMEASURED`; anything else that could empty this yields it too. An empty
+# field is the thing to catch -- a wrong number would at least look wrong.
+[ -n "$FINAL_SPEND" ] || FINAL_SPEND=UNMEASURED
 echo "D6RF3_SPEND_FINAL total_core_min=$FINAL_SPEND item_ceiling=$ITEM_CEILING_CORE_MIN" | tee -a "$BASE/ledger.txt"
 echo "chain=COMPLETE stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"
 exit 0

@@ -1,11 +1,12 @@
 D6RF3 PRE-FREEZE DRIVE EVIDENCE -- every control driven in BOTH directions
-Driven 2026-09-05T21:52:11Z on the host. ZERO SOLVER CORE-MINUTES; no container started.
-CLAUDE.md rule 3; PREREGISTRATION.md sections 3e and 3f; falsifier F2.
-Includes the 2026-09-05 supervisor rulings: P1 launcher pair BUILT, P2 section 3f WIDENED.
+Driven 2026-09-05T22:01:46Z on the host. ZERO SOLVER CORE-MINUTES; no container started.
+CLAUDE.md rule 3; PREREGISTRATION.md sections 3e and 3f; falsifiers F2.
+Supervisor rulings 2026-09-05: P1 launcher pair BUILT, P2 section 3f WIDENED,
+and CHECK 1 finding -- the orphaned spent_core_min call -- REPAIRED AND DRIVEN.
 
 =========== 1. SECTION 3e THIRD PLANTED CONTROL -- the CD reader ===========
 D6RF3 CD PLANT CONTROL -- BOTH DIRECTIONS, no `assert` statement anywhere in this file
-  product /tmp/d6rf3_cd_ctrl_x1qz2muc/d6rf3_fd_endpoint.json
+  product /tmp/d6rf3_cd_ctrl_idqlk67_/d6rf3_fd_endpoint.json
   registered key points.cl05.CD = 0.02176156349
   OK    direction 1  state=EXERCISED-PASS delta=1.234000e-03 (PLANT 1.234000e-03) original_unchanged=True
   OK    direction 2  blind=wrong_top_level_block__points_baseline     outcome=REFUSED   reason_is_PLANT_CD_with_reader_saw_the_plant_false=True
@@ -18,7 +19,7 @@ rc=0
 
 =========== 2. SECTION 3f MUTATION HARNESS (WIDENED to G-CAPS + G1) =======
 D6RF3 SECTION 3f FINITENESS MUTATION HARNESS -- BOTH DIRECTIONS
-  fixture root /tmp/d6rf3_finmut_gmegn2wd/run
+  fixture root /tmp/d6rf3_finmut_e36rq7ce/run
   binding list (section 3f, VERBATIM, not widened): G-OFF, G-PRICE, G-FD, G-DVL, R-RED, G-CAPS, G1
   OK   G-OFF   CD_i(mp)       direction 2  unmutated -> PASS
       OK   G-OFF   CD_i(mp)       NaN   -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf3_fd_endpoint.json key=points.cl05.CD token='nan'
@@ -90,7 +91,7 @@ D6RF3 SECTION 3f FINITENESS MUTATION HARNESS -- BOTH DIRECTIONS
   F2: the section 3f clause IS ESTABLISHED in both directions
 rc=0
 
-=========== 3. CAP / DEADLINE REACHABILITY ARITHMETIC (RE-RUN) ============
+=========== 3. CAP / DEADLINE REACHABILITY ARITHMETIC =====================
 D6RF3 CAP / DEADLINE REACHABILITY -- ranks=4 frame_allowance_s=90
   F_mp     cap  480.00 core-min x 60 / 4 ranks =   7200.0 wall s
            TMO    7110 s + frame 90 s          =   7200.0 wall s   residual +0.0e+00 s
@@ -103,32 +104,53 @@ D6RF3 CAP / DEADLINE REACHABILITY -- ranks=4 frame_allowance_s=90
   TOTAL predicted 215.77 core-min against ceiling 670.0 core-min
 rc=0
 
-=========== 4. PRODUCT_WRITER -- three-sided, and PLANTED BOTH WAYS =======
+=========== 4. PRODUCT_WRITER -- three-sided, PLANTED BOTH WAYS ===========
   6 registered products, all three sides agreeing:
-    d6rf3_endpoint_dvs.json                  writer=d6rf3_extract_endpoint.py    named_by_writer=True named_by_launcher=True
-    d6rf3_endpoint_dvs_DRIVERSCALED.json     writer=d6rf3_endpoint_physical.py   named_by_writer=True named_by_launcher=True
-    d6rf3_endpoint_dvs_PHYSICAL.json         writer=d6rf3_endpoint_physical.py   named_by_writer=True named_by_launcher=True
-    d6rf3_fd_endpoint.json                   writer=d6rf3_fd_endpoint.py         named_by_writer=True named_by_launcher=True
-    d6rf3_major_history.json                 writer=d6rf3_extract_endpoint.py    named_by_writer=True named_by_launcher=True
-    d6rf3_ref_off.json                       writer=d6rf3_ref_off.py             named_by_writer=True named_by_launcher=True
-  --- the checker shown able to report a NON-ZERO (rule 3 on the checker) ---
+    d6rf3_endpoint_dvs.json                  writer=d6rf3_extract_endpoint.py    by_writer=True by_launcher=True
+    d6rf3_endpoint_dvs_DRIVERSCALED.json     writer=d6rf3_endpoint_physical.py   by_writer=True by_launcher=True
+    d6rf3_endpoint_dvs_PHYSICAL.json         writer=d6rf3_endpoint_physical.py   by_writer=True by_launcher=True
+    d6rf3_fd_endpoint.json                   writer=d6rf3_fd_endpoint.py         by_writer=True by_launcher=True
+    d6rf3_major_history.json                 writer=d6rf3_extract_endpoint.py    by_writer=True by_launcher=True
+    d6rf3_ref_off.json                       writer=d6rf3_ref_off.py             by_writer=True by_launcher=True
   OK   direction=writer   planted 2 occurrence(s) in d6rf3_endpoint_physical.py  -> REFUSED, reason asserted=True  [D6RF2's ACTUAL defect, re-created]
   OK   direction=launcher planted 1 occurrence(s) in d6rf3_run_arm.sh            -> REFUSED, reason asserted=True  [the third side of the triangle]
 
 =========== 5. P1: THE ITEM-CEILING GUARD, FAIL-OPEN CLOSED ===============
-  the driver resolves and md5-asserts it:
+  driver resolves and md5-asserts it:
     ../../../_common/item_ceiling_guard.py: OK
   within ceiling            rc=0 (0 = proceed)
-  over ceiling              rc=65 (non-zero = refused)
-  ABSENT ledger             rc=65 (UNMEASURED refuses; the parent returned 0.000 here)
-  malformed token 1.2.3     rc=65 (the parent emptied $SPENT -> unary plus -> PASSED)
-  no spend figure is interpolated into any shell arithmetic context: 3 mentions, all inside the explanatory comment block
+  over ceiling              rc=65
+  ABSENT ledger             rc=65 (parent returned 0.000 and PASSED)
+  malformed token 1.2.3     rc=65 (parent emptied $SPENT -> unary plus -> PASSED)
 
-=========== 6. bash -n ON BOTH SHELL INSTRUMENTS ==========================
+=========== 6. CHECK-1 FINDING: THE ORPHANED COMPLETION-PATH CALL =========
+D6RF3 FINAL-SPEND CONTROL -- the completion path, driven on the real lines
+  driver /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF3/d6rf3_chain_driver.sh
+  OK   clean ledger, two arms             field=215.770      non_empty=yes parses=yes in_ledger=yes (expected 215.770)
+  OK   empty ledger (no arms yet)         field=0.000        non_empty=yes parses=yes in_ledger=yes (expected 0.000)
+  OK   ABSENT ledger                      field=UNMEASURED   non_empty=yes parses=yes in_ledger=yes (expected UNMEASURED)
+  OK   malformed token core_min=1.2.3     field=UNMEASURED   non_empty=yes parses=yes in_ledger=yes (expected UNMEASURED)
+  --- the control shown able to SEE the defect it names (rule 3) ---
+  OK   the ORPHANED form writes total_core_min=<EMPTY> into the ledger
+  RESULT ALL DIRECTIONS AS REGISTERED
+rc=0
+
+  --- the ORPHAN SWEEP, scoped by DIFFING parent against successor ---
+  d6rf3_chain_driver.sh    functions removed: spent_core_min   variables no longer assigned: PROJ, SPENT
+    no orphaned call or expansion
+  d6rf3_run_arm.sh         functions removed: none             variables no longer assigned: none
+    no orphaned call or expansion
+  TOTAL ORPHANS IN THE CLASS: 0
+
+=========== 7. bash -n (NECESSARY, AND PROVEN INSUFFICIENT ABOVE) =========
   OK   d6rf3_run_arm.sh
   OK   d6rf3_chain_driver.sh
+  OK   d6rf3_final_spend_control.sh
+  NOTE: bash -n passed on the ORPHANED driver too. It is a SYNTAX check and an
+        undefined function is a RUNTIME failure. Section 6 above is the check
+        whose scope actually covers that failure.
 
-=========== 7. NO BARE `assert` ANYWHERE (python -O deletes them) =========
+=========== 8. NO BARE `assert` ANYWHERE (python -O deletes them) =========
   d6rf3_anchor_gate.py               ast.Assert=0
   d6rf3_cd_plant_control.py          ast.Assert=0
   d6rf3_endpoint_locus.py            ast.Assert=0
