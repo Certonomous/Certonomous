@@ -872,7 +872,13 @@ run_tail_arm() {
   write_manifest TAIL "$IMG" "${DIG_WARP% *}" "${DIG_WARP#* }"
   t0="$(date +%s)"
   set +e
-  timeout 40500 docker run --rm --user 0:0 --cpuset-cpus="0" --memory=8g \
+  # 41,400 s = cap x 1.02.  RULED by the dafoam-supervisor 2026-09-05.  At the
+  # registered 40,500 s the deadline was EXACTLY the cap's wall-equivalent, so
+  # the cap could never bind first and was a DEAD LEVER.  Raising the BACKSTOP
+  # so the registered cap can actually stop the arm STRENGTHENS enforcement --
+  # it is not a threshold widened toward a pass, and no gate, band or
+  # threshold moves with it.
+  timeout 41400 docker run --rm --user 0:0 --cpuset-cpus="0" --memory=8g \
     -e OMP_NUM_THREADS=1 -v "$TAIL_CASE:/mnt" -v "$RUN_ROOT:/run_root" \
     "$IMG" /bin/bash -lc "source $DAFOAM_LOADER && cd /mnt && python /run_root/runScript.py -task sweep" \
     > "$TAIL_OUT/sweep.log" 2>&1

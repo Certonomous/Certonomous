@@ -1217,7 +1217,7 @@ def main(argv=None) -> int:
 # Registered in draft section 5.4.  ranks = 1 is section 3's registered program.
 CAP_LEGS = {
     "SEAM": {"cap_core_min": 10.0,  "ranks": 1, "deadline_s": 900},
-    "TAIL": {"cap_core_min": 675.0, "ranks": 1, "deadline_s": 40500},
+    "TAIL": {"cap_core_min": 675.0, "ranks": 1, "deadline_s": 41400},
 }
 CAP_ITEM_CEILING = 685.0
 
@@ -1737,35 +1737,69 @@ def _leg_cap_reachability() -> None:
     inverted the finding: 600 s makes `SEAM` a DEAD LEVER (cap_wall 600 s == a
     600 s deadline, and `<` is strict), while the registered 900 s is REACHABLE
     with 50 % headroom.  The edit was reverted.  **The genuine dead lever is
-    `TAIL`**, whose 675.0 core-min cap is exactly its 40,500 s deadline.
-    A check beats an argument, which is the entire reason the order was given."""
+    `TAIL`**, whose 675.0 core-min cap WAS exactly its 40,500 s deadline.
+    A check beats an argument, which is the entire reason the order was given.
+
+    RESOLVED 2026-09-05: the supervisor RULED `TAIL`'s in-container deadline
+    40,500 -> 41,400 s (cap x 1.02), so the REGISTERED CAP CAN ACTUALLY BIND and
+    the deadline is a real backstop behind it.  That RAISES A BACKSTOP so an
+    existing cap becomes enforceable: it moves no gate, no band and no
+    threshold, and it is not a widening toward a pass -- a deadline sitting
+    exactly at the cap is what made the cap unenforceable.  The 40,500 tie is
+    pinned by `cap-reach/tail-tie-is-caught` so the state this item was
+    registered in until 2026-09-05 cannot return unnoticed.
+
+    ⚠ HEADROOM IS REPORTED AS A FRACTION OF THE CAP, NOT OF THE DEADLINE, and
+    the two differ enough to matter in a record: SEAM reads **50.0 %** here
+    (900/600 - 1) where the same gap is 33.3 % if taken over the deadline
+    ((900-600)/900).  This file uses `w3s_stage_record.py`'s definition, so the
+    two items' figures are comparable.  Stated because one number under two
+    conventions is how a record acquires a contradiction nobody planted."""
 
     def registered_is_read():
         rc, body = cap_reachability()
         rows = {r["leg"]: r for r in body["legs"]}
         _must(rows["SEAM"]["cap_wall_s"] == 600.0,
               "SEAM cap_wall_s %r" % rows["SEAM"]["cap_wall_s"])
+        _must(rows["TAIL"]["cap_wall_s"] == 40500.0,
+              "TAIL cap_wall_s %r" % rows["TAIL"]["cap_wall_s"])
         _must(rows["SEAM"]["reachable"] is True, "SEAM should be REACHABLE")
-        _must(rows["TAIL"]["reachable"] is False, "TAIL should be a DEAD LEVER")
-        _must(rc == 64, "rc %r" % rc)
+        _must(rows["TAIL"]["reachable"] is True, "TAIL should be REACHABLE")
+        _must(rc == 0, "the registered table must now return 0, got %r" % rc)
         _must(body["caps_sum_equals_ceiling"] is True, "caps must sum to 685.0")
-        return ("SEAM cap 10.0 core-min = 600.0 s wall against a 900 s "
-                "deadline -> REACHABLE, 50.0 % headroom.  TAIL cap 675.0 "
-                "core-min = 40500.0 s against a 40500 s deadline -> DEAD "
-                "LEVER (equality is not reachable).  rc=64, THE ITEM DOES NOT "
-                "FREEZE on TAIL")
+        return ("SEAM 600.0 s wall vs a 900 s deadline -> REACHABLE (%.1f %% "
+                "headroom); TAIL 40500.0 s wall vs the RULED 41400 s deadline "
+                "-> REACHABLE (%.1f %% headroom); caps sum 685.000 == ceiling. "
+                "rc=0" % (rows["SEAM"]["headroom_pct"],
+                          rows["TAIL"]["headroom_pct"]))
+
+    def tail_tie_is_caught():
+        """The DEFECT AS REGISTERED UNTIL 2026-09-05, pinned so it cannot come
+        back.  TAIL's deadline WAS exactly its cap's wall-equivalent."""
+        legs = {"SEAM": {"cap_core_min": 10.0, "ranks": 1, "deadline_s": 900},
+                "TAIL": {"cap_core_min": 675.0, "ranks": 1,
+                         "deadline_s": 40500}}
+        rc, body = cap_reachability(legs, 685.0)
+        _must(rc == 64, "the 40500 tie must be caught, got rc %r" % rc)
+        _must([d["leg"] for d in body["dead_levers"]] == ["TAIL"],
+              "TAIL alone should be dead, got %r" % body["dead_levers"])
+        return ("TAIL's ORIGINAL 40500 s deadline replayed: cap_wall 40500.0 s "
+                "== deadline 40500 s -> DEAD LEVER, rc=64.  This is the state "
+                "the item was registered in until the 2026-09-05 ruling, and "
+                "it is pinned here so it cannot return unnoticed")
 
     def healthy_tree_is_clean():
-        legs = {"SEAM": {"cap_core_min": 10.0, "ranks": 1, "deadline_s": 900},
+        legs = {"SEAM": {"cap_core_min": 10.0, "ranks": 1, "deadline_s": 901},
                 "TAIL": {"cap_core_min": 675.0, "ranks": 1,
                          "deadline_s": 40501}}
         rc, body = cap_reachability(legs, 685.0)
         _must(rc == 0, "a healthy table must return 0, got %r" % rc)
         _must(not body["dead_levers"], "no dead levers expected")
-        return ("with TAIL's deadline at 40501 s the same checker returns rc=0 "
-                "and 0 dead levers -- so it is a checker, not a function that "
-                "refuses everything.  ONE SECOND is the whole difference, and "
-                "that is what `<` being strict means")
+        return ("a MINIMAL healthy table -- each deadline ONE SECOND above its "
+                "cap's wall-equivalent -- returns rc=0 and 0 dead levers.  One "
+                "second is the whole difference, which is what `<` being "
+                "strict means, and it shows the checker is not a function that "
+                "refuses everything")
 
     def my_own_inverted_edit_is_caught():
         legs = {"SEAM": {"cap_core_min": 10.0, "ranks": 1, "deadline_s": 600},
@@ -1789,7 +1823,8 @@ def _leg_cap_reachability() -> None:
         return ("caps summing to 684.0 against a registered 685.0 ceiling "
                 "REFUSES: a registration whose parts do not equal its whole")
 
-    _control("cap-reach/registered-table-is-read", "fail", registered_is_read)
+    _control("cap-reach/registered-table-is-read", "pass", registered_is_read)
+    _control("cap-reach/tail-tie-is-caught", "fail", tail_tie_is_caught)
     _control("cap-reach/healthy-table-is-clean", "pass", healthy_tree_is_clean)
     _control("cap-reach/inverted-edit-is-caught", "fail",
              my_own_inverted_edit_is_caught)

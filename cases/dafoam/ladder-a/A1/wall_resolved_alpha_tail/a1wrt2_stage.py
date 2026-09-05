@@ -154,11 +154,23 @@ SEAM_SRC_TIME = "4000"
 # stated reason -- that a silently authored start condition would be "a
 # registered gate where no reviewer would look for it" -- is satisfied by
 # putting the bytes where a reviewer does look: in the freeze commit.
+# ⚠ THE TWO FIXTURES ARE BOUND THROUGH `FIXTURES / "<literal>"`, AND THE FORM IS
+# LOAD-BEARING.  `a1wrt2_instruments.py` resolves module-level `HERE`/`FIXTURES`
+# joins out of the AST; a path assembled from a dict VALUE is DYNAMIC and never
+# enters the instrument table.  Written first as `"fixtures/..." ` strings inside
+# the dict, these two files were staged and md5-asserted by the stager while the
+# extraction table reported `15 present, 0 ABSENT` WITHOUT THEM -- which is draft
+# section 11 item 2's stated failure mode word for word: *"an md5-agreement
+# control can read 8 of 8 while a dependency the frozen code executes is
+# absent."*  This is the same lesson `a1wrt2_run_arm.sh`'s MANIFEST producer
+# records: WRITE IT IN THE FORM THE EXTRACTOR READS DIRECTLY, rather than
+# widening the extractor to follow an inference a reader cannot check.
+FIXTURES = HERE / "fixtures"
+CONTROLDICT_SEAM = FIXTURES / "controlDict_SEAM_continued"
+CONTROLDICT_TAIL = FIXTURES / "controlDict_TAIL_continued"
 CONTROLDICT_FIXTURE = {
-    "SEAM": ("fixtures/controlDict_SEAM_continued",
-             "ddcedcff52df02e9aa8d64ffd504ebdf"),
-    "TAIL": ("fixtures/controlDict_TAIL_continued",
-             "b81adcc9d4062fa8b121bff0baab22fc"),
+    "SEAM": (CONTROLDICT_SEAM, "ddcedcff52df02e9aa8d64ffd504ebdf"),
+    "TAIL": (CONTROLDICT_TAIL, "b81adcc9d4062fa8b121bff0baab22fc"),
 }
 
 ARMS = ("SEAM", "TAIL")
@@ -616,8 +628,8 @@ def stage(arm: str, run_root: Path, src: Path, out: list) -> dict:
     #           over staged bytes and still refuses if they are not a
     #           continuation -- the assertion is not weakened, it is finally
     #           given something to assert over.
-    cd_rel, cd_md5 = CONTROLDICT_FIXTURE[arm]
-    cd_src = HERE / cd_rel
+    cd_src, cd_md5 = CONTROLDICT_FIXTURE[arm]
+    cd_rel = cd_src.name
     if not cd_src.exists():
         abort("CONTROLDICT_FIXTURE_ABSENT",
               "the registered continuation controlDict fixture %s is absent.  "
@@ -1111,12 +1123,11 @@ def _leg_refusals() -> None:
         bad = tmp / "bad_controlDict"
         bad.write_text("startFrom       startTime;\nstartTime       0;\n"
                        "stopAt endTime;\nendTime 4200;\n")
-        CONTROLDICT_FIXTURE["SEAM"] = (
-            os.path.relpath(str(bad), str(HERE)), md5_of(bad))
+        CONTROLDICT_FIXTURE["SEAM"] = (bad, md5_of(bad))
         return src
 
     def _restore_fixture():
-        CONTROLDICT_FIXTURE["SEAM"] = ("fixtures/controlDict_SEAM_continued",
+        CONTROLDICT_FIXTURE["SEAM"] = (CONTROLDICT_SEAM,
                                        "ddcedcff52df02e9aa8d64ffd504ebdf")
     try:
         drive("abort/controldict-not-continued", "CONTROLDICT_NOT_CONTINUED",
@@ -1128,7 +1139,16 @@ def _leg_refusals() -> None:
     #    whose bytes have drifted from the registered pin.
     def _cd_absent(tmp, rr):
         src = _mk_source(tmp)
-        CONTROLDICT_FIXTURE["SEAM"] = ("fixtures/no_such_controlDict", "0" * 32)
+        # ⚠ THE ABSENT PATH IS A TEMPDIR PATH, NOT `FIXTURES / "<literal>"`, AND
+        # THE EXTRACTOR IS WHY.  Written first as a literal under `fixtures/`,
+        # `a1wrt2_instruments.py` DERIVED IT AS A DEPENDENCY and the table came
+        # back `17 present, 1 ABSENT`, rc=5 -- correctly, because a literal join
+        # under the item directory is indistinguishable from a real one.  The
+        # repair is to stop naming a repo file that must not exist, NOT to teach
+        # the extractor to ignore one: a checker taught to skip a class of path
+        # is a checker with a hole shaped like that class.  A tempdir path is
+        # genuinely not a repository dependency, so nothing is being hidden.
+        CONTROLDICT_FIXTURE["SEAM"] = (tmp / "no_such_controlDict", "0" * 32)
         return src
     try:
         drive("abort/controldict-fixture-absent", "CONTROLDICT_FIXTURE_ABSENT",
@@ -1138,8 +1158,7 @@ def _leg_refusals() -> None:
 
     def _cd_md5(tmp, rr):
         src = _mk_source(tmp)
-        CONTROLDICT_FIXTURE["SEAM"] = ("fixtures/controlDict_SEAM_continued",
-                                       "f" * 32)
+        CONTROLDICT_FIXTURE["SEAM"] = (CONTROLDICT_SEAM, "f" * 32)
         return src
     try:
         drive("abort/controldict-fixture-md5", "CONTROLDICT_FIXTURE_MD5",

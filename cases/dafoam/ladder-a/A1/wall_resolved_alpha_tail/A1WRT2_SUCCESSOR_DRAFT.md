@@ -1606,3 +1606,169 @@ own billing). **No solver runs.** The 2026-09-04 banner said *"NO container, NO 
 **NOT FROZEN. NOT PINNED. NOT ENQUEUED. NOT LAUNCHED. NO SOLVER COMPUTE SPENT — one 2-second
 container for the image pins, authorised and costed above.
 SUBMISSIONS PARKED — nothing here is filed, sent, uploaded, posted or registered anywhere.**
+
+### 11.5 AMENDMENT — 2026-09-05. **`TAIL`'s IN-CONTAINER DEADLINE 40,500 → 41,400 s, RULED. THE DEAD LEVER IS CLOSED AND BOTH LEGS NOW READ REACHABLE.**
+
+**Lawful because this document is UNFROZEN and no compute has been spent against its gates**
+(`CLAUDE.md` rule 2 limb 1). **Condition, CHECKED BY EXECUTION in this amending invocation:**
+`/home/ubuntu/certonomous-runs/A1WRT2` **does not exist** — `ls -d` and `ls -la` both rc=2, timestamp
+printed to that invocation's own output. **Rule 6: lines whose number changed above this section: 0.**
+
+**THE STRUCK FIGURE, quoted verbatim from §5.4's table, `TAIL` row, in-container deadline column:**
+
+> ~~40,500 s~~
+
+**REPLACED BY: 41,400 s** — `cap × 1.02`. **Ruled by the `dafoam-supervisor` 2026-09-05.**
+
+**WHY, AND THE DIRECTION IS STATED RATHER THAN LEFT TO BE QUESTIONED.** At 40,500 s the deadline was
+**exactly** the cap's wall-equivalent (675.0 core-min × 60 ÷ 1 rank), so under the lab's registered
+rule `cap × 60 / ranks < deadline` — `<` strict — **the cap could never bind first and was a DEAD
+LEVER**: a registered number no execution path could reach, with every sentence about "the cap stops
+the run" false of it.
+
+> **THIS IS NOT A THRESHOLD WIDENED TOWARD A PASS, AND NO GATE, BAND OR THRESHOLD MOVES.** A deadline
+> sitting at the cap is what made the CAP UNENFORCEABLE. Raising the **backstop** so the **registered
+> cap** can actually stop the arm **strengthens** enforcement. The cap itself is unchanged at 675.0,
+> `SEAM`'s cap and deadline are unchanged at 10.0 / 900 s, and the caps still sum to the registered
+> ceiling — an identity this item has now asserted three times.
+
+**LOWERING THE CAP INSTEAD WAS CONSIDERED AND REJECTED, ON THE RECORD:** it would break
+`10.0 + 675.0 = 685.0`, the caps-sum-equals-ceiling identity, which the reachability check refuses on
+independently.
+
+**DRIVEN, over BOTH legs, after the change:**
+
+| leg | cap | cap as wall s | deadline | verdict | headroom |
+|---|---|---|---|---|---|
+| `SEAM` | 10.0 core-min | 600.0 s | 900 s | **REACHABLE** | **50.0 %** |
+| `TAIL` | 675.0 core-min | 40,500.0 s | **41,400 s** | **REACHABLE** | **2.2 %** |
+
+caps sum **685.000** = registered ceiling **685.000** ✓ — **`a1wrt2_instruments.py` with no arguments
+now returns rc = 0.**
+
+> **⚠ ONE NUMBER, TWO CONVENTIONS, AND THE RECORD SHOULD CARRY ONLY ONE.** The ruling quoted `SEAM`'s
+> headroom as **+33.3 %**; this instrument reports **50.0 %**. Both describe the same 300 s gap:
+> 33.3 % takes it over the **deadline** ((900−600)/900), 50.0 % over the **cap** (900/600 − 1). **This
+> item uses `w3s_stage_record.py`'s definition — a fraction of the cap — so that the two items'
+> figures are comparable.** `TAIL`'s **2.2 %** is the same convention and agrees with the ruling.
+> *Stated because one number under two conventions is how a record acquires a contradiction nobody
+> planted.*
+
+**THE OLD STATE IS PINNED, NOT JUST FIXED.** `cap-reach/tail-tie-is-caught` replays the 40,500 s
+deadline and requires **rc = 64 with `TAIL` named as the sole dead lever** — so the state this item
+was registered in until today cannot return unnoticed. It sits beside
+`cap-reach/inverted-edit-is-caught`, which replays **this lane's own reverted 900 → 600 edit** and
+requires `SEAM` to be caught. **Both of this session's cap errors are now controls.**
+
+**NOTHING ELSE MOVES.** `PASS` remains unreachable by construction, `P4` remains registered UNHEDGED
+and predicted to MISS, `P-SEAMTIME` stands as written, `DAFOAM_CHARTER.md` §6's two-row obligation
+still **BINDS**, and the ceiling remains `GATE REACHED`.
+
+### 11.6 THE FREEZE PACKAGE, HANDED TO THE `dafoam-supervisor`. **EVERY `[OWED — GATES THE FREEZE]` ITEM IS CLOSED BY MEASUREMENT. THE FREEZE COMMIT AND ITS RUN-ROOT CHECK ARE THE SUPERVISOR'S.**
+
+**Condition, CHECKED BY EXECUTION in the invocation that wrote this section:**
+`/home/ubuntu/certonomous-runs/A1WRT2` **does not exist** — `ls -d` and `ls -la` both rc=2 at
+**2026-09-05T21:50:21Z**. **Rule 6: lines whose number changed above this section: 0.**
+
+> **⚠ THIS IS NOT THE FREEZE.** §11 item 4 requires the run root re-checked **ABSENT BY EXECUTION IN
+> THE FREEZING SHELL**, and §11 items 5 and 6 are the supervisor's
+> `SUPERVISION_CHARTER.md` §3 checks, **not delegable and not performed here.**
+> This section is the package, not the act.
+>
+> *(Repair note, disclosed rather than silently corrected: this line was written
+> through an UNQUOTED heredoc and the shell command-substituted the backticked
+> filename, deleting it. One occurrence, restored here; every other line of
+> §11.6 was compared against its intended text and is intact. The lab's own
+> lesson on backticks in shell-authored text is why it was checked at all.)*
+
+#### 11.6.1 ONE MORE EXTRACTION FINDING, FOUND WHILE ASSEMBLING THIS PACKAGE
+
+**The two new `controlDict` fixtures were staged and md5-asserted by the stager while the extraction
+table read `15 present, 0 ABSENT` WITHOUT THEM.** They were bound through a dict of *strings*, and
+`a1wrt2_instruments.py` resolves only module-level `HERE`/`FIXTURES` joins out of the AST — so a
+path assembled from a dict value is **dynamic and never enters the table.**
+
+**That is §11 item 2's stated failure mode, word for word:** *"an md5-agreement control can read 8 of
+8 while a dependency the frozen code executes is absent."* **The item would have frozen with two
+executed dependencies outside its own instrument table.** Repaired by binding them as
+`FIXTURES / "<literal>"` — **the form the extractor reads directly**, the same lesson
+`a1wrt2_run_arm.sh`'s MANIFEST producer already carries. Derived count **15 → 17**.
+
+> **AND THE EXTRACTOR THEN CAUGHT THIS LANE A SECOND TIME.** The `fixture-absent` control named
+> `FIXTURES / "no_such_controlDict"` as a literal; the table came back **`17 present, 1 ABSENT`,
+> rc=5** — correctly, because a literal join under the item directory is indistinguishable from a
+> real dependency. **The repair was to stop naming a repo file that must not exist, NOT to teach the
+> extractor to ignore one:** *a checker taught to skip a class of path is a checker with a hole shaped
+> like that class.*
+
+#### 11.6.2 THE FOUR FREEZE CONDITIONS, EACH WITH THE MEASUREMENT THAT CLOSES IT
+
+| § | condition | closed by | state |
+|---|---|---|---|
+| 1 | every instrument written, **and a producer for every `PRODUCTS` name or a named deferral** | producer trace: **9 consumed, 8 traced, 1 named deferral, 0 UNTRACED** | **CLOSED** |
+| 1a | the producer trace **by extraction**, not by reading | built §11.2.3, 6 controls, planted both ways | **CLOSED** |
+| 2 | instrument table **by extraction**, existence asserted **BEFORE** md5 | **17 present, 0 ABSENT**, then md5 — the two sections print separately and in that order | **CLOSED** |
+| 3 | every control driven both directions, **`EXERCISED-*` printed**, counts in the banner | **0 NOT EXERCISED across the whole item** (see table below) | **CLOSED** |
+| 4 | run root **ABSENT BY EXECUTION IN THE FREEZING SHELL** | checked here at **2026-09-05T21:50:21Z**, rc=2 — **but the freezing shell's check is the supervisor's** | **SUPERVISOR'S** |
+
+#### 11.6.3 THE CONTROL CENSUS AT HAND-OVER
+
+| instrument | rc (`python3` / `-O`) | legs | controls | EXERCISED-FAIL | EXERCISED-PASS | NOT EXERCISED |
+|---|---|---|---|---|---|---|
+| `a1wrt2_grade.py` | **0 / 0** | 7 | **77** | 48 | 29 | **0** |
+| `a1wrt2_instruments.py` | **0 / 0** | **8** | **22** | 13 | 9 | **0** |
+| `a1wrt2_stage.py` | **0 / 0** | 5 | **28** | 18 | 10 | **0** |
+| `a1wrt2_run_arm.sh` | **0** | — | **26** | — | — | **0** |
+| | | | **153 controls** | | | **0** |
+
+`ast.Assert` = **0** in all three python instruments, each audited by its own file's control shown
+able to see a planted one. `a1wrt2_instruments.py` **with no arguments returns rc = 0**: existence
+clean, coverage clean, producer trace clean, **cap reachability clean on BOTH legs.**
+
+#### 11.6.4 THE md5 MANIFEST AT HAND-OVER — WHAT THE SUPERVISOR IS FREEZING
+
+| instrument | md5 |
+|---|---|
+| `a1wrt2_grade.py` | `c6c69e42864acb3dfb1dcd525d8e0c86` |
+| `a1wrt2_instruments.py` | `0ce49e043efedb88ff95bd87f6a1dfaa` |
+| `a1wrt2_run_arm.sh` | `00caacf4f7772be1e85c5fc5f18d96de` |
+| `a1wrt2_stage.py` | `82f23baf911aac5938334e23214d2bd0` |
+| `fixtures/controlDict_SEAM_continued` | `ddcedcff52df02e9aa8d64ffd504ebdf` |
+| `fixtures/controlDict_TAIL_continued` | `b81adcc9d4062fa8b121bff0baab22fc` |
+| `a1wr_runScript_incomp.py` (inherited, another item's frozen instrument) | `d48f48c5e2e41e86981acbf6feccb3c4` |
+
+**Image pins, BOTH MEASURED OUT OF THE IMAGE 2026-09-05:** digest
+`sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35`, `libidwarp`
+`85f59e87253e0a71a813f64ca6e4c425` — both equal to their registered pins.
+
+#### 11.6.5 §5's ARITHMETIC AT HAND-OVER, FOR THE §3 CHECK 4 READING
+
+| line | expression | value |
+|---|---|---|
+| `SEAM` estimate | 200 × 0.46178 ÷ 60 + 93.85 ÷ 60 | **3.10344** core-min |
+| `SEAM` cap ÷ estimate | 10.0 ÷ 3.10344 | **3.222×** |
+| `SEAM` cap as wall / deadline | 600.0 s / **900 s** | **REACHABLE, 50.0 % headroom** |
+| `TAIL` estimate | 184.712 + 1.56417 + 38.4817 | **224.758** |
+| `TAIL` cap ÷ estimate | 675.0 ÷ 224.758 | **3.003×** |
+| `TAIL` cap as wall / deadline | 40,500.0 s / **41,400 s** *(ruled §11.5)* | **REACHABLE, 2.2 % headroom** |
+| ITEM estimate | 3.10344 + 224.758 | **227.861** |
+| ITEM CEILING | 10.0 + 675.0 | **685.0** = caps sum ✓ |
+| pessimistic bracket end | 325.9928 + 38.48 + 3.13 | **367.603** *(§11.3.4 defect 2; doc prints 367.2)* |
+| `TAIL` cap ÷ bracket end | 675.0 ÷ 367.603 | **1.836 → 1.84×** ✓ |
+| dollars, point | 227.861 ÷ 60 × $0.0513 | **$0.19482 — DERIVED, `cost_basis` REPORTED-BY-OWNER** |
+| spent so far on instruments | one 2 s container × 1 rank | **0.033 core-min, $0.00003 DERIVED** |
+
+#### 11.6.6 WHAT REMAINS TRUE AND IS NOT ARGUED AWAY
+
+**`PASS` is unreachable by construction** — no Roache triple exists in this item. **The tail points
+will very likely not converge** (`P3`). **No stall angle may be reported** — `G-STALL` refuses at
+exit 2. **`P4` stays registered UNHEDGED and predicted to MISS.** **`DAFOAM_CHARTER.md` §6's two-row
+obligation BINDS**; this item ships **ONE row, `PATCHED`, labelled as such** and discharges nothing.
+**The ceiling is `GATE REACHED`.**
+
+**And the one thing `SEAM` exists to buy is still unbought and still unknown: whether this producer
+honours `startFrom latestTime` at all.** `P-SEAMTIME` is registered, the falsifier sits in front of
+the only expensive arm, and **10.0 core-min settles it either way.**
+
+**NOT FROZEN. NOT PINNED. NOT ENQUEUED. NOT LAUNCHED. NO SOLVER COMPUTE SPENT.
+SUBMISSIONS PARKED — nothing here is filed, sent, uploaded, posted or registered anywhere.**
