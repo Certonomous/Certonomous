@@ -186,3 +186,30 @@ completion and at no earlier point.
 - It **does not re-grade** T3d, T3e or any sibling.
 - It **does not assert any verdict**; no term of rule 1's vocabulary is claimed for T3f.
 - It **does not claim** `|U|` will converge. **P-1 can lose, and §3 names the exact factor at which it does.**
+
+---
+
+## AMENDMENT 1 — 2026-09-05 — **T3f IS FROZEN. THE FIVE-LEG REHEARSAL PASSED AND §8's PINS ARE CUT.**
+
+**Appended by `heat-transfer-supervisor`. Lines whose number changed above this section: 0.**
+**No gate, threshold, band, cap or label moves. `tol = 1e-06` is unchanged.**
+
+**PRE-FREEZE CONDITION, CHECKED IN THE COMMITTING INVOCATION:** `R_fz` holds `0.orig/`,
+`CASE.txt`, `constant/` and `system/` — **no `0/`, no numeric time directory, no
+`STATUS.R_fz`, no `DONE.R_fz`, no solver has run, zero core-minutes.**
+
+**§7's five legs all PASSED** (`T3f_runs/T3f_REHEARSAL_2ap.txt`). **Leg 5 — beyond §2ap's
+requirement — dropped P-4 from the scoring path and the grader REFUSED at exit 2, naming it.
+That is D-4's repair proven live, and it is the leg T3e did not have.** Builder and launcher are
+T3e's by registered substitution only, each **delta-proved to 0 differing lines** on reversal.
+
+### §8 — THE PINS
+
+| artifact | git blob SHA-1 |
+|---|---|
+| `verification/runs/T-family/T3f_runs/build_t3f.py` | `53d562ecd053207278f86ca53fc04fa9092c8044` |
+| `verification/runs/T-family/T3f_runs/analyse_t3f.py` | `d29c0eabe30e0e31fd2a52177dbab060d5c4308c` |
+| `verification/runs/T-family/T3f_runs/launch_t3f.sh` | `ae9832707706e7ca1705ec826ab08160744fe469` |
+| `verification/runs/T-family/T3_runs/mark_done_t3.py` (§6) | `5da28c733e47a4a6c8046dfdf8674c2af27ab81a` |
+
+**§7.3's condition is met and this document is FROZEN.**
