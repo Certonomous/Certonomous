@@ -54,9 +54,11 @@ NO `assert` STATEMENT APPEARS IN THIS FILE.
 import json
 import math
 import os
+import re
 import shutil
 import sys
 import tempfile
+import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -132,6 +134,38 @@ def _dv_doc():
             "patchV_cl06": [30.0, 2.5]}
 
 
+LEDGER_ROW = (
+    "ARM={arm} ROW=PATCHED IMG=dafoam-idwarp-rot:v1 DIGEST={dig} rc=0 "
+    "wall_s={wall} ranks=4 core_min={cm} cap_core_min={cap} "
+    "enforced_wall_s={tmo} enforced_core_min={cap} memory=20g "
+    "inspect(exit,oomkilled)=[0 false] container_wall_s={cw} "
+    "frame_allowance_s=90 memavail_pre_GiB=26.00 memavail_post_GiB=26.00 "
+    "cpuset=2,3,4,14 delivered_cores_mean=[3.9900 n=10 max_nr_throttled=0] "
+    "siblings_pre=[] siblings_post=[] log={arm}_fix.log\n")
+
+
+def _ledger(path, overrides=None):
+    """A clean two-arm ledger. `overrides` replaces one field's TOKEN AS TEXT,
+    which is how a real malformed ledger arrives -- the mutation must go in as
+    the launcher would have written it, not as a Python float."""
+    ov = overrides or {}
+    with open(path, "w") as fh:
+        fh.write("ITEM=D6RF3 staged=fixture\n")
+        for arm in ("F_mp", "REF_off"):
+            row = LEDGER_ROW.format(arm=arm, dig=G.DIGEST_PATCHED,
+                                    wall=1000, cm=10.0, cap=G.CAPS[arm],
+                                    tmo=G.TMO[arm], cw=995)
+            for field, token in ov.get(arm, {}).items():
+                row = re.sub(r'(?<= )%s=\S+' % re.escape(field),
+                             "%s=%s" % (field, token), row)
+            fh.write(row)
+
+
+def _ledger_rows(path):
+    rows, _ = G.parse_ledger(path)
+    return rows
+
+
 def _d4_ipopt(path):
     with open(path, "w") as fh:
         fh.write("Number of Iterations....: 80\n\n"
@@ -140,20 +174,40 @@ def _d4_ipopt(path):
                  % (G.CD_F_D4_RECORDED, G.CD_F_D4_RECORDED))
 
 
-def build(root):
+def build(root, ledger_overrides=None):
+    """A complete two-arm fixture: every REGISTERED_PRODUCT, an age datum older
+    than every product, a terminal-line log for the SOLVER arm, an `.ok.`
+    marker for the SCRIPT arm, a ledger and D4's reference. Complete enough
+    that `G1` and `G-CAPS` are drivable, which the section 3f WIDENING of
+    2026-09-05 requires -- a widened clause is not established until the gates
+    it was widened to have been driven in both directions like the rest."""
     if os.path.isdir(root):
         shutil.rmtree(root)
     for a in ("F_mp", "REF_off"):
         os.makedirs(os.path.join(root, a))
+    datum = time.time() - 100.0
     f = os.path.join(root, "F_mp")
     _w(os.path.join(f, "d6rf3_fd_endpoint.json"), _fd_doc())
     _w(os.path.join(f, "d6rf3_major_history.json"), _hist_doc())
     _w(os.path.join(f, "d6rf3_endpoint_dvs_PHYSICAL.json"), _dv_doc())
+    _w(os.path.join(f, "d6rf3_endpoint_dvs_DRIVERSCALED.json"), _dv_doc())
+    _w(os.path.join(f, "d6rf3_endpoint_dvs.json"), _dv_doc())
     r = os.path.join(root, "REF_off")
     _w(os.path.join(r, "d6rf3_ref_off.json"), _ref_doc())
     _w(os.path.join(r, "d4_endpoint_dvs_PHYSICAL.json"), _dv_doc())
+    _w(os.path.join(r, "d4_endpoint_dvs.json"), _dv_doc())
+    for a in ("F_mp", "REF_off"):
+        with open(os.path.join(root, a, ".d4_age_datum"), "w") as fh:
+            fh.write("%.3f" % datum)
+        log = os.path.join(root, "%s_fix.log" % a)
+        with open(log, "w") as fh:
+            fh.write("start\nD4S_IDWARP_SO_MD5: %s\n%s\n"
+                     % (G.IDWARP_SO_MD5, G.TERMINAL_STATEMENT))
+        if G.ARM_KIND[a] != "SOLVER":
+            open(log + ".ok.fix", "w").close()
     d4 = os.path.join(root, "d4_opt_IPOPT.txt")
     _d4_ipopt(d4)
+    _ledger(os.path.join(root, "ledger.txt"), ledger_overrides)
     return d4
 
 
@@ -262,6 +316,100 @@ def _reason_ok(res, artefact, expect_key):
         d.get("token_as_read"))
 
 
+LEDGER_CASES = (
+    ("G-CAPS  core_min      ", "caps", "F_mp", "core_min"),
+    ("G-CAPS  container_wall", "caps", "F_mp", "container_wall_s"),
+    ("G-CAPS  frame_allow   ", "caps", "F_mp", "frame_allowance_s"),
+    ("G1      core_min      ", "g1", "F_mp", "core_min"),
+    ("G1      wall_s        ", "g1", "F_mp", "wall_s"),
+)
+
+
+def _drive_ledger(root, d4):
+    """The 2026-09-05 WIDENING of section 3f to `G-CAPS` and `G1`, driven in
+    both directions.
+
+    The mutation goes in AS A TEXT TOKEN in the ledger row, exactly as a
+    malformed launcher would have written it -- `core_min=nan`, not a Python
+    float handed to the gate. A harness that injected a float would be testing
+    the gate's arithmetic and not the ledger reader that actually failed.
+
+    THE MEASURED SHAPE THIS CLOSES: `nan <= cap` is False, so `within_cap` was
+    False and `G-CAPS` returned **GATE FAIL** -- an accusation that an arm
+    BREACHED ITS BUDGET, manufactured from a non-number. That is `D6RF3-DEF-5`
+    one gate over and it is the most damaging form of it, because a cap breach
+    is a finding about discipline rather than about physics."""
+    rc, n1, n2 = 0, 0, 0
+    for label, which, arm, field in LEDGER_CASES:
+        def run(ov=None):
+            build(root, ov)
+            rows, _ = G.parse_ledger(os.path.join(root, "ledger.txt"))
+            cen = G.arm_census(root, rows, None)
+            if which == "caps":
+                return G.gate_caps(rows, cen)
+            return G.gate_g1(root, rows, cen)
+
+        # ---- direction 2: unmutated -------------------------------------
+        try:
+            clean = run()
+        except Exception as e:                                  # noqa: BLE001
+            print("  FAIL %s  direction 2 (unmutated) RAISED %s: %s"
+                  % (label, type(e).__name__, str(e)[:200]))
+            rc = 1
+            continue
+        clean_nar = (clean.get("verdict") == "NOT A RESULT"
+                     or clean.get("reason") == G.NON_FINITE_REASON)
+        if not clean_nar:
+            n2 += 1
+        else:
+            rc = 1
+        print("  %-4s %s direction 2  unmutated -> %s"
+              % ("OK" if not clean_nar else "FAIL", label,
+                 clean.get("verdict", "ran_clean=%s" % clean.get("ran_clean"))))
+
+        # ---- direction 1: the token replaced, one at a time --------------
+        for name, _v in NONFINITE:
+            token = {"NaN": "nan", "+Inf": "inf", "-Inf": "-inf"}[name]
+            try:
+                res = run({arm: {field: token}})
+            except Exception as e:                              # noqa: BLE001
+                print("      FAIL %s %-5s RAISED %s -- a refusal is not the "
+                      "registered behaviour" % (label, name, type(e).__name__))
+                rc = 1
+                continue
+            d = res.get("non_finite") or {}
+            if not d:
+                for row in (res.get("arms") or {}).values():
+                    if isinstance(row, dict) and row.get("non_finite"):
+                        d = row["non_finite"]
+                        break
+            good = (d.get("reason") == G.NON_FINITE_REASON
+                    and field in str(d.get("key"))
+                    and "ledger.txt" in str(d.get("artefact")))
+            # AND the composed verdict must be NOT A RESULT for THIS reason,
+            # at rung 0 -- not swallowed as a completion-clause failure.
+            if good and which == "g1":
+                rows, _ = G.parse_ledger(os.path.join(root, "ledger.txt"))
+                cen = G.arm_census(root, rows, None)
+                v, why = G.compose(res, {"verdict": "PASS", "gate": "d"},
+                                   {"verdict": "PASS", "gate": "f"},
+                                   {"verdict": "PASS", "gate": "o"},
+                                   {"verdict": "PASS", "gate": "p"},
+                                   G.gate_caps(rows, cen),
+                                   {"verdict": "PASS", "gate": "t"},
+                                   {"verdict": "PASS", "gate": "z"}, cen)
+                good = (v == "NOT A RESULT"
+                        and any("rung 0" in r for r in why))
+            if good:
+                n1 += 1
+            else:
+                rc = 1
+            print("      %-4s %s %-5s -> %-13s reason=%s key=%s"
+                  % ("OK" if good else "FAIL", label, name,
+                     res.get("verdict", "G1"), d.get("reason"), d.get("key")))
+    return rc, n1, n2
+
+
 def drive():
     tmp = tempfile.mkdtemp(prefix="d6rf3_finmut_")
     root = os.path.join(tmp, "run")
@@ -322,11 +470,18 @@ def drive():
                      res.get("verdict", "REPORTED"),
                      why if ok_reason else "REASON NOT ESTABLISHED: " + why))
 
+    print("  --- the 2026-09-05 WIDENING to G-CAPS and G1, driven the same way")
+    lrc, ln1, ln2 = _drive_ledger(root, d4)
+    if lrc:
+        rc = 1
     print("  ----------------------------------------------------------------")
+    print("  section 3f AS DRAFTED : %s" % ", ".join(G.FINITENESS_BINDS_AS_DRAFTED))
+    print("  section 3f WIDENED TO : %s   (pre-compute; run root asserted "
+          "ABSENT; only ever ADDS refusals)" % ", ".join(G.FINITENESS_WIDENED_TO))
     print("  direction 1 (mutated -> NOT A RESULT, reason asserted) : %d of %d"
-          % (n_dir1, 10 * len(NONFINITE)))
+          % (n_dir1 + ln1, (10 + len(LEDGER_CASES)) * len(NONFINITE)))
     print("  direction 2 (unmutated -> NOT `NOT A RESULT`)          : %d of %d"
-          % (n_dir2, 10))
+          % (n_dir2 + ln2, 10 + len(LEDGER_CASES)))
     print("  NOT EXERCISED                                          : %d"
           % n_not_exercised)
     print("  F2: %s"

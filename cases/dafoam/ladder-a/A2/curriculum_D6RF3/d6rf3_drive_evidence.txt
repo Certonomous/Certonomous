@@ -1,10 +1,11 @@
 D6RF3 PRE-FREEZE DRIVE EVIDENCE -- every control driven in BOTH directions
-Driven 2026-09-05T21:38:52Z on the host. ZERO SOLVER CORE-MINUTES; no container started.
+Driven 2026-09-05T21:52:11Z on the host. ZERO SOLVER CORE-MINUTES; no container started.
 CLAUDE.md rule 3; PREREGISTRATION.md sections 3e and 3f; falsifier F2.
+Includes the 2026-09-05 supervisor rulings: P1 launcher pair BUILT, P2 section 3f WIDENED.
 
 =========== 1. SECTION 3e THIRD PLANTED CONTROL -- the CD reader ===========
 D6RF3 CD PLANT CONTROL -- BOTH DIRECTIONS, no `assert` statement anywhere in this file
-  product /tmp/d6rf3_cd_ctrl_3nefoxvb/d6rf3_fd_endpoint.json
+  product /tmp/d6rf3_cd_ctrl_x1qz2muc/d6rf3_fd_endpoint.json
   registered key points.cl05.CD = 0.02176156349
   OK    direction 1  state=EXERCISED-PASS delta=1.234000e-03 (PLANT 1.234000e-03) original_unchanged=True
   OK    direction 2  blind=wrong_top_level_block__points_baseline     outcome=REFUSED   reason_is_PLANT_CD_with_reader_saw_the_plant_false=True
@@ -15,10 +16,10 @@ D6RF3 CD PLANT CONTROL -- BOTH DIRECTIONS, no `assert` statement anywhere in thi
   RESULT ALL DIRECTIONS AS REGISTERED  (positive=1  blind=4  not-exercised-token=1)
 rc=0
 
-=========== 2. SECTION 3f FINITENESS MUTATION HARNESS ======================
+=========== 2. SECTION 3f MUTATION HARNESS (WIDENED to G-CAPS + G1) =======
 D6RF3 SECTION 3f FINITENESS MUTATION HARNESS -- BOTH DIRECTIONS
-  fixture root /tmp/d6rf3_finmut_iahcpm2d/run
-  binding list (section 3f, VERBATIM, not widened): G-OFF, G-PRICE, G-FD, G-DVL, R-RED
+  fixture root /tmp/d6rf3_finmut_gmegn2wd/run
+  binding list (section 3f, VERBATIM, not widened): G-OFF, G-PRICE, G-FD, G-DVL, R-RED, G-CAPS, G1
   OK   G-OFF   CD_i(mp)       direction 2  unmutated -> PASS
       OK   G-OFF   CD_i(mp)       NaN   -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf3_fd_endpoint.json key=points.cl05.CD token='nan'
       OK   G-OFF   CD_i(mp)       +Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf3_fd_endpoint.json key=points.cl05.CD token='inf'
@@ -59,14 +60,37 @@ D6RF3 SECTION 3f FINITENESS MUTATION HARNESS -- BOTH DIRECTIONS
       OK   R-RED   J[-1]          NaN   -> REPORTED      reason=NON_FINITE_INPUT artefact=d6rf3_major_history.json key=J[-1] token=nan
       OK   R-RED   J[-1]          +Inf  -> REPORTED      reason=NON_FINITE_INPUT artefact=d6rf3_major_history.json key=J[-1] token=inf
       OK   R-RED   J[-1]          -Inf  -> REPORTED      reason=NON_FINITE_INPUT artefact=d6rf3_major_history.json key=J[-1] token=-inf
+  --- the 2026-09-05 WIDENING to G-CAPS and G1, driven the same way
+  OK   G-CAPS  core_min       direction 2  unmutated -> PASS
+      OK   G-CAPS  core_min       NaN   -> NOT A RESULT  reason=NON_FINITE_INPUT key=F_mp.core_min
+      OK   G-CAPS  core_min       +Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT key=F_mp.core_min
+      OK   G-CAPS  core_min       -Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT key=F_mp.core_min
+  OK   G-CAPS  container_wall direction 2  unmutated -> PASS
+      OK   G-CAPS  container_wall NaN   -> NOT A RESULT  reason=NON_FINITE_INPUT key=F_mp.container_wall_s
+      OK   G-CAPS  container_wall +Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT key=F_mp.container_wall_s
+      OK   G-CAPS  container_wall -Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT key=F_mp.container_wall_s
+  OK   G-CAPS  frame_allow    direction 2  unmutated -> PASS
+      OK   G-CAPS  frame_allow    NaN   -> NOT A RESULT  reason=NON_FINITE_INPUT key=F_mp.frame_allowance_s
+      OK   G-CAPS  frame_allow    +Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT key=F_mp.frame_allowance_s
+      OK   G-CAPS  frame_allow    -Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT key=F_mp.frame_allowance_s
+  OK   G1      core_min       direction 2  unmutated -> ran_clean=True
+      OK   G1      core_min       NaN   -> G1            reason=NON_FINITE_INPUT key=F_mp.core_min
+      OK   G1      core_min       +Inf  -> G1            reason=NON_FINITE_INPUT key=F_mp.core_min
+      OK   G1      core_min       -Inf  -> G1            reason=NON_FINITE_INPUT key=F_mp.core_min
+  OK   G1      wall_s         direction 2  unmutated -> ran_clean=True
+      OK   G1      wall_s         NaN   -> G1            reason=NON_FINITE_INPUT key=F_mp.wall_s
+      OK   G1      wall_s         +Inf  -> G1            reason=NON_FINITE_INPUT key=F_mp.wall_s
+      OK   G1      wall_s         -Inf  -> G1            reason=NON_FINITE_INPUT key=F_mp.wall_s
   ----------------------------------------------------------------
-  direction 1 (mutated -> NOT A RESULT, reason asserted) : 30 of 30
-  direction 2 (unmutated -> NOT `NOT A RESULT`)          : 10 of 10
+  section 3f AS DRAFTED : G-OFF, G-PRICE, G-FD, G-DVL, R-RED
+  section 3f WIDENED TO : G-CAPS, G1   (pre-compute; run root asserted ABSENT; only ever ADDS refusals)
+  direction 1 (mutated -> NOT A RESULT, reason asserted) : 45 of 45
+  direction 2 (unmutated -> NOT `NOT A RESULT`)          : 15 of 15
   NOT EXERCISED                                          : 0
   F2: the section 3f clause IS ESTABLISHED in both directions
 rc=0
 
-=========== 3. CAP / DEADLINE REACHABILITY ARITHMETIC ======================
+=========== 3. CAP / DEADLINE REACHABILITY ARITHMETIC (RE-RUN) ============
 D6RF3 CAP / DEADLINE REACHABILITY -- ranks=4 frame_allowance_s=90
   F_mp     cap  480.00 core-min x 60 / 4 ranks =   7200.0 wall s
            TMO    7110 s + frame 90 s          =   7200.0 wall s   residual +0.0e+00 s
@@ -79,7 +103,32 @@ D6RF3 CAP / DEADLINE REACHABILITY -- ranks=4 frame_allowance_s=90
   TOTAL predicted 215.77 core-min against ceiling 670.0 core-min
 rc=0
 
-=========== 4. NO BARE `assert` ANYWHERE (python -O deletes them) =========
+=========== 4. PRODUCT_WRITER -- three-sided, and PLANTED BOTH WAYS =======
+  6 registered products, all three sides agreeing:
+    d6rf3_endpoint_dvs.json                  writer=d6rf3_extract_endpoint.py    named_by_writer=True named_by_launcher=True
+    d6rf3_endpoint_dvs_DRIVERSCALED.json     writer=d6rf3_endpoint_physical.py   named_by_writer=True named_by_launcher=True
+    d6rf3_endpoint_dvs_PHYSICAL.json         writer=d6rf3_endpoint_physical.py   named_by_writer=True named_by_launcher=True
+    d6rf3_fd_endpoint.json                   writer=d6rf3_fd_endpoint.py         named_by_writer=True named_by_launcher=True
+    d6rf3_major_history.json                 writer=d6rf3_extract_endpoint.py    named_by_writer=True named_by_launcher=True
+    d6rf3_ref_off.json                       writer=d6rf3_ref_off.py             named_by_writer=True named_by_launcher=True
+  --- the checker shown able to report a NON-ZERO (rule 3 on the checker) ---
+  OK   direction=writer   planted 2 occurrence(s) in d6rf3_endpoint_physical.py  -> REFUSED, reason asserted=True  [D6RF2's ACTUAL defect, re-created]
+  OK   direction=launcher planted 1 occurrence(s) in d6rf3_run_arm.sh            -> REFUSED, reason asserted=True  [the third side of the triangle]
+
+=========== 5. P1: THE ITEM-CEILING GUARD, FAIL-OPEN CLOSED ===============
+  the driver resolves and md5-asserts it:
+    ../../../_common/item_ceiling_guard.py: OK
+  within ceiling            rc=0 (0 = proceed)
+  over ceiling              rc=65 (non-zero = refused)
+  ABSENT ledger             rc=65 (UNMEASURED refuses; the parent returned 0.000 here)
+  malformed token 1.2.3     rc=65 (the parent emptied $SPENT -> unary plus -> PASSED)
+  no spend figure is interpolated into any shell arithmetic context: 3 mentions, all inside the explanatory comment block
+
+=========== 6. bash -n ON BOTH SHELL INSTRUMENTS ==========================
+  OK   d6rf3_run_arm.sh
+  OK   d6rf3_chain_driver.sh
+
+=========== 7. NO BARE `assert` ANYWHERE (python -O deletes them) =========
   d6rf3_anchor_gate.py               ast.Assert=0
   d6rf3_cd_plant_control.py          ast.Assert=0
   d6rf3_endpoint_locus.py            ast.Assert=0

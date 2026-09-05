@@ -629,8 +629,25 @@ pin it holds while a dependency the frozen code executes is absent."*
 | `d6rf3_anchor_gate.py` | `G-ANCHOR` | **YES** | 11,067 | `e823689c15c2459097d0441e553f565c` | 0 |
 | `d6rf3_units_assert.py` | the units gate | **YES** | 18,270 | `885ce236ed20d4be0337f4382346500a` | 0 |
 | `d6rf3_opt_runScript.py` | the repaired producer (`D6RF-BLOCKING-1`) | **YES** | 13,122 | `137539e0a99be27f27fdb69e063b2a87` | 0 |
-| `d6rf3_run_arm.sh` | launcher | **NO — ABSENT** | — | — | — |
-| `d6rf3_chain_driver.sh` | chain driver | **NO — ABSENT** | — | — | — |
+| `d6rf3_run_arm.sh` | launcher; carries `D6RF3-DEF-6`'s **host-side** repair | **YES** | 58,670 | `58684b91f6aced35f500fc947517a8e4` | — |
+| `d6rf3_chain_driver.sh` | chain driver; calls the **common** item-ceiling guard | **YES** | 16,627 | `9d2c22d2f84abbead31657288097eccf` | — |
+
+**Cross-item and generated dependencies, all accounted for by the same extraction:**
+`../../../_common/item_ceiling_guard.py` (`1ea97c9245dedbc451d62e1bcfe26eb9`),
+`../curriculum_D6R/d6r_aggregate_memory.py` (`709ab0b98ef0302a3a3a318588f9493f`), D4's four
+instruments, and `d6rf3_cmd.sh` classified **GENERATED** with its generating line named
+(`d6rf3_run_arm.sh:870`). **21 dependencies referenced, 21 accounted for, 0 ABSENT.**
+
+**⚠ THE EXTRACTION WAS WRONG THREE TIMES BEFORE IT WAS RIGHT, AND ITS OWN FILE RECORDS ALL THREE.**
+v1 missed `AGGREGATE_READER="$D6R_CASE_DIR/d6r_aggregate_memory.py"` — a reference through a shell
+variable the pattern did not admit. v2 reported the runtime-generated `d6rf3_cmd.sh` as `ABSENT`.
+v3 **still missed `CEILING_GUARD="$HERE/../../../_common/item_ceiling_guard.py"`**, because the
+pattern allowed no path *segments* between the variable and the file — **it was blind to the single
+most important dependency added that day, the one that closes the fail-open ceiling guard**, and it
+was caught only by asking the finished list whether it contained what had just been added.
+**That is `SO2a-DRIVER-DEF-1`'s shape occurring inside the check written against it**, and §18.3's own
+sentence is the lesson: *a check can pass, correctly, on the question it asks, while the thing that
+mattered is broken.*
 
 `d6rf3_endpoint_locus.py` and `d6rf3_opt_runScript.py` are **BYTE-IDENTICAL to their parents** and
 their md5s are deliberately unchanged — the runscript's especially, so `G-ANCHOR`'s single-occurrence
@@ -729,12 +746,19 @@ four §2d.1 conditions and the price number that decides it; the §4 cost table 
    `/home/ubuntu/certonomous-runs/CURRICULUM-D6RF3-a2-wing-multipoint-fd` → `ABSENT`. **This does not
    discharge item 8 below**, which requires the same assertion *in the freeze commit's own invocation*.
 
+6. ✅ **`P1` and `P2` RULED AND BUILT** (§11a) — the launcher pair, with the fail-open ceiling guard
+   replaced by the common one and driven four ways; §3f widened to `G-CAPS`/`G1` and driven
+   `45/45` + `15/15`. **Nothing in §11a remains a prediction.**
+7. ✅ **The §9 extraction re-run and now complete: 21 dependencies referenced, 21 accounted for,
+   0 ABSENT** — including the three occasions the extractor itself was wrong, recorded in its own
+   output rather than quietly corrected.
+
 **RESERVED TO THE SUPERVISOR — and this is now the whole list:**
 
-6. **Read `d6rf3_grade_DELTAS_from_d6rf2.diff` AS A DIFF** (782 changed lines).
-   `SUPERVISION_CHARTER.md` §3 check 1; it may not be delegated and a lane's summary is not it.
-7. **Rule on the two items recorded as PREDICTIONS in §11a** — the launcher pair, and the widening
-   question on §3f's binding list. Neither is on the grading path.
+7a. **Read `d6rf3_grade_DELTAS_from_d6rf2.diff` AS A DIFF** (920 changed lines after the P2
+   widening), together with `d6rf3_run_arm_DELTAS_from_d6rf2.diff` (188) and
+   `d6rf3_chain_driver_DELTAS_from_d6rf2.diff` (140). `SUPERVISION_CHARTER.md` §3 check 1; it may
+   not be delegated and a lane's summary is not it.
 8. **The freeze commit, in its own invocation**, re-asserting root absence *there*, with a sibling
    name in the same invocation, and the grading path hashed against the committed blob.
    **⚠ THE RENAME IS PART OF THE FREEZE AND IS NOT COSMETIC.** `d6rf3_grade.py`'s `freeze_check`
@@ -747,31 +771,80 @@ four §2d.1 conditions and the price number that decides it; the §4 cost table 
 
 ---
 
-## 11a. RECORDED AS PREDICTIONS — NOT BUILT, WHAT THEY WOULD HAVE CAUGHT, RISK ACCEPTED
+## 11a. `P1` AND `P2` — RULED 2026-09-05, AND **BUILT**, NOT LEFT AS PREDICTIONS
 
-Per Sanaa's 2026-09-04 ruling that a pre-launch check phase terminates and the remainder is recorded
-as predictions rather than built. **Neither is on the grading path and neither is evidentiary-core.**
+Both were recorded as predictions and the dafoam-supervisor ruled to build both, before the freeze.
+**Both are discharged. Zero solver core-minutes.**
 
-**P1 — `d6rf3_run_arm.sh` and `d6rf3_chain_driver.sh` are ABSENT.** They are the launcher and chain
-driver, derived from `b45cdcb6be230949c08630639c4749b2` / `cfe78028b41872e5e2177aa492161e3a`. Nothing
-on the grading path imports or executes them; the extraction in §9 confirms it. **What their absence
-means, stated rather than glossed: the item cannot LAUNCH until they exist** — this is not a gate that
-would silently mis-grade, it is a run that cannot start. **What they would have caught:** the staging
-contract S1–S8 (`D6RF` §2a), the no-`rm -rf` and refuse-on-stale-directory rules that `D6RF-DEF-2`
-paid for. **Risk accepted:** none at grading time; the whole risk is at launch time and is loud.
-**They also carry `D6RF3-DEF-6`'s repair on the host side** — `d6rf2_run_arm.sh:546` names the
-physical artefact, so the successor must name `d6rf3_endpoint_dvs_PHYSICAL.json`; the grader's
-`PRODUCT_WRITER` check does **not** cover the launcher and will not catch it there.
+### P1 — the launcher pair, BUILT, with the fail-open ceiling guard REPLACED
 
-**P2 — §3f's binding list is NOT widened to `G-CAPS` and `G1`.** Those gates also parse floats from
-the ledger through `_f` **unchecked** (`d6rf3_grade.py`'s `gate_caps` reads `core_min`, `gate_g1`
-reads `core_min` and `wall_s`, both with a `"nan"` default). §3f's registered list is `G-OFF`,
-`G-PRICE`, `G-FD`, `G-DVL`, `R-RED` and **it is implemented VERBATIM and not widened**, because
-widening a registered clause inside its own control is how a clause stops meaning what it was frozen
-meaning. **What a widening would catch:** a ledger whose `core_min` field is malformed would today
-yield `nan`, and `nan <= cap` is False → `G-CAPS` `GATE FAIL` — *the same `D6RF3-DEF-5` shape, one
-gate over*. **Risk accepted:** the ledger is written by the launcher from `date`/`docker inspect`
-arithmetic, not from a solver, so a non-finite value there indicates a broken launcher rather than a
-physics outcome; and `G1` independently refuses when harness and kernel `rc` disagree. **This is
-recorded so the supervisor may widen §3f before the freeze if they judge otherwise — after the freeze
-it cannot be widened at all.**
+`d6rf3_run_arm.sh` (`58684b91f6aced35f500fc947517a8e4`) and `d6rf3_chain_driver.sh`
+(`9d2c22d2f84abbead31657288097eccf`), derived from `b45cdcb6be230949c08630639c4749b2` /
+`cfe78028b41872e5e2177aa492161e3a`, `bash -n` clean, DELTAS diffs beside them (188 and 140 changed
+lines). Every staged-instrument md5 re-pinned to this item's files, existence asserted before each
+hash; `MD5_LAUNCHER` re-pinned and the driver's own assertion driven.
+
+**They carry `D6RF3-DEF-6`'s host side**: `d6rf3_run_arm.sh:546` now names
+`d6rf3_endpoint_dvs_PHYSICAL.json`, agreeing with the writer and the grader.
+
+**⚠ THE CEILING GUARD IS NOT PORTED AND NOT RE-IMPLEMENTED.** The inherited guard **fails open two
+ways**, both measured in `d6rf_chain_driver.sh`: (i) `except IOError: pass` then `print('%.3f' % tot)`,
+so an absent or unreadable ledger returns **`0.000`** — indistinguishable from a ledger recording
+nothing spent, *a planted zero inside the guard's own input*; and (ii) its regex `\bcore_min=([0-9.]+)`
+puts a literal dot in a character class, so `core_min=1.2.3` is captured whole, `float()` raises
+uncaught, **`$SPENT` comes back EMPTY**, and `print('%.3f' % ( $SPENT + $ACAP ))` becomes Python's
+**unary plus** on the cap — the projection prints a clean `480.000` and **the guard PASSES with the
+prior spend silently dropped**.
+
+This item calls `cases/dafoam/_common/item_ceiling_guard.py` (`1ea97c9245dedbc451d62e1bcfe26eb9`),
+md5-asserted by the driver before use. **No spend figure is interpolated into any shell arithmetic
+context — the guard answers on its EXIT CODE.** Driven four ways:
+
+| condition | rc | what the parent did here |
+|---|---|---|
+| within ceiling | **0** — proceed | 0 |
+| over ceiling (`600.0` spent + `480.0` cap vs `670.0`) | **65** — refused | 65 |
+| **ABSENT ledger** | **65** — `UNMEASURED`, refuses | **returned `0.000` and PASSED** |
+| **malformed token `core_min=1.2.3`** | **65** — refuses | **`$SPENT` emptied → unary plus → PASSED** |
+
+### P2 — §3f WIDENED to `G-CAPS` and `G1`, and the widening DRIVEN
+
+**Widened before first compute**, with rule 2's condition stated and checked: the run root was
+asserted **ABSENT BY EXECUTION** and this item has burned **0 core-min**. **It only ever ADDS
+refusals** — a finiteness check can turn a `PASS` or `GATE FAIL` *into* a `NOT A RESULT` and can do
+nothing else — so nothing moves toward `PASS`.
+
+`gate_caps` now checks `core_min`, `container_wall_s`, `wall_s` and `frame_allowance_s`; `gate_g1`
+checks `core_min` and `wall_s`. **The shape closed is the most damaging form of `D6RF3-DEF-5`:**
+`nan <= cap` is False, so a malformed `core_min` set `within_cap` False and produced
+**`G-CAPS GATE FAIL`** — *an accusation that an arm breached its budget, manufactured from a
+non-number.* A cap breach is a finding about discipline, not about physics.
+
+**One coupled change, and it moves a REASON and never a VERDICT.** A non-finite `core_min` sets
+`clauses_all_pass` False, so without a hoist the item would have reported *"completion clause failed
+on arm F_mp"* — accusing the **run** of misbehaving because a **bookkeeping field** was unreadable.
+That is *bookkeeping never voids physics* inverted into bookkeeping **slandering** physics. The
+non-finite scan is therefore **rung 0**, above rung 1. Both rungs return `NOT A RESULT`, so **no row
+moves between verdict tokens and nothing that could previously have failed can now pass.**
+
+**Driven, in both directions, exactly like the rest** (`d6rf3_finiteness_mutation.py`, with a fixture
+complete enough that `G1` and `G-CAPS` are drivable, mutations injected **as text tokens in the ledger
+row** as a malformed launcher would have written them):
+
+* **direction 1: `45 / 45`** — `NaN`, `+Inf`, `-Inf` into each of **15** gated inputs, each requiring
+  `NOT A RESULT` **and** `NON_FINITE_INPUT` **and** the artefact and key named; the `G1` cases
+  additionally require the composed verdict to reach **rung 0** for that reason.
+* **direction 2: `15 / 15`** — every gate, unmutated, returning a verdict that is **not** `NOT A
+  RESULT`. *A guard that returns `NOT A RESULT` for everything satisfies direction 1 perfectly and is
+  worthless.*
+* **`NOT EXERCISED`: `0`.** `F2` satisfied.
+
+### The `PRODUCT_WRITER` check is now THREE-SIDED, and planted both ways
+
+`D6RF3-DEF-6` was a **three-way** disagreement: grader and launcher agreed, only the writer differed.
+The check now asserts that **both** the writer **and** the launcher name every registered product, so
+the defect cannot reappear by moving which of the three is the odd one out. **All six products, all
+three sides agreeing.** And per rule 3 applied to the checker itself — *a check reporting zero
+findings must be shown able to report a non-zero* — the defect was **planted back in both
+directions**: renaming the product in `d6rf3_endpoint_physical.py` (re-creating `D6RF2`'s actual
+defect) and in `d6rf3_run_arm.sh`. **Both REFUSED, with the reason asserted, not merely the `rc`.**

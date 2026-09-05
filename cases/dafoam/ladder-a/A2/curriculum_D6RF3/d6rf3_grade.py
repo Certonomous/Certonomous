@@ -172,8 +172,27 @@ CD_MP_SOURCE_STATEMENT = (
 # FROM A NON-NUMBER.  Registered before compute; STRICTLY RESTRICTIVE -- it can
 # only turn a PASS or GATE FAIL INTO a NOT A RESULT, never the reverse.
 NON_FINITE_REASON = "NON_FINITE_INPUT"
-# The clause's registered binding list, section 3f, VERBATIM and NOT WIDENED:
-FINITENESS_BINDS = ("G-OFF", "G-PRICE", "G-FD", "G-DVL", "R-RED")
+# The clause's binding list.  Section 3f as drafted registered FIVE; the
+# dafoam-supervisor WIDENED it to SEVEN on 2026-09-05, BEFORE the freeze, on
+# the ground that `G-CAPS` and `G1` carry `D6RF3-DEF-5`'s identical shape one
+# gate over: both parse ledger floats through `_f` with a `"nan"` default, and
+# `nan <= cap` is False, so a malformed `core_min` field would have produced a
+# CONFIDENT WRONG `GATE FAIL` rather than an honest `NOT A RESULT`.
+#
+# THE WIDENING IS LEGAL AND IT IS RECORDED AS A WIDENING.  Rule 2 permits
+# amendment BEFORE first compute and requires the condition be stated and
+# checked: the run root
+# `/home/ubuntu/certonomous-runs/CURRICULUM-D6RF3-a2-wing-multipoint-fd` was
+# asserted ABSENT BY EXECUTION on 2026-09-05, and this item has burned 0
+# core-min.  After first compute it could not have been widened at all.
+#
+# IT ONLY EVER ADDS REFUSALS.  A finiteness check can turn a PASS or a GATE
+# FAIL INTO a NOT A RESULT and can do nothing else; it cannot move any row
+# toward PASS, so it is not a gate loosened to fit an answer.
+FINITENESS_BINDS = ("G-OFF", "G-PRICE", "G-FD", "G-DVL", "R-RED",
+                    "G-CAPS", "G1")
+FINITENESS_BINDS_AS_DRAFTED = ("G-OFF", "G-PRICE", "G-FD", "G-DVL", "R-RED")
+FINITENESS_WIDENED_TO = ("G-CAPS", "G1")
 
 # ------- section 2b / 3d: X-CDLOG, REPORTED AND GATED BY NOTHING ------------
 # The three CD recovered from D6R's O_mp stdout at the LAST FINITE MAJOR
@@ -201,6 +220,7 @@ PREDICTED_CORE_MIN = {"F_mp": 155.70, "REF_off": 60.07}
 # ---- DAFOAM_CHARTER.md section 18.3, applied to PRODUCTS as well as to -----
 # ---- instruments.  D6RF3-DEF-6: in the frozen D6RF2 set the grader, the -----
 # ---- launcher and the writer disagreed on the name of a registered product.
+LAUNCHER = "d6rf3_run_arm.sh"
 PRODUCT_WRITER = {
     "d6rf3_endpoint_dvs_PHYSICAL.json": "d6rf3_endpoint_physical.py",
     "d6rf3_endpoint_dvs_DRIVERSCALED.json": "d6rf3_endpoint_physical.py",
@@ -413,6 +433,29 @@ def product_writer_check():
                         "note": "D6RF3-DEF-6's class. A product registered "
                                 "under a name no instrument writes makes G1's "
                                 "age guard refuse on a clean run."})
+            # ---- THE THIRD SIDE OF THE TRIANGLE --------------------------
+            # `D6RF3-DEF-6` was a THREE-way disagreement, not a two-way one:
+            # the grader registered a name, the LAUNCHER preserved that name,
+            # and only the WRITER disagreed. Checking grader-against-writer
+            # alone would have caught it -- but checking the launcher too is
+            # what makes the check symmetric, so the defect cannot reappear by
+            # moving which of the three is the odd one out.
+            lpath = os.path.join(HERE, LAUNCHER)
+            if os.path.isfile(lpath):                      # EXISTENCE FIRST
+                with open(lpath, errors="replace") as fh:
+                    lnamed = prod in fh.read()
+                out[prod]["named_by_launcher"] = lnamed
+                if not lnamed:
+                    refuse("PRODUCT_WRITER",
+                           {"product": prod, "launcher": LAUNCHER,
+                            "the_launcher_does_not_name_the_product": True,
+                            "note": "the launcher stages, cleans and preserves "
+                                    "products by name; one it does not name is "
+                                    "one it will not clean between fires, "
+                                    "which is D6RF-DEF-2's stale-artefact "
+                                    "shape"})
+            else:
+                out[prod]["named_by_launcher"] = "LAUNCHER_ABSENT"
     return out
 
 
@@ -609,8 +652,27 @@ def gate_g1(root, ledger_rows, census):
         a["age_detail"] = ages
         a["age_clause_pass"] = age_pass
 
-        a["core_min"] = _f(row.get("core_min", "nan"))
-        a["wall_s"] = _f(row.get("wall_s", "nan"))
+        # ---- section 3f, WIDENED to G1 (2026-09-05, pre-compute) ----------
+        # `_f(row.get("core_min", "nan"))` returned a NaN silently on a
+        # malformed or absent field, and `core_min` is what `compose` sums into
+        # `spend_core_min` and what every cost claim rests on. A NaN spend is
+        # not a small spend; it is an unmeasured one.
+        try:
+            a["core_min"] = _ff(row.get("core_min", "nan"), "ledger.txt",
+                                "%s.core_min" % arm)
+            a["wall_s"] = _ff(row.get("wall_s", "nan"), "ledger.txt",
+                              "%s.wall_s" % arm)
+        except NonFinite as e:
+            a["core_min"] = 0.0
+            a["wall_s"] = None
+            a["non_finite"] = e.detail
+            a["reason"] = NON_FINITE_REASON
+            a["clauses_all_pass"] = False
+            res["ran_clean"] = False
+            res["non_finite"] = e.detail
+            res["reason"] = NON_FINITE_REASON
+            res["arms"][arm] = a
+            continue
         a["ranks"] = int(row.get("ranks", "0"))
         a["clauses_all_pass"] = all([a["rc_clause_pass"], a["oom_clause_pass"],
                                      a["terminal_clause_pass"],
@@ -629,8 +691,24 @@ def gate_caps(ledger_rows, census):
             res["arms"][arm] = {"state": "NOT_RUN", "core_min": 0.0}
             continue
         row = ledger_rows[arm]
-        cm = _f(row.get("core_min", "nan"))
         cap = CAPS[arm]
+        # ---- section 3f, WIDENED to G-CAPS (2026-09-05, pre-compute) ------
+        # THIS IS `D6RF3-DEF-5` ONE GATE OVER, and it is not hypothetical:
+        # `nan <= cap` is False, so a malformed `core_min` would have set
+        # `within_cap` False and produced `G-CAPS GATE FAIL` -- an accusation
+        # that an arm BREACHED ITS BUDGET, manufactured from a non-number.
+        # That is the most damaging shape this defect can take, because a cap
+        # breach is a finding about discipline, not about physics.
+        try:
+            cm = _ff(row.get("core_min", "nan"), "ledger.txt",
+                     "%s.core_min" % arm)
+        except NonFinite as e:
+            res["arms"][arm] = _nar_non_finite(
+                {"cap_core_min": cap, "state": "RAN"}, e)
+            res["verdict"] = "NOT A RESULT"
+            res["reason"] = NON_FINITE_REASON
+            res["non_finite"] = e.detail
+            continue
         a = {"core_min": cm, "cap_core_min": cap, "within_cap": cm <= cap}
         inv = (TMO[arm] + FRAME_ALLOWANCE_S) * RANKS / 60.0
         a["deadline_in_container_s"] = TMO[arm]
@@ -643,15 +721,33 @@ def gate_caps(ledger_rows, census):
             a["frame_gap_within_allowance"] = "NOT_MEASURED"
             res["not_measured"].append("%s/container_wall_s" % arm)
         else:
-            cwv = _f(cw)
+            try:
+                cwv = _ff(cw, "ledger.txt", "%s.container_wall_s" % arm)
+                ws = _ff(row.get("wall_s", "nan"), "ledger.txt",
+                         "%s.wall_s" % arm)
+            except NonFinite as e:
+                res["arms"][arm] = _nar_non_finite(dict(a, state="RAN"), e)
+                res["verdict"] = "NOT A RESULT"
+                res["reason"] = NON_FINITE_REASON
+                res["non_finite"] = e.detail
+                continue
             a["container_wall_s"] = cwv
             a["deadline_frame_pass"] = cwv <= TMO[arm] + KILL_GRACE_S
-            gap = _f(row.get("wall_s", "nan")) - cwv
+            gap = ws - cwv
             a["host_minus_container_s"] = gap
             a["frame_gap_within_allowance"] = gap <= FRAME_GAP_ALLOWANCE_S
         fa = row.get("frame_allowance_s")
+        try:
+            fav = (None if fa is None
+                   else _ff(fa, "ledger.txt", "%s.frame_allowance_s" % arm))
+        except NonFinite as e:
+            res["arms"][arm] = _nar_non_finite(dict(a, state="RAN"), e)
+            res["verdict"] = "NOT A RESULT"
+            res["reason"] = NON_FINITE_REASON
+            res["non_finite"] = e.detail
+            continue
         a["frame_allowance_matches_registered"] = (
-            fa is not None and int(_f(fa)) == FRAME_ALLOWANCE_S)
+            fav is not None and int(fav) == FRAME_ALLOWANCE_S)
         limbs = [a["within_cap"], a["inversion_matches_cap"],
                  a["frame_allowance_matches_registered"]]
         for k in ("deadline_frame_pass", "frame_gap_within_allowance"):
@@ -1390,6 +1486,37 @@ def compose(g1, dvl, fd, off, price, caps, tool, place, census):
     reasons = []
     ran = [a for a in ARMS if census[a]["state"] == "RAN"]
     notrun = [a for a in ARMS if census[a]["state"] != "RAN"]
+
+    # ---- rung 0: ANY GATED INPUT NON-FINITE, INCLUDING THE LEDGER ---------
+    # HOISTED ABOVE rung 1 when section 3f was widened to `G-CAPS` and `G1`
+    # (2026-09-05, pre-compute), and the hoist changes the REASON REPORTED, NOT
+    # THE VERDICT: rung 1 also returns `NOT A RESULT`, so no row moves between
+    # tokens and nothing that could previously have failed can now pass.
+    #
+    # It is hoisted because a non-finite `core_min` sets `clauses_all_pass`
+    # False, so WITHOUT the hoist the item would report "completion clause
+    # failed on arm X" -- an accusation that the RUN misbehaved -- when what
+    # actually happened is that a bookkeeping FIELD was unreadable. That is
+    # `bookkeeping never voids physics` inverted: it would be bookkeeping
+    # SLANDERING physics. The artefact and key are named instead.
+    nf0 = []
+    for src in (g1, caps):
+        if src.get("reason") == NON_FINITE_REASON:
+            nf0.append({"gate": src.get("gate"),
+                        "non_finite": src.get("non_finite")})
+        for arm, row in (src.get("arms") or {}).items():
+            if isinstance(row, dict) and row.get("reason") == NON_FINITE_REASON:
+                nf0.append({"gate": src.get("gate"), "arm": arm,
+                            "non_finite": row.get("non_finite")})
+    if nf0:
+        reasons.append("rung 0: a LEDGER field a gate compares against a "
+                       "threshold is NON-FINITE, artefact and key named: %s. "
+                       "This is NOT a completion-clause failure and is not "
+                       "reported as one -- the run is not accused of "
+                       "misbehaving because a bookkeeping field was "
+                       "unreadable."
+                       % json.dumps(nf0, sort_keys=True, default=str)[:1200])
+        return "NOT A RESULT", reasons
 
     dirty = [a for a in ran if not g1["arms"][a].get("clauses_all_pass")]
     if dirty:

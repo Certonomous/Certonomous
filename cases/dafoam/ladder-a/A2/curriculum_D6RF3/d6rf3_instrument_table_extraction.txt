@@ -1,44 +1,61 @@
-<stdin>:7: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
 D6RF3 INSTRUMENT TABLE -- EXTRACTED, NOT WRITTEN FROM MEMORY
-generated 2026-09-05T21:38:21Z  dir /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF3
+generated 2026-09-05T21:54:22+00:00Z  dir /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF3
 DAFOAM_CHARTER.md section 18.3: existence is asserted FIRST and SEPARATELY;
 an md5-agreement figure over a subset is NOT evidence the set is complete.
 
+THREE EXTRACTOR NOTES, recorded because the extraction ITSELF was wrong three times
+today. Section 18.3 exists precisely because a check can pass, correctly, on the
+question it asks while the thing that mattered is broken -- and that is what happened
+here, to the check written against that very failure:
+  (1) v1 matched only quoted literals and `$HERE/x.py`, so it MISSED
+      `AGGREGATE_READER="$D6R_CASE_DIR/d6r_aggregate_memory.py"`.
+  (2) v2 then reported `d6rf3_cmd.sh` ABSENT; it is GENERATED at run time, and is
+      classified so WITH ITS GENERATING LINE NAMED rather than suppressed.
+  (3) v3 STILL missed `CEILING_GUARD="$HERE/../../../_common/item_ceiling_guard.py"`,
+      because the pattern allowed no path SEGMENTS between the variable and the file --
+      i.e. it was blind to the single most important dependency introduced today, the
+      one that closes the fail-open item-ceiling guard. Caught only by asking the list
+      whether it contained what I had just added. THE LESSON IS THE CLAUSE'S OWN:
+      an extraction that cannot SEE a reference reports a complete set.
+
 === EXISTENCE FIRST ===
-  ABSENT     d4_opt_runScript.py
-  ABSENT     d6r_opt_runScript.py
-  EXISTS     d6rf3_cd_plant_control.py
-  EXISTS     d6rf3_endpoint_locus.py
-  EXISTS     d6rf3_endpoint_physical.py
-  EXISTS     d6rf3_extract_endpoint.py
-  EXISTS     d6rf3_fd_endpoint.py
-  EXISTS     d6rf3_finiteness_mutation.py
-  EXISTS     d6rf3_grade.py
-  EXISTS     d6rf3_opt_runScript.py
-  EXISTS     d6rf3_ref_off.py
-  ABSENT     d6rf_units_assert.py
-  -> 12 executable/importable dependencies referenced, 3 ABSENT in this dir
-     (a name resolving to another item's directory is listed ABSENT here
-      and is reported separately; this pass is scoped to the item dir)
+  EXISTS      d4_endpoint_locus.py             (cross-item: ../curriculum_D4/d4_endpoint_locus.py      md5 e63df1845771c3e67457443918f5b82e)
+  EXISTS      d4_endpoint_physical.py          (cross-item: ../curriculum_D4/d4_endpoint_physical.py   md5 74c35c80bb4d395cf8939d851bc6b3f9)
+  EXISTS      d4_extract_endpoint.py           (cross-item: ../curriculum_D6R/d4_extract_endpoint.py   md5 ee7d3c99fd716da23779cb651961918e)
+  EXISTS      d4_opt_runScript.py              (cross-item: ../curriculum_D4/d4_opt_runScript.py       md5 2906d52a5dbed2bacbaeaf85a37d3fe8)
+  EXISTS      d6r_aggregate_memory.py          (cross-item: ../curriculum_D6R/d6r_aggregate_memory.py  md5 709ab0b98ef0302a3a3a318588f9493f)
+  EXISTS      d6r_opt_runScript.py             (cross-item: ../curriculum_D6R/d6r_opt_runScript.py     md5 93edb4a231e13a7af065368f61a468ef)
+  EXISTS      d6rf3_anchor_gate.py             (item dir)
+  EXISTS      d6rf3_cd_plant_control.py        (item dir)
+  GENERATED   d6rf3_cmd.sh                     (written at run time by d6rf3_run_arm.sh:870 CMDFILE="$WORK/d6rf3_cmd.sh")
+  EXISTS      d6rf3_endpoint_locus.py          (item dir)
+  EXISTS      d6rf3_endpoint_physical.py       (item dir)
+  EXISTS      d6rf3_extract_endpoint.py        (item dir)
+  EXISTS      d6rf3_fd_endpoint.py             (item dir)
+  EXISTS      d6rf3_finiteness_mutation.py     (item dir)
+  EXISTS      d6rf3_grade.py                   (item dir)
+  EXISTS      d6rf3_opt_runScript.py           (item dir)
+  EXISTS      d6rf3_ref_off.py                 (item dir)
+  EXISTS      d6rf3_run_arm.sh                 (item dir)
+  EXISTS      d6rf3_units_assert.py            (item dir)
+  DOCSTRING   d6rf_units_assert.py             (a prose mention, not an executed reference)
+  EXISTS      item_ceiling_guard.py            (cross-item: ../../../_common/item_ceiling_guard.py     md5 1ea97c9245dedbc451d62e1bcfe26eb9)
+  -> 21 dependencies referenced; EXISTS or accounted for: 21; ABSENT: 0
 
 === THEN, AND ONLY THEN, md5 ===
   file                                        bytes  md5                              ast.Assert
   d6rf3_anchor_gate.py                        11067  e823689c15c2459097d0441e553f565c  0
   d6rf3_cd_plant_control.py                   17229  2808114c5c7214c9b8630b32b6ae357b  0
+  d6rf3_chain_driver.sh                       16627  9d2c22d2f84abbead31657288097eccf  
   d6rf3_endpoint_locus.py                     29286  341189ca866f302a7e1bba8eefad3a57  0
   d6rf3_endpoint_physical.py                  12464  750fb6336502ca5f71c954298e995f58  0
   d6rf3_extract_endpoint.py                    6285  7adc049421cce82f021603bbbe93dd1e  0
   d6rf3_fd_endpoint.py                        12937  24586c9ab7f733cd2b642775aaf7fbe3  0
-  d6rf3_finiteness_mutation.py                15259  c6b6588e48425dc8ae06c17e34d13004  0
-  d6rf3_grade.py                              80718  90e30dfffbac3e87ad6df02af3c1fa0b  0
+  d6rf3_finiteness_mutation.py                22804  6d9e135955e34cfe91e023e816f93a49  0
+  d6rf3_grade.py                              87818  639d23c4cfea45187561604001c21b44  0
   d6rf3_opt_runScript.py                      13122  137539e0a99be27f27fdb69e063b2a87  0
   d6rf3_ref_off.py                             4789  4f0e564fc9855f179cb3d0e55d306af6  0
+  d6rf3_run_arm.sh                            58670  58684b91f6aced35f500fc947517a8e4  
   d6rf3_units_assert.py                       18270  885ce236ed20d4be0337f4382346500a  0
 
-=== REGISTERED but NOT PRESENT in the item directory ===
-  ABSENT  d6rf3_run_arm.sh
-  ABSENT  d6rf3_chain_driver.sh
-  -> section 18.3: a registered gate whose implementing file is not in
-     the instrument table is not frozen, it is UNIMPLEMENTED, and the
-     item does not launch. These two are the launcher and chain driver;
-     they are NOT on the grading path and NOTHING above imports them.
+=== NOTHING REGISTERED IS ABSENT ===

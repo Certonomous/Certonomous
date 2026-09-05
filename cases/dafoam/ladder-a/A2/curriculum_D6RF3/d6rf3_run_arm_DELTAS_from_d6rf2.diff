@@ -1,0 +1,506 @@
+--- /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF2/d6rf2_run_arm.sh	2026-09-03 23:15:36.085662918 +0000
++++ d6rf3_run_arm.sh	2026-09-05 21:49:51.663626600 +0000
+@@ -39,8 +39,8 @@
+ #   77  UNITS REFUSAL, IN CONTAINER (arrives as the container's own ExitCode)
+ set -uo pipefail
+ 
+-ITEM=D6RF2
+-REGISTERED_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D6RF2-a2-wing-multipoint-fd
++ITEM=D6RF3
++REGISTERED_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D6RF3-a2-wing-multipoint-fd
+ BASE="${BASE:-$REGISTERED_BASE}"
+ PERMISSION=bc0e687e
+ 
+@@ -116,7 +116,7 @@
+     exit 3
+   fi
+ fi
+-echo "D6RF2_G_ROOT_PASS item=$ITEM base=$BASE_REAL ledger_clean=yes"
++echo "D6RF3_G_ROOT_PASS item=$ITEM base=$BASE_REAL ledger_clean=yes"
+ 
+ RANKS=4
+ # ---- REGISTERED CPU PLACEMENT (PREREGISTRATION.md section 4g) -------------
+@@ -128,7 +128,7 @@
+ CPUSET=2,3,4,14
+ 
+ container_census() {
+-  sudo -n docker ps --format '{{.Names}}' 2>/dev/null | grep -v "^d6rf2_" | tr '\n' ',' | sed 's/,$//'
++  sudo -n docker ps --format '{{.Names}}' 2>/dev/null | grep -v "^d6rf3_" | tr '\n' ',' | sed 's/,$//'
+ }
+ 
+ # ---- D6RF REGISTERED CAP TABLE (PREREGISTRATION.md section 4d) ------------
+@@ -172,27 +172,27 @@
+ 
+ # ---- FROZEN INSTRUMENT HASHES (PREREGISTRATION.md sections 7a and 7b) -----
+ MD5_RUNSCRIPT6=137539e0a99be27f27fdb69e063b2a87
+-MD5_FD=0ce81a0b038abe12728b5b062e4420df
+-MD5_EXTRACT6=1743dd4232a7f06785f71be2f285f08d
+-MD5_REFOFF=25f532e01156d8bd93458b23e1471d0a
++MD5_FD=24586c9ab7f733cd2b642775aaf7fbe3
++MD5_EXTRACT6=7adc049421cce82f021603bbbe93dd1e
++MD5_REFOFF=4f0e564fc9855f179cb3d0e55d306af6
+ MD5_EXTRACT4=ee7d3c99fd716da23779cb651961918e
+ MD5_RUNSCRIPT4=2906d52a5dbed2bacbaeaf85a37d3fe8
+ MD5_LOCUS4=e63df1845771c3e67457443918f5b82e
+ MD5_PHYS4=74c35c80bb4d395cf8939d851bc6b3f9
+ MD5_LOCUS6=341189ca866f302a7e1bba8eefad3a57
+-MD5_PHYS6=6e5fa9f9c2048b0665593282f62ba3dc
+-MD5_UNITS=34f8b79b96cc17d28d42ffd9ebc1874f
++MD5_PHYS6=750fb6336502ca5f71c954298e995f58
++MD5_UNITS=885ce236ed20d4be0337f4382346500a
+ # D4's PATCHED optimiser history, staged READ-ONLY into REF_off/ as OptView.hst
+ MD5_D4_HST=0d956d6ccbc010402915710f662d3b11
+ D4_HST_SRC="$D4_ROOT/O/OptView.hst"
+ # THE UNDEFORMED REFERENCE MESH.  Section 2a S3: the double-deformation confound
+ # that killed D4's arm F is eliminated BY MEASUREMENT, not by assumption.
+-MD5_ANCHOR_GATE=e34c0cb62df30e7a1565b896d07a32e6
++MD5_ANCHOR_GATE=e823689c15c2459097d0441e553f565c
+ MD5_REF_MESH=0fb1935a9b8781b73ac4ccb136e3ec68
+ 
+ ARM="${1:-}"; IMG="${2:-}"
+-test -n "$ARM" || { echo "ABORT usage: d6rf2_run_arm.sh <F_mp|REF_off> <image>"; exit 64; }
+-test -n "$IMG" || { echo "ABORT usage: d6rf2_run_arm.sh <F_mp|REF_off> <image>"; exit 64; }
++test -n "$ARM" || { echo "ABORT usage: d6rf3_run_arm.sh <F_mp|REF_off> <image>"; exit 64; }
++test -n "$IMG" || { echo "ABORT usage: d6rf3_run_arm.sh <F_mp|REF_off> <image>"; exit 64; }
+ # THE ARM GUARD IS AN EQUALITY, NOT A PREFIX MATCH.
+ case "$ARM" in
+   F_mp|REF_off) : ;;
+@@ -203,13 +203,13 @@
+ 
+ # ---- G-ROOT.5 -- A LIVE ARM IS NEVER RE-STAGED.  Two live readings, BEFORE
+ # ---- any destructive act.
+-LIVE_SAME_ARM=$(sudo -n docker ps --format '{{.Names}}' --filter "name=^d6rf2_${ARM}_" 2>/dev/null | grep "^d6rf2_${ARM}_" | head -3 | tr '\n' ',' | sed 's/,$//')
++LIVE_SAME_ARM=$(sudo -n docker ps --format '{{.Names}}' --filter "name=^d6rf3_${ARM}_" 2>/dev/null | grep "^d6rf3_${ARM}_" | head -3 | tr '\n' ',' | sed 's/,$//')
+ if [ -n "$LIVE_SAME_ARM" ]; then
+   echo "ABORT G-ROOT.5 a RUNNING container already carries this item's prefix and arm: [$LIVE_SAME_ARM]"
+   echo "  Re-staging would remove the live arm directory under it.  REFUSED."
+   exit 3
+ fi
+-PIDFILE="$BASE/d6rf2_driver.pid"
++PIDFILE="$BASE/d6rf3_driver.pid"
+ if [ -f "$PIDFILE" ]; then
+   DPID=$(tr -dc '0-9' < "$PIDFILE" | head -c 12)
+   if [ -n "$DPID" ] && kill -0 "$DPID" 2>/dev/null; then
+@@ -227,7 +227,7 @@
+     fi
+   fi
+ fi
+-echo "D6RF2_G_ROOT5_PASS arm=$ARM live_same_arm_containers=none driver_pidfile=$([ -f "$PIDFILE" ] && echo present_owner_is_ancestor_or_stale || echo absent)"
++echo "D6RF3_G_ROOT5_PASS arm=$ARM live_same_arm_containers=none driver_pidfile=$([ -f "$PIDFILE" ] && echo present_owner_is_ancestor_or_stale || echo absent)"
+ 
+ CAP=$(cap_core_min "$ARM")
+ MEM=$(cap_memory "$ARM")
+@@ -259,7 +259,7 @@
+ if abs(cap-back) > 0.02:
+     sys.stderr.write('ABORT CAP MISMATCH registered=%r enforced_plus_allowance=%r\n' % (cap, back)); sys.exit(1)
+ " || { echo "ABORT enforced cap + frame allowance != registered cap"; exit 65; }
+-echo "D6RF2_CAP_FRAME arm=$ARM registered_core_min=$CAP ranks=$RANKS deadline_in_container_s=$TMO frame_allowance_s=$FRAME_ALLOWANCE_S kill_grace_s=$KILL_GRACE_S worst_case_host_core_min=$BACKCHECK enforced_in_frame=container graded_in_frame=host_bracket_T0_T1"
++echo "D6RF3_CAP_FRAME arm=$ARM registered_core_min=$CAP ranks=$RANKS deadline_in_container_s=$TMO frame_allowance_s=$FRAME_ALLOWANCE_S kill_grace_s=$KILL_GRACE_S worst_case_host_core_min=$BACKCHECK enforced_in_frame=container graded_in_frame=host_bracket_T0_T1"
+ echo "D4_CAP_ASSERT arm=$ARM registered_core_min=$CAP ranks=$RANKS enforced_wall_s=$TMO enforced_core_min=$BACKCHECK memory=$MEM"
+ 
+ # ---- host state, read before ranks are claimed ---------------------------
+@@ -267,22 +267,22 @@
+ MEMAVAIL_GIB=$(python3 -c "print('%.2f' % ($MEMAVAIL_KB/1048576.0))")
+ LOAD=$(awk '{print $1}' /proc/loadavg)
+ SIBLINGS_PRE=$(container_census)
+-echo "D6RF2_HOST_PRE arm=$ARM MemAvailable_GiB=$MEMAVAIL_GIB load1=$LOAD cpuset=$CPUSET siblings_pre=[$SIBLINGS_PRE]"
++echo "D6RF3_HOST_PRE arm=$ARM MemAvailable_GiB=$MEMAVAIL_GIB load1=$LOAD cpuset=$CPUSET siblings_pre=[$SIBLINGS_PRE]"
+ 
+ test "$(stat -c '%a' "$BASE")" = "777" || { echo "ABORT L-251 run root mode $(stat -c '%a' "$BASE")"; exit 4; }
+ 
+ # ---- staged-instrument identity, re-asserted before EVERY launch ---------
+-echo "$MD5_RUNSCRIPT6  $BASE/d6rf2_opt_runScript.py" | md5sum -c - || { echo "ABORT d6rf2_opt_runScript.py md5"; exit 4; }
+-echo "$MD5_FD  $BASE/d6rf2_fd_endpoint.py"           | md5sum -c - || { echo "ABORT d6rf2_fd_endpoint.py md5"; exit 4; }
+-echo "$MD5_EXTRACT6  $BASE/d6r_extract_endpoint.py"| md5sum -c - || { echo "ABORT d6r_extract_endpoint.py md5"; exit 4; }
+-echo "$MD5_REFOFF  $BASE/d6rf2_ref_off.py"           | md5sum -c - || { echo "ABORT d6rf2_ref_off.py md5"; exit 4; }
++echo "$MD5_RUNSCRIPT6  $BASE/d6rf3_opt_runScript.py" | md5sum -c - || { echo "ABORT d6rf3_opt_runScript.py md5"; exit 4; }
++echo "$MD5_FD  $BASE/d6rf3_fd_endpoint.py"           | md5sum -c - || { echo "ABORT d6rf3_fd_endpoint.py md5"; exit 4; }
++echo "$MD5_EXTRACT6  $BASE/d6rf3_extract_endpoint.py"| md5sum -c - || { echo "ABORT d6rf3_extract_endpoint.py md5"; exit 4; }
++echo "$MD5_REFOFF  $BASE/d6rf3_ref_off.py"           | md5sum -c - || { echo "ABORT d6rf3_ref_off.py md5"; exit 4; }
+ echo "$MD5_EXTRACT4  $BASE/d4_extract_endpoint.py" | md5sum -c - || { echo "ABORT d4_extract_endpoint.py md5"; exit 4; }
+ echo "$MD5_RUNSCRIPT4  $BASE/d4_opt_runScript.py"  | md5sum -c - || { echo "ABORT d4_opt_runScript.py md5"; exit 4; }
+ echo "$MD5_LOCUS4  $BASE/d4_endpoint_locus.py"     | md5sum -c - || { echo "ABORT d4_endpoint_locus.py md5"; exit 4; }
+ echo "$MD5_PHYS4  $BASE/d4_endpoint_physical.py"   | md5sum -c - || { echo "ABORT d4_endpoint_physical.py md5"; exit 4; }
+-echo "$MD5_LOCUS6  $BASE/d6rf2_endpoint_locus.py"   | md5sum -c - || { echo "ABORT d6rf2_endpoint_locus.py md5"; exit 4; }
+-echo "$MD5_PHYS6  $BASE/d6rf2_endpoint_physical.py" | md5sum -c - || { echo "ABORT d6rf2_endpoint_physical.py md5"; exit 4; }
+-echo "$MD5_UNITS  $BASE/d6rf2_units_assert.py"      | md5sum -c - || { echo "ABORT d6rf2_units_assert.py md5"; exit 4; }
++echo "$MD5_LOCUS6  $BASE/d6rf3_endpoint_locus.py"   | md5sum -c - || { echo "ABORT d6rf3_endpoint_locus.py md5"; exit 4; }
++echo "$MD5_PHYS6  $BASE/d6rf3_endpoint_physical.py" | md5sum -c - || { echo "ABORT d6rf3_endpoint_physical.py md5"; exit 4; }
++echo "$MD5_UNITS  $BASE/d6rf3_units_assert.py"      | md5sum -c - || { echo "ABORT d6rf3_units_assert.py md5"; exit 4; }
+ 
+ # ---- image identity by DIGEST, resolved from the local store -------------
+ GOT_DIGEST=$(sudo -n docker image inspect --format '{{index .RepoDigests 0}}' "$IMG" 2>/dev/null | sed 's/.*@//')
+@@ -297,10 +297,10 @@
+   echo "ABORT G-ROW D6RF is registered PATCHED-ONLY (the row D4 was GRADED on, C-97); got ROW=$ROW ($IMG)."
+   echo "  The SHIPPED row is NOT bought here; a second row is a separate item."
+   exit 4; }
+-echo "D6RF2_G_ROW_PASS row=$ROW digest=$GOT_DIGEST"
++echo "D6RF3_G_ROW_PASS row=$ROW digest=$GOT_DIGEST"
+ 
+ STAMP=$(date -u +%Y%m%dT%H%M%SZ)_$$
+-NAME="d6rf2_${ARM}_${STAMP}"
++NAME="d6rf3_${ARM}_${STAMP}"
+ WORK="$BASE/$ARM"
+ LOG="$BASE/${ARM}_${STAMP}.log"
+ STAGE_EVID="$BASE/${ARM}_STAGING_EVIDENCE.txt"
+@@ -312,7 +312,7 @@
+ # ===========================================================================
+ stage_say() { echo "$*"; echo "$*" >> "$STAGE_EVID"; }
+ : > "$STAGE_EVID"
+-stage_say "D6RF2_STAGE arm=$ARM utc=$(date -u +%Y%m%dT%H%M%SZ) base=$BASE_REAL permission=$PERMISSION"
++stage_say "D6RF3_STAGE arm=$ARM utc=$(date -u +%Y%m%dT%H%M%SZ) base=$BASE_REAL permission=$PERMISSION"
+ 
+ # ===========================================================================
+ # FIELD PRESENCE -- `U` OR `U.gz`, AND AN ABORT THAT SAYS WHAT IT ACTUALLY FOUND.
+@@ -377,7 +377,7 @@
+     stage_say "  A re-fire needs the partial root ARCHIVED by mv, not deleted here."
+     exit 5
+   fi
+-  stage_say "D6RF2_STAGE_F_mp (S1) OK src=$SRC exists, OptView.hst present, dst=$WORK does not exist"
++  stage_say "D6RF3_STAGE_F_mp (S1) OK src=$SRC exists, OptView.hst present, dst=$WORK does not exist"
+   # ------------------------------------------------------------------ S3
+   # THE DOUBLE-DEFORMATION CONFOUND, ELIMINATED BY MEASUREMENT.  D4's arm F died
+   # on `Mesh quality error!`; its F3 repair recorded the same md5 on both sides.
+@@ -403,7 +403,7 @@
+       stage_say "  double-deformation confound that killed D4's arm F.  REFUSED."
+       exit 5; }
+   done
+-  stage_say "D6RF2_STAGE_F_mp (S3) OK undeformed reference mesh md5 $MD5_REF_MESH on base and on mp04 mp05 mp06 -- double-deformation confound eliminated by MEASUREMENT"
++  stage_say "D6RF3_STAGE_F_mp (S3) OK undeformed reference mesh md5 $MD5_REF_MESH on base and on mp04 mp05 mp06 -- double-deformation confound eliminated by MEASUREMENT"
+   # ------------------------------------------------------------------ S4
+   # ===================================================================
+   # EVERY COUNT BELOW ASSERTS ITS OWN TRIP COUNT.  A guard that compares
+@@ -412,7 +412,7 @@
+   # step announces SOURCE INTACT having counted nothing.  That is the
+   # planted-zero failure in a bash guard (CLAUDE.md rule 3's principle;
+   # the same discipline `control_bounds` already applies in
+-  # d6rf2_endpoint_locus.py -- "a loop that can iterate zero times asserts
++  # d6rf3_endpoint_locus.py -- "a loop that can iterate zero times asserts
+   # its own trip count").  So: a failed read reports UNMEASURED, never 0,
+   # and a zero count REFUSES.
+   # REPAIR REGISTERED IN ADDENDUM 2, on the dafoam-supervisor's check-1
+@@ -430,7 +430,7 @@
+   }
+   SRC_HST_MD5=$(md5sum "$SRC/OptView.hst" | cut -d' ' -f1)
+   SRC_TIMEDIRS=$(count_src_entries "$SRC/mp04/processor0" "")
+-  stage_say "D6RF2_STAGE_F_mp (S4) source pre-copy: OptView.hst md5=$SRC_HST_MD5, entries under mp04/processor0 = $SRC_TIMEDIRS"
++  stage_say "D6RF3_STAGE_F_mp (S4) source pre-copy: OptView.hst md5=$SRC_HST_MD5, entries under mp04/processor0 = $SRC_TIMEDIRS"
+   case "$SRC_TIMEDIRS" in
+     UNMEASURED)
+       stage_say "ABORT S4 the source count is UNMEASURED -- $SRC/mp04/processor0 is absent or unreadable."
+@@ -443,7 +443,7 @@
+       exit 5 ;;
+   esac
+   cp -a "$SRC" "$WORK" || { stage_say "ABORT S4 stage copy of $SRC failed"; exit 4; }
+-  COPY_EPOCH=$(date -u +%s); echo "$COPY_EPOCH" > "$WORK/.d6rf2_copy_epoch"
++  COPY_EPOCH=$(date -u +%s); echo "$COPY_EPOCH" > "$WORK/.d6rf3_copy_epoch"
+   POST_HST_MD5=$(md5sum "$SRC/OptView.hst" | cut -d' ' -f1)
+   POST_TIMEDIRS=$(count_src_entries "$SRC/mp04/processor0" "")
+   test "$POST_HST_MD5" = "$SRC_HST_MD5" || { stage_say "ABORT S4 SOURCE CHANGED during the copy: OptView.hst md5 $SRC_HST_MD5 -> $POST_HST_MD5"; exit 5; }
+@@ -453,7 +453,7 @@
+       exit 5 ;;
+   esac
+   test "$POST_TIMEDIRS" = "$SRC_TIMEDIRS" || { stage_say "ABORT S4 SOURCE CHANGED during the copy: mp04/processor0 entries $SRC_TIMEDIRS -> $POST_TIMEDIRS"; exit 5; }
+-  stage_say "D6RF2_STAGE_F_mp (S4) OK cp -a (mtimes PRESERVED), copy_epoch=$COPY_EPOCH, SOURCE INTACT after the copy -- and the comparison COUNTED $SRC_TIMEDIRS entries on both sides, so it cannot have passed on a pair of false zeros"
++  stage_say "D6RF3_STAGE_F_mp (S4) OK cp -a (mtimes PRESERVED), copy_epoch=$COPY_EPOCH, SOURCE INTACT after the copy -- and the comparison COUNTED $SRC_TIMEDIRS entries on both sides, so it cannot have passed on a pair of false zeros"
+   # ------------------------------------------------------------------ S5
+   # DROP THE OPTIMISER'S OUTPUTS FROM THE COPY.  D6RF-DEF-2: pyDAFoam's
+   # renameSolution refuses to move onto an existing directory -- D4's arm F2,
+@@ -495,7 +495,7 @@
+   done
+   rm -rf "$WORK/reports" 2>/dev/null
+   rm -rf "$WORK/postProcessing" 2>/dev/null
+-  rm -f  "$WORK/mphys.html" "$WORK/opt_IPOPT.txt" "$WORK/d6rf2_cmd.sh" 2>/dev/null
++  rm -f  "$WORK/mphys.html" "$WORK/opt_IPOPT.txt" "$WORK/d6rf3_cmd.sh" 2>/dev/null
+   REMAIN=$(count_time_dirs "$WORK")
+   test "$REMAIN" -eq 0 || { stage_say "ABORT S5 $REMAIN output time directories remain in the COPY (required 0, dropped $DROPPED of $BEFORE_DROP)"; exit 5; }
+   # `0` and `0.orig` SURVIVED, and that is asserted rather than assumed.
+@@ -524,31 +524,31 @@
+   test "$SRC_REMAIN" -gt 1 || { stage_say "ABORT S5 SOURCE INTACT assertion FAILED: only $SRC_REMAIN pseudo-time dirs remain under $SRC/mp04/processor0 (required > 1) -- D6R's evidence may have been touched"; exit 5; }
+   test -f "$WORK/OptView.hst" || { stage_say "ABORT S5 OptView.hst was dropped from the copy"; exit 5; }
+   test -f "$WORK/mp04/dRdWColoring_4.bin" || { stage_say "ABORT S5 the cached colouring was dropped from the copy -- the cap is priced with it present"; exit 5; }
+-  stage_say "D6RF2_STAGE_F_mp (S5) OK dropped $DROPPED of $BEFORE_DROP output time directories from the COPY, $REMAIN remain (required 0); 0/, 0.orig/ and processor*/0/ KEPT and asserted; OptView.hst and dRdWColoring_4.bin KEPT; SOURCE INTACT ($SRC_REMAIN pseudo-time dirs still under $SRC/mp04/processor0)"
++  stage_say "D6RF3_STAGE_F_mp (S5) OK dropped $DROPPED of $BEFORE_DROP output time directories from the COPY, $REMAIN remain (required 0); 0/, 0.orig/ and processor*/0/ KEPT and asserted; OptView.hst and dRdWColoring_4.bin KEPT; SOURCE INTACT ($SRC_REMAIN pseudo-time dirs still under $SRC/mp04/processor0)"
+   # ------------------------------------------------------------------ S6
+-  cp -a "$BASE/d6r_extract_endpoint.py" "$BASE/d6rf2_fd_endpoint.py" \
+-        "$BASE/d6rf2_opt_runScript.py" "$BASE/d6rf2_endpoint_locus.py" \
+-        "$BASE/d6rf2_endpoint_physical.py" "$BASE/d6rf2_units_assert.py" \
+-        "$BASE/d6rf2_anchor_gate.py" "$BASE/d6rf2_ref_off.py" \
++  cp -a "$BASE/d6rf3_extract_endpoint.py" "$BASE/d6rf3_fd_endpoint.py" \
++        "$BASE/d6rf3_opt_runScript.py" "$BASE/d6rf3_endpoint_locus.py" \
++        "$BASE/d6rf3_endpoint_physical.py" "$BASE/d6rf3_units_assert.py" \
++        "$BASE/d6rf3_anchor_gate.py" "$BASE/d6rf3_ref_off.py" \
+         "$WORK/" || { stage_say "ABORT S6 stage instruments"; exit 4; }
+-  { echo "$MD5_EXTRACT6  $WORK/d6r_extract_endpoint.py"
+-    echo "$MD5_FD  $WORK/d6rf2_fd_endpoint.py"
+-    echo "$MD5_RUNSCRIPT6  $WORK/d6rf2_opt_runScript.py"
+-    echo "$MD5_LOCUS6  $WORK/d6rf2_endpoint_locus.py"
+-    echo "$MD5_PHYS6  $WORK/d6rf2_endpoint_physical.py"
+-    echo "$MD5_UNITS  $WORK/d6rf2_units_assert.py"
+-    echo "$MD5_ANCHOR_GATE  $WORK/d6rf2_anchor_gate.py"
+-    echo "$MD5_REFOFF  $WORK/d6rf2_ref_off.py"; } | md5sum -c - || { stage_say "ABORT S6 staged instrument md5 in the arm directory"; exit 4; }
+-  stage_say "D6RF2_STAGE_F_mp (S6) OK EIGHT instruments staged, every md5 asserted on BOTH sides of the copy -- the seventh is d6rf2_anchor_gate.py, added 2026-09-03 after the 22:13:11Z abort"
++  { echo "$MD5_EXTRACT6  $WORK/d6rf3_extract_endpoint.py"
++    echo "$MD5_FD  $WORK/d6rf3_fd_endpoint.py"
++    echo "$MD5_RUNSCRIPT6  $WORK/d6rf3_opt_runScript.py"
++    echo "$MD5_LOCUS6  $WORK/d6rf3_endpoint_locus.py"
++    echo "$MD5_PHYS6  $WORK/d6rf3_endpoint_physical.py"
++    echo "$MD5_UNITS  $WORK/d6rf3_units_assert.py"
++    echo "$MD5_ANCHOR_GATE  $WORK/d6rf3_anchor_gate.py"
++    echo "$MD5_REFOFF  $WORK/d6rf3_ref_off.py"; } | md5sum -c - || { stage_say "ABORT S6 staged instrument md5 in the arm directory"; exit 4; }
++  stage_say "D6RF3_STAGE_F_mp (S6) OK EIGHT instruments staged, every md5 asserted on BOTH sides of the copy -- the seventh is d6rf3_anchor_gate.py, added 2026-09-03 after the 22:13:11Z abort"
+   # ------------------------------------------------------------------ S7
+-  UNITS_RUNSCRIPT=d6rf2_opt_runScript.py
+-  DVFILE=d6r_endpoint_dvs.json
+-  for p in d6rf2_endpoint_dvs_PHYSICAL.json d6r_endpoint_dvs_DRIVERSCALED.json \
+-           d6r_endpoint_dvs.json d6r_major_history.json d6r_fd_endpoint.json \
+-           d6r_fd_endpoint.jsonl; do
++  UNITS_RUNSCRIPT=d6rf3_opt_runScript.py
++  DVFILE=d6rf3_endpoint_dvs.json
++  for p in d6rf3_endpoint_dvs_PHYSICAL.json d6rf3_endpoint_dvs_DRIVERSCALED.json \
++           d6rf3_endpoint_dvs.json d6rf3_major_history.json d6rf3_fd_endpoint.json \
++           d6rf3_fd_endpoint.jsonl; do
+     rm -f "$WORK/$p"
+   done
+-  stage_say "D6RF2_STAGE_F_mp (S7) OK this arm's six registered products swept from the copy"
++  stage_say "D6RF3_STAGE_F_mp (S7) OK this arm's six registered products swept from the copy"
+ else
+   # ---------------------------------------------------------- REF_off, cold
+   # THE ONLY EXECUTABLE `rm -rf` IN THIS FILE, and every guard above precedes
+@@ -562,7 +562,7 @@
+     test -n "$(ls -d "$WORK/$mp"/processor* 2>/dev/null)" && { stage_say "ABORT G-COLD $mp processor* present"; exit 5; }
+   done
+   for bad in "$WORK/reports" "$WORK/OptView.hst" "$WORK/opt_IPOPT.txt" \
+-             "$WORK/dRdWColoring_4.bin" "$WORK/d6r_ref_off.json" \
++             "$WORK/dRdWColoring_4.bin" "$WORK/d6rf3_ref_off.json" \
+              "$WORK/d4_endpoint_dvs.json" "$WORK/d4_endpoint_dvs_PHYSICAL.json"; do
+     test -e "$bad" && { stage_say "ABORT G-COLD $bad exists"; exit 5; }
+   done
+@@ -572,38 +572,38 @@
+     "A cold case must carry its initial fields; without them there is nothing to date the age guard from."
+   cp -a "$BASE/d4_extract_endpoint.py" "$BASE/d4_opt_runScript.py" \
+         "$BASE/d4_endpoint_locus.py" "$BASE/d4_endpoint_physical.py" \
+-        "$BASE/d6rf2_opt_runScript.py" "$BASE/d6rf2_ref_off.py" \
+-        "$BASE/d6rf2_endpoint_locus.py" "$BASE/d6rf2_units_assert.py" \
+-        "$BASE/d6rf2_anchor_gate.py" "$BASE/d6rf2_fd_endpoint.py" \
++        "$BASE/d6rf3_opt_runScript.py" "$BASE/d6rf3_ref_off.py" \
++        "$BASE/d6rf3_endpoint_locus.py" "$BASE/d6rf3_units_assert.py" \
++        "$BASE/d6rf3_anchor_gate.py" "$BASE/d6rf3_fd_endpoint.py" \
+         "$WORK/" || { stage_say "ABORT stage instruments"; exit 4; }
+   { echo "$MD5_EXTRACT4  $WORK/d4_extract_endpoint.py"
+     echo "$MD5_RUNSCRIPT4  $WORK/d4_opt_runScript.py"
+     echo "$MD5_LOCUS4  $WORK/d4_endpoint_locus.py"
+     echo "$MD5_PHYS4  $WORK/d4_endpoint_physical.py"
+-    echo "$MD5_RUNSCRIPT6  $WORK/d6rf2_opt_runScript.py"
+-    echo "$MD5_REFOFF  $WORK/d6rf2_ref_off.py"
+-    echo "$MD5_LOCUS6  $WORK/d6rf2_endpoint_locus.py"
+-    echo "$MD5_UNITS  $WORK/d6rf2_units_assert.py"
+-    echo "$MD5_ANCHOR_GATE  $WORK/d6rf2_anchor_gate.py"
+-    echo "$MD5_FD  $WORK/d6rf2_fd_endpoint.py"; } | md5sum -c - || { stage_say "ABORT staged instrument md5 in the arm directory"; exit 4; }
++    echo "$MD5_RUNSCRIPT6  $WORK/d6rf3_opt_runScript.py"
++    echo "$MD5_REFOFF  $WORK/d6rf3_ref_off.py"
++    echo "$MD5_LOCUS6  $WORK/d6rf3_endpoint_locus.py"
++    echo "$MD5_UNITS  $WORK/d6rf3_units_assert.py"
++    echo "$MD5_ANCHOR_GATE  $WORK/d6rf3_anchor_gate.py"
++    echo "$MD5_FD  $WORK/d6rf3_fd_endpoint.py"; } | md5sum -c - || { stage_say "ABORT staged instrument md5 in the arm directory"; exit 4; }
+   # D4's PATCHED history, staged READ-ONLY, md5-asserted, BEFORE the datum so
+   # the age guard dates it as an INPUT (the grader exempts it by md5).
+   echo "$MD5_D4_HST  $D4_HST_SRC" | md5sum -c - || { stage_say "ABORT D4 OptView.hst md5 (source changed)"; exit 4; }
+   cp "$D4_HST_SRC" "$WORK/OptView.hst" || { stage_say "ABORT stage D4 history"; exit 4; }
+-  stage_say "D6RF2_D4_HST_STAGED arm=$ARM md5=$(md5sum "$WORK/OptView.hst" | cut -d' ' -f1) source=$D4_HST_SRC"
++  stage_say "D6RF3_D4_HST_STAGED arm=$ARM md5=$(md5sum "$WORK/OptView.hst" | cut -d' ' -f1) source=$D4_HST_SRC"
+   UNITS_RUNSCRIPT=d4_opt_runScript.py
+   DVFILE=d4_endpoint_dvs.json
+   rm -f "$WORK/d4_endpoint_dvs.json" "$WORK/d4_endpoint_dvs_PHYSICAL.json" \
+-        "$WORK/d4_endpoint_dvs_DRIVERSCALED.json" "$WORK/d6r_ref_off.json" \
++        "$WORK/d4_endpoint_dvs_DRIVERSCALED.json" "$WORK/d6rf3_ref_off.json" \
+         "$WORK/d4_major_history.json"
+-  stage_say "D6RF2_STAGE_REF_off OK cold copy, G-COLD asserted, TEN instruments staged with every md5 (the ninth is d6rf2_anchor_gate.py, added 2026-09-03 after the 22:13:11Z abort), D4 history read-only"
++  stage_say "D6RF3_STAGE_REF_off OK cold copy, G-COLD asserted, TEN instruments staged with every md5 (the ninth is d6rf3_anchor_gate.py, added 2026-09-03 after the 22:13:11Z abort), D4 history read-only"
+ fi
+ 
+ # ===========================================================================
+ # G-DELIVERY -- EVERY INSTRUMENT THIS FILE WILL READ AT $WORK IS PRESENT THERE.
+ #
+-# THE DEFECT THIS EXISTS FOR, 2026-09-03T22:13:11Z.  D6RF2 launched and aborted
+-# 70 s later at rc 4 on `md5sum: .../F_mp/d6rf2_anchor_gate.py: No such file or
++# THE DEFECT THIS EXISTS FOR, 2026-09-03T22:13:11Z.  D6RF3 launched and aborted
++# 70 s later at rc 4 on `md5sum: .../F_mp/d6rf3_anchor_gate.py: No such file or
+ # directory`.  G-ANCHOR is an excellent gate; it was simply never staged where
+ # this launcher looks for it.  TEN SIBLING INSTRUMENTS ARE COPIED INTO $WORK AND
+ # THAT ONE WAS MISSED -- a pattern applied correctly everywhere except one
+@@ -698,7 +698,7 @@
+ 
+ # ---- CLOSE OVER THE PRODUCT, TO A FIXED POINT ------------------------------
+ # One level catches what the launcher names.  The 22:55:46Z abort was two
+-# levels down: d6rf2_ref_off.py is named ONLY by d6rf2_anchor_gate.py's own
++# levels down: d6rf3_ref_off.py is named ONLY by d6rf3_anchor_gate.py's own
+ # READERS tuple, which the launcher never mentions.  A detection catches the
+ # level you thought of; a closure catches the level you did not.
+ ROUNDS = 8
+@@ -734,7 +734,7 @@
+ # property of the DISK: every .py actually staged in $WORK -- including files
+ # that arrived with the base copy and were never in the derived set -- must
+ # reference only .py files that are ALSO present.  It can fire, and on the
+-# 22:55:46Z state it does: d6rf2_anchor_gate.py -> d6rf2_ref_off.py, absent.
++# 22:55:46Z state it does: d6rf3_anchor_gate.py -> d6rf3_ref_off.py, absent.
+ dangling = []
+ for f in sorted(work.glob("*.py")):
+     d = declared_py(f)
+@@ -756,25 +756,25 @@
+ 
+ DELIVERY=$(derive_delivery)
+ # ---- STAGE what the closure requires and the hand list did not deliver -----
+-# $BASE is the md5-verified source: d6rf2_chain_driver.sh asserts all twelve
++# $BASE is the md5-verified source: d6rf3_chain_driver.sh asserts all twelve
+ # instrument md5s there before any arm runs.  The arm-side copy is asserted
+ # BYTE-IDENTICAL to it with `cmp`, so the requirement is met from verified
+ # bytes and never from a second hand list.
+ case "$DELIVERY" in
+   MISSING*)
+     NEED=$(printf '%s' "$DELIVERY" | sed 's/.*: //')
+-    stage_say "D6RF2_G_DELIVERY closure requires files the arm list did not stage: $NEED"
++    stage_say "D6RF3_G_DELIVERY closure requires files the arm list did not stage: $NEED"
+     for f in $NEED; do
+       test -f "$BASE/$f" || { stage_say "ABORT G-DELIVERY $f is required at \$WORK and is ABSENT FROM \$BASE TOO -- it was never staged into the run root, so no verified copy exists to deliver"; exit 8; }
+       cp -a "$BASE/$f" "$WORK/$f" || { stage_say "ABORT G-DELIVERY could not stage $f into $WORK"; exit 8; }
+       cmp -s "$BASE/$f" "$WORK/$f" || { stage_say "ABORT G-DELIVERY staged $f is NOT byte-identical to the md5-verified copy in \$BASE -- the copy did not land intact"; exit 8; }
+-      stage_say "D6RF2_G_DELIVERY staged $f from \$BASE, asserted byte-identical"
++      stage_say "D6RF3_G_DELIVERY staged $f from \$BASE, asserted byte-identical"
+     done
+     # THE READ-BACK: the same derivation, again, on the new disk state.
+     DELIVERY=$(derive_delivery) ;;
+ esac
+ case "$DELIVERY" in
+-  OK\ *) stage_say "D6RF2_G_DELIVERY $DELIVERY" ;;
++  OK\ *) stage_say "D6RF3_G_DELIVERY $DELIVERY" ;;
+   MISSING*)
+     stage_say "ABORT G-DELIVERY arm=$ARM -- $DELIVERY"
+     stage_say "  Still absent after staging from \$BASE.  NO CONTAINER IS CREATED."
+@@ -798,8 +798,8 @@
+ # a refusal is rc 7, distinct.  A MISSING MARKER IS A REFUSAL, NEVER A DEFAULT.
+ # ===========================================================================
+ if [ -e "$WORK/$DVFILE" ]; then
+-  stage_say "D6RF2_UNITS_CALLSITE_1 arm=$ARM an endpoint artefact SURVIVED the sweep: $WORK/$DVFILE -- grading it before anything else runs"
+-  python3 "$WORK/d6rf2_units_assert.py" "$WORK/$DVFILE" --runscript "$WORK/$UNITS_RUNSCRIPT"
++  stage_say "D6RF3_UNITS_CALLSITE_1 arm=$ARM an endpoint artefact SURVIVED the sweep: $WORK/$DVFILE -- grading it before anything else runs"
++  python3 "$WORK/d6rf3_units_assert.py" "$WORK/$DVFILE" --runscript "$WORK/$UNITS_RUNSCRIPT"
+   UR=$?
+   if [ "$UR" -ne 0 ]; then
+     stage_say "ABORT UNITS (call site 1, host) arm=$ARM file=$WORK/$DVFILE assert_rc=$UR"
+@@ -809,7 +809,7 @@
+     exit 7
+   fi
+ else
+-  stage_say "D6RF2_UNITS_CALLSITE_1 arm=$ARM no endpoint artefact survived the sweep (expected on a first fire); call site 2 grades the one the wrapper writes"
++  stage_say "D6RF3_UNITS_CALLSITE_1 arm=$ARM no endpoint artefact survived the sweep (expected on a first fire); call site 2 grades the one the wrapper writes"
+ fi
+ 
+ 
+@@ -822,14 +822,14 @@
+ # staged bytes, so it checks what the container will actually read.
+ # A refusal here is rc 3 and NO CONTAINER IS CREATED.
+ # ===========================================================================
+-echo "$MD5_ANCHOR_GATE  $WORK/d6rf2_anchor_gate.py" | md5sum -c - || { stage_say "ABORT G-ANCHOR gate md5"; exit 4; }
+-python3 "$WORK/d6rf2_anchor_gate.py" --work-dir "$WORK" || {
++echo "$MD5_ANCHOR_GATE  $WORK/d6rf3_anchor_gate.py" | md5sum -c - || { stage_say "ABORT G-ANCHOR gate md5"; exit 4; }
++python3 "$WORK/d6rf3_anchor_gate.py" --work-dir "$WORK" || {
+   stage_say "ABORT G-ANCHOR arm=$ARM -- a reader that splits the producer on a sentinel"
+   stage_say "  cannot be shown that sentinel is unique in the bytes it will read."
+   stage_say "  THIS IS THE D6RF-BLOCKING-1 CLASS, REFUSED BEFORE A CONTAINER RATHER"
+   stage_say "  THAN AFTER ONE.  See the gate's own refusal line above."
+   exit 3; }
+-stage_say "D6RF2_G_ANCHOR OK arm=$ARM -- every anchor-scoped reader's sentinel is unique in the producer it will read, and the header it yields carries every symbol it execs"
++stage_say "D6RF3_G_ANCHOR OK arm=$ARM -- every anchor-scoped reader's sentinel is unique in the producer it will read, and the header it yields carries every symbol it execs"
+ # ---- THE AGE DATUM IS WRITTEN LAST (section 2a S8, CLAUDE.md rule 4) ------
+ touch "$WORK/0"/* || { stage_say "ABORT S8 age-guard datum"; exit 5; }
+ # THE MOST DANGEROUS OF THE FOUR SITES, AND IT FAILED SILENTLY RATHER THAN LOUDLY.
+@@ -850,7 +850,7 @@
+                exit 5 ;;
+ esac
+ echo "$AGE_DATUM" > "$WORK/.d4_age_datum"
+-stage_say "D6RF2_G_COLD OK arm=$ARM age_datum_epoch=$AGE_DATUM (every registered product must be strictly newer)"
++stage_say "D6RF3_G_COLD OK arm=$ARM age_datum_epoch=$AGE_DATUM (every registered product must be strictly newer)"
+ 
+ # ===========================================================================
+ # THE ARM COMMAND.  THE UNITS GATE IS CALL SITE 2 OF 2 AND IT SITS BETWEEN THE
+@@ -859,17 +859,17 @@
+ # ExitCode and THE MESH IS NEVER TOUCHED.
+ # ===========================================================================
+ case "$ARM" in
+-  F_mp)    CMD="python d6rf2_endpoint_physical.py --age-datum $AGE_DATUM && python d6rf2_units_assert.py d6r_endpoint_dvs.json --runscript d6rf2_opt_runScript.py && mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d6rf2_fd_endpoint.py" ;;
+-  REF_off) CMD="python d4_endpoint_physical.py --age-datum $AGE_DATUM && python d6rf2_units_assert.py d4_endpoint_dvs.json --runscript d4_opt_runScript.py && mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d6rf2_ref_off.py" ;;
++  F_mp)    CMD="python d6rf3_endpoint_physical.py --age-datum $AGE_DATUM && python d6rf3_units_assert.py d6rf3_endpoint_dvs.json --runscript d6rf3_opt_runScript.py && mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d6rf3_fd_endpoint.py" ;;
++  REF_off) CMD="python d4_endpoint_physical.py --age-datum $AGE_DATUM && python d6rf3_units_assert.py d4_endpoint_dvs.json --runscript d4_opt_runScript.py && mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d6rf3_ref_off.py" ;;
+ esac
+ case "$CMD" in
+-  *d6rf2_units_assert.py*) : ;;
++  *d6rf3_units_assert.py*) : ;;
+   *) echo "ABORT the arm command for $ARM does not invoke the units gate; call site 2 is missing (rule 14)"; exit 7 ;;
+ esac
+ 
+-CMDFILE="$WORK/d6rf2_cmd.sh"
++CMDFILE="$WORK/d6rf3_cmd.sh"
+ printf '%s\n' "$CMD" > "$CMDFILE" || { echo "ABORT cmd file"; exit 4; }
+-echo "D6RF2_CMDFILE arm=$ARM md5=$(md5sum "$CMDFILE" | cut -d' ' -f1) deadline_in_container_s=$TMO units_gate=present"
++echo "D6RF3_CMDFILE arm=$ARM md5=$(md5sum "$CMDFILE" | cut -d' ' -f1) deadline_in_container_s=$TMO units_gate=present"
+ 
+ CPUSAMPLE="$BASE/${ARM}_${STAMP}.cpu.jsonl"
+ # DELIVERED CORES ARE MEASURED, NOT INFERRED FROM THE QUOTA FLAG.  Passive
+@@ -932,14 +932,14 @@
+      echo D4S_CONTAINER_UID: \$(id -u) && \
+      python -c 'import idwarp,os,hashlib; p=idwarp.__file__; so=os.path.join(os.path.dirname(p),\"libidwarp.so\"); print(\"D4S_IDWARP_IMPORTED_FROM:\",p); print(\"D4S_IDWARP_SO_MD5:\",hashlib.md5(open(so,\"rb\").read()).hexdigest())' && \
+      echo D4S_DEADLINE_IN_CONTAINER_S: $TMO && \
+-     timeout -k $KILL_GRACE_S $TMO bash /mnt/$(basename "$WORK")/d6rf2_cmd.sh" > /dev/null 2>&1 \
++     timeout -k $KILL_GRACE_S $TMO bash /mnt/$(basename "$WORK")/d6rf3_cmd.sh" > /dev/null 2>&1 \
+   || { echo "ABORT could not start container"; exit 4; }
+ 
+ # The cap is a RUNAWAY GUARD THAT REPORTS (Sanaa, 2026-08-25); the CEILING is
+ # the fleet safety stop (Sanaa, 2026-09-03 ~21:00Z): far above the estimate, not
+ # the estimate itself, and it stops the run gracefully regardless of trend.
+ CEILING=$(python3 -c "print('%.1f' % (3.0*$CAP))")
+-echo "D6RF2_RUNAWAY_GUARD arm=$ARM cap_core_min=$CAP ceiling_core_min=$CEILING mode=report_then_graceful_stop_at_ceiling"
++echo "D6RF3_RUNAWAY_GUARD arm=$ARM cap_core_min=$CAP ceiling_core_min=$CEILING mode=report_then_graceful_stop_at_ceiling"
+ CAP_REPORTED=no; CEILING_HIT=no
+ while true; do
+   RUNNING=$(sudo -n docker inspect --format '{{.State.Running}}' "$NAME" 2>/dev/null)
+@@ -948,11 +948,11 @@
+   if [ "$RUNNING" != "true" ]; then break; fi
+   if [ "$CAP_REPORTED" = "no" ] && [ "$(python3 -c "print(1 if $CM > $CAP else 0)")" = "1" ]; then
+     CAP_REPORTED=yes
+-    echo "D6RF2_CAP_CROSSED arm=$ARM core_min=$CM cap=$CAP ceiling=$CEILING action=REPORTED_RUN_CONTINUES supervisor_decides" | tee -a "$BASE/ledger.txt"
++    echo "D6RF3_CAP_CROSSED arm=$ARM core_min=$CM cap=$CAP ceiling=$CEILING action=REPORTED_RUN_CONTINUES supervisor_decides" | tee -a "$BASE/ledger.txt"
+   fi
+   if [ "$(python3 -c "print(1 if $CM > $CEILING else 0)")" = "1" ]; then
+     CEILING_HIT=yes
+-    echo "D6RF2_CEILING_HIT arm=$ARM core_min=$CM ceiling=$CEILING action=GRACEFUL_STOP" | tee -a "$BASE/ledger.txt"
++    echo "D6RF3_CEILING_HIT arm=$ARM core_min=$CM ceiling=$CEILING action=GRACEFUL_STOP" | tee -a "$BASE/ledger.txt"
+     sudo -n docker stop -t 30 "$NAME" >/dev/null 2>&1
+     break
+   fi
+@@ -1007,14 +1007,14 @@
+     print('NOT_MEASURED')
+ " 2>/dev/null)
+ test -n "$CWALL" || CWALL=NOT_MEASURED
+-echo "D6RF2_CONTAINER_CLOCK arm=$ARM started_at=$CSTART finished_at=$CFIN container_wall_s=$CWALL host_wall_s_bracket_T0_T1=$WALL"
++echo "D6RF3_CONTAINER_CLOCK arm=$ARM started_at=$CSTART finished_at=$CFIN container_wall_s=$CWALL host_wall_s_bracket_T0_T1=$WALL"
+ sudo -n docker rm "$NAME" >/dev/null 2>&1
+ sudo -n chown -R ubuntu:ubuntu "$LOG" "$WORK" 2>/dev/null
+ 
+ # A UNITS REFUSAL IN THE CONTAINER IS NAMED ON THE RECORD, not left as a bare
+ # exit code a reader has to look up.
+ if [ "$rc" = "77" ]; then
+-  echo "D6RF2_UNITS_REFUSAL_IN_CONTAINER arm=$ARM rc=77 -- call site 2 refused the design vector; THE MESH WAS NEVER TOUCHED.  See $(basename "$LOG") for the failing check." | tee -a "$BASE/ledger.txt"
++  echo "D6RF3_UNITS_REFUSAL_IN_CONTAINER arm=$ARM rc=77 -- call site 2 refused the design vector; THE MESH WAS NEVER TOUCHED.  See $(basename "$LOG") for the failing check." | tee -a "$BASE/ledger.txt"
+ fi
+ 
+ CORE_MIN=$(python3 -c "print(round($WALL*$RANKS/60.0,3))")
+@@ -1022,7 +1022,7 @@
+ LEDGER="$BASE/ledger.txt"
+ {
+   echo "ARM=$ARM ROW=$ROW IMG=$IMG DIGEST=$GOT_DIGEST rc=$rc wall_s=$WALL ranks=$RANKS core_min=$CORE_MIN cap_core_min=$CAP enforced_wall_s=$TMO enforced_core_min=$BACKCHECK memory=$MEM inspect(exit,oomkilled)=[$INSPECT] container_wall_s=$CWALL frame_allowance_s=$FRAME_ALLOWANCE_S memavail_GiB=$MEMAVAIL_GIB memavail_pre_GiB=$MEMAVAIL_GIB memavail_post_GiB=$MEMAVAIL_POST cpuset=$CPUSET delivered_cores_mean=[$DELIVERED] siblings_pre=[$SIBLINGS_PRE] siblings_post=[$SIBLINGS_POST] ceiling_hit=$CEILING_HIT log=$(basename "$LOG") stamp=$STAMP"
+-  grep -a "D4S_CONTAINER_UID\|D4S_IDWARP_SO_MD5\|D4S_DEADLINE_IN_CONTAINER_S\|D6RF2_UNITS_PASS" "$LOG" | head -4
++  grep -a "D4S_CONTAINER_UID\|D4S_IDWARP_SO_MD5\|D4S_DEADLINE_IN_CONTAINER_S\|D6RF3_UNITS_PASS" "$LOG" | head -4
+ } | tee -a "$LEDGER"
+ test -s "$LOG" && touch "$LOG.ok.${STAMP}"   # L-252 provenance sentinel
+ echo "STAMP=$STAMP RC=$rc CORE_MIN=$CORE_MIN"
