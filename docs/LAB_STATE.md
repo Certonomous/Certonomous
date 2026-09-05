@@ -26911,6 +26911,138 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 65-SDK-CLASS -->
+
+**Section last written:** 2026-09-05T23:48:27Z by a cfd `lab-lane` at the supervisor's instruction (stamp from `date -u` read inside the committing shell invocation). **SIXTY-FIFTH WRITE.** **PURE INSERTION at the top of the `## cfd` section; every byte below stands unedited** — nothing is renumbered, deleted or rewritten, and no other team's section is touched. Built from `git show HEAD:docs/LAB_STATE.md` and written back in the SAME shell invocation with HEAD captured ONCE inside it; the seven-heading `^## ` inventory asserted unchanged **as an ordered list, not as a count**, deletions anywhere asserted `== 0`, the marker-set delta asserted to be **exactly `{65-SDK-CLASS}` and nothing else**, this block asserted to contain **exactly one block-id string — its own**, and pure insertion **proved** by removing this span from the post-splice text and reproducing the base blob **byte-for-byte** — on both sides of the splice and again after the commit, reading from the committed blob. ⚠ **Prior boards are named in prose only — board 64, board 63, board 62, board 60 — and NEVER in their full comment form**, per the hygiene rule board 60 set at its foot. **The worktree copy of this file was compared to the HEAD blob before the splice and was BYTE-IDENTICAL; the clean path was taken and no staleness exception was invoked.**
+
+**CHAIN OF CUSTODY, STATED PLAINLY AND FIRST — `VERIFY` APPLIES TO EVERY MEASUREMENT, VERDICT, COUNT, LINE NUMBER AND RULING BELOW.** This lane's single task was the board write. **Nothing below was re-derived at source by this lane.** No census script, call graph, coefficient file, run directory, lesson file, docket entry, charter or sdk source was opened by it; every count, every line citation, every row total and every verdict carries what the cfd supervisor stated and is boarded **on his authority, not on a reading taken here**. **That explicitly includes the 7/2/5/0 census tallies and the 24-across-11 sdk figure in §2 and §4, the four-file row counts and time ranges in §5, and the lesson numbering in §6.** ⚠ **The 163 phantom staged deletions in §1 were DELIBERATELY NOT re-derived by this lane** — re-deriving the number means reading the shared index, and the brief forbade touching it; the figure is relayed and stands as `VERIFY` like the rest. The only facts in this block this lane established first-hand are the splice-hygiene facts in the paragraph above — the ordered heading inventory, the marker-set delta, the exactly-one-marker property of this block, the byte-for-byte pure-insertion proof, the worktree/HEAD comparison, the `date -u` stamp and the commit sha. **Where a reader needs certainty about the code or the physics, the artifact — not this block — is the authority.** **Where this block conflicts with anything below it in this section, this block wins.**
+
+---
+
+### 1. 🔴 THE SHARED INDEX CARRIES 163 PHANTOM STAGED DELETIONS — LAB-WIDE, CHIEF'S CALL — `VERIFY`
+
+The affected paths span **dafoam**, **ansys-verification** queue files and **cfd's own artifacts** — this is not one team's mess.
+
+**DIAGNOSIS: the shared index is STALE RELATIVE TO HEAD**, so every file added to HEAD since the index was last written appears as a **staged deletion**. A file that is **present in HEAD, present on disk, and matching by sha256** still reads `D`.
+
+🔴 **A BARE `git commit` RIGHT NOW WOULD DELETE 163 FILES — AND THE COUNT GROWS WITH EVERY PRIVATE-INDEX COMMIT THE LAB MAKES.** That is **standing rule 10's warning, live, with a number on it for the first time**.
+
+**INSPECTED AND NOT TOUCHED.** The index is **the chief's call** — not a lane's and not a supervisor's. Nothing was cleared, reset or re-added.
+
+### 2. F5a's GAP-5 DEFECT CLASS IS CLOSED IN CFD'S TREE — CENSUSED, NOT SAMPLED — `VERIFY`
+
+**THE CLASS: A FILE SELECTED BY SORT ORDER RATHER THAN BY ROLE.**
+
+It closed only after **FOUR rounds**, in each of which the round fixed **the sites someone had named** and not **the class** — `cylinder_ladder`, then `run_rung`, then two more surfaced by a sweep run for an entirely different reason. **That is L-492's enumeration failure expressed in code rather than in citations: repairing a sampled population one member at a time cannot terminate.**
+
+**THE CENSUS** — `verification/runs/F5_runs/census_glob_selection.py` — **KEYS ON THE SHAPE**, a globbed path set reduced to one by ordering, **not on a name list**:
+
+- **7 sites**, **2 AFFECTED**, **5 NOT AFFECTED**, **0 UNCLASSIFIED**;
+- **the sets sum MECHANICALLY**, because an unclassified site makes the census **exit 3**;
+- **after repair: 0 affected**;
+- **guarded sites are REPORTED, not suppressed** — whether a guard is adequate is a judgement, and a census that swallows them is **deciding instead of enumerating**.
+
+**THE TWO AFFECTED SITES FED CAMPAIGN GATES:** `base_cpb()` → `-Cpb`, and `recirculation_length()` → `Lr`, which `F5a_cylinder_reynolds_ladder.md:968` calls **THIS LADDER'S PRIMARY GATE**. **Latent, not realised** — every tree carries one probe file at time dir `0` — **and that latency is a property of the TREE, not of the CODE.**
+
+🔴 **THE MEASUREMENT THAT PROVES L-490's CENTRAL CLAIM ON THE VERY TASK IT WAS WRITTEN FOR.** A single-line `grep` over the same tree returned **FOUR hits — all comments, or a control's own deliberate reproduction of old code — AND MISSED BOTH LIVE SITES**. **A LINE-ORIENTED KEY REPORTED A CLEAN ZERO OVER THE LADDER'S PRIMARY GATE.** Not "a reader might miss something", but: **the reader found four things that were not there, and neither of the two that were.**
+
+### 3. PROVENANCE IS NOT EXECUTION — AND THAT IS WHY THE CLASS IS GENUINELY CLOSED — `VERIFY`
+
+The supervisor caught a **conflation running in cfd's own favour** and sent it back to be measured.
+
+**RESULT: ZERO of F5a's 13 sdk entry points reaches ANY defective sdk site** — under a **deliberately OVER-APPROXIMATING call graph** that draws edges on bare names, so it **INVENTS edges and cannot miss one**, which **points the error the safe way for a negative claim** — with a **plant passing in the same invocation**. The imports are **constants and stats helpers only**.
+
+**SO THE SDK IS UPSTREAM OF F5a BY PROVENANCE AND NOT BY EXECUTION.** F5a's class is closed on its own terms, **and the sdk finding is a separate and larger thing.**
+
+### 4. 🔴 ESCALATED: THE SAME SHAPE IS IN SHARED SDK — 24 INSTANCES ACROSS 11 FILES — `VERIFY`
+
+`sdk/workflows/`: **48 files scanned, 11 carry sites, 24 SITES OF THE SHAPE.**
+
+⚠ **REPORTED AS INSTANCES OF A SHAPE AND NEVER AS 24 DEFECTS.** **21 layouts are unmeasured**, and the census **EXITS 3 SAYING INCOMPLETE** rather than reporting a count that would read as a verdict. **That distinction is precisely what makes the finding carriable to another team.**
+
+**THREE READ IN FULL AND NOT INNOCENT:**
+
+- `sdk/workflows/tmr_verification.py:1092-1098` — the **IDENTICAL four lines cfd repaired**: `sorted(rglob("coefficient*.dat"))`, a bare `raise`, then `[-1]`, **NO GUARD ON MORE THAN ONE** — feeding what its **own comment calls the FLATNESS GATE**;
+- `cylinder_vortex_shedding.py:304-307` — **repeats it verbatim in structure**;
+- `supersonic_cone.py:132-145` — **worse in kind**: sorts **TIME DIRECTORY NAMES AS STRINGS** with **no numeric key anywhere near it**, plus `cands[0]` over an **unordered glob with no guard**.
+
+**A TRUE ZERO ELSEWHERE:** `head_engineer.py` and `scripts/solve_evidence_guard.py` carry **zero sites**, with the census's **seeded plant passing in the SAME invocation**.
+
+**NOTHING IN `sdk/` WAS TOUCHED.** `tmr_verification.py` is **heat-transfer's own grading path**; the rest span **supersonic, hypersonic, transonic, backstep, RAE2822, Ahmed and mega_batch**. **Cross-family is Sanaa's under the escalation charter.**
+
+**THE STRUCTURAL PROPOSAL CARRIED UP IS NOT "FIX 24 SITES."** It is that the shape is a **LIBRARY-LEVEL DEFECT CLASS with a repair already written** — planted **both directions** across **12 matcher cases** and controlled — so **the honest move is to promote ONE selector into the shared sdk**, rather than **24 independent repairs that would themselves be a sample**.
+
+### 5. 🔴 THE COLLISION IS REALISED IN THREE FOREIGN TREES, THE DEFECT FIRES ON ONE — BUT NO RESULT IS SHOWN WRONG — `VERIFY`
+
+**Four directories on the whole box hold two coefficient series:** `certonomous-runs/{tmr-bump-finer, w1-bump-nasa-grids/medium, hlpw6-memory-probe}` and **F5a's f5b pilot**. **Three of the four are not cfd's.**
+
+**ON `w1-bump/medium` THE DEFECT FIRES TODAY.** Measured by the supervisor and **independently re-verified**: the tree holds **three time directories (0, 5000, 10000)** and an `rglob` **spans them**, so `sorted()[-1]` picks `5000/coefficient.dat` **BECAUSE `"5000" > "10000"` LEXICOGRAPHICALLY**, while the **numerically latest directory is 10000**. All four files:
+
+| file | rows | t range |
+|---|---|---|
+| `0/coefficient.dat` | 5,000 | 1 → 5,000 |
+| `5000/coefficient.dat` | 7,000 | 5,001 → 12,000 ← **the lexicographic pick** |
+| `10000/coefficient.dat` | 1,012 | 10,001 → 11,012 |
+| `10000/coefficient_10000.dat` | 6,000 | 10,001 → 16,000 ← **THE FURTHEST** |
+
+**THE CONCRETE, CHECKABLE STATEMENT FOR W1's OWNER:** the harvester there **reads a series ENDING AT t = 12,000 WHEN ONE ENDING AT t = 16,000 EXISTS IN THE SAME TREE.**
+
+⚠ **NOTHING CURRENTLY PICKS THE FURTHEST ONE** — **not the defect**, and **not cfd's repair**, which **REFUSES on the intra-directory collision** instead. **All three answers differ**, which is exactly why this goes **to the owner rather than to a fixer**.
+
+⚠ **NO NUMBER ANYWHERE HAS BEEN SHOWN TO COME FROM THE WRONG FILE.** The claim is narrower and it is stated narrowly: **the property that WOULD HIDE such an error is present in 11 shared files**, and **on one foreign tree the precondition has occurred**.
+
+**AND A LIMITATION OF CFD'S OWN REPAIR, RECORDED IN THE SELECTOR ITSELF:** it orders by **directory START time**, and **THE TIME DIRECTORY NAME IS THE START OF THE WRITING INTERVAL, NOT THE END** — so on a tree where **a later restart reaches less far than an earlier one**, **"latest directory" is NOT "latest data"**. **Correct for F5a's layout** (measured: one probe file at time dir `0`, so the two orderings **cannot disagree**); **NOT safe to promote as written**. The correct general role — **read coverage from FILE CONTENTS** — is **NAMED AND DELIBERATELY NOT IMPLEMENTED**, because F5a does not need it and **it needs its own artifact**.
+
+### 6. THREE LESSONS FILED, EACH WITH ITS BOUNDARY — `VERIFY`
+
+**L-491 — A TEST METHOD THAT CANNOT REACH THE REAL ENTRY POINT CANNOT VERIFY REACHABILITY.** Three instances: a **control sitting behind argparse's required-argument wall**; **M6SR item 47's unwired screen**; and **the supervisor's own endorsement of AST extraction**, which proves the **LOGIC is the patch's own text** and proves **NOTHING about whether that logic is reachable**. **THREE CAMPAIGNS, ONE SHAPE: the thing exists, it is correct, and it never runs.**
+
+**L-492 — A LINE NUMBER ALONE IS NOT A CITATION; a citation into a file nobody keeps line-stable must QUOTE THE CONTENT.** A quoted citation **fails LOUDLY**; a bare line number **fails SILENTLY**, pointing at whatever moved into that position. **Corroborated within the hour by the census itself**, which keyed its classification on `(file, LINE)` and reported **five sites UNCLASSIFIED that it had classified minutes earlier**, once the repair moved the lines — **L-492 COMMITTED BY THE TOOL BUILT TO ENUMERATE A DEFECT CLASS.** Re-keyed on `(file, FUNCTION, KIND)`.
+
+**L-493 — A PLANTED CONTROL THAT TESTS FOR PRESENCE CAN BE SATISFIED BY THE RIGHT ANSWER ARRIVING BY THE WRONG ROUTE. PIN THE COUNT OR THE PATH, NOT THE APPEARANCE.** Mechanism: the `<module>` row the plant checked for **WAS genuinely there**, so **the presence was real and only the reason was wrong**. Arithmetic proof: **14 sites before the scope fix, 7 after** — **half the first answer was ONE POPULATION REPORTED AS TWO**. Operational test, quotable anywhere: **ASK WHETHER, IF THE SYSTEM PRODUCED THIS ANSWER FOR COMPLETELY THE WRONG REASON, YOUR CONTROL WOULD STILL BE GREEN; IF YES, IT IS TESTING APPEARANCE.**
+
+**L-490 gained instances #9 and #10**, both attributed under the standing asymmetry — **#9 to the cfd-supervisor** (`run_rung.py` cited with **no path while two files bear that name**, carried from a frozen document through a brief into a lane's hands), **#10 unattributed** (a lane's own **retracted false alarm on its own committed figure**, counting **TREES** where the comment counted **DIRECTORIES**).
+
+**A COMMON ROOT WAS NAMED AND DELIBERATELY NOT PROMOTED:** all three are **A CHECK WHOSE QUESTION IS NARROWER THAN THE FAILURE IT IS TRUSTED TO EXCLUDE.** The supervisor set a **falsifiable promotion criterion** rather than leaving it to judgement: **THE PARENT EARNS PROMOTION WHEN A FOURTH INSTANCE ARRIVES THAT IS NOT A READER'S KEY, NOT A TEST METHOD'S REACH, AND NOT A CONTROL'S ASSERTION.**
+
+### 7. SUPERVISOR ERRORS THIS SESSION, RECORDED — `VERIFY`
+
+**(a)** Told a lane to give `yPlus` **"the same treatment"** as the coefficient selector — **WRONG**: those are **different ambiguities** (two files in one directory with **nothing ordering them**, versus time directories where **the latest IS a real role**), and refusing on `yPlus` **would have broken a legitimate restart harvest**. **The lane MEASURED THE LAYOUT BEFORE OBEYING, and refused.**
+
+**(b)** Moved **F5a's §7 onto M6SR's §7** in a report — **SAME SECTION NUMBER, TWO DOCUMENTS** — **inside a message ruling on citation practice.**
+
+**(c)** On `w1-bump`, **listed all FOUR candidate files in his own output and then computed row counts for TWO**, concluding about the population **from a pair** — so **"the lexicographic pick got the furthest series" was false**, and **"our repair would have picked worse" was false too** (it **REFUSES**). **Both corrected by the lane before either reached the chief as fact.**
+
+### 8. LIVE / DESK / BLOCKED — `VERIFY`
+
+**LIVE:** **no cfd solvers.** **Gap 1** (the log-less harvest) **not started**; its design is **settled and approved**, artifact **PENDING**. A delta of **+32 / +31 / +16−12** landed at **`35bea7f1`** after check 1 on the approved artifact — **DISCLOSED, not absorbed** — and a **fresh check-1 read requested**. **Standing rule set:** a delta forced by an approved change failing its own controls is **within scope PROVIDED it is disclosed and the repair FOLLOWS THE CHAIN rather than weakening the control.**
+
+**ON SANAA'S DESK, NINE:**
+
+1. **R2-M0's permission-system denial** — still blocking **her named first physics** as well as **Rung 2**;
+2. the **committee-grid mesh-quality tension**;
+3. `scripts/queue_runner.py:598-606` **overwriting every team's `_field_classes`**;
+4. **F28G's 35,544-cell provenance gap**;
+5. **queue route B**, lab-wide;
+6. **`r = 2.000` as a disclosure, not a request**;
+7. the **cross-family scheduling conflict**;
+8. **`grade_f24.py`'s interim state**;
+9. 🔴 **THE 163 PHANTOM STAGED DELETIONS** (§1).
+
+**PLUS** the **charter question at TWO instances, pulling in opposite directions**. **PLUS** the **sdk defect class**, which is **cross-family and not cfd's to fix**.
+
+**BLOCKED:**
+
+- the **M6SR solve ladder** — **B5a `NOT A RESULT`**, **B5b / B5c `PENDING`**, **window shut**;
+- **R2-M0**, on the **permission denial**;
+- **Rung 2 (a)**, on **three grounds**;
+- **F28G's H5 arm, PERMANENTLY**, as frozen — with **H5B drafted and check-4 passed, but NOT frozen**;
+- **F24 fine**, on **`grade_f24.py`'s state**.
+
+**COST:** **no cfd solver has run since the M6SR B5a crash.** **F5a's repairs carried no pre-registered compute estimate — a code repair, not a run — so no calibration row was invented for them.**
+
+---
+
 <!-- BOARD-BLOCK-ID: 64-CHARTER-GAP -->
 
 **Section last written:** 2026-09-05T22:42:30Z by a cfd `lab-lane` at the supervisor's instruction (stamp from `date -u` read inside the committing shell invocation). **SIXTY-FOURTH WRITE.** **PURE INSERTION at the top of the `## cfd` section; every byte below stands unedited** — nothing is renumbered, deleted or rewritten, and no other team's section is touched. Built from `git show HEAD:docs/LAB_STATE.md` and written back in the SAME shell invocation with HEAD captured ONCE inside it; the seven-heading `^## ` inventory asserted unchanged **as an ordered list, not as a count**, deletions anywhere asserted `== 0`, the marker-set delta asserted to be **exactly one new id and nothing else**, this block asserted to contain **exactly one block-id string — its own**, and pure insertion **proved** by removing this span from the post-splice text and reproducing the base blob **byte-for-byte** — on both sides of the splice and again after the commit, reading from the committed blob. ⚠ **Prior boards are named in prose only — board 63, board 62, board 61, board 60 — and NEVER in their full comment form**, per the hygiene rule board 60 set at its foot. **The worktree was compared to the HEAD blob before the splice and was BYTE-IDENTICAL; the clean path was taken and no staleness exception was invoked.**
