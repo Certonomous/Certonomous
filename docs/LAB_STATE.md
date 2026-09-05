@@ -5346,11 +5346,60 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-05T21:47:32Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-78` — **four legs home all `rc=0`, Arm F complete at 16.83 core-min; the 20 s I authorised stopped the `A1WRT2` freeze TWICE (a hash of the EMPTY STRING recorded as a measurement, and a missing loader line meaning the solver would never have started); and my SEAM deadline ruling was EXACTLY BACKWARDS and is void.** Before it, `S-77`, `S-76`, `S-75`, `S-74`…`S-29`.
+**Section last written:** 2026-09-05T21:55:29Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-79` — **`A1WRT2` is FROZEN at `4e39c370`, checks 1 and 4 discharged personally, both legs reachable and caps summing exactly to the ceiling; `S1FDP` is five legs home all `rc=0`; and I used TWO HEADROOM CONVENTIONS in one table.** Before it, `S-78`, `S-77`, `S-76`, `S-75`…`S-29`.
 
 **Section last written:** 2026-09-04T01:08:43Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-48` — **`W3` IS NOT RUNNING AND HAS NOT BEEN SINCE 21:57:49Z; IT REACHED ITS REGISTERED TERMINUS, AND THE REGISTERED FALLBACK DOES NOT RESCUE IT.** `S-47`'s and `S-46`'s *"`W3_chain_r2` running"* lines are **STRUCK BY QUOTE** below — they were true when written and were still being relayed three hours after they stopped being true. Before it, `S-47` — **DESK ITEMS CLOSED**: the **rule-10 hole is fixed in the constitution itself** on Sanaa's GO (`0ee2e7df`, verified by me at HEAD, not taken on relay), and the rule-12 estimate gap is **routed to verification** as a forward-only note. `S-46`'s "on Sanaa's desk" line is **struck by quote** so no successor re-escalates a closed item. **Nothing now on her desk from this family** but the four `NOT FILED` upstream defect classes and FD-vs-adjoint as a fourth `V` instrument. Before it, `S-46` (closing state), `S-45`, `S-44`, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+##### S-79 — **`A1WRT2` IS FROZEN AT `4e39c370` — CHECKS 1 AND 4 DISCHARGED PERSONALLY, BOTH LEGS REACHABLE, CAPS SUMMING EXACTLY TO THE CEILING. `S1FDP` IS FIVE LEGS HOME, ALL `rc=0`. AND A CORRECTION: I USED TWO HEADROOM CONVENTIONS IN ONE TABLE** (2026-09-05, `date -u` stamp in the committing invocation)
+
+###### 1. `A1WRT2` FROZEN — MY ACT, CHECKS FIRST
+
+**Freeze `4e39c37087bd9944d1ab860aa9eb4f106dd87711`, document blob `8e4453408cec8badb663194d14fee64e`, hashed from `git show HEAD:` and never from disk.**
+
+**CHECK 4, RE-DERIVED BY ME AS ARITHMETIC** rather than read from the lane's table:
+
+| leg | cap | as wall | deadline | cap binds first | headroom (of cap) |
+|---|---|---|---|---|---|
+| `SEAM` | 10.0 | 600.0 s | 900 s | **YES** | **+50.0 %** |
+| `TAIL` | 675.0 | 40,500.0 s | **41,400 s** | **YES** | **+2.2 %** |
+
+**Caps sum `685.000` == ceiling `685.000`.** **CHECK 1:** the deadline change is **one line**, `timeout 40500 → 41400`, **no gate, limb or refusal path touched.** **Rule 2's condition tested by the freezing shell itself: run root ABSENT at 21:53:51Z.**
+
+###### 2. ⚠ A CORRECTION TO ME — TWO CONVENTIONS IN ONE TABLE
+
+I published `SEAM` at **+33.3 %** and `TAIL` at **+2.2 %**. **They are not the same measure.** SEAM's 300 s gap is **33.3 % of the DEADLINE** and **50.0 % of the CAP**; my TAIL figure was already **of the cap**. **I used two conventions in a single table and did not say so.** The instrument's (of the cap) is adopted — it is `W3S`'s, so the two items stay comparable and **the record carries one number, not two.**
+
+*Small, and it belongs beside the larger ones: the `1.186`/`1.2291` normalisation, the fabricated `2620`, the inverted SEAM ruling. **Four measurement-presentation errors from me this session, every one caught by a lane reading the artefact.***
+
+###### 3. WHAT THE ASSEMBLY CAUGHT AT THE LAST MOMENT
+
+**Two `controlDict` fixtures were staged AND md5-asserted while the extraction table read `15 present, 0 ABSENT` WITHOUT THEM** — bound through a dict of strings the extractor could not resolve out of the AST. **That is §11 item 2's failure mode verbatim: an md5-agreement control reading 8 of 8 while a dependency the frozen code EXECUTES is absent.** Found **while assembling the package being handed to me** — *the check working at the last possible moment, which is when it is worth most.* Rebound, **15 → 17**.
+
+**And the better one: when the extractor then flagged the lane's OWN control for naming a repo path required NOT to exist, the lane stopped naming such a path rather than teaching the extractor to skip one.**
+
+> **A checker taught to skip a class of path has a hole shaped exactly like that class.** *That instinct is worth more than the fix.*
+
+**And both of this session's cap errors are now CONTROLS, not fixes — the 40,500 tie replays and must be caught, and MY OWN reverted `900 → 600` inversion replays and must be caught.** *A supervisor's mistake that can only be caught by the supervisor noticing it again is not caught; one a control replays is.*
+
+###### 4. `S1FDP` — FIVE LEGS HOME, ALL `rc=0`
+
+| leg | rc | core-min |
+|---|---|---|
+| `f500_5363_plus` / `minus` | **0 / 0** | 8.43 / 8.40 |
+| `p025_5363_plus` / `minus` | **0 / 0** | 7.70 / 7.60 |
+| `p025_5428_plus` | **0** | 7.70 |
+| `p025_5428_minus` | running | — |
+
+**39.83 core-min spent; eight legs project to ~63.7 against registered 60.711 (ratio ~1.05), inside the 75.0 hard cap.** **Arm F complete; Arm P at cell 2 of 3.** *Cost drift reported while it is small.*
+
+###### 5. STATE
+
+**RUNNING:** `S1FDP` Arm P. **FROZEN AND GOING TO QUEUE:** `A1WRT2` — **SEAM only**, `TAIL` gated behind SEAM's verdict, because **675 core-min does not move until 10 has spoken.** **`P-SEAMTIME` is the headline either way:** first anchored `Time` **4001** → the restart loaded state; **`Time = 1`** → the producer resets on a `latestTime` start too, `G-COMPLETE` fails SEAM, `TAIL` is refused at `rc=7`, and **the item stops at ≤ 10.0 core-min with the mechanism measured for the first time in this family. Both are results.**
+
+**STILL MINE:** `D6RF3`'s freeze (P1/P2 in build, plus the `PREREGISTRATION_DRAFT.md → PREREGISTRATION.md` rename, without which the grading path refuses on its own first line) and `W3S`'s freeze. **W4 Arm 2 after Arm P reports.**
+
+
 ##### S-78 — **FOUR LEGS HOME, ALL `rc=0`: ARM F COMPLETE AT 16.83 CORE-MIN, ARM P UNDERWAY. AND THE 20 SECONDS I AUTHORISED STOPPED THE `A1WRT2` FREEZE **TWICE** — INCLUDING A HASH OF THE EMPTY STRING RECORDED AS A MEASUREMENT, AND A MISSING LOADER LINE THAT WOULD HAVE MEANT THE SOLVER NEVER STARTED** (2026-09-05, `date -u` stamp in the committing invocation)
 
 ###### 1. THE RUN
