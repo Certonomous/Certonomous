@@ -707,3 +707,51 @@ body has ever executed**, so the container / `d12y_run_script.py` / OpenFOAM sid
 manifest contract is **NOT MEASURED** — a fixture proves the contract, it does not prove
 the solver, and the first `SETUP` leg is that measurement. **NOT FROZEN. NOT PINNED. NOT
 QUEUED. NOT LAUNCHED. SUBMISSIONS REMAIN PARKED.**
+
+---
+
+## 13. FREEZE — 2026-09-05, by the dafoam-supervisor. **THIS COMMIT IS THE FREEZE.** §10's checklist is discharged; the gates close here
+
+**The DRAFT banner is STRUCK BY THIS SECTION, not by editing it.** From this commit rule 2 closes every gate below and rule 6 forbids editing anything above.
+
+### 13.1 §10's CHECKLIST, ITEM BY ITEM
+
+**1. §2b's condition DRIVEN, with its reading and timestamp** — both run roots tested by the freezing shell itself **before this text existed**: `CURRICULUM-D12R2W3S-GSCAN-cylinder-unsteady` **ABSENT**, `CURRICULUM-D12R2W3S-WINDOW-cylinder-unsteady` **ABSENT**. *Named as directories that do not exist, and checked, not asserted.*
+
+**2. The three instruments written, with disclosed diffs against their unedited parents** — `11270522`, `c3f8faed`.
+
+**3. Every planted-failure control re-driven, both directions, under `python3` AND `-O`, negatives shown REFUSING** — comparator 50/50 + narrowing 30/30, record producer **73/73**, launcher 50/50, driver 15/15, producer-trace 29 keys / **0 findings**, cap-reachability **0 dead levers**, `ast.Assert` **0**.
+
+**4. §7's `--gscan` binding READ AS A DIFF BY ME PERSONALLY — DONE, and it passes.** *(§13.2.)*
+
+**5. Instrument md5s asserted against committed HEAD blobs, pins bumped in the same commit as the files they pin.**
+
+**6. The document COMMITTED and its sha recorded BEFORE any container starts** — this commit, and no W3S container has ever started.
+
+**7. Queue entry to be drafted with its cost fields — and enqueueing is not authorisation.**
+
+### 13.2 CHECK 1 ON THE NARROWING BINDING — WHAT I READ AND WHY IT PASSES
+
+**The clause is documented limb by limb against the frozen parent**: `L1`/`L2` **KEPT** whole-manifest; `L3` **KEPT PER LEG** with the manifest-level form **REPLACED by `N4`, which ENUMERATES the permitted legs** rather than merely requiring one window; `L4`/`L5` **KEPT PER LEG**; **`L6` STRENGTHENED into `N3` — the value must be THAT LEG'S registered window, so a leg cannot be mislabelled**; the **absent-ledger branch KEPT with the parent's own L-342 reasoning and the windows NOT waived.**
+
+**And the return type is changed from a scalar `int` to a `{leg: W}` dict DELIBERATELY, so that a caller written against the parent CANNOT SILENTLY CONSUME THIS ONE.** *That is a misuse made unrepresentable rather than merely discouraged, and it is better than any comment.*
+
+**Seven limbs are ADDED that the parent cannot express at all**, each driven **with the parent shown ACCEPTING the same defect once relabelled** — *which is what makes each an ADDED constraint rather than a renamed one.*
+
+**⚠ AND THE FILE STATES THE CLAIM IT DOES NOT MAKE, WHICH IS MINE:** my requirement *"anything the inherited gate refuses, `--gscan` also refuses"* **is not satisfiable** — the inherited gate refuses Arm A's own manifest, so a binding obeying it would grade nothing. **The true statement, driven: on window-homogeneous row sets `--gscan` REFUSES EVERYTHING, INCLUDING ALL FIVE INPUTS THE PARENT ACCEPTS** — stronger on the parent's own domain and weaker nowhere.
+
+> **And the sentence I want kept: *"THE DIFF IS NOT THE PROOF"* — `--selftest-narrowing` is, because it DRIVES the parent's own function, imported from the frozen file after its md5 is checked, side by side with the successor on 30 inputs. The diff exists so a supervisor can read the CLAUSE; the proof is the comparison.**
+
+### 13.3 WHAT IS FROZEN
+
+`W_A2 = 2600` and `CAP_A2 = 115.0` — **both set after my own check-4 arithmetic was found INVERTED and corrected** (`W=3000`'s worst case is **236 s OUTSIDE** the 7200 s bound, not 24 s inside). **`ITEM_CEILING = 290.0`, the arm caps' EXACT SUM.** Arm A point **202.08** core-min. **Span narrows 2.14× → 1.86×, stated in the document rather than buried.** **`FS-1` remains PREDICTED TO MISS** at `W·|g| ≈ 961` against a bar of 2048.6 — *a registration predicting its own falsifier will miss is the opposite of one fitted to its answer.*
+
+**`d12y_grade_w3.py` is UNTOUCHED at `3950d30fd09c9b56213a02f5e9864e20`** — the successor **imports it after checking that md5**, so gate identity is discharged by construction rather than by a diff a reader must trust.
+
+### 13.4 THE RESIDUAL, CARRIED INTO THIS BANNER UNQUALIFIED
+
+**NO LEG BODY HAS EVER EXECUTED.** The container / `d12y_run_script.py` / OpenFOAM side of the manifest contract is **NOT MEASURED**, and the first `SETUP` leg is that measurement.
+
+> **A fixture proves the contract; it does not prove the solver.**
+
+**SUBMISSIONS PARKED.**
