@@ -737,6 +737,12 @@ four §2d.1 conditions and the price number that decides it; the §4 cost table 
    question on §3f's binding list. Neither is on the grading path.
 8. **The freeze commit, in its own invocation**, re-asserting root absence *there*, with a sibling
    name in the same invocation, and the grading path hashed against the committed blob.
+   **⚠ THE RENAME IS PART OF THE FREEZE AND IS NOT COSMETIC.** `d6rf3_grade.py`'s `freeze_check`
+   list names **`PREREGISTRATION.md`**, and this file is `PREREGISTRATION_DRAFT.md`. If the freeze
+   commit does not rename it, `freeze_check` **REFUSES `absent_on_disk` on its first line** and the
+   item cannot grade — §18.3's failure mode a third time, on the registration itself. Probed
+   2026-09-05 with the other nine paths: **9 of 9 read `disk == committed blob at HEAD`**, and
+   `PREREGISTRATION.md` was deliberately excluded from that probe **because it does not yet exist**.
 9. **A queue row that cites this document**, never one carrying an estimate this document does not.
 
 ---
