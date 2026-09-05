@@ -24367,3 +24367,43 @@ from the citing document's confidence** — and where no such assertion exists, 
 **Related:** `L-490` (a reader that cannot distinguish its subject from something adjacent) is the
 same failure in data rather than in references: **the line adjacent to the one you meant is not the
 line you meant.** `CLAUDE.md` rule 6 is the mechanism that makes the exemption above safe.
+
+---
+
+## L-493 — A PLANTED CONTROL THAT TESTS FOR *PRESENCE* CAN BE SATISFIED BY THE RIGHT ANSWER ARRIVING BY THE WRONG ROUTE. PIN THE COUNT OR THE PATH, NOT THE APPEARANCE
+
+*2026-09-05, `cfd`, F5a. Cost: no compute attributable — found by the arithmetic of a census
+disagreeing with itself.*
+
+**Rule 3 says a reader must be shown able to see a non-zero.** This is the refinement that rule
+does not yet carry: **the demonstration must pin *how* the non-zero was seen, not merely *that*
+something was.** A plant asking "does the expected thing appear?" is answered by a system that
+produces the expected thing for a reason you did not intend — and it goes green.
+
+**The measured instance.** `census_glob_selection.py` was given a seeded fixture containing one
+module-level instance of the shape and several function-level ones, and required to find them.
+**It passed.** It was also, at that moment, reporting **every function-scope site a second time
+under `<module>`** — because the scope walk tested the *child's* type before descending, and the
+children of a `def` are ordinary statements, so it skipped the `def` and entered its body one
+level lower. **The plant could not see this, because the `<module>` row it checked for was
+genuinely there.** The presence was real; the reason was wrong.
+
+**The arithmetic is the proof, and it is not a small error.** The census reported **14 sites**
+before the scope fix and **7 after**. ⚠ **HALF THE FIRST ANSWER WAS ONE POPULATION REPORTED AS
+TWO** — inside the very tool built to enumerate a defect class so that it could stop being
+sampled.
+
+⚠ **THE REPAIR IS TO COUNT, NOT TO CHECK.** The fixture holds exactly one module-level site, so
+the control now asserts **`module_sites == 1`** rather than `"<module>" in found`. Where a count
+is not natural, pin the **path**: assert *which* route produced the hit, not that a hit exists.
+
+**How to tell whether your plant has this hole:** ask *"if the system produced this answer for
+completely the wrong reason, would my control still be green?"* If yes, the control is testing
+appearance. Every planted control in this territory should now print the count or the route it
+matched, the same way they already print whether the plant **discriminated**.
+
+**Related:** `L-490` is the same failure in a reader's *key* — it cannot separate its subject from
+a neighbour. This is the failure in a *control's assertion*: the assertion cannot separate the
+right answer from the right answer obtained wrongly. `L-491` is its sibling for *reachability* —
+extraction verifies logic and cannot see whether the logic runs. All three share one root: **a
+check whose question is narrower than the failure it is trusted to exclude.**
