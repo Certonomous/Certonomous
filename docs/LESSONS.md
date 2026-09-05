@@ -24368,6 +24368,24 @@ from the citing document's confidence** — and where no such assertion exists, 
 same failure in data rather than in references: **the line adjacent to the one you meant is not the
 line you meant.** `CLAUDE.md` rule 6 is the mechanism that makes the exemption above safe.
 
+### Addendum, 2026-09-05 — THIS LESSON PROVED ITSELF ON ITS OWN INSTRUMENT, WITHIN THE HOUR
+
+`census_glob_selection.py` was written to enumerate a defect class so it would stop being
+sampled. **It keyed its classification table on `(file, LINE)`.** Applying the very repair the
+census existed to enable **moved the lines**, and the census immediately reported **five sites as
+`UNCLASSIFIED` that it had classified minutes earlier** — none of them changed, all of them
+displaced.
+
+⚠ **A LINE-NUMBER KEY IS USELESS IN A TOOL WHOSE PURPOSE IS TO GUIDE EDITS**, because the tool's
+own success is what invalidates its key. Re-keyed on `(file, FUNCTION, KIND)` it then classified
+all five across a file whose lines had moved, **and still correctly flagged the one genuinely new
+site** — so the fix did not buy stability by going blind.
+
+**Why it belongs here rather than as its own note:** it is not an analogy to this lesson, it is an
+instance of it, committed by the instrument built to enumerate defects, against itself, on the same
+day the lesson was written. **The quote requirement and the stable-key requirement are one rule
+wearing two costumes: cite by something the edit cannot move.**
+
 ---
 
 ## L-493 — A PLANTED CONTROL THAT TESTS FOR *PRESENCE* CAN BE SATISFIED BY THE RIGHT ANSWER ARRIVING BY THE WRONG ROUTE. PIN THE COUNT OR THE PATH, NOT THE APPEARANCE
@@ -24407,3 +24425,18 @@ a neighbour. This is the failure in a *control's assertion*: the assertion canno
 right answer from the right answer obtained wrongly. `L-491` is its sibling for *reachability* —
 extraction verifies logic and cannot see whether the logic runs. All three share one root: **a
 check whose question is narrower than the failure it is trusted to exclude.**
+
+⚠ **THAT ROOT IS RECORDED AS AN OBSERVATION AND IS DELIBERATELY *NOT* PROMOTED TO A PARENT LESSON,
+AND THE REASON IS THE LESSONS THEMSELVES.** Twice on the day these were written, two adjacent
+things were merged too fast — a repair prescribed for `yPlus` because it *resembled* the
+`coefficient` case, and a conclusion about four files drawn from two of them. **A parent lesson
+that absorbs three good children before it has earned them is that same error one level up**, and
+it would cost more than it saves: the three children are *instructions* — sharpen the key, run
+through the real entry point, pin the count not the appearance — while the root as stated is a
+*diagnosis*, and a diagnosis cannot be executed on a Tuesday.
+
+⚠ **THE PROMOTION CRITERION, WRITTEN DOWN SO IT IS NOT LEFT TO FEEL.** The root earns promotion
+when **a fourth instance arrives that is not a reader's key, not a test method's reach, and not a
+control's assertion.** Three instances that each fit an existing child are evidence *the children
+are right*, not that a parent is needed; a fourth that fits none of them is evidence the root is
+real. Whoever finds it should know that is what they are holding.

@@ -1,0 +1,209 @@
+# DELTA BEYOND THE APPROVED ARTIFACT -- what landed in 35bea7f1 that check 1 did NOT see.
+#
+# BASELINE, RECONSTRUCTED FROM COMMITTED OBJECTS ONLY so this is independently recomputable
+# and does not depend on any scratch file:
+#   base            = git show 143e69d5:verification/runs/F5_runs/{cylinder_ladder,run_rung}.py
+#   approved state  = base PATCHED BY 143e69d5:verification/runs/F5_runs/GAP5D_CLASS_PROPOSED_DIFF.txt
+#                     (sha256 a40476d8667f68e03262ccbf4b0f119ba69fbf570bf55a4a215c9cd2f808b69a)
+#   current         = HEAD
+# run_rung.py was NOT touched by the approved artifact, so its approved state IS the base.
+#
+# THE THREE CAUSES, none of them new scope:
+#   (1) the supervisor's ORDERED limitation record -- cylinder_ladder, the _latest_time_series_path banner
+#   (2) a REGRESSION the approved change caused -- run_rung's yPlus plant went red when its
+#       delegate was refactored; repaired BY FOLLOWING THE CHAIN, not by weakening the plant
+#   (3) the census keyed its classification on (file, LINE) and the approved change MOVED THE
+#       LINES; re-keyed on (file, FUNCTION, KIND)
+
+--- APPROVED (a40476d8 applied to 143e69d5)
++++ HEAD 35bea7f1  verification/runs/F5_runs/cylinder_ladder.py
+@@ -800,6 +800,38 @@
+     return re.compile(rf"^{re.escape(stem)}(?:_\d+)?{tail}$")
+ 
+ 
++# =====================================================================================
++# ⚠ THE LIMITATION THIS SELECTOR IS WRONG UNDER, NAMED SO NOBODY PROMOTES IT BLIND.
++#
++# IT ORDERS BY THE TIME DIRECTORY'S NAME, AND THAT NAME IS THE **START** TIME OF A WRITING
++# EPISODE, NOT ITS END.  So "the latest directory" is NOT "the series that reaches furthest
++# in time", and on a tree where a later restart covers LESS than an earlier one the two
++# disagree.  THAT IS NOT HYPOTHETICAL -- MEASURED TODAY on a tree outside this campaign,
++# `certonomous-runs/w1-bump-nasa-grids/medium/postProcessing/forceCoeffs1/`:
++#     0/coefficient.dat            5,000 rows   t     1 ->  5000
++#     5000/coefficient.dat         7,000 rows   t  5001 -> 12000
++#     10000/coefficient.dat        1,012 rows   t 10001 -> 11012
++#     10000/coefficient_10000.dat  6,000 rows   t 10001 -> 16000
++# The numerically latest DIRECTORY is 10000; the series reaching furthest is
++# `10000/coefficient_10000.dat` at t=16000; and `sorted(...)[-1]` -- the defect this file
++# repairs -- picks `5000/coefficient.dat` because "5000" > "10000" LEXICOGRAPHICALLY.
++#
++# ⚠ WHAT THIS SELECTOR ACTUALLY DOES THERE WAS RUN, NOT REASONED: IT **REFUSES**, naming
++# both candidates in `10000/`.  It does NOT silently pick the shorter series.  That is the
++# right answer for a genuinely ambiguous tree -- but A REFUSAL IS STILL A BEHAVIOUR CHANGE
++# for a harvester that currently returns a value, so promotion into shared code is a
++# decision for whoever owns that tree, not a free upgrade.
++#
++# F5a IS UNAFFECTED, AND THE REASON IS MEASURED RATHER THAN ASSUMED: every F5 tree carries
++# exactly ONE probe file at time directory `0`, so directory order and data order CANNOT
++# disagree here.  The limitation bounds PROMOTION, not this campaign.
++#
++# THE CORRECT GENERAL ROLE IS "THE SERIES THAT REACHES THE LATEST TIME, READ FROM THE FILE
++# CONTENTS" -- directory names order the writing EPISODES, not the coverage.  That is a
++# larger change, it needs its own artifact and its own control, and F5a does not need it.
++# IT IS DELIBERATELY NOT DONE HERE, AND SAYING SO IS THE POINT: a repair that names the
++# layout it is wrong for is honest; one that does not is a trap for whoever promotes it.
++# =====================================================================================
+ def _latest_time_series_path(root: Path, base: str, what: str) -> Path | None:
+     """THE SOLE SELECTOR for any `<root>/<time>/<base>` series. -> path, or None.
+ 
+--- APPROVED (a40476d8 applied to 143e69d5)
++++ HEAD 35bea7f1  verification/runs/F5_runs/census_glob_selection.py
+@@ -111,8 +111,16 @@
+ #           AMBIGUOUS (nothing orders them; repair = REFUSE).  Measured per site.
+ # AXIS 2 -- GRADED (the value reaches record.json and a campaign gate) or DIAGNOSTIC.
+ # =====================================================================================
+-CLASSIFICATION: dict[tuple[str, int], tuple[str, str, str]] = {
+-    ("cylinder_ladder.py", 390): (
++# ⚠ KEYED ON (file, FUNCTION, KIND) AND NOT ON A LINE NUMBER, AND THAT IS A REPAIR OF THIS
++# FILE'S OWN FIRST VERSION.  v2 keyed the table on (file, line).  Applying the very fix this
++# census exists to enable MOVED THE LINES, and the census immediately reported five sites as
++# UNCLASSIFIED that it had classified minutes earlier -- L-492 ("a line number alone is not a
++# citation") committed by the tool built to enumerate a defect class.  A KEY THAT BREAKS WHEN
++# THE FILE IS EDITED IS USELESS IN A TOOL WHOSE PURPOSE IS TO GUIDE EDITS.
++CLASSIFICATION: dict[tuple[str, str, str], tuple[str, str, str]] = {
++    ("cylinder_ladder.py", "base_cpb", "name-index:files"): (
++        # ⚠ REPAIRED BY GAP 5(d). This entry no longer matches any site and is kept
++        # as the record of what was found. Its absence from the output IS the repair.
+         "AFFECTED", "ROLE-SELECTABLE / GRADED",
+         "base_cpb(): files[-1] over probesBase.rglob('p'). Layout is probesBase/<time>/p, "
+         "so a real latest EXISTS and the repair is numeric ordering, not refusal -- the "
+@@ -120,37 +128,46 @@
+         "reaches record.json and which the campaign names among its gates "
+         "(F5a_cylinder_reynolds_ladder.md:1139, 'gates (Cd, -Cpb, Cl_rms)'). LATENT, NOT "
+         "REALISED: all 11 trees carry exactly one probe file, at time dir 0."),
+-    ("cylinder_ladder.py", 406): (
++    ("cylinder_ladder.py", "recirculation_length", "name-index:files"): (
++        # ⚠ REPAIRED BY GAP 5(d). This entry no longer matches any site and is kept
++        # as the record of what was found. Its absence from the output IS the repair.
+         "AFFECTED", "ROLE-SELECTABLE / GRADED",
+         "recirculation_length(): files[-1] over probesCenterline.rglob('U'). Same layout "
+         "and same repair. GRADED, AND THE MOST SEVERE OF THE SEVEN: produces lr_over_d, "
+         "which the campaign calls THIS LADDER'S PRIMARY GATE at Re 1000/2000/3900 "
+         "(F5a_cylinder_reynolds_ladder.md:968). LATENT, NOT REALISED, on the same "
+         "measurement."),
+-    ("cylinder_ladder.py", 708): (
++    ("cylinder_ladder.py", "_coefficient_series_path", "name-index:found"): (
+         "NOT AFFECTED", "GUARDED",
+         "_coefficient_series_path(): `return found[0]` runs ONLY after len(found) > 1 has "
+         "raised. With exactly one candidate an index selects nothing -- no ordering "
+         "decides a measurement. Reported rather than suppressed, because whether a guard "
+         "is adequate is a JUDGEMENT and a census that silently swallows guarded sites is "
+         "deciding instead of enumerating."),
+-    ("cylinder_ladder.py", 768): (
++    ("cylinder_ladder.py", "_latest_time_series_path", "max:"): (
+         "NOT AFFECTED", "THIS IS THE REPAIR",
+         "_yplus_series_path(): max(_time_key(p) for p in found) orders by the PARSED TIME, "
+         "not by path text. The census flags max()-over-a-globbed-set by shape, correctly; "
+         "the classification is that the ordering key is a number parsed from the directory "
+         "name, which is the defect's repair and not the defect."),
+-    ("cylinder_ladder.py", 777): (
++    ("cylinder_ladder.py", "_latest_time_series_path", "name-index:at_latest"): (
+         "NOT AFFECTED", "GUARDED",
+         "_yplus_series_path(): `return at_latest[0]` runs ONLY after len(at_latest) > 1 "
+         "has raised. Same reasoning as :708."),
+-    ("cylinder_ladder.py", 999): (
++    ("cylinder_ladder.py", "selftest_yplus_selection", "direct-index:"): (
+         "NOT AFFECTED", "DELIBERATE REPRODUCTION OF THE OLD BEHAVIOUR",
+         "selftest_yplus_selection(): the control's own sorted(...)[-1], present so the "
+         "limb can assert that the OLD code picks t=5 while the new selector picks t=10. "
+         "REMOVING IT WOULD WEAKEN THE TEST -- it is what makes that limb unable to pass "
+         "vacuously."),
+-    ("run_rung.py", 357): (
++    ("cylinder_ladder.py", "selftest_series_selection", "direct-index:"): (
++        "NOT AFFECTED", "DELIBERATE REPRODUCTION OF THE OLD BEHAVIOUR",
++        "selftest_series_selection(): the generalised selector's control reproduces the old "
++        "sorted(...)[-1] so its NUMERIC ORDER limb can assert that the old code picks t=5 "
++        "while the new selector picks t=10. Added BY gap 5(d) itself -- and the census "
++        "correctly reported it UNCLASSIFIED on the first run after the repair, which is the "
++        "table doing its job rather than a gap in it."),
++    ("run_rung.py", "selftest_harvest_delegation", "direct-index:"): (
+         "NOT AFFECTED", "DELIBERATE REPRODUCTION OF THE OLD BEHAVIOUR",
+         "selftest_harvest_delegation(): same, for the delegated yPlus selector."),
+ }
+@@ -199,19 +216,18 @@
+             if isinstance(n, ast.Subscript) and not isinstance(n.slice, ast.Slice):
+                 if self._carries_shape(n.value, bound):
+                     if isinstance(n.value, ast.Name):
+-                        why = (f"index on {n.value.id!r}, bound at line "
+-                               f"{bound[n.value.id]}")
++                        why = f"name-index:{n.value.id}"
+                     else:
+-                        why = "index applied directly to a globbed set"
++                        why = "direct-index:"
+             elif isinstance(n, ast.Call) and isinstance(n.func, ast.Name):
+                 if n.func.id in ORDERING_FUNCS and n.args and self._carries_shape(
+                         n.args[0], bound):
+-                    why = f"{n.func.id}() over a globbed set"
++                    why = f"{n.func.id}:"
+                 elif n.func.id == "next" and n.args and isinstance(n.args[0], ast.Call):
+                     inner = n.args[0]
+                     if (isinstance(inner.func, ast.Name) and inner.func.id == "iter"
+                             and inner.args and self._carries_shape(inner.args[0], bound)):
+-                        why = "next(iter(...)) over a globbed set"
++                        why = "next-iter:"
+             if why:
+                 self.hits.append((n.lineno, name, why))
+ 
+@@ -297,9 +313,9 @@
+         files += 1
+         for ln, fn, why in hits:
+             total += 1
+-            key = (p.name, ln)
++            key = (p.name, fn, why)
+             row = CLASSIFICATION.get(key)
+-            label = f"{p.name}:{ln} {fn}()"
++            label = f"{p.name}:{ln} {fn}()  [{why}]"
+             if row is None:
+                 unclassified.append(f"{label} -- {why}")
+                 continue
+--- 143e69d5:verification/runs/F5_runs/run_rung.py (untouched by the artifact)
++++ HEAD 35bea7f1  verification/runs/F5_runs/run_rung.py
+@@ -324,22 +324,26 @@
+ 
+     # ---- (4) THE yPlus SITE, AS A SEPARATE LIMB so the two repairs stay independently
+     # verifiable and a regression in one cannot hide behind the other's green.
++    # ⚠ THIS LIMB WAS REWRITTEN AFTER IT CORRECTLY WENT RED.  It used to plant against
++    # `_yplus_series_path`'s OWN glob.  Gap 5(d) made that function DELEGATE, so its body no
++    # longer contains a glob and the plant failed -- THE CONTROL CAUGHT A REFACTOR OF ITS
++    # OWN DELEGATE, which is what a coupling control is for.  The repair is not to weaken
++    # the plant but to follow the chain: assert the DELEGATION and then plant against the
++    # function that now OWNS the glob.  That verifies one link more than the old version.
+     y_token = 'rglob("yPlus.dat")'
+-    y_sel_src = inspect.getsource(CL._yplus_series_path)
+     y_gone = y_token not in h_src
+-    # THE PLANT for this detector: the OLD exact-name glob must still appear inside the
+-    # selector's own control-facing comment/source region.  The selector deliberately globs
+-    # `yPlus*.dat`, so we plant against the wider token instead and prove the detector reads
+-    # this source at all rather than returning a reflexive True.
+-    y_detector_works = 'rglob("yPlus*.dat")' in y_sel_src
+-    if y_gone and y_detector_works:
+-        fired.append("YPLUS LOCAL COPY: the exact-name rglob is GONE from harvest(), and "
+-                     "the detector DOES read CL._yplus_series_path's own glob -- the "
+-                     "absence was read by a detector shown able to see a presence")
++    y_delegates = "_latest_time_series_path(" in inspect.getsource(CL._yplus_series_path)
++    y_detector_works = "rglob(" in inspect.getsource(CL._latest_time_series_path)
++    if y_gone and y_delegates and y_detector_works:
++        fired.append("YPLUS LOCAL COPY: the exact-name rglob is GONE from harvest(); "
++                     "_yplus_series_path DELEGATES to _latest_time_series_path; and the "
++                     "detector DOES find a glob in that delegate -- the absence was read by "
++                     "a detector shown able to see a presence, one link further down")
+     else:
+         ok = False
+-        fired.append(f"YPLUS LOCAL COPY: absent from harvest={y_gone}, detector reads the "
+-                     f"selector source={y_detector_works} (must both be True)")
++        fired.append(f"YPLUS LOCAL COPY: absent from harvest={y_gone}, yPlus selector "
++                     f"delegates={y_delegates}, detector sees the delegate's glob="
++                     f"{y_detector_works} (all three must be True)")
+ 
+     if "CL._yplus_series_path(" in h_src:
+         fired.append("YPLUS ROUTING: harvest() calls CL._yplus_series_path by name")
