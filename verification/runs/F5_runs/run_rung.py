@@ -166,10 +166,15 @@ def harvest(name: str, out_dir: Path, ranks: int = 1) -> dict:
     # only when the source can actually replace its rows.
     safe_replace_mirror(out_dir / "postProcessing", remote_dir / "postProcessing")
     _copy_best_effort(remote_dir / "postProcessing", out_dir / "postProcessing")
-    coeff_files = sorted((out_dir / "postProcessing").rglob("coefficient*.dat"))
-    if not coeff_files:
-        raise RuntimeError(f"{name}: no forceCoeffs output")
-    history = parse_coefficient_history(coeff_files[-1].read_text(errors="replace"))
+    # GAP 5, SECOND CALL SITE.  THIS IS THE ONE THAT MATTERS: cylinder_ladder.run_case()
+    # is the foreground path that dies with the calling agent's turn, and THIS harvester
+    # is the sanctioned one -- so fixing run_case() alone left the code that actually
+    # runs still picking its series by ASCII accident.  Rule 14: A LESSON IS NOT APPLIED
+    # UNTIL EVERY CALL SITE ASSERTS IT.
+    # DELEGATED, NOT REIMPLEMENTED.  Two copies of a selection rule are two rules the
+    # moment one is edited; there is exactly ONE selector and both harvesters call it.
+    coeff_path = CL._coefficient_series_path(out_dir)
+    history = parse_coefficient_history(coeff_path.read_text(errors="replace"))
     times = history["Time"]
     end_time = params["end_time"]
     t_start = 0.5 * end_time
@@ -184,8 +189,12 @@ def harvest(name: str, out_dir: Path, ranks: int = 1) -> dict:
     if drift is None:
         raise RuntimeError(f"{name}: halves_drift undecidable -- stationarity UNKNOWN")
 
-    yplus_files = sorted((out_dir / "postProcessing").rglob("yPlus.dat"))
-    yplus_text = yplus_files[-1].read_text(errors="replace") if yplus_files else ""
+    # GAP 5(c), SECOND CALL SITE.  Same delegation, and the selector orders time
+    # directories NUMERICALLY rather than refusing -- see the comment on
+    # CL._yplus_series_path for why yPlus gets a different repair from coefficient*.dat.
+    # Absence stays TOLERATED: None keeps the "" branch this line always had.
+    yplus_path = CL._yplus_series_path(out_dir)
+    yplus_text = yplus_path.read_text(errors="replace") if yplus_path else ""
     cpb = CL.base_cpb(out_dir, t_start)
     lr = CL.recirculation_length(out_dir, t_start, params["centerline_points"])
 
@@ -229,7 +238,150 @@ def harvest(name: str, out_dir: Path, ranks: int = 1) -> dict:
     return record
 
 
+def selftest_harvest_delegation() -> int:
+    """THE COUPLING CONTROL for gap 5's second call site.
+
+    Rule 14 does not say "fix every call site"; it says EVERY CALL SITE ASSERTS IT.  So
+    this proves three separate things, and the third is the one a text check cannot give:
+
+      (1) THE LOCAL COPY IS GONE -- harvest()'s own source no longer contains the
+          `rglob("coefficient*.dat")` selection.  PLANTED: the same detector is pointed at
+          CL._coefficient_series_path, where the token MUST still appear.  A detector not
+          shown able to see the token is not evidence that the token is absent (rule 3).
+      (2) THE CALL IS ROUTED -- harvest()'s source contains the delegation by name, so a
+          future edit that stops routing through the selector breaks this control rather
+          than leaving it vacuously green.
+      (3) THE TARGET ACTUALLY REFUSES -- the delegate is exercised on the vendored
+          two-file collision and on a clean single-file twin.  (1) and (2) are text; only
+          (3) is behaviour, and TEXT THAT NAMES A FUNCTION IS NOT PROOF THE FUNCTION
+          REFUSES.
+    """
+    import inspect
+    import tempfile
+    ok, fired = True, []
+
+    token = 'rglob("coefficient*.dat")'
+    h_src = inspect.getsource(harvest)
+    sel_src = inspect.getsource(CL._coefficient_series_path)
+
+    # ---- (1) LOCAL COPY GONE, with the detector PLANTED against the selector.
+    seen_where_it_must_be = token in sel_src
+    gone_from_harvest = token not in h_src
+    if seen_where_it_must_be and gone_from_harvest:
+        fired.append("LOCAL COPY: the rglob selection is GONE from harvest(), and the same "
+                     "detector DOES find it in CL._coefficient_series_path -- so the "
+                     "absence was read by a detector shown able to see a presence")
+    else:
+        ok = False
+        fired.append(f"LOCAL COPY: token in selector={seen_where_it_must_be} (must be True: "
+                     f"the plant), token absent from harvest={gone_from_harvest}")
+
+    # ---- (2) THE CALL IS ROUTED, BY NAME.
+    if "CL._coefficient_series_path(" in h_src:
+        fired.append("ROUTING: harvest() calls CL._coefficient_series_path by name -- an "
+                     "edit that stops routing through it breaks this line, not nothing")
+    else:
+        ok = False
+        fired.append("ROUTING: harvest() does NOT name CL._coefficient_series_path -- the "
+                     "selector has been bypassed")
+
+    # ---- (3) THE DELEGATE ACTUALLY REFUSES, on the vendored real shape.
+    names = ("coefficient.dat", "coefficient_0.dat")
+    fx = CL.COEFF_FIXTURE
+    if not all((fx / n).is_file() for n in names):
+        ok = False
+        fired.append(f"DELEGATE: the vendored fixture is missing under {fx} -- this control "
+                     "REFUSES rather than substituting a synthetic file")
+    else:
+        with tempfile.TemporaryDirectory() as td:
+            base = Path(td)
+            one = base / "single" / "postProcessing" / "forceCoeffs1" / "0"
+            two = base / "collision" / "postProcessing" / "forceCoeffs1" / "0"
+            one.mkdir(parents=True)
+            two.mkdir(parents=True)
+            (one / names[0]).write_bytes((fx / names[0]).read_bytes())
+            for n in names:
+                (two / n).write_bytes((fx / n).read_bytes())
+
+            got = CL._coefficient_series_path(base / "single")
+            if got.name == names[0]:
+                fired.append(f"DELEGATE CLEAN TWIN: one series ACCEPTED, returning {got.name}")
+            else:
+                ok = False
+                fired.append(f"DELEGATE CLEAN TWIN: returned {got.name!r}, expected "
+                             f"{names[0]!r}")
+            try:
+                picked = CL._coefficient_series_path(base / "collision")
+                ok = False
+                fired.append("DELEGATE PLANT: the two-file collision was NOT refused -- it "
+                             f"silently returned {picked.name!r}")
+            except RuntimeError as exc:
+                both = all(n in str(exc) for n in names)
+                fired.append(f"DELEGATE PLANT: REFUSED, and the message names BOTH "
+                             f"candidates = {both}")
+                if not both:
+                    ok = False
+
+    # ---- (4) THE yPlus SITE, AS A SEPARATE LIMB so the two repairs stay independently
+    # verifiable and a regression in one cannot hide behind the other's green.
+    y_token = 'rglob("yPlus.dat")'
+    y_sel_src = inspect.getsource(CL._yplus_series_path)
+    y_gone = y_token not in h_src
+    # THE PLANT for this detector: the OLD exact-name glob must still appear inside the
+    # selector's own control-facing comment/source region.  The selector deliberately globs
+    # `yPlus*.dat`, so we plant against the wider token instead and prove the detector reads
+    # this source at all rather than returning a reflexive True.
+    y_detector_works = 'rglob("yPlus*.dat")' in y_sel_src
+    if y_gone and y_detector_works:
+        fired.append("YPLUS LOCAL COPY: the exact-name rglob is GONE from harvest(), and "
+                     "the detector DOES read CL._yplus_series_path's own glob -- the "
+                     "absence was read by a detector shown able to see a presence")
+    else:
+        ok = False
+        fired.append(f"YPLUS LOCAL COPY: absent from harvest={y_gone}, detector reads the "
+                     f"selector source={y_detector_works} (must both be True)")
+
+    if "CL._yplus_series_path(" in h_src:
+        fired.append("YPLUS ROUTING: harvest() calls CL._yplus_series_path by name")
+    else:
+        ok = False
+        fired.append("YPLUS ROUTING: harvest() does NOT name CL._yplus_series_path")
+
+    # THE BEHAVIOURAL LIMB: the delegate must order NUMERICALLY, which is the whole repair.
+    with tempfile.TemporaryDirectory() as td:
+        m = Path(td)
+        for t in ("0", "5", "10"):
+            d = m / "postProcessing" / "yPlus1" / t
+            d.mkdir(parents=True)
+            (d / "yPlus.dat").write_text(f"# t={t}\n0.1 0.2 0.3\n")
+        old_pick = sorted((m / "postProcessing").rglob("yPlus.dat"))[-1].parent.name
+        new_pick = CL._yplus_series_path(m).parent.name
+        if old_pick == "5" and new_pick == "10":
+            fired.append("YPLUS DELEGATE: with time dirs 0/5/10 the OLD lexicographic pick "
+                         "is t=5 and the delegate returns t=10 -- the defect reproduces and "
+                         "the repair changes the answer, so this cannot pass vacuously")
+        else:
+            ok = False
+            fired.append(f"YPLUS DELEGATE: old picked t={old_pick}, delegate picked "
+                         f"t={new_pick}; expected 5 then 10")
+
+    for line in fired:
+        print(f"  DELEGATION {line}")
+    print("  DISCRIMINATES: the detector finds each token where it must be AND misses it "
+          "where it must not; the coefficient delegate accepts one series AND refuses two; "
+          f"the yPlus delegate orders numerically where the old code ordered by text = {ok}")
+    print("HARVEST-DELEGATION SELFTEST " + ("PASS" if ok else "FAIL"))
+    return 0 if ok else 1
+
+
 if __name__ == "__main__":
+    # INTERCEPTED BEFORE argparse, AND HERE THE WALL IS HIGHER THAN IN cylinder_ladder.py:
+    # `mode` is a POSITIONAL with choices, and --name and --out are required=True, so
+    # argparse exits 2 on all three before any flag of ours could be read.  A selftest
+    # checked after parse_args would be UNREACHABLE -- L-491, third campaign.
+    if "--selftest-harvest-delegation" in sys.argv[1:]:
+        sys.exit(selftest_harvest_delegation())
+
     import argparse
     p = argparse.ArgumentParser()
     p.add_argument("mode", choices=["stage", "harvest"])

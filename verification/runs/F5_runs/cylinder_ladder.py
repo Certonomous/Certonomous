@@ -625,8 +625,8 @@ def run_case(name: str, out_dir: Path, log: Callable[[str], None] = print, *,
     drift = halves_drift(times, history["Cd"], cd_stats["window_start"], cd_stats["window_end"])
     if drift is None:
         raise RuntimeError(f"{name}: halves_drift undecidable -- stationarity UNKNOWN")
-    yplus_files = sorted((out_dir / "postProcessing").rglob("yPlus.dat"))
-    yplus_text = yplus_files[-1].read_text(errors="replace") if yplus_files else ""
+    yplus_path = _yplus_series_path(out_dir)
+    yplus_text = yplus_path.read_text(errors="replace") if yplus_path else ""
 
     cpb = base_cpb(out_dir, t_start)
     lr = recirculation_length(out_dir, t_start, params["centerline_points"])
@@ -706,6 +706,75 @@ def _coefficient_series_path(out_dir: Path) -> Path:
             "code can read says which is authoritative. Move the superseded file aside and "
             "re-harvest; do NOT let the harvester guess.")
     return found[0]
+
+
+# =====================================================================================
+# GAP 5(c) -- THE yPlus SERIES.  SAME DEFECT CLASS, DELIBERATELY NOT THE SAME REPAIR.
+#
+# THE DEFECT: `sorted((out_dir/"postProcessing").rglob("yPlus.dat"))[-1]` -- select by
+# sort order, exactly as the coefficient series did.
+#
+# ⚠ LATENT, NOT REALISED, AND SAID SO PLAINLY SO NOBODY LATER READS THIS AS A DISCOVERED
+# CORRUPTION.  MEASURED across every F5 run tree on this box: all seven that carry a yPlus
+# series carry EXACTLY ONE, at `postProcessing/yPlus1/0/yPlus.dat`.  NO HARVEST HAS EVER
+# TAKEN THE WRONG FILE HERE.  It is repaired because it is a known instance of a class we
+# are mid-repair on, and coefficient*.dat was equally latent until a restart happened.
+#
+# ⚠ AND THE REPAIR IS *NOT* THE COEFFICIENT REPAIR, BECAUSE THE TWO AMBIGUITIES ARE NOT
+# THE SAME AMBIGUITY.  The coefficient collision was TWO FILES IN ONE DIRECTORY from two
+# different runs, with NO property this code could read to order them -- so refusal was the
+# only honest answer.  Multiple yPlus files are TIME DIRECTORIES, `yPlus1/<start time>/`,
+# and a restart at t=45 legitimately produces `0/` and `45/`.  THERE THE LATEST START TIME
+# IS A REAL ROLE, so refusing would break a legitimate restart harvest -- which is the very
+# failure mode the coefficient design was measured against.  ORDER NUMERICALLY, DO NOT
+# REFUSE.
+#
+# THE ACTUAL BUG IS THEREFORE LEXICOGRAPHIC ORDER, NOT AMBIGUITY: sorted() puts "10" before
+# "5", so a run with time directories 0, 5 and 10 would take `5/` as its "latest".
+#
+# ⚠ AND THE GLOB IS WIDENED FROM `yPlus.dat` TO `yPlus*.dat` ON PURPOSE.  The old glob
+# COULD NOT SEE a `yPlus_0.dat` collision file at all, so an intra-directory collision would
+# have been INVISIBLE rather than wrong -- and the lab's rule is to ask what your glob
+# cannot see.  Widened by ANALOGY with the observed `coefficient_0.dat` collision; ⚠ I HAVE
+# NOT MEASURED A yPlus COLLISION ON THIS BOX AND DO NOT CLAIM ONE EXISTS.  If one ever
+# appears it is now REFUSED inside its own time directory, where no ordering exists, rather
+# than silently unseen.
+#
+# ABSENCE STAYS TOLERATED.  yPlus is a DIAGNOSTIC here (`yplus_raw`, the last three lines),
+# not a graded measurement, and the previous code tolerated its absence.  Turning a
+# tolerated absence into a refusal would be a behaviour change smuggled in under a bug fix,
+# so this returns None and the caller keeps its "" branch.
+# =====================================================================================
+def _yplus_series_path(out_dir: Path) -> Path | None:
+    """THE SOLE SELECTOR of the yPlus series.  -> the latest time's path, or None.
+
+    None means "no yPlus series exists", which is TOLERATED.  A RuntimeError means the
+    latest time directory is AMBIGUOUS, which is not.
+    """
+    found = sorted((Path(out_dir) / "postProcessing").rglob("yPlus*.dat"))
+    if not found:
+        return None
+
+    def _time_key(p: Path) -> float:
+        try:
+            return float(p.parent.name)
+        except ValueError:
+            raise RuntimeError(
+                f"UNORDERABLE yPlus SERIES: {p} sits in a directory named "
+                f"{p.parent.name!r}, which is not a time. The latest time cannot be "
+                "identified, and this code will NOT fall back to sort order -- that is "
+                "the defect being repaired.") from None
+
+    latest = max(_time_key(p) for p in found)
+    at_latest = [p for p in found if _time_key(p) == latest]
+    if len(at_latest) > 1:
+        detail = "; ".join(f"{p} ({p.stat().st_size} bytes)" for p in at_latest)
+        raise RuntimeError(
+            f"AMBIGUOUS yPlus SERIES in the latest time directory (t={latest:g}): "
+            f"{len(at_latest)} candidates -- {detail}. REFUSED. Two series inside ONE time "
+            "directory are a write collision, and unlike separate time directories there "
+            "is no ordering between them. Move the superseded file aside and re-harvest.")
+    return at_latest[0]
 
 
 def selftest_rank_cap() -> int:
@@ -883,6 +952,98 @@ def selftest_coefficient_harvest() -> int:
     return 0 if ok else 1
 
 
+def selftest_yplus_selection() -> int:
+    """GAP 5(c) -- THE yPlus SELECTOR'S CONTROL.  DELIBERATELY SEPARATE from the
+    coefficient control, so the two repairs stay INDEPENDENTLY VERIFIABLE: a regression in
+    one must not be able to hide behind the other's green.
+
+    ⚠ THE FIXTURES HERE ARE CONSTRUCTED, NOT VENDORED, AND THAT IS THE RIGHT CHOICE FOR
+    THIS ONE.  The coefficient control vendors real bytes because the thing under test was
+    the CONTENT of two colliding series.  Here the thing under test is DIRECTORY NAMING --
+    whether "10" sorts after "5" -- and the naming is what the control constructs
+    explicitly.  Vendoring a real tree would not exercise the failing case at all, because
+    NO TREE ON THIS BOX HAS MORE THAN ONE TIME DIRECTORY.  A fixture must contain the
+    failure you are testing for, not merely be authentic.
+    """
+    import tempfile
+    ok, fired = True, []
+
+    def _tree(base: Path, times: list[str], names: tuple[str, ...] = ("yPlus.dat",)) -> Path:
+        for t in times:
+            d = base / "postProcessing" / "yPlus1" / t
+            d.mkdir(parents=True, exist_ok=True)
+            for n in names:
+                (d / n).write_text(f"# yPlus at t={t}\n0.1 0.2 0.3\n")
+        return base
+
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+
+        # ---- ABSENCE IS TOLERATED, and the PLANT proves the selector is not just
+        # returning None unconditionally.
+        empty = root / "empty"
+        (empty / "postProcessing").mkdir(parents=True)
+        got_empty = _yplus_series_path(empty)
+        present = _yplus_series_path(_tree(root / "one", ["0"]))
+        if got_empty is None and present is not None:
+            fired.append("ABSENCE: no series -> None (TOLERATED, unchanged behaviour), and "
+                         f"a populated tree -> {present.parent.name}/{present.name} -- so "
+                         "the None is a reading, not a reflex")
+        else:
+            ok = False
+            fired.append(f"ABSENCE: empty gave {got_empty!r}, populated gave {present!r}")
+
+        # ---- THE DEFECT ITSELF, DEMONSTRATED AND REPAIRED IN ONE LIMB.
+        # Times 0, 5, 10: lexicographic order ends at "5"; numeric order ends at "10".
+        multi = _tree(root / "multi", ["0", "5", "10"])
+        old_would_pick = sorted((multi / "postProcessing").rglob("yPlus.dat"))[-1]
+        new_picks = _yplus_series_path(multi)
+        if old_would_pick.parent.name == "5" and new_picks.parent.name == "10":
+            fired.append("NUMERIC ORDER: with time dirs 0/5/10 the OLD sorted(...)[-1] "
+                         "picks t=5 and the NEW selector picks t=10 -- the defect is "
+                         "REPRODUCED and the repair CHANGES THE ANSWER, so this limb "
+                         "cannot pass vacuously")
+        else:
+            ok = False
+            fired.append(f"NUMERIC ORDER: old picked t={old_would_pick.parent.name}, new "
+                         f"picked t={new_picks.parent.name}; expected 5 then 10")
+
+        # ---- INTRA-DIRECTORY COLLISION IS REFUSED (no ordering exists inside one time).
+        coll = _tree(root / "coll", ["0"], ("yPlus.dat", "yPlus_0.dat"))
+        try:
+            picked = _yplus_series_path(coll)
+            ok = False
+            fired.append("COLLISION: two files in ONE time directory were NOT refused -- "
+                         f"silently returned {picked.name!r}")
+        except RuntimeError as exc:
+            both = "yPlus.dat" in str(exc) and "yPlus_0.dat" in str(exc)
+            fired.append(f"COLLISION: REFUSED, and the message names BOTH candidates "
+                         f"= {both}. NOTE: the widened glob is what makes this VISIBLE at "
+                         "all; the old exact-name glob could not see yPlus_0.dat")
+            if not both:
+                ok = False
+
+        # ---- A NON-TIME DIRECTORY NAME IS REFUSED, NOT SILENTLY ORDERED.
+        odd = _tree(root / "odd", ["latestTime"])
+        try:
+            picked = _yplus_series_path(odd)
+            ok = False
+            fired.append(f"UNORDERABLE: a non-time directory name was accepted, returning "
+                         f"{picked!r} -- that is a fallback to sort order by another name")
+        except RuntimeError as exc:
+            named = "latestTime" in str(exc)
+            fired.append(f"UNORDERABLE: REFUSED, and the message names the directory = {named}")
+            if not named:
+                ok = False
+
+    for line in fired:
+        print(f"  YPLUS {line}")
+    print("  DISCRIMINATES: absence tolerated AND presence seen; numeric order differs from "
+          f"the old lexicographic pick; ambiguity refused = {ok}")
+    print("YPLUS-SELECTION SELFTEST " + ("PASS" if ok else "FAIL"))
+    return 0 if ok else 1
+
+
 def main(argv: list[str] | None = None) -> int:
     # THE SELFTEST IS INTERCEPTED BEFORE `parse_args`, AND THAT IS NOT STYLE.
     # `--name`, `--reynolds`, `--turbulence` and `--out` are `required=True`, so argparse
@@ -895,6 +1056,8 @@ def main(argv: list[str] | None = None) -> int:
         return selftest_rank_cap()
     if "--selftest-coefficient-harvest" in _argv:
         return selftest_coefficient_harvest()
+    if "--selftest-yplus-selection" in _argv:
+        return selftest_yplus_selection()
 
     import argparse
     parser = argparse.ArgumentParser(description=__doc__)
@@ -914,6 +1077,8 @@ def main(argv: list[str] | None = None) -> int:
                         help="run the 4-rank cap's planted control and exit")
     parser.add_argument("--selftest-coefficient-harvest", action="store_true",
                         help="run the harvest path's planted controls and exit")
+    parser.add_argument("--selftest-yplus-selection", action="store_true",
+                        help="run the yPlus selector's planted controls and exit")
     parser.add_argument("--perturbation", type=float, default=0.1)
     parser.add_argument("--solver-timeout", type=float, default=28800.0)
     args = parser.parse_args(argv)
