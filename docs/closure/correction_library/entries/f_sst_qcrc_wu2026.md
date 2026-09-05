@@ -64,9 +64,40 @@ equation_form: >-
   ONE SYMBOL READ BUT NOT RESOLVED: the destruction term prints as "beta theta w^2".
   "theta" is NOT defined anywhere on the page that carries Eq. (2). Transcribed as
   printed rather than silently normalised to the standard SST "beta w^2".
-  UNVERIFIED -- needs equation-level read: Eq. (3) on p. 2 (the symbolic-regression
-  expression for beta_CND) and the identity of its single feature. Wu, Zhang & Zhang
-  (AIAA J. 2025) is held in this corpus and would close that gap.
+  (3) THE SYMBOLIC-REGRESSION EXPRESSION FOR beta_CND -- Wu & Zhang Eq. (3), printed
+  p. 2, READ OFF THE RENDERED PAGE by closure-supervisor 2026-09-05 (200 dpi):
+      beta_CND = max( -0.1157 , 0.0058525 * lambda_2 ) * lambda_2
+  bounded ABOVE by 4 "to keep the computation stable", the paper stating that upper
+  bound "is consistent with the upper bound used in the conditioned field inversion
+  process" (p. 2). NO LOWER BOUND IS STATED.
+
+  THE FEATURE IS IDENTIFIED. The paper offers THREE candidate features -- "We only
+  chose 3 features as the input features: lambda_1, lambda_2, P_k/epsilon" (p. 2) --
+  and THE FINAL EXPRESSION USES ONLY lambda_2. lambda_1 and P_k/epsilon are offered to
+  the regression and DROPPED. Figure 2 (p. 2) prints the PySR hall of fame: complexity
+  15 (chosen) at loss 4.845e-01, and complexity 16 at the SAME loss 4.845e-01 with a
+  score of 2.253e-05 -- the paper selects 15 on simplicity, and says so.
+
+  THE PAPER'S OWN PHYSICAL READING, p. 2 verbatim: "Eq. (3) implies that we choose to
+  increase the destruction of omega in the regions with strong shear. This means that
+  the eddy viscosity would be increased in the region of strong shear, since
+  nu_T ~ k/omega. This is consistent with the 'slingshot effect' [7]". Figure 1 (p. 2)
+  shows the field-inverted beta_CND on CBFS spanning roughly 1.2 to 4.8, concentrated
+  in the separated shear layer.
+
+  SUPERVISOR'S READING OF THE TWO EQUATIONS TOGETHER -- MARKED AS INFERENCE, NOT THE
+  PAPER'S STATEMENT, AND NOT TESTED HERE. Eq. (3) drives beta_CND -> 0 as lambda_2 -> 0.
+  Substituted into Eq. (2) that would give beta = [(0-1) f_d + 1] = 1 - f_d, i.e. the
+  omega DESTRUCTION TERM WOULD VANISH wherever f_d were near 1 with the flow near
+  irrotational. It does not bite, and the reason is in r_d: r_d = (nu+nu_T) /
+  (kappa^2 d^2 sqrt(d_n U_m d_n U_m)) is INVERSELY proportional to the velocity
+  gradient, so as grad(U) -> 0, r_d -> infinity, tanh -> 1 and f_d -> 0, returning
+  beta -> 1, i.e. BASELINE. So the paper's prose that f_d "is 0 in the boundary layer
+  and is 1 elsewhere" UNDERSTATES its own shielding function: f_d also goes to 0
+  wherever the velocity gradient vanishes, and that second role is what keeps
+  beta_CND -> 0 from switching off omega destruction in an irrotational freestream.
+  Recorded because an implementer reading only the prose would not know the far-field
+  behaviour is protected, and might add a lower clip that the model does not need.
 provenance:
   path: docs/papers/data_driven_rans/wu_zhang_sst_qcrc_challenge_description.pdf
   title_page_verified: "yes"
@@ -242,3 +273,38 @@ So the entry's own reproduction target and its reference data are both present.
 and reporting the result as SST-QCRC would report a verdict for a model missing the entire second
 modification — the one the field inversion produces and the one that did the work on CBFS. That is
 why `model_type_name` is `none` here, and it is the same trap SCHEMA Addendum 2 was written for.
+
+## What still blocks IMPLEMENTED — a named table, not a vague gap
+
+`equation_form` is now fully transcribed and `UNVERIFIED` is removed: Eqs. (1), (2) and (3) are
+read off the printed pages with numbers and pages. **The remaining gap is different in kind and is
+recorded so it cannot be mistaken for the old one.**
+
+**`lambda_2` is identified but not DEFINED here.** Wu & Zhang state only *"The definition of the
+features can be found in Ref. [3]"* (p. 2). Ref. [3] is **held** —
+`docs/papers/data_driven_rans/wu_zhang_zhang_2402.16355.pdf`, title-page verified by the supervisor
+2026-09-05 as *"Development of a Generalizable Data-driven Turbulence Model: Conditioned Field
+Inversion and Symbolic Regression"* (Wu, Zhang & Zhang, Tsinghua) — and its **Table 2** carries the
+feature definitions. **That table has NOT been read.** Its own math does not extract (`lambda` hits:
+**0** over 83,953 extracted characters — the same font trap as L-489), so it needs a rendered read.
+
+> **THIS GATES `IMPLEMENTED`, NOT `REGISTERED`.** The equation form is verified; you cannot *code*
+> `lambda_2` without its definition. Any attempt to advance this entry past `REGISTERED` reads
+> Ref. [3] Table 2 first. **Note also that Ref. [3] uses FIVE features where the challenge
+> description uses THREE** — so the two papers' feature sets are not the same object, and the
+> definition must be taken for the three named here.
+
+## Runtime cost, from Ref. [3] p. 18 — a rule-12 input for Phase 2, and a warning about a sibling entry
+
+Read off the rendered page by the supervisor, verbatim: *"the SR-CLS and the SR-CND model increase
+the total runtime (of the same CFD iteration steps) by about **15% and 10%** respectively, which is
+acceptable."* **So a symbolic-regression correction of this family costs roughly 1.10-1.15x baseline
+runtime** — a usable first estimate for Phase 2 costing under rule 12.
+
+**And the contrast on the same page is the one that matters for planning.** Ref. [3] cites Yin et
+al. [8]: *"if a random forest model is called in every iteration of CFD, the computational time
+required to converge the solution is about **30 times** the convergence time of the baseline
+model."* **The TBRF entry in this library IS a random forest** (100 trees, no closed form by
+construction). **A TBRF a-posteriori reproduction should therefore be costed near 30x baseline, not
+near 1x** — an order-of-magnitude difference that decides whether it fits an authorisation, and one
+that would otherwise have been discovered by overrunning a cap mid-run.

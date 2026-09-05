@@ -1430,6 +1430,34 @@ Updates d09a4e28's "origin of the day's 52/69 UNVERIFIED". Settled by cfd's comm
 
 ## closure
 
+**2026-09-05T~21:2xZ — ALL THREE EQUATION FORMS NOW VERIFIED; `equation_form_unverified` is
+FALSE ON EVERY ENTRY. Still 3 entries, all `REGISTERED`, `ladder_evidence_count` 0. ZERO COMPUTE
+(0 closure processes re-measured at this write; scratch renders from 2026-09-04 were GONE, L-186
+confirmed a fourth time).**
+Eq. (3) read off the rendered page: `beta_CND = max(-0.1157, 0.0058525*lambda_2)*lambda_2`,
+bounded ABOVE by 4, **no lower bound stated**. **The paper offers THREE features and the final
+expression uses ONLY `lambda_2`** — `lambda_1` and `P_k/eps` are offered and dropped; PySR
+complexity 16 has the SAME loss as the chosen 15 (4.845e-01), selected on simplicity.
+**⚠ MY OWN READING OF EQS. (2)+(3) TOGETHER, MARKED AS INFERENCE AND UNTESTED:** Eq. (3) drives
+`beta_CND -> 0` as `lambda_2 -> 0`, which in Eq. (2) would give `beta = 1 - f_d` and **switch off
+the omega destruction term** where `f_d ~ 1`. **It does not bite**, because `r_d` is INVERSELY
+proportional to the velocity gradient, so `grad(U) -> 0` sends `f_d -> 0` and `beta -> 1`,
+i.e. baseline. **The paper's prose that `f_d` is "0 in the boundary layer and 1 elsewhere"
+UNDERSTATES ITS OWN SHIELDING FUNCTION** — it is also 0 wherever the velocity gradient vanishes,
+and that second role is what protects the far field. **An implementer reading only the prose might
+add a lower clip the model does not need.**
+**THE GAP MOVED RATHER THAN CLOSED, and is now named:** `lambda_2` is IDENTIFIED but not DEFINED
+here — its definition is Ref. [3] **Table 2**, in a paper this lab HOLDS and has NOT read (its math
+does not extract either: `lambda` hits **0** across 83,953 chars). **This gates `IMPLEMENTED`, not
+`REGISTERED`** — the equation is verified; you cannot CODE `lambda_2` without it. Ref. [3] uses
+FIVE features where the challenge description uses THREE, so the two sets are not the same object.
+**⚡ RULE-12 INPUT FOR PHASE 2, and it changes an order of magnitude.** Ref. [3] p. 18: symbolic
+corrections of this family cost **+15% and +10% runtime**; but it cites Yin et al. that **a random
+forest called every CFD iteration takes ~30x baseline convergence time.** **The TBRF entry IS a
+random forest** (100 trees, no closed form by construction) — **so a TBRF a-posteriori
+reproduction costs near 30x, not near 1x.** That decides whether it fits an authorisation, and
+would otherwise have been found by overrunning a cap mid-run.
+
 **SCHEMA v1.0 FROZEN, 2026-09-04T~19:3xZ — `docs/closure/correction_library/SCHEMA.md`.**
 Zero compute; freezing a schema is not a run. The contract a checker and a lane can both be held
 to, separated from `ARCHITECTURE.md`'s reasoning on purpose. **The two clauses that carry the
