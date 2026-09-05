@@ -5346,11 +5346,63 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-04T22:46:16Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-74` — **the decision rule RAN: W4's residual is pinned to 1e-6 by construction, ~2,900× shallower than the clean reference, so OPTION 2 is ruled. My "six of six" was wrong — six of SEVEN, and the family has TEN. And §7 step 5's range is the SAME transcription defect `§2al` already found, one step over, with frozen dafoam pre-registrations GATING on it.** Before it, `S-73`, `S-72`, `S-71`, `S-70`, `S-69`…`S-29`.
+**Section last written:** 2026-09-05T21:19:06Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-75` — **Sanaa asked why this team is frozen: the answer is that EVERY gate blocking it was one I added. The S1/W4 plateau registration is FROZEN at `a1727bd0`, Arm W4 decided as OPTION 2, three lanes moving, and four of my owed items were already done.** Before it, `S-74`, `S-73`, `S-72`, `S-71`, `S-70`…`S-29`.
 
 **Section last written:** 2026-09-04T01:08:43Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-48` — **`W3` IS NOT RUNNING AND HAS NOT BEEN SINCE 21:57:49Z; IT REACHED ITS REGISTERED TERMINUS, AND THE REGISTERED FALLBACK DOES NOT RESCUE IT.** `S-47`'s and `S-46`'s *"`W3_chain_r2` running"* lines are **STRUCK BY QUOTE** below — they were true when written and were still being relayed three hours after they stopped being true. Before it, `S-47` — **DESK ITEMS CLOSED**: the **rule-10 hole is fixed in the constitution itself** on Sanaa's GO (`0ee2e7df`, verified by me at HEAD, not taken on relay), and the rule-12 estimate gap is **routed to verification** as a forward-only note. `S-46`'s "on Sanaa's desk" line is **struck by quote** so no successor re-escalates a closed item. **Nothing now on her desk from this family** but the four `NOT FILED` upstream defect classes and FD-vs-adjoint as a fourth `V` instrument. Before it, `S-46` (closing state), `S-45`, `S-44`, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+##### S-75 — **SANAA ASKED WHY THIS TEAM IS FROZEN. THE ANSWER IS THAT EVERY GATE BLOCKING IT WAS ONE I ADDED. THE S1/W4 PLATEAU REGISTRATION IS **FROZEN AT `a1727bd0`**, ARM W4 DECIDED AS OPTION 2, AND THREE LANES ARE MOVING. FOUR OF THE ITEMS ON MY OWED LIST WERE ALREADY DONE** (2026-09-05, `date -u` stamp in the committing invocation)
+
+###### 1. THE DIAGNOSIS, ACCEPTED RATHER THAN DEFENDED
+
+**Nothing external blocked this family.** Every queueable item waited on **a gate I added myself** — each defensible singly, and **collectively producing zero dafoam solver core-minutes in two days.**
+
+> **An instrument that is never used to buy a measurement is not rigour; it is the APPEARANCE of rigour, and it costs exactly what the measurement would have cost.**
+
+That is the shape her standing law forbids — *"I prefer something to be running and watched than too much governance and no run."* **The cure is not to loosen a gate. It is to stop adding them and discharge the ones that were actually mine.**
+
+###### 2. THE FREEZE — MY ACT, AND IT IS DONE
+
+**`S1_FD_PLATEAU_PREREGISTRATION.md` is FROZEN at `a1727bd0`**, blob md5 `4c40181966d39acc39489b094e4b824a` **hashed from `git show HEAD:`, never from disk** — *a freeze-time hash off the working tree would hash the pre-freeze document, which this family measured on 2026-09-04.*
+
+**§5's checklist, discharged by me item by item.** **Check 4 read AS ARITHMETIC:** `η = 3.907091e-12` / `η_cons = 2.751958e-11` registered before the run and never moved; `s_lo = 0.025` fixed mechanically; **`P1` = `|d(0.05) − d(0.025)|/|d(0.05)| ≤ 10 %` PER COMPONENT**, a miss being **`NOT A RESULT`**; falsifier **cell 5363 at `h = 0.5` predicting `> 2 %`**; **P 45.533 + F 15.178 = 60.711 core-min, hard cap 75.0.** **Rule 2's condition CHECKED BY EXECUTION in the freezing invocation: both run roots ABSENT at 21:16:11Z.**
+
+**ARM W4 DECIDED: OPTION 2, the 1e-8 re-anchor, 116.400 core-min, cap 150.0, ITEM CEILING 225.0 = the arm caps' exact sum.** The ground is the zero-compute measurement §3.4 registered and a lane ran: **all nine W4 logs pinned at `9.97e-07` against a 1e-06 tolerance — ~2,900× shallower than S1's clean 1e-8 on `U`.** **Option 2b (96.433, reusing the archived 1e-6 adjoint) REFUSED KNOWINGLY.**
+
+**NOTHING WAS LOOSENED TO REACH THIS FREEZE.** Every bar, the falsifier, `η`, the caps, the table shape and the planted-zero control are exactly as drafted.
+
+###### 3. FOUR OF MY OWED ITEMS WERE ALREADY DONE — RE-DERIVED, NOT REMEMBERED
+
+| item | state, measured at HEAD |
+|---|---|
+| `W3S` launcher + record producer | **EXIST** (`11270522`, `c3f8faed`) |
+| `A1ZE` ruling | **GRADED `NOT A RESULT`** — and `S-65` retracted my own false claim that its gate had fired |
+| `D6R` plateau audit | **DONE** — and it **withdrew my ruling** in `DAFOAM_CHARTER` §20 |
+| `V_STANDARD` disclosure | **PLACED** (`AMENDMENT 3`, `7e413373`) |
+
+*A day of peer commits passed and I re-derived rather than trusted the list — all nine of my key commits survive as ancestors, board section intact at 10,812 lines.*
+
+###### 4. THE (a)/(b) SPLIT, AND WHAT IS GENUINELY LEFT
+
+**Class (a) — EVIDENTIARY CORE, fix before launch.** The test: *would the verdict be WRONG or UNREADABLE without it?*
+- **`A1WRT2`: the producer for what `G-IMG`/`G-FREEZE` read.** A HARD gate whose only writer is the selftest fixture builder **is** this class. **One item, minimal fix.**
+- **`D6RF3`: `d6rf3_grade.py`, the GRADING PATH.** Rule 2 forbids freezing a registration whose grading path does not exist. **That gate is real and it stays.**
+
+**Class (b) — PROCEDURAL COMPLETENESS: RECORD AS A PREDICTION AND LAUNCH.** Extractor improvements, further traces, additional mutation coverage, table rows. **Each becomes a registered prediction — "not built; here is what it would have caught; here is the risk accepted" — and the item RUNS.**
+
+> **An unbuilt instrument recorded as a risk is science. An unbuilt instrument used as a reason not to run is governance.**
+
+**Each lane is told: if its class (a) exceeds TWO items, say so — that is the signal I over-gated it, and I want to know.**
+
+###### 5. STATE
+
+**Three lanes, at cap.** The S1/W4 item is **frozen and dispatched to queue with its runner** — the machinery already exists (`run_one.sh` takes `-primalTol`; `run_fd8.sh` is a working single-step runner to mirror), **so it is one adapted file, not a project.** `A1WRT2` and `D6RF3` on the split.
+
+**W4's Arm 2 runs only AFTER Arms P and F land and I have read their numbers** — 116 core-min does not go on the second item before the first has spoken.
+
+**OWED BY ME:** the `A1WRT2` and `D6RF3` freeze commits, each with its run-root condition **in its own invocation**; check 1 on what the lanes return; the `:92` disposition once the plateau is measured.
+
+
 ##### UPDATE S-74 — **THE DECISION RULE RAN AND THE ANSWER IS **OPTION 2**: W4's RESIDUAL IS PINNED TO 1e-6 BY CONSTRUCTION, ~2,900× SHALLOWER THAN THE CLEAN REFERENCE. MY "SIX OF SIX" WAS WRONG — IT IS SIX OF **SEVEN**, AND THE FAMILY HAS **TEN**. AND §7 STEP 5's RANGE IS THE SAME TRANSCRIPTION DEFECT `§2al` ALREADY FOUND, ONE STEP OVER — WITH FROZEN dafoam PRE-REGISTRATIONS **GATING ON IT**** (2026-09-04, `date -u` stamp in the committing invocation)
 
 ###### 1. RULED — **OPTION 2**, THE 1e-8 RE-ANCHOR
