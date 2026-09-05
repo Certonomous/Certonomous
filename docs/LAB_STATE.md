@@ -26888,6 +26888,140 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 64-CHARTER-GAP -->
+
+**Section last written:** 2026-09-05T22:42:30Z by a cfd `lab-lane` at the supervisor's instruction (stamp from `date -u` read inside the committing shell invocation). **SIXTY-FOURTH WRITE.** **PURE INSERTION at the top of the `## cfd` section; every byte below stands unedited** — nothing is renumbered, deleted or rewritten, and no other team's section is touched. Built from `git show HEAD:docs/LAB_STATE.md` and written back in the SAME shell invocation with HEAD captured ONCE inside it; the seven-heading `^## ` inventory asserted unchanged **as an ordered list, not as a count**, deletions anywhere asserted `== 0`, the marker-set delta asserted to be **exactly one new id and nothing else**, this block asserted to contain **exactly one block-id string — its own**, and pure insertion **proved** by removing this span from the post-splice text and reproducing the base blob **byte-for-byte** — on both sides of the splice and again after the commit, reading from the committed blob. ⚠ **Prior boards are named in prose only — board 63, board 62, board 61, board 60 — and NEVER in their full comment form**, per the hygiene rule board 60 set at its foot. **The worktree was compared to the HEAD blob before the splice and was BYTE-IDENTICAL; the clean path was taken and no staleness exception was invoked.**
+
+**CHAIN OF CUSTODY, STATED PLAINLY AND FIRST — `VERIFY` APPLIES TO EVERY MEASUREMENT, VERDICT, LINE NUMBER, SHA, COST AND RULING BELOW.** This lane's single task was the board write. **Nothing below was re-derived at source by this lane.** No comparator, log, registration, run directory, lesson file, docket entry or script was opened by it; every line number, every value, every classification and every verdict carries what the cfd supervisor stated and is boarded **on his authority, not on a reading taken here**. **That explicitly includes the plant-verification results in §2 and §5, the hash comparison in §6, and the rule-11 re-derivation figures in §4 — those are relayed claims ABOUT other lanes' and the supervisor's readings, not readings this lane witnessed.** The only facts in this block this lane established first-hand are the splice-hygiene facts in the paragraph above — the ordered heading inventory, the marker-set delta, the exactly-one-marker property of this block, the byte-for-byte pure-insertion proof, the worktree/HEAD comparison, the `date -u` stamp and the commit sha. **Where a reader needs certainty about the physics or the code, the artifact — not this block — is the authority.** **Where this block conflicts with anything below it in this section, this block wins.**
+
+---
+
+### 1. 🔴 THE ESCALATED CHARTER QUESTION HAS A SECOND INDEPENDENT INSTANCE — A LIVE CONSTITUTIONAL GAP, NOT AN EDGE CASE — `VERIFY`
+
+**THE QUESTION: DOES STANDING RULE 2's POST-COMPUTE CLAUSE PROTECT THE FOUR NAMED THINGS — gate, threshold, cap, label — OR EVERYTHING THAT DETERMINES THE ANSWER?**
+
+It arrived **twice today from different directions**, and **both instances are now fully characterised**, so whoever resolves it inherits **concrete test cases rather than an abstraction**.
+
+- **INSTANCE 1 — M6SR §33.5.** Relaxation factors are **frozen content** (registration line 1192, inside §8.3's pasted `fvSolution` listing) and are **none of the four named things** — yet they **determine what the solver produces**.
+- **INSTANCE 2 — JF1G.** A **display-only** repair to the comparator alters **no gate, no threshold, no cap and no label**, so **on the letter of rule 2 it is permitted exactly as the M6SR `cp` repair was** — **BUT IT BREAKS THE FREEZE**, because the comparator **is the pinned grading path**, and the freeze's whole evidentiary content is that **the file which ran is the file that was pinned**.
+
+Recorded in the docket at commit `566bbe50`, **both instances cited**.
+
+⚠ **The two instances point in OPPOSITE directions and that is the whole difficulty:** instance 1 says the four named things are **too narrow** to protect the answer; instance 2 says the letter of the same clause **licenses** an edit that destroys the freeze it exists to create. **A ruling that fixes one without the other leaves the gap open.**
+
+### 2. JF1G §7.1 CHARACTERISED — PRESENTATION/AGGREGATION, VERDICT-PROOF ON TWO COUNTS — `VERIFY`
+
+**§7.1's OWN WORDING IS CORRECTED.** It says the comparator treats a level with no `log.simpleFoam` as **"not yet run"**. **IT DOES NOT.**
+
+- `analyse_jf1_ladders.py:451` prints **`NOT A RESULT`** correctly, **agreeing with the gate**.
+- `:452` then `continue`s, so the level **never enters `lev`**.
+- **TWO LATER SITES read absence-from-`lev` as not-present:** the table at `:470` prints **`PENDING`**, and the roll-up at `:494` counts **"2 of 3 levels present"**.
+
+🔴 **THE CORRECT VERDICT IS COMPUTED AND THEN DISCARDED BY THE AGGREGATION.**
+
+**Classification: PRESENTATION/AGGREGATION.** **NOT `DEFINITION`** — the per-level rule matches the gate. **NOT `THRESHOLD`** — none is involved.
+
+**COULD NOT HAVE CHANGED THE VERDICT, MEASURED ON TWO INDEPENDENT COUNTS:**
+
+1. **G1 is NOT IN THE COMPARATOR AT ALL** — plant-verified, `checkMesh` **0 occurrences** and `Mesh OK` **0**, against `simpleFoam` **5** as a **known-present control**, so the reader **DISCRIMINATES TRUE**. G1's breach is therefore **independent of the comparator and sufficient alone**.
+2. **Had the level entered `lev`, `:496` fires anyway**, because **C2 already fails completion at rc=124 with no `End` line**.
+
+**BOTH PATHS TERMINATE AT `NOT A RESULT`.**
+
+### 3. 🔴 A SECOND JF1G DEFECT, NOT PREVIOUSLY RECORDED, AND THE MORE SERIOUS OF THE TWO — `VERIFY`
+
+Line `:477` renders the failure list as **`[:60]`**. The full string is **SIXTY-ONE characters**, so **THE TRUNCATION CUTS EXACTLY THE FINAL DIGIT**, displaying **`endTime 3000`** where the `controlDict` says **`endTime 30000`** — **no ellipsis, no marker**.
+
+🔴 **A READER SEES A NUMBER WRONG BY AN ORDER OF MAGNITUDE WHILE MEMORY HOLDS IT RIGHT.**
+
+- The comparator's **regex reads 30000 correctly under two patterns**; `done` is **computed from the real value**; **no verdict moves**.
+- **SAME FAMILY AS ITEM 34** — a **silent corruption producing a plausible artifact**.
+
+**RULED REFERRAL, NOT REPAIR.** Repairing it would **move the comparator's blob so the registration's frozen sha no longer matches** — **deliberately creating, in one family, the exact hazard flagged an hour earlier in another** (`grade_f24.py`, §6). **THE COMPARATOR IS UNEDITED. JF1G IS NOT REGRADED. THE DUPLICATED §9 AT `:471`/`:486` IS UNTOUCHED** — a graded record's section numbering **is not worth putting today's hand on a two-day-old verdict**.
+
+### 4. L-490 FILED — THE THROUGH-LINE, EIGHT INSTANCES — `VERIFY`
+
+**A READER THAT CANNOT DISTINGUISH ITS SUBJECT FROM SOMETHING ADJACENT TO IT.** The eight:
+
+1. a **planted instance** from a **near-miss string**;
+2. an **invocation** from an **argparse definition**;
+3. a **call site** from a **definition site**;
+4. a file's **name at its writer** from its **name at its reader**;
+5. a **guard's own refusal** from an **unrelated refusal downstream**;
+6. **ONE SENTINEL CARRYING TWO STATES** — fault 4 **INVERTED**: there, **one file with two names**; here, **two states with one representation**;
+7. a **displayed value** from a **computed value**;
+8. a **log picked by SORT ORDER** rather than **by ROLE**.
+
+**THE REPAIR IS ALWAYS THE SAME: SHARPEN THE KEY UNTIL IT SEPARATES THE SUBJECT FROM ITS NEIGHBOUR.**
+
+🔴 **THE BOUNDARY IS WHAT MAKES IT LOAD-BEARING RATHER THAN A SLOGAN.** **SIX OF THE EIGHT WERE IN AUDIT MACHINERY, NOT SOLVERS** — and an audit whose key cannot separate its subject from its neighbour **REPORTS A CLEAN ZERO AND IS BELIEVED**, because **a zero from a broken audit looks exactly like a zero from a healthy system**. **THREE WERE CAUGHT ONLY BY THE DISCRIMINATES LINE.** And **C12 is written in as EXPLICITLY NOT THIS LESSON** — a reader that **COULD** distinguish perfectly, asked a question **its data could not answer**, where **no sharpening would ever have helped**; **without that boundary the next reader sharpens forever at an unanswerable question**.
+
+**STANDING RULE 11 WAS NOT CEREMONIAL TONIGHT: the three figures genuinely differed — MAXIMUM 489, BLOCK COUNT 492, DISTINCT 487.** The number was **re-derived from the maximum inside the commit invocation**.
+
+**ATTRIBUTION, RULED BY THE SUPERVISOR AND DELIBERATELY ASYMMETRIC:**
+
+- **Instance #2 IS ATTRIBUTED TO THE SUPERVISOR.** It is **his own census error**, which he **compounded** by telling the chief that `--gate-a` occurred **"only as the argparse definition"** until a board lane corrected him. **A permanent record in which the supervisor's errors are anonymous while the discipline is enforced downward teaches the wrong thing.**
+- **Instance #8 is a lane's and STAYS UNATTRIBUTED, and that is not a favour:** a lane whose self-reported errors are named **acquires an incentive not to report them**, and **the most valuable thing across these two days is that lanes reported their own faults BEFORE anyone found them**.
+- **THE ASYMMETRY ITSELF IS RECORDED IN THE LESSON** so nobody later reads it as inconsistency.
+
+### 5. F21 / F22 / F24 AUDITED — ALL ALREADY LAWFULLY GRADED, NOTHING MANUFACTURED — `VERIFY`
+
+**Real paths established BY LISTING, never by name construction:** `verification/runs/F21_runs` (**NOT** `F21_WOMERSLEY_runs`), `verification/runs/F22_LAMB_OSEEN_runs`, `verification/runs/F24_PRANDTL_MEYER_runs`. **All three carry standing verdicts in `verification/campaign/`** — **inferring from bare run dirs would have regraded three closed rungs.**
+
+| rung | verdict | evidence as stated |
+|---|---|---|
+| F21 | **`NOT A RESULT`** ×2 | triples **OSCILLATORY** and **DIVERGENT**; **GCI CORRECTLY NOT QUOTED**; band readings kept as **readings, not verdicts** |
+| F22 | **`PASS`** ×2 | both **CONVERGING**; `E2_velocity_L2` **3.682601646252679e-06** in band, **p 1.9463**; `peak_vorticity` **1.326137342509056** in band, **p 2.1188**, **GCI 0.0134 % at Fs 1.25** |
+| F24 | **`PENDING`** ×2 | the fine level was **NEVER LAUNCHED** — plant-verified **0 → 1 → 0** at the exact path, **directory restored byte-identical** |
+
+🔴 **`PENDING` IS THE CORRECT WORD FOR F24 AND MUST NOT BECOME `NOT A RESULT`.**
+
+**ZERO commits, ZERO solver compute** — **no verdict was unlawful and regrading would produce a second record for one run**.
+
+**COST.** F24's **rung-level cost claim is UNCITABLE BY ITS OWN RECORD** (`core_min_claim` null, **refused under L-342**); the **citable** figure is **`partial_sum_core_min` = 179.0**, from **two measured `ClockTime`s**.
+
+**NAMED AND STOPPED:** F24 fine, **648.0 core-min against an UNRAISED CAP of 1450**, **would close both `PENDING` gates**. **NOT LAUNCHED — check 4 is the supervisor's.**
+
+### 6. 🔴 A LIVE HAZARD ON SANAA'S DESK: `grade_f24.py`'s INTERIM STATE — `VERIFY`
+
+**Authoritative trackedness test used — the blob at HEAD rather than `git ls-files`, which UNDER-REPORTS under the private-index protocol.**
+
+- **The HEAD blob hashes to EXACTLY the sha frozen in F24's §11. THE WORKTREE DOES NOT.**
+- **Genuinely uncommitted — not a stale `git status` reading.**
+- It is **another lane's already-ruled lost-rc repair**.
+- **F24 had first compute on 2026-08-27, so its gates are CLOSED.**
+
+🔴 **ANYONE REGRADING F24 FROM THE WORKING TREE WOULD GRADE WITH A FILE THAT NO LONGER HASHES TO THE FROZEN SHA. THE COMMITTED PATH IS SAFE; THE WORKTREE PATH IS NOT.**
+
+**Inspected and left EXACTLY as found — not that lane's to land, and not this one's** (standing rule 10: an unexpected change is **inspected, never reverted**).
+
+### 7. LIVE / DESK / BLOCKED — `VERIFY`
+
+**LIVE:** **no cfd solvers.** **One lane** characterising **F5a's §7 gaps 1, 3, 4 and 5** — **the last mandate item neither blocked on Sanaa nor already closed**.
+
+**ON SANAA'S DESK, EIGHT:**
+
+1. **R2-M0's permission-system denial** — now blocking **her own named first physics** as well as **Rung 2**: **one item with two faces**;
+2. the **committee-grid mesh-quality tension**;
+3. **`scripts/queue_runner.py:598-606`** overwriting **every team's `_field_classes`**;
+4. the **35,544-cell F28G provenance gap**;
+5. **queue route B**, lab-wide;
+6. **r = 2.000 as a DISCLOSURE, not a request**;
+7. the **cross-family scheduling conflict**;
+8. **`grade_f24.py`'s interim state** (§6).
+
+**PLUS THE CHARTER QUESTION (§1), now carrying TWO independent characterised test cases.**
+
+**`BLOCKED`:**
+
+- the **M6SR solve ladder** — **B5a `NOT A RESULT`**, **B5b / B5c `PENDING`**, **window shut, run root exists**;
+- **R2-M0**, on the **permission denial**;
+- **Rung 2 (a)**, on **three grounds**;
+- **F28G's H5 arm, PERMANENTLY**, as frozen — with its **H5B successor drafted, freezable and check-4 passed, but DELIBERATELY NOT FROZEN**;
+- **F24 fine**, on **`grade_f24.py`'s state** (§6).
+
+---
+
 <!-- BOARD-BLOCK-ID: 63-SOLVE-BLOCKED -->
 
 **Section last written:** 2026-09-05T22:26:57Z by a cfd `lab-lane` at the supervisor's instruction (stamp from `date -u` read inside the committing shell invocation). **SIXTY-THIRD WRITE.** **PURE INSERTION at the top of the `## cfd` section; every byte below stands unedited** — nothing is renumbered, deleted or rewritten, and no other team's section is touched. Built from `git show HEAD:docs/LAB_STATE.md` and written back in the SAME shell invocation; the seven-heading `^## ` inventory asserted unchanged in **count and order**, deletions outside this block asserted `== 0`, every marker asserted to occur **exactly once on both sides of the splice** and again after the commit, and pure insertion **proved** by removing this span from the post-splice text and reproducing the HEAD blob byte-for-byte before the commit was allowed to form. ⚠ **Prior boards are named in prose only — board 62, board 61, board 60, board 59, board 58 — and NEVER in their full comment form**, per the hygiene rule board 60 set at its foot.
