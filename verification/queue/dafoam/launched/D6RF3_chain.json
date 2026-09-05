@@ -1,0 +1,108 @@
+{
+  "_STATE": "DRAFT BESIDE THE CASE. To be MOVED (never copied) to verification/queue/dafoam/D6RF3_chain.json; the draft path must be gone afterward. One row, one run.",
+  "_THE_DROP_IS_THE_LAUNCH": "verification/queue/dafoam/README.md, amendment 2026-09-01: the section headed 'Nothing here launches anything' is STRUCK and measured false. scripts/queue_runner.py --daemon is alive as pid 1766 (started 2026-09-05 21:08:24, polling every 60 s), and a validated entry is taken, launched detached and moved to launched/ within about a minute. Placing this file IS starting the run. It is treated that way here: the run root was re-asserted absent against a positive control in the arming invocation, the freeze sha and the grading-path pin were re-derived rather than copied, and a detached watcher was armed BEFORE the move.",
+  "_WHAT_THIS_ROW_DISCHARGES": "Section 11 item 9 of the frozen registration, restated at section 12.6 as the whole of what the freeze still owed: 'A queue row that cites this document, never one carrying an estimate this document does not.' EVERY number below is traced, one by one, to a section of PREREGISTRATION.md at prereg_commit -- see _number_provenance. No figure is taken from the parent D6RF2, from a sibling item, or from this lane's own arithmetic.",
+  "team": "dafoam",
+  "case_id": "D6RF3_chain",
+  "prereg_commit": "9c079a84a72f6fb08606a70b3fe4b3d177f5dc39",
+  "prereg_path": "cases/dafoam/ladder-a/A2/curriculum_D6RF3/PREREGISTRATION.md",
+  "prereg_md5_at_freeze": "01079356d794186d21d52e86e1e67907",
+  "grading_freeze": [
+    "cases/dafoam/ladder-a/A2/curriculum_D6RF3/d6rf3_grade.py"
+  ],
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF3/d6rf3_chain_driver.sh",
+    "F_mp",
+    "REF_off"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF3",
+  "ranks": 4,
+  "cost_core_min_estimate": 215.77,
+  "cap_core_min_registered": 670.0,
+  "cost_basis": "c7a.4xlarge at $0.0513/core-h, REPORTED-BY-OWNER, NOT MEASURED -- this box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). Dollars are DERIVED, never measured. PREREGISTRATION.md section 4a.1, verbatim figures: estimate 215.77 core-min = 3.596 core-h = $0.185; at the 670.0 core-min ceiling = 11.167 core-h = $0.573. Both under the $25 pre-authorisation. An overrun STOPS the run; it does not get a new budget.",
+  "memory_floor_gb": 20.0,
+  "enqueued_by": "dafoam lab-lane, 2026-09-05, on the dafoam-supervisor's instruction after HIS freeze at 9c079a84. SUPERVISION_CHARTER.md section 3 check 1 (the DELTAS diffs read as diffs) and check 4 (pre-registration committed before compute) are HIS, performed personally and recorded in PREREGISTRATION.md sections 12.1 and 12.3. THIS LANE PERFORMED NEITHER AND CLAIMS NEITHER. Enqueueing is not authorisation (README.md 'ENQUEUEING IS NOT AUTHORISATION').",
+  "_number_provenance": {
+    "_rule": "PREREGISTRATION.md section 4, verbatim: 'a queue row is not a pre-registration', and rule 12 requires every run costed IN ITS PRE-REGISTRATION. This block is the audit of the converse duty -- that this row carries nothing the registration does not. Section references are to PREREGISTRATION.md at 9c079a84 (md5 01079356d794186d21d52e86e1e67907, disk == blob, verified in the arming invocation).",
+    "ranks = 4": "section 2, arms table, 'ranks' column: F_mp 4, REF_off 4. Restated in section 4a.1 ('Ranks `4`').",
+    "cost_core_min_estimate = 215.77": "section 4a, cost table, 'total' row ('| **total** | **215.77** |'), the sum of the two per-arm registered estimates F_mp 155.70 and REF_off 60.07 in the same table. Re-printed by d6rf3_grade.py --cap-arithmetic as 'TOTAL predicted 215.77 core-min'.",
+    "F_mp estimate = 155.70 core-min": "section 4a, 'estimate' column, basis stated there as A4 x (A2/A3) = 47.267 x 3.2949 = 155.74, REGISTERED AT 155.70.",
+    "REF_off estimate = 60.07 core-min": "section 4a, 'estimate' column, basis A5 + A6 = 55.53 + 4.54; the replacement estimate established at section 1b.",
+    "cap_core_min_registered = 670.0 (the ITEM CEILING)": "section 4a, 'total' row, 'ceiling 670.0'; restated section 4a.1 ('Total predicted 215.77 against ceiling 670.0 core-min') and section 12.6. It is the ITEM ceiling, not an arm cap: the two arm caps are 480.0 and 190.0 and they sum to it exactly.",
+    "arm cap F_mp = 480.0 core-min": "section 4a, 'CAP' column.",
+    "arm cap REF_off = 190.0 core-min": "section 4a, 'CAP' column.",
+    "deadline F_mp TMO = 7110 s": "section 4a, 'deadline TMO (s)' column.",
+    "deadline REF_off TMO = 2760 s": "section 4a, 'deadline TMO (s)' column.",
+    "frame_allowance_s = 90": "section 4a, 'total' row ('at FRAME_ALLOWANCE_S = 90'); used as such in section 4a.1's identity.",
+    "memory_floor_gb = 20.0": "section 2, arms table, 'mem' column: 20g on BOTH arms; the same figure appears in the D6RF2 ledger row quoted at section 0 ('memory=20g'). \u26a0 DELIBERATELY NOT COPIED FROM THE PARENT: the D6RF2 queue row carried memory_floor_gb 24.0, which is the CHAIN DRIVER'S free-memory floor H5_FLOOR_GIB=24.0 GiB, a launch precondition of the driver and NOT a figure this registration carries. 20g is what section 2 registers, so 20.0 is what this row states. The consequence is disclosed rather than left to be found: the runner's own hold is at 20.0 GB MemAvailable, and the driver then holds AGAIN at its 24.0 GiB floor with wait-and-retry (bound 14400 s, a re-fireable BLOCKED at zero compute), so the arm cannot start under-provisioned. MemAvailable measured 27.7 GB at arming, above both.",
+    "dollars $0.185 / $0.573": "section 4a.1, closing paragraph, verbatim. DERIVED at $0.0513/core-h, NOT MEASURED.",
+    "cpuset 2,3,4,14 and image dafoam-idwarp-rot:v1": "section 2 arms table and section 6; not fields of this schema, recorded here so no reader supplies them from elsewhere.",
+    "NOTHING ELSE IS A NUMBER IN THIS ROW": "launch_cmd, cwd, team, case_id, prereg_commit, prereg_path and grading_freeze are identifiers, not estimates. Their provenance is _identifier_provenance below."
+  },
+  "_identifier_provenance": {
+    "launch_cmd": "section 2: 'Two arms, one detached chain, F_mp then REF_off, stopping at the first non-zero rc'; the chain driver is the section 9 instrument table row 'd6rf3_chain_driver.sh -- chain driver; calls the common item-ceiling guard'. The argv form and arm order are the driver's own documented detached form (its header block names `d6rf3_chain_driver.sh F_mp REF_off`), and the driver reads its arms from \"$*\" and iterates them in order.",
+    "cwd": "the CASE directory. d6rf3_chain_driver.sh's header: 'cwd is the CASE directory, never the run root (G-ROOT.5 b)'. Asserted to exist and to contain no `0/` and no numeric time directory in the arming invocation (the validator's AGE-GUARD and EXEC clauses).",
+    "prereg_commit": "the dafoam-supervisor's freeze commit, RE-DERIVED IN THE ARMING INVOCATION and not copied: `git cat-file -e <sha>` (exists), `git cat-file -e <sha>:<prereg_path>` (the document exists AT that sha), `git merge-base --is-ancestor <sha> HEAD` (on this branch's history), and `git show <sha>:<path> | md5sum` = 01079356d794186d21d52e86e1e67907, EQUAL to the file on disk.",
+    "grading_freeze": "section 3: 'The grading path is d6rf3_grade.py, fixed at the freeze commit and pinned by md5 in section 7'; section 9 instrument table, row 'd6rf3_grade.py -- THE GRADING PATH'. The registration carries no GRADING_FREEZE: declaration line, so grader_freeze_gate reads this entry's field as the second-precedence source (VERIFICATION_CHARTER section 2s.6). Verified in the arming invocation: disk md5 639d23c4cfea45187561604001c21b44 == the blob at 9c079a84 == HEAD."
+  },
+  "_cap_deadline_reconciliation": "RUN, NOT ASSERTED: `python3 d6rf3_grade.py --cap-arithmetic`, rc=0, no run root and no compute. F_mp: cap 480.00 x 60 / 4 = 7200.0 wall s against TMO 7110 + frame 90 = 7200.0 wall s, residual +0.0e+00 s; max spend at TMO 474.00 core-min, cap headroom 6.00; predicted 155.70 <= 480.00 OK. REF_off: cap 190.00 x 60 / 4 = 2850.0 wall s against TMO 2760 + frame 90 = 2850.0 wall s, residual +0.0e+00 s; max spend at TMO 184.00 core-min, cap headroom 6.00; predicted 60.07 <= 190.00 OK. TOTAL predicted 215.77 against ceiling 670.0. Neither stopping condition is decorative and this item does not carry the W3S / A1WRT2 defect (section 4a.1). cap_reachability() re-runs this identity on EVERY grading and refuses if it breaks.",
+  "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-D6RF3-a2-wing-multipoint-fd -- asserted ABSENT BY EXECUTION in the arming invocation at 2026-09-05T22:15Z, AGAINST A POSITIVE CONTROL in the same invocation (the reader returned PRESENT for /home/ubuntu/certonomous-runs and listed seven existing CURRICULUM-D6* siblings, so a zero from a blind reader is excluded -- standing rule 3). The item has burned 0 solver core-minutes to this point. The driver stages the root itself on the first fire and refuses if a second driver is live (PIDFILE, rc=3).",
+  "two_row_rule": "\u26a0 THIS IS A ONE-ROW `PATCHED` VERDICT AND IS NOT A FULL DAFOAM_CHARTER.md section 6 VERDICT ABOUT DAFoam, and it is labelled so wherever it appears (PREREGISTRATION.md section 6, ruled 2026-09-05, and section 12.6). PATCHED row BOUGHT: dafoam-idwarp-rot:v1, digest sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35, asserted BY DIGEST and never by tag; patched libidwarp.so md5 85f59e87253e0a71a813f64ca6e4c425. SHIPPED row NOT BOUGHT, and PRICED ANYWAY at 155.70 core-min (F_mp's own registered estimate, a second F_mp on stock IDWarp at the same cap) so a successor can buy it. That price is NOT added to the 215.77 total. d6rf3_grade.py emits two_row_rule.{row_bought, row_not_bought, shipped_row_price_core_min, is_a_full_charter_section_6_verdict: false} into every verdict document, so the label travels WITH the number and not in a header (DAFOAM_CHARTER.md section 18.6).",
+  "plateau_report_owed": "PREREGISTRATION.md section 12.4, registered before compute and carried here so it cannot be lost between the launch and the record: the result record MUST print each component's measured plateau_pct beside the 10.0 bar and STATE WHETHER THE BAR WAS EXERCISED AT ALL. Measured ground, S1FDP 2026-09-05: a 10 % plateau bar admits a step carrying 7.931 % adjoint error. So if every component lands orders of magnitude inside the bar -- as all three of S1FDP's did, at 0.019 %, 0.107 % and 0.026 % -- THEN THE BAR WAS NEVER TESTED AND ITS PASS CARRIES NO INFORMATION, AND THE RECORD SAYS SO IN THOSE WORDS. This is a REPORT, not a gate. PLATEAU_TOL_PCT = 10.0 (d6rf3_grade.py:127) is Band D, inherited by citation from D6R section 3e, and IS NOT MOVED. Here it is redundant anyway: FD_BAND_PCT = 5.0 is tighter and binds first.",
+  "how_this_can_honestly_end": "GATE FAIL or NOT A RESULT is a COMPLETION, not a failure of the process (Sanaa 2026-09-04: a first GATE FAIL is a waypoint; the case is then worked until it passes, AND THE GATE IS NEVER WIDENED TO FIT). PREREGISTRATION.md section 8 registers three falsifiers -- F1 (the new CD source vs the X-CDLOG reconstruction, bounded by the primal's own measured repeatability eta_raw), F2 (the finiteness clause, already discharged 30/30 and 10/10 with NOT EXERCISED = 0), F3 (G-FD's aggregate above 5.0 % or >= 2 sign flips, a physics finding this item is built to be able to report). Nothing is to be adjusted to reach a nicer token.",
+  "calibration_row_owed": "docs/COST_CALIBRATION.md at completion (CLAUDE.md rule 12, registered as an obligation at PREREGISTRATION.md section 4c): actual/predicted against 215.77 core-min, stated in core-minutes with dollars derived and labelled derived-not-measured, gap attributed to contention / waste / misprediction with WASTE NAMED SEPARATELY and never absorbed into the ratio. D6RF2's 4.6 core-min across four fires is a cost of this lineage and is not netted into this arm's actual.",
+  "verdict_state": "PENDING",
+  "_watcher": "A detached watcher was armed BEFORE this row was moved into the drop path, per Sanaa's ruling that pre-run checks must not become an infinite loop -- 'past some time the lab must take action and launch the run with its attached watcher to fix/debug and see what happens'. It is started with setsid, captures its rc INSIDE the detached wrapper (never around the setsid line, which exits 0 for every outcome), writes its own pid to a pidfile as its first action, and logs under the case directory and -- once the driver creates it -- reports the run root's own artefacts. It is READ-ONLY with respect to the solve: it observes, it never touches the chain. Paths: cases/dafoam/ladder-a/A2/curriculum_D6RF3/watch/",
+  "_prior_lineage": "FOUR FIRES UNDER D6RF2, THREE DISTINCT INSTRUMENT DEFECTS, ZERO CONTAINERS, 4.6 core-min total and no CFD reached. The fourth reached the extractor and REFUSED, which established D6RF3-DEF-4 (the producing optimiser never recorded CD; complete enumeration of 1,007 history records) and through it D6RF3-DEF-5 (the grader had no finiteness guard, and the endpoint row is NaN -- four gated rows would have read GATE FAIL manufactured from a non-number). Both are repaired and registered BEFORE compute in this item. F_mp and REF_off remain THE ONLY GENUINELY UNRUN PHYSICS IN THIS FAMILY: no container has ever run either, in any lineage, and the first real container is the first evidence about the case. The driven guard legs prove the INSTRUMENT and are never evidence about the case.",
+  "_launch": {
+    "utc": "2026-09-05T22:21:45Z",
+    "pid": 43264,
+    "sid": 43264,
+    "status_file": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF3/STATUS.queue.D6RF3_chain",
+    "wrapper_out": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF3/launcher.queue.out",
+    "started_epoch": 1788646905.849888
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.D6RF3_chain (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  },
+  "_grading_freeze": {
+    "verdict": "PINNED",
+    "detail": "1 comparator(s) named by 'grading_freeze' hash EXACTLY as commit 9c079a84 froze them.",
+    "field": "grading_freeze",
+    "paths": [
+      {
+        "path": "cases/dafoam/ladder-a/A2/curriculum_D6RF3/d6rf3_grade.py",
+        "frozen_sha": "efe50949f58edc4b35c8b4eeea6c876887923e13",
+        "disk_sha": "efe50949f58edc4b35c8b4eeea6c876887923e13",
+        "state": "PINNED"
+      }
+    ],
+    "prereg_commit": "9c079a84a72f6fb08606a70b3fe4b3d177f5dc39",
+    "refusal_eligible": false,
+    "source": "ENTRY",
+    "schema": "grading_freeze/2",
+    "kind": "PREDICTION",
+    "predicts": "GRADING_WILL_PROCEED",
+    "actual": null,
+    "case_id": "D6RF3_chain",
+    "walked_commit": "fa969465a68ba5cae535f4eb6bd0f6cacb40f438",
+    "recorded_utc": "2026-09-05T22:21:45Z"
+  }
+}
