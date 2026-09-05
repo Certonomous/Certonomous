@@ -1136,12 +1136,12 @@ on somebody choosing to write them is not a register.
   executable directives and its template is not named in
   `chief_engineer.head_engineer.VETTED_SYSTEM_OPERATION_CASES`.
 
-**A live defect, recorded here rather than quietly fixed.** The consolidated FD
+**~~A live defect, recorded here rather than quietly fixed.~~ ⚠ THIS NOTE IS STALE IN BOTH HALVES AND IS STRUCK 2026-09-05, v1.64 `§2as`.** ~~The consolidated FD
 table in `demo-output/website/ACTIVE_RESEARCH.md` still shows A4's 10.04 percent
-as PASS within the calibrated band. That band is the retired one. Under the
+as PASS within the calibrated band.~~ **MEASURED: that row was CORRECTED 2026-08-14 (`ACTIVE_RESEARCH.md:167`), so the stale artifact this note reports is no longer stale.** ~~That band is the retired one. Under the
 current standard in section 7 the same number grades CONDITIONAL, and two other
-records already say so. L-1 applies: report both and say which artifact each
-figure came from, then correct the stale one.
+records already say so.~~ **AND A4's VERDICT OF RECORD HAS MOVED AGAIN, past the number this note argues about: `PASS` on a DIFFERENT CONFIGURATION — np=1 stock, **1.10 %** (`a4_np1_stock.log`, supervisor sweep `27d25762`) — after the step-sweep the source demanded WAS RUN (2026-08-02, W4, nine steps, `PROOF.md:2805` §25.4).** ~~L-1 applies: report both and say which artifact each
+figure came from, then correct the stale one.~~ **L-1 still applies and is now discharged: both are reported here, each with its artifact.** **NOTHING IS RE-GRADED BY THIS STRIKE — A4's `PASS` is dafoam's, on their own record, and is not disturbed.**
 
 ## 13. A case from outside does not run with system operations enabled
 
@@ -7701,7 +7701,7 @@ because a report of an audit that lists only its hits is the defect this charter
 under the old band**"*. Source heading `:79`: *"Recommended FD tolerance for grading **future** shape
 derivatives **on this stack**"*. **`[VERIFIED BY ME AT SOURCE, BOTH SIDES]`**
 
-> ***THIS IS NOT A DROPPED QUALIFIER. IT IS THE REVERSAL OF ONE.*** `§2al` and `§2aq` were widenings
+> ***~~THIS IS NOT A DROPPED QUALIFIER. IT IS THE REVERSAL OF ONE.~~*** **[⚠ STRUCK IN PLACE 2026-09-05, v1.64 `§2as` — I OVERSTATED THIS AND THE MEASUREMENT CORRECTED ME: the source is NOT purely forward-looking. `A_stepsize_study.md:100-111` carries its OWN dedicated section, *"Should A4's 10.04 % still read as a PASS?"* → *"No — downgrade to CONDITIONAL / UNVERIFIED, not FAIL"*, RE-GRADING ONE NAMED PRIOR CASE. **The widening is real but NARROWER than I said: the source retroactively re-graded ONE NAMED CASE WITH REASONS; this charter generalised that into a STANDING RULE over EVERY case graded under the old band. Instance → class, not absence → presence.**]** `§2al` and `§2aq` were widenings
 > by omission; **this clause ASSERTS RETROACTIVITY WHERE THE SOURCE'S OWN WORD IS "FUTURE".**
 
 **(b) `:845-846`, THE PROVISIONAL FAIL.** Source `:92-94`: *"`>15%` or any flagged component → **FAIL
@@ -7773,3 +7773,90 @@ the thing `§2aq` proved harmful:**
   rule.** ***But it is the scope frame that (a) widened through: the source governs shape derivatives
   on one stack; `§7` governs every adjoint in the lab.*** **Left standing as the charter's own, and
   named so no future reader mistakes it for carried material.**
+
+---
+
+## Amendment — v1.64, 2026-09-05 — **§2as THE `§2ar` VERDICT-RISK QUESTION IS ANSWERED AND THE ANSWER IS **NO VERDICT RESTS ON EITHER WIDENING**. THE ONE VERDICT THAT MOVED WAS RE-GRADED BY THE SOURCE ITSELF, BY NAME, TWO DAYS BEFORE MY CLAUSE EXISTED — WHICH ALSO CORRECTS `§2ar`'s OWN CHARACTERISATION AGAINST ME. AND THE OBLIGATION I DROPPED HAD SURVIVED DOWNSTREAM ALL ALONG.**
+
+**Appended 2026-09-05 by `verification-supervisor`. Lines whose number changed above this section: 0**
+— both corrections are STRIKES IN PLACE preserving their line counts (file unchanged at 7,775 lines
+before this append), asserted before the write. **NOTHING IS RE-GRADED. NO VERDICT MOVES.**
+**`§2ar`'s corrections to `§7` STAND; what is corrected here is `§2ar`'s own account of WHY.**
+
+### §2as.1 THE ANSWER: NO VERDICT RESTS ON EITHER WIDENING
+
+**I said at `§2ar.2` that this was *"not established, being measured, and I assert it in neither
+direction."* It is now measured.**
+
+| channel | result |
+|---|---|
+| **retroactivity (`:838-839`)** | **one verdict moved — and it does NOT rest on this clause.** See `§2as.2` |
+| **dropped *"pending investigation"* (`:845-846`)** | **ZERO abandoned terminal FAILs.** See `§2as.3` |
+| **the code path** | **ZERO verdicts produced by either constant.** See `§2as.4` |
+
+> **RULED: `§2ar` is a TEXT REPAIR. It does not go to Sanaa, no team owes a re-grade, and no row on
+> the record was decided by a widened transcription.** *Stated as the disposition because I said in
+> advance it would depend on this measurement, and it did.*
+
+### §2as.2 ⚠ AND THE MEASUREMENT CORRECTS `§2ar` AGAINST ME — THE SOURCE IS NOT PURELY FORWARD-LOOKING
+
+**A4's Ahmed-body gradient did move `PASS` → `CONDITIONAL`** (`cases/dafoam/DAFOAM_CASE_STATUS.md:88`,
+`W5_GRADIENT_REGRADE.md:155-166`). **THE CHRONOLOGY EXONERATES THE CLAUSE, `[VERIFIED by git show]`:**
+
+- **2026-07-28, `fb88d1f5`** — `A_stepsize_study.md` authored, carrying **both** its *"future … on this
+  stack"* heading **AND its own dedicated section `## Should A4's 10.04% still read as a PASS?` →
+  *"No — downgrade to CONDITIONAL / UNVERIFIED, not FAIL."***
+- **2026-07-30, `ea53c110`** — this charter transcribes it and **adds** the retroactivity clause.
+- **2026-08-01/02** — A4 recorded `CONDITIONAL`; **every record carrying the downgrade cites the
+  STUDY or A4's own record. NOT ONE CITES THE CHARTER.**
+
+> ***THE SOURCE RETROACTIVELY RE-GRADED A4 ITSELF, BY NAME, TWO DAYS BEFORE MY CLAUSE EXISTED.***
+> **So `§2ar.2`'s claim — *"this is not a dropped qualifier, it is the reversal of one"* — IS
+> OVERSTATED AND IS STRUCK.** **The widening is REAL but NARROWER: the source re-graded ONE NAMED
+> CASE WITH REASONS; this charter generalised that into a STANDING RULE over every case graded under
+> the old band.** ***Instance → class, not absence → presence.***
+
+**AND NO OTHER CASE MOVED BY BAND APPLICATION**: A2 and the naca0015 sail are `≤ 5 %` `PASS` under
+both bands; A1 and A5 are graded on the flagged-component and `>15 %` clauses, **both present in the
+source**. **A4 is the only case where the old and new bands disagree at all.**
+
+### §2as.3 THE OBLIGATION I DROPPED HAD SURVIVED DOWNSTREAM ALL ALONG
+
+**Zero abandoned terminal FAILs. All three families carry an investigation:** A1 and A5 have a root
+cause **identified and confirmed by repair** (IDWarp 2.6.2's degenerate branch,
+`vectorUtils.f90:58`), their register entries deliberately open because the shipped toolchain still
+fails; **A6 N=16 has a SUCCESSOR that resolved it** — row `G-30`, aggregate **1.0432 %**, zero sign
+flips, `PASS` on 8 of 9, **an FD-reference artefact and not an adjoint defect.**
+
+> **⚡ AND THE FINDING I DID NOT EXPECT: dafoam's own rung records transcribe the source's FULL
+> wording — *"> 15 % or any flagged component → FAIL PENDING INVESTIGATION"* — at
+> `A2/grading_confirmation/RESULTS.md:9` and `A2/per_component_table/RESULTS.md:52`.**
+> ***THE PROVISIONAL-FAIL CLAUSE SURVIVED INTACT AT THE LEVEL WHERE GRADING ACTUALLY HAPPENS. IT WENT
+> MISSING ONLY IN MY TRANSCRIPTION.*** **The lab was more faithful to the source than its own
+> charter, and that is worth recording in the charter's own voice.**
+
+### §2as.4 THE CODE PATH PRODUCED NOTHING
+
+- **`d10f_grade.py`** cites **`DAFOAM_CHARTER.md` §2, NOT this charter's `§7`.** Its only verdict ever
+  produced is **`PASS` at 4.401007e-08 relative**, via the `err ≤ 5 %` branch. **The CONDITIONAL
+  branch has never executed on a real row.**
+- **`BAND_CONDITIONAL = 0.15`** in the four `d12*` graders is used at one site each, inside
+  `g6_bright_line` — **gate `G12R-6`, WHICH HAS NEVER RUN.** All three D12 items die at the
+  *preceding* step-sizing gate. **11 D12 run roots, 665,644 files, ZERO carrying `charter_band`.**
+- **The band's only exercise is a unit-test fixture**, whose own defect entry says *"until this
+  repair the CONDITIONAL band had never been exercised by a passing unit."*
+- **The SDK string is narrative, not a branch:** `GATE_CONDITIONAL_PCT` has **exactly one use site in
+  the file — that string.** *So `§2ar.2`'s alarm that the widening "reached a shipped SDK constant
+  and a verdict mapping" is true of the TEXT and false of any EXECUTED PATH, and I say so.*
+
+### §2as.5 `:1139-1144` IS STRUCK — I NOW KNOW WHICH CORRECTION IT NEEDED
+
+**`§2ar.6` deliberately left it standing until measured. It is stale in BOTH halves:** the
+`ACTIVE_RESEARCH` row it reports as stale **was corrected 2026-08-14**; and **A4's verdict of record
+has moved past the number entirely — `PASS` on a different configuration, np=1 stock, 1.10 %** —
+**after the step-sweep the source demanded WAS RUN** (2026-08-02, W4, nine steps). **Struck in place.
+Nothing re-graded; A4's `PASS` is dafoam's and is untouched.**
+
+**ONE RESIDUE, REPORTED AND NOT RULED: the source asked for *"a large-step check around 3e-2"* and no
+3e-2 A4 arm exists** — three of its four named checks ran. ***That is dafoam's to weigh on their own
+rung; it is not a defect this charter may declare, and I do not.***
