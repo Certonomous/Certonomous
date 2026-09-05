@@ -57,8 +57,8 @@ S7, `G_DELIVERY` (8 instruments, 8 level-0, 0 by closure), `G_ANCHOR` (2 anchor-
 
 | artefact line | content |
 |---|---|
-| `:2085` | `Time = 1000` — the case's `endTime` |
-| `:2093` | `Time step continuity errors : global = -2.960749047e-13` |
+| `:2086` | `Time = 1000` — the case's `endTime` |
+| `:2094` | `Time step continuity errors : global = -2.960749047e-13` |
 | `:2097` | `CD: 0.0184758685 final: 0.0184758685` |
 | `:2098` | `CL: 0.3999751808 final: 0.3999751808` |
 | `:2100` | `ExecutionTime = 19.71 s  ClockTime = 20 s` |
@@ -93,7 +93,9 @@ judged against.** `N-D42` measured the criterion itself:
 > the effective accept floor is `primalMinResTol × primalMinResTolDiff`.
 
 This run's own log carries both terms in its case header — `:334` `primalMinResTol 1e-08;` and
-`:505` `primalMinResTolDiff 1000;` — so the **effective accept floor is
+`:505` `primalMinResTolDiff 1000;` (each is the **first of three identical occurrences, one per
+flight point**: `:334`/`:942`/`:1548` and `:505`/`:1113`/`:1719`) — so the **effective accept
+floor is
 `1e-08 × 1000 = 1.0e-05`**, and the measured `1.316217833e-05` exceeds it by
 
     1.316217833e-05 / 1e-08 = 1316.217833   against a bar of 1000
@@ -113,7 +115,7 @@ distinction once; N-D42 exists to stop it being paid for twice.**
   last five printed steps (`Time = 600 … 1000`, log `:2033`–`:2098`) `CD` spans
   `0.01847587528 … 0.0184758685`, a spread of **6.78e-09 absolute, 3.67e-07 relative**.
 * **The residual is flat, not descending** — `p initRes` reads `1.316276465e-05` at
-  `Time = 900` (`:2074`) and `1.316217833e-05` at `Time = 1000` (`:2091`): a move of
+  `Time = 900` (`:2076`) and `1.316217833e-05` at `Time = 1000` (`:2092`): a move of
   **4.5e-05 relative over 100 iterations**. It is a floor, not a trajectory, and 100 more
   iterations would not have crossed anything.
 * **Agreement with the producing optimiser's own recorded `CD`** — §4 below, 0.0356 %.
@@ -403,3 +405,26 @@ artefacts, each cited by path and line.
 
 **SUBMISSIONS PARKED.** The four upstream defect classes remain **NOT FILED ANYWHERE**; nothing
 in this item is sent, filed, posted or commented anywhere outside this box.
+
+---
+
+## 11. CORRECTION 1 — 2026-09-06 — THREE LOG LINE CITATIONS WERE OFF BY ONE OR TWO, RE-READ AND FIXED
+
+**Disclosed rather than silently rewritten.** Landed at `b6779bc1`, this record cited
+`F_mp_20260905T222250Z_43793.log` at `:2085` for `Time = 1000`, `:2093` for the continuity
+`global`, and `:2074`/`:2091` for the `p initRes` pair. **Re-read from the named artefact by
+anchored grep: the correct lines are `:2086`, `:2094`, and `:2076`/`:2092`.** The `End` (`:2102`),
+the refusal block (`:2105-2107`), `CD` (`:2097`), `CL` (`:2098`) and `ExecutionTime` (`:2100`)
+citations were already correct and are unchanged.
+
+**No value, verdict, gate, threshold, cap, label or item of arithmetic changes** — every quoted
+number is the same number, read from the same lines, which were misnumbered by one and two in the
+first write-up. **Additionally clarified**, not corrected: `:334` and `:505` are each the **first
+of three identical occurrences** of `primalMinResTol` and `primalMinResTolDiff` in the log's case
+headers — one per flight point, at `:334`/`:942`/`:1548` and `:505`/`:1113`/`:1719`. All three
+carry the same values, so §1.2's effective-accept-floor arithmetic is unaffected.
+
+**Why this is a section and not a quiet edit:** this record's own §1.2 exists because a nominal
+figure was quoted where a measured one was available. A record that corrects a citation without
+saying so is asking a later reader to trust the second version for the same reason they trusted
+the first.
