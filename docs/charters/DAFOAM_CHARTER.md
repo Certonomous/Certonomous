@@ -1,6 +1,6 @@
 # Certonomous DAFoam Charter
 
-Version 1.0c, dated 2026-08-22. Governs every discrete-adjoint CFD result this lab produces
+Version 1.0g, dated 2026-09-05. Governs every discrete-adjoint CFD result this lab produces
 with DAFoam, IDWarp, pyGeo, pyOptSparse and the OpenFOAM builds under them: gradient
 verification, adjoint linear-solver failures, patched-toolchain rebuilds, mesh-warp
 derivatives, decomposition effects, and any optimisation driven by one of those gradients.
@@ -1101,3 +1101,66 @@ answer is convenient.*
 
 **Nothing in this addendum is filed, sent, uploaded or posted outside this box** (`CLAUDE.md` rule 7;
 §10). **SUBMISSIONS PARKED.**
+
+
+---
+
+## §21 ADDENDUM — 2026-09-05 — **§4 FIXES THE FALSIFIER'S STEP AND ITS CONSEQUENCE AND NEVER NAMES THE GATE IT MUST FAIL. A FALSIFIER CAN ONLY FALSIFY THE GATE IT ACTUALLY FAILS.**
+
+**Appended at the foot. Lines whose number changed above this section: 0** — asserted on bytes in the amending invocation, the only edit above being the version string on line 3, whose line number is unchanged. **Version 1.0c → 1.0g.** *(Recorded honestly: line 3 read `1.0c` while §18.4–§18.7 and §20 had already landed, so the header line had not been tracking the amendment record. It does now.)*
+
+**THIS IS A STRENGTHENING. It ADDS a requirement and moves NO threshold, band, cap or label anywhere.** No bar in any of the 52 surveyed items is widened, tightened, retired or re-targeted by this section. If the chief or Sanaa reads it as a threshold move it is struck on sight — it is written to be reversible.
+
+### §21.1 THE INCIDENT, MEASURED, AND IT IS THE SUPERVISOR'S OWN
+
+`S1FDP` (`cases/dafoam/ladder-b/S1_FD_PLATEAU_PREREGISTRATION.md`, frozen `a1727bd0`, graded 2026-09-05, **62.33 core-min**) registered this clause's falsifier — cell 5363 at **`h = 0.5`**, ten times the graded step, **predicting `> 2 %`**. It had **two limbs**:
+
+1. relative error against the adjoint **`> 2 %`** — **MET**, measured **7.931 %**;
+2. *"the `h = 0.5` estimate FAILS `P1`'s 10 % bar"* — **NOT MET**: it moves **7.902 %** and **PASSES**.
+
+Limb 2's own registered consequence then fired and withdrew `P1` for every component. **Item: `NOT A RESULT`.**
+
+**AND LIMB 2 WAS ARITHMETICALLY BOUND TO FAIL, VISIBLE AT ZERO COMPUTE, ON THE PAGE AT REGISTRATION.** That section's basis paragraph predicted `d(0.5)` at **≈ 3.2 %**, against a bar of **10 %**. **3.2 < 10 needs no solver.** The supervisor certified that freeze claiming the falsifier was *"read AS ARITHMETIC and not as a summary"* — and read **one of the two limbs** that way.
+
+### §21.2 THE ROOT IS THIS CLAUSE, NOT THAT ITEM'S DRAFTING
+
+**§4 fixes two things and not the third.** It fixes the **step distance** (*"an order of magnitude off the registered one"*) and the **withdrawal consequence** (*"the gate is not measuring what it claims and the verdict it produced is withdrawn"*). **It never says WHICH GATE the wrong step must fail.** *"The gate"* is singular and unbound, and an item with a plateau bar, an agreement band and an aggregate band has three.
+
+**So every instantiating item picks the target itself, and a census of all 52 items in this family carrying a numeric plateau bar is unanimous on which way they picked:** B3 → the `< 1 %` agreement bar (failed at 5.3686 %, as designed); all twelve `SO*` items → band D at 5 % via `G-TB`; A4/D3 → the 15 % band; D19T → the adjoint at 29.83 %; A6 → the adjoint at 99.9941 %. **`S1FDP` is the ONLY item in the family that pointed its falsifier at the PLATEAU bar.**
+
+**And §4's own worked example is where it inherited the numbers from.** This clause cites B3 registering *"cell 5491 at h = 0.5, ten times the registered step, predicting > 2 % against the real probes' **< 1 % bar**"*. `S1FDP` took the **cell family, the step and the `> 2 %` prediction verbatim and retargeted them from a `1 %` bar to a `10 %` bar without rescaling the step.** A one-decade step produces roughly 100× truncation growth (measured here: **247×**, effective order 2.39): that clears **1 %** by fivefold and clears **10 %** not at all. **The example travelled; the bar it was sized against did not.**
+
+### §21.3 THE AMENDMENT
+
+> **A registered trivial baseline NAMES THE GATE IT IS PREDICTED TO FAIL, and that gate MUST BE THE ONE WHOSE VERDICT THE WITHDRAWAL CLAUSE WITHDRAWS.** A falsifier pointed at gate A cannot license a withdrawal of gate B's verdict: it was never a test of B.
+>
+> **The pre-registration SHOWS THE ARITHMETIC AT REGISTRATION** — the predicted value of the wrong step's statistic **beside that gate's own bar**, in the same sentence, with the inequality written out. Where the prediction does not clear the bar, the step is rescaled or the target is corrected **before the freeze**, and the pre-registration says which was done.
+>
+> **A falsifier whose predicted value does not fail its named gate is NOT A FALSIFIER and is not counted as one.** An item may still register it as a reported probe; it may not rest a withdrawal clause on it.
+
+**Cost of compliance: zero.** Both numbers already exist at registration time in every item that has a falsifier at all. **This would have caught `S1FDP` on the page.**
+
+### §21.4 ⚠ THE STRUCTURAL DISTINCTION THAT DECIDES HOW MUCH THIS MATTERS — AND IT IS NOT UNIFORM
+
+The plateau bar is composed with the agreement band in **two different structures** in this family, and they are not equivalent. **Read from the graders, not inferred:**
+
+* **CONJUNCTION** — `d6rf3_grade.py:1162-1164`: `verdict = PASS if in_band AND plateau_pass AND not sign_flip`. Band D at **5 %** binds **before** the plateau at 10 %, so a component the loose bar admits fails the agreement band anyway. **Here the plateau bar is REDUNDANT.**
+* **EXCLUSION** — `so1a_grade.py:586`, and **this is the MAJORITY structure** (all twelve `SO*`, the D4/D5/D6/D7 block, D8, D18): `if min(nb) > PLATEAU_TOL_PCT: NOT A RESULT; continue`. The component **never reaches band D and never enters the band-E aggregate.** The plateau bar decides **MEMBERSHIP OF THE GRADED SET**, and band D then grades only what the plateau admitted.
+
+**In the exclusion structure the plateau bar is NOT redundant — it is the ONLY instrument standing between a coincidentally-crossing component and a `PASS`.** That failure mode is **measured, not hypothetical**: it is the A1 `idx6` mechanism this charter already records at §3 and `V_STANDARD_FD_VS_ADJOINT.md` §5.1 — a component sign-flipped and unstable at every other step, **happening to cross** the adjoint's magnitude at `2e-2`, which band D alone waves through at that one step.
+
+> **So the family's loosest and least-tested bar is LOAD-BEARING in exactly the structure where it is least tested.** An item in the exclusion structure whose falsifier is pointed at band D has tested the gate that was never at risk and left untested the one holding the set together.
+
+### §21.5 THE COUNTERWEIGHT — THE 10 % BAR IS NOT DEFECTIVE, AND THIS SECTION MUST NOT BE READ AS SAYING SO
+
+**Measured, on this family's own data.** `A6/curriculum_D8/PREREGISTRATION.md:86` records that the same 10 % bar *"separated the graded population (worst **3.651 %**) from flagged `twist` idx6 (**83.53 %**) without ever being adjusted."* **A bar at 10 % sits squarely between 3.651 and 83.53 — that is the definition of a working instrument**, and D9, D12, D18 and D19O exercised it cleanly too (D18 rejecting `shape[3]` at 1572.69 % / 195.66 %; D19O rejecting a fine side at 21.06 %).
+
+**The bar is untested wherever both populations happen to sit far below it, and on this family they usually do.** Of 52 items, **8 families exercised the bar against a value it had to reject; 33 never did; 2 are pending.** Where it is uninformative the margins are stark: `S1FDP` 94×–540× inside, D10F 52×–77,000× inside, `SO2a` agreeing at the `1e-9`–`1e-12` level. **`D8R` at 4.40× clearance is the closest any never-exercised item came to its own bar.**
+
+**A pass on an unexercised bar is not wrong. It is uninformative, and the record should say which it is.** A selftest that plants a violation proves the comparator can fire; it does **not** show the bar sits between the real populations — `S1FDP` had a live planted-zero control and a useless bar simultaneously.
+
+### §21.6 WHAT THIS SECTION DOES NOT DO
+
+**It moves no bar and grades nothing retroactively.** It binds pre-registrations frozen **after** this date; items already frozen keep the falsifiers they registered, and none of them is reclassified by this section. `D6RF3`, frozen earlier today at `9c079a84`, is in the **conjunction** structure and its §12.5 already checked its `F1`/`F2`/`F3` against this shape and cleared them — `F1`'s bar is `eta_raw`, **the primal's own measured repeatability**, which cannot be mis-sized against what it bounds because it is derived from it. **That is the design this family should prefer, and it is already here.**
+
+**SUBMISSIONS PARKED.**
