@@ -95,12 +95,20 @@ while [ $# -gt 0 ]; do
     --guards-only) GUARDS_ONLY=1; shift ;;
     --emit-manifest) EMIT_MANIFEST=1; shift ;;
     --emit-ledger)   EMIT_LEDGER="${2:-}"; shift 2 ;;
+    # Selftest entries.  They exist so the controls drive THIS FILE'S OWN code
+    # rather than a copy of it pasted into the selftest -- the difference that
+    # let a broken `measure_image_pins` sit undriven for a day.
+    --drive-pin-guard)     DRIVE_PIN_DIG="${2:-}"; DRIVE_PIN_WARP="${3:-}"; shift 3 ;;
+    --drive-md5-classifier) DRIVE_MD5="${2:-}"; shift 2 ;;
     *)             usage ;;
   esac
 done
 GUARDS_ONLY="${GUARDS_ONLY:-0}"
 EMIT_MANIFEST="${EMIT_MANIFEST:-0}"
 EMIT_LEDGER="${EMIT_LEDGER:-}"
+DRIVE_PIN_DIG="${DRIVE_PIN_DIG:-}"
+DRIVE_PIN_WARP="${DRIVE_PIN_WARP:-}"
+DRIVE_MD5="${DRIVE_MD5:-}"
 
 # ---- the registered per-arm caps.  Draft section 5.4. -----------------------
 arm_cap() {
@@ -272,24 +280,92 @@ unbound_guard() {
 # =============================================================================
 
 # Reads the two image-bound facts OUT OF THE IMAGE.  `docker image inspect`
-# does not start a container; the `libidwarp.so` md5 does, for one `md5sum`.
+# does not start a container; the `libidwarp.so` md5 does.
 #
-# ⚠ NOT EXERCISED IN THE 2026-09-04 DRAFTING INVOCATION AND NOT CLAIMED AS
-# DRIVEN.  Driving it needs the image, and this item is NOT FROZEN, so no
-# container was started.  It is declared here in its own third state and is
-# NEVER counted as a passing control (`DAFOAM_CHARTER.md` section 18.5's
-# `NOT EXERCISED`, adopted voluntarily inside this item's registration).  What
-# IS driven, below, is that an UNMEASURED value REFUSES rather than being
-# replaced by the pin -- which is the failure mode that would matter.
+# ⚠ THE 2026-09-04 VERSION OF THIS FUNCTION WAS DRIVEN FOR THE FIRST TIME ON
+# 2026-09-05 AND WAS MEASURED BROKEN.  It is quoted here because the repair is
+# unreadable without it:
+#
+#     docker run --rm --entrypoint /bin/sh "$img" -c \
+#       'md5sum $(python -c "...print(...libidwarp.so...)") 2>/dev/null | cut -d" " -f1'
+#
+# In this image `python` is NOT on PATH until `loadDAFoam.sh` is sourced, and
+# `--entrypoint /bin/sh -c` sources nothing.  So the command substitution
+# produced the EMPTY STRING, `md5sum` was handed NO OPERAND, fell back to
+# STDIN, read end-of-file, and printed
+#
+#     d41d8cd98f00b204e9800998ecf8427e     <-- THE MD5 OF THE EMPTY STRING
+#
+# at rc 0.  `[ -n "$warp" ]` CANNOT SEE THAT: the value is non-empty, so the
+# UNMEASURED limb never fired, the manifest would have recorded the md5 of
+# nothing as a measurement, and `G-IMG` would have refused reporting an IMAGE
+# MISMATCH over an image that is provably correct.
+#
+# ⚠ THAT IS `CLAUDE.md` RULE 3 WEARING A HASH.  Rule 3 refuses a zero from a
+# reader not shown able to see a non-zero; this was a reader returning a
+# CONSTANT it had not read, and the defect was invisible for exactly as long as
+# nobody drove it.  The pins themselves were never in doubt -- both are now
+# MEASURED out of the image and both match.  What was broken was the reader.
+#
+# THE REPAIR HAS THREE LIMBS, EACH CLOSING ONE OF THOSE FAILURES:
+#   1. `bash -lc` with `source /home/dafoamuser/dafoam/loadDAFoam.sh` -- this is
+#      A1WRT's PROVEN form (`a1wrt_run_unit.sh:674-677`) and the only form
+#      MEASURED to reach this image's python.
+#   2. the md5 is computed IN-PROCESS by `hashlib` over bytes actually read from
+#      the file, never by `md5sum` over a word that may be empty.
+#   3. THE EMPTY-INPUT MD5 IS REFUSED BY NAME, and so is anything that is not 32
+#      hex characters.  A reader returning the md5 of nothing has hashed
+#      nothing, and that is UNMEASURED however non-empty it looks.
+MD5_OF_NOTHING="d41d8cd98f00b204e9800998ecf8427e"
+DAFOAM_LOADER="/home/dafoamuser/dafoam/loadDAFoam.sh"
+
+# The md5 classifier, FACTORED OUT so the control can drive THE REAL ONE.  A
+# classifier re-typed inside a selftest is a second implementation, and the two
+# agree right up until the moment the first one is wrong.
+classify_md5() {
+  local v="$1"
+  if [ "$v" = "$MD5_OF_NOTHING" ]; then
+    echo "UNMEASURED"
+  elif printf '%s' "$v" | grep -qE '^[0-9a-f]{32}$'; then
+    echo "$v"
+  else
+    echo "UNMEASURED"
+  fi
+}
+
 measure_image_pins() {
   local img="$1" dig warp
   dig="$(docker image inspect --format '{{index .RepoDigests 0}}' "$img" 2>/dev/null | sed 's/.*@//')"
-  [ -n "$dig" ] || dig="UNMEASURED"
-  warp="$(docker run --rm --entrypoint /bin/sh "$img" -c \
-          'md5sum $(python -c "import idwarp,os;print(os.path.join(os.path.dirname(idwarp.__file__),\"libidwarp.so\"))") 2>/dev/null | cut -d" " -f1' \
-          2>/dev/null)"
-  [ -n "$warp" ] || warp="UNMEASURED"
+  case "$dig" in
+    sha256:*) : ;;
+    *)        dig="UNMEASURED" ;;
+  esac
+  warp="$(docker run --rm --user 0:0 "$img" bash -lc \
+          "source $DAFOAM_LOADER >/dev/null 2>&1 && python -c 'import idwarp,os,hashlib; so=os.path.join(os.path.dirname(idwarp.__file__),\"libidwarp.so\"); print(hashlib.md5(open(so,\"rb\").read()).hexdigest())'" \
+          2>/dev/null | tr -d '[:space:]')"
+  warp="$(classify_md5 "$warp")"
   echo "$dig $warp"
+}
+
+# REFUSES THE ARM **BEFORE THE CONTAINER** when either pin is UNMEASURED.
+#
+# ⚠ THE ORDERING IS THE REPAIR, AND MEASURING THE READER BROKEN IS WHAT MADE IT
+# VISIBLE.  The 2026-09-04 design let the arm RUN with an UNMEASURED pin and
+# left `G-IMG` to refuse at GRADE time -- AFTER the spend.  A broken reader
+# would therefore have bought SEAM's whole cap to be told the manifest was
+# unreadable.  `G-IMG` still refuses at grade time and is unchanged; this guard
+# simply means a reader defect costs 0 core-min instead of an arm's cap.
+refuse_unmeasured_pins() {
+  local arm="$1" dig="$2" warp="$3"
+  if [ "$dig" = "UNMEASURED" ] || [ "$warp" = "UNMEASURED" ]; then
+    echo "rc=4 stamp=$(date -u +%Y%m%dT%H%M%SZ) arm=$arm note=IMAGE_PINS_UNMEASURED dig=$dig warp=$warp" >> "$STATUS_DIR/STATUS.$arm"
+    echo "${ITEM}_REFUSE arm=$arm G-IMG inputs UNMEASURED (dig=$dig warp=$warp)." >&2
+    echo "  Refusing BEFORE the container: a pin this launcher could not read is" >&2
+    echo "  never written into the manifest as if it had been read, and the cost" >&2
+    echo "  of the reader being broken is 0 core-min rather than this arm's cap." >&2
+    exit 4
+  fi
+  echo "${ITEM}_IMAGE_PINS_MEASURED arm=$arm digest=$dig libidwarp=$warp"
 }
 
 # PRODUCES: $RUN_ROOT/MANIFEST.json -- the sole input of the HARD gates G-IMG
@@ -384,7 +460,11 @@ seam_precondition_guard() {
 
 # ---- SELFTEST: both guards driven in BOTH directions, on static fixtures ---
 if [ "$SELFTEST" = "1" ]; then
-  echo "${ITEM}_RUN_ARM SELFTEST -- host shell, NO container, NO compute"
+  echo "${ITEM}_RUN_ARM SELFTEST -- host shell.  ONE container is started, for
+  the image-pin measurement only (~2 wall s x 1 rank = ~0.033 core-min,
+  ~\$0.00003 DERIVED at the owner-stated rate, cost_basis REPORTED-BY-OWNER).
+  NO SOLVER RUNS.  Authorised by the dafoam-supervisor 2026-09-05; the
+  2026-09-04 banner said NO container and that is no longer true."
   TD="$(mktemp -d)"
   trap 'rm -rf "$TD"' EXIT
   FAILED=0
@@ -570,8 +650,70 @@ print(v)
     echo "CONTROL producer/ledger-row-is-written  NOT EXERCISED  -> $(cat "$TD/prod/ledger.txt" 2>/dev/null | head -1)"; FAILED=1
   fi
 
-  # -- measure_image_pins IS NOT DRIVEN AND IS NOT CLAIMED AS DRIVEN.
-  echo "CONTROL producer/image-pins-measured  NOT APPLICABLE  measure_image_pins needs the pinned image; this item is NOT FROZEN and NO container was started, so this limb is declared NOT EXERCISED and is never counted as a pass (DAFOAM_CHARTER 18.5, adopted voluntarily)"
+  # ==========================================================================
+  # `measure_image_pins` IS NOW DRIVEN FOR REAL, AND DRIVING IT IS WHAT FOUND
+  # THE TWO DEFECTS ABOVE.  Authorised by the dafoam-supervisor 2026-09-05:
+  # "I authorise the measurement rather than the redefinition."
+  #
+  # Cost: ONE container, ~2 wall s x 1 rank = ~0.033 core-min per selftest run,
+  # priced at the c7a.4xlarge owner-stated $0.0513/core-h => ~$0.00003 DERIVED,
+  # cost_basis REPORTED-BY-OWNER (CLAUDE.md rule 12; the box cannot read its own
+  # billing).  Under the $25 pre-authorisation and costed here anyway.
+  # ==========================================================================
+  PIN_DIG="sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35"
+  PIN_WARP="85f59e87253e0a71a813f64ca6e4c425"
+
+  if docker image inspect "$IMG" >/dev/null 2>&1; then
+    GOT_PINS="$(measure_image_pins "$IMG")"
+    GOT_DIG="${GOT_PINS% *}"; GOT_WARP="${GOT_PINS#* }"
+    if [ "$GOT_DIG" = "$PIN_DIG" ] && [ "$GOT_WARP" = "$PIN_WARP" ]; then
+      echo "CONTROL producer/image-pins-measured  EXERCISED-PASS  BOTH pins read OUT OF THE IMAGE and both match: digest=$GOT_DIG libidwarp=$GOT_WARP"
+    else
+      echo "CONTROL producer/image-pins-measured  EXERCISED-FAIL  measured digest=$GOT_DIG libidwarp=$GOT_WARP against pins $PIN_DIG / $PIN_WARP -- THIS STOPS THE FREEZE"; FAILED=1
+    fi
+  else
+    echo "CONTROL producer/image-pins-measured  NOT EXERCISED  the pinned image $IMG is not present on this box; declared in its third state and never counted as a pass"
+  fi
+
+  # -- THE MD5-OF-NOTHING LIMB.  This is the control the 2026-09-04 version could
+  #    not have had, because it was the bug: `md5sum` with no operand reads STDIN,
+  #    sees EOF, and prints the md5 of the empty string at rc 0, which is
+  #    non-empty and so slipped past a `[ -n ... ]` guard.  Driven as a REFUSAL,
+  #    through THIS FILE'S OWN classifier and not a copy of it.
+  MDN_OUT="$(env A1WRT2_STATUS_DIR="$TD" bash "${BASH_SOURCE[0]}" \
+               --arm SEAM --drive-md5-classifier "$MD5_OF_NOTHING")"
+  MDN_GOOD="$(env A1WRT2_STATUS_DIR="$TD" bash "${BASH_SOURCE[0]}" \
+               --arm SEAM --drive-md5-classifier "$PIN_WARP")"
+  if [ "$MDN_OUT" = "UNMEASURED" ] && [ "$MDN_GOOD" = "$PIN_WARP" ]; then
+    echo "CONTROL producer/md5-of-nothing-is-UNMEASURED  EXERCISED-FAIL  d41d8cd98f00b204e9800998ecf8427e -- the md5 of the EMPTY STRING -- maps to UNMEASURED, while the real pin $PIN_WARP passes through unchanged.  Both limbs driven, so this is a classifier and not a guard that refuses everything"
+  else
+    echo "CONTROL producer/md5-of-nothing-is-UNMEASURED  NOT EXERCISED  nothing->$MDN_OUT (want UNMEASURED), pin->$MDN_GOOD (want $PIN_WARP)"; FAILED=1
+  fi
+
+  # -- THE REFUSAL ORDERING, BOTH DIRECTIONS.  UNMEASURED must refuse BEFORE the
+  #    container (exit 4); measured pins must permit (exit 0).  Without the
+  #    second limb this control could not tell a working guard from one that
+  #    refuses everything.
+  drive "pins/unmeasured-refuses-before-container" 4 \
+    env A1WRT2_STATUS_DIR="$TD" bash "${BASH_SOURCE[0]}" --arm SEAM --drive-pin-guard UNMEASURED "$PIN_WARP"
+  drive "pins/unmeasured-warp-refuses-before-container" 4 \
+    env A1WRT2_STATUS_DIR="$TD" bash "${BASH_SOURCE[0]}" --arm SEAM --drive-pin-guard "$PIN_DIG" UNMEASURED
+  drive "pins/measured-pins-permit" 0 \
+    env A1WRT2_STATUS_DIR="$TD" bash "${BASH_SOURCE[0]}" --arm SEAM --drive-pin-guard "$PIN_DIG" "$PIN_WARP"
+
+  # -- THE LOADER LINE, ASSERTED BY EXTRACTION OVER THIS FILE'S OWN BYTES.
+  #    The defect was a MISSING line, and a missing line is exactly what a
+  #    selftest that only drives functions cannot see.
+  # The control's own grep line matches the pattern it greps for, so it is
+  # EXCLUDED BY NAME.  Without that the count is inflated by one and the
+  # threshold passes with one arm body missing the loader -- a control that
+  # counts itself is a control with a free pass built in.
+  N_LOADER="$(grep "source \$DAFOAM_LOADER" "${BASH_SOURCE[0]}" | grep -cv N_LOADER || true)"
+  if [ "$N_LOADER" -eq 3 ]; then
+    echo "CONTROL loader/every-container-sources-the-loader  EXERCISED-PASS  exactly $N_LOADER container invocations source $DAFOAM_LOADER, and they are the three that exist: measure_image_pins + both arm bodies (the control excludes its own grep line).  Without it this image reports 'python: command not found' and NO SOLVER STARTS"
+  else
+    echo "CONTROL loader/every-container-sources-the-loader  NOT EXERCISED  $N_LOADER sites source the loader, expected exactly 3"; FAILED=1
+  fi
 
   # ==========================================================================
   # RULING 1: THE TAIL'S PRECONDITION ON SEAM'S VERDICT, BOTH DIRECTIONS.
@@ -634,6 +776,15 @@ if [ -n "$EMIT_LEDGER" ]; then
   append_ledger_row "$ARM" 0 "$EMIT_LEDGER" 1 "$(arm_cap "$ARM")"
   exit 0
 fi
+# The pin guard and the md5 classifier, driven through THE REAL FUNCTIONS.
+if [ -n "$DRIVE_MD5" ]; then
+  classify_md5 "$DRIVE_MD5"
+  exit 0
+fi
+if [ -n "$DRIVE_PIN_DIG" ]; then
+  refuse_unmeasured_pins "$ARM" "$DRIVE_PIN_DIG" "$DRIVE_PIN_WARP"
+  exit 0
+fi
 
 # --- THE GUARDS RUN BEFORE ANYTHING ELSE, AND BEFORE THE CONTAINER ----------
 unbound_guard
@@ -674,16 +825,32 @@ fi
 # The two bodies are spelled out separately, with LITERAL paths, for the
 # reasons at `MANIFEST_PATH` above.
 # =============================================================================
+# ⚠ EVERY CONTAINER BELOW SOURCES `loadDAFoam.sh`, AND THAT LINE IS THE SECOND
+# DEFECT THE 2026-09-05 PIN MEASUREMENT EXPOSED.  The 2026-09-04 arm bodies ran
+#
+#     "$IMG" /bin/bash -lc 'cd /mnt && python /run_root/runScript.py -task sweep'
+#
+# with NO loader sourced.  Driving `measure_image_pins` for the first time
+# returned `python: command not found` from a login shell on this image -- and
+# the arm bodies had the SAME shape, so THE SOLVER WOULD NEVER HAVE STARTED.
+# Both arms would have written an empty `sweep.log`, propagated a non-zero rc
+# and produced no point at all.  `A1WRT` U1 ran because `a1wrt_run_unit.sh:675`
+# sources the loader; this successor dropped that line.
+#
+# MEASURED, 2026-09-05: with the loader sourced, `python` resolves and the
+# in-process md5 returns `85f59e87253e0a71a813f64ca6e4c425`, exactly the pin.
+# Without it, `/bin/sh` AND `/bin/bash -lc` both report `command not found`.
 run_seam_arm() {
   local rc t0 t1
   mkdir -p "$SEAM_OUT"
   DIG_WARP="$(measure_image_pins "$IMG")"
+  refuse_unmeasured_pins SEAM "${DIG_WARP% *}" "${DIG_WARP#* }"
   write_manifest SEAM "$IMG" "${DIG_WARP% *}" "${DIG_WARP#* }"
   t0="$(date +%s)"
   set +e
-  timeout 900 docker run --rm --cpuset-cpus="0" --memory=8g \
+  timeout 900 docker run --rm --user 0:0 --cpuset-cpus="0" --memory=8g \
     -e OMP_NUM_THREADS=1 -v "$SEAM_CASE:/mnt" -v "$RUN_ROOT:/run_root" \
-    "$IMG" /bin/bash -lc 'cd /mnt && python /run_root/runScript.py -task sweep' \
+    "$IMG" /bin/bash -lc "source $DAFOAM_LOADER && cd /mnt && python /run_root/runScript.py -task sweep" \
     > "$SEAM_OUT/sweep.log" 2>&1
   rc=$?
   set -e
@@ -701,12 +868,13 @@ run_tail_arm() {
   local rc t0 t1
   mkdir -p "$TAIL_OUT"
   DIG_WARP="$(measure_image_pins "$IMG")"
+  refuse_unmeasured_pins TAIL "${DIG_WARP% *}" "${DIG_WARP#* }"
   write_manifest TAIL "$IMG" "${DIG_WARP% *}" "${DIG_WARP#* }"
   t0="$(date +%s)"
   set +e
-  timeout 40500 docker run --rm --cpuset-cpus="0" --memory=8g \
+  timeout 40500 docker run --rm --user 0:0 --cpuset-cpus="0" --memory=8g \
     -e OMP_NUM_THREADS=1 -v "$TAIL_CASE:/mnt" -v "$RUN_ROOT:/run_root" \
-    "$IMG" /bin/bash -lc 'cd /mnt && python /run_root/runScript.py -task sweep' \
+    "$IMG" /bin/bash -lc "source $DAFOAM_LOADER && cd /mnt && python /run_root/runScript.py -task sweep" \
     > "$TAIL_OUT/sweep.log" 2>&1
   rc=$?
   set -e

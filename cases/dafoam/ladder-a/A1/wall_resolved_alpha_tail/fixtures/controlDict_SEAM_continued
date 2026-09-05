@@ -1,0 +1,48 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| A1WRT2 -- SEAM ARM, CONTINUED FROM A1WRT U1's 4000/ STATE.                   |
+|                                                                              |
+| REGISTERED STATIC FIXTURE.  Committed bytes, md5-pinned, staged by name.     |
+| It exists because `a1wrt2_stage.py` clause (9) ASSERTS a continuation and    |
+| REFUSES to author one -- "a stager that quietly wrote a solver's start       |
+| condition would be implementing a registered gate where no reviewer would    |
+| look for it" -- and NOTHING ELSE in the registered set produced one.  Both   |
+| arms would have aborted CONTROLDICT_NOT_CONTINUED at code 5.                 |
+|                                                                              |
+| The start condition is therefore a REVIEWABLE ARTEFACT IN THE FREEZE COMMIT, |
+| which is exactly what clause (9)'s stated reason asks for.                   |
+|                                                                              |
+| DESIGN L, ruled by the dafoam-supervisor 2026-09-05.  `startFrom latestTime` |
+| is REGISTERED AND UNTESTED: across the 14 measured points of this producer   |
+| (A1WR STAGE12 idx 0-12 CONTINUED, A1WRT U1 idx 0 COLD) the OpenFOAM counter  |
+| RESET TO 1 at every point and ran to endTime 4000, and `latestTime` appears  |
+| in NONE of them.  SEAM is the 10.0 core-min experiment that settles it.      |
+| Registered prediction P-SEAMTIME, draft section 11.4.                        |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+
+application     DASimpleFoam;
+
+startFrom       latestTime;
+startTime       4000;
+
+stopAt          endTime;
+endTime         4200;
+
+deltaT          1;
+
+writeControl    timeStep;
+writeInterval   200;
+
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  12;
+writeCompression on;
+timeFormat      general;
+timePrecision   6;
+runTimeModifiable false;

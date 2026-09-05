@@ -1,0 +1,46 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| A1WRT2 -- TAIL ARM, CONTINUED FROM SEAM's LANDED FINAL STATE.                |
+|                                                                              |
+| REGISTERED STATIC FIXTURE.  Committed bytes, md5-pinned, staged by name.     |
+| Same reason as the SEAM fixture: clause (9) asserts and never authors.       |
+|                                                                              |
+| ⚠ THIS ARM IS NEVER STAGED UNLESS SEAM's VERDICT PERMITS IT.  The 2026-09-04 |
+| ruling 1 put `seam_precondition_guard` in front of the TAIL arm, exiting 7   |
+| on anything but PASS.  So the `latestTime` question this fixture depends on  |
+| is ALREADY ANSWERED BY MEASUREMENT before a single core-minute of TAIL's     |
+| 675.0 is spent.  That is the falsifier doing its job.                        |
+|                                                                              |
+| `endTime 8200` = SEAM's landed 4200 + 4000.  It is registered on the         |
+| `latestTime` hypothesis SEAM tests.  If SEAM measures the per-point counter  |
+| reset instead, `G-COMPLETE` reports GATE FAIL on SEAM, the precondition      |
+| refuses TAIL, and THIS FIXTURE IS NEVER STAGED -- which is why registering   |
+| it on an untested hypothesis costs nothing and settles something.            |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+
+application     DASimpleFoam;
+
+startFrom       latestTime;
+startTime       4200;
+
+stopAt          endTime;
+endTime         8200;
+
+deltaT          1;
+
+writeControl    timeStep;
+writeInterval   4000;
+
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  12;
+writeCompression on;
+timeFormat      general;
+timePrecision   6;
+runTimeModifiable false;

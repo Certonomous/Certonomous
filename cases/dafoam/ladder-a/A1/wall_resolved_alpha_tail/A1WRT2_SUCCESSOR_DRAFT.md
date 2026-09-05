@@ -1407,3 +1407,202 @@ five artefacts that were fixture-only in §11.2.3's first measurement now resolv
 **NOT FROZEN. NOT PINNED. NOT ENQUEUED. NOT LAUNCHED. ZERO COMPUTE SPENT — no container was started
 by this invocation and `docker image inspect` starts none.
 SUBMISSIONS PARKED — nothing here is filed, sent, uploaded, posted or registered anywhere.**
+
+### 11.4 AMENDMENT — 2026-09-05, the `dafoam-supervisor`'s RULINGS IMPLEMENTED. **DESIGN L IS BUILT; DRIVING `measure_image_pins` FOR THE FIRST TIME FOUND TWO DEFECTS THAT WOULD HAVE STOPPED THE SOLVER DEAD; AND §11.3.4's DEFECT 1 IS RETRACTED — THIS LANE HAD THE CAP RULE BACKWARDS.**
+
+**Lawful because this document is UNFROZEN and no compute has been spent against its gates**
+(`CLAUDE.md` rule 2 limb 1). **The condition, CHECKED BY EXECUTION in this amending invocation:**
+`/home/ubuntu/certonomous-runs/A1WRT2` **does not exist** — `ls -d` and `ls -la` both rc=2, timestamp
+printed to that invocation's own output. **`CLAUDE.md` rule 6: lines whose number changed above this
+section: 0** — appended at the foot, prior sections struck by quote only.
+
+---
+
+#### 11.4.1 ⚠ RETRACTION. **§11.3.4's DEFECT 1 IS WRONG. THE CAP RULE RUNS THE OTHER WAY, AND THE EDIT IT PROMPTED HAS BEEN REVERTED.**
+
+**§11.3.4 defect 1 claimed, and it is struck by quote:**
+
+> ~~`SEAM`'s in-container deadline CANNOT ENFORCE its cap. … **900 s × 1 ÷ 60 = 15.0 core-min**, which
+> is **1.50× the cap**. **The deadline sits ABOVE the cap, so the mechanism §5.4 relies on … does not
+> hold for `SEAM`.** The figure that would make it hold is **600 s**.~~
+
+**THE ARITHMETIC IN THAT SENTENCE IS CORRECT AND THE CONCLUSION IS INVERTED.** The lab's registered
+rule, quoted from the instrument the supervisor ordered ported — `w3s_stage_record.py:630` — is:
+
+> **`cap x 60 / ranks < wall_bound`, for every leg**
+
+**A cap must bind BEFORE its timeout.** A cap whose wall-equivalent is at or above its own deadline
+is the **DEAD LEVER**: the timeout kills first, always, so the cap is a registered number no
+execution path can reach. A cap *below* its deadline — `SEAM`'s 600 s against 900 s — is **healthy**,
+with **50.0 % headroom**: the cap stops the run, the deadline is the backstop for when the driver,
+the daemon and every agent are dead. **§5.4's own sentence is therefore true as written and this lane
+misread it.**
+
+**THE EDIT IS REVERTED.** `a1wrt2_run_arm.sh`'s `SEAM` arm is back to `timeout 900`. Driven: had the
+600 s edit stood, **`SEAM` itself would have become the dead lever** (cap_wall 600 s against a 600 s
+deadline; `<` is strict, so equality is not reachable). **The repair would have created the defect it
+was written to fix.**
+
+> **⚠ AND THE SUPERVISOR RULED ON MY WRONG READING.** The 2026-09-05 ruling adopted *"SEAM's deadline
+> 900 s → 600 s"* **on the strength of this lane's report.** That ruling is **VOID for the reason it
+> was given**, and it is recorded here rather than quietly not executed. **A check beat an argument,
+> which is exactly why the same ruling ordered the check.**
+
+**THE REAL DEAD LEVER IS `TAIL`, AND IT BLOCKS THE FREEZE.** Driven, `a1wrt2_instruments.py` with no
+arguments now returns **rc = 64**:
+
+| leg | cap | ranks | cap as wall s | in-container deadline | verdict | headroom |
+|---|---|---|---|---|---|---|
+| `SEAM` | 10.0 core-min | 1 | **600.0 s** | **900 s** | **REACHABLE** | **50.0 %** |
+| `TAIL` | 675.0 core-min | 1 | **40,500.0 s** | **40,500 s** | **DEAD LEVER** | **0.0 %** |
+
+caps sum **685.000** = registered ceiling **685.000** ✓.
+
+**`TAIL`'s cap is EXACTLY its deadline, so the cap can never be the thing that stops the arm.** Moving
+either figure is a registered change and is **the supervisor's, not this lane's** — this lane has
+already been wrong once today about which way this rule points, and says so rather than editing a
+second cap on a second reading. **`SEAM` is REACHABLE and can freeze; `TAIL` cannot until that figure
+moves.** *§11.3.4's defect 2 — the bracket end evaluating to 367.603 and not 367.2 — is unaffected
+and stands.*
+
+---
+
+#### 11.4.2 ⚠ DRIVING `measure_image_pins` FOR THE FIRST TIME FOUND **TWO** DEFECTS, AND THE SECOND WOULD HAVE MEANT NO SOLVER EVER STARTED
+
+**The supervisor authorised the measurement rather than the redefinition — *"spend the ~20 s `docker
+run md5sum`"*. It cost 2 wall s × 1 rank = 0.033 core-min and it stopped the freeze twice.**
+
+**DEFECT 1 — THE PIN READER RETURNED A HASH IT HAD NOT READ.** The 2026-09-04 function ran
+`--entrypoint /bin/sh … 'md5sum $(python -c "…")'`. In this image **`python` is not on PATH until
+`loadDAFoam.sh` is sourced**, and `--entrypoint /bin/sh -c` sources nothing. So the substitution
+produced the empty string, `md5sum` was handed **no operand**, fell back to **stdin**, read EOF, and
+printed
+
+> **`d41d8cd98f00b204e9800998ecf8427e` — the md5 of the EMPTY STRING — at rc 0.**
+
+**`[ -n "$warp" ]` cannot see that.** The value is non-empty, so the `UNMEASURED` limb never fired,
+the manifest would have recorded the md5 of nothing **as a measurement**, and `G-IMG` would have
+refused reporting an **image mismatch over an image that is provably correct**. **That is `CLAUDE.md`
+rule 3 wearing a hash: not a zero from a blind reader, but a CONSTANT from a reader that read
+nothing.** The pins were never in doubt — **both are now MEASURED out of the image and both match**:
+`sha256:2927768a16ac…` = `PIN_IMG_DIGEST`, `85f59e87253e0a71a813f64ca6e4c425` = `PIN_IDWARP_MD5`.
+
+**DEFECT 2, AND IT IS THE LARGER ONE — THE ARM BODIES WOULD NEVER HAVE STARTED THE SOLVER.** The
+2026-09-04 arm bodies ran `"$IMG" /bin/bash -lc 'cd /mnt && python /run_root/runScript.py -task
+sweep'` **with no loader sourced — the same shape that had just been measured returning `python:
+command not found`.** Measured on this box: `/bin/sh -c` and `/bin/bash -lc` **both** report
+`command not found`; with `source /home/dafoamuser/dafoam/loadDAFoam.sh` prepended, python resolves
+and the in-process md5 returns the pin exactly. **`A1WRT` U1 ran because `a1wrt_run_unit.sh:675`
+sources the loader. This successor dropped that line.** Both arms would have written an empty
+`sweep.log`, propagated a non-zero rc, and produced **no point at all** — *zero of seven again, for a
+missing line nobody would have read.*
+
+**THE REPAIRS, EACH DRIVEN:**
+
+| repair | control | measured |
+|---|---|---|
+| `bash -lc` + the loader, in-process `hashlib`, never `md5sum` over a possibly-empty word | `producer/image-pins-measured` | **EXERCISED-PASS** — both pins read out of the image, both match |
+| the empty-input md5 is **refused by name**, and so is anything not 32 hex chars | `producer/md5-of-nothing-is-UNMEASURED` | **EXERCISED-FAIL** — nothing → `UNMEASURED`, while the real pin passes through unchanged. **Both limbs, so it is a classifier and not a guard that refuses everything** |
+| the pin refusal moves **BEFORE the container** (`refuse_unmeasured_pins`, exit 4) | `pins/unmeasured-refuses-before-container`, `pins/unmeasured-warp-refuses-before-container`, `pins/measured-pins-permit` | **rc=4, rc=4, rc=0.** A reader defect now costs **0 core-min** instead of an arm's cap |
+| every container invocation sources the loader | `loader/every-container-sources-the-loader` | **EXERCISED-PASS — exactly 3**, and the control **excludes its own grep line**, because a control that counts itself has a free pass built in |
+
+> **THE CLASSIFIER AND THE GUARD ARE DRIVEN THROUGH THIS FILE'S OWN CODE**, via two selftest CLI
+> entries, **not through a copy pasted into the selftest.** A classifier re-typed inside a selftest is
+> a second implementation, and the two agree right up until the moment the first one is wrong — which
+> is precisely how `measure_image_pins` sat undriven and broken for a day.
+
+---
+
+#### 11.4.3 DESIGN L, BUILT: THE CONTINUATION `controlDict` IS A COMMITTED, md5-PINNED FIXTURE
+
+**Ruled by the supervisor 2026-09-05, adopting this lane's own framing: *"Design L costs 10 core-min
+to find out; Design S costs a HARD gate's re-registration to avoid finding out."***
+
+**Two static fixtures are committed and pinned**, and `a1wrt2_stage.py` gains clause **(8b)**, which
+stages the fixture by name **before** clause (9):
+
+| arm | fixture | md5 | start condition |
+|---|---|---|---|
+| `SEAM` | `fixtures/controlDict_SEAM_continued` | `ddcedcff52df02e9aa8d64ffd504ebdf` | `startFrom latestTime; startTime 4000; endTime 4200` — §3's registered 200 iterations |
+| `TAIL` | `fixtures/controlDict_TAIL_continued` | `b81adcc9d4062fa8b121bff0baab22fc` | `startFrom latestTime; startTime 4200; endTime 8200` |
+
+**CLAUSE (9)'s STANCE IS UNCHANGED AND UNWEAKENED.** The stager still does **not author** a start
+condition; it stages a **reviewable, committed, md5-pinned artefact** and asserts over the staged
+bytes exactly as before. Clause (9)'s stated reason — that a silently authored start condition would
+be *"a registered gate where no reviewer would look for it"* — is **satisfied by putting the bytes
+where a reviewer does look: in the freeze commit.**
+
+> **⚠ CLAUSE (9)'s CONTROL CHANGED MEANING, AND THE CHANGE IS RECORDED RATHER THAN ABSORBED.** Until
+> (8b) existed, `abort/controldict-not-continued` planted a **non-continued SOURCE** — and it stopped
+> firing, because a non-continued source can no longer reach clause (9). **That is the repair working,
+> not the control failing:** §11.3.2 measured that the real source IS non-continued, so under the old
+> code **every real run took that path and both arms aborted.** The control now drives the failure
+> mode that actually remains — **a fixture edited to a non-continued start condition AND re-pinned**,
+> which the md5 cannot catch because it agrees by construction. Clause (9) is the only thing between a
+> re-pinned fixture and a silent cold start, and it is driven with exactly that. **(8b)'s own two
+> refusals — fixture absent, fixture md5 drifted — are driven too.**
+
+**REGISTERED PREDICTION `P-SEAMTIME`, written before the answer exists.** `startFrom latestTime` is
+**registered and untested**: across the 14 measured points of this producer the OpenFOAM counter
+**reset to 1 every point** and ran to `endTime 4000`, and `latestTime` appears in **none** of them.
+
+> **`P-SEAMTIME`: `SEAM`'s `sweep.log` will carry a first anchored `^Time = ` of 4001 and a last of
+> 4200.** *If it carries first `1`, the producer resets the counter on a `latestTime` start too,
+> `G-COMPLETE` reports `GATE FAIL` on `SEAM`, `seam_precondition_guard` refuses `TAIL` at rc=7, and
+> the item stops at ≤ 10.0 core-min with the mechanism MEASURED FOR THE FIRST TIME.* **Either outcome
+> is a result. `P-SEAMTIME` is scored `HIT`/`MISS` and a `MISS` is a FINDING, not a failure** — and
+> `TAIL`'s 675.0 core-min cannot be spent on a wrong answer to it, because the falsifier sits in
+> front of it.
+
+**AND `TAIL`'s FIXTURE IS REGISTERED ON THE HYPOTHESIS `SEAM` TESTS, WHICH COSTS NOTHING.** If
+`P-SEAMTIME` misses, `TAIL` is never staged and that fixture is never used. Registering it now is how
+the decision rule stays **pre-registered** rather than chosen after the answer.
+
+---
+
+#### 11.4.4 CORRECTION TO §3 AND §11.3.2, ON THE SUPERVISOR'S ORDER: **α = 13 IS NOT UNTOUCHED**
+
+§3 says *"Zero of the seven declared tail points ran"* and this lane repeated it. **Measured and
+refined:** the seven are **six tail points (α 13…18) plus `SEAM`'s α = 12**. And `A1WR`'s STAGE12
+sweep **reached α = 13 and was killed inside it** — `AOA_POINT_BEGIN idx=13`, 26 anchored `^Time = `
+lines, **last `Time = 2500` of a registered 4,000**, against 41 lines and `Time = 4000` for each of
+idx 0…12. **α = 13 therefore has a PARTIAL residual history on disk and no `AOA_POINT_VALUES` row.**
+
+**It is `NOT A RESULT` and it is not a point.** But *"zero of seven unbought"* would let a successor
+believe α = 13 had never been attempted, and **a partial history is evidence about tail stiffness that
+a successor should know exists.** Recorded here rather than left to be rediscovered.
+
+---
+
+#### 11.4.5 WHAT IS DRIVEN NOW — ALL FOUR INSTRUMENTS, **0 NOT EXERCISED**
+
+| instrument | rc | legs | controls | EXERCISED-FAIL | EXERCISED-PASS | NOT EXERCISED |
+|---|---|---|---|---|---|---|
+| `a1wrt2_grade.py --selftest` (`python3` and `-O`) | **0** | 7 | **77** | 48 | 29 | **0** |
+| `a1wrt2_instruments.py --selftest` | **0** | **8** | **21** | 13 | 8 | **0** |
+| `a1wrt2_stage.py --selftest` | **0** | 5 | **28** | 18 | 10 | **0** |
+| `a1wrt2_run_arm.sh --selftest` | **0** | — | **25** | — | — | **0** |
+
+**`NOT EXERCISED` is now ZERO across the whole item** — the freeze condition the supervisor set, met
+by measurement rather than by redefinition. `ast.Assert` = **0** across the three python instruments,
+each auditor shown able to see a planted one.
+
+**`a1wrt2_instruments.py` with no arguments returns rc = 64**, not 0: existence clean, coverage clean,
+producer trace clean (**9 consumed, 8 traced, 1 named deferral, 0 UNTRACED**), and **CAP REACHABILITY
+BLOCKED on `TAIL`.** *That is the ordered check refusing the freeze, which is the check working.*
+
+**THE SELFTEST NOW STARTS ONE CONTAINER** — for the pin measurement only, **~2 wall s × 1 rank ≈
+0.033 core-min ≈ $0.00003 `DERIVED`**, `cost_basis` **`REPORTED-BY-OWNER`** (the box cannot read its
+own billing). **No solver runs.** The 2026-09-04 banner said *"NO container, NO compute"* and that is
+**no longer true**; the banner now says what it does.
+
+**STILL NOT ESTABLISHED, AND NOT CLAIMED:**
+1. **Whether this producer honours `startFrom latestTime`** — `P-SEAMTIME` is the registered
+   prediction and `SEAM` is the 10.0 core-min experiment. **Zero of fourteen measured points used it.**
+2. **`TAIL`'s cap is a DEAD LEVER** and the item does not freeze on that leg until a registered figure
+   moves. **The supervisor's call, not taken here.**
+3. **Nothing about the physics. No solver has run. `LAUNCH_ENABLED` is still 0.**
+
+**NOT FROZEN. NOT PINNED. NOT ENQUEUED. NOT LAUNCHED. NO SOLVER COMPUTE SPENT — one 2-second
+container for the image pins, authorised and costed above.
+SUBMISSIONS PARKED — nothing here is filed, sent, uploaded, posted or registered anywhere.**

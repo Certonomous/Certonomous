@@ -1184,7 +1184,108 @@ def main(argv=None) -> int:
               % (ITEM, sorted(list(t["untraced"]) +
                               list(t["fixture_only_consumed"]))))
         return 8
+    # CAP REACHABILITY, ordered by the dafoam-supervisor 2026-09-05.
+    crc, cbody = cap_reachability()
+    print("")
+    print_cap_reachability(cbody)
+    if crc:
+        return crc
     return 0
+
+
+# =============================================================================
+# CAP REACHABILITY -- `w3s_stage_record.py:630`'s check, ported to this item by
+# the `dafoam-supervisor`'s 2026-09-05 order: *"run `--cap-reachability`'s
+# equivalent over EVERY `A1WRT2` leg before the freeze."*
+#
+# THE RULE, QUOTED FROM THE INSTRUMENT IT COMES FROM:
+#     "cap x 60 / ranks < wall_bound, for every leg"
+#
+# ⚠ THE DIRECTION IS THE WHOLE CONTENT OF THE RULE AND IS EASY TO GET BACKWARDS
+# -- THIS LANE GOT IT BACKWARDS ON 2026-09-05 AND THE CHECK IS WHAT CAUGHT IT.
+# The cap must bind BEFORE the timeout.  A cap whose wall-equivalent is at or
+# above its own in-container deadline is a DEAD LEVER: the timeout kills first,
+# always, so the cap is a registered number no execution path can ever reach,
+# and every sentence about "the cap stops the run" is false of it.  A cap BELOW
+# its deadline is correct and healthy -- the cap stops the run, the deadline is
+# the outer backstop for when the driver, the daemon and every agent are dead.
+#
+# EQUALITY IS NOT REACHABLE.  `<` is strict, deliberately: a cap that exactly
+# equals its deadline cannot be shown to have bound first.
+# =============================================================================
+
+# Registered in draft section 5.4.  ranks = 1 is section 3's registered program.
+CAP_LEGS = {
+    "SEAM": {"cap_core_min": 10.0,  "ranks": 1, "deadline_s": 900},
+    "TAIL": {"cap_core_min": 675.0, "ranks": 1, "deadline_s": 40500},
+}
+CAP_ITEM_CEILING = 685.0
+
+
+def cap_reachability(legs=None, ceiling=None):
+    """Returns (rc, body).  rc=0 only when EVERY registered cap is reachable
+    AND the caps sum exactly to the registered ceiling.  rc=64 names every dead
+    lever it found.  Takes its inputs as parameters so the control can plant a
+    dead lever and be shown able to see one."""
+    legs = CAP_LEGS if legs is None else legs
+    ceiling = CAP_ITEM_CEILING if ceiling is None else ceiling
+    rows, dead = [], []
+    for name in sorted(legs):
+        spec = legs[name]
+        cap, ranks, bound = (spec["cap_core_min"], spec["ranks"],
+                             spec["deadline_s"])
+        cap_s = cap * 60.0 / float(ranks)
+        ok = cap_s < bound
+        rows.append({"leg": name, "cap_core_min": cap, "ranks": ranks,
+                     "cap_wall_s": cap_s, "deadline_s": bound,
+                     "reachable": ok,
+                     "headroom_pct": (100.0 * (bound / cap_s - 1.0)
+                                      if cap_s > 0 else None)})
+        if not ok:
+            dead.append(rows[-1])
+    total = sum(l["cap_core_min"] for l in legs.values())
+    sums = abs(total - ceiling) < 1e-9
+    body = {"rule": "cap x 60 / ranks < deadline_s, for every leg",
+            "legs": rows, "caps_sum_core_min": total,
+            "item_ceiling_core_min": ceiling,
+            "caps_sum_equals_ceiling": sums, "dead_levers": dead}
+    if dead:
+        body["verdict"] = "BLOCKED"
+        body["reason"] = (
+            "DEAD LEVER: %s.  A cap at or above its own timeout can never bind "
+            "-- the timeout binds first, always -- so it is a registered number "
+            "no execution path can reach.  THE ITEM DOES NOT FREEZE."
+            % "; ".join(
+                "leg %s caps at %.1f core-min = %.0f s against a %d s deadline"
+                % (d["leg"], d["cap_core_min"], d["cap_wall_s"],
+                   d["deadline_s"]) for d in dead))
+        return 64, body
+    if not sums:
+        body["verdict"] = "BLOCKED"
+        body["reason"] = (
+            "REGISTRATION INCONSISTENT: the caps sum to %.3f, the registered "
+            "ceiling is %.3f.  A registration whose parts do not equal its "
+            "whole is a defect found here or not at all." % (total, ceiling))
+        return 64, body
+    body["verdict"] = "OK"
+    return 0, body
+
+
+def print_cap_reachability(body) -> None:
+    print("--- CAP REACHABILITY (%s) ---" % body["rule"])
+    for r in body["legs"]:
+        print("  %-6s cap=%8.1f core-min  ranks=%d  cap_wall=%9.1f s  "
+              "deadline=%7d s  %-11s headroom=%s"
+              % (r["leg"], r["cap_core_min"], r["ranks"], r["cap_wall_s"],
+                 r["deadline_s"],
+                 "REACHABLE" if r["reachable"] else "DEAD LEVER",
+                 ("%.1f %%" % r["headroom_pct"])
+                 if r["headroom_pct"] is not None else "-"))
+    print("  caps sum = %.3f core-min ; registered ceiling = %.3f ; equal = %s"
+          % (body["caps_sum_core_min"], body["item_ceiling_core_min"],
+             body["caps_sum_equals_ceiling"]))
+    if body.get("reason"):
+        print("  %s: %s" % (body["verdict"], body["reason"]))
 
 
 # =============================================================================
@@ -1626,6 +1727,75 @@ def _leg_noassert() -> None:
     _control("noassert/zero-across-the-three-instruments", "pass", audit)
 
 
+def _leg_cap_reachability() -> None:
+    """The `dafoam-supervisor`'s 2026-09-05 order, driven in BOTH directions.
+
+    ⚠ THIS LEG EXISTS BECAUSE THE LANE THAT WROTE IT GOT THE RULE BACKWARDS.
+    It reported `SEAM`'s 900 s deadline as a defect against a 10.0 core-min cap
+    -- reasoning that a deadline above the cap cannot enforce it -- and edited
+    the launcher to 600 s.  Driving the REAL rule from `w3s_stage_record.py:630`
+    inverted the finding: 600 s makes `SEAM` a DEAD LEVER (cap_wall 600 s == a
+    600 s deadline, and `<` is strict), while the registered 900 s is REACHABLE
+    with 50 % headroom.  The edit was reverted.  **The genuine dead lever is
+    `TAIL`**, whose 675.0 core-min cap is exactly its 40,500 s deadline.
+    A check beats an argument, which is the entire reason the order was given."""
+
+    def registered_is_read():
+        rc, body = cap_reachability()
+        rows = {r["leg"]: r for r in body["legs"]}
+        _must(rows["SEAM"]["cap_wall_s"] == 600.0,
+              "SEAM cap_wall_s %r" % rows["SEAM"]["cap_wall_s"])
+        _must(rows["SEAM"]["reachable"] is True, "SEAM should be REACHABLE")
+        _must(rows["TAIL"]["reachable"] is False, "TAIL should be a DEAD LEVER")
+        _must(rc == 64, "rc %r" % rc)
+        _must(body["caps_sum_equals_ceiling"] is True, "caps must sum to 685.0")
+        return ("SEAM cap 10.0 core-min = 600.0 s wall against a 900 s "
+                "deadline -> REACHABLE, 50.0 % headroom.  TAIL cap 675.0 "
+                "core-min = 40500.0 s against a 40500 s deadline -> DEAD "
+                "LEVER (equality is not reachable).  rc=64, THE ITEM DOES NOT "
+                "FREEZE on TAIL")
+
+    def healthy_tree_is_clean():
+        legs = {"SEAM": {"cap_core_min": 10.0, "ranks": 1, "deadline_s": 900},
+                "TAIL": {"cap_core_min": 675.0, "ranks": 1,
+                         "deadline_s": 40501}}
+        rc, body = cap_reachability(legs, 685.0)
+        _must(rc == 0, "a healthy table must return 0, got %r" % rc)
+        _must(not body["dead_levers"], "no dead levers expected")
+        return ("with TAIL's deadline at 40501 s the same checker returns rc=0 "
+                "and 0 dead levers -- so it is a checker, not a function that "
+                "refuses everything.  ONE SECOND is the whole difference, and "
+                "that is what `<` being strict means")
+
+    def my_own_inverted_edit_is_caught():
+        legs = {"SEAM": {"cap_core_min": 10.0, "ranks": 1, "deadline_s": 600},
+                "TAIL": {"cap_core_min": 675.0, "ranks": 1,
+                         "deadline_s": 40501}}
+        rc, body = cap_reachability(legs, 685.0)
+        _must(rc == 64, "the 600 s edit must be caught, got rc %r" % rc)
+        _must([d["leg"] for d in body["dead_levers"]] == ["SEAM"],
+              "SEAM alone should be dead, got %r" % body["dead_levers"])
+        return ("the lane's own 900->600 edit, replayed: SEAM becomes the DEAD "
+                "LEVER it was edited to avoid being.  The reverted edit is "
+                "pinned by a control so it cannot be made again silently")
+
+    def sum_mismatch_is_caught():
+        legs = {"SEAM": {"cap_core_min": 10.0, "ranks": 1, "deadline_s": 900},
+                "TAIL": {"cap_core_min": 674.0, "ranks": 1,
+                         "deadline_s": 40501}}
+        rc, body = cap_reachability(legs, 685.0)
+        _must(rc == 64, "a caps/ceiling mismatch must refuse, got %r" % rc)
+        _must(body["caps_sum_equals_ceiling"] is False, "should not sum")
+        return ("caps summing to 684.0 against a registered 685.0 ceiling "
+                "REFUSES: a registration whose parts do not equal its whole")
+
+    _control("cap-reach/registered-table-is-read", "fail", registered_is_read)
+    _control("cap-reach/healthy-table-is-clean", "pass", healthy_tree_is_clean)
+    _control("cap-reach/inverted-edit-is-caught", "fail",
+             my_own_inverted_edit_is_caught)
+    _control("cap-reach/caps-must-sum-to-ceiling", "fail", sum_mismatch_is_caught)
+
+
 def selftest() -> int:
     print("%s_INSTRUMENTS SELFTEST -- host python, NO compute, NOT FROZEN" % ITEM)
     print("python %s   optimisation flag active: %s"
@@ -1637,6 +1807,7 @@ def selftest() -> int:
             ("SELFTEST-CONVERGENCE", _leg_convergence),
             ("SELFTEST-COMPLETENESS", _leg_completeness),
             ("SELFTEST-PRODUCER-TRACE", _leg_producer_trace),
+            ("SELFTEST-CAP-REACHABILITY", _leg_cap_reachability),
             ("SELFTEST-NOASSERT", _leg_noassert))
     try:
         for name, fn in legs:

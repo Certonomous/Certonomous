@@ -138,6 +138,29 @@ LAUNCHER_SRC = HERE / "a1wrt2_run_arm.sh"
 SEAM_SRC_DEFAULT = "/home/ubuntu/certonomous-runs/A1WRT/alpha12_symmetry"
 SEAM_SRC_TIME = "4000"
 
+# ---- THE CONTINUATION controlDict, AS A COMMITTED STATIC FIXTURE ------------
+# ⚠ ADDED 2026-09-05.  Draft section 11.3.2 measured that NOTHING in the
+# registered set produced a CONTINUED `system/controlDict`: the string
+# `controlDict` occurs 0 times in the frozen producer and 0 times in the
+# launcher, and clause (9) below REFUSES rather than authors one.  The real
+# staging source carries `startFrom startTime; startTime 0`, so clause (9)'s
+# own predicate -- imported and driven against those real bytes -- returned
+# False and aborted CONTROLDICT_NOT_CONTINUED at code 5, FOR BOTH ARMS.  The
+# item could not have staged anything.
+#
+# THE REPAIR KEEPS CLAUSE (9)'s STANCE EXACTLY.  The stager still does not
+# AUTHOR a start condition; it stages a REVIEWABLE, COMMITTED, md5-PINNED
+# artefact and then asserts over the staged bytes as before.  Clause (9)'s
+# stated reason -- that a silently authored start condition would be "a
+# registered gate where no reviewer would look for it" -- is satisfied by
+# putting the bytes where a reviewer does look: in the freeze commit.
+CONTROLDICT_FIXTURE = {
+    "SEAM": ("fixtures/controlDict_SEAM_continued",
+             "ddcedcff52df02e9aa8d64ffd504ebdf"),
+    "TAIL": ("fixtures/controlDict_TAIL_continued",
+             "b81adcc9d4062fa8b121bff0baab22fc"),
+}
+
 ARMS = ("SEAM", "TAIL")
 
 # ---- the two DISJOINT lists the age clause is built on ----------------------
@@ -586,6 +609,32 @@ def stage(arm: str, run_root: Path, src: Path, out: list) -> dict:
               "the state did not stage and the arm would silently cold-start; "
               "every point in it would have to be withdrawn as a tail."
               % uplain, 5)
+
+    # ---- (8b) THE CONTINUATION controlDict, STAGED FROM A COMMITTED, PINNED
+    #           FIXTURE.  Added 2026-09-05; see CONTROLDICT_FIXTURE above.
+    #           This runs BEFORE clause (9) so that clause (9) still ASSERTS
+    #           over staged bytes and still refuses if they are not a
+    #           continuation -- the assertion is not weakened, it is finally
+    #           given something to assert over.
+    cd_rel, cd_md5 = CONTROLDICT_FIXTURE[arm]
+    cd_src = HERE / cd_rel
+    if not cd_src.exists():
+        abort("CONTROLDICT_FIXTURE_ABSENT",
+              "the registered continuation controlDict fixture %s is absent.  "
+              "Nothing else in the registered set produces one (draft section "
+              "11.3.2: `controlDict` occurs 0 times in the frozen producer and "
+              "0 times in the launcher), so without it this arm cannot stage."
+              % cd_src, 5)
+    got_cd = md5_of(cd_src)
+    if got_cd != cd_md5:
+        abort("CONTROLDICT_FIXTURE_MD5",
+              "the continuation controlDict fixture %s has md5 %s, registered "
+              "%s.  A start condition that can drift is a start condition no "
+              "freeze pins." % (cd_src, got_cd, cd_md5), 5)
+    (dst_case / "system").mkdir(parents=True, exist_ok=True)
+    shutil.copy2(str(cd_src), str(dst_case / "system" / "controlDict"))
+    say(out, "%s_STAGE_%s (8b) continuation controlDict staged from %s md5=%s"
+        % (ITEM, arm, cd_rel, got_cd))
 
     # ---- (9) THE CONTINUATION PRECONDITION.  Asserted, NOT authored. --------
     cd = dst_case / "system" / "controlDict"
@@ -1040,9 +1089,63 @@ def _leg_refusals() -> None:
         return _mk_source(tmp, uniform_U=True)
     drive("abort/uniform-U-refuses", "STAGED_U_NOT_NONUNIFORM", _uniform)
 
-    def _cold(tmp, rr):
-        return _mk_source(tmp, continued=False)
-    drive("abort/controldict-not-continued", "CONTROLDICT_NOT_CONTINUED", _cold)
+    # ⚠ THIS CONTROL CHANGED MEANING ON 2026-09-05 AND THE OLD FORM IS RECORDED
+    # RATHER THAN QUIETLY REPLACED.  Until clause (8b) existed, the staged
+    # controlDict came from the SOURCE tree, so a non-continued SOURCE was what
+    # clause (9) refused -- and that is what `_cold` planted.  Clause (8b) now
+    # OVERWRITES the copied controlDict with a committed, md5-pinned fixture, so
+    # a non-continued source can no longer reach clause (9) at all and `_cold`
+    # stopped firing.  **That is the repair working, not the control failing:**
+    # draft section 11.3.2 measured that the real source's controlDict is
+    # `startFrom startTime; startTime 0`, so under the old code EVERY REAL RUN
+    # took the `_cold` path and BOTH ARMS ABORTED.
+    #
+    # THE REMAINING FAILURE MODE IS DIFFERENT AND IS WHAT IS NOW DRIVEN: someone
+    # edits the fixture to a non-continued start condition AND re-pins its md5.
+    # The pin cannot catch that -- it agrees by construction -- so clause (9) is
+    # the only thing between a re-pinned fixture and a silent cold start.  It is
+    # driven here with exactly that: a fixture whose bytes are wrong and whose
+    # md5 is right.
+    def _cold_fixture(tmp, rr):
+        src = _mk_source(tmp)
+        bad = tmp / "bad_controlDict"
+        bad.write_text("startFrom       startTime;\nstartTime       0;\n"
+                       "stopAt endTime;\nendTime 4200;\n")
+        CONTROLDICT_FIXTURE["SEAM"] = (
+            os.path.relpath(str(bad), str(HERE)), md5_of(bad))
+        return src
+
+    def _restore_fixture():
+        CONTROLDICT_FIXTURE["SEAM"] = ("fixtures/controlDict_SEAM_continued",
+                                       "ddcedcff52df02e9aa8d64ffd504ebdf")
+    try:
+        drive("abort/controldict-not-continued", "CONTROLDICT_NOT_CONTINUED",
+              _cold_fixture)
+    finally:
+        _restore_fixture()
+
+    # -- (8b)'s OWN TWO REFUSALS, driven.  A fixture that is absent, and one
+    #    whose bytes have drifted from the registered pin.
+    def _cd_absent(tmp, rr):
+        src = _mk_source(tmp)
+        CONTROLDICT_FIXTURE["SEAM"] = ("fixtures/no_such_controlDict", "0" * 32)
+        return src
+    try:
+        drive("abort/controldict-fixture-absent", "CONTROLDICT_FIXTURE_ABSENT",
+              _cd_absent)
+    finally:
+        _restore_fixture()
+
+    def _cd_md5(tmp, rr):
+        src = _mk_source(tmp)
+        CONTROLDICT_FIXTURE["SEAM"] = ("fixtures/controlDict_SEAM_continued",
+                                       "f" * 32)
+        return src
+    try:
+        drive("abort/controldict-fixture-md5", "CONTROLDICT_FIXTURE_MD5",
+              _cd_md5)
+    finally:
+        _restore_fixture()
 
     def _corrupt(tmp, rr):
         s = _mk_source(tmp)
