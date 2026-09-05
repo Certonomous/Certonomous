@@ -1,0 +1,72 @@
+{
+  "team": "dafoam",
+  "case_id": "S1FDP",
+  "prereg_commit": "a1727bd01c4012e1350cd7138460606a3d103338",
+  "prereg_path": "cases/dafoam/ladder-b/S1_FD_PLATEAU_PREREGISTRATION.md",
+  "launch_cmd": [
+    "/home/ubuntu/certonomous-runs/S1-fd-plateau/run_plateau.sh"
+  ],
+  "cwd": "/home/ubuntu/certonomous-runs/S1-fd-plateau",
+  "ranks": 2,
+  "cost_core_min_estimate": 60.711,
+  "cap_core_min_registered": 75.0,
+  "cost_basis": "Core-minutes are MEASURED from this item's own basis: the six fd8_* rows in /home/ubuntu/certonomous-runs/S1-cbfs-reinversion/ledger.csv total 1366 s wall at --cpus=2 = 45.533 core-min, i.e. 7.5889 core-min per perturbed primal at primalMinResTol 1e-8 on this exact case, mesh and container. Arm P 6 primals = 45.533; Arm F 2 primals = 15.178; total 60.711. THE DOLLAR FIGURE IS DERIVED, NOT MEASURED: $0.0519 at the owner-stated c7a.4xlarge rate of $0.0513/core-h, which is REPORTED-BY-OWNER and NOT MEASURED because this box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). Under $25 and so inside the 2026-08-21 blanket; costed anyway, because a blanket is not a per-item read (CLAUDE.md rule 9).",
+  "memory_floor_gb": 22,
+  "enqueued_by": "dafoam lab-lane, on the dafoam-supervisor's frozen brief of 2026-09-05. SUPERVISION_CHARTER section 3 check 4 was DISCHARGED BY THE SUPERVISOR AT THE FREEZE (a1727bd0, its section 6.1 item 3: both run roots confirmed ABSENT by execution in the freezing invocation), and this lane re-asserted that absence in its own staging invocation before creating the run root. This lane did not perform check 4 on the supervisor's behalf and does not claim to have.",
+  "_ranks_note": "ranks=2 is the BILLING basis and the measured one: run_one.sh passes --cpus=2 to docker and bills wall x 2 / 60. The solver runs mpirun -np 4 INSIDE that 2-CPU quota, exactly as the archived fd8 sweep did. Reporting 4 would inflate every core-minute figure in this item by 2x against a basis that was never measured that way.",
+  "_grading_path": "cases/dafoam/ladder-b/S1_fd_plateau/analyse_s1_fd_plateau.py",
+  "_grading_path_commit": "5f55c7427ee35fe2998fab6f20604b18531f2cbf",
+  "_grading_path_md5": "00617ba89ea5e64861b3d0f78b0d1e81",
+  "_grading_path_note": "COMMITTED BEFORE COMPUTE, which is the substance CLAUDE.md rule 2 asks for. The frozen registration names the comparator's BEHAVIOUR (section 2.7's planted zero, section 2.6's two table shapes, section 2.4's gate) but names no comparator PATH, so there is no registration-side pin for this entry to contradict; the declaration here is the entry's and is disclosed as such.",
+  "_prereg_blob_md5": "4c40181966d39acc39489b094e4b824a",
+  "_prereg_blob_note": "Verified from `git show <sha>:<path>`, NEVER from the working tree. THE WORKING-TREE COPY IS A DIFFERENT DOCUMENT: it hashes 3b563a865b8b5ea5259de56527d417ec and its section 6 FREEZE is absent, i.e. the disk holds the PRE-FREEZE draft. Reported to the supervisor, inspected and NEVER reverted (CLAUDE.md rule 10).",
+  "_gates": "P1: |d(0.05) - d(0.025)| / |d(0.05)| <= 10 %, PER COMPONENT, over cells 5363/5428/5491. A miss is NOT A RESULT, explicitly not GATE FAIL. Arm F: cell 5363 at h = 0.5, REGISTERED PREDICTION rel. err against the anchor8 gradient > 2 %; if the wrong step PASSES P1's bar, P1's verdict is WITHDRAWN for every component.",
+  "_eta": "eta = 3.907091e-12 and eta_cons = 2.751958e-11 are REGISTERED AND NEVER MOVED. Every clearance is reported at BOTH.",
+  "_baseline": "The unperturbed control fd8_base = 6.1509017109920479e-04 is REUSED, not re-bought: it is step-independent and a central difference does not use it. Prereg section 2.8 budgets no new baseline primal.",
+  "_memory_floor_note": "22 GB is the DECLARED CONTAINER CAP (--memory=22g), under which the identical protocol completed eight primals in the archive. It is not a measured peak RSS; this item does not measure one. Declared conservatively so aggregate admission cannot under-count.",
+  "_arm_w4": "NOT ENQUEUED. Arm W4 (Option 2, the 1e-8 re-anchor, 116.400 core-min, cap 150.0) is registered separately in prereg sections 3 and 6.1 and runs ONLY after Arms P and F have landed and the supervisor has read their result.",
+  "_launch": {
+    "utc": "2026-09-05T21:31:32Z",
+    "pid": 16687,
+    "sid": 16687,
+    "status_file": "/home/ubuntu/certonomous-runs/S1-fd-plateau/STATUS.queue.S1FDP",
+    "wrapper_out": "/home/ubuntu/certonomous-runs/S1-fd-plateau/launcher.queue.out",
+    "started_epoch": 1788643892.8478746,
+    "status_seen_utc": "2026-09-05T22:03:34Z"
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.S1FDP (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  },
+  "_grading_freeze": {
+    "verdict": "UNPINNED",
+    "detail": "entry declares no 'grading_freeze': no comparator is named, so the sha of the script that will grade case S1FDP is NOT pinned to freeze a1727bd0. Nothing is predicted about this run's grading, and that absence is recorded rather than read as a pass.",
+    "field": null,
+    "paths": [],
+    "prereg_commit": "a1727bd01c4012e1350cd7138460606a3d103338",
+    "refusal_eligible": true,
+    "source": "NONE",
+    "schema": "grading_freeze/2",
+    "kind": "PREDICTION",
+    "predicts": "NO_PREDICTION_NOT_PINNED",
+    "actual": null,
+    "case_id": "S1FDP",
+    "walked_commit": "9115d88065afb1f17c7fe822e8379c26b2946f25",
+    "recorded_utc": "2026-09-05T21:31:32Z"
+  }
+}
