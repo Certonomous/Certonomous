@@ -5346,11 +5346,42 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-05T21:34:33Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-76` — **dafoam IS RUNNING: `S1FDP` went to the box at 21:31:32Z on my freeze sha, falsifier first — and the worktree hazard I found against my own method yesterday bit exactly where I predicted, the disk holding the PRE-FREEZE DRAFT.** Before it, `S-75`, `S-74`, `S-73`, `S-72`, `S-71`…`S-29`.
+**Section last written:** 2026-09-05T21:37:04Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-77` — **Arm F's first leg is home clean (`rc=0`, 8.43 core-min); verification hands back a credit that the rung records were MORE FAITHFUL TO THE SOURCE THAN THE CHARTER; and A4's never-run large-step check is recorded as an open item, NOT as a new gate.** Before it, `S-76` (dafoam RUNNING), `S-75`, `S-74`, `S-73`…`S-29`.
 
 **Section last written:** 2026-09-04T01:08:43Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-48` — **`W3` IS NOT RUNNING AND HAS NOT BEEN SINCE 21:57:49Z; IT REACHED ITS REGISTERED TERMINUS, AND THE REGISTERED FALLBACK DOES NOT RESCUE IT.** `S-47`'s and `S-46`'s *"`W3_chain_r2` running"* lines are **STRUCK BY QUOTE** below — they were true when written and were still being relayed three hours after they stopped being true. Before it, `S-47` — **DESK ITEMS CLOSED**: the **rule-10 hole is fixed in the constitution itself** on Sanaa's GO (`0ee2e7df`, verified by me at HEAD, not taken on relay), and the rule-12 estimate gap is **routed to verification** as a forward-only note. `S-46`'s "on Sanaa's desk" line is **struck by quote** so no successor re-escalates a closed item. **Nothing now on her desk from this family** but the four `NOT FILED` upstream defect classes and FD-vs-adjoint as a fourth `V` instrument. Before it, `S-46` (closing state), `S-45`, `S-44`, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+##### S-77 — **ARM F's FIRST LEG IS HOME CLEAN (`rc=0`, 8.43 core-min). AND VERIFICATION HANDS BACK TWO THINGS: A CREDIT THAT THE RUNG RECORDS WERE MORE FAITHFUL TO THE SOURCE THAN THE CHARTER WAS, AND ONE RESIDUE THAT IS MINE — A4's LARGE-STEP CHECK NEVER RAN. IT IS RECORDED AS AN OPEN ITEM, **NOT** AS A NEW GATE** (2026-09-05, `date -u` stamp in the committing invocation)
+
+###### 1. THE RUN
+
+`f500_5363_plus` — **`END`, `rc=0`, wall 253 s, 8.43 core-min.** `f500_5363_minus` **running now.** Arm F's pair projects to **~16.9 core-min against its registered 15.178** (ratio ~1.11) — **inside the item's 75.0 hard cap and reported now rather than at the end**, because a cost drift named while it is small is a measurement and named at the end is an excuse.
+
+###### 2. THE CREDIT, RECORDED BECAUSE IT RUNS AGAINST THE USUAL DIRECTION
+
+Verification's `§2as` closure found that **this family's rung records transcribe the source's FULL wording — *"> 15 % or any flagged component → FAIL pending investigation"* — at two `RESULTS.md` sites, where the CHARTER's own transcription had lost the provisional-FAIL clause.** In their words: *"the provisional-FAIL clause survived intact at the level where grading actually happens. It went missing only in my transcription. **The lab was more faithful to the source than its own charter.**"*
+
+**And the `FAIL` families' investigations are verified, not asserted:** A1 and A5 **root-caused and repair-confirmed**; **A6's N=16 resolved by `G-30` as an FD-reference artefact.** *A clause that says "FAIL pending investigation" is only honest if the investigations exist. They do.*
+
+###### 3. ⚠ THE RESIDUE — MINE, WEIGHED, AND DELIBERATELY NOT MADE A BLOCKER
+
+**The source study named four checks around the FD step. Three ran. The fourth — a LARGE-STEP check around `3e-2` — has no A4 arm.** Verification reported it and **deliberately did not rule it, because it is mine to weigh on my own rung.**
+
+**Weighed, now, so it does not sit unresolved:**
+
+- **It is a real gap against the source's own protocol, and I am not talking it away.** A4's neighbourhood was characterised on three of four named checks.
+- **But the large-step region is NOT uncharacterised in this family** — `A6/rung_n16_remaining_components` ladders **`{3e-2 … 3e-1}`** for twist and **`{3e-2 … 1e0}`** for patchV, and `A6/rung_n16_fixed_reference` **graded at `3e-2`**. **So the gap is A4-SPECIFIC, not family-wide**, and that is a materially smaller claim than the one a careless reader would take from "a named check never ran."
+- **RULED: recorded as a named open item against A4's next opening. It does NOT gate anything, it does not enter any freeze, and it does not stop a run.**
+
+> **This is exactly the shape Sanaa's ruling today forbids me from repeating: a newly-surfaced check arriving mid-launch and becoming the next reason not to run. It is written down, it is bounded, it is attached to the rung it belongs to, and it waits there.** *No urgency was asserted by verification and none is manufactured by me.*
+
+###### 4. STATE
+
+**ON THE BOX:** `S1FDP` Arm F, leg 2 of 2. **NEXT:** Arm P's three cells at `h = 0.025`; then **W4 Arm 2 (116.400 core-min, cap 150.0) — only after P and F report.** **Pending queue rows: 0** — by design; the item is running, not waiting.
+
+**BLOCKED, with class named:** `A1WRT2` — one class-(a) item (CONTINUED-`controlDict` producer, ruled **Design L**); `D6RF3` — one class-(a) item (the grading path, rule 2); `W3S` — **nothing but my freeze commit.** **All three freezes are mine and non-delegable, each carrying its run-root condition checked by execution in its own invocation.**
+
+
 ##### S-76 — **dafoam IS RUNNING. `S1FDP` WENT TO THE BOX AT 21:31:32Z ON MY FREEZE SHA, FALSIFIER FIRST — AND THE WORKTREE HAZARD I FOUND AGAINST MY OWN METHOD YESTERDAY BIT EXACTLY WHERE I PREDICTED: THE DISK HELD THE **PRE-FREEZE DRAFT**** (2026-09-05, `date -u` stamp in the committing invocation)
 
 ###### 1. THE ANSWER TO SANAA'S QUESTION IS A RUNNING SOLVER
