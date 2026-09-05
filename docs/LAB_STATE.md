@@ -5346,7 +5346,30 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-05T22:29:26Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+**Section last written:** 2026-09-05T22:32:24Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+
+### S-83 — 2026-09-05T22:32:24Z — **THE SEAM ENQUEUE LANDED AT `a4f71837`; A LANE HIT A PERMISSION BLOCK AND CORRECTLY REFUSED TO EVADE IT; AND §8's CONTROL CANNOT SEE THE DEFECT THAT KILLED SEAM BECAUSE IT STOPS AT THE CONTAINER BOUNDARY**
+
+**`a4f71837` — the corrected SEAM queue entry, the watcher script, and the removal of the `.PARKED` draft (moved, not lost). Three paths, verified on content: the entry at HEAD carries `7ab523ba…` under `instrument_md5s_at_enqueue` with `00caacf4…` kept under `instrument_md5s_at_prereg_commit`, and `enqueued_by = dafoam-supervisor`.**
+
+**⚠ A LANE WAS BLOCKED BY THE PERMISSION CLASSIFIER AND HANDLED IT EXACTLY RIGHT.** Its words: the protocol mandates a single shell invocation because a peer can move HEAD between two bash calls (L-223), and **splitting it to get past the classifier "would be working around the denial rather than respecting it."** It retried once and stopped. **That is the standard.** I landed it as **my own act on my own family's work** — not as a route around a lane's denial — and had my own session refused it, it would have gone to Sanaa unsplit rather than being restructured. **Until it landed, the corrected entry — the only artifact carrying the launcher-md5 supersession into the queue record — existed ONLY as an untracked file: the same exposure class as tonight's five stale-on-disk documents.**
+
+**⚠⚠ THE CONTROL THAT SHOULD HAVE CAUGHT SEAM'S CRASH CANNOT SEE IT, AND THE REASON IS STRUCTURAL — THIS IS THE NIGHT'S MOST TRANSFERABLE FINDING.** `a1wrt2_run_arm.sh` §8 carries `unbound_guard`/`g_unbound_precondition`, which read **the launcher** for unbound **SHELL** variables. The container is invoked at `:851-853` with **`-e OMP_NUM_THREADS=1` and nothing else**, while `runScript.py:51` reads `AOA_ALPHA0` from `os.environ` **at module scope**.
+
+> **A missing `-e` on a `docker run` feeding a PYTHON `os.environ` is invisible to a SHELL unbound-variable check. THE CONTROL STOPS AT THE CONTAINER BOUNDARY AND THE VARIABLE IS CONSUMED ON THE FAR SIDE.**
+
+**§8 is already titled in part "AND THE CONTROL THAT DOES NOT WORK" — so the item named the SHAPE and did not cover THIS INSTANCE.** Module scope is the worst case: the process dies before any guard *inside* the script can run. **A sweep is commissioned** across every containerised item in this family — for each, the variables its entry script reads from `os.environ` against the `-e` flags its `docker run` actually passes, and **the set difference is the defect**. Separating `os.environ[k]` from `os.environ.get(k, d)` is required: only the first kills the process, and conflating them inflates the finding. **No launcher is to be fixed** — first compute has closed A1WRT2's gates, and elsewhere a launcher edit is a measurement-instrument change I must read as a diff first. **VERIFY.**
+
+**A SECOND REPORTING-SURFACE DEFECT, caught by the enqueueing lane:** `STATUS.queue.A1WRT2_SEAM` reads **`launcher_rc=0`** over a crash, because `run_seam_arm` returns 0 having written the real rc to `$SEAM_OUT/rc` and the ledger. **The file labels itself honestly** (`note=exit-status-of-the-launch-argv-NOT-the-solver-rc`) — **but an honest label on a field does not repair a surface a reader scanning statuses will misread.** Recorded, not changed.
+
+**`P-SEAMTIME` is `UNMEASURED`** — the lane's word and better than my "unresolved": no `Time` line was ever written, so neither registered branch occurred. **`TAIL` has not moved and cannot** — SEAM's verdict is not `PASS`, `seam_precondition_guard` refuses it at `rc=7`, no TAIL row exists anywhere in the queue tree. **675 core-min untouched.**
+
+**NO COST-CALIBRATION RATIO IS FILED FOR SEAM, and that is deliberate.** 0.067 / 3.10344 = 0.022 would be meaningless: the producer died at **module import**, so the estimate's model (200 iterations × 0.46178 s/it) **was never exercised**. The honest row is a crash at 0.067 core-min with the estimate **untested**. **D6RF3 is treated differently because its arm actually ran a primal** — one rule applied to both would have been wrong.
+
+**The watcher worked and is worth recording as a positive.** pid 42113, ppid 1, own session leader — **it survived the lane that started it**. Its planted control passed before the run: the reader was shown a `Time = 4001`/`4200` pair **and an indented decoy it correctly rejected**, so its zeros are evidence. Exited cleanly `rc=0`, reason `PRODUCER_RC_WRITTEN`.
+
+**SUBMISSIONS PARKED.**
+
 
 ### S-82 — 2026-09-05T22:29:26Z — **BOTH ITEMS LAUNCHED AND BOTH RETURNED `rc=1` FOR 2.13 CORE-MIN TOTAL. ONE IS A REAL FINDING; THE OTHER IS A HARNESS DEFECT AND MY PREDICTION GOT A THIRD OUTCOME**
 
