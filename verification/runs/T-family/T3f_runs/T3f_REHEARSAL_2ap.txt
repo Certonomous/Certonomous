@@ -1,0 +1,31 @@
+SECTION 2ap REHEARSAL -- FIVE LEGS (leg 5 is beyond 2ap)
+ LEG 1 -- SUCCESS: the builder's real key block drives the grader
+  [PASS] grader read all 8 keys and named them: H nu Pr Prt dTdn_wall T_in U_in endTime
+  [PASS] grader ran to three graded pairs on synthetic fields
+  [PASS] every T state carries a NON-ZERO field_range beside it (D-J1)
+  [PASS] every |U| state carries a NON-ZERO field_range beside it (D-J1)
+  [PASS] grader reached a verdict: NOT A RESULT
+  [PASS] grader scored ALL 4 registered predictions
+ LEG 2 -- CORRUPTION: one key removed, the grader MUST refuse at exit 2
+  [PASS] H removed -> grader REFUSED at exit 2 (expected 2). A rehearsal that only shows success does not show the check is live.
+ LEG 5 -- COMPLETENESS (D-4): a registered prediction removed from the
+          scoring path MUST make the grader REFUSE, naming it.
+  [PASS] P-4 dropped from scoring -> REFUSED at exit 2 (expected 2). This is the leg T3e did not have, and T3e shipped the defect it catches.
+
+REHEARSAL PASSED -- all five legs
+
+===== LEG 1b: THE BUILDER'S REAL OUTPUT (what 2ap actually requires) =====
+built /home/ubuntu/Certonomous/verification/runs/T-family/T3_runs/R_fz
+  seeded 0.orig/ from R_fy/8000: T U p_rgh alphat nut k omega phi
+  CASE.txt carries 7 inherited keys copied BY KEY from R_ff
+  endTime 8000, writeInterval 2000, purgeWrite 0 (all three verified)
+--- grader's key reader on that REAL file ---
+REAL OUTPUT ACCEPTED: 8 keys, every one named:
+   H=0.038  nu=1.5e-05  Pr=0.71  Prt=0.85  dTdn_wall=10000  T_in=300  U_in=10.35  endTime=8000
+
+===== LEG 4: THE LAUNCHER'S REFUSAL LEGS =====
+  [--ranks 4 --timeout 31115] -> REFUSE: --ranks=4; R_fz is registered at 8 ranks (T3f prereg S9)
+  [--ranks 8 --timeout 35424] -> REFUSE: --timeout=35424; registered timeout is 31115 s (cap 4148 core-min x 60 / 8)
+  [wrong case R_fy] -> REFUSE: this launcher is registered for R_fz only; got R_fy
+
+delta proofs: builder 0 differing lines, launcher 0 differing lines (reversal)
