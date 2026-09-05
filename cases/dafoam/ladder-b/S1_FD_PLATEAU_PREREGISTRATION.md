@@ -434,3 +434,41 @@ auditor's call, not the audited party's. The gap is real and is named so it is v
 
 *Nothing below this line existed when this file was drafted. **No solver may run against
 this document until it is frozen, and freezing it is not this lane's act.***
+
+---
+
+## 6. FREEZE — 2026-09-05, by the dafoam-supervisor. **THIS COMMIT IS THE FREEZE.** The DRAFT banner is struck; Arm W4 is decided; the gates close here
+
+**The `⚠ DRAFT — UNFROZEN, NOT QUEUED, NOT ARMED` banner at the head is STRUCK BY THIS SECTION and not by editing it** — the banner stands as the record of what this document was, and this section is the record of when it stopped being that. **From this commit, `CLAUDE.md` rule 2 closes every gate below and rule 6 forbids editing anything above.**
+
+### 6.1 §5's checklist, discharged item by item, BY ME
+
+**1. Banner struck** — above.
+
+**2. The numbers being frozen, confirmed by my own read** (`SUPERVISION_CHARTER.md` §3 check 4, read AS ARITHMETIC and not as a summary): `η = 3.907091e-12` and `η_cons = 2.751958e-11`, **registered before the run and never moved** (N-D21 rule 1); `s_lo = 0.025` fixed mechanically by the family's own rule with `s_hi` at the graded `0.05`; **`P1`: `|d(0.05) − d(0.025)| / |d(0.05)| ≤ 10 %`, PER COMPONENT**, a miss being **`NOT A RESULT`** and not `GATE FAIL`; the registered falsifier **cell 5363 at `h = 0.5` predicting `> 2 %`**; costs **P 45.533 + F 15.178 = 60.711 core-min, hard cap 75.0, $0.0519 DERIVED**.
+
+**3. THE RUN ROOTS ARE NAMED AND CONFIRMED ABSENT BY EXECUTION IN THE FREEZING INVOCATION** — `/home/ubuntu/certonomous-runs/S1-fd-plateau` and `/home/ubuntu/certonomous-runs/W4-reanchor`, both **`ABSENT`**, tested by the commit's own shell before this text was written. *Named as directories that do not exist, and checked, not asserted.*
+
+**4. ARM W4 IS DECIDED: OPTION 2, THE 1e-8 RE-ANCHOR — 116.400 core-min, $0.0995 DERIVED.**
+
+**The ground is the zero-compute measurement §3.4 registered and a lane then RAN.** All nine W4 logs carry `Minimal residual 9.97e-07 satisfied the prescribed tolerance 1e-06`; against S1's clean 1e-8 column W4 is **~2,900× shallower on `U`**, ~29× on `p`, ~35× on the total residual norm. **W4's stop is CAUSED BY the 1e-6 crossing — the residual is pinned to the threshold by construction, not merely near it.**
+
+**And the half of my own framing that would have licensed the cheap option is the half that is NOT established.** The *scatter* limb is confirmed (spread 4 vs 75). The *level* limb is not: `§B` names two mechanisms, and **the 25.9 % → 0.032 % experiment moved BOTH AT ONCE and separates NEITHER.** *"The pollution is stopping early, not the tolerance label" is a hypothesis consistent with the data, not a finding, and it cannot discharge Option 2.* **Option 2b — reusing the archived 1e-6 adjoint at 96.433 — is REFUSED KNOWINGLY: the adjoint at 1e-8 is not established to equal the adjoint at 1e-6 on this case.**
+
+**Arm W4 cap registered here: 150.0 core-min** — 1.29× the measured-basis point of 116.400. **An overrun STOPS the arm; it does not get a new budget** (rule 12). **ITEM CEILING = 225.0 = 75.0 + 150.0, the arm caps' exact sum** — *a ceiling carrying slack nobody registered is not a registration.*
+
+**5. The frozen file IS the file that runs**, and the verification is by hashing this document against its committed blob **after** this commit, never off the working tree — *a freeze-time hash taken from disk would hash the pre-freeze document, which this family measured on 2026-09-04.*
+
+### 6.2 WHY THIS IS BEING FROZEN NOW, STATED PLAINLY AND AGAINST MYSELF
+
+**Sanaa asked why this team is frozen. The honest answer is not that something external blocked it.** Every remaining gate on every queueable dafoam item **was one I added**, each defensible on its own, and **together they produced zero solver core-minutes in two days.** That is the shape her standing law forbids — *"I prefer something to be running and watched than too much governance and no run."*
+
+> **An instrument that is never used to buy a measurement is not rigour; it is the appearance of rigour, and it costs exactly what the measurement would have cost.**
+
+**Nothing in this document is loosened to reach this freeze.** `P1`'s 10 % bar, the falsifier, `η`, the caps, the table shape and the planted-zero control are exactly as drafted. **What changed is that I stopped adding gates and discharged the one check that was actually mine.**
+
+### 6.3 WHAT THIS FREEZE DOES NOT DO
+
+It does not withdraw any published value; it does not move `S1_CBFS_REINVERSION_RESULT.md:92`'s `PASS`, whose disposition **waits for this measurement** and is ruled separately; and it does not reach the seven-of-ten numbers outside these four cells. **No value here is shown to be wrong. What is unestablished is the plateau, and this item buys it.**
+
+**SUBMISSIONS PARKED.**
