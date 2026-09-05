@@ -269,6 +269,11 @@ set +u
 set +e
 
 RR=${M6SR_RUN_ROOT:-/home/ubuntu/Certonomous/verification/runs/M6SR_runs}
+# ITEM 51 (Addendum 2): the comparator's directory, derived from THIS script's own
+# location rather than hard-coded, so a relocated tree cannot silently import a
+# different comparator. It is used ONLY to reach points_stream_sha() for the copy's
+# before/after proof -- this driver still GRADES NOTHING.
+CASES_DIR=$(cd -- "$(dirname -- "$0")" && pwd)
 CR=/home/ubuntu/certonomous-runs
 MASTER="$CR/A3-onera-m6-transonic/m6_surfaceMesh_fine.cgns"
 MASTER_SHA=197efa09d838b276a8967da9532d9c4d57edca18cb777bd640257606d2d83327
@@ -839,8 +844,76 @@ say "B3: patch types -- wall $N_WALL, symmetry $N_SYMM, patch $N_PATCH"
 
 grep -q 'type[[:space:]]\+empty;' "$BND" && abort "Section 7: a patch is typed 'empty'. That is never acceptable for this configuration's symmetry plane. BLOCKED." 8
 
-mv "$RR/$LEVEL/work/constant/polyMesh" "$RR/$LEVEL/constant/polyMesh" \
-  || abort "could not move the built polyMesh out of the container work directory" 3
+# ---------------------------------------------------------------------------------------
+# ITEM 51 -- THE TRANSPORT IS A COPY, NOT A MOVE.  POST-COMPUTE REPAIR (Addendum 2).
+#
+# 🔴 STRUCK BY QUOTE, 2026-09-05: ~~`mv "$RR/$LEVEL/work/constant/polyMesh" "$RR/$LEVEL/constant/polyMesh"`~~
+# ~~`|| abort "could not move the built polyMesh out of the container work directory" 3`~~
+#
+# THE DEFECT, MEASURED ON A REAL BUILD.  B1/B2/B3 all returned inner rc 0 and produced a
+# correct 1,597,440-cell L1 mesh -- and then the driver aborted at exit 3 on this line after
+# 1,488 wall seconds of compute.  MEASURED, at the two ends of the operation:
+#     $RR/$LEVEL                     mode 775  owner 1000:1000   (the host)
+#     $RR/$LEVEL/work                mode 777  owner 1000:1000   (this driver's own chmod)
+#     $RR/$LEVEL/work/constant       mode 755  owner 1002:1002   CREATED BY THE CONTAINER
+#     $RR/$LEVEL/work/constant/polyMesh  mode 755  owner 1002:1002
+#     os.access(work/constant, W_OK|X_OK) as uid 1000 -> FALSE
+# `mv` must REMOVE the polyMesh entry from its SOURCE PARENT, which needs write+execute on
+# that parent.  The host does not have it and never will: the directory is created inside the
+# container, as uid 1002, AFTER this driver's chmod has already run.  THE MOVE CANNOT SUCCEED.
+#
+# THIS IS ITEM 30's CLASS FROM THE OPPOSITE DIRECTION, ONE DIRECTORY DEEPER.  Item 30 was the
+# case directory unwritable BY THE CONTAINER; this is a directory the CONTAINER CREATES INSIDE
+# the mount that the HOST then cannot modify.  Twice, from opposite directions, is a
+# mechanism -- registered as M5, OPERATIONS WHOSE PRECONDITIONS DIFFER FROM THEIR EXISTENCE.
+#
+# WHY A COPY RATHER THAN A chmod OR A RE-RUN.  `cp` needs only READ on the source and WRITE on
+# the DESTINATION PARENT -- and $RR/$LEVEL is 775 owned by the host, so the copy simply works
+# where the move structurally cannot.  No permission is changed and no compute is repeated.
+#
+# 🔴 AND IT IS BETTER ON GROUNDS INDEPENDENT OF THE PERMISSION FACT: A COPY IS
+# NON-DESTRUCTIVE.  A build step whose FINAL ACT DELETES ITS ONLY COPY of a 1,597,440-cell
+# mesh -- 24.75 core-min of compute -- was a latent instance of the data-destruction class
+# this lab has closed nineteen sites of, wearing a different hat.  THE PERMISSION FAILURE
+# SAVED US FROM A DESIGN WE SHOULD NOT HAVE HAD.  The built mesh now stays exactly where the
+# container left it.
+#
+# THE MANDATORY SAFEGUARD: the points stream is hashed BEFORE and AFTER, IN THIS SAME
+# INVOCATION, and the two must be identical.  A5 already requires that sha published, so the
+# copy is auditable and no substitution is possible.  A MISMATCH ABORTS AND IS NOT RETRIED.
+# ---------------------------------------------------------------------------------------
+SRC_PM="$RR/$LEVEL/work/constant/polyMesh"
+DST_PM="$RR/$LEVEL/constant/polyMesh"
+# The destination PARENT already exists (the driver created it before the old `mv` ran) and is
+# host-owned; MEASURED rather than assumed. `mkdir -p` on an existing directory is a no-op, and
+# the copy refuses rather than merging into a polyMesh that is already populated.
+mkdir -p "$RR/$LEVEL/constant" || abort "could not create $RR/$LEVEL/constant" 3
+if [ -e "$DST_PM" ]; then
+  [ -d "$DST_PM" ] && [ -z "$(ls -A "$DST_PM" 2>/dev/null)" ] \
+    || abort "$DST_PM already exists and is not an empty directory. This driver will NOT merge a new mesh into a populated polyMesh, and it will NOT delete one. REFUSED." 3
+fi
+PM_SHA_BEFORE=$(python3 -c "
+import sys; sys.path.insert(0, '$CASES_DIR')
+import analyse_m6sr as A
+print(A.points_stream_sha('$SRC_PM'))
+" 2>/dev/null)
+[ -n "$PM_SHA_BEFORE" ] \
+  || abort "could not hash the built points stream at $SRC_PM before the copy. A missing hash is a REFUSAL, never a fallback -- the copy is only auditable if both ends are hashed." 3
+cp -a -- "$SRC_PM/." "$DST_PM/" 2>/dev/null || { mkdir -p "$DST_PM" && cp -a -- "$SRC_PM/." "$DST_PM/"; } \
+  || abort "could not COPY the built polyMesh out of the container work directory ($SRC_PM -> $DST_PM). The source stays where the container left it; nothing was deleted." 3
+PM_SHA_AFTER=$(python3 -c "
+import sys; sys.path.insert(0, '$CASES_DIR')
+import analyse_m6sr as A
+print(A.points_stream_sha('$DST_PM'))
+" 2>/dev/null)
+[ -n "$PM_SHA_AFTER" ] \
+  || abort "the copied polyMesh at $DST_PM could not be hashed. A copy that cannot be read back is not a copy. The SOURCE IS INTACT at $SRC_PM." 3
+[ "$PM_SHA_BEFORE" = "$PM_SHA_AFTER" ] \
+  || abort "THE COPY DOES NOT MATCH ITS SOURCE: points-stream sha256 $PM_SHA_BEFORE before, $PM_SHA_AFTER after. ABORTED AND NOT RETRIED. The SOURCE IS INTACT at $SRC_PM and nothing was deleted." 3
+{ echo "source=$SRC_PM"; echo "destination=$DST_PM"; echo "transport=cp -a (NON-DESTRUCTIVE; the source is NOT removed)"
+  echo "points_stream_sha256_before=$PM_SHA_BEFORE"; echo "points_stream_sha256_after=$PM_SHA_AFTER"
+  echo "identical=yes"; } > "$RR/$LEVEL/POLYMESH_COPY_PROOF.txt"
+say "B3: polyMesh COPIED (not moved) to $DST_PM; points-stream sha256 IDENTICAL before and after -- $PM_SHA_BEFORE. The source is INTACT; nothing was deleted."
 
 # ---------------------------------------------------------------------------------------
 # 5.  RULE 12's ESTIMATE-VERSUS-ACTUAL, OWED AT EVERY STEP (Section 9.3).  A completion

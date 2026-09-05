@@ -1980,6 +1980,56 @@ def gate_a(levels):
             f"REFUSED (exit 2). THE FIX IS AN AMENDMENT recording the set, which is lawful "
             f"pre-compute; registered so far: {sorted(S7_EXPECTED_PATCH_NAMES)}.")
 
+    # ---- ADDENDUM 2 -- THE FAMILY'S QUALITY MONOTONICITY, COMPUTED AND CARRIED WITH THE
+    # GRADED RECORD.  IT MOVES NO GATE: A1 and A2 are unchanged and this record is advisory.
+    #
+    # WHY IT TRAVELS WITH THE RECORD RATHER THAN LIVING ONLY IN THE REGISTRATION.  A ROACHE
+    # TRIPLE ASSUMES THE THREE LEVELS DIFFER ONLY IN REFINEMENT.  MEASURED, THESE DO NOT:
+    # max non-orthogonality and max aspect ratio are BOTH NON-MONOTONE and BOTH TURN AT THE
+    # SAME LEVEL.  A GCI computed on such a triple cannot cleanly separate the effect of
+    # refinement from the effect of the quality change, so the surface-refinement band may
+    # carry a quality-change contribution NO PART OF THIS REGISTRATION ISOLATES.
+    # Like the A-MAP disclosure, it is BUILT FROM THE READINGS THIS CALL JUST TOOK, so it
+    # cannot describe a family the data no longer has.
+    def _dirs(vals):
+        if any(v is None for v in vals) or len(vals) < 3:
+            return None, None
+        d = ["down" if vals[i + 1] < vals[i] else "up" for i in range(len(vals) - 1)]
+        return d, (len(set(d)) == 1)
+    _q = {}
+    for _name, _key in (("max_non_orthogonality_deg", "max_non_orthogonality_deg"),
+                        ("max_aspect_ratio", "max_aspect_ratio"),
+                        ("max_skewness", "max_skewness")):
+        _v = [c.get(_key) for c in cms]
+        _d, _m = _dirs(_v)
+        _q[_name] = {"series_coarse_to_fine": _v, "step_directions": _d, "monotone": _m}
+    _nonmono = sorted(k for k, v in _q.items() if v["monotone"] is False)
+    out["FAMILY_QUALITY_MONOTONICITY"] = {
+        "per_metric": _q,
+        "non_monotone_metrics": _nonmono,
+        "levels_differ_only_in_refinement": not _nonmono,
+        "DISCLOSURE": (
+            "A ROACHE TRIPLE ASSUMES THE THREE LEVELS DIFFER ONLY IN REFINEMENT. Where a "
+            "quality metric is NON-MONOTONE across the family, that assumption does not "
+            "hold: the levels differ in refinement AND in mesh quality, and a GCI computed "
+            "on the triple cannot separate the two. ANY BAND FROM THIS FAMILY IS THEN A "
+            "SURFACE-REFINEMENT BAND CONFOUNDED WITH A QUALITY CHANGE, OF UNQUANTIFIED "
+            "MAGNITUDE, AND MUST NOT BE QUOTED AS A PURE REFINEMENT BAND."
+            if _nonmono else
+            "Every quality metric read here is monotone across the family, so the "
+            "refinement-only assumption is not contradicted by these readings. That is NOT "
+            "a proof that the levels differ only in refinement; it is the absence of this "
+            "particular contradiction."),
+        "relation_to_L_HONEST": (
+            "L-HONEST already registers the GCI as 'a SURFACE-REFINEMENT BAND and a LOWER "
+            "BOUND on total discretisation uncertainty'. THIS FINDING STRENGTHENS THAT "
+            "CAVEAT AND IS NOT COVERED BY IT: a LOWER BOUND ON TOTAL is a different claim "
+            "from a band UNCONTAMINATED BY QUALITY CHANGE. The first bounds magnitude; the "
+            "second is about what the band is a band OF."),
+        "moves_no_gate": ("A1 and A2 grade their own thresholds and are unchanged by this "
+                          "record. It is ADVISORY and carries no verdict."),
+    }
+
     labels = [c["label"] for c in out["checks"].values() if isinstance(c.get("pass"), bool)]
     if "NOT A RESULT" in labels:
         out["gate_A_label"] = _verdict("NOT A RESULT")

@@ -7921,3 +7921,221 @@ LIKELIHOOD-RATIO-1 OBSERVABLE and no threshold on it can help.** **The answer is
 observable, not a tighter one:** the head-byte guard, which checks content-shape at a point size
 cannot reach. ✅ **It fired correctly on the real `L3` artifact — first three bytes `/*-`** (§31.3).
 **Any watcher attached under this bound must carry that check, on every artifact a gate reads.**
+
+---
+
+## 32. ADDENDUM 2 — 2026-09-05. **THE FAMILY IS BUILT AND GATE A GRADES IT `PASS`.** 🔴 **AND THREE FINDINGS THAT ARE NOT GOOD NEWS: `A1` PASSES BY 0.035° OF 70, `P1` AND `P2` BOTH MISS, AND BOTH QUALITY METRICS ARE NON-MONOTONE — SO THE BAND SANAA ASKED FOR IS CONFOUNDED WITH A QUALITY CHANGE.**
+
+> 🔴 **POST-COMPUTE ADDENDUM. IT ALTERS NO GATE, NO THRESHOLD, NO CAP AND NO LABEL, AND IT SAYS
+> SO EXPLICITLY.** Rule 2's window shut at 2026-09-04T22:55:18Z. The one executable change here —
+> the `mv` → `cp` transport — moves nothing gated and was ruled permitted by the supervisor on
+> exactly that ground.
+
+### 32.1 THE `L1` BUILD — **ALL COMPUTE SUCCEEDED; A HOST-SIDE FILE MOVE DID NOT**
+
+`build_m6sr_l1.sh` → **exit 3 after 1,488 wall s**, with **B1, B2 and B3 all returning inner rc 0**.
+
+| step | result | vs cap |
+|---|---|---|
+| `B0p` | all **8** pinned paths + sha256 matched | — |
+| `B1` | `cgns_utils coarsen`, inner rc 0, 1 s; surface sha256 `238e3cfedc616e3e84e1bb582586a855444178c66d85f5e3bac37dc62e70a5db`, **24,960 faces**, published for `A7` | 1.7 % of 1.0 |
+| `B2` | pyHyp march, inner rc 0, **1391 s**; banner *"Total Faces: 24960 — the registered 24,960"* | **33.1 % of 70.0** |
+| `B3` | `plot3dToFoam` + `autoPatch 60` + `createPatch` + `renumberMesh`, inner rc 0, 93 s; its own screen read wall 1, symmetry 1, patch 1 | **51.7 % of 3.0** |
+
+✅ **NO CAP WAS TRIPPED, AND THESE WERE REAL BOUNDS FOR THE FIRST TIME** — item 50's derivation was
+in force for all three.
+
+### 32.2 🔴 **ITEM 51 — `mv` COULD NOT SUCCEED. M5's SECOND INSTANCE.**
+
+**MEASURED at the two ends of the operation:**
+
+| path | mode | owner |
+|---|---|---|
+| `$RR/L1` | 775 | **1000:1000** (host) |
+| `$RR/L1/work` | 777 | 1000:1000 — this driver's own chmod |
+| **`$RR/L1/work/constant`** | **755** | 🔴 **1002:1002 — CREATED BY THE CONTAINER** |
+| `$RR/L1/work/constant/polyMesh` | 755 | 1002:1002 |
+
+`os.access(work/constant, W_OK|X_OK)` as uid 1000 → **False**. `mv` must **remove the entry from
+its source parent**, needing write+execute there. The host does not have it **and never will**: the
+directory is created inside the container, as uid 1002, **after this driver's chmod has run.**
+
+> **THIS IS ITEM 30's CLASS FROM THE OPPOSITE DIRECTION, ONE DIRECTORY DEEPER.** Item 30 was the
+> case directory unwritable **by the container**; this is a directory the **container creates
+> inside the mount** that the **host** cannot modify. **Twice, from opposite directions, is a
+> mechanism.**
+
+**🔴 `M5` — OPERATIONS WHOSE PRECONDITIONS DIFFER FROM THEIR EXISTENCE. ADOPTED BY THE SUPERVISOR.**
+**Why the census missed it:** `M2` asked *"is a producer named here?"*, found the `mv`, and scored
+the path **NOT AFFECTED**. **It cannot distinguish "a producer is named here" from "a producer is
+named here AND CANNOT RUN".** Same family as the five faults of §29.5 — a reader that cannot
+separate its subject from something adjacent. ⚠ **AND `M1`–`M4` ARE ANSWERABLE BY INSPECTION;
+`M5` IS NOT**, because whether an operation can succeed depends on state that exists only at run
+time. **This defect took 1,488 seconds of running to surface and no amount of checking would have
+found it** — which is the argument for the bounded check loop, made by this campaign's own evidence.
+
+### 32.3 THE REPAIR — **A COPY, NOT A MOVE, AND THE PERMISSION FAILURE SAVED US FROM A WORSE DESIGN**
+
+The transport is **struck by quote in the file** and replaced. `cp` needs only **read on the source
+and write on the destination parent** — `$RR/L1` is 775 host-owned — so the copy works where the
+move structurally cannot. **No permission was changed and no compute was repeated.**
+
+> 🔴 **AND IT IS BETTER ON GROUNDS INDEPENDENT OF THE PERMISSION FACT.** A build step whose **final
+> act deletes its only copy** of a 1,597,440-cell mesh — **24.75 core-min of compute** — was a
+> latent instance of the data-destruction class this lab has closed nineteen sites of, wearing a
+> different hat. **THE PERMISSION FAILURE SAVED US FROM A DESIGN WE SHOULD NOT HAVE HAD.**
+
+**THE MANDATORY SAFEGUARD HELD.** Points-stream sha256 **before and after, in the same
+invocation**: `9d31c674036726e915317d0bfcf2375d4169375c0779e6f23a77ce7be44e9a02` at **both** ends,
+recorded in `POLYMESH_COPY_PROOF.txt` and **independently re-hashed afterwards**. **Source intact:
+8 files each side; nothing deleted.** The block **refuses** a non-empty destination rather than
+merging, and **`L1/constant` was measured — not assumed — to exist, be mode 775 host-owned, and
+hold ZERO entries.** `CASES_DIR` did not exist in that driver and is derived from the script's own
+location, so a relocated tree cannot silently import a different comparator.
+
+### 32.4 §7 ON ALL THREE LEVELS — **AND `B4s` REFUSED L1 FIRST, CORRECTLY**
+
+**Before `B4` had run on L1, `B4s` returned exit 11 `BLOCKED`** on C2/C3/C4, each reading
+*"checkMesh state is 'ABSENT' — an absent reading NEVER reads clean"*. **THAT IS NOT A DEFECT:**
+`B4` lives in the solve driver's stage phase, not the build driver. **C1 and C5 PASSED even then**,
+off the boundary file that did exist. §5's absent-reads-ABSENT rule did exactly its job.
+
+After `run_m6sr_b5.sh L1 stage` (exit 0, 32 s; mesh **not overwritten**, published sha matching the
+copy proof; `B4` inner rc 0 in 9 s):
+
+| level | `B4s` | all five §7 clauses |
+|---|---|---|
+| `L3` | **exit 0 PASS** | ✅ |
+| `L2` | **exit 0 PASS** | ✅ |
+| `L1` | **exit 0 PASS** | ✅ |
+
+> **THREE LEVELS, ONE `createPatchDict`, ONE NAME SET — INCLUDING THE LEVEL §7 SAID IN TERMS WAS
+> "NOT PREDICTED HERE".** Amendment 20's derivation-from-the-dict met three real meshes and matched
+> all three. `B4` ledger: **0.216667 of 2.0 core-min** across the family.
+
+### 32.5 **GATE A: `PASS`** — and 🔴 **THE MARGIN, WHICH A BARE `PASS` CONCEALS**
+
+`python3 cases/M6SR/analyse_m6sr.py --gate-a --run-root verification/runs/M6SR_runs` → **exit 0**,
+the registered expectation. **All thirteen clauses PASS**, `A3` advisory — including **`A10`–`A13`,
+which were wired to nothing this morning.**
+
+> 🔴 **`A1` IS `PASS (margin 0.03455° of 70)` — 0.0494 % OF THE GATE.** L1's max non-orthogonality
+> is **69.96545345**. **THIS IS HOW `A1` MUST BE REPORTED WHEREVER IT APPEARS**, not as a bare
+> `PASS`: a reader who later asks *"how close was it?"* must find the answer already there.
+> **`PASS` remains `PASS` — the vocabulary settles that and this addendum does not soften it.**
+
+### 32.6 🔴 **`P1` AND `P2` BOTH MISS — THE FIRST GENUINE PRE-REGISTERED GRADES OF THIS CAMPAIGN**
+
+| # | predicted | **measured** | verdict |
+|---|---|---|---|
+| **`P1`** | *"the **new L1** will land **near 61°**, in family with 61.4938 and 61.1581"* | **69.96545345** — **8.64° off the family mean 61.3259** | 🔴 **MISS** |
+| **`P2`** | *"max aspect ratio will **FALL again**"*, 608.207 → 222.355 → ? | **282.7226081 — IT ROSE** | 🔴 **MISS** |
+
+**`P1`'s BASIS IS FALSIFIED, AND THE FALSIFICATION IS THE MECHANISM.** Its stated reasoning was
+that *"the two existing levels differ **only** in surface, and surface refinement alone moved
+non-orthogonality 61.4938 → 61.1581 — slightly **better**."* **A third surface refinement moved it
+8.8° WORSE.** **`P2`** was registered low-confidence citing `COST_CALIBRATION.md:408`'s measured
+non-monotone case; **that caution was correct.**
+
+⚠ **AND THE MISS AND THE THIN MARGIN ARE THE SAME EVENT.** Had `P1` been right — had L1 landed near
+61° — **`A1` would have passed by nine degrees instead of a hair.** That is why the miss matters
+practically and not only epistemically.
+
+### 32.7 🔴 **THE THIRD FINDING — BOTH QUALITY METRICS ARE NON-MONOTONE, AND THEY TURN AT THE SAME LEVEL**
+
+Put as a **series**, not as two separate misses:
+
+| metric | L3 | L2 | L1 | directions | monotone |
+|---|---|---|---|---|---|
+| **max non-orthogonality** | 61.49376508 | 61.15806659 | **69.96545345** | down, **up** | 🔴 **NO** |
+| **max aspect ratio** | 608.2069422 | 222.3549331 | **282.7226081** | down, **up** | 🔴 **NO** |
+| max skewness | 2.306553794 | 1.440805584 | 1.440642526 | down, down | yes |
+
+**BOTH TURN AT THE SAME LEVEL. That is not two unlucky predictions; it is ONE FACT ABOUT THE FAMILY
+SHOWING UP TWICE.**
+
+> 🔴 **REGISTERED AS A NAMED LIMITATION:**
+> **(a) THE THREE LEVELS ARE NOT QUALITY-SIMILAR.** A Roache triple assumes the levels differ
+> **only in refinement**. Measured, these differ in refinement **AND** in mesh quality, and the
+> quality difference is neither small nor monotone.
+> **(b) `P1`'s BASIS IS FALSIFIED** (§32.6), and the falsification is the mechanism, not a detail.
+> **(c) ANY GCI OR BAND FROM THIS FAMILY IS A SURFACE-REFINEMENT BAND *CONFOUNDED WITH A QUALITY
+> CHANGE*, OF UNQUANTIFIED MAGNITUDE, AND MUST NOT BE QUOTED AS A PURE REFINEMENT BAND.**
+
+⚠ **THIS STRENGTHENS `L-HONEST`; IT IS NOT COVERED BY IT.** `L-HONEST` registers the GCI as *"a
+SURFACE-REFINEMENT BAND and a LOWER BOUND on total discretisation uncertainty"*. **A LOWER BOUND ON
+TOTAL IS A DIFFERENT CLAIM FROM A BAND UNCONTAMINATED BY QUALITY CHANGE:** the first bounds
+**magnitude**, the second is about **what the band is a band OF.**
+
+✅ **IT MOVES NO GATE.** `A1`, `A2`, `A5` and `A6` all PASS; the family is admissible; the window is
+shut and nothing here reopens it. **The disclosure now TRAVELS WITH THE GRADED RECORD** —
+`gate_a()` emits `FAMILY_QUALITY_MONOTONICITY`, **built from the readings that call just took**, so
+it cannot describe a family the data no longer has. **Measured live: `non_monotone_metrics =
+['max_aspect_ratio', 'max_non_orthogonality_deg']`, `levels_differ_only_in_refinement = False`.**
+
+### 32.8 ⚠ §31.5 SHARPENED BY `L2` — **§2.2's OPENNESS COLUMN HAS NO CONSISTENT DEFINITION**
+
+§31.5 recorded that §2.2's column and `A10` read different quantities and offered a reconciliation
+(*"the column reports one component"*). **`L2` measured that reconciliation to be too generous:**
+
+| level | components | §2.2 cell | which one |
+|---|---|---|---|
+| L3 | 2.99e-17, **4.32e-16**, −8.23e-16 | 4.32e-16 | the **SECOND** |
+| L2 | **4.66e-17**, −2.18e-16, 2.26e-16 | 4.66e-17 | the **FIRST** |
+
+**Not the same index, not the max, not the max positive, not the smallest.** The cells appear to be
+transcription picks rather than any defined statistic, **so they cannot be reconciled with `A10` by
+any rule.** ✅ **No gate moves** — every value clears 1e-12 by four orders and `A10`'s
+max-|component| is the conservative, well-defined, **gated** reading. **PERMANENT LIMITATION.**
+
+### 32.9 COST, AND 🔴 **THE CALIBRATION FINDING THAT OUTRANKS THE RATIO**
+
+| step | actual core-min | est | **actual/est** | cap | % of cap |
+|---|---|---|---|---|---|
+| `B1` | 0.0167 | 0.05 | 0.33× | 1.0 | 1.7 % |
+| `B2` | **23.1833** | 7.04 | **3.29×** | 70.0 | 33.1 % |
+| `B3` | 1.5500 | 0.29 | 5.34× | 3.0 | 51.7 % |
+| **B1+B2+B3** | **24.7500** | 7.38 | **3.35×** | 74.0 | 33.4 % |
+
+> 🔴 **THE HEADLINE IS NOT THE 3.35× MISS. IT IS THAT §2.4 CARRIED TWO BASES AND THE PESSIMISTIC
+> ONE WAS RIGHT.** The registered **estimate** used the **log-interpolated** pyHyp rate → 7.04, and
+> missed by **3.29×**. **THE CAP's OWN BASIS — the L1 MARGINAL rate — PREDICTED 23.10 core-min
+> AGAINST A MEASURED 23.18. 0.3 %.** §2.4 itself warned pyHyp is *"strongly superlinear in face
+> count and rises within a single march"*; **the warning was correct while the estimate built
+> beside it was not.**
+>
+> **TRANSFERABLE: WHERE A DOCUMENT CARRIES TWO BASES AND USES THE OPTIMISTIC ONE FOR ITS ESTIMATE,
+> THE ESTIMATE IS THE THING TO DISTRUST. The cap survived only because it was built on the
+> pessimistic basis.**
+
+⚠ **CONTENTION IS ATTRIBUTED SEPARATELY AND NOT LET TO ABSORB THE MISPREDICTION.** A foreign
+`buoyantBoussinesqSimpleFoam -parallel` held 5+ cores throughout at load 11.7–13.0 of 16.
+**But the marginal basis was accurate to 0.3 % DESPITE that contention, which bounds how much of
+the 3.29× contention can explain: very little of it.** The gap is **misprediction**, not load.
+
+### 32.10 WHAT WAS **NOT** DONE
+
+No solve. No `B3z`, no `0/` at any level. **`gate_gf`/`--grade` not run.** Nothing was chmod'd, no
+build was repeated, and the built mesh was never deleted. **SUBMISSIONS REMAIN PARKED.**
+
+**Check-repair cycles under the bounded loop: L3 stage 0, L2 stage 0, `L1` build **1**, L1 stage 0.**
+
+### 32.11 THE RE-PIN — **TWO EXECUTABLES MOVED, EVERY LIVE ROW ENUMERATED BY SEARCH**
+
+Search returns **exactly one live row each**, reported as a **measurement**. Both struck by verbatim
+quote, machine-verified character for character:
+
+> 🔴 **STRUCK BY QUOTE** *(§28.13's row for the build driver)*: ~~*"| **`cases/M6SR/build_m6sr_l1.sh`** (build driver, `B1`–`B3`) | **`c5fd6b297a38f5dfb445e21bf26ac6ecb2503fee`** | `d2d32bb177d782ea70397473450a377ea4dbd716901564501a302ce9dbd4635c` | **901** | **§9 registered** — **RE-PINNED HERE** |"*~~
+
+> 🔴 **STRUCK BY QUOTE** *(§30.10's row for the comparator)*: ~~*"| **`cases/M6SR/analyse_m6sr.py`** (comparator) | **`e4f991c05990bb52ce30e793f29d1a1927d2b428`** | `44a1d342e11f99f7c3cbb3a4bee837443f39281757ad796190b7b061986ce22e` | **3925** | **§9 registered** — **RE-PINNED HERE** |"*~~
+
+**THE NEW STANDING PINS**, re-derived **inside the commit invocation** with the commit aborting if
+either had moved:
+
+| path | git blob sha | sha256 of the file | lines | §9 status |
+|---|---|---|---|---|
+| **`cases/M6SR/build_m6sr_l1.sh`** (build driver) | **`b276b504ae1995524fc7106afa697e914b2cda9f`** | `30647b71c4dd1d5c46815f090acf66757e9a859c32d5882521ba6ff4746e8e31` | **974** | **§9 registered** — **RE-PINNED HERE** |
+| **`cases/M6SR/analyse_m6sr.py`** (comparator) | **`8007b23da5bb3173dacb6eda1d67ca5d90ce9139`** | `a8855bdfe16e9acfd9bb1ea63d27078f99b491a6604dbab8b6064338c2d78f7c` | **3975** | **§9 registered** — **RE-PINNED HERE** |
+
+⚠ **`FZ1` READ `PIN-DRIFT` BETWEEN THE REPAIR AND THIS COMMIT, AND THAT WAS SELF-REPORTED TO THE
+SUPERVISOR BEFORE HE COULD FIND IT.** Its exit code at this commit is recorded in §32.12.
