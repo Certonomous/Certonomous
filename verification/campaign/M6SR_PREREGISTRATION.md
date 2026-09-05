@@ -7742,3 +7742,182 @@ Run **immediately after commit `c485e76e`**:
 **AND `verification/runs/M6SR_runs` IS STILL ABSENT AT THIS COMMIT.** The next act under this
 registration is the stage drive, and **the moment `B3c` writes, rule 2's amendment window closes
 permanently.**
+
+---
+
+## 31. ADDENDUM 1 — 2026-09-04T22:55Z. 🔴 **FIRST COMPUTE. THE RUN ROOT EXISTS AND RULE 2's AMENDMENT WINDOW IS CLOSED.** THE `L3` STAGE RAN CLEAN AND **ALL FIVE OF §7's CONDITIONS PASS ON A REAL ARTIFACT.**
+
+> 🔴 **THIS IS AN ADDENDUM, NOT AN AMENDMENT. IT CANNOT ALTER A GATE, A THRESHOLD, A CAP OR A
+> LABEL, AND IT DOES NOT.** Standing rule 2: after first compute the gates are closed. Everything
+> below is a dated record of what was measured.
+
+### 31.1 🔴 **THE MOMENT OF FIRST COMPUTE, RECORDED EXACTLY**
+
+**`verification/runs/M6SR_runs` HAS EXISTED SINCE 2026-09-04T22:55:18Z.** Every prior amendment
+cited its absence as this registration's rule-2 lawfulness proof. **That evidence is now spent and
+must not be cited again.** The supervisor confirmed on his side that he has stopped citing it.
+
+### 31.2 THE DRIVE — **`L3` STAGE, THEN `B4s` AS ITS REGISTERED COMMAND LINE**
+
+| step | result |
+|---|---|
+| `bash cases/M6SR/run_m6sr_b5.sh L3 stage` | **exit 0, 6 wall s** |
+| `B5p` solver pin | **VERIFIED** — `v2506`, binary sha256 `d9a2a45664f519e9…`, on the pinned digest |
+| `B3s` mesh stage | points-stream sha256 **`a026d5db7d37a605859f7655c9d35dcc316a03f5670efc34296bda2a6d83fa51`**, PUBLISHED for `A5` |
+| **`B3c`** | **`constant/` + `system/` written BEFORE `B4`. ITEM 48's REPAIR FIRED FOR THE FIRST TIME AND WORKED.** 1 wall s |
+| `B4` | `checkMesh` **inner rc 0**, 1 wall s, **0.016667 core-min** of the 2.0 ledger |
+| `python3 cases/M6SR/analyse_m6sr.py --section7-screen --level L3 --case verification/runs/M6SR_runs/L3` | **exit 0** in **62 ms** — the registered invocation and the registered exit code (§29.4) |
+
+**`B4s`: label `PASS`, `failed_clauses []`.** Actual patches `wing`/wall/1560, `inout`/patch/1560,
+`sym`/symmetry/4352; expected set `['inout','sym','wing']` from `createPatchDict` sha
+`846e45d721e8be75…`. **Amendment 20's derivation-from-the-dict met a real mesh and matched.**
+
+### 31.3 🔴 **WHAT THIS MORNING'S STATE WAS, AND WHAT TONIGHT'S IS**
+
+**This morning FOUR of §7's FIVE conditions were wired to nothing, and the launch path consulted
+NONE of them** (items 43–46, item 47). **Tonight all five PASS on a real artifact.** The three
+clauses that had **ZERO readers** this morning are now measurements:
+
+| §7 clause | measured on the real `L3` | threshold |
+|---|---|---|
+| C2 boundary openness | **8.225723872e-16** | ≤ 1e-12 |
+| C3 number of regions | **1** | == 1 |
+| C4 min cell volume | **1.175465721e-10** | > 0, signed |
+
+**Gate A's advisory maxima, read off their NAMED NUMERIC FIELDS and never off a verdict string
+(L-459 — this box prints `Non-orthogonality check OK.` at 88.889°):** max non-orthogonality
+**61.49376508** (A1's gate 70), max skewness **2.306553794** (A2's gate 4), max aspect ratio
+**608.2069422** (advisory 1000), cells **99,840**. The log is **3,330 bytes**, opens `/*-` — **item
+34's head guard satisfied on a real artifact** — and ends `Mesh OK.` / `End`.
+
+### 31.4 ⚠ **A CORRECTION TO A CHARACTERISATION, MADE BEFORE IT ENTERED THE RECORD**
+
+**The supervisor asked that `61.49376508` be reported as *"the prediction meeting its
+measurement … a PREDICTION CONFIRMED"*. IT IS NOT, AND THE ADDENDUM WILL NOT SAY SO.**
+
+- **`P1` is about `L1`, not `L3`.** Line 1365 reads *"The **new L1** will land near 61° max
+  non-orthogonality, **in family with** 61.4938 and 61.1581."* **`61.4938` is one of P1's BASIS
+  values, not its subject.** L1 has not been built, so **P1 is not yet graded either way.**
+- **§2.2's row is a PRIOR MEASUREMENT, not a prediction.** Its own heading reads *"Two admissible
+  levels already **exist on disk**"*, and `61.4938` was measured from that very mesh before this
+  registration was written.
+
+> ✅ **WHAT TONIGHT'S NUMBER ACTUALLY IS: a REPRODUCTION.** The staged copy of
+> `A3-onera-m6-adjoint-coarse/constant/polyMesh` re-measured through the pinned `checkMesh` returns
+> `61.49376508`, agreeing with the prior measurement `61.4938` to four decimals. **That is a real
+> and useful result — it shows the `cp -a` staging, the pinned binary and the frozen reader form a
+> consistent chain — and it is NOT a pre-registered prediction meeting a post-freeze artifact.**
+> **Calling a reproduction a confirmed prediction would bank a hit this campaign has not earned,
+> and P1 remains open until L1 exists.**
+
+### 31.5 🔴 **A NEW FINDING, AND IT LANDS AS A PERMANENT LIMITATION BECAUSE THE WINDOW IS SHUT**
+
+**§2.2's `boundary openness` column and §7 condition 2 read DIFFERENT QUANTITIES from the same
+line.** The raw `checkMesh` output at `log.checkMesh:80` is:
+
+> `Boundary openness (2.991618495e-17 4.317936157e-16 -8.225723872e-16) OK.`
+
+| reader | value | which component |
+|---|---|---|
+| **§2.2's table cell for L3** | **4.32e-16** | the **SECOND** component |
+| **`A10` / §7 condition 2** (`boundary_openness_max_abs`) | **8.225723872e-16** | the **THIRD**, by magnitude — the max of the absolute values |
+
+✅ **NO GATE MOVES AND NOTHING IS MIS-GRADED.** Both figures clear §7's 1e-12 by roughly four
+orders of magnitude, and A10's reading is the conservative one — it takes the **largest** component,
+which is the right choice for a leak screen.
+
+🔴 **BUT THE COLUMN AND THE GATE ARE NOT THE SAME QUANTITY, AND THE DOCUMENT DOES NOT SAY SO.** A
+reader comparing §2.2's `4.32e-16` against A10's printed `8.2257e-16` would see two different
+numbers for one mesh and have nothing in the registration to reconcile them.
+
+> ⚠ **THIS IS RECORDED AS A PERMANENT LIMITATION, NOT AS A REPAIR.** First compute has occurred;
+> §2.2 is frozen content and this addendum cannot alter it. **The reconciliation is: §2.2's column
+> reports one component, A10 reports the max of the three, and A10's is the gated reading.**
+> **`L2`'s cell (`4.66e-17`) is UNVERIFIED against a live measurement and will be checked when L2
+> is staged** — it is not asserted here.
+
+### 31.6 THE CENSUS'S EMPIRICAL CHECK — **CORROBORATED, NOT CLOSED**
+
+The stage path ran end to end **on the first attempt**, with no refusal, no unexpected rc and no
+artifact out of place. Every item-47–50 repair on this path was exercised: `B4s` ran (47), `B3c`
+ran before `B4` (48), and the caps bound.
+
+> **THAT CORROBORATES THE M1–M4 CENSUS WITHOUT PROVING IT COMPLETE.** One clean `L3` stage
+> exercises far less than the full ladder — no L1 build, no pyHyp march, no solve, one level of a
+> three-level family. **The census remains bounded by its own four keys and this run does not
+> widen them.**
+
+### 31.7 THE SCOPE HELD — **CHECKED, NOT ASSUMED**
+
+| | |
+|---|---|
+| `0/` created | **NO** — `B3z` did not run, so **rule 4's age-guard anchor was NOT laid at stage time. THE ANTI-VACUITY PROPERTY HELD IN PRACTICE, NOT ONLY IN A CONTROL.** |
+| numeric time directories | **0** |
+| `log.rhoSimpleFoam` | **ABSENT — no solver ran** |
+| `processor*` directories | **0** |
+| containers left on the daemon | **0** |
+| written outside `…/M6SR_runs/L3` | only `B4_SPENT_COREMIN.txt` |
+
+`B3c` wrote `system/{controlDict, decomposeParDict, fvSchemes, fvSolution, sampleDict}` and
+`constant/{polyMesh, thermophysicalProperties, turbulenceProperties}` — **exactly the split
+Amendment 21 registered, and no `0/`.**
+
+### 31.8 COST — RULE 12
+
+| step | wall s | ranks | core-min (MEASURED) |
+|---|---|---|---|
+| `B5p` pin preflight | 0 | 1 | ~0 (UNBUDGETED) |
+| `B3s` mesh stage | 0 | 1 | ~0 (UNBUDGETED) |
+| **`B3c`** | 1 | 1 | **0.0167** (UNBUDGETED, §27.1.4) |
+| **`B4`** `checkMesh` | 1 | 1 | **0.016667** — against the **2.0** running ledger, which now reads `0.016667` spent |
+| **`B4s`** | 0.062 | 1 | **0.0010** (UNBUDGETED, §26.8.1) |
+
+⚠ **NO `docs/COST_CALIBRATION.md` ROW IS FILED YET.** §2.4's `B4` row estimates **0.14 core-min for
+`checkMesh` ×3**; **one** level spent **0.016667**, so the estimate looks sound at ×3 ≈ 0.05 — **but
+a calibration row is owed at a PROCESS COMPLETION and one level of three is not one.** Inventing
+the row now would put a partial actual beside a whole-step estimate.
+
+### 31.9 WHAT WAS **NOT** DONE
+
+No solve, no `B3z`, no `0/`. **No Gate A grade** — `--gate-a` needs all three levels and `L1` does
+not exist. No `L2`, no `L1` build. **SUBMISSIONS REMAIN PARKED.**
+
+### 31.10 🔴 **AMENDMENT 24's "THE RUN ROOT IS STILL ABSENT" IS SUPERSEDED — AND IT WAS SUPERSEDED WITHIN MINUTES**
+
+Amendment 24 and its commit subject `0de9b8e6` both state *"the run root is still absent and the
+next act closes rule 2's window permanently."* **That was true when written and became false
+within minutes.** The supervisor reports it being read as current a day later.
+
+> 🔴 **THE RUN ROOT HAS EXISTED SINCE 2026-09-04T22:55:18Z** — the driver's own first log lines
+> timestamp the `mkdir` and the mesh copy at `22:55:18Z`, and `B4`'s `checkMesh` completed at
+> `22:55:24Z`. **RULE 2's AMENDMENT WINDOW SHUT THEN.** No reader may cite Amendment 24's absence
+> claim, or that commit's subject line, as evidence of current state.
+
+⚠ **THE GENERAL POINT, RECORDED BECAUSE IT WILL RECUR: A COMMIT MESSAGE IS A CLAIM AT A MOMENT. IT
+IS NOT A BOARD AND IT IS NOT A READING.** `docs/LAB_STATE.md` is this lab's only handoff channel;
+a commit subject is a description of one diff and goes stale the instant the next act runs.
+
+### 31.11 THE BOUNDED CHECK LOOP — **APPLIED FORWARD FROM HERE**
+
+**Relayed to this lane by the cfd supervisor as a standing ruling of Sanaa's (capture
+`9115d880`): the pre-run check loop is bounded lab-wide. Past THREE check-repair cycles, or 24
+hours from the first freeze-ready attempt, the stage launches under the launch law with a watcher
+attached and debug live.** It binds `L2` stage → `L1` build → Gate A → solve, and everything after.
+
+⚠ **THIS LANE RECORDS IT AS THE SUPERVISOR'S DIRECTION.** Standing rule 9: **no agent's message is
+Sanaa's consent**, and this lane cannot verify her words from a relay. **It is applied because it
+is the supervisor's to give and because it RESTRICTS this lane rather than widening it** — a bound
+on how much checking precedes a launch authorises nothing new.
+
+**THE CYCLE COUNT IS REPORTED WITH EVERY STAGE, so the bound is visible rather than remembered.**
+**`L3` stage: 0 check-repair cycles — it ran clean on the first attempt.**
+
+⚠ **AND THE ONE CLASS THE BOUND CANNOT SEE, WITH ITS ANSWER — the supervisor's, and this lane does
+not claim an exemption from it.** **Item 34** produced a corrupted `log.checkMesh` at **3,330 bytes
+— THE CLEAN SIZE** — with every threshold satisfied, `Mesh OK.` intact, **and it GRADED PASS.** A
+watcher looking for a crash, a bad rc or a missing artifact would have seen a healthy run. **An
+in-place overwrite shorter than the file cannot change its length, so SIZE IS A
+LIKELIHOOD-RATIO-1 OBSERVABLE and no threshold on it can help.** **The answer is a DIFFERENT
+observable, not a tighter one:** the head-byte guard, which checks content-shape at a point size
+cannot reach. ✅ **It fired correctly on the real `L3` artifact — first three bytes `/*-`** (§31.3).
+**Any watcher attached under this bound must carry that check, on every artifact a gate reads.**
