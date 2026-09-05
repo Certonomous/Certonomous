@@ -26976,7 +26976,7 @@ Line `:477` renders the failure list as **`[:60]`**. The full string is **SIXTY-
 
 🔴 **`PENDING` IS THE CORRECT WORD FOR F24 AND MUST NOT BECOME `NOT A RESULT`.**
 
-**ZERO commits, ZERO solver compute** — **no verdict was unlawful and regrading would produce a second record for one run**.
+**ZERO commits, ZERO solver compute** — **NO NEW VERDICT WAS LAWFUL HERE: all three were ALREADY lawfully graded, and regrading would produce a SECOND RECORD FOR ONE RUN.** *(Transcription correction, same day, by the writing lane: the first form of this sentence read “no verdict was unlawful”, which inverted the supervisor’s relayed wording; the sentence now carries his sense. This is disclosed rather than made silently — it is the defect class §3 of this same block records.)*
 
 **COST.** F24's **rung-level cost claim is UNCITABLE BY ITS OWN RECORD** (`core_min_claim` null, **refused under L-342**); the **citable** figure is **`partial_sum_core_min` = 179.0**, from **two measured `ClockTime`s**.
 
