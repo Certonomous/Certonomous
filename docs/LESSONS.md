@@ -24164,3 +24164,54 @@ Rendered at 200 dpi the equations are fully legible, including subscripts, overb
 > **THE RULE: an equation is transcribed from a RENDERED PAGE IMAGE, never from `pdftotext` output, and the record says which page was rendered and who read it. Where a symbol cannot be resolved, transcribe what is PRINTED and mark it unresolved — never normalise it to the standard form the equation "should" have. A plausible reconstruction is worse than a stated gap, because a gap can be closed and a reconstruction cannot be detected.**
 
 **Corollary that paid immediately.** Reading the real Eq. (2) showed the correction field's **null value is 1, not 0** (`beta = [(beta_CND - 1) f_d + 1]` recovers baseline SST exactly at `beta_CND = 1`). A planted-zero control on that entry would have planted and checked the **wrong null** — a rule-3 control testing a condition the model does not have.
+
+## L-490 — EIGHT TIMES IN TWO DAYS, ONE FAILURE: A READER THAT CANNOT DISTINGUISH ITS SUBJECT FROM SOMETHING ADJACENT TO IT. THE REPAIR IS ALWAYS THE SAME — SHARPEN THE KEY UNTIL IT SEPARATES THE TWO
+
+*2026-09-05, `cfd`, M6SR and JF1G. Cost: no compute attributable — every instance was found by a
+control or a plant, not by a run.*
+
+**The pattern.** Eight defects found across two campaigns in two days looked like eight unrelated
+bugs. They are one. **In every case a reader was given a key that matched its subject AND matched
+something sitting next to its subject, and could not tell which it had.** The symptom is always a
+confident answer that is wrong, and it is always a *plausible* wrong — which is why none of them
+was caught by reading the output.
+
+| # | the subject | what the key also matched |
+|---|---|---|
+| 1 | a planted control instance | a near-miss string the `\b` anchor could not span (`B3c_PLANTED`) |
+| 2 | an **invocation** of a comparator mode | that mode's **argparse definition** — this is item 47's own shape, reappearing inside the audit built to find item 47 |
+| 3 | a function's **call site** | the function's **definition site**, so a body's reads took the definition's line order |
+| 4 | a file's name **at its writer** (`log.$tag`) | its name **at its reader** (`log.pyhyp`) — one file, two names |
+| 5 | **a guard's own refusal** | an unrelated refusal **downstream in the same function** |
+| 6 | **two states** — "never launched" and "ran and was refused" | **one representation**: absence from a dict. **Fault 4 inverted** — there one file had two names, here two states have one name |
+| 7 | a **computed** value (`endTime 30000`) | its **displayed** value (`endTime 3000`), truncated at 60 characters with no marker |
+| 8 | the **solver** log (`log.simpleFoam`, 28.7 MB) | the log that **sorted first** (`log.build_jf1`, 2.9 kB) |
+
+**The repair is the same every time: sharpen the key until it separates the subject from its
+neighbour.** Not a tighter threshold — a *different discriminator*. #2 was fixed by keying on
+invocation rather than on the flag's presence; #5 by keying on the guard's own message rather than
+on "did anything abort"; #8 by picking the log by **role** rather than by sort order.
+
+**Why it matters more than eight bugs.** Six of the eight were in **audit machinery** — census
+readers, controls, and the suites built to catch defects — not in solvers. **An audit whose key
+cannot separate its subject from its neighbour reports a clean zero and is believed**, because a
+zero from an audit looks exactly like a zero from a healthy system. Three of the eight were caught
+only because the reader printed whether its **plant discriminated**; one (#1) would otherwise have
+shipped a clean `0 affected` that the lane would have believed.
+
+**The standing consequence, now practice in this territory:** a census or control that does not
+print whether its plant **discriminated** — positive limb seen, negative twin *not* seen — has not
+reported a zero. It has reported a hope.
+
+⚠ **AND ONE OF THE EIGHT IS NOT FIXABLE BY SHARPENING, WHICH IS WHY THE PATTERN NEEDS A BOUNDARY.**
+`C12` in `analyse_m6sr.py` was a reader that **could** distinguish perfectly, asked a question its
+data could not answer: its registered must-see was `FALSIFIED`, which requires a strictly monotone
+series, and the registered AGARD reference is monotone in neither direction. **No key sharpening
+would ever have fixed it** — the repair was to give the control data capable of answering *and*
+record the honest answer for the data that was not (`M6SR_PREREGISTRATION.md` §29.2). **Distinguish
+"the reader cannot tell two things apart" from "the reader is being asked an unanswerable
+question"; only the first is this lesson.**
+
+**Related:** the standing lesson that `grep … log.* | tail -1` is a coin flip is instance #8's
+family. `L-459` (never read a verdict string where a named numeric field exists) is the same
+principle one level up: *the verdict string sits adjacent to the number and is not the number.*
