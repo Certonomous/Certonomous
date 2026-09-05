@@ -324,22 +324,26 @@ def selftest_harvest_delegation() -> int:
 
     # ---- (4) THE yPlus SITE, AS A SEPARATE LIMB so the two repairs stay independently
     # verifiable and a regression in one cannot hide behind the other's green.
+    # ⚠ THIS LIMB WAS REWRITTEN AFTER IT CORRECTLY WENT RED.  It used to plant against
+    # `_yplus_series_path`'s OWN glob.  Gap 5(d) made that function DELEGATE, so its body no
+    # longer contains a glob and the plant failed -- THE CONTROL CAUGHT A REFACTOR OF ITS
+    # OWN DELEGATE, which is what a coupling control is for.  The repair is not to weaken
+    # the plant but to follow the chain: assert the DELEGATION and then plant against the
+    # function that now OWNS the glob.  That verifies one link more than the old version.
     y_token = 'rglob("yPlus.dat")'
-    y_sel_src = inspect.getsource(CL._yplus_series_path)
     y_gone = y_token not in h_src
-    # THE PLANT for this detector: the OLD exact-name glob must still appear inside the
-    # selector's own control-facing comment/source region.  The selector deliberately globs
-    # `yPlus*.dat`, so we plant against the wider token instead and prove the detector reads
-    # this source at all rather than returning a reflexive True.
-    y_detector_works = 'rglob("yPlus*.dat")' in y_sel_src
-    if y_gone and y_detector_works:
-        fired.append("YPLUS LOCAL COPY: the exact-name rglob is GONE from harvest(), and "
-                     "the detector DOES read CL._yplus_series_path's own glob -- the "
-                     "absence was read by a detector shown able to see a presence")
+    y_delegates = "_latest_time_series_path(" in inspect.getsource(CL._yplus_series_path)
+    y_detector_works = "rglob(" in inspect.getsource(CL._latest_time_series_path)
+    if y_gone and y_delegates and y_detector_works:
+        fired.append("YPLUS LOCAL COPY: the exact-name rglob is GONE from harvest(); "
+                     "_yplus_series_path DELEGATES to _latest_time_series_path; and the "
+                     "detector DOES find a glob in that delegate -- the absence was read by "
+                     "a detector shown able to see a presence, one link further down")
     else:
         ok = False
-        fired.append(f"YPLUS LOCAL COPY: absent from harvest={y_gone}, detector reads the "
-                     f"selector source={y_detector_works} (must both be True)")
+        fired.append(f"YPLUS LOCAL COPY: absent from harvest={y_gone}, yPlus selector "
+                     f"delegates={y_delegates}, detector sees the delegate's glob="
+                     f"{y_detector_works} (all three must be True)")
 
     if "CL._yplus_series_path(" in h_src:
         fired.append("YPLUS ROUTING: harvest() calls CL._yplus_series_path by name")

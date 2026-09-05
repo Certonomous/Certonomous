@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import json
 import math
+import re
 import shutil
 import subprocess
 import sys
@@ -384,10 +385,13 @@ def parse_probes_vector(text: str) -> tuple[list[float], list[list[tuple[float, 
 
 
 def base_cpb(out_dir: Path, t_start: float) -> dict[str, Any] | None:
-    files = sorted((out_dir / "postProcessing" / "probesBase").rglob("p"))
-    if not files:
+    # GAP 5(d): was sorted(...)[-1] -- selection by SORT ORDER over `probesBase/<time>/p`,
+    # feeding `cpb_magnitude` -> `-Cpb`, a CAMPAIGN GATE. See _latest_time_series_path.
+    path = _latest_time_series_path(
+        out_dir / "postProcessing" / "probesBase", "p", "base-probe")
+    if path is None:
         return None
-    times, rows = parse_probes_scalar(files[-1].read_text(errors="replace"))
+    times, rows = parse_probes_scalar(path.read_text(errors="replace"))
     p_series = [row[0] for row in rows if row]
     stats = time_weighted_stats(times, p_series, t_start)
     if stats is None:
@@ -400,10 +404,13 @@ def base_cpb(out_dir: Path, t_start: float) -> dict[str, Any] | None:
 
 def recirculation_length(out_dir: Path, t_start: float,
                          points: Sequence[tuple[float, float, float]]) -> dict[str, Any] | None:
-    files = sorted((out_dir / "postProcessing" / "probesCenterline").rglob("U"))
-    if not files:
+    # GAP 5(d): was sorted(...)[-1] over `probesCenterline/<time>/U`, feeding `lr_over_d`
+    # -> `Lr`, which the campaign calls THIS LADDER'S PRIMARY GATE.
+    path = _latest_time_series_path(
+        out_dir / "postProcessing" / "probesCenterline", "U", "centreline-probe")
+    if path is None:
         return None
-    times, rows = parse_probes_vector(files[-1].read_text(errors="replace"))
+    times, rows = parse_probes_vector(path.read_text(errors="replace"))
     n_probes = len(points)
     profile: list[tuple[float, float]] = []
     for i in range(n_probes):
@@ -751,7 +758,93 @@ def _yplus_series_path(out_dir: Path) -> Path | None:
     None means "no yPlus series exists", which is TOLERATED.  A RuntimeError means the
     latest time directory is AMBIGUOUS, which is not.
     """
-    found = sorted((Path(out_dir) / "postProcessing").rglob("yPlus*.dat"))
+    return _latest_time_series_path(
+        Path(out_dir) / "postProcessing", "yPlus.dat", "yPlus")
+
+
+# =====================================================================================
+# GAP 5(d) -- THE WHOLE CLASS, NOT A THIRD COPY.
+#
+# THE CENSUS THAT PRODUCED THIS.  `census_glob_selection.py`, keyed on the SHAPE rather
+# than on a list of names, enumerated every selection-of-one-path-by-order in this tree:
+# 7 sites, 2 AFFECTED, 5 NOT AFFECTED, and the two sets SUM.  Three earlier rounds each
+# closed the sites somebody had NAMED and not the CLASS, and the two below were found only
+# by a sweep run for another reason.
+#
+# ⚠ AND THE TWO AFFECTED SITES ARE NOT DIAGNOSTICS.  `base_cpb()` produces
+# `cpb_magnitude` -> `-Cpb`, named among the campaign's gates
+# (`F5a_cylinder_reynolds_ladder.md:1139`); `recirculation_length()` produces `lr_over_d`
+# -> `Lr`, which the same file calls **THIS LADDER'S PRIMARY GATE** at Re 1000/2000/3900
+# (`:968`).  A GRADED QUANTITY SELECTED BY SORT ORDER GRADES CLEANLY WHEN IT IS WRONG,
+# which is the property that made the coefficient case dangerous.
+#
+# ⚠ LATENT, NOT REALISED: all eleven trees carry exactly one probe file, at time dir `0`.
+# THE LATENCY IS A PROPERTY OF THE CURRENT TREE AND NOT OF THE CODE. yPlus was latent too,
+# until the coefficient case showed what a restart does -- and this box already has one.
+#
+# WHY A NAME AND NOT A GLOB.  `rglob("p")` cannot see a `p_0` collision at all, so that
+# failure would be INVISIBLE rather than wrong.  But widening to `rglob("p*")` would match
+# `phi`, `pMean` and `p_rgh` -- MEASURED as absent today (every probe directory on this box
+# holds exactly one file, `p` or `U`), and a repair must not depend on that staying true.
+# So the matcher is ANCHORED: the base name, optionally carrying OpenFOAM's `_<n>`
+# collision suffix before the extension, and nothing else.  IT SEES THE COLLISION AND
+# CANNOT SWALLOW A DIFFERENT FIELD.
+# =====================================================================================
+def _series_name_matcher(base: str) -> "re.Pattern[str]":
+    """`p` -> matches `p` and `p_0`, NOT `phi`/`pMean`/`p_rgh`.
+    `yPlus.dat` -> matches `yPlus.dat` and `yPlus_0.dat`, NOT `yPlusMean.dat`."""
+    stem, dot, ext = base.rpartition(".")
+    if not dot:
+        stem, ext = base, ""
+    tail = re.escape(f".{ext}") if ext else ""
+    return re.compile(rf"^{re.escape(stem)}(?:_\d+)?{tail}$")
+
+
+# =====================================================================================
+# ⚠ THE LIMITATION THIS SELECTOR IS WRONG UNDER, NAMED SO NOBODY PROMOTES IT BLIND.
+#
+# IT ORDERS BY THE TIME DIRECTORY'S NAME, AND THAT NAME IS THE **START** TIME OF A WRITING
+# EPISODE, NOT ITS END.  So "the latest directory" is NOT "the series that reaches furthest
+# in time", and on a tree where a later restart covers LESS than an earlier one the two
+# disagree.  THAT IS NOT HYPOTHETICAL -- MEASURED TODAY on a tree outside this campaign,
+# `certonomous-runs/w1-bump-nasa-grids/medium/postProcessing/forceCoeffs1/`:
+#     0/coefficient.dat            5,000 rows   t     1 ->  5000
+#     5000/coefficient.dat         7,000 rows   t  5001 -> 12000
+#     10000/coefficient.dat        1,012 rows   t 10001 -> 11012
+#     10000/coefficient_10000.dat  6,000 rows   t 10001 -> 16000
+# The numerically latest DIRECTORY is 10000; the series reaching furthest is
+# `10000/coefficient_10000.dat` at t=16000; and `sorted(...)[-1]` -- the defect this file
+# repairs -- picks `5000/coefficient.dat` because "5000" > "10000" LEXICOGRAPHICALLY.
+#
+# ⚠ WHAT THIS SELECTOR ACTUALLY DOES THERE WAS RUN, NOT REASONED: IT **REFUSES**, naming
+# both candidates in `10000/`.  It does NOT silently pick the shorter series.  That is the
+# right answer for a genuinely ambiguous tree -- but A REFUSAL IS STILL A BEHAVIOUR CHANGE
+# for a harvester that currently returns a value, so promotion into shared code is a
+# decision for whoever owns that tree, not a free upgrade.
+#
+# F5a IS UNAFFECTED, AND THE REASON IS MEASURED RATHER THAN ASSUMED: every F5 tree carries
+# exactly ONE probe file at time directory `0`, so directory order and data order CANNOT
+# disagree here.  The limitation bounds PROMOTION, not this campaign.
+#
+# THE CORRECT GENERAL ROLE IS "THE SERIES THAT REACHES THE LATEST TIME, READ FROM THE FILE
+# CONTENTS" -- directory names order the writing EPISODES, not the coverage.  That is a
+# larger change, it needs its own artifact and its own control, and F5a does not need it.
+# IT IS DELIBERATELY NOT DONE HERE, AND SAYING SO IS THE POINT: a repair that names the
+# layout it is wrong for is honest; one that does not is a trap for whoever promotes it.
+# =====================================================================================
+def _latest_time_series_path(root: Path, base: str, what: str) -> Path | None:
+    """THE SOLE SELECTOR for any `<root>/<time>/<base>` series. -> path, or None.
+
+    None means "no series exists", which is TOLERATED by every caller (all three had an
+    absence branch before this change, and promoting absence to a refusal would be a
+    behaviour change smuggled in under a bug fix).  A RuntimeError means AMBIGUITY, which
+    is not tolerated: an unorderable directory name, or two files inside one time
+    directory, where genuinely nothing orders them.
+    """
+    root = Path(root)
+    matcher = _series_name_matcher(base)
+    stem = base.partition(".")[0]
+    found = [p for p in sorted(root.rglob(f"{stem}*")) if matcher.match(p.name)]
     if not found:
         return None
 
@@ -760,7 +853,7 @@ def _yplus_series_path(out_dir: Path) -> Path | None:
             return float(p.parent.name)
         except ValueError:
             raise RuntimeError(
-                f"UNORDERABLE yPlus SERIES: {p} sits in a directory named "
+                f"UNORDERABLE {what} SERIES: {p} sits in a directory named "
                 f"{p.parent.name!r}, which is not a time. The latest time cannot be "
                 "identified, and this code will NOT fall back to sort order -- that is "
                 "the defect being repaired.") from None
@@ -770,7 +863,7 @@ def _yplus_series_path(out_dir: Path) -> Path | None:
     if len(at_latest) > 1:
         detail = "; ".join(f"{p} ({p.stat().st_size} bytes)" for p in at_latest)
         raise RuntimeError(
-            f"AMBIGUOUS yPlus SERIES in the latest time directory (t={latest:g}): "
+            f"AMBIGUOUS {what} SERIES in the latest time directory (t={latest:g}): "
             f"{len(at_latest)} candidates -- {detail}. REFUSED. Two series inside ONE time "
             "directory are a write collision, and unlike separate time directories there "
             "is no ordering between them. Move the superseded file aside and re-harvest.")
@@ -1044,6 +1137,122 @@ def selftest_yplus_selection() -> int:
     return 0 if ok else 1
 
 
+def selftest_series_selection() -> int:
+    """GAP 5(d) -- THE GENERALISED SELECTOR'S CONTROL, separate from the yPlus one so the
+    two repairs stay independently verifiable.
+
+    THE LIMB THAT MATTERS IS THE MATCHER.  Everything else here is the yPlus repair reused;
+    what is NEW is that the selector must SEE a `p_0` collision while NOT swallowing `phi`,
+    `pMean` or `p_rgh`.  The old `rglob("p")` could not see the collision at all -- INVISIBLE
+    rather than wrong -- and the obvious widening to `rglob("p*")` would have eaten the
+    neighbours.  So the control plants BOTH: the collision that must be SEEN and the
+    neighbours that must be MISSED.  That is L-490's discrimination requirement applied to a
+    filename matcher.
+    """
+    import tempfile
+    ok, fired = True, []
+
+    # ---- (1) THE MATCHER: accepts the collision, rejects the adjacent fields.
+    cases = [
+        ("p", "p", True), ("p", "p_0", True), ("p", "p_12", True),
+        ("p", "phi", False), ("p", "pMean", False), ("p", "p_rgh", False),
+        ("U", "U", True), ("U", "U_0", True), ("U", "UMean", False),
+        ("yPlus.dat", "yPlus.dat", True), ("yPlus.dat", "yPlus_0.dat", True),
+        ("yPlus.dat", "yPlusMean.dat", False),
+    ]
+    bad = [(b, n, want) for b, n, want in cases
+           if bool(_series_name_matcher(b).match(n)) is not want]
+    if bad:
+        ok = False
+        fired.append(f"MATCHER: wrong on {bad} (base, name, expected)")
+    else:
+        fired.append(f"MATCHER: all {len(cases)} cases correct -- `p` SEES `p_0` and `p_12` "
+                     "AND MISSES `phi`, `pMean`, `p_rgh`; a collision is visible and an "
+                     "adjacent field is not swallowed")
+
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+
+        def _probe_tree(name: str, times: list[str], files=("p",)) -> Path:
+            base = root / name / "probesBase"
+            for t in times:
+                d = base / t
+                d.mkdir(parents=True, exist_ok=True)
+                for f in files:
+                    (d / f).write_text(f"# t={t}\n0 1.0\n")
+            return base
+
+        # ---- (2) ABSENCE tolerated, with the plant that presence IS seen.
+        empty = root / "empty" / "probesBase"
+        empty.mkdir(parents=True)
+        got_empty = _latest_time_series_path(empty, "p", "base-probe")
+        got_one = _latest_time_series_path(_probe_tree("one", ["0"]), "p", "base-probe")
+        if got_empty is None and got_one is not None:
+            fired.append("ABSENCE: empty -> None (TOLERATED, as before), populated -> "
+                         f"{got_one.parent.name}/{got_one.name}")
+        else:
+            ok = False
+            fired.append(f"ABSENCE: empty gave {got_empty!r}, populated gave {got_one!r}")
+
+        # ---- (3) THE DEFECT REPRODUCED BESIDE THE REPAIR.
+        multi = _probe_tree("multi", ["0", "5", "10"])
+        old = sorted(multi.rglob("p"))[-1].parent.name
+        new = _latest_time_series_path(multi, "p", "base-probe").parent.name
+        if old == "5" and new == "10":
+            fired.append("NUMERIC ORDER: with probe time dirs 0/5/10 the OLD sorted(...)[-1] "
+                         "picks t=5 and the new selector picks t=10 -- a no-op fix FAILS "
+                         "this limb")
+        else:
+            ok = False
+            fired.append(f"NUMERIC ORDER: old={old}, new={new}; expected 5 then 10")
+
+        # ---- (4) NEIGHBOURING FIELDS IN THE SAME DIRECTORY MUST NOT CAUSE A REFUSAL.
+        neigh = _probe_tree("neigh", ["0"], files=("p", "phi", "pMean"))
+        picked = _latest_time_series_path(neigh, "p", "base-probe")
+        if picked is not None and picked.name == "p":
+            fired.append("NEIGHBOURS: a directory holding p, phi and pMean returns `p` and "
+                         "does NOT refuse -- widening to `p*` would have made this an "
+                         "ambiguity that is not one")
+        else:
+            ok = False
+            fired.append(f"NEIGHBOURS: returned {picked!r}, expected the file named `p`")
+
+        # ---- (5) A REAL COLLISION IS STILL REFUSED.
+        coll = _probe_tree("coll", ["0"], files=("p", "p_0"))
+        try:
+            got = _latest_time_series_path(coll, "p", "base-probe")
+            ok = False
+            fired.append(f"COLLISION: p and p_0 were NOT refused -- returned {got.name!r}")
+        except RuntimeError as exc:
+            both = "p_0" in str(exc)
+            fired.append(f"COLLISION: p vs p_0 REFUSED, message names the collision file "
+                         f"= {both}")
+            if not both:
+                ok = False
+
+    # ---- (6) COUPLING: the two graded call sites actually route through the selector.
+    import inspect
+    for fn, old_tok in ((base_cpb, 'rglob("p")'),
+                        (recirculation_length, 'rglob("U")')):
+        src = inspect.getsource(fn)
+        routed = "_latest_time_series_path(" in src
+        gone = old_tok not in src
+        if routed and gone:
+            fired.append(f"COUPLING {fn.__name__}(): routes through the selector and the "
+                         f"old {old_tok} is gone")
+        else:
+            ok = False
+            fired.append(f"COUPLING {fn.__name__}(): routed={routed}, old glob gone={gone}")
+
+    for line in fired:
+        print(f"  SERIES {line}")
+    print("  DISCRIMINATES: the matcher accepts collisions AND rejects adjacent fields; "
+          "absence tolerated AND presence seen; numeric order differs from the old "
+          f"lexicographic pick; a real collision still refuses = {ok}")
+    print("SERIES-SELECTION SELFTEST " + ("PASS" if ok else "FAIL"))
+    return 0 if ok else 1
+
+
 def main(argv: list[str] | None = None) -> int:
     # THE SELFTEST IS INTERCEPTED BEFORE `parse_args`, AND THAT IS NOT STYLE.
     # `--name`, `--reynolds`, `--turbulence` and `--out` are `required=True`, so argparse
@@ -1058,6 +1267,8 @@ def main(argv: list[str] | None = None) -> int:
         return selftest_coefficient_harvest()
     if "--selftest-yplus-selection" in _argv:
         return selftest_yplus_selection()
+    if "--selftest-series-selection" in _argv:
+        return selftest_series_selection()
 
     import argparse
     parser = argparse.ArgumentParser(description=__doc__)
@@ -1079,6 +1290,8 @@ def main(argv: list[str] | None = None) -> int:
                         help="run the harvest path's planted controls and exit")
     parser.add_argument("--selftest-yplus-selection", action="store_true",
                         help="run the yPlus selector's planted controls and exit")
+    parser.add_argument("--selftest-series-selection", action="store_true",
+                        help="run the generalised series selector's planted controls")
     parser.add_argument("--perturbation", type=float, default=0.1)
     parser.add_argument("--solver-timeout", type=float, default=28800.0)
     args = parser.parse_args(argv)
