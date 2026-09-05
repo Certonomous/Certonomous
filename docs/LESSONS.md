@@ -24179,7 +24179,7 @@ was caught by reading the output.
 | # | the subject | what the key also matched |
 |---|---|---|
 | 1 | a planted control instance | a near-miss string the `\b` anchor could not span (`B3c_PLANTED`) |
-| 2 | an **invocation** of a comparator mode | that mode's **argparse definition** — this is item 47's own shape, reappearing inside the audit built to find item 47 |
+| 2 | an **invocation** of a comparator mode | that mode's **argparse definition** — this is item 47's own shape, reappearing inside the audit built to find item 47. **THE `cfd-supervisor`'s OWN**, in the census run before the M1–M4 keys were handed down, and compounded by reporting to the chief that `--gate-a` occurred *"only as the argparse definition"* until a board lane corrected it |
 | 3 | a function's **call site** | the function's **definition site**, so a body's reads took the definition's line order |
 | 4 | a file's name **at its writer** (`log.$tag`) | its name **at its reader** (`log.pyhyp`) — one file, two names |
 | 5 | **a guard's own refusal** | an unrelated refusal **downstream in the same function** |
@@ -24211,6 +24211,14 @@ would ever have fixed it** — the repair was to give the control data capable o
 record the honest answer for the data that was not (`M6SR_PREREGISTRATION.md` §29.2). **Distinguish
 "the reader cannot tell two things apart" from "the reader is being asked an unanswerable
 question"; only the first is this lesson.**
+
+⚠ **ONE ROW IS ATTRIBUTED AND THE REST ARE NOT, AND THE ASYMMETRY IS DELIBERATE.** Instance #2 is named as the
+**supervisor's** because *a record in which authority's errors are anonymous while the discipline is enforced
+downward teaches the wrong thing* — the whole method here is that **authority does not exempt you from the
+check**. The lane-reported instances stay unattributed for the opposite reason: **six of these eight were
+self-reported by the agent that made them, before anyone else found them**, and *naming a lane in a permanent
+record for an error it volunteered creates an incentive not to volunteer the next one.* **That behaviour is
+worth more than any single lesson, so it is not taxed.**
 
 **Related:** the standing lesson that `grep … log.* | tail -1` is a coin flip is instance #8's
 family. `L-459` (never read a verdict string where a named numeric field exists) is the same
