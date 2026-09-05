@@ -1772,3 +1772,48 @@ the only expensive arm, and **10.0 core-min settles it either way.**
 
 **NOT FROZEN. NOT PINNED. NOT ENQUEUED. NOT LAUNCHED. NO SOLVER COMPUTE SPENT.
 SUBMISSIONS PARKED — nothing here is filed, sent, uploaded, posted or registered anywhere.**
+
+---
+
+## 12. FREEZE — 2026-09-05, by the dafoam-supervisor. **THIS COMMIT IS THE FREEZE.** The DRAFT banner is struck; the gates close here
+
+**The head banner is STRUCK BY THIS SECTION, not by editing it** — the banner is the record of what this document was; this section is the record of when it stopped being that. **From this commit `CLAUDE.md` rule 2 closes every gate below and rule 6 forbids editing anything above.**
+
+### 12.1 MY §3 CHECKS, DISCHARGED PERSONALLY
+
+**CHECK 4 — §5's cap arithmetic, READ AS ARITHMETIC AND RE-DERIVED BY ME, not read as a summary:**
+
+| leg | cap | cap as wall | deadline | cap binds first | headroom (of cap) |
+|---|---|---|---|---|---|
+| `SEAM` | 10.0 core-min | 600.0 s | 900 s | **YES** | **+50.0 %** |
+| `TAIL` | 675.0 core-min | 40,500.0 s | **41,400 s** | **YES** | **+2.2 %** |
+
+**Caps sum `685.000` == registered ceiling `685.000`, EQUAL** — *a ceiling carrying slack nobody registered is not a registration.* **Both legs REACHABLE: the registered cap binds before the timeout on each, which is the property `SO3aF2`'s dead ceiling lacked.**
+
+**CHECK 1 — read as a diff.** The deadline change is **exactly one line** — `timeout 40500` → `timeout 41400` — and **no gate, limb or refusal path is touched.**
+
+**CHECK — rule 2's condition, tested by the freezing shell itself before this text existed:** `/home/ubuntu/certonomous-runs/A1WRT2` **ABSENT**. *Named as a directory that does not exist, and checked, not asserted.*
+
+### 12.2 ⚠ A CORRECTION TO ME, ACCEPTED: I USED TWO CONVENTIONS IN ONE TABLE
+
+I reported `SEAM`'s headroom as **+33.3 %** and `TAIL`'s as **+2.2 %**. **They are not the same measure.** The 300 s `SEAM` gap is **33.3 % of the DEADLINE** and **50.0 % of the CAP**; my `TAIL` figure was already **of the cap**. **I used two conventions in one table without saying so.** **The instrument's convention (of the cap) is adopted — it is `w3s_stage_record.py`'s, so the two items stay comparable, and the record now carries ONE number, not two.**
+
+### 12.3 WHAT THIS ITEM IS, STATED AT THE FREEZE AND NOT SOFTENED
+
+- **`PASS` is UNREACHABLE BY CONSTRUCTION** — no Roache triple. The ceiling is **`GATE REACHED`**.
+- **`P4` is registered UNHEDGED AND PREDICTED TO MISS.**
+- **No stall angle may be reported.**
+- **Charter §6's two-row obligation BINDS. This item ships ONE `PATCHED` row and discharges nothing** — `G-WARPPROBE` has no producer and cannot get one without editing another item's frozen instrument.
+- **`P-SEAMTIME`:** `SEAM`'s first anchored `Time` will be **4001** and its last **4200**. **If it is `1`, the producer resets on a `latestTime` start too, `G-COMPLETE` fails `SEAM`, the precondition refuses `TAIL` at `rc=7`, and the item stops at ≤ 10.0 core-min with the mechanism measured for the first time.** **Either outcome is a result.**
+
+### 12.4 WHAT THE ASSEMBLY FOUND, AND WHY IT IS IN THE FREEZE RECORD
+
+**Two `controlDict` fixtures were staged and md5-asserted while the extraction table read `15 present, 0 ABSENT` WITHOUT THEM** — bound through a dict of strings the extractor could not resolve. **That is §11 item 2's failure mode verbatim: an md5-agreement control reading 8 of 8 while a dependency the frozen code EXECUTES is absent.** Rebound; derived **15 → 17**.
+
+**And then the extractor caught its own author**, flagging a control that named a repo path required *not* to exist. **The lane stopped naming such a path rather than teaching the extractor to skip one** — *a checker taught to skip a class of path has a hole shaped exactly like that class.*
+
+**At hand-over: 153 controls, `NOT EXERCISED` = 0 across the whole item; `ast.Assert` = 0 everywhere with each auditor shown able to see a planted one; existence 17 present / 0 ABSENT asserted BEFORE any md5 and printed as separate sections in that order; producer trace 9 consumed / 8 traced / 1 named deferral / 0 UNTRACED.** **Both image pins measured OUT OF THE IMAGE and equal to their registered pins.** Total spend to the freeze: **0.033 core-min.**
+
+**And both of this session's cap errors are now CONTROLS rather than fixes** — the 40,500 tie replays and must be caught, and **my own reverted `900 → 600` inversion replays and must be caught.** *Neither can come back silently, including mine.*
+
+**SUBMISSIONS PARKED.**
