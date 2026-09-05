@@ -26833,6 +26833,148 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 63-SOLVE-BLOCKED -->
+
+**Section last written:** 2026-09-05T22:26:57Z by a cfd `lab-lane` at the supervisor's instruction (stamp from `date -u` read inside the committing shell invocation). **SIXTY-THIRD WRITE.** **PURE INSERTION at the top of the `## cfd` section; every byte below stands unedited** — nothing is renumbered, deleted or rewritten, and no other team's section is touched. Built from `git show HEAD:docs/LAB_STATE.md` and written back in the SAME shell invocation; the seven-heading `^## ` inventory asserted unchanged in **count and order**, deletions outside this block asserted `== 0`, every marker asserted to occur **exactly once on both sides of the splice** and again after the commit, and pure insertion **proved** by removing this span from the post-splice text and reproducing the HEAD blob byte-for-byte before the commit was allowed to form. ⚠ **Prior boards are named in prose only — board 62, board 61, board 60, board 59, board 58 — and NEVER in their full comment form**, per the hygiene rule board 60 set at its foot.
+
+**CHAIN OF CUSTODY, STATED PLAINLY AND FIRST — `VERIFY` APPLIES TO EVERY MEASUREMENT, VERDICT AND RULING BELOW.** This lane's single task was the board write. **Nothing below was re-derived at source by this lane.** No log, stack, registration, script or run directory cited here was opened by it; every number, every rc, every line number and every verdict carries the value the cfd supervisor stated, and is boarded on his authority, not on a reading taken here. **That includes the claim in §1 that a lane independently re-verified the supervisor's localisation on the artifact — that too is a relayed claim about another lane, not something this lane witnessed.** The only facts in this block this lane confirmed itself are the splice-hygiene facts in the paragraph above: the heading inventory, the marker uniqueness, the byte-for-byte pure-insertion proof, the timestamp and the commit sha. **Where a reader needs certainty about the physics, the artifact — not this block — is the authority.** **Where this block conflicts with anything below it in this section, this block wins.**
+
+---
+
+### 1. THE LADDER IS `BLOCKED`. M6SR B5a CRASHED: SIGFPE IN THE THERMOPHYSICAL MODEL AT ITERATION 1 — `VERIFY`
+
+- **outer rc 136 (128 + 8), inner rc ABSENT, 3 wall s against a 465 s cap.** The driver **FAILED CLOSED at exit 6**.
+- ⚠ **This is NOT an overrun.** Standing rule 12's overrun clause is **not engaged** — the run died at 3 s of a 465 s cap. Nothing here is a budget event.
+- **`FOAM_SIGFPE` was trapping (log line 29)**, so this is a **trapped exception, not a silent NaN**. Signal 8 on **all three visible ranks**; mpirun names **rank 2**.
+
+**SUPERVISOR TRIAGE — check 2 of the four §3 checks, performed PERSONALLY and NOT delegated.**
+
+- The last four solver lines are **Ux, Uy, Uz**, then **`Solving for e, Initial residual = 0.9999999998, Final residual = 0.01175765778, No Iterations 1`**.
+- The stack is **hePsiThermo**. In `rhoSimpleFoam` that is **`thermo.correct()`, called IMMEDIATELY AFTER the energy equation**.
+- 🔴 **THEREFORE THE CRASH IS THE ENERGY-TO-TEMPERATURE INVERSION ON THE FIRST OUTER ITERATION.** **Not momentum — momentum completed. Not turbulence — turbulence was never reached.**
+- **Corroborating, and stated as corroboration rather than as proof:** the **libm frame #3 sits DIRECTLY BENEATH the hePsiThermo frame #4**; `sutherlandTransport::mu` evaluates **`sqrt(T)`**; `sqrt` of a non-positive `T` is an invalid operation, and with `FOAM_SIGFPE` trapping that is **exactly signal 8**. This is **CONSISTENT WITH the energy solution producing a temperature the thermo model cannot evaluate**.
+- ⚠ **NO CAUSE IS NAMED.** The relaxation values recorded in §3 below are a **FACT ABOUT THE FROZEN DOCUMENT, not a diagnosis.** Consistency is not causation and the board does not upgrade it.
+- The lane that performed the localisation is reported to have **re-verified it on the artifact rather than relaying the supervisor's reading** — `VERIFY`, as above; this writing lane did not witness that.
+
+**WHAT THE CRASH IS NOT** — stated because each of these was a live candidate and each was excluded:
+
+- **NOT a mesh finding.** Gate A **`PASS`** on all 13 clauses; §7 **`PASS`** on all five conditions on this level; `decomposePar` completed cleanly with **4 subdomains and an `End`**.
+- **NOT an overrun.**
+- **NOT a silent failure.** **Every guard built over the last two days held.** The thing crashed loudly, in the open, with an rc that classifies.
+
+### 2. 🔴 TWO INDEPENDENT INSTANCES — A TOOLCHAIN FAMILY, NOT A COINCIDENCE — `VERIFY`
+
+`verification/campaign/RUNG2_CRM_M0_PREREGISTRATION.md:147` records **`libfluidThermophysicalModels.so` beneath `rhoSimpleFoam` on the stack** — which is **R2-M0's entire subject**.
+
+So the lab now holds **the SAME SOLVER, the SAME LIBRARY, the SAME SIGNAL 8**, twice:
+
+| instance | mesh | died at | prior history |
+|---|---|---|---|
+| R2-M0 | DPW5 committee hex | `Time = 2` | after **200 clean INCOMPRESSIBLE iterations** |
+| M6SR B5a | ONERA M6 surface-refinement level | `Time = 1` | first outer iteration |
+
+**Different geometry. Different generator. Different cell count. Different campaign.**
+
+🔴 **ONE OCCURRENCE IS NOT A MECHANISM; TWO INDEPENDENT INSTANCES ON UNRELATED MESHES IS A FAMILY.**
+
+🔴 **AND THE INSTRUMENT BUILT TO DIAGNOSE IT IS `BLOCKED` ON SANAA'S DESK.** R2-M0 is a **66.9 core-min probe testing four named single-variable remedies against exactly this abort**, and it is **`BLOCKED` on a permission-system denial that no lane and no supervisor may route around** (standing rule 9). **UNTIL TONIGHT THAT UNBLOCK LOOKED LIKE CAPABILITY WORK FOR A SIDE CAMPAIGN. IT NOW BLOCKS SANAA'S OWN NAMED FIRST PHYSICS.** That is the change in its standing, and it is why it heads the desk list in §8.
+
+### 3. RELAXATION IS FROZEN CONTENT; TEMPERATURE BOUNDS DO NOT EXIST — `VERIFY`
+
+**Measured with the searcher plant-verified FIRST** (standing rule 3): `relaxation` **1 hit**, `thermophysical` **2 hits**, `__NO_SUCH_TOKEN__` **0 hits**. **The zeros below are readings, not blindness.**
+
+- **Relaxation occurs EXACTLY ONCE in the registration, at line 1192**, inside **§8.3's fenced `system/fvSolution` listing**: fields **p 0.3, rho 0.05**; equations **U 0.7, e 0.7, `"(k|omega)"` 0.7**. **The writer emits it exactly — there is NO divergence between the registration and the emitted case.**
+- **NO TEMPERATURE BOUNDS ANYWHERE.** **No `TMin`, no `TMax`, no `limitT`** — not in the registration, not in the emitted case.
+- ⚠ **Every `bounded` hit is a `divSchemes` qualifier** — i.e. **CONVECTION-SCHEME boundedness, A DIFFERENT THING FROM A TEMPERATURE LIMIT.** A reader who counts `bounded` hits and concludes the temperature is limited has read the wrong noun.
+
+🔴 **STRUCTURAL FINDING, AND IT IS THE DURABLE PART OF THIS SECTION.** §3.2 of the registration is headed **"NUMERICAL SETTINGS — REGISTERED, NOT SILENTLY PICKED"** and lists `snGradSchemes`, `laplacianSchemes`, `nNonOrthogonalCorrectors`, four `divSchemes` and the decomposition method. **IT DOES NOT LIST RELAXATION AT ALL.**
+
+**So the document has a table whose entire purpose is registering numerical settings, and the setting most plausibly implicated in the crash is NOT IN IT** — it is registered **incidentally, as pasted file text**, rather than **deliberately, as a setting**.
+
+⚠ **FORWARD LESSON, stated for the next registration and not only for this one: a setting that determines the answer must be registered in the settings register, not only inside a pasted file listing.** A pasted listing freezes the bytes; only the register makes the choice *visible as a choice*.
+
+### 4. THE CHARTER QUESTION — ESCALATED, AND NOT RULED
+
+Two readings are on the table. **Both are stated; NEITHER is chosen here.**
+
+- **READING A.** A relaxation factor is **not a gate, not a threshold, not a cap and not a label** — it is **none of the four things standing rule 2 names** post-compute. On that reading, changing it falls in **the same class as the `cp` repair already permitted**.
+- **READING B.** §8.3's values **determine what the solver produces**, and **effect-on-the-answer must not hide behind a taxonomy**. On that reading the ladder is `BLOCKED` on a **permanent** limitation, not a procedural one.
+
+🔴 **THE SUPERVISOR RULED THE LADDER `BLOCKED` WITHOUT RESOLVING THE QUESTION — and the reasoning is the boardable part: BOTH READINGS FORBID THE SAME ACT.** Even under **Reading A**, changing relaxation **without R2-M0** is **picking one untested remedy and hoping** — **the exact thing R2-M0 was built to prevent**. **When both readings forbid the same act, a supervisor need not settle which is right in order to forbid it.**
+
+⚠ **ESCALATED AS A QUESTION THAT WILL RECUR, because it will: DOES STANDING RULE 2's POST-COMPUTE CLAUSE PROTECT THE FOUR NAMED THINGS, OR EVERYTHING THAT DETERMINES THE ANSWER?** **That is above a supervisor and above a lane.** It sits on the desk list in §8 as part of item (i)'s neighbourhood and is recorded here so the next campaign that hits it does not re-derive it from scratch.
+
+### 5. LADDER STATUS IN THE FIXED VOCABULARY
+
+| level | verdict | basis |
+|---|---|---|
+| **B5a** | **`NOT A RESULT`** | the run did not complete; **standing rule 4's clauses are not satisfiable on it** |
+| **B5b** | **`PENDING`** | not started |
+| **B5c** | **`PENDING`** | not started |
+
+⚠ **B5b and B5c are EXPLICITLY NOT `NOT A RESULT`.** **A level that was never launched must never be graded as one** — because **standing rule 5 never lets a false `NOT A RESULT` be taken back.** The gate may only turn a verdict **into** `NOT A RESULT`, never the reverse; so a `NOT A RESULT` written by mistake on an unlaunched level is permanent. `PENDING` is the queue state and it is the correct one here.
+
+**ARTIFACT DISPOSITION.** **`0/` and four `processor*` dirs REMAIN IN PLACE AND UNTOUCHED.** A second `solve` on L3 **will abort at exit 4 on standing rule 4's pre-existing-`0/` guard.** 🔴 **THAT IS THE GUARD WORKING, NOT A DEFECT.** **What to do with those artifacts is a decision, not a cleanup**, and no lane takes it unilaterally.
+
+**COST.** **0.2667 core-min unbudgeted pre-flight + 0.2000 core-min solver at 4 ranks = 0.4667 core-min total**, which is **0.65% of the 31.0 core-min cap**. **Cap NOT tripped.**
+
+### 6. WHAT FIRED CORRECTLY ON A REAL LAUNCH — YESTERDAY'S WORK MEETING REALITY — `VERIFY`
+
+**This is the half of the night that is not a crash, and it is boarded because a guard that fires on a real launch path is worth more than one that passes a rehearsal.**
+
+- **B5g grading rehearsal `rc 0` / `rc 0` under BOTH interpreters** — **the gate that blocked this campaign all day, passing on a real launch path for the first time.**
+- **B4s: "SECTION 7 SCREEN PASSED for L3 — all five conditions, per level, BEFORE the solve."** 🔴 **That is ITEM 47's ENTIRE POINT EXECUTING ON THE ACTUAL LAUNCH PATH** — where **that morning, nothing consulted Gate A at all.**
+- **B3z wrote the seven `0/` fields with `0/U` LAST**, so **the age-guard anchor dates THIS launch** — **item 48's split working where it matters**, i.e. on the field the guard actually reads.
+
+### 7. WHAT THE CAMPAIGN HAS PRODUCED, BECAUSE IT IS NOT NOTHING — `VERIFY`
+
+**Gate A `PASS` on a real three-level family, 13 clauses — FOUR OF WHICH (A10 openness, A11 regions, A12 signed min volume, A13 patch names) HAD NO READERS AT ALL THE PREVIOUS MORNING.** **A1 `PASS` with margin 0.03455 deg of 70** — and that margin is reported **wherever A1 appears**, never the bare `PASS`.
+
+**TWO HONEST PRE-REGISTERED MISSES, on post-freeze artifacts, boarded as misses:**
+
+- **P1** predicted **L1 near 61 deg**, in family with **61.4938 / 61.1581**. **Measured 69.96545345 — MISSING BY 8.64 DEG.** ⚠ **And its stated basis is FALSIFIED, not merely off:** the basis was *"surface refinement alone moved non-orthogonality slightly better"*, and **a third surface refinement made it 8.8 deg WORSE.**
+- **P2** predicted **aspect ratio would fall again.** **Measured 608.2069422 → 222.3549331 → 282.7226081. IT ROSE.**
+
+**THIRD FINDING — registered, and travelling with the graded record via `FAMILY_QUALITY_MONOTONICITY`, built from the readings each call already takes:**
+
+- **Both quality metrics are NON-MONOTONE and they turn at the SAME level**, while **skewness is essentially flat (2.3066 → 1.4408 → 1.4406)**.
+- 🔴 **THEREFORE `levels_differ_only_in_refinement` IS FALSE — a Roache triple's CORE ASSUMPTION DOES NOT HOLD on this family.**
+- 🔴 **Any band from this family is a surface-refinement band CONFOUNDED WITH A QUALITY CHANGE OF UNQUANTIFIED MAGNITUDE.**
+- ⚠ **This STRENGTHENS §5.1's `L-HONEST` caveat rather than being covered by it.** A caveat that anticipated a weaker problem does not absorb a stronger one, and the board does not let it.
+
+**FIRST REAL ESTIMATE-VERSUS-ACTUAL CALIBRATION (standing rule 12):** **total 24.75 core-min against 7.38 predicted, ratio 3.35x, no cap tripped.** 🔴 **And the headline is not the miss — it is that the document carried TWO BASES AND THE PESSIMISTIC ONE WAS RIGHT.** The **registered estimate** used the **log-interpolated pyHyp rate and missed by 3.29x**; the **cap's own MARGINAL basis predicted 23.10 against a measured 23.18 — ACCURATE TO 0.3%.** **The lab already had the right estimator in the document and registered the wrong one.**
+
+**M5 ADOPTED as a FIFTH census mechanism — OPERATIONS WHOSE PRECONDITIONS DIFFER FROM THEIR EXISTENCE.** Adopted after the **L1 build's host-side `mv` could not succeed across a container-created directory**: `work/constant` owned **1002:1002**, host uid **1000**, **`W_OK|X_OK` False**.
+
+- ⚠ **M1–M4 are answerable by INSPECTION. M5 IS NOT** — **whether an operation can succeed depends on run-time state.** **It took 1,488 s of running to surface.**
+- **Repaired as a COPY, not a move.** **Points-stream sha identical at both ends, source intact.**
+- 🔴 **A build step whose final act DELETED ITS ONLY COPY OF A 1,597,440-CELL MESH WAS A LATENT DATA-DESTRUCTION INSTANCE.** **THE PERMISSION FAILURE SAVED US FROM A DESIGN WE SHOULD NOT HAVE HAD.**
+
+### 8. LIVE / DESK / BLOCKED
+
+**LIVE: nothing running in cfd.** Check-repair cycles stand at **L3 stage 0, L2 stage 0, L1 build 1, L1 stage 0, solve 1** — **well inside Sanaa's bound of 3.**
+
+**ON SANAA'S DESK, SEVEN:**
+
+1. **THE R2-M0 PERMISSION-SYSTEM DENIAL** — **now blocking her own named first physics as well as Rung 2.** Its standing changed tonight; see §2.
+2. The **committee-grid mesh-quality tension**.
+3. **`scripts/queue_runner.py:598-606` overwriting every team's `_field_classes`.**
+4. The **35,544-cell provenance gap in F28G**.
+5. **Queue route B, lab-wide.**
+6. **`r = 2.000` as a disclosure, not a request.**
+7. The **cross-family scheduling conflict** — one lane's **16-rank B5c** against another lane's **live 8-rank solve** under a `timeout 31115` with **hours still available**.
+
+**`BLOCKED`:**
+
+- **The M6SR solve ladder** — on the crash **plus** the untested-remedy problem of §4.
+- **R2-M0** — on the permission denial.
+- **Rung 2 (a)** — on three grounds.
+- **F28G's H5 arm** — **permanently, as frozen**; its **H5B successor is drafted and freezable, but NOT frozen.**
+
+**NEXT: JF1G, F21, F22 and F24 gradings.**
+
+---
+
 <!-- BOARD-BLOCK-ID: 62-D1-UNRESOLVED -->
 
 **Section last written:** 2026-09-04T22:39:25Z by a cfd `lab-lane` at the supervisor's instruction (stamp from `date -u` read inside the committing shell invocation). **SIXTY-SECOND WRITE.** **PURE INSERTION** — proven, not asserted: the committing invocation removed this block's exact span from the post-splice text and reproduced the HEAD blob byte-for-byte before the commit was allowed to form.
