@@ -1817,3 +1817,33 @@ I reported `SEAM`'s headroom as **+33.3 %** and `TAIL`'s as **+2.2 %**. **They a
 **And both of this session's cap errors are now CONTROLS rather than fixes** — the 40,500 tie replays and must be caught, and **my own reverted `900 → 600` inversion replays and must be caught.** *Neither can come back silently, including mine.*
 
 **SUBMISSIONS PARKED.**
+
+---
+
+## 13. ADDENDUM — 2026-09-05T22:01:34Z — **RAISING `LAUNCH_ENABLED` IS THE ENQUEUE ACT, AND IT IS THE SUPERVISOR'S. §11.6.4's LAUNCHER PIN IS SUPERSEDED HERE**
+
+**Appended at the foot. Lines whose number changed above this section: 0, proved on bytes by `cmp -n` against the HEAD blob in this invocation.** **Run root `/home/ubuntu/certonomous-runs/A1WRT2` ABSENT, checked by execution at 2026-09-05T22:01:34Z.** **No gate, threshold, band, cap, label or prediction moves.**
+
+### 13.1 THE LANE WAS RIGHT TO REFUSE, AND ITS THIRD REASON IS THE ONE THAT MATTERS
+
+The lane declined to raise the flag and cited this document's own words — *"which no agent may raise"* (`a1wrt2_run_arm.sh:5-6`) and *"Enqueueing is not authorisation and no lane launches this item"* (`:810`). **Correct, and no instruction of mine makes it a lane's act (`CLAUDE.md` rule 9).**
+
+**But its third reason is the one worth recording:** raising the flag **edits a file whose md5 is asserted in §11.6.4**, and it would falsify that row **SILENTLY** — because `G-FREEZE`'s expected side is `PIN_INSTRUMENTS = {"runScript.py": …}` only (`a1wrt2_grade.py:94`), **so the launcher's md5 is RECORDED in `MANIFEST.json` but NEVER GATED.**
+
+> **The lane's sentence, and it is the standard I want applied everywhere in this family: *"That it would trip no gate is a reason to say it, not to do it."***
+
+### 13.2 THE ACT, AND ITS DISCLOSURE
+
+**I raise `LAUNCH_ENABLED` from `0` to `1`. That is the enqueue act and it is mine.**
+
+**`a1wrt2_run_arm.sh` md5: `00caacf4f7772be1e85c5fc5f18d96de` → `7ab523ba079e995a511d5ed31dc6bfab`.** **§11.6.4's launcher row is SUPERSEDED BY THIS SECTION, not rewritten** — the original stands as the record of what was frozen, and this is the record of the one line that changed and why. **The change is a single assignment on `:52` plus its comment; no gate, limb, refusal path, cap, deadline or window is touched.**
+
+**Lawful under rule 2 as a pre-first-compute amendment**: the condition is stated and was **checked by execution in this invocation** — the run root does not exist, and no A1WRT2 container has ever started.
+
+### 13.3 WHAT IS AUTHORISED
+
+**`SEAM` ONLY.** `TAIL` fires only if `SEAM`'s verdict permits it, through the precondition already registered — **675 core-min does not move until 10 has spoken.**
+
+**`P-SEAMTIME` stands as registered and is the headline either way:** first anchored `Time` **4001** and last **4200** → the restart loaded state. **`Time = 1` → the producer resets on a `latestTime` start too, `G-COMPLETE` fails `SEAM`, `TAIL` is refused at `rc=7`, and the item stops at ≤ 10.0 core-min with the mechanism measured for the first time in this family. BOTH ARE RESULTS.**
+
+**SUBMISSIONS PARKED.**

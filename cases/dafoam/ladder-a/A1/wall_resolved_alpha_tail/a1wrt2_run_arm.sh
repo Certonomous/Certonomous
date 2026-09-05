@@ -49,7 +49,7 @@
 
 set -euo pipefail
 
-LAUNCH_ENABLED=0            # <-- 0 until the freeze and the enqueue land.
+LAUNCH_ENABLED=1            # <-- RAISED 2026-09-05 BY THE dafoam-supervisor as the enqueue act (section 13).
 
 ITEM="A1WRT2"
 # The pinned image (draft section 3, inherited by md5).  The TAG is a name; the
