@@ -24224,3 +24224,62 @@ worth more than any single lesson, so it is not taxed.**
 **Related:** the standing lesson that `grep … log.* | tail -1` is a coin flip is instance #8's
 family. `L-459` (never read a verdict string where a named numeric field exists) is the same
 principle one level up: *the verdict string sits adjacent to the number and is not the number.*
+
+---
+
+## L-491 — A TEST METHOD THAT CANNOT REACH THE REAL ENTRY POINT CANNOT VERIFY REACHABILITY. THREE CAMPAIGNS, ONE SHAPE: THE THING EXISTS, IT IS CORRECT, AND IT NEVER RUNS
+
+*2026-09-05, `cfd`, F5a and M6SR. Cost: no compute attributable — all three were found by
+inspection or by an in-place run, none by a solve.*
+
+**The pattern.** A guard, screen or control is written; a method is used to verify it; the method
+returns green; **the guard never fires in production.** In each case the verification method was
+sound about *what it examined* and structurally blind to *whether what it examined was on the path
+anything actually takes.* **Existence was mistaken for reachability, and correctness for coverage.**
+
+**Instance 1 — F5a gap 4, the control behind the argparse wall.** The 4-rank cap's planted control
+was invoked as `--selftest-rank-cap` and checked as `args.selftest_rank_cap` *after* `parse_args`.
+But `--name`, `--reynolds`, `--turbulence` and `--out` are `required=True`, so **argparse exits 2
+before any flag of ours is reached.** The control was correct, complete, and **could not be run by
+anyone**. AST extraction of the function ran its body in isolation and reported `PASS`.
+
+**Instance 2 — M6SR item 47, the screen that was gradeable and not wired.** §7's screen existed and
+graded correctly when invoked. **It was not on the launch path**, so a `BLOCKED` verdict could not
+refuse a solve. Writing the screen made it *gradeable*; it did not make it *run*. The repair was to
+put it on the launch path and then prove, with a mutant, that the launch path refuses.
+
+**Instance 3 — the ruling itself.** The supervisor endorsed AST extraction as verification and
+**mistook what it proves for what it covers**: it proves the logic under test is the patch's own
+text, and proves *nothing* about whether that logic is reachable. The endorsement was correct about
+its subject and wrong about its scope — which is the same failure it was endorsing a method to catch.
+
+**The repair, and it is not a sharper version of the same check.** ⚠ **A CONTROL IS NOT VERIFIED
+UNTIL SOMETHING HAS RUN THE PATH A USER WOULD RUN** — the real entry point, the real argument
+vector, the file in place. Extraction is not worthless: **it verifies logic, which is a real thing,
+and it is the only check available before a patch is approved.** But the two are *different checks
+of different properties*, and one may never stand in for the other. Report them separately and say
+which you did.
+
+⚠ **AND PROVE THE WALL IS LIVE, or "it ran" may only mean there was nothing to stop it.** After
+gap 5 was applied, the in-place run passed *and* invoking without the required arguments was shown
+to exit 2 — so the interception before `parse_args` is **load-bearing and not decoration.** A green
+reachability run against an absent obstacle is the same vacuity one level up.
+
+⚠ **THE UNCOMFORTABLE COROLLARY, WHICH IS THE REASON THIS IS HARD TO OBEY: THE CHECK THAT CATCHES
+THE FAILURE CANNOT RUN UNTIL THE PATCH IS APPLIED.** Reachability is a property of the file in its
+place, so it is unavailable at exactly the moment approval is being asked for. The sequence is
+therefore **approve → apply → run in place → report → commit**, and it must not be collapsed to
+make approval feel complete. When the in-place run is still owed, **say so and do not claim
+reachability as verified.**
+
+**Why this is NOT `L-490`, and the boundary is the test `L-490` already carries.** `L-490` is a
+reader that cannot separate its subject from a neighbour, and its repair is always *sharpen the key
+until it separates the two.* **You cannot sharpen AST extraction into seeing reachability** — the
+repair here is a **second, different check**, not a finer version of the first. This is the same
+boundary that excluded `C12` from `L-490`: **a lesson whose repair does not apply should not be
+filed under it**, or the lesson becomes a bucket for everything that went wrong that week, which is
+how a good lesson dies.
+
+**Related:** `L-490` (adjacency in readers) is the sibling failure in *data*; this one is the same
+shape in *control flow*. `L-221`/`L-222` — *a lesson is not applied until every call site asserts
+it* — is this lesson stated for edits rather than for tests.
