@@ -5346,7 +5346,39 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-05T22:21:10Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+**Section last written:** 2026-09-05T22:29:26Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+
+### S-82 — 2026-09-05T22:29:26Z — **BOTH ITEMS LAUNCHED AND BOTH RETURNED `rc=1` FOR 2.13 CORE-MIN TOTAL. ONE IS A REAL FINDING; THE OTHER IS A HARNESS DEFECT AND MY PREDICTION GOT A THIRD OUTCOME**
+
+**Sanaa's ruling applied and it paid immediately.** *"Past some time the lab must take action and launch the run with its attached watcher to fix/debug and see what happens."* Both runs told us in under two minutes what the preceding checks had not. **Combined spend 2.134 core-min against combined caps of 490.0.**
+
+**⚠ CRASH TRIAGE DONE PERSONALLY — `SUPERVISION_CHARTER.md` §3 check 2, not delegated.**
+
+**`D6RF3` `F_mp` — THE PRIMAL DID NOT FAIL. IT CONVERGED AND WAS REFUSED BY A BOOKKEEPING BAR.** `rc=1`, **2.067 core-min of a 480.0 cap**, not OOM, memory never tight (27.7 GiB free, zero wait). **Every staging, delivery, anchor and cold gate PASSED.** The log at `:2086`:
+
+- `U0 finalRes 1.13e-08`, `U2 3.06e-09`, `he 3.09e-10`, continuity `global = -2.96e-13`
+- `CD: 0.0184758685` and `CL: 0.3999751808`, **`initRes` identical to `final` — steady**
+- then **`End`** — the solve RAN TO COMPLETION and printed `End`
+- **then** `Primal min residual 1.316217833e-05 did not satisfy the prescribed tolerance 1e-08`
+
+**That is N-D42, which this family already recorded: `primalMinResTol` is a POST-`End` ACCEPTANCE RATIO BAR, NOT A SOLVER CONTROL.** The residual floor is **flat at 1.316e-05 — short of the registered 1e-08 by a factor of 1316**, and not descending.
+
+**AND THE CROSS-CHECK FIRED IN OUR FAVOUR, AT THE FIRST ATTEMPT.** `CD = 0.0184758685` from this primal against `CDLOG["cl04"] = 1.846929883e-02` — **a constant frozen INTO THE GRADER BEFORE THIS RUN** — agree to **0.0356 %**; `CL` is **0.0062 %** off its 0.4 target. **`X-CDLOG` therefore SUPPORTS §2a's premise that the baseline primal measures the same physical quantity the stdout log recorded, which is falsifier `F1`'s question answered in the affirmative.** `F1` is REPORTED, not gated, and moves nothing.
+
+**Item token by its own `compose()`: rung 2, `REF_off` unbought → `NOT A RESULT`.** ONE-ROW `PATCHED`, **not a full §6 verdict about DAFoam**.
+
+**⚠ ESCALATED, NOT TAKEN: whether a successor may register a REACHABLE primal tolerance.** That touches a threshold and is not a supervisor's call. **`primalMinResTol` is not changed anywhere.** The measured floor is recorded as evidence and I stop there. **A lane is verifying my cross-claim** that `S1FDP` independently measured the same unreachability today (*"all six primals stopped at 2500 identically — none satisfied 1e-8"*); if it holds, **two items measured it on the same day** and it becomes an `N-D` fact. **VERIFY.**
+
+**`A1WRT2 SEAM` — A HARNESS DEFECT, AND MY REGISTERED PREDICTION MET A THIRD OUTCOME.** `rc=1`, **wall 4 s, 0.067 core-min of a 10.0 cap.** `sweep.log` is 8 lines and ends `KeyError: 'AOA_ALPHA0'` at `runScript.py:51` — **the arm body does not export the environment variable the runScript requires.** No `Time =` line was ever emitted; **OpenFOAM never started.** Same class as the earlier finding that the arm bodies never sourced the loader — a lane is checking whether they share one root cause, so it is named once rather than twice.
+
+**`P-SEAMTIME` IS UNRESOLVED AND I WILL NOT DRESS IT AS A RESULT.** I registered two branches — first anchored `Time = 4001` (restart loaded state) or `Time = 1` (producer resets) — and wrote **"BOTH ARE RESULTS."** **NEITHER OCCURRED.** The mechanism was never exercised. **A two-branch prediction met a third outcome, and that is not a result about the restart mechanism.** `TAIL` stays parked: its precondition is SEAM's verdict and SEAM has produced none.
+
+**`D6RF3` §13 at `2201b382` — POST-FIRST-COMPUTE, striking two things a lane found by reading the frozen file top-to-bottom before enqueueing it.** (i) **Line 1 still read `NOT A REGISTRATION, NOT FROZEN, NOT ENQUEUED`** on a document that is all three and had burned 2.067 core-min — **every clause false**. §12 superseded them in substance and **did not STRIKE them, which was my omission**; a reader arriving at the TOP has no reason to scroll 900 lines for the correction. (ii) **§11a's chain-driver md5 `9d2c22d2…` is dead** while §9's `71c971c9…` is live and equals disk — §12.3 disclosed the repair that moved it but **did not name the old figure as superseded** (the L-370 practice, which I failed to apply to my own freeze section). **Not blocking — the operative pin is `MD5_LAUNCHER`, consistent everywhere, and the driver is not md5-gated at run time — so the dead figure could not refuse anything, only MISLEAD A READER.** No gate, threshold, cap or label moved; disk == HEAD so `freeze_check` still passes.
+
+**Also disclosed by that lane and worth carrying:** `A1WRT2_SEAM`'s queue row went in **`GRADER-FREEZE UNPINNED`** while `D6RF3`'s read **`PINNED — hashed EXACTLY as commit 9c079a84 froze them`**. SEAM's comparator was verified four ways by hand but **the machine check was not armed for it.** **VERIFY** before SEAM's successor fires.
+
+**SUBMISSIONS PARKED.**
+
 
 ### S-81 — 2026-09-05T22:21:10Z — **THE 52-ITEM SWEEP. I OWE S-80 A CORRECTION: THE 10 % BAR IS NOT DEFECTIVE — AND THE REAL FINDING IS THAT IT IS LOAD-BEARING EXACTLY WHERE IT IS LEAST TESTED**
 
