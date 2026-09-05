@@ -24225,6 +24225,34 @@ worth more than any single lesson, so it is not taxed.**
 family. `L-459` (never read a verdict string where a named numeric field exists) is the same
 principle one level up: *the verdict string sits adjacent to the number and is not the number.*
 
+### Addendum, 2026-09-05 — INSTANCE #10, AND WHY IT IS THE PUREST ONE
+
+⚠ **The heading and every count in the prose above are AS AUTHORED, at nine, and are deliberately
+not rewritten** — they record what was known when the pattern was named, which is the more useful
+fact. **The running total is now ten.** (Amending the counts in place would also silently restate
+the sub-counts — "six of the nine were in audit machinery" — which were measured against the nine.)
+
+**Instance #10 — `cfd`, F5a, the same hour the lesson was written.** Minutes after committing the
+comment on `_coefficient_series_path`, a fresh count appeared to contradict its measured figure:
+the comment says **ten of eleven carry exactly one `coefficient*.dat`**, and a re-measurement
+returned seven, three and one. The alarm was raised on the lane's own committed number, and then
+cleared: **the comment counts DIRECTORIES and the re-measurement counted RUN TREES.** Re-measured
+by directory, the committed figure reproduces exactly — 10 with one, 1 with two. **Nothing was
+wrong except the reader.**
+
+It is the purest instance of the nine before it because there was **no adjacent file, no adjacent
+log, no adjacent option definition** — just **one word, "tree", silently standing for two different
+populations, inside one person's head, about their own work, minutes after they wrote it.** If the
+failure can happen there it can happen anywhere, and no amount of care substitutes for **naming the
+unit beside the number.**
+
+⚠ **AND THE STANDING CONSEQUENCE IS ABOUT THE RETRACTION, NOT THE ERROR.** The lane stopped,
+re-measured, and reported the alarm *and* its withdrawal rather than quietly deleting it once it
+proved unfounded. **A retracted alarm on one's own committed number is worth as much as a confirmed
+one**, because the discipline that produces the retraction is the same discipline that produces the
+finding — and a lab where withdrawing a false alarm is embarrassing is a lab where the alarms stop
+being raised. Unattributed, under the standing asymmetry recorded above.
+
 ---
 
 ## L-491 — A TEST METHOD THAT CANNOT REACH THE REAL ENTRY POINT CANNOT VERIFY REACHABILITY. THREE CAMPAIGNS, ONE SHAPE: THE THING EXISTS, IT IS CORRECT, AND IT NEVER RUNS
@@ -24283,3 +24311,59 @@ how a good lesson dies.
 **Related:** `L-490` (adjacency in readers) is the sibling failure in *data*; this one is the same
 shape in *control flow*. `L-221`/`L-222` — *a lesson is not applied until every call site asserts
 it* — is this lesson stated for edits rather than for tests.
+
+---
+
+## L-492 — A LINE NUMBER ALONE IS NOT A CITATION. A CITATION INTO A FILE NOBODY IS REQUIRED TO KEEP LINE-STABLE MUST QUOTE WHAT IT CITES, BECAUSE A QUOTE FAILS LOUDLY AND A LINE NUMBER FAILS SILENTLY
+
+*2026-09-05, `cfd`, F5a and M6SR. Cost: no compute attributable — found by resolving citations
+against the files they point at.*
+
+**The measurement.** Four line-numbered citations into `verification/runs/F5_runs/run_rung.py` were
+resolved against the file. **All four were wrong.** `:133-152`, cited as "the harvester stores
+`cl_band`", is the re2000 missing-log comment. `:58`, cited as `shutil.rmtree(remote_dir)`, is a
+comment about registering a module once. `:107`, cited as `t_start = 0.5 * end_time`, is a timing
+assignment. `:77`, cited as the source of a fact, **is a blank line.** Sources:
+`analyse_f5a_cl_rms.py` and `scripts/census_never_run.py`.
+
+**Why the repair is not "fix the four".** Four wrong out of four checked does not bound the
+population at four — it says the population was never four. **Repairing them one at a time is the
+enumeration that cannot terminate**, which this lab had already learned the same night from the
+M1–M4 census, where fixing referrals individually was abandoned in favour of commissioning the
+enumeration. A defect found by sampling is repaired by changing the practice, not by patching the
+sample.
+
+⚠ **THE RULE.** A citation into a file that carries no line-stability guarantee **MUST QUOTE THE
+CONTENT IT CITES.** The line number is a convenience for the reader; **the quote is the evidence.**
+A quoted citation **fails loudly** — the quote is no longer there and anyone can see it. A bare line
+number **fails silently**, by pointing confidently at whatever moved into that position. That is
+exactly how `:77` came to be cited as a fact about a blank line, and how a reader who checked it
+would have found nothing wrong, only nothing at all.
+
+**The two causes are different and the failure is identical, which is why this is a practice and not
+a repair list.** In M6SR the citation was **wrong at authorship**: `§3`'s opening at `:488`
+registered `c` and `S_ref` as *"Read from the machine file's own zone title"*, and the zone title
+carries Run, Mach, Alpha, Re and Section and **no chord and no reference area** — a search of the
+whole file for both values and for `chord`, `area` and `ref` returned zero hits, **with the zero
+controlled** by the same reader yielding the title line in the same invocation
+(`M6SR_PREREGISTRATION.md` §14 Amendment 4). In F5a the citations were **right at authorship and
+drifted after it.** Opposite causes; the same end state: **a citation that does not resolve, inside
+a document that reads as though it does.** A quote requirement catches both — the M6SR case because
+quoting the zone title would have exposed the absence at the moment of writing, the F5a case because
+a quote goes stale visibly. Nothing else catches either.
+
+⚠ **AND THIS LESSON'S OWN FIRST DRAFT FAILED ITS OWN RULE.** The paragraph above originally asserted
+that the M6SR citations were "proved wrong by the cited file's last commit predating the registration
+by thirteen hours." **That figure was not in the record and could not be resolved to any artifact** —
+it was written from recall while drafting a lesson about citations that do not resolve. It was caught
+by trying to cite it and replaced with the finding that is actually on disk. **Recorded rather than
+quietly corrected, because a lesson that cannot survive being applied to itself is not yet a lesson.**
+
+**Scope note.** Frozen files are exempt in one direction only: a citation into a file under rule 6
+*may* rely on the line number, because that file's amendment record asserts `lines whose number
+changed above this section: 0`. **The guarantee comes from the frozen file's own assertion, never
+from the citing document's confidence** — and where no such assertion exists, quote.
+
+**Related:** `L-490` (a reader that cannot distinguish its subject from something adjacent) is the
+same failure in data rather than in references: **the line adjacent to the one you meant is not the
+line you meant.** `CLAUDE.md` rule 6 is the mechanism that makes the exemption above safe.
