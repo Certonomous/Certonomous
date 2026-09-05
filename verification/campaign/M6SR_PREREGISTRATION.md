@@ -8139,3 +8139,187 @@ either had moved:
 
 ⚠ **`FZ1` READ `PIN-DRIFT` BETWEEN THE REPAIR AND THIS COMMIT, AND THAT WAS SELF-REPORTED TO THE
 SUPERVISOR BEFORE HE COULD FIND IT.** Its exit code at this commit is recorded in §32.12.
+
+---
+
+## 33. ADDENDUM 3 — 2026-09-05. 🔴 **`B5a` TAKES SIGNAL 8 IN THE THERMO EVALUATION AT `Time = 1`. THE SOLVE LADDER IS `BLOCKED`.** THE SAME SIGNATURE IS ON RECORD IN A SECOND CAMPAIGN ON AN UNRELATED MESH — AND THE INSTRUMENT THAT WOULD DIAGNOSE IT IS ON SANAA'S DESK.
+
+> **POST-COMPUTE ADDENDUM. IT ALTERS NO GATE, NO THRESHOLD, NO CAP AND NO LABEL. NOTHING WAS
+> RETRIED, NOTHING WAS REPAIRED, AND NOTHING IN THE FAILED CASE WAS TOUCHED.**
+
+### 33.1 THE LAUNCH PATH WORKED — **EVERY GUARD BUILT IN THE LAST TWO DAYS FIRED**
+
+| step | result |
+|---|---|
+| `B5p` | solver pin **VERIFIED** — v2506, sha256 `d9a2a456…` |
+| **`B5g`** | grading rehearsal **rc 0 / rc 0** under both interpreters. **The gate that blocked this campaign all day, passing on a real launch path for the first time** |
+| 🔴 **`B4s`** | *"SECTION 7 SCREEN PASSED for L3 — all five conditions, per level, BEFORE the solve."* **ITEM 47's ENTIRE POINT, EXECUTING ON THE ACTUAL LAUNCH PATH.** Yesterday morning nothing on that path consulted Gate A at all |
+| `B3z` | the seven `0/` fields, **`0/U` LAST**, so rule 4's anchor dates **this** launch — item 48's split |
+| `decomposePar` | clean, four subdomains, ending `End` |
+
+### 33.2 THE CRASH — **EVIDENCE, AND NO CAUSE IS NAMED**
+
+**`outer rc 136` (= 128 + 8, SIGFPE), `INNER rc ABSENT`, 3 wall s against a 465 s cap.** The driver
+**FAILED CLOSED at exit 6**. **NOT an overrun** — 3 s of 465 — so **rule 12's overrun clause is not
+engaged.** `log.rhoSimpleFoam` is present, 14,525 bytes, readable.
+
+- **It reached `Time = 1`. There is exactly ONE `Time` line in the log.**
+- **Line 29: `trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE)`** — a **trapped**
+  exception, not a silent `NaN` propagating.
+- **Signal 8 on all visible ranks** (pids 247, 248, 249); `mpirun`'s own verdict names rank 2.
+- **THE LAST FOUR SOLVER LINES ARE `Ux`, `Uy`, `Uz`, THEN `e`:**
+  `Solving for e, Initial residual = 0.9999999998, Final residual = 0.01175765778, No Iterations 1`.
+  **The energy equation is the last thing solved.**
+- **THE STACK, ON EVERY RANK:** frame **#4** `Foam::hePsiThermo<psiThermo, pureMixture<
+  sutherlandTransport<species::thermo<hConstThermo<perfectGas<…>>>>>>` in
+  `libfluidThermophysicalModels.so` — **with frame #3 `/lib/x86_64-linux-gnu/libm.so.6` DIRECTLY
+  BENEATH IT.**
+
+> **LOCALISED, NOT DIAGNOSED: the failure is in the thermo evaluation that follows the energy
+> solve — `thermo.correct()` — and NOT in the momentum solve, which completed, nor in turbulence,
+> which was never reached.**
+
+🔴 **NO CAUSE IS NAMED.** Where it died and what the case contained are measured; which of those is
+responsible is not, and this addendum does not guess.
+
+**FACTS ABOUT THE CASE, RECORDED AS FACTS AND NOT AS A DIAGNOSIS:** `hePsiThermo`/`pureMixture`/
+`sutherland`/`hConst`/`perfectGas`/`sensibleInternalEnergy`; `Cp 1004.5`, `As 1.571860616e-06`,
+`Ts 110.4`; `0/` internals `T 288.15`, `p 101325.0`, `U (285.2720289804489 15.250046752474487 0)`,
+`nut 1.57482e-07`, `k 0.000348177`, `omega 2210.901`, `alphat 0`. Provenance records Mach
+**0.83950**, `Pr` registered **0.72**, `Pr` **achieved 0.69032** — a divergence registered as `CH6`
+that predates this run.
+
+### 33.3 🔴 **THE SAME SIGNATURE IN A SECOND CAMPAIGN, ON AN UNRELATED MESH**
+
+**`verification/campaign/RUNG2_CRM_M0_PREREGISTRATION.md:146–148`, read at source and quoted:**
+
+> *"At `Time = 2` the `U` and `e` solves complete normally and the run then takes **signal 8
+> (SIGFPE)** with `libm` beneath `libfluidThermophysicalModels.so` beneath `rhoSimpleFoam` on the
+> stack — i.e. inside the thermo evaluation that follows the energy solve, not inside the linear
+> algebra."*
+
+**THAT IS THE SIGNATURE MEASURED TONIGHT, TO THE FRAME ORDER**, at `Time = 1` instead of `Time = 2`.
+
+| | R2-M0 | **M6SR `B5a` tonight** |
+|---|---|---|
+| geometry | **DPW5 CRM committee hex** | **ONERA M6, surface-refinement L3** |
+| generator | committee grid | pyHyp / `plot3dToFoam` chain |
+| cells | (that campaign's) | **99,840** |
+| solver | `rhoSimpleFoam` | `rhoSimpleFoam` |
+| signal | **8**, `libm` under `libfluidThermophysicalModels.so` under `rhoSimpleFoam` | **identical** |
+| when | after the `e` solve, `Time = 2` | after the `e` solve, **`Time = 1`** |
+
+> 🔴 **TWO INDEPENDENT INSTANCES ON UNRELATED MESHES IN UNRELATED CAMPAIGNS IS A FAMILY, NOT A
+> COINCIDENCE.** ⚠ **ONE OCCURRENCE IS NOT A MECHANISM** — this addendum said so of `C6` at §28.8
+> and holds to it. **The second instance is what makes this worth recording**, and it promotes the
+> finding from *a defect in one case* to **a toolchain-level pattern**.
+
+⚠ **R2-M0's OWN CONCLUSION IS CITED AS THEIRS, NOT ADOPTED AS OURS.** That registration states
+*"This is a configuration defect, not a mesh-quality one, and that was established by controlled
+comparison rather than asserted"* — reproducing the abort on a hex grid whose severe-face fraction
+is 0.59 %, which runs 200 clean **incompressible** iterations on the identical `polyMesh`. **This
+campaign has run no such controlled comparison and claims nothing from theirs.**
+
+✅ **AND IT IS NOT A MESH FINDING HERE EITHER.** **Gate A `PASS` on all thirteen clauses**, §7
+`PASS` on all five conditions **on this very level before the solve**, and `decomposePar` clean.
+**Nothing about this family's admissibility is impeached by this crash.**
+
+🔴 **THE INSTRUMENT THAT WOULD DIAGNOSE IT IS `BLOCKED` ON SANAA'S DESK.** R2-M0 is a
+**66.9 core-min** compressible-admission probe that tests four named single-variable remedies
+against exactly this abort. **Until today that unblock read as capability work for a side
+campaign. IT IS NOW BLOCKING SANAA'S OWN NAMED FIRST PHYSICS.**
+
+### 33.4 🔴 **THE REGISTRATION MEASUREMENT — AND A STRUCTURAL FINDING IN THE DOCUMENT'S OWN SHAPE**
+
+**Searcher plant-verified before use:** `relaxation` **1** hit; `thermophysical` **2** (a term known
+present); `__NO_SUCH_TOKEN__` **0**.
+
+- 🔴 **RELAXATION IS REGISTERED FROZEN CONTENT.** Exactly **one** occurrence in the whole document,
+  **line 1192**, inside **§8.3's fenced `system/fvSolution` listing**:
+  `relaxationFactors { fields { p 0.3; rho 0.05; } equations { U 0.7; e 0.7; "(k|omega)" 0.7; } }`
+- **THE WRITER EMITS §8.3 EXACTLY** — all five values verified against the file the failed run
+  used, block for block. **There is NO divergence between the registration and the case.**
+- **NO TEMPERATURE BOUNDS EXIST ANYWHERE.** No `TMin`, no `TMax`, no `limitT`, in the registration
+  or in the emitted case. ⚠ **Every `bounded` in this document is a `divSchemes` qualifier —
+  `bounded Gauss upwind`, `bounded Gauss linearUpwind` — which is CONVECTION-SCHEME BOUNDEDNESS AND
+  A DIFFERENT THING ENTIRELY FROM A TEMPERATURE LIMIT.** Recorded as a **fact**, not as a defect to
+  be repaired now.
+
+> 🔴 **THE STRUCTURAL FINDING. §3.2 IS HEADED *"NUMERICAL SETTINGS — REGISTERED, NOT SILENTLY
+> PICKED"*. IT LISTS `snGradSchemes`, `laplacianSchemes`, `nNonOrthogonalCorrectors`, four
+> `divSchemes` and the decomposition method. IT DOES NOT LIST RELAXATION AT ALL.**
+>
+> **So this document has a table whose entire purpose is to register numerical settings, and the
+> setting most plausibly implicated in the crash is not in it.** Relaxation was registered
+> **incidentally, as a side effect of pasting a file**, rather than **deliberately, as a setting**.
+>
+> **FORWARD LESSON: A SETTING THAT DETERMINES THE ANSWER MUST BE REGISTERED IN THE SETTINGS
+> REGISTER, NOT ONLY INSIDE A PASTED FILE LISTING.** A future registration that lists its schemes
+> deliberately and its relaxation only incidentally has the same hole this one has — **and will
+> discover it the same way: after its window shuts.**
+
+### 33.5 **TWO READINGS OF RULE 2, STATED — AND NEITHER CHOSEN**
+
+| | reading |
+|---|---|
+| **A** | A relaxation factor is **not** a gate, threshold, cap or label — none of the four rule 2 names after first compute. On the letter, changing it is the class of the `cp` repair: **registered content, but not GATED content.** |
+| **B** | §8.3's values **determine what the solver produces**. A number that changes the answer is closer in effect to a gate parameter than its absence from §5's tables suggests. On this reading the ladder is **BLOCKED on a permanent limitation.** |
+
+> 🔴 **THE SUPERVISOR RULED WITHOUT RESOLVING THE QUESTION, AND THE REASONING IS RECORDED BECAUSE
+> IT IS THE RIGHT SHAPE: BOTH READINGS FORBID THE SAME ACT.** Even under A, changing relaxation
+> here is **picking one untested remedy and hoping — which is precisely what R2-M0 was built to
+> stop.** One reading says we may not; the other says we may but should not. **When both readings
+> forbid the same act, the supervisor need not settle which is right in order to forbid it.**
+
+**ESCALATED AS A QUESTION THAT WILL RECUR, NOT AS A BLOCKER: DOES RULE 2's POST-COMPUTE CLAUSE
+PROTECT THE FOUR NAMED THINGS — GATE, THRESHOLD, CAP, LABEL — OR EVERYTHING THAT DETERMINES THE
+ANSWER?** It is above a supervisor and above a lane, **and it will bite the next campaign that
+crashes after its window shuts.**
+
+### 33.6 THE LADDER'S STATUS — **IN THE FIXED VOCABULARY, AND THE DISTINCTION IS DELIBERATE**
+
+| step | verdict | basis |
+|---|---|---|
+| **`B5a`** | 🔴 **`NOT A RESULT`** | the run did not complete; **rule 4's clauses are not satisfiable on it** — no `End`, no `endTime`, no fields |
+| **`B5b`** | **`PENDING`** | **NOT STARTED** |
+| **`B5c`** | **`PENDING`** | **NOT STARTED** |
+| **the solve ladder** | 🔴 **`BLOCKED`** | on the thermo abort, with the diagnosing instrument on Sanaa's desk |
+
+> ⚠ **`B5b` AND `B5c` ARE `PENDING`, EXPLICITLY *NOT* `NOT A RESULT`. A LEVEL THAT WAS NEVER
+> LAUNCHED MUST NEVER BE GRADED AS ONE.** Standing rule 5 never lets a false `NOT A RESULT` be
+> taken back, and that mistake will not be made on the last step of two days' work.
+
+### 33.7 THE FAILED CASE IS **UNTOUCHED**, AND A RE-RUN IS ALREADY REFUSED
+
+`0/` is present (`0/U` mtime 22:15:56) with **four `processor*` directories**. **NO numeric time
+directory was written — nothing partial was produced.** A second `solve` on L3 **aborts at exit 4**
+on the rule-4 guard: *"a pre-existing `0/` makes standing rule 4 unprovable"*. ✅ **THAT IS THE
+GUARD WORKING.** What to do with those artifacts is **a decision, not a cleanup**, and this lane has
+touched neither.
+
+### 33.8 COST
+
+`B5p`+`B5g`+`B4s`+writer **0.2667 core-min** at 1 rank (all UNBUDGETED); solver step **3 wall s at
+4 ranks = 0.2000 core-min**, **0.65 % of the 31.0 cap**. **TOTAL 0.4667 core-min.** **No cap
+tripped.** ⚠ **No `COST_CALIBRATION.md` row: `B5a` did not complete, and a crash is not a process
+completion.**
+
+### 33.9 WHAT THIS CAMPAIGN HAS PRODUCED — **THE FIGURE IS BLOCKED; THE CAMPAIGN IS NOT**
+
+1. **Gate A `PASS` on a real three-level family**, thirteen clauses — **four of which had no readers
+   yesterday morning.**
+2. **Two honest pre-registered misses**: `P1` by **8.64°** with **its basis falsified**, and `P2`
+   **wrong in direction**.
+3. **`A1` `PASS (margin 0.03455° of 70)`**, reported with its margin wherever it appears.
+4. **A registered quality-non-monotonicity disclosure that travels with the graded record**, and the
+   statement that any band from this family is **confounded with a quality change**.
+5. **A first real estimate-versus-actual** in which **the pessimistic basis was right to 0.3 % and
+   the registered estimate wrong by 3.29×.**
+6. **A solver-toolchain finding with two independent instances on unrelated meshes.**
+
+> **A campaign that ends saying "the deliverable is BLOCKED, here is exactly why, and the
+> instrument that would unblock it is named and on Sanaa's desk" is in better shape than one that
+> produced a `Cp` curve nobody could defend.**
+
+**SUBMISSIONS REMAIN PARKED.** Check-repair cycles: L3 stage 0, L2 stage 0, `L1` build 1, L1 stage
+0, **solve 1** — inside the bound throughout.
