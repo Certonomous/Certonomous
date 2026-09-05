@@ -1,0 +1,26 @@
+# COEFFICIENT-COLLISION FIXTURE — CAPTURED EVIDENCE, NOT A SYNTHETIC CONSTRUCTION
+#
+# Two force-coefficient series that OpenFOAM left in ONE directory. They are the
+# real shape gap 5's selector must refuse: BOTH START AT THE SAME TIME
+# (t = 0.0056601638) and their values differ in the sixth digit, so they are TWO
+# DIFFERENT RUNS OF THE SAME CASE, not a continuation. No property a harvester can
+# read says which is authoritative — which is why `_coefficient_series_path`
+# REFUSES an ambiguous set rather than resolving it by sort order.
+#
+# VENDORED because the original lives outside git, is read-only to this lab and is
+# cleanable by anyone: a control that goes red when someone tidies a scratch tree
+# teaches people to ignore its red, and a control whose red is ignored is worse
+# than absent. 6.4 KB of text; CLAUDE.md keeps data out of git for SIZE, and that
+# reasoning does not reach two small text files.
+#
+# captured_utc : 2026-09-05T22:57:37Z
+# source_dir   : /home/ubuntu/certonomous-runs/f5a-cylinder-ladder/f5b_re1000_3d_pilot_stage/postProcessing/forceCoeffs1/0
+#
+# coefficient.dat      bytes   2730  sha256 a5c1457ee30e5ae38225a6aeb6701075cec9b681eeac593391f7559b0d8faaa8
+#                      identical to source at capture: True
+# coefficient_0.dat    bytes   3638  sha256 658781f8172b696ba3c96edcc98d562ecf5767036f47d0843845545808c33d97
+#                      identical to source at capture: True
+#
+# THE CONTROL CROSS-CHECKS THESE AGAINST THE ORIGINAL WHILE IT STILL EXISTS, so the
+# fixture cannot silently drift from the reality it was taken from; when the
+# original is gone the control still runs on bytes proved faithful at capture.

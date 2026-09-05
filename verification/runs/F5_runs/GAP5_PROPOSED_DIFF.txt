@@ -1,0 +1,214 @@
+--- HEAD:verification/runs/F5_runs/cylinder_ladder.py
++++ PROPOSED (gap 5, NOT APPLIED)
+@@ -610,10 +610,8 @@
+     # mirror is now removed only when the source can replace its rows.
+     safe_replace_mirror(out_dir / "postProcessing", remote_dir / "postProcessing")
+     _copy_best_effort(remote_dir / "postProcessing", out_dir / "postProcessing")
+-    coeff_files = sorted((out_dir / "postProcessing").rglob("coefficient*.dat"))
+-    if not coeff_files:
+-        raise RuntimeError(f"{name}: no forceCoeffs output")
+-    history = parse_coefficient_history(coeff_files[-1].read_text(errors="replace"))
++    coeff_path = _coefficient_series_path(out_dir)
++    history = parse_coefficient_history(coeff_path.read_text(errors="replace"))
+     times = history["Time"]
+     end_time = params["end_time"]
+     t_start = 0.5 * end_time
+@@ -661,6 +659,55 @@
+     return record
+ 
+ 
++# =====================================================================================
++# GAP 5(b) -- THE COEFFICIENT SERIES IS PICKED BY ROLE, NOT BY SORT ORDER.
++#
++# THE DEFECT: `sorted((out_dir/"postProcessing").rglob("coefficient*.dat"))[-1]`.  Where a
++# collision has left BOTH `coefficient.dat` and `coefficient_0.dat`, ASCII ordering puts
++# '.' (0x2E) before '_' (0x5F), so `[-1]` silently selected `coefficient_0.dat`.  That is
++# the lab's standing `grep ... | tail -1` coin flip and L-490's instance #8: A FILE CHOSEN
++# BY SORT ORDER RATHER THAN BY ROLE.
++#
++# THE HAZARD IS REAL, NARROW, AND WAS NOT YET REALISED.  MEASURED on this box, and the
++# bytes are vendored beside this file at fixtures/coefficient_collision/:
++#   coefficient.dat    2,730 bytes, 21 lines, t 0.0056601638 -> 0.063442255
++#   coefficient_0.dat  3,638 bytes, 25 lines, t 0.0056601638 -> 0.099670273
++# BOTH START AT THE SAME TIME and the values differ in the sixth digit, so they are TWO
++# DIFFERENT RUNS OF THE SAME CASE -- not a continuation.  Preferring the unsuffixed name
++# would harvest the SHORTER series on no better ground than its filename.  NEITHER IS
++# CANONICAL BY ANY PROPERTY THIS CODE CAN READ, which is exactly when refusal is honest.
++#
++# AND REFUSAL WAS ESTABLISHED AFFORDABLE *BEFORE* IT WAS CHOSEN, NOT DISCOVERED AFTER.
++# MEASURED across every F5 run tree on this box: TEN OF ELEVEN carry EXACTLY ONE
++# `coefficient.dat` in EXACTLY ONE directory; only one pilot tree carries two.  A refusal
++# that broke legitimate restart harvests would have been worse than the bug, so the
++# distribution was measured first and the design chosen second.
++# =====================================================================================
++def _coefficient_series_path(out_dir: Path) -> Path:
++    """THE SOLE SELECTOR of the force-coefficient series.  -> the path, or RAISES.
++
++    Exactly one candidate is used.  MORE THAN ONE IS REFUSED, NEVER RESOLVED BY ORDER:
++    a silent wrong pick is worse than a stop, because the wrong series grades cleanly.
++    """
++    found = sorted((Path(out_dir) / "postProcessing").rglob("coefficient*.dat"))
++    if not found:
++        raise RuntimeError(
++            f"no forceCoeffs output under {out_dir}/postProcessing -- no "
++            "coefficient*.dat exists. REFUSED: there is nothing to harvest.")
++    if len(found) > 1:
++        detail = "; ".join(f"{f} ({f.stat().st_size} bytes)" for f in found)
++        raise RuntimeError(
++            f"AMBIGUOUS FORCE-COEFFICIENT SERIES under {out_dir}/postProcessing: "
++            f"{len(found)} candidates -- {detail}. REFUSED, AND DELIBERATELY NOT RESOLVED "
++            "BY SORT ORDER. The previous code took sorted(...)[-1], which selects "
++            "`coefficient_0.dat` over `coefficient.dat` because '.' sorts before '_' -- a "
++            "collision file chosen by ASCII accident. Where two series start at the same "
++            "time and differ in value they are two DIFFERENT RUNS, and no property this "
++            "code can read says which is authoritative. Move the superseded file aside and "
++            "re-harvest; do NOT let the harvester guess.")
++    return found[0]
++
++
+ def selftest_rank_cap() -> int:
+     """THE CAP'S PLANTED CONTROL.  A cap with no firing control is how gap 4 happened.
+ 
+@@ -718,6 +765,124 @@
+     return 0 if ok else 1
+ 
+ 
++PLANT_CD = 1.2345678901e+00          # gap 5(a): a value no real Cd will collide with
++COEFF_FIXTURE = Path(__file__).resolve().parent / "fixtures" / "coefficient_collision"
++COEFF_FIXTURE_SOURCE = Path(
++    "/home/ubuntu/certonomous-runs/f5a-cylinder-ladder/f5b_re1000_3d_pilot_stage"
++    "/postProcessing/forceCoeffs1/0")
++
++
++def selftest_coefficient_harvest() -> int:
++    """GAP 5 -- THE HARVEST PATH'S PLANTED CONTROLS.  Both halves, one control.
++
++    (a) THE READER: `parse_coefficient_history` had NO planted-zero control anywhere --
++        measured, zero `plant` tokens in `sdk/chief_engineer/head_engineer.py` against 13
++        `def`s as a live control.  ⚠ THE READER LIVES IN THAT MODULE, NOT IN THE F5 TREE;
++        Section 7 says only "harvest path" and does not say where, which is itself a small
++        instance of L-490's class.
++    (b) THE SELECTOR: `_coefficient_series_path` must REFUSE an ambiguous set rather than
++        resolve it by sort order.
++
++    THE (b) FIXTURE IS THE REAL TWO-FILE SHAPE, VENDORED beside this file with its
++    provenance.  A control planted into the shape you ASSUME can certify a reader that
++    could never have matched the shape you FACE -- this lab has paid for that once.
++    VENDORED rather than read live because the original is out-of-git, read-only to us and
++    cleanable by anyone, and A CONTROL THAT GOES RED WHEN SOMEONE TIDIES A SCRATCH TREE
++    TEACHES PEOPLE TO IGNORE ITS RED.
++    AND THE DRIFT LIMB KEEPS THAT SAFE: while the original still exists the vendored bytes
++    are asserted IDENTICAL to it, so the fixture cannot silently diverge from the reality
++    it was captured from; when the original is gone the control still runs on bytes proved
++    faithful at capture.
++    """
++    import tempfile
++    ok, fired = True, []
++
++    # ---- (a) PLANTED-ZERO ON THE READER.  A DELTA: the plant must be SEEN and the
++    # unplanted twin must NOT carry it, so the reader is shown able to see both states.
++    header = "# Time Cd Cl Cm\n"
++    clean = header + "1.0 0.5 0.1 0.01\n2.0 0.6 0.2 0.02\n"
++    planted = header + f"1.0 0.5 0.1 0.01\n2.0 {PLANT_CD!r} 0.2 0.02\n"
++    c_clean = parse_coefficient_history(clean)
++    c_plant = parse_coefficient_history(planted)
++    saw, free = PLANT_CD in c_plant.get("Cd", []), PLANT_CD not in c_clean.get("Cd", [])
++    if saw and free:
++        fired.append(f"READER: planted Cd={PLANT_CD!r} and READ IT BACK; the unplanted "
++                     "twin does NOT carry it -- a delta, not a colour")
++    else:
++        ok = False
++        fired.append(f"READER: plant seen={saw}, clean free of it={free} -- a reader not "
++                     "shown able to see a non-zero is not evidence (rule 3)")
++    if c_clean.get("Time") != [1.0, 2.0]:
++        ok = False
++        fired.append(f"READER: Time read as {c_clean.get('Time')!r}, expected [1.0, 2.0]")
++    else:
++        fired.append("READER: Time column read back exactly")
++
++    # ---- THE DRIFT LIMB.  While the original exists, the vendored bytes must equal it.
++    names = ("coefficient.dat", "coefficient_0.dat")
++    for n in names:
++        v = COEFF_FIXTURE / n
++        if not v.is_file():
++            ok = False
++            fired.append(f"FIXTURE: vendored {n} is MISSING at {v} -- this control REFUSES "
++                         "rather than substituting a synthetic file")
++    if all((COEFF_FIXTURE / n).is_file() for n in names):
++        if COEFF_FIXTURE_SOURCE.is_dir() and all(
++                (COEFF_FIXTURE_SOURCE / n).is_file() for n in names):
++            drift = [n for n in names
++                     if (COEFF_FIXTURE / n).read_bytes()
++                     != (COEFF_FIXTURE_SOURCE / n).read_bytes()]
++            if drift:
++                ok = False
++                fired.append(f"FIXTURE DRIFT: vendored copies differ from the live source "
++                             f"for {drift} -- the fixture no longer represents reality")
++            else:
++                fired.append("FIXTURE: vendored bytes are IDENTICAL to the live source "
++                             "(cross-checked against the original, which still exists)")
++        else:
++            fired.append("FIXTURE: the live source is GONE; running on vendored bytes "
++                         "proved faithful at capture. NOT a failure -- this is why they "
++                         "were vendored.")
++
++    # ---- (b) THE SELECTOR, ON THE VENDORED REAL SHAPE.
++    if all((COEFF_FIXTURE / n).is_file() for n in names):
++        with tempfile.TemporaryDirectory() as td:
++            base = Path(td)
++            one = base / "single" / "postProcessing" / "forceCoeffs1" / "0"
++            two = base / "collision" / "postProcessing" / "forceCoeffs1" / "0"
++            one.mkdir(parents=True); two.mkdir(parents=True)
++            (one / names[0]).write_bytes((COEFF_FIXTURE / names[0]).read_bytes())
++            for n in names:
++                (two / n).write_bytes((COEFF_FIXTURE / n).read_bytes())
++
++            got = _coefficient_series_path(base / "single")
++            if got.name == names[0]:
++                fired.append(f"SELECTOR CLEAN TWIN: a single series is ACCEPTED, returning "
++                             f"{got.name}")
++            else:
++                ok = False
++                fired.append(f"SELECTOR CLEAN TWIN: returned {got.name!r}, expected "
++                             f"{names[0]!r}")
++            try:
++                picked = _coefficient_series_path(base / "collision")
++                ok = False
++                fired.append("SELECTOR PLANT: the two-file collision was NOT refused -- it "
++                             f"silently returned {picked.name!r}")
++            except RuntimeError as exc:
++                both = all(n in str(exc) for n in names)
++                fired.append(f"SELECTOR PLANT: REFUSED, and the message names BOTH "
++                             f"candidates = {both}")
++                if not both:
++                    ok = False
++
++    for line in fired:
++        print(f"  HARVEST {line}")
++    print("  DISCRIMINATES: reader sees the plant AND misses it when absent; selector "
++          f"accepts one series AND refuses two = {ok}")
++    print("COEFFICIENT-HARVEST SELFTEST " + ("PASS" if ok else "FAIL"))
++    return 0 if ok else 1
++
++
+ def main(argv: list[str] | None = None) -> int:
+     # THE SELFTEST IS INTERCEPTED BEFORE `parse_args`, AND THAT IS NOT STYLE.
+     # `--name`, `--reynolds`, `--turbulence` and `--out` are `required=True`, so argparse
+@@ -728,6 +893,8 @@
+     _argv = sys.argv[1:] if argv is None else argv
+     if "--selftest-rank-cap" in _argv:
+         return selftest_rank_cap()
++    if "--selftest-coefficient-harvest" in _argv:
++        return selftest_coefficient_harvest()
+ 
+     import argparse
+     parser = argparse.ArgumentParser(description=__doc__)
+@@ -745,6 +912,8 @@
+     parser.add_argument("--ranks", type=int, default=1)
+     parser.add_argument("--selftest-rank-cap", action="store_true",
+                         help="run the 4-rank cap's planted control and exit")
++    parser.add_argument("--selftest-coefficient-harvest", action="store_true",
++                        help="run the harvest path's planted controls and exit")
+     parser.add_argument("--perturbation", type=float, default=0.1)
+     parser.add_argument("--solver-timeout", type=float, default=28800.0)
+     args = parser.parse_args(argv)
