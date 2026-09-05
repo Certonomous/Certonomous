@@ -1,0 +1,603 @@
+--- HEAD:verification/runs/F5_runs/cylinder_ladder.py
++++ PROPOSED gap 5(d) whole class, NOT APPLIED
+@@ -22,6 +22,7 @@
+ 
+ import json
+ import math
++import re
+ import shutil
+ import subprocess
+ import sys
+@@ -384,10 +385,13 @@
+ 
+ 
+ def base_cpb(out_dir: Path, t_start: float) -> dict[str, Any] | None:
+-    files = sorted((out_dir / "postProcessing" / "probesBase").rglob("p"))
+-    if not files:
++    # GAP 5(d): was sorted(...)[-1] -- selection by SORT ORDER over `probesBase/<time>/p`,
++    # feeding `cpb_magnitude` -> `-Cpb`, a CAMPAIGN GATE. See _latest_time_series_path.
++    path = _latest_time_series_path(
++        out_dir / "postProcessing" / "probesBase", "p", "base-probe")
++    if path is None:
+         return None
+-    times, rows = parse_probes_scalar(files[-1].read_text(errors="replace"))
++    times, rows = parse_probes_scalar(path.read_text(errors="replace"))
+     p_series = [row[0] for row in rows if row]
+     stats = time_weighted_stats(times, p_series, t_start)
+     if stats is None:
+@@ -400,10 +404,13 @@
+ 
+ def recirculation_length(out_dir: Path, t_start: float,
+                          points: Sequence[tuple[float, float, float]]) -> dict[str, Any] | None:
+-    files = sorted((out_dir / "postProcessing" / "probesCenterline").rglob("U"))
+-    if not files:
++    # GAP 5(d): was sorted(...)[-1] over `probesCenterline/<time>/U`, feeding `lr_over_d`
++    # -> `Lr`, which the campaign calls THIS LADDER'S PRIMARY GATE.
++    path = _latest_time_series_path(
++        out_dir / "postProcessing" / "probesCenterline", "U", "centreline-probe")
++    if path is None:
+         return None
+-    times, rows = parse_probes_vector(files[-1].read_text(errors="replace"))
++    times, rows = parse_probes_vector(path.read_text(errors="replace"))
+     n_probes = len(points)
+     profile: list[tuple[float, float]] = []
+     for i in range(n_probes):
+@@ -751,7 +758,61 @@
+     None means "no yPlus series exists", which is TOLERATED.  A RuntimeError means the
+     latest time directory is AMBIGUOUS, which is not.
+     """
+-    found = sorted((Path(out_dir) / "postProcessing").rglob("yPlus*.dat"))
++    return _latest_time_series_path(
++        Path(out_dir) / "postProcessing", "yPlus.dat", "yPlus")
++
++
++# =====================================================================================
++# GAP 5(d) -- THE WHOLE CLASS, NOT A THIRD COPY.
++#
++# THE CENSUS THAT PRODUCED THIS.  `census_glob_selection.py`, keyed on the SHAPE rather
++# than on a list of names, enumerated every selection-of-one-path-by-order in this tree:
++# 7 sites, 2 AFFECTED, 5 NOT AFFECTED, and the two sets SUM.  Three earlier rounds each
++# closed the sites somebody had NAMED and not the CLASS, and the two below were found only
++# by a sweep run for another reason.
++#
++# ⚠ AND THE TWO AFFECTED SITES ARE NOT DIAGNOSTICS.  `base_cpb()` produces
++# `cpb_magnitude` -> `-Cpb`, named among the campaign's gates
++# (`F5a_cylinder_reynolds_ladder.md:1139`); `recirculation_length()` produces `lr_over_d`
++# -> `Lr`, which the same file calls **THIS LADDER'S PRIMARY GATE** at Re 1000/2000/3900
++# (`:968`).  A GRADED QUANTITY SELECTED BY SORT ORDER GRADES CLEANLY WHEN IT IS WRONG,
++# which is the property that made the coefficient case dangerous.
++#
++# ⚠ LATENT, NOT REALISED: all eleven trees carry exactly one probe file, at time dir `0`.
++# THE LATENCY IS A PROPERTY OF THE CURRENT TREE AND NOT OF THE CODE. yPlus was latent too,
++# until the coefficient case showed what a restart does -- and this box already has one.
++#
++# WHY A NAME AND NOT A GLOB.  `rglob("p")` cannot see a `p_0` collision at all, so that
++# failure would be INVISIBLE rather than wrong.  But widening to `rglob("p*")` would match
++# `phi`, `pMean` and `p_rgh` -- MEASURED as absent today (every probe directory on this box
++# holds exactly one file, `p` or `U`), and a repair must not depend on that staying true.
++# So the matcher is ANCHORED: the base name, optionally carrying OpenFOAM's `_<n>`
++# collision suffix before the extension, and nothing else.  IT SEES THE COLLISION AND
++# CANNOT SWALLOW A DIFFERENT FIELD.
++# =====================================================================================
++def _series_name_matcher(base: str) -> "re.Pattern[str]":
++    """`p` -> matches `p` and `p_0`, NOT `phi`/`pMean`/`p_rgh`.
++    `yPlus.dat` -> matches `yPlus.dat` and `yPlus_0.dat`, NOT `yPlusMean.dat`."""
++    stem, dot, ext = base.rpartition(".")
++    if not dot:
++        stem, ext = base, ""
++    tail = re.escape(f".{ext}") if ext else ""
++    return re.compile(rf"^{re.escape(stem)}(?:_\d+)?{tail}$")
++
++
++def _latest_time_series_path(root: Path, base: str, what: str) -> Path | None:
++    """THE SOLE SELECTOR for any `<root>/<time>/<base>` series. -> path, or None.
++
++    None means "no series exists", which is TOLERATED by every caller (all three had an
++    absence branch before this change, and promoting absence to a refusal would be a
++    behaviour change smuggled in under a bug fix).  A RuntimeError means AMBIGUITY, which
++    is not tolerated: an unorderable directory name, or two files inside one time
++    directory, where genuinely nothing orders them.
++    """
++    root = Path(root)
++    matcher = _series_name_matcher(base)
++    stem = base.partition(".")[0]
++    found = [p for p in sorted(root.rglob(f"{stem}*")) if matcher.match(p.name)]
+     if not found:
+         return None
+ 
+@@ -760,7 +821,7 @@
+             return float(p.parent.name)
+         except ValueError:
+             raise RuntimeError(
+-                f"UNORDERABLE yPlus SERIES: {p} sits in a directory named "
++                f"UNORDERABLE {what} SERIES: {p} sits in a directory named "
+                 f"{p.parent.name!r}, which is not a time. The latest time cannot be "
+                 "identified, and this code will NOT fall back to sort order -- that is "
+                 "the defect being repaired.") from None
+@@ -770,7 +831,7 @@
+     if len(at_latest) > 1:
+         detail = "; ".join(f"{p} ({p.stat().st_size} bytes)" for p in at_latest)
+         raise RuntimeError(
+-            f"AMBIGUOUS yPlus SERIES in the latest time directory (t={latest:g}): "
++            f"AMBIGUOUS {what} SERIES in the latest time directory (t={latest:g}): "
+             f"{len(at_latest)} candidates -- {detail}. REFUSED. Two series inside ONE time "
+             "directory are a write collision, and unlike separate time directories there "
+             "is no ordering between them. Move the superseded file aside and re-harvest.")
+@@ -1044,6 +1105,122 @@
+     return 0 if ok else 1
+ 
+ 
++def selftest_series_selection() -> int:
++    """GAP 5(d) -- THE GENERALISED SELECTOR'S CONTROL, separate from the yPlus one so the
++    two repairs stay independently verifiable.
++
++    THE LIMB THAT MATTERS IS THE MATCHER.  Everything else here is the yPlus repair reused;
++    what is NEW is that the selector must SEE a `p_0` collision while NOT swallowing `phi`,
++    `pMean` or `p_rgh`.  The old `rglob("p")` could not see the collision at all -- INVISIBLE
++    rather than wrong -- and the obvious widening to `rglob("p*")` would have eaten the
++    neighbours.  So the control plants BOTH: the collision that must be SEEN and the
++    neighbours that must be MISSED.  That is L-490's discrimination requirement applied to a
++    filename matcher.
++    """
++    import tempfile
++    ok, fired = True, []
++
++    # ---- (1) THE MATCHER: accepts the collision, rejects the adjacent fields.
++    cases = [
++        ("p", "p", True), ("p", "p_0", True), ("p", "p_12", True),
++        ("p", "phi", False), ("p", "pMean", False), ("p", "p_rgh", False),
++        ("U", "U", True), ("U", "U_0", True), ("U", "UMean", False),
++        ("yPlus.dat", "yPlus.dat", True), ("yPlus.dat", "yPlus_0.dat", True),
++        ("yPlus.dat", "yPlusMean.dat", False),
++    ]
++    bad = [(b, n, want) for b, n, want in cases
++           if bool(_series_name_matcher(b).match(n)) is not want]
++    if bad:
++        ok = False
++        fired.append(f"MATCHER: wrong on {bad} (base, name, expected)")
++    else:
++        fired.append(f"MATCHER: all {len(cases)} cases correct -- `p` SEES `p_0` and `p_12` "
++                     "AND MISSES `phi`, `pMean`, `p_rgh`; a collision is visible and an "
++                     "adjacent field is not swallowed")
++
++    with tempfile.TemporaryDirectory() as td:
++        root = Path(td)
++
++        def _probe_tree(name: str, times: list[str], files=("p",)) -> Path:
++            base = root / name / "probesBase"
++            for t in times:
++                d = base / t
++                d.mkdir(parents=True, exist_ok=True)
++                for f in files:
++                    (d / f).write_text(f"# t={t}\n0 1.0\n")
++            return base
++
++        # ---- (2) ABSENCE tolerated, with the plant that presence IS seen.
++        empty = root / "empty" / "probesBase"
++        empty.mkdir(parents=True)
++        got_empty = _latest_time_series_path(empty, "p", "base-probe")
++        got_one = _latest_time_series_path(_probe_tree("one", ["0"]), "p", "base-probe")
++        if got_empty is None and got_one is not None:
++            fired.append("ABSENCE: empty -> None (TOLERATED, as before), populated -> "
++                         f"{got_one.parent.name}/{got_one.name}")
++        else:
++            ok = False
++            fired.append(f"ABSENCE: empty gave {got_empty!r}, populated gave {got_one!r}")
++
++        # ---- (3) THE DEFECT REPRODUCED BESIDE THE REPAIR.
++        multi = _probe_tree("multi", ["0", "5", "10"])
++        old = sorted(multi.rglob("p"))[-1].parent.name
++        new = _latest_time_series_path(multi, "p", "base-probe").parent.name
++        if old == "5" and new == "10":
++            fired.append("NUMERIC ORDER: with probe time dirs 0/5/10 the OLD sorted(...)[-1] "
++                         "picks t=5 and the new selector picks t=10 -- a no-op fix FAILS "
++                         "this limb")
++        else:
++            ok = False
++            fired.append(f"NUMERIC ORDER: old={old}, new={new}; expected 5 then 10")
++
++        # ---- (4) NEIGHBOURING FIELDS IN THE SAME DIRECTORY MUST NOT CAUSE A REFUSAL.
++        neigh = _probe_tree("neigh", ["0"], files=("p", "phi", "pMean"))
++        picked = _latest_time_series_path(neigh, "p", "base-probe")
++        if picked is not None and picked.name == "p":
++            fired.append("NEIGHBOURS: a directory holding p, phi and pMean returns `p` and "
++                         "does NOT refuse -- widening to `p*` would have made this an "
++                         "ambiguity that is not one")
++        else:
++            ok = False
++            fired.append(f"NEIGHBOURS: returned {picked!r}, expected the file named `p`")
++
++        # ---- (5) A REAL COLLISION IS STILL REFUSED.
++        coll = _probe_tree("coll", ["0"], files=("p", "p_0"))
++        try:
++            got = _latest_time_series_path(coll, "p", "base-probe")
++            ok = False
++            fired.append(f"COLLISION: p and p_0 were NOT refused -- returned {got.name!r}")
++        except RuntimeError as exc:
++            both = "p_0" in str(exc)
++            fired.append(f"COLLISION: p vs p_0 REFUSED, message names the collision file "
++                         f"= {both}")
++            if not both:
++                ok = False
++
++    # ---- (6) COUPLING: the two graded call sites actually route through the selector.
++    import inspect
++    for fn, old_tok in ((base_cpb, 'rglob("p")'),
++                        (recirculation_length, 'rglob("U")')):
++        src = inspect.getsource(fn)
++        routed = "_latest_time_series_path(" in src
++        gone = old_tok not in src
++        if routed and gone:
++            fired.append(f"COUPLING {fn.__name__}(): routes through the selector and the "
++                         f"old {old_tok} is gone")
++        else:
++            ok = False
++            fired.append(f"COUPLING {fn.__name__}(): routed={routed}, old glob gone={gone}")
++
++    for line in fired:
++        print(f"  SERIES {line}")
++    print("  DISCRIMINATES: the matcher accepts collisions AND rejects adjacent fields; "
++          "absence tolerated AND presence seen; numeric order differs from the old "
++          f"lexicographic pick; a real collision still refuses = {ok}")
++    print("SERIES-SELECTION SELFTEST " + ("PASS" if ok else "FAIL"))
++    return 0 if ok else 1
++
++
+ def main(argv: list[str] | None = None) -> int:
+     # THE SELFTEST IS INTERCEPTED BEFORE `parse_args`, AND THAT IS NOT STYLE.
+     # `--name`, `--reynolds`, `--turbulence` and `--out` are `required=True`, so argparse
+@@ -1058,6 +1235,8 @@
+         return selftest_coefficient_harvest()
+     if "--selftest-yplus-selection" in _argv:
+         return selftest_yplus_selection()
++    if "--selftest-series-selection" in _argv:
++        return selftest_series_selection()
+ 
+     import argparse
+     parser = argparse.ArgumentParser(description=__doc__)
+@@ -1079,6 +1258,8 @@
+                         help="run the harvest path's planted controls and exit")
+     parser.add_argument("--selftest-yplus-selection", action="store_true",
+                         help="run the yPlus selector's planted controls and exit")
++    parser.add_argument("--selftest-series-selection", action="store_true",
++                        help="run the generalised series selector's planted controls")
+     parser.add_argument("--perturbation", type=float, default=0.1)
+     parser.add_argument("--solver-timeout", type=float, default=28800.0)
+     args = parser.parse_args(argv)
+--- /dev/null (new file)
++++ PROPOSED verification/runs/F5_runs/census_glob_selection.py, NOT APPLIED
+@@ -0,0 +1,334 @@
++"""CENSUS v2 -- SELECTION OF ONE PATH FROM MANY BY ORDER RATHER THAN BY ROLE.
++
++KEYED ON THE SHAPE, NOT ON A NAME LIST, so it enumerates a class instead of sampling it.
++
++⚠ WHY AST AND NOT grep, MEASURED RATHER THAN ASSERTED.  The real shape spans lines:
++    files = sorted((d / "probesBase").rglob("p"))     # the glob
++    ...
++    parse(files[-1].read_text())                      # the pick, 3 lines later
++A single-line grep over this exact tree returned 4 hits -- ALL comments or a control's own
++reproduction of old code -- and MISSED the two live sites feeding GRADED quantities.  A
++LINE-ORIENTED KEY REPORTS A CLEAN ZERO OVER LIVE DEFECTS.
++
++WHAT COUNTS AS THE SHAPE (bounded by construction, not by a list of names):
++  a set of paths produced by glob/rglob/iterdir/listdir, possibly via sorted(), reduced to
++  ONE path by ORDERING -- subscript [n]/[-n], max(), min(), or next(iter(...)).
++BINDINGS ARE FOLLOWED TRANSITIVELY: a name derived from a globbed name (a comprehension, a
++slice, a sorted() of it) still carries the shape.  ⚠ v1 followed ONE level and would have
++missed a derived binding; the seeded plant below contains that case so the gap cannot recur
++silently.
++ALL SCOPES ARE WALKED, module level included.  ⚠ v1 visited only FunctionDef and was blind
++to module-level selection; the plant contains that case too.
++
++THE PLANT IS A SEEDED FILE, NOT HARD-CODED LINE NUMBERS.  The census is handed a fixture
++containing known instances -- including the two shapes v1 was blind to -- AND known
++NON-instances, and must find exactly the former and none of the latter.  A CENSUS NOT SHOWN
++ABLE TO FIND ONE IT WAS HANDED HAS NOT MEASURED ABSENCE.
++"""
++import ast
++import sys
++import tempfile
++from pathlib import Path
++
++GLOBBERS = {"glob", "rglob", "iterdir", "listdir"}
++ORDERING_FUNCS = {"max", "min"}
++
++PLANT_SRC = '''
++from pathlib import Path
++
++# SEEDED POSITIVE 1 -- module level (v1 was blind to this scope)
++mod_files = sorted(Path("x").rglob("*.dat"))
++mod_pick = mod_files[-1]
++
++
++def seeded_positive_2_derived(d):
++    """the index is on a name DERIVED from the globbed name (v1 was blind to this)"""
++    found = sorted(Path(d).rglob("*.dat"))
++    subset = [p for p in found if p.name]
++    return subset[-1]
++
++
++def seeded_positive_3_crossline(d):
++    files = sorted(Path(d).rglob("*.dat"))
++    return files[-1]
++
++
++def seeded_positive_4_direct(d):
++    return sorted(Path(d).rglob("*.dat"))[0]
++
++
++def seeded_positive_5_max(d):
++    return max(Path(d).glob("*.dat"))
++
++
++def seeded_negative_1_no_index(d):
++    """a glob that is ITERATED, never reduced to one by order -- NOT the shape"""
++    total = 0
++    for p in sorted(Path(d).rglob("*.dat")):
++        total += p.stat().st_size
++    return total
++
++
++def seeded_negative_2_guarded_len(d):
++    """indexed ONLY after the set is proved to hold exactly one -- NOT a defect, but the
++    census still REPORTS it, because whether a guard is adequate is a JUDGEMENT and a
++    census that silently swallows guarded sites is deciding instead of enumerating"""
++    found = sorted(Path(d).rglob("*.dat"))
++    if len(found) != 1:
++        raise RuntimeError("ambiguous")
++    return found[0]
++
++
++def seeded_negative_3_not_a_glob(d):
++    """an index over a plain list -- NOT the shape"""
++    items = sorted([1, 2, 3])
++    return items[-1]
++'''
++
++PLANT_EXPECT_FN = {
++    "<module>", "seeded_positive_2_derived", "seeded_positive_3_crossline",
++    "seeded_positive_4_direct", "seeded_positive_5_max", "seeded_negative_2_guarded_len",
++}
++PLANT_EXPECT_ABSENT = {"seeded_negative_1_no_index", "seeded_negative_3_not_a_glob"}
++
++# ⚠ A SCOPE-LEAK CHECK, ADDED BECAUSE THE PLANT ABOVE DID NOT CATCH A REAL BUG.
++# v2's first run reported EVERY function-scope site a SECOND time under `<module>`, and the
++# plant passed anyway -- because its one module-level instance was genuine, so `<module>`
++# appearing in the results looked correct.  A PLANT THAT ONLY CHECKS *WHETHER* A SCOPE
++# APPEARS CANNOT SEE A SCOPE APPEARING FOR THE WRONG REASON.  This counts instead: the
++# fixture has exactly ONE module-level site, so more than one is a leak.
++PLANT_EXPECT_MODULE_COUNT = 1
++
++
++# =====================================================================================
++# THE REGISTERED CLASSIFICATION.  Kept HERE, in code, rather than in prose, so that
++# re-running the census RE-CHECKS the classification instead of merely reprinting it: a
++# site that appears and is not classified below is reported as UNCLASSIFIED and the census
++# refuses.  THAT IS WHAT MAKES THE TWO SETS SUM -- a member with no reason beside it is
++# skipped, not censused.
++#
++# AXIS 1 -- ROLE-SELECTABLE (a real "latest"/"only" exists; repair = order by that role) or
++#           AMBIGUOUS (nothing orders them; repair = REFUSE).  Measured per site.
++# AXIS 2 -- GRADED (the value reaches record.json and a campaign gate) or DIAGNOSTIC.
++# =====================================================================================
++CLASSIFICATION: dict[tuple[str, int], tuple[str, str, str]] = {
++    ("cylinder_ladder.py", 390): (
++        "AFFECTED", "ROLE-SELECTABLE / GRADED",
++        "base_cpb(): files[-1] over probesBase.rglob('p'). Layout is probesBase/<time>/p, "
++        "so a real latest EXISTS and the repair is numeric ordering, not refusal -- the "
++        "yPlus shape, not the coefficient shape. GRADED: produces cpb_magnitude, which "
++        "reaches record.json and which the campaign names among its gates "
++        "(F5a_cylinder_reynolds_ladder.md:1139, 'gates (Cd, -Cpb, Cl_rms)'). LATENT, NOT "
++        "REALISED: all 11 trees carry exactly one probe file, at time dir 0."),
++    ("cylinder_ladder.py", 406): (
++        "AFFECTED", "ROLE-SELECTABLE / GRADED",
++        "recirculation_length(): files[-1] over probesCenterline.rglob('U'). Same layout "
++        "and same repair. GRADED, AND THE MOST SEVERE OF THE SEVEN: produces lr_over_d, "
++        "which the campaign calls THIS LADDER'S PRIMARY GATE at Re 1000/2000/3900 "
++        "(F5a_cylinder_reynolds_ladder.md:968). LATENT, NOT REALISED, on the same "
++        "measurement."),
++    ("cylinder_ladder.py", 708): (
++        "NOT AFFECTED", "GUARDED",
++        "_coefficient_series_path(): `return found[0]` runs ONLY after len(found) > 1 has "
++        "raised. With exactly one candidate an index selects nothing -- no ordering "
++        "decides a measurement. Reported rather than suppressed, because whether a guard "
++        "is adequate is a JUDGEMENT and a census that silently swallows guarded sites is "
++        "deciding instead of enumerating."),
++    ("cylinder_ladder.py", 768): (
++        "NOT AFFECTED", "THIS IS THE REPAIR",
++        "_yplus_series_path(): max(_time_key(p) for p in found) orders by the PARSED TIME, "
++        "not by path text. The census flags max()-over-a-globbed-set by shape, correctly; "
++        "the classification is that the ordering key is a number parsed from the directory "
++        "name, which is the defect's repair and not the defect."),
++    ("cylinder_ladder.py", 777): (
++        "NOT AFFECTED", "GUARDED",
++        "_yplus_series_path(): `return at_latest[0]` runs ONLY after len(at_latest) > 1 "
++        "has raised. Same reasoning as :708."),
++    ("cylinder_ladder.py", 999): (
++        "NOT AFFECTED", "DELIBERATE REPRODUCTION OF THE OLD BEHAVIOUR",
++        "selftest_yplus_selection(): the control's own sorted(...)[-1], present so the "
++        "limb can assert that the OLD code picks t=5 while the new selector picks t=10. "
++        "REMOVING IT WOULD WEAKEN THE TEST -- it is what makes that limb unable to pass "
++        "vacuously."),
++    ("run_rung.py", 357): (
++        "NOT AFFECTED", "DELIBERATE REPRODUCTION OF THE OLD BEHAVIOUR",
++        "selftest_harvest_delegation(): same, for the delegated yPlus selector."),
++}
++
++
++class Scanner(ast.NodeVisitor):
++    def __init__(self) -> None:
++        self.hits: list[tuple[int, str, str]] = []
++        self._scope: list[str] = ["<module>"]
++
++    # ---- shape predicates -------------------------------------------------
++    @staticmethod
++    def _is_glob_call(n: ast.AST) -> bool:
++        return (isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)
++                and n.func.attr in GLOBBERS)
++
++    def _carries_shape(self, n: ast.AST, bound: dict[str, int]) -> bool:
++        """Does this expression carry a SET OF GLOBBED PATHS (directly or derived)?"""
++        if self._is_glob_call(n):
++            return True
++        if isinstance(n, ast.Name):
++            return n.id in bound
++        if isinstance(n, ast.Call):
++            f = n.func
++            if isinstance(f, ast.Name) and f.id in {"sorted", "list", "reversed", "tuple"}:
++                return bool(n.args) and self._carries_shape(n.args[0], bound)
++            return False
++        if isinstance(n, (ast.ListComp, ast.SetComp, ast.GeneratorExp)):
++            return any(self._carries_shape(g.iter, bound) for g in n.generators)
++        if isinstance(n, ast.Subscript) and isinstance(n.slice, ast.Slice):
++            return self._carries_shape(n.value, bound)   # a slice keeps the set
++        return False
++
++    # ---- scope walk -------------------------------------------------------
++    def _scan_scope(self, body: list[ast.stmt], name: str) -> None:
++        bound: dict[str, int] = {}
++        # fixed point: a derived binding may appear before its source is registered
++        for _ in range(4):
++            for n in self._iter_own(body):
++                if isinstance(n, ast.Assign) and self._carries_shape(n.value, bound):
++                    for t in n.targets:
++                        if isinstance(t, ast.Name):
++                            bound.setdefault(t.id, n.lineno)
++        for n in self._iter_own(body):
++            why = None
++            if isinstance(n, ast.Subscript) and not isinstance(n.slice, ast.Slice):
++                if self._carries_shape(n.value, bound):
++                    if isinstance(n.value, ast.Name):
++                        why = (f"index on {n.value.id!r}, bound at line "
++                               f"{bound[n.value.id]}")
++                    else:
++                        why = "index applied directly to a globbed set"
++            elif isinstance(n, ast.Call) and isinstance(n.func, ast.Name):
++                if n.func.id in ORDERING_FUNCS and n.args and self._carries_shape(
++                        n.args[0], bound):
++                    why = f"{n.func.id}() over a globbed set"
++                elif n.func.id == "next" and n.args and isinstance(n.args[0], ast.Call):
++                    inner = n.args[0]
++                    if (isinstance(inner.func, ast.Name) and inner.func.id == "iter"
++                            and inner.args and self._carries_shape(inner.args[0], bound)):
++                        why = "next(iter(...)) over a globbed set"
++            if why:
++                self.hits.append((n.lineno, name, why))
++
++    @staticmethod
++    def _iter_own(body: list[ast.stmt]):
++        """Walk THIS SCOPE ONLY.
++
++        ⚠ THE OBVIOUS VERSION OF THIS IS WRONG AND WAS WRONG HERE.  Testing the CHILD's
++        type before descending is not enough: the children of a FunctionDef are ordinary
++        statements, so the walk skipped the `def` and then happily descended into its body
++        one level down.  Every function-scope site was reported a second time under
++        `<module>`, and the module scope's binding table was polluted with names from
++        inside functions.  THE TEST MUST BE ON THE NODE BEING VISITED, NOT ON ITS CHILDREN.
++        """
++        nested = (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)
++        stack = list(body)
++        while stack:
++            n = stack.pop()
++            if isinstance(n, nested):
++                continue                      # a different scope entirely -- do not enter
++            yield n
++            stack.extend(ast.iter_child_nodes(n))
++
++    def run(self, tree: ast.Module) -> None:
++        self._scan_scope(tree.body, "<module>")
++        for n in ast.walk(tree):
++            if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)):
++                self._scan_scope(n.body, n.name)
++
++
++def scan(path: Path) -> list[tuple[int, str, str]]:
++    s = Scanner()
++    s.run(ast.parse(path.read_text()))
++    return sorted(set(s.hits))
++
++
++def plant() -> bool:
++    with tempfile.TemporaryDirectory() as td:
++        p = Path(td) / "plant.py"
++        p.write_text(PLANT_SRC)
++        hits = scan(p)
++    fns = {fn for _, fn, _ in hits}
++    missing = PLANT_EXPECT_FN - fns
++    false_pos = PLANT_EXPECT_ABSENT & fns
++    print(f"  PLANT: seeded {len(PLANT_EXPECT_FN)} instances of the shape (including the "
++          f"two v1 was blind to) and {len(PLANT_EXPECT_ABSENT)} non-instances.")
++    print(f"    found        : {sorted(fns)}")
++    if missing:
++        print(f"    ⚠ MISSED     : {sorted(missing)}")
++    if false_pos:
++        print(f"    ⚠ FALSE ALARM: {sorted(false_pos)}")
++    mod_count = sum(1 for _, fn, _ in hits if fn == "<module>")
++    leaked = mod_count != PLANT_EXPECT_MODULE_COUNT
++    if leaked:
++        print(f"    ⚠ SCOPE LEAK: {mod_count} module-level sites reported, fixture has "
++              f"exactly {PLANT_EXPECT_MODULE_COUNT} -- function bodies are being counted "
++              "as module scope")
++    else:
++        print(f"    SCOPE: exactly {mod_count} module-level site, as seeded -- no leak "
++              "from function bodies into module scope")
++    ok = not missing and not false_pos and not leaked
++    print("    DISCRIMINATES: every seeded instance found AND every seeded non-instance "
++          f"left alone AND no scope leak = {ok}")
++    return ok
++
++
++def main(argv: list[str]) -> int:
++    if not plant():
++        print("\n  PLANT FAILED -- CENSUS REFUSED. A census not shown able to find an "
++              "instance it was handed cannot certify absence anywhere.")
++        return 2
++    print()
++    affected: list[str] = []
++    clean: list[str] = []
++    unclassified: list[str] = []
++    total = 0
++    files = 0
++    for a in argv:
++        p = Path(a)
++        hits = scan(p)
++        if not hits:
++            continue
++        files += 1
++        for ln, fn, why in hits:
++            total += 1
++            key = (p.name, ln)
++            row = CLASSIFICATION.get(key)
++            label = f"{p.name}:{ln} {fn}()"
++            if row is None:
++                unclassified.append(f"{label} -- {why}")
++                continue
++            verdict, axes, reason = row
++            entry = f"{label}\n        [{axes}] {reason}"
++            (affected if verdict == "AFFECTED" else clean).append(entry)
++
++    print(f"  AFFECTED ({len(affected)}):")
++    for e in affected:
++        print(f"    - {e}")
++    print(f"\n  NOT AFFECTED ({len(clean)}), each with its reason:")
++    for e in clean:
++        print(f"    - {e}")
++    if unclassified:
++        print(f"\n  ⚠ UNCLASSIFIED ({len(unclassified)}) -- A MEMBER WITH NO REASON BESIDE "
++              "IT IS SKIPPED, NOT CENSUSED:")
++        for e in unclassified:
++            print(f"    - {e}")
++
++    print(f"\n  DO THE SETS SUM? {len(affected)} affected + {len(clean)} not affected "
++          f"+ {len(unclassified)} unclassified = {len(affected)+len(clean)+len(unclassified)}"
++          f", against {total} sites enumerated -- "
++          f"{'YES' if len(affected)+len(clean)+len(unclassified) == total else 'NO'}")
++    print(f"  Scanned {len(argv)} file(s); {files} carried at least one site.")
++    if unclassified:
++        print("\n  CENSUS INCOMPLETE: classify every member before acting on it.")
++        return 3
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main(sys.argv[1:]))
