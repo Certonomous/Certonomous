@@ -5346,7 +5346,34 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-05T22:15:45Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+**Section last written:** 2026-09-05T22:21:10Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+
+### S-81 — 2026-09-05T22:21:10Z — **THE 52-ITEM SWEEP. I OWE S-80 A CORRECTION: THE 10 % BAR IS NOT DEFECTIVE — AND THE REAL FINDING IS THAT IT IS LOAD-BEARING EXACTLY WHERE IT IS LEAST TESTED**
+
+**⚠ CORRECTION TO S-80, AND IT IS THE HONEST DIRECTION — AGAINST MY OWN HEADLINE.** S-80 read *"the bar is 10 % — above BOTH populations, so it passes everything put in front of it."* **That is true of `S1FDP` and FALSE as a statement about the bar.** Measured, on this family's own data: `A6/curriculum_D8/PREREGISTRATION.md:86` records the **same 10 % bar** separating the graded population (**worst 3.651 %**) from flagged `twist` idx6 (**83.53 %**) **without ever being adjusted.** A bar at 10 % sitting between 3.651 and 83.53 **is** a working instrument. D9, D12, D18 (rejecting `shape[3]` at 1572.69 %) and D19O (rejecting 21.06 %) exercised it cleanly too. **The bar is untested wherever both populations sit far below it, and on this family they usually do — which is a fact about the CASES, not a defect in the bar.**
+
+**THE CENSUS: 52 items** under `cases/dafoam/` carry a numeric plateau bar. **8 families exercised it against a value it had to reject. 33 never did. 2 pending.** Margins where it is uninformative are stark: `S1FDP` 94×–540× inside, D10F 52×–77,000× inside, `SO2a` at the `1e-9`–`1e-12` level. **`D8R` at 4.40× is the closest any never-exercised item came to its own bar.**
+
+**THE FINDING THAT IS NEW, AND IT QUALIFIES MY OWN §12.4 REDUNDANCY ARGUMENT.** The plateau bar composes with band D in **two structures that are not equivalent**, read from the graders:
+* **CONJUNCTION** (`d6rf3_grade.py:1162`) — `PASS if in_band AND plateau_pass`. Band D at **5 %** binds first. **The plateau bar is redundant. §12.4 is correct FOR D6RF3.**
+* **EXCLUSION** (`so1a_grade.py:586`) — **THE MAJORITY**: all twelve `SO*`, the D4/D5/D6/D7 block, D8, D18. The component is dropped **before it reaches band D or the aggregate at all.** The plateau bar **decides membership of the graded set.**
+
+**In the exclusion structure the plateau bar is NOT redundant — it is the ONLY instrument between a coincidentally-crossing component and a `PASS`.** And that failure mode is **measured**: the A1 `idx6` mechanism already at `DAFOAM_CHARTER` §3 and `V_STANDARD` §5.1 — sign-flipped and unstable at every other step, **happening to cross** the adjoint's magnitude at `2e-2`, which band D alone waves through at that one step. **So the family's loosest and least-tested bar is LOAD-BEARING in exactly the structure where it is least tested.**
+
+**THE ROOT WAS IN MY OWN CHARTER, NOT IN `S1FDP`'s DRAFTING — `DAFOAM_CHARTER.md` §21 at `c6e024b6`, v1.0c → v1.0g.** §4 fixes the falsifier's **step distance** and its **withdrawal consequence** and **never names WHICH GATE the wrong step must fail.** *"The gate"* is singular and unbound; an item with a plateau bar, an agreement band and an aggregate band has three. **The census is unanimous on how the other 51 picked:** B3 → the `< 1 %` agreement bar; all twelve `SO*` → band D; A4/D3 → the 15 % band; D19T and A6 → the adjoint. **`S1FDP` is the ONLY item in the family that pointed its falsifier at the PLATEAU bar.**
+
+**And §4's OWN WORKED EXAMPLE is where it inherited the numbers.** §4 cites B3 registering `h = 0.5` predicting `> 2 %` ***against the real probes' `< 1 %` bar***. `S1FDP` took the cell family, the step and the `> 2 %` prediction **verbatim** and retargeted them from a **1 %** bar to a **10 %** bar **without rescaling the step.** A one-decade step gives ~100× truncation growth (**measured 247×**, effective order 2.39): that clears 1 % fivefold and clears 10 % not at all. **The example travelled; the bar it was sized against did not.**
+
+**§21 REQUIRES**, at zero compliance cost because both numbers exist at registration: a trivial baseline **names the gate it is predicted to fail**, that gate **must be the one whose verdict the withdrawal clause withdraws**, and the pre-registration **shows the arithmetic** — predicted value beside that gate's own bar, inequality written out. **A falsifier whose predicted value does not fail its named gate IS NOT A FALSIFIER.** **STRENGTHENING ONLY — no threshold, band, cap or label moved in any of the 52 items; binds freezes AFTER today; reclassifies nothing already frozen. Written to be reversible: if the chief or Sanaa reads it as a threshold move, strike it.**
+
+**`S1FDP` record and calibration row were ALREADY at HEAD before I dispatched for them** — record `63f65a26`, calibration row `C-20260905T220806.497202Z-2217ba50` at `e51033e8`. **My dispatch was a duplicate and that waste is mine**; the lane verified instead of writing a second record for one run, which is the right call. Two corrections from it: the withdrawal wording spans lines **189–191**, not 189–190 as I quoted; and the record's §8 divergence note is **now stale** — the disk file carries §6 and hashes the frozen value.
+
+**One census row deliberately EXCLUDED**, because including it is the exact error I keep making: `d19r2_grade.py:341` reads `PLATEAU_TOL_PCT = 999.0`. **That is not a bar** — it is a mutation planted into a copy of the module inside a selftest, to prove the frozen constant is load-bearing. **A token-grep files it as the loosest bar in the family.**
+
+**Next:** `W4` Arm 2 (116.400 core-min, cap 150.0) still waits on Arm P. `S1_CBFS_REINVERSION_RESULT.md:92`'s disposition is unchanged and **remains mine** — the defence was conditional on `P1` landing and `P1` is withdrawn. **VERIFY.** A4's large-step check around 3e-2 stays a named open item against A4's next opening, explicitly NOT a gate.
+
+**SUBMISSIONS PARKED.**
+
 
 ### S-80 — 2026-09-05T22:15:45Z — **TWO VERDICTS, TWO FREEZES, AND A DEFECT IN HOW I COMMIT THAT STRANDED FIVE DOCUMENTS**
 
