@@ -943,3 +943,45 @@ defect) and in `d6rf3_run_arm.sh`. **Both REFUSED, with the reason asserted, not
 **STILL OWED, and it is now the whole list:** §11 item 9 — **a queue row that cites this document**, carrying this document's own estimate and no other.
 
 **SUBMISSIONS PARKED.** The four upstream defect classes remain **NOT FILED ANYWHERE**; nothing in this item is sent, filed, posted or commented anywhere outside this box.
+
+---
+
+## 13. ADDENDUM — 2026-09-05T22:28:28Z — **POST-FIRST-COMPUTE.** THE BANNER ON LINE 1 IS STRUCK; §11a's CHAIN-DRIVER md5 IS STRUCK AS SUPERSEDED
+
+**Appended at the foot. Lines whose number changed above this section: 0**, proved on bytes by `cmp -n` against the HEAD blob in this invocation.
+
+**⚠ THIS ITEM HAS NOW BURNED COMPUTE.** `F_mp` ran 2026-09-05T22:22:50Z→22:23:40Z and spent **2.067 core-min** of its 480.0 cap. **Gates are CLOSED.** Under `CLAUDE.md` rule 2 this addendum **cannot and does not alter any gate, threshold, band, cap, deadline, label or prediction**, and it alters none. **Originals are STRUCK, never rewritten** — both items below are struck in place by this section and their text is left standing above so the record of what was frozen survives.
+
+### 13.1 ⚠ STRUCK — LINE 1 AND LINE 13 SAY THE OPPOSITE OF THE TRUTH
+
+Line 1 reads **`# ⚠ DRAFT — NOT A REGISTRATION, NOT FROZEN, NOT ENQUEUED`** and line 13 asserts the item **`has burned 0 core-min, started no container, has no run root and IS NOT ENQUEUED`**.
+
+**BOTH ARE STRUCK AS OF THIS SECTION. Every clause of both is now false:**
+
+| line 1 / line 13 claims | measured truth |
+|---|---|
+| NOT A REGISTRATION / DRAFT | **IS** the registration — renamed to `PREREGISTRATION.md` in the freeze commit, and `d6rf3_grade.py:1121` names it in `freeze_check` |
+| NOT FROZEN | **FROZEN** at `9c079a84`, blob md5 `01079356d794186d21d52e86e1e67907` |
+| NOT ENQUEUED | **ENQUEUED** 22:20:47Z; the daemon took it 22:21:45Z |
+| burned 0 core-min | **2.067 core-min** |
+| started no container | **started one**, digest `sha256:2927768a…`, container wall 28 s |
+| has no run root | `/home/ubuntu/certonomous-runs/CURRICULUM-D6RF3-a2-wing-multipoint-fd` **exists** |
+
+**§12 superseded these in substance and did not STRIKE them, which was my omission.** A reader arriving at the **top** of a frozen document reads a false statement about that document's own status and has no reason to scroll 900 lines to find the correction. **The banner did its job while the draft was a draft; it is now the most misleading line in the file, and it is exactly the class this family calls a record that lies quietly.** Found by a lane reading the frozen file top-to-bottom before enqueueing it — **which is why that read is worth its cost.**
+
+### 13.2 ⚠ STRUCK — §11a's CHAIN-DRIVER md5 IS DEAD AND WAS NOT NAMED AS SUPERSEDED
+
+The frozen document carries **TWO DIFFERENT md5s for one file**:
+
+* **§11a**: `d6rf3_chain_driver.sh` = `9d2c22d2f84abbead31657288097eccf` — **DEAD. STRUCK.**
+* **§9's instrument table**: `71c971c90b0e1c4117de048cdb719694` — **LIVE**, and equal to the file on disk and at HEAD, verified in this invocation.
+
+§12.3 disclosed the driver repair at `8f66b356` that moved the value, **but did not name §11a's now-dead figure as superseded.** That is the practice this family adopted under L-370 and I did not apply it to my own freeze section.
+
+**NOT BLOCKING, and the reason is worth stating rather than asserting:** the operative pin is `MD5_LAUNCHER` **on the launcher**, whose value `58684b91f6aced35f500fc947517a8e4` is consistent in §9, in §11a and on disk. The chain driver is **not** md5-gated at run time, so the dead figure could not have refused anything — **it could only have misled a reader**, which is the same defect class as §13.1 and is why both are struck in one section rather than one being treated as minor.
+
+### 13.3 WHAT THIS SECTION DOES NOT TOUCH
+
+**No gate, threshold, band, cap, deadline, label or prediction moves.** `FD_BAND_PCT 5.0`, `AGG_BAND_PCT 5.0`, `PLATEAU_TOL_PCT 10.0`, the caps 480.0 / 190.0, the deadlines 7110 / 2760 s, the ceiling 670.0 and §12.6's ONE-ROW `PATCHED` label all stand exactly as frozen. **§12.4's registered report requirement stands and is still owed by the eventual record.** The verdict of the run that has already happened is untouched by this section and is graded through the frozen path, not through this text.
+
+**SUBMISSIONS PARKED.**
