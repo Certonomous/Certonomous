@@ -1,0 +1,45 @@
+{
+ "_PARKED": "THIS ROW IS PARKED AND IS NOT ENQUEUED.  It lives beside the case, NOT under verification/queue/, exactly as the FROZEN pre-registration section 11 item 7 requires.  TWO FROZEN SENTENCES FORBID A LANE FROM CARRYING IT FURTHER, and both are quoted in _WHY_THIS_IS_PARKED below.  Moving this file into verification/queue/dafoam/ and raising LAUNCH_ENABLED is an act reserved to the supervisor or to Sanaa; this lane drafted the row and stopped.",
+ "team": "dafoam",
+ "case_id": "A1WRT2_SEAM",
+ "prereg_commit": "4e39c37087bd9944d1ab860aa9eb4f106dd87711",
+ "prereg_path": "cases/dafoam/ladder-a/A1/wall_resolved_alpha_tail/A1WRT2_SUCCESSOR_DRAFT.md",
+ "prereg_note": "FROZEN at 4e39c37087bd9944d1ab860aa9eb4f106dd87711.  VERIFIED BY THIS LANE, NOT TAKEN ON REPORT: the commit exists, HEAD is that commit, it touched only the pre-registration, and the document's md5 at that commit is 8e4453408cec8badb663194d14fee64e -- equal to the value the supervisor stated.  The four instrument md5s at that commit equal section 11.6.4's frozen manifest exactly.",
+ "launch_cmd": [
+  "bash",
+  "-lc",
+  "cd /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/wall_resolved_alpha_tail && python3 a1wrt2_stage.py --arm SEAM && bash a1wrt2_run_arm.sh --arm SEAM"
+ ],
+ "launch_cmd_note": "SEAM ONLY.  TAIL is NOT in this command and must not be added to it: ruling 1 of 2026-09-04 put seam_precondition_guard in front of the TAIL arm, exiting 7 on anything but PASS, so TAIL is launched by a SEPARATE row only after SEAM's verdict permits it.  675.0 core-min does not move until 10.0 has spoken.  THE COMMAND AS WRITTEN WILL NOT RUN A SOLVER at the frozen commit: a1wrt2_run_arm.sh carries LAUNCH_ENABLED=0, it is a hard assignment and NOT env-overridable, and the launcher prints A1WRT2_NOT_LAUNCHING and exits 0.",
+ "cwd": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/wall_resolved_alpha_tail",
+ "ranks": 1,
+ "cap_core_min_registered": 10.0,
+ "cost_core_min_estimate": 3.10344,
+ "cost_basis": "3.10344 core-min = 0.051724 core-h = $0.002653 DERIVED, NOT MEASURED, at the owner-stated c7a.4xlarge rate of $0.0513/core-h; cost_basis class REPORTED-BY-OWNER -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5).  Terms, from section 5.2: 200 it x 0.46178 s/it (anchor A-CONT, MEASURED) = 1.53927 core-min, plus container start and import 93.85 s = 1.56417 core-min.  Cap 10.0 core-min = 3.222x the estimate; cap as wall 600.0 s against a 900 s in-container deadline, so THE CAP BINDS FIRST with 50.0 % headroom.  Under Sanaa's $25 pre-authorisation and costed here anyway, because a blanket is not a per-item reading (CLAUDE.md rule 9).",
+ "memory_floor_gb": 8.0,
+ "enqueued_by": "NOBODY -- THIS ROW IS NOT ENQUEUED.  Drafted by the dafoam lab-lane 2026-09-05 and PARKED.  The dafoam-supervisor reports SUPERVISION_CHARTER section 3 checks 1 and 4 discharged personally at the freeze commit and the run root ABSENT BY EXECUTION in the freezing shell at 21:53:51Z.  This lane VERIFIED the freeze artefacts it can verify (commit, document md5, instrument md5s) and did NOT perform, and does not claim, the supervisor's personal checks.",
+ "run_root": "/home/ubuntu/certonomous-runs/A1WRT2 -- MUST BE ABSENT at launch.  CHECKED BY EXECUTION in the invocation that wrote this row, 2026-09-05T21:57:36Z: ls -d returned rc=2 (ABSENT).  RE-CHECK IN THE ENQUEUEING SHELL -- this row's check is stale the moment it is written.",
+ "image": "dafoam-idwarp-rot:v1, digest sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35, libidwarp.so md5 85f59e87253e0a71a813f64ca6e4c425.  BOTH MEASURED OUT OF THE IMAGE 2026-09-05 and both equal to their registered pins.  ROW=PATCHED, ONE ROW: DAFOAM_CHARTER.md section 6's two-row obligation BINDS and is NOT discharged by this item (section 11.3.1).",
+ "instrument_md5s_at_this_commit": {
+  "a1wrt2_grade.py": "c6c69e42864acb3dfb1dcd525d8e0c86",
+  "a1wrt2_instruments.py": "0ce49e043efedb88ff95bd87f6a1dfaa",
+  "a1wrt2_run_arm.sh": "00caacf4f7772be1e85c5fc5f18d96de",
+  "a1wrt2_stage.py": "82f23baf911aac5938334e23214d2bd0",
+  "fixtures/controlDict_SEAM_continued": "ddcedcff52df02e9aa8d64ffd504ebdf",
+  "fixtures/controlDict_TAIL_continued": "b81adcc9d4062fa8b121bff0baab22fc",
+  "a1wr_runScript_incomp.py (inherited, another item's frozen instrument)": "d48f48c5e2e41e86981acbf6feccb3c4"
+ },
+ "registered_predictions": {
+  "P-SEAMTIME": "SEAM's sweep.log will carry a first anchored '^Time = ' of 4001 and a last of 4200.  IF IT CARRIES FIRST 1, the producer resets the counter on a latestTime start too, G-COMPLETE reports GATE FAIL on SEAM, the precondition refuses TAIL at rc=7, and the item stops at <= 10.0 core-min with the mechanism MEASURED FOR THE FIRST TIME IN THIS FAMILY.  BOTH OUTCOMES ARE RESULTS.  Basis for the doubt: across 14 measured points of this producer (A1WR STAGE12 idx 0-12 CONTINUED, A1WRT U1 idx 0 COLD) the counter reset to 1 every point and ran to endTime 4000, and startFrom latestTime appears in NONE of them.",
+  "P4": "REGISTERED UNHEDGED AND PREDICTED TO MISS.  Unchanged by any amendment."
+ },
+ "verdict_state": "PENDING",
+ "_WHY_THIS_IS_PARKED": {
+  "frozen_sentence_1": "a1wrt2_run_arm.sh:5-6, FROZEN: 'THIS FILE LAUNCHES NOTHING IN ITS CURRENT STATE.  The container invocation is behind LAUNCH_ENABLED, which is 0 and WHICH NO AGENT MAY RAISE'.",
+  "frozen_sentence_2": "A1WRT2_SUCCESSOR_DRAFT.md:810, FROZEN: 'Enqueueing is not authorisation and NO LANE LAUNCHES THIS ITEM.'",
+  "third_reason_mechanical": "Raising the flag EDITS A FILE WHOSE md5 IS ASSERTED IN THE FROZEN DOCUMENT (section 11.6.4 records a1wrt2_run_arm.sh = 00caacf4f7772be1e85c5fc5f18d96de).  The edit would falsify a row in the frozen record -- and it would do so SILENTLY, because G-FREEZE's expected side is PIN_INSTRUMENTS = {'runScript.py': ...} ONLY: the launcher's md5 is RECORDED in MANIFEST.json but NOT GATED.  Measured at a1wrt2_grade.py:94.  That the falsification would trip no gate is a reason to say it, not a reason to do it.",
+  "what_would_close_it": "A dated addendum by the dafoam-supervisor recording that raising LAUNCH_ENABLED is the ENQUEUE ACT, performed by the supervisor, and superseding section 11.6.4's launcher md5 row.  It moves NO gate, threshold, cap or label, so it is a lawful addendum under CLAUDE.md rule 2.  Alternatively Sanaa.  EITHER WAY IT IS NOT A LANE'S ACT, and no agent's instruction makes it one (CLAUDE.md rule 9).",
+  "not_an_objection_to_running": "This lane wants SEAM run and said so: 10.0 core-min settles a mechanism 14 measured points leave open, and the falsifier sits in front of the only expensive arm.  The blocker is WHO RAISES THE FLAG, not WHETHER THE ARM SHOULD RUN."
+ },
+ "_WHAT_THIS_RUN_IS_NOT": "PASS is unreachable by construction -- no Roache triple exists in this item, so the ceiling is GATE REACHED.  No stall or separation angle may be reported (G-STALL refuses at exit 2).  No value may be presented as grid-converged or inside a band (G-NOBAND, exit 2).  DAFOAM_CHARTER.md section 6 is NOT discharged.  This row buys ONE point, alpha=12, as a restart-fidelity control -- NOT a tail point, and SEAM's coefficients never enter a polar."
+}
