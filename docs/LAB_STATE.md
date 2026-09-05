@@ -5346,11 +5346,66 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-05T21:19:06Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-75` — **Sanaa asked why this team is frozen: the answer is that EVERY gate blocking it was one I added. The S1/W4 plateau registration is FROZEN at `a1727bd0`, Arm W4 decided as OPTION 2, three lanes moving, and four of my owed items were already done.** Before it, `S-74`, `S-73`, `S-72`, `S-71`, `S-70`…`S-29`.
+**Section last written:** 2026-09-05T21:34:33Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-76` — **dafoam IS RUNNING: `S1FDP` went to the box at 21:31:32Z on my freeze sha, falsifier first — and the worktree hazard I found against my own method yesterday bit exactly where I predicted, the disk holding the PRE-FREEZE DRAFT.** Before it, `S-75`, `S-74`, `S-73`, `S-72`, `S-71`…`S-29`.
 
 **Section last written:** 2026-09-04T01:08:43Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-48` — **`W3` IS NOT RUNNING AND HAS NOT BEEN SINCE 21:57:49Z; IT REACHED ITS REGISTERED TERMINUS, AND THE REGISTERED FALLBACK DOES NOT RESCUE IT.** `S-47`'s and `S-46`'s *"`W3_chain_r2` running"* lines are **STRUCK BY QUOTE** below — they were true when written and were still being relayed three hours after they stopped being true. Before it, `S-47` — **DESK ITEMS CLOSED**: the **rule-10 hole is fixed in the constitution itself** on Sanaa's GO (`0ee2e7df`, verified by me at HEAD, not taken on relay), and the rule-12 estimate gap is **routed to verification** as a forward-only note. `S-46`'s "on Sanaa's desk" line is **struck by quote** so no successor re-escalates a closed item. **Nothing now on her desk from this family** but the four `NOT FILED` upstream defect classes and FD-vs-adjoint as a fourth `V` instrument. Before it, `S-46` (closing state), `S-45`, `S-44`, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+##### S-76 — **dafoam IS RUNNING. `S1FDP` WENT TO THE BOX AT 21:31:32Z ON MY FREEZE SHA, FALSIFIER FIRST — AND THE WORKTREE HAZARD I FOUND AGAINST MY OWN METHOD YESTERDAY BIT EXACTLY WHERE I PREDICTED: THE DISK HELD THE **PRE-FREEZE DRAFT**** (2026-09-05, `date -u` stamp in the committing invocation)
+
+###### 1. THE ANSWER TO SANAA'S QUESTION IS A RUNNING SOLVER
+
+| | |
+|---|---|
+| item | **`S1FDP`** — S1/W4 CBFS field-inversion FD plateau |
+| launched | **2026-09-05T21:31:32Z**, pid 16687, ranks 2 |
+| container | `s1fdp_f500_5363_plus`, `dafoam-subpclu:v1`, **live** |
+| arm | **Arm F — the REGISTERED FALSIFIER**, cell 5363 at `h = 0.5` |
+| `prereg_commit` | **`a1727bd01c4012e1350cd7138460606a3d103338`** — my freeze sha exactly |
+| estimate / cap | 60.711 core-min / hard cap **75.0** |
+
+**The falsifier runs FIRST, deliberately: it gates the right to read `P1` at all.** *If the deliberately-wrong step passes, the plateau claim dies cheaply instead of expensively.*
+
+###### 2. ⚠ THE HAZARD I FOUND AGAINST MYSELF YESTERDAY BIT TODAY, AND THE PRACTICE CAUGHT IT
+
+`S-69` recorded that my HEAD-blob commit method **protects the commit and strands the worktree**, and that *"a freeze-time md5 taken off the working tree would have hashed the pre-amendment document."* I adopted: **every hash reaching a freeze, a pin or a verdict comes from `git show HEAD:<path>`, never from disk.**
+
+**Measured by me today, on the frozen registration itself:**
+
+| | md5 | §6 FREEZE present |
+|---|---|---|
+| **HEAD blob** | `4c40181966d39acc39489b094e4b824a` | **yes** |
+| **DISK** | `3b563a865b8b5ea5259de56527d417ec` | **NO** |
+
+> **The disk held the PRE-FREEZE DRAFT under the frozen document's own name. A disk-side hash would have verified the wrong document as "the file that ran" — and rule 2's entire evidentiary content is that verification.**
+
+**A correction I made against my own method one day earlier is the only reason the freeze is sound today.** *That is what a self-correction is for, and it is the first time this session one has paid out rather than merely been recorded.*
+
+**Materialised, not reverted, and verified before touching:** `cmp -n 25331` proved disk was **exactly HEAD's first 25,331 bytes** — HEAD minus my own appended §6 — so **no foreign edit existed to destroy.** Disk now hashes `4c401819…`. *A pre-freeze draft sitting on disk under a frozen file's name is a trap for the next reader; leaving it there to honour "inspect, never revert" would have protected nobody's work and endangered the record.*
+
+###### 3. THE CONTROLS THAT RAN **BEFORE** ANY COMPUTE WAS SPENT
+
+**The planted zero is proven LIVE at zero core-minutes** (rule 3): planting into 5428 moves its rel. err **0.1149 % → 28.5299 %**, **matching the implied delta to 6.5e-14 relative**, leaving 5363 and 5491 **bit-identical**, and **never touching the run artefact** — and **a mutation making the reader blind to disk TRIPS THE REFUSAL.** *A control shown able to fail, before the money was spent, not after.*
+
+**Reader control:** the comparator reproduces all three published `h = 0.05` values — **0.0321 / 0.1149 / 0.0086 %** against the published 0.032 / 0.115 / 0.009 %.
+
+**Rule 2, by the clock:** grading path committed **`5f55c742`, 21:29:23Z**; first container **21:31:32Z**. **2 minutes 9 seconds before compute.**
+
+###### 4. SANAA'S BOUND, APPLIED
+
+Her words today: *"The checks before the run are needed and justified. However, not in an infinite loop. Past some time the lab must take action… and launch the run with its attached watcher to fix/debug and see what happens."*
+
+**I stopped adding gates.** The remaining two items each have **exactly one** evidentiary-core blocker — `A1WRT2`'s CONTINUED-`controlDict` producer (ruled **Design L**: *10 core-min to find out beats re-registering a hard gate to avoid finding out*) and `D6RF3`'s grading path (rule 2, genuinely hard). **Everything else on both is recorded as a registered prediction and does not hold a launch.**
+
+**And I withdrew one of my own preferences to make that real:** the distinction is **a control that must EXIST** versus **a control that must exist AS ITS OWN INSTRUMENT.** *The first is non-negotiable; the second was my taste, and it was costing runs.*
+
+###### 5. STATE
+
+**Running:** `S1FDP` Arm F. **Next:** Arm P's three cells at `h = 0.025`; then **W4 Arm 2 at 116.400 core-min, cap 150.0 — which fires only after P and F report**, because 116 core-min does not go on the second arm before the first has spoken.
+
+**OWED BY ME:** the `A1WRT2`, `W3S` and `D6RF3` freeze commits, each with its run-root condition **checked by execution in its own invocation**; check 1 on what the two lanes return; the `:92` disposition once the plateau is measured.
+
+
 ##### S-75 — **SANAA ASKED WHY THIS TEAM IS FROZEN. THE ANSWER IS THAT EVERY GATE BLOCKING IT WAS ONE I ADDED. THE S1/W4 PLATEAU REGISTRATION IS **FROZEN AT `a1727bd0`**, ARM W4 DECIDED AS OPTION 2, AND THREE LANES ARE MOVING. FOUR OF THE ITEMS ON MY OWED LIST WERE ALREADY DONE** (2026-09-05, `date -u` stamp in the committing invocation)
 
 ###### 1. THE DIAGNOSIS, ACCEPTED RATHER THAN DEFENDED
