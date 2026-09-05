@@ -468,6 +468,71 @@ def build_case(case_dir: Path, *, reynolds: float, turbulence: str,
             "centerline_points": cl_pts, "perturbation": perturbation}
 
 
+# =====================================================================================
+# THE 4-RANK CAP.  Module docstring line 14 states "MPI-parallel staging capped at 4
+# ranks for the larger meshes".  UNTIL THIS BLOCK THAT CAP WAS A SENTENCE AND NOTHING
+# ELSE: measured, `ranks` occurred ten times in this file with ZERO asserts or raises
+# mentioning it, against ten bare `raise` statements as a live control.  `--ranks` is an
+# unbounded int that flowed straight to `mpirun -np`, so nothing prevented a 16-rank
+# launch on an oversubscribed box.
+#
+# THIS IS M6SR ITEM 50's EXACT CLASS, ONE CAMPAIGN OVER -- a cap that lives in prose
+# while the mechanism binds something else.  There the registered cap and the enforced
+# timeout were two independent literals that happened to agree; here the registered cap
+# had no enforced counterpart at all.  TWO CAMPAIGNS, ONE DEFECT SHAPE.
+#
+# THE CAP BINDS THE VALUE THAT REACHES `mpirun`, NOT A COPY OF IT.  `_np_arg()` is the
+# ONLY producer of the `-np` argument: the string it returns IS the string passed, so a
+# checked-then-discarded value is impossible by construction rather than by discipline.
+# =====================================================================================
+F5A_MAX_RANKS = 4          # module docstring line 14, verbatim: "capped at 4 ranks"
+
+
+def _check_ranks(ranks: object) -> int:
+    """Validate a rank count against the registered cap.  -> the int, or RAISES.
+
+    Called at the serial/parallel branch as well as inside `_np_arg`, because a value
+    below 1 would otherwise take the SERIAL branch silently and never reach the cap.
+
+    THE BOOL TEST MUST COME FIRST, AND THAT ORDERING IS LOAD-BEARING.  `isinstance(True,
+    int)` is True in Python, so `True` would pass the int test, become 1, and run SERIAL
+    -- silently, which is the exact class this repair exists to close.  Testing for bool
+    AFTER the int test would therefore never fire.
+    AND IT GUARDS THE PATH argparse DOES NOT: `--ranks` is `type=int`, so the CLI already
+    rejects a bool; this check protects PROGRAMMATIC callers, which bypass that
+    validation entirely.  A guard that only covered the path already covered would be
+    decoration.
+    """
+    if isinstance(ranks, bool) or not isinstance(ranks, int):
+        raise RuntimeError(
+            f"ranks must be an int, got {type(ranks).__name__} ({ranks!r}). "
+            "REFUSED: a rank count that is not an integer cannot be capped.")
+    if ranks < 1:
+        raise RuntimeError(
+            f"ranks={ranks} is below 1. REFUSED: a non-positive rank count would take "
+            "the SERIAL branch silently and never be checked against the cap.")
+    if ranks > F5A_MAX_RANKS:
+        raise RuntimeError(
+            f"ranks={ranks} exceeds the registered cap of {F5A_MAX_RANKS} "
+            "(module docstring line 14: 'MPI-parallel staging capped at 4 ranks for the "
+            "larger meshes'). REFUSED BEFORE ANY SOLVER STARTS. Until this check existed "
+            "the cap was a sentence and nothing enforced it, so a 16-rank launch on an "
+            "oversubscribed box was possible -- and oversubscription does not merely slow "
+            "a run, it makes its core-minutes uninterpretable, because contention and "
+            "misprediction can no longer be separated in the calibration row.")
+    return ranks
+
+
+def _np_arg(ranks: object) -> str:
+    """THE ONLY PRODUCER OF `mpirun -np`'s ARGUMENT.  The cap binds HERE.
+
+    The returned string is the one placed in the argument list, so the value that was
+    checked and the value that runs are THE SAME OBJECT'S TEXT -- not a copy validated
+    somewhere else and trusted afterwards.
+    """
+    return str(_check_ranks(ranks))
+
+
 def run_case(name: str, out_dir: Path, log: Callable[[str], None] = print, *,
             ranks: int = 1, solver_timeout: float = 28800.0,
             **build_kwargs) -> dict[str, Any]:
@@ -502,6 +567,7 @@ def run_case(name: str, out_dir: Path, log: Callable[[str], None] = print, *,
         if step == "blockMesh" and result.returncode != 0:
             raise RuntimeError(f"{name}: blockMesh failed")
 
+    _check_ranks(ranks)          # covers the SERIAL path too (ranks < 1)
     if ranks > 1:
         with (remote_dir / "system" / "decomposeParDict").open("w", newline="\n") as fh:
             fh.write(_decompose_par_dict(ranks))
@@ -512,7 +578,7 @@ def run_case(name: str, out_dir: Path, log: Callable[[str], None] = print, *,
         if result.returncode != 0:
             raise RuntimeError(f"{name}: decomposePar failed")
         log(f"[{name}] decomposePar ({ranks} ranks) done in {timings['decomposePar']:.1f}s")
-        solve_args = [*_run_prefix(), "mpirun", "-np", str(ranks), "pimpleFoam", "-parallel"]
+        solve_args = [*_run_prefix(), "mpirun", "-np", _np_arg(ranks), "pimpleFoam", "-parallel"]
     else:
         solve_args = [*_run_prefix(), "pimpleFoam"]
 
@@ -595,7 +661,74 @@ def run_case(name: str, out_dir: Path, log: Callable[[str], None] = print, *,
     return record
 
 
+def selftest_rank_cap() -> int:
+    """THE CAP'S PLANTED CONTROL.  A cap with no firing control is how gap 4 happened.
+
+    Every limb is a DELTA: the clean twin must be ACCEPTED and the plant must be REFUSED.
+    A suite that only showed refusals would be satisfied by a function that refuses
+    everything, which would break every legitimate launch and pass this test.
+
+    ⚠ THIS CONTROL LIVES INSIDE THE FILE IT GUARDS, WHICH IS WEAKER THAN AN EXTERNAL ONE,
+    AND THE WEAKNESS IS RECORDED RATHER THAN GLOSSED.  It is internal for ONE reason and
+    it is not convenience: THE COUPLING LIMB CANNOT BE WRITTEN FROM OUTSIDE.  An external
+    control could exercise `_check_ranks` in isolation and would still pass if a future
+    edit stopped routing the `-np` argument through `_np_arg` altogether -- the very
+    regression that would reinstate gap 4.  A control that only validated the guard would
+    have been BETTER placed outside; this one has to sit where it can see the call site.
+    DO NOT READ THIS AS A GENERAL PREFERENCE FOR INTERNAL CONTROLS.
+    """
+    ok, fired = True, []
+
+    # THE CLEAN TWINS -- these must be ACCEPTED, including the cap's own boundary value.
+    for r in (1, 2, 3, F5A_MAX_RANKS):
+        got = _np_arg(r)
+        if got != str(r):
+            ok = False
+            fired.append(f"CLEAN {r}: _np_arg returned {got!r}, expected {str(r)!r}")
+        else:
+            fired.append(f"CLEAN {r}: accepted, -np argument {got!r}")
+
+    # THE PLANTS -- each must be REFUSED.  16 is the value Section 7 named as the hazard.
+    for r, why in ((F5A_MAX_RANKS + 1, "one over the cap"), (16, "the oversubscription "
+                   "case Section 7 named"), (0, "would take the serial branch silently"),
+                   (-1, "negative"), (2.0, "float, not int"), (True, "bool masquerading "
+                   "as int")):
+        try:
+            _np_arg(r)
+            ok = False
+            fired.append(f"PLANT {r!r} ({why}): NOT REFUSED -- the cap does not bind")
+        except RuntimeError:
+            fired.append(f"PLANT {r!r} ({why}): REFUSED")
+
+    # THE COUPLING LIMB: the checked value must BE the value that reaches mpirun, not a
+    # copy.  Built the way run_case builds it, so a future edit that stops routing through
+    # _np_arg breaks this rather than leaving it vacuously green.
+    args = ["mpirun", "-np", _np_arg(F5A_MAX_RANKS), "pimpleFoam", "-parallel"]
+    if args[args.index("-np") + 1] != str(F5A_MAX_RANKS):
+        ok = False
+        fired.append("COUPLING: the -np argument is not the value _np_arg returned")
+    else:
+        fired.append(f"COUPLING: mpirun receives {args[args.index('-np') + 1]!r}, the "
+                     "string _np_arg returned -- checked value and passed value are one")
+
+    for line in fired:
+        print(f"  RANK-CAP {line}")
+    print(f"  DISCRIMINATES: clean values accepted AND violating values refused = {ok}")
+    print("RANK-CAP SELFTEST " + ("PASS" if ok else "FAIL"))
+    return 0 if ok else 1
+
+
 def main(argv: list[str] | None = None) -> int:
+    # THE SELFTEST IS INTERCEPTED BEFORE `parse_args`, AND THAT IS NOT STYLE.
+    # `--name`, `--reynolds`, `--turbulence` and `--out` are `required=True`, so argparse
+    # exits 2 on their absence BEFORE any flag of ours is reached: checking
+    # `args.selftest_rank_cap` after parsing left the control UNREACHABLE.  MEASURED, by
+    # running it in place after applying the patch -- it is exactly gap 4's own shape one
+    # level up, a guard that exists and cannot fire.
+    _argv = sys.argv[1:] if argv is None else argv
+    if "--selftest-rank-cap" in _argv:
+        return selftest_rank_cap()
+
     import argparse
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--name", required=True)
@@ -610,9 +743,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--dt0", type=float, default=0.005)
     parser.add_argument("--max-co", type=float, default=1.5)
     parser.add_argument("--ranks", type=int, default=1)
+    parser.add_argument("--selftest-rank-cap", action="store_true",
+                        help="run the 4-rank cap's planted control and exit")
     parser.add_argument("--perturbation", type=float, default=0.1)
     parser.add_argument("--solver-timeout", type=float, default=28800.0)
     args = parser.parse_args(argv)
+
 
     first_cell = args.first_cell
     if first_cell is None:

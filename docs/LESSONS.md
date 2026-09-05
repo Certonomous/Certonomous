@@ -24165,12 +24165,12 @@ Rendered at 200 dpi the equations are fully legible, including subscripts, overb
 
 **Corollary that paid immediately.** Reading the real Eq. (2) showed the correction field's **null value is 1, not 0** (`beta = [(beta_CND - 1) f_d + 1]` recovers baseline SST exactly at `beta_CND = 1`). A planted-zero control on that entry would have planted and checked the **wrong null** — a rule-3 control testing a condition the model does not have.
 
-## L-490 — EIGHT TIMES IN TWO DAYS, ONE FAILURE: A READER THAT CANNOT DISTINGUISH ITS SUBJECT FROM SOMETHING ADJACENT TO IT. THE REPAIR IS ALWAYS THE SAME — SHARPEN THE KEY UNTIL IT SEPARATES THE TWO
+## L-490 — NINE TIMES IN TWO DAYS, ONE FAILURE: A READER THAT CANNOT DISTINGUISH ITS SUBJECT FROM SOMETHING ADJACENT TO IT. THE REPAIR IS ALWAYS THE SAME — SHARPEN THE KEY UNTIL IT SEPARATES THE TWO
 
 *2026-09-05, `cfd`, M6SR and JF1G. Cost: no compute attributable — every instance was found by a
 control or a plant, not by a run.*
 
-**The pattern.** Eight defects found across two campaigns in two days looked like eight unrelated
+**The pattern.** Nine defects found across two campaigns in two days looked like nine unrelated
 bugs. They are one. **In every case a reader was given a key that matched its subject AND matched
 something sitting next to its subject, and could not tell which it had.** The symptom is always a
 confident answer that is wrong, and it is always a *plausible* wrong — which is why none of them
@@ -24186,16 +24186,17 @@ was caught by reading the output.
 | 6 | **two states** — "never launched" and "ran and was refused" | **one representation**: absence from a dict. **Fault 4 inverted** — there one file had two names, here two states have one name |
 | 7 | a **computed** value (`endTime 30000`) | its **displayed** value (`endTime 3000`), truncated at 60 characters with no marker |
 | 8 | the **solver** log (`log.simpleFoam`, 28.7 MB) | the log that **sorted first** (`log.build_jf1`, 2.9 kB) |
+| 9 | **one file** — `verification/runs/F5_runs/run_rung.py` | **another file of the same name** — `verification/runs/W1_runs/run_rung.py`. A frozen registration cited `run_rung.py` **with no path**; the citation travelled into a supervisor's brief and into a lane's hands with nobody checking which. **THE `cfd-supervisor`'s, passed on unexamined.** **Instance #4 inverted** — there one file with two names, here one name with two files — and it is the only member of the set that **propagated through an INSTRUCTION rather than through software**, which is why it is here: **the class travels through authority, not just through code** |
 
 **The repair is the same every time: sharpen the key until it separates the subject from its
 neighbour.** Not a tighter threshold — a *different discriminator*. #2 was fixed by keying on
 invocation rather than on the flag's presence; #5 by keying on the guard's own message rather than
 on "did anything abort"; #8 by picking the log by **role** rather than by sort order.
 
-**Why it matters more than eight bugs.** Six of the eight were in **audit machinery** — census
+**Why it matters more than nine bugs.** Six of the nine were in **audit machinery** — census
 readers, controls, and the suites built to catch defects — not in solvers. **An audit whose key
 cannot separate its subject from its neighbour reports a clean zero and is believed**, because a
-zero from an audit looks exactly like a zero from a healthy system. Three of the eight were caught
+zero from an audit looks exactly like a zero from a healthy system. Three of the nine were caught
 only because the reader printed whether its **plant discriminated**; one (#1) would otherwise have
 shipped a clean `0 affected` that the lane would have believed.
 
@@ -24203,7 +24204,7 @@ shipped a clean `0 affected` that the lane would have believed.
 print whether its plant **discriminated** — positive limb seen, negative twin *not* seen — has not
 reported a zero. It has reported a hope.
 
-⚠ **AND ONE OF THE EIGHT IS NOT FIXABLE BY SHARPENING, WHICH IS WHY THE PATTERN NEEDS A BOUNDARY.**
+⚠ **AND ONE OF THE NINE IS NOT FIXABLE BY SHARPENING, WHICH IS WHY THE PATTERN NEEDS A BOUNDARY.**
 `C12` in `analyse_m6sr.py` was a reader that **could** distinguish perfectly, asked a question its
 data could not answer: its registered must-see was `FALSIFIED`, which requires a strictly monotone
 series, and the registered AGARD reference is monotone in neither direction. **No key sharpening
@@ -24215,7 +24216,7 @@ question"; only the first is this lesson.**
 ⚠ **ONE ROW IS ATTRIBUTED AND THE REST ARE NOT, AND THE ASYMMETRY IS DELIBERATE.** Instance #2 is named as the
 **supervisor's** because *a record in which authority's errors are anonymous while the discipline is enforced
 downward teaches the wrong thing* — the whole method here is that **authority does not exempt you from the
-check**. The lane-reported instances stay unattributed for the opposite reason: **six of these eight were
+check**. The lane-reported instances stay unattributed for the opposite reason: **six of these nine were
 self-reported by the agent that made them, before anyone else found them**, and *naming a lane in a permanent
 record for an error it volunteered creates an incentive not to volunteer the next one.* **That behaviour is
 worth more than any single lesson, so it is not taxed.**
