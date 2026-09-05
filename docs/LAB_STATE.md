@@ -5346,11 +5346,65 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-05T21:37:04Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-77` — **Arm F's first leg is home clean (`rc=0`, 8.43 core-min); verification hands back a credit that the rung records were MORE FAITHFUL TO THE SOURCE THAN THE CHARTER; and A4's never-run large-step check is recorded as an open item, NOT as a new gate.** Before it, `S-76` (dafoam RUNNING), `S-75`, `S-74`, `S-73`…`S-29`.
+**Section last written:** 2026-09-05T21:47:32Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-78` — **four legs home all `rc=0`, Arm F complete at 16.83 core-min; the 20 s I authorised stopped the `A1WRT2` freeze TWICE (a hash of the EMPTY STRING recorded as a measurement, and a missing loader line meaning the solver would never have started); and my SEAM deadline ruling was EXACTLY BACKWARDS and is void.** Before it, `S-77`, `S-76`, `S-75`, `S-74`…`S-29`.
 
 **Section last written:** 2026-09-04T01:08:43Z by dafoam-supervisor personally (stamp from `date -u` in the committing invocation). Newest block is `S-48` — **`W3` IS NOT RUNNING AND HAS NOT BEEN SINCE 21:57:49Z; IT REACHED ITS REGISTERED TERMINUS, AND THE REGISTERED FALLBACK DOES NOT RESCUE IT.** `S-47`'s and `S-46`'s *"`W3_chain_r2` running"* lines are **STRUCK BY QUOTE** below — they were true when written and were still being relayed three hours after they stopped being true. Before it, `S-47` — **DESK ITEMS CLOSED**: the **rule-10 hole is fixed in the constitution itself** on Sanaa's GO (`0ee2e7df`, verified by me at HEAD, not taken on relay), and the rule-12 estimate gap is **routed to verification** as a forward-only note. `S-46`'s "on Sanaa's desk" line is **struck by quote** so no successor re-escalates a closed item. **Nothing now on her desk from this family** but the four `NOT FILED` upstream defect classes and FD-vs-adjoint as a fourth `V` instrument. Before it, `S-46` (closing state), `S-45`, `S-44`, `S-43`, `S-42`, `S-41`, `S-40`, `S-39`, `S-38`, `S-37` (**DAFoam refuses a 2-direction mesh BY DESIGN**), `S-36`…`S-29`.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+##### S-78 — **FOUR LEGS HOME, ALL `rc=0`: ARM F COMPLETE AT 16.83 CORE-MIN, ARM P UNDERWAY. AND THE 20 SECONDS I AUTHORISED STOPPED THE `A1WRT2` FREEZE **TWICE** — INCLUDING A HASH OF THE EMPTY STRING RECORDED AS A MEASUREMENT, AND A MISSING LOADER LINE THAT WOULD HAVE MEANT THE SOLVER NEVER STARTED** (2026-09-05, `date -u` stamp in the committing invocation)
+
+###### 1. THE RUN
+
+| leg | rc | wall | core-min |
+|---|---|---|---|
+| `f500_5363_plus` | **0** | 253 s | 8.43 |
+| `f500_5363_minus` | **0** | 252 s | 8.40 |
+| `p025_5363_plus` | **0** | 231 s | 7.70 |
+| `p025_5363_minus` | running | — | — |
+
+**Arm F (the falsifier) COMPLETE at 16.83 core-min against a registered 15.178 — ratio 1.109.** Arm P projecting **~46.2** at leg 1's rate against 45.533. **Item projection ~63.0 against 60.711 (ratio 1.038), inside the 75.0 hard cap.** *Reported while it is small, as a measurement rather than as an end-of-run excuse.*
+
+###### 2. ⚠⚠ THE 20 SECONDS I AUTHORISED PAID FOR ITSELF TWICE, AND THE SECOND ONE WAS THE WHOLE ITEM
+
+I authorised a **~20 s `docker run md5sum`** rather than redefine a freeze condition. It returned two freeze-stopping findings.
+
+**(a) `measure_image_pins` returned `d41d8cd98f00b204e9800998ecf8427e` — THE md5 OF THE EMPTY STRING — at `rc 0`.** `python` is not on PATH until the loader is sourced, so the command substitution went empty, `md5sum` fell back to **stdin**, read EOF, and printed the hash of nothing. **`G-IMG` would then have refused reporting an IMAGE MISMATCH OVER A PROVABLY CORRECT IMAGE.**
+
+> **That is rule 3 wearing a hash: not a blind reader returning a ZERO, but a reader returning A CONSTANT IT NEVER READ.** *A zero at least looks like an absence. `d41d8cd9…` looks like evidence.*
+
+**(b) And it exposed the one that was the item: the ARM BODIES had the same shape.** `/bin/bash -lc 'cd /mnt && python /run_root/runScript.py …'` with **no loader sourced — so THE SOLVER WOULD NEVER HAVE STARTED.** Both arms: empty `sweep.log`, non-zero rc, **no point at all.** **`A1WRT` U1 ran only because `a1wrt_run_unit.sh:675` sources the loader, and this successor DROPPED THAT LINE.** **Zero of seven again, for one missing line — and it would have presented as a physics failure.**
+
+*The pin refusal now sits **before** the container, so a reader defect costs 0 core-min instead of an arm's cap.*
+
+###### 3. ⚠ MY SEAM RULING WAS EXACTLY BACKWARDS AND IS VOID
+
+I ordered `900 → 600 s` on `A1WRT2`'s SEAM deadline, calling it the inert-cap shape. **Re-derived by me:**
+
+| | cap as wall | deadline | verdict |
+|---|---|---|---|
+| SEAM **as registered** | 600.0 s | 900 s | **REACHABLE, +33.3 %** |
+| SEAM **under my edit** | 600.0 s | 600 s | ***DEAD LEVER, 0.0 %*** |
+| **TAIL** | 40,500.0 s | 40,500 s | ***DEAD LEVER, 0.0 %*** |
+
+**I ordered the rule `cap × 60 / ranks < wall_bound` for `W3S`, stated it correctly on this board, and then applied it INVERTED.** I read *"the deadline is worth more core-min than the cap"* as the cap being unenforceable — when that gap **is exactly what makes the cap enforceable.** **My edit would have manufactured the dead lever it was removing, on the item where I had just found that class twice.** **Third direction error of this session**, after the `1.186`/`1.2291` normalisation and the fabricated `2620`. **The lane reverted it and PINNED THE REPLAY WITH A CONTROL, so it cannot be made silently again.**
+
+**RULED: TAIL's in-container deadline `40,500 → 41,400 s` (`cap × 1.02`).** **And the direction is stated so it is not mistaken for widening: T25 forbids moving a gate or threshold to MANUFACTURE A PASS. A deadline sitting exactly at the cap makes the CAP UNENFORCEABLE — raising the backstop so the registered cap can bind STRENGTHENS enforcement.** No gate, band or threshold moves. *And the lane's **"I am not moving a second cap on a second reading today"** was the right instinct after my error.*
+
+###### 4. `D6RF3-DEF-6` — VERIFIED BY ME, AND NO FREEZE COULD HAVE SEEN IT
+
+`d6rf2_grade.py` registers **`d6rf2_endpoint_dvs_PHYSICAL`** (3 occurrences); its only writer emits **`d6rf_endpoint_dvs_PHYSICAL.json`**. **One character. `gate_g1`'s age guard refuses `registered_product_absent` when the arm ran — so `D6RF2` would have refused at grading HOWEVER CLEAN ITS ARMS WERE**, a second blocker independent of DEF-4.
+
+> **No md5 freeze could have caught it: every pinned file hashed correctly. HASHING PROVES BYTES, NOT ADDRESSES.** *And the lane's own sentence generalises it — **"the numbers were measured; the path was not."***
+
+**RULED: P1 — build the launcher this pass** (one derived file; it carries DEF-6's host-side repair, which `PRODUCT_WRITER` does not cover), **using the committed `_common/item_ceiling_guard.py`** and **not** `d6rf`'s fail-open form. **P2 — WIDEN `G-CAPS`/`G1`'s unchecked float parsing**, because DEF-5 is measured, not hypothetical, and leaving the identical shape one gate over is knowingly leaving a defect that produces a **confident wrong verdict**. It only ADDS refusals. **The `PREREGISTRATION_DRAFT.md` → `PREREGISTRATION.md` rename is part of MY freeze commit** — the grading path would otherwise refuse on its own first line.
+
+*And the census earned its keep: `endpoint_physical` **invokes** the extractor and **pins its md5**, so ruling 1 landed in two files. **A serial build would have found that at the freeze.***
+
+###### 5. STATE
+
+**ON THE BOX:** `S1FDP`, Arm P leg 2 of 6. **BLOCKED ON ME ALONE:** three freeze commits — `A1WRT2` (TAIL deadline, then hand-back), `D6RF3` (P1/P2, then hand-back), `W3S` (nothing but the commit). **W4 Arm 2 fires after P reports.**
+
+
 ##### S-77 — **ARM F's FIRST LEG IS HOME CLEAN (`rc=0`, 8.43 core-min). AND VERIFICATION HANDS BACK TWO THINGS: A CREDIT THAT THE RUNG RECORDS WERE MORE FAITHFUL TO THE SOURCE THAN THE CHARTER WAS, AND ONE RESIDUE THAT IS MINE — A4's LARGE-STEP CHECK NEVER RAN. IT IS RECORDED AS AN OPEN ITEM, **NOT** AS A NEW GATE** (2026-09-05, `date -u` stamp in the committing invocation)
 
 ###### 1. THE RUN
