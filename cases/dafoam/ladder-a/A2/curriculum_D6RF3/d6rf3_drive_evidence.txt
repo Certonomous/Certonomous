@@ -1,0 +1,94 @@
+D6RF3 PRE-FREEZE DRIVE EVIDENCE -- every control driven in BOTH directions
+Driven 2026-09-05T21:38:52Z on the host. ZERO SOLVER CORE-MINUTES; no container started.
+CLAUDE.md rule 3; PREREGISTRATION.md sections 3e and 3f; falsifier F2.
+
+=========== 1. SECTION 3e THIRD PLANTED CONTROL -- the CD reader ===========
+D6RF3 CD PLANT CONTROL -- BOTH DIRECTIONS, no `assert` statement anywhere in this file
+  product /tmp/d6rf3_cd_ctrl_3nefoxvb/d6rf3_fd_endpoint.json
+  registered key points.cl05.CD = 0.02176156349
+  OK    direction 1  state=EXERCISED-PASS delta=1.234000e-03 (PLANT 1.234000e-03) original_unchanged=True
+  OK    direction 2  blind=wrong_top_level_block__points_baseline     outcome=REFUSED   reason_is_PLANT_CD_with_reader_saw_the_plant_false=True
+  OK    direction 2  blind=wrong_point__always_cl04                   outcome=REFUSED   reason_is_PLANT_CD_with_reader_saw_the_plant_false=True
+  OK    direction 2  blind=wrong_quantity__CL_for_CD                  outcome=REFUSED   reason_is_PLANT_CD_with_reader_saw_the_plant_false=True
+  OK    direction 2  blind=ignores_its_argument__returns_a_constant   outcome=REFUSED   reason_is_PLANT_CD_with_reader_saw_the_plant_false=True
+  OK    direction 3  absent artefact -> state=NOT EXERCISED (reported, never counted as a pass)
+  RESULT ALL DIRECTIONS AS REGISTERED  (positive=1  blind=4  not-exercised-token=1)
+rc=0
+
+=========== 2. SECTION 3f FINITENESS MUTATION HARNESS ======================
+D6RF3 SECTION 3f FINITENESS MUTATION HARNESS -- BOTH DIRECTIONS
+  fixture root /tmp/d6rf3_finmut_iahcpm2d/run
+  binding list (section 3f, VERBATIM, not widened): G-OFF, G-PRICE, G-FD, G-DVL, R-RED
+  OK   G-OFF   CD_i(mp)       direction 2  unmutated -> PASS
+      OK   G-OFF   CD_i(mp)       NaN   -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf3_fd_endpoint.json key=points.cl05.CD token='nan'
+      OK   G-OFF   CD_i(mp)       +Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf3_fd_endpoint.json key=points.cl05.CD token='inf'
+      OK   G-OFF   CD_i(mp)       -Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf3_fd_endpoint.json key=points.cl05.CD token='-inf'
+  OK   G-OFF   CD_i(REF_off)  direction 2  unmutated -> PASS
+      OK   G-OFF   CD_i(REF_off)  NaN   -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf3_ref_off.json key=points.cl04.CD token='nan'
+      OK   G-OFF   CD_i(REF_off)  +Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf3_ref_off.json key=points.cl04.CD token='inf'
+      OK   G-OFF   CD_i(REF_off)  -Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf3_ref_off.json key=points.cl04.CD token='-inf'
+  OK   G-OFF   CL_i(REF_off)  direction 2  unmutated -> PASS
+      OK   G-OFF   CL_i(REF_off)  NaN   -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf3_ref_off.json key=points.cl04.CL token='nan'
+      OK   G-OFF   CL_i(REF_off)  +Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf3_ref_off.json key=points.cl04.CL token='inf'
+      OK   G-OFF   CL_i(REF_off)  -Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf3_ref_off.json key=points.cl04.CL token='-inf'
+  OK   G-PRICE CD_cl05(mp)    direction 2  unmutated -> PASS
+      OK   G-PRICE CD_cl05(mp)    NaN   -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf3_fd_endpoint.json key=points.cl05.CD token='nan'
+      OK   G-PRICE CD_cl05(mp)    +Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf3_fd_endpoint.json key=points.cl05.CD token='inf'
+      OK   G-PRICE CD_cl05(mp)    -Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf3_fd_endpoint.json key=points.cl05.CD token='-inf'
+  OK   G-FD    J_adj          direction 2  unmutated -> PASS
+      OK   G-FD    J_adj          NaN   -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf3_fd_endpoint.json key=rows[shape[46]].J_adj token=nan
+      OK   G-FD    J_adj          +Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf3_fd_endpoint.json key=rows[shape[46]].J_adj token=inf
+      OK   G-FD    J_adj          -Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf3_fd_endpoint.json key=rows[shape[46]].J_adj token=-inf
+  OK   G-FD    d(s_hi)        direction 2  unmutated -> PASS
+      OK   G-FD    d(s_hi)        NaN   -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf3_fd_endpoint.json key=rows[shape[46]].fd.s_hi.d token=nan
+      OK   G-FD    d(s_hi)        +Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf3_fd_endpoint.json key=rows[shape[46]].fd.s_hi.d token=inf
+      OK   G-FD    d(s_hi)        -Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf3_fd_endpoint.json key=rows[shape[46]].fd.s_hi.d token=-inf
+  OK   G-FD    d(s_lo)        direction 2  unmutated -> PASS
+      OK   G-FD    d(s_lo)        NaN   -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf3_fd_endpoint.json key=rows[shape[46]].fd.s_lo.d token=nan
+      OK   G-FD    d(s_lo)        +Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf3_fd_endpoint.json key=rows[shape[46]].fd.s_lo.d token=inf
+      OK   G-FD    d(s_lo)        -Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf3_fd_endpoint.json key=rows[shape[46]].fd.s_lo.d token=-inf
+  OK   G-FD    eta_used       direction 2  unmutated -> PASS
+      OK   G-FD    eta_used       NaN   -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf3_fd_endpoint.json key=eta_used token=nan
+      OK   G-FD    eta_used       +Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf3_fd_endpoint.json key=eta_used token=inf
+      OK   G-FD    eta_used       -Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf3_fd_endpoint.json key=eta_used token=-inf
+  OK   G-DVL   shape[0]       direction 2  unmutated -> GATE FAIL
+      OK   G-DVL   shape[0]       NaN   -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf3_endpoint_dvs_PHYSICAL.json key=shape[0] token='nan'
+      OK   G-DVL   shape[0]       +Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf3_endpoint_dvs_PHYSICAL.json key=shape[0] token='inf'
+      OK   G-DVL   shape[0]       -Inf  -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf3_endpoint_dvs_PHYSICAL.json key=shape[0] token='-inf'
+  OK   R-RED   J[-1]          direction 2  unmutated -> REPORTED value_pct=21.923076923076927
+      OK   R-RED   J[-1]          NaN   -> REPORTED      reason=NON_FINITE_INPUT artefact=d6rf3_major_history.json key=J[-1] token=nan
+      OK   R-RED   J[-1]          +Inf  -> REPORTED      reason=NON_FINITE_INPUT artefact=d6rf3_major_history.json key=J[-1] token=inf
+      OK   R-RED   J[-1]          -Inf  -> REPORTED      reason=NON_FINITE_INPUT artefact=d6rf3_major_history.json key=J[-1] token=-inf
+  ----------------------------------------------------------------
+  direction 1 (mutated -> NOT A RESULT, reason asserted) : 30 of 30
+  direction 2 (unmutated -> NOT `NOT A RESULT`)          : 10 of 10
+  NOT EXERCISED                                          : 0
+  F2: the section 3f clause IS ESTABLISHED in both directions
+rc=0
+
+=========== 3. CAP / DEADLINE REACHABILITY ARITHMETIC ======================
+D6RF3 CAP / DEADLINE REACHABILITY -- ranks=4 frame_allowance_s=90
+  F_mp     cap  480.00 core-min x 60 / 4 ranks =   7200.0 wall s
+           TMO    7110 s + frame 90 s          =   7200.0 wall s   residual +0.0e+00 s
+           max spend at TMO = 7110 x 4 / 60 =  474.00 core-min  (cap headroom 6.00)
+           predicted  155.70 core-min  <= cap 480.00 : OK
+  REF_off  cap  190.00 core-min x 60 / 4 ranks =   2850.0 wall s
+           TMO    2760 s + frame 90 s          =   2850.0 wall s   residual +0.0e+00 s
+           max spend at TMO = 2760 x 4 / 60 =  184.00 core-min  (cap headroom 6.00)
+           predicted   60.07 core-min  <= cap 190.00 : OK
+  TOTAL predicted 215.77 core-min against ceiling 670.0 core-min
+rc=0
+
+=========== 4. NO BARE `assert` ANYWHERE (python -O deletes them) =========
+  d6rf3_anchor_gate.py               ast.Assert=0
+  d6rf3_cd_plant_control.py          ast.Assert=0
+  d6rf3_endpoint_locus.py            ast.Assert=0
+  d6rf3_endpoint_physical.py         ast.Assert=0
+  d6rf3_extract_endpoint.py          ast.Assert=0
+  d6rf3_fd_endpoint.py               ast.Assert=0
+  d6rf3_finiteness_mutation.py       ast.Assert=0
+  d6rf3_grade.py                     ast.Assert=0
+  d6rf3_opt_runScript.py             ast.Assert=0
+  d6rf3_ref_off.py                   ast.Assert=0
+  d6rf3_units_assert.py              ast.Assert=0
+  TOTAL ast.Assert across the item = 0

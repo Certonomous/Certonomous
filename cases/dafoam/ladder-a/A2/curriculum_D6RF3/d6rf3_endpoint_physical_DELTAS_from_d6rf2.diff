@@ -1,0 +1,90 @@
+--- /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF2/d6rf2_endpoint_physical.py	2026-09-03 19:40:55.591460581 +0000
++++ d6rf3_endpoint_physical.py	2026-09-05 21:27:16.092222424 +0000
+@@ -1,7 +1,32 @@
+ #!/usr/bin/env python
+-"""Curriculum D6RF -- the MULTIPOINT endpoint repair, as a WRAPPER that edits
++"""Curriculum D6RF3 -- the MULTIPOINT endpoint repair, as a WRAPPER that edits
+ zero bytes of any frozen file.
+ 
++DERIVED FROM `curriculum_D6RF2/d6rf2_endpoint_physical.py`
++(md5 `6e5fa9f9c2048b0665593282f62ba3dc`, verified on disk before this file was
++written); the deltas are in `d6rf3_endpoint_physical_DELTAS_from_d6rf2.diff`
++beside this file.  THREE OF THEM ARE COUPLED CONSEQUENCES OF ANOTHER RULING and
++are recorded here so a reader does not have to reconstruct why they moved:
++
++  D1  `EXTRACTOR` / `MD5_EXTRACT` are RE-PINNED to `d6rf3_extract_endpoint.py`.
++      This file INVOKES the extractor (C3), so the supervisor's POSITION 1
++      ruling on `PREREGISTRATION.md` section 9 -- a successor extractor reading
++      DVs and `J` only -- does not land in the extractor alone.  Had this pin
++      not moved, C1 would have refused on the first fire.
++  D2  Every product name is this item's own (`d6rf3_*`).
++  D3  ⚠ `PHYSICAL` IS `d6rf3_endpoint_dvs_PHYSICAL.json`, WHICH REPAIRS
++      `D6RF3-DEF-6`.  MEASURED IN THE FROZEN `D6RF2` SET: `d6rf2_grade.py:94`,
++      `:104` and `:458` and `d6rf2_run_arm.sh:546` all register
++      `d6rf2_endpoint_dvs_PHYSICAL.json`, while `d6rf2_endpoint_physical.py:75`
++      -- THE ONLY FILE THAT WRITES IT -- still wrote `D6RF`'s
++      `d6rf_endpoint_dvs_PHYSICAL.json`.  `d6rf2_grade.py:324-329` walks
++      `REGISTERED_PRODUCTS` and REFUSES `registered_product_absent` when the
++      producing arm ran, so `D6RF2` would have refused at grading even had every
++      arm run clean.  This is `DAFOAM_CHARTER.md` section 18.3's failure mode
++      exactly: a name in the instrument/product table that no instrument writes.
++      `d6rf3_grade.py` additionally carries an executable `PRODUCT_WRITER` check
++      so the class cannot recur silently.
++
+ DERIVED FROM `cases/dafoam/ladder-a/A2/curriculum_D4/d4_endpoint_physical.py`
+ (md5 `74c35c80bb4d395cf8939d851bc6b3f9`), which D4's arm F3 ran to `rc = 0`.
+ The three limits below are D4's and bind here unchanged; the deltas are the two
+@@ -62,22 +87,22 @@
+ 
+ HERE = os.path.dirname(os.path.abspath(__file__))
+ sys.path.insert(0, HERE)
+-import d6rf2_endpoint_locus as locus                                # noqa: E402
++import d6rf3_endpoint_locus as locus                                # noqa: E402
+ 
+-EXTRACTOR = "d6r_extract_endpoint.py"
+-RUNSCRIPT = "d6rf2_opt_runScript.py"
++EXTRACTOR = "d6rf3_extract_endpoint.py"
++RUNSCRIPT = "d6rf3_opt_runScript.py"
+ # PREREGISTRATION.md section 7.  These are the FREEZE, not a preference.
+-MD5_EXTRACT = "1743dd4232a7f06785f71be2f285f08d"
++MD5_EXTRACT = "7adc049421cce82f021603bbbe93dd1e"
+ MD5_RUNSCRIPT = "137539e0a99be27f27fdb69e063b2a87"
+ 
+-SCALED_OUT = "d6r_endpoint_dvs.json"                 # the frozen extractor writes this
+-PRESERVED = "d6r_endpoint_dvs_DRIVERSCALED.json"     # the pre-repair pre-image
+-PHYSICAL = "d6rf_endpoint_dvs_PHYSICAL.json"         # the corrected artefact
+-HISTORY = "d6r_major_history.json"
++SCALED_OUT = "d6rf3_endpoint_dvs.json"                 # the frozen extractor writes this
++PRESERVED = "d6rf3_endpoint_dvs_DRIVERSCALED.json"     # the pre-repair pre-image
++PHYSICAL = "d6rf3_endpoint_dvs_PHYSICAL.json"         # the corrected artefact
++HISTORY = "d6rf3_major_history.json"
+ 
+ 
+ def refuse(msg):
+-    sys.stderr.write("D6RF_ENDPOINT_PHYSICAL REFUSE %s\n" % msg)
++    sys.stderr.write("D6RF3_ENDPOINT_PHYSICAL REFUSE %s\n" % msg)
+     sys.exit(2)
+ 
+ 
+@@ -111,10 +136,10 @@
+     for stale in (SCALED_OUT, PRESERVED, PHYSICAL, HISTORY):
+         if os.path.exists(stale):
+             os.remove(stale)
+-    spec = importlib.util.spec_from_file_location("d6r_extract_frozen",
++    spec = importlib.util.spec_from_file_location("d6rf3_extract_frozen",
+                                                   os.path.abspath(EXTRACTOR))
+     mod = importlib.util.module_from_spec(spec)
+-    sys.modules["d6r_extract_frozen"] = mod
++    sys.modules["d6rf3_extract_frozen"] = mod
+     spec.loader.exec_module(mod)      # __name__ != "__main__": no entrypoint fires
+     mod.main()                        # the frozen bytes do the extraction
+ 
+@@ -219,7 +244,7 @@
+           "d6r_fd_endpoint.py; pre-image preserved at %s md5 %s"
+           % (SCALED_OUT, PRESERVED, m_src))
+ 
+-    sys.stdout.write("D6RF_ENDPOINT_PHYSICAL_WRITTEN %s scalers=%s "
++    sys.stdout.write("D6RF3_ENDPOINT_PHYSICAL_WRITTEN %s scalers=%s "
+                      "pinned_witnesses=%d bounds_checked=%d bounds_violations=%d\n"
+                      % (PHYSICAL, json.dumps(scalers_used, sort_keys=True),
+                         cp["n_pinned_found"], cb["n_checked"], cb["n_violations"]))

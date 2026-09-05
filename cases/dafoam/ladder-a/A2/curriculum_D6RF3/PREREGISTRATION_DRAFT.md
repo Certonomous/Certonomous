@@ -46,10 +46,25 @@ nowhere else.**
 
 ---
 
-## 1. THE DEFECTS CARRIED FORWARD — five, each verified against the record by this lane, not copied
+## 1. THE DEFECTS CARRIED FORWARD — **SIX**, each verified against the record, not copied
 
-Every row below was re-derived from the artefact named in it. Four were known; **`D6RF3-DEF-5` is
-new and is the most dangerous of the five**, because unlike the other four it fails *silently*.
+Every row below was re-derived from the artefact named in it. Four were known; **`D6RF3-DEF-5` is the
+most dangerous**, because unlike the others it fails *silently*; **`D6RF3-DEF-6` is newer still and is
+recorded at §9b**, found while writing the instruments rather than by inspection of prose.
+
+**RE-VERIFIED INDEPENDENTLY 2026-09-05** by reading `OptView.hst` with **stdlib `sqlite3` + `pickle`
+only — not pyOptSparse, not the extractor, not in a container** — so the defect and the instrument
+that reports it do not share a reader. Every figure below held exactly: **1,013 rows / 6 named keys /
+1,007 iteration records, indices 0–1006, all `isMajor=True`** (so `getValues(major=True)` filters
+nothing and `arr[-1,:]` is genuinely row 1006); **863 rows carry `funcs`; 687 of them non-finite
+`obj.J`; the trailing 8 (999–1006) all non-finite; the last FINITE major is index 998 at
+`J = 0.022238800232340834`** with `CL = 0.39997369 / 0.49993216 / 0.59985632`; **row 1006's `funcs`
+are `NaN` throughout**; and the distinct `funcs` names are exactly the six named — **`CD` appears
+nowhere.** `d6rf2_grade.py` re-hashed at `32a539780e34fe6d7945b7e301badc0f`, **43,462 bytes, zero
+occurrences of `isfinite`/`isnan`/`isinf`, and zero `assert` statements**; `NaN < 0.0`, `NaN <= 1.0e-3`
+and `NaN <= cd_ref` all confirmed `False` by execution. §2b's composite identity recomputed:
+**residual `9.840833e-12` absolute, `4.425074e-10` relative**; §5's deciding price recomputed at
+**`+6.3558538176e-04`**.
 
 ### 1a. `D6RF-DEF-2` (inherited, already repaired in `D6RF`) — in-place `F_mp` staging on the optimiser's own output directories
 
@@ -370,6 +385,32 @@ core-min, **A3** D4 `P2` 36.4, **A4** D4 `F3` 47.267, **A5** the multipoint trim
 The cap form is the family's ADOPTED `max(3.0 × estimate-at-a-measured-anchor, 1.25 × wall-at-
 registered-max-occupancy)` — **a MAX, never a product** (`docs/LAB_STATE.md` block `S-29` §7.4).
 
+### 4a.1 ⚠ THE CAP-versus-DEADLINE REACHABILITY CHECK — RUN, AND IT PASSES ON BOTH ARMS
+
+A cap in **core-minutes** and a deadline in **in-container wall seconds** are two stopping conditions
+in two units. If they are not reconciled one of them is decorative — a cap that can never be reached
+means a cap breach can never be the recorded stopping condition, and the ledger records the wrong
+reason for every stop. **This defect has been found twice in this lab (`W3S`, and inside `A1WRT2`'s
+own §5 table), so it is checked here as arithmetic rather than asserted.** It is also **executable**:
+`python3 d6rf3_grade.py --cap-arithmetic`, and `cap_reachability()` runs it on **every grading** and
+REFUSES if the identity breaks.
+
+Ranks `4`; `FRAME_ALLOWANCE_S = 90`. The registered design is
+`cap_core_min × 60 ÷ ranks == TMO + FRAME_ALLOWANCE_S` **exactly** — the deadline bounds the
+in-container program, the frame allowance is the container start/stop outside it, and the two
+together *are* the cap:
+
+| arm | `cap × 60 ÷ ranks` | `TMO + frame` | residual | max spend at `TMO` = `TMO × ranks ÷ 60` | cap headroom | predicted ≤ cap? |
+|---|---|---|---|---|---|---|
+| `F_mp` | `480.00 × 60 ÷ 4` = **7 200.0 s** | `7 110 + 90` = **7 200.0 s** | **`+0.0e+00 s`** | `7 110 × 4 ÷ 60` = **474.00 core-min** | **6.00 core-min** | `155.70 ≤ 480.00` **OK** |
+| `REF_off` | `190.00 × 60 ÷ 4` = **2 850.0 s** | `2 760 + 90` = **2 850.0 s** | **`+0.0e+00 s`** | `2 760 × 4 ÷ 60` = **184.00 core-min** | **6.00 core-min** | `60.07 ≤ 190.00` **OK** |
+
+**Both residuals are exactly zero and neither stopping condition is decorative.** The 6.00 core-min
+of headroom on each arm is not slack — it is precisely the 90 s frame allowance re-expressed
+(`90 × 4 ÷ 60 = 6.00`), i.e. the container overhead the cap covers and the in-container deadline does
+not. **`D6RF3` does NOT carry the `W3S`/`A1WRT2` defect.** Total predicted **215.77** against ceiling
+**670.0** core-min.
+
 **Corroboration for `F_mp`, carried from `D6RF` §4b:** Route B's segment model gives 123.05 core-min
 against Route A's 155.74 — **a 26.5 % spread, named rather than smoothed**, with a known direction
 (Route B prices all 22 primals at a staged-baseline primal, and the FD primals are at perturbed
@@ -451,11 +492,19 @@ it exists in this item's run root — which is what rule 2's freeze is for.
 seven orders of magnitude while the version string still reads `2.6.2`. Every regrade log prints
 `IDWARP_IMPORTED_FROM:` as its provenance stamp.
 
-**⚠ OPEN, AND IT IS THE SUPERVISOR'S CALL, NOT THIS DRAFT'S.** Whether `D6RF3` buys a SHIPPED row —
-a second `F_mp` on stock IDWarp, at the same cap, ~155.70 core-min more — is a scope and budget
-decision. **This draft does not decide it and does not price it into §4.** If it is not bought, the
-item ships one row and says so; a one-row item is not a full §6 verdict about DAFoam and must not be
-reported as one.
+**⚠ RULED 2026-09-05: THE SHIPPED ROW IS *NOT BOUGHT*, AND IS *PRICED ANYWAY* AT `155.70` core-min.**
+
+The item ships **ONE PATCHED ROW, labelled as such everywhere**, and **is not a full §6 verdict about
+DAFoam and must not be reported as one.** The price is `F_mp`'s own registered estimate — a second
+`F_mp` on stock IDWarp at the same cap — and it is **NOT added to §4's total**, which stays at
+**215.77 core-min against a 670.0 ceiling**; §4's arithmetic is unchanged by this ruling.
+
+**Why price a row nobody is buying:** *an unbought row that is priced can be bought by a successor; an
+unbought row that is unpriced quietly becomes never.* The figure is carried on the artefact's own face
+— `d6rf3_grade.py` emits `two_row_rule.{row_bought, row_not_bought, shipped_row_price_core_min,
+is_a_full_charter_section_6_verdict: false}` into every verdict document and prints it beside the
+verdict — so the label travels **with the number** and not in a header (`DAFOAM_CHARTER.md` §18.6
+refinement 2).
 
 ---
 
@@ -485,21 +534,44 @@ point.
 * **No grid family exists, so no GCI is quoted anywhere in this item** — and under `CLAUDE.md` rule
   5 no Roache verdict is claimed either.
 
-**The plateau, per §3 — and this is where the draft owes the supervisor an honest gap.** §3 requires
-that the step be *"proved to lie in the plateau by a sweep … read per component, not off the
-vector"*, at the primal tolerance the graded run uses. **This item's two-step ladder (`s_hi`,
-`s_lo`) is a two-point flatness check, not a sweep.** `D6RF`'s registration carried the same
-two-point form. The two available positions are stated so the supervisor rules rather than inherits:
+### 7a. ⚠ THE PLATEAU — **RULED, AND THIS DRAFT'S EARLIER RECOMMENDATION WAS WRONG AND IS STRUCK**
 
-* **(A) register the two-point check as what it is** — a plateau *indication*, not a proof — and
-  state in the item that **no §3 plateau proof is claimed**; the FD table then ships with that
-  limitation attached to every component; or
-* **(B) buy a sweep arm.** `A_stepsize_study`'s form on this problem is ~10 step values; at the FD
-  arm's own per-primal cost this is a separate arm with its own estimate and cap, **not priced in
-  §4** and **not to be absorbed into `F_mp`'s cap**.
+**STRUCK, 2026-09-05, not rewritten** (rule 2's originals-are-struck discipline, applied even
+pre-freeze): this draft previously offered *"(A) register the two-point check as what it is — a
+plateau **indication**, not a proof — and state in the item that **no §3 plateau proof is
+claimed**"*, and recommended it. **That recommendation was WRONG and it is withdrawn.**
 
-**This draft recommends (A) for this item and (B) as a separately registered successor**, and marks
-it **OPEN — SUPERVISOR'S RULING REQUIRED BEFORE FREEZE.**
+`DAFOAM_CHARTER.md` **§20** (addendum 2026-09-04) rules the point directly, and rules it *against its
+own author*:
+
+> **`VERIFICATION_CHARTER.md:854-855`** — *"1. Confirm the step sits in the well-converged plateau
+> with a **two or three point mini-sweep**. Not assumed."*
+>
+> **RULED … a two-point mini-sweep SATISFIES §3. Eighteen items in class (b) owe no caveat, and
+> writing "no plateau proof is claimed" onto their faces would have been A FALSE SELF-DEPRECATION —
+> a misstatement in the modest direction, which is still a misstatement.**
+
+§3 of that charter **delegates the definition** to §7 and *"says nothing about N, and it never did"*;
+§3's forbidden list draws the line at *"an FD number from A SINGLE STEP"*, and a two-point pair is on
+the compliant side of it. **So: the `s_lo`/`s_hi` ladder IS this item's §3 plateau proof. NO CAVEAT IS
+OWED AND NONE IS PRINTED**, and `d6rf3_grade.py` deliberately contains no such string.
+
+**WHAT SURVIVES THE WITHDRAWAL, AND IT IS PRINTED PER COMPONENT.** A two-point pair grades at `s_hi`
+with its only neighbour **below**, so **the plateau is one-sided by construction and the coarse side
+is unmeasured.** That is *strength of evidence*, not compliance — §7 sanctions it. This family has a
+**measured instance of the blind side firing**: `curriculum_D19/D15_D16_FD_STEP_TABLE.md:234`, D16
+`PATCHED` `CL` `shape[6]`, **14.0978 % coarse-side deviation against 1.1268 % fine-side** — a
+component a two-point pair waves through and a three-point sweep catches. The grader therefore prints
+per component `plateau_proved_against`, `plateau_graded_at`, `plateau_sidedness =
+ONE-SIDED (fine side only; coarse unmeasured)` and the D16 instance.
+
+**A third, COARSER point is the cheapest evidence available and is a STRENGTHENING, not a duty
+(§20.2). THIS ITEM DECLINES IT AND SAYS SO ON THE ARTEFACT'S FACE. Declining it is not a breach.**
+
+**⚠ AND ONE THING TO CARRY UPWARD, NOT SETTLED HERE.** `DAFOAM_CHARTER.md` §20.3 records an
+unrepaired self-inconsistency: §2 of that charter cites six ladder-b FD numbers as its own supporting
+data, and **an audit measured that FIVE of the six rest on a SINGLE step** — the thing §3's forbidden
+list names first. **That disposition is the dafoam-supervisor's and is untouched by this item.**
 
 ---
 
@@ -537,39 +609,74 @@ passes its gate, **and the gate is never widened to fit**).
 (`DAFOAM_CHARTER.md` §18.3). At the freeze commit each row below carries an md5 and the grading path
 verifies its own frozen set against `git cat-file blob HEAD:` at execution.
 
-| file | role | state in this DRAFT |
-|---|---|---|
-| `d6rf3_grade.py` | **THE GRADING PATH** — `G-OFF`/`G-PRICE` re-pointed to §2a's source, §3f's finiteness clause, `X-CDLOG` added | **NOT WRITTEN.** Derive from `d6rf2_grade.py` md5 `32a539780e34fe6d7945b7e301badc0f` |
-| `d6rf3_fd_endpoint.py` | the FD instrument; **must write `points.<pt>.CD` to its JSON product**, which `d6rf2_fd_endpoint.py:114-118` already emits | **NOT WRITTEN.** Derive from `0ce81a0b038abe12728b5b062e4420df` |
-| `d6rf3_finiteness_mutation.py` | §3f's two-direction mutation harness | **NOT WRITTEN — NEW** |
-| `d6rf3_cd_plant_control.py` | §3e's third planted-zero control | **NOT WRITTEN — NEW** |
-| `d6rf3_ref_off.py` | off-design instrument | derive from `25f532e01156d8bd93458b23e1471d0a` |
-| `d6rf3_endpoint_physical.py` | endpoint driver-scaled → PHYSICAL repair (`D6RF-DEF-1`) | derive from `6e5fa9f9c2048b0665593282f62ba3dc` |
-| `d6rf3_endpoint_locus.py` | `G-DVL` | derive from `341189ca866f302a7e1bba8eefad3a57` |
-| `d6rf3_anchor_gate.py` | `G-ANCHOR` | derive from `e34c0cb62df30e7a1565b896d07a32e6` |
-| `d6rf3_units_assert.py` | the units gate | derive from `34f8b79b96cc17d28d42ffd9ebc1874f` |
-| `d6rf3_opt_runScript.py` | the repaired producer (`D6RF-BLOCKING-1`) | derive from `137539e0a99be27f27fdb69e063b2a87` |
-| `d6rf3_run_arm.sh`, `d6rf3_chain_driver.sh` | launcher + chain driver | derive from `b45cdcb6be230949c08630639c4749b2` / `cfe78028b41872e5e2177aa492161e3a` — **the post-repair values, verified on disk today** |
-| `d6r_extract_endpoint.py` | **STAGED UNCHANGED**, md5 `1743dd4232a7f06785f71be2f285f08d`, verified on disk today | **still refuses on absent CD, and this item DOES NOT CHANGE IT.** §2a removes the grader's dependence on its CD output; the refusal path stays exactly as it is |
+**FILLED BY EXTRACTION 2026-09-05, NOT WRITTEN FROM MEMORY.** The extraction walks every `.py`/`.sh`
+in the item directory, parses each for local imports and quoted local paths, **asserts EXISTENCE for
+every extracted dependency BEFORE taking any md5**, and only then hashes. Its verbatim output is
+`d6rf3_instrument_table_extraction.txt` beside this file. `DAFOAM_CHARTER.md` §18.3's own sentence is
+why the two passes are separate: *"an md5-agreement control over a subset can read agreement on every
+pin it holds while a dependency the frozen code executes is absent."*
 
-**⚠ THE ONE THING A FREEZE MUST SETTLE FIRST, NAMED RATHER THAN GLOSSED.** `d6r_extract_endpoint.py`
-refuses at `:70` when CD is absent, and it runs **before** `d6rf3_fd_endpoint.py` in the arm. If it is
-left unchanged, **the arm still aborts at the same point and this item cannot run either.** The three
-positions, none of which this draft chooses:
+| file | role | EXISTS | bytes | md5 | `ast.Assert` |
+|---|---|---|---|---|---|
+| `d6rf3_grade.py` | **THE GRADING PATH** — `G-OFF`/`G-PRICE` re-pointed to §2a's source, §3f's finiteness clause, `X-CDLOG`, `PRODUCT_WRITER`, `cap_reachability` | **YES** | 80,718 | `90e30dfffbac3e87ad6df02af3c1fa0b` | 0 |
+| `d6rf3_cd_plant_control.py` | §3e's third planted-zero control **and the item's ONE `CD` reader**, imported by the grader | **YES** | 17,229 | `2808114c5c7214c9b8630b32b6ae357b` | 0 |
+| `d6rf3_finiteness_mutation.py` | §3f's two-direction mutation harness (`F2`); also the grader's `--selftest` | **YES** | 15,259 | `c6b6588e48425dc8ae06c17e34d13004` | 0 |
+| `d6rf3_fd_endpoint.py` | the FD instrument; **writes `points.<pt>.CD`**, §2a's registered source | **YES** | 12,937 | `24586c9ab7f733cd2b642775aaf7fbe3` | 0 |
+| `d6rf3_extract_endpoint.py` | **NEW — POSITION 1.** DVs and `J` only; the CD block is dropped | **YES** | 6,285 | `7adc049421cce82f021603bbbe93dd1e` | 0 |
+| `d6rf3_endpoint_physical.py` | driver-scaled → PHYSICAL repair; **re-pinned to the successor extractor** | **YES** | 12,464 | `750fb6336502ca5f71c954298e995f58` | 0 |
+| `d6rf3_endpoint_locus.py` | `G-DVL` | **YES** | 29,286 | `341189ca866f302a7e1bba8eefad3a57` | 0 |
+| `d6rf3_ref_off.py` | off-design instrument | **YES** | 4,789 | `4f0e564fc9855f179cb3d0e55d306af6` | 0 |
+| `d6rf3_anchor_gate.py` | `G-ANCHOR` | **YES** | 11,067 | `e823689c15c2459097d0441e553f565c` | 0 |
+| `d6rf3_units_assert.py` | the units gate | **YES** | 18,270 | `885ce236ed20d4be0337f4382346500a` | 0 |
+| `d6rf3_opt_runScript.py` | the repaired producer (`D6RF-BLOCKING-1`) | **YES** | 13,122 | `137539e0a99be27f27fdb69e063b2a87` | 0 |
+| `d6rf3_run_arm.sh` | launcher | **NO — ABSENT** | — | — | — |
+| `d6rf3_chain_driver.sh` | chain driver | **NO — ABSENT** | — | — | — |
 
-1. **Drop the extractor's CD block from the arm** by registering a successor extractor that reads DVs
-   and `J` only — the CD block is `:65-77` and **`_final_CD_*` is read by nothing in the container**
-   (zero references across all six in-container instruments, measured 2026-09-03). This is the
-   smallest change and it is a change to a **new** file, not to a frozen one.
-2. **Keep the extractor and register the refusal as expected**, running it after the FD arm — this
-   inverts the arm's step order and needs its own justification.
-3. **Do not stage the extractor at all** and have `d6rf3_endpoint_physical.py` reconstruct the
-   endpoint DVs directly.
+`d6rf3_endpoint_locus.py` and `d6rf3_opt_runScript.py` are **BYTE-IDENTICAL to their parents** and
+their md5s are deliberately unchanged — the runscript's especially, so `G-ANCHOR`'s single-occurrence
+assertion on `# OpenMDAO setup` (`D6RF-BLOCKING-1`'s repair) carries over rather than being
+re-established. Every other successor ships a `*_DELTAS_from_*.diff` beside it.
 
-**Position 1 is this draft's recommendation** — the extractor's design-vector path
-(`d6r_extract_endpoint.py:53-55`, `arr[-1,:]` over the five DV keys at `:25`) is exactly what the FD
-endpoint needs and **CD plays no part in constructing it**, measured. But it is a registration
-decision and it belongs to the supervisor.
+**Cross-item dependencies, asserted present by execution 2026-09-05:**
+`curriculum_D4/d4_opt_runScript.py` (`2906d52a5dbed2bacbaeaf85a37d3fe8`),
+`curriculum_D6R/d6r_opt_runScript.py` (`93edb4a231e13a7af065368f61a468ef`), and
+`/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin/O/opt_IPOPT.txt` — **exactly one
+`^Objective` line, reading `2.1125978108239574e-02`, identical to `CD_F_D4_RECORDED`.**
+
+### 9a. ⚠ THE EXTRACTOR QUESTION IS RULED AND IMPLEMENTED — POSITION 1
+
+The supervisor ruled **Position 1**: a successor extractor reading **DVs and `J` only**, dropping the
+CD block. `d6rf3_extract_endpoint.py` implements it. The measured ground: `_final_CD_*` and
+`_final_CL_*` — the only things the dropped block wrote — **are read by nothing**, zero references
+across every in-container instrument of this lineage; the per-major `CD_<pt>` series was read only at
+`d6rf2_grade.py:760` and `:792`, and §2a re-points both. The design-vector path (`arr[-1,:]` over the
+five DV keys) is unchanged, and **CD played no part in constructing it.**
+
+**A COUPLED CONSEQUENCE THE RULING DID NOT NAME, AND IT WOULD HAVE ABORTED THE FIRST FIRE.**
+`d6rf2_endpoint_physical.py` does not merely sit beside the extractor — it **invokes** it (C3,
+`importlib` on the committed blob) and **pins its md5** at C1. So Position 1 lands in *two* files, not
+one. `d6rf3_endpoint_physical.py` re-pins `MD5_EXTRACT` to `7adc049421cce82f021603bbbe93dd1e`. Had it
+not, C1 would have refused before the extractor ever ran.
+
+### 9b. ⚠ `D6RF3-DEF-6` — NEW, FOUND WHILE WRITING THESE INSTRUMENTS, AND IT MADE `D6RF2` UNGRADEABLE
+
+`d6rf2_grade.py:94`, `:104`, `:458` and `d6rf2_run_arm.sh:546` all register
+**`d6rf2_endpoint_dvs_PHYSICAL.json`**. `d6rf2_endpoint_physical.py:75` — **the only file that writes
+it** — still writes `D6RF`'s **`d6rf_endpoint_dvs_PHYSICAL.json`** (no `2`). Verified by grep across
+both directories.
+
+Read from the frozen bytes: `gate_g1`'s age guard walks `REGISTERED_PRODUCTS["F_mp"]`, whose first
+entry is that name, and **refuses `registered_product_absent` when the producing arm RAN**
+(`d6rf2_grade.py:326-329`). **So `D6RF2` would have refused at grading however clean its arms were** —
+a second, independent blocker behind `D6RF3-DEF-4`. And no md5 freeze could have seen it: every pinned
+file hashed correctly. That is `DAFOAM_CHARTER.md` §18.3's exact failure mode one level down, on
+*products* rather than instruments.
+
+**REPAIRED AND GUARDED.** The successor writes `d6rf3_endpoint_dvs_PHYSICAL.json`, and
+`d6rf3_grade.py` carries an executable `PRODUCT_WRITER` check that asserts, for every registered
+product, that the instrument registered as writing it **names it as a literal** — writer existence
+asserted before the read. It refuses rather than grading, because a product-name disagreement makes
+every downstream reading meaningless rather than merely failing.
 
 ---
 
@@ -598,15 +705,67 @@ data behind `D6RF3-DEF-5`; the composite-identity cross-check at 4.43e-10; the �
 four §2d.1 conditions and the price number that decides it; the §4 cost table re-derived from
 `D6RF` §4a's anchors; the instrument md5s in §9 re-hashed on disk.
 
-**Owed before any freeze, and no compute may start until all of it is done:**
+**DISCHARGED 2026-09-05, by a `lab-lane`, with zero solver core-minutes:**
 
-1. **A supervisor's ruling** on §9's extractor question, §7's plateau question and §6's shipped-row
-   question. All three change what the item is.
-2. **The instruments of §9 written, derived rather than re-typed, and driven** — including the two
-   NEW ones, whose drives are the evidence that §3e's third control and §3f's clause exist.
-3. **Root absence re-asserted BY EXECUTION at the freeze commit**, with a sibling name in the same
-   invocation.
-4. **The freeze commit itself** — gate, threshold, cap and label committed **before** the solver
-   starts, and the grading path hashed against the committed blob.
-5. **A queue row that cites this document**, never one that carries an estimate this document does
-   not (§4).
+1. ✅ **All three supervisor rulings implemented, not merely recorded.** §9's extractor → **Position 1**
+   (`d6rf3_extract_endpoint.py`, plus the coupled re-pin in `d6rf3_endpoint_physical.py` that the
+   ruling did not name and that would have aborted the first fire). §7's plateau → the earlier
+   recommendation **struck and withdrawn** per `DAFOAM_CHARTER.md` §20; no caveat printed. §6's
+   shipped row → **not bought, priced at 155.70 core-min**, on the artefact's face.
+2. ✅ **Every instrument written by DERIVATION, with a `*_DELTAS_from_*.diff` beside it**, and driven:
+   * §3e's third planted control — `d6rf3_cd_plant_control.py --drive`: **direction 1 EXERCISED-PASS
+     at delta `1.234000e-03`; direction 2 REFUSED on all FOUR deliberately blind readers, and the
+     drive asserts THE REASON (`PLANT_CD` with `reader_saw_the_plant` false), never merely the `rc`**;
+     the `NOT EXERCISED` token itself exercised. `rc=0`.
+   * §3f's mutation harness — `d6rf3_finiteness_mutation.py`: **direction 1 `30/30`** (NaN, +Inf, −Inf
+     into each of 10 gated inputs, each requiring `NOT A RESULT` **and** `NON_FINITE_INPUT` **and**
+     the artefact and key named), **direction 2 `10/10`** (unmutated → a verdict that is not `NOT A
+     RESULT`), **`NOT EXERCISED` = 0**. `rc=0`. **`F2` is satisfied: the clause IS established.**
+   * `ast.Assert` = **0** across all eleven `.py` files. Drive output: `d6rf3_drive_evidence.txt`.
+3. ✅ **§9 filled BY EXTRACTION, existence asserted before any md5** —
+   `d6rf3_instrument_table_extraction.txt`; cross-item dependencies asserted present by execution.
+4. ✅ **§4's cap/deadline reachability run as arithmetic** (§4a.1): both residuals exactly `0.0 s`.
+5. ✅ **Run root re-asserted ABSENT BY EXECUTION 2026-09-05** —
+   `/home/ubuntu/certonomous-runs/CURRICULUM-D6RF3-a2-wing-multipoint-fd` → `ABSENT`. **This does not
+   discharge item 8 below**, which requires the same assertion *in the freeze commit's own invocation*.
+
+**RESERVED TO THE SUPERVISOR — and this is now the whole list:**
+
+6. **Read `d6rf3_grade_DELTAS_from_d6rf2.diff` AS A DIFF** (782 changed lines).
+   `SUPERVISION_CHARTER.md` §3 check 1; it may not be delegated and a lane's summary is not it.
+7. **Rule on the two items recorded as PREDICTIONS in §11a** — the launcher pair, and the widening
+   question on §3f's binding list. Neither is on the grading path.
+8. **The freeze commit, in its own invocation**, re-asserting root absence *there*, with a sibling
+   name in the same invocation, and the grading path hashed against the committed blob.
+9. **A queue row that cites this document**, never one carrying an estimate this document does not.
+
+---
+
+## 11a. RECORDED AS PREDICTIONS — NOT BUILT, WHAT THEY WOULD HAVE CAUGHT, RISK ACCEPTED
+
+Per Sanaa's 2026-09-04 ruling that a pre-launch check phase terminates and the remainder is recorded
+as predictions rather than built. **Neither is on the grading path and neither is evidentiary-core.**
+
+**P1 — `d6rf3_run_arm.sh` and `d6rf3_chain_driver.sh` are ABSENT.** They are the launcher and chain
+driver, derived from `b45cdcb6be230949c08630639c4749b2` / `cfe78028b41872e5e2177aa492161e3a`. Nothing
+on the grading path imports or executes them; the extraction in §9 confirms it. **What their absence
+means, stated rather than glossed: the item cannot LAUNCH until they exist** — this is not a gate that
+would silently mis-grade, it is a run that cannot start. **What they would have caught:** the staging
+contract S1–S8 (`D6RF` §2a), the no-`rm -rf` and refuse-on-stale-directory rules that `D6RF-DEF-2`
+paid for. **Risk accepted:** none at grading time; the whole risk is at launch time and is loud.
+**They also carry `D6RF3-DEF-6`'s repair on the host side** — `d6rf2_run_arm.sh:546` names the
+physical artefact, so the successor must name `d6rf3_endpoint_dvs_PHYSICAL.json`; the grader's
+`PRODUCT_WRITER` check does **not** cover the launcher and will not catch it there.
+
+**P2 — §3f's binding list is NOT widened to `G-CAPS` and `G1`.** Those gates also parse floats from
+the ledger through `_f` **unchecked** (`d6rf3_grade.py`'s `gate_caps` reads `core_min`, `gate_g1`
+reads `core_min` and `wall_s`, both with a `"nan"` default). §3f's registered list is `G-OFF`,
+`G-PRICE`, `G-FD`, `G-DVL`, `R-RED` and **it is implemented VERBATIM and not widened**, because
+widening a registered clause inside its own control is how a clause stops meaning what it was frozen
+meaning. **What a widening would catch:** a ledger whose `core_min` field is malformed would today
+yield `nan`, and `nan <= cap` is False → `G-CAPS` `GATE FAIL` — *the same `D6RF3-DEF-5` shape, one
+gate over*. **Risk accepted:** the ledger is written by the launcher from `date`/`docker inspect`
+arithmetic, not from a solver, so a non-finite value there indicates a broken launcher rather than a
+physics outcome; and `G1` independently refuses when harness and kernel `rc` disagree. **This is
+recorded so the supervisor may widen §3f before the freeze if they judge otherwise — after the freeze
+it cannot be widened at all.**

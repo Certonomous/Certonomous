@@ -1,0 +1,25 @@
+--- /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF2/d6rf2_ref_off.py	2026-09-03 19:40:55.497502393 +0000
++++ d6rf3_ref_off.py	2026-09-05 21:25:22.188549158 +0000
+@@ -15,7 +15,7 @@
+   * findFeasibleDesign solves CL(cl04)=0.4, CL(cl05)=0.5, CL(cl06)=0.6 on
+     patchV_cl04 / patchV_cl05 / patchV_cl06 (component 1, the AoA) at once,
+     the multipoint form; the trimmed CD at every point is written to a FILE by
+-    rank 0 (d6r_ref_off.json), never recovered from stdout.
++    rank 0 (d6rf3_ref_off.json), never recovered from stdout.
+   * CONSISTENCY CHECK, recorded not gated: CD(cl05) after the re-trim should
+     reproduce D4's CD_f = 2.1125978108239574e-02 to the trim tolerance; the
+     difference is written beside it for the grader to report.
+@@ -26,11 +26,11 @@
+ import sys
+ import time
+ 
+-PRODUCER = "d6rf2_opt_runScript.py"
++PRODUCER = "d6rf3_opt_runScript.py"
+ PRODUCER_MD5 = "137539e0a99be27f27fdb69e063b2a87"
+ ANCHOR = "# OpenMDAO setup"
+ D4_ENDPOINT = "d4_endpoint_dvs.json"
+-OUT = "d6r_ref_off.json"
++OUT = "d6rf3_ref_off.json"
+ CD_F_D4_RECORDED = 2.1125978108239574e-02
+ 
+ 

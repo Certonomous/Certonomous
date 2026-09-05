@@ -1,0 +1,120 @@
+--- /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF2/d6rf2_anchor_gate.py	2026-09-03 19:39:53.960841984 +0000
++++ d6rf3_anchor_gate.py	2026-09-05 21:25:22.185549140 +0000
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""Curriculum D6RF2 -- `G-ANCHOR`, THE REGISTERED PRE-COMPUTE GATE.
++"""Curriculum D6RF3 -- `G-ANCHOR`, THE REGISTERED PRE-COMPUTE GATE.
+ 
+ THE RULE IT ENFORCES, registered by the dafoam-supervisor 2026-09-03 and stated
+ in his words:
+@@ -50,12 +50,12 @@
+ RC_ANCHOR_REFUSAL = 3
+ MIN_HEADER_CHARS = 9000            # the correct split yields 10,536; the broken one 1,396
+ REQUIRED_SYMBOLS = ("class Top", "POINTS", "U0 =", "daOptions", "CL_TARGETS", "WEIGHTS")
+-READERS = ("d6rf2_fd_endpoint.py", "d6rf2_ref_off.py")
+-STAGED_PRODUCER = "d6rf2_opt_runScript.py"
++READERS = ("d6rf3_fd_endpoint.py", "d6rf3_ref_off.py")
++STAGED_PRODUCER = "d6rf3_opt_runScript.py"
+ 
+ 
+ def refuse(check, detail):
+-    sys.stderr.write("D6RF2_ANCHOR REFUSE %s %s\n" % (check, detail))
++    sys.stderr.write("D6RF3_ANCHOR REFUSE %s %s\n" % (check, detail))
+     sys.exit(RC_ANCHOR_REFUSAL)
+ 
+ 
+@@ -125,10 +125,10 @@
+ 
+ 
+ def gate(work_dir):
+-    print("D6RF2 G-ANCHOR -- %d anchor-scoped readers, on the bytes they will "
++    print("D6RF3 G-ANCHOR -- %d anchor-scoped readers, on the bytes they will "
+           "actually read" % len(READERS))
+     res = [check_pair(os.path.join(work_dir, r), work_dir) for r in READERS]
+-    print("D6RF2_ANCHOR_PASS readers=%d producer=%s" % (len(res), STAGED_PRODUCER))
++    print("D6RF3_ANCHOR_PASS readers=%d producer=%s" % (len(res), STAGED_PRODUCER))
+     return res
+ 
+ 
+@@ -152,26 +152,26 @@
+             print("        %s" % det)
+         (ok if got == want else fail).append(label)
+ 
+-    print("D6RF2 G-ANCHOR SELFTEST -- both directions, on REAL bytes\n")
++    print("D6RF3 G-ANCHOR SELFTEST -- both directions, on REAL bytes\n")
+     print("A. THE POSITIVE LEG, on this item's own derived files")
+     check("the repaired producer PASSES the gate for both readers",
+           lambda: gate(HERE), False)
+ 
+     print("\nB. THE NEGATIVE LEG, on the ORIGINAL producer, still on disk unedited")
+-    td = tempfile.mkdtemp(prefix="d6rf2_anchor_")
++    td = tempfile.mkdtemp(prefix="d6rf3_anchor_")
+     # a reader re-pointed at the ORIGINAL bytes under this item's staged name
+     shutil.copy2(os.path.join(D6R, "d6r_opt_runScript.py"),
+                  os.path.join(td, STAGED_PRODUCER))
+     orig_md5 = md5_of(os.path.join(td, STAGED_PRODUCER))
+-    r = open(os.path.join(HERE, "d6rf2_fd_endpoint.py")).read()
++    r = open(os.path.join(HERE, "d6rf3_fd_endpoint.py")).read()
+     r = re.sub(r'PRODUCER_MD5 = "[0-9a-f]{32}"',
+                'PRODUCER_MD5 = "%s"' % orig_md5, r)
+-    open(os.path.join(td, "d6rf2_fd_endpoint.py"), "w").write(r)
++    open(os.path.join(td, "d6rf3_fd_endpoint.py"), "w").write(r)
+     check("the ORIGINAL producer (sentinel twice) REFUSES at A3",
+-          lambda: check_pair(os.path.join(td, "d6rf2_fd_endpoint.py"), td), True)
++          lambda: check_pair(os.path.join(td, "d6rf3_fd_endpoint.py"), td), True)
+     # and prove WHY: the truncated header is short and missing the symbols
+     orig = open(os.path.join(D6R, "d6r_opt_runScript.py")).read()
+-    anchor = read_constants(os.path.join(HERE, "d6rf2_fd_endpoint.py"))["ANCHOR"]
++    anchor = read_constants(os.path.join(HERE, "d6rf3_fd_endpoint.py"))["ANCHOR"]
+     broken = orig.split(anchor)[0]
+     print("        the header A3 prevented: %d chars, missing %s"
+           % (len(broken), [s for s in REQUIRED_SYMBOLS if s not in broken]))
+@@ -181,35 +181,35 @@
+     (ok if okb else fail).append("plant/truncated-header-shape")
+ 
+     print("\nC. A4 AND A5 -- a unique sentinel AT THE WRONG SITE still refuses")
+-    td2 = tempfile.mkdtemp(prefix="d6rf2_anchor2_")
++    td2 = tempfile.mkdtemp(prefix="d6rf3_anchor2_")
+     prod = open(os.path.join(HERE, STAGED_PRODUCER)).read()
+     # move the (unique) anchor to the very top: count stays 1, header goes short
+     moved = anchor + "\n" + prod.replace(anchor, "# model section", 1)
+     open(os.path.join(td2, STAGED_PRODUCER), "w").write(moved)
+     r2 = re.sub(r'PRODUCER_MD5 = "[0-9a-f]{32}"',
+                 'PRODUCER_MD5 = "%s"' % hashlib.md5(moved.encode()).hexdigest(),
+-                open(os.path.join(HERE, "d6rf2_fd_endpoint.py")).read())
+-    open(os.path.join(td2, "d6rf2_fd_endpoint.py"), "w").write(r2)
++                open(os.path.join(HERE, "d6rf3_fd_endpoint.py")).read())
++    open(os.path.join(td2, "d6rf3_fd_endpoint.py"), "w").write(r2)
+     check("count == 1 but the anchor is at the TOP -> REFUSES at A4",
+-          lambda: check_pair(os.path.join(td2, "d6rf2_fd_endpoint.py"), td2), True)
++          lambda: check_pair(os.path.join(td2, "d6rf3_fd_endpoint.py"), td2), True)
+ 
+     print("\nD. A2 -- the pin, which is the clause the ruling did not anticipate")
+-    td3 = tempfile.mkdtemp(prefix="d6rf2_anchor3_")
++    td3 = tempfile.mkdtemp(prefix="d6rf3_anchor3_")
+     shutil.copy2(os.path.join(HERE, STAGED_PRODUCER), os.path.join(td3, STAGED_PRODUCER))
+-    shutil.copy2(os.path.join(HERE, "d6rf2_fd_endpoint.py"),
+-                 os.path.join(td3, "d6rf2_fd_endpoint.py"))
++    shutil.copy2(os.path.join(HERE, "d6rf3_fd_endpoint.py"),
++                 os.path.join(td3, "d6rf3_fd_endpoint.py"))
+     with open(os.path.join(td3, STAGED_PRODUCER), "a") as fh:
+         fh.write("\n# one byte of drift\n")
+     check("the producer drifts by one comment -> REFUSES at A2 (the md5), "
+           "BEFORE the anchor is ever counted",
+-          lambda: check_pair(os.path.join(td3, "d6rf2_fd_endpoint.py"), td3), True)
+-    td4 = tempfile.mkdtemp(prefix="d6rf2_anchor4_")
+-    shutil.copy2(os.path.join(HERE, "d6rf2_fd_endpoint.py"),
+-                 os.path.join(td4, "d6rf2_fd_endpoint.py"))
++          lambda: check_pair(os.path.join(td3, "d6rf3_fd_endpoint.py"), td3), True)
++    td4 = tempfile.mkdtemp(prefix="d6rf3_anchor4_")
++    shutil.copy2(os.path.join(HERE, "d6rf3_fd_endpoint.py"),
++                 os.path.join(td4, "d6rf3_fd_endpoint.py"))
+     check("the producer is ABSENT from the work dir -> REFUSES at A2",
+-          lambda: check_pair(os.path.join(td4, "d6rf2_fd_endpoint.py"), td4), True)
++          lambda: check_pair(os.path.join(td4, "d6rf3_fd_endpoint.py"), td4), True)
+ 
+-    print("\nD6RF2_ANCHOR_SELFTEST %d/%d PASS" % (len(ok), len(ok) + len(fail)))
++    print("\nD6RF3_ANCHOR_SELFTEST %d/%d PASS" % (len(ok), len(ok) + len(fail)))
+     if fail:
+         print("FAILED: %s" % ", ".join(fail))
+         return 1

@@ -1,0 +1,44 @@
+<stdin>:7: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+D6RF3 INSTRUMENT TABLE -- EXTRACTED, NOT WRITTEN FROM MEMORY
+generated 2026-09-05T21:38:21Z  dir /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF3
+DAFOAM_CHARTER.md section 18.3: existence is asserted FIRST and SEPARATELY;
+an md5-agreement figure over a subset is NOT evidence the set is complete.
+
+=== EXISTENCE FIRST ===
+  ABSENT     d4_opt_runScript.py
+  ABSENT     d6r_opt_runScript.py
+  EXISTS     d6rf3_cd_plant_control.py
+  EXISTS     d6rf3_endpoint_locus.py
+  EXISTS     d6rf3_endpoint_physical.py
+  EXISTS     d6rf3_extract_endpoint.py
+  EXISTS     d6rf3_fd_endpoint.py
+  EXISTS     d6rf3_finiteness_mutation.py
+  EXISTS     d6rf3_grade.py
+  EXISTS     d6rf3_opt_runScript.py
+  EXISTS     d6rf3_ref_off.py
+  ABSENT     d6rf_units_assert.py
+  -> 12 executable/importable dependencies referenced, 3 ABSENT in this dir
+     (a name resolving to another item's directory is listed ABSENT here
+      and is reported separately; this pass is scoped to the item dir)
+
+=== THEN, AND ONLY THEN, md5 ===
+  file                                        bytes  md5                              ast.Assert
+  d6rf3_anchor_gate.py                        11067  e823689c15c2459097d0441e553f565c  0
+  d6rf3_cd_plant_control.py                   17229  2808114c5c7214c9b8630b32b6ae357b  0
+  d6rf3_endpoint_locus.py                     29286  341189ca866f302a7e1bba8eefad3a57  0
+  d6rf3_endpoint_physical.py                  12464  750fb6336502ca5f71c954298e995f58  0
+  d6rf3_extract_endpoint.py                    6285  7adc049421cce82f021603bbbe93dd1e  0
+  d6rf3_fd_endpoint.py                        12937  24586c9ab7f733cd2b642775aaf7fbe3  0
+  d6rf3_finiteness_mutation.py                15259  c6b6588e48425dc8ae06c17e34d13004  0
+  d6rf3_grade.py                              80718  90e30dfffbac3e87ad6df02af3c1fa0b  0
+  d6rf3_opt_runScript.py                      13122  137539e0a99be27f27fdb69e063b2a87  0
+  d6rf3_ref_off.py                             4789  4f0e564fc9855f179cb3d0e55d306af6  0
+  d6rf3_units_assert.py                       18270  885ce236ed20d4be0337f4382346500a  0
+
+=== REGISTERED but NOT PRESENT in the item directory ===
+  ABSENT  d6rf3_run_arm.sh
+  ABSENT  d6rf3_chain_driver.sh
+  -> section 18.3: a registered gate whose implementing file is not in
+     the instrument table is not frozen, it is UNIMPLEMENTED, and the
+     item does not launch. These two are the launcher and chain driver;
+     they are NOT on the grading path and NOTHING above imports them.

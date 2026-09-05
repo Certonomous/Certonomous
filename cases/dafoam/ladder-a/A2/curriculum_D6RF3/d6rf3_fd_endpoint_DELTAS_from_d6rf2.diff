@@ -1,0 +1,145 @@
+--- /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF2/d6rf2_fd_endpoint.py	2026-09-03 19:40:55.431373216 +0000
++++ d6rf3_fd_endpoint.py	2026-09-05 21:26:42.612024728 +0000
+@@ -1,5 +1,47 @@
+ #!/usr/bin/env python
+-"""Curriculum D6 -- endpoint finite-difference spot-check of the COMPOSITE J.
++"""Curriculum D6RF3 -- endpoint finite-difference spot-check of the COMPOSITE J,
++AND the registered producer of `CD_i(mp)`.
++
++DERIVED FROM `curriculum_D6RF2/d6rf2_fd_endpoint.py`
++(md5 `0ce81a0b038abe12728b5b062e4420df`, verified on disk before this file was
++written) with the REGISTERED DELTAS of `D6RF3 PREREGISTRATION.md` section 2a,
++enumerated in `d6rf3_fd_endpoint_DELTAS_from_d6rf2.diff` beside this file:
++
++  * PRODUCER is this item's own staged `d6rf3_opt_runScript.py`.  ITS md5 IS
++    UNCHANGED at `137539e0a99be27f27fdb69e063b2a87` -- the staged copy is
++    BYTE-IDENTICAL to `D6RF2`'s, deliberately, so that `G-ANCHOR`'s single-
++    occurrence assertion on `# OpenMDAO setup` (`D6RF-BLOCKING-1`'s repair)
++    carries over unaltered rather than being re-established.
++  * PRODUCTS carry this item's names: `d6rf3_fd_endpoint.json` / `.jsonl`, and
++    the endpoint DVs are read from `d6rf3_endpoint_dvs.json`.
++  * THE ONE SUBSTANTIVE DELTA: the JSON product now carries a TOP-LEVEL
++    `points` block, which is the path `PREREGISTRATION.md` section 2a
++    registers as the source of `CD_i(mp)`.  The parent already MEASURED these
++    numbers -- `d6rf2_fd_endpoint.py:114-118` calls
++    `prob.get_val("<pt>.aero_post.CD")` for all three points at every primal
++    including `baseline` -- but wrote them only under `points_baseline`, so
++    the registered path did not exist in the product.  Zero marginal
++    core-minutes: nothing new is computed.
++
++INHERITED VERBATIM from the parent chain (D6 -> D6R -> D6RF -> D6RF2): the step
++ladder, clearance rule, plateau tolerance, eta floor and the emit/plan/FD logic
++are D4's bytes.  The A6 step-rule limitation is inherited VERBATIM:
++  "One item, five components, one case, one eta.  The rule has not been tried
++   where the proxy |J_adj| is itself wrong -- which is the case it would be
++   worst at, since it sizes the step from the very quantity under test."
++
++THE PLATEAU.  The `s_lo`/`s_hi` pair this program evaluates IS
++`VERIFICATION_CHARTER.md` section 7 step 1's "two or three point mini-sweep",
++which `DAFOAM_CHARTER.md` section 3 delegates the definition of and section 20
++(addendum 2026-09-04) rules SATISFIES section 3.  **No caveat that a plateau
++proof is not claimed belongs on this artefact; writing one would be a false
++self-deprecation.**  What IS true and is reported by the grader per component:
++the pair grades at `s_hi` with its only neighbour BELOW it, so the coarse side
++is unmeasured -- a strength-of-evidence fact, not a compliance one.  This family
++has a measured instance of that blind side firing (`D15_D16_FD_STEP_TABLE.md:234`,
++D16 PATCHED CL `shape[6]`: 14.0978 % coarse against 1.1268 % fine).  Buying a
++third, coarser point is a STRENGTHENING and is not bought here; not buying it is
++not a breach (`DAFOAM_CHARTER.md` section 20.2).
+ 
+ DERIVED FROM curriculum_D5/d5_fd_endpoint.py (itself D4's d4_fd_endpoint.py,
+ md5 c6112b0ec3bfdb5287345e350500f64a, re-pointed) with the REGISTERED DELTAS of
+@@ -27,7 +69,7 @@
+ import sys
+ import time
+ 
+-PRODUCER = "d6rf2_opt_runScript.py"
++PRODUCER = "d6rf3_opt_runScript.py"
+ PRODUCER_MD5 = "137539e0a99be27f27fdb69e063b2a87"
+ ANCHOR = "# OpenMDAO setup"
+ 
+@@ -48,8 +90,8 @@
+     ("patchV_cl05", 1),
+ ]
+ DV_KEYS = ("twist", "shape", "patchV_cl04", "patchV_cl05", "patchV_cl06")
+-OUT = "d6r_fd_endpoint.json"
+-JSONL = "d6r_fd_endpoint.jsonl"
++OUT = "d6rf3_fd_endpoint.json"
++JSONL = "d6rf3_fd_endpoint.jsonl"
+ 
+ 
+ def md5_of(path):
+@@ -60,17 +102,17 @@
+ def main():
+     got = md5_of(PRODUCER)
+     if got != PRODUCER_MD5:
+-        sys.stderr.write("D6R_FD REFUSE producer md5 %s != frozen %s\n" % (got, PRODUCER_MD5))
++        sys.stderr.write("D6RF3_FD REFUSE producer md5 %s != frozen %s\n" % (got, PRODUCER_MD5))
+         sys.exit(2)
+     with open(PRODUCER) as fh:
+         src = fh.read()
+     if src.count(ANCHOR) != 1:
+-        sys.stderr.write("D6R_FD REFUSE anchor %r appears %d times\n" % (ANCHOR, src.count(ANCHOR)))
++        sys.stderr.write("D6RF3_FD REFUSE anchor %r appears %d times\n" % (ANCHOR, src.count(ANCHOR)))
+         sys.exit(2)
+     header = src.split(ANCHOR)[0]
+     saved_argv = list(sys.argv)
+     sys.argv = [PRODUCER, "-task", "run_model", "-optimizer", "IPOPT"]
+-    ns = {"__name__": "d6r_frozen_header", "__file__": PRODUCER}
++    ns = {"__name__": "d6rf3_frozen_header", "__file__": PRODUCER}
+     exec(compile(header, PRODUCER, "exec"), ns)
+     sys.argv = saved_argv
+ 
+@@ -94,11 +136,11 @@
+     prob.model = Top()
+     prob.setup(mode="rev")
+ 
+-    with open("d6r_endpoint_dvs.json") as fh:
++    with open("d6rf3_endpoint_dvs.json") as fh:
+         dvs = json.load(fh)
+     for key in DV_KEYS:
+         if key not in dvs:
+-            sys.stderr.write("D6R_FD REFUSE endpoint dv file missing %s\n" % key)
++            sys.stderr.write("D6RF3_FD REFUSE endpoint dv file missing %s\n" % key)
+             sys.exit(2)
+         prob.set_val(key, np.array(dvs[key], dtype=float))
+     emit({"kind": "endpoint_dvs", "source": dvs.get("_source"),
+@@ -202,6 +244,29 @@
+             "n_components_requested": len(COMPONENTS),
+             "J_baseline": repr(j0), "J_baseline_repeat": repr(j0r),
+             "points_baseline": per0, "points_baseline_repeat": per0r,
++            # ---- PREREGISTRATION.md section 2a's REGISTERED SOURCE ---------
++            # `points.<pt>.CD` is the path section 2a names.  The parent
++            # (d6rf2_fd_endpoint.py:204) wrote this block ONLY under
++            # `points_baseline`, so the registered path did not exist in the
++            # product.  It exists here, and it is the SAME OBJECT as
++            # `points_baseline` -- not a second measurement, not a copy taken
++            # at a different time.  `points_baseline` is retained UNCHANGED
++            # because falsifier F1 reads it against `points_baseline_repeat`.
++            "points": per0,
++            "points_source": "FD_BASELINE_PRIMAL",
++            "points_source_statement": (
++                "CD_i(mp) is prob.get_val('<pt>.aero_post.CD') in the "
++                "`baseline` primal of this program, at the endpoint design "
++                "vector reconstructed to PHYSICAL units. It is NOT the last "
++                "accepted major of D6R's optimisation (D6RF section 0a's "
++                "quantity), and no result carrying it may be compared to a "
++                "D6R- or D6RF-era CD_i(mp) without this label travelling with "
++                "the number (DAFOAM_CHARTER.md section 18.6 refinement 2)."),
++            "optimality_claim": (
++                "NONE. The producing optimisation exited `Invalid number in "
++                "NLP function or derivative detected.` and 687 of its 863 "
++                "recorded funcs rows are non-finite (D6RF3-DEF-5). This is a "
++                "design point, not an optimum."),
+             "eta_raw": repr(eta_raw), "eta_used": repr(eta), "eta_floored": eta_flagged,
+             "clearance_floor": CLEARANCE_FLOOR, "ratio_min": RATIO_MIN,
+             "plateau_tol_pct": PLATEAU_TOL, "ladder": LADDER,
+@@ -212,7 +277,7 @@
+             json.dump(out, fh, indent=1, sort_keys=True)
+             fh.flush()
+             os.fsync(fh.fileno())
+-        sys.stdout.write("D6R_FD_ENDPOINT_WRITTEN %s n_rows=%d\n" % (OUT, len(rows)))
++        sys.stdout.write("D6RF3_FD_ENDPOINT_WRITTEN %s n_rows=%d\n" % (OUT, len(rows)))
+     MPI.COMM_WORLD.Barrier()
+ 
+ 
