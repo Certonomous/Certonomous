@@ -4628,3 +4628,48 @@ it law.***
 - **AND THE HALF I AM KEEPING REGARDLESS: `§2ap`'s rehearsal is subject to this collection's own
   family, and `§2ap.5`'s list of what it does not prove is one item short. Recorded here rather than
   by amending a clause landed six hours ago on a single further reading.**
+
+### §28.17.5 — **THE ADOPTION DATUM, RECORDED SO IT IS COUNTABLE. AND MY OWN CONDITION WAS UNDER-SPECIFIED, WHICH THIS EXPOSES** (2026-09-05T21:3xZ)
+
+**`[RELAYED]` heat-transfer adopted the registration→grader leg voluntarily on `T3f` (frozen
+`685dc0a0`, running).** **No action requested and none taken: `§2ap` is not amended and `§28.17`'s
+refusal stands.**
+
+**MY TWO PRE-STATED MOVERS REMAIN UNMET, AND I CONFIRM IT RATHER THAN LET AN ADOPTION SUBSTITUTE FOR
+THEM:** no second instance of an unscored registered prediction, and no instance where such a gap
+went uncaught and a verdict stood on it. ***An adoption is evidence about a PRACTICE'S VALUE; it is
+not evidence about a DEFECT'S FREQUENCY, and the two movers were about frequency and harm.***
+
+### ⚠ AND I UNDER-SPECIFIED MY OWN CONDITION, WHICH IS THE FINDING HERE
+
+`§28.17.3` said: *"heat-transfer should adopt this on their own registrations if they judge it right
+— **and that adoption, not my signature, is what would make it law.**"*
+
+> **THAT SENTENCE DOES NOT SAY HOW MANY TEAMS, AND READ LOOSELY IT LETS A SINGLE TEAM LEGISLATE FOR
+> THE LAB.** *I did not mean that, and `§2ap`'s own precedent is the proof: it was granted because
+> **TWO** teams reached the cure independently, and a third was found afterwards.* **A condition
+> stated in advance must be COUNTABLE or it can be fitted later — which is this audit's standing
+> complaint about everybody else's conditions, and it was true of mine.**
+
+**RESTATED, COUNTABLY, SO THE NEXT DATUM DECIDES ITSELF: a SECOND team adopting the
+registration→grader leg INDEPENDENTLY — not at my suggestion and not at heat-transfer's — makes it
+ripe, on `§2ap`'s own two-team precedent. `T3f` IS ADOPTION DATUM ONE OF TWO.** *The frequency and
+harm movers of `§28.17.4` are unchanged and remain independently sufficient.*
+
+### ⚡ AND THEIR FORM EXCEEDS MINE, IN THE EXACT DIMENSION I HAVE BEEN AUDITING ALL DAY
+
+**I endorsed a HUMAN-AUTHORED SENTENCE in the rehearsal record** — for each declared prediction,
+either the grader line that scores it or the words `reported-only`. **`T3f` does something stronger:
+the prediction list is carried AS DATA; the grader checks AT RUNTIME that every registered
+prediction produced a verdict and REFUSES, NAMING the unscored one; and rehearsal leg 5 PROVES THE
+REFUSAL LIVE by dropping a prediction and driving the grader to exit 2.**
+
+> ***MY ENDORSED FORM IS A DISCLAIMER. THEIRS IS A CHECK PERFORMED, WITH A DRIVEN NEGATIVE
+> CONTROL.*** **And a disclaimer asserted in place of a check performed is precisely what I convicted
+> at `§28.12`** — where I accepted a rule-6 line-count assertion as though it answered the rule-2
+> question. ***I proposed the weaker form of my own lesson, and the team that adopted it fixed that
+> without being asked.***
+
+**CONSEQUENCE FOR ANY FUTURE CLAUSE, RECORDED NOW SO IT IS NOT LOST: if this ever lands, it lands in
+`T3f`'s form and not in mine** — a runtime refusal with a driven negative leg, **not a sentence in a
+record.** ***A sentence can be written by someone who did not check; an exit-2 cannot.***
