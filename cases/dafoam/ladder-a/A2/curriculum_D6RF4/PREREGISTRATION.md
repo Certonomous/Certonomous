@@ -621,3 +621,97 @@ Line 1 reads **`⚠ DRAFT — NOT A REGISTRATION, NOT FROZEN, NOT ENQUEUED`** an
 * **"Ceiling 54.0" conflated two quantities.** `54.0` is the **grader's** `ceiling_core_min = sum(CAPS)` (`:696`, `:2792`), equal to the cap **only because one arm is registered**. The **launcher's** `CEILING = 3.0 × CAP = 162.0` (`:1267`) is a different thing with a different consequence: **the cap only REPORTS and lets the run continue (`:1275-1278`); the ceiling DOCKER-STOPS it (`:1279-1284`).** Two numbers, two behaviours, one word — and I used the word without the distinction.
 
 **SUBMISSIONS PARKED.**
+
+---
+
+## AMENDMENT — 2026-09-06T16:20:47Z — **THE AGE DATUM WAS TRUNCATED TO THE WHOLE SECOND, THE GUARD WAS FAIL-OPEN BY UP TO 1.000 s OVER SIX STAGED ARTEFACTS, AND THE COMMITTED CENSUS SCORED THIS ITEM CLEAN**
+
+**PRE-FIRST-COMPUTE, `CLAUDE.md` rule 2.** Condition stated and **CHECKED BY EXECUTION in this invocation**: the registered run root `/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe` is **ABSENT**, and `ls -d /home/ubuntu/certonomous-runs/*D6RF4*` matched **0** directories — **0 solver core-minutes have been spent against this document.** Gates are therefore still open and this is a repair, not an addendum. **No band, threshold, cap, deadline, verdict or label moves.** The age guard's *predicate* is unchanged (`mt > datum`); only the **precision of `datum`** changes, and it changes in the **refusing** direction.
+
+### 1. THE DEFECT, AND WHICH WAY IT RAN
+
+`d6rf4_run_arm.sh:1108` produced the age datum with **`stat -c '%Y'`**, which floors the sentinel `0/U`'s mtime to the **whole second**. The floor moves the datum **EARLIER**, and both consumers accept on `mt > datum`. So the guard was **FAIL-OPEN over a window up to 1.000 s**: a registered product written in the same second as `0/U` but **genuinely older than it** was accepted as this arm's own.
+
+`:1110`'s `case` guard **required** the value to match `*[!0-9]*`, i.e. it **asserted the truncation** rather than catching it — a full-precision datum would have aborted S8.
+
+**The direction is the opposite of W3S's**, which is why direction cannot be read off the floor alone. W3S's generated `controlDict` landed **121 ms NEWER** than its sentinel and was wrongly **REFUSED** (fail-closed). Here the same floor is fail-**open**. The sense is fixed by the operator and by which side is truncated, never by the presence of a floor.
+
+### 2. THE CLASS THE GUARD PROTECTS IS THE ONE THAT CAN ACTUALLY BE BITTEN
+
+Every artefact behind this guard is **STAGED/GENERATED, not solver-produced**:
+
+* `d6rf4_grade.py`'s six `REGISTERED_PRODUCTS["P_conv"]` — all JSON written by Python wrappers;
+* `d6rf4_endpoint_physical.py`'s C3 pair `SCALED_OUT` and `HISTORY` — written by the frozen extractor.
+
+The smallest **solver-produced** margin measured anywhere in this family is **2.789 s**, ~2.8× the widest possible window; a solver product could not have been bitten. A **generated** product routinely can, and W3S's was, at **121 ms**.
+
+### 3. THE COMMITTED CENSUS SCORED THIS ITEM **CLEAN**, AND BOTH BLIND SPOTS FIRED HERE AT ONCE
+
+`cases/dafoam/_common/age_truncation_census.py` (planted control **PASS, 8/8 positives, 0/6 false positives**, 2363 scripts, 89 truncated comparisons repo-wide) reported **4 mtime comparisons and 0 truncated** in this item. It was wrong twice, in exactly the two shapes it is documented to miss:
+
+* **`float()` of a serialised integer.** `d6rf4_grade.py:1151` read `float(fh.read().strip())`. The census's read-back rule fires only for `int(...)`, so it resolved `datum` as carrying **no mtime provenance at all**. The floor had already crossed a **file boundary** at `:1114`.
+* **A datum arriving as a parameter.** `d6rf4_endpoint_physical.py:119` took `float(argv[i+1])`. Provenance resolution stops at the enclosing `FunctionDef`, so `age_datum` resolved as **not a timestamp** — the same miss that classed `d17_grade.py:242` untruncated.
+
+**A census that reports zero on an item carrying the defect twice is the reason its zeroes are not evidence.** This section is the record that its zero here was read, disbelieved, and checked by hand.
+
+### 4. THE REPAIR — FULL PRECISION AT THE PRODUCER, AND AN ASSERT AT **EVERY** CALL SITE
+
+| file | change |
+|---|---|
+| `d6rf4_run_arm.sh` | `stat -c '%Y'` → **`stat -c '%.9Y'`**; the integrality `case` becomes a decimal check, **plus a new `case` that ABORTS S8 if the datum carries no fractional part** — a silently re-truncated datum refuses rather than stages |
+| `d6rf4_grade.py` | asserts the decimal point **on the bytes** before `float()`, and refuses `G1` if absent |
+| `d6rf4_endpoint_physical.py` | same assert on `--age-datum`; C3's evidence line now prints `%.6f` **and the margin** instead of `%.0f`, under which a 121 ms margin was **not displayable** |
+
+**Neither consumer needed its parse changed** — both already used `float()`. The asserts are there because `CLAUDE.md` rule 14 is explicit that a lesson is not applied until **every** call site asserts it, and this defect's whole nature is that a floor at the producer is invisible at the consumer.
+
+### 5. THE CONTROL THE CLASS HAS BEEN MISSING — `d6rf4_age_datum_control.py`
+
+**Zero of W3S's 53 controls exercised the age-staging guard**, so its `53/53` said nothing about the guard that killed it. This item had the same hole. The new control **extracts the launcher's own `stat` line** (asserting exactly one production site) rather than carrying a copy, so it cannot pass a launcher that has drifted. Rows are driven on **real mtimes** set with nanosecond `os.utime`, never a synthetic pair, and the datum is **read back off disk**.
+
+**Four rows, driven 2026-09-06T16:20:47Z:**
+
+| row | on the **defective** launcher | on the **repaired** launcher |
+|---|---|---|
+| **A** sentinel **+1 ns** | resolved newer (only because the datum sat a whole second earlier) | **not resolved** — reported as a **MEASUREMENT**, not asserted away |
+| **A′** sentinel **+ measured ε** | — | **ACCEPTED** ✓ (a genuinely newer product is still caught) |
+| **B** sentinel **−300 ms, same whole second** | **ACCEPTED** ✗ — the defect, margin `+0.600000 s` | **REFUSED** ✓, margin `−0.300000 s` |
+| **C/D** the control itself | **REFUSES**, naming both failures | **PASSES** |
+
+**The residual is MEASURED, not claimed: ε = 215 ns**, found by binary search over real files against the real datum. The consumers read `float` seconds and a double at epoch magnitude cannot hold 1 ns, so the repair is **~4.7 × 10⁶ times tighter than the 1.000 s window, and is not exact.** It is stated that way deliberately: 215 ns sits five orders of magnitude below the 121 ms margin this class has actually been bitten at.
+
+**The control's first version failed on the REPAIRED file and that is why it is trustworthy.** Its ε was a *proxy* — it compared `(sentinel_ns+d)/1e9` against `sentinel_ns/1e9`, which is not the comparison the guard makes. The guard compares `st_mtime` against a `float()` of a decimal string that has been through `stat`, a file, and back; those are different roundings, and a genuinely-newer product 128 ns out was still refused. The proxy was replaced by a search on the real chain. **A control that could not have caught that would not have caught this.**
+
+### 6. THE THREE EXISTING SUITES ARE A **MEASURED COVERAGE HOLE**, REPORTED AS ONE
+
+Run on the pre-repair blobs and on the repaired files, **relocated identically** so relocation could not masquerade as a result (`REPO` is derived from the file's own depth, so the mirror preserves it):
+
+| suite | before | after |
+|---|---|---|
+| `d6rf4_grade_drive.py` | 6/6 scenarios as registered | 6/6 |
+| `d6rf4_launcher_guard_drive.py` | 27/27 directions as registered | 27/27 |
+| `d6rf4_finiteness_mutation.py` | 67/67 rows OK | 67/67 |
+
+**100/100 before and after — therefore this defect was in none of the 100.** That is not a tick; it is the measurement that the age-staging guard sat outside every existing control, exactly as W3S's `53/53` did. Two of the three write a `.d4_age_datum` fixture, but at a **synthetic 100-second gap** (`d6rf4_grade_drive.py`: `"%.3f" % (now - 100.0)`) — a gap 100× wider than the widest possible defect window — and **none of the three runs the datum-production line at all.**
+
+**An honest note on a crash triaged rather than waved through:** on the first relocation `d6rf4_grade_drive.py` aborted with `FileNotFoundError` in **both** states. Triage: the grader derives `REPO` five levels up from its own file, so a flat copy broke `CROSS_ITEM`'s resolution of `d4_opt_runScript.py` and the grader refused `FROZEN_PATH_COVERAGE` before writing its output. **A relocation artefact, not a defect** — confirmed by an in-place run at `rc=0` — and it is recorded because a crash is a finding until triage says otherwise.
+
+### 7. WHAT THIS AMENDMENT DOES **NOT** DO
+
+**It does not re-freeze, does not fill any permission field, and does not enqueue.** `PERMISSION` at `d6rf4_run_arm.sh:97` is untouched and the queue row remains `READY_NOT_PLACED`. Those acts are the supervisor's.
+
+**Instrument md5s after the repair**, recorded so the re-freeze has something to pin:
+
+| file | md5 |
+|---|---|
+| `d6rf4_run_arm.sh` | `f624bba5b30ecf49debcb5f2899c6ceb` |
+| `d6rf4_endpoint_physical.py` | `63dc60f020da6f25d6a1a75f2d994389` |
+| `d6rf4_grade.py` | `67e9508fab345d6d9387245d50af1fed` |
+| `d6rf4_age_datum_control.py` *(new)* | `a9d3d6fbb03f0838caba879a91fae7ca` |
+
+`MD5_PHYS6` at `d6rf4_run_arm.sh:333` was repinned in the same commit (`ca75db3e…` → `63dc60f020da6f25d6a1a75f2d994389`); leaving it stale would have aborted the arm at `rc 4`. **`d6rf4_grade.py` is the grading path and its md5 has moved — the re-freeze must record the new one, and rule 2 fixes it at that commit.**
+
+**Cost: 0.000 solver core-minutes.** Every figure above comes from fixtures and from files this lane created.
+
+**SUBMISSIONS PARKED.**
+
+**lines whose number changed above this section: 0**

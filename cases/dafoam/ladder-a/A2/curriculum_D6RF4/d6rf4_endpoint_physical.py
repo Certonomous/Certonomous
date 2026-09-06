@@ -114,12 +114,27 @@ def md5_of(path):
 def main():
     argv = sys.argv[1:]
     age_datum = None
+    age_datum_raw = None
     for i, a in enumerate(argv):
         if a == "--age-datum" and i + 1 < len(argv):
-            age_datum = float(argv[i + 1])
+            age_datum_raw = argv[i + 1]
+            age_datum = float(age_datum_raw)
     if age_datum is None:
         refuse("--age-datum <epoch> is REQUIRED; without it C3 cannot "
                "distinguish this arm's artefact from a stale one")
+    # CALL SITE 1 OF 2 OF THE UN-TRUNCATED DATUM (CLAUDE.md rule 14: a lesson is
+    # not applied until EVERY call site asserts it; the other is
+    # `d6rf4_grade.py`'s age guard).  The launcher produces this value with
+    # `stat -c '%.9Y'`, which ALWAYS emits a decimal point, so a datum arriving
+    # WITHOUT one has been floored to the whole second somewhere between there
+    # and here.  That floor moves the datum EARLIER and C3 accepts on
+    # `mt > age_datum`, so the guard would be FAIL-OPEN over a window up to
+    # 1.000 s -- and every artefact C3 guards is GENERATED, the class this
+    # family has already measured being bitten.  REFUSED rather than degraded.
+    if "." not in age_datum_raw:
+        refuse("--age-datum %r carries NO FRACTIONAL PART -- it has been "
+               "TRUNCATED to the whole second, which opens C3 by up to 1.000 s "
+               "in the accepting direction" % age_datum_raw)
 
     # ---- C1 / C2 : the instruments on disk ARE the committed instruments ----
     for path, want, label in ((EXTRACTOR, MD5_EXTRACT, "C1"),
@@ -147,11 +162,16 @@ def main():
         if not os.path.isfile(need):
             refuse("C3 the frozen extractor did not write %s" % need)
         mt = os.stat(need).st_mtime
-        print("  C3 %-30s mtime %.0f > age datum %.0f  %s"
-              % (need, mt, age_datum, "OK" if mt > age_datum else "FAIL"))
+        # `%.6f` AND THE MARGIN, not `%.0f`.  The old format printed both sides
+        # rounded to the whole second, so a 121 ms margin -- the size W3S
+        # actually measured -- was NOT DISPLAYABLE and the evidence line read
+        # identically for a pass and for a near-miss.
+        print("  C3 %-30s mtime %.6f > age datum %.6f  margin %+.6f s  %s"
+              % (need, mt, age_datum, mt - age_datum,
+                 "OK" if mt > age_datum else "FAIL"))
         if mt <= age_datum:
-            refuse("C3 %s is NOT newer than the age datum %.0f -- it did not "
-                   "come from this arm" % (need, age_datum))
+            refuse("C3 %s is NOT newer than the age datum %.6f (margin %+.6f s) "
+                   "-- it did not come from this arm" % (need, age_datum, mt - age_datum))
 
     # ---- C4 : preserve the pre-repair values BYTE-FOR-BYTE -----------------
     shutil.copy2(SCALED_OUT, PRESERVED)

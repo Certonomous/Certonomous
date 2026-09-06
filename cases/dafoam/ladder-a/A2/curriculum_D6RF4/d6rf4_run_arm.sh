@@ -330,7 +330,11 @@ MD5_RUNSCRIPT6=137539e0a99be27f27fdb69e063b2a87
 MD5_FD=06ac0a171bde0ac3b17192f1819fa0ca
 MD5_EXTRACT6=c5aace65e1830fddace55e1bac2761c9
 MD5_LOCUS6=341189ca866f302a7e1bba8eefad3a57
-MD5_PHYS6=ca75db3e036b9f4e7cfca6462037c021
+# 2026-09-06 PRE-FIRST-COMPUTE: was ca75db3e036b9f4e7cfca6462037c021.  Repinned
+# because `d6rf4_endpoint_physical.py`'s C3 gained the rule-14 assertion that its
+# `--age-datum` carries a fractional part, and its evidence line now prints
+# `%.6f` and the margin instead of `%.0f` (a 121 ms margin was not displayable).
+MD5_PHYS6=63dc60f020da6f25d6a1a75f2d994389
 MD5_UNITS=8ee53841aed3dfd10f2cf414be39518a
 MD5_ANCHOR_GATE=f5a5216a557ff8c34ac084c96feabc39
 # THE TWO fvSolution FILES, AND THE WHOLE ITEM TURNS ON THEM.
@@ -1101,15 +1105,38 @@ touch "$WORK/0"/* || { stage_say "ABORT S8 age-guard datum"; exit 5; }
 # the arm command would carry `--age-datum ` with no value.  The physical wrapper
 # would then refuse, so it fails safe -- but LATE, and with a message about the
 # wrapper rather than about the datum.  Here it is resolved by name and ASSERTED
-# to be a non-empty integer before it is used.
+# to be a non-empty number before it is used.
+#
+# SUB-SECOND TRUNCATION, REPAIRED 2026-09-06 BEFORE FIRST COMPUTE.  This line
+# read `stat -c '%Y'`, which floors the sentinel's mtime to the WHOLE SECOND.
+# The floor moves the datum EARLIER, and both consumers accept on `mt > datum`
+# (`d6rf4_grade.py:1161`, `d6rf4_endpoint_physical.py:152`), so the guard was
+# FAIL-OPEN over a window up to 1.000 s: a registered product written in the
+# same second as `0/U` but GENUINELY OLDER than it was accepted as this arm's.
+# Every registered product here is STAGED/GENERATED -- six JSON files written by
+# Python wrappers, not by the solver -- which is the class that is actually
+# bitten (the smallest solver-produced margin in this family is 2.789 s; a
+# generated `controlDict` in W3S landed 121 ms from its sentinel).
+# `%.9Y` gives seconds with a nine-digit fraction; both consumers already parse
+# with `float()`, so NEITHER CONSUMER NEEDED AN EDIT.  The residual resolution
+# is that of a double at epoch magnitude -- MEASURED, not assumed, by
+# `d6rf4_age_datum_control.py`, which also drives this line in both directions.
 AGE_SRC=$(field_path "$WORK/0" U) || \
   assert_field "S8 age datum" "$WORK/0" U \
     "The age datum is read from this file's mtime; every registered product must be strictly newer than it (CLAUDE.md rule 4)."
-AGE_DATUM=$(stat -c '%Y' "$AGE_SRC")
+AGE_DATUM=$(stat -c '%.9Y' "$AGE_SRC")
 case "$AGE_DATUM" in
-  ''|*[!0-9]*) stage_say "ABORT S8 the age datum read from $AGE_SRC is not an integer: '$AGE_DATUM'"
+  ''|*[!0-9.]*|*.*.*|.*|*.) stage_say "ABORT S8 the age datum read from $AGE_SRC is not a decimal number: '$AGE_DATUM'"
                stage_say "  An empty or non-numeric datum makes the age guard unenforceable, and rule 4's age guard is PHYSICS."
                exit 5 ;;
+esac
+case "$AGE_DATUM" in
+  *.*) : ;;
+  *) stage_say "ABORT S8 the age datum '$AGE_DATUM' carries NO FRACTIONAL PART."
+     stage_say "  A whole-second datum is the truncation this line was repaired to remove: it would"
+     stage_say "  move the datum EARLIER and open the guard over a window up to 1.000 s.  REFUSED"
+     stage_say "  rather than staged, because a silently re-truncated datum is worse than no run."
+     exit 5 ;;
 esac
 echo "$AGE_DATUM" > "$WORK/.d4_age_datum"
 stage_say "D6RF4_G_COLD OK arm=$ARM age_datum_epoch=$AGE_DATUM (every registered product must be strictly newer)"

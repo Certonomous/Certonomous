@@ -1148,7 +1148,24 @@ def gate_g1(root, ledger_rows, census):
                           "note": "without the datum the age guard cannot run, "
                                   "and the age guard is PHYSICS"})
         with open(datum_file) as fh:
-            datum = float(fh.read().strip())
+            datum_raw = fh.read().strip()
+        # CALL SITE 2 OF 2 OF THE UN-TRUNCATED DATUM (CLAUDE.md rule 14; the
+        # other is `d6rf4_endpoint_physical.py`'s C3).  `float()` of a
+        # SERIALISED INTEGER is invisible to the committed truncation census --
+        # it resolves `datum` as carrying no mtime provenance at all -- so the
+        # floor has to be caught HERE, on the bytes, by asserting the decimal
+        # point the launcher's `stat -c '%.9Y'` always emits.  A floored datum
+        # sits EARLIER than the sentinel and this guard accepts on
+        # `mt > datum`, so the failure is FAIL-OPEN by up to 1.000 s, and every
+        # REGISTERED_PRODUCT it guards is a STAGED/GENERATED JSON file.
+        if "." not in datum_raw:
+            refuse("G1", {"arm": arm, "age_datum_truncated": datum_file,
+                          "age_datum_raw": datum_raw,
+                          "note": "the age datum carries NO FRACTIONAL PART, so "
+                                  "it was floored to the whole second; that opens "
+                                  "the age guard by up to 1.000 s in the "
+                                  "ACCEPTING direction and the age guard is PHYSICS"})
+        datum = float(datum_raw)
         ages, age_pass = {}, True
         for prod in REGISTERED_PRODUCTS[arm]:
             p = os.path.join(wd, prod)
