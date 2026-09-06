@@ -5544,7 +5544,26 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-06T23:16:35Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+**Section last written:** 2026-09-06T23:21:59Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+
+### S-109 — 2026-09-06T23:21:59Z — **W4-REANCHOR GRADED: `BLOCKED` (frozen path, exit 0). Triage COMPLETE: 1/16 legs (anchor8w) is an INFRASTRUCTURE defect — the adjoint phase mutates its endTime dir before the snapshot — NOT a capability gap. The FD bright line remains UNTESTED. Cheap fix: re-run ONE leg.**
+
+**GRADE (comparator `analyse_w4_reanchor.py`, md5 `0172c7ad` == §17 pin, NO --skip-freeze, exit 0):**
+- **TOKEN: `BLOCKED`** — verbatim: *"1 of 16 declared primals are not rule-4 complete (anchor8w). prereg 9.3: any blocked > 0 forces the arm's token to NOT A RESULT or BLOCKED."*
+- **W1** (bar ≤10%): all 3 cells inside — 5491 0.0387%, 6740 0.0000%, 12486 0.0007% — PASS.
+- **F_W** trivial baseline (cell 5491, h_F 0.75): predicted >10% (19.12%), **measured 10.13% → fails W1 as PREDICTED** (baseline meant to fail the bar, and does — prediction MET).
+- **W0** (anchor OBJ == base OBJ, 16 digits): **UNRESOLVED — CONTROL_NOT_PRODUCED** (anchor8w blocked, comparison cannot form).
+- **W2** (tol readback, floor 1e-6): tol 1e-08, diff 100, floor 1e-06, unmoved 16/16 — inside.
+- **PLANTED-ZERO CONTROL FIRED & PASSED** (PLANT 1.234e-03 into cell 6740 +leg, re-read from disk, other cells unchanged to last digit).
+- **15/16 legs rule-4 COMPLETE; anchor8w RAN-BUT-MISSED** (rc=0, last_time=2500, FAILED fields_present + age_guard).
+
+**TRIAGE (mine, personal — infrastructure, NOT capability):** anchor8w and base8w ran identical 27-step primals, both reached `Time=2500` (anchor log :18579); `purgeWrite 0`. base8w snapshot = `0 500 1000 1500 2000 2500` (clean). anchor8w snapshot = `0 0.0001 500 1000 1500 2000` — an extra `0.0001` (the DAFoam **adjoint's** working write) and **missing 2500**. anchor8w is the ONLY leg that runs the adjoint (`-gradout anchor8w_grad.npy`). Sequence: primal writes 2500 → End → **adjoint phase mutates the run dir (adds 0.0001, loses 2500)** → driver `mv`s the *post-adjoint* dir into `fields_anchor8w/`. **Physics is present:** rc=0, primal to 2500, adjoint completed (`dRdWTPC 424/425`), gradient `anchor8w_grad.npy` (168128 B) written. This is a driver-snapshot-timing defect.
+
+**FIX (named, to a lane):** the adjoint-computing leg CANNOT double as the rule-4 endTime reference. Capture the anchor's clean primal endTime snapshot BEFORE the adjoint runs — cleanest is to split the reference into a pure-primal `one_base` (produces the rule-4 snapshot + W0 OBJ) plus the separate gradient computation (writes anchor8w_grad.npy; its snapshot need not be rule-4-clean). Re-run **only anchor8w** (~20 core-min); the 15 FD legs + base8w stay valid. **LESSON owed on fix:** "a leg computing BOTH primal and adjoint mutates its time dirs after the primal's End; it cannot be the rule-4 endTime reference — snapshot pre-adjoint or from a pure-primal twin."
+
+**COST (rule 12):** 132.330 core-min actual (ledger sum, comparator-confirmed) vs 133.23 registered → ratio **0.9932**, cap 150 respected, no stalls. Derived $0.1131 at $0.0513/core-h — DERIVED, not measured. COST_CALIBRATION row owed.
+
+**THE HYPOTHESIZED D12 FD BRIGHT-LINE GAP IS NEITHER CONFIRMED NOR DENIED — it is UNTESTED, blocked on a fixable driver defect.** Under 4ae4b33 this is (b): fix named, re-run cheap, not a (d) capability gap. Fix lane dispatched; re-grade on the anchor re-run.
 
 ### S-108 — 2026-09-06T23:16:35Z — **D6RF4 DISPOSED under 4ae4b33: RECOVERABLE, not a capability gap. Binding-field attribution CORRECTED at source (it is p's first solve, NOT nuTilda). W4-REANCHOR 16/16 LEGS COMPLETE, grading LIVE.**
 
