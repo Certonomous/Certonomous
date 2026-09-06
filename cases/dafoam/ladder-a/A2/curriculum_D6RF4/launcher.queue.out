@@ -1,0 +1,10 @@
+D6RF4_G_FREEZE_PASS permission=648a6ea1289e6b1f103dcd7aee2a712a8553f5a0 assignments=1 shape=40hex resolved=648a6ea1289e6b1f103dcd7aee2a712a8553f5a0 prereg_blob_at_freeze=05c5b9b7f97587dd389f94c3137575cfb22f533e checked=RESOLVED
+D6RF4_G_ROOT_PASS item=D6RF4 base=/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe ledger_clean=yes
+D6RF4_G_ACCEPT_FLOOR_PASS planted_control_seen=1 real_assignments=0 -- the launcher sets neither primalMinResTol nor primalMinResTolDiff; the accept floor stays 1e-08 x 1000 = 1.0e-05
+D6RF4_G_ROOT5_PASS arm=P_conv live_same_arm_containers=none driver_pidfile=absent
+D6RF4_CAP_FRAME arm=P_conv registered_core_min=54.00 ranks=4 deadline_in_container_s=720 frame_allowance_s=90 kill_grace_s=60 worst_case_host_core_min=54.000000 enforced_in_frame=container graded_in_frame=host_bracket_T0_T1
+D4_CAP_ASSERT arm=P_conv registered_core_min=54.00 ranks=4 enforced_wall_s=720 enforced_core_min=54.000000 memory=20g
+D6RF4_HOST_PRE arm=P_conv MemAvailable_GiB=28.93 load1=0.04 cpuset=2,3,4,14 siblings_pre=[]
+stat: cannot statx '/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe': No such file or directory
+stat: cannot statx '/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe': No such file or directory
+ABORT L-251 run root mode 

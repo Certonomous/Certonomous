@@ -1,0 +1,12 @@
+========================================================================
+D6RF4 P_conv WATCH  armed 2026-09-06T16:38:28Z  pid=23939
+  base      /home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe
+  registered accept floor 1e-08 x 1000 = 1.0e-05  (REPORTED, never gated here)
+  THIS WATCHER LAUNCHES NOTHING AND RE-FIRES NOTHING.
+========================================================================
+2026-09-06T16:38:28Z  root=ROOT_ABSENT_LAUNCHER_ABORTED  log=BASE_ABSENT  launcher_rc=4
+    EXPLAINED: the launcher RAN and exited 4.  The root's absence is that exit, NOT a pending daemon tick.
+    launcher| D6RF4_HOST_PRE arm=P_conv MemAvailable_GiB=28.93 load1=0.04 cpuset=2,3,4,14 siblings_pre=[]
+    launcher| stat: cannot statx '/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe': No such file or directory
+    launcher| stat: cannot statx '/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe': No such file or directory
+    launcher| ABORT L-251 run root mode
