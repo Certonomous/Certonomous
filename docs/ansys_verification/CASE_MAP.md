@@ -190,7 +190,7 @@ yet do**, per case, rather than a bucket labelled "unrunnable":
 
 | cases | the missing capability |
 |---|---|
-| `VMFL021`, `VMFL022` | **cavitation** — no `interPhaseChangeFoam` on this box |
+| ~~`VMFL021`, `VMFL022`~~ | ~~**cavitation** — no `interPhaseChangeFoam` on this box~~ **STRUCK 2026-09-06 — FALSE: `interPhaseChangeFoam` + `cavitatingFoam` ARE present (`platforms/*/bin/`); VMFL021-R2 is `GATE REACHED` (register #23), VMFL022 ran (register #17). NO cavitation capability gap. See the audit section below and `RECOVERABILITY_SWEEP.md`.** |
 | `VMFL026` | **real-gas equation of state** |
 | `VMFL034`, `VMFL074` | **population balance** — native PBM support is limited |
 | `VMFL072` | **Eulerian wall film** |
@@ -227,8 +227,8 @@ all.
 | VMFL018 | 71 | Shock reflection in supersonic flow | 2 | Reflecting shocks, compressible turbulent | EXP | Afterbody static pressure & heat flux — **profile** | sonicFoam / rhoCentralFoam | F+C | small | Y* — shock capture | `NEVER RUN` | `IN SCOPE` |
 | VMFL019 | 77 | Transient flow near a wall set in motion | 2 | Unsteady, moving wall (Stokes 1st problem) | AN | Near-wall velocity profile at outlet — **profile** | pimpleFoam / icoFoam (transient) | F+C | trivial | Y* — space+time refinement | `NEVER RUN` | `IN SCOPE` |
 | VMFL020 | 79 | Adiabatic compression of air by a piston | 2 | Dynamic mesh, transient, ideal gas | AN | Static T & p vs time — **profile** | rhoPimpleFoam (dynamicMesh) | F+C | small | Y* — mesh-motion + time | `NEVER RUN` | `IN SCOPE` |
-| VMFL021 | 85 | Cavitation over a sharp-edged orifice A (high p) | A | Turbulent multiphase, cavitation, phase change | EXP | Discharge coefficient — **discrete(1)** | **BLOCKED** — no cavitation solver (interPhaseChangeFoam absent) | F+C | — | N — no solver | — | **`OUT OF SCOPE — BY RULING`** — cavitation (no `interPhaseChangeFoam`) |
-| VMFL022 | 87 | Cavitation over a sharp-edged orifice B (low p) | A | Turbulent multiphase, cavitation, phase change | EXP | Discharge coefficient — **discrete(1)** | **BLOCKED** — no cavitation solver | F | — | N — no solver | — | **`OUT OF SCOPE — BY RULING`** — cavitation (no `interPhaseChangeFoam`) |
+| VMFL021 | 85 | Cavitation over a sharp-edged orifice A (high p) | A | Turbulent multiphase, cavitation, phase change | EXP | Discharge coefficient — **discrete(1)** | `interPhaseChangeFoam` (PRESENT) | F+C | — | Y | — | ~~`OUT OF SCOPE — BY RULING`~~ **CORRECTED 2026-09-06 → `RECOVERED`: VMFL021-R2 `GATE REACHED`, register #23 (Cd 0.6349, triple CONVERGING, GCI 0.55 %, 2.40 % from Nurick). The "no interPhaseChangeFoam" premise was FALSE.** |
+| VMFL022 | 87 | Cavitation over a sharp-edged orifice B (low p) | A | Turbulent multiphase, cavitation, phase change | EXP | Discharge coefficient — **discrete(1)** | `interPhaseChangeFoam` (PRESENT) | F | — | Y | — | ~~`OUT OF SCOPE — BY RULING`~~ **CORRECTED 2026-09-06 → `IN SCOPE, NOT A RESULT` (register #17): the cavitating solve ran; L3 OSCILLATORY grid triple (rule 5), Cd within band. Next fix = the VMFL021-R2 monotone-triple recipe. NO capability gap.** |
 | VMFL023 | 89 | Oscillating laminar flow around a circular cylinder | 2 | Laminar, transient (vortex shedding) | AN | Strouhal / drag (from table) — **discrete(1)** | pimpleFoam / icoFoam | F+C | small | Y* — time-accurate | `NEVER RUN` | `IN SCOPE` |
 | VMFL024 | 91 | Interface of two immiscible liquids in rotating cylinder | A | Multiphase (VOF), transient, body force | EXP | Non-dim swirl velocity at 3 radii (t=80 s) — **discrete(3)** | interFoam (SRF/MRF) | F | small | Y* — VOF interface | `NEVER RUN` | `IN SCOPE` |
 | VMFL025 | 93 | Turbulent non-premixed methane combustion, swirling air | A | Turbulent swirl, non-premixed combustion | EXP | Axial/swirl velocity, T, CO at X=40 mm — **profile** | reactingFoam (hard — combustion model) | F | medium | Y* — hard physics | `NEVER RUN` | `IN SCOPE` |
