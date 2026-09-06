@@ -12,10 +12,14 @@
 # names name zero code paths; a freeze can hold one instance of a registered
 # triple; a document can contradict itself about its own triple. A fifth lesson
 # saying "be more careful" is worthless. This is the instrument that would have
-# caught all four -- and it is itself an instrument, so this lab's rules for
+# caught THOSE FOUR -- and it is itself an instrument, so this lab's rules for
 # instruments bind it: it REFUSES rather than degrades, it carries planted
 # failures in --selftest (L-487), and it has no bare `assert` (it would vanish
 # under python3 -O).
+#
+# READ "THOSE FOUR" STRICTLY. It is NOT a claim to catch the class, and two
+# later members of that same class -- both VMFL046-R4 comparator defects -- pass
+# every check here. See THE COVERAGE BOUNDARY below before relying on a pass.
 #
 # FILING QUESTION -- FLAGGED, NOT DECIDED (for the supervisor)
 # -----------------------------------------------------------
@@ -49,7 +53,10 @@
 #                         cannot do.)
 #   C3 GRADING PIN     -- a 40-hex comparator blob pin is present and equals the
 #                         comparator's actual blob; REFUSE on absent / deferred /
-#                         wrong pin.
+#                         wrong pin. C3 PINS THE COMPARATOR'S BYTES AND SAYS
+#                         NOTHING WHATEVER ABOUT ITS BEHAVIOUR. See the coverage
+#                         boundary below -- this narrowing is REQUIRED, not
+#                         stylistic (VERIFICATION_CHARTER v1.68 s2aw.7).
 #   C4 LEVEL COMPLETE  -- every declared level/instance is constructible from
 #                         frozen material (dir | token-template+driver |
 #                         committed generator). REFUSE if fewer than N of N.
@@ -59,6 +66,39 @@
 #                         with the registration's declared/implied ratio(s).
 #   C7 RUN ROOT        -- report whether the implied run root exists / is empty;
 #                         absence is a WARN (an ordering fix), never a refusal.
+#
+# THE COVERAGE BOUNDARY -- WHAT THESE SEVEN CHECKS DO **NOT** COVER
+# ----------------------------------------------------------------
+# RULED AGAINST THIS FILE, 2026-09-06, VERIFICATION_CHARTER v1.68 s2aw.7:
+#
+#     "check_freeze_ready.py's C3 DECLARES that it checks the comparator AND
+#      DOES NOT CHECK THE COMPARATOR'S PRODUCTION ORDERING. A check whose
+#      declaration is wider than its coverage is worse than an absent check,
+#      because THE DECLARATION IS WHAT A READER RELIES ON."
+#
+# So, stated flatly, because an absent boundary is the defect:
+#
+#   * C3 compares BYTES. It cannot tell a correct comparator from a broken one.
+#     A comparator that crashes on its own arguments, or refuses on its own
+#     scratch files, passes C3 -- BOTH HAPPENED, in VMFL046-R4, on the same
+#     file, in one day (L-495). C3 caught neither and was never able to.
+#   * NOTHING HERE DRIVES grade() END-TO-END. A comparator's selftest may pass
+#     every arm while exercising only the PARTS and never the PRODUCTION
+#     SEQUENCE -- the argument shapes at its own call sites, the ordering of its
+#     phases, the module-level state they share. That is the gap both VMFL046-R4
+#     defects lived in, and it is NOT covered by C1-C7.
+#   * s2aw.7 ENDORSED an end-to-end grade() drive AS PRACTICE and DECLINED TO
+#     MINT IT as a freeze qualification (two defects in one file are one
+#     population member, not two -- s2p.5; and s28.18's regress: a fourth layer
+#     of guard is a fourth surface). It is therefore RECOMMENDED HERE AND NOT
+#     ENFORCED, and this file must not be read as requiring it.
+#   * WHAT WOULD MOVE THE REFEREE, PRE-STATED: the same class in a SECOND FILE,
+#     or one instance where the missing end-to-end drive let a WRONG VERDICT
+#     PUBLISH rather than merely blocking one. Either is owed upward at once.
+#
+# The three gaps declared since this file was written stand unchanged: it cannot
+# catch wrong field names, cannot catch a missing runtime environment, and C3
+# covers only the comparator -- not the driver and not the case inputs.
 # =============================================================================
 
 import argparse
