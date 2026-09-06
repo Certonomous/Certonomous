@@ -1430,6 +1430,40 @@ Updates d09a4e28's "origin of the day's 52/69 UNVERIFIED". Settled by cfd's comm
 
 ## closure
 
+**2026-09-06T~03:2xZ — LING ARM 2 IS **READY-PARKED** ON AWS CAPACITY. SANAA VERBATIM:**
+> *"gpu cant run rn due to aws capacity rn. Its fine ill turn it on whenever thats possible."*
+**THIS IS A DEFERRAL ON AN EXTERNAL CONSTRAINT, NOT DRIFT AND NOT A WITHDRAWAL.** Her approval
+stands (`b7c56371`, re-affirming her earlier YES); the frozen **40 GPU-h = $32.19 derived** cap
+stands; the parked state costs nothing because no instance exists to bill. **Honest limit on that
+last claim: this box cannot read AWS state** (`COMPUTE_BUDGET_CHARTER` §5), so *"zero idle cost"*
+rests on her statement that the card is not on, not on a reading of mine.
+**⚠ THREE THINGS IN THE RELAYED READINESS DESCRIPTION ARE WRONG, AND I AM NOT BOARDING THEM.**
+A confident wrong line on this board is worse than a blank one, and this is the only handoff
+channel a successor gets:
+**(1) *"B2 amendment landed"* — I LANDED NO AMENDMENT.** B2 was already discharged by
+`arm2/PREREGISTRATION.md` **Item (B)** on **2026-08-24T17:26:51Z**, twelve days before I was told
+to land it. **Writing one would have been a SECOND ruling on the same clause of a frozen
+pre-registration.** B1 likewise was already discharged by **Item (A)** plus the launcher's
+`SHUTDOWN` switch. **Neither discharge is my work and neither is new.**
+**(2) *"row drafted with host empty by design"* — THERE IS NO ROW, AND EMPTY IS NOT SAFE.**
+Arm 2 is **hand-launched**, not queue-dispatched; `queue_runner.py:926-930` SKIPS non-local hosts
+(*"remote dispatch is not this runner's"*). **No row exists, none is drafted, none is needed** —
+and `""` sits INSIDE the runner's accepted-local set, so a row drafted with an empty host is the
+one artefact that could fire a GPU arm on the CPU box. **"Empty by design" inverts the hazard.**
+**(3) *"checks pre-baked"* — THEY ARE NOT, AND MOST OF THEM MAY NOT BE.** The checklist requires
+the four repo/lab-box hashes to be **re-derived AT LAUNCH TIME, not trusted**, so pre-baking them
+is forbidden, not merely undone. Nothing was pre-baked.
+**TRUE STATE, UNCHANGED FROM MY LAST WRITE: B1 DISCHARGED · B2 DISCHARGED · B3 OPEN (HERS — the
+console price read) · B4 OPEN (MINE — nothing watches for completion, and NO MONITOR IS WRITTEN).**
+**B4 IS THE ONE ITEM WITH A MEASURED PRICE: arm 1 idled 7 h 52 m 47 s = 7.88 GPU-h ~ $6.34 derived**
+after completion because no agent existed to report it. **The parked interval is exactly when that
+monitor should be written — it is zero compute and it is mine.** Flagged, not silently taken.
+**HER TRIGGER, so a successor knows precisely what to ask for:** shutdown attribute (**stop** →
+frozen launcher as-is; **terminate** → `SHUTDOWN=0`), a current console price (closes B3), and
+power-on. **No private IP is needed for a row that does not exist** — the address is needed only
+for `ssh`, in the launcher's own config. Launch is a typed
+`bash run_all_gpu_v2.sh launch` from this box.
+
 **2026-09-06T~03:0xZ — RETRIEVAL: ONE OF FIVE ARRIVED. FAMILY (c) CANNOT BE CLOSED FROM OPEN
 SOURCES.** MANIFEST **Addendum 5** landed. **OBTAINED: Xiao et al. 2020** (arXiv:1910.01264v1,
 25 pp, sha `2b4832e2…`) — **the provenance paper for the `Parm_PH_29` data this lab has been USING
