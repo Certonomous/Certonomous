@@ -980,3 +980,17 @@ D6RF4 aborted **five times, one guard per launch,** because it was frozen with a
 A queue row citing THIS freeze commit, carrying: `cost_core_min_estimate` **133.230**, `cap_core_min` **150.0**, `memory_floor_gb` **22.0** (GiB, **unconverted** — `queue_runner.py:195-200` divides kB by 1024²), `ranks` **2**, the `-gradout anchor8w_grad.npy` coupling of §14.3, and a `grading_freeze` key pinning the comparator + its imported control. **Built beside the case as READY-NOT-PLACED; placement is the chief's under the grant.**
 
 **SUBMISSIONS PARKED.**
+
+---
+
+## §15. CORRECTION — 2026-09-06T18:57:06Z — **A BACKTICK SPAN IN §14 WAS COMMAND-SUBSTITUTED BY THE SHELL THAT WROTE IT, DELETING ONE CITATION. THE MECHANISM IS MINE, AND IT IS THE THIRD TIME TONIGHT.**
+
+**Appended at the foot per rule 6 (frozen files are corrected by dated amendment, never edited above). Lawful pre-first-compute under rule 2: the run root is absent and 0 solver core-minutes have been spent. Lines renumbered above this section: 0.**
+
+**THE SCAR.** §14.1's opening line reads *"From this commit,  rule 2 closes every gate below"* — a doubled space where **`CLAUDE.md`** stood. §14 was written through an **unquoted heredoc** to interpolate the timestamp and md5s, and one `` `CLAUDE.md` `` span was left with live backticks: the shell ran `CLAUDE.md` as a command, it failed `command not found`, and substituted the empty string. **The intended text is "From this commit, `CLAUDE.md` rule 2 closes every gate below and rule 6 forbids editing anything above."** No meaning changed — a citation prefix to an unambiguous rule number was deleted; the whole of §14's substance stands.
+
+**THIS IS THE THIRD BACKTICK-IN-UNQUOTED-HEREDOC INCIDENT TONIGHT, AND I OWN THE PATTERN.** It ate a citation from the D6RF4 amendment (`648a6ea1`), it ran `cp -a` when the W3S launcher printed a refusal, and now it has eaten `CLAUDE.md` from this freeze section. **I filed the rule after the first — "write markdown through a QUOTED heredoc and substitute variables afterward" — and then broke it here by reaching for an unquoted heredoc when I needed to interpolate md5s.** The rule is only worth its cost if applied every time; **this correction is itself written through a quoted heredoc with an `2026-09-06T18:57:06Z` placeholder substituted afterward**, which is the discipline I should have kept in §14.
+
+**NOTHING ELSE IN §14 IS AFFECTED**, verified: the scan for the scar signature found exactly this one line, no command output was injected anywhere (`CLAUDE.md` is not a command, so it substituted empty rather than injecting), and every md5, run-root and commit sha in §14 is a literal the shell did not touch. The freeze stands; only this citation is restored.
+
+**SUBMISSIONS PARKED.**
