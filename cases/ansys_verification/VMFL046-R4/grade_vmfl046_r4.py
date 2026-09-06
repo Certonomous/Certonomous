@@ -1044,10 +1044,25 @@ def grade(run_root):
         ser = shock_series(win)
         pl = plateau(ser, endt)
 
+        # ---- §2av REPAIR (VERIFICATION_CHARTER v1.67, grant 8bdd5351) ---------------
+        # plateau() returns A as SERIES points [(t, x_shock)]; plant_plateau_reducer and
+        # plant_field_readback_per_sample take a WINDOW [(t, path)] and iterate
+        # `for t, path in window`, so they received a float where a path was required and
+        # crashed in read_centreline_raw.  shock_series(win) maps win one-for-one and
+        # preserves order, and windows() selects A by `t >= endtime - W - eps` over a
+        # time-ordered series, so A is a contiguous SUFFIX -- window A's (t, path) pairs
+        # are the corresponding suffix of win.  The argument is FORCED by the signatures;
+        # nothing computed, compared or thresholded is touched (§2av.5 requirement 3).
+        winA = win[len(ser) - len(pl["A"]):]
+        if [t for t, _ in winA] != [t for t, _ in pl["A"]]:
+            refuse("§2av repair: winA time-stamps do not match plateau window A -- the "
+                   "suffix correspondence shock_series() guarantees does not hold, so the "
+                   "plants would be planted into the wrong samples")
+
         pa = plant_gate_reader(win[-1][1])
-        pb = plant_plateau_reducer(pl["A"])
+        pb = plant_plateau_reducer(winA)
         pc1 = plant_series_translation(pl["A"])
-        pc2 = plant_field_readback_per_sample(pl["A"])
+        pc2 = plant_field_readback_per_sample(winA)
         pd = plant_T_field(os.path.join(tpath, "T"))
 
         cl_last = to_mach(read_centreline_raw(win[-1][1]))
@@ -1425,6 +1440,44 @@ def selftest():
     rb = plant_plateau_reducer(w)
     arm("B moves the ptp by >= 0.75*plant on the argmax (%.4e -> %.4e)"
         % (rb["base"], rb["got"]), rb["got"] >= rb["base"] + 0.75 * PLANT_DX)
+
+    # ---- §2av REQUIREMENT 4: THE DRIVEN CONTROL OVER THE PREVIOUSLY-UNEXERCISED
+    # CALL SITE.  59 arms passed while the defect shipped THROUGH them, because every
+    # arm called these functions with a CORRECT argument and none exercised what
+    # grade() actually passes -- §2p.3(d)'s exact class: "a pass is attributable only
+    # if the code that produced it is the code that runs".  These arms drive the
+    # ARGUMENT SHAPE at the call site, and they FAIL on the shipped form.
+    print("== §2av CALL-SITE SHAPE (the defect this grant repaired) ==")
+
+    def must_reject(label, fn):
+        """Arms TRUE only if fn() does NOT return normally.  Distinct from
+        must_refuse(): the shipped defect CRASHED (TypeError) rather than refusing,
+        and an arm that demanded exit 2 would itself have failed on the real bug."""
+        try:
+            fn()
+        except SystemExit as e:
+            arm(label + "  -> REFUSES(%s)" % e.code, True)
+            return
+        except Exception as e:
+            arm(label + "  -> RAISES %s" % type(e).__name__, True)
+            return
+        arm(label + "  -> RETURNED NORMALLY (the defect would ship again)", False)
+
+    _ser = shock_series(w)
+    must_reject("B rejects series points [(t, x)] -- the SHIPPED call-site argument",
+                lambda: plant_plateau_reducer(_ser))
+    must_reject("C2 rejects series points [(t, x)] -- the SHIPPED call-site argument",
+                lambda: plant_field_readback_per_sample(_ser))
+    # and the suffix correspondence the repair relies on, driven rather than assumed:
+    _k = 4
+    _tailA = _ser[len(_ser) - _k:]
+    _winA = w[len(_ser) - _k:]
+    arm("§2av suffix correspondence: win[-k:] time-stamps == series[-k:] time-stamps",
+        [t for t, _ in _winA] == [t for t, _ in _tailA])
+    _rb2 = plant_plateau_reducer(_winA)
+    arm("§2av B fires on the REPAIRED call-site argument win[-k:] (%.4e -> %.4e)"
+        % (_rb2["base"], _rb2["got"]),
+        _rb2["got"] >= _rb2["base"] + 0.75 * PLANT_DX)
 
     print("== PLANT D -- the T-field reader ==")
     must_refuse("D refuses a T internalField that is not a nonuniform scalar list",
