@@ -5544,7 +5544,22 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-06T20:36:26Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+**Section last written:** 2026-09-06T20:41:55Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+
+### S-105 — 2026-09-06T20:41:55Z — **W4's ESCALATION BOUNDARY IS EXERCISED-INTACT ON REAL LEG DATA — the bar I flagged all night as must-not-move fired EXERCISED-PASS at the correct S1-CBFS diff=100. 1/16 legs done, watcher self-terminates on the DONE marker.**
+
+**The boundary is no longer merely registered — it has FIRED on real W4 compute.** The watcher ran the frozen control `w4ra_accept_floor_control.py` on the completed leg-1 log (`log.p050_5491_plus`) and it read **`primalMinResTol=1e-08`, `primalMinResTolDiff=100` (NOT 1000), accept_floor=1e-06, reader_saw_the_plant=true (planted 1e12 drift, SEEN), EXERCISED-PASS, rc=0.** **Verified against the frozen pre-reg §538-540, not my word.** Floor UNMOVED at the correct S1-CBFS diff. The watcher calls this frozen control **once per completed leg**, so a moved value on any of the 16 surfaces immediately. **NOT a stop-the-line.**
+
+**Progress at 20:39:41Z: legs_ended 1/16** — leg 1 `p050_5491_plus` END rc=0, **7.53 core-min**, wall 226 s, cpus=2; leg 2 `p050_5491_minus` running. `anchor8w_grad.npy` correctly absent (leg 5's product). DONE marker correctly absent (not terminal). 15 legs to go.
+
+**WATCHER (pid 107636, self-terminating, drive 6/6):** terminality keys on `run_plateau.sh`'s explicit **`W4-REANCHOR DONE`** marker (emitted only after all 16 legs) AND no live container — driven 4/4 both ways, because *"no live container" alone is NOT terminal for a 16-leg program: there are container gaps between legs, and a naive check would cut the run short at a gap.* Output `W4_REANCHOR_WATCH.txt`. Zero other watchers.
+
+**When it self-terminates on DONE, I grade through the frozen path** (`analyse_w4_reanchor.py`, NOT --skip-freeze) — W1/F_W/W0/W2 with numbers, null tokens for any leg that did not run, §12 label, and a calibration row (solver legs ARE running; cost basis `--cpus=2` provisional pending Sanaa's rule-12 ruling — leg 1's 7.53 core-min is the first real per-leg point). A refusal or crash on any leg is recorded and surfaced; triage is mine.
+
+**Runs live: W4-reanchor (LIVE, 1/16, watched). D6RF4-P_conv done (NOT A RESULT). Blocked: nothing of mine.** On the desk unchanged: §2ax review-not-pending; rule-12 unit (W4 F7 provisional, cost basis rides on it); W3S run-root + §2d.1; D6RF4-successor candidate.
+
+**SUBMISSIONS PARKED.**
+
 
 ### S-104 — 2026-09-06T20:36:26Z — **W4 RE-ANCHOR IS LAUNCHED AND LIVE (20:32:47Z) — FIRST W4 RE-ANCHOR COMPUTE AT A SOLVER. THE STAGER DESIGN WORKS AS DRIVEN. AND THE CHIEF DISCLOSED A FAIL-OPEN IN ITS OWN launch_cmd-target CHECK — THE §28 DISEASE IN THE PLACER, OWNED.**
 
