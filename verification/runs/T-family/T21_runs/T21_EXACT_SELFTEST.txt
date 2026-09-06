@@ -1,0 +1,28 @@
+exact_t21 selftest
+  [PASS] P_full=100    W -> dT_wall 0.0859974153 K, registered 0.0859974153
+  [PASS] P_full=300    W -> dT_wall 0.2579922460 K, registered 0.2579922460
+  [PASS] P_full=600    W -> dT_wall 0.5159844920 K, registered 0.5159844920
+  [PASS] P_full=1000   W -> dT_wall 0.8599741534 K, registered 0.8599741530
+  [PASS] worst relative deviation from the registered anchors 4.37e-10
+  [PASS] P_sector(100 W, 5 deg) = 1.388888889 W, registered 1.388888889
+  [PASS] dT_wall is WEDGE-INVARIANT: the theta in P_sector cancels the theta in (1)
+  [PASS] PLANT k x2 -> dT halves (8.599742e-02 -> 4.299871e-02)
+  [PASS] PLANT L x2 -> dT halves
+  [PASS] PLANT P x2 -> dT doubles
+  [PASS] PLANT r_o up -> dT rises (thicker shell)
+  [PASS] DEGENERATE GUARD: r_out == r_in returns None, never 0.0
+  [PASS] DEGENERATE GUARD: k = 0 returns None, never 0.0
+  [PASS] N=8    Q2 0.0752290364 K is BELOW Q1 0.0859974153 K, gap 1.077e-02 K
+  [PASS] N=16   Q2 0.0806122217 K is BELOW Q1 0.0859974153 K, gap 5.385e-03 K
+  [PASS] N=16   the Q1-Q2 gap SHRANK with refinement (5.385e-03 < 1.077e-02)
+  [PASS] N=32   Q2 0.0833045590 K is BELOW Q1 0.0859974153 K, gap 2.693e-03 K
+  [PASS] N=32   the Q1-Q2 gap SHRANK with refinement (2.693e-03 < 5.385e-03)
+  [PASS] N < 2 returns None rather than a fabricated number
+
+SELFTEST PASSED
+T21 reference, derived from geometry and materials only
+  r_i 0.0335 m  r_o 0.0375 m  L 0.125 m  k 167.0 W/m/K  theta 5.0 deg
+  P_full    100 W  P_sector  1.388888889 W  dT_wall 0.0859974153 K  band +/- 0.8600 mK
+  P_full    300 W  P_sector  4.166666667 W  dT_wall 0.2579922460 K  band +/- 2.5799 mK
+  P_full    600 W  P_sector  8.333333333 W  dT_wall 0.5159844920 K  band +/- 5.1598 mK
+  P_full   1000 W  P_sector 13.888888889 W  dT_wall 0.8599741534 K  band +/- 8.5997 mK
