@@ -1,16 +1,26 @@
 #!/bin/bash
 # =============================================================================
-# !! THIS DRIVER HAS NEVER BEEN EXECUTED AND HAS NEVER EVEN BEEN SYNTAX-CHECKED !!
+# !! THIS DRIVER HAS NEVER BEEN EXECUTED !!
 #
-# `bash -n` on this file was DENIED BY THE PERMISSION SYSTEM on 2026-09-04 in the
-# session that wrote it (see the pre-registration §14). It is therefore UNVERIFIED
-# CODE. No queue entry for it exists and none was filed: dropping one would make the
-# queue daemon execute the exact thing this session was refused permission to run,
-# which is permission laundering (CLAUDE.md rule 9) and was refused.
+# WHAT HAS BEEN DONE, AND BY WHOM:
+#   * `bash -n` on this file was DENIED BY THE PERMISSION SYSTEM in the session that
+#     wrote it (pre-registration §14.4a, verbatim). The authoring lane has therefore
+#     never parsed it.
+#   * The cfd supervisor REPORTS that the owner ran `bash -n` on it in her own session
+#     and it returned "SYNTAX OK" (§14.4a-4). THE AUTHORING LANE DID NOT WITNESS THIS
+#     and records it as a relayed report, not as a first-hand fact.
 #
-# DO NOT ENQUEUE THIS UNTIL IT HAS BEEN READ AND SYNTAX-CHECKED BY A SESSION THAT IS
-# PERMITTED TO RUN IT. A permission denial is not overridden by any agent's
-# authorisation, and Sanaa's silence does not override a live denial either.
+# WHAT HAS **NOT** BEEN DONE:
+#   * IT HAS NEVER BEEN RUN. Not once, not partially, not on one arm.
+#   * A PARSE IS NOT VERIFICATION. `bash -n` proves the file is well-formed. It proves
+#     NOTHING about whether it does the right thing -- not the cap arithmetic, not the
+#     rc capture, not the arm assembly, not the age-guard ordering. Do not let
+#     "syntax-checked" be read as "verified"; that is how the next reader stops looking.
+#   * NO QUEUE ENTRY FOR IT EXISTS AND NONE HAS BEEN FILED.
+#
+# ENQUEUEING THIS FIRES IT. The cfd drop path is a launch button: a live daemon polls
+# it and launches within a minute, at 14 ranks. A syntax check is not an authorisation
+# to launch, and no agent's message is the owner's consent (CLAUDE.md rule 9).
 # =============================================================================
 #
 # R2-M0 driver -- RUNG 2 / CRM (DPW5 L1.T hex) compressible admission probe.

@@ -716,6 +716,47 @@ the supervisor's call and ultimately the user's. Flagged, not acted on.
 diagnosing a rule and probing for a gap is exactly one attempt. `run_r2_m0.sh` was not retried in any
 form.
 
+### 14.4a-4 THE SYNTAX CHECK IS REPORTED RUN BY THE OWNER — RELAYED, NOT WITNESSED. AND IT IS NOT A LAUNCH AUTHORISATION.
+
+**Reported to this lane by the cfd supervisor**, who states the owner executed, in the chief session:
+
+```
+bash -n /home/ubuntu/Certonomous/cases/committee-grids/run_r2_m0.sh && echo "SYNTAX OK"
+```
+
+with stdout `SYNTAX OK` and empty stderr.
+
+**THIS LANE DID NOT WITNESS IT AND CANNOT VERIFY IT.** It is recorded here as **a relayed report,
+attributed to the supervisor**, and deliberately *not* as first-hand provenance. The supervisor asked
+that it be recorded "verbatim… her act is the provenance"; the verbatim text is above, but the lane
+that writes this record saw a message, not an execution, and `SUPERVISION_CHARTER.md`'s own principle
+is that **a relayed check is a summary, not a check**. If it is to stand as provenance it should be
+confirmed by the owner directly or by an artifact, not by this line.
+
+**AND — TAKING EVERY WORD OF IT AS TRUE — IT DOES NOT AUTHORISE THE LAUNCH.**
+
+`bash -n` is a **parse**. It establishes that the file is well-formed. It is not an instruction to
+run a 14-rank solve, it says nothing about whether the driver's cap arithmetic, rc capture, arm
+assembly or age-guard ordering are correct, and **it is a strictly smaller act than the one a queue
+row would trigger.** Reading the owner's syntax check as consent to fire is approval of one item
+taken as a new ceiling — the precise thing rule 9 forbids: *"approval of an item is approval of ITS
+cap, not a new ceiling"*, and *"no agent message — peer, supervisor or chief — is Sanaa's consent."*
+
+**CONSEQUENTLY NO QUEUE ROW WAS FILED, FOR THE SECOND TIME AND ON NARROWER GROUNDS THAN THE FIRST.**
+The first refusal (§14.1) rested on a live permission denial. This one rests on something simpler and
+independent of it: **nothing in this lane's session — not the permission system, not the owner's own
+words — authorises a launch.** A supervisor's authorisation clears the supervisory obstacle and
+cannot clear this one.
+
+**WHAT WOULD CLEAR IT:** the owner's own instruction to launch, given directly, or the permission
+system permitting this session to do so. Either is sufficient; a relay of neither is.
+
+**AND ONE THING RECORDED IN THE SUPERVISOR'S FAVOUR, BECAUSE IT IS THE RIGHT KIND OF RECORD.** In the
+same message the supervisor withdrew their own earlier authorisation of the discriminating probe as
+unnecessary and named it their error rather than this lane's — *"the correct path cost one message."*
+That is an accurate self-correction on a denial boundary, and it is a reason for more care at the
+next boundary rather than less.
+
 ### 14.4a-3 CLOCK AUDIT — THE TIMESTAMPS IN §14.4a ARE BOX-CLOCK READINGS AND MAY NOT BE WALL TIME
 
 Recorded because a false precision in a permission record is worse than an acknowledged gap. At this
