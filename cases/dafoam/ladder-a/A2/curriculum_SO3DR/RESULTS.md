@@ -177,3 +177,31 @@ The in-scope count and the unrestricted count are **both zero**, so the G-SO3D-1
 ### Cost, forward-looking
 
 Two independent measurements now agree that host-side log replay runs at **~0.5 s per 220k-line pass at ranks 1**, making a four-log multi-pass reader a **sub-0.1 core-min** item against a 6.0 estimate. Carrying the estimate forward unrevised was right at the time; **the next registration of this shape is to be costed from these two measurements and to say so.**
+
+---
+
+## 9. RULING 3 — THE SUCCESSOR-GATE DECISION (the §3.4 / RULING 2 referral) UNDER SANAA 4ae4b33 — 2026-09-06T23:29:23Z
+
+The `dafoam-supervisor`, personally. This ruling decides the one question §3.4 and RULING 2 hand upward — *"whether a successor gate is warranted"* — and classifies SO-3D-R under Sanaa's directive 4ae4b33 (the only acceptable fail is a proven OpenFOAM capability gap). It **changes no frozen gate and re-grades nothing.**
+
+### 9.1 SO-3D-R'S GATE FAIL IS A REFUTED HYPOTHESIS, NOT A CAPABILITY GAP AND NOT A CASE THAT FAILED TO RUN.
+The item RAN to completion — the reader finished, 3/3 plants PASSED, 0 unattributed records, aggregates re-derived (671/977/673) matching the pre-reader freeze. G-SO3D-2's GATE FAIL is the **falsification of H2 (CL dose-response)**: P2 predicted `r(cl04)<r(cl05)<r(cl06)`, the measurement is the reverse and not close (§3.2). **A pre-registered hypothesis that is falsified is a result — it is what pre-registration is for — not a case that "won't run."** 4ae4b33's "keep fixing until it runs" governs cases that fail to execute; SO-3D-R executed and answered its question. **SO-3D-R is NOT a (d) capability gap.**
+
+### 9.2 A SUCCESSOR GATE IS WARRANTED — Stage 2 — BUT NOT A DOSE-RESPONSE GATE (that hypothesis is dead).
+The warranted successor must express what G-SO3D-3 structurally **could not**: whether cl04's elevated failure is intrinsic to **cl04's own primal** or an artefact of the **multipoint aborted-trial coupling**. The discriminating experiment, which the min-over-scenarios statistic can never perform: **run cl04 as a STANDALONE single-point primal (outside the mphys/OpenMDAO multipoint assembly) and measure its failure rate.**
+- If cl04-standalone fails at ~88 %, the failure is **cl04's primal** — the same A2-wing convergence pathology as D6RF4/D6RF5 (same base mesh, solver, image digest, identical `primalMinResTol`/`primalMinResTolDiff`), and the D6RF5 fixes (`limited corrected 0.333`, more non-orthogonal correctors) are the candidate remedy.
+- If cl04-standalone is healthy, the failure is the **multipoint coupling** — routed to the `om.ExecComp` propagation code-read that §3.3/§4 H5 leaves NOT DONE, now folded into Stage-2 scope.
+This gate answers its own question; that is precisely the property G-SO3D-3 and PLANT-B's degeneracy lacked (RULING 2's "statistics that cannot answer their own question", now three-for-three).
+
+### 9.3 THE UNDERLYING D6R MULTIPOINT FAILURE THAT SO-3D-R DIAGNOSED DOES OWE A FIX — AND IT IS NAMED.
+Under 4ae4b33 the thing that owes work is not the diagnostic but the failure it diagnosed:
+1. **cl04's primal convergence on the A2 wing** — candidate fix is the D6RF5-class numerics/mesh repair (`docs/dafoam/D6RF4_CONVERGENCE_RESEARCH.md` `1586fcf9`); confirmation is gated on the §9.2 standalone discrimination so we fix the right thing.
+2. **The aborted-trial coupling** — one scenario's boolean `primalFail` abandons the whole trial (§3.3), so two healthy scenarios are never evaluated. Whether the multipoint assembly can be configured NOT to abort all scenarios on one failure (mphys / OpenMDAO / pyOptSparse `failFlag` handling) is an **inbound-research** question (PARKED on any outbound contact). **Neither is a proven capability gap today.**
+
+### 9.4 CLASSIFICATION AND CONSTRAINTS.
+**SO-3D-R is (b) in the 4ae4b33 taxonomy:** a complete Stage-1 diagnostic whose diagnosed failure owes a specific named fix (D6RF5-class primal repair + multipoint-abort research), routed through a **Stage-2 successor whose gate is specified in §9.2.** It is NOT (c) and NOT (d).
+**Preserved, unchanged:** RULING 2's bar — the **39.7× is not a verdict and may not be quoted as one, by anyone, at any later date**; §5's frozen contradiction stays **disclosed, not repaired** (rule 2 gates closed, rule 6 forbids the edit); SO-3D's `NOT A RESULT` stands; the `om.ExecComp` code-read stays NOT DONE, now Stage-2 scope. **No remedy is applied here — this ruling DIRECTS a Stage-2 registration; it does not alter any frozen gate, threshold, cap or label.**
+
+**Stage 2 is not frozen and is not launched by this ruling.** It is directed and specified; its pre-registration is owed before any Stage-2 compute.
+
+**SUBMISSIONS PARKED.**
