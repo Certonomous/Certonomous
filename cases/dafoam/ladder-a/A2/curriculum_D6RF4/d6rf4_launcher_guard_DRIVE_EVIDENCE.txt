@@ -1,0 +1,44 @@
+D6RF4 LAUNCHER-GUARD DRIVE -- EVERY DIRECTION ON A NEUTERED COPY
+  the live PERMISSION is NEVER read by a control here, so every
+  direction below fires identically BEFORE and AFTER the freeze
+  launcher /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF4/d6rf4_run_arm.sh
+  OK    direction 0  the PLANT bit: ^PERMISSION= sites rewritten   sites=1 (exactly 1 required -- a second assignment silently wins in shell)
+  OK    direction 0  the NEUTERING bit: container lines refused    sites=17 (>=1 required; a neutering that neutered nothing is a planted zero)
+  OK    direction 1  PERMISSION=NOT_FROZEN -> ABORT G-FREEZE       token seen=True  rc=3  reached_no_container_line=True
+  OK    direction 2  a 40-hex PERMISSION -> G-FREEZE does NOT fire G_FREEZE_PASS=True  rc=90
+  OK    direction 2  and the FIXTURE's refusal is what stops it    the neutered copy hit a container-touching line and REFUSED there -- so the drive's zero-compute property rests on the FIXTURE, not on PERMISSION
+  OK    direction 3  PERMISSION='deadbeef'   (a short sha) -> ABORT G-FREEZE-SHAPE rc=3
+  OK    direction 3  PERMISSION='main'       (a branch name) -> ABORT G-FREEZE-SHAPE rc=3
+  OK    direction 3  PERMISSION='2026-09-06' (a date) -> ABORT G-FREEZE-SHAPE rc=3
+  OK    direction 3  PERMISSION=''           (an empty edit) -> ABORT G-FREEZE-SHAPE rc=3
+  OK    direction 3  PERMISSION='Z6f4d6f4d6f4d6f4d6f4d6f4d6f4d6f4d6f4d6f4' (40 chars but not hex) -> ABORT G-FREEZE-SHAPE rc=3
+  OK    direction 4  PERMISSION assigned TWICE -> ABORT G-FREEZE-UNIQUE rc=3 -- the stale second assignment would otherwise have won silently
+  OK    direction 5  G-ACCEPT-FLOOR plant REMOVED -> refuses NOT SEEN rc=3 -- a zero from a reader not shown able to see a non-zero is not evidence
+  OK    direction 5  a REAL accept-floor assignment -> refuses and NAMES it rc=3 -- the offending line is printed, not merely counted
+  OK    direction 6  the LIVE launcher assigns PERMISSION exactly once assignments=1
+  OK    direction 6  the LIVE launcher offers NO environment bypass an env hatch would let any caller launch an unfrozen item, and this lane's own first draft of this drive USED one
+       LIVE VALUE, REPORTED AND NOT ASSERTED: PERMISSION=NOT_FROZEN
+       (this line is a READING, not a control -- the controls above all ran on copies)
+  --- direction 7: every drive's zero-compute claim, by ast --------
+  OK    direction 7  d6rf4_grade_drive.py                   reaches no container clean
+  OK    direction 7  d6rf4_finiteness_mutation.py           reaches no container clean
+  OK    direction 7  d6rf4_accept_floor_control.py          reaches no container clean
+  OK    direction 7  d6rf4_cd_plant_control.py              reaches no container clean
+  OK    direction 7  d6rf4_anchor_gate.py                   reaches no container clean
+  OK    direction 7  d6rf4_endpoint_locus.py                reaches no container clean
+  OK    direction 7  d6rf4_units_assert.py                  reaches no container clean
+  OK    direction 7  d6rf4_grade.py                         reaches no container clean
+  OK    direction 7  d6rf4_instrument_table_extraction.py   reaches no container clean
+       Nothing above depends on PERMISSION: these drives never
+       invoke the launcher at all, so filling the freeze field
+       cannot make any of them start a container.
+
+  RESULT ALL DIRECTIONS AS REGISTERED
+  solver core-minutes spent by this drive: 0.000 -- every launcher copy is neutered before it is run, and direction 2 SHOWS that neutering firing
+
+=== PROVENANCE ===
+driven 2026-09-06T02:36:55Z
+drive    d6rf4_launcher_guard_drive.py md5 7476774e118f18c68ac33b96ba4bec46
+launcher d6rf4_run_arm.sh md5 6cd796cb32e8d1520b93219c86817b76
+EVERY DIRECTION RAN ON A NEUTERED COPY.  RE-RUN THIS FILE AFTER THE FREEZE:
+every direction is designed to give the SAME verdict once PERMISSION holds a sha.

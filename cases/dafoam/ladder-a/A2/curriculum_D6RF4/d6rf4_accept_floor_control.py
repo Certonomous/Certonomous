@@ -300,9 +300,15 @@ D6RF3_REAL_LOG = ("/home/ubuntu/certonomous-runs/"
 
 def _synthetic_log(path, tol="1e-08", diff="1000", dumps=3):
     """A minimal log of the shape the arm's container actually writes, built
-    here rather than taken from a run, because `D6RF4` HAS NOT RUN and a
-    control that can only be driven after the compute it guards is not a
-    pre-compute control.  `dumps` reproduces `D6RF3`'s THREE `DAOption` blocks."""
+    here rather than taken from a run.
+
+    THE REASON IS TENSELESS AND STAYS TRUE AFTER THE ITEM RUNS: a control that
+    can only be driven ONCE the compute it guards has happened is not a
+    pre-compute control, and this one has to be drivable at the freeze, when
+    no arm log exists.  Direction 6 of the drive exercises the SAME reader on
+    the real D6RF3 container log, so the fixture is not the only thing this
+    reader has ever been shown.  `dumps` reproduces D6RF3's THREE `DAOption`
+    blocks."""
     block = ("    solverName      DARhoSimpleFoam;\n"
              "    primalMinResTol %s;\n"
              "    printIntervalUnsteady 1;\n"

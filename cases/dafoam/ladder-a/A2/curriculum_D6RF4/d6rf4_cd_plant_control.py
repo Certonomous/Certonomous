@@ -210,9 +210,12 @@ def run_cd_control(ctrl_dir, cd_path, reader=read_cd, point=PLANT_POINT):
 # ============================ THE DRIVE, BOTH WAYS ==========================
 def _synthetic_product(path):
     """A minimal artefact of the shape `d6rf4_fd_endpoint.py` writes.  Built
-    here rather than taken from a run, because this item HAS NOT RUN and a
-    control that can only be driven after the compute it guards is not a
-    pre-compute control."""
+    here rather than taken from a run.
+
+    THE REASON IS TENSELESS AND STAYS TRUE AFTER THE ITEM RUNS: a control that
+    can only be driven ONCE the compute it guards has happened is not a
+    pre-compute control, and this one has to be drivable at the freeze, when
+    no product exists."""
     cd = {"cl04": 1.846929883e-02, "cl05": 2.176156349e-02,
           "cl06": 2.696277508e-02}
     cl = {"cl04": 0.4, "cl05": 0.5, "cl06": 0.6}

@@ -1,6 +1,6 @@
 --- /tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/d6rf4/rename_only/d6rf4_run_arm.sh	2026-09-06 02:14:08.580571220 +0000
-+++ d6rf4_run_arm.sh	2026-09-06 02:26:59.950033880 +0000
-@@ -1,9 +1,37 @@
++++ d6rf4_run_arm.sh	2026-09-06 02:34:30.062171997 +0000
+@@ -1,9 +1,47 @@
  #!/usr/bin/env bash
 -# Curriculum D6RF arm launcher -- F_mp (the FD bright line on the composite J)
 -# and REF_off (the off-design reference).  The two arms D6R registered and never
@@ -31,18 +31,28 @@
 +#      stages anything.  The accept floor stays 1e-08 x 1000 = 1.0e-05, and
 +#      d6rf4_accept_floor_control.py reads both values back out of the log this
 +#      launcher produces and REFUSES the grading if either has moved.
-+#   E  THE FREEZE PERMISSION IS UNSET AND THIS LAUNCHER REFUSES TO RUN.  The
-+#      freeze and the enqueue belong to the dafoam-supervisor; until the freeze
-+#      sha is written into PERMISSION below, `d6rf4_run_arm.sh` aborts rc 3
-+#      before any staging.  "Do not launch" is executable here rather than
-+#      being a sentence in a report.
++#   E  G-FREEZE.  THIS LAUNCHER REFUSES TO RUN WHILE `PERMISSION` HOLDS THE
++#      PLACEHOLDER TOKEN, and refuses again if `PERMISSION` is neither the
++#      placeholder nor a 40-hex sha.  The freeze and the enqueue belong to the
++#      dafoam-supervisor.  "Do not launch" is an exit code here rather than a
++#      sentence in a report.
++#      THIS LINE DOES NOT STATE WHAT `PERMISSION` CURRENTLY HOLDS, DELIBERATELY.
++#      A first screen that asserts "the permission is unset" becomes the item's
++#      most-read false statement the moment the freeze fills it, and a reader
++#      trusts the header long after the value has moved.  The MECHANISM is
++#      described here; the VALUE is read from line ~79 and from the
++#      `permission=` field of every `D6RF4_STAGE` line the launcher writes.
++#      G-FREEZE IS DRIVEN IN BOTH DIRECTIONS BY `d6rf4_launcher_guard_drive.py`,
++#      which plants each `PERMISSION` value into a NEUTERED COPY and checks the
++#      REASON TOKEN rather than the rc -- so the control keeps firing after the
++#      freeze, when reading the live value would prove nothing.
 +#
 +# ITS OWN PARENT, for the chain: curriculum_D6R/d6r_run_arm.sh (md5
 +# 243f0f631719edf7ae354410276b3cfd)
  # with the registered deltas of D6RF PREREGISTRATION.md ADDENDUM 1.  Everything
  # not named there is D6R's shape.  THE DELTAS, enumerated:
  #   1  two arms, not four; caps 480.0 / 190.0 (section 4d), deadlines 7110/2760
-@@ -40,9 +68,26 @@
+@@ -40,9 +78,68 @@
  set -uo pipefail
  
  ITEM=D6RF4
@@ -50,14 +60,33 @@
 +REGISTERED_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe
  BASE="${BASE:-$REGISTERED_BASE}"
 -PERMISSION=bc0e687e
-+# ---- THE FREEZE PERMISSION.  UNSET ON PURPOSE. ---------------------------
-+# `PREREGISTRATION.md` is a DRAFT until the dafoam-supervisor freezes it by
-+# sha, and CLAUDE.md rule 2 puts that freeze BEFORE any compute.  A launcher
-+# that would run without one turns "do not enqueue yet" into a sentence in a
-+# report; this turns it into an exit code.  The supervisor replaces the token
-+# below with the freeze sha AT THE FREEZE, and not before.
++# ============================ G-FREEZE ====================================
++# `CLAUDE.md` rule 2 puts the freeze BEFORE any compute, and the freeze is the
++# pre-registration's entire evidentiary content.  A launcher that would run
++# without one turns "do not enqueue yet" into a sentence in a report; this
++# turns it into an exit code.
++#
++# EXACTLY ONE FIELD IS FILLED AT THE FREEZE: `PERMISSION`, on the line below,
++# which the dafoam-supervisor sets to the pre-registration's freeze sha.
++#
++# THE ASSIGNMENT IS ASSERTED UNIQUE.  `MD5_ANCHOR_GATE` was assigned twice in
++# this file's first draft and the STALE value came second -- in shell the LAST
++# assignment wins, so the stale one would have won and aborted staging at rc 4.
++# A field a human edits by searching for its name is exactly where that
++# recurs, so the count is PINNED here rather than the appearance trusted.
 +PERMISSION=NOT_FROZEN
-+if [ "$PERMISSION" = "NOT_FROZEN" ] && [ "${D6RF4_I_AM_THE_SUPERVISOR_AND_HAVE_FROZEN:-}" != "yes" ]; then
++PERM_ASSIGNMENTS=$(grep -cE '^PERMISSION=' "${BASH_SOURCE[0]}" || true)
++case "$PERM_ASSIGNMENTS" in ''|*[!0-9]*) PERM_ASSIGNMENTS=UNMEASURED ;; esac
++if [ "$PERM_ASSIGNMENTS" != "1" ]; then
++  echo "ABORT G-FREEZE-UNIQUE PERMISSION is assigned $PERM_ASSIGNMENTS time(s)"
++  echo "  in this launcher.  In shell the LAST assignment wins, so a second one"
++  echo "  silently overrides the freeze field and the launcher would run under"
++  echo "  a permission nobody read.  Pin the count, not the appearance."
++  grep -nE '^PERMISSION=' "${BASH_SOURCE[0]}"
++  exit 3
++fi
++# THE PLACEHOLDER LIMB.  Fires while the item is unfrozen.
++if [ "$PERMISSION" = "NOT_FROZEN" ]; then
 +  echo "ABORT G-FREEZE this item is NOT FROZEN.  PERMISSION is still the"
 +  echo "  placeholder token NOT_FROZEN, so no pre-registration sha has been"
 +  echo "  written into this launcher."
@@ -68,10 +97,33 @@
 +  echo "  NO CONTAINER IS CREATED.  NO DIRECTORY IS TOUCHED."
 +  exit 3
 +fi
++# THE SHAPE LIMB, AND IT IS THE LIMB THAT SURVIVES THE FREEZE.  Once the
++# placeholder is replaced, the limb above can never fire again -- so a control
++# that only had that limb would go silent at exactly the moment the field
++# started mattering.  This one refuses anything that is not a 40-hex sha:
++# a truncated paste, a short sha, a branch name, a date, an empty edit.
++case "$PERMISSION" in
++  *[!0-9a-f]*|"") BAD=yes ;;
++  *) BAD=no ;;
++esac
++if [ "$BAD" = "yes" ] || [ "${#PERMISSION}" -ne 40 ]; then
++  echo "ABORT G-FREEZE-SHAPE PERMISSION is '$PERMISSION' (${#PERMISSION} chars),"
++  echo "  which is neither the placeholder NOT_FROZEN nor a 40-hex commit sha."
++  echo "  A half-filled freeze field is not a freeze.  REFUSED before any"
++  echo "  staging; NO CONTAINER IS CREATED."
++  exit 3
++fi
++echo "D6RF4_G_FREEZE_PASS permission=$PERMISSION assignments=$PERM_ASSIGNMENTS shape=40hex"
++# THE ESCAPE HATCH IS GONE.  An earlier draft honoured an environment variable
++# that bypassed the limb above, so any caller who set it could launch an
++# unfrozen item -- and this lane's own guard drive USED it, which is precisely
++# how such a hatch stays in a file.  G-FREEZE is now driven by planting values
++# into a NEUTERED COPY (d6rf4_launcher_guard_drive.py), so nothing needs to
++# bypass the live gate and the gate has no bypass to offer.
  
  BASE_REAL=$(realpath -m "$BASE")
  REG_REAL=$(realpath -m "$REGISTERED_BASE")
-@@ -131,7 +176,27 @@
+@@ -131,7 +228,27 @@
    sudo -n docker ps --format '{{.Names}}' 2>/dev/null | grep -v "^d6rf4_" | tr '\n' ',' | sed 's/,$//'
  }
  
@@ -100,7 +152,7 @@
  # BOTH ARMS ANCHORED ON MEASUREMENTS OF THE PROGRAMS THEY ACTUALLY RUN.
  #   F_mp    155.70 core-min  =  D4 arm F3 (47.267 MEASURED, f3_ledger.txt, the
  #                               only FD-endpoint arm that has ever succeeded
-@@ -151,8 +216,7 @@
+@@ -151,8 +268,7 @@
  # MEASURED at 55.53 core-min / 833 s -- D6RF-DEF-3.  It could not have finished.
  cap_core_min() {
    case "$1" in
@@ -110,7 +162,7 @@
      *)  echo "" ;;
    esac
  }
-@@ -161,7 +225,7 @@
+@@ -161,7 +277,7 @@
  # identical multipoint program at 20g, so 20g is a MEASURED floor, not a guess.
  cap_memory() {
    case "$1" in
@@ -119,7 +171,7 @@
      *) echo "" ;;
    esac
  }
-@@ -172,35 +236,119 @@
+@@ -172,35 +288,119 @@
  
  # ---- FROZEN INSTRUMENT HASHES (PREREGISTRATION.md sections 7a and 7b) -----
  MD5_RUNSCRIPT6=137539e0a99be27f27fdb69e063b2a87
@@ -252,7 +304,7 @@
  # ---- G-ROOT.5 -- A LIVE ARM IS NEVER RE-STAGED.  Two live readings, BEFORE
  # ---- any destructive act.
  LIVE_SAME_ARM=$(sudo -n docker ps --format '{{.Names}}' --filter "name=^d6rf4_${ARM}_" 2>/dev/null | grep "^d6rf4_${ARM}_" | head -3 | tr '\n' ',' | sed 's/,$//')
-@@ -275,14 +423,14 @@
+@@ -275,14 +475,14 @@
  echo "$MD5_RUNSCRIPT6  $BASE/d6rf4_opt_runScript.py" | md5sum -c - || { echo "ABORT d6rf4_opt_runScript.py md5"; exit 4; }
  echo "$MD5_FD  $BASE/d6rf4_fd_endpoint.py"           | md5sum -c - || { echo "ABORT d6rf4_fd_endpoint.py md5"; exit 4; }
  echo "$MD5_EXTRACT6  $BASE/d6rf4_extract_endpoint.py"| md5sum -c - || { echo "ABORT d6rf4_extract_endpoint.py md5"; exit 4; }
@@ -272,7 +324,7 @@
  
  # ---- image identity by DIGEST, resolved from the local store -------------
  GOT_DIGEST=$(sudo -n docker image inspect --format '{{index .RepoDigests 0}}' "$IMG" 2>/dev/null | sed 's/.*@//')
-@@ -363,21 +511,21 @@
+@@ -363,21 +563,21 @@
    exit 5
  }
  
@@ -298,7 +350,7 @@
    # ------------------------------------------------------------------ S3
    # THE DOUBLE-DEFORMATION CONFOUND, ELIMINATED BY MEASUREMENT.  D4's arm F died
    # on `Mesh quality error!`; its F3 repair recorded the same md5 on both sides.
-@@ -403,7 +551,7 @@
+@@ -403,7 +603,7 @@
        stage_say "  double-deformation confound that killed D4's arm F.  REFUSED."
        exit 5; }
    done
@@ -307,7 +359,7 @@
    # ------------------------------------------------------------------ S4
    # ===================================================================
    # EVERY COUNT BELOW ASSERTS ITS OWN TRIP COUNT.  A guard that compares
-@@ -430,7 +578,7 @@
+@@ -430,7 +630,7 @@
    }
    SRC_HST_MD5=$(md5sum "$SRC/OptView.hst" | cut -d' ' -f1)
    SRC_TIMEDIRS=$(count_src_entries "$SRC/mp04/processor0" "")
@@ -316,7 +368,7 @@
    case "$SRC_TIMEDIRS" in
      UNMEASURED)
        stage_say "ABORT S4 the source count is UNMEASURED -- $SRC/mp04/processor0 is absent or unreadable."
-@@ -453,7 +601,7 @@
+@@ -453,7 +653,7 @@
        exit 5 ;;
    esac
    test "$POST_TIMEDIRS" = "$SRC_TIMEDIRS" || { stage_say "ABORT S4 SOURCE CHANGED during the copy: mp04/processor0 entries $SRC_TIMEDIRS -> $POST_TIMEDIRS"; exit 5; }
@@ -325,7 +377,7 @@
    # ------------------------------------------------------------------ S5
    # DROP THE OPTIMISER'S OUTPUTS FROM THE COPY.  D6RF-DEF-2: pyDAFoam's
    # renameSolution refuses to move onto an existing directory -- D4's arm F2,
-@@ -524,12 +672,13 @@
+@@ -524,12 +724,13 @@
    test "$SRC_REMAIN" -gt 1 || { stage_say "ABORT S5 SOURCE INTACT assertion FAILED: only $SRC_REMAIN pseudo-time dirs remain under $SRC/mp04/processor0 (required > 1) -- D6R's evidence may have been touched"; exit 5; }
    test -f "$WORK/OptView.hst" || { stage_say "ABORT S5 OptView.hst was dropped from the copy"; exit 5; }
    test -f "$WORK/mp04/dRdWColoring_4.bin" || { stage_say "ABORT S5 the cached colouring was dropped from the copy -- the cap is priced with it present"; exit 5; }
@@ -341,7 +393,7 @@
          "$WORK/" || { stage_say "ABORT S6 stage instruments"; exit 4; }
    { echo "$MD5_EXTRACT6  $WORK/d6rf4_extract_endpoint.py"
      echo "$MD5_FD  $WORK/d6rf4_fd_endpoint.py"
-@@ -538,65 +687,84 @@
+@@ -538,65 +739,84 @@
      echo "$MD5_PHYS6  $WORK/d6rf4_endpoint_physical.py"
      echo "$MD5_UNITS  $WORK/d6rf4_units_assert.py"
      echo "$MD5_ANCHOR_GATE  $WORK/d6rf4_anchor_gate.py"
@@ -477,7 +529,7 @@
  fi
  
  # ===========================================================================
-@@ -619,10 +787,13 @@
+@@ -619,10 +839,13 @@
  # answer.  Same shape as a1wrt_controldict.py deriving A1WR's controlDict from
  # A1WR's own heredoc instead of retyping it.
  #
@@ -495,7 +547,7 @@
  #
  # AND IT FAILS CLOSED IN THREE WAYS, because a derivation that quietly finds
  # nothing is indistinguishable from one that found nothing wrong (rule 3):
-@@ -643,7 +814,7 @@
+@@ -643,7 +866,7 @@
  
  # ---- LEVEL 0: what THIS LAUNCHER md5-checks or executes at $WORK ------------
  opens = [i for i, l in enumerate(src, 1)
@@ -504,7 +556,7 @@
  if len(opens) != 1:
      print("REFUSE-SHAPE expected exactly 1 arm-branch opener in %s, found %d "
            "-- the launcher's shape has MOVED and this guard will not guess"
-@@ -662,7 +833,7 @@
+@@ -662,7 +885,7 @@
          m = p.search(l)
          if not m:
              continue
@@ -513,7 +565,7 @@
          if region in ("BOTH", arm):
              req.add(m.group(1))
  if not req:
-@@ -858,14 +1029,78 @@
+@@ -858,14 +1081,78 @@
  # chaining means a units refusal (rc 77) propagates as the container's own
  # ExitCode and THE MESH IS NEVER TOUCHED.
  # ===========================================================================

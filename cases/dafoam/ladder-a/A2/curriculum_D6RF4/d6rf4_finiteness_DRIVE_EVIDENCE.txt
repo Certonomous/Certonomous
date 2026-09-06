@@ -1,6 +1,6 @@
 D6RF4 SECTION 3f FINITENESS MUTATION HARNESS -- BOTH DIRECTIONS
   the fixture census gives REF_off a RAN state so the G-OFF fold is reachable; on a REAL grading run REF_off is NOT_REGISTERED_AT_THIS_FREEZE and G-OFF reads NOT A RESULT
-  fixture root /tmp/d6rf4_finmut_w_1h0dam/run
+  fixture root /tmp/d6rf4_finmut_mqwo28r6/run
   binding list (section 3f, VERBATIM, not widened): G-OFF, G-PRICE, G-FD, G-DVL, R-RED, G-CAPS, G1
   OK   G-OFF   CD_i(mp)       direction 2  unmutated -> PASS
       OK   G-OFF   CD_i(mp)       NaN   -> NOT A RESULT  reason=NON_FINITE_INPUT artefact=d6rf4_fd_endpoint.json key=points.cl05.CD token='nan'
@@ -80,7 +80,7 @@ D6RF4 SECTION 3f FINITENESS MUTATION HARNESS -- BOTH DIRECTIONS
   F2: the section 3f clause IS ESTABLISHED in both directions
 
 === PROVENANCE ===
-driven 2026-09-06T02:27:20Z
+driven 2026-09-06T02:36:55Z
 harness d6rf4_finiteness_mutation.py md5 8aeaf30a9a3e177c406ad235c5e2c54e
 grader  d6rf4_grade.py md5 4085f678997ef6abe45c6946abd0626e
-exit status 0 == the section 3f clause IS ESTABLISHED in both directions
+exit 0 == the section 3f clause IS ESTABLISHED in both directions

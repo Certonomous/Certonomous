@@ -269,7 +269,7 @@ def main():
       "committed blob at HEAD for every row below.")
     W("  A row reading `NOT IN HEAD` is a file this item EXECUTES that is not "
       "committed yet, which is what the freeze commit fixes.")
-    not_in_head = 0
+    not_in_head, disagree = 0, 0
     for rel in frozen_rel:
         disk = os.path.join(REPO, rel)
         dm = md5_of(disk) if os.path.isfile(disk) else "ABSENT-ON-DISK"
@@ -281,12 +281,25 @@ def main():
         except Exception:                                      # noqa: BLE001
             bm = "NOT IN HEAD"
             not_in_head += 1
+        state = ("AGREE" if dm == bm
+                 else ("PENDING COMMIT" if bm == "NOT IN HEAD" else "DISAGREE"))
+        if state == "DISAGREE":
+            disagree += 1
         W("  %-62s disk %s  HEAD %s  %s"
-          % (rel.rsplit("/", 1)[-1], dm, bm,
-             "AGREE" if dm == bm else ("PENDING COMMIT" if bm == "NOT IN HEAD"
-                                       else "DISAGREE")))
-    W("  -> %d of %d frozen paths are not yet in HEAD" % (not_in_head,
-                                                          len(frozen_rel)))
+          % (rel.rsplit("/", 1)[-1], dm, bm, state))
+    # BOTH FAILURE MODES ARE COUNTED, and the first draft of this summary
+    # counted only one -- it reported "0 of 17 not yet in HEAD" while THREE
+    # rows read DISAGREE, because an edited-but-committed file is a different
+    # failure from an uncommitted one and the line named only the second.
+    # Same shape as the plateau report claiming "every graded component sat
+    # inside the bar" with zero components: a two-state summary over a
+    # three-state world reads as a pass.
+    W("  -> %d of %d frozen paths NOT IN HEAD; %d COMMITTED BUT EDITED SINCE; "
+      "%d agree" % (not_in_head, len(frozen_rel), disagree,
+                    len(frozen_rel) - not_in_head - disagree))
+    if not_in_head or disagree:
+        W("     freeze_check WOULD REFUSE THIS GRADING (rule 2: the grading "
+          "path is fixed at the pre-registration commit). Commit, then re-run.")
     W("")
     W("=== THE DERIVATION LEDGER: parent -> derived, and the diff beside it ===")
     W("  This family's practice: every instrument is written BY DERIVATION from")

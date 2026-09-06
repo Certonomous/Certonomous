@@ -24,11 +24,21 @@
 #      stages anything.  The accept floor stays 1e-08 x 1000 = 1.0e-05, and
 #      d6rf4_accept_floor_control.py reads both values back out of the log this
 #      launcher produces and REFUSES the grading if either has moved.
-#   E  THE FREEZE PERMISSION IS UNSET AND THIS LAUNCHER REFUSES TO RUN.  The
-#      freeze and the enqueue belong to the dafoam-supervisor; until the freeze
-#      sha is written into PERMISSION below, `d6rf4_run_arm.sh` aborts rc 3
-#      before any staging.  "Do not launch" is executable here rather than
-#      being a sentence in a report.
+#   E  G-FREEZE.  THIS LAUNCHER REFUSES TO RUN WHILE `PERMISSION` HOLDS THE
+#      PLACEHOLDER TOKEN, and refuses again if `PERMISSION` is neither the
+#      placeholder nor a 40-hex sha.  The freeze and the enqueue belong to the
+#      dafoam-supervisor.  "Do not launch" is an exit code here rather than a
+#      sentence in a report.
+#      THIS LINE DOES NOT STATE WHAT `PERMISSION` CURRENTLY HOLDS, DELIBERATELY.
+#      A first screen that asserts "the permission is unset" becomes the item's
+#      most-read false statement the moment the freeze fills it, and a reader
+#      trusts the header long after the value has moved.  The MECHANISM is
+#      described here; the VALUE is read from line ~79 and from the
+#      `permission=` field of every `D6RF4_STAGE` line the launcher writes.
+#      G-FREEZE IS DRIVEN IN BOTH DIRECTIONS BY `d6rf4_launcher_guard_drive.py`,
+#      which plants each `PERMISSION` value into a NEUTERED COPY and checks the
+#      REASON TOKEN rather than the rc -- so the control keeps firing after the
+#      freeze, when reading the live value would prove nothing.
 #
 # ITS OWN PARENT, for the chain: curriculum_D6R/d6r_run_arm.sh (md5
 # 243f0f631719edf7ae354410276b3cfd)
@@ -70,14 +80,33 @@ set -uo pipefail
 ITEM=D6RF4
 REGISTERED_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe
 BASE="${BASE:-$REGISTERED_BASE}"
-# ---- THE FREEZE PERMISSION.  UNSET ON PURPOSE. ---------------------------
-# `PREREGISTRATION.md` is a DRAFT until the dafoam-supervisor freezes it by
-# sha, and CLAUDE.md rule 2 puts that freeze BEFORE any compute.  A launcher
-# that would run without one turns "do not enqueue yet" into a sentence in a
-# report; this turns it into an exit code.  The supervisor replaces the token
-# below with the freeze sha AT THE FREEZE, and not before.
+# ============================ G-FREEZE ====================================
+# `CLAUDE.md` rule 2 puts the freeze BEFORE any compute, and the freeze is the
+# pre-registration's entire evidentiary content.  A launcher that would run
+# without one turns "do not enqueue yet" into a sentence in a report; this
+# turns it into an exit code.
+#
+# EXACTLY ONE FIELD IS FILLED AT THE FREEZE: `PERMISSION`, on the line below,
+# which the dafoam-supervisor sets to the pre-registration's freeze sha.
+#
+# THE ASSIGNMENT IS ASSERTED UNIQUE.  `MD5_ANCHOR_GATE` was assigned twice in
+# this file's first draft and the STALE value came second -- in shell the LAST
+# assignment wins, so the stale one would have won and aborted staging at rc 4.
+# A field a human edits by searching for its name is exactly where that
+# recurs, so the count is PINNED here rather than the appearance trusted.
 PERMISSION=NOT_FROZEN
-if [ "$PERMISSION" = "NOT_FROZEN" ] && [ "${D6RF4_I_AM_THE_SUPERVISOR_AND_HAVE_FROZEN:-}" != "yes" ]; then
+PERM_ASSIGNMENTS=$(grep -cE '^PERMISSION=' "${BASH_SOURCE[0]}" || true)
+case "$PERM_ASSIGNMENTS" in ''|*[!0-9]*) PERM_ASSIGNMENTS=UNMEASURED ;; esac
+if [ "$PERM_ASSIGNMENTS" != "1" ]; then
+  echo "ABORT G-FREEZE-UNIQUE PERMISSION is assigned $PERM_ASSIGNMENTS time(s)"
+  echo "  in this launcher.  In shell the LAST assignment wins, so a second one"
+  echo "  silently overrides the freeze field and the launcher would run under"
+  echo "  a permission nobody read.  Pin the count, not the appearance."
+  grep -nE '^PERMISSION=' "${BASH_SOURCE[0]}"
+  exit 3
+fi
+# THE PLACEHOLDER LIMB.  Fires while the item is unfrozen.
+if [ "$PERMISSION" = "NOT_FROZEN" ]; then
   echo "ABORT G-FREEZE this item is NOT FROZEN.  PERMISSION is still the"
   echo "  placeholder token NOT_FROZEN, so no pre-registration sha has been"
   echo "  written into this launcher."
@@ -88,6 +117,29 @@ if [ "$PERMISSION" = "NOT_FROZEN" ] && [ "${D6RF4_I_AM_THE_SUPERVISOR_AND_HAVE_F
   echo "  NO CONTAINER IS CREATED.  NO DIRECTORY IS TOUCHED."
   exit 3
 fi
+# THE SHAPE LIMB, AND IT IS THE LIMB THAT SURVIVES THE FREEZE.  Once the
+# placeholder is replaced, the limb above can never fire again -- so a control
+# that only had that limb would go silent at exactly the moment the field
+# started mattering.  This one refuses anything that is not a 40-hex sha:
+# a truncated paste, a short sha, a branch name, a date, an empty edit.
+case "$PERMISSION" in
+  *[!0-9a-f]*|"") BAD=yes ;;
+  *) BAD=no ;;
+esac
+if [ "$BAD" = "yes" ] || [ "${#PERMISSION}" -ne 40 ]; then
+  echo "ABORT G-FREEZE-SHAPE PERMISSION is '$PERMISSION' (${#PERMISSION} chars),"
+  echo "  which is neither the placeholder NOT_FROZEN nor a 40-hex commit sha."
+  echo "  A half-filled freeze field is not a freeze.  REFUSED before any"
+  echo "  staging; NO CONTAINER IS CREATED."
+  exit 3
+fi
+echo "D6RF4_G_FREEZE_PASS permission=$PERMISSION assignments=$PERM_ASSIGNMENTS shape=40hex"
+# THE ESCAPE HATCH IS GONE.  An earlier draft honoured an environment variable
+# that bypassed the limb above, so any caller who set it could launch an
+# unfrozen item -- and this lane's own guard drive USED it, which is precisely
+# how such a hatch stays in a file.  G-FREEZE is now driven by planting values
+# into a NEUTERED COPY (d6rf4_launcher_guard_drive.py), so nothing needs to
+# bypass the live gate and the gate has no bypass to offer.
 
 BASE_REAL=$(realpath -m "$BASE")
 REG_REAL=$(realpath -m "$REGISTERED_BASE")

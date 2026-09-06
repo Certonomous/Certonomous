@@ -17,5 +17,5 @@ D6RF4 CAP / DEADLINE REACHABILITY -- ranks=4 frame_allowance_s=90
   TOTAL predicted 17.90 core-min against ceiling 54.0 core-min
 
 === PROVENANCE ===
-run 2026-09-06T02:27:21Z  grader md5 4085f678997ef6abe45c6946abd0626e
-exit status 0 for both --freeze-selfcheck and --cap-arithmetic
+run 2026-09-06T02:36:56Z  grader md5 4085f678997ef6abe45c6946abd0626e
+exit 0 for both --freeze-selfcheck and --cap-arithmetic

@@ -1,5 +1,5 @@
 --- /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF3/d6rf3_cd_plant_control.py	2026-09-05 21:29:52.656151297 +0000
-+++ d6rf4_cd_plant_control.py	2026-09-06 01:57:43.544319563 +0000
++++ d6rf4_cd_plant_control.py	2026-09-06 02:36:21.856247691 +0000
 @@ -1,12 +1,12 @@
  #!/usr/bin/env python3
 -"""Curriculum D6RF3 -- `PREREGISTRATION.md` section 3e's THIRD PLANTED-ZERO
@@ -51,16 +51,25 @@
      who = plant_into_cd(cd_path, planted_copy, point)
      got = float(reader(planted_copy, point))
      delta = got - unperturbed
-@@ -209,7 +209,7 @@
+@@ -209,10 +209,13 @@
  
  # ============================ THE DRIVE, BOTH WAYS ==========================
  def _synthetic_product(path):
 -    """A minimal artefact of the shape `d6rf3_fd_endpoint.py` writes.  Built
+-    here rather than taken from a run, because this item HAS NOT RUN and a
+-    control that can only be driven after the compute it guards is not a
+-    pre-compute control."""
 +    """A minimal artefact of the shape `d6rf4_fd_endpoint.py` writes.  Built
-     here rather than taken from a run, because this item HAS NOT RUN and a
-     control that can only be driven after the compute it guards is not a
-     pre-compute control."""
-@@ -265,10 +265,10 @@
++    here rather than taken from a run.
++
++    THE REASON IS TENSELESS AND STAYS TRUE AFTER THE ITEM RUNS: a control that
++    can only be driven ONCE the compute it guards has happened is not a
++    pre-compute control, and this one has to be drivable at the freeze, when
++    no product exists."""
+     cd = {"cl04": 1.846929883e-02, "cl05": 2.176156349e-02,
+           "cl06": 2.696277508e-02}
+     cl = {"cl04": 0.4, "cl05": 0.5, "cl06": 0.6}
+@@ -265,10 +268,10 @@
  def drive():
      """Runs the control in BOTH directions and prints an auditable record.
      Returns 0 only if every direction behaved as registered."""
@@ -73,7 +82,7 @@
            "anywhere in this file")
      print("  product %s" % prod)
      print("  registered key points.%s.CD = %r" % (PLANT_POINT, cd[PLANT_POINT]))
-@@ -356,14 +356,14 @@
+@@ -356,14 +359,14 @@
      if a.artefact:
          try:
              r = run_cd_control(a.ctrl_dir or tempfile.mkdtemp(

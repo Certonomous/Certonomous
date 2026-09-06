@@ -14,7 +14,16 @@ WHY IT EXISTS ANYWAY.  `D6RF3` was frozen, launched and dead 31 s later.  Its
 grader was never executed on anything shaped like its own output until after
 the compute was spent, and `D6RF4-DEF-7` -- one token for two states -- is
 exactly the class of defect a pre-compute drive over a fixture finds for free.
-The drive costs 0.000 solver core-min and is run BEFORE the freeze.
+
+IT COSTS 0.000 SOLVER CORE-MIN, AND THAT IS A PROPERTY OF THE FIXTURES.  It is
+NOT a property of `d6rf4_run_arm.sh`'s freeze gate: this file never invokes the
+launcher, never invokes docker and never invokes a shell -- its only
+exec-shaped call is `sys.executable` on `d6rf4_grade.py`.  So FILLING THE
+FREEZE FIELD CANNOT MAKE THIS DRIVE START A CONTAINER, and that is asserted
+mechanically, by `ast`, in `d6rf4_launcher_guard_drive.py` direction 7 rather
+than claimed here.  The claim is written tenselessly for the same reason: a
+docstring saying "run BEFORE the freeze" becomes false the day after it, and
+a stale first screen is the most-read false statement an item can carry.
 
 THE SIX SCENARIOS, each one a registered behaviour of the frozen grader:
 

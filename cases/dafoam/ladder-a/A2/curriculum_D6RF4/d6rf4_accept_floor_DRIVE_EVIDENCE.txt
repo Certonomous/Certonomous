@@ -17,7 +17,6 @@ D6RF4 ACCEPT_FLOOR_UNMOVED -- DRIVEN IN BOTH DIRECTIONS
   RESULT ALL DIRECTIONS AS REGISTERED  (1 unmutated pass, 5 planted drifts refused in BOTH senses, 3 blind readers refused, 1 NOT EXERCISED token, 1 absent-floor refusal, 1 real-log exercise)
 
 === PROVENANCE ===
-driven 2026-09-06T02:27:20Z
-instrument d6rf4_accept_floor_control.py md5 196d0fc510526036af5edd336db3a155
-Python 3.12.3
-exit status 0 == every direction behaved as registered; this file IS that drive's stdout, unedited
+driven 2026-09-06T02:36:53Z
+instrument d6rf4_accept_floor_control.py md5 2fc0b320affac2397c3bb7301eb9ec35
+exit 0 == every direction as registered; this file IS the drive's stdout, unedited
