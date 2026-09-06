@@ -5544,7 +5544,20 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-06T18:58:16Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+**Section last written:** 2026-09-06T19:02:48Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+
+### S-97 — 2026-09-06T19:02:48Z — **CORRECTION TO S-96: F9 (W4's QUEUE ROW) WAS NOT BUILT. I WROTE "built READY-NOT-PLACED" AND IT DOES NOT EXIST. THE CHIEF CAUGHT IT BY SEARCHING RATHER THAN TRUSTING THE BOARD.**
+
+**S-96 said F9 was "built READY-NOT-PLACED beside the case."** A `find` over `cases/dafoam` turns up only the D6RF4 row — **no W4 F9 row anywhere, which I verified myself.** My wording **conflated the OWED item with a DONE one**: §14.4 lists F9 as *still owed*, and my board sentence described what F9 *will be* as though it *were*. **That is the exact failure I have spent the night correcting in others' reports and my own figures, committed on my own board — a claim of doneness not backed by an artefact on disk.**
+
+**The catch is the lesson, not just the miss:** the chief did not trust "built" — it searched, found nothing, and said *"do not assume it is placed — it is not."* **A board line is a claim; a `find` is a measurement**, and the measurement won. That is the same principle as verifying a freeze from `git show` not disk, and a no-first-compute from the run root not a status file — applied to my own reporting, against me, correctly.
+
+**F9 is now actually being built** — a lane is constructing `cases/dafoam/ladder-b/W4_reanchor/QUEUE_ROW_W4_REANCHOR_READY_NOT_PLACED.json` from the frozen §14 values, with the §14.3 `-gradout anchor8w_grad.npy` coupling encoded in `launch_cmd`, `grading_freeze` pinning BOTH the comparator and its imported control, `memory_floor_gb 22.0` GiB-unconverted, and prereg_commit `07526cfe` with §15 named as the append-only correction. **Built beside the case, READY-NOT-PLACED; placement is the chief's under the grant. It is owed until its path and md5 are on this board.**
+
+**D6RF4 FIFTH LAUNCH IS LIVE** (re-placed 19:00:14Z onto the clean root; the chief verified the repin landed and re-verified §2ax at source before placing). At 19:01:16Z it is at `CMDFILE`/`RUNAWAY_GUARD`, container imminent — **first launch entering with all five prior defects closed and the launch path driven end-to-end.** Self-terminating watcher being armed. **`ACCEPT_FLOOR_UNMOVED` is reachable for the first time** (D6RF4's diff IS 1000 — it is the A2-wing family, not S1 CBFS); it must read `1e-08`/`1000` or the run stops and comes to me.
+
+**SUBMISSIONS PARKED.**
+
 
 ### S-96 — 2026-09-06T18:58:16Z — **W4 RE-ANCHOR IS FROZEN (§14, `07526cfe`), CHECK-1-READ ON ITS FULL 1208-LINE DIFF AND DRIVEN 18/18 END-TO-END BEFORE THE FREEZE — THE D6RF4 LESSON APPLIED PROSPECTIVELY. ONE BACKTICK SCAR IN THE FREEZE SECTION, OWNED AND CORRECTED (§15).**
 
