@@ -5544,7 +5544,26 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-06T23:21:59Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+**Section last written:** 2026-09-06T23:45:22Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+
+### S-110 — 2026-09-06T23:45:22Z — **§2ay ENFORCEMENT RUN AGAINST DAFOAM: the standing check reads ZERO dafoam records (vacuously clean); it CANNOT see dafoam item ids (D#/SO#) at all. Item-granular enforcement done by hand: EVERY active fail → state (b), NONE → capability gap. Also a REGIME correction to the sweep audit.**
+
+**INSTRUMENT COVERAGE FINDING (escalated to verification/chief):** `scripts/check_completion_enforcement.py` (§2ay, 75463642) reads a 6-file source list with **NOT ONE dafoam record** — its "0 dafoam flags" is VACUOUS, exactly the non-vacuity its own report warns of. Worse: its `CASE_ID_RE` dafoam pattern is `[ABSW]\d+`, which matches only rung/well ids (A1-A6, B3, S1, W4) and **cannot match dafoam's item ids (D6RF4, SO3DR, D9…)**. Run with `--source cases/dafoam/MATRIX_CONTRIBUTION.md` it resolves everything to the coarse rung and FALSE-CLEARS (it "cleared" A2 — which holds D6RF4 — via an unrelated SO3aF2 successor draft). **ESCALATION: the standing check needs (1) a dafoam item-id pattern (D#/SO#) and (2) cases/dafoam/MATRIX_CONTRIBUTION.md in SOURCES**, or dafoam stays un-enforced. The one coarse flag it did raise: **A5 GATE FAIL = G-22** (matrix:254), the SHIPPED-image U-bend reverify 46.84%/2 sign flips — the shipped-row face of the D-A rotation defect the PATCHED image fixes.
+
+**ITEM-GRANULAR ENFORCEMENT (by hand, measured from RESULTS; "diagnosed ≠ done"). Every active dafoam GATE FAIL/NOT A RESULT → state (b); NONE → (a) capability gap:**
+- **D6RF4 (A2, COMPRESSIBLE) NOT A RESULT → (b) D6RF5** — numerics-scheme successor (`limited corrected 0.333` + correctors), DRAFTED (curriculum_D6RF5), **FREEZE OWED** (gated on the DARhoSimpleFoam differentiability confirm, lane a7bc495e; + reconcile the draft's DASimpleFoam text). THE SHARP TEST — not mechanism-diagnosis-only, a real numerics change.
+- **D9 (A5) NOT A RESULT → (b) D9successor** — meshQualityKS non-orthogonality constraint, DRAFTED (curriculum_D9successor), **FREEZE OWED** (my check-1 read).
+- **SO3DR (A2) GATE FAIL → (b) Stage-2** — DIRECTED by RULING 3 (b5856851); Stage-2 REGISTRATION OWED. The fail is a REFUTED HYPOTHESIS (H2 dose-response), a valid result.
+- **S1_FD_PLATEAU (S1) NOT A RESULT → (b) W4-reanchor** — successor REGISTERED (frozen), ran today (BLOCKED on anchor infra defect; anchor re-run owed).
+- **SO3a (A1) NOT A RESULT → (b) SO3aR/SO3aR2** — REGISTERED; terminal SO3aR2 PATCHED PASS.
+- **A1WRT2 (A1) NOT A RESULT → (b) A1WRT3** — successor DRAFT exists.
+- **A1WR (A1) NOT A RESULT → (b)/(c)** — infra truncation; y+ physics ground owes a wall-refinement successor.
+- **G-22 A5 / G-29 A6 shipped GATE FAIL → covered** — shipped-row manifestation of the D-A rotation defect; PATCHED rows are the fix (D8/A6 GATE REACHED, D7FR/A3 PASS). D-A defect prepared, NOT FILED (Sanaa's).
+- **D2 (A1) shipped BLOCKED / patched PASS → covered** — two-row; patched PASS landed.
+
+**NO dafoam item is a proven OpenFOAM capability gap.** No state-(a) filing is warranted. Actions to make the drafted successors ACTIVE: FREEZE D6RF5 (sharp), FREEZE D9successor, REGISTER SO3DR Stage-2, re-run W4 anchor leg.
+
+**REGIME CORRECTION to the sweep audit (I erred, my census caught it):** D6RF4 (A2 MACH wing) is **DARhoSimpleFoam = COMPRESSIBLE**, not incompressible. The A2/A3/A6 wing rungs are ALL compressible. Compressible gradient sweeps are well-covered: **D7FR (A3 M6) PASS, D8 (A6 CRM) GATE REACHED, D17 supersonic PASS, D18 hypersonic PASS**; the one open compressible sweep is D6RF4 → D6RF5. Incompressible: SO3 (A1) PASS, D2/SO3aR2 patched PASS; open are W4 (BLOCKED), S1→W4, B3/CBFS (BLOCKED at adjoint).
 
 ### S-109 — 2026-09-06T23:21:59Z — **W4-REANCHOR GRADED: `BLOCKED` (frozen path, exit 0). Triage COMPLETE: 1/16 legs (anchor8w) is an INFRASTRUCTURE defect — the adjoint phase mutates its endTime dir before the snapshot — NOT a capability gap. The FD bright line remains UNTESTED. Cheap fix: re-run ONE leg.**
 
