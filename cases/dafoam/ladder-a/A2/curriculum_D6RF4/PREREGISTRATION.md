@@ -948,3 +948,138 @@ the staging path.
    enforced by the runner; measured at the fire, `siblings_pre=[]`.
 
 **SUBMISSIONS PARKED.**
+
+## AMENDMENT — 2026-09-06T17:56Z — **THE PRE-FREEZE LAUNCHER GUARD DRIVE COVERED NONE OF THE STAGING→DELIVERY→CONTAINER PATH, SO EVERY GUARD ON IT WAS A LATENT FALSE-REFUSAL. AN END-TO-END DRIVE (CONTAINER MOCKED) SURFACES TWO AT ONCE — G-DELIVERY `REFUSE-UNPARSEABLE` ON THE fvSolution DELIVERY PRODUCTS, AND THE S7 EVIDENCE LINE CORRUPTED BY BACKTICKS — AND FIXES BOTH, EACH DRIVEN BOTH WAYS.**
+
+**PRE-FIRST-COMPUTE, `CLAUDE.md` rule 2.** Condition stated and **CHECKED BY EXECUTION in this
+invocation**: the registered run root `/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe`
+**EXISTS** but holds only **STAGED inputs** — `0/`, `0.orig/`, `base/`, the staged instruments and a
+`ledger.txt` carrying a **single `STAGED` row** — and **NO numeric solver time directory**. It was
+populated by `d6rf4_stage_root.sh` at `17:07`, not by any solver. **0 solver core-minutes have been
+spent against this document, and NO D6RF4 container has ever been created.** Gates are therefore still
+open and this is a repair, not an addendum. **No gate, threshold, band, cap, deadline, ceiling,
+verdict or label moves.** `G-CONV`, `G-SOLN`, the accept floor `1e-08 × 1000 = 1.0e-05`, the `54.00`
+cap and the `720 s` deadline are untouched, and `primalMinResTol`/`primalMinResTolDiff` remain
+untouched everywhere (`G-ACCEPT-FLOOR` still self-scans and its planted control still fires).
+**`d6rf4_run_arm.sh` is NOT one of the four gated `grading_freeze` comparators** — those are
+`d6rf4_grade.py`, `d6rf4_accept_floor_control.py`, `d6rf4_cd_plant_control.py` and
+`d6rf4_endpoint_locus.py` (queue row `grading_freeze`), and **all four are untouched** — so editing the
+launcher **moves no gate**. `786d5850` already edited this launcher lawfully (the age-datum `%.9Y`
+repair). `PERMISSION` at `:97` is untouched and its assignment count **stays 1**
+(`d6rf4_launcher_guard_drive.py` direction 6 re-verified, rc 0).
+
+### 1. THE PATTERN, AND ITS ROOT CAUSE IS THE FREEZE, NOT THE GUARDS
+
+`D6RF4` `P_conv` had aborted three times in a row, each at a **different** frozen guard, each a FALSE
+refusal, each surfacing only when the previous fix let the arm reach it: `:515` twice (run root never
+created — the dropped chain driver; fixed by `d6rf4_stage_root.sh`), then `:1047` `G-DELIVERY`
+`exit 8`. The pattern is not that the guards are bad; **it is that the launcher was frozen with a guard
+drive that had never driven it past `:515`.** The pre-freeze `d6rf4_launcher_guard_drive.py` is 27/27
+and **entirely freeze- and permission-shaped**; so each guard on the staging→delivery→container path
+was a latent false-refusal that could only fire live, one per tick. This amendment ends that in one
+pass with an **end-to-end drive**, `d6rf4_launcher_e2e_drive.sh`.
+
+### 2. THE DRIVE — `d6rf4_launcher_e2e_drive.sh`, THE MISSING COVERAGE
+
+It runs the launcher, arm `P_conv`, from `:515` **through** the `docker run` at `~:1281` and the
+post-container ledger finalize, **with the container MOCKED** — no real solver, no real container:
+`sudo`, `docker` and `mpirun` are PATH-shimmed mocks, and the mock `docker run` writes the field/log/
+ledger artefacts a completed arm would, so the post-container path (ledger finalize, container-clock,
+runaway guard) is exercised too. The registered root is **never touched**: an **ephemeral mktemp
+sandbox** holds a **byte-correct fixture copied read-only** from D6R's `O_mp` and this item's `base/`,
+so the md5-pinned identity checks (S3 mesh, `:518-527` instruments, S9 fvSolution) pass on **real
+bytes** — the drive relaxes none of them. A **neutered copy** of the launcher has exactly **four
+environment path constants** redirected (`REGISTERED_BASE`, `D6R_ROOT`, `D4_ROOT`, `RUNS_DIR`),
+asserted by a diff that **must show exactly four changed lines** or the drive refuses; the guard LOGIC
+is untouched, and `G-FREEZE` runs against the **real frozen sha** (`648a6ea1…` resolved, prereg blob
+present). Full drive evidence: `d6rf4_launcher_e2e_drive_DRIVE_EVIDENCE.txt`.
+
+### 3. BUG 2 — `G-DELIVERY` `REFUSE-UNPARSEABLE`, THE SAME WRONG-OBJECT/FILE-CLASS FAMILY
+
+`derive_delivery()`'s level-0 harvester (`:923`) reads what the launcher md5-echoes at `$WORK` and so
+seeds the **two non-Python delivery products** at `:785-786` — `d6rf4_fvSolution_TIGHT` and
+`d6rf4_fvSolution_D6RF3_ORIGINAL` — into `req`. The requirement closure then calls `declared_py()` on
+them; `ast.parse()` of an OpenFOAM dictionary raises `SyntaxError` → `None` → `REFUSE-UNPARSEABLE` →
+`rc 8`. This is the **same family** as the three prior aborts: a check applies a Python-only parser to
+a subject it never confirmed is Python — it constructs/mis-types its subject instead of reading its
+class from the spec.
+
+**THE FIX, AND WHY THIS DIRECTION.** `declared_py()` now **guards file class before `ast.parse()`**: a
+file whose name is not `PYNAME` returns the **empty set** — *measured* as "declares no `.py` products"
+— never `None`, which stays **reserved** for a `.py` instrument that genuinely will not parse and
+**must** still refuse. The fvSolution stays a **required delivery** (still in `req`, still checked
+present by clause (A)); it simply **has no Python delivery closure**, and excluding it from a
+Python-closure derivation is **correct, not a workaround** — an fvSolution opens nothing at `$WORK`.
+The alternative (drop non-`.py` from `req` at the harvester) was rejected because it would also drop
+them from the presence check, weakening the guard.
+
+**DRIVEN BOTH WAYS** (§2p.3(e)), by the extracted real `derive_delivery` against controlled `$WORK`:
+| direction | input | token |
+|---|---|---|
+| PASS | valid staged tree | `OK` — 9 instruments (9 level-0, 0 by closure), 0 dangling |
+| REFUSE | a **required `.py`** made unparseable (`d6rf4_opt_runScript.py`) | `REFUSE-UNPARSEABLE` |
+| REFUSE | a **required delivery removed** (`d6rf4_fd_endpoint.py`) | `MISSING` |
+| REFUSE | a **planted dangling `.py` reference** | `REFUSE-DANGLING` |
+The three refuse directions prove the fix did **not** relax the guard until it passed everything: a
+genuinely corrupt `.py`, a genuinely missing delivery and a real dangling reference all still refuse.
+
+### 4. BUG 1 — S7 EVIDENCE LINE (`:801`) CORRUPTED BY BACKTICK COMMAND SUBSTITUTION
+
+The drive also surfaced a defect that does **not** refuse but **falsifies its own evidence**: the S7
+`stage_say` string carried two `` `.partial` `` tokens inside **double quotes**, so the shell ran
+`.partial` as a command — `` .partial: command not found `` twice on stderr — and the word `.partial`
+**vanished** from the line (`INCLUDING the  temporaries … a stale  is a half-written product`). It is
+the "Backticks kill the commit" class, and it is on the launch path. **FIX:** escape the backticks
+(`` \`.partial\` ``), literal. It is the **only executable backtick** in the file — every other
+backtick is in an inert comment (grep-verified). **Both ways:** before, the drive prints
+`.partial: command not found` and the corrupted line; after, the S7 line reads its intended text and no
+error is emitted. This is a **different family** from the wrong-object refusals — an
+evidence-corruption defect, not a false refusal — but it is named here because the drive is what found
+it and a guard whose evidence line does not correspond to reality is exactly what this item keeps
+being bitten by.
+
+### 5. §28.19 — THE PRE-FREEZE DRIVE'S COVERAGE, MEASURED
+
+`d6rf4_launcher_guard_drive.py`'s 27 legs (directions 0–7) **assert the behaviour of exactly two guard
+families**: `G-FREEZE` (all limbs) and `G-ACCEPT-FLOOR`. Of the **~28 distinct guard stages** on the
+`P_conv` launch path, the other **~26 had ZERO asserted coverage**, and **~21 of them** — everything
+from `G-ROOT.5` onward, `S1`–`S9`, `G-DELIVERY`, `UNITS` call site 1, `G-ANCHOR`, `S8/G-COLD`, the
+arm-command checks and the whole container/ledger path — were **never even traversed** by the
+pre-freeze drive. **Both bugs fixed here lay in the never-traversed set**, which is why each fired only
+live. This is the third measured coverage hole in this one item; the pattern is not that the suites are
+weak but that **a guard reaches the covered set only when someone writes its control** — here, the e2e
+drive. **This number is the measure of how premature the freeze was, and it belongs to the
+dafoam-supervisor to answer for, not to a lane to soften.**
+
+### 6. NON-REGRESSION (edited launcher md5 `609a721e6f929675ce7243d8d2f667fe`, was `f624bba5b30ecf49debcb5f2899c6ceb`)
+
+- `d6rf4_launcher_guard_drive.py` — **rc 0** (`G-FREEZE` / `G-ACCEPT-FLOOR`; `PERMISSION` count 1).
+- `d6rf4_accept_floor_control.py --drive` — **rc 0**.
+- `d6rf4_stage_root_control.py` — **16/17**: the anchors `:515`, `:518-527`, `:632-636` are
+  **VERIFIED IN SHAPE** and `D1`–`D15` **PASS** on the edited launcher (both edits, `:801` and `:947`,
+  sit **below** every pinned anchor). The single failure is **`D16`, a PRE-EXISTING ENVIRONMENT
+  BOUND** — it asserts the registered root is **absent**, but the root has been **present since the
+  `17:07` staging**, before this edit. **This launcher edit did not cause it**; root-clearing is the
+  dafoam-supervisor's call, taken with the re-fire.
+
+### 7. WHAT THIS AMENDMENT DOES **NOT** DO
+
+1. **It moves nothing.** No gate, threshold, band, cap, deadline, ceiling, verdict or label; the four
+   gated `grading_freeze` comparators are byte-untouched; `primalMinResTol`/`primalMinResTolDiff`
+   untouched; `PERMISSION` at `:97` untouched, assignment count **1**.
+2. **It edits `d6rf4_run_arm.sh`** — two hunks, new md5 `609a721e6f929675ce7243d8d2f667fe`. The
+   `2026-09-06T16:57Z` amendment's "it does not edit the launcher, md5 `f624bba5…` before and after"
+   was true **for that amendment**; this one edits it lawfully (pre-first-compute, non-gated launcher),
+   and records the new md5 so a successor does not read the change as drift.
+3. **It does not freeze anew, fill any field, place a queue row, enqueue or re-fire.** **0 solver
+   core-minutes**, asserted by execution at the head of this amendment. The **re-fire and its
+   root-clearing mechanics** (the registered root is currently populated, which is what `D16` reports)
+   are the **dafoam-supervisor's decision** and are not taken here.
+4. **It adds two artefacts beside the launcher** — `d6rf4_launcher_e2e_drive.sh` and its
+   `_DRIVE_EVIDENCE.txt` — and cites **no scratchpath** (the drive's sandbox is an ephemeral `mktemp`
+   recreated each run; rule 13).
+
+**lines whose number changed above this section: 0.** This amendment is APPEND-ONLY; the 78,295 bytes
+of `PREREGISTRATION.md` before this heading are byte-identical after it (`cmp -n 78295` clean).
+
+**SUBMISSIONS PARKED.**

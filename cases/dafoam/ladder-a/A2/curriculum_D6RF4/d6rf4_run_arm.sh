@@ -798,7 +798,7 @@ if [ "$ARM" = "P_conv" ]; then
            d6rf4_fd_endpoint.json.partial d6rf4_f5_endpoint.json.partial; do
     rm -f "$WORK/$p"
   done
-  stage_say "D6RF4_STAGE_P_conv (S7) OK this arm's registered products swept from the copy, INCLUDING the `.partial` temporaries the DEF-7 incremental writer renames from -- a stale `.partial` is a half-written product wearing a product's name"
+  stage_say "D6RF4_STAGE_P_conv (S7) OK this arm's registered products swept from the copy, INCLUDING the \`.partial\` temporaries the DEF-7 incremental writer renames from -- a stale \`.partial\` is a half-written product wearing a product's name"
 
   # ------------------------------------------------------------------ S9
   # ============ THE TIGHTENED STOPPING RULE IS INSTALLED HERE ============
@@ -945,6 +945,21 @@ def declared_py(path):
     that shape.  Read by ast from the source, never by a pattern maintained
     here, so a new constant of the same shape is picked up without editing
     this guard."""
+    # FILE-CLASS GUARD (2026-09-06, pre-first-compute).  `req` legitimately
+    # carries NON-Python delivery products -- the two fvSolution OpenFOAM
+    # dictionaries the launcher md5-echoes at $WORK (:785-786) -- and those
+    # files HAVE no Python delivery closure.  ast.parse() on an OpenFOAM
+    # dictionary raises SyntaxError, which the `except` below turns into
+    # None == "unparseable Python, UNMEASURED, REFUSE".  That is the WRONG
+    # verdict for a file that is not Python at all: it is a real requirement
+    # (it stays in `req` and is still checked present), it simply declares no
+    # .py products.  Return the empty set -- MEASURED as "declares nothing" --
+    # never None, which is RESERVED for a .py instrument that genuinely will
+    # not parse and MUST still refuse (REFUSE-UNPARSEABLE).  Excluding a
+    # non-Python file from the Python-closure derivation is correct, not a
+    # workaround: an fvSolution opens nothing at $WORK.
+    if not PYNAME.match(path.name):
+        return set()
     try:
         tree = ast.parse(path.read_text(errors="replace"), filename=str(path))
     except SyntaxError:

@@ -1,0 +1,188 @@
+=============================================================================
+ d6rf4_launcher_e2e_drive.sh -- DRIVE EVIDENCE
+ 2026-09-06.  PRE-FIRST-COMPUTE (CLAUDE.md rule 2).
+=============================================================================
+LAWFULNESS.  Condition checked BY EXECUTION: the registered run root
+/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe
+EXISTS but holds only STAGED inputs (0/, 0.orig/, base/, instruments, a
+ledger carrying a single STAGED row) and NO numeric solver time directory.
+0 solver core-minutes have been spent against this document; NO D6RF4
+container has ever been created.  d6rf4_run_arm.sh is NOT one of the four
+gated grading_freeze comparators, so editing it moves no gate.
+
+WHAT THIS DRIVE IS.  The END-TO-END coverage the pre-freeze 27/27 launcher
+guard drive never had: it runs d6rf4_run_arm.sh, arm P_conv, from the
+run-root mode check at :515 THROUGH the docker run at ~:1281 and the
+post-container ledger finalize, WITH THE CONTAINER MOCKED (no real solver,
+no real container; sudo/docker/mpirun are PATH-shimmed mocks; the mock
+docker run writes the field/log/ledger artefacts a completed arm would).
+The registered root is NEVER touched: an ephemeral mktemp sandbox holds a
+byte-correct fixture copied read-only from D6R's O_mp and this item's base/,
+and a NEUTERED COPY of the launcher (FOUR environment path constants
+redirected, asserted by a diff that must show exactly four changed lines --
+guard LOGIC untouched, md5-pinned identity checks pass on REAL bytes) is
+pointed at it.
+
+TWO FALSE-REFUSALS / DEFECTS SURFACED ON VALID STAGED INPUT, BOTH FIXED:
+
+  BUG 2  G-DELIVERY, closure loop (declared_py, ~:977 pre-fix).  The level-0
+         harvester (:923) seeds the TWO non-Python delivery products the
+         launcher md5-echoes at $WORK (:785-786, d6rf4_fvSolution_TIGHT and
+         d6rf4_fvSolution_D6RF3_ORIGINAL) into `req`.  The closure then calls
+         declared_py() on them; ast.parse() of an OpenFOAM dictionary raises
+         SyntaxError -> None -> REFUSE-UNPARSEABLE -> rc 8.  SAME wrong-object
+         / file-class family as the three prior aborts: a check applies a
+         Python-only parser to a subject it never confirmed is Python.
+         FIX: declared_py() guards file class -- a non-.py file returns the
+         EMPTY SET ("measured: declares no .py products"), never None (which
+         is RESERVED for a .py that genuinely will not parse).  The fvSolution
+         stays a required delivery (still checked present in `req`); it simply
+         has no Python delivery closure, which is correct, not a workaround.
+
+  BUG 1  S7 evidence line (:801).  The stage_say string carried two backtick
+         `.partial` tokens inside DOUBLE QUOTES -> command substitution ->
+         `.partial: command not found` on stderr twice, and the word .partial
+         VANISHED from the evidence line ("INCLUDING the  temporaries ... a
+         stale  is a half-written product").  Not a refusal, but an
+         evidence-corruption defect on the launch path -- the guard's evidence
+         line did not correspond to what it claimed (the "Backticks kill the
+         commit" class).  FIX: escape the backticks (\`.partial\`), literal.
+         The only executable backtick in the file; every other backtick is in
+         an inert comment.
+
+ORDERED GUARDS ON THE LAUNCH PATH, ALL PASS ON VALID STAGED INPUT (post-fix):
+  G-FREEZE (UNIQUE/placeholder/SHAPE/SHA, real frozen sha resolved) ->
+  G-ROOT.2a -> G-ROOT.1 -> G-ROOT.2 -> G-ROOT.3 -> arm guard ->
+  G-ACCEPT-FLOOR (planted control seen, 0 real assignments) -> G-ROOT.5 ->
+  CAP/D19T identity -> :515 mode 777 -> :518-527 $BASE-side md5 -> G-ROW/digest
+  -> S1 -> S3 -> S4 -> S5 -> S6 -> S7 -> S9 -> G-DELIVERY (OK, 9 instruments,
+  0 dangling) -> UNITS call site 1 -> G-ANCHOR -> S8/G-COLD age datum ->
+  arm-command placeholder/units/leg checks -> CPU sampler -> docker run
+  (mocked) -> runaway guard -> container clock -> ledger finalize -> RC=0.
+
+G-DELIVERY BOTH-DIRECTION MATRIX (real derive_delivery, extracted from the
+launcher under test, run against controlled $WORK states):
+  valid staged input          -> OK
+  required .py made unparseable-> REFUSE-UNPARSEABLE  (fix did NOT blanket-
+                                  disable the ast check for .py instruments)
+  required delivery removed    -> MISSING
+  planted dangling .py ref     -> REFUSE-DANGLING
+A guard relaxed until it passes everything is worse than the false refusal it
+replaced; the three refuse directions prove this fix did not do that.
+
+§28.19 COVERAGE OF THE PRE-FREEZE DRIVE.  d6rf4_launcher_guard_drive.py's 27
+legs (directions 0-7) ASSERT the behaviour of exactly TWO guard families:
+G-FREEZE (all limbs) and G-ACCEPT-FLOOR.  Of the ~28 distinct guard stages on
+the P_conv launch path, the other ~26 had ZERO asserted coverage; ~21 of them
+(everything from G-ROOT.5 onward, S1-S9, G-DELIVERY, UNITS-1, G-ANCHOR,
+S8/G-COLD, the arm-command checks and the whole container/ledger path) were
+never even TRAVERSED by the pre-freeze drive.  BOTH bugs fixed here lay in the
+never-traversed set -- which is why each fired only live, one per tick.  This
+number is the measure of how premature the freeze was; it belongs to the
+dafoam-supervisor to answer for.
+
+NON-REGRESSION (edited launcher, md5 609a721e6f929675ce7243d8d2f667fe):
+  d6rf4_launcher_guard_drive.py     rc 0  (G-FREEZE / G-ACCEPT-FLOOR)
+  d6rf4_accept_floor_control.py --drive  rc 0
+  d6rf4_stage_root_control.py       16/17 -- anchors :515/:518-527/:632-636
+     VERIFIED IN SHAPE and D1-D15 PASS; only D16 fails, and D16 is a
+     PRE-EXISTING ENVIRONMENT BOUND (it asserts the registered root is ABSENT,
+     but the root has been PRESENT since the 17:07 staging, before this edit).
+     My launcher edit did not cause it; root-clearing is the supervisor's call.
+
+-----------------------------------------------------------------------------
+ SANITIZED TRANSCRIPT OF A CLEAN POST-FIX RUN ($SBX = ephemeral mktemp dir)
+-----------------------------------------------------------------------------
+==== d6rf4 launcher e2e drive ====
+sandbox: $SBX
+launcher-under-test md5: 609a721e6f929675ce7243d8d2f667fe
+-- building fixture (read-only copy of real O_mp subtrees + item instruments) --
+-- neutering diff: 8 changed lines (expect 8 = 4 '<' + 4 '>') --
+   81c81
+   < REGISTERED_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe
+   ---
+   > REGISTERED_BASE=$SBX/runs/CURRICULUM-D6RF4-a2-wing-convergence-probe
+   185,187c185,187
+   < D6R_ROOT=/home/ubuntu/certonomous-runs/CURRICULUM-D6R-a2-wing-multipoint
+   < D4_ROOT=/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin
+   < RUNS_DIR=/home/ubuntu/certonomous-runs
+   ---
+   > D6R_ROOT=$SBX/runs/CURRICULUM-D6R-a2-wing-multipoint
+   > D4_ROOT=$SBX/runs/CURRICULUM-D4-a2-wing-cdmin
+   > RUNS_DIR=$SBX/runs
+
+=======================================================================
+  FULL E2E RUN -- valid staged input, container mocked
+=======================================================================
+launcher rc = 0
+--- last 40 lines of launcher output ---
+   S5 mp04/processor0/0 OK U present as U.gz in $SBX/runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/P_conv/mp04/processor0/0
+   S5 mp05/0 OK U present as U in $SBX/runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/P_conv/mp05/0
+   S5 mp05/processor0/0 OK U present as U.gz in $SBX/runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/P_conv/mp05/processor0/0
+   S5 mp06/0 OK U present as U in $SBX/runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/P_conv/mp06/0
+   S5 mp06/processor0/0 OK U present as U.gz in $SBX/runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/P_conv/mp06/processor0/0
+   D6RF4_STAGE_P_conv (S5) OK dropped 9 of 9 output time directories from the COPY, 0 remain (required 0); 0/, 0.orig/ and processor*/0/ KEPT and asserted; OptView.hst and dRdWColoring_4.bin KEPT; SOURCE INTACT (2 pseudo-time dirs still under $SBX/runs/CURRICULUM-D6R-a2-wing-multipoint/O_mp/mp04/processor0)
+   $SBX/runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/P_conv/d6rf4_extract_endpoint.py: OK
+   $SBX/runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/P_conv/d6rf4_fd_endpoint.py: OK
+   $SBX/runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/P_conv/d6rf4_opt_runScript.py: OK
+   $SBX/runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/P_conv/d6rf4_endpoint_locus.py: OK
+   $SBX/runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/P_conv/d6rf4_endpoint_physical.py: OK
+   $SBX/runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/P_conv/d6rf4_units_assert.py: OK
+   $SBX/runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/P_conv/d6rf4_anchor_gate.py: OK
+   $SBX/runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/P_conv/d6rf4_fvSolution_TIGHT: OK
+   $SBX/runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/P_conv/d6rf4_fvSolution_D6RF3_ORIGINAL: OK
+   D6RF4_STAGE_P_conv (S6) OK SEVEN instruments and BOTH fvSolution files staged, every md5 asserted on BOTH sides of the copy; d6rf4_ref_off.py DELIBERATELY NOT STAGED (REF_off is not registered at this freeze)
+   D6RF4_STAGE_P_conv (S7) OK this arm's registered products swept from the copy, INCLUDING the `.partial` temporaries the DEF-7 incremental writer renames from -- a stale `.partial` is a half-written product wearing a product's name
+   D6RF4_STAGE_P_conv (S9) site system  pre=9e2669956be778acf7e7d8aa67a90ff6 -> post=0ac5bd00c63b9109d22a8e73b0795aa4
+   D6RF4_STAGE_P_conv (S9) site mp04/system  pre=9e2669956be778acf7e7d8aa67a90ff6 -> post=0ac5bd00c63b9109d22a8e73b0795aa4
+   D6RF4_STAGE_P_conv (S9) site mp05/system  pre=9e2669956be778acf7e7d8aa67a90ff6 -> post=0ac5bd00c63b9109d22a8e73b0795aa4
+   D6RF4_STAGE_P_conv (S9) site mp06/system  pre=9e2669956be778acf7e7d8aa67a90ff6 -> post=0ac5bd00c63b9109d22a8e73b0795aa4
+   D6RF4_STAGE_P_conv (S9) OK tightened fvSolution installed at 4 of 4 ENUMERATED sites, pre-image asserted = 9e2669956be778acf7e7d8aa67a90ff6 at every one; READ-BACK over the whole tree found 4 tight and 0 loose
+   D6RF4_G_DELIVERY OK 9 required instruments (9 level-0, 0 by closure) derived, all present, and no staged instrument references an absent file: d6rf4_anchor_gate.py d6rf4_endpoint_locus.py d6rf4_endpoint_physical.py d6rf4_extract_endpoint.py d6rf4_fd_endpoint.py d6rf4_fvSolution_D6RF3_ORIGINAL d6rf4_fvSolution_TIGHT d6rf4_opt_runScript.py d6rf4_units_assert.py
+   D6RF4_UNITS_CALLSITE_1 arm=P_conv no endpoint artefact survived the sweep (expected on a first fire); call site 2 grades the one the wrapper writes
+   $SBX/runs/CURRICULUM-D6RF4-a2-wing-convergence-probe/P_conv/d6rf4_anchor_gate.py: OK
+   D6RF4 G-ANCHOR -- 1 anchor-scoped readers, on the bytes they will actually read
+     d6rf4_fd_endpoint.py       producer=d6rf4_opt_runScript.py md5=137539e0a99b... anchor='# OpenMDAO setup' count=1 header=10536 chars, all 6 symbols present
+   D6RF4_ANCHOR_PASS readers=1 producer=d6rf4_opt_runScript.py
+   D6RF4_G_ANCHOR OK arm=P_conv -- every anchor-scoped reader's sentinel is unique in the producer it will read, and the header it yields carries every symbol it execs
+   D6RF4_G_COLD OK arm=P_conv age_datum_epoch=1788717258.023258211 (every registered product must be strictly newer)
+   D6RF4_CMD_LEGS_PRESENT arm=P_conv legs=L1,L2(--mode P_conv) L3(--mode F5_loose) fvSolution_swaps=2
+   D6RF4_CMDFILE arm=P_conv md5=bb4e6a7ed918c8fa041e81d0048fd0ac deadline_in_container_s=720 units_gate=present
+   D6RF4_RUNAWAY_GUARD arm=P_conv cap_core_min=54.00 ceiling_core_min=162.0 mode=report_then_graceful_stop_at_ceiling
+   D6RF4_CONTAINER_CLOCK arm=P_conv started_at=2026-09-06T17:54:18.000000000Z finished_at=2026-09-06T17:54:21.000000000Z container_wall_s=3 host_wall_s_bracket_T0_T1=0
+   ARM=P_conv ROW=PATCHED IMG=dafoam-idwarp-rot:v1 DIGEST=sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35 rc=0 wall_s=0 ranks=4 core_min=0.0 cap_core_min=54.00 enforced_wall_s=720 enforced_core_min=54.000000 memory=20g inspect(exit,oomkilled)=[0 false] container_wall_s=3 frame_allowance_s=90 memavail_GiB=28.90 memavail_pre_GiB=28.90 memavail_post_GiB=28.88 cpuset=2,3,4,14 delivered_cores_mean=[NOT_MEASURED] siblings_pre=[] siblings_post=[] ceiling_hit=no log=P_conv_20260906T175417Z_66338.log stamp=20260906T175417Z_66338
+   D4S_CONTAINER_UID: 0
+   D4S_IDWARP_SO_MD5: 00112233445566778899aabbccddeeff
+   D4S_DEADLINE_IN_CONTAINER_S: 720
+   D6RF4_UNITS_PASS design vector physical, all components in [-1,1]
+   STAMP=20260906T175417Z_66338 RC=0 CORE_MIN=0.0
+--- every ABORT / REFUSE line in the run ---
+   1:D6RF4_G_FREEZE_PASS permission=648a6ea1289e6b1f103dcd7aee2a712a8553f5a0 assignments=1 shape=40hex resolved=648a6ea1289e6b1f103dcd7aee2a712a8553f5a0 prereg_blob_at_freeze=05c5b9b7f97587dd389f94c3137575cfb22f533e checked=RESOLVED
+   2:D6RF4_G_ROOT_PASS item=D6RF4 base=$SBX/runs/CURRICULUM-D6RF4-a2-wing-convergence-probe ledger_clean=yes
+   3:D6RF4_G_ACCEPT_FLOOR_PASS planted_control_seen=1 real_assignments=0 -- the launcher sets neither primalMinResTol nor primalMinResTolDiff; the accept floor stays 1e-08 x 1000 = 1.0e-05
+   4:D6RF4_G_ROOT5_PASS arm=P_conv live_same_arm_containers=none driver_pidfile=absent
+   17:D6RF4_G_ROW_PASS row=PATCHED digest=sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35
+   46:D6RF4_G_DELIVERY OK 9 required instruments (9 level-0, 0 by closure) derived, all present, and no staged instrument references an absent file: d6rf4_anchor_gate.py d6rf4_endpoint_locus.py d6rf4_endpoint_physical.py d6rf4_extract_endpoint.py d6rf4_fd_endpoint.py d6rf4_fvSolution_D6RF3_ORIGINAL d6rf4_fvSolution_TIGHT d6rf4_opt_runScript.py d6rf4_units_assert.py
+   51:D6RF4_ANCHOR_PASS readers=1 producer=d6rf4_opt_runScript.py
+   52:D6RF4_G_ANCHOR OK arm=P_conv -- every anchor-scoped reader's sentinel is unique in the producer it will read, and the header it yields carries every symbol it execs
+   53:D6RF4_G_COLD OK arm=P_conv age_datum_epoch=1788717258.023258211 (every registered product must be strictly newer)
+   54:D6RF4_CMD_LEGS_PRESENT arm=P_conv legs=L1,L2(--mode P_conv) L3(--mode F5_loose) fvSolution_swaps=2
+   62:D6RF4_UNITS_PASS design vector physical, all components in [-1,1]
+   63:STAMP=20260906T175417Z_66338 RC=0 CORE_MIN=0.0
+
+=======================================================================
+  G-DELIVERY both-direction matrix (extracted derive_delivery)
+=======================================================================
+scenario     | expect               | result_token
+------------------------------------------------------------------------------------------
+valid        | OK                   | [OK] OK 9 required instruments (9 level-0, 0 by closure) derived, all present, and no staged instrument references an absent 
+corrupt_py   | REFUSE-UNPARSEABLE   | [OK] REFUSE-UNPARSEABLE d6rf4_opt_runScript.py is not parseable Python, so what it opens at $WORK cannot be derived -- UNMEAS
+missing      | MISSING              | [OK] MISSING 1 of 9 required instrument(s) absent from $SBX/work_missing: d6rf4_fd_endpoint.py
+dangling     | REFUSE-DANGLING      | [OK] REFUSE-DANGLING 1 staged instrument reference(s) point at a file absent from $SBX/work_dangling: d6rf4_
+
+=======================================================================
+  VERDICT
+=======================================================================
+full-path-to-mocked-container: yes (rc=0)
+g-delivery both-direction matrix clean: yes
+DRIVE RESULT: CLEAN -- full path reaches the mocked container and every G-DELIVERY direction lands as expected
