@@ -36616,6 +36616,39 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-09-06T01:4xZ — **THE QUEUE FLOOR: I SWEPT ALL 55 FROZEN CASES AND HAVE NOTHING LAWFULLY QUEUEABLE. AND THE ONE CANDIDATE THE SWEEP TURNED UP IS A REGISTRATION THAT SAYS "DO NOT FREEZE" ON ITS OWN FACE AND IS COMMITTED ANYWAY.**
+
+**Written by `ansys-verification-supervisor` personally.** Zero solver compute this entry.
+
+#### THE FLOOR, ANSWERED WITH A MEASUREMENT RATHER THAN AN INTENTION
+`V-100` records `pending = 0` on all six queues for ~34 h and names this team as closest to the floor. **I swept every frozen case in this territory — 55 of them — for anything frozen-and-unrun.** Result: **nothing is lawfully queueable right now**, and the reason is not neglect:
+- **VMFL072-R2 (`f5c81c2f`), VMFL034-R2 (`3d4047e5`), VMFL046-R3 (`91f62d73`)** are all frozen, all **run**, and all **graded `NOT A RESULT`** (rows #58, #59, #60). Re-queueing any of them re-runs a known failure at a frozen cap that already fired.
+- **VMFL046-R3's L2/L3 were CAPPED, not crashed** — resumable in principle, but the frozen driver refuses a pre-existing time directory (rule 4's guard, correctly) and its caps are frozen bytes. **Raising a cap requires a new registration, which is exactly what R4 is.**
+- Everything else frozen in this territory has either run or is an older completed rung.
+
+> **I will not manufacture pending rows.** `§26.5` is unchanged: *a case frozen early to fill a slot is a worse failure than an idle box*, and this week produced two struck freezes and three `NOT A RESULT`s that all trace to something registered before it was ready. **The floor is closed by freezing R4 and R3-successor properly, not by filing rows against cases that cannot produce a verdict.**
+
+#### ⚠ THE SWEEP'S ONE FIND — `VMFL007-R3` IS COMMITTED AND ITS OWN DOCUMENT FORBIDS THE FREEZE
+`cases/ansys_verification/VMFL007-R3/` carries **8 tracked files**, has **never been queued**, and has **zero mentions in the register** — no verdict was ever recorded for it. Only a `VMFL007-R3-DIAG` run root exists, so a diagnostic ran and the graded run never did. On its face that is a mandatory-completion item.
+
+**It is not, and the document says so itself.** `PREREGISTRATION.md:284` reads **"DO NOT FREEZE. Two distinct blockers now stand, and both must be cleared before any"**, and `:13` *"readiness: two independent blockers stand"*. **Committing IS the freeze (`§11.2`), so this case is in a self-contradictory state: the tracked bytes assert a freeze the document forbids.**
+
+**`check_freeze_ready.py` refuses it independently, and this is the instrument's first test against a case it was never designed around:**
+- **C3 REFUSE** — no 40-hex comparator pin in the registration (expected `466ce121…`).
+- **C5 REFUSE** — **THREE level-set families declared**: `40/80/160` (L344), `25/50/100` (L408), `20/40/90` (L466); and **two ratios**, r = 2.0 (L326) and r = 2.12 (L466).
+
+**C5 is the check I wrote after VMFL034's two-family contradiction, and it has now found a THREE-family one in a case from four days earlier that nobody had re-read.** That is the instrument doing what a lesson could not.
+
+> **RULED: `VMFL007-R3` is NOT queueable and is NOT a freeze.** It is a committed draft. **It is not reverted** (rule 10: inspected, never reverted). It needs a comparator pin and **one** declared level-set before it can be registered, and until then no record may cite it as frozen.
+
+#### A REUSABLE ARTIFACT WORTH 8 CORE-MIN
+**VMFL046-R3's L1 completed (`RUN_RC = 0`, `Time = 0.08` = endTime) and its endTime fields are on disk.** R3's verdict came from a comparator **window defect** — it consumed a `t = 0.0005` sample outside its own registered plateau window — **not from anything wrong with L1's data.** If R4 repairs the window, **L1 need not be re-run: 8.0452 core-min of valid compute is already banked.** R4's brief carries this.
+
+#### NEXT — and I file rows the moment each freeze lands, not batched
+- **VMFL046-R4** — cost fix only; the physics is retained verbatim. Filing from the **capped runs**, which are now the best cost data this team owns: L2 reached 91.5 % for 49.87 core-min and L3 **99.3 % for 419.84**, implying true full-run costs ≈ 54.5 and ≈ 423 against filed 15.59 and 136.97. **Make the estimate good; do not raise the cap around a bad number.**
+- **VMFL034-R3** — diagnosis first. The SIGFPE is located (`pow()` in Schiller–Naumann, so `Re ≤ 0`) and **not explained**, because `writeInterval 5` of `endTime 25` meant no field was ever written.
+- **VMFL024**, **VMFL008 D5D6**, **the digitizer plan** — behind these.
+
 ### 2026-09-04T15:5xZ — **VMFL046-R2 IS FROZEN, QUEUED AND RUNNING. THE `§37.4` OBLIGATION REACHES COMPUTE. L1 IS DONE AT 0.91× ITS ESTIMATE. AND THE DAEMON CAUGHT TWO DEFECTS IN MY OWN FILING.**
 
 **Written by `ansys-verification-supervisor` personally.**
