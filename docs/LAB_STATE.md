@@ -1430,6 +1430,40 @@ Updates d09a4e28's "origin of the day's 52/69 UNVERIFIED". Settled by cfd's comm
 
 ## closure
 
+**2026-09-06T~02:0xZ — THE DUCT-FIRST PACKAGE IS COMPLETE AT `REGISTERED`. 4 entries,
+`ladder_evidence_count` 0, checker 58/58. ZERO COMPUTE.** `entries/b_qcr2000_spalart2000.md`
+landed on explicit grant. **The rung-3 filter on `square_duct_secondary_flow` now returns THREE
+entries and EXACTLY ONE carries a runnable `model_type_name`** — which is the whole point:
+`b_qcr2000_spalart2000` (model `kOmegaSSTQCR`, band `does_not`), beside `a_tbrf_kaandorp2020` and
+`f_sst_qcrc_wu2026`, both `model=none` and both `acts_on_k_magnitude`.
+**`model_type_name` IS NON-`none` HERE FOR THE FIRST TIME, AND IT WAS EARNED:** symbol
+`RASModels::kOmegaSSTQCR` resolves in the built `.so`; the source computes
+`-Ccr1_*symm((O & taul) - (taul & O))` with `Ccr1` defaulting to **0.3**, documented in its own
+header as *"Spalart 2000, untrained"*. **⚠ AND I RESOLVED A SIGN CONVENTION RATHER THAN WAVING IT
+THROUGH:** the header writes `-Ccr1[O_ik tau_jk + O_jk tau_ik]` (PLUS) while the code computes a
+MINUS. They agree — `taul` symmetric, `O` antisymmetric — but **a mismatch there would have been a
+silent sign error in the anisotropy.**
+**`band_interaction: does_not`, DERIVED not asserted:** setting i=j contracts antisymmetric `O`
+with symmetric `taubar`, which vanishes, so **the correction is TRACELESS and leaves k exactly as
+the linear model set it.** It is the only entry in the library that does not act on k-magnitude.
+**⚠ TWO THINGS THAT CAP WHAT `REPRODUCED` CAN MEAN HERE, BOTH RECORDED IN THE ENTRY RATHER THAN
+DISCOVERED IN PHASE 2:** (1) **Spalart's demonstration used SPALART-ALLMARAS, not SST** — *"The
+S-A model (see Appendix A) was used with the following constitutive relation"* — and no SA-QCR
+exists on this box, so the paper's own case is NOT reproducible with the model this entry
+installs; (2) **the paper publishes NO NUMERIC METRIC for the duct** — *"much closer to
+experiment"* and a figure are the whole claim. **The reproduction target must therefore be
+PRE-REGISTERED explicitly, and the entry names the only two honest options without choosing
+between them — that choice belongs in Phase 2's registered path, not in a library entry.**
+**FOUR CONTRAINDICATIONS, ALL SPALART'S OWN AND QUOTED**, including *"other flows such as 3D wall
+jets have led to negative results"* and *"A systematic optimisation has not been performed."*
+**⚠ AND A MISREAD I CHECKED AND AVOIDED, recorded so a successor does not make it:** p. 253's
+*"the effect too weak to justify a widespread modification of codes"* is about **REALISABLE
+VERSIONS of simple models, NOT the QCR term.** Attributing it to QCR would invert this entry's
+whole case — the same fragment-of-a-conditional error already caught once in the SpaRTA entry.
+**NEW RETRIEVAL ITEM:** Spalart credits **Speziale 1987** as the origin of non-Boussinesq
+relations creating secondary flow in a square pipe. **NOT HELD** — the primary source for the very
+mechanism the duct-first plan turns on.
+
 **2026-09-06T~01:4xZ — THE `lambda_2` READ IS DONE AND IT CHANGED THE DUCT PLAN. ZERO COMPUTE.**
 Ref. [3] **Table 2, PDF p. 11**, rendered 300 dpi and read by me: **`lambda_2 = tr(Omega_hat^2)`**,
 `Omega_hat = Omega/(beta* omega)`, `beta* = 0.09`. **The `IMPLEMENTED` gate I named yesterday is
