@@ -1044,3 +1044,26 @@ I read `run_one_DELTAS_from_s1.diff` (44 lines) and `run_plateau_DELTAS_from_s1.
 `launch_cmd`: **`bash /home/ubuntu/certonomous-runs/W4-reanchor/run_plateau.sh`** — the `-gradout anchor8w_grad.npy` coupling is now INSIDE the driver (the anchor leg plus the grad-move), so no per-leg manual override. Staging the run root (copy `cbfs_beta` read-only per §3, place both drivers at BASE, `fd_beta_ones.npy` in `cbfs_beta`, touch `0/` last for the age guard) remains the launcher's act. F9's `_STOP_LAUNCH_CMD` is discharged.
 
 **SUBMISSIONS PARKED.**
+
+---
+
+## §18. AMENDMENT — 2026-09-06T20:12:24Z — **⚠ THE `launch_cmd` TARGET DOES NOT EXIST: NO W4 STAGER BUILDS THE RUN ROOT `run_plateau.sh` ASSUMES. THE LAUNCH/STAGING PATH WAS DEFERRED AND NEVER BUILT — MINE, AND THE THIRD TIME ON THIS FAMILY.**
+
+**PRE-FIRST-COMPUTE under rule 2 bullet 1. Run root `/home/ubuntu/certonomous-runs/W4-reanchor` ABSENT by execution — 0 W4 compute. Lines renumbered above this section: 0.**
+
+### THE GAP, MEASURED (the chief found it at source before placing)
+F9's `launch_cmd` is `["bash", "/home/ubuntu/certonomous-runs/W4-reanchor/run_plateau.sh"]` — **but that run-root path does not exist.** `run_plateau.sh` does `cd "$BASE"` (BASE = the run root), calls `$BASE/run_one.sh`, and reads `$BASE/cbfs_beta/fd_beta_ones.npy` — **it ASSUMES a populated run root and does not self-stage** — and **no W4 stager exists** to create and populate it. Placed as-is, the daemon fires `bash <absent-path>` → "No such file or directory": a wasted launch, a sixth-defect-shaped no-op.
+
+### WHY THE PRIOR DRIVE MISSED IT, AND WHY IT IS THE SAME CLASS
+§17 verified the leg-PRODUCTION drivers by driving them **with BASE redirected to a sandbox** — so it never exercised the REAL run-root staging. §14.2/§17 said *"staging the run root remains the launcher's act"* — **I deferred staging to a "launcher" I never built, and then completed F9's `launch_cmd` targeting a run-root path nothing creates.** F9's report verified prereg, comparator and grading pins at source; **the one thing not verified was the `launch_cmd`'s own target existence** — the launcher-self-check-trap class (JF1G/W3S) one layer over. **This is the third time the launch/staging path went unbuilt-or-undriven on this family** (D6RF4's dropped chain-driver staging, D6RF4's mocked e2e, now this). The pattern is mine: *a drive that redirects BASE to a sandbox is not a drive of the real run-root staging, and a `launch_cmd` target must be verified to EXIST, not assumed.*
+
+### THE FIX — a W4 stager on the D6RF4 model (option b), BUILT AND DRIVEN ON THE REAL STAGING
+Reserved to a driven rebuild:
+1. Build `w4_stage_root.sh` (case dir), matching `d6rf4_stage_root.sh`'s shape: `mkdir` + `chmod 777` the run root; copy W4's `cbfs_beta` case state read-only (§3); place `run_one.sh`, `run_plateau.sh`, `fd_beta_ones.npy`; touch `0/` last for the age guard. **Parse what to stage from the drivers' own references — no hand list that can drift (d6rf4_stage_root.sh's discipline).**
+2. **DRIVE THE ACTUAL STAGING** — create the real run root in a sandbox, run the stager, confirm the run root is populated, then run `run_plateau.sh` from it (container mocked) and confirm it produces the 16 legs. **Not a BASE-redirected sandbox; the real staging.**
+3. Correct `launch_cmd` to `["bash","-c","bash <case-dir>/w4_stage_root.sh && bash /home/ubuntu/certonomous-runs/W4-reanchor/run_plateau.sh"]` — entry point the case-dir stager, which EXISTS. Record the stager md5 on the row.
+4. The row gets a fresh md5; placement (the chief's) adds **`launch_cmd-target-exists`** to its assertion set, permanently.
+
+**Until that lands, W4 is HELD — not placeable — and its F9 row's `launch_cmd` is a known-broken target recorded as such.** `grader_freeze_gate` reads PINNED because the GRADING paths are on disk and match; **that says nothing about whether the LAUNCH target exists, which is exactly the gap.**
+
+**SUBMISSIONS PARKED.**
