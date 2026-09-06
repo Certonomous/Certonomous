@@ -119,10 +119,24 @@ were first proven identical to the real ones:
 - **LIMB 2** — a plant at sentinel **+1 ns** → `rc=2`, **refuses**. Also caught at +100 ms
   (same second) and at +10 s.
 
-Launcher selftest **53/53 before and after** (`w3s_chain_driver.sh:292` names the 53
-controls). **A repair that cannot be shown to fail is not shown to work**, and this repair
-is permissive in direction — it turns a REFUSE into a RUN — so the refusing limb is the
-one that carries the weight.
+**A repair that cannot be shown to fail is not shown to work**, and this repair is
+permissive in direction — it turns a REFUSE into a RUN — so the refusing limb is the one
+that carries the weight.
+
+**THE LAUNCHER SELFTEST, DRIVEN BY THIS LANE RATHER THAN CITED — AND IT CARRIES A
+FINDING.** `w3s_stage_and_run.sh --selftest` was run on the repaired file at HEAD:
+**`controls=53 EXERCISED-PASS=53 EXERCISED-FAIL=0 NOT-EXERCISED=0`, rc=0.** It was then
+run on the **pre-repair** file extracted from `5d5c3281^`, relocated to a temp path with
+`W3S_BASE` pointing at the real case directory — **with the repaired file run the same
+relocated way as a control**, so that a relocation artefact could not be mistaken for a
+result. Both scored **53/53, rc=0**. The two files were confirmed to differ at the guard:
+`-newermt "@$AGE_DATUM"` at `:1193` against `-newer "$SENTINEL"` at `:1208`.
+
+> **"53/53 before and after" is true, and it is NOT evidence that the repair is correct.
+> It is evidence that the repair broke nothing — and, read the other way, that the defect
+> shipped past all fifty-three controls.** The truncation was never in the covered set.
+> That is the shape `§2a` warns about: a gate a wrong treatment passes. **The evidence for
+> this repair is the two-limb drive above, not the 53.**
 
 ## 1.4 The four conditions of `§2d.1`, answered
 
@@ -389,16 +403,16 @@ caught it being wrong.
 
 **FAILURE 1 — the line-level pass cannot see the floor.** A first pass classified sites by
 looking for `int(`/`floor` **on the comparison line**. **Of the 89 truncated comparisons,
-only 28 carry the floor on the line. 60 do not** — the floor sits on a different line, and
+only 29 carry the floor on the line. 60 do not** — the floor sits on a different line, and
 in the `so1a` chain above **in a different file entirely**. Had this lane trusted the
-line-level count it would have reported **28** and missed two thirds of the population,
+line-level count it would have reported **29** and missed two thirds of the population,
 including every `on_disk < datum` and every `"ok": (mt >= datum)` site.
 
 **FAILURE 2 — the planted control caught a miss the tree would never have revealed.**
-Thirteen fixtures: eight positives (each a different route to a floor) and five negatives.
+Fourteen fixtures: eight positives (each a different route to a floor) and six negatives.
 The first run scored **6/8 positives, 0/5 false positives** — it missed the two pure
 read-back forms, because the only thing marking those values as timestamps is **the name
-they are bound to**. After the fix: **8/8 positives, 0/5 false positives.** The two
+they are bound to**. After the fix, and after a sixth negative was added to close a gap the mutation run exposed: **8/8 positives, 0/6 false positives.** The two
 fixtures it had missed are the exact shape of the 22 real `datum = int(open(p).read())`
 sites. **Without the plant this census would have under-reported by roughly a quarter.**
 (`CLAUDE.md` rule 3: a reader not shown able to see a non-zero is not evidence.)
@@ -610,7 +624,22 @@ direction of the finding is unchanged.
   T5c ruling `§2d.11` at `:5171-5246`.
 - The 35 pinned files and their md5s, §2.5 above.
 
-**The census instrument and its planted fixture are working files and are deliberately not
-cited by path** — `CLAUDE.md` rule 13: a repository document never cites a scratch path.
-Every number in §2.2, §2.4, §2.5 and §2.6 is reproducible from the tree by the procedure
-each section states, and this lane will re-run any of them on request.
+**The census instrument is now filed**, on the dafoam-supervisor's instruction, in this
+family's shared-instrument home beside `limit_classify.py` and `item_ceiling_guard.py`:
+
+- `cases/dafoam/_common/age_truncation_census.py` — the instrument. Its three historical
+  failures are recorded at the top of the file, **led by the false accusation of a clean
+  file**, and its planted control **runs before it reports anything** and refuses unless it
+  scores 8/8 positives and 0/6 false positives.
+- `cases/dafoam/_common/age_truncation_census_fixture.py` — the planted fixture.
+- `cases/dafoam/_common/age_truncation_census_selftest_evidence.txt` — the control driven
+  in the refusing direction: each of the three failures reintroduced as a mutation, each
+  refusing and each reddening a **different** fixture, plus a refusal with the fixture
+  absent. It also records that `neg6` exists **because the first mutation run showed the
+  control could not catch `FAILURE 1(b)`** — the gap was in the fixture, and the fixture
+  was extended until the mutation reddened it.
+
+It was drafted in a scratchpad and **no repository document ever cited that path**
+(`CLAUDE.md` rule 13). Every number in §2.2, §2.4 and §2.6 is reproduced by
+`python3 cases/dafoam/_common/age_truncation_census.py --repo /home/ubuntu/Certonomous`,
+and the §2.4 table by `--sweep`.
