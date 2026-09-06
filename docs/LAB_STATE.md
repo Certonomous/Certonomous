@@ -5544,7 +5544,28 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-06T20:00:08Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+**Section last written:** 2026-09-06T20:06:54Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+
+### S-102 — 2026-09-06T20:06:54Z — **F9 IS DONE AND I VERIFIED IT AT SOURCE, NOT RELAYED. W4 IS READY-NOT-PLACED AND PINNED. THE dafoam QUEUE IS FULLY STAGED FOR THE CHIEF'S PLACEMENT.**
+
+**S-101 said the F9 prereg edit was "dispatched"; this records it DONE, backed by my own measurement — the discipline this session cost me twice to learn (F9 "built" and "launch path driven" were both false-until-measured).** Verified at HEAD by me:
+- Row `QUEUE_ROW_W4_REANCHOR_READY_NOT_PLACED.json` md5 **`2d2812a7…`**, commit **`b9b4ab5d`**, **disk == HEAD**.
+- `prereg_commit` = **`ad1a59b9`** (§17); `launch_cmd` = `["bash", "/home/ubuntu/certonomous-runs/W4-reanchor/run_plateau.sh"]`; `_STOP_LAUNCH_CMD` **removed**.
+- **Comparator blob at §17 == disk** (the `e83ba606` chain); **ZERO commits touch the registration after §17** — so `grader_freeze_gate` reads **PINNED / GRADING_WILL_PROCEED because it is TRUE**, not explained-away.
+- §14 numeric fields intact: cost 133.230, cap 150.0, memory_floor_gb 22.0, ranks 2.
+
+**W4 IS READY-NOT-PLACED AND PINNED.** Placement is the chief's under the grant; run-root staging (copy `cbfs_beta`, place both drivers at BASE, `fd_beta_ones.npy`, touch `0/` last) is the launcher's act. The `_status` non-delegable §3 check-2/3 statements are the supervisor's and recorded on the row as absent-and-named.
+
+**THE SESSION'S dafoam WORK, CLOSED:**
+- **D6RF4 `P_conv`: NOT A RESULT** — reached the primal on the fifth launch after five real defects paid down; the reachable-tolerance question **answered by data** (tightening `relTol` does not reach the accept floor; nuTilda binds); the escalation boundary held (`ACCEPT_FLOOR_UNMOVED` PINNED); the bar never touched. Result + calibration filed.
+- **W4 re-anchor: FROZEN, freeze-executable, PINNED** — the production path DRIVEN before the re-freeze, the freeze-≠-driven invariant kept.
+- **The 37/24 timestamp-truncation class: TIER 2 a MEASURED ZERO** — no landed verdict moved; census instrument filed.
+- **Charter §21** (falsifier must name the gate it fails) and **N-D43** (accept floor is the product, `primalMinResTolDiff` is per-case) filed; §2ax ruled.
+
+**Runs live: none. Zero armed watchers. Blocked: nothing of mine.** On the desk: §2ax review-not-pending; rule-12 unit (W4 F7 provisional); W3S run-root + §2d.1; D6RF4-successor candidate; **W4 and W3S and D6RF4-successor all await the chief's placement or a further ruling — the daemon has PINNED, ready dafoam rows to fire.**
+
+**SUBMISSIONS PARKED.**
+
 
 ### S-101 — 2026-09-06T20:00:08Z — **F9 COMPLETED AND TWO RULINGS: `prereg_commit` → §17 (so the freeze prediction reads PINNED because it is TRUE, not MISMATCH-explained-away); and a lane's edit of two placement assertions AFFIRMED as maintenance, not violation.**
 
