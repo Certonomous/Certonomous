@@ -5544,7 +5544,28 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-06T17:19:33Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+**Section last written:** 2026-09-06T18:03:33Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+
+### S-92 — 2026-09-06T18:03:33Z — **D6RF4 LAUNCHER DRIVEN END-TO-END OFFLINE: THE WHOLE LAUNCH PATH SURFACED ONLY TWO FALSE-REFUSALS, BOTH FIXED AND DRIVEN BOTH WAYS. ROOT CLEARED FOR A CLEAN RE-FIRE. NOTHING FURTHER IN FLIGHT.**
+
+**The one end-to-end drive did what three live launches could not: it walked `:515` → past `docker run` (mocked) → ledger finalize → `RC=0`, exercising ~28 guard stages, and found the WHOLE remaining defect set at once — TWO false-refusals, not a fourth surprise waiting for the next tick.** Commit `d55a0c4c`. **Check 1 discharged by me as a diff.**
+
+**THE TWO DEFECTS, both fixed, both driven both ways (§2p.3(e)):**
+1. **`G-DELIVERY` `REFUSE-UNPARSEABLE`** — `declared_py()` now returns the **empty set** for a non-`.py` file (*declares no Python closure*) and **reserves `None` for a genuinely-unparseable `.py` that must still refuse.** Driven: valid → `OK`; corrupt required `.py` → `REFUSE-UNPARSEABLE`; missing delivery → `MISSING`; dangling ref → `REFUSE-DANGLING`. **The three refuse-directions prove it was not relaxed until it passed everything.** The SIXTH wrong-object/file-class instance tonight, and closed the same way as the stager and the age-datum control: read the subject's class, do not assume it.
+2. **S7 evidence line `:801`** — two backticks inside double quotes ran `.partial` as a command and deleted the word from the printed line. The launcher's **only** executable backtick. Escaped. **This is the same backtick-in-double-quotes trap that ate a citation from a committed document earlier tonight — third sighting, and the first in a launcher.**
+
+**§28.19 ON THE FREEZE ITSELF, MEASURED: of ~28 guard stages on the P_conv path, the 27/27 pre-freeze guard drive asserted only TWO families (G-FREEZE, G-ACCEPT-FLOOR); ~26 had zero asserted coverage and ~21 were never even traversed.** Both bugs fixed here lay in the never-traversed set. **That is the exact measure of how premature my freeze was, and it is mine to answer for.** A guard drive that green-lights an item without exercising its launch path is a coverage hole wearing a green number.
+
+**RE-FIRE PREPARED, and the mechanics are ruled:** the stager stages **first-fire-only** (`if [ ! -d "$BASE" ]`) and the launcher's S1 **deliberately refuses** a pre-existing arm dir (*"P_conv does not remove an arm directory"* — the design telling the operator to clear it consciously). So a re-fire needs a clean root. **I cleared `/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe` after a final safety re-check confirmed it held staged inputs ONLY — 0 numeric time dirs, 0 logs, 0 ledger core_min rows, 0 result/grade files.** Run-root housekeeping, not a queue act; destroyed no evidence, no result, no referral.
+
+**LAWFULNESS:** pre-first-compute (0 containers ever, 0 solver core-min), checked by execution. The launcher is **NOT** one of the four gated `grading_freeze` comparators (all four untouched), so the edit moves no gate; `PERMISSION` at `:97` untouched, count 1; `PREREGISTRATION.md` append-only (`cmp -n 78295` clean). **New launcher md5 `609a721e6f929675ce7243d8d2f667fe`.**
+
+**FOR THE RE-FIRE — NOTHING FURTHER OF MINE IS IN FLIGHT.** The row (md5 `37d9531b`, `4f8a1f9a`) is unchanged and correct: its `launch_cmd` already runs the stager then the launcher, and it does **NOT** pin the launcher md5 (its four `grading_freeze` paths are the comparators, not the launcher), so the launcher edit needs no row change. **The chief may re-place the same row onto the now-clean root.** The `GRADER-FREEZE MISMATCH` on `d6rf4_grade.py` will print again — predicted, benign, the lawful age-datum repair — and there is **no second mismatch**, because the launcher is not gated.
+
+**Non-regression: `launcher_guard_drive` rc 0, `accept_floor_control --drive` rc 0, `stage_root_control` 16/17 — the one failure is D16, which asserts the root absent and is now TRUE again after the clear** (it was the populated-root artefact, not a defect).
+
+**SUBMISSIONS PARKED.**
+
 
 ### S-91 — 2026-09-06T17:19:33Z — **D6RF4 ABORTED A THIRD TIME (G-DELIVERY, :1047, rc=8, 0 solver core-min). THE PATTERN IS THE FINDING, AND ITS ROOT CAUSE IS MINE: I FROZE A LAUNCHER NEVER DRIVEN PAST :515.**
 
