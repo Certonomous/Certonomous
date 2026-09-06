@@ -37550,38 +37550,34 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
-**Section last written:** 2026-09-06, after the §2aw(c) repair and the VMFL046-R4 physics grade.
+**Section last written:** 2026-09-06, after the recoverability audit, the sweep, and the CASE_MAP false-scope corrections.
 
 ### Last commit
-`89d7dce4` — VMFL046-R4: the §2aw(c) W1 audit-scope repair executed; the frozen path driven; verdict `NOT A RESULT` on the physics.
+`3765318f` — CASE_MAP coverage summary corrected (the "11 cases with no usable lab solver" line was false on three families).
 
 ### Live jobs
-**None.** No ansys-verification solver is running; no queue row of mine is pending.
+- **R5-build lane** (opus, agentId a0a9e695) — building the VMFL046-R5 registration for my freeze review: R4 byte-identical except a non-reflecting `waveTransmissive` outlet; reusing the §2aw-repaired comparator; also re-fetching+filing the Greenshields 2010 rhoCentralFoam paper. NO compute, NO freeze commit — returns for my check-4 + check-1.
+- No solver running. No queue row of mine pending.
 
-### Verdicts
-- **VMFL046-R4 — `NOT A RESULT`** (register row #61 + its 2026-09-06 addendum). **The reason moved from the instrument to the physics.** `x_shock` = **1.029256 / 0.957707 / 1.049922 m** (L1/L2/L3), **−17.66 / −23.38 / −16.01 %** vs the manual's 1.250 m; **no level plateaued, by 252×–282× of `DELTA_X`**; triple **`OSCILLATORY`, R = −1.289**. Rule 5 step 1, with step 2 an independent second route. **No `GATE FAIL` and none may be issued** — rule 5 is one-way. All five plants discriminate at all three levels; N4 limiters non-binding. **489.0 / 536 core-min = 0.912× (1.004× against the basis); $0.418 derived. VINDICATED** — zero additional compute was spent to reach the physics.
+### Sanaa's recoverability audit (4ae4b33) — ANSWERED and on record
+**Zero proven capability gaps in my territory. Not one non-PASS case is terminal.** Every fail is stopped at PROCESS class (§2an.5), none at model-form, so none has entered the closure ladder let alone exhausted it. The checkable register is `docs/ansys_verification/RECOVERABILITY_SWEEP.md` (20 cases; 9 successes, 2 recovered, 9 with a live fix path; each fail has a concrete next fix + source). Corrected two stale false-terminal claims in CASE_MAP (cavitation "out of scope" — solvers present, VMFL021-R2 GATE REACHED; and the "no solver" coverage line for VMFL072/VMFL034).
 
-### Rungs without verdicts — named even where the answer is embarrassing
-- **VMFL046 successor (R5)** — owed, and it is a *diagnosis*, not a re-run. **Established:** three completed levels, none plateaued, triple oscillates. **NOT established:** that this is the same Hopf-type limit cycle row #57 diagnosed in the inviscid control. P1/P2 (0.11–0.18 m) exceeding P3 (0.032–0.108 m) is a **sustained-oscillation** signature, *consistent with* that mechanism, not a demonstration. **The demonstration needs no new compute at these levels — the fields are on disk.**
-- **VMFL034** — a ruled decision is owed **by me**: re-scope to frozen-flow/passive-moment, register as a measured capability limitation, or abandon. Broken two ways (SIGFPE from NaN `Re` under buoyant segregation with gravity; CoV 3.65 = 36× threshold without it). Reserved above a lane.
-- **VMFL072-R3** — remedy owed; must keep the anti-circularity property (L-487: a subset prescription is not sufficient for a `ptp` statistic — absorption).
-- **VMFRT005** — both decisions approved by Sanaa (`b7c56371`); mechanism held at `b5ad9c08`. The 2115-species reference is **the right chemistry at the wrong size** — a skeletal path is needed. Owes a rule-12 **point estimate** (not an inequality) and a probe-length floor before the ~2,500–4,000 core-h spend.
-- **VMFL024** — 85 KB untracked pre-registration, **no comparator**.
-- **VMFL008** — D5/D6 own freeze; B4 script and B5 R2 hash open, and **the case has no OpenFOAM case inputs at all**.
-- **The figure-only pool** — 51 never-touched cases, ~85 plates. The per-case digitizer (§36.2) is **case-blocking physics-path work** under Sanaa's mandatory order.
+### Verdicts (this session)
+- **VMFL046-R4 — NOT A RESULT** (register #61): 3 levels complete, no plateau (252-282× DELTA_X), triple OSCILLATORY. 489.0 core-min, VINDICATED. Reason is physics, not instrument. **Not proven a physical limit cycle** — R5 owes that.
 
-### Next actions
-1. **`check_freeze_ready.py` C3's false-coverage declaration** — ruled against me at §2aw.7 (*"a check whose declaration is wider than its coverage is worse than an absent check"*); **the repair is mine, forward-only.** C3 declares it checks the comparator and does not check the comparator's production ordering.
-2. **VMFL034 decision** — mine, overdue.
-3. VMFL046-R5 diagnosis (zero new compute at these levels); VMFL008 D5/D6 freeze; VMFL024 comparator; the digitizer plan.
+### Rulings I made (durable record here; formal record rides the successor registration)
+- **VMFL034 disposition — RULED: NOT a capability gap; routes to VMFL034-R3.** Measurement: SIGFPE from a buoyancy-driven velocity runaway (NaN Re in SchillerNaumann `pow(Re,0.687)`) with gravity; CoV 3.65 = 36× threshold without. Named fixes, all confirmed present: `limitVelocity` fvOption (`src/fvOptions/corrections/limitVelocity`), CFL-limited transient, or frozen-flow re-scope (dilute α₂). The choice is provisional on one manual regime-check R3 must make WITHOUT widening the gate. A capability-gap filing becomes possible only if R3 exhausts all three and still yields no graded value — not now.
+
+### Successors owed (the work plan; nothing terminal)
+- **VMFL046-R5** — building now (non-reflecting outlet, single-variable BC experiment). R6 pre-committed: rhoCentralFoam with the corrected tutorial recipe (Kurganov + reconstruct(rho/U/T) vanLeer + maxCo 0.2 — verified: rhoCentralFoam bounds T by TVD reconstruction, it structurally lacks limitTemperature). 
+- **VMFL072-R3** — dewetting remedy; keep anti-circularity (L-487); alt film model `kinematicSingleLayer` or precursor-film / VOF.
+- **VMFL034-R3** — per the ruling above.
+- **The backlog** — per-case next fixes in RECOVERABILITY_SWEEP.md; most are instrument refusals (fix the comparator, re-grade), a few are OSCILLATORY grid triples (monotone r=2 triples). VMFL036 is the one genuine physics candidate → routes into the §2an closure ladder, not a terminal.
 
 ### On Sanaa's desk
-- **Nothing new.** Both VMFL046-R4 grants were charter readings ruled by the verification referee, inside the lab's own authority.
-- Still parked: the paper/mechanism acquisition list, if the skeletal-mechanism fetch is denied to my own session.
+- **Nothing terminal, no capability gap** — because none is demonstrated.
+- The Greenshields 2010 rhoCentralFoam paper is being filed to `docs/papers/verification_validation/` (inbound; the R5 lane fetched it title-page-verified). I commit it after the lane returns.
 
 ### Blocked
-- **Nothing blocked.** The W1 petition is ruled and discharged; VMFL046-R4 is graded to a physics verdict.
-
-### Standing note for successors
-**L-495 and its addendum are this team's most transferable finding this week:** a selftest that exercises the *parts* but never the *production sequence* measures its own coverage, and defects in an unexercised sequence **queue up behind each other** — two in this one file, the second reachable only after the first was repaired. §2aw.7 **endorsed the end-to-end `grade()` drive as practice but did not mint it** as a freeze qualification; the referee pre-stated what would move them: **the same class in a SECOND file, or one instance where the missing drive let a WRONG VERDICT PUBLISH rather than merely blocking one.** If this team meets either, it is owed upward immediately.
+- Nothing. R5's physics verdict awaits its build+freeze+run; that is queued work, not a block.
 
