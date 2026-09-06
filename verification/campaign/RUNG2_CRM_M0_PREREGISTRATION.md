@@ -662,6 +662,71 @@ this path. **So a permission grant worded around any one of those three guesses 
 denial**, and the next session could hit the same wall holding an approval that does not fit. That
 risk is named here rather than smoothed, and no wording is recommended on a guess.
 
+### 14.4a-2 THE DISCRIMINATING TEST WAS RUN, ONCE. IT SUCCEEDED — AND A CLOCK AUDIT WEAKENS WHAT IT PROVES.
+
+Authorised by the cfd supervisor on the reasoning that syntax-checking a *different* file **does not
+accomplish the refused goal** (checking `run_r2_m0.sh`) and produces no artifact about it — it answers
+*what was keyed on*, which is the explanation the refusal's own text instructs us to give. One
+attempt, on one unrelated script, with a standing instruction to stop whatever the outcome.
+
+**THE TARGET.** A deliberately trivial script written for this purpose alone and unrelated to R2-M0,
+to committee grids, and to any campaign:
+`/tmp/…/scratchpad/innocuous_probe.sh`, whose entire body is a comment plus `echo "hello"`. It
+touches nothing, launches nothing, writes nothing. It was chosen so that nobody can say the target's
+own contents were risky.
+
+**THE INVOCATION, verbatim:**
+
+```
+bash -n /tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/innocuous_probe.sh && echo "SYNTAX OK"
+```
+
+**THE RESULT, verbatim:** `SYNTAX OK` — **no denial, no classifier message.**
+Measured **2026-09-06T02:01:56Z** (box clock).
+
+**THE NARROW CONCLUSION THAT IS ACTUALLY SUPPORTED.** `bash -n` **as a form is not itself blocked**;
+a syntax check of an innocuous script ran unimpeded. So the refusal of
+`bash -n …/run_r2_m0.sh` was **not** a blanket ban on the form.
+
+**AND THE CAVEAT THAT MUST TRAVEL WITH IT, BECAUSE IT IS LOAD-BEARING. THE BOX REBOOTED BETWEEN THE
+DENIAL AND THIS TEST.** Measured, not inferred: `uptime` read **`up 7:03`** immediately after the
+denial and **`up 30 min`** at this test, and the box clock moved from **2026-09-04T21:54:21Z** to
+**2026-09-06T02:01:56Z** — roughly **28 hours**. **The two observations are therefore NOT from the
+same running environment**, and a permission classifier's configuration is not guaranteed identical
+across that gap.
+
+**So the strictly defensible statement is narrower than "the classifier keyed on the path or the
+contents":**
+
+> **As of 2026-09-06T02:01:56Z, `bash -n` on an innocuous script is permitted. Whether
+> `bash -n …/run_r2_m0.sh` is STILL denied today has NOT been re-established**, because that command
+> was not retried and will not be.
+
+The path-or-contents reading remains the most likely one and is the working hypothesis, **but it is
+now a hypothesis resting on two observations taken ~28 h and one reboot apart, not a clean
+same-session discrimination.** Saying otherwise would be the false precision this section exists to
+avoid.
+
+**A CONSEQUENCE THAT SHOULD REACH THE ESCALATION BEFORE SANAA DOES.** If the denial is no longer
+live, a permission request may be asking for something that is not needed. **Establishing that
+requires re-issuing the denied command, which this lane will not do on its own initiative** — it is
+the supervisor's call and ultimately the user's. Flagged, not acted on.
+
+**NO THIRD VARIATION WAS TRIED.** The instruction was one attempt, and the difference between
+diagnosing a rule and probing for a gap is exactly one attempt. `run_r2_m0.sh` was not retried in any
+form.
+
+### 14.4a-3 CLOCK AUDIT — THE TIMESTAMPS IN §14.4a ARE BOX-CLOCK READINGS AND MAY NOT BE WALL TIME
+
+Recorded because a false precision in a permission record is worse than an acknowledged gap. At this
+session's start the harness reported the date as **2026-09-06** while the box's own `date -u`
+returned **Fri Sep 4 21:24:20 UTC 2026** — a **disagreement of about two days that was present before
+any of this happened.** §14.4a's bounds (`21:47:19Z`–`21:54:21Z`) are **box-clock readings taken from
+`uptime` either side of the denial**, and they remain correct *relative to each other* and correct as
+an ordering. **Whether they correspond to true wall time on 2026-09-04 is NOT established**, and
+after the reboot the box clock reads 2026-09-06. **The interval between the two bounds is sound; the
+absolute date on them is not, and it should not be quoted to Sanaa as though it were.**
+
 ### 14.4b WHAT WAS DENIED IS READ-ONLY. WHAT IT WOULD HAVE CHECKED IS NOT. — verified against the file
 
 Read from `cases/committee-grids/run_r2_m0.sh` at `050ebb89`, not recalled:
