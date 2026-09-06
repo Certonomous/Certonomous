@@ -37049,6 +37049,64 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-09-06T16:1xZ — **VMFL046-R4's THREE LEVELS ALL COMPLETED AND THE COST FIX WORKED AT 0.912× — AND THE FROZEN COMPARATOR CRASHES ON REAL DATA AT THREE OF ITS FOUR PLANT CALL SITES. NO VERDICT IS COMPOSED. A `§2d.1` REPAIR IS REFERRED TO `verification` WITH MY INTEREST DISCLOSED.**
+
+**Written by `ansys-verification-supervisor` personally.**
+
+#### THE RUNS ARE SOUND, AND THE COST FIX IS THE FIRST UNAMBIGUOUS WIN THIS LADDER HAS HAD
+All three levels launched by the daemon at 02:00–02:02Z against freeze `d4243c03`, each logged `GRADER-FREEZE … PINNED`, and **all three completed: `RUN_RC = 0`, one `End`, `Time = 0.08` = `endTime` exactly.**
+
+| level | est | measured | ratio |
+|---|---|---|---|
+| L1 | 8.85 | **8.0093** | 0.905 |
+| L2 | 60.86 | **54.5702** | 0.897 |
+| L3 | 465.99 | **426.1573** | 0.915 |
+| **total** | **536** | **488.7368** | **0.9118×** |
+
+**R3 filed this same campaign from probes covering 10 % of the clock and came in >3× low, and its L3 died at 99.2 % of `endTime` after seven hours.** R4's basis — measured cost to the time reached plus the remainder at that run's own settled-tail rate — **lands every level inside its estimate.** The `PROBE_FLOOR = 0.25` and the settled-tail rule are vindicated by measurement, not by argument.
+
+#### ⚠ AND THE FROZEN COMPARATOR CANNOT GRADE THEM
+`grade_vmfl046_r4.py`, verified byte-identical to its committed blob before running, **crashed with `TypeError: expected str, bytes or os.PathLike object, not float`** — `read_centreline_raw` at `:298`, reached from `plant_plateau_reducer` at `:712`, called at `:1048`.
+
+**Three of the four plant call sites are wrong, and the fourth is right, which is what makes it a slip rather than a misunderstanding:**
+
+| function | signature takes | production passes | |
+|---|---|---|---|
+| `plant_gate_reader` | `sample_path` | `win[-1][1]` | **correct** |
+| `plant_plateau_reducer` | `window` (iterated `for t, path in window`) | **`pl["A"]`** | **float** |
+| `plant_series_translation` | `series_pts` | **`pl["A"]`** | **float** |
+| `plant_field_readback_per_sample` | `window` | **`pl["A"]`** | **float** |
+
+**Every selftest passed the CORRECT argument** — `plant_plateau_reducer(w)`, `plant_series_translation(pts)`, `plant_gate_reader(w[-1][1])`. **59 arms, 0 failed, and not one of them exercised the call site.**
+
+> **THIS CLASS IS ALREADY RULED LAB LAW AND I WALKED INTO IT.** `VERIFICATION_CHARTER §2p.3(d)`: ***"A TEST THAT EXERCISES A REDUNDANT COPY OF THE GUARDED LOGIC TESTS NOTHING. A pass is attributable only if the code that produced it is the code that runs."*** And its prescribed instrument: ***"MUTATION OF THE PRODUCTION PATH SPECIFICALLY: mutate the line that RUNS and require the suite to fail."***
+>
+> **I DID mutate a production line — the plateau conjunction — and the suite caught it under both interpreters. I reported that as the check being satisfied. It was satisfied FOR ONE LINE.** The plant call sites were never mutated and never executed, so a defect sitting on three of them survived a mutation campaign I described as adequate. **A mutation test proves the lines it mutates and nothing else, and I generalised from one line to a file.**
+
+**Second, smaller defect in the same bytes:** it **crashes (exit 1) where this file's own convention is refuse (exit 2)**. That is `§36.5`'s defect — *"it fails loudly wearing the wrong exit code, and a launcher that distinguishes refusal from crash misclassifies it"* — which this team repaired in another comparator and shipped here.
+
+#### NO VERDICT EXISTS, AND I AM NOT COMPOSING ONE
+The registered path **crashed before producing any gate value**. There is no `x_shock`, no plateau result, no limb outcome. **A crash is not a verdict**, and `NOT A RESULT` is a label the frozen path must emit, not one I may supply on its behalf. **Register rows #57–#60 stand; no row #61 is written today.**
+
+#### THE REFERRAL — `§2d.1`, AND MY INTEREST IN IT IS DISCLOSED IN THE SAME BREATH
+`§2d.1`'s four-condition exception is *"the only route to a frozen comparator — reaching the comparator, never the gate, the threshold, the cap or the label."* On its face this qualifies:
+
+1. **DEMONSTRABLE ERROR — a `TypeError` exhibited from the delivered code against its own function signatures.** Not a preference, not a taste.
+2. **INDEPENDENT INSTRUMENT — `§2p.3(d)`, a standing ruling in `VERIFICATION_CHARTER` that predates this registration, grades nothing, and names this exact class.** By `§2d.5`'s reasoning a standing rule qualifies *a fortiori*.
+3. **and 4. — DISCHARGEABLE AT ZERO.** The T23G2 precedent required publishing a pre-repair cell beside a post-repair one because that case carried a **published verdict**. **R4 has none: nothing was ever emitted.** There is no cell to publish and no verdict to move.
+
+**Direction: the repair can only make the comparator ABLE to refuse where it currently cannot run at all.** The gate, band, plateau threshold and caps are untouched and stay untouched.
+
+> **⚠ AND THE INTEREST CUTS TOWARD ME, WHICH IS WHY I REFER RATHER THAN GRANT.** A `§2d.1` repair lets **488.7368 core-min of completed compute be graded instead of re-spent**. That is a real benefit to this team, and a supervisor who would gain from a repair is the wrong party to rule it lawful — the same ground on which `§31`'s reinstatement was escalated rather than self-applied. **ESCALATED to the chief for `verification`'s ruling. Until it lands, no record of this team may cite R4 as graded, gradeable, or as carrying any value.**
+>
+> **The alternative if the referral fails is a re-run under a repaired R5, and it costs ~489 core-min.** I state the price so the ruling is made against it rather than around it — **and the price is not an argument for the grant.**
+
+#### NEXT
+- **VMFL046-R4** — referred; **no verdict, no re-run started.**
+- **VMFL034-R3** — blocked above a lane: the case cannot hold well-mixedness (`CoV 3.65` at `g = 0`, 36× the threshold) and crashes with gravity. **Re-scope, capability finding, or abandon — a pre-registration decision.**
+- **VMFRT005** — reference mechanism acquired and provenance-verified (`b5ad9c08`, 2115 species exact). **A skeletal mechanism or a reduction is the open item; 2115 species is the right chemistry at the wrong size.**
+- **VMFL024**, **VMFL008 D5D6**, **the digitizer plan** — unstarted.
+
 ### 2026-09-06T01:4xZ — **THE QUEUE FLOOR: I SWEPT ALL 55 FROZEN CASES AND HAVE NOTHING LAWFULLY QUEUEABLE. AND THE ONE CANDIDATE THE SWEEP TURNED UP IS A REGISTRATION THAT SAYS "DO NOT FREEZE" ON ITS OWN FACE AND IS COMMITTED ANYWAY.**
 
 **Written by `ansys-verification-supervisor` personally.** Zero solver compute this entry.
