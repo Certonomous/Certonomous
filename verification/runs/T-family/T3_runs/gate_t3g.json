@@ -1,0 +1,456 @@
+{
+  "rung": "T3g -- fourth level CONTINUED (R_fz), repaired rule-3 control",
+  "ladder": {
+    "c": "R_m",
+    "m": "R_f",
+    "f": "R_fz"
+  },
+  "comparator_of_record": "analyse_t3.py blob d5e4a9eb (imported)",
+  "this_file_sha256": "af1ba4aeb58403c18722b3738bcb8ee608f5945d807e70ecab0d1df8f0d241d6",
+  "Fs": 1.25,
+  "P_MIN": 0.5,
+  "N_ULP": 32,
+  "refinement_ratios": {
+    "r21": 1.598933917931896,
+    "r32": 1.5986105077709065
+  },
+  "planted_zero_control": {
+    "passed": true,
+    "planted": 0.001234,
+    "read_back_delta": 0.0012340000000108375,
+    "reader_max_change": 0.0012339999996129336,
+    "rec_unplanted": 4.910338816443982e-06,
+    "planted_cell_change": 0.0012339999996129336,
+    "drift_at_planted_cell": -3.979039320256561e-13,
+    "drift_ulp": -7.0,
+    "ulp_of_operands": 5.684341886080802e-14,
+    "N_ULP": 32,
+    "tol_absolute": 1.8189894035458565e-12,
+    "limb_A": true,
+    "limb_A_residual_ulp": 0.0,
+    "limb_B": true,
+    "limb_B_error_ulp": 6.809345245361328,
+    "reader_state": "NOT_CONVERGED",
+    "between": [
+      "76000",
+      "78000"
+    ],
+    "predicate": "P-2 (VERIFICATION_CHARTER 2d.11.1); supersedes T3c 5.1 P-1"
+  },
+  "primary_present": false,
+  "decomposition_confound": "R_fz and R_ff ran decomposed (8 ranks, simple (8 1 1)); R_m and R_f ran serial. The triple carries ONE non-mesh difference, floating-point summation order (F15 RULING 2, T3_R_FF_PREREGISTRATION.md S5). Quoted on every row.",
+  "measurements": {
+    "R_m": {
+      "nCells": 92160,
+      "time": "36000",
+      "convergence_state": "CONVERGED",
+      "St_peak": 0.0034379114719855974,
+      "x_peak_H": 6.135162348547744,
+      "St_10H": 0.0030470480047495928,
+      "St_20H": 0.0022960971492551247,
+      "x_R_H": 7.010108142587409,
+      "Re_achieved": 27701.97263378487,
+      "yplus_min": 0.011269004424544203,
+      "yplus_max": 0.7785780520108049,
+      "delta99_floor_H": 0.6709849056888905
+    },
+    "R_f": {
+      "nCells": 235520,
+      "time": "78000",
+      "convergence_state": "CONVERGED",
+      "St_peak": 0.003508587240894114,
+      "x_peak_H": 6.141196894641299,
+      "St_10H": 0.0031044272854450737,
+      "St_20H": 0.0023382399278433614,
+      "x_R_H": 6.983364682903371,
+      "Re_achieved": 27705.30428978578,
+      "yplus_min": 0.007156685626489103,
+      "yplus_max": 0.49219344096851086,
+      "delta99_floor_H": 0.6679412685865156
+    },
+    "R_fz": {
+      "nCells": 602128,
+      "time": "8000",
+      "convergence_state": "CONVERGED",
+      "St_peak": 0.003562333150072773,
+      "x_peak_H": 6.138329236461652,
+      "St_10H": 0.003146544135672534,
+      "St_20H": 0.002369000994036934,
+      "x_R_H": 6.96230366786611,
+      "Re_achieved": 27720.981704873702,
+      "yplus_min": 0.00457807856029218,
+      "yplus_max": 0.31018993872739953,
+      "delta99_floor_H": 0.6705305137732372
+    }
+  },
+  "triples": {
+    "St_peak": {
+      "state": "CONVERGING",
+      "order": 0.5845012869200404,
+      "e21": -5.3745909178659016e-05,
+      "e32": -7.06757689085168e-05,
+      "iterations": 35,
+      "GCI_pct": 5.974753388671082,
+      "GCI_abs": 0.0002128406205997263,
+      "richardson": 0.0033920606535929924,
+      "r21": 1.598933917931896,
+      "r32": 1.5986105077709065,
+      "triple": [
+        0.0034379114719855974,
+        0.003508587240894114,
+        0.003562333150072773
+      ]
+    },
+    "x_peak_H": {
+      "state": "OSCILLATORY",
+      "e21": 0.002867658179646959,
+      "e32": -0.0060345460935549156,
+      "ratio": -2.1043463744684647,
+      "triple": [
+        6.135162348547744,
+        6.141196894641299,
+        6.138329236461652
+      ]
+    },
+    "St_10H": {
+      "state": "CONVERGING",
+      "order": 0.659944959742133,
+      "e21": -4.211685022746008e-05,
+      "e32": -5.7379280695480945e-05,
+      "iterations": 35,
+      "GCI_pct": 4.608359520921139,
+      "GCI_abs": 0.00014500406625625098,
+      "richardson": 0.003030540882667533,
+      "r21": 1.598933917931896,
+      "r32": 1.5986105077709065,
+      "triple": [
+        0.0030470480047495928,
+        0.0031044272854450737,
+        0.003146544135672534
+      ]
+    },
+    "St_20H": {
+      "state": "CONVERGING",
+      "order": 0.6718329898506054,
+      "e21": -3.076106619357257e-05,
+      "e32": -4.214277858823664e-05,
+      "iterations": 35,
+      "GCI_pct": 4.378569538989615,
+      "GCI_abs": 0.00010372835590326238,
+      "richardson": 0.002286018309314324,
+      "r21": 1.598933917931896,
+      "r32": 1.5986105077709065,
+      "triple": [
+        0.0022960971492551247,
+        0.0023382399278433614,
+        0.002369000994036934
+      ]
+    },
+    "x_R_H": {
+      "state": "CONVERGING",
+      "order": 0.509976674458483,
+      "e21": 0.021061015037260766,
+      "e32": 0.02674345968403813,
+      "iterations": 35,
+      "GCI_pct": 1.3982684528130196,
+      "GCI_abs": 0.09735169577681556,
+      "richardson": 7.040185024487562,
+      "r21": 1.598933917931896,
+      "r32": 1.5986105077709065,
+      "triple": [
+        7.010108142587409,
+        6.983364682903371,
+        6.96230366786611
+      ]
+    },
+    "Cf_15H": {
+      "state": "CONVERGING",
+      "order": 0.7379110630865701,
+      "e21": -2.57012286132782e-05,
+      "e32": -3.631960973201546e-05,
+      "iterations": 35,
+      "GCI_pct": 4.579788521196683,
+      "GCI_abs": 7.762512256278067e-05,
+      "richardson": 0.001632849836941479,
+      "r21": 1.598933917931896,
+      "r32": 1.5986105077709065,
+      "triple": [
+        0.0016329290966464098,
+        0.0016692487063784253,
+        0.0016949499349917035
+      ]
+    }
+  },
+  "rows": [
+    {
+      "row": "G1",
+      "quantity": "St_peak",
+      "value": 0.003562333150072773,
+      "triple": [
+        0.0034379114719855974,
+        0.003508587240894114,
+        0.003562333150072773
+      ],
+      "iterative_convergence": {
+        "c": "CONVERGED",
+        "m": "CONVERGED",
+        "f": "CONVERGED"
+      },
+      "grid": {
+        "state": "CONVERGING",
+        "order": 0.5845012869200404,
+        "e21": -5.3745909178659016e-05,
+        "e32": -7.06757689085168e-05,
+        "iterations": 35,
+        "GCI_pct": 5.974753388671082,
+        "GCI_abs": 0.0002128406205997263,
+        "richardson": 0.0033920606535929924,
+        "r21": 1.598933917931896,
+        "r32": 1.5986105077709065,
+        "triple": [
+          0.0034379114719855974,
+          0.003508587240894114,
+          0.003562333150072773
+        ]
+      },
+      "secondary": {
+        "value": 0.003582153481164311,
+        "increment": 8.921048228480096e-05,
+        "status": "SECONDARY (Smirnov et al. 2016 Fig. 9 reproduction); arms no band"
+      },
+      "deviation_from_secondary": -1.9820331091537687e-05,
+      "deviation_from_secondary_rel": -0.005533077015196865,
+      "GCI_pct": 5.974753388671082,
+      "richardson": 0.0033920606535929924,
+      "order": 0.5845012869200404,
+      "verdict": "BLOCKED",
+      "why": "reference NOT OBTAINED: Vogel and Eaton 1985 primary not held; see T3_PREREGISTRATION.md section 2",
+      "kind": "GRADE",
+      "ladder": {
+        "c": "R_m",
+        "m": "R_f",
+        "f": "R_fz"
+      },
+      "decomposition_confound": "R_fz and R_ff ran decomposed (8 ranks, simple (8 1 1)); R_m and R_f ran serial. The triple carries ONE non-mesh difference, floating-point summation order (F15 RULING 2, T3_R_FF_PREREGISTRATION.md S5). Quoted on every row.",
+      "P_MIN": 0.5,
+      "outlet_guard_note": null
+    },
+    {
+      "row": "G2",
+      "quantity": "x_peak_H",
+      "value": 6.138329236461652,
+      "triple": [
+        6.135162348547744,
+        6.141196894641299,
+        6.138329236461652
+      ],
+      "iterative_convergence": {
+        "c": "CONVERGED",
+        "m": "CONVERGED",
+        "f": "CONVERGED"
+      },
+      "grid": {
+        "state": "OSCILLATORY",
+        "e21": 0.002867658179646959,
+        "e32": -0.0060345460935549156,
+        "ratio": -2.1043463744684647,
+        "triple": [
+          6.135162348547744,
+          6.141196894641299,
+          6.138329236461652
+        ]
+      },
+      "secondary": {
+        "value": 6.8655176650013265,
+        "increment": 0.18259469046598273,
+        "status": "SECONDARY (Smirnov et al. 2016 Fig. 9 reproduction); arms no band"
+      },
+      "deviation_from_secondary": -0.7271884285396748,
+      "deviation_from_secondary_rel": -0.10591895091126159,
+      "verdict": "NOT A RESULT",
+      "why": "grid triple is OSCILLATORY; no band can be armed",
+      "order": null,
+      "kind": "GRADE",
+      "ladder": {
+        "c": "R_m",
+        "m": "R_f",
+        "f": "R_fz"
+      },
+      "decomposition_confound": "R_fz and R_ff ran decomposed (8 ranks, simple (8 1 1)); R_m and R_f ran serial. The triple carries ONE non-mesh difference, floating-point summation order (F15 RULING 2, T3_R_FF_PREREGISTRATION.md S5). Quoted on every row.",
+      "P_MIN": 0.5,
+      "outlet_guard_note": null
+    },
+    {
+      "row": "G3",
+      "quantity": "St_10H",
+      "value": 0.003146544135672534,
+      "triple": [
+        0.0030470480047495928,
+        0.0031044272854450737,
+        0.003146544135672534
+      ],
+      "iterative_convergence": {
+        "c": "CONVERGED",
+        "m": "CONVERGED",
+        "f": "CONVERGED"
+      },
+      "grid": {
+        "state": "CONVERGING",
+        "order": 0.659944959742133,
+        "e21": -4.211685022746008e-05,
+        "e32": -5.7379280695480945e-05,
+        "iterations": 35,
+        "GCI_pct": 4.608359520921139,
+        "GCI_abs": 0.00014500406625625098,
+        "richardson": 0.003030540882667533,
+        "r21": 1.598933917931896,
+        "r32": 1.5986105077709065,
+        "triple": [
+          0.0030470480047495928,
+          0.0031044272854450737,
+          0.003146544135672534
+        ]
+      },
+      "secondary": {
+        "value": 0.0030010164453867193,
+        "increment": 8.921048228480096e-05,
+        "status": "SECONDARY (Smirnov et al. 2016 Fig. 9 reproduction); arms no band"
+      },
+      "deviation_from_secondary": 0.00014552769028581452,
+      "deviation_from_secondary_rel": 0.048492800000988136,
+      "GCI_pct": 4.608359520921139,
+      "richardson": 0.003030540882667533,
+      "order": 0.659944959742133,
+      "verdict": "BLOCKED",
+      "why": "reference NOT OBTAINED: Vogel and Eaton 1985 primary not held; see T3_PREREGISTRATION.md section 2",
+      "kind": "GRADE",
+      "ladder": {
+        "c": "R_m",
+        "m": "R_f",
+        "f": "R_fz"
+      },
+      "decomposition_confound": "R_fz and R_ff ran decomposed (8 ranks, simple (8 1 1)); R_m and R_f ran serial. The triple carries ONE non-mesh difference, floating-point summation order (F15 RULING 2, T3_R_FF_PREREGISTRATION.md S5). Quoted on every row.",
+      "P_MIN": 0.5,
+      "outlet_guard_note": null
+    },
+    {
+      "row": "G4",
+      "quantity": "St_20H",
+      "value": 0.002369000994036934,
+      "triple": [
+        0.0022960971492551247,
+        0.0023382399278433614,
+        0.002369000994036934
+      ],
+      "iterative_convergence": {
+        "c": "CONVERGED",
+        "m": "CONVERGED",
+        "f": "CONVERGED"
+      },
+      "grid": {
+        "state": "CONVERGING",
+        "order": 0.6718329898506054,
+        "e21": -3.076106619357257e-05,
+        "e32": -4.214277858823664e-05,
+        "iterations": 35,
+        "GCI_pct": 4.378569538989615,
+        "GCI_abs": 0.00010372835590326238,
+        "richardson": 0.002286018309314324,
+        "r21": 1.598933917931896,
+        "r32": 1.5986105077709065,
+        "triple": [
+          0.0022960971492551247,
+          0.0023382399278433614,
+          0.002369000994036934
+        ]
+      },
+      "secondary": {
+        "value": 0.002270024604246967,
+        "increment": 8.921048228480096e-05,
+        "status": "SECONDARY (Smirnov et al. 2016 Fig. 9 reproduction); arms no band"
+      },
+      "deviation_from_secondary": 9.897638978996698e-05,
+      "deviation_from_secondary_rel": 0.04360146123737735,
+      "GCI_pct": 4.378569538989615,
+      "richardson": 0.002286018309314324,
+      "order": 0.6718329898506054,
+      "verdict": "BLOCKED",
+      "why": "reference NOT OBTAINED: Vogel and Eaton 1985 primary not held; see T3_PREREGISTRATION.md section 2",
+      "kind": "GRADE",
+      "ladder": {
+        "c": "R_m",
+        "m": "R_f",
+        "f": "R_fz"
+      },
+      "decomposition_confound": "R_fz and R_ff ran decomposed (8 ranks, simple (8 1 1)); R_m and R_f ran serial. The triple carries ONE non-mesh difference, floating-point summation order (F15 RULING 2, T3_R_FF_PREREGISTRATION.md S5). Quoted on every row.",
+      "P_MIN": 0.5,
+      "outlet_guard_note": null
+    },
+    {
+      "row": "M1",
+      "kind": "REPORT",
+      "quantity": "x_R_H",
+      "value": 6.96230366786611,
+      "triple": [
+        7.010108142587409,
+        6.983364682903371,
+        6.96230366786611
+      ],
+      "grid": {
+        "state": "CONVERGING",
+        "order": 0.509976674458483,
+        "e21": 0.021061015037260766,
+        "e32": 0.02674345968403813,
+        "iterations": 35,
+        "GCI_pct": 1.3982684528130196,
+        "GCI_abs": 0.09735169577681556,
+        "richardson": 7.040185024487562,
+        "r21": 1.598933917931896,
+        "r32": 1.5986105077709065,
+        "triple": [
+          7.010108142587409,
+          6.983364682903371,
+          6.96230366786611
+        ]
+      },
+      "secondary": {
+        "value": 6.658972819120847,
+        "increment": 0.2313615386810554,
+        "status": "SECONDARY (Smirnov et al. 2016 Fig. 9 reproduction); arms no band"
+      },
+      "verdict": "REPORTED",
+      "decomposition_confound": "R_fz and R_ff ran decomposed (8 ranks, simple (8 1 1)); R_m and R_f ran serial. The triple carries ONE non-mesh difference, floating-point summation order (F15 RULING 2, T3_R_FF_PREREGISTRATION.md S5). Quoted on every row."
+    }
+  ],
+  "tally": {
+    "PASS": 0,
+    "GATE FAIL": 0,
+    "NOT A RESULT": 1,
+    "BLOCKED": 3,
+    "REPORTED": 0,
+    "PENDING": 0
+  },
+  "cost": {
+    "R_fx_status": {
+      "case": "R_fz",
+      "rc": "0",
+      "wall_s": "9186",
+      "ranks": "8",
+      "core_min": "1224.800",
+      "cap_core_min": "4148",
+      "timeout_s": "31115",
+      "capped": "no",
+      "checkmesh_rc": "0",
+      "decomposepar_rc": "0",
+      "reconstructpar_rc": "0",
+      "solver": "buoyantBoussinesqSimpleFoam",
+      "solver_path": "/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/buoyantBoussinesqSimpleFoam",
+      "note": "clean",
+      "started_utc": "2026-09-05T21:18:44Z",
+      "ended_utc": "2026-09-05T23:52:11Z"
+    },
+    "core_min_from_status": "1224.800",
+    "cost_basis": "wall x ranks / 60 from STATUS.R_fz; dollars derived, not measured"
+  },
+  "generated_utc": "2026-09-06T01:43:33.582510+00:00"
+}

@@ -1,0 +1,25 @@
+rule-3 control (P-2) on R_f:
+    passed                 True
+    limb_A                 True
+    limb_A_residual_ulp    0.0
+    limb_B                 True
+    limb_B_error_ulp       6.809345245361328
+    drift_ulp              -7.0
+    N_ULP                  32
+    reader_max_change      0.0012339999996129336
+    rec_unplanted          4.910338816443982e-06
+    read_back_delta        0.0012340000000108375
+measuring R_m (level c) ...
+measuring R_f (level m) ...
+measuring R_fz (level f) ...
+effective refinement ratios from nCells: r21 = 1.5989, r32 = 1.5986
+
+ladder (R_m, R_f, R_fz)  r21 = 1.5989  r32 = 1.5986  P_MIN = 0.5
+  G1  BLOCKED       St_peak   triple = ['0.00343791', '0.00350859', '0.00356233']  grid = CONVERGING  p = 0.585  GCI = 5.975 %  [reference NOT OBTAINED: Vogel and Eaton 1985 primary not held; see T3_PREREGISTRATION.md section 2]
+  G2  NOT A RESULT  x_peak_H  triple = ['6.13516', '6.1412', '6.13833']  grid = OSCILLATORY  [grid triple is OSCILLATORY; no band can be armed]
+  G3  BLOCKED       St_10H    triple = ['0.00304705', '0.00310443', '0.00314654']  grid = CONVERGING  p = 0.660  GCI = 4.608 %  [reference NOT OBTAINED: Vogel and Eaton 1985 primary not held; see T3_PREREGISTRATION.md section 2]
+  G4  BLOCKED       St_20H    triple = ['0.0022961', '0.00233824', '0.002369']  grid = CONVERGING  p = 0.672  GCI = 4.379 %  [reference NOT OBTAINED: Vogel and Eaton 1985 primary not held; see T3_PREREGISTRATION.md section 2]
+  M1  REPORTED      x_R_H     triple = ['7.01011', '6.98336', '6.9623']  grid = CONVERGING  p = 0.510
+tally {"PASS": 0, "GATE FAIL": 0, "NOT A RESULT": 1, "BLOCKED": 3, "REPORTED": 0, "PENDING": 0}
+CAVEAT R_fz and R_ff ran decomposed (8 ranks, simple (8 1 1)); R_m and R_f ran serial. The triple carries ONE non-mesh difference, floating-point summation order (F15 RULING 2, T3_R_FF_PREREGISTRATION.md S5). Quoted on every row.
+wrote /home/ubuntu/Certonomous/verification/runs/T-family/T3_runs/gate_t3g.json
