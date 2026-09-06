@@ -1,0 +1,164 @@
+A1WRT3 INSTRUMENT EVIDENCE -- captured 2026-09-06T02:09:53Z
+NOT A FREEZE. The freeze commit is the dafoam-supervisor's. LAUNCH_ENABLED=0.
+Run root /home/ubuntu/certonomous-runs/A1WRT3 -- ABSENT, CHECKED BY EXECUTION:
+    ls: cannot access '/home/ubuntu/certonomous-runs/A1WRT3': No such file or directory
+
+=== INSTRUMENT MD5S (the item directory) ===
+7507d4906fefc5288ceb7b9dca1aa9e4  a1wrt3_cmd.sh
+50f3fc403d3f408defc9fe24ce9bbd17  a1wrt3_run_arm.sh
+2c1de8ad0bb56591fc89c9331ffae817  a1wrt3_stage.py
+00717054de7055eabb85e8c01d1063e1  a1wrt3_grade.py
+2c4bf53d33dd36d8c99bf36a07f7e3dc  a1wrt3_instruments.py
+1392a02599bddc8d7fdb00f439b59984  a1wrt3_selftest.py
+73f661cc592d63f01e9181b33860e810  a1wrt3_instrument_table.py
+
+=== SECTION 11 ITEM 4: THE INSTRUMENT TABLE, BY EXTRACTION ===
+--- PHASE 1: EXISTENCE.  Every extracted dependency must EXIST, and this phase completes BEFORE any md5 is consulted.
+    EXISTS  a1wrt3_cmd.sh                                        a1wrt3_cmd.sh
+    EXISTS  a1wrt3_grade.py                                      a1wrt3_grade.py
+    EXISTS  a1wrt3_instrument_table.py                           a1wrt3_instrument_table.py
+    EXISTS  a1wrt3_instruments.py                                a1wrt3_instruments.py
+    EXISTS  a1wrt3_run_arm.sh                                    a1wrt3_run_arm.sh
+    EXISTS  a1wrt3_selftest.py                                   a1wrt3_selftest.py
+    EXISTS  a1wrt3_stage.py                                      a1wrt3_stage.py
+    EXISTS  container_ok_absent.log                              fixtures/container_ok_absent.log
+    EXISTS  container_ok_duplicated.log                          fixtures/container_ok_duplicated.log
+    EXISTS  container_ok_no_md5.log                              fixtures/container_ok_no_md5.log
+    EXISTS  container_ok_single.log                              fixtures/container_ok_single.log
+    EXISTS  container_ok_wrong_md5.log                           fixtures/container_ok_wrong_md5.log
+    EXISTS  envseam_a1wrt2_producer.py                           fixtures/envseam_a1wrt2_producer.py
+    EXISTS  envseam_all_defaulted.py                             fixtures/envseam_all_defaulted.py
+    EXISTS  envseam_fifth_fatal.py                               fixtures/envseam_fifth_fatal.py
+    EXISTS  fixtures                                             fixtures
+    EXISTS  fseam_pass_direction.log                             fixtures/fseam_pass_direction.log
+    EXISTS  fseam_trivial_baseline_cold_vs_continued.log         fixtures/fseam_trivial_baseline_cold_vs_continued.log
+    NOT-A-DEP name                                               extracted from this file's own regex literal, not a dependency
+    NOT-A-DEP no_such_log_at_all.log                             control W2c's DELIBERATELY ABSENT path: it proves the log reader refuses rather than reading a zero. Its absence is REQUIRED.
+    EXISTS  seamtime_branch_B_reset.log                          fixtures/seamtime_branch_B_reset.log
+    EXISTS  seamtime_branch_C_crash.log                          fixtures/seamtime_branch_C_crash.log
+    EXISTS  seamtime_branch_D_truncated.log                      fixtures/seamtime_branch_D_truncated.log
+    EXISTS  seamtime_branch_E_unclassified.log                   fixtures/seamtime_branch_E_unclassified.log
+    EXISTS  walltreat_bc_present.log                             fixtures/walltreat_bc_present.log
+    EXISTS  walltreat_bc_stripped.log                            fixtures/walltreat_bc_stripped.log
+    EXISTS  walltreat_false_deleted.py                           fixtures/walltreat_false_deleted.py
+    EXISTS  walltreat_one_byte_changed.py                        fixtures/walltreat_one_byte_changed.py
+    EXISTS  walltreat_spalding.log                               fixtures/walltreat_spalding.log
+    EXISTS  walltreat_true_beside_false.py                       fixtures/walltreat_true_beside_false.py
+    NOT-A-DEP x.py                                               extracted from this file's own docstring, not a dependency
+--- PHASE 1 RESULT: 31 candidate(s), 3 checked exception(s), 0 problem(s)
+--- PHASE 2: MD5 AGREEMENT (only over the set phase 1 enumerated).
+    OK       cmd.sh         pin=7507d4906fefc5288ceb7b9dca1aa9e4 disk=7507d4906fefc5288ceb7b9dca1aa9e4  <- a1wrt3_cmd.sh
+    SKIP    runScript.py         (not produced from this item directory)
+    OK       run_arm.sh     pin=50f3fc403d3f408defc9fe24ce9bbd17 disk=50f3fc403d3f408defc9fe24ce9bbd17  <- a1wrt3_run_arm.sh
+--- PHASE 2 RESULT: 0 problem(s)
+A1WRT3_INSTRUMENT_TABLE OK -- 31 dependency(ies) exist, 3 pin(s) agree
+
+=== SECTION 11 ITEM 3: EVERY CONTROL, BOTH DIRECTIONS ===
+A1WRT3_CONTROL W0   EXERCISED-PASS pass     fixture=envseam_a1wrt2_producer.py                     the REAL producer bytes pass clause 1 and the OK line names them
+A1WRT3_CONTROL W1a  EXERCISED-PASS fail     fixture=walltreat_false_deleted.py                     the LIVE False line deleted => exit 98
+A1WRT3_CONTROL W1b  EXERCISED-PASS fail     fixture=walltreat_true_beside_false.py                 A LIVE True BESIDE AN UNTOUCHED False => exit 98 -- the limb cmd.sh COULD NOT HAVE PASSED
+A1WRT3_CONTROL W1c  EXERCISED-PASS fail     fixture=container_ok_wrong_md5.log                     one byte changed => the md5 limb refuses host-side, though the in-container config limbs still pass
+A1WRT3_CONTROL W1d  EXERCISED-PASS fail     fixture=container_ok_no_md5.log                        an OK line with NO md5 field => GATE FAIL, never a silent pass
+A1WRT3_CONTROL W2a  EXERCISED-PASS KNOWN-POSITIVE fixture=walltreat_bc_present.log                       REAL A1WRT U1 bytes: clause 2 counts exactly 1 BCType line => PASS
+A1WRT3_CONTROL W2b  EXERCISED-PASS fail     fixture=walltreat_bc_stripped.log                      the BC line stripped => count 0 => GATE FAIL
+A1WRT3_CONTROL W2c  EXERCISED-PASS fail     fixture=(absent path)                                  an UNREADABLE log REFUSES; it never reads as count 0
+A1WRT3_CONTROL W3a  EXERCISED-PASS fail     fixture=walltreat_spalding.log                         a Spalding wall-function line => clause 3 REFUSES at exit 2
+A1WRT3_CONTROL W3b  EXERCISED-PASS pass     fixture=walltreat_bc_present.log                       the same reader over the clean log does NOT refuse
+A1WRT3_CONTROL W4a  EXERCISED-PASS fail     fixture=container_ok_absent.log                        the OK line DELETED => GATE FAIL reported as *the guard did not run*
+A1WRT3_CONTROL W4b  EXERCISED-PASS fail     fixture=container_ok_duplicated.log                    the OK line DUPLICATED => count 2 => GATE FAIL. L-493: PRESENCE IS NOT ENOUGH, THE COUNT IS PINNED
+A1WRT3_CONTROL W4c  EXERCISED-PASS pass     fixture=container_ok_single.log                        exactly one OK line carrying the pinned md5 => PASS
+A1WRT3_CONTROL E1   EXERCISED-PASS KNOWN-POSITIVE fixture=envseam_a1wrt2_producer.py                     TONIGHT'S CRASH, ON REAL BYTES, AT ZERO COMPUTE: A1WRT2's exact configuration => BLOCKED NAMING ALL FOUR
+A1WRT3_CONTROL E1b  EXERCISED-PASS fail     fixture=envseam_a1wrt2_producer.py                     A SINGLE `-e` ADDED IS NOT A REPAIR: supplying only AOA_ALPHA0 still BLOCKS, naming the remaining three
+A1WRT3_CONTROL E2   EXERCISED-PASS pass     fixture=the REAL launcher array + the REAL cmd.sh      the repaired A1WRT3 configuration => CLEAN, AND IT PRINTS THE SET IT COMPARED AGAINST, so its silence is not its evidence
+A1WRT3_CONTROL E2b  EXERCISED-PASS fail     fixture=a cmd.sh whose translation markers are absent  no registered markers => REFUSE, never a silent empty set
+A1WRT3_CONTROL E3   EXERCISED-PASS fail     fixture=envseam_fifth_fatal.py                         a FIFTH fatal read the translation does not supply => BLOCKED naming it -- THE GATE IS NOT HARD-CODED TO FOUR
+A1WRT3_CONTROL E4   EXERCISED-PASS fail     fixture=a1wrt3_cmd.sh --selftest-envseam-c2            clause 2 with AOA_ALPHA0 EMPTY => exit 94. AN EMPTY VALUE IS NOT A PRESENT VALUE
+A1WRT3_CONTROL E4b  EXERCISED-PASS fail     fixture=a1wrt3_cmd.sh --selftest-envseam-c2 (no pairs) a clause that CHECKED NOTHING is not a clause that passed => exit 94
+A1WRT3_CONTROL E5   EXERCISED-PASS FALSE-POSITIVE fixture=envseam_all_defaulted.py                       a producer whose only reads are .get(...) => CLEAN, and the control asserts it DOES NOT BLOCK. 31 of 37 entry scripts in this family read nothing fatal; a gate that blocked them would be useless
+A1WRT3_CONTROL E6   EXERCISED-PASS fail     fixture=a bare pass-through '-e NAME'                  the bare form REFUSES: it makes the supplied set depend on the host's ambient environment, which the manifest cannot record
+A1WRT3_CONTROL E7   EXERCISED-PASS fail     fixture=an unrecognised token in the -e array          an unrecognised token REFUSES; skipping one would silently shrink the supplied set
+A1WRT3_CONTROL E8   EXERCISED-PASS fail     fixture=a producer with a NON-CONSTANT os.environ key  an unresolvable subscript => BLOCKED; the gate will not report clean over what it cannot enumerate
+A1WRT3_CONTROL E9   EXERCISED-PASS pass     fixture=os.environ['X'] = 'y' (a WRITE)                a WRITE is not a READ and must not block a launcher that is already correct
+    F-SEAM arithmetic  |1.1836353615763 - 1.19079592024| / 1.19079592024 = 6.013254e-03  >  1.0e-03  => 6.013x the bar => THE TRIVIAL BASELINE FAILS G-SEAM
+    F-SEAM CD limb, DISCLOSED AS THE WEAKER OF THE TWO: 3.018116e-03 > 1.0e-03 => 3.018x
+A1WRT3_CONTROL FS1  EXERCISED-PASS ARITHMETIC fixture=a1wr_alpha12_reference.tsv:4000 + STAGE12 idx=12 the section 9.1 arithmetic RECOMPUTED, with the inequality written out
+    G-SEAM: CL rel 6.049632e-03, CD rel 3.009034e-03, band 1.0e-03
+A1WRT3_CONTROL FS2  EXERCISED-PASS fail     fixture=fseam_trivial_baseline_cold_vs_continued.log   THE NAMED GATE, DRIVEN: G-SEAM against the CONTINUED terminal state while its reference is the COLD one => GATE FAIL
+A1WRT3_CONTROL FS3  EXERCISED-PASS pass     fixture=fseam_pass_direction.log                       the SAME gate over a state that DOES reproduce the reference => PASS. Without this limb the failing direction proves only that the gate always fails
+A1WRT3_CONTROL FS4  EXERCISED-PASS fail     fixture=(a log with no AOA_POINT_VALUES line)          F-SEAM's THIRD READING: a missing statistic reads UNRESOLVED, not PASS
+A1WRT3_CONTROL PS-A EXERCISED-PASS pass     fixture=fseam_pass_direction.log                       first=4001 last=4200 => branch A, the restart LOADED THE STATE
+A1WRT3_CONTROL PS-B EXERCISED-PASS fail     fixture=seamtime_branch_B_reset.log                    first=1 => branch B, the producer RESETS on a latestTime start
+A1WRT3_CONTROL PS-C EXERCISED-PASS fail     fixture=seamtime_branch_C_crash.log                    anchored_count=0 => branch C, UNRESOLVED. THIS SAYS NOTHING ABOUT `startFrom latestTime`
+A1WRT3_CONTROL PS-D EXERCISED-PASS fail     fixture=seamtime_branch_D_truncated.log                first=4001 last!=4200 => branch D, A REAL RESULT ABOUT THE SEAM, NOT COLLAPSED INTO C
+A1WRT3_CONTROL PS-E EXERCISED-PASS fail     fixture=seamtime_branch_E_unclassified.log             an outcome in NONE of the registered branches => UNCLASSIFIED and NOT A RESULT. **BRANCH E IS THE POINT OF THE TABLE, AND IT FAILS.**
+A1WRT3_CONTROL Q-FREEZE-1 EXERCISED-PASS pass     fixture=(a manifest matching every pin)                all THREE instrument md5s exact => PASS
+A1WRT3_CONTROL Q-FREEZE-2 EXERCISED-PASS fail     fixture=(cmd.sh md5 perturbed by one hex digit)        **THE SECTION 11 ITEM 5 CONTROL**: a post-freeze edit to the restored cmd.sh is CAUGHT. A1WRT2 recorded its launcher's md5 and never gated it, so this edit would have been silent.
+A1WRT3_CONTROL Q-FREEZE-3 EXERCISED-PASS fail     fixture=(cmd.sh absent from the manifest)              a GATED instrument MISSING from the manifest => REFUSE. A missing observation is not an agreement
+A1WRT3_CONTROL Q-FREEZE-4 EXERCISED-PASS fail     fixture=(a manifest recording an UNGATED instrument)   the RECORDED-BUT-UNGATED SHAPE IS ITSELF A REFUSAL, so it cannot recur by omission
+A1WRT3_CONTROL Q-COMPOSE-1 EXERCISED-PASS fail     fixture=(NOT A RESULT planted into one HARD gate)      the composed token is NOT A RESULT and NOT GATE REACHED -- the D19M-COMPOSE-DEF-1 repair
+A1WRT3_CONTROL Q-COMPOSE-2 EXERCISED-PASS fail     fixture=(GATE FAIL planted into EVERY gate in turn)    EVERY hard AND soft list is tested for BOTH GATE FAIL and NOT A RESULT
+A1WRT3_CONTROL Q-COMPOSE-3 EXERCISED-PASS pass     fixture=(every gate PASS)                              PASS IS UNREACHABLE BY CONSTRUCTION: raw=PASS caps to GATE REACHED, and BOTH are printed so the cap is visible
+A1WRT3_CONTROL Q-COMPOSE-4 EXERCISED-PASS fail     fixture=(one gate with NO reading at all)              the composer REFUSES over a missing gate. A GATE WITH NO READING IS NOT A GATE THAT PASSED
+A1WRT3_CONTROL Q-TRAP EXERCISED-PASS fail     fixture=(a grader run that reaches no composer)        NO ITEM VERDICT BY CONSTRUCTION IS FORBIDDEN: the EXIT trap prints PENDING with its last checkpoint and exits 12
+A1WRT3_CONTROL Q-FIXTURE-1 EXERCISED-PASS pass     fixture=fixtures/*                                     every fixture is static committed bytes and NONE resolves inside this item's run root (the L-435 repair, unweakened)
+A1WRT3_CONTROL Q-FIXTURE-2 EXERCISED-PASS fail     fixture=(a path inside /home/ubuntu/certonomous-runs/A1WRT3) a fixture inside the run root REFUSES
+A1WRT3_CONTROL Q-STALL-1 EXERCISED-PASS fail     fixture=(text binding 'stall' to an angle)             G-STALL REFUSES. THE TAIL IS EXACTLY WHERE THAT TEMPTATION LIVES
+A1WRT3_CONTROL Q-STALL-2 EXERCISED-PASS pass     fixture=walltreat_bc_present.log                       the REAL solver log does NOT trip G-STALL, so the refusal above is attributable to the plant and not to the reader
+A1WRT3_CONTROL Q-NOGRAD-1 EXERCISED-PASS fail     fixture=(a producer containing compute_totals)         G-NOGRAD refuses -- this item computes no gradient
+A1WRT3_CONTROL Q-NOGRAD-2 EXERCISED-PASS pass     fixture=(a producer with no compute_totals)            the clean direction passes, so Q-NOGRAD-1's refusal is attributable to the plant and not to the reader
+A1WRT3_CONTROL Q-NOGRAD-3 EXERCISED-PASS FREEZE-BLOCKER fixture=envseam_a1wrt2_producer.py (THE PIN)           **MEASURED, AND IT IS A FINDING, NOT A PASS.** The gate as section 9 words it REFUSES THE PINNED PRODUCER: `compute_totals` appears 3x (:40 a comment, :257 a task-name comparison, :260 the only call, in a branch `-task sweep` never enters). The item cannot reach a verdict until the dafoam-supervisor amends the wording pre-freeze.
+A1WRT3_CONTROL Q-YPLUS-1 EXERCISED-PASS fail     fixture=(a y+ log reading min=0 max=0)                 **THE BARE `postProcess` BLIND READER'S SIGNATURE REFUSES.** C16's clause is dropped; ITS LESSON IS NOT
+A1WRT3_CONTROL Q-YPLUS-2 EXERCISED-PASS pass     fixture=(a y+ log reading max = 0.0388)                a real wall-resolved reading passes, so Q-YPLUS-1's refusal is attributable to the zero and not to the reader
+A1WRT3_CONTROL Q-LEDGER-1 EXERCISED-PASS fail     fixture=(an unparseable ledger row)                    AN UNPARSEABLE LEDGER REFUSES RATHER THAN ASSUMING ZERO. A zero that means *could not read* would read as maximum headroom
+A1WRT3_CONTROL Q-LEDGER-2 EXERCISED-PASS fail     fixture=(spend that projects past the item ceiling)    G-CEILING refuses BEFORE the arm launches. THE TWO CAPS SUMMED ARE NOT A NEW BUDGET
+A1WRT3_CONTROL M1   EXERCISED-PASS pass     fixture=(the real write_manifest, driven)              **THE MANIFEST DECLARES THE CONTAINER'S ENVIRONMENT**: the -e array, the names parsed out of it, the AOA_* translation read from cmd.sh, and the producer's own fatal reads. BOTH SIDES OF THE SEAM.
+A1WRT3_CONTROL M2   EXERCISED-PASS fail     fixture=(the A1WRT2 defect shape, searched for)        **THE LAUNCHER'S OWN SHELL VARIABLES ARE ABSENT.** A1WRT2 declared `A1WRT2_RUN_ROOT`, `A1WRT2_STATUS_DIR` and `BASH_SOURCE` here -- the wrong side of the boundary, the same blindness as the unbound-variable guard, in a second instrument.
+A1WRT3_CONTROL M3   EXERCISED-PASS pass     fixture=(the produced manifest, read by the real g_envseam) the manifest is SUFFICIENT: G-ENVSEAM reconstructs both sides of the seam from it alone and returns PASS. This was impossible from A1WRT2's manifest, and the crash is the proof.
+A1WRT3_CONTROL M4   EXERCISED-PASS fail     fixture=(a manifest carrying A1WRT2's env_declared list) G-ENVSEAM REFUSES a launcher-side env_declared rather than reading it as an empty seam
+A1WRT3_CONTROL T1   EXERCISED-PASS pass     fixture=a1wrt3_instrument_table.py                     EXISTENCE FIRST AND SEPARATELY, then md5 agreement -- and the cmd.sh pin in PIN_INSTRUMENTS is proved EQUAL to the file on disk, so the gate is not pinning a placeholder
+--- PHASE 1: EXISTENCE.  Every extracted dependency must EXIST, and this phase completes BEFORE any md5 is consulted.
+    EXISTS  a1wrt3_cmd.sh                                        a1wrt3_cmd.sh
+    EXISTS  a1wrt3_grade.py                                      a1wrt3_grade.py
+    EXISTS  a1wrt3_instrument_table.py                           a1wrt3_instrument_table.py
+    EXISTS  a1wrt3_instruments.py                                a1wrt3_instruments.py
+    EXISTS  a1wrt3_run_arm.sh                                    a1wrt3_run_arm.sh
+    EXISTS  a1wrt3_selftest.py                                   a1wrt3_selftest.py
+    EXISTS  a1wrt3_stage.py                                      a1wrt3_stage.py
+    ABSENT  a_file_that_is_not_there.py                          <- a1wrt3_cmd.sh:1
+    EXISTS  container_ok_absent.log                              fixtures/container_ok_absent.log
+    EXISTS  container_ok_duplicated.log                          fixtures/container_ok_duplicated.log
+    EXISTS  container_ok_no_md5.log                              fixtures/container_ok_no_md5.log
+    EXISTS  container_ok_single.log                              fixtures/container_ok_single.log
+    EXISTS  container_ok_wrong_md5.log                           fixtures/container_ok_wrong_md5.log
+    EXISTS  envseam_a1wrt2_producer.py                           fixtures/envseam_a1wrt2_producer.py
+    EXISTS  envseam_all_defaulted.py                             fixtures/envseam_all_defaulted.py
+    EXISTS  envseam_fifth_fatal.py                               fixtures/envseam_fifth_fatal.py
+    EXISTS  fixtures                                             fixtures
+    EXISTS  fseam_pass_direction.log                             fixtures/fseam_pass_direction.log
+    EXISTS  fseam_trivial_baseline_cold_vs_continued.log         fixtures/fseam_trivial_baseline_cold_vs_continued.log
+    NOT-A-DEP name                                               extracted from this file's own regex literal, not a dependency
+    NOT-A-DEP no_such_log_at_all.log                             control W2c's DELIBERATELY ABSENT path: it proves the log reader refuses rather than reading a zero. Its absence is REQUIRED.
+    EXISTS  seamtime_branch_B_reset.log                          fixtures/seamtime_branch_B_reset.log
+    EXISTS  seamtime_branch_C_crash.log                          fixtures/seamtime_branch_C_crash.log
+    EXISTS  seamtime_branch_D_truncated.log                      fixtures/seamtime_branch_D_truncated.log
+    EXISTS  seamtime_branch_E_unclassified.log                   fixtures/seamtime_branch_E_unclassified.log
+    EXISTS  walltreat_bc_present.log                             fixtures/walltreat_bc_present.log
+    EXISTS  walltreat_bc_stripped.log                            fixtures/walltreat_bc_stripped.log
+    EXISTS  walltreat_false_deleted.py                           fixtures/walltreat_false_deleted.py
+    EXISTS  walltreat_one_byte_changed.py                        fixtures/walltreat_one_byte_changed.py
+    EXISTS  walltreat_spalding.log                               fixtures/walltreat_spalding.log
+    EXISTS  walltreat_true_beside_false.py                       fixtures/walltreat_true_beside_false.py
+    NOT-A-DEP x.py                                               extracted from this file's own docstring, not a dependency
+--- PHASE 1 RESULT: 32 candidate(s), 3 checked exception(s), 1 problem(s)
+A1WRT3_CONTROL T2   EXERCISED-PASS fail     fixture=(PHASE 1 with a dependency removed)            **PHASE ORDER IS THE POINT**: a missing dependency stops the run BEFORE md5 agreement is consulted, because agreement over a subset is not coverage of the set
+--- PHASE 1: EXISTENCE.  Every extracted dependency must EXIST, and this phase completes BEFORE any md5 is consulted.
+    STALE-EXCEPTION no_such_log_at_all.log                       control W2c's DELIBERATELY ABSENT path: it proves the log reader refuses rather than reading a zero. Its absence is REQUIRED.
+--- PHASE 1 RESULT: 1 candidate(s), 3 checked exception(s), 1 problem(s)
+A1WRT3_CONTROL T3   EXERCISED-PASS fail     fixture=(a stale EXCEPTION)                            an exception whose predicate stops holding FAILS phase 1 instead of hiding a real absence behind it
+==============================================================================
+A1WRT3 SELFTEST -- every control, both directions, EXERCISED state printed.
+NOT EXERCISED IS NEVER COUNTED AS A PASS.
+==============================================================================
+------------------------------------------------------------------------------
+A1WRT3_SELFTEST controls=61 EXERCISED-PASS=61 EXERCISED-FAIL=0 NOT-EXERCISED=0
+A1WRT3_SELFTEST rc=0 -- every control exercised and every gate answered as registered

@@ -1,0 +1,7 @@
+A1WRT3_PYTHON_OK /opt/conda/bin/python
+A1WRT3_UNIT arm=SEAM mode=CONTINUED declared=1 list=[12] first=12 tol=1.0e-8 tmo=900 omp=1 utc=2026-09-06T000000Z
+A1WRT3_WALLTREAT_SCRIPT_OK path=/run_root/runScript.py bytes=15992 live_false=1 live_true=0
+A1WRT3_CONTINUED_START 0/ NOT reset -- this unit continues from 4000/ (A1WRT/cmd.sh:51-52 deliberately not restored)
+A1WRT3_ENVSEAM_C2_OK checked=6 empty=0 -- every AOA_* value non-empty before python
+A1WRT3_SWEEP_RC rc=0 log=/mnt/out/sweep.log
+A1WRT3_COUNTS declared=1 point_end_markers=1 converged_lines=0 walltreat_lines=1 REPORTED_ONLY these counts decide nothing

@@ -1,0 +1,7 @@
+Mesh has 3 solution (non-empty) directions (1 1 1)
+Time = 4001
+Setting nut wall BC for wing. BCType=nutLowReWallFunction
+Time = 4200
+AOA_POINT_BEGIN idx=0 alpha=12.0000000000
+AOA_POINT_VALUES idx=0 alpha=12.0000000000 CL=1.183635361576276 CD=0.03075803313291197 wall_s=92.4 err=NONE
+AOA_POINT_END idx=0
