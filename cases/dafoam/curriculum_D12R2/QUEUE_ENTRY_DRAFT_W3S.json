@@ -1,0 +1,83 @@
+{
+  "team": "dafoam",
+  "case_id": "W3S",
+  "prereg_commit": "e1070c022678efe3a27f6dc75391380225a30380",
+  "prereg_path": "cases/dafoam/curriculum_D12R2/W3S_PREREGISTRATION_DRAFT.md",
+  "launch_cmd": [
+    "/home/ubuntu/Certonomous/cases/dafoam/curriculum_D12R2/w3s_chain_driver.sh"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/dafoam/curriculum_D12R2",
+  "ranks": 1,
+  "cost_core_min_estimate": 202.08,
+  "cap_core_min_registered": 290.0,
+  "cost_basis": "derived / REPORTED-BY-OWNER, NOT MEASURED. $0.1728 at the 202.08 core-min point and $0.2479 at the 290.0 core-min cap, at $0.0513/core-h on c7a.4xlarge. The box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md sec.5), so no dollar figure here is measured.",
+  "memory_floor_gb": 14.0,
+  "enqueued_by": "dafoam-supervisor (NOT YET ENQUEUED -- this file is a PARKED DRAFT outside the live queue directory; the supervisor owns the SUPERVISION_CHARTER.md sec.3 check-4 record and the decision to place it)",
+
+  "_status": "PARKED DRAFT -- NOT ENQUEUED, NOT LAUNCHED. This file is deliberately NOT in verification/queue/dafoam/, because in that directory THE DROP IS THE LAUNCH (verification/queue/dafoam/README.md amendment 2026-09-01). Placing it today launches a process that aborts rc=70 in about one second: see _blockers.",
+
+  "_blockers": {
+    "B1_PREREG_COMMIT_EMPTY": {
+      "what": "w3s_chain_driver.sh:91 carries PREREG_COMMIT=\"\" on disk, at HEAD, and inside the freeze commit e1070c02 itself.",
+      "effect": "preflight_freeze() is the chain's first and unconditional action and returns 70 NOT_FROZEN. Proved by execution 2026-09-06T01:37:10Z: the chain printed ABORT NOT_FROZEN and exited 70 without starting any container.",
+      "repair_owner": "dafoam-supervisor. Recording the freeze sha in the driver is the freeze act itself (the driver's own comment at line 90 says the sha is recorded there IN THE FREEZE COMMIT). It is not a lane's edit, and it is the same class as the D6RF3 rename.",
+      "note": "The freeze section sec.13.1 item 5 asserts the pins were bumped in the freeze commit. Every md5 pin does agree with disk. The PREREG_COMMIT line is the one item of that checklist that did not land."
+    },
+    "B2_LAUNCH_ENABLED_ZERO": {
+      "what": "w3s_stage_and_run.sh:138 carries LAUNCH_ENABLED=0, and its header at line 5-6 states that NO LANE MAY RAISE IT.",
+      "effect": "Even past B1, every leg body is unreachable; the launcher prints NOT_LAUNCHING leg=<LEG> -- LAUNCH_ENABLED=0 at line 996 and starts no container.",
+      "repair_owner": "dafoam-supervisor, by the launcher's own text."
+    }
+  },
+
+  "_provenance": {
+    "rule": "Every number below traces to a section of the frozen document at e1070c02, md5 d05e77030cba168efcb88b99dfa052ef. Nothing is sourced from a sibling queue entry, a parent item, or this lane's arithmetic.",
+    "team": "sec. header line 24 -- Case directory: cases/dafoam/curriculum_D12R2, which is the dafoam territory.",
+    "case_id": "sec. header line 21 -- Item id: W3S.",
+    "prereg_commit": "The freeze commit named in sec.13 (FREEZE -- 2026-09-05 ... THIS COMMIT IS THE FREEZE). Full sha resolved from e1070c02; the blob is present at that sha, which is exactly what preflight_freeze asks.",
+    "prereg_path": "sec. header line 24 and w3s_chain_driver.sh:92 PREREG_FILE. The frozen document's own filename is *_DRAFT.md and the instruments name it identically -- there is no PREREGISTRATION.md / _DRAFT.md mismatch in this item.",
+    "launch_cmd": "sec.12.3 -- w3s_chain_driver.sh asserts the cumulative item ceiling before each leg. The driver's LEGS=\"SETUP A0 A1 A2\" is the whole of Arm A, so the driver is the item's single entry point.",
+    "cwd": "sec. header line 24 -- Case directory: cases/dafoam/curriculum_D12R2.",
+    "ranks": "sec.2 line 92 -- np = 1, numberOfSubdomains = 1. Inherited unchanged and stated as a registered decomposition (DAFOAM_CHARTER.md sec.5).",
+    "cost_core_min_estimate": "sec.12.1 line 629 -- REVISED COST. Arm A point 202.08 core-min (= 1.75 + 66.78 + 46.34 + 87.21), and sec.13.3 -- Arm A point 202.08 core-min. This SUPERSEDES sec.6.1's 215.71, which was withdrawn by the 2026-09-04 pre-compute amendment when W_A2 came down from 3000 to 2600.",
+    "cap_core_min_registered": "sec.12.1 line 617-619 -- ITEM_CEILING_CORE_MIN falls to 290.0, the caps' exact sum 5.0 + 100.0 + 70.0 + 115.0; and sec.13.3 -- ITEM_CEILING = 290.0, the arm caps' EXACT SUM. The driver echoes the same constant at line 96.",
+    "cost_basis": "sec.6 line 254 -- cost_basis for both: derived / REPORTED-BY-OWNER, NOT MEASURED; and sec.12.1 line 631-632 -- $0.1728 at point, $0.2479 at cap, at $0.0513/core-h, REPORTED-BY-OWNER.",
+    "memory_floor_gb": "FLAGGED, NOT CLEANLY DETERMINED -- see _open_question_memory_floor_gb.",
+    "deadline": "NO SUCH FIELD EXISTS. The queue schema (verification/queue/dafoam/README.md, eleven required fields) has no deadline and no timeout_s, and grep over the schema and docs/standards/QUEUE_ENTRY_STANDARD.md finds neither. Nothing is sourced for one. The document's own bounded deadlines -- MEMAVAIL_WAIT_BOUND_S = 3600 (sec.12.2) and the per-stage wall bound 7200 s, NOT raised (sec.12.4) -- are launcher-internal constants, already carried in w3s_stage_and_run.sh:210-214, and are not queue fields."
+  },
+
+  "_open_question_memory_floor_gb": {
+    "why_flagged": "The frozen document registers exactly two memory constants and neither is named memory_floor_gb. sec.2 line 91-92 inherits MEM_LIMIT = 8g -- the container --memory cap, i.e. what the run is ALLOWED to consume -- and MEMAVAIL_FLOOR_GIB = 14.0 (not lowered), the host MemAvailable floor a stage must see before it starts. The schema's memory_floor_gb means RAM the case needs, and queue_runner.py:932 reads it as the hold criterion, which is the MemAvailable semantic. So 14.0 is the right constant and 8g is not.",
+    "the_residual_gap": "The document's unit is GiB; the schema's unit is GB. 14.0 GiB is not 14.0 GB, and converting is this lane's arithmetic, which the brief forbids. 14.0 is therefore entered UNCONVERTED, as the document's own registered number.",
+    "direction_of_the_error": "Stated rather than hidden: 14.0 GB is SMALLER than 14.0 GiB, so the entered value asks the runner for slightly LESS headroom than the document registers. That is a weakening, not a tightening, and it is the supervisor's to rule on before this row is ever placed.",
+    "ruling_owner": "dafoam-supervisor."
+  },
+
+  "_run_root_absence": {
+    "asserted_by": "execution, 2026-09-06T01:37:10Z, in the same invocation as the positive control",
+    "GSCAN": "/home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3S-GSCAN-cylinder-unsteady -- ABSENT",
+    "WINDOW": "/home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3S-WINDOW-cylinder-unsteady -- ABSENT",
+    "positive_control": "/home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3-cylinder-unsteady -- EXISTS, read by the same test in the same invocation. A reader not shown able to see a directory that exists is not evidence of absence."
+  },
+
+  "_container_boundary_check": {
+    "docker_run_sites": "w3s_stage_and_run.sh:1118 (every compute stage) and :1170 (the S0 mesh bootstrap).",
+    "e_flags_passed": 0,
+    "os_environ_reads_in_entry_script": 0,
+    "entry_script": "d12y_run_script.py, md5 2790c39a09cd458d5a3263d7f1811da5, matching the registered value at sec.2 line 93 and the driver's MD5_RUNPY.",
+    "planted_control": "The zero was planted before it was believed: the same reader and regex counted 2 occurrences on a copy carrying one os.environ[...] and one os.environ.get(...), and 0 on the real file.",
+    "verdict": "NO GAP. Nothing is read from the environment, so nothing needed to be passed. Per-leg configuration reaches the container by argv (--task, --dvIndex, --dvDelta, --out) and the window by a generated controlDict written per leg at w3s_stage_and_run.sh:1249 and bind-mounted, never by an environment variable. This item cannot die the way A1WRT2 SEAM died."
+  },
+
+  "_instrument_identity_at_this_commit": {
+    "checked": "by execution, w3s_chain_driver.sh --selfcheck, 15/15 PASS",
+    "w3s_grade.py": "3a3ee623fa48cc1d81517638485f376b -- agrees with the driver's MD5_GRADER",
+    "w3s_stage_and_run.sh": "36881e1a51a9898cdc0ae97c129102ef -- agrees with MD5_LAUNCHER",
+    "w3s_stage_record.py": "093ac4ed34a51fdd2eb46d09333a99b5 -- agrees with MD5_RECORD",
+    "d12y_grade_w3.py": "3950d30fd09c9b56213a02f5e9864e20 -- the frozen parent, UNEDITED",
+    "d12y_run_script.py": "2790c39a09cd458d5a3263d7f1811da5 -- UNCHANGED",
+    "superseded_hash_in_the_frozen_document": "sec.7's instrument table records w3s_grade.py at md5 d24d632cd37f587ebaca7999d9088dec. The file on disk, at HEAD, and in the freeze commit is 3a3ee623fa48cc1d81517638485f376b. sec.7's row is a STATUS UPDATE dated 2026-09-04, written before the instrument's final revision, and sec.13.1 item 5 supersedes it. The frozen document is NOT edited to correct this (CLAUDE.md rule 6); the discrepancy is reported instead."
+  },
+
+  "_submissions": "PARKED. Nothing in this item is sent, filed, uploaded, registered, posted or commented outside this box."
+}
