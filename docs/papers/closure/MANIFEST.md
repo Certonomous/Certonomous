@@ -387,3 +387,85 @@ instead of the corpus, and it fails SILENTLY, with a plausible non-zero count. T
 deliberate and correct (§5: "PDFs are never committed to git"); the search consequence is not, and
 is not fixed by removing it. **Every corpus search uses `/bin/grep` over explicit `*.txt` globs, and
 states which reader it used.**
+
+## Addendum 5, 2026-09-06 — ONE ARRIVAL OF FIVE. FOUR ARE CLOSED-ACCESS AND ROUTE TO SANAA'S PULL; FAMILY (c) REMAINS ABSOLUTE ZERO
+
+**Lines whose number changed above this section: 0.** Nothing above is edited; §1's table, §4's list
+and the STATUS COUNTS line stand and are STRUCK below where this addendum says so. Occasioned by
+Sanaa's inbound-retrieval authority captured at `b7c56371`. **INBOUND FETCH ONLY: nothing was sent,
+requested, posted or registered, and no login was attempted anywhere (rules 7 and 8).**
+
+### The arrival — verified on the file on disk, by the supervisor, not on a lane's relay
+
+| Filename | Pages | sha256 | Printed title, page 1 |
+|---|---|---|---|
+| `Xiao2020_periodic_hills_dataset.pdf` | 25 | `2b4832e2100993c4c024c7528ccf6bd4ea14a9000a1469500520702989438528` | "Flows Over Periodic Hills of Parameterized Geometries: A Dataset for Data-Driven Turbulence Modeling From Direct Simulations / Heng Xiao*, Jin-Long Wu / Kevin T. Crofton Department of Aerospace and Ocean Engineering, Virginia Tech / Sylvain Laizet, Department of Aeronautics, Imperial College London / Lian Duan, Ohio State University / arXiv:1910.01264v1 [physics.flu-dyn] 3 Oct 2019" |
+
+Source `https://arxiv.org/pdf/1910.01264`. Sidecar written and confirmed greppable. **Read by the
+retrieving lane twice (text extraction and a 150-dpi render), and then INDEPENDENTLY BY THE
+SUPERVISOR** — because Addendum 3's failure in this very file was a verification asserted without
+its evidence. **Reader control:** the same invocation on `Kaandorp2020_random_forests.pdf` returned
+the Kaandorp title page, so the reader reads the file it is handed.
+
+**VERSION DISCLOSURE (the Beck2019 / Sirignano2020 class, §5).** This is the **arXiv preprint**, not
+the *Computers & Fluids* 200:104431 typeset article, and its printed title carries the clause
+**"From Direct Simulations"** which the journal title does not. Cite the on-disk version.
+**This is the provenance paper for the `Parm_PH_29` data already on this box** — the lab has been
+using that dataset and until today could not cite its source.
+
+### Four papers are CLOSED ACCESS — measured against five independent readers, not assumed
+
+| Target | DOI | Result |
+|---|---|---|
+| **Smirnov & Menter 2009**, J. Turbomach. 131:041010 — **this is SST-CC** | `10.1115/1.3070573` | closed on OpenAlex, Unpaywall, Semantic Scholar, OpenAIRE; 0 on arXiv |
+| — its ASME conference original | `10.1115/GT2008-50480` | closed |
+| **Wallin & Johansson 2000**, JFM 403:89-132 | `10.1017/S0022112099007004` | closed on all four; DiVA holds only later theses citing it |
+| **Weatheritt & Sandberg 2016**, JCP 325:22-37 | `10.1016/j.jcp.2016.08.015` | closed on all four; Melbourne Minerva Access has no record |
+| **Speziale 1987**, JFM 178:459-475 | `10.1017/S0022112087001319` | closed on all four; NTRS searched by title, by report number and across all 87 Speziale records — no ICASE/NASA-CR version exists |
+
+**THE ZEROS CARRY A LIVE CONTROL, AND THE FIRST READER WAS BLIND.** The lane's first arXiv sweep
+returned 0 for all five titles **including one known to be there**, because `http://export.arxiv.org`
+without redirect-following returns an empty body. **That reader produced four false zeros.** Re-run
+over `https` with `-L`, the positive control returns `arXiv:1910.01264` and an author control
+returns `arXiv:1902.09075`. **Only the second sweep is recorded here.** A zero from a reader not
+shown able to see a non-zero is not evidence (rule 3).
+
+**THREE SUBSTITUTIONS OFFERED BY THE SEARCH AND REFUSED.** (i) The most prominent openly-posted PDF
+answering the Smirnov & Menter search is *"On the sensitization of turbulence models to rotation and
+curvature"* — that is **Spalart & Shur (1997)**, the *source* of the correction term, **not its SST
+application**. (ii) An arXiv author search for Weatheritt returns `arXiv:1902.09075`, a **different,
+later** paper. (iii) NTRS offers Speziale & Ngo's backward-facing-step paper and a curved-duct study,
+**both different works**. **None was downloaded. Nothing new was quarantined, and
+`_WRONG_RETRIEVALS/` is unchanged at 30** — including the lookalike that impersonates the very paper
+sought here.
+
+**NOT VERIFIED, STATED PLAINLY:** `eprints.soton.ac.uk`, the one repository that could plausibly hold
+an accepted manuscript of Weatheritt & Sandberg 2016, sits behind a bot challenge and refused every
+reader available. **No bypass was attempted.** OpenAIRE harvests that repository and reports no copy,
+and a domain-restricted search surfaced only Weatheritt's PhD thesis — a different document. **Paper
+4 is "unobtainable, ONE CHANNEL UNCHECKED", not "proven absent".**
+
+**§4 PENDING-MIT gains four rows.** With Addendum 4's correction (14 outstanding, not the 16 printed
+at line 242), the outstanding institutional pull is now **18**. **FAMILY (c) — curvature and rotation
+— REMAINS ABSOLUTE ZERO**, and the closure line's single largest hole cannot be closed from open
+sources. **That is a decision for Sanaa's pull channel, not a gap the lab can work around.**
+
+### Defect 5 — STATUS COUNTS (line 41) is now STALE BY THREE
+
+Addendum 4 corrected it to 71. Disk now holds **72** — **36** canonical + 6 duplicates + 30 wrong,
+enumerated by the supervisor 2026-09-06. The extra is this addendum's own arrival.
+
+### Defect 6 — TWO CANONICAL PDFs HAD NO SIDECAR, AND ADDENDUM 4 AUDITED THAT EXACT PAIR AND MISSED IT
+
+`Emory2013_structural_uncertainty_rans.pdf` and `Iaccarino2017_eigenspace_perturbations.pdf` — the
+Addendum-3 arrivals — were the only two canonical PDFs in this folder without a `.txt` partner,
+breaching `FILING_CHARTER` **R8** (*"a PDF and its sidecar always travel together"*) and placing both
+papers **outside the reach of every corpus search**. That is precisely the silent-failure class
+Addendum 4's own instrument-hazard note was written against. **Addendum 4 examined that pair, found
+four defects in their record, and did not notice they were unreadable** — an audit can be right about
+everything it looked at and still miss the thing in front of it.
+
+**REPAIRED, not merely recorded**, by the supervisor 2026-09-06: both sidecars written
+(62,794 and 35,231 bytes) and confirmed greppable — 88 and 83 hits on `perturbation` respectively,
+with a planted control term returning a true zero from the same reader. **All 36 canonical PDFs now
+satisfy R8**, verified by testing every `*.pdf` for its partner.

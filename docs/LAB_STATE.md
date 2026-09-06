@@ -1430,6 +1430,36 @@ Updates d09a4e28's "origin of the day's 52/69 UNVERIFIED". Settled by cfd's comm
 
 ## closure
 
+**2026-09-06T~03:0xZ — RETRIEVAL: ONE OF FIVE ARRIVED. FAMILY (c) CANNOT BE CLOSED FROM OPEN
+SOURCES.** MANIFEST **Addendum 5** landed. **OBTAINED: Xiao et al. 2020** (arXiv:1910.01264v1,
+25 pp, sha `2b4832e2…`) — **the provenance paper for the `Parm_PH_29` data this lab has been USING
+AND COULD NOT CITE.** Title page read by the lane twice **and independently by me**, with a reader
+control; **preprint-vs-journal version disclosed** (its title carries *"From Direct Simulations"*,
+the journal's does not).
+**UNOBTAINABLE, MEASURED AGAINST FIVE READERS: Smirnov & Menter 2009 (SST-CC), Wallin & Johansson
+2000, Weatheritt & Sandberg 2016, Speziale 1987.** All closed on OpenAlex, Unpaywall, Semantic
+Scholar and OpenAIRE, 0 on arXiv. **⚠ AND THE FIRST READER WAS BLIND:** the lane's first arXiv sweep
+returned 0 for ALL FIVE **including one known to be there** — `http://export.arxiv.org` without
+`-L` returns an empty body. **Four false zeros.** Only the re-run, with a positive control that
+returns and an author control that returns, is recorded. **THE LANE CAUGHT ITS OWN BLIND READER.**
+**THREE SUBSTITUTIONS OFFERED AND REFUSED** — the prominent PDF answering the SST-CC search is
+**Spalart & Shur 1997**, the correction's SOURCE, not its SST application; an arXiv author search
+returns a **different, later** Weatheritt paper; NTRS offers two different Speziale works. **Nothing
+downloaded, nothing newly quarantined, `_WRONG_RETRIEVALS/` unchanged at 30.**
+**FOR SANAA: FAMILY (c) — CURVATURE AND ROTATION — REMAINS ABSOLUTE ZERO, AND THE LINE'S LARGEST
+HOLE CANNOT BE CLOSED FROM OPEN SOURCES.** Outstanding institutional pull is now **18**. Only her
+pull channel closes it; the lab cannot work around it. **One channel unchecked** (`eprints.soton`,
+behind a bot challenge, no bypass attempted) so Weatheritt is *unobtainable, one channel unchecked*,
+**not proven absent**.
+**⚠ DEFECT 6 — MY OWN ADDENDUM 4 AUDITED A PAIR OF FILES, FOUND FOUR DEFECTS IN THEM, AND MISSED
+THAT THEY WERE UNREADABLE.** `Emory2013` and `Iaccarino2017` had **no `.txt` sidecar** — the only
+two canonical PDFs without one — breaching `FILING_CHARTER` R8 and putting both **outside the reach
+of every corpus search**, the exact silent-failure class Addendum 4's own hazard note was written
+against. **An audit can be right about everything it looked at and still miss the thing in front of
+it.** **REPAIRED BY ME, not merely recorded:** both sidecars written and confirmed greppable (88 and
+83 hits, planted control returns a true zero); **all 36 canonical PDFs now satisfy R8.**
+Corpus now **72 PDFs** (36 + 6 + 30); STATUS COUNTS struck as stale by three.
+
 **2026-09-06T~02:4xZ — LING ARM 2: READY TO POWER, AND I MUST CORRECT MY OWN BOARD TWICE.**
 Sanaa's *"everything approved"* captured at `b7c56371`; her verbatim words are TWO, the operative
 list is the chief's disclosed reading. **Enough for arm 2 — she gave an explicit YES earlier and it
