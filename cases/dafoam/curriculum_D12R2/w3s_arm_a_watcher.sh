@@ -3,11 +3,23 @@
 # W3S ARM A WATCHER
 #
 # WHAT THIS WATCHES, STATED HONESTLY: at the time of arming there is NO RUNNING SOLVER.
-# W3S is blocked at two committed gates -- w3s_chain_driver.sh:91 PREREG_COMMIT="" (the
-# chain aborts rc=70 NOT_FROZEN) and w3s_stage_and_run.sh:138 LAUNCH_ENABLED=0. So this
-# watcher does NOT tail a solver. It waits for the Arm A run root to APPEAR, and only
-# then begins reporting the ledger and manifest. If the supervisor fills PREREG_COMMIT
-# and places the queue row, this watcher is already in position.
+# So this watcher does NOT tail a solver. It waits for the Arm A run root to APPEAR, and
+# only then begins reporting the ledger and manifest. It is in position in advance.
+#
+# UPDATED 2026-09-06.  The header used to name TWO blockers -- the driver's empty
+# PREREG_COMMIT and LAUNCH_ENABLED=0 -- and BOTH HAVE SINCE BEEN DISCHARGED BY THE
+# dafoam-supervisor.  That sentence is replaced rather than left standing: a watcher whose
+# own first screen names blockers that are gone will be read as watching for something it
+# is not.  THE REMAINING BLOCKER IS ONE, AND IT IS A DIFFERENT FIELD:
+#   w3s_stage_and_run.sh:169 carries its OWN, SEPARATE PREREG_COMMIT="" -- the launcher
+#   runs its own PREFLIGHT 0 on every leg, ahead of the launch gate, so every leg aborts
+#   NOT_FROZEN at rc=70 and no run root is ever created.  Filling it is the supervisor's
+#   act (CLAUDE.md rule 2; SUPERVISION_CHARTER.md sec.3 check 4, non-delegable).
+#
+# THEREFORE: A SUSTAINED `ABSENT` BELOW IS THE EXPECTED READING, NOT A FAULT.  It becomes
+# a fault only if the root is still ABSENT after that field is filled and the queue row is
+# placed.  The planted control below is what makes that ABSENT evidence rather than
+# silence, and it is driven BOTH WAYS before the loop is entered.
 #
 # It writes ONLY under the case directory -- never the scratchpad, which is temp-only and
 # is not a handoff channel (L-186).
@@ -63,7 +75,9 @@ echo "armed_at   $(stamp)"
 echo "pid        $$"
 echo "root       $ROOT"
 echo "poll_s     $POLL"
-echo "blockers   driver PREREG_COMMIT empty (rc=70) ; launcher LAUNCH_ENABLED=0"
+echo "blockers   B1 driver PREREG_COMMIT: DISCHARGED e1070c02 ; B2 LAUNCH_ENABLED: DISCHARGED =1"
+echo "blockers   B3 OPEN -- w3s_stage_and_run.sh:169 PREREG_COMMIT is empty; every leg"
+echo "           aborts NOT_FROZEN rc=70 before the launch gate. ABSENT below is EXPECTED."
 echo "--- planted control, both sides ---"
 selfcontrol || { echo "EXIT 3 control failed"; exit 3; }
 echo "--- watch loop ---"
