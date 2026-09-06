@@ -1,0 +1,82 @@
+D6RF4 GRADER DRIVE -- SYNTHETIC FIXTURES, 0.000 SOLVER CORE-MIN
+  NOTHING HERE IS A RESULT ABOUT THE A2 WING. Every input is a fixture chosen by the author;
+  the drive establishes only that the frozen grading path runs and moves in the registered directions.
+  fixture tmp /tmp/d6rf4_drive_vrq6_pa2
+
+--- S1  happy path: L1/L2 tight and under the floor, L3 loose and OVER it (D6RF3's own measured values)
+  rc=0
+   |D6RF4_VERDICT NOT A RESULT  spend 10.000 core-min of a 54.0 ceiling  -> /tmp/d6rf4_drive_vrq6_pa2/s1.json
+   |  G-CONV_per_field_final_initRes PASS
+   |  G-SOLN_solution_unmoved    PASS
+   |  G-CONV per leg             L1  PASS        fvSolution=d6rf4_fvSolution_TIGHT  worst=p 1.31e-07 (0.0131x the bar 1e-05)  banner=False
+   |  G-CONV per leg             L2  PASS        fvSolution=d6rf4_fvSolution_TIGHT  worst=p 1.31e-07 (0.0131x the bar 1e-05)  banner=False
+   |  G-CONV per leg             L3  GATE FAIL   fvSolution=d6rf4_fvSolution_D6RF3_ORIGINAL  worst=p 1.316217833e-05 (1.316x the bar 1e-05)  banner=True
+   |  F5 falsifier               AS PREDICTED  named_gate=G-CONV  predicted 1.31622e-05 vs that gate's own bar 1e-05 -> predicted_to_fail=True  withdraws=False
+   |  plateau bar (12.4)         bar=10.0 %  graded_components=5  exercised=False  NOT EXERCISED -- every graded component sat inside the bar, so this bar was never the instrument that decided anything here
+   |  ACCEPT_FLOOR_UNMOVED       EXERCISED-PASS   accept_floor_unmoved=True  read tol=[1e-08] diff=[1000.0] floor=[1e-05]  (ESCALATED TO SANAA AND UNRULED; this item moves nothing)
+   |  X-CDLOG_stdout_cross_check per-point rel diff, NO THRESHOLD, NO VERDICT (REPORTED, NOT GATED)  row_state=PRODUCED reason=None
+   |  null readings (DEF-8)      11 run-derived quantities, 11 registered null readings, coverage_complete=True
+  S1 as registered: True  (G-CONV PASS, G-SOLN PASS, F5 AS PREDICTED, item NOT A RESULT because G-FD/G-OFF/G-PRICE have no inputs)
+
+--- S2  F5 FIRES: the WRONG setting also passes G-CONV
+  rc=0
+   |D6RF4_VERDICT NOT A RESULT  spend 10.000 core-min of a 54.0 ceiling  -> /tmp/d6rf4_drive_vrq6_pa2/s2.json
+   |  G-CONV per leg             L1  PASS        fvSolution=d6rf4_fvSolution_TIGHT  worst=p 1.31e-07 (0.0131x the bar 1e-05)  banner=False
+   |  G-CONV per leg             L2  PASS        fvSolution=d6rf4_fvSolution_TIGHT  worst=p 1.31e-07 (0.0131x the bar 1e-05)  banner=False
+   |  G-CONV per leg             L3  PASS        fvSolution=d6rf4_fvSolution_D6RF3_ORIGINAL  worst=p 1.31e-07 (0.0131x the bar 1e-05)  banner=False
+   |  F5 falsifier               FALSIFIED  named_gate=G-CONV  predicted 1.31622e-05 vs that gate's own bar 1e-05 -> predicted_to_fail=True  withdraws=True
+   |  X-CDLOG_stdout_cross_check per-point rel diff, NO THRESHOLD, NO VERDICT (REPORTED, NOT GATED)  row_state=PRODUCED reason=None
+  S2 as registered: True  (F5 FALSIFIED, withdraws G-CONV -- the gate it NAMES and no other)
+
+--- S3  G-SOLN GATE FAIL: the tightened baseline's CD moved 5 %
+  rc=0
+   |D6RF4_VERDICT NOT A RESULT  spend 10.000 core-min of a 54.0 ceiling  -> /tmp/d6rf4_drive_vrq6_pa2/s3.json
+   |  G-SOLN_solution_unmoved    GATE FAIL
+   |  X-CDLOG_stdout_cross_check per-point rel diff, NO THRESHOLD, NO VERDICT (REPORTED, NOT GATED)  row_state=PRODUCED reason=None
+  S3 as registered: True  (GATE FAIL -> rung 3b: the repair moved the SOLUTION, so no G-CONV PASS may be quoted as D6RF3's answer)
+
+--- S4  D6RF4-DEF-7: the arm RAN and the gated artefact was NOT WRITTEN
+  rc=2
+   |D6RF4_GRADE REFUSED {"REFUSE": "G1", "detail": {"arm": "P_conv", "note": "the producing arm RAN, so an absent product refuses (D6's behaviour, kept)", "registered_product_absent": "/tmp/d6rf4_drive_vrq6_pa2/run/P_conv/d6rf4_fd_endpoint.json"}}
+  S4  G1's age guard REFUSES an absent registered product on an arm that ran -- the parent's behaviour, KEPT: True
+      so DEF-7's token is reached through `_no_input_reason`, which is driven directly below rather than through a run root G1 refuses.
+      arm RAN, artefact NOT written          -> ARM_RAN_ARTEFACT_NOT_WRITTEN
+      arm NOT REGISTERED at this freeze      -> ARM_NOT_REGISTERED_AT_THIS_FREEZE
+      registered arm DID NOT RUN             -> ARM_DID_NOT_RUN
+  S4 as registered: True  (THREE DISTINGUISHABLE TOKENS where the parent had ONE)
+
+--- S5  ACCEPT_FLOOR_UNMOVED: the arm log carries primalMinResTolDiff 1e12
+  rc=2 (2 == REFUSED, as registered)
+   |D6RF4_GRADE REFUSED {"REFUSE": "ACCEPT_FLOOR_UNMOVED", "detail": {"instrument_refused": "{\"REFUSE\": \"ACCEPT_FLOOR_MOVED\", \"detail\": {\"accept_floor_unmoved\": false, \"clause\": \"PREREGISTRATION.md section 7 instrument 4 and section 9.3: primalMinResTol and primalMinResTolDiff DO NOT MOVE IN THIS ITEM, in EITHER direction. Whether a successor may ever register a different acceptance rule is
+  S5 as registered: True  (grading STOPPED, exit 2, NO VERDICT WRITTEN -- every number would have been earned against a bar nobody registered)
+
+--- S6  THE REGISTERED P_conv SHAPE: an FD product with NO rows (P_conv takes no FD step at all)
+  rc=0
+   |D6RF4_VERDICT NOT A RESULT  spend 10.000 core-min of a 54.0 ceiling  -> /tmp/d6rf4_drive_vrq6_pa2/s6.json
+   |  G-CONV_per_field_final_initRes PASS
+   |  G-SOLN_solution_unmoved    PASS
+   |  G-FD_bright_line_on_J      NOT A RESULT
+   |  plateau bar (12.4)         bar=10.0 %  graded_components=0  exercised=None  BAR_NOT_PRODUCED
+   |                                 ZERO components were graded, so the 10.0 % plateau bar was NOT PRODUCED. It was not exercised, it did not pass, and it decided NOTHING here -- which is the expected state of the P_conv arm, because P_conv buys a CONVERGENCE measurement and takes no FD step at all (PREREGISTRATION.md section 8.2 and section 9 item 6). Producing leg: the FD legs (NOT REGISTERED at this freeze).
+   |  X-CDLOG_stdout_cross_check per-point rel diff, NO THRESHOLD, NO VERDICT (REPORTED, NOT GATED)  row_state=PRODUCED reason=None
+   |  planted controls           {"cd_control": "EXERCISED-PASS", "fd_control": "NOT EXERCISED", "price_control": "EXERCISED-PASS"}   NOT EXERCISED count = 1
+  S6 as registered: True
+      THIS SCENARIO FOUND TWO REAL DEFECTS IN THE GRADER BEFORE ANY
+      COMPUTE, and both were in the NOT-EXERCISED direction:
+      (a) the inherited FD planted control REFUSED the whole
+          grading on an empty FD product -- correct for an FD arm,
+          wrong for an arm registered to take no FD step;
+      (b) the first repair for (a) nulled the shared artefact path
+          and sent the CD reader to NOT EXERCISED too, skipping a
+          control that CAN be exercised.  Skipping an exercisable
+          control and counting an unexercisable one as a pass are
+          the same failure in opposite directions.
+
+  RESULT ALL SIX SCENARIOS AS REGISTERED
+  solver core-minutes spent by this drive: 0.000
+
+=== PROVENANCE ===
+driven 2026-09-06T02:27:21Z
+drive  d6rf4_grade_drive.py md5 329d8a49478288e2c2c6cd9582074847
+grader d6rf4_grade.py md5 4085f678997ef6abe45c6946abd0626e
+SOLVER CORE-MINUTES SPENT: 0.000 -- every input is a synthetic fixture and NO NUMBER HERE IS A RESULT ABOUT THE A2 WING

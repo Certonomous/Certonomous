@@ -1,0 +1,133 @@
+D6RF4 INSTRUMENT TABLE -- EXTRACTED, NOT WRITTEN FROM MEMORY
+generated 2026-09-06T02:27:21Z  dir /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF4
+extractor  d6rf4_instrument_table_extraction.py (a TOOL, not an instrument: the grader neither imports nor executes it, and it is
+           deliberately NOT in FROZEN_PATHS -- freezing the thing that derives the frozen set would make the derivation
+           depend on itself.  The executable half is d6rf4_grade.py:frozen_path_coverage(), run at EVERY grading.)
+DAFOAM_CHARTER.md section 18.3: existence is asserted FIRST and SEPARATELY;
+an md5-agreement figure over a subset is NOT evidence the set is complete.
+
+EXTRACTOR NOTES (1)-(3) are D6RF3's, carried verbatim; (4) is this item's own.  See the extractor's docstring.
+  (4) NON-.py DEPENDENCIES COUNT.  This item's whole claim rests on two fvSolution files with no extension at all.
+      A pattern matching only *.py/*.sh would have been blind to the two files the item is ABOUT.
+
+=== THE LOCAL-DEPENDENCY FILTER, SHOWN BEFORE IT IS APPLIED ===
+  A raw extraction also collects stdlib/site-packages imports and the
+  selftest FIXTURE names inside these files.  36 name(s) were EXCLUDED
+  as not-local, and they are listed so the filter is auditable rather
+  than trusted (extractor note (3): a filter can be blind to the newest
+  dependency):
+    ambig.py                  argparse.py               ast.py                    bare.py                   clean.py                  copy.py                 
+    dafoam.mphys.py           fstr.py                   hashlib.py                importlib.util.py         json.py                   loopcall.py             
+    math.py                   moved_runscript.py        mphys.multipoint.py       mphys.scenario_aerodynamic.py  mpi4py.py                 nolower.py              
+    nopin.py                  nopoints.py               noscaler.py               nou0.py                   numpy.py                  openmdao.api.py         
+    os.py                     pygeo.mphys.py            pygeo.py                  pyoptsparse.py            re.py                     shutil.py               
+    subprocess.py             sys.py                    tempfile.py               time.py                   twodv.py                  zeroscaler.py           
+  EXCLUDED NAMES THAT ARE FILES PRESENT IN THIS DIRECTORY: NONE -- the filter dropped no real local dependency
+
+=== EXISTENCE FIRST ===
+  EXISTS      PREREGISTRATION.md                     (item dir)
+  EXISTS      d4_opt_runScript.py                    (cross-item: cases/dafoam/ladder-a/A2/curriculum_D4/d4_opt_runScript.py  md5 2906d52a5dbed2bacbaeaf85a37d3fe8)
+  EXISTS      d6r_opt_runScript.py                   (cross-item: cases/dafoam/ladder-a/A2/curriculum_D6R/d6r_opt_runScript.py  md5 93edb4a231e13a7af065368f61a468ef)
+  EXISTS      d6rf4_accept_floor_control.py          (item dir)
+  EXISTS      d6rf4_anchor_gate.py                   (item dir)
+  EXISTS      d6rf4_cd_plant_control.py              (item dir)
+  GENERATED   d6rf4_cmd.sh                           (written at run time by d6rf4_run_arm.sh CMDFILE="$WORK/d6rf4_cmd.sh")
+  EXISTS      d6rf4_endpoint_locus.py                (item dir)
+  EXISTS      d6rf4_endpoint_physical.py             (item dir)
+  EXISTS      d6rf4_extract_endpoint.py              (item dir)
+  EXISTS      d6rf4_fd_endpoint.py                   (item dir)
+  EXISTS      d6rf4_finiteness_mutation.py           (item dir)
+  EXISTS      d6rf4_fvSolution_D6RF3_ORIGINAL        (item dir)
+  EXISTS      d6rf4_fvSolution_TIGHT                 (item dir)
+  EXISTS      d6rf4_grade.py                         (item dir)
+  EXISTS      d6rf4_grade_drive.py                   (item dir)
+  EXISTS      d6rf4_instrument_table_extraction.py   (item dir)
+  EXISTS      d6rf4_instrument_table_extraction.txt  (item dir)
+  EXISTS      d6rf4_opt_runScript.py                 (item dir)
+  EXISTS      d6rf4_run_arm.sh                       (item dir)
+  EXISTS      d6rf4_units_assert.py                  (item dir)
+  -> 21 dependencies referenced; EXISTS or accounted for: 21; ABSENT: 0
+
+=== THEN, AND ONLY THEN, md5 ===
+  file                                          bytes  md5                               ast.Assert
+  PREREGISTRATION.md                           33996  62907272c2690cb0b1c7d3473d70814b  
+  d6rf4_accept_floor_control.py                28331  196d0fc510526036af5edd336db3a155  0
+  d6rf4_anchor_gate.py                         11347  f5a5216a557ff8c34ac084c96feabc39  0
+  d6rf4_cd_plant_control.py                    17229  1521411eac85e831595b5e11adce1e99  0
+  d6rf4_endpoint_locus.py                      29286  341189ca866f302a7e1bba8eefad3a57  0
+  d6rf4_endpoint_physical.py                   12464  ca75db3e036b9f4e7cfca6462037c021  0
+  d6rf4_extract_endpoint.py                     6285  c5aace65e1830fddace55e1bac2761c9  0
+  d6rf4_fd_endpoint.py                         26445  06ac0a171bde0ac3b17192f1819fa0ca  0
+  d6rf4_finiteness_mutation.py                 27869  8aeaf30a9a3e177c406ad235c5e2c54e  0
+  d6rf4_fvSolution_D6RF3_ORIGINAL               1800  9e2669956be778acf7e7d8aa67a90ff6  
+  d6rf4_fvSolution_TIGHT                        6101  0ac5bd00c63b9109d22a8e73b0795aa4  
+  d6rf4_grade.py                              155261  4085f678997ef6abe45c6946abd0626e  0
+  d6rf4_grade_drive.py                         16065  329d8a49478288e2c2c6cd9582074847  0
+  d6rf4_instrument_table_extraction.py         16295  957b2d3f396de8b25ce02482a67a441e  0
+  d6rf4_instrument_table_extraction.txt        13431  da90b1038a5c06b87b65c83f88f6548e  
+  d6rf4_opt_runScript.py                       13122  137539e0a99be27f27fdb69e063b2a87  0
+  d6rf4_run_arm.sh                             73680  db0f4d390beb58309eef4efaba33040d  
+  d6rf4_units_assert.py                        18270  8ee53841aed3dfd10f2cf414be39518a  0
+
+=== THE FROZEN SET, AND THE GIT BLOB BESIDE THE DISK ===
+  `d6rf4_grade.py:freeze_check` REFUSES (exit 2) unless disk == the committed blob at HEAD for every row below.
+  A row reading `NOT IN HEAD` is a file this item EXECUTES that is not committed yet, which is what the freeze commit fixes.
+  PREREGISTRATION.md                                             disk 62907272c2690cb0b1c7d3473d70814b  HEAD 62907272c2690cb0b1c7d3473d70814b  AGREE
+  d6rf4_grade.py                                                 disk 4085f678997ef6abe45c6946abd0626e  HEAD NOT IN HEAD  PENDING COMMIT
+  d6rf4_cd_plant_control.py                                      disk 1521411eac85e831595b5e11adce1e99  HEAD NOT IN HEAD  PENDING COMMIT
+  d6rf4_accept_floor_control.py                                  disk 196d0fc510526036af5edd336db3a155  HEAD NOT IN HEAD  PENDING COMMIT
+  d6rf4_endpoint_locus.py                                        disk 341189ca866f302a7e1bba8eefad3a57  HEAD NOT IN HEAD  PENDING COMMIT
+  d6rf4_endpoint_physical.py                                     disk ca75db3e036b9f4e7cfca6462037c021  HEAD NOT IN HEAD  PENDING COMMIT
+  d6rf4_extract_endpoint.py                                      disk c5aace65e1830fddace55e1bac2761c9  HEAD NOT IN HEAD  PENDING COMMIT
+  d6rf4_fd_endpoint.py                                           disk 06ac0a171bde0ac3b17192f1819fa0ca  HEAD NOT IN HEAD  PENDING COMMIT
+  d6rf4_anchor_gate.py                                           disk f5a5216a557ff8c34ac084c96feabc39  HEAD NOT IN HEAD  PENDING COMMIT
+  d6rf4_opt_runScript.py                                         disk 137539e0a99be27f27fdb69e063b2a87  HEAD NOT IN HEAD  PENDING COMMIT
+  d6rf4_units_assert.py                                          disk 8ee53841aed3dfd10f2cf414be39518a  HEAD NOT IN HEAD  PENDING COMMIT
+  d6rf4_finiteness_mutation.py                                   disk 8aeaf30a9a3e177c406ad235c5e2c54e  HEAD NOT IN HEAD  PENDING COMMIT
+  d6rf4_run_arm.sh                                               disk db0f4d390beb58309eef4efaba33040d  HEAD NOT IN HEAD  PENDING COMMIT
+  d6rf4_fvSolution_TIGHT                                         disk 0ac5bd00c63b9109d22a8e73b0795aa4  HEAD NOT IN HEAD  PENDING COMMIT
+  d6rf4_fvSolution_D6RF3_ORIGINAL                                disk 9e2669956be778acf7e7d8aa67a90ff6  HEAD NOT IN HEAD  PENDING COMMIT
+  d4_opt_runScript.py                                            disk 2906d52a5dbed2bacbaeaf85a37d3fe8  HEAD 2906d52a5dbed2bacbaeaf85a37d3fe8  AGREE
+  d6r_opt_runScript.py                                           disk 93edb4a231e13a7af065368f61a468ef  HEAD 93edb4a231e13a7af065368f61a468ef  AGREE
+  -> 14 of 17 frozen paths are not yet in HEAD
+
+=== THE DERIVATION LEDGER: parent -> derived, and the diff beside it ===
+  This family's practice: every instrument is written BY DERIVATION from
+  its parent with a *_DELTAS_from_*.diff beside it.  A ZERO-LINE diff is
+  a CLAIM -- `byte-identical carry` -- and it is asserted here against
+  the two md5s, so an empty diff can never be a FAILED diff read as an
+  identical one.  D6RF3's parent directory: /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF3
+  d6rf4_anchor_gate_DELTAS_from_d6rf3.diff               124 lines  parent e823689c15c2459097d0441e553f565c  derived f5a5216a557ff8c34ac084c96feabc39
+  d6rf4_cd_plant_control_DELTAS_from_d6rf3.diff           94 lines  parent 2808114c5c7214c9b8630b32b6ae357b  derived 1521411eac85e831595b5e11adce1e99
+  d6rf4_endpoint_locus_DELTAS_from_d6rf3.diff              0 lines  parent 341189ca866f302a7e1bba8eefad3a57  derived 341189ca866f302a7e1bba8eefad3a57  BYTE-IDENTICAL CARRY, asserted on both md5s
+  d6rf4_endpoint_physical_DELTAS_from_d6rf3.diff          90 lines  parent 750fb6336502ca5f71c954298e995f58  derived ca75db3e036b9f4e7cfca6462037c021
+  d6rf4_extract_endpoint_DELTAS_from_d6rf3.diff           59 lines  parent 7adc049421cce82f021603bbbe93dd1e  derived c5aace65e1830fddace55e1bac2761c9
+  d6rf4_fd_endpoint_DELTAS_from_d6rf3.diff               423 lines  parent 24586c9ab7f733cd2b642775aaf7fbe3  derived 06ac0a171bde0ac3b17192f1819fa0ca
+  d6rf4_fd_endpoint_SUBSTANTIVE_after_rename.diff        370 lines  parent -  derived 06ac0a171bde0ac3b17192f1819fa0ca  (rename-stripped view; no parent file)
+  d6rf4_finiteness_mutation_DELTAS_from_d6rf3.diff       259 lines  parent 6d9e135955e34cfe91e023e816f93a49  derived 8aeaf30a9a3e177c406ad235c5e2c54e
+  d6rf4_fvSolution_DELTAS_from_d6rf3.diff                 80 lines  parent -  derived 0ac5bd00c63b9109d22a8e73b0795aa4
+  d6rf4_grade_DELTAS_from_d6rf3.diff                    1765 lines  parent 639d23c4cfea45187561604001c21b44  derived 4085f678997ef6abe45c6946abd0626e
+  d6rf4_grade_SUBSTANTIVE_after_rename.diff             1744 lines  parent -  derived 4085f678997ef6abe45c6946abd0626e  (rename-stripped view; no parent file)
+  d6rf4_opt_runScript_DELTAS_from_d6rf3.diff               0 lines  parent 137539e0a99be27f27fdb69e063b2a87  derived 137539e0a99be27f27fdb69e063b2a87  BYTE-IDENTICAL CARRY, asserted on both md5s
+  d6rf4_run_arm_DELTAS_from_d6rf3.diff                   887 lines  parent 58684b91f6aced35f500fc947517a8e4  derived db0f4d390beb58309eef4efaba33040d
+  d6rf4_run_arm_SUBSTANTIVE_after_rename.diff            596 lines  parent -  derived db0f4d390beb58309eef4efaba33040d  (rename-stripped view; no parent file)
+  d6rf4_units_assert_DELTAS_from_d6rf3.diff               38 lines  parent 885ce236ed20d4be0337f4382346500a  derived 8ee53841aed3dfd10f2cf414be39518a
+  -> every DELTAS diff agrees with the md5s of the pair it describes
+
+=== WHAT EACH SOURCE REFERENCES (the derivation itself, shown) ===
+  d6rf4_accept_floor_control.py          -> (nothing)
+  d6rf4_anchor_gate.py                   -> d6r_opt_runScript.py d6rf4_fd_endpoint.py d6rf4_opt_runScript.py
+  d6rf4_cd_plant_control.py              -> (nothing)
+  d6rf4_endpoint_locus.py                -> d6r_opt_runScript.py
+  d6rf4_endpoint_physical.py             -> d6rf4_endpoint_locus.py d6rf4_extract_endpoint.py d6rf4_opt_runScript.py
+  d6rf4_extract_endpoint.py              -> d6rf4_extract_endpoint.py
+  d6rf4_fd_endpoint.py                   -> d6rf4_opt_runScript.py
+  d6rf4_finiteness_mutation.py           -> d6rf4_grade.py d6rf4_opt_runScript.py
+  d6rf4_grade.py                         -> PREREGISTRATION.md d4_opt_runScript.py d6r_opt_runScript.py d6rf4_accept_floor_control.py d6rf4_anchor_gate.py d6rf4_cd_plant_control.py d6rf4_endpoint_locus.py d6rf4_endpoint_physical.py d6rf4_extract_endpoint.py d6rf4_fd_endpoint.py d6rf4_finiteness_mutation.py d6rf4_fvSolution_D6RF3_ORIGINAL d6rf4_fvSolution_TIGHT d6rf4_grade.py d6rf4_opt_runScript.py d6rf4_run_arm.sh d6rf4_units_assert.py
+  d6rf4_grade_drive.py                   -> d4_opt_runScript.py d6rf4_finiteness_mutation.py d6rf4_fvSolution_D6RF3_ORIGINAL d6rf4_fvSolution_TIGHT d6rf4_grade.py d6rf4_opt_runScript.py
+  d6rf4_instrument_table_extraction.py   -> d6rf4_cmd.sh d6rf4_fvSolution_D6RF3_ORIGINAL d6rf4_fvSolution_TIGHT d6rf4_grade.py d6rf4_instrument_table_extraction.txt
+  d6rf4_opt_runScript.py                 -> (nothing)
+  d6rf4_run_arm.sh                       -> d6rf4_anchor_gate.py d6rf4_cmd.sh d6rf4_endpoint_locus.py d6rf4_endpoint_physical.py d6rf4_extract_endpoint.py d6rf4_fd_endpoint.py d6rf4_fvSolution_D6RF3_ORIGINAL d6rf4_fvSolution_TIGHT d6rf4_opt_runScript.py d6rf4_units_assert.py
+  d6rf4_units_assert.py                  -> d4_opt_runScript.py d6rf4_endpoint_locus.py d6rf4_opt_runScript.py
+
+=== NOTHING REFERENCED IS ABSENT ===

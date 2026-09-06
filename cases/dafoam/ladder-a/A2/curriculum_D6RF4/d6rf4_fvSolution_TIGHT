@@ -1,0 +1,111 @@
+/*--------------------------------*- C++ -*---------------------------------*\ 
+| ========                 |                                                 | 
+| \      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           | 
+|  \    /   O peration     | Version:  v1812                                 | 
+|   \  /    A nd           | Web:      www.OpenFOAM.com                      | 
+|    \/     M anipulation  |                                                 | 
+\*--------------------------------------------------------------------------*/ 
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// ==========================================================================
+// D6RF4 -- THE TIGHTENED LINEAR-SOLVER STOPPING RULE.
+//
+// DERIVED FROM d6rf4_fvSolution_D6RF3_ORIGINAL (md5 9e2669956be778acf7e7d8aa
+// 67a90ff6), which is BYTE-IDENTICAL to the file D6RF3's F_mp arm actually
+// ran.  The deltas are in d6rf4_fvSolution_DELTAS_from_d6rf3.diff beside it.
+//
+// THE BRIGHT LINE, AND EVERY LINE BELOW IS ON THE LEGAL SIDE OF IT.
+// primalMinResTol (1e-08) and primalMinResTolDiff (1000) DO NOT APPEAR IN
+// THIS FILE and DO NOT MOVE ANYWHERE IN THIS ITEM: the accept floor stays
+// 1.0e-05.  Tightening a stopping rule makes the solve HARDER at an unchanged
+// bar; loosening the acceptance bar would be widening a gate to fit, and is
+// forbidden here and escalated to Sanaa unruled.  EVERY EDIT BELOW IS IN THE
+// STRICTLY-HARDER DIRECTION -- each one can only cause MORE work per outer
+// iteration, never less.
+//
+// WHAT IS *NOT* TOUCHED, AND WHY THE OMISSIONS ARE DELIBERATE:
+//   relaxationFactors  -- a relaxation change moves the fixed-point ITERATION,
+//                         not its stopping tolerance.  It would make D6RF4 a
+//                         different case rather than a better-converged one,
+//                         which is exactly what G-SOLN exists to detect.
+//   potentialFlow      -- initialiser only; it does not set the plateau.
+//   maxIter            -- DELIBERATELY NOT ADDED.  S1's reaching case carries
+//                         maxIter 200; an iteration cap can TRUNCATE a solve,
+//                         which is the silent-discard shape DAFOAM_CHARTER.md
+//                         section 18.7 legislates against, and the `Phi` block
+//                         would inherit it through `$p`.  Cost is bounded by
+//                         this item's cap and deadline instead.
+//
+// THE MEASUREMENT EVERY EDIT IS SIZED FROM.  D6RF3 F_mp, Time = 1000, log
+// /home/ubuntu/certonomous-runs/CURRICULUM-D6RF3-a2-wing-multipoint-fd/
+// F_mp_20260905T222250Z_43793.log lines 2088-2096.  All six fields stopped at
+// EXACTLY their requested relTol, and `tolerance 0` means nothing else could
+// have stopped them:
+//     U0 0.0820   U1 0.0383   U2 0.0817   he 0.0439   p 0.0835   nuTilda 0.0447
+// The outer residual floor IS the inner stopping rule amplified.  p is the
+// binding field at 1.316218e-05 (1.3162x the 1.0e-05 accept floor) and
+// nuTilda is a SECOND binding field at 1.050444e-05 (1.0504x), so a repair
+// that fixes only p still fails -- which is why the smoothSolver block is
+// tightened as well as the GAMG one.
+// ==========================================================================
+
+SIMPLE
+{
+    nNonOrthogonalCorrectors           1;   // MEASURED: this mesh reports non-orthogonality Max 71.47582467 (log :1910) under Gauss linear corrected / snGrad corrected.  With 0 correctors the explicit correction is LAGGED one outer iteration, and a lagged term pins a fixed-point residual above zero.  1 solves p TWICE per outer iteration: strictly more work.  S1's reaching case carries 1.
+}
+
+solvers
+{
+    "(p|p_rgh|G)"
+    {
+        
+        solver                         GAMG;
+        smoother                       GaussSeidel;
+        relTol                         0.001;   // MEASURED one GAMG V-cycle achieves 0.083454 (p finalRes 1.098440e-06 / initRes 1.316218e-05).  ln(1e-3)/ln(0.083454) = 2.7815 -> 3 cycles.  100x tighter; S1's reaching case = 0.001.
+        tolerance                      1e-12;   // `0` means NO absolute tolerance can ever terminate an inner solve, so relTol alone set the plateau.  1e-12 is SEVEN decades below the 1.0e-05 accept floor, so it cannot be the binding stop at the level that matters.  S1's reaching case = 1e-12.
+        minIter                        5;   // NEW.  Forces at least five V-cycles even where relTol is met on the first, so a lazy early exit cannot re-create the plateau.  Strictly more work.  S1's reaching case carries minIter 5.
+    }
+    Phi
+    {
+        $p;
+        relTol                         0;
+        tolerance                      1e-6;
+    }
+    "(U|T|e|h|nuTilda|k|omega|epsilon)"
+    {
+        solver                         smoothSolver;
+        smoother                       GaussSeidel;
+        relTol                         0.001;   // MEASURED worst smoothSolver sweep, U0, achieves 0.081987 (1.132916e-08 / 1.381820e-07).  ln(1e-3)/ln(0.081987) = 2.7618 -> 3 sweeps.  THIS IS THE nuTilda REPAIR (section 1.5).
+        tolerance                      1e-09;   // same reasoning as p: `0` disables the absolute stop entirely.  1e-09 is FOUR decades below the accept floor.  S1 = 1e-09.
+        nSweeps                        3;   // the residual is tested every nSweeps.  At the measured per-sweep factor 0.081987 three sweeps is what relTol 1e-3 needs, so this changes WHEN convergence is tested, never the bar: the solver can only OVERSHOOT the requested reduction, never undershoot it.  Strictly >= the work of nSweeps 1.
+    }
+}
+
+relaxationFactors
+{
+    fields
+    {
+        "(p|p_rgh)"                    0.30;
+        rho 0.3;
+    }
+    equations
+    {
+        "(U|T|e|h|nuTilda|k|epsilon|omega)" 0.70;
+    }
+}
+
+potentialFlow
+{
+    nNonOrthogonalCorrectors           20;
+}
+
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

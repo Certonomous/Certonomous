@@ -1,0 +1,23 @@
+D6RF4 ACCEPT_FLOOR_UNMOVED -- DRIVEN IN BOTH DIRECTIONS
+  no `assert` statement appears in this file
+  registered  primalMinResTol=1e-08  primalMinResTolDiff=1000  accept_floor=1e-05
+  OK    direction 1  UNMUTATED     state=EXERCISED-PASS accept_floor_unmoved=True  reader_saw_the_plant=True  occurrences=3/3  original_unchanged=True
+  OK    direction 2  LOOSENED  diff 1000 -> 1e12   (accept floor 1.0e-05 -> 1.0e+04; this is the drift that would let D6RF3's own 1.316e-05 through) outcome=REFUSED   reason_is_ACCEPT_FLOOR_MOVED=True  moved=accept_floor_product,primalMinResTolDiff
+  OK    direction 2  LOOSENED  tol 1e-08 -> 1e-04  (accept floor 1.0e-05 -> 1.0e-01)                                    outcome=REFUSED   reason_is_ACCEPT_FLOOR_MOVED=True  moved=accept_floor_product,primalMinResTol
+  OK    direction 2  TIGHTENED diff 1000 -> 10     (accept floor 1.0e-05 -> 1.0e-07)                                    outcome=REFUSED   reason_is_ACCEPT_FLOOR_MOVED=True  moved=accept_floor_product,primalMinResTolDiff
+  OK    direction 2  TIGHTENED tol 1e-08 -> 1e-10  (accept floor 1.0e-05 -> 1.0e-07)                                    outcome=REFUSED   reason_is_ACCEPT_FLOOR_MOVED=True  moved=accept_floor_product,primalMinResTol
+  OK    direction 2  PRODUCT PRESERVED, BOTH TERMS MOVED  tol 1e-05 x diff 1 = 1.0e-05 -- the case a product-only check would WAVE THROUGH outcome=REFUSED   reason_is_ACCEPT_FLOOR_MOVED=True  moved=primalMinResTol,primalMinResTolDiff
+  OK    direction 3  BLIND READER  prefix_confusion__N_D43s_own_trap                    outcome=REFUSED   reason_is_PLANT_ACCEPT_FLOOR_with_reader_saw_the_plant_false=True
+  OK    direction 3  BLIND READER  first_DAOption_dump_only                             outcome=REFUSED   reason_is_PLANT_ACCEPT_FLOOR_with_reader_saw_the_plant_false=True
+  OK    direction 3  BLIND READER  ignores_its_argument__returns_the_registered_values  outcome=REFUSED   reason_is_PLANT_ACCEPT_FLOOR_with_reader_saw_the_plant_false=True
+  OK    direction 4  ABSENT LOG    state=NOT EXERCISED  accept_floor_unmoved=None  (reported, NEVER counted as a pass, NEVER inferred from the absence of a failure)
+  OK    direction 5  NO FLOOR IN THE LOG  outcome=REFUSED   reason_is_ACCEPT_FLOOR_READ_with_zero_occurrences=True  (an absent floor is UNMEASURED, never UNMOVED)
+  OK    direction 6  REAL D6RF3 CONTAINER LOG  state=EXERCISED-PASS tol=[1e-08] diff=[1000.0] floor=[1e-05] occurrences=3/3
+        source /home/ubuntu/certonomous-runs/CURRICULUM-D6RF3-a2-wing-multipoint-fd/F_mp_20260905T222250Z_43793.log (copied read-only; the evidence log is never planted into)
+  RESULT ALL DIRECTIONS AS REGISTERED  (1 unmutated pass, 5 planted drifts refused in BOTH senses, 3 blind readers refused, 1 NOT EXERCISED token, 1 absent-floor refusal, 1 real-log exercise)
+
+=== PROVENANCE ===
+driven 2026-09-06T02:27:20Z
+instrument d6rf4_accept_floor_control.py md5 196d0fc510526036af5edd336db3a155
+Python 3.12.3
+exit status 0 == every direction behaved as registered; this file IS that drive's stdout, unedited

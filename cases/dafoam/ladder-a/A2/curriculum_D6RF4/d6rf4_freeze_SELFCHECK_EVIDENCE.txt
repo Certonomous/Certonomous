@@ -1,0 +1,21 @@
+D6RF4 FREEZE SELF-CHECK -- no compute, no run root
+  null readings (DEF-8): 11 run-derived, 11 registered, coverage_complete=True
+  symbol identity: afc.read_accept_floor is the gate's accept-floor reader    True
+  symbol identity: afc.run_floor_control defaults to that same reader         True
+  symbol identity: cdc.read_cd is the gate's CD reader                        True
+  symbol identity: cdc.run_cd_control defaults to that same reader            True
+  symbol identity: the accept floor this file grades against IS the instrument's True
+  section 18.3 extraction: 13 referenced, existence asserted first=True, absent=[], unfrozen=[]
+    imported local modules : d6rf4_accept_floor_control.py d6rf4_cd_plant_control.py d6rf4_endpoint_locus.py d6rf4_finiteness_mutation.py
+    executed/named scripts : d4_opt_runScript.py d6rf4_accept_floor_control.py d6rf4_anchor_gate.py d6rf4_cd_plant_control.py d6rf4_endpoint_locus.py d6rf4_endpoint_physical.py d6rf4_extract_endpoint.py d6rf4_fd_endpoint.py d6rf4_finiteness_mutation.py d6rf4_grade.py d6rf4_opt_runScript.py d6rf4_run_arm.sh d6rf4_units_assert.py
+  FROZEN_PATHS (17): PREREGISTRATION.md d6rf4_grade.py d6rf4_cd_plant_control.py d6rf4_accept_floor_control.py d6rf4_endpoint_locus.py d6rf4_endpoint_physical.py d6rf4_extract_endpoint.py d6rf4_fd_endpoint.py d6rf4_anchor_gate.py d6rf4_opt_runScript.py d6rf4_units_assert.py d6rf4_finiteness_mutation.py d6rf4_run_arm.sh d6rf4_fvSolution_TIGHT d6rf4_fvSolution_D6RF3_ORIGINAL d4_opt_runScript.py d6r_opt_runScript.py
+D6RF4 CAP / DEADLINE REACHABILITY -- ranks=4 frame_allowance_s=90
+  P_conv   cap   54.00 core-min x 60 / 4 ranks =    810.0 wall s
+           TMO     720 s + frame 90 s          =    810.0 wall s   residual +0.0e+00 s
+           max spend at TMO = 720 x 4 / 60 =   48.00 core-min  (cap headroom 6.00)
+           predicted   17.90 core-min  <= cap 54.00 : OK
+  TOTAL predicted 17.90 core-min against ceiling 54.0 core-min
+
+=== PROVENANCE ===
+run 2026-09-06T02:27:21Z  grader md5 4085f678997ef6abe45c6946abd0626e
+exit status 0 for both --freeze-selfcheck and --cap-arithmetic
