@@ -39,3 +39,33 @@ her message:
 
 Standing constraints unchanged: SUBMISSIONS PARKED, permanent privacy,
 no permission laundering, all work through the lab's law.
+
+## ADDENDUM (2026-09-06, ~21:00Z) — m0 box-wide-kill: repair, not retire
+
+## Sanaa's words, verbatim
+
+> yes agreed lets do 1
+
+(In answer to the chief's two options for the run_r2_m0.sh box-wide kill:
+option 1 = repair the pkill scope; option 2 = retire the m0 driver.)
+
+## Context (chief's reading, not her words)
+
+- **Option 1 chosen**: repair `run_r2_m0.sh`'s EXIT-trap `pkill -f
+  "rhoSimpleFoam -parallel"` (:83,85) to a `-case $ROOT`-scoped kill,
+  matching the already-safe sibling `run_r2_m1.sh`. m0's landed GATE FAIL
+  verdict is untouched; the driver is not retired.
+- **Route**: cfd owns the file (committee-grids); the driver is FROZEN
+  (committed, worktree==HEAD sha256 cb810bb5...), so the in-place edit is a
+  rule-6/§2d.1 amendment that VERIFICATION rules, not a lane edit.
+- **Forced-repair test (§2av)**: the correct scoping is forced — one right
+  answer exists (the sibling's `-case $ROOT` form) — so it has no degrees of
+  freedom pointing at any verdict, which is the ground on which the amendment
+  is grantable. m0 already reached first compute (it ran and graded), so
+  §2ax does NOT apply and this is a genuine post-compute §2d.1 amendment, not
+  a pre-compute one — the burden is the full four conditions, and the repair
+  must not touch any gate, threshold, cap, label, or the graded verdict.
+- **The census fact that motivates it**: the box-wide idiom FIRED once
+  (2026-09-06 09:09Z, daemon-run), foreign blast radius unmeasured and
+  unknowable; the repair closes it for good and protects the pattern from
+  being copied unscoped.
