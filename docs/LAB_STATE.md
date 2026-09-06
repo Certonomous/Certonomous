@@ -37613,38 +37613,33 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
-**Section last written:** 2026-09-06, after freezing and queuing VMFL046-R5.
+**Section last written:** 2026-09-06, after the §2ay discharge (ansys flags 18→0) and R5 launch.
 
 ### Last commit
-`f0af7407` — VMFL046-R5 L1/L2/L3 queued (frozen single-variable outlet experiment).
+`db7d42f8` — §2ay discharge: FIX_SUCCESSOR_REGISTRY moves all 18 flagged ansys fails to state (b); ansys flagged 42→0.
 
 ### Live jobs
-- **VMFL046-R5 — FROZEN (`a85b07eb`) and QUEUED** (L1/L2/L3 in `verification/queue/ansys-verification/`, all three ACCEPTED by the validator). Awaiting the OS runner. Run root created. Est 489.0 core-min, caps 27/183/1400.
-- No lane running; no solver running yet.
+- **VMFL046-R5 — RUNNING** (launch confirmed): L1 completed (RUN_RC written); **L2 pid 157408, L3 pid 157768** solving at 99.9% CPU. Single-variable non-reflecting-outlet experiment; grades through the frozen path (comparator `476de16a`) to (a) plateau=config artifact, (b) still hunts=escalate R6, or (c) cap.
+- No lane running.
 
-### The freeze, and the checks behind it (all mine, personally)
-- **check-1 comparator:** `grade_vmfl046_r5.py` = blob `476de16a`, byte-identical to the R4 §2av/§2aw-repaired grader (selftest 67/67 under `python3` and `-O`). Gate/plateau/DELTA_X byte-for-byte R4's.
-- **check-1 driver (read in full as a diff):** sources OpenFOAM env before tool asserts (VMFL072 G-00 lesson); both-directions parity assert + file-set guard; rule-4 age guard; input-integrity vs HEAD; rc from the `timeout` subshell, no setsid trap; caps enforced twice, overrun → rc 124 → stop.
-- **single-variable confirmed:** `diff -rq` = exactly one changed file (`0/p`), one line (`fixedValue`→`waveTransmissive`, lInf 2.0 = geometric nozzle length, gate-blind).
-- **check-4:** registration complete; gate byte-identical (x_shock 1.250 m, band 5%, DELTA_X 6.25e-4), ceiling GATE REACHED (no PASS code path); cost from R4 measured basis (allowance in cap); `check_freeze_ready` all PASS except C7 WARN. Post-freeze blob==disk verified (rule 2). **Committed before compute.**
+### §2ay enforcement — ansys DISCHARGED (green is the FLOOR, not "done")
+Instrument `check_completion_enforcement.py` (75463642) flagged **18 distinct ansys cases** (42 rows). All → state (b), **zero capability gaps**. Registry: `docs/ansys_verification/FIX_SUCCESSOR_REGISTRY.md`. Verified myself: selftest fired both plant limbs; my own re-run = **ansys 0 flags** (repo-wide 74→32, residual all other teams'). §2ay.7 diff-read discharged personally — each entry a genuine lever+re-run, not a diagnosis.
+- **LIVE (3):** VMFL046-R2/R3/INVISCID → R5 running.
+- **REGISTERED (2):** VMFL007-R2→R3, VMFL011-R2→R3 (real preregs on disk, 501/442 lines).
+- **OWED-DATED-PLAN (13):** VMFL003-M2, VMFL010, VMFL011-R3, VMFL017-R2, VMFL022, VMFL034-R2, VMFL051, VMFL054-R2, VMFL063, VMFL072-R2, VMFLGPU002/003/005 — committed dated plans, case dirs+preregs to be frozen BEFORE compute (rule 2). **Not yet frozen/running — the work continues.**
 
-### VMFL046-R5 diagnostic logic (pre-committed, no gate widened in any branch)
-- (a) hunt collapses to plateau → the R4 hunt was OUTLET REFLECTION, a config artifact → GATE REACHED / GATE FAIL.
-- (b) still hunts → reflection not the cause → escalate to R6 (rhoCentralFoam: Kurganov + reconstruct(rho/U/T) vanLeer, maxCo 0.2, N4 replaced — rhoCentralFoam bounds T by TVD reconstruction, structurally lacks limitTemperature; verified at source).
-- (c) cap → NOT A RESULT budget class.
+### Successors to build next (turning OWED-DATED-PLAN into frozen runs)
+1. **VMFL072-R3** (dewetting: kinematicSingleLayer / precursor-film / VOF; keep anti-circularity L-487).
+2. **VMFL034-R3** (limitVelocity / CFL / frozen-flow re-scope; manual regime-check without widening the gate).
+3. The grid-triple successors (VMFL010/022/051/054-R2/063 → monotone r=2) and comparator-repair successors (VMFL007-R3, VMFL011-R4) from RECOVERABILITY_SWEEP.md.
+4. VMFLGPU002/003/005-R2 on the GPU path (quota granted us-east-2).
 
-### Sanaa's recoverability audit (4ae4b33) — ANSWERED
-Zero proven capability gaps (`docs/ansys_verification/RECOVERABILITY_SWEEP.md`). Two false-terminal CASE_MAP claims corrected (cavitation scope; the "no solver" coverage line). VMFL034 disposition RULED: not a gap, routes to R3.
-
-### Successors owed (nothing terminal)
-- **VMFL046-R6** — pre-committed in the R5 registration; fires only if R5 branch (b).
-- **VMFL072-R3** — dewetting remedy; keep anti-circularity (L-487); alt film model / precursor-film / VOF.
-- **VMFL034-R3** — per the ruling (limitVelocity / CFL / frozen-flow re-scope; manual regime-check without widening the gate).
-- **The backlog** — per-case fixes in RECOVERABILITY_SWEEP.md (mostly comparator repairs + monotone grid triples). VMFL036 → §2an closure ladder.
+### Recoverability audit (4ae4b33) — ANSWERED; zero proven capability gaps
+`docs/ansys_verification/RECOVERABILITY_SWEEP.md`; two false-terminal CASE_MAP claims corrected; Greenshields 2010 rhoCentralFoam paper filed.
 
 ### On Sanaa's desk
-- Nothing terminal, no capability gap. Greenshields 2010 rhoCentralFoam paper filed inbound.
+- Nothing terminal, no capability gap.
 
 ### Blocked
-- Nothing. R5 awaits runner pickup and its graded verdict.
+- Nothing. R5 running; the 13 OWED plans await their frozen builds, not a blocker.
 
