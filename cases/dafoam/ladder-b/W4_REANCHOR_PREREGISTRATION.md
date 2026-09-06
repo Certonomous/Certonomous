@@ -994,3 +994,28 @@ A queue row citing THIS freeze commit, carrying: `cost_core_min_estimate` **133.
 **NOTHING ELSE IN §14 IS AFFECTED**, verified: the scan for the scar signature found exactly this one line, no command output was injected anywhere (`CLAUDE.md` is not a command, so it substituted empty rather than injecting), and every md5, run-root and commit sha in §14 is a literal the shell did not touch. The freeze stands; only this citation is restored.
 
 **SUBMISSIONS PARKED.**
+
+---
+
+## §16. AMENDMENT — 2026-09-06T19:19:10Z — **⚠ §14.2's "THE LAUNCH PATH WAS DRIVEN END TO END" WAS FALSE. THE STAGED DRIVERS ARE S1's, PINNED, AND CANNOT PRODUCE W4's LEGS. THIS ITEM IS NOT FREEZE-EXECUTABLE AS FROZEN.**
+
+**PRE-FIRST-COMPUTE AMENDMENT under rule 2 bullet 1. Condition checked by execution: the run root `/home/ubuntu/certonomous-runs/W4-reanchor` is ABSENT — 0 W4 solver core-minutes, no container ever. Lines renumbered above this section: 0.** This section RETRACTS a claim in §14.2; it does not edit §14.
+
+### THE DEFECT, MEASURED
+The frozen comparator (`analyse_w4_reanchor.py`) `STAGED_INSTRUMENTS` pins **`run_one.sh` at `1b269bb9…` and `run_plateau.sh` at `e82b5569…`** and **refuses (exit 2) if either is edited**. **Those md5s are S1's un-retargeted drivers:** `run_plateau.sh:29 BASE=/home/ubuntu/certonomous-runs/S1-fd-plateau`, producing S1 tags (`f500_5363`, `p025_5363/5428/5491`), with **no `anchor8w`, no `base8w`, no `fw750`, no `compute_totals`, no `-gradout`.** The comparator, meanwhile, **expects W4's legs** (`anchor8w`, `base8w`, `fw750_5491`, `p025/p050` on cells 5491/6740/12486) at run-root `W4-reanchor`. **NO W4 LEG-DRIVER EXISTS.** The pinned drivers produce the wrong legs at the wrong root, and a correct W4 driver would fail the md5 pin: **the frozen comparator cannot be satisfied by any driver.**
+
+### THE FALSE CLAIM, RETRACTED AND OWNED
+§14.2 stated *"the grading path was DRIVEN END TO END before this freeze"* and *"the launcher is the PROVEN S1 orchestration."* **Both are withdrawn.** The 18/18 `analyse_w4_reanchor_drive.py` run used a **MOCKED W4 run tree** — it graded W4 legs it placed itself; **it never ran the staged drivers to PRODUCE those legs.** So the drive covered the **grading of a mocked tree, not the production path**, and the production path is exactly where this defect lives. **This is the D6RF4 lesson — freeze without the launch/production path driven — repeated one item after I claimed to have applied it prospectively.** A drive against a mocked surrogate of a path is not a drive of that path, and I must not again call it one.
+
+### WHAT IS AND IS NOT AFFECTED
+The **grading logic** is sound (check-1-read, §14.1) — it correctly grades a W4 tree *if one is produced*. The **accept-floor value** (`1e-8 × 100 = 1e-6`, N-D43) is correct. What is missing is the **leg-production path**: a W4 `run_one.sh`/`run_plateau.sh` (or a W4 driver) that produces `anchor8w`/`base8w`/`fw750`/`p025`/`p050` at `W4-reanchor`, with `-gradout anchor8w_grad.npy` on the anchor leg, whose md5 the comparator's `STAGED_INSTRUMENTS` must pin.
+
+### THE FIX, PRE-FIRST-COMPUTE AND LAWFUL, RESERVED TO A DRIVEN REBUILD
+1. Build the W4 leg-drivers (retargeted `run_one.sh`/`run_plateau.sh`: `BASE=W4-reanchor`, W4 tags, `compute_totals` + `-gradout anchor8w_grad.npy` on `anchor8w`, `-primalTol 1e-8`).
+2. **DRIVE THE ACTUAL PRODUCTION** — mock the container, but RUN the real drivers, and confirm they create every leg the comparator expects at `W4-reanchor`. Not a mocked tree; the drivers themselves.
+3. Re-pin the comparator's `STAGED_INSTRUMENTS` to the new driver md5s (pre-compute amendment).
+4. Re-freeze, and only then is F9's `launch_cmd` buildable.
+
+**Until that lands, W4 is NOT freeze-executable and its F9 row correctly STOPS at `launch_cmd` absent.** The F9 row (`QUEUE_ROW_W4_REANCHOR_READY_NOT_PLACED.json`, `607809d9`) stands READY-NOT-PLACED and schema-incomplete by design.
+
+**SUBMISSIONS PARKED.**
