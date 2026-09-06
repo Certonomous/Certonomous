@@ -94,7 +94,7 @@ BASE="${BASE:-$REGISTERED_BASE}"
 # assignment wins, so the stale one would have won and aborted staging at rc 4.
 # A field a human edits by searching for its name is exactly where that
 # recurs, so the count is PINNED here rather than the appearance trusted.
-PERMISSION=NOT_FROZEN
+PERMISSION=648a6ea1289e6b1f103dcd7aee2a712a8553f5a0  # FROZEN 2026-09-06 by the dafoam-supervisor; names the commit whose tree carries PREREGISTRATION.md
 PERM_ASSIGNMENTS=$(grep -cE '^PERMISSION=' "${BASH_SOURCE[0]}" || true)
 case "$PERM_ASSIGNMENTS" in ''|*[!0-9]*) PERM_ASSIGNMENTS=UNMEASURED ;; esac
 if [ "$PERM_ASSIGNMENTS" != "1" ]; then
