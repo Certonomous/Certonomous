@@ -5544,7 +5544,31 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-06T23:06:26Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+**Section last written:** 2026-09-06T23:07:49Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+
+### S-107 — 2026-09-06T23:07:49Z — **SWEEP AUDIT, SANAA'S-BAR DISPOSITION: NO CLEAN (d) CAPABILITY GAP. Most fails are (a) already-fixed or (b) fix-named-on-record; only THREE are (c) unfinished; ONE genuine FD-gap is HYPOTHESIZED and W4-reanchor is its LIVE test.**
+
+**Applying 4ae4b33 to every failure, read strictly from each record (an unproven "unrecoverable" is (c), never (d)):**
+
+**(a) FIX TRIED & RECORDED (done or fixing):** D15/D16, SO1a/SO1aR (rotation patch → PATCHED `PASS`); D1 (patched toolchain `PASS`); **D10→D10-P′ `GATE REACHED`**; SO1c→SO1cR `PASS`; D7/D7R→**D7FR `PASS`**; S1 inversion→reinversion G1 `PASS` (−74.2%); D6R→D6RG; SO3a→SO3aR; B3 (empty-patch + internalField config fixes tried, adjoint conditioning residual); D3 Stage-G patched `PASS`.
+
+**(b) FIX OWED, SPECIFIC & NAMED ON RECORD (the bulk — the fixes exist, unrun):** D6RF4 (*"a different numerical approach — nuTilda's own convergence, or more correctors — NEVER a looser floor"* → research LIVE, `a7327ac`); **D9** (a new frozen sweep with a **mesh-quality constraint** — it terminated at maxNonOrth 80.93 vs 70); D6RF3 (arm priced at 155.70 for a successor); D12R/W3 → **W4-reanchor LIVE**; S1_FD_PLATEAU → W4-reanchor; **S1_FIML** (model patch, docket `w3-beta-on-omega-destruction-model-patch`; upstream `mesh.warpDeriv` sign-flip named); S1 weighted/G2 (**S1_PRIORS prereg exists, unrun**); D4 (**D4_DEF4_REPAIR prereg** + run arm F); SO2M/SO3aR/SO3D (successors named); MAAOA (reader repair `maaoa_read.py`); W4 O2/O3 (memory ceiling — **Sanaa's to unblock**); A1WRT2-SEAM→A1WRT3; A1WR-stage12 instrument-defect ground.
+
+**(c) NEITHER — UNFINISHED BY HER BAR, and this is the bucket that owes assignment (3):**
+- **D2 (AB2)** `GATE FAIL` — design-point disagreement 33.259%, explained as a flat-valley non-unique optimum but **no specific fix named, no gap proven.** (Nuance: may be a genuine scientific finding — non-unique optimum — so whether it owes work is a supervisor/Sanaa call; by the strict rubric it is (c).)
+- **SO3DR** `GATE FAIL` — dose-response refuted (39.7× multipoint elevation measured), *records it "so the supervisor can decide whether a successor gate is warranted"* — **a question to me, not a committed fix.** OWES MY §7 RULING.
+- **A1WR-stage12, the G-YPLUS physics ground** — y+max 4.98 at α=8 on arm C, **no wall-refinement fix named** (its instrument-defect ground is (b); this physics ground is (c)).
+
+**(d) PROVEN CAPABILITY GAP — NONE.** FADR is the only measured capability-failure (DAFoam's own forward-AD regression fails in its shipped image) but the record frames it as a **toolchain finding with an upstream fix path (NOT FILED)** → kept (b), surfaced for Sanaa's ruling; not upgraded to (d) on lane reasoning.
+
+**⚠ THE ONE GENUINE-GAP HYPOTHESIS IN THE WHOLE SET, AND IT IS BEING TESTED LIVE:** D12R's record states *"D12 MAY BE A CASE WHERE THE FD BRIGHT LINE CANNOT BE CROSSED AT ALL — that would be a GENUINE capability gap"* — **explicitly "MAY BE," not proven.** W4-reanchor (LIVE) is the active test of exactly this on the S1 CBFS line. **So the single place a real OpenFOAM/DAFoam capability gap is even hypothesized is the unsteady/field-inversion FD-bright-line, and the lab is measuring it right now rather than asserting it.**
+
+**FOR SANAA (completion-audit headline):** nothing in dafoam is a proven capability gap; the sweeps are either finished-to-a-defensible-verdict, already-fixed, fix-named-and-owed (most, with preregs/docket items on record), or — for exactly three — unfinished and owing assignment; and the one gap-hypothesis is under live test. Her law's "keep fixing until it runs or prove the gap" is already the recorded posture; what it newly demands is that the (b) named fixes get RUN and the three (c) items get a fix named. **Inbound research mandated; outbound (FADR upstream, closure-challenge) PARKED — Sanaa's alone.**
+
+**MY IMMEDIATE OWED ACTIONS from this:** rule SO3DR §7; the D6RF4 research → D6RF5; and treat the (b) preregs (D9 mesh-constraint, D4_DEF4, S1_PRIORS) as the runnable backlog under her law.
+
+**Runs live: W4-reanchor (watched). Blocked: nothing of mine. SUBMISSIONS PARKED.**
+
 
 ### S-106 — 2026-09-06T23:06:26Z — **SWEEP-COMPLETION AUDIT FOR SANAA: measured from disk. THE HEADLINE UNDER 4ae4b33 — NOT ONE dafoam SWEEP IS A PROVEN OpenFOAM CAPABILITY GAP. Every fail is RECOVERED, a WAYPOINT owing a specific fix, or blocked-on-a-decision.**
 
