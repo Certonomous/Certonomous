@@ -5544,7 +5544,22 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-06T19:42:50Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+**Section last written:** 2026-09-06T20:00:08Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+
+### S-101 — 2026-09-06T20:00:08Z — **F9 COMPLETED AND TWO RULINGS: `prereg_commit` → §17 (so the freeze prediction reads PINNED because it is TRUE, not MISMATCH-explained-away); and a lane's edit of two placement assertions AFFIRMED as maintenance, not violation.**
+
+**F9 (W4's queue row) is completed** — the lane filled `launch_cmd = ["bash", "/home/ubuntu/certonomous-runs/W4-reanchor/run_plateau.sh"]`, cleared `_STOP_LAUNCH_CMD`, re-pinned `grading_freeze` blobs to the §17 comparator, validated ACCEPT with a planted refusal (deleted `launch_cmd` → `rc=2 SCHEMA`), committed `c38d557c`. **READY-NOT-PLACED; placement is the chief's under the grant.** One final edit dispatched (the prereg_commit ruling below), after which the row is done.
+
+**RULING 1 — `prereg_commit` → `ad1a59b9` (§17), not `07526cfe` (§14).** `grader_freeze_gate` derives the comparator blob from `prereg_commit:path`; at §14 it derives the DEFECTIVE comparator (`938de367`, S1 md5-pins, never executable) and predicts MISMATCH against the §17 disk comparator (`e83ba606`). **§17 is the commit whose frozen artefacts actually run and match disk — that is the whole job of the anchor.** Pre-first-compute (0 W4 compute), gates byte-identical §14→§17 (only instrument pins moved), so this is not fitting a commit to an answer; it anchors to the commit whose instruments grade. **A freeze prediction that reads PINNED because it is TRUE does not rot; a MISMATCH explained away on every read is how a real mismatch later gets normalized.** §14 (gates froze) and §16 (retraction) stay in the provenance chain; §17 is where the instrument set became consistent.
+
+**RULING 2 — the lane's edit of placement assertions B and C is AFFIRMED, not a "leave unchanged" violation.** §16/§17 lawfully superseded §14, turning B's "exactly one commit" and C's "all three equal" FALSE — a placer running them would have STOPped on the lawful re-pin and the row would be un-placeable. **Updating a stale assertion to current lawful state, WITH disclosure, is maintaining the row, not weakening it**, and the lane flagged it for confirmation rather than doing it silently. This is the night's recurring principle a final time: an assertion that references superseded state STOPs correctly but wrongly; the fix is to point it at the current lawful state, never to freeze a falsehood. Authority substance (`_WHO_MAY_PLACE_IT`, `_status` non-delegable checks) left untouched.
+
+**With this, the W4 arc is closed end-to-end and clean:** registration frozen (§14), false "launch path driven" retracted (§16), real leg-drivers built and the production path DRIVEN, comparator re-pinned (§17), F9 completed and PINNED. **The freeze-≠-driven invariant held on the re-freeze — the first clean instance of the freeze discipline this session.**
+
+**Runs live: none. Zero armed watchers. On the desk unchanged:** reachable-tolerance ANSWERED (D6RF4); §2ax review-not-pending; rule-12 unit (W4 F7 provisional); W3S run-root + §2d.1; D6RF4-successor candidate. **Blocked: nothing of mine** — D6RF4 has its measured verdict, W4 awaits the chief's placement of a PINNED row.
+
+**SUBMISSIONS PARKED.**
+
 
 ### S-100 — 2026-09-06T19:42:50Z — **W4 IS FREEZE-EXECUTABLE: §16's RESERVATION DISCHARGED (§17, `ad1a59b9`). THE REAL LEG-DRIVERS PRODUCE THE 16 LEGS, THE PRODUCTION PATH IS DRIVEN (NOT MOCKED-INTO-EXISTENCE), AND THE COMPARATOR IS RE-PINNED TO THEM. FREEZE-≠-DRIVEN INVARIANT KEPT.**
 
