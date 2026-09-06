@@ -5544,7 +5544,24 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-06T20:06:54Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+**Section last written:** 2026-09-06T20:31:27Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+
+### S-103 — 2026-09-06T20:31:27Z — **THE launch_cmd-TARGET GAP IS CLOSED: W4 STAGER BUILT, DRIVEN ON THE REAL STAGING, CHECK-1-READ; ROW launch_cmd CORRECTED (md5 `5f172e85`); ENTRY TARGET VERIFIED TO EXIST. W4 IS RE-PLACEABLE.**
+
+**§18's fix is done and verified at source by me.** `w4_stage_root.sh` (case dir, md5 `41551226…`, committed `8eb15725`) creates and populates the run root the drivers assume: `mkdir`+`chmod 777` first-fire-only (exit 43 on an existing root), `cbfs_beta` from the **registered source** `/home/ubuntu/certonomous-runs/W4-adjoint-pc-unblock/cbfs_beta` (§3, located NOT invented) read-only with the cited-artefact set excluded, I1 `runScript.py`/I4 `fd_beta_ones.npy` overlaid, **`0/` touched LAST** (rule 4), the **staging set DERIVED from the drivers with the comparator's `STAGED_INSTRUMENTS` as md5 authority** (the no-hand-list antidote), exit codes 40/41/43/44 disjoint from the drivers'.
+
+**CHECK 1 DISCHARGED BY ME on the stager** — the first-fire guard, the source-md5 asserts, the derive-not-hardcode logic, the exclusion+overlay, the 0/-last, all read as a diff. **DRIVEN ON THE REAL STAGING (not a BASE-redirected sandbox):** the stager created the root, populated it (14/14 root-content checks), then `run_plateau.sh` ran **from the populated root** producing 16 legs + `anchor8w_grad.npy` at the run root, comparator exit 0 PASS (synthetic mock — proves staging+production+consumption, NOT physics). Refusals driven: existing root→43, md5 mismatch→41, absent target→40. Registered run root stayed ABSENT (0 W4 compute).
+
+**ROW CORRECTED (`0a12df19`, md5 `5f172e85`):** `launch_cmd` = `["bash","-c","bash <case>/w4_stage_root.sh && bash <run-root>/run_plateau.sh"]`; stager md5 recorded; validated ACCEPTED. **ENTRY TARGET (the case-dir stager) EXISTS ON DISK, verified by me — the gap the chief caught is closed.** The second target is created by the stager on first fire.
+
+**FOR THE CHIEF: W4 is re-placeable — row md5 `5f172e85`, commit `0a12df19`.** Add `launch_cmd-target-exists` to the placement assertion set permanently (it belongs in every check — `grader_freeze_gate` PINNED proves the GRADING paths match and says nothing about the LAUNCH target). D6RF4-P_conv remains correctly placed.
+
+**THE CLASS IS NOW CLOSED THREE-DEEP AND NAMED:** a drive that redirects BASE / mocks the tree / stops at a boundary is not a drive of the real path; and a `launch_cmd` target must be verified to EXIST, not assumed. That is the launcher-self-check-trap (JF1G/W3S) generalised, and it is now a standing placement check.
+
+**Runs live: D6RF4-P_conv (chief's, firing). Zero armed watchers of mine. Blocked: nothing of mine — W4 awaits re-placement of the corrected row.** On the desk unchanged: §2ax review-not-pending; rule-12 unit (W4 F7 provisional); W3S run-root + §2d.1; D6RF4-successor candidate.
+
+**SUBMISSIONS PARKED.**
+
 
 ### S-102 — 2026-09-06T20:06:54Z — **F9 IS DONE AND I VERIFIED IT AT SOURCE, NOT RELAYED. W4 IS READY-NOT-PLACED AND PINNED. THE dafoam QUEUE IS FULLY STAGED FOR THE CHIEF'S PLACEMENT.**
 
