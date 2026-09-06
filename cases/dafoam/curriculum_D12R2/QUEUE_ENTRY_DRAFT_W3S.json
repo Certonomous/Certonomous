@@ -14,20 +14,39 @@
   "memory_floor_gb": 14.0,
   "enqueued_by": "dafoam-supervisor (NOT YET ENQUEUED -- this file is a PARKED DRAFT outside the live queue directory; the supervisor owns the SUPERVISION_CHARTER.md sec.3 check-4 record and the decision to place it)",
 
-  "_status": "PARKED DRAFT -- NOT ENQUEUED, NOT LAUNCHED. This file is deliberately NOT in verification/queue/dafoam/, because in that directory THE DROP IS THE LAUNCH (verification/queue/dafoam/README.md amendment 2026-09-01). Placing it today launches a process that aborts rc=70 in about one second: see _blockers.",
+  "_status": "PARKED DRAFT -- NOT ENQUEUED, NOT LAUNCHED. This file is deliberately NOT in verification/queue/dafoam/, because in that directory THE DROP IS THE LAUNCH (verification/queue/dafoam/README.md amendment 2026-09-01). B1 and B2 are now DISCHARGED by the supervisor, but B3 -- found 2026-09-06 and not previously on this list -- still aborts every leg at rc=70 in about one second. Placing the row today would spend the arming moment on a guaranteed failure and manufacture a NOT A RESULT row in LAUNCH_LOG.tsv. It is held until B3 is discharged BY THE SUPERVISOR.",
 
   "_blockers": {
     "B1_PREREG_COMMIT_EMPTY": {
-      "what": "w3s_chain_driver.sh:91 carries PREREG_COMMIT=\"\" on disk, at HEAD, and inside the freeze commit e1070c02 itself.",
-      "effect": "preflight_freeze() is the chain's first and unconditional action and returns 70 NOT_FROZEN. Proved by execution 2026-09-06T01:37:10Z: the chain printed ABORT NOT_FROZEN and exited 70 without starting any container.",
-      "repair_owner": "dafoam-supervisor. Recording the freeze sha in the driver is the freeze act itself (the driver's own comment at line 90 says the sha is recorded there IN THE FREEZE COMMIT). It is not a lane's edit, and it is the same class as the D6RF3 rename.",
-      "note": "The freeze section sec.13.1 item 5 asserts the pins were bumped in the freeze commit. Every md5 pin does agree with disk. The PREREG_COMMIT line is the one item of that checklist that did not land."
+      "state": "DISCHARGED 2026-09-06 BY THE dafoam-supervisor.",
+      "what": "w3s_chain_driver.sh:91 carried PREREG_COMMIT=\"\" on disk, at HEAD, and inside the freeze commit e1070c02 itself.",
+      "repair": "The supervisor filled it with e1070c022678efe3a27f6dc75391380225a30380 (now w3s_chain_driver.sh:110 after the 2026-09-06 header rewrite). No lane made this edit.",
+      "verified": "By execution: w3s_chain_driver.sh --preflight-only returns rc=0 and prints PREFLIGHT_ONLY OK. The driver's own selfcheck limb S1c independently confirms the live sha carries the pre-registration blob at that commit."
     },
     "B2_LAUNCH_ENABLED_ZERO": {
-      "what": "w3s_stage_and_run.sh:138 carries LAUNCH_ENABLED=0, and its header at line 5-6 states that NO LANE MAY RAISE IT.",
-      "effect": "Even past B1, every leg body is unreachable; the launcher prints NOT_LAUNCHING leg=<LEG> -- LAUNCH_ENABLED=0 at line 996 and starts no container.",
-      "repair_owner": "dafoam-supervisor, by the launcher's own text."
+      "state": "DISCHARGED 2026-09-06 BY THE dafoam-supervisor.",
+      "what": "w3s_stage_and_run.sh:138 carried LAUNCH_ENABLED=0, and its header states that NO LANE MAY RAISE IT.",
+      "repair": "The supervisor raised it to 1 as the enqueue act. The string LAUNCH_ENABLED=0 still occurs at lines 996 and 1006 and those are PROSE about the disabled state, deliberately untouched. No lane made this edit.",
+      "verified": "By execution: the launcher's --selftest drives the gate in BOTH directions against mutated copies of itself and both directions fire (see _control_repairs.C3)."
+    },
+    "B3_LAUNCHER_CARRIES_ITS_OWN_EMPTY_PREREG_COMMIT": {
+      "state": "OPEN. THIS IS THE SOLE REMAINING BLOCKER AND IT IS NEW ON THIS LIST.",
+      "what": "w3s_stage_and_run.sh:169 carries a SECOND, SEPARATE PREREG_COMMIT=\"\" -- distinct from the driver's, and it was not discharged when the driver's was. The launcher runs its OWN preflight_freeze on every leg, at w3s_stage_and_run.sh:984, AHEAD of the launch gate at :995.",
+      "effect": "Every leg the driver dispatches aborts NOT_FROZEN at rc=70, so the raised LAUNCH_ENABLED is never reached and no container starts. B1 and B2 being discharged does NOT make this item runnable.",
+      "measured_not_inferred": "By execution 2026-09-06T01:5xZ: `w3s_stage_and_run.sh --leg SETUP --root <scratch>` returned rc=70 printing ABORT NOT_FROZEN, and the scratch root was NEVER CREATED -- the refusal precedes even ledger_bootstrap. The real run roots were not touched by this probe.",
+      "repair_owner": "dafoam-supervisor, and ONLY the supervisor. That field's own comment reserves it in the same words the driver's did (\"Empty until `dafoam-supervisor` freezes the pre-registration and records the sha here, IN THE FREEZE COMMIT\"). CLAUDE.md rule 2 places the freeze before compute and SUPERVISION_CHARTER.md sec.3 check 4 makes the check non-delegable.",
+      "why_no_lane_took_it": "A lane that filled this field to make the chain run would be converting an instruction to 'get W3S running' into a freeze act -- the exact permission-laundering shape CLAUDE.md rule 9 forbids, and the same class of act as the two the supervisor reserved to themselves. The lane declined and reported instead.",
+      "the_one_line_repair": "Set PREREG_COMMIT=\"e1070c022678efe3a27f6dc75391380225a30380\" at w3s_stage_and_run.sh:169. NOTE: this changes the launcher's md5, so MD5_LAUNCHER in w3s_chain_driver.sh must be re-pinned IN THE SAME COMMIT (the D8R-DRIVER-DEF-1 rule the driver's own pin block states)."
     }
+  },
+
+  "_control_repairs": {
+    "why": "The supervisor's two acts each REMOVED THE PREMISE of a control that read the live value. The driver's own doctrine, written beside its PREFLIGHT-1 control: 'a control whose premise is gone is a control that cannot fail, and a green from one means nothing.' Both were REPLACED with controls that PLANT their condition into mutated copies, so each fires BEFORE AND AFTER the act. NEITHER SUPERVISOR ACT WAS REVERTED TO MAKE A CONTROL PASS.",
+    "C1_driver_md5_pin": "MD5_LAUNCHER moved 36881e1a51a9898cdc0ae97c129102ef -> 8d1cac29a80fb0d4170c2484d61da457, the post-repair launcher. This is a consequence of disclosed acts, not drift.",
+    "C2_driver_freeze_control": "Old S1 required the LIVE PREREG_COMMIT to be EMPTY. Replaced by four limbs: S1 plants an empty sha and requires rc=70 naming NOT_FROZEN; S1b plants a sha carrying no blob and requires rc=70 naming FREEZE_UNVERIFIABLE -- a DIFFERENT reason at the SAME rc, checked by token because rc alone cannot tell them apart; S1c requires the LIVE sha to verify (rc=0), the positive limb the old control could never have had; S1d requires an unrecognised argument to refuse rc=64. Selfcheck is now 18/18 PASS, was 15 units with 3 failures.",
+    "C3_launcher_gate_control": "Old control required the LIVE LAUNCH_ENABLED to be 0. Replaced by two planted directions against mutated copies: PLANT-0 must refuse at the gate (rc=0, NOT_LAUNCHING, leg body never entered) and PLANT-1 must be let through into the leg body (rc=4 at the FIELD_B refusal, which sits BEFORE every docker run, so no container can start in either direction). The copies carry a planted HEAD sha as a FIXTURE, because the launcher's own PREFLIGHT 0 (B3) sits ahead of the gate and would otherwise refuse first -- a control that stops at an earlier guard has not driven the one it names. Selftest is now 51/51 EXERCISED-PASS, was 50 with 1 EXERCISED-FAIL.",
+    "C4_unknown_argument_hazard": "FOUND WHILE REPAIRING C1, AND IT IS A SAFETY FINDING. The driver's argument handling was `[ \"${1:-}\" = \"--selfcheck\" ] && SELFCHECK=1` with no else and no validation, so EVERY OTHER ARGUMENT -- including the `--preflight-only` the supervisor invoked -- FELL THROUGH TO THE LIVE CHAIN at the foot of the file. It was masked only by the md5 drift that C1 repairs, i.e. the chain was stopped for the wrong reason while the operator read an ABORT and believed the flag had been honoured. Repaired: --selfcheck, --freeze-only and --preflight-only are real modes and anything else refuses rc=64 UNKNOWN_ARGUMENT. Driven by selfcheck limb S1d.",
+    "meta_verification": "Every replacement control was shown ABLE TO FAIL, not merely green. Deleting the launch gate in a scratch copy turns C3's PLANT-0 direction to EXERCISED-FAIL and the selftest REFUSES (51 controls, 50 pass, 1 fail). Neutralising the empty-check in preflight_freeze turns S1 [BAD] while S1b stays [OK]; neutralising the blob-check turns S1b [BAD] while S1 stays [OK] -- the two limbs are independent and neither is a proxy for the other. Scratch copies only; no instrument on disk was left mutated."
   },
 
   "_provenance": {
@@ -46,15 +65,18 @@
     "deadline": "NO SUCH FIELD EXISTS. The queue schema (verification/queue/dafoam/README.md, eleven required fields) has no deadline and no timeout_s, and grep over the schema and docs/standards/QUEUE_ENTRY_STANDARD.md finds neither. Nothing is sourced for one. The document's own bounded deadlines -- MEMAVAIL_WAIT_BOUND_S = 3600 (sec.12.2) and the per-stage wall bound 7200 s, NOT raised (sec.12.4) -- are launcher-internal constants, already carried in w3s_stage_and_run.sh:210-214, and are not queue fields."
   },
 
-  "_open_question_memory_floor_gb": {
-    "why_flagged": "The frozen document registers exactly two memory constants and neither is named memory_floor_gb. sec.2 line 91-92 inherits MEM_LIMIT = 8g -- the container --memory cap, i.e. what the run is ALLOWED to consume -- and MEMAVAIL_FLOOR_GIB = 14.0 (not lowered), the host MemAvailable floor a stage must see before it starts. The schema's memory_floor_gb means RAM the case needs, and queue_runner.py:932 reads it as the hold criterion, which is the MemAvailable semantic. So 14.0 is the right constant and 8g is not.",
-    "the_residual_gap": "The document's unit is GiB; the schema's unit is GB. 14.0 GiB is not 14.0 GB, and converting is this lane's arithmetic, which the brief forbids. 14.0 is therefore entered UNCONVERTED, as the document's own registered number.",
-    "direction_of_the_error": "Stated rather than hidden: 14.0 GB is SMALLER than 14.0 GiB, so the entered value asks the runner for slightly LESS headroom than the document registers. That is a weakening, not a tightening, and it is the supervisor's to rule on before this row is ever placed.",
-    "ruling_owner": "dafoam-supervisor."
+  "_ruling_memory_floor_gb": {
+    "ruling": "14.0 STANDS, UNCONVERTED. Ruled by the dafoam-supervisor 2026-09-06. This section is written so the question is not re-litigated by the next reader: the earlier _open_question flagged a unit gap that DOES NOT EXIST IN THE CODE.",
+    "which_constant": "The frozen document registers two memory constants and neither is named memory_floor_gb. sec.2 line 91-92 inherits MEM_LIMIT = 8g -- the container --memory cap, i.e. what the run is ALLOWED to consume -- and MEMAVAIL_FLOOR_GIB = 14.0 (not lowered), the host MemAvailable floor a stage must see before it starts. The schema's memory_floor_gb is the hold criterion at queue_runner.py:932, which is the MemAvailable semantic. So 14.0 is the right constant and 8g is not.",
+    "the_unit_gap_is_a_NAMING_defect_not_a_VALUE_defect": "MEASURED at scripts/queue_runner.py:195-200. mem_available_gb() reads MemAvailable from /proc/meminfo -- which is in kB -- and returns int(kB) / (1024.0 * 1024.0). Dividing kB by 1024 squared yields GiB, NOT GB. The function name, the field name memory_floor_gb and the runner's own log line at :943 ('MemAvailable %.1f GB < registered floor %s GB') all say GB; the arithmetic says GiB. THE FIELD NAME IS WRONG AND THE SEMANTICS ARE RIGHT.",
+    "therefore": "14.0 in this field is compared against a GiB quantity, and is therefore EXACTLY the registered MEMAVAIL_FLOOR_GIB = 14.0 of cases/dafoam/curriculum_D12/d12r_grade.py:50. No conversion is needed and none is correct.",
+    "what_converting_would_have_done": "Converting 14.0 GiB to 15.03 GB would have OVER-ASKED THE RUNNER BY 7.4 % (15.03 / 14.0 = 1.0736) against a quantity that was already in GiB. That is not a safe rounding: it is a change to a registered figure, made by this lane's arithmetic, in the tightening direction -- and it would have held the entry on a floor the pre-registration never registered.",
+    "the_earlier_draft_had_the_direction_backwards": "The superseded _open_question_memory_floor_gb said 14.0 GB is SMALLER than 14.0 GiB and so 'asks for slightly LESS headroom than the document registers.' That reasoning assumed the runner compares in GB. It does not. There is no weakening and there was never anything to correct.",
+    "verified_by": "The lane read scripts/queue_runner.py:195-200 directly and confirmed the divisor independently of the supervisor's statement of it."
   },
 
   "_run_root_absence": {
-    "asserted_by": "execution, 2026-09-06T01:37:10Z, in the same invocation as the positive control",
+    "asserted_by": "execution, 2026-09-06T01:56:42Z, in the same invocation as the positive control (re-asserted after the instrument repairs; the earlier 01:37:10Z assertion is superseded, not deleted)",
     "GSCAN": "/home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3S-GSCAN-cylinder-unsteady -- ABSENT",
     "WINDOW": "/home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3S-WINDOW-cylinder-unsteady -- ABSENT",
     "positive_control": "/home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3-cylinder-unsteady -- EXISTS, read by the same test in the same invocation. A reader not shown able to see a directory that exists is not evidence of absence."
@@ -70,9 +92,9 @@
   },
 
   "_instrument_identity_at_this_commit": {
-    "checked": "by execution, w3s_chain_driver.sh --selfcheck, 15/15 PASS",
+    "checked": "by execution, w3s_chain_driver.sh --selfcheck, 18/18 PASS (2026-09-06, after the control repairs; was 15 units / 3 failures immediately after the supervisor's two acts)",
     "w3s_grade.py": "3a3ee623fa48cc1d81517638485f376b -- agrees with the driver's MD5_GRADER",
-    "w3s_stage_and_run.sh": "36881e1a51a9898cdc0ae97c129102ef -- agrees with MD5_LAUNCHER",
+    "w3s_stage_and_run.sh": "8d1cac29a80fb0d4170c2484d61da457 -- agrees with the re-pinned MD5_LAUNCHER. Was 36881e1a51a9898cdc0ae97c129102ef before the supervisor's LAUNCH_ENABLED raise and this lane's gate-control replacement; the pin was bumped IN THE SAME COMMIT as the file it pins.",
     "w3s_stage_record.py": "093ac4ed34a51fdd2eb46d09333a99b5 -- agrees with MD5_RECORD",
     "d12y_grade_w3.py": "3950d30fd09c9b56213a02f5e9864e20 -- the frozen parent, UNEDITED",
     "d12y_run_script.py": "2790c39a09cd458d5a3263d7f1811da5 -- UNCHANGED",

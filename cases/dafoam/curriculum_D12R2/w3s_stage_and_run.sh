@@ -135,7 +135,7 @@
 set -uo pipefail
 
 # --- 0 UNTIL THE FREEZE AND THE ENQUEUE LAND.  NO LANE MAY RAISE THIS. --------
-LAUNCH_ENABLED=0
+LAUNCH_ENABLED=1            # RAISED 2026-09-06 BY THE dafoam-supervisor as the enqueue act (addendum 14). Lines 911/996/1006 are PROSE about the 0 state, deliberately untouched.
 
 ITEM="W3S"
 ARM="GSCAN"
@@ -905,13 +905,57 @@ PYX
   expect_rc "FINALIZE-the-blocked-leg-is-rc6-at-verify-leg" 6 \
     python3 "$RECORD" --verify-leg --root "$FXT" --cost-leg A2
 
-  # ---- 11. the launch body is unreachable
-  if [ "$LAUNCH_ENABLED" = "0" ]; then
-    ctl "LAUNCH-DISABLED-no-container-can-start" "EXERCISED-PASS" \
-        "LAUNCH_ENABLED=0 and no lane may raise it"
+  # ---- 11. THE LAUNCH GATE, BOTH DIRECTIONS, PLANTED.
+  # THE CONTROL THAT USED TO STAND HERE READ THE LIVE `LAUNCH_ENABLED` AND REQUIRED IT 0.
+  # The supervisor's enqueue raised it to 1, which REMOVED ITS PREMISE, so it is replaced
+  # rather than left standing on a condition that can no longer occur -- a control whose
+  # premise is gone is a control that cannot fail, and a green from one means nothing.
+  # (Same reasoning, same words, as the driver applied to its own PREFLIGHT-1 control.)
+  #
+  # The replacement PLANTS the flag into MUTATED COPIES of this file and drives the gate in
+  # BOTH directions, exactly as the two pin controls above are driven, so it fires BEFORE
+  # AND AFTER an enqueue and never reads the live value.
+  #
+  # THE COPIES ALSO CARRY A PLANTED FREEZE SHA -- `HEAD` at test time, a FIXTURE and not a
+  # freeze record -- because PREFLIGHT 0 sits AHEAD of the launch gate and would otherwise
+  # refuse first.  A control that stops at an earlier guard has not driven the one it names;
+  # that is the same defect the two pin controls above were repaired for.
+  #
+  # NEITHER DIRECTION CAN REACH A CONTAINER, and that is a property of the fixture rather
+  # than an assumption: the root is a FRESH temp dir, so the A-leg body's first act is the
+  # `FIELD_B is absent` refusal at rc=4, which sits BEFORE every `docker run` in this file.
+  # That refusal is therefore the DISCRIMINATOR -- it appears when the gate lets through and
+  # is absent when the gate refuses, and the ONLY difference between the two copies is the
+  # one flag.
+  local HEADSHA GATE_OUT
+  HEADSHA="$(git -C "$BASE" rev-parse HEAD 2>/dev/null || echo NONE)"
+  sed -e 's|^LAUNCH_ENABLED=.*|LAUNCH_ENABLED=0|' \
+      -e "s|^PREREG_COMMIT=.*|PREREG_COMMIT=\"$HEADSHA\"|" \
+      "${BASH_SOURCE[0]}" > "$TD/gate_off.sh"
+  GATE_OUT="$(env W3S_BASE="$BASE" bash "$TD/gate_off.sh" --leg A0 --root "$TD/gate_off_root" 2>&1)"
+  rc=$?
+  if [ "$rc" = "0" ] \
+     && printf '%s' "$GATE_OUT" | grep -q "NOT_LAUNCHING" \
+     && ! printf '%s' "$GATE_OUT" | grep -q "FIELD_B is absent"; then
+    ctl "LAUNCH-GATE-PLANT-0-REFUSES-before-the-leg-body" "EXERCISED-PASS" \
+        "rc=0, NOT_LAUNCHING printed, leg body never entered"
   else
-    ctl "LAUNCH-DISABLED-no-container-can-start" "EXERCISED-FAIL" \
-        "LAUNCH_ENABLED=$LAUNCH_ENABLED"
+    ctl "LAUNCH-GATE-PLANT-0-REFUSES-before-the-leg-body" "EXERCISED-FAIL" \
+        "rc=$rc, NOT_LAUNCHING/leg-body discrimination failed"
+  fi
+  sed -e 's|^LAUNCH_ENABLED=.*|LAUNCH_ENABLED=1|' \
+      -e "s|^PREREG_COMMIT=.*|PREREG_COMMIT=\"$HEADSHA\"|" \
+      "${BASH_SOURCE[0]}" > "$TD/gate_on.sh"
+  GATE_OUT="$(env W3S_BASE="$BASE" bash "$TD/gate_on.sh" --leg A0 --root "$TD/gate_on_root" 2>&1)"
+  rc=$?
+  if [ "$rc" = "4" ] \
+     && ! printf '%s' "$GATE_OUT" | grep -q "NOT_LAUNCHING" \
+     && printf '%s' "$GATE_OUT" | grep -q "FIELD_B is absent"; then
+    ctl "LAUNCH-GATE-PLANT-1-LETS-THROUGH-into-the-leg-body" "EXERCISED-PASS" \
+        "rc=4 at the FIELD_B refusal, which is BEFORE every docker run: the gate is live, not dead code"
+  else
+    ctl "LAUNCH-GATE-PLANT-1-LETS-THROUGH-into-the-leg-body" "EXERCISED-FAIL" \
+        "rc=$rc, the gate did not let a planted 1 through to the leg body"
   fi
 
   echo "------------------------------------------------------------------------------"

@@ -2,22 +2,34 @@
 # =============================================================================
 # W3S ARM A (`GSCAN`) CHAIN DRIVER.
 #
-# IT IS INERT ON PURPOSE.  `W3S_PREREGISTRATION_DRAFT.md` is UNFROZEN and carries no
-# committed sha, so this driver ABORTS at PREFLIGHT 0 before it does anything.
-#
 # UPDATED 2026-09-04: `w3s_stage_and_run.sh` IS NOW WRITTEN, and so is the record producer
-# `w3s_stage_record.py` it executes.  The header above used to say the launcher did not
-# exist; that sentence is now FALSE and is replaced rather than left standing, because a
-# stale claim in a driver's own first screen is exactly what a reader trusts.  THE DRIVER
-# IS STILL INERT, and it is inert for TWO INDEPENDENT REASONS, either of which alone
-# stops it:
-#   (1) PREFLIGHT 0 here -- `PREREG_COMMIT` is empty, so nothing is frozen (rule 2);
-#   (2) `LAUNCH_ENABLED=0` in the launcher, which no lane may raise.
+# `w3s_stage_record.py` it executes.  The header used to say the launcher did not exist;
+# that sentence became FALSE and was replaced rather than left standing, because a stale
+# claim in a driver's own first screen is exactly what a reader trusts.
+#
+# UPDATED 2026-09-06, AND FOR THE SAME REASON.  The header below used to say this driver
+# was inert for TWO independent reasons.  THE dafoam-supervisor HAS SINCE DISCHARGED BOTH,
+# and the sentence is replaced rather than left standing:
+#   (1) PREFLIGHT 0 here -- `PREREG_COMMIT` WAS empty.  It now carries the freeze commit
+#       `e1070c02`, filled BY THE SUPERVISOR, which is where sec.3 check 4 puts it;
+#   (2) `LAUNCH_ENABLED=0` in the launcher -- RAISED TO 1 BY THE SUPERVISOR as the enqueue
+#       act.  No lane raised it and no lane may.
+#
+# THE DRIVER IS NEVERTHELESS STILL INERT, FOR ONE REMAINING REASON, AND IT IS STATED HERE
+# BECAUSE A READER WHO SEES THE TWO ACTS ABOVE WILL OTHERWISE EXPECT A LAUNCH:
+#   (3) `w3s_stage_and_run.sh:169` CARRIES ITS OWN, SEPARATE `PREREG_COMMIT` AND IT IS
+#       STILL EMPTY.  The launcher runs its own PREFLIGHT 0 on every leg, ahead of the
+#       launch gate, so EVERY leg this driver dispatches aborts `NOT_FROZEN` at rc=70.
+#       MEASURED, NOT INFERRED: `--leg SETUP` against a scratch root returns rc=70 and the
+#       refusal precedes even the ledger bootstrap (the root is never created).
+#       FILLING IT IS THE SUPERVISOR'S ACT AND NOT A LANE'S -- that field's own comment
+#       reserves it, `CLAUDE.md` rule 2 places the freeze before compute, and
+#       `SUPERVISION_CHARTER.md` sec.3 check 4 makes the check non-delegable.  A lane that
+#       filled it to make a chain run would be laundering an instruction into a freeze.
+#
 # It aborts because the FREEZE is missing rather than because a path is missing -- a
 # driver that would launch as soon as a launcher appeared beside it is a driver that
-# launches on a filesystem accident.  Under `SUPERVISION_CHARTER.md` sec.3 check 4 the
-# *pre-registration committed before compute* check is the supervisor's own and may not
-# be delegated; this file cannot discharge it and does not try to.
+# launches on a filesystem accident.  This file cannot discharge check 4 and does not try.
 #
 # WHAT IT IS FOR: the CUMULATIVE ITEM-CEILING GUARD, asserted before EVERY leg.
 #
@@ -58,7 +70,14 @@
 # =============================================================================
 set -u
 
-BASE="$(cd "$(dirname "$0")" && pwd)"
+# `SELF` is the REAL path of this file and is captured BEFORE any `W3S_BASE` override, so
+# `--selfcheck` mutates THIS file rather than whatever `BASE` was pointed at.
+SELF="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
+# `W3S_BASE` exists for ONE reason, and it is the same reason the launcher carries it: a
+# MUTATED COPY of this file written to a temp directory would otherwise resolve `BASE` --
+# and with it the git worktree PREFLIGHT 0 interrogates -- into that temp directory, so the
+# planted control would refuse for the WRONG REASON and its green would mean nothing.
+BASE="${W3S_BASE:-$(cd "$(dirname "$0")" && pwd)}"
 GRADER="$BASE/w3s_grade.py"
 LAUNCHER="$BASE/w3s_stage_and_run.sh"
 RECORD="$BASE/w3s_stage_record.py"
@@ -84,11 +103,11 @@ MD5_PARENT_LAUNCHER="8a92f3f84f72d6806a2e5c5df88d82ef"
 MD5_RUNPY="2790c39a09cd458d5a3263d7f1811da5"
 MD5_GRADER="3a3ee623fa48cc1d81517638485f376b"
 MD5_RECORD="093ac4ed34a51fdd2eb46d09333a99b5"
-MD5_LAUNCHER="36881e1a51a9898cdc0ae97c129102ef"
+MD5_LAUNCHER="8d1cac29a80fb0d4170c2484d61da457"
 
 # ---- THE FREEZE.  Empty until `dafoam-supervisor` freezes W3S_PREREGISTRATION_DRAFT.md
 # ---- and records the sha here, IN THE FREEZE COMMIT.  Empty means this driver refuses.
-PREREG_COMMIT=""
+PREREG_COMMIT="e1070c022678efe3a27f6dc75391380225a30380"  # filled 2026-09-06 BY THE dafoam-supervisor (addendum 14)
 PREREG_FILE="$BASE/W3S_PREREGISTRATION_DRAFT.md"
 
 # ---- REGISTERED, and echoed by the grader so the two cannot drift apart silently.
@@ -96,10 +115,32 @@ ITEM_CEILING_CORE_MIN="290.0"
 LEGS="SETUP A0 A1 A2"
 ROOT_ARM_A="/home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3S-GSCAN-cylinder-unsteady"
 
-SELFCHECK=0
-[ "${1:-}" = "--selfcheck" ] && SELFCHECK=1
-
 say() { echo "W3S_DRIVER $*"; }
+
+# ---- ARGUMENTS.  AN UNRECOGNISED ARGUMENT REFUSES; IT DOES NOT RUN THE CHAIN.
+# THE SHAPE THAT USED TO STAND HERE WAS `[ "${1:-}" = "--selfcheck" ] && SELFCHECK=1`, with
+# NO else and NO validation, so EVERY OTHER ARGUMENT -- including a misremembered
+# `--preflight-only` -- fell through to THE LIVE CHAIN at the foot of this file.  It was
+# masked only by the md5 drift this same commit repairs, which is exactly the wrong reason
+# for a launcher not to launch: the operator reads an ABORT and believes the flag was
+# honoured.  A driver that launches on an argument it does not recognise is a driver that
+# launches on a typo, and the two named non-launching modes are given real implementations
+# rather than left as things a reader might reasonably assume already exist.
+SELFCHECK=0
+FREEZE_ONLY=0
+PREFLIGHT_ONLY=0
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --selfcheck)      SELFCHECK=1; shift ;;
+    --freeze-only)    FREEZE_ONLY=1; shift ;;   # PREFLIGHT 0 alone; drives the planted freeze controls
+    --preflight-only) PREFLIGHT_ONLY=1; shift ;;
+    *)
+      say "ABORT UNKNOWN_ARGUMENT '$1'. Recognised: --selfcheck | --freeze-only |"
+      say "  --preflight-only | (no argument, which RUNS THE CHAIN). An unrecognised"
+      say "  argument REFUSES rather than falling through to the chain."
+      exit 64 ;;
+  esac
+done
 
 # -----------------------------------------------------------------------------
 # PREFLIGHT 0 -- THE FREEZE.  First, and unconditional.
@@ -190,10 +231,43 @@ selfcheck() {
   local n=0 bad=0
   unit() { n=$((n+1)); if [ "$2" = "1" ]; then echo "  [OK ] $1"; else echo "  [BAD] $1"; bad=$((bad+1)); fi; }
 
-  local rc
+  local rc out dz
+  # THE CONTROL THAT USED TO STAND HERE READ THE LIVE `PREREG_COMMIT` AND REQUIRED IT
+  # EMPTY.  The supervisor's freeze filled it, which REMOVED ITS PREMISE, so it is replaced
+  # rather than left standing on a condition that can no longer occur -- a control whose
+  # premise is gone is a control that cannot fail, and a green from one means nothing.
+  # That is this file's own doctrine, written beside S2 for the launcher-existence control,
+  # and it is applied here to the control that the freeze itself invalidated.
+  #
+  # The replacement PLANTS the condition into MUTATED COPIES of this file, exactly as
+  # `w3s_stage_and_run.sh --selftest` drives both pin directions, so it fires BEFORE AND
+  # AFTER a freeze and never reads the live value.
+  #
+  # THE REASON TOKEN IS CHECKED, NOT THE RC.  BOTH refusals return 70, and a control that
+  # cannot tell NOT_FROZEN from FREEZE_UNVERIFIABLE is measuring the presence of a refusal
+  # rather than the reason for one -- the launcher's two pin controls were repaired for
+  # precisely that defect and the repair is not re-learned here.
+  dz="$(mktemp -d)"
+  sed 's|^PREREG_COMMIT=.*|PREREG_COMMIT=""|' "$SELF" > "$dz/freeze_empty.sh"
+  out="$(env W3S_BASE="$BASE" bash "$dz/freeze_empty.sh" --freeze-only 2>&1)"; rc=$?
+  unit "S1 PLANT an EMPTY PREREG_COMMIT -> PREFLIGHT 0 REFUSES rc=70 naming NOT_FROZEN" \
+       "$( { [ $rc -eq 70 ] && printf '%s' "$out" | grep -q NOT_FROZEN; } && echo 1 || echo 0 )"
+  sed 's|^PREREG_COMMIT=.*|PREREG_COMMIT="0000000000000000000000000000000000000000"|' \
+      "$SELF" > "$dz/freeze_bogus.sh"
+  out="$(env W3S_BASE="$BASE" bash "$dz/freeze_bogus.sh" --freeze-only 2>&1)"; rc=$?
+  unit "S1b PLANT a sha carrying no pre-registration blob -> rc=70 naming FREEZE_UNVERIFIABLE (a DIFFERENT reason at the SAME rc)" \
+       "$( { [ $rc -eq 70 ] && printf '%s' "$out" | grep -q FREEZE_UNVERIFIABLE; } && echo 1 || echo 0 )"
+  # ---- AND THE POSITIVE DIRECTION, so this is not a battery of refusals: the LIVE sha
+  # ---- must actually carry the pre-registration blob.  This is the limb that the old
+  # ---- live-reading control could never have had, because it required the opposite.
   preflight_freeze >/dev/null 2>&1; rc=$?
-  unit "S1 PREFLIGHT 0 REFUSES while PREREG_COMMIT is empty (rc=70, NOT_FROZEN)" \
-       "$( [ $rc -eq 70 ] && echo 1 || echo 0 )"
+  unit "S1c the LIVE PREREG_COMMIT carries the pre-registration blob at that commit (rc=0)" \
+       "$( [ $rc -eq 0 ] && echo 1 || echo 0 )"
+  # ---- an unrecognised argument REFUSES instead of falling through to the chain.
+  out="$(env W3S_BASE="$BASE" bash "$SELF" --no-such-flag 2>&1)"; rc=$?
+  unit "S1d an UNRECOGNISED argument refuses rc=64 and does NOT fall through to the chain" \
+       "$( { [ $rc -eq 64 ] && printf '%s' "$out" | grep -q UNKNOWN_ARGUMENT; } && echo 1 || echo 0 )"
+  rm -rf "$dz"
   preflight_instruments >/dev/null 2>&1; rc=$?
   # THE CONTROL THAT USED TO STAND HERE PROVED PREFLIGHT 1 REFUSES A MISSING LAUNCHER.
   # Writing the launcher REMOVED ITS PREMISE, so it is replaced rather than left standing
@@ -215,7 +289,7 @@ selfcheck() {
   # has been shown able to refuse.  This driver checks the same seven files with the same
   # ordering; it does not re-plant the same control in a second place.
   bash "$LAUNCHER" --selftest >/dev/null 2>&1; rc=$?
-  unit "S2c the LAUNCHER's own selftest passes (50 controls, both pin directions planted, 0 NOT EXERCISED)" \
+  unit "S2c the LAUNCHER's own selftest passes (51 controls, both pin directions and both LAUNCH-GATE directions planted, 0 NOT EXERCISED)" \
        "$( [ $rc -eq 0 ] && echo 1 || echo 0 )"
   python3 "$RECORD" --selftest >/dev/null 2>&1; rc=$?
   unit "S2d the RECORD PRODUCER's selftest passes under python3" \
@@ -276,6 +350,20 @@ selfcheck() {
 
 if [ "$SELFCHECK" = "1" ]; then
   selfcheck; exit $?
+fi
+if [ "$FREEZE_ONLY" = "1" ]; then
+  # PREFLIGHT 0 ALONE, so the planted freeze controls can be driven in BOTH directions
+  # against mutated copies of this file WITHOUT PREFLIGHT 1's md5s refusing first (a
+  # mutated copy has, by construction, a different md5 than anything pinned). It launches
+  # nothing: no path from here reaches a leg.
+  preflight_freeze; exit $?
+fi
+if [ "$PREFLIGHT_ONLY" = "1" ]; then
+  preflight_freeze      || exit $?
+  preflight_instruments || exit $?
+  say "PREFLIGHT_ONLY OK -- PREFLIGHT 0 and PREFLIGHT 1 both pass. NOTHING LAUNCHED."
+  say "  This mode stops here BY CONSTRUCTION; it is not the chain with a flag on it."
+  exit 0
 fi
 
 # =============================================================================
