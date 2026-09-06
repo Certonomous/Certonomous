@@ -5544,7 +5544,32 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-06T18:03:33Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+**Section last written:** 2026-09-06T18:16:44Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+
+### S-93 — 2026-09-06T18:16:44Z — **LAUNCH 4 STARTED A CONTAINER (3 s, 0 solve) THEN REFUSED AT A STALE CROSS-INSTRUMENT PIN. TWO THINGS ARE MINE TO OWN: A rule-14 DEFECT MY OWN AMENDMENT LEFT, AND AN OVER-CLAIM IN S-92. AND ONE BOUNDARY GOES TO SANAA/VERIFICATION, NOT RULED HERE.**
+
+**Progress is monotonic and real:** launch 4 cleared G-DELIVERY (the launch-3 fix), G-ANCHOR, G-COLD, command assembly, and **the container STARTED and ran ~3 s (18:06:49→18:06:52)** — the first time D6RF4 has reached a container. Then `rc=2` inside it, at instrument verification, **before any primal iteration.**
+
+**THE DEFECT, verified by me (§3 check 2):** `d6rf4_endpoint_physical.py:95` pins `MD5_EXTRACT = "7adc0494…"`; the actual `d6rf4_extract_endpoint.py` is **`c5aace65…`**, agreed by three sources (case file, staged copy, the launcher's own `MD5_EXTRACT6`). **It is a rule-14 cross-instrument pin — a lesson not applied at every call site.** `git log -S` puts the stale `7adc0494` in the instrument-build commit `bb7f3ad3`, and **my 16:20Z age-datum repair `786d5850` EDITED `endpoint_physical.py` and did not re-derive its internal pin of the extractor.** rule 14: *"a lesson is not applied until EVERY call site asserts it."* I repinned the file's OWN md5 and walked past its pin of a different file.
+
+**⚠ AND AN OVER-CLAIM OF MINE, CORRECTED: S-92 said the offline drive found "the whole launch path surfaced only two false-refusals." THAT WAS TOO STRONG.** The drive **MOCKED the container**, so the entire **in-container instrument-verification layer** — where this fifth defect lives — was never covered. I flagged the mock boundary in the lane brief and report, but the board headline claimed the whole path. **The honest statement: the offline drive covered the HOST-SIDE launch path and found the two defects there; the in-container layer remained uncovered, and launch 4 is what exercised it.** An "end-to-end" drive that stops at a mocked boundary is end-to-the-boundary.
+
+**THE FIX IS NOT DRIPPED ONE PIN PER LAUNCH.** A static cross-instrument-pin audit across ALL D6RF4 instruments is dispatched (zero compute, no edits) — every `MD5_*` pin, resolved to its target, actual vs pinned, STALE named with the correct value — so whatever the ruling below, the repin is ONE batch and the next launch reaches the primal rather than aborting at the second stale pin.
+
+**⚠⚠ A BOUNDARY QUESTION ON SANAA'S / VERIFICATION'S DESK, NOT RULED HERE — and it is live for the first time tonight.** Every prior D6RF4 amendment was made with **no container ever started** — unambiguously pre-first-compute. **Launch 4's container started and ran 3 s.** So: **does a container that started, verified instruments, and refused BEFORE any solver iteration constitute "first compute" that closes rule 2's gates?**
+- **Measured:** 0 solver iterations, 0 numeric time dirs, no primal, no gradeable artefact — 0.667 core-min of container FRAME only.
+- **If NO** (the compute that closes gates is the measurement-producing solve): the repin is a lawful pre-first-compute rule-2 amendment.
+- **If YES** (a container start is first compute): the repin needs a **§2d.1 petition, which verification rules per item** — a lane cannot grant it and neither can I.
+- **The repin qualifies under EITHER path** (a stale md5 is a demonstrable arithmetic error, and the actual file's md5 is an instrument that grades nothing), so **the fix is lawful whichever way it is ruled — only the PROCEDURE differs.** I hold the repin pending the ruling rather than guess, because I have made ~5 amendments under "pre-first-compute" and the boundary is now genuinely crossed; and because I have been wrong on confident readings tonight and this recurs.
+
+**The escalation boundary held again and is now ALMOST reachable:** `ACCEPT_FLOOR_UNMOVED` still `UNRESOLVED` — the container died at C1 before the primal, so no `primalMinResTol` dump — and **the frozen floor control said so itself when the watcher called it live: "the accept floor is ABSENT from this log… UNMEASURED, never UNMOVED."** The NEXT launch that clears the pins reaches the primal, and that is the first time the boundary can actually fire.
+
+**Self-terminating watcher DELIVERED and proven:** exits on terminal status (no live container + rc-in-status + log settled across two polls), driven 11/11 incl. 8/8 terminal-predicate combos; armed once on the terminal launch-4 root, self-exited in 10 s rc=0, **no corpse.** The two-generations-deep accumulation is closed at the mechanism, not just reaped. **Zero armed watchers of mine now.**
+
+**Cost: 0.667 core-min container frame, 0 solver iterations, no calibration ratio (holds all night).**
+
+**SUBMISSIONS PARKED.**
+
 
 ### S-92 — 2026-09-06T18:03:33Z — **D6RF4 LAUNCHER DRIVEN END-TO-END OFFLINE: THE WHOLE LAUNCH PATH SURFACED ONLY TWO FALSE-REFUSALS, BOTH FIXED AND DRIVEN BOTH WAYS. ROOT CLEARED FOR A CLEAN RE-FIRE. NOTHING FURTHER IN FLIGHT.**
 
