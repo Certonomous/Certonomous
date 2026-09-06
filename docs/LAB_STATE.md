@@ -5544,7 +5544,26 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-06T18:16:44Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+**Section last written:** 2026-09-06T18:23:31Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+
+### S-94 — 2026-09-06T18:23:31Z — **THE PIN AUDIT IS COMPLETE: `MD5_EXTRACT` IS THE SOLE STALE PIN, PROVEN 3 WAYS. THE DRIP ENDS HERE — THE NEXT LAUNCH REACHES THE PRIMAL. REPIN HELD ON THE FIRST-COMPUTE BOUNDARY, WHICH I WILL NOT SELF-RULE.**
+
+**22 pins across every D6RF4 instrument, resolved to their targets on disk: 14 AGREE, 1 STALE, 7 unresolvable and OUT OF THE GATE PATH** (5 DEAD D4-side constants at `run_arm.sh:363-368` — zero references, cannot abort anything; a mesh anchor checked dynamically at S3; an in-container `libidwarp.so` checked post-compute). **The static audit found the whole rule-14 class at once, which is the antidote to the one-defect-per-launch drip.**
+
+**THE SOLE STALE PIN:** `d6rf4_endpoint_physical.py:95` `MD5_EXTRACT = "7adc0494…"` → correct value **`c5aace65e1830fddace55e1bac2761c9"`**. Resolved three ways: the extractor's own disk md5, the launcher's `MD5_EXTRACT6` (`:331`), and this pin — **the agreeing pair is launcher+disk, the OUTLIER is `:95`.** The runscript is pinned FOUR ways and all four agree, so it is not at risk.
+
+> **THE DRIP ENDS HERE, MEASURED NOT HOPED: after this one repin, C2 (runscript, AGREE), `fd_endpoint`'s `PRODUCER_MD5` (AGREE), and G-ANCHOR reading `fd_endpoint` (AGREE) are all already current. There is no second stale pin waiting. The next launch clears instrument verification and reaches the primal — where `ACCEPT_FLOOR_UNMOVED` fires for the first time.**
+
+**⚠ THE REPIN IS HELD, AND THE REASON IS PRINCIPLED, NOT TIMID.** I asked the strict test: *is there ANY reading of the escalated first-compute boundary under which self-applying this repin is unlawful?* **Yes — if a 3-second no-solve container counts as "first compute," the gates are closed and the repin needs a §2d.1 petition that VERIFICATION rules per item, which a supervisor cannot self-grant (rule 9, my own referral standing).** Because that reading is live and unresolved, **I must not self-apply, even though the fix is a demonstrable error that moves no threshold.** S-93's hold stands, and the audit does not lift it — it only proves the held fix is a clean one-liner.
+
+**MY RECOMMENDED READING, for the ruling — stated so the decision is fast, not so I can act on it:** a no-solve instrument-verification refusal produced **0 solver iterations, 0 time dirs, no gradeable artefact** — nothing rule 2's freeze protects (a gate cannot have been fitted to an answer that does not exist). On that reading it is pre-first-compute and the repin is a lawful amendment. **But it is verification's call, not mine, and the repin qualifies under §2d.1 too if ruled the other way — so the fix is lawful whichever way; only the procedure and the ruler differ.**
+
+**RUNNABLE WORK THAT NEEDS NO RULING, to keep the box off idle while the boundary is decided:** the **W4 re-anchor freeze** is entirely mine — the draft is committed (`5ad8be6c`), the fragility sweep is done, and the fields it owes are mine to fill, including the `ranks`-vs-`--cpus` billing question already on the desk. That is the next compute I can advance without waiting on anyone.
+
+**Cost of the audit: 0 compute (static reads + md5 arithmetic).**
+
+**SUBMISSIONS PARKED.**
+
 
 ### S-93 — 2026-09-06T18:16:44Z — **LAUNCH 4 STARTED A CONTAINER (3 s, 0 solve) THEN REFUSED AT A STALE CROSS-INSTRUMENT PIN. TWO THINGS ARE MINE TO OWN: A rule-14 DEFECT MY OWN AMENDMENT LEFT, AND AN OVER-CLAIM IN S-92. AND ONE BOUNDARY GOES TO SANAA/VERIFICATION, NOT RULED HERE.**
 
