@@ -1,0 +1,57 @@
+{
+  "_WHAT_THIS_FILE_IS": "A READY, VALIDATED QUEUE ROW FOR R2-M0 THAT HAS NOT BEEN PLACED. It sits beside its case, NOT in verification/queue/cfd/. It is not armed and nothing polls this path. Placing it -- copying it into verification/queue/cfd/ -- IS the launch act: a live daemon polls that directory and fires within a minute at 14 ranks. Prepared by a cfd lab-lane 2026-09-06; no cfd session has written to verification/queue/ at any point.",
+  "_WHO_MAY_PLACE_IT": "The chief session, under the permission-system grant Sanaa gave IN THAT SESSION and captured verbatim at etc/sessions/2026-09-06T0330Z_sanaa_queue_row_grant.md (commit 9f708e81): 'Permission granted for: Launch a new agent, Arm and place the queue row.' That capture states in its own words that the grant does NOT alter any other session's permission state. It is therefore the chief's act and no other session's, and no agent's relay of it is Sanaa's consent (CLAUDE.md rule 9).",
+
+  "team": "cfd",
+  "case_id": "RUNG2-CRM-M0",
+  "prereg_path": "verification/campaign/RUNG2_CRM_M0_PREREGISTRATION.md",
+  "prereg_commit": "cd5cae943acf1fadf8904adec33a43be2a46a9bc",
+  "grading_freeze": ["cases/committee-grids/grade_r2_m0.py"],
+  "launch_cmd": ["bash", "/home/ubuntu/Certonomous/cases/committee-grids/run_r2_m0.sh"],
+  "cwd": "/home/ubuntu/Certonomous/cases/committee-grids",
+  "ranks": 14,
+  "cost_core_min_estimate": 66.9,
+  "cap_core_min_registered": 170.0,
+  "memory_floor_gb": 4.0,
+  "cost_basis": "derived at the on-box c7a.4xlarge rate $0.0513/core-h, reported-by-owner, NOT MEASURED -- this box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5, CLAUDE.md rule 12). Estimate 66.9 core-min = 1.1150 core-h = $0.0572 DERIVED; cap 170.0 core-min = 2.8333 core-h = $0.1453 DERIVED.",
+  "enqueued_by": "PREPARED, NOT ENQUEUED -- cfd lab-lane, 2026-09-06T02:5xZ box clock, at HEAD 9f708e81. This lane did not place this row and holds no authority to. Whoever places it replaces this string with their own identity and the authority they placed it under.",
+
+  "_PROVENANCE_EVERY_VALUE_IS_TRANSCRIBED_NOT_RECALLED": {
+    "case_id": "RUNG2_CRM_M0_PREREGISTRATION.md:3",
+    "cost_core_min_estimate 66.9": "RUNG2_CRM_M0_PREREGISTRATION.md:322 (the REGISTERED ESTIMATE row: 0.94 + 62.6 + 1.88 + 1.0 + 0.5)",
+    "cap_core_min_registered 170.0": "RUNG2_CRM_M0_PREREGISTRATION.md:297, and enforced structurally in the driver as CAP_CORE_S=10200 at run_r2_m0.sh:62",
+    "cost_basis": "RUNG2_CRM_M0_PREREGISTRATION.md:325-330",
+    "ranks 14": "cases/committee-grids/run_r2_m0.sh:60 -- `RANKS=14`, the SOLE rank count in the file. Every other occurrence (:156, :295, :350, :352, :353) derives from that one variable; grep -niE '-np |np=|ranks *[:=] *[0-9]' returns only :60 and :353. IT IS NOT '4/8/14 ranks' -- that figure belongs to a different ladder and is not this driver's.",
+    "launch_cmd": "The driver takes NO positional arguments: every `$1` in it (:71, :96, :150, :169, :196, :210) is a `local` inside a function. It hard-codes REPO, SRC, SEED, WARM, ROOT and GRADER as absolute paths (:53-58), so cwd is not load-bearing for it -- cwd is chosen to satisfy the validator's EXEC and AGE-GUARD clauses.",
+    "cwd": "The CASE directory, which is the lab convention named in queue_entry_check.check_cwd_launchable's own refusal text. It EXISTS (EXEC clause satisfied) and contains NO directory matching queue_entry_check.TIME_DIR (AGE-GUARD clause satisfied). The REGISTERED RUN ROOT is a different path and is guarded separately -- see _RUN_ROOT below.",
+    "memory_floor_gb 4.0": "Derived from /home/ubuntu/certonomous-runs/dpw5-committee-probe/measurements.jsonl, the four `*_a2.11` rows: sum_vmhwm_mib 2020.3 (incompressible, 200 iterations, exit 0), 2147.1, 2172.2, 1868.9 (the three compressible arms). LARGEST MEASURED = 2172.2 MiB = 2.121 GiB. STATED HONESTLY AS A LOWER BOUND: three of those four aborted at iteration 2, so their footprint is NOT what a 50-iteration compressible arm would reach. 4.0 GB is that lower bound with ~1.9x headroom, on a box measuring host_mem_total_mib 31379.5. It is a floor with a named basis, not a measurement of this probe.",
+    "prereg_commit": "cd5cae94 is the commit that wrote the blob now on disk: sha256(worktree) == sha256(git show HEAD:<path>) == sha256(git show cd5cae94:<path>) == d32bba294a6d0c12. The GATE TABLE ITSELF is older and unmoved -- section 6 is BYTE-IDENTICAL (c93aa0dffc9ac076) between 8c137b05, where v1.1 froze it, and cd5cae94. The commits between them added section 14, which records outcomes and alters no gate, threshold, cap or label."
+  },
+
+  "_RUN_ROOT": {
+    "registered_run_root": "verification/runs/RUNG2_CRM_runs/M0_compressible_admission/{A0,A1,A2,A3,A4}/",
+    "state_at_drafting": "ABSENT, PLANT-VERIFIED 0 -> 1 -> 0 at the exact registered path in one shell invocation on 2026-09-06 at box clock 02:52:44Z, HEAD 9f708e81, with a residue check reading 0 after removal. The reader was therefore shown able to see the non-absence it denies (CLAUDE.md rule 3).",
+    "who_guards_it_at_launch": "The driver, structurally: `[ -e \"$ROOT\" ] && { echo \"RUN ROOT ALREADY EXISTS\"; exit 3; }` at run_r2_m0.sh:126. The validator's AGE-GUARD clause reads `cwd`, which is the case directory -- it does NOT read the run root. These are two different guards on two different paths and neither substitutes for the other."
+  },
+
+  "_CONDITIONS_THAT_TRAVEL_WITH_THIS_ROW": {
+    "_why_they_are_in_the_file": "Whoever places this row will not have read the thread it was drafted in. A condition that lives only in a message is a condition that does not survive the handoff.",
+
+    "1_R2_G0_IS_A_PRECONDITION_NOT_A_PARALLEL_GATE": "If arm A0 does not reproduce the abort -- exit 136 at `Time <= 2` with `libfluidThermophysicalModels.so` present in ITS OWN stack trace -- THE WHOLE PROBE IS `NOT A RESULT` AND NOTHING IS CONCLUDED FROM A1-A4. This is not a gate that fails alongside the others; it is the premise the others rest on. Source: RUNG2_CRM_M0_PREREGISTRATION.md:286 (the R2-G0 row) and :805-806 (the condition restated so it survives in the document rather than only in a message).",
+
+    "2_CO_RESIDENCY_IS_NAMED_SEPARATELY_AND_NEVER_ABSORBED_INTO_THE_RATIO": {
+      "rule": "At process completion, CLAUDE.md rule 12's estimate-versus-actual calibration row in docs/COST_CALIBRATION.md states the ratio actual/predicted AND attributes the gap. Contention from a co-resident foreign job is NAMED AS ITS OWN LINE and is NEVER folded into that ratio. Source: RUNG2_CRM_M0_PREREGISTRATION.md:807-809.",
+      "box_state_measured_at_drafting": "2026-09-06, box clock 02:52:44Z. nproc = 16. Load average 3.10 / 2.82 / 3.52. TWO `rhoPimpleFoam` processes at 99.8% CPU each, PIDs 24463 and 24001, elapsed 49:58 and 51:03 -- a FOREIGN TEAM'S LIVE JOB, not this team's. Recorded here so the attribution can be made honestly later rather than reconstructed from memory.",
+      "arithmetic_if_that_job_is_still_live_at_launch": "14 ranks (this probe) + 2 ranks (foreign) = 16 of 16 vCPUs. SATURATING, not oversubscribed. A cfd lane measured 85.75 core-min wasted racing exactly this shape on 2026-09-04 (RUNG2_CRM_M0_PREREGISTRATION.md:602-604).",
+      "instruction_to_the_placer": "RE-MEASURE THE BOX BEFORE PLACING. The figures above are a drafting-time reading, not a launch-time one, and they will be stale. Condition 5 of the original authorisation was `if a foreign team's job appears, do not race it` -- that is a WAIT, not a stop."
+    },
+
+    "3_RC_IS_CAPTURED_INSIDE_THE_DETACHED_WRAPPER": "NEVER around a `setsid` line. `setsid timeout cmd` exits 0 for every outcome -- success, timeout and crash alike -- so an rc taken outside it is not a reading. The driver takes every rc immediately after the command it belongs to, inside run_step() (run_r2_m0.sh:96-107). Anyone who wraps or re-drives this must preserve that.",
+
+    "4_THE_CAP_IS_170_0_CORE_MIN_AND_AN_OVERRUN_STOPS_THE_RUN": "It does not get a new budget (CLAUDE.md rule 12). The cap is 10200 core-seconds, recomputed before EVERY step from that one total and converted to a wall-clock `timeout` by dividing by that step's rank count; exhaustion is exit 6. It is enforced INSIDE the driver because scripts/queue_runner.py's cap_watch REPORTS an overrun and does NOT kill. NO RETRY RESETS IT: a second attempt of any arm spends from the same 170.0 (RUNG2_CRM_M0_PREREGISTRATION.md:297-299).",
+
+    "5_NOTHING_IN_THIS_PROBE_AUTHORISES_RUNG_2_a": "Rung 2 (a) -- the drag-and-moment verdict against the DPW participant scatter band -- IS NOT REGISTERED IN THIS DOCUMENT AND ITS GATE STAYS `BLOCKED` ON THREE INDEPENDENT GROUNDS (RUNG2_CRM_M0_PREREGISTRATION.md:390-403): (i) the committee grid fails this lab's own hard mesh gates by 19.7 degrees and 3.5x, and ruling R12's exemption is `for MODEL-FORM BANDING ONLY` and never travels to a physics gate or a credential verdict -- SANAA'S CALL, NOT THIS LAB'S; (ii) there is no compressible solve, which is what this probe exists to settle; (iii) NO REFINEMENT TRIPLE EXISTS ON THIS BOX -- only level L1.T is here, and its hex/prism/hybrid files are three TOPOLOGIES at ONE refinement level sharing one 660,177-node point distribution, so standing rule 5 cannot be applied at all. Ground (iii) needs nobody's ruling and SURVIVES ANY RULING ON (i). CONSEQUENTLY: NO FORCE, NO DRAG FIGURE, NO LIFT, NO MOMENT AND NO CRM CLAIM MAY BE READ OUT OF THIS PROBE. The arms deliberately keep the August `Aref 1.0` / `lRef 7.005320`, which are NOT the CRM reference area and MAC, precisely so that a force write cannot be mistaken for a result. A `PASS` on R2-G1 clears BLOCKER 1 ONLY."
+  },
+
+  "_WHAT_THIS_ROW_DOES_NOT_ESTABLISH": "The driver has NEVER BEEN EXECUTED. A `bash -n` parse -- reported by the owner in the chief session, and NOT witnessed by this lane -- proves the file is well-formed and proves nothing about whether the cap arithmetic, the rc capture, the arm assembly or the age-guard ordering are CORRECT. `syntax-checked` must not be read as `verified`. The grader's `--grade` path has likewise never been exercised on a real arm; its completion clauses were exercised on a synthetic case directory with real mtimes, which is a control on the clause logic and not a demonstration that it grades a real OpenFOAM run correctly."
+}
