@@ -5544,7 +5544,40 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-06T04:00:10Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+**Section last written:** 2026-09-06T04:28:12Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+
+### S-88 — 2026-09-06T04:28:12Z — **TIER 2: A MEASURED ZERO. NO LANDED VERDICT MOVED. 121 ARM-CLAUSES DECIDED, 1 FLIP AND IT IS THE PLANTED CONTROL, 37 UNMEASURABLE AND NAMED AS SUCH — NOT AS CLEAN.**
+
+**THE ANSWER TO SANAA'S DELEGATED QUESTION.** Across the risk set, **no gated clause would have flipped under full precision.** 158 arms, **267 arm-clause rows**, **36 items**. Decided: **120 AGREE + 1 FLIP = 121. NEW FLIPS: ZERO.**
+
+**THE ONE FLIP IS THE CONTROL, AND THAT IS WHY THE ZERO IS EVIDENCE.** The probe carried the known W3S `S1a` miss as an **in-the-wild positive control** and re-derived it independently: `system/fvSolution` **+0.358419610 s** and `system/fvSchemes` **+0.356664575 s** against a sentinel fraction of `0.187812489`, matching the referral's figures. **The instrument that reports zero on 120 arms is the same one that finds the known non-zero on the 121st.** Its planted control also refuses before reporting and has **no bypass flag**.
+
+**THE DISCRIMINATOR HELD, AND IT IS PHYSICS RATHER THAN LUCK.**
+
+| artefact class | rows | smallest TRUE margin |
+|---|---|---|
+| **SOLVER-PRODUCED** | 240 | **+2.789202282 s** |
+| SCRIPT-PRODUCED (`checkMesh.log`) | 21 | +2.898053390 s |
+| **STAGED / GENERATED** | 14 rows over **208 files** | **the only class with any bite anywhere — and only in W3S** |
+
+**Every fail-open window is at most the sentinel's own fraction, i.e. < 1.000 s. The smallest solver-side margin in the entire family is 2.789 s — nearly 3× the widest possible window.** A solver arm's product lands seconds-to-hours after its sentinel; **only a sub-second product can be bitten**, and W3S's was exactly that — a `controlDict` **generated per stage** landing 121 ms from its sentinel.
+
+**The two staged/generated candidates were walked FILE BY FILE, not by registered name:** `A1WRT2/SEAM` — 34 staged files, **0 inside the sentinel second**, nearest at **−1146.96 s**; `D4S-F3SR` F-S and F-P — the two staged inputs sit **5.3 and 5.8 DAYS older** than their sentinels.
+
+**⚠ 37 ARMS ARE UNMEASURABLE AND I AM NOT CALLING ANY OF THEM CLEAN.** 21 have no run root or arm on disk (`SO1b`'s registered `BASE` names a directory that does not exist — only `SO1bR`'s does); 16 have a root but **the graded artefacts are gone**. **`D7` and `D7F` have no graded artefact anywhere on disk — neither item can be checked at all.** **The truncation class did not create that condition and does not resolve it; it is a separate, pre-existing gap and it is named here rather than absorbed into a zero.**
+
+**A CLASS THAT IS STRUCTURALLY UNMEASURABLE, DECIDED BY BOUND INSTEAD.** The datum self-check (`int(getmtime(ref)) != datum`, and the SO family's `on_disk != datum`) compares a file **to its own recorded floor** — there is no full-precision counterpart, because the launcher never recorded a fraction. **44 arm-rows resolve to `0/U.gz`: `writeCompression` destroyed the plain `0/U` the launcher touched, so those sentinels' fractions are gone forever.** Decided by **bound**: the true sentinel lies in `[datum, datum+1)`, and every such artefact landed **≥ 14.06 s** past the floor, so **no flip is arithmetically possible.** Zero INDETERMINATE.
+
+**⚠⚠ A FOURTH COUNT, AND IT MOVES UPWARD AGAIN — 37 → 55 → 90 → +25 MORE.** The probe disagrees with the committed census **in the enlarging direction**, and the reason is the census's own FAILURE 3 one hop further out. **It classes `d17_grade.py:242` — the very guard I named to the chief — as `truncated: false`**, because `datum` arrives as a **function parameter** and the census resolves provenance only within the enclosing `FunctionDef`. **Its recorded failure was "the floor is not on the comparison line"; this is "the floor crosses a FUNCTION BOUNDARY."** A second mode sits beside it: `d6rf3_grade.py:640` reads the datum as `float(fh.read())`, and `float` is not in its `FLOOR_FUNCS`, so **a floor applied at SERIALISATION is invisible.** **25 further fail-open comparisons across 21 files, including 5 files the census never names** — verified **17 of 17 by reading source**, not by pattern, precisely because that census once manufactured defects in a clean file. **All 25 probed. All agree.**
+
+> **THE SYNTHESIS, AND IT IS THE THING TO CARRY: THE POPULATION ESTIMATE HAS MOVED UPWARD FOUR TIMES AND THE MEASURED CONSEQUENCE HAS STAYED AT ZERO.** Four instruments cannot agree how many sites exist; all four agree that no landed verdict moved. **A count that keeps growing under better instruments is a statement about the instruments; a consequence that stays at zero under all of them is a statement about the world.**
+
+**MY TIER 3 RULING — REPAIR BY ARTEFACT CLASS, NOT BY SITE COUNT.** The margin argument protects **solver products** and does **not** protect **staged or generated** ones. So: **guards over STAGED/GENERATED artefacts are the repair priority — that class is the only one that has ever bitten.** Guards over solver products carry ~3 s against a <1 s window and are **a hygiene backlog, not a risk**; they are repaired at each item's next natural opening, not by a special programme. **And no §2d.1 petition is owed for the 16 gated sites in 6 items with NO LANDED VERDICT — those are repaired before next use.** Verification still rules each petition where one is owed.
+
+**COST: 0.3 core-min, 1 rank, DERIVED FROM WALL TIME and not from a ledger.** No solver, no container, no launch, nothing written under any run root, `verification/queue/` untouched throughout.
+
+**SUBMISSIONS PARKED.**
+
 
 ### S-87 — 2026-09-06T04:00:10Z — **⚠ I UNDER-REPORTED THE CENSUS. SANAA DELEGATED A "37/24 FILE ISSUE"; THE MEASURED SCOPE IS 55 FAIL-OPEN ACROSS 39 FILES, 35 OF THEM PINNED. AND MY "SOMEBODY WALKED PAST IT" CLAIM HAD THE TIMELINE WRONG.**
 
