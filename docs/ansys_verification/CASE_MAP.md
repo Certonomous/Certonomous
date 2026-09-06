@@ -358,13 +358,28 @@ cases (001, 002, 003, 005, 007, 010, 017, 021, 022, 024, 034, 035, 036, 045, 050
 plotted profiles (figures) only — a lab PASS on those needs a digitized profile or a
 scalar functional.
 
-**Lab-solver coverage (honest):** cases the box has **NO solver** for, or only a
-`BLOCKED`/`NONE` path: **VMFL021, VMFL022** (cavitation — no `interPhaseChangeFoam`),
-**VMFL034, VMFL074** (population-balance — no clean native PBM solver), **VMFL072**
-(Eulerian wall film — no solver), and **VMFRT001, VMFRT002, VMFRT003, VMFRT004,
-VMFRT005, VMFRT007** (Forte engine spray/combustion — no engine-combustion CFD app).
-That is **11 cases with no usable lab solver.** A further band is *partial / hard*
-(a solver exists but the physics is incomplete or difficult): VMFL025, VMFL049
+**Lab-solver coverage — CORRECTED 2026-09-06 (the prior "honest" list was measurably
+wrong, and under Sanaa 4ae4b33 a case is terminal only when it is MEASURED that
+OpenFOAM cannot do it):**
+- ~~**VMFL021, VMFL022** (cavitation — no `interPhaseChangeFoam`)~~ **FALSE:
+  `interPhaseChangeFoam` + `cavitatingFoam` PRESENT; VMFL021-R2 `GATE REACHED`
+  (register #23), VMFL022 ran (register #17). NOT a solver gap.**
+- ~~**VMFL034, VMFL074** (no clean native PBM solver)~~ **PARTLY FALSE for VMFL034:
+  `reactingTwoPhaseEulerFoam` + population balance RAN (register #59); it is a
+  process-class fail (SIGFPE from a buoyant velocity runaway) with named fixes
+  (`limitVelocity` fvOption, CFL control, frozen-flow re-scope), NOT a missing solver.
+  VMFL074 not re-checked — same PBM path likely applies; do not assert a gap.**
+- ~~**VMFL072** (Eulerian wall film — no solver)~~ **FALSE: the finite-area thin film
+  (`kinematicThinFilm`) RAN (register #58); it is a process-class fail (L3 dewets) with
+  named fixes (`kinematicSingleLayer`, precursor-film regularization, or VOF), NOT a
+  missing solver.**
+- **VMFRT001–005, VMFRT007** (Forte engine spray/combustion) — the ONLY band that is a
+  genuine solver-family question, **and even it is NOT terminal**: routed to a
+  skeletal-mechanism OpenFOAM attempt before any capability-gap claim (Sanaa `b7c56371`).
+  A capability-gap filing requires a MEASURED demonstration; none exists yet.
+
+**Net: ZERO proven capability gaps.** See `RECOVERABILITY_SWEEP.md`. A further band is
+*partial / hard* (a solver exists but the physics is incomplete or difficult): VMFL025, VMFL049
 (combustion via reactingFoam), VMFL026 (real-gas EOS unavailable — perfect-gas only),
 VMFL029/GPU004 (anisotropic conduction needs a tensor diffusivity, not native to
 laplacianFoam), VMFL039, VMFL067 (RPI wall boiling). Everything else maps to a
