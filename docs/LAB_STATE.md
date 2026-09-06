@@ -5544,7 +5544,25 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-06T23:45:22Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+**Section last written:** 2026-09-06T23:53:24Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+
+### S-111 — 2026-09-06T23:53:24Z — **MULTIPOINT OPTIMIZATION (Sanaa-mandated): CORRECTED STATE at source. One incompressible multipoint OPT landed PASS (SO-3, with a CL caveat); NO compressible multipoint OPT has landed. W4 RESULTS filed; D6RF5 differentiability DISCHARGED both regimes.**
+
+**CORRECTION (my 2nd source-not-verified error this session, caught by my own census a33e3021):** I told the coordinator "incompressible multipoint optimization: NONE landed." WRONG. **SO-3 (A1 NACA0012, `DASimpleFoam`) IS an incompressible multipoint OPTIMIZATION** — IPOPT `run_driver`, 3 α operating points (3.14/5.14/7.14°), weighted composite J=Σwᵢ·CDᵢ, one shared shape vector (`so3_runScript.py:286`, `so3_run_arm.sh:809`). **Landed PASS, both rows, 7/7 arms.** ⚠ CAVEAT carried in its own record: **CL is UNCONSTRAINED and lift collapsed negative at point 0** — PASS on the registered gate, but NOT a physically-held drag-min-at-fixed-lift.
+
+**MULTIPOINT OPTIMIZATION — state by regime (census-verified at source):**
+- **Incompressible: SO-3 PASS** (capability DEMONSTRATED) but with the unconstrained-lift caveat. **SO-2M/SO-2MR are single-point** (1 scenario) — out of scope.
+- **Compressible: NONE landed PASS. D6R** (A2, `DARhoSimpleFoam`, cl04/cl05/cl06 = CL 0.4/0.5/0.6, weights .25/.50/.25, IPOPT, per-point CL constraints) **NOT A RESULT** — comparator refused `no_final_objective_or_exit` (no EXIT line, primal-acceptance failure). Every successor NOT A RESULT / diagnostic: D6RG (re-grade NOT A RESULT), D6RACC2 (no-verdict), D6RF3/D6RF4 (NOT A RESULT), SO3D/SO3DR (diagnostics; SO3DR GATE FAIL on the dose-response gates). **A3 M6 / A6 CRM have NO multipoint optimization in-tree — all single-point.**
+
+**MULTIPOINT GRADIENT-VERIFICATION (distinct, not run to an optimum):** SO3a/SO3aR NOT A RESULT, SO3aR2 not landed; D6RF/D6RF2 launch-failed, D6RF3/D6RF4 NOT A RESULT. SO3aF2 = feasibility probe AT REST, "no item verdict by construction" (F1-F5 HIT, reported not graded); its deleted `QUEUE_ENTRY_DRAFT_*.json` are **uncommitted working-tree deletions** — the rows were SUPERSEDED (consumed by arms that ran), item at rest; per rule 10 reported not reverted.
+
+**GAP (corrected) + PROPOSED, both regimes:**
+- **Incompressible MP-A1** = SO-3 WITH per-point CL constraint (the physically-held drag-min the SO-3 caveat lacks). Low-risk (incompressible A1 converges). The clean incompressible multipoint milestone.
+- **Compressible D6R2** = the A2 transonic multipoint drag-min, gated on **D6RF5** (fix the single-point A2 primal — can't converge a multipoint optimum while one op-point's primal fails 88%) + **SO3DR Stage-2** (the aborted-trial coupling). Sequence: D6RF5 → SO3DR-Stage-2 → D6R2.
+
+**§2ay:** D6R NOT A RESULT → state (b) via the D6RF5 + SO3DR-Stage-2 → D6R2 chain. NOT a capability gap. No multipoint item warrants a state-(a) filing.
+
+**PROGRESS THIS TURN:** W4-reanchor RESULTS record filed on disk (`075ddaf1`) — verdict BLOCKED now beside the case, not board-only. D6RF5 `limited corrected` differentiability **DISCHARGED for BOTH regimes** (rho-path confirmed at `DAResidualRhoSimpleFoam.C:199`, AD-taped `libfiniteVolumeADR.so`); D6RF5 draft solver-naming corrected DASimpleFoam→DARhoSimpleFoam. D6RF5 freeze now owes only my check-1 read + band sizing ([BAND-FD]/[H-SET]/[PLATEAU-TOL]) + representative-DV choice.
 
 ### S-110 — 2026-09-06T23:45:22Z — **§2ay ENFORCEMENT RUN AGAINST DAFOAM: the standing check reads ZERO dafoam records (vacuously clean); it CANNOT see dafoam item ids (D#/SO#) at all. Item-granular enforcement done by hand: EVERY active fail → state (b), NONE → capability gap. Also a REGIME correction to the sweep audit.**
 
