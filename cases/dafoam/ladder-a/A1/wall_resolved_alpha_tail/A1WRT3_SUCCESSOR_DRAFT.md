@@ -832,3 +832,47 @@ Inherited from `A1WRT` §7 and `A1WRT2` §10 **unweakened**, and none of it is r
    defect in this section and it should be reported as one.
 
 **SUBMISSIONS PARKED.**
+
+---
+
+## 13. AMENDMENT — 2026-09-06T02:14:32Z — **`G-NOGRAD` AS §9 WORDS IT REFUSES ITS OWN PINNED PRODUCER. THE GATE IS RE-WORDED TO PIN THE ENUMERATION, NOT THE ABSENCE.**
+
+**PRE-FIRST-COMPUTE AMENDMENT under `CLAUDE.md` rule 2. The condition is stated and was CHECKED BY EXECUTION in this invocation:** `/home/ubuntu/certonomous-runs/A1WRT3` **ABSENT**; **0 core-min burned**; gates open. **After first compute it could not have been made at all.**
+
+### 13.1 THE MEASUREMENT, AND THE LANE WAS RIGHT TO LEAVE IT REFUSING
+
+§9 words `G-NOGRAD` as *"refuses if `compute_totals` appears even once in the staged producer."* **Implemented literally, it REFUSES the pinned producer.** I verified the three occurrences myself rather than on report:
+
+| line | what it is | reachable under the registered task? |
+|---|---|---|
+| `:40` | **a COMMENT** listing the `-task` options — **it ships with the upstream DAFoam template** | **no — it is not code** |
+| `:257` | `elif args.task == "compute_totals":` — a branch **guard** | **no — the branch is not entered** |
+| `:260` | `totals = prob.compute_totals()` — the only call, **inside that branch** | **no** |
+
+**The launcher's only producer invocation is `a1wrt3_cmd.sh:368`: `python "$A1WRT3_PRODUCER" -task sweep`.** So `args.task` is `sweep`, the `compute_totals` limb is **never entered**, and the call is **never made**. No gradient and no adjoint work occurs — which is the entire purpose of the gate.
+
+> **A GATE THAT NO ADMISSIBLE PRODUCER CAN PASS IS NOT A GATE; IT IS A TYPO.** As worded, `G-NOGRAD` refuses **every stock DAFoam runScript in existence**, because the offending string sits in a comment upstream ships. It cannot separate a producer that computes gradients from one that cannot — **it refuses both** — and **a test that fails everything discriminates exactly as poorly as one that passes everything.** That is §21's `S1FDP` lesson arriving from the opposite direction: the two failures look nothing alike and are the same defect.
+
+**THE LANE DID NOT AMEND IT TO MAKE ITS OWN ITEM PASS, AND THAT WAS CORRECT.** It implemented the registered wording, left it refusing, recorded the refusal as a measured fact with the three line numbers, and escalated. **The amendment is mine and only mine.**
+
+### 13.2 THE AMENDMENT — PIN THE ENUMERATION AND THE REACHABILITY, NOT THE APPEARANCE
+
+**This is `L-493` applied where it is already law in this family: *pin the count or the path, not the appearance*.** `G-NOGRAD` now refuses unless **all three** clauses hold, each mechanically checkable on md5-gated bytes:
+
+> **(a) THE TASK IS PINNED.** The staged launcher contains **exactly one** producer invocation and it passes **`-task sweep`**. More than one invocation, or any other `-task` value, **REFUSES**.
+>
+> **(b) THE OCCURRENCES ARE ENUMERATED, NOT COUNTED.** `compute_totals` appears at **exactly** the three registered sites, each matching its registered content: the comment; the `elif args.task == "compute_totals":` guard; and the call **lexically inside that guard's suite**. **A FOURTH OCCURRENCE ANYWHERE REFUSES**, and so does a change to any of the three.
+>
+> **(c) THE CALL STAYS BEHIND THE GUARD.** If the call is ever **outside** the `compute_totals` branch, **REFUSE** — that is the condition the gate actually cares about, and it is now the one being tested.
+
+**THIS IS NOT A LOOSENING, and I asked the question rather than asserting the answer.** The original admits **no** producer. The amendment admits **exactly one** — the pinned bytes, at the pinned sites, under the pinned task — and refuses every mutation, **including three the original could not even express**: a **second** invocation, a **different task**, and the call **escaping its guard**. **It is strictly more discriminating than what it replaces.** Its predicted value on the pinned producer is **already measured** — the three sites above — so §21's show-the-arithmetic requirement is met **at zero compute**.
+
+**WHAT IS NOT CHANGED:** no band, cap, deadline, ceiling, label or prediction moves. `SEAM` 3.120 / cap 10.0, `TAIL` 224.775 / cap 675.0, ceiling 685.0, and `P-SEAMTIME3`'s four branches plus its refusing catch-all stand exactly as drafted. **`SEAM` first; `TAIL` only behind `SEAM`'s verdict; an `UNRESOLVED` `SEAM` is neither a permission nor a refusal.**
+
+### 13.3 ⚠ A SECOND FINDING FROM THE SAME LANE, AND IT GENERALISES
+
+`a1wrt3_grade.py` and `a1wrt3_selftest.py` each loaded `a1wrt3_instruments.py` **by path**, producing **two module objects carrying two distinct `Refusal` classes**, so `except I.Refusal` could not catch a refusal raised through the grader's copy. **Ten controls scored `NOT EXERCISED`.**
+
+**The direction it failed in was the harmless one. Reverse it and it is not.** A control written the other way round — expecting a refusal it can never catch — scores **a PASS while catching nothing**: rule 3's exact failure mode arriving **through the import system** rather than through a reader. Repaired by taking the module through the grader (`I = G.INSTR`), **with the reason recorded at the import site**, because the next person to add an instrument will otherwise re-import it by path.
+
+**SUBMISSIONS PARKED.**
