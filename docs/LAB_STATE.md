@@ -1430,6 +1430,43 @@ Updates d09a4e28's "origin of the day's 52/69 UNVERIFIED". Settled by cfd's comm
 
 ## closure
 
+**2026-09-06T~02:4xZ — LING ARM 2: READY TO POWER, AND I MUST CORRECT MY OWN BOARD TWICE.**
+Sanaa's *"everything approved"* captured at `b7c56371`; her verbatim words are TWO, the operative
+list is the chief's disclosed reading. **Enough for arm 2 — she gave an explicit YES earlier and it
+has its OWN frozen 40 GPU-h cap. It is NOT a new ceiling (rule 9), and the capture itself says the
+CONSOLE FACTS CANNOT BE SUBSTITUTED.** Nothing powered, nothing launched.
+**⚠ CORRECTION 1 — I WAS TOLD TO LAND THE B2 AMENDMENT AND B2 WAS ALREADY LANDED.**
+`arm2/PREREGISTRATION.md` **Item (B)**, dated **2026-08-24T17:26:51Z**, already struck the
+unsupported `8.5` and fixed the range at **3-32 GPU-h**. **Executing the instruction literally would
+have written a SECOND ruling on the same clause of a FROZEN pre-registration — the records damage
+rule 6 exists to prevent.** **B1 is ALSO discharged** by **Item (A)** plus the launcher's
+`SHUTDOWN=${SHUTDOWN:-1}` switch (`run_all_gpu_v2.sh:34,51-55`) — B1's premise *"there is no flag
+or environment switch"* is no longer true of the file on disk. **The LAUNCH_CHECKLIST's blocker
+list had OUTLIVED ITS BLOCKERS; a dated status correction is appended to it.**
+**⚠ CORRECTION 2 — THE 'UNFILED ROW' FRAMING ON THIS BOARD IS WRONG AND I RELAYED IT UPWARD.**
+**Arm 2 is HAND-LAUNCHED, not queue-dispatched:** step 6 is a typed `bash run_all_gpu_v2.sh launch`
+over ssh, and **neither the checklist nor the pre-registration references the queue anywhere**;
+`queue_runner.py:926-930` SKIPS any non-local `host` — *"remote dispatch is not this runner's"* —
+so this runner could not dispatch a GPU-node run even with a correct address. **THERE IS NO QUEUE
+ROW: none exists, none is drafted, none is needed.** The mechanism I kept quoting is real (an empty
+or absent `host` IS treated as local, `""` being inside the accepted set) but it warns against
+WRITING such a row — it never described arm 2's state. **The half that was always right stands:
+NOTHING PICKS THIS RUN UP AUTOMATICALLY — power the card with no one to type the launch line and it
+idles and bills.**
+**TRUE READINESS: B1 DISCHARGED · B2 DISCHARGED · B3 OPEN (HERS — the console price read; §6 still
+prices from the published feed `$0.8048/GPU-h`) · B4 OPEN (MINE — nothing watches for completion).**
+**Arm 1's measured cost of B4: the node idled 7 h 52 m 47 s = 7.88 GPU-h ~ $6.34 derived**, plus an
+unmeasured pre-launch idle and an unmeasured post-sync idle. `--shutdown` closes only the TAIL, and
+only if the driver reaches its shutdown stage; **a failed halt is visible ONLY by reading
+`out/shutdown_attempt.json` on a node still up.**
+**COST, VERIFIED FROM THE PREREGISTRATION NOT FROM THIS BOARD:** rate `$0.8048/GPU-h`
+(`arm2/PREREGISTRATION.md:162`); estimate **3-32 GPU-h = $2.41-$25.75 derived**; **cap 40 GPU-h =
+$32.19 derived**; CPU leg 1.81 core-h = $0.093. **Rule-2 condition for any further pre-compute
+amendment CHECKED AND RECORDED: all three candidate run directories ABSENT** (`~/r_ling_gpu`,
+`/home/ubuntu/closure-data/r_ling_gpu`, `arm2/out`).
+**LANE OUT (1):** the five approved inbound paper retrievals, L-144 title-page verification on
+arrival, quarantine on mismatch — the Weatheritt lookalike is the precedent and is one of the five.
+
 **2026-09-06T~02:0xZ — THE DUCT-FIRST PACKAGE IS COMPLETE AT `REGISTERED`. 4 entries,
 `ladder_evidence_count` 0, checker 58/58. ZERO COMPUTE.** `entries/b_qcr2000_spalart2000.md`
 landed on explicit grant. **The rung-3 filter on `square_duct_secondary_flow` now returns THREE
