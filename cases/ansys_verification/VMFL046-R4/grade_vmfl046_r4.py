@@ -540,7 +540,7 @@ def registered_window(hist, endtime):
     return sel, (endtime - N_WINDOWS * W, endtime)
 
 
-def audit_window_only(level, bounds, hist):
+def audit_window_only(level, bounds, hist, run_root):
     """W1's PROOF, AND IT IS A MEASUREMENT OF THE RUN THAT PRODUCED THE VERDICT.
 
     Every centreline path this comparator opened for this level is compared against the
@@ -550,7 +550,27 @@ def audit_window_only(level, bounds, hist):
     lo, hi = bounds
     inside = set(os.path.realpath(p) for t, p in hist if lo - TIME_RTOL * hi < t <= hi)
     read = set(_audit_paths())
-    outside = sorted(read - inside)
+
+    # ---- §2aw (c) REPAIR (VERIFICATION_CHARTER v1.68, grant fa3ab580) ------------
+    # W1's SUBJECT IS THE CASE'S DATA.  The planted controls write and re-read their own
+    # synthetic samples in a temp dir, through this same audited reader; those are the
+    # AUDITOR'S OWN ARTIFACTS, not run data, and were never in W1's scope.  §2aw.4:
+    # "an audit's subject is the case's data; the auditor's own artifacts were never in
+    # scope, and excluding them narrows nothing that W1 was ever measuring."
+    #
+    # THE GROUND IS SEMANTIC AND VALUE-FREE.  Nothing computed, compared or thresholded
+    # is touched: shock_series, plateau, the gate (1.250 m +-5 %) and DELTA_X are
+    # untouched, and any change to them is void under this grant (§2aw.5).
+    #
+    # WHY THIS IS NOT (d).  A read of a REAL sample outside the window still lies INSIDE
+    # the run root, so it is still audited and still refuses -- the hazard W1 exists to
+    # catch.  Snapshot-and-restore around the plants would have masked it, which is the
+    # stated reason (d) was rejected.  _audit_with_outside_read() drives exactly that.
+    root = os.path.realpath(run_root).rstrip(os.sep) + os.sep
+    run_reads = set(p for p in read if p.startswith(root))
+    excluded = sorted(read - run_reads)
+
+    outside = sorted(run_reads - inside)
     if outside:
         refuse("%s: W1 VIOLATED -- the comparator opened %d centreline sample(s) OUTSIDE "
                "its registered window t in (%.6g, %.6g]: %s%s.  A reader that consumes "
@@ -558,11 +578,14 @@ def audit_window_only(level, bounds, hist):
                "for, which is exactly how R3 failed to grade."
                % (level, len(outside), lo, hi, ", ".join(outside[:3]),
                   " ..." if len(outside) > 3 else ""))
-    if not read:
-        refuse("%s: W1 AUDIT IS EMPTY -- no centreline sample was recorded as read, so the "
-               "window property is vacuously true and proves nothing.  A control that "
-               "cannot fail is not a control (rule 3)." % level)
-    return dict(n_read=len(read), n_window=len(inside), lo=lo, hi=hi)
+    # THE EMPTY CHECK KEYS ON run_reads, NOT read.  Keying it on `read` would let the
+    # plants' own scratch reads satisfy it vacuously -- a control that cannot fail.
+    if not run_reads:
+        refuse("%s: W1 AUDIT IS EMPTY -- no centreline sample INSIDE THE RUN ROOT was "
+               "recorded as read, so the window property is vacuously true and proves "
+               "nothing.  A control that cannot fail is not a control (rule 3)." % level)
+    return dict(n_read=len(run_reads), n_window=len(inside), lo=lo, hi=hi,
+                n_excluded=len(excluded), excluded=excluded)
 
 
 # ---- the plateau (D2 + D4) --------------------------------------------------
@@ -1066,7 +1089,7 @@ def grade(run_root):
         pd = plant_T_field(os.path.join(tpath, "T"))
 
         cl_last = to_mach(read_centreline_raw(win[-1][1]))
-        aud = audit_window_only(L, bounds, hist)
+        aud = audit_window_only(L, bounds, hist, ld)
 
         st[L] = dict(endt=endt, n=nsteps, pl=pl, samp=samp, lim=lim, aud=aud,
                      snap=shock_location_snapping(cl_last),
@@ -1077,9 +1100,17 @@ def grade(run_root):
         print("%s  endTime %.6g s in %d time steps  (sampler nPoints %d, spacing %.6e m, "
               "sampler/mesh %.6f)" % (L, endt, nsteps, samp["npoints"], samp["s"],
                                       samp["ratio"]))
-        print("     W1 read audit: %d distinct centreline sample(s) OPENED, all inside the "
-              "registered window (%.6g, %.6g] which holds %d of the %d written samples"
+        print("     W1 read audit: %d distinct centreline sample(s) OPENED inside the run "
+              "root, all inside the registered window (%.6g, %.6g] which holds %d of the "
+              "%d written samples"
               % (aud["n_read"], aud["lo"], aud["hi"], aud["n_window"], len(hist)))
+        # §2aw.5 condition (3): the excluded paths are NAMED, in full, in the grade's own
+        # output -- not summarised as a count.  A reader must be able to see that every
+        # one of them is the comparator's own artifact and none is run data.
+        print("     W1 §2aw(c) EXCLUDED from the audit as NOT RUN DATA (outside %s): %d"
+              % (os.path.realpath(ld), aud["n_excluded"]))
+        for _p in aud["excluded"]:
+            print("        %s" % _p)
         print("     x_shock (window-A mean, THE LEVEL VALUE) = %.9f m   (%+.4f %% vs %.3f)"
               % (pl["x_level"], dev, ANALYTICAL_SHOCK))
         print("     x_shock (final sample)                   = %.9f m"
@@ -1314,7 +1345,7 @@ def selftest():
     _audit_reset()
     win, bounds = registered_window(hist, ENDTIME_GRADED)
     ser = shock_series(win)
-    aud = audit_window_only("SELFTEST", bounds, hist)
+    aud = audit_window_only("SELFTEST", bounds, hist, _hist_root(hist))
     arm("R4 BEHAVIOUR on the SAME history -> grades it, %d samples read, window (%.6g, %.6g]"
         % (aud["n_read"], bounds[0], bounds[1]),
         len(ser) == FROZEN_ARITHMETIC["window_total"] and aud["n_read"] == len(ser))
@@ -1353,7 +1384,8 @@ def selftest():
                 lambda: _audit_with_outside_read(hist2))
     must_refuse("the W1 audit REFUSES an EMPTY audit (a control that cannot fail)",
                 lambda: (_audit_reset(),
-                         audit_window_only("SELFTEST", (0.064, 0.080), hist2))[1])
+                         audit_window_only("SELFTEST", (0.064, 0.080), hist2,
+                                           _hist_root(hist2)))[1])
 
     print("== D2 PLATEAU CONJUNCTION -- R3 HAD NO ARM HERE AND A CONSTANT `True` PASSED ==")
     d = DELTA_X
@@ -1479,6 +1511,49 @@ def selftest():
         % (_rb2["base"], _rb2["got"]),
         _rb2["got"] >= _rb2["base"] + 0.75 * PLANT_DX)
 
+    # ---- §2aw REQUIRED CONTROL: THE PLANTS-THEN-AUDIT **ORDERING**, DRIVEN -------
+    # This is the coverage gap that produced BOTH defects (L-495).  Every arm above
+    # exercises a PART; this one runs grade()'s actual sequence against a synthetic run
+    # root -- arm the audit, select the window, read the series, RUN THE FIVE PLANTS,
+    # then check the audit -- which is the only ordering in which either defect appears.
+    print("== §2aw PLANTS-THEN-AUDIT ORDERING (the sequence grade() actually runs) ==")
+    _h = _fake_history(shockless_before=0)
+    _root = _hist_root(_h)
+    _audit_reset()
+    _wn, _bd = registered_window(_h, ENDTIME_GRADED)
+    _sr = shock_series(_wn)
+    _pl = plateau(_sr, ENDTIME_GRADED)
+    _wA = _wn[len(_sr) - len(_pl["A"]):]
+    plant_gate_reader(_wn[-1][1])
+    plant_plateau_reducer(_wA)
+    plant_series_translation(_pl["A"])
+    plant_field_readback_per_sample(_wA)
+    _pre = set(_audit_paths())
+    _a = audit_window_only("SELFTEST-ORDER", _bd, _h, _root)
+    arm("the plants DO pollute the audit -- %d of %d recorded reads are the comparator's "
+        "OWN scratch, outside the run root (this is the defect, still present and still "
+        "measured; (c) EXCLUDES it, it does not stop it happening)"
+        % (_a["n_excluded"], len(_pre)), _a["n_excluded"] > 0)
+    arm("W1 PASSES in the production ordering: %d run-root reads audited, %d excluded as "
+        "not run data" % (_a["n_read"], _a["n_excluded"]),
+        _a["n_read"] == FROZEN_ARITHMETIC["window_total"])
+    arm("every excluded path is OUTSIDE the run root, and none is a run sample",
+        all(not p.startswith(_root + os.sep) for p in _a["excluded"]))
+
+    # ⚡ AND THE HAZARD (d) WOULD HAVE MASKED, DRIVEN IN THE SAME ORDERING: a plant that
+    # reads a REAL out-of-window sample is INSIDE the run root and MUST still refuse.
+    # (c) narrows W1's subject; it does not narrow W1's reach.
+    def _plant_reads_real_out_of_window():
+        _audit_reset()
+        wn, bd = registered_window(_h, ENDTIME_GRADED)
+        sr = shock_series(wn)
+        pl_ = plateau(sr, ENDTIME_GRADED)
+        plant_plateau_reducer(wn[len(sr) - len(pl_["A"]):])
+        read_centreline_raw(_h[0][1])      # a REAL sample at t = SAMPLE_DT, out of window
+        return audit_window_only("SELFTEST-ORDER", bd, _h, _root)
+    must_refuse("⚡ (c) STILL CATCHES a plant reading a REAL out-of-window sample -- the "
+                "hazard (d) was rejected for masking", _plant_reads_real_out_of_window)
+
     print("== PLANT D -- the T-field reader ==")
     must_refuse("D refuses a T internalField that is not a nonuniform scalar list",
                 lambda: read_T_internal(_write_T_file("internalField uniform 300;\n")))
@@ -1581,6 +1656,14 @@ def _w2_with(basis):
         COST_BASIS_FRACTION = old
 
 
+def _hist_root(hist):
+    """The synthetic run root for a _fake_history/_fake_window: every sample it wrote
+    lives in one temp dir, so that dir plays the part `ld` plays in grade().  Derived
+    from the history itself so an arm cannot pass by naming a root that excludes the
+    very reads it should audit."""
+    return os.path.dirname(os.path.realpath(hist[0][1]))
+
+
 def _audit_with_outside_read(hist):
     """Plant an OUT-OF-WINDOW read into the audit and require the audit to catch it.  The
     planted path is a real early sample from the same history -- exactly the file R3's
@@ -1589,7 +1672,7 @@ def _audit_with_outside_read(hist):
     win, bounds = registered_window(hist, ENDTIME_GRADED)
     shock_series(win)
     read_centreline_raw(hist[0][1])           # t = SAMPLE_DT: outside the window
-    return audit_window_only("SELFTEST", bounds, hist)
+    return audit_window_only("SELFTEST", bounds, hist, _hist_root(hist))
 
 
 def _c1_with_bad_reducer():
