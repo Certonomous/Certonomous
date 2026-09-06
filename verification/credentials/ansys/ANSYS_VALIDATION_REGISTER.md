@@ -1090,3 +1090,99 @@ nothing else, stops the grade.
   (`COMPUTE_BUDGET_CHARTER` §5). Calibration row landed in `docs/COST_CALIBRATION.md`.
 - **The 489 core-min is HELD — neither vindicated nor written off.** The solve data is complete
   and on disk; only a legal instrument is missing.
+
+### DATED ADDENDUM to row #61 — 2026-09-06 — **THE `§2aw(c)` REPAIR LANDED, W1 NOW PASSES, AND THE VERDICT IS UNCHANGED BUT ITS REASON HAS MOVED FROM THE INSTRUMENT TO THE PHYSICS**
+
+**The verdict cell does not move: VMFL046-R4 remains `NOT A RESULT`.** No gate, threshold, band,
+cap or label is altered. What changes is *why*, and the physics is now on the record.
+
+**Grant:** `VERIFICATION_CHARTER` v1.68 `§2aw` (`fa3ab580`), repair **(c) — audit only paths
+inside the run root**. (b) rejected — arming the audit after the plants collapses coverage 33 → 1,
+*"hollowed, not narrowed"*. (d) rejected — its equivalence to (c) is coincidental and it would mask
+a plant reading a real out-of-window sample.
+
+#### `§2aw.5` condition (3) — the before/after, discharged
+
+| | before the repair | after the repair |
+|---|---|---|
+| W1 | **REFUSED**, rc = 2, at **every** level | **PASSES** at **every** level |
+| run-root reads audited | — (refused) | **33** per level = the registered window's own 33 samples |
+| excluded as not run data | — | **19** per level |
+| verdict reachable | no | yes |
+
+#### The 19 excluded paths, NAMED — and an honesty note about what naming them is worth
+
+Verbatim from L3 of the graded invocation:
+
+```
+/tmp/vmfl046r4_plantA_ysmj6t3j/line_T_U.xy
+/tmp/vmfl046r4_plantB_0ukm7a60/s7.xy
+/tmp/vmfl046r4_plantC2_qtaxtbc4/{s0,s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11,s12,s13,s14,s15,s16}.xy
+```
+
+**These are `mkdtemp` names and they are FRESH ON EVERY INVOCATION**, so the literal strings above
+are not reproducible and a reader must not treat them as a checkable artifact. **The durable,
+checkable facts are the generating sites and the count**, and those are invariant:
+
+| generating site | files | why it is the comparator's own artifact |
+|---|---|---|
+| `plant_gate_reader` | **1** (`line_T_U.xy`) | writes a perturbed copy of the final sample and reads it back |
+| `plant_plateau_reducer` | **1** (`s<k>.xy`, k = the argmax sample) | perturbs one sample of window A |
+| `plant_field_readback_per_sample` | **17** (`s0…s16.xy`) | perturbs and re-reads **every** sample of window A — and 17 is `FROZEN_ARITHMETIC["per_window"]` |
+| **total** | **19** | |
+
+**1 + 1 + 17 = 19 is forced by the frozen arithmetic**, not by chance, and it is why the count is
+19 at all three levels. **Every one of the 19 is written by the comparator, under `/tmp`, and none
+is inside the run root** — verified by an arm that asserts exactly that.
+
+#### `§2aw.5` condition (4) — the pre-repair state, travelling beside the published verdict
+
+> **Before the `§2aw(c)` repair this row read `NOT A RESULT` because the comparator REFUSED AT W1.
+> After it, the row reads `NOT A RESULT` because THE PHYSICS DID NOT PLATEAU.** These are different
+> findings that happen to carry the same label, and the label alone would hide the difference.
+
+#### ⚡ THE PHYSICS — the level value that was computed and deliberately not read now speaks
+
+| level | `x_shock` (window-A mean) | vs 1.250 m | P1 | P2 | P3 | worst vs `DELTA_X` |
+|---|---|---|---|---|---|---|
+| L1 | **1.029256 m** | −17.66 % | 1.0556e-01 | 1.7630e-01 | 3.2368e-02 | **282.1×** over |
+| L2 | **0.957707 m** | −23.38 % | 1.7045e-01 | 1.1970e-01 | 1.0849e-01 | **272.7×** over |
+| L3 | **1.049922 m** | −16.01 % | 1.2674e-01 | 1.5763e-01 | 3.5762e-02 | **252.2×** over |
+
+**Triple on `x_shock`: `state = OSCILLATORY`, R = −1.289, p = n/a, GCI = n/a.**
+
+**Verdict `NOT A RESULT` at CLAUDE.md rule 5 step 1** — no level reached the pre-registered
+plateau. The triple's `OSCILLATORY` state is an independent, second route to the same verdict at
+step 2.
+
+**NO `GATE FAIL` IS ISSUED AND NONE MAY BE.** Rule 5 is one-way: the gate can only turn a `PASS`
+or `GATE FAIL` **into** `NOT A RESULT`, never the reverse. Step 1 fires first, so the −16 % to
+−23 % deviations above are **printed beside the verdict and are not a gate reading**. No order and
+no GCI: the three values are not monotone and a GCI must never be quoted when they are not.
+
+**All five planted controls discriminate at every level** — A err ≤ 1.149e-03 (tol 2.500e-03);
+B moves the ptp by the full planted 1.000e-02; C1 inert 0.000e+00 / live +1.000e-02; C2 worst
+≤ 1.149e-03; D err ≤ 4.983e-08. N4 limiters **non-binding** at all three levels.
+
+#### What this establishes, and what it does not
+
+- **Established:** none of the three levels plateaued, by **250–282×**, on runs that all completed
+  `rc = 0` at `endTime`; and the triple oscillates. R4's physics is byte-identical to R3, so **this
+  is the first time the CD-nozzle hunt has been measured at all three levels on runs that all
+  finished.**
+- **NOT established:** that this is the same Hopf-type limit cycle row #57 diagnosed in the
+  inviscid control. The within-window `ptp` (P1, P2 ≈ 0.11–0.18 m) **exceeding** the between-window
+  drift (P3 ≈ 0.032–0.108 m) is the signature of a **sustained oscillation** rather than a slow
+  drift, which is **consistent with** that mechanism — *consistent with, not demonstrated*. A
+  successor owes the demonstration, and it does not need new compute at these levels.
+- **The 489 core-min is now VINDICATED**, superseding this row's earlier "held". It bought a
+  measured physics finding at three levels.
+
+**Comparator provenance:** blob `83826c1f…` (the `§2av` state at `8c25032b`) → **`476de16ab3e4f3572435e7e8a729ff617a08fc62`** at `89d7dce4`, sha256
+`32220d4bd070a0f6ea111ef255a0e1e2ada3ecc7758d60f8d4f3ff50c0c10b33`. Diff 96 insertions / 13
+deletions, **every deletion inside `audit_window_only`, its four call sites or its print line**.
+Selftest **67 ok, 0 FAILED** (59 → 63 → 67 across the two grants). The `§2aw`-required
+plants-then-audit **ordering** control drives the production sequence against a synthetic run root
+and reproduces the real case exactly — 19 excluded, 33 audited — and its fourth arm drives the
+hazard (d) was rejected for: **a plant reading a REAL out-of-window sample is inside the run root
+and STILL REFUSES.** (c) narrows W1's *subject*, not its *reach*.

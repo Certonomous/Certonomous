@@ -37105,37 +37105,38 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
-**Section last written:** 2026-09-06, after grading VMFL046-R4 (register row #61).
+**Section last written:** 2026-09-06, after the §2aw(c) repair and the VMFL046-R4 physics grade.
 
 ### Last commit
-`8c25032b` — ansys VMFL046-R4 comparator: the §2av repair EXECUTED under all four requirements — and it uncovered a SECOND, INDEPENDENT defect that was structurally hidden behind the first.
-(This board entry lands with the row-#61 commit immediately after it.)
+`89d7dce4` — VMFL046-R4: the §2aw(c) W1 audit-scope repair executed; the frozen path driven; verdict `NOT A RESULT` on the physics.
 
 ### Live jobs
-**None.** No ansys-verification solver is running. Queue rows: none of mine pending.
+**None.** No ansys-verification solver is running; no queue row of mine is pending.
 
-### Verdicts landed today
-- **VMFL046-R4 — `NOT A RESULT`** (register row #61). **All three levels COMPLETED** rc = 0, `End`, last `Time` = `endTime` 0.08, 160 samples each, serial. **489.0 / 536 core-min = 0.912×** ($0.418 derived). The verdict is an **instrument refusal, not a physics failure**: the W1 read audit charges the comparator's own planted-control `/tmp` scratch files against its registered window. **No `x_shock`, no plateau, no order, no GCI, and no `GATE FAIL`** — the gate quantity was never read out.
+### Verdicts
+- **VMFL046-R4 — `NOT A RESULT`** (register row #61 + its 2026-09-06 addendum). **The reason moved from the instrument to the physics.** `x_shock` = **1.029256 / 0.957707 / 1.049922 m** (L1/L2/L3), **−17.66 / −23.38 / −16.01 %** vs the manual's 1.250 m; **no level plateaued, by 252×–282× of `DELTA_X`**; triple **`OSCILLATORY`, R = −1.289**. Rule 5 step 1, with step 2 an independent second route. **No `GATE FAIL` and none may be issued** — rule 5 is one-way. All five plants discriminate at all three levels; N4 limiters non-binding. **489.0 / 536 core-min = 0.912× (1.004× against the basis); $0.418 derived. VINDICATED** — zero additional compute was spent to reach the physics.
 
 ### Rungs without verdicts — named even where the answer is embarrassing
-- **VMFL046-R4** — graded `NOT A RESULT` above; **the physics answer is still unknown** and the 489 core-min is **HELD**, neither vindicated nor written off. Unblocks the moment the W1 petition is ruled; **no re-run is needed, the solve data is complete on disk**.
-- **VMFL034** — a ruled decision is owed by me (re-scope to frozen-flow/passive-moment, register as a measured capability limitation, or abandon). Broken two ways: SIGFPE from NaN `Re` under buoyant segregation with gravity, and CoV 3.65 = 36× threshold without it. **Reserved above a lane** — a pre-registration decision.
+- **VMFL046 successor (R5)** — owed, and it is a *diagnosis*, not a re-run. **Established:** three completed levels, none plateaued, triple oscillates. **NOT established:** that this is the same Hopf-type limit cycle row #57 diagnosed in the inviscid control. P1/P2 (0.11–0.18 m) exceeding P3 (0.032–0.108 m) is a **sustained-oscillation** signature, *consistent with* that mechanism, not a demonstration. **The demonstration needs no new compute at these levels — the fields are on disk.**
+- **VMFL034** — a ruled decision is owed **by me**: re-scope to frozen-flow/passive-moment, register as a measured capability limitation, or abandon. Broken two ways (SIGFPE from NaN `Re` under buoyant segregation with gravity; CoV 3.65 = 36× threshold without it). Reserved above a lane.
 - **VMFL072-R3** — remedy owed; must keep the anti-circularity property (L-487: a subset prescription is not sufficient for a `ptp` statistic — absorption).
-- **VMFRT005** — both decisions approved by Sanaa (`b7c56371`). Mechanism held at `b5ad9c08` (`cases/ansys_verification/VMFRT005/mechanism/`), but the 2115-species reference is **the right chemistry at the wrong size**: a skeletal-mechanism path is needed. Owes a rule-12 **point estimate** (not an inequality) and a probe-length floor before the ~2,500–4,000 core-h spend.
+- **VMFRT005** — both decisions approved by Sanaa (`b7c56371`); mechanism held at `b5ad9c08`. The 2115-species reference is **the right chemistry at the wrong size** — a skeletal path is needed. Owes a rule-12 **point estimate** (not an inequality) and a probe-length floor before the ~2,500–4,000 core-h spend.
 - **VMFL024** — 85 KB untracked pre-registration, **no comparator**.
-- **VMFL008** — D5/D6 own freeze; B4 script and B5 R2 hash still open, and **the case has no OpenFOAM case inputs at all**.
-- **The ~45 figure-only pool** — 51 never-touched cases, ~85 plates. The per-case digitizer instrument (§36.2 route) is **case-blocking physics-path work** under Sanaa's mandatory order, not optional tooling.
+- **VMFL008** — D5/D6 own freeze; B4 script and B5 R2 hash open, and **the case has no OpenFOAM case inputs at all**.
+- **The figure-only pool** — 51 never-touched cases, ~85 plates. The per-case digitizer (§36.2) is **case-blocking physics-path work** under Sanaa's mandatory order.
 
 ### Next actions
-1. **Await the W1 audit ruling**, then repair under the four §2av-style requirements and grade R4 to a physics verdict. This is the cheapest verdict available anywhere in my territory — **zero compute**.
-2. **L-495's remedy**: make comparator selftests drive `grade()` end-to-end against a synthetic run root, and declare the production-ordering gap in `check_freeze_ready.py` (`181cd921`) C3 rather than discover it a seventh time.
-3. **VMFL034 decision** — mine, overdue.
-4. VMFL008 D5/D6 pre-registration and check-4 freeze; VMFL024 comparator; the digitizer plan.
+1. **`check_freeze_ready.py` C3's false-coverage declaration** — ruled against me at §2aw.7 (*"a check whose declaration is wider than its coverage is worse than an absent check"*); **the repair is mine, forward-only.** C3 declares it checks the comparator and does not check the comparator's production ordering.
+2. **VMFL034 decision** — mine, overdue.
+3. VMFL046-R5 diagnosis (zero new compute at these levels); VMFL008 D5/D6 freeze; VMFL024 comparator; the digitizer plan.
 
 ### On Sanaa's desk
-- **Nothing new today.** The W1 petition goes to the **verification referee**, not to Sanaa — it is a charter-clause reading, inside the lab's own authority.
-- Still parked from before: the paper/mechanism acquisition list, if the skeletal-mechanism fetch is denied to my own session.
+- **Nothing new.** Both VMFL046-R4 grants were charter readings ruled by the verification referee, inside the lab's own authority.
+- Still parked: the paper/mechanism acquisition list, if the skeletal-mechanism fetch is denied to my own session.
 
 ### Blocked
-- **VMFL046-R4's physics verdict** — blocked on the W1 audit-scope ruling (`docs/ansys_verification/PETITION_VMFL046_R4_W1_AUDIT_SCOPE.md`). **Deliberately not self-repaired**: unlike the §2av defect this repair is **not forced** — four repairs audit different sets — and I hold the run data. **I have not printed or read the computed level value**, so the referee rules unaimed.
+- **Nothing blocked.** The W1 petition is ruled and discharged; VMFL046-R4 is graded to a physics verdict.
+
+### Standing note for successors
+**L-495 and its addendum are this team's most transferable finding this week:** a selftest that exercises the *parts* but never the *production sequence* measures its own coverage, and defects in an unexercised sequence **queue up behind each other** — two in this one file, the second reachable only after the first was repaired. §2aw.7 **endorsed the end-to-end `grade()` drive as practice but did not mint it** as a freeze qualification; the referee pre-stated what would move them: **the same class in a SECOND file, or one instance where the missing drive let a WRONG VERDICT PUBLISH rather than merely blocking one.** If this team meets either, it is owed upward immediately.
 
