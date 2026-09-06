@@ -7,11 +7,14 @@ D6RF4 LAUNCHER-GUARD DRIVE -- EVERY DIRECTION ON A NEUTERED COPY
   OK    direction 1  PERMISSION=NOT_FROZEN -> ABORT G-FREEZE       token seen=True  rc=3  reached_no_container_line=True
   OK    direction 2  a 40-hex PERMISSION -> G-FREEZE does NOT fire G_FREEZE_PASS=True  rc=90
   OK    direction 2  and the FIXTURE's refusal is what stops it    the neutered copy hit a container-touching line and REFUSED there -- so the drive's zero-compute property rests on the FIXTURE, not on PERMISSION
-  OK    direction 3  PERMISSION='deadbeef'   (a short sha) -> ABORT G-FREEZE-SHAPE rc=3
   OK    direction 3  PERMISSION='main'       (a branch name) -> ABORT G-FREEZE-SHAPE rc=3
   OK    direction 3  PERMISSION='2026-09-06' (a date) -> ABORT G-FREEZE-SHAPE rc=3
   OK    direction 3  PERMISSION=''           (an empty edit) -> ABORT G-FREEZE-SHAPE rc=3
-  OK    direction 3  PERMISSION='Z6f4d6f4d6f4d6f4d6f4d6f4d6f4d6f4d6f4d6f4' (40 chars but not hex) -> ABORT G-FREEZE-SHAPE rc=3
+  OK    direction 3  PERMISSION='abc123'     (a 6-char paste, under git's own minimum) -> ABORT G-FREEZE-SHAPE rc=3
+  OK    direction 3  PERMISSION='Z48a6ea1289e6b1f103dcd7aee2a712a8553f5a0' (40 chars but not hex) -> ABORT G-FREEZE-SHAPE rc=3
+  OK    direction 3b PERMISSION=648a6ea1.. an 8-char abbreviation of a commit CARRYING the prereg (D6RF3's own convention: PERMISSION=bc0e687e) G_FREEZE_PASS=True rc=90 -- a 40-only check would have REFUSED THE CORRECT ACT
+  OK    direction 3b PERMISSION=00000000.. 40 hex naming NO commit rc=3
+  OK    direction 3b PERMISSION=5336dd57.. a REAL commit whose tree does NOT carry the prereg rc=3
   OK    direction 4  PERMISSION assigned TWICE -> ABORT G-FREEZE-UNIQUE rc=3 -- the stale second assignment would otherwise have won silently
   OK    direction 5  G-ACCEPT-FLOOR plant REMOVED -> refuses NOT SEEN rc=3 -- a zero from a reader not shown able to see a non-zero is not evidence
   OK    direction 5  a REAL accept-floor assignment -> refuses and NAMES it rc=3 -- the offending line is printed, not merely counted
@@ -37,8 +40,9 @@ D6RF4 LAUNCHER-GUARD DRIVE -- EVERY DIRECTION ON A NEUTERED COPY
   solver core-minutes spent by this drive: 0.000 -- every launcher copy is neutered before it is run, and direction 2 SHOWS that neutering firing
 
 === PROVENANCE ===
-driven 2026-09-06T02:36:55Z
-drive    d6rf4_launcher_guard_drive.py md5 7476774e118f18c68ac33b96ba4bec46
-launcher d6rf4_run_arm.sh md5 6cd796cb32e8d1520b93219c86817b76
-EVERY DIRECTION RAN ON A NEUTERED COPY.  RE-RUN THIS FILE AFTER THE FREEZE:
-every direction is designed to give the SAME verdict once PERMISSION holds a sha.
+driven 2026-09-06T02:41:12Z
+drive    d6rf4_launcher_guard_drive.py md5 9b6b00418ef5e92a5f7e4e0ed865f488
+launcher d6rf4_run_arm.sh md5 a738d9103c47f80862c926802bfe6655
+EVERY DIRECTION RAN ON A NEUTERED COPY.  RE-RUN THIS AFTER THE FREEZE: every
+direction is designed to give the SAME verdict once PERMISSION holds a sha,
+and directions 3/3b/4 are the limbs that survive the placeholder's death.

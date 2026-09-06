@@ -1,5 +1,5 @@
 D6RF4 INSTRUMENT TABLE -- EXTRACTED, NOT WRITTEN FROM MEMORY
-generated 2026-09-06T02:39:29Z  dir /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF4
+generated 2026-09-06T02:41:12Z  dir /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RF4
 extractor  d6rf4_instrument_table_extraction.py (a TOOL, not an instrument: the grader neither imports nor executes it, and it is
            deliberately NOT in FROZEN_PATHS -- freezing the thing that derives the frozen set would make the derivation
            depend on itself.  The executable half is d6rf4_grade.py:frozen_path_coverage(), run at EVERY grading.)
@@ -66,10 +66,10 @@ EXTRACTOR NOTES (1)-(3) are D6RF3's, carried verbatim; (4) is this item's own.  
   d6rf4_grade.py                              155261  4085f678997ef6abe45c6946abd0626e  0
   d6rf4_grade_drive.py                         16680  f432a6b8b4bab573bb4a6a086a8a18fb  0
   d6rf4_instrument_table_extraction.py         17092  1e1c183dd09bf36dfe27cda321d9e6fa  0
-  d6rf4_instrument_table_extraction.txt        14371  ac527f72449fcb8b43e9a773e6b57b9b  
-  d6rf4_launcher_guard_drive.py                13137  7476774e118f18c68ac33b96ba4bec46  0
+  d6rf4_instrument_table_extraction.txt        14229  73bdeac0cb31a374344ea7b97f8801bb  
+  d6rf4_launcher_guard_drive.py                15401  9b6b00418ef5e92a5f7e4e0ed865f488  0
   d6rf4_opt_runScript.py                       13122  137539e0a99be27f27fdb69e063b2a87  0
-  d6rf4_run_arm.sh                             76755  6cd796cb32e8d1520b93219c86817b76  
+  d6rf4_run_arm.sh                             79112  a738d9103c47f80862c926802bfe6655  
   d6rf4_units_assert.py                        18270  8ee53841aed3dfd10f2cf414be39518a  0
 
 === THE FROZEN SET, AND THE GIT BLOB BESIDE THE DISK ===
@@ -87,12 +87,13 @@ EXTRACTOR NOTES (1)-(3) are D6RF3's, carried verbatim; (4) is this item's own.  
   d6rf4_opt_runScript.py                                         disk 137539e0a99be27f27fdb69e063b2a87  HEAD 137539e0a99be27f27fdb69e063b2a87  AGREE
   d6rf4_units_assert.py                                          disk 8ee53841aed3dfd10f2cf414be39518a  HEAD 8ee53841aed3dfd10f2cf414be39518a  AGREE
   d6rf4_finiteness_mutation.py                                   disk 8aeaf30a9a3e177c406ad235c5e2c54e  HEAD 8aeaf30a9a3e177c406ad235c5e2c54e  AGREE
-  d6rf4_run_arm.sh                                               disk 6cd796cb32e8d1520b93219c86817b76  HEAD 6cd796cb32e8d1520b93219c86817b76  AGREE
+  d6rf4_run_arm.sh                                               disk a738d9103c47f80862c926802bfe6655  HEAD 6cd796cb32e8d1520b93219c86817b76  DISAGREE
   d6rf4_fvSolution_TIGHT                                         disk 0ac5bd00c63b9109d22a8e73b0795aa4  HEAD 0ac5bd00c63b9109d22a8e73b0795aa4  AGREE
   d6rf4_fvSolution_D6RF3_ORIGINAL                                disk 9e2669956be778acf7e7d8aa67a90ff6  HEAD 9e2669956be778acf7e7d8aa67a90ff6  AGREE
   d4_opt_runScript.py                                            disk 2906d52a5dbed2bacbaeaf85a37d3fe8  HEAD 2906d52a5dbed2bacbaeaf85a37d3fe8  AGREE
   d6r_opt_runScript.py                                           disk 93edb4a231e13a7af065368f61a468ef  HEAD 93edb4a231e13a7af065368f61a468ef  AGREE
-  -> 0 of 17 frozen paths NOT IN HEAD; 0 COMMITTED BUT EDITED SINCE; 17 agree
+  -> 0 of 17 frozen paths NOT IN HEAD; 1 COMMITTED BUT EDITED SINCE; 16 agree
+     freeze_check WOULD REFUSE THIS GRADING (rule 2: the grading path is fixed at the pre-registration commit). Commit, then re-run.
 
 === THE DERIVATION LEDGER: parent -> derived, and the diff beside it ===
   This family's practice: every instrument is written BY DERIVATION from
@@ -112,8 +113,8 @@ EXTRACTOR NOTES (1)-(3) are D6RF3's, carried verbatim; (4) is this item's own.  
   d6rf4_grade_DELTAS_from_d6rf3.diff                    1765 lines  parent 639d23c4cfea45187561604001c21b44  derived 4085f678997ef6abe45c6946abd0626e
   d6rf4_grade_SUBSTANTIVE_after_rename.diff             1744 lines  parent -  derived 4085f678997ef6abe45c6946abd0626e  (rename-stripped view; no parent file)
   d6rf4_opt_runScript_DELTAS_from_d6rf3.diff               0 lines  parent 137539e0a99be27f27fdb69e063b2a87  derived 137539e0a99be27f27fdb69e063b2a87  BYTE-IDENTICAL CARRY, asserted on both md5s
-  d6rf4_run_arm_DELTAS_from_d6rf3.diff                   939 lines  parent 58684b91f6aced35f500fc947517a8e4  derived 6cd796cb32e8d1520b93219c86817b76
-  d6rf4_run_arm_SUBSTANTIVE_after_rename.diff            648 lines  parent -  derived 6cd796cb32e8d1520b93219c86817b76  (rename-stripped view; no parent file)
+  d6rf4_run_arm_DELTAS_from_d6rf3.diff                   978 lines  parent 58684b91f6aced35f500fc947517a8e4  derived a738d9103c47f80862c926802bfe6655
+  d6rf4_run_arm_SUBSTANTIVE_after_rename.diff            687 lines  parent -  derived a738d9103c47f80862c926802bfe6655  (rename-stripped view; no parent file)
   d6rf4_units_assert_DELTAS_from_d6rf3.diff               38 lines  parent 885ce236ed20d4be0337f4382346500a  derived 8ee53841aed3dfd10f2cf414be39518a
   -> every DELTAS diff agrees with the md5s of the pair it describes
 

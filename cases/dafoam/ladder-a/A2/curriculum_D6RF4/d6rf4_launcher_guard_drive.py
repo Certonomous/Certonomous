@@ -51,10 +51,31 @@ import tempfile
 HERE = os.path.dirname(os.path.abspath(__file__))
 LAUNCHER = os.path.join(HERE, "d6rf4_run_arm.sh")
 PLACEHOLDER = "NOT_FROZEN"
-# A 40-hex value that is DELIBERATELY NOT ANY REAL COMMIT: it is the string
-# "d6rf4" repeated to length 40 out of hex-safe characters, so nobody can read
-# a fixture value as a freeze sha that was actually taken.
-FIXTURE_SHA = "d6f4" * 10
+# THE FIXTURE SHAS ARE READ FROM GIT, because the launcher's resolution limb
+# asks git whether the value names a commit whose tree CONTAINS this item's
+# pre-registration.  A hard-coded fixture value could not exercise that limb in
+# either direction, and a control that cannot reach the gate it names is not a
+# control (L-493).
+REPO = "/home/ubuntu/Certonomous"
+PREREG = "cases/dafoam/ladder-a/A2/curriculum_D6RF4/PREREGISTRATION.md"
+
+
+def _git(*a):
+    r = subprocess.run(["git", "-C", REPO, *a], stdout=subprocess.PIPE,
+                       stderr=subprocess.DEVNULL, text=True)
+    return r.returncode, r.stdout.strip()
+
+
+def _fixture_shas():
+    """(a real commit CARRYING the prereg, its 8-char abbreviation, a real
+    commit NOT carrying it, a hex value that names no commit)."""
+    _, carrying = _git("log", "-1", "--format=%H", "--", PREREG)
+    _, no_carry = _git("rev-list", "-1", "--max-parents=0", "HEAD")
+    return carrying, carrying[:8], no_carry, "0" * 40
+
+
+CARRYING, CARRYING_ABBREV, NOT_CARRYING, NO_SUCH = None, None, None, None
+FIXTURE_SHA = None
 PERM_RE = re.compile(r'^PERMISSION=.*$', re.M)
 # Lines that can touch a container.  `sudo` is included because every docker
 # call in this launcher goes through it, and a future line might not say
@@ -113,6 +134,9 @@ def check(label, ok, detail):
 
 
 def main():
+    global CARRYING, CARRYING_ABBREV, NOT_CARRYING, NO_SUCH, FIXTURE_SHA
+    CARRYING, CARRYING_ABBREV, NOT_CARRYING, NO_SUCH = _fixture_shas()
+    FIXTURE_SHA = CARRYING
     tmp = tempfile.mkdtemp(prefix="d6rf4_guard_")
     rc = 0
     print("D6RF4 LAUNCHER-GUARD DRIVE -- EVERY DIRECTION ON A NEUTERED COPY")
@@ -159,10 +183,10 @@ def main():
     # ---- direction 3: a malformed field must refuse on SHAPE --------------
     # THE LIMB THAT SURVIVES THE FREEZE.  Once the placeholder is replaced,
     # direction 1's limb can never fire again; this one still can.
-    for bad, why in (("deadbeef", "a short sha"),
-                     ("main", "a branch name"),
+    for bad, why in (("main", "a branch name"),
                      ("2026-09-06", "a date"),
                      ("", "an empty edit"),
+                     ("abc123", "a 6-char paste, under git's own minimum"),
                      ("Z" + FIXTURE_SHA[1:], "40 chars but not hex")):
         p_bad = os.path.join(tmp, "run_arm.BAD_%s.sh" % (bad or "empty"))
         neuter(p_bad, bad)
@@ -171,6 +195,30 @@ def main():
                     % (bad, why),
                     "ABORT G-FREEZE-SHAPE" in o3 and FIXTURE_REFUSAL not in o3,
                     "rc=%d" % r3)
+
+    # ---- direction 3b: the RESOLUTION limb, both ways ---------------------
+    # A shape check only proves the field LOOKS like a sha.  Rule 2 wants the
+    # pre-registration COMMITTED, so these two exercise the limb that asks git.
+    for sha, label, want in (
+            (CARRYING_ABBREV,
+             "an 8-char abbreviation of a commit CARRYING the prereg "
+             "(D6RF3's own convention: PERMISSION=bc0e687e)", None),
+            (NO_SUCH, "40 hex naming NO commit", "ABORT G-FREEZE-SHA"),
+            (NOT_CARRYING,
+             "a REAL commit whose tree does NOT carry the prereg",
+             "ABORT G-FREEZE-SHA")):
+        p = os.path.join(tmp, "run_arm.RES_%s.sh" % sha[:8])
+        neuter(p, sha)
+        r, o = run(p, "P_conv", "dafoam-idwarp-rot:v1")
+        if want is None:
+            ok = "D6RF4_G_FREEZE_PASS" in o and "ABORT G-FREEZE" not in o
+            detail = "G_FREEZE_PASS=%s rc=%d -- a 40-only check would have "
+            detail = (detail % (ok, r)) + "REFUSED THE CORRECT ACT"
+        else:
+            ok = want in o and FIXTURE_REFUSAL not in o
+            detail = "rc=%d" % r
+        rc |= check("direction 3b PERMISSION=%s.. %s" % (sha[:8], label), ok,
+                    detail)
 
     # ---- direction 4: a DUPLICATE assignment must refuse ------------------
     # Defect (c)'s own shape, planted: in shell the LAST assignment wins.

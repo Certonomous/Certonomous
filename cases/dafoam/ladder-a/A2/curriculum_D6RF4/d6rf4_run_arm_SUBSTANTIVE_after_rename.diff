@@ -1,5 +1,5 @@
 --- /tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/d6rf4/rename_only/d6rf4_run_arm.sh	2026-09-06 02:14:08.580571220 +0000
-+++ d6rf4_run_arm.sh	2026-09-06 02:34:30.062171997 +0000
++++ d6rf4_run_arm.sh	2026-09-06 02:40:27.453095841 +0000
 @@ -1,9 +1,47 @@
  #!/usr/bin/env bash
 -# Curriculum D6RF arm launcher -- F_mp (the FD bright line on the composite J)
@@ -52,7 +52,7 @@
  # with the registered deltas of D6RF PREREGISTRATION.md ADDENDUM 1.  Everything
  # not named there is D6R's shape.  THE DELTAS, enumerated:
  #   1  two arms, not four; caps 480.0 / 190.0 (section 4d), deadlines 7110/2760
-@@ -40,9 +78,68 @@
+@@ -40,9 +78,107 @@
  set -uo pipefail
  
  ITEM=D6RF4
@@ -100,20 +100,59 @@
 +# THE SHAPE LIMB, AND IT IS THE LIMB THAT SURVIVES THE FREEZE.  Once the
 +# placeholder is replaced, the limb above can never fire again -- so a control
 +# that only had that limb would go silent at exactly the moment the field
-+# started mattering.  This one refuses anything that is not a 40-hex sha:
-+# a truncated paste, a short sha, a branch name, a date, an empty edit.
++# started mattering.
++#
++# THE RANGE IS 7-40 HEX, NOT 40, AND THAT IS DELIBERATE.  D6RF3 froze with
++# `PERMISSION=bc0e687e` -- EIGHT characters, git's abbreviated form, and this
++# family's actual convention.  A 40-only check would have refused the very
++# value the supervisor is most likely to write, which is freeze-fragility in
++# the OTHER direction: a guard that refuses the correct act is as much a
++# defect as one that permits the wrong one.  7 is git's own minimum
++# abbreviation.  Refused by this limb: a branch name, a date, an empty edit,
++# a truncated 6-character paste, anything with a non-hex character.
 +case "$PERMISSION" in
 +  *[!0-9a-f]*|"") BAD=yes ;;
 +  *) BAD=no ;;
 +esac
-+if [ "$BAD" = "yes" ] || [ "${#PERMISSION}" -ne 40 ]; then
++if [ "$BAD" = "yes" ] || [ "${#PERMISSION}" -lt 7 ] || [ "${#PERMISSION}" -gt 40 ]; then
 +  echo "ABORT G-FREEZE-SHAPE PERMISSION is '$PERMISSION' (${#PERMISSION} chars),"
-+  echo "  which is neither the placeholder NOT_FROZEN nor a 40-hex commit sha."
-+  echo "  A half-filled freeze field is not a freeze.  REFUSED before any"
-+  echo "  staging; NO CONTAINER IS CREATED."
++  echo "  which is neither the placeholder NOT_FROZEN nor a 7-40 character hex"
++  echo "  commit sha.  A half-filled freeze field is not a freeze.  REFUSED"
++  echo "  before any staging; NO CONTAINER IS CREATED."
 +  exit 3
 +fi
-+echo "D6RF4_G_FREEZE_PASS permission=$PERMISSION assignments=$PERM_ASSIGNMENTS shape=40hex"
++# THE RESOLUTION LIMB, AND IT IS THE ONE THAT ACTUALLY CHECKS THE FREEZE.
++# A shape check only proves the field LOOKS like a sha.  Rule 2 requires that
++# the pre-registration WAS COMMITTED BEFORE THE SOLVER STARTS, so this asks
++# git whether the value names a real commit AND whether that commit's tree
++# CONTAINS THIS ITEM'S PRE-REGISTRATION.  A sha that resolves but does not
++# carry the document is a sha for some other work.
++D6RF4_PREREG=cases/dafoam/ladder-a/A2/curriculum_D6RF4/PREREGISTRATION.md
++D6RF4_REPO=/home/ubuntu/Certonomous
++if command -v git >/dev/null 2>&1 && [ -d "$D6RF4_REPO/.git" ]; then
++  RESOLVED=$(git -C "$D6RF4_REPO" rev-parse --verify --quiet "${PERMISSION}^{commit}" 2>/dev/null || true)
++  if [ -z "$RESOLVED" ]; then
++    echo "ABORT G-FREEZE-SHA PERMISSION='$PERMISSION' is hex of a plausible"
++    echo "  length but names NO COMMIT in $D6RF4_REPO.  A freeze field that"
++    echo "  resolves to nothing is not a freeze.  REFUSED."
++    exit 3
++  fi
++  if ! git -C "$D6RF4_REPO" cat-file -e "${RESOLVED}:${D6RF4_PREREG}" 2>/dev/null; then
++    echo "ABORT G-FREEZE-SHA PERMISSION='$PERMISSION' resolves to commit"
++    echo "  $RESOLVED, but that commit's tree DOES NOT CONTAIN"
++    echo "  $D6RF4_PREREG."
++    echo "  That is a sha for some other work.  CLAUDE.md rule 2: the freeze is"
++    echo "  the pre-registration being COMMITTED before the solver starts."
++    exit 3
++  fi
++  PREREG_AT_FREEZE=$(git -C "$D6RF4_REPO" rev-parse "${RESOLVED}:${D6RF4_PREREG}")
++  FREEZE_CHECKED=RESOLVED
++else
++  # INFRASTRUCTURE, NOT PHYSICS (L-342): git absent cannot void the shape
++  # limb, but it is REPORTED as UNMEASURED and never as a pass.
++  RESOLVED=UNMEASURED; PREREG_AT_FREEZE=UNMEASURED; FREEZE_CHECKED=UNMEASURED_git_unavailable
++fi
++echo "D6RF4_G_FREEZE_PASS permission=$PERMISSION assignments=$PERM_ASSIGNMENTS shape=${#PERMISSION}hex resolved=$RESOLVED prereg_blob_at_freeze=$PREREG_AT_FREEZE checked=$FREEZE_CHECKED"
 +# THE ESCAPE HATCH IS GONE.  An earlier draft honoured an environment variable
 +# that bypassed the limb above, so any caller who set it could launch an
 +# unfrozen item -- and this lane's own guard drive USED it, which is precisely
@@ -123,7 +162,7 @@
  
  BASE_REAL=$(realpath -m "$BASE")
  REG_REAL=$(realpath -m "$REGISTERED_BASE")
-@@ -131,7 +228,27 @@
+@@ -131,7 +267,27 @@
    sudo -n docker ps --format '{{.Names}}' 2>/dev/null | grep -v "^d6rf4_" | tr '\n' ',' | sed 's/,$//'
  }
  
@@ -152,7 +191,7 @@
  # BOTH ARMS ANCHORED ON MEASUREMENTS OF THE PROGRAMS THEY ACTUALLY RUN.
  #   F_mp    155.70 core-min  =  D4 arm F3 (47.267 MEASURED, f3_ledger.txt, the
  #                               only FD-endpoint arm that has ever succeeded
-@@ -151,8 +268,7 @@
+@@ -151,8 +307,7 @@
  # MEASURED at 55.53 core-min / 833 s -- D6RF-DEF-3.  It could not have finished.
  cap_core_min() {
    case "$1" in
@@ -162,7 +201,7 @@
      *)  echo "" ;;
    esac
  }
-@@ -161,7 +277,7 @@
+@@ -161,7 +316,7 @@
  # identical multipoint program at 20g, so 20g is a MEASURED floor, not a guess.
  cap_memory() {
    case "$1" in
@@ -171,7 +210,7 @@
      *) echo "" ;;
    esac
  }
-@@ -172,35 +288,119 @@
+@@ -172,35 +327,119 @@
  
  # ---- FROZEN INSTRUMENT HASHES (PREREGISTRATION.md sections 7a and 7b) -----
  MD5_RUNSCRIPT6=137539e0a99be27f27fdb69e063b2a87
@@ -304,7 +343,7 @@
  # ---- G-ROOT.5 -- A LIVE ARM IS NEVER RE-STAGED.  Two live readings, BEFORE
  # ---- any destructive act.
  LIVE_SAME_ARM=$(sudo -n docker ps --format '{{.Names}}' --filter "name=^d6rf4_${ARM}_" 2>/dev/null | grep "^d6rf4_${ARM}_" | head -3 | tr '\n' ',' | sed 's/,$//')
-@@ -275,14 +475,14 @@
+@@ -275,14 +514,14 @@
  echo "$MD5_RUNSCRIPT6  $BASE/d6rf4_opt_runScript.py" | md5sum -c - || { echo "ABORT d6rf4_opt_runScript.py md5"; exit 4; }
  echo "$MD5_FD  $BASE/d6rf4_fd_endpoint.py"           | md5sum -c - || { echo "ABORT d6rf4_fd_endpoint.py md5"; exit 4; }
  echo "$MD5_EXTRACT6  $BASE/d6rf4_extract_endpoint.py"| md5sum -c - || { echo "ABORT d6rf4_extract_endpoint.py md5"; exit 4; }
@@ -324,7 +363,7 @@
  
  # ---- image identity by DIGEST, resolved from the local store -------------
  GOT_DIGEST=$(sudo -n docker image inspect --format '{{index .RepoDigests 0}}' "$IMG" 2>/dev/null | sed 's/.*@//')
-@@ -363,21 +563,21 @@
+@@ -363,21 +602,21 @@
    exit 5
  }
  
@@ -350,7 +389,7 @@
    # ------------------------------------------------------------------ S3
    # THE DOUBLE-DEFORMATION CONFOUND, ELIMINATED BY MEASUREMENT.  D4's arm F died
    # on `Mesh quality error!`; its F3 repair recorded the same md5 on both sides.
-@@ -403,7 +603,7 @@
+@@ -403,7 +642,7 @@
        stage_say "  double-deformation confound that killed D4's arm F.  REFUSED."
        exit 5; }
    done
@@ -359,7 +398,7 @@
    # ------------------------------------------------------------------ S4
    # ===================================================================
    # EVERY COUNT BELOW ASSERTS ITS OWN TRIP COUNT.  A guard that compares
-@@ -430,7 +630,7 @@
+@@ -430,7 +669,7 @@
    }
    SRC_HST_MD5=$(md5sum "$SRC/OptView.hst" | cut -d' ' -f1)
    SRC_TIMEDIRS=$(count_src_entries "$SRC/mp04/processor0" "")
@@ -368,7 +407,7 @@
    case "$SRC_TIMEDIRS" in
      UNMEASURED)
        stage_say "ABORT S4 the source count is UNMEASURED -- $SRC/mp04/processor0 is absent or unreadable."
-@@ -453,7 +653,7 @@
+@@ -453,7 +692,7 @@
        exit 5 ;;
    esac
    test "$POST_TIMEDIRS" = "$SRC_TIMEDIRS" || { stage_say "ABORT S4 SOURCE CHANGED during the copy: mp04/processor0 entries $SRC_TIMEDIRS -> $POST_TIMEDIRS"; exit 5; }
@@ -377,7 +416,7 @@
    # ------------------------------------------------------------------ S5
    # DROP THE OPTIMISER'S OUTPUTS FROM THE COPY.  D6RF-DEF-2: pyDAFoam's
    # renameSolution refuses to move onto an existing directory -- D4's arm F2,
-@@ -524,12 +724,13 @@
+@@ -524,12 +763,13 @@
    test "$SRC_REMAIN" -gt 1 || { stage_say "ABORT S5 SOURCE INTACT assertion FAILED: only $SRC_REMAIN pseudo-time dirs remain under $SRC/mp04/processor0 (required > 1) -- D6R's evidence may have been touched"; exit 5; }
    test -f "$WORK/OptView.hst" || { stage_say "ABORT S5 OptView.hst was dropped from the copy"; exit 5; }
    test -f "$WORK/mp04/dRdWColoring_4.bin" || { stage_say "ABORT S5 the cached colouring was dropped from the copy -- the cap is priced with it present"; exit 5; }
@@ -393,7 +432,7 @@
          "$WORK/" || { stage_say "ABORT S6 stage instruments"; exit 4; }
    { echo "$MD5_EXTRACT6  $WORK/d6rf4_extract_endpoint.py"
      echo "$MD5_FD  $WORK/d6rf4_fd_endpoint.py"
-@@ -538,65 +739,84 @@
+@@ -538,65 +778,84 @@
      echo "$MD5_PHYS6  $WORK/d6rf4_endpoint_physical.py"
      echo "$MD5_UNITS  $WORK/d6rf4_units_assert.py"
      echo "$MD5_ANCHOR_GATE  $WORK/d6rf4_anchor_gate.py"
@@ -529,7 +568,7 @@
  fi
  
  # ===========================================================================
-@@ -619,10 +839,13 @@
+@@ -619,10 +878,13 @@
  # answer.  Same shape as a1wrt_controldict.py deriving A1WR's controlDict from
  # A1WR's own heredoc instead of retyping it.
  #
@@ -547,7 +586,7 @@
  #
  # AND IT FAILS CLOSED IN THREE WAYS, because a derivation that quietly finds
  # nothing is indistinguishable from one that found nothing wrong (rule 3):
-@@ -643,7 +866,7 @@
+@@ -643,7 +905,7 @@
  
  # ---- LEVEL 0: what THIS LAUNCHER md5-checks or executes at $WORK ------------
  opens = [i for i, l in enumerate(src, 1)
@@ -556,7 +595,7 @@
  if len(opens) != 1:
      print("REFUSE-SHAPE expected exactly 1 arm-branch opener in %s, found %d "
            "-- the launcher's shape has MOVED and this guard will not guess"
-@@ -662,7 +885,7 @@
+@@ -662,7 +924,7 @@
          m = p.search(l)
          if not m:
              continue
@@ -565,7 +604,7 @@
          if region in ("BOTH", arm):
              req.add(m.group(1))
  if not req:
-@@ -858,14 +1081,78 @@
+@@ -858,14 +1120,78 @@
  # chaining means a units refusal (rc 77) propagates as the container's own
  # ExitCode and THE MESH IS NEVER TOUCHED.
  # ===========================================================================

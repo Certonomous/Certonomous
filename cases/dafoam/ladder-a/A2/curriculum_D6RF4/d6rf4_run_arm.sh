@@ -120,20 +120,59 @@ fi
 # THE SHAPE LIMB, AND IT IS THE LIMB THAT SURVIVES THE FREEZE.  Once the
 # placeholder is replaced, the limb above can never fire again -- so a control
 # that only had that limb would go silent at exactly the moment the field
-# started mattering.  This one refuses anything that is not a 40-hex sha:
-# a truncated paste, a short sha, a branch name, a date, an empty edit.
+# started mattering.
+#
+# THE RANGE IS 7-40 HEX, NOT 40, AND THAT IS DELIBERATE.  D6RF3 froze with
+# `PERMISSION=bc0e687e` -- EIGHT characters, git's abbreviated form, and this
+# family's actual convention.  A 40-only check would have refused the very
+# value the supervisor is most likely to write, which is freeze-fragility in
+# the OTHER direction: a guard that refuses the correct act is as much a
+# defect as one that permits the wrong one.  7 is git's own minimum
+# abbreviation.  Refused by this limb: a branch name, a date, an empty edit,
+# a truncated 6-character paste, anything with a non-hex character.
 case "$PERMISSION" in
   *[!0-9a-f]*|"") BAD=yes ;;
   *) BAD=no ;;
 esac
-if [ "$BAD" = "yes" ] || [ "${#PERMISSION}" -ne 40 ]; then
+if [ "$BAD" = "yes" ] || [ "${#PERMISSION}" -lt 7 ] || [ "${#PERMISSION}" -gt 40 ]; then
   echo "ABORT G-FREEZE-SHAPE PERMISSION is '$PERMISSION' (${#PERMISSION} chars),"
-  echo "  which is neither the placeholder NOT_FROZEN nor a 40-hex commit sha."
-  echo "  A half-filled freeze field is not a freeze.  REFUSED before any"
-  echo "  staging; NO CONTAINER IS CREATED."
+  echo "  which is neither the placeholder NOT_FROZEN nor a 7-40 character hex"
+  echo "  commit sha.  A half-filled freeze field is not a freeze.  REFUSED"
+  echo "  before any staging; NO CONTAINER IS CREATED."
   exit 3
 fi
-echo "D6RF4_G_FREEZE_PASS permission=$PERMISSION assignments=$PERM_ASSIGNMENTS shape=40hex"
+# THE RESOLUTION LIMB, AND IT IS THE ONE THAT ACTUALLY CHECKS THE FREEZE.
+# A shape check only proves the field LOOKS like a sha.  Rule 2 requires that
+# the pre-registration WAS COMMITTED BEFORE THE SOLVER STARTS, so this asks
+# git whether the value names a real commit AND whether that commit's tree
+# CONTAINS THIS ITEM'S PRE-REGISTRATION.  A sha that resolves but does not
+# carry the document is a sha for some other work.
+D6RF4_PREREG=cases/dafoam/ladder-a/A2/curriculum_D6RF4/PREREGISTRATION.md
+D6RF4_REPO=/home/ubuntu/Certonomous
+if command -v git >/dev/null 2>&1 && [ -d "$D6RF4_REPO/.git" ]; then
+  RESOLVED=$(git -C "$D6RF4_REPO" rev-parse --verify --quiet "${PERMISSION}^{commit}" 2>/dev/null || true)
+  if [ -z "$RESOLVED" ]; then
+    echo "ABORT G-FREEZE-SHA PERMISSION='$PERMISSION' is hex of a plausible"
+    echo "  length but names NO COMMIT in $D6RF4_REPO.  A freeze field that"
+    echo "  resolves to nothing is not a freeze.  REFUSED."
+    exit 3
+  fi
+  if ! git -C "$D6RF4_REPO" cat-file -e "${RESOLVED}:${D6RF4_PREREG}" 2>/dev/null; then
+    echo "ABORT G-FREEZE-SHA PERMISSION='$PERMISSION' resolves to commit"
+    echo "  $RESOLVED, but that commit's tree DOES NOT CONTAIN"
+    echo "  $D6RF4_PREREG."
+    echo "  That is a sha for some other work.  CLAUDE.md rule 2: the freeze is"
+    echo "  the pre-registration being COMMITTED before the solver starts."
+    exit 3
+  fi
+  PREREG_AT_FREEZE=$(git -C "$D6RF4_REPO" rev-parse "${RESOLVED}:${D6RF4_PREREG}")
+  FREEZE_CHECKED=RESOLVED
+else
+  # INFRASTRUCTURE, NOT PHYSICS (L-342): git absent cannot void the shape
+  # limb, but it is REPORTED as UNMEASURED and never as a pass.
+  RESOLVED=UNMEASURED; PREREG_AT_FREEZE=UNMEASURED; FREEZE_CHECKED=UNMEASURED_git_unavailable
+fi
+echo "D6RF4_G_FREEZE_PASS permission=$PERMISSION assignments=$PERM_ASSIGNMENTS shape=${#PERMISSION}hex resolved=$RESOLVED prereg_blob_at_freeze=$PREREG_AT_FREEZE checked=$FREEZE_CHECKED"
 # THE ESCAPE HATCH IS GONE.  An earlier draft honoured an environment variable
 # that bypassed the limb above, so any caller who set it could launch an
 # unfrozen item -- and this lane's own guard drive USED it, which is precisely
