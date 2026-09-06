@@ -1,0 +1,21 @@
+{
+  "team": "ansys-verification",
+  "case_id": "VMFL046-R5-L2",
+  "prereg_commit": "a85b07ebce15779f4fb58f7df5a9c7709bb40ead",
+  "prereg_path": "cases/ansys_verification/VMFL046-R5/PREREGISTRATION.md",
+  "grading_freeze": [
+    "cases/ansys_verification/VMFL046-R5/grade_vmfl046_r5.py"
+  ],
+  "grading_freeze_note": "Comparator blob 476de16ab3e4f3572435e7e8a729ff617a08fc62 (byte-identical to R4's sect-2av/2aw-repaired grader), pinned in the registration and repeated here so the daemon verifies WITHOUT trusting the registration.",
+  "launch_cmd": [
+    "bash",
+    "-c",
+    "exec bash /home/ubuntu/Certonomous/cases/ansys_verification/VMFL046-R5/run_vmfl046_r5.sh /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL046-R5 L2"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL046-R5",
+  "ranks": 1,
+  "cost_core_min_estimate": 54.67,
+  "cost_basis": "Level L2. Point estimate 54.67 core-min from R4's OWN measured actual at this mesh/numerics/clock (register #61; core-min = ClockTime x 1 rank / 60), NOT a probe and NOT an R5 flow measurement -- answer-blind. waveTransmissive changes a one-patch boundary evaluation, not the per-cell-step rate, and if it settles the flow it only reduces steps, so R4's cost over-bounds R5's. Cap 183 (~3x basis); the +10% contention allowance is in the CAP not the estimate (R4 calibration lesson C-20260906T170500). Overrun STOPS the run (rc 124, rule 12), enforced twice in the driver. $ derived at $0.0513/core-h owner-stated, NOT measured.",
+  "memory_floor_gb": 1.0,
+  "enqueued_by": "ansys-verification-supervisor. FREEZE a85b07eb. check_freeze_ready.py all PASS except C7 WARN (run root, now created). Verified PERSONALLY before enqueue: comparator blob 476de16a byte-identical to the reviewed R4 sect-2aw-repaired grader (selftest 67/67 under python3 and -O); driver read in full as a check-1 diff (sources OpenFOAM env before tool asserts; both-directions parity assert + file-set guard; rule-4 age guard; rc from the timeout subshell, no setsid trap; caps twice); single-variable delta confirmed by diff -rq (only 0/p, one line); gate byte-identical (x_shock 1.250 m, band 5%, DELTA_X 6.25e-04); post-freeze blob==disk verified."
+}
