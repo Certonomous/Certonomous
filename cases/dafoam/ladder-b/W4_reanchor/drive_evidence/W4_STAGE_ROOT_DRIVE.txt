@@ -1,0 +1,45 @@
+W4 ROOT-STAGING CONTROL -- DRIVES THE ACTUAL STAGING (prereg 18). 0.000 SOLVER CORE-MIN.
+  utc=2026-09-06T20:25:54Z
+  NOTHING here is a result about W4. The container is MOCKED; the graded verdict is on synthetic objectives and proves STAGING + PRODUCTION + GRADING, not physics.
+  registered run root /home/ubuntu/certonomous-runs/W4-reanchor absent at start: True
+
+--- D1 PLANT: run the stager into a sandbox root, READ IT BACK, then drive the frozen run_plateau.sh from it (mock container) -> 16 legs -> comparator PASS
+  stager rc=0 (0 expected)
+    populated: run_one.sh present & md5                      OK
+    populated: run_plateau.sh present & md5                  OK
+    populated: run_plateau.sh executable                     OK
+    populated: cbfs_beta/runScript.py present & md5          OK
+    populated: cbfs_beta/fd_beta_ones.npy present & md5      OK
+    populated: runScript.py is I1 not the rejected alternative OK
+    populated: cbfs_beta/constant present                    OK
+    populated: cbfs_beta/system present                      OK
+    populated: cbfs_beta/0 present                           OK
+    populated: processor0 NOT carried                        OK
+    populated: cbfs_beta_grad.npy NOT carried                OK
+    populated: no fd_beta_c*.npy carried                     OK
+    populated: run root mode 777                             OK
+    populated: 0/ datum touched last (>= case-state mtimes)  OK
+    BASE-flip run_one.sh: exactly 2 changed line(s) (the BASE= line), applied=True
+    BASE-flip run_plateau.sh: exactly 2 changed line(s) (the BASE= line), applied=True
+  16-leg drive: run_plateau rc=0; logs=16/16 ledger_END_rc0=16/16 fields_dirs=16/16 anchor_grad_at_root=True (168128 bytes)
+  comparator: exit=0 verdict=PASS age_guard=16/16:True F_W_fails_W1=True (16.7874%) W1_PASS_3/3=True
+  D1 as registered: True  (the PLANT -- every refusing direction below is meaningful only because this passes)
+
+--- D2 EXISTING ROOT: a run root already present -> stager REFUSES to clobber (exit 43)
+  stager rc=43 (43 expected); pre-existing marker intact: True
+  D2 as registered: True
+
+--- D3 md5 MISMATCH: an instrument source that is not the registered bytes -> stager REFUSES (exit 41), nothing staged
+  stager rc=41 (41 expected); run root created despite refusal: False
+  D3 as registered: True  (source-side md5 caught before any create)
+
+--- D4 LAUNCH TARGET ABSENT: SRC_DIR has no run_plateau.sh -> the derivation cannot read the launch target -> REFUSE (exit 40)
+  stager rc=40 (40 expected); run root created: False
+  D4 as registered: True
+
+--- REGISTERED ROOT UNTOUCHED: /home/ubuntu/certonomous-runs/W4-reanchor stayed absent throughout: True
+
+==========================================================================
+  D1 PLANT (real staging -> 16 legs -> PASS): OK
+  RESULT: ALL DIRECTIONS AS REGISTERED (staging DRIVEN, not redirected-around)
+  solver core-minutes spent by this drive: 0.000
