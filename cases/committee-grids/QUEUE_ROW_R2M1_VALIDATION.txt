@@ -1,0 +1,65 @@
+R2-M1 QUEUE ROW -- VALIDATION RECORD
+====================================
+Row:       cases/committee-grids/QUEUE_ROW_R2M1_READY_NOT_PLACED.json
+Validator: scripts/queue_entry_check.py
+When:      2026-09-06T16:59:28Z   HEAD: b98a770ea54a712984a08a4e119e00ccd1167b88
+
+STATUS: READY, NOT PLACED. This row is NOT in verification/queue/. Nothing is armed.
+
+1. THE VALIDATOR'S OWN SELFTEST, RUN FIRST
+   A reader is not trusted before it has been shown able to fail.
+   ---------------------------------------------------------------
+   
+   SELFTEST PASS: 36 controls fired, each shown able to fail.
+   exit code: 0
+
+2. VALIDATION OF THE STAGED ROW -- VERBATIM, UNEDITED
+   ---------------------------------------------------------------
+   ACCEPTED cases/committee-grids/QUEUE_ROW_R2M1_READY_NOT_PLACED.json  team=cfd case=RUNG2-CRM-M1 ranks=14 est=5.27 core-min
+       TEAM-BINDING: NOT CHECKED -- cases/committee-grids/QUEUE_ROW_R2M1_READY_NOT_PLACED.json is outside verification/queue/<team>/.
+       This is an UNCHECKED condition, not a passing one. The entry declares
+       team='cfd'; nothing here has compared that to a queue directory,
+       because this file is not in one. It is checked when the QUEUED copy is
+       validated in place:
+           queue_entry_check.py --require-binding verification/queue/cfd/QUEUE_ROW_R2M1_READY_NOT_PLACED.json
+       -- that run is the validation that counts.
+       NOTE: acceptance is a mechanical guard only. Enqueueing is not authorisation; SUPERVISION_CHARTER section 3 check 4 is the supervisor's own and is not performed by this script.
+   exit code: 0
+
+3. THE ACCEPTANCE IS A READING, NOT A DEFAULT -- PLANTED, THREE WAYS
+   Rule 3. A validator that has only ever accepted has not validated.
+   Each plant is the SAME row with ONE field mutated, in scratch.
+   ---------------------------------------------------------------
+   PLANT p1 -- prereg_commit-set-to-a-sha-that-does-not-exist
+          COMMIT-EXISTS: prereg_commit 0000000000000000000000000000000000000000 is not a commit in /home/ubuntu/Certonomous. A freeze cites a sha that exists or it ci
+      exit code: 2  (2 == REFUSED)
+   PLANT p2 -- required-field-ranks-removed
+          SCHEMA: required field 'ranks' is missing
+      exit code: 2  (2 == REFUSED)
+   PLANT p3 -- cwd-pointed-at-a-nonexistent-path
+          EXEC: cwd /home/ubuntu/Certonomous/cases/committee-grids/NO_SUCH_DIR does not exist; queue_runner.py chdirs into it (:286) and Popen(cwd=) raises FileNotFou
+      exit code: 2  (2 == REFUSED)
+   RESTORE: the unmutated row still ACCEPTS, exit code 0  -- so the refusals above
+            came from the plants and not from a validator that refuses everything.
+
+4. *** UNCHECKED CLAUSE -- AN ACCEPTANCE HERE DOES NOT IMPLY IT PASSED ***
+   ---------------------------------------------------------------
+   TEAM-BINDING (clause 7) compares an entry's 'team' field against the queue
+   directory it sits in. THIS FILE IS NOT IN verification/queue/<team>/, so the
+   clause returns [] -- AN UNCHECKED CONDITION, NOT A SATISFIED ONE. The
+   validator says so itself in section 2 above, and --require-binding turns it
+   into a refusal. Whoever places this row MUST re-validate the PLACED copy:
+       python3 scripts/queue_entry_check.py --require-binding \
+           verification/queue/cfd/<placed name>.json
+   That run is the validation that counts. This one is not it.
+
+   GRADER-FREEZE (clause 8) is REPORTING-ONLY and ALWAYS returns [] -- it cannot
+   stop a launch (Sanaa's ruling 2026-09-03). There is no mismatch to record here
+   -- check 4 passed on all three blobs -- but a green from that clause is not a
+   gate and must not be read as one.
+
+5. WHAT ACCEPTANCE MEANS, IN THE VALIDATOR'S OWN WORDS
+   'acceptance is a mechanical guard only. Enqueueing is not authorisation;'
+   'SUPERVISION_CHARTER section 3 check 4 is the supervisor's own and is not'
+   'performed by this script.'
+   Check 4 WAS performed, separately and personally, by the cfd supervisor.

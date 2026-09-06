@@ -1,0 +1,108 @@
+{
+  "_WHAT_THIS_FILE_IS": "THE READY-NOT-PLACED QUEUE ROW FOR R2-M1. IT IS NOT IN THE QUEUE. It sits at a staging path in the case directory; verification/queue/ is a live drop path and writing into it ARMS A LAUNCH within a minute. The preparing lane placed nothing and holds no authority to place anything.",
+  "_WHO_MAY_PLACE_IT": "The chief session, under a permission-system grant Sanaa gives IN THAT SESSION and captures verbatim, exactly as R2-M0's placement did (etc/sessions/2026-09-06T0330Z_sanaa_queue_row_grant.md, commit 9f708e81). THAT GRANT WAS FOR R2-M0 AND IS NOT A STANDING GRANT FOR THIS ROW: approval of an item is approval of ITS cap, not a new ceiling (CLAUDE.md rule 9). No agent's relay of any approval is Sanaa's consent.",
+  "_CHECK_4": "PERFORMED AND PASSED by the cfd supervisor, 2026-09-06, personally and undelegated (SUPERVISION_CHARTER.md section 3). The supervisor verified against a live control -- registration blob 2ed37a3303a7 MATCH, grade_r2_m1.py 7717d9bd9805 MATCH, run_r2_m1.sh 77b40f97d980 MATCH, plus a deliberate CONTROL file (sdk/chief_engineer/certificate.py) reading DIFFER so the comparison was shown able to see a mismatch; registered run root ABSENT under the supervisor's own plant 0 -> probe -> 1 -> removed -> 0. The three blob shas were independently re-derived by the preparing lane at HEAD and agree.",
+
+  "team": "cfd",
+  "case_id": "RUNG2-CRM-M1",
+  "prereg_path": "verification/campaign/RUNG2_CRM_M1_PREREGISTRATION.md",
+  "prereg_commit": "b98a770ea54a712984a08a4e119e00ccd1167b88",
+  "grading_freeze": [
+    "cases/committee-grids/grade_r2_m1.py"
+  ],
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/committee-grids/run_r2_m1.sh",
+    "--go"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/committee-grids",
+  "ranks": 14,
+  "cost_core_min_estimate": 5.27,
+  "cap_core_min_registered": 55.0,
+  "memory_floor_gb": 4.0,
+  "cost_basis": "derived at the on-box c7a.4xlarge rate $0.0513/core-h, REPORTED-BY-OWNER, NOT MEASURED -- this box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5, CLAUDE.md rule 12). THE ESTIMATE FIELD IS THE HEADLINE ONLY -- the cost incurred REGARDLESS OF ANY GATE OUTCOME: 5.27 core-min = 0.08783 core-h = $0.0045 DERIVED. A SEPARATE CONDITIONAL TERM OF UP TO 35.06 core-min ($0.0300 DERIVED) IS REGISTERED IN prereg section 6.4 AND IS DELIBERATELY NOT ADDED INTO THIS FIELD -- see _WHY_THE_ESTIMATE_IS_SPLIT. Cap 55.0 core-min = 0.91667 core-h = $0.0470 DERIVED.",
+  "enqueued_by": "PREPARED, NOT ENQUEUED -- cfd lab-lane, 2026-09-06T16:5xZ box clock, at HEAD b98a770e, after the cfd supervisor's check 4 passed. This lane did not place this row and holds no authority to. Whoever places it replaces this string with their own identity and the authority they placed it under.",
+
+  "_WHY_THE_ESTIMATE_IS_SPLIT": {
+    "the_field": "cost_core_min_estimate is 5.27, NOT 40.33 and NOT 55.0. It is the HEADLINE: the cost incurred whatever any gate does.",
+    "why": "R2-M0's registered estimate was 66.9 core-min, of which 62.6 -- 93.6 % -- was the single line item 'two arms survive to 50 iterations'. NO ARM SURVIVED. Actual 1.9000 core-min, ratio 0.0284, a 35.2x over-prediction. docs/COST_CALIBRATION.md row C-20260906T161200.871248Z-5aae017a states the consequence in its own words: 'AN ESTIMATE WHOSE MASS SITS IN THE ARMS SURVIVE IS NOT CALIBRATED BY ITS OWN RATIO WHEN THE ADMISSION GATE FAILS -- 0.0284 measures the branch the run took, not the quality of the rate model.'",
+    "consequence_for_whoever_files_the_calibration_row": "State the ratio AGAINST THE 5.27 HEADLINE. Report any conditional spend ON ITS OWN LINE, never absorbed. IF B1 ABORTS AT ITERATION 2 LIKE EVERY M0 ARM, THE CONDITIONAL TERM'S ACTUAL IS ZERO AND THAT IS NOT A MISPREDICTION -- it is a branch not taken, and the row must say so in those words rather than divide by it.",
+    "conditional_term_stated_separately": "Up to 35.06 core-min: B1 running to endTime 50 if the warm start survives past iteration 2 (48 x 0.626 = 30.05), plus B3-B6 reaching endTime 3 if any survives (4 x 2 x 0.626 = 5.01). EVERY CORE-MINUTE OF IT SITS ON THE 0.626 core-min/iteration RATE, WHICH IS BORROWED FROM THE INCOMPRESSIBLE LOG AND WHICH NOTHING ON THIS BOX HAS TESTED -- M0's calibration row: 'a successor must not read this row as validating that rate in either direction.'"
+  },
+
+  "_PROVENANCE_EVERY_VALUE_IS_TRANSCRIBED_NOT_RECALLED": {
+    "case_id": "RUNG2_CRM_M1_PREREGISTRATION.md:3",
+    "cost_core_min_estimate 5.27": "RUNG2_CRM_M1_PREREGISTRATION.md:465, the REGISTERED HEADLINE ESTIMATE row of the section 6.3 table; mirrored in the driver as ESTIMATE_CORE_MIN=5.27 at run_r2_m1.sh:53",
+    "conditional 35.06": "RUNG2_CRM_M1_PREREGISTRATION.md:477, the CONDITIONAL WORST CASE row of the section 6.4 table -- a SEPARATE table, deliberately",
+    "cap_core_min_registered 55.0": "RUNG2_CRM_M1_PREREGISTRATION.md:485, and enforced structurally in the driver as CAP_CORE_S=3300 at run_r2_m1.sh:52",
+    "cost_basis": "RUNG2_CRM_M1_PREREGISTRATION.md section 6.5",
+    "ranks 14": "run_r2_m1.sh:51 -- `RANKS=14`. ⚠ THIS FILE CONTAINS A SECOND RANK ASSIGNMENT AND IT IS NAMED HERE RATHER THAN GLOSSED: `RANKS=4` at run_r2_m1.sh:395 is inside the `--dry-go` branch of the mode switch and is UNREACHABLE FROM `--go`. Both mpirun invocations (:646, :649) read $RANKS. A reader checking 'the sole rank count' would find two and should find this note.",
+    "launch_cmd": "⚠ THE `--go` ARGUMENT IS LOAD-BEARING AND ITS ABSENCE IS SILENT. run_r2_m1.sh has a three-way mode switch; a BARE invocation prints usage, LAUNCHES NOTHING, AND EXITS 0 -- measured, not inferred. A launcher recording rc=0 from a bare invocation would log an apparently clean run that never happened. The driver hard-codes REPO, SRC, SEED, WARM, ROOT and GRADER as absolute paths (:44-49), so cwd is not load-bearing for it; cwd is chosen to satisfy the validator's EXEC and AGE-GUARD clauses.",
+    "cwd": "The CASE directory, the lab convention named in queue_entry_check.check_cwd_launchable's own refusal text. It EXISTS (EXEC clause) and contains NO directory matching queue_entry_check.TIME_DIR (AGE-GUARD clause). The REGISTERED RUN ROOT is a different path, guarded separately -- see _RUN_ROOT.",
+    "memory_floor_gb 4.0": "RE-DERIVED FROM SOURCE FOR THIS ROW, not copied from M0's. /home/ubuntu/certonomous-runs/dpw5-committee-probe/measurements.jsonl holds THIRTY rows tagged *_a2.11, of which FOUR are rhoSimpleFoam (compressible). Scoped to THIS PROBE'S GRID -- the hex topology, which is what SEED and WARM are -- the three compressible rows are sum_vmhwm_mib 2172.2 (hex_trans), 2147.1 (hex_base) and 1868.9 (hex_transu1); LARGEST HEX COMPRESSIBLE = 2172.2 MiB = 2.121 GiB. 4.0 GB is that with ~1.9x headroom, on a box measuring host_mem_total_mib 31379.5. STATED HONESTLY AS A LOWER BOUND: all three aborted at iteration <= 2, so their footprint is NOT what B1 would reach over 50 iterations. The hex INCOMPRESSIBLE arm did run 200 iterations, at 2020.3 MiB, which is the nearest thing to a long-run figure on this grid.",
+    "memory_floor_caveat_that_M0_S_ROW_DOES_NOT_CARRY": "⚠ THE FOURTH COMPRESSIBLE a2.11 ROW IS `hybrid_base_compressible_a2.11` AT 5069.1 MiB = 4.950 GiB -- ABOVE this 4.0 GB floor. It is EXCLUDED because it is the HYBRID topology, not the hex grid this probe runs, and the exclusion is written here so it is VISIBLE rather than silent. R2-M0's placed row describes its own basis as 'the four *_a2.11 rows' when thirty rows carry that tag and its four were a hex-scoped selection; its NUMBERS are right for hex and its DESCRIPTION is wider than its selection. Reported to the cfd supervisor rather than silently repeated. IF THIS PROBE EVER MOVES OFF HEX, 4.0 GB IS NOT THE FLOOR.",
+    "prereg_commit": "b98a770e is the commit that wrote the blob now on disk: sha256(worktree) == sha256(git show HEAD:<path>) == dc542300dd6f749a, and `git rev-parse HEAD:<path>` == 2ed37a3303a78d95496a1a41068750c4320ffe1d, the blob the supervisor's check 4 matched. THE GATE TABLE IS UNMOVED BY THE TWO AMENDMENTS: sections 13 and 14 record the driver, the dry run and their outcomes and alter NO gate, threshold, cap or label -- each says so in its own text and each was landed PRE-COMPUTE with the run root's absence re-verified under a live plant."
+  },
+
+  "_RUN_ROOT": {
+    "registered_run_root": "verification/runs/RUNG2_CRM_runs/M1_mechanism_and_warmstart/{B0,B1,B2,B3,B4,B5,B6}/",
+    "state": "ABSENT. Plant-verified 0 -> 1 -> 0 at the exact registered path, with a residue check reading 0 after removal, THREE TIMES: at drafting (prereg section 1.3), at Amendment 1 (16:38:10Z) and at Amendment 2 (16:50:30Z). The cfd supervisor re-verified it independently under its own plant during check 4. The reader was therefore shown able to see the non-absence it denies (CLAUDE.md rule 3).",
+    "who_guards_it_at_launch": "The driver, structurally: `[ -e \"$ROOT\" ] && { echo \"RUN ROOT ALREADY EXISTS: $ROOT\"; exit 3; }` at run_r2_m1.sh:430. ⚠ THAT GUARD HAS BEEN DRIVEN IN THE REFUSING DIRECTION ON THE REAL REGISTERED PATH -- the root was created, the driver exited 3 having started nothing, and the root was removed leaving no residue. The validator's AGE-GUARD clause reads `cwd`, NOT the run root; two different guards on two different paths, neither substituting for the other.",
+    "the_dry_run_could_not_have_touched_it": "run_r2_m1.sh --dry-go asserts, in both directions, that its root is neither the registered root nor inside it, and REFUSES (exit 2) if it is. That refusal was driven against the real registered path."
+  },
+
+  "_CONDITIONS_THAT_TRAVEL_WITH_THIS_ROW": {
+    "_why_they_are_in_the_file": "Whoever places this row will not have read the thread it was drafted in. A condition that lives only in a message is a condition that does not survive the handoff.",
+
+    "1_R2M1_G0_IS_A_PRECONDITION_NOT_A_PARALLEL_GATE": "If arm B0 does not reproduce the abort -- exit 136 at `Time <= 2` with `libfluidThermophysicalModels.so` present in ITS OWN stack trace -- THE WHOLE PROBE IS `NOT A RESULT` AND NOTHING IS CONCLUDED FROM B1-B6. This is not a gate that fails alongside the others; it is the premise the others rest on, on exactly the terms R2-G0 carried in R2-M0. The comparator enforces it structurally: grade() returns immediately on a failed G0 without evaluating G1-G5.",
+
+    "2_decomposePar_FIELDS_HAS_NEVER_RUN_ON_THE_REAL_GRID": {
+      "the_fact": "R2-M0's pipeline stopped one step short of it -- there is no A3/log.decomposePar and no A3_decompose_fields row in M0's COST.tsv, which is the independent confirmation that the branch was never entered.",
+      "cost": "Its 0.500 core-min line item is ESTIMATED, NOT MEASURED, and is labelled so in prereg section 6.2 and 6.3. Do not read it as an anchor.",
+      "if_it_fails": "R2M1-G3 returns `BLOCKED`, NOT `GATE FAIL`, and R2M1-G4 is then `BLOCKED` too -- because a remedy that could not be exercised has still not been tested, and calling that a failure OF THE REMEDY is precisely the error R2-M0's grading record refused to make. THIS IS A REAL, REPORTABLE OUTCOME AND NOT A FAILURE TO REPORT.",
+      "what_the_dry_run_did_and_did_not_show": "It ran to rc=0 on a 216-CELL FIXTURE at 4 subdomains. THAT IS EVIDENCE ABOUT PLUMBING AND NOT ABOUT THIS GRID."
+    },
+
+    "3_CO_RESIDENCY_IS_NAMED_SEPARATELY_AND_NEVER_ABSORBED_INTO_THE_RATIO": {
+      "rule": "At process completion, CLAUDE.md rule 12's calibration row in docs/COST_CALIBRATION.md states the ratio actual/predicted AND attributes the gap. Contention from a co-resident foreign job is NAMED AS ITS OWN LINE and NEVER folded into that ratio.",
+      "box_state_measured_at_staging": "2026-09-06T16:56:29Z. nproc = 16. Load 0.19 / 0.17 / 0.18. ZERO foreign solver ranks. ⚠ THAT ZERO IS PLANT-VERIFIED AND THE READER MATTERS: `pgrep -c -f 'rhoSimpleFoam|rhoPimpleFoam|simpleFoam'` returned 2, BOTH OF WHICH WERE THE ISSUING SHELL MATCHING ITS OWN COMMAND LINE. The discriminating reader is `ps -eo comm= | grep -cE '^(rhoSimpleFoam|rhoPimpleFoam|simpleFoam)$'`, which matches on EXECUTABLE NAME, returns 0 here, and was planted against a live `sleep` to show it can return non-zero. A load average of 0.19 corroborates. USE THE comm= READER, NOT `pgrep -f`.",
+      "arithmetic_at_launch": "14 ranks (this probe) + 0 foreign = 14 of 16 vCPUs. NOT SATURATING. If a foreign job appears before placement the arithmetic changes: 14 + 2 = 16 of 16 is SATURATING, and a cfd lane measured 85.75 core-min wasted racing exactly that shape on 2026-09-04.",
+      "instruction_to_the_placer": "RE-MEASURE THE BOX BEFORE PLACING, with the comm= reader. The figures above are a staging-time reading and WILL be stale. `if a foreign team's job appears, do not race it` is a WAIT, not a stop.",
+      "⚠_AND_M0_S_LESSON_ABOUT_THE_MOMENT_THAT_MATTERS": "R2-M0's daemon fired UNATTENDED at 09:09:28Z with no agent alive, and NO BOX READING WAS TAKEN AT THE GRADED MOMENT AND NONE SURVIVES ON DISK -- so M0's co-residency during its actual run is UNMEASURED. IF A READING CAN BE TAKEN AT LAUNCH, TAKE IT AND WRITE IT HERE. IF IT CANNOT, THE CALIBRATION ROW MUST SAY THE FIELD IS **UNMEASURED** RATHER THAN LET A LATER READER ASSUME THE BOX WAS IDLE."
+    },
+
+    "4_RC_IS_CAPTURED_INSIDE_THE_WRAPPER_NEVER_AROUND_A_setsid": "`setsid timeout cmd` exits 0 for every outcome -- success, timeout and crash alike -- so an rc taken outside it is not a reading. The driver takes every rc on the line IMMEDIATELY after the command it belongs to, inside run_step() at run_r2_m1.sh:151. Anyone who wraps or re-drives this MUST preserve that. An outer `timeout` prefix preserves it: it wraps the whole argv the daemon records as launcher_rc (already labelled NOT-the-solver-rc), not any internal capture.",
+
+    "5_THE_CAP_IS_55_0_CORE_MIN_AND_AN_OVERRUN_STOPS_THE_RUN": {
+      "rule": "It does not get a new budget (CLAUDE.md rule 12). CAP_CORE_S=3300 core-seconds, recomputed before EVERY step from that one total and converted to a wall-clock timeout by dividing by that step's rank count; exhaustion is exit 6. NO RETRY RESETS IT: a second attempt of any arm spends from the same 55.0.",
+      "⚠_WHAT_IS_DIFFERENT_FROM_M0": "M0's placed row had to record that its cap arithmetic HAD NEVER EXECUTED. THIS ONE HAS BEEN DRIVEN, 7/7, and the driver runs that selftest BEFORE ANY COMPUTE IS BOUGHT and REFUSES TO CONTINUE IF IT FAILS. The controls: budget arithmetic; the timeout SHRINKS with spend and NEVER reaches 0s (`timeout 0s` means NO LIMIT, a runaway wearing the costume of a cap); an exhausted cap returns 66 AND THE COMMAND DOES NOT RUN, proved by a witness file that is ABSENT; the SAME command DOES run with budget left, witness PRESENT; a step is charged wall x ranks; `sleep 60` under a 28 core-s budget is KILLED at 2 s with rc 124; the budget is then exhausted.",
+      "still_true": "scripts/queue_runner.py's cap_watch REPORTS an overrun and does NOT kill. An outer wall-clock backstop is therefore still advisable -- see _RECOMMENDED_PLACEMENT_ADDITION."
+    },
+
+    "6_NOTHING_IN_THIS_PROBE_AUTHORISES_RUNG_2_a": "Rung 2 (a) -- the drag-and-moment verdict against the DPW participant scatter band -- IS NOT REGISTERED IN THIS DOCUMENT AND ITS GATE STAYS `BLOCKED` ON THREE INDEPENDENT GROUNDS, with the cfd supervisor's section 15 ruling (commit 006aff45) placing the BINDING ground at (iii), THE ABSENT REFINEMENT TRIPLE: only level L1.T is on this box, and its hex/prism/hybrid files are three TOPOLOGIES at ONE refinement level sharing one point distribution, so CLAUDE.md rule 5 cannot be applied at all. Ground (iii) needs nobody's ruling and survives any ruling on the others. CONSEQUENTLY: NO FORCE, NO DRAG FIGURE, NO LIFT, NO MOMENT AND NO CRM CLAIM MAY BE READ OUT OF THIS PROBE. R2-M1 goes further than R2-M0 did: M0's `forceCoeffs` function object is NOT CARRIED FORWARD AT ALL (prereg section 7), so no force is even written. A `PASS` on R2M1-G4 clears BLOCKER 1 ONLY."
+  },
+
+  "_WHAT_THIS_ROW_DOES_NOT_ESTABLISH": {
+    "_read_this_before_reading_the_dry_run_record": "The driver's PRODUCTION SEQUENCE has now executed end to end -- but ONLY ON A STAND-IN. cases/committee-grids/R2_M1_DRYRUN_RECORD.md leads with NOT A RESULT and its section 3 enumerates the gap. It is repeated here because a row is read where a record may not be.",
+    "THE_IRREDUCIBLE_EXPOSURE_OF_THE_FIRST_REAL_RUN": "The dry run bought down the SEQUENCE. IT COULD NOT BUY DOWN THE DATA SPECIFICS, AND NOTHING CAN WITHOUT THE DATA. Three things remain unexercised and are NAMED HERE RATHER THAN DISCOVERED: (1) assembly against the REAL SEED -- 638,976 cells with max non-orthogonality 89.7134, 11,506 severe non-orthogonal faces and max aspect ratio 14,426.8 -- against a 216-cell box, roughly 3,000x; (2) the REAL 14-SUBDOMAIN decomposition against 4, and a 15.6 MB reconstructed warm field against ~10 kB; (3) ⚠ THE scotch MISMATCH THAT MOTIVATES THE ENTIRE RECONSTRUCT-AND-RE-DECOMPOSE CHAIN -- the real seed and the real warm source were each decomposed with scotch INDEPENDENTLY, which is why a processor-to-processor copy would map the converged field onto the WRONG CELLS while looking perfectly healthy. THAT MISMATCH DOES NOT EXIST IN THE FIXTURE. The chain's PLUMBING is exercised; the condition it exists to defeat is not.",
+    "comparator_coverage_is_SPLIT_and_neither_half_is_sufficient": "The dry run drove the DRIVER's sequence and the comparator only as far as R2M1-G0 (a stand-in that COMPLETES cannot satisfy a reproduction control expecting rc=136 and a thermophysical frame -- G0 stopping the probe there is the precondition working, not a finding). The separate real-data drive (prereg section 8.2) drove G0 -> G1 -> G2 -> G3 -> G4 -> G5 on R2-M0's REAL logs, rc=0, correct shapes. NEITHER ALONE IS SUFFICIENT.",
+    "the_writer_rehearsal_is_a_WRITER_test": "cases/committee-grids/R2_M1_WRITER_REHEARSAL.tsv is 7/7 arms with 7/7 controls discriminating, on a 125-cell box. It establishes that the registered writers write one record per completed step per arm and that the reader can tell a record from its absence. IT SAYS NOTHING ABOUT THE PHYSICS ON THE DPW5 GRID.",
+    "the_mechanism_is_not_yet_named": "R2-M0's R2-G2 is NOT A RESULT and this row does not reopen it. prereg section 3.5 records `pressureControl: p min -252762.6` (A0/log.solve:145), min(rho) 0.096767402 BELOW the arm's own registered rhoMin of 0.1, and max(mag(U)) 690.81616 against magUInf 295 -- AS OBSERVATIONS WITH THEIR PATHS AND LINES, EXPLICITLY NOT AS A CAUSE. Naming a mechanism is R2M1-G2's job and it rests on arm B2.",
+    "and_no_cause_may_be_assigned_to_any_2x2_DIFFERENCE": "R2M1-G5 reports four cells and assigns nothing. A TRAP SITE IS WHERE AN EXCEPTION WAS CAUGHT, NOT WHERE A VALUE WAS BORN -- under FOAM_SIGFPE a value born in a thermo evaluation on one rank can be trapped in an allreduce on another. The comparator prints that sentence beside the cells so it cannot be lost in transcription."
+  },
+
+  "_RECOMMENDED_PLACEMENT_ADDITION": {
+    "what": "An outer wall-clock backstop on the argv, as the chief added at R2-M0's placement: `timeout --signal=TERM --kill-after=120 708 <launch_cmd>`.",
+    "arithmetic": "708 s = ceil(3 x cap_core_min_registered 55.0 x 60 / ranks 14) = ceil(707.14), the fleet 3x-cap convention. RESTRICTS ONLY.",
+    "why_still": "scripts/queue_runner.py launches the argv bare and its cap_watch REPORTS an overrun without killing. The driver's own cap HAS been driven 7/7 (condition 5), so this is a second independent bound rather than the only one -- which is the difference from M0.",
+    "it_preserves_condition_4": "A timeout kill reads as launcher_rc=124: a stopped run, never a graded outcome. It wraps the whole argv, not any internal rc capture.",
+    "not_baked_in": "It is NOT in launch_cmd above, because the outer bound was the chief's placement act for M0 and this lane does not presume it. The placer decides and records the decision."
+  },
+
+  "_VALIDATION": {
+    "validator": "scripts/queue_entry_check.py",
+    "result_at_staging": "ACCEPTED, exit code 0, 2026-09-06T16:59:28Z at HEAD b98a770e. VERBATIM OUTPUT, the validator selftest that preceded it (36 controls, each shown able to fail), and THREE PLANTED REFUSALS proving the acceptance is a reading and not a default, are recorded in cases/committee-grids/QUEUE_ROW_R2M1_VALIDATION.txt.",
+    "⚠_ONE_CLAUSE_CANNOT_BE_CHECKED_HERE_AND_AN_ACCEPTANCE_MUST_NOT_IMPLY_IT_PASSED": "TEAM-BINDING (clause 7) verifies that an entry's `team` field equals the team directory it sits in. THIS FILE IS NOT IN verification/queue/<team>/, so that clause returns [] -- WHICH IS AN UNCHECKED CONDITION, NOT A SATISFIED ONE. The validator's own binding_note() reports it as NOT CHECKED for exactly this reason, and `--require-binding` converts it into a refusal. THE VALIDATION THAT COUNTS IS OF THE QUEUED COPY, IN PLACE. Whoever places this row must re-run the validator against the placed file.",
+    "also_reporting_only": "GRADER-FREEZE (clause 8) ALWAYS returns [] and cannot stop a launch -- Sanaa's ruling of 2026-09-03 (etc/sessions/2026-09-03T2100Z_sanaa_launch_rule.md): 'A pre-registration mismatch never prevents a launch. It's recorded as a prediction, the run launches under the monitor, and the outcome is compared to the prediction on the certificate.' Here there is no mismatch to record -- check 4 passed on all three blobs -- but the clause's REPORTING-ONLY status is stated so a green from it is not read as a gate."
+  }
+}
