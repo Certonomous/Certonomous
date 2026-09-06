@@ -588,3 +588,36 @@ The building lane implemented §3.2's registered consequence as `compose` **rung
 **Scoped rather than assumed.** Every section appended to this family's documents tonight was scanned for the signature (a mid-line multi-space run) inside its own bounds: `DAFOAM_CHARTER.md` §21, `A1WRT3` §13, `D6RF3` §12 and §13, `A1WRT2` §13, `N-D43`, and the board blocks — **all clean; this was the only instance.** They survived because their backticks were escaped (`` \` ``); this one span was not.
 
 **The rule this supports, and it costs nothing:** **write markdown through a QUOTED heredoc (`<<'EOF'`) and substitute variables afterwards** — never through an unquoted one. A document is not a shell string, and the shell cannot tell the difference.
+
+---
+
+## AMENDMENT — 2026-09-06T03:51:07Z — **FOUR RULINGS: the unregistered `memory_floor_gb`, the banner that still denies this document's own freeze, the unregistered image identity, and two corrections against my own figures**
+
+**PRE-FIRST-COMPUTE, `CLAUDE.md` rule 2.** Condition stated and **CHECKED BY EXECUTION in this invocation**: all three candidate run roots **ABSENT**, **0 solver core-minutes**. **No band, threshold, cap, deadline or label moves.** One field that this document never carried is **registered for the first time** — that is an addition, not a move.
+
+### 1. `memory_floor_gb` = **20.0 (GiB, unconverted)**, and the DERIVATION is registered with it because it is not a measurement
+
+**The lane refused to fill this from the launcher and was right to refuse.** `--memory 20g` is the **cgroup CEILING** — a bound on what the container may consume. **`memory_floor_gb` is a FLOOR on host `MemAvailable`** which *holds* the entry before it starts (`queue_runner.py:932`, `:943-944`). **They are different quantities and this document registered neither.**
+
+> **RULED: `memory_floor_gb = 20.0`, and its basis is that it EQUALS THIS ITEM'S OWN REGISTERED CGROUP CAP — a container permitted 20 GiB must not be admitted to a host with less than 20 GiB available.**
+>
+> **THIS IS A DERIVATION FROM THE CAP, NOT A MEASUREMENT OF PEAK RSS.** No artefact on this box records what this arm **needs**; the cap records only what it **may take**. The figure is therefore *sufficient by construction and of unknown necessity*, and it is registered saying so rather than as a measured requirement.
+
+**UNIT, ruled and recorded so it is never re-litigated:** `scripts/queue_runner.py:195-200` computes `MemAvailable` as `int(kB) / (1024*1024)` — **GiB** — despite the `_gb` field name **and** its own log line printing "GB". **A registered GiB floor goes in UNCONVERTED.** Converting would over-ask by ~7.4 %, which is itself a change to a registered figure.
+
+### 2. ⚠ STRUCK — LINE 1 AND §10 STILL DENY THIS DOCUMENT'S OWN FREEZE
+
+Line 1 reads **`⚠ DRAFT — NOT A REGISTRATION, NOT FROZEN, NOT ENQUEUED`** and §10 still lists the freeze among items *"Owed before any freeze"*. **This document was FROZEN at `c1f309e8`**, `PERMISSION=648a6ea1` filled at `d6rf4_run_arm.sh:97` (assignment count measured = 1). **Both are STRUCK by this section and neither is edited** — the originals stand as the record of what the document was.
+
+**AND THIS IS THE PROSE CATEGORY SURVIVING MY OWN PRE-EMPTIVE SWEEP.** I commissioned that sweep precisely to stop the W3S pattern, and it found and fixed four prose claims **in the instruments** — and **not this one, in the registration itself.** **The sweep's scope was the instruments; the document was not in it, and that omission is mine.** The lesson generalises past this item: **a freeze-fragility sweep that covers the code and not the registration has swept the smaller half**, because the registration is what a reader opens first.
+
+### 3. THE IMAGE IDENTITY IS REGISTERED HERE, having been carried only structurally
+
+`dafoam-idwarp-rot:v1` is **not named anywhere in this document**. It is forced by the frozen launcher (`:529-536`, `G-ROW` PATCHED-ONLY, digest-checked at `:325-326`/`:534`, every other value aborting `rc 4`) — **structurally binding but never registered**, which `DAFOAM_CHARTER.md` §6 asks for directly. **Registered now: image `dafoam-idwarp-rot:v1`, and the DIGEST is the identity, not the tag** (§11: *the hash is the identity; the version string is not*). The launcher's digest check is the operative gate and this section records what it pins rather than replacing it.
+
+### 4. TWO CORRECTIONS AGAINST MY OWN FIGURES, both measured by a lane against my recollection
+
+* **The D6RF3 grader derivation diff is 1292 lines, not 1,293.** I quoted 1,293 repeatedly tonight, including in a commit message and to the chief. `wc -l` and `grep -c ''` agree at **1292**. D6RF4's own grader diff is a different and larger artefact — **1765 lines, 1744 rename-stripped**.
+* **"Ceiling 54.0" conflated two quantities.** `54.0` is the **grader's** `ceiling_core_min = sum(CAPS)` (`:696`, `:2792`), equal to the cap **only because one arm is registered**. The **launcher's** `CEILING = 3.0 × CAP = 162.0` (`:1267`) is a different thing with a different consequence: **the cap only REPORTS and lets the run continue (`:1275-1278`); the ceiling DOCKER-STOPS it (`:1279-1284`).** Two numbers, two behaviours, one word — and I used the word without the distinction.
+
+**SUBMISSIONS PARKED.**
