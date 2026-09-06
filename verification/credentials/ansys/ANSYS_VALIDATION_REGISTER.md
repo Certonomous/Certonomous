@@ -982,3 +982,26 @@ Row #57 says the L3 non-plateau *"is consistent with `§23.1`'s model-form bound
 ### The two successors, and what each must fix
 **`VMFL046-R4`** — the fix is **cost, not physics**: re-file L2 and L3 from a probe covering a representative fraction of the graded clock, not 10 % of it, and **raise the caps to match the corrected estimate rather than raising them to rescue the old one**. `§27`'s trap is not a reason to loosen a cap on a bad estimate; it is a reason to make the estimate good. **The frozen comparator's window defect must also be repaired** — the reader must consume only its registered plateau window.
 **`VMFL034-R3`** — must first **establish why `Re ≤ 0`**, and cannot do so without fields: `writeInterval` must guarantee a time directory before t ≈ 0.082 s.
+
+### DATED ADDENDUM to row #59 — 2026-09-06 — **MY MECHANISM STATEMENT IS MEASURABLY WRONG. `Re` IS NEVER NON-POSITIVE; IT GOES **NaN** UNDER A BUOYANCY-DRIVEN VELOCITY RUNAWAY. AND VMFL034 IS BROKEN TWO WAYS, NOT ONE.**
+
+**Alters no verdict, gate, band, threshold, cap or label.** Row #59 stands as `NOT A RESULT`.
+
+Row #59 located the SIGFPE at `pow(Re, 0.687)` inside `SchillerNaumann::CdRe()` and hypothesised *"a fractional power of a NON-POSITIVE Reynolds number is a domain error"* — **explicitly flagged there as located, not established.** It is now established, and **the hypothesis is refuted.**
+
+**Source is decisive on the sign path.** `phasePair::Re() = magUr()·dispersed().d()/continuous().nu()` (`phasePair.C:126-128`): `magUr ≥ 0` and `nu > 0`, so **`Re < 0` requires `d < 0`**, and `velocityGroup::dsm() = 1/Σ(fᵢ/dᵢ)` with all pivot `dᵢ > 0` would require a negative `fᵢ`. **Measurement kills that story:** across the whole trajectory `min(d.air)` is a constant healthy **1.3959** (max reaching only 2.52), `Σfᵢ ≈ 1.0`, and **no `fᵢ` goes negative** — in the crashing field itself `d.air` runs 1.396–2.524 with **no negatives and no NaN**.
+
+> **WHAT ACTUALLY HAPPENS: `U.air` DIVERGES AND CARRIES A NaN INTO `Re`.** `max|U.air|` climbs **6.06 → ~104 m/s** approaching the crash, and the crashing field contains a **NaN** in `U.air`. NaN `Re` → `pow(NaN, 0.687)` → `FE_INVALID` → SIGFPE. **`pow` of a NaN, not `pow` of a negative.**
+
+**The driver is gravitational buoyant segregation of an 850:1 density ratio, and it was isolated by a CONTROLLED TEST rather than argued.** `alpha.air` (nominal feed 0.01) segregates violently — `min → 1.0e-15`, `max → 0.76` — and at the crashing step **2 142 of 2 500 cells (86 %) sit below `residualAlpha = 1e-6`**: the dispersed phase has vacated most of the domain and piled into a few cells, leaving the dispersed momentum equation unconstrained in the near-vacuum. **Re-running S1 with `g = 0` and everything else identical COMPLETES to endTime with `rc = 0` and no crash.** Buoyancy is decisive.
+
+#### ⚠ AND THE CASE IS BROKEN A SECOND, INDEPENDENT WAY — REMOVING GRAVITY DOES NOT RESCUE IT
+The surviving `g = 0` run is **still grossly segregated**: at endTime **`CoV(alpha.air) = 3.65`, thirty-six times the registered well-mixedness threshold `CoV(m0) ≤ 0.10`.** It would grade `NOT A RESULT` through the comparator's own well-mixedness refusal. **With gravity the case crashes; without gravity it never reaches the CMSMPR steady state the analytical target assumes.**
+
+#### THE PRE-REGISTRATION CLAIM THAT IS FALSIFIED, AND IT WAS MINE TO ACCEPT
+`§C.D` held that the frozen-flow departure was **"closed by construction"** by dilute α₂ plus a constant drag diameter plus a single velocity group. **Measurement inverts it: dilute α₂ under gravity segregates MORE, not less — the dilution is the aggravating factor, not the mitigant.** The manual (p. 121–122) solves the QMOM moments on a **FROZEN flow field** — its own journal reads `solve set equations mixture flow no ke no mp no`, then moments only — **precisely to avoid live buoyant two-phase dynamics.** This lab reproduced it as a **live coupled buoyant two-phase Euler solve**, which cannot hold a 1 %-dilute 850:1 phase well mixed. **I approved that departure; the measurement refutes it.**
+
+#### A SOURCE FINDING RECORDED SEPARATELY BECAUSE IT WILL MISLEAD SOMEONE ELSE
+**`residualRe` in `phaseProperties` is a false comfort.** In `SchillerNaumann::CdRe()` the floor is applied **only** to the high-Re branch — `pos0(Re−1000)*0.44*max(Re, residualRe_)` — while the **low-Re branch `pow(Re, 0.687)` consumes raw `Re`.** It structurally cannot guard the `pow` argument. *(Not operative here — `max(NaN, 1e-3) = NaN` regardless — but a reader would reasonably assume that dictionary entry protects this exact call, and it does not.)*
+
+> **RULED — the remedy is NOT observability and R3 as I scoped it was refused, correctly.** Fixing `writeInterval` alone would have reproduced the identical SIGFPE at t ≈ 0.082 with fields on disk — **a knowingly doomed freeze cycle.** The lane declined to build it and escalated instead, which is what `§24` requires: **no remedy is registered that has not been measured to survive as a graded result.** The one remedy measured (g = 0) survives the crash and **still fails well-mixedness by 36×**, so no configuration available below the supervisor yields a `PASS`-eligible run.
