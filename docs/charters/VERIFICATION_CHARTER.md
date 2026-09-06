@@ -8280,3 +8280,106 @@ root** should continue to count as a freeze qualification.
   pinned consumer, and this would extend it to the consumer's own ordering.**
   **⚠ WHAT WOULD MOVE ME, STATED IN ADVANCE: the same class in a SECOND FILE, or one instance where
   the missing end-to-end drive let a WRONG VERDICT PUBLISH rather than merely blocking one.**
+
+---
+
+## Amendment — v1.69, 2026-09-06 — **§2ax "FIRST COMPUTE" AT ITS LOWER EDGE: A CONTAINER THAT STARTS AND ABORTS WITH **NO TIME DIRECTORY BEYOND 0** HAS NOT REACHED FIRST COMPUTE FOR RULE 2's PURPOSES. THE ANCHOR IS RULE 2's AND RULE 4's OWN OPERATIONAL TESTS — I INTERPRET, I DO NOT DEFINE. AND THE LINE IS "GRADEABLE STATE PRODUCED", NOT "CONTAINER EXITED CLEANLY".**
+
+**Appended 2026-09-06 by `verification-supervisor`. Lines whose number changed above this section: 0.**
+**Referred by dafoam because it gates a repair a supervisor cannot self-grant, and because it RECURS
+— tonight produced several no-solve aborts. Nothing re-graded. No frozen document reopened.**
+
+### §2ax.1 THE ESCALATION SELF-CHECK, DONE FIRST BECAUSE IT DECIDES WHO RULES
+
+**dafoam asked me to escalate to Sanaa in one line if this is a constitutional reading of rule 2
+itself, and to rule it if it is interpretation within the referee's scope. I judge it
+INTERPRETATION, and I state the test I applied so the judgement is checkable, not asserted.**
+
+**`§2am`'s distinction governs: naming the reader a document ALREADY USES is interpretation; SELECTING
+a reader it never used is alteration and goes to her.** ***Rule 2 and rule 4 already carry two
+operational tests for "did compute happen", and I am naming them, not choosing a meaning the
+constitution never had:***
+
+- **Rule 2 bullet 1 `[VERIFIED, `CLAUDE.md:31-32`]`: an amendment is pre-compute when it can *"name
+  the run directory that does not exist."*** ***The constitution's own pre-compute test is the
+  ABSENCE OF THE RUN DIRECTORY.***
+- **Rule 4 `[VERIFIED, `CLAUDE.md:49-55`]`: a run is dated by *"every field at `endTime` NEWER than
+  the case's own `0/T`"*, the age guard, because a produced answer lives in a time directory the
+  solver wrote.** ***The constitution's own test for "the run produced something" is a TIME DIRECTORY
+  the solver wrote.***
+
+**Both point one way, and I am reading them, not overriding them. If Sanaa reads "first compute"
+differently, HER READING GOVERNS AND THIS SECTION YIELDS WITHOUT ARGUMENT** — the same deference
+`§2at` and `§2au` carry. **`CLAUDE.md` is untouched and is not mine to touch.**
+
+### §2ax.2 THE RULING
+
+> **RULED — `§2ax`: A CONTAINER THAT STARTS AND REFUSES OR CRASHES WITHOUT WRITING ANY TIME DIRECTORY
+> BEYOND `0` — zero solver iterations, no gradeable artefact — HAS NOT REACHED "FIRST COMPUTE" FOR
+> RULE 2's PURPOSES. THE REGISTRATION'S GATES REMAIN OPEN, AND A PRE-COMPUTE AMENDMENT MAY BE
+> SELF-APPLIED BY THE SUPERVISOR UNDER RULE 2 BULLET 1.**
+
+**The reason is rule 2's own stated purpose, not a convenience: *"the freeze proves the gate could not
+have been chosen to fit the answer."*** ***An answer that does not exist cannot have been fitted to.***
+A no-solve abort produced **nothing rule 2 protects** — no `x_shock`, no plateau, no field at
+`endTime`, no number a gate could be bent toward. **The freeze has nothing to prove because there is
+nothing it could have been chosen against.**
+
+### §2ax.3 ⚠ THE LINE IS "GRADEABLE STATE PRODUCED", NOT "CONTAINER EXITED CLEANLY" — AND THIS IS THE HALF THAT KEEPS THE RULING FROM OVER-REACHING
+
+**A crash is NOT automatically pre-compute, and reading `§2ax` that way would be a serious error I
+foreclose here:**
+
+| what happened | time dir beyond 0? | disposition |
+|---|---|---|
+| container aborts at startup / staging / a stale-pin read | **NO** | **pre-compute** (`§2ax`) — gates open, amend and self-apply |
+| solver ran, wrote time dirs, THEN crashed or diverged | **YES** | **post-compute** — the run happened and FAILED completion; **rule 4 → `NOT A RESULT`**, gates CLOSED, repairs go through `§2d.1` |
+
+> ***THE DISCRIMINATOR IS WHETHER THE SOLVER PRODUCED A STATE A GATE COULD READ — not the exit code,
+> not whether the crash was clean.*** **A run that computed 12,000 iterations and then died has
+> reached first compute as fully as one that finished; its gates are closed. `§2ax` reaches ONLY the
+> container that never produced a gradeable state at all.**
+
+**⚠ AND A TRAP I HIT WHILE VERIFYING AND NAME SO THE NEXT READER DOES NOT: a bare `0/` DIRECTORY IS
+NOT A TIME DIRECTORY IN THIS SENSE.** `[MEASURED — D6RF4's run root holds `P_conv/0`, `base/0`, etc.,
+and NO directory beyond `0`.]` **`0/` is STAGING — the initial field, written before the solver
+runs; it is the age-guard's DATUM, not its subject.** ***The test is a time directory the solver
+WROTE, i.e. one BEYOND `0`.*** A reader who counts `0/` as compute will call every staged-but-unrun
+case post-compute and close gates that never opened.
+
+### §2ax.4 APPLIED TO D6RF4, AND WHAT IT DOES NOT DECIDE
+
+**`[VERIFIED BY ME AT SOURCE]`: D6RF4's authoritative run root
+(`/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe`) holds `0/` staging and
+NO time directory beyond `0`; the four launches record `launcher_rc=2 … NOT-the-solver-rc`.**
+***No solve occurred. By `§2ax` this is pre-compute, its gates are open, and the stale-pin repair
+(`MD5_EXTRACT` at `endpoint_physical.py:95`) is a LAWFUL PRE-COMPUTE AMENDMENT the supervisor
+self-applies under rule 2 bullet 1 — NO `§2d.1` PETITION IS REQUIRED.***
+
+**WHAT `§2ax` DOES NOT DECIDE, stated so the grant is not read wider than it is:**
+
+- **It does not certify the repair.** *That the manoeuvre is pre-compute means the SUPERVISOR rules
+  it, under rule 2's pre-compute discipline — the amendment must still state the condition and how it
+  was checked (rule 2 bullet 1), and the stale md5 must be demonstrated, as dafoam say it is (sole
+  outlier of 22 pins, three ways). I authorise the PROCEDURE, not the pin.*
+- **It grants nothing retroactive.** No prior verdict rests on D6RF4; none exists.
+- **It changes no gate, threshold, cap or label**, and a repair that touched any of those would be
+  outside rule 2 bullet 1 whether or not compute had occurred.
+
+### §2ax.5 WHY A CLASS RULING RATHER THAN A CASE ONE — AND THE ANTI-SHELTER CLAUSE
+
+**dafoam is right that this recurs, and `§28`'s own lesson is that a no-solve abort is common: the box
+restarts, a stale pin, a staging error, a refused launch all produce this exact state.** **A
+case-by-case ruling would route every one of them through a `§2d.1` petition that has nothing to
+grade.** **So `§2ax` settles the class.**
+
+**⚠ BUT A CLASS RULING IS A WIDER SURFACE, so it carries its own guard, stated in advance so it cannot
+be fitted later:**
+
+> **`§2ax` IS AVAILABLE ONLY WHERE THE ABSENCE OF A TIME DIRECTORY BEYOND `0` IS *VERIFIED AT SOURCE
+> IN THE AUTHORITATIVE RUN ROOT*, NOT ASSERTED FROM A STATUS FILE.** **`§28.15` measured a
+> `launcher_rc` that lied about a solver rc, and `§28.13.4` measured a refused launch writing a false
+> `rc=0` — SO A STATUS FIELD IS NOT EVIDENCE THAT NO SOLVE OCCURRED.** ***The pre-compute claim is
+> carried by the filesystem — the run root, checked — and by nothing a wrapper wrote about itself.***
+> **A supervisor invoking `§2ax` records, in the amendment, the run root it checked and that it held
+> no time directory beyond `0`.**
