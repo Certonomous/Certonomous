@@ -103,7 +103,7 @@ MD5_PARENT_LAUNCHER="8a92f3f84f72d6806a2e5c5df88d82ef"
 MD5_RUNPY="2790c39a09cd458d5a3263d7f1811da5"
 MD5_GRADER="3a3ee623fa48cc1d81517638485f376b"
 MD5_RECORD="093ac4ed34a51fdd2eb46d09333a99b5"
-MD5_LAUNCHER="8d1cac29a80fb0d4170c2484d61da457"
+MD5_LAUNCHER="3d642cce417ca9221395918f0c32cd31"
 
 # ---- THE FREEZE.  Empty until `dafoam-supervisor` freezes W3S_PREREGISTRATION_DRAFT.md
 # ---- and records the sha here, IN THE FREEZE COMMIT.  Empty means this driver refuses.
@@ -289,7 +289,7 @@ selfcheck() {
   # has been shown able to refuse.  This driver checks the same seven files with the same
   # ordering; it does not re-plant the same control in a second place.
   bash "$LAUNCHER" --selftest >/dev/null 2>&1; rc=$?
-  unit "S2c the LAUNCHER's own selftest passes (51 controls, both pin directions and both LAUNCH-GATE directions planted, 0 NOT EXERCISED)" \
+  unit "S2c the LAUNCHER's own selftest passes (53 controls: both pin directions, both FREEZE-PLANT directions and both LAUNCH-GATE directions planted, 0 NOT EXERCISED)" \
        "$( [ $rc -eq 0 ] && echo 1 || echo 0 )"
   python3 "$RECORD" --selftest >/dev/null 2>&1; rc=$?
   unit "S2d the RECORD PRODUCER's selftest passes under python3" \

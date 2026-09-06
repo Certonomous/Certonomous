@@ -2,12 +2,27 @@
 # =============================================================================
 # w3s_stage_and_run.sh -- THE W3S ARM A (`GSCAN`) LAUNCHER.  ONE LEG PER INVOCATION.
 #
-# IT LAUNCHES NOTHING.  The container invocation sits behind `LAUNCH_ENABLED`, which is
-# `0` and WHICH NO LANE MAY RAISE.  `W3S_PREREGISTRATION_DRAFT.md` is UNFROZEN, carries no
-# committed sha, and pins no instrument md5 against a HEAD blob; under `CLAUDE.md` rule 2
-# nothing in it authorises compute, and under `SUPERVISION_CHARTER.md` sec.3 check 4 the
-# *pre-registration committed before compute* check is the `dafoam-supervisor`'s own and
-# may not be delegated.  This file cannot discharge it and does not try to.  ZERO COMPUTE.
+# UPDATED 2026-09-06.  THIS SCREEN USED TO SAY "IT LAUNCHES NOTHING", that the container
+# invocation sat behind a `LAUNCH_ENABLED` of `0`, and that `W3S_PREREGISTRATION_DRAFT.md`
+# was UNFROZEN and carried no committed sha.  ALL THREE SENTENCES ARE NOW FALSE and are
+# replaced rather than left standing -- a stale claim on a file's first screen is exactly
+# what a reader trusts, and this file can now start a container.
+#
+# THE CURRENT STATE, AND IT IS THE OPPOSITE OF THE OLD ONE:
+#   - `W3S_PREREGISTRATION_DRAFT.md` IS FROZEN at `e1070c02` and this file's `PREREG_COMMIT`
+#     records that sha, filled BY THE `dafoam-supervisor` (B3).  PREFLIGHT 0 now PASSES.
+#   - `LAUNCH_ENABLED` IS `1`, RAISED BY THE SUPERVISOR as the enqueue act.  NO LANE MAY
+#     RAISE IT AND NONE DID.
+#   - THEREFORE THIS FILE LAUNCHES CONTAINERS.  `--selftest` still spends ZERO COMPUTE and
+#     starts no container: both its launch-gate directions are driven against MUTATED COPIES
+#     against a FRESH root, where the leg body's `FIELD_B is absent` refusal sits ahead of
+#     every `docker run`.  THE SELFTEST'S ZERO-COMPUTE PROPERTY IS A PROPERTY OF ITS
+#     FIXTURES, NOT OF A DISABLED FLAG, and that distinction is now the whole of the safety
+#     argument.
+#
+# Under `SUPERVISION_CHARTER.md` sec.3 check 4 the *pre-registration committed before
+# compute* check is the `dafoam-supervisor`'s own and may not be delegated.  This file still
+# cannot discharge it and does not try to; it records that the supervisor did.
 #
 # -----------------------------------------------------------------------------
 # WHY THIS FILE EXISTS AT ALL, WHICH IS NOT "TO RUN THE SOLVER"
@@ -166,7 +181,7 @@ MD5_RUNPY="2790c39a09cd458d5a3263d7f1811da5"
 
 # ---- THE FREEZE.  Empty until `dafoam-supervisor` freezes the pre-registration and
 # ---- records the sha here, IN THE FREEZE COMMIT.  Empty means this launcher refuses.
-PREREG_COMMIT=""
+PREREG_COMMIT="e1070c022678efe3a27f6dc75391380225a30380"  # filled 2026-09-06 BY THE dafoam-supervisor -- B3, the launcher's OWN freeze field, separate from the driver's
 PREREG_FILE="$BASE/W3S_PREREGISTRATION_DRAFT.md"
 
 # =============================================================================
@@ -683,7 +698,31 @@ selftest() {
   # ---- 1. the freeze and the pins, BOTH DIRECTIONS.  The negative direction is driven
   # ---- against MUTATED COPIES of this file, because a pin control that can only ever
   # ---- pass is a pin control nobody has shown to be one.
-  expect_rc "FREEZE-refuses-while-PREREG_COMMIT-empty" 70 preflight_freeze
+  # THE CONTROL THAT USED TO STAND HERE READ THE LIVE `PREREG_COMMIT` AND REQUIRED IT
+  # EMPTY (`FREEZE-refuses-while-PREREG_COMMIT-empty`, rc=70).  The supervisor's B3 fill --
+  # this launcher's OWN freeze field, distinct from the driver's -- REMOVED ITS PREMISE, so
+  # it is replaced rather than left standing on a condition that can no longer occur: a
+  # control whose premise is gone is a control that cannot fail, and a green from one means
+  # nothing.  THIS IS THE THIRD CONTROL IN THIS ITEM KILLED BY THE SAME ACT CLASS, and the
+  # general finding is recorded in `w3s_CONTROL_REPLANT_2026-09-06.diff`: EVERY LIVE-READING
+  # CONTROL IN A PRE-FREEZE ITEM IS A CONTROL THE FREEZE ITSELF DESTROYS.
+  #
+  # THE REASON TOKEN IS CHECKED, NOT THE RC.  Both refusals return 70, and a control that
+  # cannot tell NOT_FROZEN from FREEZE_UNVERIFIABLE is measuring the presence of a refusal
+  # rather than the reason for one -- the same repair the two pin controls below carry.
+  sed 's|^PREREG_COMMIT=.*|PREREG_COMMIT=""|' \
+      "${BASH_SOURCE[0]}" > "$TD/freeze_empty.sh"
+  expect_rc_and_text "FREEZE-PLANT-an-EMPTY-PREREG_COMMIT-REFUSES-with-NOT_FROZEN" 70 \
+    "NOT_FROZEN" \
+    env W3S_BASE="$BASE" bash "$TD/freeze_empty.sh" --freeze-only
+  sed 's|^PREREG_COMMIT=.*|PREREG_COMMIT="0000000000000000000000000000000000000000"|' \
+      "${BASH_SOURCE[0]}" > "$TD/freeze_bogus.sh"
+  expect_rc_and_text "FREEZE-PLANT-a-sha-with-no-prereg-blob-REFUSES-with-FREEZE_UNVERIFIABLE" \
+    70 "FREEZE_UNVERIFIABLE" \
+    env W3S_BASE="$BASE" bash "$TD/freeze_bogus.sh" --freeze-only
+  # ---- AND THE POSITIVE DIRECTION, which the old control could never have had, because it
+  # ---- required the opposite: the LIVE sha must actually carry the pre-registration blob.
+  expect_rc "FREEZE-the-LIVE-sha-carries-the-pre-registration-blob" 0 preflight_freeze
   expect_rc "PINS-agree-on-disk-today" 0 preflight_instruments
   # THE TWO PIN DIRECTIONS MUST REFUSE FOR TWO DIFFERENT REASONS, and the reason is
   # checked, not the rc alone.  The first draft of these two controls both passed at rc=4
@@ -977,6 +1016,7 @@ ROOT="$ROOT_DEFAULT"
 SELFTEST=0
 GUARDS_ONLY=0
 PINS_ONLY=0
+FREEZE_ONLY=0
 TRACE=0
 TD=""
 TMPDIR_ARG="${TMPDIR:-/tmp}"
@@ -988,6 +1028,7 @@ while [ $# -gt 0 ]; do
     --guards-only)    GUARDS_ONLY=1; shift ;;
     --pins-only)      PINS_ONLY=1; shift ;;
     --pins-only-loud) PINS_ONLY=2; shift ;;
+    --freeze-only)    FREEZE_ONLY=1; shift ;;
     --producer-trace) TRACE=1; shift ;;
     --tmpdir)         TMPDIR_ARG="${2:-}"; shift 2 ;;
     *)                usage ;;
@@ -998,6 +1039,13 @@ MANIFEST="$ROOT/manifest.jsonl"
 
 if [ "$TRACE" = "1" ]; then
   exec python3 "$RECORD" --producer-trace
+fi
+if [ "$FREEZE_ONLY" = "1" ]; then
+  # PREFLIGHT 0 ALONE, so the planted freeze controls can be driven against MUTATED COPIES
+  # of this file WITHOUT PREFLIGHT 1's md5s refusing first -- a mutated copy has, by
+  # construction, a different md5 than anything pinned, and a control that refuses for the
+  # WRONG REASON is not a control.  It launches nothing: no path from here reaches a leg.
+  preflight_freeze; exit $?
 fi
 if [ "$PINS_ONLY" != "0" ]; then
   # PREFLIGHT 1 alone, so the pin controls can be driven in BOTH directions against
