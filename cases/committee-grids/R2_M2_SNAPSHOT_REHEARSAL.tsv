@@ -1,0 +1,10 @@
+# R2-M2 SNAPSHOT-AT-ENDTIME REHEARSAL -- tiny icoFoam cavity, NOT the DPW5 grid, NOT a physics result.
+# Generated 2026-09-06T22:53:46Z. deltaT=0.005 nStep=5 endTime=0.025 writeFormat=binary purgeWrite=1 writeControl=timeStep ranks=2.
+# Proves: a rewrite of endTime that leaves writeInterval > nStep (M1's defect) writes NO snapshot at endTime; the coupled fix (writeInterval==nStep) writes one.
+config	writeInterval	solve_rc	per_processor_snap_at_endTime	reconstructed_serial_snap_at_endTime	fields_UP_present
+BROKEN	120	0	0	0	0
+FIXED	5	0	1	1	2
+#
+# DISCRIMINATES: reader sees endTime snapshot present under FIXED (per-proc=1 serial=1 fields=2/2)
+#               and ABSENT under BROKEN=M1's config (per-proc=0 serial=0) -- DISCRIMINATES
+# VERDICT: PASS -- the coupled-setting fix makes a field snapshot land at endTime, per-processor and reconstructed; M1 config writes none
