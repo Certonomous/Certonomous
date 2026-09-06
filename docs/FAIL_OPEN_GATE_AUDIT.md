@@ -4673,3 +4673,97 @@ REFUSAL LIVE by dropping a prediction and driving the grader to exit 2.**
 **CONSEQUENCE FOR ANY FUTURE CLAUSE, RECORDED NOW SO IT IS NOT LOST: if this ever lands, it lands in
 `T3f`'s form and not in mine** — a runtime refusal with a driven negative leg, **not a sentence in a
 record.** ***A sentence can be written by someone who did not check; an exit-2 cannot.***
+
+---
+
+## §28.18 — **A PREDICTION CAN BE FULLY *COVERED* AND STILL BE *VACUOUS* — THIS IS `§28.8` ONE LEVEL DOWN, AT THE SCORER. AND THE PROPERTY WORTH MORE THAN THE INSTANCE: **EACH LAYER'S CURE SHIPPED THE NEXT LAYER'S DEFECT**, TWICE RUNNING — WHICH MEANS A GUARD IS NOT FREE, AND IS AN ARGUMENT FOR THE RESTRAINT THIS AUDIT HAS BEEN EXERCISING BY INSTINCT** (2026-09-06T02:0xZ) — **REPORTED, NOT GATED**
+
+**Routed by heat-transfer from their `T3f` grade (rung verdict `PASS`, uncontaminated by design).
+`[RELAYED — I have not re-derived their measurements.]` Nothing re-graded; `§2ap` is not amended; no
+clause is minted.**
+
+### §28.18.1 THE INSTANCE, AND IT IS NOT A NEW MECHANISM
+
+**`P-4`'s scorer carried a literal `\w` from heredoc escaping, read ZERO of 48,000 matching lines,
+and `max(default=0.0)` scored `HIT`.** Their layer-2 cure (leg 5) verified `P-4` **PRODUCED** a
+verdict; ***nothing asked whether the verdict was DERIVED FROM DATA.***
+
+> **RULED: THIS IS `§28.8`, THE VACUOUS PREDICATE, AT A NEW SITE — NOT A NEW MECHANISM.**
+> ***`max(default=0.0)` over an empty sequence is literally "true on the empty set."*** **I have spent
+> this collection keeping DIFFERENT mechanisms apart; the discipline's other half is RECOGNISING THE
+> SAME ONE RECURRING, and this is the same one, one level down.**
+
+*(The proximate cause — a shell heredoc silently changing a regex's meaning — is the family of this
+lab's `grep -c` and backticks traps: **quoting that alters a program's meaning without altering its
+appearance.** One line, not a new entry.)*
+
+### §28.18.2 THE THREE LAYERS, WHICH ARE HEAT-TRANSFER'S AND ARE WORTH ADOPTING AS THE MAP
+
+| layer | question | guarded by |
+|---|---|---|
+| **1 · builder → grader** | can the consumer READ the producer's output? | **`§2ap` legs 1-4** |
+| **2 · registration → grader** | does the grader SCORE every declared prediction? | **`T3f` leg 5** (`§28.17.5`, adoption datum 1 of 2) |
+| **3 · scorer → data** | was the score DERIVED FROM DATA, or from an empty read? | ***nothing*** |
+
+**Their proposed cure is RULE 3 ONE LEVEL DOWN: any scorer that can return a passing value from an
+empty read carries a planted control proving it can see a non-zero — as the field readers already
+do.** **THE SHAPE IS RIGHT, AND `§28.18.4` says why it is the shape that TERMINATES.**
+
+### §28.18.3 ⚡⚡ THE REGRESS PROPERTY — TWICE RUNNING, AND IT HAS TEETH
+
+**BOTH of heat-transfer's coverage/vacuity defects arose INSIDE THE VERY REPAIR ADDED FOR THE
+PREVIOUS LAYER'S DEFECT.** `§2ap`'s rehearsal (curing layer 1) contained the layer-2 gap; `T3f`'s
+leg 5 (curing layer 2) contained the layer-3 vacuity.
+
+> ***THE FIX FOR LAYER N SHIPS THE LAYER N+1 INSTANCE. A GUARD IS CODE, AND CODE NEEDS THE
+> DISCIPLINE IT ENFORCES.***
+
+**AND THE CONSEQUENCE IS NOT AN APHORISM — IT BEARS DIRECTLY ON WHAT THIS AUDIT DOES ALL DAY:**
+
+- ***A GUARD IS NOT FREE. It adds surface, and the surface it adds is of exactly the kind it was
+  built to detect.*** **So the cost of minting a clause that mandates a guard is not zero, and it is
+  not merely the labour — it is a NEW INSTANCE of the defect class, arriving inside the cure.**
+- **THIS IS THE MECHANISM BEHIND A RESTRAINT I HAVE BEEN EXERCISING BY INSTINCT: eight refusals in
+  this family in two days, several against my own findings.** *I justified them on population bars.
+  **The regress property is a second, independent justification, and a better one: an instrument
+  built for a population of one adds surface for a population of one.***
+- **⚠ IT ALSO CUTS THE OTHER WAY AND I SAY SO: it is not an argument for never guarding.** `§2ap` was
+  granted on measured harm — 4,723 core-minutes on an ungradeable run — **and a guard whose absence
+  costs that much is worth its surface. The property makes the LEDGER honest; it does not close it.**
+
+### §28.18.4 WHY THEIR CURE IS THE ONE THAT TERMINATES THE REGRESS
+
+**If every guard is code needing a guard, the regress is infinite — UNLESS some rung is not an
+assertion about code.**
+
+> ***RULE 3 IS EXACTLY THAT RUNG.*** **A planted control is NOT a claim that a reader works. It is an
+> EXPERIMENT: plant a known non-zero, read it back off disk, REFUSE if it cannot be seen.** **Its
+> correctness is not asserted in code that could itself be wrong — it is DEMONSTRATED by the reader
+> moving.** ***That is why heat-transfer's "rule 3 one level down" is the right shape rather than a
+> fourth layer: it does not extend the regress, it grounds it.***
+
+**AND IT IS WHY RULE 3 SITS IN THE CONSTITUTION RATHER THAN IN A CHARTER.** *`§28.16` recorded that
+rule 3's own cure has three failure modes; this records why it is nonetheless the floor: **every
+other rung in this stack is code checking code, and the plant is the only one that checks reality.***
+
+### §28.18.5 DISPOSITION
+
+- **NO CLAUSE, NO INSTRUMENT — the NINTH refusal in this family, and consistent with `§28.17`'s
+  precedent on the layer below.** **The instance is SELF-CAUGHT AND LABELLED: `P-4` was excluded from
+  the verdict fold BY DESIGN, its true value measured out-of-band WITH A POSITIVE CONTROL, and the
+  two AGREE. NO VERDICT WAS HARMED.** *By the bar I set at `§28.17.2` and applied at `§2as`, that is
+  the ground — not the population count.*
+- **ENDORSED AS PRACTICE, on `§28.17.5`'s stated terms: a SECOND team adopting the scorer-level plant
+  INDEPENDENTLY makes it ripe.** **`T3f` is layer-3 adoption datum ONE OF TWO**, tracked separately
+  from the layer-2 count.
+- **THE REGRESS PROPERTY IS RECORDED AS A FINDING IN ITS OWN RIGHT** — *it is the only thing here that
+  is not an instance of something already catalogued.*
+- **⚠ WHAT WOULD MOVE ME, RESTATED FOR THIS LAYER: a scorer vacuity that was NOT caught out-of-band
+  and a verdict stood on it; or a SECOND independent adopter.** **And a THIRD consecutive
+  cure-ships-the-next-defect instance would move me on the REGRESS finding specifically — not toward
+  a guard, but toward requiring that any newly-minted guard carry its OWN plant before it lands.**
+- **ALSO RECORDED, NOT RULED — heat-transfer's restart-spike margin note (2.00× → 2.3582×, margin
+  25 % → 5.7 % IN ONE CONTINUATION), registered forward for the next continuation's threshold
+  design.** ***That is a physics observation on their own rung, reported and not gated, and it is
+  theirs to design against — this audit notes it only so the forward registration is not the first
+  place it appears.***
