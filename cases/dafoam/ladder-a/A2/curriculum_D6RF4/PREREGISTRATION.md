@@ -542,3 +542,35 @@ reachability identity at exactly zero residual (§8).
 6. **The freeze itself, by sha, by the dafoam-supervisor.** Not taken here.
 
 **SUBMISSIONS PARKED.**
+
+---
+
+## AMENDMENT — 2026-09-06T02:32:20Z — **`G-SOLN` GATE FAIL PROMOTES THE ITEM TO `NOT A RESULT`. RATIFIED AS A REGISTERED LADDER RUNG, NOT LEFT AS A LANE'S READING OF PROSE.**
+
+**PRE-FIRST-COMPUTE AMENDMENT, `CLAUDE.md` rule 2.** Condition stated and **CHECKED BY EXECUTION in this invocation**: the run root is **ABSENT**; this item has burned **0 solver core-minutes**. **After first compute this could not have been made.**
+
+### THE THING BEING RATIFIED, AND WHY IT NEEDED A SUPERVISOR
+
+The building lane implemented §3.2's registered consequence as `compose` **rung 3b** — a `G-SOLN` `GATE FAIL` promotes the item to `NOT A RESULT` — and then **said in terms that this was its reading of prose and not something the draft states as a ladder rung**, and asked for ratification.
+
+**That escalation was correct and it is the behaviour I want.** A ladder rung decides what token an item reports. **Deriving one from prose is interpretation, and interpretation of a registered consequence is not a lane's to make** — however obviously right it looks, and this one does look obviously right.
+
+### RATIFIED, WITH THE REASONING ON THE RECORD RATHER THAN MERELY AGREED
+
+> **`G-SOLN` `GATE FAIL` ⇒ ITEM `NOT A RESULT`. Registered here as rung 3b.**
+
+`G-SOLN` establishes that the solver settings **are the registered tightened ones**. If it fails, then whatever `G-CONV` measured, **it measured a DIFFERENT CONFIGURATION from the one registered.** A `G-CONV` `PASS` under a failed `G-SOLN` is therefore not evidence about the registered case at all, and quoting it would **attach a number to a case nobody registered** — which is §3.2's own sentence, *"no `G-CONV` PASS may be quoted as D6RF3's answer"*, in ladder form.
+
+**It is STRICTLY RESTRICTIVE and that is why it is safe to ratify pre-compute:** it can only turn a `PASS` or a `GATE FAIL` **into** a `NOT A RESULT`, never the reverse —  rule 5's own permitted direction of travel. **It cannot rescue a row and cannot manufacture a pass.**
+
+**NOTHING ELSE MOVES.** No band, threshold, cap, deadline, ceiling, label or prediction changes. `primalMinResTol` and `primalMinResTolDiff` remain **untouched everywhere**, and whether a successor may ever register a different acceptance rule remains **escalated to Sanaa and unruled** — `ACCEPT_FLOOR_UNMOVED` makes that boundary executable rather than promised, and it refuses **tightening as well as loosening**, because the registered value is a value and not an inequality.
+
+### ⚠ CARRIED INTO THIS ITEM'S FREEZE FROM TONIGHT'S W3S EXPERIENCE
+
+**Every freeze act destroys the controls that assert the pre-freeze state.** On W3S, two supervisor acts killed **three** controls in sequence, each discovered only after the previous was repaired — and **the fourth instance was not a control at all but PROSE**, a launcher first-screen still reading *"IT LAUNCHES NOTHING"* on a file that could by then start a container. **The near-miss worth carrying: that item's selftest had a zero-compute guarantee resting on a disabled flag, so raising the flag would have made `--selftest` start containers** had its fixture not independently placed a refusal ahead of every `docker run`.
+
+**So this item's freeze is preceded by a pre-emptive sweep of three categories** — controls whose premise the freeze changes, prose asserting the pre-freeze state, and **any safety property currently resting on a value the freeze changes** — replanted **before** the act rather than repaired after it. `d6rf4_run_arm.sh` carrying `PERMISSION=NOT_FROZEN` and aborting **rc 3 before any staging** is the right shape — *"do not enqueue is an exit code, not a sentence"* — and the sweep must establish whether any drive's zero-compute property depends on it.
+
+**AND A NAMED HAZARD, WHICH HAS NOW PAID TWICE IN ONE NIGHT: DUPLICATE ASSIGNMENT WHERE THE LAST WINS.** This item's own drives caught `MD5_ANCHOR_GATE` **assigned twice in the launcher with the stale value second** — it would have won and aborted staging at rc 4 — and it was caught **only because the refresh asserts a hit count of exactly one**. The same shape appeared in W3S, where `LAUNCH_ENABLED=0` occurred **four times** and a uniqueness assertion refused rather than editing the wrong line. **Pin the count, not the appearance (L-493).**
+
+**SUBMISSIONS PARKED.**
