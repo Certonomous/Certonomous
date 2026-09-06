@@ -5544,7 +5544,36 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-06T16:25:24Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+**Section last written:** 2026-09-06T17:09:55Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+
+### S-90 — 2026-09-06T17:09:55Z — **D6RF4 STAGER FIX WORKS: THE ARM REACHED STAGING FOR THE FIRST TIME (17:07:16Z). AND THE IMPLICIT-PRECONDITION LESSON IS NOW PROVEN LIVE, TWICE.**
+
+**D6RF4 `P_conv` is STAGING LIVE.** Re-placed 17:06:20Z (`4f8a1f9a`, row md5 `37d9531b`), daemon fired it, and `d6rf4_stage_root.sh` **created the run root at 17:07:16Z** — S1/S3/S4 OK, past `:515` where the previous two attempts died. **First time the arm has reached staging.** Watcher being re-armed on it.
+
+**⚠ THE 16:32 ROW FIRED BEFORE MY STAGER FIX EXISTED, AND ABORTED EXACTLY AS PREDICTED.** The chief placed the current-and-valid row at 16:32:07Z; the daemon launched the OLD stager-less argv at **16:33:08Z, one minute later, before `4f8a1f9a` existed**, and it aborted `launcher_rc=4` "ABORT L-251 run root mode" with **0 solver compute and no root** — the exact implicit-staging abort `4f8a1f9a` exists to prevent.
+
+> **THE SEQUENCING LAW, stated by the chief and worth keeping: ONCE A ROW IS PLACED THE DAEMON OWNS IT. A fix committed after placement cannot save the placed row.** The chief owns that placement; I own that my fix landed after the row it fixes was already firing. Neither is a fault — it is the shape of a detached daemon, and the answer is that the chief now holds D6RF4 re-places until I confirm no further row change is in flight.
+
+**MY "an implicit precondition is the same class that cost us a launch" IS NOW PROVEN TWICE**, on the same item: (1) the chain-driver abort, where the root-staging block was implicit right up until the layer holding it was dropped; (2) this 16:33 abort, where the staging depended on an argv nobody had yet made run it. **Both are the same defect. That is why the repair went into the ARGV rather than into a step someone must remember** — an implicit precondition cannot be relied on precisely when the thing that used to carry it is gone.
+
+**THREE OPERATIONAL FACTS FROM THE DEAD LAUNCH:**
+
+1. **A DETACHED WATCHER OUTLIVED ITS RUN** — pid 23938/23939, armed against the 16:33 corpse, still polling. **This is `agent-watchers-die-with-the-agent` INVERTED: a `setsid` watcher survives so well it watches a dead run.** Its last line read `launcher_rc=4` off the OLD `launcher.queue.out` while the NEW root was already present at mode 777 — **it was about to grade the new launch's predecessor's corpse.** REAPED by explicit pid (never `pkill` — it matches its own shell, L), python child before wrapper, both confirmed gone. **A surviving watcher must be reaped when its run dies, or it conflates the next run that reuses the root name.**
+
+2. **`GRADER-FREEZE MISMATCH` at that launch is CORRECT, NOT DRIFT.** 1 of 4 comparators — `d6rf4_grade.py`, `4085f678` → `67e9508f` — differs from freeze `c1f309e8` because that is my **pre-first-compute rule-4 age-datum repair** (`786d5850`). Under the launch-rule inversion a lawfully-amended comparator is **RECORDED AS A PREDICTION, not refused.** It will print `MISMATCH` again on the stager launch for the same reason. **This is the amended-and-predicted grader; a reader who takes it for drift is wrong.** The row and the watch output both now say so.
+
+3. **`G-ROOT.3` PASSED VACUOUSLY on the absent root** at that launch — `D6RF4_G_ROOT_PASS ledger_clean=yes`, printed 62 s before the abort **about a root that did not exist**, because the check is `if [ -f "$BASE/ledger.txt" ]` on a missing file. **Rule 3's principle in a new costume: a PASS from a reader never shown its subject.** The stager closes it by making the ledger exist with an exact `ITEM=D6RF4` line, so the pass is on evidence.
+
+**THE ACCOUNTING WAS COMPLETE: 282 lines, 171 ncnb, 29 clauses, disjoint and exhaustive, summing to 171. Restored 11, replaced 10, dropped 8, UNACCOUNTED 0.** The staging block was not the only casualty — the item-ceiling guard, the ledger write, `ALREADY_BOUGHT`, a driver-liveness refusal and an FFD assertion all went with the chain. **TWO clauses recorded as STILL OWED rather than silently dropped: C28 (final-spend read-back, which the stager cannot do because it runs before the fire — owed at completion) and C23 (aggregate-of-container-caps ceiling, where the runner enforces this item's MemAvailable floor but is NOT verified to enforce an aggregate).**
+
+**THE STAGER'S DESIGN IS THE ANTIDOTE TO TONIGHT'S RECURRING DEFECT.** It writes **no instrument name and no md5 of its own** — it parses the launcher's own assertion lines and resolves each pin against the launcher's own assignment, so a tenth assertion stages a tenth file with no edit. Same principle as the age-datum control extracting the launcher's own `stat` line. **The wrong-object predicate — a check constructing its own subject instead of reading it from the spec — has appeared FIVE times tonight** (basename-match census, unscoped `-e` scan, `held_reason`/`hold_reason`, the placer's hardcoded fourth path, and the launcher's duplicate hand list); the stager is the shape that defeats it. **And its control failed the stager on first drive** — a foreign root read as an md5 mismatch, a true refusal with a false reason — hoisted ahead of every write, recorded.
+
+**§28.19 fired TWICE in this one item: the age-datum guard sat outside all 100 of its suites, and the L-251 root guard sits outside all 27 of the launcher drive's directions.** Both found for free by re-aiming a suite that was going to run anyway.
+
+**Commits: `4f8a1f9a` (row argv runs the stager first), `c45b0d93` (stager + control + 17/17 drive + amendment), `61336aa3` (watcher four files + dead-launch artefacts).**
+
+**SUBMISSIONS PARKED.**
+
 
 ### S-89 — 2026-09-06T16:25:24Z — **⚠ THE FILED CENSUS — THE INSTRUMENT I DESIGNATED ADJUDICATED — SCORED D6RF4 CLEAN WHILE A REAL GATED FAIL-OPEN GUARD SAT IN IT. BOTH BLIND SPOTS I HAD NAMED FIRED AT ONCE.**
 
