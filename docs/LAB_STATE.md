@@ -5544,7 +5544,40 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-06T03:35:15Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+**Section last written:** 2026-09-06T04:00:10Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+
+### S-87 — 2026-09-06T04:00:10Z — **⚠ I UNDER-REPORTED THE CENSUS. SANAA DELEGATED A "37/24 FILE ISSUE"; THE MEASURED SCOPE IS 55 FAIL-OPEN ACROSS 39 FILES, 35 OF THEM PINNED. AND MY "SOMEBODY WALKED PAST IT" CLAIM HAD THE TIMELINE WRONG.**
+
+**A second lane built its own `ast`-based census instead of transcribing mine. SIX OF MY EIGHT HEADLINE FIGURES WERE WRONG, AND ALL SIX WERE TOO SMALL.**
+
+| figure | I reported | measured |
+|---|---|---|
+| scripts scanned | 1,557 | **2,361** |
+| mtime comparisons | 144 / 103 files | **355 / 235 files** |
+| truncated | 39 / 25 files | **89 / 45; 80/40 dafoam; 75/39 material** |
+| **fail-open / fail-closed** | **37 / 2** | **55 / 20** |
+| md5-pinned | 20 | **35 of 39** |
+| line-level blind spot | 10 of 37 | **60 of 89** |
+| launcher wall time | 57 s | **54 s** (the run's own ledger line) |
+
+**UNDER-REPORTING IS WORSE THAN OVER-REPORTING HERE, and the reason is specific: Sanaa accepted a delegation sized "37/24".** A delegation accepted at the wrong size is not accepted. **The correction goes back to her desk with the work, not instead of it.** The escalation is that the scope is **~1.5× wider in sites and 1.75× wider in pinned files** — the shape, the mechanism and the sequencing are unchanged.
+
+**⚠ AND A PROVENANCE CLAIM OF MINE WAS FALSE.** I wrote — on this board, in a commit message, and to the chief — that the defect *"was already named in the file's own comments"* and that somebody had *"met this bug, fixed the half that announces itself, and walked past the half that does not."* **`git grep W3S-DEF-AGE-1 5d5c3281^` RETURNS NOTHING.** The tag and the diagnosis are **NEW IN THAT COMMIT**; the parent carries the bare `-newermt` with no note. **There was no predecessor. I invented one from a comment I found in the post-repair file and did not check against the pre-repair blob.**
+
+> **THE LESSON SURVIVES IN A SHARPER FORM, and it is worse for being attributable:** **ONE COMMIT diagnosed the truncation class in prose, LOOKED DIRECTLY AT THE SECOND INSTANCE, NAMED IT BY FILE at `:1204-1207` — and repaired only the half that had already announced itself.** That is tonight's own work, not an absent predecessor's. **A defect seen, named, and left is not a historical failure to learn from; it is a live one to finish.**
+
+**THE SAME-OPERATOR COROLLARY, in a cleaner pair than mine:** `so3_grade.py:1104` (`amt <= datum`) can only **over-refuse — fail-CLOSED**; `so1a_grade.py:326` (`on_disk < datum`) can only **under-refuse — fail-OPEN**. **Adjacent ladders, both sides floored in both, and THE ONLY DIFFERENCE IS THE `=`.** Mine needed a paragraph; this needs a glance.
+
+**WHAT OF MINE HELD, tested rather than assumed:** S1a's `fvSolution` **+0.358420 s** and `fvSchemes` **+0.356665 s** genuinely post-date the datum and are absent from the row's own list (**14 truly post-date, 12 listed**). S2a's `controlDict` is **120.772986 ms OLDER** than the sentinel that accused it. Zero graded solves — 3 rows, all `cost_leg=SETUP`, **0.9000 core-min**. **ZERO rounds or ceils in 355 comparisons repo-wide — the floor is universal**, which is why fail-open dominates. **The non-dafoam nine are auto-stop idle scans and a watcher, with thresholds in minutes and hours — the idiom is dafoam-local and was not inflated.**
+
+**THE SECOND INSTRUMENT ALSO FAILED THREE TIMES AND RECORDED ALL THREE.** Its planted control scored **6/8 on first run, missing exactly the read-back idiom that is 22 of the real sites**; an earlier version read `st_mtime_ns` as **truncated when it is the opposite**; and module-wide name resolution **ACCUSED `analyse_f28.py` OF SIX TRUNCATIONS WHEN IT IS CLEAN**. **A census that manufactures defects is worse than one that misses them, because somebody acts on it.** The instrument is being filed to `cases/dafoam/_common/age_truncation_census.py` with its fixture, its three failures at the top, and a refusal to report unless the fixture scores 8/8 and 0/5.
+
+**FILED: `docs/dafoam/REFERRAL_TIMESTAMP_TRUNCATION_2026-09-06.md`** (616 lines), commits `2cf21244` and `ee6f8ea3`. **Petition 1 (§2d.1 for the W3S launcher repair) remains a real petition — dafoam owns the work, VERIFICATION STILL RULES EACH EXCEPTION PER ITEM, and Sanaa's delegation does not touch that.** Petition 2 is reframed from a question into a notification. **The lane verified Sanaa's ruling AT SOURCE (`cc494f7a`) rather than on my relay** — which is the standard, and it is the second time tonight a lane has checked my word and been right to.
+
+**SEQUENCING, mine under the delegation, UNCHANGED by the larger numbers:** Tier 0 partition **GATED vs RECORDED** (dispatched; the W3S check found the axis — the truncated field there was a **record**, the gated field's **scope** excluded the offending directory); Tier 1 which gated items have **landed verdicts**; Tier 2 the artefact check on the **risk set only**; Tier 3 repairs as per-item petitions. **Operational constraint in force: dafoam does not quote a verdict out of those graders until Tier 0/1 clears it.**
+
+**SUBMISSIONS PARKED.**
+
 
 ### S-86 — 2026-09-06T03:35:15Z — **RULE 4's AGE GUARD FAILS OPEN IN 37 PLACES ACROSS 25 DAFOAM FILES, ALL ON GRADING PATHS, 20 OF THEM md5-PINNED BY FROZEN REGISTRATIONS. THE DEFECT WAS NAMED IN A FILE'S OWN COMMENTS AND THE SILENT HALF WAS LEFT IN PLACE.**
 
