@@ -5544,7 +5544,18 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-06T23:07:49Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+**Section last written:** 2026-09-06T23:16:35Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+
+### S-108 — 2026-09-06T23:16:35Z — **D6RF4 DISPOSED under 4ae4b33: RECOVERABLE, not a capability gap. Binding-field attribution CORRECTED at source (it is p's first solve, NOT nuTilda). W4-REANCHOR 16/16 LEGS COMPLETE, grading LIVE.**
+
+**D6RF4 (a2-wing convergence) — RESEARCH DONE, verified by me at source (`docs/dafoam/D6RF4_CONVERGENCE_RESEARCH.md` `1586fcf9`; RESULTS amendment `b030f1e2`):**
+- **VERDICT under Sanaa 4ae4b33: RECOVERABLE by named sourced fixes — capability gap NOT proven.** DAFoam's OWN stock remedy for "Primal solution failed" is to RAISE `primalMinResTol`/`primalMinResTolDiff` = widen the accept floor, which the lab FORBIDS (N-D43). So the stock fix is off-limits; the fix must be numerics/mesh, and the ranked list supplies it.
+- **BINDING-FIELD CORRECTION (I had said "nuTilda binds" in S-98/S-106/S-107 — WRONG):** the log's `Primal min residual 1.658293702e-05` (`:2121`) is **byte-identical to `p`'s uncorrected first-solve initRes** — the max DAFoam refused on is **p's first solve at 1.66× the 1e-5 floor**. nuTilda (1.409e-5, 1.41×) is a **genuine SECOND** over-floor field, not the binding one. Mechanistic, sourced: mesh maxNonOrth **71.48 > DAFoam default `maxNonOrth 70`**; the p first-solve floor IS the explicit non-orthogonal-correction magnitude. This RESOLVES RESULTS.md §2.3's open question.
+- **SUCCESSOR = D6RF5** (never a D6RF4 edit — gates closed by first compute). Ranked fixes: (1) `limited corrected 0.333` on laplacian+snGrad (caps the correction that IS the binding residual); (2) `nNonOrthogonalCorrectors 1→3` (measure — the bind is the FIRST p-solve, so this may not help); (3) nuTilda under-relax; (4) bounded upwind; (7) re-mesh <70. **Accept floor STAYS 1e-5.** A gap claim would need RANK1+RANK2+re-mesh<40° to STILL fail 1e-5, filed with that measurement — that proof does not exist, so D6RF4 is a WAYPOINT owing D6RF5, not a (d).
+
+**W4-REANCHOR (D12 FD-bright-line, the one HYPOTHESIZED gap's LIVE test) — 16/16 LEGS COMPLETE (measured):** ledger.csv shows all 16 legs `END rc=0`; every `log.*` carries End lines; objectives landing (`OBJ varianceU 1.527e-02` on the last leg). ≈**133 core-min** (anchor8w 18.73 + 15×~7.6). DONE marker never written + watcher died in the compaction — **infrastructure gap, physics complete** (bookkeeping never voids physics). Grading dispatched through the FROZEN comparator `analyse_w4_reanchor.py` (md5-pin verified against §17, NO --skip-freeze) — lane `af0155a0`, verdict PENDING.
+
+**MY OWED ACTIONS (unchanged from S-107 minus D6RF4-research, which is now done):** rule SO3DR §7 (dose-response GATE FAIL — my ruling owed); register D6RF5; treat the (b) preregs (D9 mesh-quality-constraint, D4_DEF4_REPAIR, S1_PRIORS) as the runnable backlog under 4ae4b33; extend sourced-fix-or-gap-proof research to D9 SLSQP, S1_FIML adjoint, B3 adjoint. **On Sanaa's/verification's desks (not mine):** §2ax review-not-pending; rule-12 ranks-vs-cpus unit (gates W4's F7 cost basis); W3S run-root + §2d.1; FADR upstream send; W4 O2/O3 memory ceiling.
 
 ### S-107 — 2026-09-06T23:07:49Z — **SWEEP AUDIT, SANAA'S-BAR DISPOSITION: NO CLEAN (d) CAPABILITY GAP. Most fails are (a) already-fixed or (b) fix-named-on-record; only THREE are (c) unfinished; ONE genuine FD-gap is HYPOTHESIZED and W4-reanchor is its LIVE test.**
 
