@@ -138,3 +138,35 @@ document authorises no grade.**
 - It **does not repair** `R_fx` or `build_t3d.py`. **T3d's `NOT A RESULT` stands and is not re-graded.**
 - It **does not claim** the ladder will grade. **P-4 can lose, and its loss is a finding.**
 - It **does not assert any verdict**; no term of rule 1's vocabulary is claimed for T3g.
+
+---
+
+## AMENDMENT 1 — 2026-09-06 — **T3g IS FROZEN. THE FOUR REHEARSAL LEGS PASSED AND §7's PIN IS CUT.**
+
+**Appended by `heat-transfer-supervisor`. Lines whose number changed above this section: 0.**
+**No gate, threshold, band, reference or label moves — all are `analyse_t3d.py`'s, inherited.**
+
+**PRE-FREEZE CONDITION, CHECKED IN THE COMMITTING INVOCATION:** no `gate_t3g.json` exists; the
+grader has not been run on the ladder; **no triple, observed order, GCI or row value has been
+computed for these three levels by anyone.**
+
+**§6's legs all PASSED.** **Leg 3 delta: 0 differing lines** on reversal. **Leg 4 selftest: PASS,
+0 checks failed**, including the `DONE` refusal arm. **Leg 2 corruption: a plant removing `H`
+from a scratch copy gave `rc = 2`, `REFUSE: H absent`** — the guard is alive.
+
+⚠ **TWO DEFECTS THE REHEARSAL CAUGHT, BOTH MINE, RECORDED BECAUSE A CLEAN REHEARSAL LOG WOULD
+HIDE THEM.** (1) The derived grader was first placed in `T3g_runs/` and could not import
+`analyse_t3`, which lives in `T3_runs/` — `analyse_t3d.py` worked only because it sits beside
+it. Fixed by placing `analyse_t3g.py` where its sibling lives, which also keeps the delta at 0.
+(2) **My first corruption plant reported "GUARD IS DEAD". It was my test rig** — the scratch copy
+excluded the time directories, so the grader failed earlier and never reached the guard.
+**A PLANT NEEDS ITS OWN POSITIVE CONTROL: verify the harness REACHES the guard before concluding
+the guard is dead.**
+
+### §7 — THE PIN
+
+| artifact | git blob SHA-1 |
+|---|---|
+| `verification/runs/T-family/T3_runs/analyse_t3g.py` | `4523fd047b759a179f1f54107063f2160e65143b` |
+
+**§6.1's condition is met and this document is FROZEN.**
