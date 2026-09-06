@@ -175,6 +175,12 @@ mismatch (`sensibleInternalEnergy` + uniform-freestream start at M ≈ 0.85). §
 
 ## 4. BLOCKER 2 — THE COMMITTEE GRID FAILS THIS LAB'S OWN HARD MESH GATES, AND THE ONLY EXEMPTION ON RECORD DOES NOT REACH A PHYSICS GATE. **THIS IS SANAA'S CALL, NOT THIS TEAM'S.**
 
+> ⚠ **RULED 2026-09-06 — SEE §15. THIS HEADING'S "THIS IS SANAA'S CALL, NOT THIS TEAM'S" IS SUPERSEDED.**
+> Sanaa delegated the Rung 2 grid question to the cfd supervisor directly (`cc494f7a`), and he has
+> ruled it: **R12's exemption does not reach this drag gate, and the gate does not widen.** The
+> heading above is **left standing and not rewritten** — it was true when written. **But ground (i)
+> is NOT what binds; §4b is. Read §15 before acting on this section.**
+
 This is the more important of the two and it cannot be cleared by spending anything.
 
 | `MESH_STANDARD.md` gate | threshold | DPW5 L1.T **hex**, measured by this lab 2026-09-03 | margin |
@@ -214,6 +220,14 @@ yet run". This is "cannot be graded as registered."
 ---
 
 ## 4b. BLOCKER 3 — THERE IS NO REFINEMENT TRIPLE ON THIS BOX, SO RULE 5 CANNOT BE APPLIED AT ALL. **THIS ONE NEEDS NOBODY'S RULING AND SURVIVES ANY RULING ON §4.**
+
+> ⚠ **RULED 2026-09-06 — SEE §15. THIS IS THE BINDING GROUND, AND THE SUPERVISOR HAS SO RULED:**
+> *"THE MESH QUESTION WAS NEVER THE BINDING CONSTRAINT. It was listed first in the register and
+> therefore looked like the decision; it is not."*
+> ⚠ **AND THIS SECTION'S CLAIM "Plant-verified in §1.3/§1.4" WAS FALSE AT AUTHORSHIP** — §1.4's
+> plant table holds three readers and **none of them reads a grid level**. The plant is performed
+> in **§15.3**, with the `crawl2`/`crawl3` trap recorded; the claim is evidence from there, not
+> from here.
 
 Recorded as an **independent** blocker, on the cfd supervisor's instruction of 2026-09-04, precisely
 because **if Sanaa rules the §4 mesh-quality tension in this lab's favour, this blocker still
@@ -389,6 +403,10 @@ both hold.** Ruled by the cfd supervisor, 2026-09-04.
 
 ## 10. WHY THE DRAG GATE — SANAA'S ACTUAL RUNG 2 — IS **NOT** REGISTERED HERE
 
+> ⚠ **SUPERSEDED IN ITS ORDERING, NOT IN ITS CONTENT — SEE §15 (RULED 2026-09-06).** All three
+> reasons below stand as measured. **Reason 1 is now RULED and MOOT FOR NOW; reason 3 is what
+> BINDS.** A register's ORDER is not a statement of which ground binds.
+
 Three measured reasons, stated plainly rather than worked around:
 
 1. **§4. The grid fails this lab's own hard mesh gates by 19.7° and 3.5×, and R12's exemption
@@ -440,6 +458,13 @@ buys $0.145 derived.
 ---
 
 ## 12. THE RECOMMENDATION THIS LANE MAKES
+
+> ⚠ **RULED 2026-09-06 — SEE §15.** Recommendation 1's *"the mesh-standard conflict — **Sanaa's
+> alone to rule**"* is **superseded**: she delegated it to the cfd supervisor (`cc494f7a`) and he
+> ruled it. Recommendation 3 is **partially discharged** — §4 and §4b **are** ruled; the L2.C/L3.M
+> download is still not authorised, but now because it needs its **own pre-registration and its
+> own cost**, preceded by the cheap documentation question — not because a ruling is awaited.
+> **What may be claimed about drag meanwhile: NOTHING.**
 
 1. **Rung 2 (a), the drag-band verdict: `BLOCKED`, on THREE grounds, not two.** §3 (no measurement
    channel), §4 (the mesh-standard conflict — **Sanaa's alone to rule**), and §4b (**no refinement
@@ -861,3 +886,296 @@ read, syntax-check and enqueue it. **The verdict for R2-M0 is `BLOCKED` and it i
 *Drafted by a `lab-lane` for the cfd supervisor, 2026-09-04, at HEAD `7a7cb4b9`; amended at v1.1 after
 check 4 failed, and §14 added after check 4 passed and the launch was `BLOCKED`. **Zero solver
 core-minutes spent across all three passes.***
+
+
+---
+
+## 15. SUPERVISOR RULING — 2026-09-06. THE RUNG 2 GRID QUESTION, RULED BY THE cfd SUPERVISOR ON SANAA'S DIRECT DELEGATION. **GROUND (iii) IS WHAT BINDS, AND IT MAKES GROUND (i) MOOT FOR NOW.**
+
+**Document version: v1.2.** Appended at the foot by a cfd `lab-lane` at the supervisor's
+instruction, 2026-09-06T04:0xZ (`date -u` read inside the committing shell invocation; see the clock
+caveat this document already carries at §14.4a-3, which applies to this stamp too).
+
+**Rule-2 status of this amendment, stated with the condition and how it was checked.** This document
+is a **DRAFT and is NOT frozen** — §13 says so on its own face — and **no compute has occurred**.
+The condition is that the registered run root does not exist, and it was checked, not assumed:
+`verification/runs/RUNG2_CRM_runs/` and
+`verification/runs/RUNG2_CRM_runs/M0_compressible_admission/{A0,A1,A2,A3,A4}/` were **read and are
+ABSENT** at the moment of this edit (§15.5). Amendments before first compute are legal under rule 2;
+this one **sets no threshold, moves no gate, no cap and no label**, and registers no run.
+
+**What was inserted above this section, and the proof that nothing was rewritten.** This amendment
+inserted **pointer lines only**, at §4, §4b, §10 and §12 — the four places above that carry Rung 2
+(a)'s disposition — so that a reader meets this ruling there and not only the old three-grounds
+list. **No pre-existing line's text was altered, and no line was deleted.** That is not asserted
+from intent: it was **proved in the committing shell invocation** by carving the inserted lines back
+out of the amended file and reproducing the pre-amendment blob **byte-for-byte by sha256**. Line
+*numbers* above this section do change, and this document is a draft so rule 6's zero-renumbering
+assertion does not bind it; the stronger, checkable claim — **the prefix text is unchanged** — is
+made instead, and it is the one a later reader can re-run.
+
+---
+
+### 15.0 THE AUTHORITY — Sanaa's own words, and exactly what they delegate
+
+Captured at commit **`cc494f7a`**, `etc/sessions/2026-09-06T0330Z_sanaa_delegations.md`. **Her
+words, verbatim:**
+
+> *"Ok the dafoam team handles that 37/24 fule issue. CFD teams supervisor decides on the run 2 grid
+> question."*
+
+The chief's capture records — as the chief's reading, not her words — that this **supersedes the
+prior "Sanaa's call" marking** on §4, that ground (iii) *"remains a physical fact no ruling
+changes"*, and that *"the supervisor's decision therefore covers the whole Rung 2 (a) disposition:
+what the gate does, what a family-acquisition path looks like, and what may honestly be claimed
+meanwhile"*, with *"standing law unchanged: gates are never widened to fit an answer."*
+
+⚠ **§4's heading, which reads "THIS IS SANAA'S CALL, NOT THIS TEAM'S", is SUPERSEDED by this
+delegation.** It is **left standing and not rewritten** — it was true when written — and §4 now
+carries a pointer to this section.
+
+---
+
+### 15.1 THE RULING, RECORDED AS GIVEN. **NOT PARAPHRASED, NOT SUMMARISED, NOT SHORTENED.**
+
+> **GROUND (i) — THE MESH-GATE TENSION. R12's EXEMPTION DOES NOT REACH RUNG 2 (a)'s DRAG GATE, AND
+> THE GATE DOES NOT WIDEN.**
+>
+> The reason is not deference to R12's letter. It is that R12's exemption WORKS FOR A SPECIFIC
+> REASON, AND THAT REASON DOES NOT HOLD HERE. R12 exempts a community canonical grid FOR MODEL-FORM
+> BANDING ONLY because, in its own words, "the band measures inter-model spread ON A FIXED GRID — it
+> needs the same grid, not a compliant one." Every model in a band sees the SAME grid, so the grid's
+> quality does not bias the COMPARISON; the discretisation error is common to all of them and
+> largely cancels out of the spread.
+>
+> A VALIDATED FORCE IS A DIFFERENT OBJECT. Compared against experiment or a workshop scatter band,
+> THE GRID'S DISCRETISATION ERROR ENTERS THE ANSWER DIRECTLY AND DOES NOT CANCEL — there is no
+> second model carrying the same error for it to cancel against. So R12's condition (2) — "physics
+> gates and credential verdicts still require compliant meshes; this exemption never travels to
+> them" — IS A CONSEQUENCE OF R12's OWN LOGIC, NOT A CAUTIOUS RESTRICTION BOLTED ON TO IT. Reading
+> it as severable would be reading the ruling against its own reasoning.
+>
+> AND THE GATE DOES NOT WIDEN TO FIT. MESH_STANDARD §3.1 is a HARD gate at 70 degrees and §3.2 a
+> HARD gate at 4. The measured values are 89.7134 and 14.0594 — 28 percent and 3.5 times past. These
+> are not marginal readings where a threshold might be argued; there is no reading of "hard gate"
+> that accommodates them, and standing law forbids widening a gate to fit an answer.
+>
+> **GROUND (iii) — AND THIS IS WHAT ACTUALLY BINDS, WHICH MAKES (i) MOOT FOR NOW.**
+>
+> Only DPW5 level L1.T is on this box. Its hex, prism and hybrid files are THREE TOPOLOGIES AT ONE
+> REFINEMENT LEVEL, not a refinement triple. A Roache triple requires three REFINEMENT levels; a
+> triple that does not exist cannot be CONVERGING; therefore rule 5 cannot be applied at all and NO
+> GCI IS AVAILABLE.
+>
+> SO EVEN A FAVOURABLE MESH RULING WOULD LEAVE RUNG 2 (a) UNABLE TO PRODUCE A GRID-CONVERGED FORCE.
+> THE MESH QUESTION WAS NEVER THE BINDING CONSTRAINT. It was listed first in the register and
+> therefore looked like the decision; it is not. That is recorded deliberately, because a register's
+> ORDER is not a statement of which ground binds, and this is the second time tonight a stale
+> ordering has been read as authority.
+>
+> WHAT MAY HONESTLY BE CLAIMED MEANWHILE: NOTHING ABOUT DRAG. No force, no C_D, no C_L, no moment,
+> no comparison to any workshop scatter band. And the 2026-08-01 probe's arms carry `Aref 1.0` —
+> they were a SOLVER PORT and never a CRM case, so NO FORCE WRITE OF THEIRS IS A DRAG FIGURE. That
+> statement stays prominent wherever those arms are cited.
+>
+> WHAT THE COMMITTEE GRID CAN LAWFULLY CARRY: a MODEL-FORM BAND, under R12, subject to its three
+> mandatory conditions — the exemption stated on the band artifact itself with the failing number
+> beside it; the exemption never travelling to a physics gate; and the grid's provenance named. IF
+> THE LAB WANTS VALUE FROM THIS GRID NOW, THAT IS THE SHAPE IT CAN HONESTLY TAKE — and it is A
+> DIFFERENT DELIVERABLE FROM RUNG 2 (a), NOT A RELABELLING OF IT. Anyone pursuing it registers it as
+> such.
+>
+> **THE ACQUISITION PATH — RULED, AND IN THIS ORDER.**
+> The DPW5 committee families exist at further refinement levels upstream. Acquiring them is THE
+> ONLY ROUTE to a refinement triple for this ladder. THE FETCH IS WORTH PURSUING AND IS NOT
+> AUTHORISED BY THIS RULING; it needs its own pre-registration with its own cost.
+> ⚠ AND ONE CHEAP QUESTION COMES FIRST, BEFORE ANY ACQUISITION SPEND: ESTABLISH WHETHER THE FURTHER
+> LEVELS WOULD THEMSELVES CLEAR THE MESH GATES. They are the same generator family, and if they do
+> not clear, THE FETCH BUYS A TRIPLE THAT STILL CANNOT CARRY A CREDENTIAL FORCE — acquisition effort
+> spent to arrive at the same wall. That is a cheap question to ask of published grid documentation
+> and an expensive one to answer by fetching.
+> AND WHEN A FETCH HAPPENS IT CARRIES L-144: TITLE-PAGE VERIFICATION, NEVER BY FILENAME, HASH OR
+> FILE TYPE. This lab has been burned there twice, by sharpened lookalikes sitting at adjacent URLs
+> on the same archive page, sharing every abscissa and differing only in the last ordinates.
+>
+> **TIMING:** this ruling is made NOW and does not wait on R2-M0's arms. The arms bear on GROUND
+> (ii) — whether a compressible measurement channel exists — and are NOT MATERIAL to the
+> mesh-quality question or the missing triple, both of which are independent of whether the solver
+> runs.
+
+**— END OF THE RULING AS GIVEN.**
+
+---
+
+### 15.2 EVERY FACTUAL CLAIM IN THE RULING, VERIFIED AT SOURCE BEFORE IT WAS RECORDED
+
+The lane recording a ruling does not get to take its premises on trust. Each row below was **read at
+the cited path by this lane in this session**, not relayed and not recalled. Nothing was recorded
+until every row held.
+
+| # | claim in the ruling | verified at source | measured |
+|---|---|---|---|
+| 1 | R12 exempts a canonical grid **"FOR MODEL-FORM BANDING ONLY"** | `docs/charters/SUPERVISOR_RULINGS.md:220,226` | heading at `:220`; body at `:226` reads *"for MODEL-FORM BANDING ONLY"* — **HOLDS** |
+| 2 | R12's reason, quoted: *"the band measures inter-model spread ON A FIXED GRID — it needs the same grid, not a compliant one"* | `docs/charters/SUPERVISOR_RULINGS.md:229–230` | verbatim, modulo the ruling's own capitalisation for emphasis: *"because the band measures inter-model spread on a fixed grid — it needs the same grid, not a compliant one"* — **HOLDS** |
+| 3 | R12's condition (2): *"physics gates and credential verdicts still require compliant meshes; this exemption never travels to them"* | `docs/charters/SUPERVISOR_RULINGS.md:233–234` | source reads *"(2) physics gates and credential verdicts still require compliant meshes — this exemption never travels to them"*. **The ruling's semicolon stands where the source has an em dash; the words are otherwise identical.** Recorded as a punctuation difference, not a paraphrase — **HOLDS** |
+| 4 | R12's three conditions, all mandatory, including the exemption on the artifact with the failing number beside it and the grid's provenance named | `docs/charters/SUPERVISOR_RULINGS.md:232–236` | all three present and stated *"Three conditions, all mandatory"* — **HOLDS** |
+| 5 | MESH_STANDARD §3.1 is a **HARD gate at 70 degrees** | `docs/standards/MESH_STANDARD.md:56` | heading verbatim: *"### 3.1 Max non-orthogonality: hard gate 70 degrees, warning band 65 to 70"* — **HOLDS** |
+| 6 | MESH_STANDARD §3.2 is a **HARD gate at 4** | `docs/standards/MESH_STANDARD.md:84` | heading verbatim: *"### 3.2 Max skewness: hard gate 4, boundary faces included"* — **HOLDS** |
+| 7 | The measured values are **89.7134** and **14.0594** | `verification/runs/RUNG0b_MESH_IMPORT_runs/DPW5_L1T_hex/birth_certificate.json:17–18`, corroborated in the same campaign's `RESULTS.json:186–187` | `"max_non_orthogonality": 89.7134`, `"max_skewness": 14.0594` — **HOLDS** |
+| 8 | **28 percent** and **3.5 times** past | arithmetic on rows 5–7 | 89.7134 / 70 = **1.28162** → **28.2 % past**; 14.0594 / 4 = **3.5149** → **3.5× past** — **HOLDS** |
+| 9 | The `checkMesh` verdict line does not rescue this | `.../RESULTS.json:182` | the record itself states its verdict strings were **DISCARDED**, because on this box *"`Non-orthogonality check OK.` is printed at 89.71, 89.94 and 89.9985 degrees"* — **HOLDS, and it strengthens the ruling** |
+| 10 | **Only DPW5 level L1.T is on this box** | measured by plant, §15.3 below | READER-A and READER-B′ both **0 → 2 → 0** — **HOLDS, and is now measured rather than asserted (see §15.3's correction)** |
+| 11 | Its hex, prism and hybrid files are **three topologies at one refinement level** | `cases/committee-grids/COMMITTEE_GRID_NUMERICS.md:74–77, 131–132`; directory listing of `/home/ubuntu/certonomous-runs/dpw5-committee-probe/grid/` | three `.ugrid` files, all `L1.T.rev01.p3d.{hex,prism,hybrid}.r8`, sharing *"the same 660,177-node point distribution"* with *"only element topology"* varying — **HOLDS** |
+| 12 | **The DPW5 committee families exist at further refinement levels upstream** | `cases/committee-grids/COMMITTEE_GRID_NUMERICS.md:254, 260–268` | *"DPW5 publishes each of its six levels in all three topologies"*, with a table of L1.T–L6.S whose cell counts were *"read by HTTP range request without downloading the files"* — so the further levels' **existence is measured from their own file headers**, not assumed — **HOLDS** |
+| 13 | The probe's arms carry **`Aref 1.0`**, so no force write of theirs is a drag figure | `/home/ubuntu/certonomous-runs/dpw5-committee-probe/run_*/system/controlDict` | **27 of 27 run directories** carry `Aref 1.0`; the compressible base arm additionally carries `lRef 7.005320` and `CofR (0 0 0)` at `controlDict:36,39,40`. **Not one arm carries a CRM reference area** — **HOLDS, and is broader than the ruling claims: it is all 27 arms, not only the four in §3** |
+| 14 | L-144 requires **title-page verification, never by filename, hash or file type** | `docs/LESSONS.md`, L-144 | verbatim in its heading and its first guard — **HOLDS** |
+| 15 | The lab **has been burned there twice** | burn 1: L-144 itself — **30 of 42** closure PDFs were unrelated papers, every one with the right filename, size and hash. burn 2: `models/onera_m6/PROVENANCE.md:300–310`, `verification/campaign/M6SR_PREREGISTRATION.md:234–256` | burn 2 is the ONERA M6 **sharpened lookalike**: *"two distinct sharpened derivatives, one of them at a URL adjacent to the true table"*; `om6_wing_section_sharp.dat` *"carries AGARD's exact final design ordinate `0.0007052` at `x/c = 1.0` — and then appends an extra point at `x/c = 1.0055`, `z/c = 0` that SHARPENS IT."* **That is precisely "sharing every abscissa and differing only in the last ordinates"** — **HOLDS** |
+| 16 | The delegation exists and reaches the whole Rung 2 (a) disposition | `cc494f7a`, `etc/sessions/2026-09-06T0330Z_sanaa_delegations.md` | quoted at §15.0 — **HOLDS** |
+
+**No row failed.** Had any row failed, this section would carry the failure and **no ruling would
+have been recorded** — a ruling resting on a false premise is worse than an unrecorded one.
+
+---
+
+### 15.3 THE PLANT — ground (iii)'s absence is now MEASURED, and a claim this document already made was NOT
+
+⚠ **A CORRECTION THIS LANE OWES AGAINST THIS DOCUMENT'S OWN TEXT.** §4b asserts *"Only level L1.T is
+here. **Plant-verified in §1.3/§1.4.**"* **It was not.** §1.3 lists the absence of *"DPW5 levels L2.C
+and L3.M in any topology"* as a row, but **§1.4's plant table contains exactly three readers** — for
+`verification/campaign/RUNG2*`, `verification/runs/RUNG2*` and the cfd queue — and **none of them
+reads grid levels at all.** The binding ground of the whole rung rested on an **unplanted zero**.
+The original text is **left standing and struck by this section, not rewritten**. The plant is
+performed here, and from here the claim is evidence.
+
+**⚠ THE TRAP, RECORDED BECAUSE THE SUPERVISOR HIT IT AND CAUGHT IT, AND THE NEXT READER WILL NOT BE
+SO LUCKY.** A naive level search over the probe root returns hits that are not grid levels:
+
+| naive reader | returns |
+|---|---|
+| `ls /home/ubuntu/certonomous-runs/dpw5-committee-probe/ \| grep -i 'L2\|L3'` | `run_hybrid_crawl2_incompressible_a2.11`, `run_hybrid_crawl3_incompressible_a2.11` |
+
+**Neither is a grid level.** `craw`**`l2`** and `craw`**`l3`** contain the substring, case-insensitively.
+They are **run directories of the 2026-08-01 probe.** A grid-level reader must read the **grid
+directory**, by its filename grammar, not the probe root by substring.
+
+**READER-A** — level tokens present in the grid directory, counting anything that is not L1.T:
+
+```
+ls /home/ubuntu/certonomous-runs/dpw5-committee-probe/grid/ \
+  | grep -oE '^L[0-9]+\.[A-Z]' | sort -u | grep -vc '^L1[.]T$'
+```
+
+**READER-B′** — box-wide, every `.ugrid` file naming a DPW5 level other than L1.T:
+
+```
+find /home/ubuntu -name '*.ugrid' | grep -i 'dpw5\|rev01' | grep -vi 'L1[._]T\|L1T' | wc -l
+```
+
+**Measured 2026-09-06T03:5xZ–04:0xZ, each phase in one shell invocation:**
+
+| | READER-A | READER-B′ |
+|---|---|---|
+| **before plant** | **0** | **0** |
+| **plant present** — two zero-byte files written into the grid directory under the committee's own naming grammar, `L2.C.rev01.p3d.hex.r8.ugrid` and `L3.M.rev01.p3d.hex.r8.ugrid` | **2** | **2** |
+| **after removal** | **0** | **0** |
+| **residue check** | grid directory listed in full: **`L1.T.rev01.p3d.{hex,hybrid,prism}.r8.ugrid`, `dpw5_L1T.mapbc`, `readme` — five entries, exactly as found.** Nothing added, nothing lost | |
+
+> **DISCRIMINATES.** Both readers moved **0 → 2 → 0** at the exact path each searches. A reader
+> blind to a further level would have returned **0 in the planted state too**, and its zero would
+> have been worth nothing. These readers were **shown able to see a non-zero**, so their zero is
+> evidence: **DPW5 level L1.T is the only DPW5 level on this box, in three topologies at one
+> refinement level. There is no L2.C and no L3.M, in any topology, anywhere under `/home/ubuntu`.**
+
+**⚠ A SECOND TRAP, FOUND WHILE PLANTING, AND IT WOULD HAVE FIRED IN THE OPPOSITE DIRECTION.** The
+first form of READER-B (`find /home/ubuntu -name '*.ugrid' | grep -vc '/L1[.]T[.]'`) returned a
+baseline of **14, not 0** — a reader that, taken at face value, says *further grids exist*. All 14
+were opened and classified rather than waved through:
+
+| n | what they are | bears on the triple? |
+|---|---|---|
+| **8** | DPW5 **L1.T** exports and round-trips, under `certonomous-runs/RUNG0b_exports/` and `certonomous-runs/rung0-r0g2b-export/`, named `DPW5_L1T_*` — a filename form the first reader's `/L1.T./` pattern did not match | **No. Same level L1.T.** |
+| **3** | HLPW6 `h6c1_rans_3a_1` — a **High Lift Prediction Workshop** grid, not DPW5, not a CRM level | **No.** |
+| **5** | `verification/runs/M6I_runs/mesh/wing_strct.{1..5}.lb8.ugrid` — **ONERA M6 wing.** A genuine five-level refinement family, and the **wrong geometry**: not the CRM wing-body | **No — and this is the sharpest one.** A refinement family exists on this box; it cannot serve Rung 2 (a) because it is a different aircraft. |
+
+**Zero of the 14 is a DPW5 level other than L1.T.** The reader was then tightened to READER-B′ above
+and re-planted, so the plant that is recorded is the plant on the reader that is quoted.
+
+---
+
+### 15.4 WHAT THIS RULING SETTLES, IN THE FIXED VOCABULARY
+
+| item | disposition after this ruling |
+|---|---|
+| **Rung 2 (a), the drag-band verdict** | **`BLOCKED`.** Unchanged as a verdict; **changed in its binding ground.** |
+| **the binding ground** | **GROUND (iii) — no refinement triple exists on this box.** Not ground (i). |
+| **ground (i), the mesh-gate tension** | **RULED, and MOOT FOR NOW.** R12's exemption does not reach the drag gate; the gate does not widen. The ruling is on record so it does not have to be re-argued when (iii) is cleared. |
+| **ground (ii), no compressible measurement channel** | **UNCHANGED and NOT MATERIAL to this ruling.** It is `R2-M0`'s subject, and `R2-M0` remains **`BLOCKED`** on §14's ground — no authority in the executing session to launch. |
+| **what may be claimed about drag today** | **NOTHING.** No force, no `C_D`, no `C_L`, no moment, no comparison to any workshop scatter band. |
+| **the 2026-08-01 probe's force writes** | **NOT DRAG FIGURES.** `Aref 1.0` in all 27 arms. This statement travels with every citation of them. |
+| **what the committee grid may lawfully carry** | a **MODEL-FORM BAND** under R12's three mandatory conditions — **a different deliverable from Rung 2 (a), not a relabelling of it**, and it must be registered as its own. |
+| **the acquisition of L2.C / L3.M** | **WORTH PURSUING, NOT AUTHORISED HERE.** Needs its own pre-registration with its own cost. **The cheap question comes first:** would the further levels themselves clear the mesh gates? Ask the published grid documentation before spending on a fetch. |
+| **any fetch, when it happens** | carries **L-144**: title-page verification, never by filename, hash or file type. |
+| **compute authorised by this ruling** | **ZERO.** This section registers no run and moves no cap. |
+
+⚠ **§12's recommendation 3 — *"Do not download L2.C or L3.M … until §4 and §4b are ruled"* — is now
+partially discharged.** §4 (ground (i)) and §4b (ground (iii)) **are ruled, by the cfd supervisor on
+Sanaa's delegation.** The download is **still not authorised**, but the reason has changed: it now
+needs its **own pre-registration and its own cost**, preceded by the cheap documentation question —
+not a further ruling on §4/§4b.
+
+---
+
+### 15.5 THE PRE-COMPUTE CONDITION, CHECKED RATHER THAN ASSUMED
+
+Rule 2 requires an amendment before first compute to state its condition and how it was checked, by
+naming the run directory that does not exist. Read at the moment of this edit:
+
+- `verification/runs/RUNG2_CRM_runs/` — **ABSENT.**
+- `verification/runs/RUNG2_CRM_runs/M0_compressible_admission/{A0,A1,A2,A3,A4}/` — **ABSENT.**
+- Solver core-minutes spent against this pre-registration, across all four passes: **0.000.**
+
+The plant behind the first two is this document's own §1.4 reader 2
+(`ls -d verification/runs/RUNG2* | wc -l`, measured **0 → 1 → 0**), which is a reader for exactly
+this path and remains valid.
+
+---
+
+### 15.6 WHAT THIS LANE COULD NOT VERIFY, STATED PLAINLY
+
+1. **That the further DPW5 levels would or would not clear §3.1/§3.2.** Nobody knows this yet — it
+   is the ruling's own ⚠ open question, and the ruling orders it asked **before** any acquisition
+   spend. **No published quality figure for any DPW5 level is on this box:** the Rung 0b record
+   itself states *"no published quality figure located — searched the grid's own distribution
+   directory on this box and no max non-orthogonality, skewness or aspect-ratio figure is published
+   there"* (`RESULTS.json:191`). Answering it needs documentation this box does not hold.
+2. **The ruling's phrase "the second time tonight a stale ordering has been read as authority."**
+   That is the supervisor's own observation about this session's conduct. It is recorded as given,
+   **on his authority and not on a reading taken here**; this lane did not attempt to identify the
+   first occasion.
+3. **The absolute date on this section's timestamp.** §14.4a-3 already records a **~2-day
+   disagreement** between the harness date and the box clock. `date -u` inside the committing
+   invocation returned **2026-09-06**; the ordering of events in this document is sound, the
+   absolute wall date is not independently established, and it should not be quoted to Sanaa as
+   though it were.
+4. **Whether the upstream archive still serves the L2.C/L3.M files.** The cell counts at
+   `COMMITTEE_GRID_NUMERICS.md:260–268` were read by HTTP range request on **2026-08-01**. That the
+   levels **existed** then is measured; that they are **fetchable now** is not, and the acquisition
+   pre-registration must establish it rather than inherit it.
+
+---
+
+### 15.7 COST OF THIS AMENDMENT
+
+| | |
+|---|---|
+| solver core-minutes | **0.000** — no solve, no mesh operation, no decomposition |
+| what was spent | reading, one directory listing, one plant-and-remove of two zero-byte files, and this write |
+| `cost_basis` | **not applicable — no compute was performed.** No calibration row is owed under rule 12: no process completed, and an estimate with no actual is worse than none |
+
+**SUBMISSIONS PARKED.** Nothing here is sent, filed, uploaded, registered, posted or commented
+outside this box. The acquisition path is a **ruling about lab priority**, not a request to any
+upstream party.
+
+*Recorded by a cfd `lab-lane` at the supervisor's instruction, 2026-09-06, against HEAD as captured
+inside the committing invocation. The ruling is the supervisor's; the sixteen source verifications
+in §15.2 and the plant in §15.3 are this lane's own, taken at the artifacts named.*
