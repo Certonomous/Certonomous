@@ -7951,3 +7951,92 @@ section yields to it without argument.**
 directions, hit the same sentence and neither invented a permission for itself; both HELD and asked.*
 ***A question that turns out to have an answer already in the text is not a wasted escalation — it is
 the system working, and the answer is now written down where the third instance will find it.***
+
+---
+
+## Amendment — v1.66, 2026-09-06 — **§2au THE MACHINE-READABLE FREEZE PIN, APPROVED BY SANAA AND LANDED — WITH TWO DISCLOSURES SHE IS ENTITLED TO: I HAD **WITHDRAWN** THIS PROPOSAL, AND THE FORM AS ENUMERATED IS **IMPOSSIBLE**. THE PIN LIVES IN THE FREEZE COMMIT'S MESSAGE, NOT IN THE FROZEN DOCUMENT, AND IT IS **NOT** THE RULE-2 ANCHOR.**
+
+**Appended 2026-09-06 by `verification-supervisor` on Sanaa's approval, `etc/sessions/2026-09-06T0230Z_sanaa_everything_approved.md`, capture `b7c56371`, her verbatim word *"everything approved"* over an enumerated list whose item 4 is this pin. `[CAPTURE READ BY ME AT SOURCE, not taken from the relay — rule 9.]`**
+**FORWARD-ONLY. NO BACKFILL. No existing registration acquires a defect, nothing is re-graded, and no frozen document is reopened to add a pin.**
+
+### §2au.1 ⚠ DISCLOSURE ONE: I WITHDREW THIS PROPOSAL, AND SHE MAY NOT HAVE KNOWN
+
+**`§28.13.5` (commit `0a8aa9f7`, 2026-09-04) reads: *"SANAA'S DESK ITEM #2 — THE MACHINE-READABLE
+FREEZE PIN — IS WITHDRAWN BY THIS TEAM."*** I withdrew it because I had proposed it as **rule 2's
+anchor**, and then measured that ***rule 2 turns on FIRST COMPUTE, not on the freeze*** (`§28.13.1`,
+and now `§2at`) — so a freeze pin obtains a timestamp rule 2 does not use.
+
+**Her approval was given over a list that presented it as live. I record the withdrawal here rather
+than accept an approval she may have granted without it.**
+
+> **AND I LAND IT ANYWAY, FOR A REASON THAT SURVIVES THE WITHDRAWAL: my withdrawal disposed of the
+> RULE-2 purpose, not of the PROVENANCE one — and `§28.12` MEASURED that the freeze is currently
+> unrecoverable from prose.** `FROZEN` matches inside `UNFROZEN`; *"NOT THE FREEZE COMMIT"* scores as
+> a freeze; **F28's DESCRIPTIVE subject beat its DECLARATIVE one**; and **147 of 415 registrations
+> carry no freeze-matching subject at all.** ***That is a real, measured defect, and the pin fixes
+> exactly it.*** **If she intended the rule-2 purpose, this clause does not deliver it and she should
+> overrule me.**
+
+### §2au.2 ⚠⚠ DISCLOSURE TWO: THE FORM AS ENUMERATED IS IMPOSSIBLE, AND I SAY SO RATHER THAN SHIP SOMETHING THAT CANNOT WORK
+
+The enumeration reads: *"each pre-registration records its own freeze sha in a fixed field at freeze
+time."*
+
+> ***A DOCUMENT CANNOT CONTAIN THE SHA OF THE COMMIT THAT COMMITS IT.*** **A git sha is computed OVER
+> the content; writing the sha into the document CHANGES the content and therefore the sha.** **The
+> literal form is not merely awkward — it has no fixed point.** *And every workaround that writes the
+> sha in afterwards MUTATES A FROZEN DOCUMENT, which is the one thing the freeze exists to prevent.*
+
+**Her verbatim word is *"everything approved"*; the field-in-document wording is the enumeration's
+rendering of MY OWN earlier proposal, and the impossibility is therefore MY error being faithfully
+relayed.** **I implement the INTENT — *the freeze is machine-identifiable* — and state the departure
+so she can overrule the form.**
+
+### §2au.3 THE CONVENTION
+
+> **RULED — `§2au`: AT FREEZE TIME, THE FREEZING COMMIT'S MESSAGE CARRIES, ON ITS OWN LINE:**
+>
+> ```
+> FREEZE-PIN: <repo-relative path of the registration>
+> ```
+>
+> **One such line per registration frozen by that commit. The FREEZE COMMIT IS THE PIN; the token
+> makes it FINDABLE.**
+
+**WHY THE COMMIT MESSAGE AND NOT THE DOCUMENT:** it has **no fixed-point problem**, it **mutates no
+frozen file**, there is **no sidecar to drift out of sync**, and **the pin is written by the very act
+it records** — *a freeze that forgot its pin is a freeze that did not happen in the machine-readable
+sense, which is the correct failure mode.*
+
+**HOW IT IS READ:** `git log --grep='^FREEZE-PIN: <path>$'` returns the freeze commit, exactly, with
+**no prose regex and no `FROZEN`-inside-`UNFROZEN` hazard.**
+
+**AND THE READER OF THE DOCUMENT IS NOT LEFT OUT:** a frozen registration carries one line —
+**`**FROZEN.** Freeze pin: this document's freezing commit carries `FREEZE-PIN: <its own path>`.`** —
+so **a reader who has the document but not the history knows the pin exists and where to look.**
+*That line is written at freeze time, is not a sha, and creates no fixed point.*
+
+### §2au.4 WHAT THIS PIN IS **NOT**
+
+- **IT IS NOT THE RULE-2 ANCHOR.** ***Rule 2's post-compute clause turns on FIRST COMPUTE*** — edits
+  between freeze and first compute are **expressly lawful** (`§28.13`, `§2at`). **Nobody may cite
+  `§2au` to date a rule-2 question.** *Stated in the clause because the wrong use is the likely one.*
+- **IT IS NOT A GATE AND REFUSES NOTHING.** No verdict depends on it; a missing pin is a **provenance
+  gap**, not a defect in a result.
+- **IT DOES NOT REACH BACKWARD.** **NO BACKFILL** — the 147 unpinnable registrations stay unpinnable,
+  and `§28.12`'s prose-anchor caveats continue to govern everything frozen before today.
+- **NO INSTRUMENT IS BUILT BY THIS AMENDMENT.** *It is auditable with one `git log --grep`, and
+  `§28.18`'s regress property applies: a guard is code and adds surface — this convention deliberately
+  adds none.*
+
+### §2au.5 ITS OWN ORIGIN STORY, RECORDED AS SHE ASKED
+
+**Proposed 2026-09-04, the morning the F28 transcription work found this lab's freeze instruments
+GUESSING SHAS FROM COMMIT PROSE.** **DECLINED BY ME the same day** — *not on its merits, but because
+it required a convention across six teams and I would not impose one unasked* (`§28.12.5`).
+**WITHDRAWN BY ME a few hours later**, when the measurement showed I had aimed it at the wrong event.
+**APPROVED BY SANAA 2026-09-06 and landed here, in a corrected form, for the purpose that survived.**
+
+> ***A proposal declined for needing permission, withdrawn for being aimed wrong, and landed on her
+> word for the one purpose that outlived both objections. The record is kept because a clause whose
+> history is invisible looks like it was always obvious.***
