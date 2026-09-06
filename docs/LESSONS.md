@@ -24516,3 +24516,38 @@ instances five and six. `cases/ansys_verification/FREEZE_CHECK/check_freeze_read
 (`181cd921`) does **not** catch this class either: its C3 checks the comparator and not the
 comparator's **production ordering**, and that gap should now be declared in the file rather than
 discovered a seventh time.
+
+### ADDENDUM to L-495, same day, and it is an instance of L-495 CAUGHT BY L-495
+
+**The guard I wrote to protect `docs/LAB_STATE.md` while landing this very lesson was
+VACUOUS, for the same structural reason the lesson describes.**
+
+Replacing my own board section, I guarded it two ways: the list of `## ` section headings must
+be unchanged, and *"everything outside my section"* must be byte-identical:
+
+```python
+outside_before = head[:start] + head[end:]
+outside_after  = body[:start] + body[len(body) - len(head[end:]):]
+```
+
+**When my section is the LAST one in the file, `end == len(head)`, so `head[end:]` is the empty
+string and BOTH expressions collapse to `head[:start]` versus `body[:start]` — which are equal by
+construction.** The guard cannot fail. It tested the concatenation logic on the interior case and
+was never driven on the **end-of-file** case, which is the case that actually ran. The commit
+reported **7,233 deletions** and the guard had reported everything fine.
+
+*(The commit was in fact correct — all six peer sections verified byte-identical afterwards, and
+the deletions were my own section's 7,207 lines of accumulated append history, replaced by a
+36-line resume board naming the same 12 case ids. **But that was established by a SEPARATE
+post-commit check, not by the guard, and it would have read exactly the same had the commit been
+a disaster.**)*
+
+> **A guard whose two sides are built from the same expression is a guard that must be driven at
+> its BOUNDARY — first element, last element, empty — before it is believed.** An
+> "everything-outside-X is unchanged" assertion is **strongest in the interior and weakest
+> exactly where X abuts the edge of the file**, which is where board sections live.
+
+**Operationally, for any agent editing its own `LAB_STATE.md` section:** assert on the
+**absolute post-image** — every OTHER section's bytes recovered by name from the parent — never
+on a difference of two slices of the thing you are editing. And **read the commit's `--stat`**:
+a five-figure deletion count is a question, not a formality.
