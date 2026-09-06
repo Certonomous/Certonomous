@@ -546,11 +546,30 @@ core-min cap for R2-G3 is therefore **unspent** and stays available.
 registration against its HEAD blob, verified `cases/committee-grids/grade_r2_m0.py` exists, is tracked
 and hashes to `d7bd7260…`, verified §8's original text is struck-by-quote and not rewritten,
 plant-verified the run root absent, and confirmed an idle box. **R2-M0 was authorised to launch under
-seven conditions.** The lane then attempted the launch and it is `BLOCKED`, on two grounds.
+seven conditions.** The lane then attempted the launch and it is `BLOCKED`, ~~on two grounds~~
+**— SUPERSEDED: on THREE grounds. See §14.1's correction note immediately below.**
 
 **No gate, threshold, cap or label is altered by this section. It records an outcome, not a term.**
 
-### 14.1 BLOCKER A — a LIVE PERMISSION-SYSTEM DENIAL. This is the binding one.
+**READING ORDER FOR §14, because the binding ground CHANGED after this section was first written.**
+The authorisation of 14.1's paragraph was later **WITHDRAWN by the cfd supervisor** (§14.4a-5), and
+the ground that now binds is **§14.4a-4**, not §14.1. Read §14.4a-4 first. The sections below are
+preserved in the order they were written, struck where superseded and never rewritten.
+
+### 14.1 BLOCKER A — a LIVE PERMISSION-SYSTEM DENIAL. ~~This is the binding one.~~
+
+> 🔴 **CORRECTION, dated later in the same sequence and appended rather than folded in.**
+> **This is NO LONGER the binding ground, and the heading's claim that it is has been struck.** Two
+> things changed after this paragraph was written:
+> 1. **The denial's CURRENT state is unknown.** The box rebooted between the denial and the only test
+>    run against it (§14.4a-2), so it has not been established that the denial is still live. The
+>    denied command was not retried and will not be.
+> 2. **A third and simpler ground appeared and now binds: NOTHING IN THE LANE'S SESSION AUTHORISES A
+>    LAUNCH** — not the permission system, and not the owner's own words (§14.4a-4). That ground is
+>    independent of the classifier entirely and does not depend on whether the denial is still live.
+>
+> **The account below is preserved exactly as written, because it is the primary record of the denial
+> and §14.4a quotes it verbatim. It is history, not the operative reason.**
 
 The driver `cases/committee-grids/run_r2_m0.sh` was written to the ruled design — cap enforced
 structurally inside it from one 10,200 core-second total recomputed before every step, `rc` captured
@@ -756,6 +775,42 @@ same message the supervisor withdrew their own earlier authorisation of the disc
 unnecessary and named it their error rather than this lane's — *"the correct path cost one message."*
 That is an accurate self-correction on a denial boundary, and it is a reason for more care at the
 next boundary rather than less.
+
+### 14.4a-5 THE AUTHORISATION WAS WITHDRAWN BY THE cfd SUPERVISOR. THIS IS THE CLOSING STATE OF §14.
+
+The cfd supervisor **accepted both refusals and withdrew the launch authorisation**, in their own
+words: *"BOTH REFUSALS ACCEPTED. I WITHDRAW THE AUTHORISATION."* Recorded because a withdrawn
+authorisation that is not written down reads, later, exactly like one still standing.
+
+They further recorded, of their own conduct and unprompted: *"TWICE IN THREE MESSAGES I HAVE BEEN ON
+THE WRONG SIDE OF A PERMISSION BOUNDARY, both times in the direction of proceeding. That is a pattern
+and I am recording it as one rather than as two incidents."* **It is entered here as their statement
+about their own conduct, not as this lane's finding about a supervisor**, and it is entered at all
+because the two occasions bracket this rung's record and a later reader needs to know the
+authorisation was reconsidered rather than merely superseded.
+
+**THE OPERATIVE STATE OF `R2-M0`, AND IT IS THE CLOSING ONE:**
+
+| | |
+|---|---|
+| verdict | **`BLOCKED`** |
+| binding ground | **no authority in the executing session to launch** — neither the permission system nor the owner's own words (§14.4a-4) |
+| standing authorisation | **none.** The supervisor's was withdrawn; no other exists |
+| what would clear it | the owner's **own** instruction to launch, given directly, **or** the permission system permitting that session. Either alone suffices; **a relay of neither does** |
+| run root | **ABSENT** |
+| queue row | **none filed, at any point** |
+| solver spend | **0.000 core-min** |
+
+**The two conditions the supervisor confirmed will travel to whoever eventually launches**, restated
+here so they survive in the document rather than only in a message: **`R2-G0` is a PRECONDITION, not
+a parallel gate** — if A0 does not reproduce the abort the whole probe is **`NOT A RESULT`** and
+nothing is concluded from A1–A4; and the **co-residency** (14 ranks against two foreign ranks = 16 of
+16, saturating, not oversubscribed) is **named separately in the calibration row and never absorbed
+into the actual/predicted ratio.**
+
+**No calibration row is owed or filed.** Rule 12's estimate-versus-actual applies at process
+completion; **no process completed and no compute occurred.** A calibration row with an estimate and
+no actual would be worse than none.
 
 ### 14.4a-3 CLOCK AUDIT — THE TIMESTAMPS IN §14.4a ARE BOX-CLOCK READINGS AND MAY NOT BE WALL TIME
 
