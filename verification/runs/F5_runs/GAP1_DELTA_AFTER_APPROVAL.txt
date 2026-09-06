@@ -1,0 +1,44 @@
+# DELTA BEYOND THE APPROVED GAP-1 ARTIFACT -- the age-guard clause-text ruling.
+#
+# BASELINE RECONSTRUCTED FROM COMMITTED OBJECTS ONLY (standing practice as of tonight):
+#   approved state = git show 8923e766:verification/runs/F5_runs/run_rung.py
+#                    PATCHED BY 8923e766:verification/runs/F5_runs/GAP1_PROPOSED_DIFF.txt
+#                    (sha256 e6d03a08e407eba7dd0843152c4e4784a44ec4cef9d17c0e830e884b82e63890)
+#   current        = HEAD after this commit
+#
+# ⚠ THIS BASELINE WAS NOT A CONVENIENCE. THE SCRATCHPAD WAS WIPED MID-TASK, between the
+# supervisor's approval and the apply, taking the working copy with it. The approved state
+# was rebuilt from git alone and its artifact hash re-verified against the approved value.
+# L-186, live, on the same night the practice was adopted to guard against exactly it.
+#
+# THE SINGLE CAUSE: the supervisor RULED that the age-guard substitution's reasoning must
+# live in the CLAUSE TEXT rather than only in the lane's report -- naming which directory
+# plays the anchor role, WHY it dates the launch, and that it substitutes for 0/T with the
+# rule's REASON preserved. Ordered, not scope creep.
+
+--- APPROVED (e6d03a08 applied to 8923e766)
++++ HEAD  verification/runs/F5_runs/run_rung.py
+@@ -369,8 +369,21 @@
+             "holds": set(present) == set(fields_required),
+         },
+         "fields_newer_than_time_zero": {
+-            "clause": "every field at endTime NEWER than the case's own time-zero "
+-                      "(age guard; reference is `0/` because this family has no `0/T`)",
++            "clause": "every field at endTime NEWER than the case's own time-zero",
++            "anchor": "the `0/` directory's own mtime",
++            "anchor_is_a_substitution_for": "0/T",
++            "why_this_anchor_is_faithful":
++                "Rule 4 anchors the age guard on the case's own `0/T` BECAUSE `T` IS "
++                "TOUCHED LAST AT LAUNCH -- the anchor's authority comes from its POSITION "
++                "IN THE LAUNCH SEQUENCE, not from its name. This family has no `T`. The "
++                "`0/` directory is created when the case is written and is not touched "
++                "afterwards, so it dates THE SAME EVENT that `0/T` dates in the thermal "
++                "family, and the rule's REASON is preserved rather than merely its form. "
++                "What would NOT be faithful is anchoring on a file written at some other "
++                "moment -- that is how this guard goes vacuous while still appearing to "
++                "run. A GUARD WHOSE REFERENCE HAS SILENTLY CHANGED IS NOT THE GUARD THE "
++                "RULE SPECIFIES, so the substitution is declared in the record itself "
++                "rather than left to a reader to notice.",
+             "measured": newer, "required": True, "holds": newer is True,
+         },
+     }

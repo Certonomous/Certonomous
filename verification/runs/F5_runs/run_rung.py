@@ -116,7 +116,8 @@ def stage(name: str, out_dir: Path, **build_kwargs) -> dict:
     return {"params": params, "remote_dir": remote_dir, "timings": timings}
 
 
-def harvest(name: str, out_dir: Path, ranks: int = 1) -> dict:
+def harvest(name: str, out_dir: Path, ranks: int = 1, *,
+            without_log: bool = False) -> dict:
     out_dir = Path(out_dir)
     staged = json.loads((out_dir / "stage_params.json").read_text())
     params = staged["params"]
@@ -124,7 +125,34 @@ def harvest(name: str, out_dir: Path, ranks: int = 1) -> dict:
     timings = dict(staged["timings"])
 
     log_path = remote_dir / "log.pimpleFoam"
-    if not log_path.exists():
+    tail: list[str] | None = None      # None means "no solver log was read"
+
+    # GAP 1 -- THE LOG-LESS HARVEST IS AN EXPLICITLY REQUESTED ENTRY, NEVER A FALLBACK.
+    # The raise below is LOAD-BEARING: the obvious repair for a missing log -- "just
+    # re-stage and re-run" -- WAS THE CALL THAT DELETED THE PHYSICS, and softening it into a
+    # fallback would reinstate exactly that. So the flag is keyword-only, the CLI exposes it
+    # as its own MODE rather than an option on the normal one, and the raise is unchanged.
+    #
+    # ⚠ AND IT REFUSES WHEN THE LOG IS PRESENT.  Without that guard a caller who passed the
+    # flag habitually would get a partial-verification record for a run that could have been
+    # fully verified -- THE EXCEPTION WOULD QUIETLY BECOME THE DEFAULT, which is how every
+    # deliberate exception dies.
+    if without_log and log_path.exists():
+        raise RuntimeError(
+            f"{name}: the log-less harvest was requested but {log_path} EXISTS. REFUSED. "
+            "This mode produces a record PERMANENTLY missing three clauses of the strict "
+            "completion rule; it is for physics whose log is gone, NEVER a shortcut past a "
+            "log that is present. Harvest normally.")
+    if not log_path.exists() and without_log:
+        # ⚠ NO SEPARATE HARVEST FUNCTION.  A second copy of the measurement body is the
+        # very defect this file spent the night removing (rule 14): two copies are two
+        # answers the moment one is edited.  The log-less path is THIS path with the
+        # log-derived quantities marked absent, so every number is produced by the same
+        # code that produces it normally.
+        print(f"[{name}] LOG-LESS HARVEST: {log_path} is absent and this was requested "
+              "explicitly. Three clauses of the strict completion rule are PERMANENTLY "
+              "unverifiable for this rung and the record will say so.")
+    elif not log_path.exists():
         # READ THIS BEFORE YOU REACH FOR stage() AGAIN.
         #
         # A missing log.pimpleFoam does NOT mean the solve did not run.  It can
@@ -151,12 +179,15 @@ def harvest(name: str, out_dir: Path, ranks: int = 1) -> dict:
             f"the comment above this raise). Do NOT re-stage to 'fix' it "
             f"without first checking for fields and a coefficient series: "
             f"python3 {_REPO_ROOT}/scripts/solve_evidence_guard.py --check "
-            f"{remote_dir}")
-    _copy_best_effort(log_path, out_dir / "log.pimpleFoam")
-    tail = log_path.read_text(errors="replace").splitlines()
-    if not any("End" in l or "ExecutionTime" in l for l in tail[-40:]):
-        print(f"[{name}] WARNING: log.pimpleFoam does not look terminated cleanly "
-              f"(last lines): " + "\n".join(tail[-5:]))
+            f"{remote_dir}. If that guard confirms the PHYSICS is present and only the LOG "
+            f"is gone, harvest it with the explicit `harvest-without-log` mode, which "
+            f"records what it could and could NOT verify instead of inventing it.")
+    if log_path.exists():
+        _copy_best_effort(log_path, out_dir / "log.pimpleFoam")
+        tail = log_path.read_text(errors="replace").splitlines()
+        if not any("End" in l or "ExecutionTime" in l for l in tail[-40:]):
+            print(f"[{name}] WARNING: log.pimpleFoam does not look terminated cleanly "
+                  f"(last lines): " + "\n".join(tail[-5:]))
 
     # WAS: shutil.rmtree(out_dir/"postProcessing", ignore_errors=True) -- the
     # same defect class one function down.  The local mirror was destroyed
@@ -204,8 +235,17 @@ def harvest(name: str, out_dir: Path, ranks: int = 1) -> dict:
     # wall time: parse ExecutionTime of the LAST line in the log for the
     # true solver wall time regardless of how many restarts contributed.
     import re
-    exec_times = re.findall(r"ExecutionTime = ([\d.]+) s", "\n".join(tail))
-    solve_wall = float(exec_times[-1]) if exec_times else None
+    if tail is None:
+        # ⚠ None, NOT 0.0, AND THE DISTINCTION IS THE WHOLE POINT.  None says "NOT KNOWN";
+        # zero says "KNOWN TO BE NOTHING".  They are adjacent and opposite, and emitting the
+        # wrong one silently converts an ABSENCE into a DATUM.  That is rule 3's
+        # planted-zero principle stated for a WRITER rather than a reader: a writer that
+        # emits zero where it means unknown MANUFACTURES the very false zero the
+        # reader-side rule exists to catch.
+        solve_wall = None
+    else:
+        exec_times = re.findall(r"ExecutionTime = ([\d.]+) s", "\n".join(tail))
+        solve_wall = float(exec_times[-1]) if exec_times else None
     timings["pimpleFoam"] = solve_wall
 
     record = {
@@ -224,18 +264,161 @@ def harvest(name: str, out_dir: Path, ranks: int = 1) -> dict:
         "period": period, "strouhal": strouhal,
         "cpb": cpb, "recirculation": lr,
         "yplus_raw": yplus_text.strip().splitlines()[-3:] if yplus_text else [],
-        "wall_seconds": sum(v for v in timings.values() if v is not None), "timings": timings,
+        # ⚠ wall_seconds is None -- NOT a partial sum -- when the solve time is unknown.
+        # Summing the stage timings and calling the result "wall_seconds" would present a
+        # number that LOOKS like the run's wall time and is not: the same absence-into-datum
+        # conversion as a zero, one level up.
+        "wall_seconds": (None if solve_wall is None
+                         else sum(v for v in timings.values() if v is not None)),
+        "timings": timings,
         "stationary": drift["relative_drift"] <= 0.10,
         "final_time_reached": times[-1] if times else None,
     }
+    if tail is None:
+        # THE PARTIALITY IS MACHINE-READABLE AND SITS AT THE TOP LEVEL, so a consumer cannot
+        # reach the numbers without passing it.
+        record["strict_completion"] = _log_independent_completion(
+            remote_dir, end_time, times[-1] if times else None)
+        record["harvest_mode"] = "WITHOUT-LOG"
     (out_dir / "record.json").write_text(json.dumps(record, indent=2, default=str))
     lr_txt = f"Lr/D {lr['lr_over_d']:.3f}" if lr and lr["lr_over_d"] else "Lr/D not found"
     cpb_txt = f"-Cpb {cpb['cpb_magnitude']:.3f}" if cpb else "Cpb n/a"
     st_txt = f"St {strouhal:.4f}" if strouhal else "no period detected"
+    wall_txt = ("wall UNKNOWN (log absent)" if record["wall_seconds"] is None
+                else f"wall {record['wall_seconds']:.0f}s")
     print(f"[{name}] Cd {cd_stats['mean']:.4f} (drift {100*drift['relative_drift']:.1f}%), "
-          f"{st_txt}, {cpb_txt}, {lr_txt}, wall {record['wall_seconds']:.0f}s, "
+          f"{st_txt}, {cpb_txt}, {lr_txt}, {wall_txt}, "
           f"final_t={record['final_time_reached']}")
     return record
+
+
+# =====================================================================================
+# GAP 1 -- WHAT A LOST LOG DOES AND DOES NOT COST, ENUMERATED AGAINST RULE 4'S SIX CLAUSES.
+#
+# THE LOG SUPPLIES EXACTLY TWO THINGS TO harvest(): the clean-termination check and the
+# wall time.  Cd, Cl, St, -Cpb, Lr and yPlus all come from postProcessing and the time
+# directories and NEVER TOUCH IT -- traced, not assumed.
+#
+# SO SANAA'S RULE OF 2026-08-26 LANDS EXACTLY ON RULE 4'S SEAM, on a case nobody designed
+# it for: THE PHYSICS-SIDE CLAUSES SURVIVE THE LOST LOG AND THE INFRASTRUCTURE-SIDE CLAUSES
+# DO NOT.  BOOKKEEPING NEVER VOIDS PHYSICS -- ⚠ AND THE MISSING BOOKKEEPING IS STILL
+# RECORDED AS MISSING.  A harvest that recovered the physics and went quiet about what it
+# could not establish would obey the first half and break the second.
+#
+# ⚠ THE UNVERIFIABLE CLAUSES ARE `PERMANENTLY UNVERIFIABLE`, NOT `PENDING`.  PENDING is a
+# queue state meaning "not yet run" (VERIFICATION §9); this log is GONE, NOT LATE, and
+# nothing will ever make these three checkable for this rung.  Calling them PENDING would
+# promise a resolution that cannot arrive.
+#
+# ⚠ AND THIS FUNCTION EMITS NO VERDICT.  Whether three-of-six with three permanently
+# unverifiable supports any gate is the GRADER'S question under its own registration.
+# A HARVEST THAT ANSWERED IT WOULD BE A COMPARATOR WEARING A HARVESTER'S NAME.
+# =====================================================================================
+LOG_DEPENDENT_CLAUSES = {
+    "solver_return_code": "rc == 0 -- known only to the process that ran the solver",
+    "end_line_present": "an `End` line -- written by the solver into the log",
+    "execution_time_count_equals_end_time":
+        "the count of `ExecutionTime` lines -- read from the log",
+}
+
+
+def _log_independent_completion(remote_dir: Path, end_time: float,
+                                series_last_time: float | None) -> dict:
+    """Evaluate the clauses of the strict completion rule that DO NOT need the log.
+
+    Returns a MACHINE-READABLE structure, deliberately not prose: a grader must be able to
+    consume the partiality programmatically rather than by reading a sentence and choosing
+    to believe it.
+    """
+    remote_dir = Path(remote_dir)
+    times = []
+    for d in remote_dir.iterdir():
+        if not d.is_dir():
+            continue
+        try:
+            times.append((float(d.name), d))
+        except ValueError:
+            continue
+    latest_t, latest_dir = max(times, default=(None, None))
+
+    fields_required = ("U", "p", "phi")
+    present = ([f for f in fields_required if (latest_dir / f).is_file()]
+               if latest_dir else [])
+
+    # THE AGE GUARD, and the honest note about its reference.  CLAUDE.md rule 4 dates a run
+    # against the case's own `0/T`, because `T` is touched last at launch.  THIS FAMILY HAS
+    # NO `T`; the reference used is the `0/` DIRECTORY's own mtime, and that substitution is
+    # stated rather than glossed -- a guard whose reference has silently changed is not the
+    # guard the rule specifies.
+    zero_dir = remote_dir / "0"
+    zero_mtime = zero_dir.stat().st_mtime if zero_dir.is_dir() else None
+    newer = None
+    if zero_mtime is not None and latest_dir is not None:
+        ages = [(latest_dir / f).stat().st_mtime for f in present]
+        newer = bool(ages) and all(a > zero_mtime for a in ages)
+
+    verified = {
+        "last_time_equals_end_time": {
+            "clause": "last time == endTime",
+            "measured": latest_t, "required": end_time,
+            "holds": latest_t is not None and abs(latest_t - end_time) < 1e-9,
+        },
+        "fields_present_at_end_time": {
+            "clause": "fields present at endTime",
+            "measured": present, "required": list(fields_required),
+            "holds": set(present) == set(fields_required),
+        },
+        "fields_newer_than_time_zero": {
+            "clause": "every field at endTime NEWER than the case's own time-zero",
+            "anchor": "the `0/` directory's own mtime",
+            "anchor_is_a_substitution_for": "0/T",
+            "why_this_anchor_is_faithful":
+                "Rule 4 anchors the age guard on the case's own `0/T` BECAUSE `T` IS "
+                "TOUCHED LAST AT LAUNCH -- the anchor's authority comes from its POSITION "
+                "IN THE LAUNCH SEQUENCE, not from its name. This family has no `T`. The "
+                "`0/` directory is created when the case is written and is not touched "
+                "afterwards, so it dates THE SAME EVENT that `0/T` dates in the thermal "
+                "family, and the rule's REASON is preserved rather than merely its form. "
+                "What would NOT be faithful is anchoring on a file written at some other "
+                "moment -- that is how this guard goes vacuous while still appearing to "
+                "run. A GUARD WHOSE REFERENCE HAS SILENTLY CHANGED IS NOT THE GUARD THE "
+                "RULE SPECIFIES, so the substitution is declared in the record itself "
+                "rather than left to a reader to notice.",
+            "measured": newer, "required": True, "holds": newer is True,
+        },
+    }
+    supplementary = {
+        "series_reaches_end_time": {
+            "note": "NOT a clause of rule 4 -- supplementary evidence that the physics ran "
+                    "to the registered end, independent of any log",
+            "measured": series_last_time, "required": end_time,
+            "holds": series_last_time is not None
+                     and abs(series_last_time - end_time) < 1e-9,
+        },
+    }
+    return {
+        "harvest_mode": "WITHOUT-LOG",
+        "verdict_available": False,
+        "why_no_verdict":
+            "The strict completion rule requires ALL of its clauses. Three are PERMANENTLY "
+            "unverifiable here because the solver log is GONE, NOT LATE. This record is "
+            "EVIDENCE, NOT A VERDICT: whether it supports any gate is the grader's question "
+            "under its own registration.",
+        "clauses_verified": verified,
+        "clauses_permanently_unverifiable": {
+            k: {"clause": v, "state": "PERMANENTLY UNVERIFIABLE",
+                "not_pending_because": "the log is gone, not late -- nothing will make this "
+                                       "checkable for this rung"}
+            for k, v in LOG_DEPENDENT_CLAUSES.items()
+        },
+        "supplementary_evidence": supplementary,
+        "wall_time_note":
+            "The wall time is the ONE quantity that genuinely depended on the lost log "
+            "(harvest() parses the last `ExecutionTime` line). It is recorded as null, NOT "
+            "zero. The campaign's figure of record for re2000 is 66.09 core-min, from the "
+            "run's own accounting -- NOT re-derived here, and no re-derivation is possible "
+            "(F5a_cylinder_reynolds_ladder.md:1417-1422).",
+    }
 
 
 def selftest_harvest_delegation() -> int:
@@ -378,6 +561,136 @@ def selftest_harvest_delegation() -> int:
     return 0 if ok else 1
 
 
+def selftest_without_log_harvest() -> int:
+    """GAP 1 -- THE LOG-LESS HARVEST'S PLANTED CONTROLS.
+
+    The two limbs that matter are the GUARDS, not the arithmetic: this mode must not be
+    reachable when a log exists, and the ordinary refusal must still refuse. A repair that
+    quietly converts a deliberate refusal into a fallback is worse than the gap it closes.
+    """
+    import json as _json
+    import os
+    import tempfile
+    ok, fired = True, []
+
+    VERDICTS = ("PASS", "GATE REACHED", "GATE FAIL", "NOT A RESULT", "BLOCKED", "PENDING")
+
+    def _tree(root: Path, end="90", fields=("U", "p", "phi"), age_ok=True) -> Path:
+        (root / "0").mkdir(parents=True, exist_ok=True)
+        for f in ("U", "p"):
+            (root / "0" / f).write_text("zero\n")
+        d = root / end
+        d.mkdir(parents=True, exist_ok=True)
+        for f in fields:
+            (d / f).write_text("field\n")
+        past = 10_000
+        now = int(__import__("time").time())
+        if age_ok:
+            os.utime(root / "0", (now - past, now - past))
+        else:
+            os.utime(root / "0", (now + past, now + past))   # zero NEWER than the fields
+        return root
+
+    with tempfile.TemporaryDirectory() as td:
+        base = Path(td)
+
+        # ---- (1) THE CLEAN CASE: all three log-independent clauses hold.
+        good = _log_independent_completion(_tree(base / "good"), 90.0, 90.0)
+        holds = {k: v["holds"] for k, v in good["clauses_verified"].items()}
+        if all(holds.values()):
+            fired.append(f"CLEAN: all three log-independent clauses hold {holds}")
+        else:
+            ok = False
+            fired.append(f"CLEAN: expected all True, got {holds}")
+
+        # ---- (2) THE PLANTS: each clause must go FALSE when its own precondition breaks,
+        # and the OTHERS must stay TRUE -- otherwise one broken clause could mask another.
+        short = _log_independent_completion(_tree(base / "short", end="45"), 90.0, 90.0)
+        missing = _log_independent_completion(
+            _tree(base / "missing", fields=("U", "p")), 90.0, 90.0)
+        stale = _log_independent_completion(_tree(base / "stale", age_ok=False), 90.0, 90.0)
+        checks = [
+            ("last_time_equals_end_time", short),
+            ("fields_present_at_end_time", missing),
+            ("fields_newer_than_time_zero", stale),
+        ]
+        for key, res in checks:
+            h = {k: v["holds"] for k, v in res["clauses_verified"].items()}
+            if h[key] is False and all(v for k, v in h.items() if k != key):
+                fired.append(f"PLANT {key}: went FALSE while the other two stayed TRUE -- "
+                             "the clauses are independently sensitive")
+            else:
+                ok = False
+                fired.append(f"PLANT {key}: expected only {key} False, got {h}")
+
+        # ---- (3) SUPPLEMENTARY EVIDENCE IS SENSITIVE TOO.
+        supp = _log_independent_completion(_tree(base / "supp"), 90.0, 71.5)
+        if supp["supplementary_evidence"]["series_reaches_end_time"]["holds"] is False:
+            fired.append("PLANT series: a series stopping at 71.5 against endTime 90 does "
+                         "NOT hold")
+        else:
+            ok = False
+            fired.append("PLANT series: a short series was reported as reaching endTime")
+
+        # ---- (4) NO VERDICT WORD ANYWHERE IN THE STRUCTURE.
+        blob = _json.dumps(good)
+        leaked = [v for v in VERDICTS if v in blob]
+        if not leaked:
+            fired.append("NO VERDICT: the structure contains none of the six verdict words "
+                         "-- it is evidence, and the grader keeps its own question")
+        else:
+            ok = False
+            fired.append(f"NO VERDICT: the structure leaks {leaked} -- a harvester emitting "
+                         "a verdict is a comparator wearing a harvester's name")
+        if good["verdict_available"] is not False:
+            ok = False
+            fired.append("NO VERDICT: verdict_available is not False")
+
+        # ---- (5) PERMANENT, NOT PENDING -- and all three log-dependent clauses named.
+        unver = good["clauses_permanently_unverifiable"]
+        if (set(unver) == set(LOG_DEPENDENT_CLAUSES)
+                and all(v["state"] == "PERMANENTLY UNVERIFIABLE" for v in unver.values())):
+            fired.append(f"PERMANENCE: all {len(unver)} log-dependent clauses are marked "
+                         "PERMANENTLY UNVERIFIABLE, not PENDING -- the log is gone, not late")
+        else:
+            ok = False
+            fired.append(f"PERMANENCE: {sorted(unver)} against "
+                         f"{sorted(LOG_DEPENDENT_CLAUSES)}")
+
+        # ---- (6) THE GUARD: this mode REFUSES when a log exists.
+        # ---- (7) THE TWIN: the ordinary refusal still refuses when it does not.
+        for label, make_log, kwargs, want in (
+                ("GUARD", True, {"without_log": True}, "REFUSED"),
+                ("TWIN", False, {}, "solve_evidence_guard.py")):
+            case = base / f"case_{label}"
+            remote = base / f"remote_{label}"
+            (remote / "0").mkdir(parents=True)
+            case.mkdir(parents=True)
+            if make_log:
+                (remote / "log.pimpleFoam").write_text("End\n")
+            (case / "stage_params.json").write_text(_json.dumps({
+                "params": {"end_time": 90.0}, "remote_dir": str(remote), "timings": {}}))
+            try:
+                harvest("probe", case, **kwargs)
+                ok = False
+                fired.append(f"{label}: harvest did NOT raise")
+            except RuntimeError as exc:
+                if want in str(exc):
+                    fired.append(f"{label}: refused, and the message carries {want!r}")
+                else:
+                    ok = False
+                    fired.append(f"{label}: refused but the message lacks {want!r}: "
+                                 f"{str(exc)[:120]}")
+
+    for line in fired:
+        print(f"  WITHOUT-LOG {line}")
+    print("  DISCRIMINATES: a complete tree passes all clauses AND each clause goes false "
+          "alone when broken; the mode refuses when a log EXISTS and the ordinary refusal "
+          f"still refuses when it does not = {ok}")
+    print("WITHOUT-LOG SELFTEST " + ("PASS" if ok else "FAIL"))
+    return 0 if ok else 1
+
+
 if __name__ == "__main__":
     # INTERCEPTED BEFORE argparse, AND HERE THE WALL IS HIGHER THAN IN cylinder_ladder.py:
     # `mode` is a POSITIONAL with choices, and --name and --out are required=True, so
@@ -385,10 +698,12 @@ if __name__ == "__main__":
     # checked after parse_args would be UNREACHABLE -- L-491, third campaign.
     if "--selftest-harvest-delegation" in sys.argv[1:]:
         sys.exit(selftest_harvest_delegation())
+    if "--selftest-without-log-harvest" in sys.argv[1:]:
+        sys.exit(selftest_without_log_harvest())
 
     import argparse
     p = argparse.ArgumentParser()
-    p.add_argument("mode", choices=["stage", "harvest"])
+    p.add_argument("mode", choices=["stage", "harvest", "harvest-without-log"])
     p.add_argument("--name", required=True)
     p.add_argument("--out", required=True)
     p.add_argument("--reynolds", type=float)
@@ -410,4 +725,7 @@ if __name__ == "__main__":
               end_time=a.end_time, dt0=a.dt0, max_co=a.max_co,
               perturbation=a.perturbation)
     else:
-        harvest(a.name, Path(a.out), ranks=a.ranks)
+        # ITS OWN MODE, NOT A FLAG ON `harvest`. A separate mode cannot be reached by a
+        # caller who did not mean it, and it reads in the shell history as what it is.
+        harvest(a.name, Path(a.out), ranks=a.ranks,
+                without_log=(a.mode == "harvest-without-log"))
