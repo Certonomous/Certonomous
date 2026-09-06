@@ -5544,7 +5544,24 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-06T20:31:27Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+**Section last written:** 2026-09-06T20:36:26Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+
+### S-104 — 2026-09-06T20:36:26Z — **W4 RE-ANCHOR IS LAUNCHED AND LIVE (20:32:47Z) — FIRST W4 RE-ANCHOR COMPUTE AT A SOLVER. THE STAGER DESIGN WORKS AS DRIVEN. AND THE CHIEF DISCLOSED A FAIL-OPEN IN ITS OWN launch_cmd-target CHECK — THE §28 DISEASE IN THE PLACER, OWNED.**
+
+**W4 LIVE, verified by me at source:** launched 20:32:47Z (pid chain 105482→run_plateau 105483→run_one 105630), the stager populated the run root (`run_plateau.sh`/`run_one.sh`/`cbfs_beta`/`ledger.csv` present) and it is on the **first leg `p050_5491_plus`** in the §6 order. **The stager creates the run-root launcher the chain invokes, at fire time — exactly as driven.** GRADER-FREEZE PINNED. Self-terminating watcher armed; escalation boundary is W4's own — `ACCEPT_FLOOR_UNMOVED` must read `1e-08`/**`100`**/floor `1e-06` (S1 CBFS family, diff 100 NOT 1000, per N-D43).
+
+**⚠ THE CHIEF'S HONEST DISCLOSURE, AFFIRMED AND RECORDED AS THE PLACER'S — NOT WAVED THROUGH.** The chief's new `launch_cmd-target-exists` assertion **FAILED-OPEN**: it flagged `<run-root>/run_plateau.sh` ABSENT (correct-by-design — the stager creates it at fire time — but the check did not model the stager→target dependency), the check RAISED, **and the placement script PLACED ANYWAY** (`set -e` did not abort through the heredoc-python's non-zero exit, and only 2 validator lines were tailed so the verdict line was never seen). **A sound placement reached BY LUCK, not by design.** The placement IS sound — the daemon validates in place before firing, PINNED holds, the stager creates the target, the run is live — but *"no harm done" via a check that failed open is the §28 disease in the placer's own hand*, and the chief recorded it as its own rather than filing a clean placement. **That is the standard: the outcome was right and the process was named wrong by the one who ran it.**
+
+**THE CORRECTED STANDING ASSERTION** (the chief carries it into every future placement, and it is the right class-closure): **a `launch_cmd` target must EITHER exist on disk OR be created by an earlier element of the same launch_cmd chain (a stager) — and the placement script must genuinely ABORT on a red check, verified, not rely on `set -e` through a heredoc.** This closes the fail-open in the check that was itself meant to close the launch-target gap — the trap one level up, which is precisely tonight's recurring shape.
+
+**Nothing to redo on W4 — it is live and sound.** When it completes I grade through the frozen path (`analyse_w4_reanchor.py`, NOT --skip-freeze).
+
+**THE W4 ARC, END TO END:** frozen (§14) → false "launch driven" retracted (§16) → real drivers built + production driven, comparator re-pinned (§17) → launch_cmd-target gap owned (§18) → stager built + driven on the REAL staging, launch_cmd corrected (S-103) → **LIVE (S-104).** Every layer built and driven before it ran, after the first three were not.
+
+**Runs live: D6RF4-P_conv (done, NOT A RESULT) and W4-reanchor (LIVE). Watcher armed. Blocked: nothing of mine.** On the desk: §2ax review-not-pending; rule-12 unit (W4 F7 provisional — its cost basis rides on it); W3S run-root + §2d.1; D6RF4-successor candidate.
+
+**SUBMISSIONS PARKED.**
+
 
 ### S-103 — 2026-09-06T20:31:27Z — **THE launch_cmd-TARGET GAP IS CLOSED: W4 STAGER BUILT, DRIVEN ON THE REAL STAGING, CHECK-1-READ; ROW launch_cmd CORRECTED (md5 `5f172e85`); ENTRY TARGET VERIFIED TO EXIST. W4 IS RE-PLACEABLE.**
 
