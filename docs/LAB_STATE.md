@@ -5544,7 +5544,34 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
-**Section last written:** 2026-09-06T19:02:48Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+**Section last written:** 2026-09-06T19:10:32Z by dafoam-supervisor personally (stamp from `date -u` in the commit's own invocation).
+
+### S-98 — 2026-09-06T19:10:32Z — **D6RF4 `P_conv` REACHED THE PRIMAL AND IS A REAL MEASUREMENT: `NOT A RESULT`, FLOOR UNMOVED, AND THE REACHABLE-TOLERANCE QUESTION ANSWERED WITH DATA — TIGHTENING `relTol` DOES NOT REACH THE ACCEPT FLOOR ON THIS CASE.**
+
+**The run the whole night drove toward. Fifth launch, all five prior defects closed, launch path driven end-to-end — it reached the primal. CHECK 3 (big-claim) DISCHARGED BY ME AT SOURCE**, every number below read from the log myself, not relayed (two independent readers — the watcher and the frozen floor control — already agreed).
+
+**⛔ NOT A STOP-THE-LINE. THE ESCALATION BOUNDARY HELD.** `ACCEPT_FLOOR_UNMOVED` fired **EXERCISED-PASS** from the container log: `primalMinResTol=1e-08`, `primalMinResTolDiff=1000`, floor `1e-05`, `reader_saw_the_plant=true`. **UNMOVED at the registered A2-wing value. Nothing widened, and the bar was never touched.**
+
+**FIRST COMPUTE OCCURRED** — `End` at log :2118, `Time=1000`, exec 57.43 s. A solver iterated, so **§2ax no longer applies and this item's gates are CLOSED.**
+
+**THE PHYSICS, verified by me:**
+- `U0/U1/U2/he` all well under `1e-05`.
+- `p` corrected solve **6.34e-08** — CRUSHED ~200× from D6RF3's 1.316e-05: **the tightened `relTol` worked on p's INNER convergence.**
+- but the **uncorrected first p-solve 1.658e-05** (nNonOrthogonalCorrectors 1 → two p-solves/outer-iter) and **`nuTilda` 1.409e-05** remain **OVER the 1e-05 floor** — the second binding field §1.5 flagged.
+- DAFoam refused post-`End`: *"Primal solution failed!"* on `cl04.coupling.solver` — the N-D42 acceptance mode, still present, now binding on nuTilda.
+
+> **THE MEASUREMENT, AND IT ANSWERS THE REACHABLE-TOLERANCE QUESTION: tightening `relTol` 0.1→0.001 improves p's inner convergence dramatically but does NOT lower the OUTER accept floor below `1e-05` for this A2-wing case. `nuTilda` binds. The D6RF3 acceptance refusal is NOT fixed by tightening the linear-solve tolerance.** This goes to Sanaa's desk with the reachable-tolerance question — and it is the answer, not a reason to touch the bar. A successor would need a DIFFERENT numerical approach (nuTilda's own convergence, more correctors), never a looser floor; loosening would be widening a gate to fit.
+
+**ITEM VERDICT: `NOT A RESULT`** (ONE-ROW `PATCHED`, NOT a full §6 verdict about DAFoam). The primal completed its iterations (End) but **failed DAFoam's post-End acceptance (ledger rc=1)**, produced no gradient product (`d6rf4_fd_endpoint.json` absent — only the 138-byte progress `.jsonl`), and **the FROZEN grader correctly REFUSED (exit 2) at G1** for want of the product. **A completion in Sanaa's sense (a measured outcome), not a failure of the process.**
+
+**⚠ THE G1-BEFORE-G-CONV ORDERING — RULED, and the frozen ordering is CORRECT, not a defect.** The lane asked whether G-CONV should grade the log residuals despite the absent product (giving a clean GATE FAIL on nuTilda) instead of G1 refusing first. **No: G-CONV's registered input is the CD FD PRODUCT, not raw log residuals. Grading residuals when the registered product is absent would grade a DIFFERENT quantity than registered.** The frozen ordering refuses rather than grading an unregistered surrogate — that is right. **The residuals are the DIAGNOSTIC finding (in the record), not a gate verdict.** D6RF4's grader is frozen and gates are closed regardless; nothing to change. *For a successor:* whether to add a residual-diagnostic row that reports (never gates) the binding field on a failed primal is a design note, not a change here.
+
+**COST — real solver leg, calibration filed HONESTLY as partial.** Ledger `core_min=5.4` (wall 81 s, container 75 s, delivered_cores 3.3475 of 4 — 220 throttle events). **Only L1 ran** — the arm died at L1's failed acceptance, so L2 (baseline_repeat) and L3 (F5) did NOT run. **The §8.3 ×6 multiplier CANNOT be calibrated (L3 absent); the full-arm 5.4/17.90 ratio is MEANINGLESS (1 of 3 legs, failed) and is not filed as one.** Honest per-leg point: L1's tightened primal ~3.83 core-min solve vs registered 7.884 — UNDER, consistent with ×6 being a registered upper bound. A calibration row is being written stating exactly this (arm incomplete, per-leg only, attribution = acceptance failure not overrun).
+
+**Zero armed watchers (self-terminating design proven on a completed run). Everything preserved. Result record + calibration row being written by a lane from these verified numbers.**
+
+**SUBMISSIONS PARKED.**
+
 
 ### S-97 — 2026-09-06T19:02:48Z — **CORRECTION TO S-96: F9 (W4's QUEUE ROW) WAS NOT BUILT. I WROTE "built READY-NOT-PLACED" AND IT DOES NOT EXIST. THE CHIEF CAUGHT IT BY SEARCHING RATHER THAN TRUSTING THE BOARD.**
 
