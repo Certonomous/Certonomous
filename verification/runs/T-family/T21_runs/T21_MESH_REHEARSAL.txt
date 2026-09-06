@@ -1,0 +1,25 @@
+T21 MESH-GENERATION REHEARSAL -- coarse case T21_CYL_c, 2026-09-06T23:07:02Z
+builder: build_t21.py (blockMeshDict generation half)
+
+RESULT: valid two-region axisymmetric wedge, both regions Mesh OK.
+  blockMesh              rc=0, 640 cells
+  single-region check    Mesh OK, Max skewness 0.108291, Max aspect ratio 12.60
+  splitMeshRegions       rc=0, core 480 + housing 160 = 640 (registered: 480/160/640)
+  interface              core_to_housing / housing_to_core, type mappedWall
+  housing patches        housing_outer, wedge_front, wedge_back, ends, housing_to_core
+  checkMesh -allRegions -allTopology -allGeometry  rc=0, Mesh OK
+
+TWO DEFECTS THE REHEARSAL CAUGHT BEFORE ANY COMPUTE, both mine, both fixed:
+  1. builder wrote no top-level system/{controlDict,fvSchemes,fvSolution};
+     blockMesh fatal 'cannot find controlDict'. T21 Amendment 1 flags the
+     top-level fvSolution as mandatory. Added.
+  2. axial ends were type empty; on a wedge the only collapsed direction is
+     circumferential (the wedge patches), so an empty patch is contradictory
+     -- checkMesh: 'faces on empty patches not divisible by nCells'. Changed
+     to type wall (adiabatic, per S6). Clean after.
+
+COLLAPSED-AXIS TRAP (T-5) AVOIDED: core carries the 6mm bore r_bore=0.006 and
+does not reach the axis; zero zero-area faces, where T22's collapsed core gave 140.
+
+WEDGE-FACTOR ROUND TRIP (T-4): theta read back from the generated blockMeshDict
+= 5.0000 deg; P_sector(100 W) = 1.388888889 W from that read-back value, one place.
