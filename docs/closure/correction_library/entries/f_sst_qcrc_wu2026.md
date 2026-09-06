@@ -308,3 +308,57 @@ model."* **The TBRF entry in this library IS a random forest** (100 trees, no cl
 construction). **A TBRF a-posteriori reproduction should therefore be costed near 30x baseline, not
 near 1x** — an order-of-magnitude difference that decides whether it fits an authorisation, and one
 that would otherwise have been discovered by overrunning a cap mid-run.
+
+## The `lambda_2` definition — READ 2026-09-06, and the gate above is CLEARED
+
+Ref. [3] **Table 2, PDF p. 11**, rendered at 300 dpi and read by closure-supervisor. The caption is
+*"The local flow features chosen to construct the expression for beta(w)"*. Verbatim definitions:
+
+| name | definition | |
+|---|---|---|
+| `lambda_1` | `tr(S_hat^2)` | `S_hat = S/(beta* omega)`, nondimensional strain rate |
+| **`lambda_2`** | **`tr(Omega_hat^2)`** | **`Omega_hat = Omega/(beta* omega)`, nondimensional rotation rate** |
+| `lambda_5` | `tr(Omega_hat^2 . S_hat^2)` | |
+| `Re_Omega` | `\|Omega\| d^2 / nu` | *"identify strong shear away from the wall"* |
+| `P_k/eps` | `tau^R_ij u_i,j / (beta* k omega)` | `tau^R` from the Boussinesq hypothesis |
+| `eta` | `lambda_2 lambda_5 / Re_Omega` | extracted by SR from the CBFS field inversion in [29] |
+
+with `beta* = 0.09`, *"a model constant of the SST model"*. These are Pope's scalar invariants of
+the general tensor representation of the Reynolds stress. **`lambda_2` is therefore codeable, and
+the `IMPLEMENTED` gate recorded above is CLEARED** — what remains between this entry and
+`IMPLEMENTED` is a demonstrated install, which is compute.
+
+## ⚠ AND THE SAME TABLE CARRIES THE MOST CONSEQUENTIAL SENTENCE I HAVE READ IN THIS LIBRARY
+
+Table 2, verbatim: **"The 3rd and the 4th invariances are omitted because they are zero in 2D flows
+and our training set is 2D."**
+
+**The `beta_CND` feature basis is TRUNCATED ON A 2D PREMISE.** `lambda_3` and `lambda_4` are dropped
+precisely because they vanish in two dimensions — which means they are exactly the invariants that
+are *non-zero only in three-dimensional flow*.
+
+**The square duct is a three-dimensional flow.** Secondary flow of the second kind lives in the
+cross-plane; it is the canonical 3D corner phenomenon. So applying the `beta_CND` correction to a
+duct would apply a model whose feature basis was **constructed on the assumption the flow is 2D** to
+a flow whose defining feature is 3D. That is an extrapolation of exactly the kind **FS5 — the
+standing extrapolation-coverage gate — is armed for**, and it is visible here only because the
+feature definitions were read rather than cited.
+
+**THE DECOMPOSITION THIS FORCES, AND IT IS GOOD NEWS FOR THE DUCT.** SST-QCRC is two independent
+modifications and they do not share this limitation:
+
+- **Eq. (1), the QCR term — NOT data-driven.** `c_r = 0.3` is adopted from Spalart 2000 and the
+  paper states flatly *"No data-driven techniques are used to train the parameters of the correction
+  term."* It carries no trained feature set, no 2D training premise, and Spalart demonstrates it
+  **on a square duct** (p. 253: *"flow is induced towards the corners"*). **This is the duct-relevant
+  half.**
+- **Eqs. (2)-(3), the `beta_CND` omega-correction — data-driven on a 2D training set** with a
+  2D-truncated feature basis. **This is the half that should NOT be carried to a duct without FS5
+  being answered.**
+
+**WHAT THIS DOES NOT LICENSE.** It does not license running `kOmegaSSTQCR` and recording the result
+under this entry: that library implements Eq. (1) only, and this entry is the *combined* model.
+**It licenses a SEPARATE entry for the QCR2000 correction itself, sourced to Spalart 2000** — which
+this lab holds, which the supervisor has title-page verified and read at equation level, and which
+`kOmegaSSTQCR` genuinely does implement. **That entry does not yet exist and is the next zero-compute
+item.** Writing it is how the duct-first plan gets a correction it can honestly run.

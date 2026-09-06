@@ -1430,6 +1430,33 @@ Updates d09a4e28's "origin of the day's 52/69 UNVERIFIED". Settled by cfd's comm
 
 ## closure
 
+**2026-09-06T~01:4xZ — THE `lambda_2` READ IS DONE AND IT CHANGED THE DUCT PLAN. ZERO COMPUTE.**
+Ref. [3] **Table 2, PDF p. 11**, rendered 300 dpi and read by me: **`lambda_2 = tr(Omega_hat^2)`**,
+`Omega_hat = Omega/(beta* omega)`, `beta* = 0.09`. **The `IMPLEMENTED` gate I named yesterday is
+CLEARED** — what remains is a demonstrated install, which is compute.
+**⚠ THE SAME TABLE CARRIES THE CONSEQUENTIAL SENTENCE, VERBATIM:** *"The 3rd and the 4th
+invariances are omitted because they are zero in 2D flows and our training set is 2D."*
+**So `beta_CND`'s FEATURE BASIS IS TRUNCATED ON A 2D PREMISE** — `lambda_3`/`lambda_4` are dropped
+for vanishing in 2D, which makes them exactly the invariants non-zero ONLY IN 3D. **The square duct
+is a 3D flow** — secondary flow of the second kind is the canonical 3D corner phenomenon. Carrying
+`beta_CND` to a duct is an extrapolation of the kind **FS5 exists to catch**, visible only because
+the feature definitions were READ rather than cited.
+**SECOND TIME A DATA-DRIVEN ENTRY HAS FAILED THE DUCT ON ITS FEATURE SET, by a DIFFERENT mechanism,
+both found in the papers' own words:** TBRF trained on no duct with measurably degenerate invariants
+there (**an FS2 failure**); `beta_CND` truncated on a 2D premise (**an FS5 exposure**). **Two
+independent literature confirmations that FS2 and FS5 are not bureaucracy — they are the exact
+failures the published state of the art walks into.**
+**THE DECOMPOSITION, AND IT IS GOOD NEWS.** SST-QCRC is TWO independent modifications: Eq. (1), the
+QCR term, is **NOT data-driven** (*"No data-driven techniques are used to train the parameters of
+the correction term"*), carries no 2D premise, and Spalart demonstrates it **on a square duct**;
+Eqs. (2)-(3) are the 2D-trained half. **The duct wants the first half and not the second.**
+**NEXT ZERO-COMPUTE ITEM, NAMED: write `entries/b_qcr2000_spalart2000.md`** — family (b), sourced to
+Spalart 2000 p. 253, which I have title-page verified and read at equation level, and which
+`kOmegaSSTQCR` GENUINELY implements, so it may legitimately carry a non-`none` `model_type_name`.
+**Until it exists the duct-first plan names a correction the library cannot hand to a lane** — and
+running `kOmegaSSTQCR` under the SST-QCRC entry instead is the exact name-match failure SCHEMA
+Addendum 2 was written to stop.
+
 **2026-09-05T~21:2xZ — ALL THREE EQUATION FORMS NOW VERIFIED; `equation_form_unverified` is
 FALSE ON EVERY ENTRY. Still 3 entries, all `REGISTERED`, `ladder_evidence_count` 0. ZERO COMPUTE
 (0 closure processes re-measured at this write; scratch renders from 2026-09-04 were GONE, L-186

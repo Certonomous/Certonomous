@@ -284,3 +284,49 @@ still on disk, and reason 1 is now **cited to Spalart p. 253** rather than asser
 A ladder record that applied TBRF to a duct and reported "the correction did not help" — without
 saying the model had never seen a duct and its features are degenerate there — would be a true
 sentence that misleads. That is the failure mode §4's named-exclusions rule was written against.
+
+---
+
+## 10. THIRD REFINEMENT OF §1, 2026-09-06 — THE DUCT NEEDS A `QCR2000` ENTRY THAT DOES NOT YET EXIST, AND THE READING THAT SHOWS WHY
+
+Ref. [3] Table 2 (PDF p. 11), read at 300 dpi by the supervisor, defines the feature the SST-QCRC
+correction actually uses: **`lambda_2 = tr(Omega_hat^2)`**, with `Omega_hat = Omega/(beta* omega)`
+and `beta* = 0.09`. That clears the `IMPLEMENTED` gate recorded against that entry.
+
+**The same table carries the sentence that matters more:** *"The 3rd and the 4th invariances are
+omitted because they are zero in 2D flows and our training set is 2D."*
+
+**So the `beta_CND` feature basis is truncated on a 2D premise** — `lambda_3` and `lambda_4` are
+dropped for being identically zero in 2D, which makes them precisely the invariants that are
+non-zero **only in 3D**. **The square duct is a 3D flow**; secondary flow of the second kind is the
+canonical 3D corner phenomenon. Carrying `beta_CND` to a duct is therefore an extrapolation of the
+kind **FS5, the standing extrapolation-coverage gate, exists to catch** — and it was visible only
+because the feature definitions were READ rather than cited.
+
+**This is now the SECOND time a data-driven entry has failed the duct on its feature set**, by a
+different mechanism each time, and both were found in the papers' own words:
+- **TBRF** — trained on no duct at all, and its five invariants measurably degenerate there
+  (3 of 5 approximately scaled versions of the other 2, p. 37). **An FS2 failure.**
+- **SST-QCRC's `beta_CND`** — feature basis truncated on a 2D premise, applied to a 3D flow.
+  **An FS5 exposure.**
+
+**Two independent literature confirmations that this team's two standing gates are not bureaucracy.
+They are the exact failures the published state of the art walks into.**
+
+**THE PLAN'S CONCLUSION SHARPENS AGAIN, AND IN THE SAME DIRECTION EVERY TIME.** §1 said the duct;
+§9 said the quadratic route ahead of the data-driven ones; this section names the artefact that is
+missing:
+
+> **The duct-first target is the QCR2000 correction ITSELF — Spalart 2000, unnumbered displayed
+> equation, printed p. 253, `c_nl1 = 0.3` — and it needs its OWN library entry, family (b), which
+> does not yet exist.** It is the only correction in reach that is (i) **not data-driven** — Wu &
+> Zhang state *"No data-driven techniques are used to train the parameters of the correction term"*;
+> (ii) **demonstrated by its own author on a square duct** — *"flow is induced towards the corners,
+> and the skin friction is much closer to experiment (Gessner et al., 1991)"*; (iii) **already
+> compiled on this box** as `kOmegaSSTQCR`, which genuinely implements that equation and may
+> therefore legitimately carry a non-`none` `model_type_name`; and (iv) **carrying its author's own
+> contraindication** — *"other flows such as 3D wall jets have led to negative results."*
+
+**NEXT ZERO-COMPUTE ITEM: write `entries/b_qcr2000_spalart2000.md`.** Until it exists, the duct-first
+plan names a correction the library cannot hand to a lane — and running `kOmegaSSTQCR` under the
+SST-QCRC entry instead would be the exact name-match failure SCHEMA Addendum 2 was written to stop.
