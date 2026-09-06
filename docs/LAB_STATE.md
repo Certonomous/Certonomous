@@ -37594,34 +37594,38 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
-**Section last written:** 2026-09-06, after the recoverability audit, the sweep, and the CASE_MAP false-scope corrections.
+**Section last written:** 2026-09-06, after freezing and queuing VMFL046-R5.
 
 ### Last commit
-`3765318f` — CASE_MAP coverage summary corrected (the "11 cases with no usable lab solver" line was false on three families).
+`f0af7407` — VMFL046-R5 L1/L2/L3 queued (frozen single-variable outlet experiment).
 
 ### Live jobs
-- **R5-build lane** (opus, agentId a0a9e695) — building the VMFL046-R5 registration for my freeze review: R4 byte-identical except a non-reflecting `waveTransmissive` outlet; reusing the §2aw-repaired comparator; also re-fetching+filing the Greenshields 2010 rhoCentralFoam paper. NO compute, NO freeze commit — returns for my check-4 + check-1.
-- No solver running. No queue row of mine pending.
+- **VMFL046-R5 — FROZEN (`a85b07eb`) and QUEUED** (L1/L2/L3 in `verification/queue/ansys-verification/`, all three ACCEPTED by the validator). Awaiting the OS runner. Run root created. Est 489.0 core-min, caps 27/183/1400.
+- No lane running; no solver running yet.
 
-### Sanaa's recoverability audit (4ae4b33) — ANSWERED and on record
-**Zero proven capability gaps in my territory. Not one non-PASS case is terminal.** Every fail is stopped at PROCESS class (§2an.5), none at model-form, so none has entered the closure ladder let alone exhausted it. The checkable register is `docs/ansys_verification/RECOVERABILITY_SWEEP.md` (20 cases; 9 successes, 2 recovered, 9 with a live fix path; each fail has a concrete next fix + source). Corrected two stale false-terminal claims in CASE_MAP (cavitation "out of scope" — solvers present, VMFL021-R2 GATE REACHED; and the "no solver" coverage line for VMFL072/VMFL034).
+### The freeze, and the checks behind it (all mine, personally)
+- **check-1 comparator:** `grade_vmfl046_r5.py` = blob `476de16a`, byte-identical to the R4 §2av/§2aw-repaired grader (selftest 67/67 under `python3` and `-O`). Gate/plateau/DELTA_X byte-for-byte R4's.
+- **check-1 driver (read in full as a diff):** sources OpenFOAM env before tool asserts (VMFL072 G-00 lesson); both-directions parity assert + file-set guard; rule-4 age guard; input-integrity vs HEAD; rc from the `timeout` subshell, no setsid trap; caps enforced twice, overrun → rc 124 → stop.
+- **single-variable confirmed:** `diff -rq` = exactly one changed file (`0/p`), one line (`fixedValue`→`waveTransmissive`, lInf 2.0 = geometric nozzle length, gate-blind).
+- **check-4:** registration complete; gate byte-identical (x_shock 1.250 m, band 5%, DELTA_X 6.25e-4), ceiling GATE REACHED (no PASS code path); cost from R4 measured basis (allowance in cap); `check_freeze_ready` all PASS except C7 WARN. Post-freeze blob==disk verified (rule 2). **Committed before compute.**
 
-### Verdicts (this session)
-- **VMFL046-R4 — NOT A RESULT** (register #61): 3 levels complete, no plateau (252-282× DELTA_X), triple OSCILLATORY. 489.0 core-min, VINDICATED. Reason is physics, not instrument. **Not proven a physical limit cycle** — R5 owes that.
+### VMFL046-R5 diagnostic logic (pre-committed, no gate widened in any branch)
+- (a) hunt collapses to plateau → the R4 hunt was OUTLET REFLECTION, a config artifact → GATE REACHED / GATE FAIL.
+- (b) still hunts → reflection not the cause → escalate to R6 (rhoCentralFoam: Kurganov + reconstruct(rho/U/T) vanLeer, maxCo 0.2, N4 replaced — rhoCentralFoam bounds T by TVD reconstruction, structurally lacks limitTemperature; verified at source).
+- (c) cap → NOT A RESULT budget class.
 
-### Rulings I made (durable record here; formal record rides the successor registration)
-- **VMFL034 disposition — RULED: NOT a capability gap; routes to VMFL034-R3.** Measurement: SIGFPE from a buoyancy-driven velocity runaway (NaN Re in SchillerNaumann `pow(Re,0.687)`) with gravity; CoV 3.65 = 36× threshold without. Named fixes, all confirmed present: `limitVelocity` fvOption (`src/fvOptions/corrections/limitVelocity`), CFL-limited transient, or frozen-flow re-scope (dilute α₂). The choice is provisional on one manual regime-check R3 must make WITHOUT widening the gate. A capability-gap filing becomes possible only if R3 exhausts all three and still yields no graded value — not now.
+### Sanaa's recoverability audit (4ae4b33) — ANSWERED
+Zero proven capability gaps (`docs/ansys_verification/RECOVERABILITY_SWEEP.md`). Two false-terminal CASE_MAP claims corrected (cavitation scope; the "no solver" coverage line). VMFL034 disposition RULED: not a gap, routes to R3.
 
-### Successors owed (the work plan; nothing terminal)
-- **VMFL046-R5** — building now (non-reflecting outlet, single-variable BC experiment). R6 pre-committed: rhoCentralFoam with the corrected tutorial recipe (Kurganov + reconstruct(rho/U/T) vanLeer + maxCo 0.2 — verified: rhoCentralFoam bounds T by TVD reconstruction, it structurally lacks limitTemperature). 
-- **VMFL072-R3** — dewetting remedy; keep anti-circularity (L-487); alt film model `kinematicSingleLayer` or precursor-film / VOF.
-- **VMFL034-R3** — per the ruling above.
-- **The backlog** — per-case next fixes in RECOVERABILITY_SWEEP.md; most are instrument refusals (fix the comparator, re-grade), a few are OSCILLATORY grid triples (monotone r=2 triples). VMFL036 is the one genuine physics candidate → routes into the §2an closure ladder, not a terminal.
+### Successors owed (nothing terminal)
+- **VMFL046-R6** — pre-committed in the R5 registration; fires only if R5 branch (b).
+- **VMFL072-R3** — dewetting remedy; keep anti-circularity (L-487); alt film model / precursor-film / VOF.
+- **VMFL034-R3** — per the ruling (limitVelocity / CFL / frozen-flow re-scope; manual regime-check without widening the gate).
+- **The backlog** — per-case fixes in RECOVERABILITY_SWEEP.md (mostly comparator repairs + monotone grid triples). VMFL036 → §2an closure ladder.
 
 ### On Sanaa's desk
-- **Nothing terminal, no capability gap** — because none is demonstrated.
-- The Greenshields 2010 rhoCentralFoam paper is being filed to `docs/papers/verification_validation/` (inbound; the R5 lane fetched it title-page-verified). I commit it after the lane returns.
+- Nothing terminal, no capability gap. Greenshields 2010 rhoCentralFoam paper filed inbound.
 
 ### Blocked
-- Nothing. R5's physics verdict awaits its build+freeze+run; that is queued work, not a block.
+- Nothing. R5 awaits runner pickup and its graded verdict.
 
