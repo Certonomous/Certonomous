@@ -1,0 +1,92 @@
+{
+  "rung": "T3f",
+  "case": "/home/ubuntu/Certonomous/verification/runs/T-family/T3_runs/R_fz",
+  "tol": 1e-06,
+  "keys": {
+    "H": 0.038,
+    "nu": 1.5e-05,
+    "Pr": 0.71,
+    "Prt": 0.85,
+    "dTdn_wall": 10000.0,
+    "T_in": 300.0,
+    "U_in": 10.35,
+    "endTime": 8000.0
+  },
+  "rows": [
+    {
+      "pair": [
+        "2000",
+        "4000"
+      ],
+      "T": {
+        "field": "T",
+        "state": "CONVERGED",
+        "field_range": 50.288972040586486,
+        "max_change": 1.6466985982788174e-05,
+        "relative": 3.2744725761143495e-07,
+        "why": null
+      },
+      "U": {
+        "field": "|U|",
+        "state": "NOT_CONVERGED",
+        "field_range": 11.032519380086915,
+        "max_change": 1.3984289312318765e-05,
+        "relative": 1.2675517559080504e-06,
+        "why": null
+      }
+    },
+    {
+      "pair": [
+        "4000",
+        "6000"
+      ],
+      "T": {
+        "field": "T",
+        "state": "CONVERGED",
+        "field_range": 50.28897890119595,
+        "max_change": 1.4149855928735633e-05,
+        "relative": 2.8137091342690054e-07,
+        "why": null
+      },
+      "U": {
+        "field": "|U|",
+        "state": "NOT_CONVERGED",
+        "field_range": 11.032519380051271,
+        "max_change": 1.1795364486921756e-05,
+        "relative": 1.0691451408868443e-06,
+        "why": null
+      }
+    },
+    {
+      "pair": [
+        "6000",
+        "8000"
+      ],
+      "T": {
+        "field": "T",
+        "state": "CONVERGED",
+        "field_range": 50.28898481497271,
+        "max_change": 1.2152255180808424e-05,
+        "relative": 2.416484489698884e-07,
+        "why": null
+      },
+      "U": {
+        "field": "|U|",
+        "state": "CONVERGED",
+        "field_range": 11.032519380021185,
+        "max_change": 9.926867636345094e-06,
+        "relative": 8.997824789070102e-07,
+        "why": null
+      }
+    }
+  ],
+  "verdict": "PASS",
+  "predictions": {
+    "P-1": "HIT",
+    "P-2": "HIT",
+    "P-3": "HIT",
+    "P-4": "HIT"
+  },
+  "triple": "NONE -- one mesh; rule 5 clause (1) only",
+  "gci": "NOT COMPUTED, NOT QUOTED, NOT DERIVABLE"
+}
