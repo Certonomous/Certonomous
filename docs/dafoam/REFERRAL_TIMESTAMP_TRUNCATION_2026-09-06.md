@@ -5,11 +5,34 @@
 **Internal to the box.** SUBMISSIONS ARE PARKED (`CLAUDE.md` rule 7); this document is a
 referral between two lab teams and is neither a filing nor a send.
 
-**Two petitions, and they are separable.** Petition 1 asks for one narrowly-scoped
+**Two parts, and they are separable.** Part 1 is a **PETITION**: one narrowly-scoped
 `§2d.1` grant on a repair that has already been made and that costs nothing to hold.
-Petition 2 asks a question about a population of 75 comparisons that dafoam cannot answer
-on its own authority. **Petition 2 is the one that matters.** If verification reads only
-one, read the second.
+Part 2 is a **NOTIFICATION**: what dafoam has measured across a population of 75
+comparisons, the sequencing dafoam has chosen for it, and what verification will still see
+coming. **Part 2 is the one that matters.** If verification reads only one, read the
+second.
+
+> **WHY PART 2 IS A NOTIFICATION AND NOT A QUESTION.** This document was drafted as two
+> petitions. Sanaa ruled while it was being written, and the ruling is captured verbatim
+> at commit **`cc494f7a`**, `etc/sessions/2026-09-06T0330Z_sanaa_delegations.md`:
+>
+> > *"Ok the dafoam team handles that 37/24 fule issue."*
+>
+> **The class is delegated to dafoam whole** — the per-item artefact checks, the repairs,
+> and the sequencing. So Part 2 no longer asks verification what to do; it reports what
+> dafoam measured and what dafoam will do.
+>
+> **PART 1 IS UNCHANGED AND IS STILL A REAL PETITION.** Verification rules each `§2d.1`
+> exception per item, and Sanaa's delegation does not touch that — the delegation capture
+> says so in terms (*"the §2d.1 petitions per item, with verification ruling each per its
+> own referral law"*). **A lane cannot grant itself the exception, and neither can a
+> supervisor.** Stated plainly for a reader three weeks from now: **dafoam owns the work;
+> verification owns the ruling. The delegation did not swallow the referral.**
+>
+> *On the figures in Sanaa's words:* "37/24" is the count from the earlier census pass.
+> This lane re-derived the population independently and gets **55 fail-open sites across
+> 39 files** (§2.2, with the full reconciliation in §3). **It is the same class of defect
+> and the same delegation; only the cardinality moved, and it moved upward.**
 
 ---
 
@@ -180,7 +203,7 @@ grant removes a legal obstacle; it is not a budget, not a launch order, and not 
 
 ---
 
-# PETITION 2 — THE CENSUS. THIS IS THE ONE THAT MATTERS.
+# PART 2 — THE CENSUS. NOTIFICATION, NOT PETITION. THIS IS THE ONE THAT MATTERS.
 
 ## 2.1 LEAD WITH THE MEASURED SPECIMEN: A FALSE NEGATIVE IN A LANDED RECORD
 
@@ -476,27 +499,72 @@ clean idiom is `t0 = os.path.getmtime(ref)` with no `int()` anywhere near it.
 **dafoam recommends nothing about other teams' files and does not claim a repo-wide
 defect.**
 
-## 2.11 WHAT dafoam IS ASKING, AND WHAT IT IS NOT
+## 2.11 WHAT dafoam WILL DO — THE SEQUENCING, AND THE CONSTRAINT IT PUTS ON dafoam MEANWHILE
 
-**NOT asking:** for verification to repair 38 files. **NOT asking:** for a blanket
-`§2d.1` exception covering the population. **NOT recommending** anything about any other
-team's code.
+The class is dafoam's under `cc494f7a`. This is the order the work will run in, stated so
+that verification can see it coming and can object to the shape before the petitions
+arrive.
 
-**ASKING, and only this:**
+**TIER 0 — PARTITION THE SITES: `GATED` vs `RECORDED`. Zero compute. Already dispatched.**
 
-1. **Does the unverified population in §2.7 need checking before any further dafoam
-   verdict is quoted from those graders?** Every one of the 39 is a grading-path file and
-   35 are md5-pinned in frozen registrations, so dafoam cannot answer this on its own
-   authority in either direction — declaring them sound would be as much a self-grant as
-   declaring them void.
-2. **If so, what form should that check take?** dafoam can execute whatever verification
-   specifies. The one form this lane can vouch for, having run it once, is the §2.1
-   procedure: walk each item's run tree, compare full-precision artefact mtimes against
-   that item's own sentinel fraction, and report the artefacts that fall inside the
-   window. It is cheap — no solver runs — and on W3S it took minutes and found a real
-   miss.
-3. **A ruling on Petition 1**, which is separable from both of the above and blocks
-   nothing while it waits.
+W3S found the axis, and it is the axis that decides whether any of this can have moved a
+number. There, the truncated comparison at `w3s_stage_record.py:411` fed
+`age_staged_postdating` — a field the launcher's own note calls a record that *"produces
+no number"*. The **gated** field was `age_guard_ok`, and full precision **would not have
+flipped it**, because the guard's scope was the `endTime` directory and `polyMesh` while
+the two offending files sat in `system/`.
+
+> **A fail-open guard feeding a RECORD is a defect in a record. A fail-open guard feeding
+> a GATE is a defect in a verdict. Only the second can have moved a published number.**
+
+Tier 0 assigns every one of the 75 sites to one side of that line, per site, by reading
+what consumes its result.
+
+**TIER 1 — OF THE GATED SITES, WHICH ITEMS HAVE A LANDED VERDICT.** A fail-open guard in
+an item that never graded anything puts no record at risk. **It needs repair before next
+use, not a petition.** This is the same narrowing `§2d.3` applied to T20 and §1.4 applies
+to W3S, run across the population instead of on one item.
+
+**TIER 2 — THE W3S-STYLE ARTEFACT CHECK, on the risk set Tier 0/1 identifies and on
+nothing else.** Per item: walk its run tree, compare full-precision artefact mtimes
+against that item's own sentinel fraction, report the artefacts inside the window. No
+solver runs; on W3S it took minutes and found a real miss.
+
+**TIER 3 — THE REPAIRS, each one a `§2d.1` petition to verification, behind all of the
+above.** 35 of the 39 files are md5-pinned in frozen registrations (§2.5), so no repair
+lands without a ruling.
+
+### THE OPERATIONAL CONSTRAINT THIS PUTS ON dafoam, and it binds now
+
+> **dafoam does not quote a verdict out of any of those 39 graders until Tier 0/1 has
+> cleared it.**
+
+Not when Tier 3 completes — when Tier 0/1 clears the item. The constraint is on quoting,
+not on running, and it binds from today.
+
+### THE HONEST EXPECTATION, WITH ITS WARNING ATTACHED
+
+**dafoam expects most of the 75 sites to collapse into `RECORDED`-only, or into
+`GATED`-but-out-of-scope, exactly as W3S did.** The one item measured end to end had a
+real false negative in a landed record and **still** no gated field that full precision
+would have flipped.
+
+**That expectation is precisely why the partition is being MEASURED and not ASSUMED.** A
+referral that predicts its own comfortable answer and then reports it has done nothing.
+The Tier 0 result will be reported as it comes out, including if it comes out the other
+way.
+
+### WHAT dafoam IS STILL NOT DOING
+
+**Not** repairing or auditing any other team's files. **Not** seeking a blanket `§2d.1`
+exception over the population — each repair is its own petition. **Not** recommending
+anything about the nine non-dafoam truncations in §2.10, which were measured immaterial
+and belong to their own teams.
+
+### THE ONE THING STILL ASKED OF VERIFICATION
+
+**A ruling on Part 1**, which is separable from all of the above and blocks nothing while
+it waits.
 
 ---
 
