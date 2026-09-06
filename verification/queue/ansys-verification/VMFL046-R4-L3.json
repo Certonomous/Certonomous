@@ -1,0 +1,41 @@
+{
+  "team": "ansys-verification",
+  "case_id": "VMFL046-R4-L3",
+  "prereg_commit": "d4243c03bd6d0c301947193ad4a5df40ae7611b4",
+  "prereg_path": "cases/ansys_verification/VMFL046-R4/PREREGISTRATION.md",
+  "grading_freeze": [
+    "cases/ansys_verification/VMFL046-R4/grade_vmfl046_r4.py"
+  ],
+  "grading_freeze_note": "Comparator blob e09bbf3cea03c633a7dbd6b04365bfc7fe2d9ca2, pinned in the registration and repeated here verbatim so the daemon verifies WITHOUT trusting the registration.",
+  "launch_cmd": [
+    "bash",
+    "-c",
+    "exec bash /home/ubuntu/Certonomous/cases/ansys_verification/VMFL046-R4/run_vmfl046_r4.sh /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL046-R4 L3"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL046-R4",
+  "ranks": 1,
+  "cost_core_min_estimate": 465.99,
+  "cost_basis": "Level L3. Filed 465.99 core-min, cap 1400. THE BASIS IS CAUSAL, NOT MERELY BIGGER: R3 filed this campaign from probes covering 10% of the graded clock and came in 3.09x low at L3, and the mechanism is measured -- R3's L3 probe read an equilibrium deltaT of 1.8921e-06 s where the run's actual mean was 5.5e-07 s, so the probe was 3.4x too COARSE. R4's method is the measured cost to the time R3 reached PLUS the remaining physical time priced at that run's own SETTLED-TAIL rate, cross-checked against plain linear extrapolation and agreeing to 0.11% at L3. Per-step cost FALLS through every level (-4.6/-6.3/-7.1%), so extrapolating from 99.2% is conservative. Campaign method 487.00, filed 536 (1.101x, the disclosed contention allowance), caps 1610. Serial RANKS=1. $0.458 at estimate DERIVED at $0.0513/core-h owner-stated -- NOT measured.",
+  "memory_floor_gb": 1.0,
+  "_probe_floor": "PROBE_FLOOR = 0.25 of the graded clock is a FROZEN CONSTANT CHECKED AT MODULE IMPORT -- the comparator REFUSES TO LOAD on a short cost basis, and the selftest exercises that refusal against R3's own 0.10. Calibrated, not asserted: worst extrapolation error 74.8%% at f=0.10, 6.6%% at 0.175, 4.7%% at 0.20, 8.7%% at 0.25. Registered at 0.25 rather than the measured edge because a floor at its edge leaves no margin, and because 0.25 is this campaign's own positive control (L1's probe, 0.845x). Second half, uncalibrated and registered as such: a rate must be built from the SETTLED-TAIL rate, never the run-average, which is -15%% to -81%% wrong at every fraction up to 0.75.",
+  "_window_repair": "R3 called shock_series() on the complete 160-sample history then sliced; the registered window is 33 samples, so 127 could change no graded number and any one could REFUSE the grade -- one did, on a t=0.0005 sample where no shock exists. R4 selects the window BEFORE any file is opened, RECORDS every path before opening it, and refuses on an out-of-window read AND on an EMPTY AUDIT so the property cannot be vacuously true. A BIT-IDENTITY arm grades the same history both ways and compares every output with == rather than a tolerance: no graded number moves.",
+  "_supervisor_rulings": "(1) RE-RUN ALL THREE FROM SCRATCH. R3's L1 completed and its samples are on disk, so the L1 gate quantity is computable today -- and a registration frozen after a predecessor's completed run carries less section-37.2 weight. 8.05 core-min is 1.5%% of the campaign; a clean frozen-before-the-data claim is worth it. My earlier board note that L1's compute was banked is WITHDRAWN. (2) KEEP THE ~3x CAP. It puts L3's wall ceiling at 23.3 h against an expected 7.1 h, and the lane declined to tighten it because that moves a cap on judgment rather than on the rule. Section 27's trap was a cap at 3x an UNDER-filed estimate; this estimate is honest and cross-checked, so 3x is headroom, not a strangler.",
+  "enqueued_by": "ansys-verification-supervisor. check_freeze_ready.py rc 0, all seven PASS. Verified personally: selftest rc 0 under BOTH python3 and python3 -O with ZERO bare asserts; my own mutant of the plateau conjunction caught at rc 1 under BOTH; all 13 pins re-derived after the last edit with 11 case blobs identical to R3's; bare-environment Clause-B smoke rc 0. NOTE: the queue runner does NOT enforce a registered cap (D539, advisory, OFF) -- what killed R3's L2/L3 was the DRIVER'S OWN timeout, and R4 relies on the same mechanism.",
+  "_field_classes": {
+    "physics_critical": [
+      "RUN_RC captured inside the detached wrapper",
+      "each level's End line, endTime fields and the age guard",
+      "the plateau limbs P1/P2/P3 on x_shock",
+      "the read audit",
+      "plants"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.utc",
+      "LAUNCH_LOG.tsv row",
+      "cost_core_min_estimate",
+      "runner.log lines"
+    ],
+    "rule": "a missing INFRASTRUCTURE field is a BOOKKEEPING DEFECT voiding only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
+}
