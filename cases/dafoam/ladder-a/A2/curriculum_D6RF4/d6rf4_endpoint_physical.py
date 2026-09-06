@@ -92,7 +92,7 @@ import d6rf4_endpoint_locus as locus                                # noqa: E402
 EXTRACTOR = "d6rf4_extract_endpoint.py"
 RUNSCRIPT = "d6rf4_opt_runScript.py"
 # PREREGISTRATION.md section 7.  These are the FREEZE, not a preference.
-MD5_EXTRACT = "7adc049421cce82f021603bbbe93dd1e"
+MD5_EXTRACT = "c5aace65e1830fddace55e1bac2761c9"  # repinned 2026-09-06 (S-95, rule-2 bullet 1); the extractor is c5aace65, sole stale pin of 22 (three-way audit)
 MD5_RUNSCRIPT = "137539e0a99be27f27fdb69e063b2a87"
 
 SCALED_OUT = "d6rf4_endpoint_dvs.json"                 # the frozen extractor writes this

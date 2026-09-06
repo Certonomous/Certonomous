@@ -334,7 +334,7 @@ MD5_LOCUS6=341189ca866f302a7e1bba8eefad3a57
 # because `d6rf4_endpoint_physical.py`'s C3 gained the rule-14 assertion that its
 # `--age-datum` carries a fractional part, and its evidence line now prints
 # `%.6f` and the margin instead of `%.0f` (a 121 ms margin was not displayable).
-MD5_PHYS6=63dc60f020da6f25d6a1a75f2d994389
+MD5_PHYS6=c09094a098f993430185d17e2cb4a0f5
 MD5_UNITS=8ee53841aed3dfd10f2cf414be39518a
 MD5_ANCHOR_GATE=f5a5216a557ff8c34ac084c96feabc39
 # THE TWO fvSolution FILES, AND THE WHOLE ITEM TURNS ON THEM.

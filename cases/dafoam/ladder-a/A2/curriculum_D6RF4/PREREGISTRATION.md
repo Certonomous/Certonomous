@@ -1083,3 +1083,28 @@ dafoam-supervisor to answer for, not to a lane to soften.**
 of `PREREGISTRATION.md` before this heading are byte-identical after it (`cmp -n 78295` clean).
 
 **SUBMISSIONS PARKED.**
+
+---
+
+## AMENDMENT — 2026-09-06T18:32:48Z — **THE STALE `MD5_EXTRACT` PIN REPINNED (rule-2 bullet 1, under §2ax), AND ITS CALL SITE `MD5_PHYS6` WITH IT (rule 14). THIS IS THE LAUNCH-4 C1 ABORT, CLOSED.**
+
+**LAWFUL PRE-FIRST-COMPUTE AMENDMENT under `CLAUDE.md` rule 2 bullet 1, per charter §2ax (`8fc91c91`).** §2ax: *a container that starts and aborts with no time directory beyond `0/` — zero iterations, no gradeable artefact — has NOT reached first compute; gates stay open; a pre-compute amendment self-applies.*
+
+**§2ax's two riding requirements, both discharged in THIS amending invocation:**
+1. **No-first-compute VERIFIED AT SOURCE, not from a status file** (status fields have lied about solver state twice tonight): the authoritative run root **`/home/ubuntu/certonomous-runs/CURRICULUM-D6RF4-a2-wing-convergence-probe`** holds **only `0/` staging — 0 time directories beyond `0`, and its one P_conv log is 521 bytes with 0 `Time`/primal/SIMPLE lines.** No solver iteration ran.
+2. **The run root checked is recorded above, by name.**
+
+### THE DEFECT AND ITS THREE-WAY PROOF
+Launch 4 started a container (3 s) and refused  at `d6rf4_endpoint_physical.py`'s C1 check: it pinned the extractor as `7adc0494…` while `d6rf4_extract_endpoint.py` is **`c5aace65…`**. A **static audit of all 22 md5 pins** in the item proved this the **sole stale pin**, and the outlier three ways: the extractor's own disk md5, the launcher's `MD5_EXTRACT6` (`:331`), and this pin — the agreeing pair is launcher+disk. Its origin: the instrument-build commit `bb7f3ad3` carried a D6RF3-era value, and my own 16:20Z age-datum repair `786d5850` **edited this file and re-derived its OWN md5 but not its internal pin of a different instrument** — the exact rule-14 shape.
+
+### THE REPIN, AND ITS CALL SITE — rule 14, IN ONE COMMIT
+* `d6rf4_endpoint_physical.py:95`: `MD5_EXTRACT` **`7adc0494…` → `c5aace65…`** (the extractor's actual md5).
+* **This changed `endpoint_physical.py`'s own md5 to `c09094a098f993430185d17e2cb4a0f5`, so its call site — the launcher's `MD5_PHYS6` pin OF this file (`d6rf4_run_arm.sh:337`) — moved WITH it: `63dc60f0… → c09094a098f993430185d17e2cb4a0f5`.** *A pin fixed without its call site is the next stale pin;* rule 14 is applied at both. New launcher md5 `af7d8c56bec6b11a7823e8714b4157d9`.
+
+### LAWFULNESS AND SCOPE
+No gate, threshold, band, cap, deadline, ceiling, verdict or label moves — a stale md5 corrected to the actual file's md5. **Neither edited file is one of the four gated `grading_freeze` comparators** (`d6rf4_grade.py`, `d6rf4_accept_floor_control.py`, `d6rf4_cd_plant_control.py`, `d6rf4_endpoint_locus.py`), so `G-FREEZE` is untouched. `PERMISSION` at `:97` untouched, assignment count 1. Append-only to this document; lines renumbered above this section: 0, proved on bytes by `cmp -n`.
+
+### AFTER THIS, THE DRIP IS CLOSED
+The audit proved no second stale pin: after this repin, C2 (runscript, four-way consistent), `fd_endpoint`'s `PRODUCER_MD5`, and G-ANCHOR are all already current. **The next launch clears instrument verification and reaches the primal — where `ACCEPT_FLOOR_UNMOVED` fires for the first time.** The run root will be cleared for a clean re-fire (the launcher's S1 refuses a pre-existing arm dir by design).
+
+**SUBMISSIONS PARKED.**
