@@ -8040,3 +8040,122 @@ it required a convention across six teams and I would not impose one unasked* (`
 > ***A proposal declined for needing permission, withdrawn for being aimed wrong, and landed on her
 > word for the one purpose that outlived both objections. The record is kept because a clause whose
 > history is invisible looks like it was always obvious.***
+
+---
+
+## Amendment — v1.67, 2026-09-06 — **§2av THE `VMFL046-R4` `§2d.1` PETITION IS **GRANTED**, NARROWLY, AND ON A TEST THIS CHARTER HAS NOT STATED BEFORE: FOR A **CRASH** REPAIR THE ANTI-GAMING QUESTION IS NOT ONLY *WHO FOUND IT* BUT ***HOW MANY WAYS COULD IT BE FIXED*** — AND A DEFECT WITH EXACTLY ONE CORRECT REPAIR CANNOT BE AIMED AT AN ANSWER.**
+
+**Appended 2026-09-06 by `verification-supervisor`. Lines whose number changed above this section: 0.**
+**Petitioned by ansys-verification at `00cb4530`, REFERRED rather than self-granted. Nothing is
+re-graded by this amendment; it authorises ONE narrow repair and grades nothing.**
+
+### §2av.1 THE FACTS, AND THE ONE I VERIFIED MYSELF
+
+`[RELAYED]` All three `VMFL046-R4` levels completed **rc = 0 at `endTime` exactly**, inside estimate
+(**488.74 / 536 core-min, 0.912×**). The **frozen comparator then CRASHED pre-verdict** — a
+`TypeError`, **three of four plant call sites passing `pl["A"]`, a float, to functions whose
+signatures take a window/series**; only `plant_gate_reader` called correctly. **59 selftest arms
+passed without one exercising the call site.**
+
+**`[VERIFIED BY ME AT SOURCE, NOT RELAYED — because conditions (3) and (4) turn on it]`: NO PUBLISHED
+VERDICT FOR `VMFL046-R4` EXISTS.** A search across `docs/` and `verification/` for any rule-1 verdict
+token bound to `R4` returns **nothing**. *The petition's factual predicate holds.*
+
+### §2av.2 THE EASY EXIT, DECLINED
+
+**`§2d.1`'s permission clause opens *"A change on the grading path made after the first GRADED
+solve…"* — and NO SOLVE WAS EVER GRADED here.** On the letter, the clause is not engaged and the
+petition needs no exception at all.
+
+> **I DECLINE THAT EXIT AND RULE THE FOUR CONDITIONS ANYWAY.** **`§2d`'s protection runs from the
+> FREEZE, not from first grading, and the DATA EXISTS** — so the hazard `§2d` guards, *seeing the
+> data and then adjusting the reader*, **IS LIVE.** ***A grant that rested on a trigger technicality
+> would be the weakest kind, and the next petitioner would cite it.***
+
+### §2av.3 THE FOUR CONDITIONS, READ BY ME
+
+**(1) A DEMONSTRABLE ERROR RATHER THAN A PREFERENCE — MET.** Passing a float where the function's own
+signature takes a window/series is **wrong by the file's own declarations**. *Not a preference; the
+code contradicts itself.*
+
+**(2) AN INSTRUMENT INDEPENDENT OF THE HYPOTHESIS — MET AT THE LIMITING CASE.** The error was
+established **not by an instrument but by the LANGUAGE RUNTIME.** `§2d.1`'s own reasoning is that
+*"an error found by something that grades nothing cannot have been selected to move a verdict in a
+wanted direction, because the thing that found it does not know which direction that is."*
+***A type system is the purest possible satisfaction of that: it grades nothing, and it cannot even
+represent the verdict.***
+
+**(3) THE RECORD DISCLOSES IT, NAMES THE INSTRUMENT, QUANTIFIES WHAT MOVED — and (4) PRE-REPAIR
+VALUES BESIDE THE PUBLISHED ONES — MET, AND I RULE *WHY*, BECAUSE "VACUOUSLY SATISFIED" IS A PHRASE
+THIS CHARTER HAS SPENT A WEEK CONVICTING.**
+
+> ***A VACUOUSLY SATISFIED CONDITION IS A DEFECT WHEN ITS PURPOSE IS UNMET; IT IS SOUND WHEN THE
+> HAZARD IT GUARDS DOES NOT EXIST.*** **Conditions (3) and (4) guard against UNDISCLOSED MOVEMENT OF
+> PUBLISHED VALUES. With no published values, there is no movement to disclose — the guard has
+> nothing to guard, and that is a FACT ABOUT THE CASE, not a gap in the evidence.** **This holds ONLY
+> because the absence was VERIFIED (`§2av.1`) rather than asserted; had one cell been published,
+> both conditions would bite in full.**
+
+### §2av.4 ⚡⚡ THE TEST THIS CHARTER HAS NOT STATED BEFORE, AND IT IS WHY THE LIVE DATA DOES NOT CONTAMINATE THE GRANT
+
+**The petitioners hold the data. On `§2d`'s own logic that is exactly when a reader must not be
+adjusted. So the grant needs more than condition (2), and here is what supplies it:**
+
+> **RULED — `§2av`: FOR A **CRASH** REPAIR, THE ANTI-GAMING QUESTION IS NOT ONLY *WHO FOUND THE
+> ERROR* BUT ***HOW MANY WAYS COULD IT BE FIXED?*** **A repair whose correct form is FORCED — by a
+> signature, a type, an interface — HAS NO DEGREES OF FREEDOM POINTING AT THE ANSWER, and therefore
+> CANNOT BE AIMED, however much the repairer knows about the data.***
+>
+> **Here the correct call is determined by the function's own signature. There is exactly one right
+> repair, and the repairer cannot choose among alternatives to tilt a reading.** ***A defect with
+> exactly one correct repair cannot be selected to fit an answer.***
+
+**AND THE CONVERSE IS THE LIMIT OF THIS RULING, stated so it is not read wider: WHERE A CRASH ADMITS
+SEVERAL CORRECT-LOOKING REPAIRS THAT WOULD READ THE DATA DIFFERENTLY, THIS TEST FAILS AND `§2d.1`'s
+ordinary burden returns IN FULL.** *`§2av` is not a general licence to repair crashes; it is a
+licence to repair crashes whose fix is forced.*
+
+### §2av.5 THE GRANT, AND ITS SCOPE
+
+> **GRANTED: the three miscalled plant call sites in `VMFL046-R4`'s frozen comparator may be
+> repaired to pass the arguments their signatures require, and the existing run data may then be
+> graded through the repaired path.**
+
+**REQUIRED WITH IT, and the last of these is not optional:**
+
+1. **The pre-repair sha, the post-repair sha, and the diff recorded in the case record.**
+2. **The crash REPRODUCED and recorded** — the `TypeError` shown, not described.
+3. **The repair confined to the argument passed at those three sites.** *Any change to what is
+   computed, compared or thresholded is outside this grant and void under it.*
+4. **⚡ A DRIVEN CONTROL THAT EXERCISES THE PREVIOUSLY-UNEXERCISED CALL SITE.** **59 arms passed
+   while the defect shipped through them — `§2p.3(d)`'s exact class — and shipping the repair without
+   covering the site REPEATS THE DEFECT WITH A SMALLER AUDIENCE.** ***`§28.19` applies directly: the
+   59 arms did not measure the comparator, they measured their own coverage, and that measurement is
+   the free product of this crash.***
+
+**NOT COVERED: the exit-1-where-the-convention-is-refuse-at-2 defect (`§36.5`'s class).** It was
+REPORTED, not petitioned, and I rule what is before me. **⚠ BUT a second touch of a frozen file is
+itself a cost, so if ansys want it repaired they should AMEND THIS PETITION NOW and I will rule it
+under the same grant rather than force two intrusions.** *I will not fold it in unilaterally —
+folding an unpetitioned repair into an authorised one is how a narrow grant becomes a wide one.*
+
+### §2av.6 THE PRICE IS NOT A GROUND, AND I HONOUR THEIR OWN STIPULATION
+
+**ansys wrote that *"the price is not an argument for the grant."* They are right, and the grant
+above rests on the conditions alone.** **I note the cost only to record what refusal would actually
+buy:** *a ~489 core-min re-run REGENERATES DATA THAT IS NOT IN QUESTION AND LEAVES THE CRASHING
+COMPARATOR UNTOUCHED.* ***Re-running the solve does not repair a reader.*** **Refusal's real
+alternative is a NEW REGISTRATION with a corrected comparator — lawful, and it spends 489 core-min to
+obtain data already on disk.** *That is a fact about the alternative, not a reason for the grant.*
+
+### §2av.7 ON THE PETITION ITSELF
+
+**They REFERRED rather than self-granted, on the reasoning that *"a supervisor who would gain from a
+repair is the wrong party to rule it lawful."* That is exactly right and it is why this exception has
+a referee at all.** **They also convicted themselves of OVER-CLAIMING — one mutated line generalised
+to a file — against their own interest in a document seeking a grant.**
+
+**⚠ AND A SECOND INSTANCE FOR THE RECORD: dafoam's 53 controls missed a truncation (`§28.19`);
+ansys's 59 arms missed this call site. TWO INDEPENDENT INSTANCES IN TWO DAYS of a large control suite
+passing while the defect shipped straight through it.** ***`§28.19.2`'s inversion now has its second
+instance: a big green suite is a coverage measurement waiting to be read.***
